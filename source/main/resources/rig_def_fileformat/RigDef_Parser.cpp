@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2016 Petr Ohlidal & contributors.
+    Copyright 2013+     Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -19,11 +19,9 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
-    @file   RigDef_Parser.cpp
-    @author Petr Ohlidal
-    @date   12/2013
-*/
+/// @file
+/// @author Petr Ohlidal
+/// @date   12/2013
 
 #include "RigDef_Parser.h"
 
@@ -1406,7 +1404,7 @@ void Parser::ParseDirectiveSetNodeDefaults()
 
 void Parser::_ParseNodeOptions(unsigned int & options, const std::string & options_str)
 {
-	options = 0;
+    options = 0;
 
     for (unsigned int i = 0; i < options_str.length(); i++)
     {
@@ -1510,7 +1508,7 @@ void Parser::ParseDirectiveSetBeamDefaults()
     if (m_num_args > 6) { d.beam_material_name     = this->GetArgStr  (6); }
     if (m_num_args > 7) { d.plastic_deform_coef    = this->GetArgFloat(7); }
 
-	if (m_num_args > 7 && d.plastic_deform_coef >= 0.0f) { d._is_plastic_deform_coef_user_defined = true; }
+    if (m_num_args > 7 && d.plastic_deform_coef >= 0.0f) { d._is_plastic_deform_coef_user_defined = true; }
 
     if (d.springiness           < 0.f) { d.springiness           = DEFAULT_SPRING;                              }
     if (d.damping_constant      < 0.f) { d.damping_constant      = DEFAULT_DAMP;                                }

@@ -1,35 +1,32 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.org/
+    For more information, see http://www.rigsofrods.org/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#ifndef __Dashboard_H__
-#define __Dashboard_H__
 
 #include <Ogre.h>
 
 #include "RoRPrerequisites.h"
 
 // Forward
-namespace Ogre
-{
-	class Overlay;
+namespace Ogre {
+class Overlay;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -42,39 +39,37 @@ class Dashboard : public ZeroedMemoryAllocator
 {
 public:
 
-	Dashboard();
-	~Dashboard();
+    Dashboard();
+    ~Dashboard();
 
-	void setEnable(bool en);
-	void prepareShutdown();
+    void setEnable(bool en);
+    void prepareShutdown();
 
 private:
 
-	DashboardListener *mDashboardListener;
-	Ogre::Camera *mDashCam;
-	Ogre::RenderTexture *rttTex;
+    DashboardListener* mDashboardListener;
+    Ogre::Camera* mDashCam;
+    Ogre::RenderTexture* rttTex;
 };
 
 class DashboardListener : public Ogre::RenderTargetListener, public ZeroedMemoryAllocator
 {
-	friend class Dashboard;
+    friend class Dashboard;
 public:
 
-	DashboardListener();
+    DashboardListener();
 
-	void preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt);
-	void postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt);
+    void preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt);
+    void postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt);
 
 private:
 
-	Ogre::Overlay *blendOverlay;
-	Ogre::Overlay *dashOverlay;
-	Ogre::Overlay *fpsOverlay;
-	Ogre::Overlay *needlesOverlay;
-	Ogre::Overlay *truckHUDOverlay;
-	bool consolevisible;
-	bool fpsDisplayed;
-	bool truckhHUDvisible;
+    Ogre::Overlay* blendOverlay;
+    Ogre::Overlay* dashOverlay;
+    Ogre::Overlay* fpsOverlay;
+    Ogre::Overlay* needlesOverlay;
+    Ogre::Overlay* truckHUDOverlay;
+    bool consolevisible;
+    bool fpsDisplayed;
+    bool truckhHUDvisible;
 };
-
-#endif // __Dashboard_H__

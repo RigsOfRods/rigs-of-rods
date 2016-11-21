@@ -30,7 +30,9 @@ class ForceFeedback
 {
 public:
 
-    ForceFeedback(): m_device(nullptr), m_hydro_effect(nullptr), m_enabled(false) {}
+    ForceFeedback(): m_device(nullptr), m_hydro_effect(nullptr), m_enabled(false)
+    {
+    }
 
     void Setup();
     void SetEnabled(bool v);
@@ -42,10 +44,9 @@ public:
     void SetForces(float roll, float pitch, float wspeed, float dircommand, float stress);
 
 private:
-    OIS::ForceFeedback*     m_device;
-    OIS::Effect*            m_hydro_effect;
-    bool                    m_enabled; /// Disables FF when not in vehicle
+    OIS::ForceFeedback* m_device;
+    OIS::Effect*        m_hydro_effect;
+    bool                m_enabled; /// Disables FF when not in vehicle
 };
 
 } // namespace RoR
-

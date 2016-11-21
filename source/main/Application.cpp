@@ -1,26 +1,26 @@
 /*
-	This source file is part of Rigs of Rods
-	Copyright 2013-2016 Petr Ohlidal
+    This source file is part of Rigs of Rods
+    Copyright 2013-2016 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.org/
+    For more information, see http://www.rigsofrods.org/
 
-	Rigs of Rods is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License version 3, as
-	published by the Free Software Foundation.
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
 
-	Rigs of Rods is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-	GNU General Public License for more details.
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
 /** 
-	@file   Application.cpp
-	@author Petr Ohlidal
-	@date   05/2014
+    @file   Application.cpp
+    @author Petr Ohlidal
+    @date   05/2014
 */
 
 #include "Application.h"
@@ -351,93 +351,93 @@ void SetMainThreadLogic(MainThread* obj) { g_main_thread_logic = obj; }
 
 void StartOgreSubsystem()
 {
-	g_ogre_subsystem = new OgreSubsystem();
-	if (g_ogre_subsystem == nullptr)
-	{
-		throw std::runtime_error("[RoR] Failed to create OgreSubsystem");
-	}
+    g_ogre_subsystem = new OgreSubsystem();
+    if (g_ogre_subsystem == nullptr)
+    {
+        throw std::runtime_error("[RoR] Failed to create OgreSubsystem");
+    }
 
-	if (! g_ogre_subsystem->StartOgre("", ""))
-	{
-		throw std::runtime_error("[RoR] Failed to start up OGRE 3D engine");
-	}
+    if (! g_ogre_subsystem->StartOgre("", ""))
+    {
+        throw std::runtime_error("[RoR] Failed to start up OGRE 3D engine");
+    }
 }
 
 void ShutdownOgreSubsystem()
 {
-	assert(g_ogre_subsystem != nullptr && "ShutdownOgreSubsystem(): Ogre subsystem was not started");
-	delete g_ogre_subsystem;
-	g_ogre_subsystem = nullptr;
+    assert(g_ogre_subsystem != nullptr && "ShutdownOgreSubsystem(): Ogre subsystem was not started");
+    delete g_ogre_subsystem;
+    g_ogre_subsystem = nullptr;
 }
 
 void CreateContentManager()
 {
-	g_content_manager = new ContentManager();
+    g_content_manager = new ContentManager();
 }
 
 void DestroyContentManager()
 {
-	assert(g_content_manager != nullptr && "DestroyContentManager(): ContentManager never created");
-	delete g_content_manager;
-	g_content_manager = nullptr;
+    assert(g_content_manager != nullptr && "DestroyContentManager(): ContentManager never created");
+    delete g_content_manager;
+    g_content_manager = nullptr;
 }
 
 void CreateOverlayWrapper()
 {
-	g_overlay_wrapper = new OverlayWrapper();
-	if (g_overlay_wrapper == nullptr)
-	{
-		throw std::runtime_error("[RoR] Failed to create OverlayWrapper");
-	}
+    g_overlay_wrapper = new OverlayWrapper();
+    if (g_overlay_wrapper == nullptr)
+    {
+        throw std::runtime_error("[RoR] Failed to create OverlayWrapper");
+    }
 }
 
 void DestroyOverlayWrapper()
 {
-	assert(g_overlay_wrapper != nullptr && "DestroyOverlayWrapper(): OverlayWrapper never created");
-	delete g_overlay_wrapper;
-	g_overlay_wrapper = nullptr;
+    assert(g_overlay_wrapper != nullptr && "DestroyOverlayWrapper(): OverlayWrapper never created");
+    delete g_overlay_wrapper;
+    g_overlay_wrapper = nullptr;
 }
 
 void CreateSceneMouse()
 {
-	assert (g_scene_mouse == nullptr);
-	g_scene_mouse = new SceneMouse();
+    assert (g_scene_mouse == nullptr);
+    g_scene_mouse = new SceneMouse();
 }
 
 void DeleteSceneMouse()
 {
-	assert (g_scene_mouse != nullptr);
-	delete g_scene_mouse;
-	g_scene_mouse = nullptr;
+    assert (g_scene_mouse != nullptr);
+    delete g_scene_mouse;
+    g_scene_mouse = nullptr;
 }
 
 void CreateGuiManagerIfNotExists()
 {
-	if (g_gui_manager == nullptr)
-	{
-		g_gui_manager = new GUIManager();
-	}
+    if (g_gui_manager == nullptr)
+    {
+        g_gui_manager = new GUIManager();
+    }
 }
 
 void DeleteGuiManagerIfExists()
 {
-	if (g_gui_manager != nullptr)
-	{
-		delete g_gui_manager;
-		g_gui_manager = nullptr;
-	}
+    if (g_gui_manager != nullptr)
+    {
+        delete g_gui_manager;
+        g_gui_manager = nullptr;
+    }
 }
 
 void CreateInputEngine()
 {
-	assert(g_input_engine == nullptr);
-	g_input_engine = new InputEngine();
+    assert(g_input_engine == nullptr);
+    g_input_engine = new InputEngine();
 }
 
 void CreateCacheSystem()
 {
-	assert(g_cache_system == nullptr);
-	g_cache_system = new CacheSystem();
+    assert(g_cache_system == nullptr);
+    g_cache_system = new CacheSystem();
 }
 
 void Init()
@@ -447,7 +447,7 @@ void Init()
     g_app_language         = "English";
     g_app_locale           = "en";
     g_app_screenshot_format= "jpg";
-	g_app_multithread      = true;
+    g_app_multithread      = true;
 
     g_mp_state_active      = MP_STATE_DISABLED;
     g_mp_state_pending     = MP_STATE_NONE;

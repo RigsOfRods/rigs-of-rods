@@ -19,10 +19,8 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/** 
-    @file   GUIManager.h
-    @author based on the basemanager code from mygui common
-*/
+/// @file
+/// @author based on the basemanager code from mygui common
 
 #pragma once
 
@@ -39,12 +37,11 @@ namespace RoR {
 namespace GUI { class SimUtils; class TopMenubar; }
 
 class GUIManager :
-	  public GUIInputManager
-	, public Ogre::FrameListener
-	, public Ogre::WindowEventListener
-	, public ZeroedMemoryAllocator
+    public GUIInputManager
+    , public Ogre::FrameListener
+    , public Ogre::WindowEventListener
+    , public ZeroedMemoryAllocator
 {
-
 public:
 
     GUIManager();
@@ -87,14 +84,14 @@ public:
     bool IsVisible_Console              ();
 
     // GUI GetInstance*()
-    Console*                    GetConsole();
-    GUI::MainSelector*          GetMainSelector();
-    GUI::LoadingWindow*         GetLoadingWindow();
-    GUI::MpClientList*          GetMpClientList();
-    GUI::MultiplayerSelector*   GetMpSelector();
-    GUI::FrictionSettings*      GetFrictionSettings();
-    GUI::SimUtils*              GetSimUtils();
-    GUI::TopMenubar*            GetTopMenubar();
+    Console* GetConsole();
+    GUI::MainSelector* GetMainSelector();
+    GUI::LoadingWindow* GetLoadingWindow();
+    GUI::MpClientList* GetMpClientList();
+    GUI::MultiplayerSelector* GetMpSelector();
+    GUI::FrictionSettings* GetFrictionSettings();
+    GUI::SimUtils* GetSimUtils();
+    GUI::TopMenubar* GetTopMenubar();
 
     // GUI manipulation
     void pushMessageChatBox(Ogre::String txt);
@@ -107,42 +104,41 @@ public:
     void AdjustPauseMenuPosition();
     void AdjustMainMenuPosition();
 
-	void UpdateSimUtils(float dt, Beam *truck);
-	void framestep(float dt);
+    void UpdateSimUtils(float dt, Beam* truck);
+    void framestep(float dt);
 
-	int getMessageBoxResult(); //TODO
+    int getMessageBoxResult(); //TODO
 
-	void InitMainSelector(RoR::SkinManager* skin_manager);
+    void InitMainSelector(RoR::SkinManager* skin_manager);
 
-	void hideGUI(bool visible);
+    void hideGUI(bool visible);
 
-	void destroy();
+    void destroy();
 
-	void windowResized(Ogre::RenderWindow* rw);
+    void windowResized(Ogre::RenderWindow* rw);
 
-	void SetSceneManagerForGuiRendering(Ogre::SceneManager* scene_manager);
+    void SetSceneManagerForGuiRendering(Ogre::SceneManager* scene_manager);
 
     void FrictionSettingsUpdateCollisions();
     void ShutdownMyGUI();
     void ReflectGameState();
 
-	virtual void AddRigLoadingReport(std::string const & vehicle_name, std::string const & text, int num_errors, int num_warnings, int num_other);
+    virtual void AddRigLoadingReport(std::string const& vehicle_name, std::string const& text, int num_errors, int num_warnings, int num_other);
 
     static Ogre::String getRandomWallpaperImage();
 
 private:
 
-	bool create();
+    bool create();
 
-	virtual bool frameStarted(const Ogre::FrameEvent& _evt);
-	virtual bool frameEnded(const Ogre::FrameEvent& _evt);
-	virtual void windowClosed(Ogre::RenderWindow* rw);
+    virtual bool frameStarted(const Ogre::FrameEvent& _evt);
+    virtual bool frameEnded(const Ogre::FrameEvent& _evt);
+    virtual void windowClosed(Ogre::RenderWindow* rw);
 
-	void eventRequestTag(const MyGUI::UString& _tag, MyGUI::UString& _result);
+    void eventRequestTag(const MyGUI::UString& _tag, MyGUI::UString& _result);
 
     GuiManagerImpl* m_impl;
-    bool            m_renderwindow_closed;
+    bool m_renderwindow_closed;
 };
 
 } // namespace RoR
-

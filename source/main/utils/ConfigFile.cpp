@@ -34,27 +34,27 @@
 
 using namespace RoR;
 
-float ConfigFile::GetFloat(Ogre::String const & key, Ogre::String const & section, float defaultValue)
+float ConfigFile::GetFloat(Ogre::String const& key, Ogre::String const& section, float defaultValue)
 {
     return Ogre::StringConverter::parseReal(Ogre::ConfigFile::getSetting(key, section), defaultValue);
 }
 
-Ogre::ColourValue ConfigFile::GetColourValue(Ogre::String const & key, Ogre::String const & section, Ogre::ColourValue const & defaultValue)
+Ogre::ColourValue ConfigFile::GetColourValue(Ogre::String const& key, Ogre::String const& section, Ogre::ColourValue const& defaultValue)
 {
     return Ogre::StringConverter::parseColourValue(Ogre::ConfigFile::getSetting(key, section), defaultValue);
 }
 
-int ConfigFile::GetInt(Ogre::String const & key, Ogre::String const & section, int defaultValue)
+int ConfigFile::GetInt(Ogre::String const& key, Ogre::String const& section, int defaultValue)
 {
     return Ogre::StringConverter::parseInt(Ogre::ConfigFile::getSetting(key, section), defaultValue);
 }
 
-bool ConfigFile::GetBool(Ogre::String const & key, Ogre::String const & section, bool defaultValue)
+bool ConfigFile::GetBool(Ogre::String const& key, Ogre::String const& section, bool defaultValue)
 {
     return Ogre::StringConverter::parseBool(Ogre::ConfigFile::getSetting(key, section), defaultValue);
 }
 
-Ogre::String ConfigFile::GetStringEx(Ogre::String const & key, Ogre::String const & section, Ogre::String const & defaultValue)
+Ogre::String ConfigFile::GetStringEx(Ogre::String const& key, Ogre::String const& section, Ogre::String const& defaultValue)
 {
     auto setting = Ogre::ConfigFile::getSetting(key, section);
     if (setting.empty())
@@ -66,7 +66,7 @@ Ogre::String ConfigFile::GetStringEx(Ogre::String const & key, Ogre::String cons
 
 void ConfigFile::SetString(Ogre::String key, Ogre::String value, Ogre::String section /* = Ogre::StringUtil::BLANK */)
 {
-    SettingsMultiMap *set = mSettings[section];
+    SettingsMultiMap* set = mSettings[section];
     if (!set)
     {
         // new section

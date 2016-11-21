@@ -11,31 +11,28 @@
 #include "ForwardDeclarations.h"
 #include "BaseLayout.h"
 
-namespace RoR
-{
+namespace RoR {
+namespace GUI {
 
-namespace GUI
-{
-	
 ATTRIBUTE_CLASS_LAYOUT(GameChatBoxLayout, "Chatbox.layout");
 class GameChatBoxLayout : public wraps::BaseLayout
 {
 
 public:
 
-	GameChatBoxLayout(MyGUI::Widget* _parent = nullptr);
-	virtual ~GameChatBoxLayout();
+    GameChatBoxLayout(MyGUI::Widget* _parent = nullptr);
+    virtual ~GameChatBoxLayout();
 
 protected:
 
-	//%LE Widget_Declaration list start
-	ATTRIBUTE_FIELD_WIDGET_NAME(GameChatBoxLayout, m_Chatbox_MainBox, "Chatbox_MainBox");
-	MyGUI::EditBox* m_Chatbox_MainBox;
+    //%LE Widget_Declaration list start
+    ATTRIBUTE_FIELD_WIDGET_NAME(GameChatBoxLayout, m_Chatbox_MainBox, "Chatbox_MainBox");
+    MyGUI::EditBox* m_Chatbox_MainBox;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(GameChatBoxLayout, m_Chatbox_TextBox, "Chatbox_TextBox");
-	MyGUI::EditBox* m_Chatbox_TextBox;
+    ATTRIBUTE_FIELD_WIDGET_NAME(GameChatBoxLayout, m_Chatbox_TextBox, "Chatbox_TextBox");
+    MyGUI::EditBox* m_Chatbox_TextBox;
 
-	//%LE Widget_Declaration list end
+    //%LE Widget_Declaration list end
 };
 
 } // namespace GUI

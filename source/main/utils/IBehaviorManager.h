@@ -1,26 +1,24 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.org/
+    For more information, see http://www.rigsofrods.org/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#ifndef __I_BehaviorManager_H__
-#define __I_BehaviorManager_H__
 
 #include "RoRPrerequisites.h"
 
@@ -28,20 +26,20 @@ class IBehaviorManager : public ZeroedMemoryAllocator
 {
 public:
 
-	virtual ~IBehaviorManager() {}
+    virtual ~IBehaviorManager()
+    {
+    }
 
-	virtual bool update(float dt) = 0;
+    virtual bool update(float dt) = 0;
 
-	virtual void switchBehavior(int newBehavior, bool reset = true) = 0;
-	virtual void switchToNextBehavior(bool force = true) = 0;
-	virtual void toggleBehavior(int behavior) = 0;
+    virtual void switchBehavior(int newBehavior, bool reset = true) = 0;
+    virtual void switchToNextBehavior(bool force = true) = 0;
+    virtual void toggleBehavior(int behavior) = 0;
 
-	virtual bool gameControlsLocked() = 0;
-	virtual bool hasActiveBehavior() = 0;
-	virtual bool hasActiveCharacterBehavior() = 0;
-	virtual bool hasActiveVehicleBehavior() = 0;
+    virtual bool gameControlsLocked() = 0;
+    virtual bool hasActiveBehavior() = 0;
+    virtual bool hasActiveCharacterBehavior() = 0;
+    virtual bool hasActiveVehicleBehavior() = 0;
 
-	virtual int getCurrentBehavior() = 0;
+    virtual int getCurrentBehavior() = 0;
 };
-
-#endif // __I_BehaviorManager_H__

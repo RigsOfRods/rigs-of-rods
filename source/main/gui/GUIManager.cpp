@@ -1,28 +1,26 @@
 /*
-	This source file is part of Rigs of Rods
-	Copyright 2005-2012 Pierre-Michel Ricordel
-	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
+    Copyright 2013+     Petr Ohlidal & contributors
 
-	For more information, see http://www.rigsofrods.org/
+    For more information, see http://www.rigsofrods.org/
 
-	Rigs of Rods is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License version 3, as
-	published by the Free Software Foundation.
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
 
-	Rigs of Rods is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/** 
-	@file   GUIManager.h
-	@author based on the basemanager code from mygui common
-*/
+/// @file   GUIManager.h
+/// @author based on the basemanager code from mygui common
 
 #include "GUIManager.h"
 
@@ -209,23 +207,23 @@ void GUIManager::ShutdownMyGUI()
 
 bool GUIManager::frameStarted(const Ogre::FrameEvent& evt)
 {
-	if (m_renderwindow_closed) return false;
-	if (!m_impl->mygui) return true;
+    if (m_renderwindow_closed) return false;
+    if (!m_impl->mygui) return true;
 
 
-	// now hide the mouse cursor if not used since a long time
-	if (getLastMouseMoveTime() > 5000)
-	{
-		MyGUI::PointerManager::getInstance().setVisible(false);
-		//RoR::App::GetGuiManager()->GetTopMenubar()->setVisible(false);
-	}
+    // now hide the mouse cursor if not used since a long time
+    if (getLastMouseMoveTime() > 5000)
+    {
+        MyGUI::PointerManager::getInstance().setVisible(false);
+        //RoR::App::GetGuiManager()->GetTopMenubar()->setVisible(false);
+    }
 
-	return true;
+    return true;
 }
 
 bool GUIManager::frameEnded(const Ogre::FrameEvent& evt)
 {
-	return true;
+    return true;
 };
 
 void GUIManager::framestep(float dt)
@@ -245,48 +243,48 @@ void GUIManager::HideNotification()
 
 void GUIManager::windowResized(Ogre::RenderWindow* rw)
 {
-	int width = (int)rw->getWidth();
-	int height = (int)rw->getHeight();
-	setInputViewSize(width, height);
+    int width = (int)rw->getWidth();
+    int height = (int)rw->getHeight();
+    setInputViewSize(width, height);
 
-	BeamFactory *bf = BeamFactory::getSingletonPtr();
-	if (bf) bf->windowResized();
+    BeamFactory *bf = BeamFactory::getSingletonPtr();
+    if (bf) bf->windowResized();
 
-	this->AdjustMainMenuPosition();
+    this->AdjustMainMenuPosition();
 }
 
 void GUIManager::windowClosed(Ogre::RenderWindow* rw)
 {
-	m_renderwindow_closed = true;
+    m_renderwindow_closed = true;
 }
 
 void GUIManager::eventRequestTag(const MyGUI::UString& _tag, MyGUI::UString& _result)
 {
-	_result = MyGUI::LanguageManager::getInstance().getTag(_tag);
+    _result = MyGUI::LanguageManager::getInstance().getTag(_tag);
 }
 
 Ogre::String GUIManager::getRandomWallpaperImage()
 {
-	using namespace Ogre;
-	FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo("Wallpapers", "*.jpg", false);
-	if (files.isNull() || files->empty())
-	{
-		files = ResourceGroupManager::getSingleton().findResourceFileInfo("Wallpapers", "*.png", false);
-		if (files.isNull() || files->empty())
-			return "";
-	}
-	srand ( time(NULL) );
+    using namespace Ogre;
+    FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo("Wallpapers", "*.jpg", false);
+    if (files.isNull() || files->empty())
+    {
+        files = ResourceGroupManager::getSingleton().findResourceFileInfo("Wallpapers", "*.png", false);
+        if (files.isNull() || files->empty())
+            return "";
+    }
+    srand ( time(NULL) );
 
-	int num = 0;
-	for (int i = 0; i<Math::RangeRandom(0, 10); i++)
-		num = Math::RangeRandom(0, files->size());
+    int num = 0;
+    for (int i = 0; i<Math::RangeRandom(0, 10); i++)
+        num = Math::RangeRandom(0, files->size());
 
-	return files->at(num).filename;
+    return files->at(num).filename;
 }
 
 void GUIManager::SetSceneManagerForGuiRendering(Ogre::SceneManager* scene_manager)
 {
-	m_impl->mygui_platform->getRenderManagerPtr()->setSceneManager(scene_manager);
+    m_impl->mygui_platform->getRenderManagerPtr()->setSceneManager(scene_manager);
 }
 
 void GUIManager::AdjustMainMenuPosition()
@@ -327,22 +325,22 @@ void GUIManager::InitMainSelector(RoR::SkinManager* skin_manager)
 
 void GUIManager::AdjustPauseMenuPosition()
 {
-	Ogre::Viewport* viewport = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
-	int margin = (viewport->getActualHeight() / 15);
-	m_impl->panel_GamePauseMenu.SetPosition(
-		margin, // left
-		viewport->getActualHeight() - m_impl->panel_GamePauseMenu.GetHeight() - margin // top
-		);
+    Ogre::Viewport* viewport = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
+    int margin = (viewport->getActualHeight() / 15);
+    m_impl->panel_GamePauseMenu.SetPosition(
+        margin, // left
+        viewport->getActualHeight() - m_impl->panel_GamePauseMenu.GetHeight() - margin // top
+        );
 }
 
 void GUIManager::AddRigLoadingReport(std::string const & vehicle_name, std::string const & text, int num_errors, int num_warnings, int num_other)
 {
-	m_impl->panel_SpawnerReport.SetRigLoadingReport(vehicle_name, text, num_errors, num_warnings, num_other);
+    m_impl->panel_SpawnerReport.SetRigLoadingReport(vehicle_name, text, num_errors, num_warnings, num_other);
 }
 
 void GUIManager::CenterSpawnerReportWindow()
 {
-	m_impl->panel_SpawnerReport.CenterToScreen();
+    m_impl->panel_SpawnerReport.CenterToScreen();
 }
 
 void GUIManager::pushMessageChatBox(Ogre::String txt)

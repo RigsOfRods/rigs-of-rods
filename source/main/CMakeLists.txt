@@ -205,10 +205,8 @@ set( SOURCE_FILES
   physics/water/Buoyance.{h,cpp}
   physics/water/ScrewProp.{h,cpp}
   resources/CacheSystem.{h,cpp}
-  resources/CacheSystemTable.h
   resources/ContentManager.{h,cpp}
   resources/rig_def_fileformat/RigDef_File.{h,cpp}
-  resources/rig_def_fileformat/RigDef_Limits.h
   resources/rig_def_fileformat/RigDef_Node.{h,cpp}
   resources/rig_def_fileformat/RigDef_Parser.{h,cpp}
   resources/rig_def_fileformat/RigDef_Prerequisites.h

@@ -11,37 +11,33 @@
 #include "ForwardDeclarations.h"
 #include "BaseLayout.h"
 
-namespace RoR
-{
+namespace RoR {
+namespace GUI {
 
-namespace GUI
-{
-	
 ATTRIBUTE_CLASS_LAYOUT(GameConsoleLayout, "Console.layout");
 class GameConsoleLayout : public wraps::BaseLayout
 {
 
 public:
 
-	GameConsoleLayout(MyGUI::Widget* _parent = nullptr);
-	virtual ~GameConsoleLayout();
+    GameConsoleLayout(MyGUI::Widget* _parent = nullptr);
+    virtual ~GameConsoleLayout();
 
 protected:
 
-	//%LE Widget_Declaration list start
-	ATTRIBUTE_FIELD_WIDGET_NAME(GameConsoleLayout, m_Console_MainBox, "Console_MainBox");
-	MyGUI::EditBox* m_Console_MainBox;
+    //%LE Widget_Declaration list start
+    ATTRIBUTE_FIELD_WIDGET_NAME(GameConsoleLayout, m_Console_MainBox, "Console_MainBox");
+    MyGUI::EditBox* m_Console_MainBox;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(GameConsoleLayout, m_Console_TextBox, "Console_TextBox");
-	MyGUI::EditBox* m_Console_TextBox;
+    ATTRIBUTE_FIELD_WIDGET_NAME(GameConsoleLayout, m_Console_TextBox, "Console_TextBox");
+    MyGUI::EditBox* m_Console_TextBox;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(GameConsoleLayout, m_Console_Send, "Console_Send");
-	MyGUI::Button* m_Console_Send;
+    ATTRIBUTE_FIELD_WIDGET_NAME(GameConsoleLayout, m_Console_Send, "Console_Send");
+    MyGUI::Button* m_Console_Send;
 
-	//%LE Widget_Declaration list end
+    //%LE Widget_Declaration list end
 };
 
 } // namespace GUI
-
 } // namespace RoR
 

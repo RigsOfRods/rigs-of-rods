@@ -1,25 +1,24 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005-2012 Pierre-Michel Ricordel
-Copyright 2007-2012 Thomas Fischer
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
 
-For more information, see http://www.rigsofrods.org/
+    For more information, see http://www.rigsofrods.org/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #pragma once
-#ifndef __Character_H_
-#define __Character_H_
 
 #include "RoRPrerequisites.h"
 
@@ -29,106 +28,109 @@ class Character : public ZeroedMemoryAllocator
 {
 public:
 
-	Character(int source=-1, unsigned int streamid=0, int colourNumber=0, bool remote=true);
-	~Character();
+    Character(int source = -1, unsigned int streamid = 0, int colourNumber = 0, bool remote = true);
+    ~Character();
 
-	Ogre::Radian getRotation() { return characterRotation; };
-	Ogre::Vector3 getPosition();
-	bool getPhysicsEnabled() { return physicsEnabled; };
-	bool getVisible();
+    Ogre::Radian getRotation() { return characterRotation; };
+    Ogre::Vector3 getPosition();
+    bool getPhysicsEnabled() { return physicsEnabled; };
+    bool getVisible();
 
-	void receiveStreamData(unsigned int &type, int &source, unsigned int &streamid, char *buffer);
+    void receiveStreamData(unsigned int& type, int& source, unsigned int& streamid, char* buffer);
 
-	int getSourceID() { return m_source_id; };
+    int getSourceID() { return m_source_id; };
 
-	bool isRemote() { return remote; };
-	bool getBeamCoupling() { return isCoupled; };
+    bool isRemote() { return remote; };
+    bool getBeamCoupling() { return isCoupled; };
 
-	void setBeamCoupling(bool enabled, Beam *truck = 0);
-	void setColour(int color) { this->colourNumber = color; };
-	void setPhysicsEnabled(bool enabled) { physicsEnabled = enabled; };
-	void setPosition(Ogre::Vector3 position);
-	void setRotation(Ogre::Radian rotation);
-	void setVisible(bool visible);
+    void setBeamCoupling(bool enabled, Beam* truck = 0);
+    void setColour(int color) { this->colourNumber = color; };
+    void setPhysicsEnabled(bool enabled) { physicsEnabled = enabled; };
+    void setPosition(Ogre::Vector3 position);
+    void setRotation(Ogre::Radian rotation);
+    void setVisible(bool visible);
 
-	void move(Ogre::Vector3 offset);
+    void move(Ogre::Vector3 offset);
 
-	void unwindMovement(float distance);
+    void unwindMovement(float distance);
 
-	void update(float dt);
-	void updateCharacterColour();
-	void updateCharacterRotation();
-	void updateMapIcon();
-	void updateLabels();
+    void update(float dt);
+    void updateCharacterColour();
+    void updateCharacterRotation();
+    void updateMapIcon();
+    void updateLabels();
 
-	static unsigned int characterCounter;
+    static unsigned int characterCounter;
 
 protected:
 
-	void createMapEntity();
-	void updateNetLabelSize();
+    void createMapEntity();
+    void updateNetLabelSize();
 
-	Beam *beamCoupling;
-	bool isCoupled;
-	SurveyMapEntity *mapEntity;
+    Beam* beamCoupling;
+    bool isCoupled;
+    SurveyMapEntity* mapEntity;
 
-	bool canJump;
-	bool physicsEnabled;
-	bool remote;
-	
-	Ogre::Radian characterRotation;
-	Ogre::Real characterSpeed;
-	Ogre::Real characterVSpeed;
-	
-	unsigned int myNumber;
-	int colourNumber;
-	int networkAuthLevel;
-	int m_stream_id;
-	int m_source_id;
+    bool canJump;
+    bool physicsEnabled;
+    bool remote;
 
-	Ogre::AnimationStateSet *mAnimState;
-	Ogre::Camera *mCamera;
-	Ogre::MovableText *mMoveableText;
-	Ogre::SceneNode *mCharacterNode;
-	Ogre::String mLastAnimMode;
-	Ogre::String myName;
-	Ogre::UTFString networkUsername;
-	std::deque<Ogre::Vector3> mLastPosition;
+    Ogre::Radian characterRotation;
+    Ogre::Real characterSpeed;
+    Ogre::Real characterVSpeed;
 
-	void setAnimationMode(Ogre::String mode, float time=0);
+    unsigned int myNumber;
+    int colourNumber;
+    int networkAuthLevel;
+    int m_stream_id;
+    int m_source_id;
 
-	// network stuff
-	typedef struct header_netdata_t
-	{
-		int command;
-	} header_netdata_t;
+    Ogre::AnimationStateSet* mAnimState;
+    Ogre::Camera* mCamera;
+    Ogre::MovableText* mMoveableText;
+    Ogre::SceneNode* mCharacterNode;
+    Ogre::String mLastAnimMode;
+    Ogre::String myName;
+    Ogre::UTFString networkUsername;
+    std::deque<Ogre::Vector3> mLastPosition;
 
-	typedef struct pos_netdata_t
-	{
-		int command;
-		float posx, posy, posz;
-		float rotx, roty, rotz, rotw;
-		char animationMode[256];
-		float animationTime;
-	} pos_netdata_t;
+    void setAnimationMode(Ogre::String mode, float time = 0);
 
-	typedef struct attach_netdata_t
-	{
-		int command;
-		bool enabled;
-		int source_id;
-		int stream_id;
-		int position;
-	} attach_netdata_t;
+    // network stuff
+    struct header_netdata_t
+    {
+        int command;
+    };
 
-	enum {CHARCMD_POSITION, CHARCMD_ATTACH};
+    struct pos_netdata_t
+    {
+        int command;
+        float posx, posy, posz;
+        float rotx, roty, rotz, rotw;
+        char animationMode[256];
+        float animationTime;
+    };
 
-	Ogre::Timer mNetTimer;
+    struct attach_netdata_t
+    {
+        int command;
+        bool enabled;
+        int source_id;
+        int stream_id;
+        int position;
+    };
 
-	bool mHideOwnNetLabel;
+    enum
+    {
+        CHARCMD_POSITION,
+        CHARCMD_ATTACH
+    };
 
-	void sendStreamData();
-	void sendStreamSetup();
+    Ogre::Timer mNetTimer;
+
+    bool mHideOwnNetLabel;
+
+    void sendStreamData();
+    void sendStreamSetup();
 };
 
-#endif // __Character_H_

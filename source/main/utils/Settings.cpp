@@ -39,10 +39,9 @@
 #include <mach-o/dyld.h>
 #endif
 
-#define _L
-
 #include "Application.h"
 #include "ErrorUtils.h"
+#include "Language.h"
 #include "PlatformUtils.h"
 #include "RoRVersion.h"
 #include "SHA1.h"
@@ -97,39 +96,65 @@ CSimpleOpt::SOption cmdline_options[] = {
     SO_END_OF_OPTIONS
 };
 
-using namespace RoR;
+namespace RoR {
+
+void ShowCommandLineUsage()
+{
+    ErrorUtils::ShowInfo(
+        _L("Command Line Arguments"), 
+        _L("--help (this)"                              "\n"
+            "-map <map> (loads map on startup)"         "\n"
+            "-truck <truck> (loads truck on startup)"   "\n"
+            "-setup shows the ogre configurator"        "\n"
+            "-version shows the version information"    "\n"
+            "-enter enters the selected truck"          "\n"
+            "-userpath <path> sets the user directory"  "\n"
+            "For example: RoR.exe -map oahu -truck semi"));
+}
+
+void ShowVersion()
+{
+    ErrorUtils::ShowInfo(_L("Version Information"), getVersionString());
+#ifdef __GNUC__
+    printf(" * built with gcc %d.%d.%d\n", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+#endif //__GNUC__
+}
+
+}
+
 using namespace Ogre;
+using namespace RoR;
 
 bool FileExists(const char *path)
 {
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-	DWORD attributes = GetFileAttributesA(path);
-	return (attributes != INVALID_FILE_ATTRIBUTES && ! (attributes & FILE_ATTRIBUTE_DIRECTORY));
+    DWORD attributes = GetFileAttributesA(path);
+    return (attributes != INVALID_FILE_ATTRIBUTES && ! (attributes & FILE_ATTRIBUTE_DIRECTORY));
 #else
-	struct stat st;
-	return (stat(path, &st) == 0);
+    struct stat st;
+    return (stat(path, &st) == 0);
 #endif
 }
 
 bool FolderExists(const char *path)
 {
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-	DWORD attributes = GetFileAttributesA(path);
-	return (attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_DIRECTORY));
+    DWORD attributes = GetFileAttributesA(path);
+    return (attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_DIRECTORY));
 #else
-	struct stat st;
-	return (stat(path, &st) == 0);
+    struct stat st;
+    return (stat(path, &st) == 0);
 #endif
 }
 
 bool FileExists(Ogre::String const & path)
 {
-	return FileExists(path.c_str());
+    return FileExists(path.c_str());
 }
 
 bool FolderExists(Ogre::String const & path)
 {
-	return FolderExists(path.c_str());
+    return FolderExists(path.c_str());
 }
 
 namespace RoR{
@@ -174,9 +199,9 @@ int DetectBasePaths()
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 // NOTE: We use non-UNICODE interfaces for simplicity
     // Process dir
     if (!GetModuleFileNameA(nullptr, buf, 1000))
-	{
-		return -1;
-	}
+    {
+        return -1;
+    }
     
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX // http://stackoverflow.com/a/625523
     // Process dir
@@ -206,10 +231,10 @@ int DetectBasePaths()
     // User directory (system)
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 // NOTE: We use non-UNICODE interfaces for simplicity	
     if (SHGetFolderPathA(nullptr, CSIDL_PERSONAL, nullptr, SHGFP_TYPE_CURRENT, buf) != S_OK)
-	{
-		return -2;
-	}
-	sprintf(buf, "%s\\Rigs of Rods %s", buf, ROR_VERSION_STRING_SHORT);
+    {
+        return -2;
+    }
+    sprintf(buf, "%s\\Rigs of Rods %s", buf, ROR_VERSION_STRING_SHORT);
      
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
     snprintf(buf, 1000, "%s/.rigsofrods", getenv("HOME"));
@@ -333,81 +358,81 @@ void Settings::ProcessCommandLine(int argc, char *argv[])
 
 String Settings::getSetting(String key, String defaultValue)
 {
-	settings_map_t::iterator it = settings.find(key);
-	if (it == settings.end())
-	{
-		setSetting(key, defaultValue);
-		return defaultValue;
-	}
-	return it->second;
+    settings_map_t::iterator it = settings.find(key);
+    if (it == settings.end())
+    {
+        setSetting(key, defaultValue);
+        return defaultValue;
+    }
+    return it->second;
 }
 
 UTFString Settings::getUTFSetting(UTFString key, UTFString defaultValue)
 {
-	return getSetting(key, defaultValue);
+    return getSetting(key, defaultValue);
 }
 
 int Settings::getIntegerSetting(String key, int defaultValue )
 {
-	settings_map_t::iterator it = settings.find(key);
-	if (it == settings.end())
-	{
-		setSetting(key, TOSTRING(defaultValue));
-		return defaultValue;
-	}
-	return PARSEINT(it->second);
+    settings_map_t::iterator it = settings.find(key);
+    if (it == settings.end())
+    {
+        setSetting(key, TOSTRING(defaultValue));
+        return defaultValue;
+    }
+    return PARSEINT(it->second);
 }
 
 float Settings::getFloatSetting(String key, float defaultValue )
 {
-	settings_map_t::iterator it = settings.find(key);
-	if (it == settings.end())
-	{
-		setSetting(key, TOSTRING(defaultValue));
-		return defaultValue;
-	}
-	return PARSEREAL(it->second);
+    settings_map_t::iterator it = settings.find(key);
+    if (it == settings.end())
+    {
+        setSetting(key, TOSTRING(defaultValue));
+        return defaultValue;
+    }
+    return PARSEREAL(it->second);
 }
 
 bool Settings::getBooleanSetting(String key, bool defaultValue)
 {
-	settings_map_t::iterator it = settings.find(key);
-	if (it == settings.end())
-	{
-		setSetting(key, defaultValue ?"Yes":"No");
-		return defaultValue;
-	}
-	String strValue = it->second;
-	StringUtil::toLowerCase(strValue);
-	return (strValue == "yes");
+    settings_map_t::iterator it = settings.find(key);
+    if (it == settings.end())
+    {
+        setSetting(key, defaultValue ?"Yes":"No");
+        return defaultValue;
+    }
+    String strValue = it->second;
+    StringUtil::toLowerCase(strValue);
+    return (strValue == "yes");
 }
 
 String Settings::getSettingScriptSafe(const String &key)
 {
-	// hide certain settings for scripts
-	if (key == "User Token" || key == "User Token Hash")
-		return "permission denied";
+    // hide certain settings for scripts
+    if (key == "User Token" || key == "User Token Hash")
+        return "permission denied";
 
-	return settings[key];
+    return settings[key];
 }
 
 void Settings::setSettingScriptSafe(const String &key, const String &value)
 {
-	// hide certain settings for scripts
-	if (key == "User Token" || key == "User Token Hash")
-		return;
+    // hide certain settings for scripts
+    if (key == "User Token" || key == "User Token Hash")
+        return;
 
-	settings[key] = value;
+    settings[key] = value;
 }
 
 void Settings::setSetting(String key, String value)
 {
-	settings[key] = value;
+    settings[key] = value;
 }
 
 void Settings::setUTFSetting(UTFString key, UTFString value)
 {
-	settings[key] = value;
+    settings[key] = value;
 }
 
 const char* CONF_GFX_SHADOW_TEX     = "Texture shadows";
@@ -551,14 +576,14 @@ void Settings::SetMpNetworkEnable(bool enable)
 
 void Settings::SetGfxFovExternal(float fov)
 {
-	m_fov_external = fov;
-	App::SetGfxFovExternal(m_fov_external);
+    m_fov_external = fov;
+    App::SetGfxFovExternal(m_fov_external);
 }
 
 void Settings::SetGfxFovInternal(float fov)
 {
-	m_fov_internal = fov;
-	App::SetGfxFovInternal(m_fov_internal);
+    m_fov_internal = fov;
+    App::SetGfxFovInternal(m_fov_internal);
 }
 
 static const char* CONF_MP_NET_ENABLE   = "Network enable";
@@ -744,19 +769,19 @@ void Settings::LoadSettings(std::string filepath)
     }
     catch (Ogre::FileNotFoundException e) {} // Just continue with defaults...
 
-	// generate hash of the token
-	String usertoken = SSETTING("User Token", "");
-	char usertokensha1result[250];
-	memset(usertokensha1result, 0, 250);
-	if (usertoken.size()>0)
-	{
-		RoR::CSHA1 sha1;
-		sha1.UpdateHash((uint8_t *)usertoken.c_str(), (uint32_t)usertoken.size());
-		sha1.Final();
-		sha1.ReportHash(usertokensha1result, RoR::CSHA1::REPORT_HEX_SHORT);
-	}
+    // generate hash of the token
+    String usertoken = SSETTING("User Token", "");
+    char usertokensha1result[250];
+    memset(usertokensha1result, 0, 250);
+    if (usertoken.size()>0)
+    {
+        RoR::CSHA1 sha1;
+        sha1.UpdateHash((uint8_t *)usertoken.c_str(), (uint32_t)usertoken.size());
+        sha1.Final();
+        sha1.ReportHash(usertokensha1result, RoR::CSHA1::REPORT_HEX_SHORT);
+    }
 
-	setSetting("User Token Hash", String(usertokensha1result));
+    setSetting("User Token Hash", String(usertokensha1result));
 }
 
 inline const char* IoInputGrabToStr(App::IoInputGrabMode v)

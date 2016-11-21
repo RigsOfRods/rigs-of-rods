@@ -11,46 +11,42 @@
 #include "ForwardDeclarations.h"
 #include "BaseLayout.h"
 
-namespace RoR
-{
+namespace RoR {
+namespace GUI {
 
-namespace GUI
-{
-	
 ATTRIBUTE_CLASS_LAYOUT(GameMainMenuLayout, "MainMenu.layout");
 class GameMainMenuLayout : public wraps::BaseLayout
 {
 
 public:
 
-	GameMainMenuLayout(MyGUI::Widget* _parent = nullptr);
-	virtual ~GameMainMenuLayout();
+    GameMainMenuLayout(MyGUI::Widget* _parent = nullptr);
+    virtual ~GameMainMenuLayout();
 
 protected:
 
-	//%LE Widget_Declaration list start
-	ATTRIBUTE_FIELD_WIDGET_NAME(GameMainMenuLayout, m_single_player, "single_player");
-	MyGUI::Button* m_single_player;
+    //%LE Widget_Declaration list start
+    ATTRIBUTE_FIELD_WIDGET_NAME(GameMainMenuLayout, m_single_player, "single_player");
+    MyGUI::Button* m_single_player;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(GameMainMenuLayout, m_settings, "settings");
-	MyGUI::Button* m_settings;
+    ATTRIBUTE_FIELD_WIDGET_NAME(GameMainMenuLayout, m_settings, "settings");
+    MyGUI::Button* m_settings;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(GameMainMenuLayout, m_about, "about");
-	MyGUI::Button* m_about;
+    ATTRIBUTE_FIELD_WIDGET_NAME(GameMainMenuLayout, m_about, "about");
+    MyGUI::Button* m_about;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(GameMainMenuLayout, m_exit, "exit");
-	MyGUI::Button* m_exit;
+    ATTRIBUTE_FIELD_WIDGET_NAME(GameMainMenuLayout, m_exit, "exit");
+    MyGUI::Button* m_exit;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(GameMainMenuLayout, m_rig_editor, "rig_editor");
-	MyGUI::Button* m_rig_editor;
+    ATTRIBUTE_FIELD_WIDGET_NAME(GameMainMenuLayout, m_rig_editor, "rig_editor");
+    MyGUI::Button* m_rig_editor;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(GameMainMenuLayout, m_multi_player, "multi_player");
-	MyGUI::Button* m_multi_player;
+    ATTRIBUTE_FIELD_WIDGET_NAME(GameMainMenuLayout, m_multi_player, "multi_player");
+    MyGUI::Button* m_multi_player;
 
-	//%LE Widget_Declaration list end
+    //%LE Widget_Declaration list end
 };
 
 } // namespace GUI
-
 } // namespace RoR
 

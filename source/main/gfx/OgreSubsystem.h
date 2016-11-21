@@ -1,37 +1,34 @@
 /*
-	This source file is part of Rigs of Rods
-	Copyright 2005-2012 Pierre-Michel Ricordel
-	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2014 Petr Ohlidal
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2014 Petr Ohlidal
 
-	For more information, see http://www.rigsofrods.org/
+    For more information, see http://www.rigsofrods.org/
 
-	Rigs of Rods is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License version 3, as
-	published by the Free Software Foundation.
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
 
-	Rigs of Rods is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/** 
-	@file   OgreSubsystem.h
-	@author Petr Ohlidal
-	@date   05/2014
-	@brief  OGRE engine wrapper.
-*/
+/// @file
+/// @author Petr Ohlidal
+/// @date   05/2014
+/// @brief  OGRE engine wrapper.
 
 #pragma once
 
 #include "RoRPrerequisites.h"
 
-namespace RoR
-{
+namespace RoR {
 
 class OgreSubsystem : public ZeroedMemoryAllocator
 {
@@ -40,41 +37,41 @@ public:
     OgreSubsystem();
     ~OgreSubsystem();
 
-	bool StartOgre(Ogre::String const & hwnd, Ogre::String const & mainhwnd);
+    bool StartOgre(Ogre::String const & hwnd, Ogre::String const & mainhwnd);
 
-	void WindowResized(Ogre::Vector2 const & size);
+    void WindowResized(Ogre::Vector2 const & size);
 
-	Ogre::String GetMainHWND() 
-	{ 
-		return m_main_hwnd; 
-	}
+    Ogre::String GetMainHWND() 
+    { 
+        return m_main_hwnd; 
+    }
 
-	unsigned long GetTimeSinceStartup();
+    unsigned long GetTimeSinceStartup();
 
-	Ogre::Root* GetOgreRoot()
-	{
-		return m_ogre_root;
-	}
+    Ogre::Root* GetOgreRoot()
+    {
+        return m_ogre_root;
+    }
 
-	Ogre::RenderWindow* GetRenderWindow()
-	{
-		return m_render_window;
-	}
+    Ogre::RenderWindow* GetRenderWindow()
+    {
+        return m_render_window;
+    }
 
-	Ogre::Viewport* GetViewport()
-	{
-		return m_viewport;
-	}
+    Ogre::Viewport* GetViewport()
+    {
+        return m_viewport;
+    }
 
-	void SetViewport(Ogre::Viewport* viewport)
-	{
-		m_viewport = viewport;
-	}
+    void SetViewport(Ogre::Viewport* viewport)
+    {
+        m_viewport = viewport;
+    }
 
-	Ogre::Timer* GetTimer()
-	{
-		return m_timer;
-	}
+    Ogre::Timer* GetTimer()
+    {
+        return m_timer;
+    }
 
 private:
 

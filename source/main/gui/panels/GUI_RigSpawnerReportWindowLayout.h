@@ -11,37 +11,33 @@
 #include "ForwardDeclarations.h"
 #include "BaseLayout.h"
 
-namespace RoR
-{
+namespace RoR {
+namespace GUI {
 
-namespace GUI
-{
-	
 ATTRIBUTE_CLASS_LAYOUT(RigSpawnerReportWindowLayout, "RigSpawnerReportWindow.layout");
 class RigSpawnerReportWindowLayout : public wraps::BaseLayout
 {
 
 public:
 
-	RigSpawnerReportWindowLayout(MyGUI::Widget* _parent = nullptr);
-	virtual ~RigSpawnerReportWindowLayout();
+    RigSpawnerReportWindowLayout(MyGUI::Widget* _parent = nullptr);
+    virtual ~RigSpawnerReportWindowLayout();
 
 protected:
 
-	//%LE Widget_Declaration list start
-	ATTRIBUTE_FIELD_WIDGET_NAME(RigSpawnerReportWindowLayout, m_rig_spawner_report_window, "rig_spawner_report_window");
-	MyGUI::Window* m_rig_spawner_report_window;
+    //%LE Widget_Declaration list start
+    ATTRIBUTE_FIELD_WIDGET_NAME(RigSpawnerReportWindowLayout, m_rig_spawner_report_window, "rig_spawner_report_window");
+    MyGUI::Window* m_rig_spawner_report_window;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(RigSpawnerReportWindowLayout, m_report_summary_textbox, "report_summary_textbox");
-	MyGUI::TextBox* m_report_summary_textbox;
+    ATTRIBUTE_FIELD_WIDGET_NAME(RigSpawnerReportWindowLayout, m_report_summary_textbox, "report_summary_textbox");
+    MyGUI::TextBox* m_report_summary_textbox;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(RigSpawnerReportWindowLayout, m_report_text_area, "report_text_area");
-	MyGUI::EditBox* m_report_text_area;
+    ATTRIBUTE_FIELD_WIDGET_NAME(RigSpawnerReportWindowLayout, m_report_text_area, "report_text_area");
+    MyGUI::EditBox* m_report_text_area;
 
-	//%LE Widget_Declaration list end
+    //%LE Widget_Declaration list end
 };
 
 } // namespace GUI
-
 } // namespace RoR
 
