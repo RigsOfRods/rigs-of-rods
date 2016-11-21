@@ -1,29 +1,27 @@
 /*
-	This source file is part of Rigs of Rods
-	Copyright 2005-2012 Pierre-Michel Ricordel
-	Copyright 2007-2012 Thomas Fischer
-	Copyright 2013-2015 Petr Ohlidal
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
+    Copyright 2013+     Petr Ohlidal & contributors
 
-	For more information, see http://www.rigsofrods.org/
+    For more information, see http://www.rigsofrods.org/
 
-	Rigs of Rods is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License version 3, as
-	published by the Free Software Foundation.
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
 
-	Rigs of Rods is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-	GNU General Public License for more details.
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
-	@file   
-	@author Petr Ohlidal
-	@date   04/2015
-*/
+/// @file
+/// @author Petr Ohlidal
+/// @date   04/2015
 
 #include "RigDef_SequentialImporter.h"
 
@@ -482,7 +480,7 @@ void SequentialImporter::ProcessModule(std::shared_ptr<RigDef::File::Module> mod
         RESOLVE(flexbodywheel.nodes[0]          );
         RESOLVE(flexbodywheel.nodes[1]          );
         RESOLVE(flexbodywheel.rigidity_node     );
-	    RESOLVE(flexbodywheel.reference_arm_node);
+        RESOLVE(flexbodywheel.reference_arm_node);
     });
 
     FOR_EACH (File::KEYWORD_FUSEDRAG, module->fusedrag, fusedrag,
@@ -694,40 +692,40 @@ void SequentialImporter::ProcessModule(std::shared_ptr<RigDef::File::Module> mod
 
 std::string SequentialImporter::ProcessMessagesToString()
 {
-	if (m_messages.empty())
-	{
-		std::string msg(" == Sequential import (fileformatversion < 450) OK, nothing to report");
-		return msg;
-	}
+    if (m_messages.empty())
+    {
+        std::string msg(" == Sequential import (fileformatversion < 450) OK, nothing to report");
+        return msg;
+    }
 
-	std::stringstream report;
-	report << " == Sequential import (fileformatversion < 450) done, report:" <<std::endl << std::endl;
+    std::stringstream report;
+    report << " == Sequential import (fileformatversion < 450) done, report:" <<std::endl << std::endl;
 
-	auto itor = m_messages.begin();
+    auto itor = m_messages.begin();
     auto end  = m_messages.end();
-	for( ; itor != end; ++itor)
-	{
-		switch (itor->type)
-		{
-			case (Message::TYPE_FATAL_ERROR):
-				report << "#FF3300 FATAL ERROR #FFFFFF";
-				break;
-			case (Message::TYPE_ERROR):
-				report << "#FF3300 ERROR #FFFFFF";
-				break;
-			case (Message::TYPE_WARNING):
-				report << "#FFFF00 WARNING #FFFFFF";
-				break;
-			default:
-				report << "INFO";
-				break;
-		}
+    for( ; itor != end; ++itor)
+    {
+        switch (itor->type)
+        {
+            case (Message::TYPE_FATAL_ERROR):
+                report << "#FF3300 FATAL ERROR #FFFFFF";
+                break;
+            case (Message::TYPE_ERROR):
+                report << "#FF3300 ERROR #FFFFFF";
+                break;
+            case (Message::TYPE_WARNING):
+                report << "#FFFF00 WARNING #FFFFFF";
+                break;
+            default:
+                report << "INFO";
+                break;
+        }
 
         report << " (module: " << itor->module_name << ", keyword: \"" 
             << File::KeywordToString(itor->keyword) << "\"): " << itor->message << std::endl;
-	}
+    }
 
-	return report.str();
+    return report.str();
 }
 
 bool SequentialImporter::AddNumberedNode(unsigned int number)
