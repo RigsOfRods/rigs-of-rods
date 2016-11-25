@@ -225,7 +225,9 @@ int ReceiveMessage(header_t *head, char* content, int bufferlen)
 
     char buffer[MAX_MESSAGE_LENGTH] = {0};
 
-    LOG_THREAD("[RoR|Networking] ReceiveMessage() waiting...");
+#ifdef DEBUG
+	LOG_THREAD("[RoR|Networking] ReceiveMessage() waiting...");
+#endif //DEBUG
 
     int hlen = 0;
     while (hlen < (int)sizeof(header_t))
@@ -250,7 +252,9 @@ int ReceiveMessage(header_t *head, char* content, int bufferlen)
 
     memcpy(head, buffer, sizeof(header_t));
 
+#ifdef DEBUG
     LOG_THREAD("[RoR|Networking] ReceiveMessage() header received");
+#endif //DEBUG
 
     if (head->size >= MAX_MESSAGE_LENGTH)
     {
@@ -278,7 +282,9 @@ int ReceiveMessage(header_t *head, char* content, int bufferlen)
 
     memcpy(content, buffer + sizeof(header_t), bufferlen);
 
+#ifdef DEBUG
     LOG_THREAD("[RoR|Networking] ReceiveMessage() body received");
+#endif //DEBUG
 
     return 0;
 }
