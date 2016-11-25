@@ -177,7 +177,7 @@ bool SendMessageRaw(char *buffer, int msgsize)
         int sendnum = socket.send(buffer + rlen, msgsize - rlen, &error);
         if (sendnum < 0)
         {
-            LOG("NET send error: " + TOSTRING(sendnum));
+            LOG("NET send error: " + error.get_error());
             return false;
         }
         rlen += sendnum;
@@ -235,7 +235,7 @@ int ReceiveMessage(header_t *head, char* content, int bufferlen)
         int recvnum = socket.recv(buffer + hlen, sizeof(header_t) - hlen, &error);
         if (recvnum < 0 && !m_shutdown)
         {
-            LOG("NET receive error 1: " + TOSTRING(recvnum));
+            LOG("NET receive error 1: " + error.get_error());
             return -1;
         }
         else if (m_shutdown)
@@ -269,7 +269,7 @@ int ReceiveMessage(header_t *head, char* content, int bufferlen)
             int recvnum = socket.recv(buffer + hlen, (head->size + sizeof(header_t)) - hlen, &error);
             if (recvnum < 0 && !m_shutdown)
             {
-                LOG_THREAD("NET receive error 2: "+ TOSTRING(recvnum));
+                LOG_THREAD("NET receive error 2: "+ error.get_error());
                 return -1;
             }
             else if (m_shutdown)
