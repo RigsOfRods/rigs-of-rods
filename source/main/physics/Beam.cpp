@@ -3013,7 +3013,7 @@ void Beam::lightsToggle()
         {
             if (!trucks[i])
                 continue;
-            if (trucks[i]->state == SIMULATED && this != current_truck && trucks[i]->importcommands)
+            if (trucks[i]->state == SIMULATED && this->trucknum != i && trucks[i]->importcommands)
                 trucks[i]->lightsToggle();
         }
     }
