@@ -4261,7 +4261,7 @@ void Beam::tieToggle(int group)
     {
         for (int i = 0; i < trucksnum; i++)
         {
-            if (trucks[i] && trucks[i]->state == SIMULATED && this != current_truck && trucks[i]->importcommands)
+            if (trucks[i] && trucks[i]->state == SIMULATED && this->trucknum != i && trucks[i]->importcommands)
                 trucks[i]->tieToggle(group);
         }
     }
