@@ -3007,13 +3007,11 @@ void Beam::lightsToggle()
 
     // export light command
     Beam* current_truck = BeamFactory::getSingleton().getCurrentTruck();
-    if (trucks != 0 && state == SIMULATED && this == current_truck && forwardcommands)
+    if (state == SIMULATED && this == current_truck && forwardcommands)
     {
         for (int i = 0; i < trucksnum; i++)
         {
-            if (!trucks[i])
-                continue;
-            if (trucks[i]->state == SIMULATED && this != current_truck && trucks[i]->importcommands)
+            if (trucks[i] && trucks[i]->state == SIMULATED && this->trucknum != i && trucks[i]->importcommands)
                 trucks[i]->lightsToggle();
         }
     }
@@ -4261,7 +4259,7 @@ void Beam::tieToggle(int group)
     {
         for (int i = 0; i < trucksnum; i++)
         {
-            if (trucks[i] && trucks[i]->state == SIMULATED && this != current_truck && trucks[i]->importcommands)
+            if (trucks[i] && trucks[i]->state == SIMULATED && this->trucknum != i && trucks[i]->importcommands)
                 trucks[i]->tieToggle(group);
         }
     }
