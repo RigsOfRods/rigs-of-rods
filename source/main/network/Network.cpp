@@ -177,7 +177,7 @@ bool SendMessageRaw(char *buffer, int msgsize)
         int sendnum = socket.send(buffer + rlen, msgsize - rlen, &error);
         if (sendnum < 0)
         {
-            LOG("NET send error: " + TOSTRING(sendnum));
+            LOG("NET send error: " + error.get_error());
             return false;
         }
         rlen += sendnum;
@@ -225,7 +225,9 @@ int ReceiveMessage(header_t *head, char* content, int bufferlen)
 
     char buffer[MAX_MESSAGE_LENGTH] = {0};
 
-    LOG_THREAD("[RoR|Networking] ReceiveMessage() waiting...");
+#ifdef DEBUG
+	LOG_THREAD("[RoR|Networking] ReceiveMessage() waiting...");
+#endif //DEBUG
 
     int hlen = 0;
     while (hlen < (int)sizeof(header_t))
@@ -233,7 +235,7 @@ int ReceiveMessage(header_t *head, char* content, int bufferlen)
         int recvnum = socket.recv(buffer + hlen, sizeof(header_t) - hlen, &error);
         if (recvnum < 0 && !m_shutdown)
         {
-            LOG("NET receive error 1: " + TOSTRING(recvnum));
+            LOG("NET receive error 1: " + error.get_error());
             return -1;
         }
         else if (m_shutdown)
@@ -250,7 +252,9 @@ int ReceiveMessage(header_t *head, char* content, int bufferlen)
 
     memcpy(head, buffer, sizeof(header_t));
 
+#ifdef DEBUG
     LOG_THREAD("[RoR|Networking] ReceiveMessage() header received");
+#endif //DEBUG
 
     if (head->size >= MAX_MESSAGE_LENGTH)
     {
@@ -265,7 +269,7 @@ int ReceiveMessage(header_t *head, char* content, int bufferlen)
             int recvnum = socket.recv(buffer + hlen, (head->size + sizeof(header_t)) - hlen, &error);
             if (recvnum < 0 && !m_shutdown)
             {
-                LOG_THREAD("NET receive error 2: "+ TOSTRING(recvnum));
+                LOG_THREAD("NET receive error 2: "+ error.get_error());
                 return -1;
             }
             else if (m_shutdown)
@@ -278,7 +282,9 @@ int ReceiveMessage(header_t *head, char* content, int bufferlen)
 
     memcpy(content, buffer + sizeof(header_t), bufferlen);
 
+#ifdef DEBUG
     LOG_THREAD("[RoR|Networking] ReceiveMessage() body received");
+#endif //DEBUG
 
     return 0;
 }
