@@ -1,11 +1,16 @@
 # Rigs of Rods
 
-[![Join the chat at https://gitter.im/RigsOfRods/rigs-of-rods](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/RigsOfRods/rigs-of-rods?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at gitter.im](https://img.shields.io/gitter/room/RigsOfRods/rigs-of-rods.svg?style=flat-square)](https://gitter.im/RigsOfRods/rigs-of-rods) ![downloads](https://img.shields.io/github/downloads/RigsOfRods/rigs-of-rods/latest/total.svg?style=flat-square)
+![release](https://img.shields.io/github/release/RigsOfRods/rigs-of-rods.svg?style=flat-square)
+![contributors](https://img.shields.io/github/contributors/RigsOfRods/rigs-of-rods.svg?style=flat-square)
+![issues-pr](https://img.shields.io/github/issues-pr/RigsOfRods/rigs-of-rods.svg?style=flat-square)
+
+
 
 |  Build status 	|                                                                                                                                                                             	|
 |---------------	|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
-| Linux:        	| [![travis build Status](https://travis-ci.org/RigsOfRods/rigs-of-rods.png?branch=master)](https://travis-ci.org/RigsOfRods/rigs-of-rods)                                    	|
-| Windows:      	| [![appveyor build Status](https://ci.appveyor.com/api/projects/status/github/RigsOfRods/rigs-of-rods?svg=true)](https://ci.appveyor.com/project/AnotherFoxGuy/rigs-of-rods) 	|
+| Linux:        	| [![travis build Status](https://img.shields.io/travis/RigsOfRods/rigs-of-rods.svg?style=flat-square)](https://travis-ci.org/RigsOfRods/rigs-of-rods)                                    	|
+| Windows:      	| [![appveyor build Status](https://img.shields.io/appveyor/ci/AnotherFoxGuy/rigs-of-rods.svg?style=flat-square)](https://ci.appveyor.com/project/AnotherFoxGuy/rigs-of-rods) 	|
 
 
 Rigs of Rods is a free/libre soft-body physics simulator mainly targeted at simulating vehicle physics. The soft-body physics system is based on mass-spring-damper theory.  
