@@ -53,6 +53,7 @@ namespace GUI {
 
 const MyGUI::Colour status_updating_color(1.f, 0.832031f, 0.f);
 const MyGUI::Colour status_failure_color(1.f, 0.175439f, 0.175439f);
+const MyGUI::Colour status_emptylist_color(0.7f, 0.7f, 0.7f);
 
 #define CLASS        MultiplayerSelector
 #define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
@@ -227,6 +228,15 @@ void CLASS::CheckAndProcessRefreshResult()
     }
 
     int num_rows = json["data"].size();
+    if (num_rows == 0)
+    {
+        m_status_label->setTextColour(status_emptylist_color);
+        m_status_label->setCaption("There are no available servers :/");
+        m_refresh_button->setEnabled(true);
+        m_is_refreshing = false;
+        return;
+    }
+
     for (int i = 0; i < num_rows; ++i)
     {
         auto row = json["data"][i];
