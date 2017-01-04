@@ -73,14 +73,15 @@ size_t CurlWriteFunc(void *ptr, size_t size, size_t nmemb, std::string* data) {
 
 #if defined(USE_CURL) && defined(USE_JSONCPP)
 /// Returns JSON in format { "success":bool, "message":str, "data":$response_string }
-Json::Value FetchServerlist()
+Json::Value FetchServerlist(std::string portal_url)
 {
+    std::string serverlist_url = portal_url + "/server-list?json=true";
     std::string response_payload;
     std::string response_header;
     long        response_code = 0;
 
     CURL *curl = curl_easy_init();
-    curl_easy_setopt(curl, CURLOPT_URL,           "http://multiplayer.rigsofrods.org/server-list?json=true");
+    curl_easy_setopt(curl, CURLOPT_URL,           serverlist_url.c_str());
     curl_easy_setopt(curl, CURLOPT_NOPROGRESS,    1L);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlWriteFunc);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA,     &response_payload);
@@ -174,9 +175,9 @@ void CLASS::RefreshServerlist()
     {
         m_serverlist_data = new ServerlistData;
     }
-    std::packaged_task<Json::Value()> task(FetchServerlist);
+    std::packaged_task<Json::Value(std::string)> task(FetchServerlist);
     m_serverlist_data->future_json = task.get_future();
-    std::thread(std::move(task)).detach(); // launch on a thread
+    std::thread(std::move(task), App::GetMpPortalUrl()).detach(); // launch on a thread
 #endif // defined(USE_CURL) && defined(USE_JSONCPP)
 }
 

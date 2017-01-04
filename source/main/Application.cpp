@@ -82,6 +82,7 @@ static std::string      g_mp_server_host;        // Replaces old SSETTING("Serve
 static int              g_mp_server_port;        // Replaces old ISETTING("Server port")     See 'Settings.h'
 static std::string      g_mp_server_password;    // Replaces old SSETTING("Server password") See 'Settings.h'
 static std::string      g_mp_player_name;        // Replaces old SSETTING("Nickname")        See 'Settings.h'
+static std::string      g_mp_portal_url;
 
 // Diagnostic
 static bool             g_diag_trace_globals;
@@ -189,6 +190,7 @@ STR_CREF        GetMpServerHost()       { return g_mp_server_host;        }
 STR_CREF        GetMpServerPassword()   { return g_mp_server_password;    }
 int             GetMpServerPort()       { return g_mp_server_port;        }
 STR_CREF        GetMpPlayerName()       { return g_mp_player_name;        }
+STR_CREF        GetMpPortalUrl()        { return g_mp_portal_url;         }
 bool            GetDiagTraceGlobals()   { return g_diag_trace_globals;    }
 STR_CREF        GetSysProcessDir()      { return g_sys_process_dir;       }
 STR_CREF        GetSysUserDir()         { return g_sys_user_dir;          }
@@ -268,6 +270,7 @@ void SetMpServerHost      (STR_CREF v) { SetVarStr     (g_mp_server_host       ,
 void SetMpServerPassword  (STR_CREF v) { SetVarStr     (g_mp_server_password   , "mp_server_password"   , v); }
 void SetMpServerPort      (int      v) { SetVarInt     (g_mp_server_port       , "mp_server_port"       , v); }
 void SetMpPlayerName      (STR_CREF v) { SetVarStr     (g_mp_player_name       , "mp_player_name"       , v); }
+void SetMpPortalUrl       (STR_CREF v) { SetVarStr     (g_mp_portal_url        , "mp_portal_url"        , v); }
 void SetDiagTraceGlobals  (bool     v) { SetVarBool    (g_diag_trace_globals   , "diag_trace_globals"   , v); }
 void SetSysProcessDir     (STR_CREF v) { SetVarStr     (g_sys_process_dir      , "sys_process_dir"      , v); }
 void SetSysUserDir        (STR_CREF v) { SetVarStr     (g_sys_user_dir         , "sys_user_dir"         , v); }
@@ -452,6 +455,7 @@ void Init()
     g_mp_state_active      = MP_STATE_DISABLED;
     g_mp_state_pending     = MP_STATE_NONE;
     g_mp_player_name       = "Anonymous";
+    g_mp_portal_url        = "http://multiplayer.rigsofrods.org";
 
     g_sim_state_active     = SIM_STATE_NONE;
     g_sim_state_pending    = SIM_STATE_NONE;

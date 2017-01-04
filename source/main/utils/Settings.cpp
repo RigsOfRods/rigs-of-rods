@@ -591,6 +591,7 @@ static const char* CONF_MP_NICKNAME     = "Nickname";
 static const char* CONF_MP_HOSTNAME     = "Server name";
 static const char* CONF_MP_PORT         = "Server port";
 static const char* CONF_MP_PASSWORD     = "Server password";
+static const char* CONF_MP_PORTAL_URL   = "Multiplayer portal URL";
 // Sim
 static const char* CONF_SIM_GEARBOX     = "GearboxMode";
 static const char* CONF_SIM_MULTITHREAD = "Multi-threading";
@@ -669,6 +670,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (k == CONF_MP_HOSTNAME     ) { App::SetMpServerHost         (S(v)); return true; }
     if (k == CONF_MP_PORT         ) { App::SetMpServerPort         (I(v)); return true; }
     if (k == CONF_MP_PASSWORD     ) { App::SetMpServerPassword     (S(v)); return true; }
+    if (k == CONF_MP_PORTAL_URL   ) { App::SetMpPortalUrl          (S(v)); return true; }
     // Sim
     if (k == CONF_SIM_GEARBOX     ) { App__SetSimGearboxMode       (S(v)); return true; }
     if (k == CONF_SIM_MULTITHREAD ) { App::SetAppMultithread       (B(v)); return true; }
@@ -926,6 +928,7 @@ void Settings::SaveSettings()
     f << CONF_MP_HOSTNAME     << "=" << _(App::GetMpServerHost        ()) << endl;
     f << CONF_MP_PORT         << "=" << _(App::GetMpServerPort        ()) << endl;
     f << CONF_MP_PASSWORD     << "=" << _(App::GetMpServerPassword    ()) << endl;
+    f << CONF_MP_PORTAL_URL   << "=" << _(App::GetMpPortalUrl         ()) << endl;
     f                                                                     << endl;
     f << "; Simulation"                                                   << endl;
     f << CONF_SIM_GEARBOX     << "=" << _(App__SimGearboxToStr        ()) << endl;
