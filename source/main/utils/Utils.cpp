@@ -22,7 +22,7 @@
 #include "Utils.h"
 
 #include "ErrorUtils.h"
-#include "rornet.h"
+#include "RoRnet.h"
 #include "RoRVersion.h"
 #include "SHA1.h"
 

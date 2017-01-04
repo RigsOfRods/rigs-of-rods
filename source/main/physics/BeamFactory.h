@@ -173,7 +173,7 @@ protected:
     */
     bool predictTruckIntersectionCollAABB(int a, int b, float scale = 1.0f);
 
-    int CreateRemoteInstance(stream_register_trucks_t* reg);
+    int CreateRemoteInstance(RoRnet::TruckStreamRegister* reg);
     void RemoveStreamSource(int sourceid);
 
     // A list of streams without a corresponding truck in the truck array for each stream source

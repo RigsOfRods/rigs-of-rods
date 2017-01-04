@@ -40,7 +40,7 @@
 #include "Settings.h"
 #include "TerrainManager.h"
 #include "Utils.h"
-#include "rornet.h"
+#include "RoRnet.h"
 
 #include <MyGUI.h>
 

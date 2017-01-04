@@ -32,7 +32,7 @@ Character* CharacterFactory::createLocal(int playerColour)
 void CharacterFactory::createRemoteInstance(int sourceid, int streamid)
 {
 #ifdef USE_SOCKETW
-    user_info_t info;
+    RoRnet::UserInfo info;
     RoR::Networking::GetUserInfo(sourceid, info);
     int colour = info.colournum;
 
@@ -72,15 +72,15 @@ void CharacterFactory::handleStreamData(std::vector<RoR::Networking::recv_packet
 {
     for (auto packet : packet_buffer)
     {
-        if (packet.header.command == MSG2_STREAM_REGISTER)
+        if (packet.header.command == RoRnet::MSG2_STREAM_REGISTER)
         {
-            stream_register_t* reg = (stream_register_t *)packet.buffer;
+            RoRnet::StreamRegister* reg = (RoRnet::StreamRegister *)packet.buffer;
             if (reg->type == 1)
             {
                 createRemoteInstance(packet.header.source, packet.header.streamid);
             }
         }
-        else if (packet.header.command == MSG2_USER_LEAVE)
+        else if (packet.header.command == RoRnet::MSG2_USER_LEAVE)
         {
             removeStreamSource(packet.header.source);
         }

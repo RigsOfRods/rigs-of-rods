@@ -63,13 +63,13 @@ protected:
 
     void onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item);
 
-    void addUserToMenu(user_info_t &user);
+    void addUserToMenu(RoRnet::UserInfo &user);
 
     void vehiclesListUpdate();
 
     void MenubarShowSpawnerReportButtonClicked(MyGUI::Widget* sender);
 
-    Ogre::UTFString getUserString(user_info_t &user, int num_vehicles);
+    Ogre::UTFString getUserString(RoRnet::UserInfo &user, int num_vehicles);
 
     std::vector<MyGUI::PopupMenuPtr> m_popup_menus;
     MyGUI::PopupMenuPtr              m_vehicles_menu_widget;

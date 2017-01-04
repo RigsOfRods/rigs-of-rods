@@ -501,7 +501,7 @@ bool MainThread::SetupGameplayLoop()
         swprintf(tmp, 255, format.asWStr_c_str(), ANSI_TO_WCHAR(RoR::App::GetInputEngine()->getKeyForCommand(EV_COMMON_ENTER_CHATMODE)).c_str());
         App::GetGuiManager()->pushMessageChatBox(UTFString(tmp));
 
-        user_info_t info = RoR::Networking::GetLocalUserData();
+        RoRnet::UserInfo info = RoR::Networking::GetLocalUserData();
         colourNum = info.colournum;
     }
 #endif // USE_SOCKETW

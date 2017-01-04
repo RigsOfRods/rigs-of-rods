@@ -391,8 +391,6 @@ target_include_directories( ${BINNAME} PRIVATE
  gui/mygui
  gui/panels
  network
- network/IRC
- network/protocol
  physics
  physics/air
  physics/collision

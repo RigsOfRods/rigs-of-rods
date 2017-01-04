@@ -43,7 +43,7 @@ MpClientList::MpClientList() :
     , msgwin(0)
 {
     // allocate some buffers
-    clients = (client_t *)calloc(MAX_PEERS, sizeof(client_t));
+    clients = (client_t *)calloc(RORNET_MAX_PEERS, sizeof(client_t));
 
     // tooltip window
     tooltipPanel = MyGUI::Gui::getInstance().createWidget<MyGUI::Widget>("PanelSkin", 0, 0, 200, 20, MyGUI::Align::Default, "ToolTip");
@@ -86,7 +86,7 @@ MpClientList::MpClientList() :
 
     y = 5;
     UTFString tmp;
-    for (int i = 0; i < MAX_PEERS + 1; i++) // plus 1 for local entry
+    for (int i = 0; i < RORNET_MAX_PEERS + 1; i++) // plus 1 for local entry
     {
         x = 100; // space for icons
         player_row_t* row = &player_rows[i];
@@ -169,7 +169,7 @@ MpClientList::~MpClientList()
     }
 }
 
-void MpClientList::updateSlot(player_row_t* row, user_info_t c, bool self)
+void MpClientList::updateSlot(player_row_t* row, RoRnet::UserInfo c, bool self)
 {
     if (!row)
         return;
@@ -202,11 +202,11 @@ void MpClientList::updateSlot(player_row_t* row, user_info_t c, bool self)
 
     UTFString tmp;
     // auth
-    if (c.authstatus == AUTH_NONE)
+    if (c.authstatus == RoRnet::AUTH_NONE)
     {
         row->statimg->setVisible(false);
     }
-    else if (c.authstatus & AUTH_ADMIN)
+    else if (c.authstatus & RoRnet::AUTH_ADMIN)
     {
         row->statimg->setVisible(true);
         row->statimg->setImageTexture("flag_red.png");
@@ -215,7 +215,7 @@ void MpClientList::updateSlot(player_row_t* row, user_info_t c, bool self)
         row->statimg->setPosition(x, y);
         x -= 18;
     }
-    else if (c.authstatus & AUTH_MOD)
+    else if (c.authstatus & RoRnet::AUTH_MOD)
     {
         row->statimg->setVisible(true);
         row->statimg->setImageTexture("flag_blue.png");
@@ -224,7 +224,7 @@ void MpClientList::updateSlot(player_row_t* row, user_info_t c, bool self)
         row->statimg->setPosition(x, y);
         x -= 18;
     }
-    else if (c.authstatus & AUTH_RANKED)
+    else if (c.authstatus & RoRnet::AUTH_RANKED)
     {
         row->statimg->setVisible(true);
         row->statimg->setImageTexture("flag_green.png");
@@ -305,13 +305,13 @@ void MpClientList::update()
     mpPanel->setPosition(x, y);
 
     // add local player to first slot always
-    user_info_t lu = RoR::Networking::GetLocalUserData();
+    RoRnet::UserInfo lu = RoR::Networking::GetLocalUserData();
     updateSlot(&player_rows[slotid], lu, true);
     slotid++;
 
     // add remote players
-    std::vector<user_info_t> users = RoR::Networking::GetUserInfos();
-    for (user_info_t user : users)
+    std::vector<RoRnet::UserInfo> users = RoR::Networking::GetUserInfos();
+    for (RoRnet::UserInfo user : users)
     {
         player_row_t* row = &player_rows[slotid];
         slotid++;
@@ -323,7 +323,7 @@ void MpClientList::update()
         {
         }
     }
-    for (int i = slotid; i < MAX_PEERS; i++)
+    for (int i = slotid; i < RORNET_MAX_PEERS; i++)
     {
         player_row_t* row = &player_rows[i];
         // not used, hide everything

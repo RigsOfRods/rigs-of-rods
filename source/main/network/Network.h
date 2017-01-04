@@ -25,22 +25,22 @@
 
 #include "RoRPrerequisites.h"
 
-#include "rornet.h"
+#include "RoRnet.h"
 
 namespace RoR {
 namespace Networking {
 
 struct recv_packet_t
 {
-    header_t header;
-    char buffer[MAX_MESSAGE_LENGTH];
+    RoRnet::Header header;
+    char buffer[RORNET_MAX_MESSAGE_LENGTH];
 };
 
 bool Connect();
 void Disconnect();
 
 void AddPacket(int streamid, int type, int len, char *content);
-void AddLocalStream(stream_register_t *reg, int size);
+void AddLocalStream(RoRnet::StreamRegister *reg, int size);
 
 void HandleStreamData();
 
@@ -51,9 +51,9 @@ Ogre::String GetTerrainName();
 
 int GetUserColor();
 Ogre::UTFString GetUsername();
-user_info_t GetLocalUserData();
-std::vector<user_info_t> GetUserInfos();
-bool GetUserInfo(int uid, user_info_t &result);
+RoRnet::UserInfo GetLocalUserData();
+std::vector<RoRnet::UserInfo> GetUserInfos();
+bool GetUserInfo(int uid, RoRnet::UserInfo &result);
 
 Ogre::UTFString GetErrorMessage();
 bool CheckError();

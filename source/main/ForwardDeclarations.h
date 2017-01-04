@@ -59,6 +59,16 @@ namespace MyGUI
     class  OgrePlatform;
 }
 
+namespace RoRnet
+{
+    struct Header;
+    struct UserInfo;
+    struct StreamRegister;
+    struct TruckStreamRegister;
+    struct ServerInfo;
+    struct TruckState;
+}
+
 struct node_t;
 struct beam_t;
 struct shock_t;
@@ -85,9 +95,6 @@ struct hook_t;
 struct ground_model_t;
 struct client_t;
 struct authorinfo_t;
-struct header_t;
-struct user_info_t;
-struct stream_register_t;
 
 namespace MOC
 {

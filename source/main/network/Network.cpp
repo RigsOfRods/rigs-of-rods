@@ -51,24 +51,26 @@
 namespace RoR {
 namespace Networking {
 
+using namespace RoRnet;
+
 struct send_packet_t
 {
-    char buffer[MAX_MESSAGE_LENGTH];
+    char buffer[RORNET_MAX_MESSAGE_LENGTH];
     int size;
 };
 
-static server_info_t m_server_settings;
+static RoRnet::ServerInfo m_server_settings;
 
 static Ogre::UTFString m_username; // Shadows gEnv->mp_player_name for multithreaded access.
 static int m_uid;
 static int m_authlevel;
-static user_info_t m_userdata;
+static RoRnet::UserInfo m_userdata;
 
 static int m_stream_id = 10;
 
 static std::atomic<int> m_net_quality;
 
-static std::vector<user_info_t> m_users;
+static std::vector<RoRnet::UserInfo> m_users;
 
 static SWInetSocket socket;
 
@@ -121,7 +123,7 @@ bool CheckError()
     return false;
 }
 
-void DebugPacket(const char *name, header_t *header, char *buffer)
+void DebugPacket(const char *name, RoRnet::Header *header, char *buffer)
 {
     char sha1result[250] = {0};
     if (buffer)
@@ -188,51 +190,51 @@ bool SendMessageRaw(char *buffer, int msgsize)
 
 bool SendNetMessage(int type, unsigned int streamid, int len, char* content)
 {
-    header_t head;
-    memset(&head, 0, sizeof(header_t));
+    RoRnet::Header head;
+    memset(&head, 0, sizeof(RoRnet::Header));
     head.command = type;
     head.source = m_uid;
     head.size = len;
     head.streamid = streamid;
 
-    const int msgsize = sizeof(header_t) + len;
+    const int msgsize = sizeof(RoRnet::Header) + len;
 
-    if (msgsize >= MAX_MESSAGE_LENGTH)
+    if (msgsize >= RORNET_MAX_MESSAGE_LENGTH)
     {
         return false;
     }
 
-    char buffer[MAX_MESSAGE_LENGTH] = {0};
-    memcpy(buffer, (char *)&head, sizeof(header_t));
-    memcpy(buffer + sizeof(header_t), content, len);
+    char buffer[RORNET_MAX_MESSAGE_LENGTH] = {0};
+    memcpy(buffer, (char *)&head, sizeof(RoRnet::Header));
+    memcpy(buffer + sizeof(RoRnet::Header), content, len);
 
     return SendMessageRaw(buffer, msgsize);
 }
 
-void QueueStreamData(header_t &header, char *buffer)
+void QueueStreamData(RoRnet::Header &header, char *buffer)
 {
     recv_packet_t packet;
     packet.header = header;
-    memcpy(packet.buffer, buffer, MAX_MESSAGE_LENGTH);
+    memcpy(packet.buffer, buffer, RORNET_MAX_MESSAGE_LENGTH);
 
     std::lock_guard<std::mutex> lock(m_recv_packetqueue_mutex);
     m_recv_packet_buffer.push_back(packet);
 }
 
-int ReceiveMessage(header_t *head, char* content, int bufferlen)
+int ReceiveMessage(RoRnet::Header *head, char* content, int bufferlen)
 {
     SWBaseSocket::SWBaseError error;
 
-    char buffer[MAX_MESSAGE_LENGTH] = {0};
+    char buffer[RORNET_MAX_MESSAGE_LENGTH] = {0};
 
 #ifdef DEBUG
 	LOG_THREAD("[RoR|Networking] ReceiveMessage() waiting...");
 #endif //DEBUG
 
     int hlen = 0;
-    while (hlen < (int)sizeof(header_t))
+    while (hlen < (int)sizeof(RoRnet::Header))
     {
-        int recvnum = socket.recv(buffer + hlen, sizeof(header_t) - hlen, &error);
+        int recvnum = socket.recv(buffer + hlen, sizeof(RoRnet::Header) - hlen, &error);
         if (recvnum < 0 && !m_shutdown)
         {
             LOG("NET receive error 1: " + error.get_error());
@@ -250,13 +252,13 @@ int ReceiveMessage(header_t *head, char* content, int bufferlen)
         return RECVMESSAGE_RETVAL_SHUTDOWN;
     }
 
-    memcpy(head, buffer, sizeof(header_t));
+    memcpy(head, buffer, sizeof(RoRnet::Header));
 
 #ifdef DEBUG
     LOG_THREAD("[RoR|Networking] ReceiveMessage() header received");
 #endif //DEBUG
 
-    if (head->size >= MAX_MESSAGE_LENGTH)
+    if (head->size >= RORNET_MAX_MESSAGE_LENGTH)
     {
         return -3;
     }
@@ -264,9 +266,9 @@ int ReceiveMessage(header_t *head, char* content, int bufferlen)
     if (head->size > 0)
     {
         // Read the packet content
-        while (hlen < (int)sizeof(header_t) + (int)head->size)
+        while (hlen < (int)sizeof(RoRnet::Header) + (int)head->size)
         {
-            int recvnum = socket.recv(buffer + hlen, (head->size + sizeof(header_t)) - hlen, &error);
+            int recvnum = socket.recv(buffer + hlen, (head->size + sizeof(RoRnet::Header)) - hlen, &error);
             if (recvnum < 0 && !m_shutdown)
             {
                 LOG_THREAD("NET receive error 2: "+ error.get_error());
@@ -280,7 +282,7 @@ int ReceiveMessage(header_t *head, char* content, int bufferlen)
         }
     }
 
-    memcpy(content, buffer + sizeof(header_t), bufferlen);
+    memcpy(content, buffer + sizeof(RoRnet::Header), bufferlen);
 
 #ifdef DEBUG
     LOG_THREAD("[RoR|Networking] ReceiveMessage() body received");
@@ -320,13 +322,13 @@ void RecvThread()
 {
     LOG_THREAD("[RoR|Networking] RecvThread starting...");
 
-    header_t header;
+    RoRnet::Header header;
 
-    char *buffer = (char*)malloc(MAX_MESSAGE_LENGTH);
+    char *buffer = (char*)malloc(RORNET_MAX_MESSAGE_LENGTH);
 
     while (!m_shutdown)
     {
-        int err = ReceiveMessage(&header, buffer, MAX_MESSAGE_LENGTH);
+        int err = ReceiveMessage(&header, buffer, RORNET_MAX_MESSAGE_LENGTH);
         //LOG("Received data: " + TOSTRING(header.command) + ", source: " + TOSTRING(header.source) + ":" + TOSTRING(header.streamid) + ", size: " + TOSTRING(header.size));
         if (err != 0)
         {
@@ -344,20 +346,20 @@ void RecvThread()
             if (header.source == m_uid)
                 continue;
 
-            stream_register_t *reg = (stream_register_t *)buffer;
+            RoRnet::StreamRegister *reg = (RoRnet::StreamRegister *)buffer;
 
             LOG(" * received stream registration: " + TOSTRING(header.source) + ": " + TOSTRING(header.streamid) + ", type: " + TOSTRING(reg->type));
         }
         else if (header.command == MSG2_STREAM_REGISTER_RESULT)
         {
-            stream_register_t *reg = (stream_register_t *)buffer;
+            RoRnet::StreamRegister *reg = (RoRnet::StreamRegister *)buffer;
             LOG(" * received stream registration result: " + TOSTRING(header.source) + ": " + TOSTRING(header.streamid) + ", status: " + TOSTRING(reg->status));
         }
         else if (header.command == MSG2_STREAM_UNREGISTER)
         {
             LOG(" * received stream deregistration: " + TOSTRING(header.source) + ": " + TOSTRING(header.streamid));
         }
-        else if (header.command == MSG2_UTF_CHAT || header.command == MSG2_UTF_PRIVCHAT)
+        else if (header.command == MSG2_UTF8_CHAT || header.command == MSG2_UTF8_PRIVCHAT)
         {
             // Chat message
         }
@@ -381,13 +383,13 @@ void RecvThread()
 
             { // Lock scope
                 std::lock_guard<std::mutex> lock(m_users_mutex);
-                auto user = std::find_if(m_users.begin(), m_users.end(), [header](const user_info_t u) { return static_cast<int>(u.uniqueid) == header.source; });
+                auto user = std::find_if(m_users.begin(), m_users.end(), [header](const RoRnet::UserInfo u) { return static_cast<int>(u.uniqueid) == header.source; });
                 if (user != m_users.end())
                 {
                     Ogre::UTFString msg = RoR::ChatSystem::GetColouredName(user->username, user->colournum) + RoR::Color::CommandColour + _L(" left the game");
                     const char *utf8_line = msg.asUTF8_c_str();
-                    header_t head;
-                    head.command = MSG2_UTF_CHAT;
+                    RoRnet::Header head;
+                    head.command = MSG2_UTF8_CHAT;
                     head.source  = -1;
                     head.size    = (int)strlen(utf8_line);
                     QueueStreamData(head, (char *)utf8_line);
@@ -404,20 +406,20 @@ void RecvThread()
             if (header.source == m_uid)
             {
                 std::lock_guard<std::mutex> lock(m_userdata_mutex);
-                memcpy(&m_userdata, buffer, sizeof(user_info_t));
+                memcpy(&m_userdata, buffer, sizeof(RoRnet::UserInfo));
                 m_authlevel = m_userdata.authstatus;
                 m_username = Ogre::UTFString(m_userdata.username);
                 // TODO: Update the global variable 'mp_player_name' in a threadsafe way.
             }
             else
             {
-                user_info_t user_info;
-                memcpy(&user_info, buffer, sizeof(user_info_t));
+                RoRnet::UserInfo user_info;
+                memcpy(&user_info, buffer, sizeof(RoRnet::UserInfo));
 
                 bool user_exists = false;
                 {
                     std::lock_guard<std::mutex> lock(m_users_mutex);
-                    for (user_info_t &user : m_users)
+                    for (RoRnet::UserInfo &user : m_users)
                     {
                         if ((int)user.uniqueid == header.source)
                         {
@@ -431,8 +433,8 @@ void RecvThread()
                         m_users.push_back(user_info);
                         Ogre::UTFString msg = RoR::ChatSystem::GetColouredName(user_info.username, user_info.colournum) + RoR::Color::CommandColour + _L(" joined the game");
                         const char *utf8_line = msg.asUTF8_c_str();
-                        header_t head;
-                        head.command = MSG2_UTF_CHAT;
+                        RoRnet::Header head;
+                        head.command = MSG2_UTF8_CHAT;
                         head.source  = -1;
                         head.size    = (int)strlen(utf8_line);
                         QueueStreamData(head, (char *)utf8_line);
@@ -509,8 +511,8 @@ bool Connect()
         return false;
     }
 
-    header_t header;
-    char buffer[MAX_MESSAGE_LENGTH] = {0};
+    RoRnet::Header header;
+    char buffer[RORNET_MAX_MESSAGE_LENGTH] = {0};
 
     // Receive server (rornet protocol) version
     if (ReceiveMessage(&header, buffer, 255))
@@ -530,7 +532,7 @@ bool Connect()
     }
 
     // Save server settings
-    memcpy(&m_server_settings, buffer, sizeof(server_info_t));
+    memcpy(&m_server_settings, buffer, sizeof(RoRnet::ServerInfo));
 
     if (strncmp(m_server_settings.protocolversion, RORNET_VERSION, strlen(RORNET_VERSION)))
     {
@@ -561,10 +563,10 @@ bool Connect()
 
     // Construct user credentials
     // Beware of the wchar_t converted to UTF8 for networking
-    user_info_t c;
-    memset(&c, 0, sizeof(user_info_t));
+    RoRnet::UserInfo c;
+    memset(&c, 0, sizeof(RoRnet::UserInfo));
     // Cut off the UTF string on the highest level, otherwise you will break UTF info
-    strncpy((char *)c.username, m_username.substr(0, MAX_USERNAME_LEN * 0.5f).asUTF8_c_str(), MAX_USERNAME_LEN);
+    strncpy((char *)c.username, m_username.substr(0, RORNET_MAX_USERNAME_LEN * 0.5f).asUTF8_c_str(), RORNET_MAX_USERNAME_LEN);
     strncpy(c.serverpassword, sha1pwresult, 40);
     strncpy(c.usertoken, usertokenhash.c_str(), 40);
     strncpy(c.clientversion, ROR_VERSION_STRING, strnlen(ROR_VERSION_STRING, 25));
@@ -572,7 +574,7 @@ bool Connect()
     Ogre::String lang = App::GetAppLocale();
     strncpy(c.language, lang.c_str(), std::min<int>((int)lang.size(), 10));
     strcpy(c.sessiontype, "normal");
-    if (!SendNetMessage(MSG2_USER_INFO, 0, sizeof(user_info_t), (char*)&c))
+    if (!SendNetMessage(MSG2_USER_INFO, 0, sizeof(RoRnet::UserInfo), (char*)&c))
     {
         ConnectionFailed(_L("Establishing network session: error sending user info"));
         return false;
@@ -627,7 +629,7 @@ bool Connect()
     m_uid = header.source;
 
     // we get our userdata back
-    memcpy(&m_userdata, buffer, std::min<int>(sizeof(user_info_t), header.size));
+    memcpy(&m_userdata, buffer, std::min<int>(sizeof(RoRnet::UserInfo), header.size));
 
     m_shutdown = false;
 
@@ -677,7 +679,7 @@ void Disconnect()
 
 void AddPacket(int streamid, int type, int len, char *content)
 {
-    if (len > MAX_MESSAGE_LENGTH)
+    if (len > RORNET_MAX_MESSAGE_LENGTH)
     {
         // packet too big, discarded
         return;
@@ -688,18 +690,18 @@ void AddPacket(int streamid, int type, int len, char *content)
 
     char *buffer = (char*)(packet.buffer);
 
-    header_t *head = (header_t *)buffer;
+    RoRnet::Header *head = (RoRnet::Header *)buffer;
     head->command  = type;
     head->source   = m_uid;
     head->size     = len;
     head->streamid = streamid;
 
     // then copy the contents
-    char *bufferContent = (char *)(buffer + sizeof(header_t));
+    char *bufferContent = (char *)(buffer + sizeof(RoRnet::Header));
     memcpy(bufferContent, content, len);
 
     // record the packet size
-    packet.size = len + sizeof(header_t);
+    packet.size = len + sizeof(RoRnet::Header);
 
     { // Lock scope
         std::lock_guard<std::mutex> lock(m_send_packetqueue_mutex);
@@ -710,7 +712,7 @@ void AddPacket(int streamid, int type, int len, char *content)
                 // buffer full, discard unimportant data packets
                 return;
             }
-            auto search = std::find_if(m_send_packet_buffer.begin(), m_send_packet_buffer.end(), [packet](const send_packet_t& p) { return memcmp(packet.buffer, p.buffer, sizeof(header_t)) == 0; });
+            auto search = std::find_if(m_send_packet_buffer.begin(), m_send_packet_buffer.end(), [packet](const send_packet_t& p) { return memcmp(packet.buffer, p.buffer, sizeof(RoRnet::Header)) == 0; });
             if (search != m_send_packet_buffer.end())
             {
                 // Found an older packet with the same header -> replace it
@@ -724,7 +726,7 @@ void AddPacket(int streamid, int type, int len, char *content)
     m_send_packet_available_cv.notify_one();
 }
 
-void AddLocalStream(stream_register_t *reg, int size)
+void AddLocalStream(RoRnet::StreamRegister *reg, int size)
 {
     reg->origin_sourceid = m_uid;
     reg->origin_streamid = m_stream_id;
@@ -769,22 +771,22 @@ Ogre::UTFString GetUsername()
     return m_username;
 }
 
-user_info_t GetLocalUserData()
+RoRnet::UserInfo GetLocalUserData()
 {
     std::lock_guard<std::mutex> lock(m_userdata_mutex);
     return m_userdata;
 }
 
-std::vector<user_info_t> GetUserInfos()
+std::vector<RoRnet::UserInfo> GetUserInfos()
 {
     std::lock_guard<std::mutex> lock(m_users_mutex);
     return m_users;
 }
 
-bool GetUserInfo(int uid, user_info_t &result)
+bool GetUserInfo(int uid, RoRnet::UserInfo &result)
 {
     std::lock_guard<std::mutex> lock(m_users_mutex);
-    for (user_info_t user : m_users)
+    for (RoRnet::UserInfo user : m_users)
     {
         if ((int)user.uniqueid == uid)
         {

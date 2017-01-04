@@ -648,7 +648,10 @@ static size_t curlWriteMemoryCallback(void* ptr, size_t size, size_t nmemb, void
 
 int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 {
-#ifdef USE_CURL
+    // ### Disabled until new multiplayer portal supports it ##
+
+#if 0 
+//#ifdef USE_CURL
     struct curlMemoryStruct chunk;
 
     chunk.memory = (char *)malloc(1); /* will be grown as needed by the realloc above */
@@ -926,7 +929,7 @@ int GameScript::sendGameCmd(const String& message)
 #ifdef USE_SOCKETW
     if (RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED)
     {
-        RoR::Networking::AddPacket(0, MSG2_GAME_CMD, (int)message.size(), const_cast<char*>(message.c_str()));
+        RoR::Networking::AddPacket(0, RoRnet::MSG2_GAME_CMD, (int)message.size(), const_cast<char*>(message.c_str()));
         return 0;
     }
 #endif // USE_SOCKETW

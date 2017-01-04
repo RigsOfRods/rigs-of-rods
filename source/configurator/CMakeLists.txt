@@ -76,8 +76,8 @@ include_directories(${MYGUI_INCLUDE_DIRS})
 
 add_definitions("-DNOOGRE -D_UNICODE")
 include_directories(../main/)
+include_directories(../main/network/)
 include_directories(../main/utils/)
-include_directories(../main/network/protocol)
 
 FILE(GLOB sources "*.cpp")
 FILE(GLOB headers "*.h")

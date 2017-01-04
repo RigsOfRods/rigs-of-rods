@@ -31,7 +31,7 @@
 #include "GUIManager.h"
 #include "InputEngine.h"
 #include "Utils.h"
-#include "rornet.h"
+#include "RoRnet.h"
 #include "Language.h"
 
 #include <MyGUI.h>

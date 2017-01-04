@@ -29,18 +29,20 @@
 namespace RoR {
 namespace ChatSystem {
 
+using namespace RoRnet;
+
 static int m_stream_id;
 
 #ifdef USE_SOCKETW
 void SendStreamSetup()
 {
-    stream_register_t reg;
-    memset(&reg, 0, sizeof(stream_register_t));
+    RoRnet::StreamRegister reg;
+    memset(&reg, 0, sizeof(RoRnet::StreamRegister));
     reg.status = 1;
     strcpy(reg.name, "chat");
     reg.type = 3;
 
-    RoR::Networking::AddLocalStream(&reg, sizeof(stream_register_t));
+    RoR::Networking::AddLocalStream(&reg, sizeof(RoRnet::StreamRegister));
 
     m_stream_id = reg.origin_streamid;
 }
@@ -63,12 +65,12 @@ Ogre::UTFString GetColouredName(Ogre::UTFString nick, int colour_number)
 #ifdef USE_SOCKETW
 void ReceiveStreamData(unsigned int type, int source, char* buffer)
 {
-    if (type != MSG2_UTF_CHAT && type != MSG2_UTF_PRIVCHAT)
+    if (type != MSG2_UTF8_CHAT && type != MSG2_UTF8_PRIVCHAT)
         return;
 
     Ogre::UTFString msg = tryConvertUTF(buffer);
 
-    if (type == MSG2_UTF_CHAT)
+    if (type == MSG2_UTF8_CHAT)
     {
         if (source == -1)
         {
@@ -82,14 +84,14 @@ void ReceiveStreamData(unsigned int type, int source, char* buffer)
         }
         else
         {
-            user_info_t user;
+            RoRnet::UserInfo user;
             if (RoR::Networking::GetUserInfo(source, user))
             {
                 msg = GetColouredName(user.username, user.colournum) + RoR::Color::NormalColour + ": " + msg;
             }
         }
     }
-    else if (type == MSG2_UTF_PRIVCHAT)
+    else if (type == MSG2_UTF8_PRIVCHAT)
     {
         if (source == -1)
         {
@@ -98,7 +100,7 @@ void ReceiveStreamData(unsigned int type, int source, char* buffer)
         }
         else
         {
-            user_info_t user;
+            RoRnet::UserInfo user;
             if (RoR::Networking::GetUserInfo(source, user))
             {
                 msg = GetColouredName(user.username, user.colournum) + _L(" [whispered] ") + RoR::Color::NormalColour + ": " + msg;
@@ -125,29 +127,29 @@ void SendChat(Ogre::UTFString chatline)
 {
 #ifdef USE_SOCKETW
     const char* utf8_line = chatline.asUTF8_c_str();
-    RoR::Networking::AddPacket(m_stream_id, MSG2_UTF_CHAT, (unsigned int)strlen(utf8_line), (char *)utf8_line);
+    RoR::Networking::AddPacket(m_stream_id, MSG2_UTF8_CHAT, (unsigned int)strlen(utf8_line), (char *)utf8_line);
 #endif // USE_SOCKETW
 }
 
 void SendPrivateChat(int target_uid, Ogre::UTFString chatline, Ogre::UTFString target_username)
 {
 #ifdef USE_SOCKETW
-    char buffer[MAX_MESSAGE_LENGTH] = {0};
+    char buffer[RORNET_MAX_MESSAGE_LENGTH] = {0};
 
     const char* chat_msg = (const char *)chatline.asUTF8_c_str();
 
     // format: int of UID, then chat message
     memcpy(buffer, &target_uid, sizeof(int));
-    strncpy(buffer + sizeof(int), chat_msg, MAX_MESSAGE_LENGTH - sizeof(int));
+    strncpy(buffer + sizeof(int), chat_msg, RORNET_MAX_MESSAGE_LENGTH - sizeof(int));
 
     size_t len = sizeof(int) + chatline.size() * sizeof(wchar_t);
     buffer[len] = 0;
 
-    RoR::Networking::AddPacket(m_stream_id, MSG2_UTF_PRIVCHAT, (unsigned int)len, buffer);
+    RoR::Networking::AddPacket(m_stream_id, MSG2_UTF8_PRIVCHAT, (unsigned int)len, buffer);
 
     if (target_username.empty())
     {
-        user_info_t user;
+        RoRnet::UserInfo user;
         if (RoR::Networking::GetUserInfo(target_uid, user))
         {
             target_username = GetColouredName(user.username, user.colournum);
@@ -167,8 +169,8 @@ void SendPrivateChat(Ogre::UTFString target_username, Ogre::UTFString chatline)
 {
 #ifdef USE_SOCKETW
     // first: find id to username:
-    user_info_t target_user;
-    std::vector<user_info_t> users = RoR::Networking::GetUserInfos();
+    RoRnet::UserInfo target_user;
+    std::vector<RoRnet::UserInfo> users = RoR::Networking::GetUserInfos();
 
     bool found_target = false;
     for (auto user : users)

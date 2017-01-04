@@ -20,9 +20,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <Ogre.h>
 
 #include "OISKeyboard.h"
+#include "RoRnet.h"
 #include "RoRVersion.h"
 #include "conf_file.h"
-#include "rornet.h"
 #include "wxValueChoice.h" // a control we wrote
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
@@ -3002,23 +3002,7 @@ std::string MyDialog::readVersionInfo()
 
 void MyDialog::OnChangedNotebook1(wxNotebookEvent& event)
 {
-	wxString tabname = nbook->GetPageText(event.GetSelection());
-	if(tabname == _("Updates"))
-	{
-		// try to find our version
-#ifdef _WIN32
-		helphtmw->LoadPage(wxString(conv(NEWS_HTML_PAGE))+
-			wxString(conv("?netversion="))+wxString(conv(RORNET_VERSION))+
-			wxString(conv("&version="))+wxString(readVersionInfo())+
-			wxString(conv("&lang="))+conv(conv(language->CanonicalName))
-			);
-#else
-		helphtmw->LoadPage(wxString(conv(NEWS_HTML_PAGE))+
-			wxString(conv("?netversion="))+wxString(conv(RORNET_VERSION))+
-			wxString(conv("&lang="))+conv(conv(language->CanonicalName))
-			);
-#endif // _WIN32
-	}
+	// Removed 'news' feature, not supported by new online API
 }
 
 void MyDialog::OnTimerReset(wxTimerEvent& event)
@@ -3037,7 +3021,7 @@ void MyDialog::OnButTestNet(wxCommandEvent& event)
 	btnUpdate->Enable(false);
 	timer1->Start(10000);
 	std::string lshort = conv(language->CanonicalName).substr(0, 2);
-	networkhtmw->LoadPage(wxString(conv(REPO_HTML_SERVERLIST))+
+	networkhtmw->LoadPage(wxString(conv("http://multiplayer.rigsofrods.org/server-list"))+
 						  wxString(conv("?version="))+wxString(conv(RORNET_VERSION))+
 						  wxString(conv("&lang="))+conv(lshort));
 
@@ -3054,10 +3038,10 @@ void MyDialog::OnButTestNet(wxCommandEvent& event)
 		err->ShowModal();
 		return;
 	}
-	header_t head;
+	RoRnet::Header head;
 	head.command=MSG_VERSION;
 	head.size=strlen(RORNET_VERSION);
-	mySocket.send((char*)&head, sizeof(header_t), &error);
+	mySocket.send((char*)&head, sizeof(RoRnet::Header), &error);
 	if (error!=SWBaseSocket::ok)
 	{
 		wxMessageDialog *err=new wxMessageDialog(this, wxString(error.get_error()), "Error", wxOK | wxICON_ERROR);
@@ -3071,7 +3055,7 @@ void MyDialog::OnButTestNet(wxCommandEvent& event)
 		err->ShowModal();
 		return;
 	}
-	mySocket.recv((char*)&head, sizeof(header_t), &error);
+	mySocket.recv((char*)&head, sizeof(RoRnet::Header), &error);
 	if (error!=SWBaseSocket::ok)
 	{
 		wxMessageDialog *err=new wxMessageDialog(this, wxString(error.get_error()), "Error", wxOK | wxICON_ERROR);

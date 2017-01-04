@@ -151,7 +151,7 @@ void Character::updateLabels()
     if (App::GetActiveMpState() != App::MP_STATE_CONNECTED) { return; }
 
 #ifdef USE_SOCKETW
-    user_info_t info;
+    RoRnet::UserInfo info;
 
     if (remote)
     {
@@ -593,14 +593,14 @@ void Character::sendStreamSetup()
     if (remote)
         return;
 
-    stream_register_t reg;
+    RoRnet::StreamRegister reg;
     memset(&reg, 0, sizeof(reg));
     reg.status = 1;
     strcpy(reg.name, "default");
     reg.type = 1;
     reg.data[0] = 2;
 
-    RoR::Networking::AddLocalStream(&reg, sizeof(stream_register_t));
+    RoR::Networking::AddLocalStream(&reg, sizeof(RoRnet::StreamRegister));
 
     m_source_id = reg.origin_sourceid;
     m_stream_id = reg.origin_streamid;
@@ -627,13 +627,13 @@ void Character::sendStreamData()
     data.animationTime = mAnimState->getAnimationState(mLastAnimMode)->getTimePosition();
 
     //LOG("sending character stream data: " + TOSTRING(RoR::Networking::GetUID()) + ":" + TOSTRING(m_stream_id));
-    RoR::Networking::AddPacket(m_stream_id, MSG2_STREAM_DATA, sizeof(pos_netdata_t), (char*)&data);
+    RoR::Networking::AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA, sizeof(pos_netdata_t), (char*)&data);
 #endif // USE_SOCKETW
 }
 
 void Character::receiveStreamData(unsigned int& type, int& source, unsigned int& streamid, char* buffer)
 {
-    if (type == MSG2_STREAM_DATA && m_source_id == source && m_stream_id == streamid)
+    if (type == RoRnet::MSG2_STREAM_DATA && m_source_id == source && m_stream_id == streamid)
     {
         header_netdata_t* header = (header_netdata_t *)buffer;
         if (header->command == CHARCMD_POSITION)
@@ -701,7 +701,7 @@ void Character::setBeamCoupling(bool enabled, Beam* truck /* = 0 */)
             data.enabled = true;
             data.source_id = beamCoupling->m_source_id;
             data.stream_id = beamCoupling->m_stream_id;
-            RoR::Networking::AddPacket(m_stream_id, MSG2_STREAM_DATA, sizeof(attach_netdata_t), (char*)&data);
+            RoR::Networking::AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA, sizeof(attach_netdata_t), (char*)&data);
 #endif // USE_SOCKETW
         }
 
@@ -731,7 +731,7 @@ void Character::setBeamCoupling(bool enabled, Beam* truck /* = 0 */)
             attach_netdata_t data;
             data.command = CHARCMD_ATTACH;
             data.enabled = false;
-            RoR::Networking::AddPacket(m_stream_id, MSG2_STREAM_DATA, sizeof(attach_netdata_t), (char*)&data);
+            RoR::Networking::AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA, sizeof(attach_netdata_t), (char*)&data);
 #endif // USE_SOCKETW
         }
 

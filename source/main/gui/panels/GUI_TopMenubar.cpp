@@ -179,22 +179,22 @@ TopMenubar::~TopMenubar()
     m_menubar_widget = nullptr;
 }
 
-UTFString TopMenubar::getUserString(user_info_t &user, int num_vehicles)
+UTFString TopMenubar::getUserString(RoRnet::UserInfo &user, int num_vehicles)
 {
     UTFString tmp = RoR::ChatSystem::GetColouredName(user.username, user.colournum);
 
     tmp = tmp + U(": ");
 
     // some more info
-    if (user.authstatus & AUTH_BOT)
+    if (user.authstatus & RoRnet::AUTH_BOT)
         tmp = tmp + _L("#0000c9 Bot, ");
-    else if (user.authstatus & AUTH_BANNED)
+    else if (user.authstatus & RoRnet::AUTH_BANNED)
         tmp = tmp + _L("banned, ");
-    else if (user.authstatus & AUTH_RANKED)
+    else if (user.authstatus & RoRnet::AUTH_RANKED)
         tmp = tmp + _L("#00c900 Ranked, ");
-    else if (user.authstatus & AUTH_MOD)
+    else if (user.authstatus & RoRnet::AUTH_MOD)
         tmp = tmp + _L("#c90000 Moderator, ");
-    else if (user.authstatus & AUTH_ADMIN)
+    else if (user.authstatus & RoRnet::AUTH_ADMIN)
         tmp = tmp + _L("#c97100 Admin, ");
 
     tmp = tmp + _L("#ff8d00 version: #3eff20 ");
@@ -213,7 +213,7 @@ UTFString TopMenubar::getUserString(user_info_t &user, int num_vehicles)
     return tmp;
 }
 
-void TopMenubar::addUserToMenu(user_info_t &user)
+void TopMenubar::addUserToMenu(RoRnet::UserInfo &user)
 {
     int numTrucks = BeamFactory::getSingleton().getTruckCount();
     Beam **trucks = BeamFactory::getSingleton().getTrucks();
@@ -278,7 +278,7 @@ void TopMenubar::vehiclesListUpdate()
 #ifdef USE_SOCKETW
         // sort the list according to the network users
 
-        user_info_t local_user = RoR::Networking::GetLocalUserData();
+        RoRnet::UserInfo local_user = RoR::Networking::GetLocalUserData();
         addUserToMenu(local_user);
 
         auto users = RoR::Networking::GetUserInfos();

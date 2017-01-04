@@ -277,12 +277,12 @@ Beam* BeamFactory::CreateLocalRigInstance(
 
 #undef LOADRIG_PROFILER_CHECKPOINT
 
-int BeamFactory::CreateRemoteInstance(stream_register_trucks_t* reg)
+int BeamFactory::CreateRemoteInstance(RoRnet::TruckStreamRegister* reg)
 {
     LOG(" new beam truck for " + TOSTRING(reg->origin_sourceid) + ":" + TOSTRING(reg->origin_streamid));
 
 #ifdef USE_SOCKETW
-    user_info_t info;
+    RoRnet::UserInfo info;
     RoR::Networking::GetUserInfo(reg->origin_sourceid, info);
 
     UTFString message = RoR::ChatSystem::GetColouredName(info.username, info.colournum) + RoR::Color::CommandColour + _L(" spawned a new vehicle: ") + RoR::Color::NormalColour + reg->name;
@@ -375,18 +375,18 @@ void BeamFactory::handleStreamData(std::vector<RoR::Networking::recv_packet_t> p
 {
     for (auto packet : packet_buffer)
     {
-        if (packet.header.command == MSG2_STREAM_REGISTER)
+        if (packet.header.command == RoRnet::MSG2_STREAM_REGISTER)
         {
-            stream_register_t* reg = (stream_register_t *)packet.buffer;
+            RoRnet::StreamRegister* reg = (RoRnet::StreamRegister *)packet.buffer;
             if (reg->type == 0)
             {
-                reg->status = this->CreateRemoteInstance((stream_register_trucks_t *)packet.buffer);
-                RoR::Networking::AddPacket(0, MSG2_STREAM_REGISTER_RESULT, sizeof(stream_register_t), (char *)reg);
+                reg->status = this->CreateRemoteInstance((RoRnet::TruckStreamRegister *)packet.buffer);
+                RoR::Networking::AddPacket(0, RoRnet::MSG2_STREAM_REGISTER_RESULT, sizeof(RoRnet::StreamRegister), (char *)reg);
             }
         }
-        else if (packet.header.command == MSG2_STREAM_REGISTER_RESULT)
+        else if (packet.header.command == RoRnet::MSG2_STREAM_REGISTER_RESULT)
         {
-            stream_register_t* reg = (stream_register_t *)packet.buffer;
+            RoRnet::StreamRegister* reg = (RoRnet::StreamRegister *)packet.buffer;
             for (int t = 0; t < m_free_truck; t++)
             {
                 if (!m_trucks[t])
@@ -407,7 +407,7 @@ void BeamFactory::handleStreamData(std::vector<RoR::Networking::recv_packet_t> p
                 }
             }
         }
-        else if (packet.header.command == MSG2_STREAM_UNREGISTER)
+        else if (packet.header.command == RoRnet::MSG2_STREAM_UNREGISTER)
         {
             Beam* b = this->getBeam(packet.header.source, packet.header.streamid);
             if (b && b->state == NETWORKED)
@@ -423,7 +423,7 @@ void BeamFactory::handleStreamData(std::vector<RoR::Networking::recv_packet_t> p
                     mismatches.erase(it);
             }
         }
-        else if (packet.header.command == MSG2_USER_LEAVE)
+        else if (packet.header.command == RoRnet::MSG2_USER_LEAVE)
         {
             this->RemoveStreamSource(packet.header.source);
         }
@@ -810,7 +810,7 @@ void BeamFactory::DeleteTruck(Beam* b)
 #ifdef USE_SOCKETW
     if (b->networking && b->state != NETWORKED && b->state != INVALID)
     {
-        RoR::Networking::AddPacket(b->m_stream_id, MSG2_STREAM_UNREGISTER, 0, 0);
+        RoR::Networking::AddPacket(b->m_stream_id, RoRnet::MSG2_STREAM_UNREGISTER, 0, 0);
     }
 #endif // USE_SOCKETW
 
