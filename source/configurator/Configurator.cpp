@@ -19,12 +19,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <Ogre.h>
 
-#include "ImprovedConfigFile.h"
 #include "OISKeyboard.h"
 #include "RoRVersion.h"
 #include "conf_file.h"
 #include "rornet.h"
-#include "Utils.h" // RoR utils
 #include "wxValueChoice.h" // a control we wrote
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
@@ -555,10 +553,10 @@ void initLanguage(wxString languagePath, wxString userpath)
 	try
 	{
 		wxString rorcfg=userpath + dirsep + wxT("config") + dirsep + wxT("RoR.cfg");
-		ImprovedConfigFile cfg;
+		Ogre::ConfigFile cfg;
 		// Don't trim whitespace
 		cfg.load((const char*)rorcfg.mb_str(wxConvUTF8), "=:\t", false);
-		wxString langSavedName = conv(cfg.GetString("Language"));
+		wxString langSavedName = conv(cfg.getSetting("Language"));
 
 		if(langSavedName.size() > 0)
 			language = const_cast<wxLanguageInfo *>(getLanguageInfoByName(langSavedName));
@@ -2307,7 +2305,7 @@ void MyDialog::updateSettingsControls()
 bool MyDialog::LoadConfig()
 {
 	//RoR config
-	ImprovedConfigFile cfg;
+	Ogre::ConfigFile cfg;
 	try
 	{
 		wxLogStatus(wxT("Loading RoR.cfg"));
@@ -2328,9 +2326,9 @@ bool MyDialog::LoadConfig()
 	Ogre::String svalue, sname;
 	while (i.hasMoreElements())
 	{
-		sname = i.peekNextKey();
+		sname = SanitizeUtf8String(i.peekNextKey());
 		Ogre::StringUtil::trim(sname);
-		svalue = i.getNext();
+		svalue = SanitizeUtf8String(i.getNext());
 		Ogre::StringUtil::trim(svalue);
 		// filter out some things that shouldnt be in there (since we cannot use RoR normally anymore after those)
 		if(sname == Ogre::String("regen-cache-only"))
