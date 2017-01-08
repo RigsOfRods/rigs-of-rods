@@ -251,22 +251,6 @@ bool RoRFrameListener::updateEvents(float dt)
     if (!RoR::App::GetInputEngine()->getInputsChanged())
         return true;
 
-    //update joystick readings
-    //	joy->UpdateInputState();
-
-    //stick shift general uglyness
-    /*
-    // no more stickshift, commented out when upgrading to the inputengine
-    if (m_loading_state==ALL_LOADED && current_truck!=-1 && trucks[current_truck]->driveable==TRUCK && trucks[current_truck]->engine->getAutoMode()==MANUAL)
-    {
-        int gb;
-        gb=joy->updateStickShift(true, trucks[current_truck]->engine->getClutch());
-        // TODO: FIXME
-        //if (gb!=-1) trucks[current_truck]->engine->setGear(gb);
-    }
-    else joy->updateStickShift(false, 0.0);
-    */
-
     // update overlays if enabled
     if (RoR::App::GetOverlayWrapper())
         RoR::App::GetOverlayWrapper()->update(dt);
