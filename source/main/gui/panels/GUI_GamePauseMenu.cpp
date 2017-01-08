@@ -81,14 +81,6 @@ void CLASS::Show()
 {
     MAIN_WIDGET->setVisibleSmooth(true);
 
-    if (gEnv->player && gEnv->player->getVisible() && !gEnv->player->getBeamCoupling())
-    {
-        gEnv->player->setPhysicsEnabled(false);
-    }
-
-    BeamFactory::getSingleton().MuteAllTrucks();
-    App::SetPendingSimState(App::SIM_STATE_PAUSED);
-
     const bool online = RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED;
     m_change_map->setEnabled(!online);
 
@@ -107,18 +99,11 @@ void CLASS::Hide()
     // Quick workaroud: use simple hiding without animation.
     //MAIN_WIDGET->setVisibleSmooth(false);
     MAIN_WIDGET->setVisible(false);
-
-    if (gEnv->player && gEnv->player->getVisible() && !gEnv->player->getBeamCoupling())
-    {
-        gEnv->player->setPhysicsEnabled(true);
-    }
-
-    App::SetActiveSimState(App::SIM_STATE_RUNNING); // TODO: Use the 'pending' mechanism
-    BeamFactory::getSingleton().UnmuteAllTrucks();
 }
 
 void CLASS::eventMouseButtonClickResumeButton(MyGUI::WidgetPtr _sender)
 {
+    App::SetPendingSimState(App::SIM_STATE_RUNNING);
     Hide();
 }
 

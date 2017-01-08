@@ -279,9 +279,13 @@ bool RoRFrameListener::updateEvents(float dt)
         {
             gui_man->GetMainSelector()->Cancel();
         }
-        else
+        else if (simRUNNING(s))
         {
-            App::GetGuiManager()->SetVisible_GamePauseMenu(! gui_man->IsVisible_GamePauseMenu());
+            App::SetPendingSimState(App::SIM_STATE_PAUSED);
+        }
+        else if (simPAUSED(s))
+        {
+            App::SetPendingSimState(App::SIM_STATE_RUNNING);
         }
     }
 
@@ -1811,9 +1815,25 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
             BeamFactory::getSingleton().updateFlexbodiesFinal(); // Updates the harware buffers 
         }
 
-        if (App::GetPendingSimState() == App::SIM_STATE_PAUSED)
+        if (simRUNNING(s) && (App::GetPendingSimState() == App::SIM_STATE_PAUSED))
         {
+            App::GetGuiManager()->SetVisible_GamePauseMenu(true);
+            BeamFactory::getSingleton().MuteAllTrucks();
+            gEnv->player->setPhysicsEnabled(false);
+
             App::SetActiveSimState(App::SIM_STATE_PAUSED);
+            App::SetPendingSimState(App::SIM_STATE_NONE);
+        }
+        else if (simPAUSED(s) && (App::GetPendingSimState() == App::SIM_STATE_RUNNING))
+        {
+            App::GetGuiManager()->SetVisible_GamePauseMenu(false);
+            BeamFactory::getSingleton().UnmuteAllTrucks();
+            if (gEnv->player->getVisible() && !gEnv->player->getBeamCoupling())
+            {
+                gEnv->player->setPhysicsEnabled(true);
+            }
+
+            App::SetActiveSimState(App::SIM_STATE_RUNNING);
             App::SetPendingSimState(App::SIM_STATE_NONE);
         }
     }
@@ -2024,3 +2044,6 @@ void RoRFrameListener::reloadCurrentTruck()
     // enter the new truck
     BeamFactory::getSingleton().setCurrentTruck(newBeam->trucknum);
 }
+
+    App::SetActiveSimState(App::SIM_STATE_NONE);
+    App::SetPendingSimState(App::SIM_STATE_NONE);
