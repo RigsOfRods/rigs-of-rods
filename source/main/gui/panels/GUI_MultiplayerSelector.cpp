@@ -32,7 +32,7 @@
 #include "Language.h"
 #include "GUIManager.h"
 #include "Application.h"
-#include "MainThread.h"
+#include "MainMenu.h"
 
 #ifdef USE_JSONCPP
 #include "json/json.h"
@@ -260,7 +260,7 @@ void CLASS::ServerlistJoin(size_t sel_index)
         Json::Value& json = *m_servers_list->getItemDataAt<Json::Value>(sel_index);
         App::SetMpServerHost(json["ip"].asString());
         App::SetMpServerPort(json["port"].asInt());
-        App::GetMainThreadLogic()->JoinMultiplayerServer();
+        App::GetMainMenu()->JoinMultiplayerServer();
     }
 #endif // USE_JSONCPP
 }
@@ -275,7 +275,7 @@ void CLASS::CallbackJoinDirectBtnPress(MyGUI::WidgetPtr _sender)
     MAIN_WIDGET->setVisibleSmooth(false);
     App::SetMpServerHost(m_entertab_ip_editbox->getCaption().asUTF8());
     App::SetMpServerPort(Ogre::StringConverter::parseInt(m_entertab_port_editbox->getCaption().asUTF8()));
-    App::GetMainThreadLogic()->JoinMultiplayerServer();
+    App::GetMainMenu()->JoinMultiplayerServer();
 }
 
 void CLASS::NotifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name)

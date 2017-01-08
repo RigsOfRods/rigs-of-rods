@@ -21,7 +21,7 @@
 
 #include "Application.h"
 #include "RoRPrerequisites.h"
-#include "MainThread.h"
+#include "MainMenu.h"
 #include "Language.h"
 #include "ErrorUtils.h"
 #include "Utils.h"
@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
         Ogre::Overlay* startup_screen_overlay = static_cast<Ogre::Overlay*>(overlay_manager.getByName("RoR/StartupScreen"));
         if (!startup_screen_overlay)
         {
-            OGRE_EXCEPT(Ogre::Exception::ERR_ITEM_NOT_FOUND, "Cannot find loading overlay for startup screen", "MainThread::Go");
+            OGRE_EXCEPT(Ogre::Exception::ERR_ITEM_NOT_FOUND, "Cannot find loading overlay for startup screen", "main()");
         }
 
         // Set random wallpaper image
@@ -316,7 +316,7 @@ int main(int argc, char *argv[])
 
         new BeamFactory();
 
-        MainThread main_obj(frame_listener);
+        MainMenu main_obj(frame_listener);
         
 
         // ========================================================================

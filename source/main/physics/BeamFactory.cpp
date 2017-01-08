@@ -35,7 +35,7 @@
 #include "GUIManager.h"
 #include "GUI_TopMenubar.h"
 #include "Language.h"
-#include "MainThread.h"
+#include "MainMenu.h"
 #include "Mirrors.h"
 #include "Network.h"
 #include "PointColDetector.h"
@@ -908,25 +908,23 @@ void BeamFactory::setCurrentTruck(int new_truck)
     m_previous_truck = m_current_truck;
     m_current_truck = new_truck;
 
-    auto* frame_listener = RoR::App::GetMainThreadLogic()->GetFrameListener();
+    auto* frame_listener = RoR::App::GetMainMenu()->GetFrameListener();
 
+    if (m_previous_truck >= 0 && m_current_truck >= 0)
     {
-        if (m_previous_truck >= 0 && m_current_truck >= 0)
-        {
-            frame_listener->ChangedCurrentVehicle(m_trucks[m_previous_truck], m_trucks[m_current_truck]);
-        }
-        else if (m_previous_truck >= 0)
-        {
-            frame_listener->ChangedCurrentVehicle(m_trucks[m_previous_truck], nullptr);
-        }
-        else if (m_current_truck >= 0)
-        {
-            frame_listener->ChangedCurrentVehicle(nullptr, m_trucks[m_current_truck]);
-        }
-        else
-        {
-            frame_listener->ChangedCurrentVehicle(nullptr, nullptr);
-        }
+        frame_listener->ChangedCurrentVehicle(m_trucks[m_previous_truck], m_trucks[m_current_truck]);
+    }
+    else if (m_previous_truck >= 0)
+    {
+        frame_listener->ChangedCurrentVehicle(m_trucks[m_previous_truck], nullptr);
+    }
+    else if (m_current_truck >= 0)
+    {
+        frame_listener->ChangedCurrentVehicle(nullptr, m_trucks[m_current_truck]);
+    }
+    else
+    {
+        frame_listener->ChangedCurrentVehicle(nullptr, nullptr);
     }
 
     this->UpdateSleepingState(0.0f);

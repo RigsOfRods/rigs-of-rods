@@ -31,7 +31,7 @@
 #include "RoRVersion.h"
 #include "RoRnet.h"
 #include "Language.h"
-#include "MainThread.h" //Get MainMenu pointer
+#include "MainMenu.h" //Get MainMenu pointer
 
 #include <MyGUI.h>
 

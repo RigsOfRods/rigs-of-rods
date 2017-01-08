@@ -28,7 +28,7 @@
 #include "BeamEngine.h"
 #include "GUI_GameConsole.h"
 
-#include "MainThread.h"
+#include "MainMenu.h"
 
 #include "scriptdictionary/scriptdictionary.h"
 

@@ -47,7 +47,7 @@
 #include "InputEngine.h"
 #include "LandVehicleSimulation.h"
 #include "Language.h"
-#include "MainThread.h"
+#include "MainMenu.h"
 #include "Mirrors.h"
 #include "MumbleIntegration.h"
 #include "OgreSubsystem.h"
@@ -2397,7 +2397,7 @@ bool RoRFrameListener::SetupGameplayLoop()
     if (! this->LoadTerrain())
     {
         LOG("Could not load map. Returning to menu.");
-        App::GetMainThreadLogic()->LeaveMultiplayerServer();
+        App::GetMainMenu()->LeaveMultiplayerServer();
         App::GetGuiManager()->SetVisible_LoadingWindow(false);
         return false;
     }

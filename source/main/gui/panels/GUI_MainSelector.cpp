@@ -32,7 +32,7 @@
 #include "ContentManager.h"
 #include "SkinManager.h"
 #include "RoRFrameListener.h"
-#include "MainThread.h"
+#include "MainMenu.h"
 
 #include <MyGUI.h>
 
@@ -240,7 +240,7 @@ void CLASS::Cancel()
 
     if (App::GetActiveAppState() == App::APP_STATE_MAIN_MENU)
     {
-        RoR::App::GetMainThreadLogic()->LeaveMultiplayerServer();
+        RoR::App::GetMainMenu()->LeaveMultiplayerServer();
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }
 }

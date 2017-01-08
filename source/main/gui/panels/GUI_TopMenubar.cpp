@@ -35,7 +35,7 @@
 #include "GUI_GameConsole.h"
 #include "GUI_MainSelector.h"
 #include "Language.h"
-#include "MainThread.h"
+#include "MainMenu.h"
 #include "Network.h"
 #include "RoRFrameListener.h"
 #include "Settings.h"
@@ -337,7 +337,7 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
     {
         if (BeamFactory::getSingleton().getCurrentTruckNumber() != -1)
         {
-            App::GetMainThreadLogic()->GetFrameListener()->reloadCurrentTruck(); // TODO: Use SIM_STATE + 'pending' mechanisms
+            App::GetMainMenu()->GetFrameListener()->reloadCurrentTruck(); // TODO: Use SIM_STATE + 'pending' mechanisms
             gui_man->UnfocusGui();
         }
     }

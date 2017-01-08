@@ -25,7 +25,7 @@ set( SOURCE_FILES
   Application.{h,cpp}
   ForwardDeclarations.h
   GlobalEnvironment.h
-  MainThread.{h,cpp}
+  MainMenu.{h,cpp}
   RoRPrerequisites.h
   audio/Sound.{h,cpp}
   audio/SoundManager.{h,cpp}

@@ -49,7 +49,7 @@
 #include "GUIManager.h"
 #include "IHeightFinder.h"
 #include "Language.h"
-#include "MainThread.h"
+#include "MainMenu.h"
 #include "Network.h"
 #include "RoRFrameListener.h"
 #include "RoRVersion.h"
@@ -107,7 +107,7 @@ void GameScript::setPersonPosition(const Vector3& vec)
 void GameScript::loadTerrain(const String& terrain)
 {
     RoR::App::SetSimNextTerrain(terrain);
-    RoR::App::GetMainThreadLogic()->GetFrameListener()->LoadTerrain();
+    RoR::App::GetMainMenu()->GetFrameListener()->LoadTerrain();
 }
 
 Vector3 GameScript::getPersonPosition()

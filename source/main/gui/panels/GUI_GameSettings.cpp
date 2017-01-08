@@ -34,7 +34,7 @@
 #include "GlobalEnvironment.h"
 #include "ImprovedConfigFile.h"
 #include "Language.h"
-#include "MainThread.h"
+#include "MainMenu.h"
 #include "OgreSubsystem.h"
 #include "RoRPrerequisites.h"
 #include "RoRVersion.h"

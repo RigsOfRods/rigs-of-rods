@@ -31,7 +31,7 @@
 #include "IHeightFinder.h"
 #include "IWater.h"
 #include "Language.h"
-#include "MainThread.h"
+#include "MainMenu.h"
 #include "Network.h"
 #include "OverlayWrapper.h"
 #include "RoRFrameListener.h"

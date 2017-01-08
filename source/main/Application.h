@@ -147,7 +147,7 @@ GUIManager*          GetGuiManager();
 Console*             GetConsole();
 InputEngine*         GetInputEngine();
 CacheSystem*         GetCacheSystem();
-MainThread*          GetMainThreadLogic();
+MainMenu*          GetMainMenu();
 
 State                GetActiveAppState();
 State                GetPendingAppState();
@@ -309,7 +309,7 @@ void SetDiagPreselectedVehicle  (STR_CREF       v);
 void SetDiagPreselectedVehConfig(STR_CREF       v);
 void SetDiagPreselectedVehEnter (bool           v);
 
-void SetMainThreadLogic  (MainThread* obj);
+void SetMainMenu  (MainMenu* obj);
 
 // Factories
 void StartOgreSubsystem();

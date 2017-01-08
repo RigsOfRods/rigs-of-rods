@@ -27,7 +27,7 @@
 
 class RoRFrameListener: public Ogre::FrameListener, public Ogre::WindowEventListener, public ZeroedMemoryAllocator
 {
-    friend class RoR::MainThread; // Temporary hack
+    
 
 public:
 
@@ -67,6 +67,8 @@ public:
     /// @return True if everything was prepared OK and simulation may start.
     bool SetupGameplayLoop();
     void EnterGameplayLoop();
+
+    bool GetHideGui() const { return m_hide_gui; }
 
     RoR::ForceFeedback m_forcefeedback; // Public = TMP hack
 

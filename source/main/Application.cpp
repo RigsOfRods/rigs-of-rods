@@ -28,7 +28,6 @@
 #include <OgreException.h>
 
 #include "CacheSystem.h"
-
 #include "ContentManager.h"
 #include "GUIManager.h"
 #include "InputEngine.h"
@@ -54,7 +53,7 @@ static GUIManager*      g_gui_manager;
 static Console*         g_console;
 static InputEngine*     g_input_engine;
 static CacheSystem*     g_cache_system;
-static MainThread*      g_main_thread_logic;
+static MainMenu*        g_main_menu;
 
 // App
 static int              g_app_state_active;      ///< Current state
@@ -347,10 +346,10 @@ GUIManager*            GetGuiManager         () { return g_gui_manager;}
 Console*               GetConsole            () { return g_gui_manager->GetConsole();}
 InputEngine*           GetInputEngine        () { return g_input_engine;}
 CacheSystem*           GetCacheSystem        () { return g_cache_system;}
-MainThread*            GetMainThreadLogic    () { return g_main_thread_logic;}
+MainMenu*              GetMainMenu           () { return g_main_menu;}
 
 // Instance management
-void SetMainThreadLogic(MainThread* obj) { g_main_thread_logic = obj; }
+void SetMainMenu(MainMenu* obj) { g_main_menu = obj; }
 
 void StartOgreSubsystem()
 {
