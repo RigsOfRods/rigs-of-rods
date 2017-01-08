@@ -91,6 +91,8 @@ public:
     inline RoR::SkinManager* GetSkinManager() const { return m_skin_manager; }
 
     void InitManagedMaterials();
+    void CheckAndLoadBaseResources();
+    void RegenCache();
 
 protected:
 
@@ -104,6 +106,7 @@ protected:
 
     Ogre::uint64 m_loaded_resource_packs;
     RoR::SkinManager* m_skin_manager;
+    bool              m_base_resource_loaded;
 };
 
 } // namespace RoR

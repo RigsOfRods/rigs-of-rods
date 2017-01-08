@@ -43,27 +43,12 @@ class MainThread
 
 public:
 
-    MainThread();
-
-    void Go();
-
-    void Exit();
-
-    static void ChangedCurrentVehicle(Beam* previous_vehicle, Beam* current_vehicle);
-
-    void RegenCache();
+    MainThread(RoRFrameListener* fl);
 
     void JoinMultiplayerServer();
     void LeaveMultiplayerServer();
 
-    /// @return True if everything was prepared OK and simulation may start.
-    bool SetupGameplayLoop();
-
-    void UnloadTerrain();
-
     RoRFrameListener* GetFrameListener() { return m_frame_listener; }
-
-protected:
 
     void EnterMainMenuLoop();
 
@@ -71,20 +56,12 @@ protected:
 
     void MainMenuLoopUpdateEvents(float seconds_since_last_frame);
 
-    void EnterGameplayLoop();
-
-    bool LoadTerrain(); ///< Reads GVar 'sim_terrain_pending'
-
-    void ShowSurveyMap(bool hide);
-
-    bool              m_no_rendering;
-    bool              m_restart_requested;
-    unsigned long     m_start_time;
-    bool              m_base_resource_loaded;
+private:
+    
     bool              m_is_mumble_created;
     RoRFrameListener* m_frame_listener;
 
-    std::map<std::string, bool> isLoadedMap;
+    
 };
 
 } // namespace RoR

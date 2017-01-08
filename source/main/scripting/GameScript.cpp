@@ -107,7 +107,7 @@ void GameScript::setPersonPosition(const Vector3& vec)
 void GameScript::loadTerrain(const String& terrain)
 {
     RoR::App::SetSimNextTerrain(terrain);
-    RoR::App::GetMainThreadLogic()->LoadTerrain();
+    RoR::App::GetMainThreadLogic()->GetFrameListener()->LoadTerrain();
 }
 
 Vector3 GameScript::getPersonPosition()

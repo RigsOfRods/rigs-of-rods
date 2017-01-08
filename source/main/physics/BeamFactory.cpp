@@ -41,6 +41,7 @@
 #include "PointColDetector.h"
 #include "RigLoadingProfiler.h"
 #include "RigLoadingProfilerControl.h"
+#include "RoRFrameListener.h"
 #include "Settings.h"
 #include "SoundScriptManager.h"
 #include "ThreadPool.h"
@@ -907,22 +908,24 @@ void BeamFactory::setCurrentTruck(int new_truck)
     m_previous_truck = m_current_truck;
     m_current_truck = new_truck;
 
+    auto* frame_listener = RoR::App::GetMainThreadLogic()->GetFrameListener();
+
     {
         if (m_previous_truck >= 0 && m_current_truck >= 0)
         {
-            RoR::MainThread::ChangedCurrentVehicle(m_trucks[m_previous_truck], m_trucks[m_current_truck]);
+            frame_listener->ChangedCurrentVehicle(m_trucks[m_previous_truck], m_trucks[m_current_truck]);
         }
         else if (m_previous_truck >= 0)
         {
-            RoR::MainThread::ChangedCurrentVehicle(m_trucks[m_previous_truck], nullptr);
+            frame_listener->ChangedCurrentVehicle(m_trucks[m_previous_truck], nullptr);
         }
         else if (m_current_truck >= 0)
         {
-            RoR::MainThread::ChangedCurrentVehicle(nullptr, m_trucks[m_current_truck]);
+            frame_listener->ChangedCurrentVehicle(nullptr, m_trucks[m_current_truck]);
         }
         else
         {
-            RoR::MainThread::ChangedCurrentVehicle(nullptr, nullptr);
+            frame_listener->ChangedCurrentVehicle(nullptr, nullptr);
         }
     }
 

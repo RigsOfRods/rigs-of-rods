@@ -59,6 +59,17 @@ public:
 
     void SetReloadPos(Ogre::Vector3 position) { m_reload_pos = position; }
 
+    void ChangedCurrentVehicle(Beam* previous_vehicle, Beam* current_vehicle);
+    
+    bool LoadTerrain(); ///< Reads GVar 'sim_terrain_pending'
+    void UnloadTerrain();
+
+    /// @return True if everything was prepared OK and simulation may start.
+    bool SetupGameplayLoop();
+    void EnterGameplayLoop();
+
+    RoR::ForceFeedback m_forcefeedback; // Public = TMP hack
+
 protected:
 
     // WindowEventListener
@@ -68,7 +79,7 @@ protected:
 
     void updateForceFeedback(float dt);
 
-    RoR::ForceFeedback m_forcefeedback;
+    
     HeatHaze* m_heathaze;
 
     CacheEntry* m_last_cache_selection;

@@ -33,6 +33,7 @@
 #include "Application.h"
 #include "Settings.h"
 #include "ColoredTextAreaOverlayElementFactory.h"
+#include "ErrorUtils.h"
 #include "SoundScriptManager.h"
 #include "SkinManager.h"
 #include "Language.h"
@@ -391,3 +392,58 @@ void ContentManager::InitManagedMaterials()
     ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir, "FileSystem", "ManagedMats");
     ResourceGroupManager::getSingleton().initialiseResourceGroup("ManagedMats");
 }
+
+void ContentManager::CheckAndLoadBaseResources()
+{
+    if (!m_base_resource_loaded)
+    {
+        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::AIRFOILS);
+        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::BEAM_OBJECTS);
+
+        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
+        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES);
+        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OVERLAYS);
+        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PARTICLES);
+        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SCRIPTS);
+        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::TEXTURES);
+        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FLAGS);
+        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::ICONS);
+        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
+
+        m_base_resource_loaded = true;
+    }
+}
+
+void ContentManager::RegenCache()
+{
+    
+    RoR::App::GetCacheSystem()->Startup(true); // true = force regeneration
+
+    // Get stats
+    int num_new = RoR::App::GetCacheSystem()->newFiles;
+    int num_changed = RoR::App::GetCacheSystem()->changedFiles;
+    int num_deleted = RoR::App::GetCacheSystem()->deletedFiles;
+
+    // Report
+    Ogre::UTFString str = _L("Cache regeneration done.\n");
+    if (num_new > 0)
+    {
+        str = str + TOUTFSTRING(num_new) + _L(" new files\n");
+    }
+    if (num_changed > 0)
+    {
+        str = str + TOUTFSTRING(num_changed) + _L(" changed files\n");
+    }
+    if (num_deleted > 0)
+    {
+        str = str + TOUTFSTRING(num_deleted) + _L(" deleted files\n");
+    }
+    if (num_new + num_changed + num_deleted == 0)
+    {
+        str = str + _L("no changes");
+    }
+    str = str + _L("\n(These stats can be imprecise)");
+
+    ErrorUtils::ShowError(_L("Cache regeneration done"), str);
+}
+
