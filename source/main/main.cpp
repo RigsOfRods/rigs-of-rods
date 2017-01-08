@@ -76,7 +76,8 @@
 #   include <curl/curl.h>
 #endif //USE_CURL
 
-GlobalEnvironment *gEnv; // Global instance used throughout the game.
+GlobalEnvironment* gEnv;         // Global pointer used throughout the game. Declared in "RoRPrerequisites.h". TODO: Eliminate
+GlobalEnvironment  gEnvInstance; // The actual instance
 
 #ifdef __cplusplus
 extern "C" {
@@ -92,10 +93,10 @@ int main(int argc, char *argv[])
 
     try
     {
-        gEnv = new GlobalEnvironment(); // Instantiate global environment. TODO: Eliminate gEnv
+        gEnv = &gEnvInstance;
         App::Init();
 
-        // Detect system paths
+        // ### Detect system paths ###
 
         int res = RoR::System::DetectBasePaths(); // Updates globals
         if (res == -1)
@@ -109,7 +110,7 @@ int main(int argc, char *argv[])
             return -1;
         }
 
-        // Create OGRE default logger early.
+        // ### Create OGRE default logger early. ###
 
         App::SetSysLogsDir(App::GetSysUserDir() + PATH_SLASH + "logs");
 
@@ -118,7 +119,7 @@ int main(int argc, char *argv[])
         ogre_log_manager->createLog(log_filepath, true, true);
         App::SetDiagTraceGlobals(true); // We have logger -> we can trace.
 
-        // Setup program paths
+        // ### Setup program paths ###
 
         if (! Settings::SetupAllPaths()) // Updates globals
         {
@@ -128,10 +129,10 @@ int main(int argc, char *argv[])
 
         App::GetSettings().LoadSettings(App::GetSysConfigDir() + PATH_SLASH + "RoR.cfg"); // Main config file
 
-        // Process command-line arguments
+        // ### Process command-line arguments ###
 
 #if OGRE_PLATFORM != OGRE_PLATFORM_APPLE //MacOSX adds an extra argument in the form of -psn_0_XXXXXX when the app is double clicked
-        RoR::App::GetSettings().ProcessCommandLine(argc, argv);
+        App::GetSettings().ProcessCommandLine(argc, argv);
 #endif
 
         if (App::GetPendingAppState() == App::APP_STATE_PRINT_HELP_EXIT)
@@ -149,10 +150,6 @@ int main(int argc, char *argv[])
         InstallCrashRpt();
 #endif //USE_CRASHRPT
 
-        // ================================================================================
-        // Bootstrap
-        // ================================================================================
-
         App::StartOgreSubsystem();
     #ifdef ROR_USE_OGRE_1_9
         Ogre::OverlaySystem* overlay_system = new Ogre::OverlaySystem(); //Overlay init
@@ -163,14 +160,13 @@ int main(int argc, char *argv[])
         LanguageEngine::getSingleton().setup();
 
         // Add startup resources
-        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OGRE_CORE);
-        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GUI_STARTUP_SCREEN);
-        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GUI_MENU_WALLPAPERS);
+        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OGRE_CORE);
+        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::WALLPAPERS);
         Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Bootstrap");
         Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Wallpapers");
 
         // Setup rendering (menu + simulation)
-        Ogre::SceneManager* scene_manager = RoR::App::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "main_scene_manager");
+        Ogre::SceneManager* scene_manager = App::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "main_scene_manager");
         gEnv->sceneManager = scene_manager;
     #ifdef ROR_USE_OGRE_1_9
         if (overlay_system)
@@ -186,52 +182,16 @@ int main(int argc, char *argv[])
         camera->setFarClipDistance(1000.0 * 1.733);
         camera->setFOVy(Ogre::Degree(60));
         camera->setAutoAspectRatio(true);
-        RoR::App::GetOgreSubsystem()->GetViewport()->setCamera(camera);
+        App::GetOgreSubsystem()->GetViewport()->setCamera(camera);
         gEnv->mainCamera = camera;
+        
+        Ogre::String menu_wallpaper_texture_name = GUIManager::getRandomWallpaperImage();
 
-        // SHOW BOOTSTRAP SCREEN
+        App::CreateCacheSystem();
 
-        // Create rendering overlay
-        Ogre::OverlayManager& overlay_manager = Ogre::OverlayManager::getSingleton();
-        Ogre::Overlay* startup_screen_overlay = static_cast<Ogre::Overlay*>(overlay_manager.getByName("RoR/StartupScreen"));
-        if (!startup_screen_overlay)
-        {
-            OGRE_EXCEPT(Ogre::Exception::ERR_ITEM_NOT_FOUND, "Cannot find loading overlay for startup screen", "main()");
-        }
-
-        // Set random wallpaper image
-        //is this still needed? As things load so fast that it's rendred for a fraction of a second.
-        Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName("RoR/StartupScreenWallpaper");
-        Ogre::String menu_wallpaper_texture_name = GUIManager::getRandomWallpaperImage(); // TODO: manage by class Application
-        if (! menu_wallpaper_texture_name.empty() && ! mat.isNull())
-        {
-            if (mat->getNumTechniques() > 0 && mat->getTechnique(0)->getNumPasses() > 0 && mat->getTechnique(0)->getPass(0)->getNumTextureUnitStates() > 0)
-            {
-                mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(menu_wallpaper_texture_name);
-            }
-        }
-
-        startup_screen_overlay->show();
-
-        scene_manager->clearSpecialCaseRenderQueues();
-        scene_manager->addSpecialCaseRenderQueue(Ogre::RENDER_QUEUE_OVERLAY);
-        scene_manager->setSpecialCaseRenderQueueMode(Ogre::SceneManager::SCRQM_INCLUDE);
-
-        App::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame(); // Render bootstrap screen once and leave it visible.
-
-        RoR::App::CreateCacheSystem();
-
-        RoR::App::GetCacheSystem()->setLocation(App::GetSysCacheDir() + PATH_SLASH, App::GetSysConfigDir() + PATH_SLASH);
+        App::GetCacheSystem()->setLocation(App::GetSysCacheDir() + PATH_SLASH, App::GetSysConfigDir() + PATH_SLASH);
 
         App::GetContentManager()->init();
-
-        // HIDE BOOTSTRAP SCREEN
-
-        startup_screen_overlay->hide();
-
-        // Back to full rendering
-        scene_manager->clearSpecialCaseRenderQueues();
-        scene_manager->setSpecialCaseRenderQueueMode(Ogre::SceneManager::SCRQM_EXCLUDE);
 
         App::CreateGuiManagerIfNotExists();
 
@@ -250,14 +210,12 @@ int main(int argc, char *argv[])
             }
         }
 
-    #ifdef USE_ANGELSCRIPT
-
+#ifdef USE_ANGELSCRIPT
         new ScriptEngine(); // Init singleton. TODO: Move under Application
+#endif
 
-    #endif
-
-        RoR::App::CreateInputEngine();
-        RoR::App::GetInputEngine()->setupDefault(RoR::App::GetOgreSubsystem()->GetMainHWND());
+        App::CreateInputEngine();
+        App::GetInputEngine()->setupDefault(App::GetOgreSubsystem()->GetMainHWND());
 
         // Initialize "managed materials"
         // These are base materials referenced by user content
@@ -271,32 +229,30 @@ int main(int argc, char *argv[])
             App::GetContentManager()->RegenCache();
             App::SetPendingAppState(App::APP_STATE_SHUTDOWN);
         }
-            
 
-        RoR::App::GetCacheSystem()->Startup();
+        App::GetCacheSystem()->Startup();
 
-        // Create legacy RoRFrameListener
         auto* frame_listener = new RoRFrameListener();
 
-    #ifdef USE_ANGELSCRIPT
+#ifdef USE_ANGELSCRIPT
         ScriptEngine::getSingleton().SetFrameListener(frame_listener);
-    #endif
+#endif
 
-    #ifdef USE_MPLATFORM
+#ifdef USE_MPLATFORM
 	    m_frame_listener->m_platform = new MPlatform_FD();
 	    if (m_frame_listener->m_platform) 
 	    {
 		    m_platform->connect();
 	    }
-    #endif
+#endif
 
-        frame_listener->windowResized(RoR::App::GetOgreSubsystem()->GetRenderWindow());
-        RoRWindowEventUtilities::addWindowEventListener(RoR::App::GetOgreSubsystem()->GetRenderWindow(), frame_listener);
+        frame_listener->windowResized(App::GetOgreSubsystem()->GetRenderWindow());
+        RoRWindowEventUtilities::addWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), frame_listener);
 
-    #ifdef _WIN32
+#ifdef _WIN32
         if (App::GetIoFFbackEnabled()) // Force feedback
         {
-            if (RoR::App::GetInputEngine()->getForceFeedbackDevice())
+            if (App::GetInputEngine()->getForceFeedbackDevice())
             {
                 frame_listener->m_forcefeedback.Setup();
             }
@@ -306,7 +262,7 @@ int main(int argc, char *argv[])
                 App::SetIoFFbackEnabled(false);
             }
         }
-    #endif // _WIN32
+#endif // _WIN32
 
         // initiate player colours
         PlayerColours::getSingleton();
@@ -318,10 +274,7 @@ int main(int argc, char *argv[])
 
         MainMenu main_obj(frame_listener);
         
-
-        // ========================================================================
-        // Main loop (switches application states)
-        // ========================================================================
+        // ### Main loop (switches application states) ###
 
         App::State previous_application_state = App::GetActiveAppState();
         App::SetActiveAppState(App::APP_STATE_MAIN_MENU);
@@ -330,17 +283,15 @@ int main(int argc, char *argv[])
         {
             App::SetPendingAppState(App::APP_STATE_SIMULATION);
         }
+
         if (App::GetPendingMpState() == App::MP_STATE_CONNECTED)
         {
             main_obj.JoinMultiplayerServer();
         }
-        for (;;)
+
+        while (App::GetPendingAppState() != App::APP_STATE_SHUTDOWN)
         {
-            if (App::GetPendingAppState() == App::APP_STATE_SHUTDOWN)
-            {
-                break;
-            }
-            else if (App::GetPendingAppState() == App::APP_STATE_MAIN_MENU)
+            if (App::GetPendingAppState() == App::APP_STATE_MAIN_MENU)
             {
                 App::SetActiveAppState(App::APP_STATE_MAIN_MENU);
                 App::SetPendingAppState(App::APP_STATE_NONE);
@@ -360,7 +311,7 @@ int main(int argc, char *argv[])
                     menu_wallpaper_widget->setVisible(true);
 
                     /* Set Mumble to non-positional audio */
-    #ifdef USE_MUMBLE
+#ifdef USE_MUMBLE
                     MumbleIntegration::getSingleton().update(
                         Ogre::Vector3::ZERO,
                         Ogre::Vector3(0.0f, 0.0f, 1.0f),
@@ -368,7 +319,7 @@ int main(int argc, char *argv[])
                         Ogre::Vector3::ZERO,
                         Ogre::Vector3(0.0f, 0.0f, 1.0f),
                         Ogre::Vector3(0.0f, 1.0f, 0.0f));
-    #endif // USE_MUMBLE
+#endif // USE_MUMBLE
                 }
 
                 if (App::GetAudioMenuMusic())
@@ -383,8 +334,8 @@ int main(int argc, char *argv[])
                     // Multiplayer started from configurator / MainMenu disabled -> go directly to map selector (traditional behavior)
                     if (App::GetDiagPreselectedTerrain() == "")
                     {
-                        RoR::App::GetGuiManager()->SetVisible_GameMainMenu(false);
-                        RoR::App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
+                        App::GetGuiManager()->SetVisible_GameMainMenu(false);
+                        App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
                     }
                 }
 
@@ -419,11 +370,11 @@ int main(int argc, char *argv[])
 
                 if (App::GetDiagPreselectedTerrain() == "")
                 {
-                    RoR::App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
+                    App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
                 }
                 else
                 {
-                    RoR::App::GetGuiManager()->SetVisible_GameMainMenu(true);
+                    App::GetGuiManager()->SetVisible_GameMainMenu(true);
                 }
                 //It's the same thing so..
                 main_obj.EnterMainMenuLoop();
@@ -437,19 +388,19 @@ int main(int argc, char *argv[])
 
         App::GetSettings().SaveSettings(); // Save RoR.cfg
 
-        RoR::App::GetGuiManager()->GetMainSelector()->~MainSelector();
+        App::GetGuiManager()->GetMainSelector()->~MainSelector();
 
-    #ifdef USE_SOCKETW
+#ifdef USE_SOCKETW
         if (App::GetActiveMpState() == App::MP_STATE_CONNECTED)
         {
             RoR::Networking::Disconnect();
         }
-    #endif //SOCKETW
+#endif //SOCKETW
 
         //TODO: we should destroy OIS here
         //TODO: we could also try to destroy SoundScriptManager, but we don't care!
 
-    #ifdef USE_MPLATFORM
+#ifdef USE_MPLATFORM
 	    if (frame_listener->mplatform != nullptr)
 	    {
 		    if (frame_listener->mplatform->disconnect())
@@ -458,14 +409,10 @@ int main(int argc, char *argv[])
 			    frame_listener->mplatform = nullptr;
 		    }
 	    }
-    #endif
+#endif
 
         scene_manager->destroyCamera(camera);
-        RoR::App::GetOgreSubsystem()->GetOgreRoot()->destroySceneManager(scene_manager);
-    #ifdef ROR_USE_OGRE_1_9
-        // Produces a segfault
-        // delete overlay_system;
-    #endif
+        App::GetOgreSubsystem()->GetOgreRoot()->destroySceneManager(scene_manager);
 
         App::DestroyOverlayWrapper();
 
@@ -475,9 +422,6 @@ int main(int argc, char *argv[])
 
         delete gEnv->cameraManager;
         gEnv->cameraManager = nullptr;
-
-        delete gEnv;
-        gEnv = nullptr;
     }
     catch (Ogre::Exception& e)
     {

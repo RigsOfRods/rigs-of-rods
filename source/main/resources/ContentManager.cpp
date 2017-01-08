@@ -67,8 +67,8 @@ using namespace RoR;
     const ContentManager::ResourcePack ContentManager::ResourcePack::_FIELD_(BITMASK_64(_NUMBER_), _NAME_, _RESOURCE_GROUP_);
 
 DECLARE_RESOURCE_PACK(  1, OGRE_CORE,             "OgreCore",             "Bootstrap");
-DECLARE_RESOURCE_PACK(  2, GUI_MENU_WALLPAPERS,   "gui_menu_wallpapers",  "Wallpapers");
-DECLARE_RESOURCE_PACK(  3, GUI_STARTUP_SCREEN,    "gui_startup_screen",   "Bootstrap");
+DECLARE_RESOURCE_PACK(  2, WALLPAPERS,            "wallpapers",           "Wallpapers");
+// UNUSED               3
 DECLARE_RESOURCE_PACK(  4, AIRFOILS,              "airfoils",             "LoadBeforeMap");
 DECLARE_RESOURCE_PACK(  5, BEAM_OBJECTS,          "beamobjects",          "LoadBeforeMap");
 DECLARE_RESOURCE_PACK(  6, BLUR,                  "blur",                 "LoadBeforeMap");

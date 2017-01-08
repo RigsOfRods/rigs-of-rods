@@ -48,8 +48,7 @@ public:
         }
 
         static const ResourcePack OGRE_CORE;
-        static const ResourcePack GUI_MENU_WALLPAPERS;
-        static const ResourcePack GUI_STARTUP_SCREEN;
+        static const ResourcePack WALLPAPERS;
         static const ResourcePack AIRFOILS;
         static const ResourcePack BEAM_OBJECTS;
         static const ResourcePack BLUR;
