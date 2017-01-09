@@ -119,42 +119,6 @@ UTFString formatBytes(double bytes)
     return UTFString(tmp);
 }
 
-// replace non-ASCII characters with underscores to prevent std::string problems
-String getASCIIFromCharString(char* str, int maxlen)
-{
-    char* ptr = str;
-    for (int i = 0; i < maxlen; i++ , ptr++)
-    {
-        if (*ptr == 0)
-            break;
-        if (*ptr < 32 || *ptr > 126)
-        {
-            *ptr = 95;
-        }
-    }
-    str[maxlen] = 0;
-    return std::string(str);
-}
-
-// replace non-ASCII characters with underscores to prevent std::string problems
-String getASCIIFromOgreString(String s, int maxlen)
-{
-    char str[1024] = "";
-    strncpy(str, s.c_str(), 1023);
-    char* ptr = str;
-    for (int i = 0; i < maxlen; i++ , ptr++)
-    {
-        if (*ptr == 0)
-            break;
-        if (*ptr < 32 || *ptr > 126)
-        {
-            *ptr = 95;
-        }
-    }
-    str[maxlen] = 0;
-    return std::string(str);
-}
-
 int getTimeStamp()
 {
     return (int)time(NULL); //this will overflow in 2038
