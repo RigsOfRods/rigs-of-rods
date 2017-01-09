@@ -77,6 +77,30 @@ void CharacterFactory::removeStreamSource(int sourceid)
     }
 }
 
+//cosmic vole added separate collection of the local AI characters November 21 2016
+Character *CharacterFactory::createAIInstance(int id, int aiColour)
+{
+    LOG(" new local AI character for " + TOSTRING(id) + ", colour: " + TOSTRING(aiColour));
+
+    Character* ch = new Character(id, 0, aiColour, false);
+    m_AIcharacters.push_back(std::unique_ptr<Character>(ch));
+    return ch;
+}
+
+//cosmic vole added separate collection of the local AI characters November 21 2016
+void CharacterFactory::removeAIInstance(int id)
+{
+	for (auto it = m_AIcharacters.begin(); it != m_AIcharacters.end(); it++)
+	{
+		if ((*it)->getSourceID() == id)
+		{
+			(*it).reset();
+			m_AIcharacters.erase(it);
+			break;
+		}
+	}
+}
+
 void CharacterFactory::Update(float dt)
 {
     m_local_character->update(dt);

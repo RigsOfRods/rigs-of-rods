@@ -120,6 +120,13 @@ void GameMainMenu::DrawMenuPanel()
                 App::GetGameContext()->PushMessage(m);
             }
 
+            //cosmic vole added Racing button January 5 2017 (integrated to ImGui-menu by ohlidalp, Jan 10 2026)
+            if (HighlightButton(_LC("MainMenu", "Single player"), btn_size, button_index++))
+            {
+                this->SetVisible(false);
+                App::GetGuiManager()->GameRacingMenu.SetVisible(true);
+            }
+
             if (FileExists(PathCombine(App::sys_savegames_dir->getStr(), "autosave.sav")))
             {
                 if ( HighlightButton(_LC("MainMenu", "Resume game"), btn_size, button_index++))

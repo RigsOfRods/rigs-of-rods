@@ -278,7 +278,7 @@ public:
 
     int fireEvent(std::string instanceName, float intensity);
 
-    void envokeCallback(int functionId, eventsource_t* source, NodeNum_t nodenum = NODENUM_INVALID, int type = 0);
+    void envokeCallback(int functionId, eventsource_t* source, NodeNum_t nodenum = NODENUM_INVALID, int type = 0, int truckNum=-1); //cosmic vole added truckNum to ease detection of AI trucks at checkpoints etc.
 
     /**
     * Forwards useful info from C++ `try{}catch{}` exceptions to script in the form of game event.

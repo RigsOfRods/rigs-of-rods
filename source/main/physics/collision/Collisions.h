@@ -189,12 +189,14 @@ public:
 
     float getSurfaceHeight(float x, float z);
     float getSurfaceHeightBelow(float x, float z, float height);
-    bool collisionCorrect(Ogre::Vector3* refpos, bool envokeScriptCallbacks = true);
+    bool collisionCorrect(Ogre::Vector3* refpos, bool envokeScriptCallbacks = true, int truckNum = -1);
     bool groundCollision(node_t* node, float dt);
     bool isInside(Ogre::Vector3 pos, const Ogre::String& inst, const Ogre::String& box, float border = 0);
     bool isInside(Ogre::Vector3 pos, collision_box_t* cbox, float border = 0);
-    bool nodeCollision(node_t* node, float dt);
-    void envokeScriptCallback(collision_box_t* cbox, node_t* node = 0); // Only invoke on main thread! Oterwise use `MSG_SIM_SCRIPT_CALLBACK_QUEUED`
+    // cosmic vole added truckNum to enable detection of AI trucks at checkpoints
+    bool nodeCollision(node_t* node, float dt, int truckNum = -1);
+    // cosmic vole added truckNum and dt to enable detection of AI trucks at checkpoints
+    void envokeScriptCallback(collision_box_t* cbox, node_t* node, int truckNum = -1, float dt = -1.f); // Only invoke on main thread! Oterwise use `MSG_SIM_SCRIPT_CALLBACK_QUEUED`
     void findPotentialEventBoxes(Actor* actor, CollisionBoxPtrVec& out_boxes);
 
     void finishLoadingTerrain();

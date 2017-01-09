@@ -27,7 +27,6 @@
 #include "OgreImGui.h"
 #include "Application.h"
 #include "CVar.h"
-#include "GUI_MessageBox.h"
 
 // GUI panels
 #include "GUI_CollisionsDebug.h"
@@ -38,6 +37,7 @@
 #include "GUI_GameMainMenu.h"
 #include "GUI_GameAbout.h"
 #include "GUI_GameChatBox.h"
+#include "GUI_GameRacingMenu.h"
 #include "GUI_GameSettings.h"
 #include "GUI_LoadingWindow.h"
 #include "GUI_MessageBox.h"
@@ -115,6 +115,7 @@ public:
 
     GUI::CollisionsDebug        CollisionsDebug;
     GUI::GameMainMenu           GameMainMenu;
+    GUI::GameRacingMenu         GameRacingMenu;
     GUI::GameAbout              GameAbout;
     GUI::GameSettings           GameSettings;
     GUI::VehicleInfoTPanel      VehicleInfoTPanel;

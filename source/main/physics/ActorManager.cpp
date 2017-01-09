@@ -921,7 +921,7 @@ ActorPtr ActorManager::FindActorInsideBox(Collisions* collisions, const Ogre::St
     return ret;
 }
 
-void ActorManager::RepairActor(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box, bool keepPosition)
+void ActorManager::RepairActor(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box, bool keepPosition, bool partialRepair) //cosmic vole added partial repairs
 {
     ActorPtr actor = this->FindActorInsideBox(collisions, inst, box);
     if (actor != nullptr)
@@ -930,7 +930,7 @@ void ActorManager::RepairActor(Collisions* collisions, const Ogre::String& inst,
 
         ActorModifyRequest* rq = new ActorModifyRequest;
         rq->amr_actor = actor->ar_instance_id;
-        rq->amr_type = ActorModifyRequest::Type::RESET_ON_SPOT;
+        rq->amr_type = partialRepair ? ActorModifyRequest::Type::RESET_PARTIAL_REPAIR : ActorModifyRequest::Type::RESET_ON_SPOT;
         App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
     }
 }

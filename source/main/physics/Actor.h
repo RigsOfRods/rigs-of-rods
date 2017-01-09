@@ -87,6 +87,7 @@ public:
     float             getRotation();
     // AngelScript alias: `getHeadingDirectionAngle()`
     Ogre::Quaternion  getOrientation();
+    float             getSpawnRotation();//cosmic vole
     float             getSpeed() { return m_avg_node_velocity.length(); };
     Ogre::Vector3     getGForces() { return m_camera_local_gforces_cur; };
     float             getTotalMass(bool withLocked = true);
@@ -106,6 +107,7 @@ public:
     int               getWheelNodeCount() const;
     float             getWheelSpeed() const { return ar_wheel_speed; }
     void              reset(bool keep_position = false);   //!< call this one to reset a truck from any context
+    void              partialRepair(); //!< Call this one to repair the truck by a small increment - cosmic vole
     float             getShockSpringRate(int shock_number);
     float             getShockDamping(int shock_number);
     float             getShockVelocity(int shock_number);
@@ -169,6 +171,8 @@ public:
     void              clearForcedCinecam();
     bool              getForcedCinecam(CineCameraID_t& cinecam_id, BitMask_t& flags);
     int               getNumCinecams() { return ar_num_cinecams; }
+    //cosmic vole - scale RORBot Character when driving this vehicle
+    void              setDriverScale(float value);
     // not exported to scripting:
     void              mouseMove(NodeNum_t node, Ogre::Vector3 pos, float force);
     void              tieToggle(int group=-1, ActorLinkingRequestType mode=ActorLinkingRequestType::TIE_TOGGLE, ActorInstanceID_t forceunlock_filter=ACTORINSTANCEID_INVALID);
@@ -302,6 +306,7 @@ public:
     void              UpdatePhysicsOrigin();
     void              SoftReset();
     void              SyncReset(bool reset_position);      //!< this one should be called only synchronously (without physics running in background)
+    void              SyncPartialRepair(float step);//!< so should this one. cosmic vole added partial repairs
     void              WriteDiagnosticDump(std::string const& filename);
     Ogre::Vector3     GetCameraDir()                    { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_dir].RelPosition).normalisedCopy(); }
     Ogre::Vector3     GetCameraRoll()                   { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_roll].RelPosition).normalisedCopy(); }
@@ -488,6 +493,8 @@ public:
     CollisionBoxPtrVec m_potential_eventboxes;
     std::vector<std::pair<collision_box_t*, NodeNum_t>> m_active_eventboxes;
     std::unique_ptr<Buoyance> m_buoyance;
+    //cosmic vole - scale RORBot Character when driving this vehicle
+    float driverScale;
 
     // Player camera 'cameras & cinecam'
     // * 'cinecam#' creates dedicated node to dictate camera position + 6 attachment beams.

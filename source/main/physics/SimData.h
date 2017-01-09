@@ -869,7 +869,8 @@ struct ActorModifyRequest
         SOFT_RESET,
         RESTORE_SAVED,
         WAKE_UP,
-        REFRESH_VISUALS //!< Forces a synchronous update of visuals from any context - i.e. from terrain editor mode or with sleeping/physicspaused actor.
+        REFRESH_VISUALS, //!< Forces a synchronous update of visuals from any context - i.e. from terrain editor mode or with sleeping/physicspaused actor
+        RESET_PARTIAL_REPAIR //cosmic vole added partial repairs
     };
 
     ActorInstanceID_t   amr_actor = ACTORINSTANCEID_INVALID;// not ActorPtr because it's not thread-safe

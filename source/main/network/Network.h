@@ -135,6 +135,8 @@ public:
     bool                 GetAnyUserInfo(int uid, RoRnet::UserInfo &result); //!< Also considers local client
     bool                 FindUserInfo(std::string const& username, RoRnet::UserInfo &result);
     Ogre::ColourValue    GetPlayerColor(int color_num);
+    //cosmic vole added - used to pick colours for local AI drivers November 21 2016
+    int getRandomColourNum();
     void                 AddPeerOptions(PeerOptionsRequest* rq);
     void                 RemovePeerOptions(PeerOptionsRequest* rq);
 

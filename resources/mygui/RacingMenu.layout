@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout" version="3.2.0">
+    <Widget type="Window" skin="WindowCS" position="435 240 200 245" align="Center" layer="Main" name="_Main">
+        <Property key="Caption" value="Racing Menu"/>
+        <Property key="Enabled" value="true"/>
+        <Property key="MinSize" value="200 245"/>
+        <Widget type="Button" skin="Button" position="10 15 170 25" align="ALIGN_HCENTER ALIGN_TOP" name="load_player">
+            <Property key="Caption" value="Load Player"/>
+            <UserString key="" value=""/>
+        </Widget>
+        <Widget type="Button" skin="Button" position="10 55 170 25" align="ALIGN_HCENTER ALIGN_TOP" name="save_player">
+            <Property key="Caption" value="Save Player"/>
+        </Widget>
+        <Widget type="Button" skin="Button" position="10 95 170 25" align="ALIGN_HCENTER ALIGN_TOP" name="single_race">
+            <Property key="Caption" value="Single Race"/>
+        </Widget>
+        <Widget type="Button" skin="Button" position="10 135 170 25" align="HCenter Top" name="championship">
+            <Property key="Caption" value="Championship"/>
+        </Widget>
+        <Widget type="Button" skin="Button" position="10 175 170 25" align="HCenter Top" name="main_menu">
+            <Property key="Caption" value="Back"/>
+        </Widget>
+        <!--Widget type="Button" skin="Button" position="10 215 170 25" align="HCenter Top" name="settings">
+            <Property key="Caption" value="Race Settings"/>
+        </Widget>
+        <Widget type="Button" skin="Button" position="10 255 170 25" align="HCenter Top" name="racing">
+            <Property key="Caption" value="Racing"/>
+        </Widget-->
+    </Widget>
+</MyGUI>

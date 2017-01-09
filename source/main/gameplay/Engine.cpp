@@ -125,6 +125,58 @@ Engine::~Engine()
     m_torque_curve = NULL;
 }
 
+// Code to adjust the performance of a specified truck (intended to adjust AI difficulty but could be used for power-ups / cheats!) cosmic vole January 6 2017
+void Engine::tune(bool relative, float maxTorque, float maxRPM, float brakingTorque, float grip)
+{
+    if (relative)
+    {
+        if (maxTorque > 0.0f)
+        {
+            //TorqueCurve tc = b->engine->getTorqueCurve();
+            //TODO examine torque curve and work out a scaling factor based on old and new max torque!
+            m_engine_torque *= maxTorque; // updated variable name
+        }
+        if (maxRPM > 0.0f)
+        {
+            this->m_engine_max_rpm *= maxRPM; // updated variable name
+        }
+        if (brakingTorque > 0.0f)
+        {
+            this->m_braking_torque *= brakingTorque; // updated variable name
+        }
+        if (grip > 0.0f)
+        {
+            //TODO !!
+        }
+   
+    }
+    else
+    {
+        if (maxTorque > 0.0f)
+        {
+            //TorqueCurve tc = b->engine->getTorqueCurve();
+            //TODO examine torque curve and work out a scaling factor based on old and new max torque!
+            this->m_engine_torque = maxTorque; // updated variable name
+        }
+        if (maxRPM > 0.0f)
+        {
+            this->m_engine_max_rpm = maxRPM; // updated variable name
+        }
+        if (brakingTorque > 0.0f)
+        {
+            this->m_braking_torque = brakingTorque; // updated variable name
+        }
+        if (grip > 0.0f)
+        {
+            //TODO !!
+        }
+    
+    }
+    m_full_rpm_range = (this->m_engine_max_rpm - this->m_engine_idle_rpm); // updated variable name
+    m_one_third_rpm_range = m_full_rpm_range / 3.0f; // updated variable name
+    m_half_rpm_range = m_full_rpm_range / 2.0f; // updated variable name
+}
+
 void Engine::SetTurboOptions(int type, float tinertiaFactor, int nturbos, float param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8, float param9, float param10, float param11)
 {
     m_engine_has_turbo = true;

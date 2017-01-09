@@ -53,7 +53,8 @@ void RepairMode::UpdateInputEvents(float dt)
     }
 
     // Update LiveRepair timer
-    m_quick_repair_active = App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK);
+    const bool partial_repair_active = RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_PARTIAL_REPAIR_TRUCK); // cosmic vole added partial repairs
+    m_quick_repair_active = App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK) || partial_repair_active;
     if (m_quick_repair_active)
     {
         if (App::sim_live_repair_interval->getFloat() > 0)
@@ -152,8 +153,13 @@ void RepairMode::UpdateInputEvents(float dt)
             m_live_repair_timer += dt;
         }
 
+        // cosmic vole added partial repairs
         auto reset_type = ActorModifyRequest::Type::RESET_ON_SPOT;
-        if (App::sim_soft_reset_mode->getBool())
+        if (partial_repair_active)
+        {
+            reset_type = ActorModifyRequest::Type::RESET_PARTIAL_REPAIR;
+        }
+        else if (App::sim_soft_reset_mode->getBool())
         {
             reset_type = ActorModifyRequest::Type::SOFT_RESET;
             for (ActorPtr& actor : App::GetGameContext()->GetPlayerActor()->ar_linked_actors)

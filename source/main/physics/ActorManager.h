@@ -94,7 +94,7 @@ public:
 
     void           CleanUpSimulation(); //!< Call this after simulation loop finishes.
 
-    void           RepairActor(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box, bool keepPosition = false);
+    void           RepairActor(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box, bool keepPosition = false, bool partialRepair = false); //cosmic vole added partial repairs
     void           UpdateSleepingState(ActorPtr player_actor, float dt);
     
 

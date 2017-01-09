@@ -172,6 +172,7 @@ void ScriptEngine::init()
     RegisterInputEngine(engine);   // InputEngineClass, inputEvents
     RegisterImGuiBindings(engine); // ImGUi::
     RegisterVehicleAi(engine);     // VehicleAIClass, aiEvents, AiValues
+    RegisterRacingAi(engine);      // RacingAIClass, RacingAiEvents, RacingAiValues
     RegisterConsole(engine);       // ConsoleClass, CVarClass, CVarFlags
     RegisterEngine(engine);        // EngineClass, enum autoswitch, enum
     RegisterDashBoardManager(engine); // DashBoardManagerClass, DashboardDataTypes
@@ -465,7 +466,7 @@ int ScriptEngine::fireEvent(std::string instanceName, float intensity)
     return 0;
 }
 
-void ScriptEngine::envokeCallback(int _functionId, eventsource_t *source, NodeNum_t nodenum, int type)
+void ScriptEngine::envokeCallback(int _functionId, eventsource_t *source, NodeNum_t nodenum, int type, int truckNum)
 {
     // THIS IS OBSOLETE - Use `eventCallbackEx()` and `SE_EVENTBOX_ENTER` instead.
     // ################
@@ -484,6 +485,22 @@ void ScriptEngine::envokeCallback(int _functionId, eventsource_t *source, NodeNu
             functionId = m_script_units[id].defaultEventCallbackFunctionPtr->GetId();
         }
 
+        //Get the current truck number - Essential when scripts need to distinguish between AI vehicles and the player's. cosmic vole October 3 2016.
+        if (truckNum < 0)
+        {
+            //Beam *truck = BeamFactory::getSingleton().getCurrentTruck();
+            //if (truck)
+            //{
+            //    truckNum = truck->trucknum;
+            //}
+            //cosmic vole DEBUG
+            if (!nodenum) // FIXME: node number 0 is legit, invalid node number is `NODENUM_INVALID`, see ForwardDeclarations.h ~ ohlidalp, 01/2026
+            {
+                truckNum = -2;
+            }
+        }
+
+
         if (this->prepareContextAndHandleErrors(id, functionId))
         {
             // Set the function arguments
@@ -494,6 +511,8 @@ void ScriptEngine::envokeCallback(int _functionId, eventsource_t *source, NodeNu
                 context->SetArgDWord (3, static_cast<AngelScript::asDWORD>(nodenum));
             else
                 context->SetArgDWord (3, static_cast<AngelScript::asDWORD>(-1));
+            //Pass truckNum cosmic vole October 3 2016
+            context->SetArgDWord(4, truckNum);
 
             this->executeContextAndHandleErrors(id);
         }

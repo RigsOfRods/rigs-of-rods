@@ -47,7 +47,7 @@ public:
     bool           isRemote() const                     { return m_is_remote; }
     int            GetColorNum() const                  { return m_color_number; }
     bool           GetIsRemote() const                  { return m_is_remote; }
-    std::string const& GetNetUsername()             { return m_net_username; }
+    std::string const& GetNetUsername()                 { return m_net_username; }
     std::string const &    GetAnimName() const          { return m_anim_name; }
     float          GetAnimTime() const                  { return m_anim_time; }
     Ogre::Radian   getRotation() const                  { return m_character_rotation; }
@@ -56,6 +56,8 @@ public:
     Ogre::Vector3  getPosition();
     void           setPosition(Ogre::Vector3 position);
     void           setRotation(Ogre::Radian rotation);
+    ///This helps fit RORBot inside small vehicles. Use with caution! Really, it probably means the vehicle should be bigger, or his pose needs adjusting per vehicle. ~ cosmic vole, November 21 2016
+    void           setScale(Ogre::Vector3 scale);
     void           move(Ogre::Vector3 offset);
     void           update(float dt);
     void           updateCharacterRotation();
@@ -86,7 +88,7 @@ private:
     float            m_net_last_anim_time;
     float            m_driving_anim_length;
     std::string      m_instance_name;
-    std::string  m_net_username;
+    std::string      m_net_username;
     Ogre::Timer      m_net_timer;
     unsigned long    m_net_last_update_time;
     GfxCharacter*    m_gfx_character;

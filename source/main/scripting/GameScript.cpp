@@ -390,6 +390,12 @@ void GameScript::repairVehicle(const String& instance, const String& box, bool k
     App::GetGameContext()->GetActorManager()->RepairActor(App::GetGameContext()->GetTerrain()->GetCollisions(), instance, box, keepPosition);
 }
 
+//cosmic vole added partial repairs
+void GameScript::repairVehiclePartially(const String &instance, const String &box)
+{
+    App::GetGameContext()->GetActorManager()->RepairActor(App::GetGameContext()->GetTerrain()->GetCollisions(), instance, box, true);
+}
+
 void GameScript::removeVehicle(const String& event_source_instance_name, const String& event_source_box_name)
 {
     ActorPtr actor = App::GetGameContext()->FindActorByCollisionBox(event_source_instance_name, event_source_box_name);
@@ -1261,6 +1267,35 @@ std::string GameScript::getAIVehicleSkin(int x)
         std::string skin = App::GetGuiManager()->TopMenubar.ai_skin;
         return skin;
     }
+}
+
+// Code to adjust the performance of a specified truck (intended to adjust AI difficulty but could be used for power-ups / cheats!) cosmic vole January 6 2017
+// FIXME: This name is ambiguous with the 'Tuning' menu in GUI_TopMenubar, see https://docs.rigsofrods.org/gameplay/tuning/
+void GameScript::tuneTruck(int truckNum, bool relative, float maxTorque, float maxRPM, float brakingTorque, float grip)
+{
+    ActorPtr b = App::GetGameContext()->GetActorManager()->GetActorById(truckNum);
+    if (b && b->ar_engine)
+    {
+        b->ar_engine->tune(relative, maxTorque, maxRPM, brakingTorque, grip);
+        if (relative)
+        {
+            if (grip > 0.0f)
+            {
+                //TODO !!
+            }
+       
+        }
+        else
+        {
+
+            if (grip > 0.0f)
+            {
+                //TODO !!
+            }
+        
+        }
+    }
+    
 }
 
 int GameScript::getAIRepeatTimes()

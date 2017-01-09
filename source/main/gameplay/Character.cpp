@@ -100,6 +100,12 @@ void Character::setRotation(Radian rotation)
     m_character_rotation = rotation;
 }
 
+//cosmic vole - I've added this only because it helps fit RORBot inside small vehicles. Use with caution! Really, it probably means the vehicle should be bigger, or his pose needs adjusting per vehicle. November 21 2016
+void Character::setScale(Ogre::Vector3 scale)
+{
+    m_gfx_character->xc_scenenode->setScale(scale);
+}
+
 void Character::SetAnimState(std::string mode, float time)
 {
     if (m_anim_name != mode)
@@ -144,8 +150,9 @@ void Character::update(float dt)
         m_character_v_speed += dt * -9.8f;
 
         // Trigger script events and handle mesh (ground) collision
+        int truckNum = (m_actor_coupling != nullptr) ? m_actor_coupling->ar_instance_id : -3;
         Vector3 query = position;
-        App::GetGameContext()->GetTerrain()->GetCollisions()->collisionCorrect(&query);
+        App::GetGameContext()->GetTerrain()->GetCollisions()->collisionCorrect(&query, truckNum);
 
         // Auto compensate minor height differences
         float depth = calculate_collision_depth(position);
@@ -618,6 +625,17 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
             xc_scenenode->getAttachedObject(0)->setCastShadows(true);
             xc_scenenode->resetOrientation();
         }
+    }
+
+    //cosmic vole added driver scale
+    if (xc_simbuf.simbuf_actor_coupling->driverScale > 0.0f)
+    {
+        Ogre::Real scale = (Ogre::Real)(xc_simbuf.simbuf_actor_coupling->driverScale * 0.02f);
+        xc_scenenode->setScale(scale, scale, scale);
+    }
+    else
+    {
+        xc_scenenode->setScale(0.02f, 0.02f, 0.02f);
     }
 
     // Position + Orientation

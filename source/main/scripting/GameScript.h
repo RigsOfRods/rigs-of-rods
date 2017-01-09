@@ -434,6 +434,9 @@ public:
     //anglescript test
     void boostCurrentTruck(float factor);
 
+    //adjust performance of specified truck - cosmic vole January 6 2017
+    void tuneTruck(int truckNum, bool relative, float maxTorque, float maxRPM, float brakingTorque, float grip);
+
     /**
      * returns the current selected truck, 0 if in person mode
      * @return reference to Beam object that is currently in use
@@ -461,6 +464,9 @@ public:
     ActorPtr spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot);
 
     void repairVehicle(const Ogre::String& instance, const Ogre::String& box, bool keepPosition);
+
+    //cosmic vole added partial repairs
+    void repairVehiclePartially(const Ogre::String &instance, const Ogre::String &box);
 
     void removeVehicle(const Ogre::String& instance, const Ogre::String& box);
 
@@ -606,6 +612,7 @@ public:
 
     /// @name Material helpers
     /// @{
+
 
     int setMaterialAmbient(const Ogre::String& materialName, float red, float green, float blue);
     int setMaterialDiffuse(const Ogre::String& materialName, float red, float green, float blue, float alpha);

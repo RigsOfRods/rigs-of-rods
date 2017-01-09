@@ -605,7 +605,7 @@ int Collisions::addCollisionTri(Vector3 p1, Vector3 p2, Vector3 p3, ground_model
     return new_tri_index;
 }
 
-void Collisions::envokeScriptCallback(collision_box_t *cbox, node_t *node)
+void Collisions::envokeScriptCallback(collision_box_t *cbox, node_t *node, int truckNum, float dt) // cosmic vole added truckNum and dt to detect AI racers at checkpoints
 {
 #ifdef USE_ANGELSCRIPT
     // check if this box is active anymore
@@ -616,7 +616,7 @@ void Collisions::envokeScriptCallback(collision_box_t *cbox, node_t *node)
     {
         // An actor is activating the eventbox
         // Duplicate invocation is prevented by `Actor::m_active_eventboxes` cache.
-        App::GetScriptEngine()->envokeCallback(eventsources[cbox->eventsourcenum].es_script_handler, &eventsources[cbox->eventsourcenum], node->pos);
+        App::GetScriptEngine()->envokeCallback(eventsources[cbox->eventsourcenum].es_script_handler, &eventsources[cbox->eventsourcenum], node->pos, truckNum);
     }
     else
     {
@@ -624,7 +624,7 @@ void Collisions::envokeScriptCallback(collision_box_t *cbox, node_t *node)
         // this prevents that the same callback gets called at 2k FPS all the time, serious hit on FPS ... 
         if (std::find(std::begin(m_last_called_cboxes), std::end(m_last_called_cboxes), cbox) == m_last_called_cboxes.end())
         {
-            App::GetScriptEngine()->envokeCallback(eventsources[cbox->eventsourcenum].es_script_handler, &eventsources[cbox->eventsourcenum]);
+            App::GetScriptEngine()->envokeCallback(eventsources[cbox->eventsourcenum].es_script_handler, &eventsources[cbox->eventsourcenum], -1, truckNum);
             m_last_called_cboxes.push_back(cbox);
         }
     }
@@ -796,7 +796,7 @@ float Collisions::getSurfaceHeightBelow(float x, float z, float height)
     return surface_height;
 }
 
-bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
+bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks, int truckNum) // cosmic vole added truckNum to ease detection of AI trucks on checkpoints etc.
 {
     // find the correct cell
     int refx = (int)(refpos->x / (float)CELL_SIZE);
@@ -842,9 +842,11 @@ bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
                 // now test with the inner box
                 if (Pos > cbox->relo && Pos < cbox->rehi)
                 {
-                    if (cbox->eventsourcenum!=-1 && permitEvent(nullptr, cbox->event_filter) && envokeScriptCallbacks)
+                    // cosmic vole added truckNum to this call for detecting AI racers at checkpoints
+                    ActorPtr actor = App::GetGameContext()->GetActorManager()->GetActorById(truckNum);
+                    if (cbox->eventsourcenum!=-1 && permitEvent(actor.GetRef(), cbox->event_filter) && envokeScriptCallbacks)
                     {
-                        envokeScriptCallback(cbox);
+                        envokeScriptCallback(cbox, 0, truckNum);
                         isScriptCallbackEnvoked = true;
                     }
                     if (cbox->camforced && !forcecam)
@@ -877,9 +879,11 @@ bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
 
             } else
             {
-                if (cbox->eventsourcenum!=-1 && permitEvent(nullptr, cbox->event_filter) && envokeScriptCallbacks)
+                // cosmic vole added truckNum to this call for detecting AI racers at checkpoints
+                ActorPtr actor = App::GetGameContext()->GetActorManager()->GetActorById(truckNum);
+                if (cbox->eventsourcenum!=-1 && permitEvent(actor.GetRef(), cbox->event_filter) && envokeScriptCallbacks)
                 {
-                    envokeScriptCallback(cbox);
+                    envokeScriptCallback(cbox, 0, truckNum);
                     isScriptCallbackEnvoked = true;
                 }
                 if (cbox->camforced && !forcecam)
@@ -956,7 +960,7 @@ bool Collisions::permitEvent(Actor* b, CollisionEventFilter filter)
     }
 }
 
-bool Collisions::nodeCollision(node_t *node, float dt)
+bool Collisions::nodeCollision(node_t *node, float dt, int truckNum) //cosmic vole added truckNum to ease AI truck detection at checkpoints etc
 {
     // find the correct cell
     int refx = (int)(node->AbsPosition.x / CELL_SIZE);

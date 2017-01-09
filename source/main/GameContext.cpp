@@ -387,6 +387,10 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
     {
         actor->SyncReset(/*reset_position:*/true);
     }
+    else if (rq.amr_type == ActorModifyRequest::Type::RESET_PARTIAL_REPAIR)
+    {
+        actor->SyncPartialRepair(0.005f); //cosmic vole added partial repairs
+    }
     else if (rq.amr_type == ActorModifyRequest::Type::RESTORE_SAVED)
     {
         m_actor_manager.RestoreSavedState(actor, *rq.amr_saved_state.get());

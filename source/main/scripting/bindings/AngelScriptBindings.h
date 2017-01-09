@@ -36,6 +36,9 @@ void RegisterActor(AngelScript::asIScriptEngine* engine);
 /// defined in VehicleAiAngelscript.cpp
 void RegisterVehicleAi(AngelScript::asIScriptEngine* engine);
 
+/// defined in RacingAiAngelscript.cpp
+void RegisterRacingAi(AngelScript::asIScriptEngine* engine);
+
 /// Registers RoR::InputEngine, defined in InputEngineAngelscript.cpp
 void RegisterInputEngine(AngelScript::asIScriptEngine* engine);
 

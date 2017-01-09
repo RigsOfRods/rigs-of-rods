@@ -38,8 +38,8 @@ raceBuilder::raceBuilderVersion)
 funcdef void RACE_EVENT_CALLBACK(dictionary@);
 
 // called when a vehicle is in a checkpoint
-void raceEvent(int trigger_type, string inst, string box, int nodeid) {
-	races.raceEvent(trigger_type, inst, box, nodeid);
+void raceEvent(int trigger_type, string inst, string box, int nodeid, int eventTruckNum) {
+	races.raceEvent(trigger_type, inst, box, nodeid, eventTruckNum);
 }
 
 void raceCancelPointHandler(int trigger_type, string inst, string box, int nodeid) {
@@ -99,6 +99,10 @@ shared class racesManager {
 // private properties
 	array<raceBuilder@> raceList;
 	dictionary callbacks;
+	dictionary competitors;//List of trucks in the current race(s) with their individual times and stats. cosmic vole
+	int minTruckNum;//Minimum truckNum added to competitors
+	int maxTruckNum;//Max truckNum added to competitors
+	int numCompetitors;
 
 // public functions
 
@@ -144,7 +148,7 @@ shared class racesManager {
 		this.allowVehicleChanging = false; // if false: if the user changes vehicle, the race will be aborted.
 		this.abortOnVehicleExit = false;  // if true: if the user exits his vehicle, the race will be aborted
 		this.showCheckPointInfoWhenNotInRace = false; // if true: if the user drives through a checkpoint of a race that isn't running, a message will be shown, saying "this is checkpoint xx of race myRaceName"
-		this.arrowMethod       = this.ARROW_AUTO;
+		this.arrowMethod       = 0;//cosmic vole testing this.ARROW_AUTO;
 		this.restartRaceOnStart = true; // if true: the race will be restarted when you pass the start line of the same race
 
 		// we initialize the other variables (do not edit these manually)
@@ -159,6 +163,10 @@ shared class racesManager {
 		this.lastRaceEventInstance = ""; // we only use this to boost the FPS
 		this.raceManagerVersion = "RoR_raceManager_v0.02";
 		this.penaltyGiven = true;
+		this.truckNum = -1;
+		this.minTruckNum = 0;
+		this.maxTruckNum = -1;
+		this.numCompetitors = 0;
 
 		// register the required callbacks
 		game.registerForEvent(SE_TRUCK_ENTER);
@@ -417,11 +425,52 @@ shared class racesManager {
 
 	// This will get called when a truck is at a checkpoint
 	// You shouldn't call this manually (use the callback instead)
-	void raceEvent(int trigger_type, string inst, const string &in box, int nodeid)
+	void raceEvent(int trigger_type, string inst, const string &in box, int nodeid, int eventTruckNum)
 	{
-		// debug: game.log("racesManager::raceEvent(" + trigger_type + ", \"" + inst + "\", \"" + box + "\", " + nodeid + ") called.");
+		// debug: game.log("racesManager::raceEvent(" + trigger_type + ", \"" + inst + "\", \"" + box + "\", " + nodeid + ", " + eventTruckNum + ") called.");
+        //this.message("cosmicvoleDEBUG racesManager::raceEvent(" + trigger_type + ", \"" + inst + "\", \"" + box + "\", " + nodeid  + ", " + eventTruckNum + ") called.", "flag_green.png");
 
-		if( box == "race_penalty" and !this.penaltyGiven and this.state == this.STATE_Racing )
+		//First see which truck triggered the event. cosmic vole.
+		//int curTruckNum = game.getCurrentTruckNumber();
+		//TODO see if it's an AI truck or the player's one and write to competitor data as necessary
+		racesCompetitor @competitor = null;
+		if (eventTruckNum > -1)
+		{
+			if (!competitors.get(formatInt(eventTruckNum, ''), @competitor) || competitor is null)
+			{
+				@competitor = racesCompetitor(eventTruckNum);
+				competitors.set(formatInt(eventTruckNum, ''), @competitor);
+				if (eventTruckNum < minTruckNum)
+				{
+					minTruckNum = eventTruckNum;
+				}
+				if (eventTruckNum > maxTruckNum)
+				{
+					maxTruckNum = eventTruckNum;
+				}
+				numCompetitors++;
+			}
+			//BeamClass @eventTruck = game.getTruckByNum(eventTruckNum);
+			VehicleAIClass @eventAI = game.getTruckAIByNum(eventTruckNum);
+			competitor.hasAI = eventAI !is null;
+			//TODO need a better way to detect the player's vehicle (e.g. camera focus?)
+			competitor.isThePlayer = !(competitor.hasAI) || !eventAI.isActive();
+
+			if (eventAI !is null and eventAI.isActive())
+			{
+				//this.message("cosmicvoleDEBUG ignoring AI truck for eventTruckNum: "+eventTruckNum+" curTruckNum: "+game.getCurrentTruckNumber(), "flag_orange.png");
+				//TODO log data to a Competitor object but don't display game messages
+				//competitor.lastRaceEventInstance = inst;//this.lastRaceEventInstance = "";//inst;
+				//return;
+			}
+		}
+		//For now if it's not the same truck that first started the race, ignore
+		//if (eventTruckNum != this.truckNum and this.truckNum > -1)
+		//{
+		//	return;
+		//}
+		
+		if( box == "race_penalty" and !competitor.penaltyGiven and this.state == this.STATE_Racing )
 		{
 			// the inst string contains the information about the event
 			array<string>@ tmp = inst.split("|");
@@ -429,8 +478,9 @@ shared class racesManager {
 			{
 				int checkpointNum = parseInt(tmp[2]);
 				int raceID        = parseInt(tmp[1]);
-				if( raceID == this.currentRace or raceID == -1 )
+				if( raceID == competitor.currentRace or raceID == -1 )
 				{
+					//TODO make getPenaltyTime() handle competitors
 					int penaltyTime = this.getPenaltyTime(raceID);
 
 					// call the callback function
@@ -449,8 +499,9 @@ shared class racesManager {
 						handle(@args);
 						args.get("penaltyTime", penaltyTime);
 					}
+					//TODO make this work with a competitor
 					this.addPenaltySeconds(penaltyTime);
-					this.penaltyGiven = true;
+					competitor.penaltyGiven = true;
 				}
 			}
 			return;
@@ -463,7 +514,7 @@ shared class racesManager {
 			{
 				int checkpointNum = parseInt(tmp[2]);
 				int raceID        = parseInt(tmp[1]);
-				if( raceID == this.currentRace or raceID == -1 )
+				if( raceID == competitor.currentRace or raceID == -1 )
 				{
 
 					// call the callback function
@@ -493,9 +544,9 @@ shared class racesManager {
 		}
 
 		// We don't want to handle the same checkpoint twice
-		if( ( inst == this.lastRaceEventInstance ) )
+		if( ( inst == competitor.lastRaceEventInstance ) )
 			return;
-		this.lastRaceEventInstance = inst;
+		competitor.lastRaceEventInstance = inst;
 
 		// call the callback function
 		RACE_EVENT_CALLBACK @handle;
@@ -523,64 +574,77 @@ shared class racesManager {
 			int checkpointNum = parseInt(tmp[2]);
 			int raceID        = parseInt(tmp[1]);
 
-			if( checkpointNum == this.lastCheckpoint )
+			if( checkpointNum == competitor.lastCheckpoint )
 				return;
-			else if(this.state == STATE_NotInRace)
+			else if(competitor.state == STATE_NotInRace)
 			{
 				// we're not racing, but maybe we passed the start line?
 				if(checkpointNum == 0)
 				{
 					// yes! We passed the start line, so we'll start the race!
-					this.lastCheckpointInstance = inst;
-					this.penaltyGiven = false;
-					this.startRace(raceID);
+					competitor.lastCheckpointInstance = inst;
+					competitor.penaltyGiven = false;
+					this.startRace(raceID, competitor);
 				}
-				else if( this.showCheckPointInfoWhenNotInRace )
+				else if( this.showCheckPointInfoWhenNotInRace and competitor.isThePlayer)
 				{
 					// passed some not-start checkpoint
 					this.message("This is checkpoint "+checkpointNum+" of race "+this.raceList[raceID].raceName+"!", "tick.png");
 				}
 			}
-			else if(this.state == STATE_Racing and currentRace == raceID)
+			else if(competitor.state == STATE_Racing and competitor.currentRace == raceID)
 			{
 				// we hit a checkpoint from the same race!
-				if( checkpointNum == this.raceList[raceID].finishNum and this.raceList[raceID].finishNum == this.raceList[raceID].getNextCheckpointNum(this.lastCheckpoint))
+				if( checkpointNum == this.raceList[raceID].finishNum and this.raceList[raceID].finishNum == this.raceList[raceID].getNextCheckpointNum(competitor.lastCheckpoint))
 				{ // passing the finishline
-					if( (this.currentLap < this.raceList[raceID].laps) or (this.raceList[raceID].laps == this.LAPS_Unlimited) )
+					this.message("cosmicvoleDEBUG truck " + competitor.truckNum + " passed finish line! eventTruckNum: "+eventTruckNum, "flag_green.png");
+					if( (competitor.currentLap < this.raceList[raceID].laps) or (this.raceList[raceID].laps == this.LAPS_Unlimited) )
 					{
-						this.lastCheckpointInstance = inst;
-						this.penaltyGiven = false;
-						this.advanceLap();
+						competitor.lastCheckpointInstance = inst;
+						competitor.penaltyGiven = false;
+						//TODO add support for competitor to this
+						//this.message("cosmicvoleDEBUG truck " + competitor.truckNum + " calling advanceLap() eventTruckNum: "+eventTruckNum, "flag_green.png");
+						//BUG this isn't working anymore - it always acts as if the last checkpoint has been missed! e.g. 9 of 9
+						this.advanceLap(competitor);
+						//this.message("cosmicvoleDEBUG truck " + competitor.truckNum + " called advanceLap() currentLap now: " + competitor.currentLap + " competitor.lastCheckpoint: " + competitor.lastCheckpoint, "flag_green.png");
 					}
-					else if( (this.currentLap >= this.raceList[raceID].laps) or (this.raceList[raceID].laps == this.LAPS_NoLaps) )
+					else if( (competitor.currentLap >= this.raceList[raceID].laps) or (this.raceList[raceID].laps == this.LAPS_NoLaps) )
 					{
-						this.lastCheckpointInstance = inst;
-						this.penaltyGiven = false;
-						this.finishCurrentRace();
+						competitor.lastCheckpointInstance = inst;
+						competitor.penaltyGiven = false;
+						this.message("cosmicvoleDEBUG truck " + competitor.truckNum + " finished the race! eventTruckNum: "+eventTruckNum, "flag_green.png");
+						if (competitor.isThePlayer)
+						{
+							this.finishCurrentRace();
+						}
 					}
 					else
+					{
 						game.log("ERROR: unhandled race event: checkpointNum "+checkpointNum+", finishNum "+this.raceList[raceID].finishNum);
+						this.message("cosmicvoleDEBUG truck. Unhandled finish line event: " + competitor.truckNum, "flag_green.png");
+					}
 				}
-				else if( checkpointNum == this.raceList[raceID].getNextCheckpointNum(this.lastCheckpoint) )
+				else if( checkpointNum == this.raceList[raceID].getNextCheckpointNum(competitor.lastCheckpoint) )
 				{ // passing a normal checkpoint
-					this.lastCheckpointInstance = inst;
-					this.penaltyGiven = false;
-					this.advanceCheckpoint(raceID);
+					competitor.lastCheckpointInstance = inst;
+					competitor.penaltyGiven = false;
+					//this.message("cosmicvoleDEBUG Advancing checkpoint to " + checkpointNum + " for eventTruckNum: "+eventTruckNum+" curTruckNum: "+game.getCurrentTruckNumber(), "tick.png");
+					this.advanceCheckpoint(raceID, eventTruckNum, competitor);
 				}
 				else{
-					if( (checkpointNum == 0) && this.restartRaceOnStart )
+					if( (checkpointNum == 0) and this.restartRaceOnStart )
 					{
 						this.cancelCurrentRace();
-						this.lastCheckpointInstance = inst;
-						this.penaltyGiven = false;
-						this.startRace(raceID);
+						competitor.lastCheckpointInstance = inst;
+						competitor.penaltyGiven = false;
+						this.startRace(raceID, competitor);
 					}
-					else if( checkpointNum == this.raceList[raceID].getNextCheckpointNum(this.raceList[raceID].getNextCheckpointNum(this.lastCheckpoint)) )
-						this.message("You missed a checkpoint! Please go back and pass checkpoint "+this.raceList[raceID].getNextCheckpointNum(this.lastCheckpoint)+" first.", "cross.png");
-					else if( checkpointNum == this.raceList[raceID].getPreviousCheckpointNum(this.lastCheckpoint) )
-						this.message("Wrong checkpoint! Are you driving in the correct direction?", "cross.png");
-					else
-						this.message("Wrong checkpoint! You must find and pass checkpoint "+this.raceList[raceID].getNextCheckpointNum(this.lastCheckpoint), "cross.png");
+					else if(competitor.isThePlayer and checkpointNum == this.raceList[raceID].getNextCheckpointNum(this.raceList[raceID].getNextCheckpointNum(competitor.lastCheckpoint)) )
+						this.message("You missed a checkpoint! Please go back and pass checkpoint "+this.raceList[raceID].getNextCheckpointNum(this.lastCheckpoint)+" first." + " for eventTruckNum: "+eventTruckNum+" curTruckNum: "+game.getCurrentTruckNumber(), "cross.png");
+					else if(competitor.isThePlayer and checkpointNum == this.raceList[raceID].getPreviousCheckpointNum(competitor.lastCheckpoint) )
+						this.message("Wrong checkpoint! Are you driving in the correct direction?" + " for eventTruckNum: "+eventTruckNum+" curTruckNum: "+game.getCurrentTruckNumber(), "cross.png");
+					else if (competitor.isThePlayer)
+						this.message("Wrong checkpoint! You must find and pass checkpoint "+this.raceList[raceID].getNextCheckpointNum(competitor.lastCheckpoint) + " for eventTruckNum: "+eventTruckNum+" curTruckNum: "+game.getCurrentTruckNumber(), "cross.png");
 				}
 			}
 			else
@@ -589,9 +653,13 @@ shared class racesManager {
 				{
 					// we passed the startline of another race
 					this.cancelCurrentRace();
-					this.lastCheckpointInstance = inst;
-					this.penaltyGiven = false;
-					this.startRace(raceID);
+					competitor.lastCheckpointInstance = inst;
+					competitor.penaltyGiven = false;
+					//TODO make startRace() handle AI competitors
+					if (competitor.isThePlayer)
+					{
+						this.startRace(raceID, competitor);
+					}
 				}
 			}
 		}
@@ -608,9 +676,10 @@ shared class racesManager {
 	//  pre: The race corresponding with the raceID exists
 	//       There's no other race running
 	// post: The race is running
-	void startRace(int raceID)
+	void startRace(int raceID, racesCompetitor@ competitor)
 	{
-		// debug: game.log("racesManager::startRace(" + raceID + ") called.");
+		// debug: 
+        game.log("racesManager::startRace(" + raceID + ") called.");
 
 		// if the race is locked, then we do nothing
 		if( this.raceList[raceID].isLocked() )
@@ -627,19 +696,20 @@ shared class racesManager {
 			return;
 		}
 
-		this.state = STATE_Racing;
+		competitor.state = STATE_Racing;
 		this.currentRace = raceID;
-		this.currentLap = 1;
-		this.lastCheckpoint = 0;
-		this.raceStartTime = game.getTime();
-		this.lapStartTime = this.raceStartTime;
+		competitor.currentRace = raceID;
+		competitor.currentLap = 1;
+		competitor.lastCheckpoint = 0;
+		competitor.raceStartTime = game.getTime();
 		game.startTimer(raceID);
+		competitor.lapStartTime = this.raceStartTime;
 		game.setBestLapTime(this.raceList[raceID].bestLapTime);
-		this.recalcArrow();
-		this.truckNum = game.getCurrentTruckNumber();
+		this.recalcArrow(competitor);
+		this.truckNum = competitor.truckNum;//game.getCurrentTruckNumber();
 		this.raceList[raceID].lastTimeTillPoint[0] = 0.0;
-		this.penaltyTime.resize(0);
-		this.penaltyTime.resize(this.raceList[raceID].checkPointsCount);
+		competitor.penaltyTime.resize(0);
+		competitor.penaltyTime.resize(this.raceList[raceID].checkPointsCount);
 
 		// build the message
 		this.message("Race "+this.raceList[raceID].raceName+" started!", "bullet_go.png");
@@ -739,48 +809,106 @@ shared class racesManager {
 	}
 
 	// This is private, as you shouldn't manually advance a lap
-	void advanceLap()
+	void advanceLap(racesCompetitor@ competitor)
 	{
 		// debug: game.log("racesManager::advanceLap() called.");
 
-		int rid = this.currentRace;
+		int rid = competitor.currentRace;
 
 		// get the lapTime
-		double lapTime = game.getTime() - this.lapStartTime;
+		double lapTime = game.getTime() - competitor.lapStartTime;
 
 		// calculate time difference
 		string timeDiff = "";
-		if(this.showTimeDiff and this.raceList[rid].bestLapTime > 0.0)
-		{
-			if( (lapTime-this.raceList[rid].bestLapTime) > 0 )
-				timeDiff = " (+"+ (lapTime-this.raceList[rid].bestLapTime) +")";
-			else if( (lapTime-this.raceList[rid].bestLapTime) < 0 )
-				timeDiff = " ("+ (lapTime-this.raceList[rid].bestLapTime) +")";
-		}
+		//if(this.showTimeDiff and this.raceList[rid].bestLapTime > 0.0)
+		//{
+		//	if( (lapTime-this.raceList[rid].bestLapTime) > 0 )
+		//		timeDiff = " (+"+ (lapTime-this.raceList[rid].bestLapTime) +")";
+		//	else if( (lapTime-this.raceList[rid].bestLapTime) < 0 )
+		//		timeDiff = " ("+ (lapTime-this.raceList[rid].bestLapTime) +")";
+		//}
 
 		// do time stuff
-		this.raceList[rid].lastTimeTillPoint[this.raceList[rid].checkPointsCount-1] = lapTime;
-		bool newBestLap;
-		this.addLapTime(rid, lapTime, newBestLap);
+		//this.raceList[rid].lastTimeTillPoint[this.raceList[rid].checkPointsCount-1] = lapTime;
+		bool newBestLap = false;
+        //TODO make best lap calc work with competitors - cosmic vole January 7 2017
+		//this.addLapTime(rid, lapTime, newBestLap);
 		game.stopTimer();
 		game.startTimer(rid);
-		this.lapStartTime = game.getTime();
+		competitor.lapStartTime = game.getTime();
 
 		// advance the lap
-		this.currentLap++;
-		this.lastCheckpoint = 0;
-		this.recalcArrow();
+		competitor.currentLap = competitor.currentLap + 1;
+		//++;
+		competitor.lastCheckpoint = 0;
+		//TODO need to fix these timings
+		competitor.lastCheckpointTime = 0.0;
+
+		//game.log("cosmicvoleDEBUG in advanceLap() truckNum: " + competitor.truckNum + " lastCheckpoint: " + competitor.lastCheckpoint);
+
+		//TODO make this work with AI
+		this.recalcArrow(competitor);
+		
+		//this.message("cosmicvoleDEBUG in advanceLap() truckNum: " + competitor.truckNum + " lastCheckpoint: " + competitor.lastCheckpoint, "flag_green.png");
 
 		// build the message
-		if( this.raceList[rid].laps != this.LAPS_Unlimited )
+		if(competitor.isThePlayer and this.raceList[rid].laps != this.LAPS_Unlimited )
 			this.message("Lap "+(this.currentLap-1)+" done!", "flag_green.png");
-		if( this.showBestLap and newBestLap )
+		if(competitor.isThePlayer and this.showBestLap and newBestLap )
 			this.message("New best lap time: "+this.formatTime(lapTime)+"!"+timeDiff, "flag_green.png");
-		else
+		else if (competitor.isThePlayer)
 			this.message("Lap time: "+this.formatTime(lapTime)+"!"+timeDiff, "flag_green.png");
 
 		// store the new race times
-		saveRace(rid);
+		//saveRace(rid);
+		
+		// call the callback function
+		RACE_EVENT_CALLBACK @handle;
+		if( callbacks.get("AdvanceLap", @handle) and not (handle is null))
+		{
+			dictionary args;
+			args.set("event", "AdvanceLap");
+			args.set("raceID", rid);
+			handle(args);
+		}
+	}
+
+	//TODO this seems to work but advanceLap() currently doesn't, even though it compiles!
+	void advanceLapDEBUG(racesCompetitor@ competitor)
+	{
+		// debug: game.log("racesManager::advanceLap() called.");
+	
+		int rid = competitor.currentRace;
+		
+		game.stopTimer();
+		game.startTimer();
+		competitor.lapStartTime = game.getTime();
+		
+		// advance the lap
+		competitor.currentLap = competitor.currentLap + 1;
+		//++;
+		competitor.lastCheckpoint = 0;
+		//TODO need to fix these timings
+		competitor.lastCheckpointTime = 0.0;
+
+		//this.message("cosmicvoleDEBUG in advanceLap() truckNum: " + competitor.truckNum + " lastCheckpoint: " + competitor.lastCheckpoint, "flag_green.png");
+		//game.log("cosmicvoleDEBUG in advanceLap() truckNum: " + competitor.truckNum + " lastCheckpoint: " + competitor.lastCheckpoint);
+
+		//TODO make this work with AI
+		this.recalcArrow(competitor);
+		
+		
+				
+		// build the message
+		if(competitor.isThePlayer and this.raceList[rid].laps != this.LAPS_Unlimited )
+			this.message("Lap "+(this.currentLap-1)+" done!", "flag_green.png");
+		//if(competitor.isThePlayer and this.showBestLap and newBestLap )
+		//	this.message("     New best lap time: "+this.formatTime(lapTime)+"!"+timeDiff, "flag_green.png");
+		//else if (competitor.isThePlayer)
+		//	this.message("     Lap time: "+this.formatTime(lapTime)+"!"+timeDiff, "flag_green.png");
+		
+		// store the new race times
+		//saveRace(rid);
 
 		// call the callback function
 		RACE_EVENT_CALLBACK @handle;
@@ -793,46 +921,68 @@ shared class racesManager {
 		}
 	}
 
+	
 	// called by raceEvent when the user drives through a checkpoint that is not a finishline and not a startline
 	//  pre: The race corresponding with the raceID exists
 	//       The race corresponding with the raceID is running at the moment
 	// post: We have advanced 1 checkpoint
-	void advanceCheckpoint(int raceID)
+	void advanceCheckpoint(int raceID, int eventTruckNum, racesCompetitor@ competitor)
 	{
 		// debug: game.log("racesManager::advanceCheckpoint(" + raceID + ") called.");
 
-		this.lastCheckpoint = this.raceList[raceID].getNextCheckpointNum(this.lastCheckpoint);
+		competitor.lastCheckpoint = this.raceList[raceID].getNextCheckpointNum(competitor.lastCheckpoint);
+		//cosmic vole testing manual arrow increment
+		this.arrowMethod == this.ARROW_AUTO;//this.arrowMethod = competitor.lastCheckpoint;
 
-		this.recalcArrow();
+		//this.message("cosmicvoleDEBUG recalc arrow checkpoint to " + this.arrowMethod + " for eventTruckNum: "+eventTruckNum+" curTruckNum: "+game.getCurrentTruckNumber(), "flag_orange.png");
 
-		double time = game.getTime() - this.lapStartTime;
+		this.recalcArrow(competitor);
+		
+		double time = game.getTime() - competitor.lapStartTime;
+		competitor.lastCheckpointTime = time;
+		calcPositions(raceID);
 
 		// calculate time difference
 		string timeDiff = "";
-		if(this.showTimeDiff and this.raceList[raceID].bestTimeTillPoint[this.lastCheckpoint] > 0.0)
+		//TODO at the moment these best times are across all competitors - FIX
+		if(this.showTimeDiff and this.raceList[raceID].bestTimeTillPoint[competitor.lastCheckpoint] > 0.0)
 		{
-			double diff = time-this.raceList[raceID].bestTimeTillPoint[this.lastCheckpoint];
+			double diff = time-this.raceList[raceID].bestTimeTillPoint[competitor.lastCheckpoint];
 			if( diff > 0 )
 				timeDiff = " (+"+ diff +")";
 			else if( diff < 0 )
 			{
 				timeDiff = " ("+ diff +")";
-				this.raceList[raceID].bestTimeTillPoint[this.lastCheckpoint] = time;
+				this.raceList[raceID].bestTimeTillPoint[competitor.lastCheckpoint] = time;
 			}
 			game.setTimeDiff(diff);
 		}
 		else
-			this.raceList[raceID].bestTimeTillPoint[this.lastCheckpoint] = time;
+			this.raceList[raceID].bestTimeTillPoint[competitor.lastCheckpoint] = time;
 
-		this.raceList[raceID].lastTimeTillPoint[this.lastCheckpoint] = time;
+		this.raceList[raceID].lastTimeTillPoint[competitor.lastCheckpoint] = time;
 
 		// build the message
 		if( this.raceList[raceID].laps == this.LAPS_NoLaps )
-			this.message("Passed checkpoint "+this.lastCheckpoint+" of "+(this.raceList[raceID].checkPointsCount-1)+" after "+this.formatTime(time)+"."+timeDiff, "flag_orange.png");
+			this.message("Passed checkpoint "+competitor.lastCheckpoint+" of "+(this.raceList[raceID].checkPointsCount-1)+" after "+this.formatTime(time)+"."+timeDiff, "flag_orange.png");
 		else
-			this.message("Passed checkpoint "+this.lastCheckpoint+" of "+(this.raceList[raceID].checkPointsCount)+" after "+this.formatTime(time)+"."+timeDiff, "flag_orange.png");
-		if( this.currentLap >= this.raceList[raceID].laps and this.raceList[raceID].finishNum == this.raceList[raceID].getNextCheckpointNum(this.lastCheckpoint) )
+			this.message("Passed checkpoint "+competitor.lastCheckpoint+" of "+(this.raceList[raceID].checkPointsCount)+" after "+this.formatTime(time)+"."+timeDiff, "flag_orange.png");
+		if( competitor.currentLap >= this.raceList[raceID].laps and this.raceList[raceID].finishNum == this.raceList[raceID].getNextCheckpointNum(competitor.lastCheckpoint) )
 			this.message("Go for the finish!", "flag_orange.png");
+		else
+		{
+			//cosmic vole added lap count
+			if (this.raceList[raceID].laps > 0)
+			{
+				this.message("Lap "+ competitor.currentLap +" of " + this.raceList[raceID].laps + ". event " + eventTruckNum + " Passed chkpnt " + competitor.lastCheckpoint+" curTruckNum: "+game.getCurrentTruckNumber(), "flag_orange.png");
+			}
+			else
+			{
+				this.message("Lap "+ competitor.currentLap +".", "flag_orange.png");
+			}
+
+		}
+
 
 		// call the callback function
 		RACE_EVENT_CALLBACK @handle;
@@ -845,6 +995,61 @@ shared class racesManager {
 		}
 	}
 
+	void calcPosition(racesCompetitor@ competitor)
+	{
+		if (competitor.state == this.STATE_NotInRace)
+		{
+			competitor.racePosition = 0;
+			return;
+		}
+		int position = 1;
+		//array<string>@ keys = this.competitors.getKeys();
+		//for (int i = 0; i < keys.length(); i++)
+		for (int i = this.minTruckNum; i <= this.maxTruckNum; i++)
+		{
+			racesCompetitor@ c = null;
+			if (this.competitors.get(formatInt(i, ''), @c) and !(c is null) and c.truckNum != competitor.truckNum and c.currentRace == competitor.currentRace)
+			{
+				if (c.currentLap > competitor.currentLap)
+				{
+					position++;
+				}
+				else if (c.currentLap == competitor.currentLap)
+				{
+					if (c.lastCheckpoint > competitor.lastCheckpoint)
+					{
+						position++;
+					}
+					else if (c.lastCheckpoint == competitor.lastCheckpoint)
+					{
+						//We need to compare the timings to get position at last checkpoint, or TODO better compare their on track positions to get instantaneous position
+						if (c.lastCheckpointTime < competitor.lastCheckpointTime)
+						{
+							position++;
+						}
+					}
+				}
+			}
+		}
+		competitor.racePosition = position;
+	}
+
+	void calcPositions(int raceID)
+	{
+		//array<string>@ keys = this.competitors.getKeys();
+		//for (int i = 0; i < keys.length(); i++)
+		for (int i = this.minTruckNum; i <= this.maxTruckNum; i++)
+		{
+			racesCompetitor@ c = null;
+			if (this.competitors.get(formatInt(i, ''), @c) and !(c is null) and c.currentRace == raceID)
+			{
+				//TODO Horribly slow - we need to sort all the competitors into position in one go instead of calculating one by one
+				calcPosition(c);
+			}
+		}
+	}
+
+	
 	void setBestLapTime(int raceID, double time)
 	{
 		this.raceList[raceID].bestLapTime = time;
@@ -981,7 +1186,7 @@ shared class racesManager {
 	void message(const string &in msg, const string &in icon)
 	{
 		if(!this.silentMode)
-			game.message(msg, icon, 10000, true); // 10 seconds visible, enforce visibility
+			game.message(msg, icon, 2000, true); //cosmic vole changed to 2 seconds.... 10 seconds visible, enforce visibility
 	}
 
 	void unlockRace(int raceID)
@@ -1176,18 +1381,23 @@ shared class racesManager {
 		}
 	}
 
-	void recalcArrow()
+	void recalcArrow(racesCompetitor@ competitor)
 	{
-		if( this.state == this.STATE_Racing )
-			this.setupArrow(this.raceList[this.currentRace].getNextCheckpointNum(this.lastCheckpoint));
+		//We don't want to start hiding the arrow if an AI competitor passed a checkpoint. Just do nothing.
+		if (!competitor.isThePlayer)
+		{
+			return;
+		}
+		if( competitor.state == this.STATE_Racing)
+			this.setupArrow(this.raceList[competitor.currentRace].getNextCheckpointNum(competitor.lastCheckpoint), competitor);
 		else
 			this.removeArrow();
 	}
 
 	// set a navigational arrow
-	void setupArrow(int position)
+	void setupArrow(int position, racesCompetitor@ competitor)
 	{
-		if( (position < 0) or (position > this.raceList[this.currentRace].checkPointsCount-1) )
+		if( (position < 0) or (position > this.raceList[competitor.currentRace].checkPointsCount-1) )
 		{ // hide the arrow
 			this.removeArrow();
 			return;
@@ -1197,30 +1407,50 @@ shared class racesManager {
 		int instanceNum = this.arrowMethod;
 		if( this.arrowMethod == this.ARROW_AUTO )
 		{
-			array<string>@ tmp = this.lastCheckpointInstance.split("|");
+			array<string>@ tmp = competitor.lastCheckpointInstance.split("|");
 			// int checkpointNum = parseInt(tmp[2]);
 			int raceID        = parseInt(tmp[1]);
 			if( raceID == this.currentRace )
 				instanceNum = parseInt(tmp[3]);
 		}
 
-		if( this.raceList[this.currentRace].checkpoints[position].length() > uint(instanceNum) )
-			v = this.raceList[this.currentRace].checkpoints[position][instanceNum];
-		else if( this.raceList[this.currentRace].checkpoints[position].length() > 0 )
-			v = this.raceList[this.currentRace].checkpoints[position][0];
+		if( this.raceList[competitor.currentRace].checkpoints[position].length() > uint(instanceNum) )
+			v = this.raceList[competitor.currentRace].checkpoints[position][instanceNum];
+		else if( this.raceList[competitor.currentRace].checkpoints[position].length() > 0 )
+			v = this.raceList[competitor.currentRace].checkpoints[position][0];
 		else
 		{
+			//this.message("cosmicvoleDEBUG removing arrow this.currentRace: " + this.currentRace + " position: "+position+" curTruckNum: "+game.getCurrentTruckNumber(), "flag_orange.png");
 			this.removeArrow();
 			return;
 		}
 
-		if( this.raceList[this.currentRace].laps == this.LAPS_NoLaps )
-			game.updateDirectionArrow(this.raceList[this.currentRace].raceName+" checkpoint "+position+" / "+(this.raceList[this.currentRace].checkPointsCount-1), vector3(v[0], v[1], v[2]));
+		string racePosText;
+		string lapText;
+		if (competitor.racePosition > 0)
+		{
+			racePosText = "\nposition " + competitor.racePosition + " / " + this.numCompetitors;
+		}
+		else
+		{
+			racePosText = "\nposition ";
+		}
+		if (competitor.currentLap > 0)
+		{
+			lapText = "\nlap " + competitor.currentLap + " / " + this.raceList[competitor.currentRace].laps;
+		}
+		else
+		{
+			lapText = "\nlap 1 / " + this.raceList[competitor.currentRace].laps;
+		}
+
+		if( this.raceList[competitor.currentRace].laps == this.LAPS_NoLaps )
+			game.updateDirectionArrow(this.raceList[competitor.currentRace].raceName+"\ncheckpoint "+position+" / "+(this.raceList[this.currentRace].checkPointsCount-1+"\n"+racePosText), vector3(v[0], v[1], v[2]));
 		else
 		{
 			if( position == 0 )
-				position = this.raceList[this.currentRace].checkPointsCount;
-			game.updateDirectionArrow(this.raceList[this.currentRace].raceName+" checkpoint "+position+" / "+(this.raceList[this.currentRace].checkPointsCount), vector3(v[0], v[1], v[2]));
+				position = this.raceList[competitor.currentRace].checkPointsCount;
+			game.updateDirectionArrow(this.raceList[competitor.currentRace].raceName+"\ncheckpoint "+position+" / "+(this.raceList[this.currentRace].checkPointsCount+"\n"+lapText+racePosText), vector3(v[0], v[1], v[2]));
 		}
 	}
 
@@ -1681,4 +1911,58 @@ shared class raceBuilder {
 			p1 = p2;
 		}
 	}
+}
+
+
+/* Class to hold one competitor's stats, to allow AI cars to compete in the same race as the player. cosmic vole*/
+
+class racesCompetitor {
+	int currentRace;
+	int currentLap;
+	int truckNum;
+	bool isThePlayer;
+	bool hasAI;
+	bool hasCameraFocus;
+	int lastCheckpoint;
+	int racePosition;
+	int state;
+	double raceStartTime;
+	double lapStartTime;
+	string lastCheckpointInstance;
+	string lastRaceEventInstance;
+	double lastRaceEventTime;
+	double lastCheckpointTime;
+	array<int> penaltyTime;
+	double lastLapTime;
+	double bestLapTime;
+	bool penaltyGiven;
+
+// public functions
+	
+	// constructor
+	racesCompetitor(int truckNum) {
+		
+		// we initialize the variables (do not edit these manually)
+		this.truckNum = truckNum;
+		this.isThePlayer = false;
+		this.hasCameraFocus = false;
+		this.state           = 0;// racesManager.STATE_NotInRace
+		//this.raceCount       = 0;
+		this.currentRace     = -1;
+		this.currentLap = 0;
+		this.lastCheckpoint = 0;
+		this.lastCheckpoint  = -1;
+		this.racePosition = 0;
+		this.raceStartTime   = 0.0;
+		this.lapStartTime    = 0.0;
+		//this.cancelPointCount= 0;
+		this.lastCheckpointInstance = "";
+		this.lastRaceEventInstance = ""; // we only use this to boost the FPS
+		//this.raceManagerVersion = "RoR_raceManager_v0.02";
+		this.penaltyGiven = true;
+		this.lastLapTime     = 0.0;
+		this.lastCheckpointTime = 0.0;
+	}
+
+
 }

@@ -100,6 +100,14 @@ Ogre::ColourValue Network::GetPlayerColor(int color_num)
     return MP_COLORS[color_num];
 }
 
+//cosmic vole added - used to pick colours for local AI drivers November 21 2016
+int Network::getRandomColourNum()
+{
+    int numColours = sizeof(MP_COLORS) / sizeof(Ogre::ColourValue);
+    return rand() % numColours;
+}
+
+
 // Internal helper
 void DebugPacket(const char *name, RoRnet::Header *header, char *buffer)
 {

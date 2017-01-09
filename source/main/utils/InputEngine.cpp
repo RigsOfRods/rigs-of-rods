@@ -69,6 +69,7 @@ InputEvent eventInfo[] = {
     {"COMMON_ROPELOCK",               EV_COMMON_ROPELOCK,               "Keyboard EXPL+CTRL+L",         _LC("InputEvent", "connect a rope to a node in close proximity")},
     {"COMMON_REPAIR_TRUCK",           EV_COMMON_REPAIR_TRUCK,           "Keyboard BACK",                _LC("InputEvent", "repair truck")},
     {"COMMON_LIVE_REPAIR_MODE",       EV_COMMON_LIVE_REPAIR_MODE,       "Keyboard ALT+BACK",            _LC("InputEvent", "toggle truck interactive repair mode")},
+    {"COMMON_PARTIAL_REPAIR_TRUCK",   EV_COMMON_PARTIAL_REPAIR_TRUCK,   "Keyboard SLASH",               _LC("InputEvent", "repair truck gradually")},
     {"COMMON_RESCUE_TRUCK",           EV_COMMON_RESCUE_TRUCK,           "Keyboard EXPL+R",              _LC("InputEvent", "teleport to rescue truck")},
     {"COMMON_RESET_TRUCK",            EV_COMMON_RESET_TRUCK,            "Keyboard I",                   _LC("InputEvent", "reset truck to original starting position")},
     {"COMMON_TOGGLE_RESET_MODE",      EV_COMMON_TOGGLE_RESET_MODE,      "Keyboard EXPL+APOSTROPHE",     _LC("InputEvent", "toggle reset mode")},
@@ -110,6 +111,7 @@ InputEvent eventInfo[] = {
     {"COMMON_QUICKSAVE_08",           EV_COMMON_QUICKSAVE_08,           "Keyboard EXPL+ALT+CTRL+8",     _LC("InputEvent", "save scene in slot 08")},
     {"COMMON_QUICKSAVE_09",           EV_COMMON_QUICKSAVE_09,           "Keyboard EXPL+ALT+CTRL+9",     _LC("InputEvent", "save scene in slot 09")},
     {"COMMON_QUICKSAVE_10",           EV_COMMON_QUICKSAVE_10,           "Keyboard EXPL+ALT+CTRL+0",     _LC("InputEvent", "save scene in slot 10")},
+
 
     {"COMMON_QUICKLOAD_01",           EV_COMMON_QUICKLOAD_01,           "Keyboard EXPL+ALT+1",          _LC("InputEvent", "load scene from slot 01")},
     {"COMMON_QUICKLOAD_02",           EV_COMMON_QUICKLOAD_02,           "Keyboard EXPL+ALT+2",          _LC("InputEvent", "load scene from slot 02")},

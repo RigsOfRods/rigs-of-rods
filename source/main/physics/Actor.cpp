@@ -362,6 +362,12 @@ float Actor::getRotation()
     return atan2(dir.dotProduct(Vector3::UNIT_X), dir.dotProduct(-Vector3::UNIT_Z));
 }
 
+float Actor::getSpawnRotation()
+{
+    return m_spawn_rotation;
+}
+
+
 Vector3 Actor::getDirection()
 {
     return ar_main_camera_dir_corr * this->GetCameraDir();
@@ -1630,6 +1636,18 @@ void Actor::reset(bool keep_position)
     App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
 }
 
+//cosmic vole added partial repairs
+void Actor::partialRepair()
+{
+    if (ar_state == ActorState::DISPOSED)
+        return;
+
+    ActorModifyRequest* rq = new ActorModifyRequest;
+    rq->amr_actor = this->ar_instance_id;
+    rq->amr_type  = ActorModifyRequest::Type::RESET_PARTIAL_REPAIR;
+    App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
+}
+
 void Actor::SoftReset()
 {
     TRIGGER_EVENT_ASYNC(SE_TRUCK_RESET, ar_instance_id);
@@ -1810,6 +1828,155 @@ void Actor::SyncReset(bool reset_position)
 
     m_ongoing_reset = true;
 }
+
+//cosmic vole
+void Actor::SyncPartialRepair(float step)
+{
+    ar_hydro_dir_state = 0.0;
+    ar_hydro_aileron_state = 0.0;
+    ar_hydro_rudder_state = 0.0;
+    ar_hydro_elevator_state = 0.0;
+    ar_hydro_dir_wheel_display = 0.0;
+
+    for (hydrobeam_t& hydrobeam: ar_hydros)
+    {
+        hydrobeam.hb_inertia.ResetCmdKeyDelay();
+    }
+
+
+    // Disjoin all hooks/ties/ropes
+    this->DisjoinInterActorBeams(); // OK to be invoked here - SyncReset() - `processing MSG_SIM_MODIFY_ACTOR_REQUESTED`
+
+    ar_parking_brake=0;
+    cc_mode = false;
+    ar_fusedrag=Vector3::ZERO;
+    ar_origin=Vector3::ZERO;
+    float yPos = ar_nodes[0].AbsPosition.y; // FIXME: this was `lowestcontactingnode` in the original code - ohlidalp, 01/2026
+
+    Vector3 cur_position = ar_nodes[0].AbsPosition;
+    float cur_rot = getRotation();
+    if (ar_engine) ar_engine->startEngine();
+    //TODO Find angle each node has been rotated and rotate back towards original alignment a bit before translating
+    //TODO consider fixing wheel nodes faster than other parts
+    //TODO consider regional repairs based on mouse location
+    //When this value is set it stops a perfect repair - beams will always remain offset by at least this amount
+    //TODO randomise it a bit for each beam
+    float minOffset = 0.001f;
+    for (int i=0; i<ar_num_nodes; i++)
+    {
+        Vector3 offset = ar_nodes[i].AbsPosition - ar_initial_node_positions[i];
+        float curStep;
+        bool is_wheel_node = ar_nodes[i].nd_rim_node || ar_nodes[i].nd_tyre_node;
+        if (is_wheel_node)
+        {
+            //Attempt to fix wheels faster than the other parts
+            curStep = step * 1.5f;//1.0f;
+            //if (curStep < step)
+            //{
+            //    curStep = step;
+            //}
+        }
+        else
+        {
+            curStep = step;
+        }
+        float len = offset.length();
+        if (fabsf(len) <= minOffset)
+        {
+            continue;
+        }
+        if (fabsf(len) > curStep)
+        {
+            offset = offset / len;
+            ar_nodes[i].AbsPosition += offset * curStep;
+        }
+        else
+        {
+            ar_nodes[i].AbsPosition = ar_initial_node_positions[i];//+= offset;
+        }        
+        ar_nodes[i].RelPosition=ar_nodes[i].AbsPosition-ar_origin;
+        ar_nodes[i].Velocity=Vector3::ZERO;
+        ar_nodes[i].Forces=Vector3::ZERO;
+    }
+
+    for (int i=0; i<ar_num_beams; i++)
+    {
+        ar_beams[i].bm_broken=0;
+        //TODO linear interp physics values
+        ar_beams[i].maxposstress    = ar_beams[i].default_beam_deform;
+        ar_beams[i].maxnegstress    = -ar_beams[i].default_beam_deform;
+        ar_beams[i].minmaxposnegstress = ar_beams[i].default_beam_deform;
+        ar_beams[i].strength        = ar_beams[i].initial_beam_strength;
+        ar_beams[i].L=ar_beams[i].refL;
+        ar_beams[i].stress=0.0;
+        ar_beams[i].bm_disabled=false;
+    }
+
+    // Extra cleanup for inter-actor beams (until the above `ar_beams` loop is fixed)
+
+    for (auto& h : ar_hooks)
+    {
+        h.hk_beam->bm_disabled = true; // should only be active if the hook is locked
+    }
+
+    for (auto& t : ar_ties)
+    {
+        t.ti_locked_ropable = nullptr; // `tieToggle()` doesn't do this - bug or feature? ~ ohlidalp, 06/2024
+        t.ti_beam->bm_disabled = true; // should only be active if the tie is tied
+    }
+
+    // End extra cleanup
+
+    for (auto& r : ar_ropables)
+    {
+        r.attached_ties = 0;
+        r.attached_ropes = 0;
+    }
+
+    int num_axle_diffs = (m_transfer_case && m_transfer_case->tr_4wd_mode) ? m_num_axle_diffs + 1 : m_num_axle_diffs;
+    for (int i = 0; i < num_axle_diffs; i++)
+        m_axle_diffs[i]->di_delta_rotation = 0.0f;
+    for (int i = 0; i < m_num_wheel_diffs; i++)
+        m_wheel_diffs[i]->di_delta_rotation = 0.0f;
+    for (int i = 0; i < ar_num_aeroengines; i++)
+        ar_aeroengines[i]->reset();
+    for (int i = 0; i < ar_num_screwprops; i++)
+        ar_screwprops[i]->reset();
+    for (int i = 0; i < ar_num_rotators; i++)
+        ar_rotators[i].angle = 0.0;
+    for (int i = 0; i < ar_num_wings; i++)
+        ar_wings[i].fa->broken = false;
+    if (ar_autopilot)
+        this->ar_autopilot->reset();
+    if (m_buoyance)
+        m_buoyance->sink = false;
+
+    //Don't reset position - TODO have a flag for righting the vehicle
+    //// reset on spot with backspace
+    //if (m_reset_request != REQUEST_RESET_ON_INIT_POS)
+    //{
+    //    resetAngle(cur_rot);
+    //    resetPosition(cur_position.x, cur_position.z, false, yPos);
+    //}
+
+    // reset commands (self centering && push once/twice forced to terminate moving commands)
+    for (int i = 1; i <= MAX_COMMANDS; i++) // BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
+    {
+        ar_command_key[i].commandValue = 0.0;
+        ar_command_key[i].triggerInputValue = 0.0f;
+        ar_command_key[i].playerInputValue = 0.0f;
+        for (auto& b : ar_command_key[i].beams)
+        {
+            b.cmb_state->auto_moving_mode = 0;
+            b.cmb_state->pressed_center_mode = false;
+        }
+    }
+
+    this->GetGfxActor()->ResetFlexbodies();
+
+    resetSlideNodes();
+}
+
 
 void Actor::applyNodeBeamScales()
 {
@@ -3280,6 +3447,12 @@ void Actor::updateSoundSources()
     SOUND_MODULATE(ar_instance_id, SS_MOD_AIRSPEED, ar_nodes[0].Velocity.length() * 1.9438);
     SOUND_MODULATE(ar_instance_id, SS_MOD_WHEELSPEED, ar_wheel_speed * 3.6);
 #endif //OPENAL
+}
+
+//cosmic vole - scale RORBot Character when driving this vehicle
+void Actor::setDriverScale(float value)
+{
+    this->driverScale = value;
 }
 
 void Actor::updateVisual(float dt)

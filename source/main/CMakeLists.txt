@@ -20,6 +20,7 @@ set(SOURCE_FILES
         gameplay/Engine.{h,cpp}
         gameplay/Landusemap.{h,cpp}
         gameplay/RaceSystem.{h,cpp}
+        gameplay/RacingAI.{h,cpp}
         gameplay/RepairMode.{h,cpp}
         gameplay/Replay.{h,cpp}
         gameplay/SceneMouse.{h,cpp}
@@ -113,6 +114,12 @@ set(SOURCE_FILES
         gui/imgui/imstb_rectpack.h
         gui/imgui/imstb_textedit.h
         gui/imgui/imstb_truetype.h
+        # myGUI temporarily restored until cosmic vole's racing system is migrated
+        gui/mygui/Attribute.h
+        gui/mygui/BaseLayout.h
+        gui/mygui/Dialog.{h,cpp}
+        gui/mygui/GuiPanelBase.h
+        gui/mygui/WrapsAttribute.h
         gui/panels/GUI_AngelScriptExamples.{h,cpp}
         gui/panels/GUI_CollisionsDebug.{h,cpp}
         gui/panels/GUI_ConsoleView.{h,cpp}
@@ -128,6 +135,8 @@ set(SOURCE_FILES
         gui/panels/GUI_GameAbout.{h,cpp}
         gui/panels/GUI_GameChatBox.{h,cpp}
         gui/panels/GUI_GameMainMenu.{h,cpp}
+        gui/panels/GUI_GameRacingMenu.{h,cpp}
+        gui/panels/GUI_GameRacingMenuLayout.{h,cpp}
         gui/panels/GUI_GameSettings.{h,cpp}
         gui/panels/GUI_MainSelector.{h,cpp}
         gui/panels/GUI_MessageBox.{h,cpp}
@@ -251,6 +260,7 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/bindings/MsgQueueAngelscript.cpp
             scripting/bindings/OgreAngelscript.cpp
             scripting/bindings/ProceduralRoadAngelscript.cpp
+            scripting/bindings/RacingAiAngelscript.cpp
             scripting/bindings/ScrewpropAngelscript.cpp
             scripting/bindings/ScriptEventsAngelscript.cpp
             scripting/bindings/SoundScriptAngelscript.cpp

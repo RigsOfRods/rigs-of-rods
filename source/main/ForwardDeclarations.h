@@ -164,6 +164,7 @@ namespace RoR
     class  ProceduralRoad;
     struct Prop;
     struct PropAnim;
+    class  RacingAI;
     class  RailGroup;
     class  Renderdash;
     class  Replay;
@@ -244,6 +245,7 @@ namespace RoR
     typedef RefCountingObjectPtr<ProceduralObject> ProceduralObjectPtr;
     typedef RefCountingObjectPtr<ProceduralRoad> ProceduralRoadPtr;
     typedef RefCountingObjectPtr<ProceduralManager> ProceduralManagerPtr;
+    typedef RefCountingObjectPtr<RacingAI> RacingAIPtr;
     typedef RefCountingObjectPtr<Screwprop> ScrewpropPtr;
     typedef RefCountingObjectPtr<Sound> SoundPtr;
     typedef RefCountingObjectPtr<SoundScriptInstance> SoundScriptInstancePtr;

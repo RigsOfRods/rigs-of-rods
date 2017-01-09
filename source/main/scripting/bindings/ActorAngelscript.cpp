@@ -182,6 +182,8 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("BeamClass", "void clearForcedCinecam()", asMETHOD(Actor, clearForcedCinecam), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "bool getForcedCinecam(int& inout, int& inout)", asMETHOD(Actor, getForcedCinecam), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "int getNumCinecams() const", asMETHOD(Actor, getNumCinecams), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    //cosmic vole added BeamClass::SetDriverScale()
+    result = engine->RegisterObjectMethod("BeamClass", "void setDriverScale(float)", asMETHOD(Actor, setDriverScale), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
 
     
     // - subsystems (PLEASE maintain the same order as 'Actor.h' and 'doc/angelscript/.../BeamClass.h')

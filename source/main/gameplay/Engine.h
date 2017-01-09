@@ -51,6 +51,8 @@ public:
 
     void           SetEngineOptions(float einertia, char etype, float eclutch, float ctime, float stime, float pstime, float irpm, float srpm, float maximix, float minimix, float ebraking);
     void           SetTurboOptions(int type, float tinertiaFactor, int nturbos, float param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8, float param9, float param10, float param11);
+    // Code to adjust the performance of a specified truck (intended to adjust AI difficulty but could be used for power-ups / cheats!) cosmic vole January 6 2017
+    void           tune(bool relative, float maxTorque, float maxRPM, float brakingTorque, float grip);
     
     /// @name Definition; keyword 'engine'
     /// @{

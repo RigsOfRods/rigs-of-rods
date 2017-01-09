@@ -248,6 +248,7 @@ enum events
     EV_COMMON_QUIT_GAME,          //!< exit the game
     EV_COMMON_REPAIR_TRUCK,       //!< repair truck to original condition
     EV_COMMON_LIVE_REPAIR_MODE,   //!< toggles live repair and recovery mode, controlled by keyboard
+    EV_COMMON_PARTIAL_REPAIR_TRUCK, //!< repair truck by an incremental amount - cosmic vole
     EV_COMMON_REPLAY_BACKWARD,
     EV_COMMON_REPLAY_FAST_BACKWARD,
     EV_COMMON_REPLAY_FAST_FORWARD,
