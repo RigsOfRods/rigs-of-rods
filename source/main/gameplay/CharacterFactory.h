@@ -34,7 +34,7 @@ class CharacterFactory : public RoRSingleton<CharacterFactory>, public ZeroedMem
 public:
 
     Character* createLocal(int playerColour);
-
+    void DeleteAllRemoteCharacters();
     void update(float dt);
 #ifdef USE_SOCKETW
     void handleStreamData(std::vector<RoR::Networking::recv_packet_t> packet);
@@ -42,7 +42,7 @@ public:
 
 private:
 
-    std::vector<std::unique_ptr<Character>> m_characters;
+    std::vector<std::unique_ptr<Character>> m_remote_characters;
 
     void createRemoteInstance(int sourceid, int streamid);
     void removeStreamSource(int sourceid);

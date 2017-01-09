@@ -2261,12 +2261,10 @@ void RoRFrameListener::UnloadTerrain()
     BeamFactory::getSingleton().removeAllTrucks();
     loading_window->setProgress(30, _L("Unloading Terrain"));
 
-    if (gEnv->player != nullptr)
-    {
-        gEnv->player->setVisible(false);
-        delete(gEnv->player);
-        gEnv->player = nullptr;
-    }
+    delete gEnv->player;
+    gEnv->player = nullptr;
+    CharacterFactory::getSingleton().DeleteAllRemoteCharacters();
+
     loading_window->setProgress(45, _L("Unloading Terrain"));
 
     if (gEnv->terrainManager != nullptr)
