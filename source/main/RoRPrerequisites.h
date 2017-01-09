@@ -124,6 +124,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #define strnlen(str,len) strlen(str)
 #endif
 
+#define CHARACTER_ANIM_NAME_LEN 25 // Restricted for networking
+
 enum VisibilityMasks {
 	DEPTHMAP_ENABLED  = BITMASK(1),
 	DEPTHMAP_DISABLED = BITMASK(2),
