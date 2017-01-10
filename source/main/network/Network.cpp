@@ -98,6 +98,7 @@ static std::atomic<bool> m_socket_broken;
 static Ogre::UTFString   m_error_message;
 
 #define LOG_THREAD(_MSG_) { std::stringstream s; s << _MSG_ << " (Thread ID: " << std::this_thread::get_id() << ")"; LOG(s.str()); }
+#define LOGSTREAM         Ogre::LogManager().getSingleton().stream()
 
 static const int RECVMESSAGE_RETVAL_SHUTDOWN = -43;
 
@@ -211,11 +212,11 @@ bool SendNetMessage(int type, unsigned int streamid, int len, char* content)
     return SendMessageRaw(buffer, msgsize);
 }
 
-void QueueStreamData(RoRnet::Header &header, char *buffer)
+void QueueStreamData(RoRnet::Header &header, char *buffer, size_t buffer_len)
 {
     recv_packet_t packet;
     packet.header = header;
-    memcpy(packet.buffer, buffer, RORNET_MAX_MESSAGE_LENGTH);
+    memcpy(packet.buffer, buffer, std::min(buffer_len, size_t(RORNET_MAX_MESSAGE_LENGTH)));
 
     std::lock_guard<std::mutex> lock(m_recv_packetqueue_mutex);
     m_recv_packet_buffer.push_back(packet);
@@ -392,7 +393,7 @@ void RecvThread()
                     head.command = MSG2_UTF8_CHAT;
                     head.source  = -1;
                     head.size    = (int)strlen(utf8_line);
-                    QueueStreamData(head, (char *)utf8_line);
+                    QueueStreamData(head, (char *)utf8_line, strlen(utf8_line) + 1);
                     LOG_THREAD(Ogre::UTFString(user->username) + _L(" left the game"));
                     m_users.erase(user);
                 }
@@ -437,7 +438,7 @@ void RecvThread()
                         head.command = MSG2_UTF8_CHAT;
                         head.source  = -1;
                         head.size    = (int)strlen(utf8_line);
-                        QueueStreamData(head, (char *)utf8_line);
+                        QueueStreamData(head, (char *)utf8_line, strlen(utf8_line) + 1);
                         LOG(Ogre::UTFString(user_info.username) + _L(" joined the game"));
                     }
                 }
@@ -456,7 +457,7 @@ void RecvThread()
         }
         //DebugPacket("receive-1", &header, buffer);
 
-        QueueStreamData(header, buffer);
+        QueueStreamData(header, buffer, RORNET_MAX_MESSAGE_LENGTH);
     }
 
     m_recv_stopped = true;
