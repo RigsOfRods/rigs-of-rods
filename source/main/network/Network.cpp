@@ -682,7 +682,8 @@ void AddPacket(int streamid, int type, int len, char *content)
 {
     if (len > RORNET_MAX_MESSAGE_LENGTH)
     {
-        // packet too big, discarded
+        LOGSTREAM << "[RoR|Networking] Discarding network packet (StreamID: "
+            <<streamid<<", Type: "<<type<<"), length is " << len << ", max is " << RORNET_MAX_MESSAGE_LENGTH;
         return;
     }
 
