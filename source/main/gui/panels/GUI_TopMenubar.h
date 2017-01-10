@@ -67,8 +67,6 @@ protected:
 
     void vehiclesListUpdate();
 
-    void MenubarShowSpawnerReportButtonClicked(MyGUI::Widget* sender);
-
     Ogre::UTFString getUserString(RoRnet::UserInfo &user, int num_vehicles);
 
     std::vector<MyGUI::PopupMenuPtr> m_popup_menus;
@@ -77,6 +75,7 @@ protected:
     MyGUI::MenuItem*                 m_item_activate_all;
     MyGUI::MenuItem*                 m_item_never_sleep;
     MyGUI::MenuItem*                 m_item_sleep_all;
+    MyGUI::MenuItem*                 m_item_spawner_log;
     int                              m_menu_width;
     int                              m_menu_height;
     std::atomic<bool>                m_vehicle_list_needs_update;

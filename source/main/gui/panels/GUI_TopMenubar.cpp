@@ -19,7 +19,7 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// @file   GUIMenu.h
+/// @file
 /// @date   13th of August 2009
 /// @author Thomas Fischer thomas{AT}thomasfischer{DOT}biz
 
@@ -52,7 +52,7 @@ TopMenubar::TopMenubar() :
       m_item_activate_all(nullptr)
     , m_item_never_sleep(nullptr)
     , m_item_sleep_all(nullptr)
-    , m_menu_width(800)
+    , m_menu_width(350)
     , m_menu_height(20)
     , m_vehicle_list_needs_update(false)
 {
@@ -60,7 +60,7 @@ TopMenubar::TopMenubar() :
     /* -------------------------------------------------------------------------------- */
     /* MENU BAR */
 
-    m_menubar_widget = MyGUI::Gui::getInstance().createWidget<MyGUI::MenuBar>("MenuBar", 0, 0, m_menu_width, m_menu_height,  MyGUI::Align::HStretch | MyGUI::Align::Top, "Main");
+    m_menubar_widget = MyGUI::Gui::getInstance().createWidget<MyGUI::MenuBar>("MenuBar", 0, 0, m_menu_width, m_menu_height, MyGUI::Align::Top, "Main");
     m_menubar_widget->setCoord(0, 0, m_menu_width, m_menu_height);
     m_menubar_widget->setVisible(false);
     
@@ -103,17 +103,6 @@ TopMenubar::TopMenubar() :
     m_popup_menus.push_back(p);
 
     /* -------------------------------------------------------------------------------- */
-    /* EDITOR POPUP MENU */
-
-    mi = m_menubar_widget->createWidget<MyGUI::MenuItem>("MenuBarButton", 0, 0, 60, m_menu_height,  MyGUI::Align::Default);
-    p = mi->createWidget<MyGUI::PopupMenu>(MyGUI::WidgetStyle::Popup, "PopupMenu",MyGUI::IntCoord(0,0,88,68),MyGUI::Align::Default, "Popup");
-    mi->setItemType(MyGUI::MenuItemType::Popup);
-    mi->setCaption("Editor");
-    
-    p->addItem(_L("Open rig editor"), MyGUI::MenuItemType::Normal, "rig-editor-enter");
-    m_popup_menus.push_back(p);
-
-    /* -------------------------------------------------------------------------------- */
     /* WINDOWS POPUP MENU */
 
     mi = m_menubar_widget->createWidget<MyGUI::MenuItem>("MenuBarButton", 0, 0, 60, m_menu_height,  MyGUI::Align::Default);
@@ -125,6 +114,7 @@ TopMenubar::TopMenubar() :
     p->addItem(_L("Show Console"),       MyGUI::MenuItemType::Normal, "showConsole");
     p->addItem(_L("Texture Tool"),       MyGUI::MenuItemType::Normal, "texturetool");
     p->addItem(_L("Debug Options"),		 MyGUI::MenuItemType::Normal, "debugoptions");
+    m_item_spawner_log = p->addItem(_L("Spawner log"), MyGUI::MenuItemType::Normal, "spawnerlog");
     m_popup_menus.push_back(p);
 
     /* -------------------------------------------------------------------------------- */
@@ -147,14 +137,6 @@ TopMenubar::TopMenubar() :
     p->addItem(_L("show Beam hydros"),        MyGUI::MenuItemType::Normal, "debug-beam-hydros");
     p->addItem(_L("show Beam commands"),      MyGUI::MenuItemType::Normal, "debug-beam-commands");
     m_popup_menus.push_back(p);
-
-    /* -------------------------------------------------------------------------------- */
-    /* RIG LOADING REPORT WINDOW */
-
-    mi = m_menubar_widget->createWidget<MyGUI::MenuItem>("MenuBarButton", 0, 0, 60, m_menu_height,  MyGUI::Align::Default);
-    mi->setItemType(MyGUI::MenuItemType::Popup);
-    mi->setCaption("Spawner log");
-    mi->eventMouseButtonClick += MyGUI::newDelegate( this, &TopMenubar::MenubarShowSpawnerReportButtonClicked);
 
     /* -------------------------------------------------------------------------------- */
     /* MENU BAR POSITION */
@@ -324,7 +306,11 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
         return;
     }
 
-    if (miname == _L("Get new vehicle") && gEnv->player)
+    if (_item == m_item_spawner_log)
+    {
+        App::GetGuiManager()->SetVisible_SpawnerReport(true);
+    }
+    else if (miname == _L("Get new vehicle") && gEnv->player)
     {
         if (app_state != App::APP_STATE_SIMULATION)
         {
@@ -489,11 +475,6 @@ void TopMenubar::updatePositionUponMousePosition(int x, int y)
 void TopMenubar::triggerUpdateVehicleList()
 {
     m_vehicle_list_needs_update = true;
-}
-
-void TopMenubar::MenubarShowSpawnerReportButtonClicked(MyGUI::Widget* sender)
-{
-    App::GetGuiManager()->SetVisible_SpawnerReport(true);
 }
 
 void TopMenubar::ReflectMultiplayerState()
