@@ -221,11 +221,6 @@ void MainMenu::MainMenuLoopUpdateEvents(float seconds_since_last_frame)
         RoR::App::GetOverlayWrapper()->update(seconds_since_last_frame); // TODO: What's the meaning of this? It only updates some internal timer. ~ only_a_ptr
     }
 
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_CHATMODE, 0.5f) && !m_frame_listener->GetHideGui())
-    {
-        //TODO: Separate Chat and console
-    }
-
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUIT_GAME))
     {
         //TODO: Go back to menu 

@@ -232,7 +232,23 @@ int main(int argc, char *argv[])
 
         App::GetCacheSystem()->Startup();
 
-        auto* frame_listener = new RoRFrameListener();
+        RoR::ForceFeedback force_feedback;
+#ifdef _WIN32
+        if (App::GetIoFFbackEnabled()) // Force feedback
+        {
+            if (App::GetInputEngine()->getForceFeedbackDevice())
+            {
+                force_feedback.Setup();
+            }
+            else
+            {
+                LOG("No force feedback device detected, disabling force feedback");
+                App::SetIoFFbackEnabled(false);
+            }
+        }
+#endif // _WIN32
+
+        auto* frame_listener = new RoRFrameListener(&force_feedback);
 
 #ifdef USE_ANGELSCRIPT
         ScriptEngine::getSingleton().SetFrameListener(frame_listener);
@@ -248,21 +264,6 @@ int main(int argc, char *argv[])
 
         frame_listener->windowResized(App::GetOgreSubsystem()->GetRenderWindow());
         RoRWindowEventUtilities::addWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), frame_listener);
-
-#ifdef _WIN32
-        if (App::GetIoFFbackEnabled()) // Force feedback
-        {
-            if (App::GetInputEngine()->getForceFeedbackDevice())
-            {
-                frame_listener->m_forcefeedback.Setup();
-            }
-            else
-            {
-                LOG("No force feedback device detected, disabling force feedback");
-                App::SetIoFFbackEnabled(false);
-            }
-        }
-#endif // _WIN32
 
         // initiate player colours
         PlayerColours::getSingleton();

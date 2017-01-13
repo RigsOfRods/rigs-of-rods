@@ -189,7 +189,7 @@ public:
      * set direction arrow
      * @param text text to be displayed. "" to hide the text
      */
-    void setDirectionArrow(Ogre::String& text, Ogre::Vector3& vec);
+    void UpdateDirectionArrow(Ogre::String& text, Ogre::Vector3& vec);
 
     /**
      * returns the size of the font used by the chat box

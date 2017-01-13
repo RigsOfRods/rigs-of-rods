@@ -1788,7 +1788,7 @@ bool Beam::replayStep()
     return true;
 }
 
-void Beam::updateForceFeedback(int steps)
+void Beam::ForceFeedbackStep(int steps)
 {
     ffforce = affforce / steps;
     ffhydro = affhydro / steps;

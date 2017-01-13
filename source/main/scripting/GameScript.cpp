@@ -272,9 +272,9 @@ void GameScript::message(String& txt, String& icon, float timeMilliseconds, bool
 #endif // USE_MYGUI
 }
 
-void GameScript::setDirectionArrow(String& text, Vector3& vec)
+void GameScript::UpdateDirectionArrow(String& text, Vector3& vec)
 {
-    mse->GetFrameListener()->setDirectionArrow(const_cast<char*>(text.c_str()), Vector3(vec.x, vec.y, vec.z));
+    mse->GetFrameListener()->UpdateDirectionArrow(const_cast<char*>(text.c_str()), Vector3(vec.x, vec.y, vec.z));
 }
 
 int GameScript::getChatFontSize()
@@ -317,7 +317,7 @@ void GameScript::showChooser(const String& type, const String& instance, const S
 
     if (ntype != LT_None)
     {
-        mse->GetFrameListener()->showLoad(ntype, instance, box);
+        mse->GetFrameListener()->ShowLoaderGUI(ntype, instance, box);
     }
 #endif //USE_MYGUI
 }
@@ -375,7 +375,7 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
 
 void GameScript::hideDirectionArrow()
 {
-    mse->GetFrameListener()->setDirectionArrow(0, Vector3::ZERO);
+    mse->GetFrameListener()->UpdateDirectionArrow(0, Vector3::ZERO);
 }
 
 int GameScript::setMaterialAmbient(const String& materialName, float red, float green, float blue)

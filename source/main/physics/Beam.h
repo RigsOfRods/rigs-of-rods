@@ -144,7 +144,7 @@ public:
 
     bool replayStep();
 
-    void updateForceFeedback(int steps);
+    void ForceFeedbackStep(int steps);
     void updateAngelScriptEvents(float dt);
     void updateVideocameras(float dt);
     void handleResetRequests(float dt);

@@ -1094,7 +1094,7 @@ void BeamFactory::update(float dt)
         }
         if (!m_trucks[m_simulated_truck]->replayStep())
         {
-            m_trucks[m_simulated_truck]->updateForceFeedback(m_physics_steps);
+            m_trucks[m_simulated_truck]->ForceFeedbackStep(m_physics_steps);
             if (m_sim_thread_pool)
             {
                 auto func = std::function<void()>([this]()
