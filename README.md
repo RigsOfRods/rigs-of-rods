@@ -34,6 +34,7 @@ For a simple overview of the features Rigs of Rods provides please refer to [doc
 * Mod Repository: https://repository.rigsofrods.org/
 * Github: https://github.com/RigsOfRods/rigs-of-rods
 * IRC: #rigsofrods and #rigsofrods-dev on irc.freenode.net
+* Discord: http://discord.gg/0lHqnBd15Cfz5g94
 * [doc/](doc/)
 * Translation interface: https://www.transifex.com/rigsofrods/rigs-of-rods/
 
