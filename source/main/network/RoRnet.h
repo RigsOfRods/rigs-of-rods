@@ -68,6 +68,9 @@ enum MessageType
     MSG2_STREAM_REGISTER_RESULT,       //!< result of a stream creation
     MSG2_STREAM_UNREGISTER,            //!< remove stream
     MSG2_STREAM_DATA,                  //!< stream data
+
+    // Legacy values (RoRnet_2.38 and earlier)
+    MSG2_WRONG_VER_LEGACY = 1003       //!< Wrong version
 };
 
 enum UserAuth
@@ -185,6 +188,11 @@ PACKED struct ServerInfo
     char    servername[128];       //!< name of the server
     uint8_t has_password;          //!< passworded server?
     char    info[4096];            //!< info text
+};
+
+PACKED struct LegacyServerInfo
+{
+    char    protocolversion[20];   //!< protocol version being used
 };
 
 } // namespace RoRnet

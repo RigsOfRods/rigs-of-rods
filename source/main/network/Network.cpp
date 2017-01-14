@@ -466,13 +466,19 @@ void RecvThread()
 }
 
 
-void ConnectionFailed(Ogre::UTFString const & msg)
+void CouldNotConnect(Ogre::UTFString const & msg, bool close_socket = true)
 {
     Ogre::UTFString message = "Error connecting to server: [" + App::GetMpServerHost() 
                             + ":" + TOSTRING(App::GetMpServerPort()) + "]\n\n" + msg.asUTF8();
     SetErrorMessage(message);
     RoR::App::SetActiveMpState(App::MP_STATE_DISABLED);
     RoR::App::SetPendingMpState(App::MP_STATE_NONE);
+
+    if (close_socket)
+    {
+        socket.set_timeout(1, 1000);
+        socket.disconnect();
+    }
 }
 
 bool Connect()
@@ -503,12 +509,12 @@ bool Connect()
     socket.connect(App::GetMpServerPort(), App::GetMpServerHost(), &error);
     if (error != SWBaseSocket::ok)
     {
-        ConnectionFailed("Could not create connection");
+        CouldNotConnect("Could not create connection", false);
         return false;
     }
     if (!SendNetMessage(MSG2_HELLO, 0, (int)strlen(RORNET_VERSION), (char *)RORNET_VERSION))
     {
-        ConnectionFailed(_L("Establishing network session: error sending hello"));
+        CouldNotConnect(_L("Establishing network session: error sending hello"));
         return false;
     }
 
@@ -518,17 +524,28 @@ bool Connect()
     // Receive server (rornet protocol) version
     if (ReceiveMessage(&header, buffer, 255))
     {
-        ConnectionFailed(_L("Establishing network session: error getting server version"));
+        CouldNotConnect(_L("Establishing network session: error getting server version"));
+        return false;
+    }
+    if (header.command == MSG2_WRONG_VER_LEGACY) // Pre-RoRnet_2.40 server
+    {
+        RoRnet::LegacyServerInfo info;
+        memcpy(&info, buffer, sizeof(RoRnet::LegacyServerInfo));
+        Ogre::UTFString format_wstr = _L("Establishing network session: wrong server version, you are using version '%s' and the server is using '%s'");
+        const char* server_ver = (info.protocolversion[0] != 0) ? info.protocolversion : "~ RoRnet_2.38 or earlier (not detected) ~";
+        char msg_buf[500];
+        snprintf(msg_buf, 500, format_wstr.asUTF8_c_str(), RORNET_VERSION, server_ver);
+        CouldNotConnect(msg_buf);
         return false;
     }
     if (header.command == MSG2_WRONG_VER)
     {
-        ConnectionFailed(_L("server uses a different protocol version"));
+        CouldNotConnect(_L("server uses a different protocol version"));
         return false;
     }
     if (header.command != MSG2_HELLO)
     {
-        ConnectionFailed(_L("Establishing network session: error getting server hello"));
+        CouldNotConnect(_L("Establishing network session: error getting server hello"));
         return false;
     }
 
@@ -540,7 +557,7 @@ bool Connect()
         wchar_t tmp[512] = L"";
         Ogre::UTFString tmp2 = _L("Establishing network session: wrong server version, you are using version '%s' and the server is using '%s'");
         swprintf(tmp, 512, tmp2.asWStr_c_str(), RORNET_VERSION, m_server_settings.protocolversion);
-        ConnectionFailed(MyGUI::UString(tmp).asUTF8_c_str());
+        CouldNotConnect(MyGUI::UString(tmp).asUTF8_c_str());
         return false;
     }
 
@@ -577,20 +594,20 @@ bool Connect()
     strcpy(c.sessiontype, "normal");
     if (!SendNetMessage(MSG2_USER_INFO, 0, sizeof(RoRnet::UserInfo), (char*)&c))
     {
-        ConnectionFailed(_L("Establishing network session: error sending user info"));
+        CouldNotConnect(_L("Establishing network session: error sending user info"));
         return false;
     }
 
     // Getting authorization
     if (ReceiveMessage(&header, buffer, 255))
     {
-        ConnectionFailed(_L("Establishing network session: error getting server authorization"));
+        CouldNotConnect(_L("Establishing network session: error getting server authorization"));
         return false;
     }
 
     if (header.command==MSG2_FULL)
     {
-        ConnectionFailed(_L("Establishing network session: sorry, server has too many players"));
+        CouldNotConnect(_L("Establishing network session: sorry, server has too many players"));
         return false;
     }
     else if (header.command==MSG2_BANNED)
@@ -602,28 +619,28 @@ bool Connect()
             buffer[header.size] = {0};
             Ogre::UTFString tmp2 = _L("Establishing network session: sorry, you are banned:\n%s");
             swprintf(tmp, 512, tmp2.asWStr_c_str(), buffer);
-            ConnectionFailed(Ogre::UTFString(tmp));
+            CouldNotConnect(Ogre::UTFString(tmp));
         }
         else
         {
-            ConnectionFailed(_L("Establishing network session: sorry, you are banned!"));
+            CouldNotConnect(_L("Establishing network session: sorry, you are banned!"));
         }
         return false;
     }
     else if (header.command==MSG2_WRONG_PW)
     {
-        ConnectionFailed(_L("Establishing network session: sorry, wrong password!"));
+        CouldNotConnect(_L("Establishing network session: sorry, wrong password!"));
         return false;
     }
     else if (header.command==MSG2_WRONG_VER)
     {
-        ConnectionFailed(_L("Establishing network session: sorry, wrong protocol version!"));
+        CouldNotConnect(_L("Establishing network session: sorry, wrong protocol version!"));
         return false;
     }
 
     if (header.command!=MSG2_WELCOME)
     {
-        ConnectionFailed(_L("Establishing network session: sorry, unknown server response"));
+        CouldNotConnect(_L("Establishing network session: sorry, unknown server response"));
         return false;
     }
 
