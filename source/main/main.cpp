@@ -304,7 +304,6 @@ int main(int argc, char *argv[])
                         RoR::Networking::Disconnect();
                         App::GetGuiManager()->SetVisible_MpClientList(false);
                     }
-                    frame_listener->UnloadTerrain();
                     gEnv->cameraManager->OnReturnToMainMenu();
                     /* Hide top menu */
                     App::GetGuiManager()->SetVisible_TopMenubar(false);
@@ -363,10 +362,6 @@ int main(int argc, char *argv[])
 
                 App::SetActiveAppState(App::APP_STATE_CHANGE_MAP);
                 App::SetPendingAppState(App::APP_STATE_NONE);
-                if (previous_application_state == App::APP_STATE_SIMULATION)
-                {
-                    frame_listener->UnloadTerrain();
-                }
                 menu_wallpaper_widget->setVisible(true);
 
                 if (App::GetDiagPreselectedTerrain() == "")

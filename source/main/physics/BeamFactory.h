@@ -88,7 +88,7 @@ public:
     float getSimulationSpeed() { return m_simulation_speed; };
 
     void removeCurrentTruck();
-    void removeAllTrucks();
+    void CleanUpAllTrucks(); /// Call this after simulation loop finishes.
     void removeTruck(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
     void removeTruck(int truck);
 

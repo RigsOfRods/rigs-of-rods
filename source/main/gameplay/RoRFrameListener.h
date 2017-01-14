@@ -56,7 +56,6 @@ public:
     /// @return True if everything was prepared OK and simulation may start.
     bool   SetupGameplayLoop     ();
     void   EnterGameplayLoop     ();
-    void   UnloadTerrain         ();
 
 protected:
 
@@ -70,6 +69,7 @@ protected:
     void   UpdateRacingGui         ();
     void   FinalizeTruckSpawning   (Beam* local_truck, Beam* previous_truck);
     void   HideGUI                 (bool hidden);
+    void   CleanupAfterSimulation  (); /// Unloads all data
 
     HeatHaze*                m_heathaze;
     Ogre::Real               m_time_until_next_toggle; ///< just to stop toggles flipping too fast

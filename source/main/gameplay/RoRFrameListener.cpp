@@ -2240,7 +2240,7 @@ bool RoRFrameListener::LoadTerrain()
     return true;
 }
 
-void RoRFrameListener::UnloadTerrain()
+void RoRFrameListener::CleanupAfterSimulation()
 {
 #ifdef USE_MYGUI
     if (gEnv->surveyMap)
@@ -2259,7 +2259,7 @@ void RoRFrameListener::UnloadTerrain()
     loading_window->setProgress(15, _L("Unloading Terrain"));
 
     //Unload all vehicules
-    BeamFactory::getSingleton().removeAllTrucks();
+    BeamFactory::getSingleton().CleanUpAllTrucks();
     loading_window->setProgress(30, _L("Unloading Terrain"));
 
     delete gEnv->player;
@@ -2530,6 +2530,7 @@ void RoRFrameListener::EnterGameplayLoop()
     
     App::SetActiveSimState(App::SIM_STATE_NONE);
     App::SetPendingSimState(App::SIM_STATE_NONE);
+    this->CleanupAfterSimulation();
 
     /* RESTORE ENVIRONMENT */
 

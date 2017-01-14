@@ -793,12 +793,26 @@ void BeamFactory::removeTruck(int truck)
     this->DeleteTruck(m_trucks[truck]);
 }
 
-void BeamFactory::removeAllTrucks()
+void BeamFactory::CleanUpAllTrucks() // Called after simulation finishes
 {
     for (int i = 0; i < m_free_truck; i++)
     {
-        removeTruck(i);
+        if (m_trucks[i] == nullptr)
+            continue; // This is how things currently work (but not for long...) ~ only_a_ptr, 01/2017
+
+        if (m_current_truck == m_trucks[i]->trucknum)
+        {
+            this->setCurrentTruck(-1);
+        }
+        delete m_trucks[i];
+        m_trucks[i] = nullptr;
     }
+    // TEMPORARY: DO !NOT! attempt to reuse slots
+    // Yields bad behavior when player disconnects from game where other players had vehicles spawned
+    // Upon reconnect, vehicles with flexbodies (tested on Gavril MZR) show up badly deformed and twitching.
+    // Vehicles with cabs (tested on Agora L) show up without the cab.
+    // ~only_a_ptr, 01/2017
+    //m_free_truck = 0;
 }
 
 void BeamFactory::DeleteTruck(Beam* b)
