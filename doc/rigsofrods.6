@@ -1,0 +1,72 @@
+.TH rigsofrods 6
+
+.SH NAME
+rigsofrods \- Soft\-body physics vehicle simulator
+
+.SH SYNOPSIS
+.B rigsofrods
+[\fB-map \fIname\fR]
+[\fB-truck \fIfile\fR]
+[\fB-enter\fR] ...
+
+.SH DESCRIPTION
+.B Rigs of Rods
+is a soft\-body physics vehicle simulator based on mass-spring-damper theory.
+Land, water and air vehicles can be simulated in real-time and interact with each other.
+
+.SH EXAMPLES
+.TP
+.B rigsofrods
+Enter main menu of Rigs of Rods
+.TP
+.B rigsofrods \-setup
+Display OGRE 3D engine setup dialog
+.TP
+.B rigsofrods \-map \fIsimple2
+Load map "simple2"
+.TP
+.B rigsofrods \-map \fIsimple2 \fB\-truck \fIsemi.truck \fB\-enter
+Load map "simple2", spawn truck "semi" and enter this truck immediately
+.SH OPTIONS
+.TP
+.B \-map \fIname
+Map to load on startup
+.TP
+.B \-truck \fIfile
+Vehicle to spawn on startup
+.TP
+.B \-enter
+Enter truck given by \fB\-truck\fR option on startup
+.TP
+.B \-setup
+Display OGRE 3D engine settings dialog
+.TP
+.B \-userpath \fIpath
+Set user path
+.TP
+.B \-help
+Display help
+
+.SH BUGS
+You can view known bugs and report unknown bugs at https://github.com/RigsOfRods/rigs-of-rods/issues
+
+.SH HISTORY
+Rigs of Rods was started as a hobby project by Pierre-Michel Ricordel in 2005.
+Thomas Fischer joined development in 2007 and the source code was released under the GNU Public License version 2 or later on 8th of February, 2009.
+
+.SH AUTHOR
+2005-2013 Pierre-Michel Ricordel
+
+2007-2013 Thomas Fischer
+
+2013+     Petr Ohlidal
+
+2009+     Rigs of Rods Contributors
+
+For more details see the credits section in the game menu.
+
+.SH SEE ALSO
+\fBrigsofrods-server\fR(6)
+
+.SH FURTHER READING
+http://docs.rigsofrods.org/
