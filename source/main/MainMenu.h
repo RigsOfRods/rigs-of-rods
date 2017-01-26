@@ -56,7 +56,6 @@ public:
 
 private:
     
-    bool              m_is_mumble_created;
     RoRFrameListener* m_frame_listener;
 };
 

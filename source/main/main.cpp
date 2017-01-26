@@ -317,15 +317,10 @@ int main(int argc, char *argv[])
                     /* Restore wallpaper */
                     menu_wallpaper_widget->setVisible(true);
 
-                    /* Set Mumble to non-positional audio */
 #ifdef USE_MUMBLE
-                    MumbleIntegration::getSingleton().update(
-                        Ogre::Vector3::ZERO,
-                        Ogre::Vector3(0.0f, 0.0f, 1.0f),
-                        Ogre::Vector3(0.0f, 1.0f, 0.0f),
-                        Ogre::Vector3::ZERO,
-                        Ogre::Vector3(0.0f, 0.0f, 1.0f),
-                        Ogre::Vector3(0.0f, 1.0f, 0.0f));
+                    auto* mumble = SoundScriptManager::getSingleton().GetMumble();
+                    if (mumble != nullptr)
+                        mumble->SetNonPositionalAudio();
 #endif // USE_MUMBLE
                 }
 

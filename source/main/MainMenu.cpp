@@ -83,7 +83,6 @@ using namespace Ogre; // The _L() macro won't compile without.
 namespace RoR {
 
 MainMenu::MainMenu(RoRFrameListener* fl):
-    m_is_mumble_created(false),
     m_frame_listener(fl)
 {
     RoR::App::SetMainMenu(this);
@@ -271,11 +270,7 @@ void MainMenu::JoinMultiplayerServer()
     ChatSystem::SendStreamSetup();
 
 #ifdef USE_MUMBLE
-    if (! m_is_mumble_created)
-    {
-        new MumbleIntegration();
-        m_is_mumble_created = true;
-    }
+    SoundScriptManager::getSingleton().CheckAndCreateMumble();
 #endif // USE_MUMBLE
 
     String terrain_name = Networking::GetTerrainName();

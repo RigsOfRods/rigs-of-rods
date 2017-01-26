@@ -155,6 +155,7 @@ class MaterialFunctionMapper;
 class MaterialReplacer;
 class MeshObject;
 class Mirror;
+class MumbleIntegration;
 class Network;
 class OverlayWrapper;
 class OutProtocol;
