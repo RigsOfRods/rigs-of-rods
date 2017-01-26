@@ -26,23 +26,28 @@ only ever checked the first character.
 IMPORTANT: Comments MUST be on separate line! Trailing comments are not supported. 
 
 There are several syntaxes for parsing a line:
-	
-	Default - The most usual and relaxed one
-		Entire line is treated as values separated by separators. 
-		Possible separators: space, tabulator, comma ",", colon ":" or pipe "|".
-		Whitespace and "," are well known, others weren't documented as generic.
-		Multiple separators in a row squash into one, i.e. this is a valid line:
-		set_beam_defaults |,| -1 -1 ,,,,, -1, -1
 
-	Keyword-space-CSV - More complex sections
-		Line consists of: keyword, space (separator), CSV (comma sep. values)
-		The keyword is cut away, the rest is split along ",".
+    Default
+        The most usual and relaxed one
+        Entire line is treated as values separated by separators. 
+        Possible separators: space, tabulator, comma ",", colon ":" or pipe "|".
+        Whitespace and "," are well known, others weren't documented as generic.
+        Multiple separators in a row squash into one, i.e. this is a valid line:
+        set_beam_defaults |,| -1 -1 ,,,,, -1, -1
 
-	Keyword-CSV - Like above, except the space is optional.
+    Keyword-space-CSV
+        More complex sections
+        Line consists of: keyword, space (separator), CSV (comma sep. values)
+        The keyword is cut away, the rest is split along ",".
+
+    Keyword-CSV
+        Like above, except the space is optional.
     
-    CSV - Classic comma-separated-values. Only separator is ','
+    CSV
+        Classic comma-separated-values. Only separator is ','
     
-    CommaSpaceSV - Separators are space or comma.
+    CommaSpaceSV
+        Separators are space or comma.
 
 The format consists of these elements:
 
@@ -144,7 +149,7 @@ Old parser had no default, though the param is optional.
 DOCUMENTATION
 =============
 
-See http://docs.rigsofrods.org/technical/fileformat-truck
+See http://docs.rigsofrods.org/vehicle-creation/fileformat-truck
 
 Below is a list of all supported elements.
 NOTE: All keywords are case insensitive, 
