@@ -35,9 +35,10 @@
 #include "OverlayWrapper.h"
 #include "SceneMouse.h"
 
+#define STR_CREF  std::string const &
+
 namespace RoR {
 namespace App {
-
 
 // ================================================================================
 // Global variables
