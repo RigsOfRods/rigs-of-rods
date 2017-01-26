@@ -38,9 +38,6 @@ public:
     bool   frameStarted          (const Ogre::FrameEvent& evt);
     bool   frameEnded            (const Ogre::FrameEvent& evt);
 
-    // Ogre::WindowEventListener interface
-    void   windowResized         (Ogre::RenderWindow* rw);
-
     // Scripting interface
     double getTime               () { return m_time; }
     void   UpdateDirectionArrow  (char* text, Ogre::Vector3 position);
@@ -63,10 +60,11 @@ public:
 
 protected:
 
-    // WindowEventListener
+    // Ogre::WindowEventListener interface
     void   windowMoved             (Ogre::RenderWindow* rw);
     void   windowClosed            (Ogre::RenderWindow* rw);
     void   windowFocusChange       (Ogre::RenderWindow* rw);
+    void   windowResized           (Ogre::RenderWindow* rw);
 
     void   UpdateForceFeedback     (float dt);
     bool   UpdateInputEvents       (float dt);

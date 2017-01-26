@@ -58,6 +58,8 @@ public:
 
     void ReflectMultiplayerState();
 
+    void SetSimController(RoRFrameListener* sim) { m_sim_controller = sim; }
+
 protected:
 
     void onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item);
@@ -78,6 +80,7 @@ protected:
     int                              m_menu_width;
     int                              m_menu_height;
     std::atomic<bool>                m_vehicle_list_needs_update;
+    RoRFrameListener*                m_sim_controller;
 };
 
 } // namespace GUI

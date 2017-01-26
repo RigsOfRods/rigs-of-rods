@@ -153,6 +153,7 @@ BeamFactory::BeamFactory() :
     , m_physics_steps(2000)
     , m_previous_truck(-1)
     , m_simulation_speed(1.0f)
+    , m_sim_controller(nullptr)
 {
     for (int t = 0; t < MAX_TRUCKS; t++)
         m_trucks[t] = 0;
@@ -921,23 +922,21 @@ void BeamFactory::setCurrentTruck(int new_truck)
     m_previous_truck = m_current_truck;
     m_current_truck = new_truck;
 
-    auto* frame_listener = RoR::App::GetMainMenu()->GetFrameListener();
-
     if (m_previous_truck >= 0 && m_current_truck >= 0)
     {
-        frame_listener->ChangedCurrentVehicle(m_trucks[m_previous_truck], m_trucks[m_current_truck]);
+        m_sim_controller->ChangedCurrentVehicle(m_trucks[m_previous_truck], m_trucks[m_current_truck]);
     }
     else if (m_previous_truck >= 0)
     {
-        frame_listener->ChangedCurrentVehicle(m_trucks[m_previous_truck], nullptr);
+        m_sim_controller->ChangedCurrentVehicle(m_trucks[m_previous_truck], nullptr);
     }
     else if (m_current_truck >= 0)
     {
-        frame_listener->ChangedCurrentVehicle(nullptr, m_trucks[m_current_truck]);
+        m_sim_controller->ChangedCurrentVehicle(nullptr, m_trucks[m_current_truck]);
     }
     else
     {
-        frame_listener->ChangedCurrentVehicle(nullptr, nullptr);
+        m_sim_controller->ChangedCurrentVehicle(nullptr, nullptr);
     }
 
     this->UpdateSleepingState(0.0f);

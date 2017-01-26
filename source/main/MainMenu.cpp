@@ -82,14 +82,15 @@ using namespace Ogre; // The _L() macro won't compile without.
 
 namespace RoR {
 
-MainMenu::MainMenu(RoRFrameListener* fl):
-    m_frame_listener(fl)
+MainMenu::MainMenu()
 {
     RoR::App::SetMainMenu(this);
 }
 
 void MainMenu::EnterMainMenuLoop()
 {
+    RoRWindowEventUtilities::addWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
+
     // ==== FPS-limiter ====
     // TODO: Is this necessary in menu?
 
@@ -164,6 +165,8 @@ void MainMenu::EnterMainMenuLoop()
 
         timeSinceLastFrame = RoR::App::GetOgreSubsystem()->GetTimer()->getMilliseconds() - startTime;
     }
+
+    RoRWindowEventUtilities::removeWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
 }
 
 void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
@@ -306,6 +309,16 @@ void MainMenu::LeaveMultiplayerServer()
         App::GetGuiManager()->SetVisible_LoadingWindow(false);
     }
 #endif //SOCKETW
+}
+
+void MainMenu::windowResized(Ogre::RenderWindow* rw)
+{
+    App::GetInputEngine()->windowResized(rw); // Update mouse area
+}
+
+void MainMenu::windowFocusChange(Ogre::RenderWindow* rw)
+{
+    App::GetInputEngine()->resetKeys();
 }
 
 } // namespace RoR

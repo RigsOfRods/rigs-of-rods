@@ -159,6 +159,7 @@ enum SoundLinkTypes {
 
 class Sound;
 class SoundManager;
+class MumbleIntegration;
 
 class SoundScriptTemplate : public ZeroedMemoryAllocator
 {

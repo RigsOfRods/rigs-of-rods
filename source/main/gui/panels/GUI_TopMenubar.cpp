@@ -54,6 +54,7 @@ TopMenubar::TopMenubar() :
     , m_menu_width(350)
     , m_menu_height(20)
     , m_vehicle_list_needs_update(false)
+    , m_sim_controller(nullptr)
 {
 
     /* -------------------------------------------------------------------------------- */
@@ -320,9 +321,9 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
 
     } else if (miname == _L("Reload current vehicle") && gEnv->player)
     {
-        if (BeamFactory::getSingleton().getCurrentTruckNumber() != -1)
+        if ((BeamFactory::getSingleton().getCurrentTruckNumber() != -1) && (m_sim_controller != nullptr))
         {
-            App::GetMainMenu()->GetFrameListener()->ReloadCurrentTruck(); // TODO: Use SIM_STATE + 'pending' mechanisms
+            m_sim_controller->ReloadCurrentTruck(); // TODO: Use SIM_STATE + 'pending' mechanisms
             gui_man->UnfocusGui();
         }
     }

@@ -32,21 +32,20 @@
 #include "RoRPrerequisites.h"
 
 #include <map>
+#include <OgreWindowEventUtilities.h>
 
 class GameScript;
 
 namespace RoR {
 
-class MainMenu
+class MainMenu: public Ogre::WindowEventListener
 {
 public:
 
-    MainMenu(RoRFrameListener* fl);
+    MainMenu();
 
     void JoinMultiplayerServer();
     void LeaveMultiplayerServer();
-
-    RoRFrameListener* GetFrameListener() { return m_frame_listener; }
 
     void EnterMainMenuLoop();
 
@@ -55,8 +54,10 @@ public:
     void MainMenuLoopUpdateEvents(float seconds_since_last_frame);
 
 private:
-    
-    RoRFrameListener* m_frame_listener;
+
+    // Ogre::WindowEventListener
+    void windowResized    (Ogre::RenderWindow* rw) override;
+    void windowFocusChange(Ogre::RenderWindow* rw) override;
 };
 
 } // namespace RoR

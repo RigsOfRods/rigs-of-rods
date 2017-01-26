@@ -146,6 +146,8 @@ public:
     // A list of all beams interconnecting two trucks
     std::map<beam_t*, std::pair<Beam*, Beam*>> interTruckLinks;
 
+    void SetSimController(RoRFrameListener* sim) { m_sim_controller = sim; }
+
 protected:
 
     /** 
@@ -201,6 +203,7 @@ protected:
     float m_simulation_speed; // slow motion < 1.0 < fast motion
 
     DustManager m_particle_manager;
+    RoRFrameListener* m_sim_controller;
 
     void LogParserMessages();
     void LogSpawnerMessages();
