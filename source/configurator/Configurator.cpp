@@ -19,12 +19,10 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <Ogre.h>
 
-#include "ImprovedConfigFile.h"
 #include "OISKeyboard.h"
+#include "RoRnet.h"
 #include "RoRVersion.h"
 #include "conf_file.h"
-#include "rornet.h"
-#include "Utils.h" // RoR utils
 #include "wxValueChoice.h" // a control we wrote
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
@@ -555,10 +553,10 @@ void initLanguage(wxString languagePath, wxString userpath)
 	try
 	{
 		wxString rorcfg=userpath + dirsep + wxT("config") + dirsep + wxT("RoR.cfg");
-		ImprovedConfigFile cfg;
+		Ogre::ConfigFile cfg;
 		// Don't trim whitespace
 		cfg.load((const char*)rorcfg.mb_str(wxConvUTF8), "=:\t", false);
-		wxString langSavedName = conv(cfg.GetString("Language"));
+		wxString langSavedName = conv(cfg.getSetting("Language"));
 
 		if(langSavedName.size() > 0)
 			language = const_cast<wxLanguageInfo *>(getLanguageInfoByName(langSavedName));
@@ -2307,7 +2305,7 @@ void MyDialog::updateSettingsControls()
 bool MyDialog::LoadConfig()
 {
 	//RoR config
-	ImprovedConfigFile cfg;
+	Ogre::ConfigFile cfg;
 	try
 	{
 		wxLogStatus(wxT("Loading RoR.cfg"));
@@ -2328,9 +2326,9 @@ bool MyDialog::LoadConfig()
 	Ogre::String svalue, sname;
 	while (i.hasMoreElements())
 	{
-		sname = i.peekNextKey();
+		sname = SanitizeUtf8String(i.peekNextKey());
 		Ogre::StringUtil::trim(sname);
-		svalue = i.getNext();
+		svalue = SanitizeUtf8String(i.getNext());
 		Ogre::StringUtil::trim(svalue);
 		// filter out some things that shouldnt be in there (since we cannot use RoR normally anymore after those)
 		if(sname == Ogre::String("regen-cache-only"))
@@ -3004,23 +3002,7 @@ std::string MyDialog::readVersionInfo()
 
 void MyDialog::OnChangedNotebook1(wxNotebookEvent& event)
 {
-	wxString tabname = nbook->GetPageText(event.GetSelection());
-	if(tabname == _("Updates"))
-	{
-		// try to find our version
-#ifdef _WIN32
-		helphtmw->LoadPage(wxString(conv(NEWS_HTML_PAGE))+
-			wxString(conv("?netversion="))+wxString(conv(RORNET_VERSION))+
-			wxString(conv("&version="))+wxString(readVersionInfo())+
-			wxString(conv("&lang="))+conv(conv(language->CanonicalName))
-			);
-#else
-		helphtmw->LoadPage(wxString(conv(NEWS_HTML_PAGE))+
-			wxString(conv("?netversion="))+wxString(conv(RORNET_VERSION))+
-			wxString(conv("&lang="))+conv(conv(language->CanonicalName))
-			);
-#endif // _WIN32
-	}
+	// Removed 'news' feature, not supported by new online API
 }
 
 void MyDialog::OnTimerReset(wxTimerEvent& event)
@@ -3039,7 +3021,7 @@ void MyDialog::OnButTestNet(wxCommandEvent& event)
 	btnUpdate->Enable(false);
 	timer1->Start(10000);
 	std::string lshort = conv(language->CanonicalName).substr(0, 2);
-	networkhtmw->LoadPage(wxString(conv(REPO_HTML_SERVERLIST))+
+	networkhtmw->LoadPage(wxString(conv("http://multiplayer.rigsofrods.org/server-list"))+
 						  wxString(conv("?version="))+wxString(conv(RORNET_VERSION))+
 						  wxString(conv("&lang="))+conv(lshort));
 
@@ -3056,10 +3038,10 @@ void MyDialog::OnButTestNet(wxCommandEvent& event)
 		err->ShowModal();
 		return;
 	}
-	header_t head;
+	RoRnet::Header head;
 	head.command=MSG_VERSION;
 	head.size=strlen(RORNET_VERSION);
-	mySocket.send((char*)&head, sizeof(header_t), &error);
+	mySocket.send((char*)&head, sizeof(RoRnet::Header), &error);
 	if (error!=SWBaseSocket::ok)
 	{
 		wxMessageDialog *err=new wxMessageDialog(this, wxString(error.get_error()), "Error", wxOK | wxICON_ERROR);
@@ -3073,7 +3055,7 @@ void MyDialog::OnButTestNet(wxCommandEvent& event)
 		err->ShowModal();
 		return;
 	}
-	mySocket.recv((char*)&head, sizeof(header_t), &error);
+	mySocket.recv((char*)&head, sizeof(RoRnet::Header), &error);
 	if (error!=SWBaseSocket::ok)
 	{
 		wxMessageDialog *err=new wxMessageDialog(this, wxString(error.get_error()), "Error", wxOK | wxICON_ERROR);

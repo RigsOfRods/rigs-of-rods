@@ -32,25 +32,25 @@ Character* CharacterFactory::createLocal(int playerColour)
 void CharacterFactory::createRemoteInstance(int sourceid, int streamid)
 {
 #ifdef USE_SOCKETW
-    user_info_t info;
+    RoRnet::UserInfo info;
     RoR::Networking::GetUserInfo(sourceid, info);
     int colour = info.colournum;
 
     LOG(" new character for " + TOSTRING(sourceid) + ":" + TOSTRING(streamid) + ", colour: " + TOSTRING(colour));
 
-    m_characters.push_back(std::unique_ptr<Character>(new Character(sourceid, streamid, colour, true)));
+    m_remote_characters.push_back(std::unique_ptr<Character>(new Character(sourceid, streamid, colour, true)));
 #endif // USE_SOCKETW
 }
 
 void CharacterFactory::removeStreamSource(int sourceid)
 {
-    for (auto it = m_characters.begin(); it != m_characters.end(); it++)
+    for (auto it = m_remote_characters.begin(); it != m_remote_characters.end(); it++)
     {
         if ((*it)->getSourceID() == sourceid)
         {
             (*it).reset();
-            m_characters.erase(it);
-            break;
+            m_remote_characters.erase(it);
+            return;
         }
     }
 }
@@ -60,11 +60,16 @@ void CharacterFactory::update(float dt)
     gEnv->player->update(dt);
     gEnv->player->updateLabels();
 
-    for (auto& c : m_characters)
+    for (auto& c : m_remote_characters)
     {
         c->update(dt);
         c->updateLabels();
     }
+}
+
+void CharacterFactory::DeleteAllRemoteCharacters()
+{
+    m_remote_characters.clear(); // std::unique_ptr<> will do the cleanup...
 }
 
 #ifdef USE_SOCKETW
@@ -72,21 +77,21 @@ void CharacterFactory::handleStreamData(std::vector<RoR::Networking::recv_packet
 {
     for (auto packet : packet_buffer)
     {
-        if (packet.header.command == MSG2_STREAM_REGISTER)
+        if (packet.header.command == RoRnet::MSG2_STREAM_REGISTER)
         {
-            stream_register_t* reg = (stream_register_t *)packet.buffer;
+            RoRnet::StreamRegister* reg = (RoRnet::StreamRegister *)packet.buffer;
             if (reg->type == 1)
             {
                 createRemoteInstance(packet.header.source, packet.header.streamid);
             }
         }
-        else if (packet.header.command == MSG2_USER_LEAVE)
+        else if (packet.header.command == RoRnet::MSG2_USER_LEAVE)
         {
             removeStreamSource(packet.header.source);
         }
         else
         {
-            for (auto& c : m_characters)
+            for (auto& c : m_remote_characters)
             {
                 c->receiveStreamData(packet.header.command, packet.header.source, packet.header.streamid, packet.buffer);
             }

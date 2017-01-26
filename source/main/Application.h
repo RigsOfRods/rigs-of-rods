@@ -147,7 +147,7 @@ GUIManager*          GetGuiManager();
 Console*             GetConsole();
 InputEngine*         GetInputEngine();
 CacheSystem*         GetCacheSystem();
-MainThread*          GetMainThreadLogic();
+MainMenu*          GetMainMenu();
 
 State                GetActiveAppState();
 State                GetPendingAppState();
@@ -161,6 +161,7 @@ STR_CREF             GetMpServerHost();
 STR_CREF             GetMpServerPassword();
 int                  GetMpServerPort();
 STR_CREF             GetMpPlayerName();
+STR_CREF             GetMpPortalUrl();
 bool                 GetDiagTraceGlobals();
 STR_CREF             GetSysProcessDir();
 STR_CREF             GetSysUserDir();
@@ -241,6 +242,7 @@ void SetMpServerHost     (STR_CREF v);
 void SetMpServerPassword (STR_CREF v);
 void SetMpServerPort     (int      v);
 void SetMpPlayerName     (STR_CREF v);
+void SetMpPortalUrl      (STR_CREF v);
 void SetDiagTraceGlobals (bool     v);
 void SetSysProcessDir    (STR_CREF v);
 void SetSysUserDir       (STR_CREF v);
@@ -307,7 +309,7 @@ void SetDiagPreselectedVehicle  (STR_CREF       v);
 void SetDiagPreselectedVehConfig(STR_CREF       v);
 void SetDiagPreselectedVehEnter (bool           v);
 
-void SetMainThreadLogic  (MainThread* obj);
+void SetMainMenu  (MainMenu* obj);
 
 // Factories
 void StartOgreSubsystem();

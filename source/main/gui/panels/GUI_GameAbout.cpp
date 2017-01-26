@@ -32,7 +32,7 @@
 #include "Language.h"
 #include "RoRVersion.h"
 #include "Utils.h"
-#include "rornet.h"
+#include "RoRnet.h"
 
 #include <MyGUI.h>
 

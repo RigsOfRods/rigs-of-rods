@@ -19,7 +19,7 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// @file   GUIMenu.h
+/// @file
 /// @date   13th of August 2009
 /// @author Thomas Fischer thomas{AT}thomasfischer{DOT}biz
 
@@ -35,7 +35,7 @@
 #include "GUI_GameConsole.h"
 #include "GUI_MainSelector.h"
 #include "Language.h"
-#include "MainThread.h"
+#include "MainMenu.h"
 #include "Network.h"
 #include "RoRFrameListener.h"
 #include "Settings.h"
@@ -52,7 +52,7 @@ TopMenubar::TopMenubar() :
       m_item_activate_all(nullptr)
     , m_item_never_sleep(nullptr)
     , m_item_sleep_all(nullptr)
-    , m_menu_width(800)
+    , m_menu_width(350)
     , m_menu_height(20)
     , m_vehicle_list_needs_update(false)
 {
@@ -60,7 +60,7 @@ TopMenubar::TopMenubar() :
     /* -------------------------------------------------------------------------------- */
     /* MENU BAR */
 
-    m_menubar_widget = MyGUI::Gui::getInstance().createWidget<MyGUI::MenuBar>("MenuBar", 0, 0, m_menu_width, m_menu_height,  MyGUI::Align::HStretch | MyGUI::Align::Top, "Main");
+    m_menubar_widget = MyGUI::Gui::getInstance().createWidget<MyGUI::MenuBar>("MenuBar", 0, 0, m_menu_width, m_menu_height, MyGUI::Align::Top, "Main");
     m_menubar_widget->setCoord(0, 0, m_menu_width, m_menu_height);
     m_menubar_widget->setVisible(false);
     
@@ -103,17 +103,6 @@ TopMenubar::TopMenubar() :
     m_popup_menus.push_back(p);
 
     /* -------------------------------------------------------------------------------- */
-    /* EDITOR POPUP MENU */
-
-    mi = m_menubar_widget->createWidget<MyGUI::MenuItem>("MenuBarButton", 0, 0, 60, m_menu_height,  MyGUI::Align::Default);
-    p = mi->createWidget<MyGUI::PopupMenu>(MyGUI::WidgetStyle::Popup, "PopupMenu",MyGUI::IntCoord(0,0,88,68),MyGUI::Align::Default, "Popup");
-    mi->setItemType(MyGUI::MenuItemType::Popup);
-    mi->setCaption("Editor");
-    
-    p->addItem(_L("Open rig editor"), MyGUI::MenuItemType::Normal, "rig-editor-enter");
-    m_popup_menus.push_back(p);
-
-    /* -------------------------------------------------------------------------------- */
     /* WINDOWS POPUP MENU */
 
     mi = m_menubar_widget->createWidget<MyGUI::MenuItem>("MenuBarButton", 0, 0, 60, m_menu_height,  MyGUI::Align::Default);
@@ -125,6 +114,7 @@ TopMenubar::TopMenubar() :
     p->addItem(_L("Show Console"),       MyGUI::MenuItemType::Normal, "showConsole");
     p->addItem(_L("Texture Tool"),       MyGUI::MenuItemType::Normal, "texturetool");
     p->addItem(_L("Debug Options"),		 MyGUI::MenuItemType::Normal, "debugoptions");
+    m_item_spawner_log = p->addItem(_L("Spawner log"), MyGUI::MenuItemType::Normal, "spawnerlog");
     m_popup_menus.push_back(p);
 
     /* -------------------------------------------------------------------------------- */
@@ -149,14 +139,6 @@ TopMenubar::TopMenubar() :
     m_popup_menus.push_back(p);
 
     /* -------------------------------------------------------------------------------- */
-    /* RIG LOADING REPORT WINDOW */
-
-    mi = m_menubar_widget->createWidget<MyGUI::MenuItem>("MenuBarButton", 0, 0, 60, m_menu_height,  MyGUI::Align::Default);
-    mi->setItemType(MyGUI::MenuItemType::Popup);
-    mi->setCaption("Spawner log");
-    mi->eventMouseButtonClick += MyGUI::newDelegate( this, &TopMenubar::MenubarShowSpawnerReportButtonClicked);
-
-    /* -------------------------------------------------------------------------------- */
     /* MENU BAR POSITION */
 
     MyGUI::IntSize s = mi->getTextSize();
@@ -179,22 +161,22 @@ TopMenubar::~TopMenubar()
     m_menubar_widget = nullptr;
 }
 
-UTFString TopMenubar::getUserString(user_info_t &user, int num_vehicles)
+UTFString TopMenubar::getUserString(RoRnet::UserInfo &user, int num_vehicles)
 {
     UTFString tmp = RoR::ChatSystem::GetColouredName(user.username, user.colournum);
 
     tmp = tmp + U(": ");
 
     // some more info
-    if (user.authstatus & AUTH_BOT)
+    if (user.authstatus & RoRnet::AUTH_BOT)
         tmp = tmp + _L("#0000c9 Bot, ");
-    else if (user.authstatus & AUTH_BANNED)
+    else if (user.authstatus & RoRnet::AUTH_BANNED)
         tmp = tmp + _L("banned, ");
-    else if (user.authstatus & AUTH_RANKED)
+    else if (user.authstatus & RoRnet::AUTH_RANKED)
         tmp = tmp + _L("#00c900 Ranked, ");
-    else if (user.authstatus & AUTH_MOD)
+    else if (user.authstatus & RoRnet::AUTH_MOD)
         tmp = tmp + _L("#c90000 Moderator, ");
-    else if (user.authstatus & AUTH_ADMIN)
+    else if (user.authstatus & RoRnet::AUTH_ADMIN)
         tmp = tmp + _L("#c97100 Admin, ");
 
     tmp = tmp + _L("#ff8d00 version: #3eff20 ");
@@ -213,7 +195,7 @@ UTFString TopMenubar::getUserString(user_info_t &user, int num_vehicles)
     return tmp;
 }
 
-void TopMenubar::addUserToMenu(user_info_t &user)
+void TopMenubar::addUserToMenu(RoRnet::UserInfo &user)
 {
     int numTrucks = BeamFactory::getSingleton().getTruckCount();
     Beam **trucks = BeamFactory::getSingleton().getTrucks();
@@ -278,7 +260,7 @@ void TopMenubar::vehiclesListUpdate()
 #ifdef USE_SOCKETW
         // sort the list according to the network users
 
-        user_info_t local_user = RoR::Networking::GetLocalUserData();
+        RoRnet::UserInfo local_user = RoR::Networking::GetLocalUserData();
         addUserToMenu(local_user);
 
         auto users = RoR::Networking::GetUserInfos();
@@ -324,7 +306,11 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
         return;
     }
 
-    if (miname == _L("Get new vehicle") && gEnv->player)
+    if (_item == m_item_spawner_log)
+    {
+        App::GetGuiManager()->SetVisible_SpawnerReport(true);
+    }
+    else if (miname == _L("Get new vehicle") && gEnv->player)
     {
         if (app_state != App::APP_STATE_SIMULATION)
         {
@@ -337,7 +323,7 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
     {
         if (BeamFactory::getSingleton().getCurrentTruckNumber() != -1)
         {
-            App::GetMainThreadLogic()->GetFrameListener()->reloadCurrentTruck(); // TODO: Use SIM_STATE + 'pending' mechanisms
+            App::GetMainMenu()->GetFrameListener()->ReloadCurrentTruck(); // TODO: Use SIM_STATE + 'pending' mechanisms
             gui_man->UnfocusGui();
         }
     }
@@ -489,11 +475,6 @@ void TopMenubar::updatePositionUponMousePosition(int x, int y)
 void TopMenubar::triggerUpdateVehicleList()
 {
     m_vehicle_list_needs_update = true;
-}
-
-void TopMenubar::MenubarShowSpawnerReportButtonClicked(MyGUI::Widget* sender)
-{
-    App::GetGuiManager()->SetVisible_SpawnerReport(true);
 }
 
 void TopMenubar::ReflectMultiplayerState()

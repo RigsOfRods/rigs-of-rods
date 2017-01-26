@@ -25,7 +25,7 @@ set( SOURCE_FILES
   Application.{h,cpp}
   ForwardDeclarations.h
   GlobalEnvironment.h
-  MainThread.{h,cpp}
+  MainMenu.{h,cpp}
   RoRPrerequisites.h
   audio/Sound.{h,cpp}
   audio/SoundManager.{h,cpp}
@@ -391,8 +391,6 @@ target_include_directories( ${BINNAME} PRIVATE
  gui/mygui
  gui/panels
  network
- network/IRC
- network/protocol
  physics
  physics/air
  physics/collision

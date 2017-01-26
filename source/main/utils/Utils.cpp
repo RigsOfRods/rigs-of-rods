@@ -22,7 +22,7 @@
 #include "Utils.h"
 
 #include "ErrorUtils.h"
-#include "rornet.h"
+#include "RoRnet.h"
 #include "RoRVersion.h"
 #include "SHA1.h"
 
@@ -117,42 +117,6 @@ UTFString formatBytes(double bytes)
     int c = std::min((int)(log(bytes) / log((float)base)), (int)sizeof(si_prefix) - 1);
     swprintf(tmp, 128, L"%1.2f %ls", bytes / pow((float)base, c), si_prefix[c]);
     return UTFString(tmp);
-}
-
-// replace non-ASCII characters with underscores to prevent std::string problems
-String getASCIIFromCharString(char* str, int maxlen)
-{
-    char* ptr = str;
-    for (int i = 0; i < maxlen; i++ , ptr++)
-    {
-        if (*ptr == 0)
-            break;
-        if (*ptr < 32 || *ptr > 126)
-        {
-            *ptr = 95;
-        }
-    }
-    str[maxlen] = 0;
-    return std::string(str);
-}
-
-// replace non-ASCII characters with underscores to prevent std::string problems
-String getASCIIFromOgreString(String s, int maxlen)
-{
-    char str[1024] = "";
-    strncpy(str, s.c_str(), 1023);
-    char* ptr = str;
-    for (int i = 0; i < maxlen; i++ , ptr++)
-    {
-        if (*ptr == 0)
-            break;
-        if (*ptr < 32 || *ptr > 126)
-        {
-            *ptr = 95;
-        }
-    }
-    str[maxlen] = 0;
-    return std::string(str);
 }
 
 int getTimeStamp()

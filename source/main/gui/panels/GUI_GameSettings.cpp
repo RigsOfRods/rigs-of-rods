@@ -28,19 +28,20 @@
 #include <Ogre.h>
 
 #include "Application.h"
+#include "ContentManager.h"
 #include "FileSystemInfo.h"
 #include "GUIManager.h"
 #include "GlobalEnvironment.h"
 #include "ImprovedConfigFile.h"
 #include "Language.h"
-#include "MainThread.h"
+#include "MainMenu.h"
 #include "OgreSubsystem.h"
 #include "RoRPrerequisites.h"
 #include "RoRVersion.h"
 #include "Settings.h"
 #include "TerrainManager.h"
 #include "Utils.h"
-#include "rornet.h"
+#include "RoRnet.h"
 
 #include <MyGUI.h>
 
@@ -676,7 +677,7 @@ void CLASS::SaveSettings()
 void CLASS::eventMouseButtonClickRegenCache(MyGUI::WidgetPtr _sender)
 {
     MAIN_WIDGET->setVisibleSmooth(false);
-    App::GetMainThreadLogic()->RegenCache();
+    App::GetContentManager()->RegenCache();
     MAIN_WIDGET->setVisibleSmooth(true);
     RoR::App::GetGuiManager()->ShowMessageBox("Cache regenerated", "Cache regenerated succesfully!", true, "Ok", true, false, "");
 }

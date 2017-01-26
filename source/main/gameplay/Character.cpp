@@ -37,6 +37,8 @@
 using namespace Ogre;
 using namespace RoR;
 
+#define LOGSTREAM Ogre::LogManager::getSingleton().stream()
+
 unsigned int Character::characterCounter = 0;
 
 Character::Character(int source, unsigned int streamid, int colourNumber, bool remote) :
@@ -151,7 +153,7 @@ void Character::updateLabels()
     if (App::GetActiveMpState() != App::MP_STATE_CONNECTED) { return; }
 
 #ifdef USE_SOCKETW
-    user_info_t info;
+    RoRnet::UserInfo info;
 
     if (remote)
     {
@@ -587,20 +589,38 @@ void Character::move(Vector3 offset)
     mCharacterNode->translate(offset);
 }
 
+// Helper function
+void Character::ReportError(const char* detail)
+{
+    Ogre::UTFString username;
+    RoRnet::UserInfo info;
+    if (!RoR::Networking::GetUserInfo(m_source_id, info))
+        username = "~~ERROR getting username~~";
+    else
+        username = info.username;
+
+    char msg_buf[300];
+    snprintf(msg_buf, 300, 
+        "[RoR|Networking] ERROR on remote character (User: '%s', SourceID: %d, StreamID: %d): ",
+        username.asUTF8_c_str(), m_source_id, m_stream_id);
+
+    LOGSTREAM << msg_buf << detail;
+}
+
 void Character::sendStreamSetup()
 {
 #ifdef USE_SOCKETW
     if (remote)
         return;
 
-    stream_register_t reg;
+    RoRnet::StreamRegister reg;
     memset(&reg, 0, sizeof(reg));
     reg.status = 1;
     strcpy(reg.name, "default");
     reg.type = 1;
     reg.data[0] = 2;
 
-    RoR::Networking::AddLocalStream(&reg, sizeof(stream_register_t));
+    RoR::Networking::AddLocalStream(&reg, sizeof(RoRnet::StreamRegister));
 
     m_source_id = reg.origin_sourceid;
     m_stream_id = reg.origin_streamid;
@@ -614,49 +634,60 @@ void Character::sendStreamData()
     if (beamCoupling)
         return;
 
-    pos_netdata_t data;
-    data.command = CHARCMD_POSITION;
-    data.posx = mCharacterNode->getPosition().x;
-    data.posy = mCharacterNode->getPosition().y;
-    data.posz = mCharacterNode->getPosition().z;
-    data.rotx = mCharacterNode->getOrientation().x;
-    data.roty = mCharacterNode->getOrientation().y;
-    data.rotz = mCharacterNode->getOrientation().z;
-    data.rotw = mCharacterNode->getOrientation().w;
-    strncpy(data.animationMode, mLastAnimMode.c_str(), 254);
-    data.animationTime = mAnimState->getAnimationState(mLastAnimMode)->getTimePosition();
+    Networking::CharacterMsgPos msg;
+    msg.command = Networking::CHARACTER_CMD_POSITION;
+    msg.pos_x = mCharacterNode->getPosition().x;
+    msg.pos_y = mCharacterNode->getPosition().y;
+    msg.pos_z = mCharacterNode->getPosition().z;
+    msg.rot_angle = characterRotation.valueRadians();
+    strncpy(msg.anim_name, mLastAnimMode.c_str(), CHARACTER_ANIM_NAME_LEN);
+    msg.anim_time = mAnimState->getAnimationState(mLastAnimMode)->getTimePosition();
 
-    //LOG("sending character stream data: " + TOSTRING(RoR::Networking::GetUID()) + ":" + TOSTRING(m_stream_id));
-    RoR::Networking::AddPacket(m_stream_id, MSG2_STREAM_DATA, sizeof(pos_netdata_t), (char*)&data);
+    RoR::Networking::AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA, sizeof(Networking::CharacterMsgPos), (char*)&msg);
 #endif // USE_SOCKETW
 }
 
 void Character::receiveStreamData(unsigned int& type, int& source, unsigned int& streamid, char* buffer)
 {
-    if (type == MSG2_STREAM_DATA && m_source_id == source && m_stream_id == streamid)
+    if (type == RoRnet::MSG2_STREAM_DATA && m_source_id == source && m_stream_id == streamid)
     {
-        header_netdata_t* header = (header_netdata_t *)buffer;
-        if (header->command == CHARCMD_POSITION)
+        auto* msg = reinterpret_cast<Networking::CharacterMsgGeneric*>(buffer);
+        if (msg->command == Networking::CHARACTER_CMD_POSITION)
         {
-            pos_netdata_t* data = (pos_netdata_t *)buffer;
-            Vector3 pos(data->posx, data->posy, data->posz);
-            setPosition(pos);
-            Quaternion rot(data->rotw, data->rotx, data->roty, data->rotz);
-            mCharacterNode->setOrientation(rot);
-            setAnimationMode(getASCIIFromCharString(data->animationMode, 255), data->animationTime);
+            auto* pos_msg = reinterpret_cast<Networking::CharacterMsgPos*>(buffer);
+            this->setPosition(Ogre::Vector3(pos_msg->pos_x, pos_msg->pos_y, pos_msg->pos_z));
+            this->setRotation(Ogre::Radian(pos_msg->rot_angle));
+            this->setAnimationMode(Utils::SanitizeUtf8String(pos_msg->anim_name), pos_msg->anim_time);
         }
-        else if (header->command == CHARCMD_ATTACH)
+        else if (msg->command == Networking::CHARACTER_CMD_DETACH)
         {
-            attach_netdata_t* data = (attach_netdata_t *)buffer;
-            if (data->enabled)
+            if (beamCoupling != nullptr)
+                this->setBeamCoupling(false);
+            else
+                this->ReportError("Received command `DETACH`, but not currently attached to a vehicle. Ignoring command.");
+        }
+        else if (msg->command == Networking::CHARACTER_CMD_ATTACH)
+        {
+            auto* attach_msg = reinterpret_cast<Networking::CharacterMsgAttach*>(buffer);
+            Beam* beam = BeamFactory::getSingleton().getBeam(attach_msg->source_id, attach_msg->stream_id);
+            if (beam != nullptr)
             {
-                Beam* beam = BeamFactory::getSingleton().getBeam(data->source_id, data->stream_id);
-                setBeamCoupling(true, beam);
+                this->setBeamCoupling(true, beam);
             }
             else
             {
-                setBeamCoupling(false);
+                char err_buf[200];
+                snprintf(err_buf, 200, "Received command `ATTACH` with target{SourceID: %d, StreamID: %d}, "
+                    "but corresponding vehicle doesn't exist. Ignoring command.",
+                    attach_msg->source_id, attach_msg->stream_id);
+                this->ReportError(err_buf);
             }
+        }
+        else
+        {
+            char err_buf[100];
+            snprintf(err_buf, 100, "Received invalid command: %d. Cannot process.", msg->command);
+            this->ReportError(err_buf);
         }
     }
 }
@@ -696,12 +727,11 @@ void Character::setBeamCoupling(bool enabled, Beam* truck /* = 0 */)
         if ((App::GetActiveMpState() == App::MP_STATE_CONNECTED) && !remote)
         {
 #ifdef USE_SOCKETW
-            attach_netdata_t data;
-            data.command = CHARCMD_ATTACH;
-            data.enabled = true;
-            data.source_id = beamCoupling->m_source_id;
-            data.stream_id = beamCoupling->m_stream_id;
-            RoR::Networking::AddPacket(m_stream_id, MSG2_STREAM_DATA, sizeof(attach_netdata_t), (char*)&data);
+            Networking::CharacterMsgAttach msg;
+            msg.command = Networking::CHARACTER_CMD_ATTACH;
+            msg.source_id = beamCoupling->m_source_id;
+            msg.stream_id = beamCoupling->m_stream_id;
+            RoR::Networking::AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA, sizeof(Networking::CharacterMsgAttach), (char*)&msg);
 #endif // USE_SOCKETW
         }
 
@@ -728,10 +758,9 @@ void Character::setBeamCoupling(bool enabled, Beam* truck /* = 0 */)
         if ((App::GetActiveMpState() == App::MP_STATE_CONNECTED) && !remote)
         {
 #ifdef USE_SOCKETW
-            attach_netdata_t data;
-            data.command = CHARCMD_ATTACH;
-            data.enabled = false;
-            RoR::Networking::AddPacket(m_stream_id, MSG2_STREAM_DATA, sizeof(attach_netdata_t), (char*)&data);
+            Networking::CharacterMsgGeneric msg;
+            msg.command = Networking::CHARACTER_CMD_DETACH;
+            RoR::Networking::AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA, sizeof(Networking::CharacterMsgGeneric), (char*)&msg);
 #endif // USE_SOCKETW
         }
 

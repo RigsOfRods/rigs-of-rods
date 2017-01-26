@@ -25,22 +25,68 @@
 
 #include "RoRPrerequisites.h"
 
-#include "rornet.h"
+#include "RoRnet.h"
 
 namespace RoR {
 namespace Networking {
 
-struct recv_packet_t
+// ----------------------- Network messages (packed) -------------------------
+
+#ifdef _MSC_VER          // MSVC: set global packing and make PACKED an empty macro
+#   pragma pack(push, 1)
+#   define PACKED
+#else                    // GCC/Clang: use standard attribute
+#   define PACKED __attribute__((packed))
+#endif
+
+enum CharacterCmd
 {
-    header_t header;
-    char buffer[MAX_MESSAGE_LENGTH];
+    CHARACTER_CMD_INVALID,
+    CHARACTER_CMD_POSITION,
+    CHARACTER_CMD_ATTACH,
+    CHARACTER_CMD_DETACH
 };
+
+PACKED struct CharacterMsgGeneric
+{
+    int32_t command;
+};
+
+PACKED struct CharacterMsgPos
+{
+    int32_t command;
+    float   pos_x, pos_y, pos_z;
+    float   rot_angle;
+    float   anim_time;
+    char    anim_name[CHARACTER_ANIM_NAME_LEN];
+};
+
+PACKED struct CharacterMsgAttach
+{
+    int32_t command;
+    int32_t source_id;
+    int32_t stream_id;
+    int32_t position;
+};
+
+PACKED struct recv_packet_t
+{
+    RoRnet::Header header;
+    char buffer[RORNET_MAX_MESSAGE_LENGTH];
+};
+
+#ifdef _MSC_VER
+#   pragma pack(pop)
+#endif
+#undef PACKED
+
+// ------------------------ End of network messages --------------------------
 
 bool Connect();
 void Disconnect();
 
 void AddPacket(int streamid, int type, int len, char *content);
-void AddLocalStream(stream_register_t *reg, int size);
+void AddLocalStream(RoRnet::StreamRegister *reg, int size);
 
 void HandleStreamData();
 
@@ -51,9 +97,9 @@ Ogre::String GetTerrainName();
 
 int GetUserColor();
 Ogre::UTFString GetUsername();
-user_info_t GetLocalUserData();
-std::vector<user_info_t> GetUserInfos();
-bool GetUserInfo(int uid, user_info_t &result);
+RoRnet::UserInfo GetLocalUserData();
+std::vector<RoRnet::UserInfo> GetUserInfos();
+bool GetUserInfo(int uid, RoRnet::UserInfo &result);
 
 Ogre::UTFString GetErrorMessage();
 bool CheckError();

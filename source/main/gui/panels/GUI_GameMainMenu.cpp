@@ -28,7 +28,7 @@
 #include "Application.h"
 #include "GUIManager.h"
 #include "GUI_MainSelector.h"
-#include "MainThread.h"
+#include "MainMenu.h"
 
 #include <MyGUI.h>
 #include <utils/Language.h>

@@ -586,14 +586,14 @@ void Beam::pushNetwork(char* data, int size)
         return;
 
     // check if the size of the data matches to what we expected
-    if ((unsigned int)size == (netbuffersize + sizeof(oob_t)))
+    if ((unsigned int)size == (netbuffersize + sizeof(RoRnet::TruckState)))
     {
         // we walk through the incoming data and separate it a bit
         char* ptr = data;
 
-        // put the oob_t in front, describes truck basics, engine state, flares, etc
-        memcpy((char*)oob3, ptr, sizeof(oob_t));
-        ptr += sizeof(oob_t);
+        // put the RoRnet::TruckState in front, describes truck basics, engine state, flares, etc
+        memcpy((char*)oob3, ptr, sizeof(RoRnet::TruckState));
+        ptr += sizeof(RoRnet::TruckState);
 
         // then copy the node data
         memcpy((char*)netb3, ptr, nodebuffersize);
@@ -611,13 +611,13 @@ void Beam::pushNetwork(char* data, int size)
     else
     {
         // TODO: show the user the problem in the GUI
-        LOG("WRONG network size: we expected " + TOSTRING(netbuffersize+sizeof(oob_t)) + " but got " + TOSTRING(size) + " for vehicle " + String(truckname));
+        LOG("WRONG network size: we expected " + TOSTRING(netbuffersize+sizeof(RoRnet::TruckState)) + " but got " + TOSTRING(size) + " for vehicle " + String(truckname));
         state = INVALID;
         return;
     }
 
     // and the buffer switching to have linear smoothing
-    oob_t* ot;
+    RoRnet::TruckState* ot;
     ot = oob1;
     oob1 = oob2;
     oob2 = oob3;
@@ -644,12 +644,14 @@ void Beam::pushNetwork(char* data, int size)
 
 void Beam::calcNetwork()
 {
+    using namespace RoRnet;
+
     if (netcounter < 1)
         return;
 
     if (netcounter == 1)
     {
-        memcpy((char*)oob1, oob2, sizeof(oob_t));
+        memcpy((char*)oob1, oob2, sizeof(RoRnet::TruckState));
     }
 
     BES_GFX_START(BES_GFX_calcNetwork);
@@ -1786,7 +1788,7 @@ bool Beam::replayStep()
     return true;
 }
 
-void Beam::updateForceFeedback(int steps)
+void Beam::ForceFeedbackStep(int steps)
 {
     ffforce = affforce / steps;
     ffhydro = affhydro / steps;
@@ -1832,8 +1834,8 @@ void Beam::handleResetRequests(float dt)
 
 void Beam::sendStreamSetup()
 {
-    stream_register_trucks_t reg;
-    memset(&reg, 0, sizeof(stream_register_trucks_t));
+    RoRnet::TruckStreamRegister reg;
+    memset(&reg, 0, sizeof(RoRnet::TruckStreamRegister));
     reg.status = 0;
     reg.type = 0;
     reg.bufferSize = netbuffersize;
@@ -1846,7 +1848,7 @@ void Beam::sendStreamSetup()
     }
 
 #ifdef USE_SOCKETW
-    RoR::Networking::AddLocalStream((stream_register_t *)&reg, sizeof(stream_register_trucks_t));
+    RoR::Networking::AddLocalStream((RoRnet::StreamRegister *)&reg, sizeof(RoRnet::TruckStreamRegister));
 #endif // USE_SOCKETW
 
     m_source_id = reg.origin_sourceid;
@@ -1855,12 +1857,14 @@ void Beam::sendStreamSetup()
 
 void Beam::sendStreamData()
 {
+    using namespace RoRnet;
+
     BES_GFX_START(BES_GFX_sendStreamData);
 #ifdef USE_SOCKETW
     lastNetUpdateTime = netTimer.getMilliseconds();
 
     //look if the packet is too big first
-    int final_packet_size = sizeof(oob_t) + sizeof(float) * 3 + first_wheel_node * sizeof(float) * 3 + free_wheel * sizeof(float);
+    int final_packet_size = sizeof(RoRnet::TruckState) + sizeof(float) * 3 + first_wheel_node * sizeof(float) * 3 + free_wheel * sizeof(float);
     if (final_packet_size > 8192)
     {
         ErrorUtils::ShowError(_L("Truck is too big to be send over the net."), _L("Network error!"));
@@ -1871,10 +1875,10 @@ void Beam::sendStreamData()
 
     unsigned int packet_len = 0;
 
-    // oob_t is at the beginning of the buffer
+    // RoRnet::TruckState is at the beginning of the buffer
     {
-        oob_t* send_oob = (oob_t *)send_buffer;
-        packet_len += sizeof(oob_t);
+        RoRnet::TruckState* send_oob = (RoRnet::TruckState *)send_buffer;
+        packet_len += sizeof(RoRnet::TruckState);
 
         send_oob->flagmask = 0;
 
@@ -1958,7 +1962,7 @@ void Beam::sendStreamData()
 
     // then process the contents
     {
-        char* ptr = send_buffer + sizeof(oob_t);
+        char* ptr = send_buffer + sizeof(RoRnet::TruckState);
         float* send_nodes = (float *)ptr;
         packet_len += netbuffersize;
 
@@ -2004,7 +2008,7 @@ void Beam::receiveStreamData(unsigned int type, int source, unsigned int streami
         return;
 
     BES_GFX_START(BES_GFX_receiveStreamData);
-    if (type == MSG2_STREAM_DATA && source == m_source_id && streamid == m_stream_id)
+    if (type == RoRnet::MSG2_STREAM_DATA && source == m_source_id && streamid == m_stream_id)
     {
         pushNetwork(buffer, len);
     }
@@ -4945,7 +4949,7 @@ void Beam::updateNetworkInfo()
 #ifdef USE_SOCKETW
     BES_GFX_START(BES_GFX_updateNetworkInfo);
 
-    user_info_t info;
+    RoRnet::UserInfo info;
 
     if (state == NETWORKED)
     {
@@ -5816,7 +5820,7 @@ Beam::Beam(
         }
     }
 
-    // network buffer layout (without oob_t):
+    // network buffer layout (without RoRnet::TruckState):
     //
     //  - 3 floats (x,y,z) for the reference node 0
     //  - free_node - 1 times 3 short ints (compressed position info)
@@ -5849,9 +5853,9 @@ Beam::Beam(
     {
         state = NETWORKED;
         // malloc memory
-        oob1 = (oob_t*)malloc(sizeof(oob_t));
-        oob2 = (oob_t*)malloc(sizeof(oob_t));
-        oob3 = (oob_t*)malloc(sizeof(oob_t));
+        oob1 = (RoRnet::TruckState*)malloc(sizeof(RoRnet::TruckState));
+        oob2 = (RoRnet::TruckState*)malloc(sizeof(RoRnet::TruckState));
+        oob3 = (RoRnet::TruckState*)malloc(sizeof(RoRnet::TruckState));
         netb1 = (char*)malloc(netbuffersize);
         netb2 = (char*)malloc(netbuffersize);
         netb3 = (char*)malloc(netbuffersize);

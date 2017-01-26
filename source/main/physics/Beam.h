@@ -144,7 +144,7 @@ public:
 
     bool replayStep();
 
-    void updateForceFeedback(int steps);
+    void ForceFeedbackStep(int steps);
     void updateAngelScriptEvents(float dt);
     void updateVideocameras(float dt);
     void handleResetRequests(float dt);
@@ -691,9 +691,9 @@ protected:
 
     std::vector<Ogre::String> m_truck_config;
 
-    oob_t *oob1; //!< Network; Triple buffer for incoming data (truck properties)
-    oob_t *oob2; //!< Network; Triple buffer for incoming data (truck properties)
-    oob_t *oob3; //!< Network; Triple buffer for incoming data (truck properties)
+    RoRnet::TruckState *oob1; //!< Network; Triple buffer for incoming data (truck properties)
+    RoRnet::TruckState *oob2; //!< Network; Triple buffer for incoming data (truck properties)
+    RoRnet::TruckState *oob3; //!< Network; Triple buffer for incoming data (truck properties)
     char *netb1; //!< Network; Triple buffer for incoming data
     char *netb2; //!< Network; Triple buffer for incoming data
     char *netb3; //!< Network; Triple buffer for incoming data

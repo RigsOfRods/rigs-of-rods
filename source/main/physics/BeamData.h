@@ -36,7 +36,7 @@
 
 // The RoR required includes (should be included already)
 #include "RoRPrerequisites.h"
-#include "rornet.h"
+#include "RoRnet.h"
 #include "SlideNode.h"
 #include "BeamConstants.h"
 

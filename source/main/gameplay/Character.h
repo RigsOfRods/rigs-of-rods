@@ -66,6 +66,7 @@ protected:
 
     void createMapEntity();
     void updateNetLabelSize();
+    void ReportError(const char* detail);
 
     Beam* beamCoupling;
     bool isCoupled;
@@ -95,36 +96,6 @@ protected:
     std::deque<Ogre::Vector3> mLastPosition;
 
     void setAnimationMode(Ogre::String mode, float time = 0);
-
-    // network stuff
-    struct header_netdata_t
-    {
-        int command;
-    };
-
-    struct pos_netdata_t
-    {
-        int command;
-        float posx, posy, posz;
-        float rotx, roty, rotz, rotw;
-        char animationMode[256];
-        float animationTime;
-    };
-
-    struct attach_netdata_t
-    {
-        int command;
-        bool enabled;
-        int source_id;
-        int stream_id;
-        int position;
-    };
-
-    enum
-    {
-        CHARCMD_POSITION,
-        CHARCMD_ATTACH
-    };
 
     Ogre::Timer mNetTimer;
 

@@ -46,18 +46,18 @@ CLASS::CLASS()
     MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
     win->setMovable(false);
 
-    m_resume_game->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickResumeButton);
-    m_change_map->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickChangeMapButton);
+    m_resume_game ->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickResumeButton);
+    m_change_map  ->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickChangeMapButton);
     m_back_to_menu->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickBackToMenuButton);
-    m_rig_editor->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickRigEditorButton);
-    m_quit_game->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickQuitButton);
+    m_rig_editor  ->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickRigEditorButton);
+    m_quit_game   ->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickQuitButton);
 
     win->setCaption(_L("Pause"));
-    m_resume_game->setCaption(_L("Resume Game"));
-    m_change_map->setCaption(_L("Change Map"));
+    m_resume_game ->setCaption(_L("Resume Game"));
+    m_change_map  ->setCaption(_L("Change Map"));
     m_back_to_menu->setCaption(_L("Back to menu"));
-    m_rig_editor->setCaption(_L("Rig Editor"));
-    m_quit_game->setCaption(_L("Quit to Desktop"));
+    m_rig_editor  ->setCaption(_L("Rig Editor"));
+    m_quit_game   ->setCaption(_L("Quit to Desktop"));
 
     MAIN_WIDGET->setVisible(false);
     m_rig_editor->setEnabled(false);
@@ -81,14 +81,6 @@ void CLASS::Show()
 {
     MAIN_WIDGET->setVisibleSmooth(true);
 
-    if (gEnv->player && gEnv->player->getVisible() && !gEnv->player->getBeamCoupling())
-    {
-        gEnv->player->setPhysicsEnabled(false);
-    }
-
-    BeamFactory::getSingleton().MuteAllTrucks();
-    App::SetPendingSimState(App::SIM_STATE_PAUSED);
-
     const bool online = RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED;
     m_change_map->setEnabled(!online);
 
@@ -107,18 +99,11 @@ void CLASS::Hide()
     // Quick workaroud: use simple hiding without animation.
     //MAIN_WIDGET->setVisibleSmooth(false);
     MAIN_WIDGET->setVisible(false);
-
-    if (gEnv->player && gEnv->player->getVisible() && !gEnv->player->getBeamCoupling())
-    {
-        gEnv->player->setPhysicsEnabled(true);
-    }
-
-    App::SetActiveSimState(App::SIM_STATE_RUNNING); // TODO: Use the 'pending' mechanism
-    BeamFactory::getSingleton().UnmuteAllTrucks();
 }
 
 void CLASS::eventMouseButtonClickResumeButton(MyGUI::WidgetPtr _sender)
 {
+    App::SetPendingSimState(App::SIM_STATE_RUNNING);
     Hide();
 }
 

@@ -88,7 +88,7 @@ public:
     float getSimulationSpeed() { return m_simulation_speed; };
 
     void removeCurrentTruck();
-    void removeAllTrucks();
+    void CleanUpAllTrucks(); /// Call this after simulation loop finishes.
     void removeTruck(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
     void removeTruck(int truck);
 
@@ -173,7 +173,7 @@ protected:
     */
     bool predictTruckIntersectionCollAABB(int a, int b, float scale = 1.0f);
 
-    int CreateRemoteInstance(stream_register_trucks_t* reg);
+    int CreateRemoteInstance(RoRnet::TruckStreamRegister* reg);
     void RemoveStreamSource(int sourceid);
 
     // A list of streams without a corresponding truck in the truck array for each stream source

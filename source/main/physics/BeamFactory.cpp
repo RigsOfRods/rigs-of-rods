@@ -35,12 +35,13 @@
 #include "GUIManager.h"
 #include "GUI_TopMenubar.h"
 #include "Language.h"
-#include "MainThread.h"
+#include "MainMenu.h"
 #include "Mirrors.h"
 #include "Network.h"
 #include "PointColDetector.h"
 #include "RigLoadingProfiler.h"
 #include "RigLoadingProfilerControl.h"
+#include "RoRFrameListener.h"
 #include "Settings.h"
 #include "SoundScriptManager.h"
 #include "ThreadPool.h"
@@ -277,12 +278,12 @@ Beam* BeamFactory::CreateLocalRigInstance(
 
 #undef LOADRIG_PROFILER_CHECKPOINT
 
-int BeamFactory::CreateRemoteInstance(stream_register_trucks_t* reg)
+int BeamFactory::CreateRemoteInstance(RoRnet::TruckStreamRegister* reg)
 {
     LOG(" new beam truck for " + TOSTRING(reg->origin_sourceid) + ":" + TOSTRING(reg->origin_streamid));
 
 #ifdef USE_SOCKETW
-    user_info_t info;
+    RoRnet::UserInfo info;
     RoR::Networking::GetUserInfo(reg->origin_sourceid, info);
 
     UTFString message = RoR::ChatSystem::GetColouredName(info.username, info.colournum) + RoR::Color::CommandColour + _L(" spawned a new vehicle: ") + RoR::Color::NormalColour + reg->name;
@@ -375,18 +376,18 @@ void BeamFactory::handleStreamData(std::vector<RoR::Networking::recv_packet_t> p
 {
     for (auto packet : packet_buffer)
     {
-        if (packet.header.command == MSG2_STREAM_REGISTER)
+        if (packet.header.command == RoRnet::MSG2_STREAM_REGISTER)
         {
-            stream_register_t* reg = (stream_register_t *)packet.buffer;
+            RoRnet::StreamRegister* reg = (RoRnet::StreamRegister *)packet.buffer;
             if (reg->type == 0)
             {
-                reg->status = this->CreateRemoteInstance((stream_register_trucks_t *)packet.buffer);
-                RoR::Networking::AddPacket(0, MSG2_STREAM_REGISTER_RESULT, sizeof(stream_register_t), (char *)reg);
+                reg->status = this->CreateRemoteInstance((RoRnet::TruckStreamRegister *)packet.buffer);
+                RoR::Networking::AddPacket(0, RoRnet::MSG2_STREAM_REGISTER_RESULT, sizeof(RoRnet::StreamRegister), (char *)reg);
             }
         }
-        else if (packet.header.command == MSG2_STREAM_REGISTER_RESULT)
+        else if (packet.header.command == RoRnet::MSG2_STREAM_REGISTER_RESULT)
         {
-            stream_register_t* reg = (stream_register_t *)packet.buffer;
+            RoRnet::StreamRegister* reg = (RoRnet::StreamRegister *)packet.buffer;
             for (int t = 0; t < m_free_truck; t++)
             {
                 if (!m_trucks[t])
@@ -407,7 +408,7 @@ void BeamFactory::handleStreamData(std::vector<RoR::Networking::recv_packet_t> p
                 }
             }
         }
-        else if (packet.header.command == MSG2_STREAM_UNREGISTER)
+        else if (packet.header.command == RoRnet::MSG2_STREAM_UNREGISTER)
         {
             Beam* b = this->getBeam(packet.header.source, packet.header.streamid);
             if (b && b->state == NETWORKED)
@@ -423,7 +424,7 @@ void BeamFactory::handleStreamData(std::vector<RoR::Networking::recv_packet_t> p
                     mismatches.erase(it);
             }
         }
-        else if (packet.header.command == MSG2_USER_LEAVE)
+        else if (packet.header.command == RoRnet::MSG2_USER_LEAVE)
         {
             this->RemoveStreamSource(packet.header.source);
         }
@@ -792,12 +793,26 @@ void BeamFactory::removeTruck(int truck)
     this->DeleteTruck(m_trucks[truck]);
 }
 
-void BeamFactory::removeAllTrucks()
+void BeamFactory::CleanUpAllTrucks() // Called after simulation finishes
 {
     for (int i = 0; i < m_free_truck; i++)
     {
-        removeTruck(i);
+        if (m_trucks[i] == nullptr)
+            continue; // This is how things currently work (but not for long...) ~ only_a_ptr, 01/2017
+
+        if (m_current_truck == m_trucks[i]->trucknum)
+        {
+            this->setCurrentTruck(-1);
+        }
+        delete m_trucks[i];
+        m_trucks[i] = nullptr;
     }
+    // TEMPORARY: DO !NOT! attempt to reuse slots
+    // Yields bad behavior when player disconnects from game where other players had vehicles spawned
+    // Upon reconnect, vehicles with flexbodies (tested on Gavril MZR) show up badly deformed and twitching.
+    // Vehicles with cabs (tested on Agora L) show up without the cab.
+    // ~only_a_ptr, 01/2017
+    //m_free_truck = 0;
 }
 
 void BeamFactory::DeleteTruck(Beam* b)
@@ -810,7 +825,7 @@ void BeamFactory::DeleteTruck(Beam* b)
 #ifdef USE_SOCKETW
     if (b->networking && b->state != NETWORKED && b->state != INVALID)
     {
-        RoR::Networking::AddPacket(b->m_stream_id, MSG2_STREAM_UNREGISTER, 0, 0);
+        RoR::Networking::AddPacket(b->m_stream_id, RoRnet::MSG2_STREAM_UNREGISTER, 0, 0);
     }
 #endif // USE_SOCKETW
 
@@ -907,23 +922,23 @@ void BeamFactory::setCurrentTruck(int new_truck)
     m_previous_truck = m_current_truck;
     m_current_truck = new_truck;
 
+    auto* frame_listener = RoR::App::GetMainMenu()->GetFrameListener();
+
+    if (m_previous_truck >= 0 && m_current_truck >= 0)
     {
-        if (m_previous_truck >= 0 && m_current_truck >= 0)
-        {
-            RoR::MainThread::ChangedCurrentVehicle(m_trucks[m_previous_truck], m_trucks[m_current_truck]);
-        }
-        else if (m_previous_truck >= 0)
-        {
-            RoR::MainThread::ChangedCurrentVehicle(m_trucks[m_previous_truck], nullptr);
-        }
-        else if (m_current_truck >= 0)
-        {
-            RoR::MainThread::ChangedCurrentVehicle(nullptr, m_trucks[m_current_truck]);
-        }
-        else
-        {
-            RoR::MainThread::ChangedCurrentVehicle(nullptr, nullptr);
-        }
+        frame_listener->ChangedCurrentVehicle(m_trucks[m_previous_truck], m_trucks[m_current_truck]);
+    }
+    else if (m_previous_truck >= 0)
+    {
+        frame_listener->ChangedCurrentVehicle(m_trucks[m_previous_truck], nullptr);
+    }
+    else if (m_current_truck >= 0)
+    {
+        frame_listener->ChangedCurrentVehicle(nullptr, m_trucks[m_current_truck]);
+    }
+    else
+    {
+        frame_listener->ChangedCurrentVehicle(nullptr, nullptr);
     }
 
     this->UpdateSleepingState(0.0f);
@@ -1093,7 +1108,7 @@ void BeamFactory::update(float dt)
         }
         if (!m_trucks[m_simulated_truck]->replayStep())
         {
-            m_trucks[m_simulated_truck]->updateForceFeedback(m_physics_steps);
+            m_trucks[m_simulated_truck]->ForceFeedbackStep(m_physics_steps);
             if (m_sim_thread_pool)
             {
                 auto func = std::function<void()>([this]()

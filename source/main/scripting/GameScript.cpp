@@ -49,7 +49,7 @@
 #include "GUIManager.h"
 #include "IHeightFinder.h"
 #include "Language.h"
-#include "MainThread.h"
+#include "MainMenu.h"
 #include "Network.h"
 #include "RoRFrameListener.h"
 #include "RoRVersion.h"
@@ -107,7 +107,7 @@ void GameScript::setPersonPosition(const Vector3& vec)
 void GameScript::loadTerrain(const String& terrain)
 {
     RoR::App::SetSimNextTerrain(terrain);
-    RoR::App::GetMainThreadLogic()->LoadTerrain();
+    RoR::App::GetMainMenu()->GetFrameListener()->LoadTerrain();
 }
 
 Vector3 GameScript::getPersonPosition()
@@ -272,9 +272,9 @@ void GameScript::message(String& txt, String& icon, float timeMilliseconds, bool
 #endif // USE_MYGUI
 }
 
-void GameScript::setDirectionArrow(String& text, Vector3& vec)
+void GameScript::UpdateDirectionArrow(String& text, Vector3& vec)
 {
-    mse->GetFrameListener()->setDirectionArrow(const_cast<char*>(text.c_str()), Vector3(vec.x, vec.y, vec.z));
+    mse->GetFrameListener()->UpdateDirectionArrow(const_cast<char*>(text.c_str()), Vector3(vec.x, vec.y, vec.z));
 }
 
 int GameScript::getChatFontSize()
@@ -317,7 +317,7 @@ void GameScript::showChooser(const String& type, const String& instance, const S
 
     if (ntype != LT_None)
     {
-        mse->GetFrameListener()->showLoad(ntype, instance, box);
+        mse->GetFrameListener()->ShowLoaderGUI(ntype, instance, box);
     }
 #endif //USE_MYGUI
 }
@@ -375,7 +375,7 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
 
 void GameScript::hideDirectionArrow()
 {
-    mse->GetFrameListener()->setDirectionArrow(0, Vector3::ZERO);
+    mse->GetFrameListener()->UpdateDirectionArrow(0, Vector3::ZERO);
 }
 
 int GameScript::setMaterialAmbient(const String& materialName, float red, float green, float blue)
@@ -648,7 +648,10 @@ static size_t curlWriteMemoryCallback(void* ptr, size_t size, size_t nmemb, void
 
 int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 {
-#ifdef USE_CURL
+    // ### Disabled until new multiplayer portal supports it ##
+
+#if 0 
+//#ifdef USE_CURL
     struct curlMemoryStruct chunk;
 
     chunk.memory = (char *)malloc(1); /* will be grown as needed by the realloc above */
@@ -926,7 +929,7 @@ int GameScript::sendGameCmd(const String& message)
 #ifdef USE_SOCKETW
     if (RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED)
     {
-        RoR::Networking::AddPacket(0, MSG2_GAME_CMD, (int)message.size(), const_cast<char*>(message.c_str()));
+        RoR::Networking::AddPacket(0, RoRnet::MSG2_GAME_CMD, (int)message.size(), const_cast<char*>(message.c_str()));
         return 0;
     }
 #endif // USE_SOCKETW

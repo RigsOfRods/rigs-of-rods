@@ -28,11 +28,11 @@
 #include "RoRPrerequisites.h"
 #include "Utils.h"
 #include "RoRVersion.h"
-#include "rornet.h"
+#include "RoRnet.h"
 #include "Language.h"
 #include "GUIManager.h"
 #include "Application.h"
-#include "MainThread.h"
+#include "MainMenu.h"
 
 #ifdef USE_JSONCPP
 #include "json/json.h"
@@ -53,6 +53,7 @@ namespace GUI {
 
 const MyGUI::Colour status_updating_color(1.f, 0.832031f, 0.f);
 const MyGUI::Colour status_failure_color(1.f, 0.175439f, 0.175439f);
+const MyGUI::Colour status_emptylist_color(0.7f, 0.7f, 0.7f);
 
 #define CLASS        MultiplayerSelector
 #define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
@@ -73,14 +74,15 @@ size_t CurlWriteFunc(void *ptr, size_t size, size_t nmemb, std::string* data) {
 
 #if defined(USE_CURL) && defined(USE_JSONCPP)
 /// Returns JSON in format { "success":bool, "message":str, "data":$response_string }
-Json::Value FetchServerlist()
+Json::Value FetchServerlist(std::string portal_url)
 {
+    std::string serverlist_url = portal_url + "/server-list?json=true";
     std::string response_payload;
     std::string response_header;
     long        response_code = 0;
 
     CURL *curl = curl_easy_init();
-    curl_easy_setopt(curl, CURLOPT_URL,           "http://multiplayer.rigsofrods.org/server-list?json=true");
+    curl_easy_setopt(curl, CURLOPT_URL,           serverlist_url.c_str());
     curl_easy_setopt(curl, CURLOPT_NOPROGRESS,    1L);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlWriteFunc);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA,     &response_payload);
@@ -174,9 +176,9 @@ void CLASS::RefreshServerlist()
     {
         m_serverlist_data = new ServerlistData;
     }
-    std::packaged_task<Json::Value()> task(FetchServerlist);
+    std::packaged_task<Json::Value(std::string)> task(FetchServerlist);
     m_serverlist_data->future_json = task.get_future();
-    std::thread(std::move(task)).detach(); // launch on a thread
+    std::thread(std::move(task), App::GetMpPortalUrl()).detach(); // launch on a thread
 #endif // defined(USE_CURL) && defined(USE_JSONCPP)
 }
 
@@ -226,6 +228,15 @@ void CLASS::CheckAndProcessRefreshResult()
     }
 
     int num_rows = json["data"].size();
+    if (num_rows == 0)
+    {
+        m_status_label->setTextColour(status_emptylist_color);
+        m_status_label->setCaption("There are no available servers :/");
+        m_refresh_button->setEnabled(true);
+        m_is_refreshing = false;
+        return;
+    }
+
     for (int i = 0; i < num_rows; ++i)
     {
         auto row = json["data"][i];
@@ -249,7 +260,7 @@ void CLASS::ServerlistJoin(size_t sel_index)
         Json::Value& json = *m_servers_list->getItemDataAt<Json::Value>(sel_index);
         App::SetMpServerHost(json["ip"].asString());
         App::SetMpServerPort(json["port"].asInt());
-        App::GetMainThreadLogic()->JoinMultiplayerServer();
+        App::GetMainMenu()->JoinMultiplayerServer();
     }
 #endif // USE_JSONCPP
 }
@@ -264,7 +275,7 @@ void CLASS::CallbackJoinDirectBtnPress(MyGUI::WidgetPtr _sender)
     MAIN_WIDGET->setVisibleSmooth(false);
     App::SetMpServerHost(m_entertab_ip_editbox->getCaption().asUTF8());
     App::SetMpServerPort(Ogre::StringConverter::parseInt(m_entertab_port_editbox->getCaption().asUTF8()));
-    App::GetMainThreadLogic()->JoinMultiplayerServer();
+    App::GetMainMenu()->JoinMultiplayerServer();
 }
 
 void CLASS::NotifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name)

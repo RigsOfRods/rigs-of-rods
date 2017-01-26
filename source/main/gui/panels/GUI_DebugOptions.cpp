@@ -29,9 +29,9 @@
 #include "RoRPrerequisites.h"
 #include "Utils.h"
 #include "RoRVersion.h"
-#include "rornet.h"
+#include "RoRnet.h"
 #include "Language.h"
-#include "MainThread.h" //Get MainMenu pointer
+#include "MainMenu.h" //Get MainMenu pointer
 
 #include <MyGUI.h>
 

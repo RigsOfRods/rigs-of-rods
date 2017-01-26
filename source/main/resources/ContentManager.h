@@ -48,8 +48,7 @@ public:
         }
 
         static const ResourcePack OGRE_CORE;
-        static const ResourcePack GUI_MENU_WALLPAPERS;
-        static const ResourcePack GUI_STARTUP_SCREEN;
+        static const ResourcePack WALLPAPERS;
         static const ResourcePack AIRFOILS;
         static const ResourcePack BEAM_OBJECTS;
         static const ResourcePack BLUR;
@@ -91,6 +90,8 @@ public:
     inline RoR::SkinManager* GetSkinManager() const { return m_skin_manager; }
 
     void InitManagedMaterials();
+    void CheckAndLoadBaseResources();
+    void RegenCache();
 
 protected:
 
@@ -104,6 +105,7 @@ protected:
 
     Ogre::uint64 m_loaded_resource_packs;
     RoR::SkinManager* m_skin_manager;
+    bool              m_base_resource_loaded;
 };
 
 } // namespace RoR

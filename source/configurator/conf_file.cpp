@@ -26,7 +26,6 @@
 */
 
 #include "conf_file.h"
-#include "Utils.h" // TODO: The Configurator shouldn't use Client's sources.
 
 #include <Ogre.h>
 
@@ -45,9 +44,19 @@
 #include "PlatformUtils.h"
 #include "RoRVersion.h"
 #include "SHA1.h"
-#include "Utils.h"
+
+#include "utf8/checked.h"
+#include "utf8/unchecked.h"
 
 using namespace Ogre;
+
+std::string SanitizeUtf8String(std::string const& str_in)
+{
+    // Cloned from UTFCPP tutorial: http://utfcpp.sourceforge.net/#fixinvalid
+    std::string str_out;
+    utf8::replace_invalid(str_in.begin(), str_in.end(), std::back_inserter(str_out));
+    return str_out;
+}
 
 bool FileExists(const char *path)
 {
@@ -152,8 +161,8 @@ void Settings::loadSettings(String configFile, bool overwrite)
 	String s_value, s_name;
 	while (i.hasMoreElements())
 	{
-		s_name  = RoR::Utils::SanitizeUtf8String(i.peekNextKey());
-		s_value = RoR::Utils::SanitizeUtf8String(i.getNext());
+		s_name  = SanitizeUtf8String(i.peekNextKey());
+		s_value = SanitizeUtf8String(i.getNext());
 		if (!overwrite && !settings[s_name].empty())
 		{
 			continue;
