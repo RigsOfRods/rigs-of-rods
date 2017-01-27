@@ -95,14 +95,14 @@ void CameraBehaviorVehicleCineCam::activate(const CameraManager::CameraContext &
     current_vehicle->currentcamera = current_vehicle->GetCameraContext()->last_cinecam_index;
     current_vehicle->changedCamera();
 
-    vehicle_cam_context->behavior = RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_VEHICLE_CINECAM;
+    vehicle_cam_context->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_CINECAM;
 }
 
 void CameraBehaviorVehicleCineCam::deactivate(const CameraManager::CameraContext &ctx)
 {
     Beam* current_vehicle = ctx.mCurrTruck;
     if ( current_vehicle == nullptr 
-        || current_vehicle->GetCameraContext()->behavior != RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_VEHICLE_CINECAM )
+        || current_vehicle->GetCameraContext()->behavior != RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_CINECAM )
     {
         return;
     }

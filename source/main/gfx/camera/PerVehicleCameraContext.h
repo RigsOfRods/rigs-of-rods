@@ -6,21 +6,22 @@ namespace RoR
 
 struct PerVehicleCameraContext
 {
-    enum CameraBehavior
+    enum CameraCtxBehavior
     {
-        CAMERA_BEHAVIOR_EXTERNAL,
-        CAMERA_BEHAVIOR_VEHICLE_3rdPERSON,
-        CAMERA_BEHAVIOR_VEHICLE_SPLINE,
-        CAMERA_BEHAVIOR_VEHICLE_CINECAM
+        CAMCTX_BEHAVIOR_INVALID,
+        CAMCTX_BEHAVIOR_EXTERNAL,
+        CAMCTX_BEHAVIOR_VEHICLE_3rdPERSON,
+        CAMCTX_BEHAVIOR_VEHICLE_SPLINE,
+        CAMCTX_BEHAVIOR_VEHICLE_CINECAM
     };
 
     PerVehicleCameraContext():
         last_cinecam_index(0),
-        behavior(CAMERA_BEHAVIOR_EXTERNAL)
+        behavior(CAMCTX_BEHAVIOR_EXTERNAL)
     {}
 
     int                last_cinecam_index;
-    CameraBehavior     behavior;
+    CameraCtxBehavior  behavior;
 };
 
 } // namespace RoR

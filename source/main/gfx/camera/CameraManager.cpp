@@ -157,7 +157,7 @@ void CameraManager::switchBehavior(int newBehaviorID, bool reset)
     // activate new
     if (ctx.mCurrTruck != nullptr)
     {
-        ctx.mCurrTruck->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_EXTERNAL;
+        ctx.mCurrTruck->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_EXTERNAL;
     }
     currentBehavior->activate(ctx, reset);
 }
@@ -307,15 +307,15 @@ void CameraManager::NotifyVehicleChanged(Beam* old_vehicle, Beam* new_vehicle)
         // Change camera
         switch (new_vehicle->GetCameraContext()->behavior)
         {
-        case RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_VEHICLE_3rdPERSON:
+        case RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_3rdPERSON:
             this->SwitchBehaviorOnVehicleChange(CAMERA_BEHAVIOR_VEHICLE, true, old_vehicle, new_vehicle);
             break;
 
-        case RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_VEHICLE_SPLINE:
+        case RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_SPLINE:
             this->SwitchBehaviorOnVehicleChange(CAMERA_BEHAVIOR_VEHICLE_SPLINE, true, old_vehicle, new_vehicle);
             break;
 
-        case RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_VEHICLE_CINECAM:
+        case RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_CINECAM:
             this->SwitchBehaviorOnVehicleChange(CAMERA_BEHAVIOR_VEHICLE_CINECAM, true, old_vehicle, new_vehicle);
             break;
 

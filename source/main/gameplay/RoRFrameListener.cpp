@@ -543,7 +543,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
             // save the settings
             if (gEnv->cameraManager &&
                 gEnv->cameraManager->hasActiveBehavior() &&
-                gEnv->cameraManager->getCurrentBehavior() == RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
+                gEnv->cameraManager->getCurrentBehavior() == RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_CINECAM)
             {
                 App::SetGfxFovInternal(fov);
             }
@@ -1937,7 +1937,7 @@ void RoRFrameListener::HideGUI(bool hidden)
         if (curr_truck
             && gEnv->cameraManager
             && gEnv->cameraManager->hasActiveBehavior()
-            && gEnv->cameraManager->getCurrentBehavior() != RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
+            && gEnv->cameraManager->getCurrentBehavior() != RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_CINECAM)
         {
             if (RoR::App::GetOverlayWrapper())
                 RoR::App::GetOverlayWrapper()->showDashboardOverlays(true, curr_truck);
