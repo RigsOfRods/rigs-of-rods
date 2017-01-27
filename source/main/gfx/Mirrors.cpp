@@ -28,22 +28,20 @@
 #include <OgreSubsystem.h>
 
 using namespace Ogre;
+using namespace RoR;
 
-namespace RoR {
-namespace Mirrors {
+LegacyRearViewMirrors::LegacyRearViewMirrors():
+    m_is_initialized(false),
+    m_is_enabled(false),
+    m_mirror_camera(nullptr),
+    m_rtt_target(nullptr)
+{}
 
-static bool mInitialized = false;
-static bool mEnabled = false;
-static Camera* mMirrorCam = nullptr;
-static RenderTexture* mRttTex = nullptr;
-static MaterialPtr mMat;
-
-void Init()
+void LegacyRearViewMirrors::Init(Ogre::SceneManager* scene_mgr, Ogre::Camera* main_cam)
 {
-    if (mInitialized)
-        return;
+    assert(!m_is_initialized); // double init
 
-    TexturePtr rttTexPtr = TextureManager::getSingleton().createManual("mirrortexture"
+    m_texture = TextureManager::getSingleton().createManual("mirrortexture"
         , ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
         , TEX_TYPE_2D
         , 128
@@ -52,45 +50,56 @@ void Init()
         , PF_R8G8B8
         , TU_RENDERTARGET);
 
-    mRttTex = rttTexPtr->getBuffer()->getRenderTarget();
-    mRttTex->setActive(false);
+    m_rtt_target = m_texture->getBuffer()->getRenderTarget();
+    m_rtt_target->setActive(false);
 
-    mMirrorCam = gEnv->sceneManager->createCamera("MirrorCam");
-    mMirrorCam->setNearClipDistance(0.2f);
-    mMirrorCam->setFarClipDistance(gEnv->mainCamera->getFarClipDistance());
-    mMirrorCam->setFOVy(Degree(50));
-    mMirrorCam->setAspectRatio(
-    ((Real)RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualWidth() /
-        (Real)RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualHeight()) / 2.0f);
+    m_mirror_camera = scene_mgr->createCamera("MirrorCam");
+    m_mirror_camera->setNearClipDistance(0.2f);
+    m_mirror_camera->setFarClipDistance(main_cam->getFarClipDistance());
+    m_mirror_camera->setFOVy(Degree(50));
+    m_mirror_camera->setAspectRatio((main_cam->getViewport()->getActualWidth() / main_cam->getViewport()->getActualHeight()) / 2.0f);
 
-    Viewport* v = mRttTex->addViewport(mMirrorCam);
+    Viewport* v = m_rtt_target->addViewport(m_mirror_camera);
     v->setClearEveryFrame(true);
-    v->setBackgroundColour(gEnv->mainCamera->getViewport()->getBackgroundColour());
+    v->setBackgroundColour(main_cam->getViewport()->getBackgroundColour());
     v->setOverlaysEnabled(false);
 
-    mMat = MaterialManager::getSingleton().getByName("mirror");
-    mMat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName("mirror.dds");
-    mMat->getTechnique(0)->getPass(0)->setLightingEnabled(false);
+    m_material = MaterialManager::getSingleton().getByName("mirror");
+    m_material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName("mirror.dds");
+    m_material->getTechnique(0)->getPass(0)->setLightingEnabled(false);
 
-    mInitialized = true;
+    m_is_initialized = true;
 }
 
-void SetActive(bool state)
+void LegacyRearViewMirrors::Shutdown(Ogre::SceneManager* scene_mgr)
 {
-    if (mEnabled == state)
+    // DO NOT: Ogre::MaterialManager::getSingleton().remove(m_material->getHandle()); // Must be kept global, vehicles reference it directly
+    m_material.setNull();
+    m_rtt_target = nullptr;
+    TextureManager::getSingleton().remove(m_texture->getHandle());
+    m_texture.setNull();
+    scene_mgr->destroyCamera(m_mirror_camera);
+    m_mirror_camera = nullptr;
+    m_is_initialized = false;
+}
+
+void LegacyRearViewMirrors::SetActive(bool state)
+{
+    if (m_is_enabled == state)
         return;
 
-    mEnabled = state;
-    mRttTex->setActive(state);
+    m_is_enabled = state;
+    m_rtt_target->setActive(state);
     if (state)
-        mMat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName("mirrortexture");
+        m_material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName("mirrortexture");
     else
-        mMat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName("mirror.dds");
+        m_material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName("mirror.dds");
 }
 
-void Update(Beam* truck)
+void LegacyRearViewMirrors::Update(Beam* truck, Ogre::Vector3 main_cam_pos, 
+    Ogre::Vector3 main_cam_dir, Ogre::Radian main_cam_fov_y, float main_cam_aspect_ratio)
 {
-    if (!truck || !mEnabled)
+    if (!truck || !m_is_enabled)
     {
         SetActive(false);
         return;
@@ -104,8 +113,8 @@ void Update(Beam* truck)
     {
         if (truck->props[i].mirror != 0)
         {
-            Vector3 dist = truck->props[i].scene_node->getPosition() - gEnv->mainCamera->getPosition();
-            if (dist.directionEquals(gEnv->mainCamera->getDirection(), gEnv->mainCamera->getFOVy() * gEnv->mainCamera->getAspectRatio() / 1.2f))
+            Vector3 dist = truck->props[i].scene_node->getPosition() - main_cam_pos;
+            if (dist.directionEquals(main_cam_dir, main_cam_fov_y * main_cam_aspect_ratio / 1.2f))
             {
                 float fdist = dist.length();
                 if (fdist < minDist)
@@ -139,12 +148,9 @@ void Update(Beam* truck)
     }
 
     Plane plane = Plane(normal, center);
-    Vector3 project = plane.projectVector(gEnv->mainCamera->getPosition() - center);
+    Vector3 project = plane.projectVector(main_cam_pos - center);
 
-    mMirrorCam->setPosition(center);
-    mMirrorCam->lookAt(gEnv->mainCamera->getPosition() - 2.0f * project);
-    mMirrorCam->roll(roll);
+    m_mirror_camera->setPosition(center);
+    m_mirror_camera->lookAt(main_cam_pos - 2.0f * project);
+    m_mirror_camera->roll(roll);
 }
-
-} // namespace Mirrors
-} // namespace RoR

@@ -68,6 +68,7 @@
 #include "Replay.h"
 #include "RigLoadingProfiler.h"
 #include "RigSpawner.h"
+#include "RoRFrameListener.h"
 #include "ScrewProp.h"
 #include "Scripting.h"
 #include "Settings.h"
@@ -2991,7 +2992,7 @@ void Beam::prepareInside(bool inside)
         SetPropsCastShadows(!inside);
     }
 
-    RoR::Mirrors::SetActive(inside);
+    m_sim_controller->GetLegacyMirrors()->SetActive(inside);
 }
 
 void Beam::lightsToggle()
@@ -5721,6 +5722,7 @@ Beam::Beam(
     , totalmass(0)
     , watercontact(false)
     , watercontactold(false)
+    , m_sim_controller(nullptr)
 {
     high_res_wheelnode_collisions = BSETTING("HighResWheelNodeCollisions", false);
     useSkidmarks = RoR::App::GetGfxSkidmarksMode() == 1;

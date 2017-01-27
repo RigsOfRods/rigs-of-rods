@@ -2029,6 +2029,7 @@ void RoRFrameListener::ChangedCurrentVehicle(Beam* previous_vehicle, Beam* curre
         if (previous_vehicle && gEnv->player)
         {
             previous_vehicle->prepareInside(false);
+            m_legacy_mirrors.SetActive(false);
 
             // get player out of the vehicle
             float rotation = previous_vehicle->getRotation() - Math::HALF_PI;
@@ -2215,6 +2216,7 @@ void RoRFrameListener::CleanupAfterSimulation()
     RoR::App::GetGuiManager()->GetMainSelector()->Reset();
 
     this->StopRaceTimer();
+    m_legacy_mirrors.Shutdown(gEnv->sceneManager);
 
     RoR::App::DestroyOverlayWrapper();
 
@@ -2443,7 +2445,7 @@ bool RoRFrameListener::SetupGameplayLoop()
 void RoRFrameListener::EnterGameplayLoop()
 {
     /* SETUP */
-    RoR::Mirrors::Init();
+    m_legacy_mirrors.Init(gEnv->sceneManager, gEnv->mainCamera);
 
     App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(this);
     RoRWindowEventUtilities::addWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);

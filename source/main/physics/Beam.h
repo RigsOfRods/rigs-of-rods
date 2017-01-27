@@ -578,6 +578,8 @@ public:
 
     void UpdatePropAnimations(const float dt);
 
+    void SetSimController(RoRFrameListener* sim) { m_sim_controller = sim; }
+
 protected:
 
     /**
@@ -661,6 +663,7 @@ protected:
     float stabsleep;
     Replay *replay;
     PositionStorage *posStorage;
+    RoRFrameListener* m_sim_controller; // Temporary ~ only_a_ptr, 01/2017
 
     RoR::PerVehicleCameraContext m_camera_context;
 

@@ -275,6 +275,7 @@ Beam* BeamFactory::CreateLocalRigInstance(
     std::string out_path = RoR::App::GetSysUserDir() + PATH_SLASH + "profiler" + PATH_SLASH + ROR_PROFILE_RIG_LOADING_OUTFILE;
     ::Profiler::DumpHtml(out_path.c_str());
 #endif
+    b->SetSimController(m_sim_controller);
     return b;
 }
 
@@ -800,13 +801,13 @@ void BeamFactory::CleanUpAllTrucks() // Called after simulation finishes
         if (m_trucks[i] == nullptr)
             continue; // This is how things currently work (but not for long...) ~ only_a_ptr, 01/2017
 
-        if (m_current_truck == m_trucks[i]->trucknum)
-        {
-            this->setCurrentTruck(-1);
-        }
         delete m_trucks[i];
         m_trucks[i] = nullptr;
     }
+
+    // Reset to empty value. Do NOT call `setCurrentTruck(-1)` - performs updates which are invalid at this point
+    m_current_truck = -1;
+
     // TEMPORARY: DO !NOT! attempt to reuse slots
     // Yields bad behavior when player disconnects from game where other players had vehicles spawned
     // Upon reconnect, vehicles with flexbodies (tested on Gavril MZR) show up badly deformed and twitching.
@@ -1013,7 +1014,9 @@ void BeamFactory::updateVisual(float dt)
         }
     }
 
-    RoR::Mirrors::Update(getCurrentTruck());
+    m_sim_controller->GetLegacyMirrors()->Update(getCurrentTruck(),
+        gEnv->mainCamera->getPosition(), gEnv->mainCamera->getDirection(), // Temporary mess ~ only_a_ptr. 01/2017
+        gEnv->mainCamera->getFOVy(), gEnv->mainCamera->getAspectRatio());  // Temporary mess
 }
 
 void BeamFactory::update(float dt)

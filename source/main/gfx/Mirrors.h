@@ -2,6 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
+    Copyright 2017+     Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -20,17 +21,35 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "ForwardDeclarations.h"
+
+#include <OgreMaterial.h>
+#include <OgreTexture.h>
 
 namespace RoR {
-namespace Mirrors {
 
-void Init();
+/// Uses a single Render-to-Texture target to display 
+/// one of vehicle's rear view mirrors - the one closest in the FOV
+class LegacyRearViewMirrors
+{
+public:
+     LegacyRearViewMirrors();
+    ~LegacyRearViewMirrors() { assert(!m_is_initialized); } /// MUST call Shutdown() first!
 
-void Update(Beam* truck);
+    void Init        (Ogre::SceneManager* scene_mgr, Ogre::Camera* main_cam);
+    void Update      (Beam* truck, Ogre::Vector3 main_cam_pos, Ogre::Vector3 main_cam_dir, Ogre::Radian cam_fov_y, float cam_aspect_ratio);
+    void SetActive   (bool state);
+    void Shutdown    (Ogre::SceneManager* scene_mgr);
 
-void SetActive(bool state);
+private:
+    Ogre::Camera*        m_mirror_camera;
+    Ogre::RenderTexture* m_rtt_target;
+    Ogre::MaterialPtr    m_material;
+    Ogre::TexturePtr     m_texture;
+    // Flags
+    bool                 m_is_initialized: 1;
+    bool                 m_is_enabled: 1;
+};
 
-} // namespace Mirrors
 } // namespace RoR
 
