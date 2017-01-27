@@ -178,33 +178,6 @@ protected:
     int CreateRemoteInstance(RoRnet::TruckStreamRegister* reg);
     void RemoveStreamSource(int sourceid);
 
-    // A list of streams without a corresponding truck in the truck array for each stream source
-    std::map<int, std::vector<int>> m_stream_mismatches;
-
-    std::unique_ptr<ThreadPool> m_sim_thread_pool;
-    std::shared_ptr<Task> m_sim_task;
-
-    int m_num_cpu_cores;
-
-    Beam* m_trucks[MAX_TRUCKS];
-    int m_free_truck;
-    int m_previous_truck;
-    int m_current_truck;
-    int m_simulated_truck;
-
-    bool m_forced_active; // disables sleepcount
-
-    unsigned long m_physics_frames;
-    int m_physics_steps;
-
-    // Keeps track of the rounding error in the time step calculation
-    float m_dt_remainder;
-
-    float m_simulation_speed; // slow motion < 1.0 < fast motion
-
-    DustManager m_particle_manager;
-    RoRFrameListener* m_sim_controller;
-
     void LogParserMessages();
     void LogSpawnerMessages();
 
@@ -217,4 +190,25 @@ protected:
     int FindTruckInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
 
     void DeleteTruck(Beam* b);
+
+    // ---------- variables ---------- //
+
+    /// Networking: A list of streams without a corresponding truck in the truck array for each stream source
+    std::map<int, std::vector<int>> m_stream_mismatches;
+    std::unique_ptr<ThreadPool>     m_sim_thread_pool;
+    std::shared_ptr<Task>           m_sim_task;
+    RoRFrameListener*               m_sim_controller;
+
+    int             m_num_cpu_cores;
+    Beam*           m_trucks[MAX_TRUCKS];
+    int             m_free_truck;
+    int             m_previous_truck;
+    int             m_current_truck;
+    int             m_simulated_truck;
+    bool            m_forced_active; // disables sleepcount
+    unsigned long   m_physics_frames;
+    int             m_physics_steps;
+    float           m_dt_remainder;     ///< Keeps track of the rounding error in the time step calculation
+    float           m_simulation_speed; ///< slow motion < 1.0 < fast motion
+    DustManager     m_particle_manager;
 };
