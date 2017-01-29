@@ -81,7 +81,15 @@ CameraManager::~CameraManager()
     delete ctx.mDof;
 }
 
-bool CameraManager::update(float dt) // Called every frame
+void CameraManager::SetSimController(RoRFrameListener* sim)
+{
+    if (ctx.mDof != nullptr)
+    {
+        ctx.mDof->SetSimController(sim);
+    }
+}
+
+bool CameraManager::Update(float dt, Beam* cur_truck, float sim_speed) // Called every frame
 {
     if (RoR::App::GetActiveSimState() == RoR::App::SIM_STATE_PAUSED) { return true; } // Do nothing when paused
 
@@ -90,7 +98,8 @@ bool CameraManager::update(float dt) // Called every frame
     mTransScale = mTransSpeed  * dt;
     mRotScale   = mRotateSpeed * dt;
 
-    ctx.mCurrTruck  = BeamFactory::getSingleton().getCurrentTruck();
+    ctx.mCurrTruck  = cur_truck;
+    ctx.mSimSpeed   = sim_speed;
     ctx.mDt         = dt;
     ctx.mRotScale   = Degree(mRotScale);
     ctx.mTransScale = mTransScale;

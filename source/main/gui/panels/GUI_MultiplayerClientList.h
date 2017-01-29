@@ -53,6 +53,8 @@ public:
     bool IsVisible();
     void SetVisible(bool value);
 
+    void SetSimController(RoRFrameListener* sim) { m_sim_controller = sim; }
+
 protected:
 
     struct player_row_t
@@ -83,6 +85,7 @@ protected:
 
     client_t* clients;
     int lineheight;
+    RoRFrameListener* m_sim_controller;
 
     static const int sidebarWidth = 250;
 };

@@ -218,7 +218,6 @@ set( SOURCE_FILES
   utils/FileSystemInfo.h
   utils/ForceFeedback.{h,cpp}
   utils/IBehavior.h
-  utils/IBehaviorManager.h
   utils/ImprovedConfigFile.h
   utils/InputEngine.{h,cpp}
   utils/InterThreadStoreVector.h

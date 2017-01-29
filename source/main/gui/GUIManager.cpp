@@ -246,14 +246,19 @@ void GUIManager::HideNotification()
     m_impl->panel_SimUtils.HideNotificationBox();
 }
 
+void GUIManager::SetSimController(RoRFrameListener* sim)
+{
+    m_impl->panel_TopMenubar        .SetSimController(sim);
+    m_impl->panel_GameConsole       .SetSimController(sim);
+    m_impl->panel_MpClientList      .SetSimController(sim);
+    m_impl->panel_VehicleDescription.SetSimController(sim);
+}
+
 void GUIManager::windowResized(Ogre::RenderWindow* rw)
 {
     int width = (int)rw->getWidth();
     int height = (int)rw->getHeight();
     setInputViewSize(width, height);
-
-    BeamFactory *bf = BeamFactory::getSingletonPtr();
-    if (bf) bf->windowResized();
 
     this->AdjustMainMenuPosition();
 }

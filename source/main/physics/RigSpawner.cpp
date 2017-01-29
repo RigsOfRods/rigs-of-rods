@@ -61,6 +61,7 @@
 #include "MeshObject.h"
 #include "PointColDetector.h"
 #include "RigLoadingProfilerControl.h"
+#include "RoRFrameListener.h"
 #include "ScrewProp.h"
 #include "Settings.h"
 #include "Skin.h"
@@ -425,7 +426,7 @@ void RigSpawner::InitializeRig()
     m_rig->submesh_ground_model = gEnv->collisions->defaultgm;
     m_rig->cparticle_enabled = App::GetGfxParticlesMode() == 1;
 
-    DustManager& dustman = BeamFactory::getSingleton().GetParticleManager();
+    DustManager& dustman = m_sim_controller->GetBeamFactory()->GetParticleManager();
     m_rig->dustp   = dustman.getDustPool("dust");
     m_rig->dripp   = dustman.getDustPool("drip");
     m_rig->sparksp = dustman.getDustPool("sparks");
@@ -831,6 +832,7 @@ void RigSpawner::ProcessScrewprop(RigDef::Screwprop & def)
     int top_node_idx = GetNodeIndexOrThrow(def.top_node);
 
     m_rig->screwprops[m_rig->free_screwprop] = new Screwprop(
+        &m_sim_controller->GetBeamFactory()->GetParticleManager(),
         m_rig->nodes,
         ref_node_idx,
         back_node_idx,
@@ -1606,66 +1608,53 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
             return;
         }
 
+        bool mk_buoyance = false;
+
         m_rig->cabs[m_rig->free_cab*3]=GetNodeIndexOrThrow(cab_itor->nodes[0]); //id1;
         m_rig->cabs[m_rig->free_cab*3+1]=GetNodeIndexOrThrow(cab_itor->nodes[1]);//id2;
         m_rig->cabs[m_rig->free_cab*3+2]=GetNodeIndexOrThrow(cab_itor->nodes[2]);//id3;
 
-        //if (type=='c') 
         if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_c_CONTACT))
         {
             m_rig->collcabs[m_rig->free_collcab]=m_rig->free_cab; 
             m_rig->collcabstype[m_rig->free_collcab]=0; 
             m_rig->free_collcab++;
         }
-        //if (type=='p') 
         if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_p_10xTOUGHER))
         {
             m_rig->collcabs[m_rig->free_collcab]=m_rig->free_cab; 
             m_rig->collcabstype[m_rig->free_collcab]=1; 
             m_rig->free_collcab++;
         }
-        //if (type=='u') 
         if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_u_INVULNERABLE))
         {
             m_rig->collcabs[m_rig->free_collcab]=m_rig->free_cab; 
             m_rig->collcabstype[m_rig->free_collcab]=2; 
             m_rig->free_collcab++;
         }
-        //if (type=='b')
         if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_b_BUOYANT))
         {
             m_rig->buoycabs[m_rig->free_buoycab]=m_rig->free_cab; 
             m_rig->collcabstype[m_rig->free_collcab]=0; 
             m_rig->buoycabtypes[m_rig->free_buoycab]=Buoyance::BUOY_NORMAL; 
             m_rig->free_buoycab++;   
-            if (m_rig->buoyance == nullptr)
-            {
-                m_rig->buoyance=new Buoyance();
-            }
+            mk_buoyance = true;
         }
-        //if (type=='r')
         if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_r_BUOYANT_ONLY_DRAG))
         {
             m_rig->buoycabs[m_rig->free_buoycab]=m_rig->free_cab; 
             m_rig->collcabstype[m_rig->free_collcab]=0; 
             m_rig->buoycabtypes[m_rig->free_buoycab]=Buoyance::BUOY_DRAGONLY; 
             m_rig->free_buoycab++; 
-            if (m_rig->buoyance == nullptr)
-            {
-                m_rig->buoyance=new Buoyance();
-            }
+            mk_buoyance = true;
         }
-        //if (type=='s') 
         if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_s_BUOYANT_NO_DRAG))
         {
             m_rig->buoycabs[m_rig->free_buoycab]=m_rig->free_cab; 
             m_rig->collcabstype[m_rig->free_collcab]=0; 
             m_rig->buoycabtypes[m_rig->free_buoycab]=Buoyance::BUOY_DRAGLESS; 
             m_rig->free_buoycab++; 
-            if (m_rig->buoyance == nullptr)
-            {
-                m_rig->buoyance=new Buoyance();
-            }
+            mk_buoyance = true;
         }
 
         int collcabs_type = -1;
@@ -1707,10 +1696,13 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
             m_rig->buoycabs[m_rig->free_buoycab]=m_rig->free_cab; 
             m_rig->buoycabtypes[m_rig->free_buoycab]=Buoyance::BUOY_NORMAL; 
             m_rig->free_buoycab++; 
-            if (m_rig->buoyance == nullptr)
-            {
-                m_rig->buoyance=new Buoyance();
-            }
+            mk_buoyance = true;
+        }
+
+        if (mk_buoyance && (m_rig->buoyance == nullptr))
+        {
+            auto& dustman = m_sim_controller->GetBeamFactory()->GetParticleManager();
+            m_rig->buoyance=new Buoyance(dustman.getDustPool("splash"), dustman.getDustPool("ripple"));
         }
         m_rig->free_cab++;
     }
@@ -5756,7 +5748,7 @@ void RigSpawner::ProcessEngine(RigDef::Engine & def)
         def.torque,
         gears_compat,
         def.global_gear_ratio,
-        m_rig->trucknum
+        m_rig
     );
 
     m_rig->engine->setAutoMode(App::GetSimGearboxMode());

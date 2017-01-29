@@ -35,14 +35,14 @@
 
 class ThreadPool;
 
-/**
-* Builds and manages vehicles; Manages multithreading.
-*/
-class BeamFactory : public RoRSingleton<BeamFactory>, public ZeroedMemoryAllocator
+namespace RoR {
+
+/// Builds and manages softbody actors; Manages multithreading.
+class BeamFactory
 {
 public:
 
-    BeamFactory();
+    BeamFactory(RoRFrameListener* sim_controller);
     ~BeamFactory();
 
     /**
@@ -146,8 +146,6 @@ public:
     // A list of all beams interconnecting two trucks
     std::map<beam_t*, std::pair<Beam*, Beam*>> interTruckLinks;
 
-    void SetSimController(RoRFrameListener* sim) { m_sim_controller = sim; }
-
 protected:
 
     /** 
@@ -212,3 +210,5 @@ protected:
     float           m_simulation_speed; ///< slow motion < 1.0 < fast motion
     DustManager     m_particle_manager;
 };
+
+} // namespace RoR

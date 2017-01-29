@@ -29,7 +29,7 @@
 
 using namespace Ogre;
 
-Screwprop::Screwprop(node_t* nodes, int noderef, int nodeback, int nodeup, float fullpower, int trucknum) :
+Screwprop::Screwprop(DustManager* dustman, node_t* nodes, int noderef, int nodeback, int nodeup, float fullpower, int trucknum) :
     nodes(nodes)
     , noderef(noderef)
     , nodeback(nodeback)
@@ -37,9 +37,8 @@ Screwprop::Screwprop(node_t* nodes, int noderef, int nodeback, int nodeup, float
     , fullpower(fullpower)
     , trucknum(trucknum)
 {
-    auto dustman = BeamFactory::getSingleton().GetParticleManager();
-    splashp = dustman.getDustPool("splash");
-    ripplep = dustman.getDustPool("ripple");
+    splashp = dustman->getDustPool("splash");
+    ripplep = dustman->getDustPool("ripple");
     reset();
 }
 

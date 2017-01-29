@@ -80,7 +80,7 @@ void Disconnect();
 void AddPacket(int streamid, int type, int len, char *content);
 void AddLocalStream(RoRnet::StreamRegister *reg, int size);
 
-void HandleStreamData();
+std::vector<recv_packet_t> GetIncomingStreamData();
 
 int GetUID();
 int GetNetQuality();

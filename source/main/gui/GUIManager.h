@@ -131,6 +131,8 @@ public:
 
     static Ogre::String getRandomWallpaperImage();
 
+    void SetSimController(RoRFrameListener* sim);
+
 private:
 
     bool create();

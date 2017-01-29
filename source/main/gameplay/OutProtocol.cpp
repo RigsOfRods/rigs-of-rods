@@ -110,7 +110,7 @@ void OutProtocol::startup()
 #endif // _WIN32
 }
 
-bool OutProtocol::update(float dt)
+bool OutProtocol::Update(float dt, Beam* truck)
 {
 #if defined(_WIN32) && defined(USE_SOCKETW)
     if (!working)
@@ -136,7 +136,6 @@ bool OutProtocol::update(float dt)
     gd.Flags = 0 | OG_KM;
     sprintf(gd.Car, "RoR");
 
-    Beam* truck = BeamFactory::getSingleton().getCurrentTruck();
     if (!truck)
     {
         // not in a truck?

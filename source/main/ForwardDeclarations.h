@@ -30,6 +30,7 @@
 
 namespace RoR
 {
+    class  BeamFactory;
     class  ContentManager;
     class  GUIManager;
     struct GuiManagerImpl;
@@ -115,7 +116,6 @@ class Autopilot;
 class Axle;
 class Beam;
 class BeamEngine;
-class BeamFactory;
 class BeamThreadStats;
 class Buoyance;
 class CacheEntry;
@@ -132,6 +132,7 @@ class DashBoardManager;
 class DOFManager;
 class DotSceneLoader;
 class DustPool;
+class DustManager;
 class Editor;
 class Envmap;
 class Flexable;

@@ -33,6 +33,7 @@
 #include "Utils.h"
 #include "RoRnet.h"
 #include "Language.h"
+#include "RoRFrameListener.h"
 
 #include <MyGUI.h>
 
@@ -42,7 +43,8 @@ using namespace GUI;
 #define CLASS        VehicleDescription
 #define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
 
-CLASS::CLASS()
+CLASS::CLASS():
+    m_sim_controller(nullptr)
 {
     MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
     win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::notifyWindowButtonPressed); //The "X" button thing
@@ -58,7 +60,7 @@ CLASS::~CLASS()
 
 void CLASS::LoadText()
 {
-    Beam* currTruck = BeamFactory::getSingleton().getCurrentTruck();
+    Beam* currTruck = m_sim_controller->GetBeamFactory()->getCurrentTruck();
 
     if (currTruck == nullptr)
         return;

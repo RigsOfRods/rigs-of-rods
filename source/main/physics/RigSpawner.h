@@ -92,7 +92,9 @@ public:
 
     };
 
-    void Setup( 
+    RigSpawner(RoRFrameListener* sim): m_sim_controller(sim) {}
+
+    void Setup(
         Beam *rig,
         std::shared_ptr<RigDef::File> file,
         Ogre::SceneNode *parent,
@@ -1025,4 +1027,5 @@ protected:
     int   m_first_wing_index;
 
     RoR::FlexFactory m_flex_factory;
+    RoRFrameListener* m_sim_controller;
 };

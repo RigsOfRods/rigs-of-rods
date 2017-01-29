@@ -125,6 +125,7 @@ public:
     void setLensFOV(Ogre::Radian fov);
     void setZoom(float f);
     void zoomView(float delta);
+    void SetSimController(RoRFrameListener* sim) { m_sim_controller = sim; }
 
 protected:
 
@@ -132,6 +133,7 @@ protected:
 
     void cleanup();
 
+    RoRFrameListener* m_sim_controller;
     DepthOfFieldEffect* mDepthOfFieldEffect;
     FocusMode mFocusMode;
     Lens* mLens;

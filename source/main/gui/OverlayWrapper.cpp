@@ -50,6 +50,7 @@
 #include "IHeightFinder.h"
 #include "Language.h"
 #include "OgreSubsystem.h"
+#include "RoRFrameListener.h"
 #include "RoRVersion.h"
 #include "ScrewProp.h"
 #include "SoundScriptManager.h"
@@ -611,8 +612,8 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
         return false;
     bool res = false;
     const OIS::MouseState ms = _arg.state;
-    //Beam **trucks = BeamFactory::getSingleton().getTrucks();
-    Beam* curr_truck = BeamFactory::getSingleton().getCurrentTruck();
+    
+    Beam* curr_truck = m_sim_controller->GetBeamFactory()->getCurrentTruck();
 
     if (!curr_truck)
         return res;

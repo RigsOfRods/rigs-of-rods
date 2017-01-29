@@ -65,7 +65,7 @@ FlexFactory::FlexFactory(
 FlexBody* FlexFactory::CreateFlexBody(
     const int num_nodes_in_rig, 
     const char* mesh_name, 
-    const char* mesh_unique_name, 
+    const char* mesh_unique_name, // not really unique since BeamFactory was de-globalized ~ only_a_ptr, 03/2017
     const int ref_node, 
     const int x_node, 
     const int y_node, 
@@ -83,12 +83,21 @@ FlexBody* FlexFactory::CreateFlexBody(
         m_flexbody_cache_next_index++;
     }
     assert(m_rig_nodes_ptr != nullptr);
+
+    // HACK: Create a process-unique mesh instance every time, do not reuse.
+    // This is how it "worked before": BeamFactory wasn't global -> trucknums were process-unique -> meshnames containing it were unique.
+    // For unknown reason, re-using instances crashes at `VertexData::reorganiseBuffers()` ~ tested on Win7 / GeForce GTX 660 / OGRE 1.9 (DirectX + OpenGL)
+    // Since OGRE 2.1 migration will happen soon enough, I'm settling for this workaround ~ only_a_ptr, 03/2017
+    static int stamp_counter = 0;
+    char stamped_meshname[500];
+    snprintf(stamped_meshname, 500, "%x^%s", stamp_counter++, mesh_unique_name);
+
     FlexBody* new_flexbody = new FlexBody(
         from_cache,
         m_rig_nodes_ptr,
         num_nodes_in_rig,
         mesh_name,
-        mesh_unique_name,
+        stamped_meshname,
         ref_node,
         x_node,
         y_node,

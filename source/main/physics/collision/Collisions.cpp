@@ -29,6 +29,7 @@
 #include "Landusemap.h"
 #include "Language.h"
 #include "MovableText.h"
+#include "RoRFrameListener.h"
 #include "Scripting.h"
 #include "Settings.h"
 #include "TerrainManager.h"
@@ -110,8 +111,9 @@ unsigned int sbox[] =
 
 using namespace Ogre;
 
-Collisions::Collisions() :
-      collision_count(0)
+Collisions::Collisions(RoRFrameListener* sim_controller)
+    : m_sim_controller(sim_controller)
+    , collision_count(0)
     , collision_tris(0)
     , debugMode(false)
     , forcecam(false)
@@ -1019,7 +1021,7 @@ bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
 
 bool Collisions::permitEvent(int filter)
 {
-    Beam *b = BeamFactory::getSingleton().getCurrentTruck();
+    Beam *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
 
     switch (filter)
     {

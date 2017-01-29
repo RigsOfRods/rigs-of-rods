@@ -83,6 +83,8 @@ public:
     /// Shows all overlays flagged as "visible".
     void RestoreOverlaysVisibility(Beam *current_vehicle);
 
+    void SetSimController(RoRFrameListener* sim) { m_sim_controller = sim; }
+
 protected:
 
     /// RoR needs to temporarily hide all overlays when player enters editor. 
@@ -246,4 +248,6 @@ protected:
     Ogre::SceneNode* m_direction_arrow_node;
 
     std::vector<LoadedOverlay> m_loaded_overlays;
+
+    RoRFrameListener* m_sim_controller;
 };

@@ -197,8 +197,8 @@ UTFString TopMenubar::getUserString(RoRnet::UserInfo &user, int num_vehicles)
 
 void TopMenubar::addUserToMenu(RoRnet::UserInfo &user)
 {
-    int numTrucks = BeamFactory::getSingleton().getTruckCount();
-    Beam **trucks = BeamFactory::getSingleton().getTrucks();
+    int numTrucks = m_sim_controller->GetBeamFactory()->getTruckCount();
+    Beam **trucks = m_sim_controller->GetBeamFactory()->getTrucks();
 
     // now search the vehicles of that user together
     std::vector<int> matches;
@@ -240,8 +240,8 @@ void TopMenubar::vehiclesListUpdate()
     if (!(App::GetActiveMpState() == App::MP_STATE_CONNECTED))
     {
         // single player mode: add vehicles simply, no users
-        int numTrucks = BeamFactory::getSingleton().getTruckCount();
-        Beam **trucks = BeamFactory::getSingleton().getTrucks();
+        int numTrucks = m_sim_controller->GetBeamFactory()->getTruckCount();
+        Beam **trucks = m_sim_controller->GetBeamFactory()->getTrucks();
 
         // simple iterate through :)
         for (int i = 0; i < numTrucks; i++)
@@ -281,9 +281,9 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
     if (id.substr(0,6) == "TRUCK_")
     {
         int truck = PARSEINT(id.substr(6));
-        if (truck >= 0 && truck < BeamFactory::getSingleton().getTruckCount())
+        if (truck >= 0 && truck < m_sim_controller->GetBeamFactory()->getTruckCount())
         {
-            BeamFactory::getSingleton().setCurrentTruck(truck);
+            m_sim_controller->GetBeamFactory()->setCurrentTruck(truck);
         }
     }
 
@@ -321,7 +321,7 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
 
     } else if (miname == _L("Reload current vehicle") && gEnv->player)
     {
-        if ((BeamFactory::getSingleton().getCurrentTruckNumber() != -1) && (m_sim_controller != nullptr))
+        if ((m_sim_controller->GetBeamFactory()->getCurrentTruckNumber() != -1) && (m_sim_controller != nullptr))
         {
             m_sim_controller->ReloadCurrentTruck(); // TODO: Use SIM_STATE + 'pending' mechanisms
             gui_man->UnfocusGui();
@@ -333,28 +333,28 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
     }
     else if (miname == _L("Remove current vehicle"))
     {
-        BeamFactory::getSingleton().removeCurrentTruck();
+        m_sim_controller->GetBeamFactory()->removeCurrentTruck();
 
     } else if (miname == _L("Activate all vehicles"))
     {
-        BeamFactory::getSingleton().activateAllTrucks();
+        m_sim_controller->GetBeamFactory()->activateAllTrucks();
 
     } else if (miname == _L("Activated vehicles never sleep"))
     {
-        BeamFactory::getSingleton().setTrucksForcedActive(true);
+        m_sim_controller->GetBeamFactory()->setTrucksForcedActive(true);
         _item->setCaption(_L("Activated vehicles can sleep"));
 
     } else if (miname == _L("Activated vehicles can sleep"))
     {
-        BeamFactory::getSingleton().setTrucksForcedActive(false);
+        m_sim_controller->GetBeamFactory()->setTrucksForcedActive(false);
         _item->setCaption(_L("Activated vehicles never sleep"));
 
     } else if (miname == _L("Send all vehicles to sleep"))
     {
         // get out first
-        if (BeamFactory::getSingleton().getCurrentTruckNumber() != -1)
-            BeamFactory::getSingleton().setCurrentTruck(-1);
-        BeamFactory::getSingleton().sendAllTrucksSleeping();
+        if (m_sim_controller->GetBeamFactory()->getCurrentTruckNumber() != -1)
+            m_sim_controller->GetBeamFactory()->setCurrentTruck(-1);
+        m_sim_controller->GetBeamFactory()->sendAllTrucksSleeping();
 
     } else if (miname == _L("Friction Settings"))
     {
@@ -369,51 +369,51 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
     // the debug menu
     else if (miname == _L("no visual debug"))
     {
-        Beam *b = BeamFactory::getSingleton().getCurrentTruck();
+        Beam *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
         if (b) b->setDebugOverlayState(0);
     } else if (miname == _L("show Node numbers"))
     {
-        Beam *b = BeamFactory::getSingleton().getCurrentTruck();
+        Beam *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
         if (b) b->setDebugOverlayState(1);
     } else if (miname == _L("show Beam numbers"))
     {
-        Beam *b = BeamFactory::getSingleton().getCurrentTruck();
+        Beam *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
         if (b) b->setDebugOverlayState(2);
     } else if (miname == _L("show Node&Beam numbers"))
     {
-        Beam *b = BeamFactory::getSingleton().getCurrentTruck();
+        Beam *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
         if (b) b->setDebugOverlayState(3);
     } else if (miname == _L("show Node mass"))
     {
-        Beam *b = BeamFactory::getSingleton().getCurrentTruck();
+        Beam *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
         if (b) b->setDebugOverlayState(4);
     } else if (miname == _L("show Node locked"))
     {
-        Beam *b = BeamFactory::getSingleton().getCurrentTruck();
+        Beam *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
         if (b) b->setDebugOverlayState(5);
     } else if (miname == _L("show Beam compression"))
     {
-        Beam *b = BeamFactory::getSingleton().getCurrentTruck();
+        Beam *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
         if (b) b->setDebugOverlayState(6);
     } else if (miname == _L("show Beam broken"))
     {
-        Beam *b = BeamFactory::getSingleton().getCurrentTruck();
+        Beam *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
         if (b) b->setDebugOverlayState(7);
     } else if (miname == _L("show Beam stress"))
     {
-        Beam *b = BeamFactory::getSingleton().getCurrentTruck();
+        Beam *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
         if (b) b->setDebugOverlayState(8);
     } else if (miname == _L("show Beam strength"))
     {
-        Beam *b = BeamFactory::getSingleton().getCurrentTruck();
+        Beam *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
         if (b) b->setDebugOverlayState(9);
     } else if (miname == _L("show Beam hydros"))
     {
-        Beam *b = BeamFactory::getSingleton().getCurrentTruck();
+        Beam *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
         if (b) b->setDebugOverlayState(10);
     } else if (miname == _L("show Beam commands"))
     {
-        Beam *b = BeamFactory::getSingleton().getCurrentTruck();
+        Beam *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
         if (b) b->setDebugOverlayState(11);
     }
     else if (miname == _L("Texture Tool"))
@@ -426,7 +426,7 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
     }
     else if (miname == _L("Show vehicle description"))
     {
-        if (BeamFactory::getSingleton().getCurrentTruck() != 0)
+        if (m_sim_controller->GetBeamFactory()->getCurrentTruck() != 0)
         {
             gui_man->SetVisible_VehicleDescription(true);
         }

@@ -753,20 +753,12 @@ void AddLocalStream(RoRnet::StreamRegister *reg, int size)
     m_stream_id++;
 }
 
-void HandleStreamData()
+std::vector<recv_packet_t> GetIncomingStreamData()
 {
-    std::vector<recv_packet_t> packet_buffer;
-
-    { // Lock scope
-        std::lock_guard<std::mutex> lock(m_recv_packetqueue_mutex);
-        packet_buffer = m_recv_packet_buffer;
-        m_recv_packet_buffer.clear();
-    }
-
-    RoR::ChatSystem::HandleStreamData(packet_buffer);
-    BeamFactory::getSingleton().handleStreamData(packet_buffer);
-    // Updates characters last (or else beam coupling might fail)
-    CharacterFactory::getSingleton().handleStreamData(packet_buffer);
+    std::lock_guard<std::mutex> lock(m_recv_packetqueue_mutex);
+    std::vector<recv_packet_t> buf_copy = m_recv_packet_buffer;
+    m_recv_packet_buffer.clear();
+    return buf_copy;
 }
 
 Ogre::String GetTerrainName()

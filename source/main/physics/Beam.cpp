@@ -988,8 +988,8 @@ void Beam::determineLinkedBeams()
     std::pair<std::map<Beam*, bool>::iterator, bool> ret;
 
     lookup_table.insert(std::pair<Beam*, bool>(this, false));
-
-    auto interTruckLinks = BeamFactory::getSingleton().interTruckLinks;
+    
+    auto interTruckLinks = m_sim_controller->GetBeamFactory()->interTruckLinks;
 
     while (found)
     {
@@ -1058,8 +1058,8 @@ Vector3 Beam::calculateCollisionOffset(Vector3 direction)
     Real max_distance = direction.length();
     direction.normalise();
 
-    Beam** trucks = BeamFactory::getSingleton().getTrucks();
-    int trucksnum = BeamFactory::getSingleton().getTruckCount();
+    Beam** trucks = m_sim_controller->GetBeamFactory()->getTrucks();
+    int trucksnum = m_sim_controller->GetBeamFactory()->getTruckCount();
 
     if (intraPointCD)
         intraPointCD->update(this, true);
@@ -3001,11 +3001,11 @@ void Beam::lightsToggle()
     if (m_skeletonview_is_active)
         return;
 
-    Beam** trucks = BeamFactory::getSingleton().getTrucks();
-    int trucksnum = BeamFactory::getSingleton().getTruckCount();
+    Beam** trucks = m_sim_controller->GetBeamFactory()->getTrucks();
+    int trucksnum = m_sim_controller->GetBeamFactory()->getTruckCount();
 
     // export light command
-    Beam* current_truck = BeamFactory::getSingleton().getCurrentTruck();
+    Beam* current_truck = m_sim_controller->GetBeamFactory()->getCurrentTruck();
     if (state == SIMULATED && this == current_truck && forwardcommands)
     {
         for (int i = 0; i < trucksnum; i++)
@@ -3298,7 +3298,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
         }
         else if (flares[i].type == 'u' && flares[i].controlnumber != -1)
         {
-            if (state == SIMULATED && this == BeamFactory::getSingleton().getCurrentTruck()) // no network!!
+            if (state == SIMULATED && this == m_sim_controller->GetBeamFactory()->getCurrentTruck()) // no network!!
             {
                 // networked customs are set directly, so skip this
                 if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_LIGHTTOGGLE01 + (flares[i].controlnumber - 1)) && mTimeUntilNextToggle <= 0)
@@ -4184,7 +4184,7 @@ void Beam::addInterTruckBeam(beam_t* beam, Beam* a, Beam* b)
     }
 
     std::pair<Beam*, Beam*> truck_pair(a, b);
-    BeamFactory::getSingleton().interTruckLinks[beam] = truck_pair;
+    m_sim_controller->GetBeamFactory()->interTruckLinks[beam] = truck_pair;
 
     a->determineLinkedBeams();
     for (auto truck : a->linkedBeams)
@@ -4203,11 +4203,11 @@ void Beam::removeInterTruckBeam(beam_t* beam)
         interTruckBeams.erase(pos);
     }
 
-    auto it = BeamFactory::getSingleton().interTruckLinks.find(beam);
-    if (it != BeamFactory::getSingleton().interTruckLinks.end())
+    auto it = m_sim_controller->GetBeamFactory()->interTruckLinks.find(beam);
+    if (it != m_sim_controller->GetBeamFactory()->interTruckLinks.end())
     {
         auto truck_pair = it->second;
-        BeamFactory::getSingleton().interTruckLinks.erase(it);
+        m_sim_controller->GetBeamFactory()->interTruckLinks.erase(it);
 
         truck_pair.first->determineLinkedBeams();
         for (auto truck : truck_pair.first->linkedBeams)
@@ -4222,7 +4222,7 @@ void Beam::removeInterTruckBeam(beam_t* beam)
 void Beam::disjoinInterTruckBeams()
 {
     interTruckBeams.clear();
-    auto interTruckLinks = &BeamFactory::getSingleton().interTruckLinks;
+    auto interTruckLinks = &m_sim_controller->GetBeamFactory()->interTruckLinks;
     for (auto it = interTruckLinks->begin(); it != interTruckLinks->end();)
     {
         auto truck_pair = it->second;
@@ -4249,11 +4249,11 @@ void Beam::disjoinInterTruckBeams()
 
 void Beam::tieToggle(int group)
 {
-    Beam** trucks = BeamFactory::getSingleton().getTrucks();
-    int trucksnum = BeamFactory::getSingleton().getTruckCount();
+    Beam** trucks = m_sim_controller->GetBeamFactory()->getTrucks();
+    int trucksnum = m_sim_controller->GetBeamFactory()->getTruckCount();
 
     // export tie commands
-    Beam* current_truck = BeamFactory::getSingleton().getCurrentTruck();
+    Beam* current_truck = m_sim_controller->GetBeamFactory()->getCurrentTruck();
     if (state == SIMULATED && this == current_truck && forwardcommands)
     {
         for (int i = 0; i < trucksnum; i++)
@@ -4373,8 +4373,8 @@ void Beam::tieToggle(int group)
 
 void Beam::ropeToggle(int group)
 {
-    Beam** trucks = BeamFactory::getSingleton().getTrucks();
-    int trucksnum = BeamFactory::getSingleton().getTruckCount();
+    Beam** trucks = m_sim_controller->GetBeamFactory()->getTrucks();
+    int trucksnum = m_sim_controller->GetBeamFactory()->getTruckCount();
 
     // iterate over all ropes
     for (std::vector<rope_t>::iterator it = ropes.begin(); it != ropes.end(); it++)
@@ -4442,8 +4442,8 @@ void Beam::ropeToggle(int group)
 
 void Beam::hookToggle(int group, hook_states mode, int node_number)
 {
-    Beam** trucks = BeamFactory::getSingleton().getTrucks();
-    int trucksnum = BeamFactory::getSingleton().getTruckCount();
+    Beam** trucks = m_sim_controller->GetBeamFactory()->getTrucks();
+    int trucksnum = m_sim_controller->GetBeamFactory()->getTruckCount();
 
     // iterate over all hooks
     for (std::vector<hook_t>::iterator it = hooks.begin(); it != hooks.end(); it++)
@@ -5609,6 +5609,7 @@ void Beam::engineTriggerHelper(int engineNumber, int type, float triggerValue)
 }
 
 Beam::Beam(
+    RoRFrameListener* sim_controller,
     int truck_number,
     Ogre::Vector3 pos,
     Ogre::Quaternion rot,
@@ -5623,9 +5624,9 @@ Beam::Beam(
     bool freeposition, /* = false */
     bool preloaded_with_terrain, /* = false */
     int cache_entry_number /* = -1 */
-) :
-
-    GUIFeaturesChanged(false)
+) 
+    : GUIFeaturesChanged(false)
+    , m_sim_controller(sim_controller)
     , aileron(0)
     , avichatter_timer(11.0f) // some pseudo random number,  doesn't matter
     , m_beacon_light_is_active(false)
@@ -5722,7 +5723,6 @@ Beam::Beam(
     , totalmass(0)
     , watercontact(false)
     , watercontactold(false)
-    , m_sim_controller(nullptr)
 {
     high_res_wheelnode_collisions = BSETTING("HighResWheelNodeCollisions", false);
     useSkidmarks = RoR::App::GetGfxSkidmarksMode() == 1;
@@ -6041,7 +6041,7 @@ bool Beam::LoadTruck(
 
     LOG(" == Spawning vehicle: " + parser.GetFile()->name);
 
-    RigSpawner spawner;
+    RigSpawner spawner(m_sim_controller);
     spawner.Setup(this, parser.GetFile(), parent_scene_node, spawn_position, cache_entry_number);
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_SPAWNER_SETUP);
     /* Setup modules */

@@ -266,11 +266,6 @@ int main(int argc, char *argv[])
         // initiate player colours
         PlayerColours::getSingleton();
 
-        // new factory for characters, net is INVALID, will be set later
-        new CharacterFactory();
-
-        new BeamFactory();
-
         MainMenu main_obj;
 
         // ### Main loop (switches application states) ###
@@ -345,6 +340,9 @@ int main(int argc, char *argv[])
                     App::SetPendingAppState(App::APP_STATE_NONE);
                     App::GetGuiManager()->ReflectGameState();
                     sim_controller.EnterGameplayLoop();
+
+                    // Cleanup
+                    gEnv->sceneManager->clearScene();
                 }
                 else
                 {

@@ -28,7 +28,7 @@ class TerrainManager : public ZeroedMemoryAllocator
 {
 public:
 
-    TerrainManager();
+    TerrainManager(RoRFrameListener* sim_controller);
     ~TerrainManager();
 
     void loadTerrain(Ogre::String filename);
@@ -63,8 +63,9 @@ public:
     TerrainGeometryManager* getGeometryManager() { return geometry_manager; };
     TerrainObjectManager* getObjectManager() { return object_manager; };
 
-    ShadowManager* getShadowManager() { return shadow_manager; };
-    std::string    GetMinimapTextureName();
+    ShadowManager*     getShadowManager() { return shadow_manager; };
+    std::string        GetMinimapTextureName();
+    RoRFrameListener*  GetSimController() { return m_sim_controller; }
 
     // preloaded trucks
     void loadPreloadedTrucks();
@@ -74,6 +75,7 @@ public:
 
 protected:
 
+    RoRFrameListener* m_sim_controller;
     // subsystems
     Character* character;
     Collisions* collisions;
@@ -100,7 +102,6 @@ protected:
 
     // internal methods
     void initCamera();
-    void initCollisions();
     void initTerrainCollisions();
     void initDashboards();
     void initEnvironmentMap();

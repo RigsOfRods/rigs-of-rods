@@ -23,6 +23,8 @@
 #include "RoRPrerequisites.h"
 #include "ForceFeedback.h"
 #include "Mirrors.h"
+#include "CharacterFactory.h"
+#include "BeamFactory.h"
 
 #include <Ogre.h>
 
@@ -60,6 +62,7 @@ public:
     void   EnterGameplayLoop     ();
 
     RoR::LegacyRearViewMirrors* GetLegacyMirrors() { return &m_legacy_mirrors; }
+    RoR::BeamFactory*           GetBeamFactory  () { return &m_beam_factory; }
 
 protected:
 
@@ -76,6 +79,8 @@ protected:
     void   HideGUI                 (bool hidden);
     void   CleanupAfterSimulation  (); /// Unloads all data
 
+    RoR::BeamFactory         m_beam_factory;
+    RoR::CharacterFactory    m_character_factory;
     HeatHaze*                m_heathaze;
     Ogre::Real               m_time_until_next_toggle; ///< just to stop toggles flipping too fast
     float                    m_last_simulation_speed;  ///< previously used time ratio between real time (evt.timeSinceLastFrame) and physics time ('dt' used in calcPhysics)

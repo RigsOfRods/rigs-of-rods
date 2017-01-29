@@ -67,7 +67,8 @@ public:
     * @param cache_entry_number Needed for flexbody caching. Pass -1 if unavailable (flexbody caching will be disabled)
     */
     Beam(
-          int tnum
+          RoRFrameListener* sim_controller
+        , int tnum
         , Ogre::Vector3 pos
         , Ogre::Quaternion rot
         , const char* fname
@@ -577,8 +578,6 @@ public:
 
 
     void UpdatePropAnimations(const float dt);
-
-    void SetSimController(RoRFrameListener* sim) { m_sim_controller = sim; }
 
 protected:
 

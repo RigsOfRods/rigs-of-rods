@@ -25,14 +25,16 @@
 
 #include "Character.h"
 #include "Network.h"
-#include "Singleton.h"
 
 #include <memory>
+#include <vector>
 
-class CharacterFactory : public RoRSingleton<CharacterFactory>, public ZeroedMemoryAllocator
+namespace RoR {
+
+class CharacterFactory
 {
 public:
-
+    CharacterFactory(RoRFrameListener* sim): m_sim_controller(sim) {}
     Character* createLocal(int playerColour);
     void DeleteAllRemoteCharacters();
     void update(float dt);
@@ -42,8 +44,11 @@ public:
 
 private:
 
+    RoRFrameListener*                       m_sim_controller;
     std::vector<std::unique_ptr<Character>> m_remote_characters;
 
     void createRemoteInstance(int sourceid, int streamid);
     void removeStreamSource(int sourceid);
 };
+
+} // namespace RoR
