@@ -35,17 +35,18 @@ public:
 
 private:
 
-    typedef struct _skidmark_config
+    struct SkidmarkConf
     {
         Ogre::String ground;
         Ogre::String texture;
         float slipFrom;
         float slipTo;
-    } skidmark_config_t;
+    };
 
     int loadDefaultModels();
-    std::map<Ogre::String, std::vector<skidmark_config_t>> models;
     int processLine(Ogre::StringVector args, Ogre::String model);
+
+    std::map<Ogre::String, std::vector<SkidmarkConf>> m_models;
 };
 
 class Skidmark : public ZeroedMemoryAllocator
@@ -53,7 +54,7 @@ class Skidmark : public ZeroedMemoryAllocator
 public:
 
     /// Constructor - see setOperationType() for description of argument.
-    Skidmark(wheel_t* wheel, Ogre::SceneNode* snode, int lenght = 500, int bucketCount = 20);
+    Skidmark(wheel_t* m_wheel, Ogre::SceneNode* snode, int m_length = 500, int m_bucket_count = 20);
     virtual ~Skidmark();
 
     void updatePoint();
@@ -64,7 +65,7 @@ private:
 
     static int instanceCounter;
 
-    typedef struct _skidmark
+    struct SkidmarkObject
     {
         Ogre::ManualObject* obj;
         std::vector<Ogre::Vector3> points;
@@ -74,23 +75,22 @@ private:
         int pos;
         Ogre::ColourValue colour;
         int facecounter;
-    } skidmark_t;
-
-    Ogre::SceneNode* mNode;
-
-    bool mDirty;
-    float maxDistance;
-    float maxDistanceSquared;
-    float minDistance;
-    float minDistanceSquared;
-    int bucketCount;
-    int lenght;
-    static Ogre::Vector2 tex_coords[4];
-    std::queue<skidmark_t> objects;
-    wheel_t* wheel;
+    };
 
     void limitObjects();
     void addObject(Ogre::Vector3 start, Ogre::String texture);
     void setPointInt(unsigned short index, const Ogre::Vector3& value, Ogre::Real fsize, Ogre::String texture);
     void addPoint(const Ogre::Vector3& value, Ogre::Real fsize, Ogre::String texture);
+    
+    bool                 m_is_dirty;
+    std::queue<SkidmarkObject> m_objects;
+    float                m_max_distance;
+    float                m_max_distance_squared;
+    float                m_min_distance;
+    float                m_min_distance_squared;
+    static Ogre::Vector2 m_tex_coords[4];
+    int                  m_bucket_count;
+    int                  m_length;
+    wheel_t*             m_wheel;
+    Ogre::SceneNode*     m_scene_node;  
 };

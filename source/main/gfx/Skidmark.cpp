@@ -44,7 +44,7 @@ SkidmarkManager::~SkidmarkManager()
 
 int SkidmarkManager::loadDefaultModels()
 {
-    LOG("SkidmarkManager loading default models");
+    LOG("SkidmarkManager loading default m_models");
     // check if we have a config file
     String group = "";
     try
@@ -96,7 +96,7 @@ int SkidmarkManager::processLine(StringVector args, String modelName)
         return 1;
 
     // parse the data
-    skidmark_config_t cfg;
+    SkidmarkConf cfg;
     cfg.ground = args[0];
     StringUtil::trim(cfg.ground);
     cfg.texture = args[1];
@@ -105,18 +105,18 @@ int SkidmarkManager::processLine(StringVector args, String modelName)
     cfg.slipFrom = StringConverter::parseReal(args[2]);
     cfg.slipTo = StringConverter::parseReal(args[3]);
 
-    if (!models.size() || models.find(modelName) == models.end())
-        models[modelName] = std::vector<skidmark_config_t>();
+    if (!m_models.size() || m_models.find(modelName) == m_models.end())
+        m_models[modelName] = std::vector<SkidmarkConf>();
 
-    models[modelName].push_back(cfg);
+    m_models[modelName].push_back(cfg);
     return 0;
 }
 
 int SkidmarkManager::getTexture(String model, String ground, float slip, String& texture)
 {
-    if (models.find(model) == models.end())
+    if (m_models.find(model) == m_models.end())
         return 1;
-    for (std::vector<skidmark_config_t>::iterator it = models[model].begin(); it != models[model].end(); it++)
+    for (std::vector<SkidmarkConf>::iterator it = m_models[model].begin(); it != m_models[model].end(); it++)
     {
         if (it->ground == ground && it->slipFrom <= slip && it->slipTo > slip)
         {
@@ -130,22 +130,22 @@ int SkidmarkManager::getTexture(String model, String ground, float slip, String&
 /////////////// Skidmark below
 
 // this is a hardcoded array which we use to map ground types to a certain texture with UV/ coords
-Vector2 Skidmark::tex_coords[4] = {Vector2(0, 0), Vector2(0, 1), Vector2(1, 0), Vector2(1, 1)};
+Vector2 Skidmark::m_tex_coords[4] = {Vector2(0, 0), Vector2(0, 1), Vector2(1, 0), Vector2(1, 1)};
 
-Skidmark::Skidmark(wheel_t* wheel, Ogre::SceneNode* snode, int lenght /* = 500 */, int bucketCount /* = 20 */) :
-    mNode(snode)
-    , mDirty(true)
-    , lenght(lenght)
-    , bucketCount(bucketCount)
-    , wheel(wheel)
-    , minDistance(0.1f)
-    , maxDistance(std::max(0.5f, wheel->width * 1.1f))
-    , minDistanceSquared(minDistance * minDistance)
-    , maxDistanceSquared(maxDistance * maxDistance)
+Skidmark::Skidmark(wheel_t* m_wheel, Ogre::SceneNode* snode, int m_length /* = 500 */, int m_bucket_count /* = 20 */) :
+    m_scene_node(snode)
+    , m_is_dirty(true)
+    , m_length(m_length)
+    , m_bucket_count(m_bucket_count)
+    , m_wheel(m_wheel)
+    , m_min_distance(0.1f)
+    , m_max_distance(std::max(0.5f, m_wheel->width * 1.1f))
+    , m_min_distance_squared(m_min_distance * m_min_distance)
+    , m_max_distance_squared(m_max_distance * m_max_distance)
 {
-    if (lenght % 2)
+    if (m_length % 2)
     {
-        lenght--;
+        m_length--;
     }
 
     //Configurable limits of skidmarks
@@ -153,7 +153,7 @@ Skidmark::Skidmark(wheel_t* wheel, Ogre::SceneNode* snode, int lenght /* = 500 *
 
     if (c_BucketCount > 0)
     {
-        bucketCount = c_BucketCount;
+        m_bucket_count = c_BucketCount;
     }
 }
 
@@ -164,7 +164,7 @@ Skidmark::~Skidmark()
 void Skidmark::addObject(Vector3 start, String texture)
 {
     //LOG("new skidmark section");
-    skidmark_t skid;
+    SkidmarkObject skid;
     skid.pos = 0;
     skid.lastPointAv = start;
     skid.facecounter = 0;
@@ -184,14 +184,14 @@ void Skidmark::addObject(Vector3 start, String texture)
     p->setDepthBias(3, 3);
     p->setCullingMode(CULL_NONE);
 
-    skid.points.resize(lenght);
-    skid.faceSizes.resize(lenght);
-    skid.groundTexture.resize(lenght);
+    skid.points.resize(m_length);
+    skid.faceSizes.resize(m_length);
+    skid.groundTexture.resize(m_length);
     skid.obj = gEnv->sceneManager->createManualObject("skidmark" + TOSTRING(instanceCounter++));
     skid.obj->setDynamic(true);
     skid.obj->setRenderingDistance(800); // 800m view distance
     skid.obj->begin(bname, RenderOperation::OT_TRIANGLE_STRIP);
-    for (int i = 0; i < lenght; i++)
+    for (int i = 0; i < m_length; i++)
     {
         skid.points[i] = start;
         skid.faceSizes[i] = 0;
@@ -200,52 +200,52 @@ void Skidmark::addObject(Vector3 start, String texture)
         skid.obj->textureCoord(0, 0);
     }
     skid.obj->end();
-    mNode->attachObject(skid.obj);
+    m_scene_node->attachObject(skid.obj);
 
-    objects.push(skid);
+    m_objects.push(skid);
 
     limitObjects();
 }
 
 void Skidmark::limitObjects()
 {
-    if ((int)objects.size() > bucketCount)
+    if ((int)m_objects.size() > m_bucket_count)
     {
         //LOG("deleting first skidmarks section to keep the limits");
-        objects.front().points.clear();
-        objects.front().faceSizes.clear();
-        gEnv->sceneManager->destroyManualObject(objects.front().obj);
-        objects.pop();
+        m_objects.front().points.clear();
+        m_objects.front().faceSizes.clear();
+        gEnv->sceneManager->destroyManualObject(m_objects.front().obj);
+        m_objects.pop();
     }
 }
 
 void Skidmark::setPointInt(unsigned short index, const Vector3& value, Real fsize, String texture)
 {
-    objects.back().points[index] = value;
-    objects.back().faceSizes[index] = fsize;
-    objects.back().groundTexture[index] = texture;
+    m_objects.back().points[index] = value;
+    m_objects.back().faceSizes[index] = fsize;
+    m_objects.back().groundTexture[index] = texture;
 
-    mDirty = true;
+    m_is_dirty = true;
 }
 
 void Skidmark::updatePoint()
 {
-    Vector3 thisPoint = wheel->lastContactType ? wheel->lastContactOuter : wheel->lastContactInner;
-    Vector3 axis = wheel->lastContactType ? (wheel->refnode1->RelPosition - wheel->refnode0->RelPosition) : (wheel->refnode0->RelPosition - wheel->refnode1->RelPosition);
+    Vector3 thisPoint = m_wheel->lastContactType ? m_wheel->lastContactOuter : m_wheel->lastContactInner;
+    Vector3 axis = m_wheel->lastContactType ? (m_wheel->refnode1->RelPosition - m_wheel->refnode0->RelPosition) : (m_wheel->refnode0->RelPosition - m_wheel->refnode1->RelPosition);
     Vector3 thisPointAV = thisPoint + axis * 0.5f;
     Real distance = 0;
-    Real maxDist = maxDistance;
+    Real maxDist = m_max_distance;
     String texture = "none";
-    SkidmarkManager::getSingleton().getTexture("default", wheel->lastGroundModel->name, wheel->lastSlip, texture);
+    SkidmarkManager::getSingleton().getTexture("default", m_wheel->lastGroundModel->name, m_wheel->lastSlip, texture);
 
     // dont add points with no texture
     if (texture == "none")
         return;
 
-    if (wheel->speed > 1)
-        maxDist *= wheel->speed;
+    if (m_wheel->speed > 1)
+        maxDist *= m_wheel->speed;
 
-    if (!objects.size())
+    if (!m_objects.size())
     {
         // add first bucket
         addObject(thisPoint, texture);
@@ -253,11 +253,11 @@ void Skidmark::updatePoint()
     else
     {
         // check existing buckets
-        skidmark_t skid = objects.back();
+        SkidmarkObject skid = m_objects.back();
 
         distance = skid.lastPointAv.distance(thisPointAV);
         // too near to update?
-        if (distance < minDistance)
+        if (distance < m_min_distance)
         {
             //LOG("E: too near for update");
             return;
@@ -275,8 +275,8 @@ void Skidmark::updatePoint()
             else
             {
                 // add new bucket with connection to last bucket
-                Vector3 lp1 = objects.back().points[objects.back().pos - 1];
-                Vector3 lp2 = objects.back().points[objects.back().pos - 2];
+                Vector3 lp1 = m_objects.back().points[m_objects.back().pos - 1];
+                Vector3 lp2 = m_objects.back().points[m_objects.back().pos - 2];
                 addObject(lp1, texture);
                 addPoint(lp2, distance, texture);
                 addPoint(lp1, distance, texture);
@@ -297,14 +297,14 @@ void Skidmark::updatePoint()
                 else
                 {
                     // add new bucket with connection to last bucket
-                    Vector3 lp1 = objects.back().points[objects.back().pos - 1];
-                    Vector3 lp2 = objects.back().points[objects.back().pos - 2];
+                    Vector3 lp1 = m_objects.back().points[m_objects.back().pos - 1];
+                    Vector3 lp2 = m_objects.back().points[m_objects.back().pos - 2];
                     addObject(lp1, texture);
                     addPoint(lp2, distance, texture);
                     addPoint(lp1, distance, texture);
                 }
             }
-            else if (distance > maxDistance)
+            else if (distance > m_max_distance)
             {
                 // just new bucket, no connection to last bucket
                 addObject(thisPoint, texture);
@@ -312,45 +312,45 @@ void Skidmark::updatePoint()
         }
     }
 
-    skidmark_t skid = objects.back();
+    SkidmarkObject skid = m_objects.back();
 
     float overaxis = 0.2f;
     // tactics: we always choose the latest oint and then create two points
 
-    // choose node wheel by the latest added point
-    if (!wheel->lastContactType)
+    // choose node m_wheel by the latest added point
+    if (!m_wheel->lastContactType)
     {
         // choose inner
-        addPoint(wheel->lastContactInner - (axis * overaxis), distance, texture);
-        addPoint(wheel->lastContactInner + axis + (axis * overaxis), distance, texture);
+        addPoint(m_wheel->lastContactInner - (axis * overaxis), distance, texture);
+        addPoint(m_wheel->lastContactInner + axis + (axis * overaxis), distance, texture);
     }
     else
     {
         // choose outer
-        addPoint(wheel->lastContactOuter + axis + (axis * overaxis), distance, texture);
-        addPoint(wheel->lastContactOuter - (axis * overaxis), distance, texture);
+        addPoint(m_wheel->lastContactOuter + axis + (axis * overaxis), distance, texture);
+        addPoint(m_wheel->lastContactOuter - (axis * overaxis), distance, texture);
     }
 
-    // save as last point (in the middle of the wheel)
-    objects.back().lastPointAv = thisPointAV;
+    // save as last point (in the middle of the m_wheel)
+    m_objects.back().lastPointAv = thisPointAV;
 }
 
 void Skidmark::addPoint(const Vector3& value, Real fsize, String texture)
 {
-    if (objects.back().pos >= lenght)
+    if (m_objects.back().pos >= m_length)
     {
         //LOG("E: boundary protection hit");
         return;
     }
-    setPointInt(objects.back().pos, value, fsize, texture);
-    objects.back().pos++;
+    setPointInt(m_objects.back().pos, value, fsize, texture);
+    m_objects.back().pos++;
 }
 
 void Skidmark::update()
 {
-    if (!objects.size())
+    if (!m_objects.size())
         return;
-    skidmark_t skid = objects.back();
+    SkidmarkObject skid = m_objects.back();
     Vector3 vaabMin = skid.points[0];
     Vector3 vaabMax = skid.points[0];
     skid.obj->beginUpdate(0);
@@ -359,7 +359,7 @@ void Skidmark::update()
     int to_counter = 0;
     float tcox_counter = 0;
 
-    for (int i = 0; i < lenght; i++ , to_counter++)
+    for (int i = 0; i < m_length; i++ , to_counter++)
     {
         if (i >= skid.pos)
             behindEnd = true;
@@ -368,7 +368,7 @@ void Skidmark::update()
             to_counter = 0;
 
         if (!behindEnd)
-            tcox_counter += skid.faceSizes[i] / minDistance;
+            tcox_counter += skid.faceSizes[i] / m_min_distance;
 
         while (tcox_counter > 1)
             tcox_counter--;
@@ -382,8 +382,8 @@ void Skidmark::update()
         {
             skid.obj->position(skid.points[i]);
 
-            Vector2 tco = tex_coords[to_counter];
-            tco.x *= skid.faceSizes[i] / minDistance; // scale texture according face size
+            Vector2 tco = m_tex_coords[to_counter];
+            tco.x *= skid.faceSizes[i] / m_min_distance; // scale texture according face size
             skid.obj->textureCoord(tco);
 
             lastValid = skid.points[i];
@@ -406,5 +406,5 @@ void Skidmark::update()
 
     skid.obj->setBoundingBox(AxisAlignedBox(vaabMin, vaabMax));
 
-    mDirty = false;
+    m_is_dirty = false;
 }
