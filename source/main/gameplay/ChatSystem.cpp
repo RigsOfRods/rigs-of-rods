@@ -23,7 +23,7 @@
 #include "Application.h"
 #include "GUIManager.h"
 #include "Language.h"
-#include "PlayerColours.h"
+
 #include "Utils.h"
 
 namespace RoR {
@@ -50,7 +50,7 @@ void SendStreamSetup()
 
 Ogre::UTFString GetColouredName(Ogre::UTFString nick, int colour_number)
 {
-    Ogre::ColourValue col_val = PlayerColours::getSingleton().getColour(colour_number);
+    Ogre::ColourValue col_val = Networking::GetPlayerColor(colour_number);
     char tmp[255] = {0};
     sprintf(tmp, "#%02X%02X%02X", (unsigned int)(col_val.r * 255.0f), (unsigned int)(col_val.g * 255.0f), (unsigned int)(col_val.b * 255.0f));
 

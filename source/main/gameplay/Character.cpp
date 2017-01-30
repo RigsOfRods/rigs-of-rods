@@ -27,7 +27,6 @@
 #include "IHeightFinder.h"
 #include "InputEngine.h"
 #include "Network.h"
-#include "PlayerColours.h"
 #include "RoRFrameListener.h"
 #include "SurveyMapEntity.h"
 #include "SurveyMapManager.h"
@@ -144,8 +143,20 @@ void Character::updateCharacterRotation()
 
 void Character::updateCharacterColour()
 {
-    String matName = "tracks/" + myName;
-    PlayerColours::getSingleton().updateMaterial(colourNumber, matName, 2);
+    const String materialName = "tracks/" + myName;
+    const int textureUnitStateNum = 2;
+
+    MaterialPtr mat = MaterialManager::getSingleton().getByName(materialName);
+    if (mat.isNull())
+        return;
+
+    if (mat->getNumTechniques() > 0 && mat->getTechnique(0)->getNumPasses() > 0 && textureUnitStateNum < mat->getTechnique(0)->getPass(0)->getNumTextureUnitStates())
+    {
+        auto state = mat->getTechnique(0)->getPass(0)->getTextureUnitState(textureUnitStateNum);
+        auto color = Networking::GetPlayerColor(colourNumber);
+        state->setAlphaOperation(LBX_BLEND_CURRENT_ALPHA, LBS_MANUAL, LBS_CURRENT, 0.8);
+        state->setColourOperationEx(LBX_BLEND_CURRENT_ALPHA, LBS_MANUAL, LBS_CURRENT, color, color, 1);
+    }
 }
 
 void Character::updateLabels()

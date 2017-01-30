@@ -51,6 +51,39 @@
 namespace RoR {
 namespace Networking {
 
+static Ogre::ColourValue MP_COLORS[] = // Classic RoR multiplayer colors
+{
+    Ogre::ColourValue(0.0,            0.8,            0.0),
+    Ogre::ColourValue(0.0,            0.4,            0.701960784314),
+    Ogre::ColourValue(1.0,            0.501960784314, 0.0),
+    Ogre::ColourValue(1.0,            0.8,            0.0),
+    Ogre::ColourValue(0.2,            0.0,            0.6),
+    Ogre::ColourValue(0.6,            0.0,            0.6),
+    Ogre::ColourValue(0.8,            1.0,            0.0),
+    Ogre::ColourValue(1.0,            0.0,            0.0),
+    Ogre::ColourValue(0.501960784314, 0.501960784314, 0.501960784314),
+    Ogre::ColourValue(0.0,            0.560784313725, 0.0),
+    Ogre::ColourValue(0.0,            0.282352941176, 0.490196078431),
+    Ogre::ColourValue(0.701960784314, 0.352941176471, 0.0),
+    Ogre::ColourValue(0.701960784314, 0.560784313725, 0.0),
+    Ogre::ColourValue(0.419607843137, 0.0,            0.419607843137),
+    Ogre::ColourValue(0.560784313725, 0.701960784314, 0.0),
+    Ogre::ColourValue(0.701960784314, 0.0,            0.0),
+    Ogre::ColourValue(0.745098039216, 0.745098039216, 0.745098039216),
+    Ogre::ColourValue(0.501960784314, 1.0,            0.501960784314),
+    Ogre::ColourValue(0.501960784314, 0.788235294118, 1.0),
+    Ogre::ColourValue(1.0,            0.752941176471, 0.501960784314),
+    Ogre::ColourValue(1.0,            0.901960784314, 0.501960784314),
+    Ogre::ColourValue(0.666666666667, 0.501960784314, 1.0),
+    Ogre::ColourValue(0.933333333333, 0.0,            0.8),
+    Ogre::ColourValue(1.0,            0.501960784314, 0.501960784314),
+    Ogre::ColourValue(0.4,            0.4,            0.0),
+    Ogre::ColourValue(1.0,            0.749019607843, 1.0),
+    Ogre::ColourValue(0.0,            1.0,            0.8),
+    Ogre::ColourValue(0.8,            0.4,            0.6),
+    Ogre::ColourValue(0.6,            0.6,            0.0),
+};
+
 using namespace RoRnet;
 
 struct send_packet_t
@@ -101,6 +134,15 @@ static Ogre::UTFString   m_error_message;
 #define LOGSTREAM         Ogre::LogManager().getSingleton().stream()
 
 static const int RECVMESSAGE_RETVAL_SHUTDOWN = -43;
+
+Ogre::ColourValue GetPlayerColor(int color_num)
+{
+    int numColours = sizeof(MP_COLORS) / sizeof(Ogre::ColourValue);
+    if (color_num < 0 || color_num >= numColours)
+        return Ogre::ColourValue::ZERO;
+
+    return MP_COLORS[color_num];
+}
 
 Ogre::UTFString GetErrorMessage()
 {

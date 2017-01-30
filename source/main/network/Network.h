@@ -92,6 +92,7 @@ Ogre::UTFString GetUsername();
 RoRnet::UserInfo GetLocalUserData();
 std::vector<RoRnet::UserInfo> GetUserInfos();
 bool GetUserInfo(int uid, RoRnet::UserInfo &result);
+Ogre::ColourValue GetPlayerColor(int color_num);
 
 Ogre::UTFString GetErrorMessage();
 bool CheckError();

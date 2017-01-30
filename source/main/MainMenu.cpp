@@ -56,7 +56,7 @@
 #include "OgreSubsystem.h"
 #include "OverlayWrapper.h"
 #include "OutProtocol.h"
-#include "PlayerColours.h"
+
 #include "RoRFrameListener.h"
 #include "Scripting.h"
 #include "Settings.h"

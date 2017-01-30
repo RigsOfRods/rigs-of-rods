@@ -29,7 +29,6 @@
 #include "GUIManager.h"
 #include "Language.h"
 #include "Network.h"
-#include "PlayerColours.h"
 #include "RoRFrameListener.h"
 
 using namespace RoR;
@@ -177,7 +176,7 @@ void MpClientList::updateSlot(player_row_t* row, RoRnet::UserInfo c, bool self)
     int y = row->playername->getPosition().top;
     // name
     row->playername->setCaption(c.username);
-    ColourValue col = PlayerColours::getSingleton().getColour(c.colournum);
+    ColourValue col = Networking::GetPlayerColor(c.colournum);
     row->playername->setTextColour(MyGUI::Colour(col.r, col.g, col.b, col.a));
     row->playername->setVisible(true);
     x -= 18;
