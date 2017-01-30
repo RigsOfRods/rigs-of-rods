@@ -113,7 +113,7 @@ struct rig_t
     Airbrake *airbrakes[MAX_AIRBRAKES];
     int free_airbrake;
 
-    Skidmark *skidtrails[MAX_WHEELS*2];
+    RoR::Skidmark *skidtrails[MAX_WHEELS*2];
     bool useSkidmarks;
 
     FlexBody *flexbodies[MAX_FLEXBODIES];

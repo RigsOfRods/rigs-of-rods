@@ -40,6 +40,8 @@ namespace RoR
     struct PlatformUtils;
     class  RigLoadingProfiler;
     class  SceneMouse;
+    class  Skidmark;
+    class  SkidmarkConfig;
     class  SkinManager;
     class  Console;
 
@@ -173,7 +175,6 @@ class Road;
 class RoRFrameListener;
 class ScopeLog;
 class Screwprop;
-class Skidmark;
 class Skin;
 class SkyManager;
 class SlideNode;

@@ -61,6 +61,7 @@
 #include "RoRFrameListener.h"
 #include "Scripting.h"
 #include "Settings.h"
+#include "Skidmark.h"
 #include "Skin.h"
 #include "SoundScriptManager.h"
 #include "SurveyMapManager.h"
@@ -161,6 +162,7 @@ int main(int argc, char *argv[])
     #endif
 
         App::CreateContentManager();
+        SkidmarkConfig skidmark_conf; // Loads 'skidmark.cfg' in constructor
 
         LanguageEngine::getSingleton().setup();
 
@@ -331,7 +333,7 @@ int main(int argc, char *argv[])
             else if (App::GetPendingAppState() == App::APP_STATE_SIMULATION)
             {
                 {
-                    RoRFrameListener sim_controller(&force_feedback);
+                    RoRFrameListener sim_controller(&force_feedback, &skidmark_conf);
                     if (sim_controller.SetupGameplayLoop())
                     {
                         App::SetActiveAppState(App::APP_STATE_SIMULATION);

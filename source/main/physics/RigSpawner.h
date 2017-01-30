@@ -885,6 +885,8 @@ protected:
         float rim_ratio = 1.f
     );
 
+    void CreateWheelSkidmarks(unsigned int wheel_index);
+
     /**
     * Adds visuals to 'wheels2' wheel.
     */

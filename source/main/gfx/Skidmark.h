@@ -22,20 +22,24 @@
 
 #include "RoRPrerequisites.h"
 
-#include "Singleton.h"
+#include <OgreMaterial.h>
+#include <OgreString.h>
+#include <OgreVector2.h>
+#include <OgreVector3.h>
 
-class SkidmarkManager : public RoRSingleton<SkidmarkManager>, public ZeroedMemoryAllocator
+namespace RoR {
+
+class SkidmarkConfig
 {
 public:
 
-    SkidmarkManager();
-    ~SkidmarkManager();
+    SkidmarkConfig();
 
     int getTexture(Ogre::String model, Ogre::String ground, float slip, Ogre::String& texture);
 
 private:
 
-    struct SkidmarkConf
+    struct SkidmarkDef
     {
         Ogre::String ground;
         Ogre::String texture;
@@ -43,18 +47,19 @@ private:
         float slipTo;
     };
 
-    int loadDefaultModels();
+    void loadDefaultModels();
     int processLine(Ogre::StringVector args, Ogre::String model);
 
-    std::map<Ogre::String, std::vector<SkidmarkConf>> m_models;
+    std::map<Ogre::String, std::vector<SkidmarkDef>> m_models;
 };
 
-class Skidmark : public ZeroedMemoryAllocator
+class Skidmark
 {
 public:
 
     /// Constructor - see setOperationType() for description of argument.
-    Skidmark(wheel_t* m_wheel, Ogre::SceneNode* snode, int m_length = 500, int m_bucket_count = 20);
+    Skidmark(SkidmarkConfig* config, RoRFrameListener* sim_controller,
+        wheel_t* m_wheel, Ogre::SceneNode* snode, int m_length = 500, int m_bucket_count = 20);
     virtual ~Skidmark();
 
     void updatePoint();
@@ -65,9 +70,10 @@ private:
 
     static int instanceCounter;
 
-    struct SkidmarkObject
+    struct SkidmarkSegment
     {
         Ogre::ManualObject* obj;
+        Ogre::MaterialPtr material;
         std::vector<Ogre::Vector3> points;
         std::vector<Ogre::Real> faceSizes;
         std::vector<Ogre::String> groundTexture;
@@ -77,13 +83,14 @@ private:
         int facecounter;
     };
 
+    void PopSegment();
     void limitObjects();
     void addObject(Ogre::Vector3 start, Ogre::String texture);
     void setPointInt(unsigned short index, const Ogre::Vector3& value, Ogre::Real fsize, Ogre::String texture);
     void addPoint(const Ogre::Vector3& value, Ogre::Real fsize, Ogre::String texture);
     
     bool                 m_is_dirty;
-    std::queue<SkidmarkObject> m_objects;
+    std::queue<SkidmarkSegment> m_objects;
     float                m_max_distance;
     float                m_max_distance_squared;
     float                m_min_distance;
@@ -93,4 +100,8 @@ private:
     int                  m_length;
     wheel_t*             m_wheel;
     Ogre::SceneNode*     m_scene_node;  
+    SkidmarkConfig*      m_config;
+    RoRFrameListener*    m_sim_controller;
 };
+
+} // namespace RoR

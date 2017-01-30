@@ -34,7 +34,7 @@ class RoRFrameListener: public Ogre::FrameListener, public Ogre::WindowEventList
 {
 public:
 
-    RoRFrameListener(RoR::ForceFeedback* ff);
+    RoRFrameListener(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_conf);
     virtual ~RoRFrameListener();
 
     // Ogre::FrameListener public interface
@@ -63,6 +63,7 @@ public:
 
     RoR::LegacyRearViewMirrors* GetLegacyMirrors() { return &m_legacy_mirrors; }
     RoR::BeamFactory*           GetBeamFactory  () { return &m_beam_factory; }
+    RoR::SkidmarkConfig*        GetSkidmarkConf () { return m_skidmark_conf; }
 
 protected:
 
@@ -82,6 +83,7 @@ protected:
     RoR::BeamFactory         m_beam_factory;
     RoR::CharacterFactory    m_character_factory;
     HeatHaze*                m_heathaze;
+    RoR::SkidmarkConfig*     m_skidmark_conf;
     Ogre::Real               m_time_until_next_toggle; ///< just to stop toggles flipping too fast
     float                    m_last_simulation_speed;  ///< previously used time ratio between real time (evt.timeSinceLastFrame) and physics time ('dt' used in calcPhysics)
     bool                     m_is_pace_reset_pressed;
