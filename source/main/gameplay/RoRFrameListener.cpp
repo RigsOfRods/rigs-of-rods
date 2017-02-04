@@ -65,7 +65,6 @@
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
 #include "TerrainObjectManager.h"
-#include "TruckHUD.h"
 #include "Utils.h"
 #include "Water.h"
 
@@ -1755,8 +1754,6 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 
             if (curr_truck != nullptr)
             {
-                // update the truck info gui (also if not displayed!)
-                RoR::App::GetOverlayWrapper()->truckhud->update(dt, curr_truck, m_truck_info_on);
 #ifdef FEAT_TIMING
 				BES.updateGUI(dt);
 #endif // FEAT_TIMING
@@ -1940,8 +1937,6 @@ void RoRFrameListener::HideGUI(bool hidden)
     {
         if (RoR::App::GetOverlayWrapper())
             RoR::App::GetOverlayWrapper()->showDashboardOverlays(false, curr_truck);
-        if (RoR::App::GetOverlayWrapper())
-            RoR::App::GetOverlayWrapper()->truckhud->show(false);
         if (gEnv->surveyMap)
             gEnv->surveyMap->setVisibility(false);
     }
@@ -2060,10 +2055,6 @@ void RoRFrameListener::ChangedCurrentVehicle(Beam* previous_vehicle, Beam* curre
         }
 
         m_force_feedback->SetEnabled(false);
-
-        // hide truckhud
-        if (RoR::App::GetOverlayWrapper())
-            RoR::App::GetOverlayWrapper()->truckhud->show(false);
 
         TRIGGER_EVENT(SE_TRUCK_EXIT, previous_vehicle?previous_vehicle->trucknum:-1);
     }

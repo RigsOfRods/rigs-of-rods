@@ -110,7 +110,6 @@ protected:
     Ogre::OverlayElement *loadOverlayElement(Ogre::String name);
 
     Ogre::RenderWindow* win;
-    TruckHUD *truckhud;
 
     // -------------------------------------------------------------
     // Overlays

@@ -115,7 +115,6 @@ set( SOURCE_FILES
   gui/GUIManager.{h,cpp}
   gui/OverlayWrapper.{h,cpp}
   gui/RTTLayer.{h,cpp}
-  gui/TruckHUD.{h,cpp}
   gui/mygui/Attribute.h
   gui/mygui/BaseLayout.h
   gui/mygui/Dialog.{h,cpp}

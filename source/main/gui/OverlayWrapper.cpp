@@ -55,7 +55,6 @@
 #include "ScrewProp.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
-#include "TruckHUD.h"
 #include "TurboProp.h"
 #include "Utils.h"
 
@@ -78,11 +77,6 @@ OverlayWrapper::~OverlayWrapper()
     showDashboardOverlays(false, nullptr);
     HideRacingOverlay();
     HideDirectionOverlay();
-    if (truckhud != nullptr)
-    {
-        delete truckhud;
-        truckhud = nullptr;
-    }
 }
 
 void OverlayWrapper::resizePanel(OverlayElement* oe)
@@ -413,9 +407,6 @@ int OverlayWrapper::init()
     // openGL fix
     m_racing_overlay->show();
     m_racing_overlay->hide();
-
-    truckhud = new TruckHUD();
-    truckhud->show(false);
 
     g_is_scaled = true;
 

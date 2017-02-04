@@ -187,7 +187,7 @@ void CLASS::UpdateStats(float dt, Beam* truck)
         m_truck_name->setCaptionWithReplacing(truck->getTruckName());
         truckstats = "\n"; //always reset on each frame + space
 
-        //taken from TruckHUD.cpp, needs cleanup
+        //taken from TruckHUD.cpp (now removed), TODO: needs cleanup
         beam_t* beam = truck->getBeams();
         float average_deformation = 0.0f;
         float beamstress = 0.0f;

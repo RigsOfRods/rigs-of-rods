@@ -64,7 +64,6 @@
 #include "SoundScriptManager.h"
 #include "SurveyMapManager.h"
 #include "TerrainManager.h"
-#include "TruckHUD.h"
 #include "Utils.h"
 #include "SkyManager.h"
 
