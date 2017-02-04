@@ -22,13 +22,6 @@
 #include "BitFlags.h"
 #include <stdint.h>
 
-#ifdef _MSC_VER          // MSVC: set global packing and make PACKED an empty macro
-#   pragma pack(push, 1)
-#   define PACKED
-#else                    // GCC/Clang: use standard attribute
-#   define PACKED __attribute__((packed))
-#endif
-
 namespace RoRnet {
 
 #define RORNET_MAX_PEERS            64     //!< maximum clients connected at the same time
@@ -116,7 +109,9 @@ enum Netmask
 // Only use datatypes with defined binary sizes (avoid bool, int, wchar_t...)
 // Prefer alignment to 4 or 2 bytes (put int32/float/etc. fields on top)
 
-PACKED struct Header               //!< Common header for every packet
+#pragma pack(push, 1)
+
+struct Header                      //!< Common header for every packet
 {
     uint32_t command;              //!< the command of this packet: MSG2_*
     int32_t  source;               //!< source of this command: 0 = server
@@ -124,7 +119,7 @@ PACKED struct Header               //!< Common header for every packet
     uint32_t size;                 //!< size of the attached data block
 };
 
-PACKED struct StreamRegister       //!< Sent from the client to server and vice versa, to broadcast a new stream
+struct StreamRegister              //!< Sent from the client to server and vice versa, to broadcast a new stream
 {
     int32_t type;                  //!< stream type
     int32_t status;                //!< initial stream status
@@ -134,7 +129,7 @@ PACKED struct StreamRegister       //!< Sent from the client to server and vice 
     char    data[8000];            //!< data used for stream setup
 };
 
-PACKED struct TruckStreamRegister
+struct TruckStreamRegister
 {
     int32_t type;                  //!< stream type
     int32_t status;                //!< initial stream status
@@ -145,12 +140,12 @@ PACKED struct TruckStreamRegister
     char    truckconfig[10][60];   //!< truck section configuration
 };
 
-PACKED struct StreamUnRegister     //< sent to remove a stream
+struct StreamUnRegister            //< sent to remove a stream
 {
     uint32_t streamid;
 };
 
-PACKED struct UserInfo
+struct UserInfo
 {
     uint32_t uniqueid;             //!< user unique id
     int32_t  authstatus;           //!< auth status set by server: AUTH_*
@@ -168,7 +163,7 @@ PACKED struct UserInfo
     char     sessionoptions[128];  //!< reserved for future options
 };
 
-PACKED struct TruckState           //!< Formerly `oob_t`
+struct TruckState                  //!< Formerly `oob_t`
 {
     int32_t  time;                 //!< time data
     float    engine_speed;         //!< engine RPM
@@ -181,7 +176,7 @@ PACKED struct TruckState           //!< Formerly `oob_t`
     uint32_t flagmask;             //!< flagmask: NETMASK_*
 };
 
-PACKED struct ServerInfo
+struct ServerInfo
 {
     char    protocolversion[20];   //!< protocol version being used
     char    terrain[128];          //!< terrain name
@@ -190,14 +185,11 @@ PACKED struct ServerInfo
     char    info[4096];            //!< info text
 };
 
-PACKED struct LegacyServerInfo
+struct LegacyServerInfo
 {
     char    protocolversion[20];   //!< protocol version being used
 };
 
 } // namespace RoRnet
 
-#ifdef _MSC_VER
-#   pragma pack(pop)
-#endif
-#undef PACKED
+#pragma pack(pop)
