@@ -36,7 +36,6 @@ public:
     bool update(float dt, Beam* truck, bool visible = true);
     void show(bool value);
     bool isVisible();
-    void initTorqueOverlay();
 
 protected:
 
@@ -44,7 +43,6 @@ protected:
     float updatetime;
     int width, border;
 
-    std::map<int, float> avVelos;
     std::map<int, float> maxNegLatG;
     std::map<int, float> maxNegSagG;
     std::map<int, float> maxNegVerG;
@@ -56,9 +54,5 @@ protected:
 
     void checkOverflow(Ogre::OverlayElement* e);
 
-    static std::unique_ptr<TruckHUD> myInstance;
     static const unsigned int COMMANDS_VISIBLE = 25;
-
-    Ogre::String lastTorqueModel; //!< name of the last used torque model, needed to detect a change in the model
-    Ogre::Real lastTorqueRatio; //!< last RPM ratio, used to clear the last torque peak
 };

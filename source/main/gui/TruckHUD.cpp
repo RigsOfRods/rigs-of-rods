@@ -45,7 +45,6 @@ TruckHUD::TruckHUD() : border(0), updatetime(0.0f), width(450)
     {
         maxVelos[i] = maxPosVerG[i] = maxPosSagG[i] = maxPosLatG[i] = -9999;
         minVelos[i] = maxNegVerG[i] = maxNegSagG[i] = maxNegLatG[i] = 9999;
-        avVelos[i] = 0;
     }
 
     truckHUD = OverlayManager::getSingleton().getByName("tracks/TruckInfoBox");
@@ -420,6 +419,3 @@ bool TruckHUD::update(float dt, Beam* truck, bool visible)
     return true;
 }
 
-void TruckHUD::initTorqueOverlay()
-{
-}

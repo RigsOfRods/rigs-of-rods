@@ -135,8 +135,6 @@ public:
 
 private:
 
-    bool create();
-
     virtual bool frameStarted(const Ogre::FrameEvent& _evt);
     virtual bool frameEnded(const Ogre::FrameEvent& _evt);
     virtual void windowClosed(Ogre::RenderWindow* rw);
