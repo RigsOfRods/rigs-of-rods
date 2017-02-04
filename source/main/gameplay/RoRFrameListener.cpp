@@ -2066,12 +2066,6 @@ void RoRFrameListener::ChangedCurrentVehicle(Beam* previous_vehicle, Beam* curre
             RoR::App::GetOverlayWrapper()->showDashboardOverlays(true, current_vehicle);
         }
 
-        // hide unused items
-        if (RoR::App::GetOverlayWrapper() && current_vehicle->free_active_shock == 0)
-        {
-            (OverlayManager::getSingleton().getOverlayElement("tracks/rollcorneedle"))->hide();
-        }
-
         // force feedback
         m_force_feedback->SetEnabled(current_vehicle->driveable == TRUCK); //only for trucks so far
 
@@ -2087,12 +2081,10 @@ void RoRFrameListener::ChangedCurrentVehicle(Beam* previous_vehicle, Beam* curre
             {
                 if (current_vehicle->hashelp)
                 {
-                    OverlayManager::getSingleton().getOverlayElement("tracks/helppanel")->setMaterialName(current_vehicle->helpmat);
                     OverlayManager::getSingleton().getOverlayElement("tracks/machinehelppanel")->setMaterialName(current_vehicle->helpmat);
                 }
                 else
                 {
-                    OverlayManager::getSingleton().getOverlayElement("tracks/helppanel")->setMaterialName("tracks/black");
                     OverlayManager::getSingleton().getOverlayElement("tracks/machinehelppanel")->setMaterialName("tracks/black");
                 }
             }
@@ -2107,25 +2099,6 @@ void RoRFrameListener::ChangedCurrentVehicle(Beam* previous_vehicle, Beam* curre
                 // Do not retry
                 current_vehicle->hashelp = 0;
                 current_vehicle->helpmat[0] = '\0';
-            }
-
-            // enable gui mods
-            if (! current_vehicle->speedomat.empty())
-            {
-                OverlayManager::getSingleton().getOverlayElement("tracks/speedo")->setMaterialName(current_vehicle->speedomat);
-            }
-            else
-            {
-                OverlayManager::getSingleton().getOverlayElement("tracks/speedo")->setMaterialName("tracks/Speedo");
-            }
-
-            if (! current_vehicle->tachomat.empty())
-            {
-                OverlayManager::getSingleton().getOverlayElement("tracks/tacho")->setMaterialName(current_vehicle->tachomat);
-            }
-            else
-            {
-                OverlayManager::getSingleton().getOverlayElement("tracks/tacho")->setMaterialName("tracks/Tacho");
             }
         }
 

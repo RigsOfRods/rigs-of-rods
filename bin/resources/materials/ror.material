@@ -468,24 +468,6 @@ material mouse-locked-heavy
 	}
 }
 
-
-material tracks/Pedal
-{
-	technique
-	{
-		pass
-		{
-			scene_blend alpha_blend
-			alpha_rejection greater 128
-
-			texture_unit
-			{
-				texture pedal.dds
-			}
-		}
-	}
-}
-
 material tracks/ap-up
 {
 	technique
@@ -736,22 +718,6 @@ material tracks/val-bg
 	}
 }
 
-
-material tracks/rollmask
-{
-	technique
-	{
-		pass
-		{
-
-			texture_unit
-			{
-				texture rollmask.dds
-			}
-		}
-	}
-}
-
 material tracks/pressuremat
 {
 	technique
@@ -787,35 +753,6 @@ material tracks/pressureneedle_mat
 	}
 }
 
-material tracks/rollmaskblink
-{
-	technique
-	{
-		pass
-		{
-
-			texture_unit
-			{
-				texture rollmaskblink.dds
-			}
-		}
-	}
-}
-
-material tracks/pitchmask
-{
-	technique
-	{
-		pass
-		{
-
-			texture_unit
-			{
-				texture pitchmask.dds
-			}
-		}
-	}
-}
 material tracks/needle
 {
 	technique
@@ -830,7 +767,6 @@ material tracks/needle
 		}
 	}
 }
-
 
 material tracks/stabneedle
 {
@@ -934,42 +870,6 @@ material tracks/pitchneedle_mat
 	}
 }
 
-material tracks/rollcorneedle_mat
-{
-	technique
-	{
-		pass
-		{
-			scene_blend alpha_blend
-			alpha_rejection greater 128
-
-			texture_unit
-			{
-				tex_address_mode clamp
-				texture blueneedle.dds
-			}
-		}
-	}
-}
-
-material tracks/turboneedle_mat
-{
-	technique
-	{
-		pass
-		{
-			scene_blend alpha_blend
-			alpha_rejection greater 128
-
-			texture_unit
-			{
-				tex_address_mode clamp
-				texture redneedle.dds
-			}
-		}
-	}
-}
-
 material tracks/Tacho
 {
 	technique
@@ -999,8 +899,6 @@ material tracks/Anglo
 		}
 	}
 }
-
-
 
 material tracks/instructions
 {
@@ -2261,247 +2159,6 @@ material tracks/Viewer
 	}
 }
 
-
-material tracks/pbrake-off
-{
-	technique
-	{
-		pass
-		{
-
-			texture_unit
-			{
-				texture pbrake-off.dds
-			}
-		}
-	}
-}
-
-material tracks/pbrake-on
-{
-	technique
-	{
-		pass
-		{
-
-			texture_unit
-			{
-				texture pbrake-on.dds
-			}
-		}
-	}
-}
-
-material tracks/locked-off
-{
-	technique
-	{
-		pass
-		{
-
-			texture_unit
-			{
-				texture locked-off.dds
-			}
-		}
-	}
-}
-
-material tracks/locked-on
-{
-	technique
-	{
-		pass
-		{
-
-			texture_unit
-			{
-				texture locked-on.dds
-			}
-		}
-	}
-}
-
-material tracks/secured-off
-{
-	technique
-	{
-		pass
-		{
-
-			texture_unit
-			{
-				texture secured-off.dds
-			}
-		}
-	}
-}
-
-material tracks/secured-on
-{
-	technique
-	{
-		pass
-		{
-
-			texture_unit
-			{
-				texture secured-on.dds
-			}
-		}
-	}
-}
-
-material tracks/lopress-off
-{
-	technique
-	{
-		pass
-		{
-
-			texture_unit
-			{
-				texture lopress-off.dds
-			}
-		}
-	}
-}
-
-material tracks/lopress-on
-{
-	technique
-	{
-		pass
-		{
-
-			texture_unit
-			{
-				texture lopress-on.dds
-			}
-		}
-	}
-}
-
-material tracks/clutch-off
-{
-	technique
-	{
-		pass
-		{
-
-			texture_unit
-			{
-				texture clutch-off.dds
-			}
-		}
-	}
-}
-
-material tracks/clutch-on
-{
-	technique
-	{
-		pass
-		{
-
-			texture_unit
-			{
-				texture clutch-on.dds
-			}
-		}
-	}
-}
-
-material tracks/lights-on
-{
-	technique
-	{
-		pass
-		{
-            scene_blend alpha_blend
-			texture_unit
-			{
-				texture lights-on.dds
-			}
-		}
-	}
-}
-
-material tracks/lights-off
-{
-	technique
-	{
-		pass
-		{
-            scene_blend alpha_blend
-			texture_unit
-			{
-				texture lights-off.dds
-			}
-		}
-	}
-}
-
-material tracks/batt-on
-{
-	technique
-	{
-		pass
-		{
-            scene_blend alpha_blend
-			texture_unit
-			{
-				texture batt-on.dds
-			}
-		}
-	}
-}
-
-material tracks/batt-off
-{
-	technique
-	{
-		pass
-		{
-            scene_blend alpha_blend
-			texture_unit
-			{
-				texture batt-off.dds
-			}
-		}
-	}
-}
-
-material tracks/ign-on
-{
-	technique
-	{
-		pass
-		{
-
-			texture_unit
-			{
-				texture ign-on.dds
-			}
-		}
-	}
-}
-
-material tracks/ign-off
-{
-	technique
-	{
-		pass
-		{
-
-			texture_unit
-			{
-				texture ign-off.dds
-			}
-		}
-	}
-}
-
 material tracks/spinprop
 {
 	receive_shadows off
@@ -3288,95 +2945,6 @@ material ror-camera
 			{
 				colour_op_ex source1 src_manual src_current 1 0 0
 				alpha_op_ex source1 src_manual src_current 0.4
-			}
-		}
-	}
-}
-material tracks/tcontrol-act
-{
-	technique
-	{
-		pass
-		{
-            scene_blend alpha_blend
-			texture_unit
-			{
-				texture TC_ACTIVE.dds
-			}
-		}
-	}
-}
-
-material tracks/tcontrol-on
-{
-	technique
-	{
-		pass
-		{
-            scene_blend alpha_blend
-			texture_unit
-			{
-				texture TC_ON.dds
-			}
-		}
-	}
-}
-
-material tracks/tcontrol-off
-{
-	technique
-	{
-		pass
-		{
-            scene_blend alpha_blend
-			texture_unit
-			{
-				texture TC_OFF.dds
-			}
-		}
-	}
-}
-
-material tracks/antilock-act
-{
-	technique
-	{
-		pass
-		{
-            scene_blend alpha_blend
-			texture_unit
-			{
-				texture ALB_ACTIVE.dds
-			}
-		}
-	}
-}
-
-material tracks/antilock-on
-{
-	technique
-	{
-		pass
-		{
-            scene_blend alpha_blend
-			texture_unit
-			{
-				texture ALB_ON.dds
-			}
-		}
-	}
-}
-
-material tracks/antilock-off
-{
-	technique
-	{
-		pass
-		{
-            scene_blend alpha_blend
-			texture_unit
-			{
-				texture ALB_OFF.dds
 			}
 		}
 	}

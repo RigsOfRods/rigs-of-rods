@@ -56,8 +56,6 @@ public:
     void windowResized();
     void resizeOverlay(LoadedOverlay & overlay);
 
-    int getDashBoardHeight();
-
     bool mouseMoved(const OIS::MouseEvent& _arg);
     bool mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
     bool mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
@@ -117,9 +115,6 @@ protected:
 
     unsigned int  m_visible_overlays;
 
-    Ogre::Overlay *m_truck_dashboard_overlay;
-    Ogre::Overlay *m_truck_dashboard_needles_overlay;
-    Ogre::Overlay *m_truck_dashboard_needles_mask_overlay;
     Ogre::Overlay *m_truck_pressure_overlay;
     Ogre::Overlay *m_truck_pressure_needle_overlay;
 
@@ -144,20 +139,6 @@ protected:
     // Truck
     Ogre::OverlayElement* guiGear;      //!< truck
     Ogre::OverlayElement* guiGear3D;    //!< truck
-    Ogre::OverlayElement* guiRoll;      //!< truck
-    Ogre::OverlayElement* guipedclutch; //!< truck
-    Ogre::OverlayElement* guipedbrake;  //!< truck
-    Ogre::OverlayElement* guipedacc;    //!< truck
-    Ogre::OverlayElement *pbrakeo;      //!< truck
-    Ogre::OverlayElement *tcontrolo;    //!< truck
-    Ogre::OverlayElement *antilocko;    //!< truck
-    Ogre::OverlayElement *lockedo;      //!< truck
-    Ogre::OverlayElement *securedo;     //!< truck
-    Ogre::OverlayElement *lopresso;     //!< truck
-    Ogre::OverlayElement *clutcho;      //!< truck
-    Ogre::OverlayElement *lightso;      //!< truck
-    Ogre::OverlayElement *batto;        //!< truck
-    Ogre::OverlayElement *igno;         //!< truck
 
     // Aerial overlay elements
     Ogre::OverlayElement *thro1;
@@ -202,12 +183,8 @@ protected:
     Ogre::TextureUnitState *hsihtexture;
 
     // truck
-    Ogre::TextureUnitState *speedotexture;
-    Ogre::TextureUnitState *tachotexture;
-    Ogre::TextureUnitState *rolltexture;
-    Ogre::TextureUnitState *pitchtexture;
-    Ogre::TextureUnitState *rollcortexture;
-    Ogre::TextureUnitState *turbotexture;
+    Ogre::TextureUnitState *speedotexture; // Needed for dashboard prop
+    Ogre::TextureUnitState *tachotexture;  // Needed for dashboard prop
 
     // Aerial
     Ogre::TextureUnitState *airspeedtexture;
@@ -240,8 +217,6 @@ protected:
     float thrtop;
     float thrheight;
     float throffset;
-
-    bool m_flipflop;
 
     // Truck m_racing_overlay overlay
     Ogre::SceneNode* m_direction_arrow_node;
