@@ -93,6 +93,7 @@ protected:
     double                   m_time;
     RoR::ForceFeedback*      m_force_feedback;
     bool                     m_hide_gui;
+    bool                     m_was_app_window_closed;
     bool                     m_truck_info_on;
     bool                     m_pressure_pressed;
     RoR::LegacyRearViewMirrors m_legacy_mirrors;
