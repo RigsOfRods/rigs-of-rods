@@ -28,8 +28,10 @@ class DustPool : public ZeroedMemoryAllocator
 {
 public:
 
-    DustPool(const char* dname, int dsize);
+    DustPool(Ogre::SceneManager* sm, const char* dname, int dsize);
     ~DustPool();
+
+	void Discard(Ogre::SceneManager* sm);
 
     void setVisible(bool s);
     //Dust
@@ -77,6 +79,7 @@ protected:
     int allocated;
     int size;
     int types[MAX_DUSTS];
+	bool m_is_discarded;
 
     std::mutex m_allocation_mutex;
 };

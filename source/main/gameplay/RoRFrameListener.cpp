@@ -2314,7 +2314,7 @@ bool RoRFrameListener::SetupGameplayLoop()
     // Setup
     // ============================================================================
 
-    m_beam_factory.GetParticleManager().CheckAndInit();
+    m_beam_factory.GetParticleManager().DustManCheckAndInit(gEnv->sceneManager); // TODO: de-globalize SceneManager
 
     int colourNum = -1;
 

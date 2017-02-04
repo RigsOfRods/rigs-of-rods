@@ -38,8 +38,8 @@ public:
     {
     }
 
-    void CheckAndInit();
-    void Shutdown();
+    void      DustManCheckAndInit    (Ogre::SceneManager* sm);
+    void      DustManDiscard         (Ogre::SceneManager* sm);
 
     DustPool* getGroundModelDustPool(ground_model_t* g);
 

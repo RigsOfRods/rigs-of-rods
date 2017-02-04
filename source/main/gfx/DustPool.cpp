@@ -33,14 +33,17 @@ using namespace Ogre;
   const int DustPool::MAX_DUSTS;
 #endif // !_WIN32
 
-DustPool::DustPool(const char* dname, int dsize) : allocated(0), size(std::min(dsize, static_cast<int>(MAX_DUSTS)))
+DustPool::DustPool(Ogre::SceneManager* sm, const char* dname, int dsize):
+	allocated(0),
+	size(std::min(dsize, static_cast<int>(MAX_DUSTS))),
+	m_is_discarded(false)
 {
     for (int i = 0; i < size; i++)
     {
         char dename[256];
         sprintf(dename, "Dust %s %i", dname, i);
-        sns[i] = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-        pss[i] = gEnv->sceneManager->createParticleSystem(dename, dname);
+        sns[i] = sm->getRootSceneNode()->createChildSceneNode();
+        pss[i] = sm->createParticleSystem(dename, dname);
         if (pss[i])
         {
             sns[i]->attachObject(pss[i]);
@@ -56,6 +59,24 @@ DustPool::DustPool(const char* dname, int dsize) : allocated(0), size(std::min(d
 
 DustPool::~DustPool()
 {
+	assert(m_is_discarded);
+}
+
+void DustPool::Discard(Ogre::SceneManager* sm)
+{
+	for (int i = 0; i < size; i++)
+	{
+		sns[i]->removeAndDestroyAllChildren();
+		sm->destroySceneNode(sns[i]);
+		sns[i] = nullptr;
+
+		if (pss[i])
+		{
+			sm->destroyParticleSystem(pss[i]);
+			pss[i] = nullptr;
+		}
+	}
+	m_is_discarded = true;
 }
 
 void DustPool::setVisible(bool s)

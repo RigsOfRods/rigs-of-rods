@@ -333,21 +333,21 @@ int main(int argc, char *argv[])
             }
             else if (App::GetPendingAppState() == App::APP_STATE_SIMULATION)
             {
-                RoRFrameListener sim_controller(&force_feedback);
-                if (sim_controller.SetupGameplayLoop())
                 {
-                    App::SetActiveAppState(App::APP_STATE_SIMULATION);
-                    App::SetPendingAppState(App::APP_STATE_NONE);
-                    App::GetGuiManager()->ReflectGameState();
-                    sim_controller.EnterGameplayLoop();
-
-                    // Cleanup
-                    gEnv->sceneManager->clearScene();
+                    RoRFrameListener sim_controller(&force_feedback);
+                    if (sim_controller.SetupGameplayLoop())
+                    {
+                        App::SetActiveAppState(App::APP_STATE_SIMULATION);
+                        App::SetPendingAppState(App::APP_STATE_NONE);
+                        App::GetGuiManager()->ReflectGameState();
+                        sim_controller.EnterGameplayLoop();
+                    }
+                    else
+                    {
+                        App::SetPendingAppState(App::APP_STATE_MAIN_MENU);
+                    }
                 }
-                else
-                {
-                    App::SetPendingAppState(App::APP_STATE_MAIN_MENU);
-                }
+                gEnv->sceneManager->clearScene(); // Wipe the scene after RoRFrameListener was destroyed (->cleanups invoked)
             }
             else if (App::GetPendingAppState() == App::APP_STATE_CHANGE_MAP)
             {
