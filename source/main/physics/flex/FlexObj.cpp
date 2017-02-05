@@ -25,10 +25,11 @@
 
 using namespace Ogre;
 
-FlexObj::FlexObj(node_t *nds, int numtexcoords, Vector3* texcoords, int numtriangles, int* triangles, int numsubmeshes, int* subtexindex, int* subtriindex, char* texname, char* name, int* subisback, char* backtexname, char* transtexname)
+FlexObj::FlexObj(node_t *nds, std::vector<CabTexcoord>& texcoords, int numtriangles, 
+             int* triangles, std::vector<CabSubmesh>& submesh_defs, 
+             char* texname, char* name, char* backtexname, char* transtexname)
 {
     unsigned int i;
-    int j;
     triangleCount = numtriangles;
 
     gEnv->sceneManager=gEnv->sceneManager;
@@ -37,23 +38,21 @@ FlexObj::FlexObj(node_t *nds, int numtexcoords, Vector3* texcoords, int numtrian
     msh = MeshManager::getSingleton().createManual(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
     /// Create submeshes
-    subs=(SubMesh**)malloc(numsubmeshes*sizeof(SubMesh*));
-    for (j=0; j<numsubmeshes; j++)
+    m_submeshes.reserve(submesh_defs.size());
+    for (size_t j=0; j<submesh_defs.size(); j++)
     {
-        subs[j] = msh->createSubMesh();
-        //materials
-        if (j<numsubmeshes-1)
-        {
-            if (subisback[j+1]==0) subs[j]->setMaterialName(texname);
-            if (subisback[j+1]==1) subs[j]->setMaterialName(backtexname);
-            if (subisback[j+1]==2) subs[j]->setMaterialName(transtexname);
-        }
-        else
-            subs[j]->setMaterialName(texname);
+		Ogre::SubMesh* submesh = msh->createSubMesh();
+        switch (submesh_defs[j].backmesh_type)
+		{
+		case CabSubmesh::BACKMESH_OPAQUE:      submesh->setMaterialName(backtexname);  break;
+		case CabSubmesh::BACKMESH_TRANSPARENT: submesh->setMaterialName(transtexname); break;
+		default:                               submesh->setMaterialName(texname);
+		}
+		m_submeshes.push_back(submesh);
     };
 
     /// Define the vertices (8 vertices, each consisting of 3 groups of 3 floats
-    nVertices = numtexcoords;
+    nVertices = texcoords.size();
     vbufCount = (2*3+2)*nVertices;
     vertices=(float*)malloc(vbufCount*sizeof(float));
     //shadow
@@ -61,16 +60,11 @@ FlexObj::FlexObj(node_t *nds, int numtexcoords, Vector3* texcoords, int numtrian
     shadowposvertices=(float*)malloc(nVertices*3*2*sizeof(float));
     nodeIDs=(int*)malloc(nVertices*sizeof(int));
 
-    //define node ids
+    
     for (i=0; i<nVertices; i++)
     {
-        nodeIDs[i]=(int)(texcoords[i].x);
-    }
-
-    //textures coordinates
-    for (i=0; i<nVertices; i++)
-    {
-        covertices[i].texcoord=Vector2(texcoords[i].y,texcoords[i].z);
+        nodeIDs[i] = texcoords[i].node_id; //define node ids
+		covertices[i].texcoord=Vector2(texcoords[i].texcoord_u, texcoords[i].texcoord_v); //textures coordinates
     }
 
     /// Define triangles
@@ -79,7 +73,7 @@ FlexObj::FlexObj(node_t *nds, int numtexcoords, Vector3* texcoords, int numtrian
     faces=(unsigned short*)malloc(ibufCount*sizeof(unsigned short));
     for (i=0; i<ibufCount; i++)
     {
-        faces[i]=findID(i/3, triangles[i], numsubmeshes, subtexindex, subtriindex);
+        faces[i]=findID(i/3, triangles[i], submesh_defs);
     }
 
     sref=(float*)malloc(numtriangles*sizeof(float));
@@ -129,26 +123,31 @@ FlexObj::FlexObj(node_t *nds, int numtexcoords, Vector3* texcoords, int numtrian
     VertexBufferBinding* bind = msh->sharedVertexData->vertexBufferBinding;
     bind->setBinding(0, vbuf);
 
-
-
-
     /// Set parameters of the submeshes
-    for (j=0; j<numsubmeshes; j++)
+    for (size_t j=0; j<m_submeshes.size(); j++)
     {
-        int smcount=3*(subtriindex[j+1]-subtriindex[j]);
-        subs[j]->useSharedVertices = true;
+        size_t index_count;
+		if (j == 0)
+			index_count = 3*submesh_defs[j].cabs_pos;
+		else
+			index_count = 3*(submesh_defs[j].cabs_pos-submesh_defs[j-1].cabs_pos); // 3 indices per triangle
+        m_submeshes[j]->useSharedVertices = true;
         /// Allocate index buffer of the requested number of vertices (ibufCount)
-        HardwareIndexBufferSharedPtr ibuf = HardwareBufferManager::getSingleton().
-         createIndexBuffer(
+        HardwareIndexBufferSharedPtr ibuf = HardwareBufferManager::getSingleton().createIndexBuffer(
              HardwareIndexBuffer::IT_16BIT,
-                smcount,
-                HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+             index_count,
+             HardwareBuffer::HBU_STATIC_WRITE_ONLY);
 
         /// Upload the index data to the card
-        ibuf->writeData(0, ibuf->getSizeInBytes(), &faces[subtriindex[j]*3], true);
-        subs[j]->indexData->indexBuffer = ibuf;
-        subs[j]->indexData->indexCount = smcount;
-        subs[j]->indexData->indexStart = 0;
+		unsigned short* faces_ptr;
+		if (j == 0)
+			faces_ptr = &faces[0];
+		else
+			faces_ptr = &faces[submesh_defs[j-1].cabs_pos * 3];
+        ibuf->writeData(0, ibuf->getSizeInBytes(), faces_ptr, true);
+        m_submeshes[j]->indexData->indexBuffer = ibuf;
+        m_submeshes[j]->indexData->indexCount = index_count;
+        m_submeshes[j]->indexData->indexStart = 0;
     }
 
 
@@ -168,14 +167,25 @@ void FlexObj::scale(float factor)
 }
 
 //find the zeroed id of the node v in the context of the tidx triangle
-int FlexObj::findID(int tidx, int v, int numsubmeshes, int* subtexindex, int* subtriindex)
+int FlexObj::findID(int tidx, int v, std::vector<CabSubmesh>& submeshes)
 {
-    int j;
     //first: find the context from the triangle index tidx
-    int context;
-    for (context=0; context<numsubmeshes+1; context++) if (tidx<subtriindex[context]) {context--;break;};
+    size_t context;
+    for (context=0; context<submeshes.size()+1; context++) 
+	{
+		if (static_cast<unsigned int>(tidx) < submeshes[context].cabs_pos)
+		{
+			if (context>0)
+				context--;
+			break;
+		}
+	}
     //okay, now search in the vertice block corresponding to the context
-    for (j=subtexindex[context]; j<subtexindex[context+1]; j++) if (nodeIDs[j]==v) return j;
+	for (size_t j=submeshes[context].texcoords_pos; j<submeshes[context+1].texcoords_pos; j++)
+	{
+		if (nodeIDs[j]==v)
+			return j;
+	}
     return 0;
 }
 
@@ -287,7 +297,6 @@ FlexObj::~FlexObj()
         msh.setNull();
     }
 
-    if (subs              != nullptr) { free (subs); }
     if (vertices          != nullptr) { free (vertices); }
     if (shadownorvertices != nullptr) { free (shadownorvertices); }
     if (shadowposvertices != nullptr) { free (shadowposvertices); }

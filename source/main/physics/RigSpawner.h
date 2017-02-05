@@ -31,6 +31,7 @@
 #include "RigDef_Parser.h"
 #include "BeamData.h"
 #include "FlexFactory.h"
+#include "FlexObj.h"
 
 #include <OgreString.h>
 
@@ -1018,6 +1019,8 @@ protected:
 
     Ogre::SceneNode *m_parent_scene_node;
     Ogre::Vector3 m_spawn_position;
+    std::vector<CabTexcoord> m_oldstyle_cab_texcoords;
+    std::vector<CabSubmesh>  m_oldstyle_cab_submeshes;
     float m_wing_area;
     int m_airplane_left_light;
     int m_airplane_right_light;

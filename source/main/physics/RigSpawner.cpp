@@ -189,14 +189,8 @@ void RigSpawner::InitializeRig()
     m_rig->free_aeroengine = 0;
     memset(m_rig->cabs, 0, sizeof(int) * (MAX_CABS*3));
     m_rig->free_cab = 0;
-    memset(m_rig->subisback, 0, sizeof(int) * MAX_SUBMESHES);
     memset(m_rig->hydro, 0, sizeof(int) * MAX_HYDROS);
     m_rig->free_hydro = 0;
-    for (int i=0;i<MAX_TEXCOORDS;i++) m_rig->texcoords[i] = Ogre::Vector3::ZERO;
-    m_rig->free_texcoord=0;
-    memset(m_rig->subtexcoords, 0, sizeof(int) * MAX_SUBMESHES);
-    m_rig->free_sub = 0;
-    memset(m_rig->subcabs, 0, sizeof(int) * MAX_SUBMESHES);
     memset(m_rig->collcabs, 0, sizeof(int) * MAX_CABS);
     memset(m_rig->inter_collcabrate, 0, sizeof(collcab_rate_t) * MAX_CABS);
     m_rig->free_collcab = 0;
@@ -526,11 +520,8 @@ void RigSpawner::FinalizeRig()
         WashCalculator();
     }
     //add the cab visual
-    if (m_rig->free_texcoord>0 && m_rig->free_cab>0)
+    if (!m_oldstyle_cab_texcoords.empty() && m_rig->free_cab>0)
     {
-        //closure
-        m_rig->subtexcoords[m_rig->free_sub]=m_rig->free_texcoord;
-        m_rig->subcabs[m_rig->free_sub]=m_rig->free_cab;
         char wname[256];
         sprintf(wname, "cab-%s",m_rig->truckname);
         char wnamei[256];
@@ -619,20 +610,16 @@ void RigSpawner::FinalizeRig()
             clomat->compile();
         }
 
-        m_rig->cabMesh =new FlexObj(
-            m_rig->nodes, 
-            m_rig->free_texcoord, 
-            m_rig->texcoords, 
-            m_rig->free_cab, 
-            m_rig->cabs, 
-            m_rig->free_sub, 
-            m_rig->subtexcoords, 
-            m_rig->subcabs, 
-            m_rig->texname, 
-            wname, 
-            m_rig->subisback, 
-            backmatname, 
-            transmatname
+        m_rig->cabMesh =new FlexObj( // Names in FlexObj ctor
+            m_rig->nodes,            // node_t* nds
+            m_oldstyle_cab_texcoords,// std::vector<CabNodeTexcoords>& texcoords
+            m_rig->free_cab,         // int     numtriangles
+            m_rig->cabs,             // int*    triangles
+            m_oldstyle_cab_submeshes,// std::vector<CabSubmesh>& submeshes
+            m_rig->texname,          // char*   texname
+            wname,                   // char*   name
+            backmatname,             // char*   backtexname
+            transmatname             // char*   transtexname
         );
 
         m_rig->cabNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
@@ -1527,12 +1514,6 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
         return;
     }
 
-    m_rig->subtexcoords[m_rig->free_sub]=m_rig->free_texcoord;
-    m_rig->subcabs[m_rig->free_sub]=m_rig->free_cab;
-    m_rig->free_sub++;
-    //initialize the next
-    m_rig->subisback[m_rig->free_sub]=0;
-
     /* TEXCOORDS */
 
     std::vector<RigDef::Texcoord>::iterator texcoord_itor = def.texcoords.begin();
@@ -1543,8 +1524,11 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
             break;
         }
 
-        m_rig->texcoords[m_rig->free_texcoord] = Ogre::Vector3(GetNodeIndexOrThrow(texcoord_itor->node), texcoord_itor->u, texcoord_itor->v);//(id, x, y);
-        m_rig->free_texcoord++;
+        CabTexcoord texcoord;
+        texcoord.node_id    = GetNodeIndexOrThrow(texcoord_itor->node);
+        texcoord.texcoord_u = texcoord_itor->u;
+        texcoord.texcoord_v = texcoord_itor->v;
+        m_oldstyle_cab_texcoords.push_back(texcoord);
     }
 
     /* CAB */
@@ -1657,14 +1641,17 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
         m_rig->free_cab++;
     }
 
+    //close the current mesh
+    CabSubmesh submesh;
+    submesh.texcoords_pos = m_oldstyle_cab_texcoords.size();
+    submesh.cabs_pos = static_cast<unsigned int>(m_rig->free_cab);
+    submesh.backmesh_type = CabSubmesh::BACKMESH_NONE;
+    m_oldstyle_cab_submeshes.push_back(submesh);
+
     /* BACKMESH */
 
     if (def.backmesh)
     {
-
-        //close the current mesh
-        m_rig->subtexcoords[m_rig->free_sub]=m_rig->free_texcoord;
-        m_rig->subcabs[m_rig->free_sub]=m_rig->free_cab;
 
         // Check limit
         if (! CheckCabLimit(1))
@@ -1672,50 +1659,40 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
             return;
         }
 
-        //make it normal
-        m_rig->subisback[m_rig->free_sub]=0;
-        m_rig->free_sub++;
-
-        //add an extra front mesh
-        int i;
-        int start = (m_rig->free_sub==1) ? 0 : m_rig->subtexcoords[m_rig->free_sub-2];
+        // === add an extra front mesh ===
         //texcoords
-        for (i=start; i<m_rig->subtexcoords[m_rig->free_sub-1]; i++)
+        int uv_start = (m_oldstyle_cab_submeshes.size()==1) ? 0 : (m_oldstyle_cab_submeshes.rbegin()+1)->texcoords_pos;
+        for (size_t i=uv_start; i<m_oldstyle_cab_submeshes.back().texcoords_pos; i++)
         {
-            m_rig->texcoords[m_rig->free_texcoord] = m_rig->texcoords[i];;
-            m_rig->free_texcoord++;
+            m_oldstyle_cab_texcoords.push_back(m_oldstyle_cab_texcoords[i]);
         }
         //cab
-        start =  (m_rig->free_sub==1) ? 0 : m_rig->subcabs[m_rig->free_sub-2];
-
-        for (i=start; i<m_rig->subcabs[m_rig->free_sub-1]; i++)
+        int cab_start =  (m_oldstyle_cab_submeshes.size()==1) ? 0 : (m_oldstyle_cab_submeshes.rbegin()+1)->cabs_pos;
+        for (size_t i=cab_start; i<m_oldstyle_cab_submeshes.back().cabs_pos; i++)
         {
             m_rig->cabs[m_rig->free_cab*3]=m_rig->cabs[i*3];
             m_rig->cabs[m_rig->free_cab*3+1]=m_rig->cabs[i*3+1];
             m_rig->cabs[m_rig->free_cab*3+2]=m_rig->cabs[i*3+2];
             m_rig->free_cab++;
         }
-        //finish it, this is a window
-        m_rig->subisback[m_rig->free_sub]=2;
-        //close the current mesh
-        m_rig->subtexcoords[m_rig->free_sub]=m_rig->free_texcoord;
-        m_rig->subcabs[m_rig->free_sub]=m_rig->free_cab;
-        //make is transparent
-        m_rig->free_sub++;
+        // Finalize
+        CabSubmesh submesh;
+        submesh.backmesh_type = CabSubmesh::BACKMESH_TRANSPARENT;
+        submesh.texcoords_pos = m_oldstyle_cab_texcoords.size();
+        submesh.cabs_pos      = static_cast<unsigned int>(m_rig->free_cab);
+        m_oldstyle_cab_submeshes.push_back(submesh);
 
-
-        //add an extra back mesh
+        // === add an extra back mesh ===
         //texcoords
-        start = (m_rig->free_sub==1) ? 0 : m_rig->subtexcoords[m_rig->free_sub-2];
-        for (i=start; i<m_rig->subtexcoords[m_rig->free_sub-1]; i++)
+        uv_start = (m_oldstyle_cab_submeshes.size()==1) ? 0 : (m_oldstyle_cab_submeshes.rbegin()+1)->texcoords_pos;
+        for (size_t i=uv_start; i<m_oldstyle_cab_submeshes.back().texcoords_pos; i++)
         {
-            m_rig->texcoords[m_rig->free_texcoord]=m_rig->texcoords[i];;
-            m_rig->free_texcoord++;
+            m_oldstyle_cab_texcoords.push_back(m_oldstyle_cab_texcoords[i]);
         }
 
         //cab
-        start = (m_rig->free_sub==1) ? 0 : m_rig->subcabs[m_rig->free_sub-2];
-        for (i=start; i<m_rig->subcabs[m_rig->free_sub-1]; i++)
+        cab_start =  (m_oldstyle_cab_submeshes.size()==1) ? 0 : (m_oldstyle_cab_submeshes.rbegin()+1)->cabs_pos;
+        for (size_t i=cab_start; i<m_oldstyle_cab_submeshes.back().cabs_pos; i++)
         {
             m_rig->cabs[m_rig->free_cab*3]=m_rig->cabs[i*3+1];
             m_rig->cabs[m_rig->free_cab*3+1]=m_rig->cabs[i*3];
@@ -1723,7 +1700,12 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
             m_rig->free_cab++;
         }
     
-        m_rig->subisback[m_rig->free_sub]=1;
+        //close the current mesh
+        CabSubmesh submesh2;
+        submesh2.texcoords_pos = m_oldstyle_cab_texcoords.size();
+        submesh2.cabs_pos = static_cast<unsigned int>(m_rig->free_cab);
+        submesh2.backmesh_type = CabSubmesh::BACKMESH_OPAQUE;
+        m_oldstyle_cab_submeshes.push_back(submesh2);
     }
 }
 
@@ -6721,7 +6703,7 @@ bool RigSpawner::CheckSubmeshLimit(unsigned int count)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if ((m_rig->free_sub + count) > MAX_SUBMESHES)
+    if ((m_oldstyle_cab_submeshes.size() + count) > MAX_SUBMESHES)
     {
         std::stringstream msg;
         msg << "Submesh limit (" << MAX_SUBMESHES << ") exceeded";
@@ -6734,8 +6716,8 @@ bool RigSpawner::CheckSubmeshLimit(unsigned int count)
 bool RigSpawner::CheckTexcoordLimit(unsigned int count)
 {
     SPAWNER_PROFILE_SCOPED();
-
-    if ((m_rig->free_texcoord + count) > MAX_TEXCOORDS)
+    
+    if ((m_oldstyle_cab_texcoords.size() + count) > MAX_TEXCOORDS)
     {
         std::stringstream msg;
         msg << "Texcoord limit (" << MAX_TEXCOORDS << ") exceeded";

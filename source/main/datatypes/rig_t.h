@@ -87,18 +87,10 @@ struct rig_t
     int free_screwprop;
 
     int cabs[MAX_CABS*3];
-    int subisback[MAX_SUBMESHES]; //!< Submesh; {0, 1, 2}
     int free_cab;
 
     int hydro[MAX_HYDROS];
     int free_hydro;
-
-    Ogre::Vector3 texcoords[MAX_TEXCOORDS];
-    int free_texcoord;
-
-    int subtexcoords[MAX_SUBMESHES];
-    int subcabs[MAX_SUBMESHES];
-    int free_sub;
 
     int collcabs[MAX_CABS];
     collcab_rate_t inter_collcabrate[MAX_CABS];
