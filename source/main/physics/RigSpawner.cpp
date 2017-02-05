@@ -395,11 +395,6 @@ void RigSpawner::InitializeRig()
     statistics_gfx = BES.getClient(tnum, BES_GFX);
 #endif
 
-    for (int i=0; i<MAX_SUBMESHES; i++)
-    {
-        m_rig->subisback[i] = 0;
-    }
-
     m_rig->simpleSkeletonNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
     m_rig->deletion_sceneNodes.emplace_back(m_rig->simpleSkeletonNode);
     
