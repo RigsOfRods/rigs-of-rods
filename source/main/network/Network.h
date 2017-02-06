@@ -32,12 +32,7 @@ namespace Networking {
 
 // ----------------------- Network messages (packed) -------------------------
 
-#ifdef _MSC_VER          // MSVC: set global packing and make PACKED an empty macro
-#   pragma pack(push, 1)
-#   define PACKED
-#else                    // GCC/Clang: use standard attribute
-#   define PACKED __attribute__((packed))
-#endif
+#pragma pack(push, 1)
 
 enum CharacterCmd
 {
@@ -47,12 +42,12 @@ enum CharacterCmd
     CHARACTER_CMD_DETACH
 };
 
-PACKED struct CharacterMsgGeneric
+struct CharacterMsgGeneric
 {
     int32_t command;
 };
 
-PACKED struct CharacterMsgPos
+struct CharacterMsgPos
 {
     int32_t command;
     float   pos_x, pos_y, pos_z;
@@ -61,7 +56,7 @@ PACKED struct CharacterMsgPos
     char    anim_name[CHARACTER_ANIM_NAME_LEN];
 };
 
-PACKED struct CharacterMsgAttach
+struct CharacterMsgAttach
 {
     int32_t command;
     int32_t source_id;
@@ -69,16 +64,13 @@ PACKED struct CharacterMsgAttach
     int32_t position;
 };
 
-PACKED struct recv_packet_t
+struct recv_packet_t
 {
     RoRnet::Header header;
     char buffer[RORNET_MAX_MESSAGE_LENGTH];
 };
 
-#ifdef _MSC_VER
-#   pragma pack(pop)
-#endif
-#undef PACKED
+#pragma pack(pop)
 
 // ------------------------ End of network messages --------------------------
 
