@@ -449,7 +449,7 @@ void Beam::scaleTruck(float value)
     }
     // tell the cabmesh that resizing is ok, and they dont need to break ;)
     if (cabMesh)
-        cabMesh->scale(value);
+        cabMesh->ScaleFlexObj(value);
     // update engine values
     if (engine)
     {
@@ -3570,7 +3570,7 @@ void Beam::updateFlexbodiesPrepare()
     BES_GFX_START(BES_GFX_updateFlexBodies);
 
     if (cabNode && cabMesh)
-        cabNode->setPosition(cabMesh->flexit());
+        cabNode->setPosition(cabMesh->UpdateFlexObj());
 
     if (gEnv->threadPool)
     {
