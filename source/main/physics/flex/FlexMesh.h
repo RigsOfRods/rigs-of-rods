@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -52,76 +52,41 @@ public:
     ~FlexMesh();
 
     Ogre::Vector3 updateVertices();
-    Ogre::Vector3 updateShadowVertices();
 
     // Flexable
     bool flexitPrepare() { return true; };
     void flexitCompute();
     Ogre::Vector3 flexitFinal();
 
-    void setVisible(bool visible);
+    void setVisible(bool visible) {} // Nothing to do here
 
 private:
 
-    Ogre::Vector3 flexit_center;
-
-    struct CoVertice_t
+    struct FlexMeshVertex
     {
-        Ogre::Vector3 vertex;
+        Ogre::Vector3 position;
         Ogre::Vector3 normal;
-        //	Ogre::Vector3 color;
         Ogre::Vector2 texcoord;
     };
 
-    struct posVertice_t
-    {
-        Ogre::Vector3 vertex;
-    };
+    // Wheel
+    Ogre::Vector3     m_flexit_center;
+    node_t*           m_all_nodes;
+    int               m_num_rays;
+    bool              m_is_rimmed;
 
-    struct norVertice_t
-    {
-        Ogre::Vector3 normal;
-        //	Ogre::Vector3 color;
-        Ogre::Vector2 texcoord;
-    };
+    // Meshes
+    Ogre::MeshPtr     m_mesh;
+    Ogre::SubMesh*    m_submesh_wheelface;
+    Ogre::SubMesh*    m_submesh_tiretread;
+    Ogre::VertexDeclaration* m_vertex_format;
+    Ogre::HardwareVertexBufferSharedPtr m_hw_vbuf;
 
-    Ogre::MeshPtr msh;
-    Ogre::SubMesh* subface;
-    Ogre::SubMesh* subband;
-    Ogre::VertexDeclaration* decl;
-    Ogre::HardwareVertexBufferSharedPtr vbuf;
+    // Vertices
+    FlexMeshVertex*   m_vertices;
+    int*              m_vertex_nodes;
 
-    size_t nVertices;
-    size_t vbufCount;
-
-    //shadow
-    union
-    {
-        float* shadowposvertices;
-        posVertice_t* coshadowposvertices;
-    };
-
-    union
-    {
-        float* shadownorvertices;
-        norVertice_t* coshadownorvertices;
-    };
-
-    union
-    {
-        float* vertices;
-        CoVertice_t* covertices;
-    };
-
-    //nodes
-    int* nodeIDs;
-
-    size_t bandibufCount;
-    size_t faceibufCount;
-    unsigned short* facefaces;
-    unsigned short* bandfaces;
-    node_t* nodes;
-    int nbrays;
-    bool is_rimmed;
-    float rim_ratio;
+    // Indices
+    unsigned short*   m_wheelface_indices;
+    unsigned short*   m_tiretread_indices;
 };
