@@ -208,6 +208,12 @@ FlexMesh::FlexMesh(
 
 FlexMesh::~FlexMesh()
 {
+    if (!m_mesh.isNull())
+    {
+        Ogre::MeshManager::getSingleton().remove(m_mesh->getName());
+        m_mesh.setNull();
+    }
+
     if (m_vertices          != nullptr) { delete m_vertices; }
     if (m_vertex_nodes      != nullptr) { free (m_vertex_nodes); }
     if (m_wheelface_indices != nullptr) { free (m_wheelface_indices); }
