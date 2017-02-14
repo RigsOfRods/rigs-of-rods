@@ -1756,6 +1756,7 @@ void RigSpawner::ProcessFlexbody(std::shared_ptr<RigDef::Flexbody> def)
     if (reference_node == -1 || x_axis_node == -1 || y_axis_node == -1)
     {
         AddMessage(Message::TYPE_ERROR, "Failed to find required nodes, skipping flexbody '" + def->mesh_name + "'");
+        return;
     }
 
     auto * flexbody = m_flex_factory.CreateFlexBody(
