@@ -41,7 +41,6 @@ namespace RoR
 
 class FlexBody : public Flexable
 {
-    friend class RigInspector;
     friend class RoR::FlexFactory;
     friend class RoR::FlexBodyFileIO;
 
@@ -91,35 +90,33 @@ public:
 
 private:
 
-    Ogre::Vector3 flexit_center;
-
     node_t*           m_nodes;
     size_t            m_vertex_count;
-                      
+    Ogre::Vector3     m_flexit_center; ///< Updated per frame
+
     Ogre::Vector3*    m_dst_pos;
     Ogre::Vector3*    m_src_normals;
     Ogre::Vector3*    m_dst_normals;
     Ogre::ARGB*       m_src_colors;
-    Locator_t*        m_locators; //!< 1 loc per vertex
+    Locator_t*        m_locators; ///< 1 loc per vertex
 
-    int	              m_node_center;
-    int	              m_node_x;
-    int	              m_node_y;
+    int               m_node_center;
+    int               m_node_x;
+    int               m_node_y;
     Ogre::Vector3     m_center_offset;
     Ogre::SceneNode*  m_scene_node;
-    Ogre::MeshPtr     m_mesh;
-    int               m_camera_mode; //!< Visibility control {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
+    int               m_camera_mode; ///< Visibility control {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
 
     int                                 m_shared_buf_num_verts;
     Ogre::HardwareVertexBufferSharedPtr m_shared_vbuf_pos;
     Ogre::HardwareVertexBufferSharedPtr m_shared_vbuf_norm;
     Ogre::HardwareVertexBufferSharedPtr m_shared_vbuf_color;
-    
+
     int                                 m_num_submesh_vbufs;
     int                                 m_submesh_vbufs_vertex_counts[16];
-    Ogre::HardwareVertexBufferSharedPtr m_submesh_vbufs_pos[16]; //!< positions
-    Ogre::HardwareVertexBufferSharedPtr m_submesh_vbufs_norm[16]; //!< normals
-    Ogre::HardwareVertexBufferSharedPtr m_submesh_vbufs_color[16]; //!< colors
+    Ogre::HardwareVertexBufferSharedPtr m_submesh_vbufs_pos[16];   ///< positions
+    Ogre::HardwareVertexBufferSharedPtr m_submesh_vbufs_norm[16];  ///< normals
+    Ogre::HardwareVertexBufferSharedPtr m_submesh_vbufs_color[16]; ///< colors
 
     bool m_is_enabled;
     bool m_is_faulty;
