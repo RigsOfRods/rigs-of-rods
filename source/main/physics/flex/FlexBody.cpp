@@ -141,22 +141,18 @@ FlexBody::FlexBody(
         FLEXBODY_PROFILER_ENTER("Handle LODs >> Run loop");
         for (int i=0; i<4;i++)
         {
-            bool exists;
-            String fn;
-            {
-                FLEXBODY_PROFILER_SCOPED("LOD LOOP > Find resource > call Ogre::ResGroupMan::resExistsInAnyGroup()");
-                fn = basename + "_" + TOSTRING(i) + ".mesh";
-                exists = ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(fn);
-            }
-            if (!exists) continue;
-            {
-                FLEXBODY_PROFILER_SCOPED("LOD LOOP > Create manual LOD level");
-                float distance = 3;
-                if (i == 1) distance = 20;
-                if (i == 2) distance = 50;
-                if (i == 3) distance = 200;
-                newmesh->createManualLodLevel(distance, fn);
-            }
+            FLEXBODY_PROFILER_SCOPED("LOD LOOP > Find resource > call Ogre::ResGroupMan::resExistsInAnyGroup()");
+            std::string fn = basename + "_" + TOSTRING(i) + ".mesh";
+
+            if (!ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(fn))
+                continue;
+
+            FLEXBODY_PROFILER_SCOPED("LOD LOOP > Create manual LOD level");
+            float distance = 3;
+            if (i == 1) distance = 20;
+            if (i == 2) distance = 50;
+            if (i == 3) distance = 200;
+            newmesh->createManualLodLevel(distance, fn);
         }
     }
     FLEXBODY_PROFILER_ENTER("Create entity");
