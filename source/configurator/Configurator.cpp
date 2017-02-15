@@ -20,6 +20,8 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <Ogre.h>
 
 #include "OISKeyboard.h"
+#include "OISJoyStick.h"
+#include "OISInputManager.h"
 #include "RoRnet.h"
 #include "RoRVersion.h"
 #include "conf_file.h"
@@ -232,6 +234,7 @@ public:
 	void OnButUpdateRoR(wxCommandEvent& event);
 	void OnButCheckOpenCL(wxCommandEvent& event);
 	void OnButCheckOpenCLBW(wxCommandEvent& event);
+	void OnButReloadControllerInfo(wxCommandEvent& event);
 	void updateRoR();
 	void OnScrollSightRange(wxScrollEvent& event);
 	void OnScrollVolume(wxScrollEvent& event);
@@ -263,6 +266,7 @@ private:
 	wxButton *btnAddKey;
 	wxButton *btnDeleteKey;
 	wxButton *btnUpdate, *btnToken;
+	wxButton *btnLoadInputDeviceInfo;
 	wxCheckBox *advanced_logging;
 	wxCheckBox *arcadeControls;
 	wxCheckBox *beam_break_debug;
@@ -320,6 +324,7 @@ private:
 	wxTextCtrl *fovint, *fovext;
 	wxTextCtrl *gputext;
 	wxTextCtrl *presel_map, *presel_truck;
+	wxTextCtrl *controllerInfo;
 	wxTimer *timer1;
 	wxValueChoice *flaresMode;
 	wxValueChoice *gearBoxMode;
@@ -380,6 +385,7 @@ enum control_ids
 	button_save,
 	button_save_keymap,
 	button_update_ror,
+	button_reload_input_device_info,
 	changed_notebook_1,
 	changed_notebook_2,
 	changed_notebook_3,
@@ -411,6 +417,7 @@ BEGIN_EVENT_TABLE(MyDialog, wxDialog)
 	EVT_BUTTON(button_net_test, MyDialog::OnButTestNet)
 	EVT_BUTTON(button_play, MyDialog::OnButPlay)
 	EVT_BUTTON(button_regen_cache, MyDialog::OnButRegenCache)
+	EVT_BUTTON(button_reload_input_device_info, MyDialog::OnButReloadControllerInfo)
 	EVT_BUTTON(button_restore, MyDialog::OnButRestore)
 	EVT_BUTTON(button_save, MyDialog::OnButSave)
 	EVT_BUTTON(button_update_ror, MyDialog::OnButUpdateRoR)
@@ -983,6 +990,10 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 
 	wxPanel *ffPanel=new wxPanel(ctbook, -1);
 	ctbook->AddPage(ffPanel, _("Force Feedback"), false);
+
+    wxPanel* controller_info_panel = new wxPanel(ctbook, -1);
+    ctbook->AddPage(controller_info_panel, _("Device info"), false);
+
 #ifdef NETWORK
 	wxPanel *netPanel=new wxPanel(nbook, -1);
 	nbook->AddPage(netPanel, _("Network"), false);
@@ -1362,6 +1373,15 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	//update text boxes
 	wxScrollEvent dummye;
 	OnScrollForceFeedback(dummye);
+
+    // [Controller] / [Device info] panel
+
+    controllerInfo = new wxTextCtrl(
+        controller_info_panel, wxID_ANY, wxString(), wxPoint(0,0), wxSize(465,330), wxTE_MULTILINE);
+
+    btnLoadInputDeviceInfo = new wxButton(
+        controller_info_panel, button_reload_input_device_info,
+        _("(Re)load info"), wxPoint(300, 335), wxSize(165, 33));
 
 	//network panel
 #ifdef NETWORK
@@ -2809,6 +2829,91 @@ void MyDialog::OnButClearCache(wxCommandEvent& event)
 		}
 	} while (srcd.GetNext(&src));
 	wxMessageBox(_("Cache cleared"), wxT("RoR: Cache cleared"), wxICON_INFORMATION);
+}
+
+std::string ComposeVendorMapFilename(std::string vendor) // Global helper
+{
+	std::string repl = "\\/ #@?!$%^&*()+=-><.:'|\";";
+	std::string vendorstr = std::string(vendor);
+	for(unsigned int c1 = 0; c1 < repl.size(); c1++)
+		for(unsigned int c2 = 0; c2 < vendorstr.size(); c2++)
+			if(vendorstr[c2] == repl[c1]) vendorstr[c2] = '_';
+	vendorstr += ".map";
+	return vendorstr;
+}
+
+void MyDialog::OnButReloadControllerInfo(wxCommandEvent& event)
+{
+    // Code cloned from original utility "inputtool.exe" located in ~REPO/tools/windows
+    // Useful reference:
+    //     http://docs.wxwidgets.org/3.1/classwx_text_ctrl.html
+    //     https://wiki.wxwidgets.org/Writing_Your_First_Application-Using_The_WxTextCtrl
+
+    using namespace OIS;
+    const char *DeviceTypes[6] = {"OISUnknown", "OISKeyboard", "OISMouse", "OISJoyStick", "OISTablet", "OISOther"};
+    Keyboard *g_kb  = 0;
+    Mouse	 *g_m   = 0;
+    JoyStick* g_joys[50];
+    InputManager* input_man = nullptr;
+
+    try
+    {
+        ParamList pl;
+        std::ostringstream wnd;
+        wnd << (size_t)this->GetHandle();
+        pl.insert(std::make_pair( std::string("WINDOW"), wnd.str() ));
+        input_man = InputManager::createInputSystem(pl);
+        input_man->enableAddOnFactory(InputManager::AddOn_All);
+        unsigned int v = input_man->getVersionNumber();
+        std::stringstream out_stream;
+        out_stream << "System info:\n\tOIS Version: " << (v>>16 ) << "." << ((v>>8) & 0x000000FF) << "." << (v & 0x000000FF)
+            << "\n\tOIS Release Name: " << input_man->getVersionName()
+            << "\n\tInput Manager: "    << input_man->inputSystemName()
+            << "\n\tTotal Keyboards: "  << input_man->getNumberOfDevices(OISKeyboard)
+            << "\n\tTotal Mice: "       << input_man->getNumberOfDevices(OISMouse)
+            << "\n\tTotal JoySticks: "  << input_man->getNumberOfDevices(OISJoyStick);
+        out_stream << "\n\nDevices:" << std::endl;
+        DeviceList list = input_man->listFreeDevices();
+
+        for( DeviceList::iterator i = list.begin(); i != list.end(); ++i )
+        {
+            out_stream << "\t- " << DeviceTypes[i->first] << ", Vendor: " << i->second << std::endl;
+        }
+
+        int numSticks = input_man->getNumberOfDevices(OISJoyStick);
+        for( int i = 0; i < numSticks; ++i )
+        {
+            g_joys[i] = (JoyStick*)input_man->createInputObject( OISJoyStick, true );
+            out_stream << "\n\nJoystick " << (i) << ":"
+                << "\n\tVendor: "             << g_joys[i]->vendor()
+                << "\n\tVendorMapFilename: "  << ComposeVendorMapFilename(g_joys[i]->vendor())
+                << "\n\tID: "                 << g_joys[i]->getID()
+                << "\n\tType: ["              << g_joys[i]->type() << "] " << DeviceTypes[g_joys[i]->type()]
+                << "\n\tAxes: "               << g_joys[i]->getNumberOfComponents(OIS_Axis)
+                << "\n\tSliders: "            << g_joys[i]->getNumberOfComponents(OIS_Slider)
+                << "\n\tPOV/HATs: "           << g_joys[i]->getNumberOfComponents(OIS_POV)
+                << "\n\tButtons: "            << g_joys[i]->getNumberOfComponents(OIS_Button)
+                << "\n\tVector3: "            << g_joys[i]->getNumberOfComponents(OIS_Vector3)
+                << "\n\tVector3Sensitivity: " << g_joys[i]->getVector3Sensitivity();
+        }
+
+        controllerInfo->Clear();
+        controllerInfo->AppendText(wxString::FromUTF8(out_stream.str().c_str()));
+    }
+    catch(std::exception &ex)
+    {
+        controllerInfo->Clear();
+        controllerInfo->AppendText(wxT("\n\tAn error occurred!\n\nMessage: "));
+        controllerInfo->AppendText(wxString::FromUTF8(ex.what()));
+    }
+    catch(...)
+    {
+        controllerInfo->Clear();
+        controllerInfo->AppendText(wxT("\n\tAn error occurred!"));
+    }
+
+    if(input_man != nullptr)
+        InputManager::destroyInputSystem(input_man);
 }
 
 void MyDialog::OnScrollSightRange(wxScrollEvent &e)
