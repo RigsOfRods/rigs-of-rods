@@ -1,23 +1,30 @@
 /*
-This source file is part of Rigs of Rods
-Copyright 2005,2006,2007,2008,2009 Pierre-Michel Ricordel
-Copyright 2007,2008,2009 Thomas Fischer
+    This source file is part of Rigs of Rods
+    Copyright 2005-2009 Pierre-Michel Ricordel
+    Copyright 2007-2009 Thomas Fischer
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
-For more information, see http://www.rigsofrods.org/
+    For more information, see http://www.rigsofrods.org/
 
-Rigs of Rods is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3, as
-published by the Free Software Foundation.
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
 
-Rigs of Rods is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
-#include <Ogre.h>
+
+#include "RoRConfig.h"
+
+#include <OgreConfigFile.h>
+#include <OgreRoot.h>
+
+// --------- TODO: check and cleanup these includes -----------
 
 #include "OISKeyboard.h"
 #include "OISJoyStick.h"
@@ -368,75 +375,38 @@ public:
 	int id;
 };
 
-enum control_ids
-{
-	button_add_key = 1,
-	button_cancel,
-	button_check_opencl,
-	button_check_opencl_bw,
-	button_clear_cache,
-	button_delete_key,
-	button_get_user_token,
-	button_load_keymap,
-	button_net_test,
-	button_play,
-	button_regen_cache,
-	button_restore,
-	button_save,
-	button_save_keymap,
-	button_update_ror,
-	button_reload_input_device_info,
-	changed_notebook_1,
-	changed_notebook_2,
-	changed_notebook_3,
-	choice_language,
-	choice_renderer,
-	choice_shadow,
-	clicked_html_link_main,
-	clicked_html_link_update,
-	scroll_force_feedback,
-	scroll_fps_limiter,
-	scroll_sight_range,
-	scroll_volume,
-	timer_controls,
-	timer_update_reset,
-};
-
-// ----------------------------------------------------------------------------
-// event tables and other macros for wxWidgets
-// ----------------------------------------------------------------------------
-// the event tables connect the wxWidgets events with the functions (event
-// handlers) which process them. It can be also done at run-time, but for the
-// simple menu events like this the static method is much simpler.
+// ====== Bind wxWidgets events to handler functions ======
 BEGIN_EVENT_TABLE(MyDialog, wxDialog)
-	EVT_BUTTON(button_cancel, MyDialog::OnButCancel)
-	EVT_BUTTON(button_check_opencl, MyDialog::OnButCheckOpenCL)
-	EVT_BUTTON(button_check_opencl_bw, MyDialog::OnButCheckOpenCLBW)
-	EVT_BUTTON(button_clear_cache, MyDialog::OnButClearCache)
-	EVT_BUTTON(button_get_user_token, MyDialog::OnButGetUserToken)
-	EVT_BUTTON(button_net_test, MyDialog::OnButTestNet)
-	EVT_BUTTON(button_play, MyDialog::OnButPlay)
-	EVT_BUTTON(button_regen_cache, MyDialog::OnButRegenCache)
-	EVT_BUTTON(button_reload_input_device_info, MyDialog::OnButReloadControllerInfo)
-	EVT_BUTTON(button_restore, MyDialog::OnButRestore)
-	EVT_BUTTON(button_save, MyDialog::OnButSave)
-	EVT_BUTTON(button_update_ror, MyDialog::OnButUpdateRoR)
-	EVT_CHOICE(choice_language, MyDialog::OnChoiceLanguage)
-	EVT_CHOICE(choice_renderer, MyDialog::OnChoiceRenderer)
-	EVT_CHOICE(choice_shadow, MyDialog::OnChoiceShadow)
-	EVT_CLOSE(MyDialog::OnQuit)
-	EVT_COMMAND_SCROLL(scroll_force_feedback, MyDialog::OnScrollForceFeedback)
-	EVT_COMMAND_SCROLL(scroll_fps_limiter, MyDialog::OnScrollFPSLimiter)
-	EVT_COMMAND_SCROLL(scroll_sight_range, MyDialog::OnScrollSightRange)
-	EVT_COMMAND_SCROLL(scroll_volume, MyDialog::OnScrollVolume)
+
+	EVT_BUTTON(              ID_BUTTON_CANCEL,            MyDialog::OnButCancel)
+	EVT_BUTTON(              ID_BUTTON_CHECK_OPENCL,      MyDialog::OnButCheckOpenCL)
+	EVT_BUTTON(              ID_BUTTON_CHECK_OPENCL_BW,   MyDialog::OnButCheckOpenCLBW)
+	EVT_BUTTON(              ID_BUTTON_CLEAR_CACHE,       MyDialog::OnButClearCache)
+	EVT_BUTTON(              ID_BUTTON_GET_USER_TOKEN,    MyDialog::OnButGetUserToken)
+	EVT_BUTTON(              ID_BUTTON_NET_TEST,          MyDialog::OnButTestNet)
+	EVT_BUTTON(              ID_BUTTON_PLAY,              MyDialog::OnButPlay)
+	EVT_BUTTON(              ID_BUTTON_REGEN_CACHE,       MyDialog::OnButRegenCache)
+	EVT_BUTTON(              ID_BUTTON_SCAN_CONTROLLERS,  MyDialog::OnButReloadControllerInfo)
+	EVT_BUTTON(              ID_BUTTON_RESTORE,           MyDialog::OnButRestore)
+	EVT_BUTTON(              ID_BUTTON_SAVE,              MyDialog::OnButSave)
+	EVT_BUTTON(              ID_BUTTON_UPDATE_ROR,        MyDialog::OnButUpdateRoR)
+	EVT_CHOICE(              ID_CHOICE_LANGUAGE,          MyDialog::OnChoiceLanguage)
+	EVT_CHOICE(              ID_CHOICE_RENDERER,          MyDialog::OnChoiceRenderer)
+	EVT_CHOICE(              ID_CHOICE_SHADOW,            MyDialog::OnChoiceShadow)
+	EVT_COMMAND_SCROLL(      ID_SCROLL_FORCE_FEEDBACK,    MyDialog::OnScrollForceFeedback)
+	EVT_COMMAND_SCROLL(      ID_SCROLL_FPS_LIMITER,       MyDialog::OnScrollFPSLimiter)
+	EVT_COMMAND_SCROLL(      ID_SCROLL_SIGHT_RANGE,       MyDialog::OnScrollSightRange)
+	EVT_COMMAND_SCROLL(      ID_SCROLL_VOLUME,            MyDialog::OnScrollVolume)
 #if wxCHECK_VERSION(2, 8, 0)
-	EVT_HTML_LINK_CLICKED(clicked_html_link_main, MyDialog::OnClickedHtmlLinkMain)
-	EVT_HTML_LINK_CLICKED(clicked_html_link_update, MyDialog::OnClickedHtmlLinkUpdate)
-#endif  // wxCHECK_VERSION(2, 8, 0)
-	EVT_NOTEBOOK_PAGE_CHANGED(changed_notebook_1, MyDialog::OnChangedNotebook1)
-	EVT_NOTEBOOK_PAGE_CHANGED(changed_notebook_2, MyDialog::OnChangedNotebook2)
-	EVT_TIMER(timer_controls, MyDialog::OnTimer)
-	EVT_TIMER(timer_update_reset, MyDialog::OnTimerReset)
+	EVT_HTML_LINK_CLICKED(   ID_CLICKED_HTML_LINK_MAIN,   MyDialog::OnClickedHtmlLinkMain)
+	EVT_HTML_LINK_CLICKED(   ID_CLICKED_HTML_LINK_UPDATE, MyDialog::OnClickedHtmlLinkUpdate)
+#endif
+	EVT_NOTEBOOK_PAGE_CHANGED(ID_CHANGED_NOTEBOOK_1,      MyDialog::OnChangedNotebook1)
+	EVT_NOTEBOOK_PAGE_CHANGED(ID_CHANGED_NOTEBOOK_2,      MyDialog::OnChangedNotebook2)
+	EVT_TIMER(                ID_TIMER_CONTROLS,          MyDialog::OnTimer)
+	EVT_TIMER(                ID_TIMER_UPDATE_RESET,      MyDialog::OnTimerReset)
+    EVT_CLOSE(                                            MyDialog::OnQuit)
+
 END_EVENT_TABLE()
 
 // Create a new application object: this macro will allow wxWidgets to create
@@ -921,31 +891,31 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	mainsizer->Add(imagePanel, 0, wxGROW);
 
 	//notebook
-	nbook=new wxNotebook(this, changed_notebook_1, wxPoint(3, 100), wxSize(490, 415));
+	nbook=new wxNotebook(this, ID_CHANGED_NOTEBOOK_1, wxPoint(3, 100), wxSize(490, 415));
 	mainsizer->Add(nbook, 1, wxGROW);
 
 	wxSizer *btnsizer = new wxBoxSizer(wxHORIZONTAL);
 	//buttons
 	if(!app->postinstall)
 	{
-		wxButton *btnRestore = new wxButton( this, button_restore, _("Restore Defaults"), wxPoint(35,520), wxSize(100,25));
+		wxButton *btnRestore = new wxButton( this, ID_BUTTON_RESTORE, _("Restore Defaults"), wxPoint(35,520), wxSize(100,25));
 		btnRestore->SetToolTip(_("Restore the default configuration."));
 		btnsizer->Add(btnRestore, 1, wxGROW | wxALL, 5);
 
-		wxButton *btnPlay = new wxButton( this, button_play, _("Save and Play"), wxPoint(140,520), wxSize(100,25));
+		wxButton *btnPlay = new wxButton( this, ID_BUTTON_PLAY, _("Save and Play"), wxPoint(140,520), wxSize(100,25));
 		btnPlay->SetToolTip(_("Save the current configuration and start RoR."));
 		btnsizer->Add(btnPlay, 1, wxGROW | wxALL, 5);
 
-		wxButton *btnSaveAndExit = new wxButton( this, button_save, _("Save and Exit"), wxPoint(245,520), wxSize(100,25));
+		wxButton *btnSaveAndExit = new wxButton( this, ID_BUTTON_SAVE, _("Save and Exit"), wxPoint(245,520), wxSize(100,25));
 		btnSaveAndExit->SetToolTip(_("Save the current configuration and close the configuration program."));
 		btnsizer->Add(btnSaveAndExit, 1, wxGROW | wxALL, 5);
 
-		wxButton *btnClose = new wxButton( this, button_cancel, _("Cancel"), wxPoint(350,520), wxSize(100,25));
+		wxButton *btnClose = new wxButton( this, ID_BUTTON_CANCEL, _("Cancel"), wxPoint(350,520), wxSize(100,25));
 		btnClose->SetToolTip(_("Cancel the configuration changes and close the configuration program."));
 		btnsizer->Add(btnClose, 1, wxGROW | wxALL, 5);
 	} else
 	{
-		wxButton *btnPlay = new wxButton( this, button_play, _("Save and Play"), wxPoint(350,520), wxSize(100,25));
+		wxButton *btnPlay = new wxButton( this, ID_BUTTON_PLAY, _("Save and Play"), wxPoint(350,520), wxSize(100,25));
 		btnPlay->SetToolTip(_("Save the current configuration and start RoR."));
 		btnsizer->Add(btnPlay, 1, wxGROW | wxALL, 5);
 	}
@@ -959,7 +929,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	//settingsSizer->SetSizeHints(this);
 	settingsPanel->SetSizer(settingsSizer);
 	// second notebook containing the settings tabs
-	wxNotebook *snbook=new wxNotebook(settingsPanel, changed_notebook_2, wxPoint(0, 0), wxSize(100,250));
+	wxNotebook *snbook=new wxNotebook(settingsPanel, ID_CHANGED_NOTEBOOK_2, wxPoint(0, 0), wxSize(100,250));
 	settingsSizer->Add(snbook, 1, wxGROW);
 
 	rsPanel=new wxPanel(snbook, -1);
@@ -977,7 +947,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	wxSizer *controlsSizer = new wxBoxSizer(wxVERTICAL);
 	controlsPanel->SetSizer(controlsSizer);
 	// third notebook for control tabs
-	wxNotebook *ctbook=new wxNotebook(controlsPanel, changed_notebook_3, wxPoint(0, 0), wxSize(100,250));
+	wxNotebook *ctbook=new wxNotebook(controlsPanel, ID_CHANGED_NOTEBOOK_3, wxPoint(0, 0), wxSize(100,250));
 	controlsSizer->Add(ctbook, 1, wxGROW);
 
 	wxPanel *ctsetPanel=new wxPanel(ctbook, -1);
@@ -1024,7 +994,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 
 	// clear the renderer settings and fill them later
 	dText = new wxStaticText(rsPanel, -1, _("Render System"), wxPoint(10, 28));
-	renderer = new wxValueChoice(rsPanel, choice_renderer, wxPoint(220, 25), wxSize(220, -1), 0);
+	renderer = new wxValueChoice(rsPanel, ID_CHOICE_RENDERER, wxPoint(220, 25), wxSize(220, -1), 0);
 	// renderer options done, do the rest
 
 	// gamePanel
@@ -1032,7 +1002,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	int x_row1 = 150, x_row2 = 300;
 
 	dText = new wxStaticText(gamePanel, -1, _("Language:"), wxPoint(10, y));
-	languageMode=new wxValueChoice(gamePanel, choice_language, wxPoint(x_row1, y), wxSize(200, -1), wxCB_READONLY);
+	languageMode=new wxValueChoice(gamePanel, ID_CHOICE_LANGUAGE, wxPoint(x_row1, y), wxSize(200, -1), wxCB_READONLY);
 
 	int sel = 0;
 	languageMode->AppendValueItem(wxT("English (U.S.)"));
@@ -1082,7 +1052,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	dText = new wxStaticText(gamePanel, -1, _("User Token: "), wxPoint(10,y+3));
 	usertoken=new wxTextCtrl(gamePanel, -1, wxString(), wxPoint(x_row1, y), wxSize(200, -1));
 	usertoken->SetToolTip(_("Your rigsofrods.org User Token."));
-	btnToken = new wxButton(gamePanel, button_get_user_token, _("Get Token"), wxPoint(x_row1+210, y), wxSize(90,25));
+	btnToken = new wxButton(gamePanel, ID_BUTTON_GET_USER_TOKEN, _("Get Token"), wxPoint(x_row1+210, y), wxSize(90,25));
 	y+=35;
 
 #ifdef USE_OPENAL
@@ -1252,7 +1222,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	y+=25;
 
 	dText = new wxStaticText(graphicsPanel, wxID_ANY, _("Shadow type:"), wxPoint(10,y+3));
-	shadow=new wxValueChoice(graphicsPanel, choice_shadow, wxPoint(x_row1, y), wxSize(200, -1), 0);
+	shadow=new wxValueChoice(graphicsPanel, ID_CHOICE_SHADOW, wxPoint(x_row1, y), wxSize(200, -1), 0);
 	shadow->AppendValueItem(wxT("No shadows (fastest)"), _("No shadows (fastest)"));
 	shadow->AppendValueItem(wxT("Texture shadows"), _("Texture shadows"));
 #if OGRE_VERSION>0x010602
@@ -1263,7 +1233,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	y+=25;
 
 	dText = new wxStaticText(graphicsPanel, wxID_ANY, _("Sightrange:"), wxPoint(10,y+3));
-	sightRange=new wxSlider(graphicsPanel, scroll_sight_range, 5000, 10, 5000, wxPoint(x_row1, y), wxSize(200, -1));
+	sightRange=new wxSlider(graphicsPanel, ID_SCROLL_SIGHT_RANGE, 5000, 10, 5000, wxPoint(x_row1, y), wxSize(200, -1));
 	sightRange->SetToolTip(_("determines how far you can see in meters"));
 	sightRangeText = new wxStaticText(graphicsPanel, wxID_ANY, _("Unlimited"), wxPoint(x_row1 + 210,y+3));
 	y+=25;
@@ -1350,22 +1320,22 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	ffEnable=new wxCheckBox(ffPanel, -1, _("Enable Force Feedback"), wxPoint(150, 25));
 
 	dText = new wxStaticText(ffPanel, -1, _("Overall force level:"), wxPoint(20,53));
-	ffOverall=new wxSlider(ffPanel, scroll_force_feedback, 100, 0, 1000, wxPoint(150, 50), wxSize(200, 40));
+	ffOverall=new wxSlider(ffPanel, ID_SCROLL_FORCE_FEEDBACK, 100, 0, 1000, wxPoint(150, 50), wxSize(200, 40));
 	ffOverall->SetToolTip(_("Adjusts the level of all the forces."));
 	ffOverallText=new wxStaticText(ffPanel, -1, wxString(), wxPoint(360,53));
 
 	dText = new wxStaticText(ffPanel, -1, _("Steering feedback level:"), wxPoint(20,103));
-	ffHydro=new wxSlider(ffPanel, scroll_force_feedback, 100, 0, 4000, wxPoint(150, 100), wxSize(200, 40));
+	ffHydro=new wxSlider(ffPanel, ID_SCROLL_FORCE_FEEDBACK, 100, 0, 4000, wxPoint(150, 100), wxSize(200, 40));
 	ffHydro->SetToolTip(_("Adjusts the contribution of forces coming from the wheels and the steering mechanism."));
 	ffHydroText=new wxStaticText(ffPanel, -1, wxString(), wxPoint(360,103));
 
 	dText = new wxStaticText(ffPanel, -1, _("Self-centering level:"), wxPoint(20,153));
-	ffCenter=new wxSlider(ffPanel, scroll_force_feedback, 100, 0, 4000, wxPoint(150, 150), wxSize(200, 40));
+	ffCenter=new wxSlider(ffPanel, ID_SCROLL_FORCE_FEEDBACK, 100, 0, 4000, wxPoint(150, 150), wxSize(200, 40));
 	ffCenter->SetToolTip(_("Adjusts the self-centering effect applied to the driving wheel when driving at high speed."));
 	ffCenterText=new wxStaticText(ffPanel, -1, wxString(), wxPoint(360,153));
 
 	dText = new wxStaticText(ffPanel, -1, _("Inertia feedback level:"), wxPoint(20,203));
-	ffCamera=new wxSlider(ffPanel, scroll_force_feedback, 100, 0, 4000, wxPoint(150, 200), wxSize(200, 40));
+	ffCamera=new wxSlider(ffPanel, ID_SCROLL_FORCE_FEEDBACK, 100, 0, 4000, wxPoint(150, 200), wxSize(200, 40));
 	ffCamera->SetToolTip(_("Adjusts the contribution of forces coming shocks and accelerations (this parameter is currently unused)."));
 	ffCamera->Enable(false);
 	ffCameraText=new wxStaticText(ffPanel, -1, wxString(), wxPoint(360,203));
@@ -1380,7 +1350,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
         controller_info_panel, wxID_ANY, wxString(), wxPoint(0,0), wxSize(465,330), wxTE_MULTILINE);
 
     btnLoadInputDeviceInfo = new wxButton(
-        controller_info_panel, button_reload_input_device_info,
+        controller_info_panel, ID_BUTTON_SCAN_CONTROLLERS,
         _("(Re)load info"), wxPoint(300, 335), wxSize(165, 33));
 
 	//network panel
@@ -1399,7 +1369,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 
 	//dText = new wxStaticText(netPanel, -1, wxString("Servers list: "), wxPoint(5,5));
 	wxSizer *sizer_net_middle = new wxBoxSizer(wxHORIZONTAL);
-	networkhtmw = new wxHtmlWindow(netPanel, clicked_html_link_main, wxPoint(0, 30), wxSize(480, 270));
+	networkhtmw = new wxHtmlWindow(netPanel, ID_CLICKED_HTML_LINK_MAIN, wxPoint(0, 30), wxSize(480, 270));
 	//networkhtmw->LoadPage(REPO_HTML_SERVERLIST);
 	networkhtmw->SetPage(_("<p>How to play in Multiplayer:</p><br><ol><li>Click on the <b>Update</b> button to see available servers here.</li><li>Click on any underlined Server in the list.</li><li>Click on <b>Save and Play</b> button to start the game.</li></ol>"));
 	networkhtmw->SetToolTip(_("Click on blue hyperlinks to select a server."));
@@ -1421,7 +1391,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	serverpassword->SetToolTip(_("The server password, if required."));
 	sizer_net->Add(panel_net_bottom, 0, wxGROW);
 
-	btnUpdate = new wxButton(panel_net_bottom, button_net_test, _("Update"), wxPoint(360, 5), wxSize(110,65));
+	btnUpdate = new wxButton(panel_net_bottom, ID_BUTTON_NET_TEST, _("Update"), wxPoint(360, 5), wxSize(110,65));
 
 	netPanel->SetSizer(sizer_net);
 
@@ -1464,7 +1434,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	}
 
 	dText = new wxStaticText(advancedPanel, -1, _("Sound Volume:"), wxPoint(10, y+3));
-	soundVolume=new wxSlider(advancedPanel, scroll_volume, 100, 0, 100, wxPoint(x_row1, y), wxSize(200, -1));
+	soundVolume=new wxSlider(advancedPanel, ID_SCROLL_VOLUME, 100, 0, 100, wxPoint(x_row1, y), wxSize(200, -1));
 	soundVolume->SetToolTip(_("sets the master volume"));
 	soundVolumeText = new wxStaticText(advancedPanel, -1, _("100 %"), wxPoint(x_row1 + 210, y+3));
 	y+=35;
@@ -1483,7 +1453,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 
 	// FPS-Limiter
 	dText = new wxStaticText(advancedPanel, -1, _("FPS-Limiter:"), wxPoint(10, y+3));
-	fpsLimiter=new wxSlider(advancedPanel, scroll_fps_limiter, 0, 0, 200, wxPoint(x_row1, y), wxSize(200, -1));
+	fpsLimiter=new wxSlider(advancedPanel, ID_SCROLL_FPS_LIMITER, 0, 0, 200, wxPoint(x_row1, y), wxSize(200, -1));
 	fpsLimiter->SetToolTip(_("sets the maximum frames per second"));
 	fpsLimiterText = new wxStaticText(advancedPanel, -1, _("Unlimited"), wxPoint(x_row1 + 210, y+3));
 	y+=35;
@@ -1491,10 +1461,10 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	// Cache
 	dText = new wxStaticText(advancedPanel, -1, _("In case the mods cache becomes corrupted, \nuse these buttons to fix the cache."), wxPoint(10, y));
 
-	wxButton *btn = new wxButton(advancedPanel, button_regen_cache, _("Regen cache"), wxPoint(x_row2-52, y));
+	wxButton *btn = new wxButton(advancedPanel, ID_BUTTON_REGEN_CACHE, _("Regen cache"), wxPoint(x_row2-52, y));
 	btn->SetToolTip(_("Use this to regenerate the cache outside of RoR. If this does not work, use the clear cache button."));
 	
-	btn = new wxButton(advancedPanel, button_clear_cache, _("Clear cache"), wxPoint(x_row2+43, y));
+	btn = new wxButton(advancedPanel, ID_BUTTON_CLEAR_CACHE, _("Clear cache"), wxPoint(x_row2+43, y));
 	btn->SetToolTip(_("Use this to remove the whole cache and force the generation from ground up."));
 	y+=45;
 
@@ -1578,7 +1548,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 #endif // USE_OPENCL
 
 	//	controlstimer=new wxTimer(this, CONTROLS_TIMER_ID);
-	timer1=new wxTimer(this, timer_update_reset);
+	timer1=new wxTimer(this, ID_TIMER_UPDATE_RESET);
 
 	// inititalize ogre only when we really need it due to long startup times
 	ogreRoot = 0;
