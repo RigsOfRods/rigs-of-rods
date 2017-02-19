@@ -26,6 +26,9 @@
 /// @date   02/2017
 /// @brief  Application-wide declarations for RoRConfig
 
+#include <wx/defs.h>
+#include <wx/string.h>
+
 // Widget control-IDs
 enum ControlIds
 {
@@ -60,3 +63,7 @@ enum ControlIds
 	ID_TIMER_CONTROLS,
 	ID_TIMER_UPDATE_RESET,
 };
+
+// ========== SystemTools.cpp ==========
+
+wxString LoadInputDevicesInfo(WXWidget wx_window_handle);

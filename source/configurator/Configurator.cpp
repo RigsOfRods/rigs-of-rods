@@ -26,9 +26,6 @@
 
 // --------- TODO: check and cleanup these includes -----------
 
-#include "OISKeyboard.h"
-#include "OISJoyStick.h"
-#include "OISInputManager.h"
 #include "RoRnet.h"
 #include "RoRVersion.h"
 #include "conf_file.h"
@@ -2801,89 +2798,10 @@ void MyDialog::OnButClearCache(wxCommandEvent& event)
 	wxMessageBox(_("Cache cleared"), wxT("RoR: Cache cleared"), wxICON_INFORMATION);
 }
 
-std::string ComposeVendorMapFilename(std::string vendor) // Global helper
-{
-	std::string repl = "\\/ #@?!$%^&*()+=-><.:'|\";";
-	std::string vendorstr = std::string(vendor);
-	for(unsigned int c1 = 0; c1 < repl.size(); c1++)
-		for(unsigned int c2 = 0; c2 < vendorstr.size(); c2++)
-			if(vendorstr[c2] == repl[c1]) vendorstr[c2] = '_';
-	vendorstr += ".map";
-	return vendorstr;
-}
-
 void MyDialog::OnButReloadControllerInfo(wxCommandEvent& event)
 {
-    // Code cloned from original utility "inputtool.exe" located in ~REPO/tools/windows
-    // Useful reference:
-    //     http://docs.wxwidgets.org/3.1/classwx_text_ctrl.html
-    //     https://wiki.wxwidgets.org/Writing_Your_First_Application-Using_The_WxTextCtrl
-
-    using namespace OIS;
-    const char *DeviceTypes[6] = {"OISUnknown", "OISKeyboard", "OISMouse", "OISJoyStick", "OISTablet", "OISOther"};
-    Keyboard *g_kb  = 0;
-    Mouse	 *g_m   = 0;
-    JoyStick* g_joys[50];
-    InputManager* input_man = nullptr;
-
-    try
-    {
-        ParamList pl;
-        std::ostringstream wnd;
-        wnd << (size_t)this->GetHandle();
-        pl.insert(std::make_pair( std::string("WINDOW"), wnd.str() ));
-        input_man = InputManager::createInputSystem(pl);
-        input_man->enableAddOnFactory(InputManager::AddOn_All);
-        unsigned int v = input_man->getVersionNumber();
-        std::stringstream out_stream;
-        out_stream << "System info:\n\tOIS Version: " << (v>>16 ) << "." << ((v>>8) & 0x000000FF) << "." << (v & 0x000000FF)
-            << "\n\tOIS Release Name: " << input_man->getVersionName()
-            << "\n\tInput Manager: "    << input_man->inputSystemName()
-            << "\n\tTotal Keyboards: "  << input_man->getNumberOfDevices(OISKeyboard)
-            << "\n\tTotal Mice: "       << input_man->getNumberOfDevices(OISMouse)
-            << "\n\tTotal JoySticks: "  << input_man->getNumberOfDevices(OISJoyStick);
-        out_stream << "\n\nDevices:" << std::endl;
-        DeviceList list = input_man->listFreeDevices();
-
-        for( DeviceList::iterator i = list.begin(); i != list.end(); ++i )
-        {
-            out_stream << "\t- " << DeviceTypes[i->first] << ", Vendor: " << i->second << std::endl;
-        }
-
-        int numSticks = input_man->getNumberOfDevices(OISJoyStick);
-        for( int i = 0; i < numSticks; ++i )
-        {
-            g_joys[i] = (JoyStick*)input_man->createInputObject( OISJoyStick, true );
-            out_stream << "\n\nJoystick " << (i) << ":"
-                << "\n\tVendor: "             << g_joys[i]->vendor()
-                << "\n\tVendorMapFilename: "  << ComposeVendorMapFilename(g_joys[i]->vendor())
-                << "\n\tID: "                 << g_joys[i]->getID()
-                << "\n\tType: ["              << g_joys[i]->type() << "] " << DeviceTypes[g_joys[i]->type()]
-                << "\n\tAxes: "               << g_joys[i]->getNumberOfComponents(OIS_Axis)
-                << "\n\tSliders: "            << g_joys[i]->getNumberOfComponents(OIS_Slider)
-                << "\n\tPOV/HATs: "           << g_joys[i]->getNumberOfComponents(OIS_POV)
-                << "\n\tButtons: "            << g_joys[i]->getNumberOfComponents(OIS_Button)
-                << "\n\tVector3: "            << g_joys[i]->getNumberOfComponents(OIS_Vector3)
-                << "\n\tVector3Sensitivity: " << g_joys[i]->getVector3Sensitivity();
-        }
-
-        controllerInfo->Clear();
-        controllerInfo->AppendText(wxString::FromUTF8(out_stream.str().c_str()));
-    }
-    catch(std::exception &ex)
-    {
-        controllerInfo->Clear();
-        controllerInfo->AppendText(wxT("\n\tAn error occurred!\n\nMessage: "));
-        controllerInfo->AppendText(wxString::FromUTF8(ex.what()));
-    }
-    catch(...)
-    {
-        controllerInfo->Clear();
-        controllerInfo->AppendText(wxT("\n\tAn error occurred!"));
-    }
-
-    if(input_man != nullptr)
-        InputManager::destroyInputSystem(input_man);
+    controllerInfo->Clear();
+    controllerInfo->AppendText(LoadInputDevicesInfo(this->GetHandle()));
 }
 
 void MyDialog::OnScrollSightRange(wxScrollEvent &e)
