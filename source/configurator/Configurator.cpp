@@ -93,9 +93,6 @@ mode_t getumask(void)
 #include "config.xpm"
 #include "opencllogo.xpm"
 
-// de-comment this to enable network stuff
-#define NETWORK
-
 wxLocale lang_locale;
 wxLanguageInfo *language=0;
 std::vector<wxLanguageInfo*> avLanguages;
@@ -162,37 +159,6 @@ static const wxCmdLineEntryDesc g_cmdLineDesc [] =
 	{ wxCMD_LINE_NONE }
 };
 
-// from wxWidetgs wiki: http://wiki.wxwidgets.org/Calling_The_Default_Browser_In_WxHtmlWindow
-class HtmlWindow: public wxHtmlWindow
-{
-public:
-	HtmlWindow(wxWindow *parent, wxWindowID id = -1,
-		const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize,
-		long style = wxHW_SCROLLBAR_AUTO, const wxString& name = wxT("htmlWindow"));
-	void OnLinkClicked(const wxHtmlLinkInfo& link);
-};
-
-HtmlWindow::HtmlWindow(wxWindow *parent, wxWindowID id, const wxPoint& pos,
-	const wxSize& size, long style, const wxString& name)
-: wxHtmlWindow(parent, id, pos, size, style, name)
-{
-}
-
-void HtmlWindow::OnLinkClicked(const wxHtmlLinkInfo& link)
-{
-	wxString linkhref = link.GetHref();
-	if (linkhref.StartsWith(wxT("http://")))
-	{
-		if(!wxLaunchDefaultBrowser(linkhref))
-			// failed to launch externally, so open internally
-			wxHtmlWindow::OnLinkClicked(link);
-	}
-	else
-	{
-		wxHtmlWindow::OnLinkClicked(link);
-	}
-}
-
 class KeySelectDialog;
 // Define a new frame type: this is going to be our main frame
 class MyDialog : public wxDialog
@@ -217,12 +183,7 @@ public:
 	void OnButSave(wxCommandEvent& event);
 	void OnButPlay(wxCommandEvent& event);
 	void OnButRestore(wxCommandEvent& event);
-	void OnButTestNet(wxCommandEvent& event);
 	void OnButGetUserToken(wxCommandEvent& event);
-#if wxCHECK_VERSION(2, 8, 0)
-	void OnClickedHtmlLinkMain(wxHtmlLinkEvent& event);
-	void OnClickedHtmlLinkUpdate(wxHtmlLinkEvent& event);
-#endif // version 2.8
 	void OnChoiceShadow(wxCommandEvent& event);
 	void OnChoiceLanguage(wxCommandEvent& event);
 	//void OnButRemap(wxCommandEvent& event);
@@ -343,18 +304,6 @@ private:
 	wxValueChoice *vegetationMode;
 	wxValueChoice *water;
 
-#ifdef NETWORK
-	wxCheckBox *network_enable;
-	wxTextCtrl *nickname;
-	wxTextCtrl *servername;
-	wxTextCtrl *serverport;
-	wxTextCtrl *serverpassword;
-	wxTextCtrl *usertoken;
-	wxHtmlWindow *networkhtmw;
-	wxHtmlWindow *helphtmw;
-//	wxTextCtrl *p2pport;
-#endif
-
 	void tryLoadOpenCL();
 	int openCLAvailable;
 //	wxTextCtrl *deadzone;
@@ -380,7 +329,6 @@ BEGIN_EVENT_TABLE(MyDialog, wxDialog)
 	EVT_BUTTON(              ID_BUTTON_CHECK_OPENCL_BW,   MyDialog::OnButCheckOpenCLBW)
 	EVT_BUTTON(              ID_BUTTON_CLEAR_CACHE,       MyDialog::OnButClearCache)
 	EVT_BUTTON(              ID_BUTTON_GET_USER_TOKEN,    MyDialog::OnButGetUserToken)
-	EVT_BUTTON(              ID_BUTTON_NET_TEST,          MyDialog::OnButTestNet)
 	EVT_BUTTON(              ID_BUTTON_PLAY,              MyDialog::OnButPlay)
 	EVT_BUTTON(              ID_BUTTON_REGEN_CACHE,       MyDialog::OnButRegenCache)
 	EVT_BUTTON(              ID_BUTTON_SCAN_CONTROLLERS,  MyDialog::OnButReloadControllerInfo)
@@ -394,10 +342,6 @@ BEGIN_EVENT_TABLE(MyDialog, wxDialog)
 	EVT_COMMAND_SCROLL(      ID_SCROLL_FPS_LIMITER,       MyDialog::OnScrollFPSLimiter)
 	EVT_COMMAND_SCROLL(      ID_SCROLL_SIGHT_RANGE,       MyDialog::OnScrollSightRange)
 	EVT_COMMAND_SCROLL(      ID_SCROLL_VOLUME,            MyDialog::OnScrollVolume)
-#if wxCHECK_VERSION(2, 8, 0)
-	EVT_HTML_LINK_CLICKED(   ID_CLICKED_HTML_LINK_MAIN,   MyDialog::OnClickedHtmlLinkMain)
-	EVT_HTML_LINK_CLICKED(   ID_CLICKED_HTML_LINK_UPDATE, MyDialog::OnClickedHtmlLinkUpdate)
-#endif
 	EVT_NOTEBOOK_PAGE_CHANGED(ID_CHANGED_NOTEBOOK_1,      MyDialog::OnChangedNotebook1)
 	EVT_NOTEBOOK_PAGE_CHANGED(ID_CHANGED_NOTEBOOK_2,      MyDialog::OnChangedNotebook2)
 	EVT_TIMER(                ID_TIMER_CONTROLS,          MyDialog::OnTimer)
@@ -961,10 +905,6 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
     wxPanel* controller_info_panel = new wxPanel(ctbook, -1);
     ctbook->AddPage(controller_info_panel, _("Device info"), false);
 
-#ifdef NETWORK
-	wxPanel *netPanel=new wxPanel(nbook, -1);
-	nbook->AddPage(netPanel, _("Network"), false);
-#endif
 	wxPanel *advancedPanel=new wxPanel(snbook, -1);
 	snbook->AddPage(advancedPanel, _("Advanced"), false);
 
@@ -1046,10 +986,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	arcadeControls->SetToolTip(_("Braking will switch into reverse gear and accelerate."));
 	y+=25;
 
-	dText = new wxStaticText(gamePanel, -1, _("User Token: "), wxPoint(10,y+3));
-	usertoken=new wxTextCtrl(gamePanel, -1, wxString(), wxPoint(x_row1, y), wxSize(200, -1));
-	usertoken->SetToolTip(_("Your rigsofrods.org User Token."));
-	btnToken = new wxButton(gamePanel, ID_BUTTON_GET_USER_TOKEN, _("Get Token"), wxPoint(x_row1+210, y), wxSize(90,25));
+    // Removed: Multiplayer token field (not supported at the moment ~ 02/2017)
 	y+=35;
 
 #ifdef USE_OPENAL
@@ -1350,49 +1287,6 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
         controller_info_panel, ID_BUTTON_SCAN_CONTROLLERS,
         _("(Re)load info"), wxPoint(300, 335), wxSize(165, 33));
 
-	//network panel
-#ifdef NETWORK
-	wxSizer *sizer_net = new wxBoxSizer(wxVERTICAL);
-
-	wxPanel *panel_net_top = new wxPanel(netPanel);
-	network_enable=new wxCheckBox(panel_net_top, -1, _("Enable network mode"), wxPoint(5, 5));
-	network_enable->SetToolTip(_("This switches RoR into network mode.\nBe aware that many features are not available in network mode.\nFor example, you not be able to leave your vehicle or hook objects."));
-
-	dText = new wxStaticText(panel_net_top, -1, _("Nickname: "), wxPoint(230,7));
-	nickname=new wxTextCtrl(panel_net_top, -1, _("Anonymous"), wxPoint(300, 2), wxSize(170, -1));
-	nickname->SetToolTip(_("Your network name. Maximum 20 Characters."));
-
-	sizer_net->Add(panel_net_top, 0, wxGROW);
-
-	//dText = new wxStaticText(netPanel, -1, wxString("Servers list: "), wxPoint(5,5));
-	wxSizer *sizer_net_middle = new wxBoxSizer(wxHORIZONTAL);
-	networkhtmw = new wxHtmlWindow(netPanel, ID_CLICKED_HTML_LINK_MAIN, wxPoint(0, 30), wxSize(480, 270));
-	//networkhtmw->LoadPage(REPO_HTML_SERVERLIST);
-	networkhtmw->SetPage(_("<p>How to play in Multiplayer:</p><br><ol><li>Click on the <b>Update</b> button to see available servers here.</li><li>Click on any underlined Server in the list.</li><li>Click on <b>Save and Play</b> button to start the game.</li></ol>"));
-	networkhtmw->SetToolTip(_("Click on blue hyperlinks to select a server."));
-	sizer_net_middle->Add(networkhtmw);
-	sizer_net->Add(networkhtmw, 2, wxGROW | wxALL);
-
-	wxPanel *panel_net_bottom = new wxPanel(netPanel);
-	dText = new wxStaticText(panel_net_bottom, -1, _("Server host name: "), wxPoint(10,5));
-	servername=new wxTextCtrl(panel_net_bottom, -1, _("127.0.0.1"), wxPoint(150, 5), wxSize(200, -1));
-	servername->SetToolTip(_("This field is automatically filled if you click on an hyperlink in the list.\nDo not change it."));
-
-	dText = new wxStaticText(panel_net_bottom, -1, _("Server port number: "), wxPoint(10,30));
-	serverport=new wxTextCtrl(panel_net_bottom, -1, _("12333"), wxPoint(150, 30), wxSize(100, -1));
-	serverport->SetToolTip(_("This field is automatically filled if you click on an hyperlink in the list.\nDo not change it."));
-//	dText = new wxStaticText(netPanel, -1, wxString("(default is 12333)"), wxPoint(260,103));
-
-	dText = new wxStaticText(panel_net_bottom, -1, _("Server password: "), wxPoint(10,55));
-	serverpassword=new wxTextCtrl(panel_net_bottom, -1, wxString(), wxPoint(150, 55), wxSize(100, -1));
-	serverpassword->SetToolTip(_("The server password, if required."));
-	sizer_net->Add(panel_net_bottom, 0, wxGROW);
-
-	btnUpdate = new wxButton(panel_net_bottom, ID_BUTTON_NET_TEST, _("Update"), wxPoint(360, 5), wxSize(110,65));
-
-	netPanel->SetSizer(sizer_net);
-
-#endif
 
 	//advanced panel
 	y = 10;
@@ -2056,15 +1950,6 @@ void MyDialog::SetDefaults()
 	water->SetSelection(0);              // basic water
 	waves->SetValue(false);              // no waves
 
-#ifdef NETWORK
-	network_enable->SetValue(false);
-	nickname->SetValue(_("Anonymous"));
-	servername->SetValue(_("127.0.0.1"));
-	serverport->SetValue(_("12333"));
-	serverpassword->SetValue(wxString());
-	usertoken->SetValue(wxString());
-#endif
-
 #ifdef USE_OPENAL
 	creaksound->SetValue(true);
 	sound->SetSelection(1); // default
@@ -2132,15 +2017,6 @@ void MyDialog::getSettingsControls()
 	settings["Water effects"] = water->getSelectedValueAsSTDString();
 	settings["Waves"] = (waves->GetValue()) ? "Yes" : "No";
 	settings["disableOverViewMap"] = (dismap->GetValue()) ? "Yes" : "No";
-
-#ifdef NETWORK
-	settings["Network enable"] = (network_enable->GetValue()) ? "Yes" : "No";
-	settings["Nickname"] = conv(nickname->GetValue().SubString(0,20));
-	settings["Server name"] = conv(servername->GetValue());
-	settings["Server password"] = conv(serverpassword->GetValue());
-	settings["Server port"] = conv(serverport->GetValue());
-	settings["User Token"] = conv(usertoken->GetValue());
-#endif
 
 #ifdef USE_OPENAL
 	settings["AudioDevice"] = sound->getSelectedValueAsSTDString();
@@ -2275,14 +2151,6 @@ void MyDialog::updateSettingsControls()
 		}
 	}
 
-#ifdef NETWORK
-	st = settings["Network enable"]; if (st.length()>0) network_enable->SetValue(st=="Yes");
-	st = settings["Nickname"]; if (st.length()>0) nickname->SetValue(conv(st));
-	st = settings["Server name"]; if (st.length()>0) servername->SetValue(conv(st));
-	st = settings["Server port"]; if (st.length()>0) serverport->SetValue(conv(st));
-	st = settings["Server password"]; if (st.length()>0) serverpassword->SetValue(conv(st));
-	st = settings["User Token"]; if (st.length()>0) usertoken->SetValue(conv(st));
-#endif
 	// update slider text
 	OnScrollSightRange(dummye);
 	OnScrollVolume(dummye);
@@ -2868,56 +2736,6 @@ void MyDialog::OnScrollFPSLimiter(wxScrollEvent & event)
 	fpsLimiterText->SetLabel(s);
 }
 
-#if wxCHECK_VERSION(2, 8, 0)
-void MyDialog::OnClickedHtmlLinkMain(wxHtmlLinkEvent& event)
-{
-	wxHtmlLinkInfo linkinfo=event.GetLinkInfo();
-	wxString href=linkinfo.GetHref();
-	wxURI *uri=new wxURI(href);
-	if (uri->GetScheme()==conv("rorserver"))
-	{
-		network_enable->SetValue(true);
-		servername->SetValue(uri->GetServer());
-		serverport->SetValue(uri->GetPort());
-		//serverport->SetValue(uri->GetPassword());
-		//serverpassword->SetValue(uri->GetPath().AfterFirst('/'));
-		if(uri->GetPassword() != wxString())
-		{
-			serverpassword->Enable(true);
-		}else
-			serverpassword->Enable(false);
-	} else if (uri->GetScheme()==conv("rorinstaller"))
-	{
-		if(uri->GetServer() == wxT("update"))
-		{
-			updateRoR();
-		}
-	} else
-	{
-		networkhtmw->OnLinkClicked(linkinfo);
-	}
-//	wxMessageDialog *res=new wxMessageDialog(this, href, "Success", wxOK | wxICON_INFORMATION );
-//	res->ShowModal();
-}
-
-void MyDialog::OnClickedHtmlLinkUpdate(wxHtmlLinkEvent& event)
-{
-	wxHtmlLinkInfo linkinfo=event.GetLinkInfo();
-	wxString href=linkinfo.GetHref();
-	wxURI *uri=new wxURI(href);
-	if (uri->GetScheme()==conv("rorinstaller"))
-	{
-		if(uri->GetServer() == wxT("update"))
-		{
-			updateRoR();
-		}
-	} else
-	{
-		helphtmw->OnLinkClicked(linkinfo);
-	}
-}
-#endif // version 2.8
-
 void MyDialog::OnChangedNotebook2(wxNotebookEvent& event)
 {
 	// settings notebook page change
@@ -3006,85 +2824,4 @@ void MyDialog::OnTimerReset(wxTimerEvent& event)
 void MyDialog::OnButGetUserToken(wxCommandEvent& event)
 {
 	wxLaunchDefaultBrowser(wxT("http://usertoken.rigsofrods.org"));
-}
-
-void MyDialog::OnButTestNet(wxCommandEvent& event)
-{
-#ifdef NETWORK
-	btnUpdate->Enable(false);
-	timer1->Start(10000);
-	std::string lshort = conv(language->CanonicalName).substr(0, 2);
-	networkhtmw->LoadPage(wxString(conv("http://multiplayer.rigsofrods.org/server-list"))+
-						  wxString(conv("?version="))+wxString(conv(RORNET_VERSION))+
-						  wxString(conv("&lang="))+conv(lshort));
-
-//	networkhtmw->LoadPage("http://rigsofrods.blogspot.com/");
-	/*
-	SWInetSocket mySocket;
-	SWBaseSocket::SWBaseError error;
-	long port;
-	serverport->GetValue().ToLong(&port);
-	mySocket.connect(port, servername->GetValue().c_str(), &error);
-	if (error!=SWBaseSocket::ok)
-	{
-		wxMessageDialog *err=new wxMessageDialog(this, wxString(error.get_error()), "Error", wxOK | wxICON_ERROR);
-		err->ShowModal();
-		return;
-	}
-	RoRnet::Header head;
-	head.command=MSG_VERSION;
-	head.size=strlen(RORNET_VERSION);
-	mySocket.send((char*)&head, sizeof(RoRnet::Header), &error);
-	if (error!=SWBaseSocket::ok)
-	{
-		wxMessageDialog *err=new wxMessageDialog(this, wxString(error.get_error()), "Error", wxOK | wxICON_ERROR);
-		err->ShowModal();
-		return;
-	}
-	mySocket.send(RORNET_VERSION, head.size, &error);
-	if (error!=SWBaseSocket::ok)
-	{
-		wxMessageDialog *err=new wxMessageDialog(this, wxString(error.get_error()), "Error", wxOK | wxICON_ERROR);
-		err->ShowModal();
-		return;
-	}
-	mySocket.recv((char*)&head, sizeof(RoRnet::Header), &error);
-	if (error!=SWBaseSocket::ok)
-	{
-		wxMessageDialog *err=new wxMessageDialog(this, wxString(error.get_error()), "Error", wxOK | wxICON_ERROR);
-		err->ShowModal();
-		return;
-	}
-	char sversion[256];
-	if (head.command!=MSG_VERSION)
-	{
-		wxMessageDialog *err=new wxMessageDialog(this, wxString("Unexpected message"), "Error", wxOK | wxICON_ERROR);
-		err->ShowModal();
-		return;
-	}
-	if (head.size>255)
-	{
-		wxMessageDialog *err=new wxMessageDialog(this, wxString("Message too long"), "Error", wxOK | wxICON_ERROR);
-		err->ShowModal();
-		return;
-	}
-	int rlen=0;
-	while (rlen<head.size)
-	{
-		rlen+=mySocket.recv(sversion+rlen, head.size-rlen, &error);
-		if (error!=SWBaseSocket::ok)
-		{
-			wxMessageDialog *err=new wxMessageDialog(this, wxString("Unexpected message"), "Error", wxOK | wxICON_ERROR);
-			err->ShowModal();
-			return;
-		}
-	}
-	sversion[rlen]=0;
-	mySocket.disconnect(&error);
-	char message[512];
-	sprintf(message, "Game server found, version %s", sversion);
-	wxMessageDialog *res=new wxMessageDialog(this, wxString(message), "Success", wxOK | wxICON_INFORMATION );
-	res->ShowModal();
-	*/
-#endif
 }
