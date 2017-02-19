@@ -205,8 +205,6 @@ public:
 	void OnScrollVolume(wxScrollEvent& event);
 	void OnScrollForceFeedback(wxScrollEvent& event);
 	void OnScrollFPSLimiter(wxScrollEvent& event);
-	void OnChangedNotebook1(wxNotebookEvent& event);
-	void OnChangedNotebook2(wxNotebookEvent& event);
 	std::string readVersionInfo();
 
 //	void checkLinuxPaths();
@@ -342,10 +340,8 @@ BEGIN_EVENT_TABLE(MyDialog, wxDialog)
 	EVT_COMMAND_SCROLL(      ID_SCROLL_FPS_LIMITER,       MyDialog::OnScrollFPSLimiter)
 	EVT_COMMAND_SCROLL(      ID_SCROLL_SIGHT_RANGE,       MyDialog::OnScrollSightRange)
 	EVT_COMMAND_SCROLL(      ID_SCROLL_VOLUME,            MyDialog::OnScrollVolume)
-	EVT_NOTEBOOK_PAGE_CHANGED(ID_CHANGED_NOTEBOOK_1,      MyDialog::OnChangedNotebook1)
-	EVT_NOTEBOOK_PAGE_CHANGED(ID_CHANGED_NOTEBOOK_2,      MyDialog::OnChangedNotebook2)
-	EVT_TIMER(                ID_TIMER_CONTROLS,          MyDialog::OnTimer)
-	EVT_TIMER(                ID_TIMER_UPDATE_RESET,      MyDialog::OnTimerReset)
+	EVT_TIMER(               ID_TIMER_CONTROLS,           MyDialog::OnTimer)
+	EVT_TIMER(               ID_TIMER_UPDATE_RESET,       MyDialog::OnTimerReset)
     EVT_CLOSE(                                            MyDialog::OnQuit)
 
 END_EVENT_TABLE()
@@ -832,7 +828,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	mainsizer->Add(imagePanel, 0, wxGROW);
 
 	//notebook
-	nbook=new wxNotebook(this, ID_CHANGED_NOTEBOOK_1, wxPoint(3, 100), wxSize(490, 415));
+	nbook=new wxNotebook(this, wxID_ANY, wxPoint(3, 100), wxSize(490, 415));
 	mainsizer->Add(nbook, 1, wxGROW);
 
 	wxSizer *btnsizer = new wxBoxSizer(wxHORIZONTAL);
@@ -870,7 +866,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	//settingsSizer->SetSizeHints(this);
 	settingsPanel->SetSizer(settingsSizer);
 	// second notebook containing the settings tabs
-	wxNotebook *snbook=new wxNotebook(settingsPanel, ID_CHANGED_NOTEBOOK_2, wxPoint(0, 0), wxSize(100,250));
+	wxNotebook *snbook=new wxNotebook(settingsPanel, wxID_ANY, wxPoint(0, 0), wxSize(100,250));
 	settingsSizer->Add(snbook, 1, wxGROW);
 
 	rsPanel=new wxPanel(snbook, -1);
@@ -888,7 +884,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	wxSizer *controlsSizer = new wxBoxSizer(wxVERTICAL);
 	controlsPanel->SetSizer(controlsSizer);
 	// third notebook for control tabs
-	wxNotebook *ctbook=new wxNotebook(controlsPanel, ID_CHANGED_NOTEBOOK_3, wxPoint(0, 0), wxSize(100,250));
+	wxNotebook *ctbook=new wxNotebook(controlsPanel, wxID_ANY, wxPoint(0, 0), wxSize(100,250));
 	controlsSizer->Add(ctbook, 1, wxGROW);
 
 	wxPanel *ctsetPanel=new wxPanel(ctbook, -1);
@@ -2736,16 +2732,6 @@ void MyDialog::OnScrollFPSLimiter(wxScrollEvent & event)
 	fpsLimiterText->SetLabel(s);
 }
 
-void MyDialog::OnChangedNotebook2(wxNotebookEvent& event)
-{
-	// settings notebook page change
-	if(event.GetSelection() == 0)
-	{
-		// render settings, load ogre!
-		//loadOgre();
-	}
-}
-
 #ifdef _WIN32
 // code borrowed from updater
 void wxStringToTCHAR(TCHAR *tCharString, wxString &myString)
@@ -2810,11 +2796,6 @@ std::string MyDialog::readVersionInfo()
 	return "unknown";
 }
 #endif // _WIN32
-
-void MyDialog::OnChangedNotebook1(wxNotebookEvent& event)
-{
-	// Removed 'news' feature, not supported by new online API
-}
 
 void MyDialog::OnTimerReset(wxTimerEvent& event)
 {
