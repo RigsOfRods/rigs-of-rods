@@ -24,6 +24,8 @@
 #include <OgreConfigFile.h>
 #include <OgreRoot.h>
 
+#include <memory>
+
 // --------- TODO: check and cleanup these includes -----------
 
 #include "RoRnet.h"
@@ -43,8 +45,6 @@ mode_t getumask(void)
 	return mask;
 }
 #endif
-
-#include <memory>
 
 #include "statpict.h"
 #include <wx/cmdline.h>
@@ -186,14 +186,7 @@ public:
 	void OnButGetUserToken(wxCommandEvent& event);
 	void OnChoiceShadow(wxCommandEvent& event);
 	void OnChoiceLanguage(wxCommandEvent& event);
-	//void OnButRemap(wxCommandEvent& event);
 	void OnChoiceRenderer(wxCommandEvent& event);
-	//void OnMenuClearClick(wxCommandEvent& event);
-	//void OnMenuTestClick(wxCommandEvent& event);
-	//void OnMenuDeleteClick(wxCommandEvent& event);
-	//void OnMenuDuplicateClick(wxCommandEvent& event);
-	//void OnMenuEditEventNameClick(wxCommandEvent& event);
-	//void OnMenuCheckDoublesClick(wxCommandEvent& event);
 	void OnButRegenCache(wxCommandEvent& event);
 	void OnButClearCache(wxCommandEvent& event);
 	void OnButUpdateRoR(wxCommandEvent& event);
@@ -207,18 +200,10 @@ public:
 	void OnScrollFPSLimiter(wxScrollEvent& event);
 	std::string readVersionInfo();
 
-//	void checkLinuxPaths();
 	MyApp *app;
 
 private:
 
-	//bool postinstall;
-	//wxButton *btnRemap;
-	//wxCheckBox *autodl;
-	//wxCheckBox *hydrax;
-	//wxCheckBox *rtshader;
-	//wxComboBox *ctrlTypeCombo;
-	//wxStaticText *controlText;
 	KeySelectDialog *kd;
 	Ogre::Root *ogreRoot;
 	int controlItemCounter;
@@ -304,9 +289,6 @@ private:
 
 	void tryLoadOpenCL();
 	int openCLAvailable;
-//	wxTextCtrl *deadzone;
-	//wxTimer *controlstimer;
-	// any class wishing to process wxWidgets events must use this macro
 	DECLARE_EVENT_TABLE()
 	bool loadOgrePlugins(Ogre::String pluginsfile);
 };
@@ -442,7 +424,7 @@ void initLanguage(wxString languagePath, wxString userpath)
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 	dirsep = wxT("\\");
 #endif
-	//basedir = basedir + dirsep + wxString("languages");
+
 	wxLocale::AddCatalogLookupPathPrefix(languagePath);
 
 	// get all available languages
@@ -551,16 +533,10 @@ void MyApp::recurseCopy(wxString sourceDir, wxString destinationDir)
 			//this is a file, copy file
 			tsfn=wxFileName(sourceDir, src);
 			wxFileName tdfn=wxFileName(destinationDir, src);
-			//policy to be defined
-			if (tdfn.FileExists())
-			{
-				//file already exists, should we overwrite?
-//				::wxCopyFile(tsfn.GetFullPath(), tdfn.GetFullPath());
-			}
-			else
-			{
-				::wxCopyFile(tsfn.GetFullPath(), tdfn.GetFullPath());
-			}
+            if (!tdfn.FileExists())
+            {
+                ::wxCopyFile(tsfn.GetFullPath(), tdfn.GetFullPath());
+            }
 		}
 	} while (srcd.GetNext(&src));
 }
@@ -664,13 +640,8 @@ bool MyApp::checkUserPath()
 
 		// tell the user
 		wxLogInfo(wxT("User directory created as it was not existing: ") + UserPath);
-		/*
-		wxString warning = wxString::Format(_("Rigs of Rods User directory recreated, as it was missing:\n%s"), UserPath.c_str());
-		wxString caption = _("error upon loading RoR user directory");
-		wxMessageDialog *w = new wxMessageDialog(NULL, warning, caption, wxOK|wxICON_ERROR|wxSTAY_ON_TOP, wxDefaultPosition);
-		w->ShowModal();
-		*/
-	} else
+	}
+    else
 	{
 		wxLogInfo(wxT("User directory seems to be valid: ") + UserPath);
 	}
@@ -805,24 +776,15 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	SetWindowVariant(wxWINDOW_VARIANT_MINI); //smaller texts for macOS
 #endif
 	SetWindowStyle(wxRESIZE_BORDER | wxCAPTION);
-	//SetMinSize(wxSize(300,300));
 	
 	kd=0;
 
-
-	//postinstall = _postinstall;
-
 	wxFileSystem::AddHandler( new wxInternetFSHandler );
-	//build dialog here
 	wxToolTip::Enable(true);
 	wxToolTip::SetDelay(100);
-	//image
-//	wxBitmap *bitmap=new wxBitmap("data\\config.png", wxBITMAP_TYPE_BMP);
-	//wxLogStatus(wxT("Loading bitmap"));
 	wxSizer *mainsizer = new wxBoxSizer(wxVERTICAL);
 	mainsizer->SetSizeHints(this);
 
-	// using xpm now
 	const wxBitmap bm(config_xpm);
 	wxStaticPicture *imagePanel = new wxStaticPicture(this, -1, bm,wxPoint(0, 0), wxSize(500, 100), wxNO_BORDER);
 	mainsizer->Add(imagePanel, 0, wxGROW);
@@ -850,7 +812,8 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 		wxButton *btnClose = new wxButton( this, ID_BUTTON_CANCEL, _("Cancel"), wxPoint(350,520), wxSize(100,25));
 		btnClose->SetToolTip(_("Cancel the configuration changes and close the configuration program."));
 		btnsizer->Add(btnClose, 1, wxGROW | wxALL, 5);
-	} else
+	}
+    else
 	{
 		wxButton *btnPlay = new wxButton( this, ID_BUTTON_PLAY, _("Save and Play"), wxPoint(350,520), wxSize(100,25));
 		btnPlay->SetToolTip(_("Save the current configuration and start RoR."));
@@ -863,8 +826,8 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	settingsPanel=new wxPanel(nbook, -1);
 	nbook->AddPage(settingsPanel, _("Settings"), true);
 	wxSizer *settingsSizer = new wxBoxSizer(wxVERTICAL);
-	//settingsSizer->SetSizeHints(this);
 	settingsPanel->SetSizer(settingsSizer);
+
 	// second notebook containing the settings tabs
 	wxNotebook *snbook=new wxNotebook(settingsPanel, wxID_ANY, wxPoint(0, 0), wxSize(100,250));
 	settingsSizer->Add(snbook, 1, wxGROW);
@@ -982,8 +945,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	arcadeControls->SetToolTip(_("Braking will switch into reverse gear and accelerate."));
 	y+=25;
 
-    // Removed: Multiplayer token field (not supported at the moment ~ 02/2017)
-	y+=35;
+	y+=35; // Removed widget: Multiplayer token field (not supported at the moment ~ 02/2017)
 
 #ifdef USE_OPENAL
 	// creak sound?
@@ -1002,13 +964,6 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 
 	dText = new wxStaticText(aboutPanel, -1, wxString::Format(_("Network Protocol version: %s"), wxString(RORNET_VERSION, wxConvUTF8).c_str()), wxPoint(x_row1 + 15, y));
 	y += dText->GetSize().GetHeight() + 2;
-
-	// those required SVN Keyword to work properly, broken since the switch to HG
-	//dText = new wxStaticText(aboutPanel, -1, wxString::Format(_("Revision: %s"), wxT(SVN_REVISION)), wxPoint(x_row1 + 15, y));
-	//y += dText->GetSize().GetHeight() + 2;
-
-	//dText = new wxStaticText(aboutPanel, -1, wxString::Format(_("Full revision: %s"), wxT(SVN_ID)), wxPoint(x_row1 + 15, y));
-	//y += dText->GetSize().GetHeight() + 2;
 
 	dText = new wxStaticText(aboutPanel, -1, wxString::Format(_("Build time: %s, %s"), wxT(__DATE__), wxT(__TIME__)), wxPoint(x_row1 + 15, y));
 	y += dText->GetSize().GetHeight() + 2;
@@ -1051,9 +1006,6 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	aboutPanel->SetVirtualSize(size);
 	aboutPanel->SetScrollRate(20, 25);
 	
-	// complete about panel
-	//aboutPanel->FitInside();
-
 	// debugPanel
 	y = 10;
 	x_row1 = 150;
@@ -1174,7 +1126,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 
 	dText = new wxStaticText(graphicsPanel, -1, _("Water type:"), wxPoint(10,y+3));
 	water=new wxValueChoice(graphicsPanel, -1, wxPoint(x_row1, y), wxSize(200, -1), 0);
-	//water->AppendValueItem(wxT("None"), _("None")); //we don't want that!
+	//water->AppendValueItem(wxT("None"), _("None")); //we don't want that! // WTF?? ~ only_a_ptr, 02/2017
 	water->AppendValueItem(wxT("Basic (fastest)"), _("Basic (fastest)"));
 	water->AppendValueItem(wxT("Reflection"), _("Reflection"));
 	water->AppendValueItem(wxT("Reflection + refraction (speed optimized)"), _("Reflection + refraction (speed optimized)"));
@@ -1224,7 +1176,6 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 
 	skidmarks=new wxCheckBox(graphicsPanel, -1, _("Skidmarks"), wxPoint(x_row2, y));
 	skidmarks->SetToolTip(_("Adds tire tracks to the ground."));
-	//skidmarks->Disable();
 	y+=15;
 
 	envmap=new wxCheckBox(graphicsPanel, -1, _("HQ reflections"), wxPoint(x_row1, y));
@@ -1301,9 +1252,6 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	char *devices = (char *)alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
 	while(devices && *devices != 0)
 	{
-		// missing header fr this:
-		//ALCdevice *device = alcOpenDevice(devices);
-		//wxLogStatus(wxString(device->szDeviceName));
 		sound->AppendValueItem(wxString(conv(devices)));
 		wxLogStatus(wxT(" *") + wxString(conv(devices)));
 		devices += strlen(devices) + 1; //next device
@@ -1330,7 +1278,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	// Lights
 	dText = new wxStaticText(advancedPanel, -1, _("Light source effects:"), wxPoint(10, y+3));
 	flaresMode=new wxValueChoice(advancedPanel, -1, wxPoint(x_row1, y), wxSize(280, -1), 0);
-//	flaresMode->AppendValueItem(wxT("None (fastest)"), _("None (fastest)")); //this creates a bug in the autopilot
+//	flaresMode->AppendValueItem(wxT("None (fastest)"), _("None (fastest)")); //this creates a bug in the autopilot // WTF?? ~ only_a_ptr, 02/2017
 	flaresMode->AppendValueItem(wxT("No light sources"), _("No light sources"));
 	flaresMode->AppendValueItem(wxT("Only current vehicle, main lights"), _("Only current vehicle, main lights"));
 	flaresMode->AppendValueItem(wxT("All vehicles, main lights"), _("All vehicles, main lights"));
@@ -1363,20 +1311,7 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	posstor = new wxCheckBox(advancedPanel, -1, _("Enable Position Storage"), wxPoint(x_row1, y));
 	posstor->SetToolTip(_("Can be used to quick save and load positions of trucks"));
 	y+=15;
-	/*
-	autodl = new wxCheckBox(advancedPanel, -1, _("Enable Auto-Downloader"), wxPoint(x_row1, y));
-	autodl->SetToolTip(_("This enables the automatic downloading of missing mods when using Multiplayer"));
-	autodl->Disable();
-	y+=15;
-	hydrax=new wxCheckBox(advancedPanel, -1, _("Hydrax Water System"), wxPoint(x_row1, y));
-	hydrax->SetToolTip(_("Enables the new water rendering system. EXPERIMENTAL. Overrides any water settings."));
-	hydrax->Disable();
-	y+=15;
-	rtshader=new wxCheckBox(advancedPanel, -1, _("RT Shader System"), wxPoint(x_row1, y));
-	rtshader->SetToolTip(_("Enables the Runtime Shader generation System. EXPERIMENTAL"));
-	rtshader->Disable();
-	y+=15;
-	*/
+	
 	dismap=new wxCheckBox(advancedPanel, -1, _("Disable Overview Map"), wxPoint(x_row1, y));
 	dismap->SetToolTip(_("Disabled the map. This is for testing purposes only, you should not gain any FPS with that."));
 	y+=15;
@@ -1392,25 +1327,6 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	selfcollisions=new wxCheckBox(advancedPanel, -1, _("Disable intra-vehicle collisions"), wxPoint(x_row1, y));
 	selfcollisions->SetToolTip(_("Disables the collision detection within one truck (no self-collisions)."));
 	y+=15;
-
-	// controls settings panel
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-#if 0
-	wxSizer *sizer_updates = new wxBoxSizer(wxVERTICAL);
-	helphtmw = new wxHtmlWindow(updatePanel, update_html, wxPoint(0, 0), wxSize(480, 380));
-	helphtmw->SetPage(_("... loading ... (maybe you should check your internet connection)"));
-	// tooltip is confusing there, better none!
-	//helphtmw->SetToolTip("here you can get help");
-	sizer_updates->Add(helphtmw, 1, wxGROW);
-
-	// update button replaced with html link
-	// update button only for windows users
-	//wxButton *btnu = new wxButton(updatePanel, update_ror, "Update now");
-	//sizer_updates->Add(btnu, 0, wxGROW);
-
-	updatePanel->SetSizer(sizer_updates);
-#endif //0
-#endif // WIN32
 
 #ifdef USE_OPENCL
 	wxSizer *sizer_gpu = new wxBoxSizer(wxVERTICAL);
@@ -1624,20 +1540,6 @@ void MyDialog::OnChoiceLanguage(wxCommandEvent& event)
 	delete(w);
 }
 
-
-#if 0
-
-// translations for the render menu
-// do not remove, this is used even if its not compiled
-_("Yes");
-_("No");
-_("FSAA");
-_("Full Screen");
-_("Rendering Device");
-_("VSync");
-_("Video Mode");
-#endif //0
-
 void MyDialog::updateRendersystems(Ogre::RenderSystem *rs)
 {
 	// beware: rs may be null if no config file is present (this is normal)
@@ -1735,9 +1637,6 @@ void MyDialog::updateRendersystems(Ogre::RenderSystem *rs)
 		{
 			if(*valIt == optIt->second.currentValue)
 				selection = *valIt;
-
-			// some debug:
-			//wxLogStatus(wxString::Format(wxT("option: \"%s\" . \"%s\""), conv(optIt->first.c_str()).c_str(), conv(valIt->c_str()).c_str() ));
 
 			Ogre::String valStr = *valIt;
 
@@ -1864,14 +1763,6 @@ void MyDialog::updateRendersystems(Ogre::RenderSystem *rs)
 
 		// layout stuff
 		y += 25;
-		/*
-		if(y> 25 * 5)
-		{
-			// use next column
-			y = 25;
-			x += 230;
-		}
-		*/
 		counter++;
 	}
 	// hide non-used controls
@@ -1888,11 +1779,6 @@ void MyDialog::updateRendersystems(Ogre::RenderSystem *rs)
 void MyDialog::SetDefaults()
 {
 	wxScrollEvent dummye;
-	//autodl->SetValue(false);
-	//hydrax->SetValue(false);
-	//rtshader->SetValue(false);
-	//update textboxes
-	//wxCheckBox *dust;
 	OnScrollForceFeedback(dummye);
 	advanced_logging->SetValue(false);
 	arcadeControls->SetValue(true);
@@ -1958,9 +1844,6 @@ void MyDialog::SetDefaults()
 
 void MyDialog::getSettingsControls()
 {
-	//settings["AutoDownload"] = (autodl->GetValue()) ? "Yes" : "No";
-	//settings["Hydrax"] = (hydrax->GetValue()) ? "Yes" : "No";
-	//settings["Use RTShader System"] = (rtshader->GetValue()) ? "Yes" : "No";
 	settings["Advanced Logging"] = (advanced_logging->GetValue()) ? "Yes" : "No";
 	settings["ArcadeControls"] = (arcadeControls->GetValue()) ? "Yes" : "No";
 	settings["Beam Break Debug"] = (beam_break_debug->GetValue()) ? "Yes" : "No";
@@ -2080,12 +1963,7 @@ void MyDialog::updateSettingsControls()
 	sound->setSelectedValue(settings["AudioDevice"]);
 #endif //USE_OPENAL
 
-	//st = settings["AutoDownload"]; if (st.length()>0) autodl->SetValue(st=="Yes");
-	//st = settings["Glow"]; if (st.length()>0) glow->SetValue(st=="Yes");
-	//st = settings["Hydrax"]; if (st.length()>0) hydrax->SetValue(st=="Yes");
 	st = settings["Skidmarks"]; if (st.length()>0) skidmarks->SetValue(st=="Yes");
-	//st = settings["Sunburn"]; if (st.length()>0) sunburn->SetValue(st=="Yes");
-	//st = settings["Use RTShader System"]; if (st.length()>0) rtshader->SetValue(st=="Yes");
 	st = settings["Advanced Logging"]; if (st.length()>0) advanced_logging->SetValue(st=="Yes");
 	st = settings["ArcadeControls"]; if (st.length()>0) arcadeControls->SetValue(st=="Yes");
 	st = settings["Beam Break Debug"]; if (st.length()>0) beam_break_debug->SetValue(st=="Yes");
@@ -2747,7 +2625,6 @@ std::string MyDialog::readVersionInfo()
 {
 	// http://stackoverflow.com/questions/940707/how-do-i-programatically-get-the-version-of-a-dll-or-exe
 
-	//wxString rorpath = getInstallationPath() + wxT("RoR.exe");
 	wxString rorpath = wxT("RoR.exe");
 
 	char buffer[4096]="";
@@ -2764,7 +2641,6 @@ std::string MyDialog::readVersionInfo()
 	dwSize = GetFileVersionInfoSize( pszFilePath, NULL );
 	if ( dwSize == 0 )
 	{
-		//wxMessageBox(wxString::Format("Error in GetFileVersionInfoSize: %d\n", GetLastError()),wxT("GetFileVersionInfoSize Error"),0);
 		return "unknown";
 	}
 
@@ -2772,15 +2648,11 @@ std::string MyDialog::readVersionInfo()
 
 	if ( !GetFileVersionInfo( pszFilePath, 0, dwSize, pbVersionInfo ) )
 	{
-		//printf( "Error in GetFileVersionInfo: %d\n", GetLastError() );
-		//delete[] pbVersionInfo;
 		return "unknown";
 	}
 
 	if ( !VerQueryValue( pbVersionInfo, TEXT("\\"), (LPVOID*) &pFileInfo, &puLenFileInfo ) )
 	{
-		//printf( "Error in VerQueryValue: %d\n", GetLastError() );
-		//delete[] pbVersionInfo;
 		return "unknown";
 	}
 
