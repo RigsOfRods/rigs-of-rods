@@ -132,8 +132,6 @@ public:
 	// return: if OnInit() returns false, the application terminates)
 	virtual bool OnInit();
 	virtual int OnRun();
-	virtual void OnInitCmdLine(wxCmdLineParser& parser);
-	virtual bool OnCmdLineParsed(wxCmdLineParser& parser);
 
 	bool filesystemBootstrap();
 	void recurseCopy(wxString sourceDir, wxString destinationDir);
@@ -145,18 +143,6 @@ public:
 	wxString ProgramPath;
 	wxString SkeletonPath;
 	wxString languagePath;
-
-	bool postinstall;
-};
-
-static const wxCmdLineEntryDesc g_cmdLineDesc [] =
-{
-#if wxCHECK_VERSION(2, 9, 0)
-	{ wxCMD_LINE_SWITCH, ("postinstall"), ("postinstall"), ("do not use this")},
-#else // old wxWidgets support
-	{ wxCMD_LINE_SWITCH, wxT("postinstall"), wxT("postinstall"), wxT("do not use this")},
-#endif
-	{ wxCMD_LINE_NONE }
 };
 
 class KeySelectDialog;
@@ -328,17 +314,7 @@ BEGIN_EVENT_TABLE(MyDialog, wxDialog)
 
 END_EVENT_TABLE()
 
-// Create a new application object: this macro will allow wxWidgets to create
-// the application object during program execution (it's better than using a
-// static object for many reasons) and also implements the accessor function
-// wxGetApp() which will return the reference of the right type (i.e. MyApp and
-// not wxApp)
-
-#ifdef USE_CONSOLE
-IMPLEMENT_APP_CONSOLE(MyApp)
-#else
-IMPLEMENT_APP(MyApp)
-#endif
+IMPLEMENT_APP(MyApp) // Defines `wxGetApp()` which returns instance of MyApp
 
 // ============================================================================
 // implementation
@@ -750,19 +726,6 @@ bool MyApp::OnInit()
 	return true;
 }
 
-void MyApp::OnInitCmdLine(wxCmdLineParser& parser)
-{
-	parser.SetDesc (g_cmdLineDesc);
-	// must refuse '/' as parameter starter or cannot use "/path" style paths
-	parser.SetSwitchChars (conv("/"));
-}
-
-bool MyApp::OnCmdLineParsed(wxCmdLineParser& parser)
-{
-	postinstall = parser.Found(conv("postinstall"));
-	return true;
-}
-
 // ----------------------------------------------------------------------------
 // main frame
 // ----------------------------------------------------------------------------
@@ -794,31 +757,23 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	mainsizer->Add(nbook, 1, wxGROW);
 
 	wxSizer *btnsizer = new wxBoxSizer(wxHORIZONTAL);
-	//buttons
-	if(!app->postinstall)
-	{
-		wxButton *btnRestore = new wxButton( this, ID_BUTTON_RESTORE, _("Restore Defaults"), wxPoint(35,520), wxSize(100,25));
-		btnRestore->SetToolTip(_("Restore the default configuration."));
-		btnsizer->Add(btnRestore, 1, wxGROW | wxALL, 5);
+	
+	wxButton *btnRestore = new wxButton( this, ID_BUTTON_RESTORE, _("Restore Defaults"), wxPoint(35,520), wxSize(100,25));
+	btnRestore->SetToolTip(_("Restore the default configuration."));
+	btnsizer->Add(btnRestore, 1, wxGROW | wxALL, 5);
 
-		wxButton *btnPlay = new wxButton( this, ID_BUTTON_PLAY, _("Save and Play"), wxPoint(140,520), wxSize(100,25));
-		btnPlay->SetToolTip(_("Save the current configuration and start RoR."));
-		btnsizer->Add(btnPlay, 1, wxGROW | wxALL, 5);
+	wxButton *btnPlay = new wxButton( this, ID_BUTTON_PLAY, _("Save and Play"), wxPoint(140,520), wxSize(100,25));
+	btnPlay->SetToolTip(_("Save the current configuration and start RoR."));
+	btnsizer->Add(btnPlay, 1, wxGROW | wxALL, 5);
 
-		wxButton *btnSaveAndExit = new wxButton( this, ID_BUTTON_SAVE, _("Save and Exit"), wxPoint(245,520), wxSize(100,25));
-		btnSaveAndExit->SetToolTip(_("Save the current configuration and close the configuration program."));
-		btnsizer->Add(btnSaveAndExit, 1, wxGROW | wxALL, 5);
+	wxButton *btnSaveAndExit = new wxButton( this, ID_BUTTON_SAVE, _("Save and Exit"), wxPoint(245,520), wxSize(100,25));
+	btnSaveAndExit->SetToolTip(_("Save the current configuration and close the configuration program."));
+	btnsizer->Add(btnSaveAndExit, 1, wxGROW | wxALL, 5);
 
-		wxButton *btnClose = new wxButton( this, ID_BUTTON_CANCEL, _("Cancel"), wxPoint(350,520), wxSize(100,25));
-		btnClose->SetToolTip(_("Cancel the configuration changes and close the configuration program."));
-		btnsizer->Add(btnClose, 1, wxGROW | wxALL, 5);
-	}
-    else
-	{
-		wxButton *btnPlay = new wxButton( this, ID_BUTTON_PLAY, _("Save and Play"), wxPoint(350,520), wxSize(100,25));
-		btnPlay->SetToolTip(_("Save the current configuration and start RoR."));
-		btnsizer->Add(btnPlay, 1, wxGROW | wxALL, 5);
-	}
+	wxButton *btnClose = new wxButton( this, ID_BUTTON_CANCEL, _("Cancel"), wxPoint(350,520), wxSize(100,25));
+	btnClose->SetToolTip(_("Cancel the configuration changes and close the configuration program."));
+	btnsizer->Add(btnClose, 1, wxGROW | wxALL, 5);
+
 	mainsizer->Add(btnsizer, 0, wxGROW);
 	this->SetSizer(mainsizer);
 
