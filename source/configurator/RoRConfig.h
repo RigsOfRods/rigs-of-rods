@@ -60,4 +60,5 @@ enum ControlIds
 
 // ========== SystemTools.cpp ==========
 
-wxString LoadInputDevicesInfo(WXWidget wx_window_handle);
+wxString    LoadInputDevicesInfo     (WXWidget wx_window_handle);
+bool        ExtractZipFiles          (const wxString& aZipFile, const wxString& aTargetDir);

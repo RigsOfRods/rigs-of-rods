@@ -71,7 +71,6 @@ mode_t getumask(void)
 #include <wx/version.h>
 #include <wx/wfstream.h>
 #include <wx/wx.h>
-#include <wx/zipstrm.h>
 
 #if wxCHECK_VERSION(2, 8, 0)
 #include <wx/hyperlink.h>
@@ -136,7 +135,6 @@ public:
 	bool filesystemBootstrap();
 	void initLogging();
 	bool checkUserPath();
-	bool extractZipFiles(const wxString& aZipFile, const wxString& aTargetDir);
 	//private:
 	wxString UserPath;
 	wxString ProgramPath;
@@ -471,61 +469,6 @@ void initLanguage(wxString languagePath, wxString userpath)
 	}
 }
 
-
-
-// from http://wiki.wxwidgets.org/WxZipInputStream
-bool MyApp::extractZipFiles(const wxString& aZipFile, const wxString& aTargetDir)
-{
-	bool ret = true;
-	//wxFileSystem fs;
-	std::unique_ptr<wxZipEntry> entry(new wxZipEntry());
-	do
-	{
-		wxFileInputStream in(aZipFile);
-		if (!in)
-		{
-			wxLogError(_T("Can not open file '")+aZipFile+wxT("'."));
-			ret = false;
-			break;
-		}
-		wxZipInputStream zip(in);
-
-		while (entry.reset(zip.GetNextEntry()), entry.get() != NULL)
-		{
-			// access meta-data
-			wxString name = entry->GetName();
-			name = aTargetDir + wxFileName::GetPathSeparator() + name;
-
-			// read 'zip' to access the entry's data
-			if (entry->IsDir())
-			{
-				int perm = entry->GetMode();
-				wxFileName::Mkdir(name, perm, wxPATH_MKDIR_FULL);
-			} else
-			{
-				zip.OpenEntry(*entry.get());
-				if (!zip.CanRead())
-				{
-					wxLogError(_T("Can not read zip entry '") + entry->GetName() + wxT("'."));
-					ret = false;
-					break;
-				}
-
-				wxFileOutputStream file(name);
-
-				if (!file)
-				{
-					wxLogError(_T("Can not create file '")+name+wxT("'."));
-					ret = false;
-					break;
-				}
-				zip.Read(file);
-			}
-		}
-	} while(false);
-	return ret;
-}
-
 bool MyApp::checkUserPath()
 {
 	wxFileName configPath = wxFileName(UserPath, wxEmptyString);
@@ -537,8 +480,6 @@ bool MyApp::checkUserPath()
 	{
 		if(!wxFileName::DirExists(UserPath))
 			wxFileName::Mkdir(UserPath);
-
-		std::unique_ptr< wxZipEntry > entry;
 
 		// first: figure out the zip path
 		wxFileName skeletonZip = wxFileName(ProgramPath, wxEmptyString);
@@ -567,10 +508,8 @@ bool MyApp::checkUserPath()
 			exit(1);
 		}
 
-		// unpack
-		extractZipFiles(skeletonZipFile, UserPath);
+		ExtractZipFiles(skeletonZipFile, UserPath);
 
-		// tell the user
 		wxLogInfo(wxT("User directory created as it was not existing: ") + UserPath);
 	}
     else
