@@ -116,65 +116,65 @@ wxString LoadInputDevicesInfo(WXWidget wx_window_handle)
 bool ExtractZipFiles(const wxString& aZipFile, const wxString& aTargetDir)
 {
     // from http://wiki.wxwidgets.org/WxZipInputStream
-	bool ret = true;
-	//wxFileSystem fs;
-	std::unique_ptr<wxZipEntry> entry(new wxZipEntry());
-	do
-	{
-		wxFileInputStream in(aZipFile);
-		if (!in)
-		{
-			wxLogError(_T("Can not open file '")+aZipFile+wxT("'."));
-			ret = false;
-			break;
-		}
-		wxZipInputStream zip(in);
+    bool ret = true;
+    //wxFileSystem fs;
+    std::unique_ptr<wxZipEntry> entry(new wxZipEntry());
+    do
+    {
+        wxFileInputStream in(aZipFile);
+        if (!in)
+        {
+            wxLogError(_T("Can not open file '")+aZipFile+wxT("'."));
+            ret = false;
+            break;
+        }
+        wxZipInputStream zip(in);
 
-		while (entry.reset(zip.GetNextEntry()), entry.get() != NULL)
-		{
-			// access meta-data
-			wxString name = entry->GetName();
-			name = aTargetDir + wxFileName::GetPathSeparator() + name;
+        while (entry.reset(zip.GetNextEntry()), entry.get() != NULL)
+        {
+            // access meta-data
+            wxString name = entry->GetName();
+            name = aTargetDir + wxFileName::GetPathSeparator() + name;
 
-			// read 'zip' to access the entry's data
-			if (entry->IsDir())
-			{
-				int perm = entry->GetMode();
-				wxFileName::Mkdir(name, perm, wxPATH_MKDIR_FULL);
-			} else
-			{
-				zip.OpenEntry(*entry.get());
-				if (!zip.CanRead())
-				{
-					wxLogError(_T("Can not read zip entry '") + entry->GetName() + wxT("'."));
-					ret = false;
-					break;
-				}
+            // read 'zip' to access the entry's data
+            if (entry->IsDir())
+            {
+                int perm = entry->GetMode();
+                wxFileName::Mkdir(name, perm, wxPATH_MKDIR_FULL);
+            } else
+            {
+                zip.OpenEntry(*entry.get());
+                if (!zip.CanRead())
+                {
+                    wxLogError(_T("Can not read zip entry '") + entry->GetName() + wxT("'."));
+                    ret = false;
+                    break;
+                }
 
-				wxFileOutputStream file(name);
+                wxFileOutputStream file(name);
 
-				if (!file)
-				{
-					wxLogError(_T("Can not create file '")+name+wxT("'."));
-					ret = false;
-					break;
-				}
-				zip.Read(file);
-			}
-		}
-	} while(false);
-	return ret;
+                if (!file)
+                {
+                    wxLogError(_T("Can not create file '")+name+wxT("'."));
+                    ret = false;
+                    break;
+                }
+                zip.Read(file);
+            }
+        }
+    } while(false);
+    return ret;
 }
 
 // ========== Internal helpers ==========
 
 std::string ComposeVendorMapFilename(std::string vendor)
 {
-	std::string repl = "\\/ #@?!$%^&*()+=-><.:'|\";";
-	std::string vendorstr = std::string(vendor);
-	for(unsigned int c1 = 0; c1 < repl.size(); c1++)
-		for(unsigned int c2 = 0; c2 < vendorstr.size(); c2++)
-			if(vendorstr[c2] == repl[c1]) vendorstr[c2] = '_';
-	vendorstr += ".map";
-	return vendorstr;
+    std::string repl = "\\/ #@?!$%^&*()+=-><.:'|\";";
+    std::string vendorstr = std::string(vendor);
+    for(unsigned int c1 = 0; c1 < repl.size(); c1++)
+        for(unsigned int c2 = 0; c2 < vendorstr.size(); c2++)
+            if(vendorstr[c2] == repl[c1]) vendorstr[c2] = '_';
+    vendorstr += ".map";
+    return vendorstr;
 }

@@ -77,13 +77,13 @@ public:
         SetBitmap( bmp );
     }
 
-	wxSize DoGetBestSize() const
-	{
-    	if ( !Bitmap.Ok() )
-			return wxSize(100,100);
-		else
-			return wxSize(Bitmap.GetWidth(), Bitmap.GetHeight());
-	}
+    wxSize DoGetBestSize() const
+    {
+        if ( !Bitmap.Ok() )
+            return wxSize(100,100);
+        else
+            return wxSize(Bitmap.GetWidth(), Bitmap.GetHeight());
+    }
 
     wxIcon GetIcon() const
     {
