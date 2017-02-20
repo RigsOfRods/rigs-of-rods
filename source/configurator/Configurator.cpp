@@ -134,7 +134,6 @@ public:
 	virtual int OnRun();
 
 	bool filesystemBootstrap();
-	void recurseCopy(wxString sourceDir, wxString destinationDir);
 	void initLogging();
 	bool checkUserPath();
 	bool extractZipFiles(const wxString& aZipFile, const wxString& aTargetDir);
@@ -145,7 +144,6 @@ public:
 	wxString languagePath;
 };
 
-class KeySelectDialog;
 // Define a new frame type: this is going to be our main frame
 class MyDialog : public wxDialog
 {
@@ -190,7 +188,6 @@ public:
 
 private:
 
-	KeySelectDialog *kd;
 	Ogre::Root *ogreRoot;
 	int controlItemCounter;
 	std::map<int,wxTreeItemId> treeItems;
@@ -277,14 +274,6 @@ private:
 	int openCLAvailable;
 	DECLARE_EVENT_TABLE()
 	bool loadOgrePlugins(Ogre::String pluginsfile);
-};
-
-
-class IDData : public wxTreeItemData
-{
-public:
-	IDData(int id) : id(id) {}
-	int id;
 };
 
 // ====== Bind wxWidgets events to handler functions ======
@@ -482,40 +471,7 @@ void initLanguage(wxString languagePath, wxString userpath)
 	}
 }
 
-void MyApp::recurseCopy(wxString sourceDir, wxString destinationDir)
-{
-	if (!wxDir::Exists(sourceDir) || !wxDir::Exists(destinationDir)) return;
 
-	wxDir srcd(sourceDir);
-	wxString src;
-	if (!srcd.GetFirst(&src)) return; //empty dir!
-	do
-	{
-		//ignore files and directories beginning with "." (important, for SVN!)
-		if (src.StartsWith(wxT("."))) continue;
-		//check if it id a directory
-		wxFileName tsfn=wxFileName(sourceDir, wxEmptyString);
-		tsfn.AppendDir(src);
-		if (wxDir::Exists(tsfn.GetPath()))
-		{
-			//this is a directory, create dest dir and recurse
-			wxFileName tdfn=wxFileName(destinationDir, wxEmptyString);
-			tdfn.AppendDir(src);
-			if (!wxDir::Exists(tdfn.GetPath())) tdfn.Mkdir();
-			recurseCopy(tsfn.GetPath(), tdfn.GetPath());
-		}
-		else
-		{
-			//this is a file, copy file
-			tsfn=wxFileName(sourceDir, src);
-			wxFileName tdfn=wxFileName(destinationDir, src);
-            if (!tdfn.FileExists())
-            {
-                ::wxCopyFile(tsfn.GetFullPath(), tdfn.GetFullPath());
-            }
-		}
-	} while (srcd.GetNext(&src));
-}
 
 // from http://wiki.wxwidgets.org/WxZipInputStream
 bool MyApp::extractZipFiles(const wxString& aZipFile, const wxString& aTargetDir)
@@ -739,8 +695,6 @@ MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY
 	SetWindowVariant(wxWINDOW_VARIANT_MINI); //smaller texts for macOS
 #endif
 	SetWindowStyle(wxRESIZE_BORDER | wxCAPTION);
-	
-	kd=0;
 
 	wxFileSystem::AddHandler( new wxInternetFSHandler );
 	wxToolTip::Enable(true);
