@@ -80,6 +80,13 @@ enum ControlIds
     ID_SCROLL_VOLUME,
     ID_TIMER_CONTROLS,
     ID_TIMER_UPDATE_RESET,
+    // Input bindings
+    ID_KEYMAP_CTREE,
+    ID_COMMAND_LOAD_KEYMAP,
+    ID_COMMAND_SAVE_KEYMAP,
+    ID_COMMAND_ADD_KEY,
+    ID_COMMAND_DELETE_KEY,
+    ID_COMMAND_TESTEVENTS,
 };
 
 // ========== SystemTools.cpp ==========
