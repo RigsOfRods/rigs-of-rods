@@ -26,10 +26,34 @@
 /// @date   02/2017
 /// @brief  Application-wide declarations for RoRConfig
 
+#include <wx/app.h>
 #include <wx/defs.h>
+#include <wx/filename.h>
 #include <wx/string.h>
 
-// Widget control-IDs
+/// The application object
+class RoRConfigApp : public wxApp
+{
+public:
+    virtual bool OnInit() override;
+    virtual int  OnRun () override;
+
+    inline wxString   GetProgramPath() const { return m_program_path; }
+    inline wxString   GetUserPath   () const { return m_user_path; }
+    inline wxString   GetConfigPath () const { return m_user_path + wxFileName::GetPathSeparator() + wxT("config"); }
+    inline wxString   GetCachePath  () const { return m_user_path + wxFileName::GetPathSeparator() + wxT("cache"); }
+    inline wxString   GetLogPath    () const { return m_user_path + wxFileName::GetPathSeparator() + wxT("logs"); }
+
+private:
+    bool InitFilesystem();
+    void InitLogging();
+    bool CheckAndPrepareUserDirectory();
+
+    wxString m_user_path;
+    wxString m_program_path;
+};
+
+/// Widget control-IDs
 enum ControlIds
 {
     ID_BUTTON_ADD_KEY = 1,

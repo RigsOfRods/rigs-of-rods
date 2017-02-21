@@ -119,35 +119,12 @@ std::map<std::string, std::string> settings;
 #include <gdk/gdkx.h>
 #endif
 
-// Define a new application type, each program should derive a class from wxApp
-class MyApp : public wxApp
-{
-public:
-    // override base class virtuals
-    // ----------------------------
-
-    // this one is called on application startup and is a good place for the app
-    // initialization (doing it here and not in the ctor allows to have an error
-    // return: if OnInit() returns false, the application terminates)
-    virtual bool OnInit();
-    virtual int OnRun();
-
-    bool filesystemBootstrap();
-    void initLogging();
-    bool checkUserPath();
-    //private:
-    wxString UserPath;
-    wxString ProgramPath;
-    wxString SkeletonPath;
-    wxString languagePath;
-};
-
 // Define a new frame type: this is going to be our main frame
 class MyDialog : public wxDialog
 {
 public:
     // ctor(s)
-    MyDialog(const wxString& title, MyApp *_app);
+    MyDialog(const wxString& title);
     void loadOgre();
     void addAboutEntry(wxString name, wxString desc, wxString url, int &x, int &y);
     void addAboutTitle(wxString name, int &x, int &y);
@@ -181,8 +158,6 @@ public:
     void OnScrollFPSLimiter   (wxScrollEvent& event);
     void updateRoR();
     std::string readVersionInfo();
-
-    MyApp *app;
 
 private:
 
@@ -301,7 +276,7 @@ BEGIN_EVENT_TABLE(MyDialog, wxDialog)
 
 END_EVENT_TABLE()
 
-IMPLEMENT_APP(MyApp) // Defines `wxGetApp()` which returns instance of MyApp
+IMPLEMENT_APP(RoRConfigApp) // Defines `wxGetApp()` which returns instance of RoRConfigApp
 
 // ============================================================================
 // implementation
@@ -474,67 +449,66 @@ void initLanguage(wxString languagePath, wxString userpath)
     }
 }
 
-bool MyApp::checkUserPath()
+bool RoRConfigApp::CheckAndPrepareUserDirectory()
 {
-    wxFileName configPath = wxFileName(UserPath, wxEmptyString);
+    wxFileName configPath = wxFileName(this->GetUserPath(), wxEmptyString);
     configPath.AppendDir(wxT("config"));
     wxString configPathStr = configPath.GetFullPath();
     // check if the user path is valid, if not create it
 
-    if (!wxFileName::DirExists(UserPath) || !wxFileName::DirExists(configPathStr))
+    if (wxFileName::DirExists(m_user_path) && wxFileName::DirExists(this->GetConfigPath()))
     {
-        if(!wxFileName::DirExists(UserPath))
-            wxFileName::Mkdir(UserPath);
+        wxLogInfo(wxT("User directory seems to be valid: ") + m_user_path);
+        return true;
+    }
 
-        // first: figure out the zip path
-        wxFileName skeletonZip = wxFileName(ProgramPath, wxEmptyString);
+    wxLogInfo(wxT("Preparing user directory: ") + m_user_path);
+    if(!wxFileName::DirExists(m_user_path))
+        wxFileName::Mkdir(m_user_path);
+
+    // first: figure out the zip path
+    wxFileName skeletonZip = wxFileName(m_program_path, wxEmptyString);
+    skeletonZip.AppendDir(wxT("resources"));
+    skeletonZip.SetFullName(wxT("skeleton.zip"));
+    wxString skeletonZipFile = skeletonZip.GetFullPath();
+
+    if(!wxFileName::FileExists(skeletonZipFile))
+    {
+        // try the dev dir as well
+        skeletonZip = wxFileName(m_program_path, wxEmptyString);
+        skeletonZip.RemoveLastDir();
         skeletonZip.AppendDir(wxT("resources"));
         skeletonZip.SetFullName(wxT("skeleton.zip"));
-        wxString skeletonZipFile = skeletonZip.GetFullPath();
-
-        if(!wxFileName::FileExists(skeletonZipFile))
-        {
-            // try the dev dir as well
-            skeletonZip = wxFileName(ProgramPath, wxEmptyString);
-            skeletonZip.RemoveLastDir();
-            skeletonZip.AppendDir(wxT("resources"));
-            skeletonZip.SetFullName(wxT("skeleton.zip"));
-            skeletonZipFile = skeletonZip.GetFullPath();
-        }
-
-        if(!wxFileName::FileExists(skeletonZipFile))
-        {
-            // tell the user
-            wxString warning = wxString::Format(_("Rigs of Rods User directory missing:\n%s\n\nit could not be created since skeleton.zip was not found in\n %s"), UserPath.c_str(), skeletonZipFile.c_str());
-            wxString caption = _("error upon loading RoR user directory");
-            wxMessageDialog *w = new wxMessageDialog(NULL, warning, caption, wxOK|wxICON_ERROR|wxSTAY_ON_TOP, wxDefaultPosition);
-            w->ShowModal();
-            delete(w);
-            exit(1);
-        }
-
-        ExtractZipFiles(skeletonZipFile, UserPath);
-
-        wxLogInfo(wxT("User directory created as it was not existing: ") + UserPath);
+        skeletonZipFile = skeletonZip.GetFullPath();
     }
-    else
+
+    if(!wxFileName::FileExists(skeletonZipFile))
     {
-        wxLogInfo(wxT("User directory seems to be valid: ") + UserPath);
+        // tell the user
+        wxString warning = wxString::Format(_("Rigs of Rods User directory missing:\n%s\n\nit could not be created since skeleton.zip was not found in\n %s"), m_user_path.c_str(), skeletonZipFile.c_str());
+        wxString caption = _("error upon loading RoR user directory");
+        wxMessageDialog *w = new wxMessageDialog(NULL, warning, caption, wxOK|wxICON_ERROR|wxSTAY_ON_TOP, wxDefaultPosition);
+        w->ShowModal();
+        delete(w);
+        exit(1); // TODO: return FALSE from `OnInit()` instead! ~ only_a_ptr, 02/2017
     }
+
+    ExtractZipFiles(skeletonZipFile, m_user_path);
+
     return true;
 }
 
-bool MyApp::filesystemBootstrap()
+bool RoRConfigApp::InitFilesystem()
 {
-    UserPath    = conv(SETTINGS.GetUserPath());
-    ProgramPath = conv(SETTINGS.GetProgramPath());
+    m_user_path    = conv(SETTINGS.GetUserPath());
+    m_program_path = conv(SETTINGS.GetProgramPath());
 
 
-    checkUserPath();
+    this->CheckAndPrepareUserDirectory();
     return true;
 }
 
-void MyApp::initLogging()
+void RoRConfigApp::InitLogging()
 {
     // log everything
     wxLog::SetLogLevel(wxLOG_Max);
@@ -544,7 +518,7 @@ void MyApp::initLogging()
     wxLog *logger_cout = new wxLogStream(&std::cout);
     wxLog::SetActiveTarget(logger_cout);
 
-    wxFileName clfn=wxFileName(UserPath, wxEmptyString);
+    wxFileName clfn=wxFileName(m_user_path, wxEmptyString);
     clfn.AppendDir(wxT("logs"));
     clfn.SetFullName(wxT("configlog.txt"));
     FILE *f = fopen(conv(clfn.GetFullPath()).c_str(), "w");
@@ -558,7 +532,7 @@ void MyApp::initLogging()
 }
 
 // this is run to enter the main loop
-int MyApp::OnRun()
+int RoRConfigApp::OnRun()
 {
     // our special run method to catch exceptions
     int res = 0;
@@ -580,7 +554,7 @@ int MyApp::OnRun()
 }
 
 // 'Main program' equivalent: the program execution "starts" here
-bool MyApp::OnInit()
+bool RoRConfigApp::OnInit()
 {
     try
     {
@@ -588,10 +562,10 @@ bool MyApp::OnInit()
         if(!SETTINGS.setupPaths())
             return false;
 
-        if (!filesystemBootstrap()) return false;
+        if (!this->InitFilesystem()) return false;
 
-        initLogging();
-        initLanguage(wxT("languages"), UserPath);
+        this->InitLogging();
+        initLanguage(wxT("languages"), m_user_path);
 
         // call the base class initialization method, currently it only parses a
         // few common command-line options but it could be do more in the future
@@ -601,7 +575,7 @@ bool MyApp::OnInit()
         wxLogStatus(wxT("Creating dialog"));
         // create the main application window
         wxString title = wxString::Format(_("Rigs of Rods version %s configuration"), wxString(ROR_VERSION_STRING, wxConvUTF8).c_str());
-        MyDialog *dialog = new MyDialog(title, this);
+        MyDialog *dialog = new MyDialog(title);
 
         // and show it (the frames, unlike simple controls, are not shown when
         // created initially)
@@ -632,10 +606,8 @@ bool MyApp::OnInit()
 // ----------------------------------------------------------------------------
 
 // frame constructor
-MyDialog::MyDialog(const wxString& title, MyApp *_app) : wxDialog(NULL, wxID_ANY, title,  wxPoint(100, 100), wxSize(500, 580), wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER), openCLAvailable(0)
+MyDialog::MyDialog(const wxString& title) : wxDialog(NULL, wxID_ANY, title,  wxPoint(100, 100), wxSize(500, 580), wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER), openCLAvailable(0)
 {
-    app=_app;
-
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
     SetWindowVariant(wxWINDOW_VARIANT_MINI); //smaller texts for macOS
 #endif
@@ -1331,15 +1303,9 @@ void MyDialog::loadOgre()
     if(ogreRoot) return;
     wxLogStatus(wxT("Creating Ogre root"));
     //we must do this once
-    wxFileName tcfn=wxFileName(app->UserPath, wxEmptyString);
-    tcfn.AppendDir(wxT("config"));
-    wxString confdirPrefix=tcfn.GetPath()+wxFileName::GetPathSeparator();
-
-    wxFileName tlfn=wxFileName(app->UserPath, wxEmptyString);
-    tlfn.AppendDir(wxT("logs"));
-    wxString logsdirPrefix=tlfn.GetPath()+wxFileName::GetPathSeparator();
-
-    wxString progdirPrefix=app->ProgramPath+wxFileName::GetPathSeparator();
+    wxString confdirPrefix = wxGetApp().GetConfigPath()  + wxFileName::GetPathSeparator();
+    wxString logsdirPrefix = wxGetApp().GetLogPath()     + wxFileName::GetPathSeparator();
+    wxString progdirPrefix = wxGetApp().GetProgramPath() + wxFileName::GetPathSeparator();
     const char *pluginsfile="plugins.cfg";
     // load plugins manually to catch errors
     ogreRoot = new Ogre::Root("",
@@ -1899,7 +1865,7 @@ bool MyDialog::LoadConfig()
     {
         wxLogStatus(wxT("Loading RoR.cfg"));
 
-        wxString rorcfg=app->UserPath + wxFileName::GetPathSeparator() + wxT("config") + wxFileName::GetPathSeparator() + wxT("RoR.cfg");
+        wxString rorcfg = wxGetApp().GetConfigPath() + wxFileName::GetPathSeparator() + wxT("RoR.cfg");
         wxLogStatus(wxT("reading from Config file: ") + rorcfg);
 
         // Don't trim whitespace
@@ -1982,7 +1948,7 @@ void MyDialog::SaveConfig()
 
     //save my stuff
     FILE *fd;
-    wxString rorcfg=app->UserPath + wxFileName::GetPathSeparator() + wxT("config") + wxFileName::GetPathSeparator() + wxT("RoR.cfg");
+    wxString rorcfg= wxGetApp().GetConfigPath() + wxFileName::GetPathSeparator() + wxT("RoR.cfg");
 
     wxLogStatus(wxT("saving to Config file: ") + rorcfg);
     fd=fopen((const char *)rorcfg.mb_str(wxConvUTF8), "w");
@@ -2376,7 +2342,7 @@ void MyDialog::OnButClearCache(wxCommandEvent& event)
     wxFileName cfn;
     cfn.AssignCwd();
 
-    wxString cachepath=app->UserPath+wxFileName::GetPathSeparator()+wxT("cache");
+    wxString cachepath = wxGetApp().GetCachePath();
     wxDir srcd(cachepath);
     wxString src;
     if (!srcd.GetFirst(&src))
