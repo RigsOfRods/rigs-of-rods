@@ -43,46 +43,44 @@ std::string SanitizeUtf8String(std::string const& str_in);
 
 class Settings : public RoRSingleton<Settings>, public ZeroedMemoryAllocator
 {
-	friend class RoRSingleton<Settings>;
+    friend class RoRSingleton<Settings>;
 
 public:
 
-	Ogre::String getSetting(Ogre::String key, Ogre::String defaultValue);
-	Ogre::UTFString getUTFSetting(Ogre::UTFString key, Ogre::UTFString defaultValue);
-	bool getBooleanSetting(Ogre::String key, bool defaultValue);
-	float getFloatSetting(Ogre::String key, float defaultValue);
-	int getIntegerSetting(Ogre::String key, int defaultValue);
+    Ogre::String getSetting(Ogre::String key, Ogre::String defaultValue);
+    Ogre::UTFString getUTFSetting(Ogre::UTFString key, Ogre::UTFString defaultValue);
+    bool getBooleanSetting(Ogre::String key, bool defaultValue);
+    float getFloatSetting(Ogre::String key, float defaultValue);
+    int getIntegerSetting(Ogre::String key, int defaultValue);
 
-	void setSetting(Ogre::String key, Ogre::String value);
-	void setUTFSetting(Ogre::UTFString key, Ogre::UTFString value);
-	
-	bool setupPaths();
-	void loadSettings(Ogre::String configFile, bool overwrite=false);
+    void setSetting(Ogre::String key, Ogre::String value);
+    void setUTFSetting(Ogre::UTFString key, Ogre::UTFString value);
 
-	std::map<Ogre::String, Ogre::String> GetSettingMap()
-	{
-		return settings;
-	}
+    bool setupPaths();
+    void loadSettings(Ogre::String configFile, bool overwrite=false);
+
+    std::map<Ogre::String, Ogre::String> GetSettingMap()
+    {
+        return settings;
+    }
     std::string GetProgramPath() { return m_program_path; }
     std::string GetUserPath()    { return m_user_path; }
 
 protected:
 
-	static Settings* myInstance;
+    static Settings* myInstance;
 
-	// members
-	// TODO: use wide char / UTFString ...
-	typedef std::map<Ogre::String, Ogre::String> settings_map_t;
-	settings_map_t settings;
+    // members
+    // TODO: use wide char / UTFString ...
+    typedef std::map<Ogre::String, Ogre::String> settings_map_t;
+    settings_map_t settings;
     std::string m_program_path;
     std::string m_user_path;
 
-	// methods
-	void path_descend(char* path);
-	void path_add(char* path, const char* dirname);
+    // methods
+    void path_descend(char* path);
+    void path_add(char* path, const char* dirname);
 
-	bool get_system_paths(char *program_path, char *user_path);
+    bool get_system_paths(char *program_path, char *user_path);
 
 };
-
-
