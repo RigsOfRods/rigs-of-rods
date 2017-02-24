@@ -30,6 +30,8 @@
 using namespace RoR;
 using namespace Ogre;
 
+const std::string   VALUE_NOT_FOUND("@@NotFound!!");
+
 bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
 {
     RoR::ConfigFile file;
@@ -114,6 +116,46 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
         }
     }
     catch (Ogre::Exception) {} // Thrown if section 'Scripts' doesn't exist
+
+    this->ProcessTeleport(def, &file);
+
+    return true;
+}
+
+void Terrn2Parser::ProcessTeleport(Terrn2Def& def, RoR::ConfigFile* file)
+{
+    size_t telepoint_number = 1;
+    for (;;)
+    {        
+        char key_position [50];
+        char key_id       [50];
+        char key_name     [50];
+
+        snprintf(key_position,  50, "Telepoint%d/Position" , telepoint_number);
+        snprintf(key_name,      50, "Telepoint%d/Name" ,     telepoint_number);
+
+        std::string pos_str = file->GetStringEx(key_position, "Teleport", VALUE_NOT_FOUND);
+        if (pos_str == VALUE_NOT_FOUND)
+        {
+            break; // No more telepoints
+        }
+        Terrn2Telepoint t_point;
+        if (sscanf(pos_str.c_str(), "%f, %f, %f", &t_point.position.x, &t_point.position.y, &t_point.position.z) != 3)
+        {
+            char msg_buf[500];
+            snprintf(msg_buf, 500,
+                "ERROR: Field '[Teleport]/%s' ('%s') is not valid XYZ position. Skipping telepoint %d.",
+                key_position, pos_str.c_str(), telepoint_number);
+            this->AddMessage(msg_buf);
+        }
+        else
+        {
+            t_point.name  = file->GetStringEx(key_name, "Teleport"); // Optional field
+            def.telepoints.push_back(t_point); // Persist the entry
+        }
+
+        ++telepoint_number;
+    }
 }
 
 Terrn2Def::Terrn2Def():

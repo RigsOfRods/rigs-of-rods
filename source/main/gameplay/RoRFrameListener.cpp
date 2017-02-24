@@ -40,6 +40,7 @@
 #include "EnvironmentMap.h"
 #include "ForceFeedback.h"
 #include "GUI_LoadingWindow.h"
+#include "GUI_TeleportWindow.h"
 #include "GUIManager.h"
 #include "Heathaze.h"
 #include "IHeightFinder.h"
@@ -280,6 +281,11 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CONSOLE_TOGGLE))
     {
         gui_man->SetVisible_Console(! gui_man->IsVisible_Console());
+    }
+
+    if ((curr_truck == nullptr) && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TELEPORT_TOGGLE))
+    {
+        gui_man->SetVisible_TeleportWindow(! gui_man->IsVisible_TeleportWindow());
     }
 
     if (gui_man->IsVisible_GamePauseMenu())
@@ -1479,6 +1485,14 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
     return true;
 }
 
+void RoRFrameListener::TeleportPlayer(RoR::Terrn2Telepoint* telepoint)
+{
+    if (BeamFactory::getSingleton().getCurrentTruck() != nullptr)
+        return; // Player could enter truck while Teleport-GUI is visible
+
+    gEnv->player->setPosition(telepoint->position);
+}
+
 void RoRFrameListener::FinalizeTruckSpawning(Beam* local_truck, Beam* previous_truck)
 {
     if (local_truck != nullptr)
@@ -2216,6 +2230,7 @@ void RoRFrameListener::CleanupAfterSimulation()
     loading_window->setProgress(100, _L("Unloading Terrain"));
     // hide loading window
     App::GetGuiManager()->SetVisible_LoadingWindow(false);
+    App::GetGuiManager()->GetTeleport()->Reset();
 }
 
 bool RoRFrameListener::SetupGameplayLoop()
@@ -2333,6 +2348,9 @@ bool RoRFrameListener::SetupGameplayLoop()
         App::GetGuiManager()->SetVisible_LoadingWindow(false);
         return false;
     }
+
+    App::GetGuiManager()->GetTeleport()->SetupMap(
+        this, &gEnv->terrainManager->GetDef(), gEnv->terrainManager->getMaxTerrainSize());
 
     // ========================================================================
     // Loading vehicle

@@ -31,10 +31,18 @@
 
 namespace RoR {
 
+class ConfigFile; // Forward
+
 struct Terrn2Author
 {
     std::string type;
     std::string name;
+};
+
+struct Terrn2Telepoint ///< Teleport drop location
+{
+    Ogre::Vector3 position;
+    std::string   name;
 };
 
 struct Terrn2Def
@@ -54,6 +62,7 @@ struct Terrn2Def
     std::list<Terrn2Author>  authors;
     std::list<std::string>   tobj_files;
     std::list<std::string>   as_files;
+    std::list<Terrn2Telepoint> telepoints;
     std::string              caelum_config;
     int                      caelum_fog_start;
     int                      caelum_fog_end;
@@ -70,6 +79,7 @@ public:
     std::list<std::string> const & GetMessages() const { return m_messages; }
 
 private:
+    void ProcessTeleport(Terrn2Def& def, RoR::ConfigFile* file);
     void AddMessage(const char* msg) { m_messages.push_back(msg); }
     std::list<std::string> m_messages;
 };

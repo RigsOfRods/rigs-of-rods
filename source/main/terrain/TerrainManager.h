@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -18,7 +18,6 @@
     You should have received a copy of the GNU General Public License
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
-
 
 #pragma once
 
@@ -57,6 +56,7 @@ public:
     IWater* getWater() { return water; };
     Ogre::Light* getMainLight() { return main_light; };
     Ogre::Vector3 getSpawnPos() { return m_def.start_position; };
+    RoR::Terrn2Def& GetDef() { return m_def; }
 
     SkyManager* getSkyManager();
 
@@ -86,7 +86,7 @@ protected:
     TerrainObjectManager* object_manager;
     IWater* water;
     HydraxWater* hw;
-	Ogre::Light *main_light;
+    Ogre::Light *main_light;
 
     // properties
     RoR::Terrn2Def m_def;
