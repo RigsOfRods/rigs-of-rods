@@ -30,7 +30,7 @@ class HydraxWater : public IWater
 {
 public:
 
-    HydraxWater(const Ogre::ConfigFile& mTerrainConfig, Ogre::String configFile = "HydraxDefault.hdx");
+    HydraxWater(float waterHeight, Ogre::String configFile = "HydraxDefault.hdx");
     ~HydraxWater();
 
     float getHeight();

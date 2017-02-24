@@ -31,16 +31,14 @@
 using namespace Ogre;
 
 // HydraxWater
-HydraxWater::HydraxWater(const Ogre::ConfigFile& mTerrainConfig, Ogre::String configFile):
+HydraxWater::HydraxWater(float water_height, Ogre::String conf_file):
     waternoise(0)
     , mHydrax(0)
     , waterHeight(5)
-    , waveHeight(0)
+, waveHeight(water_height)
     , mRenderCamera(gEnv->mainCamera)
-    , CurrentConfigFile(configFile)
+, CurrentConfigFile(conf_file)
 {
-    waterHeight = PARSEREAL(mTerrainConfig.getSetting("WaterLine", "General"));
-
     mRenderCamera->setNearClipDistance(0.1f);
 
     InitHydrax();

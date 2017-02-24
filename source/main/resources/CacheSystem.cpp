@@ -40,11 +40,13 @@
 #include "SHA1.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
+#include "Terrn2Fileformat.h"
 #include "Utils.h"
 
 #include "GUI_LoadingWindow.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 // default constructor resets the data.
 CacheEntry::CacheEntry() :
@@ -2031,26 +2033,23 @@ String CacheSystem::filenamesSHA1()
 
 void CacheSystem::fillTerrainDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr ds, Ogre::String fname)
 {
-    TerrainManager tm;
-    tm.loadTerrainConfigBasics(ds);
+    Terrn2Def def;
+    Terrn2Parser parser;
+    parser.LoadTerrn2(def, ds);
 
-    //parsing the current file
-    auto& authors = tm.GetAuthors();
-    auto itor_end = authors.end();
-    for (auto itor = authors.begin(); itor != itor_end; ++itor)
+    for (Terrn2Author& author : def.authors)
     {
         AuthorInfo a;
-        a.id = itor->id;
-        a.email = itor->email;
-        a.name = itor->name;
-        a.type = itor->type;
+        a.id = -1;
+        a.name = author.name;
+        a.type = author.type;
         entry.authors.push_back(a);
     }
 
-    entry.dname = tm.getTerrainName();
-    entry.categoryid = tm.getCategoryID();
-    entry.uniqueid = tm.getGUID();
-    entry.version = tm.getVersion();
+    entry.dname      = def.name;
+    entry.categoryid = def.category_id;
+    entry.uniqueid   = def.guid;
+    entry.version    = def.version;
 }
 
 int CacheSystem::getCategoryUsage(int category)

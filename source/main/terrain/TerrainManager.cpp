@@ -52,8 +52,7 @@ using namespace RoR;
 using namespace Ogre;
 
 TerrainManager::TerrainManager() :
-    m_terrain_config()
-    , character(0)
+      character(0)
     , collisions(0)
     , dashboard(0)
     , envmap(0)
@@ -64,28 +63,16 @@ TerrainManager::TerrainManager() :
     , sky_manager(0)
     , survey_map(0)
     , water(0)
-    , authors()
-    , ambient_color(ColourValue::White)
-    , category_id(0)
-    , fade_color(ColourValue::Black)
     , far_clip(1000)
-    , file_hash("")
-    , gravity(DEFAULT_GRAVITY)
-    , guid("")
     , main_light(0)
-    , ogre_terrain_config_filename("")
     , paged_detail_factor(0.0f)
     , paged_mode(0)
-    , start_position(Vector3::ZERO)
-    , terrain_name("")
-    , version(1)
-    , water_line(0.0f)
+    , gravity(DEFAULT_GRAVITY)
 {
 }
 
 TerrainManager::~TerrainManager()
 {
-    m_terrain_config.clear();
 
     //I think that the order is important
 
@@ -148,60 +135,6 @@ TerrainManager::~TerrainManager()
 // some shortcut to remove ugly code
 #   define PROGRESS_WINDOW(x, y) { LOG(Ogre::String("  ## ") + y); RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(x, y); }
 
-void TerrainManager::loadTerrainConfigBasics(Ogre::DataStreamPtr& ds)
-{
-    // now generate the hash of it
-    generateHashFromDataStream(ds, file_hash);
-
-    m_terrain_config.load(ds, "\t:=", true);
-
-    // read in the settings
-    terrain_name = m_terrain_config.GetStringEx("Name", "General");
-    if (terrain_name.empty())
-    {
-        ErrorUtils::ShowError(_L("Terrain loading error"), _L("the terrain name cannot be empty"));
-        exit(125);
-    }
-
-    ogre_terrain_config_filename = m_terrain_config.GetStringEx("GeometryConfig", "General");
-    // otc = ogre terrain config
-    if (ogre_terrain_config_filename.find(".otc") == String::npos)
-    {
-        ErrorUtils::ShowError(_L("Terrain loading error"), _L("the new terrain mode only supports .otc configurations"));
-        exit(125);
-    }
-
-    ambient_color = m_terrain_config.GetColourValue("AmbientColor", "General", ColourValue::White);
-    category_id = m_terrain_config.GetInt("CategoryID", "General", 129);
-    guid = m_terrain_config.GetStringEx("GUID", "General");
-    start_position = StringConverter::parseVector3(m_terrain_config.GetStringEx("StartPosition", "General"), Vector3(512.0f, 0.0f, 512.0f));
-    version = m_terrain_config.GetInt("Version", "General", 1);
-    gravity = m_terrain_config.GetFloat("Gravity", "General", -9.81);
-
-    // parse author info
-    Ogre::ConfigFile::SettingsIterator it = m_terrain_config.getSettingsIterator("Authors");
-
-    authors.clear();
-
-    while (it.hasMoreElements())
-    {
-        String type = RoR::Utils::SanitizeUtf8String(it.peekNextKey()); // e.g. terrain
-        String name = RoR::Utils::SanitizeUtf8String(it.peekNextValue()); // e.g. john doe
-
-        if (!name.empty())
-        {
-            authorinfo_t author;
-
-            author.type = type;
-            author.name = name;
-
-            authors.push_back(author);
-        }
-
-        it.moveNext();
-    }
-}
-
 void TerrainManager::loadTerrain(String filename)
 {
     DataStreamPtr ds;
@@ -211,18 +144,27 @@ void TerrainManager::loadTerrain(String filename)
         String group = ResourceGroupManager::getSingleton().findGroupContainingResource(filename);
         ds = ResourceGroupManager::getSingleton().openResource(filename, group);
     }
-    catch (...)
+    catch(...)
     {
-        LOG("Terrain not found: " + String(filename));
-        ErrorUtils::ShowError(_L("Terrain loading error"), _L("Terrain not found: ") + filename);
-        exit(125);
+        LOG("[RoR|Terrain] File not found: " + filename);
+        return;
     }
 
     PROGRESS_WINDOW(10, _L("Loading Terrain Configuration"));
 
     LOG(" ===== LOADING TERRAIN " + filename);
 
-    loadTerrainConfigBasics(ds);
+    Terrn2Parser parser;
+    if (! parser.LoadTerrn2(m_def, ds))
+    {
+        LOG("[RoR|Terrain] Failed to parse: " + filename);
+        for (std::string msg : parser.GetMessages())
+        {
+            LOG("[RoR|Terrain] \tMessage: " + msg);
+        }
+        return;
+    }
+    gravity = m_def.gravity;
 
     // then, init the subsystems, order is important :)
     initSubSystems();
@@ -233,7 +175,7 @@ void TerrainManager::loadTerrain(String filename)
 
     // load the terrain geometry
     PROGRESS_WINDOW(80, _L("Loading Terrain Geometry"));
-    geometry_manager->loadOgreTerrainConfig(ogre_terrain_config_filename);
+    geometry_manager->loadOgreTerrainConfig(m_def.ogre_ter_conf_filename);
 
     LOG(" ===== LOADING TERRAIN WATER " + filename);
     // must happen here
@@ -338,8 +280,8 @@ void TerrainManager::initSubSystems()
 
 void TerrainManager::initCamera()
 {
-    gEnv->mainCamera->getViewport()->setBackgroundColour(ambient_color);
-    gEnv->mainCamera->setPosition(start_position);
+    gEnv->mainCamera->getViewport()->setBackgroundColour(m_def.ambient_color);
+    gEnv->mainCamera->setPosition(m_def.start_position);
 
     far_clip = App::GetGfxSightRange();
 
@@ -365,14 +307,10 @@ void TerrainManager::initSkySubSystem()
         gEnv->sky = sky_manager;
 
         // try to load caelum config
-        String caelumConfig = m_terrain_config.GetStringEx("CaelumConfigFile", "General");
-
-        if (!caelumConfig.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(caelumConfig))
+        if (!m_def.caelum_config.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def.caelum_config))
         {
             // config provided and existing, use it :)
-            int caelumFogStart = m_terrain_config.GetInt("CaelumFogStart", "General", -1);
-            int caelumFogEnd = m_terrain_config.GetInt("CaelumFogEnd", "General", -1);
-            sky_manager->loadScript(caelumConfig, caelumFogStart, caelumFogEnd);
+            sky_manager->loadScript(m_def.caelum_config, m_def.caelum_fog_start, m_def.caelum_fog_end);
         }
         else
         {
@@ -383,12 +321,11 @@ void TerrainManager::initSkySubSystem()
     else
 #endif //USE_CAELUM
     {
-        String sandStormConfig = m_terrain_config.GetStringEx("SandStormCubeMap", "General");
 
-        if (!sandStormConfig.empty())
+        if (!m_def.cubemap_config.empty())
         {
             // use custom
-            gEnv->sceneManager->setSkyBox(true, sandStormConfig, 100, true);
+            gEnv->sceneManager->setSkyBox(true, m_def.cubemap_config, 100, true);
         }
         else
         {
@@ -416,8 +353,8 @@ void TerrainManager::initLight()
         main_light->setType(Light::LT_DIRECTIONAL);
         main_light->setDirection(Ogre::Vector3(0.785, -0.423, 0.453).normalisedCopy());
 
-        main_light->setDiffuseColour(ambient_color);
-        main_light->setSpecularColour(ambient_color);
+        main_light->setDiffuseColour(m_def.ambient_color);
+        main_light->setSpecularColour(m_def.ambient_color);
         main_light->setCastShadows(true);
         main_light->setShadowFarDistance(1000.0f);
         main_light->setShadowNearClipDistance(-1);
@@ -429,7 +366,7 @@ void TerrainManager::initFog()
     if (far_clip >= UNLIMITED_SIGHTRANGE)
         gEnv->sceneManager->setFog(FOG_NONE);
     else
-        gEnv->sceneManager->setFog(FOG_LINEAR, ambient_color, 0.000f, far_clip * 0.65f, far_clip * 0.9);
+        gEnv->sceneManager->setFog(FOG_LINEAR, m_def.ambient_color, 0.000f, far_clip * 0.65f, far_clip*0.9);
 }
 
 void TerrainManager::initVegetation()
@@ -569,7 +506,6 @@ void TerrainManager::fixCompositorClearColor()
     // now with extensive error checking
     if (CompositorManager::getSingleton().hasCompositorChain(gEnv->mainCamera->getViewport()))
     {
-        //	//CompositorManager::getSingleton().getCompositorChain(gEnv->ogreCamera->getViewport())->getCompositor(0)->getTechnique()->getOutputTargetPass()->getPass(0)->setClearColour(fade_color);
         CompositorInstance* co = CompositorManager::getSingleton().getCompositorChain(gEnv->mainCamera->getViewport())->_getOriginalSceneCompositor();
         if (co)
         {
@@ -582,7 +518,7 @@ void TerrainManager::fixCompositorClearColor()
                     CompositionPass* p = ctp->getPass(0);
                     if (p)
                     {
-                        p->setClearColour(fade_color);
+                        p->setClearColour(Ogre::ColourValue::Black);
                     }
                 }
             }
@@ -597,8 +533,7 @@ void TerrainManager::initWater()
         return;
 
     // disabled in map config
-    bool has_water = m_terrain_config.GetBool("Water", "General", false);
-    if (!has_water)
+    if (!m_def.has_water)
     {
         return;
     }
@@ -606,16 +541,14 @@ void TerrainManager::initWater()
     if (App::GetGfxWaterMode() == App::GFX_WATER_HYDRAX)
     {
         // try to load hydrax config
-        String hydraxConfig = m_terrain_config.GetStringEx("HydraxConfigFile", "General");
-
-        if (!hydraxConfig.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(hydraxConfig))
+        if (!m_def.hydrax_conf_file.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def.hydrax_conf_file))
         {
-            hw = new HydraxWater(m_terrain_config, hydraxConfig);
+            hw = new HydraxWater(m_def.water_height, m_def.hydrax_conf_file);
         }
         else
         {
             // no config provided, fall back to the default one
-            hw = new HydraxWater(m_terrain_config);
+            hw = new HydraxWater(m_def.water_height);
         }
 
         water = hw;
@@ -632,11 +565,11 @@ void TerrainManager::initWater()
     else
     {
         if (water == nullptr)
-            water = new Water(m_terrain_config);
+           water = new Water();
         else if (water != nullptr)
         {
             delete(water);
-            water = new Water(m_terrain_config);
+            water = new Water();
         }
     }
 }
@@ -659,26 +592,12 @@ void TerrainManager::initShadows()
 
 void TerrainManager::loadTerrainObjects()
 {
-    try
+    for (std::string tobj_filename : m_def.tobj_files)
     {
-        Ogre::ConfigFile::SettingsIterator objectsIterator = m_terrain_config.getSettingsIterator("Objects");
-
-        while (objectsIterator.hasMoreElements())
-        {
-            String sname = objectsIterator.peekNextKey();
-            StringUtil::trim(sname);
-
-            object_manager->loadObjectConfigFile(sname);
-            objectsIterator.moveNext();
-        }
-    }
-    catch (...)
-    {
-        // no objects found
+        object_manager->loadObjectConfigFile(tobj_filename);
     }
 
-    // bakes the geometry and things
-    object_manager->postLoad();
+    object_manager->postLoad(); // bakes the geometry and things
 }
 
 void TerrainManager::initCollisions()
@@ -689,10 +608,9 @@ void TerrainManager::initCollisions()
 
 void TerrainManager::initTerrainCollisions()
 {
-    String tractionMapConfig = m_terrain_config.GetStringEx("TractionMap", "General");
-    if (!tractionMapConfig.empty())
+    if (!m_def.traction_map_file.empty())
     {
-        gEnv->collisions->setupLandUse(tractionMapConfig.c_str());
+        gEnv->collisions->setupLandUse(m_def.traction_map_file.c_str());
     }
 }
 
@@ -715,24 +633,10 @@ void TerrainManager::initScripting()
     // only load terrain scripts while not in multiplayer
     if (RoR::App::GetActiveMpState() != RoR::App::MP_STATE_CONNECTED)
     {
-        try
+        for (std::string as_filename : m_def.as_files)
         {
-            Ogre::ConfigFile::SettingsIterator objectsIterator = m_terrain_config.getSettingsIterator("Scripts");
-            while (objectsIterator.hasMoreElements())
-            {
-                String sname = objectsIterator.peekNextKey();
-                StringUtil::trim(sname);
-                String svalue = objectsIterator.getNext();
-                StringUtil::trim(svalue);
-
-                if (!ScriptEngine::getSingleton().loadScript(sname))
-                    loaded = true;
-            }
-        }
-        catch (...)
-        {
-            // simply no script section
-            //LOG("Exception while trying load script: " + e.getFullDescription());
+            if(ScriptEngine::getSingleton().loadScript(as_filename) == 0)
+                loaded = true;
         }
     }
 
@@ -803,7 +707,3 @@ bool TerrainManager::hasPreloadedTrucks()
     return false;
 }
 
-std::vector<authorinfo_t>& TerrainManager::GetAuthors()
-{
-    return authors;
-}

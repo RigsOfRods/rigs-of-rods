@@ -214,6 +214,7 @@ set( SOURCE_FILES
   resources/rig_def_fileformat/RigDef_SequentialImporter.{h,cpp}
   resources/rig_def_fileformat/RigDef_Serializer.{h,cpp}
   resources/rig_def_fileformat/RigDef_Validator.{h,cpp}
+  resources/terrn2_fileformat/Terrn2Fileformat.{h,cpp}
   terrain/IHeightFinder.h
   terrain/OgreTerrainPSSMMaterialGenerator.{h,cpp}
   terrain/TerrainGeometryManager.{h,cpp}
@@ -401,6 +402,7 @@ target_include_directories( ${BINNAME} PRIVATE
  physics/water
  resources
  resources/rig_def_fileformat
+ resources/terrn2_fileformat
  rig_editor
  rig_editor/rig_data
  scripting

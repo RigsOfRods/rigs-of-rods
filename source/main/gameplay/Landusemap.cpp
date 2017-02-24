@@ -30,6 +30,8 @@
 #include "PagedGeometry.h"
 #endif
 
+#include <OgreConfigFile.h>
+
 using namespace Ogre;
 
 Landusemap::Landusemap(String configFilename) :
