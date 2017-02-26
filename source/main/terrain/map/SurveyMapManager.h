@@ -84,7 +84,8 @@ public:
         SURVEY_MAP_END
     };
 
-    void Update(Beam** vehicles, int num_vehicles);
+    void          Update(Beam** vehicles, int num_vehicles);
+    std::string   GetMinimapTextureName();
 
 protected:
 

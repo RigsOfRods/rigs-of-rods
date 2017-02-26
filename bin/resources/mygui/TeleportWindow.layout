@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <MyGUI type="Layout" version="3.2.0">
     <Widget type="Window" skin="WindowCSX" position="0 0 620 440" layer="Main" name="teleport_window">
         <Property key="Caption" value="Teleport"/>
@@ -6,7 +6,7 @@
             <Property key="TextAlign" value="HCenter VCenter"/>
             <Property key="Caption" value="Click a telepoint or hold [Alt] and click anywhere on the minimap."/>
         </Widget>
-        <Widget type="Canvas" skin="Canvas" position="5 25 600 375" align="Stretch" name="minimap_canvas"/>
+        <Widget type="StaticImage" skin="ImageBox" position="5 25 600 375" align="Stretch" name="minimap_image"/>
     </Widget>
     <CodeGeneratorSettings>
         <Property key="IncludeDirectory" value="c:\git\rigs-of-rods\source\main\gui\panels"/>

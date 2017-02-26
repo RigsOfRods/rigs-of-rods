@@ -35,8 +35,8 @@ protected:
 	ATTRIBUTE_FIELD_WIDGET_NAME(TeleportWindowLayout, m_info_textbox, "info_textbox");
 	MyGUI::TextBox* m_info_textbox;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(TeleportWindowLayout, m_minimap_canvas, "minimap_canvas");
-	MyGUI::Canvas* m_minimap_canvas;
+	ATTRIBUTE_FIELD_WIDGET_NAME(TeleportWindowLayout, m_minimap_image, "minimap_image");
+	MyGUI::StaticImage* m_minimap_image;
 
 	//%LE Widget_Declaration list end
 };

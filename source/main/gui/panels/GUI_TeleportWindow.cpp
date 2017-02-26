@@ -87,18 +87,19 @@ void TeleportWindow::TelepointIconClicked(MyGUI::Widget* sender)
     m_sim_controller->TeleportPlayer(GetTeleIconUserdata(sender));
 }
 
-void TeleportWindow::SetupMap(RoRFrameListener* sim_controller, Terrn2Def* def, Ogre::Vector3 map_size)
+void TeleportWindow::SetupMap(RoRFrameListener* sim_controller, Terrn2Def* def, Ogre::Vector3 map_size, std::string minimap_tex_name)
 {
     m_sim_controller = sim_controller;
+    m_minimap_image->setImageTexture(minimap_tex_name);
     m_info_textbox->setCaption(HELPTEXT_USAGE);
     m_info_textbox->setTextColour(HELPTEXT_COLOR_USAGE);
-    float mini_width  = static_cast<float>(m_minimap_canvas->getSize().width);
-    float mini_height = static_cast<float>(m_minimap_canvas->getSize().height);
+    float mini_width  = static_cast<float>(m_minimap_image->getSize().width);
+    float mini_height = static_cast<float>(m_minimap_image->getSize().height);
     for (Terrn2Telepoint& telepoint: def->telepoints)
     {
         int pos_x = static_cast<int>(((telepoint.position.x / map_size.x) * mini_width ) - (TELEICON_SIZE/2));
         int pos_y = static_cast<int>(((telepoint.position.z / map_size.z) * mini_height) - (TELEICON_SIZE/2));
-        MyGUI::ImageBox* tp_icon = m_minimap_canvas->createWidget<MyGUI::ImageBox>("ImageBox", pos_x, pos_y, TELEICON_SIZE, TELEICON_SIZE, MyGUI::Align::Default);
+        MyGUI::ImageBox* tp_icon = m_minimap_image->createWidget<MyGUI::ImageBox>("ImageBox", pos_x, pos_y, TELEICON_SIZE, TELEICON_SIZE, MyGUI::Align::Default);
         tp_icon->setImageTexture("telepoint_icon.png");
         tp_icon->setUserData(&telepoint);
         tp_icon->eventMouseSetFocus += MyGUI::newDelegate(this, &TeleportWindow::TelepointIconGotFocus);
@@ -113,7 +114,7 @@ void TeleportWindow::Reset()
     m_sim_controller = nullptr;
     while (!m_telepoint_icons.empty())
     {
-        m_minimap_canvas->_destroyChildWidget(m_telepoint_icons.back());
+        m_minimap_image->_destroyChildWidget(m_telepoint_icons.back());
         m_telepoint_icons.pop_back();
     }
 }

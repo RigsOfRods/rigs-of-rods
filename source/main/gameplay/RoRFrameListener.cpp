@@ -2350,7 +2350,10 @@ bool RoRFrameListener::SetupGameplayLoop()
     }
 
     App::GetGuiManager()->GetTeleport()->SetupMap(
-        this, &gEnv->terrainManager->GetDef(), gEnv->terrainManager->getMaxTerrainSize());
+        this,
+        &gEnv->terrainManager->GetDef(),
+        gEnv->terrainManager->getMaxTerrainSize(),
+        gEnv->terrainManager->GetMinimapTextureName());
 
     // ========================================================================
     // Loading vehicle

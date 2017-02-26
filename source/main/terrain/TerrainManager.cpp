@@ -61,7 +61,7 @@ TerrainManager::TerrainManager() :
     , object_manager(0)
     , shadow_manager(0)
     , sky_manager(0)
-    , survey_map(0)
+    , m_survey_map(0)
     , water(0)
     , far_clip(1000)
     , main_light(0)
@@ -125,10 +125,10 @@ TerrainManager::~TerrainManager()
         shadow_manager = nullptr;
     }
 
-    if (survey_map != nullptr)
+    if (m_survey_map != nullptr)
     {
-        delete survey_map;
-        survey_map = nullptr;
+        delete m_survey_map;
+        m_survey_map = nullptr;
     }
 }
 
@@ -198,7 +198,7 @@ void TerrainManager::loadTerrain(String filename)
     if (!RoR::App::GetGfxMinimapDisabled())
     {
         PROGRESS_WINDOW(45, _L("Initializing Overview Map Subsystem"));
-        initSurveyMap();
+        m_survey_map = new SurveyMapManager();
     }
 
     collisions->finishLoadingTerrain();
@@ -656,17 +656,6 @@ void TerrainManager::setGravity(float value)
     BeamFactory::getSingleton().recalcGravityMasses();
 }
 
-void TerrainManager::initSurveyMap()
-{
-    survey_map = new SurveyMapManager();
-
-    // Uses the terrain composite material as survey map background image
-#if 0
-	if (geometry_manager)
-		survey_map->setMapTexture(geometry_manager->getCompositeMaterialName());
-#endif
-}
-
 void TerrainManager::initGeometry()
 {
     geometry_manager = new TerrainGeometryManager(this);
@@ -705,5 +694,13 @@ bool TerrainManager::hasPreloadedTrucks()
     if (object_manager)
         return object_manager->hasPreloadedTrucks();
     return false;
+}
+
+std::string TerrainManager::GetMinimapTextureName()
+{
+    if (m_survey_map != nullptr) // Can be disabled by user
+        return m_survey_map->GetMinimapTextureName();
+    else
+        return "";
 }
 

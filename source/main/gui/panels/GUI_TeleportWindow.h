@@ -33,7 +33,7 @@ class TeleportWindow : public TeleportWindowLayout, public GuiPanelBase
 public:
     TeleportWindow();
 
-    void SetupMap(RoRFrameListener* sim_controller, Terrn2Def* def, Ogre::Vector3 map_size);
+    void SetupMap(RoRFrameListener* sim_controller, Terrn2Def* def, Ogre::Vector3 map_size, std::string minimap_tex_name);
     void Reset();
     void SetVisible(bool v);
     bool IsVisible();

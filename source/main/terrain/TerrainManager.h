@@ -64,6 +64,7 @@ public:
     TerrainObjectManager* getObjectManager() { return object_manager; };
 
     ShadowManager* getShadowManager() { return shadow_manager; };
+    std::string    GetMinimapTextureName();
 
     // preloaded trucks
     void loadPreloadedTrucks();
@@ -79,7 +80,7 @@ protected:
     Dashboard* dashboard;
     Envmap* envmap;
     HDRListener* hdr_listener;
-    SurveyMapManager* survey_map;
+    SurveyMapManager* m_survey_map;
     ShadowManager* shadow_manager;
     SkyManager* sky_manager;
     TerrainGeometryManager* geometry_manager;
@@ -115,7 +116,6 @@ protected:
     void initSkySubSystem();
     void initSubSystems();
     void initSunburn();
-    void initSurveyMap();
     void initVegetation();
     void initWater();
 
