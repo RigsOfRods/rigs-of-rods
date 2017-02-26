@@ -23,7 +23,6 @@
 /// @date   18th of July 2010
 
 #ifdef USE_MYGUI
-#ifdef USE_SOCKETW
 
 #pragma once
 
@@ -89,7 +88,6 @@ protected:
     static const int sidebarWidth = 250;
 };
 
-#endif // USE_SOCKETW
 #endif // USE_MYGUI
 
 } // namespace GUI

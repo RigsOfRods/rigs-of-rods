@@ -54,18 +54,20 @@ OutProtocol::~OutProtocol(void)
 {
     if (sockfd != 0)
     {
-#if _WIN32
+#ifdef USE_SOCKETW
+#   if _WIN32
         closesocket(sockfd);
-#else
-		close( sockfd );
-#endif
+#   else
+        close( sockfd );
+#   endif
+#endif // USE_SOCKETW
         sockfd = 0;
     }
 }
 
 void OutProtocol::startup()
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(USE_SOCKETW)
     SWBaseSocket::SWBaseError error;
 
     // startup winsock
@@ -110,7 +112,7 @@ void OutProtocol::startup()
 
 bool OutProtocol::update(float dt)
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(USE_SOCKETW)
     if (!working)
     {
         return false;

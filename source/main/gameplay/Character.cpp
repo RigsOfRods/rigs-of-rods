@@ -592,6 +592,7 @@ void Character::move(Vector3 offset)
 // Helper function
 void Character::ReportError(const char* detail)
 {
+#ifdef USE_SOCKETW
     Ogre::UTFString username;
     RoRnet::UserInfo info;
     if (!RoR::Networking::GetUserInfo(m_source_id, info))
@@ -605,6 +606,7 @@ void Character::ReportError(const char* detail)
         username.asUTF8_c_str(), m_source_id, m_stream_id);
 
     LOGSTREAM << msg_buf << detail;
+#endif
 }
 
 void Character::sendStreamSetup()
@@ -649,6 +651,7 @@ void Character::sendStreamData()
 
 void Character::receiveStreamData(unsigned int& type, int& source, unsigned int& streamid, char* buffer)
 {
+#ifdef USE_SOCKETW
     if (type == RoRnet::MSG2_STREAM_DATA && m_source_id == source && m_stream_id == streamid)
     {
         auto* msg = reinterpret_cast<Networking::CharacterMsgGeneric*>(buffer);
@@ -690,6 +693,7 @@ void Character::receiveStreamData(unsigned int& type, int& source, unsigned int&
             this->ReportError(err_buf);
         }
     }
+#endif
 }
 
 void Character::updateNetLabelSize()

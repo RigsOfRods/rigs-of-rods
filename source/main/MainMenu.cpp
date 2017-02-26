@@ -139,6 +139,7 @@ void MainMenu::EnterMainMenuLoop()
 
         RoR::App::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
 
+#ifdef USE_SOCKETW
         if ((App::GetActiveMpState() == App::MP_STATE_CONNECTED) && RoR::Networking::CheckError())
         {
             Ogre::String title = Ogre::UTFString(_L("Network fatal error: ")).asUTF8();
@@ -149,6 +150,7 @@ void MainMenu::EnterMainMenuLoop()
             RoR::App::GetGuiManager()->GetMainSelector()->Hide();
             RoR::App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
         }
+#endif
 
         if (!rw->isActive() && rw->isVisible())
             rw->update(); // update even when in background !

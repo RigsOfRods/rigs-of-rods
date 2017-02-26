@@ -2506,7 +2506,7 @@ void RoRFrameListener::EnterGameplayLoop()
         }
 
         RoR::App::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
-
+#ifdef USE_SOCKETW
         if ((App::GetActiveMpState() == App::MP_STATE_CONNECTED) && RoR::Networking::CheckError())
         {
             Ogre::String title = Ogre::UTFString(_L("Network fatal error: ")).asUTF8();
@@ -2514,6 +2514,7 @@ void RoRFrameListener::EnterGameplayLoop()
             App::GetGuiManager()->ShowMessageBox(title, msg, true, "OK", true, false, "");
             App::SetPendingAppState(App::APP_STATE_MAIN_MENU);
         }
+#endif
 
         if (!rw->isActive() && rw->isVisible())
             rw->update(); // update even when in background !
