@@ -23,7 +23,6 @@
 /// @date   7th of September 2009
 
 #ifdef USE_MYGUI
-#ifdef USE_SOCKETW
 
 #include "GUI_MultiplayerClientList.h"
 
@@ -298,6 +297,7 @@ void MpClientList::updateSlot(player_row_t* row, RoRnet::UserInfo c, bool self)
 
 void MpClientList::update()
 {
+#ifdef USE_SOCKETW
     int slotid = 0;
 
     MyGUI::IntSize gui_area = MyGUI::RenderManager::getInstance().getViewSize();
@@ -339,6 +339,7 @@ void MpClientList::update()
 
     int height = lineheight * (slotid + 1);
     mpPanel->setSize(sidebarWidth, height);
+#endif
 }
 
 void MpClientList::clickUserGoIcon(MyGUI::WidgetPtr sender)
@@ -384,5 +385,4 @@ bool MpClientList::IsVisible()
     return mpPanel->getVisible();
 }
 
-#endif // USE_SOCKETW
 #endif // USE_MYGUI

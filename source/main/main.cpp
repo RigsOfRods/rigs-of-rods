@@ -299,11 +299,13 @@ int main(int argc, char *argv[])
 
                 if (previous_application_state == App::APP_STATE_SIMULATION)
                 {
+#ifdef USE_SOCKETW
                     if (App::GetActiveMpState() == App::MP_STATE_CONNECTED)
                     {
                         RoR::Networking::Disconnect();
                         App::GetGuiManager()->SetVisible_MpClientList(false);
                     }
+#endif
                     gEnv->cameraManager->OnReturnToMainMenu();
                     /* Hide top menu */
                     App::GetGuiManager()->SetVisible_TopMenubar(false);
