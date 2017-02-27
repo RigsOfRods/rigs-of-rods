@@ -24,16 +24,18 @@
 namespace RoR {
 namespace GUI {
 
-static const char*         HELPTEXT_USAGE = "Click a telepoint."; // TODO: or hold [Alt] and click anywhere on the minimap
-static const MyGUI::Colour HELPTEXT_COLOR_USAGE(1.f, 0.746025f, 0.403509f);
+static const char*         HELPTEXT_USAGE           = "Click a telepoint."; // TODO: or hold [Alt] and click anywhere on the minimap
+static const MyGUI::Colour HELPTEXT_COLOR_USAGE     = MyGUI::Colour(1.f, 0.746025f, 0.403509f);
 static const MyGUI::Colour HELPTEXT_COLOR_TELEPOINT = MyGUI::Colour::White;
-static const int           TELEICON_SIZE = 24; // Pixels; make this int-divisible by 2
+static const int           TELEICON_SIZE            = 24; // Pixels; make this int-divisible by 2
 
 TeleportWindow::TeleportWindow():
     GuiPanelBase(m_teleport_window),
     m_sim_controller(nullptr)
 {
     m_teleport_window->eventWindowButtonPressed += MyGUI::newDelegate(this, &TeleportWindow::WindowButtonClicked);
+
+    m_minimap_panel->eventChangeCoord += MyGUI::newDelegate(this, &TeleportWindow::MinimapPanelResized);
 
     // Center on screen
     MyGUI::IntSize windowSize = m_teleport_window->getSize();
@@ -46,6 +48,9 @@ TeleportWindow::TeleportWindow():
 
 void TeleportWindow::SetVisible(bool v)
 {
+    if (m_teleport_window->isVisible() == v)
+        return; // Nothing to do
+
     m_teleport_window->setVisible(v);
 }
 
@@ -90,16 +95,14 @@ void TeleportWindow::TelepointIconClicked(MyGUI::Widget* sender)
 void TeleportWindow::SetupMap(RoRFrameListener* sim_controller, Terrn2Def* def, Ogre::Vector3 map_size, std::string minimap_tex_name)
 {
     m_sim_controller = sim_controller;
+    m_map_size = map_size;
     m_minimap_image->setImageTexture(minimap_tex_name);
     m_info_textbox->setCaption(HELPTEXT_USAGE);
     m_info_textbox->setTextColour(HELPTEXT_COLOR_USAGE);
-    float mini_width  = static_cast<float>(m_minimap_image->getSize().width);
-    float mini_height = static_cast<float>(m_minimap_image->getSize().height);
+
     for (Terrn2Telepoint& telepoint: def->telepoints)
     {
-        int pos_x = static_cast<int>(((telepoint.position.x / map_size.x) * mini_width ) - (TELEICON_SIZE/2));
-        int pos_y = static_cast<int>(((telepoint.position.z / map_size.z) * mini_height) - (TELEICON_SIZE/2));
-        MyGUI::ImageBox* tp_icon = m_minimap_image->createWidget<MyGUI::ImageBox>("ImageBox", pos_x, pos_y, TELEICON_SIZE, TELEICON_SIZE, MyGUI::Align::Default);
+        MyGUI::ImageBox* tp_icon = m_minimap_image->createWidget<MyGUI::ImageBox>("ImageBox", 0, 0, TELEICON_SIZE, TELEICON_SIZE, MyGUI::Align::Default);
         tp_icon->setImageTexture("telepoint_icon.png");
         tp_icon->setUserData(&telepoint);
         tp_icon->eventMouseSetFocus += MyGUI::newDelegate(this, &TeleportWindow::TelepointIconGotFocus);
@@ -107,6 +110,8 @@ void TeleportWindow::SetupMap(RoRFrameListener* sim_controller, Terrn2Def* def, 
         tp_icon->eventMouseButtonClick += MyGUI::newDelegate(this, &TeleportWindow::TelepointIconClicked);
         m_telepoint_icons.push_back(tp_icon);
     }
+
+    this->MinimapPanelResized(m_minimap_panel); // Update icon positions
 }
 
 void TeleportWindow::Reset()
@@ -116,6 +121,37 @@ void TeleportWindow::Reset()
     {
         m_minimap_image->_destroyChildWidget(m_telepoint_icons.back());
         m_telepoint_icons.pop_back();
+    }
+}
+
+void TeleportWindow::MinimapPanelResized(MyGUI::Widget* panel)
+{
+    float panel_width  = static_cast<float>(panel->getWidth());
+    float panel_height = static_cast<float>(panel->getHeight());
+    // Fit the minimap into panel, preserving aspect ratio
+    float mini_width = panel_width;
+    float mini_height = (mini_width / m_map_size.x) * m_map_size.z;
+    if (mini_height >= panel_height)
+    {
+        mini_height = panel_height;
+        mini_width = (mini_height / m_map_size.z) * m_map_size.x;
+    }
+
+    // Update minimap widget
+    MyGUI::IntCoord coord;
+    coord.left   = static_cast<int>((panel_width / 2.f) - (mini_width / 2));
+    coord.top    = static_cast<int>((panel_height / 2.f) - (mini_height / 2));
+    coord.width  = static_cast<int>(mini_width);
+    coord.height = static_cast<int>(mini_height);
+    m_minimap_image->setCoord(coord);
+
+    // Update icon positions
+    for (MyGUI::ImageBox* tp_icon: m_telepoint_icons)
+    {
+        Terrn2Telepoint* def = GetTeleIconUserdata(tp_icon);
+        int pos_x = static_cast<int>(((def->position.x / m_map_size.x) * mini_width ) - (TELEICON_SIZE/2));
+        int pos_y = static_cast<int>(((def->position.z / m_map_size.z) * mini_height) - (TELEICON_SIZE/2));
+        tp_icon->setPosition(pos_x, pos_y);
     }
 }
 

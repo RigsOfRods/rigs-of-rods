@@ -43,9 +43,11 @@ private:
     void TelepointIconGotFocus(MyGUI::Widget* cur_widget, MyGUI::Widget* prev_widget);
     void TelepointIconLostFocus(MyGUI::Widget* cur_widget, MyGUI::Widget* prev_widget);
     void TelepointIconClicked(MyGUI::Widget* sender);
+    void MinimapPanelResized(MyGUI::Widget* sender);
 
     std::vector<MyGUI::ImageBox*> m_telepoint_icons;
-    RoRFrameListener* m_sim_controller;
+    RoRFrameListener*             m_sim_controller;
+    Ogre::Vector3                 m_map_size;
 };
 
 } // namespace GUI

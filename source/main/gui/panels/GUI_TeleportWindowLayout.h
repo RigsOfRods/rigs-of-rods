@@ -11,11 +11,8 @@
 #include "ForwardDeclarations.h"
 #include "BaseLayout.h"
 
-namespace RoR
-{
-
-namespace GUI
-{
+namespace RoR {
+namespace GUI {
 	
 ATTRIBUTE_CLASS_LAYOUT(TeleportWindowLayout, "TeleportWindow.layout");
 class TeleportWindowLayout : public wraps::BaseLayout
@@ -23,25 +20,27 @@ class TeleportWindowLayout : public wraps::BaseLayout
 
 public:
 
-	TeleportWindowLayout(MyGUI::Widget* _parent = nullptr);
-	virtual ~TeleportWindowLayout();
+    TeleportWindowLayout(MyGUI::Widget* _parent = nullptr);
+    virtual ~TeleportWindowLayout();
 
 protected:
 
-	//%LE Widget_Declaration list start
+    //%LE Widget_Declaration list start
 	ATTRIBUTE_FIELD_WIDGET_NAME(TeleportWindowLayout, m_teleport_window, "teleport_window");
 	MyGUI::Window* m_teleport_window;
 
 	ATTRIBUTE_FIELD_WIDGET_NAME(TeleportWindowLayout, m_info_textbox, "info_textbox");
 	MyGUI::TextBox* m_info_textbox;
 
+	ATTRIBUTE_FIELD_WIDGET_NAME(TeleportWindowLayout, m_minimap_panel, "minimap_panel");
+	MyGUI::Widget* m_minimap_panel;
+
 	ATTRIBUTE_FIELD_WIDGET_NAME(TeleportWindowLayout, m_minimap_image, "minimap_image");
 	MyGUI::StaticImage* m_minimap_image;
 
-	//%LE Widget_Declaration list end
+    //%LE Widget_Declaration list end
 };
 
 } // namespace GUI
-
 } // namespace RoR
 
