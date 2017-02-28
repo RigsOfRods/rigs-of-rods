@@ -52,6 +52,7 @@ public:
     // GUI interface
     void   ReloadCurrentTruck    (); // Top menubar
     void   TeleportPlayer        (RoR::Terrn2Telepoint* telepoint); // Teleport UI
+    void   TeleportPlayerXZ      (float x, float y); // Teleport UI
 
     // BeamFactory callback
     void   ChangedCurrentVehicle (Beam* previous_vehicle, Beam* current_vehicle);

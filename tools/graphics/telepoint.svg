@@ -111,5 +111,14 @@
        transform="matrix(0.40328668,0.698513,-0.698513,0.40328668,338.34733,-72.585669)"
        inkscape:export-xdpi="63.86861"
        inkscape:export-ydpi="63.86861" />
+    <circle
+       inkscape:export-filename="C:\Git\rigs-of-rods\bin\resources\mygui\teleport_mouse_point.png"
+       inkscape:export-ydpi="33.274654"
+       inkscape:export-xdpi="33.274654"
+       r="15.15489"
+       cy="168.93954"
+       cx="367.28619"
+       id="circle4736"
+       style="fill:#53ffad;fill-opacity:1;stroke:#000000;stroke-width:6.581;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
   </g>
 </svg>

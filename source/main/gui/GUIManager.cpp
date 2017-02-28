@@ -370,6 +370,11 @@ void GUIManager::FrictionSettingsUpdateCollisions()
     App::GetGuiManager()->GetFrictionSettings()->setCollisions(gEnv->collisions);
 }
 
+void GUIManager::SetMouseCursorVisible(bool visible)
+{
+    this->SupressCursor(!visible);
+}
+
 void GUIManager::ReflectGameState()
 {
     const auto app_state = App::GetActiveAppState();

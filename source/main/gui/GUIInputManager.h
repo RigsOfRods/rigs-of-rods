@@ -39,7 +39,9 @@ public:
 
     void setMousePosition(int _x, int _y);
 
-    float getLastMouseMoveTime() { return lastMouseMoveTime->getMilliseconds(); };
+    float getLastMouseMoveTime() { return m_last_mousemove_time->getMilliseconds(); };
+
+    void SupressCursor(bool do_supress);
 
 protected:
 
@@ -53,8 +55,9 @@ protected:
 
 private:
 
-    Ogre::Timer* lastMouseMoveTime;
     int mCursorX, mCursorY, width, height;
+    bool m_is_cursor_supressed; ///< True if cursor was manually hidden.
+    Ogre::Timer* m_last_mousemove_time;
 
-    void activateGUI();
+    void WakeUpGUI();
 };

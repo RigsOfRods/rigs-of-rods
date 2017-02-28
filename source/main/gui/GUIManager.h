@@ -125,6 +125,7 @@ public:
     void FrictionSettingsUpdateCollisions();
     void ShutdownMyGUI();
     void ReflectGameState();
+    void SetMouseCursorVisible(bool visible);
 
     virtual void AddRigLoadingReport(std::string const& vehicle_name, std::string const& text, int num_errors, int num_warnings, int num_other);
 

@@ -94,12 +94,13 @@ MyGUI::Char translateWin32Text(MyGUI::KeyCode kc)
 
 GUIInputManager::GUIInputManager() :
     height(0)
-    , lastMouseMoveTime(0)
+    , m_last_mousemove_time(0)
     , mCursorX(0)
     , mCursorY(0)
     , width(0)
+    , m_is_cursor_supressed(false)
 {
-    lastMouseMoveTime = new Ogre::Timer();
+    m_last_mousemove_time = new Ogre::Timer();
 }
 
 GUIInputManager::~GUIInputManager()
@@ -108,7 +109,8 @@ GUIInputManager::~GUIInputManager()
 
 bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
 {
-    activateGUI();
+    this->WakeUpGUI();
+
     MyGUI::PointerManager::getInstance().setPointer("arrow");
 
     if (RoR::App::GetActiveSimState() == RoR::App::SIM_STATE_PAUSED)
@@ -166,7 +168,7 @@ bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
 
 bool GUIInputManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
 {
-    activateGUI();
+    this->WakeUpGUI();
 
     mCursorX = _arg.state.X.abs;
     mCursorY = _arg.state.Y.abs;
@@ -203,7 +205,7 @@ bool GUIInputManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButton
 
 bool GUIInputManager::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
 {
-    activateGUI();
+    this->WakeUpGUI();
 
     // fallback, handle by GUI, then by RoR::SceneMouse
     bool handled = MyGUI::InputManager::getInstance().injectMouseRelease(mCursorX, mCursorY, MyGUI::MouseButton::Enum(_id));
@@ -328,10 +330,19 @@ void GUIInputManager::checkPosition()
         mCursorY = this->height - 1;
 }
 
-void GUIInputManager::activateGUI()
+void GUIInputManager::WakeUpGUI()
 {
-    lastMouseMoveTime->reset();
-    MyGUI::PointerManager::getInstance().setVisible(true);
+    m_last_mousemove_time->reset();
+    if (!m_is_cursor_supressed)
+    {
+        MyGUI::PointerManager::getInstance().setVisible(true);
+    }
 
     RoR::App::GetGuiManager()->SetVisible_TopMenubar(true);
+}
+
+void GUIInputManager::SupressCursor(bool do_supress)
+{
+    m_is_cursor_supressed = do_supress;
+    MyGUI::PointerManager::getInstance().setVisible(!do_supress);
 }

@@ -1493,6 +1493,15 @@ void RoRFrameListener::TeleportPlayer(RoR::Terrn2Telepoint* telepoint)
     gEnv->player->setPosition(telepoint->position);
 }
 
+void RoRFrameListener::TeleportPlayerXZ(float x, float z)
+{
+    if (BeamFactory::getSingleton().getCurrentTruck() != nullptr)
+        return; // Player could enter truck while Teleport-GUI is visible
+
+    float y = gEnv->terrainManager->getHeightFinder()->getHeightAt(x, z);
+    gEnv->player->setPosition(Ogre::Vector3(x, y, z));
+}
+
 void RoRFrameListener::FinalizeTruckSpawning(Beam* local_truck, Beam* previous_truck)
 {
     if (local_truck != nullptr)
@@ -1557,6 +1566,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 #endif //SOCKETW
 
     RoR::App::GetInputEngine()->Capture();
+    const bool is_altkey_pressed =  App::GetInputEngine()->isKeyDown(OIS::KeyCode::KC_LMENU) || App::GetInputEngine()->isKeyDown(OIS::KeyCode::KC_RMENU);
     auto s = App::GetActiveSimState();
 
     //if (gEnv->collisions) 	printf("> ground model used: %s\n", gEnv->collisions->last_used_ground_model->name);
@@ -1707,8 +1717,8 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 
     RoR::App::GetGuiManager()->framestep(dt);
 
-    App::GetGuiManager()->GetTeleport()->UpdatePlayerPosition(
-        gEnv->player->getPosition().x, gEnv->player->getPosition().z);
+    App::GetGuiManager()->GetTeleport()->TeleportWindowFrameStep(
+        gEnv->player->getPosition().x, gEnv->player->getPosition().z, is_altkey_pressed);
 
 #ifdef USE_ANGELSCRIPT
     ScriptEngine::getSingleton().framestep(dt);
