@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 744.09448819 1052.3622047"
+   id="svg4145"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="map_character.svg">
+  <defs
+     id="defs4147" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="2.8"
+     inkscape:cx="408.0427"
+     inkscape:cy="223.86274"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1018"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata4150">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       style="fill:#d1ff09;fill-opacity:1;stroke:#000000;stroke-width:1.14729083;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 237.28057,750.02896 c -2.17666,-2e-5 -3.94125,1.49177 -3.94128,3.33198 -4e-5,1.84027 1.76457,3.3321 3.94128,3.3321 2.17672,0 3.94132,-1.49183 3.94128,-3.3321 -3e-5,-1.84021 -1.76461,-3.332 -3.94128,-3.33198 z m -7.47944,7.61071 -2.01415,1.79854 0,9.14435 3.49342,0 0,-8.10301 1.61102,0 c -0.0654,6.13387 -0.0689,12.26805 -0.0895,18.40211 l 3.49331,0 0,-12.26815 1.83625,0 0,12.26815 3.49343,0 c 0.0942,-6.21238 -0.0895,-12.26359 -0.0895,-18.40211 l 1.61102,0 0,8.17869 3.49331,0 0,-9.33358 -1.96928,-1.64711 z"
+       id="rect4701"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="sssssccccccccccccccccccc"
+       inkscape:export-filename="C:\Git\rigs-of-rods\bin\resources\mygui\teleport_person_icon.png"
+       inkscape:export-xdpi="89.999794"
+       inkscape:export-ydpi="89.999794" />
+  </g>
+</svg>

@@ -37,6 +37,7 @@ public:
     void Reset();
     void SetVisible(bool v);
     bool IsVisible();
+    void UpdatePlayerPosition(float x, float z);
 
 private:
     void WindowButtonClicked(MyGUI::Widget* sender, const std::string& name);
@@ -48,6 +49,7 @@ private:
     std::vector<MyGUI::ImageBox*> m_telepoint_icons;
     RoRFrameListener*             m_sim_controller;
     Ogre::Vector3                 m_map_size;
+    MyGUI::ImageBox*              m_person_icon;
 };
 
 } // namespace GUI

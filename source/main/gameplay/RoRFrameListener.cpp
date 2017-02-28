@@ -1707,6 +1707,9 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 
     RoR::App::GetGuiManager()->framestep(dt);
 
+    App::GetGuiManager()->GetTeleport()->UpdatePlayerPosition(
+        gEnv->player->getPosition().x, gEnv->player->getPosition().z);
+
 #ifdef USE_ANGELSCRIPT
     ScriptEngine::getSingleton().framestep(dt);
 #endif

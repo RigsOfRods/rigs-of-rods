@@ -28,6 +28,8 @@ static const char*         HELPTEXT_USAGE           = "Click a telepoint."; // T
 static const MyGUI::Colour HELPTEXT_COLOR_USAGE     = MyGUI::Colour(1.f, 0.746025f, 0.403509f);
 static const MyGUI::Colour HELPTEXT_COLOR_TELEPOINT = MyGUI::Colour::White;
 static const int           TELEICON_SIZE            = 24; // Pixels; make this int-divisible by 2
+static const int           PERSON_ICON_WIDTH        = 20;
+static const int           PERSON_ICON_HEIGHT       = 30;
 
 TeleportWindow::TeleportWindow():
     GuiPanelBase(m_teleport_window),
@@ -41,6 +43,10 @@ TeleportWindow::TeleportWindow():
     MyGUI::IntSize windowSize = m_teleport_window->getSize();
     MyGUI::IntSize parentSize = m_teleport_window->getParentSize();
     m_teleport_window->setPosition((parentSize.width - windowSize.width) / 2, (parentSize.height - windowSize.height) / 2);
+
+    // Create person icon
+    m_person_icon = m_minimap_image->createWidget<MyGUI::ImageBox>("ImageBox", 0, 0, PERSON_ICON_WIDTH, PERSON_ICON_HEIGHT, MyGUI::Align::Default);
+    m_person_icon->setImageTexture("teleport_person_icon.png");
 
     // Start hidden
     m_teleport_window->setVisible(false);
@@ -153,6 +159,13 @@ void TeleportWindow::MinimapPanelResized(MyGUI::Widget* panel)
         int pos_y = static_cast<int>(((def->position.z / m_map_size.z) * mini_height) - (TELEICON_SIZE/2));
         tp_icon->setPosition(pos_x, pos_y);
     }
+}
+
+void TeleportWindow::UpdatePlayerPosition(float x, float z)
+{
+    int pos_x = static_cast<int>(((x / m_map_size.x) * m_minimap_image->getWidth() ) - (PERSON_ICON_WIDTH /2));
+    int pos_y = static_cast<int>(((z / m_map_size.z) * m_minimap_image->getHeight()) - (PERSON_ICON_HEIGHT/2));
+    m_person_icon->setPosition(pos_x, pos_y);
 }
 
 } // namespace GUI
