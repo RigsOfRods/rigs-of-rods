@@ -62,6 +62,7 @@
 #endif // USE_MYGUI
 
 #include <algorithm>
+#include <cstring>
 
 using namespace Ogre;
 
@@ -100,9 +101,9 @@ unsigned int getNumberOfCPUCores()
     // Get CPU vendor
     char vendor[12];
     cpuID(0, regs);
-    ((unsigned *)vendor)[0] = regs[1]; // EBX
-    ((unsigned *)vendor)[1] = regs[3]; // EDX
-    ((unsigned *)vendor)[2] = regs[2]; // ECX
+    memcpy((void *)vendor,     (void *)&regs[1], 4); // EBX
+    memcpy((void *)&vendor[4], (void *)&regs[3], 4); // EDX
+    memcpy((void *)&vendor[8], (void *)&regs[2], 4); // ECX
     std::string cpuVendor = std::string(vendor, 12);
 
     // Get CPU features
