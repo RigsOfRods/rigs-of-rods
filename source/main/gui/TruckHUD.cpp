@@ -408,7 +408,7 @@ bool TruckHUD::update(float dt, Beam* truck, bool visible)
         }
 
         // hide command section title if no commands
-        overlayElement = overlayElement = OverlayManager::getSingleton().getOverlayElement("tracks/TruckInfoBox/CommandsTitleLabel");
+        overlayElement = OverlayManager::getSingleton().getOverlayElement("tracks/TruckInfoBox/CommandsTitleLabel");
         overlayElement->setCaption("");
         if (filledCommands > 0)
         {

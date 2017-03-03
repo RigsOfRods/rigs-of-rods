@@ -1717,9 +1717,9 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
             {
                 float ns = 0;
                 ground_model_t* gm = 0; // this is used as result storage, so we can use it later on
-                bool contacted = false;
+                bool contacted = gEnv->collisions->groundCollision(&nodes[i], nodes[i].collTestTimer, &gm, &ns);
                 // reverted this construct to the old form, don't mess with it, the binary operator is intentionally!
-                if ((contacted = gEnv->collisions->groundCollision(&nodes[i], nodes[i].collTestTimer, &gm, &ns)) | gEnv->collisions->nodeCollision(&nodes[i], contacted, nodes[i].collTestTimer, &ns, &gm))
+                if (contacted | gEnv->collisions->nodeCollision(&nodes[i], contacted, nodes[i].collTestTimer, &ns, &gm))
                 {
                     // FX
                     if (gm && doUpdate && !nodes[i].disable_particles)
