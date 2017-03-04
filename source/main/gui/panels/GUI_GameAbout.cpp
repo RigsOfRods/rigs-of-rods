@@ -50,7 +50,7 @@ CLASS::CLASS()
     m_backbtn->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickBackButton);
     m_ror_version->setCaption(Ogre::String(ROR_VERSION_STRING));
     m_net_version->setCaption(Ogre::String(RORNET_VERSION));
-    m_build_time->setCaption(Ogre::String(__DATE__) + ", " + Ogre::String(__TIME__));
+    m_build_time->setCaption(Ogre::String(ROR_BUILD_DATE) + ", " + Ogre::String(ROR_BUILD_TIME));
 
     initMisc();
     CenterToScreen();

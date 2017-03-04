@@ -5,4 +5,5 @@
 
 const char* const ROR_VERSION_STRING_SHORT = "@VERSION_MAJOR@.@VERSION_MINOR@";
 const char* const ROR_VERSION_STRING       = "@VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@.@VERSION_TWEAK@@VERSION_SUFFIX@";
-
+const char* const ROR_BUILD_DATE           = "@BUILD_DATE@";
+const char* const ROR_BUILD_TIME           = "@BUILD_TIME@";

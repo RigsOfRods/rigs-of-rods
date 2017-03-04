@@ -90,6 +90,25 @@ if( BUILD_DEV_VERSION )
 
 endif()
 
+# This whole if and else can replaced, when using cmake >= 3.8 (as it then uses environment variable SOURCE_DATE_EPOCH), with this:
+# STRING(TIMESTAMP BUILD_DATE "%b %d %Y" UTC)
+# STRING(TIMESTAMP BUILD_TIME "%H:%M" UTC)
+if (DEFINED ENV{SOURCE_DATE_EPOCH})
+  execute_process(
+    COMMAND "date" "-u" "-d" "@$ENV{SOURCE_DATE_EPOCH}" "+%b %e %Y"
+    OUTPUT_VARIABLE BUILD_DATE
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  execute_process(
+    COMMAND "date" "-u" "-d" "@$ENV{SOURCE_DATE_EPOCH}" "+%R"
+    OUTPUT_VARIABLE BUILD_TIME
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+else ()
+  string(TIMESTAMP BUILD_DATE "%Y-%m-%d" UTC) # more correct would be "%b %d %Y" but this is only supported from cmake >= 3.7
+  string(TIMESTAMP BUILD_TIME "%H:%M" UTC)
+endif ()
+
 # Fill in the actual version information in the provided template
 configure_file( ${VERSION_FILE_INPUT} ${VERSION_FILE_OUTPUT} @ONLY )
 
