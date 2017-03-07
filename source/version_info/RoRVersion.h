@@ -22,3 +22,5 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 extern const char* const ROR_VERSION_STRING_SHORT;
 extern const char* const ROR_VERSION_STRING;
+extern const char* const ROR_BUILD_DATE;
+extern const char* const ROR_BUILD_TIME;

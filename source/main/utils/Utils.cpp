@@ -133,11 +133,11 @@ String getVersionString(bool multiline)
             " version: %s\n"
             " protocol version: %s\n"
             " build time: %s, %s\n"
-            , ROR_VERSION_STRING, RORNET_VERSION, __DATE__, __TIME__);
+            , ROR_VERSION_STRING, RORNET_VERSION, ROR_BUILD_DATE, ROR_BUILD_TIME);
     }
     else
     {
-        sprintf(tmp, "Rigs of Rods version %s, protocol version: %s, build time: %s, %s", ROR_VERSION_STRING, RORNET_VERSION, __DATE__, __TIME__);
+        sprintf(tmp, "Rigs of Rods version %s, protocol version: %s, build time: %s, %s", ROR_VERSION_STRING, RORNET_VERSION, ROR_BUILD_DATE, ROR_BUILD_TIME);
     }
 
     return String(tmp);

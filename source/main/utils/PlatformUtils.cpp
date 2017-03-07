@@ -151,8 +151,8 @@ void InstallCrashRpt()
 
     crAddProperty("Version", ROR_VERSION_STRING);
     crAddProperty("protocol_version", RORNET_VERSION);
-    crAddProperty("build_date", __DATE__);
-    crAddProperty("build_time", __TIME__);
+    crAddProperty("build_date", ROR_BUILD_DATE);
+    crAddProperty("build_time", ROR_BUILD_TIME);
 
     crAddProperty("System_GUID", SSETTING("GUID", "None").c_str());
     crAddProperty("Multiplayer", RoR::App::GetActiveMpState() ? "1" : "0");

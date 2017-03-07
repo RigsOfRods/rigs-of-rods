@@ -791,7 +791,7 @@ MyDialog::MyDialog(const wxString& title) : wxDialog(NULL, wxID_ANY, title,  wxP
     dText = new wxStaticText(aboutPanel, -1, wxString::Format(_("Network Protocol version: %s"), wxString(RORNET_VERSION, wxConvUTF8).c_str()), wxPoint(x_row1 + 15, y));
     y += dText->GetSize().GetHeight() + 2;
 
-    dText = new wxStaticText(aboutPanel, -1, wxString::Format(_("Build time: %s, %s"), wxT(__DATE__), wxT(__TIME__)), wxPoint(x_row1 + 15, y));
+    dText = new wxStaticText(aboutPanel, -1, wxString::Format(_("Build time: %s, %s"), ROR_BUILD_DATE, ROR_BUILD_TIME), wxPoint(x_row1 + 15, y));
     y += dText->GetSize().GetHeight() + 2;
 
 
