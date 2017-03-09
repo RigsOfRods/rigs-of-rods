@@ -23,7 +23,6 @@
 /// @date   13th of August 2009
 /// @author Thomas Fischer thomas{AT}thomasfischer{DOT}biz
 
-#ifdef USE_MYGUI
 
 #include "GUI_TopMenubar.h"
 
@@ -63,7 +62,7 @@ TopMenubar::TopMenubar() :
     m_menubar_widget = MyGUI::Gui::getInstance().createWidget<MyGUI::MenuBar>("MenuBar", 0, 0, m_menu_width, m_menu_height, MyGUI::Align::Top, "Main");
     m_menubar_widget->setCoord(0, 0, m_menu_width, m_menu_height);
     m_menubar_widget->setVisible(false);
-    
+
     /* -------------------------------------------------------------------------------- */
     /* SIMULATION POPUP MENU */
 
@@ -72,7 +71,7 @@ TopMenubar::TopMenubar() :
     mi->setItemType(MyGUI::MenuItemType::Popup);
     mi->setCaption(_L("Simulation"));
     p->setPopupAccept(true);
-    
+
     p->addItem(_L("Get new vehicle"),                 MyGUI::MenuItemType::Normal);
     p->addItem(_L("Show vehicle description"),		  MyGUI::MenuItemType::Normal);
     p->addItem(_L("Reload current vehicle"),          MyGUI::MenuItemType::Normal);
@@ -109,7 +108,7 @@ TopMenubar::TopMenubar() :
     p = mi->createWidget<MyGUI::PopupMenu>(MyGUI::WidgetStyle::Popup, "PopupMenu",MyGUI::IntCoord(0,0,88,68),MyGUI::Align::Default, "Popup");
     mi->setItemType(MyGUI::MenuItemType::Popup);
     mi->setCaption("Windows");
-    
+
     p->addItem(_L("Friction Settings"),  MyGUI::MenuItemType::Normal, "frictiongui");
     p->addItem(_L("Show Console"),       MyGUI::MenuItemType::Normal, "showConsole");
     p->addItem(_L("Texture Tool"),       MyGUI::MenuItemType::Normal, "texturetool");
@@ -236,7 +235,7 @@ void TopMenubar::addUserToMenu(RoRnet::UserInfo &user)
 void TopMenubar::vehiclesListUpdate()
 {
     m_vehicles_menu_widget->removeAllItems();
-    
+
     if (!(App::GetActiveMpState() == App::MP_STATE_CONNECTED))
     {
         // single player mode: add vehicles simply, no users
@@ -299,7 +298,7 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
         //RoR::App::GetConsole()->startPrivateChat(user_uid);
         //TODO: Separate Chat and console
     }
-    
+
     const auto app_state = App::GetActiveAppState();
     if (app_state == App::APP_STATE_BOOTSTRAP)
     {
@@ -339,12 +338,12 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
     {
         BeamFactory::getSingleton().activateAllTrucks();
 
-    } else if (miname == _L("Activated vehicles never sleep")) 
+    } else if (miname == _L("Activated vehicles never sleep"))
     {
         BeamFactory::getSingleton().setTrucksForcedActive(true);
         _item->setCaption(_L("Activated vehicles can sleep"));
 
-    } else if (miname == _L("Activated vehicles can sleep")) 
+    } else if (miname == _L("Activated vehicles can sleep"))
     {
         BeamFactory::getSingleton().setTrucksForcedActive(false);
         _item->setCaption(_L("Activated vehicles never sleep"));
@@ -488,5 +487,3 @@ void TopMenubar::ReflectMultiplayerState()
 
 } // namespace GUI
 } // namespace RoR
-
-#endif // USE_MYGUI

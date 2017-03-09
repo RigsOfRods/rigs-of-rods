@@ -22,7 +22,6 @@
 /// @author Thomas Fischer (thomas{AT}thomasfischer{DOT}biz)
 /// @date   18th of July 2010
 
-#ifdef USE_MYGUI
 
 #pragma once
 
@@ -88,7 +87,6 @@ protected:
     static const int sidebarWidth = 250;
 };
 
-#endif // USE_MYGUI
 
 } // namespace GUI
 } // namespace RoR

@@ -18,7 +18,6 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef USE_MYGUI
 
 #pragma once
 
@@ -65,5 +64,3 @@ private:
 
 } // namespace GUI
 } // namespace RoR
-
-#endif // USE_MYGUI

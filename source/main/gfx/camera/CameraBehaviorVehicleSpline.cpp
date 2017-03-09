@@ -81,7 +81,6 @@ void CameraBehaviorVehicleSpline::update(const CameraManager::CameraContext& ctx
     if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) && RoR::App::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE))
     {
         autoTracking = !autoTracking;
-#ifdef USE_MYGUI
         if (autoTracking)
         {
             RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Auto tracking enabled"), "camera_go.png", 3000);
@@ -92,7 +91,6 @@ void CameraBehaviorVehicleSpline::update(const CameraManager::CameraContext& ctx
             RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Auto tracking disabled"), "camera_go.png", 3000);
             RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Auto tracking disabled"));
         }
-#endif // USE_MYGUI
     }
 
     if (autoTracking)

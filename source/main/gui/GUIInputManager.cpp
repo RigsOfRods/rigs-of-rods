@@ -18,7 +18,6 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef USE_MYGUI
 #include "GUIInputManager.h"
 
 #include "Application.h"
@@ -336,5 +335,3 @@ void GUIInputManager::activateGUI()
 
     RoR::App::GetGuiManager()->SetVisible_TopMenubar(true);
 }
-
-#endif // USE_MYGUI

@@ -41,7 +41,6 @@ optional but recommended:
 | ROR_USE_CURL:BOOL              | Build with curl for online services                  |
 | ROR_USE_JSONCPP:BOOL           | Build with jsoncpp for the multiplayer server list   |
 | ROR_USE_SOCKETW:BOOL           | Build with SocketW for cross-platform socket support |
-| ROR_USE_MYGUI:BOOL             | Build with MyGUI GUI                                 |
 | ROR_USE_OPENAL:BOOL            | Build with OpenAL for sound                          |
 | ROR_USE_PAGED:BOOL             | Build with OGRE:Paged Geometry for vegetation        |
 

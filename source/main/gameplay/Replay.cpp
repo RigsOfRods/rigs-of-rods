@@ -19,15 +19,9 @@
 */
 
 #include "Replay.h"
-
 #include <Ogre.h>
-
 #include "Utils.h"
-
-#ifdef USE_MYGUI
 #include "GUIManager.h"
-#endif // MYGUI
-
 #include "Language.h"
 
 using namespace Ogre;
@@ -56,7 +50,6 @@ Replay::Replay(Beam* b, int _numFrames)
     hidden = false;
     visible = false;
 
-#ifdef USE_MYGUI
     // windowing
     int width = 300;
     int height = 60;
@@ -75,7 +68,6 @@ Replay::Replay(Beam* b, int _numFrames)
     txt->setCaption(_L("Position:"));
 
     panel->setVisible(false);
-#endif // MYGUI
 }
 
 Replay::~Replay()
@@ -187,7 +179,6 @@ void* Replay::getReadBuffer(int offset, int type, unsigned long& time)
 
 void Replay::updateGUI()
 {
-#ifdef USE_MYGUI
     if (outOfMemory)
     {
         txt->setCaption(_L("Out of Memory"));
@@ -202,7 +193,6 @@ void Replay::updateGUI()
         txt->setCaption(convertToMyGUIString(tmp, 128));
         pr->setProgressPosition(abs(curOffset));
     }
-#endif // MYGUI
 }
 
 unsigned long Replay::getLastReadTime()
@@ -219,11 +209,9 @@ void Replay::setHidden(bool value)
 void Replay::setVisible(bool value)
 {
     visible = value;
-#ifdef USE_MYGUI
     panel->setVisible(visible && !hidden);
     // we need no mouse yet
     //MyGUI::PointerManager::getInstance().setVisible(value);
-#endif //MYGUI
 }
 
 bool Replay::getVisible()

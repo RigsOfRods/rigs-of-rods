@@ -105,7 +105,6 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext& ctx)
     if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT) && RoR::App::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE))
     {
         limitCamMovement = !limitCamMovement;
-#ifdef USE_MYGUI
         if (limitCamMovement)
         {
             RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Limited camera movement enabled"), "camera_go.png", 3000);
@@ -116,7 +115,6 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext& ctx)
             RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Limited camera movement disabled"), "camera_go.png", 3000);
             RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Limited camera movement disabled"));
         }
-#endif // USE_MYGUI
     }
 
     if (limitCamMovement && camDistMin > 0.0f)

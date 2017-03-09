@@ -112,17 +112,13 @@ bool CameraBehaviorFree::mouseMoved(const CameraManager::CameraContext& ctx, con
     gEnv->mainCamera->yaw(Degree(-ms.X.rel * 0.13f));
     gEnv->mainCamera->pitch(Degree(-ms.Y.rel * 0.13f));
 
-#ifdef USE_MYGUI
     MyGUI::PointerManager::getInstance().setVisible(false);
-#endif // USE_MYGUI
 
     return true;
 }
 
 void CameraBehaviorFree::activate(const CameraManager::CameraContext& ctx, bool reset /* = true */)
 {
-#ifdef USE_MYGUI
     RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Free camera"), "camera_go.png", 3000);
     RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Free camera"));
-#endif // USE_MYGUI
 }

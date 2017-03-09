@@ -18,7 +18,6 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef USE_MYGUI
 
 #include "GUI_TextureToolWindow.h"
 
@@ -255,5 +254,3 @@ void TextureToolWindow::eventSelectTexture(MyGUI::WidgetPtr _sender)
 
 } // namespace GUI
 } // namespace RoR
-
-#endif // USE_MYGUI

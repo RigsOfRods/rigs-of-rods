@@ -23,7 +23,6 @@
 
 #pragma once
 
-#ifdef USE_MYGUI
 
 #define CONSOLE_PUTMESSAGE(a,b,c,d,e,f) while(0) { Console *console = RoR::App::GetConsole(); if (console) console->putMessage(a,b,c,d,e,f); }
 #define CONSOLE_PUTMESSAGE_SHORT(a,b,c) while(0) { Console *console = RoR::App::GetConsole(); if (console) console->putMessage(a,b,c); }
@@ -121,10 +120,3 @@ protected:
 };
 
 } // namespace RoR
-
-#else // #ifdef USE_MYGUI
-
-#define CONSOLE_PUTMESSAGE(a,b,c,d,e,f)
-#define CONSOLE_PUTMESSAGE_SHORT(a,b,c)
-
-#endif 

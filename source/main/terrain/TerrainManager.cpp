@@ -146,11 +146,7 @@ TerrainManager::~TerrainManager()
 }
 
 // some shortcut to remove ugly code
-#ifdef USE_MYGUI
 #   define PROGRESS_WINDOW(x, y) { LOG(Ogre::String("  ## ") + y); RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(x, y); }
-#else
-#   define PROGRESS_WINDOW(x, y) { LOG(Ogre::String("  ## ") + y) }
-#endif //USE_MYGUI
 
 void TerrainManager::loadTerrainConfigBasics(Ogre::DataStreamPtr& ds)
 {

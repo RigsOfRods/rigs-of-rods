@@ -158,7 +158,7 @@ void CLASS::initMisc()
     AuthorsText = AuthorsText + color1 + "Invited core team:" + white + " The invited members helped us a lot along the way at various corners" + newline;
     AuthorsText = AuthorsText + color1 + "Project 'NextStable' testers:" + white + " Testing and reporting bugs" + newline;
 
-    //Used Libs 
+    //Used Libs
     AuthorsText = AuthorsText + newline;
     AuthorsText = AuthorsText + orange + "Used Libs:" + newline;
     AuthorsText = AuthorsText + color1 + "Ogre3D:" + white + " 3D rendering engine" + newline;
@@ -172,9 +172,7 @@ void CLASS::initMisc()
 #ifdef USE_OPENAL
     AuthorsText = AuthorsText + color1 + "OpenAL Soft:" + white + " Sound engine" + newline;
 #endif
-#ifdef USE_MYGUI
     AuthorsText = AuthorsText + color1 + "MyGUI:" + white + " GUI System" + newline;
-#endif
 #ifdef USE_MOFILEREADER
     AuthorsText = AuthorsText + color1 + "mofilereader:" + white + " Used for Internationalization" + newline;
 #endif

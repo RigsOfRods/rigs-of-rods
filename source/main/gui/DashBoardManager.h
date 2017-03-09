@@ -25,7 +25,6 @@
 
 #pragma once
 
-#ifdef USE_MYGUI
 
 #include "RoRPrerequisites.h"
 #include "Singleton.h"
@@ -312,5 +311,3 @@ protected:
     layoutLink_t controls[MAX_CONTROLS];
     int free_controls;
 };
-
-#endif // USE_MYGUI

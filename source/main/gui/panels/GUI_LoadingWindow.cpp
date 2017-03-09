@@ -18,7 +18,6 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef USE_MYGUI
 
 #include "GUI_LoadingWindow.h"
 
@@ -92,5 +91,3 @@ void LoadingWindow::SetVisible(bool v) { mMainWidget->setVisible(v); }
 
 } // namespace GUI
 } // namespace RoR
-
-#endif //MYGUI

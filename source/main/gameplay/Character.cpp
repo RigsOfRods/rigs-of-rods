@@ -121,12 +121,10 @@ Character::~Character()
     {
         mCharacterNode->detachAllObjects();
     }
-#ifdef USE_MYGUI
     if (gEnv->surveyMap && mapEntity)
     {
         gEnv->surveyMap->deleteMapEntity(mapEntity);
     }
-#endif // USE_MYGUI
     // try to unload some materials
     try
     {
@@ -200,25 +198,21 @@ void Character::setPosition(Vector3 position)
 {
     mCharacterNode->setPosition(position);
     mLastPosition.clear();
-#ifdef USE_MYGUI
     if (gEnv->surveyMap && gEnv->surveyMap->getMapEntityByName(myName))
     {
         gEnv->surveyMap->getMapEntityByName(myName)->setPosition(position);
     }
-#endif // USE_MYGUI
 }
 
 void Character::setVisible(bool visible)
 {
     mCharacterNode->setVisible(visible);
-#ifdef USE_MYGUI
     if (gEnv->surveyMap)
     {
         SurveyMapEntity* e = gEnv->surveyMap->getMapEntityByName(myName);
         if (e)
             e->setVisibility(visible);
     }
-#endif // USE_MYGUI
 }
 
 Vector3 Character::getPosition()
@@ -549,7 +543,6 @@ void Character::update(float dt)
 
 void Character::updateMapIcon()
 {
-#ifdef USE_MYGUI
     if (!gEnv->surveyMap)
         return;
     SurveyMapEntity* e = gEnv->surveyMap->getMapEntityByName(myName);
@@ -563,7 +556,6 @@ void Character::updateMapIcon()
     {
         createMapEntity();
     }
-#endif // USE_MYGUI
 }
 
 void Character::unwindMovement(float distance)
@@ -601,7 +593,7 @@ void Character::ReportError(const char* detail)
         username = info.username;
 
     char msg_buf[300];
-    snprintf(msg_buf, 300, 
+    snprintf(msg_buf, 300,
         "[RoR|Networking] ERROR on remote character (User: '%s', SourceID: %d, StreamID: %d): ",
         username.asUTF8_c_str(), m_source_id, m_stream_id);
 
@@ -780,7 +772,6 @@ void Character::setBeamCoupling(bool enabled, Beam* truck /* = 0 */)
 
 void Character::createMapEntity()
 {
-#ifdef USE_MYGUI
     if (gEnv->surveyMap)
     {
         mapEntity = gEnv->surveyMap->createNamedMapEntity(myName, "person");
@@ -789,5 +780,4 @@ void Character::createMapEntity()
         mapEntity->setPosition(mCharacterNode->getPosition());
         mapEntity->setRotation(mCharacterNode->getOrientation());
     }
-#endif // USE_MYGUI
 }

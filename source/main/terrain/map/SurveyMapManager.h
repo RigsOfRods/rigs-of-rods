@@ -21,7 +21,7 @@
 
 #pragma once
 
-#ifdef USE_MYGUI
+
 
 #include "RoRPrerequisites.h"
 
@@ -121,4 +121,4 @@ protected:
     void updateRenderMetrics();
 };
 
-#endif // USE_MYGUI
+

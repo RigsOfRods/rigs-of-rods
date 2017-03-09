@@ -178,9 +178,9 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
         int progress = ((float)(ds->tell()) / (float)(ds->size())) * 100.0f;
         if (progress - lastprogress > 20)
         {
-#ifdef USE_MYGUI
+
             RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("Loading Terrain Objects"));
-#endif //MYGUI
+
             lastprogress = progress;
         }
 
@@ -1318,7 +1318,7 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
     }
 
     //add icons if type is set
-#ifdef USE_MYGUI
+
     String typestr = "";
     if (!type.empty() && gEnv->surveyMap)
     {
@@ -1345,7 +1345,7 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
             }
         }
     }
-#endif //USE_MYGUI
+
 }
 
 bool TerrainObjectManager::updateAnimatedObjects(float dt)
@@ -1389,7 +1389,7 @@ void TerrainObjectManager::loadPreloadedTrucks()
             truck_preload[i].freePosition,
             true /* preloaded_with_terrain */
         );
-#ifdef USE_MYGUI
+
         if (b && gEnv->surveyMap)
         {
             SurveyMapEntity* e = gEnv->surveyMap->createNamedMapEntity("Truck" + TOSTRING(b->trucknum), SurveyMapManager::getTypeByDriveable(b->driveable));
@@ -1401,7 +1401,7 @@ void TerrainObjectManager::loadPreloadedTrucks()
                 e->setRotation(-Radian(b->getHeadingDirectionAngle()));
             }
         }
-#endif //USE_MYGUI
+
     }
 }
 

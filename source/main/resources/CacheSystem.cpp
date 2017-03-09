@@ -42,9 +42,7 @@
 #include "TerrainManager.h"
 #include "Utils.h"
 
-#ifdef USE_MYGUI
 #include "GUI_LoadingWindow.h"
-#endif // USE_MYGUI
 
 using namespace Ogre;
 
@@ -922,21 +920,17 @@ int CacheSystem::incrementalCacheUpdate()
 
     LOG("* incremental check starting ...");
     LOG("* incremental check (1/5): deleted and changed files ...");
-#ifdef USE_MYGUI
     auto* loading_win = RoR::App::GetGuiManager()->GetLoadingWindow();
     loading_win->setProgress(20, _L("incremental check: deleted and changed files"));
-#endif //USE_MYGUI
     std::vector<CacheEntry> changed_entries;
     UTFString tmp = "";
     String fn = "";
     int counter = 0;
     for (std::vector<CacheEntry>::iterator it = entries.begin(); it != entries.end(); it++ , counter++)
     {
-#ifdef USE_MYGUI
         int progress = ((float)counter / (float)(entries.size())) * 100;
         tmp = _L("incremental check: deleted and changed files\n") + ANSI_TO_UTF(it->type) + _L(": ") + ANSI_TO_UTF(it->fname);
         loading_win->setProgress(progress, tmp);
-#endif //USE_MYGUI
         // check whether the file exists
         if (it->type == "Zip")
             fn = getRealPath(it->dirname);
@@ -946,10 +940,8 @@ int CacheSystem::incrementalCacheUpdate()
         if ((it->type == "FileSystem" || it->type == "Zip") && ! RoR::PlatformUtils::FileExists(fn.c_str()))
         {
             LOG("- "+fn+" is not existing");
-#ifdef USE_MYGUI
             tmp = _L("incremental check: deleted and changed files\n") + ANSI_TO_UTF(it->fname) + _L(" not existing");
             loading_win->setProgress(20, tmp);
-#endif //USE_MYGUI
             removeFileFromFileCache(it);
             it->deleted = true;
             // do not try: entries.erase(it)
@@ -993,9 +985,7 @@ int CacheSystem::incrementalCacheUpdate()
     // we try to reload one zip only one time, not multiple times if it contains more resources at once
     std::vector<Ogre::String> reloaded_zips;
     LOG("* incremental check (2/5): processing changed zips ...");
-#ifdef USE_MYGUI
     loading_win->setProgress(40, _L("incremental check: processing changed zips\n"));
-#endif //USE_MYGUI
     for (std::vector<CacheEntry>::iterator it = changed_entries.begin(); it != changed_entries.end(); it++)
     {
         bool found = false;
@@ -1009,29 +999,21 @@ int CacheSystem::incrementalCacheUpdate()
         }
         if (!found)
         {
-#ifdef USE_MYGUI
             loading_win->setProgress(40, _L("incremental check: processing changed zips\n") + it->fname);
-#endif //USE_MYGUI
             loadSingleZip(*it);
             reloaded_zips.push_back(it->dirname);
         }
     }
     LOG("* incremental check (3/5): new content ...");
-#ifdef USE_MYGUI
     loading_win->setProgress(60, _L("incremental check: new content\n"));
-#endif //USE_MYGUI
     checkForNewContent();
 
     LOG("* incremental check (4/5): new files ...");
-#ifdef USE_MYGUI
     loading_win->setProgress(80, _L("incremental check: new files\n"));
-#endif //USE_MYGUI
     checkForNewKnownFiles();
 
     LOG("* incremental check (5/5): duplicates ...");
-#ifdef USE_MYGUI
     loading_win->setProgress(90, _L("incremental check: duplicates\n"));
-#endif //USE_MYGUI
     for (std::vector<CacheEntry>::iterator it = entries.begin(); it != entries.end(); it++)
     {
         if (it->deleted)
@@ -1113,15 +1095,11 @@ int CacheSystem::incrementalCacheUpdate()
             }
         }
     }
-#ifdef USE_MYGUI
     loading_win->setAutotrack(_L("loading...\n"));
-#endif //USE_MYGUI
 
     this->writeGeneratedCache();
 
-#ifdef USE_MYGUI
     RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
-#endif //USE_MYGUI
     LOG("* incremental check done.");
     return 0;
 }
@@ -1610,7 +1588,7 @@ void CacheSystem::fillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     }
 
     /* Vehicle type */
-    /* NOTE: TruckParser2013 allows modularization of vehicle type. Cache only supports single type. 
+    /* NOTE: TruckParser2013 allows modularization of vehicle type. Cache only supports single type.
         This is a temporary solution which has undefined results for mixed-type vehicles.
     */
     int vehicle_type = NOT_DRIVEABLE;
@@ -2374,19 +2352,15 @@ void CacheSystem::loadAllZipsInResourceGroup(String group)
         }
         // update loader
         int progress = ((float)i / (float)filecount) * 100;
-#ifdef USE_MYGUI
         UTFString tmp = _L("Loading zips in group ") + ANSI_TO_UTF(group) + L"\n" + ANSI_TO_UTF(iterFiles->filename) + L"\n" + ANSI_TO_UTF(TOSTRING(i)) + L"/" + ANSI_TO_UTF(TOSTRING(filecount));
         auto* loading_win = RoR::App::GetGuiManager()->GetLoadingWindow();
         loading_win->setProgress(progress, tmp);
-#endif //USE_MYGUI
 
         loadSingleZip((Ogre::FileInfo)*iterFiles);
         loadedZips[iterFiles->filename] = true;
     }
     // hide loader again
-#ifdef USE_MYGUI
     RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
-#endif //USE_MYGUI
 }
 
 void CacheSystem::loadAllDirectoriesInResourceGroup(String group)
@@ -2400,15 +2374,11 @@ void CacheSystem::loadAllDirectoriesInResourceGroup(String group)
         String dirname = listitem->archive->getName() + PATH_SLASH + listitem->filename;
         // update loader
         int progress = ((float)i / (float)filecount) * 100;
-#ifdef USE_MYGUI
         RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("Loading directory\n") + listitem->filename);
-#endif //USE_MYGUI
         loadSingleDirectory(dirname, group, true);
     }
     // hide loader again
-#ifdef USE_MYGUI
     RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
-#endif //USE_MYGUI
 }
 
 void CacheSystem::loadAllZips()
@@ -2448,22 +2418,16 @@ void CacheSystem::checkForNewZipsInResourceGroup(String group)
         zippath=zippath2;
 #endif
         int progress = ((float)i / (float)filecount) * 100;
-#ifdef USE_MYGUI
         RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new zips in ") + group + "\n" + iterFiles->filename + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount));
-#endif //USE_MYGUI
         if (!isZipUsedInEntries(zippath2))
         {
-#ifdef USE_MYGUI
             RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new zips in ") + group + "\n" + _L("loading new zip: ") + iterFiles->filename + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount));
-#endif //USE_MYGUI
             LOG("- "+zippath+" is new");
             newFiles++;
             loadSingleZip((Ogre::FileInfo)*iterFiles);
         }
     }
-#ifdef USE_MYGUI
     RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
-#endif //USE_MYGUI
 }
 
 void CacheSystem::checkForNewDirectoriesInResourceGroup(String group)
@@ -2476,21 +2440,15 @@ void CacheSystem::checkForNewDirectoriesInResourceGroup(String group)
             continue;
         String dirname = listitem->archive->getName() + PATH_SLASH + listitem->filename;
         int progress = ((float)i / (float)filecount) * 100;
-#ifdef USE_MYGUI
         RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new directories in ") + group + "\n" + listitem->filename + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount));
-#endif //USE_MYGUI
         if (!isDirectoryUsedInEntries(dirname))
         {
-#ifdef USE_MYGUI
             RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new directories in ") + group + "\n" + _L("loading new directory: ") + listitem->filename + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount));
-#endif //USE_MYGUI
             LOG("- "+dirname+" is new");
             loadSingleDirectory(dirname, group, true);
         }
     }
-#ifdef USE_MYGUI
     RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
-#endif //USE_MYGUI
 }
 
 void CacheSystem::checkForNewContent()

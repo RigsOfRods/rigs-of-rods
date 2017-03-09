@@ -19,7 +19,6 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef USE_MYGUI
 
 #include "GUI_GameConsole.h"
 
@@ -184,8 +183,6 @@ void Console::messageLogged(const String& message, LogMessageLevel lml, bool mas
     }
 }
 
-#endif //MYGUI
-
 void Console::eventMouseButtonClickSendButton(MyGUI::WidgetPtr _sender)
 {
     m_Console_TextBox->_riseKeyButtonPressed(MyGUI::KeyCode::Return, ' ');
@@ -259,7 +256,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 
             putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/quit - exit Rigs of Rods"), "table_save.png");
 
-#ifdef USE_ANGELSCRIPT	
+#ifdef USE_ANGELSCRIPT
             putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/as <code here> - interpret angel code using console"), "script_go.png");
 #endif // USE_ANGELSCRIPT
 
