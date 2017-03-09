@@ -339,7 +339,6 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 
                 // force gui update
                 curr_truck->triggerGUIFeaturesChanged();
-#ifdef USE_MYGUI
                 const char* msg = nullptr;
                 switch (curr_truck->engine->getAutoMode())
                 {
@@ -356,7 +355,6 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
                 }
                 RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE, _L(msg), "cog.png", 3000);
                 RoR::App::GetGuiManager()->PushNotification("Gearbox Mode:", msg);
-#endif //USE_MYGUI
             }
 
             // joy clutch
@@ -402,25 +400,19 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
                     {
                         curr_truck->engine->setGearRange(0);
                         gear_changed = true;
-#ifdef USE_MYGUI
                         RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE, _L("Low range selected"), "cog.png", 3000);
-#endif //USE_MYGUI
                     }
                     else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_MIDRANGE) && curgearrange != 1 && curr_truck->engine->getNumGearsRanges() > 1)
                     {
                         curr_truck->engine->setGearRange(1);
                         gear_changed = true;
-#ifdef USE_MYGUI
                         RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE, _L("Mid range selected"), "cog.png", 3000);
-#endif //USE_MYGUI
                     }
                     else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_HIGHRANGE) && curgearrange != 2 && curr_truck->engine->getNumGearsRanges() > 2)
                     {
                         curr_truck->engine->setGearRange(2);
                         gear_changed = true;
-#ifdef USE_MYGUI
                         RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE, _L("High range selected"), "cog.png", 3000);
-#endif // USE_MYGUI
                     }
                 }
                 //zaxxon
@@ -529,18 +521,14 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
         // toggle auto shift
         if (!curr_truck->getAxleLockCount())
         {
-#ifdef USE_MYGUI
             RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE, _L("No differential installed on current vehicle!"), "warning.png", 3000);
             RoR::App::GetGuiManager()->PushNotification("Differential:", "No differential installed on current vehicle!");
-#endif // USE_MYGUI
         }
         else
         {
             curr_truck->toggleAxleLock();
-#ifdef USE_MYGUI
             RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE, _L("Differentials switched to: ") + curr_truck->getAxleLockName(), "cog.png", 3000);
             RoR::App::GetGuiManager()->PushNotification("Differential:", "Differentials switched to: " + curr_truck->getAxleLockName());
-#endif // USE_MYGUI
         }
     }
 

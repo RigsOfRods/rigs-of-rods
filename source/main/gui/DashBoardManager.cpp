@@ -22,7 +22,6 @@
 /// @author Thomas Fischer thomas{AT}thomasfischer{DOT}biz
 /// @date   19th of October 2011
 
-#ifdef USE_MYGUI
 
 #include "DashBoardManager.h"
 
@@ -56,7 +55,7 @@ DashBoardManager::DashBoardManager(void) : visible(true), free_dashboard(0)
     INITDATA(DD_ENGINE_AUTO_GEAR        , DC_INT  , "engine_auto_gear");
     INITDATA(DD_ENGINE_CLUTCH           , DC_FLOAT, "engine_clutch");
     INITDATA(DD_BRAKE                   , DC_FLOAT, "brake");
-    INITDATA(DD_ACCELERATOR             , DC_FLOAT, "accelerator");	
+    INITDATA(DD_ACCELERATOR             , DC_FLOAT, "accelerator");
     INITDATA(DD_ROLL                    , DC_FLOAT, "roll");
     INITDATA(DD_ROLL_CORR               , DC_FLOAT, "roll_corr");
     INITDATA(DD_ROLL_CORR_ACTIVE        , DC_BOOL , "roll_corr_active");
@@ -64,7 +63,7 @@ DashBoardManager::DashBoardManager(void) : visible(true), free_dashboard(0)
     INITDATA(DD_PARKINGBRAKE            , DC_BOOL , "parkingbrake");
     INITDATA(DD_LOCKED                  , DC_BOOL , "locked");
     INITDATA(DD_LOW_PRESSURE            , DC_BOOL , "low_pressure");
-    INITDATA(DD_LIGHTS                  , DC_BOOL , "lights");	
+    INITDATA(DD_LIGHTS                  , DC_BOOL , "lights");
     INITDATA(DD_TRACTIONCONTROL_MODE    , DC_INT  , "tractioncontrol_mode");
     INITDATA(DD_ANTILOCKBRAKE_MODE      , DC_INT  , "antilockbrake_mode");
     INITDATA(DD_TIES_MODE               , DC_INT  , "ties_mode");
@@ -73,7 +72,7 @@ DashBoardManager::DashBoardManager(void) : visible(true), free_dashboard(0)
     INITDATA(DD_SCREW_THROTTLE_2        , DC_FLOAT, "screw_throttle_2");
     INITDATA(DD_SCREW_THROTTLE_3        , DC_FLOAT, "screw_throttle_3");
     INITDATA(DD_SCREW_THROTTLE_4        , DC_FLOAT, "screw_throttle_4");
-    INITDATA(DD_SCREW_THROTTLE_5        , DC_FLOAT, "screw_throttle_5");	
+    INITDATA(DD_SCREW_THROTTLE_5        , DC_FLOAT, "screw_throttle_5");
     INITDATA(DD_SCREW_STEER_0           , DC_FLOAT, "screw_steer_0");
     INITDATA(DD_SCREW_STEER_1           , DC_FLOAT, "screw_steer_1");
     INITDATA(DD_SCREW_STEER_2           , DC_FLOAT, "screw_steer_2");
@@ -734,5 +733,3 @@ void DashBoard::setVisible(bool v, bool smooth)
     */
     mainWidget->setVisible(v);
 }
-
-#endif // USE_MYGUI

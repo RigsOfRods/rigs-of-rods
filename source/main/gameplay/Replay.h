@@ -22,9 +22,7 @@
 
 #include <OgrePrerequisites.h>
 
-#ifdef USE_MYGUI
 #include <MyGUI.h>
-#endif //MYGUI
 
 #include "RoRPrerequisites.h"
 #include "Beam.h"
@@ -79,12 +77,10 @@ protected:
     beam_simple_t* beams;
     unsigned long* times;
 
-#ifdef USE_MYGUI
     // windowing
     MyGUI::WidgetPtr panel;
     MyGUI::StaticTextPtr txt;
     MyGUI::ProgressPtr pr;
-#endif //MYGUI
 
     void updateGUI();
 };

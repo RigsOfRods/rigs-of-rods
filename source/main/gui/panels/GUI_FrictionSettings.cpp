@@ -22,7 +22,6 @@
 /// @author Thomas Fischer (thomas{AT}thomasfischer{DOT}biz)
 /// @date   7th of September 2009
 
-#ifdef USE_MYGUI
 
 #include "GUI_FrictionSettings.h"
 
@@ -892,5 +891,3 @@ void FrictionSettings::showHelp(UTFString title, UTFString msg, int x, int y)
 
 } // namespace GUI
 } // namespace RoR
-
-#endif //MYGUI

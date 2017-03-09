@@ -20,7 +20,6 @@
 
 #pragma once
 
-#ifdef USE_MYGUI
 
 #include "RoRPrerequisites.h"
 
@@ -59,5 +58,3 @@ private:
 
     void activateGUI();
 };
-
-#endif // USE_MYGUI

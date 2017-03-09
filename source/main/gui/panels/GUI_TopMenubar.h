@@ -22,7 +22,6 @@
 /// @author Thomas Fischer (thomas{AT}thomasfischer{DOT}biz)
 /// @date   13th of August 2009
 
-#ifdef USE_MYGUI
 
 #pragma once
 
@@ -49,8 +48,8 @@ public:
     void SetVisible(bool value);
 
     int getMenuHeight()
-    { 
-        return m_menu_height; 
+    {
+        return m_menu_height;
     };
 
     void updatePositionUponMousePosition(int x, int y);
@@ -83,5 +82,3 @@ protected:
 
 } // namespace GUI
 } // namespace RoR
-
-#endif // USE_MYGUI

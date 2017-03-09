@@ -24,7 +24,6 @@
 
 #pragma once
 
-#ifdef USE_MYGUI
 
 #include "RoRPrerequisites.h"
 #include "Singleton.h"
@@ -74,5 +73,3 @@ private:
 
 } // namespace GUI
 } // namespace RoR
-
-#endif // USE_MYGUI

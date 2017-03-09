@@ -172,10 +172,10 @@ bool ContentManager::init(void)
     // by default, display everything in the depth map
     Ogre::MovableObject::setDefaultVisibilityFlags(DEPTHMAP_ENABLED);
 
-#ifdef USE_MYGUI
+
     AddResourcePack(ResourcePack::MYGUI);
     AddResourcePack(ResourcePack::DASHBOARDS);
-#endif // USE_MYGUI
+
 
 #ifdef _WIN32
     // TODO: FIX UNDER LINUX!

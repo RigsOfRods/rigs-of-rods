@@ -59,9 +59,7 @@ bool CameraBehaviorCharacter::mouseMoved(const CameraManager::CameraContext& ctx
 
         gEnv->player->setRotation(angle);
 
-#ifdef USE_MYGUI
         MyGUI::PointerManager::getInstance().setVisible(false);
-#endif // USE_MYGUI
 
         return true;
     }

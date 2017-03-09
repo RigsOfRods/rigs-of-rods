@@ -22,7 +22,6 @@
 /// @author Thomas Fischer (thomas{AT}thomasfischer{DOT}biz)
 /// @date   7th of September 2009
 
-#ifdef USE_MYGUI
 
 #include "GUI_MultiplayerClientList.h"
 
@@ -384,5 +383,3 @@ bool MpClientList::IsVisible()
 {
     return mpPanel->getVisible();
 }
-
-#endif // USE_MYGUI

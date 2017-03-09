@@ -138,9 +138,9 @@ set( SOURCE_FILES
   gui/mygui/WrapsAttribute.h
   gui/panels/GUI_GameConsole.{h,cpp}
   gui/panels/GUI_LoadingWindow.{h,cpp}
-  gui/panels/GUI_FrictionSettings.{h,cpp}  
+  gui/panels/GUI_FrictionSettings.{h,cpp}
   gui/panels/GUI_TopMenubar.{h,cpp}
-  gui/panels/GUI_TextureToolWindow.{h,cpp}    
+  gui/panels/GUI_TextureToolWindow.{h,cpp}
   gui/panels/GUI_DebugOptions.{h,cpp}
   gui/panels/GUI_DebugOptionsLayout.{h,cpp}
   gui/panels/GUI_GameAbout.{h,cpp}
@@ -160,7 +160,7 @@ set( SOURCE_FILES
   gui/panels/GUI_MessageBoxLayout.{h,cpp}
   gui/panels/GUI_MultiplayerSelector.{h,cpp}
   gui/panels/GUI_MultiplayerSelectorLayout.{h,cpp}
-  gui/panels/GUI_MultiplayerClientList.{h,cpp} 
+  gui/panels/GUI_MultiplayerClientList.{h,cpp}
   gui/panels/GUI_OpenSaveFileDialog.{h,cpp}
   gui/panels/GUI_RigSpawnerReportWindow.{h,cpp}
   gui/panels/GUI_RigSpawnerReportWindowLayout.{h,cpp}
@@ -287,6 +287,7 @@ link_directories   (${Ogre_Terrain_LIBRARY_DIRS})
 link_directories   (${Ogre_Overlay_LIBRARY_DIRS})
 link_directories   (${Ogre_Paging_LIBRARY_DIRS})
 link_directories   (${Ogre_RTShader_LIBRARY_DIRS})
+link_directories   (${MYGUI_LIBRARY_DIRS})
 link_directories   (${Ois_LIBRARY_DIRS})
 
 
@@ -301,12 +302,10 @@ endif()
 if(WIN32)
   # always copy ogre files
   copy_lib_files_for_target(${BINNAME} Ogre)
+  copy_lib_files_for_target(${BINNAME} MyGUI)
   # platform binaries
-  copy_files_for_target(${BINNAME} ${ROR_BINTOOL_DIR}/$(ConfigurationName)/*)  
+  copy_files_for_target(${BINNAME} ${ROR_BINTOOL_DIR}/$(ConfigurationName)/*)
   # then the optional ones
-  if(ROR_USE_MYGUI)
-    copy_lib_files_for_target(${BINNAME} MyGUI)
-  endif()
   if(ROR_USE_OPENAL)
     copy_lib_files_for_target(${BINNAME} OpenALSoft)
   endif()
@@ -319,8 +318,8 @@ if(WIN32)
   if(ROR_USE_MOFILEREADER)
     copy_lib_files_for_target(${BINNAME} MoFileReader)
   endif()
-  if(ROR_USE_CRASHRPT)		
-    copy_lib_files_for_target(${BINNAME} CrashRpt)		
+  if(ROR_USE_CRASHRPT)
+    copy_lib_files_for_target(${BINNAME} CrashRpt)
   endif()
 else()
   copy_files_for_target("${BINNAME}" "${ROR_BINTOOL_DIR}/*")
@@ -374,6 +373,7 @@ include_directories(${Ogre_Overlay_INCLUDE_DIRS})
 include_directories(${Ogre_Paging_INCLUDE_DIRS})
 include_directories(${Ogre_RTShader_INCLUDE_DIRS})
 include_directories(${Ois_INCLUDE_DIRS})
+include_directories(${MYGUI_INCLUDE_DIRS})
 
 
 target_include_directories( ${BINNAME} PRIVATE
@@ -431,7 +431,6 @@ ENDIF(WIN32)
 
 
 # optional components
-setup_lib(MYGUI)
 setup_lib(OPENAL)
 setup_lib(CURL)
 setup_lib(SOCKETW)
@@ -458,7 +457,7 @@ target_link_libraries(${BINNAME}
   ${Ogre_RTShader_LIBRARIES}
   ${Ois_LIBRARIES}
   ${OS_LIBS}
+  ${MYGUI_LIBRARIES}
   ${optional_libs}
   version_info
 )
-

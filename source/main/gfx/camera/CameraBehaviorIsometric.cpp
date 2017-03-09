@@ -30,8 +30,6 @@ using namespace Ogre;
 
 void CameraBehaviorIsometric::activate(const CameraManager::CameraContext &ctx, bool reset /* = true */)
 {
-#ifdef USE_MYGUI
     RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE, _L("Fixed camera"), "camera_link.png", 3000);
     RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Fixed camera"));
-#endif // USE_MYGUI
 }

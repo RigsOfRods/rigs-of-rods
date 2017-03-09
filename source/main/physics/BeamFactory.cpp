@@ -57,9 +57,7 @@
 #include <sys/sysctl.h>
 #endif // __APPLE__ || __FREEBSD__
 
-#ifdef USE_MYGUI
 #include "DashBoardManager.h"
-#endif // USE_MYGUI
 
 #include <algorithm>
 #include <cstring>
@@ -128,7 +126,7 @@ unsigned int getNumberOfCPUCores()
         cores = ((unsigned)(regs[2] & 0xff)) + 1; // ECX[7:0] + 1
     }
 
-    // Detect hyper-threads  
+    // Detect hyper-threads
     bool hyperThreads = cpuFeatures & (1 << 28) && cores < logical;
 
     LOG("BEAMFACTORY: " + TOSTRING(logical) + " logical CPU cores" + " found");
@@ -205,7 +203,7 @@ Beam* BeamFactory::CreateLocalRigInstance(
     Ogre::Vector3 pos,
     Ogre::Quaternion rot,
     Ogre::String fname,
-    int cache_entry_number, // = -1, 
+    int cache_entry_number, // = -1,
     collision_box_t* spawnbox /* = nullptr */,
     bool ismachine /* = false */,
     const std::vector<Ogre::String>* truckconfig /* = nullptr */,
@@ -257,9 +255,7 @@ Beam* BeamFactory::CreateLocalRigInstance(
         b->toggleSlideNodeLock();
     }
 
-#ifdef USE_MYGUI
     RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
-#endif // USE_MYGUI
 
     // add own username to truck
     if (RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED)
@@ -288,9 +284,7 @@ int BeamFactory::CreateRemoteInstance(RoRnet::TruckStreamRegister* reg)
     RoR::Networking::GetUserInfo(reg->origin_sourceid, info);
 
     UTFString message = RoR::ChatSystem::GetColouredName(info.username, info.colournum) + RoR::Color::CommandColour + _L(" spawned a new vehicle: ") + RoR::Color::NormalColour + reg->name;
-#ifdef USE_MYGUI
     RoR::App::GetGuiManager()->pushMessageChatBox(message);
-#endif // USE_MYGUI
 #endif // USE_SOCKETW
 
     // check if we got this truck installed
@@ -347,9 +341,9 @@ int BeamFactory::CreateRemoteInstance(RoRnet::TruckStreamRegister* reg)
     b->m_stream_id = reg->origin_streamid;
     b->updateNetworkInfo();
 
-#ifdef USE_MYGUI
+
     RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
-#endif // USE_MYGUI
+
 
     return 1;
 }
@@ -836,9 +830,9 @@ void BeamFactory::DeleteTruck(Beam* b)
     m_trucks[b->trucknum] = 0;
     delete b;
 
-#ifdef USE_MYGUI
+
     RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
-#endif // USE_MYGUI
+
 }
 
 void BeamFactory::removeCurrentTruck()
@@ -1099,9 +1093,9 @@ void BeamFactory::update(float dt)
     {
         if (m_simulated_truck == m_current_truck)
         {
-#ifdef USE_MYGUI
+
             m_trucks[m_simulated_truck]->updateDashBoards(dt);
-#endif // USE_MYGUI
+
 #ifdef FEAT_TIMING
             if (m_trucks[m_simulated_truck]->statistics)     m_trucks[m_simulated_truck]->statistics->frameStep(dt);
             if (m_trucks[m_simulated_truck]->statistics_gfx) m_trucks[m_simulated_truck]->statistics_gfx->frameStep(dt);
@@ -1128,7 +1122,7 @@ void BeamFactory::update(float dt)
 
 void BeamFactory::windowResized()
 {
-#ifdef USE_MYGUI
+
     for (int t = 0; t < m_free_truck; t++)
     {
         if (m_trucks[t])
@@ -1136,7 +1130,7 @@ void BeamFactory::windowResized()
             m_trucks[t]->dash->windowResized();
         }
     }
-#endif // USE_MYGUI
+
 }
 
 void BeamFactory::prepareShutdown()

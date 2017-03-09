@@ -1,5 +1,4 @@
 # components
-set(ROR_USE_MYGUI        "TRUE" CACHE BOOL "use MyGUI")
 set(ROR_USE_OPENAL       "TRUE" CACHE BOOL "use OPENAL")
 set(ROR_USE_SOCKETW      "TRUE" CACHE BOOL "use SOCKETW")
 set(ROR_USE_PAGED        "TRUE" CACHE BOOL "use paged geometry")
@@ -114,28 +113,27 @@ endmacro(importLib)
 	importLib(ois_static OIS)
 	set(Ois_LIBRARIES "ois_static" CACHE STRING "The OIS libs to link against")
 
-	# special include path for curl ...
-	if(ROR_USE_CURL)
-		set(CURL_INCLUDE_DIRS "${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/curl" CACHE PATH "The curl include path to use")
-		set(CURL_LIBRARIES "libcurl_imp" CACHE STRING "The curl lib to link against")
-		importLib(libcurl_imp curl)
-	endif(ROR_USE_CURL)
-
 	# directX
 	set(DirectX_INCLUDE_DIRS "$ENV{DXSDK_DIR}/Include" CACHE PATH "The DirectX include path to use")
 	set(DirectX_LIBRARY_DIRS "$ENV{DXSDK_DIR}/lib/${ARCH_DIR}/" CACHE PATH "The DirectX lib path to use")
 	include_directories(${DirectX_INCLUDE_DIRS})
 	link_directories   (${DirectX_LIBRARY_DIRS})
 
+	set(MYGUI_INCLUDE_DIRS "${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/MyGUI" CACHE PATH "The mygui include path to use")
+	importLib(MyGUIEngineStatic MyGUI)
+	importLib(MyGUI.OgrePlatform MyGUI)
+	importLib(freetype MyGUI)
+	set(MYGUI_LIBRARIES "MyGUI.OgrePlatform;MyGUIEngineStatic;freetype" CACHE STRING "The mygui libs to link against")
+
 
 	#### OPTIONAL COMPONENTS
-	if(ROR_USE_MYGUI)
-		set(MYGUI_INCLUDE_DIRS "${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/MyGUI" CACHE PATH "The mygui include path to use")
-		importLib(MyGUIEngineStatic MyGUI)
-		importLib(MyGUI.OgrePlatform MyGUI)
-		importLib(freetype MyGUI)
-		set(MYGUI_LIBRARIES "MyGUI.OgrePlatform;MyGUIEngineStatic;freetype" CACHE STRING "The mygui libs to link against")
-	endif(ROR_USE_MYGUI)
+
+	# special include path for curl ...
+	if(ROR_USE_CURL)
+		set(CURL_INCLUDE_DIRS "${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/curl" CACHE PATH "The curl include path to use")
+		set(CURL_LIBRARIES "libcurl_imp" CACHE STRING "The curl lib to link against")
+		importLib(libcurl_imp curl)
+	endif(ROR_USE_CURL)
 
 	if(ROR_USE_OPENAL)
 		set(OPENAL_INCLUDE_DIRS "${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/OpenALSoft" CACHE PATH "The openal include path to use")
@@ -206,6 +204,14 @@ ELSEIF(UNIX)
 
    PKG_CHECK_MODULES  (Ois OIS REQUIRED)
 
+   # using pkg-config
+   # MyGUI
+   PKG_CHECK_MODULES(MYGUI MYGUI REQUIRED)
+   find_library(MYGUI_OGRE_PLATFORM MyGUI.OgrePlatform)
+   set(MYGUI_LIBRARIES ${MYGUI_LIBRARIES} ${MYGUI_OGRE_PLATFORM})
+   # add our mygui BaseLayout
+   set(MYGUI_INCLUDE_DIRS ${MYGUI_INCLUDE_DIRS})
+
    find_package(CURL)
    if(CURL_FOUND)
 	set(CURL_INCLUDE_DIRS ${CURL_INCLUDE_DIR})
@@ -226,19 +232,6 @@ ELSEIF(UNIX)
    else()
       set(ROR_USE_OPENAL OFF)
    endif(OPENAL_FOUND)
-
-   # using pkg-config
-   # MyGUI
-   PKG_CHECK_MODULES(MYGUI MYGUI)
-   if(MYGUI_FOUND)
-      find_library(MYGUI_OGRE_PLATFORM MyGUI.OgrePlatform)
-      set(MYGUI_LIBRARIES ${MYGUI_LIBRARIES} ${MYGUI_OGRE_PLATFORM})
-      # add our mygui BaseLayout
-      set(MYGUI_INCLUDE_DIRS ${MYGUI_INCLUDE_DIRS})
-      set(ROR_USE_MYGUI ON)
-   else()
-      set(ROR_USE_MYGUI OFF)
-   endif(MYGUI_FOUND)
 
    # JsonCpp
    find_path(JSONCPP_INCLUDE_DIRS "json/json.h")

@@ -18,7 +18,7 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef USE_MYGUI
+
 
 #include "SurveyMapManager.h"
 
@@ -441,4 +441,4 @@ void SurveyMapManager::Update(Beam** vehicles, int num_vehicles)
     }
 }
 
-#endif // USE_MYGUI
+

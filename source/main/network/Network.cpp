@@ -398,9 +398,7 @@ void RecvThread()
                     m_users.erase(user);
                 }
             }
-#ifdef USE_MYGUI
             RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
-#endif // USE_MYGUI
         }
         else if (header.command == MSG2_USER_INFO || header.command == MSG2_USER_JOIN)
         {
@@ -442,9 +440,7 @@ void RecvThread()
                         LOG(Ogre::UTFString(user_info.username) + _L(" joined the game"));
                     }
                 }
-#ifdef USE_MYGUI
                 RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
-#endif // USE_MYGUI
             }
             continue;
         }
@@ -468,7 +464,7 @@ void RecvThread()
 
 void CouldNotConnect(Ogre::UTFString const & msg, bool close_socket = true)
 {
-    Ogre::UTFString message = "Error connecting to server: [" + App::GetMpServerHost() 
+    Ogre::UTFString message = "Error connecting to server: [" + App::GetMpServerHost()
                             + ":" + TOSTRING(App::GetMpServerPort()) + "]\n\n" + msg.asUTF8();
     SetErrorMessage(message);
     RoR::App::SetActiveMpState(App::MP_STATE_DISABLED);

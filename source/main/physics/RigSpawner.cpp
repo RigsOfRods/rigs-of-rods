@@ -389,9 +389,9 @@ void RigSpawner::InitializeRig()
 
     m_rig->tractioncontrol = 0;
 
-#ifdef USE_MYGUI
+
     m_rig->dash = new DashBoardManager();
-#endif // USE_MYGUI
+
 
 #ifdef FEAT_TIMING
     // this enables beam engine timing statistics
@@ -567,7 +567,7 @@ void RigSpawner::FinalizeRig()
         if (mat.isNull())
         {
             
-#ifdef USE_MYGUI
+
             RoR::Console *console = RoR::App::GetConsole();
             if (console) console->putMessage(
                 Console::CONSOLE_MSGTYPE_INFO, 
@@ -578,7 +578,7 @@ void RigSpawner::FinalizeRig()
                 true
             );
             RoR::App::GetGuiManager()->PushNotification("Notice:", "unable to load vehicle (Material '" + Ogre::String(m_rig->texname) + "' missing!): " + m_rig->realtruckname);
-#endif // USE_MYGUI
+
 
             Ogre::String msg = "Material '"+Ogre::String(m_rig->texname)+"' missing!";
             AddMessage(Message::TYPE_ERROR, msg);

@@ -21,7 +21,7 @@
 
 #pragma once
 
-#ifdef USE_MYGUI
+
 
 #include "RoRPrerequisites.h"
 
@@ -88,4 +88,4 @@ private:
     static Ogre::String entityStates[MaxEntityStates];
 };
 
-#endif // USE_MYGUI
+

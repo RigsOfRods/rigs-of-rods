@@ -257,19 +257,19 @@ void GameScript::registerForEvent(int eventValue)
 
 void GameScript::flashMessage(String& txt, float time, float charHeight)
 {
-#ifdef USE_MYGUI
+
     RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, "script_code_red.png");
     RoR::App::GetGuiManager()->PushNotification("Script:", txt);
-#endif // USE_MYGUI
+
 }
 
 void GameScript::message(String& txt, String& icon, float timeMilliseconds, bool forceVisible)
 {
     //TODO: Notification system
-#ifdef USE_MYGUI
+
     RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, icon, timeMilliseconds, forceVisible);
     RoR::App::GetGuiManager()->PushNotification("Script:", txt);
-#endif // USE_MYGUI
+
 }
 
 void GameScript::UpdateDirectionArrow(String& text, Vector3& vec)
@@ -289,7 +289,7 @@ void GameScript::setChatFontSize(int size)
 
 void GameScript::showChooser(const String& type, const String& instance, const String& box)
 {
-#ifdef USE_MYGUI
+
     LoaderType ntype = LT_None;
 
     if (type == "airplane")
@@ -319,7 +319,7 @@ void GameScript::showChooser(const String& type, const String& instance, const S
     {
         mse->GetFrameListener()->ShowLoaderGUI(ntype, instance, box);
     }
-#endif //USE_MYGUI
+
 }
 
 void GameScript::repairVehicle(const String& instance, const String& box, bool keepPosition)
@@ -815,14 +815,14 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 
     LOG("online API result: " + result);
 
-#ifdef USE_MYGUI
+
     Console* con = RoR::App::GetConsole();
     if (con)
     {
         con->putMessage(Console::CONSOLE_MSGTYPE_HIGHSCORE, Console::CONSOLE_SYSTEM_NOTICE, ANSI_TO_UTF(result));
         RoR::App::GetGuiManager()->PushNotification("Script:", ANSI_TO_UTF(result));
     }
-#endif // USE_MYGUI
+
 #endif //USE_CURL
     return 0;
 }
@@ -848,12 +848,12 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
     // tell the script that there will be no direct feedback
     result = "asynchronous";
 
-#ifdef USE_MYGUI
+
     Console* con = RoR::App::GetConsole();
     if (con)
         con->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("using Online API..."), "information.png", 2000);
     RoR::App::GetGuiManager()->PushNotification("Notice:", _L("using Online API..."));
-#endif // USE_MYGUI
+
 
     // fix the String objects in the dict
     // why we need to do this: when we copy the std::map (dict) over, we calso jsut copy the pointers to String in it.

@@ -108,11 +108,9 @@ Beam::~Beam()
     this->setMeshVisibility(false);
 
     // delete all classes we might have constructed
-#ifdef USE_MYGUI
     if (dash)
         delete dash;
     dash = 0;
-#endif // USE_MYGUI
 
     // stop all the Sounds
 #ifdef USE_OPENAL
@@ -831,9 +829,7 @@ void Beam::calcNetwork()
         SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_REVERSE_GEAR);
 #endif //OPENAL
 
-#ifdef USE_MYGUI
     updateDashBoards(tratio);
-#endif // USE_MYGUI
 
     BES_GFX_STOP(BES_GFX_calcNetwork);
 }
@@ -2963,12 +2959,10 @@ void Beam::prepareInside(bool inside)
     }
     else
     {
-#ifdef USE_MYGUI
         if (dash)
         {
             dash->setVisible(false);
         }
-#endif // USE_MYGUI
 
         if (cablightNode && cablight)
         {
@@ -5087,7 +5081,6 @@ bool Beam::isLocked()
 
 void Beam::updateDashBoards(float dt)
 {
-#ifdef USE_MYGUI
     if (!dash)
         return;
     // some temp vars
@@ -5532,7 +5525,6 @@ void Beam::updateDashBoards(float dt)
 
 #endif //0
     dash->update(dt);
-#endif // USE_MYGUI
 }
 
 Vector3 Beam::getGForces()
@@ -5910,7 +5902,7 @@ Beam::Beam(
     mCamera = gEnv->mainCamera;
 
     // DEBUG UTILITY
-    // RigInspector::InspectRig(this, "d:\\Projects\\Rigs of Rods\\rig-inspection\\NextStable.log"); 
+    // RigInspector::InspectRig(this, "d:\\Projects\\Rigs of Rods\\rig-inspection\\NextStable.log");
 
     LOG(" ===== DONE LOADING VEHICLE");
 }
@@ -5962,7 +5954,6 @@ bool Beam::LoadTruck(
 
     if (ds.isNull() || !ds->isReadable())
     {
-#ifdef USE_MYGUI
         Console* console = RoR::App::GetConsole();
         if (console != nullptr)
         {
@@ -5976,7 +5967,6 @@ bool Beam::LoadTruck(
             );
             RoR::App::GetGuiManager()->PushNotification("Error:", "unable to load vehicle (unable to open file): " + fixed_file_name + " : " + errorStr);
         }
-#endif // USE_MYGUI
         return false;
     }
 
@@ -6223,7 +6213,6 @@ bool Beam::LoadTruck(
     LOG("BEAM: truck memory allocated: " + TOSTRING(memr) + " B (" + TOSTRING(memr/1024) + " kB)");
 
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_GROUNDMODEL_AND_STATS);
-#ifdef USE_MYGUI
     // now load any dashboards
     if (dash)
     {
@@ -6318,7 +6307,6 @@ bool Beam::LoadTruck(
         }
         dash->setVisible(false);
     }
-#endif // USE_MYGUI
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_LOAD_DASHBOARDS);
 
     // Set beam defaults

@@ -35,12 +35,10 @@
 #	include <OgreTextAreaOverlayElement.h>
 #endif
 
-#ifdef USE_MYGUI
 #include <MyGUI.h>
 #include <MyGUI_IFont.h>
 #include <MyGUI_FontData.h>
 #include <MyGUI_FontManager.h>
-#endif // USE_MYGUI
 
 #include "Application.h"
 #include "Settings.h"

@@ -117,10 +117,10 @@ void ScriptEngine::messageLogged( const String& message, LogMessageLevel lml, bo
 void ScriptEngine::messageLogged( const String& message, LogMessageLevel lml, bool maskDebug, const String &logName, bool& skipThisMessage)
 #endif // OGRE_VERSION
 {
-#ifdef USE_MYGUI
+
     Console *c = RoR::App::GetConsole();
     if (c) c->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_LOGMESSAGE_SCRIPT, message, "page_white_code.png");
-#endif // USE_MYGUI
+
 }
 
 void ScriptEngine::ExceptionCallback(AngelScript::asIScriptContext *ctx, void *param)

@@ -31,9 +31,7 @@
 #include "Application.h"
 #include "GUIManager.h"
 
-#ifdef USE_MYGUI
 # include <MyGUI.h>
-#endif //USE_MYGUI
 #include <OgreSceneManager.h>
 #include <OgreMaterialManager.h>
 #include <OgreResourceGroupManager.h>

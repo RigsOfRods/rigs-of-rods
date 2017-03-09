@@ -18,7 +18,6 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef USE_MYGUI
 
 #pragma once
 
@@ -65,7 +64,7 @@ private:
 
     ATTRIBUTE_FIELD_WIDGET_NAME(TextureToolWindow, mChkDynamic, "chkDynamic");
     MyGUI::Button* mChkDynamic;
-    
+
     void notifyWindowPressed(MyGUI::Window* _widget, const std::string& _name);
     void eventClickSavePNGButton(MyGUI::WidgetPtr _sender);
     void eventClickSaveRAWButton(MyGUI::WidgetPtr _sender);
@@ -80,5 +79,3 @@ private:
 
 } // namespace GUI
 } // namespace RoR
-
-#endif // USE_MYGUI
