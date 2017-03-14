@@ -19,7 +19,7 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/** 
+/**
     @file   PlatformUtils.h
     @author Petr Ohlidal
     @date   05/2014
@@ -46,7 +46,11 @@ struct PlatformUtils
 
     static bool FolderExists(const char* path);
 
+    static void CreateFolder(const char* path);
+
     static bool FolderExists(Ogre::String const& path);
+
+    static void CreateFolder(Ogre::String const& path);
 };
 
 #ifdef USE_CRASHRPT

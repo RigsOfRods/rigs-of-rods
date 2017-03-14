@@ -113,6 +113,8 @@ int main(int argc, char *argv[])
         // ### Create OGRE default logger early. ###
 
         App::SetSysLogsDir(App::GetSysUserDir() + PATH_SLASH + "logs");
+        if (!PlatformUtils::FolderExists(App::GetSysLogsDir()))
+            PlatformUtils::CreateFolder(App::GetSysLogsDir());
 
         auto ogre_log_manager = OGRE_NEW Ogre::LogManager();
         Ogre::String log_filepath = App::GetSysLogsDir() + PATH_SLASH + "RoR.log";
@@ -128,6 +130,9 @@ int main(int argc, char *argv[])
         }
 
         App::GetSettings().LoadSettings(App::GetSysConfigDir() + PATH_SLASH + "RoR.cfg"); // Main config file
+
+        if (!PlatformUtils::FolderExists(App::GetSysCacheDir()))
+            PlatformUtils::CreateFolder(App::GetSysCacheDir());
 
         // ### Process command-line arguments ###
 
@@ -184,7 +189,7 @@ int main(int argc, char *argv[])
         camera->setAutoAspectRatio(true);
         App::GetOgreSubsystem()->GetViewport()->setCamera(camera);
         gEnv->mainCamera = camera;
-        
+
         Ogre::String menu_wallpaper_texture_name = GUIManager::getRandomWallpaperImage();
 
         App::CreateCacheSystem();
@@ -256,7 +261,7 @@ int main(int argc, char *argv[])
 
 #ifdef USE_MPLATFORM
 	    m_frame_listener->m_platform = new MPlatform_FD();
-	    if (m_frame_listener->m_platform) 
+	    if (m_frame_listener->m_platform)
 	    {
 		    m_platform->connect();
 	    }
@@ -274,7 +279,7 @@ int main(int argc, char *argv[])
         new BeamFactory();
 
         MainMenu main_obj(frame_listener);
-        
+
         // ### Main loop (switches application states) ###
 
         App::State previous_application_state = App::GetActiveAppState();
