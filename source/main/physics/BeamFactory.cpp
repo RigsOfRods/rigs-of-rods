@@ -61,6 +61,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <intrin.h>
 
 using namespace Ogre;
 
