@@ -459,6 +459,14 @@ bool RoRConfigApp::CheckAndPrepareUserDirectory()
     if (wxFileName::DirExists(m_user_path) && wxFileName::DirExists(this->GetConfigPath()))
     {
         wxLogInfo(wxT("User directory seems to be valid: ") + m_user_path);
+
+        wxLogInfo(wxT("Checking if cache path exist: ") + this->GetCachePath());
+        if (!wxFileName::DirExists(this->GetCachePath()))
+    	    wxFileName::Mkdir(this->GetCachePath());
+        wxLogInfo(wxT("Checking if log path exist: ") + this->GetLogPath());
+        if (!wxFileName::DirExists(this->GetLogPath()))
+          wxFileName::Mkdir(this->GetLogPath());
+
         return true;
     }
 

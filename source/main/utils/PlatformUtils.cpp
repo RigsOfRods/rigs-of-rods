@@ -19,7 +19,7 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/** 
+/**
     @file   PlatformUtils.cpp
     @author Petr Ohlidal
     @date   05/2014
@@ -75,6 +75,15 @@ bool PlatformUtils::FolderExists(const char* path)
 #endif
 }
 
+void PlatformUtils::CreateFolder(const char* path)
+{
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+    CreateDirectory(path, NULL);
+#else
+    mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+#endif
+}
+
 bool PlatformUtils::FileExists(Ogre::String const& path)
 {
     return FileExists(path.c_str());
@@ -83,6 +92,11 @@ bool PlatformUtils::FileExists(Ogre::String const& path)
 bool PlatformUtils::FolderExists(Ogre::String const& path)
 {
     return FolderExists(path.c_str());
+}
+
+void PlatformUtils::CreateFolder(Ogre::String const& path)
+{
+    CreateFolder(path.c_str());
 }
 
 // ================================================================================
@@ -111,7 +125,7 @@ void InstallCrashRpt()
     info.pszUrl = "http://crashfix.rigsofrods.org/index.php/crashReport/uploadExternal";
     info.uPriorities[CR_HTTP] = 1;                      // Use HTTP.
     info.uPriorities[CR_SMTP] = CR_NEGATIVE_PRIORITY;   // Not user SMTP.
-    info.uPriorities[CR_SMAPI] = CR_NEGATIVE_PRIORITY;  // Not use Simple MAPI.  
+    info.uPriorities[CR_SMAPI] = CR_NEGATIVE_PRIORITY;  // Not use Simple MAPI.
     info.dwFlags = CR_INST_AUTO_THREAD_HANDLERS; // Install the per-thread exception handlers automatically
     info.dwFlags |= CR_INST_ALL_POSSIBLE_HANDLERS; // Install all available exception handlers
     info.dwFlags |= CR_INST_SHOW_ADDITIONAL_INFO_FIELDS; // Makes "Your E-mail" and "Describe what you were doing when the problem occurred" fields of Error Report dialog always visible.
