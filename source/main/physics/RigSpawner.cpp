@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -24,12 +24,6 @@
     @brief  Vehicle spawning logic.
     @author Petr Ohlidal
     @date   12/2013
-*/
-
-/*
-    DISABLED:
-        Hashing
-        ScopeLog (What is it for?)
 */
 
 #include "RoRPrerequisites.h"
@@ -531,7 +525,6 @@ void RigSpawner::FinalizeRig()
         //inform wing segments
         float span=GetNode(m_rig->wings[m_first_wing_index].fa->nfrd).RelPosition.distance(GetNode(m_rig->wings[m_rig->free_wing-1].fa->nfld).RelPosition);
         
-        //parser_warning(c, "Full Wing "+TOSTRING(wingstart)+"-"+TOSTRING(free_wing-1)+" SPAN="+TOSTRING(span)+" AREA="+TOSTRING(wingarea), PARSER_INFO);
         m_rig->wings[m_first_wing_index].fa->enableInducedDrag(span,m_wing_area, false);
         m_rig->wings[m_rig->free_wing-1].fa->enableInducedDrag(span,m_wing_area, true);
         //wash calculator
@@ -557,12 +550,6 @@ void RigSpawner::FinalizeRig()
         //0: normal texture
         //1: transparent (windows)
         //2: emissive
-        /*strcpy(texname, "testtex");
-        char transmatname[256];
-        sprintf(transmatname, "%s-trans", texname);
-        char backmatname[256];
-        sprintf(backmatname, "%s-back", texname);
-        hasEmissivePass=1;*/
 
         Ogre::MaterialPtr mat=Ogre::MaterialManager::getSingleton().getByName(m_rig->texname);
         if (mat.isNull())
@@ -624,9 +611,6 @@ void RigSpawner::FinalizeRig()
         {
             backmat->setReceiveShadows(false);
         }
-        //just in case
-        //backmat->getTechnique(0)->getPass(0)->setSceneBlending(SBT_TRANSPARENT_ALPHA);
-        //backmat->getTechnique(0)->getPass(0)->setAlphaRejectSettings(CMPF_GREATER, 128);
         backmat->compile();
 
         //-noem and -noem-trans
@@ -640,11 +624,6 @@ void RigSpawner::FinalizeRig()
             clomat->compile();
         }
 
-        //base texture is not modified
-        //	mat->compile();
-
-
-        //parser_warning(c, "creating mesh", PARSER_INFO);
         m_rig->cabMesh =new FlexObj(
             m_rig->nodes, 
             m_rig->free_texcoord, 
@@ -660,26 +639,20 @@ void RigSpawner::FinalizeRig()
             backmatname, 
             transmatname
         );
-        //parser_warning(c, "creating entity", PARSER_INFO);
 
-        
-        //parser_warning(c, "creating cabnode", PARSER_INFO);
         m_rig->cabNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
         Ogre::Entity *ec = nullptr;
         try
         {
-            //parser_warning(c, "loading cab", PARSER_INFO);
             ec = gEnv->sceneManager->createEntity(wnamei, wname);
-            //		ec->setRenderQueueGroup(RENDER_QUEUE_6);
-            //parser_warning(c, "attaching cab", PARSER_INFO);
             if (ec)
             {
                 m_rig->deletion_Entities.emplace_back(ec);
                 m_rig->cabNode->attachObject(ec);
             }
-        } catch(...)
+        }
+        catch(...)
         {
-            //parser_warning(c, "error loading mesh: "+String(wname));
             Ogre::String msg = "error loading mesh: "+Ogre::String(wname);
             AddMessage(Message::TYPE_ERROR, msg);
         }
@@ -698,18 +671,7 @@ void RigSpawner::FinalizeRig()
         }
         
     };
-    //parser_warning(c, "cab ok", PARSER_INFO);
-    //	mWindow->setDebugText("Beam number:"+ TOSTRING(free_beam));
-/*
-    if (c.mode == BTS_DESCRIPTION)
-        parser_warning(c, "description section not closed with end_description", PARSER_ERROR);
 
-    if (c.mode == BTS_COMMENT)
-        parser_warning(c, "comment section not closed with end_comment", PARSER_ERROR);
-
-    if (c.mode == BTS_SECTION)
-        parser_warning(c, "section section not closed with end_section", PARSER_ERROR);
-*/
     // check for some things
     if (strnlen(m_rig->guid, 128) == 0)
     {

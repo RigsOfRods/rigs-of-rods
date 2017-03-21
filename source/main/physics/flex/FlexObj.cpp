@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -111,8 +111,6 @@ FlexObj::FlexObj(node_t *nds, int numtexcoords, Vector3* texcoords, int numtrian
     offset += VertexElement::getTypeSize(VET_FLOAT3);
     decl->addElement(0, offset, VET_FLOAT3, VES_NORMAL);
     offset += VertexElement::getTypeSize(VET_FLOAT3);
-//        decl->addElement(0, offset, VET_FLOAT3, VES_DIFFUSE);
-//        offset += VertexElement::getTypeSize(VET_FLOAT3);
     decl->addElement(0, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
     offset += VertexElement::getTypeSize(VET_FLOAT2);
 
@@ -156,8 +154,6 @@ FlexObj::FlexObj(node_t *nds, int numtexcoords, Vector3* texcoords, int numtrian
 
     /// Set bounding information (for culling)
     msh->_setBounds(AxisAlignedBox(-100,-100,-100,100,100,100), true);
-    //msh->_setBoundingSphereRadius(100);
-
 
     /// Notify Mesh object that it has been loaded
     msh->load();
@@ -182,23 +178,6 @@ int FlexObj::findID(int tidx, int v, int numsubmeshes, int* subtexindex, int* su
     for (j=subtexindex[context]; j<subtexindex[context+1]; j++) if (nodeIDs[j]==v) return j;
     return 0;
 }
-
-/*Vector3 FlexObj::updateVertices()
-{
-    unsigned int i;
-    Vector3 center;
-    center=(nodes[nodeIDs[0]].Position+nodes[nodeIDs[1]].Position)/2.0;
-    for (i=0; i<nVertices; i++)
-    {
-        covertices[i].vertex=nodes[nodeIDs[i]].Position-center;
-        //normals
-        covertices[i].normal=covertices[i].vertex;
-        covertices[i].normal.normalise();
-    }
-
-    return center;
-}
-*/
 
 //with normals
 Vector3 FlexObj::updateVertices()
@@ -295,14 +274,8 @@ Vector3 FlexObj::updateShadowVertices()
 
 Vector3 FlexObj::flexit()
 {
-    Vector3 center(Vector3::ZERO);
-
-    center=updateVertices();
-    //vbuf->lock(HardwareBuffer::HBL_NORMAL);
+    Ogre::Vector3 center = this->updateVertices();
     vbuf->writeData(0, vbuf->getSizeInBytes(), vertices, true);
-    //vbuf->unlock();
-    //msh->sharedVertexData->vertexBufferBinding->getBuffer(0)->writeData(0, vbuf->getSizeInBytes(), vertices, true);
-
     return center;
 }
 
