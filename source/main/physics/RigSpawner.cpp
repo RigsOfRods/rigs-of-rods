@@ -647,7 +647,6 @@ void RigSpawner::FinalizeRig()
             ec = gEnv->sceneManager->createEntity(wnamei, wname);
             if (ec)
             {
-                m_rig->deletion_Entities.emplace_back(ec);
                 m_rig->cabNode->attachObject(ec);
             }
         }
@@ -669,6 +668,7 @@ void RigSpawner::FinalizeRig()
         {
             m_rig->usedSkin->replaceMeshMaterials(ec);
         }
+        m_rig->cabEntity = ec;
         
     };
 

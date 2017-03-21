@@ -278,6 +278,7 @@ struct rig_t
     int hasEmissivePass;
     FlexObj *cabMesh;
     Ogre::SceneNode *cabNode;
+    Ogre::Entity *cabEntity;
     Ogre::AxisAlignedBox boundingBox; //!< standard bounding box (surrounds all nodes of a truck)
     Ogre::AxisAlignedBox predictedBoundingBox;
     std::vector<Ogre::AxisAlignedBox> collisionBoundingBoxes; //!< smart bounding boxes, used for determining the state of a truck (every box surrounds only a subset of nodes)

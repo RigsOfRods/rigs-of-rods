@@ -135,9 +135,22 @@ Beam::~Beam()
     if (fuseAirfoil)
         delete fuseAirfoil;
     fuseAirfoil = 0;
-    if (cabMesh)
-        delete cabMesh;
-    cabMesh = 0;
+
+    if (cabMesh != nullptr)
+    {
+        this->fadeMesh(cabNode, 1.f); // Reset transparency of "skeleton view"
+
+        cabNode->detachAllObjects();
+        cabNode->getParentSceneNode()->removeAndDestroyChild(cabNode->getName());
+        cabNode = nullptr;
+
+        cabEntity->_getManager()->destroyEntity(cabEntity);
+        cabEntity = nullptr;
+
+        delete cabMesh; // Unloads the ManualMesh resource; do this last
+        cabMesh = nullptr;
+    }
+
     if (materialFunctionMapper)
         delete materialFunctionMapper;
     materialFunctionMapper = 0;

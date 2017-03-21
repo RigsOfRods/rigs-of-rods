@@ -281,7 +281,11 @@ Vector3 FlexObj::flexit()
 
 FlexObj::~FlexObj()
 {
-    if (!msh.isNull()) msh->unload();
+    if (!msh.isNull())
+    {
+        Ogre::MeshManager::getSingleton().remove(msh->getHandle());
+        msh.setNull();
+    }
 
     if (subs              != nullptr) { free (subs); }
     if (vertices          != nullptr) { free (vertices); }
