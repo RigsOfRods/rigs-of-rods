@@ -34,14 +34,16 @@
 #pragma GCC diagnostic ignored "-Wfloat-equal"
 #endif // OGRE_PLATFORM_LINUX
 
+#define LOGSTREAM Ogre::LogManager::getSingleton().stream() << "[RoR|Audio] "
+
 bool _checkALErrors(const char* filename, int linenum)
 {
     int err = alGetError();
     if (err != AL_NO_ERROR)
     {
-        char buf[4096] = {};
-        sprintf(buf, "OpenAL Error: %s (0x%x), @ %s:%d", alGetString(err), err, filename, linenum);
-        LOG(buf);
+        char buf[1000] = {};
+        snprintf(buf, 1000, "OpenAL Error: %s (0x%x), @ %s:%d", alGetString(err), err, filename, linenum);
+        LOGSTREAM << buf;
         return true;
     }
     return false;
@@ -63,15 +65,25 @@ SoundManager::SoundManager() :
     , sound_context(NULL)
     , audio_device(NULL)
 {
-    String device = App::GetAudioDeviceName();
-
-    if (device == "")
-        audio_device = alcOpenDevice(NULL);
+    if (App::GetAudioDeviceName().empty())
+    {
+        LOGSTREAM << "No audio device configured, opening default.";
+        audio_device = alcOpenDevice(nullptr);
+    }
     else
-        audio_device = alcOpenDevice(device.c_str());
+    {
+        audio_device = alcOpenDevice(App::GetAudioDeviceName().c_str());
+        if (!audio_device)
+        {
+            LOGSTREAM << "Failed to open configured audio device \"" << App::GetAudioDeviceName() << "\", opening default.";
+            App::SetAudioDeviceName("");
+            audio_device = alcOpenDevice(nullptr);
+        }
+    }
 
     if (!audio_device)
     {
+        LOGSTREAM << "Failed to open default audio device. Sound disabled.";
         hasALErrors();
         return;
     }
