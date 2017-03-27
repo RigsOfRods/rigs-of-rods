@@ -1,3 +1,4 @@
+dist: trusty
 language: cpp
 sudo: false
 
@@ -10,23 +11,13 @@ compiler:
   - clang
 
 addons:
-  # The following updates are needed for Travis VM running Ubuntu 12.04 and should be removed when Travis updates their OS
-  # update gcc for C++11 support
   apt:
     sources:
-      - ubuntu-toolchain-r-test
       - boost-latest
-      - george-edison55-precise-backports
     packages:
-      - gcc-4.8
-      - g++-4.8
       - libboost1.55-all-dev
-      - cmake
-      - cmake-data
       - doxygen
       - graphviz
-      - build-essential
-      - git
       - pkg-config
       - libfreetype6-dev
       - libfreeimage-dev
@@ -44,11 +35,9 @@ addons:
       - libgtk2.0-dev
       - libwxgtk2.8-dev
 
-
 before_install:
   # show some information about the build host
   - cat /proc/cpuinfo | grep -m1 "model name"  # CPU model
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
 
 install:
   - export DEPS_BUILD_DIR=$HOME/deps-build
