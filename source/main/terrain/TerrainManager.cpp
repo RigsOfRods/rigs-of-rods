@@ -47,6 +47,7 @@
 #include "Water.h"
 
 #include <Terrain/OgreTerrainPaging.h>
+#include <OgreTerrainGroup.h>
 
 using namespace RoR;
 using namespace Ogre;

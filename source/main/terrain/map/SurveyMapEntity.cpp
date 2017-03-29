@@ -170,8 +170,8 @@ void SurveyMapEntity::update()
         return;
     }
 
-    Vector2 terrainSize = Vector2(gEnv->terrainManager->getMaxTerrainSize().x, gEnv->terrainManager->getMaxTerrainSize().z);
-    float wscale = mMapControl->getWindowSize().length() / terrainSize.length();
+    Vector2 m_terrain_page_size = Vector2(gEnv->terrainManager->getMaxTerrainSize().x, gEnv->terrainManager->getMaxTerrainSize().z);
+    float wscale = mMapControl->getWindowSize().length() / m_terrain_page_size.length();
 
     // TODO: Fix the icon positions based on the overview map size and zoom value
     // TODO: Split visibility calculation and position update into two functions

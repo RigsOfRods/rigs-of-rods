@@ -163,8 +163,8 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
         return;
     }
 
-    int mapsizex = terrainManager->getGeometryManager()->getMaxTerrainSize().x;
-    int mapsizez = terrainManager->getGeometryManager()->getMaxTerrainSize().z;
+    int m_terrain_size_x = terrainManager->getGeometryManager()->getMaxTerrainSize().x;
+    int m_map_size_z = terrainManager->getGeometryManager()->getMaxTerrainSize().z;
 
     Vector3 r2lastpos = Vector3::ZERO;
     Quaternion r2lastrot = Quaternion::IDENTITY;
@@ -293,7 +293,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
                 continue;
             }
             densityMap->setFilter(Forests::MAPFILTER_BILINEAR);
-            //densityMap->setMapBounds(TRect(0, 0, mapsizex, mapsizez));
+            //densityMap->setMapBounds(TRect(0, 0, m_terrain_size_x, m_map_size_z));
 
             paged_geometry_t paged;
             paged.geom = new PagedGeometry();
@@ -301,7 +301,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
             paged.geom->setCamera(gEnv->mainCamera);
             paged.geom->setPageSize(50);
             paged.geom->setInfinite();
-            Ogre::TRect<Ogre::Real> bounds = TBounds(0, 0, mapsizex, mapsizez);
+            Ogre::TRect<Ogre::Real> bounds = TBounds(0, 0, m_terrain_size_x, m_map_size_z);
             paged.geom->setBounds(bounds);
 
             //Set up LODs
@@ -314,7 +314,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
             if (max < 10)
                 max = 10;
             paged.geom->addDetailLevel<ImpostorPage>(max, max / 10);
-            TreeLoader2D* treeLoader = new TreeLoader2D(paged.geom, TBounds(0, 0, mapsizex, mapsizez));
+            TreeLoader2D* treeLoader = new TreeLoader2D(paged.geom, TBounds(0, 0, m_terrain_size_x, m_map_size_z));
             paged.geom->setPageLoader(treeLoader);
             treeLoader->setHeightFunction(&getTerrainHeight);
             if (String(ColorMap) != "none")
@@ -327,9 +327,9 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
             if (gridspacing > 0)
             {
                 // grid style
-                for (float x = 0; x < mapsizex; x += gridspacing)
+                for (float x = 0; x < m_terrain_size_x; x += gridspacing)
                 {
-                    for (float z = 0; z < mapsizez; z += gridspacing)
+                    for (float z = 0; z < m_map_size_z; z += gridspacing)
                     {
                         float density = densityMap->_getDensityAt_Unfiltered(x, z, bounds);
                         if (density < 0.8f)
@@ -358,9 +358,9 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
                 }
                 float hd = highdens;
                 // normal style, random
-                for (float x = 0; x < mapsizex; x += gridsize)
+                for (float x = 0; x < m_terrain_size_x; x += gridsize)
                 {
-                    for (float z = 0; z < mapsizez; z += gridsize)
+                    for (float z = 0; z < m_map_size_z; z += gridsize)
                     {
                         if (highdens < 0)
                             hd = Math::RangeRandom(0, -highdens);
@@ -440,7 +440,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
                 else
                     grassLayer->setRenderTechnique(static_cast<GrassTechnique>(techn), false);
 
-                grassLayer->setMapBounds(TBounds(0, 0, mapsizex, mapsizez));
+                grassLayer->setMapBounds(TBounds(0, 0, m_terrain_size_x, m_map_size_z));
 
                 if (strcmp(colorMapFilename, "none") != 0)
                 {
