@@ -62,6 +62,10 @@
 #include <algorithm>
 #include <cstring>
 
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+  #include <intrin.h>
+#endif
+
 using namespace Ogre;
 
 void cpuID(unsigned i, unsigned regs[4])
