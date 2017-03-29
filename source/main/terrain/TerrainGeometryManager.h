@@ -24,9 +24,13 @@
 #include "RoRPrerequisites.h"
 #include "ConfigFile.h"
 #include "IHeightFinder.h"
+#include "OTCFileformat.h"
 
-#include <OgreTerrain.h>
 #include <OgreVector3.h>
+#include <OgreTerrain.h>
+
+// forward
+namespace Ogre { class Terrain; class TerrainGroup; class TerrainPaging; class PageManager; }
 
 /// this class handles all interactions with the Ogre Terrain system
 class TerrainGeometryManager : public ZeroedMemoryAllocator, public IHeightFinder
@@ -35,7 +39,7 @@ public:
     TerrainGeometryManager(TerrainManager* terrainManager);
     ~TerrainGeometryManager();
 
-    void loadOgreTerrainConfig(Ogre::String filename);
+    void InitTerrain(std::string otc_filename);
 
     Ogre::TerrainGroup* getTerrainGroup() { return m_ogre_terrain_group; };
 
@@ -54,38 +58,19 @@ public:
 
 private:
 
-    struct TerrnBlendLayerDef
-    {
-        std::string  blendmap_tex_filename;
-        char         blend_mode;
-        float        alpha_value;
-    };
-
     bool getTerrainImage(int x, int y, Ogre::Image& img);
     bool loadTerrainConfig(Ogre::String filename);
     void configureTerrainDefaults();
-    void defineTerrain(int x, int y, bool flat = false);
-    void initBlendMaps(int x, int y, Ogre::Terrain* t);
+    void SetupGeometry(RoR::OTCPage& page, bool flat=false);
+    void SetupBlendMaps(RoR::OTCPage& page, Ogre::Terrain* t );
     void initTerrain();
-    void loadLayers(int x, int y, Ogre::Terrain* terrain = 0);
-    Ogre::String getPageConfigFilename(int x, int z);
-    Ogre::String getPageHeightmap(int x, int z);
+    void SetupLayers(RoR::OTCPage& page, Ogre::Terrain *terrain);
     Ogre::DataStreamPtr getPageConfig(int x, int z);
 
-    RoR::ConfigFile   m_terrain_config;
-    std::string       m_terrn_base_name;               ///< Only for loading.
-    std::string       m_pageconf_filename_format;      ///< Only for loading.
-    bool              m_terrn_disable_caching;         ///< Only for loading.
-    bool              m_was_new_geometry_generated;    ///< Only for loading.
-    bool              m_terrain_is_flat;               ///< Only for loading.
-    TerrainManager*   m_terrain_mgr;
-    size_t            m_map_size_x;
-    size_t            m_map_size_y;
-    size_t            m_map_size_z;
-    size_t            m_terrain_page_size;
-    size_t            m_terrain_world_size;
+    std::shared_ptr<RoR::OTCFile> m_spec;
+    TerrainManager*      m_terrain_mgr;
     Ogre::TerrainGroup*  m_ogre_terrain_group;
-    std::vector<TerrnBlendLayerDef>  m_terrn_blend_layers;
+    bool                 m_was_new_geometry_generated;
 
     // Terrn position lookup - ported from OGRE engine.
     Ogre::Terrain::Alignment mAlign;

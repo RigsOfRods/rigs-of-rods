@@ -47,7 +47,7 @@
 #include "Water.h"
 
 #include <Terrain/OgreTerrainPaging.h>
-#include <OgreTerrainGroup.h>
+#include <Terrain/OgreTerrainGroup.h>
 
 using namespace RoR;
 using namespace Ogre;
@@ -176,7 +176,7 @@ void TerrainManager::loadTerrain(String filename)
 
     // load the terrain geometry
     PROGRESS_WINDOW(80, _L("Loading Terrain Geometry"));
-    geometry_manager->loadOgreTerrainConfig(m_def.ogre_ter_conf_filename);
+    geometry_manager->InitTerrain(m_def.ogre_ter_conf_filename);
 
     LOG(" ===== LOADING TERRAIN WATER " + filename);
     // must happen here
@@ -636,7 +636,7 @@ void TerrainManager::initScripting()
     {
         for (std::string as_filename : m_def.as_files)
         {
-            if(ScriptEngine::getSingleton().loadScript(as_filename) == 0)
+            if (ScriptEngine::getSingleton().loadScript(as_filename) == 0)
                 loaded = true;
         }
     }

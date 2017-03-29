@@ -105,6 +105,8 @@ namespace Utils {
 std::string TrimBlanksAndLinebreaks(std::string const& input);
 
 std::string SanitizeUtf8String(std::string const& str_in);
+
+    inline std::string& TrimStr(std::string& s) { Ogre::StringUtil::trim(s); return s; }
 }
 
 namespace Color {
@@ -113,4 +115,4 @@ const Ogre::UTFString NormalColour = Ogre::UTFString("#FFFFFF");
 const Ogre::UTFString WhisperColour = Ogre::UTFString("#FFCC00");
 const Ogre::UTFString ScriptCommandColour = Ogre::UTFString("#0099FF");
 }
-}
+} // namespace RoR
