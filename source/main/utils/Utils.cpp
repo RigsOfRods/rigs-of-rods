@@ -349,5 +349,18 @@ std::string SanitizeUtf8String(std::string const& str_in)
     return str_out;
 }
 
+std::string SanitizeUtf8CString(const char* start, const char* end /* = nullptr */)
+{
+    if (end == nullptr)
+    {
+        end = (start + strlen(start));
+    }
+
+    // Cloned from UTFCPP tutorial: http://utfcpp.sourceforge.net/#fixinvalid
+    std::string str_out;
+    utf8::replace_invalid(start, end, std::back_inserter(str_out));
+    return str_out;
+}
+
 } // namespace Utils
 } // namespace RoR
