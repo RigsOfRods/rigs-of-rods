@@ -40,6 +40,7 @@
 #include "EnvironmentMap.h"
 #include "ForceFeedback.h"
 #include "GUI_LoadingWindow.h"
+#include "GUI_TeleportWindow.h"
 #include "GUIManager.h"
 #include "Heathaze.h"
 #include "IHeightFinder.h"
@@ -280,6 +281,11 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CONSOLE_TOGGLE))
     {
         gui_man->SetVisible_Console(! gui_man->IsVisible_Console());
+    }
+
+    if ((curr_truck == nullptr) && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TELEPORT_TOGGLE))
+    {
+        gui_man->SetVisible_TeleportWindow(! gui_man->IsVisible_TeleportWindow());
     }
 
     if (gui_man->IsVisible_GamePauseMenu())
@@ -1479,6 +1485,23 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
     return true;
 }
 
+void RoRFrameListener::TeleportPlayer(RoR::Terrn2Telepoint* telepoint)
+{
+    if (BeamFactory::getSingleton().getCurrentTruck() != nullptr)
+        return; // Player could enter truck while Teleport-GUI is visible
+
+    gEnv->player->setPosition(telepoint->position);
+}
+
+void RoRFrameListener::TeleportPlayerXZ(float x, float z)
+{
+    if (BeamFactory::getSingleton().getCurrentTruck() != nullptr)
+        return; // Player could enter truck while Teleport-GUI is visible
+
+    float y = gEnv->terrainManager->getHeightFinder()->getHeightAt(x, z);
+    gEnv->player->setPosition(Ogre::Vector3(x, y, z));
+}
+
 void RoRFrameListener::FinalizeTruckSpawning(Beam* local_truck, Beam* previous_truck)
 {
     if (local_truck != nullptr)
@@ -1543,6 +1566,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 #endif //SOCKETW
 
     RoR::App::GetInputEngine()->Capture();
+    const bool is_altkey_pressed =  App::GetInputEngine()->isKeyDown(OIS::KeyCode::KC_LMENU) || App::GetInputEngine()->isKeyDown(OIS::KeyCode::KC_RMENU);
     auto s = App::GetActiveSimState();
 
     //if (gEnv->collisions) 	printf("> ground model used: %s\n", gEnv->collisions->last_used_ground_model->name);
@@ -1692,6 +1716,9 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
     }
 
     RoR::App::GetGuiManager()->framestep(dt);
+
+    App::GetGuiManager()->GetTeleport()->TeleportWindowFrameStep(
+        gEnv->player->getPosition().x, gEnv->player->getPosition().z, is_altkey_pressed);
 
 #ifdef USE_ANGELSCRIPT
     ScriptEngine::getSingleton().framestep(dt);
@@ -2216,6 +2243,7 @@ void RoRFrameListener::CleanupAfterSimulation()
     loading_window->setProgress(100, _L("Unloading Terrain"));
     // hide loading window
     App::GetGuiManager()->SetVisible_LoadingWindow(false);
+    App::GetGuiManager()->GetTeleport()->Reset();
 }
 
 bool RoRFrameListener::SetupGameplayLoop()
@@ -2333,6 +2361,12 @@ bool RoRFrameListener::SetupGameplayLoop()
         App::GetGuiManager()->SetVisible_LoadingWindow(false);
         return false;
     }
+
+    App::GetGuiManager()->GetTeleport()->SetupMap(
+        this,
+        &gEnv->terrainManager->GetDef(),
+        gEnv->terrainManager->getMaxTerrainSize(),
+        gEnv->terrainManager->GetMinimapTextureName());
 
     // ========================================================================
     // Loading vehicle

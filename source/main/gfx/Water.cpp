@@ -87,7 +87,7 @@ RefractionTextureListener mRefractionListener;
 ReflectionTextureListener mReflectionListener;
 //End ugly code
 
-Water::Water(const Ogre::ConfigFile& mTerrainConfig) :
+Water::Water() :
     maxampl(0),
     free_wavetrain(0),
     visible(true),
@@ -106,9 +106,6 @@ Water::Water(const Ogre::ConfigFile& mTerrainConfig) :
     mapSize = gEnv->terrainManager->getMaxTerrainSize();
     fade = gEnv->sceneManager->getFogColour();
     waterSceneMgr = gEnv->sceneManager;
-
-    wHeight = PARSEREAL(mTerrainConfig.getSetting("WaterLine", "General"));
-    wbHeight = PARSEREAL(mTerrainConfig.getSetting("WaterBottomLine", "General"));
 
     if (mapSize.x < 1500 && mapSize.z < 1500)
         mScale = 1.5f;

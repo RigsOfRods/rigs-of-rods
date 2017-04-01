@@ -2,6 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -18,12 +19,10 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 
 #include "RoRPrerequisites.h"
-
-#include "ConfigFile.h"
+#include "Terrn2Fileformat.h"
 
 class TerrainManager : public ZeroedMemoryAllocator
 {
@@ -33,17 +32,16 @@ public:
     ~TerrainManager();
 
     void loadTerrain(Ogre::String filename);
-    void loadTerrainConfigBasics(Ogre::DataStreamPtr& ds);
 
     bool update(float dt);
 
     void setGravity(float value);
     float getGravity() { return gravity; };
 
-    Ogre::String getTerrainName() { return terrain_name; };
-    Ogre::String getGUID() { return guid; };
-    int getCategoryID() { return category_id; };
-    int getVersion() { return version; };
+    Ogre::String getTerrainName() { return m_def.name; };
+    Ogre::String getGUID() { return m_def.guid; };
+    int getCategoryID() { return m_def.category_id; };
+    int getVersion() { return m_def.version; };
     int getFarClip() { return far_clip; }
     int getPagedMode() { return paged_mode; };
     float getPagedDetailFactor() { return paged_detail_factor; };
@@ -57,7 +55,8 @@ public:
     IHeightFinder* getHeightFinder();
     IWater* getWater() { return water; };
     Ogre::Light* getMainLight() { return main_light; };
-    Ogre::Vector3 getSpawnPos() { return start_position; };
+    Ogre::Vector3 getSpawnPos() { return m_def.start_position; };
+    RoR::Terrn2Def& GetDef() { return m_def; }
 
     SkyManager* getSkyManager();
 
@@ -65,6 +64,7 @@ public:
     TerrainObjectManager* getObjectManager() { return object_manager; };
 
     ShadowManager* getShadowManager() { return shadow_manager; };
+    std::string    GetMinimapTextureName();
 
     // preloaded trucks
     void loadPreloadedTrucks();
@@ -74,39 +74,29 @@ public:
 
 protected:
 
-    RoR::ConfigFile m_terrain_config;
-
     // subsystems
     Character* character;
     Collisions* collisions;
     Dashboard* dashboard;
     Envmap* envmap;
     HDRListener* hdr_listener;
-    SurveyMapManager* survey_map;
+    SurveyMapManager* m_survey_map;
     ShadowManager* shadow_manager;
     SkyManager* sky_manager;
     TerrainGeometryManager* geometry_manager;
     TerrainObjectManager* object_manager;
     IWater* water;
     HydraxWater* hw;
+    Ogre::Light *main_light;
 
     // properties
-    Ogre::ColourValue ambient_color;
-    Ogre::ColourValue fade_color;
-    Ogre::Light* main_light;
-    Ogre::String file_hash;
-    Ogre::String guid;
-    Ogre::String ogre_terrain_config_filename;
-    Ogre::String terrain_name;
-    Ogre::Vector3 start_position;
-    std::vector<authorinfo_t> authors;
+    RoR::Terrn2Def m_def;
     float gravity;
+
     float paged_detail_factor;
-    float water_line;
-    int category_id;
     int far_clip;
     int paged_mode;
-    int version;
+
 
     // internal methods
     void initCamera();
@@ -126,7 +116,6 @@ protected:
     void initSkySubSystem();
     void initSubSystems();
     void initSunburn();
-    void initSurveyMap();
     void initVegetation();
     void initWater();
 

@@ -2,6 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -21,17 +22,13 @@
 #pragma once
 
 #include "RoRPrerequisites.h"
-
 #include "ConfigFile.h"
 #include "IHeightFinder.h"
 
 #include <OgreTerrain.h>
-#include <OgreTerrainMaterialGeneratorA.h>
-#include <OgreTerrainPaging.h>
-#include <OgreTerrainQuadTreeNode.h>
-#include <OgreTerrainGroup.h>
+#include <OgreVector3.h>
 
-// this class handles all interactions with the Ogre Terrain system
+/// this class handles all interactions with the Ogre Terrain system
 class TerrainGeometryManager : public ZeroedMemoryAllocator, public IHeightFinder
 {
 public:
@@ -40,7 +37,7 @@ public:
 
     void loadOgreTerrainConfig(Ogre::String filename);
 
-    Ogre::TerrainGroup* getTerrainGroup() { return mTerrainGroup; };
+    Ogre::TerrainGroup* getTerrainGroup() { return m_ogre_terrain_group; };
 
     float getHeightAt(float x, float z);
     float getHeightAtPoint(long x, long z);
@@ -50,54 +47,19 @@ public:
 
     Ogre::Vector3 getNormalAt(float x, float y, float z, float precision = 0.1f);
 
-    Ogre::String getCompositeMaterialName();
-
     Ogre::Vector3 getMaxTerrainSize();
-    Ogre::Vector3 getTerrainPosition();
 
     bool update(float dt);
     void updateLightMap();
 
-protected:
+private:
 
-    RoR::ConfigFile m_terrain_config;
-    Ogre::String baseName;
-    Ogre::String pageConfigFormat;
-    TerrainManager* terrainManager;
-    TerrainObjectManager* objectManager;
-    bool disableCaching;
-    bool mTerrainsImported;
-
-    int mapsizex, mapsizey, mapsizez, pageSize, terrainSize, worldSize;
-    int pageMinX, pageMaxX, pageMinZ, pageMaxZ;
-    int terrainLayers;
-
-    Ogre::Vector3 terrainPos;
-
-    bool m_is_flat;
-    Ogre::Terrain* mTerrain;
-
-    Ogre::Terrain::Alignment mAlign;
-    Ogre::Vector3 mPos;
-    Ogre::Real mBase;
-    Ogre::Real mScale;
-    Ogre::uint16 mSize;
-    Ogre::Real mWorldSize;
-    float* mHeightData;
-
-    // terrain engine specific
-    Ogre::TerrainGroup* mTerrainGroup;
-    Ogre::TerrainPaging* mTerrainPaging;
-    Ogre::PageManager* mPageManager;
-
-    typedef struct blendLayerInfo_t
+    struct TerrnBlendLayerDef
     {
-        Ogre::String blendMapTextureFilename;
-        char blendMode;
-        float alpha;
-    } blendLayerInfo_t;
-
-    std::vector<blendLayerInfo_t> blendInfo;
+        std::string  blendmap_tex_filename;
+        char         blend_mode;
+        float        alpha_value;
+    };
 
     bool getTerrainImage(int x, int y, Ogre::Image& img);
     bool loadTerrainConfig(Ogre::String filename);
@@ -109,5 +71,29 @@ protected:
     Ogre::String getPageConfigFilename(int x, int z);
     Ogre::String getPageHeightmap(int x, int z);
     Ogre::DataStreamPtr getPageConfig(int x, int z);
+
+    RoR::ConfigFile   m_terrain_config;
+    std::string       m_terrn_base_name;               ///< Only for loading.
+    std::string       m_pageconf_filename_format;      ///< Only for loading.
+    bool              m_terrn_disable_caching;         ///< Only for loading.
+    bool              m_was_new_geometry_generated;    ///< Only for loading.
+    bool              m_terrain_is_flat;               ///< Only for loading.
+    TerrainManager*   m_terrain_mgr;
+    size_t            m_map_size_x;
+    size_t            m_map_size_y;
+    size_t            m_map_size_z;
+    size_t            m_terrain_page_size;
+    size_t            m_terrain_world_size;
+    Ogre::TerrainGroup*  m_ogre_terrain_group;
+    std::vector<TerrnBlendLayerDef>  m_terrn_blend_layers;
+
+    // Terrn position lookup - ported from OGRE engine.
+    Ogre::Terrain::Alignment mAlign;
+    Ogre::Vector3 mPos;
+    Ogre::Real mBase;
+    Ogre::Real mScale;
+    Ogre::uint16 mSize;
+    float* mHeightData;
+
 };
 

@@ -25,6 +25,8 @@
 
 #include <Ogre.h>
 
+namespace RoR { struct Terrn2Telepoint; } // Forward decl.
+
 class RoRFrameListener: public Ogre::FrameListener, public Ogre::WindowEventListener, public ZeroedMemoryAllocator
 {
 public:
@@ -47,12 +49,14 @@ public:
     float  StopRaceTimer         ();
     bool   LoadTerrain           (); ///< Reads GVar 'sim_terrain_pending'
 
-    // Top menubar interface
-    void   ReloadCurrentTruck    ();
+    // GUI interface
+    void   ReloadCurrentTruck    (); // Top menubar
+    void   TeleportPlayer        (RoR::Terrn2Telepoint* telepoint); // Teleport UI
+    void   TeleportPlayerXZ      (float x, float y); // Teleport UI
 
     // BeamFactory callback
     void   ChangedCurrentVehicle (Beam* previous_vehicle, Beam* current_vehicle);
-    
+
     /// @return True if everything was prepared OK and simulation may start.
     bool   SetupGameplayLoop     ();
     void   EnterGameplayLoop     ();

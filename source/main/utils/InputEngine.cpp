@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -1611,6 +1611,12 @@ eventInfo_t eventInfo[] = {
         EV_COMMON_FULLSCREEN_TOGGLE,
         "Keyboard EXPL+ALT+RETURN",
         _L("toggle between windowed and fullscreen mode")
+    },
+    {
+        "COMMON_TELEPORT_TOGGLE",
+        EV_COMMON_TELEPORT_TOGGLE,
+        "Keyboard EXPL+F2", // Only in character mode
+        _L("enter/exit teleport mode")
     },
     {
         "CAMERA_FREE_MODE_FIX",

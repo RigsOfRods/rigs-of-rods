@@ -80,6 +80,11 @@ void SurveyMapManager::init()
     mMapCenterThreshold = FSETTING("SurveyMapCenterThreshold", 5.0f);
 }
 
+std::string SurveyMapManager::GetMinimapTextureName()
+{
+    return mMapTextureCreator->getTextureName();
+}
+
 SurveyMapEntity* SurveyMapManager::createMapEntity(String type)
 {
     SurveyMapEntity* entity = new SurveyMapEntity(this, type, mMapTexture);
