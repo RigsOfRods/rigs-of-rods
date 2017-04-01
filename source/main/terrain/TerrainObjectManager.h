@@ -52,14 +52,27 @@ public:
 
     bool updateAnimatedObjects(float dt);
 
-    typedef struct localizer_t
+    void ProcessTree(
+        float yawfrom, float yawto,
+        float scalefrom, float scaleto,
+        char* ColorMap, char* DensityMap, char* treemesh, char* treeCollmesh,
+        float gridspacing, float highdens,
+        int minDist, int maxDist, int mapsizex, int mapsizez);
+
+    void ProcessGrass(
+        float SwaySpeed, float SwayLength, float SwayDistribution, float Density,
+        float minx, float miny, float minH, float maxx, float maxy, float maxH,
+        char* grassmat, char* colorMapFilename, char* densityMapFilename,
+        int growtechnique, int techn, int range, int mapsizex, int mapsizez);
+
+    struct localizer_t
     {
         int type;
         Ogre::Vector3 position;
         Ogre::Quaternion rotation;
-    } localizer_t;
+    };
 
-    typedef struct object_t
+    struct object_t
     {
         Ogre::String name;
         Ogre::Vector3 position;
@@ -67,7 +80,7 @@ public:
         Ogre::Vector3 initial_position;
         Ogre::Vector3 initial_rotation;
         Ogre::SceneNode* node;
-    } object_t;
+    };
 
     std::vector<object_t> getObjects() { return objects; };
 
@@ -77,13 +90,13 @@ protected:
 
     TerrainManager* terrainManager;
 
-    typedef struct
+    struct animated_object_t
     {
         Ogre::Entity* ent;
         Ogre::SceneNode* node;
         Ogre::AnimationState* anim;
         float speedfactor;
-    } animated_object_t;
+    };
 
     Ogre::StaticGeometry* bakesg;
     ProceduralManager* proceduralManager;
@@ -91,7 +104,7 @@ protected:
     Road* road;
     Ogre::SceneNode* bakeNode;
 
-    typedef struct
+    struct truck_prepare_t
     {
         float px;
         float py;
@@ -100,7 +113,7 @@ protected:
         char name[256];
         bool ismachine;
         bool freePosition;
-    } truck_prepare_t;
+    };
 
     std::vector<truck_prepare_t> truck_preload;
 
@@ -108,11 +121,11 @@ protected:
     bool use_rt_shader_system;
 
 #ifdef USE_PAGED
-    typedef struct
+    struct paged_geometry_t
     {
         Forests::PagedGeometry* geom;
         void* loader;
-    } paged_geometry_t;
+    };
 
     std::vector<paged_geometry_t> pagedGeometry;
     Forests::TreeLoader2D* treeLoader;
@@ -126,14 +139,14 @@ protected:
     std::vector<animated_object_t> animatedObjects;
     std::vector<MeshObject*> meshObjects;
 
-    typedef struct loadedObject_t
+    struct loadedObject_t
     {
         Ogre::SceneNode* sceneNode;
         Ogre::String instanceName;
         bool enabled;
         std::vector<int> collBoxes;
         std::vector<int> collTris;
-    } loadedObject_t;
+    };
 
     std::map<std::string, loadedObject_t> loadedObjects;
 

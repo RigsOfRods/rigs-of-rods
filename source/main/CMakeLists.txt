@@ -167,7 +167,7 @@ set( SOURCE_FILES
   gui/panels/GUI_SimUtils.{h,cpp}
   gui/panels/GUI_SimUtilsLayout.{h,cpp}
   gui/panels/GUI_TeleportWindow.{h,cpp}
-  gui/panels/GUI_TeleportWindowLayout.{h,cpp}     
+  gui/panels/GUI_TeleportWindowLayout.{h,cpp}
   gui/panels/GUI_VehicleDescription.{h,cpp}
   gui/panels/GUI_VehicleDescriptionLayout.{h,cpp}
   network/Network.{h,cpp}
@@ -218,6 +218,7 @@ set( SOURCE_FILES
   resources/rig_def_fileformat/RigDef_Serializer.{h,cpp}
   resources/rig_def_fileformat/RigDef_Validator.{h,cpp}
   resources/terrn2_fileformat/Terrn2Fileformat.{h,cpp}
+  resources/tobj_fileformat/TObjFileFormat.{h,cpp}
   terrain/IHeightFinder.h
   terrain/OgreTerrainPSSMMaterialGenerator.{h,cpp}
   terrain/TerrainGeometryManager.{h,cpp}
@@ -407,6 +408,7 @@ target_include_directories( ${BINNAME} PRIVATE
  resources/otc_fileformat/
  resources/rig_def_fileformat
  resources/terrn2_fileformat
+ resources/tobj_fileformat
  rig_editor
  rig_editor/rig_data
  scripting
