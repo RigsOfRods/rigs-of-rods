@@ -31,6 +31,7 @@
 #include "GUIManager.h"
 #include "GUI_LoadingWindow.h"
 #include "MeshObject.h"
+#include "ODefFileformat.h"
 #include "ProceduralManager.h"
 #include "Road2.h"
 #include "Settings.h"
@@ -195,10 +196,6 @@ void GenerateGridAndPutToScene(Ogre::Vector3 position)
 
 void TerrainObjectManager::loadObjectConfigFile(Ogre::String tobj_name)
 {
-#ifdef USE_MYGUI
-    // Temporarily hacked
-    RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(50, _L("Loading Terrain Objects"));
-#endif //MYGUI
     std::shared_ptr<TObjFile> tobj;
     try
     {
@@ -279,9 +276,6 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String tobj_name)
     {
         proceduralManager->addObject(po);
     }
-            Ogre::ColourValue BackgroundColour = Ogre::ColourValue::White;//Ogre::ColourValue(0.1337f, 0.1337f, 0.1337f, 1.0f);
-            Ogre::ColourValue GridColour = Ogre::ColourValue(0.2f, 0.2f, 0.2f, 1.0f);
-
 
     // Vehicles
     for (TObjVehicle veh : tobj->vehicles)
@@ -355,22 +349,22 @@ void TerrainObjectManager::ProcessTree(
     //Set up LODs
     //trees->addDetailLevel<EntityPage>(50);
     float min = minDist * terrainManager->getPagedDetailFactor();
-            if (min < 10)
-                min = 10;
-            paged.geom->addDetailLevel<BatchPage>(min, min / 2);
-            float max = maxDist * terrainManager->getPagedDetailFactor();
-            if (max < 10)
-                max = 10;
-            paged.geom->addDetailLevel<ImpostorPage>(max, max / 10);
+    if (min < 10)
+        min = 10;
+    paged.geom->addDetailLevel<BatchPage>(min, min / 2);
+    float max = maxDist * terrainManager->getPagedDetailFactor();
+    if (max < 10)
+        max = 10;
+    paged.geom->addDetailLevel<ImpostorPage>(max, max / 10);
     TreeLoader2D *treeLoader = new TreeLoader2D(paged.geom, TBounds(0, 0, mapsizex, mapsizez));
-            paged.geom->setPageLoader(treeLoader);
-            treeLoader->setHeightFunction(&getTerrainHeight);
-            if (String(ColorMap) != "none")
-            {
-                treeLoader->setColorMap(ColorMap);
-            }
+    paged.geom->setPageLoader(treeLoader);
+    treeLoader->setHeightFunction(&getTerrainHeight);
+    if (String(ColorMap) != "none")
+    {
+        treeLoader->setColorMap(ColorMap);
+    }
 
-            Entity* curTree = gEnv->sceneManager->createEntity(String("paged_") + treemesh + TOSTRING(pagedGeometry.size()), treemesh);
+    Entity* curTree = gEnv->sceneManager->createEntity(String("paged_") + treemesh + TOSTRING(pagedGeometry.size()), treemesh);
 
     if (gridspacing > 0)
     {
@@ -395,8 +389,8 @@ void TerrainObjectManager::ProcessTree(
                 }
             }
         }
-
-    } else
+    }
+    else
     {
         float gridsize = 10;
         if (gridspacing < 0 && gridspacing != 0)
@@ -467,8 +461,6 @@ void TerrainObjectManager::ProcessGrass(
         grassLayer->setSwayLength(SwayLength);
         grassLayer->setSwayDistribution(SwayDistribution);
 
-        //String grassdensityTextureFilename = String(DensityMap);
-
         grassLayer->setDensity(Density * terrainManager->getPagedDetailFactor());
         if (techn>10)
             grassLayer->setRenderTechnique(static_cast<GrassTechnique>(techn-10), true);
@@ -488,9 +480,6 @@ void TerrainObjectManager::ProcessGrass(
             grassLayer->setDensityMap(densityMapFilename);
             grassLayer->setDensityMapFilter(MAPFILTER_BILINEAR);
         }
-
-        //grassLayer->setMinimumSize(0.5,0.5);
-        //grassLayer->setMaximumSize(1.0, 1.0);
 
         grassLayer->setMinimumSize(minx, miny);
         grassLayer->setMaximumSize(maxx, maxy);
@@ -604,20 +593,6 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
     if (name.empty())
         return;
 
-    char mesh[1024] = {};
-    char line[1024] = {};
-    char collmesh[1024] = {};
-    Vector3 l(Vector3::ZERO);
-    Vector3 h(Vector3::ZERO);
-    Vector3 dr(Vector3::ZERO);
-    Vector3 fc(Vector3::ZERO);
-    Vector3 sc(Vector3::ZERO);
-    Vector3 sr(Vector3::ZERO);
-    bool forcecam = false;
-    bool ismovable = false;
-
-    int event_filter = EVENT_ALL;
-
     Quaternion rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
 
     // try to load with UID first!
@@ -634,38 +609,31 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
     }
 
     if (!RoR::App::GetCacheSystem()->checkResourceLoaded(odefname, odefgroup))
+    {
         if (!odefFound)
         {
             LOG("Error while loading Terrain: could not find required .odef file: " + odefname + ". Ignoring entry.");
             return;
         }
+    }
 
     DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource(odefname, odefgroup);
 
-    ds->readLine(mesh, 1023);
-    if (String(mesh) == "LOD")
-    {
-        // LOD line is obsolete
-        ds->readLine(mesh, 1023);
-    }
-
-    //scale
-    ds->readLine(line, 1023);
-    sscanf(line, "%f, %f, %f", &sc.x, &sc.y, &sc.z);
-    String entity_name = "object" + TOSTRING(objcounter) + "(" + name + ")";
-    RoR::Utils::SanitizeUtf8String(entity_name);
-    objcounter++;
+    ODefParser parser;
+    parser.Prepare();
+    parser.ProcessOgreStream(ds.get());
+    std::shared_ptr<ODefFile> odef = parser.Finalize();
 
     SceneNode* tenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
 
     MeshObject* mo = NULL;
-    if (String(mesh) != "none")
+    if (odef->header.mesh_name != "none")
     {
-        mo = new MeshObject(mesh, entity_name, tenode, NULL, background_loading);
+        mo = new MeshObject(odef->header.mesh_name, odef->header.entity_name, tenode, NULL, background_loading);
         meshObjects.push_back(mo);
     }
 
-    tenode->setScale(sc);
+    tenode->setScale(odef->header.scale);
     tenode->setPosition(pos);
     tenode->rotate(rotation);
     tenode->pitch(Degree(-90));
@@ -699,449 +667,267 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
         }
     }
 
-    //collision box(es)
-    bool virt = false;
-    bool rotating = false;
-    bool classic_ref = true;
-    // everything is of concrete by default
-    ground_model_t* gm = gEnv->collisions->getGroundModelByString("concrete");
-    char eventname[256] = {};
-    while (!ds->eof())
+    for (ODef::Localizer loc : odef->localizers)
     {
-        size_t ll = ds->readLine(line, 1023);
+        int type;
+        switch (loc)
+        {
+        case ODef::Localizer::HORIZONTAL:  type = Autopilot::LOCALIZER_HORIZONTAL; break;
+        case ODef::Localizer::VERTICAL:    type = Autopilot::LOCALIZER_VERTICAL;   break;
+        case ODef::Localizer::NDB:         type = Autopilot::LOCALIZER_NDB;        break;
+        case ODef::Localizer::VOR:         type = Autopilot::LOCALIZER_VOR;        break;
+        default: continue; // Invalid - skip this
+        }
+        localizers[free_localizer].position=Vector3(pos.x,pos.y,pos.z);
+        localizers[free_localizer].rotation=rotation;
+        localizers[free_localizer].type = type;
+        free_localizer++;
+    }
 
-        // little workaround to trim it
-        String line_str = String(line);
-        Ogre::StringUtil::trim(line_str);
-        RoR::Utils::SanitizeUtf8String(line_str);
+    if (odef->mode_standard)
+    {
+        tenode->pitch(Degree(90));
+    }
 
-        const char* ptline = line_str.c_str();
-        if (ll == 0 || line[0] == '/' || line[0] == ';')
-            continue;
-
-        if (!strcmp("end", ptline))
-            break;
-        if (!strcmp("movable", ptline))
-        {
-            ismovable = true;
-            continue;
-        };
-        if (!strcmp("localizer-h", ptline))
-        {
-            localizers[free_localizer].position = Vector3(pos.x, pos.y, pos.z);
-            localizers[free_localizer].rotation = rotation;
-            localizers[free_localizer].type = Autopilot::LOCALIZER_HORIZONTAL;
-            free_localizer++;
-            continue;
-        }
-        if (!strcmp("localizer-v", ptline))
-        {
-            localizers[free_localizer].position = Vector3(pos.x, pos.y, pos.z);
-            localizers[free_localizer].rotation = rotation;
-            localizers[free_localizer].type = Autopilot::LOCALIZER_VERTICAL;
-            free_localizer++;
-            continue;
-        }
-        if (!strcmp("localizer-ndb", ptline))
-        {
-            localizers[free_localizer].position = Vector3(pos.x, pos.y, pos.z);
-            localizers[free_localizer].rotation = rotation;
-            localizers[free_localizer].type = Autopilot::LOCALIZER_NDB;
-            free_localizer++;
-            continue;
-        }
-        if (!strcmp("localizer-vor", ptline))
-        {
-            localizers[free_localizer].position = Vector3(pos.x, pos.y, pos.z);
-            localizers[free_localizer].rotation = rotation;
-            localizers[free_localizer].type = Autopilot::LOCALIZER_VOR;
-            free_localizer++;
-            continue;
-        }
-        if (!strcmp("standard", ptline))
-        {
-            classic_ref = false;
-            tenode->pitch(Degree(90));
-            continue;
-        };
-        if (!strncmp("sound", ptline, 5))
-        {
 #ifdef USE_OPENAL
-            if (!SoundScriptManager::getSingleton().isDisabled())
-            {
-                char tmp[255] = "";
-                sscanf(ptline, "sound %s", tmp);
-                SoundScriptInstance* sound = SoundScriptManager::getSingleton().createInstance(tmp, MAX_TRUCKS + 1, tenode);
-                sound->setPosition(tenode->getPosition(), Vector3::ZERO);
-                sound->start();
-            }
+    if (!SoundScriptManager::getSingleton().isDisabled())
+    {
+        for (std::string& snd_name : odef->sounds)
+        {
+            SoundScriptInstance *sound = SoundScriptManager::getSingleton().createInstance(snd_name, MAX_TRUCKS+1, tenode);
+            sound->setPosition(tenode->getPosition(), Vector3::ZERO);
+            sound->start();
+        }
+    }
 #endif //USE_OPENAL
-            continue;
-        }
-        if (!strcmp("beginbox", ptline) || !strcmp("beginmesh", ptline))
-        {
-            dr = Vector3::ZERO;
-            rotating = false;
-            virt = false;
-            forcecam = false;
-            event_filter = EVENT_NONE;
-            eventname[0] = 0;
-            collmesh[0] = 0;
-            gm = gEnv->collisions->getGroundModelByString("concrete");
-            continue;
-        };
-        if (!strncmp("boxcoords", ptline, 9))
-        {
-            sscanf(ptline, "boxcoords %f, %f, %f, %f, %f, %f", &l.x, &h.x, &l.y, &h.y, &l.z, &h.z);
-            continue;
-        }
-        if (!strncmp("mesh", ptline, 4))
-        {
-            sscanf(ptline, "mesh %s", collmesh);
-            continue;
-        }
-        if (!strncmp("rotate", ptline, 6))
-        {
-            sscanf(ptline, "rotate %f, %f, %f", &sr.x, &sr.y, &sr.z);
-            rotating = true;
-            continue;
-        }
-        if (!strncmp("forcecamera", ptline, 11))
-        {
-            sscanf(ptline, "forcecamera %f, %f, %f", &fc.x, &fc.y, &fc.z);
-            forcecam = true;
-            continue;
-        }
-        if (!strncmp("direction", ptline, 9))
-        {
-            sscanf(ptline, "direction %f, %f, %f", &dr.x, &dr.y, &dr.z);
-            continue;
-        }
-        if (!strncmp("frictionconfig", ptline, 14) && strlen(ptline) > 15)
-        {
-            // load a custom friction config
-            gEnv->collisions->loadGroundModelsConfigFile(String(ptline + 15));
-            continue;
-        }
-        if ((!strncmp("stdfriction", ptline, 11) || !strncmp("usefriction", ptline, 11)) && strlen(ptline) > 12)
-        {
-            String modelName = String(ptline + 12);
-            gm = gEnv->collisions->getGroundModelByString(modelName);
-            continue;
-        }
-        if (!strcmp("virtual", ptline))
-        {
-            virt = true;
-            continue;
-        };
-        if (!strncmp("event", ptline, 5))
-        {
-            char ts[256];
-            ts[0] = 0;
-            sscanf(ptline, "event %s %s", eventname, ts);
-            if (!strncmp(ts, "avatar", 6))
-                event_filter = EVENT_AVATAR;
-            else if (!strncmp(ts, "truck", 5))
-                event_filter = EVENT_TRUCK;
-            else if (!strncmp(ts, "airplane", 8))
-                event_filter = EVENT_AIRPLANE;
-            else if (!strncmp(ts, "boat", 8))
-                event_filter = EVENT_BOAT;
-            else if (!strncmp(ts, "delete", 8))
-                event_filter = EVENT_DELETE;
 
-            // fallback
-            if (strlen(ts) == 0)
-                event_filter = EVENT_ALL;
+    for (std::string& gmodel_file: odef->groundmodel_files)
+    {
+        gEnv->collisions->loadGroundModelsConfigFile(gmodel_file);
+    }
 
-            // hack to avoid fps drops near spawnzones
-            if (!strncmp(eventname, "spawnzone", 9))
-                event_filter = EVENT_AVATAR;
+    for (ODefCollisionBox& cbox : odef->collision_boxes)
+    {
+        int boxnum = gEnv->collisions->addCollisionBox(
+            tenode, cbox.is_rotating, cbox.is_virtual, pos, rot,
+            cbox.aabb_min, cbox.aabb_max, cbox.box_rot, cbox.event_name,
+            instancename, cbox.force_cam_pos, cbox.cam_pos,
+            cbox.scale, cbox.direction, cbox.event_filter, scripthandler);
 
-            continue;
-        }
-        if (!strcmp("endbox", ptline))
-        {
-            if (enable_collisions)
-            {
-                const String eventnameStr = eventname;
-                int boxnum = gEnv->collisions->addCollisionBox(tenode, rotating, virt, pos, rot, l, h, sr, eventnameStr, instancename, forcecam, fc, sc, dr, event_filter, scripthandler);
-                obj->collBoxes.push_back((boxnum));
-            }
-            continue;
-        }
-        if (!strcmp("endmesh", ptline))
-        {
-            gEnv->collisions->addCollisionMesh(collmesh, Vector3(pos.x, pos.y, pos.z), tenode->getOrientation(), sc, gm, &(obj->collTris));
-            continue;
-        }
+        obj->collBoxes.push_back(boxnum);
+    }
 
-        if (!strncmp("particleSystem", ptline, 14) && tenode)
-        {
-            float x = 0, y = 0, z = 0, scale = 0;
-            char pname[255] = "", sname[255] = "";
-            int res = sscanf(ptline, "particleSystem %f, %f, %f, %f, %s %s", &scale, &x, &y, &z, pname, sname);
-            if (res != 6)
-                continue;
+    for (ODefCollisionMesh& cmesh : odef->collision_meshes)
+    {
+        auto gm = gEnv->collisions->getGroundModelByString(cmesh.groundmodel_name);
+        gEnv->collisions->addCollisionMesh(
+            cmesh.mesh_name, pos, tenode->getOrientation(),
+            cmesh.scale, gm, &(obj->collTris));
+    }
 
-            // hacky: prevent duplicates
-            String paname = String(pname);
-            while (gEnv->sceneManager->hasParticleSystem(paname))
-                paname += "_";
+    for (ODefParticleSys& psys : odef->particle_systems)
+    {
 
-            // create particle system
-            ParticleSystem* pParticleSys = gEnv->sceneManager->createParticleSystem(paname, String(sname));
-            pParticleSys->setCastShadows(false);
-            pParticleSys->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
+        // hacky: prevent duplicates
+        String paname = String(psys.instance_name);
+        while (gEnv->sceneManager->hasParticleSystem(paname))
+            paname += "_";
 
-            // Some affectors may need its instance name (e.g. for script feedback purposes)
+        // create particle system
+        ParticleSystem* pParticleSys = gEnv->sceneManager->createParticleSystem(paname, String(psys.template_name));
+        pParticleSys->setCastShadows(false);
+        pParticleSys->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
+
+        // Some affectors may need its instance name (e.g. for script feedback purposes)
 #ifdef USE_ANGELSCRIPT
-            unsigned short affCount = pParticleSys->getNumAffectors();
-            ParticleAffector* pAff;
-            for (unsigned short i = 0; i < affCount; ++i)
+        unsigned short affCount = pParticleSys->getNumAffectors();
+        ParticleAffector* pAff;
+        for (unsigned short i = 0; i < affCount; ++i)
+        {
+            pAff = pParticleSys->getAffector(i);
+            if (pAff->getType() == "ExtinguishableFire")
             {
-                pAff = pParticleSys->getAffector(i);
-                if (pAff->getType() == "ExtinguishableFire")
-                {
-                    ((ExtinguishableFireAffector*)pAff)->setInstanceName(obj->instanceName);
-                }
+                ((ExtinguishableFireAffector*)pAff)->setInstanceName(obj->instanceName);
             }
+        }
 #endif // USE_ANGELSCRIPT
 
-            SceneNode* sn = tenode->createChildSceneNode();
-            sn->attachObject(pParticleSys);
-            sn->pitch(Degree(90));
-            continue;
-        }
+        SceneNode* sn = tenode->createChildSceneNode();
+        sn->attachObject(pParticleSys);
+        sn->pitch(Degree(90));
+    }
 
-        if (!strncmp("setMeshMaterial", ptline, 15))
+    if (!odef->mat_name.empty())
+    {
+        if (mo->getEntity())
         {
-            char mat[256] = "";
-            sscanf(ptline, "setMeshMaterial %s", mat);
-            if (mo->getEntity() && strnlen(mat, 250) > 0)
-            {
-                mo->getEntity()->setMaterialName(String(mat));
-            }
-            continue;
+            mo->getEntity()->setMaterialName(odef->mat_name);
         }
-        if (!strncmp("generateMaterialShaders", ptline, 23))
-        {
-            char mat[256] = "";
-            sscanf(ptline, "generateMaterialShaders %s", mat);
-            if (use_rt_shader_system)
-            {
-                Ogre::RTShader::ShaderGenerator::getSingleton().createShaderBasedTechnique(String(mat), Ogre::MaterialManager::DEFAULT_SCHEME_NAME, Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
-                Ogre::RTShader::ShaderGenerator::getSingleton().invalidateMaterial(RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME, String(mat));
-            }
+    }
 
-            continue;
-        }
-        if (!strncmp("playanimation", ptline, 13) && mo)
+    if (use_rt_shader_system && !odef->mat_name_generate.empty())
+    {
+        Ogre::RTShader::ShaderGenerator::getSingleton().createShaderBasedTechnique(odef->mat_name_generate, Ogre::MaterialManager::DEFAULT_SCHEME_NAME, Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
+        Ogre::RTShader::ShaderGenerator::getSingleton().invalidateMaterial(RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME, String(odef->mat_name_generate));
+    }
+
+    for (ODefAnimation& anim : odef->animations)
+    {
+        if (tenode && mo->getEntity())
         {
-            char animname[256] = "";
-            float speedfactorMin = 0, speedfactorMax = 0;
-            sscanf(ptline, "playanimation %f, %f, %s", &speedfactorMin, &speedfactorMax, animname);
-            if (tenode && mo->getEntity() && strnlen(animname, 250) > 0)
+            AnimationStateSet *s = mo->getEntity()->getAllAnimationStates();
+            String anim_name_str(anim.name);
+            if (!s->hasAnimationState(anim_name_str))
             {
-                AnimationStateSet* s = mo->getEntity()->getAllAnimationStates();
-                if (!s->hasAnimationState(String(animname)))
-                {
-                    LOG("[ODEF] animation '" + String(animname) + "' for mesh: '" + String(mesh) + "' in odef file '" + name + ".odef' not found!");
-                    continue;
-                }
-                animated_object_t ao;
-                ao.node = tenode;
-                ao.ent = mo->getEntity();
-                ao.speedfactor = speedfactorMin;
-                if (speedfactorMin != speedfactorMax)
-                    ao.speedfactor = Math::RangeRandom(speedfactorMin, speedfactorMax);
+                LOG("[ODEF] animation '" + anim_name_str + "' for mesh: '" + odef->header.mesh_name + "' in odef file '" + name + ".odef' not found!");
+                //continue;
+            }
+            animated_object_t ao;
+            ao.node = tenode;
+            ao.ent = mo->getEntity();
+            ao.speedfactor = anim.speed_min;
+            if (anim.speed_min != anim.speed_max)
+                ao.speedfactor = Math::RangeRandom(anim.speed_min, anim.speed_max);
+            ao.anim = 0;
+            try
+            {
+                ao.anim = mo->getEntity()->getAnimationState(anim_name_str);
+            } catch (...)
+            {
                 ao.anim = 0;
-                try
-                {
-                    ao.anim = mo->getEntity()->getAnimationState(String(animname));
-                }
-                catch (...)
-                {
-                    ao.anim = 0;
-                }
-                if (!ao.anim)
-                {
-                    LOG("[ODEF] animation '" + String(animname) + "' for mesh: '" + String(mesh) + "' in odef file '" + name + ".odef' not found!");
-                    continue;
-                }
-                ao.anim->setEnabled(true);
-                animatedObjects.push_back(ao);
             }
-            continue;
+            if (!ao.anim)
+            {
+                LOG("[ODEF] animation '" + anim_name_str + "' for mesh: '" + odef->header.mesh_name + "' in odef file '" + name + ".odef' not found!");
+                continue;
+            }
+            ao.anim->setEnabled(true);
+            animatedObjects.push_back(ao);
         }
-        if (!strncmp("drawTextOnMeshTexture", ptline, 21) && mo)
+    }
+
+    for (ODefTexPrint& tex_print : odef->texture_prints)
+    {
+        if (!mo->getEntity())
+            continue;
+        String matName = mo->getEntity()->getSubEntity(0)->getMaterialName();
+        MaterialPtr m = MaterialManager::getSingleton().getByName(matName);
+        if (m.getPointer() == 0)
         {
-            if (!mo->getEntity())
-                continue;
-            String matName = mo->getEntity()->getSubEntity(0)->getMaterialName();
-            MaterialPtr m = MaterialManager::getSingleton().getByName(matName);
-            if (m.getPointer() == 0)
-            {
-                LOG("[ODEF] problem with drawTextOnMeshTexture command: mesh material not found: "+odefname+" : "+String(ptline));
-                continue;
-            }
-            String texName = m->getTechnique(0)->getPass(0)->getTextureUnitState(0)->getTextureName();
-            Texture* background = (Texture *)TextureManager::getSingleton().getByName(texName).getPointer();
-            if (!background)
-            {
-                LOG("[ODEF] problem with drawTextOnMeshTexture command: mesh texture not found: "+odefname+" : "+String(ptline));
-                continue;
-            }
-
-            static int textureNumber = 0;
-            textureNumber++;
-            char tmpTextName[256] = "", tmpMatName[256] = "";
-            sprintf(tmpTextName, "TextOnTexture_%d_Texture", textureNumber);
-            sprintf(tmpMatName, "TextOnTexture_%d_Material", textureNumber); // Make sure the texture is not WRITE_ONLY, we need to read the buffer to do the blending with the font (get the alpha for example)
-            TexturePtr texture = TextureManager::getSingleton().createManual(tmpTextName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, (Ogre::uint)background->getWidth(), (Ogre::uint)background->getHeight(), MIP_UNLIMITED, PF_X8R8G8B8, Ogre::TU_STATIC | Ogre::TU_AUTOMIPMAP);
-            if (texture.getPointer() == 0)
-            {
-                LOG("[ODEF] problem with drawTextOnMeshTexture command: could not create texture: "+odefname+" : "+String(ptline));
-                continue;
-            }
-
-            float x = 0, y = 0, w = 0, h = 0;
-            float a = 0, r = 0, g = 0, b = 0;
-            int fs = 40, fdpi = 144;
-            char fontname[256] = "";
-            char text[256] = "";
-            char option = 'l';
-            int res = sscanf(ptline, "drawTextOnMeshTexture %f, %f, %f, %f, %f, %f, %f, %f, %c, %i, %i, %s %s", &x, &y, &w, &h, &r, &g, &b, &a, &option, &fs, &fdpi, fontname, text);
-            if (res < 13)
-            {
-                LOG("[ODEF] problem with drawTextOnMeshTexture command: "+odefname+" : "+String(ptline));
-                continue;
-            }
-
-            // check if we got a template argument
-            if (!strncmp(text, "{{argument1}}", 13))
-                strncpy(text, instancename.c_str(), 250);
-
-            // replace '_' with ' '
-            char* text_pointer = text;
-            while (*text_pointer != 0)
-            {
-                if (*text_pointer == '_')
-                    *text_pointer = ' ';
-                text_pointer++;
-            };
-
-            Font* font = (Font *)FontManager::getSingleton().getByName(String(fontname)).getPointer();
-            if (!font)
-            {
-                LOG("[ODEF] problem with drawTextOnMeshTexture command: font not found: "+odefname+" : "+String(ptline));
-                continue;
-            }
-
-            //Draw the background to the new texture
-            texture->getBuffer()->blit(background->getBuffer());
-
-            x = background->getWidth() * x;
-            y = background->getHeight() * y;
-            w = background->getWidth() * w;
-            h = background->getHeight() * h;
-
-            Image::Box box = Image::Box((size_t)x, (size_t)y, (size_t)(x + w), (size_t)(y + h));
-            WriteToTexture(String(text), texture, box, font, ColourValue(r, g, b, a), fs, fdpi, option);
-
-            // we can save it to disc for debug purposes:
-            //SaveImage(texture, "test.png");
-
-            m->clone(tmpMatName);
-            MaterialPtr mNew = MaterialManager::getSingleton().getByName(tmpMatName);
-            mNew->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(tmpTextName);
-
-            mo->getEntity()->setMaterialName(String(tmpMatName));
+            LOG("[ODEF] problem with drawTextOnMeshTexture command: mesh material not found: "+odefname+" : "+matName);
             continue;
         }
-
-        if (!strncmp("spotlight", ptline, 9))
+        String texName = m->getTechnique(0)->getPass(0)->getTextureUnitState(0)->getTextureName();
+        Texture* background = (Texture *)TextureManager::getSingleton().getByName(texName).getPointer();
+        if (!background)
         {
-            Vector3 lpos, ldir;
-            float lrange = 10, innerAngle = 45, outerAngle = 45;
-            ColourValue lcol;
-            String lname = "spotlight_" + TOSTRING(Math::RangeRandom(1000, 9999));
-
-            int res = sscanf(ptline, "spotlight %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f",
-                &lpos.x, &lpos.y, &lpos.z, &ldir.x, &ldir.y, &ldir.z, &lcol.r, &lcol.g, &lcol.b, &lrange, &innerAngle, &outerAngle);
-            if (res < 12)
-            {
-                LOG("ODEF: problem with light command: " + odefname + " : " + String(ptline));
-                continue;
-            }
-
-            Light* spotLight = gEnv->sceneManager->createLight(lname);
-
-            spotLight->setType(Light::LT_SPOTLIGHT);
-            spotLight->setPosition(lpos);
-            spotLight->setDirection(ldir);
-            spotLight->setAttenuation(lrange, 1.0, 0.3, 0.0);
-            spotLight->setDiffuseColour(lcol);
-            spotLight->setSpecularColour(lcol);
-            spotLight->setSpotlightRange(Degree(innerAngle), Degree(outerAngle));
-
-            BillboardSet* lflare = gEnv->sceneManager->createBillboardSet(1);
-            lflare->createBillboard(lpos, lcol);
-            lflare->setMaterialName("tracks/flare");
-            lflare->setVisibilityFlags(DEPTHMAP_DISABLED);
-
-            float fsize = Math::Clamp(lrange / 10, 0.2f, 2.0f);
-            lflare->setDefaultDimensions(fsize, fsize);
-
-            SceneNode* sn = tenode->createChildSceneNode();
-            sn->attachObject(spotLight);
-            sn->attachObject(lflare);
+            LOG("[ODEF] problem with drawTextOnMeshTexture command: mesh texture not found: "+odefname+" : "+texName);
             continue;
         }
 
-        if (!strncmp("pointlight", ptline, 10))
+        static int textureNumber = 0;
+        textureNumber++;
+        char tmpTextName[256] = "", tmpMatName[256] = "";
+        sprintf(tmpTextName, "TextOnTexture_%d_Texture", textureNumber);
+        sprintf(tmpMatName, "TextOnTexture_%d_Material", textureNumber); // Make sure the texture is not WRITE_ONLY, we need to read the buffer to do the blending with the font (get the alpha for example)
+        TexturePtr texture = TextureManager::getSingleton().createManual(tmpTextName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, (Ogre::uint)background->getWidth(), (Ogre::uint)background->getHeight(), MIP_UNLIMITED, PF_X8R8G8B8, Ogre::TU_STATIC | Ogre::TU_AUTOMIPMAP);
+        if (texture.getPointer() == 0)
         {
-            Vector3 lpos, ldir;
-            float lrange = 10;
-            ColourValue lcol;
-            String lname = "pointlight_" + TOSTRING(Math::RangeRandom(1000, 9999));
-
-            int res = sscanf(ptline, "pointlight %f, %f, %f, %f, %f, %f, %f, %f, %f, %f",
-                &lpos.x, &lpos.y, &lpos.z, &ldir.x, &ldir.y, &ldir.z, &lcol.r, &lcol.g, &lcol.b, &lrange);
-            if (res < 10)
-            {
-                LOG("ODEF: problem with light command: " + odefname + " : " + String(ptline));
-                continue;
-            }
-
-            Light* pointlight = gEnv->sceneManager->createLight(lname);
-
-            pointlight->setType(Light::LT_POINT);
-            pointlight->setPosition(lpos);
-            pointlight->setDirection(ldir);
-            pointlight->setAttenuation(lrange, 1.0, 0.3, 0.0);
-            pointlight->setDiffuseColour(lcol);
-            pointlight->setSpecularColour(lcol);
-
-            BillboardSet* lflare = gEnv->sceneManager->createBillboardSet(1);
-            lflare->createBillboard(lpos, lcol);
-            lflare->setMaterialName("tracks/flare");
-            lflare->setVisibilityFlags(DEPTHMAP_DISABLED);
-
-            float fsize = Math::Clamp(lrange / 10, 0.2f, 2.0f);
-            lflare->setDefaultDimensions(fsize, fsize);
-
-            SceneNode* sn = tenode->createChildSceneNode();
-            sn->attachObject(pointlight);
-            sn->attachObject(lflare);
+            LOG("[ODEF] problem with drawTextOnMeshTexture command: could not create texture: "+odefname+" : "+tmpTextName);
             continue;
         }
 
-        LOG("ODEF: unknown command in "+odefname+" : "+String(ptline));
+        char text[ODef::STR_LEN];
+        strcpy(text, tex_print.text);
+
+        // check if we got a template argument
+        if (!strncmp(text, "{{argument1}}", 13))
+            strncpy(text, instancename.c_str(), 250);
+
+        // replace '_' with ' '
+        char *text_pointer = text;
+        while (*text_pointer!=0) {if (*text_pointer=='_') *text_pointer=' ';text_pointer++;};
+
+        String font_name_str(tex_print.font_name);
+        Font* font = (Font *)FontManager::getSingleton().getByName(font_name_str).getPointer();
+        if (!font)
+        {
+            LOG("[ODEF] problem with drawTextOnMeshTexture command: font not found: "+odefname+" : "+font_name_str);
+            continue;
+        }
+
+        //Draw the background to the new texture
+        texture->getBuffer()->blit(background->getBuffer());
+
+        float x = background->getWidth()  * tex_print.x;
+        float y = background->getHeight() * tex_print.y;
+        float w = background->getWidth()  * tex_print.w;
+        float h = background->getHeight() * tex_print.h;
+
+        ColourValue color(tex_print.r, tex_print.g, tex_print.b, tex_print.a);
+        Image::Box box = Image::Box((size_t)x, (size_t)y, (size_t)(x+w), (size_t)(y+h));
+        WriteToTexture(String(text), texture, box, font, color, tex_print.font_size, tex_print.font_dpi, tex_print.option);
+
+        // we can save it to disc for debug purposes:
+        //SaveImage(texture, "test.png");
+
+        m->clone(tmpMatName);
+        MaterialPtr mNew = MaterialManager::getSingleton().getByName(tmpMatName);
+        mNew->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(tmpTextName);
+
+        mo->getEntity()->setMaterialName(String(tmpMatName));
+    }
+
+    for (ODefSpotlight& spotl: odef->spotlights)
+    {
+        Light* spotLight = gEnv->sceneManager->createLight(spotl.name);
+
+        spotLight->setType(Light::LT_SPOTLIGHT);
+        spotLight->setPosition(spotl.pos);
+        spotLight->setDirection(spotl.dir);
+        spotLight->setAttenuation(spotl.range, 1.0, 0.3, 0.0);
+        spotLight->setDiffuseColour(spotl.color);
+        spotLight->setSpecularColour(spotl.color);
+        spotLight->setSpotlightRange(Degree(spotl.angle_inner), Degree(spotl.angle_outer));
+
+        BillboardSet* lflare = gEnv->sceneManager->createBillboardSet(1);
+        lflare->createBillboard(spotl.pos, spotl.color);
+        lflare->setMaterialName("tracks/flare");
+        lflare->setVisibilityFlags(DEPTHMAP_DISABLED);
+
+        float fsize = Math::Clamp(spotl.range / 10, 0.2f, 2.0f);
+        lflare->setDefaultDimensions(fsize, fsize);
+
+        SceneNode *sn = tenode->createChildSceneNode();
+        sn->attachObject(spotLight);
+        sn->attachObject(lflare);
+    }
+
+    for (ODefPointLight& plight : odef->point_lights)
+    {
+        Light* pointlight = gEnv->sceneManager->createLight(plight.name);
+
+        pointlight->setType(Light::LT_POINT);
+        pointlight->setPosition(plight.pos);
+        pointlight->setDirection(plight.dir);
+        pointlight->setAttenuation(plight.range, 1.0, 0.3, 0.0);
+        pointlight->setDiffuseColour(plight.color);
+        pointlight->setSpecularColour(plight.color);
+
+        BillboardSet* lflare = gEnv->sceneManager->createBillboardSet(1);
+        lflare->createBillboard(plight.pos, plight.color);
+        lflare->setMaterialName("tracks/flare");
+        lflare->setVisibilityFlags(DEPTHMAP_DISABLED);
+
+        float fsize = Math::Clamp(plight.range / 10, 0.2f, 2.0f);
+        lflare->setDefaultDimensions(fsize, fsize);
+
+        SceneNode *sn = tenode->createChildSceneNode();
+        sn->attachObject(pointlight);
+        sn->attachObject(lflare);
     }
 
     //add icons if type is set
-
     String typestr = "";
     if (!type.empty() && gEnv->surveyMap)
     {
@@ -1151,7 +937,7 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
             typestr = "checkpoint";
         if (name == "chp-start")
             typestr = "racestart";
-        if (name == "road" , 4)
+        if (name == "road", 4)
             typestr = "road";
 
         if (typestr != "" && typestr != "road" && typestr != "sign")
