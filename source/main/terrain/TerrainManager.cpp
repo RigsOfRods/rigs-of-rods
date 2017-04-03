@@ -31,6 +31,7 @@
 #include "GlowMaterialListener.h"
 #include "GUIManager.h"
 #include "GUI_LoadingWindow.h"
+#include "GUI_TeleportWindow.h"
 #include "HDRListener.h"
 #include "HydraxWater.h"
 #include "Language.h"
@@ -43,6 +44,7 @@
 #include "SurveyMapManager.h"
 #include "TerrainGeometryManager.h"
 #include "TerrainObjectManager.h"
+#include "Terrn2Deployment.h"
 #include "Utils.h"
 #include "Water.h"
 
@@ -52,9 +54,10 @@
 using namespace RoR;
 using namespace Ogre;
 
-TerrainManager::TerrainManager() :
-      character(0)
-    , collisions(0)
+TerrainManager::TerrainManager(RoRFrameListener* sim_controller) :
+      m_sim_controller(sim_controller)
+    , character(0)
+    , m_terrn_collisions(nullptr)
     , dashboard(0)
     , envmap(0)
     , geometry_manager(0)
@@ -68,7 +71,7 @@ TerrainManager::TerrainManager() :
     , main_light(0)
     , paged_detail_factor(0.0f)
     , paged_mode(0)
-    , gravity(DEFAULT_GRAVITY)
+    , m_terrn_gravity(DEFAULT_GRAVITY)
 {
 }
 
@@ -136,39 +139,27 @@ TerrainManager::~TerrainManager()
 // some shortcut to remove ugly code
 #   define PROGRESS_WINDOW(x, y) { LOG(Ogre::String("  ## ") + y); RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(x, y); }
 
-void TerrainManager::loadTerrain(String filename)
+void TerrainManager::LoadTerrain(std::string const & filename)
 {
-    DataStreamPtr ds;
+    PROGRESS_WINDOW(10, _L("Deploying terrain"));
 
-    try
-    {
-        String group = ResourceGroupManager::getSingleton().findGroupContainingResource(filename);
-        ds = ResourceGroupManager::getSingleton().openResource(filename, group);
-    }
-    catch(...)
-    {
-        LOG("[RoR|Terrain] File not found: " + filename);
-        return;
-    }
+    LOG(" ===== DEPLOYING TERRAIN " + filename);
+
+    Terrn2Deployer deployer;
+    deployer.DeployTerrn2(filename);
+
+    Json::Value& j_terrn = deployer.GetJson(); // TEST MODE - don't save to cache, just use the output directly
 
     PROGRESS_WINDOW(10, _L("Loading Terrain Configuration"));
 
     LOG(" ===== LOADING TERRAIN " + filename);
 
-    Terrn2Parser parser;
-    if (! parser.LoadTerrn2(m_def, ds))
-    {
-        LOG("[RoR|Terrain] Failed to parse: " + filename);
-        for (std::string msg : parser.GetMessages())
-        {
-            LOG("[RoR|Terrain] \tMessage: " + msg);
-        }
-        return;
-    }
-    gravity = m_def.gravity;
+    m_terrn_gravity = j_terrn["terrn2"]["gravity"].asFloat();
+    Json::Value j_spawn_pos = j_terrn["terrn2"]["start_position"];
+    m_spawn_pos = Ogre::Vector3(j_spawn_pos["x"].asFloat(), j_spawn_pos["y"].asFloat(), j_spawn_pos["z"].asFloat());
 
     // then, init the subsystems, order is important :)
-    initSubSystems();
+    this->InitSubSystems(j_terrn);
 
     fixCompositorClearColor();
 
@@ -176,24 +167,24 @@ void TerrainManager::loadTerrain(String filename)
 
     // load the terrain geometry
     PROGRESS_WINDOW(80, _L("Loading Terrain Geometry"));
-    geometry_manager->InitTerrain(m_def.ogre_ter_conf_filename);
+    geometry_manager->InitTerrain(j_terrn["terrn2"]["otc_file"].asString());
 
     LOG(" ===== LOADING TERRAIN WATER " + filename);
     // must happen here
-    initWater();
+    initWater(j_terrn);
 
     LOG(" ===== LOADING TERRAIN OBJECTS " + filename);
 
     PROGRESS_WINDOW(90, _L("Loading Terrain Objects"));
-    loadTerrainObjects();
+    loadTerrainObjects(j_terrn);
 
-    collisions->printStats();
-
-    // bake the decals
-    //finishTerrainDecal();
+    m_terrn_collisions->printStats();
 
     // init things after loading the terrain
-    initTerrainCollisions();
+    if (j_terrn["terrn2"]["traction_map_file"] != Json::nullValue)
+    {
+        gEnv->collisions->setupLandUse(j_terrn["traction_map_file"].asString().c_str());
+    }
 
     // init the survey map
     if (!RoR::App::GetGfxMinimapDisabled())
@@ -202,52 +193,65 @@ void TerrainManager::loadTerrain(String filename)
         m_survey_map = new SurveyMapManager();
     }
 
-    collisions->finishLoadingTerrain();
+    m_terrn_collisions->finishLoadingTerrain();
+
+    App::GetGuiManager()->GetTeleport()->SetupMap(
+        m_sim_controller,
+        &j_terrn,
+        gEnv->terrainManager->getMaxTerrainSize(),
+        gEnv->terrainManager->GetMinimapTextureName());
+
     LOG(" ===== TERRAIN LOADING DONE " + filename);
 }
 
-void TerrainManager::initSubSystems()
+void TerrainManager::InitSubSystems(Json::Value& j_terrn)
 {
+    Json::Value j_ambient_color = j_terrn["terrn2"]["ambient_color"];
+    Ogre::ColourValue ambient_color(
+        j_ambient_color["r"].asFloat(),
+        j_ambient_color["g"].asFloat(),
+        j_ambient_color["b"].asFloat(),
+        j_ambient_color["a"].asFloat()
+    );
+
     // geometry - ogre terrain things
-    initShadows();
+    this->initShadows();
 
     PROGRESS_WINDOW(15, _L("Initializing Geometry Subsystem"));
-    initGeometry();
+    this->initGeometry();
 
     // objects  - .odef support
     PROGRESS_WINDOW(17, _L("Initializing Object Subsystem"));
-    initObjects();
+    this->initObjects();
 
     PROGRESS_WINDOW(19, _L("Initializing Collision Subsystem"));
-    initCollisions();
+    m_terrn_collisions = new Collisions();
+    gEnv->collisions = m_terrn_collisions;
 
     PROGRESS_WINDOW(19, _L("Initializing Script Subsystem"));
-    initScripting();
-
-    PROGRESS_WINDOW(21, _L("Initializing Shadow Subsystem"));
+    initScripting(j_terrn);
 
     PROGRESS_WINDOW(25, _L("Initializing Camera Subsystem"));
-    initCamera();
+    initCamera(j_terrn, ambient_color);
 
     // sky, must come after camera due to far_clip
     PROGRESS_WINDOW(23, _L("Initializing Sky Subsystem"));
-    initSkySubSystem();
+    initSkySubSystem(j_terrn);
 
     PROGRESS_WINDOW(27, _L("Initializing Light Subsystem"));
-    initLight();
+    initLight(ambient_color);
 
     if (App::GetGfxSkyMode() != App::GFX_SKY_CAELUM) //Caelum has its own fog management
     {
         PROGRESS_WINDOW(29, _L("Initializing Fog Subsystem"));
-        initFog();
+        if (far_clip >= UNLIMITED_SIGHTRANGE)
+            gEnv->sceneManager->setFog(FOG_NONE);
+        else
+            gEnv->sceneManager->setFog(FOG_LINEAR, ambient_color, 0.000f, far_clip * 0.65f, far_clip*0.9);
     }
 
     PROGRESS_WINDOW(31, _L("Initializing Vegetation Subsystem"));
     initVegetation();
-
-    // water must be done later on
-    //PROGRESS_WINDOW(33, _L("Initializing Water Subsystem"));
-    //initWater();
 
     if (App::GetGfxEnableHdr())
     {
@@ -272,17 +276,17 @@ void TerrainManager::initSubSystems()
     if (!BSETTING("Envmapdisable", false))
     {
         PROGRESS_WINDOW(43, _L("Initializing Environment Map Subsystem"));
-        initEnvironmentMap();
+        envmap = new Envmap();
     }
 
     PROGRESS_WINDOW(47, _L("Initializing Dashboards Subsystem"));
     initDashboards();
 }
 
-void TerrainManager::initCamera()
+void TerrainManager::initCamera(Json::Value& j_terrn, Ogre::ColourValue const & ambient_color)
 {
-    gEnv->mainCamera->getViewport()->setBackgroundColour(m_def.ambient_color);
-    gEnv->mainCamera->setPosition(m_def.start_position);
+    gEnv->mainCamera->getViewport()->setBackgroundColour(ambient_color);
+    gEnv->mainCamera->setPosition(m_spawn_pos);
 
     far_clip = App::GetGfxSightRange();
 
@@ -298,7 +302,7 @@ void TerrainManager::initCamera()
     }
 }
 
-void TerrainManager::initSkySubSystem()
+void TerrainManager::initSkySubSystem(Json::Value& j_terrn)
 {
 #ifdef USE_CAELUM
     // Caelum skies
@@ -307,11 +311,17 @@ void TerrainManager::initSkySubSystem()
         sky_manager = new SkyManager();
         gEnv->sky = sky_manager;
 
+        if (j_terrn["terrn2"]["caelum_config"] == Json::nullValue)
+            return;
+
         // try to load caelum config
-        if (!m_def.caelum_config.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def.caelum_config))
+        const std::string caelum_file = j_terrn["terrn2"]["caelum_config"].asString();
+        if (ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(caelum_file))
         {
             // config provided and existing, use it :)
-            sky_manager->loadScript(m_def.caelum_config, m_def.caelum_fog_start, m_def.caelum_fog_end);
+            const int fog_start = j_terrn["terrn2"]["caelum_fog_start"].asInt();
+            const int fog_end   = j_terrn["terrn2"]["caelum_fog_end"].asInt();
+            sky_manager->loadScript(caelum_file, fog_start, fog_end);
         }
         else
         {
@@ -322,11 +332,10 @@ void TerrainManager::initSkySubSystem()
     else
 #endif //USE_CAELUM
     {
-
-        if (!m_def.cubemap_config.empty())
+        if (j_terrn["terrn2"]["cubemap_config"] != Json::nullValue)
         {
             // use custom
-            gEnv->sceneManager->setSkyBox(true, m_def.cubemap_config, 100, true);
+            gEnv->sceneManager->setSkyBox(true, j_terrn["terrn2"]["cubemap_config"].asString(), 100, true);
         }
         else
         {
@@ -336,7 +345,7 @@ void TerrainManager::initSkySubSystem()
     }
 }
 
-void TerrainManager::initLight()
+void TerrainManager::initLight(Ogre::ColourValue const & ambient_color)
 {
     if (App::GetGfxSkyMode() == App::GFX_SKY_CAELUM)
     {
@@ -354,20 +363,12 @@ void TerrainManager::initLight()
         main_light->setType(Light::LT_DIRECTIONAL);
         main_light->setDirection(Ogre::Vector3(0.785, -0.423, 0.453).normalisedCopy());
 
-        main_light->setDiffuseColour(m_def.ambient_color);
-        main_light->setSpecularColour(m_def.ambient_color);
+        main_light->setDiffuseColour(ambient_color);
+        main_light->setSpecularColour(ambient_color);
         main_light->setCastShadows(true);
         main_light->setShadowFarDistance(1000.0f);
         main_light->setShadowNearClipDistance(-1);
     }
-}
-
-void TerrainManager::initFog()
-{
-    if (far_clip >= UNLIMITED_SIGHTRANGE)
-        gEnv->sceneManager->setFog(FOG_NONE);
-    else
-        gEnv->sceneManager->setFog(FOG_LINEAR, m_def.ambient_color, 0.000f, far_clip * 0.65f, far_clip*0.9);
 }
 
 void TerrainManager::initVegetation()
@@ -527,29 +528,30 @@ void TerrainManager::fixCompositorClearColor()
     }
 }
 
-void TerrainManager::initWater()
+void TerrainManager::initWater(Json::Value& j_terrn)
 {
     // disabled in global config
     if (App::GetGfxWaterMode() == App::GFX_WATER_NONE)
         return;
 
     // disabled in map config
-    if (!m_def.has_water)
-    {
+    if (! j_terrn["terrn2"]["has_water"].asBool())
         return;
-    }
 
     if (App::GetGfxWaterMode() == App::GFX_WATER_HYDRAX)
     {
+        const float water_height = j_terrn["terrn2"]["water_height"].asFloat();
+
         // try to load hydrax config
-        if (!m_def.hydrax_conf_file.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def.hydrax_conf_file))
+        if ((j_terrn["terrn2"]["hydrax_conf_file"] != Json::nullValue)
+            && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(j_terrn["terrn2"]["hydrax_conf_file"].asString()))
         {
-            hw = new HydraxWater(m_def.water_height, m_def.hydrax_conf_file);
+            hw = new HydraxWater(water_height, j_terrn["terrn2"]["hydrax_conf_file"].asString());
         }
         else
         {
             // no config provided, fall back to the default one
-            hw = new HydraxWater(m_def.water_height);
+            hw = new HydraxWater(water_height);
         }
 
         water = hw;
@@ -575,11 +577,6 @@ void TerrainManager::initWater()
     }
 }
 
-void TerrainManager::initEnvironmentMap()
-{
-    envmap = new Envmap();
-}
-
 void TerrainManager::initDashboards()
 {
     dashboard = new Dashboard();
@@ -591,28 +588,14 @@ void TerrainManager::initShadows()
     shadow_manager->loadConfiguration();
 }
 
-void TerrainManager::loadTerrainObjects()
+void TerrainManager::loadTerrainObjects(Json::Value& j_terrn)
 {
-    for (std::string tobj_filename : m_def.tobj_files)
+    for (Json::Value& j_tobj_filename : j_terrn["terrn2"]["tobj_files"])
     {
-        object_manager->loadObjectConfigFile(tobj_filename);
+        object_manager->loadObjectConfigFile(j_tobj_filename.asString());
     }
 
     object_manager->postLoad(); // bakes the geometry and things
-}
-
-void TerrainManager::initCollisions()
-{
-    collisions = new Collisions();
-    gEnv->collisions = collisions;
-}
-
-void TerrainManager::initTerrainCollisions()
-{
-    if (!m_def.traction_map_file.empty())
-    {
-        gEnv->collisions->setupLandUse(m_def.traction_map_file.c_str());
-    }
 }
 
 bool TerrainManager::update(float dt)
@@ -626,7 +609,7 @@ bool TerrainManager::update(float dt)
     return true;
 }
 
-void TerrainManager::initScripting()
+void TerrainManager::initScripting(Json::Value& j_terrn)
 {
 #ifdef USE_ANGELSCRIPT
     bool loaded = false;
@@ -634,9 +617,9 @@ void TerrainManager::initScripting()
     // only load terrain scripts while not in multiplayer
     if (RoR::App::GetActiveMpState() != RoR::App::MP_STATE_CONNECTED)
     {
-        for (std::string as_filename : m_def.as_files)
+        for (const Json::Value& as_filename : j_terrn["terrn2"]["as_scripts"])
         {
-            if (ScriptEngine::getSingleton().loadScript(as_filename) == 0)
+            if (ScriptEngine::getSingleton().loadScript(as_filename.asString()) == 0)
                 loaded = true;
         }
     }
@@ -653,7 +636,7 @@ void TerrainManager::initScripting()
 
 void TerrainManager::setGravity(float value)
 {
-    gravity = value;
+    m_terrn_gravity = value;
     BeamFactory::getSingleton().recalcGravityMasses();
 }
 

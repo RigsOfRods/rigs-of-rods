@@ -22,6 +22,8 @@
 #include "GUI_TeleportWindowLayout.h"
 #include "GuiPanelBase.h"
 
+namespace Json { class Value; } // Forward
+
 namespace RoR {
 
 struct Terrn2Def; // Forward
@@ -33,13 +35,23 @@ class TeleportWindow : public TeleportWindowLayout, public GuiPanelBase
 public:
     TeleportWindow();
 
-    void SetupMap(RoRFrameListener* sim_controller, Terrn2Def* def, Ogre::Vector3 map_size, std::string minimap_tex_name);
+    void SetupMap(RoRFrameListener* sim_controller, Json::Value* j_terrn, Ogre::Vector3 map_size, std::string minimap_tex_name);
     void Reset();
     void SetVisible(bool v);
     bool IsVisible();
     void TeleportWindowFrameStep(float x, float z, bool alt_active);
 
 private:
+    struct TelepointData
+    {
+        TelepointData(std::string n, Ogre::Vector3 const & pos):
+            name(n), position(pos)
+        {}
+
+        std::string name;
+        Ogre::Vector3 position;
+    };
+
     void WindowButtonClicked   (MyGUI::Widget* sender, const std::string& name);
     void TelepointIconGotFocus (MyGUI::Widget* cur_widget, MyGUI::Widget* previous);
     void TelepointIconLostFocus(MyGUI::Widget* cur_widget, MyGUI::Widget* next);
@@ -52,7 +64,9 @@ private:
     void EnableAltMode         (bool enable);
     void ShowAltmodeCursor     (bool show);
     void SetAltmodeCursorPos   (int screen_left, int screen_top);
+    TelepointData* GetTeleIconUserdata(MyGUI::Widget* widget);
 
+    std::vector<TelepointData>    m_telepoint_data;
     std::vector<MyGUI::ImageBox*> m_telepoint_icons;
     RoRFrameListener*             m_sim_controller;
     Ogre::Vector3                 m_map_size;

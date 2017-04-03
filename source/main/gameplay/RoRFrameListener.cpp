@@ -1485,12 +1485,12 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
     return true;
 }
 
-void RoRFrameListener::TeleportPlayer(RoR::Terrn2Telepoint* telepoint)
+void RoRFrameListener::TeleportPlayer(Ogre::Vector3 position)
 {
     if (BeamFactory::getSingleton().getCurrentTruck() != nullptr)
         return; // Player could enter truck while Teleport-GUI is visible
 
-    gEnv->player->setPosition(telepoint->position);
+    gEnv->player->setPosition(position);
 }
 
 void RoRFrameListener::TeleportPlayerXZ(float x, float z)
@@ -2166,8 +2166,8 @@ bool RoRFrameListener::LoadTerrain()
         delete(gEnv->terrainManager); // TODO: do it when leaving simulation.
     }
 
-    gEnv->terrainManager = new TerrainManager();
-    gEnv->terrainManager->loadTerrain(terrain_file);
+    gEnv->terrainManager = new TerrainManager(this);
+    gEnv->terrainManager->LoadTerrain(terrain_file);
     App::SetSimActiveTerrain(terrain_file);
 
     App::GetGuiManager()->FrictionSettingsUpdateCollisions();
@@ -2361,12 +2361,6 @@ bool RoRFrameListener::SetupGameplayLoop()
         App::GetGuiManager()->SetVisible_LoadingWindow(false);
         return false;
     }
-
-    App::GetGuiManager()->GetTeleport()->SetupMap(
-        this,
-        &gEnv->terrainManager->GetDef(),
-        gEnv->terrainManager->getMaxTerrainSize(),
-        gEnv->terrainManager->GetMinimapTextureName());
 
     // ========================================================================
     // Loading vehicle

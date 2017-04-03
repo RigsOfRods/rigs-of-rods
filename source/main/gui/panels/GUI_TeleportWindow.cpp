@@ -22,8 +22,8 @@
 #include "Application.h"
 #include "GUIManager.h"
 #include "RoRFrameListener.h"
-#include "Terrn2Fileformat.h"
 
+#include <json/json.h>
 #include <MyGUI_PointerManager.h>
 
 namespace RoR {
@@ -92,16 +92,16 @@ void TeleportWindow::WindowButtonClicked(MyGUI::Widget* sender, const std::strin
     this->SetVisible(false); // There's only the [X] close button on the window.
 }
 
-Terrn2Telepoint* GetTeleIconUserdata(MyGUI::Widget* widget)
+TeleportWindow::TelepointData* TeleportWindow::GetTeleIconUserdata(MyGUI::Widget* widget)
 {
-    Terrn2Telepoint** userdata = widget->getUserData<Terrn2Telepoint*>(false);
+    TeleportWindow::TelepointData** userdata = widget->getUserData<TelepointData*>(false);
     assert(userdata != nullptr);
     return *userdata;
 }
 
 void TeleportWindow::TelepointIconGotFocus(MyGUI::Widget* cur_widget, MyGUI::Widget* prev_widget)
 {
-    m_info_textbox->setCaption(GetTeleIconUserdata(cur_widget)->name);
+    m_info_textbox->setCaption(this->GetTeleIconUserdata(cur_widget)->name);
     m_info_textbox->setTextColour(HELPTEXT_COLOR_TELEPOINT);
     static_cast<MyGUI::ImageBox*>(cur_widget)->setImageTexture("telepoint_icon_hover.png");
 }
@@ -117,7 +117,7 @@ void TeleportWindow::TelepointIconClicked(MyGUI::Widget* sender)
 {
     this->SetVisible(false);
     static_cast<MyGUI::ImageBox*>(sender)->setImageTexture("telepoint_icon.png");
-    m_sim_controller->TeleportPlayer(GetTeleIconUserdata(sender));
+    m_sim_controller->TeleportPlayer(this->GetTeleIconUserdata(sender)->position);
 }
 
 void TeleportWindow::MinimapGotFocus(MyGUI::Widget* widget, MyGUI::Widget* previous)
@@ -164,7 +164,7 @@ void TeleportWindow::SetAltmodeCursorPos(int screen_left, int screen_top)
     m_mouse_icon->setPosition(screen_left - minimap_abs.left - half, screen_top - minimap_abs.top - half);
 }
 
-void TeleportWindow::SetupMap(RoRFrameListener* sim_controller, Terrn2Def* def, Ogre::Vector3 map_size, std::string minimap_tex_name)
+void TeleportWindow::SetupMap(RoRFrameListener* sim_controller, Json::Value* j_terrn, Ogre::Vector3 map_size, std::string minimap_tex_name)
 {
     m_sim_controller = sim_controller;
     m_map_size = map_size;
@@ -173,7 +173,15 @@ void TeleportWindow::SetupMap(RoRFrameListener* sim_controller, Terrn2Def* def, 
     m_info_textbox->setTextColour(HELPTEXT_COLOR_USAGE);
 
     size_t counter = 0;
-    for (Terrn2Telepoint& telepoint: def->telepoints)
+    for (Json::Value& j_telepoint: (*j_terrn)["terrn2"]["teleport"]["telepoints"])
+    {
+        const Ogre::Vector3 pos(j_telepoint["position"]["x"].asFloat(),
+                          j_telepoint["position"]["y"].asFloat(),
+                          j_telepoint["position"]["z"].asFloat());
+        m_telepoint_data.emplace_back(j_telepoint["name"].asString(), pos);
+    }
+
+    for (TelepointData& telepoint: m_telepoint_data)
     {
         char name[50];
         sprintf(name, "Teleport/TelepointIcon_%u", ++counter);
@@ -224,7 +232,7 @@ void TeleportWindow::MinimapPanelResized(MyGUI::Widget* panel)
     // Update icon positions
     for (MyGUI::ImageBox* tp_icon: m_telepoint_icons)
     {
-        Terrn2Telepoint* def = GetTeleIconUserdata(tp_icon);
+        TelepointData* def = GetTeleIconUserdata(tp_icon);
         int pos_x = static_cast<int>(((def->position.x / m_map_size.x) * mini_width ) - (TELEICON_SIZE/2));
         int pos_y = static_cast<int>(((def->position.z / m_map_size.z) * mini_height) - (TELEICON_SIZE/2));
         tp_icon->setPosition(pos_x, pos_y);
