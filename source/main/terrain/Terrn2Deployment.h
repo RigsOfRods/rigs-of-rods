@@ -22,6 +22,7 @@
 /// @file
 /// @author Petr Ohlidal, 04/2017
 
+#include "OTCFileformat.h"
 #include "Terrn2FIleformat.h"
 
 #include <json/json.h>
@@ -40,13 +41,16 @@ public:
 
 private:
     void          ProcessTerrn2Json();
+    void          ProcessOtcJson();
     void          HandleException(const char* action);
+    bool          CheckAndLoadOTC();
     Json::Value   ColorToJson(Ogre::ColourValue color);
     Json::Value   Vector3ToJson(Ogre::Vector3 pos);
     Json::Value   StringOrNull(std::string const & str);
 
-    Terrn2Def    m_terrn2;
-    Json::Value  m_json;
+    Terrn2Def                      m_terrn2;
+    std::shared_ptr<RoR::OTCFile>  m_otc;
+    Json::Value                    m_json;
 };
 
 } // namespace RoR

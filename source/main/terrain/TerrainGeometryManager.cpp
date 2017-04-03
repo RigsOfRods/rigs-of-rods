@@ -166,10 +166,9 @@ float TerrainGeometryManager::getHeightAtWorldPosition(float x, float z)
 
 float TerrainGeometryManager::getHeightAt(float x, float z)
 {
-    if (m_spec->is_flat)
+    if (m_terrain_is_flat)
         return 0.0f;
     else
-    //return m_ogre_terrain_group->getHeightAtWorldPosition(x, 1000, z);
         return getHeightAtWorldPosition(x, z);
 }
 
@@ -182,50 +181,35 @@ Ogre::Vector3 TerrainGeometryManager::getNormalAt(float x, float y, float z, flo
     return down;
 }
 
-void TerrainGeometryManager::InitTerrain(std::string otc_filename)
+void TerrainGeometryManager::InitTerrain(Json::Value* j_terrn)
 {
-    try
-    {
-        OTCParser otc_parser;
-        DataStreamPtr ds_config = ResourceGroupManager::getSingleton().openResource(otc_filename);
-        otc_parser.LoadMasterConfig(ds_config, otc_filename.c_str());
+    Json::Value& j_otc = (*j_terrn)["ogre_terrain_conf"];
+    const std::string cache_filename_format = j_otc["cache_filename_base"].asString() + "_OGRE_" + TOSTRING(OGRE_VERSION) + "_";
 
-        for (OTCPage& page : otc_parser.GetDefinition()->pages)
-        {
-            if (page.pageconf_filename.empty())
-                continue;
+    m_terrain_is_flat = j_otc["is_flat"].asBool();
+    const bool disable_cache = j_otc["disable_cache"].asBool();
+    const bool enable_blendmap_dbg = j_otc["blendmap_dbg_enabled"].asBool();
+    m_world_size = Ogre::Vector3(
+        j_otc["world_size_x"].asFloat(),
+        j_otc["world_size_y"].asFloat(),
+        j_otc["world_size_z"].asFloat());
 
-            DataStreamPtr ds_page = ResourceGroupManager::getSingleton().openResource(page.pageconf_filename);
-            if (ds_page.isNull() || !ds_page->isReadable())
-            {
-                LOG("[RoR|Terrain] Cannot read file [" + page.pageconf_filename + "].");
-                continue;
-            }
-
-            otc_parser.LoadPageConfig(ds_page, page, page.pageconf_filename.c_str());
-        }
-
-        m_spec = otc_parser.GetDefinition();
-    }
-    catch(...) // Error already reported
-    {
-        return;
-    }
-
-    const std::string cache_filename_format = m_spec->cache_filename_base + "_OGRE_" + TOSTRING(OGRE_VERSION) + "_";
-
-    m_ogre_terrain_group = OGRE_NEW TerrainGroup(gEnv->sceneManager, Terrain::ALIGN_X_Z, m_spec->page_size, m_spec->world_size);
+    m_ogre_terrain_group = OGRE_NEW TerrainGroup(
+        gEnv->sceneManager, Terrain::ALIGN_X_Z, j_otc["page_size"].asInt(), j_otc["world_size"].asInt());
     m_ogre_terrain_group->setFilenameConvention(cache_filename_format, "mapbin");
-    m_ogre_terrain_group->setOrigin(m_spec->origin_pos);
+    m_ogre_terrain_group->setOrigin(Ogre::Vector3(
+        j_otc["origin_pos"]["x"].asFloat(),
+        j_otc["origin_pos"]["y"].asFloat(),
+        j_otc["origin_pos"]["z"].asFloat()));
     m_ogre_terrain_group->setResourceGroup("cache");
 
-    configureTerrainDefaults();
+    this->ConfigureTerrainDefaults(&j_otc);
 
     auto* loading_win = RoR::App::GetGuiManager()->GetLoadingWindow();
-    for (OTCPage& page : m_spec->pages)
+    for (Json::Value& j_page : j_otc["pages"])
     {
-        loading_win->setProgress(23, _L("preparing terrain page ") + XZSTR(page.pos_x, page.pos_z));
-        this->SetupGeometry(page, m_spec->is_flat);
+        loading_win->setProgress(23, _L("preparing terrain page ") + XZSTR(j_page["pos_x"].asInt(), j_page["pos_z"].asInt()));
+        this->SetupGeometry(&j_page, disable_cache);
     }
 
     // sync load since we want everything in place when we start
@@ -244,20 +228,22 @@ void TerrainGeometryManager::InitTerrain(std::string otc_filename)
     // update the blend maps
     if (m_was_new_geometry_generated)
     {
-        for (OTCPage& page : m_spec->pages)
+        for (Json::Value& j_page : j_otc["pages"])
         {
-            Terrain* terrain = m_ogre_terrain_group->getTerrain(page.pos_x, page.pos_z);
+            const int pos_x = j_page["pos_x"].asInt();
+            const int pos_z = j_page["pos_z"].asInt();
+            Terrain* terrain = m_ogre_terrain_group->getTerrain(pos_x, pos_z);
             if (terrain != nullptr)
             {
-                loading_win->setProgress(23, _L("loading terrain page layers ") + XZSTR(page.pos_x, page.pos_z));
-                this->SetupLayers(page, terrain);
-                loading_win->setProgress(23, _L("loading terrain page blend maps ") + XZSTR(page.pos_x, page.pos_z));
-                this->SetupBlendMaps(page, terrain);
+                loading_win->setProgress(23, _L("loading terrain page layers ") + XZSTR(pos_x, pos_z));
+                this->SetupLayers(&j_page, terrain);
+                loading_win->setProgress(23, _L("loading terrain page blend maps ") + XZSTR(pos_x, pos_z));
+                this->SetupTerrnBlendMaps(&j_page, terrain, enable_blendmap_dbg);
             }
         }
 
         // always save the results when it was imported
-        if (!m_spec->disable_cache)
+        if (!disable_cache)
         {
             loading_win->setProgress(23, _L("saving all terrain pages ..."));
             m_ogre_terrain_group->saveAllTerrains(false);
@@ -304,9 +290,10 @@ bool TerrainGeometryManager::update(float dt)
     return true;
 }
 
-void TerrainGeometryManager::configureTerrainDefaults()
+void TerrainGeometryManager::ConfigureTerrainDefaults(Json::Value* j_otc_ptr)
 {
     OGRE_NEW TerrainGlobalOptions();
+    Json::Value& j_otc = *j_otc_ptr;
 
     Ogre::TerrainPSSMMaterialGenerator* matGen = new Ogre::TerrainPSSMMaterialGenerator();
     Ogre::TerrainMaterialGeneratorPtr ptr = Ogre::TerrainMaterialGeneratorPtr();
@@ -317,7 +304,7 @@ void TerrainGeometryManager::configureTerrainDefaults()
 
     terrainOptions->setDefaultMaterialGenerator(ptr);
     // Configure global
-    terrainOptions->setMaxPixelError(m_spec->max_pixel_error);
+    terrainOptions->setMaxPixelError(j_otc["max_pixel_error"].asFloat());
 
     // Important to set these so that the terrain knows what to use for derived (non-realtime) data
     if (light)
@@ -329,17 +316,17 @@ void TerrainGeometryManager::configureTerrainDefaults()
 
     // Configure default import settings for if we use imported image
     Ogre::Terrain::ImportData& defaultimp = m_ogre_terrain_group->getDefaultImportSettings();
-    defaultimp.terrainSize  = m_spec->page_size; // the heightmap size
-    defaultimp.worldSize    = m_spec->world_size; // this is the scaled up size, like 12km
-    defaultimp.inputScale   = m_spec->world_size_y;
-    defaultimp.minBatchSize = m_spec->batch_size_min;
-    defaultimp.maxBatchSize = m_spec->batch_size_max;
+    defaultimp.terrainSize  = static_cast<Ogre::uint16>(j_otc["page_size"].asUInt()); // the heightmap size
+    defaultimp.worldSize    = j_otc["world_size"].asFloat(); // this is the scaled up size, like 12km
+    defaultimp.inputScale   = j_otc["world_size_y"].asFloat();
+    defaultimp.minBatchSize = static_cast<Ogre::uint16>(j_otc["batch_size_min"].asUInt());
+    defaultimp.maxBatchSize = static_cast<Ogre::uint16>(j_otc["batch_size_max"].asUInt());
 
     // optimizations
     TerrainPSSMMaterialGenerator::SM2Profile* matProfile = static_cast<TerrainPSSMMaterialGenerator::SM2Profile*>(terrainOptions->getDefaultMaterialGenerator()->getActiveProfile());
     if (matProfile)
     {
-        matProfile->setLightmapEnabled(m_spec->lightmap_enabled);
+        matProfile->setLightmapEnabled(j_otc["lightmap_enabled"].asBool());
         // Fix for OpenGL, otherwise terrains are black
         if (Root::getSingleton().getRenderSystem()->getName() == "OpenGL Rendering Subsystem")
         {
@@ -348,21 +335,21 @@ void TerrainGeometryManager::configureTerrainDefaults()
         }
         else
         {
-            matProfile->setLayerNormalMappingEnabled(m_spec->norm_map_enabled);
-            matProfile->setLayerSpecularMappingEnabled(m_spec->spec_map_enabled);
+            matProfile->setLayerNormalMappingEnabled(j_otc["norm_map_enabled"].asBool());
+            matProfile->setLayerSpecularMappingEnabled(j_otc["spec_map_enabled"].asBool());
         }
-        matProfile->setLayerParallaxMappingEnabled(m_spec->parallax_enabled);
-        matProfile->setGlobalColourMapEnabled(m_spec->global_colormap_enabled);
-        matProfile->setReceiveDynamicShadowsDepth(m_spec->recv_dyn_shadows_depth);
+        matProfile->setLayerParallaxMappingEnabled(j_otc["parallax_enabled"].asBool());
+        matProfile->setGlobalColourMapEnabled(j_otc["global_colormap_enabled"].asBool());
+        matProfile->setReceiveDynamicShadowsDepth(j_otc["recv_dyn_shadows_depth"].asBool());
 
         m_terrain_mgr->getShadowManager()->updateTerrainMaterial(matProfile);
     }
 
-    terrainOptions->setLayerBlendMapSize   (m_spec->layer_blendmap_size);
-    terrainOptions->setCompositeMapSize    (m_spec->composite_map_size);
-    terrainOptions->setCompositeMapDistance(m_spec->composite_map_distance);
-    terrainOptions->setSkirtSize           (m_spec->skirt_size);
-    terrainOptions->setLightMapSize        (m_spec->lightmap_size);
+    terrainOptions->setLayerBlendMapSize   (j_otc["layer_blendmap_size"].asUInt());
+    terrainOptions->setCompositeMapSize    (j_otc["composite_map_size"].asUInt());
+    terrainOptions->setCompositeMapDistance(j_otc["composite_map_distance"].asFloat());
+    terrainOptions->setSkirtSize           (j_otc["skirt_size"].asFloat());
+    terrainOptions->setLightMapSize        (j_otc["lightmap_size"].asUInt());
 
     if (matProfile->getReceiveDynamicShadowsPSSM())
         terrainOptions->setCastsDynamicShadows(true);
@@ -374,35 +361,37 @@ void TerrainGeometryManager::configureTerrainDefaults()
 
     // HACK: Load the single page config now
     // This is how it "worked before" ~ only_a_ptr, 04/2017
-    this->SetupLayers(*m_spec->pages.begin(), nullptr);
+    this->SetupLayers(&(j_otc["pages"][0]), nullptr);
 }
 
 // if terrain is set, we operate on the already loaded terrain
-void TerrainGeometryManager::SetupLayers(RoR::OTCPage& page, Ogre::Terrain *terrain)
+void TerrainGeometryManager::SetupLayers(Json::Value* j_page_ptr, Ogre::Terrain *terrain)
 {
-    if (page.num_layers == 0)
+    Json::Value& j_page = *j_page_ptr;
+    const int num_layers = j_page["num_layers"].asInt();
+    if (num_layers == 0)
         return;
 
     Ogre::Terrain::ImportData& defaultimp = m_ogre_terrain_group->getDefaultImportSettings();
 
     if (!terrain)
-        defaultimp.layerList.resize(page.num_layers);
+        defaultimp.layerList.resize(num_layers);
 
     int layer_idx = 0;
 
-    for (OTCLayer& layer : page.layers)
+    for (Json::Value& j_layer : j_page["layers"])
     {
         if (!terrain)
         {
-            defaultimp.layerList[layer_idx].worldSize = layer.world_size;
-            defaultimp.layerList[layer_idx].textureNames.push_back(layer.diffusespecular_filename);
-            defaultimp.layerList[layer_idx].textureNames.push_back(layer.normalheight_filename);
+            defaultimp.layerList[layer_idx].worldSize = j_layer["world_size"].asFloat();
+            defaultimp.layerList[layer_idx].textureNames.push_back(j_layer["diffusespecular_filename"].asString());
+            defaultimp.layerList[layer_idx].textureNames.push_back(j_layer["normalheight_filename"].asString());
         }
         else
         {
-            terrain->setLayerWorldSize(layer_idx, layer.world_size);
-            terrain->setLayerTextureName(layer_idx, 0, layer.diffusespecular_filename);
-            terrain->setLayerTextureName(layer_idx, 1, layer.normalheight_filename);
+            terrain->setLayerWorldSize(layer_idx, j_layer["world_size"].asFloat());
+            terrain->setLayerTextureName(layer_idx, 0, j_layer["diffusespecular_filename"].asString());
+            terrain->setLayerTextureName(layer_idx, 1, j_layer["normalheight_filename"].asString());
         }
 
         layer_idx++;
@@ -410,24 +399,24 @@ void TerrainGeometryManager::SetupLayers(RoR::OTCPage& page, Ogre::Terrain *terr
     LOG("done loading page: loaded " + TOSTRING(layer_idx) + " layers");
 }
 
-void TerrainGeometryManager::SetupBlendMaps(OTCPage& page, Ogre::Terrain* terrain )
+void TerrainGeometryManager::SetupTerrnBlendMaps(Json::Value* j_page, Ogre::Terrain* terrain, bool enable_debug)
 {
     const int layerCount = terrain->getLayerCount();
-    auto layer_def_itor = page.layers.begin();
-    ++layer_def_itor;
     for (int i = 1; i < layerCount; i++)
     {
-        if (layer_def_itor->blendmap_filename.empty())
+        Json::Value& j_layer = (*j_page)["layers"][i];
+
+        if (j_layer["blendmap_filename"] == Json::nullValue)
             continue;
 
         Ogre::Image img;
         try
         {
-            img.load(layer_def_itor->blendmap_filename, ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
+            img.load(j_layer["blendmap_filename"].asString(), ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
         }
         catch (Exception& e)
         {
-            LOG("Error loading blendmap: " + layer_def_itor->blendmap_filename + " : " + e.getFullDescription());
+            LOG("Error loading blendmap: " + j_layer["blendmap_filename"].asString() + " : " + e.getFullDescription());
             continue;
         }
 
@@ -445,23 +434,23 @@ void TerrainGeometryManager::SetupBlendMaps(OTCPage& page, Ogre::Terrain* terrai
             for (Ogre::uint32 x = 0; x != blendmapSize; x++)
             {
                 Ogre::ColourValue c = img.getColourAt(x, z, 0);
-                const float alpha = layer_def_itor->alpha;
-                if (layer_def_itor->blend_mode == 'R')
+                const char blend_mode = j_layer["blend_mode"].asString().at(0);
+                const float alpha = j_layer["alpha"].asFloat();
+                if (blend_mode == 'R')
                     *ptr++ = c.r * alpha;
-                else if (layer_def_itor->blend_mode == 'G')
+                else if (blend_mode == 'G')
                     *ptr++ = c.g * alpha;
-                else if (layer_def_itor->blend_mode == 'B')
+                else if (blend_mode == 'B')
                     *ptr++ = c.b * alpha;
-                else if (layer_def_itor->blend_mode == 'A')
+                else if (blend_mode == 'A')
                     *ptr++ = c.a * alpha;
             }
         }
         blendmap->dirty();
         blendmap->update();
-        ++layer_def_itor;
     }
 
-    if (m_spec->blendmap_dbg_enabled)
+    if (enable_debug)
     {
         for (int i = 1; i < layerCount; i++)
         {
@@ -482,69 +471,71 @@ void TerrainGeometryManager::SetupBlendMaps(OTCPage& page, Ogre::Terrain* terrai
 }
 
 // Internal helper
-bool LoadHeightmap(OTCPage& page, Image& img)
+bool LoadHeightmap(Image& img, Json::Value& j_page)
 {
-    if (page.heightmap_filename.empty())
+    if (j_page["heightmap_filename"] == Json::nullValue)
     {
-        LOG("[RoR|Terrain] Empty Heightmap provided in OTC, please use 'Flat=1' instead");
+        LOG("[RoR|Terrain] Empty Heightmap provided in OTC, please use 'Flat=1' instead"); // TODO: Parser should say this, not spawner!
         return false;
     }
 
-    if (page.heightmap_filename.find(".raw") != String::npos)
+    const std::string filename = j_page["heightmap_filename"].asString();
+    if (filename.find(".raw") != String::npos)
     {
         // load raw data
-        DataStreamPtr stream = ResourceGroupManager::getSingleton().openResource(page.heightmap_filename);
-        LOG("[RoR|Terrain] loading RAW image: " + TOSTRING(stream->size()) + " / " + TOSTRING(page.raw_size*page.raw_size*page.raw_bpp));
-        PixelFormat pix_format = (page.raw_bpp == 2) ? PF_L16 : PF_L8;
-        img.loadRawData(stream, page.raw_size, page.raw_size, 1, pix_format);
+        int raw_size = j_page["raw_size"].asInt();
+        int raw_bpp = j_page["raw_bpp"].asInt();
+        DataStreamPtr stream = ResourceGroupManager::getSingleton().openResource(filename);
+        LOG("[RoR|Terrain] loading RAW image: " + TOSTRING(stream->size()) + " / " + TOSTRING(raw_size*raw_size*raw_bpp));
+        PixelFormat pix_format = (raw_bpp == 2) ? PF_L16 : PF_L8;
+        img.loadRawData(stream, raw_size, raw_size, 1, pix_format);
     }
     else
     {
-        img.load(page.heightmap_filename, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+        img.load(filename, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
     }
 
-    if (page.raw_flip_x)
+    if (j_page["raw_flip_x"] == true)
         img.flipAroundX();
-    if (page.raw_flip_y)
+    if (j_page["raw_flip_y"] == true)
         img.flipAroundY();
 
     return true;
 }
 
-void TerrainGeometryManager::SetupGeometry(RoR::OTCPage& page, bool flat)
+void TerrainGeometryManager::SetupGeometry(Json::Value* j_page_ptr, bool disable_cache)
 {
-    if (flat)
+    Json::Value& j_page = *j_page_ptr;
+    const int pos_x = j_page["pos_x"].asInt();
+    const int pos_z = j_page["pos_z"].asInt();
+
+    if (m_terrain_is_flat)
     {
         // very simple, no height data to load at all
-        m_ogre_terrain_group->defineTerrain(page.pos_x, page.pos_z, 0.0f);
+        m_ogre_terrain_group->defineTerrain(pos_x, pos_z, 0.0f);
         return;
     }
 
-    const std::string page_cache_filename = m_ogre_terrain_group->generateFilename(page.pos_x, page.pos_z);
+    const std::string page_cache_filename = m_ogre_terrain_group->generateFilename(pos_x, pos_z);
     const std::string res_group = m_ogre_terrain_group->getResourceGroup();
-    if (!m_spec->disable_cache && ResourceGroupManager::getSingleton().resourceExists(res_group, page_cache_filename))
+    if (!disable_cache && ResourceGroupManager::getSingleton().resourceExists(res_group, page_cache_filename))
     {
         // load from cache
-        m_ogre_terrain_group->defineTerrain(page.pos_x, page.pos_z);
+        m_ogre_terrain_group->defineTerrain(pos_x, pos_z);
     }
     else
     {
         Image img;
-        if (LoadHeightmap(page, img))
+        if (LoadHeightmap(img, j_page))
         {
-            m_ogre_terrain_group->defineTerrain(page.pos_x, page.pos_z, &img);
+            m_ogre_terrain_group->defineTerrain(pos_x, pos_z, &img);
             m_was_new_geometry_generated = true;
         }
         else
         {
             // fall back to no heightmap
-            m_ogre_terrain_group->defineTerrain(page.pos_x, page.pos_z, 0.0f);
+            m_ogre_terrain_group->defineTerrain(pos_x, pos_z, 0.0f);
         }
     }
-}
-
-Ogre::Vector3 TerrainGeometryManager::getMaxTerrainSize()
-{
-    return Vector3(m_spec->world_size_x, m_spec->world_size_y, m_spec->world_size_z);
 }
 

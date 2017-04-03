@@ -167,7 +167,7 @@ void TerrainManager::LoadTerrain(std::string const & filename)
 
     // load the terrain geometry
     PROGRESS_WINDOW(80, _L("Loading Terrain Geometry"));
-    geometry_manager->InitTerrain(j_terrn["terrn2"]["otc_file"].asString());
+    geometry_manager->InitTerrain(&j_terrn);
 
     LOG(" ===== LOADING TERRAIN WATER " + filename);
     // must happen here
