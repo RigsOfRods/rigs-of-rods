@@ -1569,8 +1569,6 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
     const bool is_altkey_pressed =  App::GetInputEngine()->isKeyDown(OIS::KeyCode::KC_LMENU) || App::GetInputEngine()->isKeyDown(OIS::KeyCode::KC_RMENU);
     auto s = App::GetActiveSimState();
 
-    //if (gEnv->collisions) 	printf("> ground model used: %s\n", gEnv->collisions->last_used_ground_model->name);
-    //
     if ((simRUNNING(s) || simEDITOR(s)) && !simPAUSED(s))
     {
         BeamFactory::getSingleton().updateFlexbodiesPrepare(); // Pushes all flexbody tasks into the thread pool

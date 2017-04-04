@@ -22,6 +22,7 @@
 /// @file
 /// @author Petr Ohlidal, 04/2017
 
+#include "ConfigFile.h"
 #include "OTCFileformat.h"
 #include "Terrn2FIleformat.h"
 
@@ -30,7 +31,7 @@
 
 namespace RoR {
 
-/// Reads all terrain definition files (terrn2, otc, tobj, odef...)
+/// Reads all terrain definition files (terrn2, otc, tobj, landuse, odef...)
 /// and composes a single JSON file
 /// GUIDELINE: Empty string values are forbidden in output - use 'null'
 class Terrn2Deployer
@@ -42,14 +43,17 @@ public:
 private:
     void          ProcessTerrn2Json();
     void          ProcessOtcJson();
+    void          ProcessLanduseJson();
     void          HandleException(const char* action);
     bool          CheckAndLoadOTC();
+    void          LoadLanduseConfig();
     Json::Value   ColorToJson(Ogre::ColourValue color);
     Json::Value   Vector3ToJson(Ogre::Vector3 pos);
     Json::Value   StringOrNull(std::string const & str);
 
     Terrn2Def                      m_terrn2;
     std::shared_ptr<RoR::OTCFile>  m_otc;
+    RoR::ConfigFile                m_landuse;
     Json::Value                    m_json;
 };
 

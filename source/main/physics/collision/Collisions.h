@@ -3,7 +3,7 @@
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
     Copyright 2009      Lefteris Stamatogiannakis
-    Copyright 2013-2015 Petr Ohlidal
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -48,7 +48,8 @@ struct eventsource_t
 
 typedef std::vector<int> cell_t;
 
-class Landusemap;
+// Forward decl
+namespace Json { class Value; }
 
 class Collisions : public ZeroedMemoryAllocator
 {
@@ -131,7 +132,6 @@ private:
     bool envokeScriptCallback(collision_box_t* cbox, node_t* node = 0);
 
     IHeightFinder* hFinder;
-    Landusemap* landuse;
     Ogre::ManualObject* debugmo;
     bool debugMode;
     int collision_count;
@@ -139,6 +139,16 @@ private:
     int largest_cellcount;
     long max_col_tris;
     unsigned int hashmask;
+
+    /// Ground surface map, traditionally called "land use map"
+    struct LandUse
+    {
+        ground_model_t** map;
+        ground_model_t*  outside; ///< Used outside of map boundaries
+        ground_model_t*  fallback; ///< Used if all else fails
+        size_t           map_size_x;
+        size_t           map_size_z;
+    } m_land_use;
 
     void hash_add(int cell_x, int cell_z, int value);
     void hash_free(int cell_x, int cell_z, int value);
@@ -154,7 +164,7 @@ public:
 
     bool forcecam;
     Ogre::Vector3 forcecampos;
-    ground_model_t *defaultgm, *defaultgroundgm;
+    ground_model_t *defaultgm;
 
     eventsource_t* getEvent(int eventID) { return &eventsources[eventID]; };
 
@@ -189,9 +199,9 @@ public:
     int loadDefaultModels();
     int loadGroundModelsConfigFile(Ogre::String filename);
     std::map<Ogre::String, ground_model_t>* getGroundModels() { return &ground_models; };
-    void setupLandUse(const char* configfile);
+    void SetupGroundModelMap(Json::Value* j_landuse); ///< A.K.A. landusemap
     ground_model_t* getGroundModelByString(const Ogre::String name);
-    ground_model_t* last_used_ground_model;
+    ground_model_t* QueryGroundModelMap(const int x, const int z); ///< A.K.A. landusemap
 
     void getMeshInformation(Ogre::Mesh* mesh, size_t& vertex_count, Ogre::Vector3* & vertices,
         size_t& index_count, unsigned* & indices,

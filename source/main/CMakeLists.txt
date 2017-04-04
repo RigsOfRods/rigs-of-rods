@@ -41,7 +41,6 @@ set( SOURCE_FILES
   gameplay/Character.{h,cpp}
   gameplay/CharacterFactory.{h,cpp}
   gameplay/ChatSystem.{h,cpp}
-  gameplay/Landusemap.{h,cpp}
   gameplay/LandVehicleSimulation.{h,cpp}
   gameplay/MaterialReplacer.{h,cpp}
   gameplay/OutProtocol.{h,cpp}

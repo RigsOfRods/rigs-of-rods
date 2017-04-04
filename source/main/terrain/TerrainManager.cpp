@@ -183,7 +183,7 @@ void TerrainManager::LoadTerrain(std::string const & filename)
     // init things after loading the terrain
     if (j_terrn["terrn2"]["traction_map_file"] != Json::nullValue)
     {
-        gEnv->collisions->setupLandUse(j_terrn["traction_map_file"].asString().c_str());
+        gEnv->collisions->SetupGroundModelMap(&j_terrn["land_use_map"]);
     }
 
     // init the survey map

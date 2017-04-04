@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -32,6 +32,11 @@
 #include "Scripting.h"
 #include "Settings.h"
 #include "TerrainManager.h"
+
+#ifdef USE_PAGED
+#include "PropertyMaps.h"
+#include "PagedGeometry.h"
+#endif
 
 // some gcc fixes
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
@@ -119,12 +124,14 @@ Collisions::Collisions() :
     , free_collision_tri(0)
     , free_eventsource(0)
     , hashmask(0)
-    , landuse(0)
     , largest_cellcount(0)
     , last_called_cbox(0)
-    , last_used_ground_model(0)
     , max_col_tris(MAX_COLLISION_TRIS)
 {
+    m_land_use.map = nullptr;
+    m_land_use.outside = nullptr;
+    m_land_use.fallback = nullptr;
+
     hFinder = gEnv->terrainManager->getHeightFinder();
 
     debugMode = RoR::App::GetDiagCollisions(); // TODO: make interactive
@@ -143,7 +150,7 @@ Collisions::Collisions() :
 
     loadDefaultModels();
     defaultgm = getGroundModelByString("concrete");
-    defaultgroundgm = getGroundModelByString("gravel");
+    m_land_use.fallback = getGroundModelByString("gravel");
 
     if (debugMode)
     {
@@ -154,6 +161,9 @@ Collisions::Collisions() :
 
 Collisions::~Collisions()
 {
+    delete m_land_use.map;                    m_land_use.map = nullptr;
+    delete m_land_use.outside;                m_land_use.outside = nullptr;
+    delete m_land_use.fallback;               m_land_use.fallback = nullptr;
 }
 
 void Collisions::resizeMemory(long newSize)
@@ -364,20 +374,96 @@ Ogre::Vector3 Collisions::calcCollidedSide(const Ogre::Vector3& pos, const Ogre:
     return newPos;
 }
 
-void Collisions::setupLandUse(const char *configfile)
+void Collisions::SetupGroundModelMap(Json::Value* j_landuse_ptr)
 {
 #ifdef USE_PAGED
-    if (landuse) return;
-    landuse = new Landusemap(configfile);
+    Json::Value& j_landuse = *j_landuse_ptr;
+
+    // Apply map-specific settings
+    for (Json::Value& j_filename: j_landuse["groundmodel_files"])
+    {
+        m_ground_models.LoadGroundModels(j_filename.asString());
+    }
+
+    if (j_landuse["default_groundmodel"] != Json::nullValue)
+    {
+        m_land_use.gm_outside = m_ground_models.GetGroundModel(j_landuse["default_groundmodel"].asString().c_str());
+    }
+
+    // Prepare a color -> groundmodel conversion table
+    std::map<size_t, ground_model_t*> color2model;
+    for (Json::Value& j_entry : j_landuse["color_mappings"])
+    {
+        color2model.insert(std::make_pair(
+            j_entry["rgba_color"].asLargestUInt(),
+            this->getGroundModelByString(j_entry["groundmodel_name"].asString())));
+    }
+
+    try
+    {
+        // Analyze terrain
+        const Ogre::Vector3 map_size = gEnv->terrainManager->getMaxTerrainSize();
+        m_land_use.map_size_x = static_cast<size_t>(map_size.x);
+        m_land_use.map_size_z = static_cast<size_t>(map_size.z);
+        const Ogre::TRect<Ogre::Real> bounds = Forests::TBounds(0, 0, map_size.x, map_size.z);
+
+        // Load control texture
+        Forests::ColorMap* color_map = Forests::ColorMap::load(j_landuse["texture_file"].asString(), Forests::CHANNEL_COLOR);
+        color_map->setFilter(Forests::MAPFILTER_NONE);
+        const bool is_BGR = color_map->getPixelBox().format == PF_A8B8G8R8;
+
+        // Allocate space for the groundmodel map
+        const size_t map_byte_size = m_land_use.map_size_x * m_land_use.map_size_z;
+        m_land_use.map = new ground_model_t*[map_byte_size];
+        memset(m_land_use.map, 0, map_byte_size);
+
+        // Resolve control texture colors to groundmodel entries
+        ground_model_t** ptr = m_land_use.map;
+        for (size_t z = 0; z < m_land_use.map_size_z; z++)
+        {
+            for (size_t x = 0; x < m_land_use.map_size_x; x++)
+            {
+                size_t color = color_map->getColorAt(x, z, bounds);
+                if (is_BGR)
+                {
+                    // Swap red and blue values
+                    unsigned int cols = color & 0xFF00FF00;
+                    cols |= (color & 0xFF) << 16;
+                    cols |= (color & 0xFF0000) >> 16;
+                    color = cols;
+                }
+
+                auto search_res = color2model.find(color);
+                if (search_res != color2model.end())
+                {
+                    *ptr = search_res->second;
+                }
+
+                ptr++;
+            }
+        }
+    }
+    catch (Ogre::Exception& e)
+    {
+        LOG("[RoR] Error processing landusemap (Ogre::Exception), message: " + e.getFullDescription());
+    }
+    catch (std::exception& e)
+    {
+        LOG(std::string("[RoR] Error processing landusemap (std::exception), message: ") + e.what());
+    }
+    catch (...)
+    {
+        LOG("[RoR] Unrecognized error while processing landusemap");
+    }
 #else
-    LOG("RoR was not compiled with PagedGeometry support. You cannot use Landuse maps with it.");
+    LOG("RoR was not built with PagedGeometry support. You cannot use Landuse maps with it.");
 #endif //USE_PAGED
 }
 
 ground_model_t *Collisions::getGroundModelByString(const String name)
 {
     if (!ground_models.size() || ground_models.find(name) == ground_models.end())
-        return 0;
+        return nullptr;
 
     return &ground_models[name];
 }
@@ -1351,11 +1437,11 @@ bool Collisions::isInside(Vector3 pos, collision_box_t *cbox, float border)
 
 bool Collisions::groundCollision(node_t *node, float dt, ground_model_t** ogm, float *nso)
 {
-    if (!hFinder) return false;
-    if (landuse) *ogm = landuse->getGroundModelAt(node->AbsPosition.x, node->AbsPosition.z);
-    // when landuse fails or we don't have it, use the default value
-    if (!*ogm) *ogm = defaultgroundgm;
-    last_used_ground_model = *ogm;
+    if (hFinder == nullptr) // TODO: Not a happy design ~ only_a_ptr, 04/2017
+        return false;
+
+    if (m_land_use.map != nullptr)
+        *ogm = this->QueryGroundModelMap(static_cast<int>(node->AbsPosition.x), static_cast<int>(node->AbsPosition.z));
 
     // new ground collision code
     Real v = hFinder->getHeightAt(node->AbsPosition.x, node->AbsPosition.z);
@@ -1792,4 +1878,23 @@ void Collisions::finishLoadingTerrain()
 
         createCollisionDebugVisualization();
     }
+}
+
+ground_model_t* Collisions::QueryGroundModelMap(const int x, const int z)
+{
+    if (m_land_use.map == nullptr)
+        return m_land_use.fallback;
+
+#ifdef USE_PAGED
+    const int mapsize_x = static_cast<int>(m_land_use.map_size_x);
+    const int mapsize_z = static_cast<int>(m_land_use.map_size_z);
+
+    // we return the default ground model if we are not anymore in this map
+    if (x < 0 || x >= mapsize_x || z < 0 || z >= mapsize_z)
+        return m_land_use.outside;
+
+    return m_land_use.map[x + z * mapsize_x];
+#else
+    return m_land_use.fallback;
+#endif // USE_PAGED
 }

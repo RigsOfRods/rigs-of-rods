@@ -20,19 +20,20 @@
 #include "Terrn2Deployment.h"
 
 #include "RoRPrerequisites.h"
+#include "ConfigFile.h"
 
 #define LOGSTREAM Ogre::LogManager::getSingleton().stream() << "[RoR|DeployTerrn2] "
 
 bool RoR::Terrn2Deployer::DeployTerrn2(std::string const & terrn2_filename)
 {
-    auto& ogre_resources = Ogre::ResourceGroupManager::getSingleton();
+    auto& resource_group_manager = Ogre::ResourceGroupManager::getSingleton();
 
     // PROCESS .TERRRN2
     try
     {
         // create the Stream
-        const std::string group_name = ogre_resources.findGroupContainingResource(terrn2_filename);
-        Ogre::DataStreamPtr stream = ogre_resources.openResource(terrn2_filename, group_name);
+        const std::string group_name = resource_group_manager.findGroupContainingResource(terrn2_filename);
+        Ogre::DataStreamPtr stream = resource_group_manager.openResource(terrn2_filename, group_name);
 
         // Parse the file
         Terrn2Parser parser;
@@ -69,12 +70,24 @@ bool RoR::Terrn2Deployer::DeployTerrn2(std::string const & terrn2_filename)
         this->HandleException("processing .otc file(s)");
     }
 
+    // PROCESS 'LANDUSE.CFG'
+    try
+    {
+        this->LoadLanduseConfig();
+    }
+    catch (...)
+    {
+        this->HandleException("processing 'landuse.cfg' file");
+        return false;
+    }
+
     // TODO: Process others (ODEF, TOBJ...)
 
     // COMPOSE JSON
     m_json = Json::objectValue;
     this->ProcessTerrn2Json();
     this->ProcessOtcJson();
+    this->ProcessLanduseJson();
 
     return true;
 }
@@ -158,6 +171,83 @@ void RoR::Terrn2Deployer::ProcessTerrn2Json()
         j_author["position"] = this->Vector3ToJson(t2_tele.position);
         j_terrn2["teleport"]["telepoints"].append(j_author);
     }
+}
+
+void RoR::Terrn2Deployer::LoadLanduseConfig()
+{
+    std::string group;
+    try
+    {
+        group = Ogre::ResourceGroupManager::getSingleton()
+            .findGroupContainingResource(m_terrn2.traction_map_file);
+    }
+    catch (...)
+    {} // The path may be global -> yields exception, but it's a valid case.
+
+    if (group == "")
+        m_landuse.loadDirect(m_terrn2.traction_map_file);
+    else
+        m_landuse.loadFromResourceSystem(m_terrn2.traction_map_file, group, "\x09:=", true);
+}
+
+void RoR::Terrn2Deployer::ProcessLanduseJson()
+{
+// NOTE: This fileformat is truly awful - take the following code as reference ~ only_a_ptr, 04/2017
+    Json::Value j_landuse = Json::objectValue;
+    j_landuse["groundmodel_files"] = Json::arrayValue;
+    j_landuse["color_mappings"] = Json::arrayValue;
+
+    Ogre::ConfigFile::SectionIterator section_itor = m_landuse.getSectionIterator();
+    while (section_itor.hasMoreElements()) // Order matters
+    {
+        const std::string section_name = section_itor.peekNextKey();
+        Ogre::ConfigFile::SettingsMultiMap& settings = *section_itor.getNext();
+        if (section_name == "general" || section_name == "config")
+        {
+            for (auto& entry : settings) // Order matters
+            {
+                Ogre::StringUtil::trim(entry.second);
+                if (entry.first == "texture")
+                {
+                    if (!entry.second.empty())
+                        j_landuse["texture_file"] = entry.second;
+                }
+                else if (entry.first == "frictionconfig" || entry.first == "loadGroundModelsConfig")
+                {
+                    if (!entry.second.empty())
+                        j_landuse["groundmodel_files"].append(entry.second);
+                }
+                else if (entry.first == "defaultuse")
+                {
+                    if (!entry.second.empty())
+                        j_landuse["default_groundmodel"] = entry.second;
+                }
+                else
+                {
+                    LOGSTREAM << "Invalid key '" << entry.first << "' in file '" << m_terrn2.traction_map_file << "'";
+                }
+            }
+        }
+        else if (section_name == "use-map")
+        {
+            for (auto& entry : settings) // Order matters
+            {
+                if (entry.first.size() != 10)
+                {
+                    LOGSTREAM << "Invalid color'" << entry.first << "' in file '" << m_terrn2.traction_map_file << "'";
+                    continue;
+                }
+                char* ptr; // TODO: Check error
+                unsigned int color = strtoul(entry.first.c_str(), &ptr, 16);
+                Json::Value j_entry;
+                j_entry["rgba_color"] = color;
+                j_entry["groundmodel_name"] = entry.second;
+                j_landuse["color_mappings"].append(j_entry);
+            }
+        }
+    }
+
+    m_json["land_use_map"] = j_landuse;
 }
 
 bool RoR::Terrn2Deployer::CheckAndLoadOTC()
