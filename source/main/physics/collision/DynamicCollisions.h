@@ -21,22 +21,18 @@
 
 #pragma once
 
-class PointColDetector;
-class collcab_rate_t;
-class node_t;
-class Beam;
-class ground_model_t;
+#include "ForwardDeclarations.h"
 
 void interTruckCollisions(const float dt, PointColDetector &interPointCD,
         const int free_collcab, int collcabs[], int cabs[],
         collcab_rate_t inter_collcabrate[], node_t nodes[],
         const float collrange, Beam **trucks,
         const int numtrucks,
-        ground_model_t &submesh_ground_model);
+        RoR::GroundModelDef &submesh_ground_model);
 
 void intraTruckCollisions(const float dt, PointColDetector &intraPointCD,
         const int free_collcab, int collcabs[], int cabs[],
         collcab_rate_t intra_collcabrate[], node_t nodes[],
         const float collrange,
-        ground_model_t &submesh_ground_model);
+        RoR::GroundModelDef &submesh_ground_model);
 

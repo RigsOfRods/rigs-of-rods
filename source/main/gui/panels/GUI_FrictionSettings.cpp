@@ -489,34 +489,32 @@ void FrictionSettings::setShaded(bool value)
 
 void FrictionSettings::SetVisible(bool value)
 {
-    if (!col)
+    if (!col) // TODO: Not a happy mechanism ~ only_a_ptr, 04/2017
         return;
+
     if (value)
     {
         // upon show, refresh list
-        MyGUI::ComboBoxPtr cb = (MyGUI::ComboBoxPtr)win->findWidget("combo_grounds");
+        MyGUI::ComboBoxPtr cb = static_cast<MyGUI::ComboBoxPtr>(win->findWidget("combo_grounds"));
         cb->removeAllItems();
 
-        std::map<String, ground_model_t>::iterator it;
-        std::map<String, ground_model_t>* gmm = col->getGroundModels();
-        for (it = gmm->begin(); it != gmm->end(); it++)
+        auto& gm_hashmap = col->GetGroundModelManager()->GetAllGroundModels();
+        for (auto& entry : gm_hashmap)
         {
-            cb->addItem((*it).second.name);
+            cb->addItem(entry.second.name);
         }
         cb->setEditStatic(true);
         cb->setIndexSelected(0);
-        ground_model_t* gm = col->getGroundModelByString(cb->getItemNameAt(0));
-        selected_gm = gm;
-        if (gm)
-            updateControls(gm, false);
+
+        selected_gm = col->GetGroundModelManager()->GetGroundModel(cb->getItemNameAt(0).asUTF8_c_str());
+        if (selected_gm)
+            this->updateControls(selected_gm, false);
     }
     else
     {
         RoR::App::GetGuiManager()->UnfocusGui();
     }
     win->setVisibleSmooth(value);
-    //win->setVisible(value);
-    //MyGUI::PointerManager::getInstance().setVisible(value);
 }
 
 bool FrictionSettings::IsVisible()
@@ -524,7 +522,7 @@ bool FrictionSettings::IsVisible()
     return win->getVisible();
 }
 
-void FrictionSettings::setActiveCol(ground_model_t* gm)
+void FrictionSettings::setActiveCol(RoR::GroundModelDef* gm)
 {
     if (!gm)
         return;
@@ -540,7 +538,7 @@ void FrictionSettings::setActiveCol(ground_model_t* gm)
         updateControls(gm);
 }
 
-void FrictionSettings::updateControls(ground_model_t* gm, bool setCombo)
+void FrictionSettings::updateControls(RoR::GroundModelDef* gm, bool setCombo)
 {
     if (!gm)
         return;
@@ -713,14 +711,18 @@ void FrictionSettings::event_combo_grounds_eventComboAccept(MyGUI::ComboBoxPtr _
 {
     if (!col)
         return;
+
     if (!win->getVisible())
         return;
+
     MyGUI::ComboBoxPtr cb = (MyGUI::ComboBoxPtr)win->findWidget("combo_grounds");
     if (!cb)
         return;
-    ground_model_t* gm = col->getGroundModelByString(cb->getItemNameAt(_index).asUTF8_c_str());
+
+    RoR::GroundModelDef* gm = col->GetGroundModelManager()->GetGroundModel(cb->getItemNameAt(_index).asUTF8_c_str());
     if (gm)
         updateControls(gm, false);
+
     selected_gm = gm;
 }
 

@@ -369,9 +369,9 @@ void Road2::addQuad(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, int texfit, 
     }
     if (collision)
     {
-        ground_model_t* gm = gEnv->collisions->getGroundModelByString("concrete");
+        RoR::GroundModelDef* gm = gEnv->collisions->GetGroundModelManager()->GetGroundModel("concrete");
         if (texfit == TEXFIT_ROAD || texfit == TEXFIT_ROADS1 || texfit == TEXFIT_ROADS2 || texfit == TEXFIT_ROADS3 || texfit == TEXFIT_ROADS4)
-            gm = gEnv->collisions->getGroundModelByString("asphalt");
+            gm = gEnv->collisions->GetGroundModelManager()->GetGroundModel("asphalt");
         addCollisionQuad(p1, p2, p3, p4, gm, flip);
     }
     tricount += 2;
@@ -513,7 +513,7 @@ void Road2::textureFit(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, int texfi
         texc[i] = Vector2(0, 0);
 }
 
-void Road2::addCollisionQuad(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, ground_model_t* gm, bool flip)
+void Road2::addCollisionQuad(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, RoR::GroundModelDef* gm, bool flip)
 {
     int triID = 0;
     if (flip)

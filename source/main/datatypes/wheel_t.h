@@ -49,7 +49,7 @@ struct wheel_t
     bool firstLock;
     float lastSlip;
     int lastContactType;
-    ground_model_t *lastGroundModel;
+    RoR::GroundModelDef *lastGroundModel;
 
     int detacher_group;
     bool detached;

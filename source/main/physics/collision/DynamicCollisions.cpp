@@ -97,7 +97,7 @@ void ResolveCollisionForces(const float penetration_depth,
         const float alpha, const float beta, const float gamma,
         const Vector3 &normal,
         const float dt,
-        ground_model_t &submesh_ground_model)
+        RoR::GroundModelDef &submesh_ground_model)
 {
 
     //Find the point's velocity relative to the triangle
@@ -141,7 +141,7 @@ void interTruckCollisions(const float dt, PointColDetector &interPointCD,
         collcab_rate_t inter_collcabrate[], node_t nodes[],
         const float collrange, Beam **trucks,
         const int numtrucks,
-        ground_model_t &submesh_ground_model)
+        RoR::GroundModelDef &submesh_ground_model)
 {
     for (int i=0; i<free_collcab; i++)
     {
@@ -216,7 +216,7 @@ void intraTruckCollisions(const float dt, PointColDetector &intraPointCD,
         const int free_collcab, int collcabs[], int cabs[],
         collcab_rate_t intra_collcabrate[], node_t nodes[],
         const float collrange,
-        ground_model_t &submesh_ground_model)
+        RoR::GroundModelDef &submesh_ground_model)
 {
     for (int i=0; i<free_collcab; i++)
     {

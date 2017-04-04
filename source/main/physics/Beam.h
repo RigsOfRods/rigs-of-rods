@@ -235,7 +235,7 @@ public:
     /**
     * Ground.
     */
-    ground_model_t *getLastFuzzyGroundModel();
+    RoR::GroundModelDef *getLastFuzzyGroundModel();
 
     /**
     * Creates or updates skidmarks. No side effects.
@@ -396,7 +396,7 @@ public:
     float sleeptime;
     //can this be driven?
     int previousGear;
-    ground_model_t *submesh_ground_model;
+    RoR::GroundModelDef *submesh_ground_model;
     int parkingbrake;
     int lights;
     bool reverselight;
@@ -640,7 +640,7 @@ protected:
 
     Ogre::Real replayTimer;
 
-    ground_model_t *lastFuzzyGroundModel;
+    RoR::GroundModelDef *lastFuzzyGroundModel;
 
     bool high_res_wheelnode_collisions;
 

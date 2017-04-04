@@ -703,7 +703,7 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
 
     for (std::string& gmodel_file: odef->groundmodel_files)
     {
-        gEnv->collisions->loadGroundModelsConfigFile(gmodel_file);
+        gEnv->collisions->LoadGroundModelsConfigFile(gmodel_file);
     }
 
     for (ODefCollisionBox& cbox : odef->collision_boxes)
@@ -719,7 +719,7 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
 
     for (ODefCollisionMesh& cmesh : odef->collision_meshes)
     {
-        auto gm = gEnv->collisions->getGroundModelByString(cmesh.groundmodel_name);
+        auto gm = gEnv->collisions->GetGroundModelManager()->GetGroundModel(cmesh.groundmodel_name.c_str());
         gEnv->collisions->addCollisionMesh(
             cmesh.mesh_name, pos, tenode->getOrientation(),
             cmesh.scale, gm, &(obj->collTris));

@@ -24,6 +24,7 @@
 
 #include "BeamData.h"
 #include "IHeightFinder.h"
+#include "GroundModelFileformat.h" // for GroundModelDef
 #include "Settings.h"
 #include "Utils.h"
 

@@ -207,6 +207,7 @@ set( SOURCE_FILES
   physics/water/ScrewProp.{h,cpp}
   resources/CacheSystem.{h,cpp}
   resources/ContentManager.{h,cpp}
+  resources/groundmodel_fileformat/GroundModelFileformat.{h,cpp}
   resources/otc_fileformat/OTCFileformat.{h,cpp}
   resources/odef_fileformat/ODefFileFormat.{h,cpp}
   resources/rig_def_fileformat/RigDef_File.{h,cpp}
@@ -406,6 +407,7 @@ target_include_directories( ${BINNAME} PRIVATE
  physics/utils
  physics/water
  resources
+ resources/groundmodel_fileformat/ 
  resources/odef_fileformat/
  resources/otc_fileformat/
  resources/rig_def_fileformat

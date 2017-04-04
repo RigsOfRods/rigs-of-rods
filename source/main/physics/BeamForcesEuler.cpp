@@ -1716,7 +1716,7 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
             if (nodes[i].contacted || nodes[i].collTestTimer > 0.005 || ((nodes[i].iswheel || nodes[i].wheelid != -1) && (high_res_wheelnode_collisions || nodes[i].collTestTimer > 0.0025)) || increased_accuracy)
             {
                 float ns = 0;
-                ground_model_t* gm = 0; // this is used as result storage, so we can use it later on
+                RoR::GroundModelDef* gm = 0; // this is used as result storage, so we can use it later on
                 bool contacted = gEnv->collisions->groundCollision(&nodes[i], nodes[i].collTestTimer, &gm, &ns);
                 // reverted this construct to the old form, don't mess with it, the binary operator is intentionally!
                 if (contacted | gEnv->collisions->nodeCollision(&nodes[i], contacted, nodes[i].collTestTimer, &ns, &gm))
@@ -1728,12 +1728,12 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 
                         switch (gm->fx_type)
                         {
-                        case Collisions::FX_DUSTY:
+                        case RoR::GroundModelDef::FxSurfaceType::FX_DUSTY:
                             if (dustp)
                                 dustp->malloc(nodes[i].AbsPosition, nodes[i].Velocity / 2.0, gm->fx_colour);
                             break;
 
-                        case Collisions::FX_HARD:
+                        case RoR::GroundModelDef::FxSurfaceType::FX_HARD:
                             // smokey
                             if (nodes[i].iswheel && ns > thresold)
                             {
@@ -1773,7 +1773,7 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                             }
                             break;
 
-                        case Collisions::FX_CLUMPY:
+                        case RoR::GroundModelDef::FxSurfaceType::FX_CLUMPY:
                             if (nodes[i].Velocity.squaredLength() > 1.0)
                             {
                                 if (clumpp)

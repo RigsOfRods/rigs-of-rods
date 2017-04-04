@@ -293,7 +293,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
 
     if (gui_man->IsVisible_FrictionSettings() && curr_truck)
     {
-        ground_model_t* gm = curr_truck->getLastFuzzyGroundModel();
+        RoR::GroundModelDef* gm = curr_truck->getLastFuzzyGroundModel();
 
         gui_man->GetFrictionSettings()->setActiveCol(gm);
     }

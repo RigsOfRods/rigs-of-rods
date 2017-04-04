@@ -41,7 +41,7 @@ public:
     void CheckAndInit();
     void Shutdown();
 
-    DustPool* getGroundModelDustPool(ground_model_t* g);
+    DustPool* getGroundModelDustPool(RoR::GroundModelDef* g);
 
     void update();
 

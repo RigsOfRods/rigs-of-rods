@@ -6163,11 +6163,8 @@ bool Beam::LoadTruck(
     // fix up submesh collision model
     if (!subMeshGroundModelName.empty())
     {
-        submesh_ground_model = gEnv->collisions->getGroundModelByString(subMeshGroundModelName);
-        if (!submesh_ground_model)
-        {
-            submesh_ground_model = gEnv->collisions->defaultgm;
-        }
+        // Returns the node-collision-default (aka "defaultgm") groundmodel if the specified is not found
+        submesh_ground_model = gEnv->collisions->GetNamedOrDefaultGM(subMeshGroundModelName.c_str());
     }
 
     // print some truck memory stats
@@ -6376,7 +6373,7 @@ bool Beam::LoadTruck(
     return true;
 }
 
-ground_model_t* Beam::getLastFuzzyGroundModel()
+RoR::GroundModelDef* Beam::getLastFuzzyGroundModel()
 {
     return lastFuzzyGroundModel;
 }
