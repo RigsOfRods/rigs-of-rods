@@ -119,5 +119,4 @@ private:
     void initWater(Json::Value& j_terrn);
 
     void fixCompositorClearColor();
-    void loadTerrainObjects(Json::Value& j_terrn);
 };

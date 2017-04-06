@@ -32,6 +32,9 @@
 #include "TreeLoader3D.h"
 #endif //USE_PAGED
 
+// Forward
+namespace Json { class Value; }
+
 class TerrainObjectManager : public ZeroedMemoryAllocator
 {
 public:
@@ -39,7 +42,7 @@ public:
     TerrainObjectManager(TerrainManager* terrainManager);
     ~TerrainObjectManager();
 
-    void loadObjectConfigFile(Ogre::String filename);
+    void ProcessTerrainObjects(Json::Value* j_terrn);
 
     void loadObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, Ogre::SceneNode* bakeNode, const Ogre::String& instancename, const Ogre::String& type, bool enable_collisions = true, int scripthandler = -1, bool uniquifyMaterial = false);
     void moveObjectVisuals(const Ogre::String& instancename, const Ogre::Vector3& pos);
@@ -52,12 +55,12 @@ public:
 
     bool updateAnimatedObjects(float dt);
 
-    void ProcessTree(
-        float yawfrom, float yawto,
-        float scalefrom, float scaleto,
-        char* ColorMap, char* DensityMap, char* treemesh, char* treeCollmesh,
-        float gridspacing, float highdens,
-        int minDist, int maxDist, int mapsizex, int mapsizez);
+    void ProcessTreePage(Json::Value* j_tree_page, int mapsizex, int mapsizez);
+    //OLD    float yawfrom, float yawto,
+    //OLD    float scalefrom, float scaleto,
+    //OLD    char* ColorMap, char* DensityMap, char* treemesh, char* treeCollmesh,
+    //OLD    float gridspacing, float highdens,
+    //OLD    int minDist, int maxDist, int mapsizex, int mapsizez);
 
     void ProcessGrass(
         float SwaySpeed, float SwayLength, float SwayDistribution, float Density,

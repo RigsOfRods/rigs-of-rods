@@ -22,6 +22,9 @@
 #include "RoRPrerequisites.h"
 #include "ConfigFile.h"
 
+#include "PagedGeometry.h"
+#include "TreeLoader3D.h"
+
 #define LOGSTREAM Ogre::LogManager::getSingleton().stream() << "[RoR|DeployTerrn2] "
 
 bool RoR::Terrn2Deployer::DeployTerrn2(std::string const & terrn2_filename)
@@ -81,13 +84,22 @@ bool RoR::Terrn2Deployer::DeployTerrn2(std::string const & terrn2_filename)
         return false;
     }
 
-    // TODO: Process others (ODEF, TOBJ...)
+    // PROCESS .TOBJ (terrain objects)
+    try
+    {
+        this->LoadTobjFiles();
+    }
+    catch (...)
+    {
+        this->HandleException("processing .tobj file(s)");
+    }
 
     // COMPOSE JSON
     m_json = Json::objectValue;
     this->ProcessTerrn2Json();
     this->ProcessOtcJson();
     this->ProcessLanduseJson();
+    this->ProcessTobjJson();
 
     return true;
 }
@@ -346,6 +358,202 @@ void RoR::Terrn2Deployer::ProcessOtcJson()
     }
 
     m_json["ogre_terrain_conf"] = json_otc;
+}
+
+void RoR::Terrn2Deployer::LoadTobjFiles()
+{
+    auto& resource_group_manager = Ogre::ResourceGroupManager::getSingleton();
+    for (std::string const& tobj_filename : m_terrn2.tobj_files)
+    {
+        // create the Stream
+        const std::string group_name = resource_group_manager.findGroupContainingResource(tobj_filename);
+        Ogre::DataStreamPtr stream = resource_group_manager.openResource(tobj_filename, group_name);
+
+        // Parse the file
+        TObjParser parser;
+        parser.Prepare();
+        bool error = false;
+        while (!stream->eof())
+        {
+            if (!parser.ProcessLine(stream->getLine().c_str()))
+            {
+                LOGSTREAM << "Error reading .tobj file '" << tobj_filename << "'";
+                error = true;
+                break;
+            }
+        }
+
+        // Persist the data
+        if (!error)
+            m_tobj_list.push_back(parser.Finalize());
+    }
+}
+
+void RoR::Terrn2Deployer::ProcessTobjJson()
+{
+    m_json["terrain_objects"] = Json::objectValue;
+    m_json["collision_meshes"] = Json::arrayValue;
+    Json::Value& j_tobj = m_json["terrain_objects"];
+
+    long num_collision_tris = -1;
+    for (std::shared_ptr<TObjFile>& tobj : m_tobj_list)
+    {
+        // Grid
+        if (tobj->grid_enabled)
+        {
+            j_tobj["grid_enabled"] = Json::Value(true);
+            j_tobj["grid_pos"] = this->Vector3ToJson(tobj->grid_position);
+        }
+
+        // Collision triangle count (detect)
+        if (tobj->num_collision_triangles > num_collision_tris)
+            num_collision_tris = tobj->num_collision_triangles;
+    }
+
+    // Collision triangle count
+    if (num_collision_tris != -1)
+        j_tobj["num_collision_triangles"] = num_collision_tris;
+
+    // Trees
+    this->ProcessTobjTreesJson();
+}
+
+void RoR::Terrn2Deployer::ProcessTobjTreesJson()
+{
+    m_json["terrain_objects"]["tree_pages"] = Json::arrayValue;
+    size_t num_trees = 0;
+
+    for (std::shared_ptr<TObjFile> tobj : m_tobj_list)
+    {
+        for (TObjTree& tree : tobj->trees)
+        {
+            if (tree.color_map[0] == 0) // Empty c-string?
+            {
+                LOGSTREAM << "TObj/Tree has no colormap, skipping...";
+                continue;
+            }
+            if (tree.density_map[0] == 0) // Empty c-string?
+            {
+                LOGSTREAM << "TObj/Tree has no density-map, skipping...";
+                continue;
+            }
+            Forests::DensityMap* density_map = Forests::DensityMap::load(tree.density_map, Forests::CHANNEL_COLOR);
+            if (density_map == nullptr)
+            {
+                LOGSTREAM << "TObj/Tree: couldn't load density map '" << tree.density_map << "', skipping...";
+                continue;
+            }
+
+            Json::Value j_page = Json::objectValue;
+            if (strcmp(tree.color_map, "none") != 0) // "none" is special value which disables colormap
+            {
+                j_page["color_map"] = tree.color_map;
+            }
+
+            std::stringstream ent_name;
+            ent_name << "paged_" << tree.tree_mesh << num_trees;
+            j_page["entity_name"] = ent_name.str();
+            j_page["tree_mesh"] = tree.tree_mesh;
+            j_page["distance_min"] = tree.min_distance;
+            j_page["distance_max"] = tree.max_distance;
+
+            // Generate trees
+            const float max_x = static_cast<float>(m_otc->world_size_x);
+            const float max_z = static_cast<float>(m_otc->world_size_z);
+            Ogre::TRect<float> bounds = Forests::TBounds(0, 0, max_x, max_z);
+            j_page["trees"] = Json::arrayValue;
+            if (tree.grid_spacing > 0)
+            {
+                // Grid style
+                for (float x = 0; x < max_x; x += tree.grid_spacing)
+                {
+                    for (float z = 0; z < max_z; z += tree.grid_spacing)
+                    {
+                        const float density = density_map->_getDensityAt_Unfiltered(x, z, bounds);
+                        if (density < 0.8f)
+                        {
+                            continue;
+                        }
+                        const float pos_x = x + tree.grid_spacing * 0.5f;
+                        const float pos_z = z + tree.grid_spacing * 0.5f;
+                        const float yaw = Ogre::Math::RangeRandom(tree.yaw_from, tree.yaw_to);
+                        const float scale = Ogre::Math::RangeRandom(tree.scale_from, tree.scale_to);
+                        Json::Value j_tree = Json::objectValue;
+                        j_tree["pos_x"] = pos_x;
+                        j_tree["pos_z"] = pos_z;
+                        j_tree["yaw"]   = yaw;
+                        j_tree["scale"] = scale;
+                        if (tree.collision_mesh[0] != 0) // Non-empty cstring?
+                        {
+                            Ogre::Quaternion rot(Ogre::Degree(yaw), Ogre::Vector3::UNIT_Y);
+                            Ogre::Vector3 scale3d(scale * 0.1f, scale * 0.1f, scale * 0.1f);
+                            this->AddCollMeshJson(tree.collision_mesh, pos_x, pos_z, rot, scale3d);
+                        }
+                        j_page["trees"].append(j_tree);
+                    }
+                }
+            }
+            else
+            {
+                // Normal style, random
+                float hi_density = tree.high_density;
+                float grid_size = 10;
+                if ((tree.grid_spacing < 0) && (tree.grid_spacing != 0)) // Verbatim port of old logic
+                {
+                    grid_size = -tree.grid_spacing;
+                }
+                for (float x = 0; x < max_x; x += grid_size)
+                {
+                    for (float z = 0; z < max_z; z += grid_size)
+                    {
+                        if (tree.high_density < 0)
+                        {
+                            hi_density = Ogre::Math::RangeRandom(0, -tree.high_density);
+                        }
+                        const float density = density_map->_getDensityAt_Unfiltered(x, z, bounds);
+                        // Pre-generate enough trees for the highest settings
+                        const int num_trees = static_cast<int>(hi_density * density * 1.0f) + 1;
+                        for (int i = 0; i < num_trees; ++i)
+                        {
+                            float pos_x = Ogre::Math::RangeRandom(x, x + grid_size);
+                            float pos_z = Ogre::Math::RangeRandom(z, z + grid_size);
+                            float yaw = Ogre::Math::RangeRandom(tree.yaw_from, tree.yaw_to);
+                            float scale = Ogre::Math::RangeRandom(tree.scale_from, tree.scale_to);
+                            Json::Value j_tree = Json::objectValue;
+                            j_tree["pos_x"] = pos_x;
+                            j_tree["pos_z"] = pos_z;
+                            j_tree["yaw"]   = yaw;
+                            j_tree["scale"] = scale;
+                            if (tree.collision_mesh[0] != 0)
+                            {
+                                Ogre::Quaternion rot(Ogre::Degree(yaw), Ogre::Vector3::UNIT_Y);
+                                Ogre::Vector3 scale3d(scale * 0.1f, scale * 0.1f, scale * 0.1f);
+                                this->AddCollMeshJson(tree.collision_mesh, pos_x, pos_z, rot, scale3d);
+                            }
+                            j_page["trees"].append(j_tree);
+                        }
+                    }
+                }
+            }
+            m_json["terrain_objects"]["tree_pages"].append(j_page);
+        } // For each TObjTree
+    } // For each TObjFile
+}
+
+void RoR::Terrn2Deployer::AddCollMeshJson(const char* name, float pos_x, float pos_z, Ogre::Quaternion rot, Ogre::Vector3 scale)
+{
+    Json::Value j_colmesh;
+
+    j_colmesh["mesh_name"] = name;
+    j_colmesh["pos_x"]     = pos_x;
+    j_colmesh["pos_z"]     = pos_z;
+    j_colmesh["scale_3d"]  = this->Vector3ToJson(scale);
+    j_colmesh["rotq_x"]    = rot.x;
+    j_colmesh["rotq_y"]    = rot.y;
+    j_colmesh["rotq_z"]    = rot.z;
+    j_colmesh["rotq_w"]    = rot.w;
+
+    m_json["collision_meshes"].append(j_colmesh);
 }
 
 void RoR::Terrn2Deployer::HandleException(const char* action)

@@ -176,8 +176,9 @@ void TerrainManager::LoadTerrain(std::string const & filename)
     LOG(" ===== LOADING TERRAIN OBJECTS " + filename);
 
     PROGRESS_WINDOW(90, _L("Loading Terrain Objects"));
-    loadTerrainObjects(j_terrn);
 
+    object_manager->ProcessTerrainObjects(&j_terrn);
+    object_manager->postLoad(); // bakes the geometry and things
     m_terrn_collisions->printStats();
 
     // init things after loading the terrain
@@ -586,16 +587,6 @@ void TerrainManager::initShadows()
 {
     shadow_manager = new ShadowManager();
     shadow_manager->loadConfiguration();
-}
-
-void TerrainManager::loadTerrainObjects(Json::Value& j_terrn)
-{
-    for (Json::Value& j_tobj_filename : j_terrn["terrn2"]["tobj_files"])
-    {
-        object_manager->loadObjectConfigFile(j_tobj_filename.asString());
-    }
-
-    object_manager->postLoad(); // bakes the geometry and things
 }
 
 bool TerrainManager::update(float dt)
