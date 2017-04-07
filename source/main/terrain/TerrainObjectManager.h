@@ -23,6 +23,8 @@
 
 #include "RoRPrerequisites.h"
 
+#include "ODefFileFormat.h"
+
 #ifdef USE_PAGED
 #include "BatchPage.h"
 #include "GrassLoader.h"
@@ -91,6 +93,8 @@ public:
 
 protected:
 
+    ODefFile* FetchODef(std::string const & odef_name);
+
     TerrainManager* terrainManager;
 
     struct animated_object_t
@@ -152,7 +156,7 @@ protected:
     };
 
     std::map<std::string, loadedObject_t> loadedObjects;
-
+    std::unordered_map<std::string, std::shared_ptr<ODefFile>> m_odef_cache;
     std::vector<object_t> objects;
 };
 

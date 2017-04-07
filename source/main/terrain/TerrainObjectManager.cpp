@@ -471,6 +471,39 @@ void TerrainObjectManager::unloadObject(const String& instancename)
     obj.enabled = false;
 }
 
+ODefFile* TerrainObjectManager::FetchODef(std::string const & odef_name)
+{
+    // Consult cache first
+    auto search_res = m_odef_cache.find(odef_name);
+    if (search_res != m_odef_cache.end())
+    {
+        return search_res->second.get();
+    }
+
+    // Search for the file
+    const std::string filename = odef_name + ".odef";
+    std::string group_name;
+    try
+    {
+        group_name = Ogre::ResourceGroupManager::getSingleton().findGroupContainingResource(filename);
+    }
+    catch (...) // This means "not found"
+    {
+        return nullptr;
+    }
+
+    // Load and parse the file
+    Ogre::DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource(filename, group_name);
+    ODefParser parser;
+    parser.Prepare();
+    parser.ProcessOgreStream(ds.get());
+    std::shared_ptr<ODefFile> odef = parser.Finalize();
+
+    // Add to cache and return
+    m_odef_cache.insert(std::make_pair(odef_name, odef));
+    return odef.get();
+}
+
 void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, Ogre::SceneNode* bakeNode, const Ogre::String& instancename, const Ogre::String& type, bool enable_collisions /* = true */, int scripthandler /* = -1 */, bool uniquifyMaterial /* = false */)
 {
     if (type == "grid")
@@ -487,39 +520,13 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
         return;
     }
 
-    if (name.empty())
+    const std::string odefname = name + ".odef"; // for logging
+    ODefFile* odef = this->FetchODef(name);
+    if (odef == nullptr)
+    {
+        LOG("[ODEF] File not found: " + odefname);
         return;
-
-    Quaternion rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
-
-    // try to load with UID first!
-    String odefgroup = "";
-    String odefname = name + ".odef";
-
-    bool odefFound = false;
-
-    bool exists = ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(odefname);
-    if (exists)
-    {
-        odefgroup = ResourceGroupManager::getSingleton().findGroupContainingResource(odefname);
-        odefFound = true;
     }
-
-    if (!RoR::App::GetCacheSystem()->checkResourceLoaded(odefname, odefgroup))
-    {
-        if (!odefFound)
-        {
-            LOG("Error while loading Terrain: could not find required .odef file: " + odefname + ". Ignoring entry.");
-            return;
-        }
-    }
-
-    DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource(odefname, odefgroup);
-
-    ODefParser parser;
-    parser.Prepare();
-    parser.ProcessOgreStream(ds.get());
-    std::shared_ptr<ODefFile> odef = parser.Finalize();
 
     SceneNode* tenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
 
@@ -532,6 +539,7 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
 
     tenode->setScale(odef->header.scale);
     tenode->setPosition(pos);
+    Quaternion rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
     tenode->rotate(rotation);
     tenode->pitch(Degree(-90));
     tenode->setVisible(true);
