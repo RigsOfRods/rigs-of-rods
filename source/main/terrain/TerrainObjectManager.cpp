@@ -58,6 +58,8 @@ using namespace RoR;
 using namespace Forests;
 #endif //USE_PAGED
 
+#define LOGSTREAM Ogre::LogManager::getSingleton().stream() << "[RoR|Terrain] "
+
 //workaround for pagedgeometry
 inline float getTerrainHeight(Real x, Real z, void* unused = 0)
 {
@@ -204,7 +206,35 @@ void TerrainObjectManager::ProcessTerrainObjects(Json::Value* j_terrn_ptr)
     {
         for (Json::Value& j_tree_page : j_tobj["tree_pages"])
         {
-            this->ProcessTreePage(&j_tree_page, mapsizex, mapsizez);
+            try
+            {
+                this->ProcessTreePage(&j_tree_page, mapsizex, mapsizez);
+            }
+            catch (...)
+            {
+                this->HandleException("processing trees");
+            }
+        }
+    }
+
+    // Section 'grass' / 'grass2'
+    if (terrainManager->getPagedMode() != 0)
+    {
+        for (Json::Value& j_grass_page : j_tobj["grass_pages"])
+        {
+            try
+            {
+                this->ProcessGrass(&j_grass_page, mapsizex, mapsizez);
+                //OLD grass.sway_speed, grass.sway_length, grass.sway_distrib, grass.density,
+                //OLD grass.min_x, grass.min_y, grass.min_h,
+                //OLD grass.max_x, grass.max_y, grass.max_h,
+                //OLD grass.material_name, grass.color_map_filename, grass.density_map_filename,
+                //OLD grass.grow_techniq, grass.technique, grass.range, mapsizex, mapsizez);
+            }
+            catch (...)
+            {
+                this->HandleException("processing grass");
+            }
         }
     }
 
@@ -222,19 +252,7 @@ void TerrainObjectManager::ProcessTerrainObjects(Json::Value* j_terrn_ptr)
     }
 
 /* TODO: DEPLOYMENT
-    // Section 'grass' / 'grass2'
-    if (terrainManager->getPagedMode() != 0)
-    {
-        for (TObjGrass grass : tobj->grass)
-        {
-            this->ProcessGrass(
-                grass.sway_speed, grass.sway_length, grass.sway_distrib, grass.density,
-                grass.min_x, grass.min_y, grass.min_h,
-                grass.max_x, grass.max_y, grass.max_h,
-                grass.material_name, grass.color_map_filename, grass.density_map_filename,
-                grass.grow_techniq, grass.technique, grass.range, mapsizex, mapsizez);
-        }
-    }
+
 
     // Procedural roads
     for (ProceduralObject po : tobj->proc_objects)
@@ -325,77 +343,62 @@ void TerrainObjectManager::ProcessTreePage(Json::Value* j_page_ptr, int mapsizex
     pagedGeometry.push_back(paged);
 }
 
-void TerrainObjectManager::ProcessGrass(
-        float SwaySpeed, float SwayLength, float SwayDistribution, float Density,
-        float minx, float miny, float minH, float maxx, float maxy, float maxH,
-        char* grassmat, char* colorMapFilename, char* densityMapFilename,
-        int growtechnique, int techn, int range,
-        int mapsizex, int mapsizez)
+void TerrainObjectManager::ProcessGrass(Json::Value* j_grass_page, const int map_size_x, const int map_size_z)
+     //OLD   float SwaySpeed, float SwayLength, float SwayDistribution, float Density,
+     //OLD   float minx, float miny, float minH, float maxx, float maxy, float maxH,
+     //OLD   char* grassmat, char* colorMapFilename, char* densityMapFilename,
+     //OLD   int growtechnique, int techn, int range,
+     //OLD   int mapsizex, int mapsizez)
 {
-    //Initialize the PagedGeometry engine
-    try
+    Json::Value& j_grass = *j_grass_page;
+    const float sway_speed = j_grass["sway_speed"].asFloat();
+    const float detail_factor = terrainManager->getPagedDetailFactor();
+
+    paged_geometry_t paged;
+    Forests::PagedGeometry *grass = new Forests::PagedGeometry(gEnv->mainCamera, 30);
+    grass->addDetailLevel<Forests::GrassPage>(j_grass["range"].asInt() * detail_factor); // original value: 80
+
+    Forests::GrassLoader *grass_loader = new Forests::GrassLoader(grass);
+    grass->setPageLoader(grass_loader);
+    grass_loader->setHeightFunction(&getTerrainHeight);
+    grass_loader->setRenderQueueGroup(RENDER_QUEUE_MAIN-1);
+
+    Forests::GrassLayer* grass_layer = grass_loader->addLayer(j_grass["material_name"].asString());
+    grass_layer->setHeightRange(j_grass["min_h"].asFloat(), j_grass["max_h"].asFloat());
+    grass_layer->setLightingEnabled(true);
+    grass_layer->setAnimationEnabled(sway_speed > 0);
+    grass_layer->setSwaySpeed(sway_speed);
+    grass_layer->setSwayLength(j_grass["sway_length"].asFloat());
+    grass_layer->setSwayDistribution(j_grass["sway_distrib"].asFloat());
+    grass_layer->setDensity(j_grass["density"].asFloat() * detail_factor);
+    grass_layer->setRenderTechnique(static_cast<Forests::GrassTechnique>(j_grass["technique"].asInt()), true);
+    grass_layer->setMapBounds(Forests::TBounds(0.f, 0.f, map_size_x, map_size_z));
+    grass_layer->setMinimumSize(j_grass["min_x"].asFloat(), j_grass["min_y"].asFloat());
+    grass_layer->setMaximumSize(j_grass["max_x"].asFloat(), j_grass["max_y"].asFloat());
+
+    if (j_grass["color_map_filename"] != Json::nullValue)
     {
-        paged_geometry_t paged;
-        PagedGeometry *grass = new PagedGeometry(gEnv->mainCamera, 30);
-        //Set up LODs
-
-        grass->addDetailLevel<GrassPage>(range * terrainManager->getPagedDetailFactor()); // original value: 80
-
-        //Set up a GrassLoader for easy use
-        GrassLoader *grassLoader = new GrassLoader(grass);
-        grass->setPageLoader(grassLoader);
-        grassLoader->setHeightFunction(&getTerrainHeight);
-
-        // render grass at first
-        grassLoader->setRenderQueueGroup(RENDER_QUEUE_MAIN-1);
-
-        GrassLayer* grassLayer = grassLoader->addLayer(grassmat);
-        grassLayer->setHeightRange(minH, maxH);
-        grassLayer->setLightingEnabled(true);
-
-        grassLayer->setAnimationEnabled((SwaySpeed>0));
-        grassLayer->setSwaySpeed(SwaySpeed);
-        grassLayer->setSwayLength(SwayLength);
-        grassLayer->setSwayDistribution(SwayDistribution);
-
-        grassLayer->setDensity(Density * terrainManager->getPagedDetailFactor());
-        if (techn>10)
-            grassLayer->setRenderTechnique(static_cast<GrassTechnique>(techn-10), true);
-        else
-            grassLayer->setRenderTechnique(static_cast<GrassTechnique>(techn), false);
-
-        grassLayer->setMapBounds(TBounds(0, 0, mapsizex, mapsizez));
-
-        if (strcmp(colorMapFilename,"none") != 0)
-        {
-            grassLayer->setColorMap(colorMapFilename);
-            grassLayer->setColorMapFilter(MAPFILTER_BILINEAR);
-        }
-
-        if (strcmp(densityMapFilename,"none") != 0)
-        {
-            grassLayer->setDensityMap(densityMapFilename);
-            grassLayer->setDensityMapFilter(MAPFILTER_BILINEAR);
-        }
-
-        grassLayer->setMinimumSize(minx, miny);
-        grassLayer->setMaximumSize(maxx, maxy);
-
-        // growtechnique
-        if (growtechnique == 0)
-            grassLayer->setFadeTechnique(FADETECH_GROW);
-        else if (growtechnique == 1)
-            grassLayer->setFadeTechnique(FADETECH_ALPHAGROW);
-        else if (growtechnique == 2)
-            grassLayer->setFadeTechnique(FADETECH_ALPHA);
-        paged.geom = grass;
-        paged.loader = (void*)grassLoader;
-        pagedGeometry.push_back(paged);
-    } 
-    catch(...)
-    {
-        LOG("error loading grass!");
+        grass_layer->setColorMap(j_grass["color_map_filename"].asString());
+        grass_layer->setColorMapFilter(MAPFILTER_BILINEAR);
     }
+
+    if (j_grass["density_map_filename"] != Json::nullValue)
+    {
+        grass_layer->setDensityMap(j_grass["density_map_filename"].asString());
+        grass_layer->setDensityMapFilter(MAPFILTER_BILINEAR);
+    }
+
+    switch (j_grass["grow_techniq"].asInt())
+    {
+    case 0: grass_layer->setFadeTechnique(Forests::FADETECH_GROW);      break;
+    case 1: grass_layer->setFadeTechnique(Forests::FADETECH_ALPHAGROW); break;
+    case 2: grass_layer->setFadeTechnique(Forests::FADETECH_ALPHA);     break;
+    default:;
+    }
+
+    paged.geom = grass;
+    paged.loader = static_cast<void*>(grass_loader);
+    pagedGeometry.push_back(paged);
 }
 
 void TerrainObjectManager::postLoad()
@@ -916,6 +919,19 @@ void TerrainObjectManager::loadPreloadedTrucks()
             }
         }
 
+    }
+}
+
+void TerrainObjectManager::HandleException(const char* action)
+{
+    try { throw; } // Rethrow
+    catch (Ogre::Exception& e)
+    {
+        LOGSTREAM << "Error " << action << ", message: " << e.getFullDescription();
+    }
+    catch (std::exception& e)
+    {
+        LOGSTREAM << "Error " << action << ", message: " << e.what();
     }
 }
 

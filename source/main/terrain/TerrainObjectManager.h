@@ -64,11 +64,11 @@ public:
     //OLD    float gridspacing, float highdens,
     //OLD    int minDist, int maxDist, int mapsizex, int mapsizez);
 
-    void ProcessGrass(
-        float SwaySpeed, float SwayLength, float SwayDistribution, float Density,
-        float minx, float miny, float minH, float maxx, float maxy, float maxH,
-        char* grassmat, char* colorMapFilename, char* densityMapFilename,
-        int growtechnique, int techn, int range, int mapsizex, int mapsizez);
+    void ProcessGrass(Json::Value* j_grass_page, int mapsizex, int mapsizez);
+        //float SwaySpeed, float SwayLength, float SwayDistribution, float Density,
+        //float minx, float miny, float minH, float maxx, float maxy, float maxH,
+        //char* grassmat, char* colorMapFilename, char* densityMapFilename,
+        //int growtechnique, int techn, int range, int mapsizex, int mapsizez);
 
     struct localizer_t
     {
@@ -94,6 +94,7 @@ public:
 protected:
 
     ODefFile* FetchODef(std::string const & odef_name);
+    void      HandleException(const char* action);
 
     TerrainManager* terrainManager;
 

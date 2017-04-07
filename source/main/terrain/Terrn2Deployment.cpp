@@ -416,6 +416,9 @@ void RoR::Terrn2Deployer::ProcessTobjJson()
 
     // Trees
     this->ProcessTobjTreesJson();
+
+    // Grass
+    this->ProcessTobjGrassJson();
 }
 
 void RoR::Terrn2Deployer::ProcessTobjTreesJson()
@@ -554,6 +557,47 @@ void RoR::Terrn2Deployer::AddCollMeshJson(const char* name, float pos_x, float p
     j_colmesh["rotq_w"]    = rot.w;
 
     m_json["collision_meshes"].append(j_colmesh);
+}
+
+void RoR::Terrn2Deployer::ProcessTobjGrassJson()
+{
+    m_json["terrain_objects"]["grass_pages"] = Json::arrayValue;
+
+    for (std::shared_ptr<TObjFile>& tobj : m_tobj_list)
+    {
+        for (TObjGrass& grass : tobj->grass)
+        {
+            Json::Value json;
+            json["range"]        = grass.range;
+            json["technique"]    = grass.technique;
+            json["grow_techniq"] = grass.grow_techniq;
+            json["sway_speed"]   = grass.sway_speed;
+            json["sway_length"]  = grass.sway_length;
+            json["sway_distrib"] = grass.sway_distrib;
+            json["density"]      = grass.density;
+
+            json["min_x"] = grass.min_x;
+            json["min_y"] = grass.min_y;
+            json["min_h"] = grass.min_h;
+            json["max_x"] = grass.max_x;
+            json["max_y"] = grass.max_y;
+            json["max_h"] = grass.max_h;
+
+            json["material_name"] = grass.material_name;
+            json["color_map_filename"] = this->NoneStringToNull(grass.color_map_filename);
+            json["density_map_filename"] = this->NoneStringToNull(grass.density_map_filename);
+
+            m_json["terrain_objects"]["grass_pages"].append(json);
+        }
+    }
+}
+
+Json::Value RoR::Terrn2Deployer::NoneStringToNull(const char* str)
+{
+    if (strcmp(str, "none") == 0)
+        return Json::nullValue;
+    else
+        return str;
 }
 
 void RoR::Terrn2Deployer::HandleException(const char* action)

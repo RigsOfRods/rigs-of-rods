@@ -50,6 +50,7 @@ private:
     void          ProcessLanduseJson();
     void          ProcessTobjJson();
     void          ProcessTobjTreesJson();
+    void          ProcessTobjGrassJson();
     void          AddCollMeshJson(const char* name, float pos_x, float pos_z, Ogre::Quaternion rot, Ogre::Vector3 scale);
     void          HandleException(const char* action);
     bool          CheckAndLoadOTC();
@@ -58,6 +59,7 @@ private:
     Json::Value   ColorToJson(Ogre::ColourValue color);
     Json::Value   Vector3ToJson(Ogre::Vector3 pos);
     Json::Value   StringOrNull(std::string const & str);
+    Json::Value   NoneStringToNull(const char* str);
 
     Terrn2Def                      m_terrn2;
     std::shared_ptr<RoR::OTCFile>  m_otc;

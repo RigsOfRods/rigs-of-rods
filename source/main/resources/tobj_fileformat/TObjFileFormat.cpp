@@ -140,6 +140,10 @@ bool TObjParser::ProcessCurrentLine()
                  grass.color_map_filename,
                  grass.density_map_filename);
         }
+
+        if (grass.technique > 10) // Clamping logic ported verbatim from TerrainObjectManager
+            grass.technique -= 10;
+
         m_def->grass.push_back(grass);
         return true;
     }
