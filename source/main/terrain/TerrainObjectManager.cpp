@@ -118,6 +118,14 @@ Ogre::Vector3 JsonToVector3(Json::Value& j_vector3)
                           j_vector3["z"].asFloat());
 }
 
+Ogre::Quaternion JsonToQuaternion(Json::Value& j_quat)
+{
+    return Ogre::Quaternion (j_quat["w"].asFloat(),
+                             j_quat["x"].asFloat(),
+                             j_quat["y"].asFloat(),
+                             j_quat["z"].asFloat());
+}
+
 void GenerateGridAndPutToScene(Ogre::Vector3 position)
 {
     Ogre::ColourValue background_color(Ogre::ColourValue::White);
@@ -177,6 +185,7 @@ void TerrainObjectManager::ProcessTerrainObjects(Json::Value* j_terrn_ptr)
 {
     Json::Value& j_tobj        = (*j_terrn_ptr)["terrain_objects"];
     Json::Value& j_coll_meshes = (*j_terrn_ptr)["collision_meshes"];
+    Json::Value& j_procedural  = (*j_terrn_ptr)["procedural_paths"];
 
     if (proceduralManager == nullptr)
     {
@@ -251,15 +260,17 @@ void TerrainObjectManager::ProcessTerrainObjects(Json::Value* j_terrn_ptr)
             j_col_mesh["mesh_name"].asString(), position, rotation, JsonToVector3(j_col_mesh["scale_3d"]));
     }
 
-/* TODO: DEPLOYMENT
-
-
-    // Procedural roads
-    for (ProceduralObject po : tobj->proc_objects)
+    for (Json::Value& j_path : j_procedural)
     {
-        proceduralManager->addObject(po);
+        try
+        {
+            this->AddProceduralPath(&j_path);
+        }
+        catch (...)
+        {
+            this->HandleException("processing procedural paths (a.k.a. roads)");
+        }
     }
-*/
 
 /* TODO: DEPLOYMENT
     // Vehicles
@@ -297,6 +308,30 @@ void TerrainObjectManager::ProcessTerrainObjects(Json::Value* j_terrn_ptr)
         this->loadObject(entry.odef_name, entry.position, entry.rotation, this->bakeNode, entry.instance_name, entry.type);
     }
 */
+}
+
+void TerrainObjectManager::AddProceduralPath(Json::Value* j_path_ptr)
+{
+    Json::Value& j_path = *j_path_ptr;
+
+    // TODO: Don't re-assemble the objects, spawn directly from the JSON.
+    ProceduralObject po;
+    po.name = j_path["name"].asString();
+
+    for (Json::Value& j_point : j_path["points"])
+    {
+        ProceduralPoint pp;
+        pp.position   = JsonToVector3(j_point["position"]);
+        pp.rotation   = JsonToQuaternion(j_point["rotation"]);
+        pp.pillartype = j_point["pillartype"].asInt();
+        pp.bheight    = j_point["bheight"].asFloat();
+        pp.bwidth     = j_point["bwidth"].asFloat();
+        pp.width      = j_point["width"].asFloat();
+
+        po.points.push_back(pp);
+    }
+
+    this->proceduralManager->addObject(po);
 }
 
 void TerrainObjectManager::ProcessTreePage(Json::Value* j_page_ptr, int mapsizex, int mapsizez)

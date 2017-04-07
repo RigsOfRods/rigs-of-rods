@@ -95,6 +95,7 @@ protected:
 
     ODefFile* FetchODef(std::string const & odef_name);
     void      HandleException(const char* action);
+    void      AddProceduralPath(Json::Value* j_path_ptr);
 
     TerrainManager* terrainManager;
 

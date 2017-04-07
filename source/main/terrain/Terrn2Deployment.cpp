@@ -123,6 +123,16 @@ Json::Value RoR::Terrn2Deployer::Vector3ToJson(Ogre::Vector3 pos)
     return j_pos;
 }
 
+Json::Value RoR::Terrn2Deployer::QuaternionToJson(Ogre::Quaternion& quat)
+{
+    Json::Value j_quat;
+    j_quat["w"] = quat.w;
+    j_quat["x"] = quat.x;
+    j_quat["y"] = quat.y;
+    j_quat["z"] = quat.z;
+    return j_quat;
+}
+
 Json::Value RoR::Terrn2Deployer::StringOrNull(std::string const & str)
 {
     if (str.empty())
@@ -419,6 +429,9 @@ void RoR::Terrn2Deployer::ProcessTobjJson()
 
     // Grass
     this->ProcessTobjGrassJson();
+
+    // Paths, a.k.a. "procedural roads"
+    this->ProcessTobjPathsJson();
 }
 
 void RoR::Terrn2Deployer::ProcessTobjTreesJson()
@@ -588,6 +601,37 @@ void RoR::Terrn2Deployer::ProcessTobjGrassJson()
             json["density_map_filename"] = this->NoneStringToNull(grass.density_map_filename);
 
             m_json["terrain_objects"]["grass_pages"].append(json);
+        }
+    }
+}
+
+void RoR::Terrn2Deployer::ProcessTobjPathsJson()
+{
+    m_json["terrain_objects"]["procedural_paths"] = Json::arrayValue;
+
+    for (std::shared_ptr<TObjFile>& tobj : m_tobj_list)
+    {
+        for (ProceduralObject& po : tobj->proc_objects)
+        {
+            Json::Value j_path = Json::objectValue;
+            j_path["name"] = po.name;
+            j_path["points"] = Json::arrayValue;
+
+            for (ProceduralPoint& pp: po.points)
+            {
+                Json::Value j_point = Json::objectValue;
+                j_point["rotation"] = this->QuaternionToJson(pp.rotation);
+                j_point["position"] = this->Vector3ToJson(pp.position);
+                j_point["type"] = pp.type;
+                j_point["width"] = pp.width;
+                j_point["bwidth"] = pp.bwidth;
+                j_point["bheight"] = pp.bheight;
+                j_point["pillartype"] = pp.pillartype;
+
+                j_path["points"].append(j_point);
+            }
+
+            m_json["terrain_objects"]["procedural_paths"].append(j_path);
         }
     }
 }
