@@ -131,7 +131,7 @@ bool TObjParser::ProcessCurrentLine()
         else
         {
             // Same as 'grass2', except without 'technique' parameter
-            sscanf(m_cur_line, "grass2 %d, %f, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %s %s %s",
+            sscanf(m_cur_line, "grass %d, %f, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %s %s %s",
                 &grass.range,
                 &grass.sway_speed,   &grass.sway_length, &grass.sway_distrib, &grass.density,
                 &grass.min_x,        &grass.min_y,       &grass.max_x,        &grass.max_y,
