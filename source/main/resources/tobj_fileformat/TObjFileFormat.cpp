@@ -88,19 +88,19 @@ bool TObjParser::ProcessCurrentLine()
     {
         return false;
     }
-    if (!strncmp(m_cur_line, "collision-tris", 14))
+    if (strncmp(m_cur_line, "collision-tris", 14) == 0)
     {
         sscanf(m_cur_line, "collision-tris %ld", &m_def->num_collision_triangles);
         return true;
     }
-    if (!strncmp(m_cur_line, "grid", 4))
+    if (strncmp(m_cur_line, "grid", 4) == 0)
     {        
         Ogre::Vector3 & pos = m_def->grid_position;
         sscanf(m_cur_line, "grid %f, %f, %f", &pos.x, &pos.y, &pos.z); // No error check by design
         m_def->grid_enabled = true;
         return true;
     }
-    if (!strncmp(m_cur_line, "trees", 5))
+    if (strncmp(m_cur_line, "trees", 5) == 0)
     {
         TObjTree tree;
         sscanf(m_cur_line, "trees %f, %f, %f, %f, %f, %f, %f, %s %s %s %f %s",
@@ -114,10 +114,10 @@ bool TObjParser::ProcessCurrentLine()
         m_def->trees.push_back(tree);
         return true; 
     }
-    if (!strncmp(m_cur_line, "grass", 5) || !strncmp(m_cur_line, "grass2", 6))
+    if (strncmp(m_cur_line, "grass", 5) == 0)
     {
         TObjGrass grass;
-        if (!strncmp(m_cur_line, "grass2", 6))
+        if (strncmp(m_cur_line, "grass2", 6) == 0)
         {
             sscanf(m_cur_line, "grass2 %d, %f, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %d, %s %s %s",
                 &grass.range,
@@ -143,13 +143,13 @@ bool TObjParser::ProcessCurrentLine()
         m_def->grass.push_back(grass);
         return true;
     }
-    if (!strncmp("begin_procedural_roads", m_cur_line, 22))
+    if (strncmp("begin_procedural_roads", m_cur_line, 22) == 0)
     {
         m_in_procedural_road = true;
         //m_road2_use_old_mode = true;
         return true;
     }
-    else if (!strncmp("end_procedural_roads", m_cur_line, 20))
+    else if (strncmp("end_procedural_roads", m_cur_line, 20) == 0)
     {
         m_in_procedural_road = false;
         m_def->proc_objects.push_back(m_cur_procedural_obj);
