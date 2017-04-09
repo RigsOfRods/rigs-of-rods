@@ -31,6 +31,7 @@
 #include "GUIManager.h"
 #include "GUI_LoadingWindow.h"
 #include "MeshObject.h"
+#include "ODefFileformat.h"
 #include "PlatformUtils.h"
 #include "ProceduralManager.h"
 #include "Road2.h"
@@ -521,57 +522,36 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
     if (name.empty())
         return;
 
-    char mesh[1024] = {};
-    char line[1024] = {};
-    char collmesh[1024] = {};
-    Vector3 l(Vector3::ZERO);
-    Vector3 h(Vector3::ZERO);
-    Vector3 dr(Vector3::ZERO);
-    Vector3 fc(Vector3::ZERO);
-    Vector3 sc(Vector3::ZERO);
-    Vector3 sr(Vector3::ZERO);
-    bool forcecam = false;
-    bool ismovable = false;
-
-    int event_filter = EVENT_ALL;
-
     Quaternion rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
 
     String odefgroup = "";
     String odefname = name + ".odef";
     if (!RoR::App::GetCacheSystem()->CheckResourceLoaded(odefname, odefgroup))
     {
+    {
         LOG("Error while loading Terrain: could not find required .odef file: " + odefname + ". Ignoring entry.");
         return;
+    }
     }
 
     DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource(odefname, odefgroup);
 
-    ds->readLine(mesh, 1023);
-    if (String(mesh) == "LOD")
-    {
-        // LOD line is obsolete
-        ds->readLine(mesh, 1023);
-    }
-
-    //scale
-    ds->readLine(line, 1023);
-    sscanf(line, "%f, %f, %f", &sc.x, &sc.y, &sc.z);
+    ODefParser parser;
+    parser.Prepare();
+    parser.ProcessOgreStream(ds.get());
+    std::shared_ptr<ODefFile> odef = parser.Finalize();
     static int objcounter = 0;
-    String entity_name = "object" + TOSTRING(objcounter) + "(" + name + ")";
-    RoR::Utils::SanitizeUtf8String(entity_name);
-    objcounter++;
 
     SceneNode* tenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
 
     MeshObject* mo = nullptr;
-    if (String(mesh) != "none")
+    if (odef->header.mesh_name != "none")
     {
-        mo = new MeshObject(mesh, Ogre::RGN_AUTODETECT, entity_name, tenode);
+        mo = new MeshObject(odef->header.mesh_name, Ogre::RGN_AUTODETECT, odef->header.entity_name, tenode);
         m_mesh_objects.push_back(mo);
     }
 
-    tenode->setScale(sc);
+    tenode->setScale(odef->header.scale);
     tenode->setPosition(pos);
     tenode->rotate(rotation);
     tenode->pitch(Degree(-90));
@@ -606,496 +586,266 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         }
     }
 
-    //collision box(es)
-    bool virt = false;
-    bool rotating = false;
-    bool classic_ref = true;
-    // everything is of concrete by default
-    ground_model_t* gm = terrainManager->GetCollisions()->getGroundModelByString("concrete");
-    char eventname[256] = {};
-    while (!ds->eof())
+    for (ODef::Localizer loc_type : odef->localizers)
     {
-        size_t ll = ds->readLine(line, 1023);
+        int type;
+        switch (loc_type)
+        {
+        case ODef::Localizer::HORIZONTAL:  type = Autopilot::LOCALIZER_HORIZONTAL; break;
+        case ODef::Localizer::VERTICAL:    type = Autopilot::LOCALIZER_VERTICAL;   break;
+        case ODef::Localizer::NDB:         type = Autopilot::LOCALIZER_NDB;        break;
+        case ODef::Localizer::VOR:         type = Autopilot::LOCALIZER_VOR;        break;
+        default: continue; // Invalid - skip this
+        }
+        localizer_t loc;
+        loc.position = Vector3(pos.x, pos.y, pos.z);
+        loc.rotation = rotation;
+        loc.type = type;
+        localizers.push_back(loc);
+    }
 
-        // little workaround to trim it
-        String line_str = String(line);
-        Ogre::StringUtil::trim(line_str);
-        RoR::Utils::SanitizeUtf8String(line_str);
+    if (odef->mode_standard)
+    {
+        tenode->pitch(Degree(90));
+    }
 
-        const char* ptline = line_str.c_str();
-        if (ll == 0 || line[0] == '/' || line[0] == ';')
-            continue;
-
-        if (!strcmp("end", ptline))
-            break;
-        if (!strcmp("movable", ptline))
-        {
-            ismovable = true;
-            continue;
-        };
-        if (!strcmp("localizer-h", ptline))
-        {
-            localizer_t loc;
-            loc.position = Vector3(pos.x, pos.y, pos.z);
-            loc.rotation = rotation;
-            loc.type = Autopilot::LOCALIZER_HORIZONTAL;
-            localizers.push_back(loc);
-            continue;
-        }
-        if (!strcmp("localizer-v", ptline))
-        {
-            localizer_t loc;
-            loc.position = Vector3(pos.x, pos.y, pos.z);
-            loc.rotation = rotation;
-            loc.type = Autopilot::LOCALIZER_VERTICAL;
-            localizers.push_back(loc);
-            continue;
-        }
-        if (!strcmp("localizer-ndb", ptline))
-        {
-            localizer_t loc;
-            loc.position = Vector3(pos.x, pos.y, pos.z);
-            loc.rotation = rotation;
-            loc.type = Autopilot::LOCALIZER_NDB;
-            localizers.push_back(loc);
-            continue;
-        }
-        if (!strcmp("localizer-vor", ptline))
-        {
-            localizer_t loc;
-            loc.position = Vector3(pos.x, pos.y, pos.z);
-            loc.rotation = rotation;
-            loc.type = Autopilot::LOCALIZER_VOR;
-            localizers.push_back(loc);
-            continue;
-        }
-        if (!strcmp("standard", ptline))
-        {
-            classic_ref = false;
-            tenode->pitch(Degree(90));
-            continue;
-        };
-        if (!strncmp("sound", ptline, 5))
-        {
 #ifdef USE_OPENAL
-            if (!App::GetSoundScriptManager()->isDisabled())
-            {
-                char tmp[255] = "";
-                sscanf(ptline, "sound %s", tmp);
-                SoundScriptInstance* sound = App::GetSoundScriptManager()->createInstance(tmp, MAX_ACTORS + 1, tenode);
-                sound->setPosition(tenode->getPosition(), Vector3::ZERO);
-                sound->start();
-            }
+    if (!App::GetSoundScriptManager()->isDisabled())
+    {
+        for (std::string& snd_name : odef->sounds)
+        {
+            SoundScriptInstance* sound = App::GetSoundScriptManager()->createInstance(snd_name, MAX_ACTORS+1, tenode);
+            sound->setPosition(tenode->getPosition(), Vector3::ZERO);
+            sound->start();
+        }
+    }
 #endif //USE_OPENAL
-            continue;
-        }
-        if (!strcmp("beginbox", ptline) || !strcmp("beginmesh", ptline))
-        {
-            dr = Vector3::ZERO;
-            rotating = false;
-            virt = false;
-            forcecam = false;
-            event_filter = EVENT_NONE;
-            eventname[0] = 0;
-            collmesh[0] = 0;
-            gm = terrainManager->GetCollisions()->getGroundModelByString("concrete");
-            continue;
-        };
-        if (!strncmp("boxcoords", ptline, 9))
-        {
-            sscanf(ptline, "boxcoords %f, %f, %f, %f, %f, %f", &l.x, &h.x, &l.y, &h.y, &l.z, &h.z);
-            continue;
-        }
-        if (!strncmp("mesh", ptline, 4))
-        {
-            sscanf(ptline, "mesh %s", collmesh);
-            continue;
-        }
-        if (!strncmp("rotate", ptline, 6))
-        {
-            sscanf(ptline, "rotate %f, %f, %f", &sr.x, &sr.y, &sr.z);
-            rotating = true;
-            continue;
-        }
-        if (!strncmp("forcecamera", ptline, 11))
-        {
-            sscanf(ptline, "forcecamera %f, %f, %f", &fc.x, &fc.y, &fc.z);
-            forcecam = true;
-            continue;
-        }
-        if (!strncmp("direction", ptline, 9))
-        {
-            sscanf(ptline, "direction %f, %f, %f", &dr.x, &dr.y, &dr.z);
-            continue;
-        }
-        if (!strncmp("frictionconfig", ptline, 14) && strlen(ptline) > 15)
-        {
-            // load a custom friction config
-            terrainManager->GetCollisions()->loadGroundModelsConfigFile(String(ptline + 15));
-            continue;
-        }
-        if ((!strncmp("stdfriction", ptline, 11) || !strncmp("usefriction", ptline, 11)) && strlen(ptline) > 12)
-        {
-            String modelName = String(ptline + 12);
-            gm = terrainManager->GetCollisions()->getGroundModelByString(modelName);
-            continue;
-        }
-        if (!strcmp("virtual", ptline))
-        {
-            virt = true;
-            continue;
-        };
-        if (!strncmp("event", ptline, 5))
-        {
-            char ts[256];
-            ts[0] = 0;
-            sscanf(ptline, "event %s %s", eventname, ts);
-            if (!strncmp(ts, "avatar", 6))
-                event_filter = EVENT_AVATAR;
-            else if (!strncmp(ts, "truck", 5))
-                event_filter = EVENT_TRUCK;
-            else if (!strncmp(ts, "airplane", 8))
-                event_filter = EVENT_AIRPLANE;
-            else if (!strncmp(ts, "boat", 8))
-                event_filter = EVENT_BOAT;
-            else if (!strncmp(ts, "delete", 8))
-                event_filter = EVENT_DELETE;
 
-            // fallback
-            if (strlen(ts) == 0)
-                event_filter = EVENT_ALL;
+    for (std::string& gmodel_file: odef->groundmodel_files)
+    {
+        terrainManager->GetCollisions()->loadGroundModelsConfigFile(gmodel_file);
+    }
 
-            // hack to avoid fps drops near spawnzones
-            if (!strncmp(eventname, "spawnzone", 9))
-                event_filter = EVENT_AVATAR;
+    for (ODefCollisionBox& cbox : odef->collision_boxes)
+    {
+        int boxnum = terrainManager->GetCollisions()->addCollisionBox(
+            tenode, cbox.is_rotating, cbox.is_virtual, pos, rot,
+            cbox.aabb_min, cbox.aabb_max, cbox.box_rot, cbox.event_name,
+            instancename, cbox.force_cam_pos, cbox.cam_pos,
+            cbox.scale, cbox.direction, cbox.event_filter, scripthandler);
 
-            continue;
-        }
-        if (!strcmp("endbox", ptline))
-        {
-            bool box_is_valid = (l.x <= h.x && l.y <= h.y && l.z <= h.z); // Check that size is never negative
-            if (!box_is_valid)
-            {
-                RoR::LogFormat("[ODEF] Invalid collision box (file: '%s', event: '%s', instance: '%s'),"
-                    " at least one axis has negative size. Ignoring the box.",
-                    name.c_str(), eventname, instancename.c_str());
-                continue;
-            }
+        obj->collBoxes.push_back(boxnum);
+    }
 
-            bool race_event = !instancename.compare(0, 10, "checkpoint") || !instancename.compare(0, 4, "race");
-            if (enable_collisions && (App::sim_races_enabled->GetBool() || !race_event))
-            {
-                int boxnum = terrainManager->GetCollisions()->addCollisionBox(tenode, rotating, virt, pos, rot, l, h, sr, eventname, instancename, forcecam, fc, sc, dr, event_filter, scripthandler);
-                obj->collBoxes.push_back((boxnum));
+    for (ODefCollisionMesh& cmesh : odef->collision_meshes)
+    {
+        auto gm = terrainManager->GetCollisions()->getGroundModelByString(cmesh.groundmodel_name);
+        terrainManager->GetCollisions()->addCollisionMesh(
+            cmesh.mesh_name, pos, tenode->getOrientation(),
+            cmesh.scale, gm, &(obj->collTris));
+    }
 
-                if (race_event)
-                {
-                    String type = "checkpoint";
-                    auto res = StringUtil::split(instancename, "|");
-                    if ((res.size() == 4 && res[2] == "0") || !instancename.compare(0, 4, "race"))
-                    {
-                        type = "racestart";
-                    }
-                    int race_id = res.size() > 1 ? StringConverter::parseInt(res[1], -1) : -1;
-                    m_map_entities.push_back({type, "", pos, rot.y, race_id});
-                }
-                else if (!type.empty())
-                {
-                    String caption = "";
-                    if (type == "station" || type == "hotel" || type == "village" ||
-                            type == "observatory" || type == "farm" || type == "ship")
-                    {
-                        caption = instancename + " " + type;
-                    }
-                    m_map_entities.push_back({type, caption, pos, rot.y, -1});
-                }
-            }
-            continue;
-        }
-        if (!strcmp("endmesh", ptline))
-        {
-            if(strcmp("", collmesh) == 0)
-                RoR::LogFormat("[ODEF] Collision mesh not found in file %s", odefname.c_str());
-            else
-                terrainManager->GetCollisions()->addCollisionMesh(collmesh, Vector3(pos.x, pos.y, pos.z), tenode->getOrientation(), sc, gm, &(obj->collTris));
-            continue;
-        }
+    for (ODefParticleSys& psys : odef->particle_systems)
+    {
 
-        if (!strncmp("particleSystem", ptline, 14) && tenode)
-        {
-            float x = 0, y = 0, z = 0, scale = 0;
-            char pname[255] = "", sname[255] = "";
-            int res = sscanf(ptline, "particleSystem %f, %f, %f, %f, %s %s", &scale, &x, &y, &z, pname, sname);
-            if (res != 6)
-                continue;
+        // hacky: prevent duplicates
+        String paname = String(psys.instance_name);
+        while (App::GetGfxScene()->GetSceneManager()->hasParticleSystem(paname))
+            paname += "_";
 
-            // hacky: prevent duplicates
-            String paname = String(pname);
-            while (App::GetGfxScene()->GetSceneManager()->hasParticleSystem(paname))
-                paname += "_";
+        // create particle system
+        ParticleSystem* pParticleSys = App::GetGfxScene()->GetSceneManager()->createParticleSystem(paname, String(psys.template_name));
+        pParticleSys->setCastShadows(false);
+        pParticleSys->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
 
-            // create particle system
-            ParticleSystem* pParticleSys = App::GetGfxScene()->GetSceneManager()->createParticleSystem(paname, String(sname));
-            pParticleSys->setCastShadows(false);
-            pParticleSys->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
-
-            // Some affectors may need its instance name (e.g. for script feedback purposes)
+        // Some affectors may need its instance name (e.g. for script feedback purposes)
 #ifdef USE_ANGELSCRIPT
-            unsigned short affCount = pParticleSys->getNumAffectors();
-            ParticleAffector* pAff;
-            for (unsigned short i = 0; i < affCount; ++i)
+        unsigned short affCount = pParticleSys->getNumAffectors();
+        ParticleAffector* pAff;
+        for (unsigned short i = 0; i < affCount; ++i)
+        {
+            pAff = pParticleSys->getAffector(i);
+            if (pAff->getType() == "ExtinguishableFire")
             {
-                pAff = pParticleSys->getAffector(i);
-                if (pAff->getType() == "ExtinguishableFire")
-                {
-                    ((ExtinguishableFireAffector*)pAff)->setInstanceName(obj->instanceName);
-                }
+                ((ExtinguishableFireAffector*)pAff)->setInstanceName(obj->instanceName);
             }
+        }
 #endif // USE_ANGELSCRIPT
 
-            SceneNode* sn = tenode->createChildSceneNode();
-            sn->attachObject(pParticleSys);
-            sn->pitch(Degree(90));
-            continue;
-        }
+        SceneNode* sn = tenode->createChildSceneNode();
+        sn->attachObject(pParticleSys);
+        sn->pitch(Degree(90));
+    }
 
-        if (!strncmp("setMeshMaterial", ptline, 15))
+    if (!odef->mat_name.empty())
+    {
+        if (mo->getEntity())
         {
-            char mat[256] = "";
-            sscanf(ptline, "setMeshMaterial %s", mat);
-            if (mo->getEntity() && strnlen(mat, 250) > 0)
-            {
-                mo->getEntity()->setMaterialName(String(mat));
-            }
-            continue;
+            mo->getEntity()->setMaterialName(odef->mat_name);
         }
-        if (!strncmp("generateMaterialShaders", ptline, 23))
-        {
-            char matn[256] = "";
-            sscanf(ptline, "generateMaterialShaders %s", matn);
-            if (RoR::App::gfx_enable_rtshaders->GetBool())
-            {
-                MaterialPtr mat = MaterialManager::getSingleton().create(matn,"generatedMaterialShaders");
-                Ogre::RTShader::ShaderGenerator::getSingleton().createShaderBasedTechnique(*mat, Ogre::MaterialManager::DEFAULT_SCHEME_NAME, Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
-                Ogre::RTShader::ShaderGenerator::getSingleton().invalidateMaterial(RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME, matn);
-            }
+    }
 
-            continue;
-        }
-        if (!strncmp("playanimation", ptline, 13) && mo)
+    if (odef->mat_name_generate != "")
+    {
+        Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create(odef->mat_name_generate,"generatedMaterialShaders");
+        Ogre::RTShader::ShaderGenerator::getSingleton().createShaderBasedTechnique(*mat, Ogre::MaterialManager::DEFAULT_SCHEME_NAME, Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
+        Ogre::RTShader::ShaderGenerator::getSingleton().invalidateMaterial(RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME, String(odef->mat_name_generate));
+    }
+
+    for (ODefAnimation& anim : odef->animations)
+    {
+        if (tenode && mo->getEntity())
         {
-            char animname[256] = "";
-            float speedfactorMin = 0, speedfactorMax = 0;
-            sscanf(ptline, "playanimation %f, %f, %s", &speedfactorMin, &speedfactorMax, animname);
-            if (tenode && mo->getEntity() && strnlen(animname, 250) > 0)
+            AnimationStateSet *s = mo->getEntity()->getAllAnimationStates();
+            String anim_name_str(anim.name);
+            if (!s->hasAnimationState(anim_name_str))
             {
-                AnimationStateSet* s = mo->getEntity()->getAllAnimationStates();
-                if (!s->hasAnimationState(String(animname)))
-                {
-                    LOG("[ODEF] animation '" + String(animname) + "' for mesh: '" + String(mesh) + "' in odef file '" + name + ".odef' not found!");
-                    continue;
-                }
-                AnimatedObject ao;
-                ao.node = tenode;
-                ao.ent = mo->getEntity();
-                ao.speedfactor = speedfactorMin;
-                if (speedfactorMin != speedfactorMax)
-                    ao.speedfactor = Math::RangeRandom(speedfactorMin, speedfactorMax);
+                LOG("[ODEF] animation '" + anim_name_str + "' for mesh: '" + odef->header.mesh_name + "' in odef file '" + name + ".odef' not found!");
+                //continue;
+            }
+            AnimatedObject ao;
+            ao.node = tenode;
+            ao.ent = mo->getEntity();
+            ao.speedfactor = anim.speed_min;
+            if (anim.speed_min != anim.speed_max)
+                ao.speedfactor = Math::RangeRandom(anim.speed_min, anim.speed_max);
+            ao.anim = 0;
+            try
+            {
+                ao.anim = mo->getEntity()->getAnimationState(anim_name_str);
+            } catch (...)
+            {
                 ao.anim = 0;
-                try
-                {
-                    ao.anim = mo->getEntity()->getAnimationState(String(animname));
-                }
-                catch (...)
-                {
-                    ao.anim = 0;
-                }
-                if (!ao.anim)
-                {
-                    LOG("[ODEF] animation '" + String(animname) + "' for mesh: '" + String(mesh) + "' in odef file '" + name + ".odef' not found!");
-                    continue;
-                }
-                ao.anim->setEnabled(true);
-                m_animated_objects.push_back(ao);
             }
+            if (!ao.anim)
+            {
+                LOG("[ODEF] animation '" + anim_name_str + "' for mesh: '" + odef->header.mesh_name + "' in odef file '" + name + ".odef' not found!");
+                continue;
+            }
+            ao.anim->setEnabled(true);
+            m_animated_objects.push_back(ao);
+        }
+    }
+
+    for (ODefTexPrint& tex_print : odef->texture_prints)
+    {
+        if (!mo->getEntity())
+            continue;
+        String matName = mo->getEntity()->getSubEntity(0)->getMaterialName();
+        MaterialPtr m = MaterialManager::getSingleton().getByName(matName);
+        if (m.getPointer() == 0)
+        {
+            LOG("[ODEF] problem with drawTextOnMeshTexture command: mesh material not found: "+odefname+" : "+matName);
             continue;
         }
-        if (!strncmp("drawTextOnMeshTexture", ptline, 21) && mo)
+        String texName = m->getTechnique(0)->getPass(0)->getTextureUnitState(0)->getTextureName();
+        Texture* background = (Texture *)TextureManager::getSingleton().getByName(texName).getPointer();
+        if (!background)
         {
-            if (!mo->getEntity())
-                continue;
-            String matName = mo->getEntity()->getSubEntity(0)->getMaterialName();
-            MaterialPtr m = MaterialManager::getSingleton().getByName(matName);
-            if (m.getPointer() == 0)
-            {
-                LOG("[ODEF] problem with drawTextOnMeshTexture command: mesh material not found: "+odefname+" : "+String(ptline));
-                continue;
-            }
-            String texName = m->getTechnique(0)->getPass(0)->getTextureUnitState(0)->getTextureName();
-            Texture* background = (Texture *)TextureManager::getSingleton().getByName(texName).getPointer();
-            if (!background)
-            {
-                LOG("[ODEF] problem with drawTextOnMeshTexture command: mesh texture not found: "+odefname+" : "+String(ptline));
-                continue;
-            }
-
-            static int textureNumber = 0;
-            textureNumber++;
-            char tmpTextName[256] = "", tmpMatName[256] = "";
-            sprintf(tmpTextName, "TextOnTexture_%d_Texture", textureNumber);
-            sprintf(tmpMatName, "TextOnTexture_%d_Material", textureNumber); // Make sure the texture is not WRITE_ONLY, we need to read the buffer to do the blending with the font (get the alpha for example)
-            TexturePtr texture = TextureManager::getSingleton().createManual(tmpTextName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, (Ogre::uint)background->getWidth(), (Ogre::uint)background->getHeight(), MIP_UNLIMITED, PF_X8R8G8B8, Ogre::TU_STATIC | Ogre::TU_AUTOMIPMAP);
-            if (texture.getPointer() == 0)
-            {
-                LOG("[ODEF] problem with drawTextOnMeshTexture command: could not create texture: "+odefname+" : "+String(ptline));
-                continue;
-            }
-
-            float x = 0, y = 0, w = 0, h = 0;
-            float a = 0, r = 0, g = 0, b = 0;
-            int fs = 40, fdpi = 144;
-            char fontname[256] = "";
-            char text[256] = "";
-            char option = 'l';
-            int res = sscanf(ptline, "drawTextOnMeshTexture %f, %f, %f, %f, %f, %f, %f, %f, %c, %i, %i, %s %s", &x, &y, &w, &h, &r, &g, &b, &a, &option, &fs, &fdpi, fontname, text);
-            if (res < 13)
-            {
-                LOG("[ODEF] problem with drawTextOnMeshTexture command: "+odefname+" : "+String(ptline));
-                continue;
-            }
-
-            // check if we got a template argument
-            if (!strncmp(text, "{{argument1}}", 13))
-                strncpy(text, instancename.c_str(), 250);
-
-            // replace '_' with ' '
-            char* text_pointer = text;
-            while (*text_pointer != 0)
-            {
-                if (*text_pointer == '_')
-                    *text_pointer = ' ';
-                text_pointer++;
-            };
-
-            Ogre::Font* font = (Ogre::Font *)FontManager::getSingleton().getByName(String(fontname)).getPointer();
-            if (!font)
-            {
-                LOG("[ODEF] problem with drawTextOnMeshTexture command: font not found: "+odefname+" : "+String(ptline));
-                continue;
-            }
-
-            //Draw the background to the new texture
-            texture->getBuffer()->blit(background->getBuffer());
-
-            x = background->getWidth() * x;
-            y = background->getHeight() * y;
-            w = background->getWidth() * w;
-            h = background->getHeight() * h;
-
-            Box box = Box((size_t)x, (size_t)y, (size_t)(x + w), (size_t)(y + h));
-            WriteToTexture(String(text), texture, box, font, ColourValue(r, g, b, a), fs, fdpi, option);
-
-            // we can save it to disc for debug purposes:
-            //SaveImage(texture, "test.png");
-
-            m->clone(tmpMatName);
-            MaterialPtr mNew = MaterialManager::getSingleton().getByName(tmpMatName);
-            mNew->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(tmpTextName);
-
-            mo->getEntity()->setMaterialName(String(tmpMatName));
+            LOG("[ODEF] problem with drawTextOnMeshTexture command: mesh texture not found: "+odefname+" : "+texName);
             continue;
         }
 
-        if (!strncmp("spotlight", ptline, 9))
+        static int textureNumber = 0;
+        textureNumber++;
+        char tmpTextName[256] = "", tmpMatName[256] = "";
+        sprintf(tmpTextName, "TextOnTexture_%d_Texture", textureNumber);
+        sprintf(tmpMatName, "TextOnTexture_%d_Material", textureNumber); // Make sure the texture is not WRITE_ONLY, we need to read the buffer to do the blending with the font (get the alpha for example)
+        TexturePtr texture = TextureManager::getSingleton().createManual(tmpTextName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, (Ogre::uint)background->getWidth(), (Ogre::uint)background->getHeight(), MIP_UNLIMITED, PF_X8R8G8B8, Ogre::TU_STATIC | Ogre::TU_AUTOMIPMAP);
+        if (texture.getPointer() == 0)
         {
-            Vector3 lpos, ldir;
-            float lrange = 10, innerAngle = 45, outerAngle = 45;
-            ColourValue lcol;
-
-            int res = sscanf(ptline, "spotlight %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f",
-                &lpos.x, &lpos.y, &lpos.z, &ldir.x, &ldir.y, &ldir.z, &lcol.r, &lcol.g, &lcol.b, &lrange, &innerAngle, &outerAngle);
-            if (res < 12)
-            {
-                LOG("ODEF: problem with light command: " + odefname + " : " + String(ptline));
-                continue;
-            }
-
-            static unsigned int counter = 0;
-            char name[50];
-            snprintf(name, 50, "terrn2/spotlight-%u", counter);
-            ++counter;
-            Light* spotLight = App::GetGfxScene()->GetSceneManager()->createLight(name);
-
-            spotLight->setType(Light::LT_SPOTLIGHT);
-            spotLight->setPosition(lpos);
-            spotLight->setDirection(ldir);
-            spotLight->setAttenuation(lrange, 1.0, 0.3, 0.0);
-            spotLight->setDiffuseColour(lcol);
-            spotLight->setSpecularColour(lcol);
-            spotLight->setSpotlightRange(Degree(innerAngle), Degree(outerAngle));
-
-            BillboardSet* lflare = App::GetGfxScene()->GetSceneManager()->createBillboardSet(1);
-            lflare->createBillboard(lpos, lcol);
-            lflare->setMaterialName("tracks/flare");
-            lflare->setVisibilityFlags(DEPTHMAP_DISABLED);
-
-            float fsize = Math::Clamp(lrange / 10, 0.2f, 2.0f);
-            lflare->setDefaultDimensions(fsize, fsize);
-
-            SceneNode* sn = tenode->createChildSceneNode();
-            sn->attachObject(spotLight);
-            sn->attachObject(lflare);
+            LOG("[ODEF] problem with drawTextOnMeshTexture command: could not create texture: "+odefname+" : "+tmpTextName);
             continue;
         }
 
-        if (!strncmp("pointlight", ptline, 10))
+        char text[ODef::STR_LEN];
+        strcpy(text, tex_print.text);
+
+        // check if we got a template argument
+        if (!strncmp(text, "{{argument1}}", 13))
+            strncpy(text, instancename.c_str(), 250);
+
+        // replace '_' with ' '
+        char *text_pointer = text;
+        while (*text_pointer!=0) {if (*text_pointer=='_') *text_pointer=' ';text_pointer++;};
+
+        String font_name_str(tex_print.font_name);
+        Font* font = (Font *)FontManager::getSingleton().getByName(font_name_str).getPointer();
+        if (!font)
         {
-            Vector3 lpos, ldir;
-            float lrange = 10;
-            ColourValue lcol;
-
-            int res = sscanf(ptline, "pointlight %f, %f, %f, %f, %f, %f, %f, %f, %f, %f",
-                &lpos.x, &lpos.y, &lpos.z, &ldir.x, &ldir.y, &ldir.z, &lcol.r, &lcol.g, &lcol.b, &lrange);
-            if (res < 10)
-            {
-                LOG("ODEF: problem with light command: " + odefname + " : " + String(ptline));
-                continue;
-            }
-
-            static unsigned int counter = 0;
-            char name[50];
-            snprintf(name, 50, "terrn2/pointlight-%x", counter);
-            ++counter;
-            Light* pointlight = App::GetGfxScene()->GetSceneManager()->createLight(name);
-
-            pointlight->setType(Light::LT_POINT);
-            pointlight->setPosition(lpos);
-            pointlight->setDirection(ldir);
-            pointlight->setAttenuation(lrange, 1.0, 0.3, 0.0);
-            pointlight->setDiffuseColour(lcol);
-            pointlight->setSpecularColour(lcol);
-
-            BillboardSet* lflare = App::GetGfxScene()->GetSceneManager()->createBillboardSet(1);
-            lflare->createBillboard(lpos, lcol);
-            lflare->setMaterialName("tracks/flare");
-            lflare->setVisibilityFlags(DEPTHMAP_DISABLED);
-
-            float fsize = Math::Clamp(lrange / 10, 0.2f, 2.0f);
-            lflare->setDefaultDimensions(fsize, fsize);
-
-            SceneNode* sn = tenode->createChildSceneNode();
-            sn->attachObject(pointlight);
-            sn->attachObject(lflare);
+            LOG("[ODEF] problem with drawTextOnMeshTexture command: font not found: "+odefname+" : "+font_name_str);
             continue;
         }
 
-        if (!strncmp("nocast", ptline, 6))
-        {
-        	mo->getEntity()->setCastShadows(false);
-        	continue;
-        }
+        //Draw the background to the new texture
+        texture->getBuffer()->blit(background->getBuffer());
 
-        LOG("ODEF: unknown command in "+odefname+" : "+String(ptline));
+        float x = background->getWidth()  * tex_print.x;
+        float y = background->getHeight() * tex_print.y;
+        float w = background->getWidth()  * tex_print.w;
+        float h = background->getHeight() * tex_print.h;
+
+        ColourValue color(tex_print.r, tex_print.g, tex_print.b, tex_print.a);
+        Ogre::Box box = Ogre::Box((size_t)x, (size_t)y, (size_t)(x+w), (size_t)(y+h));
+        WriteToTexture(String(text), texture, box, font, color, tex_print.font_size, tex_print.font_dpi, tex_print.option);
+
+        // we can save it to disc for debug purposes:
+        //SaveImage(texture, "test.png");
+
+        m->clone(tmpMatName);
+        MaterialPtr mNew = MaterialManager::getSingleton().getByName(tmpMatName);
+        mNew->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(tmpTextName);
+
+        mo->getEntity()->setMaterialName(String(tmpMatName));
+    }
+
+    for (ODefSpotlight& spotl: odef->spotlights)
+    {
+        Light* spotLight = App::GetGfxScene()->GetSceneManager()->createLight(spotl.name);
+
+        spotLight->setType(Light::LT_SPOTLIGHT);
+        spotLight->setPosition(spotl.pos);
+        spotLight->setDirection(spotl.dir);
+        spotLight->setAttenuation(spotl.range, 1.0, 0.3, 0.0);
+        spotLight->setDiffuseColour(spotl.color);
+        spotLight->setSpecularColour(spotl.color);
+        spotLight->setSpotlightRange(Degree(spotl.angle_inner), Degree(spotl.angle_outer));
+
+        BillboardSet* lflare = App::GetGfxScene()->GetSceneManager()->createBillboardSet(1);
+        lflare->createBillboard(spotl.pos, spotl.color);
+        lflare->setMaterialName("tracks/flare");
+        lflare->setVisibilityFlags(DEPTHMAP_DISABLED);
+
+        float fsize = Math::Clamp(spotl.range / 10, 0.2f, 2.0f);
+        lflare->setDefaultDimensions(fsize, fsize);
+
+        SceneNode *sn = tenode->createChildSceneNode();
+        sn->attachObject(spotLight);
+        sn->attachObject(lflare);
+    }
+
+    for (ODefPointLight& plight : odef->point_lights)
+    {
+        Light* pointlight = App::GetGfxScene()->GetSceneManager()->createLight(plight.name);
+
+        pointlight->setType(Light::LT_POINT);
+        pointlight->setPosition(plight.pos);
+        pointlight->setDirection(plight.dir);
+        pointlight->setAttenuation(plight.range, 1.0, 0.3, 0.0);
+        pointlight->setDiffuseColour(plight.color);
+        pointlight->setSpecularColour(plight.color);
+
+        BillboardSet* lflare = App::GetGfxScene()->GetSceneManager()->createBillboardSet(1);
+        lflare->createBillboard(plight.pos, plight.color);
+        lflare->setMaterialName("tracks/flare");
+        lflare->setVisibilityFlags(DEPTHMAP_DISABLED);
+
+        float fsize = Math::Clamp(plight.range / 10, 0.2f, 2.0f);
+        lflare->setDefaultDimensions(fsize, fsize);
+
+        SceneNode *sn = tenode->createChildSceneNode();
+        sn->attachObject(pointlight);
+        sn->attachObject(lflare);
     }
 }
 

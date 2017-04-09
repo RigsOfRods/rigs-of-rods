@@ -214,6 +214,7 @@ set(SOURCE_FILES
         resources/CacheSystem.{h,cpp}
         resources/ContentManager.{h,cpp}
         resources/otc_fileformat/OTCFileformat.{h,cpp}
+        resources/odef_fileformat/ODefFileFormat.{h,cpp}
         resources/rig_def_fileformat/RigDef_File.{h,cpp}
         resources/rig_def_fileformat/RigDef_Node.{h,cpp}
         resources/rig_def_fileformat/RigDef_Parser.{h,cpp}
@@ -344,6 +345,7 @@ target_include_directories(${BINNAME} PRIVATE
         physics/water
         plugins/pagedgeometry/include
         resources
+        resources/odef_fileformat/
         resources/otc_fileformat/
         resources/rig_def_fileformat
         resources/terrn2_fileformat
