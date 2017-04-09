@@ -31,12 +31,12 @@
 using namespace Ogre;
 using namespace RoR;
 
-MeshObject::MeshObject(Ogre::String meshName, Ogre::String meshRG, Ogre::String entityName, Ogre::SceneNode* sceneNode)
+MeshObject::MeshObject(Ogre::String meshName, Ogre::String entityRG, Ogre::String entityName, Ogre::SceneNode* sceneNode)
     : sceneNode(sceneNode)
     , ent(nullptr)
     , castshadows(true)
 {
-    this->createEntity(meshName, meshRG, entityName);
+    this->createEntity(meshName, entityRG, entityName);
 }
 
 void MeshObject::setMaterialName(Ogre::String m)
@@ -62,24 +62,24 @@ void MeshObject::setVisible(bool b)
         sceneNode->setVisible(b);
 }
 
-void MeshObject::createEntity(Ogre::String meshName, Ogre::String meshRG, Ogre::String entityName)
+void MeshObject::createEntity(Ogre::String meshName, Ogre::String entityRG, Ogre::String entityName)
 {
     if (!sceneNode)
         return;
 
     try
     {
-        Ogre::MeshPtr mesh = Ogre::MeshManager::getSingleton().load(meshName, meshRG);
+        // Classic behavior: look in all resource groups.
+        //   The mesh may live in terrain's resource bundle (aka ZIP) or ror's bundled resource ZIPs.
+        Ogre::MeshPtr mesh = Ogre::MeshManager::getSingleton().load(meshName, Ogre::RGN_AUTODETECT);
 
         // important: you need to add the LODs before creating the entity
         // now find possible LODs, needs to be done before calling createEntity()
         String basename, ext;
         StringUtil::splitBaseFilename(meshName, basename, ext);
 
-        Ogre::String group = Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME;
-
         // the classic LODs
-        FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo(group, basename + "_lod*.mesh");
+        FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo(Ogre::RGN_AUTODETECT, basename + "_lod*.mesh");
         for (FileInfoList::iterator iterFiles = files->begin(); iterFiles != files->end(); ++iterFiles)
         {
             String format = basename + "_lod%d.mesh";
@@ -93,7 +93,7 @@ void MeshObject::createEntity(Ogre::String meshName, Ogre::String meshRG, Ogre::
         }
 
         // the custom LODs
-        FileInfoListPtr files2 = ResourceGroupManager::getSingleton().findResourceFileInfo(group, basename + "_clod_*.mesh");
+        FileInfoListPtr files2 = ResourceGroupManager::getSingleton().findResourceFileInfo(Ogre::RGN_AUTODETECT, basename + "_clod_*.mesh");
         for (FileInfoList::iterator iterFiles = files2->begin(); iterFiles != files2->end(); ++iterFiles)
         {
             // and custom LODs
@@ -108,7 +108,7 @@ void MeshObject::createEntity(Ogre::String meshName, Ogre::String meshRG, Ogre::
 
         // now create an entity around the mesh and attach it to the scene graph
 
-        ent = App::GetGfxScene()->GetSceneManager()->createEntity(entityName, meshName, meshRG);
+        ent = App::GetGfxScene()->GetSceneManager()->createEntity(entityName, meshName, entityRG);
         ent->setCastShadows(castshadows);
 
         sceneNode->attachObject(ent);
@@ -116,8 +116,8 @@ void MeshObject::createEntity(Ogre::String meshName, Ogre::String meshRG, Ogre::
     }
     catch (Ogre::Exception& e)
     {
-        RoR::LogFormat("[RoR] Error creating entity of mesh '%s' (group: '%s'), message: %s",
-            meshName.c_str(), meshRG.c_str(), e.getFullDescription().c_str());
+        RoR::LogFormat("[RoR] Error creating entity of mesh '%s' (target group: '%s'), message: %s",
+            meshName.c_str(), entityRG.c_str(), e.getFullDescription().c_str());
         return;
     }
 }

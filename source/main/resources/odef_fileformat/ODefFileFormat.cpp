@@ -24,8 +24,6 @@
 using namespace RoR;
 using namespace Ogre;
 
-static int s_unique_id_source;
-
 void ODefParser::ProcessOgreStream(Ogre::DataStream* stream)
 {
     char raw_line_buf[ODef::LINE_BUF_LEN];
@@ -86,11 +84,7 @@ bool ODefParser::ProcessCurrentLine()
         }
 
         sscanf(m_cur_line, "%f, %f, %f", &m_ctx.header_scale.x, &m_ctx.header_scale.y, &m_ctx.header_scale.z);
-        char ent_name[100];
-        sprintf(ent_name, "object_%04x", s_unique_id_source);
-        s_unique_id_source++;
 
-        m_def->header.entity_name = ent_name;
         m_def->header.mesh_name = m_ctx.header_mesh_name;
         m_def->header.scale = m_ctx.header_scale;
         m_ctx.header_done = true;
@@ -155,8 +149,9 @@ bool ODefParser::ProcessCurrentLine()
     else if (StartsWith(line_str, "playanimation"))
     {
         ODefAnimation anim;
-        sscanf(line_str.c_str(), "playanimation %f, %f, %s", &anim.speed_min, &anim.speed_max, anim.name);
-        if (strnlen(anim.name, ODef::STR_LEN) > 0)
+        Str<100> anim_name;
+        sscanf(line_str.c_str(), "playanimation %f, %f, %100s", &anim.speed_min, &anim.speed_max, anim_name.GetBuffer());
+        if (anim_name != "")
         {
             m_def->animations.push_back(anim);
         }
@@ -182,7 +177,6 @@ bool ODefParser::ProcessCurrentLine()
             &sl.color.r, &sl.color.g, &sl.color.b, &sl.range, &sl.angle_inner, &sl.angle_outer);
         if (res == 12)
         {
-            snprintf(sl.name, ODef::STR_LEN, "spotlight_%04x", s_unique_id_source++);
             m_def->spotlights.push_back(sl);
         }
         else
@@ -198,7 +192,6 @@ bool ODefParser::ProcessCurrentLine()
             &pl.color.r, &pl.color.g, &pl.color.b, &pl.range);
         if (res == 10)
         {
-            snprintf(pl.name, ODef::STR_LEN, "pointlight_%04x", s_unique_id_source++);
             m_def->point_lights.push_back(pl);
         }
         else
