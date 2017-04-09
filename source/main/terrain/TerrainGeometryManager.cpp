@@ -366,7 +366,7 @@ void TerrainGeometryManager::updateLightMap()
     }
 }
 
-bool TerrainGeometryManager::update(float dt)
+void TerrainGeometryManager::UpdateMainLightPosition()
 {
     Light* light = gEnv->terrainManager->getMainLight();
     TerrainGlobalOptions* terrainOptions = TerrainGlobalOptions::getSingletonPtr();
@@ -378,7 +378,6 @@ bool TerrainGeometryManager::update(float dt)
     terrainOptions->setCompositeMapAmbient(gEnv->sceneManager->getAmbientLight());
 
     m_ogre_terrain_group->update();
-    return true;
 }
 
 void TerrainGeometryManager::configureTerrainDefaults()
