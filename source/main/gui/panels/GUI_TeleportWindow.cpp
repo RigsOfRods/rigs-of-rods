@@ -168,7 +168,10 @@ void TeleportWindow::SetupMap(RoRFrameListener* sim_controller, Terrn2Def* def, 
 {
     m_sim_controller = sim_controller;
     m_map_size = map_size;
-    m_minimap_image->setImageTexture(minimap_tex_name);
+    if (!def->teleport_map_image.empty())
+        m_minimap_image->setImageTexture(def->teleport_map_image);
+    else
+        m_minimap_image->setImageTexture(minimap_tex_name);
     m_info_textbox->setCaption(HELPTEXT_USAGE);
     m_info_textbox->setTextColour(HELPTEXT_COLOR_USAGE);
 

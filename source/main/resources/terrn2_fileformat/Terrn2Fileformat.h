@@ -71,6 +71,7 @@ struct Terrn2Def
     std::string              hydrax_conf_file;
     std::string              traction_map_file;
     std::string              custom_material_name;
+    std::string              teleport_map_image;
 };
 
 class Terrn2Parser
