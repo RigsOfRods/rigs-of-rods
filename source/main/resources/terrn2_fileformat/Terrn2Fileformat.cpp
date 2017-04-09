@@ -125,9 +125,11 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
 
 void Terrn2Parser::ProcessTeleport(Terrn2Def& def, RoR::ConfigFile* file)
 {
+    def.teleport_map_image = file->GetStringEx("NavigationMapImage", "Teleport");
+
     size_t telepoint_number = 1;
     for (;;)
-    {        
+    {
         char key_position [50];
         char key_name     [50];
 
