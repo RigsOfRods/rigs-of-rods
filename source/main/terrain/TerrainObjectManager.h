@@ -138,7 +138,5 @@ protected:
     std::map<std::string, loadedObject_t> loadedObjects;
 
     std::vector<object_t> objects;
-
-    void proceduralTests();
 };
 
