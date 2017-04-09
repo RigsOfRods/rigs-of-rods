@@ -49,7 +49,7 @@ public:
 
     Ogre::Vector3 getMaxTerrainSize();
 
-    bool update(float dt);
+    void UpdateMainLightPosition();
     void updateLightMap();
 
 private:
