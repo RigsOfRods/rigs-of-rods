@@ -65,6 +65,10 @@ TerrainObjectManager::TerrainObjectManager(TerrainManager* terrainManager) :
 {
     //prepare for baking
     m_staticgeometry_bake_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+
+    // terrain custom group
+    m_resource_group = terrainManager->GetDef().name + "-TerrnObjects";
+    Ogre::ResourceGroupManager::getSingleton().createResourceGroup(m_resource_group);
 }
 
 TerrainObjectManager::~TerrainObjectManager()
@@ -89,6 +93,8 @@ TerrainObjectManager::~TerrainObjectManager()
         delete m_procedural_mgr;
     }
     App::GetGfxScene()->GetSceneManager()->destroyAllEntities();
+
+    Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(m_resource_group);
 }
 
 void GenerateGridAndPutToScene(Ogre::Vector3 position)
@@ -503,6 +509,39 @@ void TerrainObjectManager::unloadObject(const String& instancename)
                 [instancename](EditorObject& e) { return e.instance_name == instancename; }), m_editor_objects.end());
 }
 
+ODefFile* TerrainObjectManager::FetchODef(std::string const & odef_name)
+{
+    // Consult cache first
+    auto search_res = m_odef_cache.find(odef_name);
+    if (search_res != m_odef_cache.end())
+    {
+        return search_res->second.get();
+    }
+
+    // Search for the file
+    const std::string filename = odef_name + ".odef";
+    std::string group_name;
+    try
+    {
+        group_name = Ogre::ResourceGroupManager::getSingleton().findGroupContainingResource(filename);
+    }
+    catch (...) // This means "not found"
+    {
+        return nullptr;
+    }
+
+    // Load and parse the file
+    Ogre::DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource(filename, group_name);
+    ODefParser parser;
+    parser.Prepare();
+    parser.ProcessOgreStream(ds.get());
+    std::shared_ptr<ODefFile> odef = parser.Finalize();
+
+    // Add to cache and return
+    m_odef_cache.insert(std::make_pair(odef_name, odef));
+    return odef.get();
+}
+
 void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, Ogre::SceneNode* m_staticgeometry_bake_node, const Ogre::String& instancename, const Ogre::String& type, bool enable_collisions /* = true */, int scripthandler /* = -1 */, bool uniquifyMaterial /* = false */)
 {
     if (type == "grid")
@@ -519,40 +558,27 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         return;
     }
 
-    if (name.empty())
-        return;
-
-    Quaternion rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
-
-    String odefgroup = "";
-    String odefname = name + ".odef";
-    if (!RoR::App::GetCacheSystem()->CheckResourceLoaded(odefname, odefgroup))
+    const std::string odefname = name + ".odef"; // for logging
+    ODefFile* odef = this->FetchODef(name);
+    if (odef == nullptr)
     {
-    {
-        LOG("Error while loading Terrain: could not find required .odef file: " + odefname + ". Ignoring entry.");
+        LOG("[ODEF] File not found: " + odefname);
         return;
     }
-    }
-
-    DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource(odefname, odefgroup);
-
-    ODefParser parser;
-    parser.Prepare();
-    parser.ProcessOgreStream(ds.get());
-    std::shared_ptr<ODefFile> odef = parser.Finalize();
-    static int objcounter = 0;
 
     SceneNode* tenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
 
     MeshObject* mo = nullptr;
     if (odef->header.mesh_name != "none")
     {
-        mo = new MeshObject(odef->header.mesh_name, Ogre::RGN_AUTODETECT, odef->header.entity_name, tenode);
+        Str<100> ebuf; ebuf << m_entity_counter++ << "-" << odef->header.mesh_name;
+        mo = new MeshObject(odef->header.mesh_name, m_resource_group, ebuf.ToCStr(), tenode);
         m_mesh_objects.push_back(mo);
     }
 
     tenode->setScale(odef->header.scale);
     tenode->setPosition(pos);
+    Quaternion rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
     tenode->rotate(rotation);
     tenode->pitch(Degree(-90));
     tenode->setVisible(true);
@@ -758,15 +784,17 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
             continue;
         }
 
-        char text[ODef::STR_LEN];
-        strcpy(text, tex_print.text);
+        Str<200> text_buf; text_buf << tex_print.text;
 
         // check if we got a template argument
-        if (!strncmp(text, "{{argument1}}", 13))
-            strncpy(text, instancename.c_str(), 250);
+        if (!strncmp(text_buf.GetBuffer(), "{{argument1}}", 13))
+        {
+            text_buf.Clear();
+            text_buf << instancename;
+        }
 
         // replace '_' with ' '
-        char *text_pointer = text;
+        char *text_pointer = text_buf.GetBuffer();
         while (*text_pointer!=0) {if (*text_pointer=='_') *text_pointer=' ';text_pointer++;};
 
         String font_name_str(tex_print.font_name);
@@ -787,7 +815,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
 
         ColourValue color(tex_print.r, tex_print.g, tex_print.b, tex_print.a);
         Ogre::Box box = Ogre::Box((size_t)x, (size_t)y, (size_t)(x+w), (size_t)(y+h));
-        WriteToTexture(String(text), texture, box, font, color, tex_print.font_size, tex_print.font_dpi, tex_print.option);
+        WriteToTexture(text_buf.ToCStr(), texture, box, font, color, tex_print.font_size, tex_print.font_dpi, tex_print.option);
 
         // we can save it to disc for debug purposes:
         //SaveImage(texture, "test.png");
@@ -801,7 +829,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
 
     for (ODefSpotlight& spotl: odef->spotlights)
     {
-        Light* spotLight = App::GetGfxScene()->GetSceneManager()->createLight(spotl.name);
+        Light* spotLight = App::GetGfxScene()->GetSceneManager()->createLight();
 
         spotLight->setType(Light::LT_SPOTLIGHT);
         spotLight->setPosition(spotl.pos);
@@ -826,7 +854,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
 
     for (ODefPointLight& plight : odef->point_lights)
     {
-        Light* pointlight = App::GetGfxScene()->GetSceneManager()->createLight(plight.name);
+        Light* pointlight = App::GetGfxScene()->GetSceneManager()->createLight();
 
         pointlight->setType(Light::LT_POINT);
         pointlight->setPosition(plight.pos);

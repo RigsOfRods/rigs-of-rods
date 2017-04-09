@@ -32,7 +32,7 @@
 class MeshObject : public Ogre::Resource::Listener, public ZeroedMemoryAllocator
 {
 public:
-    MeshObject(Ogre::String meshName, Ogre::String meshRG, Ogre::String entityName, Ogre::SceneNode* sceneNode);
+    MeshObject(Ogre::String meshName, Ogre::String entityRG, Ogre::String entityName, Ogre::SceneNode* sceneNode);
 
     void setMaterialName(Ogre::String m);
     void setCastShadows(bool b);
@@ -47,5 +47,5 @@ protected:
 
     bool castshadows;
 
-    void createEntity(Ogre::String meshName, Ogre::String meshRG, Ogre::String entityName);
+    void createEntity(Ogre::String meshName, Ogre::String entityRG, Ogre::String entityName);
 };

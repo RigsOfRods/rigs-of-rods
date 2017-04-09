@@ -23,12 +23,17 @@
 
 #include "Application.h"
 
+#include "ODefFileFormat.h"
+
 #include "BatchPage.h"
 #include "GrassLoader.h"
 #include "ImpostorPage.h"
 #include "PagedGeometry.h"
 #include "TreeLoader2D.h"
 #include "TreeLoader3D.h"
+
+#include <map>
+#include <unordered_map>
 
 
 class TerrainObjectManager : public ZeroedMemoryAllocator
@@ -104,6 +109,8 @@ public:
 
 protected:
 
+    RoR::ODefFile* FetchODef(std::string const & odef_name);
+
     struct AnimatedObject
     {
         Ogre::Entity* ent;
@@ -134,7 +141,7 @@ protected:
 
     bool           UpdateAnimatedObjects(float dt);
     std::vector<localizer_t> localizers;
-
+    std::unordered_map<std::string, std::shared_ptr<RoR::ODefFile>> m_odef_cache;
     std::map<std::string, StaticObject>   m_static_objects;
     std::vector<EditorObject>             m_editor_objects;
     std::vector<PredefinedActor>          m_predefined_actors;
@@ -146,6 +153,8 @@ protected:
     ProceduralManager*        m_procedural_mgr;
     Road*                     m_road;
     Ogre::SceneNode*          m_staticgeometry_bake_node;
+    int                       m_entity_counter = 0;
+    std::string               m_resource_group;
 
     std::vector<Forests::PagedGeometry*> m_paged_geometry;
 };

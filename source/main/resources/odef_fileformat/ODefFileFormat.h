@@ -24,6 +24,7 @@
 #include <OgreVector3.h>
 
 #include <memory>
+#include <string>
 
 #ifdef DELETE // Windows hack: The `EventType::DELETE` name collides with `DELETE` from <winnt.h> which *MAY* be included at this point.
 #    undef DELETE
@@ -32,7 +33,6 @@
 namespace RoR {
 namespace ODef {
 
-    const int STR_LEN = 300;
     const int LINE_BUF_LEN = 4000;
 
     enum class Localizer
@@ -88,81 +88,64 @@ struct ODefCollisionMesh
         mesh_name(meshname), scale(scal), groundmodel_name(gmodelname)
     {}
 
-    std::string   mesh_name;
-    Ogre::Vector3 scale;
-    std::string   groundmodel_name;
+    std::string      mesh_name;
+    Ogre::Vector3    scale;
+    std::string      groundmodel_name;
 };
 
 struct ODefParticleSys
 {
-    ODefParticleSys() { memset(this, 0, sizeof(ODefParticleSys)); }
-
-    char           instance_name[ODef::STR_LEN];
-    char           template_name[ODef::STR_LEN];
-    Ogre::Vector3  pos;
-    float          scale;
+    std::string      instance_name;
+    std::string      template_name;
+    Ogre::Vector3    pos = Ogre::Vector3::ZERO;
+    float            scale = 0.f;
 };
 
 struct ODefAnimation
 {
-    ODefAnimation() { memset(this, 0, sizeof(ODefAnimation)); }
-
-    float speed_min, speed_max;
-    char  name[ODef::STR_LEN];
+    float            speed_min=0.f, speed_max=0.f;
+    std::string      name;
 };
 
 struct ODefTexPrint
 {
-    ODefTexPrint() { memset(this, 0, sizeof(ODefTexPrint)); }
+    std::string      font_name;
+    int              font_size = 0;
+    int              font_dpi = 0;
+    std::string      text;
+    char             option = '\0';
 
-    char    font_name[ODef::STR_LEN];
-    int     font_size;
-    int     font_dpi;
-    char    text[ODef::STR_LEN];
-    char    option;
-
-    float   x,  y,  w,  h;
-    float   a,  r,  g,  b;
+    float   x=0,  y=0,  w=0,  h=0;
+    float   a=0,  r=0,  g=0,  b=0;
 };
 
 struct ODefSpotlight
 {
-    ODefSpotlight() { memset(this, 0, sizeof(ODefSpotlight)); }
-
-    Ogre::Vector3      pos;
-    Ogre::Vector3      dir;
-    float              range;
-    float              angle_inner; ///< Degrees
-    float              angle_outer; ///< Degrees
-    Ogre::ColourValue  color;
-    char               name[ODef::STR_LEN];
+    Ogre::Vector3      pos = Ogre::Vector3::ZERO;
+    Ogre::Vector3      dir = Ogre::Vector3::ZERO;
+    float              range = 0.f;
+    float              angle_inner = 0.f; ///< Degrees
+    float              angle_outer = 0.f; ///< Degrees
+    Ogre::ColourValue  color = Ogre::ColourValue::Black;
 };
 
 struct ODefPointLight
 {
-    ODefPointLight() { memset(this, 0, sizeof(ODefPointLight)); }
-
-    Ogre::Vector3      pos;
-    Ogre::Vector3      dir;
-    float              range;
-    Ogre::ColourValue  color;
-    char               name[ODef::STR_LEN];
+    Ogre::Vector3      pos = Ogre::Vector3::ZERO;
+    Ogre::Vector3      dir = Ogre::Vector3::ZERO;
+    float              range = 0.f;
+    Ogre::ColourValue  color = Ogre::ColourValue::Black;
 };
 
 struct ODefFile
 {
-    ODefFile():
-        mode_standard(false)
-    {}
-
     struct ODefFileHeader
     {
         std::string   mesh_name;
-        std::string   entity_name;
         Ogre::Vector3 scale;
     }                             header;
 
-    bool                          mode_standard;
+    bool                          mode_standard = false;
     std::vector<ODef::Localizer>  localizers;
     std::list<std::string>        sounds;
     std::list<std::string>        groundmodel_files;
