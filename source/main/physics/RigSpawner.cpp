@@ -1021,6 +1021,35 @@ void RigSpawner::ProcessAirbrake(RigDef::Airbrake & def)
     m_rig->free_airbrake++;
 }
 
+// Internal helper
+void RigSpawner_CreateInterBeamVisuals(beam_t & beam, std::shared_ptr<RigDef::BeamDefaults> beam_defaults)
+{
+    SPAWNER_PROFILE_SCOPED();
+
+    static size_t unique_id = 0;
+    std::stringstream beam_name;
+    beam_name << "interbeam-" << unique_id;
+    ++unique_id;
+    try
+    {
+        beam.mEntity = gEnv->sceneManager->createEntity(beam_name.str(), "beam.mesh");
+    }
+    catch (...)
+    {
+        LOG("Failed to load file 'beam.mesh' (should come with RoR installation)");
+    }
+    beam.mSceneNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+    beam.mSceneNode->setScale(beam.diameter, -1, beam.diameter);
+    if (beam.type == BEAM_HYDRO || beam.type == BEAM_MARKED)
+    {
+        beam.mEntity->setMaterialName("tracks/Chrome");
+    }
+    else
+    {
+        beam.mEntity->setMaterialName(beam_defaults->beam_material_name);
+    }
+}
+
 void RigSpawner::ProcessWing(RigDef::Wing & def)
 {
     SPAWNER_PROFILE_SCOPED();
@@ -2808,33 +2837,50 @@ void RigSpawner::ProcessTie(RigDef::Tie & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    node_t & node_1 = GetNodeOrThrow(def.root_node);
-    node_t & node_2 = GetNode( (node_1.pos == 0) ? 1 : 0 );
+    node_t & node_1 = this->GetNodeOrThrow(def.root_node);
+    node_t & node_2 = this->GetNode( (node_1.pos == 0) ? 1 : 0 );
 
-    int beam_index = m_rig->free_beam;
-    beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
-    SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
-    beam.k = def.beam_defaults->GetScaledSpringiness();
-    beam.d = def.beam_defaults->GetScaledDamping();
-    beam.type = (def.is_invisible) ? BEAM_INVISIBLE_HYDRO : BEAM_HYDRO;
-    beam.L = def.max_reach_length;
-    beam.refL = def.max_reach_length;
-    beam.Lhydro = def.max_reach_length;
-    beam.bounded = ROPE;
-    beam.disabled = true;
-    beam.commandRatioLong = def.auto_shorten_rate;
-    beam.commandRatioShort = def.auto_shorten_rate;
-    beam.commandShort = def.min_length;
-    beam.commandLong = def.max_length;
-    beam.maxtiestress = def.max_stress;
-    CreateBeamVisuals(beam, beam_index, def.beam_defaults);
+    // OLD TIE // beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
 
-    /* Register tie */
+    // Setup beam
+    inter_beam_t interbeam;
+    interbeam.ib_beam.p1                = &node_1;
+    interbeam.ib_beam.p2                = &node_2;
+    interbeam.ib_beam.detacher_group    = def.detacher_group;
+    interbeam.ib_beam.diameter          = def.beam_defaults->visual_beam_diameter;
+    interbeam.ib_beam.disabled          = false;
+    interbeam.ib_beam.strength          = def.beam_defaults->GetScaledBreakingThreshold();
+    interbeam.ib_beam.plastic_coef      = def.beam_defaults->plastic_deform_coef;
+    interbeam.ib_beam.k                 = def.beam_defaults->GetScaledSpringiness();
+    interbeam.ib_beam.d                 = def.beam_defaults->GetScaledDamping();
+    interbeam.ib_beam.type              = (def.is_invisible) ? BEAM_INVISIBLE_HYDRO : BEAM_HYDRO;
+    interbeam.ib_beam.L                 = def.max_reach_length;
+    interbeam.ib_beam.refL              = def.max_reach_length;
+    interbeam.ib_beam.Lhydro            = def.max_reach_length;
+    interbeam.ib_beam.bounded           = ROPE;
+    interbeam.ib_beam.disabled          = true;
+    interbeam.ib_beam.commandRatioLong  = def.auto_shorten_rate;
+    interbeam.ib_beam.commandRatioShort = def.auto_shorten_rate;
+    interbeam.ib_beam.commandShort      = def.min_length;
+    interbeam.ib_beam.commandLong       = def.max_length;
+    interbeam.ib_beam.maxtiestress      = def.max_stress;
+
+    this->SetBeamDeformationThreshold(interbeam.ib_beam, def.beam_defaults);
+    RigSpawner_CreateInterBeamVisuals(interbeam.ib_beam, def.beam_defaults);
+
+    // Setup the interbeam
+    interbeam.ib_actor_master = m_rig;
+    interbeam.ib_type         = InterBeamType::IB_TIE;
+    interbeam.ib_entry_index  = m_rig->ropes.size();
+    interbeam.ib_rest_node2   = &node_2;
+    BeamFactory::getSingleton().AddNewInterBeam(interbeam);
+
+    // Register tie
     tie_t tie;
     tie.group = def.group;
     tie.tying = false;
     tie.tied = false;
-    tie.beam = & beam;
+    // OLD TIE // tie.beam = & beam;
     tie.commandValue = -1.f;
     m_rig->ties.push_back(tie);
 
@@ -2845,20 +2891,36 @@ void RigSpawner::ProcessRope(RigDef::Rope & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    node_t & root_node = GetNodeOrThrow(def.root_node);
-    node_t & end_node = GetNodeOrThrow(def.end_node);
+    node_t & root_node = this->GetNodeOrThrow(def.root_node);
+    node_t & end_node = this->GetNodeOrThrow(def.end_node);
 
-    /* Add beam */
-    beam_t & beam = AddBeam(root_node, end_node, def.beam_defaults, def.detacher_group);
-    SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
-    beam.k = def.beam_defaults->GetScaledSpringiness();
-    beam.d = def.beam_defaults->GetScaledDamping();
-    beam.bounded = ROPE;
-    beam.type = (def.invisible) ? BEAM_INVISIBLE_HYDRO : BEAM_HYDRO;
+    //OLD  beam_t & beam = AddBeam(root_node, end_node, def.beam_defaults, def.detacher_group);
 
-    /* Register rope */
+    // Setup the beam
+    inter_beam_t interbeam;
+    interbeam.ib_beam.p1             = &root_node;
+    interbeam.ib_beam.p2             = &end_node;
+    interbeam.ib_beam.detacher_group = def.detacher_group;
+    interbeam.ib_beam.diameter       = def.beam_defaults->visual_beam_diameter;
+    interbeam.ib_beam.disabled       = false;
+    interbeam.ib_beam.plastic_coef   = def.beam_defaults->plastic_deform_coef;
+    interbeam.ib_beam.k              = def.beam_defaults->GetScaledSpringiness();
+    interbeam.ib_beam.d              = def.beam_defaults->GetScaledDamping();
+    interbeam.ib_beam.bounded        = ROPE;
+    interbeam.ib_beam.type           = (def.invisible) ? BEAM_INVISIBLE_HYDRO : BEAM_HYDRO;
+    this->SetBeamDeformationThreshold(interbeam.ib_beam, def.beam_defaults);
+    this->SetBeamStrength(interbeam.ib_beam, def.beam_defaults->GetScaledBreakingThreshold());
+
+    // Setup the interbeam
+    interbeam.ib_actor_master = m_rig;
+    interbeam.ib_type         = InterBeamType::IB_ROPE;
+    interbeam.ib_entry_index  = m_rig->ropes.size();
+    interbeam.ib_rest_node2   = &end_node;
+    BeamFactory::getSingleton().AddNewInterBeam(interbeam);
+
+    // Register rope
     rope_t rope;
-    rope.beam = & beam;
+    // OLD ROPE // rope.beam = & beam;
     rope.locked = UNLOCKED;
     rope.lockedto = & m_rig->nodes[0]; // Orig: hardcoded in BTS_ROPES
     rope.lockedto_ropable = nullptr;
@@ -3112,6 +3174,7 @@ void RigSpawner::ProcessHook(RigDef::Hook & def)
     
     /* Find the hook */
     hook_t *hook = nullptr;
+    size_t hook_index = 0;
     std::vector <hook_t>::iterator itor = m_rig->hooks.begin();
     for (; itor != m_rig->hooks.end(); itor++)
     {
@@ -3120,12 +3183,22 @@ void RigSpawner::ProcessHook(RigDef::Hook & def)
             hook = &*itor;
             break;
         }
+        ++hook_index;
     }
 
     if (hook == nullptr)
     {
         std::stringstream msg;
         msg << "Node '" << def.node.ToString() << "' is not a hook-node (not marked with flag 'h'), ignoring...";
+        AddMessage(Message::TYPE_ERROR, msg.str());
+        return;
+    }
+
+    inter_beam_t* interbeam = BeamFactory::getSingleton().FindInterBeam(m_rig, InterBeamType::IB_HOOK, hook_index);
+    if (interbeam == nullptr)
+    {
+        std::stringstream msg;
+        msg << "Error processing hook-node '" << def.node.ToString() << "': respective hook entry not found, skipping...";
         AddMessage(Message::TYPE_ERROR, msg.str());
         return;
     }
@@ -3138,7 +3211,7 @@ void RigSpawner::ProcessHook(RigDef::Hook & def)
     hook->lockgroup = def.option_lockgroup;
     hook->timer     = 0.f; // Hardcoded in BTS_HOOKS
     hook->timer_preset = def.option_timer;
-    hook->beam->commandShort = def.option_min_range_meters;
+    interbeam->ib_beam.commandShort = def.option_min_range_meters;
     hook->selflock = BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_SELF_LOCK);
     hook->nodisable = BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_NO_DISABLE);
     if (BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_AUTO_LOCK))
@@ -3151,11 +3224,11 @@ void RigSpawner::ProcessHook(RigDef::Hook & def)
     }
     if (BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_NO_ROPE))
     {
-        hook->beam->bounded = NOSHOCK;
+        interbeam->ib_beam.bounded = NOSHOCK;
     }
     if (!BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_VISIBLE))
     {
-        hook->beam->type = BEAM_INVISIBLE_HYDRO;
+        interbeam->ib_beam.type = BEAM_INVISIBLE_HYDRO;
     }
 }
 
@@ -6204,39 +6277,57 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
     }
     if (BITMASK_IS_1(options, RigDef::Node::OPTION_h_HOOK_POINT))
     {
-        /* Link [current-node] -> [node-0] */
-        /* If current node is 0, link [node-0] -> [node-1] */
-        node_t & node_2 = (node.pos == 0) ? GetNode(1) : GetNode(0);
-        unsigned int beam_index = m_rig->free_beam;
+        // COMPAT: Create the hook-beam the old way (as if it was local), then generalize it.
 
-        beam_t & beam = AddBeam(node, node_2, def.beam_defaults, def.detacher_group);
-        SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold() * 100.f);
-        beam.type              = BEAM_HYDRO;
-        beam.d                 = def.beam_defaults->GetScaledDamping() * 0.1f;
-        beam.k                 = def.beam_defaults->GetScaledSpringiness();
-        beam.bounded           = ROPE;
-        beam.disabled          = true;
-        beam.L                 = HOOK_RANGE_DEFAULT;
-        beam.Lhydro            = HOOK_RANGE_DEFAULT;
-        beam.refL              = HOOK_RANGE_DEFAULT;
-        beam.commandRatioShort = HOOK_SPEED_DEFAULT;
-        beam.commandRatioLong  = HOOK_SPEED_DEFAULT;
-        beam.commandShort      = 0.0f;
-        beam.commandLong       = 1.0f;
-        beam.maxtiestress      = HOOK_FORCE_DEFAULT;
-        SetBeamDeformationThreshold(beam, def.beam_defaults);
-        CreateBeamVisuals(beam, beam_index, def.beam_defaults);
-            
+        /* OLD LOGIC: Link [current-node] -> [node-0] */
+        /* OLD LOGIC: If current node is 0, link [node-0] -> [node-1] */
+        node_t & node_2 = (node.pos == 0) ? this->GetNode(1) : this->GetNode(0);
+
+        //OLD beam_t & beam = AddBeam(node, node_2, def.beam_defaults, def.detacher_group);
+
+        // Setup the beam
+        inter_beam_t interbeam;
+        interbeam.ib_beam.p1                = &node;
+        interbeam.ib_beam.p2                = &node_2;
+        interbeam.ib_beam.detacher_group    = def.detacher_group;
+        interbeam.ib_beam.diameter          = def.beam_defaults->visual_beam_diameter;
+        interbeam.ib_beam.disabled          = false;
+        interbeam.ib_beam.strength          = def.beam_defaults->breaking_threshold;
+        interbeam.ib_beam.plastic_coef      = def.beam_defaults->plastic_deform_coef;
+        interbeam.ib_beam.type              = BEAM_HYDRO;
+        interbeam.ib_beam.d                 = def.beam_defaults->GetScaledDamping() * 0.1f;
+        interbeam.ib_beam.k                 = def.beam_defaults->GetScaledSpringiness();
+        interbeam.ib_beam.bounded           = ROPE;
+        interbeam.ib_beam.disabled          = true;
+        interbeam.ib_beam.L                 = HOOK_RANGE_DEFAULT;
+        interbeam.ib_beam.Lhydro            = HOOK_RANGE_DEFAULT;
+        interbeam.ib_beam.refL              = HOOK_RANGE_DEFAULT;
+        interbeam.ib_beam.commandRatioShort = HOOK_SPEED_DEFAULT;
+        interbeam.ib_beam.commandRatioLong  = HOOK_SPEED_DEFAULT;
+        interbeam.ib_beam.commandShort      = 0.0f;
+        interbeam.ib_beam.commandLong       = 1.0f;
+        interbeam.ib_beam.maxtiestress      = HOOK_FORCE_DEFAULT;
+        this->SetBeamStrength(interbeam.ib_beam, def.beam_defaults->GetScaledBreakingThreshold() * 100.f);
+        this->SetBeamDeformationThreshold(interbeam.ib_beam, def.beam_defaults);
+        RigSpawner_CreateInterBeamVisuals(interbeam.ib_beam, def.beam_defaults); // Static helper function
+
+        // Setup the interbeam
+        interbeam.ib_actor_master = m_rig;
+        interbeam.ib_type = InterBeamType::IB_HOOK;
+        interbeam.ib_entry_index = m_rig->hooks.size();
+        interbeam.ib_rest_node2 = &node_2;
+        BeamFactory::getSingleton().AddNewInterBeam(interbeam);
+
         // Logic cloned from SerializedRig.cpp, section BTS_NODES
         hook_t hook;
         hook.hookNode          = & node;
         hook.group             = -1;
         hook.locked            = UNLOCKED;
         hook.lockNode          = 0;
-        hook.lockTruck         = 0;
+        //OLD hook.lockTruck         = 0;
         hook.lockNodes         = true;
         hook.lockgroup         = -1;
-        hook.beam              = & beam;
+        //OLD hook.beam              = & beam;
         hook.maxforce          = HOOK_FORCE_DEFAULT;
         hook.lockrange         = HOOK_RANGE_DEFAULT;
         hook.lockspeed         = HOOK_SPEED_DEFAULT;

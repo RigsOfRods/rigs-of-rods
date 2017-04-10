@@ -61,6 +61,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <unordered_set>
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
   #include <intrin.h>
@@ -1204,7 +1205,10 @@ void BeamFactory::UpdatePhysicsSimulation()
             for (int t = 0; t < m_free_truck; t++)
             {
                 if (m_trucks[t] && m_trucks[t]->simulated)
-                    m_trucks[t]->calcForcesEulerFinal(i == 0, PHYSICS_DT, i, m_physics_steps);
+                {
+                    BeamFactory::getSingleton().CalcHooks(m_trucks[t]);
+                    BeamFactory::getSingleton().CalcRopes(m_trucks[t]);
+                }
             }
 
             if (num_simulated_trucks > 1)
@@ -1250,7 +1254,8 @@ void BeamFactory::UpdatePhysicsSimulation()
                 {
                     num_simulated_trucks++;
                     m_trucks[t]->calcForcesEulerCompute(i == 0, PHYSICS_DT, i, m_physics_steps);
-                    m_trucks[t]->calcForcesEulerFinal(i == 0, PHYSICS_DT, i, m_physics_steps);
+                    BeamFactory::getSingleton().CalcHooks(m_trucks[t]);
+                    BeamFactory::getSingleton().CalcRopes(m_trucks[t]);
                     if (!m_trucks[t]->disableTruckTruckSelfCollisions)
                     {
                         m_trucks[t]->IntraPointCD()->update(m_trucks[t]);
@@ -1310,3 +1315,158 @@ void BeamFactory::SyncWithSimThread()
     if (m_sim_task)
         m_sim_task->join();
 }
+
+#define LOGSTREAM Ogre::LogManager::getSingleton().stream() << "[RoR|Physics] "
+
+void BeamFactory::AddNewInterBeam(inter_beam_t & new_ib)
+{
+    m_inter_beams.push_back(new_ib);
+}
+
+inter_beam_t* BeamFactory::FindInterBeam(const Beam* actor, const InterBeamType type, const size_t entry_index)
+{
+    for (inter_beam_t& ib: m_inter_beams)
+    {
+        if ((ib.ib_actor_master == actor) && (ib.ib_type == type) && (ib.ib_entry_index == entry_index))
+        {
+            return &ib;
+        }
+    }
+    return nullptr;
+}
+
+void BeamFactory::RemoveAllInterBeams(Beam* actor)
+{
+    auto itor = m_inter_beams.begin();
+    auto endi = m_inter_beams.end();
+    while (itor != endi)
+    {
+        if (itor->ib_actor_master == actor)
+        {
+            itor = m_inter_beams.erase(itor);
+        }
+        else if (itor->ib_actor_slave == actor)
+        {
+            itor->ib_actor_slave = nullptr;
+            itor->ib_beam.disabled = true;
+            itor->ib_beam.p2 = itor->ib_rest_node2;
+
+            if (itor->ib_type == InterBeamType::IB_HOOK)
+            {
+                const hook_t& hook = itor->ib_actor_master->hooks.at(itor->ib_entry_index);
+                const node_t& node0 = itor->ib_actor_master->nodes[0];
+                itor->ib_beam.L = (node0.AbsPosition - hook.hookNode->AbsPosition).length();
+            }
+        }
+        ++itor;
+    }
+}
+
+void BeamFactory::FindLinkedActors(Beam* actor, std::unordered_set<Beam*>& slave_actors)
+{
+    for (auto& ib: m_inter_beams)
+    {
+        if (ib.ib_actor_master == actor)
+            slave_actors.insert(ib.ib_actor_slave);
+    }
+}
+
+size_t BeamFactory::GetNumLinkedActors(Beam* actor)
+{
+    std::unordered_set<Beam*> slave_actors;
+    this->FindLinkedActors(actor, slave_actors);
+    return slave_actors.size();
+}
+
+float BeamFactory::GetTotalLinkedMass(Beam* actor)
+{
+    std::unordered_set<Beam*> slave_actors;
+    this->FindLinkedActors(actor, slave_actors);
+
+    float mass = 0.f;
+    for (Beam* slave: slave_actors)
+    {
+        mass += slave->getTotalMass(false);
+    }
+
+    return mass;
+}
+
+void BeamFactory::SetSkeletonViewActive (Beam* actor, bool active)
+{
+    std::unordered_set<Beam*> slave_actors;
+    for (auto& ib: m_inter_beams)
+    {
+        if (ib.ib_actor_master == actor)
+            slave_actors.insert(ib.ib_actor_slave);
+    }
+
+    if (active)
+    {
+        actor->showSkeleton();
+        for (Beam* slave: slave_actors)
+        {
+            slave->showSkeleton(true);
+        }
+    }
+    else
+    {
+        actor->hideSkeleton();
+        for (Beam* slave: slave_actors)
+        {
+            slave->hideSkeleton();
+        }
+    }
+}
+
+void BeamFactory::DetachTieInterBeam(inter_beam_t* tie_ib)
+{
+    tie_ib->ib_actor_slave = nullptr;
+    tie_ib->ib_beam.disabled = true;
+    tie_ib->ib_beam.p2 = tie_ib->ib_rest_node2;
+    if (tie_ib->ib_actor_slave != nullptr)
+    {
+        this->SetSkeletonViewActive(tie_ib->ib_actor_slave, false);
+    }
+}
+
+void BeamFactory::AttachTieInterBeam(inter_beam_t* tie_ib, Beam* slave, node_t* node)
+{
+    tie_ib->ib_actor_slave = slave;
+    tie_ib->ib_beam.p2 = node;
+    tie_ib->ib_beam.stress = 0.f;
+    tie_ib->ib_beam.L = tie_ib->ib_beam.refL;
+    this->SetSkeletonViewActive(slave, tie_ib->ib_actor_master->m_skeletonview_is_active);
+}
+
+void BeamFactory::UnlockRopeInterBeam(inter_beam_t* interbeam)
+{
+    interbeam->ib_actor_slave = nullptr;
+    interbeam->ib_beam.disabled = true;
+}
+
+void BeamFactory::LockRopeInterBeam(inter_beam_t* interbeam, Beam* slave)
+{
+    interbeam->ib_actor_slave = slave;
+}
+
+void BeamFactory::UnlockHookInterBeam(inter_beam_t* hook_ib)
+{
+    hook_ib->ib_beam.p2 = hook_ib->ib_rest_node2;
+    hook_ib->ib_beam.disabled = true;
+    hook_ib->ib_beam.L = (hook_ib->ib_rest_node2->AbsPosition - hook_ib->ib_beam.p1->AbsPosition).length();
+    hook_ib->ib_actor_slave = nullptr;
+}
+
+void BeamFactory::PreLockHookInterBeam(inter_beam_t* hook_ib, Beam* slave)
+{
+    hook_ib->ib_actor_slave = slave;
+}
+
+void BeamFactory::LockHookInterBeamCalc(inter_beam_t* interbeam, node_t* node)
+{
+    interbeam->ib_beam.disabled = false;
+    interbeam->ib_beam.p2 = node;
+    interbeam->ib_beam.L = (interbeam->ib_beam.p1->AbsPosition - node->AbsPosition).length();
+}
+
