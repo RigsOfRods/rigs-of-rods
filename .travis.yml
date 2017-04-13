@@ -1,6 +1,6 @@
 dist: trusty
 language: cpp
-sudo: false
+sudo: required
 
 cache:
   directories:
