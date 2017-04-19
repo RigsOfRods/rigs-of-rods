@@ -725,7 +725,6 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
         Beam* truck = mse->GetFrameListener()->GetBeamFactory()->getCurrentTruck();
         curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "Truck_Name", CURLFORM_COPYCONTENTS, truck->getTruckName().c_str(), CURLFORM_END);
         curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "Truck_FileName", CURLFORM_COPYCONTENTS, truck->getTruckFileName().c_str(), CURLFORM_END);
-        curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "Truck_Hash", CURLFORM_COPYCONTENTS, truck->getTruckHash().c_str(), CURLFORM_END);
 
         // look for any locked trucks
         int i = 0;
@@ -738,8 +737,6 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
                 curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, name.c_str(), CURLFORM_COPYCONTENTS, trailer->getTruckName().c_str(), CURLFORM_END);
                 String filename = "Trailer_" + TOSTRING(i) + "_FileName";
                 curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, filename.c_str(), CURLFORM_COPYCONTENTS, trailer->getTruckFileName().c_str(), CURLFORM_END);
-                String hash = "Trailer_" + TOSTRING(i) + "_Hash";
-                curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, hash.c_str(), CURLFORM_COPYCONTENTS, trailer->getTruckHash().c_str(), CURLFORM_END);
             }
         }
         curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "Trailer_Count", CURLFORM_COPYCONTENTS, TOSTRING(i).c_str(), CURLFORM_END);

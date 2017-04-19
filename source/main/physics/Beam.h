@@ -431,7 +431,6 @@ public:
 
     std::string getTruckName();
     std::string getTruckFileName();
-    std::string getTruckHash();
     int getTruckType();
 
     std::vector<authorinfo_t> getAuthors();
@@ -439,7 +438,6 @@ public:
 
     int getBeamCount();
     beam_t *getBeams();
-    float getDefaultDeformation();
 
     int getNodeCount();
     node_t *getNodes();

@@ -5749,8 +5749,6 @@ Beam::Beam(
     networking = _networking;
     memset(truckname, 0, 256);
     sprintf(truckname, "t%i", truck_number);
-    memset(uniquetruckid, 0, 256);
-    strcpy(uniquetruckid, "-1");
     driveable = NOT_DRIVEABLE;
     if (ismachine)
     {
@@ -6416,11 +6414,6 @@ int Beam::getTruckType()
     return driveable;
 }
 
-std::string Beam::getTruckHash()
-{
-    return beamHash;
-}
-
 std::vector<authorinfo_t> Beam::getAuthors()
 {
     return authors;
@@ -6439,11 +6432,6 @@ int Beam::getBeamCount()
 beam_t* Beam::getBeams()
 {
     return beams;
-}
-
-float Beam::getDefaultDeformation()
-{
-    return default_deform;
 }
 
 int Beam::getNodeCount()

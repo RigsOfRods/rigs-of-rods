@@ -157,11 +157,11 @@ rig_t *RigSpawner::SpawnRig()
 
     // Section 'fileinfo' in root module
     ProcessFileInfo();
-    
-    // Section 'guid' in root module
-    if (! m_file->guid.empty())
+
+    // Section 'guid' in root module: unused for gameplay
+    if (m_file->guid.empty())
     {
-        strncpy(m_rig->guid, m_file->guid.c_str(), 128);
+        this->AddMessage(Message::TYPE_WARNING, "vehicle uses no GUID, skinning will be impossible");
     }
 
     // Section 'minimass' in root module
@@ -389,8 +389,6 @@ rig_t *RigSpawner::SpawnRig()
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SOUNDSOURCES2, soundsources2, ProcessSoundSource2);
 
 #endif // USE_OPENAL
-
-    m_rig->loading_finished = true;
 
     // POST-PROCESSING
     FinalizeRig();

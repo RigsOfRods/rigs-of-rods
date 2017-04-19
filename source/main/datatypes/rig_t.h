@@ -119,10 +119,7 @@ struct rig_t
 
     bool hideInChooser;
 
-    char guid[128];
-
     Ogre::String realtruckname;
-    bool loading_finished;
 
     bool forwardcommands;
     bool importcommands;
@@ -131,7 +128,7 @@ struct rig_t
     bool disable_default_sounds;
 
     // Antilockbrake + Tractioncontrol
-    bool slopeBrake;
+    bool has_slope_brake;
     float slopeBrakeFactor;
     float slopeBrakeAttAngle;
     float slopeBrakeRelAngle;
@@ -168,8 +165,6 @@ struct rig_t
     // Speed Limiter
     bool sl_enabled; //!< Speed limiter;
     float sl_speed_limit; //!< Speed limiter;
-
-    char uniquetruckid[256];
     int categoryid;
     int truckversion;
     int externalcameramode, externalcameranode;
@@ -224,7 +219,6 @@ struct rig_t
     //! Dbg. overlay type { NODES: 1-Numbers, 4-Mass, 5-Locked | BEAMS: 2-Numbers, 6-Compression, 7-Broken, 8-Stress, 9-Strength, 10-Hydros, 11-Commands, OTHER: 3-N&B numbers, 12-14 unknown }
     int debugVisuals;
 
-    Ogre::String speedomat, tachomat;
     float speedoMax;
     bool useMaxRPMforGUI;
     float minimass;
@@ -240,8 +234,6 @@ struct rig_t
     int propwheelcount;
     int free_commands;
     int fileformatversion;
-
-    std::vector<Ogre::String> sectionconfigs;
 
     Ogre::Vector3 origin;
     Ogre::SceneNode *beamsRoot;
@@ -278,25 +270,6 @@ struct rig_t
     int lowestnode; //!< never updated after truck init!?!
     int lowestcontactingnode;
 
-    float default_spring; //!< TODO: REMOVE! (parser context only)
-    float default_spring_scale; //!< TODO: REMOVE! (parser context only)
-    float default_damp;
-    float default_damp_scale;
-    float default_deform;
-    float default_deform_scale;
-    float default_break;
-    float default_break_scale;
-
-    float default_beam_diameter;
-    float default_plastic_coef;
-
-    char default_beam_material[256];
-    float default_node_friction; //!< TODO: REMOVE! (parser context only)
-    float default_node_volume; //!< TODO: REMOVE! (parser context only)
-    float default_node_surface; //!< TODO: REMOVE! (parser context only)
-    float default_node_loadweight; //!< TODO: REMOVE! (parser context only)
-    char default_node_options[50]; //!< TODO: REMOVE! (parser context only)
-
     float posnode_spawn_height;
 
     MaterialReplacer *materialReplacer;
@@ -306,7 +279,6 @@ struct rig_t
     float odometerUser;
 
     std::vector<std::pair<Ogre::String, bool> > dashBoardLayouts;
-    Ogre::String beamHash; //!< Unused
 
     VehicleAI *vehicle_ai;
 };

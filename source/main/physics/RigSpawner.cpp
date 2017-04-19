@@ -209,16 +209,13 @@ void RigSpawner::InitializeRig()
     m_rig->free_camerarail = 0;
     m_rig->free_screwprop = 0;
 
-    memset(m_rig->guid, 0, 128);
-    
     m_rig->realtruckname = "";
-    m_rig->loading_finished=false;
     m_rig->forwardcommands=false;
 
     m_rig->wheel_contact_requested = false;
     m_rig->rescuer = false;
     m_rig->disable_default_sounds=false;
-    m_rig->slopeBrake=false;
+    m_rig->has_slope_brake=false;
     m_rig->categoryid=-1;
     m_rig->truckversion=-1;
     m_rig->externalcameramode=0;
@@ -226,19 +223,10 @@ void RigSpawner::InitializeRig()
     m_rig->authors.clear();
     m_rig->slideNodesConnectInstantly=false;
 
-    m_rig->default_beam_diameter=DEFAULT_BEAM_DIAMETER;
-    strcpy(m_rig->default_beam_material, "tracks/beam");
-    m_rig->default_plastic_coef=0;
-    m_rig->default_node_friction=NODE_FRICTION_COEF_DEFAULT;
-    m_rig->default_node_volume=NODE_VOLUME_COEF_DEFAULT;
-    m_rig->default_node_surface=NODE_SURFACE_COEF_DEFAULT;
-    m_rig->default_node_loadweight=NODE_LOADWEIGHT_DEFAULT;
-
     m_rig->odometerTotal = 0;
     m_rig->odometerUser  = 0;
     m_rig->dashBoardLayouts.clear();
 
-    memset(m_rig->default_node_options, 0, 49);
     memset(m_rig->texname, 0, 1023);
     memset(m_rig->helpmat, 0, 255);
     
@@ -262,7 +250,6 @@ void RigSpawner::InitializeRig()
     m_rig->propwheelcount=0;
     m_rig->free_commands=0;
     m_rig->fileformatversion=0;
-    m_rig->sectionconfigs.clear();
 
     m_rig->origin=Ogre::Vector3::ZERO;
     m_rig->mSlideNodes.clear();
@@ -300,8 +287,6 @@ void RigSpawner::InitializeRig()
     m_rig->proped_wheels=0;
     m_rig->braked_wheels=0;
 
-    m_rig->speedomat = "";
-    m_rig->tachomat = "";
     m_rig->speedoMax=140;
     m_rig->useMaxRPMforGUI=false;
     m_rig->minimass=50.0;
@@ -321,8 +306,6 @@ void RigSpawner::InitializeRig()
     m_rig->subMeshGroundModelName = "";
 
     m_rig->materialReplacer = new MaterialReplacer();
-
-    m_rig->beamHash = "";
 
 #ifdef USE_ANGELSCRIPT
     m_rig->vehicle_ai = new VehicleAI(m_rig);
@@ -653,13 +636,6 @@ void RigSpawner::FinalizeRig()
         m_rig->cabEntity = ec;
         
     };
-
-    // check for some things
-    if (strnlen(m_rig->guid, 128) == 0)
-    {
-        //parser_warning(c, "vehicle uses no GUID, skinning will be impossible", PARSER_OBSOLETE);
-        AddMessage(Message::TYPE_WARNING, "vehicle uses no GUID, skinning will be impossible");
-    }
 
     m_rig->lowestnode = FindLowestNodeInRig();
     m_rig->lowestcontactingnode = FindLowestContactingNodeInRig();
@@ -1388,8 +1364,8 @@ void RigSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    m_rig->tachomat = def.tacho_material;
-    m_rig->speedomat = def.speedo_material;
+    // Currently unused (was relevant to overlay-based HUD): def.tacho_material; def.speedo_material;
+
     if (! def.help_material.empty())
     {
         strncpy(m_rig->helpmat, def.help_material.c_str(), sizeof(m_rig->helpmat) - 1);
@@ -5526,7 +5502,7 @@ void RigSpawner::ProcessSlopeBrake(RigDef::SlopeBrake & def)
     m_rig->slopeBrakeRelAngle = release_angle + attach_angle;
 
     // Flag
-    m_rig->slopeBrake = true;
+    m_rig->has_slope_brake = true;
 };
 
 void RigSpawner::ProcessTractionControl(RigDef::TractionControl & def)
@@ -5740,7 +5716,7 @@ void RigSpawner::ProcessFileInfo()
     if (m_file->file_info != nullptr)
     {
         // Do it the 0.3x way ... no error check!
-        strncpy(m_rig->uniquetruckid, m_file->file_info->unique_id.c_str(), 254);
+        // NOTE: UniqueID was removed for being useless
         m_rig->categoryid = m_file->file_info->category_id;
         m_rig->truckversion = m_file->file_info->file_version;
     }
