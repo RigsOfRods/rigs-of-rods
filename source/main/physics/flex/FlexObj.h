@@ -63,7 +63,7 @@ public:
         int* triangles,
         std::vector<CabSubmesh>& submeshes,
         char* texname,
-        char* name,
+        const char* name,
         char* backtexname,
         char* transtexname);
 

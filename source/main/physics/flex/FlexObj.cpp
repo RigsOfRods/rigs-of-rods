@@ -27,7 +27,7 @@ using namespace Ogre;
 
 FlexObj::FlexObj(node_t *nds, std::vector<CabTexcoord>& texcoords, int numtriangles, 
                  int* triangles, std::vector<CabSubmesh>& submesh_defs, 
-                 char* texname, char* name, char* backtexname, char* transtexname)
+                 char* texname, const char* name, char* backtexname, char* transtexname)
 {
     m_triangle_count = numtriangles;
 

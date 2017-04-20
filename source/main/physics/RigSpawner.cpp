@@ -508,10 +508,6 @@ void RigSpawner::FinalizeRig()
     //add the cab visual
     if (!m_oldstyle_cab_texcoords.empty() && m_rig->free_cab>0)
     {
-        char wname[256];
-        sprintf(wname, "cab-%s",m_rig->truckname);
-        char wnamei[256];
-        sprintf(wnamei, "cabobj-%s",m_rig->truckname);
         //the cab materials are as follow:
         //texname: base texture with emissive(2 pass) or without emissive if none available(1 pass), alpha cutting
         //texname-trans: transparency texture (1 pass)
@@ -596,6 +592,7 @@ void RigSpawner::FinalizeRig()
             clomat->compile();
         }
 
+        std::string mesh_name = this->ComposeName("VehicleCabMesh", 0);
         m_rig->cabMesh =new FlexObj( // Names in FlexObj ctor
             m_rig->nodes,            // node_t* nds
             m_oldstyle_cab_texcoords,// std::vector<CabNodeTexcoords>& texcoords
@@ -603,7 +600,7 @@ void RigSpawner::FinalizeRig()
             m_rig->cabs,             // int*    triangles
             m_oldstyle_cab_submeshes,// std::vector<CabSubmesh>& submeshes
             m_rig->texname,          // char*   texname
-            wname,                   // char*   name
+            mesh_name.c_str(),
             backmatname,             // char*   backtexname
             transmatname             // char*   transtexname
         );
@@ -612,7 +609,8 @@ void RigSpawner::FinalizeRig()
         Ogre::Entity *ec = nullptr;
         try
         {
-            ec = gEnv->sceneManager->createEntity(wnamei, wname);
+            ec = gEnv->sceneManager->createEntity(this->ComposeName("VehicleCabEntity", 0), mesh_name);
+            this->SetupNewEntity(ec, Ogre::ColourValue(0.5, 1, 0.5));
             if (ec)
             {
                 m_rig->cabNode->attachObject(ec);
@@ -620,21 +618,7 @@ void RigSpawner::FinalizeRig()
         }
         catch(...)
         {
-            Ogre::String msg = "error loading mesh: "+Ogre::String(wname);
-            AddMessage(Message::TYPE_ERROR, msg);
-        }
-        MaterialFunctionMapper::replaceSimpleMeshMaterials(ec, Ogre::ColourValue(0.5, 1, 0.5));
-        if (m_rig->materialFunctionMapper != nullptr)
-        {
-            m_rig->materialFunctionMapper->replaceMeshMaterials(ec);
-        }
-        if (m_rig->materialReplacer != nullptr) 
-        {
-            m_rig->materialReplacer->replaceMeshMaterials(ec);
-        }
-        if (m_rig->usedSkin != nullptr) 
-        {
-            m_rig->usedSkin->replaceMeshMaterials(ec);
+            this->AddMessage(Message::TYPE_ERROR, "error loading mesh: "+mesh_name);
         }
         m_rig->cabEntity = ec;
         
@@ -7169,7 +7153,8 @@ Ogre::MaterialPtr RigSpawner::PersonalizeMaterial(std::string orig_name)
     if (orig_name == "")
         return Ogre::MaterialPtr(); // NULL
 
-    try {
+    try
+    {
         Ogre::MaterialPtr orig_mat = Ogre::MaterialManager::getSingleton().getByName(orig_name);
         if (orig_mat.isNull())
             return Ogre::MaterialPtr(); // NULL
