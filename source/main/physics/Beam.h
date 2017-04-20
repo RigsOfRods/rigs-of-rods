@@ -772,4 +772,6 @@ protected:
      * @return a pair containing the rail, and the distant to the SlideNode
      */
     std::pair<RailGroup*, Ogre::Real> getClosestRailOnTruck( Beam* truck, const SlideNode& node);
+
+    std::string m_custom_resource_group; ///< Stores OGRE resources individual to this Beam
 };

@@ -32,7 +32,6 @@ public:
         Ogre::String material;
         Ogre::String originalmaterial;
         bool laststate;
-        int type;
     };
 
     void addMaterial(int flareid, materialmapping_t t);

@@ -179,6 +179,9 @@ rig_t *RigSpawner::SpawnRig()
     // Section 'managedmaterials'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MANAGEDMATERIALS, managed_materials, ProcessManagedMaterial);
 
+    // Section 'materialflarebindings'
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MATERIALFLAREBINDINGS, material_flare_bindings, ProcessMaterialFlareBinding);
+
     // Section 'gobals' in any module
     PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_GLOBALS, globals, ProcessGlobals);
 
@@ -306,9 +309,6 @@ rig_t *RigSpawner::SpawnRig()
 
     // Section 'animators'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_ANIMATORS, animators, ProcessAnimator);
-
-    // Section 'materialflarebindings'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MATERIALFLAREBINDINGS, material_flare_bindings, ProcessMaterialFlareBinding);
 
     // Section 'airbrakes'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_AIRBRAKES, airbrakes, ProcessAirbrake);

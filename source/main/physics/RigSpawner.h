@@ -893,6 +893,18 @@ protected:
     */
     void CreateWheelVisuals(unsigned int wheel_index, RigDef::Wheel2 & wheel_2_def, unsigned int node_base_index);
 
+    void SetupNewEntity(Ogre::Entity* e, Ogre::ColourValue simple_color);
+
+    /**
+    * Clones material to have per-actor unique name and places it in per-actor resource group.
+    */
+    Ogre::MaterialPtr PersonalizeMaterial(std::string orig_name);
+
+    /**
+    * Creates name containing actor ID token, i.e. "Object_1@Actor_2"
+    */
+    std::string ComposeName(const char* base, int number);
+
     /**
     * Sets up wheel and builds nodes for sections 'wheels', 'meshwheels' and 'meshwheels2'.
     * @param wheel_width Width of the wheel (used in section 'wheels'). Use negative value to calculate width from axis beam.

@@ -75,6 +75,7 @@
 #include <OgreParticleSystem.h>
 #include <OgreEntity.h>
 
+static const char* ACTOR_ID_TOKEN = "@Actor_"; // Appended to material name, followed by actor ID (aka 'trucknum')
 
 using namespace RoR;
 
@@ -419,7 +420,9 @@ void RigSpawner::InitializeRig()
 
     m_flex_factory.CheckAndLoadFlexbodyCache();
 
-    
+    char buf[500];
+    snprintf(buf, 500, "%s%s%d", m_rig->realtruckname.c_str(), ACTOR_ID_TOKEN, m_rig->trucknum);
+    m_rig->m_custom_resource_group = buf;
 }
 
 void RigSpawner::FinalizeRig()
@@ -702,40 +705,50 @@ void RigSpawner::ProcessTurbojet(RigDef::Turbojet & def)
     SPAWNER_PROFILE_SCOPED();
 
     int front,back,ref;
-    front = GetNodeIndexOrThrow(def.front_node);//parse_node_number(c, args[0]);
-    back  = GetNodeIndexOrThrow(def.back_node);//parse_node_number(c, args[1]);
-    ref   = GetNodeIndexOrThrow(def.side_node);//parse_node_number(c, args[2]);
+    front = GetNodeIndexOrThrow(def.front_node);
+    back  = GetNodeIndexOrThrow(def.back_node);
+    ref   = GetNodeIndexOrThrow(def.side_node);
     
-    char propname[256];
-    sprintf(propname, "turbojet-%s-%i", m_rig->truckname, m_rig->free_aeroengine);
     Turbojet *tj=new Turbojet(
-        propname, 
         m_rig->free_aeroengine, 
         m_rig->trucknum, 
         m_rig->nodes, 
         front, 
         back, 
         ref, 
-        def.dry_thrust, //drthrust, 
-        def.is_reversable != 0, //rev!=0, 
-        def.wet_thrust > 0, //abthrust>0, 
-        def.wet_thrust, //abthrust, 
-        def.front_diameter,
-        def.back_diameter, //bdiam, 
-        def.nozzle_length, //len, 
-        m_rig->disable_smoke, 
-        m_rig->heathaze, 
-        m_rig->materialFunctionMapper, 
-        m_rig->usedSkin, 
-        m_rig->materialReplacer);
-
+        def.dry_thrust,
+        def.is_reversable != 0,
+        def.wet_thrust,
+        def.front_diameter, 
+        m_rig->heathaze);
+    
+    // Visuals
+    std::string nozzle_name = this->ComposeName("TurbojetNozzle", m_rig->free_aeroengine);
+    Ogre::Entity* nozzle_ent = gEnv->sceneManager->createEntity(nozzle_name, "nozzle.mesh");
+    this->SetupNewEntity(nozzle_ent, Ogre::ColourValue(1, 0.5, 0.5));
+    Ogre::Entity* afterburn_ent = nullptr;
+    if (def.wet_thrust > 0.f)
+    {
+        std::string flame_name = this->ComposeName("AfterburnerFlame", m_rig->free_aeroengine);
+        afterburn_ent = gEnv->sceneManager->createEntity(flame_name, "abflame.mesh");
+        this->SetupNewEntity(afterburn_ent, Ogre::ColourValue(1, 1, 0));
+    }
+    std::string propname = this->ComposeName("Turbojet", m_rig->free_aeroengine);
+    tj->SetupVisuals(propname, nozzle_ent, def.back_diameter, def.nozzle_length, afterburn_ent, m_rig->disable_smoke);
+    
     m_rig->aeroengines[m_rig->free_aeroengine]=tj;
     m_rig->driveable=AIRPLANE;
     if (m_rig->autopilot == nullptr && m_rig->state != NETWORKED)
         m_rig->autopilot=new Autopilot(m_rig->trucknum);
-    //if (audio) audio->setupAeroengines(TURBOJETS);
-    
+
     m_rig->free_aeroengine++;
+}
+
+std::string RigSpawner::ComposeName(const char* type, int number)
+{
+    char buf[500];
+    snprintf(buf, 500, "%s_%d%s%d", type, number, ACTOR_ID_TOKEN, m_rig->trucknum);
+    return buf;
 }
 
 void RigSpawner::ProcessScrewprop(RigDef::Screwprop & def)
@@ -2273,7 +2286,6 @@ void RigSpawner::ProcessMaterialFlareBinding(RigDef::MaterialFlareBinding & def)
         MaterialFunctionMapper::materialmapping_t mapping;
         mapping.originalmaterial = def.material_name;
         mapping.material = mat_clone_name.str();
-        mapping.type = 0; // Orig: hardcoded in BTS_MATERIALFLAREBINDINGS
 
         m_rig->materialFunctionMapper->addMaterial(def.flare_number, mapping);
     }
@@ -7150,4 +7162,70 @@ std::string RigSpawner::ProcessMessagesToString()
         report << "\t" << itor->text << std::endl;
     }
     return report.str();
+}
+
+Ogre::MaterialPtr RigSpawner::PersonalizeMaterial(std::string orig_name)
+{
+    if (orig_name == "")
+        return Ogre::MaterialPtr(); // NULL
+
+    try {
+        Ogre::MaterialPtr orig_mat = Ogre::MaterialManager::getSingleton().getByName(orig_name);
+        if (orig_mat.isNull())
+            return Ogre::MaterialPtr(); // NULL
+
+        char name_buf[200];
+        snprintf(name_buf, 200, "%s%s%d", orig_name.c_str(), ACTOR_ID_TOKEN, m_rig->trucknum);
+        return orig_mat->clone(name_buf, true, m_rig->m_custom_resource_group);
+    }
+    catch (Ogre::Exception& e)
+    {
+        std::stringstream msg_buf;
+        msg_buf << "Exception while customizing material '" << orig_name << "', message: " << e.getFullDescription();
+        this->AddMessage(Message::TYPE_WARNING, msg_buf.str());
+    }
+    return Ogre::MaterialPtr(); // NULL
+}
+
+void RigSpawner::SetupNewEntity(Ogre::Entity* ent, Ogre::ColourValue simple_color)
+{
+    // Personalize mesh materials
+    Ogre::MeshPtr mesh = ent->getMesh();
+    if (!mesh.isNull())
+    {
+        size_t max = mesh->getNumSubMeshes();
+        for (size_t i = 0; i < max; ++i)
+        {
+            Ogre::SubMesh* submesh = mesh->getSubMesh(static_cast<unsigned short>(i));
+            if (submesh->getMaterialName() != "")
+            {
+                Ogre::MaterialPtr own_mat = this->PersonalizeMaterial(submesh->getMaterialName());
+                if (!own_mat.isNull())
+                    submesh->setMaterialName(own_mat->getName());
+            }
+        }
+    }
+
+    // Personalize sub-entity materials
+    size_t subent_max = ent->getNumSubEntities();
+    for (size_t i = 0; i < subent_max; ++i)
+    {
+        Ogre::SubEntity* subent = ent->getSubEntity(static_cast<unsigned short>(i));
+        if (!subent->getMaterial().isNull())
+        {
+            Ogre::MaterialPtr own_mat = this->PersonalizeMaterial(subent->getMaterialName());
+            if (!own_mat.isNull())
+                subent->setMaterial(own_mat);
+        }
+    }
+
+    // Check and replace materials
+    // TODO: Unify the 3 separate mechanisms
+    MaterialFunctionMapper::replaceSimpleMeshMaterials(ent, simple_color);
+    m_rig->materialFunctionMapper->replaceMeshMaterials(ent);
+    m_rig->materialReplacer->replaceMeshMaterials(ent);
+
+    if (m_rig->usedSkin != nullptr)
+        m_rig->usedSkin->replaceMeshMaterials(ent);
+    
 }
