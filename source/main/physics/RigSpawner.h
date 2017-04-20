@@ -52,7 +52,8 @@
 */
 class RigSpawner
 {
-    friend class VideoCamera; /* Needs to add log messages */
+    friend class VideoCamera; // Needs to add log messages
+    friend class RoR::FlexFactory; // Needs to use `ComposeName()` and `SetupNewEntity()`
 
 public:
 

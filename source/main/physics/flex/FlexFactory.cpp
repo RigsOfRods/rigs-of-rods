@@ -1,7 +1,7 @@
 /*
     This source file is part of Rigs of Rods
 
-    Copyright 2015+ Petr Ohlidal
+    Copyright 2015-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -25,8 +25,15 @@
 #include "FlexFactory.h"
 
 #include "Application.h"
+#include "Beam.h"
 #include "FlexBody.h"
+#include "GlobalEnvironment.h"
+#include "RigDef_File.h"
+#include "RigSpawner.h"
 #include "Settings.h"
+
+#include <OgreMeshManager.h>
+#include <OgreSceneManager.h>
 
 //#define FLEXFACTORY_DEBUG_LOGGING
 
@@ -43,37 +50,44 @@ using namespace RoR;
 const char * FlexBodyFileIO::SIGNATURE = "RoR FlexBody";
 
 FlexFactory::FlexFactory(
-        MaterialFunctionMapper*   mfm,
-        MaterialReplacer*         mat_replacer,
-        Skin*                     skin,
-        node_t*                   all_nodes,
+        RigSpawner*               rig_spawner,
         bool                      is_flexbody_cache_enabled,
         int                       cache_entry_number
         ):
-    m_material_function_mapper(mfm),
-    m_material_replacer(mat_replacer),
-    m_used_skin(skin),
-    m_rig_nodes_ptr(all_nodes),
+    m_rig_spawner(rig_spawner),
     m_is_flexbody_cache_loaded(false),
     m_is_flexbody_cache_enabled(is_flexbody_cache_enabled),
     m_flexbody_cache_next_index(0)
 {
-    m_enable_flexbody_LODs = BSETTING("Flexbody_EnableLODs", false);
     m_flexbody_cache.SetCacheEntryNumber(cache_entry_number);
 }
 
 FlexBody* FlexFactory::CreateFlexBody(
-    const int num_nodes_in_rig, 
-    const char* mesh_name, 
-    const char* mesh_unique_name, // not really unique since BeamFactory was de-globalized ~ only_a_ptr, 03/2017
+    RigDef::Flexbody* def,
     const int ref_node, 
     const int x_node, 
     const int y_node, 
-    Ogre::Vector3 const & offset,
     Ogre::Quaternion const & rot, 
-    std::vector<unsigned int> & node_indices
-    )
+    std::vector<unsigned int> & node_indices)
 {
+    const std::string resource_group_name
+            = Ogre::ResourceGroupManager::getSingleton().findGroupContainingResource(def->mesh_name);
+    if (resource_group_name.empty())
+    {
+        m_rig_spawner->AddMessage(RigSpawner::Message::TYPE_ERROR, "Failed to create flexbody, mesh not found: " + def->mesh_name);
+        return nullptr;
+    }
+    Ogre::MeshPtr common_mesh = Ogre::MeshManager::getSingleton().load(def->mesh_name, resource_group_name);
+    const std::string mesh_unique_name = m_rig_spawner->ComposeName("FlexbodyMesh", m_rig_spawner->GetRig()->free_flexbody);
+    Ogre::MeshPtr mesh = common_mesh->clone(mesh_unique_name);
+    if (BSETTING("Flexbody_EnableLODs", false))
+    {
+        this->ResolveFlexbodyLOD(def->mesh_name, mesh);
+    }
+    const std::string flexbody_name = m_rig_spawner->ComposeName("Flexbody", m_rig_spawner->GetRig()->free_flexbody);
+    Ogre::Entity* entity = gEnv->sceneManager->createEntity(flexbody_name, mesh_unique_name);
+    m_rig_spawner->SetupNewEntity(entity, Ogre::ColourValue(0.5, 0.5, 1));
+
     FLEX_DEBUG_LOG(__FUNCTION__);
     FlexBodyCacheData* from_cache = nullptr;
     if (m_is_flexbody_cache_loaded)
@@ -82,33 +96,19 @@ FlexBody* FlexFactory::CreateFlexBody(
         from_cache = m_flexbody_cache.GetLoadedItem(m_flexbody_cache_next_index);
         m_flexbody_cache_next_index++;
     }
-    assert(m_rig_nodes_ptr != nullptr);
-
-    // HACK: Create a process-unique mesh instance every time, do not reuse.
-    // This is how it "worked before": BeamFactory wasn't global -> trucknums were process-unique -> meshnames containing it were unique.
-    // For unknown reason, re-using instances crashes at `VertexData::reorganiseBuffers()` ~ tested on Win7 / GeForce GTX 660 / OGRE 1.9 (DirectX + OpenGL)
-    // Since OGRE 2.1 migration will happen soon enough, I'm settling for this workaround ~ only_a_ptr, 03/2017
-    static int stamp_counter = 0;
-    char stamped_meshname[500];
-    snprintf(stamped_meshname, 500, "%x^%s", stamp_counter++, mesh_unique_name);
 
     FlexBody* new_flexbody = new FlexBody(
+        def,
         from_cache,
-        m_rig_nodes_ptr,
-        num_nodes_in_rig,
-        mesh_name,
-        stamped_meshname,
+        m_rig_spawner->GetRig()->nodes,
+        m_rig_spawner->GetRig()->free_node,
+        entity,
         ref_node,
         x_node,
         y_node,
-        offset,
         rot,
-        node_indices,
-        m_material_function_mapper,
-        m_used_skin,
-        m_material_replacer,
-        m_enable_flexbody_LODs
-    );
+        node_indices);
+
     if (m_is_flexbody_cache_enabled)
     {
         m_flexbody_cache.AddItemToSave(new_flexbody);
@@ -183,7 +183,6 @@ void FlexBodyFileIO::WriteFlexbodyHeader(FlexBody* flexbody)
     header.shared_buf_num_verts    = flexbody->m_shared_buf_num_verts   ;
     header.num_submesh_vbufs       = flexbody->m_num_submesh_vbufs      ;
     header.SetIsEnabled             (flexbody->m_is_enabled             );
-    header.SetIsFaulty              (flexbody->m_is_faulty              );
     header.SetUsesSharedVertexData  (flexbody->m_uses_shared_vertex_data); 
     header.SetHasTexture            (flexbody->m_has_texture            );
     header.SetHasTextureBlend       (flexbody->m_has_texture_blend      );
@@ -306,13 +305,10 @@ FlexBodyFileIO::ResultCode FlexBodyFileIO::SaveFile()
             FlexBody* flexbody = *itor;
             this->WriteFlexbodyHeader(flexbody);
 
-            if (!flexbody->m_is_faulty && flexbody->m_is_enabled)
-            {
-                this->WriteFlexbodyLocatorList    (flexbody);
-                this->WriteFlexbodyPositionsBuffer(flexbody);
-                this->WriteFlexbodyNormalsBuffer  (flexbody);
-                this->WriteFlexbodyColorsBuffer   (flexbody);
-            }
+            this->WriteFlexbodyLocatorList    (flexbody);
+            this->WriteFlexbodyPositionsBuffer(flexbody);
+            this->WriteFlexbodyNormalsBuffer  (flexbody);
+            this->WriteFlexbodyColorsBuffer   (flexbody);
         }
         this->CloseFile();
         FLEX_DEBUG_LOG(__FUNCTION__ " >> OK ");
@@ -391,5 +387,24 @@ void FlexFactory::SaveFlexbodiesToCache()
     {
         FLEX_DEBUG_LOG(__FUNCTION__ " >> Saving flexbodies");
         m_flexbody_cache.SaveFile();
+    }
+}
+
+void FlexFactory::ResolveFlexbodyLOD(std::string meshname, Ogre::MeshPtr newmesh)
+{
+    std::string basename, ext;
+    Ogre::StringUtil::splitBaseFilename(meshname, basename, ext);
+    for (int i=0; i<4;i++)
+    {
+        const std::string fn = basename + "_" + TOSTRING(i) + ".mesh";
+
+        if (!Ogre::ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(fn))
+            continue;
+
+        float distance = 3;
+        if (i == 1) distance = 20;
+        if (i == 2) distance = 50;
+        if (i == 3) distance = 200;
+        newmesh->createManualLodLevel(distance, fn);
     }
 }

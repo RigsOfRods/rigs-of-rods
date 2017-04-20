@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2015 Petr Ohlidal
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -24,6 +24,7 @@
 #include "ApproxMath.h"
 #include "FlexFactory.h"
 #include "MaterialReplacer.h"
+#include "RigDef_File.h"
 #include "RigLoadingProfilerControl.h"
 #include "Skin.h"
 #include "BeamData.h"
@@ -33,32 +34,27 @@
 using namespace Ogre;
 
 FlexBody::FlexBody(
+    RigDef::Flexbody* def,
     RoR::FlexBodyCacheData* preloaded_from_cache,
     node_t *all_nodes,
     int numnodes,
-    Ogre::String const & meshname,
-    Ogre::String const & uname,
+    Ogre::Entity* ent,
     int ref,
     int nx,
     int ny,
-    Ogre::Vector3 const & offset,
     Ogre::Quaternion const & rot,
-    std::vector<unsigned int> & node_indices,
-    MaterialFunctionMapper *material_function_mapper,
-    Skin *usedSkin,
-    MaterialReplacer *material_replacer,
-    bool enable_LODs // = false
+    std::vector<unsigned int> & node_indices
 ):
       m_camera_mode(-2)
-    , m_center_offset(offset)
+    , m_center_offset(def->offset)
     , m_node_center(ref)
     , m_node_x(nx)
     , m_node_y(ny)
     , m_is_enabled(true)
-    , m_is_faulty(false)
     , m_has_texture_blend(true)
     , m_nodes(all_nodes)
     , m_scene_node(nullptr)
+    , m_scene_entity(ent)
     , m_has_texture(true)
     , m_locators(nullptr)
     , m_src_normals(nullptr)
@@ -83,8 +79,8 @@ FlexBody::FlexBody(
         normal = fast_normalise(diffY.crossProduct(diffX));
 
         // position
-        position = m_nodes[ref].AbsPosition + offset.x * diffX + offset.y * diffY;
-        position = position + offset.z * normal;
+        position = m_nodes[ref].AbsPosition + def->offset.x * diffX + def->offset.y * diffY;
+        position = position + def->offset.z * normal;
 
         // orientation
         Vector3 refX = fast_normalise(diffX);
@@ -95,85 +91,10 @@ FlexBody::FlexBody(
     {
         // special case!
         normal = Vector3::UNIT_Y;
-        position = m_nodes[0].AbsPosition + offset;
+        position = m_nodes[0].AbsPosition + def->offset;
         orientation = rot;
     }
-    FLEXBODY_PROFILER_ENTER("Find mesh resource");
 
-    // load unique mesh (load original mesh and clone it with unique name)
-
-    // find group that contains the mesh
-    String groupname="";
-    try
-    {
-        groupname = ResourceGroupManager::getSingleton().findGroupContainingResource(meshname);
-    }
-    catch(...)
-    {
-        LOG("[RoR|FlexBody] ERROR: Mesh not found: " + meshname);
-        m_is_faulty = true; // TODO: This is a horrid mechanism! Fix it! ~ only_a_ptr, 02/2017
-        return;
-    }
-
-    if (groupname == "")
-    {
-        LOG("FLEXBODY mesh not found: "+String(meshname));
-        m_is_faulty=true; // TODO: This is a horrid mechanism! Fix it! ~ only_a_ptr, 02/2017
-        return;
-    }
-    FLEXBODY_PROFILER_ENTER("Build unique name");
-    // build new unique mesh name
-    char uname_mesh[256] = {};
-    strncpy(uname_mesh, uname.c_str(), 250);
-    uname_mesh[250] = '\0';
-    strcat(uname_mesh, "_mesh");
-    FLEXBODY_PROFILER_ENTER("Load mesh");
-    MeshPtr mesh_common = MeshManager::getSingleton().load(meshname, groupname);
-    TIMER_SNAPSHOT(stat_mesh_loaded_time);
-    FLEXBODY_PROFILER_ENTER("Clone mesh");
-    MeshPtr newmesh = mesh_common->clone(uname_mesh);
-    if (enable_LODs)
-    {
-        // now find possible LODs
-        FLEXBODY_PROFILER_ENTER("Handle LODs >> Split mesh name");
-        String basename, ext;
-        StringUtil::splitBaseFilename(String(meshname), basename, ext);
-        FLEXBODY_PROFILER_ENTER("Handle LODs >> Run loop");
-        for (int i=0; i<4;i++)
-        {
-            FLEXBODY_PROFILER_SCOPED("LOD LOOP > Find resource > call Ogre::ResGroupMan::resExistsInAnyGroup()");
-            std::string fn = basename + "_" + TOSTRING(i) + ".mesh";
-
-            if (!ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(fn))
-                continue;
-
-            FLEXBODY_PROFILER_SCOPED("LOD LOOP > Create manual LOD level");
-            float distance = 3;
-            if (i == 1) distance = 20;
-            if (i == 2) distance = 50;
-            if (i == 3) distance = 200;
-            newmesh->createManualLodLevel(distance, fn);
-        }
-    }
-    FLEXBODY_PROFILER_ENTER("Create entity");
-    Entity *ent = gEnv->sceneManager->createEntity(uname, uname_mesh);
-    FLEXBODY_PROFILER_ENTER("MaterialFunctionMapper::replaceSimpleMeshMaterials()");
-    MaterialFunctionMapper::replaceSimpleMeshMaterials(ent, ColourValue(0.5, 0.5, 1));
-    if (material_function_mapper)
-    {
-        FLEXBODY_PROFILER_ENTER("mat_function_mapper->replaceMeshMaterials()")
-        material_function_mapper->replaceMeshMaterials(ent);
-    }
-    if (material_replacer)
-    {
-        FLEXBODY_PROFILER_ENTER("material_replacer->replaceMeshMaterials()")
-        material_replacer->replaceMeshMaterials(ent);
-    }
-    if (usedSkin)
-    {
-        FLEXBODY_PROFILER_ENTER("usedSkin->replaceMeshMaterials()")
-        usedSkin->replaceMeshMaterials(ent);
-    }
     TIMER_SNAPSHOT(stat_mesh_ready_time);
     FLEXBODY_PROFILER_ENTER("Check texcoord presence")
 
@@ -340,8 +261,6 @@ FlexBody::FlexBody(
         m_uses_shared_vertex_data = preloaded_from_cache->header.UsesSharedVertexData();
         m_num_submesh_vbufs       = preloaded_from_cache->header.num_submesh_vbufs;
     }
-
-    LOG("FLEXBODY Vertices in mesh "+String(meshname)+": "+ TOSTRING(m_vertex_count));
     
     // Profiler data
     double stat_manual_buffers_created_time = -1;
@@ -498,7 +417,7 @@ FlexBody::FlexBody(
             }
             if (closest_node_index==-1)
             {
-                LOG("FLEXBODY ERROR on mesh "+String(meshname)+": REF node not found");
+                LOG("FLEXBODY ERROR on mesh "+def->mesh_name+": REF node not found");
                 closest_node_index = 0;
             }
             m_locators[i].ref=closest_node_index;            
@@ -522,7 +441,7 @@ FlexBody::FlexBody(
             }
             if (closest_node_index==-1)
             {
-                LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VX node not found");
+                LOG("FLEXBODY ERROR on mesh "+def->mesh_name+": VX node not found");
                 closest_node_index = 0;
             }
             m_locators[i].nx=closest_node_index;
@@ -553,7 +472,7 @@ FlexBody::FlexBody(
             }
             if (closest_node_index==-1)
             {
-                LOG("FLEXBODY ERROR on mesh "+String(meshname)+": VY node not found");
+                LOG("FLEXBODY ERROR on mesh "+def->mesh_name+": VY node not found");
                 closest_node_index = 0;
             }
             m_locators[i].ny=closest_node_index;
@@ -661,18 +580,29 @@ FlexBody::~FlexBody()
     if (m_dst_normals != nullptr) { free(m_dst_normals); }
     if (m_dst_pos     != nullptr) { free(m_dst_pos    ); }
     if (m_src_colors  != nullptr) { free(m_src_colors ); }
+
+    // OGRE resource - scene node
+    m_scene_node->getParentSceneNode()->removeChild(m_scene_node);
+    gEnv->sceneManager->destroySceneNode(m_scene_node);
+    m_scene_node = nullptr;
+
+    // OGRE resource - scene entity
+    Ogre::MeshPtr mesh = m_scene_entity->getMesh();
+    gEnv->sceneManager->destroyEntity(m_scene_entity);
+    m_scene_entity = nullptr;
+
+    // OGRE resource - mesh (unique copy - should be destroyed)
+    Ogre::MeshManager::getSingleton().remove(mesh->getHandle());
 }
 
 void FlexBody::setEnabled(bool e)
 {
-    if (m_is_faulty) return;
     setVisible(e);
     m_is_enabled = e;
 }
 
 void FlexBody::setVisible(bool visible)
 {
-    if (m_is_faulty) return;
     if (!m_is_enabled) return;
     if (m_scene_node)
         m_scene_node->setVisible(visible);
@@ -680,7 +610,6 @@ void FlexBody::setVisible(bool visible)
 
 void FlexBody::printMeshInfo(Mesh* mesh)
 {
-    if (m_is_faulty) return;
     if (mesh->sharedVertexData)
     {
         LOG("FLEXBODY Mesh has Shared Vertices:");
@@ -720,7 +649,6 @@ void FlexBody::printMeshInfo(Mesh* mesh)
 
 bool FlexBody::flexitPrepare()
 {
-    if (m_is_faulty) return false; // TODO: This is a horrid mechanism! Fix it! ~ only_a_ptr, 02/2017
     if (!m_is_enabled) return false; // TODO: This is a horrid mechanism! Fix it! ~ only_a_ptr, 02/2017
     if (m_has_texture_blend) updateBlend();
 
@@ -808,7 +736,6 @@ Vector3 FlexBody::flexitFinal()
 
 void FlexBody::reset()
 {
-    if (m_is_faulty) return;
     if (m_has_texture_blend)
     {
         for (int i=0; i<(int)m_vertex_count; i++) m_src_colors[i]=0x00000000;
@@ -854,5 +781,3 @@ void FlexBody::updateBlend() //so easy!
     }
     if (changed) writeBlend();
 }
-
-

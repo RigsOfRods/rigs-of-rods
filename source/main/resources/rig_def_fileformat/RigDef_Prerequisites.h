@@ -57,7 +57,7 @@ struct ExtCamera;
 struct File;
 struct Flare;
 struct Flare2;
-struct FlexBody;
+struct Flexbody;
 struct FlexBodyWheel;
 struct Fusedrag;
 struct Globals;

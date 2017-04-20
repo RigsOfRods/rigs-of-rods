@@ -410,10 +410,7 @@ void RigSpawner::InitializeRig()
     m_rig->m_flares_mode = App::GetGfxFlaresMode();
 
     m_flex_factory = RoR::FlexFactory(
-        m_rig->materialFunctionMapper, 
-        m_rig->materialReplacer, 
-        m_rig->usedSkin, 
-        m_rig->nodes,
+        this,
         BSETTING("Flexbody_UseCache", false),
         m_cache_entry_number
         );
@@ -1686,27 +1683,17 @@ void RigSpawner::ProcessFlexbody(std::shared_ptr<RigDef::Flexbody> def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckFlexbodyLimit(1))
+    if (!this->CheckFlexbodyLimit(1))
     {
         return;
     }
 
-    char unique_name[200];
-    sprintf(unique_name, "Flexbody-%s-%d", m_rig->truckname, m_rig->free_flexbody);
-
-    Ogre::Quaternion rot=Ogre::Quaternion(Ogre::Degree(def->rotation.z), Ogre::Vector3::UNIT_Z);
-    rot=rot*Ogre::Quaternion(Ogre::Degree(def->rotation.y), Ogre::Vector3::UNIT_Y);
-    rot=rot*Ogre::Quaternion(Ogre::Degree(def->rotation.x), Ogre::Vector3::UNIT_X);
-
-    /* Collect nodes */
+    // Collect nodes
     std::vector<unsigned int> node_indices;
-    node_indices.reserve(def->node_list.size());
     bool nodes_found = true;
-    auto node_itor = def->node_list.begin();
-    auto node_end  = def->node_list.end();
-    for (; node_itor != node_end; ++node_itor)
+    for (auto& node_def: def->node_list)
     {
-        auto result = this->GetNodeIndex(*node_itor);
+        auto result = this->GetNodeIndex(node_def);
         if (!result.second)
         {
             nodes_found = false;
@@ -1717,39 +1704,44 @@ void RigSpawner::ProcessFlexbody(std::shared_ptr<RigDef::Flexbody> def)
 
     if (! nodes_found)
     {
-        std::stringstream msg;
-        msg << "Failed to collect nodes from node-ranges, skipping flexbody '" << def->mesh_name << "'";
-        AddMessage(Message::TYPE_ERROR, msg.str());
+        this->AddMessage(Message::TYPE_ERROR, "Failed to collect nodes from node-ranges, skipping flexbody: " + def->mesh_name);
         return;
     }
 
-    int reference_node = FindNodeIndex(def->reference_node);
-    int x_axis_node = FindNodeIndex(def->x_axis_node);
-    int y_axis_node = FindNodeIndex(def->y_axis_node);
+    const int reference_node = this->FindNodeIndex(def->reference_node);
+    const int x_axis_node    = this->FindNodeIndex(def->x_axis_node);
+    const int y_axis_node    = this->FindNodeIndex(def->y_axis_node);
     if (reference_node == -1 || x_axis_node == -1 || y_axis_node == -1)
     {
-        AddMessage(Message::TYPE_ERROR, "Failed to find required nodes, skipping flexbody '" + def->mesh_name + "'");
+        this->AddMessage(Message::TYPE_ERROR, "Failed to find required nodes, skipping flexbody '" + def->mesh_name + "'");
         return;
     }
 
-    auto * flexbody = m_flex_factory.CreateFlexBody(
-        m_rig->free_node, 
-        def->mesh_name.c_str(),
-        unique_name,
-        reference_node,
-        x_axis_node,
-        y_axis_node,
-        def->offset, 
-        rot,
-        node_indices
-        );
-    int camera_mode = (def->camera_settings.mode == RigDef::CameraSettings::MODE_CINECAM) 
-        ? (int)def->camera_settings.cinecam_index 
-        : (int)def->camera_settings.mode;
-    flexbody->setCameraMode(camera_mode);
+    Ogre::Quaternion rot=Ogre::Quaternion(Ogre::Degree(def->rotation.z), Ogre::Vector3::UNIT_Z);
+    rot=rot*Ogre::Quaternion(Ogre::Degree(def->rotation.y), Ogre::Vector3::UNIT_Y);
+    rot=rot*Ogre::Quaternion(Ogre::Degree(def->rotation.x), Ogre::Vector3::UNIT_X);
 
-    m_rig->flexbodies[m_rig->free_flexbody] = flexbody;
-    m_rig->free_flexbody++;
+    try
+    {
+        auto* flexbody = m_flex_factory.CreateFlexBody(
+            def.get(), reference_node, x_axis_node, y_axis_node, rot, node_indices);
+
+        if (flexbody == nullptr)
+            return; // Error already logged
+
+        if (def->camera_settings.mode == RigDef::CameraSettings::MODE_CINECAM)
+            flexbody->setCameraMode(static_cast<int>(def->camera_settings.cinecam_index));
+        else
+            flexbody->setCameraMode(static_cast<int>(def->camera_settings.mode));
+
+        m_rig->flexbodies[m_rig->free_flexbody] = flexbody;
+        m_rig->free_flexbody++;        
+    }
+    catch(Ogre::Exception& e)
+    {
+        this->AddMessage(Message::TYPE_ERROR, 
+            "Failed to create flexbody '" + def->mesh_name + "', reason:" + e.getFullDescription());
+    }
 }
 
 void RigSpawner::ProcessProp(RigDef::Prop & def)
@@ -4309,9 +4301,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         def.side != RigDef::MeshWheel::SIDE_RIGHT
         );
 
-    /* Create flexbody */
-    char flexbody_name[256];
-    sprintf(flexbody_name, "flexbody-%s-%i", m_rig->truckname, m_rig->free_flexbody);
+    const std::string flexwheel_name = this->ComposeName("FlexBodyWheel", m_rig->free_flexbody);
 
     int num_nodes = def.num_rays * 4;
     std::vector<unsigned int> node_indices;
@@ -4321,24 +4311,36 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         node_indices.push_back( base_node_index + i );
     }
 
-    m_rig->flexbodies[m_rig->free_flexbody] = m_flex_factory.CreateFlexBody(
-        m_rig->free_node,
-        def.tyre_mesh_name.c_str(),
-        flexbody_name,
-        axis_node_1->pos,
-        axis_node_2->pos,
-        static_cast<int>(base_node_index),
-        Ogre::Vector3(0.5,0,0),
-        Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3::UNIT_Y),
-        node_indices
-        );
+    RigDef::Flexbody flexbody_def;
+    flexbody_def.mesh_name = def.tyre_mesh_name;
+    flexbody_def.offset = Ogre::Vector3(0.5,0,0);
 
-    this->CreateWheelSkidmarks(static_cast<unsigned>(m_rig->free_wheel));
+    try
+    {
+        auto* flexbody = m_flex_factory.CreateFlexBody(
+            &flexbody_def,
+            axis_node_1->pos,
+            axis_node_2->pos,
+            static_cast<int>(base_node_index),
+            Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3::UNIT_Y),
+            node_indices
+            );
 
-    m_rig->free_flexbody++;
+        if (flexbody == nullptr)
+            return; // Error already logged
 
-    /* Advance */
-    m_rig->free_wheel++;
+        this->CreateWheelSkidmarks(static_cast<unsigned>(m_rig->free_wheel));
+
+        m_rig->flexbodies[m_rig->free_flexbody] = flexbody;
+        m_rig->free_flexbody++;
+
+        m_rig->free_wheel++;
+    }
+    catch(Ogre::Exception& e)
+    {
+        this->AddMessage(Message::TYPE_ERROR, 
+            "Failed to create flexbodywheel '" + def.tyre_mesh_name + "', reason:" + e.getFullDescription());
+    }
 }
 
 void RigSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)

@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include "RigDef_Prerequisites.h"
 #include "RoRPrerequisites.h"
 #include "Flexable.h"
 #include "Locator_t.h"
@@ -45,21 +46,16 @@ class FlexBody : public Flexable
     friend class RoR::FlexBodyFileIO;
 
     FlexBody( // Private, for FlexFactory
+        RigDef::Flexbody* def,
         RoR::FlexBodyCacheData* preloaded_from_cache,
         node_t *nds, 
         int numnodes, 
-        Ogre::String const & meshname, 
-        Ogre::String const & uname, 
+        Ogre::Entity* entity,
         int ref, 
         int nx, 
-        int ny, 
-        Ogre::Vector3 const & offset, 
+        int ny,
         Ogre::Quaternion const & rot, 
-        std::vector<unsigned int> & node_indices, 
-        MaterialFunctionMapper *material_function_mapper, 
-        Skin *usedSkin, 
-        MaterialReplacer *material_replacer,
-        bool enable_LODs = false
+        std::vector<unsigned int> & node_indices
     );
 
 public:
@@ -105,6 +101,7 @@ private:
     int               m_node_y;
     Ogre::Vector3     m_center_offset;
     Ogre::SceneNode*  m_scene_node;
+    Ogre::Entity*     m_scene_entity;
     int               m_camera_mode; ///< Visibility control {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
 
     int                                 m_shared_buf_num_verts;
@@ -119,7 +116,6 @@ private:
     Ogre::HardwareVertexBufferSharedPtr m_submesh_vbufs_color[16]; ///< colors
 
     bool m_is_enabled;
-    bool m_is_faulty;
     bool m_uses_shared_vertex_data;
     bool m_has_texture;
     bool m_has_texture_blend;
