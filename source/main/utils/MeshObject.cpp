@@ -36,19 +36,15 @@
 using namespace Ogre;
 using namespace RoR;
 
-MeshObject::MeshObject(Ogre::String meshName, Ogre::String entityName, Ogre::SceneNode* sceneNode, Skin* s, bool backgroundLoading)
-    : mr(0)
-    , meshName(meshName)
+MeshObject::MeshObject(Ogre::String meshName, Ogre::String entityName, Ogre::SceneNode* sceneNode, bool backgroundLoading)
+    : meshName(meshName)
     , entityName(entityName)
     , sceneNode(sceneNode)
     , ent(0)
     , backgroundLoading(backgroundLoading)
     , loaded(false)
-    , enableSimpleMaterial(false)
     , materialName()
-    , skin(s)
     , castshadows(true)
-    , mfm(0)
     , enabled(true)
     , visible(true)
 {
@@ -63,31 +59,6 @@ MeshObject::~MeshObject()
 {
     if (backgroundLoading && !mesh.isNull())
         mesh->unload();
-}
-
-void MeshObject::setSimpleMaterialColour(Ogre::ColourValue c)
-{
-    simpleMatColour = c;
-    enableSimpleMaterial = true;
-    if (loaded && ent)
-    {
-        // already loaded, so do it afterwards manually
-        MaterialFunctionMapper::replaceSimpleMeshMaterials(ent, simpleMatColour);
-    }
-}
-
-void MeshObject::setMaterialFunctionMapper(MaterialFunctionMapper* m, MaterialReplacer* mr)
-{
-    if (!m)
-        return;
-    mfm = m;
-    this->mr = mr;
-    if (loaded && ent)
-    {
-        // already loaded, so do it afterwards manually
-        mfm->replaceMeshMaterials(ent);
-        mr->replaceMeshMaterials(ent);
-    }
 }
 
 void MeshObject::setMaterialName(Ogre::String m)
@@ -216,19 +187,6 @@ void MeshObject::postProcess()
         LOG("error loading mesh: " + meshName + ": " + e.getFullDescription());
         return;
     }
-
-    // then modify some things
-    if (enableSimpleMaterial)
-        MaterialFunctionMapper::replaceSimpleMeshMaterials(ent, simpleMatColour);
-
-    if (skin)
-        skin->replaceMeshMaterials(ent);
-
-    if (mfm)
-        mfm->replaceMeshMaterials(ent);
-
-    if (ent && !materialName.empty())
-        ent->setMaterialName(materialName);
 
     // only set it if different from default (true)
     if (!castshadows && sceneNode && sceneNode->numAttachedObjects() > 0)

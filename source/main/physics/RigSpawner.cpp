@@ -1735,8 +1735,8 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
     }
 
     prop_t & prop = m_rig->props[m_rig->free_prop];
-    m_rig->free_prop++;
-    memset(&prop, 0, sizeof(prop_t)); /* Initialize prop memory to avoid invalid pointers. */
+    int prop_index = m_rig->free_prop;
+    memset(&prop, 0, sizeof(prop_t));
 
     prop.noderef         = GetNodeIndexOrThrow(def.reference_node);
     prop.nodex           = FindNodeIndex(def.x_axis_node);
@@ -1796,23 +1796,21 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
         prop.wheelrotdegree = def.special_prop_dashboard.rotation_angle;
         prop.wheel = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
         prop.wheelpos = steering_wheel_offset;
+        const std::string instance_name = this->ComposeName("SteeringWheelPropEntity", prop_index);
         prop.wheelmo = new MeshObject(
             def.special_prop_dashboard.mesh_name,
-            "",
+            instance_name,
             prop.wheel,
-            m_rig->usedSkin,
             m_enable_background_loading
             );
-        prop.wheelmo->setSimpleMaterialColour(Ogre::ColourValue(0, 0.5, 0.5));
-        prop.wheelmo->setMaterialFunctionMapper(m_rig->materialFunctionMapper, m_rig->materialReplacer);
+        this->SetupNewEntity(prop.wheelmo->getEntity(), Ogre::ColourValue(0, 0.5, 0.5));
     }
 
     /* CREATE THE PROP */
 
     prop.scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-    prop.mo = new MeshObject(def.mesh_name, "", prop.scene_node, m_rig->usedSkin, m_enable_background_loading);
-    prop.mo->setSimpleMaterialColour(Ogre::ColourValue(1, 1, 0));
-    prop.mo->setMaterialFunctionMapper(m_rig->materialFunctionMapper, m_rig->materialReplacer);
+    const std::string instance_name = this->ComposeName("PropEntity", prop_index);
+    prop.mo = new MeshObject(def.mesh_name, instance_name, prop.scene_node, m_enable_background_loading);
     prop.mo->setCastShadows(true); // Orig code {{ prop.mo->setCastShadows(shadowmode != 0); }}, shadowmode has default value 1 and changes with undocumented directive 'set_shadows'
     prop.beacontype = 'n'; // Orig: hardcoded in BTS_PROPS
 
@@ -1964,7 +1962,10 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
                 prop.beacon_flare_billboard_scene_node[k]->setVisible(false);
             }
         }
-    }	
+        this->SetupNewEntity(prop.mo->getEntity(), Ogre::ColourValue(1.f, 1.f, 0.f));
+    }
+
+    ++m_rig->free_prop;
 
     /* PROCESS ANIMATIONS */
 

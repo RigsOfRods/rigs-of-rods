@@ -829,15 +829,13 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
 
     SceneNode* tenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
 
-    MeshObject* mo = NULL;
+    MeshObject* mo = nullptr;
     if (String(mesh) != "none")
     {
-        mo = new MeshObject(mesh, entity_name, tenode, NULL, background_loading);
+        mo = new MeshObject(mesh, entity_name, tenode, background_loading);
         meshObjects.push_back(mo);
     }
 
-    //mo->setQueryFlags(OBJECTS_MASK);
-    //tenode->attachObject(te);
     tenode->setScale(sc);
     tenode->setPosition(pos);
     tenode->rotate(rotation);
