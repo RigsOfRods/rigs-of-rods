@@ -927,15 +927,14 @@ void RigSpawner::ProcessAirbrake(RigDef::Airbrake & def)
         m_rig->truckname,
         m_rig->free_airbrake, 
         GetNodePointerOrThrow(def.reference_node), 
-        GetNodePointerOrThrow(def.x_axis_node),//&nodes[nx], 
-        GetNodePointerOrThrow(def.y_axis_node),//&nodes[ny], 
-        GetNodePointerOrThrow(def.aditional_node),//&nodes[na], 
-        def.offset,//Vector3(ox,oy,oz), 
-        def.width,//wd, 
-        def.height,//len, 
-        def.max_inclination_angle,//maxang, 
-        m_rig->texname, 
-        //tx1,tx2,tx3,tx4,liftcoef);
+        GetNodePointerOrThrow(def.x_axis_node),
+        GetNodePointerOrThrow(def.y_axis_node),
+        GetNodePointerOrThrow(def.aditional_node),
+        def.offset,
+        def.width, 
+        def.height,
+        def.max_inclination_angle,
+        m_rig->texname,
         def.texcoord_x1,
         def.texcoord_y1,
         def.texcoord_x2,
@@ -958,13 +957,6 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
         return;
     }
 
-    // Try loading the mesh (may fail)
-    Ogre::Entity* entity = nullptr;
-    char wing_name[200];
-    char wing_obj_name[200];
-    sprintf(wing_name,     "wing-%s-%d",    m_rig->truckname, m_rig->free_wing);
-    sprintf(wing_obj_name, "wingobj-%s-%d", m_rig->truckname, m_rig->free_wing);
-
     // Create airfoil
     int node_indices[8];
     for (unsigned int i = 0; i < 8; i++)
@@ -972,6 +964,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
         node_indices[i] = this->GetNodeIndexOrThrow(def.nodes[i]);
     }
 
+    const std::string wing_name = this->ComposeName("Wing", m_rig->free_wing);
     auto flex_airfoil = new FlexAirfoil(
         wing_name,
         m_rig->nodes,
@@ -998,10 +991,13 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
         m_rig->state != NETWORKED
     );
 
+    Ogre::Entity* entity = nullptr;
     try
     {
-        entity = gEnv->sceneManager->createEntity(wing_obj_name, wing_name);
+        const std::string wing_instance_name = this->ComposeName("WingEntity", m_rig->free_wing);
+        entity = gEnv->sceneManager->createEntity(wing_instance_name, wing_name);
         m_rig->deletion_Entities.emplace_back(entity);
+        this->SetupNewEntity(entity, Ogre::ColourValue(0.5, 1, 0));
     }
     catch (...)
     {
@@ -1222,21 +1218,6 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
                 this->GetNode(flex_airfoil->nbld).AbsPosition,    this->GetNode(flex_airfoil->nbrd).AbsPosition
             );
         }
-    }
-
-    // Adjust material
-    MaterialFunctionMapper::replaceSimpleMeshMaterials(entity, Ogre::ColourValue(0.5, 1, 0));
-    if (m_rig->materialFunctionMapper) 
-    {
-        m_rig->materialFunctionMapper->replaceMeshMaterials(entity);
-    }
-    if (m_rig->materialReplacer) 
-    {
-        m_rig->materialReplacer->replaceMeshMaterials(entity);
-    }
-    if (m_rig->usedSkin) 
-    {
-        m_rig->usedSkin->replaceMeshMaterials(entity);
     }
 
     // Add new wing to rig
