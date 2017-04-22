@@ -5267,50 +5267,33 @@ void RigSpawner::CreateWheelVisuals(
     wheel_t & wheel = m_rig->wheels[wheel_index];
     vwheel_t & visual_wheel = m_rig->vwheels[wheel_index];
 
-    std::stringstream wheel_mesh_name;
-    wheel_mesh_name << "wheel-" << m_rig->truckname << "-" << wheel_index;
-    std::stringstream wheel_name_i;
-    wheel_name_i << "wheelobj-" << m_rig->truckname << "-" << wheel_index;
-
-    visual_wheel.meshwheel = false;
-    visual_wheel.fm = new FlexMesh(
-        wheel_mesh_name.str(),
-        m_rig->nodes,
-        wheel.refnode0->pos,
-        wheel.refnode1->pos,
-        node_base_index,
-        num_rays,
-        rim_material_name,
-        band_material_name,
-        separate_rim,
-        rim_ratio
-    );
-
     try
     {
-        Ogre::Entity *ec = gEnv->sceneManager->createEntity(wheel_name_i.str(), wheel_mesh_name.str());
-        MaterialFunctionMapper::replaceSimpleMeshMaterials(ec, Ogre::ColourValue(0, 0.5, 0.5));
-        if (m_rig->materialFunctionMapper != nullptr)
-        {
-            m_rig->materialFunctionMapper->replaceMeshMaterials(ec);
-        }
-        if (m_rig->materialReplacer != nullptr)
-        {
-            m_rig->materialReplacer->replaceMeshMaterials(ec);
-        }
-        if (m_rig->usedSkin != nullptr)
-        {
-            m_rig->usedSkin->replaceMeshMaterials(ec);
-        }
+        const std::string wheel_mesh_name = this->ComposeName("WheelMesh", wheel_index);
+        visual_wheel.meshwheel = false;
+        visual_wheel.fm = new FlexMesh(
+            wheel_mesh_name,
+            m_rig->nodes,
+            wheel.refnode0->pos,
+            wheel.refnode1->pos,
+            node_base_index,
+            num_rays,
+            rim_material_name,
+            band_material_name,
+            separate_rim,
+            rim_ratio
+        );
+
+        const std::string instance_name = this->ComposeName("WheelEntity", wheel_index);
+        Ogre::Entity *ec = gEnv->sceneManager->createEntity(instance_name, wheel_mesh_name);
+        this->SetupNewEntity(ec, Ogre::ColourValue(0, 0.5, 0.5));
         visual_wheel.cnode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
         m_rig->deletion_Entities.emplace_back(ec);
         visual_wheel.cnode->attachObject(ec);
     }
-    catch (...)
+    catch (Ogre::Exception& e)
     {
-        std::stringstream msg;
-        msg << "Failed to load mesh '" << wheel_mesh_name.str() << "'";
-        AddMessage(Message::TYPE_ERROR, msg.str());
+        AddMessage(Message::TYPE_ERROR, "Failed to create wheel visuals: " +  e.getFullDescription());
     }
 }
 
