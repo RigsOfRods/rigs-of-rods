@@ -99,7 +99,7 @@ protected:
     RoR::LegacyRearViewMirrors m_legacy_mirrors;
 
     CacheEntry*              m_last_cache_selection;
-    Skin*                    m_last_skin_selection;
+    RoR::SkinDef*            m_last_skin_selection;
     std::vector<std::string> m_last_vehicle_configs;
 
     bool                     m_is_dir_arrow_visible;

@@ -30,7 +30,6 @@
 #include "MaterialFunctionMapper.h"
 #include "MaterialReplacer.h"
 #include "Settings.h"
-#include "Skin.h"
 #include "TerrainManager.h"
 
 using namespace Ogre;

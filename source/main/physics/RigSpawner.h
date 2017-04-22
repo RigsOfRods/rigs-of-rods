@@ -151,7 +151,7 @@ public:
 
     static bool CheckSoundScriptLimit(Beam *vehicle, unsigned int count);
 
-protected:
+private:
 
 /* -------------------------------------------------------------------------- */
 /* Processing functions.                                                      */
@@ -1020,6 +1020,7 @@ protected:
     std::map<Ogre::String, unsigned int> m_named_nodes;
     
     bool m_enable_background_loading;
+    bool m_apply_simple_materials;
 
     // Logging
     std::list<Message>    m_messages;

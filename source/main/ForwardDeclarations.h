@@ -42,6 +42,7 @@ namespace RoR
     class  SceneMouse;
     class  Skidmark;
     class  SkidmarkConfig;
+    struct SkinDef;
     class  SkinManager;
     class  Console;
 
@@ -175,7 +176,6 @@ class Road;
 class RoRFrameListener;
 class ScopeLog;
 class Screwprop;
-class Skin;
 class SkyManager;
 class SlideNode;
 class ShadowManager;

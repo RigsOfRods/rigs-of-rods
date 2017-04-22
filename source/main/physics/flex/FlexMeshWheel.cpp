@@ -22,7 +22,6 @@
 #include "FlexMeshWheel.h"
 
 #include "MaterialReplacer.h"
-#include "Skin.h"
 #include "MaterialFunctionMapper.h"
 #include "BeamData.h"
 

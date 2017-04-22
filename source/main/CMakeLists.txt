@@ -40,7 +40,6 @@ set( SOURCE_FILES
   gameplay/SceneMouse.{h,cpp}
   gameplay/ScriptEvents.h
   gameplay/Scripting.h
-  gameplay/Skin.{h,cpp}
   gameplay/SkinManager.{h,cpp}
   gameplay/TorqueCurve.{h,cpp}
   gameplay/VehicleAI.{h,cpp}

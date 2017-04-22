@@ -185,7 +185,7 @@ struct rig_t
     float loadmass;
     char texname[1024]; //!< Material name
     int trucknum;
-    Skin *usedSkin;
+    RoR::SkinDef* usedSkin;
     Buoyance *buoyance;
 
     int driveable;

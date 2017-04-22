@@ -1371,7 +1371,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
             if (simSELECT(s))
             {
                 CacheEntry* selection = App::GetGuiManager()->GetMainSelector()->GetSelectedEntry();
-                Skin* skin = App::GetGuiManager()->GetMainSelector()->GetSelectedSkin();
+                RoR::SkinDef* skin = App::GetGuiManager()->GetMainSelector()->GetSelectedSkin();
                 if (selection != nullptr)
                 {
                     /* We load an extra truck */

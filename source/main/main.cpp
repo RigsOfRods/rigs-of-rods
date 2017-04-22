@@ -62,7 +62,6 @@
 #include "Scripting.h"
 #include "Settings.h"
 #include "Skidmark.h"
-#include "Skin.h"
 #include "SoundScriptManager.h"
 #include "SurveyMapManager.h"
 #include "TerrainManager.h"

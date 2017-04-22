@@ -215,7 +215,7 @@ Beam* BeamFactory::CreateLocalRigInstance(
     collision_box_t* spawnbox /* = nullptr */,
     bool ismachine /* = false */,
     const std::vector<Ogre::String>* truckconfig /* = nullptr */,
-    Skin* skin /* = nullptr */,
+    RoR::SkinDef* skin /* = nullptr */,
     bool freePosition, /* = false */
     bool preloaded_with_terrain /* = false */
 )

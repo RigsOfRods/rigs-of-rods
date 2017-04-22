@@ -365,9 +365,9 @@ void CLASS::UpdateGuiData()
         m_Model->addItem(_L("Default Skin"), 0);
         {
             int i = 1;
-            for (std::vector<Skin *>::iterator it = m_current_skins.begin(); it != m_current_skins.end(); it++ , i++)
+            for (std::vector<RoR::SkinDef *>::iterator it = m_current_skins.begin(); it != m_current_skins.end(); it++ , i++)
             {
-                m_Model->addItem((*it)->getName(), i);
+                m_Model->addItem((*it)->name, i);
             }
         }
         m_Model->setIndexSelected(0);
@@ -661,7 +661,7 @@ void CLASS::OnEntrySelected(int entryID)
             return;
         }
         entryID -= 1; // remove default skin :)
-        Skin* skin = m_current_skins[entryID];
+        RoR::SkinDef* skin = m_current_skins[entryID];
 
         // we assume its already loaded
         // set selected skin as current
@@ -672,7 +672,7 @@ void CLASS::OnEntrySelected(int entryID)
         m_EntryName->setCaption(skin->name);
 
         Ogre::UTFString descriptiontxt = skin->description + Ogre::String("\n");
-        descriptiontxt = descriptiontxt + _L("Author(s): ") + skin->authorName + Ogre::String("\n");
+        descriptiontxt = descriptiontxt + _L("Author(s): ") + skin->author_name + Ogre::String("\n");
         descriptiontxt = descriptiontxt + _L("Description: ") + skin->description + Ogre::String("\n");
 
         try

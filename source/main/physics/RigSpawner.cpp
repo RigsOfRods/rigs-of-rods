@@ -59,7 +59,7 @@
 #include "ScrewProp.h"
 #include "Settings.h"
 #include "Skidmark.h"
-#include "Skin.h"
+#include "SkinManager.h"
 #include "SlideNode.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
@@ -420,6 +420,8 @@ void RigSpawner::InitializeRig()
     char buf[500];
     snprintf(buf, 500, "%s%s%d", m_rig->realtruckname.c_str(), ACTOR_ID_TOKEN, m_rig->trucknum);
     m_rig->m_custom_resource_group = buf;
+
+    m_apply_simple_materials = BSETTING("SimpleMaterials", false);
 }
 
 void RigSpawner::FinalizeRig()
@@ -1411,13 +1413,12 @@ void RigSpawner::ProcessExhaust(RigDef::Exhaust & def)
         material_name = def.material_name;
     }
 
-    if (m_rig->usedSkin)
+    if (m_rig->usedSkin != nullptr)
     {
-        Ogre::String newMat = m_rig->usedSkin->getReplacementForMaterial(material_name);
-        if (!newMat.empty())
+        auto search = m_rig->usedSkin->replace_materials.find(material_name);
+        if (search != m_rig->usedSkin->replace_materials.end())
         {
-            //strncpy(material, newMat.c_str(), 50);
-            material_name = newMat;
+            material_name = search->second;
         }
     }
 
@@ -6306,16 +6307,12 @@ void RigSpawner::AddExhaust(
         material_name = "tracks/Smoke";
     }
 
-    if (m_rig->usedSkin != nullptr && m_rig->usedSkin->hasReplacementForMaterial(material_name))
+    if (m_rig->usedSkin != nullptr)
     {
-        Ogre::String new_material = m_rig->usedSkin->getReplacementForMaterial(material_name);
-        if (! new_material.empty())
+        auto search = m_rig->usedSkin->replace_materials.find(material_name);
+        if (search != m_rig->usedSkin->replace_materials.end())
         {
-            material_name = new_material;
-        }
-        else
-        {
-            AddMessage(Message::TYPE_INTERNAL_ERROR, "AddExhaust(): Material replacer returned empty string.");
+            material_name = search->second;
         }
     }
     
@@ -6446,38 +6443,22 @@ void RigSpawner::ProcessGlobals(RigDef::Globals & def)
     m_rig->truckmass = def.dry_mass;
     m_rig->loadmass = def.cargo_mass;
 
+    // NOTE: Don't do any material pre-processing here; it'll be done on actual entities (via `SetupNewEntity()`).
     if (! def.material_name.empty())
     {
-        Ogre::String material_name = def.material_name;
-
-        /* Check for skin */
-        if (m_rig->usedSkin != nullptr && m_rig->usedSkin->hasReplacementForMaterial(def.material_name))
+        Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(def.material_name); // Check if exists (compatibility)
+        if (!mat.isNull())
         {
-            Ogre::String skin_mat_name = m_rig->usedSkin->getReplacementForMaterial(def.material_name);
-            if (! skin_mat_name.empty())
-            {
-                material_name = skin_mat_name;
-            }
+            strncpy(m_rig->texname, def.material_name.c_str(), sizeof(m_rig->texname));
         }
-
-        /* Clone the material */
-        Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(material_name);
-        if (mat.isNull())
+        else
         {
             std::stringstream msg;
-            msg << "Material '" << material_name << "' defined in section 'globals' not found. Trying material 'tracks/transred'";
-            AddMessage(Message::TYPE_ERROR, msg.str());
+            msg << "Material '" << def.material_name << "' defined in section 'globals' not found. Trying material 'tracks/transred'";
+            this->AddMessage(Message::TYPE_ERROR, msg.str());
 
-            mat = Ogre::MaterialManager::getSingleton().getByName("tracks/transred");
-            if (mat.isNull())
-            {
-                throw Exception("Vehicle material (or a built-in replacement) was not found.");
-            }
+            strncpy(m_rig->texname, "tracks/transred", sizeof(m_rig->texname));
         }
-        std::stringstream mat_clone_name;
-        mat_clone_name << material_name << "-" << m_rig->truckname;
-        mat->clone(mat_clone_name.str());
-        strncpy(m_rig->texname, mat_clone_name.str().c_str(), sizeof(m_rig->texname));
     }
 }
 
@@ -7113,7 +7094,23 @@ Ogre::MaterialPtr RigSpawner::PersonalizeMaterial(std::string orig_name)
 
 void RigSpawner::SetupNewEntity(Ogre::Entity* ent, Ogre::ColourValue simple_color)
 {
-    // Personalize mesh materials
+    if (m_apply_simple_materials)
+    {
+        MaterialFunctionMapper::replaceSimpleMeshMaterials(ent, simple_color);
+        return;
+    }
+
+    m_rig->materialReplacer->replaceMeshMaterials(ent);
+    if (m_rig->usedSkin != nullptr)
+    {
+        SkinManager::ApplySkinMaterialReplacements(m_rig->usedSkin, ent);
+    }
+    else
+    {
+        m_rig->materialFunctionMapper->replaceMeshMaterials(ent); // TODO: Make "materialflares" work with "skinzips" (skins)
+    }
+
+    // Create unique mesh materials
     Ogre::MeshPtr mesh = ent->getMesh();
     if (!mesh.isNull())
     {
@@ -7130,7 +7127,7 @@ void RigSpawner::SetupNewEntity(Ogre::Entity* ent, Ogre::ColourValue simple_colo
         }
     }
 
-    // Personalize sub-entity materials
+    // Create unique sub-entity materials
     size_t subent_max = ent->getNumSubEntities();
     for (size_t i = 0; i < subent_max; ++i)
     {
@@ -7143,13 +7140,8 @@ void RigSpawner::SetupNewEntity(Ogre::Entity* ent, Ogre::ColourValue simple_colo
         }
     }
 
-    // Check and replace materials
-    // TODO: Unify the 3 separate mechanisms
-    MaterialFunctionMapper::replaceSimpleMeshMaterials(ent, simple_color);
-    m_rig->materialFunctionMapper->replaceMeshMaterials(ent);
-    m_rig->materialReplacer->replaceMeshMaterials(ent);
-
     if (m_rig->usedSkin != nullptr)
-        m_rig->usedSkin->replaceMeshMaterials(ent);
-    
+    {
+        SkinManager::ApplySkinTextureReplacements(m_rig->usedSkin, ent);
+    }
 }

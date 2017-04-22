@@ -26,7 +26,6 @@
 #include "MaterialReplacer.h"
 #include "RigDef_File.h"
 #include "RigLoadingProfilerControl.h"
-#include "Skin.h"
 #include "BeamData.h"
 
 #include <Ogre.h>
