@@ -30,29 +30,20 @@
 #include <OgreHardwareBuffer.h>
 #include <string>
 
+// Forward decl
+namespace RoR { class FlexFactory; }
+
+/// Consists of static mesh, representing the rim, and dynamic mesh, representing the tire.
 class FlexMeshWheel: public Flexable
 {
-public:
+    friend class RoR::FlexFactory;
 
-    FlexMeshWheel(
-        std::string const& name,
-        node_t* nds,
-        int axis_node_1_index,
-        int axis_node_2_index,
-        int nstart,
-        int nrays,
-        std::string const& mesh_name,
-        std::string const& material_name,
-        float rimradius,
-        bool rimreverse,
-        MaterialFunctionMapper* material_function_mapper,
-        Skin* used_skin,
-        MaterialReplacer* material_replacer
-    );
+public:
 
     ~FlexMeshWheel();
 
     Ogre::Entity* getRimEntity() { return m_rim_entity; };
+    Ogre::Entity* GetTireEntity() { return m_tire_entity; }
 
     Ogre::Vector3 updateVertices();
 
@@ -64,6 +55,19 @@ public:
     void setVisible(bool visible);
 
 private:
+
+    FlexMeshWheel( // Use FlexFactory
+        Ogre::Entity* rim_prop_entity,
+        node_t* nds,
+        int axis_node_1_index,
+        int axis_node_2_index,
+        int nstart,
+        int nrays,
+        std::string const& tire_mesh_name,
+        std::string const& tire_material_name,
+        float rimradius,
+        bool rimreverse
+    );
 
     struct FlexMeshWheelVertex
     {
@@ -86,6 +90,7 @@ private:
     Ogre::SubMesh*   m_submesh;
     bool             m_is_rim_reverse;
     Ogre::Entity*    m_rim_entity;
+    Ogre::Entity*    m_tire_entity; // Assigned by friend FlexFactory
     Ogre::SceneNode* m_rim_scene_node;
 
     // Vertices

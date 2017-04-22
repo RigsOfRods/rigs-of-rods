@@ -27,6 +27,7 @@
 #include "Application.h"
 #include "Beam.h"
 #include "FlexBody.h"
+#include "FlexMeshWheel.h"
 #include "GlobalEnvironment.h"
 #include "RigDef_File.h"
 #include "RigSpawner.h"
@@ -114,6 +115,37 @@ FlexBody* FlexFactory::CreateFlexBody(
         m_flexbody_cache.AddItemToSave(new_flexbody);
     }
     return new_flexbody;
+}
+
+FlexMeshWheel* FlexFactory::CreateFlexMeshWheel(
+    unsigned int wheel_index,
+    int axis_node_1_index,
+    int axis_node_2_index,
+    int nstart,
+    int nrays,
+    float rim_radius,
+    bool rim_reverse,
+    std::string const & rim_mesh_name,
+    std::string const & tire_material_name)
+{
+    // Load+instantiate static mesh for rim
+    const std::string rim_entity_name = m_rig_spawner->ComposeName("MeshWheelRim", wheel_index);
+    Ogre::Entity* rim_prop_entity = gEnv->sceneManager->createEntity(rim_entity_name, rim_mesh_name);
+    m_rig_spawner->SetupNewEntity(rim_prop_entity, Ogre::ColourValue(0, 0.5, 0.8));
+
+    // Create dynamic mesh for tire
+    const std::string tire_mesh_name = m_rig_spawner->ComposeName("MWheelTireMesh", wheel_index);
+    FlexMeshWheel* flex_mesh_wheel = new FlexMeshWheel(
+        rim_prop_entity, m_rig_spawner->GetRig()->nodes, axis_node_1_index, axis_node_2_index, nstart, nrays,
+        tire_mesh_name, tire_material_name, rim_radius, rim_reverse);
+
+    // Instantiate the dynamic tire mesh
+    const std::string tire_instance_name = m_rig_spawner->ComposeName("MWheelTireEntity", wheel_index);
+    Ogre::Entity *tire_entity = gEnv->sceneManager->createEntity(tire_instance_name, tire_mesh_name);
+    m_rig_spawner->SetupNewEntity(tire_entity, Ogre::ColourValue(0, 0.5, 0.8));
+    flex_mesh_wheel->m_tire_entity = tire_entity; // Friend access.
+
+    return flex_mesh_wheel;
 }
 
 void FlexBodyFileIO::WriteToFile(void* source, size_t length)

@@ -31,19 +31,16 @@
 using namespace Ogre;
 
 FlexMeshWheel::FlexMeshWheel(
-    std::string const & name,
+    Ogre::Entity* rim_prop_entity,
     node_t *nds, 
     int axis_node_1_index, 
     int axis_node_2_index, 
     int nstart, 
     int nrays, 
-    std::string const & mesh_name,
-    std::string const & material_name,//char* texband, 
+    std::string const& tire_mesh_name,
+    std::string const& tire_material_name,
     float rimradius, 
-    bool rimreverse, 
-    MaterialFunctionMapper *material_function_mapper, // *mfm
-    Skin *used_skin, // *usedSkin, 
-    MaterialReplacer *material_replacer // *mr
+    bool rimreverse
 ) :
       m_axis_node0_idx(axis_node_1_index)
     , m_axis_node1_idx(axis_node_2_index)
@@ -53,34 +50,18 @@ FlexMeshWheel::FlexMeshWheel(
     , m_is_rim_reverse(rimreverse)
     , m_rim_radius(rimradius)
 {
-
-    //the rim object
-    std::string rim_name = "rim-" + name;
-    m_rim_entity = gEnv->sceneManager->createEntity(rim_name, mesh_name);
-    MaterialFunctionMapper::replaceSimpleMeshMaterials(m_rim_entity, ColourValue(0, 0.5, 0.8));
-    if (material_function_mapper != nullptr)
-    {
-        material_function_mapper->replaceMeshMaterials(m_rim_entity);
-    }
-    if (material_replacer != nullptr)
-    {
-        material_replacer->replaceMeshMaterials(m_rim_entity);
-    }
-    if (used_skin != nullptr)
-    {
-        used_skin->replaceMeshMaterials(m_rim_entity);
-    }
+    m_rim_entity = rim_prop_entity;
     m_rim_scene_node=gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
     m_rim_scene_node->attachObject(m_rim_entity);
 
-    // Create the mesh via the MeshManager
-    m_mesh = MeshManager::getSingleton().createManual(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+    // Create the tire mesh via the MeshManager
+    m_mesh = MeshManager::getSingleton().createManual(tire_mesh_name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
     // Create submeshes
     m_submesh = m_mesh->createSubMesh();
 
     //materials
-    m_submesh->setMaterialName(material_name);
+    m_submesh->setMaterialName(tire_material_name);
 
     // Define the vertices
     m_vertex_count = 6*(nrays+1);

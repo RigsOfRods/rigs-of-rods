@@ -4500,57 +4500,29 @@ void RigSpawner::BuildMeshWheelVisuals(
 {
     SPAWNER_PROFILE_SCOPED();
 
-    std::stringstream wheel_name;
-    wheel_name << "wheel-" << m_rig->truckname << "-" << wheel_index;
-    std::stringstream entity_name;
-    entity_name << "wheelobj-" << m_rig->truckname << "-" << wheel_index;
-
-    m_rig->vwheels[wheel_index].fm = new FlexMeshWheel(
-        wheel_name.str(),
-        m_rig->nodes,
-        axis_node_1_index,
-        axis_node_2_index,
-        base_node_index,
-        num_rays,
-        mesh_name,
-        material_name,
-        rim_radius,
-        rim_reverse,
-        m_rig->materialFunctionMapper,
-        m_rig->usedSkin,
-        m_rig->materialReplacer
-    );
-    m_rig->vwheels[wheel_index].meshwheel = true;
-
     try
     {
-        m_rig->vwheels[wheel_index].cnode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-        Ogre::Entity *ec = gEnv->sceneManager->createEntity(entity_name.str(), wheel_name.str());
-        if (ec)
-        {
-            m_rig->deletion_Entities.emplace_back(ec);
-            m_rig->vwheels[wheel_index].cnode->attachObject(ec);
-        }
-        
-        MaterialFunctionMapper::replaceSimpleMeshMaterials(ec, Ogre::ColourValue(0, 0.5, 0.5));
-        if (m_rig->materialFunctionMapper != nullptr)
-        {
-            m_rig->materialFunctionMapper->replaceMeshMaterials(ec);
-        }
-        if (m_rig->materialReplacer != nullptr) 
-        {	
-            m_rig->materialReplacer->replaceMeshMaterials(ec);
-        }
-        if (m_rig->usedSkin != nullptr)
-        {
-            m_rig->usedSkin->replaceMeshMaterials(ec);
-        }		
-    } 
-    catch(...)
+        FlexMeshWheel* flexmesh_wheel = m_flex_factory.CreateFlexMeshWheel(
+            wheel_index, 
+            axis_node_1_index,
+            axis_node_2_index,
+            base_node_index,
+            num_rays,
+            rim_radius,
+            rim_reverse,
+            mesh_name,
+            material_name);
+        Ogre::SceneNode* scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+        scene_node->attachObject(flexmesh_wheel->GetTireEntity());
+
+        m_rig->deletion_Entities.emplace_back(flexmesh_wheel->GetTireEntity());
+        m_rig->vwheels[wheel_index].fm = flexmesh_wheel;
+        m_rig->vwheels[wheel_index].cnode = scene_node;
+    }
+    catch (Ogre::Exception& e)
     {
-        std::stringstream msg;
-        msg << "Error loading mesh: " << mesh_name;
-        AddMessage(Message::TYPE_ERROR, msg.str());
+        this->AddMessage(Message::TYPE_ERROR, "Failed to create meshwheel visuals, message: " + e.getFullDescription());
+        return;
     }
 }
 

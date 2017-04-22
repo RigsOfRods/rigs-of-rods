@@ -36,6 +36,8 @@
 #include <OgreColourValue.h>
 #include <vector>
 
+class FlexMeshWheel; // Forward decl.
+
 namespace RoR
 {
 
@@ -178,6 +180,17 @@ public:
         const int y_node, 
         Ogre::Quaternion const & rot, 
         std::vector<unsigned int> & node_indices);
+
+    FlexMeshWheel* CreateFlexMeshWheel(
+        unsigned int wheel_index,
+        int axis_node_1_index,
+        int axis_node_2_index,
+        int nstart,
+        int nrays,
+        float rim_radius,
+        bool rim_reverse,
+        std::string const & rim_mesh_name,
+        std::string const & tire_material_name);
 
     void  CheckAndLoadFlexbodyCache();
     void  SaveFlexbodiesToCache();
