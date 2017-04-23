@@ -317,7 +317,7 @@ const wxLanguageInfo *getLanguageInfoByName(const wxString name)
 int getAvLang(wxString dir, std::vector<wxLanguageInfo*> &files)
 {
     if(!wxDir::Exists(dir)) return 1;
-    
+
     //WX portable version
     wxDir dp(dir);
     if (!dp.IsOpened())
@@ -458,22 +458,25 @@ bool RoRConfigApp::CheckAndPrepareUserDirectory()
 
     if (wxFileName::DirExists(m_user_path) && wxFileName::DirExists(this->GetConfigPath()))
     {
-        wxLogInfo(wxT("User directory seems to be valid: ") + m_user_path);
+        if (!wxFileName::DirExists (this->GetCachePath ()))
+        {
+            wxLogInfo (wxT ("Checking if cache path exist: ") + this->GetCachePath ());
+            wxFileName::Mkdir (this->GetCachePath ());
+        }
 
-        wxLogInfo(wxT("Checking if cache path exist: ") + this->GetCachePath());
-        if (!wxFileName::DirExists(this->GetCachePath()))
-    	    wxFileName::Mkdir(this->GetCachePath());
-        wxLogInfo(wxT("Checking if log path exist: ") + this->GetLogPath());
-        if (!wxFileName::DirExists(this->GetLogPath()))
-          wxFileName::Mkdir(this->GetLogPath());
-
+        if (!wxFileName::DirExists (this->GetLogPath ()))
+        {
+            wxLogInfo (wxT ("Creating log path: ") + this->GetLogPath ());
+            wxFileName::Mkdir (this->GetLogPath ());
+        }
         return true;
     }
 
-    wxLogInfo(wxT("Preparing user directory: ") + m_user_path);
-    if(!wxFileName::DirExists(m_user_path))
-        wxFileName::Mkdir(m_user_path);
-
+    if (!wxFileName::DirExists (m_user_path))
+    {
+        wxLogInfo (wxT ("Preparing user directory: ") + m_user_path);
+        wxFileName::Mkdir (m_user_path);
+    }
     // first: figure out the zip path
     wxFileName skeletonZip = wxFileName(m_program_path, wxEmptyString);
     skeletonZip.AppendDir(wxT("resources"));
@@ -636,7 +639,7 @@ MyDialog::MyDialog(const wxString& title) : wxDialog(NULL, wxID_ANY, title,  wxP
     mainsizer->Add(nbook, 1, wxGROW);
 
     wxSizer *btnsizer = new wxBoxSizer(wxHORIZONTAL);
-    
+
     wxButton *btnRestore = new wxButton( this, ID_BUTTON_RESTORE, _("Restore Defaults"), wxPoint(35,520), wxSize(100,25));
     btnRestore->SetToolTip(_("Restore the default configuration."));
     btnsizer->Add(btnRestore, 1, wxGROW | wxALL, 5);
@@ -839,7 +842,7 @@ MyDialog::MyDialog(const wxString& title) : wxDialog(NULL, wxID_ANY, title,  wxP
     size.x = 400;
     aboutPanel->SetVirtualSize(size);
     aboutPanel->SetScrollRate(20, 25);
-    
+
     // debugPanel
     y = 10;
     x_row1 = 150;
@@ -883,7 +886,7 @@ MyDialog::MyDialog(const wxString& title) : wxDialog(NULL, wxID_ANY, title,  wxP
     debug_triggers=new wxCheckBox(debugPanel, -1, _("Trigger Debug"), wxPoint(10, y));
     debug_triggers->SetToolTip(_("Enables Trigger debug messages"));
     y+=15;
-    
+
     dcm=new wxCheckBox(debugPanel, -1, _("Debug Collision Meshes"), wxPoint(10, y));
     dcm->SetToolTip(_("Shows all Collision meshes in Red to be able to position them correctly. Only use for debugging!"));
     y+=15;
@@ -1131,7 +1134,7 @@ MyDialog::MyDialog(const wxString& title) : wxDialog(NULL, wxID_ANY, title,  wxP
 
     wxButton *btn = new wxButton(advancedPanel, ID_BUTTON_REGEN_CACHE, _("Regen cache"), wxPoint(x_row2-52, y));
     btn->SetToolTip(_("Use this to regenerate the cache outside of RoR. If this does not work, use the clear cache button."));
-    
+
     btn = new wxButton(advancedPanel, ID_BUTTON_CLEAR_CACHE, _("Clear cache"), wxPoint(x_row2+43, y));
     btn->SetToolTip(_("Use this to remove the whole cache and force the generation from ground up."));
     y+=45;
@@ -1144,7 +1147,7 @@ MyDialog::MyDialog(const wxString& title) : wxDialog(NULL, wxID_ANY, title,  wxP
     posstor = new wxCheckBox(advancedPanel, -1, _("Enable Position Storage"), wxPoint(x_row1, y));
     posstor->SetToolTip(_("Can be used to quick save and load positions of trucks"));
     y+=15;
-    
+
     dismap=new wxCheckBox(advancedPanel, -1, _("Disable Overview Map"), wxPoint(x_row1, y));
     dismap->SetToolTip(_("Disabled the map. This is for testing purposes only, you should not gain any FPS with that."));
     y+=15;
@@ -1405,7 +1408,7 @@ void MyDialog::updateRendersystems(Ogre::RenderSystem *rs)
 
     int x = 10;
     int y = 55;
-    
+
     wxStaticLine *w = new wxStaticLine(rsPanel, -1, wxPoint(x, y+3), wxSize(440, 2));
     y += 15;
 
@@ -1563,7 +1566,7 @@ void MyDialog::updateRendersystems(Ogre::RenderSystem *rs)
 
                 if(strlen(type_str) > 0)
                     sprintf(tmp + strlen(tmp), ", %s", type_str);
-                
+
                 if(strlen(ratio_str) > 0)
                     sprintf(tmp + strlen(tmp), ", %s", ratio_str);
 
@@ -1843,7 +1846,7 @@ void MyDialog::updateSettingsControls()
     // update textboxes
     wxScrollEvent dummye;
     OnScrollForceFeedback(dummye);
-    
+
     flaresMode->setSelectedValue(settings["Lights"]);
     vegetationMode->setSelectedValue(settings["Vegetation"]);
     screenShotFormat->setSelectedValue(settings["Screenshot Format"]);
@@ -2033,7 +2036,7 @@ void MyDialog::OnButPlay(wxCommandEvent& event)
         // error
         return;
     }
-    
+
     strcat(path, "\\RoR.exe");
     wxLogStatus(wxT("using RoR: ") + wxString(path));
 
@@ -2329,7 +2332,7 @@ void MyDialog::OnButRegenCache(wxCommandEvent& event)
     // wait until child process exits
     WaitForSingleObject( pi.hProcess, INFINITE );
     CloseHandle( pi.hProcess );
-    CloseHandle( pi.hThread );	
+    CloseHandle( pi.hThread );
 #endif
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
     char tmp[4096] = "";
