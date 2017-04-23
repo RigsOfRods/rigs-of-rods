@@ -1386,6 +1386,7 @@ void MyDialog::updateRendersystems(Ogre::RenderSystem *rs)
     filterOptions["sRGB Gamma Conversion"]=true;
     filterOptions["Colour Depth"]=true;
     filterOptions["Allow DirectX9Ex"]=false;
+    filterOptions["Fixed Pipeline Enabled"] = true;
 
     if(renderer->GetCount() == 0)
     {
