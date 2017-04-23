@@ -572,6 +572,8 @@ void TerrainManager::initWater()
             delete(water);
             water = new Water();
         }
+
+        water->setHeight (m_def.water_height);
     }
 }
 
