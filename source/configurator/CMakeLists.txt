@@ -62,12 +62,17 @@ ELSEIF(UNIX)
    PKG_CHECK_MODULES  (Ogre OGRE REQUIRED)
    PKG_CHECK_MODULES  (Ois OIS REQUIRED)
 
-   set(OS_LIBS "-lboost_system")
+   set(OS_LIBS "")
 
 ENDIF(WIN32)
 
 setup_lib(OPENCL)
 setup_lib(OPENAL)
+
+if(Boost_FOUND)
+  include_directories(${Boost_INCLUDE_DIRS})
+  link_directories   (${Boost_LIBRARY_DIRS})
+endif()
 include_directories(${Ogre_INCLUDE_DIRS})
 link_directories   (${Ogre_LIBRARY_DIRS})
 include_directories(${Ois_INCLUDE_DIRS})
@@ -90,7 +95,7 @@ ELSE(WIN32)
 	add_executable(RoRConfig ${sources} ${headers} ${OS_SOURCE} ../main/utils/SHA1.cpp ../main/utils/ErrorUtils.cpp)
 ENDIF(WIN32)
 
-TARGET_LINK_LIBRARIES(RoRConfig ${Ogre_LIBRARIES} ${Ois_LIBRARIES} ${OS_LIBS} ${optional_libs} ${wxWidgets_LIBRARIES} version_info)
+TARGET_LINK_LIBRARIES(RoRConfig ${Boost_LIBRARIES} ${Ogre_LIBRARIES} ${Ois_LIBRARIES} ${OS_LIBS} ${optional_libs} ${wxWidgets_LIBRARIES} version_info)
 
 
 
