@@ -901,6 +901,8 @@ private:
     */
     Ogre::MaterialPtr PersonalizeMaterial(std::string orig_name);
 
+    Ogre::MaterialPtr CreateSimpleMaterial(Ogre::ColourValue color);
+
     /**
     * Creates name containing actor ID token, i.e. "Object_1@Actor_2"
     */
@@ -1021,6 +1023,7 @@ private:
     
     bool m_enable_background_loading;
     bool m_apply_simple_materials;
+    Ogre::MaterialPtr m_simple_material_base;
 
     // Logging
     std::list<Message>    m_messages;

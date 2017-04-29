@@ -26,7 +26,6 @@
 
 using namespace Ogre;
 
-int MaterialFunctionMapper::simpleMaterialCounter = 0;
 
 void MaterialFunctionMapper::addMaterial(int flareid, materialmapping_t t)
 {
@@ -153,40 +152,3 @@ void MaterialFunctionMapper::replaceMeshMaterials(Ogre::Entity* e)
     }
 }
 
-void MaterialFunctionMapper::replaceSimpleMeshMaterials(Ogre::Entity* e, Ogre::ColourValue c)
-{
-    if (!e)
-    {
-        LOG("MaterialFunctionMapper: got invalid Entity in replaceSimpleMeshMaterials");
-        return;
-    }
-    if (!BSETTING("SimpleMaterials", false))
-        return;
-
-    MaterialPtr mat = MaterialManager::getSingleton().getByName("tracks/simple");
-    if (mat.isNull())
-        return;
-
-    String newMatName = "tracks/simple/" + TOSTRING(simpleMaterialCounter);
-    MaterialPtr newmat = mat->clone(newMatName);
-
-    newmat->getTechnique(0)->getPass(0)->setAmbient(c);
-
-    simpleMaterialCounter++;
-
-    MeshPtr m = e->getMesh();
-    if (!m.isNull())
-    {
-        for (int n = 0; n < (int)m->getNumSubMeshes(); n++)
-        {
-            SubMesh* sm = m->getSubMesh(n);
-            sm->setMaterialName(newMatName);
-        }
-    }
-
-    for (int n = 0; n < (int)e->getNumSubEntities(); n++)
-    {
-        SubEntity* subent = e->getSubEntity(n);
-        subent->setMaterialName(newMatName);
-    }
-}

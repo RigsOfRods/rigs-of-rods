@@ -39,10 +39,7 @@ public:
     // this function searches and replaces materials in meshes
     void replaceMeshMaterials(Ogre::Entity* e);
 
-    static void replaceSimpleMeshMaterials(Ogre::Entity* e, Ogre::ColourValue c = Ogre::ColourValue::White);
-
 private:
 
-    static int simpleMaterialCounter;
     std::map<int, std::vector<materialmapping_t>> materialBindings;
 };

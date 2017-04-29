@@ -422,6 +422,15 @@ void RigSpawner::InitializeRig()
     m_rig->m_custom_resource_group = buf;
 
     m_apply_simple_materials = BSETTING("SimpleMaterials", false);
+    if (m_apply_simple_materials)
+    {
+        m_simple_material_base = Ogre::MaterialManager::getSingleton().getByName("tracks/simple"); // Built-in material
+        if (m_simple_material_base.isNull())
+        {
+            this->AddMessage(Message::TYPE_INTERNAL_ERROR, "Failed to load built-in material 'tracks/simple'; disabling 'SimpleMaterials'");
+            m_apply_simple_materials = false;
+        }
+    }
 }
 
 void RigSpawner::FinalizeRig()
@@ -7092,12 +7101,45 @@ Ogre::MaterialPtr RigSpawner::PersonalizeMaterial(std::string orig_name)
     return Ogre::MaterialPtr(); // NULL
 }
 
+Ogre::MaterialPtr RigSpawner::CreateSimpleMaterial(Ogre::ColourValue color)
+{
+    assert(!m_simple_material_base.isNull());
+
+    static size_t simple_mat_counter = 0;
+    char name_buf[300];
+    snprintf(name_buf, 300, "SimpleMaterial-%u%s%d", simple_mat_counter, ACTOR_ID_TOKEN, m_rig->trucknum);
+    Ogre::MaterialPtr newmat = m_simple_material_base->clone(name_buf);
+    ++simple_mat_counter;
+    newmat->getTechnique(0)->getPass(0)->setAmbient(color);
+
+    return newmat;
+}
+
 void RigSpawner::SetupNewEntity(Ogre::Entity* ent, Ogre::ColourValue simple_color)
 {
     if (m_apply_simple_materials)
     {
-        MaterialFunctionMapper::replaceSimpleMeshMaterials(ent, simple_color);
-        return;
+        Ogre::MaterialPtr mat = this->CreateSimpleMaterial(simple_color);
+
+        Ogre::MeshPtr m = ent->getMesh();
+        if (!m.isNull())
+        {
+            const size_t num_submeshes = m->getNumSubMeshes();
+            for (size_t n = 0; n < num_submeshes; n++)
+            {
+                Ogre::SubMesh* sm = m->getSubMesh(static_cast<unsigned short>(n));
+                sm->setMaterialName(mat->getName());
+            }
+        }
+
+        const size_t num_sub_entities = ent->getNumSubEntities();
+        for (size_t n = 0; n < num_sub_entities; n++)
+        {
+            Ogre::SubEntity* subent = ent->getSubEntity(n);
+            subent->setMaterial(mat);
+        }
+
+        return; // Done!
     }
 
     m_rig->materialReplacer->replaceMeshMaterials(ent);
