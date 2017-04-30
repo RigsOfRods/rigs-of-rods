@@ -31,7 +31,6 @@ public:
         Ogre::ColourValue emissiveColour;
         Ogre::String material;
         Ogre::String originalmaterial;
-        bool laststate;
     };
 
     void addMaterial(int flareid, materialmapping_t t);

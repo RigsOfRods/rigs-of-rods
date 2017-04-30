@@ -40,7 +40,6 @@ void MaterialFunctionMapper::addMaterial(int flareid, materialmapping_t t)
         return;
     // save emissive colour and then set to zero (light disabled by default)
     t.emissiveColour = p->getSelfIllumination();
-    t.laststate = false;
     p->setSelfIllumination(ColourValue::ZERO);
     materialBindings[flareid].push_back(t);
 }
@@ -51,10 +50,6 @@ void MaterialFunctionMapper::toggleFunction(int flareid, bool isvisible)
     std::vector<materialmapping_t>::iterator it;
     for (it = mb.begin(); it != mb.end(); it++)
     {
-        //if (it->laststate == isvisible)
-        //	continue;
-        //it->laststate = isvisible;
-
         MaterialPtr m = Ogre::MaterialManager::getSingleton().getByName(it->material);
         if (m.isNull())
             continue;
