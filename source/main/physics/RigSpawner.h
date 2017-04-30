@@ -1020,7 +1020,7 @@ private:
     Beam *m_rig; //!< The output rig.
     std::list<std::shared_ptr<RigDef::File::Module>> m_selected_modules;
     std::map<Ogre::String, unsigned int> m_named_nodes;
-    
+
     bool m_enable_background_loading;
     bool m_apply_simple_materials;
     Ogre::MaterialPtr m_simple_material_base;
@@ -1038,6 +1038,10 @@ private:
     Ogre::Vector3 m_spawn_position;
     std::vector<CabTexcoord> m_oldstyle_cab_texcoords;
     std::vector<CabSubmesh>  m_oldstyle_cab_submeshes;
+    /// Maps original material names (shared) to their actor-specific substitutes.
+    /// There's 1 substitute per 1 material, regardless of user count.
+    std::map<std::string, Ogre::MaterialPtr> m_material_substitutions;
+    Ogre::MaterialPtr m_placeholder_managedmat;
     float m_wing_area;
     int m_airplane_left_light;
     int m_airplane_right_light;

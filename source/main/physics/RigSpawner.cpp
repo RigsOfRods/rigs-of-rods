@@ -414,9 +414,12 @@ void RigSpawner::InitializeRig()
 
     m_flex_factory.CheckAndLoadFlexbodyCache();
 
-    char buf[500];
-    snprintf(buf, 500, "%s%s%d", m_rig->realtruckname.c_str(), ACTOR_ID_TOKEN, m_rig->trucknum);
-    m_rig->m_custom_resource_group = buf;
+    std::stringstream grp_name;
+    grp_name << m_rig->truckname << ACTOR_ID_TOKEN << m_rig->trucknum;
+    Ogre::ResourceGroupManager::getSingleton().createResourceGroup(grp_name.str());
+    m_rig->m_custom_resource_group = grp_name.str();
+
+    m_placeholder_managedmat = Ogre::MaterialManager::getSingleton().getByName("rigsofrods/managedmaterial-placeholder"); // Built-in
 
     m_apply_simple_materials = BSETTING("SimpleMaterials", false);
     if (m_apply_simple_materials)
@@ -2447,19 +2450,26 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    Ogre::MaterialPtr test = static_cast<Ogre::MaterialPtr>(Ogre::MaterialManager::getSingleton().getByName(def.name));
-    if (!test.isNull())
+    if (m_material_substitutions.find(def.name) != m_material_substitutions.end())
     {
-        std::stringstream msg;
-        msg << "Managed material '" << def.name << "' already exists (probably because the vehicle was already spawned before)";
-        AddMessage(Message::TYPE_WARNING, msg.str());
+        // Managed mats are processed first, so this must be a duplicate.
+        this->AddMessage(Message::TYPE_ERROR, "Duplicate managed material name: '" + def.name + "'. Ignoring definition...");
         return;
     }
 
+    // Create global placeholder
+    // This is necessary to load meshes with original material names (= unchanged managed mat names)
+    // - if not found, OGRE substitutes them with 'BaseWhite' which breaks subsequent processing.
+    if (Ogre::MaterialManager::getSingleton().getByName(def.name).isNull())
+    {
+        m_placeholder_managedmat->clone(def.name);
+    }
+
+    std::string custom_name = def.name + ACTOR_ID_TOKEN + TOSTRING(m_rig->trucknum);
     Ogre::MaterialPtr material;
     if (def.type == RigDef::ManagedMaterial::TYPE_FLEXMESH_STANDARD || def.type == RigDef::ManagedMaterial::TYPE_FLEXMESH_TRANSPARENT)
     {
-        Ogre::String mat_name_base
+        std::string mat_name_base
             = (def.type == RigDef::ManagedMaterial::TYPE_FLEXMESH_STANDARD)
             ? "managed/flexmesh_standard"
             : "managed/flexmesh_transparent";
@@ -2469,7 +2479,7 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
             if (def.HasSpecularMap())
             {
                 /* FLEXMESH, damage, specular */
-                material = CloneMaterial(mat_name_base + "/speculardamage", def.name);
+                material = CloneMaterial(mat_name_base + "/speculardamage", custom_name);
                 if (material.isNull())
                 {
                     return;
@@ -2481,7 +2491,7 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
             else
             {
                 /* FLEXMESH, damage, no_specular */
-                material = CloneMaterial(mat_name_base + "/damageonly", def.name);
+                material = CloneMaterial(mat_name_base + "/damageonly", custom_name);
                 if (material.isNull())
                 {
                     return;
@@ -2495,7 +2505,7 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
             if (def.HasSpecularMap())
             {
                 /* FLEXMESH, no_damage, specular */
-                material = CloneMaterial(mat_name_base + "/specularonly", def.name);
+                material = CloneMaterial(mat_name_base + "/specularonly", custom_name);
                 if (material.isNull())
                 {
                     return;
@@ -2506,7 +2516,7 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
             else
             {
                 /* FLEXMESH, no_damage, no_specular */
-                material = CloneMaterial(mat_name_base + "/simple", def.name);
+                material = CloneMaterial(mat_name_base + "/simple", custom_name);
                 if (material.isNull())
                 {
                     return;
@@ -2525,7 +2535,7 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
         if (def.HasSpecularMap())
         {
             /* MESH, specular */
-            material = CloneMaterial(mat_name_base + "/specular", def.name);
+            material = CloneMaterial(mat_name_base + "/specular", custom_name);
             if (material.isNull())
             {
                 return;
@@ -2536,7 +2546,7 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
         else
         {
             /* MESH, no_specular */
-            material = CloneMaterial(mat_name_base + "/simple", def.name);
+            material = CloneMaterial(mat_name_base + "/simple", custom_name);
             if (material.isNull())
             {
                 return;
@@ -2561,6 +2571,7 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
     /* Finalize */
 
     material->compile();
+    m_material_substitutions.insert(std::make_pair(def.name, material));
 }
 
 void RigSpawner::ProcessCollisionBox(RigDef::CollisionBox & def)
@@ -7089,13 +7100,24 @@ Ogre::MaterialPtr RigSpawner::PersonalizeMaterial(std::string orig_name)
 
     try
     {
+        // Find the material
         Ogre::MaterialPtr orig_mat = Ogre::MaterialManager::getSingleton().getByName(orig_name);
         if (orig_mat.isNull())
             return Ogre::MaterialPtr(); // NULL
 
+        // Check for existing substitute
+        auto search_res = m_material_substitutions.find(orig_name);
+        if (search_res != m_material_substitutions.end())
+        {
+            return search_res->second;
+        }
+
+        // Create new substitute
         char name_buf[200];
         snprintf(name_buf, 200, "%s%s%d", orig_name.c_str(), ACTOR_ID_TOKEN, m_rig->trucknum);
-        return orig_mat->clone(name_buf, true, m_rig->m_custom_resource_group);
+        Ogre::MaterialPtr cloned_mat = orig_mat->clone(name_buf, true, m_rig->m_custom_resource_group);
+        m_material_substitutions.insert(std::make_pair(orig_name, cloned_mat));
+        return cloned_mat;
     }
     catch (Ogre::Exception& e)
     {

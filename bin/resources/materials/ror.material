@@ -2964,3 +2964,21 @@ material tracks/beamblack
 	}
 }
 
+// Instantiated per-managedmaterial, globally
+// This is necessary to load meshes with original material names (= unchanged managed mat names)
+// - if not found, OGRE substitutes them with 'BaseWhite' which breaks subsequent processing.
+// See `RigSpawner::ProcessManagedMaterial()` in RigSpawner.cpp
+material rigsofrods/managedmaterial-placeholder
+{
+    technique
+    {
+        pass
+        {
+             // Awful bright pink to be easily visible
+             ambient 0.5 0.5 0.5
+             diffuse 1 0 0.7 1
+             specular 1 1 1 10
+             lighting off 
+        }
+    }
+}

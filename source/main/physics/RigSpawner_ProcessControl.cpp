@@ -177,6 +177,7 @@ rig_t *RigSpawner::SpawnRig()
     m_rig->fileformatversion = m_file->file_format_version;
 
     // Section 'managedmaterials'
+    // This prepares substitute materials -> MUST be processed before any meshes are loaded.
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MANAGEDMATERIALS, managed_materials, ProcessManagedMaterial);
 
     // Section 'materialflarebindings'
