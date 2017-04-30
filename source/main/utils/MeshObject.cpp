@@ -27,7 +27,6 @@
 #include <Ogre.h>
 
 #include "Application.h"
-#include "MaterialFunctionMapper.h"
 #include "Settings.h"
 #include "TerrainManager.h"
 

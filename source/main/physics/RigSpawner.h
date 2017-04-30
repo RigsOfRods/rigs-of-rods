@@ -130,7 +130,7 @@ public:
     * Finds and clones given material. Reports errors.
     * @return NULL Ogre::MaterialPtr on error.
     */
-    Ogre::MaterialPtr CloneMaterial(Ogre::String const & source_name, Ogre::String const & clone_name);
+    Ogre::MaterialPtr InstantiateManagedMaterial(Ogre::String const & source_name, Ogre::String const & clone_name);
 
     /**
     * Finds existing node by Node::Ref; throws an exception if the node doesn't exist.
@@ -152,6 +152,27 @@ public:
     static bool CheckSoundScriptLimit(Beam *vehicle, unsigned int count);
 
 private:
+
+    struct CustomMaterial
+    {
+        CustomMaterial():
+            material_flare_def(nullptr),
+            video_camera_def(nullptr),
+            is_classic_mirror(false)
+        {}
+
+        CustomMaterial(Ogre::MaterialPtr& mat):
+            material(mat),
+            material_flare_def(nullptr),
+            video_camera_def(nullptr),
+            is_classic_mirror(false)
+        {}
+
+        Ogre::MaterialPtr              material;
+        RigDef::MaterialFlareBinding*  material_flare_def;
+        RigDef::VideoCamera*           video_camera_def;
+        bool                           is_classic_mirror;
+    };
 
 /* -------------------------------------------------------------------------- */
 /* Processing functions.                                                      */
@@ -311,11 +332,6 @@ private:
     * Section 'managedmaterials'
     */
     void ProcessManagedMaterial(RigDef::ManagedMaterial & def);
-
-    /**
-    * Section 'materialflarebindings'.
-    */
-    void ProcessMaterialFlareBinding(RigDef::MaterialFlareBinding & def);
 
     /**
     * Section 'meshwheels'.
@@ -894,14 +910,41 @@ private:
     */
     void CreateWheelVisuals(unsigned int wheel_index, RigDef::Wheel2 & wheel_2_def, unsigned int node_base_index);
 
+    /**
+    * Performs full material setup for a new entity.
+    * RULE: Each actor must have it's own material instances (a lookup table is kept for OrigName->CustomName)
+    *
+    * Setup routine:
+    *
+    *   1. If "SimpleMaterials" (plain color surfaces denoting component type) are enabled in config file, 
+    *          material is generated (not saved to lookup table) and processing ends.
+    *   2. If the material name is 'mirror', it's a special prop - rear view mirror.
+    *          material is generated, added to lookup table under generated name (special case) and processing ends.
+    *   3. If the material is a 'videocamera' of any subtype, material is created, added to lookup table and processing ends.
+    *   4  'materialflarebindngs' are resolved -> binding persisted in lookup table.
+    *   5  SkinZIP _material replacements_ are queried. If match is found, it's added to lookup table and processing ends.
+    *   6. ManagedMaterials are queried. If match is found, it's added to lookup table and processing ends.
+    *   7. Orig. material is clone to create substitute.
+    *   8. SkinZIP _texture replacements_ are queried. If match is found, substitute material is updated.
+    *   9. Material added to lookup table, processing ends.
+    */
     void SetupNewEntity(Ogre::Entity* e, Ogre::ColourValue simple_color);
 
     /**
-    * Clones material to have per-actor unique name and places it in per-actor resource group.
+    * Factory of GfxActor; invoke after all gfx setup was done.
     */
-    Ogre::MaterialPtr PersonalizeMaterial(std::string orig_name);
+    RoR::GfxActor* FinalizeGfxSetup();
+
+    /**
+    * Helper for 'SetupNewEntity()' - see it's doc.
+    */
+    Ogre::MaterialPtr FindOrCreateCustomizedMaterial(std::string orig_name);
 
     Ogre::MaterialPtr CreateSimpleMaterial(Ogre::ColourValue color);
+
+    RigDef::MaterialFlareBinding* FindFlareBindingForMaterial(std::string const & material_name); ///< Returns NULL if none found
+
+    RigDef::VideoCamera* FindVideoCameraByMaterial(std::string const & material_name); ///< Returns NULL if none found
 
     /**
     * Creates name containing actor ID token, i.e. "Object_1@Actor_2"
@@ -1040,8 +1083,10 @@ private:
     std::vector<CabSubmesh>  m_oldstyle_cab_submeshes;
     /// Maps original material names (shared) to their actor-specific substitutes.
     /// There's 1 substitute per 1 material, regardless of user count.
-    std::map<std::string, Ogre::MaterialPtr> m_material_substitutions;
+    std::map<std::string, CustomMaterial> m_material_substitutions;
+    std::map<std::string, Ogre::MaterialPtr> m_managed_materials;
     Ogre::MaterialPtr m_placeholder_managedmat;
+    std::string m_custom_resource_group;
     float m_wing_area;
     int m_airplane_left_light;
     int m_airplane_right_light;

@@ -180,9 +180,6 @@ rig_t *RigSpawner::SpawnRig()
     // This prepares substitute materials -> MUST be processed before any meshes are loaded.
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MANAGEDMATERIALS, managed_materials, ProcessManagedMaterial);
 
-    // Section 'materialflarebindings'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_MATERIALFLAREBINDINGS, material_flare_bindings, ProcessMaterialFlareBinding);
-
     // Section 'gobals' in any module
     PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_GLOBALS, globals, ProcessGlobals);
 

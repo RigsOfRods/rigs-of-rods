@@ -45,6 +45,7 @@
 #include "CartesianToTriangleTransform.h"
 #include "CmdKeyInertia.h"
 #include "Collisions.h"
+#include "GfxActor.h"
 #include "GUI_GameConsole.h"
 #include "DashBoardManager.h"
 #include "Differentials.h"
@@ -150,9 +151,6 @@ Beam::~Beam()
         cabMesh = nullptr;
     }
 
-    if (materialFunctionMapper)
-        delete materialFunctionMapper;
-    materialFunctionMapper = 0;
     if (replay)
         delete replay;
     replay = 0;
@@ -3285,12 +3283,12 @@ void Beam::updateFlares(float dt, bool isCurrent)
         {
             flares[i].blinkdelay_state = true;
         }
-        //LOG(TOSTRING(flares[i].blinkdelay_curr));
+
         // manage light states
         bool isvisible = true; //this must be true to be able to switch on the frontlight
         if (flares[i].type == 'f')
         {
-            materialFunctionMapper->toggleFunction(i, (lights == 1));
+            m_gfx_actor->SetMaterialFlareOn(i, (lights == 1));
             if (!lights)
                 continue;
         }
@@ -3358,9 +3356,8 @@ void Beam::updateFlares(float dt, bool isCurrent)
             dash->setBool(DD_SIGNAL_TURNLEFT, isvisible);
         }
 
-        //left_blink_on, right_blink_on, warn_blink_on;
         // update material Bindings
-        materialFunctionMapper->toggleFunction(i, isvisible);
+        m_gfx_actor->SetMaterialFlareOn(i, isvisible);
 
         flares[i].snode->setVisible(isvisible);
         if (flares[i].light)

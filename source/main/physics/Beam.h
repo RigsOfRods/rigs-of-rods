@@ -2,6 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
+    Copyright 2016-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -20,15 +21,14 @@
 
 #pragma once
 
-#include <OgrePrerequisites.h>
-#include <OgreTimer.h>
-
-#include "RoRPrerequisites.h"
+#include "BeamData.h"
+#include "GfxActor.h"
 #include "PerVehicleCameraContext.h"
 #include "RigDef_Prerequisites.h"
+#include "RoRPrerequisites.h"
 
-#include "BeamData.h"
-
+#include <OgrePrerequisites.h>
+#include <OgreTimer.h>
 #include <memory>
 
 class Task;
@@ -661,6 +661,7 @@ protected:
     Replay *replay;
     PositionStorage *posStorage;
     RoRFrameListener* m_sim_controller; // Temporary ~ only_a_ptr, 01/2017
+    std::unique_ptr<RoR::GfxActor> m_gfx_actor;
 
     RoR::PerVehicleCameraContext m_camera_context;
 
@@ -773,5 +774,4 @@ protected:
      */
     std::pair<RailGroup*, Ogre::Real> getClosestRailOnTruck( Beam* truck, const SlideNode& node);
 
-    std::string m_custom_resource_group; ///< Stores OGRE resources individual to this Beam
 };

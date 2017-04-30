@@ -74,10 +74,11 @@ public:
     void removeAll  () override;
     void reloadAll  (bool reloadableOnly = true) override;
 
+    static void ReplaceMaterialTextures(SkinDef* skin_def, std::string materialName);
+
 private:
 
     void ParseSkinAttribute(const std::string& line, SkinDef* skin_def);
-    static void ReplaceMaterialTextures(SkinDef* skin_def, std::string materialName);
 
     std::map<std::string, SkinDef*> m_skins;
 };

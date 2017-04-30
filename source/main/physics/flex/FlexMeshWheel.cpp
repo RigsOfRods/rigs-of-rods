@@ -21,7 +21,6 @@
 
 #include "FlexMeshWheel.h"
 
-#include "MaterialFunctionMapper.h"
 #include "BeamData.h"
 
 #include <Ogre.h>

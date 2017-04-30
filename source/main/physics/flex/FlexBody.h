@@ -25,7 +25,6 @@
 #include "RoRPrerequisites.h"
 #include "Flexable.h"
 #include "Locator_t.h"
-#include "MaterialFunctionMapper.h"
 
 #include <OgreVector3.h>
 #include <OgreQuaternion.h>

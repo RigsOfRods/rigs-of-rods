@@ -32,6 +32,7 @@ namespace RoR
 {
     class  BeamFactory;
     class  ContentManager;
+    class  GfxActor;
     class  GUIManager;
     struct GuiManagerImpl;
     class  GuiManagerInterface;
@@ -155,7 +156,6 @@ class IWater;
 class HydraxWater;
 class Landusemap;
 class MapTextureCreator;
-class MaterialFunctionMapper;
 class MeshObject;
 class Mirror;
 class MumbleIntegration;

@@ -48,9 +48,9 @@
 #include "FlexMesh.h"
 #include "FlexMeshWheel.h"
 #include "FlexObj.h"
+#include "GfxActor.h"
 #include "GUI_GameConsole.h"
 #include "InputEngine.h"
-#include "MaterialFunctionMapper.h"
 #include "MeshObject.h"
 #include "PointColDetector.h"
 #include "RigLoadingProfilerControl.h"
@@ -268,7 +268,6 @@ void RigSpawner::InitializeRig()
     m_rig->netCustomLightArray[2] = UINT_MAX;
     m_rig->netCustomLightArray[3] = UINT_MAX;
     m_rig->netCustomLightArray_counter = 0;
-    m_rig->materialFunctionMapper = nullptr;
 
     m_rig->ispolice=false;
     m_rig->state=SLEEPING;
@@ -398,7 +397,6 @@ void RigSpawner::InitializeRig()
     m_rig->splashp = dustman.getDustPool("splash");
     m_rig->ripplep = dustman.getDustPool("ripple");
 
-    m_rig->materialFunctionMapper = new MaterialFunctionMapper();
     m_rig->cmdInertia   = new CmdKeyInertia();
     m_rig->hydroInertia = new CmdKeyInertia();
     m_rig->rotaInertia  = new CmdKeyInertia();
@@ -417,7 +415,7 @@ void RigSpawner::InitializeRig()
     std::stringstream grp_name;
     grp_name << m_rig->truckname << ACTOR_ID_TOKEN << m_rig->trucknum;
     Ogre::ResourceGroupManager::getSingleton().createResourceGroup(grp_name.str());
-    m_rig->m_custom_resource_group = grp_name.str();
+    m_custom_resource_group = grp_name.str();
 
     m_placeholder_managedmat = Ogre::MaterialManager::getSingleton().getByName("rigsofrods/managedmaterial-placeholder"); // Built-in
 
@@ -635,9 +633,11 @@ void RigSpawner::FinalizeRig()
     m_rig->lowestnode = FindLowestNodeInRig();
     m_rig->lowestcontactingnode = FindLowestContactingNodeInRig();
 
-    UpdateCollcabContacterNodes();
+    this->UpdateCollcabContacterNodes();
 
     m_flex_factory.SaveFlexbodiesToCache();
+
+    m_rig->m_gfx_actor = std::unique_ptr<RoR::GfxActor>(this->FinalizeGfxSetup());
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1336,7 +1336,7 @@ void RigSpawner::ProcessVideoCamera(RigDef::VideoCamera & def)
     SPAWNER_PROFILE_SCOPED();
 
     // Find/create a custom material
-    Ogre::MaterialPtr mat = this->PersonalizeMaterial(def.material_name);
+    Ogre::MaterialPtr mat = this->FindOrCreateCustomizedMaterial(def.material_name); // TODO: Temporary until project 'UniMat' is finished
     if (mat.isNull())
     {
         this->AddMessage(Message::TYPE_ERROR, "Failed to create VideoCamera with material: " + def.material_name);
@@ -2245,28 +2245,6 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
     }
 }
 
-void RigSpawner::ProcessMaterialFlareBinding(RigDef::MaterialFlareBinding & def)
-{
-    SPAWNER_PROFILE_SCOPED();
-
-    std::stringstream mat_clone_name;
-    mat_clone_name << def.material_name << "_mfb_" << m_rig->truckname;
-    Ogre::MaterialPtr material = CloneMaterial(def.material_name, mat_clone_name.str());
-    if (material.isNull())
-    {
-        return;
-    }
-    
-    if (m_rig->materialFunctionMapper != nullptr)
-    {
-        MaterialFunctionMapper::materialmapping_t mapping;
-        mapping.originalmaterial = def.material_name;
-        mapping.material = mat_clone_name.str();
-
-        m_rig->materialFunctionMapper->addMaterial(def.flare_number, mapping);
-    }
-}
-
 void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
 {
     SPAWNER_PROFILE_SCOPED();
@@ -2431,11 +2409,11 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
     m_rig->free_flare++;
 }
 
-Ogre::MaterialPtr RigSpawner::CloneMaterial(Ogre::String const & source_name, Ogre::String const & clone_name)
+Ogre::MaterialPtr RigSpawner::InstantiateManagedMaterial(Ogre::String const & source_name, Ogre::String const & clone_name)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    Ogre::MaterialPtr src_mat = static_cast<Ogre::MaterialPtr>(Ogre::MaterialManager::getSingleton().getByName(source_name));
+    Ogre::MaterialPtr src_mat = Ogre::MaterialManager::getSingleton().getByName(source_name);
     if (src_mat.isNull())
     {
         std::stringstream msg;
@@ -2443,16 +2421,16 @@ Ogre::MaterialPtr RigSpawner::CloneMaterial(Ogre::String const & source_name, Og
         AddMessage(Message::TYPE_ERROR, msg.str());
         return Ogre::MaterialPtr();
     }
-    return src_mat->clone(clone_name);
+
+    return src_mat->clone(clone_name, true, m_custom_resource_group);
 }
 
 void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (m_material_substitutions.find(def.name) != m_material_substitutions.end())
+    if (m_managed_materials.find(def.name) != m_managed_materials.end())
     {
-        // Managed mats are processed first, so this must be a duplicate.
         this->AddMessage(Message::TYPE_ERROR, "Duplicate managed material name: '" + def.name + "'. Ignoring definition...");
         return;
     }
@@ -2479,7 +2457,7 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
             if (def.HasSpecularMap())
             {
                 /* FLEXMESH, damage, specular */
-                material = CloneMaterial(mat_name_base + "/speculardamage", custom_name);
+                material = this->InstantiateManagedMaterial(mat_name_base + "/speculardamage", custom_name);
                 if (material.isNull())
                 {
                     return;
@@ -2491,7 +2469,7 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
             else
             {
                 /* FLEXMESH, damage, no_specular */
-                material = CloneMaterial(mat_name_base + "/damageonly", custom_name);
+                material = this->InstantiateManagedMaterial(mat_name_base + "/damageonly", custom_name);
                 if (material.isNull())
                 {
                     return;
@@ -2505,7 +2483,7 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
             if (def.HasSpecularMap())
             {
                 /* FLEXMESH, no_damage, specular */
-                material = CloneMaterial(mat_name_base + "/specularonly", custom_name);
+                material = this->InstantiateManagedMaterial(mat_name_base + "/specularonly", custom_name);
                 if (material.isNull())
                 {
                     return;
@@ -2516,7 +2494,7 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
             else
             {
                 /* FLEXMESH, no_damage, no_specular */
-                material = CloneMaterial(mat_name_base + "/simple", custom_name);
+                material = this->InstantiateManagedMaterial(mat_name_base + "/simple", custom_name);
                 if (material.isNull())
                 {
                     return;
@@ -2535,7 +2513,7 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
         if (def.HasSpecularMap())
         {
             /* MESH, specular */
-            material = CloneMaterial(mat_name_base + "/specular", custom_name);
+            material = this->InstantiateManagedMaterial(mat_name_base + "/specular", custom_name);
             if (material.isNull())
             {
                 return;
@@ -2546,7 +2524,7 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
         else
         {
             /* MESH, no_specular */
-            material = CloneMaterial(mat_name_base + "/simple", custom_name);
+            material = this->InstantiateManagedMaterial(mat_name_base + "/simple", custom_name);
             if (material.isNull())
             {
                 return;
@@ -2571,7 +2549,7 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
     /* Finalize */
 
     material->compile();
-    m_material_substitutions.insert(std::make_pair(def.name, material));
+    m_managed_materials.insert(std::make_pair(def.name, material));
 }
 
 void RigSpawner::ProcessCollisionBox(RigDef::CollisionBox & def)
@@ -7093,37 +7071,154 @@ std::string RigSpawner::ProcessMessagesToString()
     return report.str();
 }
 
-Ogre::MaterialPtr RigSpawner::PersonalizeMaterial(std::string orig_name)
+RigDef::MaterialFlareBinding* RigSpawner::FindFlareBindingForMaterial(std::string const & material_name)
 {
-    if (orig_name == "")
-        return Ogre::MaterialPtr(); // NULL
+    for (auto& module: m_selected_modules)
+    {
+        for (auto& def: module->material_flare_bindings)
+        {
+            if (def.material_name == material_name)
+            {
+                return &def;
+            }
+        }
+    }
+    return nullptr;
+}
 
+RigDef::VideoCamera* RigSpawner::FindVideoCameraByMaterial(std::string const & material_name)
+{
+    for (auto& module: m_selected_modules)
+    {
+        for (auto& def: module->videocameras)
+        {
+            if (def.material_name == material_name)
+            {
+                return &def;
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+Ogre::MaterialPtr RigSpawner::FindOrCreateCustomizedMaterial(std::string mat_lookup_name)
+{
     try
     {
-        // Find the material
-        Ogre::MaterialPtr orig_mat = Ogre::MaterialManager::getSingleton().getByName(orig_name);
-        if (orig_mat.isNull())
-            return Ogre::MaterialPtr(); // NULL
-
         // Check for existing substitute
-        auto search_res = m_material_substitutions.find(orig_name);
-        if (search_res != m_material_substitutions.end())
+        auto lookup_res = m_material_substitutions.find(mat_lookup_name);
+        if (lookup_res != m_material_substitutions.end())
         {
-            return search_res->second;
+            return lookup_res->second.material;
         }
 
-        // Create new substitute
-        char name_buf[200];
-        snprintf(name_buf, 200, "%s%s%d", orig_name.c_str(), ACTOR_ID_TOKEN, m_rig->trucknum);
-        Ogre::MaterialPtr cloned_mat = orig_mat->clone(name_buf, true, m_rig->m_custom_resource_group);
-        m_material_substitutions.insert(std::make_pair(orig_name, cloned_mat));
-        return cloned_mat;
+        CustomMaterial lookup_entry;
+
+        // Query old-style mirrors (=special props, hardcoded material name 'mirror')
+        if (mat_lookup_name == "mirror")
+        {
+            lookup_entry.is_classic_mirror = true;
+            lookup_entry.material_flare_def = nullptr;
+            static int mirror_counter = 0;
+            const std::string new_mat_name = this->ComposeName("RenderMaterial", mirror_counter);
+            ++mirror_counter;
+            lookup_entry.material = Ogre::MaterialManager::getSingleton().getByName("BaseWhite")->clone(new_mat_name, true, m_custom_resource_group);
+            // Special case - register under generated name. This is because all mirrors use the same material 'mirror'
+            m_material_substitutions.insert(std::make_pair(new_mat_name, lookup_entry));
+            return lookup_entry.material; // Done!
+        }
+
+        // Query 'videocameras'
+        RigDef::VideoCamera* videocam_def = this->FindVideoCameraByMaterial(mat_lookup_name);
+        if (videocam_def != nullptr)
+        {
+            Ogre::MaterialPtr video_mat_shared = Ogre::MaterialManager::getSingleton().getByName(mat_lookup_name);
+            if (!video_mat_shared.isNull())
+            {
+                lookup_entry.video_camera_def = videocam_def;
+                const std::string video_mat_name = this->ComposeName(videocam_def->material_name.c_str(), 0);
+                lookup_entry.material = video_mat_shared->clone(video_mat_name, true, m_custom_resource_group);
+                m_material_substitutions.insert(std::make_pair(mat_lookup_name, lookup_entry));
+                return lookup_entry.material; // Done!
+            }
+            else
+            {
+                std::stringstream msg;
+                msg << "VideoCamera material '" << mat_lookup_name << "' not found! Ignoring videocamera.";
+                this->AddMessage(Message::TYPE_WARNING, msg.str());
+            }
+        }
+
+        // Resolve 'materialflarebindings'.
+        RigDef::MaterialFlareBinding* mat_flare_def = this->FindFlareBindingForMaterial(mat_lookup_name);
+        if (mat_flare_def != nullptr)
+        {
+            lookup_entry.material_flare_def = mat_flare_def;
+        }
+
+        // Query SkinZip materials
+        if (m_rig->usedSkin != nullptr)
+        {
+            auto skin_res = m_rig->usedSkin->replace_materials.find(mat_lookup_name);
+            if (skin_res != m_rig->usedSkin->replace_materials.end())
+            {
+                Ogre::MaterialPtr skin_mat = Ogre::MaterialManager::getSingleton().getByName(skin_res->second);
+                if (!skin_mat.isNull())
+                {
+                    std::stringstream name_buf;
+                    name_buf << videocam_def->material_name << ACTOR_ID_TOKEN << m_rig->trucknum;
+                    lookup_entry.material = skin_mat->clone(name_buf.str(), true, m_custom_resource_group);
+                    m_material_substitutions.insert(std::make_pair(mat_lookup_name, lookup_entry));
+                    return lookup_entry.material;
+                }
+                else
+                {
+                    std::stringstream buf;
+                    buf << "Material '" << skin_res->second << "' from skin '" << m_rig->usedSkin->name << "' not found! Ignoring it...";
+                    this->AddMessage(Message::TYPE_ERROR, buf.str());
+                }
+            }
+        }
+
+        // Acquire substitute - either use managedmaterial or generate new by cloning.
+        auto mmat_res = m_managed_materials.find(mat_lookup_name);
+        if (mmat_res != m_managed_materials.end())
+        {
+            // Use managedmaterial as substitute
+            lookup_entry.material = mmat_res->second;
+        }
+        else
+        {
+            // Generate new substitute
+            Ogre::MaterialPtr orig_mat = Ogre::MaterialManager::getSingleton().getByName(mat_lookup_name);
+            if (orig_mat.isNull())
+            {
+                std::stringstream buf;
+                buf << "Material doesn't exist:" << mat_lookup_name;
+                this->AddMessage(Message::TYPE_ERROR, buf.str());
+                return Ogre::MaterialPtr(); // NULL
+            }
+
+            std::stringstream name_buf;
+            name_buf << orig_mat->getName() << ACTOR_ID_TOKEN << m_rig->trucknum;
+            lookup_entry.material = orig_mat->clone(name_buf.str(), true, m_custom_resource_group);
+        }
+
+        // Finally, query SkinZip textures
+        if (m_rig->usedSkin != nullptr)
+        {
+            RoR::SkinManager::ReplaceMaterialTextures(m_rig->usedSkin, lookup_entry.material->getName());
+        }
+
+        m_material_substitutions.insert(std::make_pair(mat_lookup_name, lookup_entry)); // Register the substitute
+        return lookup_entry.material;
     }
     catch (Ogre::Exception& e)
     {
-        std::stringstream msg_buf;
-        msg_buf << "Exception while customizing material '" << orig_name << "', message: " << e.getFullDescription();
-        this->AddMessage(Message::TYPE_WARNING, msg_buf.str());
+        std::stringstream msg;
+        msg << "Exception while customizing material \"" << mat_lookup_name << "\", message: " << e.getFullDescription();
+        this->AddMessage(Message::TYPE_ERROR, msg.str());
     }
     return Ogre::MaterialPtr(); // NULL
 }
@@ -7144,6 +7239,8 @@ Ogre::MaterialPtr RigSpawner::CreateSimpleMaterial(Ogre::ColourValue color)
 
 void RigSpawner::SetupNewEntity(Ogre::Entity* ent, Ogre::ColourValue simple_color)
 {
+    // USE SIMPLE MATERIALS IF APPLICABLE
+
     if (m_apply_simple_materials)
     {
         Ogre::MaterialPtr mat = this->CreateSimpleMaterial(simple_color);
@@ -7169,57 +7266,68 @@ void RigSpawner::SetupNewEntity(Ogre::Entity* ent, Ogre::ColourValue simple_colo
         return; // Done!
     }
 
-    m_rig->materialFunctionMapper->replaceMeshMaterials(ent); // TODO: Make "materialflares" work with "skinzips" (skins)
-
-    // Create unique mesh materials
+    // PROCESS MESH MATERIALS
     Ogre::MeshPtr mesh = ent->getMesh();
     if (!mesh.isNull())
     {
-        size_t max = mesh->getNumSubMeshes();
-        for (size_t i = 0; i < max; ++i)
+        unsigned short max = mesh->getNumSubMeshes();
+        for (unsigned short i = 0; i < max; ++i)
         {
-            Ogre::SubMesh* submesh = mesh->getSubMesh(static_cast<unsigned short>(i));
+            Ogre::SubMesh* submesh = mesh->getSubMesh(i);
             if (submesh->getMaterialName() != "")
             {
-                Ogre::MaterialPtr own_mat = this->PersonalizeMaterial(submesh->getMaterialName());
+                Ogre::MaterialPtr own_mat = this->FindOrCreateCustomizedMaterial(submesh->getMaterialName());
                 if (!own_mat.isNull())
+                {
                     submesh->setMaterialName(own_mat->getName());
+                }
             }
         }
     }
 
-    // Create unique sub-entity materials. Take SkinZip into account.
+    // Create unique sub-entity materials.
     size_t subent_max = ent->getNumSubEntities();
     for (size_t i = 0; i < subent_max; ++i)
     {
         Ogre::SubEntity* subent = ent->getSubEntity(static_cast<unsigned short>(i));
         if (!subent->getMaterial().isNull())
         {
-            std::string own_mat_name = subent->getMaterialName();
-            if (m_rig->usedSkin != nullptr)
+            if (!subent->getMaterialName().empty())
             {
-                auto search_itor = m_rig->usedSkin->replace_materials.find(own_mat_name);
-                if (search_itor != m_rig->usedSkin->replace_materials.end())
+                Ogre::MaterialPtr own_mat = this->FindOrCreateCustomizedMaterial(subent->getMaterialName());
+                if (!own_mat.isNull())
                 {
-                    own_mat_name = search_itor->second;
+                    subent->setMaterial(own_mat);
                 }
-            }
-
-            Ogre::MaterialPtr own_mat = this->PersonalizeMaterial(own_mat_name);
-            if (!own_mat.isNull())
-            {
-                subent->setMaterial(own_mat);
-            }
-            else
-            {
-                this->AddMessage(Message::TYPE_WARNING,
-                    "Failed to substitute material '" + subent->getMaterialName() + "' with '" + own_mat_name + "'");
             }
         }
     }
+}
 
-    if (m_rig->usedSkin != nullptr)
+RoR::GfxActor* RigSpawner::FinalizeGfxSetup()
+{
+    // Check and warn if there are unclaimed managed materials
+    // TODO &*&*
+
+    // Create the actor
+    RoR::GfxActor* gfx_actor = new RoR::GfxActor(m_rig, m_custom_resource_group);
+
+    // Process special materials
+    for (auto& entry: m_material_substitutions)
     {
-        SkinManager::ApplySkinTextureReplacements(m_rig->usedSkin, ent);
+        if (entry.second.material_flare_def != nullptr) // 'materialflarebindings'
+        {
+            gfx_actor->AddMaterialFlare(entry.second.material_flare_def->flare_number, entry.second.material);
+        }
+        else if (entry.second.is_classic_mirror) // special 'prop' - rear view mirror
+        {
+            // TODO!
+        }
+        else if (entry.second.video_camera_def != nullptr) // 'videocameras'
+        {
+            // TODO!
+        }
     }
+
+    return gfx_actor;
 }

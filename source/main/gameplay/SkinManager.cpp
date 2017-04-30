@@ -184,7 +184,7 @@ void RoR::SkinManager::ApplySkinTextureReplacements(RoR::SkinDef* skin_def, Ogre
     {
         Ogre::SubEntity* sub_entity = e->getSubEntity(n);
         auto itor = skin_def->replace_materials.find(sub_entity->getMaterialName());
-        if (itor == not_found)
+        if (itor == not_found) // Only apply _texture_ replacements if there are no _material_ replacements
         {
             SkinManager::ReplaceMaterialTextures(skin_def, sub_entity->getMaterialName());
         }

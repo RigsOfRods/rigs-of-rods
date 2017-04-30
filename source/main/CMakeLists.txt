@@ -51,12 +51,12 @@ set( SOURCE_FILES
   gfx/DynamicLines.{h,cpp}
   gfx/DynamicRenderable.{h,cpp}
   gfx/EnvironmentMap.{h,cpp}
+  gfx/GfxActor.{h,cpp}
   gfx/GlowMaterialListener.h
   gfx/HDRListener.{h,cpp}
   gfx/Heathaze.{h,cpp}
   gfx/HydraxWater.{h,cpp}
   gfx/IWater.h
-  gfx/MaterialFunctionMapper.{h,cpp}
   gfx/Mirrors.{h,cpp}
   gfx/MovableText.{h,cpp}
   gfx/OgreSubsystem.{h,cpp}
