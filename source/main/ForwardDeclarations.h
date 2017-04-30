@@ -156,7 +156,6 @@ class HydraxWater;
 class Landusemap;
 class MapTextureCreator;
 class MaterialFunctionMapper;
-class MaterialReplacer;
 class MeshObject;
 class Mirror;
 class MumbleIntegration;

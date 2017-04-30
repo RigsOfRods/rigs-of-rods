@@ -28,7 +28,6 @@
 
 #include "Application.h"
 #include "MaterialFunctionMapper.h"
-#include "MaterialReplacer.h"
 #include "Settings.h"
 #include "TerrainManager.h"
 

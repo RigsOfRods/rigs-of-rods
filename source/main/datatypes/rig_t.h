@@ -272,7 +272,6 @@ struct rig_t
 
     float posnode_spawn_height;
 
-    MaterialReplacer *materialReplacer;
     Ogre::String subMeshGroundModelName;
 
     float odometerTotal;

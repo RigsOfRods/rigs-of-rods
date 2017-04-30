@@ -58,7 +58,6 @@
 #include "IHeightFinder.h"
 #include "InputEngine.h"
 #include "Language.h"
-#include "MaterialReplacer.h"
 #include "MeshObject.h"
 #include "Mirrors.h"
 #include "MovableText.h"
@@ -364,9 +363,6 @@ Beam::~Beam()
     {
         delete v;
     }
-
-    if (materialReplacer)
-        delete materialReplacer;
 
     if (intraPointCD)
         delete intraPointCD;

@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2015 Petr Ohlidal
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -51,7 +51,6 @@ public:
     ~SkinManager();
 
     void GetUsableSkins(std::string guid, std::vector<SkinDef *>& skins);
-    static void ApplySkinMaterialReplacements(SkinDef* skin_def, Ogre::Entity* e);
     static void ApplySkinTextureReplacements(SkinDef* skin_def, Ogre::Entity* e);
 
     // == Ogre::ResourceManager interface functions ==

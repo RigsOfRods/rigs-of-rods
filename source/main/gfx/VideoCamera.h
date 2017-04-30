@@ -39,7 +39,7 @@ public:
     void setActive(bool state);
     //static VideoCamera *setActive(bool state);
 
-    static VideoCamera* Setup(RigSpawner* rig_spawner, RigDef::VideoCamera& def);
+    static VideoCamera* Setup(RigSpawner* rig_spawner, Ogre::MaterialPtr own_material, RigDef::VideoCamera& def);
 
     int camNode, lookat, switchoff;
     float fov, minclip, maxclip;
@@ -58,6 +58,5 @@ protected:
     Ogre::MaterialPtr mat;
     bool debugMode;
     Ogre::SceneNode* debugNode;
-    MaterialReplacer* mr;
     Ogre::RenderWindow* rwMirror;
 };

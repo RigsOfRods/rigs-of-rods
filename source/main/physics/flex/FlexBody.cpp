@@ -23,7 +23,6 @@
 
 #include "ApproxMath.h"
 #include "FlexFactory.h"
-#include "MaterialReplacer.h"
 #include "RigDef_File.h"
 #include "RigLoadingProfilerControl.h"
 #include "BeamData.h"

@@ -29,7 +29,6 @@ set( SOURCE_FILES
   gameplay/ChatSystem.{h,cpp}
   gameplay/Landusemap.{h,cpp}
   gameplay/LandVehicleSimulation.{h,cpp}
-  gameplay/MaterialReplacer.{h,cpp}
   gameplay/OutProtocol.{h,cpp}
   gameplay/PositionStorage.{h,cpp}
   gameplay/ProceduralManager.{h,cpp}

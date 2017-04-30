@@ -51,7 +51,6 @@
 #include "GUI_GameConsole.h"
 #include "InputEngine.h"
 #include "MaterialFunctionMapper.h"
-#include "MaterialReplacer.h"
 #include "MeshObject.h"
 #include "PointColDetector.h"
 #include "RigLoadingProfilerControl.h"
@@ -305,8 +304,6 @@ void RigSpawner::InitializeRig()
     m_rig->lowestnode=0;
 
     m_rig->subMeshGroundModelName = "";
-
-    m_rig->materialReplacer = new MaterialReplacer();
 
 #ifdef USE_ANGELSCRIPT
     m_rig->vehicle_ai = new VehicleAI(m_rig);
@@ -1335,7 +1332,15 @@ void RigSpawner::ProcessVideoCamera(RigDef::VideoCamera & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    VideoCamera *v = VideoCamera::Setup(this, def);
+    // Find/create a custom material
+    Ogre::MaterialPtr mat = this->PersonalizeMaterial(def.material_name);
+    if (mat.isNull())
+    {
+        this->AddMessage(Message::TYPE_ERROR, "Failed to create VideoCamera with material: " + def.material_name);
+        return;
+    }
+
+    VideoCamera *v = VideoCamera::Setup(this, mat, def);
     if (v != nullptr)
     {
         m_rig->vidcams.push_back(v);
@@ -7142,15 +7147,7 @@ void RigSpawner::SetupNewEntity(Ogre::Entity* ent, Ogre::ColourValue simple_colo
         return; // Done!
     }
 
-    m_rig->materialReplacer->replaceMeshMaterials(ent);
-    if (m_rig->usedSkin != nullptr)
-    {
-        SkinManager::ApplySkinMaterialReplacements(m_rig->usedSkin, ent);
-    }
-    else
-    {
-        m_rig->materialFunctionMapper->replaceMeshMaterials(ent); // TODO: Make "materialflares" work with "skinzips" (skins)
-    }
+    m_rig->materialFunctionMapper->replaceMeshMaterials(ent); // TODO: Make "materialflares" work with "skinzips" (skins)
 
     // Create unique mesh materials
     Ogre::MeshPtr mesh = ent->getMesh();
@@ -7169,16 +7166,33 @@ void RigSpawner::SetupNewEntity(Ogre::Entity* ent, Ogre::ColourValue simple_colo
         }
     }
 
-    // Create unique sub-entity materials
+    // Create unique sub-entity materials. Take SkinZip into account.
     size_t subent_max = ent->getNumSubEntities();
     for (size_t i = 0; i < subent_max; ++i)
     {
         Ogre::SubEntity* subent = ent->getSubEntity(static_cast<unsigned short>(i));
         if (!subent->getMaterial().isNull())
         {
-            Ogre::MaterialPtr own_mat = this->PersonalizeMaterial(subent->getMaterialName());
+            std::string own_mat_name = subent->getMaterialName();
+            if (m_rig->usedSkin != nullptr)
+            {
+                auto search_itor = m_rig->usedSkin->replace_materials.find(own_mat_name);
+                if (search_itor != m_rig->usedSkin->replace_materials.end())
+                {
+                    own_mat_name = search_itor->second;
+                }
+            }
+
+            Ogre::MaterialPtr own_mat = this->PersonalizeMaterial(own_mat_name);
             if (!own_mat.isNull())
+            {
                 subent->setMaterial(own_mat);
+            }
+            else
+            {
+                this->AddMessage(Message::TYPE_WARNING,
+                    "Failed to substitute material '" + subent->getMaterialName() + "' with '" + own_mat_name + "'");
+            }
         }
     }
 

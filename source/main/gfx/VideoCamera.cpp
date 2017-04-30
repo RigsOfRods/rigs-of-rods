@@ -24,7 +24,6 @@
 #include "Beam.h"
 #include "BeamData.h"
 #include "GUIManager.h"
-#include "MaterialReplacer.h"
 #include "RigDef_File.h"
 #include "RigSpawner.h"
 #include "RoRFrameListener.h"
@@ -265,34 +264,11 @@ void VideoCamera::update(float dt)
     mVidCam->setPosition(pos);
 }
 
-VideoCamera* VideoCamera::Setup(RigSpawner* rig_spawner, RigDef::VideoCamera& def)
+VideoCamera* VideoCamera::Setup(RigSpawner* rig_spawner, Ogre::MaterialPtr own_material, RigDef::VideoCamera& def)
 {
     try
     {
-        Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(def.material_name);
-        if (mat.isNull())
-        {
-            std::stringstream msg;
-            msg << "Unknown material: '" << def.material_name << "', trying to continue...";
-            rig_spawner->AddMessage(RigSpawner::Message::TYPE_ERROR, msg.str());
-            return nullptr;
-        }
-
-        Beam* rig = rig_spawner->GetRig();
-
-        // clone the material to stay unique
-        std::stringstream mat_clone_name;
-        mat_clone_name << rig->truckname << def.material_name << "_" << counter;
-        counter++;
-        MaterialPtr mat_clone = rig_spawner->CloneMaterial(def.material_name, mat_clone_name.str());
-
-        /* we need to find and replace any materials that could come afterwards */
-        if (rig->materialReplacer != nullptr)
-        {
-            rig->materialReplacer->addMaterialReplace(mat->getName(), mat_clone_name.str());
-        }
-
-        VideoCamera* v = new VideoCamera(rig);
+        VideoCamera* v = new VideoCamera(rig_spawner->GetRig());
         v->fov = def.field_of_view;
         v->minclip = def.min_clip_distance;
         v->maxclip = def.max_clip_distance;
@@ -301,7 +277,7 @@ VideoCamera* VideoCamera::Setup(RigSpawner* rig_spawner, RigDef::VideoCamera& de
         v->nref = rig_spawner->GetNodeIndexOrThrow(def.reference_node);
         v->offset = def.offset;
         v->switchoff = def.camera_mode; // add performance switch off  ->meeds fix, only "always on" supported yet
-        v->materialName = mat_clone_name.str();
+        v->materialName = own_material->getName();
         v->mirrorSize = Vector2(def.texture_width, def.texture_height);
 
         /* camera name */
