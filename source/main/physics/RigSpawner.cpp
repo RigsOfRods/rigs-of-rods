@@ -227,7 +227,6 @@ void RigSpawner::InitializeRig()
     m_rig->odometerUser  = 0;
     m_rig->dashBoardLayouts.clear();
 
-    memset(m_rig->texname, 0, 1023);
     memset(m_rig->helpmat, 0, 255);
     
     m_rig->collrange=DEFAULT_COLLISION_RANGE;
@@ -294,7 +293,6 @@ void RigSpawner::InitializeRig()
     m_rig->advanced_node_drag=0;
     m_rig->advanced_total_drag=0;
     m_rig->freecamera=0;
-    m_rig->hasEmissivePass=0;
     m_rig->cabMesh = nullptr;
     m_rig->cabNode = nullptr;
     m_rig->cameranodepos[0]=-1;
@@ -525,33 +523,19 @@ void RigSpawner::FinalizeRig()
         //1: transparent (windows)
         //2: emissive
 
-        Ogre::MaterialPtr mat=Ogre::MaterialManager::getSingleton().getByName(m_rig->texname);
+        Ogre::MaterialPtr mat=Ogre::MaterialManager::getSingleton().getByName(m_cab_material_name);
         if (mat.isNull())
         {
-            
-
-            RoR::Console *console = RoR::App::GetConsole();
-            if (console) console->putMessage(
-                Console::CONSOLE_MSGTYPE_INFO, 
-                Console::CONSOLE_SYSTEM_ERROR, 
-                "unable to load vehicle (Material '"+Ogre::String(m_rig->texname)+"' missing!): " + m_rig->realtruckname, 
-                "error.png", 
-                30000, 
-                true
-            );
-            RoR::App::GetGuiManager()->PushNotification("Notice:", "unable to load vehicle (Material '" + Ogre::String(m_rig->texname) + "' missing!): " + m_rig->realtruckname);
-
-
-            Ogre::String msg = "Material '"+Ogre::String(m_rig->texname)+"' missing!";
+            Ogre::String msg = "Material '"+m_cab_material_name+"' missing!";
             AddMessage(Message::TYPE_ERROR, msg);
             return;
         }
 
         //-trans
         char transmatname[256];
-        sprintf(transmatname, "%s-trans", m_rig->texname);
+        sprintf(transmatname, "%s-trans", m_cab_material_name.c_str());
         Ogre::MaterialPtr transmat=mat->clone(transmatname);
-        if (mat->getTechnique(0)->getNumPasses()>1)
+        if (mat->getTechnique(0)->getNumPasses()>1) // If there's the "emissive pass", remove it from the 'transmat'
         {
             transmat->getTechnique(0)->removePass(1);
         }
@@ -562,12 +546,13 @@ void RigSpawner::FinalizeRig()
             transmat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_NONE);
         }
         transmat->compile();
+        m_cab_trans_material = transmat;
 
         //-back
         char backmatname[256];
-        sprintf(backmatname, "%s-back", m_rig->texname);
+        sprintf(backmatname, "%s-back", m_cab_material_name.c_str());
         Ogre::MaterialPtr backmat=mat->clone(backmatname);
-        if (mat->getTechnique(0)->getNumPasses()>1)
+        if (mat->getTechnique(0)->getNumPasses()>1)// If there's the "emissive pass", remove it from the 'transmat'
         {
             backmat->getTechnique(0)->removePass(1);
         }
@@ -587,17 +572,8 @@ void RigSpawner::FinalizeRig()
         }
         backmat->compile();
 
-        //-noem and -noem-trans
-        if (mat->getTechnique(0)->getNumPasses()>1)
-        {
-            m_rig->hasEmissivePass=1;
-            char clomatname[256];
-            sprintf(clomatname, "%s-noem", m_rig->texname);
-            Ogre::MaterialPtr clomat=mat->clone(clomatname);
-            clomat->getTechnique(0)->removePass(1);
-            clomat->compile();
-        }
-
+        char cab_material_name_cstr[1000] = {};
+        strncpy(cab_material_name_cstr, m_cab_material_name.c_str(), 999);
         std::string mesh_name = this->ComposeName("VehicleCabMesh", 0);
         m_rig->cabMesh =new FlexObj( // Names in FlexObj ctor
             m_rig->nodes,            // node_t* nds
@@ -605,7 +581,7 @@ void RigSpawner::FinalizeRig()
             m_rig->free_cab,         // int     numtriangles
             m_rig->cabs,             // int*    triangles
             m_oldstyle_cab_submeshes,// std::vector<CabSubmesh>& submeshes
-            m_rig->texname,          // char*   texname
+            cab_material_name_cstr,          // char*   texname
             mesh_name.c_str(),
             backmatname,             // char*   backtexname
             transmatname             // char*   transtexname
@@ -627,7 +603,6 @@ void RigSpawner::FinalizeRig()
             this->AddMessage(Message::TYPE_ERROR, "error loading mesh: "+mesh_name);
         }
         m_rig->cabEntity = ec;
-        
     };
 
     m_rig->lowestnode = FindLowestNodeInRig();
@@ -945,7 +920,7 @@ void RigSpawner::ProcessAirbrake(RigDef::Airbrake & def)
         def.width, 
         def.height,
         def.max_inclination_angle,
-        m_rig->texname,
+        m_cab_material_name,
         def.texcoord_x1,
         def.texcoord_y1,
         def.texcoord_x2,
@@ -987,7 +962,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
         node_indices[5],
         node_indices[6],
         node_indices[7],
-        m_rig->texname,
+        m_cab_material_name,
         Ogre::Vector2(def.tex_coords[0], def.tex_coords[1]),
         Ogre::Vector2(def.tex_coords[2], def.tex_coords[3]),
         Ogre::Vector2(def.tex_coords[4], def.tex_coords[5]),
@@ -6452,7 +6427,7 @@ void RigSpawner::ProcessGlobals(RigDef::Globals & def)
         Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(def.material_name); // Check if exists (compatibility)
         if (!mat.isNull())
         {
-            strncpy(m_rig->texname, def.material_name.c_str(), sizeof(m_rig->texname));
+            m_cab_material_name = def.material_name;
         }
         else
         {
@@ -6460,7 +6435,7 @@ void RigSpawner::ProcessGlobals(RigDef::Globals & def)
             msg << "Material '" << def.material_name << "' defined in section 'globals' not found. Trying material 'tracks/transred'";
             this->AddMessage(Message::TYPE_ERROR, msg.str());
 
-            strncpy(m_rig->texname, "tracks/transred", sizeof(m_rig->texname));
+            m_cab_material_name = "tracks/transred";
         }
     }
 }
@@ -7327,6 +7302,14 @@ RoR::GfxActor* RigSpawner::FinalizeGfxSetup()
         {
             // TODO!
         }
+    }
+
+    // Process "emissive cab" materials
+    if (m_rig->cabEntity != nullptr)
+    {
+        auto search_itor = m_material_substitutions.find(m_cab_material_name);
+        gfx_actor->RegisterCabMaterial(search_itor->second.material, m_cab_trans_material);
+        gfx_actor->SetCabLightsActive(false); // Reset emissive lights to "off" state
     }
 
     return gfx_actor;

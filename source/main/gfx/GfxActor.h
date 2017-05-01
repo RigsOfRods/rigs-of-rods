@@ -54,14 +54,23 @@ public:
 
     ~GfxActor();
 
-    void AddMaterialFlare(int flare_index, Ogre::MaterialPtr mat);
-    void SetMaterialFlareOn(int flare_index, bool state_on);
+    void                AddMaterialFlare(int flare_index, Ogre::MaterialPtr mat);
+    void                SetMaterialFlareOn(int flare_index, bool state_on);
+    void                RegisterCabMaterial(Ogre::MaterialPtr mat, Ogre::MaterialPtr mat_trans);
+    void                SetCabLightsActive(bool state_on);
+    Ogre::MaterialPtr&  GetCabTransMaterial() { return m_cab_mat_visual_trans; }
 
 private:
 
     Beam*           m_actor;
     std::string     m_custom_resource_group; ///< Stores OGRE resources individual to this actor
     std::vector<FlareMaterial>  m_flare_materials;
+
+    // Cab materials and their features
+    Ogre::MaterialPtr  m_cab_mat_visual; ///< Updated in-place from templates
+    Ogre::MaterialPtr  m_cab_mat_visual_trans;
+    Ogre::MaterialPtr  m_cab_mat_template_plain;
+    Ogre::MaterialPtr  m_cab_mat_template_emissive;
 };
 
 } // Namespace RoR

@@ -2986,12 +2986,9 @@ void Beam::prepareInside(bool inside)
         seatmat->setSceneBlending(SBT_REPLACE);
     }
 
-    if (cabNode)
+    if (cabNode != nullptr)
     {
-        char transmatname[256];
-        sprintf(transmatname, "%s-trans", texname);
-        MaterialPtr transmat = (MaterialPtr)(MaterialManager::getSingleton().getByName(transmatname));
-        transmat->setReceiveShadows(!inside);
+        m_gfx_actor->GetCabTransMaterial()->setReceiveShadows(!inside);
     }
 
     if (shadowOptimizations)
@@ -3038,23 +3035,6 @@ void Beam::lightsToggle()
                 flares[i].isVisible = false;
             }
         }
-        if (hasEmissivePass)
-        {
-            char clomatname[256] = {};
-            sprintf(clomatname, "%s-noem", texname);
-            if (cabNode && cabNode->numAttachedObjects())
-            {
-                Entity* ent = ((Entity*)(cabNode->getAttachedObject(0)));
-                int numsubent = ent->getNumSubEntities();
-                for (int i = 0; i < numsubent; i++)
-                {
-                    SubEntity* subent = ent->getSubEntity(i);
-                    if (!strcmp((subent->getMaterialName()).c_str(), texname))
-                        subent->setMaterialName(clomatname);
-                }
-                //			((Entity*)(cabNode->getAttachedObject(0)))->setMaterialName(clomatname);
-            }
-        }
     }
     else
     {
@@ -3069,24 +3049,9 @@ void Beam::lightsToggle()
                     flares[i].snode->attachObject(flares[i].bbs);
             }
         }
-        if (hasEmissivePass)
-        {
-            char clomatname[256] = {};
-            sprintf(clomatname, "%s-noem", texname);
-            if (cabNode && cabNode->numAttachedObjects())
-            {
-                Entity* ent = ((Entity*)(cabNode->getAttachedObject(0)));
-                int numsubent = ent->getNumSubEntities();
-                for (int i = 0; i < numsubent; i++)
-                {
-                    SubEntity* subent = ent->getSubEntity(i);
-                    if (!strcmp((subent->getMaterialName()).c_str(), clomatname))
-                        subent->setMaterialName(texname);
-                }
-                //			((Entity*)(cabNode->getAttachedObject(0)))->setMaterialName(texname);
-            }
-        }
     }
+
+    m_gfx_actor->SetCabLightsActive(lights != 0);
 
     TRIGGER_EVENT(SE_TRUCK_LIGHT_TOGGLE, trucknum);
 }

@@ -94,3 +94,40 @@ void RoR::GfxActor::SetMaterialFlareOn(int flare_index, bool state_on)
         } // for each technique
     }
 }
+
+void RoR::GfxActor::RegisterCabMaterial(Ogre::MaterialPtr mat, Ogre::MaterialPtr mat_trans)
+{
+    // Material instances of this actor
+    m_cab_mat_visual = mat;
+    m_cab_mat_visual_trans = mat_trans;
+
+    if (mat->getTechnique(0)->getNumPasses() == 1)
+        return; // No emissive pass -> nothing to do.
+
+    m_cab_mat_template_emissive = mat->clone("CabMaterialEmissive-" + mat->getName(), true, m_custom_resource_group);
+
+    m_cab_mat_template_plain = mat->clone("CabMaterialPlain-" + mat->getName(), true, m_custom_resource_group);
+    m_cab_mat_template_plain->getTechnique(0)->removePass(1);
+    m_cab_mat_template_plain->compile();
+}
+
+void RoR::GfxActor::SetCabLightsActive(bool state_on)
+{
+    if (m_cab_mat_template_emissive.isNull()) // Both this and '_plain' are only set when emissive pass is present.
+        return;
+
+    // NOTE: Updating material in-place like this is probably inefficient,
+    //       but in order to maintain all the existing material features working together,
+    //       we need to avoid any material swapping on runtime. ~ only_a_ptr, 05/2017
+    Ogre::MaterialPtr template_mat = (state_on) ? m_cab_mat_template_emissive : m_cab_mat_template_plain;
+    Ogre::Technique* dest_tech = m_cab_mat_visual->getTechnique(0);
+    Ogre::Technique* templ_tech = template_mat->getTechnique(0);
+    dest_tech->removeAllPasses();
+    for (unsigned short i = 0; i < templ_tech->getNumPasses(); ++i)
+    {
+        Ogre::Pass* templ_pass = templ_tech->getPass(i);
+        Ogre::Pass* dest_pass = dest_tech->createPass();
+        *dest_pass = *templ_pass; // Copy the pass! Reference: http://www.ogre3d.org/forums/viewtopic.php?f=2&t=83453
+    }
+    m_cab_mat_visual->compile();
+}

@@ -1086,6 +1086,8 @@ private:
     std::map<std::string, CustomMaterial> m_material_substitutions;
     std::map<std::string, Ogre::MaterialPtr> m_managed_materials;
     Ogre::MaterialPtr m_placeholder_managedmat;
+    std::string m_cab_material_name; ///< Original name defined in truckfile/globals.
+    Ogre::MaterialPtr m_cab_trans_material;
     std::string m_custom_resource_group;
     float m_wing_area;
     int m_airplane_left_light;

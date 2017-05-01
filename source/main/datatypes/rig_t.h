@@ -183,7 +183,6 @@ struct rig_t
     CmdKeyInertia *cmdInertia;
     float truckmass;
     float loadmass;
-    char texname[1024]; //!< Material name
     int trucknum;
     RoR::SkinDef* usedSkin;
     Buoyance *buoyance;
@@ -257,7 +256,6 @@ struct rig_t
     int cameranoderoll[MAX_CAMERAS];
     bool revroll[MAX_CAMERAS];
     bool shadowOptimizations;
-    int hasEmissivePass;
     FlexObj *cabMesh;
     Ogre::SceneNode *cabNode;
     Ogre::Entity *cabEntity;
