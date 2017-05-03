@@ -245,10 +245,6 @@ Beam::~Beam()
         skidtrails[i] = nullptr;
     }
 
-    // delete cablight
-    if (cablight)
-        gEnv->sceneManager->destroyLight(cablight);
-
     // delete props
     for (int i = 0; i < free_prop; i++)
     {
@@ -2952,12 +2948,6 @@ void Beam::prepareInside(bool inside)
 
     if (inside)
     {
-        if (lights && cablightNode && cablight)
-        {
-            cablightNode->setVisible(true);
-            cablight->setVisible(true);
-        }
-
         mCamera->setNearClipDistance(0.1f);
 
         // enable transparent seat
@@ -2970,12 +2960,6 @@ void Beam::prepareInside(bool inside)
         if (dash)
         {
             dash->setVisible(false);
-        }
-
-        if (cablightNode && cablight)
-        {
-            cablightNode->setVisible(false);
-            cablight->setVisible(false);
         }
 
         mCamera->setNearClipDistance(0.5f);
@@ -3019,8 +3003,6 @@ void Beam::lightsToggle()
         }
     }
     lights = !lights;
-    if (cablight && cablightNode && isInside)
-        cablightNode->setVisible((lights != 0));
     if (!lights)
     {
         for (int i = 0; i < free_flare; i++)

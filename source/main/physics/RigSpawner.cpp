@@ -258,8 +258,6 @@ void RigSpawner::InitializeRig()
     m_rig->hashelp=0;
     m_rig->cinecameranodepos[0]=-1;
     m_rig->freecinecamera=0;
-    m_rig->cablight = nullptr;
-    m_rig->cablightNode = nullptr;
     m_rig->deletion_sceneNodes.clear();
     m_rig->deletion_Objects.clear();
     m_rig->netCustomLightArray[0] = UINT_MAX;
@@ -321,8 +319,6 @@ void RigSpawner::InitializeRig()
     m_rig->antilockbrake = 0;
 
     m_rig->cabMesh = nullptr;
-    m_rig->cablight = nullptr;
-    m_rig->cablightNode = nullptr;
 
     m_rig->cc_mode = false;
     m_rig->cc_can_brake = false;
@@ -6365,25 +6361,6 @@ void RigSpawner::ProcessCinecam(RigDef::Cinecam & def)
         beam.k = def.spring;
         beam.d = def.damping;
         CreateBeamVisuals(beam, beam_index, def.beam_defaults);
-    }
-
-    /* Cabin light */
-    if ((App::GetGfxFlaresMode() >= App::GFX_FLARES_CURR_VEHICLE_HEAD_ONLY) && m_rig->cablight == nullptr)
-    {
-        std::stringstream light_name;
-        light_name << "cabinlight-" << m_rig->truckname;
-        m_rig->cablight = gEnv->sceneManager->createLight(light_name.str());
-        m_rig->cablight->setType(Ogre::Light::LT_POINT);
-        m_rig->cablight->setDiffuseColour( Ogre::ColourValue(0.4, 0.4, 0.3));
-        m_rig->cablight->setSpecularColour( Ogre::ColourValue(0.4, 0.4, 0.3));
-        m_rig->cablight->setAttenuation(20, 1, 0, 0);
-        m_rig->cablight->setCastShadows(false);
-        m_rig->cablight->setVisible(true);
-
-        m_rig->cablightNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-        m_rig->cablightNode->attachObject(m_rig->cablight);
-        m_rig->cablightNode->setVisible(false);
-        m_rig->deletion_sceneNodes.emplace_back(m_rig->cablightNode);
     }
 };
 
