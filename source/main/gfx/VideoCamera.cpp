@@ -157,11 +157,9 @@ void VideoCamera::init()
 
     if (debugMode)
     {
-        Entity* ent = gEnv->sceneManager->createEntity("debug-camera.mesh");
+        Ogre::ManualObject* mo = this->CreateVideocameraDebugMesh();
         debugNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-        ent->setMaterialName("ror-camera");
-        debugNode->attachObject(ent);
-        debugNode->setScale(0.1, 0.1, 0.1);
+        debugNode->attachObject(mo);
     }
 }
 
@@ -321,4 +319,48 @@ VideoCamera* VideoCamera::Setup(RigSpawner* rig_spawner, Ogre::MaterialPtr own_m
     {
         return nullptr;
     }
+}
+
+Ogre::ManualObject* VideoCamera::CreateVideocameraDebugMesh()
+{
+    // Create material
+    static size_t counter = 0;
+    Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create(
+        "VideoCamDebugMat-" + TOSTRING(counter), Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+    ++counter;
+    mat->getTechnique(0)->getPass(0)->createTextureUnitState();
+    mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_ANISOTROPIC);
+    mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureAnisotropy(3);
+    mat->setLightingEnabled(false);
+    mat->setReceiveShadows(false);
+    // Create mesh
+    Ogre::ManualObject* mo = gEnv->sceneManager->createManualObject(); // TODO: Eliminate gEnv
+    mo->begin(mat->getName(), Ogre::RenderOperation::OT_LINE_LIST);
+    Ogre::ColourValue pos_mark_col(1.f, 0.82f, 0.26f);
+    Ogre::ColourValue dir_mark_col(0.f, 1.f, 1.f); // TODO: This comes out green in simulation - why? ~ only_a_ptr, 05/2017
+    const float pos_mark_len = 0.8f;
+    const float dir_mark_len = 4.f;
+    // X
+    mo->position(pos_mark_len,0,0);
+    mo->colour(pos_mark_col);
+    mo->position(-pos_mark_len,0,0);
+    mo->colour(pos_mark_col);
+    // Y
+    mo->position(0,pos_mark_len,0);
+    mo->colour(pos_mark_col);
+    mo->position(0,-pos_mark_len,0);
+    mo->colour(pos_mark_col);
+    // +Z
+    mo->position(0,0,pos_mark_len);
+    mo->colour(pos_mark_col);
+    mo->position(0,0,0);
+    mo->colour(pos_mark_col);
+    // -Z = the direction
+    mo->position(0,0,-dir_mark_len);
+    mo->colour(dir_mark_col);
+    mo->position(0,0,0);
+    mo->colour(dir_mark_col);
+    mo->end(); // Don't forget this!
+
+    return mo;
 }

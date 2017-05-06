@@ -27,8 +27,6 @@
 
 class VideoCamera : public ZeroedMemoryAllocator
 {
-    friend class RigInspector;
-
 public:
     VideoCamera(rig_t* truck);
 
@@ -37,7 +35,6 @@ public:
     void update(float dt);
 
     void setActive(bool state);
-    //static VideoCamera *setActive(bool state);
 
     static VideoCamera* Setup(RigSpawner* rig_spawner, Ogre::MaterialPtr own_material, RigDef::VideoCamera& def);
 
@@ -50,7 +47,9 @@ public:
     int nz, ny, nref, camRole;
     Ogre::String materialName, disabledTexture, vidCamName;
 
-protected:
+private:
+    Ogre::ManualObject* CreateVideocameraDebugMesh();
+
     rig_t* truck;
     static int counter;
     Ogre::Camera* mVidCam;

@@ -642,6 +642,7 @@ static const char* CONF_LOG_RIG_IMPORT  = "RigImporter_PrintMessagesToLog";
 static const char* CONF_COLLISION_DBG   = "Debug Collisions";
 static const char* CONF_TRUCKMASS_DBG   = "Debug TruckMass";
 static const char* CONF_ENVMAP_DEBUG    = "EnvMapDebug";
+static const char* CONF_VIDEOCAM_DEBUG  = "VideoCameraDebug";
 static const char* CONF_PRESELECTED_TERRAIN     = "Preselected Map";
 static const char* CONF_PRESELECTED_TRUCK       = "Preselected Truck";
 static const char* CONF_PRESELECTED_TRUCK_CFG   = "Preselected TruckConfig";
@@ -721,6 +722,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (k == CONF_COLLISION_DBG   ) { App::SetDiagCollisions       (B(v)); return true; }
     if (k == CONF_TRUCKMASS_DBG   ) { App::SetDiagTruckMass        (B(v)); return true; }
     if (k == CONF_ENVMAP_DEBUG    ) { App::SetDiagEnvmap           (B(v)); return true; }
+    if (k == CONF_VIDEOCAM_DEBUG  ) { App::SetDiagVideoCameras     (B(v)); return true; }
     if (k == CONF_PRESELECTED_TERRAIN     ) { App::SetDiagPreselectedTerrain   (S(v)); return true; }
     if (k == CONF_PRESELECTED_TRUCK       ) { App::SetDiagPreselectedVehicle   (S(v)); return true; }
     if (k == CONF_PRESELECTED_TRUCK_CFG   ) { App::SetDiagPreselectedVehConfig (S(v)); return true; }
