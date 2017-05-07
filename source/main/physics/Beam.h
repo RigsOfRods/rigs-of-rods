@@ -147,7 +147,6 @@ public:
 
     void ForceFeedbackStep(int steps);
     void updateAngelScriptEvents(float dt);
-    void updateVideocameras(float dt);
     void handleResetRequests(float dt);
 
     void setupDefaultSoundSources();
@@ -494,8 +493,6 @@ public:
     Ogre::Vector3 cameranodeacc;
     int cameranodecount;
 
-    bool m_is_videocamera_disabled;
-
     int m_source_id;
     int m_stream_id;
     std::map<int, int> m_stream_results;
@@ -543,6 +540,7 @@ public:
     // Inline getters
     inline Ogre::SceneNode*                 getSceneNode()            { return beamsRoot; }
     inline RoR::PerVehicleCameraContext*    GetCameraContext()        { return &m_camera_context; }
+    inline RoR::GfxActor*                   GetGfxActor()             { return m_gfx_actor.get(); }
 
     DashBoardManager *dash;
 

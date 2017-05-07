@@ -1,5 +1,7 @@
 #include "GfxActor.h"
 
+#include "VideoCamera.h"
+
 #include <OgreResourceGroupManager.h>
 #include <OgreTechnique.h>
 #include <OgreTextureUnitState.h>
@@ -130,4 +132,34 @@ void RoR::GfxActor::SetCabLightsActive(bool state_on)
         *dest_pass = *templ_pass; // Copy the pass! Reference: http://www.ogre3d.org/forums/viewtopic.php?f=2&t=83453
     }
     m_cab_mat_visual->compile();
+}
+
+void RoR::GfxActor::AddVideoCamera(VideoCamera* vidcam)
+{
+    m_videocameras.push_back(vidcam);
+}
+
+void RoR::GfxActor::SetVideoCamState(VideoCamState state)
+{
+    if (state == m_vidcam_state)
+    {
+        return;
+    }
+
+    for (VideoCamera* vidcam: m_videocameras)
+    {
+        vidcam->VideoCameraSetActive(state == VideoCamState::VCSTATE_ENABLED_ONLINE);
+    }
+    m_vidcam_state = state;
+}
+
+void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
+{
+    if (m_vidcam_state != VideoCamState::VCSTATE_ENABLED_ONLINE)
+        return;
+
+    for (VideoCamera* vidcam: m_videocameras)
+    {
+        vidcam->VideoCameraUpdate(dt_sec);
+    }
 }

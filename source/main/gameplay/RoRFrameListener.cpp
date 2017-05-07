@@ -1179,8 +1179,14 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
 
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_VIDEOCAMERA, 0.5f))
                     {
-                        curr_truck->m_is_videocamera_disabled = !curr_truck->m_is_videocamera_disabled;
-                        LOG("m_is_videocamera_disabled: " + TOSTRING(curr_truck->m_is_videocamera_disabled));
+                        if (curr_truck->GetGfxActor()->GetVideoCamState() == GfxActor::VideoCamState::VCSTATE_DISABLED)
+                        {
+                            curr_truck->GetGfxActor()->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_ENABLED_ONLINE);
+                        }
+                        else
+                        {
+                            curr_truck->GetGfxActor()->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_DISABLED);
+                        }
                     }
 
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_BLINK_LEFT))
@@ -1634,9 +1640,9 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 
     Beam* curr_truck = m_beam_factory.getCurrentTruck();
 
-    if (curr_truck)
+    if (curr_truck != nullptr)
     {
-        curr_truck->updateVideocameras(dt);
+        curr_truck->GetGfxActor()->UpdateVideoCameras(dt);
     }
 
     // terrain updates
@@ -2034,6 +2040,11 @@ void RoRFrameListener::ChangedCurrentVehicle(Beam* previous_vehicle, Beam* curre
     if (current_vehicle == nullptr)
     {
         // getting outside
+        if (previous_vehicle->GetGfxActor()->GetVideoCamState() == GfxActor::VideoCamState::VCSTATE_ENABLED_ONLINE)
+        {
+            previous_vehicle->GetGfxActor()->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_ENABLED_OFFLINE);
+        }
+
         if (previous_vehicle && gEnv->player)
         {
             previous_vehicle->prepareInside(false);
@@ -2064,6 +2075,11 @@ void RoRFrameListener::ChangedCurrentVehicle(Beam* previous_vehicle, Beam* curre
         if (RoR::App::GetOverlayWrapper() && ! m_hide_gui)
         {
             RoR::App::GetOverlayWrapper()->showDashboardOverlays(true, current_vehicle);
+        }
+
+        if (current_vehicle->GetGfxActor()->GetVideoCamState() == GfxActor::VideoCamState::VCSTATE_ENABLED_OFFLINE)
+        {
+            current_vehicle->GetGfxActor()->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_ENABLED_ONLINE);
         }
 
         // force feedback

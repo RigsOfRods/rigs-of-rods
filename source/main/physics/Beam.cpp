@@ -353,11 +353,6 @@ Beam::~Beam()
         netMT = 0;
     }
 
-    for (VideoCamera* v : vidcams)
-    {
-        delete v;
-    }
-
     if (intraPointCD)
         delete intraPointCD;
     if (interPointCD)
@@ -1818,17 +1813,6 @@ void Beam::updateAngelScriptEvents(float dt)
         ScriptEngine::getSingleton().triggerEvent(SE_TRUCK_TOUCHED_WATER, trucknum);
     }
 #endif // USE_ANGELSCRIPT
-}
-
-void Beam::updateVideocameras(float dt)
-{
-    if (m_is_videocamera_disabled)
-        return;
-
-    for (VideoCamera* v : vidcams)
-    {
-        v->update(dt);
-    }
 }
 
 void Beam::handleResetRequests(float dt)
@@ -5629,7 +5613,6 @@ Beam::Beam(
     , m_custom_camera_node(-1)
     , m_hide_own_net_label(BSETTING("HideOwnNetLabel", false))
     , m_is_cinecam_rotation_center(false)
-    , m_is_videocamera_disabled(false)
     , m_preloaded_with_terrain(preloaded_with_terrain)
     , m_request_skeletonview_change(0)
     , m_reset_request(REQUEST_RESET_NONE)

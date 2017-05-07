@@ -165,7 +165,7 @@ void VideoCamera::init()
     }
 }
 
-void VideoCamera::setActive(bool state)
+void VideoCamera::VideoCameraSetActive(bool state)
 {
     if (rttTex)
     {
@@ -180,7 +180,7 @@ void VideoCamera::setActive(bool state)
         rwMirror->setActive(state);
 }
 
-void VideoCamera::update(float dt)
+void VideoCamera::VideoCameraUpdate(float dt)
 {
     if (RoR::App::GetActiveSimState() == RoR::App::SIM_STATE_PAUSED) { return; } // Do nothing when paused
 

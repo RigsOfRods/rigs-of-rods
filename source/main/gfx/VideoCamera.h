@@ -33,9 +33,9 @@ public:
 
     void init();
 
-    void update(float dt);
+    void VideoCameraUpdate(float dt);
 
-    void setActive(bool state);
+    void VideoCameraSetActive(bool state);
 
     /// Factory method
     static VideoCamera* CreateVideoCamera(RigSpawner* rig_spawner, Ogre::MaterialPtr own_material, RigDef::VideoCamera& def);

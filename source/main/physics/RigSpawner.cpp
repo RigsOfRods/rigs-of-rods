@@ -204,7 +204,6 @@ void RigSpawner::InitializeRig()
     memset(m_rig->skidtrails, 0, sizeof(Skidmark *) * (MAX_WHEELS*2));
     memset(m_rig->flexbodies, 0, sizeof(FlexBody *) * MAX_FLEXBODIES);
     m_rig->free_flexbody = 0;
-    m_rig->vidcams.clear();
     m_rig->description.clear();
     m_rig->free_axle = 0;
     m_rig->free_camerarail = 0;
@@ -7169,66 +7168,33 @@ Ogre::MaterialPtr RigSpawner::CreateSimpleMaterial(Ogre::ColourValue color)
 
 void RigSpawner::SetupNewEntity(Ogre::Entity* ent, Ogre::ColourValue simple_color)
 {
-    // USE SIMPLE MATERIALS IF APPLICABLE
-
+    // Use simple materials if applicable
     if (m_apply_simple_materials)
     {
         Ogre::MaterialPtr mat = this->CreateSimpleMaterial(simple_color);
 
-        Ogre::MeshPtr m = ent->getMesh();
-        if (!m.isNull())
+        const unsigned short num_sub_entities = ent->getNumSubEntities();
+        for (unsigned short i = 0; i < num_sub_entities; i++)
         {
-            const size_t num_submeshes = m->getNumSubMeshes();
-            for (size_t n = 0; n < num_submeshes; n++)
-            {
-                Ogre::SubMesh* sm = m->getSubMesh(static_cast<unsigned short>(n));
-                sm->setMaterialName(mat->getName());
-            }
-        }
-
-        const size_t num_sub_entities = ent->getNumSubEntities();
-        for (size_t n = 0; n < num_sub_entities; n++)
-        {
-            Ogre::SubEntity* subent = ent->getSubEntity(n);
+            Ogre::SubEntity* subent = ent->getSubEntity(i);
             subent->setMaterial(mat);
         }
 
         return; // Done!
     }
 
-    // PROCESS MESH MATERIALS
-    Ogre::MeshPtr mesh = ent->getMesh();
-    if (!mesh.isNull())
+    // Create unique sub-entity (=instance of submesh) materials
+    unsigned short subent_max = ent->getNumSubEntities();
+    for (unsigned short i = 0; i < subent_max; ++i)
     {
-        unsigned short max = mesh->getNumSubMeshes();
-        for (unsigned short i = 0; i < max; ++i)
-        {
-            Ogre::SubMesh* submesh = mesh->getSubMesh(i);
-            if (submesh->getMaterialName() != "")
-            {
-                Ogre::MaterialPtr own_mat = this->FindOrCreateCustomizedMaterial(submesh->getMaterialName());
-                if (!own_mat.isNull())
-                {
-                    submesh->setMaterialName(own_mat->getName());
-                }
-            }
-        }
-    }
+        Ogre::SubEntity* subent = ent->getSubEntity(i);
 
-    // Create unique sub-entity materials.
-    size_t subent_max = ent->getNumSubEntities();
-    for (size_t i = 0; i < subent_max; ++i)
-    {
-        Ogre::SubEntity* subent = ent->getSubEntity(static_cast<unsigned short>(i));
         if (!subent->getMaterial().isNull())
         {
-            if (!subent->getMaterialName().empty())
+            Ogre::MaterialPtr own_mat = this->FindOrCreateCustomizedMaterial(subent->getMaterialName());
+            if (!own_mat.isNull())
             {
-                Ogre::MaterialPtr own_mat = this->FindOrCreateCustomizedMaterial(subent->getMaterialName());
-                if (!own_mat.isNull())
-                {
-                    subent->setMaterial(own_mat);
-                }
+                subent->setMaterial(own_mat);
             }
         }
     }
