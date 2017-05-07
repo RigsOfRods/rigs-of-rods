@@ -2,6 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
+    Copyright 2016-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -36,7 +37,8 @@ public:
 
     void setActive(bool state);
 
-    static VideoCamera* Setup(RigSpawner* rig_spawner, Ogre::MaterialPtr own_material, RigDef::VideoCamera& def);
+    /// Factory method
+    static VideoCamera* CreateVideoCamera(RigSpawner* rig_spawner, Ogre::MaterialPtr own_material, RigDef::VideoCamera& def);
 
     int camNode, lookat, switchoff;
     float fov, minclip, maxclip;

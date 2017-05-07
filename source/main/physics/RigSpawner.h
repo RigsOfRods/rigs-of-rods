@@ -456,11 +456,6 @@ private:
     void ProcessTurboprop2(RigDef::Turboprop2 & def);
 
     /**
-    * Section 'videocamera'.
-    */
-    void ProcessVideoCamera(RigDef::VideoCamera & def);
-
-    /**
     * Section 'wheeldetachers' in all modules.
     */
     void ProcessWheelDetacher(RigDef::WheelDetacher & def);

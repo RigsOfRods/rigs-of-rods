@@ -317,10 +317,6 @@ rig_t *RigSpawner::SpawnRig()
     // Section 'turbojets'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_TURBOJETS, turbojets, ProcessTurbojet);
 
-    // Section 'videocamera'
-    // !!! MUST be processed before "props", otherwise they won't work
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_VIDEOCAMERA, videocameras, ProcessVideoCamera);
-
     // Section 'props'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_PROPS, props, ProcessProp);
 

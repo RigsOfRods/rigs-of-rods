@@ -2,6 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
+    Copyright 2016-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -24,6 +25,7 @@
 #include "Beam.h"
 #include "BeamData.h"
 #include "GUIManager.h"
+#include "OgreSubsystem.h"
 #include "RigDef_File.h"
 #include "RigSpawner.h"
 #include "RoRFrameListener.h"
@@ -262,7 +264,7 @@ void VideoCamera::update(float dt)
     mVidCam->setPosition(pos);
 }
 
-VideoCamera* VideoCamera::Setup(RigSpawner* rig_spawner, Ogre::MaterialPtr own_material, RigDef::VideoCamera& def)
+VideoCamera* VideoCamera::CreateVideoCamera(RigSpawner* rig_spawner, Ogre::MaterialPtr own_material, RigDef::VideoCamera& def)
 {
     try
     {

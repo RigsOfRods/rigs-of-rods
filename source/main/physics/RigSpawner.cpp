@@ -1303,29 +1303,6 @@ void RigSpawner::ProcessExtCamera(RigDef::ExtCamera & def)
     }
 }
 
-void RigSpawner::ProcessVideoCamera(RigDef::VideoCamera & def)
-{
-    SPAWNER_PROFILE_SCOPED();
-
-    // Find/create a custom material
-    Ogre::MaterialPtr mat = this->FindOrCreateCustomizedMaterial(def.material_name); // TODO: Temporary until project 'UniMat' is finished
-    if (mat.isNull())
-    {
-        this->AddMessage(Message::TYPE_ERROR, "Failed to create VideoCamera with material: " + def.material_name);
-        return;
-    }
-
-    VideoCamera *v = VideoCamera::Setup(this, mat, def);
-    if (v != nullptr)
-    {
-        m_rig->vidcams.push_back(v);
-    }
-    else
-    {
-        AddMessage(Message::TYPE_ERROR, "Failed to create video camera");
-    }
-}
-
 void RigSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
 {
     SPAWNER_PROFILE_SCOPED();
@@ -7289,6 +7266,45 @@ RoR::GfxActor* RigSpawner::FinalizeGfxSetup()
         gfx_actor->RegisterCabMaterial(search_itor->second.material, m_cab_trans_material);
         gfx_actor->SetCabLightsActive(false); // Reset emissive lights to "off" state
     }
+
+    // Process 'videocameras'
+    this->SetCurrentKeyword(RigDef::File::KEYWORD_VIDEOCAMERA); // Logging
+    for (auto& entry: m_material_substitutions)
+    {
+        RigDef::VideoCamera* def = entry.second.video_camera_def;
+        if (def == nullptr)
+        {
+            continue; // Not a videocamera material
+        }
+
+        try
+        {
+            // Find/create a custom material
+            Ogre::MaterialPtr mat = this->FindOrCreateCustomizedMaterial(def->material_name);
+            if (mat.isNull())
+            {
+                this->AddMessage(Message::TYPE_ERROR, "Failed to create VideoCamera with material: " + def->material_name);
+                continue;
+            }
+
+            VideoCamera *v = VideoCamera::CreateVideoCamera(this, mat, *def);
+            if (v == nullptr)
+            {
+                this->AddMessage(Message::TYPE_ERROR, "Failed to create video camera");
+                continue;
+            }
+            gfx_actor->AddVideoCamera(v);
+        }
+        catch (std::exception & ex)
+        {
+            this->AddMessage(Message::TYPE_ERROR, ex.what());
+        }
+        catch (...)
+        {
+            this->AddMessage(Message::TYPE_ERROR, "An unknown exception has occured");
+        }
+    }
+    this->SetCurrentKeyword(RigDef::File::KEYWORD_INVALID); // Logging
 
     return gfx_actor;
 }
