@@ -81,7 +81,6 @@
 #include "TurboJet.h"
 #include "TurboProp.h"
 #include "VehicleAI.h"
-#include "VideoCamera.h"
 #include "Water.h"
 #include "GUIManager.h"
 

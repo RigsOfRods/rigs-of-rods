@@ -63,7 +63,6 @@ set( SOURCE_FILES
   gfx/ShadowManager.{h,cpp}
   gfx/Skidmark.{h,cpp}
   gfx/SkyManager.{h,cpp}
-  gfx/VideoCamera.{h,cpp}
   gfx/Water.{h,cpp}
   gfx/camera/CameraBehaviorCharacter.{h,cpp}
   gfx/camera/CameraBehaviorFixed.{h,cpp}

@@ -1640,7 +1640,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 
     Beam* curr_truck = m_beam_factory.getCurrentTruck();
 
-    if (curr_truck != nullptr)
+    if ((curr_truck != nullptr) && (!simPAUSED(s)))
     {
         curr_truck->GetGfxActor()->UpdateVideoCameras(dt);
     }

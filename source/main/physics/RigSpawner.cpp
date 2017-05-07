@@ -66,8 +66,8 @@
 #include "TorqueCurve.h"
 #include "TurboJet.h"
 #include "TurboProp.h"
-#include "VideoCamera.h"
 #include "GUIManager.h"
+#include "Utils.h"
 
 #include <OgreMaterialManager.h>
 #include <OgreSceneManager.h>
@@ -608,7 +608,7 @@ void RigSpawner::FinalizeRig()
 
     m_flex_factory.SaveFlexbodiesToCache();
 
-    m_rig->m_gfx_actor = std::unique_ptr<RoR::GfxActor>(this->FinalizeGfxSetup());
+    this->FinalizeGfxSetup(); // Creates the GfxActor
 }
 
 /* -------------------------------------------------------------------------- */
@@ -7200,20 +7200,20 @@ void RigSpawner::SetupNewEntity(Ogre::Entity* ent, Ogre::ColourValue simple_colo
     }
 }
 
-RoR::GfxActor* RigSpawner::FinalizeGfxSetup()
+void RigSpawner::FinalizeGfxSetup()
 {
     // Check and warn if there are unclaimed managed materials
     // TODO &*&*
 
     // Create the actor
-    RoR::GfxActor* gfx_actor = new RoR::GfxActor(m_rig, m_custom_resource_group);
+    m_rig->m_gfx_actor = std::unique_ptr<RoR::GfxActor>(new RoR::GfxActor(m_rig, m_custom_resource_group));
 
     // Process special materials
     for (auto& entry: m_material_substitutions)
     {
         if (entry.second.material_flare_def != nullptr) // 'materialflarebindings'
         {
-            gfx_actor->AddMaterialFlare(entry.second.material_flare_def->flare_number, entry.second.material);
+            m_rig->m_gfx_actor->AddMaterialFlare(entry.second.material_flare_def->flare_number, entry.second.material);
         }
         else if (entry.second.is_classic_mirror) // special 'prop' - rear view mirror
         {
@@ -7221,7 +7221,9 @@ RoR::GfxActor* RigSpawner::FinalizeGfxSetup()
         }
         else if (entry.second.video_camera_def != nullptr) // 'videocameras'
         {
-            // TODO!
+            this->SetCurrentKeyword(RigDef::File::KEYWORD_VIDEOCAMERA); // Logging
+            this->CreateVideoCamera(entry.second.video_camera_def);
+            this->SetCurrentKeyword(RigDef::File::KEYWORD_INVALID); // Logging
         }
     }
 
@@ -7229,48 +7231,229 @@ RoR::GfxActor* RigSpawner::FinalizeGfxSetup()
     if (m_rig->cabEntity != nullptr)
     {
         auto search_itor = m_material_substitutions.find(m_cab_material_name);
-        gfx_actor->RegisterCabMaterial(search_itor->second.material, m_cab_trans_material);
-        gfx_actor->SetCabLightsActive(false); // Reset emissive lights to "off" state
+        m_rig->m_gfx_actor->RegisterCabMaterial(search_itor->second.material, m_cab_trans_material);
+        m_rig->m_gfx_actor->SetCabLightsActive(false); // Reset emissive lights to "off" state
     }
+}
 
-    // Process 'videocameras'
-    this->SetCurrentKeyword(RigDef::File::KEYWORD_VIDEOCAMERA); // Logging
-    for (auto& entry: m_material_substitutions)
+Ogre::ManualObject* CreateVideocameraDebugMesh()
+{
+    // Create material
+    static size_t counter = 0;
+    Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create(
+        "VideoCamDebugMat-" + TOSTRING(counter), Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+    ++counter;
+    mat->getTechnique(0)->getPass(0)->createTextureUnitState();
+    mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_ANISOTROPIC);
+    mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureAnisotropy(3);
+    mat->setLightingEnabled(false);
+    mat->setReceiveShadows(false);
+    // Create mesh
+    Ogre::ManualObject* mo = gEnv->sceneManager->createManualObject(); // TODO: Eliminate gEnv
+    mo->begin(mat->getName(), Ogre::RenderOperation::OT_LINE_LIST);
+    Ogre::ColourValue pos_mark_col(1.f, 0.82f, 0.26f);
+    Ogre::ColourValue dir_mark_col(0.f, 1.f, 1.f); // TODO: This comes out green in simulation - why? ~ only_a_ptr, 05/2017
+    const float pos_mark_len = 0.8f;
+    const float dir_mark_len = 4.f;
+    // X
+    mo->position(pos_mark_len,0,0);
+    mo->colour(pos_mark_col);
+    mo->position(-pos_mark_len,0,0);
+    mo->colour(pos_mark_col);
+    // Y
+    mo->position(0,pos_mark_len,0);
+    mo->colour(pos_mark_col);
+    mo->position(0,-pos_mark_len,0);
+    mo->colour(pos_mark_col);
+    // +Z
+    mo->position(0,0,pos_mark_len);
+    mo->colour(pos_mark_col);
+    mo->position(0,0,0);
+    mo->colour(pos_mark_col);
+    // -Z = the direction
+    mo->position(0,0,-dir_mark_len);
+    mo->colour(dir_mark_col);
+    mo->position(0,0,0);
+    mo->colour(dir_mark_col);
+    mo->end(); // Don't forget this!
+
+    return mo;
+}
+
+void RigSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
+{
+    try
     {
-        RigDef::VideoCamera* def = entry.second.video_camera_def;
-        if (def == nullptr)
+        GfxActor::VideoCamera vcam;
+        memset(&vcam, 0, sizeof(GfxActor::VideoCamera));
+
+        vcam.vcam_material = this->FindOrCreateCustomizedMaterial(def->material_name);
+        if (vcam.vcam_material.isNull())
         {
-            continue; // Not a videocamera material
+            this->AddMessage(Message::TYPE_ERROR, "Failed to create VideoCamera with material: " + def->material_name);
+            return;
         }
 
-        try
+        switch (def->camera_role)
         {
-            // Find/create a custom material
-            Ogre::MaterialPtr mat = this->FindOrCreateCustomizedMaterial(def->material_name);
-            if (mat.isNull())
+        case -1: vcam.vcam_type = GfxActor::VideoCamType::VCTYPE_VIDEOCAM;       break;
+        case  0: vcam.vcam_type = GfxActor::VideoCamType::VCTYPE_TRACKING_VIDEOCAM; break;
+        case  1: vcam.vcam_type = GfxActor::VideoCamType::VCTYPE_MIRROR;         break;
+        default:
+            this->AddMessage(Message::TYPE_ERROR, "VideoCamera (mat: " + def->material_name + ") has invalid 'role': " + TOSTRING(def->camera_role));
+            return;
+        }
+
+        vcam.vcam_node_center = &this->GetNodeOrThrow(def->reference_node);
+        vcam.vcam_node_dir_y  = &this->GetNodeOrThrow(def->bottom_node);
+        vcam.vcam_node_dir_z  = &this->GetNodeOrThrow(def->left_node);
+        vcam.vcam_pos_offset  = def->offset;
+
+        //rotate camera picture 180 degrees, skip for mirrors
+        float rotation_z = (def->camera_role != 1) ? def->rotation.z + 180 : def->rotation.z;
+        vcam.vcam_rotation
+            = Ogre::Quaternion(Ogre::Degree(rotation_z), Ogre::Vector3::UNIT_Z)
+            * Ogre::Quaternion(Ogre::Degree(def->rotation.y), Ogre::Vector3::UNIT_Y)
+            * Ogre::Quaternion(Ogre::Degree(def->rotation.x), Ogre::Vector3::UNIT_X);
+
+        // set alternative camposition (optional)
+        vcam.vcam_node_alt_pos = &this->GetNodeOrThrow(
+            def->alt_reference_node.IsValidAnyState() ? def->alt_reference_node : def->reference_node);
+
+        // set alternative lookat position (optional)
+        vcam.vcam_node_lookat = nullptr;
+        if (def->alt_orientation_node.IsValidAnyState())
+        {
+            // This is a tracker camera
+            vcam.vcam_type = GfxActor::VideoCamType::VCTYPE_TRACKING_VIDEOCAM;
+            vcam.vcam_node_lookat = &this->GetNodeOrThrow(def->alt_orientation_node);
+        }
+
+        // TODO: Eliminate gEnv
+        vcam.vcam_ogre_camera = gEnv->sceneManager->createCamera(vcam.vcam_material->getName() + "_camera");
+
+        bool useExternalMirrorWindow = BSETTING("UseVideocameraWindows", false);
+        bool fullscreenRW = BSETTING("VideoCameraFullscreen", false);
+
+        // check if this vidcamera is also affected
+        static int counter = 0;
+        if (useExternalMirrorWindow && fullscreenRW)
+        {
+            int monitor = ISETTING("VideoCameraMonitor_" + TOSTRING(counter), 0);
+            if (monitor < 0)
+                useExternalMirrorWindow = false;
+            // < 0 = fallback to texture
+        }
+
+        if (!useExternalMirrorWindow)
+        {
+            vcam.vcam_render_tex = Ogre::TextureManager::getSingleton().createManual(
+                vcam.vcam_material->getName() + "_texture",
+                Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+                Ogre::TEX_TYPE_2D,
+                def->texture_width,
+                def->texture_height,
+                0, // no mip maps
+                Ogre::PF_R8G8B8,
+                Ogre::TU_RENDERTARGET);
+            vcam.vcam_render_target = vcam.vcam_render_tex->getBuffer()->getRenderTarget();
+            vcam.vcam_render_target->setAutoUpdated(false);
+        }
+        else
+        {
+            Ogre::NameValuePairList misc;
+            if (!SSETTING("VideoCameraFSAA", "").empty())
+                misc["FSAA"] = SSETTING("VideoCameraFSAA", "");
+
+            if (!SSETTING("VideoCameraColourDepth", "").empty())
+                misc["colourDepth"] = SSETTING("VideoCameraColourDepth", "");
+            else
+                misc["colourDepth"] = "32";
+
+            if (ISETTING("VideoCameraLeft_" + TOSTRING(counter), 0) > 0)
+                misc["left"] = SSETTING("VideoCameraLeft_" + TOSTRING(counter), "");
+
+            if (ISETTING("VideoCameraTop_" + TOSTRING(counter), 0) > 0)
+                misc["top"] = SSETTING("VideoCameraTop_" + TOSTRING(counter), "");
+            if (!SSETTING("VideoCameraWindowBorder", "").empty())
+                misc["border"] = SSETTING("VideoCameraWindowBorder", ""); // fixes for windowed mode
+
+            misc["outerDimensions"] = "true"; // fixes for windowed mode
+
+            bool fullscreen = BSETTING("VideoCameraFullscreen", false);
+            if (fullscreen)
             {
-                this->AddMessage(Message::TYPE_ERROR, "Failed to create VideoCamera with material: " + def->material_name);
-                continue;
+                int monitor = ISETTING("VideoCameraMonitor_" + TOSTRING(counter), 0);
+                misc["monitorIndex"] = TOSTRING(monitor);
             }
 
-            VideoCamera *v = VideoCamera::CreateVideoCamera(this, mat, *def);
-            if (v == nullptr)
-            {
-                this->AddMessage(Message::TYPE_ERROR, "Failed to create video camera");
-                continue;
-            }
-            gfx_actor->AddVideoCamera(v);
+            const std::string window_name = (!def->camera_name.empty()) ? def->camera_name : def->material_name;
+            vcam.vcam_render_window = Ogre::Root::getSingleton().createRenderWindow(
+                window_name, def->texture_width, def->texture_height, fullscreen, &misc);
+
+            if (ISETTING("VideoCameraLeft_" + TOSTRING(counter), 0) > 0)
+                vcam.vcam_render_window->reposition(ISETTING("VideoCameraLeft_" + TOSTRING(counter), 0), ISETTING("VideoCameraTop_" + TOSTRING(counter), 0));
+
+            if (ISETTING("VideoCameraWidth_" + TOSTRING(counter), 0) > 0)
+                vcam.vcam_render_window->resize(ISETTING("VideoCameraWidth_" + TOSTRING(counter), 0), ISETTING("VideoCameraHeight_" + TOSTRING(counter), 0));
+
+            vcam.vcam_render_window->setAutoUpdated(false);
+            fixRenderWindowIcon(vcam.vcam_render_window); // Function from 'Utils.h'
+            vcam.vcam_render_window->setDeactivateOnFocusChange(false);
+            // TODO: disable texture mirrors
         }
-        catch (std::exception & ex)
+
+        vcam.vcam_ogre_camera->setNearClipDistance(def->min_clip_distance);
+        vcam.vcam_ogre_camera->setFarClipDistance(def->max_clip_distance);
+        vcam.vcam_ogre_camera->setFOVy(Ogre::Degree(def->field_of_view));
+        const float aspect_ratio = static_cast<float>(def->texture_width) / static_cast<float>(def->texture_height);
+        vcam.vcam_ogre_camera->setAspectRatio(aspect_ratio);
+
+        vcam.vcam_off_tex_name = vcam.vcam_material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->getTextureName();
+        vcam.vcam_material->getTechnique(0)->getPass(0)->setLightingEnabled(false);
+
+        if (vcam.vcam_render_target)
         {
-            this->AddMessage(Message::TYPE_ERROR, ex.what());
+            Ogre::Viewport* vp = vcam.vcam_render_target->addViewport(vcam.vcam_ogre_camera);
+            vp->setClearEveryFrame(true);
+            vp->setBackgroundColour(gEnv->mainCamera->getViewport()->getBackgroundColour());
+            vp->setVisibilityMask(~HIDE_MIRROR);
+            vp->setVisibilityMask(~DEPTHMAP_DISABLED);
+            vp->setOverlaysEnabled(false);
+
+            vcam.vcam_material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(vcam.vcam_render_tex->getName());
+
+            // this is a mirror, flip the image left<>right to have a mirror and not a cameraimage
+            if (def->camera_role == 1)
+                vcam.vcam_material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureUScale(-1);
         }
-        catch (...)
+
+        if (vcam.vcam_render_window)
         {
-            this->AddMessage(Message::TYPE_ERROR, "An unknown exception has occured");
+            Ogre::Viewport* vp = vcam.vcam_render_window->addViewport(vcam.vcam_ogre_camera);
+            vp->setClearEveryFrame(true);
+            vp->setBackgroundColour(gEnv->mainCamera->getViewport()->getBackgroundColour());
+            vp->setVisibilityMask(~HIDE_MIRROR);
+            vp->setVisibilityMask(~DEPTHMAP_DISABLED);
+            vp->setOverlaysEnabled(false);
+            vcam.vcam_material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(vcam.vcam_off_tex_name);
         }
+
+        if (App::GetDiagVideoCameras())
+        {
+            Ogre::ManualObject* mo = CreateVideocameraDebugMesh(); // local helper function
+            vcam.vcam_debug_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+            vcam.vcam_debug_node->attachObject(mo);
+        }
+
+        m_rig->m_gfx_actor->m_videocameras.push_back(vcam);
     }
-    this->SetCurrentKeyword(RigDef::File::KEYWORD_INVALID); // Logging
-
-    return gfx_actor;
+    catch (std::exception & ex)
+    {
+        this->AddMessage(Message::TYPE_ERROR, ex.what());
+    }
+    catch (...)
+    {
+        this->AddMessage(Message::TYPE_ERROR, "An unknown exception has occured");
+    }
 }

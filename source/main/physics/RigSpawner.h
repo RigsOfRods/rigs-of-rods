@@ -928,7 +928,7 @@ private:
     /**
     * Factory of GfxActor; invoke after all gfx setup was done.
     */
-    RoR::GfxActor* FinalizeGfxSetup();
+    void FinalizeGfxSetup();
 
     /**
     * Helper for 'SetupNewEntity()' - see it's doc.
@@ -940,6 +940,8 @@ private:
     RigDef::MaterialFlareBinding* FindFlareBindingForMaterial(std::string const & material_name); ///< Returns NULL if none found
 
     RigDef::VideoCamera* FindVideoCameraByMaterial(std::string const & material_name); ///< Returns NULL if none found
+
+    void CreateVideoCamera(RigDef::VideoCamera* def);
 
     /**
     * Creates name containing actor ID token, i.e. "Object_1@Actor_2"
