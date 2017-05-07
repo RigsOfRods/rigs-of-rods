@@ -24,10 +24,9 @@
 
 #include "MeshObject.h"
 
-#include <Ogre.h>
-
 #include "Application.h"
 #include "Settings.h"
+#include "OgreSubsystem.h"
 #include "TerrainManager.h"
 
 using namespace Ogre;
@@ -213,7 +212,7 @@ void MeshObject::loadMesh()
             {
                 SubMesh* sm = mesh->getSubMesh(i);
                 String materialName = sm->getMaterialName();
-                Ogre::MaterialPtr mat = static_cast<Ogre::MaterialPtr>(Ogre::MaterialManager::getSingleton().getByName(materialName)); //, resourceGroup));
+                Ogre::MaterialPtr mat = RoR::OgreSubsystem::GetMaterialByName(materialName);
                 if (mat.isNull())
                     continue;
                 for (int tn = 0; tn < mat->getNumTechniques(); tn++)

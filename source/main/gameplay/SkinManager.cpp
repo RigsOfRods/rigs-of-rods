@@ -20,6 +20,7 @@
 */
 
 #include "SkinManager.h"
+#include "OgreSubsystem.h"
 #include "Utils.h"
 
 #include <OgreEntity.h>
@@ -136,7 +137,7 @@ void RoR::SkinManager::GetUsableSkins(std::string guid, std::vector<SkinDef *> &
 void RoR::SkinManager::ReplaceMaterialTextures(SkinDef* skin_def, std::string materialName) // Static
 {
     const auto not_found = skin_def->replace_textures.end();
-    Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(materialName);
+    Ogre::MaterialPtr mat = RoR::OgreSubsystem::GetMaterialByName(materialName);
     if (!mat.isNull())
     {
         for (int t = 0; t < mat->getNumTechniques(); t++)

@@ -52,6 +52,7 @@
 #include "GUI_GameConsole.h"
 #include "InputEngine.h"
 #include "MeshObject.h"
+#include "OgreSubsystem.h"
 #include "PointColDetector.h"
 #include "RigLoadingProfilerControl.h"
 #include "RoRFrameListener.h"
@@ -411,12 +412,12 @@ void RigSpawner::InitializeRig()
     Ogre::ResourceGroupManager::getSingleton().createResourceGroup(grp_name.str());
     m_custom_resource_group = grp_name.str();
 
-    m_placeholder_managedmat = Ogre::MaterialManager::getSingleton().getByName("rigsofrods/managedmaterial-placeholder"); // Built-in
+    m_placeholder_managedmat = RoR::OgreSubsystem::GetMaterialByName("rigsofrods/managedmaterial-placeholder"); // Built-in
 
     m_apply_simple_materials = BSETTING("SimpleMaterials", false);
     if (m_apply_simple_materials)
     {
-        m_simple_material_base = Ogre::MaterialManager::getSingleton().getByName("tracks/simple"); // Built-in material
+        m_simple_material_base = RoR::OgreSubsystem::GetMaterialByName("tracks/simple"); // Built-in material
         if (m_simple_material_base.isNull())
         {
             this->AddMessage(Message::TYPE_INTERNAL_ERROR, "Failed to load built-in material 'tracks/simple'; disabling 'SimpleMaterials'");
@@ -519,7 +520,7 @@ void RigSpawner::FinalizeRig()
         //1: transparent (windows)
         //2: emissive
 
-        Ogre::MaterialPtr mat=Ogre::MaterialManager::getSingleton().getByName(m_cab_material_name);
+        Ogre::MaterialPtr mat = RoR::OgreSubsystem::GetMaterialByName(m_cab_material_name);
         if (mat.isNull())
         {
             Ogre::String msg = "Material '"+m_cab_material_name+"' missing!";
@@ -2384,7 +2385,7 @@ Ogre::MaterialPtr RigSpawner::InstantiateManagedMaterial(Ogre::String const & so
 {
     SPAWNER_PROFILE_SCOPED();
 
-    Ogre::MaterialPtr src_mat = Ogre::MaterialManager::getSingleton().getByName(source_name);
+    Ogre::MaterialPtr src_mat = RoR::OgreSubsystem::GetMaterialByName(source_name);
     if (src_mat.isNull())
     {
         std::stringstream msg;
@@ -2409,7 +2410,7 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
     // Create global placeholder
     // This is necessary to load meshes with original material names (= unchanged managed mat names)
     // - if not found, OGRE substitutes them with 'BaseWhite' which breaks subsequent processing.
-    if (Ogre::MaterialManager::getSingleton().getByName(def.name).isNull())
+    if (RoR::OgreSubsystem::GetMaterialByName(def.name).isNull())
     {
         m_placeholder_managedmat->clone(def.name);
     }
@@ -6401,7 +6402,7 @@ void RigSpawner::ProcessGlobals(RigDef::Globals & def)
     // NOTE: Don't do any material pre-processing here; it'll be done on actual entities (via `SetupNewEntity()`).
     if (! def.material_name.empty())
     {
-        Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(def.material_name); // Check if exists (compatibility)
+        Ogre::MaterialPtr mat = RoR::OgreSubsystem::GetMaterialByName(def.material_name); // Check if exists (compatibility)
         if (!mat.isNull())
         {
             m_cab_material_name = def.material_name;
@@ -7075,7 +7076,7 @@ Ogre::MaterialPtr RigSpawner::FindOrCreateCustomizedMaterial(std::string mat_loo
             static int mirror_counter = 0;
             const std::string new_mat_name = this->ComposeName("RenderMaterial", mirror_counter);
             ++mirror_counter;
-            lookup_entry.material = Ogre::MaterialManager::getSingleton().getByName("BaseWhite")->clone(new_mat_name, true, m_custom_resource_group);
+            lookup_entry.material = RoR::OgreSubsystem::GetMaterialByName("mirror")->clone(new_mat_name, true, m_custom_resource_group);
             // Special case - register under generated name. This is because all mirrors use the same material 'mirror'
             m_material_substitutions.insert(std::make_pair(new_mat_name, lookup_entry));
             return lookup_entry.material; // Done!
@@ -7085,7 +7086,7 @@ Ogre::MaterialPtr RigSpawner::FindOrCreateCustomizedMaterial(std::string mat_loo
         RigDef::VideoCamera* videocam_def = this->FindVideoCameraByMaterial(mat_lookup_name);
         if (videocam_def != nullptr)
         {
-            Ogre::MaterialPtr video_mat_shared = Ogre::MaterialManager::getSingleton().getByName(mat_lookup_name);
+            Ogre::MaterialPtr video_mat_shared = RoR::OgreSubsystem::GetMaterialByName(mat_lookup_name);
             if (!video_mat_shared.isNull())
             {
                 lookup_entry.video_camera_def = videocam_def;
@@ -7115,7 +7116,7 @@ Ogre::MaterialPtr RigSpawner::FindOrCreateCustomizedMaterial(std::string mat_loo
             auto skin_res = m_rig->usedSkin->replace_materials.find(mat_lookup_name);
             if (skin_res != m_rig->usedSkin->replace_materials.end())
             {
-                Ogre::MaterialPtr skin_mat = Ogre::MaterialManager::getSingleton().getByName(skin_res->second);
+                Ogre::MaterialPtr skin_mat = RoR::OgreSubsystem::GetMaterialByName(skin_res->second);
                 if (!skin_mat.isNull())
                 {
                     std::stringstream name_buf;
@@ -7143,7 +7144,7 @@ Ogre::MaterialPtr RigSpawner::FindOrCreateCustomizedMaterial(std::string mat_loo
         else
         {
             // Generate new substitute
-            Ogre::MaterialPtr orig_mat = Ogre::MaterialManager::getSingleton().getByName(mat_lookup_name);
+            Ogre::MaterialPtr orig_mat = RoR::OgreSubsystem::GetMaterialByName(mat_lookup_name);
             if (orig_mat.isNull())
             {
                 std::stringstream buf;

@@ -50,7 +50,7 @@ VideoCamera::VideoCamera(rig_t* truck) :
 
 void VideoCamera::init()
 {
-    mat = Ogre::MaterialManager::getSingleton().getByName(materialName);
+    mat = RoR::OgreSubsystem::GetMaterialByName(materialName);
 
     mVidCam = gEnv->sceneManager->createCamera(materialName + "_camera");
 

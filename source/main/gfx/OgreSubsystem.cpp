@@ -37,6 +37,7 @@
 
 #include <OgreRoot.h>
 #include <OgreConfigFile.h>
+#include <OgreMaterialManager.h>
 #include <OgreRenderWindow.h>
 #include <OgreTimer.h>
 
@@ -176,6 +177,13 @@ void OgreSubsystem::WindowResized(Ogre::Vector2 const & size)
 unsigned long OgreSubsystem::GetTimeSinceStartup() 
 { 
     return m_timer->getMilliseconds();
+}
+
+// static
+Ogre::MaterialPtr OgreSubsystem::GetMaterialByName(std::string const & name)
+{
+    // .getByName() returns Ogre::MaterialPtr under v1.9, but Ogre::ResourcePtr under v1.8
+    return static_cast<Ogre::MaterialPtr>(Ogre::MaterialManager::getSingleton().getByName(name));
 }
 
 } // namespace RoR
