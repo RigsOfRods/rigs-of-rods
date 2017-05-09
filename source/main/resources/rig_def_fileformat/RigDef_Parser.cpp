@@ -157,6 +157,7 @@ void Parser::ProcessCurrentLine()
 
             case (File::KEYWORD_AUTHOR):
                 ParseAuthor();
+                new_section = File::SECTION_NONE;
                 line_finished = true;
                 break;
 
@@ -307,11 +308,13 @@ void Parser::ProcessCurrentLine()
                     AddMessage(line, Message::TYPE_WARNING, "Inline section 'fileformatversion' has global effect and should not appear in a module");
                 }
                 ParseFileFormatVersion();
+                new_section = File::SECTION_NONE;
                 line_finished = true;
                 break;
 
             case (File::KEYWORD_FILEINFO):
                 ParseFileinfo();
+                new_section = File::SECTION_NONE;
                 line_finished = true;
                 break;
 
