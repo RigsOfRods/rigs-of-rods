@@ -68,7 +68,8 @@ public:
         VCTYPE_VIDEOCAM,
         VCTYPE_TRACKING_VIDEOCAM,
         VCTYPE_MIRROR,
-        VCTYPE_MIRROR_OLD, ///< The classic 'special prop/rear view mirror'
+        VCTYPE_MIRROR_PROP_LEFT, ///< The classic 'special prop/rear view mirror'
+        VCTYPE_MIRROR_PROP_RIGHT, ///< The classic 'special prop/rear view mirror'
     };
 
     /// An Ogre::Camera mounted on the actor and rendering into
@@ -90,6 +91,7 @@ public:
         Ogre::TexturePtr     vcam_render_tex;
         Ogre::SceneNode*     vcam_debug_node;    // old 'debugNode'
         Ogre::RenderWindow*  vcam_render_window; // old 'rwMirror'
+        Ogre::SceneNode*     vcam_prop_scenenode; // Only for type=MIRROR_PROP_*
     };
 
     GfxActor(Beam* actor, std::string ogre_resource_group):

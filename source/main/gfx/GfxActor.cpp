@@ -153,7 +153,7 @@ void RoR::GfxActor::SetVideoCamState(VideoCamState state)
 {
     if (state == m_vidcam_state)
     {
-        return;
+        return; // Nothing to do.
     }
 
     const bool enable = (state == VideoCamState::VCSTATE_ENABLED_ONLINE);
@@ -190,8 +190,41 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
         {
             gEnv->sky->notifyCameraChanged(vidcam.vcam_ogre_camera);
         }
-
 #endif // USE_CAELUM
+
+        if ((vidcam.vcam_type == VideoCamType::VCTYPE_MIRROR_PROP_LEFT)
+            || (vidcam.vcam_type == VideoCamType::VCTYPE_MIRROR_PROP_RIGHT))
+        {
+            // Mirror prop - special processing.
+            float mirror_angle = 0.f;
+            Ogre::Vector3 offset(Ogre::Vector3::ZERO);
+            if (vidcam.vcam_type == VideoCamType::VCTYPE_MIRROR_PROP_LEFT)
+            {
+                mirror_angle = m_actor->leftMirrorAngle;
+                offset = Ogre::Vector3(0.07f, -0.22f, 0);
+            }
+            else
+            {
+                mirror_angle = m_actor->rightMirrorAngle;
+                offset = Ogre::Vector3(0.07f, +0.22f, 0);
+            }
+
+            Ogre::Vector3 normal = vidcam.vcam_prop_scenenode->getOrientation()
+                    * Ogre::Vector3(cos(mirror_angle), sin(mirror_angle), 0.0f);
+            Ogre::Vector3 center = vidcam.vcam_prop_scenenode->getPosition()
+                    + vidcam.vcam_prop_scenenode->getOrientation() * offset;
+            Ogre::Radian roll = Ogre::Degree(360)
+                - Ogre::Radian(asin(m_actor->getDirection().dotProduct(Ogre::Vector3::UNIT_Y)));
+
+            Ogre::Plane plane = Ogre::Plane(normal, center);
+            Ogre::Vector3 project = plane.projectVector(gEnv->mainCamera->getPosition() - center);
+
+            vidcam.vcam_ogre_camera->setPosition(center);
+            vidcam.vcam_ogre_camera->lookAt(gEnv->mainCamera->getPosition() - 2.0f * project);
+            vidcam.vcam_ogre_camera->roll(roll);
+
+            continue; // Done processing mirror prop.
+        }
 
         // update the texture now, otherwise shuttering
         if (vidcam.vcam_render_target != nullptr)

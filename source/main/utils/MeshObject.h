@@ -39,8 +39,9 @@ public:
     void setCastShadows(bool b);
     void setMeshEnabled(bool e);
     void setVisible(bool b);
-    Ogre::MeshPtr getMesh() { return mesh; };
-    Ogre::Entity* getEntity() { return ent; };
+    inline Ogre::MeshPtr    getMesh() { return mesh; };
+    inline Ogre::Entity*    getEntity() { return ent; };
+    inline Ogre::SceneNode* GetSceneNode() { return sceneNode; }
 
 protected:
     Ogre::String meshName;

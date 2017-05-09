@@ -423,6 +423,9 @@ void RigSpawner::InitializeRig()
             m_apply_simple_materials = false;
         }
     }
+
+    m_curr_mirror_prop_type = CustomMaterial::MirrorPropType::MPROP_NONE;
+    m_curr_mirror_prop_scenenode = nullptr;
 }
 
 void RigSpawner::FinalizeRig()
@@ -1735,12 +1738,14 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
     if (def.special == RigDef::Prop::SPECIAL_MIRROR_LEFT)
     {
         prop.mirror = 1;
+        m_curr_mirror_prop_type = CustomMaterial::MirrorPropType::MPROP_LEFT;
     }
 
     /* Rear view mirror (right) */
     if (def.special == RigDef::Prop::SPECIAL_MIRROR_RIGHT)
     {
         prop.mirror = -1;
+        m_curr_mirror_prop_type = CustomMaterial::MirrorPropType::MPROP_RIGHT;
     }
 
     /* Custom steering wheel */
@@ -1928,10 +1933,17 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
                 prop.beacon_flare_billboard_scene_node[k]->setVisible(false);
             }
         }
+
+        if (m_curr_mirror_prop_type != CustomMaterial::MirrorPropType::MPROP_NONE)
+        {
+            m_curr_mirror_prop_scenenode = prop.mo->GetSceneNode();
+        }
         this->SetupNewEntity(prop.mo->getEntity(), Ogre::ColourValue(1.f, 1.f, 0.f));
     }
 
     ++m_rig->free_prop;
+    m_curr_mirror_prop_scenenode = nullptr;
+    m_curr_mirror_prop_type = CustomMaterial::MirrorPropType::MPROP_NONE;
 
     /* PROCESS ANIMATIONS */
 
@@ -7047,7 +7059,8 @@ Ogre::MaterialPtr RigSpawner::FindOrCreateCustomizedMaterial(std::string mat_loo
         // Query old-style mirrors (=special props, hardcoded material name 'mirror')
         if (mat_lookup_name == "mirror")
         {
-            lookup_entry.is_classic_mirror = true;
+            lookup_entry.mirror_prop_type = m_curr_mirror_prop_type;
+            lookup_entry.mirror_prop_scenenode = m_curr_mirror_prop_scenenode;
             lookup_entry.material_flare_def = nullptr;
             static int mirror_counter = 0;
             const std::string new_mat_name = this->ComposeName("RenderMaterial", mirror_counter);
@@ -7213,11 +7226,13 @@ void RigSpawner::FinalizeGfxSetup()
     {
         if (entry.second.material_flare_def != nullptr) // 'materialflarebindings'
         {
-            m_rig->m_gfx_actor->AddMaterialFlare(entry.second.material_flare_def->flare_number, entry.second.material);
+            m_rig->m_gfx_actor->AddMaterialFlare(
+                entry.second.material_flare_def->flare_number, entry.second.material);
         }
-        else if (entry.second.is_classic_mirror) // special 'prop' - rear view mirror
+        else if (entry.second.mirror_prop_type != CustomMaterial::MirrorPropType::MPROP_NONE) // special 'prop' - rear view mirror
         {
-            // TODO!
+            this->CreateMirrorPropVideoCam(
+                entry.second.material, entry.second.mirror_prop_type, entry.second.mirror_prop_scenenode);
         }
         else if (entry.second.video_camera_def != nullptr) // 'videocameras'
         {
@@ -7456,4 +7471,76 @@ void RigSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
     {
         this->AddMessage(Message::TYPE_ERROR, "An unknown exception has occured");
     }
+}
+
+void RigSpawner::CreateMirrorPropVideoCam(
+    Ogre::MaterialPtr custom_mat, CustomMaterial::MirrorPropType type, Ogre::SceneNode* prop_scenenode)
+{
+    static size_t mprop_counter = 0;
+    try
+    {
+        // Prepare videocamera entry
+        GfxActor::VideoCamera vcam;
+        memset(&vcam, 0, sizeof(GfxActor::VideoCamera));
+        vcam.vcam_off_tex_name = "mirror.dds";
+        vcam.vcam_prop_scenenode = prop_scenenode;
+        switch (type)
+        {
+        case CustomMaterial::MirrorPropType::MPROP_LEFT:
+            vcam.vcam_type = GfxActor::VideoCamType::VCTYPE_MIRROR_PROP_LEFT;
+            break;
+
+        case CustomMaterial::MirrorPropType::MPROP_RIGHT:
+            vcam.vcam_type = GfxActor::VideoCamType::VCTYPE_MIRROR_PROP_RIGHT;
+            break;
+
+        default:
+            this->AddMessage(Message::TYPE_ERROR, "Cannot create mirror prop of type 'MPROP_NONE'");
+            return;
+        }
+
+        // Setup material
+        vcam.vcam_material = custom_mat;
+        vcam.vcam_material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(vcam.vcam_off_tex_name);
+        vcam.vcam_material->getTechnique(0)->getPass(0)->setLightingEnabled(false);
+
+        // Create rendering texture
+        const std::string mirror_tex_name = this->ComposeName("MirrorPropTexture-", mprop_counter);
+        vcam.vcam_render_tex = Ogre::TextureManager::getSingleton().createManual(mirror_tex_name
+            , m_custom_resource_group
+            , Ogre::TEX_TYPE_2D
+            , 128
+            , 256
+            , 0
+            , Ogre::PF_R8G8B8
+            , Ogre::TU_RENDERTARGET);
+
+        // Create OGRE camera
+        vcam.vcam_ogre_camera = gEnv->sceneManager->createCamera(this->ComposeName("MirrorPropCamera-", mprop_counter));
+        vcam.vcam_ogre_camera->setNearClipDistance(0.2f);
+        vcam.vcam_ogre_camera->setFarClipDistance(gEnv->mainCamera->getFarClipDistance());
+        vcam.vcam_ogre_camera->setFOVy(Ogre::Degree(50));
+        vcam.vcam_ogre_camera->setAspectRatio(
+            (gEnv->mainCamera->getViewport()->getActualWidth() / gEnv->mainCamera->getViewport()->getActualHeight()) / 2.0f);
+
+        // Setup rendering
+        vcam.vcam_render_target = vcam.vcam_render_tex->getBuffer()->getRenderTarget();
+        vcam.vcam_render_target->setActive(false);
+        Ogre::Viewport* v = vcam.vcam_render_target->addViewport(vcam.vcam_ogre_camera);
+        v->setClearEveryFrame(true);
+        v->setBackgroundColour(gEnv->mainCamera->getViewport()->getBackgroundColour());
+        v->setOverlaysEnabled(false);
+
+        // Submit the videocamera
+        m_rig->m_gfx_actor->m_videocameras.push_back(vcam);
+    }
+    catch (std::exception & ex)
+    {
+        this->AddMessage(Message::TYPE_ERROR, ex.what());
+    }
+    catch (...)
+    {
+        this->AddMessage(Message::TYPE_ERROR, "An unknown exception has occured");
+    }
+    ++mprop_counter;
 }

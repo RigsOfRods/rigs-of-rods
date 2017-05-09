@@ -36,7 +36,7 @@
 #include "GUI_TopMenubar.h"
 #include "Language.h"
 #include "MainMenu.h"
-#include "Mirrors.h"
+
 #include "Network.h"
 #include "PointColDetector.h"
 #include "RigLoadingProfiler.h"
@@ -1017,10 +1017,6 @@ void BeamFactory::updateVisual(float dt)
             m_trucks[t]->updateFlares(dt, (t == m_current_truck));
         }
     }
-
-    m_sim_controller->GetLegacyMirrors()->Update(getCurrentTruck(),
-        gEnv->mainCamera->getPosition(), gEnv->mainCamera->getDirection(), // Temporary mess ~ only_a_ptr. 01/2017
-        gEnv->mainCamera->getFOVy(), gEnv->mainCamera->getAspectRatio());  // Temporary mess
 }
 
 void BeamFactory::update(float dt)

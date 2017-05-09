@@ -155,23 +155,33 @@ private:
 
     struct CustomMaterial
     {
+        enum class MirrorPropType
+        {
+            MPROP_NONE,
+            MPROP_LEFT,
+            MPROP_RIGHT,
+        };
+
         CustomMaterial():
             material_flare_def(nullptr),
             video_camera_def(nullptr),
-            is_classic_mirror(false)
+            mirror_prop_type(MirrorPropType::MPROP_NONE),
+            mirror_prop_scenenode(nullptr)
         {}
 
         CustomMaterial(Ogre::MaterialPtr& mat):
             material(mat),
             material_flare_def(nullptr),
             video_camera_def(nullptr),
-            is_classic_mirror(false)
+            mirror_prop_type(MirrorPropType::MPROP_NONE),
+            mirror_prop_scenenode(nullptr)
         {}
 
         Ogre::MaterialPtr              material;
         RigDef::MaterialFlareBinding*  material_flare_def;
         RigDef::VideoCamera*           video_camera_def;
-        bool                           is_classic_mirror;
+        MirrorPropType                 mirror_prop_type;
+        Ogre::SceneNode*               mirror_prop_scenenode;
     };
 
 /* -------------------------------------------------------------------------- */
@@ -859,8 +869,6 @@ private:
     */
     int FindLowestContactingNodeInRig();
 
-    //void SetBeamPlasticCoefficient(beam_t & beam, std::shared_ptr<RigDef::BeamDefaults> beam_defaults);
-
     /**
     * Checks a section only appears in one module and reports a warning if not.
     */
@@ -942,6 +950,7 @@ private:
     RigDef::VideoCamera* FindVideoCameraByMaterial(std::string const & material_name); ///< Returns NULL if none found
 
     void CreateVideoCamera(RigDef::VideoCamera* def);
+    void CreateMirrorPropVideoCam(Ogre::MaterialPtr custom_mat, CustomMaterial::MirrorPropType type, Ogre::SceneNode* prop_scenenode);
 
     /**
     * Creates name containing actor ID token, i.e. "Object_1@Actor_2"
@@ -1085,6 +1094,8 @@ private:
     Ogre::MaterialPtr m_placeholder_managedmat;
     std::string m_cab_material_name; ///< Original name defined in truckfile/globals.
     Ogre::MaterialPtr m_cab_trans_material;
+    CustomMaterial::MirrorPropType m_curr_mirror_prop_type;
+    Ogre::SceneNode* m_curr_mirror_prop_scenenode;
     std::string m_custom_resource_group;
     float m_wing_area;
     int m_airplane_left_light;

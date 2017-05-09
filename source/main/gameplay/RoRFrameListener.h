@@ -22,7 +22,7 @@
 
 #include "RoRPrerequisites.h"
 #include "ForceFeedback.h"
-#include "Mirrors.h"
+
 #include "CharacterFactory.h"
 #include "BeamFactory.h"
 
@@ -61,7 +61,6 @@ public:
     bool   SetupGameplayLoop     ();
     void   EnterGameplayLoop     ();
 
-    RoR::LegacyRearViewMirrors* GetLegacyMirrors() { return &m_legacy_mirrors; }
     RoR::BeamFactory*           GetBeamFactory  () { return &m_beam_factory; }
     RoR::SkidmarkConfig*        GetSkidmarkConf () { return m_skidmark_conf; }
 
@@ -96,7 +95,6 @@ protected:
     bool                     m_was_app_window_closed;
     bool                     m_truck_info_on;
     bool                     m_pressure_pressed;
-    RoR::LegacyRearViewMirrors m_legacy_mirrors;
 
     CacheEntry*              m_last_cache_selection;
     RoR::SkinDef*            m_last_skin_selection;

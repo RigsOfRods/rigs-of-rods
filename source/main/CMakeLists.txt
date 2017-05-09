@@ -57,7 +57,6 @@ set( SOURCE_FILES
   gfx/Heathaze.{h,cpp}
   gfx/HydraxWater.{h,cpp}
   gfx/IWater.h
-  gfx/Mirrors.{h,cpp}
   gfx/MovableText.{h,cpp}
   gfx/OgreSubsystem.{h,cpp}
   gfx/ShadowManager.{h,cpp}

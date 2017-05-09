@@ -52,7 +52,7 @@
 #include "InputEngine.h"
 #include "Language.h"
 #include "MumbleIntegration.h"
-#include "Mirrors.h"
+
 #include "Network.h"
 #include "OgreSubsystem.h"
 #include "OverlayWrapper.h"

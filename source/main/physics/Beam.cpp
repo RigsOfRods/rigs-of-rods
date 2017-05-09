@@ -60,7 +60,7 @@
 #include "InputEngine.h"
 #include "Language.h"
 #include "MeshObject.h"
-#include "Mirrors.h"
+
 #include "MovableText.h"
 #include "Network.h"
 #include "PointColDetector.h"
@@ -2962,8 +2962,6 @@ void Beam::prepareInside(bool inside)
     {
         SetPropsCastShadows(!inside);
     }
-
-    m_sim_controller->GetLegacyMirrors()->SetActive(inside);
 }
 
 void Beam::lightsToggle()
