@@ -60,7 +60,8 @@ public:
         CAMERA_BEHAVIOR_END,
         CAMERA_BEHAVIOR_FREE,
         CAMERA_BEHAVIOR_FIXED,
-        CAMERA_BEHAVIOR_ISOMETRIC
+        CAMERA_BEHAVIOR_ISOMETRIC,
+        CAMERA_BEHAVIOR_INVALID = 0xFFFFFFFF,
     };
 
     bool Update(float dt, Beam* cur_truck, float sim_speed);
@@ -94,6 +95,8 @@ protected:
 
     int currentBehaviorID;
     IBehavior<CameraContext>* currentBehavior;
+    CameraBehaviors m_cam_before_free;  ///< Activated by toggling; remembers previous mode.
+    CameraBehaviors m_cam_before_fixed; ///< Activated by toggling; remembers previous mode.
     // Global behaviors
     IBehavior<CameraContext>* m_cam_behav_character;
     IBehavior<CameraContext>* m_cam_behav_static;

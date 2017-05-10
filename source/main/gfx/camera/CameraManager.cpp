@@ -46,6 +46,8 @@ using namespace RoR;
 CameraManager::CameraManager() : 
       currentBehavior(nullptr)
     , currentBehaviorID(-1)
+    , m_cam_before_free(CAMERA_BEHAVIOR_INVALID)
+    , m_cam_before_fixed(CAMERA_BEHAVIOR_INVALID)
     , mTransScale(1.0f)
     , mTransSpeed(50.0f)
     , mRotScale(0.1f)
@@ -213,22 +215,37 @@ void CameraManager::SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset,
 
 void CameraManager::toggleBehavior(int behavior)
 {
-    static std::stack<int> precedingBehaviors;
-
-    if ( behavior != currentBehaviorID && (precedingBehaviors.empty() || precedingBehaviors.top() != behavior))
+    switch (behavior)
     {
-        if ( currentBehaviorID >= 0 )
+    case CAMERA_BEHAVIOR_FIXED:
+        if (currentBehaviorID == CAMERA_BEHAVIOR_FIXED)
         {
-            precedingBehaviors.push(currentBehaviorID);
+            this->switchBehavior(m_cam_before_fixed);
+            m_cam_before_fixed = CAMERA_BEHAVIOR_INVALID;
         }
-        switchBehavior(behavior);
-    } else if ( !precedingBehaviors.empty() )
-    {
-        switchBehavior(precedingBehaviors.top(), false);
-        precedingBehaviors.pop();
-    } else
-    {
-        switchToNextBehavior();
+        else
+        {
+            m_cam_before_fixed = static_cast<CameraBehaviors>(currentBehaviorID);
+            this->switchBehavior(CAMERA_BEHAVIOR_FIXED);
+        }
+        return;
+
+    case CAMERA_BEHAVIOR_FREE:
+        if (currentBehaviorID == CAMERA_BEHAVIOR_FREE)
+        {
+            this->switchBehavior(m_cam_before_free);
+            m_cam_before_free = CAMERA_BEHAVIOR_INVALID;
+        }
+        else
+        {
+            m_cam_before_free = static_cast<CameraBehaviors>(currentBehaviorID);
+            this->switchBehavior(CAMERA_BEHAVIOR_FREE);
+        }
+        return;
+
+    default:
+        this->switchToNextBehavior();
+        return;
     }
 }
 
