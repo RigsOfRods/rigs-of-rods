@@ -91,10 +91,6 @@ void CameraManager::SetSimController(RoRFrameListener* sim)
 
 bool CameraManager::Update(float dt, Beam* cur_truck, float sim_speed) // Called every frame
 {
-    if (RoR::App::GetActiveSimState() == RoR::App::SIM_STATE_PAUSED) { return true; } // Do nothing when paused
-
-    if ( dt == 0 ) return false;
-
     mTransScale = mTransSpeed  * dt;
     mRotScale   = mRotateSpeed * dt;
 
