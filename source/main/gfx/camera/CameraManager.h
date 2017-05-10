@@ -83,8 +83,9 @@ public:
 
 protected:
 
-    void createGlobalBehaviors();
     void SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset, Beam* old_vehicle, Beam* new_vehicle);
+
+    IBehavior<CameraContext>* FindBehavior(int behaviorID); // TODO: eliminate the `int ID`
 
     CameraContext ctx;
 
@@ -93,8 +94,15 @@ protected:
 
     int currentBehaviorID;
     IBehavior<CameraContext>* currentBehavior;
-
-    std::map<int, IBehavior<CameraContext> *> globalBehaviors;
+    // Global behaviors
+    IBehavior<CameraContext>* m_cam_behav_character;
+    IBehavior<CameraContext>* m_cam_behav_static;
+    IBehavior<CameraContext>* m_cam_behav_vehicle;
+    IBehavior<CameraContext>* m_cam_behav_vehicle_spline;
+    IBehavior<CameraContext>* m_cam_behav_vehicle_cinecam;
+    IBehavior<CameraContext>* m_cam_behav_free;
+    IBehavior<CameraContext>* m_cam_behav_fixed;
+    IBehavior<CameraContext>* m_cam_behav_isometric;
 
     bool m_config_enter_vehicle_keep_fixedfreecam;
     bool m_config_exit_vehicle_keep_fixedfreecam;

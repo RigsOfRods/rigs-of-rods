@@ -53,7 +53,15 @@ CameraManager::CameraManager() :
     , m_config_exit_vehicle_keep_fixedfreecam(false)
     , mRotateSpeed(100.0f)
 {
-    createGlobalBehaviors();
+    // Create global behaviors
+    m_cam_behav_character        = new CameraBehaviorCharacter();
+    m_cam_behav_static           = new CameraBehaviorStatic();
+    m_cam_behav_vehicle          = new CameraBehaviorVehicle();
+    m_cam_behav_vehicle_spline   = new CameraBehaviorVehicleSpline();
+    m_cam_behav_vehicle_cinecam  = new CameraBehaviorVehicleCineCam(this);
+    m_cam_behav_free             = new CameraBehaviorFree();
+    m_cam_behav_fixed            = new CameraBehaviorFixed();
+    m_cam_behav_isometric        = new CameraBehaviorIsometric();
 
     ctx.mCurrTruck = 0;
     ctx.mDof = 0;
@@ -71,12 +79,14 @@ CameraManager::CameraManager() :
 
 CameraManager::~CameraManager()
 {
-    for (std::map <int , IBehavior<CameraContext> *>::iterator it = globalBehaviors.begin(); it != globalBehaviors.end(); ++it)
-    {
-        delete it->second;
-    }
-
-    globalBehaviors.clear();
+    delete m_cam_behav_character;
+    delete m_cam_behav_static;
+    delete m_cam_behav_vehicle;
+    delete m_cam_behav_vehicle_spline;
+    delete m_cam_behav_vehicle_cinecam;
+    delete m_cam_behav_free;
+    delete m_cam_behav_fixed;
+    delete m_cam_behav_isometric;
 
     delete ctx.mDof;
 }
@@ -144,7 +154,8 @@ void CameraManager::switchBehavior(int newBehaviorID, bool reset)
         return;
     }
 
-    if ( globalBehaviors.find(newBehaviorID) == globalBehaviors.end() )
+    auto* new_behav = this->FindBehavior(newBehaviorID);
+    if ( new_behav == nullptr )
     {
         return;
     }
@@ -156,7 +167,7 @@ void CameraManager::switchBehavior(int newBehaviorID, bool reset)
     }
 
     // set new
-    currentBehavior = globalBehaviors[newBehaviorID];
+    currentBehavior = new_behav;
     currentBehaviorID = newBehaviorID;
 
     // activate new
@@ -178,7 +189,8 @@ void CameraManager::SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset,
         return;
     }
 
-    if ( globalBehaviors.find(newBehaviorID) == globalBehaviors.end() )
+    auto* new_behav = this->FindBehavior(newBehaviorID);
+    if ( new_behav == nullptr )
     {
         return;
     }
@@ -191,7 +203,7 @@ void CameraManager::SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset,
     }
 
     // set new
-    currentBehavior = globalBehaviors[newBehaviorID];
+    currentBehavior = new_behav;
     currentBehaviorID = newBehaviorID;
 
     // activate new
@@ -238,18 +250,6 @@ bool CameraManager::hasActiveVehicleBehavior()
 int CameraManager::getCurrentBehavior()
 {
     return currentBehaviorID;
-}
-
-void CameraManager::createGlobalBehaviors()
-{
-    globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_CHARACTER,       new CameraBehaviorCharacter()));
-    globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_STATIC,          new CameraBehaviorStatic()));
-    globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_VEHICLE,         new CameraBehaviorVehicle()));
-    globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_VEHICLE_SPLINE,  new CameraBehaviorVehicleSpline()));
-    globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_VEHICLE_CINECAM, new CameraBehaviorVehicleCineCam(this)));
-    globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_FREE,            new CameraBehaviorFree()));
-    globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_FIXED,           new CameraBehaviorFixed()));
-    globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_ISOMETRIC,       new CameraBehaviorIsometric()));
 }
 
 bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
@@ -328,5 +328,20 @@ void CameraManager::NotifyVehicleChanged(Beam* old_vehicle, Beam* new_vehicle)
             this->SwitchBehaviorOnVehicleChange(CAMERA_BEHAVIOR_VEHICLE, true, old_vehicle, new_vehicle);
         }
     }
-    
+}
+
+IBehavior<CameraManager::CameraContext>* CameraManager::FindBehavior(int behaviorID) // TODO: eliminate the `int ID`
+{
+    switch (behaviorID)
+    {
+    case CAMERA_BEHAVIOR_CHARACTER:       return m_cam_behav_character;
+    case CAMERA_BEHAVIOR_STATIC:          return m_cam_behav_static;
+    case CAMERA_BEHAVIOR_VEHICLE:         return m_cam_behav_vehicle;
+    case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return m_cam_behav_vehicle_spline;
+    case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return m_cam_behav_vehicle_cinecam;
+    case CAMERA_BEHAVIOR_FREE:            return m_cam_behav_free;
+    case CAMERA_BEHAVIOR_FIXED:           return m_cam_behav_fixed;
+    case CAMERA_BEHAVIOR_ISOMETRIC:       return m_cam_behav_isometric;
+    default:                              return nullptr;
+    };
 }
