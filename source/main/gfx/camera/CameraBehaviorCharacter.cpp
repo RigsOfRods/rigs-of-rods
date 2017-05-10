@@ -25,11 +25,13 @@
 
 using namespace Ogre;
 
+static const Ogre::Vector3 OFFSET_1ST_PERSON(0.0f, 1.82f, 0.0f);
+static const Ogre::Vector3 OFFSET_3RD_PERSON(0.0f, 1.1f, 0.0f);
+
 CameraBehaviorCharacter::CameraBehaviorCharacter() :
     CameraBehaviorOrbit()
-    , camMode(CHARACTER_THIRD_PERSON)
+    , m_is_3rd_person(true)
 {
-    camPositionOffset = Vector3(0.0f, 1.1f, 0.0f);
 }
 
 void CameraBehaviorCharacter::update(const CameraManager::CameraContext& ctx)
@@ -37,7 +39,8 @@ void CameraBehaviorCharacter::update(const CameraManager::CameraContext& ctx)
     if (!gEnv->player)
         return;
     targetDirection = -gEnv->player->getRotation() - Radian(Math::HALF_PI);
-    camLookAt = gEnv->player->getPosition() + camPositionOffset;
+    Ogre::Vector3 offset = (!m_is_3rd_person) ? OFFSET_1ST_PERSON : OFFSET_3RD_PERSON;
+    camLookAt = gEnv->player->getPosition() + offset;
 
     CameraBehaviorOrbit::update(ctx);
 }
@@ -46,7 +49,7 @@ bool CameraBehaviorCharacter::mouseMoved(const CameraManager::CameraContext& ctx
 {
     if (!gEnv->player)
         return false;
-    if (camMode == CHARACTER_FIRST_PERSON)
+    if (!m_is_3rd_person)
     {
         const OIS::MouseState ms = _arg.state;
         Radian angle = gEnv->player->getRotation();
@@ -84,29 +87,32 @@ void CameraBehaviorCharacter::reset(const CameraManager::CameraContext& ctx)
 {
     CameraBehaviorOrbit::reset(ctx);
 
-    if (camMode == CHARACTER_FIRST_PERSON)
+    // Vars from CameraBehaviorOrbit
+    if (!m_is_3rd_person)
     {
         camRotY = 0.1f;
         camDist = 0.1f;
         camRatio = 0.0f;
-        camPositionOffset = Vector3(0.0f, 1.82f, 0.0f);
     }
-    else if (camMode == CHARACTER_THIRD_PERSON)
+    else
     {
         camRotY = 0.3f;
         camDist = 5.0f;
         camRatio = 11.0f;
-        camPositionOffset = Vector3(0.0f, 1.1f, 0.0f);
     }
 }
 
 bool CameraBehaviorCharacter::switchBehavior(const CameraManager::CameraContext& ctx)
 {
-    if (++camMode < CHARACTER_END)
+    if (m_is_3rd_person)
     {
-        reset(ctx);
+        m_is_3rd_person = false;
+        this->reset(ctx);
         return false;
     }
-    camMode = 0;
-    return true;
+    else // first person
+    {
+        m_is_3rd_person = true;
+        return true;
+    }
 }
