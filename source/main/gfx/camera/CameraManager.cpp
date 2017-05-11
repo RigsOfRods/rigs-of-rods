@@ -254,16 +254,6 @@ bool CameraManager::hasActiveBehavior()
     return currentBehavior != 0;
 }
 
-bool CameraManager::hasActiveCharacterBehavior()
-{
-    return dynamic_cast<CameraBehaviorCharacter*>(currentBehavior) != 0;
-}
-
-bool CameraManager::hasActiveVehicleBehavior()
-{
-    return dynamic_cast<CameraBehaviorVehicle*>(currentBehavior) != 0;
-}
-
 int CameraManager::getCurrentBehavior()
 {
     return currentBehaviorID;

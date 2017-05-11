@@ -72,8 +72,6 @@ public:
 
     bool gameControlsLocked();
     bool hasActiveBehavior();
-    bool hasActiveCharacterBehavior();
-    bool hasActiveVehicleBehavior();
 
     int getCurrentBehavior();
 
