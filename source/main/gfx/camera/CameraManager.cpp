@@ -116,7 +116,10 @@ bool CameraManager::Update(float dt, Beam* cur_truck, float sim_speed) // Called
 
     if ( currentBehaviorID < CAMERA_BEHAVIOR_END && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_CHANGE) )
     {
-        switchToNextBehavior(false);
+        if ( !currentBehavior || currentBehavior->switchBehavior(ctx) )
+        {
+            this->switchToNextBehavior();
+        }
     }
 
     if ( RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_FREE_MODE_FIX) )
@@ -140,13 +143,10 @@ bool CameraManager::Update(float dt, Beam* cur_truck, float sim_speed) // Called
     return true;
 }
 
-void CameraManager::switchToNextBehavior(bool force /* = true */)
+void CameraManager::switchToNextBehavior()
 {
-    if ( !currentBehavior || force || currentBehavior->switchBehavior(ctx) )
-    {
-        int i = (currentBehaviorID + 1) % CAMERA_BEHAVIOR_END;
-        switchBehavior(i);
-    }
+    int i = (currentBehaviorID + 1) % CAMERA_BEHAVIOR_END;
+    this->switchBehavior(i);
 }
 
 void CameraManager::switchBehavior(int newBehaviorID, bool reset)

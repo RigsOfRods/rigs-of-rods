@@ -67,7 +67,7 @@ public:
     bool Update(float dt, Beam* cur_truck, float sim_speed);
 
     void switchBehavior(int newBehavior, bool reset = true);
-    void switchToNextBehavior(bool force = true);
+    void switchToNextBehavior();
     void toggleBehavior(int behavior);
 
     bool gameControlsLocked();
