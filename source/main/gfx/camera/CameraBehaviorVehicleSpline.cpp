@@ -167,21 +167,6 @@ bool CameraBehaviorVehicleSpline::mouseMoved(const CameraManager::CameraContext&
     }
 }
 
-void CameraBehaviorVehicleSpline::activate(const CameraManager::CameraContext& ctx, bool reset /* = true */)
-{
-    if (!ctx.mCurrTruck || ctx.mCurrTruck->free_camerarail <= 0)
-    {
-        gEnv->cameraManager->switchToNextBehavior();
-        return;
-    }
-    else if (reset)
-    {
-        this->reset(ctx);
-        createSpline(ctx);
-    }
-    ctx.mCurrTruck->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_SPLINE;
-}
-
 void CameraBehaviorVehicleSpline::reset(const CameraManager::CameraContext& ctx)
 {
     CameraBehaviorOrbit::reset(ctx);

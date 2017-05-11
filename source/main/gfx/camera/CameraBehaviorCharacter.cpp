@@ -70,19 +70,6 @@ bool CameraBehaviorCharacter::mouseMoved(const CameraManager::CameraContext& ctx
     return CameraBehaviorOrbit::mouseMoved(ctx, _arg);
 }
 
-void CameraBehaviorCharacter::activate(const CameraManager::CameraContext& ctx, bool reset /* = true */)
-{
-    if (ctx.mCurrTruck)
-    {
-        gEnv->cameraManager->switchToNextBehavior();
-        return;
-    }
-    else if (reset)
-    {
-        this->reset(ctx);
-    }
-}
-
 void CameraBehaviorCharacter::reset(const CameraManager::CameraContext& ctx)
 {
     CameraBehaviorOrbit::reset(ctx);

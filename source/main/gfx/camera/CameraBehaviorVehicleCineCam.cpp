@@ -61,43 +61,6 @@ void CameraBehaviorVehicleCineCam::update(const CameraManager::CameraContext &ct
     gEnv->mainCamera->setOrientation(orientation);
 }
 
-void CameraBehaviorVehicleCineCam::activate(const CameraManager::CameraContext &ctx, bool reset /* = true */)
-{
-    Beam* current_vehicle = ctx.mCurrTruck;
-    if (current_vehicle == nullptr)
-    {
-        m_camera_manager->switchToNextBehavior();
-        return;
-    }
-    RoR::PerVehicleCameraContext* vehicle_cam_context = current_vehicle->GetCameraContext();
-    if ( current_vehicle->freecinecamera <= 0 )
-    {
-        m_camera_manager->switchToNextBehavior();
-        return;
-    } 
-    else if ( reset )
-    {
-        this->reset(ctx);
-    }
-
-    gEnv->mainCamera->setFOVy(ctx.fovInternal);
-
-    current_vehicle->prepareInside(true);
-
-    if ( RoR::App::GetOverlayWrapper() )
-    {
-        RoR::App::GetOverlayWrapper()->showDashboardOverlays(
-            (current_vehicle->driveable == AIRPLANE), 
-            current_vehicle
-        );
-    }
-
-    current_vehicle->currentcamera = current_vehicle->GetCameraContext()->last_cinecam_index;
-    current_vehicle->changedCamera();
-
-    vehicle_cam_context->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_CINECAM;
-}
-
 void CameraBehaviorVehicleCineCam::deactivate(const CameraManager::CameraContext &ctx)
 {
     Beam* current_vehicle = ctx.mCurrTruck;

@@ -20,13 +20,12 @@
 
 #include "CameraBehaviorFree.h"
 
-#include <Ogre.h>
-
 #include "Application.h"
 #include "GUIManager.h"
-#include "GUI_GameConsole.h"
 #include "InputEngine.h"
-#include "Language.h"
+
+#include <Ogre.h>
+#include <MyGUI_PointerManager.h>
 
 using namespace Ogre;
 using namespace RoR;
@@ -117,8 +116,3 @@ bool CameraBehaviorFree::mouseMoved(const CameraManager::CameraContext& ctx, con
     return true;
 }
 
-void CameraBehaviorFree::activate(const CameraManager::CameraContext& ctx, bool reset /* = true */)
-{
-    RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Free camera"), "camera_go.png", 3000);
-    RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Free camera"));
-}

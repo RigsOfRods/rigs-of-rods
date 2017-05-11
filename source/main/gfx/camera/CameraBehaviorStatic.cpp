@@ -136,11 +136,6 @@ void CameraBehaviorStatic::update(const CameraManager::CameraContext& ctx)
     gEnv->mainCamera->setFOVy(Radian(fov));
 }
 
-void CameraBehaviorStatic::activate(const CameraManager::CameraContext& ctx, bool reset /* = true */)
-{
-    fovPreviously = gEnv->mainCamera->getFOVy();
-}
-
 void CameraBehaviorStatic::deactivate(const CameraManager::CameraContext& ctx)
 {
     gEnv->mainCamera->setFOVy(fovPreviously);
