@@ -33,9 +33,6 @@ public:
 
     void update(const CameraManager::CameraContext& ctx);
 
-    void deactivate(const CameraManager::CameraContext& ctx)
-    {
-    };
     void reset(const CameraManager::CameraContext& ctx);
 
     void ResetCamLastLookatPosition()

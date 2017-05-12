@@ -33,7 +33,6 @@ public:
 
     void update(const CameraManager::CameraContext& ctx);
 
-    void deactivate(const CameraManager::CameraContext& ctx);
     void reset(const CameraManager::CameraContext& ctx);
 
     bool switchBehavior(const CameraManager::CameraContext& ctx);

@@ -39,8 +39,6 @@ public:
     bool mousePressed(const CameraManager::CameraContext& ctx, const OIS::MouseEvent& _arg, OIS::MouseButtonID _id) { return false; };
     bool mouseReleased(const CameraManager::CameraContext& ctx, const OIS::MouseEvent& _arg, OIS::MouseButtonID _id) { return false; };
 
-    void deactivate(const CameraManager::CameraContext& ctx);
-
     void reset(const CameraManager::CameraContext& ctx)
     {
     };
@@ -52,6 +50,8 @@ public:
     bool switchBehavior(const CameraManager::CameraContext& ctx) { return true; };
 
     inline void SetPreviousFov(Ogre::Radian fov) { fovPreviously = fov; }
+
+    void RestorePreviousFov();
 
 protected:
 

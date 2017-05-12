@@ -258,11 +258,7 @@ void CameraManager::switchBehavior(int newBehaviorID, bool reset)
         return; // Legacy logic - behavior is looked up before fully determined. TODO: Research and refactor.
     }
 
-    // deactivate old
-    if ( currentBehavior )
-    {
-        currentBehavior->deactivate(ctx);
-    }
+    this->DeActivateCurrentBehavior();
 
     if (ctx.mCurrTruck != nullptr)
     {
@@ -291,10 +287,7 @@ void CameraManager::SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset,
 
     // deactivate old
     ctx.mCurrTruck = old_vehicle;
-    if ( currentBehavior )
-    {
-        currentBehavior->deactivate(ctx);
-    }
+    this->DeActivateCurrentBehavior();
 
     // activate new
     ctx.mCurrTruck = new_vehicle;
@@ -448,4 +441,39 @@ IBehavior<CameraManager::CameraContext>* CameraManager::FindBehavior(int behavio
     case CAMERA_BEHAVIOR_ISOMETRIC:       return m_cam_behav_isometric;
     default:                              return nullptr;
     };
+}
+
+void CameraManager::DeActivateCurrentBehavior()
+{
+    switch (currentBehaviorID)
+    {
+    case CAMERA_BEHAVIOR_STATIC:
+        m_cam_behav_static->RestorePreviousFov();
+        break;
+
+    case CAMERA_BEHAVIOR_VEHICLE_CINECAM:
+        if ( ctx.mCurrTruck == nullptr 
+            || ctx.mCurrTruck->GetCameraContext()->behavior != RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_VEHICLE_CINECAM )
+        {
+            return;
+        }
+
+        gEnv->mainCamera->setFOVy(ctx.fovExternal);
+
+        ctx.mCurrTruck->prepareInside(false);
+
+        if ( RoR::App::GetOverlayWrapper() != nullptr )
+        {
+            RoR::App::GetOverlayWrapper()->showDashboardOverlays(true, ctx.mCurrTruck);
+        }
+
+        ctx.mCurrTruck->GetCameraContext()->last_cinecam_index = ctx.mCurrTruck->currentcamera;
+
+        ctx.mCurrTruck->GetCameraContext()->last_cinecam_index = false; // WTF?! ~ Verbatim legacy logic, TODO: research and fix ~ only_a_ptr, 05/2017
+        ctx.mCurrTruck->currentcamera = -1;
+        ctx.mCurrTruck->changedCamera();
+        break;
+
+    default:;
+    }
 }
