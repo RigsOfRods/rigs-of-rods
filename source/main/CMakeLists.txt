@@ -64,7 +64,6 @@ set( SOURCE_FILES
   gfx/SkyManager.{h,cpp}
   gfx/Water.{h,cpp}
   gfx/camera/CameraBehaviorCharacter.{h,cpp}
-  gfx/camera/CameraBehaviorIsometric.h
   gfx/camera/CameraBehaviorOrbit.{h,cpp}
   gfx/camera/CameraBehaviorStatic.{h,cpp}
   gfx/camera/CameraBehaviorVehicle.{h,cpp}
