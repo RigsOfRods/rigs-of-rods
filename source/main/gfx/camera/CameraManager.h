@@ -93,6 +93,7 @@ protected:
     void SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset, Beam* old_vehicle, Beam* new_vehicle);
     void ActivateNewBehavior(CameraBehaviors behav_id, bool reset);
     void DeActivateCurrentBehavior();
+    void UpdateFreeCamera();
 
     IBehavior<CameraContext>* FindBehavior(int behaviorID); // TODO: eliminate the `int ID`
 
@@ -110,7 +111,6 @@ protected:
     CameraBehaviorVehicle*        m_cam_behav_vehicle;
     CameraBehaviorVehicleSpline*  m_cam_behav_vehicle_spline;
     CameraBehaviorVehicleCineCam* m_cam_behav_vehicle_cinecam;
-    IBehavior<CameraContext>*     m_cam_behav_free;
     IBehavior<CameraContext>*     m_cam_behav_isometric;
 
     bool m_config_enter_vehicle_keep_fixedfreecam;

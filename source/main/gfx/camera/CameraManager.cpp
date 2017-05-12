@@ -33,7 +33,6 @@
 
 #include "CameraBehaviorOrbit.h"
 #include "CameraBehaviorCharacter.h"
-#include "CameraBehaviorFree.h"
 #include "CameraBehaviorStatic.h"
 #include "CameraBehaviorVehicle.h"
 #include "CameraBehaviorVehicleCineCam.h"
@@ -62,7 +61,6 @@ CameraManager::CameraManager() :
     m_cam_behav_vehicle          = new CameraBehaviorVehicle();
     m_cam_behav_vehicle_spline   = new CameraBehaviorVehicleSpline();
     m_cam_behav_vehicle_cinecam  = new CameraBehaviorVehicleCineCam(this);
-    m_cam_behav_free             = new CameraBehaviorFree();
     m_cam_behav_isometric        = new CameraBehaviorIsometric();
 
     ctx.mCurrTruck = 0;
@@ -86,7 +84,6 @@ CameraManager::~CameraManager()
     delete m_cam_behav_vehicle;
     delete m_cam_behav_vehicle_spline;
     delete m_cam_behav_vehicle_cinecam;
-    delete m_cam_behav_free;
     delete m_cam_behav_isometric;
 
     delete ctx.mDof;
@@ -131,7 +128,11 @@ bool CameraManager::Update(float dt, Beam* cur_truck, float sim_speed) // Called
         toggleBehavior(CAMERA_BEHAVIOR_FREE);
     }
 
-    if ( (m_active_behavior != CAMERA_BEHAVIOR_INVALID) )
+    if (m_active_behavior == CAMERA_BEHAVIOR_FREE)
+    {
+        this->UpdateFreeCamera();
+    }
+    else if (m_active_behavior != CAMERA_BEHAVIOR_INVALID)
     {
         this->FindBehavior(m_active_behavior)->update(ctx);
     }
@@ -338,6 +339,17 @@ int CameraManager::getCurrentBehavior()
 
 bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
 {
+    switch (m_active_behavior)
+    {
+    case CAMERA_BEHAVIOR_FREE:
+        gEnv->mainCamera->yaw(Degree(-_arg.state.X.rel * 0.13f));
+        gEnv->mainCamera->pitch(Degree(-_arg.state.Y.rel * 0.13f));
+        MyGUI::PointerManager::getInstance().setVisible(false);
+        return true;
+
+    default:;
+    }
+
     auto* obj = this->FindBehavior(m_active_behavior);
     if (obj = nullptr)
         return false;
@@ -449,7 +461,6 @@ IBehavior<CameraManager::CameraContext>* CameraManager::FindBehavior(int behavio
     case CAMERA_BEHAVIOR_VEHICLE:         return m_cam_behav_vehicle;
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return m_cam_behav_vehicle_spline;
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return m_cam_behav_vehicle_cinecam;
-    case CAMERA_BEHAVIOR_FREE:            return m_cam_behav_free;
     case CAMERA_BEHAVIOR_ISOMETRIC:       return m_cam_behav_isometric;
     default:                              return nullptr;
     };
@@ -488,4 +499,78 @@ void CameraManager::DeActivateCurrentBehavior()
 
     default:;
     }
+}
+
+void CameraManager::UpdateFreeCamera()
+{
+    Ogre::Degree mRotX(0.0f);
+    Ogre::Degree mRotY(0.0f);
+    Ogre::Degree mRotScale(ctx.mRotScale * 10.0f * ctx.mDt);
+    Ogre::Vector3 mTrans(Ogre::Vector3::ZERO);
+    Ogre::Real mTransScale(ctx.mTransScale * 10.0f * ctx.mDt);
+
+    if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) || RoR::App::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT))
+    {
+        mRotScale *= 3.0f;
+        mTransScale *= 3.0f;
+    }
+    if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL))
+    {
+        mRotScale *= 6.0f;
+        mTransScale *= 20.0f;
+    }
+    if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU))
+    {
+        mRotScale *= 0.1f;
+        mTransScale *= 0.1f;
+    }
+
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_SIDESTEP_LEFT))
+    {
+        mTrans.x -= mTransScale;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_SIDESTEP_RIGHT))
+    {
+        mTrans.x += mTransScale;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_FORWARD))
+    {
+        mTrans.z -= mTransScale;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_BACKWARDS))
+    {
+        mTrans.z += mTransScale;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_UP))
+    {
+        mTrans.y += mTransScale;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_DOWN))
+    {
+        mTrans.y -= mTransScale;
+    }
+
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_RIGHT))
+    {
+        mRotX -= mRotScale;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_LEFT))
+    {
+        mRotX += mRotScale;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_ROT_UP))
+    {
+        mRotY += mRotScale;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_ROT_DOWN))
+    {
+        mRotY -= mRotScale;
+    }
+
+    gEnv->mainCamera->yaw(mRotX);
+    gEnv->mainCamera->pitch(mRotY);
+
+    Ogre::Vector3 camPosition = gEnv->mainCamera->getPosition() + gEnv->mainCamera->getOrientation() * mTrans.normalisedCopy() * mTransScale;
+
+    gEnv->mainCamera->setPosition(camPosition);
 }
