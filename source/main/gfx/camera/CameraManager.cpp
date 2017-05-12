@@ -47,8 +47,7 @@ using namespace Ogre;
 using namespace RoR;
 
 CameraManager::CameraManager() : 
-      currentBehavior(nullptr)
-    , currentBehaviorID(-1)
+      m_active_behavior(CAMERA_BEHAVIOR_INVALID)
     , m_cam_before_free(CAMERA_BEHAVIOR_INVALID)
     , m_cam_before_fixed(CAMERA_BEHAVIOR_INVALID)
     , mTransScale(1.0f)
@@ -117,9 +116,9 @@ bool CameraManager::Update(float dt, Beam* cur_truck, float sim_speed) // Called
     ctx.fovInternal = Degree(App::GetGfxFovInternal());
     ctx.fovExternal = Degree(App::GetGfxFovExternal());
 
-    if ( currentBehaviorID < CAMERA_BEHAVIOR_END && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_CHANGE) )
+    if ( m_active_behavior < CAMERA_BEHAVIOR_END && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_CHANGE) )
     {
-        if ( !currentBehavior || currentBehavior->switchBehavior(ctx) )
+        if ( (m_active_behavior == CAMERA_BEHAVIOR_INVALID) || this->FindBehavior(m_active_behavior)->switchBehavior(ctx) )
         {
             this->switchToNextBehavior();
         }
@@ -135,10 +134,11 @@ bool CameraManager::Update(float dt, Beam* cur_truck, float sim_speed) // Called
         toggleBehavior(CAMERA_BEHAVIOR_FREE);
     }
 
-    if ( currentBehavior )
+    if ( (m_active_behavior != CAMERA_BEHAVIOR_INVALID) )
     {
-        currentBehavior->update(ctx);
-    } else
+        this->FindBehavior(m_active_behavior)->update(ctx);
+    }
+    else
     {
         switchBehavior(CAMERA_BEHAVIOR_CHARACTER);
     }
@@ -148,15 +148,14 @@ bool CameraManager::Update(float dt, Beam* cur_truck, float sim_speed) // Called
 
 void CameraManager::switchToNextBehavior()
 {
-    int i = (currentBehaviorID + 1) % CAMERA_BEHAVIOR_END;
+    int i = (m_active_behavior + 1) % CAMERA_BEHAVIOR_END;
     this->switchBehavior(i);
 }
 
-void CameraManager::ActivateNewBehavior(CameraBehaviors behav_id, IBehavior<CameraContext>* behav_obj, bool reset)
+void CameraManager::ActivateNewBehavior(CameraBehaviors behav_id, bool reset)
 {
     // Assign new behavior
-    currentBehavior = behav_obj;
-    currentBehaviorID = behav_id;
+    m_active_behavior = behav_id;
 
     // Resolve per-behavior constraints and actions
     switch (behav_id)
@@ -247,7 +246,7 @@ void CameraManager::ActivateNewBehavior(CameraBehaviors behav_id, IBehavior<Came
 
 void CameraManager::switchBehavior(int newBehaviorID, bool reset)
 {
-    if (newBehaviorID == currentBehaviorID)
+    if (newBehaviorID == m_active_behavior)
     {
         return; // Nothing to do
     }
@@ -265,12 +264,12 @@ void CameraManager::switchBehavior(int newBehaviorID, bool reset)
         ctx.mCurrTruck->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_EXTERNAL;
     }
 
-    this->ActivateNewBehavior(static_cast<CameraBehaviors>(newBehaviorID), new_behav, reset);
+    this->ActivateNewBehavior(static_cast<CameraBehaviors>(newBehaviorID), reset);
 }
 
 void CameraManager::SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset, Beam* old_vehicle, Beam* new_vehicle)
 {
-    if (newBehaviorID == currentBehaviorID)
+    if (newBehaviorID == m_active_behavior)
     {
         if (old_vehicle != new_vehicle)
         {
@@ -291,7 +290,7 @@ void CameraManager::SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset,
 
     // activate new
     ctx.mCurrTruck = new_vehicle;
-    this->ActivateNewBehavior(static_cast<CameraBehaviors>(newBehaviorID), new_behav, reset);
+    this->ActivateNewBehavior(static_cast<CameraBehaviors>(newBehaviorID), reset);
 }
 
 void CameraManager::toggleBehavior(int behavior)
@@ -299,27 +298,27 @@ void CameraManager::toggleBehavior(int behavior)
     switch (behavior)
     {
     case CAMERA_BEHAVIOR_FIXED:
-        if (currentBehaviorID == CAMERA_BEHAVIOR_FIXED)
+        if (m_active_behavior == CAMERA_BEHAVIOR_FIXED)
         {
             this->switchBehavior(m_cam_before_fixed);
             m_cam_before_fixed = CAMERA_BEHAVIOR_INVALID;
         }
         else
         {
-            m_cam_before_fixed = static_cast<CameraBehaviors>(currentBehaviorID);
+            m_cam_before_fixed = m_active_behavior;
             this->switchBehavior(CAMERA_BEHAVIOR_FIXED);
         }
         return;
 
     case CAMERA_BEHAVIOR_FREE:
-        if (currentBehaviorID == CAMERA_BEHAVIOR_FREE)
+        if (m_active_behavior == CAMERA_BEHAVIOR_FREE)
         {
             this->switchBehavior(m_cam_before_free);
             m_cam_before_free = CAMERA_BEHAVIOR_INVALID;
         }
         else
         {
-            m_cam_before_free = static_cast<CameraBehaviors>(currentBehaviorID);
+            m_cam_before_free = m_active_behavior;
             this->switchBehavior(CAMERA_BEHAVIOR_FREE);
         }
         return;
@@ -332,54 +331,71 @@ void CameraManager::toggleBehavior(int behavior)
 
 bool CameraManager::hasActiveBehavior()
 {
-    return currentBehavior != 0;
+    return (m_active_behavior != CAMERA_BEHAVIOR_INVALID);
 }
 
 int CameraManager::getCurrentBehavior()
 {
-    return currentBehaviorID;
+    return m_active_behavior;
 }
 
 bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
 {
-    if ( !currentBehavior ) return false;
-    return currentBehavior->mouseMoved(ctx, _arg);
+    auto* obj = this->FindBehavior(m_active_behavior);
+    if (obj = nullptr)
+        return false;
+    else
+        return obj->mouseMoved(ctx, _arg);
 }
 
 bool CameraManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
 {
-    if ( !currentBehavior ) return false;
-    return currentBehavior->mousePressed(ctx, _arg, _id);
+    auto* obj = this->FindBehavior(m_active_behavior);
+    if (obj = nullptr)
+        return false;
+    else
+        return obj->mousePressed(ctx, _arg, _id);
 }
 
 bool CameraManager::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
 {
-    if ( !currentBehavior ) return false;
-    return currentBehavior->mouseReleased(ctx, _arg, _id);
+    auto* obj = this->FindBehavior(m_active_behavior);
+    if (obj = nullptr)
+        return false;
+    else
+        return obj->mouseReleased(ctx, _arg, _id);
 }
 
 bool CameraManager::gameControlsLocked()
 {
     // game controls are only disabled in free camera mode for now
-    return (currentBehaviorID == CAMERA_BEHAVIOR_FREE);
+    return (m_active_behavior == CAMERA_BEHAVIOR_FREE);
 }
 
 void CameraManager::OnReturnToMainMenu()
 {
     ctx.mCurrTruck = nullptr;
-    currentBehavior = nullptr;
-    currentBehaviorID = -1;
+    m_active_behavior = CAMERA_BEHAVIOR_INVALID;
 }
 
 void CameraManager::NotifyContextChange()
 {
-    switch (currentBehaviorID)
+    switch (m_active_behavior)
     {
     case CAMERA_BEHAVIOR_CHARACTER:
+        m_cam_behav_character->ResetCamLastLookatPosition();
+        break;
+
     case CAMERA_BEHAVIOR_VEHICLE:
+        m_cam_behav_vehicle->ResetCamLastLookatPosition();
+        break;
+
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM:
+        m_cam_behav_vehicle_cinecam->ResetCamLastLookatPosition();
+        break;
+
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:
-        reinterpret_cast<CameraBehaviorOrbit*>(currentBehavior)->ResetCamLastLookatPosition();
+        m_cam_behav_vehicle_spline->ResetCamLastLookatPosition();
         break;
 
     default:;
@@ -392,9 +408,9 @@ void CameraManager::NotifyVehicleChanged(Beam* old_vehicle, Beam* new_vehicle)
     if (new_vehicle == nullptr)
     {
         ctx.mCurrTruck = nullptr;
-        if ( !(this->currentBehaviorID == CAMERA_BEHAVIOR_STATIC && m_config_exit_vehicle_keep_fixedfreecam) &&
-             !(this->currentBehaviorID == CAMERA_BEHAVIOR_FIXED  && m_config_exit_vehicle_keep_fixedfreecam) &&
-             !(this->currentBehaviorID == CAMERA_BEHAVIOR_FREE   && m_config_exit_vehicle_keep_fixedfreecam) )
+        if ( !(this->m_active_behavior == CAMERA_BEHAVIOR_STATIC && m_config_exit_vehicle_keep_fixedfreecam) &&
+             !(this->m_active_behavior == CAMERA_BEHAVIOR_FIXED  && m_config_exit_vehicle_keep_fixedfreecam) &&
+             !(this->m_active_behavior == CAMERA_BEHAVIOR_FREE   && m_config_exit_vehicle_keep_fixedfreecam) )
         {
             this->switchBehavior(CAMERA_BEHAVIOR_CHARACTER);
         }
@@ -402,9 +418,9 @@ void CameraManager::NotifyVehicleChanged(Beam* old_vehicle, Beam* new_vehicle)
     }
 
     // Getting in vehicle
-    if ( !(this->currentBehaviorID == CAMERA_BEHAVIOR_STATIC && m_config_enter_vehicle_keep_fixedfreecam) &&
-         !(this->currentBehaviorID == CAMERA_BEHAVIOR_FIXED  && m_config_enter_vehicle_keep_fixedfreecam) &&
-         !(this->currentBehaviorID == CAMERA_BEHAVIOR_FREE   && m_config_enter_vehicle_keep_fixedfreecam) )
+    if ( !(this->m_active_behavior == CAMERA_BEHAVIOR_STATIC && m_config_enter_vehicle_keep_fixedfreecam) &&
+         !(this->m_active_behavior == CAMERA_BEHAVIOR_FIXED  && m_config_enter_vehicle_keep_fixedfreecam) &&
+         !(this->m_active_behavior == CAMERA_BEHAVIOR_FREE   && m_config_enter_vehicle_keep_fixedfreecam) )
     {
         // Change camera
         switch (new_vehicle->GetCameraContext()->behavior)
@@ -445,7 +461,7 @@ IBehavior<CameraManager::CameraContext>* CameraManager::FindBehavior(int behavio
 
 void CameraManager::DeActivateCurrentBehavior()
 {
-    switch (currentBehaviorID)
+    switch (m_active_behavior)
     {
     case CAMERA_BEHAVIOR_STATIC:
         m_cam_behav_static->RestorePreviousFov();

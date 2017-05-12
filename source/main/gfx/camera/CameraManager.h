@@ -91,7 +91,7 @@ public:
 protected:
 
     void SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset, Beam* old_vehicle, Beam* new_vehicle);
-    void ActivateNewBehavior(CameraBehaviors behav_id, IBehavior<CameraContext>* behav_obj, bool reset);
+    void ActivateNewBehavior(CameraBehaviors behav_id, bool reset);
     void DeActivateCurrentBehavior();
 
     IBehavior<CameraContext>* FindBehavior(int behaviorID); // TODO: eliminate the `int ID`
@@ -101,8 +101,7 @@ protected:
     float mTransScale, mTransSpeed;
     float mRotScale, mRotateSpeed;
 
-    int currentBehaviorID;
-    IBehavior<CameraContext>* currentBehavior;
+    CameraBehaviors m_active_behavior;
     CameraBehaviors m_cam_before_free;  ///< Activated by toggling; remembers previous mode.
     CameraBehaviors m_cam_before_fixed; ///< Activated by toggling; remembers previous mode.
     // Global behaviors
