@@ -33,7 +33,6 @@
 
 #include "CameraBehaviorOrbit.h"
 #include "CameraBehaviorCharacter.h"
-#include "CameraBehaviorFixed.h"
 #include "CameraBehaviorFree.h"
 #include "CameraBehaviorStatic.h"
 #include "CameraBehaviorVehicle.h"
@@ -64,7 +63,6 @@ CameraManager::CameraManager() :
     m_cam_behav_vehicle_spline   = new CameraBehaviorVehicleSpline();
     m_cam_behav_vehicle_cinecam  = new CameraBehaviorVehicleCineCam(this);
     m_cam_behav_free             = new CameraBehaviorFree();
-    m_cam_behav_fixed            = new CameraBehaviorFixed();
     m_cam_behav_isometric        = new CameraBehaviorIsometric();
 
     ctx.mCurrTruck = 0;
@@ -89,7 +87,6 @@ CameraManager::~CameraManager()
     delete m_cam_behav_vehicle_spline;
     delete m_cam_behav_vehicle_cinecam;
     delete m_cam_behav_free;
-    delete m_cam_behav_fixed;
     delete m_cam_behav_isometric;
 
     delete ctx.mDof;
@@ -453,7 +450,6 @@ IBehavior<CameraManager::CameraContext>* CameraManager::FindBehavior(int behavio
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return m_cam_behav_vehicle_spline;
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return m_cam_behav_vehicle_cinecam;
     case CAMERA_BEHAVIOR_FREE:            return m_cam_behav_free;
-    case CAMERA_BEHAVIOR_FIXED:           return m_cam_behav_fixed;
     case CAMERA_BEHAVIOR_ISOMETRIC:       return m_cam_behav_isometric;
     default:                              return nullptr;
     };

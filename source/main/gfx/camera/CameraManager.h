@@ -111,7 +111,6 @@ protected:
     CameraBehaviorVehicleSpline*  m_cam_behav_vehicle_spline;
     CameraBehaviorVehicleCineCam* m_cam_behav_vehicle_cinecam;
     IBehavior<CameraContext>*     m_cam_behav_free;
-    IBehavior<CameraContext>*     m_cam_behav_fixed;
     IBehavior<CameraContext>*     m_cam_behav_isometric;
 
     bool m_config_enter_vehicle_keep_fixedfreecam;
