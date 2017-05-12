@@ -35,7 +35,7 @@ public:
 
     bool mouseMoved(const CameraManager::CameraContext& ctx, const OIS::MouseEvent& _arg);
 
-    void reset(const CameraManager::CameraContext& ctx);
+    void ResetOrbitStyleCam() override;
 
     void createSpline(const CameraManager::CameraContext& ctx);
     void updateSpline();

@@ -37,10 +37,6 @@ public:
     bool mousePressed(const CameraManager::CameraContext& ctx, const OIS::MouseEvent& _arg, OIS::MouseButtonID _id) { return false; };
     bool mouseReleased(const CameraManager::CameraContext& ctx, const OIS::MouseEvent& _arg, OIS::MouseButtonID _id) { return false; };
 
-    void reset(const CameraManager::CameraContext& ctx)
-    {
-    }
-
     void notifyContextChange(const CameraManager::CameraContext& ctx)
     {
     }

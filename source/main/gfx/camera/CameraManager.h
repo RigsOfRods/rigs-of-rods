@@ -29,6 +29,10 @@
 // Forward decl.
 class CameraBehaviorStatic;
 class CameraBehaviorVehicleSpline;
+class CameraBehaviorCharacter;
+class CameraBehaviorVehicle;
+class CameraBehaviorVehicleCineCam;
+class CameraBehaviorOrbit;
 
 class CameraManager
 {
@@ -102,14 +106,14 @@ protected:
     CameraBehaviors m_cam_before_free;  ///< Activated by toggling; remembers previous mode.
     CameraBehaviors m_cam_before_fixed; ///< Activated by toggling; remembers previous mode.
     // Global behaviors
-    IBehavior<CameraContext>* m_cam_behav_character;
-    CameraBehaviorStatic*     m_cam_behav_static;
-    IBehavior<CameraContext>* m_cam_behav_vehicle;
-    CameraBehaviorVehicleSpline* m_cam_behav_vehicle_spline;
-    IBehavior<CameraContext>* m_cam_behav_vehicle_cinecam;
-    IBehavior<CameraContext>* m_cam_behav_free;
-    IBehavior<CameraContext>* m_cam_behav_fixed;
-    IBehavior<CameraContext>* m_cam_behav_isometric;
+    CameraBehaviorCharacter*      m_cam_behav_character;
+    CameraBehaviorStatic*         m_cam_behav_static;
+    CameraBehaviorVehicle*        m_cam_behav_vehicle;
+    CameraBehaviorVehicleSpline*  m_cam_behav_vehicle_spline;
+    CameraBehaviorVehicleCineCam* m_cam_behav_vehicle_cinecam;
+    IBehavior<CameraContext>*     m_cam_behav_free;
+    IBehavior<CameraContext>*     m_cam_behav_fixed;
+    IBehavior<CameraContext>*     m_cam_behav_isometric;
 
     bool m_config_enter_vehicle_keep_fixedfreecam;
     bool m_config_exit_vehicle_keep_fixedfreecam;

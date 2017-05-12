@@ -24,6 +24,7 @@
 
 #include "Application.h"
 #include "Beam.h"
+#include "BeamFactory.h"
 #include "InputEngine.h"
 #include "Settings.h"
 
@@ -55,11 +56,11 @@ void CameraBehaviorVehicle::update(const CameraManager::CameraContext &ctx)
 	CameraBehaviorOrbit::update(ctx);
 }
 
-void CameraBehaviorVehicle::reset(const CameraManager::CameraContext &ctx)
+void CameraBehaviorVehicle::ResetOrbitStyleCam()
 {
-	CameraBehaviorOrbit::reset(ctx);
+	CameraBehaviorOrbit::ResetOrbitStyleCam();
 	camRotY = 0.35f;
-	camDistMin = std::min(ctx.mCurrTruck->getMinimalCameraRadius() * 2.0f, 33.0f);
+	camDistMin = std::min(BeamFactory::getSingleton().getCurrentTruck()->getMinimalCameraRadius() * 2.0f, 33.0f);
 	camDist = camDistMin * 1.5f + 2.0f;
 }
 

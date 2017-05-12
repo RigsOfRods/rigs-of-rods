@@ -70,9 +70,9 @@ bool CameraBehaviorCharacter::mouseMoved(const CameraManager::CameraContext& ctx
     return CameraBehaviorOrbit::mouseMoved(ctx, _arg);
 }
 
-void CameraBehaviorCharacter::reset(const CameraManager::CameraContext& ctx)
+void CameraBehaviorCharacter::ResetOrbitStyleCam()
 {
-    CameraBehaviorOrbit::reset(ctx);
+    CameraBehaviorOrbit::ResetOrbitStyleCam();
 
     // Vars from CameraBehaviorOrbit
     if (!m_is_3rd_person)
@@ -94,7 +94,7 @@ bool CameraBehaviorCharacter::switchBehavior(const CameraManager::CameraContext&
     if (m_is_3rd_person)
     {
         m_is_3rd_person = false;
-        this->reset(ctx);
+        this->ResetOrbitStyleCam();
         return false;
     }
     else // first person

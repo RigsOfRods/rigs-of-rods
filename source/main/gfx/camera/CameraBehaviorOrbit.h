@@ -33,7 +33,7 @@ public:
 
     void update(const CameraManager::CameraContext& ctx);
 
-    void reset(const CameraManager::CameraContext& ctx);
+    virtual void ResetOrbitStyleCam();
 
     void ResetCamLastLookatPosition()
     {

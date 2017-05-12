@@ -61,11 +61,11 @@ void CameraBehaviorVehicleCineCam::update(const CameraManager::CameraContext &ct
     gEnv->mainCamera->setOrientation(orientation);
 }
 
-void CameraBehaviorVehicleCineCam::reset(const CameraManager::CameraContext &ctx)
+void CameraBehaviorVehicleCineCam::ResetOrbitStyleCam()
 {
-    CameraBehaviorOrbit::reset(ctx);
+    CameraBehaviorOrbit::ResetOrbitStyleCam();
     camRotY = Degree(DEFAULT_INTERNAL_CAM_PITCH);
-    gEnv->mainCamera->setFOVy(ctx.fovInternal);
+    gEnv->mainCamera->setFOVy(Ogre::Degree(RoR::App::GetGfxFovInternal()));
 }
 
 bool CameraBehaviorVehicleCineCam::switchBehavior(const CameraManager::CameraContext &ctx)
