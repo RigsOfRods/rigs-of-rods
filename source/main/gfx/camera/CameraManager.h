@@ -25,9 +25,10 @@
 #include "IBehavior.h"
 
 #include <OIS.h>
+#include <OgreTimer.h>
+#include <OgreVector3.h>
 
 // Forward decl.
-class CameraBehaviorStatic;
 class CameraBehaviorVehicleSpline;
 class CameraBehaviorCharacter;
 class CameraBehaviorVehicle;
@@ -94,6 +95,7 @@ protected:
     void ActivateNewBehavior(CameraBehaviors behav_id, bool reset);
     void DeActivateCurrentBehavior();
     void UpdateFreeCamera();
+    void UpdateStaticCamera();
 
     IBehavior<CameraContext>* FindBehavior(int behaviorID); // TODO: eliminate the `int ID`
 
@@ -107,10 +109,13 @@ protected:
     CameraBehaviors m_cam_before_fixed; ///< Activated by toggling; remembers previous mode.
     // Global behaviors
     CameraBehaviorCharacter*      m_cam_behav_character;
-    CameraBehaviorStatic*         m_cam_behav_static;
     CameraBehaviorVehicle*        m_cam_behav_vehicle;
     CameraBehaviorVehicleSpline*  m_cam_behav_vehicle_spline;
     CameraBehaviorVehicleCineCam* m_cam_behav_vehicle_cinecam;
+    // Static cam
+    Ogre::Radian  m_static_cam_previous_fov;
+    Ogre::Vector3 m_static_cam_last_pos;
+    Ogre::Timer   m_static_cam_update_timer;
 
     bool m_config_enter_vehicle_keep_fixedfreecam;
     bool m_config_exit_vehicle_keep_fixedfreecam;

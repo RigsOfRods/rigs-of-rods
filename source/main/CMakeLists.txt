@@ -65,7 +65,6 @@ set( SOURCE_FILES
   gfx/Water.{h,cpp}
   gfx/camera/CameraBehaviorCharacter.{h,cpp}
   gfx/camera/CameraBehaviorOrbit.{h,cpp}
-  gfx/camera/CameraBehaviorStatic.{h,cpp}
   gfx/camera/CameraBehaviorVehicle.{h,cpp}
   gfx/camera/CameraBehaviorVehicleCineCam.{h,cpp}
   gfx/camera/CameraBehaviorVehicleSpline.{h,cpp}
