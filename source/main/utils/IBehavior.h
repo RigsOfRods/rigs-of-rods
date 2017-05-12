@@ -41,7 +41,6 @@ public:
 
     virtual void deactivate(const context& ctx) = 0;
     virtual void reset(const context& ctx) = 0;
-    virtual void notifyContextChange(const context& ctx) = 0;
 
     virtual bool switchBehavior(const context& ctx) = 0;
 };

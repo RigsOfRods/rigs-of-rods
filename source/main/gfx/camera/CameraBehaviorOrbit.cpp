@@ -208,7 +208,3 @@ void CameraBehaviorOrbit::reset(const CameraManager::CameraContext& ctx)
     gEnv->mainCamera->setFOVy(ctx.fovExternal);
 }
 
-void CameraBehaviorOrbit::notifyContextChange(const CameraManager::CameraContext& ctx)
-{
-    camLookAtLast = Vector3::ZERO;
-}

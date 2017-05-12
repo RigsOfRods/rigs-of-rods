@@ -37,7 +37,11 @@ public:
     {
     };
     void reset(const CameraManager::CameraContext& ctx);
-    void notifyContextChange(const CameraManager::CameraContext& ctx);
+
+    void ResetCamLastLookatPosition()
+    {
+        camLookAtLast = Ogre::Vector3::ZERO; // TODO: shouldn't we reset 'camLookAtSmoothLast' as well?
+    }
 
     bool mouseMoved(const CameraManager::CameraContext& ctx, const OIS::MouseEvent& _arg);
     bool mousePressed(const CameraManager::CameraContext& ctx, const OIS::MouseEvent& _arg, OIS::MouseButtonID _id) { return false; };
