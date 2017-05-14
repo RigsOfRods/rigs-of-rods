@@ -143,6 +143,7 @@ static int              g_gfx_particles_mode;    ///< Config: BOOL  Particles
 static bool             g_gfx_enable_glow;       ///< Config: BOOL  Glow
 static bool             g_gfx_enable_hdr;        ///< Config: BOOL  HDR
 static bool             g_gfx_enable_heathaze;   ///< Config: BOOL  HeatHaze
+static bool             g_gfx_enable_videocams;  ///< Config: BOOL  gfx_enable_videocams
 static bool             g_gfx_envmap_enabled;    ///< Config: BOOL  Envmap
 static int              g_gfx_envmap_rate;       ///< Config: INT   EnvmapUpdateRate
 static int              g_gfx_skidmarks_mode;    ///< Config: BOOL  Skidmarks
@@ -212,6 +213,7 @@ bool            GetGfxWaterUseWaves        () { return g_gfx_water_waves;       
 int             GetGfxParticlesMode        () { return g_gfx_particles_mode;       }
 bool            GetGfxEnableGlow           () { return g_gfx_enable_glow;          }
 bool            GetGfxEnableHdr            () { return g_gfx_enable_hdr;           }
+bool            GetGfxEnableVideocams      () { return g_gfx_enable_videocams;     }
 bool            GetGfxUseHeathaze          () { return g_gfx_enable_heathaze;      }
 bool            GetGfxEnvmapEnabled        () { return g_gfx_envmap_enabled;       }
 int             GetGfxEnvmapRate           () { return g_gfx_envmap_rate;          }
@@ -291,6 +293,7 @@ void SetGfxEnableSunburn     (bool            v) { SetVarBool    (g_gfx_enable_s
 void SetGfxWaterUseWaves     (bool            v) { SetVarBool    (g_gfx_water_waves      , "gfx_water_waves"      , v); }
 void SetGfxEnableGlow        (bool            v) { SetVarBool    (g_gfx_enable_glow      , "gfx_enable_glow"      , v); }
 void SetGfxEnableHdr         (bool            v) { SetVarBool    (g_gfx_enable_hdr       , "gfx_enable_hdr"       , v); }
+void SetGfxEnableVideocams   (bool            v) { SetVarBool    (g_gfx_enable_videocams , "gfx_enable_videocams" , v); }
 void SetGfxUseHeathaze       (bool            v) { SetVarBool    (g_gfx_enable_heathaze  , "gfx_enable_heathaze"  , v); }
 void SetGfxEnvmapEnabled     (bool            v) { SetVarBool    (g_gfx_envmap_enabled   , "gfx_envmap_enabled"   , v); }
 void SetGfxEnvmapRate        (int             v) { SetVarInt     (g_gfx_envmap_rate      , "gfx_envmap_rate"      , v); }
@@ -475,6 +478,7 @@ void Init()
     g_gfx_fov_external     = 60.f;
     g_gfx_fov_internal     = 75.f;
     g_gfx_fps_limit        = 0; // Unlimited
+    g_gfx_enable_videocams = true;
 
     g_io_outgauge_ip       = "192.168.1.100";
     g_io_outgauge_port     = 1337;

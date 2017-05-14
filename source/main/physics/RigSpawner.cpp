@@ -7242,6 +7242,11 @@ void RigSpawner::FinalizeGfxSetup()
         }
     }
 
+    if (!App::GetGfxEnableVideocams())
+    {
+        m_rig->m_gfx_actor->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_DISABLED);
+    }
+
     // Process "emissive cab" materials
     if (m_rig->cabEntity != nullptr)
     {
@@ -7423,9 +7428,17 @@ void RigSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
         vcam.vcam_ogre_camera->setFOVy(Ogre::Degree(def->field_of_view));
         const float aspect_ratio = static_cast<float>(def->texture_width) / static_cast<float>(def->texture_height);
         vcam.vcam_ogre_camera->setAspectRatio(aspect_ratio);
-
-        vcam.vcam_off_tex_name = vcam.vcam_material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->getTextureName();
         vcam.vcam_material->getTechnique(0)->getPass(0)->setLightingEnabled(false);
+
+        if (vcam.vcam_type == GfxActor::VideoCamType::VCTYPE_MIRROR)
+        {
+            vcam.vcam_off_tex_name = "Chrome.dds"; // Built-in gray texture
+        }
+        else
+        {
+            // The default "NO SIGNAL" noisy blue screen texture
+            vcam.vcam_off_tex_name = vcam.vcam_material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->getTextureName();
+        }
 
         if (vcam.vcam_render_target)
         {
@@ -7499,11 +7512,6 @@ void RigSpawner::CreateMirrorPropVideoCam(
             return;
         }
 
-        // Setup material
-        vcam.vcam_material = custom_mat;
-        vcam.vcam_material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(vcam.vcam_off_tex_name);
-        vcam.vcam_material->getTechnique(0)->getPass(0)->setLightingEnabled(false);
-
         // Create rendering texture
         const std::string mirror_tex_name = this->ComposeName("MirrorPropTexture-", mprop_counter);
         vcam.vcam_render_tex = Ogre::TextureManager::getSingleton().createManual(mirror_tex_name
@@ -7525,11 +7533,16 @@ void RigSpawner::CreateMirrorPropVideoCam(
 
         // Setup rendering
         vcam.vcam_render_target = vcam.vcam_render_tex->getBuffer()->getRenderTarget();
-        vcam.vcam_render_target->setActive(false);
+        vcam.vcam_render_target->setActive(true);
         Ogre::Viewport* v = vcam.vcam_render_target->addViewport(vcam.vcam_ogre_camera);
         v->setClearEveryFrame(true);
         v->setBackgroundColour(gEnv->mainCamera->getViewport()->getBackgroundColour());
         v->setOverlaysEnabled(false);
+
+        // Setup material
+        vcam.vcam_material = custom_mat;
+        vcam.vcam_material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(vcam.vcam_render_tex->getName());
+        vcam.vcam_material->getTechnique(0)->getPass(0)->setLightingEnabled(false);
 
         // Submit the videocamera
         m_rig->m_gfx_actor->m_videocameras.push_back(vcam);

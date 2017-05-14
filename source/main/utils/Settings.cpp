@@ -620,6 +620,7 @@ static const char* CONF_GFX_PARTICLES   = "Particles";
 static const char* CONF_GFX_GLOW        = "Glow";
 static const char* CONF_GFX_HDR         = "HDR";
 static const char* CONF_GFX_HEATHAZE    = "HeatHaze";
+static const char* CONF_GFX_VIDEOCAMS   = "gfx_enable_videocams";
 static const char* CONF_GFX_SKIDMARKS   = "Skidmarks";
 static const char* CONF_ENVMAP_RATE     = "EnvmapUpdateRate";
 static const char* CONF_ENVMAP_ENABLED  = "Envmap";
@@ -700,6 +701,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (k == CONF_GFX_GLOW        ) { App::SetGfxEnableGlow        (B(v)); return true; }
     if (k == CONF_GFX_HDR         ) { App::SetGfxEnableHdr         (B(v)); return true; }
     if (k == CONF_GFX_HEATHAZE    ) { App::SetGfxUseHeathaze       (B(v)); return true; }
+    if (k == CONF_GFX_VIDEOCAMS   ) { App::SetGfxEnableVideocams   (B(v)); return true; }
     if (k == CONF_GFX_SKIDMARKS   ) { App::SetGfxSkidmarksMode     (M(v)); return true; }
     if (k == CONF_ENVMAP_RATE     ) { App__SetGfxEnvmapRate        (S(v)); return true; }
     if (k == CONF_ENVMAP_ENABLED  ) { App::SetGfxEnvmapEnabled     (B(v)); return true; }
@@ -962,6 +964,7 @@ void Settings::SaveSettings()
     f << CONF_GFX_GLOW        << "=" << B(App::GetGfxEnableGlow       ()) << endl;
     f << CONF_GFX_HDR         << "=" << B(App::GetGfxEnableHdr        ()) << endl;
     f << CONF_GFX_HEATHAZE    << "=" << B(App::GetGfxUseHeathaze      ()) << endl;
+    f << CONF_GFX_VIDEOCAMS   << "=" << B(App::GetGfxEnableVideocams  ()) << endl;
     f << CONF_GFX_SKIDMARKS   << "=" << Y(App::GetGfxSkidmarksMode    ()) << endl;
     f << CONF_ENVMAP_ENABLED  << "=" << B(App::GetGfxEnvmapEnabled    ()) << endl;
     f << CONF_ENVMAP_RATE     << "=" << _(App::GetGfxEnvmapRate       ()) << endl;
