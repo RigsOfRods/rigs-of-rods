@@ -243,6 +243,12 @@ void RoR::GUI::TopMenubar::Update()
                 m_open_menu = TopMenu::TOPMENU_NONE;
             }
 
+            if (ImGui::Button("Rig editor"))
+            {
+                App::sim_state.SetPending(RoR::AppState::RIG_EDITOR);
+                m_open_menu = TopMenu::TOPMENU_NONE;
+            }
+
             ImGui::Separator();
             ImGui::TextColored(GRAY_HINT_TEXT, "Pre-spawn diag. options:");
 

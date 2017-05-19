@@ -46,6 +46,7 @@ enum class AppState
     MAIN_MENU,
     CHANGE_MAP,         ///< Enter main menu & immediatelly launch singleplayer map selector.
     SIMULATION,
+    RIG_EDITOR,
     SHUTDOWN,
     PRINT_HELP_EXIT,
     PRINT_VERSION_EXIT,

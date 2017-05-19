@@ -26,13 +26,12 @@
 #include "GUI_GameAbout.h"
 
 #include "RoRPrerequisites.h"
-
-#include "Application.h"
-#include "GUIManager.h"
-#include "Language.h"
-#include "RoRVersion.h"
 #include "Utils.h"
 #include "RoRnet.h"
+#include "RoRVersion.h"
+#include "Language.h"
+#include "GUIManager.h"
+#include "Application.h"
 
 #include <MyGUI.h>
 

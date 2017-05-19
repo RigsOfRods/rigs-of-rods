@@ -355,6 +355,11 @@ void GUIManager::CenterSpawnerReportWindow()
     m_impl->panel_SpawnerReport.CenterToScreen();
 }
 
+void GUIManager::SetSceneManager(Ogre::SceneManager* scene_manager)
+{
+    m_impl->mygui_platform->getRenderManagerPtr()->setSceneManager(scene_manager);
+}
+
 void GUIManager::pushMessageChatBox(Ogre::String txt)
 {
     m_impl->panel_ChatBox.pushMsg(txt);

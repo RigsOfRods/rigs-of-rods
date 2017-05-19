@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2013-2015 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -59,11 +59,7 @@ void Serializer::Serialize()
     // Write banner
     m_stream
         << "; ---------------------------------------------------------------------------- ;" << endl
-        << "; Rigs of Rods project (www.rigsofrods.org)                                    ;" << endl
-        << "; =========================================                                    ;" << endl
-        << ";                                                                              ;" << endl
-        << "; This is a rig definition file.                                               ;" << endl
-        << "; See http://www.rigsofrods.org/wiki/pages/Truck_Description_File for details. ;" << endl
+        << "; Fileformat: http://docs.rigsofrods.org/vehicle-creation/fileformat-truck/    ;" << endl
         << "; ---------------------------------------------------------------------------- ;" << endl
         << endl;
 

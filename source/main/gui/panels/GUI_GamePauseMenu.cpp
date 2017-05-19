@@ -83,7 +83,6 @@ void CLASS::Show()
 
     const bool online = RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED;
     m_change_map->setEnabled(!online);
-
     // Adjust screen position
     Ogre::Viewport* viewport = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
     int margin = (viewport->getActualHeight() / 15);
@@ -121,6 +120,8 @@ void CLASS::eventMouseButtonClickBackToMenuButton(MyGUI::WidgetPtr _sender)
 
 void CLASS::eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender)
 {
+    this->Hide();
+    App::SetPendingAppState(App::APP_STATE_RIG_EDITOR);
 }
 
 void CLASS::eventMouseButtonClickQuitButton(MyGUI::WidgetPtr _sender)

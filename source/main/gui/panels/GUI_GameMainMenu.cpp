@@ -130,6 +130,8 @@ void CLASS::eventMouseButtonClickMultiPlayerButton(MyGUI::WidgetPtr _sender)
 
 void CLASS::eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender)
 {
+	this->Hide();
+	App::SetPendingAppState(App::APP_STATE_RIG_EDITOR);
 }
 
 void CLASS::SetVisible(bool v)

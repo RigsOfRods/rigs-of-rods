@@ -22,6 +22,7 @@
 
 
 #include "RoRPrerequisites.h"
+#include "RigEditor_ForwardDeclarations.h"
 
 #include <OIS.h>
 #include <OgreTimer.h>
@@ -29,6 +30,7 @@
 class GUIInputManager
 {
     friend class InputEngine;
+    friend class RoR::RigEditor::InputHandler;
 
 public:
 
