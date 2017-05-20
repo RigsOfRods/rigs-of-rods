@@ -130,6 +130,7 @@ CVar* diag_hide_wheel_info;
 CVar* diag_hide_wheels;
 CVar* diag_hide_nodes;
 CVar* diag_physics_dt;
+CVar* diag_import_grp_loose;
 
 // System
 CVar* sys_process_dir;

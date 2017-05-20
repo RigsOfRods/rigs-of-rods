@@ -2509,6 +2509,7 @@ Actor* SimController::SpawnActorDirectly(RoR::ActorSpawnRequest rq)
 
     if (rq.asr_cache_entry != nullptr)
     {
+        App::app_state->SetPendingVal((int)AppState::MAIN_MENU);
         rq.asr_filename = rq.asr_cache_entry->fname;
     }
 

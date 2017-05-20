@@ -1823,12 +1823,20 @@ void Serializer::ProcessBeams(File::Module* module)
         ProcessBeamDefaults(preset);
 
         // Write beams
-        std::vector<Beam*> & beam_list = preset_itor->second;
-        auto beam_itor_end = beam_list.end();
-        for (auto beam_itor = beam_list.begin(); beam_itor != beam_itor_end; ++beam_itor)
+        int current_group_id = -1;
+        for (Beam* beam: preset_itor->second)
         {
-            Beam & beam = *(*beam_itor);
-            ProcessBeam(beam);
+            if (beam->editor_group_id != current_group_id)
+            {
+                m_stream << ";grp:";
+                current_group_id = beam->editor_group_id;
+                if (current_group_id != -1)
+                {
+                    m_stream << module->beam_editor_groups[current_group_id].name;
+                }
+                m_stream << endl;
+            }
+            ProcessBeam(*beam);
         }
     }
 
@@ -2450,10 +2458,21 @@ void Serializer::ProcessNodes(File::Module* module)
     {
         this->ProcessNodeDefaults(preset_pair.first);
 
+        int current_group_id = -1;
         for (RigDef::Node* node: preset_pair.second)
         {
             if (node->id.IsTypeNumbered())
             {
+                if (node->editor_group_id != current_group_id)
+                {
+                    m_stream << ";grp:";
+                    current_group_id = node->editor_group_id;
+                    if (current_group_id != -1)
+                    {
+                        m_stream << module->node_editor_groups[current_group_id].name;
+                    }                    
+                    m_stream << endl;
+                }
                 this->ProcessNode(*node);
             }
         }
@@ -2469,8 +2488,19 @@ void Serializer::ProcessNodes(File::Module* module)
 
             for (RigDef::Node* node: preset_pair.second)
             {
+                int current_group_id = -1;
                 if (node->id.IsTypeNamed())
                 {
+                    if (node->editor_group_id != current_group_id)
+                    {
+                        m_stream << ";grp:";
+                        current_group_id = node->editor_group_id;
+                        if (current_group_id != -1)
+                        {
+                            m_stream << module->node_editor_groups[current_group_id].name;
+                        }                        
+                        m_stream << endl;
+                    }
                     this->ProcessNode(*node);
                 }
             }
@@ -2643,7 +2673,7 @@ void Serializer::ProcessAuthors()
     for (Author const& author: m_rig_def->authors)
     {
         m_stream << "author " << author.type << " "
-            << author.forum_account_id << " " << author.name << " " << author.email;
+            << author.forum_account_id << " " << author.name << " " << author.email << endl;
     }
     m_stream << endl;
 }

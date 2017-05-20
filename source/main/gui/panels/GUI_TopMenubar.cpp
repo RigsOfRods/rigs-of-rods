@@ -335,19 +335,19 @@ void RoR::GUI::TopMenubar::Update()
 
             if (projects.size() == 0)
             {
-                ImGui::TextColored(GRAY_HINT_TEXT, "There are no projects");
+                ImGui::TextColored(GRAY_HINT_TEXT, _L("There are no projects"));
             }
 
             ImGui::Separator();
 
-            if (ImGui::Button("Refresh"))
+            if (ImGui::Button(_L("Refresh list")))
             {
                 App::GetContentManager()->ReScanProjects(); // TODO: Make it happen asynchronously!
             }
 
             if (App::GetSimController()->GetPlayerActor() == nullptr)
             {
-                ImGui::TextColored(GRAY_HINT_TEXT, "Enter vehicle to import");
+                ImGui::TextColored(GRAY_HINT_TEXT, _L("Import current vehicle"));
             }
             else
             {
@@ -368,6 +368,18 @@ void RoR::GUI::TopMenubar::Update()
                         e.ImportSnapshotToProject(filename, src_actor->GetDefinition()); // Logs+displays errors
                     }
                 }
+            }
+
+            bool grp_loose = App::diag_import_grp_loose->GetActiveVal<bool>();
+            if (ImGui::Checkbox(_L("Loose ;grp: import (respawn!)"), &grp_loose))
+            {
+                App::diag_import_grp_loose->SetActiveVal(grp_loose);
+            }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::Text(_L("Accept all ';' comments as ';grp:' comments. Takes effect after vehicle reload."));
+                ImGui::EndTooltip();
             }
 
             // Finalize menu panel
