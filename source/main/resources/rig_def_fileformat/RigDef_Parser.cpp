@@ -43,6 +43,8 @@ using namespace RoR;
 namespace RigDef
 {
 
+using namespace RoR;
+
 inline bool IsWhitespace(char c)
 {
     return (c == ' ') || (c == '\t');
@@ -104,8 +106,14 @@ void Parser::ProcessCurrentLine()
         }
         return;
     }
+    else if (StrEqualsNocase(m_current_line, "comment"))
+    {
+        m_in_block_comment = true;
+        return;
+    }
     else if ((m_current_line[0] == ';') || (m_current_line[0] == '/'))
     {
+        this->ProcessCommentLine();
         return;
     }
 
@@ -2766,6 +2774,7 @@ void Parser::ParseNodesUnified()
     node.beam_defaults = m_user_beam_defaults;
     node.node_minimass = m_user_minimass;
     node.detacher_group = m_current_detacher_group;
+    node.editor_group_id = (int)m_current_module->node_editor_groups.size() - 1; // Empty -> -1 (none), otherwise last index.
 
     if (m_current_section == File::SECTION_NODES_2)
     {
@@ -3011,6 +3020,7 @@ void Parser::ParseBeams()
     Beam beam;
     beam.defaults       = m_user_beam_defaults;
     beam.detacher_group = m_current_detacher_group;
+    beam.editor_group_id = m_current_module->beam_editor_groups.size() - 1; // Empty -> -1 (none), otherwise last index.
     
     beam.nodes[0] = this->GetArgNodeRef(0);
     beam.nodes[1] = this->GetArgNodeRef(1);
@@ -3706,8 +3716,8 @@ void Parser::ProcessRawLine(const char* raw_line_buf)
         ++raw_start;
     }
 
-    // Skip empty/comment lines
-    if ((raw_start == raw_end) || (*raw_start == ';') || (*raw_start == '/'))
+    // Skip empty lines
+    if (raw_start == raw_end)
     {
         ++m_current_line_number;
         return;
@@ -3721,6 +3731,47 @@ void Parser::ProcessRawLine(const char* raw_line_buf)
     // Process
     this->ProcessCurrentLine();
     ++m_current_line_number;
+}
+
+void Parser::ProcessCommentLine()
+{
+    if (m_current_line[0] != ';')
+    {
+        return;
+    }
+
+    Str<100> name;
+    if ((strlen(m_current_line) >= 5) &&
+        (m_current_line[1] == 'g')    &&
+        (m_current_line[2] == 'r')    &&
+        (m_current_line[3] == 'p')    &&
+        (m_current_line[4] == ':'))
+    {
+        name = &m_current_line[5];
+    }
+    else if (App::diag_import_grp_loose->GetBool())
+    {
+        name = &m_current_line[1];
+    }
+    else
+    {
+        return;
+    }
+
+    switch (m_current_section)
+    {
+    case File::SECTION_NODES:
+    case File::SECTION_NODES_2:
+        m_current_module->node_editor_groups.push_back(File::EditorGroup(name.ToCStr()));
+        break;
+
+    case File::SECTION_BEAMS:
+        m_current_module->beam_editor_groups.push_back(File::EditorGroup(name.ToCStr()));
+        break;
+
+    default:
+        break;
+    }
 }
 
 } // namespace RigDef

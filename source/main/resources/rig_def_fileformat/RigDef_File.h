@@ -465,7 +465,8 @@ struct Beam
         options(0),
         extension_break_limit(0), /* This is default */
         _has_extension_break_limit(false),
-        detacher_group(0) /* 0 = Default detacher group */
+        detacher_group(0), /* 0 = Default detacher group */
+        editor_group_id(-1)
     {}
 
     BITMASK_PROPERTY(options, 1, OPTION_i_INVISIBLE, HasFlag_i_Invisible, SetFlag_i_Invisible);
@@ -478,6 +479,7 @@ struct Beam
     bool _has_extension_break_limit;
     int detacher_group;
     std::shared_ptr<BeamDefaults> defaults;
+    int editor_group_id;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -2035,6 +2037,13 @@ struct Wing
 
 struct File
 {
+    /// Group of elements of same type, formed by i.e. ';grp:NAME' comments in nodews/beams
+    struct EditorGroup
+    {
+        EditorGroup(const char* _name): name(_name) {}
+        std::string name;
+    }; // more attributes may be needed...
+
     /** Modular part of vehicle (part of file wrapped in 'section ~ end_section' tags)
     */
     struct Module
@@ -2052,6 +2061,7 @@ struct File
         std::shared_ptr<AntiLockBrakes>    anti_lock_brakes;
         std::vector<Axle>                  axles;
         std::vector<Beam>                  beams;
+        std::vector<EditorGroup>           beam_editor_groups; // Originally ';grp:NAME' comments from Editorizer tool
         std::shared_ptr<Brakes>            brakes;
         std::vector<Camera>                cameras;
         std::vector<CameraRail>            camera_rails;
@@ -2080,6 +2090,7 @@ struct File
         std::vector<MaterialFlareBinding>  material_flare_bindings;
         std::vector<MeshWheel>             mesh_wheels;
         std::vector<Node>                  nodes; /* Nodes and Nodes2 are unified in this parser */
+        std::vector<EditorGroup>           node_editor_groups; // Originally ';grp:NAME' comments from Editorizer tool
         std::vector<NodeCollision>         node_collisions;
         std::vector<Particle>              particles;
         std::vector<Pistonprop>            pistonprops;

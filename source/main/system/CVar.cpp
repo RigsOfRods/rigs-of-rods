@@ -96,6 +96,7 @@ void Console::CVarSetupBuiltins()
     App::diag_hide_nodes         = this->CVarCreate("diag_hide_nodes",         "Hide nodes",                 CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_physics_dt         = this->CVarCreate("diag_physics_dt",          "PhysicsTimeStep",           CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "0.0005");
     App::diag_terrn_log_roads    = this->CVarCreate("diag_terrn_log_roads",    "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
+    App::diag_import_grp_loose   = this->CVarCreate("diag_import_grp_loose",   "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
 
     App::sys_process_dir         = this->CVarCreate("sys_process_dir",         "",                           0);
     App::sys_user_dir            = this->CVarCreate("sys_user_dir",            "",                           0);
