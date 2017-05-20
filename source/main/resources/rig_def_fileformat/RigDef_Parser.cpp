@@ -627,12 +627,6 @@ void Parser::ProcessCurrentLine()
                 line_finished = true;
                 break;
 
-#if 0 // Not supported yet
-            case (File::KEYWORD_SOUNDSOURCES3):
-                new_section = File::SECTION_;
-                line_finished = true;
-                break;
-#endif
             case (File::KEYWORD_SPEEDLIMITER):
                 ParseSpeedLimiter();
                 line_finished = true;
