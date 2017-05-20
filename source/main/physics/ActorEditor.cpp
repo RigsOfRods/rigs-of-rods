@@ -170,7 +170,8 @@ void ActorEditor::ImportModuleToSnapshot(std::shared_ptr<RigDef::File::Module> s
     dst->animators                  = src->animators                  ; //std::vector<Animator>              
     dst->anti_lock_brakes           = src->anti_lock_brakes           ; //std::shared_ptr<AntiLockBrakes>    
     dst->axles                      = src->axles                      ; //std::vector<Axle>                  
-    dst->beams                      = src->beams                      ; //std::vector<Beam>                  
+    dst->beams                      = src->beams                      ; //std::vector<Beam>
+    dst->beam_editor_groups         = src->beam_editor_groups         ; //std::vector<EditorGroup>  
     dst->brakes                     = src->brakes                     ; //std::shared_ptr<Brakes>            
     dst->cameras                    = src->cameras                    ; //std::vector<Camera>                
     dst->camera_rails               = src->camera_rails               ; //std::vector<CameraRail>            
@@ -199,7 +200,8 @@ void ActorEditor::ImportModuleToSnapshot(std::shared_ptr<RigDef::File::Module> s
     dst->material_flare_bindings    = src->material_flare_bindings    ; //std::vector<MaterialFlareBinding>  
     dst->mesh_wheels                = src->mesh_wheels                ; //std::vector<MeshWheel>             
     dst->nodes                      = src->nodes                      ; //std::vector<Node>                  
-    dst->node_collisions            = src->node_collisions            ; //std::vector<NodeCollision>         
+    dst->node_collisions            = src->node_collisions            ; //std::vector<NodeCollision> 
+    dst->node_editor_groups         = src->node_editor_groups         ; //std::vector<EditorGroup>  
     dst->particles                  = src->particles                  ; //std::vector<Particle>              
     dst->pistonprops                = src->pistonprops                ; //std::vector<Pistonprop>            
     dst->props                      = src->props                      ; //std::vector<Prop>                  
