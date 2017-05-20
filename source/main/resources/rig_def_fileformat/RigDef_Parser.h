@@ -370,6 +370,8 @@ protected:
 
     void _ExitSections(Ogre::String const & line);
 
+    void ProcessCommentLine();
+
     void RestoreRootModule();
 
     bool _IsCurrentModuleRoot()

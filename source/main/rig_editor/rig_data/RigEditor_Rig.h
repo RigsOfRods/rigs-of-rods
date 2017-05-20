@@ -335,7 +335,9 @@ private:
     /* STRUCTURE */
 
     std::map<std::string, Node>       m_nodes; // Only named nodes are supported
+    std::vector<NodeGroup>            m_node_groups;
     std::list<Beam>                   m_beams;
+    std::vector<BeamGroup>            m_beam_groups;
     std::list<CineCamera>             m_cinecameras;
     Ogre::AxisAlignedBox              m_aabb;
     unsigned int                      m_highest_node_id;

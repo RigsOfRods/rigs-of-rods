@@ -140,7 +140,8 @@ struct Node
         options(0),
         load_weight_override(0),
         _has_load_weight_override(false),
-        detacher_group(0) /* Global detacher group */
+        detacher_group(0), /* Global detacher group */
+        editor_group_id(-1)
     {}
 
     BITMASK_PROPERTY( options,  1, OPTION_n_MOUSE_GRAB        , HasFlag_n, SetFlag_n)
@@ -164,6 +165,7 @@ struct Node
     std::shared_ptr<NodeDefaults> node_defaults;
     std::shared_ptr<BeamDefaults> beam_defaults; /* Needed for hook */
     int detacher_group;
+    int editor_group_id;
 };
 
 } //namespace RigDef

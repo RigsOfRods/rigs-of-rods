@@ -35,6 +35,12 @@ namespace RoR
 namespace RigEditor
 {
 
+struct BeamGroup
+{
+    std::string       rebg_name;
+    Ogre::ColourValue rebg_color;
+};
+
 class Beam
 {
     friend class RigEditor::Rig;

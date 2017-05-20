@@ -150,6 +150,16 @@ void Rig::Build(
     {
         report->SetCurrentSectionName("nodes");
     }
+
+    // Groups
+    for (RigDef::File::EditorGroup& grp: module->node_editor_groups)
+    {
+        m_node_groups.push_back(RigEditor::NodeGroup());
+        m_node_groups.back().reng_color = Ogre::ColourValue::White;
+        m_node_groups.back().reng_name = grp.name;
+    }
+
+    // Nodes themselves
     for (auto node_itor = module->nodes.begin(); node_itor != module->nodes.end(); ++node_itor)
     {
         bool done = false;
@@ -187,6 +197,16 @@ void Rig::Build(
     {
         report->SetCurrentSectionName("beams");
     }
+
+    // Groups
+    for (RigDef::File::EditorGroup& grp: module->beam_editor_groups)
+    {
+        m_beam_groups.push_back(RigEditor::BeamGroup());
+        m_beam_groups.back().rebg_color = Ogre::ColourValue::White;
+        m_beam_groups.back().rebg_name = grp.name;
+    }
+
+    // Beams themselves
     auto beam_itor_end = module->beams.end();
     for (auto beam_itor = module->beams.begin(); beam_itor != beam_itor_end; ++beam_itor)
     {

@@ -33,7 +33,8 @@ Node::Node(RigDef::Node const & def):
     m_definition(def),
     m_flags(0),
     m_screen_position(0, 0),
-    m_position(def.position)
+    m_position(def.position),
+    m_nodegroup_id(def.editor_group_id)
 {}
 
 Node::Node()

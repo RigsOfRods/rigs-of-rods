@@ -99,7 +99,11 @@ void Parser::ProcessCurrentLine()
         m_in_block_comment = true;
         return;        
     }
-    else if ((m_current_line[0] == ';') || (m_current_line[0] == '/') || m_in_block_comment) // Comment line
+    else if ((m_current_line[0] == ';') || (m_current_line[0] == '/'))
+    {
+        this->ProcessCommentLine();
+    }
+    else if(m_in_block_comment) // Comment line
     {
         return;
     }
@@ -3331,6 +3335,7 @@ void Parser::ParseNodesUnified()
     node.node_defaults = m_user_node_defaults;
     node.beam_defaults = m_user_beam_defaults;
     node.detacher_group = m_current_detacher_group;
+    node.editor_group_id = m_current_module->node_editor_groups.size() - 1; // Empty -> -1 (none), otherwise last index.
 
     if (m_current_section == File::SECTION_NODES_2)
     {
@@ -3555,6 +3560,7 @@ void Parser::ParseBeams()
     Beam beam;
     beam.defaults       = m_user_beam_defaults;
     beam.detacher_group = m_current_detacher_group;
+    beam.editor_group_id = m_current_module->beam_editor_groups.size() - 1; // Empty -> -1 (none), otherwise last index.
     
     beam.nodes[0] = this->GetArgNodeRef(0);
     beam.nodes[1] = this->GetArgNodeRef(1);
@@ -4243,6 +4249,36 @@ void Parser::ProcessRawLine(const char* raw_line_buf)
     // Process
     this->ProcessCurrentLine();
     ++m_current_line_number;
+}
+
+void Parser::ProcessCommentLine()
+{
+    if ((strlen(m_current_line) <= 5) ||
+        (m_current_line[0] != ';')    ||
+        (m_current_line[1] != 'g')    ||
+        (m_current_line[2] != 'r')    ||
+        (m_current_line[3] != 'p')    ||
+        (m_current_line[4] != ':'))
+    {
+         return; // Not an editor group comment
+    }
+
+    std::string grp_name();
+
+    switch (m_current_section)
+    {
+    case File::SECTION_NODES:
+    case File::SECTION_NODES_2:
+        m_current_module->node_editor_groups.push_back(File::EditorGroup(&m_current_line[5]));
+        break;
+
+    case File::SECTION_BEAMS:
+        m_current_module->beam_editor_groups.push_back(File::EditorGroup(&m_current_line[5]));
+        break;
+
+    default:
+        break;
+    }
 }
 
 } // namespace RigDef

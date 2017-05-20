@@ -37,6 +37,12 @@ namespace RoR
 namespace RigEditor
 {
 
+struct NodeGroup
+{
+    std::string       reng_name;
+    Ogre::ColourValue reng_color;
+};
+
 class Node
 {
     friend class RigEditor::Rig;
@@ -103,6 +109,7 @@ protected:
     Ogre::ColourValue      m_color;
     std::list<Beam*>       m_linked_beams;
     Ogre::Vector3          m_position; ///< Current position; represents intermediate position during transformations.
+    int                    m_nodegroup_id;
 };
 
 } // namespace RigEditor
