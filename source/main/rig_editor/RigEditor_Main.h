@@ -48,12 +48,13 @@ public:
         static const MyGUI::UString MODE_SAVE_TRUCK_AS;
     };
 
-    Main(Config* config);
+    Main();
     ~Main();
 
-    void EnterMainLoop();
-
-    void UpdateMainLoop();
+    void BringUp();
+    void PutOff();
+    void UpdateEditorLoop();
+    void EnterEditorLoop(); ///< You must call `BringUp()` before and `PutOff()` afterwards.
 
     Ogre::SceneManager* GetOgreSceneManager()
     {
@@ -148,7 +149,6 @@ private:
     CameraHandler*       m_camera_handler;
     Rig*                 m_rig;
 
-    bool                 m_exit_loop_requested;
     unsigned int         m_state_flags;
 
     // GUI

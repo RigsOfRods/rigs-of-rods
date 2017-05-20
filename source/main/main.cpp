@@ -58,6 +58,8 @@
 #include "OverlayWrapper.h"
 #include "OutProtocol.h"
 
+#include "RigEditor_Config.h"
+#include "RigEditor_Main.h"
 #include "RoRFrameListener.h"
 #include "Scripting.h"
 #include "Settings.h"
@@ -264,6 +266,7 @@ int main(int argc, char *argv[])
         RoR::App::GetInputEngine()->windowResized(App::GetOgreSubsystem()->GetRenderWindow());
 
         MainMenu main_obj;
+        RoR::RigEditor::Main* rig_editor = new RoR::RigEditor::Main();
 
         // ### Main loop (switches application states) ###
 
@@ -328,7 +331,7 @@ int main(int argc, char *argv[])
             else if (App::app_state.GetPending() == AppState::SIMULATION)
             {
                 {
-                    RoRFrameListener sim_controller(&force_feedback, &skidmark_conf);
+                    RoRFrameListener sim_controller(&force_feedback, &skidmark_conf, rig_editor);
                     if (sim_controller.SetupGameplayLoop())
                     {
                         App::app_state.ApplyPending();
@@ -365,12 +368,29 @@ int main(int argc, char *argv[])
                 //It's the same thing so..
                 main_obj.EnterMainMenuLoop();
             }
+            else if (App::app_state.GetPending() == AppState::RIG_EDITOR)
+            {
+                // Prepare
+                menu_wallpaper_widget->setVisible(false);
+                App::GetOgreSubsystem()->GetRenderWindow()->removeAllViewports();
+                App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(App::GetGuiManager()); // Stop GUIManager updates
+                rig_editor->BringUp();
+                App::app_state.ApplyPending();
+                // Enter
+                rig_editor->EnterEditorLoop();
+                // Suspend
+                rig_editor->PutOff();
+                menu_wallpaper_widget->setVisible(true);
+            }
             prev_app_state = App::app_state.GetActive();
         } // End of app state loop
 
         // ========================================================================
         // Cleanup
         // ========================================================================
+
+        delete rig_editor;
+        rig_editor = nullptr;
 
         Settings::getSingleton().SaveSettings(); // Save RoR.cfg
 

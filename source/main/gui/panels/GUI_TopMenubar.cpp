@@ -245,7 +245,7 @@ void RoR::GUI::TopMenubar::Update()
 
             if (ImGui::Button("Rig editor"))
             {
-                App::sim_state.SetPending(RoR::AppState::RIG_EDITOR);
+                App::sim_state.SetPending(RoR::SimState::RIG_EDITOR);
                 m_open_menu = TopMenu::TOPMENU_NONE;
             }
 

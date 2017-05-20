@@ -57,6 +57,7 @@
 #include "OverlayWrapper.h"
 #include "Replay.h"
 #include "RoRVersion.h"
+#include "RigEditor_Main.h"
 #include "SceneMouse.h"
 #include "ScrewProp.h"
 #include "Scripting.h"
@@ -115,9 +116,11 @@ using namespace RoR;
 #define simRUNNING(_S_) (_S_ == SimState::RUNNING    )
 #define  simPAUSED(_S_) (_S_ == SimState::PAUSED     )
 #define  simSELECT(_S_) (_S_ == SimState::SELECTING  )
-#define  simEDITOR(_S_) (_S_ == SimState::EDITOR_MODE)
+#define  simEDITOR(_S_) (_S_ == SimState::MAP_EDITOR )
 
-RoRFrameListener::RoRFrameListener(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_conf) :
+RoRFrameListener::RoRFrameListener(RoR::ForceFeedback* ff, 
+                                   RoR::SkidmarkConfig* skid_conf,
+                                   RigEditor::Main* rig_editor) :
     m_beam_factory(this),
     m_character_factory(this),
     m_dir_arrow_pointed(Vector3::ZERO),
@@ -146,7 +149,8 @@ RoRFrameListener::RoRFrameListener(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* 
     m_time_until_next_toggle(0),
     m_advanced_truck_repair(false),
     m_advanced_truck_repair_timer(0.f),
-    m_truck_info_on(false)
+    m_truck_info_on(false),
+    m_rig_editor(rig_editor)
 {
 }
 
@@ -592,7 +596,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TERRAIN_EDITOR))
     {
         terrain_editing_mode = !terrain_editing_mode;
-        App::sim_state.SetActive(terrain_editing_mode ? SimState::EDITOR_MODE : SimState::RUNNING);
+        App::sim_state.SetActive(terrain_editing_mode ? SimState::MAP_EDITOR : SimState::RUNNING);
         UTFString ssmsg = terrain_editing_mode ? _L("Entered terrain editing mode") : _L("Left terrain editing mode");
         RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
         RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
@@ -2467,40 +2471,114 @@ void RoRFrameListener::EnterGameplayLoop()
 
     while (App::app_state.GetPending() == AppState::SIMULATION)
     {
-        startTime = RoR::App::GetOgreSubsystem()->GetTimer()->getMilliseconds();
+        // ##### Simulation loop #####
+        Ogre::RenderWindow * const window    = RoR::App::GetOgreSubsystem()->GetRenderWindow();
+        Ogre::Root* const          ogre_root = RoR::App::GetOgreSubsystem()->GetOgreRoot();
+        while ((App::app_state.GetPending() == AppState::SIMULATION)
+            && (App::sim_state.GetPending() != RoR::SimState::RIG_EDITOR))
+        {
+            startTime = RoR::App::GetOgreSubsystem()->GetTimer()->getMilliseconds();
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 || OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-        RoRWindowEventUtilities::messagePump();
+            RoRWindowEventUtilities::messagePump();
 #endif
-        Ogre::RenderWindow* rw = RoR::App::GetOgreSubsystem()->GetRenderWindow();
-        if (rw->isClosed())
-        {
-            App::app_state.SetPending(AppState::SHUTDOWN);
-            continue;
-        }
+            if (window->isClosed())
+            {
+                App::app_state.SetPending(AppState::SHUTDOWN);
+                break;
+            }
 
-        RoR::App::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
+            ogre_root->renderOneFrame();
+
 #ifdef USE_SOCKETW
-        if ((App::mp_state.GetActive() == MpState::CONNECTED) && RoR::Networking::CheckError())
-        {
-            Ogre::String title = Ogre::UTFString(_L("Network fatal error: ")).asUTF8();
-            Ogre::String msg = RoR::Networking::GetErrorMessage().asUTF8();
-            App::GetGuiManager()->ShowMessageBox(title, msg, true, "OK", true, false, "");
-            App::app_state.SetPending(AppState::MAIN_MENU);
-        }
+            if ((App::mp_state.GetActive() == MpState::CONNECTED) && RoR::Networking::CheckError())
+            {
+                Ogre::String title = Ogre::UTFString(_L("Network fatal error: ")).asUTF8();
+                Ogre::String msg = RoR::Networking::GetErrorMessage().asUTF8();
+                App::GetGuiManager()->ShowMessageBox(title, msg, true, "OK", true, false, "");
+                App::app_state.SetPending(AppState::MAIN_MENU);
+            }
 #endif
 
-        if (!rw->isActive() && rw->isVisible())
-            rw->update(); // update even when in background !
+            if (!window->isActive() && window->isVisible())
+                window->update(); // update even when in background !
 
-        if (fpsLimit && timeSinceLastFrame < minTimePerFrame)
-        {
-            // Sleep twice as long as we were too fast.
-            int ms = static_cast<int>((minTimePerFrame - timeSinceLastFrame) << 1);
-            std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+            if (fpsLimit && timeSinceLastFrame < minTimePerFrame)
+            {
+                // Sleep twice as long as we were too fast.
+                int ms = static_cast<int>((minTimePerFrame - timeSinceLastFrame) << 1);
+                std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+            }
+
+            timeSinceLastFrame = RoR::App::GetOgreSubsystem()->GetTimer()->getMilliseconds() - startTime;
         }
 
-        timeSinceLastFrame = RoR::App::GetOgreSubsystem()->GetTimer()->getMilliseconds() - startTime;
+        if (App::app_state.GetPending() != AppState::SIMULATION)
+        {
+            break;
+        }
+
+        // ##### {Sim -> rig editor} switch #####
+        App::GetOgreSubsystem()->GetRenderWindow()->removeAllViewports();
+        App::GetOverlayWrapper()->TemporarilyHideAllOverlays( this->GetPlayerActor() );
+        App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(App::GetGuiManager()); // Stop GUIManager updates
+        App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(this);
+        m_rig_editor->BringUp();
+        App::sim_state.ApplyPending();
+        App::GetGuiManager()->ReflectGameState();
+
+        // ##### Editor loop #####
+        while ((App::app_state.GetPending() == AppState::SIMULATION)
+            && (App::sim_state.GetPending() == RoR::SimState::RIG_EDITOR))
+        {
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 || OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+            RoRWindowEventUtilities::messagePump();
+#endif
+            if (window->isClosed())
+            {
+                App::app_state.SetPending(AppState::SHUTDOWN);
+                break;
+            }
+
+            m_rig_editor->UpdateEditorLoop();
+
+            ogre_root->renderOneFrame();
+
+            if (!window->isActive() && window->isVisible())
+                window->update(); // update even when in background !
+        }
+
+        if (App::app_state.GetPending() != AppState::SIMULATION)
+        {
+            break;
+        }
+
+        // ##### {rig editor -> sim} switch #####
+        m_rig_editor->PutOff();
+
+        // Restore 3D engine settings
+        App::GetOgreSubsystem()->GetRenderWindow()->removeAllViewports();
+        Ogre::Viewport* viewport = App::GetOgreSubsystem()->GetRenderWindow()->addViewport(nullptr);
+        viewport->setBackgroundColour(Ogre::ColourValue(0.f, 0.f, 0.f));
+        gEnv->mainCamera->setAspectRatio(viewport->getActualHeight() / viewport->getActualWidth());
+        App::GetOgreSubsystem()->SetViewport(viewport);
+        viewport->setCamera(gEnv->mainCamera);
+        App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(this);
+
+        // Restore GUI
+        App::GetGuiManager()->SetSceneManagerForGuiRendering(gEnv->sceneManager);
+        App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(RoR::App::GetGuiManager());
+
+        // Restore input
+        App::GetInputEngine()->RestoreKeyboardListener();
+        App::GetInputEngine()->RestoreMouseListener();
+
+        // Restore overlays
+        App::GetOverlayWrapper()->RestoreOverlaysVisibility( this->GetPlayerActor() );
+
+        // Finalize
+        App::sim_state.ApplyPending();
+        App::GetGuiManager()->ReflectGameState();
     }
 
     App::sim_state.SetActive(SimState::NONE);

@@ -46,7 +46,7 @@ enum class AppState
     MAIN_MENU,
     CHANGE_MAP,         ///< Enter main menu & immediatelly launch singleplayer map selector.
     SIMULATION,
-    RIG_EDITOR,
+    RIG_EDITOR,         ///< Enter rig editor without simulation (can be started later)
     SHUTDOWN,
     PRINT_HELP_EXIT,
     PRINT_VERSION_EXIT,
@@ -67,7 +67,8 @@ enum class SimState
     RUNNING,
     PAUSED,
     SELECTING,  ///< The selector GUI window is displayed.
-    EDITOR_MODE ///< Hacky, but whatever... added by Ulteq, 2016
+    RIG_EDITOR, ///< Suspend simulation and enter editor.
+    MAP_EDITOR,
 };
 const char* EnumToStr(SimState v);
 

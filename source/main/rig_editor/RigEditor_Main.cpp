@@ -1,6 +1,6 @@
 /*
     This source file is part of Rigs of Rods
-    Copyright 2013-2016 Petr Ohlidal & contributors
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.com/
 
@@ -27,6 +27,7 @@
 
 #include "Application.h"
 #include "CacheSystem.h"
+#include "ContentManager.h"
 #include "GlobalEnvironment.h"
 #include "GUI_RigEditorBeamsPanel.h"
 #include "GUI_RigEditorCommands2Panel.h"
@@ -43,7 +44,6 @@
 #include "GUI_RigEditorShocks2Panel.h"
 #include "GUIManager.h"
 #include "InputEngine.h"
-#include "MainThread.h"
 #include "OgreSubsystem.h"
 #include "RigDef_Parser.h"
 #include "RigDef_Serializer.h"
@@ -73,18 +73,25 @@ using namespace RoR::RigEditor;
 const MyGUI::UString Main::OpenSaveFileDialogMode::MODE_OPEN_TRUCK     ("RigEditor_OpenTruckFile");
 const MyGUI::UString Main::OpenSaveFileDialogMode::MODE_SAVE_TRUCK_AS  ("RigEditor_SaveTruckFileAs");
 
-Main::Main(Config* config):
-    m_config(config),
+Main::Main():
     m_scene_manager(nullptr),
     m_camera(nullptr),
     m_viewport(nullptr),
     m_rig_entity(nullptr),
-    m_exit_loop_requested(false),
     m_input_handler(nullptr),
     m_debug_box(nullptr),
     m_rig(nullptr),
     m_state_flags(0)
 {
+    // Load resources
+    RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::RIG_EDITOR);
+    Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("RigEditor");
+
+    // Load config file
+    GStr<300> cfg_path;
+    cfg_path << App::sys_config_dir.GetActive() << PATH_SLASH << "rig_editor.cfg";
+    m_config = new RigEditor::Config(cfg_path.ToCStr());
+
     /* Setup 3D engine */
     OgreSubsystem* ror_ogre_subsystem = App::GetOgreSubsystem();
     assert(ror_ogre_subsystem != nullptr);
@@ -93,9 +100,9 @@ Main::Main(Config* config):
 
     /* Camera */
     m_camera = m_scene_manager->createCamera("rig_editor_camera");
-    m_camera->setNearClipDistance(config->camera_near_clip_distance);
-    m_camera->setFarClipDistance(config->camera_far_clip_distance);
-    m_camera->setFOVy(Ogre::Degree(config->camera_FOVy_degrees));
+    m_camera->setNearClipDistance(m_config->camera_near_clip_distance);
+    m_camera->setFarClipDistance(m_config->camera_far_clip_distance);
+    m_camera->setFOVy(Ogre::Degree(m_config->camera_FOVy_degrees));
     m_camera->setAutoAspectRatio(true);
 
     /* Setup input */
@@ -104,7 +111,7 @@ Main::Main(Config* config):
     /* Camera handling */
     m_camera_handler = new CameraHandler(m_camera);
     m_camera_handler->SetOrbitTarget(m_scene_manager->getRootSceneNode());	
-    m_camera_handler->SetOrthoZoomRatio(config->ortho_camera_zoom_ratio);
+    m_camera_handler->SetOrthoZoomRatio(m_config->ortho_camera_zoom_ratio);
     m_camera->setPosition(Ogre::Vector3(10,5,10));
 
     /* Debug output box */
@@ -113,6 +120,8 @@ Main::Main(Config* config):
     m_debug_box->setCaption("Hello\nRigEditor!");
     m_debug_box->setTextColour(MyGUI::Colour(0.8, 0.8, 0.8));
     m_debug_box->setFontName("DefaultBig");
+    m_debug_box->setVisible(false);
+    m_debug_box->setEnabled(false);
 }
 
 Main::~Main()
@@ -127,7 +136,34 @@ Main::~Main()
     }
 }
 
-void Main::EnterMainLoop()
+void Main::EnterEditorLoop()
+{
+    Ogre::RenderWindow* const window     = App::GetOgreSubsystem()->GetRenderWindow();
+    Ogre::Root* const         ogre_root  = App::GetOgreSubsystem()->GetOgreRoot();
+    while (App::app_state.GetPending() == RoR::AppState::RIG_EDITOR)
+    {
+        this->UpdateEditorLoop();
+
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 || OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+        RoRWindowEventUtilities::messagePump();
+#endif
+
+        if (window->isClosed())
+        {
+            App::app_state.SetPending(RoR::AppState::SHUTDOWN);
+            break;
+        }
+
+        ogre_root->renderOneFrame();
+
+        if (!window->isActive() && window->isVisible())
+        {
+            window->update(); // update even when in background !
+        }
+    }
+}
+
+void Main::BringUp()
 {
     /* Setup 3D engine */
     OgreSubsystem* ror_ogre_subsystem = App::GetOgreSubsystem();
@@ -138,7 +174,7 @@ void Main::EnterMainLoop()
     m_camera->setAspectRatio(m_viewport->getActualHeight() / viewport_width);
     m_viewport->setCamera(m_camera);
 
-    InitializeOrRestoreGui();
+    this->InitializeOrRestoreGui();
 
     /* Setup input */
     App::GetInputEngine()->SetKeyboardListener(m_input_handler);
@@ -146,28 +182,10 @@ void Main::EnterMainLoop()
 
     /* Show debug box */
     m_debug_box->setVisible(true);
+}
 
-    while (! m_exit_loop_requested)
-    {
-        UpdateMainLoop();
-
-        Ogre::RenderWindow* rw = ror_ogre_subsystem->GetRenderWindow();
-        if (rw->isClosed())
-        {
-            App::SetPendingAppState(App::APP_STATE_SHUTDOWN);
-            m_exit_loop_requested = true;
-            break;
-        }
-
-        /* Render */
-        ror_ogre_subsystem->GetOgreRoot()->renderOneFrame();
-
-        if (!rw->isActive() && rw->isVisible())
-        {
-            rw->update(); // update even when in background !
-        }
-    }
-
+void Main::PutOff()
+{
     /* Hide GUI */
     m_gui_menubar->Hide();
     if (m_gui_open_save_file_dialog->isModal())
@@ -187,16 +205,10 @@ void Main::EnterMainLoop()
 
     /* Hide debug box */
     m_debug_box->setVisible(false);
-
-    m_exit_loop_requested = false;
 }
 
-void Main::UpdateMainLoop()
+void Main::UpdateEditorLoop()
 {
-    /* Process window events */
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 || OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-    RoRWindowEventUtilities::messagePump();
-#endif
 
     /* Update input events */
     m_input_handler->ResetEvents();
@@ -876,8 +888,14 @@ void Main::CommandCurrentRigDeleteSelectedBeams()
 
 void Main::CommandQuitRigEditor()
 {
-    m_exit_loop_requested = true;
-    App::SetPendingAppState(App::APP_STATE_MAIN_MENU);
+    if (App::app_state.GetActive() == RoR::AppState::RIG_EDITOR)
+    {
+        App::app_state.SetPending(AppState::MAIN_MENU);
+    }
+    else // AppState::SIMULATION, SimState::RIG_EDITOR
+    {
+        App::sim_state.SetPending(SimState::RUNNING);
+    }
 }
 
 void Main::CommandShowRigPropertiesWindow()
@@ -943,7 +961,7 @@ void Main::InitializeOrRestoreGui()
     INIT_OR_RESTORE_RIG_ELEMENT_PANEL( m_meshwheels2_panel,      RigEditorMeshWheels2Panel);
     INIT_OR_RESTORE_RIG_ELEMENT_PANEL( m_flexbodywheels_panel,   RigEditorFlexBodyWheelsPanel);
 
-    App::GetGuiManager()->SetSceneManager(m_scene_manager);
+    App::GetGuiManager()->SetSceneManagerForGuiRendering(m_scene_manager);
     if (m_gui_menubar.get() == nullptr)
     {
         m_gui_menubar = std::unique_ptr<GUI::RigEditorMenubar>(new GUI::RigEditorMenubar(this));

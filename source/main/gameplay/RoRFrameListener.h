@@ -23,6 +23,7 @@
 
 #include "RoRPrerequisites.h"
 #include "ForceFeedback.h"
+#include "RigEditor_ForwardDeclarations.h"
 
 #include "CharacterFactory.h"
 #include "BeamFactory.h"
@@ -45,7 +46,7 @@ class RoRFrameListener: public Ogre::FrameListener, public Ogre::WindowEventList
     friend class RoR::BeamFactory; // Needed for function `ChangedCurrentVehicle()`. TODO: Eliminate ~ only_a_ptr, 06/2017
 public:
 
-    RoRFrameListener(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_conf);
+    RoRFrameListener(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_conf, RoR::RigEditor::Main* rig_editor);
 
     // Ogre::FrameListener public interface
     bool   frameStarted          (const Ogre::FrameEvent& evt) override;
@@ -134,4 +135,6 @@ private:
 
     Ogre::Vector3            m_reload_pos;
     Ogre::Quaternion         m_reload_dir;
+
+    RoR::RigEditor::Main*    m_rig_editor;
 };

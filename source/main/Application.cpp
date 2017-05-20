@@ -316,7 +316,8 @@ const char* EnumToStr(SimState v)
     case SimState::RUNNING    : return "RUNNING";
     case SimState::PAUSED     : return "PAUSED";
     case SimState::SELECTING  : return "SELECTING";
-    case SimState::EDITOR_MODE: return "EDITOR_MODE";
+    case SimState::RIG_EDITOR : return "RIG_EDITOR";
+    case SimState::MAP_EDITOR : return "MAP_EDITOR";
     default                   : return "~invalid~";
     }
 }

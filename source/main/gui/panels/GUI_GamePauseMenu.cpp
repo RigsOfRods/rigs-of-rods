@@ -60,7 +60,6 @@ CLASS::CLASS()
     m_quit_game   ->setCaption(_L("Quit to Desktop"));
 
     MAIN_WIDGET->setVisible(false);
-    m_rig_editor->setEnabled(false);
 }
 
 CLASS::~CLASS()
@@ -121,7 +120,7 @@ void CLASS::eventMouseButtonClickBackToMenuButton(MyGUI::WidgetPtr _sender)
 void CLASS::eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender)
 {
     this->Hide();
-    App::SetPendingAppState(App::APP_STATE_RIG_EDITOR);
+    App::sim_state.SetPending(SimState::RIG_EDITOR);
 }
 
 void CLASS::eventMouseButtonClickQuitButton(MyGUI::WidgetPtr _sender)

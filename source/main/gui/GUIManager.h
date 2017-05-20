@@ -129,7 +129,6 @@ public:
     void SetSimController(RoRFrameListener* sim);
     inline OgreImGui& GetImGui() { return m_imgui; }
 
-
 private:
     void SetupImGui();
 
