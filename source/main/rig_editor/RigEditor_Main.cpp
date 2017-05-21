@@ -675,24 +675,27 @@ void Main::NotifyFileSelectorEnded(GUI::Dialog* dialog, bool result)
         }
         else if (mode == OpenSaveFileDialogMode::MODE_SAVE_TRUCK_AS)
         {
-            SaveRigDefFile(folder, filename);
+            this->SaveJsonProjectFile(folder, filename);
         }
     }
     dialog->endModal(); // Hides the dialog
 }
 
-void Main::SaveRigDefFile(MyGUI::UString const & directory, MyGUI::UString const & filename)
+void Main::SaveJsonProjectFile(MyGUI::UString const & directory, MyGUI::UString const & filename)
 {
     using namespace RigDef;
 
     if (m_rig == nullptr)
     {
-        LOG("RigEditor: [WARNING] SaveRigDefFile(): Nothing to save.");
+        LOG("RigEditor: [WARNING] SaveJsonProjectFile(): Nothing to save.");
         return;
     }
 
-    auto rig_def = m_rig->Export();
     auto out_path = directory + '/' + filename;
+    m_rig->SaveJsonProject(out_path);
+
+    auto rig_def = m_rig->Export();
+    
     Serializer serializer(rig_def, out_path);
     serializer.Serialize();
     LOG("RigEditor: Rig saved as: " + out_path);

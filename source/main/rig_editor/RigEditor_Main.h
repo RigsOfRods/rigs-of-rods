@@ -136,7 +136,7 @@ private:
 
     bool LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const & filename);
 
-    void SaveRigDefFile(MyGUI::UString const & directory, MyGUI::UString const & filename);
+    void SaveJsonProjectFile(MyGUI::UString const & directory, MyGUI::UString const & filename);
 
     void OnNewRigCreatedOrLoaded(Ogre::SceneNode* parent_scene_node);
 

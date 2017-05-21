@@ -109,6 +109,8 @@ public:
         return (GetType() == Beam::TYPE_TRIGGER) ? reinterpret_cast<RigDef::Trigger*>(m_source) : nullptr; 
     }
 
+    RigDef::BeamDefaults* GetPreset();
+
 protected:
 
     RigEditor::Node*       m_nodes[2];

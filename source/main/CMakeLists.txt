@@ -238,6 +238,7 @@ set( SOURCE_FILES
   rig_editor/RigEditor_HighlightBoxesDynamicMesh.{h,cpp}
   rig_editor/RigEditor_IMain.h
   rig_editor/RigEditor_InputHandler.{h,cpp}
+  rig_editor/RigEditor_Json.{h,cpp}  
   rig_editor/RigEditor_Main.{h,cpp}
   rig_editor/RigEditor_RigElementGuiPanelBase.{h,cpp}
   rig_editor/RigEditor_RigElementsAggregateData.h

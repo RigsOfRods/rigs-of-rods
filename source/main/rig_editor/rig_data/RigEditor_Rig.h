@@ -128,6 +128,7 @@
 
 #include "RigDef_File.h"
 #include "RigDef_Prerequisites.h"
+#include "RigEditor_Json.h"
 #include "RigEditor_ForwardDeclarations.h"
 #include "RigEditor_Types.h"
 #include "RoRPrerequisites.h"
@@ -263,6 +264,8 @@ public:
 
     std::shared_ptr<RigDef::File> Export();
 
+    void SaveJsonProject(MyGUI::UString const & out_path);
+
     void QuerySelectedNodesData(RigAggregateNodesData* result);
 
     void QuerySelectedBeamsData(RigAggregateBeams2Data* result);
@@ -313,6 +316,8 @@ private:
     Node* FindNode(RigDef::Node::Ref const & node_ref, RigBuildingReport* logger = nullptr);
 
     bool GetWheelAxisNodes(RigDef::Node::Ref const & a1, RigDef::Node::Ref const & a2, Node*& axis_inner, Node*& axis_outer, RigBuildingReport* report);
+
+    void GatherBeamPresets(JsonExporter& exporter);
 
     /// Finds all nodes required for wheel. 
     /// @return False if some valid node was not found.

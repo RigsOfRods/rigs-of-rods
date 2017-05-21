@@ -24,7 +24,12 @@
 */
 
 #include "RigDef_File.h"
+#include "RigEditor_Json.h"
 #include "RigEditor_RigProperties.h"
+
+#include <rapidjson/rapidjson.h>
+#include <rapidjson/document.h>
+#include <rapidjson/writer.h>
 
 namespace RoR {
 namespace RigEditor {
@@ -191,6 +196,69 @@ struct RigModuleData
         m->material_flare_bindings.assign( mat_flare_bindings.begin(),  mat_flare_bindings.end() );
         m->node_collisions        .assign( node_collisions   .begin(),  node_collisions   .end() );
     }
+
+    void GatherBeamPresetsForJson(JsonExporter& exporter)
+    {
+        for (auto& def: this->ties)
+        {
+            if (def.beam_defaults.get() != nullptr)
+                exporter.AddBeamPreset(def.beam_defaults.get());
+        }
+
+        for (auto& def: this->animators)
+        {
+            if (def.beam_defaults.get() != nullptr)
+                exporter.AddBeamPreset(def.beam_defaults.get());
+        }
+    }
+
+    void ExportRigPropertiesToJson(JsonExporter& exporter)
+    {
+        exporter.AddModule(this->module_name);
+        exporter.ExportSubmeshGroundmodelToJson(this->submesh_groundmodel);
+        //exporter.ExportEngineToJson          (this->engine); -- TODO
+        //exporter.ExportEngoptionToJson       (this->engoption);-- TODO
+        exporter.ExportAirbrakesToJson       (this->airbrakes);
+        exporter.ExportAnimatorsToJson       (this->animators);
+        exporter.ExportAntiLockBrakesToJson  (this->anti_lock_brakes);
+        exporter.ExportAxlesToJson           (this->axles);
+        exporter.ExportBrakesToJson          (this->brakes);
+        exporter.ExportCamerasToJson         (this->cameras);
+        exporter.ExportCameraRailsToJson     (this->camera_rails);
+        exporter.ExportCollisionBoxesToJson  (this->collision_boxes);
+        exporter.ExportCruiseControlToJson   (this->cruise_control);
+        exporter.ExportContactersToJson      (this->contacters);
+        //exporter.ExportEngturboToJson        (this->engturbo);-- TODO
+        exporter.ExportExhaustsToJson        (this->exhausts);
+        exporter.ExportFixesToJson           (this->fixes);
+        exporter.ExportFusedragsToJson       (this->fusedrag);
+        exporter.ExportHooksToJson           (this->hooks);
+        exporter.ExportLockgroupsToJson      (this->lockgroups);
+        exporter.ExportManagedMatsToJson     (this->managed_mats);
+        exporter.ExportMatFlareBindingsToJson(this->mat_flare_bindings);
+        exporter.ExportNodeCollisionsToJson  (this->node_collisions);
+        exporter.ExportParticlesToJson       (this->particles);
+        exporter.ExportPistonpropsToJson     (this->pistonprops);
+        exporter.ExportPropsToJson           (this->props);
+        exporter.ExportRailGroupsToJson      (this->railgroups);
+        exporter.ExportRopablesToJson        (this->ropables);
+        exporter.ExportRotatorsToJson        (this->rotators);
+        exporter.ExportRotators2ToJson       (this->rotators_2);
+        exporter.ExportScrewpropsToJson      (this->screwprops);
+        exporter.ExportSlideNodesToJson      (this->slidenodes);
+        exporter.ExportSlopeBrakeToJson      (this->slope_brake);
+        exporter.ExportSoundSourcesToJson    (this->soundsources);
+        exporter.ExportSoundSources2ToJson   (this->soundsources_2);
+        exporter.ExportSpeedLimiterToJson    (this->speed_limiter);
+        exporter.ExportSubmeshesToJson       (this->submeshes);
+        exporter.ExportTiesToJson            (this->ties);
+        exporter.ExportTorqueCurveToJson     (this->torque_curve);
+        exporter.ExportTractionControlToJson (this->traction_control);
+        exporter.ExportTurbojetsToJson       (this->turbojets);
+        exporter.ExportTurboprops2ToJson     (this->turboprops_2);
+        exporter.ExportVideoCamerasToJson    (this->videocameras);
+        exporter.ExportWingsToJson           (this->wings);
+    }
 };
 
 
@@ -210,6 +278,11 @@ RigProperties::RigProperties():
 
 RigProperties::~RigProperties()
 {}
+
+void RigProperties::GatherBeamPresetsForJson(JsonExporter& exporter)
+{
+    m_root_data->GatherBeamPresetsForJson(exporter);
+}
 
 void RigProperties::Import(std::shared_ptr<RigDef::File> def_file)
 {
@@ -310,6 +383,66 @@ void RigProperties::Export(std::shared_ptr<RigDef::File> def_file)
 
     m_root_data->ExportToModule(def_file->root_module);
 }
+
+inline rapidjson::Value StrToJson(std::string const & s) { return rapidjson::Value(rapidjson::StringRef(s.c_str())); }
+inline rapidjson::Value StrToJson(std::string & s)       { return rapidjson::Value(rapidjson::StringRef(s.c_str())); }
+
+rapidjson::Value RigProperties::ExportJson(rapidjson::Document& j_doc)
+{
+    auto& j_alloc = j_doc.GetAllocator();
+
+    rapidjson::Value j_data(rapidjson::kObjectType);
+    j_data.AddMember("project_fileformat_version", 1                            , j_alloc);
+    j_data.AddMember("name"                      , StrToJson(m_title)                      , j_alloc);
+    j_data.AddMember("guid"                      , StrToJson(m_guid)                       , j_alloc);
+    j_data.AddMember("hide_in_chooser"           , m_hide_in_chooser            , j_alloc);
+    j_data.AddMember("forward_commands"          , m_forward_commands           , j_alloc);
+    j_data.AddMember("import_commands"           , m_import_commands            , j_alloc);
+    j_data.AddMember("is_rescuer"                , m_is_rescuer                 , j_alloc);
+    j_data.AddMember("is_rollon"                 , m_rollon                     , j_alloc);
+    j_data.AddMember("minimum_mass"              , m_minimass                   , j_alloc);
+    j_data.AddMember("enable_advanced_deform"    , m_enable_advanced_deform     , j_alloc);
+    j_data.AddMember("disable_default_sounds"    , m_disable_default_sounds     , j_alloc);
+    j_data.AddMember("slidenodes_connect_instant", m_slidenodes_connect_instant , j_alloc); 
+    j_data.AddMember("collision_range"           , m_collision_range            , j_alloc);
+    j_data.AddMember("lockgroup_default_nolock"  , m_lockgroup_default_nolock   , j_alloc);
+    j_data.AddMember("fileinfo_uid"              , StrToJson(m_fileinfo.unique_id)                        , j_alloc);
+    j_data.AddMember("fileinfo_category_id"      , m_fileinfo.category_id       , j_alloc);
+    j_data.AddMember("fileinfo_version"          , m_fileinfo.file_version      , j_alloc);
+    j_data.AddMember("extcam_mode"               , m_extcamera.mode             , j_alloc);
+    j_data.AddMember("extcam_node_id"            , StrToJson(m_extcamera.node.Str())                , j_alloc);
+    j_data.AddMember("visibility_range_meters"   , m_skeleton_settings.visibility_range_meters, j_alloc);
+    j_data.AddMember("beam_thickness_meters"     , m_skeleton_settings.beam_thickness_meters  , j_alloc);
+    j_data.AddMember("globals_load_mass"         , m_globals_load_mass          , j_alloc);
+    j_data.AddMember("globals_dry_mass"          , m_globals_dry_mass           , j_alloc);
+    j_data.AddMember("globals_cab_material_name" , StrToJson(m_globals_cab_material_name)                , j_alloc);
+
+    // Description
+    std::stringstream desc;
+    for (auto itor = m_description.begin(); itor != m_description.end(); ++itor)
+    {
+        desc << *itor;
+    }
+    j_data.AddMember("description", StrToJson(desc.str()), j_alloc);
+
+    // Authors
+    rapidjson::Value author_array(rapidjson::kArrayType);
+    for (auto itor = m_authors.begin(); itor != m_authors.end(); ++itor)
+    {
+        rapidjson::Value author;
+        author.AddMember("name",  StrToJson(itor->name), j_alloc);
+        author.AddMember("role",  StrToJson(itor->type), j_alloc);
+        author.AddMember("email", StrToJson(itor->email), j_alloc);
+        if (itor->_has_forum_account)
+            author.AddMember("forum_id", itor->forum_account_id, j_alloc);
+        
+        author_array.PushBack(author, j_alloc);
+    }
+    j_data.AddMember("authors", author_array, j_alloc);
+
+    return j_data;
+}
+
 
 std::shared_ptr<RigDef::Engine>    RigProperties::GetEngine()          { return m_root_data->engine; }
 std::shared_ptr<RigDef::Engoption> RigProperties::GetEngoption()       { return m_root_data->engoption; }

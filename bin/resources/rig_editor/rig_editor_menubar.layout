@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <MyGUI type="Layout" version="3.2.0">
     <Widget type="MenuBar" skin="MenuBar" position="0 0 370 25" layer="Main" name="rig_editor_menubar">
         <Widget type="MenuItem" skin="" position="0 0 41 21" name="menubar_item_file">
@@ -12,7 +12,7 @@
                     <Property key="Caption" value="Open"/>
                 </Widget>
                 <Widget type="MenuItem" skin="" position="0 38 193 19" name="file_popup_item_save_as">
-                    <Property key="Caption" value="Save as..."/>
+                    <Property key="Caption" value="Save JSON project as..."/>
                 </Widget>
                 <Widget type="MenuItem" skin="" position="0 57 193 19" name="file_popup_item_close">
                     <Property key="Caption" value="Close"/>

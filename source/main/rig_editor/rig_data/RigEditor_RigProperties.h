@@ -28,14 +28,17 @@
 #include "RigDef_File.h"
 #include "RigDef_Prerequisites.h"
 #include "RigEditor_ForwardDeclarations.h"
+#include "RigEditor_Json.h"
 #include "RoRPrerequisites.h"
 
 #include <memory>
+#include <rapidjson/document.h>
+#include <rapidjson/rapidjson.h>
 
 namespace RoR {
 namespace RigEditor {
 
-struct RigModuleData; // Forward decl;
+struct RigModuleData; // Forward decl
 
 class RigProperties
 {
@@ -54,10 +57,13 @@ public:
     void    SetEngine     (std::shared_ptr<RigDef::Engine> engine);
     void    SetEngoption  (std::shared_ptr<RigDef::Engoption> engoption);
 
-protected:	
+protected:
 
     void Import(std::shared_ptr<RigDef::File> def_file);
     void Export(std::shared_ptr<RigDef::File> def_file);
+
+    rapidjson::Value ExportJson(rapidjson::Document& j_doc);
+    void             GatherBeamPresetsForJson(JsonExporter& exporter);
 
     RigModuleData*                m_root_data;
 

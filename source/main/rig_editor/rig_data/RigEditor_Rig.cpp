@@ -32,6 +32,7 @@
 #include "RigEditor_Config.h"
 #include "RigEditor_FlexBodyWheel.h"
 #include "RigEditor_HighlightBoxesDynamicMesh.h"
+#include "RigEditor_Json.h"
 #include "RigEditor_Main.h"
 #include "RigEditor_MeshWheel.h"
 #include "RigEditor_MeshWheel2.h"
@@ -48,6 +49,8 @@
 #include <OgreSceneManager.h>
 #include <OgreRenderOperation.h>
 #include <sstream>
+#include <rapidjson/rapidjson.h>
+#include <rapidjson/document.h>
 
 using namespace RoR;
 using namespace RoR::RigEditor;
@@ -2044,6 +2047,34 @@ bool Rig::UpdateSelectedWheelsData(AllWheelsAggregateData* data)
         }
     });
     return is_geometry_dirty;
+}
+
+void Rig::SaveJsonProject(MyGUI::UString const & out_path)
+{
+    JsonExporter exporter;
+
+    // Export nodes
+    // TODO: Gather presets (NodeDefaults) for comprehensive {preset-> numeric_ID} mapping!
+    // TODO<NodeDefaults>: Cinecam, *Wheel*.
+    exporter.ExportNodesToJson(m_nodes, m_node_groups);
+
+    // Export beams
+    m_properties->GatherBeamPresetsForJson(exporter); // Presets = STUBS: Animator, Tie
+    this->GatherBeamPresets(exporter); // Presets: Cinecam, *Wheel*
+    exporter.ExportBeamsToJson(m_beams, m_beam_groups); // Presets: Beam, Shock[2], Hydro, Command2, Trigger, Rope
+
+    exporter.AddRigPropertiesJson(m_properties->ExportJson(exporter.GetDocument()));
+}
+
+void Rig::GatherBeamPresets(JsonExporter& exporter)
+{
+    // TODO: STUB! Currently, wheels don't preserve the BeamDefaults*
+
+    for (auto& editor_cinecam: m_cinecameras)
+    {
+        if (editor_cinecam.m_definition.beam_defaults.get() != nullptr)
+            exporter.AddBeamPreset(editor_cinecam.m_definition.beam_defaults.get());
+    }
 }
 
 // ----------------------------------------------------------------------------

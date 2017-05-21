@@ -127,6 +127,7 @@ static RoRFrameListener* g_sim_controller;
  GVarStr<300>             sys_resources_dir       ("sys_resources_dir",       "Resources Path",            "",                      "");
  GVarStr<300>             sys_profiler_dir        ("sys_profiler_dir",        "Profiler output dir",       "",                      "");
  GVarStr<300>             sys_screenshot_dir      ("sys_screenshot_dir",      nullptr,                     "",                      "");
+ GVarStr<300>             sys_rig_projects_dir    ("sys_rig_projects_dir",    nullptr,                     "",                      "");
 
 // Input - Output
  GVarPod<bool>            io_ffb_enabled          ("io_ffb_enabled",          "Force Feedback",            false,                   false);

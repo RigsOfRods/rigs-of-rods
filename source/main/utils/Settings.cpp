@@ -1043,6 +1043,7 @@ bool Settings::SetupAllPaths()
     buf.Clear() << App::sys_user_dir.GetActive() << PATH_SLASH << "config";             App::sys_config_dir    .SetActive(buf);
     buf.Clear() << App::sys_user_dir.GetActive() << PATH_SLASH << "cache";              App::sys_cache_dir     .SetActive(buf);
     buf.Clear() << App::sys_user_dir.GetActive() << PATH_SLASH << "screenshots";        App::sys_screenshot_dir.SetActive(buf);
+    buf.Clear() << App::sys_user_dir.GetActive() << PATH_SLASH << "projects/rigs";      App::sys_rig_projects_dir.SetActive(buf);
 
     // Resources dir
     buf.Clear() << App::sys_process_dir.GetActive() << PATH_SLASH << "resources";

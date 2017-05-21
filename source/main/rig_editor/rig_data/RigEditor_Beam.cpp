@@ -23,6 +23,7 @@
     @author Petr Ohlidal
 */
 
+#include "Application.h"
 #include "RigDef_File.h"
 #include "RigEditor_Beam.h"
 
@@ -73,6 +74,38 @@ void Beam::DeleteDefinition()
     default:
         // Really shouldn't happen
         throw std::runtime_error("Beam::~Beam(): Unsupported Beam::Type encountered");
+    }
+}
+
+RigDef::BeamDefaults* Beam::GetPreset()
+{
+    if (m_source == nullptr)
+        return nullptr;
+
+    switch (m_type)
+    {
+    case Beam::TYPE_CINECAM:
+        return nullptr;
+
+    case Beam::TYPE_COMMAND_HYDRO:
+        return static_cast<RigDef::Command2*>(m_source)->beam_defaults.get();
+
+    case Beam::TYPE_SHOCK_ABSORBER:
+        return static_cast<RigDef::Shock*>(m_source)->beam_defaults.get();
+
+    case Beam::TYPE_SHOCK_ABSORBER_2:
+        return static_cast<RigDef::Shock2*>(m_source)->beam_defaults.get();
+
+    case Beam::TYPE_STEERING_HYDRO:
+        return static_cast<RigDef::Hydro*>(m_source)->beam_defaults.get();
+
+    case Beam::TYPE_PLAIN:
+        return static_cast<RigDef::Beam*>(m_source)->defaults.get();
+
+    default:
+        // Really shouldn't happen
+        RoR::Log("RigEditor::Beam::GetPreset(): Unsupported Beam::Type encountered");
+        return nullptr;
     }
 }
 

@@ -69,7 +69,7 @@ public:
         Edge(unsigned index1, unsigned index2, Type type):
             type(type)
         {
-            indices[0] = index1;	
+            indices[0] = index1;
             indices[1] = index2;
         }
 
