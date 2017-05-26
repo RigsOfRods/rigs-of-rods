@@ -119,7 +119,12 @@ macro(findpkg_finish PREFIX)
         message(STATUS "Could not locate ${PREFIX}")
       endif ()
       if (${PREFIX}_FIND_REQUIRED)
-        message(FATAL_ERROR "Required library ${PREFIX} not found! Install the library (including dev packages) and try again. If the library is already installed, set the missing variables manually in cmake.")
+        message(FATAL_ERROR
+            "----------------------------------------\n"
+            " Required library ${PREFIX} not found!\n"
+            " If you're using 'ror-dependencies' package (https://github.com/RigsOfRods/ror-dependencies), then manually set CMAKE_PREFIX_PATH to their installation location.\n"
+            " Otherwise, install the library (including dev packages) and try again. If the library is already installed, set the missing variables manually in CMake.\n"
+            "----------------------------------------")
       endif ()
     endif ()
 
