@@ -77,21 +77,12 @@ Parser::Parser()
 
 void Parser::ProcessCurrentLine()
 {
-    // Check line type 
-    std::smatch line_type_result;
-    if (m_in_block_comment && StrEqualsNocase(m_current_line, "end_comment"))
+    if (m_in_block_comment)
     {
-        m_in_block_comment = false;
-        return;
-    }
-    else if (m_in_description_section && StrEqualsNocase(m_current_line, "end_description"))
-    {
-        m_in_description_section = false;
-        return;
-    }
-    else if (m_in_description_section)
-    {
-        m_definition->description.push_back(m_current_line);
+        if (StrEqualsNocase(m_current_line, "end_comment"))
+        {
+            m_in_block_comment = false;
+        }
         return;
     }
     else if (StrEqualsNocase(m_current_line, "comment"))
@@ -99,13 +90,25 @@ void Parser::ProcessCurrentLine()
         m_in_block_comment = true;
         return;        
     }
-    else if ((m_current_line[0] == ';') || (m_current_line[0] == '/') || m_in_block_comment) // Comment line
+    else if (m_in_description_section) // Enter logic is below in 'keywords'
+    {
+        if (StrEqualsNocase(m_current_line, "end_description"))
+        {
+            m_in_description_section = false;
+        }
+        else
+        {
+            m_definition->description.push_back(m_current_line);
+        }
+        return;
+    }
+    else if ((m_current_line[0] == ';') || (m_current_line[0] == '/'))
     {
         return;
     }
 
     bool line_finished = false;
-    bool scan_for_keyword = true;
+    bool scan_for_keyword = true; // TODO: completely useless - remove!!
     std::string line = m_current_line;
 
     // Prepare for switching file section 
