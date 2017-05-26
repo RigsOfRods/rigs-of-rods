@@ -317,7 +317,7 @@ const char * File::SectionToString(File::Section section)
             return "lockgroups";
         case (File::SECTION_MANAGED_MATERIALS):
             return "managedmaterials";
-        case (File::SECTION_MATERIAL_FLARE_BINDINGS):
+        case (File::SECTION_MAT_FLARE_BINDINGS):
             return "materialflarebindings";
         case (File::SECTION_MESH_WHEELS):
             return "meshwheels";
