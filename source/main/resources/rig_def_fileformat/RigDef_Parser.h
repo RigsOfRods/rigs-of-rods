@@ -337,7 +337,7 @@ protected:
     void _CheckInvalidTrailingText(Ogre::String const & line, std::smatch const & results, unsigned int index);
 
     /// Keyword scan function. 
-    File::Keyword IdentifyKeyword(Ogre::String const & line);
+    File::Keyword IdentifyCurrentLineKeyword(Ogre::String const & line);
 
     /// Keyword scan utility function. 
     File::Keyword FindKeywordMatch(std::smatch& search_results);

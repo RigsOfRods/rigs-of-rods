@@ -108,8 +108,7 @@ void Parser::ProcessCurrentLine()
     }
 
     bool line_finished = false;
-    bool scan_for_keyword = true; // TODO: completely useless - remove!!
-    std::string line = m_current_line;
+    
 
     // Prepare for switching file section 
     Ogre::String const & current_module_name = m_current_module->name;
@@ -125,604 +124,595 @@ void Parser::ProcessCurrentLine()
 
     // Detect keywords on current line 
     // NOTE: Please maintain alphabetical order 
-    if (scan_for_keyword)
+    switch (IdentifyKeywordInCurrentLine())
     {
-        File::Keyword keyword = IdentifyKeyword(line);
-        switch (keyword)
-        {
-            case (File::KEYWORD_INVALID): // No new section 
-                break;
-
-            case (File::KEYWORD_ADD_ANIMATION):
-                ParseDirectiveAddAnimation();
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_AIRBRAKES):
-                new_section = File::SECTION_AIRBRAKES;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_ANIMATORS):
-                new_section = File::SECTION_ANIMATORS;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_ANTI_LOCK_BRAKES):
-                ParseAntiLockBrakes();
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_AXLES):
-                new_section = File::SECTION_AXLES;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_AUTHOR):
-                ParseAuthor();
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_BACKMESH):
-                if (m_current_section == File::SECTION_SUBMESH)
-                {
-                    m_current_submesh->backmesh = true;
-                }
-                else
-                {
-                    AddMessage(line, Message::TYPE_ERROR, "Misplaced sub-directive 'backmesh' (belongs in section 'submesh'), ignoring...");
-                }
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_BEAMS):
-                new_section = File::SECTION_BEAMS;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_BRAKES):
-                new_section = File::SECTION_BRAKES;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_CAB):
-                new_subsection = File::SUBSECTION__SUBMESH__CAB;
-                if (m_current_section != File::SECTION_SUBMESH)
-                {
-                    AddMessage(line, Message::TYPE_WARNING, "Misplaced sub-section 'cab' (belongs in section 'submesh'), falling back to classic unsafe parsing method.");
-                    new_section = File::SECTION_SUBMESH;
-                }
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_CAMERAS):
-                new_section = File::SECTION_CAMERAS;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_CAMERARAIL):
-                new_section = File::SECTION_CAMERA_RAIL;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_CINECAM):
-                new_section = File::SECTION_CINECAM;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_COLLISIONBOXES):
-                new_section = File::SECTION_COLLISION_BOXES;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_COMMANDS):
-                new_section = File::SECTION_COMMANDS;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_COMMANDS2):
-                new_section = File::SECTION_COMMANDS_2;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_CONTACTERS):
-                new_section = File::SECTION_CONTACTERS;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_CRUISECONTROL):
-                ParseCruiseControl();
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_DESCRIPTION):
-                m_in_description_section = true;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_DETACHER_GROUP):
-                ParseDirectiveDetacherGroup();
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_DISABLEDEFAULTSOUNDS):
-                if (! current_module_is_root)
-                {
-                    AddMessage(line, Message::TYPE_WARNING, "Directive 'disabledefaultsounds' has global effect and should not appear in a module");
-                }
-                m_definition->disable_default_sounds = true;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_ENABLE_ADVANCED_DEFORMATION):
-                if (! current_module_is_root)
-                {
-                    AddMessage(line, Message::TYPE_WARNING, "Directive 'enable_advanced_deformation' has global effect and should not appear in a module");
-                }
-                m_definition->enable_advanced_deformation = true;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_END):
-                new_section = File::SECTION_NONE;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_END_SECTION):
-                module_changed = true;
-                new_module_is_root = true;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_ENGINE):
-                new_section = File::SECTION_ENGINE;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_ENGOPTION):
-                new_section = File::SECTION_ENGOPTION;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_ENGTURBO) :
-                new_section = File::SECTION_ENGTURBO;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_ENVMAP):
-                // Ignored 
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_EXHAUSTS):
-                new_section = File::SECTION_EXHAUSTS;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_EXTCAMERA):
-                ParseExtCamera();
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_FILEFORMATVERSION):
-                if (! current_module_is_root)
-                {
-                    AddMessage(line, Message::TYPE_WARNING, "Inline section 'fileformatversion' has global effect and should not appear in a module");
-                }
-                ParseFileFormatVersion();
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_FILEINFO):
-                ParseFileinfo();
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_FIXES):
-                new_section = File::SECTION_FIXES;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_FLARES):
-                new_section = File::SECTION_FLARES;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_FLARES2):
-                new_section = File::SECTION_FLARES_2;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_FLEXBODIES):
-                new_section = File::SECTION_FLEXBODIES;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_FLEXBODY_CAMERA_MODE):
-                ParseDirectiveFlexbodyCameraMode();
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_FLEXBODYWHEELS):
-                new_section = File::SECTION_FLEX_BODY_WHEELS;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_FORWARDCOMMANDS):
-                if (! current_module_is_root)
-                {
-                    AddMessage(line, Message::TYPE_WARNING, "Directive 'forwardcommands' has global effect and should not appear in a module");
-                }
-                m_definition->forward_commands = true;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_FUSEDRAG):
-                new_section = File::SECTION_FUSEDRAG;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_GLOBALS):
-                new_section = File::SECTION_GLOBALS;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_GUID):
-                ParseGuid();
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_GUISETTINGS):
-                new_section = File::SECTION_GUI_SETTINGS;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_HELP):
-                new_section = File::SECTION_HELP;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_HIDE_IN_CHOOSER):
-                if (! current_module_is_root)
-                {
-                    AddMessage(line, Message::TYPE_WARNING, "Directive 'hideInChooser' has global effect and should not appear in a module");
-                }
-                m_definition->hide_in_chooser = true;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_HOOKGROUP):
-                // Not supported yet, ignore 
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_HOOKS):
-                new_section = File::SECTION_HOOKS;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_HYDROS):
-                new_section = File::SECTION_HYDROS;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_IMPORTCOMMANDS):
-                m_definition->import_commands = true;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_LOCKGROUPS):
-                new_section = File::SECTION_LOCKGROUPS;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_LOCKGROUP_DEFAULT_NOLOCK):
-                if (! current_module_is_root)
-                {
-                    AddMessage(line, Message::TYPE_WARNING, "Directive 'lockgroup_default_nolock' has global effect and should not appear in a module");
-                }
-                m_definition->lockgroup_default_nolock = true;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_MANAGEDMATERIALS):
-                new_section = File::SECTION_MANAGED_MATERIALS;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_MATERIALFLAREBINDINGS):
-                new_section = File::SECTION_MATERIAL_FLARE_BINDINGS;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_MESHWHEELS):
-                new_section = File::SECTION_MESH_WHEELS;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_MESHWHEELS2):
-                new_section = File::SECTION_MESH_WHEELS_2;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_MINIMASS):
-                new_section = File::SECTION_MINIMASS;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_NODECOLLISION):
-                new_section = File::SECTION_NODE_COLLISION;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_NODES):
-                new_section = File::SECTION_NODES;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_NODES2):
-                new_section = File::SECTION_NODES_2;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_PARTICLES):
-                new_section = File::SECTION_PARTICLES;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_PISTONPROPS):
-                new_section = File::SECTION_PISTONPROPS;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_PROP_CAMERA_MODE):
-                ParseDirectivePropCameraMode();
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_PROPS):
-                new_section = File::SECTION_PROPS;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_RAILGROUPS):
-                new_section = File::SECTION_RAILGROUPS;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_RESCUER):
-                if (! current_module_is_root)
-                {
-                    AddMessage(line, Message::TYPE_WARNING, "Directive 'rescuer' has global effect and should not appear in a module");
-                }
-                m_definition->rescuer = true;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_RIGIDIFIERS):
-                AddMessage(line, Message::TYPE_WARNING, "Rigidifiers are not supported, ignoring...");
-                new_section = File::SECTION_NONE;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_ROLLON):
-                if (! current_module_is_root)
-                {
-                    AddMessage(line, Message::TYPE_WARNING, "Directive 'rollon' has global effect and should not appear in a module");
-                }
-                m_definition->rollon = true;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_ROPABLES):
-                new_section = File::SECTION_ROPABLES;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_ROPES):
-                new_section = File::SECTION_ROPES;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_ROTATORS):
-                new_section = File::SECTION_ROTATORS;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_ROTATORS2):
-                new_section = File::SECTION_ROTATORS_2;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_SCREWPROPS):
-                new_section = File::SECTION_SCREWPROPS;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_SECTION):
-                {
-                    std::pair<bool, Ogre::String> result = GetModuleName(line);
-                    if (result.first)
-                    {
-                        new_module_name = result.second;
-                        module_changed = true;
-                    }
-                }
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_SECTIONCONFIG):
-                // Ignored 
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_SET_BEAM_DEFAULTS):
-                ParseDirectiveSetBeamDefaults();
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_SET_BEAM_DEFAULTS_SCALE):
-                ParseDirectiveSetBeamDefaultsScale();
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_SET_COLLISION_RANGE):
-                ParseSetCollisionRange();
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_SET_INERTIA_DEFAULTS):
-                ParseDirectiveSetInertiaDefaults();
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_SET_MANAGEDMATERIALS_OPTIONS):
-                ParseDirectiveSetManagedMaterialsOptions();
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_SET_NODE_DEFAULTS):
-                ParseDirectiveSetNodeDefaults();
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_SET_SKELETON_SETTINGS):
-                ParseSetSkeletonSettings();
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_SHOCKS):
-                new_section = File::SECTION_SHOCKS;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_SHOCKS2):
-                new_section = File::SECTION_SHOCKS_2;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_SLIDENODE_CONNECT_INSTANTLY):
-                if (! current_module_is_root)
-                {
-                    AddMessage(line, Message::TYPE_WARNING, "Directive 'slidenode_connect_instantly' has global effect and should not appear in a module");
-                }
-                m_definition->slide_nodes_connect_instantly = true;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_SLIDENODES):
-                new_section = File::SECTION_SLIDENODES;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_SLOPE_BRAKE):
-                ParseSlopeBrake();
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_SOUNDSOURCES):
-                new_section = File::SECTION_SOUNDSOURCES;
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_SOUNDSOURCES2):
-                new_section = File::SECTION_SOUNDSOURCES2;
-                line_finished = true;
-                break;
-
-#if 0 // Not supported yet
-            case (File::KEYWORD_SOUNDSOURCES3):
-                new_section = File::SECTION_;
-                line_finished = true;
-                break;
-#endif
-            case (File::KEYWORD_SPEEDLIMITER):
-                ParseSpeedLimiter();
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_SUBMESH_GROUNDMODEL):
-                ParseSubmeshGroundModel();
-                line_finished = true;
-                break;
-
-            case (File::KEYWORD_SUBMESH):
+        case (File::KEYWORD_INVALID): // No new section 
+            break;
+
+        case (File::KEYWORD_ADD_ANIMATION):
+            ParseDirectiveAddAnimation();
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_AIRBRAKES):
+            new_section = File::SECTION_AIRBRAKES;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_ANIMATORS):
+            new_section = File::SECTION_ANIMATORS;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_ANTI_LOCK_BRAKES):
+            ParseAntiLockBrakes();
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_AXLES):
+            new_section = File::SECTION_AXLES;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_AUTHOR):
+            ParseAuthor();
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_BACKMESH):
+            if (m_current_section == File::SECTION_SUBMESH)
+            {
+                m_current_submesh->backmesh = true;
+            }
+            else
+            {
+                this->AddMessage(Message::TYPE_ERROR, "Misplaced sub-directive 'backmesh' (belongs in section 'submesh'), ignoring...");
+            }
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_BEAMS):
+            new_section = File::SECTION_BEAMS;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_BRAKES):
+            new_section = File::SECTION_BRAKES;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_CAB):
+            new_subsection = File::SUBSECTION__SUBMESH__CAB;
+            if (m_current_section != File::SECTION_SUBMESH)
+            {
+                this->AddMessage(Message::TYPE_WARNING, "Misplaced sub-section 'cab' (belongs in section 'submesh'), falling back to classic unsafe parsing method.");
                 new_section = File::SECTION_SUBMESH;
-                line_finished = true;
-                break;
+            }
+            line_finished = true;
+            break;
 
-            case (File::KEYWORD_TEXCOORDS):
-                new_subsection = File::SUBSECTION__SUBMESH__TEXCOORDS;
-                if (m_current_section != File::SECTION_SUBMESH)
+        case (File::KEYWORD_CAMERAS):
+            new_section = File::SECTION_CAMERAS;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_CAMERARAIL):
+            new_section = File::SECTION_CAMERA_RAIL;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_CINECAM):
+            new_section = File::SECTION_CINECAM;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_COLLISIONBOXES):
+            new_section = File::SECTION_COLLISION_BOXES;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_COMMANDS):
+            new_section = File::SECTION_COMMANDS;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_COMMANDS2):
+            new_section = File::SECTION_COMMANDS_2;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_CONTACTERS):
+            new_section = File::SECTION_CONTACTERS;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_CRUISECONTROL):
+            ParseCruiseControl();
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_DESCRIPTION):
+            m_in_description_section = true;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_DETACHER_GROUP):
+            ParseDirectiveDetacherGroup();
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_DISABLEDEFAULTSOUNDS):
+            if (! current_module_is_root)
+            {
+                this->AddMessage(Message::TYPE_WARNING, "Directive 'disabledefaultsounds' has global effect and should not appear in a module");
+            }
+            m_definition->disable_default_sounds = true;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_ENABLE_ADVANCED_DEFORMATION):
+            if (! current_module_is_root)
+            {
+                this->AddMessage(Message::TYPE_WARNING, "Directive 'enable_advanced_deformation' has global effect and should not appear in a module");
+            }
+            m_definition->enable_advanced_deformation = true;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_END):
+            new_section = File::SECTION_NONE;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_END_SECTION):
+            module_changed = true;
+            new_module_is_root = true;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_ENGINE):
+            new_section = File::SECTION_ENGINE;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_ENGOPTION):
+            new_section = File::SECTION_ENGOPTION;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_ENGTURBO) :
+            new_section = File::SECTION_ENGTURBO;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_ENVMAP):
+            // Ignored 
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_EXHAUSTS):
+            new_section = File::SECTION_EXHAUSTS;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_EXTCAMERA):
+            ParseExtCamera();
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_FILEFORMATVERSION):
+            if (! current_module_is_root)
+            {
+                this->AddMessage(Message::TYPE_WARNING, "Inline section 'fileformatversion' has global effect and should not appear in a module");
+            }
+            ParseFileFormatVersion();
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_FILEINFO):
+            ParseFileinfo();
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_FIXES):
+            new_section = File::SECTION_FIXES;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_FLARES):
+            new_section = File::SECTION_FLARES;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_FLARES2):
+            new_section = File::SECTION_FLARES_2;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_FLEXBODIES):
+            new_section = File::SECTION_FLEXBODIES;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_FLEXBODY_CAMERA_MODE):
+            ParseDirectiveFlexbodyCameraMode();
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_FLEXBODYWHEELS):
+            new_section = File::SECTION_FLEX_BODY_WHEELS;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_FORWARDCOMMANDS):
+            if (! current_module_is_root)
+            {
+                this->AddMessage(Message::TYPE_WARNING, "Directive 'forwardcommands' has global effect and should not appear in a module");
+            }
+            m_definition->forward_commands = true;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_FUSEDRAG):
+            new_section = File::SECTION_FUSEDRAG;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_GLOBALS):
+            new_section = File::SECTION_GLOBALS;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_GUID):
+            ParseGuid();
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_GUISETTINGS):
+            new_section = File::SECTION_GUI_SETTINGS;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_HELP):
+            new_section = File::SECTION_HELP;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_HIDE_IN_CHOOSER):
+            if (! current_module_is_root)
+            {
+                this->AddMessage(Message::TYPE_WARNING, "Directive 'hideInChooser' has global effect and should not appear in a module");
+            }
+            m_definition->hide_in_chooser = true;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_HOOKGROUP):
+            // Not supported yet, ignore 
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_HOOKS):
+            new_section = File::SECTION_HOOKS;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_HYDROS):
+            new_section = File::SECTION_HYDROS;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_IMPORTCOMMANDS):
+            m_definition->import_commands = true;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_LOCKGROUPS):
+            new_section = File::SECTION_LOCKGROUPS;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_LOCKGROUP_DEFAULT_NOLOCK):
+            if (! current_module_is_root)
+            {
+                this->AddMessage(Message::TYPE_WARNING, "Directive 'lockgroup_default_nolock' has global effect and should not appear in a module");
+            }
+            m_definition->lockgroup_default_nolock = true;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_MANAGEDMATERIALS):
+            new_section = File::SECTION_MANAGED_MATERIALS;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_MATERIALFLAREBINDINGS):
+            new_section = File::SECTION_MATERIAL_FLARE_BINDINGS;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_MESHWHEELS):
+            new_section = File::SECTION_MESH_WHEELS;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_MESHWHEELS2):
+            new_section = File::SECTION_MESH_WHEELS_2;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_MINIMASS):
+            new_section = File::SECTION_MINIMASS;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_NODECOLLISION):
+            new_section = File::SECTION_NODE_COLLISION;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_NODES):
+            new_section = File::SECTION_NODES;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_NODES2):
+            new_section = File::SECTION_NODES_2;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_PARTICLES):
+            new_section = File::SECTION_PARTICLES;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_PISTONPROPS):
+            new_section = File::SECTION_PISTONPROPS;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_PROP_CAMERA_MODE):
+            ParseDirectivePropCameraMode();
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_PROPS):
+            new_section = File::SECTION_PROPS;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_RAILGROUPS):
+            new_section = File::SECTION_RAILGROUPS;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_RESCUER):
+            if (! current_module_is_root)
+            {
+                this->AddMessage(Message::TYPE_WARNING, "Directive 'rescuer' has global effect and should not appear in a module");
+            }
+            m_definition->rescuer = true;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_RIGIDIFIERS):
+            this->AddMessage(Message::TYPE_WARNING, "Rigidifiers are not supported, ignoring...");
+            new_section = File::SECTION_NONE;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_ROLLON):
+            if (! current_module_is_root)
+            {
+                this->AddMessage(Message::TYPE_WARNING, "Directive 'rollon' has global effect and should not appear in a module");
+            }
+            m_definition->rollon = true;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_ROPABLES):
+            new_section = File::SECTION_ROPABLES;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_ROPES):
+            new_section = File::SECTION_ROPES;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_ROTATORS):
+            new_section = File::SECTION_ROTATORS;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_ROTATORS2):
+            new_section = File::SECTION_ROTATORS_2;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_SCREWPROPS):
+            new_section = File::SECTION_SCREWPROPS;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_SECTION):
+            {
+                std::pair<bool, Ogre::String> result = GetModuleName(std::string(m_current_line));
+                if (result.first)
                 {
-                    AddMessage(line, Message::TYPE_WARNING, "Misplaced sub-section 'texcoords' (belongs in section 'submesh'), falling back to classic unsafe parsing method.");
-                    new_section = File::SECTION_SUBMESH;
+                    new_module_name = result.second;
+                    module_changed = true;
                 }
-                line_finished = true;
-                break;
+            }
+            line_finished = true;
+            break;
 
-            case (File::KEYWORD_TIES):
-                new_section = File::SECTION_TIES;
-                line_finished = true;
-                break;
+        case (File::KEYWORD_SECTIONCONFIG):
+            // Ignored 
+            line_finished = true;
+            break;
 
-            case (File::KEYWORD_TORQUECURVE):
-                new_section = File::SECTION_TORQUE_CURVE;
-                line_finished = true;
-                break;
+        case (File::KEYWORD_SET_BEAM_DEFAULTS):
+            ParseDirectiveSetBeamDefaults();
+            line_finished = true;
+            break;
 
-            case (File::KEYWORD_TRACTION_CONTROL):
-                ParseTractionControl();
-                line_finished = true;
-                break;
+        case (File::KEYWORD_SET_BEAM_DEFAULTS_SCALE):
+            ParseDirectiveSetBeamDefaultsScale();
+            line_finished = true;
+            break;
 
-            case (File::KEYWORD_TRIGGERS):
-                new_section = File::SECTION_TRIGGERS;
-                line_finished = true;
-                break;
+        case (File::KEYWORD_SET_COLLISION_RANGE):
+            ParseSetCollisionRange();
+            line_finished = true;
+            break;
 
-            case (File::KEYWORD_TURBOJETS):
-                new_section = File::SECTION_TURBOJETS;
-                line_finished = true;
-                break;
+        case (File::KEYWORD_SET_INERTIA_DEFAULTS):
+            ParseDirectiveSetInertiaDefaults();
+            line_finished = true;
+            break;
 
-            case (File::KEYWORD_TURBOPROPS):
-                new_section = File::SECTION_TURBOPROPS;
-                line_finished = true;
-                break;
+        case (File::KEYWORD_SET_MANAGEDMATERIALS_OPTIONS):
+            ParseDirectiveSetManagedMaterialsOptions();
+            line_finished = true;
+            break;
 
-            case (File::KEYWORD_TURBOPROPS2):
-                new_section = File::SECTION_TURBOPROPS_2;
-                line_finished = true;
-                break;
+        case (File::KEYWORD_SET_NODE_DEFAULTS):
+            ParseDirectiveSetNodeDefaults();
+            line_finished = true;
+            break;
 
-            case (File::KEYWORD_VIDEOCAMERA):
-                new_section = File::SECTION_VIDEO_CAMERA;
-                line_finished = true;
-                break;
+        case (File::KEYWORD_SET_SKELETON_SETTINGS):
+            ParseSetSkeletonSettings();
+            line_finished = true;
+            break;
 
-            case (File::KEYWORD_WHEELDETACHERS):
-                new_section = File::SECTION_WHEELDETACHERS;
-                line_finished = true;
-                break;
+        case (File::KEYWORD_SHOCKS):
+            new_section = File::SECTION_SHOCKS;
+            line_finished = true;
+            break;
 
-            case (File::KEYWORD_WHEELS):
-                new_section = File::SECTION_WHEELS;
-                line_finished = true;
-                break;
+        case (File::KEYWORD_SHOCKS2):
+            new_section = File::SECTION_SHOCKS_2;
+            line_finished = true;
+            break;
 
-            case (File::KEYWORD_WHEELS2):
-                new_section = File::SECTION_WHEELS_2;
-                line_finished = true;
-                break;
+        case (File::KEYWORD_SLIDENODE_CONNECT_INSTANTLY):
+            if (! current_module_is_root)
+            {
+                this->AddMessage(Message::TYPE_WARNING, "Directive 'slidenode_connect_instantly' has global effect and should not appear in a module");
+            }
+            m_definition->slide_nodes_connect_instantly = true;
+            line_finished = true;
+            break;
 
-            case (File::KEYWORD_WINGS):
-                new_section = File::SECTION_WINGS;
-                line_finished = true;
-                break;
+        case (File::KEYWORD_SLIDENODES):
+            new_section = File::SECTION_SLIDENODES;
+            line_finished = true;
+            break;
 
-        }
+        case (File::KEYWORD_SLOPE_BRAKE):
+            ParseSlopeBrake();
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_SOUNDSOURCES):
+            new_section = File::SECTION_SOUNDSOURCES;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_SOUNDSOURCES2):
+            new_section = File::SECTION_SOUNDSOURCES2;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_SPEEDLIMITER):
+            ParseSpeedLimiter();
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_SUBMESH_GROUNDMODEL):
+            ParseSubmeshGroundModel();
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_SUBMESH):
+            new_section = File::SECTION_SUBMESH;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_TEXCOORDS):
+            new_subsection = File::SUBSECTION__SUBMESH__TEXCOORDS;
+            if (m_current_section != File::SECTION_SUBMESH)
+            {
+                this->AddMessage(Message::TYPE_WARNING, "Misplaced sub-section 'texcoords' (belongs in section 'submesh'), falling back to classic unsafe parsing method.");
+                new_section = File::SECTION_SUBMESH;
+            }
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_TIES):
+            new_section = File::SECTION_TIES;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_TORQUECURVE):
+            new_section = File::SECTION_TORQUE_CURVE;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_TRACTION_CONTROL):
+            ParseTractionControl();
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_TRIGGERS):
+            new_section = File::SECTION_TRIGGERS;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_TURBOJETS):
+            new_section = File::SECTION_TURBOJETS;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_TURBOPROPS):
+            new_section = File::SECTION_TURBOPROPS;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_TURBOPROPS2):
+            new_section = File::SECTION_TURBOPROPS_2;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_VIDEOCAMERA):
+            new_section = File::SECTION_VIDEO_CAMERA;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_WHEELDETACHERS):
+            new_section = File::SECTION_WHEELDETACHERS;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_WHEELS):
+            new_section = File::SECTION_WHEELS;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_WHEELS2):
+            new_section = File::SECTION_WHEELS_2;
+            line_finished = true;
+            break;
+
+        case (File::KEYWORD_WINGS):
+            new_section = File::SECTION_WINGS;
+            line_finished = true;
+            break;
     }
+
+    std::string line = m_current_line;
 
     if (module_changed)
     {
@@ -3778,10 +3768,10 @@ void Parser::AddMessage(std::string const & line, Message::Type type, std::strin
     }
 }
 
-File::Keyword Parser::IdentifyKeyword(Ogre::String const & line)
+File::Keyword Parser::IdentifyKeywordInCurrentLine()
 {
     // Quick check - keyword always starts with ASCII letter
-    char c = line[0]; // Note: line comes in trimmed
+    char c = m_current_line[0]; // Note: line comes in trimmed
     if (! ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')))
     {
         return File::KEYWORD_INVALID;
@@ -3789,6 +3779,7 @@ File::Keyword Parser::IdentifyKeyword(Ogre::String const & line)
 
     // Search with correct lettercase
     std::smatch results;
+    std::string line(m_current_line);
     std::regex_search(line, results, Regexes::IDENTIFY_KEYWORD_RESPECT_CASE); // Always returns true.
     File::Keyword keyword = FindKeywordMatch(results);
     if (keyword != File::KEYWORD_INVALID)
