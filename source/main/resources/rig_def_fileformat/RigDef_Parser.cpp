@@ -112,7 +112,6 @@ void Parser::ProcessCurrentLine()
     this->TokenizeCurrentLine();
 
     // Detect keywords on current line 
-    // NOTE: Please maintain alphabetical order
     File::Keyword keyword = IdentifyKeywordInCurrentLine();
     switch (keyword)
     {
@@ -224,309 +223,73 @@ void Parser::ProcessCurrentLine()
         case File::KEYWORD_WINGS:                    this->ChangeSection(File::SECTION_WINGS);            return;
     }
 
-    std::string line = m_current_line;
-    bool line_finished = false; // TODO: Replace this logic with simple 'return' !!
-
     // Parse current section, if any 
-    // NOTE: Please maintain alphabetical order 
     switch (m_current_section)
     {
-
-        case (File::SECTION_AIRBRAKES):
-            ParseAirbrakes();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_ANIMATORS):
-            ParseAnimator();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_AXLES):
-            ParseAxles();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_TRUCK_NAME):
-            m_definition->name = Ogre::String(line);
-            Ogre::StringUtil::trim(m_definition->name);
-            m_current_section = File::SECTION_NONE;
-            line_finished = true;
-            break;
-
-        case (File::SECTION_BEAMS):
-            ParseBeams();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_BRAKES):
-            ParseBrakes();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_CAMERAS):
-            ParseCameras();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_CAMERA_RAIL):
-            ParseCameraRails();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_CINECAM):
-            ParseCinecam();
-            line_finished = true;
-            break;
-
+        case (File::SECTION_AIRBRAKES):            this->ParseAirbrakes();               return;
+        case (File::SECTION_ANIMATORS):            this->ParseAnimator();                return;
+        case (File::SECTION_AXLES):                this->ParseAxles();                   return;
+        case (File::SECTION_TRUCK_NAME):           this->ParseActorNameLine();           return; 
+        case (File::SECTION_BEAMS):                this->ParseBeams();                   return;
+        case (File::SECTION_BRAKES):               this->ParseBrakes();                  return;
+        case (File::SECTION_CAMERAS):              this->ParseCameras();                 return;
+        case (File::SECTION_CAMERA_RAIL):          this->ParseCameraRails();             return;
+        case (File::SECTION_CINECAM):              this->ParseCinecam();                 return;
         case (File::SECTION_COMMANDS):
-        case (File::SECTION_COMMANDS_2):
-            ParseCommandsUnified();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_COLLISION_BOXES):
-            ParseCollisionBox();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_CONTACTERS):
-            ParseContacter();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_ENGINE):
-            ParseEngine();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_ENGOPTION):
-            ParseEngoption();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_ENGTURBO) :
-            ParseEngturbo();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_EXHAUSTS):
-            ParseExhaust();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_FIXES):
-            ParseFixes();
-            line_finished = true;
-            break;
-
+        case (File::SECTION_COMMANDS_2):           this->ParseCommandsUnified();         return;
+        case (File::SECTION_COLLISION_BOXES):      this->ParseCollisionBox();            return;
+        case (File::SECTION_CONTACTERS):           this->ParseContacter();               return;
+        case (File::SECTION_ENGINE):               this->ParseEngine();                  return;
+        case (File::SECTION_ENGOPTION):            this->ParseEngoption();               return;
+        case (File::SECTION_ENGTURBO) :            this->ParseEngturbo();                return;
+        case (File::SECTION_EXHAUSTS):             this->ParseExhaust();                 return;
+        case (File::SECTION_FIXES):                this->ParseFixes();                   return;
         case (File::SECTION_FLARES):
-        case (File::SECTION_FLARES_2):
-            ParseFlaresUnified();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_FLEXBODIES):
-            ParseFlexbody();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_FLEX_BODY_WHEELS):
-            ParseFlexBodyWheel();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_FUSEDRAG):
-            ParseFusedrag();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_GLOBALS):
-            ParseGlobals();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_GUI_SETTINGS):
-            ParseGuiSettings();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_HELP):
-            ParseHelp();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_HOOKS):
-            ParseHook(); 
-            line_finished = true;
-            break;
-
-        case (File::SECTION_HYDROS):
-            ParseHydros();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_LOCKGROUPS):
-            ParseLockgroups();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_MANAGED_MATERIALS):
-            ParseManagedMaterials();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_MAT_FLARE_BINDINGS):
-            ParseMaterialFlareBindings();
-            line_finished = true;
-            break;
-
+        case (File::SECTION_FLARES_2):             this->ParseFlaresUnified();           return;
+        case (File::SECTION_FLEXBODIES):           this->ParseFlexbody();                return;
+        case (File::SECTION_FLEX_BODY_WHEELS):     this->ParseFlexBodyWheel();           return;
+        case (File::SECTION_FUSEDRAG):             this->ParseFusedrag();                return;
+        case (File::SECTION_GLOBALS):              this->ParseGlobals();                 return;
+        case (File::SECTION_GUI_SETTINGS):         this->ParseGuiSettings();             return;
+        case (File::SECTION_HELP):                 this->ParseHelp();                    return;
+        case (File::SECTION_HOOKS):                this->ParseHook();                    return;
+        case (File::SECTION_HYDROS):               this->ParseHydros();                  return;
+        case (File::SECTION_LOCKGROUPS):           this->ParseLockgroups();              return;
+        case (File::SECTION_MANAGED_MATERIALS):    this->ParseManagedMaterials();        return;
+        case (File::SECTION_MAT_FLARE_BINDINGS):   this->ParseMaterialFlareBindings();   return;
         case (File::SECTION_MESH_WHEELS):
-        case (File::SECTION_MESH_WHEELS_2):
-            ParseMeshWheelUnified();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_MINIMASS):
-            ParseMinimass();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_NODE_COLLISION):
-            ParseNodeCollision();
-            line_finished = true;
-            break;
-
+        case (File::SECTION_MESH_WHEELS_2):        this->ParseMeshWheelUnified();        return;
+        case (File::SECTION_MINIMASS):             this->ParseMinimass();                return;
+        case (File::SECTION_NODE_COLLISION):       this->ParseNodeCollision();           return;
         case (File::SECTION_NODES):
-        case (File::SECTION_NODES_2):
-            ParseNodesUnified();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_PARTICLES):
-            ParseParticles();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_PISTONPROPS):
-            ParsePistonprops();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_PROPS):
-            ParseProps();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_RAILGROUPS):
-            ParseRailGroups();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_ROPABLES):
-            ParseRopables();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_ROPES):
-            ParseRopes();
-            line_finished = true;
-            break;
-
+        case (File::SECTION_NODES_2):              this->ParseNodesUnified();            return;
+        case (File::SECTION_PARTICLES):            this->ParseParticles();               return;
+        case (File::SECTION_PISTONPROPS):          this->ParsePistonprops();             return;
+        case (File::SECTION_PROPS):                this->ParseProps();                   return;
+        case (File::SECTION_RAILGROUPS):           this->ParseRailGroups();              return;
+        case (File::SECTION_ROPABLES):             this->ParseRopables();                return;
+        case (File::SECTION_ROPES):                this->ParseRopes();                   return;
         case (File::SECTION_ROTATORS):
-        case (File::SECTION_ROTATORS_2):
-            ParseRotatorsUnified();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_SCREWPROPS):
-            ParseScrewprops();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_SHOCKS):
-            ParseShock();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_SHOCKS_2):
-            ParseShock2();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_SLIDENODES):
-            ParseSlidenodes();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_SOUNDSOURCES):
-            ParseSoundsources();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_SOUNDSOURCES2):
-            ParseSoundsources2();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_SUBMESH):
-            ParseSubmesh();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_TIES):
-            ParseTies();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_TORQUE_CURVE):
-            ParseTorqueCurve();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_TRIGGERS):
-            ParseTriggers();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_TURBOJETS):
-            ParseTurbojets();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_TURBOPROPS):
-        case (File::SECTION_TURBOPROPS_2):
-            ParseTurbopropsUnified();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_VIDEO_CAMERA):
-            ParseVideoCamera();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_WHEELDETACHERS):
-            ParseWheelDetachers();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_WHEELS):
-            ParseWheel();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_WHEELS_2):
-            ParseWheel2();
-            line_finished = true;
-            break;
-
-        case (File::SECTION_WINGS):
-            ParseWing();
-            line_finished = true;
-            break;
-
-        default:
-            break;
+        case (File::SECTION_ROTATORS_2):           this->ParseRotatorsUnified();         return;
+        case (File::SECTION_SCREWPROPS):           this->ParseScrewprops();              return;
+        case (File::SECTION_SHOCKS):               this->ParseShock();                   return;
+        case (File::SECTION_SHOCKS_2):             this->ParseShock2();                  return;
+        case (File::SECTION_SLIDENODES):           this->ParseSlidenodes();              return;
+        case (File::SECTION_SOUNDSOURCES):         this->ParseSoundsources();            return;
+        case (File::SECTION_SOUNDSOURCES2):        this->ParseSoundsources2();           return;
+        case (File::SECTION_SUBMESH):              this->ParseSubmesh();                 return;
+        case (File::SECTION_TIES):                 this->ParseTies();                    return;
+        case (File::SECTION_TORQUE_CURVE):         this->ParseTorqueCurve();             return;
+        case (File::SECTION_TRIGGERS):             this->ParseTriggers();                return;
+        case (File::SECTION_TURBOJETS):            this->ParseTurbojets();               return;
+        case (File::SECTION_TURBOPROPS):           
+        case (File::SECTION_TURBOPROPS_2):         this->ParseTurbopropsUnified();       return;
+        case (File::SECTION_VIDEO_CAMERA):         this->ParseVideoCamera();             return;
+        case (File::SECTION_WHEELDETACHERS):       this->ParseWheelDetachers();          return;
+        case (File::SECTION_WHEELS):               this->ParseWheel();                   return;
+        case (File::SECTION_WHEELS_2):             this->ParseWheel2();                  return;
+        case (File::SECTION_WINGS):                this->ParseWing();                    return;
+        default:;
     };
 }
 
@@ -546,29 +309,11 @@ bool Parser::CheckNumArguments(int num_required_args)
 // Parsing individual keywords                                                
 // -------------------------------------------------------------------------- 
 
-#if 0 // TEMPLATE 
-
-void Parser::Parse()
+void Parser::ParseActorNameLine()
 {
-    this->GetArg( 0);
-    this->GetArg( 1);
-    this->GetArg( 2);
-    this->GetArg( 3);
-    this->GetArg( 4);
-    this->GetArg( 5);
-    this->GetArg( 6);
-    this->GetArg( 7);
-    this->GetArg( 8);
-    this->GetArg( 9);
-    this->GetArg(10);
-    this->GetArg(11);
-    this->GetArg(12);
-    this->GetArg(13);
-    this->GetArg(14);
-    this->GetArg(15);
+    m_definition->name = m_current_line; // Already trimmed
+    m_current_section = File::SECTION_NONE;
 }
-
-#endif
 
 void Parser::ParseWing()
 {
