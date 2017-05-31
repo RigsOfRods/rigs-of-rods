@@ -537,8 +537,8 @@ if(WIN32)
 	endfunction()
 
 	# Create list of commands for copying
-	set( WXWIDGETS_VERSION 310u )
-	set( WXWIDGETS_COMPILER vc140 )
+	set( WXWIDGETS_VERSION 311u )
+	set( WXWIDGETS_COMPILER vc_custom )
 	post_build_copy_commands( DEPENDENCY_COPY_COMMANDS ${BINNAME}
 		# OGRE
 		OgreMain.dll
