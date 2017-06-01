@@ -14,6 +14,3 @@ IF(ROR_BUILD_CONFIGURATOR)
   add_subdirectory(configurator)
 ENDIF()
 
-IF(ROR_BUILD_UPDATER)
-  add_subdirectory(updater)
-ENDIF()

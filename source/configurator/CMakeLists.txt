@@ -1,96 +1,106 @@
+# ================================================================================================ #
+#  CONFIGURATOR                                                                                    #
+#
+# This CMake listfile builds the Configurator for Rigs of Rods. This tool is allows to configure
+# various settings of the Simulator.
+#
 project(RoR_Configurator)
 
-#setup libraries
-macro(setup_lib name)
-   if(ROR_USE_${name})
-      include_directories(${${name}_INCLUDE_DIRS})
-      link_directories   (${${name}_LIBRARY_DIRS})
-      add_definitions("-DUSE_${name}")
-      set(optional_libs ${optional_libs} ${${name}_LIBRARIES})
-      #message(STATUS "${name} Enabled:      \tYES")
-      #message(STATUS "${name}_INCLUDE_DIRS: \t${${name}_INCLUDE_DIRS}")
-      #if(${${name}_LIBRARY_DIRS})
-      #   message(STATUS "${name}_LIBRARY_DIRS: \t${${name}_LIBRARY_DIRS}")
-      #endif(${${name}_LIBRARY_DIRS})
-      #message(STATUS "${name}_LIBRARIES:    \t${${name}_LIBRARIES}")
-   else()
-	   #message(STATUS "${name} Enabled:      \tNO")
-   endif(ROR_USE_${name})
-endmacro(setup_lib)
 
 if(WIN32)
-	# use precompiled stuff
-	set(wxWidgets_INCLUDE_DIRS "${ROR_DEPENDENCIES_DIR}/includes/${ARCH_DIR}/WxWidgets" CACHE PATH "The wxWidgets include path to use")
-	set(wxWidgets_LIBRARY_DIRS "${ROR_DEPENDENCIES_DIR}/libs/${ARCH_DIR}/WxWidgets/Release" CACHE PATH "The wxWidgets lib path to use")
-	set(wxWidgets_LIBRARIES    "wxbase31u.lib;wxmsw31u_core.lib;wxmsw31u_html.lib;wxbase31u_net.lib;wxmsw31u_adv.lib;wxpng.lib;wxtiff.lib;wxjpeg.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;winmm.lib;comctl32.lib;rpcrt4.lib;wsock32.lib;" CACHE STRING "The wxWidgets lib to link against")
-	add_definitions("-D_UNICODE -D_CRT_SECURE_NO_WARNINGS -DUNICODE")
-	include_directories(${wxWidgets_INCLUDE_DIRS})
-	link_directories (${wxWidgets_LIBRARY_DIRS})
-else(WIN32)
-	# find wxwidgets
-	SET(wxWidgets_USE_UNICODE ON)
-	FIND_PACKAGE(wxWidgets REQUIRED COMPONENTS base core html net adv)
-	include( ${wxWidgets_USE_FILE} )
-	#include_directories(${wxWidgets_INCLUDE_DIRS})
-	#add_definitions("-D${wxWidgets_DEFINITIONS}" ${wxWidgets_CXX_FLAGS})
-	#link_directories (${wxWidgets_LIB_DIR})
-endif(WIN32)
-
-IF(WIN32)
-   set(OS_LIBS "dinput8.lib;dxguid.lib")
+   set(OS_LIBS "${PThread_LIBRARIES};dinput8.lib;dxguid.lib")
    set(OS_SOURCE "icon.rc")
 
    # disable some annoying VS warnings:
    # warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
    # warning C4305: 'initializing' : truncation from 'double' to 'const float'
    add_definitions("/wd4305 /wd4244")
-
-
-   #now: delay loading for opencl
-   if(ROR_USE_OPENCL)
-      set(CMAKE_EXE_LINKER_FLAGS_DEBUG          "${CMAKE_EXE_LINKER_FLAGS_DEBUG}          /DELAYLOAD:OpenCL.dll")
-      set(CMAKE_EXE_LINKER_FLAGS_RELEASE        "${CMAKE_EXE_LINKER_FLAGS_RELEASE}        /DELAYLOAD:OpenCL.dll")
-      set(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL     "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL}     /DELAYLOAD:OpenCL.dll")
-      set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} /DELAYLOAD:OpenCL.dll")
-      set(OS_LIBS ${OS_LIBS} Delayimp.lib)
-   endif(ROR_USE_OPENCL)
-ELSEIF(UNIX)
+elseif(UNIX)
    find_package(PkgConfig)
    PKG_CHECK_MODULES  (GTK gtk+-2.0 REQUIRED)
-   INCLUDE_DIRECTORIES(${GTK_INCLUDE_DIRS})
-
-   PKG_CHECK_MODULES  (Ogre OGRE REQUIRED)
-   PKG_CHECK_MODULES  (Ois OIS REQUIRED)
+   include_directories(${GTK_INCLUDE_DIRS})
 
    set(OS_LIBS "-lboost_system")
 
-ENDIF(WIN32)
+endif()
 
-setup_lib(OPENCL)
-setup_lib(OPENAL)
-include_directories(${Ogre_INCLUDE_DIRS})
-link_directories   (${Ogre_LIBRARY_DIRS})
-include_directories(${Ois_INCLUDE_DIRS})
-link_directories   (${Ois_LIBRARY_DIRS})
-include_directories(${MYGUI_INCLUDE_DIRS})
+file(GLOB sources "*.cpp")
+file(GLOB headers "*.h")
 
-add_definitions("-DNOOGRE -D_UNICODE")
 include_directories(../main/)
 include_directories(../main/network/)
 include_directories(../main/utils/)
 
-FILE(GLOB sources "*.cpp")
-FILE(GLOB headers "*.h")
+add_definitions("-DNOOGRE -D_UNICODE")
 
-IF(WIN32)
-	add_executable(RoRConfig WIN32 ${sources} ${headers} ${OS_SOURCE} ../main/utils/SHA1.cpp ../main/utils/ErrorUtils.cpp)
-	TARGET_LINK_LIBRARIES(RoRConfig Version.lib)
-ELSE(WIN32)
-        add_definitions ("-fPIC")
-	add_executable(RoRConfig ${sources} ${headers} ${OS_SOURCE} ../main/utils/SHA1.cpp ../main/utils/ErrorUtils.cpp)
+# TODO OpenCL
+
+# TODO GTK
+
+
+if(WIN32)
+    add_executable(RoRConfig WIN32 ${sources} ${headers} ${OS_SOURCE} ../main/utils/SHA1.cpp ../main/utils/ErrorUtils.cpp)
+    target_link_libraries(RoRConfig PRIVATE Version.lib)
+else(WIN32)
+    add_definitions ("-fPIC")
+    add_executable(RoRConfig ${sources} ${headers} ${OS_SOURCE}../main/utils/SHA1.cpp ../main/utils/ErrorUtils.cpp)
 ENDIF(WIN32)
 
-TARGET_LINK_LIBRARIES(RoRConfig ${Ogre_LIBRARIES} ${Ois_LIBRARIES} ${OS_LIBS} ${optional_libs} ${wxWidgets_LIBRARIES} version_info)
+
+# find wxwidgets
+set(wxWidgets_USE_UNICODE ON)
+find_package(wxWidgets REQUIRED COMPONENTS base core html net adv)
+include( ${wxWidgets_USE_FILE} )
+target_link_libraries( RoRConfig PRIVATE ${wxWidgets_LIBRARIES} )
 
 
+find_package( OGRE REQUIRED )
+target_link_libraries( RoRConfig PRIVATE
+  ${OGRE_LIBRARIES} 
+  ${OGRE_Paging_LIBRARIES}
+  ${OGRE_RTShaderSystem_LIBRARIES}
+  ${OGRE_Terrain_LIBRARIES}
+)
+target_include_directories( RoRConfig PRIVATE
+  ${OGRE_INCLUDE_DIRS} 
+  ${OGRE_Paging_INCLUDE_DIRS}
+  ${OGRE_RTShaderSystem_INCLUDE_DIRS}
+  ${OGRE_Terrain_INCLUDE_DIRS}
+)
+if( OGRE_VERSION VERSION_GREATER 1.8 )
+  target_link_libraries( RoRConfig PRIVATE ${OGRE_Overlay_LIBRARIES} )
+  target_include_directories( RoRConfig PRIVATE ${OGRE_Overlay_INCLUDE_DIRS} )
+endif()
+
+
+find_package( OIS REQUIRED )
+target_link_libraries( RoRConfig PRIVATE ${OIS_LIBRARIES} )
+target_include_directories( RoRConfig PRIVATE ${OIS_INCLUDE_DIRS} )
+
+
+find_package( MyGUI REQUIRED )
+target_link_libraries( RoRConfig PRIVATE
+  MyGUI::MyGUI
+  MyGUI::OgrePlatform
+)
+target_compile_definitions( RoRConfig PRIVATE
+  USE_MYGUI
+  $<$<PLATFORM_ID:WINDOWS>:MYGUI_STATIC>
+)
+
+# OpenAL - audio library
+find_package( OpenAL )
+if(OPENAL_FOUND)
+  target_link_libraries( RoRConfig PRIVATE ${OPENAL_LIBRARY} )
+  target_include_directories( RoRConfig PRIVATE ${OPENAL_INCLUDE_DIR} )
+  target_compile_definitions( RoRConfig PRIVATE USE_OPENAL )
+else()
+  message( WARNING "Building RoRConfig without OpenAL. Some functionality may be missing." )
+endif()
+
+target_link_libraries( RoRConfig PRIVATE
+  ${OS_LIBS}
+  ${optional_libs}
+  version_info
+)
 
