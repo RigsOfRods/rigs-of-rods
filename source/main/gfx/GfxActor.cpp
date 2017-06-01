@@ -177,6 +177,21 @@ void RoR::GfxActor::SetVideoCamState(VideoCamState state)
     m_vidcam_state = state;
 }
 
+RoR::GfxActor::VideoCamera::VideoCamera():
+    vcam_type(VideoCamType::VCTYPE_INVALID), // VideoCamType         
+    vcam_node_center(nullptr),            // node_t*              
+    vcam_node_dir_y(nullptr),             // node_t*              
+    vcam_node_dir_z(nullptr),             // node_t*              
+    vcam_node_alt_pos(nullptr),           // node_t*              
+    vcam_node_lookat(nullptr),            // node_t*              
+    vcam_pos_offset(Ogre::Vector3::ZERO), // Ogre::Vector3         
+    vcam_ogre_camera(nullptr),            // Ogre::Camera*        
+    vcam_render_target(nullptr),          // Ogre::RenderTexture* 
+    vcam_debug_node(nullptr),             // Ogre::SceneNode*     
+    vcam_render_window(nullptr),          // Ogre::RenderWindow*  
+    vcam_prop_scenenode(nullptr)          // Ogre::SceneNode*     
+{}  
+
 void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
 {
     if (m_vidcam_state != VideoCamState::VCSTATE_ENABLED_ONLINE)

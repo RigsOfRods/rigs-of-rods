@@ -7305,7 +7305,6 @@ void RigSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
     try
     {
         GfxActor::VideoCamera vcam;
-        memset(&vcam, 0, sizeof(GfxActor::VideoCamera));
 
         vcam.vcam_material = this->FindOrCreateCustomizedMaterial(def->material_name);
         if (vcam.vcam_material.isNull())
@@ -7494,7 +7493,6 @@ void RigSpawner::CreateMirrorPropVideoCam(
     {
         // Prepare videocamera entry
         GfxActor::VideoCamera vcam;
-        memset(&vcam, 0, sizeof(GfxActor::VideoCamera));
         vcam.vcam_off_tex_name = "mirror.dds";
         vcam.vcam_prop_scenenode = prop_scenenode;
         switch (type)

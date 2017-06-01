@@ -76,6 +76,8 @@ public:
     /// either in-scene texture or external window.
     struct VideoCamera
     {
+        VideoCamera();
+
         VideoCamType         vcam_type;          // old 'camRole'
         node_t*              vcam_node_center;   // old 'nref'
         node_t*              vcam_node_dir_y;    // old 'ny'
