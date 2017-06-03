@@ -22,8 +22,10 @@ project( ${PROJECT_NAME_SHORT} VERSION 0.4.7.0 )
 ################################################################################
 # Available build options
 ################################################################################
-option( BUILD_DEV_VERSION  "Disable this for official releases"            ON  )
-option( BUILD_DOC_DOXYGEN  "Build documentation from sources with Doxygen" OFF )
+option( BUILD_DEV_VERSION   "Disable this for official releases"            ON )
+option( BUILD_DOC_DOXYGEN   "Build documentation from sources with Doxygen" OFF)
+option( BUILD_SHOW_WARNINGS "Show build warnings"                           ON )
+
 
 
 include(Macros)
@@ -80,7 +82,11 @@ mark_as_advanced(
 if(WIN32)
   #set(ROR_USING_VISUAL_STUDIO_PROFESSIONAL "FALSE" CACHE BOOL "if you use VS professional, enable this. DO NOT enable this when using express versions")
   
-  set(warnings /W3 /D_CRT_SECURE_NO_WARNINGS /wd4005 /wd4996 /wd4251 /wd4275 /wd4099 /nologo)
+  if (BUILD_SHOW_WARNINGS)
+    set(warnings /W3 /D_CRT_SECURE_NO_WARNINGS /wd4005 /wd4996 /wd4251 /wd4275 /wd4099 /nologo)
+  else()
+    set(warnings /w)
+  endif()
   add_definitions(${warnings})
 
   set(CMAKE_CXX_FLAGS_RELEASE        "${CMAKE_CXX_FLAGS_RELEASE}        /MP /GL /Ox /Ob2 /Oi /Ot /Oy /fp:fast /GS- /MP /Zi")
