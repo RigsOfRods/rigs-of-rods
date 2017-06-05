@@ -24,24 +24,24 @@
 #include "RoRPrerequisites.h"
 #include "Terrn2Fileformat.h"
 
+#include <json/json.h>
+
 class TerrainManager : public ZeroedMemoryAllocator
 {
 public:
 
-    TerrainManager();
+    TerrainManager(RoRFrameListener* sim_controller);
     ~TerrainManager();
 
-    void loadTerrain(Ogre::String filename);
+    void LoadTerrain(std::string const & filename);
 
     bool update(float dt);
 
     void setGravity(float value);
-    float getGravity() { return gravity; };
+    float getGravity() { return m_terrn_gravity; };
 
-    Ogre::String getTerrainName() { return m_def.name; };
-    Ogre::String getGUID() { return m_def.guid; };
-    int getCategoryID() { return m_def.category_id; };
-    int getVersion() { return m_def.version; };
+    Ogre::String getTerrainName() { return m_terrn_name; };
+    Ogre::String getGUID() { return m_terrn_guid; };
     int getFarClip() { return far_clip; }
     int getPagedMode() { return paged_mode; };
     float getPagedDetailFactor() { return paged_detail_factor; };
@@ -50,13 +50,12 @@ public:
     Ogre::Vector3 getMaxTerrainSize();
 
     // some getters
-    Collisions* getCollisions() { return collisions; };
+    Collisions* getCollisions() { return m_terrn_collisions; };
     Envmap* getEnvmap() { return envmap; };
     IHeightFinder* getHeightFinder();
     IWater* getWater() { return water; };
     Ogre::Light* getMainLight() { return main_light; };
-    Ogre::Vector3 getSpawnPos() { return m_def.start_position; };
-    RoR::Terrn2Def& GetDef() { return m_def; }
+    Ogre::Vector3 getSpawnPos() { return m_spawn_pos; };
 
     SkyManager* getSkyManager();
 
@@ -72,11 +71,13 @@ public:
 
     static const int UNLIMITED_SIGHTRANGE = 4999;
 
-protected:
+private:
+
+    RoRFrameListener* m_sim_controller;
 
     // subsystems
     Character* character;
-    Collisions* collisions;
+    Collisions* m_terrn_collisions;
     Dashboard* dashboard;
     Envmap* envmap;
     HDRListener* hdr_listener;
@@ -89,9 +90,11 @@ protected:
     HydraxWater* hw;
     Ogre::Light *main_light;
 
-    // properties
-    RoR::Terrn2Def m_def;
-    float gravity;
+    // Terrain properties
+    Ogre::Vector3   m_spawn_pos;
+    std::string     m_terrn_name;
+    std::string     m_terrn_guid;
+    float           m_terrn_gravity;
 
     float paged_detail_factor;
     int far_clip;
@@ -99,26 +102,21 @@ protected:
 
 
     // internal methods
-    void initCamera();
-    void initCollisions();
-    void initTerrainCollisions();
+    void InitSubSystems(Json::Value& j_terrn);
+    void initCamera(Json::Value& j_terrn, Ogre::ColourValue const & ambient_color);
     void initDashboards();
-    void initEnvironmentMap();
-    void initFog();
     void initGeometry();
     void initGlow();
     void initHDR();
-    void initLight();
+    void initLight(Ogre::ColourValue const & ambient_color);
     void initMotionBlur();
     void initObjects();
-    void initScripting();
+    void initScripting(Json::Value& j_terrn);
     void initShadows();
-    void initSkySubSystem();
-    void initSubSystems();
+    void initSkySubSystem(Json::Value& j_terrn);
     void initSunburn();
     void initVegetation();
-    void initWater();
+    void initWater(Json::Value& j_terrn);
 
     void fixCompositorClearColor();
-    void loadTerrainObjects();
 };

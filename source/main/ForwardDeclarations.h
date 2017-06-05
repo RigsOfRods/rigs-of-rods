@@ -31,6 +31,8 @@
 namespace RoR
 {
     class  ContentManager;
+    struct GroundModelDef;
+    class  GroundModelManager;
     class  GUIManager;
     struct GuiManagerImpl;
     class  GuiManagerInterface;
@@ -92,7 +94,6 @@ struct rig_t;
 struct collision_box_t;
 struct tie_t;
 struct hook_t;
-struct ground_model_t;
 struct client_t;
 struct authorinfo_t;
 
@@ -125,6 +126,7 @@ class Character;
 class ChatSystem;
 class CmdKeyInertia;
 class Collisions;
+class collcab_rate_t;
 class ColoredTextAreaOverlayElement;
 class Dashboard;
 class DashBoard;

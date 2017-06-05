@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -31,6 +31,7 @@
 #include "GUIManager.h"
 #include "GUI_LoadingWindow.h"
 #include "MeshObject.h"
+#include "ODefFileformat.h"
 #include "ProceduralManager.h"
 #include "Road2.h"
 #include "Settings.h"
@@ -39,6 +40,7 @@
 #include "SurveyMapManager.h"
 #include "TerrainGeometryManager.h"
 #include "TerrainManager.h"
+#include "TObjFileFormat.h"
 #include "Utils.h"
 #include "WriteTextToTexture.h"
 
@@ -50,10 +52,13 @@
 #endif // USE_ANGELSCRIPT
 
 using namespace Ogre;
+using namespace RoR;
 
 #ifdef USE_PAGED
 using namespace Forests;
 #endif //USE_PAGED
+
+#define LOGSTREAM Ogre::LogManager::getSingleton().stream() << "[RoR|Terrain] "
 
 //workaround for pagedgeometry
 inline float getTerrainHeight(Real x, Real z, void* unused = 0)
@@ -106,38 +111,82 @@ TerrainObjectManager::~TerrainObjectManager()
     gEnv->sceneManager->destroyAllEntities();
 }
 
-void TerrainObjectManager::proceduralTests()
+Ogre::Vector3 JsonToVector3(Json::Value& j_vector3)
 {
-#if 0
-    // TODO: it crashes, get this working!
-	try
-	{
-		Procedural::MultiShape out;
-		Procedural::SvgLoader svg;
-		svg.parseSvgFile(out, "test.svg");
-		Procedural::Path p = out.getShape(0).convertToPath();
-		Procedural::Shape s = out.getShape(1);
-		
-		Procedural::Track textureTrack = Procedural::Track(Procedural::Track::AM_POINT).addKeyFrame(0,0).addKeyFrame(2,.2f).addKeyFrame(3,.8f).addKeyFrame(5,1);
-    // The extruder actually creates the road mesh from all parameters
-		Procedural::Extruder().setExtrusionPath(&p).setShapeToExtrude(&s).setShapeTextureTrack(&textureTrack).setUTile(20.f).realizeMesh("extrudedMesh");
-
-		Entity* ent2 = gEnv->sceneManager->createEntity("svg");
-		SceneNode* sn = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-		sn->attachObject(ent2);
-		sn->setPosition(Vector3(0,0,0));
-		ent2->setMaterialName("Examples/Road");
-		ent2->setCastShadows(true);
-
-	} catch(Exception &e)
-	{
-		ErrorUtils::ShowError("Error within procedural tests", e.what());
-	}
-#endif //0
+    return Ogre::Vector3 (j_vector3["x"].asFloat(),
+                          j_vector3["y"].asFloat(),
+                          j_vector3["z"].asFloat());
 }
 
-void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
+Ogre::Quaternion JsonToQuaternion(Json::Value& j_quat)
 {
+    return Ogre::Quaternion (j_quat["w"].asFloat(),
+                             j_quat["x"].asFloat(),
+                             j_quat["y"].asFloat(),
+                             j_quat["z"].asFloat());
+}
+
+void GenerateGridAndPutToScene(Ogre::Vector3 position)
+{
+    Ogre::ColourValue background_color(Ogre::ColourValue::White);
+    Ogre::ColourValue grid_color(0.2f, 0.2f, 0.2f, 1.0f);
+
+    Ogre::ManualObject* mo = new Ogre::ManualObject("ReferenceGrid");
+
+    mo->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
+
+    const float step = 1.0f;
+    const size_t count = 50;
+    unsigned int halfCount = count / 2;
+    const float half = (step * count) / 2;
+    const float y = 0;
+    Ogre::ColourValue c;
+    for (size_t i=0; i < count+1; i++)
+    {
+        if (i == halfCount)
+            c = Ogre::ColourValue(1.f, 0.f, 0.f, 1.f);
+        else
+            c = grid_color;
+
+        mo->position(-half, y, -half+(step*i));
+        mo->colour(background_color);
+        mo->position(0, y, -half+(step*i));
+        mo->colour(c);
+        mo->position(0, y, -half+(step*i));
+        mo->colour(c);
+        mo->position(half, y, -half+(step*i));
+        mo->colour(background_color);
+
+        if (i == halfCount)
+            c = Ogre::ColourValue(0,0,1,1.0f);
+        else
+            c = grid_color;
+
+        mo->position(-half+(step*i), y, -half);
+        mo->colour(background_color);
+        mo->position(-half+(step*i), y, 0);
+        mo->colour(c);
+        mo->position(-half+(step*i), y, 0);
+        mo->colour(c);
+        mo->position(-half+(step*i), y, half);
+        mo->colour(background_color);
+    }
+
+    mo->end();
+    mo->setCastShadows(false);
+
+    Ogre::SceneNode *n = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+    n->setPosition(position);
+    n->attachObject(mo);
+    n->setVisible(true);
+}
+
+void TerrainObjectManager::ProcessTerrainObjects(Json::Value* j_terrn_ptr)
+{
+    Json::Value& j_tobj        = (*j_terrn_ptr)["terrain_objects"];
+    Json::Value& j_coll_meshes = (*j_terrn_ptr)["collision_meshes"];
+    Json::Value& j_procedural  = (*j_terrn_ptr)["procedural_paths"];
+
     if (proceduralManager == nullptr)
     {
         proceduralManager = new ProceduralManager();
@@ -146,540 +195,245 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
     objcounter = 0;
     free_localizer = 0;
 
-    ProceduralObject po;
-    po.loadingState = -1;
-    int r2oldmode = 0;
-    int lastprogress = -1;
-    bool proroad = false;
+    const int mapsizex = terrainManager->getGeometryManager()->getMaxTerrainSize().x;
+    const int mapsizez = terrainManager->getGeometryManager()->getMaxTerrainSize().z;
 
-    DataStreamPtr ds;
-    try
+    // Section 'collision-tris'
+    if (j_tobj["num_collision_triangles"] != Json::nullValue)
     {
-        ds = ResourceGroupManager::getSingleton().openResource(odefname, Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
-    }
-    catch (...)
-    {
-        LOG("Error opening object configuration: " + odefname);
-        return;
+        gEnv->collisions->resizeMemory(j_tobj["num_collision_triangles"].asLargestInt());
     }
 
-    int m_terrain_size_x = terrainManager->getGeometryManager()->getMaxTerrainSize().x;
-    int m_map_size_z = terrainManager->getGeometryManager()->getMaxTerrainSize().z;
-
-    Vector3 r2lastpos = Vector3::ZERO;
-    Quaternion r2lastrot = Quaternion::IDENTITY;
-    int r2counter = 0;
-
-    //long line = 0;
-    char line[4096] = "";
-
-    while (!ds->eof())
+    // Section 'grid'
+    if (j_tobj["grid_enabled"] == true)
     {
-        int progress = ((float)(ds->tell()) / (float)(ds->size())) * 100.0f;
-        if (progress - lastprogress > 20)
+        GenerateGridAndPutToScene(JsonToVector3(j_tobj["grid_pos"]));
+    }
+
+    // Section 'trees'
+    if (terrainManager->getPagedMode() != 0)
+    {
+        for (Json::Value& j_tree_page : j_tobj["tree_pages"])
         {
-
-            RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("Loading Terrain Objects"));
-
-            lastprogress = progress;
-        }
-
-        char oname[1024] = {};
-        char type[256] = {};
-        char name[256] = {};
-        Vector3 pos(Vector3::ZERO);
-        Vector3 rot(Vector3::ZERO);
-
-        size_t ll = ds->readLine(line, 1023);
-        if (line[0] == '/' || line[0] == ';' || ll == 0)
-            continue; //comments
-        if (!strcmp("end", line))
-            break;
-
-        if (!strncmp(line, "collision-tris", 14))
-        {
-            long amount = Collisions::MAX_COLLISION_TRIS;
-            sscanf(line, "collision-tris %ld", &amount);
-            gEnv->collisions->resizeMemory(amount);
-        }
-
-        if (!strncmp(line, "grid", 4))
-        {
-            sscanf(line, "grid %f, %f, %f", &pos.x, &pos.y, &pos.z);
-
-            Ogre::ColourValue BackgroundColour = Ogre::ColourValue::White;//Ogre::ColourValue(0.1337f, 0.1337f, 0.1337f, 1.0f);
-            Ogre::ColourValue GridColour = Ogre::ColourValue(0.2f, 0.2f, 0.2f, 1.0f);
-
-            Ogre::ManualObject* mReferenceObject = new Ogre::ManualObject("ReferenceGrid");
-
-            mReferenceObject->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
-
-            Ogre::Real step = 1.0f;
-            unsigned int count = 50;
-            unsigned int halfCount = count / 2;
-            Ogre::Real full = (step * count);
-            Ogre::Real half = full / 2;
-            Ogre::Real y = 0;
-            Ogre::ColourValue c;
-            for (unsigned i = 0; i < count + 1; i++)
-            {
-                if (i == halfCount)
-                    c = Ogre::ColourValue(1, 0, 0, 1.0f);
-                else
-                    c = GridColour;
-
-                mReferenceObject->position(-half, y, -half + (step * i));
-                mReferenceObject->colour(BackgroundColour);
-                mReferenceObject->position(0, y, -half + (step * i));
-                mReferenceObject->colour(c);
-                mReferenceObject->position(0, y, -half + (step * i));
-                mReferenceObject->colour(c);
-                mReferenceObject->position(half, y, -half + (step * i));
-                mReferenceObject->colour(BackgroundColour);
-
-                if (i == halfCount)
-                    c = Ogre::ColourValue(0, 0, 1, 1.0f);
-                else
-                    c = GridColour;
-
-                mReferenceObject->position(-half + (step * i), y, -half);
-                mReferenceObject->colour(BackgroundColour);
-                mReferenceObject->position(-half + (step * i), y, 0);
-                mReferenceObject->colour(c);
-                mReferenceObject->position(-half + (step * i), y, 0);
-                mReferenceObject->colour(c);
-                mReferenceObject->position(-half + (step * i), y, half);
-                mReferenceObject->colour(BackgroundColour);
-            }
-
-            mReferenceObject->end();
-            mReferenceObject->setCastShadows(false);
-
-            SceneNode* n = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-            n->setPosition(pos);
-            n->attachObject(mReferenceObject);
-            n->setVisible(true);
-        }
-#ifdef USE_PAGED
-        //ugly stuff to parse trees :)
-        if (!strncmp("trees", line, 5))
-        {
-            if (terrainManager->getPagedMode() == 0)
-                continue;
-            char ColorMap[256] = {};
-            char DensityMap[256] = {};
-            char treemesh[256] = {};
-            char treeCollmesh[256] = {};
-            float gridspacing = 0.0f;
-            float yawfrom = 0.0f, yawto = 0.0f;
-            float scalefrom = 0.0f, scaleto = 0.0f;
-            float highdens = 1.0f;
-            int minDist = 90, maxDist = 700;
-            sscanf(line, "trees %f, %f, %f, %f, %f, %d, %d, %s %s %s %f %s", &yawfrom, &yawto, &scalefrom, &scaleto, &highdens, &minDist, &maxDist, treemesh, ColorMap, DensityMap, &gridspacing, treeCollmesh);
-            if (strnlen(ColorMap, 3) == 0)
-            {
-                LOG("tree ColorMap map zero!");
-                continue;
-            }
-            if (strnlen(DensityMap, 3) == 0)
-            {
-                LOG("tree DensityMap zero!");
-                continue;
-            }
-            Forests::DensityMap* densityMap = Forests::DensityMap::load(DensityMap, Forests::CHANNEL_COLOR);
-            if (!densityMap)
-            {
-                LOG("could not load densityMap: "+String(DensityMap));
-                continue;
-            }
-            densityMap->setFilter(Forests::MAPFILTER_BILINEAR);
-            //densityMap->setMapBounds(TRect(0, 0, m_terrain_size_x, m_map_size_z));
-
-            paged_geometry_t paged;
-            paged.geom = new PagedGeometry();
-            paged.geom->setTempDir(RoR::App::GetSysCacheDir() + PATH_SLASH);
-            paged.geom->setCamera(gEnv->mainCamera);
-            paged.geom->setPageSize(50);
-            paged.geom->setInfinite();
-            Ogre::TRect<Ogre::Real> bounds = TBounds(0, 0, m_terrain_size_x, m_map_size_z);
-            paged.geom->setBounds(bounds);
-
-            //Set up LODs
-            //trees->addDetailLevel<EntityPage>(50);
-            float min = minDist * terrainManager->getPagedDetailFactor();
-            if (min < 10)
-                min = 10;
-            paged.geom->addDetailLevel<BatchPage>(min, min / 2);
-            float max = maxDist * terrainManager->getPagedDetailFactor();
-            if (max < 10)
-                max = 10;
-            paged.geom->addDetailLevel<ImpostorPage>(max, max / 10);
-            TreeLoader2D* treeLoader = new TreeLoader2D(paged.geom, TBounds(0, 0, m_terrain_size_x, m_map_size_z));
-            paged.geom->setPageLoader(treeLoader);
-            treeLoader->setHeightFunction(&getTerrainHeight);
-            if (String(ColorMap) != "none")
-            {
-                treeLoader->setColorMap(ColorMap);
-            }
-
-            Entity* curTree = gEnv->sceneManager->createEntity(String("paged_") + treemesh + TOSTRING(pagedGeometry.size()), treemesh);
-
-            if (gridspacing > 0)
-            {
-                // grid style
-                for (float x = 0; x < m_terrain_size_x; x += gridspacing)
-                {
-                    for (float z = 0; z < m_map_size_z; z += gridspacing)
-                    {
-                        float density = densityMap->_getDensityAt_Unfiltered(x, z, bounds);
-                        if (density < 0.8f)
-                            continue;
-                        float nx = x + gridspacing * 0.5f;
-                        float nz = z + gridspacing * 0.5f;
-                        float yaw = Math::RangeRandom(yawfrom, yawto);
-                        float scale = Math::RangeRandom(scalefrom, scaleto);
-                        Vector3 pos = Vector3(nx, 0, nz);
-                        treeLoader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
-                        if (strlen(treeCollmesh))
-                        {
-                            pos.y = gEnv->terrainManager->getHeightFinder()->getHeightAt(pos.x, pos.z);
-                            scale *= 0.1f;
-                            gEnv->collisions->addCollisionMesh(String(treeCollmesh), pos, Quaternion(Degree(yaw), Vector3::UNIT_Y), Vector3(scale, scale, scale));
-                        }
-                    }
-                }
-            }
-            else
-            {
-                float gridsize = 10;
-                if (gridspacing < 0 && gridspacing != 0)
-                {
-                    gridsize = -gridspacing;
-                }
-                float hd = highdens;
-                // normal style, random
-                for (float x = 0; x < m_terrain_size_x; x += gridsize)
-                {
-                    for (float z = 0; z < m_map_size_z; z += gridsize)
-                    {
-                        if (highdens < 0)
-                            hd = Math::RangeRandom(0, -highdens);
-                        float density = densityMap->_getDensityAt_Unfiltered(x, z, bounds);
-                        int numTreesToPlace = (int)((float)(hd) * density * terrainManager->getPagedDetailFactor());
-                        float nx = 0, nz = 0;
-                        while (numTreesToPlace-- > 0)
-                        {
-                            nx = Math::RangeRandom(x, x + gridsize);
-                            nz = Math::RangeRandom(z, z + gridsize);
-                            float yaw = Math::RangeRandom(yawfrom, yawto);
-                            float scale = Math::RangeRandom(scalefrom, scaleto);
-                            Vector3 pos = Vector3(nx, 0, nz);
-                            treeLoader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
-                            if (strlen(treeCollmesh))
-                            {
-                                pos.y = gEnv->terrainManager->getHeightFinder()->getHeightAt(pos.x, pos.z);
-                                gEnv->collisions->addCollisionMesh(String(treeCollmesh), pos, Quaternion(Degree(yaw), Vector3::UNIT_Y), Vector3(scale, scale, scale));
-                            }
-                        }
-                    }
-                }
-            }
-            paged.loader = (void*)treeLoader;
-            pagedGeometry.push_back(paged);
-        }
-
-        //ugly stuff to parse grass :)
-        if (!strncmp("grass", line, 5) || !strncmp("grass2", line, 6))
-        {
-            // is paged geometry disabled by configuration?
-            if (terrainManager->getPagedMode() == 0)
-                continue;
-            int range = 80;
-            float SwaySpeed = 0.5, SwayLength = 0.05, SwayDistribution = 10.0, minx = 0.2, miny = 0.2, maxx = 1, maxy = 0.6, Density = 0.6, minH = -9999, maxH = 9999;
-            char grassmat[256] = "";
-            char colorMapFilename[256] = "";
-            char densityMapFilename[256] = "";
-            int growtechnique = 0;
-            int techn = GRASSTECH_CROSSQUADS;
-            if (!strncmp("grass2", line, 6))
-                sscanf(line, "grass2 %d, %f, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %d, %s %s %s", &range, &SwaySpeed, &SwayLength, &SwayDistribution, &Density, &minx, &miny, &maxx, &maxy, &growtechnique, &minH, &maxH, &techn, grassmat, colorMapFilename, densityMapFilename);
-            else if (!strncmp("grass", line, 5))
-                sscanf(line, "grass %d, %f, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %s %s %s", &range, &SwaySpeed, &SwayLength, &SwayDistribution, &Density, &minx, &miny, &maxx, &maxy, &growtechnique, &minH, &maxH, grassmat, colorMapFilename, densityMapFilename);
-
-            //Initialize the PagedGeometry engine
             try
             {
-                paged_geometry_t paged;
-                PagedGeometry* grass = new PagedGeometry(gEnv->mainCamera, 30);
-                //Set up LODs
-
-                grass->addDetailLevel<GrassPage>(range * terrainManager->getPagedDetailFactor()); // original value: 80
-
-                //Set up a GrassLoader for easy use
-                GrassLoader* grassLoader = new GrassLoader(grass);
-                grass->setPageLoader(grassLoader);
-                grassLoader->setHeightFunction(&getTerrainHeight);
-
-                // render grass at first
-                grassLoader->setRenderQueueGroup(RENDER_QUEUE_MAIN - 1);
-
-                GrassLayer* grassLayer = grassLoader->addLayer(grassmat);
-                grassLayer->setHeightRange(minH, maxH);
-                grassLayer->setLightingEnabled(true);
-
-                grassLayer->setAnimationEnabled((SwaySpeed > 0));
-                grassLayer->setSwaySpeed(SwaySpeed);
-                grassLayer->setSwayLength(SwayLength);
-                grassLayer->setSwayDistribution(SwayDistribution);
-
-                //String grassdensityTextureFilename = String(DensityMap);
-
-                grassLayer->setDensity(Density * terrainManager->getPagedDetailFactor());
-                if (techn > 10)
-                    grassLayer->setRenderTechnique(static_cast<GrassTechnique>(techn - 10), true);
-                else
-                    grassLayer->setRenderTechnique(static_cast<GrassTechnique>(techn), false);
-
-                grassLayer->setMapBounds(TBounds(0, 0, m_terrain_size_x, m_map_size_z));
-
-                if (strcmp(colorMapFilename, "none") != 0)
-                {
-                    grassLayer->setColorMap(colorMapFilename);
-                    grassLayer->setColorMapFilter(MAPFILTER_BILINEAR);
-                }
-
-                if (strcmp(densityMapFilename, "none") != 0)
-                {
-                    grassLayer->setDensityMap(densityMapFilename);
-                    grassLayer->setDensityMapFilter(MAPFILTER_BILINEAR);
-                }
-
-                //grassLayer->setMinimumSize(0.5,0.5);
-                //grassLayer->setMaximumSize(1.0, 1.0);
-
-                grassLayer->setMinimumSize(minx, miny);
-                grassLayer->setMaximumSize(maxx, maxy);
-
-                // growtechnique
-                if (growtechnique == 0)
-                    grassLayer->setFadeTechnique(FADETECH_GROW);
-                else if (growtechnique == 1)
-                    grassLayer->setFadeTechnique(FADETECH_ALPHAGROW);
-                else if (growtechnique == 2)
-                    grassLayer->setFadeTechnique(FADETECH_ALPHA);
-                paged.geom = grass;
-                paged.loader = (void*)grassLoader;
-                pagedGeometry.push_back(paged);
+                this->ProcessTreePage(&j_tree_page, mapsizex, mapsizez);
             }
             catch (...)
             {
-                LOG("error loading grass!");
+                this->HandleException("processing trees");
             }
-
-            continue;
         }
-#endif //USE_PAGED
-
-        { // ugly stuff to parse procedural roads
-            if (!strncmp("begin_procedural_roads", line, 22))
-            {
-                po = ProceduralObject();
-                po.loadingState = 1;
-                r2oldmode = 1;
-                proroad = true;
-                continue;
-            }
-            if (!strncmp("end_procedural_roads", line, 20))
-            {
-                if (r2oldmode)
-                {
-                    if (proceduralManager)
-                        proceduralManager->addObject(po);
-                    po = ProceduralObject();
-                }
-                proroad = false;
-                continue;
-            }
-            if (proroad)
-            {
-                float rwidth, bwidth, bheight;
-                //position x,y,z rotation rx,ry,rz, width, border width, border height, type
-                int r = sscanf(line, "%f, %f, %f, %f, %f, %f, %f, %f, %f, %s", &pos.x, &pos.y, &pos.z, &rot.x, &rot.y, &rot.z, &rwidth, &bwidth, &bheight, oname);
-                Quaternion rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
-                int roadtype = Road2::ROAD_AUTOMATIC;
-                int pillartype = 0;
-                if (!strcmp(oname, "flat"))
-                    roadtype = Road2::ROAD_FLAT;
-                if (!strcmp(oname, "left"))
-                    roadtype = Road2::ROAD_LEFT;
-                if (!strcmp(oname, "right"))
-                    roadtype = Road2::ROAD_RIGHT;
-                if (!strcmp(oname, "both"))
-                    roadtype = Road2::ROAD_BOTH;
-                if (!strcmp(oname, "bridge"))
-                {
-                    roadtype = Road2::ROAD_BRIDGE;
-                    pillartype = 1;
-                }
-                if (!strcmp(oname, "monorail"))
-                {
-                    roadtype = Road2::ROAD_MONORAIL;
-                    pillartype = 2;
-                }
-                if (!strcmp(oname, "monorail2"))
-                {
-                    roadtype = Road2::ROAD_MONORAIL;
-                    pillartype = 0;
-                }
-                if (!strcmp(oname, "bridge_no_pillars"))
-                {
-                    roadtype = Road2::ROAD_BRIDGE;
-                    pillartype = 0;
-                }
-
-                if (r2oldmode)
-                {
-                    //fill object
-                    ProceduralPoint pp;
-                    pp.bheight = bheight;
-                    pp.bwidth = bwidth;
-                    pp.pillartype = pillartype;
-                    pp.position = pos;
-                    pp.rotation = rotation;
-                    pp.type = roadtype;
-                    pp.width = rwidth;
-
-                    po.points.push_back(pp);
-                }
-                continue;
-            }
-        } //end of the ugly (somewhat)
-
-        strcpy(name, "generic");
-        memset(oname, 0, 255);
-        memset(type, 0, 255);
-        memset(name, 0, 255);
-        int r = sscanf(line, "%f, %f, %f, %f, %f, %f, %s %s %s", &pos.x, &pos.y, &pos.z, &rot.x, &rot.y, &rot.z, oname, type, name);
-        if (r < 6)
-            continue;
-        if ((!strcmp(oname, "truck")) || (!strcmp(oname, "load") || (!strcmp(oname, "machine")) || (!strcmp(oname, "boat")) || (!strcmp(oname, "truck2"))))
-        {
-            if (!strcmp(oname, "boat") && !terrainManager->getWater())
-            {
-                // no water so do not load boats!
-                continue;
-            }
-            String group = "";
-            String truckname(type);
-
-            if (!RoR::App::GetCacheSystem()->checkResourceLoaded(truckname, group))
-            {
-                LOG("Error while loading Terrain: truck " + String(type) + " not found. ignoring.");
-                continue;
-            }
-
-            truck_prepare_t tempTruckPreload;
-            //this is a truck or load declaration
-            tempTruckPreload.px = pos.x;
-            tempTruckPreload.py = pos.y;
-            tempTruckPreload.pz = pos.z;
-            tempTruckPreload.freePosition = (!strcmp(oname, "truck2"));
-            tempTruckPreload.ismachine = (!strcmp(oname, "machine"));
-            tempTruckPreload.rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
-            strcpy(tempTruckPreload.name, truckname.c_str());
-            truck_preload.push_back(tempTruckPreload);
-
-            continue;
-        }
-        if (!strcmp(oname, "road")
-            || !strcmp(oname, "roadborderleft")
-            || !strcmp(oname, "roadborderright")
-            || !strcmp(oname, "roadborderboth")
-            || !strcmp(oname, "roadbridgenopillar")
-            || !strcmp(oname, "roadbridge"))
-        {
-            int pillartype = !(strcmp(oname, "roadbridgenopillar") == 0);
-            // okay, this is a job for roads2
-            int roadtype = Road2::ROAD_AUTOMATIC;
-            if (!strcmp(oname, "road"))
-                roadtype = Road2::ROAD_FLAT;
-            Quaternion rotation;
-            rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
-            if (pos.distance(r2lastpos) > 20.0f)
-            {
-                // break the road
-                if (r2oldmode != 0)
-                {
-                    // fill object
-                    ProceduralPoint pp;
-                    pp.bheight = 0.2;
-                    pp.bwidth = 1.4;
-                    pp.pillartype = pillartype;
-                    pp.position = r2lastpos + r2lastrot * Vector3(10.0f, 0.0f, 0.9f);
-                    pp.rotation = r2lastrot;
-                    pp.type = roadtype;
-                    pp.width = 8;
-                    po.points.push_back(pp);
-
-                    // finish it and start new object
-                    if (proceduralManager)
-                        proceduralManager->addObject(po);
-                    po = ProceduralObject();
-                    r2oldmode = 1;
-                }
-                r2oldmode = 1;
-                // beginning of new
-                ProceduralPoint pp;
-                pp.bheight = 0.2;
-                pp.bwidth = 1.4;
-                pp.pillartype = pillartype;
-                pp.position = pos;
-                pp.rotation = rotation;
-                pp.type = roadtype;
-                pp.width = 8;
-                po.points.push_back(pp);
-            }
-            else
-            {
-                // fill object
-                ProceduralPoint pp;
-                pp.bheight = 0.2;
-                pp.bwidth = 1.4;
-                pp.pillartype = pillartype;
-                pp.position = pos;
-                pp.rotation = rotation;
-                pp.type = roadtype;
-                pp.width = 8;
-                po.points.push_back(pp);
-            }
-            r2lastpos = pos;
-            r2lastrot = rotation;
-
-            continue;
-        }
-        loadObject(oname, pos, rot, bakeNode, name, type);
     }
 
-    // ds closes automatically, so do not close it explicitly here: ds->close();
-
-    // finish the last road
-    if (r2oldmode != 0)
+    // Section 'grass' / 'grass2'
+    if (terrainManager->getPagedMode() != 0)
     {
-        // fill object
-        ProceduralPoint pp;
-        pp.bheight = 0.2;
-        pp.bwidth = 1.4;
-        pp.pillartype = 1;
-        pp.position = r2lastpos + r2lastrot * Vector3(10.0, 0, 0);
-        pp.rotation = r2lastrot;
-        pp.type = Road2::ROAD_AUTOMATIC;
-        pp.width = 8;
-        po.points.push_back(pp);
-
-        // finish it and start new object
-        if (proceduralManager)
-            proceduralManager->addObject(po);
+        for (Json::Value& j_grass_page : j_tobj["grass_pages"])
+        {
+            try
+            {
+                this->ProcessGrass(&j_grass_page, mapsizex, mapsizez);
+                //OLD grass.sway_speed, grass.sway_length, grass.sway_distrib, grass.density,
+                //OLD grass.min_x, grass.min_y, grass.min_h,
+                //OLD grass.max_x, grass.max_y, grass.max_h,
+                //OLD grass.material_name, grass.color_map_filename, grass.density_map_filename,
+                //OLD grass.grow_techniq, grass.technique, grass.range, mapsizex, mapsizez);
+            }
+            catch (...)
+            {
+                this->HandleException("processing grass");
+            }
+        }
     }
+
+    // Collision meshes (generated by Deployer from other sections)
+    for (Json::Value& j_col_mesh : j_coll_meshes)
+    {
+        Ogre::Vector3 position(j_col_mesh["pos_x"].asFloat(), 0.f, j_col_mesh["pos_x"].asFloat());
+        position.y = gEnv->terrainManager->getHeightFinder()->getHeightAt(position.x, position.z);
+        Ogre::Quaternion rotation(j_col_mesh["rot_w"].asFloat(),
+                                  j_col_mesh["rot_x"].asFloat(),
+                                  j_col_mesh["rot_y"].asFloat(),
+                                  j_col_mesh["rot_z"].asFloat());
+        gEnv->collisions->addCollisionMesh(
+            j_col_mesh["mesh_name"].asString(), position, rotation, JsonToVector3(j_col_mesh["scale_3d"]));
+    }
+
+    for (Json::Value& j_path : j_procedural)
+    {
+        try
+        {
+            this->AddProceduralPath(&j_path);
+        }
+        catch (...)
+        {
+            this->HandleException("processing procedural paths (a.k.a. roads)");
+        }
+    }
+
+/* TODO: DEPLOYMENT
+    // Vehicles
+    for (TObjVehicle veh : tobj->vehicles)
+    {
+        if ((veh.type == TObj::SpecialObject::BOAT) && (terrainManager->getWater() == nullptr))
+        {
+            continue; // Don't spawn boats if there's no water.
+        }
+
+        Ogre::String group;
+        Ogre::String filename(veh.name);
+        if (!RoR::App::GetCacheSystem()->checkResourceLoaded(filename, group))
+        {
+            LOG(std::string("[RoR|Terrain] Vehicle ") + veh.name + " not found. ignoring.");
+            continue;
+        }
+
+        truck_prepare_t p;
+        p.px           = veh.position.x;
+        p.py           = veh.position.y;
+        p.pz           = veh.position.z;
+        p.freePosition = (veh.type == TObj::SpecialObject::TRUCK2);
+        p.ismachine    = (veh.type == TObj::SpecialObject::MACHINE);
+        p.rotation     = veh.rotation;
+        strcpy(p.name, veh.name);
+        truck_preload.push_back(p);
+    }
+*/
+
+/* TODO: DEPLOYMENT
+    // Entries
+    for (TObjEntry entry : tobj->objects)
+    {
+        this->loadObject(entry.odef_name, entry.position, entry.rotation, this->bakeNode, entry.instance_name, entry.type);
+    }
+*/
+}
+
+void TerrainObjectManager::AddProceduralPath(Json::Value* j_path_ptr)
+{
+    Json::Value& j_path = *j_path_ptr;
+
+    // TODO: Don't re-assemble the objects, spawn directly from the JSON.
+    ProceduralObject po;
+    po.name = j_path["name"].asString();
+
+    for (Json::Value& j_point : j_path["points"])
+    {
+        ProceduralPoint pp;
+        pp.position   = JsonToVector3(j_point["position"]);
+        pp.rotation   = JsonToQuaternion(j_point["rotation"]);
+        pp.pillartype = j_point["pillartype"].asInt();
+        pp.bheight    = j_point["bheight"].asFloat();
+        pp.bwidth     = j_point["bwidth"].asFloat();
+        pp.width      = j_point["width"].asFloat();
+
+        po.points.push_back(pp);
+    }
+
+    this->proceduralManager->addObject(po);
+}
+
+void TerrainObjectManager::ProcessTreePage(Json::Value* j_page_ptr, int mapsizex, int mapsizez)
+    //OLD float yawfrom, float yawto,
+    //OLD float scalefrom, float scaleto,
+    //OLD char* ColorMap, char* DensityMap, char* treemesh, char* treeCollmesh,
+    //OLD float gridspacing, float highdens,
+    //OLD int minDist, int maxDist, int mapsizex, int mapsizez)
+{
+    Json::Value& j_page = *j_page_ptr;
+
+    // Setup paged geometry
+    paged_geometry_t paged;
+    paged.geom = new PagedGeometry();
+    paged.geom->setTempDir(App::GetSysCacheDir() + PATH_SLASH);
+    paged.geom->setCamera(gEnv->mainCamera);
+    paged.geom->setPageSize(50);
+    paged.geom->setInfinite();
+    Ogre::TRect<Ogre::Real> bounds = TBounds(0, 0, mapsizex, mapsizez);
+    paged.geom->setBounds(bounds);
+
+    const float min = std::max(10.f, j_page["distance_min"].asFloat() * terrainManager->getPagedDetailFactor());
+    const float max = std::max(10.f, j_page["distance_max"].asFloat() * terrainManager->getPagedDetailFactor());
+    paged.geom->addDetailLevel<BatchPage>(min, min / 2);
+    paged.geom->addDetailLevel<ImpostorPage>(max, max / 10);
+    TreeLoader2D* tree_loader = new TreeLoader2D(paged.geom, TBounds(0, 0, mapsizex, mapsizez));
+    paged.geom->setPageLoader(tree_loader);
+    paged.loader = static_cast<void*>(tree_loader);
+    tree_loader->setHeightFunction(&getTerrainHeight);
+    if (j_page["color_map"] != Json::nullValue)
+    {
+        tree_loader->setColorMap(j_page["color_map"].asString());
+    }
+
+    // Plant the trees (visuals)
+    Ogre::Entity* tree_entity = gEnv->sceneManager->createEntity(
+            j_page["entity_name"].asString(), j_page["tree_mesh"].asString());
+    for (Json::Value& j_tree : j_page["trees"])
+    {
+        Ogre::Vector3 position(j_tree["pos_x"].asFloat(), 0.f, j_tree["pos_z"].asFloat());
+        tree_loader->addTree(tree_entity, position, Ogre::Degree(j_tree["yaw"].asFloat()), j_tree["scale"].asFloat());
+    }
+
+    pagedGeometry.push_back(paged);
+}
+
+void TerrainObjectManager::ProcessGrass(Json::Value* j_grass_page, const int map_size_x, const int map_size_z)
+     //OLD   float SwaySpeed, float SwayLength, float SwayDistribution, float Density,
+     //OLD   float minx, float miny, float minH, float maxx, float maxy, float maxH,
+     //OLD   char* grassmat, char* colorMapFilename, char* densityMapFilename,
+     //OLD   int growtechnique, int techn, int range,
+     //OLD   int mapsizex, int mapsizez)
+{
+    Json::Value& j_grass = *j_grass_page;
+    const float sway_speed = j_grass["sway_speed"].asFloat();
+    const float detail_factor = terrainManager->getPagedDetailFactor();
+
+    paged_geometry_t paged;
+    Forests::PagedGeometry *grass = new Forests::PagedGeometry(gEnv->mainCamera, 30);
+    grass->addDetailLevel<Forests::GrassPage>(j_grass["range"].asInt() * detail_factor); // original value: 80
+
+    Forests::GrassLoader *grass_loader = new Forests::GrassLoader(grass);
+    grass->setPageLoader(grass_loader);
+    grass_loader->setHeightFunction(&getTerrainHeight);
+    grass_loader->setRenderQueueGroup(RENDER_QUEUE_MAIN-1);
+
+    Forests::GrassLayer* grass_layer = grass_loader->addLayer(j_grass["material_name"].asString());
+    grass_layer->setHeightRange(j_grass["min_h"].asFloat(), j_grass["max_h"].asFloat());
+    grass_layer->setLightingEnabled(true);
+    grass_layer->setAnimationEnabled(sway_speed > 0);
+    grass_layer->setSwaySpeed(sway_speed);
+    grass_layer->setSwayLength(j_grass["sway_length"].asFloat());
+    grass_layer->setSwayDistribution(j_grass["sway_distrib"].asFloat());
+    grass_layer->setDensity(j_grass["density"].asFloat() * detail_factor);
+    grass_layer->setRenderTechnique(static_cast<Forests::GrassTechnique>(j_grass["technique"].asInt()), true);
+    grass_layer->setMapBounds(Forests::TBounds(0.f, 0.f, map_size_x, map_size_z));
+    grass_layer->setMinimumSize(j_grass["min_x"].asFloat(), j_grass["min_y"].asFloat());
+    grass_layer->setMaximumSize(j_grass["max_x"].asFloat(), j_grass["max_y"].asFloat());
+
+    if (j_grass["color_map_filename"] != Json::nullValue)
+    {
+        grass_layer->setColorMap(j_grass["color_map_filename"].asString());
+        grass_layer->setColorMapFilter(MAPFILTER_BILINEAR);
+    }
+
+    if (j_grass["density_map_filename"] != Json::nullValue)
+    {
+        grass_layer->setDensityMap(j_grass["density_map_filename"].asString());
+        grass_layer->setDensityMapFilter(MAPFILTER_BILINEAR);
+    }
+
+    switch (j_grass["grow_techniq"].asInt())
+    {
+    case 0: grass_layer->setFadeTechnique(Forests::FADETECH_GROW);      break;
+    case 1: grass_layer->setFadeTechnique(Forests::FADETECH_ALPHAGROW); break;
+    case 2: grass_layer->setFadeTechnique(Forests::FADETECH_ALPHA);     break;
+    default:;
+    }
+
+    paged.geom = grass;
+    paged.loader = static_cast<void*>(grass_loader);
+    pagedGeometry.push_back(paged);
 }
 
 void TerrainObjectManager::postLoad()
@@ -755,6 +509,39 @@ void TerrainObjectManager::unloadObject(const String& instancename)
     obj.enabled = false;
 }
 
+ODefFile* TerrainObjectManager::FetchODef(std::string const & odef_name)
+{
+    // Consult cache first
+    auto search_res = m_odef_cache.find(odef_name);
+    if (search_res != m_odef_cache.end())
+    {
+        return search_res->second.get();
+    }
+
+    // Search for the file
+    const std::string filename = odef_name + ".odef";
+    std::string group_name;
+    try
+    {
+        group_name = Ogre::ResourceGroupManager::getSingleton().findGroupContainingResource(filename);
+    }
+    catch (...) // This means "not found"
+    {
+        return nullptr;
+    }
+
+    // Load and parse the file
+    Ogre::DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource(filename, group_name);
+    ODefParser parser;
+    parser.Prepare();
+    parser.ProcessOgreStream(ds.get());
+    std::shared_ptr<ODefFile> odef = parser.Finalize();
+
+    // Add to cache and return
+    m_odef_cache.insert(std::make_pair(odef_name, odef));
+    return odef.get();
+}
+
 void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, Ogre::SceneNode* bakeNode, const Ogre::String& instancename, const Ogre::String& type, bool enable_collisions /* = true */, int scripthandler /* = -1 */, bool uniquifyMaterial /* = false */)
 {
     if (type == "grid")
@@ -771,74 +558,26 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
         return;
     }
 
-    if (name.empty())
+    const std::string odefname = name + ".odef"; // for logging
+    ODefFile* odef = this->FetchODef(name);
+    if (odef == nullptr)
+    {
+        LOG("[ODEF] File not found: " + odefname);
         return;
-
-    char mesh[1024] = {};
-    char line[1024] = {};
-    char collmesh[1024] = {};
-    Vector3 l(Vector3::ZERO);
-    Vector3 h(Vector3::ZERO);
-    Vector3 dr(Vector3::ZERO);
-    Vector3 fc(Vector3::ZERO);
-    Vector3 sc(Vector3::ZERO);
-    Vector3 sr(Vector3::ZERO);
-    bool forcecam = false;
-    bool ismovable = false;
-
-    int event_filter = EVENT_ALL;
-
-    Quaternion rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
-
-    // try to load with UID first!
-    String odefgroup = "";
-    String odefname = name + ".odef";
-
-    bool odefFound = false;
-
-    bool exists = ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(odefname);
-    if (exists)
-    {
-        odefgroup = ResourceGroupManager::getSingleton().findGroupContainingResource(odefname);
-        odefFound = true;
     }
-
-    if (!RoR::App::GetCacheSystem()->checkResourceLoaded(odefname, odefgroup))
-        if (!odefFound)
-        {
-            LOG("Error while loading Terrain: could not find required .odef file: " + odefname + ". Ignoring entry.");
-            return;
-        }
-
-    DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource(odefname, odefgroup);
-
-    ds->readLine(mesh, 1023);
-    if (String(mesh) == "LOD")
-    {
-        // LOD line is obsolete
-        ds->readLine(mesh, 1023);
-    }
-
-    //scale
-    ds->readLine(line, 1023);
-    sscanf(line, "%f, %f, %f", &sc.x, &sc.y, &sc.z);
-    String entity_name = "object" + TOSTRING(objcounter) + "(" + name + ")";
-    RoR::Utils::SanitizeUtf8String(entity_name);
-    objcounter++;
 
     SceneNode* tenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
 
     MeshObject* mo = NULL;
-    if (String(mesh) != "none")
+    if (odef->header.mesh_name != "none")
     {
-        mo = new MeshObject(mesh, entity_name, tenode, NULL, background_loading);
+        mo = new MeshObject(odef->header.mesh_name, odef->header.entity_name, tenode, NULL, background_loading);
         meshObjects.push_back(mo);
     }
 
-    //mo->setQueryFlags(OBJECTS_MASK);
-    //tenode->attachObject(te);
-    tenode->setScale(sc);
+    tenode->setScale(odef->header.scale);
     tenode->setPosition(pos);
+    Quaternion rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
     tenode->rotate(rotation);
     tenode->pitch(Degree(-90));
     tenode->setVisible(true);
@@ -871,454 +610,267 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
         }
     }
 
-    //collision box(es)
-    bool virt = false;
-    bool rotating = false;
-    bool classic_ref = true;
-    // everything is of concrete by default
-    ground_model_t* gm = gEnv->collisions->getGroundModelByString("concrete");
-    char eventname[256] = {};
-    while (!ds->eof())
+    for (ODef::Localizer loc : odef->localizers)
     {
-        size_t ll = ds->readLine(line, 1023);
+        int type;
+        switch (loc)
+        {
+        case ODef::Localizer::HORIZONTAL:  type = Autopilot::LOCALIZER_HORIZONTAL; break;
+        case ODef::Localizer::VERTICAL:    type = Autopilot::LOCALIZER_VERTICAL;   break;
+        case ODef::Localizer::NDB:         type = Autopilot::LOCALIZER_NDB;        break;
+        case ODef::Localizer::VOR:         type = Autopilot::LOCALIZER_VOR;        break;
+        default: continue; // Invalid - skip this
+        }
+        localizers[free_localizer].position=Vector3(pos.x,pos.y,pos.z);
+        localizers[free_localizer].rotation=rotation;
+        localizers[free_localizer].type = type;
+        free_localizer++;
+    }
 
-        // little workaround to trim it
-        String line_str = String(line);
-        Ogre::StringUtil::trim(line_str);
-        RoR::Utils::SanitizeUtf8String(line_str);
+    if (odef->mode_standard)
+    {
+        tenode->pitch(Degree(90));
+    }
 
-        const char* ptline = line_str.c_str();
-        if (ll == 0 || line[0] == '/' || line[0] == ';')
-            continue;
-
-        if (!strcmp("end", ptline))
-            break;
-        if (!strcmp("movable", ptline))
-        {
-            ismovable = true;
-            continue;
-        };
-        if (!strcmp("localizer-h", ptline))
-        {
-            localizers[free_localizer].position = Vector3(pos.x, pos.y, pos.z);
-            localizers[free_localizer].rotation = rotation;
-            localizers[free_localizer].type = Autopilot::LOCALIZER_HORIZONTAL;
-            free_localizer++;
-            continue;
-        }
-        if (!strcmp("localizer-v", ptline))
-        {
-            localizers[free_localizer].position = Vector3(pos.x, pos.y, pos.z);
-            localizers[free_localizer].rotation = rotation;
-            localizers[free_localizer].type = Autopilot::LOCALIZER_VERTICAL;
-            free_localizer++;
-            continue;
-        }
-        if (!strcmp("localizer-ndb", ptline))
-        {
-            localizers[free_localizer].position = Vector3(pos.x, pos.y, pos.z);
-            localizers[free_localizer].rotation = rotation;
-            localizers[free_localizer].type = Autopilot::LOCALIZER_NDB;
-            free_localizer++;
-            continue;
-        }
-        if (!strcmp("localizer-vor", ptline))
-        {
-            localizers[free_localizer].position = Vector3(pos.x, pos.y, pos.z);
-            localizers[free_localizer].rotation = rotation;
-            localizers[free_localizer].type = Autopilot::LOCALIZER_VOR;
-            free_localizer++;
-            continue;
-        }
-        if (!strcmp("standard", ptline))
-        {
-            classic_ref = false;
-            tenode->pitch(Degree(90));
-            continue;
-        };
-        if (!strncmp("sound", ptline, 5))
-        {
 #ifdef USE_OPENAL
-            if (!SoundScriptManager::getSingleton().isDisabled())
-            {
-                char tmp[255] = "";
-                sscanf(ptline, "sound %s", tmp);
-                SoundScriptInstance* sound = SoundScriptManager::getSingleton().createInstance(tmp, MAX_TRUCKS + 1, tenode);
-                sound->setPosition(tenode->getPosition(), Vector3::ZERO);
-                sound->start();
-            }
+    if (!SoundScriptManager::getSingleton().isDisabled())
+    {
+        for (std::string& snd_name : odef->sounds)
+        {
+            SoundScriptInstance *sound = SoundScriptManager::getSingleton().createInstance(snd_name, MAX_TRUCKS+1, tenode);
+            sound->setPosition(tenode->getPosition(), Vector3::ZERO);
+            sound->start();
+        }
+    }
 #endif //USE_OPENAL
-            continue;
-        }
-        if (!strcmp("beginbox", ptline) || !strcmp("beginmesh", ptline))
-        {
-            dr = Vector3::ZERO;
-            rotating = false;
-            virt = false;
-            forcecam = false;
-            event_filter = EVENT_NONE;
-            eventname[0] = 0;
-            collmesh[0] = 0;
-            gm = gEnv->collisions->getGroundModelByString("concrete");
-            continue;
-        };
-        if (!strncmp("boxcoords", ptline, 9))
-        {
-            sscanf(ptline, "boxcoords %f, %f, %f, %f, %f, %f", &l.x, &h.x, &l.y, &h.y, &l.z, &h.z);
-            continue;
-        }
-        if (!strncmp("mesh", ptline, 4))
-        {
-            sscanf(ptline, "mesh %s", collmesh);
-            continue;
-        }
-        if (!strncmp("rotate", ptline, 6))
-        {
-            sscanf(ptline, "rotate %f, %f, %f", &sr.x, &sr.y, &sr.z);
-            rotating = true;
-            continue;
-        }
-        if (!strncmp("forcecamera", ptline, 11))
-        {
-            sscanf(ptline, "forcecamera %f, %f, %f", &fc.x, &fc.y, &fc.z);
-            forcecam = true;
-            continue;
-        }
-        if (!strncmp("direction", ptline, 9))
-        {
-            sscanf(ptline, "direction %f, %f, %f", &dr.x, &dr.y, &dr.z);
-            continue;
-        }
-        if (!strncmp("frictionconfig", ptline, 14) && strlen(ptline) > 15)
-        {
-            // load a custom friction config
-            gEnv->collisions->loadGroundModelsConfigFile(String(ptline + 15));
-            continue;
-        }
-        if ((!strncmp("stdfriction", ptline, 11) || !strncmp("usefriction", ptline, 11)) && strlen(ptline) > 12)
-        {
-            String modelName = String(ptline + 12);
-            gm = gEnv->collisions->getGroundModelByString(modelName);
-            continue;
-        }
-        if (!strcmp("virtual", ptline))
-        {
-            virt = true;
-            continue;
-        };
-        if (!strncmp("event", ptline, 5))
-        {
-            char ts[256];
-            ts[0] = 0;
-            sscanf(ptline, "event %s %s", eventname, ts);
-            if (!strncmp(ts, "avatar", 6))
-                event_filter = EVENT_AVATAR;
-            else if (!strncmp(ts, "truck", 5))
-                event_filter = EVENT_TRUCK;
-            else if (!strncmp(ts, "airplane", 8))
-                event_filter = EVENT_AIRPLANE;
-            else if (!strncmp(ts, "boat", 8))
-                event_filter = EVENT_BOAT;
-            else if (!strncmp(ts, "delete", 8))
-                event_filter = EVENT_DELETE;
 
-            //if (!strncmp(ts, "shoptruck", 9))
-            //	terrainManager->terrainHasTruckShop=true;
+    for (std::string& gmodel_file: odef->groundmodel_files)
+    {
+        gEnv->collisions->LoadGroundModelsConfigFile(gmodel_file);
+    }
 
-            // fallback
-            if (strlen(ts) == 0)
-                event_filter = EVENT_ALL;
+    for (ODefCollisionBox& cbox : odef->collision_boxes)
+    {
+        int boxnum = gEnv->collisions->addCollisionBox(
+            tenode, cbox.is_rotating, cbox.is_virtual, pos, rot,
+            cbox.aabb_min, cbox.aabb_max, cbox.box_rot, cbox.event_name,
+            instancename, cbox.force_cam_pos, cbox.cam_pos,
+            cbox.scale, cbox.direction, cbox.event_filter, scripthandler);
 
-            // hack to avoid fps drops near spawnzones
-            if (!strncmp(eventname, "spawnzone", 9))
-                event_filter = EVENT_AVATAR;
+        obj->collBoxes.push_back(boxnum);
+    }
 
-            continue;
-        }
-        if (!strcmp("endbox", ptline))
-        {
-            if (enable_collisions)
-            {
-                const String eventnameStr = eventname;
-                int boxnum = gEnv->collisions->addCollisionBox(tenode, rotating, virt, pos, rot, l, h, sr, eventnameStr, instancename, forcecam, fc, sc, dr, event_filter, scripthandler);
-                obj->collBoxes.push_back((boxnum));
-            }
-            continue;
-        }
-        if (!strcmp("endmesh", ptline))
-        {
-            gEnv->collisions->addCollisionMesh(collmesh, Vector3(pos.x, pos.y, pos.z), tenode->getOrientation(), sc, gm, &(obj->collTris));
-            continue;
-        }
+    for (ODefCollisionMesh& cmesh : odef->collision_meshes)
+    {
+        auto gm = gEnv->collisions->GetGroundModelManager()->GetGroundModel(cmesh.groundmodel_name.c_str());
+        gEnv->collisions->addCollisionMesh(
+            cmesh.mesh_name, pos, tenode->getOrientation(),
+            cmesh.scale, gm, &(obj->collTris));
+    }
 
-        if (!strncmp("particleSystem", ptline, 14) && tenode)
-        {
-            float x = 0, y = 0, z = 0, scale = 0;
-            char pname[255] = "", sname[255] = "";
-            int res = sscanf(ptline, "particleSystem %f, %f, %f, %f, %s %s", &scale, &x, &y, &z, pname, sname);
-            if (res != 6)
-                continue;
+    for (ODefParticleSys& psys : odef->particle_systems)
+    {
 
-            // hacky: prevent duplicates
-            String paname = String(pname);
-            while (gEnv->sceneManager->hasParticleSystem(paname))
-                paname += "_";
+        // hacky: prevent duplicates
+        String paname = String(psys.instance_name);
+        while (gEnv->sceneManager->hasParticleSystem(paname))
+            paname += "_";
 
-            // create particle system
-            ParticleSystem* pParticleSys = gEnv->sceneManager->createParticleSystem(paname, String(sname));
-            pParticleSys->setCastShadows(false);
-            pParticleSys->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
+        // create particle system
+        ParticleSystem* pParticleSys = gEnv->sceneManager->createParticleSystem(paname, String(psys.template_name));
+        pParticleSys->setCastShadows(false);
+        pParticleSys->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
 
-            // Some affectors may need its instance name (e.g. for script feedback purposes)
+        // Some affectors may need its instance name (e.g. for script feedback purposes)
 #ifdef USE_ANGELSCRIPT
-            unsigned short affCount = pParticleSys->getNumAffectors();
-            ParticleAffector* pAff;
-            for (unsigned short i = 0; i < affCount; ++i)
+        unsigned short affCount = pParticleSys->getNumAffectors();
+        ParticleAffector* pAff;
+        for (unsigned short i = 0; i < affCount; ++i)
+        {
+            pAff = pParticleSys->getAffector(i);
+            if (pAff->getType() == "ExtinguishableFire")
             {
-                pAff = pParticleSys->getAffector(i);
-                if (pAff->getType() == "ExtinguishableFire")
-                {
-                    ((ExtinguishableFireAffector*)pAff)->setInstanceName(obj->instanceName);
-                }
+                ((ExtinguishableFireAffector*)pAff)->setInstanceName(obj->instanceName);
             }
+        }
 #endif // USE_ANGELSCRIPT
 
-            SceneNode* sn = tenode->createChildSceneNode();
-            sn->attachObject(pParticleSys);
-            sn->pitch(Degree(90));
-            continue;
-        }
+        SceneNode* sn = tenode->createChildSceneNode();
+        sn->attachObject(pParticleSys);
+        sn->pitch(Degree(90));
+    }
 
-        if (!strncmp("setMeshMaterial", ptline, 15))
+    if (!odef->mat_name.empty())
+    {
+        if (mo->getEntity())
         {
-            char mat[256] = "";
-            sscanf(ptline, "setMeshMaterial %s", mat);
-            if (mo->getEntity() && strnlen(mat, 250) > 0)
-            {
-                mo->getEntity()->setMaterialName(String(mat));
-                // load it
-                //MaterialManager::getSingleton().load(String(mat), ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-            }
-            continue;
+            mo->getEntity()->setMaterialName(odef->mat_name);
         }
-        if (!strncmp("generateMaterialShaders", ptline, 23))
-        {
-            char mat[256] = "";
-            sscanf(ptline, "generateMaterialShaders %s", mat);
-            if (use_rt_shader_system)
-            {
-                Ogre::RTShader::ShaderGenerator::getSingleton().createShaderBasedTechnique(String(mat), Ogre::MaterialManager::DEFAULT_SCHEME_NAME, Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
-                Ogre::RTShader::ShaderGenerator::getSingleton().invalidateMaterial(RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME, String(mat));
-            }
+    }
 
-            continue;
-        }
-        if (!strncmp("playanimation", ptline, 13) && mo)
+    if (use_rt_shader_system && !odef->mat_name_generate.empty())
+    {
+        Ogre::RTShader::ShaderGenerator::getSingleton().createShaderBasedTechnique(odef->mat_name_generate, Ogre::MaterialManager::DEFAULT_SCHEME_NAME, Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
+        Ogre::RTShader::ShaderGenerator::getSingleton().invalidateMaterial(RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME, String(odef->mat_name_generate));
+    }
+
+    for (ODefAnimation& anim : odef->animations)
+    {
+        if (tenode && mo->getEntity())
         {
-            char animname[256] = "";
-            float speedfactorMin = 0, speedfactorMax = 0;
-            sscanf(ptline, "playanimation %f, %f, %s", &speedfactorMin, &speedfactorMax, animname);
-            if (tenode && mo->getEntity() && strnlen(animname, 250) > 0)
+            AnimationStateSet *s = mo->getEntity()->getAllAnimationStates();
+            String anim_name_str(anim.name);
+            if (!s->hasAnimationState(anim_name_str))
             {
-                AnimationStateSet* s = mo->getEntity()->getAllAnimationStates();
-                if (!s->hasAnimationState(String(animname)))
-                {
-                    LOG("[ODEF] animation '" + String(animname) + "' for mesh: '" + String(mesh) + "' in odef file '" + name + ".odef' not found!");
-                    continue;
-                }
-                animated_object_t ao;
-                ao.node = tenode;
-                ao.ent = mo->getEntity();
-                ao.speedfactor = speedfactorMin;
-                if (speedfactorMin != speedfactorMax)
-                    ao.speedfactor = Math::RangeRandom(speedfactorMin, speedfactorMax);
+                LOG("[ODEF] animation '" + anim_name_str + "' for mesh: '" + odef->header.mesh_name + "' in odef file '" + name + ".odef' not found!");
+                //continue;
+            }
+            animated_object_t ao;
+            ao.node = tenode;
+            ao.ent = mo->getEntity();
+            ao.speedfactor = anim.speed_min;
+            if (anim.speed_min != anim.speed_max)
+                ao.speedfactor = Math::RangeRandom(anim.speed_min, anim.speed_max);
+            ao.anim = 0;
+            try
+            {
+                ao.anim = mo->getEntity()->getAnimationState(anim_name_str);
+            } catch (...)
+            {
                 ao.anim = 0;
-                try
-                {
-                    ao.anim = mo->getEntity()->getAnimationState(String(animname));
-                }
-                catch (...)
-                {
-                    ao.anim = 0;
-                }
-                if (!ao.anim)
-                {
-                    LOG("[ODEF] animation '" + String(animname) + "' for mesh: '" + String(mesh) + "' in odef file '" + name + ".odef' not found!");
-                    continue;
-                }
-                ao.anim->setEnabled(true);
-                animatedObjects.push_back(ao);
             }
-            continue;
+            if (!ao.anim)
+            {
+                LOG("[ODEF] animation '" + anim_name_str + "' for mesh: '" + odef->header.mesh_name + "' in odef file '" + name + ".odef' not found!");
+                continue;
+            }
+            ao.anim->setEnabled(true);
+            animatedObjects.push_back(ao);
         }
-        if (!strncmp("drawTextOnMeshTexture", ptline, 21) && mo)
+    }
+
+    for (ODefTexPrint& tex_print : odef->texture_prints)
+    {
+        if (!mo->getEntity())
+            continue;
+        String matName = mo->getEntity()->getSubEntity(0)->getMaterialName();
+        MaterialPtr m = MaterialManager::getSingleton().getByName(matName);
+        if (m.getPointer() == 0)
         {
-            if (!mo->getEntity())
-                continue;
-            String matName = mo->getEntity()->getSubEntity(0)->getMaterialName();
-            MaterialPtr m = MaterialManager::getSingleton().getByName(matName);
-            if (m.getPointer() == 0)
-            {
-                LOG("[ODEF] problem with drawTextOnMeshTexture command: mesh material not found: "+odefname+" : "+String(ptline));
-                continue;
-            }
-            String texName = m->getTechnique(0)->getPass(0)->getTextureUnitState(0)->getTextureName();
-            Texture* background = (Texture *)TextureManager::getSingleton().getByName(texName).getPointer();
-            if (!background)
-            {
-                LOG("[ODEF] problem with drawTextOnMeshTexture command: mesh texture not found: "+odefname+" : "+String(ptline));
-                continue;
-            }
-
-            static int textureNumber = 0;
-            textureNumber++;
-            char tmpTextName[256] = "", tmpMatName[256] = "";
-            sprintf(tmpTextName, "TextOnTexture_%d_Texture", textureNumber);
-            sprintf(tmpMatName, "TextOnTexture_%d_Material", textureNumber); // Make sure the texture is not WRITE_ONLY, we need to read the buffer to do the blending with the font (get the alpha for example)
-            TexturePtr texture = TextureManager::getSingleton().createManual(tmpTextName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, (Ogre::uint)background->getWidth(), (Ogre::uint)background->getHeight(), MIP_UNLIMITED, PF_X8R8G8B8, Ogre::TU_STATIC | Ogre::TU_AUTOMIPMAP);
-            if (texture.getPointer() == 0)
-            {
-                LOG("[ODEF] problem with drawTextOnMeshTexture command: could not create texture: "+odefname+" : "+String(ptline));
-                continue;
-            }
-
-            float x = 0, y = 0, w = 0, h = 0;
-            float a = 0, r = 0, g = 0, b = 0;
-            int fs = 40, fdpi = 144;
-            char fontname[256] = "";
-            char text[256] = "";
-            char option = 'l';
-            int res = sscanf(ptline, "drawTextOnMeshTexture %f, %f, %f, %f, %f, %f, %f, %f, %c, %i, %i, %s %s", &x, &y, &w, &h, &r, &g, &b, &a, &option, &fs, &fdpi, fontname, text);
-            if (res < 13)
-            {
-                LOG("[ODEF] problem with drawTextOnMeshTexture command: "+odefname+" : "+String(ptline));
-                continue;
-            }
-
-            // check if we got a template argument
-            if (!strncmp(text, "{{argument1}}", 13))
-                strncpy(text, instancename.c_str(), 250);
-
-            // replace '_' with ' '
-            char* text_pointer = text;
-            while (*text_pointer != 0)
-            {
-                if (*text_pointer == '_')
-                    *text_pointer = ' ';
-                text_pointer++;
-            };
-
-            Font* font = (Font *)FontManager::getSingleton().getByName(String(fontname)).getPointer();
-            if (!font)
-            {
-                LOG("[ODEF] problem with drawTextOnMeshTexture command: font not found: "+odefname+" : "+String(ptline));
-                continue;
-            }
-
-            //Draw the background to the new texture
-            texture->getBuffer()->blit(background->getBuffer());
-
-            x = background->getWidth() * x;
-            y = background->getHeight() * y;
-            w = background->getWidth() * w;
-            h = background->getHeight() * h;
-
-            Image::Box box = Image::Box((size_t)x, (size_t)y, (size_t)(x + w), (size_t)(y + h));
-            WriteToTexture(String(text), texture, box, font, ColourValue(r, g, b, a), fs, fdpi, option);
-
-            // we can save it to disc for debug purposes:
-            //SaveImage(texture, "test.png");
-
-            m->clone(tmpMatName);
-            MaterialPtr mNew = MaterialManager::getSingleton().getByName(tmpMatName);
-            mNew->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(tmpTextName);
-
-            mo->getEntity()->setMaterialName(String(tmpMatName));
+            LOG("[ODEF] problem with drawTextOnMeshTexture command: mesh material not found: "+odefname+" : "+matName);
             continue;
         }
-
-        if (!strncmp("spotlight", ptline, 9))
+        String texName = m->getTechnique(0)->getPass(0)->getTextureUnitState(0)->getTextureName();
+        Texture* background = (Texture *)TextureManager::getSingleton().getByName(texName).getPointer();
+        if (!background)
         {
-            Vector3 lpos, ldir;
-            float lrange = 10, innerAngle = 45, outerAngle = 45;
-            ColourValue lcol;
-            String lname = "spotlight_" + TOSTRING(Math::RangeRandom(1000, 9999));
-
-            int res = sscanf(ptline, "spotlight %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f",
-                &lpos.x, &lpos.y, &lpos.z, &ldir.x, &ldir.y, &ldir.z, &lcol.r, &lcol.g, &lcol.b, &lrange, &innerAngle, &outerAngle);
-            if (res < 12)
-            {
-                LOG("ODEF: problem with light command: " + odefname + " : " + String(ptline));
-                continue;
-            }
-
-            Light* spotLight = gEnv->sceneManager->createLight(lname);
-
-            spotLight->setType(Light::LT_SPOTLIGHT);
-            spotLight->setPosition(lpos);
-            spotLight->setDirection(ldir);
-            spotLight->setAttenuation(lrange, 1.0, 0.3, 0.0);
-            spotLight->setDiffuseColour(lcol);
-            spotLight->setSpecularColour(lcol);
-            spotLight->setSpotlightRange(Degree(innerAngle), Degree(outerAngle));
-
-            BillboardSet* lflare = gEnv->sceneManager->createBillboardSet(1);
-            lflare->createBillboard(lpos, lcol);
-            lflare->setMaterialName("tracks/flare");
-            lflare->setVisibilityFlags(DEPTHMAP_DISABLED);
-
-            float fsize = Math::Clamp(lrange / 10, 0.2f, 2.0f);
-            lflare->setDefaultDimensions(fsize, fsize);
-
-            SceneNode* sn = tenode->createChildSceneNode();
-            sn->attachObject(spotLight);
-            sn->attachObject(lflare);
+            LOG("[ODEF] problem with drawTextOnMeshTexture command: mesh texture not found: "+odefname+" : "+texName);
             continue;
         }
 
-        if (!strncmp("pointlight", ptline, 10))
+        static int textureNumber = 0;
+        textureNumber++;
+        char tmpTextName[256] = "", tmpMatName[256] = "";
+        sprintf(tmpTextName, "TextOnTexture_%d_Texture", textureNumber);
+        sprintf(tmpMatName, "TextOnTexture_%d_Material", textureNumber); // Make sure the texture is not WRITE_ONLY, we need to read the buffer to do the blending with the font (get the alpha for example)
+        TexturePtr texture = TextureManager::getSingleton().createManual(tmpTextName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, (Ogre::uint)background->getWidth(), (Ogre::uint)background->getHeight(), MIP_UNLIMITED, PF_X8R8G8B8, Ogre::TU_STATIC | Ogre::TU_AUTOMIPMAP);
+        if (texture.getPointer() == 0)
         {
-            Vector3 lpos, ldir;
-            float lrange = 10;
-            ColourValue lcol;
-            String lname = "pointlight_" + TOSTRING(Math::RangeRandom(1000, 9999));
-
-            int res = sscanf(ptline, "pointlight %f, %f, %f, %f, %f, %f, %f, %f, %f, %f",
-                &lpos.x, &lpos.y, &lpos.z, &ldir.x, &ldir.y, &ldir.z, &lcol.r, &lcol.g, &lcol.b, &lrange);
-            if (res < 10)
-            {
-                LOG("ODEF: problem with light command: " + odefname + " : " + String(ptline));
-                continue;
-            }
-
-            Light* pointlight = gEnv->sceneManager->createLight(lname);
-
-            pointlight->setType(Light::LT_POINT);
-            pointlight->setPosition(lpos);
-            pointlight->setDirection(ldir);
-            pointlight->setAttenuation(lrange, 1.0, 0.3, 0.0);
-            pointlight->setDiffuseColour(lcol);
-            pointlight->setSpecularColour(lcol);
-
-            BillboardSet* lflare = gEnv->sceneManager->createBillboardSet(1);
-            lflare->createBillboard(lpos, lcol);
-            lflare->setMaterialName("tracks/flare");
-            lflare->setVisibilityFlags(DEPTHMAP_DISABLED);
-
-            float fsize = Math::Clamp(lrange / 10, 0.2f, 2.0f);
-            lflare->setDefaultDimensions(fsize, fsize);
-
-            SceneNode* sn = tenode->createChildSceneNode();
-            sn->attachObject(pointlight);
-            sn->attachObject(lflare);
+            LOG("[ODEF] problem with drawTextOnMeshTexture command: could not create texture: "+odefname+" : "+tmpTextName);
             continue;
         }
 
-        LOG("ODEF: unknown command in "+odefname+" : "+String(ptline));
+        char text[ODef::STR_LEN];
+        strcpy(text, tex_print.text);
+
+        // check if we got a template argument
+        if (!strncmp(text, "{{argument1}}", 13))
+            strncpy(text, instancename.c_str(), 250);
+
+        // replace '_' with ' '
+        char *text_pointer = text;
+        while (*text_pointer!=0) {if (*text_pointer=='_') *text_pointer=' ';text_pointer++;};
+
+        String font_name_str(tex_print.font_name);
+        Font* font = (Font *)FontManager::getSingleton().getByName(font_name_str).getPointer();
+        if (!font)
+        {
+            LOG("[ODEF] problem with drawTextOnMeshTexture command: font not found: "+odefname+" : "+font_name_str);
+            continue;
+        }
+
+        //Draw the background to the new texture
+        texture->getBuffer()->blit(background->getBuffer());
+
+        float x = background->getWidth()  * tex_print.x;
+        float y = background->getHeight() * tex_print.y;
+        float w = background->getWidth()  * tex_print.w;
+        float h = background->getHeight() * tex_print.h;
+
+        ColourValue color(tex_print.r, tex_print.g, tex_print.b, tex_print.a);
+        Image::Box box = Image::Box((size_t)x, (size_t)y, (size_t)(x+w), (size_t)(y+h));
+        WriteToTexture(String(text), texture, box, font, color, tex_print.font_size, tex_print.font_dpi, tex_print.option);
+
+        // we can save it to disc for debug purposes:
+        //SaveImage(texture, "test.png");
+
+        m->clone(tmpMatName);
+        MaterialPtr mNew = MaterialManager::getSingleton().getByName(tmpMatName);
+        mNew->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(tmpTextName);
+
+        mo->getEntity()->setMaterialName(String(tmpMatName));
+    }
+
+    for (ODefSpotlight& spotl: odef->spotlights)
+    {
+        Light* spotLight = gEnv->sceneManager->createLight(spotl.name);
+
+        spotLight->setType(Light::LT_SPOTLIGHT);
+        spotLight->setPosition(spotl.pos);
+        spotLight->setDirection(spotl.dir);
+        spotLight->setAttenuation(spotl.range, 1.0, 0.3, 0.0);
+        spotLight->setDiffuseColour(spotl.color);
+        spotLight->setSpecularColour(spotl.color);
+        spotLight->setSpotlightRange(Degree(spotl.angle_inner), Degree(spotl.angle_outer));
+
+        BillboardSet* lflare = gEnv->sceneManager->createBillboardSet(1);
+        lflare->createBillboard(spotl.pos, spotl.color);
+        lflare->setMaterialName("tracks/flare");
+        lflare->setVisibilityFlags(DEPTHMAP_DISABLED);
+
+        float fsize = Math::Clamp(spotl.range / 10, 0.2f, 2.0f);
+        lflare->setDefaultDimensions(fsize, fsize);
+
+        SceneNode *sn = tenode->createChildSceneNode();
+        sn->attachObject(spotLight);
+        sn->attachObject(lflare);
+    }
+
+    for (ODefPointLight& plight : odef->point_lights)
+    {
+        Light* pointlight = gEnv->sceneManager->createLight(plight.name);
+
+        pointlight->setType(Light::LT_POINT);
+        pointlight->setPosition(plight.pos);
+        pointlight->setDirection(plight.dir);
+        pointlight->setAttenuation(plight.range, 1.0, 0.3, 0.0);
+        pointlight->setDiffuseColour(plight.color);
+        pointlight->setSpecularColour(plight.color);
+
+        BillboardSet* lflare = gEnv->sceneManager->createBillboardSet(1);
+        lflare->createBillboard(plight.pos, plight.color);
+        lflare->setMaterialName("tracks/flare");
+        lflare->setVisibilityFlags(DEPTHMAP_DISABLED);
+
+        float fsize = Math::Clamp(plight.range / 10, 0.2f, 2.0f);
+        lflare->setDefaultDimensions(fsize, fsize);
+
+        SceneNode *sn = tenode->createChildSceneNode();
+        sn->attachObject(pointlight);
+        sn->attachObject(lflare);
     }
 
     //add icons if type is set
-
     String typestr = "";
     if (!type.empty() && gEnv->surveyMap)
     {
@@ -1328,7 +880,7 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
             typestr = "checkpoint";
         if (name == "chp-start")
             typestr = "racestart";
-        if (name == "road" , 4)
+        if (name == "road", 4)
             typestr = "road";
 
         if (typestr != "" && typestr != "road" && typestr != "sign")
@@ -1405,6 +957,19 @@ void TerrainObjectManager::loadPreloadedTrucks()
     }
 }
 
+void TerrainObjectManager::HandleException(const char* action)
+{
+    try { throw; } // Rethrow
+    catch (Ogre::Exception& e)
+    {
+        LOGSTREAM << "Error " << action << ", message: " << e.getFullDescription();
+    }
+    catch (std::exception& e)
+    {
+        LOGSTREAM << "Error " << action << ", message: " << e.what();
+    }
+}
+
 bool TerrainObjectManager::update(float dt)
 {
 #ifdef USE_PAGED
@@ -1416,7 +981,7 @@ bool TerrainObjectManager::update(float dt)
     }
 #endif //USE_PAGED
 
-    updateAnimatedObjects(dt);
+    this->updateAnimatedObjects(dt);
 
     return true;
 }

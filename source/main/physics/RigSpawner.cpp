@@ -422,7 +422,7 @@ void RigSpawner::InitializeRig()
         m_rig->intraPointCD = new PointColDetector();
     }
 
-    m_rig->submesh_ground_model = gEnv->collisions->defaultgm;
+    m_rig->submesh_ground_model = gEnv->collisions->GetNamedOrDefaultGM(nullptr); // Returns the node-collision-default (aka "defaultgm") groundmodel
     m_rig->cparticle_enabled = App::GetGfxParticlesMode() == 1;
 
     DustManager& dustman = BeamFactory::getSingleton().GetParticleManager();

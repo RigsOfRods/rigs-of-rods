@@ -26,7 +26,6 @@ set( SOURCE_FILES
   gameplay/Character.{h,cpp}
   gameplay/CharacterFactory.{h,cpp}
   gameplay/ChatSystem.{h,cpp}
-  gameplay/Landusemap.{h,cpp}
   gameplay/LandVehicleSimulation.{h,cpp}
   gameplay/MaterialReplacer.{h,cpp}
   gameplay/OutProtocol.{h,cpp}
@@ -152,7 +151,7 @@ set( SOURCE_FILES
   gui/panels/GUI_SimUtils.{h,cpp}
   gui/panels/GUI_SimUtilsLayout.{h,cpp}
   gui/panels/GUI_TeleportWindow.{h,cpp}
-  gui/panels/GUI_TeleportWindowLayout.{h,cpp}     
+  gui/panels/GUI_TeleportWindowLayout.{h,cpp}
   gui/panels/GUI_VehicleDescription.{h,cpp}
   gui/panels/GUI_VehicleDescriptionLayout.{h,cpp}
   network/Network.{h,cpp}
@@ -193,6 +192,9 @@ set( SOURCE_FILES
   physics/water/ScrewProp.{h,cpp}
   resources/CacheSystem.{h,cpp}
   resources/ContentManager.{h,cpp}
+  resources/groundmodel_fileformat/GroundModelFileformat.{h,cpp}
+  resources/otc_fileformat/OTCFileformat.{h,cpp}
+  resources/odef_fileformat/ODefFileFormat.{h,cpp}
   resources/rig_def_fileformat/RigDef_File.{h,cpp}
   resources/rig_def_fileformat/RigDef_Node.{h,cpp}
   resources/rig_def_fileformat/RigDef_Parser.{h,cpp}
@@ -202,11 +204,13 @@ set( SOURCE_FILES
   resources/rig_def_fileformat/RigDef_Serializer.{h,cpp}
   resources/rig_def_fileformat/RigDef_Validator.{h,cpp}
   resources/terrn2_fileformat/Terrn2Fileformat.{h,cpp}
+  resources/tobj_fileformat/TObjFileFormat.{h,cpp}
   terrain/IHeightFinder.h
   terrain/OgreTerrainPSSMMaterialGenerator.{h,cpp}
   terrain/TerrainGeometryManager.{h,cpp}
   terrain/TerrainManager.{h,cpp}
   terrain/TerrainObjectManager.{h,cpp}
+  terrain/Terrn2Deployment.{h,cpp}
   terrain/map/SurveyMapEntity.{h,cpp}
   terrain/map/SurveyMapManager.{h,cpp}
   terrain/map/SurveyMapTextureCreator.{h,cpp}
@@ -327,8 +331,12 @@ target_include_directories( ${BINNAME} PRIVATE
  physics/utils
  physics/water
  resources
+ resources/groundmodel_fileformat/ 
+ resources/odef_fileformat/
+ resources/otc_fileformat/
  resources/rig_def_fileformat
  resources/terrn2_fileformat
+ resources/tobj_fileformat
  rig_editor
  rig_editor/rig_data
  scripting

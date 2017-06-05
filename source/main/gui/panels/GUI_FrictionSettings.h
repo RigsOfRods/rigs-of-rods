@@ -46,20 +46,20 @@ public:
     void setShaded(bool value);
 
     void setCollisions(Collisions* _col) { col = _col; };
-    void setActiveCol(ground_model_t* gm);
+    void setActiveCol(RoR::GroundModelDef* gm);
 
 private:
 
     Collisions* col;
     MyGUI::WindowPtr msgwin;
     MyGUI::WindowPtr win;
-    ground_model_t* active_gm;
-    ground_model_t* selected_gm;
+    RoR::GroundModelDef* active_gm;
+    RoR::GroundModelDef* selected_gm;
 
     std::map<Ogre::UTFString, std::pair<Ogre::UTFString, Ogre::UTFString>> helpTexts;
     std::map<Ogre::UTFString, std::pair<Ogre::Real, Ogre::Real>> minMaxs;
 
-    void updateControls(ground_model_t* gm, bool setCombo = true);
+    void updateControls(RoR::GroundModelDef* gm, bool setCombo = true);
 
     void event_combo_grounds_eventComboAccept(MyGUI::ComboBoxPtr _sender, size_t _index);
     void event_btn_MouseButtonClick(MyGUI::WidgetPtr _sender);

@@ -64,7 +64,7 @@ void DustManager::Shutdown()
     dustpools.clear();
 }
 
-DustPool* DustManager::getGroundModelDustPool(ground_model_t* g)
+DustPool* DustManager::getGroundModelDustPool(RoR::GroundModelDef* g)
 {
     return 0;
 }

@@ -23,6 +23,8 @@
 
 #include "RoRPrerequisites.h"
 
+#include "ODefFileFormat.h"
+
 #ifdef USE_PAGED
 #include "BatchPage.h"
 #include "GrassLoader.h"
@@ -32,6 +34,9 @@
 #include "TreeLoader3D.h"
 #endif //USE_PAGED
 
+// Forward
+namespace Json { class Value; }
+
 class TerrainObjectManager : public ZeroedMemoryAllocator
 {
 public:
@@ -39,7 +44,7 @@ public:
     TerrainObjectManager(TerrainManager* terrainManager);
     ~TerrainObjectManager();
 
-    void loadObjectConfigFile(Ogre::String filename);
+    void ProcessTerrainObjects(Json::Value* j_terrn);
 
     void loadObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, Ogre::SceneNode* bakeNode, const Ogre::String& instancename, const Ogre::String& type, bool enable_collisions = true, int scripthandler = -1, bool uniquifyMaterial = false);
     void moveObjectVisuals(const Ogre::String& instancename, const Ogre::Vector3& pos);
@@ -52,14 +57,27 @@ public:
 
     bool updateAnimatedObjects(float dt);
 
-    typedef struct localizer_t
+    void ProcessTreePage(Json::Value* j_tree_page, int mapsizex, int mapsizez);
+    //OLD    float yawfrom, float yawto,
+    //OLD    float scalefrom, float scaleto,
+    //OLD    char* ColorMap, char* DensityMap, char* treemesh, char* treeCollmesh,
+    //OLD    float gridspacing, float highdens,
+    //OLD    int minDist, int maxDist, int mapsizex, int mapsizez);
+
+    void ProcessGrass(Json::Value* j_grass_page, int mapsizex, int mapsizez);
+        //float SwaySpeed, float SwayLength, float SwayDistribution, float Density,
+        //float minx, float miny, float minH, float maxx, float maxy, float maxH,
+        //char* grassmat, char* colorMapFilename, char* densityMapFilename,
+        //int growtechnique, int techn, int range, int mapsizex, int mapsizez);
+
+    struct localizer_t
     {
         int type;
         Ogre::Vector3 position;
         Ogre::Quaternion rotation;
-    } localizer_t;
+    };
 
-    typedef struct object_t
+    struct object_t
     {
         Ogre::String name;
         Ogre::Vector3 position;
@@ -67,7 +85,7 @@ public:
         Ogre::Vector3 initial_position;
         Ogre::Vector3 initial_rotation;
         Ogre::SceneNode* node;
-    } object_t;
+    };
 
     std::vector<object_t> getObjects() { return objects; };
 
@@ -75,15 +93,19 @@ public:
 
 protected:
 
+    ODefFile* FetchODef(std::string const & odef_name);
+    void      HandleException(const char* action);
+    void      AddProceduralPath(Json::Value* j_path_ptr);
+
     TerrainManager* terrainManager;
 
-    typedef struct
+    struct animated_object_t
     {
         Ogre::Entity* ent;
         Ogre::SceneNode* node;
         Ogre::AnimationState* anim;
         float speedfactor;
-    } animated_object_t;
+    };
 
     Ogre::StaticGeometry* bakesg;
     ProceduralManager* proceduralManager;
@@ -91,7 +113,7 @@ protected:
     Road* road;
     Ogre::SceneNode* bakeNode;
 
-    typedef struct
+    struct truck_prepare_t
     {
         float px;
         float py;
@@ -100,7 +122,7 @@ protected:
         char name[256];
         bool ismachine;
         bool freePosition;
-    } truck_prepare_t;
+    };
 
     std::vector<truck_prepare_t> truck_preload;
 
@@ -108,11 +130,11 @@ protected:
     bool use_rt_shader_system;
 
 #ifdef USE_PAGED
-    typedef struct
+    struct paged_geometry_t
     {
         Forests::PagedGeometry* geom;
         void* loader;
-    } paged_geometry_t;
+    };
 
     std::vector<paged_geometry_t> pagedGeometry;
     Forests::TreeLoader2D* treeLoader;
@@ -126,19 +148,17 @@ protected:
     std::vector<animated_object_t> animatedObjects;
     std::vector<MeshObject*> meshObjects;
 
-    typedef struct loadedObject_t
+    struct loadedObject_t
     {
         Ogre::SceneNode* sceneNode;
         Ogre::String instanceName;
         bool enabled;
         std::vector<int> collBoxes;
         std::vector<int> collTris;
-    } loadedObject_t;
+    };
 
     std::map<std::string, loadedObject_t> loadedObjects;
-
+    std::unordered_map<std::string, std::shared_ptr<ODefFile>> m_odef_cache;
     std::vector<object_t> objects;
-
-    void proceduralTests();
 };
 

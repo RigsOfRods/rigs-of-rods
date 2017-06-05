@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -26,12 +26,16 @@
 #include "BeamFactory.h"
 #include "ErrorUtils.h"
 #include "IHeightFinder.h"
-#include "Landusemap.h"
 #include "Language.h"
 #include "MovableText.h"
 #include "Scripting.h"
 #include "Settings.h"
 #include "TerrainManager.h"
+
+#ifdef USE_PAGED
+#include "PropertyMaps.h"
+#include "PagedGeometry.h"
+#endif
 
 // some gcc fixes
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
@@ -119,12 +123,15 @@ Collisions::Collisions() :
     , free_collision_tri(0)
     , free_eventsource(0)
     , hashmask(0)
-    , landuse(0)
     , largest_cellcount(0)
     , last_called_cbox(0)
-    , last_used_ground_model(0)
     , max_col_tris(MAX_COLLISION_TRIS)
 {
+    m_land_use.gm_map = nullptr;
+    m_land_use.gm_outside = nullptr;
+    m_land_use.gm_fallback = nullptr;
+    m_land_use.gm_node = nullptr;
+
     hFinder = gEnv->terrainManager->getHeightFinder();
 
     debugMode = RoR::App::GetDiagCollisions(); // TODO: make interactive
@@ -141,9 +148,9 @@ Collisions::Collisions() :
 
     collision_tris = (collision_tri_t*)malloc(sizeof(collision_tri_t) * MAX_COLLISION_TRIS);
 
-    loadDefaultModels();
-    defaultgm = getGroundModelByString("concrete");
-    defaultgroundgm = getGroundModelByString("gravel");
+    this->LoadGroundModelsConfigFile(RoR::App::GetSysConfigDir() + PATH_SLASH + "ground_models.cfg"); // Built-in defaults
+    m_land_use.gm_fallback = m_ground_models.GetGroundModel("gravel");
+    m_land_use.gm_node     = m_ground_models.GetGroundModel("concrete");
 
     if (debugMode)
     {
@@ -154,6 +161,11 @@ Collisions::Collisions() :
 
 Collisions::~Collisions()
 {
+    // Instances managed by GroundModelManager
+    m_land_use.gm_map = nullptr;
+    m_land_use.gm_outside = nullptr;
+    m_land_use.gm_fallback = nullptr;
+    m_land_use.gm_node = nullptr;
 }
 
 void Collisions::resizeMemory(long newSize)
@@ -178,156 +190,13 @@ void Collisions::resizeMemory(long newSize)
     }
 }
 
-int Collisions::loadDefaultModels()
+void Collisions::LoadGroundModelsConfigFile(std::string filename)
 {
-    return loadGroundModelsConfigFile(RoR::App::GetSysConfigDir() + PATH_SLASH + "ground_models.cfg");
-}
-
-int Collisions::loadGroundModelsConfigFile(Ogre::String filename)
-{
-    String group = "";
-    try
-    {
-        group = ResourceGroupManager::getSingleton().findGroupContainingResource(filename);
-    }catch(...)
-    {
-        // we wont catch anything, since the path could be absolute as well, then the group is not found
-    }
-
-    Ogre::ConfigFile cfg;
-    try
-    {
-        // try to load directly otherwise via resource group
-        if (group == "")
-            cfg.loadDirect(filename);
-        else
-            cfg.loadFromResourceSystem(filename, group, "\x09:=", true);
-    } catch(Ogre::Exception& e)
-    {
-        ErrorUtils::ShowError("Error while loading ground model", e.getFullDescription());
-        return 1;
-    }
-
-    // parse the whole config
-    parseGroundConfig(&cfg);
-
-    // after it was parsed, resolve the dependencies
-    std::map<Ogre::String, ground_model_t>::iterator it;
-    for (it=ground_models.begin(); it!=ground_models.end(); it++)
-    {
-        if (!it->second.basename) continue; // no base, normal material
-        String bname = String(it->second.basename);
-        if (ground_models.find(bname) == ground_models.end()) continue; // base not found!
-        // copy the values from the base if not set otherwise
-        ground_model_t *thisgm = &(it->second);
-        ground_model_t *basegm = &ground_models[bname];
-        memcpy(thisgm, basegm, sizeof(ground_model_t));
-        // re-set the name
-        strncpy(thisgm->name, it->first.c_str(), 255);
-        // after that we need to reload the config to overwrite settings of the base
-        parseGroundConfig(&cfg, it->first);
-    }
-    // check the version
-    if (this->collision_version != LATEST_GROUND_MODEL_VERSION)
-    {
-        ErrorUtils::ShowError(_L("Configuration error"), _L("Your ground configuration is too old, please copy skeleton/config/ground_models.cfg to My Documents/Rigs of Rods/config"));
-        exit(124);
-    }
-    return 0;
-}
-
-
-void Collisions::parseGroundConfig(Ogre::ConfigFile *cfg, String groundModel)
-{
-    Ogre::ConfigFile::SectionIterator seci = cfg->getSectionIterator();
-
-    Ogre::String secName, kname, kvalue;
-    while (seci.hasMoreElements())
-    {
-        secName = seci.peekNextKey();
-        Ogre::ConfigFile::SettingsMultiMap *settings = seci.getNext();
-
-        if (!groundModel.empty() && secName != groundModel) continue;
-
-        Ogre::ConfigFile::SettingsMultiMap::iterator i;
-        for (i = settings->begin(); i != settings->end(); ++i)
-        {
-            kname = i->first;
-            kvalue = i->second;
-            // we got all the data available now, processing now
-            if (secName == "general" || secName == "config")
-            {
-                // set some class properties accoring to the information in this section
-                if (kname == "version") this->collision_version = StringConverter::parseInt(kvalue);
-            } else
-            {
-                // we assume that all other sections are separate ground types!
-                if (ground_models.find(secName) == ground_models.end())
-                {
-                    // ground models not known yet, init it!
-                    ground_models[secName] = ground_model_t();
-                    // clear it
-                    memset(&ground_models[secName], 0, sizeof(ground_model_t));
-                    // set some default values
-                    ground_models[secName].alpha = 2.0f;
-                    ground_models[secName].strength = 1.0f;
-                    // some fx defaults
-                    ground_models[secName].fx_particle_amount = 20;
-                    ground_models[secName].fx_particle_min_velo = 5;
-                    ground_models[secName].fx_particle_max_velo = 99999;
-                    ground_models[secName].fx_particle_velo_factor = 0.7f;
-                    ground_models[secName].fx_particle_fade = -1;
-                    ground_models[secName].fx_particle_timedelta = 1;
-                    ground_models[secName].fx_particle_ttl = 2;
-                    strncpy(ground_models[secName].name, secName.c_str(), 255);
-
-                }
-
-                if (kname == "adhesion velocity") ground_models[secName].va = StringConverter::parseReal(kvalue);
-                else if (kname == "static friction coefficient") ground_models[secName].ms = StringConverter::parseReal(kvalue);
-                else if (kname == "sliding friction coefficient") ground_models[secName].mc = StringConverter::parseReal(kvalue);
-                else if (kname == "hydrodynamic friction") ground_models[secName].t2 = StringConverter::parseReal(kvalue);
-                else if (kname == "stribeck velocity") ground_models[secName].vs = StringConverter::parseReal(kvalue);
-                else if (kname == "alpha") ground_models[secName].alpha = StringConverter::parseReal(kvalue);
-                else if (kname == "strength") ground_models[secName].strength = StringConverter::parseReal(kvalue);
-                else if (kname == "base") strncpy(ground_models[secName].basename, kvalue.c_str(), 255);
-                else if (kname == "fx_type")
-                {
-                    if (kvalue == "PARTICLE")
-                        ground_models[secName].fx_type = FX_PARTICLE;
-                    else if (kvalue == "HARD")
-                        ground_models[secName].fx_type = FX_HARD;
-                    else if (kvalue == "DUSTY")
-                        ground_models[secName].fx_type = FX_DUSTY;
-                    else if (kvalue == "CLUMPY")
-                        ground_models[secName].fx_type = FX_CLUMPY;
-                }
-                else if (kname == "fx_particle_name") strncpy(ground_models[secName].particle_name, kvalue.c_str(), 255);
-                else if (kname == "fx_colour") ground_models[secName].fx_colour = StringConverter::parseColourValue(kvalue);
-                else if (kname == "fx_particle_amount") ground_models[secName].fx_particle_amount = StringConverter::parseInt(kvalue);
-                else if (kname == "fx_particle_min_velo") ground_models[secName].fx_particle_min_velo = StringConverter::parseReal(kvalue);
-                else if (kname == "fx_particle_max_velo") ground_models[secName].fx_particle_max_velo = StringConverter::parseReal(kvalue);
-                else if (kname == "fx_particle_fade") ground_models[secName].fx_particle_fade = StringConverter::parseReal(kvalue);
-                else if (kname == "fx_particle_timedelta") ground_models[secName].fx_particle_timedelta = StringConverter::parseReal(kvalue);
-                else if (kname == "fx_particle_velo_factor") ground_models[secName].fx_particle_velo_factor = StringConverter::parseReal(kvalue);
-                else if (kname == "fx_particle_ttl") ground_models[secName].fx_particle_ttl = StringConverter::parseReal(kvalue);
-
-
-                else if (kname == "fluid density") ground_models[secName].fluid_density = StringConverter::parseReal(kvalue);
-                else if (kname == "flow consistency index") ground_models[secName].flow_consistency_index = StringConverter::parseReal(kvalue);
-                else if (kname == "flow behavior index") ground_models[secName].flow_behavior_index = StringConverter::parseReal(kvalue);
-                else if (kname == "solid ground level") ground_models[secName].solid_ground_level = StringConverter::parseReal(kvalue);
-                else if (kname == "drag anisotropy") ground_models[secName].drag_anisotropy = StringConverter::parseReal(kvalue);
-
-            }
-        }
-
-        if (!groundModel.empty()) break; // we dont need to go through the other sections
-    }
+    m_ground_models.LoadGroundModels(filename);
 }
 
 Ogre::Vector3 Collisions::calcCollidedSide(const Ogre::Vector3& pos, const Ogre::Vector3& lo, const Ogre::Vector3& hi)
-{	
+{
     Ogre::Real min = pos.x - lo.x;
     Ogre::Vector3 newPos = Ogre::Vector3(lo.x, pos.y, pos.z);
     
@@ -364,22 +233,90 @@ Ogre::Vector3 Collisions::calcCollidedSide(const Ogre::Vector3& pos, const Ogre:
     return newPos;
 }
 
-void Collisions::setupLandUse(const char *configfile)
+void Collisions::SetupGroundModelMap(Json::Value* j_landuse_ptr)
 {
 #ifdef USE_PAGED
-    if (landuse) return;
-    landuse = new Landusemap(configfile);
+    Json::Value& j_landuse = *j_landuse_ptr;
+
+    // Apply map-specific settings
+    for (Json::Value& j_filename: j_landuse["groundmodel_files"])
+    {
+        m_ground_models.LoadGroundModels(j_filename.asString());
+    }
+
+    if (j_landuse["default_groundmodel"] != Json::nullValue)
+    {
+        m_land_use.gm_outside = m_ground_models.GetGroundModel(j_landuse["default_groundmodel"].asString().c_str());
+    }
+
+    // Prepare a color -> groundmodel conversion table
+    std::map<size_t, RoR::GroundModelDef*> color2model;
+    for (Json::Value& j_entry : j_landuse["color_mappings"])
+    {
+        color2model.insert(std::make_pair(
+            j_entry["rgba_color"].asLargestUInt(),
+            m_ground_models.GetGroundModel(j_entry["groundmodel_name"].asString().c_str())));
+    }
+
+    try
+    {
+        // Analyze terrain
+        const Ogre::Vector3 map_size = gEnv->terrainManager->getMaxTerrainSize();
+        m_land_use.map_size_x = static_cast<size_t>(map_size.x);
+        m_land_use.map_size_z = static_cast<size_t>(map_size.z);
+        const Ogre::TRect<Ogre::Real> bounds = Forests::TBounds(0, 0, map_size.x, map_size.z);
+
+        // Load control texture
+        Forests::ColorMap* color_map = Forests::ColorMap::load(j_landuse["texture_file"].asString(), Forests::CHANNEL_COLOR);
+        color_map->setFilter(Forests::MAPFILTER_NONE);
+        const bool is_BGR = color_map->getPixelBox().format == PF_A8B8G8R8;
+
+        // Allocate space for the groundmodel map
+        const size_t map_byte_size = m_land_use.map_size_x * m_land_use.map_size_z;
+        m_land_use.gm_map = new RoR::GroundModelDef*[map_byte_size];
+        memset(m_land_use.gm_map, 0, map_byte_size);
+
+        // Resolve control texture colors to groundmodel entries
+        RoR::GroundModelDef** ptr = m_land_use.gm_map;
+        for (size_t z = 0; z < m_land_use.map_size_z; z++)
+        {
+            for (size_t x = 0; x < m_land_use.map_size_x; x++)
+            {
+                size_t color = color_map->getColorAt(x, z, bounds);
+                if (is_BGR)
+                {
+                    // Swap red and blue values
+                    unsigned int cols = color & 0xFF00FF00;
+                    cols |= (color & 0xFF) << 16;
+                    cols |= (color & 0xFF0000) >> 16;
+                    color = cols;
+                }
+
+                auto search_res = color2model.find(color);
+                if (search_res != color2model.end())
+                {
+                    *ptr = search_res->second;
+                }
+
+                ptr++;
+            }
+        }
+    }
+    catch (Ogre::Exception& e)
+    {
+        LOG("[RoR] Error processing landusemap (Ogre::Exception), message: " + e.getFullDescription());
+    }
+    catch (std::exception& e)
+    {
+        LOG(std::string("[RoR] Error processing landusemap (std::exception), message: ") + e.what());
+    }
+    catch (...)
+    {
+        LOG("[RoR] Unrecognized error while processing landusemap");
+    }
 #else
-    LOG("RoR was not compiled with PagedGeometry support. You cannot use Landuse maps with it.");
+    LOG("RoR was not built with PagedGeometry support. You cannot use Landuse maps with it.");
 #endif //USE_PAGED
-}
-
-ground_model_t *Collisions::getGroundModelByString(const String name)
-{
-    if (!ground_models.size() || ground_models.find(name) == ground_models.end())
-        return 0;
-
-    return &ground_models[name];
 }
 
 unsigned int Collisions::hashfunc(unsigned int cellid)
@@ -798,7 +735,7 @@ int Collisions::removeCollisionBox(int num)
     return 0;
 }
 
-int Collisions::addCollisionTri(Vector3 p1, Vector3 p2, Vector3 p3, ground_model_t* gm)
+int Collisions::addCollisionTri(Vector3 p1, Vector3 p2, Vector3 p3, RoR::GroundModelDef* gm)
 {
     if (free_collision_tri >= max_col_tris) return -1;
     collision_tris[free_collision_tri].a=p1;
@@ -1050,7 +987,7 @@ int Collisions::enableCollisionTri(int number, bool enable)
     return 0;
 }
 
-bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, float* nso, ground_model_t** ogm)
+bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, float* nso, RoR::GroundModelDef** ogm)
 {
     bool smoky = false;
     // float corrf=1.0;
@@ -1060,7 +997,6 @@ bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, float* ns
     int refx = (int)(node->AbsPosition.x/CELL_SIZE);
     int refz = (int)(node->AbsPosition.z/CELL_SIZE);
     cell_t *cell = hash_find(refx, refz);
-    //LOG("Checking cell "+TOSTRING(refx)+" "+TOSTRING(refz)+" total indexes: "+TOSTRING(num_cboxes_index[refp]));
 
     collision_tri_t *minctri = 0;
     float minctridist = 100.0;
@@ -1127,8 +1063,9 @@ bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, float* ns
                                 if (cbox->refined) normal=cbox->rot*normal;
 
                                 // collision boxes are always out of concrete as it seems
-                                primitiveCollision(node, node->Forces, node->Velocity, normal, dt, defaultgm, nso);
-                                if (ogm) *ogm=defaultgm;
+                                primitiveCollision(node, node->Forces, node->Velocity, normal, dt, m_land_use.gm_node, nso);
+                                if (ogm)
+                                    *ogm = m_land_use.gm_node;
                                 }
                             }
                     } else
@@ -1167,8 +1104,9 @@ bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, float* ns
                             // resume repere for the normal
                             if (cbox->selfrotated) normal=cbox->selfrot*normal;
                             if (cbox->refined) normal=cbox->rot*normal;
-                            primitiveCollision(node, node->Forces, node->Velocity, normal, dt, defaultgm, nso);
-                            if (ogm) *ogm=defaultgm;
+                            primitiveCollision(node, node->Forces, node->Velocity, normal, dt, m_land_use.gm_node, nso);
+                            if (ogm)
+                                *ogm = m_land_use.gm_node;
                         }
                     }
                 }
@@ -1349,13 +1287,13 @@ bool Collisions::isInside(Vector3 pos, collision_box_t *cbox, float border)
     return false;
 }
 
-bool Collisions::groundCollision(node_t *node, float dt, ground_model_t** ogm, float *nso)
+bool Collisions::groundCollision(node_t *node, float dt, RoR::GroundModelDef** ogm, float *nso)
 {
-    if (!hFinder) return false;
-    if (landuse) *ogm = landuse->getGroundModelAt(node->AbsPosition.x, node->AbsPosition.z);
-    // when landuse fails or we don't have it, use the default value
-    if (!*ogm) *ogm = defaultgroundgm;
-    last_used_ground_model = *ogm;
+    if (hFinder == nullptr) // TODO: Not a happy design ~ only_a_ptr, 04/2017
+        return false;
+
+    if (m_land_use.gm_map != nullptr)
+        *ogm = this->QueryGroundModelMap(static_cast<int>(node->AbsPosition.x), static_cast<int>(node->AbsPosition.z));
 
     // new ground collision code
     Real v = hFinder->getHeightAt(node->AbsPosition.x, node->AbsPosition.z);
@@ -1369,7 +1307,7 @@ bool Collisions::groundCollision(node_t *node, float dt, ground_model_t** ogm, f
     return false;
 }
 
-void primitiveCollision(node_t *node, Vector3 &force, const Vector3 &velocity, const Vector3 &normal, float dt, ground_model_t* gm, float* nso, float penetration, float reaction)
+void primitiveCollision(node_t *node, Vector3 &force, const Vector3 &velocity, const Vector3 &normal, float dt, RoR::GroundModelDef* gm, float* nso, float penetration, float reaction)
 {
     // normal velocity
 
@@ -1609,16 +1547,14 @@ int Collisions::createCollisionDebugVisualization()
     return 0;
 }
 
-int Collisions::addCollisionMesh(Ogre::String meshname, Ogre::Vector3 pos, Ogre::Quaternion q, Ogre::Vector3 scale, ground_model_t *gm, std::vector<int> *collTris)
+int Collisions::addCollisionMesh(Ogre::String meshname, Ogre::Vector3 pos, Ogre::Quaternion q, Ogre::Vector3 scale, RoR::GroundModelDef *gm, std::vector<int> *collTris)
 {
     // normal, non virtual collision box
     Entity *ent = gEnv->sceneManager->createEntity(meshname);
     ent->setMaterialName("tracks/debug/collision/mesh");
 
-    if (!gm)
-    {
-        gm = getGroundModelByString("concrete");
-    }
+    if (gm == nullptr)
+        gm = m_ground_models.GetGroundModel("concrete");
 
     size_t vertex_count,index_count;
     Vector3* vertices;
@@ -1626,8 +1562,6 @@ int Collisions::addCollisionMesh(Ogre::String meshname, Ogre::Vector3 pos, Ogre:
 
     getMeshInformation(ent->getMesh().getPointer(),vertex_count,vertices,index_count,indices, pos, q, scale);
 
-    //LOG(LML_NORMAL,"Vertices in mesh: %u",vertex_count);
-    //LOG(LML_NORMAL,"Triangles in mesh: %u",index_count / 3);
     for (int i=0; i<(int)index_count/3; i++)
     {
         int triID = addCollisionTri(vertices[indices[i*3]], vertices[indices[i*3+1]], vertices[indices[i*3+2]], gm);
@@ -1792,4 +1726,32 @@ void Collisions::finishLoadingTerrain()
 
         createCollisionDebugVisualization();
     }
+}
+
+RoR::GroundModelDef* Collisions::QueryGroundModelMap(const int x, const int z)
+{
+    if (m_land_use.gm_map == nullptr)
+        return m_land_use.gm_fallback;
+
+#ifdef USE_PAGED
+    const int mapsize_x = static_cast<int>(m_land_use.map_size_x);
+    const int mapsize_z = static_cast<int>(m_land_use.map_size_z);
+
+    // we return the default ground model if we are not anymore in this map
+    if (x < 0 || x >= mapsize_x || z < 0 || z >= mapsize_z)
+        return m_land_use.gm_outside;
+
+    return m_land_use.gm_map[x + z * mapsize_x];
+#else
+    return m_land_use.fallback;
+#endif // USE_PAGED
+}
+
+RoR::GroundModelDef* Collisions::GetNamedOrDefaultGM(const char* name_or_null)
+{
+    if (name_or_null == nullptr)
+        return m_land_use.gm_node; // Default GM for node collision
+
+    RoR::GroundModelDef* def = m_ground_models.GetGroundModel(name_or_null);
+    return (def != nullptr) ? def : m_land_use.gm_node;
 }

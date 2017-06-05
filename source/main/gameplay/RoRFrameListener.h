@@ -51,7 +51,7 @@ public:
 
     // GUI interface
     void   ReloadCurrentTruck    (); // Top menubar
-    void   TeleportPlayer        (RoR::Terrn2Telepoint* telepoint); // Teleport UI
+    void   TeleportPlayer        (Ogre::Vector3 position); // Teleport UI
     void   TeleportPlayerXZ      (float x, float y); // Teleport UI
 
     // BeamFactory callback
