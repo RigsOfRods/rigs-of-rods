@@ -191,7 +191,8 @@ int Collisions::loadGroundModelsConfigFile(Ogre::String filename)
     try
     {
         group = ResourceGroupManager::getSingleton().findGroupContainingResource(filename);
-    }catch(...)
+    }
+    catch (...)
     {
         // we wont catch anything, since the path could be absolute as well, then the group is not found
     }
@@ -204,7 +205,8 @@ int Collisions::loadGroundModelsConfigFile(Ogre::String filename)
             cfg.loadDirect(filename);
         else
             cfg.loadFromResourceSystem(filename, group, "\x09:=", true);
-    } catch(Ogre::Exception& e)
+    }
+    catch (Ogre::Exception& e)
     {
         ErrorUtils::ShowError("Error while loading ground model", e.getFullDescription());
         return 1;

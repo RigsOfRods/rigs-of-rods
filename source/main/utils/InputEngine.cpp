@@ -1981,7 +1981,7 @@ bool InputEngine::setup(String hwnd, bool capture, bool capturemouse, bool captu
             LOG(String("Exception raised on joystick creation: ") + String(ex.eText));
         }
 #else  //NOOGRE
-        catch(...)
+        catch (...)
         {
         }
 #endif //NOOGRE

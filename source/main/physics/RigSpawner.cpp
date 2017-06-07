@@ -597,7 +597,7 @@ void RigSpawner::FinalizeRig()
                 m_rig->cabNode->attachObject(ec);
             }
         }
-        catch(...)
+        catch (...)
         {
             this->AddMessage(Message::TYPE_ERROR, "error loading mesh: "+mesh_name);
         }
@@ -1687,7 +1687,7 @@ void RigSpawner::ProcessFlexbody(std::shared_ptr<RigDef::Flexbody> def)
         m_rig->flexbodies[m_rig->free_flexbody] = flexbody;
         m_rig->free_flexbody++;        
     }
-    catch(Ogre::Exception& e)
+    catch (Ogre::Exception& e)
     {
         this->AddMessage(Message::TYPE_ERROR, 
             "Failed to create flexbody '" + def->mesh_name + "', reason:" + e.getFullDescription());
@@ -4282,7 +4282,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 
         m_rig->free_wheel++;
     }
-    catch(Ogre::Exception& e)
+    catch (Ogre::Exception& e)
     {
         this->AddMessage(Message::TYPE_ERROR, 
             "Failed to create flexbodywheel '" + def.tyre_mesh_name + "', reason:" + e.getFullDescription());

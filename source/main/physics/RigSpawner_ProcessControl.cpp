@@ -122,11 +122,11 @@
                 try{                                                                       \
                     this->_FUNCTION_(*itor);                                               \
                 }                                                                          \
-                catch(Exception& ex)                                                       \
+                catch (Exception& ex)                                                      \
                 {                                                                          \
                     AddMessage(Message::TYPE_ERROR,ex.what());                             \
                 }                                                                          \
-                catch(...)                                                                 \
+                catch (...)                                                                \
                 {                                                                          \
                     AddMessage(Message::TYPE_ERROR, "An unknown exception has occured");   \
                 }                                                                          \

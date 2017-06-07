@@ -130,7 +130,8 @@ void TerrainObjectManager::proceduralTests()
 		ent2->setMaterialName("Examples/Road");
 		ent2->setCastShadows(true);
 
-	} catch(Exception &e)
+	}
+    catch (Exception &e)
 	{
 		ErrorUtils::ShowError("Error within procedural tests", e.what());
 	}

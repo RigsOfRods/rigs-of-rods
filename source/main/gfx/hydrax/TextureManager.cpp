@@ -145,7 +145,7 @@ namespace Hydrax
 
 			Texture->load();
 		}
-		catch(Ogre::Exception &e)
+		catch (Ogre::Exception &e)
 		{
 			HydraxLOG(e.getFullDescription());
 

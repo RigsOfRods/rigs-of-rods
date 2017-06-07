@@ -98,11 +98,11 @@ wxString LoadInputDevicesInfo(WXWidget wx_window_handle)
 
         output = wxString::FromUTF8(out_stream.str().c_str());
     }
-    catch(std::exception &ex)
+    catch (std::exception &ex)
     {
         output = wxT("\n\tAn error occurred!\n\nMessage: ") + wxString::FromUTF8(ex.what());
     }
-    catch(...)
+    catch (...)
     {
         output = wxT("\n\tAn error occurred!");
     }

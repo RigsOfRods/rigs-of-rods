@@ -119,8 +119,8 @@ bool OgreSubsystem::LoadOgrePlugins(Ogre::String const & pluginsfile)
         try
         {
             m_ogre_root->loadPlugin(pluginFilename);
-        } 
-        catch(Ogre::Exception &e)
+        }
+        catch (Ogre::Exception &e)
         {
             LOG("failed to load plugin: " + pluginFilename + ": " + e.getFullDescription());
         }

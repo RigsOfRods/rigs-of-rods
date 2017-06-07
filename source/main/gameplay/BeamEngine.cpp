@@ -810,8 +810,9 @@ void BeamEngine::update(float dt, int doUpdate)
 
 void BeamEngine::updateAudio(int doUpdate)
 {
-    int trucknum = m_actor->trucknum;
 #ifdef USE_OPENAL
+    const int trucknum = m_actor->trucknum;
+
     if (hasturbo)
     {
         for (int i = 0; i < numTurbos; i++)

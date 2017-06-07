@@ -253,7 +253,7 @@ void Skidmark::updatePoint()
     if (!m_objects.size())
     {
         // add first bucket
-        addObject(thisPoint, texture);
+        this->addObject(thisPoint, texture);
     }
     else
     {
@@ -275,16 +275,16 @@ void Skidmark::updatePoint()
             if (distance > maxDist)
             {
                 // to far away for connection
-                addObject(thisPoint, texture);
+                this->addObject(thisPoint, texture);
             }
             else
             {
                 // add new bucket with connection to last bucket
                 Vector3 lp1 = m_objects.back().points[m_objects.back().pos - 1];
                 Vector3 lp2 = m_objects.back().points[m_objects.back().pos - 2];
-                addObject(lp1, texture);
-                addPoint(lp2, distance, texture);
-                addPoint(lp1, distance, texture);
+                this->addObject(lp1, texture);
+                this->addPoint(lp2, distance, texture);
+                this->addPoint(lp1, distance, texture);
             }
         }
         else
@@ -297,43 +297,41 @@ void Skidmark::updatePoint()
                 if (distance > maxDist)
                 {
                     // to far away for connection
-                    addObject(thisPoint, texture);
+                    this->addObject(thisPoint, texture);
                 }
                 else
                 {
                     // add new bucket with connection to last bucket
                     Vector3 lp1 = m_objects.back().points[m_objects.back().pos - 1];
                     Vector3 lp2 = m_objects.back().points[m_objects.back().pos - 2];
-                    addObject(lp1, texture);
-                    addPoint(lp2, distance, texture);
-                    addPoint(lp1, distance, texture);
+                    this->addObject(lp1, texture);
+                    this->addPoint(lp2, distance, texture);
+                    this->addPoint(lp1, distance, texture);
                 }
             }
             else if (distance > m_max_distance)
             {
                 // just new bucket, no connection to last bucket
-                addObject(thisPoint, texture);
+                this->addObject(thisPoint, texture);
             }
         }
     }
 
-    SkidmarkSegment skid = m_objects.back();
-
-    float overaxis = 0.2f;
-    // tactics: we always choose the latest oint and then create two points
+    const float overaxis = 0.2f;
+    // tactics: we always choose the latest point and then create two points
 
     // choose node m_wheel by the latest added point
     if (!m_wheel->lastContactType)
     {
         // choose inner
-        addPoint(m_wheel->lastContactInner - (axis * overaxis), distance, texture);
-        addPoint(m_wheel->lastContactInner + axis + (axis * overaxis), distance, texture);
+        this->addPoint(m_wheel->lastContactInner - (axis * overaxis), distance, texture);
+        this->addPoint(m_wheel->lastContactInner + axis + (axis * overaxis), distance, texture);
     }
     else
     {
         // choose outer
-        addPoint(m_wheel->lastContactOuter + axis + (axis * overaxis), distance, texture);
-        addPoint(m_wheel->lastContactOuter - (axis * overaxis), distance, texture);
+        this->addPoint(m_wheel->lastContactOuter + axis + (axis * overaxis), distance, texture);
+        this->addPoint(m_wheel->lastContactOuter - (axis * overaxis), distance, texture);
     }
 
     // save as last point (in the middle of the m_wheel)
