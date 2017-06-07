@@ -179,7 +179,7 @@ void CameraBehaviorVehicleSpline::activate(const CameraManager::CameraContext& c
         this->reset(ctx);
         createSpline(ctx);
     }
-    ctx.mCurrTruck->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_VEHICLE_SPLINE;
+    ctx.mCurrTruck->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_SPLINE;
 }
 
 void CameraBehaviorVehicleSpline::reset(const CameraManager::CameraContext& ctx)

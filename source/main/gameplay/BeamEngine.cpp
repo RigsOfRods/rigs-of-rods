@@ -28,7 +28,7 @@
 
 using namespace Ogre;
 
-BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<float> gears, float dratio, int trucknum) :
+BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<float> gears, float dratio, Beam* actor) :
     apressure(0.0f)
     , autocurAcc(0.0f)
     , automode(AUTOMATIC)
@@ -71,7 +71,7 @@ BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<flo
     , stallRPM(300.0f)
     , starter(0)
     , torqueCurve(new TorqueCurve())
-    , trucknum(trucknum)
+    , m_actor(actor)
     , turbomode(OLD)
     , type('t')
     , upShiftDelayCounter(0)
@@ -251,11 +251,8 @@ void BeamEngine::setOptions(float einertia, char etype, float eclutch, float cti
 
 void BeamEngine::update(float dt, int doUpdate)
 {
-    Beam* truck = BeamFactory::getSingleton().getTruck(trucknum);
-
-    if (!truck)
-        return;
-
+    Beam* truck = m_actor;
+    int trucknum = m_actor->trucknum;
     float acc = curAcc;
 
     acc = std::max(getIdleMixture(), acc);
@@ -814,6 +811,8 @@ void BeamEngine::update(float dt, int doUpdate)
 void BeamEngine::updateAudio(int doUpdate)
 {
 #ifdef USE_OPENAL
+    const int trucknum = m_actor->trucknum;
+
     if (hasturbo)
     {
         for (int i = 0; i < numTurbos; i++)
@@ -999,11 +998,11 @@ void BeamEngine::toggleContact()
 #ifdef USE_OPENAL
     if (contact)
     {
-        SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_IGNITION);
+        SoundScriptManager::getSingleton().trigStart(m_actor->trucknum, SS_TRIG_IGNITION);
     }
     else
     {
-        SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_IGNITION);
+        SoundScriptManager::getSingleton().trigStop(m_actor->trucknum, SS_TRIG_IGNITION);
     }
 #endif // USE_OPENAL
 }
@@ -1023,8 +1022,8 @@ void BeamEngine::start()
         autoselect = DRIVE;
     }
 #ifdef USE_OPENAL
-    SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_IGNITION);
-    SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_ENGINE);
+    SoundScriptManager::getSingleton().trigStart(m_actor->trucknum, SS_TRIG_IGNITION);
+    SoundScriptManager::getSingleton().trigStart(m_actor->trucknum, SS_TRIG_ENGINE);
 #endif // USE_OPENAL
 }
 
@@ -1086,9 +1085,9 @@ void BeamEngine::stop()
 
     running = false;
     // Script Event - engine death
-    TRIGGER_EVENT(SE_TRUCK_ENGINE_DIED, trucknum);
+    TRIGGER_EVENT(SE_TRUCK_ENGINE_DIED, m_actor->trucknum);
 #ifdef USE_OPENAL
-    SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_ENGINE);
+    SoundScriptManager::getSingleton().trigStop(m_actor->trucknum, SS_TRIG_ENGINE);
 #endif // USE_OPENAL
 }
 
@@ -1117,13 +1116,13 @@ void BeamEngine::shift(int val)
         if (curClutch > 0.25f)
         {
 #ifdef USE_OPENAL
-            SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_GEARSLIDE);
+            SoundScriptManager::getSingleton().trigOnce(m_actor->trucknum, SS_TRIG_GEARSLIDE);
 #endif // USE_OPENAL
         }
         else
         {
 #ifdef USE_OPENAL
-            SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_SHIFT);
+            SoundScriptManager::getSingleton().trigOnce(m_actor->trucknum, SS_TRIG_SHIFT);
 #endif // USE_OPENAL
             curGear += val;
         }
@@ -1143,7 +1142,7 @@ void BeamEngine::updateShifts()
         return;
 
 #ifdef USE_OPENAL
-    SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_SHIFT);
+    SoundScriptManager::getSingleton().trigOnce(m_actor->trucknum, SS_TRIG_SHIFT);
 #endif // USE_OPENAL
 
     if (autoselect == REAR)

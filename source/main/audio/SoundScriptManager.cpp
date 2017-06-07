@@ -24,6 +24,7 @@
 
 #include "Application.h"
 #include "Beam.h"
+#include "MumbleIntegration.h"
 #include "Settings.h"
 #include "Sound.h"
 #include "SoundManager.h"
@@ -49,7 +50,8 @@ SoundScriptManager::SoundScriptManager() :
     , max_distance(500.0f)
     , rolloff_factor(1.0f)
     , reference_distance(7.5f)
-    , sound_manager(0)
+    , sound_manager(nullptr)
+    , m_mumble(nullptr)
 {
     for (int i = 0; i < SS_MAX_TRIG; i++)
     {
@@ -1394,5 +1396,13 @@ void SoundScriptInstance::setEnabled(bool e)
         }
     }
 }
+
+#ifdef USE_MUMBLE
+void SoundScriptManager::CheckAndCreateMumble()
+{
+    if (m_mumble == nullptr)
+        m_mumble = new MumbleIntegration();
+}
+#endif // USE_MUMBLE
 
 #endif // USE_OPENAL

@@ -26,7 +26,7 @@
 
 using namespace Ogre;
 
-Airbrake::Airbrake(char* basename, int num, node_t* ndref, node_t* ndx, node_t* ndy, node_t* nda, Vector3 pos, float width, float length, float maxang, char* texname, float tx1, float ty1, float tx2, float ty2, float lift_coef)
+Airbrake::Airbrake(char* basename, int num, node_t* ndref, node_t* ndx, node_t* ndy, node_t* nda, Vector3 pos, float width, float length, float maxang, std::string const & texname, float tx1, float ty1, float tx2, float ty2, float lift_coef)
 {
     snode = 0;
     noderef = ndref;

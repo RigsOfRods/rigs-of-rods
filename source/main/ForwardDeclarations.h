@@ -30,7 +30,9 @@
 
 namespace RoR
 {
+    class  BeamFactory;
     class  ContentManager;
+    class  GfxActor;
     class  GUIManager;
     struct GuiManagerImpl;
     class  GuiManagerInterface;
@@ -39,6 +41,9 @@ namespace RoR
     struct PlatformUtils;
     class  RigLoadingProfiler;
     class  SceneMouse;
+    class  Skidmark;
+    class  SkidmarkConfig;
+    struct SkinDef;
     class  SkinManager;
     class  Console;
 
@@ -115,7 +120,6 @@ class Autopilot;
 class Axle;
 class Beam;
 class BeamEngine;
-class BeamFactory;
 class BeamThreadStats;
 class Buoyance;
 class CacheEntry;
@@ -132,6 +136,7 @@ class DashBoardManager;
 class DOFManager;
 class DotSceneLoader;
 class DustPool;
+class DustManager;
 class Editor;
 class Envmap;
 class Flexable;
@@ -151,10 +156,9 @@ class IWater;
 class HydraxWater;
 class Landusemap;
 class MapTextureCreator;
-class MaterialFunctionMapper;
-class MaterialReplacer;
 class MeshObject;
 class Mirror;
+class MumbleIntegration;
 class Network;
 class OverlayWrapper;
 class OutProtocol;
@@ -171,8 +175,6 @@ class Road;
 class RoRFrameListener;
 class ScopeLog;
 class Screwprop;
-class Skidmark;
-class Skin;
 class SkyManager;
 class SlideNode;
 class ShadowManager;
@@ -191,7 +193,6 @@ class ThreadPool;
 class ThreadWorker;
 class TorqueCurve;
 class TruckEditor;
-class TruckHUD;
 class Turbojet;
 class Turboprop;
 class VideoCamera;

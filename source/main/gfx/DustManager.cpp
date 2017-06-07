@@ -30,7 +30,7 @@
 
 using namespace Ogre;
 
-void DustManager::CheckAndInit()
+void DustManager::DustManCheckAndInit(Ogre::SceneManager* sm)
 {
     if (m_is_initialised)
     {
@@ -40,23 +40,24 @@ void DustManager::CheckAndInit()
 
     if (mEnabled)
     {
-        dustpools["dust"] = new DustPool("tracks/Dust", 20);
-        dustpools["clump"] = new DustPool("tracks/Clump", 20);
-        dustpools["sparks"] = new DustPool("tracks/Sparks", 10);
-        dustpools["drip"] = new DustPool("tracks/Drip", 50);
-        dustpools["splash"] = new DustPool("tracks/Splash", 20);
-        dustpools["ripple"] = new DustPool("tracks/Ripple", 20);
+        dustpools["dust"]   = new DustPool(sm, "tracks/Dust",   20);
+        dustpools["clump"]  = new DustPool(sm, "tracks/Clump",  20);
+        dustpools["sparks"] = new DustPool(sm, "tracks/Sparks", 10);
+        dustpools["drip"]   = new DustPool(sm, "tracks/Drip",   50);
+        dustpools["splash"] = new DustPool(sm, "tracks/Splash", 20);
+        dustpools["ripple"] = new DustPool(sm, "tracks/Ripple", 20);
     }
     m_is_initialised = true;
 }
 
-void DustManager::Shutdown()
+void DustManager::DustManDiscard(Ogre::SceneManager* sm)
 {
     // delete all created dustpools and remove them
     std::map<Ogre::String, DustPool *>::iterator it;
     for (it = dustpools.begin(); it != dustpools.end(); it++)
     {
         // delete the DustPool instance
+		it->second->Discard(sm);
         delete(it->second);
         it->second = 0;
     }

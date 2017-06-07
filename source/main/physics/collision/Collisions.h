@@ -105,6 +105,8 @@ private:
     static const int CELL_SIZE = 2.0; // we divide through this
     static const int MAXIMUM_CELL = 0x7FFF;
 
+    RoRFrameListener* m_sim_controller;
+
     // collision boxes pool
     collision_box_t collision_boxes[MAX_COLLISION_BOXES];
     collision_box_t* last_called_cbox;
@@ -150,6 +152,8 @@ private:
 
 public:
 
+    
+
     std::mutex m_scriptcallback_mutex;
 
     bool forcecam;
@@ -158,7 +162,7 @@ public:
 
     eventsource_t* getEvent(int eventID) { return &eventsources[eventID]; };
 
-    Collisions();
+    Collisions(RoRFrameListener* sim_controller);
     ~Collisions();
 
     Ogre::Vector3 getPosition(const Ogre::String& inst, const Ogre::String& box);

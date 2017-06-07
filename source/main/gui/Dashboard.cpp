@@ -28,8 +28,6 @@
 #	include <OgreOverlayElement.h>
 #endif
 
-#include "TruckHUD.h"
-
 using namespace Ogre;
 
 class DashboardListener;
@@ -64,7 +62,6 @@ Dashboard::Dashboard() :
     mDashboardListener->dashOverlay = OverlayManager::getSingleton().getByName("tracks/3D_DashboardOverlay");
     mDashboardListener->needlesOverlay = OverlayManager::getSingleton().getByName("tracks/3D_NeedlesOverlay");
     mDashboardListener->blendOverlay = OverlayManager::getSingleton().getByName("tracks/3D_BlendOverlay");
-    mDashboardListener->truckHUDOverlay = OverlayManager::getSingleton().getByName("tracks/TruckInfoBox");
     //	mDashboardListener->dbdebugOverlay  = OverlayManager::getSingleton().getByName("Core/DebugOverlay");
     //	mDashboardListener->dbeditorOverlay = OverlayManager::getSingleton().getByName("tracks/EditorOverlay");
 }
@@ -92,7 +89,6 @@ DashboardListener::DashboardListener() :
     consolevisible(false)
     , fpsDisplayed(false)
     , fpsOverlay(0)
-    , truckhHUDvisible(false)
 {
 }
 
@@ -116,13 +112,6 @@ void DashboardListener::preRenderTargetUpdate(const RenderTargetEvent& evt)
         fpsOverlay = OverlayManager::getSingleton().getByName("Core/DebugOverlay");
     }
 
-    // hide truck HUD
-    truckhHUDvisible = truckHUDOverlay->isVisible();
-    if (truckhHUDvisible)
-    {
-        truckHUDOverlay->hide();
-    }
-
     //show overlay
     dashOverlay->show();
     needlesOverlay->show();
@@ -138,11 +127,6 @@ void DashboardListener::postRenderTargetUpdate(const RenderTargetEvent& evt)
     if (fpsOverlay && fpsDisplayed)
     {
         fpsOverlay->show();
-    }
-
-    if (truckHUDOverlay && truckhHUDvisible)
-    {
-        truckHUDOverlay->show();
     }
 
     // hide overlay

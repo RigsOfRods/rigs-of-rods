@@ -87,21 +87,12 @@ struct rig_t
     int free_screwprop;
 
     int cabs[MAX_CABS*3];
-    int subisback[MAX_SUBMESHES]; //!< Submesh; {0, 1, 2}
     int free_cab;
 
     int hydro[MAX_HYDROS];
     int free_hydro;
 
-    Ogre::Vector3 texcoords[MAX_TEXCOORDS];
-    int free_texcoord;
-
-    int subtexcoords[MAX_SUBMESHES];
-    int subcabs[MAX_SUBMESHES];
-    int free_sub;
-
     int collcabs[MAX_CABS];
-    int collcabstype[MAX_CABS];
     collcab_rate_t inter_collcabrate[MAX_CABS];
     collcab_rate_t intra_collcabrate[MAX_CABS];
     int free_collcab;
@@ -113,13 +104,11 @@ struct rig_t
     Airbrake *airbrakes[MAX_AIRBRAKES];
     int free_airbrake;
 
-    Skidmark *skidtrails[MAX_WHEELS*2];
+    RoR::Skidmark *skidtrails[MAX_WHEELS*2];
     bool useSkidmarks;
 
     FlexBody *flexbodies[MAX_FLEXBODIES];
     int free_flexbody;
-
-    std::vector <VideoCamera *> vidcams;
 
     std::vector<std::string> description;
 
@@ -128,10 +117,7 @@ struct rig_t
 
     bool hideInChooser;
 
-    char guid[128];
-
     Ogre::String realtruckname;
-    bool loading_finished;
 
     bool forwardcommands;
     bool importcommands;
@@ -140,7 +126,7 @@ struct rig_t
     bool disable_default_sounds;
 
     // Antilockbrake + Tractioncontrol
-    bool slopeBrake;
+    bool has_slope_brake;
     float slopeBrakeFactor;
     float slopeBrakeAttAngle;
     float slopeBrakeRelAngle;
@@ -177,8 +163,6 @@ struct rig_t
     // Speed Limiter
     bool sl_enabled; //!< Speed limiter;
     float sl_speed_limit; //!< Speed limiter;
-
-    char uniquetruckid[256];
     int categoryid;
     int truckversion;
     int externalcameramode, externalcameranode;
@@ -197,9 +181,8 @@ struct rig_t
     CmdKeyInertia *cmdInertia;
     float truckmass;
     float loadmass;
-    char texname[1024]; //!< Material name
     int trucknum;
-    Skin *usedSkin;
+    RoR::SkinDef* usedSkin;
     Buoyance *buoyance;
 
     int driveable;
@@ -210,14 +193,11 @@ struct rig_t
     int cinecameranodepos[MAX_CAMERAS]; //!< Cine-camera node indexes
     int freecinecamera; //!< Number of cine-cameras (lowest free index)
     RoR::App::GfxFlaresMode m_flares_mode;
-    Ogre::Light *cablight;
-    Ogre::SceneNode *cablightNode;
     std::vector<Ogre::Entity*> deletion_Entities; //!< For unloading vehicle; filled at spawn.
     std::vector<Ogre::MovableObject *> deletion_Objects; //!< For unloading vehicle; filled at spawn.
     std::vector<Ogre::SceneNode*> deletion_sceneNodes; //!< For unloading vehicle; filled at spawn.
     unsigned int netCustomLightArray[4];
     unsigned char netCustomLightArray_counter;
-    MaterialFunctionMapper *materialFunctionMapper;
     bool ispolice;
     int state;
     bool collisionRelevant;
@@ -233,7 +213,6 @@ struct rig_t
     //! Dbg. overlay type { NODES: 1-Numbers, 4-Mass, 5-Locked | BEAMS: 2-Numbers, 6-Compression, 7-Broken, 8-Stress, 9-Strength, 10-Hydros, 11-Commands, OTHER: 3-N&B numbers, 12-14 unknown }
     int debugVisuals;
 
-    Ogre::String speedomat, tachomat;
     float speedoMax;
     bool useMaxRPMforGUI;
     float minimass;
@@ -249,8 +228,6 @@ struct rig_t
     int propwheelcount;
     int free_commands;
     int fileformatversion;
-
-    std::vector<Ogre::String> sectionconfigs;
 
     Ogre::Vector3 origin;
     Ogre::SceneNode *beamsRoot;
@@ -275,9 +252,9 @@ struct rig_t
     int cameranoderoll[MAX_CAMERAS];
     bool revroll[MAX_CAMERAS];
     bool shadowOptimizations;
-    int hasEmissivePass;
     FlexObj *cabMesh;
     Ogre::SceneNode *cabNode;
+    Ogre::Entity *cabEntity;
     Ogre::AxisAlignedBox boundingBox; //!< standard bounding box (surrounds all nodes of a truck)
     Ogre::AxisAlignedBox predictedBoundingBox;
     std::vector<Ogre::AxisAlignedBox> collisionBoundingBoxes; //!< smart bounding boxes, used for determining the state of a truck (every box surrounds only a subset of nodes)
@@ -286,35 +263,14 @@ struct rig_t
     int lowestnode; //!< never updated after truck init!?!
     int lowestcontactingnode;
 
-    float default_spring; //!< TODO: REMOVE! (parser context only)
-    float default_spring_scale; //!< TODO: REMOVE! (parser context only)
-    float default_damp;
-    float default_damp_scale;
-    float default_deform;
-    float default_deform_scale;
-    float default_break;
-    float default_break_scale;
-
-    float default_beam_diameter;
-    float default_plastic_coef;
-
-    char default_beam_material[256];
-    float default_node_friction; //!< TODO: REMOVE! (parser context only)
-    float default_node_volume; //!< TODO: REMOVE! (parser context only)
-    float default_node_surface; //!< TODO: REMOVE! (parser context only)
-    float default_node_loadweight; //!< TODO: REMOVE! (parser context only)
-    char default_node_options[50]; //!< TODO: REMOVE! (parser context only)
-
     float posnode_spawn_height;
 
-    MaterialReplacer *materialReplacer;
     Ogre::String subMeshGroundModelName;
 
     float odometerTotal;
     float odometerUser;
 
     std::vector<std::pair<Ogre::String, bool> > dashBoardLayouts;
-    Ogre::String beamHash; //!< Unused
 
     VehicleAI *vehicle_ai;
 };

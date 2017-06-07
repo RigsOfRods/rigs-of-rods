@@ -398,7 +398,7 @@ void initLanguage(wxString languagePath, wxString userpath)
         if(langSavedName.size() > 0)
             language = const_cast<wxLanguageInfo *>(getLanguageInfoByName(langSavedName));
     }
-    catch(...)
+    catch (...)
     {
         wxLogError(wxT(" unable to load RoR.cfg"));
     }
@@ -1301,7 +1301,7 @@ bool MyDialog::loadOgrePlugins(Ogre::String pluginsfile)
         {
             ogreRoot->loadPlugin(pluginFilename);
         }
-        catch(Ogre::Exception &e)
+        catch (Ogre::Exception &e)
         {
             wxLogStatus(wxT("failed to load plugin: ") + conv(pluginFilename) + wxT(": ") + conv(e.getFullDescription()));
         }
@@ -1882,7 +1882,7 @@ bool MyDialog::LoadConfig()
         // Don't trim whitespace
         cfg.load((const char *)rorcfg.mb_str(wxConvUTF8), "=:\t", false);
     }
-    catch(...)
+    catch (...)
     {
         wxLogError(wxT("error loading RoR.cfg"));
         return false;
@@ -1930,7 +1930,7 @@ void MyDialog::SaveConfig()
                 {
                     rs->setConfigOption(key, val);
                 }
-                catch(...)
+                catch (...)
                 {
                     wxMessageDialog(this, _("Error setting Ogre Values"), _("Ogre config validation error, unknown render option detected: ") + conv(key), wxOK||wxICON_ERROR).ShowModal();
                 }
@@ -2005,7 +2005,7 @@ void MyDialog::OnChoiceRenderer(wxCommandEvent& ev)
             wxLogStatus(wxT("Unable to change to new rendersystem(1)"));
         }
     }
-    catch(...)
+    catch (...)
     {
         wxLogStatus(wxT("Unable to change to new rendersystem(2)"));
     }

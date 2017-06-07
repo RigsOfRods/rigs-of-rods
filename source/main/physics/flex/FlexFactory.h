@@ -30,10 +30,13 @@
 #include "BitFlags.h"
 #include "ForwardDeclarations.h"
 #include "Locator_t.h"
+#include "RigDef_Prerequisites.h"
 
 #include <OgreVector3.h>
 #include <OgreColourValue.h>
 #include <vector>
+
+class FlexMeshWheel; // Forward decl.
 
 namespace RoR
 {
@@ -165,41 +168,43 @@ public:
     FlexFactory() {}
 
     FlexFactory(
-        MaterialFunctionMapper*   mfm,
-        MaterialReplacer*         mat_replacer,
-        Skin*                     skin,
-        node_t*                   all_nodes,
+        RigSpawner*               spawner,
         bool                      is_flexbody_cache_enabled,
         int                       cache_entry_number = -1
         );
 
     FlexBody* CreateFlexBody(
-        const int num_nodes_in_rig, 
-        const char* mesh_name, 
-        const char* mesh_unique_name, 
+        RigDef::Flexbody* def,
         const int ref_node, 
         const int x_node, 
         const int y_node, 
-        Ogre::Vector3 const & offset,
         Ogre::Quaternion const & rot, 
-        std::vector<unsigned int> & node_indices
-        );
+        std::vector<unsigned int> & node_indices);
 
-    void           CheckAndLoadFlexbodyCache();
-    void           SaveFlexbodiesToCache();
+    FlexMeshWheel* CreateFlexMeshWheel(
+        unsigned int wheel_index,
+        int axis_node_1_index,
+        int axis_node_2_index,
+        int nstart,
+        int nrays,
+        float rim_radius,
+        bool rim_reverse,
+        std::string const & rim_mesh_name,
+        std::string const & tire_material_name);
+
+    void  CheckAndLoadFlexbodyCache();
+    void  SaveFlexbodiesToCache();
 
 private:
-    MaterialFunctionMapper* m_material_function_mapper;
-    MaterialReplacer*       m_material_replacer;
-    Skin*                   m_used_skin;
-    bool                    m_enable_flexbody_LODs;
+
+    void  ResolveFlexbodyLOD(std::string meshname, Ogre::MeshPtr newmesh);
+
+    RigSpawner*             m_rig_spawner;
 
     FlexBodyFileIO          m_flexbody_cache;
     bool                    m_is_flexbody_cache_enabled;
     bool                    m_is_flexbody_cache_loaded;
     unsigned int            m_flexbody_cache_next_index;
-
-    node_t*                 m_rig_nodes_ptr;
 };
 
 } // namespace RoR

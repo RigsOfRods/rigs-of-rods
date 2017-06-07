@@ -68,8 +68,6 @@ private:
     Ogre::Overlay* dashOverlay;
     Ogre::Overlay* fpsOverlay;
     Ogre::Overlay* needlesOverlay;
-    Ogre::Overlay* truckHUDOverlay;
     bool consolevisible;
     bool fpsDisplayed;
-    bool truckhHUDvisible;
 };

@@ -66,7 +66,7 @@ void CameraBehaviorStatic::update(const CameraManager::CameraContext& ctx)
     {
         lookAt = ctx.mCurrTruck->getPosition();
         rotation = ctx.mCurrTruck->getRotation();
-        velocity = ctx.mCurrTruck->nodes[0].Velocity * BeamFactory::getSingleton().getSimulationSpeed();
+        velocity = ctx.mCurrTruck->nodes[0].Velocity * ctx.mSimSpeed;
         angle = (lookAt - camPosition).angleBetween(velocity);
         speed = velocity.length();
         if (ctx.mCurrTruck->replaymode)

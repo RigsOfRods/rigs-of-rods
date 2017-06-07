@@ -33,6 +33,7 @@
 #include "MeshObject.h"
 #include "ProceduralManager.h"
 #include "Road2.h"
+#include "RoRFrameListener.h"
 #include "Settings.h"
 #include "SoundScriptManager.h"
 #include "SurveyMapEntity.h"
@@ -129,7 +130,8 @@ void TerrainObjectManager::proceduralTests()
 		ent2->setMaterialName("Examples/Road");
 		ent2->setCastShadows(true);
 
-	} catch(Exception &e)
+	}
+    catch (Exception &e)
 	{
 		ErrorUtils::ShowError("Error within procedural tests", e.what());
 	}
@@ -828,15 +830,13 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
 
     SceneNode* tenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
 
-    MeshObject* mo = NULL;
+    MeshObject* mo = nullptr;
     if (String(mesh) != "none")
     {
-        mo = new MeshObject(mesh, entity_name, tenode, NULL, background_loading);
+        mo = new MeshObject(mesh, entity_name, tenode, background_loading);
         meshObjects.push_back(mo);
     }
 
-    //mo->setQueryFlags(OBJECTS_MASK);
-    //tenode->attachObject(te);
     tenode->setScale(sc);
     tenode->setPosition(pos);
     tenode->rotate(rotation);
@@ -1377,7 +1377,7 @@ void TerrainObjectManager::loadPreloadedTrucks()
     for (unsigned int i = 0; i < truck_preload.size(); i++)
     {
         Vector3 pos = Vector3(truck_preload[i].px, truck_preload[i].py, truck_preload[i].pz);
-        Beam* b = BeamFactory::getSingleton().CreateLocalRigInstance(
+        Beam* b = terrainManager->GetSimController()->GetBeamFactory()->CreateLocalRigInstance(
             pos,
             truck_preload[i].rotation,
             truck_preload[i].name,

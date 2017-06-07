@@ -36,7 +36,7 @@
 #include "GUI_TopMenubar.h"
 #include "Language.h"
 #include "MainMenu.h"
-#include "Mirrors.h"
+
 #include "Network.h"
 #include "PointColDetector.h"
 #include "RigLoadingProfiler.h"
@@ -143,8 +143,10 @@ unsigned int getNumberOfCPUCores()
     return cores;
 }
 
-BeamFactory::BeamFactory() :
-    m_current_truck(-1)
+using namespace RoR;
+
+BeamFactory::BeamFactory(RoRFrameListener* sim_controller)
+    : m_current_truck(-1)
     , m_dt_remainder(0.0f)
     , m_forced_active(false)
     , m_free_truck(0)
@@ -152,10 +154,11 @@ BeamFactory::BeamFactory() :
     , m_physics_frames(0)
     , m_physics_steps(2000)
     , m_previous_truck(-1)
+    , m_simulated_truck(0)
     , m_simulation_speed(1.0f)
+    , m_sim_controller(sim_controller)
 {
-    for (int t = 0; t < MAX_TRUCKS; t++)
-        m_trucks[t] = 0;
+    memset(m_trucks, 0, MAX_TRUCKS * sizeof(void*));
 
     if (RoR::App::GetAppMultithread())
     {
@@ -197,8 +200,9 @@ BeamFactory::BeamFactory() :
 
 BeamFactory::~BeamFactory()
 {
+    this->SyncWithSimThread(); // Wait for sim task to finish
     delete gEnv->threadPool;
-    m_particle_manager.Shutdown();
+    m_particle_manager.DustManDiscard(gEnv->sceneManager); // TODO: de-globalize SceneManager
 }
 
 #define LOADRIG_PROFILER_CHECKPOINT(ENTRY_ID) rig_loading_profiler.Checkpoint(RoR::RigLoadingProfiler::ENTRY_ID);
@@ -211,7 +215,7 @@ Beam* BeamFactory::CreateLocalRigInstance(
     collision_box_t* spawnbox /* = nullptr */,
     bool ismachine /* = false */,
     const std::vector<Ogre::String>* truckconfig /* = nullptr */,
-    Skin* skin /* = nullptr */,
+    RoR::SkinDef* skin /* = nullptr */,
     bool freePosition, /* = false */
     bool preloaded_with_terrain /* = false */
 )
@@ -229,6 +233,7 @@ Beam* BeamFactory::CreateLocalRigInstance(
     }
 
     Beam* b = new Beam(
+        m_sim_controller,
         truck_num,
         pos,
         rot,
@@ -321,6 +326,7 @@ int BeamFactory::CreateRemoteInstance(RoRnet::TruckStreamRegister* reg)
     }
     RoR::RigLoadingProfiler p; // TODO: Placeholder. Use it
     Beam* b = new Beam(
+        m_sim_controller,
         truck_num,
         pos,
         Quaternion::ZERO,
@@ -799,13 +805,13 @@ void BeamFactory::CleanUpAllTrucks() // Called after simulation finishes
         if (m_trucks[i] == nullptr)
             continue; // This is how things currently work (but not for long...) ~ only_a_ptr, 01/2017
 
-        if (m_current_truck == m_trucks[i]->trucknum)
-        {
-            this->setCurrentTruck(-1);
-        }
         delete m_trucks[i];
         m_trucks[i] = nullptr;
     }
+
+    // Reset to empty value. Do NOT call `setCurrentTruck(-1)` - performs updates which are invalid at this point
+    m_current_truck = -1;
+
     // TEMPORARY: DO !NOT! attempt to reuse slots
     // Yields bad behavior when player disconnects from game where other players had vehicles spawned
     // Upon reconnect, vehicles with flexbodies (tested on Gavril MZR) show up badly deformed and twitching.
@@ -921,23 +927,21 @@ void BeamFactory::setCurrentTruck(int new_truck)
     m_previous_truck = m_current_truck;
     m_current_truck = new_truck;
 
-    auto* frame_listener = RoR::App::GetMainMenu()->GetFrameListener();
-
     if (m_previous_truck >= 0 && m_current_truck >= 0)
     {
-        frame_listener->ChangedCurrentVehicle(m_trucks[m_previous_truck], m_trucks[m_current_truck]);
+        m_sim_controller->ChangedCurrentVehicle(m_trucks[m_previous_truck], m_trucks[m_current_truck]);
     }
     else if (m_previous_truck >= 0)
     {
-        frame_listener->ChangedCurrentVehicle(m_trucks[m_previous_truck], nullptr);
+        m_sim_controller->ChangedCurrentVehicle(m_trucks[m_previous_truck], nullptr);
     }
     else if (m_current_truck >= 0)
     {
-        frame_listener->ChangedCurrentVehicle(nullptr, m_trucks[m_current_truck]);
+        m_sim_controller->ChangedCurrentVehicle(nullptr, m_trucks[m_current_truck]);
     }
     else
     {
-        frame_listener->ChangedCurrentVehicle(nullptr, nullptr);
+        m_sim_controller->ChangedCurrentVehicle(nullptr, nullptr);
     }
 
     this->UpdateSleepingState(0.0f);
@@ -1013,8 +1017,6 @@ void BeamFactory::updateVisual(float dt)
             m_trucks[t]->updateFlares(dt, (t == m_current_truck));
         }
     }
-
-    RoR::Mirrors::Update(getCurrentTruck());
 }
 
 void BeamFactory::update(float dt)

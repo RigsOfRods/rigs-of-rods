@@ -80,7 +80,7 @@ void Disconnect();
 void AddPacket(int streamid, int type, int len, char *content);
 void AddLocalStream(RoRnet::StreamRegister *reg, int size);
 
-void HandleStreamData();
+std::vector<recv_packet_t> GetIncomingStreamData();
 
 int GetUID();
 int GetNetQuality();
@@ -92,6 +92,7 @@ Ogre::UTFString GetUsername();
 RoRnet::UserInfo GetLocalUserData();
 std::vector<RoRnet::UserInfo> GetUserInfos();
 bool GetUserInfo(int uid, RoRnet::UserInfo &result);
+Ogre::ColourValue GetPlayerColor(int color_num);
 
 Ogre::UTFString GetErrorMessage();
 bool CheckError();

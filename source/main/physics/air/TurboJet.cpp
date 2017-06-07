@@ -2,6 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
+    Copyright 2017      Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -23,14 +24,11 @@
 #include <Ogre.h>
 
 #include "BeamData.h"
-#include "MaterialFunctionMapper.h"
-#include "MaterialReplacer.h"
-#include "Skin.h"
 #include "SoundScriptManager.h"
 
 using namespace Ogre;
 
-Turbojet::Turbojet(char* propname, int tnumber, int trucknum, node_t* nd, int tnodefront, int tnodeback, int tnoderef, float tmaxdrythrust, bool treversable, bool tafterburnable, float tafterburnthrust, float diskdiam, float nozdiam, float nozlength, bool disable_smoke, bool _heathaze, MaterialFunctionMapper* mfm, Skin* usedSkin, MaterialReplacer* mr)
+Turbojet::Turbojet(int tnumber, int trucknum, node_t* nd, int tnodefront, int tnodeback, int tnoderef, float tmaxdrythrust, bool treversable, float tafterburnthrust, float diskdiam, bool _heathaze)
 {
     heathaze = _heathaze;
     nodes = nd;
@@ -53,7 +51,7 @@ Turbojet::Turbojet(char* propname, int tnumber, int trucknum, node_t* nd, int tn
     nodeback = tnodeback;
     nodefront = tnodefront;
     noderef = tnoderef;
-    afterburnable = tafterburnable;
+    afterburnable = (tafterburnthrust > 0.f);
     reversable = treversable;
     maxdrythrust = tmaxdrythrust;
     afterburnthrust = tafterburnthrust;
@@ -61,41 +59,26 @@ Turbojet::Turbojet(char* propname, int tnumber, int trucknum, node_t* nd, int tn
     timer = 0;
     warmuptime = 15.0;
     lastflip = 0;
-    radius = nozdiam / 2.0;
     area = 2 * 3.14159 * radius * 0.6 * radius * 0.6;
     exhaust_velocity = 0;
     axis = nodes[nodefront].RelPosition - nodes[nodeback].RelPosition;
     reflen = axis.length();
     axis = axis / reflen;
     reset();
+}
 
-    //setup visuals
-    char paname[256];
-    sprintf(paname, "%s-nozzle", propname);
-    nozzleMesh = gEnv->sceneManager->createEntity(paname, "nozzle.mesh");
-    MaterialFunctionMapper::replaceSimpleMeshMaterials(nozzleMesh, ColourValue(1, 0.5, 0.5));
+void Turbojet::SetupVisuals(std::string const& propname, Ogre::Entity* nozzle, float nozdiam, float nozlength, Ogre::Entity* afterburner_flame, bool disable_smoke)
+{
+    radius = nozdiam / 2.0;
 
-    if (mfm)
-        mfm->replaceMeshMaterials(nozzleMesh);
-    if (mr)
-        mr->replaceMeshMaterials(nozzleMesh);
-    if (usedSkin)
-        usedSkin->replaceMeshMaterials(nozzleMesh);
+    nozzleMesh = nozzle;
     nzsnode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
     nzsnode->attachObject(nozzleMesh);
     nzsnode->setScale(nozlength, nozdiam, nozdiam);
 
-    if (afterburnable)
+    if (afterburner_flame != nullptr)
     {
-        sprintf(paname, "%s-abflame", propname);
-        flameMesh = gEnv->sceneManager->createEntity(paname, "abflame.mesh");
-        MaterialFunctionMapper::replaceSimpleMeshMaterials(flameMesh, ColourValue(1, 1, 0));
-        if (mfm)
-            mfm->replaceMeshMaterials(flameMesh);
-        if (mr)
-            mr->replaceMeshMaterials(flameMesh);
-        if (usedSkin)
-            usedSkin->replaceMeshMaterials(flameMesh);
+        flameMesh = afterburner_flame;
         absnode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
         absnode->attachObject(flameMesh);
         absnode->setScale(1.0, nozdiam, nozdiam);
@@ -109,9 +92,8 @@ Turbojet::Turbojet(char* propname, int tnumber, int trucknum, node_t* nd, int tn
     }
     else
     {
-        sprintf(paname, "%s-smoke", propname);
         smokeNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-        smokePS = gEnv->sceneManager->createParticleSystem(paname, "tracks/TurbopropSmoke");
+        smokePS = gEnv->sceneManager->createParticleSystem("SmokeParticle-"+propname, "tracks/TurbopropSmoke");
         if (smokePS)
         {
             smokePS->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
@@ -122,8 +104,7 @@ Turbojet::Turbojet(char* propname, int tnumber, int trucknum, node_t* nd, int tn
         heathazePS = 0;
         if (heathaze)
         {
-            sprintf(paname, "%s-smoke-heat", propname);
-            heathazePS = gEnv->sceneManager->createParticleSystem(paname, "tracks/JetHeatHaze");
+            heathazePS = gEnv->sceneManager->createParticleSystem("SmokeHeat-"+propname, "tracks/JetHeatHaze");
             smokeNode->attachObject(heathazePS);
             heathazePS->setCastShadows(false);
             heathazePS->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap

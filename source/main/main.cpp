@@ -52,20 +52,19 @@
 #include "InputEngine.h"
 #include "Language.h"
 #include "MumbleIntegration.h"
-#include "Mirrors.h"
+
 #include "Network.h"
 #include "OgreSubsystem.h"
 #include "OverlayWrapper.h"
 #include "OutProtocol.h"
-#include "PlayerColours.h"
+
 #include "RoRFrameListener.h"
 #include "Scripting.h"
 #include "Settings.h"
-#include "Skin.h"
+#include "Skidmark.h"
 #include "SoundScriptManager.h"
 #include "SurveyMapManager.h"
 #include "TerrainManager.h"
-#include "TruckHUD.h"
 #include "Utils.h"
 #include "SkyManager.h"
 
@@ -161,6 +160,7 @@ int main(int argc, char *argv[])
     #endif
 
         App::CreateContentManager();
+        SkidmarkConfig skidmark_conf; // Loads 'skidmark.cfg' in constructor
 
         LanguageEngine::getSingleton().setup();
 
@@ -253,12 +253,6 @@ int main(int argc, char *argv[])
         }
 #endif // _WIN32
 
-        auto* frame_listener = new RoRFrameListener(&force_feedback);
-
-#ifdef USE_ANGELSCRIPT
-        ScriptEngine::getSingleton().SetFrameListener(frame_listener);
-#endif
-
 #ifdef USE_MPLATFORM
 	    m_frame_listener->m_platform = new MPlatform_FD();
 	    if (m_frame_listener->m_platform)
@@ -267,18 +261,9 @@ int main(int argc, char *argv[])
 	    }
 #endif
 
-        frame_listener->windowResized(App::GetOgreSubsystem()->GetRenderWindow());
-        RoRWindowEventUtilities::addWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), frame_listener);
+        RoR::App::GetInputEngine()->windowResized(App::GetOgreSubsystem()->GetRenderWindow());
 
-        // initiate player colours
-        PlayerColours::getSingleton();
-
-        // new factory for characters, net is INVALID, will be set later
-        new CharacterFactory();
-
-        new BeamFactory();
-
-        MainMenu main_obj(frame_listener);
+        MainMenu main_obj;
 
         // ### Main loop (switches application states) ###
 
@@ -317,15 +302,10 @@ int main(int argc, char *argv[])
                     /* Restore wallpaper */
                     menu_wallpaper_widget->setVisible(true);
 
-                    /* Set Mumble to non-positional audio */
 #ifdef USE_MUMBLE
-                    MumbleIntegration::getSingleton().update(
-                        Ogre::Vector3::ZERO,
-                        Ogre::Vector3(0.0f, 0.0f, 1.0f),
-                        Ogre::Vector3(0.0f, 1.0f, 0.0f),
-                        Ogre::Vector3::ZERO,
-                        Ogre::Vector3(0.0f, 0.0f, 1.0f),
-                        Ogre::Vector3(0.0f, 1.0f, 0.0f));
+                    auto* mumble = SoundScriptManager::getSingleton().GetMumble();
+                    if (mumble != nullptr)
+                        mumble->SetNonPositionalAudio();
 #endif // USE_MUMBLE
                 }
 
@@ -350,17 +330,21 @@ int main(int argc, char *argv[])
             }
             else if (App::GetPendingAppState() == App::APP_STATE_SIMULATION)
             {
-                if (frame_listener->SetupGameplayLoop())
                 {
-                    App::SetActiveAppState(App::APP_STATE_SIMULATION);
-                    App::SetPendingAppState(App::APP_STATE_NONE);
-                    App::GetGuiManager()->ReflectGameState();
-                    frame_listener->EnterGameplayLoop();
+                    RoRFrameListener sim_controller(&force_feedback, &skidmark_conf);
+                    if (sim_controller.SetupGameplayLoop())
+                    {
+                        App::SetActiveAppState(App::APP_STATE_SIMULATION);
+                        App::SetPendingAppState(App::APP_STATE_NONE);
+                        App::GetGuiManager()->ReflectGameState();
+                        sim_controller.EnterGameplayLoop();
+                    }
+                    else
+                    {
+                        App::SetPendingAppState(App::APP_STATE_MAIN_MENU);
+                    }
                 }
-                else
-                {
-                    App::SetPendingAppState(App::APP_STATE_MAIN_MENU);
-                }
+                gEnv->sceneManager->clearScene(); // Wipe the scene after RoRFrameListener was destroyed (->cleanups invoked)
             }
             else if (App::GetPendingAppState() == App::APP_STATE_CHANGE_MAP)
             {
@@ -420,8 +404,6 @@ int main(int argc, char *argv[])
         App::DestroyOverlayWrapper();
 
         App::DestroyContentManager();
-
-        delete frame_listener;
 
         delete gEnv->cameraManager;
         gEnv->cameraManager = nullptr;

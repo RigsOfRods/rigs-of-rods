@@ -82,12 +82,12 @@ void GameScript::log(const String& msg)
 
 void GameScript::activateAllVehicles()
 {
-    BeamFactory::getSingleton().activateAllTrucks();
+    mse->GetFrameListener()->GetBeamFactory()->activateAllTrucks();
 }
 
 void GameScript::setTrucksForcedActive(bool forceActive)
 {
-    BeamFactory::getSingleton().setTrucksForcedActive(forceActive);
+    mse->GetFrameListener()->GetBeamFactory()->setTrucksForcedActive(forceActive);
 }
 
 double GameScript::getTime()
@@ -106,8 +106,8 @@ void GameScript::setPersonPosition(const Vector3& vec)
 
 void GameScript::loadTerrain(const String& terrain)
 {
-    RoR::App::SetSimNextTerrain(terrain);
-    RoR::App::GetMainMenu()->GetFrameListener()->LoadTerrain();
+    App::SetSimNextTerrain(terrain);
+    mse->GetFrameListener()->LoadTerrain();
 }
 
 Vector3 GameScript::getPersonPosition()
@@ -205,7 +205,7 @@ float GameScript::getWaterHeight()
 
 Beam* GameScript::getCurrentTruck()
 {
-    return BeamFactory::getSingleton().getCurrentTruck();
+    return mse->GetFrameListener()->GetBeamFactory()->getCurrentTruck();
 }
 
 float GameScript::getGravity()
@@ -220,20 +220,20 @@ void GameScript::setGravity(float value)
 
 Beam* GameScript::getTruckByNum(int num)
 {
-    return BeamFactory::getSingleton().getTruck(num);
+    return mse->GetFrameListener()->GetBeamFactory()->getTruck(num);
 }
 
 int GameScript::getNumTrucks()
 {
-    return BeamFactory::getSingleton().getTruckCount();
+    return mse->GetFrameListener()->GetBeamFactory()->getTruckCount();
 }
 
 int GameScript::getNumTrucksByFlag(int flag)
 {
     int result = 0;
-    for (int i = 0; i < BeamFactory::getSingleton().getTruckCount(); i++)
+    for (int i = 0; i < mse->GetFrameListener()->GetBeamFactory()->getTruckCount(); i++)
     {
-        Beam* truck = BeamFactory::getSingleton().getTruck(i);
+        Beam* truck = mse->GetFrameListener()->GetBeamFactory()->getTruck(i);
         if (!truck && !flag)
             result++;
         if (!truck)
@@ -246,7 +246,7 @@ int GameScript::getNumTrucksByFlag(int flag)
 
 int GameScript::getCurrentTruckNumber()
 {
-    return BeamFactory::getSingleton().getCurrentTruckNumber();
+    return mse->GetFrameListener()->GetBeamFactory()->getCurrentTruckNumber();
 }
 
 void GameScript::registerForEvent(int eventValue)
@@ -324,12 +324,12 @@ void GameScript::showChooser(const String& type, const String& instance, const S
 
 void GameScript::repairVehicle(const String& instance, const String& box, bool keepPosition)
 {
-    BeamFactory::getSingleton().repairTruck(gEnv->collisions, instance, box, keepPosition);
+    mse->GetFrameListener()->GetBeamFactory()->repairTruck(gEnv->collisions, instance, box, keepPosition);
 }
 
 void GameScript::removeVehicle(const String& instance, const String& box)
 {
-    BeamFactory::getSingleton().removeTruck(gEnv->collisions, instance, box);
+    mse->GetFrameListener()->GetBeamFactory()->removeTruck(gEnv->collisions, instance, box);
 }
 
 void GameScript::destroyObject(const String& instanceName)
@@ -720,12 +720,11 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
     curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "MP_NetworkEnabled", CURLFORM_COPYCONTENTS, (mp_connected) ? "Yes" : "No", CURLFORM_END);
     curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "APIProtocolVersion", CURLFORM_COPYCONTENTS, "2", CURLFORM_END);
 
-    if (BeamFactory::getSingleton().getCurrentTruck())
+    if (mse->GetFrameListener()->GetBeamFactory()->getCurrentTruck())
     {
-        Beam* truck = BeamFactory::getSingleton().getCurrentTruck();
+        Beam* truck = mse->GetFrameListener()->GetBeamFactory()->getCurrentTruck();
         curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "Truck_Name", CURLFORM_COPYCONTENTS, truck->getTruckName().c_str(), CURLFORM_END);
         curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "Truck_FileName", CURLFORM_COPYCONTENTS, truck->getTruckFileName().c_str(), CURLFORM_END);
-        curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "Truck_Hash", CURLFORM_COPYCONTENTS, truck->getTruckHash().c_str(), CURLFORM_END);
 
         // look for any locked trucks
         int i = 0;
@@ -738,8 +737,6 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
                 curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, name.c_str(), CURLFORM_COPYCONTENTS, trailer->getTruckName().c_str(), CURLFORM_END);
                 String filename = "Trailer_" + TOSTRING(i) + "_FileName";
                 curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, filename.c_str(), CURLFORM_COPYCONTENTS, trailer->getTruckFileName().c_str(), CURLFORM_END);
-                String hash = "Trailer_" + TOSTRING(i) + "_Hash";
-                curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, hash.c_str(), CURLFORM_COPYCONTENTS, trailer->getTruckHash().c_str(), CURLFORM_END);
             }
         }
         curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "Trailer_Count", CURLFORM_COPYCONTENTS, TOSTRING(i).c_str(), CURLFORM_END);
@@ -890,7 +887,7 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
 void GameScript::boostCurrentTruck(float factor)
 {
     // add C++ code here
-    Beam* b = BeamFactory::getSingleton().getCurrentTruck();
+    Beam* b = mse->GetFrameListener()->GetBeamFactory()->getCurrentTruck();
     if (b && b->engine)
     {
         float rpm = b->engine->getRPM();
@@ -939,7 +936,7 @@ int GameScript::sendGameCmd(const String& message)
 
 VehicleAI* GameScript::getCurrentTruckAI()
 {
-    Beam* b = BeamFactory::getSingleton().getCurrentTruck();
+    Beam* b = mse->GetFrameListener()->GetBeamFactory()->getCurrentTruck();
     if (b)
         return b->vehicle_ai;
     return nullptr;
@@ -947,7 +944,7 @@ VehicleAI* GameScript::getCurrentTruckAI()
 
 VehicleAI* GameScript::getTruckAIByNum(int num)
 {
-    Beam* b = BeamFactory::getSingleton().getTruck(num);
+    Beam* b = mse->GetFrameListener()->GetBeamFactory()->getTruck(num);
     if (b)
         return b->vehicle_ai;
     return nullptr;
@@ -956,7 +953,7 @@ VehicleAI* GameScript::getTruckAIByNum(int num)
 Beam* GameScript::spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot)
 {
     Ogre::Quaternion rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
-    return BeamFactory::getSingleton().CreateLocalRigInstance(pos, rotation, truckName);
+    return mse->GetFrameListener()->GetBeamFactory()->CreateLocalRigInstance(pos, rotation, truckName);
 }
 
 void GameScript::showMessageBox(Ogre::String& mTitle, Ogre::String& mText, bool button1, Ogre::String& mButton1, bool AllowClose, bool button2, Ogre::String& mButton2)

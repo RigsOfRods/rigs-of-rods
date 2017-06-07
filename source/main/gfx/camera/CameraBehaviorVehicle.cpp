@@ -66,7 +66,7 @@ void CameraBehaviorVehicle::activate(const CameraManager::CameraContext &ctx, bo
 	{
 		this->reset(ctx);
 	}
-	ctx.mCurrTruck->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_VEHICLE_3rdPERSON;
+	ctx.mCurrTruck->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_3rdPERSON;
 }
 
 void CameraBehaviorVehicle::reset(const CameraManager::CameraContext &ctx)

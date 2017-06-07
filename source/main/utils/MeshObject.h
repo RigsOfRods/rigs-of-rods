@@ -32,20 +32,18 @@
 class MeshObject : public Ogre::ResourceBackgroundQueue::Listener, public Ogre::Resource::Listener, public ZeroedMemoryAllocator
 {
 public:
-    MeshObject(Ogre::String meshName, Ogre::String entityName, Ogre::SceneNode* sceneNode = 0, Skin* s = 0, bool backgroundLoading = false);
+    MeshObject(Ogre::String meshName, Ogre::String entityName, Ogre::SceneNode* sceneNode = 0, bool backgroundLoading = false);
     ~MeshObject();
 
-    void setSimpleMaterialColour(Ogre::ColourValue c);
-    void setMaterialFunctionMapper(MaterialFunctionMapper* m, MaterialReplacer* mr);
     void setMaterialName(Ogre::String m);
     void setCastShadows(bool b);
     void setMeshEnabled(bool e);
     void setVisible(bool b);
-    Ogre::MeshPtr getMesh() { return mesh; };
-    Ogre::Entity* getEntity() { return ent; };
+    inline Ogre::MeshPtr    getMesh() { return mesh; };
+    inline Ogre::Entity*    getEntity() { return ent; };
+    inline Ogre::SceneNode* GetSceneNode() { return sceneNode; }
 
 protected:
-    MaterialReplacer* mr;
     Ogre::String meshName;
     Ogre::String entityName;
     Ogre::SceneNode* sceneNode;
@@ -55,12 +53,8 @@ protected:
     bool backgroundLoading;
     bool loaded;
 
-    Ogre::ColourValue simpleMatColour;
-    bool enableSimpleMaterial;
     Ogre::String materialName;
-    Skin* skin;
     bool castshadows;
-    MaterialFunctionMapper* mfm;
     bool enabled;
     bool visible;
 

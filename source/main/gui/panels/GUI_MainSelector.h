@@ -45,7 +45,7 @@ public:
     void Cancel();
 
     CacheEntry* GetSelectedEntry() { return m_selected_entry; }
-    Skin* GetSelectedSkin() { return m_selected_skin; }
+    RoR::SkinDef* GetSelectedSkin() { return m_selected_skin; }
     std::vector<Ogre::String> GetVehicleConfigs() { return m_vehicle_configs; }
 
 private:
@@ -80,11 +80,11 @@ private:
     CacheEntry* m_selected_entry;
     LoaderType m_loader_type;
     Ogre::String m_preview_image_texture;
-    Skin* m_selected_skin;
+    RoR::SkinDef* m_selected_skin;
     bool m_selection_done;
     std::vector<CacheEntry> m_entries;
     std::vector<Ogre::String> m_vehicle_configs;
-    std::vector<Skin *> m_current_skins;
+    std::vector<RoR::SkinDef *> m_current_skins;
     bool m_keys_bound;
     RoR::SkinManager* m_skin_manager;
 };

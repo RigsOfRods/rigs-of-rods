@@ -12,6 +12,7 @@ set( SOURCE_FILES
   GlobalEnvironment.h
   MainMenu.{h,cpp}
   RoRPrerequisites.h
+  audio/MumbleIntegration.{h,cpp}  
   audio/Sound.{h,cpp}
   audio/SoundManager.{h,cpp}
   audio/SoundScriptManager.{h,cpp}
@@ -28,9 +29,7 @@ set( SOURCE_FILES
   gameplay/ChatSystem.{h,cpp}
   gameplay/Landusemap.{h,cpp}
   gameplay/LandVehicleSimulation.{h,cpp}
-  gameplay/MaterialReplacer.{h,cpp}
   gameplay/OutProtocol.{h,cpp}
-  gameplay/PlayerColours.{h,cpp}
   gameplay/PositionStorage.{h,cpp}
   gameplay/ProceduralManager.{h,cpp}
   gameplay/Replay.{h,cpp}
@@ -40,7 +39,6 @@ set( SOURCE_FILES
   gameplay/SceneMouse.{h,cpp}
   gameplay/ScriptEvents.h
   gameplay/Scripting.h
-  gameplay/Skin.{h,cpp}
   gameplay/SkinManager.{h,cpp}
   gameplay/TorqueCurve.{h,cpp}
   gameplay/VehicleAI.{h,cpp}
@@ -53,19 +51,17 @@ set( SOURCE_FILES
   gfx/DynamicLines.{h,cpp}
   gfx/DynamicRenderable.{h,cpp}
   gfx/EnvironmentMap.{h,cpp}
+  gfx/GfxActor.{h,cpp}
   gfx/GlowMaterialListener.h
   gfx/HDRListener.{h,cpp}
   gfx/Heathaze.{h,cpp}
   gfx/HydraxWater.{h,cpp}
   gfx/IWater.h
-  gfx/MaterialFunctionMapper.{h,cpp}
-  gfx/Mirrors.{h,cpp}
   gfx/MovableText.{h,cpp}
   gfx/OgreSubsystem.{h,cpp}
   gfx/ShadowManager.{h,cpp}
   gfx/Skidmark.{h,cpp}
   gfx/SkyManager.{h,cpp}
-  gfx/VideoCamera.{h,cpp}
   gfx/Water.{h,cpp}
   gfx/camera/CameraBehaviorCharacter.{h,cpp}
   gfx/camera/CameraBehaviorFixed.{h,cpp}
@@ -115,7 +111,6 @@ set( SOURCE_FILES
   gui/GUIManager.{h,cpp}
   gui/OverlayWrapper.{h,cpp}
   gui/RTTLayer.{h,cpp}
-  gui/TruckHUD.{h,cpp}
   gui/mygui/Attribute.h
   gui/mygui/BaseLayout.h
   gui/mygui/Dialog.{h,cpp}
@@ -217,13 +212,11 @@ set( SOURCE_FILES
   utils/FileSystemInfo.h
   utils/ForceFeedback.{h,cpp}
   utils/IBehavior.h
-  utils/IBehaviorManager.h
   utils/ImprovedConfigFile.h
   utils/InputEngine.{h,cpp}
   utils/InterThreadStoreVector.h
   utils/Language.{h,cpp}
   utils/MeshObject.{h,cpp}
-  utils/MumbleIntegration.{h,cpp}
   utils/PlatformUtils.{h,cpp}
   utils/RoRWindowEventUtilities.{h,cpp}
   utils/Settings.{h,cpp}

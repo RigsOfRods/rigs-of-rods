@@ -131,9 +131,9 @@ public:
 
     static Ogre::String getRandomWallpaperImage();
 
-private:
+    void SetSimController(RoRFrameListener* sim);
 
-    bool create();
+private:
 
     virtual bool frameStarted(const Ogre::FrameEvent& _evt);
     virtual bool frameEnded(const Ogre::FrameEvent& _evt);

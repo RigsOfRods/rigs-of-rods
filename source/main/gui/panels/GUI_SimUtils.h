@@ -68,8 +68,7 @@ private:
     bool b_truckinfo;
     bool b_notification;
 
-    //taken from TruckHUD.h
-    std::map<int, float> avVelos;
+    // taken from truckHUD.h (now removed). TODO: Cleanup
     std::map<int, float> maxNegLatG;
     std::map<int, float> maxNegSagG;
     std::map<int, float> maxNegVerG;

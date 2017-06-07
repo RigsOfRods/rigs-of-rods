@@ -45,6 +45,7 @@
 #include "CartesianToTriangleTransform.h"
 #include "CmdKeyInertia.h"
 #include "Collisions.h"
+#include "GfxActor.h"
 #include "GUI_GameConsole.h"
 #include "DashBoardManager.h"
 #include "Differentials.h"
@@ -58,9 +59,8 @@
 #include "IHeightFinder.h"
 #include "InputEngine.h"
 #include "Language.h"
-#include "MaterialReplacer.h"
 #include "MeshObject.h"
-#include "Mirrors.h"
+
 #include "MovableText.h"
 #include "Network.h"
 #include "PointColDetector.h"
@@ -68,6 +68,7 @@
 #include "Replay.h"
 #include "RigLoadingProfiler.h"
 #include "RigSpawner.h"
+#include "RoRFrameListener.h"
 #include "ScrewProp.h"
 #include "Scripting.h"
 #include "Settings.h"
@@ -80,7 +81,6 @@
 #include "TurboJet.h"
 #include "TurboProp.h"
 #include "VehicleAI.h"
-#include "VideoCamera.h"
 #include "Water.h"
 #include "GUIManager.h"
 
@@ -134,12 +134,22 @@ Beam::~Beam()
     if (fuseAirfoil)
         delete fuseAirfoil;
     fuseAirfoil = 0;
-    if (cabMesh)
-        delete cabMesh;
-    cabMesh = 0;
-    if (materialFunctionMapper)
-        delete materialFunctionMapper;
-    materialFunctionMapper = 0;
+
+    if (cabMesh != nullptr)
+    {
+        this->fadeMesh(cabNode, 1.f); // Reset transparency of "skeleton view"
+
+        cabNode->detachAllObjects();
+        cabNode->getParentSceneNode()->removeAndDestroyChild(cabNode->getName());
+        cabNode = nullptr;
+
+        cabEntity->_getManager()->destroyEntity(cabEntity);
+        cabEntity = nullptr;
+
+        delete cabMesh; // Unloads the ManualMesh resource; do this last
+        cabMesh = nullptr;
+    }
+
     if (replay)
         delete replay;
     replay = 0;
@@ -173,8 +183,6 @@ Beam::~Beam()
         }
         deletion_Entities.clear();
     }
-
-    // delete skidmarks as well?!
 
     // delete wings
     for (int i = 0; i < free_wing; i++)
@@ -229,9 +237,12 @@ Beam::~Beam()
         }
     }
 
-    // delete cablight
-    if (cablight)
-        gEnv->sceneManager->destroyLight(cablight);
+    // delete skidmarks
+    for (int i = 0; i < free_wheel; ++i)
+    {
+        delete skidtrails[i];
+        skidtrails[i] = nullptr;
+    }
 
     // delete props
     for (int i = 0; i < free_prop; i++)
@@ -341,14 +352,6 @@ Beam::~Beam()
         netMT = 0;
     }
 
-    for (VideoCamera* v : vidcams)
-    {
-        delete v;
-    }
-
-    if (materialReplacer)
-        delete materialReplacer;
-
     if (intraPointCD)
         delete intraPointCD;
     if (interPointCD)
@@ -430,7 +433,7 @@ void Beam::scaleTruck(float value)
     }
     // tell the cabmesh that resizing is ok, and they dont need to break ;)
     if (cabMesh)
-        cabMesh->scale(value);
+        cabMesh->ScaleFlexObj(value);
     // update engine values
     if (engine)
     {
@@ -987,8 +990,8 @@ void Beam::determineLinkedBeams()
     std::pair<std::map<Beam*, bool>::iterator, bool> ret;
 
     lookup_table.insert(std::pair<Beam*, bool>(this, false));
-
-    auto interTruckLinks = BeamFactory::getSingleton().interTruckLinks;
+    
+    auto interTruckLinks = m_sim_controller->GetBeamFactory()->interTruckLinks;
 
     while (found)
     {
@@ -1057,8 +1060,8 @@ Vector3 Beam::calculateCollisionOffset(Vector3 direction)
     Real max_distance = direction.length();
     direction.normalise();
 
-    Beam** trucks = BeamFactory::getSingleton().getTrucks();
-    int trucksnum = BeamFactory::getSingleton().getTruckCount();
+    Beam** trucks = m_sim_controller->GetBeamFactory()->getTrucks();
+    int trucksnum = m_sim_controller->GetBeamFactory()->getTruckCount();
 
     if (intraPointCD)
         intraPointCD->update(this, true);
@@ -1809,17 +1812,6 @@ void Beam::updateAngelScriptEvents(float dt)
         ScriptEngine::getSingleton().triggerEvent(SE_TRUCK_TOUCHED_WATER, trucknum);
     }
 #endif // USE_ANGELSCRIPT
-}
-
-void Beam::updateVideocameras(float dt)
-{
-    if (m_is_videocamera_disabled)
-        return;
-
-    for (VideoCamera* v : vidcams)
-    {
-        v->update(dt);
-    }
 }
 
 void Beam::handleResetRequests(float dt)
@@ -2846,11 +2838,6 @@ void Beam::updateSkidmarks()
         // ignore wheels without data
         if (wheels[i].lastContactInner == Vector3::ZERO && wheels[i].lastContactOuter == Vector3::ZERO)
             continue;
-        // create skidmark object for wheels with data if not existing
-        if (!skidtrails[i])
-        {
-            skidtrails[i] = new Skidmark(&wheels[i], beamsRoot, 300, 20);
-        }
 
         skidtrails[i]->updatePoint();
         if (skidtrails[i] && wheels[i].isSkiding)
@@ -2944,12 +2931,6 @@ void Beam::prepareInside(bool inside)
 
     if (inside)
     {
-        if (lights && cablightNode && cablight)
-        {
-            cablightNode->setVisible(true);
-            cablight->setVisible(true);
-        }
-
         mCamera->setNearClipDistance(0.1f);
 
         // enable transparent seat
@@ -2964,12 +2945,6 @@ void Beam::prepareInside(bool inside)
             dash->setVisible(false);
         }
 
-        if (cablightNode && cablight)
-        {
-            cablightNode->setVisible(false);
-            cablight->setVisible(false);
-        }
-
         mCamera->setNearClipDistance(0.5f);
 
         // disable transparent seat
@@ -2978,20 +2953,15 @@ void Beam::prepareInside(bool inside)
         seatmat->setSceneBlending(SBT_REPLACE);
     }
 
-    if (cabNode)
+    if (cabNode != nullptr)
     {
-        char transmatname[256];
-        sprintf(transmatname, "%s-trans", texname);
-        MaterialPtr transmat = (MaterialPtr)(MaterialManager::getSingleton().getByName(transmatname));
-        transmat->setReceiveShadows(!inside);
+        m_gfx_actor->GetCabTransMaterial()->setReceiveShadows(!inside);
     }
 
     if (shadowOptimizations)
     {
         SetPropsCastShadows(!inside);
     }
-
-    RoR::Mirrors::SetActive(inside);
 }
 
 void Beam::lightsToggle()
@@ -3000,11 +2970,11 @@ void Beam::lightsToggle()
     if (m_skeletonview_is_active)
         return;
 
-    Beam** trucks = BeamFactory::getSingleton().getTrucks();
-    int trucksnum = BeamFactory::getSingleton().getTruckCount();
+    Beam** trucks = m_sim_controller->GetBeamFactory()->getTrucks();
+    int trucksnum = m_sim_controller->GetBeamFactory()->getTruckCount();
 
     // export light command
-    Beam* current_truck = BeamFactory::getSingleton().getCurrentTruck();
+    Beam* current_truck = m_sim_controller->GetBeamFactory()->getCurrentTruck();
     if (state == SIMULATED && this == current_truck && forwardcommands)
     {
         for (int i = 0; i < trucksnum; i++)
@@ -3014,8 +2984,6 @@ void Beam::lightsToggle()
         }
     }
     lights = !lights;
-    if (cablight && cablightNode && isInside)
-        cablightNode->setVisible((lights != 0));
     if (!lights)
     {
         for (int i = 0; i < free_flare; i++)
@@ -3028,23 +2996,6 @@ void Beam::lightsToggle()
                 if (flares[i].light)
                     flares[i].light->setVisible(false);
                 flares[i].isVisible = false;
-            }
-        }
-        if (hasEmissivePass)
-        {
-            char clomatname[256] = {};
-            sprintf(clomatname, "%s-noem", texname);
-            if (cabNode && cabNode->numAttachedObjects())
-            {
-                Entity* ent = ((Entity*)(cabNode->getAttachedObject(0)));
-                int numsubent = ent->getNumSubEntities();
-                for (int i = 0; i < numsubent; i++)
-                {
-                    SubEntity* subent = ent->getSubEntity(i);
-                    if (!strcmp((subent->getMaterialName()).c_str(), texname))
-                        subent->setMaterialName(clomatname);
-                }
-                //			((Entity*)(cabNode->getAttachedObject(0)))->setMaterialName(clomatname);
             }
         }
     }
@@ -3061,24 +3012,9 @@ void Beam::lightsToggle()
                     flares[i].snode->attachObject(flares[i].bbs);
             }
         }
-        if (hasEmissivePass)
-        {
-            char clomatname[256] = {};
-            sprintf(clomatname, "%s-noem", texname);
-            if (cabNode && cabNode->numAttachedObjects())
-            {
-                Entity* ent = ((Entity*)(cabNode->getAttachedObject(0)));
-                int numsubent = ent->getNumSubEntities();
-                for (int i = 0; i < numsubent; i++)
-                {
-                    SubEntity* subent = ent->getSubEntity(i);
-                    if (!strcmp((subent->getMaterialName()).c_str(), clomatname))
-                        subent->setMaterialName(texname);
-                }
-                //			((Entity*)(cabNode->getAttachedObject(0)))->setMaterialName(texname);
-            }
-        }
     }
+
+    m_gfx_actor->SetCabLightsActive(lights != 0);
 
     TRIGGER_EVENT(SE_TRUCK_LIGHT_TOGGLE, trucknum);
 }
@@ -3275,12 +3211,12 @@ void Beam::updateFlares(float dt, bool isCurrent)
         {
             flares[i].blinkdelay_state = true;
         }
-        //LOG(TOSTRING(flares[i].blinkdelay_curr));
+
         // manage light states
         bool isvisible = true; //this must be true to be able to switch on the frontlight
         if (flares[i].type == 'f')
         {
-            materialFunctionMapper->toggleFunction(i, (lights == 1));
+            m_gfx_actor->SetMaterialFlareOn(i, (lights == 1));
             if (!lights)
                 continue;
         }
@@ -3297,7 +3233,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
         }
         else if (flares[i].type == 'u' && flares[i].controlnumber != -1)
         {
-            if (state == SIMULATED && this == BeamFactory::getSingleton().getCurrentTruck()) // no network!!
+            if (state == SIMULATED && this == m_sim_controller->GetBeamFactory()->getCurrentTruck()) // no network!!
             {
                 // networked customs are set directly, so skip this
                 if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_LIGHTTOGGLE01 + (flares[i].controlnumber - 1)) && mTimeUntilNextToggle <= 0)
@@ -3348,9 +3284,8 @@ void Beam::updateFlares(float dt, bool isCurrent)
             dash->setBool(DD_SIGNAL_TURNLEFT, isvisible);
         }
 
-        //left_blink_on, right_blink_on, warn_blink_on;
         // update material Bindings
-        materialFunctionMapper->toggleFunction(i, isvisible);
+        m_gfx_actor->SetMaterialFlareOn(i, isvisible);
 
         flares[i].snode->setVisible(isvisible);
         if (flares[i].light)
@@ -3556,7 +3491,7 @@ void Beam::updateFlexbodiesPrepare()
     BES_GFX_START(BES_GFX_updateFlexBodies);
 
     if (cabNode && cabMesh)
-        cabNode->setPosition(cabMesh->flexit());
+        cabNode->setPosition(cabMesh->UpdateFlexObj());
 
     if (gEnv->threadPool)
     {
@@ -4183,7 +4118,7 @@ void Beam::addInterTruckBeam(beam_t* beam, Beam* a, Beam* b)
     }
 
     std::pair<Beam*, Beam*> truck_pair(a, b);
-    BeamFactory::getSingleton().interTruckLinks[beam] = truck_pair;
+    m_sim_controller->GetBeamFactory()->interTruckLinks[beam] = truck_pair;
 
     a->determineLinkedBeams();
     for (auto truck : a->linkedBeams)
@@ -4202,11 +4137,11 @@ void Beam::removeInterTruckBeam(beam_t* beam)
         interTruckBeams.erase(pos);
     }
 
-    auto it = BeamFactory::getSingleton().interTruckLinks.find(beam);
-    if (it != BeamFactory::getSingleton().interTruckLinks.end())
+    auto it = m_sim_controller->GetBeamFactory()->interTruckLinks.find(beam);
+    if (it != m_sim_controller->GetBeamFactory()->interTruckLinks.end())
     {
         auto truck_pair = it->second;
-        BeamFactory::getSingleton().interTruckLinks.erase(it);
+        m_sim_controller->GetBeamFactory()->interTruckLinks.erase(it);
 
         truck_pair.first->determineLinkedBeams();
         for (auto truck : truck_pair.first->linkedBeams)
@@ -4221,7 +4156,7 @@ void Beam::removeInterTruckBeam(beam_t* beam)
 void Beam::disjoinInterTruckBeams()
 {
     interTruckBeams.clear();
-    auto interTruckLinks = &BeamFactory::getSingleton().interTruckLinks;
+    auto interTruckLinks = &m_sim_controller->GetBeamFactory()->interTruckLinks;
     for (auto it = interTruckLinks->begin(); it != interTruckLinks->end();)
     {
         auto truck_pair = it->second;
@@ -4248,11 +4183,11 @@ void Beam::disjoinInterTruckBeams()
 
 void Beam::tieToggle(int group)
 {
-    Beam** trucks = BeamFactory::getSingleton().getTrucks();
-    int trucksnum = BeamFactory::getSingleton().getTruckCount();
+    Beam** trucks = m_sim_controller->GetBeamFactory()->getTrucks();
+    int trucksnum = m_sim_controller->GetBeamFactory()->getTruckCount();
 
     // export tie commands
-    Beam* current_truck = BeamFactory::getSingleton().getCurrentTruck();
+    Beam* current_truck = m_sim_controller->GetBeamFactory()->getCurrentTruck();
     if (state == SIMULATED && this == current_truck && forwardcommands)
     {
         for (int i = 0; i < trucksnum; i++)
@@ -4372,8 +4307,8 @@ void Beam::tieToggle(int group)
 
 void Beam::ropeToggle(int group)
 {
-    Beam** trucks = BeamFactory::getSingleton().getTrucks();
-    int trucksnum = BeamFactory::getSingleton().getTruckCount();
+    Beam** trucks = m_sim_controller->GetBeamFactory()->getTrucks();
+    int trucksnum = m_sim_controller->GetBeamFactory()->getTruckCount();
 
     // iterate over all ropes
     for (std::vector<rope_t>::iterator it = ropes.begin(); it != ropes.end(); it++)
@@ -4441,8 +4376,8 @@ void Beam::ropeToggle(int group)
 
 void Beam::hookToggle(int group, hook_states mode, int node_number)
 {
-    Beam** trucks = BeamFactory::getSingleton().getTrucks();
-    int trucksnum = BeamFactory::getSingleton().getTruckCount();
+    Beam** trucks = m_sim_controller->GetBeamFactory()->getTrucks();
+    int trucksnum = m_sim_controller->GetBeamFactory()->getTruckCount();
 
     // iterate over all hooks
     for (std::vector<hook_t>::iterator it = hooks.begin(); it != hooks.end(); it++)
@@ -5608,6 +5543,7 @@ void Beam::engineTriggerHelper(int engineNumber, int type, float triggerValue)
 }
 
 Beam::Beam(
+    RoRFrameListener* sim_controller,
     int truck_number,
     Ogre::Vector3 pos,
     Ogre::Quaternion rot,
@@ -5618,13 +5554,13 @@ Beam::Beam(
     collision_box_t* spawnbox, /* = nullptr */
     bool ismachine, /* = false  */
     const std::vector<Ogre::String>* truckconfig, /* = nullptr */
-    Skin* skin, /* = nullptr */
+    RoR::SkinDef* skin, /* = nullptr */
     bool freeposition, /* = false */
     bool preloaded_with_terrain, /* = false */
     int cache_entry_number /* = -1 */
-) :
-
-    GUIFeaturesChanged(false)
+) 
+    : GUIFeaturesChanged(false)
+    , m_sim_controller(sim_controller)
     , aileron(0)
     , avichatter_timer(11.0f) // some pseudo random number,  doesn't matter
     , m_beacon_light_is_active(false)
@@ -5674,7 +5610,6 @@ Beam::Beam(
     , m_custom_camera_node(-1)
     , m_hide_own_net_label(BSETTING("HideOwnNetLabel", false))
     , m_is_cinecam_rotation_center(false)
-    , m_is_videocamera_disabled(false)
     , m_preloaded_with_terrain(preloaded_with_terrain)
     , m_request_skeletonview_change(0)
     , m_reset_request(REQUEST_RESET_NONE)
@@ -5734,8 +5669,6 @@ Beam::Beam(
     networking = _networking;
     memset(truckname, 0, 256);
     sprintf(truckname, "t%i", truck_number);
-    memset(uniquetruckid, 0, 256);
-    strcpy(uniquetruckid, "-1");
     driveable = NOT_DRIVEABLE;
     if (ismachine)
     {
@@ -6039,7 +5972,7 @@ bool Beam::LoadTruck(
 
     LOG(" == Spawning vehicle: " + parser.GetFile()->name);
 
-    RigSpawner spawner;
+    RigSpawner spawner(m_sim_controller);
     spawner.Setup(this, parser.GetFile(), parent_scene_node, spawn_position, cache_entry_number);
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_SPAWNER_SETUP);
     /* Setup modules */
@@ -6401,11 +6334,6 @@ int Beam::getTruckType()
     return driveable;
 }
 
-std::string Beam::getTruckHash()
-{
-    return beamHash;
-}
-
 std::vector<authorinfo_t> Beam::getAuthors()
 {
     return authors;
@@ -6424,11 +6352,6 @@ int Beam::getBeamCount()
 beam_t* Beam::getBeams()
 {
     return beams;
-}
-
-float Beam::getDefaultDeformation()
-{
-    return default_deform;
 }
 
 int Beam::getNodeCount()

@@ -23,11 +23,10 @@
 #include "RoRPrerequisites.h"
 
 #include "IBehavior.h"
-#include "IBehaviorManager.h"
 
 #include <OIS.h>
 
-class CameraManager : public IBehaviorManager
+class CameraManager
 {
     friend class RoR::SceneMouse;
 
@@ -48,6 +47,7 @@ public:
         Ogre::Radian fovInternal;
         Ogre::Radian fovExternal;
         bool mDebug;
+        float mSimSpeed;
     };
 
     enum CameraBehaviors
@@ -63,10 +63,7 @@ public:
         CAMERA_BEHAVIOR_ISOMETRIC
     };
 
-    /**
-    * TIGHT-LOOP; Called once per frame.
-    */
-    bool update(float dt);
+    bool Update(float dt, Beam* cur_truck, float sim_speed);
 
     void switchBehavior(int newBehavior, bool reset = true);
     void switchToNextBehavior(bool force = true);
@@ -82,6 +79,7 @@ public:
     void OnReturnToMainMenu();
     void NotifyContextChange();
     void NotifyVehicleChanged(Beam* old_vehicle, Beam* new_vehicle);
+    void SetSimController(RoRFrameListener* sim);
 
 protected:
 

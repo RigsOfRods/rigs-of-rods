@@ -29,7 +29,7 @@
 #include "GUIManager.h"
 #include "Language.h"
 #include "Network.h"
-#include "PlayerColours.h"
+#include "RoRFrameListener.h"
 
 using namespace RoR;
 using namespace GUI;
@@ -176,7 +176,7 @@ void MpClientList::updateSlot(player_row_t* row, RoRnet::UserInfo c, bool self)
     int y = row->playername->getPosition().top;
     // name
     row->playername->setCaption(c.username);
-    ColourValue col = PlayerColours::getSingleton().getColour(c.colournum);
+    ColourValue col = Networking::GetPlayerColor(c.colournum);
     row->playername->setTextColour(MyGUI::Colour(col.r, col.g, col.b, col.a));
     row->playername->setVisible(true);
     x -= 18;
@@ -244,7 +244,7 @@ void MpClientList::updateSlot(player_row_t* row, RoRnet::UserInfo c, bool self)
         row->userTruckOKRemoteImg->setPosition(x, y);
         x -= 10;
 
-        int ok = BeamFactory::getSingleton().checkStreamsOK(c.uniqueid);
+        int ok = m_sim_controller->GetBeamFactory()->checkStreamsOK(c.uniqueid);
         if (ok == 0)
         {
             row->userTruckOKImg->setImageTexture("arrow_down_red.png");
@@ -264,7 +264,7 @@ void MpClientList::updateSlot(player_row_t* row, RoRnet::UserInfo c, bool self)
             row->userTruckOKImg->setUserString("tooltip", tmp.asUTF8());
         }
 
-        int rok = BeamFactory::getSingleton().checkStreamsRemoteOK(c.uniqueid);
+        int rok = m_sim_controller->GetBeamFactory()->checkStreamsRemoteOK(c.uniqueid);
         if (rok == 0)
         {
             row->userTruckOKRemoteImg->setImageTexture("arrow_up_red.png");

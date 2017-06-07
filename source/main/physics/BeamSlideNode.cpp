@@ -27,12 +27,13 @@
 
 #include "Beam.h"
 #include "BeamFactory.h"
+#include "RoRFrameListener.h"
 
 // ug... BAD PERFORMNCE, BAD!!
 void Beam::toggleSlideNodeLock()
 {
-    int trucksnum = BeamFactory::getSingleton().getTruckCount();
-    int curTruck = BeamFactory::getSingleton().getCurrentTruckNumber();
+    int trucksnum = m_sim_controller->GetBeamFactory()->getTruckCount();
+    int curTruck = m_sim_controller->GetBeamFactory()->getCurrentTruckNumber();
 
     // for every slide node on this truck
     for (std::vector<SlideNode>::iterator itNode = mSlideNodes.begin(); itNode != mSlideNodes.end(); itNode++)
@@ -58,7 +59,7 @@ void Beam::toggleSlideNodeLock()
                 (curTruck == i && itNode->getAttachRule(ATTACH_SELF))))
                 continue;
 
-            current = getClosestRailOnTruck(BeamFactory::getSingleton().getTruck(i), (*itNode));
+            current = getClosestRailOnTruck(m_sim_controller->GetBeamFactory()->getTruck(i), (*itNode));
             if (current.second < closest.second)
                 closest = current;
         } // this many

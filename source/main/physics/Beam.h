@@ -2,6 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
+    Copyright 2016-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -20,15 +21,14 @@
 
 #pragma once
 
-#include <OgrePrerequisites.h>
-#include <OgreTimer.h>
-
-#include "RoRPrerequisites.h"
+#include "BeamData.h"
+#include "GfxActor.h"
 #include "PerVehicleCameraContext.h"
 #include "RigDef_Prerequisites.h"
+#include "RoRPrerequisites.h"
 
-#include "BeamData.h"
-
+#include <OgrePrerequisites.h>
+#include <OgreTimer.h>
 #include <memory>
 
 class Task;
@@ -67,7 +67,8 @@ public:
     * @param cache_entry_number Needed for flexbody caching. Pass -1 if unavailable (flexbody caching will be disabled)
     */
     Beam(
-          int tnum
+          RoRFrameListener* sim_controller
+        , int tnum
         , Ogre::Vector3 pos
         , Ogre::Quaternion rot
         , const char* fname
@@ -77,7 +78,7 @@ public:
         , collision_box_t *spawnbox = nullptr
         , bool ismachine = false
         , const std::vector<Ogre::String> *truckconfig = nullptr
-        , Skin *skin = nullptr
+        , RoR::SkinDef *skin = nullptr
         , bool freeposition = false
         , bool preloaded_with_terrain = false
         , int cache_entry_number = -1
@@ -146,7 +147,6 @@ public:
 
     void ForceFeedbackStep(int steps);
     void updateAngelScriptEvents(float dt);
-    void updateVideocameras(float dt);
     void handleResetRequests(float dt);
 
     void setupDefaultSoundSources();
@@ -430,7 +430,6 @@ public:
 
     std::string getTruckName();
     std::string getTruckFileName();
-    std::string getTruckHash();
     int getTruckType();
 
     std::vector<authorinfo_t> getAuthors();
@@ -438,7 +437,6 @@ public:
 
     int getBeamCount();
     beam_t *getBeams();
-    float getDefaultDeformation();
 
     int getNodeCount();
     node_t *getNodes();
@@ -495,8 +493,6 @@ public:
     Ogre::Vector3 cameranodeacc;
     int cameranodecount;
 
-    bool m_is_videocamera_disabled;
-
     int m_source_id;
     int m_stream_id;
     std::map<int, int> m_stream_results;
@@ -544,6 +540,7 @@ public:
     // Inline getters
     inline Ogre::SceneNode*                 getSceneNode()            { return beamsRoot; }
     inline RoR::PerVehicleCameraContext*    GetCameraContext()        { return &m_camera_context; }
+    inline RoR::GfxActor*                   GetGfxActor()             { return m_gfx_actor.get(); }
 
     DashBoardManager *dash;
 
@@ -661,6 +658,8 @@ protected:
     float stabsleep;
     Replay *replay;
     PositionStorage *posStorage;
+    RoRFrameListener* m_sim_controller; // Temporary ~ only_a_ptr, 01/2017
+    std::unique_ptr<RoR::GfxActor> m_gfx_actor;
 
     RoR::PerVehicleCameraContext m_camera_context;
 
@@ -772,4 +771,5 @@ protected:
      * @return a pair containing the rail, and the distant to the SlideNode
      */
     std::pair<RailGroup*, Ogre::Real> getClosestRailOnTruck( Beam* truck, const SlideNode& node);
+
 };

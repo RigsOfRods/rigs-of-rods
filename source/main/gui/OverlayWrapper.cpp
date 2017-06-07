@@ -50,11 +50,11 @@
 #include "IHeightFinder.h"
 #include "Language.h"
 #include "OgreSubsystem.h"
+#include "RoRFrameListener.h"
 #include "RoRVersion.h"
 #include "ScrewProp.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
-#include "TruckHUD.h"
 #include "TurboProp.h"
 #include "Utils.h"
 
@@ -65,8 +65,7 @@ bool g_is_scaled = false;
 OverlayWrapper::OverlayWrapper():
     m_direction_arrow_node(nullptr),
     mTimeUntilNextToggle(0),
-    m_visible_overlays(0),
-    m_flipflop(false)
+    m_visible_overlays(0)
 {
     win = RoR::App::GetOgreSubsystem()->GetRenderWindow();
     init();
@@ -77,11 +76,6 @@ OverlayWrapper::~OverlayWrapper()
     showDashboardOverlays(false, nullptr);
     HideRacingOverlay();
     HideDirectionOverlay();
-    if (truckhud != nullptr)
-    {
-        delete truckhud;
-        truckhud = nullptr;
-    }
 }
 
 void OverlayWrapper::resizePanel(OverlayElement* oe)
@@ -187,9 +181,7 @@ int OverlayWrapper::init()
     m_aerial_dashboard_needles_overlay = loadOverlay("tracks/AirNeedlesOverlay", false);
     m_marine_dashboard_overlay = loadOverlay("tracks/BoatDashboardOverlay");
     m_marine_dashboard_needles_overlay = loadOverlay("tracks/BoatNeedlesOverlay");
-    m_truck_dashboard_overlay = loadOverlay("tracks/DashboardOverlay");
-    m_truck_dashboard_needles_overlay = loadOverlay("tracks/NeedlesOverlay");
-    m_truck_dashboard_needles_mask_overlay = loadOverlay("tracks/NeedlesMaskOverlay");
+
 
     //adjust dashboard size for screen ratio
     resizePanel(loadOverlayElement("tracks/pressureo"));
@@ -198,26 +190,8 @@ int OverlayWrapper::init()
     if (!m.isNull())
         pressuretexture = m->getTechnique(0)->getPass(0)->getTextureUnitState(0);
 
-    resizePanel(loadOverlayElement("tracks/speedo"));
-    resizePanel(loadOverlayElement("tracks/tacho"));
-    resizePanel(loadOverlayElement("tracks/anglo"));
-    resizePanel(loadOverlayElement("tracks/instructions"));
     resizePanel(loadOverlayElement("tracks/machineinstructions"));
-    resizePanel(loadOverlayElement("tracks/dashbar"));
-    resizePanel(loadOverlayElement("tracks/dashfiller"));
-    resizePanel(loadOverlayElement("tracks/helppanel"));
     resizePanel(loadOverlayElement("tracks/machinehelppanel"));
-
-    resizePanel(igno = loadOverlayElement("tracks/ign"));
-    resizePanel(batto = loadOverlayElement("tracks/batt"));
-    resizePanel(pbrakeo = loadOverlayElement("tracks/pbrake"));
-    resizePanel(tcontrolo = loadOverlayElement("tracks/tcontrol"));
-    resizePanel(antilocko = loadOverlayElement("tracks/antilock"));
-    resizePanel(lockedo = loadOverlayElement("tracks/locked"));
-    resizePanel(securedo = loadOverlayElement("tracks/secured"));
-    resizePanel(lopresso = loadOverlayElement("tracks/lopress"));
-    resizePanel(clutcho = loadOverlayElement("tracks/clutch"));
-    resizePanel(lightso = loadOverlayElement("tracks/lights"));
 
     resizePanel(OverlayManager::getSingleton().getOverlayElement("tracks/machinedashbar"));
     resizePanel(OverlayManager::getSingleton().getOverlayElement("tracks/machinedashfiller"));
@@ -311,34 +285,9 @@ int OverlayWrapper::init()
     boatspeedtexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/boatspeedneedle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
     boatsteertexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/boatsteer/fg_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
 
-    //adjust dashboard mask
-    //pitch mask
-    OverlayElement* pmask = loadOverlayElement("tracks/pitchmask");
-    pmask->setHeight(pmask->getHeight() * (Real)win->getWidth() / (Real)win->getHeight());
-    pmask->setTop(pmask->getTop() * (Real)win->getWidth() / (Real)win->getHeight());
-    //roll mask
-    OverlayElement* rmask = loadOverlayElement("tracks/rollmask");
-    rmask->setHeight(rmask->getHeight() * (Real)win->getWidth() / (Real)win->getHeight());
-    rmask->setTop(rmask->getTop() * (Real)win->getWidth() / (Real)win->getHeight());
-
     //prepare needles
-    resizePanel(loadOverlayElement("tracks/speedoneedle"));
-    speedotexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/speedoneedle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
-
-    resizePanel(loadOverlayElement("tracks/tachoneedle"));
-    tachotexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/tachoneedle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
-
-    resizePanel(loadOverlayElement("tracks/rollneedle"));
-    rolltexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/rollneedle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
-
-    resizePanel(loadOverlayElement("tracks/pitchneedle"));
-    pitchtexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/pitchneedle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
-
-    resizePanel(loadOverlayElement("tracks/rollcorneedle"));
-    rollcortexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/rollcorneedle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
-
-    resizePanel(loadOverlayElement("tracks/turboneedle"));
-    turbotexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/turboneedle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+    speedotexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/speedoneedle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0); // Needed for dashboard-prop
+    tachotexture  = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/tachoneedle_mat"))) ->getTechnique(0)->getPass(0)->getTextureUnitState(0); // Needed for dashboard-prop
 
     resizePanel(loadOverlayElement("tracks/airspeedneedle"));
     airspeedtexture = ((MaterialPtr)(MaterialManager::getSingleton().getByName("tracks/airspeedneedle_mat")))->getTechnique(0)->getPass(0)->getTextureUnitState(0);
@@ -381,7 +330,6 @@ int OverlayWrapper::init()
 
     guiGear = loadOverlayElement("tracks/Gear");
     guiGear3D = loadOverlayElement("tracks/3DGear");
-    guiRoll = loadOverlayElement("tracks/rollmask");
 
     guiAuto[0] = (TextAreaOverlayElement*)loadOverlayElement("tracks/AGearR");
     guiAuto[1] = (TextAreaOverlayElement*)loadOverlayElement("tracks/AGearN");
@@ -394,10 +342,6 @@ int OverlayWrapper::init()
     guiAuto3D[2] = (TextAreaOverlayElement*)loadOverlayElement("tracks/3DAGearD");
     guiAuto3D[3] = (TextAreaOverlayElement*)loadOverlayElement("tracks/3DAGear2");
     guiAuto3D[4] = (TextAreaOverlayElement*)loadOverlayElement("tracks/3DAGear1");
-
-    guipedclutch = loadOverlayElement("tracks/pedalclutch");
-    guipedbrake = loadOverlayElement("tracks/pedalbrake");
-    guipedacc = loadOverlayElement("tracks/pedalacc");
 
     m_truck_pressure_overlay = loadOverlay("tracks/PressureOverlay");
     m_truck_pressure_needle_overlay = loadOverlay("tracks/PressureNeedleOverlay");
@@ -412,9 +356,6 @@ int OverlayWrapper::init()
     // openGL fix
     m_racing_overlay->show();
     m_racing_overlay->hide();
-
-    truckhud = new TruckHUD();
-    truckhud->show(false);
 
     g_is_scaled = true;
 
@@ -479,9 +420,6 @@ void OverlayWrapper::showPressureOverlay(bool show)
 
 void OverlayWrapper::showDashboardOverlays(bool show, Beam* truck)
 {
-    if (!m_truck_dashboard_needles_overlay || !m_truck_dashboard_overlay)
-        return;
-
     // check if we use the new style dashboards
     if (truck && truck->dash && truck->dash->wasLoaded())
     {
@@ -493,13 +431,7 @@ void OverlayWrapper::showDashboardOverlays(bool show, Beam* truck)
     {
         int mode = truck ? truck->driveable : -1;
 
-        if (mode == TRUCK)
-        {
-            m_truck_dashboard_needles_mask_overlay->show();
-            m_truck_dashboard_needles_overlay->show();
-            m_truck_dashboard_overlay->show();
-        }
-        else if (mode == AIRPLANE)
+        if (mode == AIRPLANE)
         {
             m_aerial_dashboard_needles_overlay->show();
             m_aerial_dashboard_overlay->show();
@@ -516,9 +448,6 @@ void OverlayWrapper::showDashboardOverlays(bool show, Beam* truck)
     }
     else
     {
-        m_truck_dashboard_needles_mask_overlay->hide();
-        m_truck_dashboard_needles_overlay->hide();
-        m_truck_dashboard_overlay->hide();
 
         m_aerial_dashboard_needles_overlay->hide();
         m_aerial_dashboard_overlay->hide();
@@ -597,22 +526,14 @@ void OverlayWrapper::updateStats(bool detailed)
     }
 }
 
-int OverlayWrapper::getDashBoardHeight()
-{
-    if (!m_truck_dashboard_overlay)
-        return 0;
-    float top = 1 + OverlayManager::getSingleton().getOverlayElement("tracks/dashbar")->getTop() * m_truck_dashboard_overlay->getScaleY(); // tracks/dashbar top = -0.15 by default
-    return (int)(top * (float)win->getHeight());
-}
-
 bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
 {
     if (!m_aerial_dashboard_needles_overlay->isVisible())
         return false;
     bool res = false;
     const OIS::MouseState ms = _arg.state;
-    //Beam **trucks = BeamFactory::getSingleton().getTrucks();
-    Beam* curr_truck = BeamFactory::getSingleton().getCurrentTruck();
+    
+    Beam* curr_truck = m_sim_controller->GetBeamFactory()->getCurrentTruck();
 
     if (!curr_truck)
         return res;
@@ -945,11 +866,6 @@ void OverlayWrapper::UpdateLandVehicleHUD(Beam* vehicle)
         }
     }
 
-    // pedals
-    guipedclutch->setTop(-0.05 * vehicle->engine->getClutch() - 0.01);
-    guipedbrake->setTop(-0.05 * (1.0 - vehicle->brake / vehicle->brakeforce) - 0.01);
-    guipedacc->setTop(-0.05 * (1.0 - vehicle->engine->getAcc()) - 0.01);
-
     // speedo / calculate speed
     Real guiSpeedFactor = 7.0 * (140.0 / vehicle->speedoMax);
     Real angle = 140 - fabs(vehicle->WheelSpeed * guiSpeedFactor);
@@ -966,105 +882,6 @@ void OverlayWrapper::UpdateLandVehicleHUD(Beam* vehicle)
     angle = std::max(-120.0f, angle);
     angle = std::min(angle, 121.0f);
     tachotexture->setTextureRotate(Degree(angle));
-
-    // roll
-    Vector3 rdir = (vehicle->nodes[vehicle->cameranodepos[0]].RelPosition - vehicle->nodes[vehicle->cameranoderoll[0]].RelPosition).normalisedCopy();
-    angle = asin(rdir.dotProduct(Vector3::UNIT_Y));
-    angle = std::max(-1.0f, angle);
-    angle = std::min(angle, 1.0f);
-    rolltexture->setTextureRotate(Radian(angle));
-
-    // rollcorr
-    if (vehicle->free_active_shock && guiRoll && rollcortexture)
-    {
-        rollcortexture->setTextureRotate(Radian(-vehicle->stabratio * 10.0));
-        if (vehicle->stabcommand)
-        {
-            guiRoll->setMaterialName("tracks/rollmaskblink");
-        }
-        else
-        {
-            guiRoll->setMaterialName("tracks/rollmask");
-        }
-    }
-
-    // pitch
-    Vector3 dir = vehicle->getDirection();
-    angle = asin(dir.dotProduct(Vector3::UNIT_Y));
-    angle = std::max(-1.0f, angle);
-    angle = std::min(angle, 1.0f);
-    pitchtexture->setTextureRotate(Radian(angle));
-
-    // turbo
-    angle = 40.0 - vehicle->engine->getTurboPSI() * 3.34;
-    turbotexture->setTextureRotate(Degree(angle));
-
-    // indicators
-    igno->setMaterialName(String("tracks/ign-") + ((vehicle->engine->hasContact()) ? "on" : "off"));
-    batto->setMaterialName(String("tracks/batt-") + ((vehicle->engine->hasContact() && !vehicle->engine->isRunning()) ? "on" : "off"));
-    pbrakeo->setMaterialName(String("tracks/pbrake-") + ((vehicle->parkingbrake) ? "on" : "off"));
-    lockedo->setMaterialName(String("tracks/locked-") + ((vehicle->isLocked()) ? "on" : "off"));
-    lopresso->setMaterialName(String("tracks/lopress-") + ((!vehicle->canwork) ? "on" : "off"));
-    clutcho->setMaterialName(String("tracks/clutch-") + ((fabs(vehicle->engine->getTorque()) >= vehicle->engine->getClutchForce() * 10.0f) ? "on" : "off"));
-    lightso->setMaterialName(String("tracks/lights-") + ((vehicle->lights) ? "on" : "off"));
-
-    if (vehicle->tc_present)
-    {
-        if (vehicle->tc_mode)
-        {
-            if (vehicle->tractioncontrol)
-                tcontrolo->setMaterialName(String("tracks/tcontrol-act"));
-            else
-                tcontrolo->setMaterialName(String("tracks/tcontrol-on"));
-        }
-        else
-        {
-            tcontrolo->setMaterialName(String("tracks/tcontrol-off"));
-        }
-    }
-    else
-    {
-        tcontrolo->setMaterialName(String("tracks/trans"));
-    }
-
-    if (vehicle->alb_present)
-    {
-        if (vehicle->alb_mode)
-        {
-            if (vehicle->antilockbrake)
-                antilocko->setMaterialName(String("tracks/antilock-act"));
-            else
-                antilocko->setMaterialName(String("tracks/antilock-on"));
-        }
-        else
-        {
-            antilocko->setMaterialName(String("tracks/antilock-off"));
-        }
-    }
-    else
-    {
-        antilocko->setMaterialName(String("tracks/trans"));
-    }
-
-    if (vehicle->isTied())
-    {
-        if (fabs(vehicle->commandkey[0].commandValue) > 0.000001f)
-        {
-            m_flipflop = !m_flipflop;
-            if (m_flipflop)
-                securedo->setMaterialName("tracks/secured-on");
-            else
-                securedo->setMaterialName("tracks/secured-off");
-        }
-        else
-        {
-            securedo->setMaterialName("tracks/secured-on");
-        }
-    }
-    else
-    {
-        securedo->setMaterialName("tracks/secured-off");
-    }
 }
 
 void OverlayWrapper::UpdateAerialHUD(Beam* vehicle)

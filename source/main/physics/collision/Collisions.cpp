@@ -29,6 +29,7 @@
 #include "Landusemap.h"
 #include "Language.h"
 #include "MovableText.h"
+#include "RoRFrameListener.h"
 #include "Scripting.h"
 #include "Settings.h"
 #include "TerrainManager.h"
@@ -110,8 +111,9 @@ unsigned int sbox[] =
 
 using namespace Ogre;
 
-Collisions::Collisions() :
-      collision_count(0)
+Collisions::Collisions(RoRFrameListener* sim_controller)
+    : m_sim_controller(sim_controller)
+    , collision_count(0)
     , collision_tris(0)
     , debugMode(false)
     , forcecam(false)
@@ -189,7 +191,8 @@ int Collisions::loadGroundModelsConfigFile(Ogre::String filename)
     try
     {
         group = ResourceGroupManager::getSingleton().findGroupContainingResource(filename);
-    }catch(...)
+    }
+    catch (...)
     {
         // we wont catch anything, since the path could be absolute as well, then the group is not found
     }
@@ -202,7 +205,8 @@ int Collisions::loadGroundModelsConfigFile(Ogre::String filename)
             cfg.loadDirect(filename);
         else
             cfg.loadFromResourceSystem(filename, group, "\x09:=", true);
-    } catch(Ogre::Exception& e)
+    }
+    catch (Ogre::Exception& e)
     {
         ErrorUtils::ShowError("Error while loading ground model", e.getFullDescription());
         return 1;
@@ -1019,7 +1023,7 @@ bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
 
 bool Collisions::permitEvent(int filter)
 {
-    Beam *b = BeamFactory::getSingleton().getCurrentTruck();
+    Beam *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
 
     switch (filter)
     {

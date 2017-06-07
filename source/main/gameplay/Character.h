@@ -59,6 +59,7 @@ public:
     void updateCharacterRotation();
     void updateMapIcon();
     void updateLabels();
+    void SetSimController(RoRFrameListener* sim) { m_sim_controller = sim; }
 
     static unsigned int characterCounter;
 
@@ -71,6 +72,7 @@ protected:
     Beam* beamCoupling;
     bool isCoupled;
     SurveyMapEntity* mapEntity;
+    RoRFrameListener* m_sim_controller;
 
     bool canJump;
     bool physicsEnabled;

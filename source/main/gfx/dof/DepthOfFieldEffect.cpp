@@ -39,6 +39,7 @@
 #include "Character.h"
 #include "Lens.h"
 #include "OgreSubsystem.h"
+#include "RoRFrameListener.h"
 #include "Settings.h"
 
 using namespace Ogre;
@@ -229,7 +230,8 @@ bool DepthOfFieldEffect::renderableQueued(Ogre::Renderable* rend, Ogre::uint8 gr
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-DOFManager::DOFManager()
+DOFManager::DOFManager():
+    m_sim_controller(nullptr)
 {
     mFocusMode = Manual;
     mAutoSpeed = 30;
@@ -366,7 +368,7 @@ bool DOFManager::frameStarted(const FrameEvent& evt)
 
                 Vector3 lookAt(Vector3::ZERO);
 
-                Beam* currTruck = BeamFactory::getSingleton().getCurrentTruck();
+                Beam* currTruck = m_sim_controller->GetBeamFactory()->getCurrentTruck();
                 if (currTruck)
                 {
                     lookAt = currTruck->getPosition();

@@ -28,6 +28,8 @@
 
 #include "RoRPrerequisites.h"
 
+#include <OgreMaterial.h>
+
 namespace RoR {
 
 class OgreSubsystem : public ZeroedMemoryAllocator
@@ -72,6 +74,8 @@ public:
     {
         return m_timer;
     }
+
+    static Ogre::MaterialPtr GetMaterialByName(std::string const & name);
 
 private:
 

@@ -23,9 +23,12 @@
 
 #include "Character.h"
 
+using namespace RoR;
+
 Character* CharacterFactory::createLocal(int playerColour)
 {
     Character* ch = new Character(-1, 0, playerColour, false);
+    ch->SetSimController(m_sim_controller);
     return ch;
 }
 

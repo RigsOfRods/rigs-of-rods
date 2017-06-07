@@ -23,6 +23,9 @@
 #include "RoRPrerequisites.h"
 #include "ForceFeedback.h"
 
+#include "CharacterFactory.h"
+#include "BeamFactory.h"
+
 #include <Ogre.h>
 
 namespace RoR { struct Terrn2Telepoint; } // Forward decl.
@@ -31,15 +34,12 @@ class RoRFrameListener: public Ogre::FrameListener, public Ogre::WindowEventList
 {
 public:
 
-    RoRFrameListener(RoR::ForceFeedback* ff);
+    RoRFrameListener(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_conf);
     virtual ~RoRFrameListener();
 
     // Ogre::FrameListener public interface
     bool   frameStarted          (const Ogre::FrameEvent& evt);
     bool   frameEnded            (const Ogre::FrameEvent& evt);
-
-    // Ogre::WindowEventListener interface
-    void   windowResized         (Ogre::RenderWindow* rw);
 
     // Scripting interface
     double getTime               () { return m_time; }
@@ -61,12 +61,16 @@ public:
     bool   SetupGameplayLoop     ();
     void   EnterGameplayLoop     ();
 
+    RoR::BeamFactory*           GetBeamFactory  () { return &m_beam_factory; }
+    RoR::SkidmarkConfig*        GetSkidmarkConf () { return m_skidmark_conf; }
+
 protected:
 
-    // WindowEventListener
+    // Ogre::WindowEventListener interface
     void   windowMoved             (Ogre::RenderWindow* rw);
     void   windowClosed            (Ogre::RenderWindow* rw);
     void   windowFocusChange       (Ogre::RenderWindow* rw);
+    void   windowResized           (Ogre::RenderWindow* rw);
 
     void   UpdateForceFeedback     (float dt);
     bool   UpdateInputEvents       (float dt);
@@ -75,7 +79,10 @@ protected:
     void   HideGUI                 (bool hidden);
     void   CleanupAfterSimulation  (); /// Unloads all data
 
+    RoR::BeamFactory         m_beam_factory;
+    RoR::CharacterFactory    m_character_factory;
     HeatHaze*                m_heathaze;
+    RoR::SkidmarkConfig*     m_skidmark_conf;
     Ogre::Real               m_time_until_next_toggle; ///< just to stop toggles flipping too fast
     float                    m_last_simulation_speed;  ///< previously used time ratio between real time (evt.timeSinceLastFrame) and physics time ('dt' used in calcPhysics)
     bool                     m_is_pace_reset_pressed;
@@ -85,11 +92,12 @@ protected:
     double                   m_time;
     RoR::ForceFeedback*      m_force_feedback;
     bool                     m_hide_gui;
+    bool                     m_was_app_window_closed;
     bool                     m_truck_info_on;
     bool                     m_pressure_pressed;
 
     CacheEntry*              m_last_cache_selection;
-    Skin*                    m_last_skin_selection;
+    RoR::SkinDef*            m_last_skin_selection;
     std::vector<std::string> m_last_vehicle_configs;
 
     bool                     m_is_dir_arrow_visible;

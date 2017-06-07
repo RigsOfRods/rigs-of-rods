@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -30,93 +30,77 @@
 #include <OgreSubMesh.h>
 #include <OgreHardwareBuffer.h>
 
+/// Texture coordinates for old-style actor body (the "cab")
+struct CabTexcoord
+{
+    int    node_id;
+    float  texcoord_u;
+    float  texcoord_v;
+};
+
+/// Submesh for old-style actor body (the "cab")
+struct CabSubmesh
+{
+    enum BackmeshType { BACKMESH_NONE, BACKMESH_OPAQUE, BACKMESH_TRANSPARENT };
+
+    CabSubmesh(): backmesh_type(BACKMESH_NONE), texcoords_pos(0), cabs_pos(0) {}
+
+    BackmeshType  backmesh_type;
+    size_t        texcoords_pos;
+    size_t        cabs_pos;
+};
+
+/// A visual mesh, forming a chassis for softbody actor
+/// At most one instance is created per actor.
 class FlexObj : public ZeroedMemoryAllocator
 {
 public:
 
     FlexObj(
         node_t* nds,
-        int numtexcoords,
-        Ogre::Vector3* texcoords,
+        std::vector<CabTexcoord>& texcoords,
         int numtriangles,
         int* triangles,
-        int numsubmeshes,
-        int* subtexindex,
-        int* subtriindex,
+        std::vector<CabSubmesh>& submeshes,
         char* texname,
-        char* name,
-        int* subisback,
+        const char* name,
         char* backtexname,
         char* transtexname);
 
     ~FlexObj();
 
-    //find the zeroed id of the node v in the context of the tidx triangle
-    int findID(int tidx, int v, int numsubmeshes, int* subtexindex, int* subtriindex);
-    //with normals
-    Ogre::Vector3 updateVertices();
-    //with normals
-    Ogre::Vector3 updateShadowVertices();
-    Ogre::Vector3 flexit();
-    void scale(float factor);
+    Ogre::Vector3   UpdateFlexObj();
+    void            ScaleFlexObj(float factor);
 
 private:
 
-    struct CoVertice_t
+    struct FlexObjVertex
     {
-        Ogre::Vector3 vertex;
+        Ogre::Vector3 position;
         Ogre::Vector3 normal;
-        //Ogre::Vector3 color;
         Ogre::Vector2 texcoord;
     };
 
-    struct posVertice_t
-    {
-        Ogre::Vector3 vertex;
-    };
+    /// Compute vertex position (0-based offset) for node `v` in triangle `tidx`
+    int             ComputeVertexPos(int tidx, int v, std::vector<CabSubmesh>& submeshes);
+    Ogre::Vector3   UpdateMesh();
 
-    struct norVertice_t
-    {
-        Ogre::Vector3 normal;
-        //Ogre::Vector3 color;
-        Ogre::Vector2 texcoord;
-    };
+    Ogre::MeshPtr               m_mesh;
+    std::vector<Ogre::SubMesh*> m_submeshes;
+    node_t*                     m_all_nodes;
+    float*                      m_s_ref;
 
-    Ogre::MeshPtr msh;
-    Ogre::SubMesh** subs;
-    Ogre::VertexDeclaration* decl;
-    Ogre::HardwareVertexBufferSharedPtr vbuf;
-
-    size_t nVertices;
-    size_t vbufCount;
-
-    //shadow
+    size_t                      m_vertex_count;
+    int*                        m_vertex_nodes;
+    Ogre::VertexDeclaration*    m_vertex_format;
+    Ogre::HardwareVertexBufferSharedPtr m_hw_vbuf;
     union
     {
-        float* shadowposvertices;
-        posVertice_t* coshadowposvertices;
+        float*              m_vertices_raw;
+        FlexObjVertex*      m_vertices;
     };
 
-    union
-    {
-        float* shadownorvertices;
-        norVertice_t* coshadownorvertices;
-    };
-
-    union
-    {
-        float* vertices;
-        CoVertice_t* covertices;
-    };
-
-    //nodes
-    int* nodeIDs;
-
-    size_t ibufCount;
-    unsigned short* faces;
-    node_t* nodes;
-    int nbrays;
-
-    float* sref;
-    int triangleCount;
+    size_t                      m_index_count;
+    unsigned short*             m_indices;
+    int                         m_triangle_count;	
 };

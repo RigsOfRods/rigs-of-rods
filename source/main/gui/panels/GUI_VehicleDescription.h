@@ -38,12 +38,15 @@ public:
     bool IsVisible();
     void SetVisible(bool v);
 
+    void SetSimController(RoRFrameListener* sim) { m_sim_controller = sim; }
+
 private:
     void notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name);
     void CenterToScreen();
     void LoadText();
 
     static const unsigned int COMMANDS_VISIBLE = 50;
+    RoRFrameListener* m_sim_controller;
 };
 
 } // namespace GUI

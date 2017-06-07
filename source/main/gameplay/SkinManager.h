@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2015 Petr Ohlidal
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -21,45 +21,66 @@
 
 #pragma once
 
-#include <OgreResourceManager.h>
-
 #include "RoRPrerequisites.h"
 
-#include "Skin.h"
+#include <OgreResourceManager.h>
+
+#include <map>
+#include <vector>
+#include <string>
 
 namespace RoR {
 
-/** Manages Skin resources, parsing .skin files and generally organizing them. */
+struct SkinDef
+{
+    std::map<std::string, std::string>  replace_textures;
+    std::map<std::string, std::string>  replace_materials;
+    std::string   name;
+    std::string   guid;
+    std::string   thumbnail;
+    std::string   description;
+    std::string   author_name;
+    int           author_id;
+};
+
+/// Manages Skin resources, parsing .skin files and generally organizing them.
 class SkinManager : public Ogre::ResourceManager
 {
 public:
     SkinManager();
     ~SkinManager();
 
-    void GetUsableSkins(Ogre::String guid, std::vector<Skin *>& skins);
+    void GetUsableSkins(std::string guid, std::vector<SkinDef *>& skins);
+    static void ApplySkinTextureReplacements(SkinDef* skin_def, Ogre::Entity* e);
 
     // == Ogre::ResourceManager interface functions ==
 
-    void parseScript(Ogre::DataStreamPtr& stream, const Ogre::String& groupName);
-    void unload(const Ogre::String& name);
-    void unload(Ogre::ResourceHandle handle);
-    void unloadAll(bool reloadableOnly = true);
-    void unloadUnreferencedResources(bool reloadableOnly = true);
-    void remove(Ogre::ResourcePtr& r);
-    void remove(const Ogre::String& name);
-    void remove(Ogre::ResourceHandle handle);
-    void removeAll(void);
-    void reloadAll(bool reloadableOnly = true);
-    void reloadUnreferencedResources(bool reloadableOnly = true);
-
-protected:
-
-    void ParseSkinAttribute(const Ogre::String& line, Skin* pSkin);
-
-    // Internal methods
     Ogre::Resource* createImpl(const Ogre::String& name, Ogre::ResourceHandle handle,
         const Ogre::String& group, bool isManual, Ogre::ManualResourceLoader* loader,
-        const Ogre::NameValuePairList* params);
+        const Ogre::NameValuePairList* params) override
+    {
+        return nullptr; // Not used
+    }
+    void parseScript(Ogre::DataStreamPtr& stream, const Ogre::String& groupName) override;
+    void reloadUnreferencedResources(bool reloadableOnly = true) override;
+    void unloadUnreferencedResources(bool reloadableOnly = true) override;
+    void unload     (const Ogre::String& name) override;
+    void unload     (Ogre::ResourceHandle handle) override;
+    void unloadAll  (bool reloadableOnly = true) override;
+    
+    void remove     (Ogre::ResourcePtr& r) override;
+    void remove     (const Ogre::String& name) override;
+    void remove     (Ogre::ResourceHandle handle) override;
+    void removeAll  () override;
+    void reloadAll  (bool reloadableOnly = true) override;
+
+    static void ReplaceMaterialTextures(SkinDef* skin_def, std::string materialName);
+
+private:
+
+    void ParseSkinAttribute(const std::string& line, SkinDef* skin_def);
+
+    std::map<std::string, SkinDef*> m_skins;
 };
 
 }; // namespace RoR

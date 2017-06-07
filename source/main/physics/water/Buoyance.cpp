@@ -29,13 +29,12 @@
 
 using namespace Ogre;
 
-Buoyance::Buoyance() :
+Buoyance::Buoyance(DustPool* splash, DustPool* ripple) :
+    splashp(splash),
+    ripplep(ripple),
     sink(0),
     update(false)
 {
-    auto dustman = BeamFactory::getSingleton().GetParticleManager();
-    splashp = dustman.getDustPool("splash");
-    ripplep = dustman.getDustPool("ripple");
 }
 
 Buoyance::~Buoyance()

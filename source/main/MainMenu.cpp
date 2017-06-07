@@ -56,15 +56,13 @@
 #include "OgreSubsystem.h"
 #include "OverlayWrapper.h"
 #include "OutProtocol.h"
-#include "PlayerColours.h"
+
 #include "RoRFrameListener.h"
 #include "Scripting.h"
 #include "Settings.h"
-#include "Skin.h"
 #include "SoundScriptManager.h"
 #include "SurveyMapManager.h"
 #include "TerrainManager.h"
-#include "TruckHUD.h"
 #include "Utils.h"
 #include "SkyManager.h"
 
@@ -82,15 +80,15 @@ using namespace Ogre; // The _L() macro won't compile without.
 
 namespace RoR {
 
-MainMenu::MainMenu(RoRFrameListener* fl):
-    m_is_mumble_created(false),
-    m_frame_listener(fl)
+MainMenu::MainMenu()
 {
     RoR::App::SetMainMenu(this);
 }
 
 void MainMenu::EnterMainMenuLoop()
 {
+    RoRWindowEventUtilities::addWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
+
     // ==== FPS-limiter ====
     // TODO: Is this necessary in menu?
 
@@ -165,6 +163,8 @@ void MainMenu::EnterMainMenuLoop()
 
         timeSinceLastFrame = RoR::App::GetOgreSubsystem()->GetTimer()->getMilliseconds() - startTime;
     }
+
+    RoRWindowEventUtilities::removeWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
 }
 
 void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
@@ -271,11 +271,7 @@ void MainMenu::JoinMultiplayerServer()
     ChatSystem::SendStreamSetup();
 
 #ifdef USE_MUMBLE
-    if (! m_is_mumble_created)
-    {
-        new MumbleIntegration();
-        m_is_mumble_created = true;
-    }
+    SoundScriptManager::getSingleton().CheckAndCreateMumble();
 #endif // USE_MUMBLE
 
     String terrain_name = Networking::GetTerrainName();
@@ -311,6 +307,16 @@ void MainMenu::LeaveMultiplayerServer()
         App::GetGuiManager()->SetVisible_LoadingWindow(false);
     }
 #endif //SOCKETW
+}
+
+void MainMenu::windowResized(Ogre::RenderWindow* rw)
+{
+    App::GetInputEngine()->windowResized(rw); // Update mouse area
+}
+
+void MainMenu::windowFocusChange(Ogre::RenderWindow* rw)
+{
+    App::GetInputEngine()->resetKeys();
 }
 
 } // namespace RoR

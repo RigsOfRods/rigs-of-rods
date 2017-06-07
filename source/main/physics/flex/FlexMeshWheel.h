@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -21,43 +21,31 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
-
+#include "ForwardDeclarations.h"
 #include "FlexMesh.h"
 
-#include <OgreString.h>
-#include <OgreEntity.h>
 #include <OgreVector3.h>
 #include <OgreMesh.h>
 #include <OgreSubMesh.h>
 #include <OgreHardwareBuffer.h>
+#include <string>
 
+// Forward decl
+namespace RoR { class FlexFactory; }
+
+/// Consists of static mesh, representing the rim, and dynamic mesh, representing the tire.
 class FlexMeshWheel: public Flexable
 {
-public:
+    friend class RoR::FlexFactory;
 
-    FlexMeshWheel(
-        Ogre::String const& name,
-        node_t* nds,
-        int axis_node_1_index,
-        int axis_node_2_index,
-        int nstart,
-        int nrays,
-        Ogre::String const& mesh_name,
-        Ogre::String const& material_name,
-        float rimradius,
-        bool rimreverse,
-        MaterialFunctionMapper* material_function_mapper,
-        Skin* used_skin,
-        MaterialReplacer* material_replacer
-    );
+public:
 
     ~FlexMeshWheel();
 
-    Ogre::Entity* getRimEntity() { return rimEnt; };
+    Ogre::Entity* getRimEntity() { return m_rim_entity; };
+    Ogre::Entity* GetTireEntity() { return m_tire_entity; }
 
     Ogre::Vector3 updateVertices();
-    Ogre::Vector3 updateShadowVertices();
 
     // Flexable
     bool flexitPrepare();
@@ -68,69 +56,51 @@ public:
 
 private:
 
-    Ogre::Vector3 flexit_center;
+    FlexMeshWheel( // Use FlexFactory
+        Ogre::Entity* rim_prop_entity,
+        node_t* nds,
+        int axis_node_1_index,
+        int axis_node_2_index,
+        int nstart,
+        int nrays,
+        std::string const& tire_mesh_name,
+        std::string const& tire_material_name,
+        float rimradius,
+        bool rimreverse
+    );
 
-    MaterialReplacer* mr;
-
-    struct CoVertice_t
+    struct FlexMeshWheelVertex
     {
-        Ogre::Vector3 vertex;
-        Ogre::Vector3 normal;
-        //Ogre::Vector3 color;
-        Ogre::Vector2 texcoord;
-    };
-
-    struct posVertice_t
-    {
-        Ogre::Vector3 vertex;
-    };
-
-    struct norVertice_t
-    {
+        Ogre::Vector3 position;
         Ogre::Vector3 normal;
         Ogre::Vector2 texcoord;
     };
 
-    Ogre::MeshPtr msh;
-    Ogre::SubMesh* sub;
-    Ogre::VertexDeclaration* decl;
-    Ogre::HardwareVertexBufferSharedPtr vbuf;
+    // Wheel
+    size_t           m_num_rays;
+    float            m_rim_radius;
+    node_t*          m_all_nodes;
+    int              m_axis_node0_idx;
+    int              m_axis_node1_idx;
+    int              m_start_node_idx; ///< First node (lowest index) belonging to this wheel.
 
-    size_t nVertices;
-    size_t vbufCount;
+    // Meshes
+    Ogre::Vector3    m_flexit_center;
+    Ogre::MeshPtr    m_mesh;
+    Ogre::SubMesh*   m_submesh;
+    bool             m_is_rim_reverse;
+    Ogre::Entity*    m_rim_entity;
+    Ogre::Entity*    m_tire_entity; // Assigned by friend FlexFactory
+    Ogre::SceneNode* m_rim_scene_node;
 
-    //shadow
-    union
-    {
-        float* shadowposvertices;
-        posVertice_t* coshadowposvertices;
-    };
+    // Vertices
+    float            m_norm_y;
+    size_t           m_vertex_count;
+    FlexMeshWheelVertex* m_vertices;
+    Ogre::VertexDeclaration* m_vertex_format;
+    Ogre::HardwareVertexBufferSharedPtr m_hw_vbuf;
 
-    union
-    {
-        float* shadownorvertices;
-        norVertice_t* coshadownorvertices;
-    };
-
-    union
-    {
-        float* vertices;
-        CoVertice_t* covertices;
-    };
-
-    //nodes
-    //int *nodeIDs;
-    int id0;
-    int id1;
-    int idstart;
-
-    size_t ibufCount;
-    unsigned short* faces;
-    node_t* nodes;
-    int nbrays;
-    float rim_radius;
-    Ogre::SceneNode* rnode;
-    float normy;
-    bool revrim;
-    Ogre::Entity* rimEnt;
+    // Indices
+    size_t           m_index_count;
+    unsigned short*  m_indices;
 };

@@ -297,7 +297,7 @@ int DecalManager::finishTerrainDecal()
         //terrain_decals_snode->removeAllChildren();
         // crash under linux:
         //bakeNode->removeAndDestroyAllChildren();
-    } catch(Ogre::Exception& e)
+    } catch (Ogre::Exception& e)
     {
         LOG("error while baking decals: " + e.getFullDescription());
     }

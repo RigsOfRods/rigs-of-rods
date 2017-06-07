@@ -1,7 +1,7 @@
 /*
     This source file is part of Rigs of Rods
 
-    Copyright 2015+ Petr Ohlidal
+    Copyright 2015-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -25,8 +25,16 @@
 #include "FlexFactory.h"
 
 #include "Application.h"
+#include "Beam.h"
 #include "FlexBody.h"
+#include "FlexMeshWheel.h"
+#include "GlobalEnvironment.h"
+#include "RigDef_File.h"
+#include "RigSpawner.h"
 #include "Settings.h"
+
+#include <OgreMeshManager.h>
+#include <OgreSceneManager.h>
 
 //#define FLEXFACTORY_DEBUG_LOGGING
 
@@ -43,37 +51,44 @@ using namespace RoR;
 const char * FlexBodyFileIO::SIGNATURE = "RoR FlexBody";
 
 FlexFactory::FlexFactory(
-        MaterialFunctionMapper*   mfm,
-        MaterialReplacer*         mat_replacer,
-        Skin*                     skin,
-        node_t*                   all_nodes,
+        RigSpawner*               rig_spawner,
         bool                      is_flexbody_cache_enabled,
         int                       cache_entry_number
         ):
-    m_material_function_mapper(mfm),
-    m_material_replacer(mat_replacer),
-    m_used_skin(skin),
-    m_rig_nodes_ptr(all_nodes),
+    m_rig_spawner(rig_spawner),
     m_is_flexbody_cache_loaded(false),
     m_is_flexbody_cache_enabled(is_flexbody_cache_enabled),
     m_flexbody_cache_next_index(0)
 {
-    m_enable_flexbody_LODs = BSETTING("Flexbody_EnableLODs", false);
     m_flexbody_cache.SetCacheEntryNumber(cache_entry_number);
 }
 
 FlexBody* FlexFactory::CreateFlexBody(
-    const int num_nodes_in_rig, 
-    const char* mesh_name, 
-    const char* mesh_unique_name, 
+    RigDef::Flexbody* def,
     const int ref_node, 
     const int x_node, 
     const int y_node, 
-    Ogre::Vector3 const & offset,
     Ogre::Quaternion const & rot, 
-    std::vector<unsigned int> & node_indices
-    )
+    std::vector<unsigned int> & node_indices)
 {
+    const std::string resource_group_name
+            = Ogre::ResourceGroupManager::getSingleton().findGroupContainingResource(def->mesh_name);
+    if (resource_group_name.empty())
+    {
+        m_rig_spawner->AddMessage(RigSpawner::Message::TYPE_ERROR, "Failed to create flexbody, mesh not found: " + def->mesh_name);
+        return nullptr;
+    }
+    Ogre::MeshPtr common_mesh = Ogre::MeshManager::getSingleton().load(def->mesh_name, resource_group_name);
+    const std::string mesh_unique_name = m_rig_spawner->ComposeName("FlexbodyMesh", m_rig_spawner->GetRig()->free_flexbody);
+    Ogre::MeshPtr mesh = common_mesh->clone(mesh_unique_name);
+    if (BSETTING("Flexbody_EnableLODs", false))
+    {
+        this->ResolveFlexbodyLOD(def->mesh_name, mesh);
+    }
+    const std::string flexbody_name = m_rig_spawner->ComposeName("Flexbody", m_rig_spawner->GetRig()->free_flexbody);
+    Ogre::Entity* entity = gEnv->sceneManager->createEntity(flexbody_name, mesh_unique_name);
+    m_rig_spawner->SetupNewEntity(entity, Ogre::ColourValue(0.5, 0.5, 1));
+
     FLEX_DEBUG_LOG(__FUNCTION__);
     FlexBodyCacheData* from_cache = nullptr;
     if (m_is_flexbody_cache_loaded)
@@ -82,29 +97,55 @@ FlexBody* FlexFactory::CreateFlexBody(
         from_cache = m_flexbody_cache.GetLoadedItem(m_flexbody_cache_next_index);
         m_flexbody_cache_next_index++;
     }
-    assert(m_rig_nodes_ptr != nullptr);
+
     FlexBody* new_flexbody = new FlexBody(
+        def,
         from_cache,
-        m_rig_nodes_ptr,
-        num_nodes_in_rig,
-        mesh_name,
-        mesh_unique_name,
+        m_rig_spawner->GetRig()->nodes,
+        m_rig_spawner->GetRig()->free_node,
+        entity,
         ref_node,
         x_node,
         y_node,
-        offset,
         rot,
-        node_indices,
-        m_material_function_mapper,
-        m_used_skin,
-        m_material_replacer,
-        m_enable_flexbody_LODs
-    );
+        node_indices);
+
     if (m_is_flexbody_cache_enabled)
     {
         m_flexbody_cache.AddItemToSave(new_flexbody);
     }
     return new_flexbody;
+}
+
+FlexMeshWheel* FlexFactory::CreateFlexMeshWheel(
+    unsigned int wheel_index,
+    int axis_node_1_index,
+    int axis_node_2_index,
+    int nstart,
+    int nrays,
+    float rim_radius,
+    bool rim_reverse,
+    std::string const & rim_mesh_name,
+    std::string const & tire_material_name)
+{
+    // Load+instantiate static mesh for rim
+    const std::string rim_entity_name = m_rig_spawner->ComposeName("MeshWheelRim", wheel_index);
+    Ogre::Entity* rim_prop_entity = gEnv->sceneManager->createEntity(rim_entity_name, rim_mesh_name);
+    m_rig_spawner->SetupNewEntity(rim_prop_entity, Ogre::ColourValue(0, 0.5, 0.8));
+
+    // Create dynamic mesh for tire
+    const std::string tire_mesh_name = m_rig_spawner->ComposeName("MWheelTireMesh", wheel_index);
+    FlexMeshWheel* flex_mesh_wheel = new FlexMeshWheel(
+        rim_prop_entity, m_rig_spawner->GetRig()->nodes, axis_node_1_index, axis_node_2_index, nstart, nrays,
+        tire_mesh_name, tire_material_name, rim_radius, rim_reverse);
+
+    // Instantiate the dynamic tire mesh
+    const std::string tire_instance_name = m_rig_spawner->ComposeName("MWheelTireEntity", wheel_index);
+    Ogre::Entity *tire_entity = gEnv->sceneManager->createEntity(tire_instance_name, tire_mesh_name);
+    m_rig_spawner->SetupNewEntity(tire_entity, Ogre::ColourValue(0, 0.5, 0.8));
+    flex_mesh_wheel->m_tire_entity = tire_entity; // Friend access.
+
+    return flex_mesh_wheel;
 }
 
 void FlexBodyFileIO::WriteToFile(void* source, size_t length)
@@ -174,7 +215,6 @@ void FlexBodyFileIO::WriteFlexbodyHeader(FlexBody* flexbody)
     header.shared_buf_num_verts    = flexbody->m_shared_buf_num_verts   ;
     header.num_submesh_vbufs       = flexbody->m_num_submesh_vbufs      ;
     header.SetIsEnabled             (flexbody->m_is_enabled             );
-    header.SetIsFaulty              (flexbody->m_is_faulty              );
     header.SetUsesSharedVertexData  (flexbody->m_uses_shared_vertex_data); 
     header.SetHasTexture            (flexbody->m_has_texture            );
     header.SetHasTextureBlend       (flexbody->m_has_texture_blend      );
@@ -297,13 +337,10 @@ FlexBodyFileIO::ResultCode FlexBodyFileIO::SaveFile()
             FlexBody* flexbody = *itor;
             this->WriteFlexbodyHeader(flexbody);
 
-            if (!flexbody->m_is_faulty && flexbody->m_is_enabled)
-            {
-                this->WriteFlexbodyLocatorList    (flexbody);
-                this->WriteFlexbodyPositionsBuffer(flexbody);
-                this->WriteFlexbodyNormalsBuffer  (flexbody);
-                this->WriteFlexbodyColorsBuffer   (flexbody);
-            }
+            this->WriteFlexbodyLocatorList    (flexbody);
+            this->WriteFlexbodyPositionsBuffer(flexbody);
+            this->WriteFlexbodyNormalsBuffer  (flexbody);
+            this->WriteFlexbodyColorsBuffer   (flexbody);
         }
         this->CloseFile();
         FLEX_DEBUG_LOG(__FUNCTION__ " >> OK ");
@@ -382,5 +419,24 @@ void FlexFactory::SaveFlexbodiesToCache()
     {
         FLEX_DEBUG_LOG(__FUNCTION__ " >> Saving flexbodies");
         m_flexbody_cache.SaveFile();
+    }
+}
+
+void FlexFactory::ResolveFlexbodyLOD(std::string meshname, Ogre::MeshPtr newmesh)
+{
+    std::string basename, ext;
+    Ogre::StringUtil::splitBaseFilename(meshname, basename, ext);
+    for (int i=0; i<4;i++)
+    {
+        const std::string fn = basename + "_" + TOSTRING(i) + ".mesh";
+
+        if (!Ogre::ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(fn))
+            continue;
+
+        float distance = 3;
+        if (i == 1) distance = 20;
+        if (i == 2) distance = 50;
+        if (i == 3) distance = 200;
+        newmesh->createManualLodLevel(distance, fn);
     }
 }

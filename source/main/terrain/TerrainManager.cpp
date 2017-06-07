@@ -52,8 +52,9 @@
 using namespace RoR;
 using namespace Ogre;
 
-TerrainManager::TerrainManager() :
-      character(0)
+TerrainManager::TerrainManager(RoRFrameListener* sim_controller)
+    : m_sim_controller(sim_controller)
+    , character(0)
     , collisions(0)
     , dashboard(0)
     , envmap(0)
@@ -145,7 +146,7 @@ void TerrainManager::loadTerrain(String filename)
         String group = ResourceGroupManager::getSingleton().findGroupContainingResource(filename);
         ds = ResourceGroupManager::getSingleton().openResource(filename, group);
     }
-    catch(...)
+    catch (...)
     {
         LOG("[RoR|Terrain] File not found: " + filename);
         return;
@@ -219,7 +220,8 @@ void TerrainManager::initSubSystems()
     initObjects();
 
     PROGRESS_WINDOW(19, _L("Initializing Collision Subsystem"));
-    initCollisions();
+    collisions = new Collisions(m_sim_controller);
+    gEnv->collisions = collisions;
 
     PROGRESS_WINDOW(19, _L("Initializing Script Subsystem"));
     initScripting();
@@ -603,12 +605,6 @@ void TerrainManager::loadTerrainObjects()
     object_manager->postLoad(); // bakes the geometry and things
 }
 
-void TerrainManager::initCollisions()
-{
-    collisions = new Collisions();
-    gEnv->collisions = collisions;
-}
-
 void TerrainManager::initTerrainCollisions()
 {
     if (!m_def.traction_map_file.empty())
@@ -656,7 +652,7 @@ void TerrainManager::initScripting()
 void TerrainManager::setGravity(float value)
 {
     gravity = value;
-    BeamFactory::getSingleton().recalcGravityMasses();
+    m_sim_controller->GetBeamFactory()->recalcGravityMasses();
 }
 
 void TerrainManager::initGeometry()

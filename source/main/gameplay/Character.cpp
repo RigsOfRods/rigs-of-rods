@@ -27,7 +27,7 @@
 #include "IHeightFinder.h"
 #include "InputEngine.h"
 #include "Network.h"
-#include "PlayerColours.h"
+#include "RoRFrameListener.h"
 #include "SurveyMapEntity.h"
 #include "SurveyMapManager.h"
 #include "TerrainManager.h"
@@ -60,6 +60,7 @@ Character::Character(int source, unsigned int streamid, int colourNumber, bool r
     , m_source_id(source)
     , m_stream_id(streamid)
     , isCoupled(0)
+    , m_sim_controller(nullptr)
 {
     myNumber = characterCounter++;
     myName = "Character" + TOSTRING(myNumber);
@@ -142,8 +143,20 @@ void Character::updateCharacterRotation()
 
 void Character::updateCharacterColour()
 {
-    String matName = "tracks/" + myName;
-    PlayerColours::getSingleton().updateMaterial(colourNumber, matName, 2);
+    const String materialName = "tracks/" + myName;
+    const int textureUnitStateNum = 2;
+
+    MaterialPtr mat = MaterialManager::getSingleton().getByName(materialName);
+    if (mat.isNull())
+        return;
+
+    if (mat->getNumTechniques() > 0 && mat->getTechnique(0)->getNumPasses() > 0 && textureUnitStateNum < mat->getTechnique(0)->getPass(0)->getNumTextureUnitStates())
+    {
+        auto state = mat->getTechnique(0)->getPass(0)->getTextureUnitState(textureUnitStateNum);
+        auto color = Networking::GetPlayerColor(colourNumber);
+        state->setAlphaOperation(LBX_BLEND_CURRENT_ALPHA, LBS_MANUAL, LBS_CURRENT, 0.8);
+        state->setColourOperationEx(LBX_BLEND_CURRENT_ALPHA, LBS_MANUAL, LBS_CURRENT, color, color, 1);
+    }
 }
 
 void Character::updateLabels()
@@ -664,7 +677,7 @@ void Character::receiveStreamData(unsigned int& type, int& source, unsigned int&
         else if (msg->command == Networking::CHARACTER_CMD_ATTACH)
         {
             auto* attach_msg = reinterpret_cast<Networking::CharacterMsgAttach*>(buffer);
-            Beam* beam = BeamFactory::getSingleton().getBeam(attach_msg->source_id, attach_msg->stream_id);
+            Beam* beam = m_sim_controller->GetBeamFactory()->getBeam(attach_msg->source_id, attach_msg->stream_id);
             if (beam != nullptr)
             {
                 this->setBeamCoupling(true, beam);

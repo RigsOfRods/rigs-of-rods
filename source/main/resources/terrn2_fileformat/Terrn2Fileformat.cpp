@@ -128,7 +128,6 @@ void Terrn2Parser::ProcessTeleport(Terrn2Def& def, RoR::ConfigFile* file)
     for (;;)
     {        
         char key_position [50];
-        char key_id       [50];
         char key_name     [50];
 
         snprintf(key_position,  50, "Telepoint%d/Position" , telepoint_number);

@@ -22,11 +22,11 @@
 
 #include "RoRPrerequisites.h"
 
-class Buoyance : public ZeroedMemoryAllocator
+class Buoyance
 {
 public:
 
-    Buoyance();
+    Buoyance(DustPool* splash, DustPool* ripple);
     ~Buoyance();
 
     void computeNodeForce(node_t *a, node_t *b, node_t *c, bool doUpdate, int type);

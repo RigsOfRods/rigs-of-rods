@@ -37,6 +37,7 @@
 #include "FlexAirfoil.h"
 #include "InputEngine.h"
 #include "Replay.h"
+#include "RoRFrameListener.h"
 #include "ScrewProp.h"
 #include "SoundScriptManager.h"
 #include "Water.h"
@@ -77,7 +78,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
         it->timer = std::max(0.0f, it->timer - dt);
     }
 
-    if (this == BeamFactory::getSingleton().getCurrentTruck()) //force feedback sensors
+    if (this == m_sim_controller->GetBeamFactory()->getCurrentTruck()) //force feedback sensors
     {
         if (doUpdate)
         {
@@ -1158,7 +1159,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
             engine->setPrime(requested);
         }
 
-        if (doUpdate && this == BeamFactory::getSingleton().getCurrentTruck())
+        if (doUpdate && this == m_sim_controller->GetBeamFactory()->getCurrentTruck())
         {
 #ifdef USE_OPENAL
             if (active > 0)
@@ -1869,9 +1870,10 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 
 void Beam::forwardCommands()
 {
-    Beam* current_truck = BeamFactory::getSingleton().getCurrentTruck();
-    Beam** trucks = BeamFactory::getSingleton().getTrucks();
-    int numtrucks = BeamFactory::getSingleton().getTruckCount();
+    auto bf = m_sim_controller->GetBeamFactory();
+    Beam* current_truck = bf->getCurrentTruck();
+    Beam** trucks = bf->getTrucks();
+    int numtrucks = bf->getTruckCount();
 
     // forward things to trailers
     if (numtrucks > 1 && this == current_truck && forwardcommands)
