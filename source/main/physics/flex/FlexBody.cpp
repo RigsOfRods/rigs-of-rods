@@ -221,7 +221,7 @@ FlexBody::FlexBody(
         SubMesh* sm = smIt.getNext();
         if (!sm->useSharedVertices)
         {
-            sm->vertexData->reorganiseBuffers(optimalVD, optimalBufferUsages);
+            sm->vertexData->reorganiseBuffers(optimalVD->clone(), optimalBufferUsages);
             sm->vertexData->removeUnusedBuffers();
             sm->vertexData->closeGapsInBindings();
         }
