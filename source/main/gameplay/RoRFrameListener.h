@@ -29,8 +29,6 @@
 
 #include <Ogre.h>
 
-namespace RoR { struct Terrn2Telepoint; } // Forward decl.
-
 /// The simulation controller object (TODO: Rename this class to SimController)
 /// It's lifetime is tied to single gameplay session. When user returns to main menu, it's destroyed.
 ///

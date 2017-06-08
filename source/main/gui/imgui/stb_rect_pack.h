@@ -479,32 +479,7 @@ static stbrp__findresult stbrp__skyline_pack_rectangle(stbrp_context *context, i
    if (cur->x < res.x + width)
       cur->x = (stbrp_coord) (res.x + width);
 
-#ifdef _DEBUG
-   cur = context->active_head;
-   while (cur->x < context->width) {
-      STBRP_ASSERT(cur->x < cur->next->x);
-      cur = cur->next;
-   }
-   STBRP_ASSERT(cur->next == NULL);
-
-   {
-      stbrp_node *L1 = NULL, *L2 = NULL;
-      int count=0;
-      cur = context->active_head;
-      while (cur) {
-         L1 = cur;
-         cur = cur->next;
-         ++count;
-      }
-      cur = context->free_head;
-      while (cur) {
-         L2 = cur;
-         cur = cur->next;
-         ++count;
-      }
-      STBRP_ASSERT(count == context->num_nodes+2);
-   }
-#endif
+   // RoR: Removed debugging code - was yielding Codacy review issues 
 
    return res;
 }
