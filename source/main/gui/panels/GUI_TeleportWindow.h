@@ -19,13 +19,11 @@
 
 #pragma once
 
+#include "ForwardDeclarations.h"
 #include "GUI_TeleportWindowLayout.h"
 #include "GuiPanelBase.h"
 
 namespace RoR {
-
-struct Terrn2Def; // Forward
-
 namespace GUI {
 
 class TeleportWindow : public TeleportWindowLayout, public GuiPanelBase

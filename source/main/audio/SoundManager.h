@@ -36,9 +36,6 @@
   #include <AL/alc.h>
 #endif // __APPLE__
 
-class Sound; // Forward decl.
-
-
 class SoundManager : public ZeroedMemoryAllocator
 {
     friend class Sound;
