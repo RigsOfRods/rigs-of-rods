@@ -61,6 +61,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <intrin.h>
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
   #include <intrin.h>
