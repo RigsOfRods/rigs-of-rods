@@ -56,9 +56,6 @@
         </Widget>
     </Widget>
     <CodeGeneratorSettings>
-        <Property key="IncludeDirectory" value="C:\New ROR Project\RoR NextStable GUI\source\main\gui\panels"/>
         <Property key="PanelName" value="DebugOptionsLayout"/>
-        <Property key="PanelNamespace" value="lol"/>
-        <Property key="SourceDirectory" value="C:\New ROR Project\RoR NextStable GUI\source\main\gui\panels"/>
     </CodeGeneratorSettings>
 </MyGUI>

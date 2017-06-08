@@ -13,9 +13,6 @@
         </Widget>
     </Widget>
     <CodeGeneratorSettings>
-        <Property key="IncludeDirectory" value="C:\New ROR Project\RoR NextStable GUI\ror_nextstable_gui\source\main\gui\panels"/>
         <Property key="PanelName" value="MessageBoxLayout"/>
-        <Property key="PanelNamespace" value="lol"/>
-        <Property key="SourceDirectory" value="C:\New ROR Project\RoR NextStable GUI\ror_nextstable_gui\source\main\gui\panels"/>
     </CodeGeneratorSettings>
 </MyGUI>
