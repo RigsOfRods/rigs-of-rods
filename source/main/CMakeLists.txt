@@ -138,7 +138,6 @@ set( SOURCE_FILES
   gui/panels/GUI_GameChatBoxLayout.{h,cpp}
   gui/panels/GUI_GameConsoleLayout.{h,cpp}
   gui/panels/GUI_GameMainMenu.{h,cpp}
-  gui/panels/GUI_GameMainMenuLayout.{h,cpp}
   gui/panels/GUI_GamePauseMenu.{h,cpp}
   gui/panels/GUI_GamePauseMenuLayout.{h,cpp}
   gui/panels/GUI_MainSelector.{h,cpp}

@@ -128,6 +128,7 @@ bool GUIManager::IsVisible_Console              () { return m_impl->panel_GameCo
 // GUI GetInstance*()
 Console*                    GUIManager::GetConsole()           { return &m_impl->panel_GameConsole         ; }
 GUI::MainSelector*          GUIManager::GetMainSelector()      { return &m_impl->panel_MainSelector        ; }
+GUI::GameMainMenu*          GUIManager::GetMainMenu()          { return &m_impl->panel_GameMainMenu        ; }
 GUI::LoadingWindow*         GUIManager::GetLoadingWindow()     { return &m_impl->panel_LoadingWindow       ; }
 GUI::MpClientList*          GUIManager::GetMpClientList()      { return &m_impl->panel_MpClientList        ; }
 GUI::MultiplayerSelector*   GUIManager::GetMpSelector()        { return &m_impl->panel_MultiplayerSelector ; }
@@ -262,7 +263,6 @@ void GUIManager::windowResized(Ogre::RenderWindow* rw)
     int height = (int)rw->getHeight();
     setInputViewSize(width, height);
 
-    this->AdjustMainMenuPosition();
 }
 
 void GUIManager::windowClosed(Ogre::RenderWindow* rw)
@@ -297,14 +297,6 @@ Ogre::String GUIManager::getRandomWallpaperImage()
 void GUIManager::SetSceneManagerForGuiRendering(Ogre::SceneManager* scene_manager)
 {
     m_impl->mygui_platform->getRenderManagerPtr()->setSceneManager(scene_manager);
-}
-
-void GUIManager::AdjustMainMenuPosition()
-{
-    Ogre::Viewport* viewport = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
-    int margin = (viewport->getActualHeight() / 15);
-    int top = viewport->getActualHeight() - m_impl->panel_GameMainMenu.GetHeight() - margin;
-    m_impl->panel_GameMainMenu.SetPosition(margin, top);
 }
 
 void GUIManager::UpdateSimUtils(float dt, Beam *truck)
@@ -482,6 +474,14 @@ void GUIManager::SetupImGui()
     style.ItemSpacing           = ImVec2(5.f, 5.f);
     style.GrabRounding          = 3.f;
     style.ChildWindowRounding   = 4.f;
+}
+
+void GUIManager::DrawMainMenuGui()
+{
+    if (m_impl->panel_GameMainMenu.IsVisible())
+    {
+        m_impl->panel_GameMainMenu.Draw();
+    }
 }
 
 } // namespace RoR
