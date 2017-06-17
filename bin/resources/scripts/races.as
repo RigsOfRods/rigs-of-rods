@@ -1043,12 +1043,12 @@ class racesManager {
 		}
 		
 		if( this.raceList[this.currentRace].laps == this.LAPS_NoLaps )
-			game.setDirectionArrow(this.raceList[this.currentRace].raceName+"\ncheckpoint "+position+" / "+(this.raceList[this.currentRace].checkPointsCount-1), vector3(v[0], v[1], v[2]));
+			game.UpdateDirectionArrow(this.raceList[this.currentRace].raceName+"\ncheckpoint "+position+" / "+(this.raceList[this.currentRace].checkPointsCount-1), vector3(v[0], v[1], v[2]));
 		else
 		{
 			if( position == 0 )
 				position = this.raceList[this.currentRace].checkPointsCount;
-			game.setDirectionArrow(this.raceList[this.currentRace].raceName+"\ncheckpoint "+position+" / "+(this.raceList[this.currentRace].checkPointsCount), vector3(v[0], v[1], v[2]));
+			game.UpdateDirectionArrow(this.raceList[this.currentRace].raceName+"\ncheckpoint "+position+" / "+(this.raceList[this.currentRace].checkPointsCount), vector3(v[0], v[1], v[2]));
 		}
 	}
 	
