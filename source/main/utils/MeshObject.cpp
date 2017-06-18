@@ -94,7 +94,7 @@ void MeshObject::setVisible(bool b)
 
 void MeshObject::postProcess()
 {
-    static const float sightrange = App::GetGfxSightRange();
+    static const float sightrange = App::gfx_sight_range.GetActive();
 
     loaded = true;
     if (!sceneNode)

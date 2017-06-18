@@ -25,10 +25,11 @@
 
 #include "OgreScriptBuilder.h"
 
+#include "Application.h"
+#include "SHA1.h"
+
 #include <string>
 #include <Ogre.h>
-
-#include "SHA1.h"
 
 using namespace std;
 using namespace Ogre;

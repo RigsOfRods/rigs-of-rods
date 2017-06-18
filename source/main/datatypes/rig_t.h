@@ -192,7 +192,7 @@ struct rig_t
     char helpmat[256];
     int cinecameranodepos[MAX_CAMERAS]; //!< Cine-camera node indexes
     int freecinecamera; //!< Number of cine-cameras (lowest free index)
-    RoR::App::GfxFlaresMode m_flares_mode;
+    RoR::GfxFlaresMode m_flares_mode;
     std::vector<Ogre::Entity*> deletion_Entities; //!< For unloading vehicle; filled at spawn.
     std::vector<Ogre::MovableObject *> deletion_Objects; //!< For unloading vehicle; filled at spawn.
     std::vector<Ogre::SceneNode*> deletion_sceneNodes; //!< For unloading vehicle; filled at spawn.

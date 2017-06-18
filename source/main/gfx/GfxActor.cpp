@@ -222,7 +222,7 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
     {
 #ifdef USE_CAELUM
         // caelum needs to know that we changed the cameras
-        if (gEnv->sky && RoR::App::GetActiveAppState() == RoR::App::APP_STATE_SIMULATION)
+        if (gEnv->sky && RoR::App::app_state.GetActive() == RoR::AppState::SIMULATION)
         {
             gEnv->sky->notifyCameraChanged(vidcam.vcam_ogre_camera);
         }

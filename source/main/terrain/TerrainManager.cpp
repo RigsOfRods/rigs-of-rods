@@ -197,7 +197,7 @@ void TerrainManager::loadTerrain(String filename)
     initTerrainCollisions();
 
     // init the survey map
-    if (!RoR::App::GetGfxMinimapDisabled())
+    if (!RoR::App::gfx_minimap_disabled.GetActive())
     {
         PROGRESS_WINDOW(45, _L("Initializing Overview Map Subsystem"));
         m_survey_map = new SurveyMapManager();
@@ -238,7 +238,7 @@ void TerrainManager::initSubSystems()
     PROGRESS_WINDOW(27, _L("Initializing Light Subsystem"));
     initLight();
 
-    if (App::GetGfxSkyMode() != App::GFX_SKY_CAELUM) //Caelum has its own fog management
+    if (App::gfx_sky_mode.GetActive() != GfxSkyMode::CAELUM) //Caelum has its own fog management
     {
         PROGRESS_WINDOW(29, _L("Initializing Fog Subsystem"));
         initFog();
@@ -251,12 +251,12 @@ void TerrainManager::initSubSystems()
     //PROGRESS_WINDOW(33, _L("Initializing Water Subsystem"));
     //initWater();
 
-    if (App::GetGfxEnableHdr())
+    if (App::gfx_enable_hdr.GetActive())
     {
         PROGRESS_WINDOW(35, _L("Initializing HDR Subsystem"));
         initHDR();
     }
-    if (RoR::App::GetGfxEnableGlow())
+    if (RoR::App::gfx_enable_glow.GetActive())
     {
         PROGRESS_WINDOW(37, _L("Initializing Glow Subsystem"));
         initGlow();
@@ -266,7 +266,7 @@ void TerrainManager::initSubSystems()
         PROGRESS_WINDOW(39, _L("Initializing Motion Blur Subsystem"));
         initMotionBlur();
     }
-    if (RoR::App::GetGfxEnableSunburn())
+    if (RoR::App::gfx_enable_sunburn.GetActive())
     {
         PROGRESS_WINDOW(41, _L("Initializing Sunburn Subsystem"));
         initSunburn();
@@ -286,14 +286,14 @@ void TerrainManager::initCamera()
     gEnv->mainCamera->getViewport()->setBackgroundColour(m_def.ambient_color);
     gEnv->mainCamera->setPosition(m_def.start_position);
 
-    far_clip = App::GetGfxSightRange();
+    far_clip = App::gfx_sight_range.GetActive();
 
     if (far_clip < UNLIMITED_SIGHTRANGE)
         gEnv->mainCamera->setFarClipDistance(far_clip);
     else
     {
         // disabled in global config
-        if (App::GetGfxWaterMode() != App::GFX_WATER_HYDRAX)
+        if (App::gfx_water_mode.GetActive() != GfxWaterMode::HYDRAX)
             gEnv->mainCamera->setFarClipDistance(0); //Unlimited
         else
             gEnv->mainCamera->setFarClipDistance(9999 * 6); //Unlimited for hydrax and stuff
@@ -304,7 +304,7 @@ void TerrainManager::initSkySubSystem()
 {
 #ifdef USE_CAELUM
     // Caelum skies
-    if (App::GetGfxSkyMode() == App::GFX_SKY_CAELUM)
+    if (App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM)
     {
         sky_manager = new SkyManager();
         gEnv->sky = sky_manager;
@@ -340,7 +340,7 @@ void TerrainManager::initSkySubSystem()
 
 void TerrainManager::initLight()
 {
-    if (App::GetGfxSkyMode() == App::GFX_SKY_CAELUM)
+    if (App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM)
     {
 #ifdef USE_CAELUM
         main_light = sky_manager->getMainLight();
@@ -374,7 +374,7 @@ void TerrainManager::initFog()
 
 void TerrainManager::initVegetation()
 {
-    paged_mode = App::GetGfxVegetationMode();
+    paged_mode = static_cast<int>(App::gfx_vegetation_mode.GetActive()); // TODO: don't cast enum to int!
 
     switch (paged_mode)
     {
@@ -532,7 +532,7 @@ void TerrainManager::fixCompositorClearColor()
 void TerrainManager::initWater()
 {
     // disabled in global config
-    if (App::GetGfxWaterMode() == App::GFX_WATER_NONE)
+    if (App::gfx_water_mode.GetActive() == GfxWaterMode::NONE)
         return;
 
     // disabled in map config
@@ -541,7 +541,7 @@ void TerrainManager::initWater()
         return;
     }
 
-    if (App::GetGfxWaterMode() == App::GFX_WATER_HYDRAX)
+    if (App::gfx_water_mode.GetActive() == GfxWaterMode::HYDRAX)
     {
         // try to load hydrax config
         if (!m_def.hydrax_conf_file.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def.hydrax_conf_file))
@@ -630,7 +630,7 @@ void TerrainManager::initScripting()
     bool loaded = false;
 
     // only load terrain scripts while not in multiplayer
-    if (RoR::App::GetActiveMpState() != RoR::App::MP_STATE_CONNECTED)
+    if (RoR::App::mp_state.GetActive() != RoR::MpState::CONNECTED)
     {
         for (std::string as_filename : m_def.as_files)
         {

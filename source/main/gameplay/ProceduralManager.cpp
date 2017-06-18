@@ -19,6 +19,8 @@
 */
 
 #include "ProceduralManager.h"
+
+#include "Application.h"
 #include "Road2.h"
 
 using namespace Ogre;

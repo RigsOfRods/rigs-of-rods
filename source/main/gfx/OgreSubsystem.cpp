@@ -110,7 +110,7 @@ bool OgreSubsystem::LoadOgrePlugins(Ogre::String const & pluginsfile)
 
     if (pluginDir.empty())
     {
-        pluginDir = RoR::App::GetSysProcessDir();
+        pluginDir = RoR::App::sys_process_dir.GetActive();
     }
 
     for ( Ogre::StringVector::iterator it = pluginList.begin(); it != pluginList.end(); ++it )
@@ -133,13 +133,14 @@ bool OgreSubsystem::StartOgre(Ogre::String const & hwnd, Ogre::String const & ma
     m_hwnd = hwnd;
     m_main_hwnd = mainhwnd;
 
-    std::string log_filepath = RoR::App::GetSysLogsDir()   + PATH_SLASH + "RoR.log";
-    std::string cfg_filepath = RoR::App::GetSysConfigDir() + PATH_SLASH + "ogre.cfg";
+    std::string log_filepath = std::string(RoR::App::sys_logs_dir.GetActive())   + PATH_SLASH + "RoR.log";
+    std::string cfg_filepath = std::string(RoR::App::sys_config_dir.GetActive()) + PATH_SLASH + "ogre.cfg";
     m_ogre_root = new Ogre::Root("", cfg_filepath, log_filepath);
 
     // load plugins manually
-    std::string plugins_filepath = RoR::App::GetSysProcessDir() + PATH_SLASH + "plugins.cfg";
-    this->LoadOgrePlugins(plugins_filepath);
+    GStr<300> plugins_path;
+    plugins_path << RoR::App::sys_process_dir.GetActive() << PATH_SLASH << "plugins.cfg";
+    this->LoadOgrePlugins(std::string(plugins_path));
 
     // configure RoR
     this->Configure();

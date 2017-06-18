@@ -106,7 +106,7 @@ void GameScript::setPersonPosition(const Vector3& vec)
 
 void GameScript::loadTerrain(const String& terrain)
 {
-    App::SetSimNextTerrain(terrain);
+    App::sim_terrain_name.SetPending(terrain.c_str());
     mse->GetFrameListener()->LoadTerrain();
 }
 
@@ -705,11 +705,11 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
     {
         server_port_str = TOSTRING(port);
     }
-    const bool mp_connected = (RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED);
+    const bool mp_connected = (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED);
     curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_ScriptName", CURLFORM_COPYCONTENTS, mse->getScriptName().c_str(), CURLFORM_END);
     curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_ScriptHash", CURLFORM_COPYCONTENTS, mse->getScriptHash().c_str(), CURLFORM_END);
-    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_NickName", CURLFORM_COPYCONTENTS, App::GetMpPlayerName().c_str(), CURLFORM_END);
-    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_Language", CURLFORM_COPYCONTENTS, App::GetAppLanguage().c_str(), CURLFORM_END);
+    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_NickName", CURLFORM_COPYCONTENTS, App::mp_player_name.GetActive().c_str(), CURLFORM_END);
+    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_Language", CURLFORM_COPYCONTENTS, App::app_language.GetActive().c_str(), CURLFORM_END);
     curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_Token", CURLFORM_COPYCONTENTS, SSETTING("User Token Hash", "-").c_str(), CURLFORM_END);
     curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "RoR_VersionString", CURLFORM_COPYCONTENTS, ROR_VERSION_STRING, CURLFORM_END);
     curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "RoR_ProtocolVersion", CURLFORM_COPYCONTENTS, RORNET_VERSION, CURLFORM_END);
@@ -924,7 +924,7 @@ int GameScript::deleteScriptVariable(const String& arg)
 int GameScript::sendGameCmd(const String& message)
 {
 #ifdef USE_SOCKETW
-    if (RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED)
+    if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
     {
         RoR::Networking::AddPacket(0, RoRnet::MSG2_GAME_CMD, (int)message.size(), const_cast<char*>(message.c_str()));
         return 0;
@@ -963,12 +963,12 @@ void GameScript::showMessageBox(Ogre::String& mTitle, Ogre::String& mText, bool 
 
 void GameScript::backToMenu()
 {
-    App::SetPendingAppState(App::APP_STATE_MAIN_MENU);
+    App::app_state.SetPending(AppState::MAIN_MENU);
 }
 
 void GameScript::quitGame()
 {
-    RoR::App::SetPendingAppState(RoR::App::APP_STATE_SHUTDOWN);
+    RoR::App::app_state.SetPending(RoR::AppState::SHUTDOWN);
 }
 
 float GameScript::getFPS()

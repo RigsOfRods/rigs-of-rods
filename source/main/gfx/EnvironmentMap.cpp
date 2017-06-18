@@ -86,7 +86,7 @@ Envmap::Envmap() :
         }
     }
 
-    if (App::GetDiagEnvmap())
+    if (App::diag_envmap.GetActive())
     {
         // create fancy mesh for debugging the envmap
         Overlay* overlay = OverlayManager::getSingleton().create("EnvMapDebugOverlay");
@@ -223,7 +223,7 @@ Envmap::~Envmap()
 
 void Envmap::update(Ogre::Vector3 center, Beam* beam /* = 0 */)
 {
-    if (!App::GetGfxEnvmapEnabled() || !beam)
+    if (!App::gfx_envmap_enabled.GetActive() || !beam)
     {
         if (!mInitiated)
         {
@@ -253,7 +253,7 @@ void Envmap::update(Ogre::Vector3 center, Beam* beam /* = 0 */)
         beam->setBeamVisibility(false);
     }
 
-    const int update_rate = App::GetGfxEnvmapRate();
+    const int update_rate = App::gfx_envmap_rate.GetActive();
     for (int i = 0; i < update_rate; i++)
     {
         // caelum needs to know that we changed the cameras

@@ -82,15 +82,11 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 // version information now residing in RoRVersion.h
 
 // some shortcuts for us
-#define LOG(x)       Ogre::LogManager::getSingleton().logMessage(x)
-#define LOGSAFE(x)   do { if (Ogre::LogManager::getSingletonPtr()) Ogre::LogManager::getSingleton().logMessage(x);  } while(0) // use this if you log whenever its unsure if Ogre was started properly beforehand
 #define TOSTRING(x)  Ogre::StringConverter::toString(x)
 #define TOUTFSTRING(x)  ANSI_TO_UTF(Ogre::StringConverter::toString(x))
 #define PARSEINT(x)  Ogre::StringConverter::parseInt(x)
 #define PARSEREAL(x) Ogre::StringConverter::parseReal(x)
 #define HydraxLOG(msg) Ogre::LogManager::getSingleton().logMessage("[Hydrax] " + Ogre::String(msg));
-
-#define OGREFUNCTIONSTRING  Ogre::String(__FUNCTION__)+" @ "+Ogre::String(__FILE__)+":"+TOSTRING(__LINE__)
 
 // debug asserts
 // #define FEAT_DEBUG_ASSERT

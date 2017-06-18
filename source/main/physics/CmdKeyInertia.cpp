@@ -19,6 +19,8 @@
 */
 
 #include "CmdKeyInertia.h"
+
+#include "Application.h"
 #include "Utils.h"
 
 #include <Ogre.h>

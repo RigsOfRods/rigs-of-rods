@@ -20,6 +20,8 @@
 
 #include "Airfoil.h"
 
+#include "Application.h"
+
 #include <Ogre.h>
 
 using namespace Ogre;

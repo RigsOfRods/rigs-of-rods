@@ -94,20 +94,20 @@ void CLASS::Hide()
 void CLASS::eventMouseButtonClickSelectTerrainButton(MyGUI::WidgetPtr _sender)
 {
     this->Hide();
-    if (App::GetDiagPreselectedTerrain() == "")
+    if (App::diag_preset_terrain.IsActiveEmpty())
     {
         App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
     }
     else
     {
-        App::SetPendingAppState(App::APP_STATE_SIMULATION);
+        App::app_state.SetPending(RoR::AppState::SIMULATION);
     }
 }
 
 void CLASS::eventMouseButtonClickSettingButton(MyGUI::WidgetPtr _sender)
 {
-    App::GetGuiManager()->SetVisible_GameSettings(true);
-    Hide();
+// TODO: Re-implement the settings GUI using 'DearIMGUI' library! ~ only_a_ptr, 06/2017
+
 }
 
 void CLASS::eventMouseButtonClickAboutButton(MyGUI::WidgetPtr _sender)
@@ -119,7 +119,7 @@ void CLASS::eventMouseButtonClickAboutButton(MyGUI::WidgetPtr _sender)
 void CLASS::eventMouseButtonClickExitButton(MyGUI::WidgetPtr _sender)
 {
     Hide();
-    App::SetPendingAppState(App::APP_STATE_SHUTDOWN);
+    App::app_state.SetPending(RoR::AppState::SHUTDOWN);
 }
 
 void CLASS::eventMouseButtonClickMultiPlayerButton(MyGUI::WidgetPtr _sender)

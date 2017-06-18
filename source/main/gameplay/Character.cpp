@@ -28,6 +28,7 @@
 #include "InputEngine.h"
 #include "Network.h"
 #include "RoRFrameListener.h"
+#include "Settings.h"
 #include "SurveyMapEntity.h"
 #include "SurveyMapManager.h"
 #include "TerrainManager.h"
@@ -81,7 +82,7 @@ Character::Character(int source, unsigned int streamid, int colourNumber, bool r
     mCharacterNode->setScale(0.02f, 0.02f, 0.02f);
     mAnimState = entity->getAllAnimationStates();
 
-    if (App::GetActiveMpState() == App::MP_STATE_CONNECTED)
+    if (App::mp_state.GetActive() == MpState::CONNECTED)
     {
         sendStreamSetup();
     }
@@ -95,7 +96,7 @@ Character::Character(int source, unsigned int streamid, int colourNumber, bool r
     entity->setMaterialName("tracks/" + myName);
 
 #ifdef USE_SOCKETW
-    if ((App::GetActiveMpState() == App::MP_STATE_CONNECTED) && (remote || !mHideOwnNetLabel))
+    if ((App::mp_state.GetActive() == MpState::CONNECTED) && (remote || !mHideOwnNetLabel))
     {
         mMoveableText = new MovableText("netlabel-" + myName, "");
         mCharacterNode->attachObject(mMoveableText);
@@ -161,7 +162,7 @@ void Character::updateCharacterColour()
 
 void Character::updateLabels()
 {
-    if (App::GetActiveMpState() != App::MP_STATE_CONNECTED) { return; }
+    if (App::mp_state.GetActive() != MpState::CONNECTED) { return; }
 
 #ifdef USE_SOCKETW
     RoRnet::UserInfo info;
@@ -547,7 +548,7 @@ void Character::update(float dt)
     }
 
 #ifdef USE_SOCKETW
-    if ((App::GetActiveMpState() == App::MP_STATE_CONNECTED) && !remote)
+    if ((App::mp_state.GetActive() == MpState::CONNECTED) && !remote)
     {
         sendStreamData();
     }
@@ -733,7 +734,7 @@ void Character::setBeamCoupling(bool enabled, Beam* truck /* = 0 */)
         {
             mMoveableText->setVisible(false);
         }
-        if ((App::GetActiveMpState() == App::MP_STATE_CONNECTED) && !remote)
+        if ((App::mp_state.GetActive() == MpState::CONNECTED) && !remote)
         {
 #ifdef USE_SOCKETW
             Networking::CharacterMsgAttach msg;
@@ -764,7 +765,7 @@ void Character::setBeamCoupling(bool enabled, Beam* truck /* = 0 */)
         {
             mMoveableText->setVisible(true);
         }
-        if ((App::GetActiveMpState() == App::MP_STATE_CONNECTED) && !remote)
+        if ((App::mp_state.GetActive() == MpState::CONNECTED) && !remote)
         {
 #ifdef USE_SOCKETW
             Networking::CharacterMsgGeneric msg;

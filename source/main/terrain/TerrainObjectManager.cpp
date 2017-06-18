@@ -299,7 +299,9 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 
             paged_geometry_t paged;
             paged.geom = new PagedGeometry();
-            paged.geom->setTempDir(RoR::App::GetSysCacheDir() + PATH_SLASH);
+            char temp_path[300];
+            snprintf(temp_path, 300, "%s%s", RoR::App::sys_cache_dir.GetActive(), PATH_SLASH);
+            paged.geom->setTempDir(temp_path);
             paged.geom->setCamera(gEnv->mainCamera);
             paged.geom->setPageSize(50);
             paged.geom->setInfinite();
@@ -1369,7 +1371,7 @@ bool TerrainObjectManager::updateAnimatedObjects(float dt)
 void TerrainObjectManager::loadPreloadedTrucks()
 {
     // in netmode, don't load other trucks!
-    if (RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED)
+    if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
     {
         return;
     }
