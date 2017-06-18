@@ -174,7 +174,7 @@ public:
 	 * @param position The position to which the arrow should point.
 	 * @see hideDirectionArrow
 	 */
-	void setDirectionArrow(string text, vector3 position);
+	void UpdateDirectionArrow(string text, vector3 position);
 
 
 	/**
@@ -331,7 +331,7 @@ public:
 
 	/**
 	 * Hides the direction arrow
-	 * @see setDirectionArrow
+	 * @see UpdateDirectionArrow
 	 */
 	void hideDirectionArrow();
 
