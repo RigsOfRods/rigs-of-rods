@@ -238,7 +238,7 @@ void CLASS::Cancel()
     m_selection_done = true;
     Hide();
 
-    if (App::GetActiveAppState() == App::APP_STATE_MAIN_MENU)
+    if (App::app_state.GetActive() == AppState::MAIN_MENU)
     {
         RoR::App::GetMainMenu()->LeaveMultiplayerServer();
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
@@ -722,9 +722,9 @@ void CLASS::OnSelectionDone()
             this->Hide(false); // Hide without fade-out effect
         }
     }
-    else if ((m_loader_type == LT_Terrain) && (App::GetActiveMpState() == App::MP_STATE_CONNECTED))
+    else if ((m_loader_type == LT_Terrain) && (App::mp_state.GetActive() == MpState::CONNECTED))
     {
-        App::SetPendingAppState(App::APP_STATE_SIMULATION);
+        App::app_state.SetPending(AppState::SIMULATION);
         this->Hide(false);
     }
     else
@@ -1004,7 +1004,7 @@ void CLASS::Show(LoaderType type)
 
     BindKeys();
 
-    if (type == LT_Terrain && (RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED))
+    if (type == LT_Terrain && (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED))
     {
         m_Cancel->setCaption(_L("Cancel (disconnect)"));
     }

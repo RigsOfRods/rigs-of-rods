@@ -50,7 +50,6 @@ public:
     // GUI SetVisible*()
     void SetVisible_GameMainMenu        (bool visible);
     void SetVisible_GameAbout           (bool visible);
-    void SetVisible_GameSettings        (bool visible);
     void SetVisible_GamePauseMenu       (bool visible);
     void SetVisible_DebugOptions        (bool visible);
     void SetVisible_MultiplayerSelector (bool visible);
@@ -68,7 +67,6 @@ public:
     // GUI IsVisible*()
     bool IsVisible_GameMainMenu         ();
     bool IsVisible_GameAbout            ();
-    bool IsVisible_GameSettings         ();
     bool IsVisible_GamePauseMenu        ();
     bool IsVisible_DebugOptions         ();
     bool IsVisible_MessageBox           ();

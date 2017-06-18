@@ -703,7 +703,7 @@ bool SoundScriptTemplate::setParameter(Ogre::StringVector vec)
             trigger_source = SS_TRIG_GEARSLIDE;
             return true;
         };
-        if (vec[1] == String("creak") && App::GetAudioEnableCreak())
+        if (vec[1] == String("creak") && App::audio_enable_creak.GetActive())
         {
             trigger_source = SS_TRIG_CREAK;
             return true;

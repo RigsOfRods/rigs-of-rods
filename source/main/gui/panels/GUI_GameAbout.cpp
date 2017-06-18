@@ -70,7 +70,7 @@ void CLASS::Show()
 void CLASS::Hide()
 {
     MAIN_WIDGET->setVisibleSmooth(false);
-    if (App::GetActiveAppState() == App::APP_STATE_MAIN_MENU)
+    if (App::app_state.GetActive() == AppState::MAIN_MENU)
     {
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }

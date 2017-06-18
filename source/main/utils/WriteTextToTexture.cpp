@@ -20,6 +20,8 @@
 
 #include "WriteTextToTexture.h"
 
+#include "Application.h"
+
 #include <OgreFont.h>
 #include <OgreHardwarePixelBuffer.h>
 #include <OgreMaterial.h>

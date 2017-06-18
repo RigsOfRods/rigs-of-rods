@@ -80,22 +80,24 @@ void LanguageEngine::setup()
     // also it must happen after loading all basic resources!
     reader = new moFileLib::moFileReader();
 
-    String language = App::GetAppLanguage();
-    String language_short = App::GetAppLocale().substr(0, 2); // only first two characters are important
+    GStr<300> mo_path;
+    mo_path << App::sys_process_dir.GetActive() << PATH_SLASH << "languages" << PATH_SLASH;
+    mo_path << App::app_locale.GetActive()[0] << App::app_locale.GetActive()[1]; // Only first 2 chars are important
+    mo_path << PATH_SLASH << "LC_MESSAGES";
 
     // Load a .mo-File.
-    LOG("*** Loading Language ***");
-    std::string lang_dir = App::GetSysProcessDir() + PATH_SLASH + "languages" + PATH_SLASH;
-    String langfile = lang_dir + language_short + String("/LC_MESSAGES/ror.mo");
-    if (reader->ReadFile(langfile.c_str()) != moFileLib::moFileReader::EC_SUCCESS)
+    RoR::Log("[RoR|App] Loading language file...");
+    GStr<300> rormo_path;
+    rormo_path << mo_path << PATH_SLASH << "ror.mo";
+    if (reader->ReadFile(rormo_path) != moFileLib::moFileReader::EC_SUCCESS)
     {
-        LOG("* error loading language file " + langfile);
+        RoR::LogFormat("[RoR|App] Error loading language file: '%s'", rormo_path.ToCStr());
         return;
     }
     working = true;
 
     // add resource path
-    ResourceGroupManager::getSingleton().addResourceLocation(lang_dir + language_short + String("/LC_MESSAGES"), "FileSystem", "LanguageFolder");
+    ResourceGroupManager::getSingleton().addResourceLocation(mo_path.GetBuffer(), "FileSystem", "LanguageFolder");
 
     ResourceGroupManager::getSingleton().initialiseResourceGroup("LanguageFolder");
 
@@ -107,28 +109,29 @@ void LanguageEngine::setup()
     bindtextdomain("ror","languages");
     textdomain("ror");
 
-    char *curr_locale = setlocale(LC_ALL,NULL);
+    char *curr_locale = setlocale(LC_ALL, NULL);
     if (curr_locale)
-        LOG("system locale is: " + String(curr_locale));
+        RoR::LogFormat("[RoR|App] System locale is '%s'", curr_locale);
     else
-        LOG("unable to read system locale!");
+        RoR::Log("[RoR|App] Warning: Unable to detect system locale!");
 
-    String language_short = App::GetAppLocale().substr(0, 2); // only first two characters are important
+    String language_short = Ogre::String(App::app_locale.GetActive()).substr(0, 2); // only first two characters are important
     if (!language_short.empty())
     {
-        LOG("setting new locale to " + language_short);
+        RoR::LogFormat("[RoR|App] Setting locale to '%s'", language_short.c_str());
         char *newlocale = setlocale(LC_ALL, language_short.c_str());
         if (newlocale)
-            LOG("new locale is: " + String(newlocale));
+            RoR::LogFormat("[RoR|App] New locale is '%s'", newlocale);
         else
-            LOG("error setting new locale");
-    } else
+            RoR::Log("[RoR|App] Error setting system locale");
+    }
+    else
     {
-        LOG("not changing locale, using system locale");
+        RoR::Log("[RoR|App] Using system locale without change");
     }
 
 #endif // USE_MOFILEREADER
-    LOG("* Language successfully loaded");
+    RoR::Log("[RoR|App] Language successfully loaded");
 }
 
 void LanguageEngine::postSetup()

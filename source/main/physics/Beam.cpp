@@ -777,12 +777,11 @@ void Beam::calcNetwork()
     if (engine)
     {
         int automode = -1;
-        if ((flagmask & NETMASK_ENGINE_MODE_AUTOMATIC) != 0) { automode = App::SIM_GEARBOX_AUTO; }
-        else if ((flagmask & NETMASK_ENGINE_MODE_SEMIAUTO) != 0) { automode = App::SIM_GEARBOX_SEMI_AUTO; }
-        else if ((flagmask & NETMASK_ENGINE_MODE_MANUAL) != 0) { automode = App::SIM_GEARBOX_MANUAL; }
-        else if ((flagmask & NETMASK_ENGINE_MODE_MANUAL_STICK) != 0) { automode = App::SIM_GEARBOX_MANUAL_STICK; }
-        else
-        if ((flagmask & NETMASK_ENGINE_MODE_MANUAL_RANGES) != 0) { automode = App::SIM_GEARBOX_MANUAL_RANGES; }
+             if ((flagmask & NETMASK_ENGINE_MODE_AUTOMATIC)     != 0) { automode = static_cast<int>(SimGearboxMode::AUTO); }
+        else if ((flagmask & NETMASK_ENGINE_MODE_SEMIAUTO)      != 0) { automode = static_cast<int>(SimGearboxMode::SEMI_AUTO); }
+        else if ((flagmask & NETMASK_ENGINE_MODE_MANUAL)        != 0) { automode = static_cast<int>(SimGearboxMode::MANUAL); }
+        else if ((flagmask & NETMASK_ENGINE_MODE_MANUAL_STICK)  != 0) { automode = static_cast<int>(SimGearboxMode::MANUAL_STICK); }
+        else if ((flagmask & NETMASK_ENGINE_MODE_MANUAL_RANGES) != 0) { automode = static_cast<int>(SimGearboxMode::MANUAL_RANGES); }
 
         bool contact = ((flagmask & NETMASK_ENGINE_CONT) != 0);
         bool running = ((flagmask & NETMASK_ENGINE_RUN) != 0);
@@ -867,7 +866,7 @@ void Beam::calc_masses2(Real total, bool reCalc)
 {
     BES_GFX_START(BES_GFX_calc_masses2);
 
-    bool debugMass = App::GetDiagTruckMass();
+    bool debugMass = App::diag_truck_mass.GetActive();
 
     //reset
     for (int i = 0; i < free_node; i++)
@@ -938,8 +937,12 @@ void Beam::calc_masses2(Real total, bool reCalc)
         //for stability
         if (!nodes[i].iswheel && nodes[i].mass < minimass)
         {
-            if (debugMass)
-            LOG("Node " + TOSTRING(i) +" mass ("+TOSTRING(nodes[i].mass)+"kg) too light. Resetting to minimass ("+ TOSTRING(minimass) +"kg).");
+            if (App::diag_truck_mass.GetActive())
+            {
+                char buf[300];
+                snprintf(buf, 300, "Node '%d' mass (%f Kg) is too light. Resetting to 'minimass' (%f Kg)", i, nodes[i].mass, minimass);
+                LOG(buf);
+            }
             nodes[i].mass = minimass;
         }
     }
@@ -947,7 +950,7 @@ void Beam::calc_masses2(Real total, bool reCalc)
     totalmass = 0;
     for (int i = 0; i < free_node; i++)
     {
-        if (debugMass)
+        if (App::diag_truck_mass.GetActive())
         {
             String msg = "Node " + TOSTRING(i) + " : " + TOSTRING((int)nodes[i].mass) + " kg";
             if (nodes[i].loadedMass)
@@ -1891,15 +1894,15 @@ void Beam::sendStreamData()
 
             switch (engine->getAutoMode())
             {
-            case RoR::App::SIM_GEARBOX_AUTO: send_oob->flagmask += NETMASK_ENGINE_MODE_AUTOMATIC;
+            case RoR::SimGearboxMode::AUTO: send_oob->flagmask += NETMASK_ENGINE_MODE_AUTOMATIC;
                 break;
-            case RoR::App::SIM_GEARBOX_SEMI_AUTO: send_oob->flagmask += NETMASK_ENGINE_MODE_SEMIAUTO;
+            case RoR::SimGearboxMode::SEMI_AUTO: send_oob->flagmask += NETMASK_ENGINE_MODE_SEMIAUTO;
                 break;
-            case RoR::App::SIM_GEARBOX_MANUAL: send_oob->flagmask += NETMASK_ENGINE_MODE_MANUAL;
+            case RoR::SimGearboxMode::MANUAL: send_oob->flagmask += NETMASK_ENGINE_MODE_MANUAL;
                 break;
-            case RoR::App::SIM_GEARBOX_MANUAL_STICK: send_oob->flagmask += NETMASK_ENGINE_MODE_MANUAL_STICK;
+            case RoR::SimGearboxMode::MANUAL_STICK: send_oob->flagmask += NETMASK_ENGINE_MODE_MANUAL_STICK;
                 break;
-            case RoR::App::SIM_GEARBOX_MANUAL_RANGES: send_oob->flagmask += NETMASK_ENGINE_MODE_MANUAL_RANGES;
+            case RoR::SimGearboxMode::MANUAL_RANGES: send_oob->flagmask += NETMASK_ENGINE_MODE_MANUAL_RANGES;
                 break;
             }
         }
@@ -3030,10 +3033,10 @@ void Beam::updateFlares(float dt, bool isCurrent)
     if (mTimeUntilNextToggle > -1)
         mTimeUntilNextToggle -= dt;
 
-    if (m_flares_mode == App::GFX_FLARES_NONE) { return; }
+    if (m_flares_mode == GfxFlaresMode::NONE) { return; }
 
     bool enableAll = true;
-    if ((m_flares_mode == App::GFX_FLARES_CURR_VEHICLE_HEAD_ONLY) && !isCurrent) { enableAll = false; }
+    if ((m_flares_mode == GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY) && !isCurrent) { enableAll = false; }
 
     BES_GFX_START(BES_GFX_updateFlares);
 
@@ -4598,9 +4601,9 @@ void Beam::cruisecontrolToggle()
 
 void Beam::beaconsToggle()
 {
-    if (m_flares_mode == App::GFX_FLARES_NONE) { return; }
+    if (m_flares_mode == GfxFlaresMode::NONE) { return; }
 
-    const bool enableLight = (m_flares_mode != App::GFX_FLARES_NO_LIGHTSOURCES);
+    const bool enableLight = (m_flares_mode != GfxFlaresMode::NO_LIGHTSOURCES);
 
     bool beacon_light_is_active = !m_beacon_light_is_active;
     for (int i = 0; i < free_prop; i++)
@@ -4878,7 +4881,7 @@ void Beam::updateDebugOverlay()
 
 void Beam::updateNetworkInfo()
 {
-    if (!(RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED))
+    if (!(RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED))
         return;
 
 #ifdef USE_SOCKETW
@@ -5665,7 +5668,7 @@ Beam::Beam(
     , watercontactold(false)
 {
     high_res_wheelnode_collisions = BSETTING("HighResWheelNodeCollisions", false);
-    useSkidmarks = RoR::App::GetGfxSkidmarksMode() == 1;
+    useSkidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;
     LOG(" ===== LOADING VEHICLE: " + Ogre::String(fname));
 
     /* struct <rig_t> parameters */
@@ -5713,12 +5716,12 @@ Beam::Beam(
 
     // setup replay mode
 
-    if (App::GetSimReplayEnabled() && !_networked && !networking)
+    if (App::sim_replay_enabled.GetActive() && !_networked && !networking)
     {
-        replaylen = App::GetSimReplayLength();
+        replaylen = App::sim_replay_length.GetActive();
         replay = new Replay(this, replaylen);
 
-        int steps = App::GetSimReplayStepping();
+        int steps = App::sim_replay_stepping.GetActive();
 
         if (steps <= 0)
             replayPrecision = 0.0f;
@@ -5727,8 +5730,7 @@ Beam::Beam(
     }
 
     // add storage
-    bool enablePosStor = App::GetSimPositionStorage();
-    if (enablePosStor)
+    if (App::sim_position_storage.GetActive())
     {
         posStorage = new PositionStorage(free_node, 10);
     }
@@ -5931,7 +5933,7 @@ bool Beam::LoadTruck(
     LOG(report_text);
 
     auto* importer = parser.GetSequentialImporter();
-    if (importer->IsEnabled() && App::GetDiagRigLogMessages())
+    if (importer->IsEnabled() && App::diag_rig_log_messages.GetActive())
     {
         report_num_errors += importer->GetMessagesNumErrors();
         report_num_warnings += importer->GetMessagesNumWarnings();
@@ -6004,11 +6006,11 @@ bool Beam::LoadTruck(
     // Extra information to RoR.log
     if (importer->IsEnabled())
     {
-        if (App::GetDiagRigLogNodeStats())
+        if (App::diag_rig_log_node_stats.GetActive())
         {
             LOG(importer->GetNodeStatistics());
         }
-        if (App::GetDiagRigLogNodeImport())
+        if (App::diag_rig_log_node_import.GetActive())
         {
             LOG(importer->IterateAndPrintAllNodes());
         }

@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2014-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -81,7 +81,7 @@ void CLASS::Show()
 {
     MAIN_WIDGET->setVisibleSmooth(true);
 
-    const bool online = RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED;
+    const bool online = RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED;
     m_change_map->setEnabled(!online);
 
     // Adjust screen position
@@ -103,20 +103,20 @@ void CLASS::Hide()
 
 void CLASS::eventMouseButtonClickResumeButton(MyGUI::WidgetPtr _sender)
 {
-    App::SetPendingSimState(App::SIM_STATE_RUNNING);
+    App::sim_state.SetPending(SimState::RUNNING);
     Hide();
 }
 
 void CLASS::eventMouseButtonClickChangeMapButton(MyGUI::WidgetPtr _sender)
 {
     Hide();
-    RoR::App::SetPendingAppState(RoR::App::APP_STATE_CHANGE_MAP);
+    App::app_state.SetPending(RoR::AppState::CHANGE_MAP);
 }
 
 void CLASS::eventMouseButtonClickBackToMenuButton(MyGUI::WidgetPtr _sender)
 {
     Hide();
-    App::SetPendingAppState(App::APP_STATE_MAIN_MENU);
+    App::app_state.SetPending(RoR::AppState::MAIN_MENU);
 }
 
 void CLASS::eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender)
@@ -126,7 +126,7 @@ void CLASS::eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender)
 void CLASS::eventMouseButtonClickQuitButton(MyGUI::WidgetPtr _sender)
 {
     Hide();
-    RoR::App::SetPendingAppState(RoR::App::APP_STATE_SHUTDOWN);
+    App::app_state.SetPending(RoR::AppState::SHUTDOWN);
 }
 
 void CLASS::SetVisible(bool v)

@@ -29,7 +29,6 @@
 #include "GUI_GamePauseMenuLayout.h"
 
 #include "GUI_GameAbout.h"
-#include "GUI_GameSettings.h"
 
 namespace RoR {
 namespace GUI {

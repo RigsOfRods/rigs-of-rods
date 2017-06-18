@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2016-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -239,7 +239,7 @@ void TopMenubar::vehiclesListUpdate()
 {
     m_vehicles_menu_widget->removeAllItems();
 
-    if (!(App::GetActiveMpState() == App::MP_STATE_CONNECTED))
+    if (!(App::mp_state.GetActive() == RoR::MpState::CONNECTED))
     {
         // single player mode: add vehicles simply, no users
         int numTrucks = m_sim_controller->GetBeamFactory()->getTruckCount();
@@ -302,8 +302,8 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
         //TODO: Separate Chat and console
     }
 
-    const auto app_state = App::GetActiveAppState();
-    if (app_state == App::APP_STATE_BOOTSTRAP)
+    const auto app_state = App::app_state.GetActive();
+    if (app_state == RoR::AppState::BOOTSTRAP)
     {
         return;
     }
@@ -314,11 +314,11 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
     }
     else if (miname == _L("Get new vehicle") && gEnv->player)
     {
-        if (app_state != App::APP_STATE_SIMULATION)
+        if (app_state != RoR::AppState::SIMULATION)
         {
             return;
         }
-        App::SetActiveSimState(App::SIM_STATE_SELECTING); // TODO: use 'pending' mechanism
+        App::sim_state.SetActive(RoR::SimState::SELECTING); // TODO: use 'pending' mechanism
         gui_man->GetMainSelector()->Show(LT_AllBeam);
 
     } else if (miname == _L("Reload current vehicle") && gEnv->player)
@@ -331,7 +331,7 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
     }
     else if (miname == _L("Back to menu"))
     {
-        App::SetPendingAppState(App::APP_STATE_MAIN_MENU);
+        App::app_state.SetPending(RoR::AppState::MAIN_MENU);
     }
     else if (miname == _L("Remove current vehicle"))
     {
@@ -363,7 +363,7 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
         App::GetGuiManager()->SetVisible_FrictionSettings(true);
     } else if (miname == _L("Exit"))
     {
-        App::SetPendingAppState(App::APP_STATE_SHUTDOWN);
+        App::app_state.SetPending(RoR::AppState::SHUTDOWN);
     } else if (miname == _L("Show Console"))
     {
         gui_man->SetVisible_Console(! gui_man->IsVisible_Console());
@@ -481,7 +481,7 @@ void TopMenubar::triggerUpdateVehicleList()
 
 void TopMenubar::ReflectMultiplayerState()
 {
-    const bool online = App::GetActiveMpState() == App::MP_STATE_CONNECTED;
+    const bool online = App::mp_state.GetActive() == RoR::MpState::CONNECTED;
     m_item_activate_all->setEnabled(!online);
     m_item_never_sleep ->setEnabled(!online);
     m_item_sleep_all   ->setEnabled(!online);

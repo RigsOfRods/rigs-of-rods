@@ -50,14 +50,14 @@ int ShadowManager::updateShadowTechnique()
     gEnv->sceneManager->setShadowColour(Ogre::ColourValue(0.563 + scoef, 0.578 + scoef, 0.625 + scoef));
     gEnv->sceneManager->setShowDebugShadows(false);
 
-    RoR::App::GfxShadowType type = RoR::App::GetGfxShadowType();
+    RoR::GfxShadowType type = RoR::App::gfx_shadow_type.GetActive();
 
-    if (type == RoR::App::GFX_SHADOW_TYPE_TEXTURE)
+    if (type == RoR::GfxShadowType::TEXTURE)
     {
-        gEnv->sceneManager->setShadowFarDistance(RoR::App::GetGfxSightRange());
+        gEnv->sceneManager->setShadowFarDistance(RoR::App::gfx_sight_range.GetActive());
         processTextureShadows();
     }
-    else if (type == RoR::App::GFX_SHADOW_TYPE_PSSM)
+    else if (type == RoR::GfxShadowType::PSSM)
     {
         processPSSM();
         if (gEnv->sceneManager->getShowDebugShadows())
@@ -169,7 +169,7 @@ void ShadowManager::updatePSSM()
 
 void ShadowManager::updateTerrainMaterial(Ogre::TerrainPSSMMaterialGenerator::SM2Profile* matProfile)
 {
-    if (RoR::App::GetGfxShadowType() == RoR::App::GFX_SHADOW_TYPE_PSSM)
+    if (RoR::App::gfx_shadow_type.GetActive() == RoR::GfxShadowType::PSSM)
     {
         Ogre::PSSMShadowCameraSetup* pssmSetup = static_cast<Ogre::PSSMShadowCameraSetup*>(PSSM_Shadows.mPSSMSetup.get());
         matProfile->setReceiveDynamicShadowsDepth(true);

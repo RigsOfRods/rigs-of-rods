@@ -43,7 +43,7 @@ LocalStorage::LocalStorage(AngelScript::asIScriptEngine *engine_in, std::string 
 
     sectionName = sectionName_in.substr(0, sectionName_in.find(".", 0));
     
-    filename = RoR::App::GetSysCacheDir() + PATH_SLASH + fileName_in + ".asdata";
+    filename = std::string(RoR::App::sys_cache_dir.GetActive()) + PATH_SLASH + fileName_in + ".asdata";
     separators = "=";
     loadDict();
     
