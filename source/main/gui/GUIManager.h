@@ -25,6 +25,7 @@
 #pragma once
 
 #include "GUIInputManager.h"
+#include "OgreImGui.h"
 #include "RoRPrerequisites.h"
 
 #include <OgreWindowEventUtilities.h>
@@ -61,7 +62,6 @@ public:
     void SetVisible_TextureToolWindow   (bool visible);
     void SetVisible_TeleportWindow      (bool visible);
     void SetVisible_LoadingWindow       (bool visible);
-    void SetVisible_TopMenubar          (bool visible);
     void SetVisible_Console             (bool visible);
 
     // GUI IsVisible*()
@@ -80,7 +80,6 @@ public:
     bool IsVisible_TextureToolWindow    ();
     bool IsVisible_TeleportWindow       ();
     bool IsVisible_LoadingWindow        ();
-    bool IsVisible_TopMenubar           ();
     bool IsVisible_Console              ();
 
     // GUI GetInstance*()
@@ -106,7 +105,8 @@ public:
     void AdjustMainMenuPosition();
 
     void UpdateSimUtils(float dt, Beam* truck);
-    void framestep(float dt);
+    void FrameStepGui(float dt);
+    void NewImGuiFrame(float dt);
 
     int getMessageBoxResult(); //TODO
 
@@ -130,8 +130,11 @@ public:
     static Ogre::String getRandomWallpaperImage();
 
     void SetSimController(RoRFrameListener* sim);
+    inline OgreImGui& GetImGui() { return m_imgui; }
+
 
 private:
+    void SetupImGui();
 
     virtual bool frameStarted(const Ogre::FrameEvent& _evt);
     virtual bool frameEnded(const Ogre::FrameEvent& _evt);
@@ -141,6 +144,7 @@ private:
 
     GuiManagerImpl* m_impl;
     bool m_renderwindow_closed;
+    OgreImGui m_imgui;
 };
 
 } // namespace RoR

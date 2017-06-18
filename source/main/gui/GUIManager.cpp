@@ -29,6 +29,7 @@
 #include "ContentManager.h"
 #include "InputEngine.h"
 #include "Language.h"
+#include "OgreImGui.h"
 #include "OgreSubsystem.h"
 #include "RoRWindowEventUtilities.h"
 #include "RTTLayer.h"
@@ -105,7 +106,6 @@ void GUIManager::SetVisible_FrictionSettings    (bool v) { m_impl->panel_Frictio
 void GUIManager::SetVisible_TextureToolWindow   (bool v) { m_impl->panel_TextureToolWindow  .SetVisible(v); }
 void GUIManager::SetVisible_TeleportWindow      (bool v) { m_impl->panel_TeleportWindow     .SetVisible(v); }
 void GUIManager::SetVisible_LoadingWindow       (bool v) { m_impl->panel_LoadingWindow      .SetVisible(v); }
-void GUIManager::SetVisible_TopMenubar          (bool v) { m_impl->panel_TopMenubar         .SetVisible(v); }
 void GUIManager::SetVisible_Console             (bool v) { m_impl->panel_GameConsole        .SetVisible(v); }
 
 bool GUIManager::IsVisible_GameMainMenu         () { return m_impl->panel_GameMainMenu       .IsVisible(); }
@@ -123,7 +123,6 @@ bool GUIManager::IsVisible_FrictionSettings     () { return m_impl->panel_Fricti
 bool GUIManager::IsVisible_TextureToolWindow    () { return m_impl->panel_TextureToolWindow  .IsVisible(); }
 bool GUIManager::IsVisible_TeleportWindow       () { return m_impl->panel_TeleportWindow     .IsVisible(); }
 bool GUIManager::IsVisible_LoadingWindow        () { return m_impl->panel_LoadingWindow      .IsVisible(); }
-bool GUIManager::IsVisible_TopMenubar           () { return m_impl->panel_TopMenubar         .IsVisible(); }
 bool GUIManager::IsVisible_Console              () { return m_impl->panel_GameConsole        .IsVisible(); }
 
 // GUI GetInstance*()
@@ -176,6 +175,8 @@ GUIManager::GUIManager() :
     MyGUI::LanguageManager::getInstance().eventRequestTag = MyGUI::newDelegate(this, &GUIManager::eventRequestTag);
 #endif // _WIN32
     windowResized(RoR::App::GetOgreSubsystem()->GetRenderWindow());
+
+    this->SetupImGui();
 }
 
 GUIManager::~GUIManager()
@@ -229,9 +230,13 @@ bool GUIManager::frameEnded(const Ogre::FrameEvent& evt)
     return true;
 };
 
-void GUIManager::framestep(float dt)
+void GUIManager::FrameStepGui(float dt)
 {
     m_impl->panel_SimUtils.framestep(dt);
+    if (App::app_state.GetActive() == AppState::SIMULATION)
+    {
+        m_impl->panel_TopMenubar.Update();
+    }
 };
 
 void GUIManager::PushNotification(Ogre::String Title, Ogre::UTFString text)
@@ -246,7 +251,6 @@ void GUIManager::HideNotification()
 
 void GUIManager::SetSimController(RoRFrameListener* sim)
 {
-    m_impl->panel_TopMenubar        .SetSimController(sim);
     m_impl->panel_GameConsole       .SetSimController(sim);
     m_impl->panel_MpClientList      .SetSimController(sim);
     m_impl->panel_VehicleDescription.SetSimController(sim);
@@ -386,7 +390,6 @@ void GUIManager::ReflectGameState()
     {
         m_impl->panel_GameMainMenu       .SetVisible(!m_impl->panel_MainSelector.IsVisible());
 
-        m_impl->panel_TopMenubar         .SetVisible(false);
         m_impl->panel_ChatBox            .SetVisible(false);
         m_impl->panel_DebugOptions       .SetVisible(false);
         m_impl->panel_FrictionSettings   .SetVisible(false);
@@ -401,12 +404,84 @@ void GUIManager::ReflectGameState()
     }
     if (app_state == AppState::SIMULATION)
     {
-        m_impl->panel_TopMenubar         .SetVisible(true);
-        m_impl->panel_TopMenubar         .ReflectMultiplayerState();
         m_impl->panel_SimUtils           .SetBaseVisible(true);
         m_impl->panel_GameMainMenu       .SetVisible(false);
         return;
     }
+}
+
+void GUIManager::NewImGuiFrame(float dt)
+{
+    // Update screen size
+    int left, top, width, height;
+    gEnv->mainCamera->getViewport()->getActualDimensions(left, top, width, height); // output params
+
+     // Read keyboard modifiers inputs
+    OIS::Keyboard* kb = App::GetInputEngine()->GetOisKeyboard();
+    bool ctrl  = kb->isKeyDown(OIS::KC_LCONTROL);
+    bool shift = kb->isKeyDown(OIS::KC_LSHIFT);
+    bool alt   = kb->isKeyDown(OIS::KC_LMENU);
+
+    // Call IMGUI
+    m_imgui.NewFrame(dt, Ogre::Rect(left, top, width, height), ctrl, alt, shift);
+}
+
+void GUIManager::SetupImGui()
+{
+    m_imgui.Init();
+    // Colors
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.Colors[ImGuiCol_Text]                  = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);
+    style.Colors[ImGuiCol_TextDisabled]          = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
+    style.Colors[ImGuiCol_WindowBg]              = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
+    style.Colors[ImGuiCol_ChildWindowBg]         = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+    style.Colors[ImGuiCol_PopupBg]               = ImVec4(0.05f, 0.05f, 0.10f, 1.00f);
+    style.Colors[ImGuiCol_Border]                = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+    style.Colors[ImGuiCol_BorderShadow]          = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+    style.Colors[ImGuiCol_FrameBg]               = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+    style.Colors[ImGuiCol_FrameBgHovered]        = ImVec4(0.78f, 0.39f, 0.00f, 0.99f);
+    style.Colors[ImGuiCol_FrameBgActive]         = ImVec4(0.90f, 0.65f, 0.65f, 0.98f);
+    style.Colors[ImGuiCol_TitleBg]               = ImVec4(0.57f, 0.31f, 0.00f, 1.00f);
+    style.Colors[ImGuiCol_TitleBgCollapsed]      = ImVec4(0.40f, 0.40f, 0.80f, 1.00f);
+    style.Colors[ImGuiCol_TitleBgActive]         = ImVec4(0.74f, 0.44f, 0.00f, 1.00f);
+    style.Colors[ImGuiCol_MenuBarBg]             = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+    style.Colors[ImGuiCol_ScrollbarBg]           = ImVec4(0.16f, 0.16f, 0.16f, 0.99f);
+    style.Colors[ImGuiCol_ScrollbarGrab]         = ImVec4(0.30f, 0.30f, 0.29f, 1.00f);
+    style.Colors[ImGuiCol_ScrollbarGrabHovered]  = ImVec4(0.78f, 0.39f, 0.00f, 0.99f);
+    style.Colors[ImGuiCol_ScrollbarGrabActive]   = ImVec4(1.00f, 0.50f, 0.00f, 0.99f);
+    style.Colors[ImGuiCol_ComboBg]               = ImVec4(0.20f, 0.20f, 0.20f, 0.99f);
+    style.Colors[ImGuiCol_CheckMark]             = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);
+    style.Colors[ImGuiCol_SliderGrab]            = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
+    style.Colors[ImGuiCol_SliderGrabActive]      = ImVec4(1.00f, 0.48f, 0.00f, 1.00f);
+    style.Colors[ImGuiCol_Button]                = ImVec4(0.26f, 0.26f, 0.25f, 1.00f);
+    style.Colors[ImGuiCol_ButtonHovered]         = ImVec4(0.78f, 0.39f, 0.00f, 0.98f);
+    style.Colors[ImGuiCol_ButtonActive]          = ImVec4(1.00f, 0.48f, 0.00f, 1.00f);
+    style.Colors[ImGuiCol_Header]                = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+    style.Colors[ImGuiCol_HeaderHovered]         = ImVec4(0.57f, 0.30f, 0.00f, 1.00f);
+    style.Colors[ImGuiCol_HeaderActive]          = ImVec4(0.78f, 0.39f, 0.00f, 1.00f);
+    style.Colors[ImGuiCol_Column]                = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+    style.Colors[ImGuiCol_ColumnHovered]         = ImVec4(0.70f, 0.60f, 0.60f, 1.00f);
+    style.Colors[ImGuiCol_ColumnActive]          = ImVec4(0.90f, 0.70f, 0.70f, 1.00f);
+    style.Colors[ImGuiCol_ResizeGrip]            = ImVec4(0.22f, 0.22f, 0.21f, 1.00f);
+    style.Colors[ImGuiCol_ResizeGripHovered]     = ImVec4(0.78f, 0.39f, 0.00f, 1.00f);
+    style.Colors[ImGuiCol_ResizeGripActive]      = ImVec4(1.00f, 0.48f, 0.00f, 1.00f);
+    style.Colors[ImGuiCol_CloseButton]           = ImVec4(0.55f, 0.27f, 0.09f, 1.00f);
+    style.Colors[ImGuiCol_CloseButtonHovered]    = ImVec4(0.86f, 0.43f, 0.00f, 1.00f);
+    style.Colors[ImGuiCol_CloseButtonActive]     = ImVec4(1.00f, 0.48f, 0.00f, 1.00f);
+    style.Colors[ImGuiCol_PlotLines]             = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+    style.Colors[ImGuiCol_PlotLinesHovered]      = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+    style.Colors[ImGuiCol_PlotHistogram]         = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+    style.Colors[ImGuiCol_PlotHistogramHovered]  = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
+    style.Colors[ImGuiCol_TextSelectedBg]        = ImVec4(0.00f, 0.00f, 1.00f, 1.00f);
+    style.Colors[ImGuiCol_ModalWindowDarkening]  = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+    // Styles
+    style.WindowPadding         = ImVec2(10.f, 10.f);
+    style.FrameRounding         = 2.f;
+    style.WindowRounding        = 4.f;
+    style.WindowTitleAlign      = ImVec2(0.5f, 0.5f);
+    style.ItemSpacing           = ImVec2(5.f, 5.f);
+    style.GrabRounding          = 3.f;
+    style.ChildWindowRounding   = 4.f;
 }
 
 } // namespace RoR

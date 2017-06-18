@@ -19,12 +19,12 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-// ##############################
-//            DUMMY!
+// #####################################################
+//                                        DUMMY!
 // This GUI never worked right.
 // It's temporarily replaced by a dummy
 // until reworked using DearIMGUI. ~ only_a_ptr, 06/2017
-// ##############################
+// #####################################################
 
 /// @file
 /// @author Moncef Ben Slimane
