@@ -150,10 +150,6 @@ RoRFrameListener::RoRFrameListener(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* 
 {
 }
 
-RoRFrameListener::~RoRFrameListener()
-{
-}
-
 void RoRFrameListener::UpdateForceFeedback(float dt)
 {
     if (!App::io_ffb_enabled.GetActive()) { return; }
@@ -394,7 +390,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCKEDIT_RELOAD, 0.5f) && curr_truck)
     {
-        this->ReloadCurrentTruck();
+        this->ReloadCurrentActor();
         return true;
     }
 
@@ -1584,6 +1580,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 #endif //SOCKETW
 
     RoR::App::GetInputEngine()->Capture();
+    App::GetGuiManager()->NewImGuiFrame(dt);
     const bool is_altkey_pressed =  App::GetInputEngine()->isKeyDown(OIS::KeyCode::KC_LMENU) || App::GetInputEngine()->isKeyDown(OIS::KeyCode::KC_RMENU);
     auto s = App::sim_state.GetActive();
 
@@ -1733,7 +1730,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
         m_time_until_next_toggle -= dt;
     }
 
-    RoR::App::GetGuiManager()->framestep(dt);
+    RoR::App::GetGuiManager()->FrameStepGui(dt);
 
     App::GetGuiManager()->GetTeleport()->TeleportWindowFrameStep(
         gEnv->player->getPosition().x, gEnv->player->getPosition().z, is_altkey_pressed);
@@ -1959,7 +1956,7 @@ void RoRFrameListener::HideGUI(bool hidden)
     App::GetGuiManager()->hideGUI(hidden);
 }
 
-void RoRFrameListener::ReloadCurrentTruck()
+void RoRFrameListener::ReloadCurrentActor()
 {
     Beam* curr_truck = m_beam_factory.getCurrentTruck();
     if (!curr_truck)

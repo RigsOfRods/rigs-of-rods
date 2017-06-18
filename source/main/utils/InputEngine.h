@@ -532,10 +532,8 @@ public:
 
     void RestoreKeyboardListener();
 
-    OIS::Keyboard* GetOisKeyboard()
-    {
-        return mKeyboard;
-    }
+    inline OIS::Keyboard* GetOisKeyboard() { return mKeyboard; }
+    inline OIS::Mouse*    GetOisMouse()    { return mMouse; }
 
     std::map<std::string, OIS::KeyCode> GetKeyMap()
     {
