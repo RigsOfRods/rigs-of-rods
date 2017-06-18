@@ -95,7 +95,6 @@ struct GuiManagerImpl
 
 void GUIManager::SetVisible_GameMainMenu        (bool v) { m_impl->panel_GameMainMenu       .SetVisible(v); }
 void GUIManager::SetVisible_GameAbout           (bool v) { m_impl->panel_GameAbout          .SetVisible(v); }
-void GUIManager::SetVisible_GamePauseMenu       (bool v) { m_impl->panel_GamePauseMenu      .SetVisible(v); }
 void GUIManager::SetVisible_DebugOptions        (bool v) { m_impl->panel_DebugOptions       .SetVisible(v); }
 void GUIManager::SetVisible_MultiplayerSelector (bool v) { m_impl->panel_MultiplayerSelector.SetVisible(v); }
 void GUIManager::SetVisible_ChatBox             (bool v) { m_impl->panel_ChatBox            .SetVisible(v); }
@@ -110,7 +109,6 @@ void GUIManager::SetVisible_Console             (bool v) { m_impl->panel_GameCon
 
 bool GUIManager::IsVisible_GameMainMenu         () { return m_impl->panel_GameMainMenu       .IsVisible(); }
 bool GUIManager::IsVisible_GameAbout            () { return m_impl->panel_GameAbout          .IsVisible(); }
-bool GUIManager::IsVisible_GamePauseMenu        () { return m_impl->panel_GamePauseMenu      .IsVisible(); }
 bool GUIManager::IsVisible_DebugOptions         () { return m_impl->panel_DebugOptions       .IsVisible(); }
 bool GUIManager::IsVisible_MessageBox           () { return m_impl->panel_MessageBox         .IsVisible(); }
 bool GUIManager::IsVisible_MultiplayerSelector  () { return m_impl->panel_MultiplayerSelector.IsVisible(); }
@@ -129,6 +127,7 @@ bool GUIManager::IsVisible_Console              () { return m_impl->panel_GameCo
 Console*                    GUIManager::GetConsole()           { return &m_impl->panel_GameConsole         ; }
 GUI::MainSelector*          GUIManager::GetMainSelector()      { return &m_impl->panel_MainSelector        ; }
 GUI::GameMainMenu*          GUIManager::GetMainMenu()          { return &m_impl->panel_GameMainMenu        ; }
+GUI::GamePauseMenu*         GUIManager::GetPauseMenu()         { return &m_impl->panel_GamePauseMenu       ; }
 GUI::LoadingWindow*         GUIManager::GetLoadingWindow()     { return &m_impl->panel_LoadingWindow       ; }
 GUI::MpClientList*          GUIManager::GetMpClientList()      { return &m_impl->panel_MpClientList        ; }
 GUI::MultiplayerSelector*   GUIManager::GetMpSelector()        { return &m_impl->panel_MultiplayerSelector ; }
@@ -231,12 +230,17 @@ bool GUIManager::frameEnded(const Ogre::FrameEvent& evt)
     return true;
 };
 
-void GUIManager::FrameStepGui(float dt)
+void GUIManager::DrawSimulationGui(float dt)
 {
     m_impl->panel_SimUtils.framestep(dt);
     if (App::app_state.GetActive() == AppState::SIMULATION)
     {
         m_impl->panel_TopMenubar.Update();
+
+        if (App::sim_state.GetActive() == SimState::PAUSED)
+        {
+            m_impl->panel_GamePauseMenu.Draw();
+        }
     }
 };
 
@@ -322,21 +326,6 @@ int GUIManager::getMessageBoxResult()
     return m_impl->panel_MessageBox.getResult();
 }
 
-void GUIManager::InitMainSelector(RoR::SkinManager* skin_manager)
-{
-// todo remove
-}
-
-void GUIManager::AdjustPauseMenuPosition()
-{
-    Ogre::Viewport* viewport = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
-    int margin = (viewport->getActualHeight() / 15);
-    m_impl->panel_GamePauseMenu.SetPosition(
-        margin, // left
-        viewport->getActualHeight() - m_impl->panel_GamePauseMenu.GetHeight() - margin // top
-        );
-}
-
 void GUIManager::AddRigLoadingReport(std::string const & vehicle_name, std::string const & text, int num_errors, int num_warnings, int num_other)
 {
     m_impl->panel_SpawnerReport.SetRigLoadingReport(vehicle_name, text, num_errors, num_warnings, num_other);
@@ -385,7 +374,6 @@ void GUIManager::ReflectGameState()
         m_impl->panel_ChatBox            .SetVisible(false);
         m_impl->panel_DebugOptions       .SetVisible(false);
         m_impl->panel_FrictionSettings   .SetVisible(false);
-        m_impl->panel_GamePauseMenu      .SetVisible(false);
         m_impl->panel_TextureToolWindow  .SetVisible(false);
         m_impl->panel_TeleportWindow     .SetVisible(false);
         m_impl->panel_VehicleDescription .SetVisible(false);
