@@ -135,16 +135,98 @@ void RigSpawner::Setup(
     m_messages_num_other = 0;
 }
 
+void RigSpawner::CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::File::Module* module_def)
+{
+    // 'nodes'
+    req.num_nodes += module_def->nodes.size();
+    for (auto& def: module_def->nodes)
+    {
+        if (BITMASK_IS_1(def.options, RigDef::Node::OPTION_h_HOOK_POINT))
+        {
+            req.num_beams += 1;
+        }
+    }
+
+    // 'beams'
+    req.num_beams += module_def->beams.size();
+
+    // 'ties'
+    req.num_beams += module_def->ties.size();
+
+    // 'ropes'
+    req.num_beams += module_def->ropes.size();
+
+    // 'hydros'
+    req.num_beams += module_def->hydros.size();
+
+    // 'triggers'
+    req.num_beams += module_def->triggers.size();
+
+    // 'animators'
+    req.num_beams += module_def->animators.size();
+
+    // 'cinecam'
+    req.num_nodes += module_def->cinecam.size();
+    req.num_beams += module_def->cinecam.size() * 8;
+
+    // 'shocks' and 'shocks2'
+    req.num_beams += module_def->shocks.size();
+    req.num_beams += module_def->shocks_2.size();
+
+    // 'commands' and 'commands2' (unified)
+    req.num_beams += module_def->commands_2.size();
+
+    // 'wheels'
+    for (RigDef::Wheel& wheel: module_def->wheels)
+    {
+        req.num_nodes += wheel.num_rays * 2; // BuildWheelObjectAndNodes()
+        req.num_beams += wheel.num_rays * ((wheel.rigidity_node.IsValidAnyState()) ? 9 : 8); // BuildWheelBeams()
+    }
+
+    // 'wheels2'
+    for (RigDef::Wheel2& wheel2: module_def->wheels_2)
+    {
+        req.num_nodes += wheel2.num_rays * 4;
+        // Rim beams:  num_rays*10 (*11 with valid rigidity_node)
+        // Tyre beams: num_rays*14
+        req.num_beams += wheel2.num_rays * ((wheel2.rigidity_node.IsValidAnyState()) ? 25 : 24);
+    }
+
+    // 'meshwheels' & 'meshwheels2' (unified)
+    for (RigDef::MeshWheel& meshwheel: module_def->mesh_wheels)
+    {
+        req.num_nodes += meshwheel.num_rays * 2; // BuildWheelObjectAndNodes()
+        req.num_beams += meshwheel.num_rays * ((meshwheel.rigidity_node.IsValidAnyState()) ? 9 : 8); // BuildWheelBeams()
+    }
+
+    // 'flexbodywheels'
+    for (RigDef::FlexBodyWheel& flexwheel: module_def->flex_body_wheels)
+    {
+        req.num_nodes += flexwheel.num_rays * 4;
+        // Rim beams:      num_rays*8
+        // Tyre beams:     num_rays*10 (num_rays*11 with valid rigidity_node)
+        // Support beams:  num_rays*2
+        req.num_beams += flexwheel.num_rays * ((flexwheel.rigidity_node.IsValidAnyState()) ? 21 : 20);
+    }
+}
+
 void RigSpawner::InitializeRig()
 {
     SPAWNER_PROFILE_SCOPED();
 
     m_rig->mCamera = nullptr;
+
+    ActorMemoryRequirements req;
+    for (auto module: m_selected_modules) // _Root_ module is included
+    {
+        this->CalcMemoryRequirements(req, module.get());
+    }
+
+    // Allocate memory as needed
+    m_rig->beams = new beam_t[req.num_beams];
+    m_rig->nodes = new node_t[req.num_nodes];
+
     // clear rig parent structure
-    memset(m_rig->nodes, 0, sizeof(node_t) * MAX_NODES);
-    m_rig->free_node = 0;
-    memset(m_rig->beams, 0, sizeof(beam_t) * MAX_BEAMS);
-    m_rig->free_beam = 0;
     memset(m_rig->contacters, 0, sizeof(contacter_t) * MAX_CONTACTERS);
     m_rig->free_contacter = 0;
     memset(m_rig->rigidifiers, 0, sizeof(rigidifier_t) * MAX_RIGIDIFIERS);
@@ -2722,11 +2804,6 @@ void RigSpawner::ProcessTie(RigDef::Tie & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckBeamLimit(1))
-    {
-        return;
-    }
-
     node_t & node_1 = GetNodeOrThrow(def.root_node);
     node_t & node_2 = GetNode( (node_1.pos == 0) ? 1 : 0 );
 
@@ -2763,11 +2840,6 @@ void RigSpawner::ProcessTie(RigDef::Tie & def)
 void RigSpawner::ProcessRope(RigDef::Rope & def)
 {
     SPAWNER_PROFILE_SCOPED();
-
-    if (! CheckBeamLimit(1))
-    {
-        return;
-    }
 
     node_t & root_node = GetNodeOrThrow(def.root_node);
     node_t & end_node = GetNodeOrThrow(def.end_node);
@@ -3099,11 +3171,6 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckBeamLimit(1) || ! CheckShockLimit(1))
-    {
-        return;
-    }
-
     shock_t & shock = this->GetFreeShock();
 
     // Disable trigger on startup? (default enabled)
@@ -3426,11 +3493,6 @@ void RigSpawner::ProcessCommand(RigDef::Command2 & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckBeamLimit(1))
-    {
-        return;
-    }
-
     int beam_index = m_rig->free_beam;
     int node_1_index = FindNodeIndex(def.nodes[0]);
     int node_2_index = FindNodeIndex(def.nodes[1]);
@@ -3499,7 +3561,7 @@ void RigSpawner::ProcessAnimator(RigDef::Animator & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckBeamLimit(1) || ! CheckHydroLimit(1))
+    if (! CheckHydroLimit(1)) // TODO: remove the limit! See `RigSpawner::CalcMemoryRequirements()` ~ only_a_ptr, 06/2017
     {
         return;
     }
@@ -3699,7 +3761,7 @@ void RigSpawner::ProcessHydro(RigDef::Hydro & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckHydroLimit(1) || ! CheckBeamLimit(1))
+    if (! CheckHydroLimit(1)) // TODO: remove the limit! See `RigSpawner::CalcMemoryRequirements()` ~ only_a_ptr, 06/2017
     {
         return;
     }
@@ -3799,7 +3861,7 @@ void RigSpawner::ProcessShock2(RigDef::Shock2 & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckShockLimit(1) || ! CheckBeamLimit(1))
+    if (! CheckShockLimit(1)) // TODO: remove the limit! See `RigSpawner::CalcMemoryRequirements()` ~ only_a_ptr, 06/2017
     {
         return;
     }
@@ -3891,7 +3953,7 @@ void RigSpawner::ProcessShock(RigDef::Shock & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckShockLimit(1) || ! CheckBeamLimit(1))
+    if (! CheckShockLimit(1)) // TODO: remove the limit! See `RigSpawner::CalcMemoryRequirements()` ~ only_a_ptr, 06/2017
     {
         return;
     }
@@ -3985,9 +4047,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     SPAWNER_PROFILE_SCOPED();
 
     // Check capacities
-    CheckNodeLimit(def.num_rays * 4);
-    CheckBeamLimit(def.num_rays * (def.rigidity_node.IsValidAnyState()) ? 26 : 25);
-    CheckFlexbodyLimit(1);
+    CheckFlexbodyLimit(1); // TODO: remove the limit! See `RigSpawner::CalcMemoryRequirements()` ~ only_a_ptr, 06/2017
 
     unsigned int base_node_index = m_rig->free_node;
     wheel_t & wheel = m_rig->wheels[m_rig->free_wheel];
@@ -4491,10 +4551,6 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
 {
     SPAWNER_PROFILE_SCOPED();
 
-    /* Check capacity */
-    CheckNodeLimit(reserve_nodes);
-    CheckBeamLimit(reserve_beams);
-
     wheel_t & wheel = m_rig->wheels[m_rig->free_wheel];
 
     /* Axis */
@@ -4958,10 +5014,6 @@ unsigned int RigSpawner::AddWheel(RigDef::Wheel & wheel_def)
 unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 {
     SPAWNER_PROFILE_SCOPED();
-
-    /* Check capacity */
-    CheckNodeLimit(wheel_2_def.num_rays * 4);
-    CheckBeamLimit(wheel_2_def.num_rays * (wheel_2_def.rigidity_node.IsValidAnyState()) ? 26 : 25);
 
     unsigned int base_node_index = m_rig->free_node;
     wheel_t & wheel = m_rig->wheels[m_rig->free_wheel];
@@ -6070,13 +6122,7 @@ std::pair<unsigned int, bool> RigSpawner::AddNode(RigDef::Node::Id & id)
         this->AddMessage(Message::TYPE_ERROR, msg.str());
         return std::make_pair(0, false);
     }
-    if ((m_rig->free_node + 1) > MAX_NODES)
-    {
-        std::stringstream msg;
-        msg << "Node limit (" << MAX_NODES << ") exceeded with node: " << id.ToString();
-        this->AddMessage(Message::TYPE_ERROR, msg.str());
-        return std::make_pair(0, false);
-    }
+
     if (id.IsTypeNamed())
     {
         unsigned int new_index = static_cast<unsigned int>(m_rig->free_node);
@@ -6222,11 +6268,10 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
     node.contactless       = BITMASK_IS_1(options, RigDef::Node::OPTION_c_NO_GROUND_CONTACT);
     node.disable_particles = BITMASK_IS_1(options, RigDef::Node::OPTION_p_NO_PARTICLES);
     node.disable_sparks    = BITMASK_IS_1(options, RigDef::Node::OPTION_f_NO_SPARKS);
-        
+    node.no_mouse_grab     = BITMASK_IS_1(options, RigDef::Node::OPTION_m_NO_MOUSE_GRAB);
+
     m_rig->smokeRef        = BITMASK_IS_1(options, RigDef::Node::OPTION_y_EXHAUST_DIRECTION) ? node.pos : 0;
     m_rig->smokeId         = BITMASK_IS_1(options, RigDef::Node::OPTION_x_EXHAUST_POINT) ? node.pos : 0;
-
-    m_rig->node_mouse_grab_disabled[node.pos] = BITMASK_IS_1(options, RigDef::Node::OPTION_m_NO_MOUSE_GRAB);
 
     // Update "fusedrag" autocalc y & z span
     if (def.position.z < m_fuse_z_min) { m_fuse_z_min = def.position.z; }
@@ -6305,8 +6350,7 @@ bool RigSpawner::AddModule(Ogre::String const & module_name)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    std::map< Ogre::String, std::shared_ptr<RigDef::File::Module> >::iterator result 
-        = m_file->user_modules.find(module_name);
+    auto result = m_file->user_modules.find(module_name);
 
     if (result != m_file->user_modules.end())
     {
@@ -6314,18 +6358,13 @@ bool RigSpawner::AddModule(Ogre::String const & module_name)
         LOG(" == RigSpawner: Module added to configuration: " + module_name);
         return true;
     }
-    AddMessage(Message::TYPE_WARNING, "Selected module not found: " + module_name);
+    this->AddMessage(Message::TYPE_WARNING, "Selected module not found: " + module_name);
     return false;
 }
 
 void RigSpawner::ProcessCinecam(RigDef::Cinecam & def)
 {
     SPAWNER_PROFILE_SCOPED();
-
-    if (! CheckNodeLimit(1) && ! CheckBeamLimit(8))
-    {
-        return;
-    }
 
     // Node
     Ogre::Vector3 node_pos = m_spawn_position + def.position;
@@ -6411,34 +6450,6 @@ void RigSpawner::ProcessGlobals(RigDef::Globals & def)
 /* -------------------------------------------------------------------------- */
 /* Limits.
 /* -------------------------------------------------------------------------- */
-
-bool RigSpawner::CheckNodeLimit(unsigned int count)
-{
-    SPAWNER_PROFILE_SCOPED();
-
-    if ((m_rig->free_node + count) > MAX_NODES)
-    {
-        std::stringstream msg;
-        msg << "Node limit (" << MAX_NODES << ") exceeded";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return false;
-    }
-    return true;
-}
-
-bool RigSpawner::CheckBeamLimit(unsigned int count)
-{
-    SPAWNER_PROFILE_SCOPED();
-
-    if ((m_rig->free_beam + count) > MAX_BEAMS)
-    {
-        std::stringstream msg;
-        msg << "Beam limit (" << MAX_BEAMS << ") exceeded";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return false;
-    }
-    return true;
-}
 
 bool RigSpawner::CheckShockLimit(unsigned int count)
 {
@@ -6702,7 +6713,6 @@ node_t & RigSpawner::GetFreeNode()
 {
     SPAWNER_PROFILE_SCOPED();
 
-    CheckNodeLimit(1);
     node_t & node = m_rig->nodes[m_rig->free_node];
     node.pos = m_rig->free_node;
     m_rig->free_node++;
@@ -6713,7 +6723,6 @@ beam_t & RigSpawner::GetFreeBeam()
 {
     SPAWNER_PROFILE_SCOPED();
 
-    CheckBeamLimit(1);
     beam_t & beam = m_rig->beams[m_rig->free_beam];
     m_rig->free_beam++;
     return beam;

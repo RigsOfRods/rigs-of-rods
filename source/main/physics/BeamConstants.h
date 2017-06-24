@@ -19,9 +19,6 @@
 
 /* maximum limits */
 static const int   MAX_TRUCKS                 = 5000;            //!< maximum number of trucks for the engine
-
-static const int   MAX_NODES                  = 1000;            //!< maximum number of nodes per truck
-static const int   MAX_BEAMS                  = 5000;            //!< maximum number of beams per truck
 static const int   MAX_ROTATORS               = 20;              //!< maximum number of rotators per truck
 static const int   MAX_CONTACTERS             = 2000;            //!< maximum number of contacters per truck
 static const int   MAX_HYDROS                 = 1000;            //!< maximum number of hydros per truck
@@ -29,7 +26,7 @@ static const int   MAX_WHEELS                 = 64;              //!< maximum nu
 static const int   MAX_SUBMESHES              = 500;             //!< maximum number of submeshes per truck
 static const int   MAX_TEXCOORDS              = 3000;            //!< maximum number of texture coordinates per truck
 static const int   MAX_CABS                   = 3000;            //!< maximum number of cabs per truck
-static const int   MAX_SHOCKS                 = MAX_BEAMS;       //!< maximum number of shocks per truck
+static const int   MAX_SHOCKS                 = 5000;            //!< maximum number of shocks per truck
 static const int   MAX_ROPES                  = 64;              //!< maximum number of ropes per truck
 static const int   MAX_ROPABLES               = 64;              //!< maximum number of ropables per truck
 static const int   MAX_TIES                   = 64;              //!< maximum number of ties per truck

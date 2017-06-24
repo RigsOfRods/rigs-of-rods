@@ -141,7 +141,8 @@ public:
         int cache_entry_number = -1
     );
 
-    VehicleAI* getVehicleAI() { return vehicle_ai; }
+    inline VehicleAI*    getVehicleAI()                   { return vehicle_ai; }
+    inline bool          IsNodeIdValid(int id) const      { return (id > 0) && (id < free_node); }
 
     bool replayStep();
 

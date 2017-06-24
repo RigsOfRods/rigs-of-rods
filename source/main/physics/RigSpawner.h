@@ -35,21 +35,38 @@
 
 #include <OgreString.h>
 
-/**
-* Processes rig-file-parser output into actual simulation data structures.
-*
-* Function writing convention:
-*
-* - Process*(Definition & def) 
-*       Transform elements of .truck file to rig structures.
-* - FindAndProcess*(Definition & def) 
-*       Find and process an element which should be unique in the current vehicle configuration.
-* - Add*(), Create*() or Build*() 
-*       Add partial structures to rig.
-* - Other functions are utilities.
-*
-* @author Petr Ohlidal
-*/
+/// Processes a RigDef::File data structure (result of parsing a "Truckfile" fileformat) into 'an Actor' - a simulated physical object.
+///
+/// HISTORY:
+///
+/// Before v0.4.5, truckfiles were parsed&spawned on-the-fly: RoR's simulation used data structures with arrays of pre-defined sizes
+/// (i.e. MAX_NODES, MAX_BEAMS, MAX_* ...) and the spawner (class `SerializedRig`) wrote directly into them while reading data from the truckfile. Gfx elements were also created immediately.
+/// As a result, the logic was chaotic: some features broke each other (most notably VideoCameras X MaterialFlares X SkinZips) and the sim. structs often contained parser context variables.
+/// Also, the whole system was extremely sensitive to order of definitions in truckfile - often [badly/not] documented, known only by forum/IRC users at the time.
+///
+/// Since v0.4.5, RoR has `RigDef::Parser` which reads truckfile and emits instance of `RigDef::File` - all data from truckfile in memory. `RigDef::File` doesn't preserve the order of definitions,
+/// instead it's designed to resolve all order-dependent references to order-independent, see `RigDef::SequentialImporter` (resources/rig_def_fileformat/RigDef_SequentialImporter.h) for more info.
+/// `RigSpawner` was created by carefully refactoring old `SerializedRig` described above, so a lot of the dirty logic remained. Elements were still written into constant-size arrays.
+///
+/// PRESENT (06/2017):
+///
+/// RoR is being refactored to get rid of the MAX_[BEAMS/NODES/***] limits. Static arrays in `rig_t` are replaced with pointers to dynamically allocated memory.
+/// Memory requirements are calculated upfront from `RigDef::File`.
+///
+/// FUTURE:
+///
+/// RigSpawner will work in 2 steps:
+///  1. Physics/simulation data are fully prepared. This should be very fast (we can pre-calculate and cache things if needed).
+///  2. Graphics/sounds are set up, reading the completed physics/sim data. Graphics are fully managed by `GfxActor`. Similar utility will be added for sound.
+///
+/// CONVENTIONS:
+///
+/// * Functions "Process*(Definition & def)"                 Transform elements of truckfile to rig structures.
+/// * Functions "FindAndProcess*(Definition & def)"          Find and process an element which should be unique in the current actor configuration.
+/// * Functions "Add*()", "Create*()" or "Build*()"          Add partial structures to the actor.
+/// * Functions Other functions are utilities.
+///
+/// @author Petr Ohlidal
 class RigSpawner
 {
     friend class VideoCamera; // Needs to add log messages
@@ -182,6 +199,14 @@ private:
         RigDef::VideoCamera*           video_camera_def;
         MirrorPropType                 mirror_prop_type;
         Ogre::SceneNode*               mirror_prop_scenenode;
+    };
+
+    struct ActorMemoryRequirements
+    {
+        ActorMemoryRequirements() { memset(this,0, sizeof(ActorMemoryRequirements)); }
+
+        size_t num_nodes;
+        size_t num_beams; // ... more to come ...
     };
 
 /* -------------------------------------------------------------------------- */
@@ -548,20 +573,6 @@ private:
 /* -------------------------------------------------------------------------- */
 /* Limits.                                                                    */
 /* -------------------------------------------------------------------------- */
-
-    /**
-    * Checks there is still space left in rig_t::nodes array.
-    * @param count Required number of free slots.
-    * @return True if there is space left.
-    */
-    bool CheckNodeLimit(unsigned int count);
-    
-    /**
-    * Checks there is still space left in rig_t::beams array.
-    * @param count Required number of free slots.
-    * @return True if there is space left.
-    */
-    bool CheckBeamLimit(unsigned int count);
 
     /**
     * Checks there is still space left in rig_t::shocks array.
@@ -1063,6 +1074,8 @@ private:
     * Ported from SerializedRig::SerializedRig() [v0.4.0.7]
     */
     void InitializeRig();
+
+    void CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::File::Module* module_def);
 
     std::shared_ptr<RigDef::File> m_file; //!< The parsed input file.
     int m_cache_entry_number;

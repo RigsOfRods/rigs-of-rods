@@ -28,11 +28,10 @@ namespace Ogre
     class DataStream;
 }
 
-namespace RigDef
-{
+namespace RigDef {
 
-/* File structures declarations */
-/* TODO: Complete list */
+// File structures declarations
+// TODO: Complete list
 
 struct AeroAnimator;
 struct Airbrake;
@@ -67,8 +66,7 @@ struct Hydro;
 struct Inertia;
 struct Lockgroup;
 struct ManagedMaterialsOptions;
-struct Meshwheel;
-struct Meshwheel2;
+struct MeshWheel;
 struct Node;
 struct NodeDefaults;
 struct Particle;
@@ -79,10 +77,10 @@ struct Ropable;
 struct ShadowOptions;
 struct VideoCamera;
 
-/* Parser classes */
+// Parser classes
 
 class Parser;
 class Validator;
 class SequentialImporter;
 
-} /* namespace RigDef */
+} // namespace RigDef

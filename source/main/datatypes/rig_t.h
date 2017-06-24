@@ -14,22 +14,21 @@
 
 #include <OgrePrerequisites.h>
 
-/**
-* SIM-CORE; Represents a vehicle.
-*/
-struct rig_t
+struct rig_t ///< A simulation actor; typically a vehicle
 {
-    // TODO: sort these a bit more ...
-    node_t nodes[MAX_NODES];
-    Ogre::Vector3 initial_node_pos[MAX_NODES];
-    bool node_mouse_grab_disabled[MAX_NODES];
-    int free_node;
+    rig_t(): nodes(nullptr), free_node(0), beams(nullptr), free_beam(0) {}
 
-    beam_t beams[MAX_BEAMS];
-    Ogre::Real initial_beam_strength[MAX_BEAMS];
-    Ogre::Real default_beam_deform[MAX_BEAMS];
-    Ogre::Real default_beam_plastic_coef[MAX_BEAMS];
-    int free_beam;
+    ~rig_t()
+    {
+        delete nodes;
+        delete beams;
+    }
+
+    node_t* nodes;
+    int free_node; ///< Number of nodes; name is historical (free index in static array)
+
+    beam_t* beams;
+    int free_beam; ///< Number of beams; name is historical (free index in static array)
 
     std::vector<beam_t*> interTruckBeams;
 
