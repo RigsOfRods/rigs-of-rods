@@ -390,7 +390,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCKEDIT_RELOAD, 0.5f) && curr_truck)
     {
-        this->ReloadCurrentActor();
+        this->ReloadPlayerActor();
         return true;
     }
 
@@ -807,7 +807,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                 {
                     this->StopRaceTimer();
                     Vector3 center = curr_truck->getRotationCenter();
-                    m_beam_factory.removeCurrentTruck();
+                    this->RemovePlayerActor();
                     gEnv->player->setPosition(center);
                 }
                 else if ((RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK) || m_advanced_truck_repair) && !curr_truck->replaymode)
@@ -1079,7 +1079,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                     }
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_REMOVE))
                     {
-                        m_beam_factory.removeCurrentTruck();
+                        this->RemovePlayerActor();
                     }
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ROPELOCK))
                     {
@@ -1716,9 +1716,11 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
         return false;
     }
     // update 'curr_truck', since 'updateEvents' might have changed it
+    // TODO: This is a mess - actor updates from misc. inputs should be buffered, evaluated and executed at once, not ad-hoc ~ only_a_ptr, 07/2017
     curr_truck = m_beam_factory.getCurrentTruck();
 
     // update gui 3d arrow
+    // TODO: This is most definitely NOT necessary to do right here ~ only_a_ptr, 07/2017
     if (RoR::App::GetOverlayWrapper() && m_is_dir_arrow_visible && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
     {
         RoR::App::GetOverlayWrapper()->UpdateDirectionArrow(curr_truck, m_dir_arrow_pointed);
@@ -1731,6 +1733,10 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
     }
 
     RoR::App::GetGuiManager()->FrameStepGui(dt);
+
+    // update 'curr_truck', since 'FrameStepGui()' might have changed it.
+    // TODO: This is a mess - actor updates from misc. inputs should be buffered, evaluated and executed at once, not ad-hoc ~ only_a_ptr, 07/2017
+    curr_truck = m_beam_factory.getCurrentTruck();
 
     App::GetGuiManager()->GetTeleport()->TeleportWindowFrameStep(
         gEnv->player->getPosition().x, gEnv->player->getPosition().z, is_altkey_pressed);
@@ -1956,7 +1962,14 @@ void RoRFrameListener::HideGUI(bool hidden)
     App::GetGuiManager()->hideGUI(hidden);
 }
 
-void RoRFrameListener::ReloadCurrentActor()
+void RoRFrameListener::RemovePlayerActor()
+{
+    Beam* actor = m_beam_factory.getCurrentTruck();
+    this->SetPlayerActor(nullptr);
+    m_beam_factory.removeTruck(actor->trucknum);
+}
+
+void RoRFrameListener::ReloadPlayerActor()
 {
     Beam* curr_truck = m_beam_factory.getCurrentTruck();
     if (!curr_truck)
@@ -1998,7 +2011,7 @@ void RoRFrameListener::ReloadCurrentActor()
     RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, msg, "information.png");
     RoR::App::GetGuiManager()->PushNotification("Notice:", msg);
 
-    m_beam_factory.removeCurrentTruck();
+    this->RemovePlayerActor();
 
     // reset the new truck (starts engine, resets gui, ...)
     newBeam->reset();

@@ -779,7 +779,7 @@ void BeamFactory::UnmuteAllTrucks()
     }
 }
 
-void BeamFactory::removeTruck(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box)
+void BeamFactory::RemoveActorByCollisionBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box)
 {
     removeTruck(this->FindTruckInsideBox(collisions, inst, box));
 }
@@ -843,11 +843,6 @@ void BeamFactory::DeleteTruck(Beam* b)
 
     RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
 
-}
-
-void BeamFactory::removeCurrentTruck()
-{
-    removeTruck(m_current_truck);
 }
 
 int BeamFactory::GetMostRecentTruckSlot()
