@@ -243,36 +243,89 @@ void RoR::GUI::TopMenubar::Update()
                 m_open_menu = TopMenu::TOPMENU_NONE;
             }
 
-            if (ImGui::Button("Debug Options"))
+            ImGui::Separator();
+            ImGui::TextColored(GRAY_HINT_TEXT, "Pre-spawn diag. options:");
+
+            bool diag_mass = App::diag_truck_mass.GetActive();
+            if (ImGui::Checkbox("Node mass recalc. logging", &diag_mass))
             {
-                m_open_menu = TopMenu::TOPMENU_NONE;
-                App::GetGuiManager()->SetVisible_DebugOptions(true);
+                App::diag_truck_mass.SetActive(diag_mass);
+            }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::Text("Extra logging on runtime - mass recalculation (config: \"Debug Truck Mass\"; GVar: \"diag_truck_mass\")");
+                ImGui::EndTooltip();
+            }
+
+            bool diag_break = App::diag_log_beam_break.GetActive();
+            if (ImGui::Checkbox("Beam break logging", &diag_break))
+            {
+                App::diag_log_beam_break.SetActive(diag_break);
+            }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::Text("Extra logging on runtime (config: \"Beam Break Debug\"; GVar: \"diag_log_beam_break\")");
+                ImGui::EndTooltip();
+            }
+
+            bool diag_deform = App::diag_log_beam_deform.GetActive();
+            if (ImGui::Checkbox("Beam deform. logging", &diag_deform))
+            {
+                App::diag_log_beam_deform.SetActive(diag_deform);
+            }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::Text("Extra logging on runtime (config: \"Beam Deform Debug\"; GVar: \"diag_log_beam_deform\")");
+                ImGui::EndTooltip();
+            }
+
+            bool diag_trig = App::diag_log_beam_trigger.GetActive();
+            if (ImGui::Checkbox("Trigger logging", &diag_trig))
+            {
+                App::diag_log_beam_trigger.SetActive(diag_trig);
+            }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::Text("Extra logging on runtime - trigger beams activity (config: \"Trigger Debug\"; GVar: \"diag_log_beam_trigger\")");
+                ImGui::EndTooltip();
+            }
+
+            bool diag_vcam = App::diag_videocameras.GetActive();
+            if (ImGui::Checkbox("VideoCamera direction marker", &diag_vcam))
+            {
+                App::diag_videocameras.SetActive(diag_vcam);
+            }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::Text("Visual marker of VideoCameras direction (config: \"VideoCameraDebug\"; GVar: \"diag_videocameras\")");
+                ImGui::EndTooltip();
             }
 
             if (App::GetSimController()->GetPlayerActor() != nullptr)
             {
                 ImGui::Separator();
 
-                int debug_view_type = -1;
+                ImGui::TextColored(GRAY_HINT_TEXT, "Live diagnostic views:");
+                ImGui::TextColored(GRAY_HINT_TEXT, "(Use 'K' hotkey to cycle)"); // !!TODO!! - display actual setting of EV_COMMON_CYCLE_DEBUG_VIEWS
+
+                int debug_view_type = static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_NONE);
                 if (current_actor != nullptr)
                 {
-                    debug_view_type = current_actor->debugVisuals;
-                }
-                ImGui::RadioButton("no visual debug"       , &debug_view_type,  0);
-                ImGui::RadioButton("show node numbers"     , &debug_view_type,  1);
-                ImGui::RadioButton("show beam numbers"     , &debug_view_type,  2);
-                ImGui::RadioButton("show node&beam numbers", &debug_view_type,  3);
-                ImGui::RadioButton("show node mass"        , &debug_view_type,  4);
-                ImGui::RadioButton("show node locked"      , &debug_view_type,  5);
-                ImGui::RadioButton("show beam compression" , &debug_view_type,  6);
-                ImGui::RadioButton("show beam broken"      , &debug_view_type,  7);
-                ImGui::RadioButton("show beam stress"      , &debug_view_type,  8);
-                ImGui::RadioButton("show beam strength"    , &debug_view_type,  9);
-                ImGui::RadioButton("show beam hydros"      , &debug_view_type, 10);
-                ImGui::RadioButton("show beam commands"    , &debug_view_type, 11);
-                if ((current_actor != nullptr) && (debug_view_type != current_actor->debugVisuals))
+                    debug_view_type = static_cast<int>(current_actor->GetGfxActor()->GetDebugView());
+                    }
+                ImGui::RadioButton("Normal view",   &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_NONE));
+                ImGui::RadioButton("Skeleton view", &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_SKELETON));
+                ImGui::RadioButton("Node details",  &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_NODES));
+                ImGui::RadioButton("Beam details",  &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_BEAMS));
+
+                if ((current_actor != nullptr) && (debug_view_type != static_cast<int>(current_actor->GetGfxActor()->GetDebugView())))
                 {
-                    current_actor->setDebugOverlayState(debug_view_type);
+                    current_actor->GetGfxActor()->SetDebugView(static_cast<GfxActor::DebugViewType>(debug_view_type));
                 }
             }
 
@@ -363,7 +416,7 @@ void RoR::GUI::TopMenubar::DrawActorListSinglePlayer()
     size_t num_actors = App::GetSimController()->GetNumActors();
     if (num_actors == 0)
     {
-        ImGui::PushStyleColor(ImGuiCol_Text, ACTORLIST_GRAY_TEXT);
+        ImGui::PushStyleColor(ImGuiCol_Text, GRAY_HINT_TEXT);
         ImGui::Text("None spawned yet");
         ImGui::Text("Use [Simulation] menu");
         ImGui::PopStyleColor();

@@ -419,14 +419,6 @@ struct cparticle_t
     Ogre::ParticleSystem* psys;
 };
 
-
-struct debugtext_t
-{
-    int id;
-    Ogre::MovableText *txt;
-    Ogre::SceneNode *node;
-};
-
 #include "datatypes/rig_t.h"
 
 

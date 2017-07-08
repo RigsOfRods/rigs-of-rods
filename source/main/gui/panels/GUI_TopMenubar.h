@@ -39,7 +39,7 @@ public:
     const float   PANEL_HOVERBOX_HEIGHT = 50.f;
     const ImVec4  PANEL_BG_COLOR        = ImVec4(0.1f, 0.1f, 0.1f, 0.8f);
     const ImVec4  TRANSPARENT_COLOR     = ImVec4(0,0,0,0);
-    const ImVec4  ACTORLIST_GRAY_TEXT   = ImVec4(0.62f, 0.62f, 0.61f, 1.f);
+    const ImVec4  GRAY_HINT_TEXT        = ImVec4(0.62f, 0.62f, 0.61f, 1.f);
 
     enum class TopMenu { TOPMENU_NONE, TOPMENU_SIM, TOPMENU_ACTORS, TOPMENU_TOOLS };
 

@@ -84,8 +84,6 @@ struct rig_t ///< A simulation actor; typically a vehicle
     cparticle_t cparticles[MAX_CPARTICLES];
     int free_cparticle;
 
-    std::vector<debugtext_t>nodes_debug, beams_debug;
-
     soundsource_t soundsources[MAX_SOUNDSCRIPTS_PER_TRUCK];
     int free_soundsource;
 
@@ -222,8 +220,6 @@ struct rig_t ///< A simulation actor; typically a vehicle
     float fuseWidth;
     float brakeforce;
     float hbrakeforce;
-    //! Dbg. overlay type { NODES: 1-Numbers, 4-Mass, 5-Locked | BEAMS: 2-Numbers, 6-Compression, 7-Broken, 8-Stress, 9-Strength, 10-Hydros, 11-Commands, OTHER: 3-N&B numbers, 12-14 unknown }
-    int debugVisuals;
 
     float speedoMax;
     bool useMaxRPMforGUI;
