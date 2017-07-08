@@ -180,8 +180,6 @@ void RigSpawner::InitializeRig()
     m_rig->exhausts.clear();
     memset(m_rig->cparticles, 0, sizeof(cparticle_t) * MAX_CPARTICLES);
     m_rig->free_cparticle = 0;
-    m_rig->nodes_debug.clear();
-    m_rig->beams_debug.clear();
     memset(m_rig->soundsources, 0, sizeof(soundsource_t) * MAX_SOUNDSCRIPTS_PER_TRUCK);
     m_rig->free_soundsource = 0;
     memset(m_rig->pressure_beams, 0, sizeof(int) * MAX_PRESSURE_BEAMS);
@@ -277,7 +275,6 @@ void RigSpawner::InitializeRig()
     m_rig->fuseWidth=0;
     m_rig->brakeforce=30000.0;
     m_rig->hbrakeforce = 2 * m_rig->brakeforce;
-    m_rig->debugVisuals = SETTINGS.getBooleanSetting("DebugBeams", false);
     m_rig->shadowOptimizations = SETTINGS.getBooleanSetting("Shadow optimizations", true);
 
     m_rig->proped_wheels=0;
@@ -327,8 +324,6 @@ void RigSpawner::InitializeRig()
     m_rig->cc_target_speed_lower_limit = 0.0f;
 
     m_rig->collisionRelevant = false;
-
-    m_rig->debugVisuals = 0;
 
     m_rig->driverSeat = nullptr;
 

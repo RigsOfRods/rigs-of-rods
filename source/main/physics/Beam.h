@@ -291,12 +291,6 @@ public:
     void scaleTruck(float value);
     float currentScale;
 
-    /**
-    * TIGHT-LOOP (optional);
-    */
-    void updateDebugOverlay();
-    void setDebugOverlayState(int mode);
-
     //! @{ dynamic physical properties
     Ogre::Real brake;
     Ogre::Vector3 affforce;

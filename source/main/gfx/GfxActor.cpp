@@ -334,11 +334,31 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
     }
 }
 
-const ImU32 BEAM_COLOR     (0xcc33aabb); // ABGR
-const float BEAM_THICKNESS (1.2f);
-const ImU32 NODE_COLOR     (0xeeaa5523); // ABGR
-const float NODE_RADIUS    (2.f);
-const ImU32 NODE_TEXT_COLOR(0xffcccccf); // ABGR
+const ImU32 BEAM_COLOR               (0xff556633); // All colors are in ABGR format (alpha, blue, green, red)
+const float BEAM_THICKNESS           (1.2f);
+const ImU32 BEAM_BROKEN_COLOR        (0xff4466dd);
+const float BEAM_BROKEN_THICKNESS    (1.8f);
+const ImU32 BEAM_HYDRO_COLOR         (0xff55a3e0);
+const float BEAM_HYDRO_THICKNESS     (1.4f);
+const ImU32 BEAM_STRENGTH_TEXT_COLOR (0xffcfd0cc);
+const ImU32 BEAM_STRESS_TEXT_COLOR   (0xff58bbfc);
+const ImU32 BEAM_COMPRESS_TEXT_COLOR (0xffccbf3c);
+const ImU32 BEAM_HYDRO_TEXT_COLOR    (0xffaa8844);
+// TODO: commands cannot be distinguished on runtime
+
+const ImU32 NODE_COLOR               (0xff44ddff);
+const float NODE_RADIUS              (2.f);
+const ImU32 NODE_TEXT_COLOR          (0xffcccccf); // node ID text color
+const ImU32 NODE_MASS_TEXT_COLOR     (0xff77bb66);
+const ImU32 NODE_PRELOCK_COLOR       (0xffee9933); // PRELOCK/LOCKED states are indicated by extra circle around node
+const float NODE_PRELOCK_THICKNESS   (2.3f);
+const float NODE_PRELOCK_RADIUS      (4.f);
+const ImU32 NODE_LOCKED_COLOR        (0xffbb8844);
+const float NODE_LOCKED_THICKNESS    (1.4f);
+const float NODE_LOCKED_RADIUS       (2.6f);
+const ImU32 NODE_PREUNLOCK_COLOR     (0xffbb8899);
+const float NODE_PREUNLOCK_THICKNESS (1.9f);
+const float NODE_PREUNLOCK_RADIUS    (3.8f);
 
 void RoR::GfxActor::UpdateDebugView()
 {
@@ -346,6 +366,34 @@ void RoR::GfxActor::UpdateDebugView()
     {
         return; // Nothing to do
     }
+
+    // Original 'debugVisuals' and their replacements ~only_a_ptr, 06/2017
+    // -------------------------------------------------------------------
+    // [1] node-numbers:  -------  Draws node numbers (black letters with white outline), generated nodes (wheels...) get fake sequentially assigned numbers.
+    //                             Replacement: DEBUGVIEW_NODES; Note: real node_t::id value is displayed - generated nodes show "-1"
+    // [2] beam-numbers:  -------  Draws beam numbers (sequentially assigned) as black (thick+distorted) text - almost unreadable, barely useful IMO.
+    //                             Not preserved
+    // [3] node-and-beam-numbers:  [1] + [2] combined
+    //                             Not preserved
+    // [4] node-mass:  ----------  Shows mass in same style as [1]
+    //                             Replacement: Extra info in DEBUGVIEW_NODES with different text color, like "33 (3.3Kg)"
+    // [5] node-locked:  --------  Shows text "unlocked"/"locked" in same style as [1]
+    //                             replacement: colored circles around nodes showing PRELOCK and LOCKED states (not shown when ulocked) - used in all DEBUGVIEW_* modes
+    // [6] beam-compression:  ---  A number shown per beam, same style as [2] - unreadable. Logic:
+    //                              // float stress_ratio = beams[it->id].stress / beams[it->id].minmaxposnegstress;
+    //                              // float color_scale = std::abs(stress_ratio);
+    //                              // color_scale = std::min(color_scale, 1.0f);
+    //                              // int scale = (int)(color_scale * 100);
+    //                              // it->txt->setCaption(TOSTRING(scale));
+    //                             Replacement: DEBUGVIEW_BEAMS -- modified logic, simplified, specific text color
+    // [7] beam-broken  ---------  Shows "BROKEN" label for broken beams (`beam_t::broken` flag) in same style as [2]
+    //                             Replacement - special coloring/display in DEBUGVIEW_* modes.
+    // [8] beam-stress  ---------  Shows value of `beam_t::stress` in style of [2]
+    //                             Replacement: DEBUGVIEW_BEAMS + specific text color
+    // [9] beam-hydro  ----------  Shows a per-hydro number in style of [2], formula: `(beams[it->id].L / beams[it->id].Lhydro) * 100`
+    //                             Replacement: DEBUGVIEW_BEAMS + specific text color
+    // [9] beam-commands  -------  Shows a per-beam number in style of [2], formula: `(beams[it->id].L / beams[it->id].commandLong) * 100`
+    //                             Not preserved - there's no way to distinguish commands on runtime and the number makes no sense for all beams. TODO: make commands distinguishable on runtime!
 
     // Var
     ImVec2 screen_size = ImGui::GetIO().DisplaySize;
@@ -361,17 +409,19 @@ void RoR::GfxActor::UpdateDebugView()
 
     // Skeleton display. NOTE: Order matters, it determines Z-ordering on render
     if ((m_debug_view == DebugViewType::DEBUGVIEW_SKELETON) ||
-        (m_debug_view == DebugViewType::DEBUGVIEW_NODES))
+        (m_debug_view == DebugViewType::DEBUGVIEW_NODES) ||
+        (m_debug_view == DebugViewType::DEBUGVIEW_BEAMS))
     {
         // Beams
-        beam_t* beams = m_actor->beams;
-        size_t num_beams = static_cast<size_t>(m_actor->free_beam);
+        const beam_t* beams = m_actor->beams;
+        const size_t num_beams = static_cast<size_t>(m_actor->free_beam);
         for (size_t i = 0; i < num_beams; ++i)
         {
             ImVec2 pos1 = world2screen.Convert(beams[i].p1->AbsPosition);
             ImVec2 pos2 = world2screen.Convert(beams[i].p2->AbsPosition);
 
-            // Original coloring logic:
+            // Original coloring logic for "skeletonview":
+            // -------------------------------------------
             // // float stress_ratio = beams[i].stress / beams[i].minmaxposnegstress;
             // // float color_scale = std::abs(stress_ratio);
             // // color_scale = std::min(color_scale, 1.0f);
@@ -379,23 +429,41 @@ void RoR::GfxActor::UpdateDebugView()
             // // if (stress_ratio <= 0)
             // //     color = ColourValue(0.2f, 1.0f - color_scale, color_scale, 0.8f);
             // // else
-            // //     color = ColourValue(color_scale, 1.0f - color_scale, 0.2f, 0.8f);            
+            // //     color = ColourValue(color_scale, 1.0f - color_scale, 0.2f, 0.8f);
 
-            drawlist->AddLine(pos1, pos2, BEAM_COLOR, BEAM_THICKNESS);
+            if (beams[i].broken)
+            {
+                drawlist->AddLine(pos1, pos2, BEAM_BROKEN_COLOR, BEAM_BROKEN_THICKNESS);
+            }
+            else if ((beams[i].type == BEAM_HYDRO || (beams[i].type == BEAM_INVISIBLE_HYDRO)))
+            {
+                drawlist->AddLine(pos1, pos2, BEAM_HYDRO_COLOR, BEAM_HYDRO_THICKNESS);
+            }
+            else
+            {
+                drawlist->AddLine(pos1, pos2, BEAM_COLOR, BEAM_THICKNESS);
+            }
         }
 
         // Nodes
-        node_t* nodes = m_actor->nodes;
-        size_t num_nodes = static_cast<size_t>(m_actor->free_node);
+        const node_t* nodes = m_actor->nodes;
+        const size_t num_nodes = static_cast<size_t>(m_actor->free_node);
         for (size_t i = 0; i < num_nodes; ++i)
         {
             ImVec2 pos = world2screen.Convert(nodes[i].AbsPosition);
 
             drawlist->AddCircleFilled(pos, NODE_RADIUS, NODE_COLOR);
+            switch (nodes[i].locked)
+            {
+            case PRELOCK:   drawlist->AddCircle(pos, NODE_PRELOCK_RADIUS,   NODE_PRELOCK_COLOR,   12, NODE_PRELOCK_THICKNESS);
+            case LOCKED:    drawlist->AddCircle(pos, NODE_LOCKED_RADIUS,    NODE_LOCKED_COLOR,    12, NODE_LOCKED_THICKNESS);
+            case PREUNLOCK: drawlist->AddCircle(pos, NODE_PREUNLOCK_RADIUS, NODE_PREUNLOCK_COLOR, 12, NODE_PREUNLOCK_THICKNESS);
+            default:; // Nothing displayed on state `UNLOCKED`
+            }
         }
 
-        // Node numbers; drawn after nodes to have higher Z-order
-        if (m_debug_view == DebugViewType::DEBUGVIEW_NODES)
+        // Node info; drawn after nodes to have higher Z-order
+        if ((m_debug_view == DebugViewType::DEBUGVIEW_NODES) || (m_debug_view == DebugViewType::DEBUGVIEW_BEAMS))
         {
             for (size_t i = 0; i < num_nodes; ++i)
             {
@@ -404,6 +472,59 @@ void RoR::GfxActor::UpdateDebugView()
                 GStr<25> id_buf;
                 id_buf << nodes[i].id;
                 drawlist->AddText(pos, NODE_TEXT_COLOR, id_buf.ToCStr());
+
+                if (m_debug_view != DebugViewType::DEBUGVIEW_BEAMS)
+                {
+                    char mass_buf[50];
+                    snprintf(mass_buf, 50, "|%.1fKg", nodes[i].mass);
+                    ImVec2 offset = ImGui::CalcTextSize(id_buf.ToCStr());
+                    drawlist->AddText(ImVec2(pos.x + offset.x, pos.y), NODE_MASS_TEXT_COLOR, mass_buf);
+                }
+            }
+        }
+
+        // Beam-info: drawn after beams to have higher Z-order
+        if (m_debug_view == DebugViewType::DEBUGVIEW_BEAMS)
+        {
+            for (size_t i = 0; i < num_beams; ++i)
+            {
+                // Position
+                Ogre::Vector3 world_pos = (beams[i].p1->AbsPosition + beams[i].p2->AbsPosition) / 2.f;
+                ImVec2 pos = world2screen.Convert(world_pos);
+
+                // Strength is usually in thousands or millions - we shorten it.
+                const size_t BUF_LEN = 50;
+                char buf[BUF_LEN];
+                if (beams[i].strength >= 1000000.f)
+                {
+                    snprintf(buf, BUF_LEN, "%.2fM", (beams[i].strength / 1000000.f));
+                }
+                else if (beams[i].strength >= 1000.f)
+                {
+                    snprintf(buf, BUF_LEN, "%.1fK", (beams[i].strength / 1000.f));
+                }
+                else
+                {
+                    snprintf(buf, BUF_LEN, "%.2f", beams[i].strength);
+                }
+                drawlist->AddText(pos, BEAM_STRENGTH_TEXT_COLOR, buf);
+                const ImVec2 stren_text_size = ImGui::CalcTextSize(buf);
+
+                // Compression
+                snprintf(buf, BUF_LEN, "|%.2f",  std::abs(beams[i].stress / beams[i].minmaxposnegstress)); // NOTE: New formula (simplified); the old one didn't make sense to me ~ only_a_ptr, 06/2017
+                drawlist->AddText(ImVec2(pos.x + stren_text_size.x, pos.y), BEAM_COMPRESS_TEXT_COLOR, buf);
+
+                // Stress
+                snprintf(buf, BUF_LEN, "%.1f", beams[i].stress);
+                ImVec2 stress_text_pos(pos.x, pos.y + stren_text_size.y);
+                drawlist->AddText(stress_text_pos, BEAM_STRESS_TEXT_COLOR, buf);
+
+                if ((beams[i].type == BEAM_HYDRO || (beams[i].type == BEAM_INVISIBLE_HYDRO)))
+                {
+                    ImVec2 hydro_text_pos((pos.x + ImGui::CalcTextSize(buf).x), stress_text_pos.y);
+                    snprintf(buf, BUF_LEN, "%.1f", ((beams[i].L / beams[i].Lhydro) * 100));
+                    drawlist->AddText(hydro_text_pos, BEAM_HYDRO_TEXT_COLOR, buf);
+                }
             }
         }
     }
@@ -415,7 +536,8 @@ void RoR::GfxActor::CycleDebugViews()
     {
     case DebugViewType::DEBUGVIEW_NONE:     m_debug_view = DebugViewType::DEBUGVIEW_SKELETON; break;
     case DebugViewType::DEBUGVIEW_SKELETON: m_debug_view = DebugViewType::DEBUGVIEW_NODES;    break;
-    case DebugViewType::DEBUGVIEW_NODES:    m_debug_view = DebugViewType::DEBUGVIEW_NONE;     break;
+    case DebugViewType::DEBUGVIEW_NODES:    m_debug_view = DebugViewType::DEBUGVIEW_BEAMS;    break;
+    case DebugViewType::DEBUGVIEW_BEAMS:    m_debug_view = DebugViewType::DEBUGVIEW_NONE;     break;
     default:;
     }
 }
