@@ -39,8 +39,9 @@ void RoR::GUI::TopMenubar::Update()
     // ## Let's do our own menus and menuitems using buttons and coloring tricks.
 
     const char* sim_title = "Simulation"; // TODO: Localize all!
-    const char* actors_title = "Vehicles (2)"; // TODO: Dummy menu!
     const char* tools_title = "Tools";
+    GStr<50> actors_title;
+    actors_title << "Actors (" << App::GetSimController()->GetNumActors() << ")";
 
     float panel_target_width = 
         (ImGui::GetStyle().WindowPadding.x * 2) + (ImGui::GetStyle().FramePadding.x * 2) + // Left+right window padding
@@ -58,8 +59,8 @@ void RoR::GUI::TopMenubar::Update()
     ImGui::PushStyleColor(ImGuiCol_Button,   TRANSPARENT_COLOR);
 
     // The panel
-    int flags = ImGuiWindowFlags_NoCollapse  | ImGuiWindowFlags_NoResize   | ImGuiWindowFlags_NoMove
-              | ImGuiWindowFlags_NoTitleBar  | ImGuiWindowFlags_NoScrollbar;
+    int flags = ImGuiWindowFlags_NoCollapse  | ImGuiWindowFlags_NoResize    | ImGuiWindowFlags_NoMove
+              | ImGuiWindowFlags_NoTitleBar  | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_AlwaysAutoResize;
     ImGui::SetNextWindowContentSize(ImVec2(panel_target_width, 0.f));
     ImGui::SetNextWindowPos(window_target_pos);
     if (!ImGui::Begin("Top menubar", nullptr, static_cast<ImGuiWindowFlags_>(flags)))
@@ -136,14 +137,14 @@ void RoR::GUI::TopMenubar::Update()
             {
                 if (current_actor != nullptr)
                 {
-                    App::GetSimController()->ReloadCurrentActor();
+                    App::GetSimController()->ReloadPlayerActor();
                     App::GetGuiManager()->UnfocusGui();
                 }
             }
 
             if (ImGui::Button("Remove current vehicle")) // TODO: make button disabled (fake it!) when no active vehicle
             {
-                App::GetSimController()->GetBeamFactory()->removeCurrentTruck();
+                App::GetSimController()->RemovePlayerActor();
             }
 
             if (App::mp_state.GetActive() != MpState::CONNECTED) // Singleplayer only!
@@ -248,31 +249,31 @@ void RoR::GUI::TopMenubar::Update()
                 App::GetGuiManager()->SetVisible_DebugOptions(true);
             }
 
-            // TODO: Make the radio buttons visible only when there's active actor
-            // NOTE: Currently there seems to be a bug in IMGUI - if the window is displayed first without the radiobuttons, 
-            //       it remembers the size and the radiobuttons never become visible - they get clipped out.
-            ImGui::Separator();
+            if (App::GetSimController()->GetPlayerActor() != nullptr)
+            {
+                ImGui::Separator();
 
-            int debug_view_type = -1;
-            if (current_actor != nullptr)
-            {
-                debug_view_type = current_actor->debugVisuals;
-            }
-            ImGui::RadioButton("no visual debug"       , &debug_view_type,  0);
-            ImGui::RadioButton("show node numbers"     , &debug_view_type,  1);
-            ImGui::RadioButton("show beam numbers"     , &debug_view_type,  2);
-            ImGui::RadioButton("show node&beam numbers", &debug_view_type,  3);
-            ImGui::RadioButton("show node mass"        , &debug_view_type,  4);
-            ImGui::RadioButton("show node locked"      , &debug_view_type,  5);
-            ImGui::RadioButton("show beam compression" , &debug_view_type,  6);
-            ImGui::RadioButton("show beam broken"      , &debug_view_type,  7);
-            ImGui::RadioButton("show beam stress"      , &debug_view_type,  8);
-            ImGui::RadioButton("show beam strength"    , &debug_view_type,  9);
-            ImGui::RadioButton("show beam hydros"      , &debug_view_type, 10);
-            ImGui::RadioButton("show beam commands"    , &debug_view_type, 11);
-            if ((current_actor != nullptr) && (debug_view_type != current_actor->debugVisuals))
-            {
-                current_actor->setDebugOverlayState(debug_view_type);
+                int debug_view_type = -1;
+                if (current_actor != nullptr)
+                {
+                    debug_view_type = current_actor->debugVisuals;
+                }
+                ImGui::RadioButton("no visual debug"       , &debug_view_type,  0);
+                ImGui::RadioButton("show node numbers"     , &debug_view_type,  1);
+                ImGui::RadioButton("show beam numbers"     , &debug_view_type,  2);
+                ImGui::RadioButton("show node&beam numbers", &debug_view_type,  3);
+                ImGui::RadioButton("show node mass"        , &debug_view_type,  4);
+                ImGui::RadioButton("show node locked"      , &debug_view_type,  5);
+                ImGui::RadioButton("show beam compression" , &debug_view_type,  6);
+                ImGui::RadioButton("show beam broken"      , &debug_view_type,  7);
+                ImGui::RadioButton("show beam stress"      , &debug_view_type,  8);
+                ImGui::RadioButton("show beam strength"    , &debug_view_type,  9);
+                ImGui::RadioButton("show beam hydros"      , &debug_view_type, 10);
+                ImGui::RadioButton("show beam commands"    , &debug_view_type, 11);
+                if ((current_actor != nullptr) && (debug_view_type != current_actor->debugVisuals))
+                {
+                    current_actor->setDebugOverlayState(debug_view_type);
+                }
             }
 
             m_open_menu_hoverbox_min = menu_pos;

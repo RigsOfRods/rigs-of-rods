@@ -40,6 +40,8 @@ namespace RoR {
 /// Builds and manages softbody actors; Manages multithreading.
 class BeamFactory
 {
+    friend class GameScript; // needs to call RemoveActorByCollisionBox()
+    friend class RoRFrameListener; // Needs to call removeTruck()
 public:
 
     BeamFactory(RoRFrameListener* sim_controller);
@@ -87,10 +89,7 @@ public:
     void setSimulationSpeed(float speed) { m_simulation_speed = std::max(0.0f, speed); };
     float getSimulationSpeed() { return m_simulation_speed; };
 
-    void removeCurrentTruck();
     void CleanUpAllTrucks(); /// Call this after simulation loop finishes.
-    void removeTruck(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
-    void removeTruck(int truck);
 
     void MuteAllTrucks();
     void UnmuteAllTrucks();
@@ -140,6 +139,9 @@ public:
     std::map<beam_t*, std::pair<Beam*, Beam*>> interTruckLinks;
 
 protected:
+
+    void RemoveActorByCollisionBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box); ///< Only for scripting
+    void removeTruck(int truck); ///< Internal+friends use only; see `RoRFrameListener::*Actor*()` functions.
 
     /// Returns whether or not the two (scaled) bounding boxes intersect.
     bool intersectionAABB(Ogre::AxisAlignedBox a, Ogre::AxisAlignedBox b, float scale = 1.0f);
