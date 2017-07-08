@@ -22,8 +22,11 @@
 #include "GfxActor.h"
 
 #include "Beam.h"
+#include "beam_t.h"
 #include "GlobalEnvironment.h" // TODO: Eliminate!
 #include "SkyManager.h"
+#include "imgui.h"
+#include "Utils.h"
 
 #include <OgreResourceGroupManager.h>
 #include <OgreTechnique.h>
@@ -328,5 +331,91 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
 
         // set the new position
         vidcam.vcam_ogre_camera->setPosition(pos);
+    }
+}
+
+const ImU32 BEAM_COLOR     (0xcc33aabb); // ABGR
+const float BEAM_THICKNESS (1.2f);
+const ImU32 NODE_COLOR     (0xeeaa5523); // ABGR
+const float NODE_RADIUS    (2.f);
+const ImU32 NODE_TEXT_COLOR(0xffcccccf); // ABGR
+
+void RoR::GfxActor::UpdateDebugView()
+{
+    if (m_debug_view == DebugViewType::DEBUGVIEW_NONE)
+    {
+        return; // Nothing to do
+    }
+
+    // Var
+    ImVec2 screen_size = ImGui::GetIO().DisplaySize;
+    World2ScreenConverter world2screen(
+        gEnv->mainCamera->getViewMatrix(true), gEnv->mainCamera->getProjectionMatrix(), Ogre::Vector2(screen_size.x, screen_size.y));
+
+    // Dummy fullscreen window to draw to
+    int window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar| ImGuiWindowFlags_NoInputs 
+                     | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus;
+    ImGui::Begin("RoR-SoftBodyView", NULL, screen_size, 0, window_flags);
+    ImDrawList* drawlist = ImGui::GetWindowDrawList();
+    ImGui::End();
+
+    // Skeleton display. NOTE: Order matters, it determines Z-ordering on render
+    if ((m_debug_view == DebugViewType::DEBUGVIEW_SKELETON) ||
+        (m_debug_view == DebugViewType::DEBUGVIEW_NODES))
+    {
+        // Beams
+        beam_t* beams = m_actor->beams;
+        size_t num_beams = static_cast<size_t>(m_actor->free_beam);
+        for (size_t i = 0; i < num_beams; ++i)
+        {
+            ImVec2 pos1 = world2screen.Convert(beams[i].p1->AbsPosition);
+            ImVec2 pos2 = world2screen.Convert(beams[i].p2->AbsPosition);
+
+            // Original coloring logic:
+            // // float stress_ratio = beams[i].stress / beams[i].minmaxposnegstress;
+            // // float color_scale = std::abs(stress_ratio);
+            // // color_scale = std::min(color_scale, 1.0f);
+            // // 
+            // // if (stress_ratio <= 0)
+            // //     color = ColourValue(0.2f, 1.0f - color_scale, color_scale, 0.8f);
+            // // else
+            // //     color = ColourValue(color_scale, 1.0f - color_scale, 0.2f, 0.8f);            
+
+            drawlist->AddLine(pos1, pos2, BEAM_COLOR, BEAM_THICKNESS);
+        }
+
+        // Nodes
+        node_t* nodes = m_actor->nodes;
+        size_t num_nodes = static_cast<size_t>(m_actor->free_node);
+        for (size_t i = 0; i < num_nodes; ++i)
+        {
+            ImVec2 pos = world2screen.Convert(nodes[i].AbsPosition);
+
+            drawlist->AddCircleFilled(pos, NODE_RADIUS, NODE_COLOR);
+        }
+
+        // Node numbers; drawn after nodes to have higher Z-order
+        if (m_debug_view == DebugViewType::DEBUGVIEW_NODES)
+        {
+            for (size_t i = 0; i < num_nodes; ++i)
+            {
+                ImVec2 pos = world2screen.Convert(nodes[i].AbsPosition);
+
+                GStr<25> id_buf;
+                id_buf << nodes[i].id;
+                drawlist->AddText(pos, NODE_TEXT_COLOR, id_buf.ToCStr());
+            }
+        }
+    }
+}
+
+void RoR::GfxActor::CycleDebugViews()
+{
+    switch (m_debug_view)
+    {
+    case DebugViewType::DEBUGVIEW_NONE:     m_debug_view = DebugViewType::DEBUGVIEW_SKELETON; break;
+    case DebugViewType::DEBUGVIEW_SKELETON: m_debug_view = DebugViewType::DEBUGVIEW_NODES;    break;
+    case DebugViewType::DEBUGVIEW_NODES:    m_debug_view = DebugViewType::DEBUGVIEW_NONE;     break;
+    default:;
     }
 }

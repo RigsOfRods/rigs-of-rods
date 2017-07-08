@@ -361,9 +361,6 @@ void RigSpawner::InitializeRig()
     statistics = BES.getClient(tnum, BES_CORE);
     statistics_gfx = BES.getClient(tnum, BES_GFX);
 #endif
-
-    m_rig->simpleSkeletonNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-    m_rig->deletion_sceneNodes.emplace_back(m_rig->simpleSkeletonNode);
     
     m_rig->beamsRoot = m_parent_scene_node;
 

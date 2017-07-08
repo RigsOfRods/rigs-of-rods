@@ -278,31 +278,13 @@ public:
      */
     void joinFlexbodyTasks();
 
-    /**
-    * TIGHT-LOOP; Logic: display
-    */
-    void updateLabels(float dt=0);
+    void updateLabels(float dt=0); /// Networking: player name labels. TODO: Handle this in `GfxActor` via DearIMGUI
 
     /**
     * Display
     * @param v 0 = full detail, 1 = no beams
     */
     void setDetailLevel(int v);
-
-    /**
-    * Display; displays "skeleton" (visual rig) mesh.
-    */
-    void showSkeleton(bool meshes=true, bool linked=true);
-
-    /**
-    * Display; hides "skeleton" (visual rig) mesh.
-    */
-    void hideSkeleton(bool linked=true);
-
-    /**
-    * Display; updates the "skeleton" (visual rig) mesh.
-    */
-    void updateSimpleSkeleton();
 
     void resetAutopilot();
     void disconnectAutopilot();
@@ -367,8 +349,6 @@ public:
     Ogre::Vector3 getGForces();
 
     int stabcommand; //!< Stabilization; values: { -1, 0, 1 }
-    int m_request_skeletonview_change; //!< Request activation(1) / deactivation(-1) of skeletonview
-    bool m_skeletonview_is_active; //!< Visibility of "skeleton" (visual rig) { false = not visible, true = visible }
     float stabratio;
     //direction
     float hydrodircommand;
@@ -705,27 +685,6 @@ protected:
 
     bool netBrakeLight, netReverseLight;
     Ogre::Real mTimeUntilNextToggle;
-
-    void CreateSimpleSkeletonMaterial();
-
-    // cab fading stuff - begin
-    void cabFade(float amount);
-    void setMeshWireframe(Ogre::SceneNode *node, bool value);
-    void fadeMesh(Ogre::SceneNode *node, float amount);
-    float getAlphaRejection(Ogre::SceneNode *node);
-    void setAlphaRejection(Ogre::SceneNode *node, float amount);
-    float cabFadeTimer;
-    float cabFadeTime;
-    int cabFadeMode; //<! Cab fading effect; values { -1, 0, 1, 2 }
-    // cab fading stuff - end
-
-    Ogre::ManualObject *simpleSkeletonManualObject;
-    Ogre::SceneNode *simpleSkeletonNode;
-    bool simpleSkeletonInitiated; //!< Was the rig-skeleton mesh built?
-    /**
-    * Builds the rig-skeleton mesh.
-    */
-    void initSimpleSkeleton();
 
     /**
      * Resets the turn signal when the steering wheel is turned back.

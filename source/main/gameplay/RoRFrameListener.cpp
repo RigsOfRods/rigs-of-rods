@@ -1114,12 +1114,9 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                         curr_truck->toggleCustomParticles();
                     }
 
-                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SHOW_SKELETON))
+                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CYCLE_DEBUG_VIEWS))
                     {
-                        if (curr_truck->m_skeletonview_is_active)
-                            curr_truck->hideSkeleton();
-                        else
-                            curr_truck->showSkeleton(true);
+                        curr_truck->GetGfxActor()->CycleDebugViews();
                     }
 
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_LIGHTS))
