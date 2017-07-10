@@ -42,13 +42,14 @@ class MeshWheel: public LandVehicleWheel
 
 public:
 
-    MeshWheel(RigDef::MeshWheel const & def,  Node* inner, Node* outer, Node* rigidity):
+    MeshWheel(RigDef::MeshWheel const & def,  Node* inner, Node* outer, Node* rigidity, Node* reference_arm):
         LandVehicleWheel(TYPE_MESHWHEEL),
         m_definition(def)
     {
         m_axis_inner_node = inner;
         m_axis_outer_node = outer;
-        m_rigidity_node = rigidity;	
+        m_rigidity_node = rigidity;
+        m_reference_arm_node = reference_arm;
     }
 
     virtual void ReGenerateMeshData();

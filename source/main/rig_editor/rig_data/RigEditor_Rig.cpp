@@ -772,7 +772,7 @@ void Rig::BuildFromModule(RigDef::File::Module* module, RigBuildingReport* repor
         wheel->SetGeometryIsDirty(true);
         m_wheels.push_back(wheel);
     }
-    
+
     // MESHWHEELS_2
     if (report != nullptr)
     {
@@ -781,7 +781,7 @@ void Rig::BuildFromModule(RigDef::File::Module* module, RigBuildingReport* repor
     auto meshwheels2_end = module->mesh_wheels.end();
     for (auto itor = module->mesh_wheels.begin(); itor != meshwheels2_end; ++itor)
     {
-        if (!itor->_is_meshwheel2) { continue; }
+        if (!itor->_is_meshwheel2) { continue; } // Skip meshwheels v1
 
         Node* axis_inner = nullptr;
         Node* axis_outer = nullptr;
@@ -800,7 +800,39 @@ void Rig::BuildFromModule(RigDef::File::Module* module, RigBuildingReport* repor
         meshwheel2->SetGeometryIsDirty(true);
         m_wheels.push_back(meshwheel2);
     }
-    
+
+    if (report != nullptr)
+    {
+        report->ClearCurrentSectionName();
+    }
+
+    // MESHWHEELS
+    if (report != nullptr)
+    {
+        report->SetCurrentSectionName("meshwheels");
+    }
+    for (auto itor = module->mesh_wheels.begin(); itor != meshwheels2_end; ++itor)
+    {
+        if (itor->_is_meshwheel2) { continue; } // Skip meshwheels2
+
+        Node* axis_inner = nullptr;
+        Node* axis_outer = nullptr;
+        Node* rigidity = nullptr;
+        Node* reference_arm = nullptr;
+        RigDef::MeshWheel & def = *itor;
+        bool nodes_found = GetWheelDefinitionNodes(
+            def.nodes[0], def.nodes[1], def.rigidity_node, def.reference_arm_node, // Input
+            axis_inner, axis_outer, rigidity, reference_arm, // Output
+            report);
+        if (!nodes_found)
+        {
+            continue; // Error already logged
+        }
+        auto meshwheel1 = new MeshWheel(def, axis_inner, axis_outer, rigidity, reference_arm);
+        meshwheel1->SetGeometryIsDirty(true);
+        m_wheels.push_back(meshwheel1);
+    }
+
     if (report != nullptr)
     {
         report->ClearCurrentSectionName();
@@ -2053,9 +2085,18 @@ void Rig::SaveJsonProject(MyGUI::UString const & out_path)
 {
     JsonExporter exporter;
 
+    for (CineCamera& cinecam: m_cinecameras)
+    {
+        exporter.AddNodePreset(cinecam.m_definition.node_defaults.get());
+        // TODO: the actual cinecam!!
+    }
+
+    for (LandVehicleWheel* wheel: m_wheels)
+    {
+        exporter.AddWheel(wheel);
+    }
+
     // Export nodes
-    // TODO: Gather presets (NodeDefaults) for comprehensive {preset-> numeric_ID} mapping!
-    // TODO<NodeDefaults>: Cinecam, *Wheel*.
     exporter.ExportNodesToJson(m_nodes, m_node_groups);
 
     // Export beams

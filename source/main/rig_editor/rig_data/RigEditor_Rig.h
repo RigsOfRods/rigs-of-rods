@@ -116,8 +116,8 @@
     turboprops                    [STUB] RigModuleData
     turboprops2                   [STUB] RigModuleData
     videocamera                   [STUB] RigModuleData
-    wheels                        LandVehicleWheel
-    wheels2                       LandVehicleWheel
+    wheels                        DUD!!   LandVehicleWheel
+    wheels2                       DUD!!   LandVehicleWheel
     wings                         [STUB] RigModuleData
 */
 

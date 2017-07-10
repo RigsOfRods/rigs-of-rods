@@ -25,6 +25,10 @@
 #include "Application.h"
 #include "RigEditor_Json.h"
 #include "RigEditor_Node.h"
+#include "RigEditor_LandVehicleWheel.h"
+#include "RigEditor_FlexBodyWheel.h"
+#include "RigEditor_MeshWheel.h"
+#include "RigEditor_MeshWheel2.h"
 
 #include <rapidjson/rapidjson.h>
 #include <rapidjson/document.h>
@@ -79,7 +83,7 @@ void JsonExporter::ExportNodesToJson(std::map<std::string, Node>& nodes, std::ve
 
     // PRESETS (aka 'set_node_defaults' in truckfile)
     // We need to assign unique numbers to presets; let's create std::map<> of {instance ->ID} mappings.
-    // TODO: implement properly in Editor; we can't rely on RigDef::NodeDefaults
+    // TODO: implement properly in Editor; we should not rely on RigDef::NodeDefaults
     for (auto& name_node_pair: nodes)
     {
         this->AddNodePreset(name_node_pair.second.GetPreset());
@@ -1283,6 +1287,90 @@ void JsonExporter::ExportSubmeshGroundmodelToJson(std::string const & submesh_gr
 {
     auto& j_module = this->GetModuleJson();
     j_module.AddMember("submesh_groundmodel_name", this->StrToJson(submesh_groundmodel_name), m_json_doc.GetAllocator());
+}
+
+void JsonExporter::AddWheel (LandVehicleWheel* wheel)
+{
+    auto& j_alloc = m_json_doc.GetAllocator();
+    auto& j_wheels = this->GetOrCreateMember(this->GetModuleJson(), "wheels", rapidjson::kArrayType);
+    rapidjson::Value j_def(rapidjson::kObjectType);
+
+    switch (wheel->GetType())
+    {
+    case LandVehicleWheel::Type::TYPE_FLEXBODYWHEEL:
+    {
+        auto* fb_wheel = static_cast<FlexBodyWheel*>(wheel);
+        RigDef::FlexBodyWheel& def = fb_wheel->GetDefinition();
+        this->AddNodePreset(def.node_defaults.get());
+        this->AddBeamPreset(def.beam_defaults.get());
+        j_def.AddMember("type",              "FlexBodyWheel",                           j_alloc);
+
+        // ----------- RigDef::BaseWheel -------------
+        j_def.AddMember("width",             def.width,                                 j_alloc);
+        j_def.AddMember("num_rays",          def.num_rays,                              j_alloc);
+        j_def.AddMember("node_1",            this->NodeToJson(def.nodes[0]),            j_alloc);
+        j_def.AddMember("node_2",            this->NodeToJson(def.nodes[1]),            j_alloc);
+        j_def.AddMember("rigidity_node",     this->NodeToJson(def.rigidity_node),       j_alloc);
+        j_def.AddMember("reference_arm_node",this->NodeToJson(def.reference_arm_node),  j_alloc);
+        j_def.AddMember("braking_type_id",   static_cast<int>(def.braking),             j_alloc);
+        j_def.AddMember("propulsion_type_id",static_cast<int>(def.propulsion),          j_alloc);
+        j_def.AddMember("mass",              def.mass,                                  j_alloc);
+        // ------------- RigDef::BaseWheel2 --------------
+        j_def.AddMember("rim_radius",        def.rim_radius,                            j_alloc);
+        j_def.AddMember("tyre_radius",       def.tyre_radius,                           j_alloc);
+        j_def.AddMember("tyre_springiness",  def.tyre_springiness,                      j_alloc);
+        j_def.AddMember("tyre_damping",      def.tyre_damping,                          j_alloc);
+        // ------------- RigDef::FlexBodyWheel ------------
+        j_def.AddMember("side",              static_cast<char>(def.side),               j_alloc);
+        j_def.AddMember("rim_springiness",   def.rim_springiness,                       j_alloc);
+        j_def.AddMember("rim_damping",       def.rim_damping,                           j_alloc);
+        j_def.AddMember("rim_mesh_name",     this->StrToJson(def.rim_mesh_name ),       j_alloc);
+        j_def.AddMember("tyre_mesh_name",    this->StrToJson(def.tyre_mesh_name),       j_alloc);
+
+        j_wheels.PushBack(j_def, j_alloc);
+        return;
+    }
+
+    case LandVehicleWheel::Type::TYPE_MESHWHEEL:
+    case LandVehicleWheel::Type::TYPE_MESHWHEEL_2:
+    {
+        MeshWheel* mw = static_cast<MeshWheel*>(wheel);
+        RigDef::MeshWheel& def = mw->GetDefinition();
+        this->AddNodePreset(def.node_defaults.get());
+        this->AddBeamPreset(def.beam_defaults.get());
+        if (wheel->GetType() == LandVehicleWheel::Type::TYPE_MESHWHEEL)
+            j_def.AddMember("type",          "MeshWheel",              j_alloc);
+        else
+            j_def.AddMember("type",          "MeshWheel2",             j_alloc);
+
+        // ----------- RigDef::BaseWheel -------------
+        j_def.AddMember("width",             def.width,                                 j_alloc);
+        j_def.AddMember("num_rays",          def.num_rays,                              j_alloc);
+        j_def.AddMember("node_1",            this->NodeToJson(def.nodes[0]),            j_alloc);
+        j_def.AddMember("node_2",            this->NodeToJson(def.nodes[1]),            j_alloc);
+        j_def.AddMember("rigidity_node",     this->NodeToJson(def.rigidity_node),       j_alloc);
+        j_def.AddMember("reference_arm_node",this->NodeToJson(def.reference_arm_node),  j_alloc);
+        j_def.AddMember("braking_type_id",   static_cast<int>(def.braking),             j_alloc);
+        j_def.AddMember("propulsion_type_id",static_cast<int>(def.propulsion),          j_alloc);
+        j_def.AddMember("mass",              def.mass,                                  j_alloc);
+        // ------------- RigDef::MeshWheel (unified) --------------
+        j_def.AddMember("rim_radius",        def.rim_radius,                            j_alloc);
+        j_def.AddMember("tyre_radius",       def.tyre_radius,                           j_alloc);
+        j_def.AddMember("spring",            def.spring,                                j_alloc);
+        j_def.AddMember("damping",           def.damping,                               j_alloc);
+        j_def.AddMember("side",              static_cast<char>(def.side),               j_alloc);
+        j_def.AddMember("mesh_name",         this->StrToJson(def.mesh_name ),           j_alloc);
+        j_def.AddMember("material_name",     this->StrToJson(def.material_name),        j_alloc);
+
+        j_wheels.PushBack(j_def, j_alloc);
+        return;
+    }
+
+    // TODO: Support 'wheels' and 'wheels2'!
+
+    default:;
+    }
+    auto& j_list = this->GetOrCreateMember(this->GetModuleJson(), "meshwheels", rapidjson::kArrayType);
 }
 
 void JsonExporter::SaveRigProjectJsonFile(MyGUI::UString const & out_path)

@@ -130,6 +130,7 @@
 
 #include "RigEditor_Beam.h"
 #include "RigEditor_Node.h"
+#include "RigEditor_ForwardDeclarations.h"
 
 #include <MyGUI_UString.h>
 #include <OgreColourValue.h>
@@ -150,6 +151,7 @@ public:
     void AddModule                   (std::string const & module_name);
     void AddBeamPreset               (RigDef::BeamDefaults* beam_preset);
     void AddNodePreset               (RigDef::NodeDefaults* node_preset);
+    void AddWheel                    (LandVehicleWheel* wheel);
     void AppendAnimatorOptionJson    (rapidjson::Value& j_array, const char* option, int param=-1);
     void AddRigPropertiesJson        (rapidjson::Value val);
     void ExportNodesToJson           (std::map<std::string, Node>& nodes, std::vector<NodeGroup>& groups);
