@@ -46,6 +46,7 @@ struct NodeGroup
 class Node
 {
     friend class RigEditor::Rig;
+    friend class JsonImporter;
 
 public:
 

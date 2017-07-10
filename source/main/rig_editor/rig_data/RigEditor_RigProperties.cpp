@@ -214,6 +214,8 @@ struct RigModuleData
         exporter.ExportCollisionBoxesToJson  (this->collision_boxes);
         exporter.ExportCruiseControlToJson   (this->cruise_control);
         exporter.ExportContactersToJson      (this->contacters);
+        exporter.ExportEngineToJson          (this->engine);
+        exporter.ExportEngoptionToJson       (this->engoption);
         //exporter.ExportEngturboToJson        (this->engturbo);-- TODO
         exporter.ExportExhaustsToJson        (this->exhausts);
         exporter.ExportFixesToJson           (this->fixes);
@@ -244,6 +246,55 @@ struct RigModuleData
         exporter.ExportTurboprops2ToJson     (this->turboprops_2);
         exporter.ExportVideoCamerasToJson    (this->videocameras);
         exporter.ExportWingsToJson           (this->wings);
+    }
+
+    void ImportRigModuleFromJson(JsonImporter& importer)
+    {
+        //importer.ImportSubmeshGroundmodelFromJson(this->submesh_groundmodel);
+        //importer.ImportEngineFromJson          (this->engine);
+        //importer.ImportEngoptionFromJson       (this->engoption);
+        //importer.ImportAirbrakesFromJson       (this->airbrakes);
+        //importer.ImportAnimatorsFromJson       (this->animators);
+        //importer.ImportAntiLockBrakesFromJson  (this->anti_lock_brakes);
+        //importer.ImportAxlesFromJson           (this->axles);
+        //importer.ImportBrakesFromJson          (this->brakes);
+        //importer.ImportCamerasFromJson         (this->cameras);
+        //importer.ImportCameraRailsFromJson     (this->camera_rails);
+        //importer.ImportCollisionBoxesFromJson  (this->collision_boxes);
+        //importer.ImportCruiseControlFromJson   (this->cruise_control);
+        //importer.ImportContactersFromJson      (this->contacters);
+        importer.ImportEngineFromJson          (this->engine);
+        importer.ImportEngoptionFromJson       (this->engoption);
+        //TODO: engturbo
+        //importer.ImportExhaustsFromJson        (this->exhausts);
+        //importer.ImportFixesFromJson           (this->fixes);
+        //importer.ImportFusedragsFromJson       (this->fusedrag);
+        //importer.ImportHooksFromJson           (this->hooks);
+        //importer.ImportLockgroupsFromJson      (this->lockgroups);
+        //importer.ImportManagedMatsFromJson     (this->managed_mats);
+        //importer.ImportMatFlareBindingsFromJson(this->mat_flare_bindings);
+        //importer.ImportNodeCollisionsFromJson  (this->node_collisions);
+        //importer.ImportParticlesFromJson       (this->particles);
+        //importer.ImportPistonpropsFromJson     (this->pistonprops);
+        //importer.ImportPropsFromJson           (this->props);
+        //importer.ImportRailGroupsFromJson      (this->railgroups);
+        //importer.ImportRopablesFromJson        (this->ropables);
+        //importer.ImportRotatorsFromJson        (this->rotators);
+        //importer.ImportRotators2FromJson       (this->rotators_2);
+        //importer.ImportScrewpropsFromJson      (this->screwprops);
+        //importer.ImportSlideNodesFromJson      (this->slidenodes);
+        //importer.ImportSlopeBrakeFromJson      (this->slope_brake);
+        //importer.ImportSoundSourcesFromJson    (this->soundsources);
+        //importer.ImportSoundSources2FromJson   (this->soundsources_2);
+        //importer.ImportSpeedLimiterFromJson    (this->speed_limiter);
+        //importer.ImportSubmeshesFromJson       (this->submeshes);
+        //importer.ImportTiesFromJson            (this->ties);
+        importer.ImportTorqueCurveFromJson     (this->torque_curve);
+        //importer.ImportTractionControlFromJson (this->traction_control);
+        //importer.ImportTurbojetsFromJson       (this->turbojets);
+        //importer.ImportTurboprops2FromJson     (this->turboprops_2);
+        //importer.ImportVideoCamerasFromJson    (this->videocameras);
+        //importer.ImportWingsFromJson           (this->wings);
     }
 };
 
@@ -403,7 +454,7 @@ rapidjson::Value RigProperties::ExportJson(JsonExporter& exporter)
     std::stringstream desc;
     for (auto itor = m_description.begin(); itor != m_description.end(); ++itor)
     {
-        desc << *itor;
+        desc << *itor << std::endl;
     }
     j_data.AddMember("description", StrToJson(desc.str()), j_alloc);
 
@@ -424,11 +475,47 @@ rapidjson::Value RigProperties::ExportJson(JsonExporter& exporter)
 
     exporter.AddRigPropertiesJson(j_data);
 
+    // The root module stubs
     m_root_data->ExportRigModuleToJson(exporter);
 
     return j_data;
 }
 
+void RigProperties::ImportJson(JsonImporter& importer)
+{
+
+    rapidjson::Value& j_properties = importer.GetRigPropertiesJson();
+    // Global properties
+    m_title                                     = j_properties["name"].GetString();
+    m_guid                                      = j_properties["guid"].GetString();
+    m_hide_in_chooser                           = j_properties["hide_in_chooser"].GetBool();
+    m_forward_commands                          = j_properties["forward_commands"].GetBool();
+    m_import_commands                           = j_properties["import_commands"].GetBool();
+    m_is_rescuer                                = j_properties["is_rescuer"].GetBool();
+    m_rollon                                    = j_properties["is_rollon"].GetBool();
+    m_minimass                                  = j_properties["minimum_mass"].GetFloat();
+    m_enable_advanced_deform                    = j_properties["enable_advanced_deform"].GetBool();
+    m_disable_default_sounds                    = j_properties["disable_default_sounds"].GetBool();
+    m_slidenodes_connect_instant                = j_properties["slidenodes_connect_instant"].GetBool();
+    m_collision_range                           = j_properties["collision_range"].GetFloat();
+    m_lockgroup_default_nolock                  = j_properties["lockgroup_default_nolock"].GetBool();
+    m_fileinfo.unique_id                        = j_properties["fileinfo_uid"].GetString();
+    m_fileinfo.category_id                      = j_properties["fileinfo_category_id"].GetBool();
+    m_fileinfo.file_version                     = j_properties["fileinfo_version"].GetBool();
+    m_extcamera.mode                            = static_cast<RigDef::ExtCamera::Mode>(j_properties["extcam_mode"].GetInt()); // TODO: check validity for the cast!
+    m_extcamera.node                            = JsonImporter::JsonToNodeRef(j_properties["extcam_node"]);
+    m_skeleton_settings.visibility_range_meters = j_properties["visibility_range_meters"].GetFloat();
+    m_skeleton_settings.beam_thickness_meters   = j_properties["beam_thickness_meters"].GetFloat();
+    m_globals_load_mass                         = j_properties["globals_load_mass"].GetFloat();
+    m_globals_dry_mass                          = j_properties["globals_dry_mass"].GetFloat();
+    m_globals_cab_material_name                 = j_properties["globals_cab_material_name"].GetString();
+
+    m_description.push_back(j_properties["description"].GetString());
+
+    // TODO: Authors
+
+    m_root_data->ImportRigModuleFromJson(importer);
+}
 
 std::shared_ptr<RigDef::Engine>    RigProperties::GetEngine()          { return m_root_data->engine; }
 std::shared_ptr<RigDef::Engoption> RigProperties::GetEngoption()       { return m_root_data->engoption; }

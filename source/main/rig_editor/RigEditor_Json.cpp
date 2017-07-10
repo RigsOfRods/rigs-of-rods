@@ -34,6 +34,7 @@
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/filewritestream.h>
+#include <rapidjson/filereadstream.h>
 
 #include <sstream>
 
@@ -79,22 +80,15 @@ rapidjson::Value& JsonExporter::GetOrCreateMember(
     return j_container[name];
 }
 
-void JsonExporter::ExportNodesToJson(std::map<std::string, Node>& nodes, std::vector<NodeGroup>& groups)
+void JsonExporter::SavePresetsToJson()
 {
     rapidjson::Value& j_module = this->GetModuleJson();
     auto& j_alloc = m_json_doc.GetAllocator();
 
-    rapidjson::Value& j_softbody = this->GetOrCreateMember(j_module, "softbody");
+    // TODO: Inertia presets
 
-    // PRESETS (aka 'set_node_defaults' in truckfile)
-    // We need to assign unique numbers to presets; let's create std::map<> of {instance ->ID} mappings.
-    // TODO: implement properly in Editor; we should not rely on RigDef::NodeDefaults
-    for (auto& name_node_pair: nodes)
-    {
-        this->AddNodePreset(name_node_pair.second.GetPreset());
-    }
-
-    rapidjson::Value& j_presets = this->GetOrCreateMember(j_softbody, "node_presets");
+    // Node presets (aka 'set_node_defaults' in truckfile)
+    rapidjson::Value& j_presets = this->GetOrCreateMember(j_module, "node_presets");
 
     for (auto& preset_pair: m_node_presets)
     {
@@ -122,8 +116,37 @@ void JsonExporter::ExportNodesToJson(std::map<std::string, Node>& nodes, std::ve
         j_presets.AddMember(this->StrToJson(preset_pair.second), j_preset, j_alloc);
     }
 
+    // Beam presets (aka 'set_beam_defaults' in truckfile)
+    rapidjson::Value& j_beam_presets = this->GetOrCreateMember(j_module, "beam_presets");
+    for (auto& entry: m_beam_presets)
+    {
+        rapidjson::Value j_preset(rapidjson::kObjectType);
+
+        j_preset.AddMember("spring",                  entry.first->springiness                         , j_alloc);
+        j_preset.AddMember("damp",                    entry.first->damping_constant                    , j_alloc);
+        j_preset.AddMember("deform_threshold",        entry.first->deformation_threshold               , j_alloc);
+        j_preset.AddMember("break_threshold",         entry.first->breaking_threshold                  , j_alloc);
+        j_preset.AddMember("visual_diameter",         entry.first->visual_beam_diameter                , j_alloc);
+        j_preset.AddMember("material_name",           this->StrToJson(entry.first->beam_material_name) , j_alloc);
+        j_preset.AddMember("plastic_deform",          entry.first->plastic_deform_coef                 , j_alloc);
+        j_preset.AddMember("enable_adv_deform",       entry.first->_enable_advanced_deformation        , j_alloc);
+        j_preset.AddMember("user_set_plastic_deform", entry.first->_is_plastic_deform_coef_user_defined, j_alloc);
+        j_preset.AddMember("spring_scale",            entry.first->scale.springiness                   , j_alloc);
+        j_preset.AddMember("damp_scale",              entry.first->scale.damping_constant              , j_alloc);
+        j_preset.AddMember("deform_thresh_scale",     entry.first->scale.deformation_threshold_constant, j_alloc);
+        j_preset.AddMember("break_thresh_scale",      entry.first->scale.breaking_threshold_constant   , j_alloc);
+
+        j_beam_presets.AddMember(this->StrToJson(entry.second), rapidjson::kObjectType, j_alloc);
+    }
+}
+
+void JsonExporter::ExportNodesToJson(std::map<std::string, Node>& nodes, std::vector<NodeGroup>& groups)
+{
+    rapidjson::Value& j_module = this->GetModuleJson();
+    auto& j_alloc = m_json_doc.GetAllocator();
+
     // GROUPS
-    rapidjson::Value& j_groups = this->GetOrCreateMember(j_softbody, "node_groups");
+    rapidjson::Value& j_groups = this->GetOrCreateMember(j_module, "node_groups");
 
     for (size_t i = 0; i < groups.size(); ++i)
     {
@@ -135,7 +158,7 @@ void JsonExporter::ExportNodesToJson(std::map<std::string, Node>& nodes, std::ve
     }
 
     // NODES
-    rapidjson::Value& j_nodes = this->GetOrCreateMember(j_softbody, "nodes");
+    rapidjson::Value& j_nodes = this->GetOrCreateMember(j_module, "nodes");
 
     for (auto& node_entry: nodes)
     {
@@ -201,35 +224,6 @@ void JsonExporter::ExportBeamsToJson(std::list<Beam>& beams, std::vector<BeamGro
         j_beam_groups.AddMember(rapidjson::Value(i), j_grp, j_alloc);
     }
 
-    // PRESETS
-    // We need list of unique presets with numeric IDs -> let's use std::map
-    for (Beam& beam: beams)
-    {
-        this->AddBeamPreset(beam.GetPreset());
-    }
-
-    rapidjson::Value& j_beam_presets = this->GetOrCreateMember(j_module, "beam_presets");
-    for (auto& entry: m_beam_presets)
-    {
-        rapidjson::Value j_preset(rapidjson::kObjectType);
-
-        j_preset.AddMember("spring",                  entry.first->springiness                         , j_alloc);
-        j_preset.AddMember("damp",                    entry.first->damping_constant                    , j_alloc);
-        j_preset.AddMember("deform_threshold",        entry.first->deformation_threshold               , j_alloc);
-        j_preset.AddMember("break_threshold",         entry.first->breaking_threshold                  , j_alloc);
-        j_preset.AddMember("visual_diameter",         entry.first->visual_beam_diameter                , j_alloc);
-        j_preset.AddMember("material_name",           this->StrToJson(entry.first->beam_material_name) , j_alloc);
-        j_preset.AddMember("plastic_deform",          entry.first->plastic_deform_coef                 , j_alloc);
-        j_preset.AddMember("enable_adv_deform",       entry.first->_enable_advanced_deformation        , j_alloc);
-        j_preset.AddMember("user_set_plastic_deform", entry.first->_is_plastic_deform_coef_user_defined, j_alloc);
-        j_preset.AddMember("spring_scale",            entry.first->scale.springiness                   , j_alloc);
-        j_preset.AddMember("damp_scale",              entry.first->scale.damping_constant              , j_alloc);
-        j_preset.AddMember("deform_thresh_scale",     entry.first->scale.deformation_threshold_constant, j_alloc);
-        j_preset.AddMember("break_thresh_scale",      entry.first->scale.breaking_threshold_constant   , j_alloc);
-
-        j_beam_presets.AddMember(this->StrToJson(entry.second), rapidjson::kObjectType, j_alloc);
-    }
-    
     // BEAMS
     rapidjson::Value& j_beams = this->GetOrCreateMember(j_module, "beams", rapidjson::kArrayType);
     for (Beam& beam : beams)
@@ -1130,6 +1124,8 @@ rapidjson::Value JsonExporter::NodePresetToJson(RigDef::NodeDefaults* preset)
     if (preset == nullptr)
         return rapidjson::Value(); // Null
 
+    this->AddNodePreset(preset);
+
     auto& search_itor = m_node_presets.find(preset);
     if (search_itor == m_node_presets.end())
     {
@@ -1476,6 +1472,330 @@ rapidjson::Value JsonExporter::StrToJson(std::string const & s)
 void JsonExporter::AddMemberBool(rapidjson::Value& j_container, const char* name, bool value)
 {
     j_container.AddMember(rapidjson::StringRef(name), value, m_json_doc.GetAllocator());
+}
+
+// -------------------------------- Importer ------------------------------------
+
+JsonImporter::JsonImporter():
+    m_rig(nullptr),
+    m_module_name("_ROOT_")
+{
+}
+
+void JsonImporter::LoadRigProjectJson(MyGUI::UString const & src_path)
+{
+    if (!this->LoadJsonFile(src_path))
+        return;
+
+    if (!m_json_doc.HasMember("modules") || !m_json_doc["modules"].IsObject())
+    {
+        RoR::LogFormat("[RoR|RigEditor] Json document '%s' has no modules!", src_path.asUTF8_c_str());
+        return;
+    }
+
+    rapidjson::Value& j_modules = m_json_doc["modules"];
+    if (!j_modules.HasMember("_ROOT_") || j_modules["_ROOT_"].IsObject())
+    {
+        RoR::LogFormat("[RoR|RigEditor] Json document '%s' has no root module!", src_path.asUTF8_c_str());
+        return;
+    }
+
+    // Root module
+    this->LoadPresetsFromJson();
+
+    // TODO: other modules
+}
+
+bool JsonImporter::LoadJsonFile(MyGUI::UString const & src_path)
+{
+    FILE* file = nullptr;
+    errno_t fopen_result = 0;
+#ifdef _WIN32
+    static const char* fopen_name = "_wfopen_s()";
+    // Binary mode recommended by RapidJSON tutorial: http://rapidjson.org/md_doc_stream.html#FileReadStream
+    fopen_result = _wfopen_s(&file, src_path.asWStr_c_str(), L"wb");
+#else
+    static const char* fopen_name = "fopen_s()";
+    fopen_s(&file, src_path.asUTF8_c_str(), "w");
+#endif
+    if ((fopen_result != 0) || (file == nullptr))
+    {
+        std::stringstream msg;
+        msg << "[RoR|RigEditor] Failed to load JSON project file (path: "<< src_path << ")";
+        if (fopen_result != 0)
+        {
+            msg<<" Tech details: function ["<<fopen_name<<"] returned ["<<fopen_result<<"]";
+        }
+        LOG(msg.str());
+        return false; // TODO: Notify the user!
+    }
+
+    char readBuffer[65536];
+    rapidjson::FileReadStream is(file, readBuffer, sizeof(readBuffer));
+
+    m_json_doc.ParseStream(is);
+
+    fclose(file); // TODO: check error
+    return true;
+}
+
+RigDef::Node::Ref    JsonImporter::JsonToNodeRef(rapidjson::Value& j_val) // static helper
+{
+    const char* name = nullptr;
+    int number = 0;
+    if (j_val.IsString())
+    {
+        int flags = RigDef::Node::Ref::REGULAR_STATE_IS_NAMED | RigDef::Node::Ref::REGULAR_STATE_IS_VALID;
+        return RigDef::Node::Ref(j_val.GetString(), 0, flags, 0);
+    }
+    return RigDef::Node::Ref(); // Defaults to invalid reference
+}
+
+void JsonImporter::SetCurrentModule(const char* module_name)
+{
+    if (!m_json_doc["modules"].HasMember(rapidjson::StringRef(module_name)))
+        return;
+
+    m_module_name = module_name;
+}
+
+rapidjson::Value& JsonImporter::GetModuleJson()
+{
+    const char* module_cstr = rapidjson::StringRef(m_module_name.c_str());
+    return m_json_doc["modules"][module_cstr];
+}
+
+void JsonImporter::ImportEngineFromJson (std::shared_ptr<RigDef::Engine>&    def)
+{
+    rapidjson::Value& j_module = this->GetModuleJson();
+    if (!j_module.HasMember("engine") || !j_module["engine"].IsObject())
+        return;
+
+    rapidjson::Value& j_def = j_module["engine"];
+    def = std::make_shared<RigDef::Engine>();
+
+    def->shift_down_rpm    = j_def["shift_down_rpm"]    .GetFloat();
+    def->shift_up_rpm      = j_def["shift_up_rpm"]      .GetFloat();
+    def->torque            = j_def["torque"]            .GetFloat();
+    def->global_gear_ratio = j_def["global_gear_ratio"] .GetFloat();
+    def->reverse_gear_ratio= j_def["reverse_gear_ratio"].GetFloat();
+    def->neutral_gear_ratio= j_def["neutral_gear_ratio"].GetFloat();
+
+    // Gears
+    auto itor = j_def["gear_ratios"].Begin();
+    auto endi = j_def["gear_ratios"].End();
+    for (; itor != endi; ++itor)
+    {
+        def->gear_ratios.push_back(itor->GetFloat());
+    }
+}
+
+void JsonImporter::ImportEngoptionFromJson (std::shared_ptr<RigDef::Engoption>& def)
+{
+    rapidjson::Value& j_module = this->GetModuleJson();
+    if (!j_module.HasMember("engoption") || !j_module["engoption"].IsObject())
+        return;
+
+    rapidjson::Value& j_def = j_module["engoption"];
+    def = std::make_shared<RigDef::Engoption>();
+
+    def->inertia           = j_def["inertia"]            .GetFloat();
+    def->type              = static_cast<RigDef::Engoption::EngineType>(j_def["type_id"].GetInt()); // TODO: validate!
+    def->clutch_force      = j_def["clutch_force"]       .GetFloat();
+    def->shift_time        = j_def["shift_time"]         .GetFloat();
+    def->clutch_time       = j_def["clutch_time"]        .GetFloat();
+    def->post_shift_time   = j_def["post_shift_time"]    .GetFloat();
+    def->idle_rpm          = j_def["idle_rpm"]           .GetFloat();
+    def->stall_rpm         = j_def["stall_rpm"]          .GetFloat();
+    def->max_idle_mixture  = j_def["max_idle_mixture"]   .GetFloat();
+    def->min_idle_mixture  = j_def["min_idle_mixture"]   .GetFloat();
+}
+
+void JsonImporter::ImportTorqueCurveFromJson(std::shared_ptr<RigDef::TorqueCurve>&torque_curve)
+{
+    rapidjson::Value& j_module = this->GetModuleJson();
+    if (!j_module.HasMember("torquecurve"))
+        return;
+
+    rapidjson::Value& j_curve = j_module["torquecurve"];
+
+    if (j_curve.IsString)
+    {
+        torque_curve = std::make_shared<RigDef::TorqueCurve>();
+        torque_curve->predefined_func_name = j_curve.GetString();
+    }
+    else if (j_curve.IsArray())
+    {
+        torque_curve = std::make_shared<RigDef::TorqueCurve>();
+
+        for (auto itor = j_curve.Begin(); itor != j_curve.End(); ++itor)
+        {
+            RigDef::TorqueCurve::Sample sample;
+            sample.power = (*itor)["power"].GetFloat();
+            sample.torque_percent = (*itor)["torque_percent"].GetFloat();
+            torque_curve->samples.push_back(sample);
+        }
+    }
+    else
+    {
+        RoR::LogFormat("[RoR|RigEditor] Invalid 'torquecurve' JSON type.");
+    }
+}
+
+void JsonImporter::LoadPresetsFromJson()
+{
+    rapidjson::Value& j_module = this->GetModuleJson();
+
+    // TODO: Inertia presets
+
+    // Node presets (aka 'set_node_defaults' in truckfile)
+    if (j_module.HasMember("node_presets") || j_module["node_presets"].IsObject())
+    {
+        auto itor = j_module["node_presets"].MemberBegin();
+        auto endi = j_module["node_presets"].MemberEnd();
+        for (; itor != endi; ++itor)
+        {
+            auto preset = std::make_shared<RigDef::NodeDefaults>();
+            rapidjson::Value& j_preset = itor->value;
+
+            preset->load_weight = j_preset["load_weight"].GetFloat();
+            preset->friction    = j_preset["friction"]   .GetFloat();
+            preset->volume      = j_preset["volume"]     .GetFloat();
+            preset->surface     = j_preset["surface"]    .GetFloat();
+
+            if (j_preset["option_n_mouse_grab"]         .GetBool()) { preset->options |= RigDef::Node::OPTION_n_MOUSE_GRAB        ; }
+            if (j_preset["option_m_no_mouse_grab"]      .GetBool()) { preset->options |= RigDef::Node::OPTION_m_NO_MOUSE_GRAB     ; }
+            if (j_preset["option_f_no_sparks"]          .GetBool()) { preset->options |= RigDef::Node::OPTION_f_NO_SPARKS         ; }
+            if (j_preset["option_x_exhaust_point"]      .GetBool()) { preset->options |= RigDef::Node::OPTION_x_EXHAUST_POINT     ; }
+            if (j_preset["option_y_exhaust_direction"]  .GetBool()) { preset->options |= RigDef::Node::OPTION_y_EXHAUST_DIRECTION ; }
+            if (j_preset["option_c_no_ground_contact"]  .GetBool()) { preset->options |= RigDef::Node::OPTION_c_NO_GROUND_CONTACT ; }
+            if (j_preset["option_h_hook_point"]         .GetBool()) { preset->options |= RigDef::Node::OPTION_h_HOOK_POINT        ; }
+            if (j_preset["option_e_terrain_edit_point"] .GetBool()) { preset->options |= RigDef::Node::OPTION_e_TERRAIN_EDIT_POINT; }
+            if (j_preset["option_b_extra_buoyancy"]     .GetBool()) { preset->options |= RigDef::Node::OPTION_b_EXTRA_BUOYANCY    ; }
+            if (j_preset["option_p_no_particles"]       .GetBool()) { preset->options |= RigDef::Node::OPTION_p_NO_PARTICLES      ; }
+            if (j_preset["option_L_log"]                .GetBool()) { preset->options |= RigDef::Node::OPTION_L_LOG               ; }
+            if (j_preset["option_l_load_weight"]        .GetBool()) { preset->options |= RigDef::Node::OPTION_l_LOAD_WEIGHT       ; }
+
+            std::pair<std::string, std::shared_ptr<RigDef::NodeDefaults>> entry = std::make_pair(std::string(itor->name.GetString()), preset);
+            m_node_presets.insert(entry);
+        }
+    }
+
+    // Beam presets (aka 'set_beam_defaults' in truckfile)
+    if (j_module.HasMember("beam_presets") || j_module["beam_presets"].IsObject())
+    {
+        auto itor = j_module["beam_presets"].MemberBegin();
+        auto endi = j_module["beam_presets"].MemberEnd();
+        for (; itor != endi; ++itor)
+        {
+            auto preset = std::make_shared<RigDef::BeamDefaults>();
+            rapidjson::Value& j_preset = itor->value;
+
+            preset->springiness                          = j_preset["spring"]                 .GetFloat();
+            preset->damping_constant                     = j_preset["damp"]                   .GetFloat();
+            preset->deformation_threshold                = j_preset["deform_threshold"]       .GetFloat();
+            preset->breaking_threshold                   = j_preset["break_threshold"]        .GetFloat();
+            preset->visual_beam_diameter                 = j_preset["visual_diameter"]        .GetFloat();
+            preset->plastic_deform_coef                  = j_preset["plastic_deform"]         .GetFloat();
+            preset->_enable_advanced_deformation         = j_preset["enable_adv_deform"]      .GetBool();
+            preset->_is_plastic_deform_coef_user_defined = j_preset["user_set_plastic_deform"].GetBool();
+            preset->scale.springiness                    = j_preset["spring_scale"]           .GetFloat();
+            preset->scale.damping_constant               = j_preset["damp_scale"]             .GetFloat();
+            preset->scale.deformation_threshold_constant = j_preset["deform_thresh_scale"]    .GetFloat();
+            preset->scale.breaking_threshold_constant    = j_preset["break_thresh_scale"]     .GetFloat();
+            preset->beam_material_name                   = j_preset["material_name"]          .GetString();
+
+            m_beam_presets.insert(std::make_pair(itor->name.GetString(), preset));
+        }
+    }
+}
+
+Ogre::ColourValue JsonImporter::JsonToRgba(rapidjson::Value& j_color)
+{
+    if (!j_color.IsObject())
+        return Ogre::ColourValue();
+
+    return Ogre::ColourValue(j_color["r"].GetFloat(), j_color["g"].GetFloat(), j_color["b"].GetFloat(), j_color["a"].GetFloat());
+}
+
+Ogre::Vector3 JsonImporter::JsonToVector3(rapidjson::Value& j_val)
+{
+    if (!j_val.IsObject())
+        return Ogre::Vector3();
+
+    return Ogre::Vector3(j_val["x"].GetFloat(), j_val["y"].GetFloat(), j_val["z"].GetFloat());
+}
+
+std::shared_ptr<RigDef::NodeDefaults>  JsonImporter::ResolveNodePreset(rapidjson::Value& j_preset_id)
+{
+    if (!j_preset_id.IsString())
+    {
+        return nullptr;
+    }
+
+    auto found_itor = m_node_presets.find(j_preset_id.GetString());
+    if (found_itor == m_node_presets.end())
+    {
+        return nullptr;
+    }
+
+    return found_itor->second;
+}
+
+void JsonImporter::ImportNodesFromJson(std::map<std::string, Node>& nodes, std::vector<NodeGroup>& groups)
+{
+    // GROUPS
+    rapidjson::Value& j_module = this->GetModuleJson();
+    if (j_module.HasMember("node_groups") || j_module["node_groups"].IsArray())
+    {
+        auto itor = j_module["node_groups"].Begin();
+        auto endi = j_module["node_groups"].End();
+        for (; itor != endi; ++itor)
+        {
+            NodeGroup grp;
+            grp.reng_color = this->JsonToRgba((*itor)["color"]);
+            grp.reng_name = (*itor)["name"].GetString();
+        }
+    }
+
+    if (j_module.HasMember("nodes") || j_module["nodes"].IsObject())
+    {
+        auto itor = j_module["nodes"].MemberBegin();
+        auto endi = j_module["nodes"].MemberEnd();
+        for (; itor != endi; ++itor)
+        {
+            rapidjson::Value& j_node = itor->value;
+            Node node;
+            node.m_nodegroup_id                              = j_node["group_id"].GetInt();
+            node.m_definition.detacher_group                 = j_node["detacher_group_id"].GetInt();
+            node.m_definition._has_load_weight_override      = j_node["load_weight_set"].GetBool();
+            node.m_definition.load_weight_override           = j_node["load_weight"].GetFloat();
+            node.m_definition.position                       = this->JsonToVector3(j_node["position"]);
+            node.m_definition.node_defaults                  = this->ResolveNodePreset(j_node["preset_id"]);
+
+            unsigned flags = 0u;
+            if (j_node["option_n_mouse_grab"]        .GetBool()) { flags |= RigDef::Node::OPTION_n_MOUSE_GRAB        ; }
+            if (j_node["option_m_no_mouse_grab"]     .GetBool()) { flags |= RigDef::Node::OPTION_m_NO_MOUSE_GRAB     ; }
+            if (j_node["option_f_no_sparks"]         .GetBool()) { flags |= RigDef::Node::OPTION_f_NO_SPARKS         ; }
+            if (j_node["option_x_exhaust_point"]     .GetBool()) { flags |= RigDef::Node::OPTION_x_EXHAUST_POINT     ; }
+            if (j_node["option_y_exhaust_direction"] .GetBool()) { flags |= RigDef::Node::OPTION_y_EXHAUST_DIRECTION ; }
+            if (j_node["option_c_no_ground_contact"] .GetBool()) { flags |= RigDef::Node::OPTION_c_NO_GROUND_CONTACT ; }
+            if (j_node["option_h_hook_point"]        .GetBool()) { flags |= RigDef::Node::OPTION_h_HOOK_POINT        ; }
+            if (j_node["option_e_terrain_edit_point"].GetBool()) { flags |= RigDef::Node::OPTION_e_TERRAIN_EDIT_POINT; }
+            if (j_node["option_b_extra_buoyancy"]    .GetBool()) { flags |= RigDef::Node::OPTION_b_EXTRA_BUOYANCY    ; }
+            if (j_node["option_p_no_particles"]      .GetBool()) { flags |= RigDef::Node::OPTION_p_NO_PARTICLES      ; }
+            if (j_node["option_L_log"]               .GetBool()) { flags |= RigDef::Node::OPTION_L_LOG               ; }
+            if (j_node["option_l_load_weight"]       .GetBool()) { flags |= RigDef::Node::OPTION_l_LOAD_WEIGHT       ; }
+            node.m_definition.options = flags;
+
+            nodes.insert(std::make_pair(itor->name.GetString(), node));
+        }
+    }
+}
+
+rapidjson::Value& JsonImporter::GetRigPropertiesJson()
+{
+    return m_json_doc["general"];
 }
 
 } // namespace RigEditor

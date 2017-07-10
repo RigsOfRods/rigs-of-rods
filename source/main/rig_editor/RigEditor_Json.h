@@ -28,8 +28,8 @@
     ----------------------------
 
     Legend:
-      - [Unified beams]: module/beams, module/beam_groups, module/beam_presets
-      - [Unified nodes]: module/nodes, module/node_groups, module/node_presets
+      - [Unified beams]: modules/../beams, modules/../beam_groups, modules/../beam_presets
+      - [Unified nodes]: modules/../nodes, modules/../node_groups, modules/../node_presets
 
     TRUCKFILE KEYWORD           | JSON handling
 
@@ -199,6 +199,7 @@ public:
     void ExportVideoCamerasToJson    (std::vector<RigDef::VideoCamera>&videocameras);
     void ExportWingsToJson           (std::vector<RigDef::Wing>&wings);
     void ExportSubmeshGroundmodelToJson(std::string const & submesh_groundmodel_name);
+    void SavePresetsToJson           ();
 
     void SaveRigProjectJsonFile(MyGUI::UString const & out_path);
 
@@ -223,9 +224,84 @@ private:
 
     rapidjson::Document m_json_doc;
     std::string         m_cur_module_name;
+    // We need to assign unique numbers to presets; let's create std::map<> of {instance ->ID} mappings.
+    // TODO: implement properly in Editor; we should not rely on RigDef::NodeDefaults
     std::map<RigDef::BeamDefaults*, std::string> m_beam_presets; ///< Temporary while we use 'RigDef::' for editor presets
     std::map<RigDef::NodeDefaults*, std::string> m_node_presets; ///< Temporary while we use 'RigDef::' for editor presets
-}; 
+};
+
+class JsonImporter
+{
+public:
+    JsonImporter();
+    void   LoadRigProjectJson            (MyGUI::UString const & src_path);
+    void   LoadPresetsFromJson           ();
+    void   SetCurrentModule              (const char* module_name);
+    void   ImportNodesFromJson           (std::map<std::string, Node>& nodes, std::vector<NodeGroup>& groups);
+    void   ImportBeamsFromJson           (std::list<Beam>& beams, std::vector<BeamGroup>& groups);
+    void   ImportAirbrakesFromJson       (std::vector<RigDef::Airbrake>&airbrakes);
+    void   ImportAnimatorsFromJson       (std::vector<RigDef::Animator>&animators);
+    void   ImportAntiLockBrakesFromJson  (std::shared_ptr<RigDef::AntiLockBrakes>&anti_lock_brakes);
+    void   ImportAxlesFromJson           (std::vector<RigDef::Axle>&axles);
+    void   ImportBrakesFromJson          (std::shared_ptr<RigDef::Brakes>&brakes);
+    void   ImportCamerasFromJson         (std::vector<RigDef::Camera>&cameras);
+    void   ImportCameraRailsFromJson     (std::vector<RigDef::CameraRail>&camera_rails);
+    void   ImportCollisionBoxesFromJson  (std::vector<RigDef::CollisionBox>&collision_boxes);
+    void   ImportCruiseControlFromJson   (std::shared_ptr<RigDef::CruiseControl>&cruise_control);
+    void   ImportContactersFromJson      (std::vector<RigDef::Node::Ref>&contacters);
+    void   ImportEngineFromJson          (std::shared_ptr<RigDef::Engine>&    def);
+    void   ImportEngoptionFromJson       (std::shared_ptr<RigDef::Engoption>& def);
+    void   ImportEngturbosFromJson       (std::shared_ptr<RigDef::Engturbo>&engturbo);
+    void   ImportExhaustsFromJson        (std::vector<RigDef::Exhaust>&exhausts);
+    void   ImportFixesFromJson           (std::vector<RigDef::Node::Ref>&fixes);
+    void   ImportFusedragsFromJson       (std::vector<RigDef::Fusedrag>&fusedrag);
+    void   ImportHooksFromJson           (std::vector<RigDef::Hook>&hooks);
+    void   ImportLockgroupsFromJson      (std::vector<RigDef::Lockgroup>&lockgroups);
+    void   ImportManagedMatsFromJson     (std::vector<RigDef::ManagedMaterial>&managed_mats);
+    void   ImportMatFlareBindingsFromJson(std::vector<RigDef::MaterialFlareBinding>& mat_flare_bindings);
+    void   ImportNodeCollisionsFromJson  (std::vector<RigDef::NodeCollision>&node_collisions);
+    void   ImportParticlesFromJson       (std::vector<RigDef::Particle>&particles);
+    void   ImportPistonpropsFromJson     (std::vector<RigDef::Pistonprop>&pistonprops);
+    void   ImportPropsFromJson           (std::vector<RigDef::Prop>&props);
+    void   ImportRailGroupsFromJson      (std::vector<RigDef::RailGroup>&railgroups);
+    void   ImportRopablesFromJson        (std::vector<RigDef::Ropable>&ropables);
+    void   ImportRotatorsFromJson        (std::vector<RigDef::Rotator>&rotators);
+    void   ImportRotators2FromJson       (std::vector<RigDef::Rotator2>&rotators_2);
+    void   ImportScrewpropsFromJson      (std::vector<RigDef::Screwprop>&screwprops);
+    void   ImportSlideNodesFromJson      (std::vector<RigDef::SlideNode>&slidenodes);
+    void   ImportSlopeBrakeFromJson      (std::shared_ptr<RigDef::SlopeBrake>&slope_brake);
+    void   ImportSoundSourcesFromJson    (std::vector<RigDef::SoundSource>&soundsources);
+    void   ImportSoundSources2FromJson   (std::vector<RigDef::SoundSource2>&soundsources_2);
+    void   ImportSpeedLimiterFromJson    (RigDef::SpeedLimiter speed_limiter);
+    void   ImportSubmeshesFromJson       (std::vector<RigDef::Submesh>&submeshes);
+    void   ImportTiesFromJson            (std::vector<RigDef::Tie>&ties);
+    void   ImportTorqueCurveFromJson     (std::shared_ptr<RigDef::TorqueCurve>&torque_curve);
+    void   ImportTractionControlFromJson (std::shared_ptr<RigDef::TractionControl>&traction_control);
+    void   ImportTurbojetsFromJson       (std::vector<RigDef::Turbojet>&turbojets);
+    void   ImportTurboprops2FromJson     (std::vector<RigDef::Turboprop2>&turboprops_2);
+    void   ImportVideoCamerasFromJson    (std::vector<RigDef::VideoCamera>&videocameras);
+    void   ImportWingsFromJson           (std::vector<RigDef::Wing>&wings);
+    void   ImportSubmeshGroundmodelFromJson(std::string const & submesh_groundmodel_name);
+    rapidjson::Value&  GetRigPropertiesJson();
+
+    static RigDef::Node::Ref    JsonToNodeRef(rapidjson::Value& j_val);
+
+private:
+    bool                 LoadJsonFile(MyGUI::UString const & src_path); ///< @return true on success
+    rapidjson::Value&    GetModuleJson();
+    Ogre::ColourValue    JsonToRgba(rapidjson::Value& j_val);
+    Ogre::Vector3        JsonToVector3(rapidjson::Value& j_val);
+    std::shared_ptr<RigDef::NodeDefaults>   ResolveNodePreset(rapidjson::Value& j_preset_id);
+
+    rapidjson::Document m_json_doc;
+    Rig*                m_rig;
+    std::string         m_module_name;
+
+    // We need to restore element->preset mappings based on assigned names.
+    // TODO: implement properly in Editor; we should not rely on RigDef::NodeDefaults
+    std::map<std::string, std::shared_ptr<RigDef::BeamDefaults>> m_beam_presets; ///< Temporary while we use 'RigDef::' for editor presets
+    std::map<std::string, std::shared_ptr<RigDef::NodeDefaults>> m_node_presets; ///< Temporary while we use 'RigDef::' for editor presets
+};
 
 } // namespace RigEditor
 } // namespace RoR

@@ -40,6 +40,8 @@ namespace RigEditor {
 
 struct RigModuleData; // Forward decl
 
+/// Represents global properties of an actor (the 'rig')
+/// For the time being it also maintains data from _ROOT_ module (stubs) - see definition of `RigModuleData`
 class RigProperties
 {
     friend class RigEditor::Rig;
@@ -63,8 +65,9 @@ protected:
     void Export(std::shared_ptr<RigDef::File> def_file);
 
     rapidjson::Value ExportJson(JsonExporter& exporter);
+    void             ImportJson(JsonImporter& importer);
 
-    RigModuleData*                m_root_data;
+    RigModuleData*                m_root_data; ///< Data from _ROOT_ module of the rig - TEMPORARY ~ only_a_ptr, 07/2017
 
     // BASIC tab
     
