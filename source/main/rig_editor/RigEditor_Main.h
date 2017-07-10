@@ -46,6 +46,8 @@ public:
     {
         static const MyGUI::UString MODE_OPEN_TRUCK;
         static const MyGUI::UString MODE_SAVE_TRUCK_AS;
+        static const MyGUI::UString MODE_OPEN_JSON;
+        static const MyGUI::UString MODE_SAVE_JSON_AS;
     };
 
     Main();
@@ -76,6 +78,8 @@ public:
     // File management
     virtual void CommandShowDialogOpenRigFile();
     virtual void CommandShowDialogSaveRigFileAs();
+    virtual void CommandShowDialogOpenJsonProject();
+    virtual void CommandShowDialogSaveJsonProjectAs();
     virtual void CommandSaveRigFile();
     virtual void CommandCloseCurrentRig();
     virtual void CommandCreateNewEmptyRig();
@@ -134,9 +138,13 @@ private:
     void HideAllNodeBeamGuiPanels();
     void HideAllWheelGuiPanels();
 
+    // Truckfile
     bool LoadRigDefFile(MyGUI::UString const & directory, MyGUI::UString const & filename);
+    void ExportRigDefFile(MyGUI::UString const & directory, MyGUI::UString const & filename);
 
-    void SaveJsonProjectFile(MyGUI::UString const & directory, MyGUI::UString const & filename);
+    // Json project
+    // TODO: Loading
+    void SaveJsonProject(MyGUI::UString const & directory, MyGUI::UString const & filename);
 
     void OnNewRigCreatedOrLoaded(Ogre::SceneNode* parent_scene_node);
 

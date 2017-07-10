@@ -41,6 +41,8 @@ public:
     // File management
     virtual void CommandShowDialogOpenRigFile() = 0;
     virtual void CommandShowDialogSaveRigFileAs() = 0;
+    virtual void CommandShowDialogOpenJsonProject() = 0;
+    virtual void CommandShowDialogSaveJsonProjectAs() = 0;
     virtual void CommandSaveRigFile() = 0;
     virtual void CommandCloseCurrentRig() = 0;
     virtual void CommandCreateNewEmptyRig() = 0;

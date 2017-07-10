@@ -72,6 +72,8 @@ using namespace RoR::RigEditor;
 
 const MyGUI::UString Main::OpenSaveFileDialogMode::MODE_OPEN_TRUCK     ("RigEditor_OpenTruckFile");
 const MyGUI::UString Main::OpenSaveFileDialogMode::MODE_SAVE_TRUCK_AS  ("RigEditor_SaveTruckFileAs");
+const MyGUI::UString Main::OpenSaveFileDialogMode::MODE_OPEN_JSON      ("RigEditor_OpenJsonProject");
+const MyGUI::UString Main::OpenSaveFileDialogMode::MODE_SAVE_JSON_AS   ("RigEditor_SaveJsonProjectAs");
 
 Main::Main():
     m_scene_manager(nullptr),
@@ -641,6 +643,25 @@ void Main::CommandShowDialogSaveRigFileAs()
     }
 }
 
+void Main::CommandShowDialogOpenJsonProject()
+{
+    m_gui_open_save_file_dialog->setDialogInfo(MyGUI::UString("Open JSON project file"), MyGUI::UString("Open"), false);
+    m_gui_open_save_file_dialog->eventEndDialog = MyGUI::newDelegate(this, &Main::NotifyFileSelectorEnded);
+    m_gui_open_save_file_dialog->setMode(OpenSaveFileDialogMode::MODE_OPEN_JSON);
+    m_gui_open_save_file_dialog->doModal(); // Shows the dialog
+}
+
+void Main::CommandShowDialogSaveJsonProjectAs()
+{
+    if (m_rig != nullptr)
+    {
+        m_gui_open_save_file_dialog->setDialogInfo(MyGUI::UString("Save JSON project file"), MyGUI::UString("Save"), false);
+        m_gui_open_save_file_dialog->eventEndDialog = MyGUI::newDelegate(this, &Main::NotifyFileSelectorEnded);
+        m_gui_open_save_file_dialog->setMode(OpenSaveFileDialogMode::MODE_SAVE_JSON_AS);
+        m_gui_open_save_file_dialog->doModal(); // Shows the dialog
+    }
+}
+
 void Main::CommandSaveRigFile()
 {
     // TODO
@@ -671,34 +692,49 @@ void Main::NotifyFileSelectorEnded(GUI::Dialog* dialog, bool result)
 
         if (mode == OpenSaveFileDialogMode::MODE_OPEN_TRUCK)
         {
-            LoadRigDefFile(folder, filename);
+            this->LoadRigDefFile(folder, filename);
         }
         else if (mode == OpenSaveFileDialogMode::MODE_SAVE_TRUCK_AS)
         {
-            this->SaveJsonProjectFile(folder, filename);
+            this->ExportRigDefFile(folder, filename);
+        }
+        else if (mode == OpenSaveFileDialogMode::MODE_SAVE_JSON_AS)
+        {
+            this->SaveJsonProject(folder, filename);
         }
     }
     dialog->endModal(); // Hides the dialog
 }
 
-void Main::SaveJsonProjectFile(MyGUI::UString const & directory, MyGUI::UString const & filename)
+void Main::ExportRigDefFile(MyGUI::UString const & directory, MyGUI::UString const & filename)
 {
     using namespace RigDef;
 
     if (m_rig == nullptr)
     {
-        LOG("RigEditor: [WARNING] SaveJsonProjectFile(): Nothing to save.");
+        LOG("RigEditor: [WARNING] ExportRigDefFile(): Nothing to export.");
         return;
     }
 
     auto out_path = directory + '/' + filename;
-    m_rig->SaveJsonProject(out_path);
 
     auto rig_def = m_rig->Export();
     
     Serializer serializer(rig_def, out_path);
     serializer.Serialize();
     LOG("RigEditor: Rig saved as: " + out_path);
+}
+
+void Main::SaveJsonProject(MyGUI::UString const & directory, MyGUI::UString const & filename)
+{
+    if (m_rig == nullptr)
+    {
+        LOG("RigEditor: [WARNING] SaveJsonProject(): Nothing to save.");
+        return;
+    }
+
+    auto out_path = directory + '/' + filename;
+    m_rig->SaveJsonProject(out_path);
 }
 
 void RigEditor_LogParserMessages(RigDef::Parser & parser)

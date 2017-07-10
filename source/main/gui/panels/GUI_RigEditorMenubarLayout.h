@@ -41,11 +41,17 @@ protected:
 	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_file_popup_item_create_empty, "file_popup_item_create_empty");
 	MyGUI::MenuItem* m_file_popup_item_create_empty;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_file_popup_item_open, "file_popup_item_open");
-	MyGUI::MenuItem* m_file_popup_item_open;
+	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_file_popup_item_open_json, "file_popup_item_open_json");
+	MyGUI::MenuItem* m_file_popup_item_open_json;
 
-	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_file_popup_item_save_as, "file_popup_item_save_as");
-	MyGUI::MenuItem* m_file_popup_item_save_as;
+	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_file_popup_item_save_json_as, "file_popup_item_save_json_as");
+	MyGUI::MenuItem* m_file_popup_item_save_json_as;
+
+	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_file_popup_item_import_truckfile, "file_popup_item_import_truckfile");
+	MyGUI::MenuItem* m_file_popup_item_import_truckfile;
+
+	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_file_popup_item_export_truckfile_as, "file_popup_item_export_truckfile_as");
+	MyGUI::MenuItem* m_file_popup_item_export_truckfile_as;
 
 	ATTRIBUTE_FIELD_WIDGET_NAME(RigEditorMenubarLayout, m_file_popup_item_close, "file_popup_item_close");
 	MyGUI::MenuItem* m_file_popup_item_close;

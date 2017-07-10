@@ -145,8 +145,11 @@ namespace RigEditor {
 class JsonExporter
 {
 public:
+    JsonExporter();
+
     void AddModule                   (std::string const & module_name);
     void AddBeamPreset               (RigDef::BeamDefaults* beam_preset);
+    void AddNodePreset               (RigDef::NodeDefaults* node_preset);
     void AppendAnimatorOptionJson    (rapidjson::Value& j_array, const char* option, int param=-1);
     void AddRigPropertiesJson        (rapidjson::Value val);
     void ExportNodesToJson           (std::map<std::string, Node>& nodes, std::vector<NodeGroup>& groups);
@@ -198,7 +201,7 @@ public:
     inline rapidjson::Document& GetDocument() { return m_json_doc; }
 
     // Conversion helpers
-    inline rapidjson::Value StrToJson(std::string const & s)               { return rapidjson::Value(rapidjson::StringRef(s.c_str())); }
+           rapidjson::Value StrToJson(std::string const & s);
     inline rapidjson::Value NodeToJson(RigDef::Node::Ref const & node_ref) { return this->StrToJson(node_ref.Str()); }
     inline rapidjson::Value NodeToJson(RigEditor::Node & node)             { return this->StrToJson(node.GetId().Str()); }
     inline rapidjson::Value NodeToJson(RigEditor::Node * node)             { return this->StrToJson(node->GetId().Str()); }
@@ -209,13 +212,16 @@ private:
     rapidjson::Value  RgbaToJson(Ogre::ColourValue color);
     rapidjson::Value  Vector3ToJson(Ogre::Vector3 pos);
     rapidjson::Value  BeamPresetToJson(std::shared_ptr<RigDef::BeamDefaults>& preset);
+    rapidjson::Value  NodePresetToJson(RigDef::NodeDefaults* preset);
     void              NodeRefArrayToJson(rapidjson::Value& dst, std::vector<RigDef::Node::Ref>& nodes);
     void              NodeRangeArrayToJson(rapidjson::Value& j_dst_array, std::vector<RigDef::Node::Range>& ranges);
+    void              AddMemberBool(rapidjson::Value& j_container, const char* name, bool value);
 
     rapidjson::Document m_json_doc;
     std::string         m_cur_module_name;
-    std::map<RigDef::BeamDefaults*, size_t> m_beam_preset_map;
-};
+    std::map<RigDef::BeamDefaults*, std::string> m_beam_presets; ///< Temporary while we use 'RigDef::' for editor presets
+    std::map<RigDef::NodeDefaults*, std::string> m_node_presets; ///< Temporary while we use 'RigDef::' for editor presets
+}; 
 
 } // namespace RigEditor
 } // namespace RoR

@@ -2064,6 +2064,8 @@ void Rig::SaveJsonProject(MyGUI::UString const & out_path)
     exporter.ExportBeamsToJson(m_beams, m_beam_groups); // Presets: Beam, Shock[2], Hydro, Command2, Trigger, Rope
 
     exporter.AddRigPropertiesJson(m_properties->ExportJson(exporter.GetDocument()));
+
+    exporter.SaveRigProjectJsonFile(out_path);
 }
 
 void Rig::GatherBeamPresets(JsonExporter& exporter)

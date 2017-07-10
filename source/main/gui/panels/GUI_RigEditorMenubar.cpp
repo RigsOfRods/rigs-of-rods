@@ -36,14 +36,16 @@ RigEditorMenubar::RigEditorMenubar(RigEditor::IMain* rig_editor_interface)
 {
     m_rig_editor_interface = rig_editor_interface;
 
-    m_file_popup_item_open           ->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::OpenFileItemClicked);
-    m_file_popup_item_close          ->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::CloseRigItemClicked);
-    m_file_popup_item_quit           ->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::QuitEditorItemClicked);
-    m_file_popup_item_properties     ->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::RigPropertiesItemClicked);
-    m_file_popup_item_land_properties->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::LandVehiclePropertiesItemClicked);
-    m_file_popup_item_save_as        ->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::SaveFileAsItemClicked);
-    m_file_popup_item_create_empty   ->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::CreateEmptyRigItemClicked);
-    m_menubar_item_help              ->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::MenubarItemHelpClicked);
+    m_file_popup_item_import_truckfile    ->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::ImportTruckfileItemClicked);
+    m_file_popup_item_export_truckfile_as ->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::ExportTruckfileAsItemClicked);
+    m_file_popup_item_open_json           ->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::OpenJsonItemClicked);
+    m_file_popup_item_save_json_as        ->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::SaveJsonAsItemClicked);
+    m_file_popup_item_close               ->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::CloseRigItemClicked);
+    m_file_popup_item_quit                ->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::QuitEditorItemClicked);
+    m_file_popup_item_properties          ->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::RigPropertiesItemClicked);
+    m_file_popup_item_land_properties     ->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::LandVehiclePropertiesItemClicked);
+    m_file_popup_item_create_empty        ->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::CreateEmptyRigItemClicked);
+    m_menubar_item_help                   ->eventMouseButtonClick += MyGUI::newDelegate(this, &RigEditorMenubar::MenubarItemHelpClicked);
 
     m_wheels_list = std::unique_ptr<RigEditor::GuiPopupWheelsList>(
         new RigEditor::GuiPopupWheelsList(
@@ -82,14 +84,24 @@ void RigEditorMenubar::ClearLandVehicleWheelsList()
 // Event handlers
 // ============================================================================
 
-void RigEditorMenubar::OpenFileItemClicked(MyGUI::Widget* sender)
+void RigEditorMenubar::ImportTruckfileItemClicked(MyGUI::Widget* sender)
 {
     m_rig_editor_interface->CommandShowDialogOpenRigFile();
 }
 
-void RigEditorMenubar::SaveFileAsItemClicked(MyGUI::Widget* sender)
+void RigEditorMenubar::ExportTruckfileAsItemClicked(MyGUI::Widget* sender)
 {
     m_rig_editor_interface->CommandShowDialogSaveRigFileAs();
+}
+
+void RigEditorMenubar::OpenJsonItemClicked(MyGUI::Widget* sender)
+{
+    m_rig_editor_interface->CommandShowDialogOpenJsonProject();
+}
+
+void RigEditorMenubar::SaveJsonAsItemClicked(MyGUI::Widget* sender)
+{
+    m_rig_editor_interface->CommandShowDialogSaveJsonProjectAs();
 }
 
 void RigEditorMenubar::CloseRigItemClicked(MyGUI::Widget* sender)

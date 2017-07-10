@@ -62,9 +62,11 @@ private:
 
     /* Event handlers */
 
-    void OpenFileItemClicked(MyGUI::Widget* sender);
+    void OpenJsonItemClicked(MyGUI::Widget* sender);
+    void SaveJsonAsItemClicked(MyGUI::Widget* sender);
 
-    void SaveFileAsItemClicked(MyGUI::Widget* sender);
+    void ImportTruckfileItemClicked(MyGUI::Widget* sender);
+    void ExportTruckfileAsItemClicked(MyGUI::Widget* sender);
 
     void CloseRigItemClicked(MyGUI::Widget* sender);
 
