@@ -62,8 +62,7 @@ protected:
     void Import(std::shared_ptr<RigDef::File> def_file);
     void Export(std::shared_ptr<RigDef::File> def_file);
 
-    rapidjson::Value ExportJson(rapidjson::Document& j_doc);
-    void             GatherBeamPresetsForJson(JsonExporter& exporter);
+    rapidjson::Value ExportJson(JsonExporter& exporter);
 
     RigModuleData*                m_root_data;
 

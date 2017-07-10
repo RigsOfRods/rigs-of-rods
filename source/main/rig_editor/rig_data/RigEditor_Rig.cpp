@@ -2100,24 +2100,12 @@ void Rig::SaveJsonProject(MyGUI::UString const & out_path)
     exporter.ExportNodesToJson(m_nodes, m_node_groups);
 
     // Export beams
-    m_properties->GatherBeamPresetsForJson(exporter); // Presets = STUBS: Animator, Tie
-    this->GatherBeamPresets(exporter); // Presets: Cinecam, *Wheel*
     exporter.ExportBeamsToJson(m_beams, m_beam_groups); // Presets: Beam, Shock[2], Hydro, Command2, Trigger, Rope
 
-    exporter.AddRigPropertiesJson(m_properties->ExportJson(exporter.GetDocument()));
+    // AddRigPropertiesJson()
+    m_properties->ExportJson(exporter);
 
     exporter.SaveRigProjectJsonFile(out_path);
-}
-
-void Rig::GatherBeamPresets(JsonExporter& exporter)
-{
-    // TODO: STUB! Currently, wheels don't preserve the BeamDefaults*
-
-    for (auto& editor_cinecam: m_cinecameras)
-    {
-        if (editor_cinecam.m_definition.beam_defaults.get() != nullptr)
-            exporter.AddBeamPreset(editor_cinecam.m_definition.beam_defaults.get());
-    }
 }
 
 // ----------------------------------------------------------------------------

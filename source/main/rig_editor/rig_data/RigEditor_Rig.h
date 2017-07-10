@@ -317,8 +317,6 @@ private:
 
     bool GetWheelAxisNodes(RigDef::Node::Ref const & a1, RigDef::Node::Ref const & a2, Node*& axis_inner, Node*& axis_outer, RigBuildingReport* report);
 
-    void GatherBeamPresets(JsonExporter& exporter);
-
     /// Finds all nodes required for wheel. 
     /// @return False if some valid node was not found.
     bool GetWheelDefinitionNodes(

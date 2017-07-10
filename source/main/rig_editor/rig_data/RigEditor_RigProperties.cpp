@@ -197,27 +197,13 @@ struct RigModuleData
         m->node_collisions        .assign( node_collisions   .begin(),  node_collisions   .end() );
     }
 
-    void GatherBeamPresetsForJson(JsonExporter& exporter)
+    void ExportRigModuleToJson(JsonExporter& exporter)
     {
-        for (auto& def: this->ties)
-        {
-            if (def.beam_defaults.get() != nullptr)
-                exporter.AddBeamPreset(def.beam_defaults.get());
-        }
+        exporter.SetModule(this->module_name);
 
-        for (auto& def: this->animators)
-        {
-            if (def.beam_defaults.get() != nullptr)
-                exporter.AddBeamPreset(def.beam_defaults.get());
-        }
-    }
-
-    void ExportRigPropertiesToJson(JsonExporter& exporter)
-    {
-        exporter.AddModule(this->module_name);
         exporter.ExportSubmeshGroundmodelToJson(this->submesh_groundmodel);
-        //exporter.ExportEngineToJson          (this->engine); -- TODO
-        //exporter.ExportEngoptionToJson       (this->engoption);-- TODO
+        exporter.ExportEngineToJson          (this->engine);
+        exporter.ExportEngoptionToJson       (this->engoption);
         exporter.ExportAirbrakesToJson       (this->airbrakes);
         exporter.ExportAnimatorsToJson       (this->animators);
         exporter.ExportAntiLockBrakesToJson  (this->anti_lock_brakes);
@@ -278,11 +264,6 @@ RigProperties::RigProperties():
 
 RigProperties::~RigProperties()
 {}
-
-void RigProperties::GatherBeamPresetsForJson(JsonExporter& exporter)
-{
-    m_root_data->GatherBeamPresetsForJson(exporter);
-}
 
 void RigProperties::Import(std::shared_ptr<RigDef::File> def_file)
 {
@@ -387,35 +368,36 @@ void RigProperties::Export(std::shared_ptr<RigDef::File> def_file)
 inline rapidjson::Value StrToJson(std::string const & s) { return rapidjson::Value(rapidjson::StringRef(s.c_str())); }
 inline rapidjson::Value StrToJson(std::string & s)       { return rapidjson::Value(rapidjson::StringRef(s.c_str())); }
 
-rapidjson::Value RigProperties::ExportJson(rapidjson::Document& j_doc)
+rapidjson::Value RigProperties::ExportJson(JsonExporter& exporter)
 {
-    auto& j_alloc = j_doc.GetAllocator();
+    auto& j_alloc = exporter.GetDocument().GetAllocator();
 
+    // Global properties
     rapidjson::Value j_data(rapidjson::kObjectType);
-    j_data.AddMember("project_fileformat_version", 1                            , j_alloc);
-    j_data.AddMember("name"                      , StrToJson(m_title)                      , j_alloc);
-    j_data.AddMember("guid"                      , StrToJson(m_guid)                       , j_alloc);
-    j_data.AddMember("hide_in_chooser"           , m_hide_in_chooser            , j_alloc);
-    j_data.AddMember("forward_commands"          , m_forward_commands           , j_alloc);
-    j_data.AddMember("import_commands"           , m_import_commands            , j_alloc);
-    j_data.AddMember("is_rescuer"                , m_is_rescuer                 , j_alloc);
-    j_data.AddMember("is_rollon"                 , m_rollon                     , j_alloc);
-    j_data.AddMember("minimum_mass"              , m_minimass                   , j_alloc);
-    j_data.AddMember("enable_advanced_deform"    , m_enable_advanced_deform     , j_alloc);
-    j_data.AddMember("disable_default_sounds"    , m_disable_default_sounds     , j_alloc);
-    j_data.AddMember("slidenodes_connect_instant", m_slidenodes_connect_instant , j_alloc); 
-    j_data.AddMember("collision_range"           , m_collision_range            , j_alloc);
-    j_data.AddMember("lockgroup_default_nolock"  , m_lockgroup_default_nolock   , j_alloc);
-    j_data.AddMember("fileinfo_uid"              , StrToJson(m_fileinfo.unique_id)                        , j_alloc);
-    j_data.AddMember("fileinfo_category_id"      , m_fileinfo.category_id       , j_alloc);
-    j_data.AddMember("fileinfo_version"          , m_fileinfo.file_version      , j_alloc);
-    j_data.AddMember("extcam_mode"               , m_extcamera.mode             , j_alloc);
-    j_data.AddMember("extcam_node_id"            , StrToJson(m_extcamera.node.Str())                , j_alloc);
-    j_data.AddMember("visibility_range_meters"   , m_skeleton_settings.visibility_range_meters, j_alloc);
-    j_data.AddMember("beam_thickness_meters"     , m_skeleton_settings.beam_thickness_meters  , j_alloc);
-    j_data.AddMember("globals_load_mass"         , m_globals_load_mass          , j_alloc);
-    j_data.AddMember("globals_dry_mass"          , m_globals_dry_mass           , j_alloc);
-    j_data.AddMember("globals_cab_material_name" , StrToJson(m_globals_cab_material_name)                , j_alloc);
+    j_data.AddMember("project_fileformat_version", 1                                             , j_alloc);
+    j_data.AddMember("name"                      , StrToJson(m_title)                            , j_alloc);
+    j_data.AddMember("guid"                      , StrToJson(m_guid)                             , j_alloc);
+    j_data.AddMember("hide_in_chooser"           , m_hide_in_chooser                             , j_alloc);
+    j_data.AddMember("forward_commands"          , m_forward_commands                            , j_alloc);
+    j_data.AddMember("import_commands"           , m_import_commands                             , j_alloc);
+    j_data.AddMember("is_rescuer"                , m_is_rescuer                                  , j_alloc);
+    j_data.AddMember("is_rollon"                 , m_rollon                                      , j_alloc);
+    j_data.AddMember("minimum_mass"              , m_minimass                                    , j_alloc);
+    j_data.AddMember("enable_advanced_deform"    , m_enable_advanced_deform                      , j_alloc);
+    j_data.AddMember("disable_default_sounds"    , m_disable_default_sounds                      , j_alloc);
+    j_data.AddMember("slidenodes_connect_instant", m_slidenodes_connect_instant                  , j_alloc);
+    j_data.AddMember("collision_range"           , m_collision_range                             , j_alloc);
+    j_data.AddMember("lockgroup_default_nolock"  , m_lockgroup_default_nolock                    , j_alloc);
+    j_data.AddMember("fileinfo_uid"              , StrToJson(m_fileinfo.unique_id)               , j_alloc);
+    j_data.AddMember("fileinfo_category_id"      , m_fileinfo.category_id                        , j_alloc);
+    j_data.AddMember("fileinfo_version"          , m_fileinfo.file_version                       , j_alloc);
+    j_data.AddMember("extcam_mode"               , m_extcamera.mode                              , j_alloc);
+    j_data.AddMember("extcam_node_id"            , StrToJson(m_extcamera.node.Str())             , j_alloc);
+    j_data.AddMember("visibility_range_meters"   , m_skeleton_settings.visibility_range_meters,    j_alloc);
+    j_data.AddMember("beam_thickness_meters"     , m_skeleton_settings.beam_thickness_meters     , j_alloc);
+    j_data.AddMember("globals_load_mass"         , m_globals_load_mass                           , j_alloc);
+    j_data.AddMember("globals_dry_mass"          , m_globals_dry_mass                            , j_alloc);
+    j_data.AddMember("globals_cab_material_name" , StrToJson(m_globals_cab_material_name)        , j_alloc);
 
     // Description
     std::stringstream desc;
@@ -439,6 +421,10 @@ rapidjson::Value RigProperties::ExportJson(rapidjson::Document& j_doc)
         author_array.PushBack(author, j_alloc);
     }
     j_data.AddMember("authors", author_array, j_alloc);
+
+    exporter.AddRigPropertiesJson(j_data);
+
+    m_root_data->ExportRigModuleToJson(exporter);
 
     return j_data;
 }

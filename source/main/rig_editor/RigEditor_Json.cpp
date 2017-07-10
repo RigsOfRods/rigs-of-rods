@@ -50,6 +50,11 @@ JsonExporter::JsonExporter():
     this->GetOrCreateMember(m_json_doc, "modules");
 }
 
+void JsonExporter::SetModule (std::string const & module_name)
+{
+    m_cur_module_name = module_name;
+}
+
 rapidjson::Value& JsonExporter::GetModuleJson()
 {
     const char* module_name = m_cur_module_name.c_str();
@@ -101,18 +106,18 @@ void JsonExporter::ExportNodesToJson(std::map<std::string, Node>& nodes, std::ve
         j_preset.AddMember("volume",      preset->volume,      j_alloc);
         j_preset.AddMember("surface",     preset->surface,     j_alloc);
 
-        this->AddMemberBool(j_preset, "option_n_mouse_grab",         (preset->options & RigDef::Node::OPTION_n_MOUSE_GRAB        ));
-        this->AddMemberBool(j_preset, "option_m_no_mouse_grab",      (preset->options & RigDef::Node::OPTION_m_NO_MOUSE_GRAB     ));
-        this->AddMemberBool(j_preset, "option_f_no_sparks",          (preset->options & RigDef::Node::OPTION_f_NO_SPARKS         ));
-        this->AddMemberBool(j_preset, "option_x_exhaust_point",      (preset->options & RigDef::Node::OPTION_x_EXHAUST_POINT     ));
-        this->AddMemberBool(j_preset, "option_y_exhaust_direction",  (preset->options & RigDef::Node::OPTION_y_EXHAUST_DIRECTION ));
-        this->AddMemberBool(j_preset, "option_c_no_ground_contact",  (preset->options & RigDef::Node::OPTION_c_NO_GROUND_CONTACT ));
-        this->AddMemberBool(j_preset, "option_h_hook_point",         (preset->options & RigDef::Node::OPTION_h_HOOK_POINT        ));
-        this->AddMemberBool(j_preset, "option_e_terrain_edit_point", (preset->options & RigDef::Node::OPTION_e_TERRAIN_EDIT_POINT));
-        this->AddMemberBool(j_preset, "option_b_extra_buoyancy",     (preset->options & RigDef::Node::OPTION_b_EXTRA_BUOYANCY    ));
-        this->AddMemberBool(j_preset, "option_p_no_particles",       (preset->options & RigDef::Node::OPTION_p_NO_PARTICLES      ));
-        this->AddMemberBool(j_preset, "option_L_log",                (preset->options & RigDef::Node::OPTION_L_LOG               ));
-        this->AddMemberBool(j_preset, "option_l_load_weight",        (preset->options & RigDef::Node::OPTION_l_LOAD_WEIGHT       ));
+        this->AddMemberBool(j_preset, "option_n_mouse_grab",         (0 != (preset->options & RigDef::Node::OPTION_n_MOUSE_GRAB        )));
+        this->AddMemberBool(j_preset, "option_m_no_mouse_grab",      (0 != (preset->options & RigDef::Node::OPTION_m_NO_MOUSE_GRAB     )));
+        this->AddMemberBool(j_preset, "option_f_no_sparks",          (0 != (preset->options & RigDef::Node::OPTION_f_NO_SPARKS         )));
+        this->AddMemberBool(j_preset, "option_x_exhaust_point",      (0 != (preset->options & RigDef::Node::OPTION_x_EXHAUST_POINT     )));
+        this->AddMemberBool(j_preset, "option_y_exhaust_direction",  (0 != (preset->options & RigDef::Node::OPTION_y_EXHAUST_DIRECTION )));
+        this->AddMemberBool(j_preset, "option_c_no_ground_contact",  (0 != (preset->options & RigDef::Node::OPTION_c_NO_GROUND_CONTACT )));
+        this->AddMemberBool(j_preset, "option_h_hook_point",         (0 != (preset->options & RigDef::Node::OPTION_h_HOOK_POINT        )));
+        this->AddMemberBool(j_preset, "option_e_terrain_edit_point", (0 != (preset->options & RigDef::Node::OPTION_e_TERRAIN_EDIT_POINT)));
+        this->AddMemberBool(j_preset, "option_b_extra_buoyancy",     (0 != (preset->options & RigDef::Node::OPTION_b_EXTRA_BUOYANCY    )));
+        this->AddMemberBool(j_preset, "option_p_no_particles",       (0 != (preset->options & RigDef::Node::OPTION_p_NO_PARTICLES      )));
+        this->AddMemberBool(j_preset, "option_L_log",                (0 != (preset->options & RigDef::Node::OPTION_L_LOG               )));
+        this->AddMemberBool(j_preset, "option_l_load_weight",        (0 != (preset->options & RigDef::Node::OPTION_l_LOAD_WEIGHT       )));
 
         j_presets.AddMember(this->StrToJson(preset_pair.second), j_preset, j_alloc);
     }
@@ -144,18 +149,18 @@ void JsonExporter::ExportNodesToJson(std::map<std::string, Node>& nodes, std::ve
         j_node.AddMember("preset_id",         this->NodePresetToJson(node_entry.second.GetPreset()), j_alloc);
         
         unsigned flags = node.GetDefinitionFlags();
-        this->AddMemberBool(j_node, "option_n_mouse_grab",         (flags & RigDef::Node::OPTION_n_MOUSE_GRAB        ));
-        this->AddMemberBool(j_node, "option_m_no_mouse_grab",      (flags & RigDef::Node::OPTION_m_NO_MOUSE_GRAB     ));
-        this->AddMemberBool(j_node, "option_f_no_sparks",          (flags & RigDef::Node::OPTION_f_NO_SPARKS         ));
-        this->AddMemberBool(j_node, "option_x_exhaust_point",      (flags & RigDef::Node::OPTION_x_EXHAUST_POINT     ));
-        this->AddMemberBool(j_node, "option_y_exhaust_direction",  (flags & RigDef::Node::OPTION_y_EXHAUST_DIRECTION ));
-        this->AddMemberBool(j_node, "option_c_no_ground_contact",  (flags & RigDef::Node::OPTION_c_NO_GROUND_CONTACT ));
-        this->AddMemberBool(j_node, "option_h_hook_point",         (flags & RigDef::Node::OPTION_h_HOOK_POINT        ));
-        this->AddMemberBool(j_node, "option_e_terrain_edit_point", (flags & RigDef::Node::OPTION_e_TERRAIN_EDIT_POINT));
-        this->AddMemberBool(j_node, "option_b_extra_buoyancy",     (flags & RigDef::Node::OPTION_b_EXTRA_BUOYANCY    ));
-        this->AddMemberBool(j_node, "option_p_no_particles",       (flags & RigDef::Node::OPTION_p_NO_PARTICLES      ));
-        this->AddMemberBool(j_node, "option_L_log",                (flags & RigDef::Node::OPTION_L_LOG               ));
-        this->AddMemberBool(j_node, "option_l_load_weight",        (flags & RigDef::Node::OPTION_l_LOAD_WEIGHT       ));
+        this->AddMemberBool(j_node, "option_n_mouse_grab",         (0 != (flags & RigDef::Node::OPTION_n_MOUSE_GRAB        )));
+        this->AddMemberBool(j_node, "option_m_no_mouse_grab",      (0 != (flags & RigDef::Node::OPTION_m_NO_MOUSE_GRAB     )));
+        this->AddMemberBool(j_node, "option_f_no_sparks",          (0 != (flags & RigDef::Node::OPTION_f_NO_SPARKS         )));
+        this->AddMemberBool(j_node, "option_x_exhaust_point",      (0 != (flags & RigDef::Node::OPTION_x_EXHAUST_POINT     )));
+        this->AddMemberBool(j_node, "option_y_exhaust_direction",  (0 != (flags & RigDef::Node::OPTION_y_EXHAUST_DIRECTION )));
+        this->AddMemberBool(j_node, "option_c_no_ground_contact",  (0 != (flags & RigDef::Node::OPTION_c_NO_GROUND_CONTACT )));
+        this->AddMemberBool(j_node, "option_h_hook_point",         (0 != (flags & RigDef::Node::OPTION_h_HOOK_POINT        )));
+        this->AddMemberBool(j_node, "option_e_terrain_edit_point", (0 != (flags & RigDef::Node::OPTION_e_TERRAIN_EDIT_POINT)));
+        this->AddMemberBool(j_node, "option_b_extra_buoyancy",     (0 != (flags & RigDef::Node::OPTION_b_EXTRA_BUOYANCY    )));
+        this->AddMemberBool(j_node, "option_p_no_particles",       (0 != (flags & RigDef::Node::OPTION_p_NO_PARTICLES      )));
+        this->AddMemberBool(j_node, "option_L_log",                (0 != (flags & RigDef::Node::OPTION_L_LOG               )));
+        this->AddMemberBool(j_node, "option_l_load_weight",        (0 != (flags & RigDef::Node::OPTION_l_LOAD_WEIGHT       )));
 
         j_nodes.AddMember(this->NodeToJson(node), j_node, j_alloc);
     }
@@ -357,7 +362,7 @@ rapidjson::Value JsonExporter::Vector3ToJson(Ogre::Vector3 pos)
     return j_pos;
 }
 
-void JsonExporter::AddRigPropertiesJson(rapidjson::Value val)
+void JsonExporter::AddRigPropertiesJson(rapidjson::Value& val)
 {
     if (!m_json_doc.HasMember("general"))
     {
@@ -426,6 +431,7 @@ void JsonExporter::ExportAnimatorsToJson(std::vector<RigDef::Animator>&animators
         j_def.AddMember("short_limit", def.short_limit, j_alloc);
         j_def.AddMember("long_limit", def.long_limit, j_alloc);
         j_def.AddMember("detacher_group", def.detacher_group, j_alloc);
+        j_def.AddMember("beam_preset", this->BeamPresetToJson(def.beam_defaults),      j_alloc);
 
         rapidjson::Value j_options(rapidjson::kObjectType);
 
@@ -511,13 +517,13 @@ void JsonExporter::ExportAxlesToJson(std::vector<RigDef::Axle>&axles)
     auto& j_axles = this->GetOrCreateMember(j_module, "axles", rapidjson::kArrayType);
     for (auto& def: axles)
     {
-        auto& j_def = j_axles.PushBack(rapidjson::kObjectType, j_alloc);
+        rapidjson::Value j_def(rapidjson::kObjectType);
         j_def.AddMember("wheel_a_node_a", this->NodeToJson(def.wheels[0][0]), j_alloc);
         j_def.AddMember("wheel_a_node_b", this->NodeToJson(def.wheels[0][1]), j_alloc);
         j_def.AddMember("wheel_b_node_a", this->NodeToJson(def.wheels[1][0]), j_alloc);
         j_def.AddMember("wheel_b_node_b", this->NodeToJson(def.wheels[1][1]), j_alloc);
 
-        auto& j_options = j_def.AddMember("options", rapidjson::kArrayType, j_alloc);
+        rapidjson::Value j_options(rapidjson::kArrayType);
         for (char c: def.options)
         {
             switch (c)
@@ -528,6 +534,9 @@ void JsonExporter::ExportAxlesToJson(std::vector<RigDef::Axle>&axles)
             default:;
             }
         }
+
+        j_def.AddMember("options", j_options, j_alloc);
+        j_axles.PushBack(j_def, j_alloc);
     }
 }
 
@@ -1104,6 +1113,8 @@ rapidjson::Value JsonExporter::BeamPresetToJson(std::shared_ptr<RigDef::BeamDefa
     if (preset_sptr.get() == nullptr)
         return rapidjson::Value(); // Null
 
+    this->AddBeamPreset(preset_sptr.get());
+
     auto& search_itor = m_beam_presets.find(preset_sptr.get());
     if (search_itor == m_beam_presets.end())
     {
@@ -1371,6 +1382,55 @@ void JsonExporter::AddWheel (LandVehicleWheel* wheel)
     default:;
     }
     auto& j_list = this->GetOrCreateMember(this->GetModuleJson(), "meshwheels", rapidjson::kArrayType);
+}
+
+void JsonExporter::ExportEngineToJson (std::shared_ptr<RigDef::Engine>&    def)
+{
+    if (def.get() == nullptr)
+        return; // Nothing to do.
+
+    auto& j_alloc = m_json_doc.GetAllocator();
+    rapidjson::Value j_def(rapidjson::kObjectType);
+
+    j_def.AddMember("shift_down_rpm",     def->shift_down_rpm,     j_alloc);
+    j_def.AddMember("shift_up_rpm",       def->shift_up_rpm,       j_alloc);
+    j_def.AddMember("torque",             def->torque,             j_alloc);
+    j_def.AddMember("global_gear_ratio",  def->global_gear_ratio,  j_alloc);
+    j_def.AddMember("reverse_gear_ratio", def->reverse_gear_ratio, j_alloc);
+    j_def.AddMember("neutral_gear_ratio", def->neutral_gear_ratio, j_alloc);
+
+    // Gears
+    rapidjson::Value j_gears(rapidjson::kArrayType);
+    for (float gear: def->gear_ratios)
+    {
+        j_gears.PushBack(gear, j_alloc);
+    }
+    j_def.AddMember("gear_ratios", j_gears, j_alloc);
+
+    // Persist
+    this->GetModuleJson().AddMember("engine", j_def, j_alloc);
+}
+
+void JsonExporter::ExportEngoptionToJson (std::shared_ptr<RigDef::Engoption>& def)
+{
+    if (def.get() == nullptr)
+        return; // Nothing to do.
+
+    auto& j_alloc = m_json_doc.GetAllocator();
+    rapidjson::Value j_def(rapidjson::kObjectType);
+
+    j_def.AddMember("inertia",          def->inertia,                  j_alloc);
+    j_def.AddMember("type_id",          static_cast<char>(def->type),  j_alloc);
+    j_def.AddMember("clutch_force",     def->clutch_force,             j_alloc);
+    j_def.AddMember("shift_time",       def->shift_time,               j_alloc);
+    j_def.AddMember("clutch_time",      def->clutch_time,              j_alloc);
+    j_def.AddMember("post_shift_time",  def->post_shift_time,          j_alloc);
+    j_def.AddMember("idle_rpm",         def->idle_rpm,                 j_alloc);
+    j_def.AddMember("stall_rpm",        def->stall_rpm,                j_alloc);
+    j_def.AddMember("max_idle_mixture", def->max_idle_mixture,         j_alloc);
+    j_def.AddMember("min_idle_mixture", def->min_idle_mixture,         j_alloc);
+
+    this->GetModuleJson().AddMember("engoption", j_def, j_alloc);
 }
 
 void JsonExporter::SaveRigProjectJsonFile(MyGUI::UString const & out_path)

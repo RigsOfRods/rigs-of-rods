@@ -148,12 +148,12 @@ class JsonExporter
 public:
     JsonExporter();
 
-    void AddModule                   (std::string const & module_name);
+    void SetModule                   (std::string const & module_name);
     void AddBeamPreset               (RigDef::BeamDefaults* beam_preset);
     void AddNodePreset               (RigDef::NodeDefaults* node_preset);
     void AddWheel                    (LandVehicleWheel* wheel);
     void AppendAnimatorOptionJson    (rapidjson::Value& j_array, const char* option, int param=-1);
-    void AddRigPropertiesJson        (rapidjson::Value val);
+    void AddRigPropertiesJson        (rapidjson::Value& val);
     void ExportNodesToJson           (std::map<std::string, Node>& nodes, std::vector<NodeGroup>& groups);
     void ExportBeamsToJson           (std::list<Beam>& beams, std::vector<BeamGroup>& groups);
     void ExportAirbrakesToJson       (std::vector<RigDef::Airbrake>&airbrakes);
@@ -166,6 +166,8 @@ public:
     void ExportCollisionBoxesToJson  (std::vector<RigDef::CollisionBox>&collision_boxes);
     void ExportCruiseControlToJson   (std::shared_ptr<RigDef::CruiseControl>&cruise_control);
     void ExportContactersToJson      (std::vector<RigDef::Node::Ref>&contacters);
+    void ExportEngineToJson          (std::shared_ptr<RigDef::Engine>&    def);
+    void ExportEngoptionToJson       (std::shared_ptr<RigDef::Engoption>& def);
     void ExportEngturbosToJson       (std::shared_ptr<RigDef::Engturbo>&engturbo);
     void ExportExhaustsToJson        (std::vector<RigDef::Exhaust>&exhausts);
     void ExportFixesToJson           (std::vector<RigDef::Node::Ref>&fixes);

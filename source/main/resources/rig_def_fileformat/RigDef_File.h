@@ -542,7 +542,7 @@ struct Engine
         reverse_gear_ratio(0),
         neutral_gear_ratio(0)
     {
-        gear_ratios.reserve(5);	
+        gear_ratios.reserve(5);
     }
 
     float shift_down_rpm;
