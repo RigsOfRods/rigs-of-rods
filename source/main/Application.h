@@ -204,6 +204,7 @@ private:
 void                   Log(const char* msg);                    ///< The ultimate, application-wide logging function. Adds a line (any length) in 'RoR.log' file.
 void                   LogFormat(const char* format, ...);      ///< Improved logging utility. Uses fixed 2Kb buffer.
 inline const char*     BoolToStr(bool b)                        { return (b) ? "true" : "false"; }
+inline bool            Equals(const char* a, const char* b)     { return strcmp(a, b) == 0; }
 
 
 // ------------------------------------------------------------------------------------------------

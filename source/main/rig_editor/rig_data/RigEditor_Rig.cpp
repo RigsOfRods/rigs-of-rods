@@ -2104,9 +2104,18 @@ void Rig::SaveJsonProject(MyGUI::UString const & out_path)
 
     m_properties->ExportJson(exporter);
 
-    exporter.ExportPresetsToJson(); // Must be done last, after presets were collected from all other sections.
+    exporter.SavePresetsToJson(); // Must be done last, after presets were collected from all other sections.
 
     exporter.SaveRigProjectJsonFile(out_path);
+}
+
+void Rig::LoadJsonProject(MyGUI::UString const & src_path)
+{
+    JsonImporter importer;
+    importer.LoadRigProjectJson(src_path);
+    importer.LoadPresetsFromJson(); // Must be done first to correctly assign presets to sections.
+    importer.ImportNodesFromJson(m_nodes, m_node_groups);
+    importer.ImportBeamsFromJson(m_beams, m_beam_groups);
 }
 
 // ----------------------------------------------------------------------------

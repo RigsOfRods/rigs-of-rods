@@ -187,6 +187,7 @@ private:
 
 class Rig
 {
+    friend class JsonImporter;
 public:
 
     Rig(Config* config);
@@ -265,6 +266,7 @@ public:
     std::shared_ptr<RigDef::File> Export();
 
     void SaveJsonProject(MyGUI::UString const & out_path);
+    void LoadJsonProject(MyGUI::UString const & src_path);
 
     void QuerySelectedNodesData(RigAggregateNodesData* result);
 

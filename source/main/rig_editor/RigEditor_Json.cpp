@@ -29,6 +29,7 @@
 #include "RigEditor_FlexBodyWheel.h"
 #include "RigEditor_MeshWheel.h"
 #include "RigEditor_MeshWheel2.h"
+#include "RigEditor_Rig.h"
 
 #include <rapidjson/rapidjson.h>
 #include <rapidjson/document.h>
@@ -151,8 +152,8 @@ void JsonExporter::ExportNodesToJson(std::map<std::string, Node>& nodes, std::ve
     for (size_t i = 0; i < groups.size(); ++i)
     {
         rapidjson::Value j_grp(rapidjson::kObjectType);
-        j_grp.AddMember("name", this->StrToJson(groups[i].reng_name), j_alloc);
-        j_grp.AddMember("color", this->RgbaToJson(groups[i].reng_color), j_alloc);
+        j_grp.AddMember("name", this->StrToJson(groups[i].name), j_alloc);
+        j_grp.AddMember("color", this->RgbaToJson(groups[i].color), j_alloc);
         
         j_groups.AddMember(rapidjson::Value(i), j_grp, j_alloc);
     }
@@ -247,6 +248,7 @@ void JsonExporter::ExportBeamsToJson(std::list<Beam>& beams, std::vector<BeamGro
             j_beam.AddMember("option_i_invisible",    def->HasFlag_i_Invisible(),        j_alloc);
             j_beam.AddMember("option_r_rope",         def->HasFlag_r_Rope     (),        j_alloc);
             j_beam.AddMember("option_s_support",      def->HasFlag_s_Support  (),        j_alloc);
+            j_beam.AddMember("preset_id",             this->BeamPresetToJson(def->defaults), j_alloc);
         }
         else if (beam.GetType() == Beam::TYPE_COMMAND_HYDRO)
         {
@@ -271,6 +273,7 @@ void JsonExporter::ExportBeamsToJson(std::list<Beam>& beams, std::vector<BeamGro
             j_beam.AddMember("option_f_not_faster",     def->option_f_not_faster    , j_alloc);
             j_beam.AddMember("option_p_1press",         def->option_p_1press        , j_alloc);
             j_beam.AddMember("option_o_1press_center",  def->option_o_1press_center , j_alloc);
+            j_beam.AddMember("preset_id",               this->BeamPresetToJson(def->beam_defaults), j_alloc);
         }
         else if (beam.GetType() == Beam::TYPE_STEERING_HYDRO)
         {
@@ -280,6 +283,7 @@ void JsonExporter::ExportBeamsToJson(std::list<Beam>& beams, std::vector<BeamGro
             j_beam.AddMember("extend_factor", def->lenghtening_factor,   j_alloc);
             j_beam.AddMember("options", this->StrToJson(def->options),   j_alloc);
             j_beam.AddMember("detacher_group", def->detacher_group,   j_alloc);
+            j_beam.AddMember("preset_id",               this->BeamPresetToJson(def->beam_defaults), j_alloc);
         }
         else if (beam.GetType() == Beam::TYPE_ROPE)
         {
@@ -287,6 +291,7 @@ void JsonExporter::ExportBeamsToJson(std::list<Beam>& beams, std::vector<BeamGro
             j_beam.AddMember("type", "rope",    j_alloc);
             j_beam.AddMember("invisible",      def->invisible,         j_alloc);
             j_beam.AddMember("detacher_group", def->detacher_group,    j_alloc);
+            j_beam.AddMember("preset_id",               this->BeamPresetToJson(def->beam_defaults), j_alloc);
         }
         else if (beam.GetType() == Beam::TYPE_SHOCK_ABSORBER)
         {
@@ -302,6 +307,7 @@ void JsonExporter::ExportBeamsToJson(std::list<Beam>& beams, std::vector<BeamGro
             j_beam.AddMember("short_bound",           def->short_bound   ,              j_alloc);
             j_beam.AddMember("long_bound",            def->long_bound    ,              j_alloc);
             j_beam.AddMember("precompression",        def->precompression,              j_alloc);
+            j_beam.AddMember("preset_id",               this->BeamPresetToJson(def->beam_defaults), j_alloc);
         }
         else if (beam.GetType() == Beam::TYPE_SHOCK_ABSORBER_2)
         {
@@ -324,11 +330,21 @@ void JsonExporter::ExportBeamsToJson(std::list<Beam>& beams, std::vector<BeamGro
             j_beam.AddMember("option_M_abs_metric", def->HasOption_M_AbsoluteMetric(), j_alloc);
             j_beam.AddMember("option_m_metric",     def->HasOption_m_Metric(),         j_alloc);
             j_beam.AddMember("option_s_soft_bump",  def->HasOption_s_SoftBumpBounds(), j_alloc);
+            j_beam.AddMember("preset_id",               this->BeamPresetToJson(def->beam_defaults), j_alloc);
         }
         else if (beam.GetType() == Beam::TYPE_TRIGGER)
         {
             j_beam.AddMember("type", "trigger", j_alloc);
-            // TODO
+            RigDef::Trigger* def = beam.GetDefinitionTrigger();
+
+            j_beam.AddMember("contraction_trigger_limit", def->contraction_trigger_limit , j_alloc); // float       
+            j_beam.AddMember("expansion_trigger_limit"  , def->expansion_trigger_limit   , j_alloc); // float       
+            j_beam.AddMember("options"                  , def->options                   , j_alloc); // unsigned int
+            j_beam.AddMember("boundary_timer"           , def->boundary_timer            , j_alloc); // float       
+            j_beam.AddMember("detacher_group"           , def->detacher_group            , j_alloc); // int         
+            j_beam.AddMember("shortbound_trigger_action", def->shortbound_trigger_action , j_alloc); // int         
+            j_beam.AddMember("longbound_trigger_action" , def->longbound_trigger_action  , j_alloc); // int         
+            j_beam.AddMember("preset_id",               this->BeamPresetToJson(def->beam_defaults), j_alloc);
         }
 
         j_beams.PushBack(j_beam, j_alloc);
@@ -1742,23 +1758,39 @@ std::shared_ptr<RigDef::NodeDefaults>  JsonImporter::ResolveNodePreset(rapidjson
     return found_itor->second;
 }
 
+std::shared_ptr<RigDef::BeamDefaults>  JsonImporter::ResolveBeamPreset(rapidjson::Value& j_preset_id)
+{
+    if (!j_preset_id.IsString())
+    {
+        return nullptr;
+    }
+
+    auto found_itor = m_beam_presets.find(j_preset_id.GetString());
+    if (found_itor == m_beam_presets.end())
+    {
+        return nullptr;
+    }
+
+    return found_itor->second;
+}
+
 void JsonImporter::ImportNodesFromJson(std::map<std::string, Node>& nodes, std::vector<NodeGroup>& groups)
 {
     // GROUPS
     rapidjson::Value& j_module = this->GetModuleJson();
-    if (j_module.HasMember("node_groups") || j_module["node_groups"].IsArray())
+    if (j_module.HasMember("node_groups") && j_module["node_groups"].IsArray())
     {
         auto itor = j_module["node_groups"].Begin();
         auto endi = j_module["node_groups"].End();
         for (; itor != endi; ++itor)
         {
             NodeGroup grp;
-            grp.reng_color = this->JsonToRgba((*itor)["color"]);
-            grp.reng_name = (*itor)["name"].GetString();
+            grp.color = this->JsonToRgba((*itor)["color"]);
+            grp.name = (*itor)["name"].GetString();
         }
     }
 
-    if (j_module.HasMember("nodes") || j_module["nodes"].IsObject())
+    if (j_module.HasMember("nodes") && j_module["nodes"].IsObject())
     {
         auto itor = j_module["nodes"].MemberBegin();
         auto endi = j_module["nodes"].MemberEnd();
@@ -1796,6 +1828,167 @@ void JsonImporter::ImportNodesFromJson(std::map<std::string, Node>& nodes, std::
 rapidjson::Value& JsonImporter::GetRigPropertiesJson()
 {
     return m_json_doc["general"];
+}
+
+RigEditor::Node* JsonImporter::ResolveNode(rapidjson::Value& j_node_id)
+{
+    if (!j_node_id.IsString())
+    {
+        return nullptr; // Bad argument!
+    }
+
+    auto found_itor = m_rig->m_nodes.find(j_node_id.GetString());
+    if (found_itor == m_rig->m_nodes.end())
+    {
+        return nullptr; // Not found!
+    }
+
+    return &found_itor->second;
+}
+
+void JsonImporter::ImportBeamsFromJson(std::list<Beam>& beams, std::vector<BeamGroup>& groups)
+{
+    rapidjson::Value& j_module = this->GetModuleJson();
+    if (!j_module.HasMember("beams") || !j_module["beams"].IsArray())
+    {
+        return;
+    }
+
+    auto itor = j_module["beams"].Begin();
+    auto endi = j_module["beams"].End();
+    for (; itor != endi; ++itor)
+    {
+        rapidjson::Value& j_beam = *itor;
+        Node* node_a = this->ResolveNode(j_beam["node_a"]);
+        Node* node_b = this->ResolveNode(j_beam["node_b"]);
+
+        const char* type_str = j_beam["type"].GetString();
+        if (Equals(type_str, "plain"))
+        {
+            auto* def = new RigDef::Beam();
+            def->SetFlag_i_Invisible(j_beam["option_i_invisible"      ].GetBool())   ;
+            def->SetFlag_r_Rope     (j_beam["option_r_rope"           ].GetBool())   ;
+            def->SetFlag_s_Support  (j_beam["option_s_support"        ].GetBool())   ;
+
+            def->extension_break_limit      = j_beam["extension_break_limit"   ].GetFloat();
+            def->_has_extension_break_limit = j_beam["has_extens_beak_limit"   ].GetFloat();
+            def->detacher_group             = j_beam["detacher_group"          ].GetInt();
+            def->editor_group_id            = j_beam["group_id"                ].GetInt();
+            def->defaults                   = this->ResolveBeamPreset(j_beam["preset_id"]);
+            beams.push_back(Beam(def, Beam::Type::TYPE_PLAIN, node_a, node_b));
+        }
+        else if (Equals(type_str, "command")) // Unified 'command' and 'command2' in truckfile
+        {
+            auto* def = new RigDef::Command2(); // Unified 'command' and 'command2' in truckfile
+            def->shorten_rate           = j_beam["shorten_rate"            ].GetFloat();
+            def->lengthen_rate          = j_beam["lengthen_rate"           ].GetFloat();
+            def->max_contraction        = j_beam["max_contraction"         ].GetFloat();
+            def->max_extension          = j_beam["max_extension"           ].GetFloat();
+            def->contract_key           = j_beam["contract_key"            ].GetUint();
+            def->extend_key             = j_beam["extend_key"              ].GetUint();
+            def->description            = j_beam["description"             ].GetString();
+            def->affect_engine          = j_beam["affect_engine"           ].GetFloat();
+            def->needs_engine           = j_beam["needs_engine"            ].GetBool();
+            def->plays_sound            = j_beam["plays_sound"             ].GetFloat();
+            def->detacher_group         = j_beam["detacher_group"          ].GetInt();
+            def->option_i_invisible     = j_beam["option_i_invisible"      ].GetFloat();
+            def->option_r_rope          = j_beam["option_r_rope"           ].GetFloat();
+            def->option_c_auto_center   = j_beam["option_c_auto_center"    ].GetFloat();
+            def->option_f_not_faster    = j_beam["option_f_not_faster"     ].GetFloat();
+            def->option_p_1press        = j_beam["option_p_1press"         ].GetFloat();
+            def->option_o_1press_center = j_beam["option_o_1press_center"  ].GetFloat();
+            def->beam_defaults          = this->ResolveBeamPreset(j_beam["preset_id"]);
+            beams.push_back(Beam(def, Beam::Type::TYPE_COMMAND_HYDRO, node_a, node_b));
+        }
+        else if (Equals(type_str, "hydro"))
+        {
+            auto* def = new RigDef::Hydro();
+            def->options                = j_beam["options"                 ].GetString();
+            def->detacher_group         = j_beam["detacher_group"          ].GetInt();
+            def->lenghtening_factor     = j_beam["extend_factor"           ].GetFloat();
+            def->beam_defaults          = this->ResolveBeamPreset(j_beam["preset_id"]);
+            beams.push_back(Beam(def, Beam::Type::TYPE_COMMAND_HYDRO, node_a, node_b));
+        }
+        else if (Equals(type_str, "rope"))
+        {
+            auto* def = new RigDef::Rope();
+            def->detacher_group         = j_beam["detacher_group"          ].GetInt();
+            def->invisible              = j_beam["invisible"               ].GetBool();
+            def->beam_defaults          = this->ResolveBeamPreset(j_beam["preset_id"]);
+            beams.push_back(Beam(def, Beam::Type::TYPE_ROPE, node_a, node_b));
+        }
+        else if (Equals(type_str, "shock"))
+        {
+            auto* def = new RigDef::Shock();
+            def->SetOption_i_Invisible  (j_beam["option_i_invisible"   ].GetBool());
+            def->SetOption_L_ActiveLeft (j_beam["option_L_active_left" ].GetBool());
+            def->SetOption_R_ActiveRight(j_beam["option_R_active_right"].GetBool());
+            def->SetOption_m_Metric     (j_beam["option_m_metric"      ].GetBool());
+
+            def->detacher_group            = j_beam["detacher_group"].GetInt();
+            def->spring_rate               = j_beam["spring_rate"   ].GetFloat();
+            def->damping                   = j_beam["damping"       ].GetFloat();
+            def->short_bound               = j_beam["short_bound"   ].GetFloat();
+            def->long_bound                = j_beam["long_bound"    ].GetFloat();
+            def->precompression            = j_beam["precompression"].GetFloat();
+            def->beam_defaults             = this->ResolveBeamPreset(j_beam["preset_id"]);
+            beams.push_back(Beam(def, Beam::Type::TYPE_SHOCK_ABSORBER, node_a, node_b));
+        }
+        else if (Equals(type_str, "shock2"))
+        {
+            auto* def = new RigDef::Shock2();
+            def->SetOption_i_Invisible      (j_beam["option_i_invisible" ].GetBool());
+            def->SetOption_M_AbsoluteMetric (j_beam["option_M_abs_metric"].GetBool());
+            def->SetOption_m_Metric         (j_beam["option_m_metric"    ].GetBool());
+            def->SetOption_s_SoftBumpBounds (j_beam["option_s_soft_bump" ].GetBool());
+
+            def->spring_in                  = j_beam["type"                      ].GetFloat();
+            def->damp_in                    = j_beam["spring_in"                 ].GetFloat();
+            def->progress_factor_spring_in  = j_beam["damp_in"                   ].GetFloat();
+            def->progress_factor_damp_in    = j_beam["progress_factor_spring_in" ].GetFloat();
+            def->spring_out                 = j_beam["progress_factor_damp_in"   ].GetFloat();
+            def->damp_out                   = j_beam["spring_out"                ].GetFloat();
+            def->progress_factor_spring_out = j_beam["damp_out"                  ].GetFloat();
+            def->progress_factor_damp_out   = j_beam["progress_factor_spring_out"].GetFloat();
+            def->short_bound                = j_beam["progress_factor_damp_out"  ].GetFloat();
+            def->long_bound                 = j_beam["short_bound"               ].GetFloat();
+            def->precompression             = j_beam["long_bound"                ].GetFloat();
+            def->detacher_group             = j_beam["precompression"            ].GetFloat();
+            def->detacher_group             = j_beam["detacher_group"].GetInt();
+            def->beam_defaults              = this->ResolveBeamPreset(j_beam["preset_id"]);
+            beams.push_back(Beam(def, Beam::Type::TYPE_SHOCK_ABSORBER_2, node_a, node_b));
+        }
+        else if (Equals(type_str, "trigger"))
+        {
+            auto* def = new RigDef::Trigger();
+            def->contraction_trigger_limit = j_beam["contraction_trigger_limit"].GetFloat();
+            def->expansion_trigger_limit   = j_beam["expansion_trigger_limit"  ].GetFloat();
+            def->options                   = j_beam["options"                  ].GetUint();
+            def->boundary_timer            = j_beam["boundary_timer"           ].GetFloat();
+            def->detacher_group            = j_beam["detacher_group"           ].GetInt();
+            def->shortbound_trigger_action = j_beam["shortbound_trigger_action"].GetInt();
+            def->longbound_trigger_action  = j_beam["longbound_trigger_action" ].GetInt();
+            def->beam_defaults             = this->ResolveBeamPreset(j_beam["preset_id"]);
+            beams.push_back(Beam(def, Beam::Type::TYPE_TRIGGER, node_a, node_b));
+        }
+    }
+
+    // Groups
+    if (!j_module.HasMember("beam_groups") || !j_module["beam_groups"].IsArray())
+    {
+        return;
+    }
+
+    auto grp_itor = j_module["beam_groups"].Begin();
+    auto grp_endi = j_module["beam_groups"].End();
+    for (; grp_itor != grp_endi; ++grp_itor)
+    {
+        BeamGroup grp;
+        rapidjson::Value& j_group = *itor;
+        grp.rebg_color = this->JsonToRgba(j_group["color"]);
+        grp.rebg_name = j_group["name"].GetString();
+        groups.push_back(grp);
+    }
 }
 
 } // namespace RigEditor

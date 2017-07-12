@@ -39,8 +39,8 @@ namespace RigEditor
 
 struct NodeGroup
 {
-    std::string       reng_name;
-    Ogre::ColourValue reng_color;
+    std::string       name;
+    Ogre::ColourValue color;
 };
 
 class Node
@@ -87,7 +87,7 @@ public:
 
     Ogre::Vector3 const & GetDefinitionPosition();
 
-    // TODO: We cannot rely on `RigDef::NodeDefaults*` for an editor preset!
+    // TODO: We shouldn't rely on `RigDef::NodeDefaults*` for an editor preset!
     inline RigDef::NodeDefaults* GetPreset() { return m_definition.node_defaults.get(); }
 
     inline int      GetDefinitionDetacherGroup() const                { return m_definition.detacher_group; }
