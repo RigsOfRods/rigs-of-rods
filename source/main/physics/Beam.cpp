@@ -916,9 +916,14 @@ void Beam::calc_masses2(Real total, bool reCalc)
     {
         it->beam->p2->mass = 100.0f;
     }
-    //fix camera mass
-    for (int i = 0; i < freecinecamera; i++)
-        nodes[cinecameranodepos[i]].mass = 20.0f;
+
+    // Apply pre-defined cinecam node mass
+    for (int i = 0; i < this->freecinecamera; ++i)
+    {
+        // TODO: this expects all cinecams to be defined in root module (i.e. outside 'section/end_section')
+        nodes[cinecameranodepos[i]].mass = m_definition->root_module->cinecam[i].node_mass;
+    }
+
 
     //hooks must be heavy
     //for (std::vector<hook_t>::iterator it=hooks.begin(); it!=hooks.end(); it++)

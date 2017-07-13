@@ -1680,6 +1680,7 @@ void Parser::ParseCinecam()
     cinecam.beam_defaults = m_user_beam_defaults;
     cinecam.node_defaults = m_user_node_defaults;
 
+    // Required arguments
     cinecam.position.x = this->GetArgFloat  ( 0);
     cinecam.position.y = this->GetArgFloat  ( 1);
     cinecam.position.z = this->GetArgFloat  ( 2);
@@ -1691,10 +1692,18 @@ void Parser::ParseCinecam()
     cinecam.nodes[5]   = this->GetArgNodeRef( 8);
     cinecam.nodes[6]   = this->GetArgNodeRef( 9);
     cinecam.nodes[7]   = this->GetArgNodeRef(10);
-    
-    if (m_num_args > 11) { cinecam.spring  = this->GetArgFloat(11); }
-    if (m_num_args > 12) { cinecam.damping = this->GetArgFloat(12); }
-    
+
+    // Optional arguments
+    if (m_num_args > 11) { cinecam.spring    = this->GetArgFloat(11); }
+    if (m_num_args > 12) { cinecam.damping   = this->GetArgFloat(12); }
+
+    if (m_num_args > 13)
+    {
+        float value = this->GetArgFloat(13);
+        if (value > 0.f) // Invalid input (for example illegal trailing ";pseudo-comment") parses as 0
+            cinecam.node_mass = value;
+    }
+
     if (m_sequential_importer.IsEnabled())
     {
         m_sequential_importer.AddGeneratedNode(File::KEYWORD_CINECAM);
