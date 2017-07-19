@@ -42,7 +42,7 @@
     brakes                        modules/../brake_force, modules/../parking_brake_force
     camerarail                    modules/../camera_rails
     cameras                       modules/../cameras
-    cinecam                       
+    cinecam                       modules/../cinecam
     collisionboxes                modules/../collision_boxes
     commands                      [Unified beams]
     commands2                     [Unified beams]
@@ -163,6 +163,7 @@ public:
     void ExportBrakesToJson          (std::shared_ptr<RigDef::Brakes>&brakes);
     void ExportCamerasToJson         (std::vector<RigDef::Camera>&cameras);
     void ExportCameraRailsToJson     (std::vector<RigDef::CameraRail>&camera_rails);
+    void ExportCinecamToJson         (RigEditor::CineCamera& editor_cam);
     void ExportCollisionBoxesToJson  (std::vector<RigDef::CollisionBox>&collision_boxes);
     void ExportCruiseControlToJson   (std::shared_ptr<RigDef::CruiseControl>&cruise_control);
     void ExportContactersToJson      (std::vector<RigDef::Node::Ref>&contacters);
@@ -218,6 +219,7 @@ private:
     rapidjson::Value  Vector3ToJson(Ogre::Vector3 pos);
     rapidjson::Value  BeamPresetToJson(std::shared_ptr<RigDef::BeamDefaults>& preset);
     rapidjson::Value  NodePresetToJson(RigDef::NodeDefaults* preset);
+    inline rapidjson::Value  NodePresetToJson(std::shared_ptr<RigDef::NodeDefaults>& preset_sptr)                { return this->NodePresetToJson(preset_sptr.get()); }
     void              NodeRefArrayToJson(rapidjson::Value& dst, std::vector<RigDef::Node::Ref>& nodes);
     void              NodeRangeArrayToJson(rapidjson::Value& j_dst_array, std::vector<RigDef::Node::Range>& ranges);
     void              AddMemberBool(rapidjson::Value& j_container, const char* name, bool value);
@@ -246,6 +248,7 @@ public:
     void   ImportBrakesFromJson          (std::shared_ptr<RigDef::Brakes>&brakes);
     void   ImportCamerasFromJson         (std::vector<RigDef::Camera>&cameras);
     void   ImportCameraRailsFromJson     (std::vector<RigDef::CameraRail>&camera_rails);
+    void   ImportCinecamFromJson         (std::list<RigEditor::CineCamera>& editor_cam);
     void   ImportCollisionBoxesFromJson  (std::vector<RigDef::CollisionBox>&collision_boxes);
     void   ImportCruiseControlFromJson   (std::shared_ptr<RigDef::CruiseControl>&cruise_control);
     void   ImportContactersFromJson      (std::vector<RigDef::Node::Ref>&contacters);

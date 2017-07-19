@@ -23,6 +23,7 @@
 /// @author Petr Ohlidal
 
 #include "Application.h"
+#include "RigEditor_CineCamera.h"
 #include "RigEditor_Json.h"
 #include "RigEditor_Node.h"
 #include "RigEditor_LandVehicleWheel.h"
@@ -1026,13 +1027,35 @@ void JsonExporter::ExportSoundSources2ToJson(std::vector<RigDef::SoundSource2>&s
     {
         rapidjson::Value j_def(rapidjson::kObjectType);
 
-        j_def.AddMember("mode_id",           def.mode,              j_alloc);
-        j_def.AddMember("cinecam_index",     def.cinecam_index,     j_alloc);
-        j_def.AddMember("node",              this->NodeToJson(def.node),        j_alloc);
+        j_def.AddMember("mode_id",           def.mode,                               j_alloc);
+        j_def.AddMember("cinecam_index",     def.cinecam_index,                      j_alloc);
+        j_def.AddMember("node",              this->NodeToJson(def.node),             j_alloc);
         j_def.AddMember("sound_script_name", this->StrToJson(def.sound_script_name), j_alloc);
 
         j_list.PushBack(j_def, j_alloc);
     }
+}
+
+void JsonExporter::ExportCinecamToJson(RigEditor::CineCamera& editor_cam)
+{
+    auto& def = editor_cam.m_definition;
+    auto& j_alloc = m_json_doc.GetAllocator();
+    auto& j_list = this->GetOrCreateMember(this->GetModuleJson(), "cinecam", rapidjson::kArrayType);
+
+    rapidjson::Value j_nodes(rapidjson::kArrayType);
+    for (int i = 0; i < 8; ++i)
+    {
+        j_nodes.PushBack(this->NodeToJson(def.nodes[i]), j_alloc);
+    }
+
+    rapidjson::Value j_def(rapidjson::kObjectType);
+    j_def.AddMember("position",        this->Vector3ToJson(def.position),              j_alloc);
+    j_def.AddMember("spring",          def.spring,                                     j_alloc);
+    j_def.AddMember("damping",         def.damping,                                    j_alloc);
+    j_def.AddMember("beam_preset",     this->BeamPresetToJson(def.beam_defaults),      j_alloc);
+    j_def.AddMember("node_preset",     this->NodePresetToJson(def.node_defaults),      j_alloc);
+
+    j_list.PushBack(j_def, j_alloc);
 }
 
 void JsonExporter::ExportSpeedLimiterToJson(RigDef::SpeedLimiter speed_limiter)
@@ -1988,6 +2011,31 @@ void JsonImporter::ImportBeamsFromJson(std::list<Beam>& beams, std::vector<BeamG
         grp.rebg_color = this->JsonToRgba(j_group["color"]);
         grp.rebg_name = j_group["name"].GetString();
         groups.push_back(grp);
+    }
+}
+
+void JsonImporter::ImportCinecamFromJson(std::list<CineCamera>& cams)
+{
+    rapidjson::Value& j_module = this->GetModuleJson();
+    if (!j_module.HasMember("cinecam") || !j_module["cinecam"].IsArray())
+    {
+        return;
+    }
+
+    auto itor = j_module["cinecam"].MemberBegin();
+    auto endi = j_module["cinecam"].MemberEnd();
+    for (; itor != endi; ++itor)
+    {
+        RigDef::Cinecam def;
+        rapidjson::Value& j_def = itor->value;
+
+        def.spring         = j_def["spring" ].GetFloat();
+        def.damping        = j_def["damping"].GetFloat();
+        def.position       = this->JsonToVector3(j_def["position"]);
+        def.node_defaults  = this->ResolveNodePreset(j_def["node_preset"]);
+        def.beam_defaults  = this->ResolveBeamPreset(j_def["beam_preset"]);
+
+        cams.push_back(CineCamera(def));
     }
 }
 

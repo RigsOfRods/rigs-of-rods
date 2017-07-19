@@ -2084,28 +2084,21 @@ bool Rig::UpdateSelectedWheelsData(AllWheelsAggregateData* data)
 void Rig::SaveJsonProject(MyGUI::UString const & out_path)
 {
     JsonExporter exporter;
-
-    for (CineCamera& cinecam: m_cinecameras)
-    {
-        exporter.AddNodePreset(cinecam.m_definition.node_defaults.get());
-        // TODO: the actual cinecam!!
-    }
+    m_properties->ExportJson(exporter);
 
     for (LandVehicleWheel* wheel: m_wheels)
     {
         exporter.AddWheel(wheel);
     }
 
-    // Export nodes
+    for (RigEditor::CineCamera& cam: m_cinecameras)
+    {
+        exporter.ExportCinecamToJson(cam);
+    }
+
     exporter.ExportNodesToJson(m_nodes, m_node_groups);
-
-    // Export beams
     exporter.ExportBeamsToJson(m_beams, m_beam_groups); // Presets: Beam, Shock[2], Hydro, Command2, Trigger, Rope
-
-    m_properties->ExportJson(exporter);
-
     exporter.SavePresetsToJson(); // Must be done last, after presets were collected from all other sections.
-
     exporter.SaveRigProjectJsonFile(out_path);
 }
 
@@ -2116,6 +2109,7 @@ void Rig::LoadJsonProject(MyGUI::UString const & src_path)
     importer.LoadPresetsFromJson(); // Must be done first to correctly assign presets to sections.
     importer.ImportNodesFromJson(m_nodes, m_node_groups);
     importer.ImportBeamsFromJson(m_beams, m_beam_groups);
+    importer.ImportCinecamFromJson(m_cinecameras);
 }
 
 // ----------------------------------------------------------------------------

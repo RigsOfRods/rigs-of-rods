@@ -37,15 +37,11 @@ namespace RigEditor
 
 class CineCamera
 {
-    friend class RigEditor::Rig;
-
 public:
 
     CineCamera(RigDef::Cinecam const & def):
         m_definition(def)
     {}
-
-protected:
 
     RigDef::Cinecam        m_definition;
 };
