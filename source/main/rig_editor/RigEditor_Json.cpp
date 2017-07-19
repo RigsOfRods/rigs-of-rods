@@ -2325,5 +2325,66 @@ void JsonImporter::ImportAxlesFromJson(std::vector<RigDef::Axle>&axles)
     }
 }
 
+void JsonImporter::ImportCamerasFromJson(std::vector<RigDef::Camera>& cameras)
+{
+    rapidjson::Value& j_module = this->GetModuleJson();
+    if (!j_module.HasMember("cameras") || !j_module["cameras"].IsArray())
+    {
+        return;
+    }
+
+    auto cam_itor = j_module["axles"].Begin();
+    auto cam_endi = j_module["axles"].End();
+    for (; cam_itor != cam_endi; ++cam_itor)
+    {
+        auto& j_def = *cam_itor;
+        RigDef::Camera def;
+        def.center_node = this->JsonToNodeRef(j_def["center_node"]);
+        def.back_node   = this->JsonToNodeRef(j_def["back_node"  ]);
+        def.left_node   = this->JsonToNodeRef(j_def["left_node"  ]);
+        cameras.push_back(def);
+    }
+}
+
+void JsonImporter::ImportBrakesFromJson(std::shared_ptr<RigDef::Brakes>& brakes)
+{
+    rapidjson::Value& j_module = this->GetModuleJson();
+    brakes = std::make_shared<RigDef::Brakes>();
+
+    if (j_module.HasMember("brake_force"))
+    {
+        brakes->default_braking_force = j_module["brake_force"].GetFloat();
+    }
+    if (j_module.HasMember("parking_brake_force"))
+    {
+        brakes->parking_brake_force = j_module["parking_brake_force"].GetFloat();
+    }
+}
+
+void JsonImporter::ImportCameraRailsFromJson(std::vector<RigDef::CameraRail>& camera_rails)
+{
+    rapidjson::Value& j_module = this->GetModuleJson();
+    if (!j_module.HasMember("camera_rails") || !j_module["camera_rails"].IsArray())
+    {
+        return;
+    }
+
+    auto rail_itor = j_module["camera_rails"].Begin();
+    auto rail_endi = j_module["camera_rails"].End();
+    for (; rail_itor != rail_endi; ++rail_itor)
+    {
+        RigDef::CameraRail def;
+
+        auto node_itor = rail_itor->Begin();
+        auto node_endi = rail_itor->End();
+        for (; node_itor != node_endi; ++node_itor)
+        {
+            def.nodes.push_back(this->JsonToNodeRef(*node_itor));
+        }
+
+        camera_rails.push_back(def);
+    }
+}
+
 } // namespace RigEditor
 } // namespace RoR

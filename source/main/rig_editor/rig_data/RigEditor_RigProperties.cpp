@@ -255,9 +255,9 @@ struct RigModuleData
         importer.ImportAnimatorsFromJson       (this->animators);
         importer.ImportAntiLockBrakesFromJson  (this->anti_lock_brakes);
         importer.ImportAxlesFromJson           (this->axles);
-        //importer.ImportBrakesFromJson          (this->brakes);
-        //importer.ImportCamerasFromJson         (this->cameras);
-        //importer.ImportCameraRailsFromJson     (this->camera_rails);
+        importer.ImportBrakesFromJson          (this->brakes);
+        importer.ImportCamerasFromJson         (this->cameras);
+        importer.ImportCameraRailsFromJson     (this->camera_rails);
         //importer.ImportCollisionBoxesFromJson  (this->collision_boxes);
         //importer.ImportCruiseControlFromJson   (this->cruise_control);
         //importer.ImportContactersFromJson      (this->contacters);
