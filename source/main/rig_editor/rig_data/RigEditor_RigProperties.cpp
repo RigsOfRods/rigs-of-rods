@@ -252,7 +252,7 @@ struct RigModuleData
     {
         //importer.ImportSubmeshGroundmodelFromJson(this->submesh_groundmodel);
         importer.ImportAirbrakesFromJson       (this->airbrakes);
-        //importer.ImportAnimatorsFromJson       (this->animators);
+        importer.ImportAnimatorsFromJson       (this->animators);
         //importer.ImportAntiLockBrakesFromJson  (this->anti_lock_brakes);
         //importer.ImportAxlesFromJson           (this->axles);
         //importer.ImportBrakesFromJson          (this->brakes);

@@ -2190,5 +2190,88 @@ void JsonImporter::ImportFusedragsFromJson(std::vector<RigDef::Fusedrag>& fusedr
     }
 }
 
+void JsonImporter::ImportAnimatorsFromJson(std::vector<RigDef::Animator>& animators)
+{
+    rapidjson::Value& j_module = this->GetModuleJson();
+    if (!j_module.HasMember("animators") || !j_module["animators"].IsArray())
+    {
+        return;
+    }
+
+    auto ani_itor = j_module["animators"].Begin();
+    auto ani_endi = j_module["animators"].End();
+    for (; ani_itor != ani_endi; ++ani_itor)
+    {
+        RigDef::Animator def;
+        rapidjson::Value& j_def = *ani_itor;
+
+        def.nodes[0] = this->JsonToNodeRef(j_def["node_a"]);
+        def.nodes[1] = this->JsonToNodeRef(j_def["node_b"]);
+
+        def.lenghtening_factor = j_def["extend_factor"].GetFloat();
+        def.short_limit        = j_def["short_limit"  ].GetFloat();
+        def.long_limit         = j_def["long_limit"   ].GetFloat();
+        def.detacher_group     = j_def["detacher_group"].GetInt();
+        def.beam_defaults      = this->ResolveBeamPreset(j_def["beam_preset"]);
+
+        auto opt_itor = j_def["options"].Begin();
+        auto opt_endi = j_def["options"].End();
+        for (; opt_itor != opt_endi; ++opt_itor)
+        {
+            rapidjson::Value& entry = *opt_itor;
+            if (entry.IsString())
+            {
+                const char* opt_name = entry.GetString();
+                     if (Equals(opt_name, "visible"          )) { def.flags |= RigDef::Animator::OPTION_VISIBLE;          }
+                else if (Equals(opt_name, "invisible"        )) { def.flags |= RigDef::Animator::OPTION_INVISIBLE;        }
+                else if (Equals(opt_name, "airspeed"         )) { def.flags |= RigDef::Animator::OPTION_AIRSPEED;         }
+                else if (Equals(opt_name, "vertical_velocity")) { def.flags |= RigDef::Animator::OPTION_VERTICAL_VELOCITY;}
+                else if (Equals(opt_name, "angle_of_attack"  )) { def.flags |= RigDef::Animator::OPTION_ANGLE_OF_ATTACK;  }
+                else if (Equals(opt_name, "flap"             )) { def.flags |= RigDef::Animator::OPTION_FLAP;             }
+                else if (Equals(opt_name, "air_brake"        )) { def.flags |= RigDef::Animator::OPTION_AIR_BRAKE;        }
+                else if (Equals(opt_name, "roll"             )) { def.flags |= RigDef::Animator::OPTION_ROLL;             }
+                else if (Equals(opt_name, "pitch"            )) { def.flags |= RigDef::Animator::OPTION_PITCH;            }
+                else if (Equals(opt_name, "brakes"           )) { def.flags |= RigDef::Animator::OPTION_BRAKES;           }
+                else if (Equals(opt_name, "accel"            )) { def.flags |= RigDef::Animator::OPTION_ACCEL;            }
+                else if (Equals(opt_name, "clutch"           )) { def.flags |= RigDef::Animator::OPTION_CLUTCH;           }
+                else if (Equals(opt_name, "speedo"           )) { def.flags |= RigDef::Animator::OPTION_SPEEDO;           }
+                else if (Equals(opt_name, "tacho"            )) { def.flags |= RigDef::Animator::OPTION_TACHO;            }
+                else if (Equals(opt_name, "turbo"            )) { def.flags |= RigDef::Animator::OPTION_TURBO;            }
+                else if (Equals(opt_name, "parking"          )) { def.flags |= RigDef::Animator::OPTION_PARKING;          }
+                else if (Equals(opt_name, "shift_left_right" )) { def.flags |= RigDef::Animator::OPTION_SHIFT_LEFT_RIGHT; }
+                else if (Equals(opt_name, "shift_back_forth" )) { def.flags |= RigDef::Animator::OPTION_SHIFT_BACK_FORTH; }
+                else if (Equals(opt_name, "sequential_shift" )) { def.flags |= RigDef::Animator::OPTION_SEQUENTIAL_SHIFT; }
+                else if (Equals(opt_name, "gear_select"      )) { def.flags |= RigDef::Animator::OPTION_GEAR_SELECT;      }
+                else if (Equals(opt_name, "torque"           )) { def.flags |= RigDef::Animator::OPTION_TORQUE;           }
+                else if (Equals(opt_name, "difflock"         )) { def.flags |= RigDef::Animator::OPTION_DIFFLOCK;         }
+                else if (Equals(opt_name, "boat_rudder"      )) { def.flags |= RigDef::Animator::OPTION_BOAT_RUDDER;      }
+                else if (Equals(opt_name, "boat_throttle"    )) { def.flags |= RigDef::Animator::OPTION_BOAT_THROTTLE;    }
+                else if (Equals(opt_name, "short_limit"      )) { def.flags |= RigDef::Animator::OPTION_SHORT_LIMIT;      }
+                else if (Equals(opt_name, "long_limit"       )) { def.flags |= RigDef::Animator::OPTION_LONG_LIMIT;       }
+            }
+            else if (entry.IsObject())
+            {
+                const char* opt_name = entry["option"].GetString();
+                int         opt_param = entry["param"].GetInt();
+
+                     if (Equals(opt_name, "aero_throttle")) { def.aero_animator.flags |= RigDef::AeroAnimator::OPTION_THROTTLE; def.aero_animator.motor = opt_param; }
+                else if (Equals(opt_name, "aero_rpm"     )) { def.aero_animator.flags |= RigDef::AeroAnimator::OPTION_RPM;      def.aero_animator.motor = opt_param; }
+                else if (Equals(opt_name, "aero_torque"  )) { def.aero_animator.flags |= RigDef::AeroAnimator::OPTION_TORQUE;   def.aero_animator.motor = opt_param; }
+                else if (Equals(opt_name, "aero_pitch"   )) { def.aero_animator.flags |= RigDef::AeroAnimator::OPTION_PITCH;    def.aero_animator.motor = opt_param; }
+                else if (Equals(opt_name, "aero_status"  )) { def.aero_animator.flags |= RigDef::AeroAnimator::OPTION_STATUS;   def.aero_animator.motor = opt_param; }
+
+                else if (Equals(opt_name, "altimeter") && opt_param == 100) { def.flags |= RigDef::Animator::OPTION_ALTIMETER_100K; }
+                else if (Equals(opt_name, "altimeter") && opt_param == 10)  { def.flags |= RigDef::Animator::OPTION_ALTIMETER_10K;  }
+                else if (Equals(opt_name, "altimeter") && opt_param == 1)   { def.flags |= RigDef::Animator::OPTION_ALTIMETER_1K;   }
+            }
+            else
+            {
+                RoR::LogFormat("[RoR|RigEditor] Error loading JSON project: invalid animator option, type: %d", static_cast<int>(entry.GetType()));
+            }
+        }
+        animators.push_back(def);
+    }
+}
+
 } // namespace RigEditor
 } // namespace RoR
