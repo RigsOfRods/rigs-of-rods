@@ -629,8 +629,31 @@ void JsonExporter::ExportContactersToJson(std::vector<RigDef::Node::Ref>&contact
     this->GetModuleJson().AddMember("contacters", j_nodes, m_json_doc.GetAllocator());
 }
 
-void JsonExporter::ExportEngturbosToJson(std::shared_ptr<RigDef::Engturbo>&engturbo)
+void JsonExporter::ExportEngturboToJson(std::shared_ptr<RigDef::Engturbo>&def)
 {
+    if (def.get() == nullptr)
+        return; // Nothing to do.
+
+    auto& j_alloc = m_json_doc.GetAllocator();
+    rapidjson::Value j_def(rapidjson::kObjectType);
+
+    j_def.AddMember("version",    def->version,        j_alloc);
+    j_def.AddMember("inertia",    def->tinertiaFactor, j_alloc);
+    j_def.AddMember("num_turbos", def->nturbos,        j_alloc);
+    j_def.AddMember("param01",    def->param1,         j_alloc);
+    j_def.AddMember("param02",    def->param2,         j_alloc);
+    j_def.AddMember("param03",    def->param3,         j_alloc);
+    j_def.AddMember("param04",    def->param4,         j_alloc);
+    j_def.AddMember("param05",    def->param5,         j_alloc);
+    j_def.AddMember("param06",    def->param6,         j_alloc);
+    j_def.AddMember("param07",    def->param7,         j_alloc);
+    j_def.AddMember("param08",    def->param8,         j_alloc);
+    j_def.AddMember("param09",    def->param9,         j_alloc);
+    j_def.AddMember("param10",    def->param10,        j_alloc);
+    j_def.AddMember("param11",    def->param11,        j_alloc);
+
+    // Persist
+    this->GetModuleJson().AddMember("engturbo", j_def, j_alloc);
 }
 
 void JsonExporter::ExportExhaustsToJson(std::vector<RigDef::Exhaust>&exhausts)
@@ -1604,7 +1627,7 @@ rapidjson::Value& JsonImporter::GetModuleJson()
     return m_json_doc["modules"][module_cstr];
 }
 
-void JsonImporter::ImportEngineFromJson (std::shared_ptr<RigDef::Engine>&    def)
+void JsonImporter::ImportEngineFromJson(std::shared_ptr<RigDef::Engine>&    def)
 {
     rapidjson::Value& j_module = this->GetModuleJson();
     if (!j_module.HasMember("engine") || !j_module["engine"].IsObject())
@@ -1629,7 +1652,7 @@ void JsonImporter::ImportEngineFromJson (std::shared_ptr<RigDef::Engine>&    def
     }
 }
 
-void JsonImporter::ImportEngoptionFromJson (std::shared_ptr<RigDef::Engoption>& def)
+void JsonImporter::ImportEngoptionFromJson(std::shared_ptr<RigDef::Engoption>& def)
 {
     rapidjson::Value& j_module = this->GetModuleJson();
     if (!j_module.HasMember("engoption") || !j_module["engoption"].IsObject())
@@ -1648,6 +1671,31 @@ void JsonImporter::ImportEngoptionFromJson (std::shared_ptr<RigDef::Engoption>& 
     def->stall_rpm         = j_def["stall_rpm"]          .GetFloat();
     def->max_idle_mixture  = j_def["max_idle_mixture"]   .GetFloat();
     def->min_idle_mixture  = j_def["min_idle_mixture"]   .GetFloat();
+}
+
+void JsonImporter::ImportEngturboFromJson(std::shared_ptr<RigDef::Engturbo>& def)
+{
+    rapidjson::Value& j_module = this->GetModuleJson();
+    if (!j_module.HasMember("engturbo") || !j_module["engturbo"].IsObject())
+        return;
+
+    rapidjson::Value& j_def = j_module["engturbo"];
+    def = std::make_shared<RigDef::Engturbo>();
+
+    def->version        =j_def["version"    ].GetInt();
+    def->tinertiaFactor =j_def["inertia"    ].GetFloat();
+    def->nturbos        =j_def["num_turbos" ].GetInt();
+    def->param1         =j_def["param01"    ].GetFloat();
+    def->param2         =j_def["param02"    ].GetFloat();
+    def->param3         =j_def["param03"    ].GetFloat();
+    def->param4         =j_def["param04"    ].GetFloat();
+    def->param5         =j_def["param05"    ].GetFloat();
+    def->param6         =j_def["param06"    ].GetFloat();
+    def->param7         =j_def["param07"    ].GetFloat();
+    def->param8         =j_def["param08"    ].GetFloat();
+    def->param9         =j_def["param09"    ].GetFloat();
+    def->param10        =j_def["param10"    ].GetFloat();
+    def->param11        =j_def["param11"    ].GetFloat();
 }
 
 void JsonImporter::ImportTorqueCurveFromJson(std::shared_ptr<RigDef::TorqueCurve>&torque_curve)

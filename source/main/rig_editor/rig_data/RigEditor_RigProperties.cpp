@@ -216,7 +216,7 @@ struct RigModuleData
         exporter.ExportContactersToJson      (this->contacters);
         exporter.ExportEngineToJson          (this->engine);
         exporter.ExportEngoptionToJson       (this->engoption);
-        //exporter.ExportEngturboToJson        (this->engturbo);-- TODO
+        exporter.ExportEngturboToJson        (this->engturbo);
         exporter.ExportExhaustsToJson        (this->exhausts);
         exporter.ExportFixesToJson           (this->fixes);
         exporter.ExportFusedragsToJson       (this->fusedrag);
@@ -251,8 +251,6 @@ struct RigModuleData
     void ImportRigModuleFromJson(JsonImporter& importer)
     {
         //importer.ImportSubmeshGroundmodelFromJson(this->submesh_groundmodel);
-        //importer.ImportEngineFromJson          (this->engine);
-        //importer.ImportEngoptionFromJson       (this->engoption);
         //importer.ImportAirbrakesFromJson       (this->airbrakes);
         //importer.ImportAnimatorsFromJson       (this->animators);
         //importer.ImportAntiLockBrakesFromJson  (this->anti_lock_brakes);
@@ -265,7 +263,7 @@ struct RigModuleData
         //importer.ImportContactersFromJson      (this->contacters);
         importer.ImportEngineFromJson          (this->engine);
         importer.ImportEngoptionFromJson       (this->engoption);
-        //TODO: engturbo
+        importer.ImportEngturboFromJson        (this->engturbo);
         //importer.ImportExhaustsFromJson        (this->exhausts);
         //importer.ImportFixesFromJson           (this->fixes);
         //importer.ImportFusedragsFromJson       (this->fusedrag);

@@ -52,9 +52,9 @@
     description                   general/description
     disabledefaultsounds          general/disable_default_sounds
     enable_advanced_deformation   general/enable_advanced_deform
-    engine                        
-    engoption                     
-    engturbo                      
+    engine                        modules/../engine
+    engoption                     modules/../engoption
+    engturbo                      modules/../engturbo
     exhausts                      modules/../exhausts
     extcamera                     general/extcam_mode, general/extcam_node_id
     forwardcommands               general/forward_commands
@@ -169,7 +169,7 @@ public:
     void ExportContactersToJson      (std::vector<RigDef::Node::Ref>&contacters);
     void ExportEngineToJson          (std::shared_ptr<RigDef::Engine>&    def);
     void ExportEngoptionToJson       (std::shared_ptr<RigDef::Engoption>& def);
-    void ExportEngturbosToJson       (std::shared_ptr<RigDef::Engturbo>&engturbo);
+    void ExportEngturboToJson        (std::shared_ptr<RigDef::Engturbo>&engturbo);
     void ExportExhaustsToJson        (std::vector<RigDef::Exhaust>&exhausts);
     void ExportFixesToJson           (std::vector<RigDef::Node::Ref>&fixes);
     void ExportFusedragsToJson       (std::vector<RigDef::Fusedrag>&fusedrag);
@@ -254,7 +254,7 @@ public:
     void   ImportContactersFromJson      (std::vector<RigDef::Node::Ref>&contacters);
     void   ImportEngineFromJson          (std::shared_ptr<RigDef::Engine>&    def);
     void   ImportEngoptionFromJson       (std::shared_ptr<RigDef::Engoption>& def);
-    void   ImportEngturbosFromJson       (std::shared_ptr<RigDef::Engturbo>&engturbo);
+    void   ImportEngturboFromJson        (std::shared_ptr<RigDef::Engturbo>&engturbo);
     void   ImportExhaustsFromJson        (std::vector<RigDef::Exhaust>&exhausts);
     void   ImportFixesFromJson           (std::vector<RigDef::Node::Ref>&fixes);
     void   ImportFusedragsFromJson       (std::vector<RigDef::Fusedrag>&fusedrag);
