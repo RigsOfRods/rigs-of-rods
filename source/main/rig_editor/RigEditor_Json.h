@@ -297,6 +297,7 @@ private:
     std::shared_ptr<RigDef::NodeDefaults>   ResolveNodePreset(rapidjson::Value& j_preset_id);
     std::shared_ptr<RigDef::BeamDefaults>   ResolveBeamPreset(rapidjson::Value& j_preset_id);
     RigEditor::Node*                        ResolveNode(rapidjson::Value& j_node_id);
+    RigDef::Node::Ref                       JsonToNodeRef(rapidjson::Value& j_node_id);
 
     rapidjson::Document m_json_doc;
     Rig*                m_rig;

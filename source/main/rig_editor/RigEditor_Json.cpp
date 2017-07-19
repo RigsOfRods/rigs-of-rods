@@ -431,7 +431,7 @@ void JsonExporter::ExportAnimatorsToJson(std::vector<RigDef::Animator>&animators
 {
     auto& j_module = this->GetModuleJson();
     auto& j_alloc = m_json_doc.GetAllocator();
-    auto& j_airbrakes = this->GetOrCreateMember(j_module, "animators", rapidjson::kArrayType);
+    auto& j_list = this->GetOrCreateMember(j_module, "animators", rapidjson::kArrayType);
     for (auto& def: animators)
     {
         rapidjson::Value j_def(rapidjson::kObjectType);
@@ -500,7 +500,7 @@ void JsonExporter::ExportAnimatorsToJson(std::vector<RigDef::Animator>&animators
         if (def.flags & RigDef::Animator::OPTION_LONG_LIMIT       ) this->AppendAnimatorOptionJson(j_options, "long_limit"       );
 
         j_def.AddMember("options", j_options, j_alloc);
-        j_airbrakes.PushBack(j_def, j_alloc);
+        j_list.PushBack(j_def, j_alloc);
     }
 }
 
@@ -511,14 +511,14 @@ void JsonExporter::ExportAntiLockBrakesToJson(std::shared_ptr<RigDef::AntiLockBr
 
     auto& j_module = this->GetModuleJson();
     auto& j_alloc = m_json_doc.GetAllocator();
-    auto& j_airbrakes = this->GetOrCreateMember(j_module, "anti_lock_brakes", rapidjson::kArrayType);
+    auto& j_def = this->GetOrCreateMember(j_module, "anti_lock_brakes", rapidjson::kArrayType);
 
-    j_airbrakes.AddMember("regulation_force" , alb_def->regulation_force , j_alloc);
-    j_airbrakes.AddMember("min_speed"        , alb_def->min_speed        , j_alloc);
-    j_airbrakes.AddMember("pulse_per_sec"    , alb_def->pulse_per_sec    , j_alloc);
-    j_airbrakes.AddMember("attr_is_on"       , alb_def->attr_is_on       , j_alloc);
-    j_airbrakes.AddMember("attr_no_dashboard", alb_def->attr_no_dashboard, j_alloc);
-    j_airbrakes.AddMember("attr_no_toggle"   , alb_def->attr_no_toggle   , j_alloc);
+    j_def.AddMember("regulation_force" , alb_def->regulation_force , j_alloc);
+    j_def.AddMember("min_speed"        , alb_def->min_speed        , j_alloc);
+    j_def.AddMember("pulse_per_sec"    , alb_def->pulse_per_sec    , j_alloc);
+    j_def.AddMember("attr_is_on"       , alb_def->attr_is_on       , j_alloc);
+    j_def.AddMember("attr_no_dashboard", alb_def->attr_no_dashboard, j_alloc);
+    j_def.AddMember("attr_no_toggle"   , alb_def->attr_no_toggle   , j_alloc);
 }
 
 void JsonExporter::ExportAxlesToJson(std::vector<RigDef::Axle>&axles)
@@ -2084,6 +2084,109 @@ void JsonImporter::ImportCinecamFromJson(std::list<CineCamera>& cams)
         def.beam_defaults  = this->ResolveBeamPreset(j_def["beam_preset"]);
 
         cams.push_back(CineCamera(def));
+    }
+}
+
+RigDef::Node::Ref JsonImporter::JsonToNodeRef(rapidjson::Value& j_node_id)
+{
+    if (!j_node_id.IsString() || j_node_id.GetStringLength() == 0)
+        return RigDef::Node::Ref(); // Invalid ref
+
+    unsigned node_flags = RigDef::Node::Ref::REGULAR_STATE_IS_NAMED | RigDef::Node::Ref::REGULAR_STATE_IS_VALID;
+    return RigDef::Node::Ref(j_node_id.GetString(), 999999, node_flags, 999999);
+}
+
+void JsonImporter::ImportAirbrakesFromJson(std::vector<RigDef::Airbrake>& airbrakes)
+{
+    rapidjson::Value& j_module = this->GetModuleJson();
+    if (!j_module.HasMember("airbrakes") || !j_module["airbrakes"].IsArray())
+    {
+        return;
+    }
+
+    auto itor = j_module["airbrakes"].MemberBegin();
+    auto endi = j_module["airbrakes"].MemberEnd();
+    for (; itor != endi; ++itor)
+    {
+        RigDef::Airbrake def;
+        rapidjson::Value& j_def = itor->value;
+
+        // Nodes
+        def.reference_node  = this->JsonToNodeRef(j_def["reference_node"]);
+        def.x_axis_node     = this->JsonToNodeRef(j_def["x_axis_node"   ]);
+        def.y_axis_node     = this->JsonToNodeRef(j_def["y_axis_node"   ]);
+        def.aditional_node  = this->JsonToNodeRef(j_def["aditional_node"]);
+        // Vector3
+        def.offset = this->JsonToVector3(j_def["offset"]);
+        // Floats
+        def.width                 = j_def["width"                ].GetFloat();
+        def.height                = j_def["height"               ].GetFloat();
+        def.max_inclination_angle = j_def["max_inclination_angle"].GetFloat();
+        def.texcoord_x1           = j_def["texcoord_x1"          ].GetFloat();
+        def.texcoord_x2           = j_def["texcoord_x2"          ].GetFloat();
+        def.texcoord_y1           = j_def["texcoord_y1"          ].GetFloat();
+        def.texcoord_y2           = j_def["texcoord_y2"          ].GetFloat();
+        def.lift_coefficient      = j_def["lift_coefficient"     ].GetFloat();
+
+        airbrakes.push_back(def);
+    }
+}
+
+void JsonImporter::ImportWingsFromJson(std::vector<RigDef::Wing>& wings)
+{
+    rapidjson::Value& j_module = this->GetModuleJson();
+    if (!j_module.HasMember("wings") || !j_module["wings"].IsArray())
+    {
+        return;
+    }
+
+    auto itor = j_module["wings"].MemberBegin();
+    auto endi = j_module["wings"].MemberEnd();
+    for (; itor != endi; ++itor)
+    {
+        RigDef::Wing def;
+        rapidjson::Value& j_def = itor->value;
+
+        def.airfoil         = j_def["airfoil_name"].GetString();
+        def.chord_point     = j_def["chord_point"   ].GetFloat();
+        def.min_deflection  = j_def["min_deflection"].GetFloat();
+        def.max_deflection  = j_def["max_deflection"].GetFloat();
+        def.efficacy_coef   = j_def["efficacy_coef" ].GetFloat();
+        def.control_surface = static_cast<RigDef::Wing::Control>(j_def["control_surface"].GetInt()); // TODO: is 'control_surface' a string or int?
+
+        for (size_t i = 0; i < 8; ++i)
+        {
+            def.nodes[i] = this->JsonToNodeRef(j_def["nodes"][i]);
+            def.tex_coords[i] = j_def["tex_coords"][i].GetFloat();
+        }
+
+        wings.push_back(def);
+    }
+}
+
+void JsonImporter::ImportFusedragsFromJson(std::vector<RigDef::Fusedrag>& fusedrag)
+{
+    rapidjson::Value& j_module = this->GetModuleJson();
+    if (!j_module.HasMember("fusedrag") || !j_module["fusedrag"].IsArray())
+    {
+        return;
+    }
+
+    auto itor = j_module["fusedrag"].MemberBegin();
+    auto endi = j_module["fusedrag"].MemberEnd();
+    for (; itor != endi; ++itor)
+    {
+        RigDef::Fusedrag def;
+        rapidjson::Value& j_def = itor->value;
+
+        def.approximate_width = j_def["approx_width"].GetFloat();
+        def.area_coefficient  = j_def["area_coef"   ].GetFloat();
+        def.autocalc          = j_def["autocalc"    ].GetBool();
+        def.airfoil_name      = j_def["airfoil_name"].GetString();
+        def.front_node        = this->JsonToNodeRef(j_def["front_node"]);
+        def.rear_node         = this->JsonToNodeRef(j_def["rear_node" ]);
+
+        fusedrag.push_back(def);
     }
 }
 

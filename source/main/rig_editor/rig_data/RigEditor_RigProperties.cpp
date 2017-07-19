@@ -251,7 +251,7 @@ struct RigModuleData
     void ImportRigModuleFromJson(JsonImporter& importer)
     {
         //importer.ImportSubmeshGroundmodelFromJson(this->submesh_groundmodel);
-        //importer.ImportAirbrakesFromJson       (this->airbrakes);
+        importer.ImportAirbrakesFromJson       (this->airbrakes);
         //importer.ImportAnimatorsFromJson       (this->animators);
         //importer.ImportAntiLockBrakesFromJson  (this->anti_lock_brakes);
         //importer.ImportAxlesFromJson           (this->axles);
@@ -266,7 +266,7 @@ struct RigModuleData
         importer.ImportEngturboFromJson        (this->engturbo);
         //importer.ImportExhaustsFromJson        (this->exhausts);
         //importer.ImportFixesFromJson           (this->fixes);
-        //importer.ImportFusedragsFromJson       (this->fusedrag);
+        importer.ImportFusedragsFromJson       (this->fusedrag);
         //importer.ImportHooksFromJson           (this->hooks);
         //importer.ImportLockgroupsFromJson      (this->lockgroups);
         //importer.ImportManagedMatsFromJson     (this->managed_mats);
@@ -292,7 +292,7 @@ struct RigModuleData
         //importer.ImportTurbojetsFromJson       (this->turbojets);
         //importer.ImportTurboprops2FromJson     (this->turboprops_2);
         //importer.ImportVideoCamerasFromJson    (this->videocameras);
-        //importer.ImportWingsFromJson           (this->wings);
+        importer.ImportWingsFromJson           (this->wings);
     }
 };
 
