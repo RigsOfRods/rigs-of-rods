@@ -511,7 +511,7 @@ void JsonExporter::ExportAntiLockBrakesToJson(std::shared_ptr<RigDef::AntiLockBr
 
     auto& j_module = this->GetModuleJson();
     auto& j_alloc = m_json_doc.GetAllocator();
-    auto& j_def = this->GetOrCreateMember(j_module, "anti_lock_brakes", rapidjson::kArrayType);
+    auto& j_def = this->GetOrCreateMember(j_module, "anti_lock_brakes", rapidjson::kObjectType);
 
     j_def.AddMember("regulation_force" , alb_def->regulation_force , j_alloc);
     j_def.AddMember("min_speed"        , alb_def->min_speed        , j_alloc);
@@ -2270,6 +2270,58 @@ void JsonImporter::ImportAnimatorsFromJson(std::vector<RigDef::Animator>& animat
             }
         }
         animators.push_back(def);
+    }
+}
+
+void JsonImporter::ImportAntiLockBrakesFromJson(std::shared_ptr<RigDef::AntiLockBrakes>& alb_def)
+{
+    rapidjson::Value& j_module = this->GetModuleJson();
+    if (!j_module.HasMember("anti_lock_brakes") || !j_module["anti_lock_brakes"].IsObject())
+    {
+        return; // AntiLockBrakes not defined
+    }
+
+    rapidjson::Value& j_def = j_module["anti_lock_brakes"];
+    alb_def = std::make_shared<RigDef::AntiLockBrakes>();
+
+    alb_def->regulation_force  = j_def["regulation_force" ].GetFloat();
+    alb_def->min_speed         = j_def["min_speed"        ].GetUint();
+    alb_def->pulse_per_sec     = j_def["pulse_per_sec"    ].GetFloat();
+    alb_def->attr_is_on        = j_def["attr_is_on"       ].GetBool();
+    alb_def->attr_no_dashboard = j_def["attr_no_dashboard"].GetBool();
+    alb_def->attr_no_toggle    = j_def["attr_no_toggle"   ].GetBool();
+}
+
+void JsonImporter::ImportAxlesFromJson(std::vector<RigDef::Axle>&axles)
+{
+    rapidjson::Value& j_module = this->GetModuleJson();
+    if (!j_module.HasMember("axles") || !j_module["axles"].IsArray())
+    {
+        return;
+    }
+
+    auto axle_itor = j_module["axles"].Begin();
+    auto axle_endi = j_module["axles"].End();
+    for (; axle_itor != axle_endi; ++axle_itor)
+    {
+        auto& j_def = *axle_itor;
+        RigDef::Axle def;
+
+        def.wheels[0][0] = this->JsonToNodeRef(j_def["wheel_a_node_a"]);
+        def.wheels[0][1] = this->JsonToNodeRef(j_def["wheel_a_node_b"]);
+        def.wheels[1][0] = this->JsonToNodeRef(j_def["wheel_b_node_a"]);
+        def.wheels[1][1] = this->JsonToNodeRef(j_def["wheel_b_node_b"]);
+
+        auto opt_itor = j_def["options"].Begin();
+        auto opt_endi = j_def["options"].End();
+        for (; opt_itor != opt_endi; ++opt_itor)
+        {
+                 if (Equals((*opt_itor).GetString(), "open"  )) { def.options.push_back(RigDef::Axle::OPTION_o_OPEN  ); }
+            else if (Equals((*opt_itor).GetString(), "locked")) { def.options.push_back(RigDef::Axle::OPTION_l_LOCKED); }
+            else if (Equals((*opt_itor).GetString(), "split" )) { def.options.push_back(RigDef::Axle::OPTION_s_SPLIT ); }
+        }
+
+        axles.push_back(def);
     }
 }
 
