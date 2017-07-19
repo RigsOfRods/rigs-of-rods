@@ -2386,5 +2386,59 @@ void JsonImporter::ImportCameraRailsFromJson(std::vector<RigDef::CameraRail>& ca
     }
 }
 
+void JsonImporter::ImportCollisionBoxesFromJson(std::vector<RigDef::CollisionBox>&collision_boxes)
+{
+    rapidjson::Value& j_module = this->GetModuleJson();
+    if (!j_module.HasMember("collision_boxes") || !j_module["collision_boxes"].IsArray())
+    {
+        return;
+    }
+
+    auto box_itor = j_module["collision_boxes"].Begin();
+    auto box_endi = j_module["collision_boxes"].End();
+    for (; box_itor != box_endi; ++box_itor)
+    {
+        RigDef::CollisionBox def;
+        auto node_itor = box_itor->Begin();
+        auto node_endi = box_itor->End();
+        for (; node_itor != node_endi; ++node_itor)
+        {
+            def.nodes.push_back(this->JsonToNodeRef(*node_itor));
+        }
+        collision_boxes.push_back(def);
+    }
+}
+
+void JsonImporter::ImportCruiseControlFromJson(std::shared_ptr<RigDef::CruiseControl>&cruise_control)
+{
+    rapidjson::Value& j_module = this->GetModuleJson();
+    if (!j_module.HasMember("cruise_control") || !j_module["cruise_control"].IsObject())
+    {
+        return; // cruise control not defined
+    }
+
+    auto& j_def = j_module["cruise_control"];
+
+    cruise_control = std::make_shared<RigDef::CruiseControl>();
+    cruise_control->min_speed = j_def["min_speed"].GetFloat();
+    cruise_control->autobrake = j_def["autobrake"].GetInt();
+}
+
+void JsonImporter::ImportContactersFromJson(std::vector<RigDef::Node::Ref>&contacters)
+{
+    rapidjson::Value& j_module = this->GetModuleJson();
+    if (!j_module.HasMember("contacters") || !j_module["contacters"].IsObject())
+    {
+        return; // cruise control not defined
+    }
+
+    auto node_itor = j_module["contacters"].Begin();
+    auto node_endi = j_module["contacters"].End();
+    for (; node_itor != node_endi; ++node_itor)
+    {
+        contacters.push_back(this->JsonToNodeRef(*node_itor));
+    }
+}
+
 } // namespace RigEditor
 } // namespace RoR
