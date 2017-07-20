@@ -148,18 +148,18 @@ struct RigModuleData
         m->name                        = module_name;
 
         // --- Engine + Engoption ---
-        m->engine                      = engine              ;
-        m->engoption                   = engoption           ;
+        m->engine                      = engine;
+        m->engoption                   = engoption;
         // ---------- Stubs -----------
-        m->engturbo                    = engturbo            ;
-        m->traction_control            = traction_control    ;
-        m->torque_curve                = torque_curve        ;
-        m->speed_limiter               = speed_limiter       ;
-        m->slope_brake                 = slope_brake         ;
-        m->submeshes_ground_model_name = submesh_groundmodel ;
-        m->anti_lock_brakes            = anti_lock_brakes    ;
-        m->brakes                      = brakes              ;
-        m->cruise_control              = cruise_control      ;
+        m->engturbo                    = engturbo;
+        m->traction_control            = traction_control;
+        m->torque_curve                = torque_curve;
+        m->speed_limiter               = speed_limiter;
+        m->slope_brake                 = slope_brake;
+        m->submeshes_ground_model_name = submesh_groundmodel;
+        m->anti_lock_brakes            = anti_lock_brakes;
+        m->brakes                      = brakes;
+        m->cruise_control              = cruise_control;
         
         m->rotators       .assign( rotators       .begin(),   rotators       .end() );
         m->rotators_2     .assign( rotators_2     .begin(),   rotators_2     .end() );
@@ -269,12 +269,12 @@ struct RigModuleData
         importer.ImportFusedragsFromJson       (this->fusedrag);
         importer.ImportHooksFromJson           (this->hooks);
         importer.ImportLockgroupsFromJson      (this->lockgroups);
-        //importer.ImportManagedMatsFromJson     (this->managed_mats);
-        //importer.ImportMatFlareBindingsFromJson(this->mat_flare_bindings);
-        //importer.ImportNodeCollisionsFromJson  (this->node_collisions);
-        //importer.ImportParticlesFromJson       (this->particles);
-        //importer.ImportPistonpropsFromJson     (this->pistonprops);
-        //importer.ImportPropsFromJson           (this->props);
+        importer.ImportManagedMatsFromJson     (this->managed_mats);
+        importer.ImportMatFlareBindingsFromJson(this->mat_flare_bindings);
+        importer.ImportNodeCollisionsFromJson  (this->node_collisions);
+        importer.ImportParticlesFromJson       (this->particles);
+        importer.ImportPistonpropsFromJson     (this->pistonprops);
+        importer.ImportPropsFromJson           (this->props);
         //importer.ImportRailGroupsFromJson      (this->railgroups);
         //importer.ImportRopablesFromJson        (this->ropables);
         //importer.ImportRotatorsFromJson        (this->rotators);

@@ -2469,5 +2469,103 @@ void JsonImporter::ImportLockgroupsFromJson(std::vector<RigDef::Lockgroup>&lockg
     }
 }
 
+void JsonImporter::ImportManagedMatsFromJson(std::vector<RigDef::ManagedMaterial>& managed_mats)
+{
+    ITERATE_MODULE_ARRAY("managed_materials",
+    {
+        RigDef::ManagedMaterial def;
+        def.name                = j_def["name"].GetString();
+        def.diffuse_map         = j_def["diffuse_map"        ].GetString();
+        def.damaged_diffuse_map = j_def["damaged_diffuse_map"].GetString();
+        def.specular_map        = j_def["specular_map"       ].GetString();
+        def.options.double_sided= j_def["is_doublesided"     ].GetBool();
+        def.type = static_cast<RigDef::ManagedMaterial::Type>(j_def["type_id"].GetInt()); // TODO: validate!!
+        managed_mats.push_back(def);
+    })
+}
+
+void JsonImporter::ImportMatFlareBindingsFromJson(std::vector<RigDef::MaterialFlareBinding>& mat_flare_bindings)
+{
+    ITERATE_MODULE_ARRAY("mat_flare_bindings",
+    {
+        RigDef::MaterialFlareBinding def;
+        def.flare_number = j_def["flare_number"].GetUint();
+        def.material_name= j_def["material_name"].GetString();
+        mat_flare_bindings.push_back(def);
+    })
+}
+
+void JsonImporter::ImportNodeCollisionsFromJson(std::vector<RigDef::NodeCollision>& node_collisions)
+{
+    ITERATE_MODULE_ARRAY("node_collisions",
+    {
+        RigDef::NodeCollision def;
+        def.node = this->JsonToNodeRef(j_def["node"]);
+        def.radius = j_def["radius"].GetFloat();
+        node_collisions.push_back(def);
+    })
+}
+
+void JsonImporter::ImportParticlesFromJson(std::vector<RigDef::Particle>& particles)
+{
+    ITERATE_MODULE_ARRAY("particles",
+    {
+        RigDef::Particle def;
+        def.particle_system_name = j_def["particle_system_name"].GetString();
+        def.emitter_node         = this->JsonToNodeRef(j_def["emitter_node"  ]);
+        def.reference_node       = this->JsonToNodeRef(j_def["reference_node"]);
+        particles.push_back(def);
+    })
+}
+
+void JsonImporter::ImportPistonpropsFromJson(std::vector<RigDef::Pistonprop>& pistonprops)
+{
+    ITERATE_MODULE_ARRAY("pistonprops",
+    {
+        RigDef::Pistonprop def;
+
+        def.reference_node     = this->JsonToNodeRef(j_def["reference_node"  ]);
+        def.axis_node          = this->JsonToNodeRef(j_def["axis_node"       ]);
+        def.blade_tip_nodes[0] = this->JsonToNodeRef(j_def["blade_tip_node_1"]);
+        def.blade_tip_nodes[1] = this->JsonToNodeRef(j_def["blade_tip_node_2"]);
+        def.blade_tip_nodes[2] = this->JsonToNodeRef(j_def["blade_tip_node_3"]);
+        def.blade_tip_nodes[3] = this->JsonToNodeRef(j_def["blade_tip_node_4"]);
+        def.couple_node        = this->JsonToNodeRef(j_def["couple_node"     ]);
+        def.airfoil            = j_def["airfoil"         ].GetString();
+        def.turbine_power_kW   = j_def["turbine_power_kW"].GetFloat();
+        def.pitch              = j_def["pitch"           ].GetFloat();
+    })
+}
+
+void JsonImporter::ImportPropsFromJson(std::vector<RigDef::Prop>&props)
+{
+    ITERATE_MODULE_ARRAY("pistonprops",
+    {
+        RigDef::Prop def;
+        // Special prop - dashboard
+        def.special_prop_dashboard.offset         = this->JsonToVector3(j_def["special_dash/offset"]);
+        def.special_prop_dashboard.mesh_name      = j_def["special_dash/mesh_name"].GetString();
+        def.special_prop_dashboard._offset_is_set = j_def["special_dash/has_offset"].GetBool();
+        def.special_prop_dashboard.rotation_angle = j_def["special_dash/rot_angle"].GetFloat();
+
+        // Special - beacon
+        def.special_prop_beacon.flare_material_name = j_def["special_beacon/flare_material_name"].GetString();
+        def.special_prop_beacon.color               = this->JsonToRgba(j_def["special_beacon/color"]);
+
+        // Common
+        def.reference_node                 = this->JsonToNodeRef(j_def["reference_node"]);
+        def.x_axis_node                    = this->JsonToNodeRef(j_def["x_axis_node"   ]);
+        def.y_axis_node                    = this->JsonToNodeRef(j_def["y_axis_node"   ]);
+        def.offset                         = this->JsonToVector3(j_def["offset"  ]);
+        def.rotation                       = this->JsonToVector3(j_def["rotation"]);
+        def.mesh_name                      = j_def["mesh_name"].GetString();
+        def.camera_settings.mode           = static_cast<RigDef::CameraSettings::Mode>(j_def["camera_mode"].GetInt()); // TODO: validate
+        def.camera_settings.cinecam_index  = j_def["camera_cinecam_index"].GetUint();
+        def.special                        = static_cast<RigDef::Prop::Special>(j_def["special"].GetInt()); // TODO: validate
+
+        // ++ TODO ++ Animations ++
+    })
+}
+
 } // namespace RigEditor
 } // namespace RoR
