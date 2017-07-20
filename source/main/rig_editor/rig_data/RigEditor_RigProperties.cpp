@@ -228,8 +228,8 @@ struct RigModuleData
         exporter.ExportParticlesToJson       (this->particles);
         exporter.ExportPistonpropsToJson     (this->pistonprops);
         exporter.ExportPropsToJson           (this->props);
-        exporter.ExportRailGroupsToJson      (this->railgroups);
-        exporter.ExportRopablesToJson        (this->ropables);
+        //exporter.ExportRailGroupsToJson      (this->railgroups); -- TODO: stub!
+        //exporter.ExportRopablesToJson        (this->ropables); -- TODO: stub!
         exporter.ExportRotatorsToJson        (this->rotators);
         exporter.ExportRotators2ToJson       (this->rotators_2);
         exporter.ExportScrewpropsToJson      (this->screwprops);
@@ -277,15 +277,15 @@ struct RigModuleData
         importer.ImportPropsFromJson           (this->props);
         //importer.ImportRailGroupsFromJson      (this->railgroups);
         //importer.ImportRopablesFromJson        (this->ropables);
-        //importer.ImportRotatorsFromJson        (this->rotators);
-        //importer.ImportRotators2FromJson       (this->rotators_2);
-        //importer.ImportScrewpropsFromJson      (this->screwprops);
-        //importer.ImportSlideNodesFromJson      (this->slidenodes);
-        //importer.ImportSlopeBrakeFromJson      (this->slope_brake);
-        //importer.ImportSoundSourcesFromJson    (this->soundsources);
-        //importer.ImportSoundSources2FromJson   (this->soundsources_2);
-        //importer.ImportSpeedLimiterFromJson    (this->speed_limiter);
-        //importer.ImportSubmeshesFromJson       (this->submeshes);
+        importer.ImportRotatorsFromJson        (this->rotators);
+        importer.ImportRotators2FromJson       (this->rotators_2);
+        importer.ImportScrewpropsFromJson      (this->screwprops);
+        importer.ImportSlideNodesFromJson      (this->slidenodes);
+        importer.ImportSlopeBrakeFromJson      (this->slope_brake);
+        importer.ImportSoundSourcesFromJson    (this->soundsources);
+        importer.ImportSoundSources2FromJson   (this->soundsources_2);
+        importer.ImportSpeedLimiterFromJson    (this->speed_limiter);
+        importer.ImportSubmeshesFromJson       (this->submeshes);
         //importer.ImportTiesFromJson            (this->ties);
         importer.ImportTorqueCurveFromJson     (this->torque_curve);
         //importer.ImportTractionControlFromJson (this->traction_control);

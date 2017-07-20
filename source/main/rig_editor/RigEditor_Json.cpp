@@ -1627,75 +1627,106 @@ rapidjson::Value& JsonImporter::GetModuleJson()
     return m_json_doc["modules"][module_cstr];
 }
 
-void JsonImporter::ImportEngineFromJson(std::shared_ptr<RigDef::Engine>&    def)
+bool JsonImporter::FetchArrayFromModule(rapidjson::Value::ValueIterator& start_itor, rapidjson::Value::ValueIterator& end_itor, const char* name)
 {
     rapidjson::Value& j_module = this->GetModuleJson();
-    if (!j_module.HasMember("engine") || !j_module["engine"].IsObject())
-        return;
-
-    rapidjson::Value& j_def = j_module["engine"];
-    def = std::make_shared<RigDef::Engine>();
-
-    def->shift_down_rpm    = j_def["shift_down_rpm"]    .GetFloat();
-    def->shift_up_rpm      = j_def["shift_up_rpm"]      .GetFloat();
-    def->torque            = j_def["torque"]            .GetFloat();
-    def->global_gear_ratio = j_def["global_gear_ratio"] .GetFloat();
-    def->reverse_gear_ratio= j_def["reverse_gear_ratio"].GetFloat();
-    def->neutral_gear_ratio= j_def["neutral_gear_ratio"].GetFloat();
-
-    // Gears
-    auto itor = j_def["gear_ratios"].Begin();
-    auto endi = j_def["gear_ratios"].End();
-    for (; itor != endi; ++itor)
+    if (!j_module.HasMember(name) || !j_module[name].IsArray())
     {
-        def->gear_ratios.push_back(itor->GetFloat());
+        return false;
     }
+
+    start_itor = j_module[name].Begin();
+    end_itor   = j_module[name].End();
+    return true;
+}
+
+#define ITERATE_MODULE_ARRAY(_NAME_, _BODY_)               \
+{                                                          \
+    rapidjson::Value::ValueIterator itor, endi;            \
+    if (!this->FetchArrayFromModule(itor, endi, (_NAME_))) \
+    {                                                      \
+        return;                                            \
+    }                                                      \
+    for (; itor != endi; ++itor)                           \
+    {                                                      \
+        auto& j_def = *itor;                               \
+        { _BODY_ }                                         \
+    }                                                      \
+}
+
+#define PROCESS_OPTIONAL_OBJECT(_NAME_, _BLOCK_)                        \
+{                                                                       \
+    rapidjson::Value& j_module = this->GetModuleJson();                 \
+    if (j_module.HasMember(_NAME_) && !j_module[(_NAME_)].IsObject())   \
+    {                                                                   \
+        rapidjson::Value& j_def = j_module[(_NAME_)];                   \
+        { _BLOCK_ }                                                     \
+    }                                                                   \
+}
+
+void JsonImporter::ImportEngineFromJson(std::shared_ptr<RigDef::Engine>&    def)
+{
+    PROCESS_OPTIONAL_OBJECT("engine",
+    {
+        def = std::make_shared<RigDef::Engine>();
+
+        def->shift_down_rpm    = j_def["shift_down_rpm"]    .GetFloat();
+        def->shift_up_rpm      = j_def["shift_up_rpm"]      .GetFloat();
+        def->torque            = j_def["torque"]            .GetFloat();
+        def->global_gear_ratio = j_def["global_gear_ratio"] .GetFloat();
+        def->reverse_gear_ratio= j_def["reverse_gear_ratio"].GetFloat();
+        def->neutral_gear_ratio= j_def["neutral_gear_ratio"].GetFloat();
+
+        // Gears
+        auto itor = j_def["gear_ratios"].Begin();
+        auto endi = j_def["gear_ratios"].End();
+        for (; itor != endi; ++itor)
+        {
+            def->gear_ratios.push_back(itor->GetFloat());
+        }
+    })
 }
 
 void JsonImporter::ImportEngoptionFromJson(std::shared_ptr<RigDef::Engoption>& def)
 {
-    rapidjson::Value& j_module = this->GetModuleJson();
-    if (!j_module.HasMember("engoption") || !j_module["engoption"].IsObject())
-        return;
+    PROCESS_OPTIONAL_OBJECT("engoption",
+    {
+        def = std::make_shared<RigDef::Engoption>();
 
-    rapidjson::Value& j_def = j_module["engoption"];
-    def = std::make_shared<RigDef::Engoption>();
-
-    def->inertia           = j_def["inertia"]            .GetFloat();
-    def->type              = static_cast<RigDef::Engoption::EngineType>(j_def["type_id"].GetInt()); // TODO: validate!
-    def->clutch_force      = j_def["clutch_force"]       .GetFloat();
-    def->shift_time        = j_def["shift_time"]         .GetFloat();
-    def->clutch_time       = j_def["clutch_time"]        .GetFloat();
-    def->post_shift_time   = j_def["post_shift_time"]    .GetFloat();
-    def->idle_rpm          = j_def["idle_rpm"]           .GetFloat();
-    def->stall_rpm         = j_def["stall_rpm"]          .GetFloat();
-    def->max_idle_mixture  = j_def["max_idle_mixture"]   .GetFloat();
-    def->min_idle_mixture  = j_def["min_idle_mixture"]   .GetFloat();
+        def->inertia           = j_def["inertia"]            .GetFloat();
+        def->type              = static_cast<RigDef::Engoption::EngineType>(j_def["type_id"].GetInt()); // TODO: validate!
+        def->clutch_force      = j_def["clutch_force"]       .GetFloat();
+        def->shift_time        = j_def["shift_time"]         .GetFloat();
+        def->clutch_time       = j_def["clutch_time"]        .GetFloat();
+        def->post_shift_time   = j_def["post_shift_time"]    .GetFloat();
+        def->idle_rpm          = j_def["idle_rpm"]           .GetFloat();
+        def->stall_rpm         = j_def["stall_rpm"]          .GetFloat();
+        def->max_idle_mixture  = j_def["max_idle_mixture"]   .GetFloat();
+        def->min_idle_mixture  = j_def["min_idle_mixture"]   .GetFloat();
+    })
 }
 
 void JsonImporter::ImportEngturboFromJson(std::shared_ptr<RigDef::Engturbo>& def)
 {
-    rapidjson::Value& j_module = this->GetModuleJson();
-    if (!j_module.HasMember("engturbo") || !j_module["engturbo"].IsObject())
-        return;
+    PROCESS_OPTIONAL_OBJECT("engturbo",
+    {
+        def = std::make_shared<RigDef::Engturbo>();
 
-    rapidjson::Value& j_def = j_module["engturbo"];
-    def = std::make_shared<RigDef::Engturbo>();
-
-    def->version        =j_def["version"    ].GetInt();
-    def->tinertiaFactor =j_def["inertia"    ].GetFloat();
-    def->nturbos        =j_def["num_turbos" ].GetInt();
-    def->param1         =j_def["param01"    ].GetFloat();
-    def->param2         =j_def["param02"    ].GetFloat();
-    def->param3         =j_def["param03"    ].GetFloat();
-    def->param4         =j_def["param04"    ].GetFloat();
-    def->param5         =j_def["param05"    ].GetFloat();
-    def->param6         =j_def["param06"    ].GetFloat();
-    def->param7         =j_def["param07"    ].GetFloat();
-    def->param8         =j_def["param08"    ].GetFloat();
-    def->param9         =j_def["param09"    ].GetFloat();
-    def->param10        =j_def["param10"    ].GetFloat();
-    def->param11        =j_def["param11"    ].GetFloat();
+        def->version        =j_def["version"    ].GetInt();
+        def->tinertiaFactor =j_def["inertia"    ].GetFloat();
+        def->nturbos        =j_def["num_turbos" ].GetInt();
+        def->param1         =j_def["param01"    ].GetFloat();
+        def->param2         =j_def["param02"    ].GetFloat();
+        def->param3         =j_def["param03"    ].GetFloat();
+        def->param4         =j_def["param04"    ].GetFloat();
+        def->param5         =j_def["param05"    ].GetFloat();
+        def->param6         =j_def["param06"    ].GetFloat();
+        def->param7         =j_def["param07"    ].GetFloat();
+        def->param8         =j_def["param08"    ].GetFloat();
+        def->param9         =j_def["param09"    ].GetFloat();
+        def->param10        =j_def["param10"    ].GetFloat();
+        def->param11        =j_def["param11"    ].GetFloat();
+    })
 }
 
 void JsonImporter::ImportTorqueCurveFromJson(std::shared_ptr<RigDef::TorqueCurve>&torque_curve)
@@ -1915,32 +1946,6 @@ RigEditor::Node* JsonImporter::ResolveNode(rapidjson::Value& j_node_id)
     }
 
     return &found_itor->second;
-}
-
-bool JsonImporter::FetchArrayFromModule(rapidjson::Value::ValueIterator& start_itor, rapidjson::Value::ValueIterator& end_itor, const char* name)
-{
-    rapidjson::Value& j_module = this->GetModuleJson();
-    if (!j_module.HasMember(name) || !j_module[name].IsArray())
-    {
-        return false;
-    }
-
-    start_itor = j_module[name].Begin();
-    end_itor   = j_module[name].End();
-    return true;
-}
-
-#define ITERATE_MODULE_ARRAY(_NAME_, _BODY_) {             \
-    rapidjson::Value::ValueIterator itor, endi;            \
-    if (!this->FetchArrayFromModule(itor, endi, (_NAME_))) \
-    {                                                      \
-        return;                                            \
-    }                                                      \
-    for (; itor != endi; ++itor)                           \
-    {                                                      \
-        auto& j_def = *itor;                               \
-        { _BODY_ }                                         \
-    }                                                      \
 }
 
 void JsonImporter::ImportBeamsFromJson(std::list<Beam>& beams, std::vector<BeamGroup>& groups)
@@ -2256,21 +2261,17 @@ void JsonImporter::ImportAnimatorsFromJson(std::vector<RigDef::Animator>& animat
 
 void JsonImporter::ImportAntiLockBrakesFromJson(std::shared_ptr<RigDef::AntiLockBrakes>& alb_def)
 {
-    rapidjson::Value& j_module = this->GetModuleJson();
-    if (!j_module.HasMember("anti_lock_brakes") || !j_module["anti_lock_brakes"].IsObject())
+    PROCESS_OPTIONAL_OBJECT("anti_lock_brakes",
     {
-        return; // AntiLockBrakes not defined
-    }
+        alb_def = std::make_shared<RigDef::AntiLockBrakes>();
 
-    rapidjson::Value& j_def = j_module["anti_lock_brakes"];
-    alb_def = std::make_shared<RigDef::AntiLockBrakes>();
-
-    alb_def->regulation_force  = j_def["regulation_force" ].GetFloat();
-    alb_def->min_speed         = j_def["min_speed"        ].GetUint();
-    alb_def->pulse_per_sec     = j_def["pulse_per_sec"    ].GetFloat();
-    alb_def->attr_is_on        = j_def["attr_is_on"       ].GetBool();
-    alb_def->attr_no_dashboard = j_def["attr_no_dashboard"].GetBool();
-    alb_def->attr_no_toggle    = j_def["attr_no_toggle"   ].GetBool();
+        alb_def->regulation_force  = j_def["regulation_force" ].GetFloat();
+        alb_def->min_speed         = j_def["min_speed"        ].GetUint();
+        alb_def->pulse_per_sec     = j_def["pulse_per_sec"    ].GetFloat();
+        alb_def->attr_is_on        = j_def["attr_is_on"       ].GetBool();
+        alb_def->attr_no_dashboard = j_def["attr_no_dashboard"].GetBool();
+        alb_def->attr_no_toggle    = j_def["attr_no_toggle"   ].GetBool();
+    })
 }
 
 void JsonImporter::ImportAxlesFromJson(std::vector<RigDef::Axle>&axles)
@@ -2299,23 +2300,14 @@ void JsonImporter::ImportAxlesFromJson(std::vector<RigDef::Axle>&axles)
 
 void JsonImporter::ImportCamerasFromJson(std::vector<RigDef::Camera>& cameras)
 {
-    rapidjson::Value& j_module = this->GetModuleJson();
-    if (!j_module.HasMember("cameras") || !j_module["cameras"].IsArray())
+    ITERATE_MODULE_ARRAY("cameras",
     {
-        return;
-    }
-
-    auto cam_itor = j_module["axles"].Begin();
-    auto cam_endi = j_module["axles"].End();
-    for (; cam_itor != cam_endi; ++cam_itor)
-    {
-        auto& j_def = *cam_itor;
         RigDef::Camera def;
         def.center_node = this->JsonToNodeRef(j_def["center_node"]);
         def.back_node   = this->JsonToNodeRef(j_def["back_node"  ]);
         def.left_node   = this->JsonToNodeRef(j_def["left_node"  ]);
         cameras.push_back(def);
-    }
+    })
 }
 
 void JsonImporter::ImportBrakesFromJson(std::shared_ptr<RigDef::Brakes>& brakes)
@@ -2333,67 +2325,44 @@ void JsonImporter::ImportBrakesFromJson(std::shared_ptr<RigDef::Brakes>& brakes)
     }
 }
 
+void JsonImporter::JsonToNodeRefArray(std::vector<RigDef::Node::Ref>& nodes, rapidjson::Value& j_node_id_array)
+{
+    auto node_itor = j_node_id_array.Begin();
+    auto node_endi = j_node_id_array.End();
+    for (; node_itor != node_endi; ++node_itor)
+    {
+        nodes.push_back(this->JsonToNodeRef(*node_itor));
+    }
+}
+
 void JsonImporter::ImportCameraRailsFromJson(std::vector<RigDef::CameraRail>& camera_rails)
 {
-    rapidjson::Value& j_module = this->GetModuleJson();
-    if (!j_module.HasMember("camera_rails") || !j_module["camera_rails"].IsArray())
-    {
-        return;
-    }
-
-    auto rail_itor = j_module["camera_rails"].Begin();
-    auto rail_endi = j_module["camera_rails"].End();
-    for (; rail_itor != rail_endi; ++rail_itor)
+    ITERATE_MODULE_ARRAY("camera_rails",
     {
         RigDef::CameraRail def;
-
-        auto node_itor = rail_itor->Begin();
-        auto node_endi = rail_itor->End();
-        for (; node_itor != node_endi; ++node_itor)
-        {
-            def.nodes.push_back(this->JsonToNodeRef(*node_itor));
-        }
-
+        this->JsonToNodeRefArray(def.nodes, j_def);
         camera_rails.push_back(def);
-    }
+    })
 }
 
 void JsonImporter::ImportCollisionBoxesFromJson(std::vector<RigDef::CollisionBox>&collision_boxes)
 {
-    rapidjson::Value& j_module = this->GetModuleJson();
-    if (!j_module.HasMember("collision_boxes") || !j_module["collision_boxes"].IsArray())
-    {
-        return;
-    }
-
-    auto box_itor = j_module["collision_boxes"].Begin();
-    auto box_endi = j_module["collision_boxes"].End();
-    for (; box_itor != box_endi; ++box_itor)
+    ITERATE_MODULE_ARRAY("collision_boxes",
     {
         RigDef::CollisionBox def;
-        auto node_itor = box_itor->Begin();
-        auto node_endi = box_itor->End();
-        for (; node_itor != node_endi; ++node_itor)
-        {
-            def.nodes.push_back(this->JsonToNodeRef(*node_itor));
-        }
+        this->JsonToNodeRefArray(def.nodes, j_def);
         collision_boxes.push_back(def);
-    }
+    })
 }
 
 void JsonImporter::ImportCruiseControlFromJson(std::shared_ptr<RigDef::CruiseControl>&cruise_control)
 {
-    rapidjson::Value& j_module = this->GetModuleJson();
-    if (!j_module.HasMember("cruise_control") || !j_module["cruise_control"].IsObject())
+    PROCESS_OPTIONAL_OBJECT("cruise_control",
     {
-        return; // cruise control not defined
-    }
-
-    auto& j_def = j_module["cruise_control"];
-
-    cruise_control = std::make_shared<RigDef::CruiseControl>();
-    cruise_control->min_speed = j_def["min_speed"].GetFloat();
-    cruise_control->autobrake = j_def["autobrake"].GetInt();
+        cruise_control = std::make_shared<RigDef::CruiseControl>();
+        cruise_control->min_speed = j_def["min_speed"].GetFloat();
+        cruise_control->autobrake = j_def["autobrake"].GetInt();
+    })
 }
 
 void JsonImporter::ImportContactersFromJson(std::vector<RigDef::Node::Ref>&contacters)
@@ -2450,23 +2419,12 @@ void JsonImporter::ImportHooksFromJson(std::vector<RigDef::Hook>&hooks)
 
 void JsonImporter::ImportLockgroupsFromJson(std::vector<RigDef::Lockgroup>&lockgroups)
 {
-    rapidjson::Value::ValueIterator lg_itor, lg_endi;
-    if (!this->FetchArrayFromModule(lg_itor, lg_endi, "lockgroups"))
-        return;
-
-    for (; lg_itor != lg_endi; ++lg_itor)
+    ITERATE_MODULE_ARRAY("lockgroups",
     {
         RigDef::Lockgroup def;
-        auto& j_def = *lg_itor;
-
-        def.number = j_def["number"].GetInt();
-        auto node_itor = j_def["nodes"].Begin();
-        auto node_endi = j_def["nodes"].End();
-        for (; node_itor != node_endi; ++node_itor)
-        {
-            def.nodes.push_back(this->JsonToNodeRef(*node_itor));
-        }
-    }
+        this->JsonToNodeRefArray(def.nodes, j_def);
+        lockgroups.push_back(def);
+    })
 }
 
 void JsonImporter::ImportManagedMatsFromJson(std::vector<RigDef::ManagedMaterial>& managed_mats)
@@ -2564,6 +2522,183 @@ void JsonImporter::ImportPropsFromJson(std::vector<RigDef::Prop>&props)
         def.special                        = static_cast<RigDef::Prop::Special>(j_def["special"].GetInt()); // TODO: validate
 
         // ++ TODO ++ Animations ++
+    })
+}
+
+void JsonImporter::ImportRotatorsFromJson(std::vector<RigDef::Rotator>& rotators)
+{
+    ITERATE_MODULE_ARRAY("rotators",
+    {
+        RigDef::Rotator def;
+        // TODO: inertia
+
+        def.rate                    = j_def["rate"           ].GetFloat();
+        def.spin_left_key           = j_def["spin_left_key"  ].GetInt();
+        def.spin_right_key          = j_def["spin_right_key" ].GetInt();
+        def.engine_coupling         = j_def["engine_coupling"].GetFloat();
+        def.needs_engine            = j_def["needs_engine"   ].GetBool();
+
+        def.axis_nodes[0]           = this->JsonToNodeRef(j_def["axis_node_a"      ]);
+        def.axis_nodes[1]           = this->JsonToNodeRef(j_def["axis_node_b"      ]);
+
+        def.base_plate_nodes[0]     = this->JsonToNodeRef(j_def["base_plate_node_1"]);
+        def.base_plate_nodes[1]     = this->JsonToNodeRef(j_def["base_plate_node_2"]);
+        def.base_plate_nodes[2]     = this->JsonToNodeRef(j_def["base_plate_node_3"]);
+        def.base_plate_nodes[3]     = this->JsonToNodeRef(j_def["base_plate_node_4"]);
+
+        def.rotating_plate_nodes[0] = this->JsonToNodeRef(j_def["rot_plate_node_1" ]);
+        def.rotating_plate_nodes[1] = this->JsonToNodeRef(j_def["rot_plate_node_2" ]);
+        def.rotating_plate_nodes[2] = this->JsonToNodeRef(j_def["rot_plate_node_3" ]);
+        def.rotating_plate_nodes[3] = this->JsonToNodeRef(j_def["rot_plate_node_4" ]);
+
+        rotators.push_back(def);
+    })
+}
+
+void JsonImporter::ImportRotators2FromJson(std::vector<RigDef::Rotator2>& rotators_2)
+{
+    ITERATE_MODULE_ARRAY("rotators_2",
+    {
+        RigDef::Rotator2 def;
+        // TODO: inertia
+
+        def.rate            = j_def["rate"           ].GetFloat();
+        def.spin_left_key   = j_def["spin_left_key"  ].GetInt();
+        def.spin_right_key  = j_def["spin_right_key" ].GetInt();
+        def.engine_coupling = j_def["engine_coupling"].GetFloat();
+        def.needs_engine    = j_def["needs_engine"   ].GetBool();
+
+        def.axis_nodes[0]           = this->JsonToNodeRef(j_def["axis_node_a"      ]);
+        def.axis_nodes[1]           = this->JsonToNodeRef(j_def["axis_node_b"      ]);
+
+        def.base_plate_nodes[0]     = this->JsonToNodeRef(j_def["base_plate_node_1"]);
+        def.base_plate_nodes[1]     = this->JsonToNodeRef(j_def["base_plate_node_2"]);
+        def.base_plate_nodes[2]     = this->JsonToNodeRef(j_def["base_plate_node_3"]);
+        def.base_plate_nodes[3]     = this->JsonToNodeRef(j_def["base_plate_node_4"]);
+
+        def.rotating_plate_nodes[0] = this->JsonToNodeRef(j_def["rot_plate_node_1" ]);
+        def.rotating_plate_nodes[1] = this->JsonToNodeRef(j_def["rot_plate_node_2" ]);
+        def.rotating_plate_nodes[2] = this->JsonToNodeRef(j_def["rot_plate_node_3" ]);
+        def.rotating_plate_nodes[3] = this->JsonToNodeRef(j_def["rot_plate_node_4" ]);
+
+        // Rotator2 extras
+        def.rotating_force          = j_def["rotating_force"].GetFloat();
+        def.tolerance               = j_def["tolerance"     ].GetFloat();
+        def.description             = j_def["description"   ].GetString();
+
+        rotators_2.push_back(def);
+    })
+}
+
+void JsonImporter::ImportScrewpropsFromJson(std::vector<RigDef::Screwprop>& screwprops)
+{
+    ITERATE_MODULE_ARRAY("screwprops",
+    {
+        RigDef::Screwprop def;
+        def.prop_node = this->JsonToNodeRef(j_def["prop_node"]);
+        def.back_node = this->JsonToNodeRef(j_def["back_node"]);
+        def.top_node  = this->JsonToNodeRef(j_def["top_node" ]);
+        def.power     = j_def["power"].GetFloat();
+        screwprops.push_back(def);
+    })
+}
+
+void JsonImporter::ImportSlideNodesFromJson(std::vector<RigDef::SlideNode>& slidenodes)
+{
+    ITERATE_MODULE_ARRAY("slidenodes",
+    {
+        RigDef::SlideNode def;
+        def.SetConstraint_a_AttachAll    (j_def["constraint_attach_all"    ].GetBool());
+        def.SetConstraint_f_AttachForeign(j_def["constraint_attach_foreign"].GetBool());
+        def.SetConstraint_s_AttachSelf   (j_def["constraint_attach_self"   ].GetBool());
+        def.SetConstraint_n_AttachNone   (j_def["constraint_attach_none"   ].GetBool());
+        def.slide_node                 = this->JsonToNodeRef(j_def["slide_node" ]);
+        def.spring_rate                = j_def["spring_rate"            ].GetFloat();
+        def.break_force                = j_def["break_force"            ].GetFloat();
+        def.tolerance                  = j_def["tolerance"              ].GetFloat();
+        def.railgroup_id               = j_def["railgroup_id"           ].GetInt();
+        def._railgroup_id_set          = j_def["_railgroup_id_set"      ].GetBool();
+        def.attachment_rate            = j_def["attachment_rate"        ].GetFloat();
+        def.max_attachment_distance    = j_def["max_attachment_distance"].GetFloat();
+        def._break_force_set           = j_def["_break_force_set"       ].GetBool();
+        slidenodes.push_back(def);
+    })
+}
+
+void JsonImporter::ImportSlopeBrakeFromJson(std::shared_ptr<RigDef::SlopeBrake>& slope_brake)
+{
+    PROCESS_OPTIONAL_OBJECT("slope_brake",
+    {
+        slope_brake = std::make_shared<RigDef::SlopeBrake>();
+        slope_brake->regulating_force = j_def["regulating_force"].GetFloat();
+        slope_brake->attach_angle     = j_def["attach_angle"    ].GetFloat();
+        slope_brake->release_angle    = j_def["release_angle"   ].GetFloat();
+    })
+}
+
+void JsonImporter::ImportSoundSourcesFromJson(std::vector<RigDef::SoundSource>& soundsources)
+{
+    ITERATE_MODULE_ARRAY("sound_sources",
+    {
+        RigDef::SoundSource def;
+        def.node                 = this->JsonToNodeRef(j_def["node" ]);
+        def.sound_script_name    = j_def["sound_script_name"   ].GetString();
+        soundsources.push_back(def);
+    })
+}
+
+void JsonImporter::ImportSoundSources2FromJson(std::vector<RigDef::SoundSource2>& soundsources_2)
+{
+    ITERATE_MODULE_ARRAY("sound_sources_2",
+    {
+        RigDef::SoundSource2 def;
+        def.node                 = this->JsonToNodeRef(j_def["node" ]);
+        def.sound_script_name    = j_def["sound_script_name"].GetString();
+        def.mode                 = static_cast<RigDef::SoundSource2::Mode>(j_def["mode_id"].GetInt()); // TODO: validate
+        def.cinecam_index        = j_def["cinecam_index"].GetInt();
+        soundsources_2.push_back(def);
+    })
+}
+
+void JsonImporter::ImportSpeedLimiterFromJson(RigDef::SpeedLimiter& speed_limiter)
+{
+    PROCESS_OPTIONAL_OBJECT("speed_limiter",
+    {
+        speed_limiter.is_enabled = j_def["is_enabled"].GetBool();
+        speed_limiter.max_speed  = j_def["max_speed" ].GetFloat();
+    })
+}
+
+void JsonImporter::ImportSubmeshesFromJson(std::vector<RigDef::Submesh>&submeshes)
+{
+    ITERATE_MODULE_ARRAY("submeshes",
+    {
+        RigDef::Submesh def;
+        def.backmesh = j_def["has_backmesh"].GetBool();
+
+        for (auto itor = j_def["texcoords"].Begin(); itor != j_def["texcoords"].End(); ++itor)
+        {
+            RigDef::Texcoord tx;
+            tx.node = this->JsonToNodeRef((*itor)["node"]);
+            tx.u    = (*itor)["u"].GetFloat();
+            tx.v    = (*itor)["v"].GetFloat();
+            def.texcoords.push_back(tx);
+        }
+
+        for (auto itor = j_def["cab_triangles"].Begin(); itor != j_def["cab_triangles"].End(); ++itor)
+        {
+            RigDef::Cab cab;
+            cab.nodes[0] = this->JsonToNodeRef((*itor)["node_a"]);
+            cab.nodes[1] = this->JsonToNodeRef((*itor)["node_b"]);
+            cab.nodes[2] = this->JsonToNodeRef((*itor)["node_c"]);
+            if ((*itor)["option_c_contact"          ].GetBool()) { cab.options |= RigDef::Cab::OPTION_c_CONTACT; }
+            if ((*itor)["option_b_buoyant"          ].GetBool()) { cab.options |= RigDef::Cab::OPTION_b_BUOYANT; }
+            if ((*itor)["option_p_10xtougher"       ].GetBool()) { cab.options |= RigDef::Cab::OPTION_p_10xTOUGHER; }
+            if ((*itor)["option_u_invulnerable"     ].GetBool()) { cab.options |= RigDef::Cab::OPTION_u_INVULNERABLE; }
+            if ((*itor)["option_s_buoyant_no_drag"  ].GetBool()) { cab.options |= RigDef::Cab::OPTION_s_BUOYANT_NO_DRAG; }
+            if ((*itor)["option_r_buoyant_only_drag"].GetBool()) { cab.options |= RigDef::Cab::OPTION_r_BUOYANT_ONLY_DRAG; }
+            def.cab_triangles.push_back(cab);
+        }
     })
 }
 
