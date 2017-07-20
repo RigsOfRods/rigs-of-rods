@@ -290,6 +290,7 @@ public:
     static RigDef::Node::Ref    JsonToNodeRef(rapidjson::Value& j_val);
 
 private:
+    bool                 FetchArrayFromModule(rapidjson::Value::ValueIterator& start_itor, rapidjson::Value::ValueIterator& end_itor, const char* name);
     bool                 LoadJsonFile(MyGUI::UString const & src_path); ///< @return true on success
     rapidjson::Value&    GetModuleJson();
     Ogre::ColourValue    JsonToRgba(rapidjson::Value& j_val);

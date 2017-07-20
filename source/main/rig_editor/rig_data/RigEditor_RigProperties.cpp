@@ -1,6 +1,6 @@
 /*
     This source file is part of Rigs of Rods
-    Copyright 2013-2016 Petr Ohlidal & contributors
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.com/
 
@@ -264,11 +264,11 @@ struct RigModuleData
         importer.ImportEngineFromJson          (this->engine);
         importer.ImportEngoptionFromJson       (this->engoption);
         importer.ImportEngturboFromJson        (this->engturbo);
-        //importer.ImportExhaustsFromJson        (this->exhausts);
-        //importer.ImportFixesFromJson           (this->fixes);
+        importer.ImportExhaustsFromJson        (this->exhausts);
+        importer.ImportFixesFromJson           (this->fixes);
         importer.ImportFusedragsFromJson       (this->fusedrag);
-        //importer.ImportHooksFromJson           (this->hooks);
-        //importer.ImportLockgroupsFromJson      (this->lockgroups);
+        importer.ImportHooksFromJson           (this->hooks);
+        importer.ImportLockgroupsFromJson      (this->lockgroups);
         //importer.ImportManagedMatsFromJson     (this->managed_mats);
         //importer.ImportMatFlareBindingsFromJson(this->mat_flare_bindings);
         //importer.ImportNodeCollisionsFromJson  (this->node_collisions);
