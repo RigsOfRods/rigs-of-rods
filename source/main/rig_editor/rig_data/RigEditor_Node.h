@@ -31,16 +31,23 @@
 #include "RigEditor_ForwardDeclarations.h"
 #include "RigEditor_Types.h"
 
-namespace RoR
-{
+namespace RoR {
+namespace RigEditor {
 
-namespace RigEditor
-{
-
+/// An user-created group of nodes, usable for any purpose.
 struct NodeGroup
 {
-    std::string       name;
-    Ogre::ColourValue color;
+    NodeGroup():
+        type(Type::UNDEFINED), railgroup_id(-1)
+    {}
+
+    enum class Type { UNDEFINED, RAILGROUP };
+
+    Type               type;
+    std::string        name;
+    Ogre::ColourValue  color;
+    std::vector<Node*> nodes;
+    int                railgroup_id; ///< Only for Type::RAILGROUP
 };
 
 class Node

@@ -82,6 +82,17 @@ rapidjson::Value& JsonExporter::GetOrCreateMember(
     return j_container[name];
 }
 
+#define EXPORT_ARRAY(_NAME_, _INPUT_, _BODY_)                                          \
+{                                                                                      \
+    auto& j_alloc = m_json_doc.GetAllocator();                                         \
+    auto& j_module = this->GetModuleJson();                                            \
+    auto& j_list = this->GetOrCreateMember(j_module, (_NAME_), rapidjson::kArrayType); \
+    for (auto& def: (_INPUT_))                                                         \
+    {                                                                                  \
+        _BODY_                                                                         \
+    }                                                                                  \
+}
+
 void JsonExporter::SavePresetsToJson()
 {
     rapidjson::Value& j_module = this->GetModuleJson();
@@ -221,8 +232,8 @@ void JsonExporter::ExportBeamsToJson(std::list<Beam>& beams, std::vector<BeamGro
     for (size_t i = 0; i < groups.size(); ++i)
     {
         rapidjson::Value j_grp(rapidjson::kObjectType);
-        j_grp.AddMember("name", this->StrToJson(groups[i].rebg_name), j_alloc);
-        j_grp.AddMember("color", this->RgbaToJson(groups[i].rebg_color), j_alloc);
+        j_grp.AddMember("name", this->StrToJson(groups[i].name), j_alloc);
+        j_grp.AddMember("color", this->RgbaToJson(groups[i].color), j_alloc);
         j_beam_groups.AddMember(rapidjson::Value(i), j_grp, j_alloc);
     }
 
@@ -523,10 +534,7 @@ void JsonExporter::ExportAntiLockBrakesToJson(std::shared_ptr<RigDef::AntiLockBr
 
 void JsonExporter::ExportAxlesToJson(std::vector<RigDef::Axle>&axles)
 {
-    auto& j_module = this->GetModuleJson();
-    auto& j_alloc = m_json_doc.GetAllocator();
-    auto& j_axles = this->GetOrCreateMember(j_module, "axles", rapidjson::kArrayType);
-    for (auto& def: axles)
+    EXPORT_ARRAY("axles", axles,
     {
         rapidjson::Value j_def(rapidjson::kObjectType);
         j_def.AddMember("wheel_a_node_a", this->NodeToJson(def.wheels[0][0]), j_alloc);
@@ -547,8 +555,8 @@ void JsonExporter::ExportAxlesToJson(std::vector<RigDef::Axle>&axles)
         }
 
         j_def.AddMember("options", j_options, j_alloc);
-        j_axles.PushBack(j_def, j_alloc);
-    }
+        j_list.PushBack(j_def, j_alloc);
+    })
 }
 
 void JsonExporter::ExportBrakesToJson(std::shared_ptr<RigDef::Brakes>&brakes)
@@ -565,17 +573,16 @@ void JsonExporter::ExportBrakesToJson(std::shared_ptr<RigDef::Brakes>&brakes)
 
 void JsonExporter::ExportCamerasToJson(std::vector<RigDef::Camera>&cameras)
 {
-    auto& j_alloc = m_json_doc.GetAllocator();
-    auto& j_cams = this->GetOrCreateMember(this->GetModuleJson(), "cameras", rapidjson::kArrayType);
-    for (RigDef::Camera& def: cameras)
+    EXPORT_ARRAY("cameras", cameras,
     {
         rapidjson::Value j_def(rapidjson::kObjectType);
+
         j_def.AddMember("center_node", this->NodeToJson(def.center_node), j_alloc);
         j_def.AddMember("back_node",   this->NodeToJson(def.back_node),   j_alloc);
         j_def.AddMember("left_node",   this->NodeToJson(def.left_node),   j_alloc);
 
-        j_cams.PushBack(j_def, j_alloc);
-    }
+        j_list.PushBack(j_def, j_alloc);
+    })
 }
 
 void JsonExporter::ExportCameraRailsToJson(std::vector<RigDef::CameraRail>&camera_rails)
@@ -656,51 +663,47 @@ void JsonExporter::ExportEngturboToJson(std::shared_ptr<RigDef::Engturbo>&def)
     this->GetModuleJson().AddMember("engturbo", j_def, j_alloc);
 }
 
-void JsonExporter::ExportExhaustsToJson(std::vector<RigDef::Exhaust>&exhausts)
+void JsonExporter::ExportExhaustsToJson(std::vector<RigDef::Exhaust>& exhausts)
 {
-    auto& j_alloc = m_json_doc.GetAllocator();
-    auto& j_exhausts = this->GetOrCreateMember(this->GetModuleJson(), "exhausts", rapidjson::kArrayType);
-    for (RigDef::Exhaust& def: exhausts)
+    EXPORT_ARRAY("exhausts", exhausts,
     {
         rapidjson::Value j_def(rapidjson::kObjectType);
-        j_def.AddMember("reference_node",  this->NodeToJson(def.reference_node), j_alloc);
-        j_def.AddMember("direction_node",  this->NodeToJson(def.direction_node), j_alloc);
-        j_def.AddMember("material_name",   this->StrToJson(def.material_name),        j_alloc);
 
-        j_exhausts.PushBack(j_def, j_alloc);
-    }
+        j_def.AddMember("reference_node",  this->NodeToJson(def.reference_node),   j_alloc);
+        j_def.AddMember("direction_node",  this->NodeToJson(def.direction_node),   j_alloc);
+        j_def.AddMember("material_name",   this->StrToJson(def.material_name),     j_alloc);
+
+        j_list.PushBack(j_def, j_alloc);
+    })
 }
 
-void JsonExporter::ExportFixesToJson(std::vector<RigDef::Node::Ref>&fixes)
+void JsonExporter::ExportFixesToJson(std::vector<RigDef::Node::Ref>& fixes)
 {
     rapidjson::Value j_nodes(rapidjson::kArrayType);
     this->NodeRefArrayToJson(j_nodes, fixes);
     this->GetModuleJson().AddMember("fixes", j_nodes, m_json_doc.GetAllocator());
 }
 
-void JsonExporter::ExportFusedragsToJson(std::vector<RigDef::Fusedrag>&fusedrag)
+void JsonExporter::ExportFusedragsToJson(std::vector<RigDef::Fusedrag>& fusedrag)
 {
-    auto& j_alloc = m_json_doc.GetAllocator();
-    auto& j_fuselist = this->GetOrCreateMember(this->GetModuleJson(), "fusedrag", rapidjson::kArrayType);
-    for (RigDef::Fusedrag& def: fusedrag)
+    EXPORT_ARRAY("fusedrag", fusedrag,
     {
         rapidjson::Value j_def(rapidjson::kObjectType);
-        j_def.AddMember("autocalc",     def.autocalc,          j_alloc); // bool
-        j_def.AddMember("front_node",   this->NodeToJson(def.front_node),  j_alloc); // Node::Ref
-        j_def.AddMember("rear_node",    this->NodeToJson(def.rear_node ),   j_alloc); // Node::Ref
-        j_def.AddMember("approx_width", def.approximate_width, j_alloc); // float
-        j_def.AddMember("airfoil_name", this->StrToJson(def.airfoil_name),      j_alloc); // Ogre::String
-        j_def.AddMember("area_coef",    def.area_coefficient,  j_alloc); // float
 
-        j_fuselist.PushBack(j_def, j_alloc);
-    }
+        j_def.AddMember("autocalc",     def.autocalc,                        j_alloc); // bool
+        j_def.AddMember("front_node",   this->NodeToJson(def.front_node),    j_alloc); // Node::Ref
+        j_def.AddMember("rear_node",    this->NodeToJson(def.rear_node ),    j_alloc); // Node::Ref
+        j_def.AddMember("approx_width", def.approximate_width,               j_alloc); // float
+        j_def.AddMember("airfoil_name", this->StrToJson(def.airfoil_name),   j_alloc); // Ogre::String
+        j_def.AddMember("area_coef",    def.area_coefficient,                j_alloc); // float
+
+        j_list.PushBack(j_def, j_alloc);
+    })
 }
 
-void JsonExporter::ExportHooksToJson(std::vector<RigDef::Hook>&hooks)
+void JsonExporter::ExportHooksToJson(std::vector<RigDef::Hook>& hooks)
 {
-    auto& j_alloc = m_json_doc.GetAllocator();
-    auto& j_hooklist = this->GetOrCreateMember(this->GetModuleJson(), "hooks", rapidjson::kArrayType);
-    for (RigDef::Hook& def: hooks)
+    EXPORT_ARRAY("hooks", hooks,
     {
         rapidjson::Value j_def(rapidjson::kObjectType);
 
@@ -709,7 +712,7 @@ void JsonExporter::ExportHooksToJson(std::vector<RigDef::Hook>&hooks)
         j_def.AddMember("flag_no_disable",    def.HasOptionNoDisable(),    j_alloc);
         j_def.AddMember("flag_no_rope",       def.HasOptionNoRope   (),    j_alloc);
         j_def.AddMember("flag_visible",       def.HasOptionVisible  (),    j_alloc);
-        j_def.AddMember("node",               this->NodeToJson(def.node)             , j_alloc);
+        j_def.AddMember("node",               this->NodeToJson(def.node) , j_alloc);
         j_def.AddMember("option_hook_range",  def.option_hook_range      , j_alloc);
         j_def.AddMember("option_speed_coef",  def.option_speed_coef      , j_alloc);
         j_def.AddMember("option_max_force",   def.option_max_force       , j_alloc);
@@ -718,15 +721,13 @@ void JsonExporter::ExportHooksToJson(std::vector<RigDef::Hook>&hooks)
         j_def.AddMember("option_timer",       def.option_timer           , j_alloc);
         j_def.AddMember("option_min_range_m", def.option_min_range_meters, j_alloc);
 
-        j_hooklist.PushBack(j_def, j_alloc);
-    }
+        j_list.PushBack(j_def, j_alloc);
+    })
 }
 
 void JsonExporter::ExportLockgroupsToJson(std::vector<RigDef::Lockgroup>&lockgroups)
 {
-    auto& j_alloc = m_json_doc.GetAllocator();
-    auto& j_list = this->GetOrCreateMember(this->GetModuleJson(), "lockgroups", rapidjson::kArrayType);
-    for (RigDef::Lockgroup& def: lockgroups)
+    EXPORT_ARRAY("lockgroups", lockgroups,
     {
         rapidjson::Value j_def(rapidjson::kObjectType);
         j_def.AddMember("number", def.number, j_alloc);
@@ -736,14 +737,12 @@ void JsonExporter::ExportLockgroupsToJson(std::vector<RigDef::Lockgroup>&lockgro
         j_def.AddMember("nodes", j_nodes, j_alloc);
 
         j_list.PushBack(j_def, j_alloc);
-    }
+    })
 }
 
 void JsonExporter::ExportManagedMatsToJson(std::vector<RigDef::ManagedMaterial>&managed_mats)
 {
-    auto& j_alloc = m_json_doc.GetAllocator();
-    auto& j_list = this->GetOrCreateMember(this->GetModuleJson(), "managed_materials", rapidjson::kArrayType);
-    for (RigDef::ManagedMaterial& def: managed_mats)
+    EXPORT_ARRAY("managed_materials", managed_mats,
     {
         rapidjson::Value j_def(rapidjson::kObjectType);
 
@@ -755,14 +754,12 @@ void JsonExporter::ExportManagedMatsToJson(std::vector<RigDef::ManagedMaterial>&
         j_def.AddMember("specular_map",        this->StrToJson(def.specular_map),            j_alloc);
 
         j_list.PushBack(j_def, j_alloc);
-    }
+    })
 }
 
 void JsonExporter::ExportMatFlareBindingsToJson(std::vector<RigDef::MaterialFlareBinding>& mat_flare_bindings)
 {
-    auto& j_alloc = m_json_doc.GetAllocator();
-    auto& j_list = this->GetOrCreateMember(this->GetModuleJson(), "mat_flare_bindings", rapidjson::kArrayType);
-    for (RigDef::MaterialFlareBinding& def: mat_flare_bindings)
+    EXPORT_ARRAY("mat_flare_bindings", mat_flare_bindings,
     {
         rapidjson::Value j_def(rapidjson::kObjectType);
 
@@ -770,14 +767,12 @@ void JsonExporter::ExportMatFlareBindingsToJson(std::vector<RigDef::MaterialFlar
         j_def.AddMember("material_name", this->StrToJson(def.material_name),  j_alloc);
 
         j_list.PushBack(j_def, j_alloc);
-    }
+    })
 }
 
 void JsonExporter::ExportNodeCollisionsToJson(std::vector<RigDef::NodeCollision>& node_collisions)
 {
-    auto& j_alloc = m_json_doc.GetAllocator();
-    auto& j_list = this->GetOrCreateMember(this->GetModuleJson(), "node_collisions", rapidjson::kArrayType);
-    for (RigDef::NodeCollision& def: node_collisions)
+    EXPORT_ARRAY("node_collisions", node_collisions,
     {
         rapidjson::Value j_def(rapidjson::kObjectType);
 
@@ -785,14 +780,12 @@ void JsonExporter::ExportNodeCollisionsToJson(std::vector<RigDef::NodeCollision>
         j_def.AddMember("radius", def.radius,       j_alloc);
 
         j_list.PushBack(j_def, j_alloc);
-    }
+    })
 }
 
 void JsonExporter::ExportParticlesToJson(std::vector<RigDef::Particle>& particles)
 {
-    auto& j_alloc = m_json_doc.GetAllocator();
-    auto& j_list = this->GetOrCreateMember(this->GetModuleJson(), "particles", rapidjson::kArrayType);
-    for (RigDef::Particle& def: particles)
+    EXPORT_ARRAY("particles", particles,
     {
         rapidjson::Value j_def(rapidjson::kObjectType);
 
@@ -801,14 +794,12 @@ void JsonExporter::ExportParticlesToJson(std::vector<RigDef::Particle>& particle
         j_def.AddMember("particle_system_name", this->StrToJson(def.particle_system_name),       j_alloc);
 
         j_list.PushBack(j_def, j_alloc);
-    }
+    })
 }
 
 void JsonExporter::ExportPistonpropsToJson(std::vector<RigDef::Pistonprop>& pistonprops)
 {
-    auto& j_alloc = m_json_doc.GetAllocator();
-    auto& j_list = this->GetOrCreateMember(this->GetModuleJson(), "pistonprops", rapidjson::kArrayType);
-    for (RigDef::Pistonprop& def: pistonprops)
+    EXPORT_ARRAY("pistonprops", pistonprops,
     {
         rapidjson::Value j_def(rapidjson::kObjectType);
 
@@ -821,17 +812,15 @@ void JsonExporter::ExportPistonpropsToJson(std::vector<RigDef::Pistonprop>& pist
         j_def.AddMember("couple_node",      this->NodeToJson(def.couple_node)       , j_alloc);
         j_def.AddMember("turbine_power_kW", def.turbine_power_kW                    , j_alloc);
         j_def.AddMember("pitch",            def.pitch                               , j_alloc);
-        j_def.AddMember("airfoil",          this->StrToJson(def.airfoil)                             , j_alloc);
+        j_def.AddMember("airfoil",          this->StrToJson(def.airfoil)            , j_alloc);
 
         j_list.PushBack(j_def, j_alloc);
-    }
+    })
 }
 
 void JsonExporter::ExportPropsToJson(std::vector<RigDef::Prop>&props)
 {
-    auto& j_alloc = m_json_doc.GetAllocator();
-    auto& j_list = this->GetOrCreateMember(this->GetModuleJson(), "props", rapidjson::kArrayType);
-    for (RigDef::Prop& def: props)
+    EXPORT_ARRAY("props", props,
     {
         rapidjson::Value j_def(rapidjson::kObjectType);
 
@@ -864,15 +853,46 @@ void JsonExporter::ExportPropsToJson(std::vector<RigDef::Prop>&props)
         j_def.AddMember("animations", j_animlist, j_alloc);
 
         j_list.PushBack(j_def, j_alloc);
+    })
+}
+
+void JsonExporter::EditorNodePtrArrayToJson(rapidjson::Value& j_array, std::vector<Node*>& nodes)
+{
+    for (Node* node: nodes)
+    {
+        j_array.PushBack(this->StrToJson(node->GetId().Str()), m_json_doc.GetAllocator());
     }
 }
 
-void JsonExporter::ExportRailGroupsToJson(std::vector<RigDef::RailGroup>&railgroups)
+void JsonExporter::ExportRailGroupsToJson(std::list<RigEditor::NodeGroup>& editor_railgroups)
 {
+    EXPORT_ARRAY("railgroups", editor_railgroups,
+    {
+        rapidjson::Value j_nodes(rapidjson::kArrayType);
+        this->EditorNodePtrArrayToJson(j_nodes, def.nodes);
+
+        rapidjson::Value j_def(rapidjson::kObjectType);
+        j_def.AddMember("id",           def.railgroup_id,    j_alloc);
+        j_def.AddMember("node_list",    j_nodes,             j_alloc);
+
+        j_list.PushBack(j_def, j_alloc);
+    })
 }
 
 void JsonExporter::ExportRopablesToJson(std::vector<RigDef::Ropable>&ropables)
 {
+        /*
+struct Ropable
+{
+    Ropable():
+        group(-1), // = value not set
+        has_multilock(false)
+    {}
+
+    Node::Ref node;
+    int group;
+    bool has_multilock;
+};*/
 }
 
 void JsonExporter::ExportRotatorsToJson(std::vector<RigDef::Rotator>&rotators)
@@ -2087,8 +2107,8 @@ void JsonImporter::ImportBeamsFromJson(std::list<Beam>& beams, std::vector<BeamG
     {
         BeamGroup grp;
         rapidjson::Value& j_group = *itor;
-        grp.rebg_color = this->JsonToRgba(j_group["color"]);
-        grp.rebg_name = j_group["name"].GetString();
+        grp.color = this->JsonToRgba(j_group["color"]);
+        grp.name = j_group["name"].GetString();
         groups.push_back(grp);
     }
 }

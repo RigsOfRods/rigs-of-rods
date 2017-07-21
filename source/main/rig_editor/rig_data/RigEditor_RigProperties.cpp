@@ -67,7 +67,6 @@ struct RigModuleData
     std::vector    <RigDef::Particle>          particles;
     std::vector    <RigDef::Pistonprop>        pistonprops;
     std::vector    <RigDef::Prop>              props;
-    std::vector    <RigDef::RailGroup>         railgroups;
     std::vector    <RigDef::Ropable>           ropables;
     std::vector    <RigDef::Rotator>           rotators;
     std::vector    <RigDef::Rotator2>          rotators_2;
@@ -134,7 +133,6 @@ struct RigModuleData
         hooks          .assign( m->hooks         .begin(),   m->hooks          .end() );
         lockgroups     .assign( m->lockgroups    .begin(),   m->lockgroups     .end() );
         props          .assign( m->props         .begin(),   m->props          .end() );
-        railgroups     .assign( m->railgroups    .begin(),   m->railgroups     .end() );
         screwprops     .assign( m->screwprops    .begin(),   m->screwprops     .end() );
         ties           .assign( m->ties          .begin(),   m->ties           .end() );
 
@@ -188,7 +186,6 @@ struct RigModuleData
         m->hooks          .assign( hooks          .begin(),   hooks          .end() );
         m->lockgroups     .assign( lockgroups     .begin(),   lockgroups     .end() );
         m->props          .assign( props          .begin(),   props          .end() );
-        m->railgroups     .assign( railgroups     .begin(),   railgroups     .end() );
         m->screwprops     .assign( screwprops     .begin(),   screwprops     .end() );
         m->ties           .assign( ties           .begin(),   ties           .end() );
 
@@ -228,8 +225,7 @@ struct RigModuleData
         exporter.ExportParticlesToJson       (this->particles);
         exporter.ExportPistonpropsToJson     (this->pistonprops);
         exporter.ExportPropsToJson           (this->props);
-        //exporter.ExportRailGroupsToJson      (this->railgroups); -- TODO: stub!
-        //exporter.ExportRopablesToJson        (this->ropables); -- TODO: stub!
+        exporter.ExportRopablesToJson        (this->ropables);
         exporter.ExportRotatorsToJson        (this->rotators);
         exporter.ExportRotators2ToJson       (this->rotators_2);
         exporter.ExportScrewpropsToJson      (this->screwprops);

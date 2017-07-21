@@ -29,16 +29,14 @@
 #include "RigEditor_ForwardDeclarations.h"
 #include "RoRPrerequisites.h"
 
-namespace RoR
-{
+namespace RoR {
+namespace RigEditor {
 
-namespace RigEditor
-{
-
+/// User created group of beams, organizational - can serve any purpose
 struct BeamGroup
 {
-    std::string       rebg_name;
-    Ogre::ColourValue rebg_color;
+    std::string       name;
+    Ogre::ColourValue color;
 };
 
 class Beam
@@ -120,5 +118,4 @@ protected:
 };
 
 } // namespace RigEditor
-
 } // namespace RoR

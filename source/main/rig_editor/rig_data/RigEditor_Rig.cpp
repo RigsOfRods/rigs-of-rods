@@ -25,6 +25,7 @@
 
 #include "RigEditor_Rig.h"
 
+#include "Application.h"
 #include "RigDef_File.h"
 #include "RigEditor_Beam.h"
 #include "RigEditor_CineCamera.h"
@@ -158,8 +159,8 @@ void Rig::Build(
     for (RigDef::File::EditorGroup& grp: module->node_editor_groups)
     {
         m_node_groups.push_back(RigEditor::NodeGroup());
-        m_node_groups.back().reng_color = Ogre::ColourValue::White;
-        m_node_groups.back().reng_name = grp.name;
+        m_node_groups.back().color = Ogre::ColourValue::White;
+        m_node_groups.back().name = grp.name;
     }
 
     // Nodes themselves
@@ -205,8 +206,8 @@ void Rig::Build(
     for (RigDef::File::EditorGroup& grp: module->beam_editor_groups)
     {
         m_beam_groups.push_back(RigEditor::BeamGroup());
-        m_beam_groups.back().rebg_color = Ogre::ColourValue::White;
-        m_beam_groups.back().rebg_name = grp.name;
+        m_beam_groups.back().color = Ogre::ColourValue::White;
+        m_beam_groups.back().name = grp.name;
     }
 
     // Beams themselves
@@ -836,7 +837,69 @@ void Rig::BuildFromModule(RigDef::File::Module* module, RigBuildingReport* repor
     if (report != nullptr)
     {
         report->ClearCurrentSectionName();
+        report->SetCurrentSectionName("railgroups");
     }
+
+    // RAILGROUPS
+    for (RigDef::RailGroup& def: module->railgroups)
+    {
+        RigEditor::NodeGroup grp;
+        grp.type = NodeGroup::Type::RAILGROUP;
+        if (!this->ResolveNodeRanges(grp.nodes, def.node_list, report))
+            continue;
+
+        GStr<50> gname;
+        gname << "railgroup_" << def.id;
+        grp.name = gname;
+
+        m_railgroups.push_back(grp);
+    }
+}
+
+bool Rig::ResolveNodeRanges(std::vector<Node*>& out_nodes, std::vector<RigDef::Node::Range>& in_ranges, RigBuildingReport* report = nullptr)
+{
+    for (auto& range: in_ranges)
+    {
+        if (range.IsRange())
+        {
+            // Check if the range bounds are valid
+            Node* start_node = this->FindNode(range.start, report);
+            Node* end_node   = this->FindNode(range.end,   report);
+            if (start_node == nullptr || end_node == nullptr)
+            {
+                out_nodes.clear();
+                report->AddMessage(RigBuildingReport::Message::LEVEL_ERROR, "Error resolving start/end nodes of railgroup node range");
+                return false; // Error already reported
+            }
+            for (unsigned int i = range.start.Num(); i <= range.end.Num(); ++i)
+            {
+                unsigned flags = RigDef::Node::Ref::REGULAR_STATE_IS_NUMBERED | RigDef::Node::Ref::REGULAR_STATE_IS_VALID;
+                RigDef::Node::Ref ref("", i, flags, 0);
+                Node* n = this->FindNode(ref, report);
+                if (n == nullptr)
+                {
+                    out_nodes.clear();
+                    GStr<1000> err_msg;
+                    err_msg << "Error resolving node range, start:"<<range.start.ToString().c_str() 
+                        << ", end:" << range.end.ToString().c_str() << ", node index:" << i;
+                    report->AddMessage(RigBuildingReport::Message::LEVEL_ERROR, err_msg.GetBuffer());
+                    return false;
+                }
+                out_nodes.push_back(n);
+            }
+        }
+        else
+        {
+            Node* n = this->FindNode(range.start, report);
+            if (n == nullptr)
+            {
+                out_nodes.clear();
+                return false; // Error already reported
+            }
+            out_nodes.push_back(n);
+        }
+    }
+    return true;
 }
 
 void Rig::RefreshNodeScreenPosition(Node & node, CameraHandler* camera_handler)
@@ -2098,6 +2161,7 @@ void Rig::SaveJsonProject(MyGUI::UString const & out_path)
 
     exporter.ExportNodesToJson(m_nodes, m_node_groups);
     exporter.ExportBeamsToJson(m_beams, m_beam_groups); // Presets: Beam, Shock[2], Hydro, Command2, Trigger, Rope
+    exporter.ExportRailGroupsToJson(m_railgroups);
     exporter.SavePresetsToJson(); // Must be done last, after presets were collected from all other sections.
     exporter.SaveRigProjectJsonFile(out_path);
 }

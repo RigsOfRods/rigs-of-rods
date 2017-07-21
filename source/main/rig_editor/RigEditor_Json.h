@@ -181,7 +181,7 @@ public:
     void ExportParticlesToJson       (std::vector<RigDef::Particle>&particles);
     void ExportPistonpropsToJson     (std::vector<RigDef::Pistonprop>&pistonprops);
     void ExportPropsToJson           (std::vector<RigDef::Prop>&props);
-    void ExportRailGroupsToJson      (std::vector<RigDef::RailGroup>&railgroups);
+    void ExportRailGroupsToJson      (std::list<RigEditor::NodeGroup>& editor_railgroups);
     void ExportRopablesToJson        (std::vector<RigDef::Ropable>&ropables);
     void ExportRotatorsToJson        (std::vector<RigDef::Rotator>&rotators);
     void ExportRotators2ToJson       (std::vector<RigDef::Rotator2>&rotators_2);
@@ -223,6 +223,7 @@ private:
     void              NodeRefArrayToJson(rapidjson::Value& dst, std::vector<RigDef::Node::Ref>& nodes);
     void              NodeRangeArrayToJson(rapidjson::Value& j_dst_array, std::vector<RigDef::Node::Range>& ranges);
     void              AddMemberBool(rapidjson::Value& j_container, const char* name, bool value);
+    void              EditorNodePtrArrayToJson(rapidjson::Value& j_array, std::vector<Node*>& nodes);
 
     rapidjson::Document m_json_doc;
     std::string         m_cur_module_name;

@@ -334,20 +334,22 @@ private:
         );
 
     void BuildFromModule(RigDef::File::Module* module, RigBuildingReport* logger = nullptr);
+    bool ResolveNodeRanges(std::vector<Node*>& out_nodes, std::vector<RigDef::Node::Range>& in_ranges, RigBuildingReport* report = nullptr);
 
 private:
 
     /* STRUCTURE */
 
-    std::map<std::string, Node>       m_nodes; // Only named nodes are supported
+    std::map<std::string, Node>       m_nodes; // Only named nodes are supported // TODO: should be in a module
     std::vector<NodeGroup>            m_node_groups;
-    std::list<Beam>                   m_beams;
+    std::list<Beam>                   m_beams; // TODO: should be in a module
     std::vector<BeamGroup>            m_beam_groups;
-    std::list<CineCamera>             m_cinecameras;
+    std::list<CineCamera>             m_cinecameras; // TODO: should be in a module
     Ogre::AxisAlignedBox              m_aabb;
     unsigned int                      m_highest_node_id;
+    std::list<NodeGroup>              m_railgroups; // TODO: should be in a module
 
-    std::vector<LandVehicleWheel*>    m_wheels;
+    std::vector<LandVehicleWheel*>    m_wheels; // TODO: should be in a module
     
     /* PROPERTIES */
 
