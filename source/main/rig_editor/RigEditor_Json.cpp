@@ -1232,7 +1232,7 @@ void JsonExporter::ExportTractionControlToJson(std::shared_ptr<RigDef::TractionC
 
     auto& j_module = this->GetModuleJson();
     auto& j_alloc = m_json_doc.GetAllocator();
-    auto& j_tc = this->GetOrCreateMember(j_module, "traction_control", rapidjson::kArrayType);
+    auto& j_tc = this->GetOrCreateMember(j_module, "traction_control");
 
     j_tc.AddMember("regulation_force",  tc_ptr->regulation_force,  j_alloc);
     j_tc.AddMember("fade_speed",        tc_ptr->fade_speed,        j_alloc);
@@ -2625,6 +2625,26 @@ void JsonImporter::ImportSlideNodesFromJson(std::vector<RigDef::SlideNode>& slid
     })
 }
 
+void JsonImporter::ImportTiesFromJson(std::vector<RigDef::Tie>&ties)
+{
+    ITERATE_MODULE_ARRAY("ties",
+    {
+        RigDef::Tie def;
+
+        def.beam_defaults      = this->ResolveBeamPreset(j_def["beam_preset"]);
+        def.max_reach_length   = j_def["max_reach_length" ].GetFloat();
+        def.auto_shorten_rate  = j_def["auto_shorten_rate"].GetFloat();
+        def.min_length         = j_def["min_length"       ].GetFloat();
+        def.max_length         = j_def["max_length"       ].GetFloat();
+        def.is_invisible       = j_def["is_invisible"     ].GetBool();
+        def.max_stress         = j_def["max_stress"       ].GetFloat();
+        def.detacher_group     = j_def["detacher_group"   ].GetInt();
+        def.group              = j_def["group"            ].GetInt();
+
+        ties.push_back(def);
+    })
+}
+
 void JsonImporter::ImportSlopeBrakeFromJson(std::shared_ptr<RigDef::SlopeBrake>& slope_brake)
 {
     PROCESS_OPTIONAL_OBJECT("slope_brake",
@@ -2699,6 +2719,61 @@ void JsonImporter::ImportSubmeshesFromJson(std::vector<RigDef::Submesh>&submeshe
             if ((*itor)["option_r_buoyant_only_drag"].GetBool()) { cab.options |= RigDef::Cab::OPTION_r_BUOYANT_ONLY_DRAG; }
             def.cab_triangles.push_back(cab);
         }
+    })
+}
+
+void JsonImporter::ImportTractionControlFromJson(std::shared_ptr<RigDef::TractionControl>&tc_ptr)
+{
+    PROCESS_OPTIONAL_OBJECT("traction_control",
+    {
+        tc_ptr->regulation_force  = j_def["regulation_force" ].GetFloat();
+        tc_ptr->fade_speed        = j_def["fade_speed"       ].GetFloat();
+        tc_ptr->pulse_per_sec     = j_def["pulse_per_sec"    ].GetFloat();
+        tc_ptr->attr_is_on        = j_def["attr_is_on"       ].GetBool();
+        tc_ptr->attr_no_dashboard = j_def["attr_no_dashboard"].GetBool();
+        tc_ptr->attr_no_toggle    = j_def["attr_no_toggle"   ].GetBool();
+        tc_ptr->wheel_slip        = j_def["wheel_slip"       ].GetFloat();
+    })
+}
+
+void JsonImporter::ImportTurbojetsFromJson(std::vector<RigDef::Turbojet>&turbojets)
+{
+    ITERATE_MODULE_ARRAY("turbojets",
+    {
+        RigDef::Turbojet def;
+
+        def.front_node      = this->JsonToNodeRef(j_def["reference_node"]);
+        def.back_node       = this->JsonToNodeRef(j_def["axis_node"     ]);
+        def.side_node       = this->JsonToNodeRef(j_def["side_node"     ]);
+        def.is_reversable   = j_def["is_reversable" ].GetBool();
+        def.dry_thrust      = j_def["dry_thrust"    ].GetFloat();
+        def.wet_thrust      = j_def["wet_thrust"    ].GetFloat();
+        def.front_diameter  = j_def["front_diameter"].GetFloat();
+        def.back_diameter   = j_def["back_diameter" ].GetFloat();
+        def.nozzle_length   = j_def["nozzle_length" ].GetFloat();
+
+        turbojets.push_back(def);
+    })
+}
+
+void JsonImporter::ImportTurboprops2FromJson(std::vector<RigDef::Turboprop2>&turboprops_2)
+{
+    ITERATE_MODULE_ARRAY("turboprops_2",
+    {
+        RigDef::Turboprop2 def;
+
+        def.reference_node     = this->JsonToNodeRef(j_def["reference_node"  ]);
+        def.axis_node          = this->JsonToNodeRef(j_def["axis_node"       ]);
+        def.blade_tip_nodes[0] = this->JsonToNodeRef(j_def["blade_tip_node_1"]);
+        def.blade_tip_nodes[1] = this->JsonToNodeRef(j_def["blade_tip_node_2"]);
+        def.blade_tip_nodes[2] = this->JsonToNodeRef(j_def["blade_tip_node_3"]);
+        def.blade_tip_nodes[3] = this->JsonToNodeRef(j_def["blade_tip_node_4"]);
+        def.couple_node        = this->JsonToNodeRef(j_def["couple_node"     ]);
+        def.airfoil            = j_def["airfoil"].GetString();
+        def.turbine_power_kW   = j_def["turbine_power_kW"].GetFloat();
+        def._format_version    = j_def["_format_version" ].GetInt();
+
+        turboprops_2.push_back(def);
     })
 }
 

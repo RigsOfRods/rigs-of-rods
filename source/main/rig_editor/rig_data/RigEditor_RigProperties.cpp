@@ -286,11 +286,11 @@ struct RigModuleData
         importer.ImportSoundSources2FromJson   (this->soundsources_2);
         importer.ImportSpeedLimiterFromJson    (this->speed_limiter);
         importer.ImportSubmeshesFromJson       (this->submeshes);
-        //importer.ImportTiesFromJson            (this->ties);
+        importer.ImportTiesFromJson            (this->ties);
         importer.ImportTorqueCurveFromJson     (this->torque_curve);
-        //importer.ImportTractionControlFromJson (this->traction_control);
-        //importer.ImportTurbojetsFromJson       (this->turbojets);
-        //importer.ImportTurboprops2FromJson     (this->turboprops_2);
+        importer.ImportTractionControlFromJson (this->traction_control);
+        importer.ImportTurbojetsFromJson       (this->turbojets);
+        importer.ImportTurboprops2FromJson     (this->turboprops_2);
         //importer.ImportVideoCamerasFromJson    (this->videocameras);
         importer.ImportWingsFromJson           (this->wings);
     }
