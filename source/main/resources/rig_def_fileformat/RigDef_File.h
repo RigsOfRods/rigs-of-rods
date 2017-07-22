@@ -1944,6 +1944,8 @@ struct File
     */
     struct Module
     {
+        static const char* ROOT_MODULE_NAME;
+
         Module(Ogre::String const & name);
 
         Ogre::String name;

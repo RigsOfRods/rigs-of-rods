@@ -3844,7 +3844,7 @@ void Parser::Prepare()
     m_user_beam_defaults->breaking_threshold    = BEAM_BREAK;           
     m_user_beam_defaults->visual_beam_diameter  = DEFAULT_BEAM_DIAMETER;
 
-    m_root_module = std::shared_ptr<File::Module>( new File::Module("_Root_") );
+    m_root_module = std::shared_ptr<File::Module>( new File::Module(File::Module::ROOT_MODULE_NAME) );
     m_definition->root_module = m_root_module;
     m_current_module = m_root_module;
 

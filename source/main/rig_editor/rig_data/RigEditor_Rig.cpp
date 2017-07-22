@@ -492,12 +492,13 @@ void Rig::Build(
             nodes[i]->m_linked_beams.push_back(&beam);
         }
     }
-    
-    BuildFromModule(module, report);
 
-    // ========================================================================
-    // Generating visual meshes
-    // ========================================================================
+    this->BuildFromModule(module, report);
+    this->CreateVisualMeshes(rig_editor, parent_scene_node);
+}
+
+void Rig::CreateVisualMeshes(RigEditor::Main* rig_editor, Ogre::SceneNode* parent_scene_node)
+{
 
     // ##### CREATE MESH OF BEAMS #####
 
@@ -856,7 +857,7 @@ void Rig::BuildFromModule(RigDef::File::Module* module, RigBuildingReport* repor
     }
 }
 
-bool Rig::ResolveNodeRanges(std::vector<Node*>& out_nodes, std::vector<RigDef::Node::Range>& in_ranges, RigBuildingReport* report = nullptr)
+bool Rig::ResolveNodeRanges(std::vector<RigEditor::Node*>& out_nodes, std::vector<RigDef::Node::Range>& in_ranges, RigBuildingReport* report /*= nullptr*/)
 {
     for (auto& range: in_ranges)
     {
@@ -888,7 +889,7 @@ bool Rig::ResolveNodeRanges(std::vector<Node*>& out_nodes, std::vector<RigDef::N
                 out_nodes.push_back(n);
             }
         }
-        else
+        else // Single node
         {
             Node* n = this->FindNode(range.start, report);
             if (n == nullptr)
@@ -1353,7 +1354,7 @@ std::shared_ptr<RigDef::File> Rig::Export()
 
     // Allocate
     auto def = std::shared_ptr<File>(new RigDef::File());
-    auto module = std::shared_ptr<File::Module>(new File::Module("_Root_"));
+    auto module = std::shared_ptr<File::Module>(new File::Module(File::Module::ROOT_MODULE_NAME));
     def->root_module = module;
 
     // Fill node data
@@ -1528,12 +1529,12 @@ void Rig::QuerySelectedBeamsData(RigAggregateBeams2Data* out_result)
             else
             {
                 // Flags
-                res.SetFlagUniform_i( res.IsFlagUniform_i() && (res.HasFlag_i() == def->HasFlag_i_Invisible()));				
-                res.SetFlagUniform_r( res.IsFlagUniform_r() && (res.HasFlag_r() == def->HasFlag_r_Rope()));				
+                res.SetFlagUniform_i( res.IsFlagUniform_i() && (res.HasFlag_i() == def->HasFlag_i_Invisible()));
+                res.SetFlagUniform_r( res.IsFlagUniform_r() && (res.HasFlag_r() == def->HasFlag_r_Rope()));
                 res.SetFlagUniform_s( res.IsFlagUniform_s() && (res.HasFlag_s() == def->HasFlag_s_Support()));
 
                 // Numbers
-                res.SetDetacherGroupIsUniform(      res.IsDetacherGroupUniform()       && (res.detacher_group        == def->detacher_group));											   
+                res.SetDetacherGroupIsUniform(      res.IsDetacherGroupUniform()       && (res.detacher_group        == def->detacher_group));
                 res.SetExtensionBreakLimitIsUniform(res.IsExtensionBreakLimitUniform() && (res.extension_break_limit == def->extension_break_limit));
             }
             ++res.num_selected;
@@ -2166,14 +2167,16 @@ void Rig::SaveJsonProject(MyGUI::UString const & out_path)
     exporter.SaveRigProjectJsonFile(out_path);
 }
 
-void Rig::LoadJsonProject(MyGUI::UString const & src_path)
+void Rig::LoadJsonProject(MyGUI::UString const & src_path, RigEditor::Main* rig_editor, Ogre::SceneNode* parent_scene_node)
 {
-    JsonImporter importer;
+    JsonImporter importer(this);
     importer.LoadRigProjectJson(src_path);
     importer.LoadPresetsFromJson(); // Must be done first to correctly assign presets to sections.
     importer.ImportNodesFromJson(m_nodes, m_node_groups);
     importer.ImportBeamsFromJson(m_beams, m_beam_groups);
     importer.ImportCinecamFromJson(m_cinecameras);
+
+    this->CreateVisualMeshes(rig_editor, parent_scene_node);
 }
 
 // ----------------------------------------------------------------------------

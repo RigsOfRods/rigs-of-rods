@@ -48,7 +48,7 @@ namespace RigEditor {
 
 JsonExporter::JsonExporter():
     m_json_doc(rapidjson::kObjectType),
-    m_cur_module_name("_ROOT_") // TODO: Add constant
+    m_cur_module_name(RigDef::File::Module::ROOT_MODULE_NAME)
 {
     this->GetOrCreateMember(m_json_doc, "modules");
 }
@@ -149,7 +149,7 @@ void JsonExporter::SavePresetsToJson()
         j_preset.AddMember("deform_thresh_scale",     entry.first->scale.deformation_threshold_constant, j_alloc);
         j_preset.AddMember("break_thresh_scale",      entry.first->scale.breaking_threshold_constant   , j_alloc);
 
-        j_beam_presets.AddMember(this->StrToJson(entry.second), rapidjson::kObjectType, j_alloc);
+        j_beam_presets.AddMember(this->StrToJson(entry.second), j_preset, j_alloc);
     }
 }
 
@@ -207,9 +207,9 @@ void JsonExporter::AddBeamPreset(RigDef::BeamDefaults* beam_preset)
     if (beam_preset == nullptr)
         return;
 
-    std::stringstream buf;
+    GStr<50> buf;
     buf << "beam_preset_" << m_beam_presets.size();
-    m_beam_presets.insert(std::make_pair(beam_preset, buf.str()));
+    m_beam_presets.insert(std::make_pair(beam_preset, buf.GetBuffer()));
 }
 
 void JsonExporter::AddNodePreset(RigDef::NodeDefaults* preset)
@@ -217,9 +217,9 @@ void JsonExporter::AddNodePreset(RigDef::NodeDefaults* preset)
     if (preset == nullptr)
         return;
 
-    std::stringstream buf;
+    GStr<50> buf;
     buf << "node_preset_" << m_node_presets.size();
-    m_node_presets.insert(std::make_pair(preset, buf.str()));
+    m_node_presets.insert(std::make_pair(preset, buf.GetBuffer()));
 }
 
 void JsonExporter::ExportBeamsToJson(std::list<Beam>& beams, std::vector<BeamGroup>& groups)
@@ -1114,26 +1114,25 @@ void JsonExporter::ExportSpeedLimiterToJson(RigDef::SpeedLimiter speed_limiter)
 
 void JsonExporter::ExportSubmeshesToJson(std::vector<RigDef::Submesh>&submeshes)
 {
-    auto& j_alloc = m_json_doc.GetAllocator();
-    auto& j_list = this->GetOrCreateMember(this->GetModuleJson(), "submeshes", rapidjson::kArrayType);
-    for (RigDef::Submesh& def: submeshes)
+    EXPORT_ARRAY("submeshes", submeshes,
     {
         rapidjson::Value j_def(rapidjson::kObjectType);
-            // Texcoords
+        j_def.AddMember("has_backmesh", def.backmesh,    j_alloc);
+        
+        // Texcoords
         rapidjson::Value j_texcoord_array(rapidjson::kArrayType);
         for (RigDef::Texcoord& texcoord: def.texcoords)
         {
-
             rapidjson::Value j_texcoord(rapidjson::kObjectType);
-            j_texcoord.AddMember("node",this->NodeToJson(texcoord.node),        j_alloc);
-            j_def.AddMember("u", texcoord.u,                     j_alloc);
-            j_def.AddMember("v", texcoord.v,                     j_alloc);
+            j_texcoord.AddMember("node",   this->NodeToJson(texcoord.node),   j_alloc);
+            j_texcoord.AddMember("u",      texcoord.u,                        j_alloc);
+            j_texcoord.AddMember("v",      texcoord.v,                        j_alloc);
 
             j_texcoord_array.PushBack(j_texcoord, j_alloc);
         }
         j_def.AddMember("texcoords",   j_texcoord_array,     j_alloc);
 
-                    // cabs
+        // cabs
         rapidjson::Value j_cab_array(rapidjson::kArrayType);
         for (RigDef::Cab& cab: def.cab_triangles)
         {
@@ -1154,17 +1153,13 @@ void JsonExporter::ExportSubmeshesToJson(std::vector<RigDef::Submesh>&submeshes)
         }
         j_def.AddMember("cab_triangles",   j_cab_array,     j_alloc);
 
-        j_def.AddMember("has_backmesh", def.backmesh,    j_alloc);
-
         j_list.PushBack(j_def, j_alloc);
-    }
+    })
 }
 
-void JsonExporter::ExportTiesToJson(std::vector<RigDef::Tie>&ties)
+void JsonExporter::ExportTiesToJson(std::vector<RigDef::Tie>& ties)
 {
-    auto& j_alloc = m_json_doc.GetAllocator();
-    auto& j_list = this->GetOrCreateMember(this->GetModuleJson(), "ties", rapidjson::kArrayType);
-    for (RigDef::Tie& def: ties)
+    EXPORT_ARRAY("ties", ties,
     {
         rapidjson::Value j_def(rapidjson::kObjectType);
 
@@ -1181,7 +1176,7 @@ void JsonExporter::ExportTiesToJson(std::vector<RigDef::Tie>&ties)
         j_def.AddMember("beam_preset", this->BeamPresetToJson(def.beam_defaults),      j_alloc);
 
         j_list.PushBack(j_def, j_alloc);
-    }
+    })
 }
 
 rapidjson::Value JsonExporter::BeamPresetToJson(std::shared_ptr<RigDef::BeamDefaults>& preset_sptr)
@@ -1558,9 +1553,9 @@ void JsonExporter::AddMemberBool(rapidjson::Value& j_container, const char* name
 
 // -------------------------------- Importer ------------------------------------
 
-JsonImporter::JsonImporter():
-    m_rig(nullptr),
-    m_module_name("_ROOT_")
+JsonImporter::JsonImporter(RigEditor::Rig* rig):
+    m_rig(rig),
+    m_module_name(RigDef::File::Module::ROOT_MODULE_NAME)
 {
 }
 
@@ -1576,7 +1571,8 @@ void JsonImporter::LoadRigProjectJson(MyGUI::UString const & src_path)
     }
 
     rapidjson::Value& j_modules = m_json_doc["modules"];
-    if (!j_modules.HasMember("_ROOT_") || j_modules["_ROOT_"].IsObject())
+    if (!j_modules.HasMember(RigDef::File::Module::ROOT_MODULE_NAME) ||
+        !j_modules[RigDef::File::Module::ROOT_MODULE_NAME].IsObject())
     {
         RoR::LogFormat("[RoR|RigEditor] Json document '%s' has no root module!", src_path.asUTF8_c_str());
         return;
@@ -1595,10 +1591,10 @@ bool JsonImporter::LoadJsonFile(MyGUI::UString const & src_path)
 #ifdef _WIN32
     static const char* fopen_name = "_wfopen_s()";
     // Binary mode recommended by RapidJSON tutorial: http://rapidjson.org/md_doc_stream.html#FileReadStream
-    fopen_result = _wfopen_s(&file, src_path.asWStr_c_str(), L"wb");
+    fopen_result = _wfopen_s(&file, src_path.asWStr_c_str(), L"rb");
 #else
     static const char* fopen_name = "fopen_s()";
-    fopen_s(&file, src_path.asUTF8_c_str(), "w");
+    fopen_s(&file, src_path.asUTF8_c_str(), "r");
 #endif
     if ((fopen_result != 0) || (file == nullptr))
     {
@@ -1619,18 +1615,6 @@ bool JsonImporter::LoadJsonFile(MyGUI::UString const & src_path)
 
     fclose(file); // TODO: check error
     return true;
-}
-
-RigDef::Node::Ref    JsonImporter::JsonToNodeRef(rapidjson::Value& j_val) // static helper
-{
-    const char* name = nullptr;
-    int number = 0;
-    if (j_val.IsString())
-    {
-        int flags = RigDef::Node::Ref::REGULAR_STATE_IS_NAMED | RigDef::Node::Ref::REGULAR_STATE_IS_VALID;
-        return RigDef::Node::Ref(j_val.GetString(), 0, flags, 0);
-    }
-    return RigDef::Node::Ref(); // Defaults to invalid reference
 }
 
 void JsonImporter::SetCurrentModule(const char* module_name)
@@ -1757,7 +1741,7 @@ void JsonImporter::ImportTorqueCurveFromJson(std::shared_ptr<RigDef::TorqueCurve
 
     rapidjson::Value& j_curve = j_module["torquecurve"];
 
-    if (j_curve.IsString)
+    if (j_curve.IsString())
     {
         torque_curve = std::make_shared<RigDef::TorqueCurve>();
         torque_curve->predefined_func_name = j_curve.GetString();
@@ -1920,11 +1904,17 @@ void JsonImporter::ImportNodesFromJson(std::map<std::string, Node>& nodes, std::
         {
             rapidjson::Value& j_node = itor->value;
             Node node;
+
+            node.m_definition.id.SetStr(itor->name.GetString());
+
+            Ogre::Vector3 pos = this->JsonToVector3(j_node["position"]);
+            node.m_position            = pos;
+            node.m_definition.position = pos;
+
             node.m_nodegroup_id                              = j_node["group_id"].GetInt();
             node.m_definition.detacher_group                 = j_node["detacher_group_id"].GetInt();
             node.m_definition._has_load_weight_override      = j_node["load_weight_set"].GetBool();
             node.m_definition.load_weight_override           = j_node["load_weight"].GetFloat();
-            node.m_definition.position                       = this->JsonToVector3(j_node["position"]);
             node.m_definition.node_defaults                  = this->ResolveNodePreset(j_node["preset_id"]);
 
             unsigned flags = 0u;
@@ -1968,6 +1958,14 @@ RigEditor::Node* JsonImporter::ResolveNode(rapidjson::Value& j_node_id)
     return &found_itor->second;
 }
 
+void JsonImporter::JsonToStdString(std::string& str, rapidjson::Value& j_str)
+{
+    if (j_str.IsString())
+    {
+        str = j_str.GetString();
+    }
+}
+
 void JsonImporter::ImportBeamsFromJson(std::list<Beam>& beams, std::vector<BeamGroup>& groups)
 {
     rapidjson::Value& j_module = this->GetModuleJson();
@@ -1993,7 +1991,7 @@ void JsonImporter::ImportBeamsFromJson(std::list<Beam>& beams, std::vector<BeamG
             def->SetFlag_s_Support  (j_beam["option_s_support"        ].GetBool())   ;
 
             def->extension_break_limit      = j_beam["extension_break_limit"   ].GetFloat();
-            def->_has_extension_break_limit = j_beam["has_extens_beak_limit"   ].GetFloat();
+            def->_has_extension_break_limit = j_beam["has_extens_beak_limit"   ].GetBool();
             def->detacher_group             = j_beam["detacher_group"          ].GetInt();
             def->editor_group_id            = j_beam["group_id"                ].GetInt();
             def->defaults                   = this->ResolveBeamPreset(j_beam["preset_id"]);
@@ -2008,18 +2006,18 @@ void JsonImporter::ImportBeamsFromJson(std::list<Beam>& beams, std::vector<BeamG
             def->max_extension          = j_beam["max_extension"           ].GetFloat();
             def->contract_key           = j_beam["contract_key"            ].GetUint();
             def->extend_key             = j_beam["extend_key"              ].GetUint();
-            def->description            = j_beam["description"             ].GetString();
             def->affect_engine          = j_beam["affect_engine"           ].GetFloat();
             def->needs_engine           = j_beam["needs_engine"            ].GetBool();
-            def->plays_sound            = j_beam["plays_sound"             ].GetFloat();
+            def->plays_sound            = j_beam["plays_sound"             ].GetBool();
             def->detacher_group         = j_beam["detacher_group"          ].GetInt();
-            def->option_i_invisible     = j_beam["option_i_invisible"      ].GetFloat();
-            def->option_r_rope          = j_beam["option_r_rope"           ].GetFloat();
-            def->option_c_auto_center   = j_beam["option_c_auto_center"    ].GetFloat();
-            def->option_f_not_faster    = j_beam["option_f_not_faster"     ].GetFloat();
-            def->option_p_1press        = j_beam["option_p_1press"         ].GetFloat();
-            def->option_o_1press_center = j_beam["option_o_1press_center"  ].GetFloat();
+            def->option_i_invisible     = j_beam["option_i_invisible"      ].GetBool();
+            def->option_r_rope          = j_beam["option_r_rope"           ].GetBool();
+            def->option_c_auto_center   = j_beam["option_c_auto_center"    ].GetBool();
+            def->option_f_not_faster    = j_beam["option_f_not_faster"     ].GetBool();
+            def->option_p_1press        = j_beam["option_p_1press"         ].GetBool();
+            def->option_o_1press_center = j_beam["option_o_1press_center"  ].GetBool();
             def->beam_defaults          = this->ResolveBeamPreset(j_beam["preset_id"]);
+            this->JsonToStdString(def->description, j_beam["description"]);
             beams.push_back(Beam(def, Beam::Type::TYPE_COMMAND_HYDRO, node_a, node_b));
         }
         else if (Equals(type_str, "hydro"))
@@ -2029,7 +2027,7 @@ void JsonImporter::ImportBeamsFromJson(std::list<Beam>& beams, std::vector<BeamG
             def->detacher_group         = j_beam["detacher_group"          ].GetInt();
             def->lenghtening_factor     = j_beam["extend_factor"           ].GetFloat();
             def->beam_defaults          = this->ResolveBeamPreset(j_beam["preset_id"]);
-            beams.push_back(Beam(def, Beam::Type::TYPE_COMMAND_HYDRO, node_a, node_b));
+            beams.push_back(Beam(def, Beam::Type::TYPE_STEERING_HYDRO, node_a, node_b));
         }
         else if (Equals(type_str, "rope"))
         {
@@ -2129,7 +2127,7 @@ void JsonImporter::ImportCinecamFromJson(std::list<CineCamera>& cams)
     })
 }
 
-RigDef::Node::Ref JsonImporter::JsonToNodeRef(rapidjson::Value& j_node_id)
+RigDef::Node::Ref JsonImporter::JsonToNodeRef(rapidjson::Value& j_node_id) // static helper
 {
     if (!j_node_id.IsString() || j_node_id.GetStringLength() == 0)
         return RigDef::Node::Ref(); // Invalid ref
@@ -2145,10 +2143,10 @@ void JsonImporter::ImportAirbrakesFromJson(std::vector<RigDef::Airbrake>& airbra
         RigDef::Airbrake def;
 
         // Nodes
-        def.reference_node  = this->JsonToNodeRef(j_def["reference_node"]);
-        def.x_axis_node     = this->JsonToNodeRef(j_def["x_axis_node"   ]);
-        def.y_axis_node     = this->JsonToNodeRef(j_def["y_axis_node"   ]);
-        def.aditional_node  = this->JsonToNodeRef(j_def["aditional_node"]);
+        def.reference_node  = JsonImporter::JsonToNodeRef(j_def["reference_node"]);
+        def.x_axis_node     = JsonImporter::JsonToNodeRef(j_def["x_axis_node"   ]);
+        def.y_axis_node     = JsonImporter::JsonToNodeRef(j_def["y_axis_node"   ]);
+        def.aditional_node  = JsonImporter::JsonToNodeRef(j_def["aditional_node"]);
         // Vector3
         def.offset = this->JsonToVector3(j_def["offset"]);
         // Floats
@@ -2198,8 +2196,8 @@ void JsonImporter::ImportFusedragsFromJson(std::vector<RigDef::Fusedrag>& fusedr
         def.area_coefficient  = j_def["area_coef"   ].GetFloat();
         def.autocalc          = j_def["autocalc"    ].GetBool();
         def.airfoil_name      = j_def["airfoil_name"].GetString();
-        def.front_node        = this->JsonToNodeRef(j_def["front_node"]);
-        def.rear_node         = this->JsonToNodeRef(j_def["rear_node" ]);
+        def.front_node        = JsonImporter::JsonToNodeRef(j_def["front_node"]);
+        def.rear_node         = JsonImporter::JsonToNodeRef(j_def["rear_node" ]);
 
         fusedrag.push_back(def);
     })
@@ -2211,8 +2209,8 @@ void JsonImporter::ImportAnimatorsFromJson(std::vector<RigDef::Animator>& animat
     {
         RigDef::Animator def;
 
-        def.nodes[0] = this->JsonToNodeRef(j_def["node_a"]);
-        def.nodes[1] = this->JsonToNodeRef(j_def["node_b"]);
+        def.nodes[0] = JsonImporter::JsonToNodeRef(j_def["node_a"]);
+        def.nodes[1] = JsonImporter::JsonToNodeRef(j_def["node_b"]);
 
         def.lenghtening_factor = j_def["extend_factor"].GetFloat();
         def.short_limit        = j_def["short_limit"  ].GetFloat();
@@ -2300,10 +2298,10 @@ void JsonImporter::ImportAxlesFromJson(std::vector<RigDef::Axle>&axles)
     {
         RigDef::Axle def;
 
-        def.wheels[0][0] = this->JsonToNodeRef(j_def["wheel_a_node_a"]);
-        def.wheels[0][1] = this->JsonToNodeRef(j_def["wheel_a_node_b"]);
-        def.wheels[1][0] = this->JsonToNodeRef(j_def["wheel_b_node_a"]);
-        def.wheels[1][1] = this->JsonToNodeRef(j_def["wheel_b_node_b"]);
+        def.wheels[0][0] = JsonImporter::JsonToNodeRef(j_def["wheel_a_node_a"]);
+        def.wheels[0][1] = JsonImporter::JsonToNodeRef(j_def["wheel_a_node_b"]);
+        def.wheels[1][0] = JsonImporter::JsonToNodeRef(j_def["wheel_b_node_a"]);
+        def.wheels[1][1] = JsonImporter::JsonToNodeRef(j_def["wheel_b_node_b"]);
 
         auto opt_itor = j_def["options"].Begin();
         auto opt_endi = j_def["options"].End();
@@ -2323,9 +2321,9 @@ void JsonImporter::ImportCamerasFromJson(std::vector<RigDef::Camera>& cameras)
     ITERATE_MODULE_ARRAY("cameras",
     {
         RigDef::Camera def;
-        def.center_node = this->JsonToNodeRef(j_def["center_node"]);
-        def.back_node   = this->JsonToNodeRef(j_def["back_node"  ]);
-        def.left_node   = this->JsonToNodeRef(j_def["left_node"  ]);
+        def.center_node = JsonImporter::JsonToNodeRef(j_def["center_node"]);
+        def.back_node   = JsonImporter::JsonToNodeRef(j_def["back_node"  ]);
+        def.left_node   = JsonImporter::JsonToNodeRef(j_def["left_node"  ]);
         cameras.push_back(def);
     })
 }
@@ -2351,7 +2349,7 @@ void JsonImporter::JsonToNodeRefArray(std::vector<RigDef::Node::Ref>& nodes, rap
     auto node_endi = j_node_id_array.End();
     for (; node_itor != node_endi; ++node_itor)
     {
-        nodes.push_back(this->JsonToNodeRef(*node_itor));
+        nodes.push_back(JsonImporter::JsonToNodeRef(*node_itor));
     }
 }
 
@@ -2360,7 +2358,7 @@ void JsonImporter::ImportCameraRailsFromJson(std::vector<RigDef::CameraRail>& ca
     ITERATE_MODULE_ARRAY("camera_rails",
     {
         RigDef::CameraRail def;
-        this->JsonToNodeRefArray(def.nodes, j_def);
+        JsonImporter::JsonToNodeRefArray(def.nodes, j_def);
         camera_rails.push_back(def);
     })
 }
@@ -2370,7 +2368,7 @@ void JsonImporter::ImportCollisionBoxesFromJson(std::vector<RigDef::CollisionBox
     ITERATE_MODULE_ARRAY("collision_boxes",
     {
         RigDef::CollisionBox def;
-        this->JsonToNodeRefArray(def.nodes, j_def);
+        JsonImporter::JsonToNodeRefArray(def.nodes, j_def);
         collision_boxes.push_back(def);
     })
 }
@@ -2389,7 +2387,7 @@ void JsonImporter::ImportContactersFromJson(std::vector<RigDef::Node::Ref>&conta
 {
     ITERATE_MODULE_ARRAY("contacters",
     {
-        contacters.push_back(this->JsonToNodeRef(j_def));
+        contacters.push_back(JsonImporter::JsonToNodeRef(j_def));
     })
 }
 
@@ -2398,8 +2396,8 @@ void JsonImporter::ImportExhaustsFromJson(std::vector<RigDef::Exhaust>& exhausts
     ITERATE_MODULE_ARRAY("exhausts",
     {
         RigDef::Exhaust def;
-        def.reference_node = this->JsonToNodeRef(j_def["reference_node"]);
-        def.direction_node = this->JsonToNodeRef(j_def["direction_node"]);
+        def.reference_node = JsonImporter::JsonToNodeRef(j_def["reference_node"]);
+        def.direction_node = JsonImporter::JsonToNodeRef(j_def["direction_node"]);
         def.material_name = j_def["material_name"].GetString();
         exhausts.push_back(def);
     })
@@ -2409,7 +2407,7 @@ void JsonImporter::ImportFixesFromJson(std::vector<RigDef::Node::Ref>& fixes)
 {
     ITERATE_MODULE_ARRAY("fixes",
     {
-        fixes.push_back(this->JsonToNodeRef(j_def));
+        fixes.push_back(JsonImporter::JsonToNodeRef(j_def));
     })
 }
 
@@ -2424,7 +2422,7 @@ void JsonImporter::ImportHooksFromJson(std::vector<RigDef::Hook>&hooks)
         def.SetHasOptionNoDisable     (j_def["flag_no_disable"   ].GetBool());
         def.SetHasOptionNoRope        (j_def["flag_no_rope"      ].GetBool());
         def.SetHasOptionVisible       (j_def["flag_visible"      ].GetBool());
-        def.node                     = this->JsonToNodeRef(j_def["node"]);
+        def.node                     = JsonImporter::JsonToNodeRef(j_def["node"]);
         def.option_hook_range        = j_def["option_hook_range" ].GetFloat();
         def.option_speed_coef        = j_def["option_speed_coef" ].GetFloat();
         def.option_max_force         = j_def["option_max_force"  ].GetFloat();
@@ -2442,7 +2440,7 @@ void JsonImporter::ImportLockgroupsFromJson(std::vector<RigDef::Lockgroup>&lockg
     ITERATE_MODULE_ARRAY("lockgroups",
     {
         RigDef::Lockgroup def;
-        this->JsonToNodeRefArray(def.nodes, j_def);
+        JsonImporter::JsonToNodeRefArray(def.nodes, j_def);
         lockgroups.push_back(def);
     })
 }
@@ -2478,7 +2476,7 @@ void JsonImporter::ImportNodeCollisionsFromJson(std::vector<RigDef::NodeCollisio
     ITERATE_MODULE_ARRAY("node_collisions",
     {
         RigDef::NodeCollision def;
-        def.node = this->JsonToNodeRef(j_def["node"]);
+        def.node = JsonImporter::JsonToNodeRef(j_def["node"]);
         def.radius = j_def["radius"].GetFloat();
         node_collisions.push_back(def);
     })
@@ -2490,8 +2488,8 @@ void JsonImporter::ImportParticlesFromJson(std::vector<RigDef::Particle>& partic
     {
         RigDef::Particle def;
         def.particle_system_name = j_def["particle_system_name"].GetString();
-        def.emitter_node         = this->JsonToNodeRef(j_def["emitter_node"  ]);
-        def.reference_node       = this->JsonToNodeRef(j_def["reference_node"]);
+        def.emitter_node         = JsonImporter::JsonToNodeRef(j_def["emitter_node"  ]);
+        def.reference_node       = JsonImporter::JsonToNodeRef(j_def["reference_node"]);
         particles.push_back(def);
     })
 }
@@ -2502,13 +2500,13 @@ void JsonImporter::ImportPistonpropsFromJson(std::vector<RigDef::Pistonprop>& pi
     {
         RigDef::Pistonprop def;
 
-        def.reference_node     = this->JsonToNodeRef(j_def["reference_node"  ]);
-        def.axis_node          = this->JsonToNodeRef(j_def["axis_node"       ]);
-        def.blade_tip_nodes[0] = this->JsonToNodeRef(j_def["blade_tip_node_1"]);
-        def.blade_tip_nodes[1] = this->JsonToNodeRef(j_def["blade_tip_node_2"]);
-        def.blade_tip_nodes[2] = this->JsonToNodeRef(j_def["blade_tip_node_3"]);
-        def.blade_tip_nodes[3] = this->JsonToNodeRef(j_def["blade_tip_node_4"]);
-        def.couple_node        = this->JsonToNodeRef(j_def["couple_node"     ]);
+        def.reference_node     = JsonImporter::JsonToNodeRef(j_def["reference_node"  ]);
+        def.axis_node          = JsonImporter::JsonToNodeRef(j_def["axis_node"       ]);
+        def.blade_tip_nodes[0] = JsonImporter::JsonToNodeRef(j_def["blade_tip_node_1"]);
+        def.blade_tip_nodes[1] = JsonImporter::JsonToNodeRef(j_def["blade_tip_node_2"]);
+        def.blade_tip_nodes[2] = JsonImporter::JsonToNodeRef(j_def["blade_tip_node_3"]);
+        def.blade_tip_nodes[3] = JsonImporter::JsonToNodeRef(j_def["blade_tip_node_4"]);
+        def.couple_node        = JsonImporter::JsonToNodeRef(j_def["couple_node"     ]);
         def.airfoil            = j_def["airfoil"         ].GetString();
         def.turbine_power_kW   = j_def["turbine_power_kW"].GetFloat();
         def.pitch              = j_def["pitch"           ].GetFloat();
@@ -2531,11 +2529,11 @@ void JsonImporter::ImportPropsFromJson(std::vector<RigDef::Prop>&props)
         def.special_prop_beacon.color               = this->JsonToRgba(j_def["special_beacon/color"]);
 
         // Common
-        def.reference_node                 = this->JsonToNodeRef(j_def["reference_node"]);
-        def.x_axis_node                    = this->JsonToNodeRef(j_def["x_axis_node"   ]);
-        def.y_axis_node                    = this->JsonToNodeRef(j_def["y_axis_node"   ]);
-        def.offset                         = this->JsonToVector3(j_def["offset"  ]);
-        def.rotation                       = this->JsonToVector3(j_def["rotation"]);
+        def.reference_node                 = JsonImporter::JsonToNodeRef(j_def["reference_node"]);
+        def.x_axis_node                    = JsonImporter::JsonToNodeRef(j_def["x_axis_node"   ]);
+        def.y_axis_node                    = JsonImporter::JsonToNodeRef(j_def["y_axis_node"   ]);
+        def.offset                         = JsonImporter::JsonToVector3(j_def["offset"  ]);
+        def.rotation                       = JsonImporter::JsonToVector3(j_def["rotation"]);
         def.mesh_name                      = j_def["mesh_name"].GetString();
         def.camera_settings.mode           = static_cast<RigDef::CameraSettings::Mode>(j_def["camera_mode"].GetInt()); // TODO: validate
         def.camera_settings.cinecam_index  = j_def["camera_cinecam_index"].GetUint();
@@ -2558,18 +2556,18 @@ void JsonImporter::ImportRotatorsFromJson(std::vector<RigDef::Rotator>& rotators
         def.engine_coupling         = j_def["engine_coupling"].GetFloat();
         def.needs_engine            = j_def["needs_engine"   ].GetBool();
 
-        def.axis_nodes[0]           = this->JsonToNodeRef(j_def["axis_node_a"      ]);
-        def.axis_nodes[1]           = this->JsonToNodeRef(j_def["axis_node_b"      ]);
+        def.axis_nodes[0]           = JsonImporter::JsonToNodeRef(j_def["axis_node_a"      ]);
+        def.axis_nodes[1]           = JsonImporter::JsonToNodeRef(j_def["axis_node_b"      ]);
 
-        def.base_plate_nodes[0]     = this->JsonToNodeRef(j_def["base_plate_node_1"]);
-        def.base_plate_nodes[1]     = this->JsonToNodeRef(j_def["base_plate_node_2"]);
-        def.base_plate_nodes[2]     = this->JsonToNodeRef(j_def["base_plate_node_3"]);
-        def.base_plate_nodes[3]     = this->JsonToNodeRef(j_def["base_plate_node_4"]);
+        def.base_plate_nodes[0]     = JsonImporter::JsonToNodeRef(j_def["base_plate_node_1"]);
+        def.base_plate_nodes[1]     = JsonImporter::JsonToNodeRef(j_def["base_plate_node_2"]);
+        def.base_plate_nodes[2]     = JsonImporter::JsonToNodeRef(j_def["base_plate_node_3"]);
+        def.base_plate_nodes[3]     = JsonImporter::JsonToNodeRef(j_def["base_plate_node_4"]);
 
-        def.rotating_plate_nodes[0] = this->JsonToNodeRef(j_def["rot_plate_node_1" ]);
-        def.rotating_plate_nodes[1] = this->JsonToNodeRef(j_def["rot_plate_node_2" ]);
-        def.rotating_plate_nodes[2] = this->JsonToNodeRef(j_def["rot_plate_node_3" ]);
-        def.rotating_plate_nodes[3] = this->JsonToNodeRef(j_def["rot_plate_node_4" ]);
+        def.rotating_plate_nodes[0] = JsonImporter::JsonToNodeRef(j_def["rot_plate_node_1" ]);
+        def.rotating_plate_nodes[1] = JsonImporter::JsonToNodeRef(j_def["rot_plate_node_2" ]);
+        def.rotating_plate_nodes[2] = JsonImporter::JsonToNodeRef(j_def["rot_plate_node_3" ]);
+        def.rotating_plate_nodes[3] = JsonImporter::JsonToNodeRef(j_def["rot_plate_node_4" ]);
 
         rotators.push_back(def);
     })
@@ -2588,18 +2586,18 @@ void JsonImporter::ImportRotators2FromJson(std::vector<RigDef::Rotator2>& rotato
         def.engine_coupling = j_def["engine_coupling"].GetFloat();
         def.needs_engine    = j_def["needs_engine"   ].GetBool();
 
-        def.axis_nodes[0]           = this->JsonToNodeRef(j_def["axis_node_a"      ]);
-        def.axis_nodes[1]           = this->JsonToNodeRef(j_def["axis_node_b"      ]);
+        def.axis_nodes[0]           = JsonImporter::JsonToNodeRef(j_def["axis_node_a"      ]);
+        def.axis_nodes[1]           = JsonImporter::JsonToNodeRef(j_def["axis_node_b"      ]);
 
-        def.base_plate_nodes[0]     = this->JsonToNodeRef(j_def["base_plate_node_1"]);
-        def.base_plate_nodes[1]     = this->JsonToNodeRef(j_def["base_plate_node_2"]);
-        def.base_plate_nodes[2]     = this->JsonToNodeRef(j_def["base_plate_node_3"]);
-        def.base_plate_nodes[3]     = this->JsonToNodeRef(j_def["base_plate_node_4"]);
+        def.base_plate_nodes[0]     = JsonImporter::JsonToNodeRef(j_def["base_plate_node_1"]);
+        def.base_plate_nodes[1]     = JsonImporter::JsonToNodeRef(j_def["base_plate_node_2"]);
+        def.base_plate_nodes[2]     = JsonImporter::JsonToNodeRef(j_def["base_plate_node_3"]);
+        def.base_plate_nodes[3]     = JsonImporter::JsonToNodeRef(j_def["base_plate_node_4"]);
 
-        def.rotating_plate_nodes[0] = this->JsonToNodeRef(j_def["rot_plate_node_1" ]);
-        def.rotating_plate_nodes[1] = this->JsonToNodeRef(j_def["rot_plate_node_2" ]);
-        def.rotating_plate_nodes[2] = this->JsonToNodeRef(j_def["rot_plate_node_3" ]);
-        def.rotating_plate_nodes[3] = this->JsonToNodeRef(j_def["rot_plate_node_4" ]);
+        def.rotating_plate_nodes[0] = JsonImporter::JsonToNodeRef(j_def["rot_plate_node_1" ]);
+        def.rotating_plate_nodes[1] = JsonImporter::JsonToNodeRef(j_def["rot_plate_node_2" ]);
+        def.rotating_plate_nodes[2] = JsonImporter::JsonToNodeRef(j_def["rot_plate_node_3" ]);
+        def.rotating_plate_nodes[3] = JsonImporter::JsonToNodeRef(j_def["rot_plate_node_4" ]);
 
         // Rotator2 extras
         def.rotating_force          = j_def["rotating_force"].GetFloat();
@@ -2615,9 +2613,9 @@ void JsonImporter::ImportScrewpropsFromJson(std::vector<RigDef::Screwprop>& scre
     ITERATE_MODULE_ARRAY("screwprops",
     {
         RigDef::Screwprop def;
-        def.prop_node = this->JsonToNodeRef(j_def["prop_node"]);
-        def.back_node = this->JsonToNodeRef(j_def["back_node"]);
-        def.top_node  = this->JsonToNodeRef(j_def["top_node" ]);
+        def.prop_node = JsonImporter::JsonToNodeRef(j_def["prop_node"]);
+        def.back_node = JsonImporter::JsonToNodeRef(j_def["back_node"]);
+        def.top_node  = JsonImporter::JsonToNodeRef(j_def["top_node" ]);
         def.power     = j_def["power"].GetFloat();
         screwprops.push_back(def);
     })
@@ -2632,7 +2630,7 @@ void JsonImporter::ImportSlideNodesFromJson(std::vector<RigDef::SlideNode>& slid
         def.SetConstraint_f_AttachForeign(j_def["constraint_attach_foreign"].GetBool());
         def.SetConstraint_s_AttachSelf   (j_def["constraint_attach_self"   ].GetBool());
         def.SetConstraint_n_AttachNone   (j_def["constraint_attach_none"   ].GetBool());
-        def.slide_node                 = this->JsonToNodeRef(j_def["slide_node" ]);
+        def.slide_node                 = JsonImporter::JsonToNodeRef(j_def["slide_node" ]);
         def.spring_rate                = j_def["spring_rate"            ].GetFloat();
         def.break_force                = j_def["break_force"            ].GetFloat();
         def.tolerance                  = j_def["tolerance"              ].GetFloat();
@@ -2681,7 +2679,7 @@ void JsonImporter::ImportSoundSourcesFromJson(std::vector<RigDef::SoundSource>& 
     ITERATE_MODULE_ARRAY("sound_sources",
     {
         RigDef::SoundSource def;
-        def.node                 = this->JsonToNodeRef(j_def["node" ]);
+        def.node                 = JsonImporter::JsonToNodeRef(j_def["node" ]);
         def.sound_script_name    = j_def["sound_script_name"   ].GetString();
         soundsources.push_back(def);
     })
@@ -2692,7 +2690,7 @@ void JsonImporter::ImportSoundSources2FromJson(std::vector<RigDef::SoundSource2>
     ITERATE_MODULE_ARRAY("sound_sources_2",
     {
         RigDef::SoundSource2 def;
-        def.node                 = this->JsonToNodeRef(j_def["node" ]);
+        def.node                 = JsonImporter::JsonToNodeRef(j_def["node" ]);
         def.sound_script_name    = j_def["sound_script_name"].GetString();
         def.mode                 = static_cast<RigDef::SoundSource2::Mode>(j_def["mode_id"].GetInt()); // TODO: validate
         def.cinecam_index        = j_def["cinecam_index"].GetInt();
@@ -2719,7 +2717,7 @@ void JsonImporter::ImportSubmeshesFromJson(std::vector<RigDef::Submesh>&submeshe
         for (auto itor = j_def["texcoords"].Begin(); itor != j_def["texcoords"].End(); ++itor)
         {
             RigDef::Texcoord tx;
-            tx.node = this->JsonToNodeRef((*itor)["node"]);
+            tx.node = JsonImporter::JsonToNodeRef((*itor)["node"]);
             tx.u    = (*itor)["u"].GetFloat();
             tx.v    = (*itor)["v"].GetFloat();
             def.texcoords.push_back(tx);
@@ -2728,9 +2726,9 @@ void JsonImporter::ImportSubmeshesFromJson(std::vector<RigDef::Submesh>&submeshe
         for (auto itor = j_def["cab_triangles"].Begin(); itor != j_def["cab_triangles"].End(); ++itor)
         {
             RigDef::Cab cab;
-            cab.nodes[0] = this->JsonToNodeRef((*itor)["node_a"]);
-            cab.nodes[1] = this->JsonToNodeRef((*itor)["node_b"]);
-            cab.nodes[2] = this->JsonToNodeRef((*itor)["node_c"]);
+            cab.nodes[0] = JsonImporter::JsonToNodeRef((*itor)["node_a"]);
+            cab.nodes[1] = JsonImporter::JsonToNodeRef((*itor)["node_b"]);
+            cab.nodes[2] = JsonImporter::JsonToNodeRef((*itor)["node_c"]);
             if ((*itor)["option_c_contact"          ].GetBool()) { cab.options |= RigDef::Cab::OPTION_c_CONTACT; }
             if ((*itor)["option_b_buoyant"          ].GetBool()) { cab.options |= RigDef::Cab::OPTION_b_BUOYANT; }
             if ((*itor)["option_p_10xtougher"       ].GetBool()) { cab.options |= RigDef::Cab::OPTION_p_10xTOUGHER; }
@@ -2762,9 +2760,9 @@ void JsonImporter::ImportTurbojetsFromJson(std::vector<RigDef::Turbojet>&turboje
     {
         RigDef::Turbojet def;
 
-        def.front_node      = this->JsonToNodeRef(j_def["reference_node"]);
-        def.back_node       = this->JsonToNodeRef(j_def["axis_node"     ]);
-        def.side_node       = this->JsonToNodeRef(j_def["side_node"     ]);
+        def.front_node      = JsonImporter::JsonToNodeRef(j_def["reference_node"]);
+        def.back_node       = JsonImporter::JsonToNodeRef(j_def["axis_node"     ]);
+        def.side_node       = JsonImporter::JsonToNodeRef(j_def["side_node"     ]);
         def.is_reversable   = j_def["is_reversable" ].GetBool();
         def.dry_thrust      = j_def["dry_thrust"    ].GetFloat();
         def.wet_thrust      = j_def["wet_thrust"    ].GetFloat();
@@ -2782,13 +2780,13 @@ void JsonImporter::ImportTurboprops2FromJson(std::vector<RigDef::Turboprop2>&tur
     {
         RigDef::Turboprop2 def;
 
-        def.reference_node     = this->JsonToNodeRef(j_def["reference_node"  ]);
-        def.axis_node          = this->JsonToNodeRef(j_def["axis_node"       ]);
-        def.blade_tip_nodes[0] = this->JsonToNodeRef(j_def["blade_tip_node_1"]);
-        def.blade_tip_nodes[1] = this->JsonToNodeRef(j_def["blade_tip_node_2"]);
-        def.blade_tip_nodes[2] = this->JsonToNodeRef(j_def["blade_tip_node_3"]);
-        def.blade_tip_nodes[3] = this->JsonToNodeRef(j_def["blade_tip_node_4"]);
-        def.couple_node        = this->JsonToNodeRef(j_def["couple_node"     ]);
+        def.reference_node     = JsonImporter::JsonToNodeRef(j_def["reference_node"  ]);
+        def.axis_node          = JsonImporter::JsonToNodeRef(j_def["axis_node"       ]);
+        def.blade_tip_nodes[0] = JsonImporter::JsonToNodeRef(j_def["blade_tip_node_1"]);
+        def.blade_tip_nodes[1] = JsonImporter::JsonToNodeRef(j_def["blade_tip_node_2"]);
+        def.blade_tip_nodes[2] = JsonImporter::JsonToNodeRef(j_def["blade_tip_node_3"]);
+        def.blade_tip_nodes[3] = JsonImporter::JsonToNodeRef(j_def["blade_tip_node_4"]);
+        def.couple_node        = JsonImporter::JsonToNodeRef(j_def["couple_node"     ]);
         def.airfoil            = j_def["airfoil"].GetString();
         def.turbine_power_kW   = j_def["turbine_power_kW"].GetFloat();
         def._format_version    = j_def["_format_version" ].GetInt();

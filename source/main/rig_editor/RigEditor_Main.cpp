@@ -600,6 +600,7 @@ void Main::UpdateEditorLoop()
             m_rig->RefreshBeamsDynamicMesh();
         }
         bool force_refresh_wheel_selection_boxes = false;
+
         if (must_refresh_wheels_mesh)
         {
             m_rig->RefreshWheelsDynamicMesh(parent_scene_node, this);
@@ -702,6 +703,10 @@ void Main::NotifyFileSelectorEnded(GUI::Dialog* dialog, bool result)
         {
             this->SaveJsonProject(folder, filename);
         }
+        else if (mode == OpenSaveFileDialogMode::MODE_OPEN_JSON)
+        {
+            this->LoadJsonProject(folder, filename);
+        }
     }
     dialog->endModal(); // Hides the dialog
 }
@@ -735,6 +740,18 @@ void Main::SaveJsonProject(MyGUI::UString const & directory, MyGUI::UString cons
 
     auto out_path = directory + '/' + filename;
     m_rig->SaveJsonProject(out_path);
+}
+
+void Main::LoadJsonProject(MyGUI::UString const & directory, MyGUI::UString const & filename)
+{
+    this->CommandCloseCurrentRig();
+
+    auto src_path = directory + '/' + filename;
+    m_rig = new RigEditor::Rig(m_config);
+
+    Ogre::SceneNode* parent_scene_node = m_scene_manager->getRootSceneNode();
+    m_rig->LoadJsonProject(src_path, this, parent_scene_node);
+    this->OnNewRigCreatedOrLoaded(parent_scene_node);
 }
 
 void RigEditor_LogParserMessages(RigDef::Parser & parser)
@@ -1162,7 +1179,7 @@ void Main::CommandCreateNewEmptyRig()
     // Create definition
     auto def = std::shared_ptr<RigDef::File>(new RigDef::File());
     def->name = "Unnamed rig (created in editor)";
-    auto module = std::shared_ptr<RigDef::File::Module>(new RigDef::File::Module("_Root_"));
+    auto module = std::shared_ptr<RigDef::File::Module>(new RigDef::File::Module(RigDef::File::Module::ROOT_MODULE_NAME));
     def->root_module = module;
     // Create special node 0 in _Root_ module
     RigDef::Node node_0;

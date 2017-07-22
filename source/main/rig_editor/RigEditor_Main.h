@@ -143,7 +143,7 @@ private:
     void ExportRigDefFile(MyGUI::UString const & directory, MyGUI::UString const & filename);
 
     // Json project
-    // TODO: Loading
+    void LoadJsonProject(MyGUI::UString const & directory, MyGUI::UString const & filename);
     void SaveJsonProject(MyGUI::UString const & directory, MyGUI::UString const & filename);
 
     void OnNewRigCreatedOrLoaded(Ogre::SceneNode* parent_scene_node);

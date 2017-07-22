@@ -456,7 +456,7 @@ rapidjson::Value RigProperties::ExportJson(JsonExporter& exporter)
     rapidjson::Value author_array(rapidjson::kArrayType);
     for (auto itor = m_authors.begin(); itor != m_authors.end(); ++itor)
     {
-        rapidjson::Value author;
+        rapidjson::Value author(rapidjson::kObjectType);
         author.AddMember("name",  StrToJson(itor->name), j_alloc);
         author.AddMember("role",  StrToJson(itor->type), j_alloc);
         author.AddMember("email", StrToJson(itor->email), j_alloc);
@@ -506,7 +506,19 @@ void RigProperties::ImportJson(JsonImporter& importer)
 
     m_description.push_back(j_properties["description"].GetString());
 
-    // TODO: Authors
+    // Authors
+    for (auto itor = j_properties["authors"].Begin(); itor != j_properties["authors"].End(); ++itor)
+    {
+        RigDef::Author author;
+        author.name   = (*itor)["name"].GetString();
+        author.email  = (*itor)["email"].GetString();
+        author.type   = (*itor)["role"].GetString();
+        if (itor->HasMember("forum_id"))
+        {
+            author._has_forum_account = true;
+            author.forum_account_id = (*itor)["forum_id"].GetUint();
+        }
+    }
 
     m_root_data->ImportRigModuleFromJson(importer);
 }

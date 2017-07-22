@@ -266,7 +266,7 @@ public:
     std::shared_ptr<RigDef::File> Export();
 
     void SaveJsonProject(MyGUI::UString const & out_path);
-    void LoadJsonProject(MyGUI::UString const & src_path);
+    void LoadJsonProject(MyGUI::UString const & src_path, RigEditor::Main* rig_editor, Ogre::SceneNode* parent_scene_node);
 
     void QuerySelectedNodesData(RigAggregateNodesData* result);
 
@@ -334,9 +334,11 @@ private:
         );
 
     void BuildFromModule(RigDef::File::Module* module, RigBuildingReport* logger = nullptr);
-    bool ResolveNodeRanges(std::vector<Node*>& out_nodes, std::vector<RigDef::Node::Range>& in_ranges, RigBuildingReport* report = nullptr);
+    bool ResolveNodeRanges(std::vector<RigEditor::Node*>& out_nodes,
+                           std::vector<RigDef::Node::Range>& in_ranges,
+                           RigBuildingReport* report = nullptr);
 
-private:
+    void CreateVisualMeshes(RigEditor::Main* rig_editor, Ogre::SceneNode* parent_scene_node);
 
     /* STRUCTURE */
 

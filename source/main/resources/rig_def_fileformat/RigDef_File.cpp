@@ -562,6 +562,9 @@ const char * File::KeywordToString(File::Keyword keyword)
     }
 }
 
+// Static member
+const char* File::Module::ROOT_MODULE_NAME = "_Root_";
+
 File::Module::Module(Ogre::String const & name):
     name(name)
 {
