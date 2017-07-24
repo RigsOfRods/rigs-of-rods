@@ -136,6 +136,7 @@ private:
 
     void InitializeOrRestoreGui();
     void DrawGui();
+    void DrawHelpGui();
     void HideAllNodeBeamGuiPanels();
     void HideAllWheelGuiPanels();
 
