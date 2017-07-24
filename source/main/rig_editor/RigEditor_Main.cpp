@@ -83,7 +83,8 @@ Main::Main():
     m_input_handler(nullptr),
     m_debug_box(nullptr),
     m_rig(nullptr),
-    m_state_flags(0)
+    m_state_flags(0),
+    m_gui_help_visible(false)
 {
     // Load resources
     RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::RIG_EDITOR);
@@ -211,6 +212,9 @@ void Main::PutOff()
 
 void Main::UpdateEditorLoop()
 {
+
+    // ++++ IMGUI-todo:
+    // ++++ start GUI frame, inject events, draw HELP window
 
     /* Update input events */
     m_input_handler->ResetEvents();
@@ -996,8 +1000,7 @@ void Main::CommandSaveLandVehiclePropertiesWindowData()
 
 void Main::CommandShowHelpWindow()
 {
-    m_gui_help_window->Show();
-    m_gui_help_window->CenterToScreen();
+    m_gui_help_visible = true;
 }
 
 #define INIT_OR_RESTORE_RIG_ELEMENT_PANEL(VAR, CLASSNAME) \
@@ -1044,10 +1047,6 @@ void Main::InitializeOrRestoreGui()
     {
         m_gui_land_vehicle_properties_window 
             = std::unique_ptr<GUI::RigEditorLandVehiclePropertiesWindow>(new GUI::RigEditorLandVehiclePropertiesWindow(this));
-    }
-    if (m_gui_help_window.get() == nullptr)
-    {
-        m_gui_help_window = std::unique_ptr<GUI::RigEditorHelpWindow>(new GUI::RigEditorHelpWindow(this));
     }
 }
 

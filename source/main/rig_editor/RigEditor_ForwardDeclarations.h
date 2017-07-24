@@ -76,7 +76,6 @@ namespace RoR
         class  RigEditorCommands2Panel;
         class  RigEditorDeleteMenu;
         class  RigEditorFlexBodyWheelsPanel;
-        class  RigEditorHelpWindow;
         class  RigEditorHydrosPanel;
         class  RigEditorLandVehiclePropertiesWindow;
         class  RigEditorMenubar;

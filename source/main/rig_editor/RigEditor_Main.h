@@ -135,6 +135,7 @@ public:
 private:
 
     void InitializeOrRestoreGui();
+    void DrawGui();
     void HideAllNodeBeamGuiPanels();
     void HideAllWheelGuiPanels();
 
@@ -160,11 +161,11 @@ private:
     unsigned int         m_state_flags;
 
     // GUI
+    bool                 m_gui_help_visible;
     MyGUI::TextBox*                                             m_debug_box;
     std::unique_ptr<GUI::RigEditorMenubar>                      m_gui_menubar;
     std::unique_ptr<GUI::OpenSaveFileDialog>                    m_gui_open_save_file_dialog;
     std::unique_ptr<GUI::RigEditorDeleteMenu>                   m_gui_delete_menu;
-    std::unique_ptr<GUI::RigEditorHelpWindow>                   m_gui_help_window;
     std::unique_ptr<GUI::RigEditorNodePanel>                    m_nodes_panel;
     std::unique_ptr<GUI::RigEditorBeamsPanel>                   m_beams_panel;
     std::unique_ptr<GUI::RigEditorHydrosPanel>                  m_hydros_panel;
