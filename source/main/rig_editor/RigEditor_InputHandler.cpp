@@ -164,6 +164,8 @@ bool InputHandler::keyPressed( const OIS::KeyEvent &arg )
         return true;
     }
 
+    RoR::App::GetGuiManager()->GetImGui().InjectKeyPressed(arg); // TODO: Check if mouse press was captured by GUI
+
     // HANDLE EVENTS \\
 
     const Event* event_ptr = m_event_key_mappings[arg.key];
@@ -191,6 +193,8 @@ bool InputHandler::keyReleased( const OIS::KeyEvent &arg )
         return true;
     }
 
+    RoR::App::GetGuiManager()->GetImGui().InjectKeyReleased(arg); // TODO: Check if mouse press was captured by GUI
+
     // HANDLE MODES \\
 
     const Mode* mode_ptr = m_mode_key_mappings[arg.key];
@@ -215,6 +219,8 @@ bool InputHandler::mouseMoved( const OIS::MouseEvent &mouse_event )
         mouse_event.state.Z.abs
         );
 
+    RoR::App::GetGuiManager()->GetImGui().InjectMouseMoved(mouse_event);
+
     m_mouse_motion_event.AddRelativeMove(mouse_event.state.X.rel, mouse_event.state.Y.rel, mouse_event.state.Z.rel);
     m_mouse_motion_event.abs_x = mouse_event.state.X.abs;
     m_mouse_motion_event.abs_y = mouse_event.state.Y.abs;
@@ -230,6 +236,8 @@ bool InputHandler::mousePressed( const OIS::MouseEvent &mouse_event, OIS::MouseB
         mouse_event.state.Y.abs,
         MyGUI::MouseButton::Enum(button_id)
         );
+
+    RoR::App::GetGuiManager()->GetImGui().InjectMousePressed(mouse_event, button_id); // TODO: Check if mouse press was captured by GUI
 
     m_mouse_button_event.ButtonPressInputReceived(handled_by_gui);
     if (handled_by_gui)
@@ -262,6 +270,8 @@ bool InputHandler::mouseReleased( const OIS::MouseEvent &mouse_event, OIS::Mouse
         mouse_event.state.Y.abs,
         MyGUI::MouseButton::Enum(button_id)
         );
+
+    RoR::App::GetGuiManager()->GetImGui().InjectMouseReleased(mouse_event, button_id); // TODO: Check if mouse press was captured by GUI
 
     m_mouse_button_event.ButtonReleaseInputReceived(handled_by_gui);
     if (handled_by_gui)

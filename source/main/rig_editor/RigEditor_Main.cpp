@@ -173,7 +173,7 @@ void Main::EnterEditorLoop()
 
 void Main::BringUp()
 {
-    /* Setup 3D engine */
+    // Setup 3D engine
     OgreSubsystem* ror_ogre_subsystem = App::GetOgreSubsystem();
     assert(ror_ogre_subsystem != nullptr);
     m_viewport = ror_ogre_subsystem->GetRenderWindow()->addViewport(nullptr);
@@ -182,25 +182,29 @@ void Main::BringUp()
     m_camera->setAspectRatio(m_viewport->getActualHeight() / viewport_width);
     m_viewport->setCamera(m_camera);
 
+    // Setup GUI
     this->InitializeOrRestoreGui();
+    App::GetGuiManager()->GetImGui().StartRendering(m_scene_manager);
 
-    /* Setup input */
+    // Setup input
     App::GetInputEngine()->SetKeyboardListener(m_input_handler);
     App::GetInputEngine()->SetMouseListener(m_input_handler);
 
-    /* Show debug box */
+    // Show debug box
     m_debug_box->setVisible(true);
 }
 
 void Main::PutOff()
 {
-    /* Hide GUI */
+    // Hide GUI
     m_gui_menubar->Hide();
     if (m_gui_open_save_file_dialog->isModal())
     {
         m_gui_open_save_file_dialog->endModal(); // Hides the dialog
     }
     m_gui_delete_menu->Hide();
+    App::GetGuiManager()->GetImGui().StopRendering();
+
     // Supress node/beam panels (if visible)
     m_nodes_panel    ->HideTemporarily();
     m_beams_panel    ->HideTemporarily();
@@ -211,23 +215,20 @@ void Main::PutOff()
     m_meshwheels2_panel     ->HideTemporarily();
     m_flexbodywheels_panel  ->HideTemporarily();
 
-    /* Hide debug box */
+    // Hide debug box
     m_debug_box->setVisible(false);
 }
 
 void Main::UpdateEditorLoop()
 {
-
-    // ++++ IMGUI-todo:
-    // ++++ start GUI frame, inject events, draw HELP window
-
-    /* Update input events */
+    // Update input events
     m_input_handler->ResetEvents();
     App::GetInputEngine()->Capture(); // Also injects input to GUI (through RigEditor::InputHandler)
+    this->DrawGui();
 
-    /* Handle key presses */
+    // Handle key presses
     bool camera_ortho_toggled = false;
-    int camera_view_changed = false;
+    bool camera_view_changed = false;
     if (m_input_handler->WasEventFired(InputHandler::Event::CAMERA_VIEW_TOGGLE_PERSPECTIVE))
     {
         m_camera_handler->ToggleOrtho();
@@ -1230,7 +1231,12 @@ void Main::CommandCreateNewEmptyRig()
 
 void Main::DrawHelpGui()
 {
-    ImGui::Begin("RigEditor Help", &m_gui_help_visible);
+    if (!m_gui_help_visible)
+        return; // Nothing to do
+
+    ImGui::SetNextWindowSize(ImVec2(600, 400), ImGuiSetCond_Once);
+    ImGui::SetNextWindowPosCenter(ImGuiSetCond_Once);
+    ImGui::Begin("RigEditor Help", &m_gui_help_visible, ImGuiWindowFlags_NoCollapse);
 
     ImGui::TextWrapped("RigEditor lets you create and modify softbody actors of Rigs of Rods\n"
         "These can be anything from soda can to the most advanced vehicles, be it land, air or nautical ones.\n"
