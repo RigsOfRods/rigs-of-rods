@@ -1999,11 +1999,13 @@ bool Rig::SetWheelSelected(LandVehicleWheel* wheel, int index, bool state_select
 
 bool Rig::ScheduleSetWheelSelected(LandVehicleWheel* wheel, int index, bool state_selected, RigEditor::Main* rig_editor)
 {
+    // TODO: I have no idea what I was smoking when I wrote this 3 years ago *blushes* ~ only_a_ptr, 07/2017
+    // NOTE: The 'premature optimization ... evil' quote totally applies here.         ~ only_a_ptr, 07/2017
     if (state_selected)
     {
         if (!wheel->IsScheduledForSelect() && !wheel->IsSelected())
         {
-            wheel->SetIsScheduledForDeselect(false);
+            wheel->SetIsScheduledForDeselect(false); // TODO: having separate 'select!' and 'deselect!' flags is dumb ~ only_a_ptr, 07/2017
             wheel->SetIsScheduledForSelect(true);
             return true;
         }

@@ -51,6 +51,7 @@
 #include "RigEditor_CameraHandler.h"
 #include "RigEditor_Config.h"
 #include "RigEditor_InputHandler.h"
+#include "RigEditor_LandVehicleWheel.h"
 #include "RigEditor_Node.h"
 #include "RigEditor_Rig.h"
 #include "RigEditor_RigProperties.h"
@@ -67,6 +68,9 @@
 #include <OgreRenderWindow.h>
 #include <sstream>
 
+#define IMGUI_DEFINE_MATH_OPERATORS
+#include "imgui_internal.h"
+
 using namespace RoR;
 using namespace RoR::RigEditor;
 
@@ -81,10 +85,10 @@ Main::Main():
     m_viewport(nullptr),
     m_rig_entity(nullptr),
     m_input_handler(nullptr),
-    m_debug_box(nullptr),
     m_rig(nullptr),
     m_state_flags(0),
-    m_gui_help_visible(false)
+    m_gui_help_visible(false),
+    m_gui_active_left_panel(GuiLeftSidePanel::NONE)
 {
     // Load resources
     RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::RIG_EDITOR);
@@ -116,15 +120,6 @@ Main::Main():
     m_camera_handler->SetOrbitTarget(m_scene_manager->getRootSceneNode());	
     m_camera_handler->SetOrthoZoomRatio(m_config->ortho_camera_zoom_ratio);
     m_camera->setPosition(Ogre::Vector3(10,5,10));
-
-    /* Debug output box */
-    m_debug_box = MyGUI::Gui::getInstance().createWidget<MyGUI::TextBox>
-        ("TextBox", 10, 30, 400, 100, MyGUI::Align::Top, "Main", "rig_editor_quick_debug_text_box");
-    m_debug_box->setCaption("Hello\nRigEditor!");
-    m_debug_box->setTextColour(MyGUI::Colour(0.8, 0.8, 0.8));
-    m_debug_box->setFontName("DefaultBig");
-    m_debug_box->setVisible(false);
-    m_debug_box->setEnabled(false);
 }
 
 Main::~Main()
@@ -189,9 +184,6 @@ void Main::BringUp()
     // Setup input
     App::GetInputEngine()->SetKeyboardListener(m_input_handler);
     App::GetInputEngine()->SetMouseListener(m_input_handler);
-
-    // Show debug box
-    m_debug_box->setVisible(true);
 }
 
 void Main::PutOff()
@@ -213,9 +205,6 @@ void Main::PutOff()
     m_shocks2_panel  ->HideTemporarily();
     m_meshwheels2_panel     ->HideTemporarily();
     m_flexbodywheels_panel  ->HideTemporarily();
-
-    // Hide debug box
-    m_debug_box->setVisible(false);
 }
 
 void Main::UpdateEditorLoop()
@@ -619,19 +608,21 @@ void Main::UpdateEditorLoop()
         m_rig->CheckAndRefreshWheelsMouseHoverHighlights(this, parent_scene_node);
     }
 
-    /* Update devel console */
-    std::stringstream msg;
-    msg << "Camera pos: [X "<<m_camera->getPosition().x <<", Y "<<m_camera->getPosition().y << ", Z "<<m_camera->getPosition().z <<"] "<<std::endl;
-    msg << "Mouse node: ";
+    // Mouse node info box = small, headless window at the bottom center of screen.
     if (m_rig != nullptr && m_rig->GetMouseHoveredNode() != nullptr)
     {
-        msg << m_rig->GetMouseHoveredNode()->GetId().ToString() << std::endl;
+        ImVec2 box_size(300.f, 35.f);
+        ImGui::SetNextWindowPos(ImVec2((ImGui::GetIO().DisplaySize.x / 2.f) - (box_size.x / 2.f), ImGui::GetIO().DisplaySize.y - box_size.y - 20.f));
+        ImGui::SetNextWindowContentSize(box_size);
+        const int flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar;
+        ImGui::Begin("Mouse node info", nullptr, flags);
+        GStr<64> node_id_str;
+        node_id_str << m_rig->GetMouseHoveredNode()->GetId().ToString().c_str();
+        ImVec2 text_size = ImGui::CalcTextSize(node_id_str);
+        ImGui::SetCursorPos((box_size/2.f) - (text_size/2.f));
+        ImGui::Text("%s", node_id_str.GetBuffer());
+        ImGui::End();
     }
-    else
-    {
-        msg << "[null]"<< std::endl;
-    }
-    m_debug_box->setCaption(msg.str());
 }
 
 void Main::CommandShowDialogOpenRigFile()
@@ -1085,6 +1076,7 @@ void Main::CommandRigSelectedCommands2UpdateAttributes(const RigAggregateCommand
 
 void Main::CommandScheduleSetWheelSelected(LandVehicleWheel* wheel_ptr, int wheel_index, bool state_selected)
 {
+    // TODO: I have no idea what I was smoking when I wrote this 3 years ago *blushes* ~ only_a_ptr, 07/2017
     if (m_rig == nullptr)
     {
         return;
@@ -1094,7 +1086,7 @@ void Main::CommandScheduleSetWheelSelected(LandVehicleWheel* wheel_ptr, int whee
     {
         if (state_selected)
         {
-            this->SetIsSelectWheelScheduled(true);
+            this->SetIsSelectWheelScheduled(true); // TODO: having separate 'select!' and 'deselect!' flags is dumb ~ only_a_ptr, 07/2017
             this->SetIsDeselectWheelScheduled(false);
         }
         else
@@ -1274,18 +1266,6 @@ void Main::DrawHelpGui()
 
 void Main::DrawTopMenubarGui()
 {
-// ------ TODO: RE-IMPLEMENT THE <WHEELS> GUI ------
-
-//    m_wheels_list = std::unique_ptr<RigEditor::GuiPopupWheelsList>(
-//        new RigEditor::GuiPopupWheelsList(
-//            rig_editor_interface, m_wheels_popup,
-//            m_wheels_popup_item_select_all, m_wheels_popup_item_deselect_all)
-//        );
-
-//  m_wheels_list->UpdateWheelsList(list);
-//  m_wheels_list->ClearWheelsList();
-// ------------------------------------------------
-
     ImGui::BeginMainMenuBar();
 
     if (ImGui::BeginMenu("File"))
@@ -1307,6 +1287,10 @@ void Main::DrawTopMenubarGui()
     {
         if (ImGui::MenuItem("General properties"))        { this->CommandShowRigPropertiesWindow();         }
         if (ImGui::MenuItem("Land vehicle properties"))   { this->CommandShowLandVehiclePropertiesWindow(); }
+        ImGui::Separator();
+        ImGui::MenuItem("Left-side panel:", nullptr, false, false); // Just a caption - force disabled
+        if (ImGui::MenuItem("None"))                      { m_gui_active_left_panel = GuiLeftSidePanel::NONE;   }
+        if (ImGui::MenuItem("Wheels"))                    { m_gui_active_left_panel = GuiLeftSidePanel::WHEELS; }
 
         ImGui::EndMenu();
     }
@@ -1320,8 +1304,59 @@ void Main::DrawTopMenubarGui()
     ImGui::EndMainMenuBar();
 }
 
+void Main::DrawLandWheelsGui()
+{
+    const int window_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove;
+    ImGui::SetNextWindowPos(ImVec2(10.f, 30.f));
+    ImGui::SetNextWindowSize(ImVec2(175.f, ImGui::GetIO().DisplaySize.y - 40.f), ImGuiSetCond_Once);
+    bool is_window_open = true;
+    ImGui::Begin("Wheels", &is_window_open, window_flags);
+
+    if (!is_window_open)
+    {
+        m_gui_active_left_panel = GuiLeftSidePanel::NONE;
+        return;
+    }
+
+    if (ImGui::Button("[ + ] Select all"))
+    {
+        this->CommandScheduleSetAllWheelsSelected(true);
+    }
+    this->CommandSetAllWheelsHovered(ImGui::IsItemHovered());
+    if (ImGui::Button("[ - ] Deselect all"))
+    {
+        this->CommandScheduleSetAllWheelsSelected(false);
+    }
+
+    ImGui::Separator();
+
+    int index = 0;
+    for (LandVehicleWheel* wheel: m_rig->GetWheels())
+    {
+        GStr<50> title; // TODO: Put editable wheel names directly to `LandVehicleWheel` objects. ~ only_a_ptr, 07/2017
+        title << "Wheel_" << index;
+        ++index;
+
+        // We make our own multi-select list from checkboxes
+        bool is_selected = wheel->IsSelected();
+        if (ImGui::Checkbox(title, &is_selected))
+        {
+            this->CommandScheduleSetWheelSelected(wheel, index, is_selected); // TODO: The contained logic is insane, simplify it! ~ only_a_ptr, 07/2017
+        }
+        wheel->SetIsHovered(ImGui::IsItemHovered());
+    }
+
+    ImGui::End();
+}
+
 void Main::DrawGui()
 {
     this->DrawTopMenubarGui();
     this->DrawHelpGui();
+
+    switch (m_gui_active_left_panel)
+    {
+    case GuiLeftSidePanel::WHEELS: this->DrawLandWheelsGui(); break;
+    default: break; // No action
+    }
 }
