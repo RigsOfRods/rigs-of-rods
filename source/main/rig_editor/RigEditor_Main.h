@@ -134,9 +134,11 @@ public:
     
 private:
 
+    // GUI
     void InitializeOrRestoreGui();
     void DrawGui();
     void DrawHelpGui();
+    void DrawTopMenubarGui();
     void HideAllNodeBeamGuiPanels();
     void HideAllWheelGuiPanels();
 
@@ -164,7 +166,6 @@ private:
     // GUI
     bool                 m_gui_help_visible;
     MyGUI::TextBox*                                             m_debug_box;
-    std::unique_ptr<GUI::RigEditorMenubar>                      m_gui_menubar;
     std::unique_ptr<GUI::OpenSaveFileDialog>                    m_gui_open_save_file_dialog;
     std::unique_ptr<GUI::RigEditorDeleteMenu>                   m_gui_delete_menu;
     std::unique_ptr<GUI::RigEditorNodePanel>                    m_nodes_panel;

@@ -197,7 +197,6 @@ void Main::BringUp()
 void Main::PutOff()
 {
     // Hide GUI
-    m_gui_menubar->Hide();
     if (m_gui_open_save_file_dialog->isModal())
     {
         m_gui_open_save_file_dialog->endModal(); // Hides the dialog
@@ -689,7 +688,6 @@ void Main::CommandCloseCurrentRig()
 
         // Restore GUI
         HideAllNodeBeamGuiPanels();
-        m_gui_menubar->ClearLandVehicleWheelsList();
     }
 }
 
@@ -917,9 +915,6 @@ void Main::OnNewRigCreatedOrLoaded(Ogre::SceneNode* parent_scene_node)
     {
         m_rig->RefreshNodesDynamicMeshes(parent_scene_node);
     }
-    /* Update GUI */
-    m_gui_menubar->ClearLandVehicleWheelsList();
-    m_gui_menubar->UpdateLandVehicleWheelsList(m_rig->GetWheels());
 }
 
 void Main::CommandCurrentRigDeleteSelectedNodes()
@@ -1027,15 +1022,7 @@ void Main::InitializeOrRestoreGui()
     INIT_OR_RESTORE_RIG_ELEMENT_PANEL( m_flexbodywheels_panel,   RigEditorFlexBodyWheelsPanel);
 
     App::GetGuiManager()->SetSceneManagerForGuiRendering(m_scene_manager);
-    if (m_gui_menubar.get() == nullptr)
-    {
-        m_gui_menubar = std::unique_ptr<GUI::RigEditorMenubar>(new GUI::RigEditorMenubar(this));
-    }
-    else
-    {
-        m_gui_menubar->Show();
-    }
-    m_gui_menubar->StretchWidthToScreen();
+
     if (m_gui_open_save_file_dialog.get() == nullptr)
     {
         m_gui_open_save_file_dialog = std::unique_ptr<GUI::OpenSaveFileDialog>(new GUI::OpenSaveFileDialog());
@@ -1285,7 +1272,56 @@ void Main::DrawHelpGui()
     ImGui::End();
 }
 
+void Main::DrawTopMenubarGui()
+{
+// ------ TODO: RE-IMPLEMENT THE <WHEELS> GUI ------
+
+//    m_wheels_list = std::unique_ptr<RigEditor::GuiPopupWheelsList>(
+//        new RigEditor::GuiPopupWheelsList(
+//            rig_editor_interface, m_wheels_popup,
+//            m_wheels_popup_item_select_all, m_wheels_popup_item_deselect_all)
+//        );
+
+//  m_wheels_list->UpdateWheelsList(list);
+//  m_wheels_list->ClearWheelsList();
+// ------------------------------------------------
+
+    ImGui::BeginMainMenuBar();
+
+    if (ImGui::BeginMenu("File"))
+    {
+        if (ImGui::MenuItem("New project"))        { this->CommandCreateNewEmptyRig();            }
+        if (ImGui::MenuItem("Load project"))       { this->CommandShowDialogOpenJsonProject();    }
+        if (ImGui::MenuItem("Save project as...")) { this->CommandShowDialogSaveJsonProjectAs();  }
+        if (ImGui::MenuItem("Close project"))      { this->CommandCloseCurrentRig();              }
+        ImGui::Separator();
+        if (ImGui::MenuItem("Import truckfile"))   { this->CommandShowDialogOpenRigFile();        }
+        if (ImGui::MenuItem("Export truckfile"))   { this->CommandShowDialogSaveRigFileAs();      }
+        ImGui::Separator();
+        if (ImGui::MenuItem("Exit"))               { this->CommandQuitRigEditor();                }
+
+        ImGui::EndMenu();
+    }
+
+    if (ImGui::BeginMenu("Project"))
+    {
+        if (ImGui::MenuItem("General properties"))        { this->CommandShowRigPropertiesWindow();         }
+        if (ImGui::MenuItem("Land vehicle properties"))   { this->CommandShowLandVehiclePropertiesWindow(); }
+
+        ImGui::EndMenu();
+    }
+
+    if (ImGui::BeginMenu("Help"))
+    {
+        ImGui::EndMenu();
+        this->CommandShowHelpWindow();
+    }
+
+    ImGui::EndMainMenuBar();
+}
+
 void Main::DrawGui()
 {
+    this->DrawTopMenubarGui();
     this->DrawHelpGui();
 }
