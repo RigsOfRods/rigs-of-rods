@@ -659,6 +659,7 @@ protected:
     Replay *replay;
     PositionStorage *posStorage;
     RoRFrameListener* m_sim_controller; // Temporary ~ only_a_ptr, 01/2017
+    std::shared_ptr<RigDef::File> m_definition;
     std::unique_ptr<RoR::GfxActor> m_gfx_actor;
 
     RoR::PerVehicleCameraContext m_camera_context;

@@ -331,20 +331,6 @@ DEFINE_REGEX( NODE_ID_OPTIONAL,
     "$"
 
 // -------------------------------------------------------------------------- //
-// Regexes for parsing directives                                             //
-// -------------------------------------------------------------------------- //
-
-DEFINE_REGEX( DIRECTIVE_SECTION,
-    E_LEADING_WHITESPACE
-    "[Ss][Ee][Cc][Tt][Ii][Oo][Nn]"
-    E_DELIMITER_SPACE
-    E_CAPTURE( E_POSITIVE_DECIMAL_NUMBER ) // #1 Unused (version)
-    E_DELIMITER_SPACE
-    E_CAPTURE( E_STRING_NO_SPACES )        // #2 Module name
-    E_2xCAPTURE_TRAILING_COMMENT
-    );
-
-// -------------------------------------------------------------------------- //
 // Regexes for parsing sections                                               //
 // -------------------------------------------------------------------------- //
 

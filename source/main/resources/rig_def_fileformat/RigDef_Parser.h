@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -36,43 +36,21 @@
 namespace RigDef
 {
 
-/**
-    @class  Parser
-    @author Petr Ohlidal
-
-    @brief Checks the rig-def file syntax and pulls data to File object
-
-    ARCHITECTURE:
-        Every section/directive of the file should have it's own parser function. 
-        If some sections are so similar that a single function could be used, 
-        write a helper function and 2 wrappers for the sections.
-
-    GENERAL RULE:
-        The Parser should only check syntax and read data. Data transformation should be performed
-        in another subsystem. There are cases when data need to be processed immediately, but those
-        are exceptions. For example, the 'TractionControl/regulating_force' parameter has valid
-        range 0-20 and any other values should be clamped to it - however, the parser should
-        load the data as-is and leave the clamping to further processing.
-
-    PRINCIPLE: 
-        For every section/directive, there is a data-container struct defined in File.h.
-
-        Every time a line of a particular section is parsed, an instance of the struct
-        is saved into an array container in struct RigDef::File. There are exceptions to this rule.
-        If the section is subject to adjustable defaults (like 'beams' to 'set_beam_defaults'),
-        the default-data-container is attached to section-data-container.
-
-        Optional sections (for example 'SlopeBrake') are represented by a dynamically allocated
-        object. If the file doesn't contain the section, the pointer will be null.
-
-        Whenever a directive is parsed, it's contents are stored to an instance of it's container
-        struct, located in Parser.
-        For every directive, there are two containers:
-        * 'ror_*' represents game defaults as specified in documentation. Needed for resetting.
-        * 'user_*' represent the last defaults specified in the .truck file.
-        Again, there are exceptions to this rule.
-*/
-
+///  @class  Parser
+///  @author Petr Ohlidal
+///
+///  @brief Checks the rig-def file syntax and pulls data to File object
+///
+///  For every section/directive, there is a data-container struct defined in File.h.
+///  The Parser should preferably only read data as-is, without validation.
+///
+///  Every time a line of a particular section is parsed, an instance of the struct
+///  is saved into an array container in struct RigDef::File. There are exceptions to this rule.
+///
+///  Keywords 'set_[node|beam|inertia]_defaults' are 'presets' and are managed by dyn. allocated
+///  objects. For every preset, there are 2 pointers:
+///      * 'ror_*' represents game defaults as specified in documentation. Needed for resetting.
+///      * 'user_*' represent the last defaults specified in the .truck file.
 class Parser
 {
 
@@ -132,28 +110,22 @@ public:
     int GetMessagesNumWarnings() const { return m_messages_num_warnings; }
     int GetMessagesNumOther()    const { return m_messages_num_other;    }
 
-protected:
+private:
 
 // --------------------------------------------------------------------------
 //  Directive parsers
 // --------------------------------------------------------------------------
 
+    void ProcessGlobalDirective(File::Keyword keyword); ///< Directives that should only appear in root module
     void ParseDirectiveAddAnimation();
-
+    void ParseDirectiveBackmesh();
     void ParseDirectiveDetacherGroup();
-
     void ParseDirectiveFlexbodyCameraMode();
-
     void ParseDirectivePropCameraMode();
-
     void ParseDirectiveSetBeamDefaults();
-
     void ParseDirectiveSetBeamDefaultsScale();
-
     void ParseDirectiveSetInertiaDefaults();
-
     void ParseDirectiveSetManagedMaterialsOptions();
-
     void ParseDirectiveSetNodeDefaults();
     void LogParsedDirectiveSetNodeDefaultsData(float loadweight, float friction, float volume, float surface, unsigned int options);
 
@@ -161,142 +133,77 @@ protected:
 //  Section parsers
 // --------------------------------------------------------------------------
 
+    void ParseActorNameLine();
     void ParseAirbrakes();
-
     void ParseAnimator();
-
     void ParseAntiLockBrakes();
-
     void ParseAuthor();
-
     void ParseAxles();
-
     void ParseBeams();
-
     void ParseBrakes();
-
+    void ProcessKeywordCab();
     void ParseCameras();
-
     void ParseCameraRails();
-
     void ParseCinecam();
-
     void ParseCollisionBox();
-
     void ParseCommandsUnified();
-
     void ParseContacter();
-
     void ParseCruiseControl();
-
     void ParseEngine();
-
     void ParseEngoption();
-
     void ParseEngturbo();
-
     void ParseExhaust();
-
     void ParseExtCamera();
-
     void ParseFileFormatVersion();
-
     void ParseFileinfo();
-
     void ParseFixes();
-
     void ParseFlaresUnified();
-
     void ParseFlexbody();
-
     void ParseFlexBodyWheel();
-
     void ParseFusedrag();
-
     void ParseGlobals();
-
     void ParseGuid();
-
     void ParseGuiSettings();
-
     void ParseHelp();
-
     void ParseHook();
-
     void ParseHydros();
-
     void ParseLockgroups();
-
     void ParseManagedMaterials();
-
     void ParseMaterialFlareBindings();
-
     void ParseMeshWheelUnified();
-
     void ParseMinimass();
-
     void ParseNodesUnified();
-
     void ParseNodeCollision();
-
     void ParseParticles();
-
     void ParsePistonprops();
-
     void ParseProps();
-
     void ParseRailGroups();
-
     void ParseRopables();
-
     void ParseRopes();
-
     void ParseRotatorsUnified();
-
     void ParseScrewprops();
-
     void ParseSetCollisionRange();
-
     void ParseSetSkeletonSettings();
-
     void ParseShock();
-
     void ParseShock2();
-
     void ParseSlidenodes();
-
     void ParseSlopeBrake();
-
     void ParseSoundsources();
-
     void ParseSoundsources2();
-
     void ParseSpeedLimiter();
-
     void ParseSubmesh();
-
     void ParseSubmeshGroundModel();
-
+    void ProcessKeywordTexcoords();
     void ParseTies();
-
     void ParseTorqueCurve();
-
     void ParseTractionControl();
-
     void ParseTriggers();
-
     void ParseTurbojets();
-
     void ParseTurbopropsUnified();
-
     void ParseVideoCamera();
-
     void ParseWheelDetachers();
-
     void ParseWheel();
-
     void ParseWheel2();
-
     void ParseWing();
 
 // --------------------------------------------------------------------------
@@ -306,6 +213,9 @@ protected:
     void             ProcessCurrentLine();
     int              TokenizeCurrentLine();
     bool             CheckNumArguments(int num_required_args);
+    void             ChangeSection(RigDef::File::Section new_section);
+    void             ExitSections();
+    void             ProcessChangeModuleLine(File::Keyword keyword);
 
     std::string        GetArgStr          (int index);
     int                GetArgInt          (int index);
@@ -331,13 +241,10 @@ protected:
     unsigned           ParseArgUint       (const std::string& s);
     float              ParseArgFloat      (const std::string& s);
 
-    /// Attempts to parse cab line. Returns true if successful.
-    bool _TryParseCab(Ogre::String const & line);
-
     void _CheckInvalidTrailingText(Ogre::String const & line, std::smatch const & results, unsigned int index);
 
     /// Keyword scan function. 
-    File::Keyword IdentifyKeyword(Ogre::String const & line);
+    File::Keyword IdentifyKeywordInCurrentLine();
 
     /// Keyword scan utility function. 
     File::Keyword FindKeywordMatch(std::smatch& search_results);
@@ -352,6 +259,7 @@ protected:
     {
         this->AddMessage(m_current_line, type, msg);
     }
+    void VerifyModuleIsRoot(File::Keyword keyword); ///< Reports warning message if we're not in root module
 
     /// Print a log INFO message.
     void _PrintNodeDataForVerification(Ogre::String& line, Ogre::StringVector& args, int num_args, Node& node);
@@ -363,19 +271,6 @@ protected:
     void _ParseCameraSettings(CameraSettings & camera_settings, Ogre::String input_str);
 
     void _ParseNodeOptions(unsigned int & options, const std::string & options_str);
-
-    std::pair<bool, Ogre::String> GetModuleName(Ogre::String const & line);
-
-    void SetCurrentModule(Ogre::String const & name);
-
-    void _ExitSections(Ogre::String const & line);
-
-    void RestoreRootModule();
-
-    bool _IsCurrentModuleRoot()
-    {
-        return m_root_module == m_current_module;
-    }
 
     void ParseOptionalInertia(Inertia& inertia, int index);
 
