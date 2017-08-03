@@ -288,7 +288,6 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
                 continue;
             }
             densityMap->setFilter(Forests::MAPFILTER_BILINEAR);
-            //densityMap->setMapBounds(TRect(0, 0, m_terrain_size_x, m_map_size_z));
 
             paged_geometry_t paged;
             paged.geom = new PagedGeometry();
@@ -302,7 +301,6 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
             paged.geom->setBounds(bounds);
 
             //Set up LODs
-            //trees->addDetailLevel<EntityPage>(50);
             float min = minDist * terrainManager->getPagedDetailFactor();
             if (min < 10)
                 min = 10;
