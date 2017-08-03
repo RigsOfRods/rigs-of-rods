@@ -604,7 +604,7 @@ File::Module::Module(Ogre::String const & name):
     triggers.reserve(25);
     turbojets.reserve(15);
     turboprops_2.reserve(15);
-    videocameras.reserve(10);	
+    videocameras.reserve(10);
     wheels.reserve(6);
     wheels_2.reserve(8);
     wings.reserve(10);
