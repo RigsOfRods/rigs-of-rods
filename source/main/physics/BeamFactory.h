@@ -41,7 +41,7 @@ namespace RoR {
 class BeamFactory
 {
     friend class GameScript; // needs to call RemoveActorByCollisionBox()
-    friend class RoRFrameListener; // Needs to call removeTruck()
+    friend class ::RoRFrameListener; // Needs to call removeTruck() and RemoveActorByCollisionBox()
 public:
 
     BeamFactory(RoRFrameListener* sim_controller);

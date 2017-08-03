@@ -1956,6 +1956,11 @@ void RoRFrameListener::RemovePlayerActor()
     m_beam_factory.removeTruck(actor->trucknum);
 }
 
+void RoRFrameListener::RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name)
+{
+    m_beam_factory.RemoveActorByCollisionBox(gEnv->collisions, ev_src_instance_name, box_name);
+}
+
 void RoRFrameListener::ReloadPlayerActor()
 {
     Beam* curr_truck = m_beam_factory.getCurrentTruck();
