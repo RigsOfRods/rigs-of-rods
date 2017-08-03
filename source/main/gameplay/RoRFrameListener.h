@@ -60,6 +60,7 @@ public:
     Beam*  GetPlayerActor        ()                        { return m_beam_factory.getCurrentTruck(); }
     void   ReloadPlayerActor     ();
     void   RemovePlayerActor     ();
+    void   RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name); ///< Scripting utility. TODO: Does anybody use it? ~ only_a_ptr, 08/2017
 
     // Scripting interface
     double getTime               () { return m_time; }
@@ -77,8 +78,8 @@ public:
     bool   SetupGameplayLoop     ();
     void   EnterGameplayLoop     ();
 
-    RoR::BeamFactory*           GetBeamFactory  () { return &m_beam_factory; } // TODO: Eliminate this. All operations upon actors should be done through above methods. ~ only_a_ptr, 06/2017
-    RoR::SkidmarkConfig*        GetSkidmarkConf () { return m_skidmark_conf; }
+    RoR::BeamFactory*           GetBeamFactory  ()         { return &m_beam_factory; } // TODO: Eliminate this. All operations upon actors should be done through above methods. ~ only_a_ptr, 06/2017
+    RoR::SkidmarkConfig*        GetSkidmarkConf ()         { return m_skidmark_conf; }
 
 private:
 

@@ -340,9 +340,9 @@ void GameScript::repairVehicle(const String& instance, const String& box, bool k
     mse->GetFrameListener()->GetBeamFactory()->repairTruck(gEnv->collisions, instance, box, keepPosition);
 }
 
-void GameScript::removeVehicle(const String& instance, const String& box)
+void GameScript::removeVehicle(const String& event_source_instance_name, const String& event_source_box_name)
 {
-    mse->GetFrameListener()->GetBeamFactory()->RemoveActorByCollisionBox(gEnv->collisions, instance, box);
+    mse->GetFrameListener()->RemoveActorByCollisionBox(event_source_instance_name, event_source_box_name);
 }
 
 void GameScript::destroyObject(const String& instanceName)
