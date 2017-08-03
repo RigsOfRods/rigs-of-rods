@@ -12,7 +12,7 @@ set( SOURCE_FILES
   GlobalEnvironment.h
   MainMenu.{h,cpp}
   RoRPrerequisites.h
-  audio/MumbleIntegration.{h,cpp}  
+  audio/MumbleIntegration.{h,cpp}
   audio/Sound.{h,cpp}
   audio/SoundManager.{h,cpp}
   audio/SoundScriptManager.{h,cpp}
@@ -147,7 +147,7 @@ set( SOURCE_FILES
   gui/panels/GUI_SimUtils.{h,cpp}
   gui/panels/GUI_SimUtilsLayout.{h,cpp}
   gui/panels/GUI_TeleportWindow.{h,cpp}
-  gui/panels/GUI_TeleportWindowLayout.{h,cpp}     
+  gui/panels/GUI_TeleportWindowLayout.{h,cpp}
   gui/panels/GUI_VehicleDescription.{h,cpp}
   gui/panels/GUI_VehicleDescriptionLayout.{h,cpp}
   network/Network.{h,cpp}
@@ -385,13 +385,13 @@ target_link_libraries( ${BINNAME} PRIVATE
 # --- Ogre 3D graphics engine ---
 find_package( OGRE REQUIRED )
 target_link_libraries( ${BINNAME} PRIVATE
-  ${OGRE_LIBRARIES} 
+  ${OGRE_LIBRARIES}
   ${OGRE_Paging_LIBRARIES}
   ${OGRE_RTShaderSystem_LIBRARIES}
   ${OGRE_Terrain_LIBRARIES}
 )
 target_include_directories( ${BINNAME} PRIVATE
-  ${OGRE_INCLUDE_DIRS} 
+  ${OGRE_INCLUDE_DIRS}
   ${OGRE_Paging_INCLUDE_DIRS}
   ${OGRE_RTShaderSystem_INCLUDE_DIRS}
   ${OGRE_Terrain_INCLUDE_DIRS}
@@ -504,6 +504,16 @@ else()
 endif()
 
 
+
+find_package( JsonCpp )
+if( TARGET JsonCpp::JsonCpp)
+  target_link_libraries( ${BINNAME} PRIVATE JsonCpp::JsonCpp)
+  target_compile_definitions( ${BINNAME} PRIVATE USE_JSONCPP )
+else()
+  message( WARNING "Building ${BINNAME} without JsonCpp. Some functionality may be missing." )
+endif()
+
+
 ####################################################################################################
 #  POST-BUILD STEPS
 ####################################################################################################
@@ -577,7 +587,7 @@ if(WIN32)
 		wxmsw${WXWIDGETS_VERSION}_webview_${WXWIDGETS_COMPILER}.dll
 		wxmsw${WXWIDGETS_VERSION}_xrc_${WXWIDGETS_COMPILER}.dll
 	)
-	
+
 	# Execute the collected copy commands as a post-build step
 	add_custom_command(
 		TARGET ${BINNAME} POST_BUILD
