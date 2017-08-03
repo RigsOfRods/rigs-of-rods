@@ -87,8 +87,8 @@ void SequentialImporter::Process(std::shared_ptr<RigDef::File> def)
 {
     this->ProcessModule(def->root_module);
 
-    auto end  = def->modules.end();
-    auto itor = def->modules.begin();
+    auto end  = def->user_modules.end();
+    auto itor = def->user_modules.begin();
     for (;itor != end; ++itor)
     {
         this->ProcessModule((*itor).second);

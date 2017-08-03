@@ -252,9 +252,9 @@ bool Validator::HasModuleKeyword(std::shared_ptr<RigDef::File::Module> module, R
 bool Validator::AddModule(Ogre::String const & module_name)
 {
     std::map< Ogre::String, std::shared_ptr<RigDef::File::Module> >::iterator result 
-        = m_file->modules.find(module_name);
+        = m_file->user_modules.find(module_name);
 
-    if (result != m_file->modules.end())
+    if (result != m_file->user_modules.end())
     {
         m_selected_modules.push_back(result->second);
         return true;

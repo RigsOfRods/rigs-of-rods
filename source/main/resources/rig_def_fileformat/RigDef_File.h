@@ -54,6 +54,8 @@
 
 namespace RigDef {
 
+extern const char* ROOT_MODULE_NAME;
+
 /* -------------------------------------------------------------------------- */
 /* Utility                                                                    */
 /* -------------------------------------------------------------------------- */
@@ -2240,11 +2242,11 @@ struct File
     float minimum_mass;
     bool _minimum_mass_set;
 
-    /* Vehicle sections */
-    std::shared_ptr<Module> root_module;
-    std::map< Ogre::String, std::shared_ptr<Module> > modules;
+    // Vehicle modules (caled 'sections' in truckfile doc)
+    std::shared_ptr<Module> root_module; ///< Required to exist. `shared_ptr` is used for unified handling with other modules.
+    std::map< Ogre::String, std::shared_ptr<Module> > user_modules;
 
-    /* File sections */
+    // File sections
     std::vector<Author> authors;
     std::shared_ptr<Fileinfo> file_info;
 };

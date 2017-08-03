@@ -42,8 +42,6 @@
 namespace RigDef
 {
 
-static const char* ROOT_MODULE_NAME = "_Root_";
-
 inline bool IsWhitespace(char c)
 {
     return (c == ' ') || (c == '\t');
@@ -2963,7 +2961,7 @@ void Parser::ParseAuthor()
 }
 
 // -------------------------------------------------------------------------- 
-//	Utilities                                                                 
+//  Utilities
 // -------------------------------------------------------------------------- 
 
 void Parser::AddMessage(std::string const & line, Message::Type type, std::string const & message)
@@ -3064,9 +3062,8 @@ void Parser::Prepare()
     m_user_beam_defaults->breaking_threshold    = BEAM_BREAK;
     m_user_beam_defaults->visual_beam_diameter  = DEFAULT_BEAM_DIAMETER;
 
-    m_root_module = std::shared_ptr<File::Module>( new File::Module(ROOT_MODULE_NAME) );
-    m_definition->root_module = m_root_module;
-    m_current_module = m_root_module;
+    m_root_module = m_definition->root_module;
+    m_current_module = m_definition->root_module;
 
     m_sequential_importer.Init(true); // Enabled=true
 
@@ -3164,15 +3161,21 @@ void Parser::ProcessChangeModuleLine(File::Keyword keyword)
     this->ChangeSection(RigDef::File::SECTION_NONE);
     m_last_flexbody.reset(); // Set to nullptr
 
-    auto search_itor = m_definition->modules.find(new_module_name);
-    if (search_itor != m_definition->modules.end())
+    if (new_module_name == ROOT_MODULE_NAME)
+    {
+        m_current_module = m_root_module;
+        return;
+    }
+
+    auto search_itor = m_definition->user_modules.find(new_module_name);
+    if (search_itor != m_definition->user_modules.end())
     {
         m_current_module = search_itor->second;
     }
     else
     {
         m_current_module = std::make_shared<File::Module>(new_module_name);
-        m_definition->modules.insert(std::make_pair(new_module_name, m_current_module));
+        m_definition->user_modules.insert(std::make_pair(new_module_name, m_current_module));
     }
 }
 
