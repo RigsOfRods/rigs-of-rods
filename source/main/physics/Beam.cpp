@@ -5982,7 +5982,7 @@ bool Beam::LoadTruck(
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_SPAWNER_SETUP);
     /* Setup modules */
     spawner.AddModule(parser.GetFile()->root_module);
-    if (parser.GetFile()->modules.size() > 0) /* The vehicle-selector may return selected modules even for vehicle with no modules defined! Hence this check. */
+    if (parser.GetFile()->user_modules.size() > 0) /* The vehicle-selector may return selected modules even for vehicle with no modules defined! Hence this check. */
     {
         std::vector<Ogre::String>::iterator itor = m_truck_config.begin();
         for (; itor != m_truck_config.end(); itor++)

@@ -42,8 +42,6 @@
 namespace RigDef
 {
 
-static const char* ROOT_MODULE_NAME = "_Root_";
-
 inline bool IsWhitespace(char c)
 {
     return (c == ' ') || (c == '\t');
@@ -90,7 +88,7 @@ void Parser::ProcessCurrentLine()
     else if (StrEqualsNocase(m_current_line, "comment"))
     {
         m_in_block_comment = true;
-        return;        
+        return;
     }
     else if (m_in_description_section) // Enter logic is below in 'keywords'
     {
@@ -107,7 +105,7 @@ void Parser::ProcessCurrentLine()
     else if ((m_current_line[0] == ';') || (m_current_line[0] == '/'))
     {
         return;
-    } 
+    }
 
     this->TokenizeCurrentLine();
 
@@ -919,11 +917,11 @@ void Parser::ParseGlobals()
     {
         this->AddMessage(Message::TYPE_WARNING, "Globals defined more than once.");
     }
-    
+
     Globals globals;
     globals.dry_mass   = this->GetArgFloat(0);
     globals.cargo_mass = this->GetArgFloat(1);
-    
+
     if (m_num_args > 2) { globals.material_name = this->GetArgStr(2); }
 
     m_current_module->globals = std::shared_ptr<Globals>( new Globals(globals) );
@@ -936,7 +934,7 @@ void Parser::ParseFusedrag()
     Fusedrag fusedrag;
     fusedrag.front_node = this->GetArgNodeRef(0);
     fusedrag.rear_node  = this->GetArgNodeRef(1);
-    
+
     if (this->GetArgStr(2) == "autocalc")
     {
         fusedrag.autocalc = true;
@@ -2963,7 +2961,7 @@ void Parser::ParseAuthor()
 }
 
 // -------------------------------------------------------------------------- 
-//	Utilities                                                                 
+//  Utilities
 // -------------------------------------------------------------------------- 
 
 void Parser::AddMessage(std::string const & line, Message::Type type, std::string const & message)
@@ -2981,12 +2979,12 @@ void Parser::AddMessage(std::string const & line, Message::Type type, std::strin
 
     switch (type)
     {
-    case Message::TYPE_ERROR: 
-    case Message::TYPE_FATAL_ERROR: 
-        ++m_messages_num_errors; 
+    case Message::TYPE_ERROR:
+    case Message::TYPE_FATAL_ERROR:
+        ++m_messages_num_errors;
         break;
-    case Message::TYPE_WARNING: 
-        ++m_messages_num_warnings; 
+    case Message::TYPE_WARNING:
+        ++m_messages_num_warnings;
         break;
     default:
         ++m_messages_num_other;
@@ -3018,7 +3016,7 @@ File::Keyword Parser::IdentifyKeywordInCurrentLine()
     keyword = FindKeywordMatch(results);
     if (keyword != File::KEYWORD_INVALID)
     {
-        this->AddMessage(line, Message::TYPE_WARNING, 
+        this->AddMessage(line, Message::TYPE_WARNING,
             "Keyword has invalid lettercase. Correct form is: " + std::string(File::KeywordToString(keyword)));
     }
     return keyword;
@@ -3028,13 +3026,13 @@ File::Keyword Parser::FindKeywordMatch(std::smatch& search_results)
 {
     // The 'results' array contains a complete match at positon [0] and sub-matches starting with [1], 
     //    so we get exact positions in Regexes::IDENTIFY_KEYWORD, which again match File::Keyword enum members
-        
+
     for (unsigned int i = 1; i < search_results.size(); i++)
     {
         std::ssub_match sub  = search_results[i];
         if (sub.matched)
         {
-            // Build enum value directly from result offset 
+            // Build enum value directly from result offset
             return File::Keyword(i);
         }
     }
@@ -3058,15 +3056,14 @@ void Parser::Prepare()
     m_current_managed_material_options = ManagedMaterialsOptions();
 
     m_user_beam_defaults = std::shared_ptr<BeamDefaults>(new BeamDefaults);
-    m_user_beam_defaults->springiness           = DEFAULT_SPRING;       
-    m_user_beam_defaults->damping_constant      = DEFAULT_DAMP;         
-    m_user_beam_defaults->deformation_threshold = BEAM_DEFORM;          
-    m_user_beam_defaults->breaking_threshold    = BEAM_BREAK;           
+    m_user_beam_defaults->springiness           = DEFAULT_SPRING;
+    m_user_beam_defaults->damping_constant      = DEFAULT_DAMP;
+    m_user_beam_defaults->deformation_threshold = BEAM_DEFORM;
+    m_user_beam_defaults->breaking_threshold    = BEAM_BREAK;
     m_user_beam_defaults->visual_beam_diameter  = DEFAULT_BEAM_DIAMETER;
 
-    m_root_module = std::shared_ptr<File::Module>( new File::Module(ROOT_MODULE_NAME) );
-    m_definition->root_module = m_root_module;
-    m_current_module = m_root_module;
+    m_root_module = m_definition->root_module;
+    m_current_module = m_definition->root_module;
 
     m_sequential_importer.Init(true); // Enabled=true
 
@@ -3081,7 +3078,7 @@ void Parser::ChangeSection(RigDef::File::Section new_section)
 
     this->ExitSections();
 
-    // Enter sections 
+    // Enter sections
     m_current_section = new_section;
     if (new_section == File::SECTION_SUBMESH)
     {
@@ -3164,15 +3161,21 @@ void Parser::ProcessChangeModuleLine(File::Keyword keyword)
     this->ChangeSection(RigDef::File::SECTION_NONE);
     m_last_flexbody.reset(); // Set to nullptr
 
-    auto search_itor = m_definition->modules.find(new_module_name);
-    if (search_itor != m_definition->modules.end())
+    if (new_module_name == ROOT_MODULE_NAME)
+    {
+        m_current_module = m_root_module;
+        return;
+    }
+
+    auto search_itor = m_definition->user_modules.find(new_module_name);
+    if (search_itor != m_definition->user_modules.end())
     {
         m_current_module = search_itor->second;
     }
     else
     {
         m_current_module = std::make_shared<File::Module>(new_module_name);
-        m_definition->modules.insert(std::make_pair(new_module_name, m_current_module));
+        m_definition->user_modules.insert(std::make_pair(new_module_name, m_current_module));
     }
 }
 
@@ -3203,20 +3206,20 @@ std::string Parser::ProcessMessagesToString()
     {
         switch (itor->type)
         {
-            case (RigDef::Parser::Message::TYPE_FATAL_ERROR): 
-                report << "#FF3300 FATAL_ERROR #FFFFFF"; 
+            case (RigDef::Parser::Message::TYPE_FATAL_ERROR):
+                report << "#FF3300 FATAL_ERROR #FFFFFF";
                 break;
 
-            case (RigDef::Parser::Message::TYPE_ERROR): 
-                report << "#FF3300 ERROR #FFFFFF"; 
+            case (RigDef::Parser::Message::TYPE_ERROR):
+                report << "#FF3300 ERROR #FFFFFF";
                 break;
 
-            case (RigDef::Parser::Message::TYPE_WARNING): 
-                report << "#FFFF00 WARNING #FFFFFF"; 
+            case (RigDef::Parser::Message::TYPE_WARNING):
+                report << "#FFFF00 WARNING #FFFFFF";
                 break;
 
             default:
-                report << "INFO"; 
+                report << "INFO";
                 break;
         }
         report << " (Section " << RigDef::File::SectionToString(itor->section) << ")" << std::endl;

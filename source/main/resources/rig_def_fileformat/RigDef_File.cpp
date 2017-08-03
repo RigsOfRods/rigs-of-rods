@@ -28,6 +28,9 @@
 
 namespace RigDef
 {
+
+const char* ROOT_MODULE_NAME = "_Root_"; // Static
+
 #ifndef _WIN32
     /* These definitions are needed because the variables are declared but not defined in Axle */
     const char Axle::OPTION_o_OPEN;
@@ -604,7 +607,7 @@ File::Module::Module(Ogre::String const & name):
     triggers.reserve(25);
     turbojets.reserve(15);
     turboprops_2.reserve(15);
-    videocameras.reserve(10);	
+    videocameras.reserve(10);
     wheels.reserve(6);
     wheels_2.reserve(8);
     wings.reserve(10);
@@ -627,6 +630,7 @@ File::File():
 {
     authors.reserve(10);
     description.reserve(20);
+    root_module = std::make_shared<File::Module>(ROOT_MODULE_NAME); // Required to exist.
 }
 
 bool File::HasFixes()
@@ -635,11 +639,9 @@ bool File::HasFixes()
     {
         return true;
     }
-    auto end  = modules.end();
-    auto itor = modules.begin();
-    for (; itor != end; ++itor)
+    for (auto& pair: user_modules)
     {
-        if (itor->second->fixes.size() != 0)
+        if (pair.second->fixes.size())
         {
             return true;
         }

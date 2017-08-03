@@ -1552,8 +1552,8 @@ void CacheSystem::fillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     }
 
     /* Modules (previously called "sections") */
-    std::map<Ogre::String, std::shared_ptr<RigDef::File::Module>>::iterator module_itor = def->modules.begin();
-    for (; module_itor != def->modules.end(); module_itor++)
+    std::map<Ogre::String, std::shared_ptr<RigDef::File::Module>>::iterator module_itor = def->user_modules.begin();
+    for (; module_itor != def->user_modules.end(); module_itor++)
     {
         entry.sectionconfigs.push_back(module_itor->second->name);
     }
@@ -1594,8 +1594,8 @@ void CacheSystem::fillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
         This is a temporary solution which has undefined results for mixed-type vehicles.
     */
     int vehicle_type = NOT_DRIVEABLE;
-    module_itor = def->modules.begin();
-    for (; module_itor != def->modules.end(); module_itor++)
+    module_itor = def->user_modules.begin();
+    for (; module_itor != def->user_modules.end(); module_itor++)
     {
         if (module_itor->second->engine != nullptr)
         {
