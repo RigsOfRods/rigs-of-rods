@@ -291,9 +291,9 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 
             paged_geometry_t paged;
             paged.geom = new PagedGeometry();
-            char temp_path[300];
-            snprintf(temp_path, 300, "%s%s", RoR::App::sys_cache_dir.GetActive(), PATH_SLASH);
-            paged.geom->setTempDir(temp_path);
+            RoR::GStr<300> temp_path;
+            temp_path << RoR::App::sys_cache_dir.GetActive() << PATH_SLASH;
+            paged.geom->setTempDir(temp_path.GetBuffer());
             paged.geom->setCamera(gEnv->mainCamera);
             paged.geom->setPageSize(50);
             paged.geom->setInfinite();
