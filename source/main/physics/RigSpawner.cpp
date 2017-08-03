@@ -3981,10 +3981,10 @@ void RigSpawner::FetchAxisNodes(
 }
 
 void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
-{	
+{
     SPAWNER_PROFILE_SCOPED();
 
-    /* Check capacities */
+    // Check capacities
     CheckNodeLimit(def.num_rays * 4);
     CheckBeamLimit(def.num_rays * (def.rigidity_node.IsValidAnyState()) ? 26 : 25);
     CheckFlexbodyLimit(1);
@@ -3996,7 +3996,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     node_t *axis_node_2 = nullptr;
     FetchAxisNodes(axis_node_1, axis_node_2, def.nodes[0], def.nodes[1]);
 
-    /* Rigidity node */
+    // Rigidity node
     node_t *rigidity_node = nullptr;
     node_t *axis_node_closest_to_rigidity_node = nullptr;
     if (def.rigidity_node.IsValidAnyState())
@@ -4007,20 +4007,20 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         axis_node_closest_to_rigidity_node = ((distance_1 < distance_2)) ? axis_node_1 : axis_node_2;
     }
 
-    /* Node&beam generation */
+    // Node&beam generation
     Ogre::Vector3 axis_vector = axis_node_2->RelPosition - axis_node_1->RelPosition;
     wheel.width = axis_vector.length(); /* wheel_def.width is ignored. */
     axis_vector.normalise();
     Ogre::Vector3 rim_ray_vector = axis_vector.perpendicular() * def.rim_radius;
     Ogre::Quaternion rim_ray_rotator = Ogre::Quaternion(Ogre::Degree(-360.f / (def.num_rays * 2)), axis_vector);
 
-    /* Rim nodes */
-    /* NOTE: node.iswheel is not used for rim nodes */
+    // Rim nodes
+    // NOTE: node.iswheel is not used for rim nodes
     for (unsigned int i = 0; i < def.num_rays; i++)
     {
         float node_mass = def.mass / (4.f * def.num_rays);
 
-        /* Outer ring */
+        // Outer ring
         Ogre::Vector3 ray_point = axis_node_1->RelPosition + rim_ray_vector;
         rim_ray_vector = rim_ray_rotator * rim_ray_vector;
 
@@ -4033,7 +4033,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         outer_node.friction_coef = def.node_defaults->friction;
         AdjustNodeBuoyancy(outer_node, def.node_defaults);
 
-        /* Inner ring */
+        // Inner ring
         ray_point = axis_node_2->RelPosition + rim_ray_vector;
         rim_ray_vector = rim_ray_rotator * rim_ray_vector;
 
@@ -4046,7 +4046,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         inner_node.friction_coef = def.node_defaults->friction;
         AdjustNodeBuoyancy(inner_node, def.node_defaults);
 
-        /* Wheel object */
+        // Wheel object
         wheel.nodes[i * 2]       = & outer_node;
         wheel.nodes[(i * 2) + 1] = & inner_node;
     }
@@ -4055,7 +4055,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     Ogre::Quaternion& tyre_ray_rotator = rim_ray_rotator;
     tyre_ray_vector = tyre_ray_rotator * tyre_ray_vector;
 
-    /* Tyre nodes */
+    // Tyre nodes
     for (unsigned int i = 0; i < def.num_rays; i++)
     {
         /* Outer ring */
@@ -4078,7 +4078,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         outer_contacter.nodeid        = outer_node.pos; /* Node index */
         m_rig->free_contacter++;
 
-        /* Inner ring */
+        // Inner ring
         ray_point = axis_node_2->RelPosition + tyre_ray_vector;
         tyre_ray_vector = tyre_ray_rotator * tyre_ray_vector;
 
@@ -4094,15 +4094,15 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         AdjustNodeBuoyancy(inner_node, def.node_defaults);
 
         contacter_t & inner_contacter = m_rig->contacters[m_rig->free_contacter];
-        inner_contacter.nodeid        = inner_node.pos; /* Node index */
+        inner_contacter.nodeid        = inner_node.pos; // Node index
         m_rig->free_contacter++;
 
-        /* Wheel object */
+        // Wheel object
         wheel.nodes[i * 2] = & outer_node;
         wheel.nodes[(i * 2) + 1] = & inner_node;
     }
 
-    /* Beams */
+    // Beams
     float rim_spring = def.rim_springiness;
     float rim_damp = def.rim_damping;
     float tyre_spring = def.tyre_springiness;
@@ -4112,9 +4112,9 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 
     for (unsigned int i = 0; i < def.num_rays; i++)
     {
-        /* --- Rim ---  */
+        // --- Rim --- 
 
-        /* Rim axis to rim ring */
+        // Rim axis to rim ring
         unsigned int rim_outer_node_index = base_node_index + (i * 2);
         node_t *rim_outer_node = & m_rig->nodes[rim_outer_node_index];
         node_t *rim_inner_node = & m_rig->nodes[rim_outer_node_index + 1];
@@ -4124,7 +4124,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         AddWheelBeam(axis_node_2, rim_outer_node, rim_spring, rim_damp, def.beam_defaults);
         AddWheelBeam(axis_node_1, rim_inner_node, rim_spring, rim_damp, def.beam_defaults);
 
-        /* Reinforcement rim ring */
+        // Reinforcement rim ring
         unsigned int rim_next_outer_node_index = base_node_index + (((i + 1) % def.num_rays) * 2);
         node_t *rim_next_outer_node = & m_rig->nodes[rim_next_outer_node_index];
         node_t *rim_next_inner_node = & m_rig->nodes[rim_next_outer_node_index + 1];
@@ -4135,8 +4135,8 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         AddWheelBeam(rim_inner_node, rim_next_outer_node, rim_spring, rim_damp, def.beam_defaults);
     }
 
-    /* Tyre beams */
-    /* Quick&dirty port from original SerializedRig::addWheel3() */
+    // Tyre beams
+    // Quick&dirty port from original SerializedRig::addWheel3()
     for (unsigned int i = 0; i < def.num_rays; i++)
     {
         int rim_node_index    = base_node_index + i*2;
@@ -4153,12 +4153,12 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         AddWheelBeam(next_rim_node, & m_rig->nodes[tyre_node_index],     tyre_spring/2.f, tyre_damp, def.beam_defaults);
         AddWheelBeam(next_rim_node, & m_rig->nodes[tyre_node_index + 1], tyre_spring/2.f, tyre_damp, def.beam_defaults);
 
-        {	
+        {
             int index = (i == 0) ? tyre_node_index + (def.num_rays * 2) - 1 : tyre_node_index - 1;
             node_t * tyre_node = & m_rig->nodes[index];
             AddWheelBeam(next_rim_node, tyre_node, tyre_spring/2.f, tyre_damp, def.beam_defaults);
         }
-        
+
         //reinforcement (tire tread)
         {
             // Very messy port :(
@@ -4173,7 +4173,6 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 
             if (rigidity_node != nullptr)
             {
-                
                 if (axis_node_closest_to_rigidity_node == axis_node_1)
                 {
                     axis_node_closest_to_rigidity_node = & m_rig->nodes[base_node_index+i*2+rays*2];
@@ -4187,15 +4186,14 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         }
     }
 
-    /* 
-        Calculate the point where the support beams get stiff and prevent the tire tread nodes 
-        bounce into the rim rimradius / tire radius and add 5%, this is a shortbound calc in % ! 
-    */
+    //    Calculate the point where the support beams get stiff and prevent the tire tread nodes
+    //    bounce into the rim rimradius / tire radius and add 5%, this is a shortbound calc in % !
+
     float support_beams_short_bound = 1.0f - ((def.rim_radius / def.tyre_radius) * 0.95f);
 
     for (unsigned int i=0; i<def.num_rays; i++)
     {
-        //tiretread anti collapse reinforcements, using precalced support beams
+        // tiretread anti collapse reinforcements, using precalced support beams
         unsigned int tirenode = base_node_index + i*2 + def.num_rays*2;
         unsigned int beam_index;
 
@@ -4210,7 +4208,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         GetBeam(beam_index).bounded = SHOCK1;
     }
 
-    /* Wheel object */
+    // Wheel object
     wheel.braked = def.braking;
     wheel.propulsed = def.propulsion;
     wheel.nbnodes = 2 * def.num_rays;
@@ -4221,7 +4219,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 
     if (def.propulsion != RigDef::Wheels::PROPULSION_NONE)
     {
-        /* for inter-differential locking */
+        // for inter-differential locking
         m_rig->proped_wheels++;
         m_rig->proppairs[m_rig->proped_wheels] = m_rig->free_wheel;
         m_rig->propwheelcount++;
@@ -4231,15 +4229,18 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         m_rig->braked_wheels++;
     }
 
-    /* Find near attach */
+    // Find near attach
     Ogre::Real length_1 = (axis_node_1->RelPosition - wheel.arm->RelPosition).length();
     Ogre::Real length_2 = (axis_node_2->RelPosition - wheel.arm->RelPosition).length();
     wheel.near_attach = (length_1 < length_2) ? axis_node_1 : axis_node_2;
 
-    /* Create visuals */
+    // Commit the wheel
+    ++m_rig->free_wheel;
+
+    // Create visuals
     BuildMeshWheelVisuals(
-        m_rig->free_wheel, 
-        base_node_index, 
+        m_rig->free_wheel,
+        base_node_index,
         axis_node_1->pos,
         axis_node_2->pos,
         def.num_rays,
@@ -4281,8 +4282,6 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 
         m_rig->flexbodies[m_rig->free_flexbody] = flexbody;
         m_rig->free_flexbody++;
-
-        m_rig->free_wheel++;
     }
     catch (Ogre::Exception& e)
     {
