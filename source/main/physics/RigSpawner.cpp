@@ -2628,8 +2628,8 @@ bool RigSpawner::AssignWheelToAxle(int & _out_axle_wheel, node_t *axis_node_1, n
     for (int i = 0; i < m_rig->free_wheel; i++)
     {
         wheel_t & wheel = m_rig->wheels[i];
-        if	(	(wheel.refnode0 == axis_node_1 && wheel.refnode1 == axis_node_2)
-            ||	(wheel.refnode0 == axis_node_2 && wheel.refnode1 == axis_node_1)
+        if	(	(wheel.wh_axis_node_0 == axis_node_1 && wheel.wh_axis_node_1 == axis_node_2)
+            ||	(wheel.wh_axis_node_0 == axis_node_2 && wheel.wh_axis_node_1 == axis_node_1)
             )
         {
             _out_axle_wheel = i;
@@ -4051,7 +4051,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 
     // Node&beam generation
     Ogre::Vector3 axis_vector = axis_node_2->RelPosition - axis_node_1->RelPosition;
-    wheel.width = axis_vector.length(); /* wheel_def.width is ignored. */
+    wheel.wh_width = axis_vector.length(); // wheel_def.width is ignored.
     axis_vector.normalise();
     Ogre::Vector3 rim_ray_vector = axis_vector.perpendicular() * def.rim_radius;
     Ogre::Quaternion rim_ray_rotator = Ogre::Quaternion(Ogre::Degree(-360.f / (def.num_rays * 2)), axis_vector);
@@ -4089,8 +4089,8 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         AdjustNodeBuoyancy(inner_node, def.node_defaults);
 
         // Wheel object
-        wheel.nodes[i * 2]       = & outer_node;
-        wheel.nodes[(i * 2) + 1] = & inner_node;
+        wheel.wh_nodes[i * 2]       = & outer_node;
+        wheel.wh_nodes[(i * 2) + 1] = & inner_node;
     }
 
     Ogre::Vector3 tyre_ray_vector = axis_vector.perpendicular() * def.tyre_radius;
@@ -4140,8 +4140,8 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         m_rig->free_contacter++;
 
         // Wheel object
-        wheel.nodes[i * 2] = & outer_node;
-        wheel.nodes[(i * 2) + 1] = & inner_node;
+        wheel.wh_nodes[i * 2] = & outer_node;
+        wheel.wh_nodes[(i * 2) + 1] = & inner_node;
     }
 
     // Beams
@@ -4251,13 +4251,13 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     }
 
     // Wheel object
-    wheel.braked = def.braking;
-    wheel.propulsed = def.propulsion;
-    wheel.nbnodes = 2 * def.num_rays;
-    wheel.refnode0 = axis_node_1;
-    wheel.refnode1 = axis_node_2;
-    wheel.radius = def.tyre_radius;
-    wheel.arm = GetNodePointer(def.reference_arm_node);
+    wheel.wh_braking = this->TranslateBrakingDef(def.braking);
+    wheel.wh_propulsed = def.propulsion;
+    wheel.wh_num_nodes = 2 * def.num_rays;
+    wheel.wh_axis_node_0 = axis_node_1;
+    wheel.wh_axis_node_1 = axis_node_2;
+    wheel.wh_radius = def.tyre_radius;
+    wheel.wh_arm_node = this->GetNodePointer(def.reference_arm_node);
 
     if (def.propulsion != RigDef::Wheels::PROPULSION_NONE)
     {
@@ -4272,9 +4272,9 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     }
 
     // Find near attach
-    Ogre::Real length_1 = (axis_node_1->RelPosition - wheel.arm->RelPosition).length();
-    Ogre::Real length_2 = (axis_node_2->RelPosition - wheel.arm->RelPosition).length();
-    wheel.near_attach = (length_1 < length_2) ? axis_node_1 : axis_node_2;
+    Ogre::Real length_1 = (axis_node_1->RelPosition - wheel.wh_arm_node->RelPosition).length();
+    Ogre::Real length_2 = (axis_node_2->RelPosition - wheel.wh_arm_node->RelPosition).length();
+    wheel.wh_near_attach_node = (length_1 < length_2) ? axis_node_1 : axis_node_2;
 
     // Commit the wheel
     int wheel_index = m_rig->free_wheel;
@@ -4330,6 +4330,19 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     {
         this->AddMessage(Message::TYPE_ERROR, 
             "Failed to create flexbodywheel '" + def.tyre_mesh_name + "', reason:" + e.getFullDescription());
+    }
+}
+
+wheel_t::BrakeCombo RigSpawner::TranslateBrakingDef(RigDef::Wheels::Braking def)
+{
+    switch (def)
+    {
+    case RigDef::Wheels::Braking::BRAKING_NO:                return wheel_t::BrakeCombo::NONE;
+    case RigDef::Wheels::Braking::BRAKING_YES:               return wheel_t::BrakeCombo::FOOT_HAND;
+    case RigDef::Wheels::Braking::BRAKING_DIRECTIONAL_LEFT:  return wheel_t::BrakeCombo::FOOT_HAND_SKID_LEFT;
+    case RigDef::Wheels::Braking::BRAKING_DIRECTIONAL_RIGHT: return wheel_t::BrakeCombo::FOOT_HAND_SKID_RIGHT;
+    case RigDef::Wheels::Braking::BRAKING_ONLY_FOOT:         return wheel_t::BrakeCombo::FOOT_ONLY;
+    default:                                                 return wheel_t::BrakeCombo::NONE;
     }
 }
 
@@ -4542,19 +4555,19 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
     axis_vector.normalise();
 
     /* Wheel object */
-    wheel.braked    = braking;
-    wheel.propulsed = propulsion;
-    wheel.nbnodes   = 2 * num_rays;
-    wheel.refnode0  = axis_node_1;
-    wheel.refnode1  = axis_node_2;
-    wheel.radius    = wheel_radius;
-    wheel.width     = (wheel_width < 0) ? axis_length : wheel_width;
-    wheel.arm       = reference_arm_node;
+    wheel.wh_braking      = this->TranslateBrakingDef(braking);
+    wheel.wh_propulsed    = propulsion;
+    wheel.wh_num_nodes    = 2 * num_rays;
+    wheel.wh_axis_node_0  = axis_node_1;
+    wheel.wh_axis_node_1  = axis_node_2;
+    wheel.wh_radius       = wheel_radius;
+    wheel.wh_width        = (wheel_width < 0) ? axis_length : wheel_width;
+    wheel.wh_arm_node     = reference_arm_node;
 
     /* Find near attach */
-    Ogre::Real length_1 = (axis_node_1->RelPosition - wheel.arm->RelPosition).length();
-    Ogre::Real length_2 = (axis_node_2->RelPosition - wheel.arm->RelPosition).length();
-    wheel.near_attach = (length_1 < length_2) ? axis_node_1 : axis_node_2;
+    Ogre::Real length_1 = (axis_node_1->RelPosition - wheel.wh_arm_node->RelPosition).length();
+    Ogre::Real length_2 = (axis_node_2->RelPosition - wheel.wh_arm_node->RelPosition).length();
+    wheel.wh_near_attach_node = (length_1 < length_2) ? axis_node_1 : axis_node_2;
 
     if (propulsion != RigDef::Wheels::PROPULSION_NONE)
     {
@@ -4615,8 +4628,8 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
         m_rig->free_contacter++;
 
         /* Wheel object */
-        wheel.nodes[i * 2] = & outer_node;
-        wheel.nodes[(i * 2) + 1] = & inner_node;
+        wheel.wh_nodes[i * 2] = & outer_node;
+        wheel.wh_nodes[(i * 2) + 1] = & inner_node;
 
 #ifdef DEBUG_TRUCKPARSER2013
         // TRUCK PARSER 2013 DEBUG
@@ -5041,7 +5054,7 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
     Ogre::Quaternion rim_ray_rotator = Ogre::Quaternion(Ogre::Degree(-360.f / wheel_2_def.num_rays), axis_vector);
 
     /* Width */
-    wheel.width = axis_vector.length(); /* wheel_def.width is ignored. */
+    wheel.wh_width = axis_vector.length(); /* wheel_def.width is ignored. */
 
     /* Rim nodes */
     for (unsigned int i = 0; i < wheel_2_def.num_rays; i++)
@@ -5069,8 +5082,8 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         inner_node.wheelid = m_rig->free_wheel;
 
         /* Wheel object */
-        wheel.nodes[i * 2] = & outer_node;
-        wheel.nodes[(i * 2) + 1] = & inner_node;
+        wheel.wh_nodes[i * 2] = & outer_node;
+        wheel.wh_nodes[(i * 2) + 1] = & inner_node;
 
         rim_ray_vector = rim_ray_rotator * rim_ray_vector;
     }
@@ -5091,7 +5104,7 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         outer_node.iswheel       = WHEEL_2;
         outer_node.id            = -1; // Orig: hardcoded (addWheel2)
         outer_node.wheelid       = m_rig->free_wheel;
-        outer_node.friction_coef = wheel.width * WHEEL_FRICTION_COEF;
+        outer_node.friction_coef = wheel.wh_width * WHEEL_FRICTION_COEF;
         outer_node.volume_coef   = wheel_2_def.node_defaults->volume;
         outer_node.surface_coef  = wheel_2_def.node_defaults->surface;
 
@@ -5108,7 +5121,7 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         inner_node.iswheel       = WHEEL_2;
         inner_node.id            = -1; // Orig: hardcoded (addWheel2)
         inner_node.wheelid       = m_rig->free_wheel;
-        inner_node.friction_coef = wheel.width * WHEEL_FRICTION_COEF;
+        inner_node.friction_coef = wheel.wh_width * WHEEL_FRICTION_COEF;
         inner_node.volume_coef   = wheel_2_def.node_defaults->volume;
         inner_node.surface_coef  = wheel_2_def.node_defaults->surface;
 
@@ -5117,8 +5130,8 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         m_rig->free_contacter++;
 
         /* Wheel object */
-        wheel.nodes[i * 2] = & outer_node;
-        wheel.nodes[(i * 2) + 1] = & inner_node;
+        wheel.wh_nodes[i * 2] = & outer_node;
+        wheel.wh_nodes[(i * 2) + 1] = & inner_node;
 
         tyre_ray_vector = rim_ray_rotator * tyre_ray_vector; // This is OK
     }
@@ -5192,13 +5205,13 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
     }
 
     /* Wheel object */
-    wheel.braked = wheel_2_def.braking;
-    wheel.propulsed = wheel_2_def.propulsion;
-    wheel.nbnodes = 2 * wheel_2_def.num_rays;
-    wheel.refnode0 = axis_node_1;
-    wheel.refnode1 = axis_node_2;
-    wheel.radius = wheel_2_def.tyre_radius;
-    wheel.arm = GetNodePointer(wheel_2_def.reference_arm_node);
+    wheel.wh_braking       = this->TranslateBrakingDef(wheel_2_def.braking);
+    wheel.wh_propulsed     = wheel_2_def.propulsion;
+    wheel.wh_num_nodes     = 2 * wheel_2_def.num_rays;
+    wheel.wh_axis_node_0   = axis_node_1;
+    wheel.wh_axis_node_1   = axis_node_2;
+    wheel.wh_radius        = wheel_2_def.tyre_radius;
+    wheel.wh_arm_node      = this->GetNodePointer(wheel_2_def.reference_arm_node);
 
     if (wheel_2_def.propulsion != RigDef::Wheels::PROPULSION_NONE)
     {
@@ -5212,9 +5225,9 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
     }
 
     /* Find near attach */
-    Ogre::Real length_1 = (axis_node_1->RelPosition - wheel.arm->RelPosition).length();
-    Ogre::Real length_2 = (axis_node_2->RelPosition - wheel.arm->RelPosition).length();
-    wheel.near_attach = (length_1 < length_2) ? axis_node_1 : axis_node_2;
+    Ogre::Real length_1 = (axis_node_1->RelPosition - wheel.wh_arm_node->RelPosition).length();
+    Ogre::Real length_2 = (axis_node_2->RelPosition - wheel.wh_arm_node->RelPosition).length();
+    wheel.wh_near_attach_node = (length_1 < length_2) ? axis_node_1 : axis_node_2;
 
     CreateWheelSkidmarks(static_cast<unsigned>(m_rig->free_wheel));
 
@@ -5275,8 +5288,8 @@ void RigSpawner::CreateWheelVisuals(
         visual_wheel.fm = new FlexMesh(
             wheel_mesh_name,
             m_rig->nodes,
-            wheel.refnode0->pos,
-            wheel.refnode1->pos,
+            wheel.wh_axis_node_0->pos,
+            wheel.wh_axis_node_1->pos,
             node_base_index,
             num_rays,
             rim_material_name,
@@ -5396,7 +5409,7 @@ void RigSpawner::ProcessWheelDetacher(RigDef::WheelDetacher & def)
         return;
     }
 
-    m_rig->wheels[def.wheel_id].detacher_group = def.detacher_group;
+    m_rig->wheels[def.wheel_id].wh_detacher_group = def.detacher_group;
 };
 
 void RigSpawner::ProcessSlopeBrake(RigDef::SlopeBrake & def)
