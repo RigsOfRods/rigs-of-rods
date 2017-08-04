@@ -53,7 +53,7 @@ struct wheel_t
 
     int detacher_group;
     bool detached;
-    
+
     //skidmarks v2
     bool isSkiding;
 };
@@ -63,8 +63,6 @@ struct wheel_t
 */
 struct vwheel_t
 {
-    node_t *p1;
-    node_t *p2;
     Flexable *fm;
     Ogre::SceneNode *cnode;
     bool meshwheel;
