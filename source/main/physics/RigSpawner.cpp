@@ -4021,7 +4021,7 @@ void RigSpawner::FetchAxisNodes(
         node_t *swap = axis_node_1;
         axis_node_1 = axis_node_2;
         axis_node_2 = swap;
-    }	
+    }
 }
 
 void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
@@ -4277,11 +4277,12 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     wheel.near_attach = (length_1 < length_2) ? axis_node_1 : axis_node_2;
 
     // Commit the wheel
+    int wheel_index = m_rig->free_wheel;
     ++m_rig->free_wheel;
 
     // Create visuals
     BuildMeshWheelVisuals(
-        m_rig->free_wheel,
+        wheel_index,
         base_node_index,
         axis_node_1->pos,
         axis_node_2->pos,
@@ -4320,7 +4321,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         if (flexbody == nullptr)
             return; // Error already logged
 
-        this->CreateWheelSkidmarks(static_cast<unsigned>(m_rig->free_wheel));
+        this->CreateWheelSkidmarks(static_cast<unsigned>(wheel_index));
 
         m_rig->flexbodies[m_rig->free_flexbody] = flexbody;
         m_rig->free_flexbody++;
