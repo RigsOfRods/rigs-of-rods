@@ -250,7 +250,6 @@ void RigSpawner::InitializeRig()
     m_rig->free_contacter = 0;
     memset(m_rig->wheels, 0, sizeof(wheel_t) * MAX_WHEELS);
     m_rig->free_wheel = 0;
-    memset(m_rig->vwheels, 0, sizeof(vwheel_t) * MAX_WHEELS);
     m_rig->ropes.clear();
     m_rig->ropables.clear();
     m_rig->ties.clear();
@@ -291,7 +290,6 @@ void RigSpawner::InitializeRig()
     memset(m_rig->buoycabtypes, 0, sizeof(int) * MAX_CABS);
     memset(m_rig->airbrakes, 0, sizeof(Airbrake *) * MAX_AIRBRAKES);
     m_rig->free_airbrake = 0;
-    memset(m_rig->skidtrails, 0, sizeof(Skidmark *) * (MAX_WHEELS*2));
     memset(m_rig->flexbodies, 0, sizeof(FlexBody *) * MAX_FLEXBODIES);
     m_rig->free_flexbody = 0;
     m_rig->description.clear();
@@ -4321,7 +4319,8 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         if (flexbody == nullptr)
             return; // Error already logged
 
-        this->CreateWheelSkidmarks(static_cast<unsigned>(wheel_index));
+        // TEMPORARY! See comments of `m_gfx_wheels`
+        m_gfx_wheels.back().gw_skidtrail = this->CreateWheelSkidmarks(static_cast<unsigned>(wheel_index));
 
         m_rig->flexbodies[m_rig->free_flexbody] = flexbody;
         m_rig->free_flexbody++;
@@ -4410,7 +4409,7 @@ void RigSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
         meshwheel_def.side != RigDef::MeshWheel::SIDE_RIGHT
         );
 
-    CreateWheelSkidmarks(wheel_index);
+    m_gfx_wheels.back().gw_skidtrail = this->CreateWheelSkidmarks(wheel_index); // TEMPORARY! See comments of `m_gfx_wheels`
 }
 
 void RigSpawner::ProcessMeshWheel2(RigDef::MeshWheel & def)
@@ -4486,7 +4485,7 @@ void RigSpawner::ProcessMeshWheel2(RigDef::MeshWheel & def)
         def.side != RigDef::MeshWheel::SIDE_RIGHT
         );
 
-    CreateWheelSkidmarks(wheel_index);
+    m_gfx_wheels.back().gw_skidtrail = this->CreateWheelSkidmarks(wheel_index); // TEMPORARY! See comments of `m_gfx_wheels`
 }
 
 void RigSpawner::BuildMeshWheelVisuals(
@@ -4518,9 +4517,12 @@ void RigSpawner::BuildMeshWheelVisuals(
         Ogre::SceneNode* scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
         scene_node->attachObject(flexmesh_wheel->GetTireEntity());
 
-        m_rig->deletion_Entities.emplace_back(flexmesh_wheel->GetTireEntity());
-        m_rig->vwheels[wheel_index].fm = flexmesh_wheel;
-        m_rig->vwheels[wheel_index].cnode = scene_node;
+        GfxActor::Wheel gfx_wheel;
+        gfx_wheel.gw_ogre_entity = flexmesh_wheel->GetTireEntity();
+        gfx_wheel.gw_ogre_scene_node = scene_node;
+        gfx_wheel.gw_flex_mesh = flexmesh_wheel;
+        // TODO: shouldn't we fill the `is_meshwheel` flag here?
+        m_gfx_wheels.push_back(gfx_wheel);
     }
     catch (Ogre::Exception& e)
     {
@@ -4865,16 +4867,13 @@ unsigned int RigSpawner::AddWheel(RigDef::Wheel & wheel_def)
 
     CreateWheelVisuals(wheel_index, wheel_def, base_node_index);
 
-    CreateWheelSkidmarks(wheel_index);
-
     return wheel_index;
 }
 
-void RigSpawner::CreateWheelSkidmarks(unsigned int wheel_index)
+RoR::Skidmark* RigSpawner::CreateWheelSkidmarks(unsigned int wheel_index)
 {
     // Always create, even if disabled by config
-    m_rig->skidtrails[wheel_index] = new RoR::Skidmark(
-        m_sim_controller->GetSkidmarkConf(), m_sim_controller, &m_rig->wheels[wheel_index], m_rig->beamsRoot, 300, 20);
+    return new RoR::Skidmark(m_sim_controller->GetSkidmarkConf(), m_sim_controller, &m_rig->wheels[wheel_index], m_rig->beamsRoot, 300, 20);
 }
 
 #if 0 // refactored into pieces
@@ -5229,8 +5228,6 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
     Ogre::Real length_2 = (axis_node_2->RelPosition - wheel.wh_arm_node->RelPosition).length();
     wheel.wh_near_attach_node = (length_1 < length_2) ? axis_node_1 : axis_node_2;
 
-    CreateWheelSkidmarks(static_cast<unsigned>(m_rig->free_wheel));
-
     /* Advance */
     unsigned int wheel_index = m_rig->free_wheel;
     m_rig->free_wheel++;
@@ -5267,7 +5264,7 @@ void RigSpawner::CreateWheelVisuals(unsigned int wheel_index, RigDef::Wheel2 & w
 }
 
 void RigSpawner::CreateWheelVisuals(
-    unsigned int wheel_index, 
+    unsigned int sim_wheel_index,
     unsigned int node_base_index,
     unsigned int num_rays,
     Ogre::String const & rim_material_name,
@@ -5278,18 +5275,18 @@ void RigSpawner::CreateWheelVisuals(
 {
     SPAWNER_PROFILE_SCOPED();
 
-    wheel_t & wheel = m_rig->wheels[wheel_index];
-    vwheel_t & visual_wheel = m_rig->vwheels[wheel_index];
+    wheel_t & sim_wheel = m_rig->wheels[sim_wheel_index];
+    GfxActor::Wheel gfx_wheel;
 
     try
     {
-        const std::string wheel_mesh_name = this->ComposeName("WheelMesh", wheel_index);
-        visual_wheel.meshwheel = false;
-        visual_wheel.fm = new FlexMesh(
+        const std::string wheel_mesh_name = this->ComposeName("WheelMesh", sim_wheel_index);
+        gfx_wheel.gw_is_meshwheel = false;
+        gfx_wheel.gw_flex_mesh = new FlexMesh(
             wheel_mesh_name,
             m_rig->nodes,
-            wheel.wh_axis_node_0->pos,
-            wheel.wh_axis_node_1->pos,
+            sim_wheel.wh_axis_node_0->pos,
+            sim_wheel.wh_axis_node_1->pos,
             node_base_index,
             num_rays,
             rim_material_name,
@@ -5298,16 +5295,16 @@ void RigSpawner::CreateWheelVisuals(
             rim_ratio
         );
 
-        const std::string instance_name = this->ComposeName("WheelEntity", wheel_index);
-        Ogre::Entity *ec = gEnv->sceneManager->createEntity(instance_name, wheel_mesh_name);
-        this->SetupNewEntity(ec, Ogre::ColourValue(0, 0.5, 0.5));
-        visual_wheel.cnode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-        m_rig->deletion_Entities.emplace_back(ec);
-        visual_wheel.cnode->attachObject(ec);
+        gfx_wheel.gw_ogre_entity = gEnv->sceneManager->createEntity(this->ComposeName("WheelEntity", sim_wheel_index), wheel_mesh_name);
+        this->SetupNewEntity(gfx_wheel.gw_ogre_entity, Ogre::ColourValue(0, 0.5, 0.5));
+        gfx_wheel.gw_ogre_scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+        gfx_wheel.gw_ogre_scene_node->attachObject(gfx_wheel.gw_ogre_entity);
+        gfx_wheel.gw_skidtrail = this->CreateWheelSkidmarks(sim_wheel_index);
+        gfx_wheel.gw_sim_wheel_index = sim_wheel_index;
     }
     catch (Ogre::Exception& e)
     {
-        AddMessage(Message::TYPE_ERROR, "Failed to create wheel visuals: " +  e.getFullDescription());
+        this->AddMessage(Message::TYPE_ERROR, "Failed to create wheel visuals: " +  e.getFullDescription());
     }
 }
 
@@ -7219,6 +7216,13 @@ void RigSpawner::FinalizeGfxSetup()
         m_rig->m_gfx_actor->RegisterCabMaterial(search_itor->second.material, m_cab_trans_material);
         m_rig->m_gfx_actor->SetCabLightsActive(false); // Reset emissive lights to "off" state
     }
+
+    // TEMPORARY - Push pre-made gfx wheels. See also comments of `m_gfx_wheels`
+    while (!m_gfx_wheels.empty())
+    {
+        m_rig->m_gfx_actor->AddWheel(m_gfx_wheels.back());
+        m_gfx_wheels.pop_back();
+    }
 }
 
 Ogre::ManualObject* CreateVideocameraDebugMesh()
@@ -7237,7 +7241,7 @@ Ogre::ManualObject* CreateVideocameraDebugMesh()
     Ogre::ManualObject* mo = gEnv->sceneManager->createManualObject(); // TODO: Eliminate gEnv
     mo->begin(mat->getName(), Ogre::RenderOperation::OT_LINE_LIST);
     Ogre::ColourValue pos_mark_col(1.f, 0.82f, 0.26f);
-    Ogre::ColourValue dir_mark_col(0.f, 1.f, 1.f); // TODO: This comes out green in simulation - why? ~ only_a_ptr, 05/2017
+    Ogre::ColourValue dir_mark_col(0.f, 1.f, 1.f); // TODO: This comes out green in simulation - why? ~ only_a_ptr, 05/2017      UPDATE: it's an OpenGL-only issue ~ only_a_ptr, 08/2017
     const float pos_mark_len = 0.8f;
     const float dir_mark_len = 4.f;
     // X

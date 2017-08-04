@@ -38,45 +38,32 @@ struct wheel_t
         FOOT_ONLY             /// - 4 = yes footbrake, no  handbrake, no  direction control -- footbrake only, such as with the front wheels of a passenger car
     };
 
-    int         wh_num_nodes;
-    node_t*     wh_nodes[50];             // TODO: remove limit, make this dyn-allocated ~ only_a_ptr, 08/2017
-    BrakeCombo  wh_braking;
-    node_t*     wh_arm_node;
-    node_t*     wh_near_attach_node;
-    node_t*     wh_axis_node_0;
-    node_t*     wh_axis_node_1;
-    int         wh_propulsed;             // TODO: add enum ~ only_a_ptr, 08/2017
-    Ogre::Real  wh_radius;
-    Ogre::Real  wh_speed;
-    Ogre::Real  wh_last_speed;
-    Ogre::Real  wh_avg_speed;
-    Ogre::Real  wh_delta_rotation;    ///< Difference in wheel position
-    float       wh_net_rp;
-    float       wh_net_rp1;           //<! Networking; triple buffer
-    float       wh_net_rp2;           //<! Networking; triple buffer
-    float       wh_net_rp3;           //<! Networking; triple buffer
-    float       wh_width;
-    int         wh_detacher_group;
-    bool        wh_is_detached;
-
-    // for skidmarks
-    Ogre::Vector3 lastContactInner;
-    Ogre::Vector3 lastContactOuter;
-    bool firstLock;
-    float lastSlip;
-    int lastContactType;
-    ground_model_t *lastGroundModel;
-
-    //skidmarks v2
-    bool isSkiding;
-};
-
-/**
-* SIM-CORE; Visual wheel.
-*/
-struct vwheel_t
-{
-    Flexable *fm;
-    Ogre::SceneNode *cnode;
-    bool meshwheel;
+    int              wh_num_nodes;
+    node_t*          wh_nodes[50];             // TODO: remove limit, make this dyn-allocated ~ only_a_ptr, 08/2017
+    BrakeCombo       wh_braking;
+    node_t*          wh_arm_node;
+    node_t*          wh_near_attach_node;
+    node_t*          wh_axis_node_0;
+    node_t*          wh_axis_node_1;
+    int              wh_propulsed;             // TODO: add enum ~ only_a_ptr, 08/2017
+    Ogre::Real       wh_radius;
+    Ogre::Real       wh_speed;
+    Ogre::Real       wh_last_speed;
+    Ogre::Real       wh_avg_speed;
+    Ogre::Real       wh_delta_rotation;         ///< Difference in wheel position
+    float            wh_net_rp;
+    float            wh_net_rp1;                ///< Networking; triple buffer
+    float            wh_net_rp2;                ///< Networking; triple buffer
+    float            wh_net_rp3;                ///< Networking; triple buffer
+    float            wh_width;
+    int              wh_detacher_group;
+    bool             wh_is_detached;
+    bool             wh_alb_first_lock;         ///< Anti-lock brakes: first lock
+    //  Skidmarks simulation (gfx + sound only, no effect on handling)
+    Ogre::Vector3    wh_last_contact_inner;     ///< Skidmarks
+    Ogre::Vector3    wh_last_contact_outer;     ///< Skidmarks
+    bool             wh_last_contact_was_outer; ///< Skidmarks
+    float            wh_last_slip;              ///< Skidmarks
+    ground_model_t*  wh_last_ground_model;      ///< Skidmarks
+    bool             wh_is_skidding;            ///< Skidmarks
 };

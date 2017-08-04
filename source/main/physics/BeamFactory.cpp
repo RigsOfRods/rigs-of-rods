@@ -1013,7 +1013,7 @@ void BeamFactory::updateVisual(float dt)
         if (m_trucks[t]->state < SLEEPING)
         {
             m_trucks[t]->updateVisual(dt);
-            m_trucks[t]->updateSkidmarks();
+            m_trucks[t]->GetGfxActor()->UpdateSkidmarks();
             m_trucks[t]->updateFlares(dt, (t == m_current_truck));
         }
     }

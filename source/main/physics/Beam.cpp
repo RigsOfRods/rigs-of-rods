@@ -225,25 +225,6 @@ Beam::~Beam()
             delete flexbodies[i];
     }
 
-    // delete meshwheels
-    for (int i = 0; i < free_wheel; i++)
-    {
-        if (vwheels[i].fm)
-            delete vwheels[i].fm;
-        if (vwheels[i].cnode)
-        {
-            vwheels[i].cnode->removeAndDestroyAllChildren();
-            gEnv->sceneManager->destroySceneNode(vwheels[i].cnode);
-        }
-    }
-
-    // delete skidmarks
-    for (int i = 0; i < free_wheel; ++i)
-    {
-        delete skidtrails[i];
-        skidtrails[i] = nullptr;
-    }
-
     // delete props
     for (int i = 0; i < free_prop; i++)
     {
@@ -2831,28 +2812,6 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt, 
     beams[i].shock->lastpos = difftoBeamL;
 }
 
-// call this once per frame in order to update the skidmarks
-void Beam::updateSkidmarks()
-{
-    if (!useSkidmarks)
-        return;
-
-    BES_START(BES_CORE_Skidmarks);
-
-    for (int i = 0; i < free_wheel; i++)
-    {
-        // ignore wheels without data
-        if (wheels[i].lastContactInner == Vector3::ZERO && wheels[i].lastContactOuter == Vector3::ZERO)
-            continue;
-
-        skidtrails[i]->updatePoint();
-        if (skidtrails[i] && wheels[i].isSkiding)
-            skidtrails[i]->update();
-    }
-
-    BES_STOP(BES_CORE_Skidmarks);
-}
-
 Quaternion Beam::specialGetRotationTo(const Vector3& src, const Vector3& dest) const
 {
     // Based on Stan Melax's article in Game Programming Gems
@@ -2915,13 +2874,9 @@ void Beam::SetPropsCastShadows(bool do_cast_shadows)
             props[i].wheel->getAttachedObject(0)->setCastShadows(do_cast_shadows);
         }
     }
-    for (i = 0; i < free_wheel; i++)
-    {
-        if (vwheels[i].cnode && vwheels[i].cnode->numAttachedObjects())
-        {
-            vwheels[i].cnode->getAttachedObject(0)->setCastShadows(do_cast_shadows);
-        }
-    }
+
+    // TODO: Is `setCastShadows()` still meaningful today? Processing of wheels was removed as `vwheel_t` was replaced by `GfxActor::Wheel` ~ only_a_ptr, 08/2017
+
     for (i = 0; i < free_beam; i++)
     {
         if (beams[i].mEntity)
@@ -3502,10 +3457,7 @@ void Beam::updateFlexbodiesPrepare()
     if (gEnv->threadPool)
     {
         flexmesh_prepare.reset();
-        for (int i = 0; i < free_wheel; i++)
-        {
-            flexmesh_prepare.set(i, vwheels[i].cnode && vwheels[i].fm->flexitPrepare());
-        }
+        m_gfx_actor->FlexitPrepareWheels(flexmesh_prepare);
 
         flexbody_prepare.reset();
         for (int i = 0; i < free_flexbody; i++)
@@ -3526,13 +3478,14 @@ void Beam::updateFlexbodiesPrepare()
                 flexbody_tasks.push_back(task_handle);
             }
         }
-        for (int i = 0; i < free_wheel; i++)
+        int num_gfx_wheels = m_gfx_actor->GetNumWheels();
+        for (int i = 0; i < num_gfx_wheels; i++)
         {
             if (flexmesh_prepare[i])
             {
                 auto func = std::function<void()>([this, i]()
                     {
-                        vwheels[i].fm->flexitCompute();
+                        m_gfx_actor->GetWheel(i).gw_flex_mesh->flexitCompute();
                     });
                 auto task_handle = gEnv->threadPool->RunTask(func);
                 flexbody_tasks.push_back(task_handle);
@@ -3541,12 +3494,14 @@ void Beam::updateFlexbodiesPrepare()
     }
     else
     {
-        for (int i = 0; i < free_wheel; i++)
+        int num_gfx_wheels = m_gfx_actor->GetNumWheels();
+        for (int i = 0; i < num_gfx_wheels; i++)
         {
-            if (vwheels[i].cnode && vwheels[i].fm->flexitPrepare())
+            GfxActor::Wheel& gfx_wheel = m_gfx_actor->GetWheel(i);
+            if ((gfx_wheel.gw_ogre_scene_node != nullptr) && gfx_wheel.gw_flex_mesh->flexitPrepare())
             {
-                vwheels[i].fm->flexitCompute();
-                vwheels[i].cnode->setPosition(vwheels[i].fm->flexitFinal());
+                gfx_wheel.gw_flex_mesh->flexitCompute();
+                gfx_wheel.gw_ogre_scene_node->setPosition(gfx_wheel.gw_flex_mesh->flexitFinal());
             }
         }
         for (int i = 0; i < free_flexbody; i++)
@@ -3765,13 +3720,15 @@ void Beam::updateFlexbodiesFinal()
 {
     if (gEnv->threadPool)
     {
-        joinFlexbodyTasks();
+        this->joinFlexbodyTasks();
 
-        for (int i = 0; i < free_wheel; i++)
+        int num_gfx_wheels = m_gfx_actor->GetNumWheels();
+        for (int i = 0; i < num_gfx_wheels; i++)
         {
-            if (flexmesh_prepare[i])
-                vwheels[i].cnode->setPosition(vwheels[i].fm->flexitFinal());
+            GfxActor::Wheel& gfx_wheel = m_gfx_actor->GetWheel(i);
+            gfx_wheel.gw_ogre_scene_node->setPosition(gfx_wheel.gw_flex_mesh->flexitFinal());
         }
+
         for (int i = 0; i < free_flexbody; i++)
         {
             if (flexbody_prepare[i])
@@ -3818,14 +3775,8 @@ void Beam::showSkeleton(bool meshes, bool linked)
         cabFade(0);
     }
 
-    for (int i = 0; i < free_wheel; i++)
-    {
-        if (vwheels[i].cnode)
-            vwheels[i].cnode->setVisible(false);
-
-        if (vwheels[i].fm)
-            vwheels[i].fm->setVisible(false);
-    }
+    // Hiding/restoring wheel visuals dropped during removal of `vwheel_t` (08/2017)
+    // because the new DearIMGUI-based debug display is drawn on top of everything, anyway ~ only_a_ptr, 08/2017
 
     for (int i = 0; i < free_prop; i++)
     {
@@ -3839,17 +3790,6 @@ void Beam::showSkeleton(bool meshes, bool linked)
     if (simpleSkeletonNode)
     {
         simpleSkeletonNode->setVisible(true);
-    }
-
-    // hide mesh wheels
-    for (int i = 0; i < free_wheel; i++)
-    {
-        if (vwheels[i].fm && vwheels[i].meshwheel)
-        {
-            Entity* e = ((FlexMeshWheel*)(vwheels[i].fm))->getRimEntity();
-            if (e)
-                e->setVisible(false);
-        }
     }
 
     // wireframe drawning for flexbody
@@ -3891,14 +3831,9 @@ void Beam::hideSkeleton(bool linked)
         cabFade(1);
     }
 
-    for (int i = 0; i < free_wheel; i++)
-    {
-        if (vwheels[i].cnode)
-            vwheels[i].cnode->setVisible(true);
+    // Hiding/restoring wheel visuals dropped during removal of `vwheel_t` (08/2017)
+    // because the new DearIMGUI-based debug display is drawn on top of everything, anyway ~ only_a_ptr, 08/2017
 
-        if (vwheels[i].fm)
-            vwheels[i].fm->setVisible(true);
-    }
     for (int i = 0; i < free_prop; i++)
     {
         if (props[i].scene_node)
@@ -3910,17 +3845,6 @@ void Beam::hideSkeleton(bool linked)
 
     if (simpleSkeletonNode)
         simpleSkeletonNode->setVisible(false);
-
-    // show mesh wheels
-    for (int i = 0; i < free_wheel; i++)
-    {
-        if (vwheels[i].fm && vwheels[i].meshwheel)
-        {
-            Entity* e = ((FlexMeshWheel *)(vwheels[i].fm))->getRimEntity();
-            if (e)
-                e->setVisible(true);
-        }
-    }
 
     // normal drawning for flexbody
     for (int i = 0; i < free_flexbody; i++)
@@ -4055,17 +3979,18 @@ void Beam::setMeshVisibility(bool visible)
     {
         flexbodies[i]->setVisible(visible);
     }
-    for (int i = 0; i < free_wheel; i++)
-    {
-        if (vwheels[i].cnode)
-        {
-            vwheels[i].cnode->setVisible(visible);
-        }
-        if (vwheels[i].fm)
-        {
-            vwheels[i].fm->setVisible(visible);
-        }
-    }
+  // TODO: restore this if necessary --- removed 08/2017 when refactoring `vwheel_t` -> `GfxActor::Wheel`
+  //  for (int i = 0; i < free_wheel; i++) 
+  //  {
+  //      if (vwheels[i].cnode)
+  //      {
+  //          vwheels[i].cnode->setVisible(visible);
+  //      }
+  //      if (vwheels[i].fm)
+  //      {
+  //          vwheels[i].fm->setVisible(visible);
+  //      }
+  //  }
     if (cabNode)
     {
         cabNode->setVisible(visible);
@@ -5665,7 +5590,6 @@ Beam::Beam(
     , watercontactold(false)
 {
     high_res_wheelnode_collisions = BSETTING("HighResWheelNodeCollisions", false);
-    useSkidmarks = RoR::App::GetGfxSkidmarksMode() == 1;
     LOG(" ===== LOADING VEHICLE: " + Ogre::String(fname));
 
     /* struct <rig_t> parameters */

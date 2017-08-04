@@ -460,10 +460,10 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
                 }
                 if (fabs(wheels[i].wh_speed) < 1.0f)
                 {
-                    if (wheels[i].firstLock)
+                    if (wheels[i].wh_alb_first_lock)
                     {
                         wheels[i].wh_avg_speed = 0.0f;
-                        wheels[i].firstLock = false;
+                        wheels[i].wh_alb_first_lock = false;
                     }
                     // anti-jitter
                     if (fabs(wheels[i].wh_avg_speed) < 2.0f)
@@ -486,7 +486,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
                 }
                 else
                 {
-                    wheels[i].firstLock = true;
+                    wheels[i].wh_alb_first_lock = true;
                 }
 
                 if (wheels[i].wh_speed > 0)
@@ -497,7 +497,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
         }
         else
         {
-            wheels[i].firstLock = true;
+            wheels[i].wh_alb_first_lock = true;
         }
 
         // traction control
@@ -1743,17 +1743,17 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                                 SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_SCREETCH);
 #endif //USE_OPENAL
                                 //Shouldn't skidmarks be activated from here?
-                                if (useSkidmarks)
+                                if (RoR::App::GetGfxSkidmarksMode() == 1)
                                 {
-                                    wheels[nodes[i].wheelid].isSkiding = true;
+                                    wheels[nodes[i].wheelid].wh_is_skidding = true;
                                     if (!(nodes[i].iswheel % 2))
-                                        wheels[nodes[i].wheelid].lastContactInner = nodes[i].AbsPosition;
+                                        wheels[nodes[i].wheelid].wh_last_contact_inner = nodes[i].AbsPosition;
                                     else
-                                        wheels[nodes[i].wheelid].lastContactOuter = nodes[i].AbsPosition;
+                                        wheels[nodes[i].wheelid].wh_last_contact_outer = nodes[i].AbsPosition;
 
-                                    wheels[nodes[i].wheelid].lastContactType = (nodes[i].iswheel % 2);
-                                    wheels[nodes[i].wheelid].lastSlip = ns;
-                                    wheels[nodes[i].wheelid].lastGroundModel = gm;
+                                    wheels[nodes[i].wheelid].wh_last_contact_was_outer = (nodes[i].iswheel % 2) == 1;
+                                    wheels[nodes[i].wheelid].wh_last_slip = ns;
+                                    wheels[nodes[i].wheelid].wh_last_ground_model = gm;
                                 }
                             }
                             // sparks
@@ -1765,9 +1765,9 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                             }
                             if (nodes[i].iswheel && ns < thresold)
                             {
-                                if (useSkidmarks)
+                                if (RoR::App::GetGfxSkidmarksMode() == 1)
                                 {
-                                    wheels[nodes[i].wheelid].isSkiding = false;
+                                    wheels[nodes[i].wheelid].wh_is_skidding = false;
                                 }
                             }
                             break;

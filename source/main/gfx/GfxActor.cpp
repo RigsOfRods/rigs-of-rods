@@ -22,7 +22,9 @@
 #include "GfxActor.h"
 
 #include "Beam.h"
+#include "Flexable.h"
 #include "GlobalEnvironment.h" // TODO: Eliminate!
+#include "Skidmark.h"
 #include "SkyManager.h"
 
 #include <OgreResourceGroupManager.h>
@@ -43,6 +45,39 @@ RoR::GfxActor::~GfxActor()
         gEnv->sceneManager->destroyCamera(vcam.vcam_ogre_camera);
 
         m_videocameras.pop_back();
+    }
+
+    // Dispose wheels
+    while (!m_wheels.empty())
+    {
+        Wheel& wheel = m_wheels.back();
+        if (wheel.gw_flex_mesh != nullptr)
+        {
+            delete wheel.gw_flex_mesh;
+            wheel.gw_flex_mesh = nullptr;
+        }
+
+        if (wheel.gw_ogre_entity != nullptr)
+        {
+            wheel.gw_ogre_entity->detachFromParent();
+            gEnv->sceneManager->destroyEntity(wheel.gw_ogre_entity->getName());
+            wheel.gw_ogre_entity = nullptr;
+        }
+
+        if (wheel.gw_ogre_scene_node != nullptr)
+        {
+            wheel.gw_ogre_scene_node->removeAndDestroyAllChildren();
+            gEnv->sceneManager->destroySceneNode(wheel.gw_ogre_scene_node);
+            wheel.gw_ogre_scene_node = nullptr;
+        }
+
+        if (wheel.gw_skidtrail != nullptr)
+        {
+            delete wheel.gw_skidtrail;
+            wheel.gw_skidtrail = nullptr;
+        }
+
+        m_wheels.pop_back();
     }
 
     Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(m_custom_resource_group);
@@ -330,3 +365,36 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
         vidcam.vcam_ogre_camera->setPosition(pos);
     }
 }
+
+void RoR::GfxActor::UpdateSkidmarks()
+{
+    if (RoR::App::GetGfxSkidmarksMode() != 1)
+        return;
+
+    for (Wheel& gfx_wheel: m_wheels)
+    {
+        // Ignore wheels without data
+        wheel_t& sim_wheel = m_actor->wheels[gfx_wheel.gw_sim_wheel_index];
+        if (sim_wheel.wh_last_contact_inner == Ogre::Vector3::ZERO && sim_wheel.wh_last_contact_outer == Ogre::Vector3::ZERO)
+            continue;
+
+        gfx_wheel.gw_skidtrail->updatePoint();
+        if (sim_wheel.wh_is_skidding)
+            gfx_wheel.gw_skidtrail->update();
+    }
+}
+
+void RoR::GfxActor::AddWheel(Wheel const & wheel)
+{
+    m_wheels.push_back(wheel);
+}
+
+void RoR::GfxActor::FlexitPrepareWheels(std::bitset<MAX_WHEELS>& tracker)
+{
+    for (Wheel& gfx_wheel: m_wheels)
+    {
+        tracker.set(gfx_wheel.gw_sim_wheel_index,
+                   (gfx_wheel.gw_ogre_scene_node != nullptr) && gfx_wheel.gw_flex_mesh->flexitPrepare());
+    }
+}
+

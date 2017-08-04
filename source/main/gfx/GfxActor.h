@@ -27,6 +27,7 @@
 #pragma once
 
 #include "ForwardDeclarations.h"
+#include "BeamConstants.h" // for MAX_WHEELS
 
 #include <OgreColourValue.h>
 #include <OgreMaterial.h>
@@ -36,16 +37,33 @@
 #include <string>
 #include <vector>
 
-namespace RoR
-{
+namespace RoR {
 
 /// Visuals of `Beam`
+/// Historically, RoR has simulation&visuals mixed together (it was singlethreaded demo application in the beginnings)
+/// This class introduces new guideline: simulation should be the sovereign king (stand-alone internal mechanism, not aware of gfx)
+///     and gfx should be it's servant (reads sim. data and processes gfx - if needed).
+///     To clarify the distinction: For example "tyre skidmarks" feature does not have any effect on physics, so it could be here,
+///     but it also affects sounds and must be sent across network on multiplayer, so it's a gameplay feature, not gfx feature.
 /// TODO: Move all OGRE interactions of `class Beam` to here.
 class GfxActor
 {
     friend class ::RigSpawner; // The factory
 
 public:
+
+    struct Wheel ///< Land vehicle wheel visuals; max. one per instance of `wheel_t`
+    {
+        Wheel() { memset(this, 0, sizeof(Wheel)); }
+
+        int               gw_sim_wheel_index; ///< Index to corresponding wheel in `rig_t::wheels`
+
+        Flexable*         gw_flex_mesh;
+        Ogre::SceneNode*  gw_ogre_scene_node;
+        Ogre::Entity*     gw_ogre_entity;
+        bool              gw_is_meshwheel;
+        Skidmark*         gw_skidtrail;
+    };
 
     struct FlareMaterial
     {
@@ -108,10 +126,16 @@ public:
     void                 SetMaterialFlareOn  (int flare_index, bool state_on);
     void                 RegisterCabMaterial (Ogre::MaterialPtr mat, Ogre::MaterialPtr mat_trans);
     void                 SetCabLightsActive  (bool state_on);
-    Ogre::MaterialPtr&   GetCabTransMaterial () { return m_cab_mat_visual_trans; }
+    Ogre::MaterialPtr&   GetCabTransMaterial ()                         { return m_cab_mat_visual_trans; }
     void                 SetVideoCamState    (VideoCamState state);
-    inline VideoCamState GetVideoCamState    () const { return m_vidcam_state; }
+    inline VideoCamState GetVideoCamState    () const                   { return m_vidcam_state; }
     void                 UpdateVideoCameras  (float dt_sec);
+    void                 AddWheel            (Wheel const & wheel);
+    inline Wheel&        GetWheel            (int index)                { return m_wheels[index]; }
+    void                 UpdateSkidmarks     ();
+    // Flexbody interface. Sort of temporary; to maintain stability, minimal changes were made while porting wheels here ~ only_a_ptr, 08/2017
+    void                 FlexitPrepareWheels (std::bitset<MAX_WHEELS>& tracker);
+    inline int           GetNumWheels        ()                         { return static_cast<int>(m_wheels.size()); }
 
 private:
 
@@ -120,6 +144,7 @@ private:
     std::vector<FlareMaterial>  m_flare_materials;
     VideoCamState               m_vidcam_state;
     std::vector<VideoCamera>    m_videocameras;
+    std::vector<Wheel>          m_wheels;
 
     // Cab materials and their features
     Ogre::MaterialPtr           m_cab_mat_visual; ///< Updated in-place from templates

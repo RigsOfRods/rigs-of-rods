@@ -32,6 +32,7 @@
 #include "BeamData.h"
 #include "FlexFactory.h"
 #include "FlexObj.h"
+#include "GfxActor.h" // TEMPORARY WHILE REFACTOR IN PROGRESS, see comments of `RigSpawner::m_gfx_wheels` ~ only_a_ptr, 08/2017
 
 #include <OgreString.h>
 
@@ -902,7 +903,7 @@ private:
         float rim_ratio = 1.f
     );
 
-    void CreateWheelSkidmarks(unsigned int wheel_index);
+    RoR::Skidmark* CreateWheelSkidmarks(unsigned int wheel_index);
 
     /**
     * Adds visuals to 'wheels2' wheel.
@@ -1079,12 +1080,17 @@ private:
     int                   m_messages_num_warnings;
     int                   m_messages_num_other;
 
-    /* RIG CONTEXT */
+    // RIG CONTEXT
 
     Ogre::SceneNode *m_parent_scene_node;
     Ogre::Vector3 m_spawn_position;
     std::vector<CabTexcoord> m_oldstyle_cab_texcoords;
     std::vector<CabSubmesh>  m_oldstyle_cab_submeshes;
+
+    /// GfxWheel instances to be pushed to GfxActor when it's created (see `FinalizeGfxSetup()`).
+    /// TEMPORARY WHILE REFACTOR IN PROGRESS (FOR TESTING)! - all gfx should be created _after_ simulation data are ready. ~ only_a_ptr, 08/2017
+    std::vector<RoR::GfxActor::Wheel> m_gfx_wheels;
+
     /// Maps original material names (shared) to their actor-specific substitutes.
     /// There's 1 substitute per 1 material, regardless of user count.
     std::map<std::string, CustomMaterial> m_material_substitutions;
