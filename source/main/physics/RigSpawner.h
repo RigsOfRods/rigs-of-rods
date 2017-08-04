@@ -863,6 +863,8 @@ private:
     */
     int FindLowestContactingNodeInRig();
 
+    wheel_t::BrakeCombo TranslateBrakingDef(RigDef::Wheels::Braking def);
+
     /**
     * Checks a section only appears in one module and reports a warning if not.
     */
