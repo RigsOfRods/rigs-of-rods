@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2014-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -918,12 +918,12 @@ private:
     *   2. If the material name is 'mirror', it's a special prop - rear view mirror.
     *          material is generated, added to lookup table under generated name (special case) and processing ends.
     *   3. If the material is a 'videocamera' of any subtype, material is created, added to lookup table and processing ends.
-    *   4  'materialflarebindngs' are resolved -> binding persisted in lookup table.
+    *   4  'materialflarebindngs' are resolved -> binding is persisted in lookup table.
     *   5  SkinZIP _material replacements_ are queried. If match is found, it's added to lookup table and processing ends.
     *   6. ManagedMaterials are queried. If match is found, it's added to lookup table and processing ends.
-    *   7. Orig. material is clone to create substitute.
+    *   7. Orig. material is cloned to create substitute.
     *   8. SkinZIP _texture replacements_ are queried. If match is found, substitute material is updated.
-    *   9. Material added to lookup table, processing ends.
+    *   9. Material is added to lookup table, processing ends.
     */
     void SetupNewEntity(Ogre::Entity* e, Ogre::ColourValue simple_color);
 
