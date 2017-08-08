@@ -29,7 +29,7 @@
 
 namespace RoR {
 
-class SkidmarkConfig
+class SkidmarkConfig ///< Skidmark config file parser and data container
 {
 public:
 
@@ -41,10 +41,10 @@ private:
 
     struct SkidmarkDef
     {
-        Ogre::String ground;
+        Ogre::String ground; ///< Ground model name, see `struct ground_model_t`
         Ogre::String texture;
-        float slipFrom;
-        float slipTo;
+        float slipFrom; ///< Minimum slipping velocity
+        float slipTo;   ///< Maximum slipping velocity
     };
 
     void loadDefaultModels();
@@ -70,7 +70,7 @@ private:
 
     static int instanceCounter;
 
-    struct SkidmarkSegment
+    struct SkidmarkSegment ///< Also reffered to as 'bucket'
     {
         Ogre::ManualObject* obj;
         Ogre::MaterialPtr material;
@@ -79,7 +79,6 @@ private:
         std::vector<Ogre::String> groundTexture;
         Ogre::Vector3 lastPointAv;
         int pos;
-        Ogre::ColourValue colour;
         int facecounter;
     };
 

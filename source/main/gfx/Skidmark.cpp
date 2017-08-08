@@ -167,8 +167,6 @@ void Skidmark::addObject(Vector3 start, String texture)
     skid.lastPointAv = start;
     skid.facecounter = 0;
 
-    skid.colour = ColourValue(Math::RangeRandom(0, 100) / 100.0f, Math::RangeRandom(0, 100) / 100.0f, Math::RangeRandom(0, 100) / 100.0f, 0.8f);
-
     // new material
     char bname[256] = "";
     sprintf(bname, "mat-skidmark-%d", instanceCounter);
