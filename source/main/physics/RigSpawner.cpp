@@ -4022,7 +4022,7 @@ void RigSpawner::FetchAxisNodes(
     }
 }
 
-void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
+void RigSpawner::ProcessFlexBodyWheelSim(RigDef::FlexBodyWheel & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
@@ -4275,25 +4275,30 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     wheel.wh_near_attach_node = (length_1 < length_2) ? axis_node_1 : axis_node_2;
 
     // Commit the wheel
-    int wheel_index = m_rig->free_wheel;
+    m_wheel_def_map.emplace_back(&def);
     ++m_rig->free_wheel;
+}
 
-    // Create visuals
-    BuildMeshWheelVisuals(
-        wheel_index,
-        base_node_index,
-        axis_node_1->pos,
-        axis_node_2->pos,
-        def.num_rays,
-        def.rim_mesh_name,
+void RigSpawner::ProcessFlexBodyWheelGfx(RigDef::FlexBodyWheel* def, int sim_wheel_index)
+{
+    wheel_t& sim_wheel = m_rig->wheels[sim_wheel_index];
+    int base_node_index = static_cast<int>(sim_wheel.wh_nodes[0]->pos);
+
+    this->BuildMeshWheelVisuals( // Pushes wheel to GfxActor. TODO: refactor for cleaner flow ~ only_a_ptr, 08/2017
+        sim_wheel_index,
+        sim_wheel.wh_nodes[0]->pos,
+        sim_wheel.wh_axis_node_0->pos,
+        sim_wheel.wh_axis_node_1->pos,
+        def->num_rays,
+        def->rim_mesh_name,
         "tracks/trans", // Rim material name. Original parser: was hardcoded in BTS_FLEXBODYWHEELS
-        def.rim_radius,
-        def.side != RigDef::MeshWheel::SIDE_RIGHT
+        def->rim_radius,
+        def->side != RigDef::MeshWheel::SIDE_RIGHT
         );
 
     const std::string flexwheel_name = this->ComposeName("FlexBodyWheel", m_rig->free_flexbody);
 
-    int num_nodes = def.num_rays * 4;
+    int num_nodes = def->num_rays * 4;
     std::vector<unsigned int> node_indices;
     node_indices.reserve(num_nodes);
     for (int i = 0; i < num_nodes; ++i)
@@ -4302,16 +4307,16 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     }
 
     RigDef::Flexbody flexbody_def;
-    flexbody_def.mesh_name = def.tyre_mesh_name;
+    flexbody_def.mesh_name = def->tyre_mesh_name;
     flexbody_def.offset = Ogre::Vector3(0.5,0,0);
 
     try
     {
-        auto* flexbody = m_flex_factory.CreateFlexBody(
+        FlexBody* flexbody = m_flex_factory.CreateFlexBody(
             &flexbody_def,
-            axis_node_1->pos,
-            axis_node_2->pos,
-            static_cast<int>(base_node_index),
+            sim_wheel.wh_axis_node_0->pos,
+            sim_wheel.wh_axis_node_1->pos,
+            base_node_index,
             Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3::UNIT_Y),
             node_indices
             );
@@ -4319,16 +4324,14 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         if (flexbody == nullptr)
             return; // Error already logged
 
-        // TEMPORARY! See comments of `m_gfx_wheels`
-        m_gfx_wheels.back().gw_skidtrail = this->CreateWheelSkidmarks(static_cast<unsigned>(wheel_index));
+        m_rig->GetGfxActor()->m_wheels.back().gw_skidtrail = this->CreateWheelSkidmarks(sim_wheel_index);
 
         m_rig->flexbodies[m_rig->free_flexbody] = flexbody;
         m_rig->free_flexbody++;
     }
     catch (Ogre::Exception& e)
     {
-        this->AddMessage(Message::TYPE_ERROR, 
-            "Failed to create flexbodywheel '" + def.tyre_mesh_name + "', reason:" + e.getFullDescription());
+        this->AddMessage(Message::TYPE_ERROR, "Failed to create flexbodywheel '" + def->tyre_mesh_name + "', reason:" + e.getFullDescription());
     }
 }
 
@@ -4409,6 +4412,7 @@ void RigSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
         meshwheel_def.side != RigDef::MeshWheel::SIDE_RIGHT
         );
 
+    m_wheel_def_map.emplace_back(&meshwheel_def);
     m_gfx_wheels.back().gw_skidtrail = this->CreateWheelSkidmarks(wheel_index); // TEMPORARY! See comments of `m_gfx_wheels`
 }
 
@@ -4486,6 +4490,7 @@ void RigSpawner::ProcessMeshWheel2(RigDef::MeshWheel & def)
         );
 
     m_gfx_wheels.back().gw_skidtrail = this->CreateWheelSkidmarks(wheel_index); // TEMPORARY! See comments of `m_gfx_wheels`
+    m_wheel_def_map.emplace_back(&def);
 }
 
 void RigSpawner::BuildMeshWheelVisuals(
@@ -4522,7 +4527,7 @@ void RigSpawner::BuildMeshWheelVisuals(
         gfx_wheel.gw_ogre_scene_node = scene_node;
         gfx_wheel.gw_flex_mesh = flexmesh_wheel;
         // TODO: shouldn't we fill the `is_meshwheel` flag here?
-        m_gfx_wheels.push_back(gfx_wheel);
+        m_rig->GetGfxActor()->AddWheel(gfx_wheel);
     }
     catch (Ogre::Exception& e)
     {
@@ -4866,6 +4871,8 @@ unsigned int RigSpawner::AddWheel(RigDef::Wheel & wheel_def)
     );
 
     CreateWheelVisuals(wheel_index, wheel_def, base_node_index);
+
+    m_wheel_def_map.emplace_back(&wheel_def);
 
     return wheel_index;
 }
@@ -5229,6 +5236,7 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
     wheel.wh_near_attach_node = (length_1 < length_2) ? axis_node_1 : axis_node_2;
 
     /* Advance */
+    m_wheel_def_map.emplace_back(&wheel_2_def);
     unsigned int wheel_index = m_rig->free_wheel;
     m_rig->free_wheel++;
     return wheel_index;
@@ -7215,6 +7223,15 @@ void RigSpawner::FinalizeGfxSetup()
         auto search_itor = m_material_substitutions.find(m_cab_material_name);
         m_rig->m_gfx_actor->RegisterCabMaterial(search_itor->second.material, m_cab_trans_material);
         m_rig->m_gfx_actor->SetCabLightsActive(false); // Reset emissive lights to "off" state
+    }
+
+    // Process wheel gfx       // REFACTOR IN PROGRESS
+    for (int i = 0; i < m_rig->free_wheel; ++i)
+    {
+        if (m_wheel_def_map[i].def_flexbwheel != nullptr)
+        {
+            this->ProcessFlexBodyWheelGfx(m_wheel_def_map[i].def_flexbwheel, i);
+        }
     }
 
     // TEMPORARY - Push pre-made gfx wheels. See also comments of `m_gfx_wheels`
