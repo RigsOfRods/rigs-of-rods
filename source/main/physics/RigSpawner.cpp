@@ -4324,8 +4324,6 @@ void RigSpawner::ProcessFlexBodyWheelGfx(RigDef::FlexBodyWheel* def, int sim_whe
         if (flexbody == nullptr)
             return; // Error already logged
 
-        m_rig->GetGfxActor()->m_wheels.back().gw_skidtrail = this->CreateWheelSkidmarks(sim_wheel_index);
-
         m_rig->flexbodies[m_rig->free_flexbody] = flexbody;
         m_rig->free_flexbody++;
     }
@@ -4365,7 +4363,7 @@ void RigSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
     Ogre::Vector3 pos_1 = axis_node_1->AbsPosition;
     Ogre::Vector3 pos_2 = axis_node_2->AbsPosition;
 
-    /* Enforce the "second node must have a larger Z coordinate than the first" constraint */
+    // Enforce the "second node must have a larger Z coordinate than the first" constraint
     if (pos_1.z > pos_2.z)
     {
         node_t *swap = axis_node_1;
@@ -4392,28 +4390,15 @@ void RigSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
         base_node_index,
         axis_node_1,
         axis_node_2,
-        meshwheel_def.spring,      /* Tyre */
-        meshwheel_def.damping,     /* Tyre */
-        meshwheel_def.spring,      /* Rim */
-        meshwheel_def.damping,     /* Rim */
+        meshwheel_def.spring,      // Tyre
+        meshwheel_def.damping,     // Tyre
+        meshwheel_def.spring,      // Rim
+        meshwheel_def.damping,     // Rim
         meshwheel_def.beam_defaults,
         meshwheel_def.rigidity_node
     );
 
-    BuildMeshWheelVisuals(
-        wheel_index, 
-        base_node_index, 
-        axis_node_1->pos,
-        axis_node_2->pos,
-        meshwheel_def.num_rays,
-        meshwheel_def.mesh_name,
-        meshwheel_def.material_name,
-        meshwheel_def.rim_radius,
-        meshwheel_def.side != RigDef::MeshWheel::SIDE_RIGHT
-        );
-
     m_wheel_def_map.emplace_back(&meshwheel_def);
-    m_gfx_wheels.back().gw_skidtrail = this->CreateWheelSkidmarks(wheel_index); // TEMPORARY! See comments of `m_gfx_wheels`
 }
 
 void RigSpawner::ProcessMeshWheel2(RigDef::MeshWheel & def)
@@ -4433,13 +4418,13 @@ void RigSpawner::ProcessMeshWheel2(RigDef::MeshWheel & def)
     Ogre::Vector3 pos_1 = axis_node_1->AbsPosition;
     Ogre::Vector3 pos_2 = axis_node_2->AbsPosition;
 
-    /* Enforce the "second node must have a larger Z coordinate than the first" constraint */
+    // Enforce the "second node must have a larger Z coordinate than the first" constraint
     if (pos_1.z > pos_2.z)
     {
         node_t *swap = axis_node_1;
         axis_node_1 = axis_node_2;
         axis_node_2 = swap;
-    }	
+    }
 
     unsigned int wheel_index = BuildWheelObjectAndNodes(
         def.num_rays,
@@ -4455,8 +4440,7 @@ void RigSpawner::ProcessMeshWheel2(RigDef::MeshWheel & def)
         def.mass
     );
 
-    /* --- Beams --- */
-    /* Use data from directive 'set_beam_defaults' for the tiretread beams */
+    // --- Beams --- Use data from directive 'set_beam_defaults' for the tiretread beams
     float tyre_spring = def.spring;
     float tyre_damp = def.damping;
     float rim_spring = def.beam_defaults->springiness;
@@ -4476,20 +4460,6 @@ void RigSpawner::ProcessMeshWheel2(RigDef::MeshWheel & def)
         0.15 // max_extension
     );
 
-    /* --- Visuals --- */
-    BuildMeshWheelVisuals(
-        wheel_index, 
-        base_node_index, 
-        axis_node_1->pos,
-        axis_node_2->pos,
-        def.num_rays,
-        def.mesh_name,
-        def.material_name,
-        def.rim_radius,
-        def.side != RigDef::MeshWheel::SIDE_RIGHT
-        );
-
-    m_gfx_wheels.back().gw_skidtrail = this->CreateWheelSkidmarks(wheel_index); // TEMPORARY! See comments of `m_gfx_wheels`
     m_wheel_def_map.emplace_back(&def);
 }
 
@@ -4526,6 +4496,7 @@ void RigSpawner::BuildMeshWheelVisuals(
         gfx_wheel.gw_ogre_entity = flexmesh_wheel->GetTireEntity();
         gfx_wheel.gw_ogre_scene_node = scene_node;
         gfx_wheel.gw_flex_mesh = flexmesh_wheel;
+        gfx_wheel.gw_skidtrail = this->CreateWheelSkidmarks(wheel_index);
         // TODO: shouldn't we fill the `is_meshwheel` flag here?
         m_rig->GetGfxActor()->AddWheel(gfx_wheel);
     }
@@ -5041,7 +5012,7 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         node_t *swap = axis_node_1;
         axis_node_1 = axis_node_2;
         axis_node_2 = swap;
-    }	
+    }
 
     /* Rigidity node */
     node_t *axis_node_closest_to_rigidity_node = nullptr;
@@ -7225,21 +7196,32 @@ void RigSpawner::FinalizeGfxSetup()
         m_rig->m_gfx_actor->SetCabLightsActive(false); // Reset emissive lights to "off" state
     }
 
-    // Process wheel gfx       // REFACTOR IN PROGRESS
+    // Process wheel gfx       // REFACTOR IN PROGRESS; TODO: 'wheels', 'wheels2'
     for (int i = 0; i < m_rig->free_wheel; ++i)
     {
+        wheel_t& sim_wheel = m_rig->wheels[i];
+
         if (m_wheel_def_map[i].def_flexbwheel != nullptr)
         {
             this->ProcessFlexBodyWheelGfx(m_wheel_def_map[i].def_flexbwheel, i);
         }
+        else if (m_wheel_def_map[i].def_meshwheel != nullptr)
+        {
+            RigDef::MeshWheel* def = m_wheel_def_map[i].def_meshwheel;
+
+            this->BuildMeshWheelVisuals(
+                i,
+                sim_wheel.wh_nodes[0]->pos,
+                sim_wheel.wh_axis_node_0->pos,
+                sim_wheel.wh_axis_node_1->pos,
+                def->num_rays,
+                def->mesh_name,
+                def->material_name,
+                def->rim_radius,
+                def->side != RigDef::MeshWheel::SIDE_RIGHT);
+        }
     }
 
-    // TEMPORARY - Push pre-made gfx wheels. See also comments of `m_gfx_wheels`
-    while (!m_gfx_wheels.empty())
-    {
-        m_rig->m_gfx_actor->AddWheel(m_gfx_wheels.back());
-        m_gfx_wheels.pop_back();
-    }
 }
 
 Ogre::ManualObject* CreateVideocameraDebugMesh()

@@ -32,7 +32,6 @@
 #include "BeamData.h"
 #include "FlexFactory.h"
 #include "FlexObj.h"
-#include "GfxActor.h" // TEMPORARY WHILE REFACTOR IN PROGRESS, see comments of `RigSpawner::m_gfx_wheels` ~ only_a_ptr, 08/2017
 
 #include <OgreString.h>
 
@@ -1103,10 +1102,6 @@ private:
     Ogre::Vector3 m_spawn_position;
     std::vector<CabTexcoord> m_oldstyle_cab_texcoords;
     std::vector<CabSubmesh>  m_oldstyle_cab_submeshes;
-
-    /// TEMPORARY WHILE REFACTOR IN PROGRESS (FOR TESTING)! - all gfx should be created _after_ simulation data are ready. ~ only_a_ptr, 08/2017
-    /// UPDATE: No longer handles 'flexbodywheels'
-    std::vector<RoR::GfxActor::Wheel> m_gfx_wheels;
 
     std::vector<WheelDefLink> m_wheel_def_map; ///< A 1:1 match with `rig_t::wheels` array, links wheel instances to definitions for gfx spawn phase.
 
