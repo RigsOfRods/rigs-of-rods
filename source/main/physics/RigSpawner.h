@@ -562,27 +562,6 @@ private:
         int detacher_group
     );
 
-    /**
-    * Adds visuals to wheel from section 'wheels'.
-    */
-    void CreateWheelVisuals(
-        unsigned int wheel_index, 
-        RigDef::Wheel & wheel_def, 
-        unsigned int node_base_index
-    );
-
-    /**
-    * Adds complete wheel (section 'wheels') to the rig.
-    * @return wheel index in rig_t::wheels array.
-    */
-    unsigned int AddWheel(RigDef::Wheel & wheel);
-
-    /**
-    * Adds wheel from section 'wheels2'.
-    * @return wheel index.
-    */
-    unsigned int AddWheel2(RigDef::Wheel2 & wheel_2_def);
-
     void CreateBeamVisuals(beam_t & beam, int beam_index, std::shared_ptr<RigDef::BeamDefaults> beam_defaults);
 
     Rail *CreateRail(std::vector<RigDef::Node::Range> & node_ranges);
@@ -920,11 +899,6 @@ private:
     );
 
     RoR::Skidmark* CreateWheelSkidmarks(unsigned int wheel_index);
-
-    /**
-    * Adds visuals to 'wheels2' wheel.
-    */
-    void CreateWheelVisuals(unsigned int wheel_index, RigDef::Wheel2 & wheel_2_def, unsigned int node_base_index);
 
     /**
     * Performs full material setup for a new entity.

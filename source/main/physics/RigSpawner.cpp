@@ -4507,7 +4507,7 @@ void RigSpawner::BuildMeshWheelVisuals(
     }
 }
 
-unsigned int RigSpawner::BuildWheelObjectAndNodes( 
+unsigned int RigSpawner::BuildWheelObjectAndNodes(
     unsigned int num_rays,
     node_t *axis_node_1,
     node_t *axis_node_2,
@@ -4783,13 +4783,13 @@ void RigSpawner::BuildWheelBeams(
 #endif
 }
 
-unsigned int RigSpawner::AddWheel(RigDef::Wheel & wheel_def)
+void RigSpawner::ProcessWheel(RigDef::Wheel & wheel_def)
 {
     SPAWNER_PROFILE_SCOPED();
 
     unsigned int base_node_index = m_rig->free_node;
-    node_t *axis_node_1 = GetNodePointer(wheel_def.nodes[0]);
-    node_t *axis_node_2 = GetNodePointer(wheel_def.nodes[1]);
+    node_t *axis_node_1 = this->GetNodePointer(wheel_def.nodes[0]);
+    node_t *axis_node_2 = this->GetNodePointer(wheel_def.nodes[1]);
 
     if (axis_node_1 == nullptr || axis_node_2 == nullptr)
     {
@@ -4797,26 +4797,26 @@ unsigned int RigSpawner::AddWheel(RigDef::Wheel & wheel_def)
         msg << "Error creating 'wheel': Some axis nodes were not found";
         msg << " (Node1: " << wheel_def.nodes[0].ToString() << " => " << (axis_node_1 == nullptr) ? "NOT FOUND)" : "found)";
         msg << " (Node2: " << wheel_def.nodes[1].ToString() << " => " << (axis_node_2 == nullptr) ? "NOT FOUND)" : "found)";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return -1;
+        this->AddMessage(Message::TYPE_ERROR, msg.str());
+        return;
     }
 
     Ogre::Vector3 pos_1 = axis_node_1->AbsPosition;
     Ogre::Vector3 pos_2 = axis_node_2->AbsPosition;
 
-    /* Enforce the "second node must have a larger Z coordinate than the first" constraint */
+    // Enforce the "second node must have a larger Z coordinate than the first" constraint
     if (pos_1.z > pos_2.z)
     {
         node_t *swap = axis_node_1;
         axis_node_1 = axis_node_2;
         axis_node_2 = swap;
-    }	
+    }
 
-    unsigned int wheel_index = BuildWheelObjectAndNodes(
+    this->BuildWheelObjectAndNodes(
         wheel_def.num_rays,
         axis_node_1,
         axis_node_2,
-        GetNodePointer(wheel_def.reference_arm_node),
+        this->GetNodePointer(wheel_def.reference_arm_node),
         wheel_def.num_rays * 2,
         wheel_def.num_rays * 8,
         wheel_def.radius,
@@ -4828,24 +4828,20 @@ unsigned int RigSpawner::AddWheel(RigDef::Wheel & wheel_def)
         -1.f // Set width to axis length (width in definition is ignored)
     );
 
-    BuildWheelBeams(
+    this->BuildWheelBeams(
         wheel_def.num_rays,
         base_node_index,
         axis_node_1,
         axis_node_2,
-        wheel_def.springiness, /* Tyre */
-        wheel_def.damping,     /* Tyre */
-        wheel_def.springiness, /* Rim */
-        wheel_def.damping,     /* Rim */
+        wheel_def.springiness, // Tyre
+        wheel_def.damping,     // Tyre
+        wheel_def.springiness, // Rim
+        wheel_def.damping,     // Rim
         wheel_def.beam_defaults,
         wheel_def.rigidity_node
     );
 
-    CreateWheelVisuals(wheel_index, wheel_def, base_node_index);
-
     m_wheel_def_map.emplace_back(&wheel_def);
-
-    return wheel_index;
 }
 
 RoR::Skidmark* RigSpawner::CreateWheelSkidmarks(unsigned int wheel_index)
@@ -4984,7 +4980,7 @@ unsigned int RigSpawner::AddWheel(RigDef::Wheel & wheel_def)
 }
 #endif
 
-unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
+void RigSpawner::ProcessWheel2(RigDef::Wheel2 & wheel_2_def)
 {
     SPAWNER_PROFILE_SCOPED();
 
@@ -5000,7 +4996,7 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         msg << " (Node1: " << wheel_2_def.nodes[0].ToString() << " => " << (axis_node_1 == nullptr) ? "NOT FOUND)" : "found)";
         msg << " (Node2: " << wheel_2_def.nodes[1].ToString() << " => " << (axis_node_2 == nullptr) ? "NOT FOUND)" : "found)";
         AddMessage(Message::TYPE_ERROR, msg.str());
-        return -1;
+        return;
     }
 
     Ogre::Vector3 pos_1 = axis_node_1->AbsPosition;
@@ -5208,38 +5204,7 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 
     /* Advance */
     m_wheel_def_map.emplace_back(&wheel_2_def);
-    unsigned int wheel_index = m_rig->free_wheel;
     m_rig->free_wheel++;
-    return wheel_index;
-}
-
-void RigSpawner::CreateWheelVisuals(unsigned int wheel_index, RigDef::Wheel & wheel_def, unsigned int node_base_index)
-{
-    // Wrapper, not profiling
-
-    CreateWheelVisuals(
-        wheel_index, 
-        node_base_index, 
-        wheel_def.num_rays,
-        wheel_def.face_material_name,
-        wheel_def.band_material_name,
-        false
-        );
-}
-
-void RigSpawner::CreateWheelVisuals(unsigned int wheel_index, RigDef::Wheel2 & wheel_2_def, unsigned int node_base_index)
-{
-    // Wrapper, not profiling
-
-    CreateWheelVisuals(
-        wheel_index, 
-        node_base_index, 
-        wheel_2_def.num_rays,
-        wheel_2_def.face_material_name,
-        wheel_2_def.band_material_name,
-        true,
-        wheel_2_def.rim_radius / wheel_2_def.tyre_radius
-        );
 }
 
 void RigSpawner::CreateWheelVisuals(
@@ -5280,6 +5245,7 @@ void RigSpawner::CreateWheelVisuals(
         gfx_wheel.gw_ogre_scene_node->attachObject(gfx_wheel.gw_ogre_entity);
         gfx_wheel.gw_skidtrail = this->CreateWheelSkidmarks(sim_wheel_index);
         gfx_wheel.gw_sim_wheel_index = sim_wheel_index;
+        m_rig->GetGfxActor()->AddWheel(gfx_wheel);
     }
     catch (Ogre::Exception& e)
     {
@@ -5360,20 +5326,6 @@ unsigned int RigSpawner::_SectionWheels2AddBeam(RigDef::Wheel2 & wheel_2_def, no
     SetBeamDeformationThreshold(beam, wheel_2_def.beam_defaults);
     return index;
 }
-
-void RigSpawner::ProcessWheel2(RigDef::Wheel2 & def)
-{
-    SPAWNER_PROFILE_SCOPED();
-
-    unsigned int node_base_index = m_rig->free_node;
-    unsigned int wheel_index = AddWheel2(def);
-    CreateWheelVisuals(wheel_index, def, node_base_index);
-};
-
-void RigSpawner::ProcessWheel(RigDef::Wheel & def)
-{
-    AddWheel(def);
-};
 
 void RigSpawner::ProcessWheelDetacher(RigDef::WheelDetacher & def)
 {
@@ -7156,8 +7108,7 @@ void RigSpawner::SetupNewEntity(Ogre::Entity* ent, Ogre::ColourValue simple_colo
 
 void RigSpawner::FinalizeGfxSetup()
 {
-    // Check and warn if there are unclaimed managed materials
-    // TODO &*&*
+    // TODO: Check and warn if there are unclaimed managed materials
 
     // Create the actor
     m_rig->m_gfx_actor = std::unique_ptr<RoR::GfxActor>(new RoR::GfxActor(m_rig, m_custom_resource_group));
@@ -7196,7 +7147,7 @@ void RigSpawner::FinalizeGfxSetup()
         m_rig->m_gfx_actor->SetCabLightsActive(false); // Reset emissive lights to "off" state
     }
 
-    // Process wheel gfx       // REFACTOR IN PROGRESS; TODO: 'wheels', 'wheels2'
+    // Process wheel gfx
     for (int i = 0; i < m_rig->free_wheel; ++i)
     {
         wheel_t& sim_wheel = m_rig->wheels[i];
@@ -7207,21 +7158,40 @@ void RigSpawner::FinalizeGfxSetup()
         }
         else if (m_wheel_def_map[i].def_meshwheel != nullptr)
         {
-            RigDef::MeshWheel* def = m_wheel_def_map[i].def_meshwheel;
-
             this->BuildMeshWheelVisuals(
                 i,
                 sim_wheel.wh_nodes[0]->pos,
                 sim_wheel.wh_axis_node_0->pos,
                 sim_wheel.wh_axis_node_1->pos,
-                def->num_rays,
-                def->mesh_name,
-                def->material_name,
-                def->rim_radius,
-                def->side != RigDef::MeshWheel::SIDE_RIGHT);
+                m_wheel_def_map[i].def_meshwheel->num_rays,
+                m_wheel_def_map[i].def_meshwheel->mesh_name,
+                m_wheel_def_map[i].def_meshwheel->material_name,
+                m_wheel_def_map[i].def_meshwheel->rim_radius,
+                m_wheel_def_map[i].def_meshwheel->side != RigDef::MeshWheel::SIDE_RIGHT);
         }
+        else if (m_wheel_def_map[i].def_wheel != nullptr)
+        {
+            this->CreateWheelVisuals(
+                i,
+                sim_wheel.wh_nodes[0]->pos,
+                m_wheel_def_map[i].def_wheel->num_rays,
+                m_wheel_def_map[i].def_wheel->face_material_name,
+                m_wheel_def_map[i].def_wheel->band_material_name,
+                false);
+        }
+        else if (m_wheel_def_map[i].def_wheel2 != nullptr)
+        {
+            this->CreateWheelVisuals(
+                i,
+                sim_wheel.wh_nodes[0]->pos,
+                m_wheel_def_map[i].def_wheel2->num_rays,
+                m_wheel_def_map[i].def_wheel2->face_material_name,
+                m_wheel_def_map[i].def_wheel2->band_material_name,
+                true,
+                m_wheel_def_map[i].def_wheel2->rim_radius / m_wheel_def_map[i].def_wheel2->tyre_radius);
+        }
+        else this->AddMessage(Message::TYPE_INTERNAL_ERROR, "Invalid wheel->def link!");
     }
-
 }
 
 Ogre::ManualObject* CreateVideocameraDebugMesh()
@@ -7240,7 +7210,7 @@ Ogre::ManualObject* CreateVideocameraDebugMesh()
     Ogre::ManualObject* mo = gEnv->sceneManager->createManualObject(); // TODO: Eliminate gEnv
     mo->begin(mat->getName(), Ogre::RenderOperation::OT_LINE_LIST);
     Ogre::ColourValue pos_mark_col(1.f, 0.82f, 0.26f);
-    Ogre::ColourValue dir_mark_col(0.f, 1.f, 1.f); // TODO: This comes out green in simulation - why? ~ only_a_ptr, 05/2017      UPDATE: it's an OpenGL-only issue ~ only_a_ptr, 08/2017
+    Ogre::ColourValue dir_mark_col(0.f, 1.f, 1.f); // TODO: This comes out green in simulation - why? ~ only_a_ptr, 05/2017      UPDATE: it's an OpenGL+Windows only issue ~ only_a_ptr, 08/2017
     const float pos_mark_len = 0.8f;
     const float dir_mark_len = 4.f;
     // X
