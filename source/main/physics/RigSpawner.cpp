@@ -229,8 +229,6 @@ void RigSpawner::InitializeRig()
     // clear rig parent structure
     memset(m_rig->contacters, 0, sizeof(contacter_t) * MAX_CONTACTERS);
     m_rig->free_contacter = 0;
-    memset(m_rig->rigidifiers, 0, sizeof(rigidifier_t) * MAX_RIGIDIFIERS);
-    m_rig->free_rigidifier = 0;
     memset(m_rig->wheels, 0, sizeof(wheel_t) * MAX_WHEELS);
     m_rig->free_wheel = 0;
     memset(m_rig->vwheels, 0, sizeof(vwheel_t) * MAX_WHEELS);

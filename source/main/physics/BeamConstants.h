@@ -33,7 +33,6 @@ static const int   MAX_TIES                   = 64;              //!< maximum nu
 static const int   MAX_PROPS                  = 200;             //!< maximum number of props per truck
 static const int   MAX_COMMANDS               = 84;              //!< maximum number of commands per truck
 static const int   MAX_CAMERAS                = 10;              //!< maximum number of cameras per truck
-static const int   MAX_RIGIDIFIERS            = 100;             //!< maximum number of rigifiers per truck
 static const int   MAX_FLEXBODIES             = 64;              //!< maximum number of flexbodies per truck
 static const int   MAX_AEROENGINES            = 8;               //!< maximum number of aero engines per truck
 static const int   MAX_SCREWPROPS             = 8;               //!< maximum number of boat screws per truck

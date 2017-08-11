@@ -231,19 +231,6 @@ struct contacter_t
     int nodeid;
 };
 
-struct rigidifier_t
-{
-    node_t* a;
-    node_t* b;
-    node_t* c;
-    float k;
-    float d;
-    float alpha;
-    float lastalpha;
-    beam_t *beama;
-    beam_t *beamc;
-};
-
 #include "datatypes/wheel_t.h"
 
 struct hook_t

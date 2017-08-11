@@ -35,9 +35,6 @@ struct rig_t ///< A simulation actor; typically a vehicle
     contacter_t contacters[MAX_CONTACTERS];
     int free_contacter;
 
-    rigidifier_t rigidifiers[MAX_RIGIDIFIERS];
-    int free_rigidifier;
-
     wheel_t wheels[MAX_WHEELS];
     vwheel_t vwheels[MAX_WHEELS];
     int free_wheel;

@@ -126,7 +126,6 @@ void Serializer::Serialize()
     ProcessParticles(source_module);
     ProcessCollisionBoxes(source_module);
     // TODO: detacher_group
-    // TODO: rigidifiers
     ProcessFlares2(source_module);
     ProcessMaterialFlareBindings(source_module);
     ProcessPropsAndAnimations(source_module);

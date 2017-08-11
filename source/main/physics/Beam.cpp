@@ -6128,11 +6128,6 @@ bool Beam::LoadTruck(
     memr += MAX_WHEELS * sizeof(beam_t);
     LOG("BEAM: wheel memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(free_wheel) + " x " + TOSTRING(sizeof(wheel_t)) + " B) / " + TOSTRING(MAX_WHEELS * sizeof(wheel_t)));
 
-    tmpmem = free_rigidifier * sizeof(rigidifier_t);
-    mem += tmpmem;
-    memr += MAX_RIGIDIFIERS * sizeof(beam_t);
-    LOG("BEAM: rigidifier memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(free_rigidifier) + " x " + TOSTRING(sizeof(rigidifier_t)) + " B) / " + TOSTRING(MAX_RIGIDIFIERS * sizeof(rigidifier_t)));
-
     tmpmem = free_flare * sizeof(flare_t);
     mem += tmpmem;
     memr += free_flare * sizeof(beam_t);
