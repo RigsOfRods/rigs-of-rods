@@ -150,27 +150,32 @@ void FlexObj::ScaleFlexObj(float factor)
     }
 }
 
-//find the zeroed id of the node v in the context of the tidx triangle
+/// Compute vertex position in the vertexbuffer (0-based offset) for node `v` of triangle `tidx`
 int FlexObj::ComputeVertexPos(int tidx, int v, std::vector<CabSubmesh>& submeshes)
 {
-    //first: find the context from the triangle index tidx
-    size_t context;
-    for (context=0; context<submeshes.size()+1; context++) 
+    // --- NOTE: The following logic is arcane, I'm keeping it mostly like I found it for stability ~ only_a_ptr, 08/2017
+
+    // Find the 'context' - a submesh (and respective span of vertices) which the vertex belong to.
+    int context;
+    int num_submeshes = static_cast<int>(submeshes.size());
+    for (context = 0; context < num_submeshes; ++context)
     {
-        if (static_cast<unsigned int>(tidx) < submeshes[context].cabs_pos)
+        if (tidx < submeshes[context].cabs_pos)
         {
-            if (context>0)
-                context--;
+            --context;
             break;
         }
     }
 
-    //okay, now search in the vertex block corresponding to the context
-    for (size_t j=submeshes[context].texcoords_pos; j<submeshes[context+1].texcoords_pos; j++)
+    // Find the vertex itself
+    int i_min = (context < 0) ? 0 : submeshes[context].texcoords_pos; // Fix for single-submesh case... It seems to have worked with a negative index until now ~ only_a_ptr, 08/2017
+    int i_max = submeshes[context + 1].texcoords_pos;
+    for (int i = i_min; i < i_max; ++i)
     {
-        if (m_vertex_nodes[j]==v)
-            return j;
+        if (m_vertex_nodes[i] == v)
+            return i;
     }
+
     return 0;
 }
 
