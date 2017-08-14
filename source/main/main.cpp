@@ -110,14 +110,14 @@ int main(int argc, char *argv[])
 
         // ### Create OGRE default logger early. ###
 
-        GStr<300> logs_dir;
+        Str<300> logs_dir;
         logs_dir << App::sys_user_dir.GetActive() << PATH_SLASH << "logs";
         if (!PlatformUtils::FolderExists(App::sys_logs_dir.GetActive()))
             PlatformUtils::CreateFolder(App::sys_logs_dir.GetActive());
         App::sys_logs_dir.SetActive(logs_dir);
 
         auto ogre_log_manager = OGRE_NEW Ogre::LogManager();
-        GStr<300> rorlog_path;
+        Str<300> rorlog_path;
         rorlog_path << logs_dir << PATH_SLASH << "RoR.log";
         ogre_log_manager->createLog(Ogre::String(rorlog_path), true, true);
         App::diag_trace_globals.SetActive(true); // We have logger -> we can trace.

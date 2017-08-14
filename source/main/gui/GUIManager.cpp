@@ -145,7 +145,7 @@ GUIManager::GUIManager() :
     RoR::App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(this);
     RoRWindowEventUtilities::addWindowEventListener(RoR::App::GetOgreSubsystem()->GetRenderWindow(), this);
 
-    GStr<300> gui_logpath;
+    Str<300> gui_logpath;
     gui_logpath << App::sys_logs_dir.GetActive() << PATH_SLASH << "MyGUI.log";
     auto mygui_platform = new MyGUI::OgrePlatform();
     mygui_platform->initialise(

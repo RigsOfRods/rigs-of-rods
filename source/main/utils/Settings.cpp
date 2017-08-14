@@ -217,12 +217,12 @@ int DetectBasePaths()
         return -1;
     } 
 #endif
-    GStr<500> process_dir;
+    Str<500> process_dir;
     GetParentDirectory(process_dir.GetBuffer(), buf);
     App::sys_process_dir.SetActive(process_dir);
 
     // User directory (local override - portable installation)
-    GStr<500> local_userdir;
+    Str<500> local_userdir;
     local_userdir << App::sys_process_dir.GetActive() << PATH_SLASH << "config";
     if (FolderExists(local_userdir))
     {
@@ -760,7 +760,7 @@ void Settings::LoadRoRCfg()
     Ogre::ConfigFile cfg;
     try
     {
-        GStr<300> path;
+        Str<300> path;
         path << App::sys_config_dir.GetActive() << PATH_SLASH << "RoR.cfg";
         cfg.load(Ogre::String(path), "=:\t", false);
 
@@ -927,7 +927,7 @@ void Settings::SaveSettings()
 {
     using namespace std;
 
-    GStr<300> rorcfg_path;
+    Str<300> rorcfg_path;
     rorcfg_path << App::sys_config_dir.GetActive() << PATH_SLASH << "RoR.cfg";
     std::ofstream f(rorcfg_path);
     if (!f.is_open())
@@ -1037,7 +1037,7 @@ void Settings::SaveSettings()
 bool Settings::SetupAllPaths()
 {
     using namespace RoR;
-    GStr<300> buf;
+    Str<300> buf;
 
     // User directories
     buf.Clear() << App::sys_user_dir.GetActive() << PATH_SLASH << "config";             App::sys_config_dir    .SetActive(buf);
