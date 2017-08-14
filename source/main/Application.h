@@ -157,14 +157,15 @@ const char* EnumToStr(IoInputGrabMode v);
 // ------------------------------------------------------------------------------------------------
 
 
-/// Wrapper for classic c-string. Why 'G'string? Because it was originally written for use with our GVars (global vars).
-template<size_t L> class GStr
+/// Wrapper for classic c-string (local buffer)
+/// @author Petr Ohlidal, 2017
+template<size_t L> class Str
 {
 public:
     // Constructors
-    inline             GStr()                                { std::memset(m_buffer, 0, L); }
-    inline             GStr(GStr<L> const & src)             { this->Assign(src); }
-    inline             GStr(const char* src)                 { this->Assign(src); }
+    inline             Str()                                 { std::memset(m_buffer, 0, L); }
+    inline             Str(Str<L> const & src)               { this->Assign(src); }
+    inline             Str(const char* src)                  { this->Assign(src); }
 
     // Reading
     inline const char* ToCStr() const                        { return m_buffer; }
@@ -175,22 +176,22 @@ public:
     inline size_t      GetLength() const                     { return std::strlen(m_buffer); }
 
     // Writing
-    inline GStr&       Clear()                               { m_buffer[0] = '\0'; return *this; }
-    inline GStr&       Assign(const char* src)               { std::strncpy(m_buffer, src, L); return *this; }
-    inline GStr&       Append(const char* src)               { std::strncat(m_buffer, src, (L-(strlen(src)+1))); return *this; }
-    inline GStr&       Append(float f)                       { char buf[50]; std::snprintf(buf, 50, "%f", f); this->Append(buf); return *this; }
-    inline GStr&       Append(int i)                         { char buf[50]; std::snprintf(buf, 50, "%d", i); this->Append(buf); return *this; }
-    inline GStr&       Append(size_t z)                      { char buf[50]; std::snprintf(buf, 50, "%lu", static_cast<unsigned long>(z)); this->Append(buf); return *this; }
-    inline GStr&       Append(char c)                        { char buf[2] = {}; buf[0] = c; this->Append(buf); return *this; }
+    inline Str&        Clear()                               { m_buffer[0] = '\0'; return *this; }
+    inline Str&        Assign(const char* src)               { std::strncpy(m_buffer, src, L); return *this; }
+    inline Str&        Append(const char* src)               { std::strncat(m_buffer, src, (L-(strlen(src)+1))); return *this; }
+    inline Str&        Append(float f)                       { char buf[50]; std::snprintf(buf, 50, "%f", f); this->Append(buf); return *this; }
+    inline Str&        Append(int i)                         { char buf[50]; std::snprintf(buf, 50, "%d", i); this->Append(buf); return *this; }
+    inline Str&        Append(size_t z)                      { char buf[50]; std::snprintf(buf, 50, "%lu", static_cast<unsigned long>(z)); this->Append(buf); return *this; }
+    inline Str&        Append(char c)                        { char buf[2] = {}; buf[0] = c; this->Append(buf); return *this; }
 
     // Operators
     inline             operator const char*() const          { return this->ToCStr(); }
-    inline GStr&       operator=  (const char* src)          { return this->Assign(src); }
-    inline GStr&       operator<< (const char* src)          { return this->Append(src); }
-    inline GStr&       operator<< (float f)                  { return this->Append(f); }
-    inline GStr&       operator<< (int i)                    { return this->Append(i); }
-    inline GStr&       operator<< (size_t z)                 { return this->Append(z); }
-    inline GStr&       operator<< (char c)                   { return this->Append(c); }
+    inline Str&        operator=  (const char* src)          { return this->Assign(src); }
+    inline Str&        operator<< (const char* src)          { return this->Append(src); }
+    inline Str&        operator<< (float f)                  { return this->Append(f); }
+    inline Str&        operator<< (int i)                    { return this->Append(i); }
+    inline Str&        operator<< (size_t z)                 { return this->Append(z); }
+    inline Str&        operator<< (char c)                   { return this->Append(c); }
     inline bool        operator== (const char* other) const  { return (this->Compare(other) == 0); }
 
 private:
@@ -297,7 +298,7 @@ public:
 
     inline const char*     GetActive() const        { return m_value_active; }
     inline bool            IsActiveEmpty() const    { return m_value_active.IsEmpty(); }
-    inline GStr<L> &       GetPending()             { return m_value_pending; }
+    inline Str<L> &       GetPending()             { return m_value_pending; }
     inline const char*     GetPendingCStr()         { return m_value_pending.ToCStr(); }
 
     void                   SetActive (const char* val);
@@ -305,8 +306,8 @@ public:
     void                   ApplyPending();
 
 protected:
-    GStr<L>         m_value_active;
-    GStr<L>         m_value_pending;
+    Str<L>         m_value_active;
+    Str<L>         m_value_pending;
 };
 
 
