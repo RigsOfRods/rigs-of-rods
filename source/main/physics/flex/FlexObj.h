@@ -81,7 +81,7 @@ private:
         Ogre::Vector2 texcoord;
     };
 
-    /// Compute vertex position (0-based offset) for node `v` in triangle `tidx`
+    /// Compute vertex position in the vertexbuffer (0-based offset) for node `v` of triangle `tidx`
     int             ComputeVertexPos(int tidx, int v, std::vector<CabSubmesh>& submeshes);
     Ogre::Vector3   UpdateMesh();
 
