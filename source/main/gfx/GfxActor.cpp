@@ -473,7 +473,7 @@ void RoR::GfxActor::UpdateDebugView()
             {
                 ImVec2 pos = world2screen.Convert(nodes[i].AbsPosition);
 
-                GStr<25> id_buf;
+                Str<25> id_buf;
                 id_buf << nodes[i].id;
                 drawlist->AddText(pos, NODE_TEXT_COLOR, id_buf.ToCStr());
 

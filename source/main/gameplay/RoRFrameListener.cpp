@@ -1781,7 +1781,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
         {
             m_beam_factory.joinFlexbodyTasks(); // Waits until all flexbody tasks are finished
             m_beam_factory.update(dt);
-            m_beam_factory.updateFlexbodiesFinal(); // Updates the harware buffers 
+            m_beam_factory.updateFlexbodiesFinal(); // Updates the harware buffers
         }
 
         if (simRUNNING(s) && (App::sim_state.GetPending() == SimState::PAUSED))

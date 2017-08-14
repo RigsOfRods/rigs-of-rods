@@ -40,7 +40,7 @@ void RoR::GUI::TopMenubar::Update()
 
     const char* sim_title = "Simulation"; // TODO: Localize all!
     const char* tools_title = "Tools";
-    GStr<50> actors_title;
+    Str<50> actors_title;
     actors_title << "Actors (" << App::GetSimController()->GetNumActors() << ")";
 
     float panel_target_width = 
