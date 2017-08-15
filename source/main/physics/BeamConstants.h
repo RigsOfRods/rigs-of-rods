@@ -19,7 +19,6 @@
 
 /* maximum limits */
 static const int   MAX_TRUCKS                 = 5000;            //!< maximum number of trucks for the engine
-static const int   MAX_ROTATORS               = 20;              //!< maximum number of rotators per truck
 static const int   MAX_CONTACTERS             = 2000;            //!< maximum number of contacters per truck
 static const int   MAX_HYDROS                 = 1000;            //!< maximum number of hydros per truck
 static const int   MAX_WHEELS                 = 64;              //!< maximum number of wheels per truck

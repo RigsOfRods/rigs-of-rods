@@ -179,6 +179,10 @@ void RigSpawner::CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::Fi
     // 'commands' and 'commands2' (unified)
     req.num_beams += module_def->commands_2.size();
 
+    // 'rotators'
+    req.num_rotators += module_def->rotators.size();
+    req.num_rotators += module_def->rotators_2.size();
+
     // 'wheels'
     for (RigDef::Wheel& wheel: module_def->wheels)
     {
@@ -228,8 +232,12 @@ void RigSpawner::InitializeRig()
     // Allocate memory as needed
     m_rig->beams = new beam_t[req.num_beams];
     m_rig->nodes = new node_t[req.num_nodes];
+
     if (req.num_shocks > 0)
         m_rig->shocks = new shock_t[req.num_shocks];
+
+    if (req.num_rotators > 0)
+        m_rig->rotators = new rotator_t[req.num_rotators];
 
     // clear rig parent structure
     memset(m_rig->contacters, 0, sizeof(contacter_t) * MAX_CONTACTERS);
@@ -253,8 +261,6 @@ void RigSpawner::InitializeRig()
         m_rig->commandkey[i].description="";
     }
 
-    memset(m_rig->rotators, 0, sizeof(rotator_t) * MAX_ROTATORS);
-    m_rig->free_rotator = 0;
     m_rig->flares.clear();
     m_rig->free_flare = 0;
     memset(m_rig->props, 0, sizeof(prop_t) * MAX_PROPS);
@@ -3346,14 +3352,7 @@ void RigSpawner::ProcessRotator(RigDef::Rotator & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckRotatorLimit(1))
-    {
-        return;
-    }
-
-    unsigned int rotator_index = m_rig->free_rotator;
-    m_rig->free_rotator++;
-    rotator_t & rotator = m_rig->rotators[rotator_index];
+    rotator_t & rotator = m_rig->rotators[m_rig->free_rotator];
 
     rotator.angle = 0;
     rotator.rate = def.rate;
@@ -3369,15 +3368,16 @@ void RigSpawner::ProcessRotator(RigDef::Rotator & def)
         rotator.nodes2[i] = GetNodeIndexOrThrow(def.rotating_plate_nodes[i]);
     }
 
-    /* Rotate left key */
-    m_rig->commandkey[def.spin_left_key].rotators.push_back(- (static_cast<int>(rotator_index) + 1));
+    // Rotate left key
+    m_rig->commandkey[def.spin_left_key].rotators.push_back(- (m_rig->free_rotator + 1));
     m_rig->commandkey[def.spin_left_key].description = "Rotate_Left/Right";
 
-    /* Rotate right key */
-    m_rig->commandkey[def.spin_right_key].rotators.push_back(rotator_index + 1);
+    // Rotate right key
+    m_rig->commandkey[def.spin_right_key].rotators.push_back(m_rig->free_rotator + 1);
 
     _ProcessKeyInertia(m_rig->rotaInertia, def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
 
+    m_rig->free_rotator++;
     m_rig->hascommands = 1;
 }
 
@@ -3385,21 +3385,14 @@ void RigSpawner::ProcessRotator2(RigDef::Rotator2 & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckRotatorLimit(1))
-    {
-        return;
-    }
-
-    unsigned int rotator_index = m_rig->free_rotator;
-    m_rig->free_rotator++;
-    rotator_t & rotator = m_rig->rotators[rotator_index];
+    rotator_t & rotator = m_rig->rotators[m_rig->free_rotator];
 
     rotator.angle = 0;
     rotator.rate = def.rate;
     rotator.axis1 = GetNodeIndexOrThrow(def.axis_nodes[0]);
     rotator.axis2     = GetNodeIndexOrThrow(def.axis_nodes[1]);
-    rotator.force     = def.rotating_force; /* Default value is set in constructor */
-    rotator.tolerance = def.tolerance; /* Default value is set in constructor */
+    rotator.force     = def.rotating_force; // Default value is set in constructor
+    rotator.tolerance = def.tolerance; // Default value is set in constructor
     rotator.rotatorEngineCoupling = def.engine_coupling;
     rotator.rotatorNeedsEngine = def.needs_engine;
     for (unsigned int i = 0; i < 4; i++)
@@ -3408,8 +3401,8 @@ void RigSpawner::ProcessRotator2(RigDef::Rotator2 & def)
         rotator.nodes2[i] = GetNodeIndexOrThrow(def.rotating_plate_nodes[i]);
     }
 
-    /* Rotate left key */
-    m_rig->commandkey[def.spin_left_key].rotators.push_back(- (static_cast<int>(rotator_index) + 1));
+    // Rotate left key
+    m_rig->commandkey[def.spin_left_key].rotators.push_back(- (m_rig->free_rotator + 1));
     if (! def.description.empty())
     {
         m_rig->commandkey[def.spin_left_key].description = def.description;
@@ -3419,11 +3412,12 @@ void RigSpawner::ProcessRotator2(RigDef::Rotator2 & def)
         m_rig->commandkey[def.spin_left_key].description = "Rotate_Left/Right";
     }
 
-    /* Rotate right key */
-    m_rig->commandkey[def.spin_right_key].rotators.push_back(rotator_index + 1);
+    // Rotate right key
+    m_rig->commandkey[def.spin_right_key].rotators.push_back(m_rig->free_rotator + 1);
 
     _ProcessKeyInertia(m_rig->rotaInertia, def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
 
+    m_rig->free_rotator++;
     m_rig->hascommands = 1;
 }
 
@@ -6440,20 +6434,6 @@ void RigSpawner::ProcessGlobals(RigDef::Globals & def)
 /* -------------------------------------------------------------------------- */
 /* Limits.
 /* -------------------------------------------------------------------------- */
-
-bool RigSpawner::CheckRotatorLimit(unsigned int count)
-{
-    SPAWNER_PROFILE_SCOPED();
-
-    if ((m_rig->free_rotator + count) > MAX_ROTATORS)
-    {
-        std::stringstream msg;
-        msg << "Rotator limit (" << MAX_ROTATORS << ") exceeded";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return false;
-    }
-    return true;
-}
 
 bool RigSpawner::CheckHydroLimit(unsigned int count)
 {

@@ -207,7 +207,8 @@ private:
 
         size_t num_nodes;
         size_t num_beams;
-        size_t num_shocks; // ... more to come ...
+        size_t num_shocks;
+        size_t num_rotators; // ... more to come ...
     };
 
 /* -------------------------------------------------------------------------- */
@@ -581,13 +582,6 @@ private:
     * @return True if there is space left.
     */
     bool CheckHydroLimit(unsigned int count);
-
-    /**
-    * Checks there is still space left in rig_t::rotators array.
-    * @param count Required number of free slots.
-    * @return True if there is space left.
-    */
-    bool CheckRotatorLimit(unsigned int count);
 
     /**
     * Checks there is still space left in rig_t::cparticles array.

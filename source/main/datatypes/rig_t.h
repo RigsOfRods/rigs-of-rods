@@ -31,7 +31,8 @@
 struct rig_t ///< A simulation actor; typically a vehicle
 {
     rig_t(): nodes(nullptr), free_node(0), beams(nullptr), free_beam(0),
-             shocks(nullptr), free_shock(0), has_active_shocks(false)
+             shocks(nullptr), free_shock(0), has_active_shocks(false),
+             rotators(nullptr), free_rotator(0)
     {}
 
     ~rig_t()
@@ -39,6 +40,7 @@ struct rig_t ///< A simulation actor; typically a vehicle
         delete nodes;
         delete beams;
         delete shocks;
+        delete rotators;
     }
 
     node_t* nodes;
@@ -50,6 +52,9 @@ struct rig_t ///< A simulation actor; typically a vehicle
     shock_t* shocks;          ///< Shock absorbers
     int free_shock;           ///< Number of shock absorbers; name is historical (free index in static array)
     bool has_active_shocks;   ///< Are there active stabilizer shocks?
+
+    rotator_t* rotators;
+    int free_rotator;         ///< Number of rotators; name is historical (free index in static array)
 
     std::vector<beam_t*> interTruckBeams;
 
@@ -69,9 +74,6 @@ struct rig_t ///< A simulation actor; typically a vehicle
     int free_wing;
 
     command_t commandkey[MAX_COMMANDS + 10]; // 0 for safety
-
-    rotator_t rotators[MAX_ROTATORS];
-    int free_rotator;
 
     std::vector<flare_t> flares;
     int free_flare;
