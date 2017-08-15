@@ -206,7 +206,8 @@ private:
         ActorMemoryRequirements() { memset(this,0, sizeof(ActorMemoryRequirements)); }
 
         size_t num_nodes;
-        size_t num_beams; // ... more to come ...
+        size_t num_beams;
+        size_t num_shocks; // ... more to come ...
     };
 
 /* -------------------------------------------------------------------------- */
@@ -573,13 +574,6 @@ private:
 /* -------------------------------------------------------------------------- */
 /* Limits.                                                                    */
 /* -------------------------------------------------------------------------- */
-
-    /**
-    * Checks there is still space left in rig_t::shocks array.
-    * @param count Required number of free slots.
-    * @return True if there is space left.
-    */
-    bool CheckShockLimit(unsigned int count);
 
     /**
     * Checks there is still space left in rig_t::hydro array.

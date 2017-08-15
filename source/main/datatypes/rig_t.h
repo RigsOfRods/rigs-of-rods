@@ -1,9 +1,23 @@
 /*
- * rig.h
- *
- *  Created on: Dec 29, 2012
- *      Author: chris
- */
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
+    Copyright 2016-2017 Petr Ohlidal & contributors
+
+    For more information, see http://www.rigsofrods.org/
+
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
+
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #pragma once
 
@@ -16,19 +30,26 @@
 
 struct rig_t ///< A simulation actor; typically a vehicle
 {
-    rig_t(): nodes(nullptr), free_node(0), beams(nullptr), free_beam(0) {}
+    rig_t(): nodes(nullptr), free_node(0), beams(nullptr), free_beam(0),
+             shocks(nullptr), free_shock(0), has_active_shocks(false)
+    {}
 
     ~rig_t()
     {
         delete nodes;
         delete beams;
+        delete shocks;
     }
 
     node_t* nodes;
-    int free_node; ///< Number of nodes; name is historical (free index in static array)
+    int free_node;            ///< Number of nodes; name is historical (free index in static array)
 
     beam_t* beams;
-    int free_beam; ///< Number of beams; name is historical (free index in static array)
+    int free_beam;            ///< Number of beams; name is historical (free index in static array)
+
+    shock_t* shocks;          ///< Shock absorbers
+    int free_shock;           ///< Number of shock absorbers; name is historical (free index in static array)
+    bool has_active_shocks;   ///< Are there active stabilizer shocks?
 
     std::vector<beam_t*> interTruckBeams;
 
@@ -58,10 +79,6 @@ struct rig_t ///< A simulation actor; typically a vehicle
     prop_t props[MAX_PROPS];
     prop_t *driverSeat;
     int free_prop;
-
-    shock_t shocks[MAX_SHOCKS];
-    int free_shock;
-    int free_active_shock; //!< this has no array associated with it. its just to determine if there are active shocks!
 
     std::vector < exhaust_t > exhausts;
 

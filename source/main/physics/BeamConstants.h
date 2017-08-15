@@ -26,7 +26,6 @@ static const int   MAX_WHEELS                 = 64;              //!< maximum nu
 static const int   MAX_SUBMESHES              = 500;             //!< maximum number of submeshes per truck
 static const int   MAX_TEXCOORDS              = 3000;            //!< maximum number of texture coordinates per truck
 static const int   MAX_CABS                   = 3000;            //!< maximum number of cabs per truck
-static const int   MAX_SHOCKS                 = 5000;            //!< maximum number of shocks per truck
 static const int   MAX_ROPES                  = 64;              //!< maximum number of ropes per truck
 static const int   MAX_ROPABLES               = 64;              //!< maximum number of ropables per truck
 static const int   MAX_TIES                   = 64;              //!< maximum number of ties per truck

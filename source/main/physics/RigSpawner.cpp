@@ -160,7 +160,8 @@ void RigSpawner::CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::Fi
     req.num_beams += module_def->hydros.size();
 
     // 'triggers'
-    req.num_beams += module_def->triggers.size();
+    req.num_beams  += module_def->triggers.size();
+    req.num_shocks += module_def->triggers.size();
 
     // 'animators'
     req.num_beams += module_def->animators.size();
@@ -170,8 +171,10 @@ void RigSpawner::CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::Fi
     req.num_beams += module_def->cinecam.size() * 8;
 
     // 'shocks' and 'shocks2'
-    req.num_beams += module_def->shocks.size();
-    req.num_beams += module_def->shocks_2.size();
+    req.num_beams  += module_def->shocks.size();
+    req.num_shocks += module_def->shocks.size();
+    req.num_beams  += module_def->shocks_2.size();
+    req.num_shocks += module_def->shocks_2.size();
 
     // 'commands' and 'commands2' (unified)
     req.num_beams += module_def->commands_2.size();
@@ -225,6 +228,8 @@ void RigSpawner::InitializeRig()
     // Allocate memory as needed
     m_rig->beams = new beam_t[req.num_beams];
     m_rig->nodes = new node_t[req.num_nodes];
+    if (req.num_shocks > 0)
+        m_rig->shocks = new shock_t[req.num_shocks];
 
     // clear rig parent structure
     memset(m_rig->contacters, 0, sizeof(contacter_t) * MAX_CONTACTERS);
@@ -254,9 +259,6 @@ void RigSpawner::InitializeRig()
     m_rig->free_flare = 0;
     memset(m_rig->props, 0, sizeof(prop_t) * MAX_PROPS);
     m_rig->free_prop = 0;
-    memset(m_rig->shocks, 0, sizeof(shock_t) * MAX_SHOCKS);
-    m_rig->free_shock = 0;
-    m_rig->free_active_shock = 0;
     m_rig->exhausts.clear();
     memset(m_rig->cparticles, 0, sizeof(cparticle_t) * MAX_CPARTICLES);
     m_rig->free_cparticle = 0;
@@ -3859,11 +3861,6 @@ void RigSpawner::ProcessShock2(RigDef::Shock2 & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckShockLimit(1)) // TODO: remove the limit! See `RigSpawner::CalcMemoryRequirements()` ~ only_a_ptr, 06/2017
-    {
-        return;
-    }
-
     node_t & node_1 = GetNode(def.nodes[0]);
     node_t & node_2 = GetNode(def.nodes[1]);
     float short_bound = def.short_bound;
@@ -3951,11 +3948,6 @@ void RigSpawner::ProcessShock(RigDef::Shock & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckShockLimit(1)) // TODO: remove the limit! See `RigSpawner::CalcMemoryRequirements()` ~ only_a_ptr, 06/2017
-    {
-        return;
-    }
-
     node_t & node_1 = GetNode(def.nodes[0]);
     node_t & node_2 = GetNode(def.nodes[1]);
     float short_bound = def.short_bound;
@@ -3972,13 +3964,13 @@ void RigSpawner::ProcessShock(RigDef::Shock & def)
     {
         BITMASK_SET_0(shock_flags, SHOCK_FLAG_NORMAL); /* Not normal anymore */
         BITMASK_SET_1(shock_flags, SHOCK_FLAG_LACTIVE);
-        m_rig->free_active_shock++; /* This has no array associated with it. its just to determine if there are active shocks! */
+        m_rig->has_active_shocks = true;
     }
     if (BITMASK_IS_1(def.options, RigDef::Shock::OPTION_R_ACTIVE_RIGHT))
     {
         BITMASK_SET_0(shock_flags, SHOCK_FLAG_NORMAL); /* Not normal anymore */
         BITMASK_SET_1(shock_flags, SHOCK_FLAG_RACTIVE);
-        m_rig->free_active_shock++; /* This has no array associated with it. its just to determine if there are active shocks! */
+        m_rig->has_active_shocks = true;
     }
     if (BITMASK_IS_1(def.options, RigDef::Shock::OPTION_m_METRIC))
     {
@@ -6448,20 +6440,6 @@ void RigSpawner::ProcessGlobals(RigDef::Globals & def)
 /* -------------------------------------------------------------------------- */
 /* Limits.
 /* -------------------------------------------------------------------------- */
-
-bool RigSpawner::CheckShockLimit(unsigned int count)
-{
-    SPAWNER_PROFILE_SCOPED();
-
-    if ((m_rig->free_shock + count) > MAX_SHOCKS)
-    {
-        std::stringstream msg;
-        msg << "Shock limit (" << MAX_SHOCKS << ") exceeded";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return false;
-    }
-    return true;
-}
 
 bool RigSpawner::CheckRotatorLimit(unsigned int count)
 {

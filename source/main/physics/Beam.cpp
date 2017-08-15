@@ -5141,7 +5141,7 @@ void Beam::updateDashBoards(float dt)
     }
 
     // active shocks / roll correction
-    if (free_active_shock)
+    if (this->has_active_shocks)
     {
         // TOFIX: certainly not working:
         float roll_corr = - stabratio * 10.0f;
@@ -6112,11 +6112,6 @@ bool Beam::LoadTruck(
     // print some truck memory stats
     int mem = 0, memr = 0, tmpmem = 0;
     LOG("BEAM: memory stats following");
-
-    tmpmem = free_shock * sizeof(shock_t);
-    mem += tmpmem;
-    memr += MAX_SHOCKS * sizeof(beam_t);
-    LOG("BEAM: shock memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(free_shock) + " x " + TOSTRING(sizeof(shock_t)) + " B) / " + TOSTRING(MAX_SHOCKS * sizeof(shock_t)));
 
     tmpmem = free_prop * sizeof(prop_t);
     mem += tmpmem;
