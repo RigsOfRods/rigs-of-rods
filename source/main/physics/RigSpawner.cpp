@@ -265,8 +265,6 @@ void RigSpawner::InitializeRig()
         m_rig->commandkey[i].description="";
     }
 
-    m_rig->flares.clear();
-    m_rig->free_flare = 0;
     memset(m_rig->props, 0, sizeof(prop_t) * MAX_PROPS);
     m_rig->free_prop = 0;
     m_rig->exhausts.clear();
@@ -2345,7 +2343,7 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
     /* Visuals */
     flare.snode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
     std::stringstream flare_name;
-    flare_name << "flare-" << m_rig->truckname << "-" << m_rig->free_flare;
+    flare_name << "flare-" << m_rig->truckname << "-" << m_rig->flares.size();
     flare.bbs = gEnv->sceneManager->createBillboardSet(flare_name.str(), 1);
     bool using_default_material = true;
     if (flare.bbs == nullptr)
@@ -2443,7 +2441,7 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
 
             if (m_rig->netCustomLightArray_counter < 4)
             {
-                m_rig->netCustomLightArray[m_rig->netCustomLightArray_counter] = m_rig->free_flare;
+                m_rig->netCustomLightArray[m_rig->netCustomLightArray_counter] = m_rig->flares.size();
                 m_rig->netCustomLightArray_counter++;
             }
         }
@@ -2457,7 +2455,6 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
         flare.light->setCastShadows(false);
     }
     m_rig->flares.push_back(flare);
-    m_rig->free_flare++;
 }
 
 Ogre::MaterialPtr RigSpawner::InstantiateManagedMaterial(Ogre::String const & source_name, Ogre::String const & clone_name)

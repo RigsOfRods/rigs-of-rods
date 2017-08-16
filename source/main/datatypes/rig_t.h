@@ -44,23 +44,29 @@ struct rig_t ///< A simulation actor; typically a vehicle
         delete wings;
     }
 
-    node_t* nodes;
-    int free_node;            ///< Number of nodes; name is historical (free index in static array)
+    node_t*                    nodes;
+    int                        free_node;            ///< Number of nodes; name is historical (free index in static array)
 
-    beam_t* beams;
-    int free_beam;            ///< Number of beams; name is historical (free index in static array)
+    beam_t*                    beams;
+    int                        free_beam;            ///< Number of beams; name is historical (free index in static array)
+    std::vector<beam_t*>       interTruckBeams;
 
-    shock_t* shocks;          ///< Shock absorbers
-    int free_shock;           ///< Number of shock absorbers; name is historical (free index in static array)
-    bool has_active_shocks;   ///< Are there active stabilizer shocks?
+    shock_t*                   shocks;               ///< Shock absorbers
+    int                        free_shock;           ///< Number of shock absorbers; name is historical (free index in static array)
+    bool                       has_active_shocks;    ///< Are there active stabilizer shocks?
 
-    rotator_t* rotators;
-    int free_rotator;         ///< Number of rotators; name is historical (free index in static array)
+    rotator_t*                 rotators;
+    int                        free_rotator;         ///< Number of rotators; name is historical (free index in static array)
 
-    wing_t* wings;
-    int free_wing;            ///< Number of wings; name is historical (free index in static array)
+    wing_t*                    wings;
+    int                        free_wing;            ///< Number of wings; name is historical (free index in static array)
 
-    std::vector<beam_t*> interTruckBeams;
+    std::vector<exhaust_t>     exhausts;
+    std::vector<rope_t>        ropes;
+    std::vector<ropable_t>     ropables;
+    std::vector<tie_t>         ties;
+    std::vector<hook_t>        hooks;
+    std::vector<flare_t>       flares;
 
     contacter_t contacters[MAX_CONTACTERS];
     int free_contacter;
@@ -69,21 +75,11 @@ struct rig_t ///< A simulation actor; typically a vehicle
     vwheel_t vwheels[MAX_WHEELS];
     int free_wheel;
 
-    std::vector <rope_t> ropes;
-    std::vector <ropable_t> ropables;
-    std::vector <tie_t> ties;
-    std::vector <hook_t> hooks;
-
     command_t commandkey[MAX_COMMANDS + 10]; // 0 for safety
-
-    std::vector<flare_t> flares;
-    int free_flare;
 
     prop_t props[MAX_PROPS];
     prop_t *driverSeat;
     int free_prop;
-
-    std::vector < exhaust_t > exhausts;
 
     cparticle_t cparticles[MAX_CPARTICLES];
     int free_cparticle;

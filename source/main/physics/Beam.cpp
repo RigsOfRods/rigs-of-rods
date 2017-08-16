@@ -282,7 +282,7 @@ Beam::~Beam()
     }
 
     // delete flares
-    for (int i = 0; i < free_flare; i++)
+    for (size_t i = 0; i < this->flares.size(); i++)
     {
         if (flares[i].snode)
         {
@@ -294,6 +294,7 @@ Beam::~Beam()
         if (flares[i].light)
             gEnv->sceneManager->destroyLight(flares[i].light);
     }
+    this->flares.clear();
 
     // delete exhausts
     for (std::vector<exhaust_t>::iterator it = exhausts.begin(); it != exhausts.end(); it++)
@@ -2991,7 +2992,7 @@ void Beam::lightsToggle()
     lights = !lights;
     if (!lights)
     {
-        for (int i = 0; i < free_flare; i++)
+        for (size_t i = 0; i < flares.size(); i++)
         {
             if (flares[i].type == 'f')
             {
@@ -3006,7 +3007,7 @@ void Beam::lightsToggle()
     }
     else
     {
-        for (int i = 0; i < free_flare; i++)
+        for (size_t i = 0; i < flares.size(); i++)
         {
             if (flares[i].type == 'f')
             {
@@ -3200,7 +3201,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
     }
     //the flares
     bool keysleep = false;
-    for (int i = 0; i < free_flare; i++)
+    for (size_t i = 0; i < this->flares.size(); i++)
     {
         // let the light blink
         if (flares[i].blinkdelay != 0)
@@ -6122,11 +6123,6 @@ bool Beam::LoadTruck(
     mem += tmpmem;
     memr += MAX_WHEELS * sizeof(beam_t);
     LOG("BEAM: wheel memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(free_wheel) + " x " + TOSTRING(sizeof(wheel_t)) + " B) / " + TOSTRING(MAX_WHEELS * sizeof(wheel_t)));
-
-    tmpmem = free_flare * sizeof(flare_t);
-    mem += tmpmem;
-    memr += free_flare * sizeof(beam_t);
-    LOG("BEAM: flare memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(free_flare) + " x " + TOSTRING(sizeof(flare_t)) + " B)");
 
     LOG("BEAM: truck memory used: " + TOSTRING(mem) + " B (" + TOSTRING(mem/1024) + " kB)");
     LOG("BEAM: truck memory allocated: " + TOSTRING(memr) + " B (" + TOSTRING(memr/1024) + " kB)");
