@@ -33,7 +33,6 @@ static const int   MAX_AEROENGINES            = 8;               //!< maximum nu
 static const int   MAX_SCREWPROPS             = 8;               //!< maximum number of boat screws per truck
 static const int   MAX_AIRBRAKES              = 20;              //!< maximum number of airbrakes per truck
 static const int   MAX_SOUNDSCRIPTS_PER_TRUCK = 128;             //!< maximum number of soundsscripts per truck
-static const int   MAX_WINGS                  = 40;              //!< maximum number of wings per truck
 static const int   MAX_CPARTICLES             = 10;              //!< maximum number of custom particles per truck
 static const int   MAX_PRESSURE_BEAMS         = 4000;            //!< maximum number of pressure beams per truck
 static const int   MAX_CAMERARAIL             = 50;              //!< maximum number of camera rail points

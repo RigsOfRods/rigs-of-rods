@@ -32,7 +32,7 @@ struct rig_t ///< A simulation actor; typically a vehicle
 {
     rig_t(): nodes(nullptr), free_node(0), beams(nullptr), free_beam(0),
              shocks(nullptr), free_shock(0), has_active_shocks(false),
-             rotators(nullptr), free_rotator(0)
+             rotators(nullptr), free_rotator(0), wings(nullptr), free_wing(0)
     {}
 
     ~rig_t()
@@ -41,6 +41,7 @@ struct rig_t ///< A simulation actor; typically a vehicle
         delete beams;
         delete shocks;
         delete rotators;
+        delete wings;
     }
 
     node_t* nodes;
@@ -56,6 +57,9 @@ struct rig_t ///< A simulation actor; typically a vehicle
     rotator_t* rotators;
     int free_rotator;         ///< Number of rotators; name is historical (free index in static array)
 
+    wing_t* wings;
+    int free_wing;            ///< Number of wings; name is historical (free index in static array)
+
     std::vector<beam_t*> interTruckBeams;
 
     contacter_t contacters[MAX_CONTACTERS];
@@ -69,9 +73,6 @@ struct rig_t ///< A simulation actor; typically a vehicle
     std::vector <ropable_t> ropables;
     std::vector <tie_t> ties;
     std::vector <hook_t> hooks;
-
-    wing_t wings[MAX_WINGS];
-    int free_wing;
 
     command_t commandkey[MAX_COMMANDS + 10]; // 0 for safety
 

@@ -208,7 +208,9 @@ private:
         size_t num_nodes;
         size_t num_beams;
         size_t num_shocks;
-        size_t num_rotators; // ... more to come ...
+        size_t num_rotators;
+        size_t num_wings;
+        // ... more to come ...
     };
 
 /* -------------------------------------------------------------------------- */
@@ -652,13 +654,6 @@ private:
     * @return True if there is space left.
     */
     static bool CheckSoundScriptLimit(rig_t *vehicle, unsigned int count);
-
-    /**
-    * Checks there is still space left in rig_t::soundsources array.
-    * @param count Required number of free slots.
-    * @return True if there is space left.
-    */
-    bool CheckWingLimit(unsigned int count);
 
     /**
     * Checks there is still space left in rig_t::airbrakes array.

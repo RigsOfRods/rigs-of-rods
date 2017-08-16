@@ -183,6 +183,9 @@ void RigSpawner::CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::Fi
     req.num_rotators += module_def->rotators.size();
     req.num_rotators += module_def->rotators_2.size();
 
+    // 'wings'
+    req.num_wings += module_def->wings.size();
+
     // 'wheels'
     for (RigDef::Wheel& wheel: module_def->wheels)
     {
@@ -239,6 +242,9 @@ void RigSpawner::InitializeRig()
     if (req.num_rotators > 0)
         m_rig->rotators = new rotator_t[req.num_rotators];
 
+    if (req.num_wings > 0)
+        m_rig->wings = new wing_t[req.num_wings];
+
     // clear rig parent structure
     memset(m_rig->contacters, 0, sizeof(contacter_t) * MAX_CONTACTERS);
     m_rig->free_contacter = 0;
@@ -249,8 +255,6 @@ void RigSpawner::InitializeRig()
     m_rig->ropables.clear();
     m_rig->ties.clear();
     m_rig->hooks.clear();
-    memset(m_rig->wings, 0, sizeof(wing_t) * MAX_WINGS);
-    m_rig->free_wing = 0;
 
     // commands contain complex data structures, do not memset them ...
     for (int i=0;i<MAX_COMMANDS+1;i++)
@@ -1022,9 +1026,6 @@ void RigSpawner::ProcessAirbrake(RigDef::Airbrake & def)
 void RigSpawner::ProcessWing(RigDef::Wing & def)
 {
     SPAWNER_PROFILE_SCOPED();
-
-    // Perform checks
-    if (! this->CheckWingLimit(1)) { return; }
 
     if ((m_first_wing_index != -1) && (m_rig->wings[m_rig->free_wing - 1].fa == nullptr))
     {
@@ -6572,20 +6573,6 @@ bool RigSpawner::CheckCabLimit(unsigned int count)
     {
         std::stringstream msg;
         msg << "Cab limit (" << MAX_CABS << ") exceeded";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return false;
-    }
-    return true;
-}
-
-bool RigSpawner::CheckWingLimit(unsigned int count)
-{
-    SPAWNER_PROFILE_SCOPED();
-
-    if ((m_rig->free_wing + count) > MAX_WINGS)
-    {
-        std::stringstream msg;
-        msg << "Wing limit (" << MAX_WINGS << ") exceeded";
         AddMessage(Message::TYPE_ERROR, msg.str());
         return false;
     }
