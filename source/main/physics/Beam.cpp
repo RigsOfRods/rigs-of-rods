@@ -282,7 +282,7 @@ Beam::~Beam()
     }
 
     // delete flares
-    for (int i = 0; i < free_flare; i++)
+    for (size_t i = 0; i < this->flares.size(); i++)
     {
         if (flares[i].snode)
         {
@@ -294,6 +294,7 @@ Beam::~Beam()
         if (flares[i].light)
             gEnv->sceneManager->destroyLight(flares[i].light);
     }
+    this->flares.clear();
 
     // delete exhausts
     for (std::vector<exhaust_t>::iterator it = exhausts.begin(); it != exhausts.end(); it++)
@@ -397,7 +398,7 @@ void Beam::scaleTruck(float value)
     Vector3 relpos = nodes[0].RelPosition;
     for (int i = 1; i < free_node; i++)
     {
-        initial_node_pos[i] = refpos + (initial_node_pos[i] - refpos) * value;
+        nodes[i].initial_pos = refpos + (nodes[i].initial_pos - refpos) * value;
         nodes[i].AbsPosition = refpos + (nodes[i].AbsPosition - refpos) * value;
         nodes[i].RelPosition = relpos + (nodes[i].RelPosition - relpos) * value;
         nodes[i].Velocity *= value;
@@ -534,7 +535,7 @@ float Beam::getRotation()
 Vector3 Beam::getDirection()
 {
     Vector3 cur_dir = nodes[0].AbsPosition;
-    if (cameranodepos[0] != cameranodedir[0] && cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES && cameranodedir[0] >= 0 && cameranodedir[0] < MAX_NODES)
+    if (cameranodepos[0] != cameranodedir[0] && this->IsNodeIdValid(cameranodepos[0]) && this->IsNodeIdValid(cameranodedir[0]))
     {
         cur_dir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
     }
@@ -1344,7 +1345,7 @@ void Beam::resetAngle(float rot)
     // Set origin of rotation to camera node
     Vector3 origin = nodes[0].AbsPosition;
 
-    if (cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES)
+    if (this->IsNodeIdValid(cameranodepos[0]))
     {
         origin = nodes[cameranodepos[0]].AbsPosition;
     }
@@ -1443,7 +1444,7 @@ void Beam::resetPosition(Vector3 translation, bool setInitPosition)
     {
         for (int i = 0; i < free_node; i++)
         {
-            initial_node_pos[i] = nodes[i].AbsPosition;
+            nodes[i].initial_pos = nodes[i].AbsPosition;
         }
     }
 
@@ -1609,7 +1610,7 @@ Ogre::Vector3 Beam::getRotationCenter()
     if (m_is_cinecam_rotation_center)
     {
         Vector3 cinecam = nodes[0].AbsPosition;
-        if (cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES)
+        if (this->IsNodeIdValid(cameranodepos[0])) // TODO: Check cam. nodes once on spawn! They never change --> no reason to repeat the check. ~only_a_ptr, 06/2017
         {
             cinecam = nodes[cameranodepos[0]].AbsPosition;
         }
@@ -1649,23 +1650,23 @@ void Beam::SyncReset()
         engine->start();
     for (int i = 0; i < free_node; i++)
     {
-        nodes[i].AbsPosition = initial_node_pos[i];
-        nodes[i].RelPosition = initial_node_pos[i] - origin;
+        nodes[i].AbsPosition = nodes[i].initial_pos;
+        nodes[i].RelPosition = nodes[i].initial_pos - origin;
         nodes[i].Velocity = Vector3::ZERO;
         nodes[i].Forces = Vector3::ZERO;
     }
 
     for (int i = 0; i < free_beam; i++)
     {
-        beams[i].maxposstress = default_beam_deform[i];
-        beams[i].maxnegstress = -default_beam_deform[i];
-        beams[i].minmaxposnegstress = default_beam_deform[i];
-        beams[i].strength = initial_beam_strength[i];
-        beams[i].plastic_coef = default_beam_plastic_coef[i];
-        beams[i].L = beams[i].refL;
-        beams[i].stress = 0.0;
-        beams[i].broken = false;
-        beams[i].disabled = false;
+        beams[i].maxposstress    = beams[i].default_beam_deform;
+        beams[i].maxnegstress    = -beams[i].default_beam_deform;
+        beams[i].minmaxposnegstress = beams[i].default_beam_deform;
+        beams[i].strength        = beams[i].initial_beam_strength;
+        beams[i].plastic_coef    = beams[i].default_beam_plastic_coef;
+        beams[i].L               = beams[i].refL;
+        beams[i].stress          = 0.0;
+        beams[i].broken          = false;
+        beams[i].disabled        = false;
     }
 
     disjoinInterTruckBeams();
@@ -2379,7 +2380,7 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
     Vector3 cam_roll = nodes[0].RelPosition;
     Vector3 cam_dir = nodes[0].RelPosition;
 
-    if (cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES)
+    if (this->IsNodeIdValid(cameranodepos[0])) // TODO: why check this on each update when it cannot change after spawn?
     {
         cam_pos = nodes[cameranodepos[0]].RelPosition;
         cam_roll = nodes[cameranoderoll[0]].RelPosition;
@@ -2991,7 +2992,7 @@ void Beam::lightsToggle()
     lights = !lights;
     if (!lights)
     {
-        for (int i = 0; i < free_flare; i++)
+        for (size_t i = 0; i < flares.size(); i++)
         {
             if (flares[i].type == 'f')
             {
@@ -3006,7 +3007,7 @@ void Beam::lightsToggle()
     }
     else
     {
-        for (int i = 0; i < free_flare; i++)
+        for (size_t i = 0; i < flares.size(); i++)
         {
             if (flares[i].type == 'f')
             {
@@ -3200,7 +3201,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
     }
     //the flares
     bool keysleep = false;
-    for (int i = 0; i < free_flare; i++)
+    for (size_t i = 0; i < this->flares.size(); i++)
     {
         // let the light blink
         if (flares[i].blinkdelay != 0)
@@ -5126,7 +5127,7 @@ void Beam::updateDashBoards(float dt)
     dash->setFloat(DD_ENGINE_SPEEDO_MPH, speed_mph);
 
     // roll
-    if (cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES)
+    if (this->IsNodeIdValid(cameranodepos[0])) // TODO: why check this on each update when it cannot change after spawn?
     {
         dir = nodes[cameranodepos[0]].RelPosition - nodes[cameranoderoll[0]].RelPosition;
         dir.normalise();
@@ -5141,7 +5142,7 @@ void Beam::updateDashBoards(float dt)
     }
 
     // active shocks / roll correction
-    if (free_active_shock)
+    if (this->has_active_shocks)
     {
         // TOFIX: certainly not working:
         float roll_corr = - stabratio * 10.0f;
@@ -5152,7 +5153,7 @@ void Beam::updateDashBoards(float dt)
     }
 
     // pitch
-    if (cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES)
+    if (this->IsNodeIdValid(cameranodepos[0]))
     {
         dir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
         dir.normalise();
@@ -5235,7 +5236,7 @@ void Beam::updateDashBoards(float dt)
         }
 
         // water depth display, only if we have a screw prop at least
-        if (cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES)
+        if (this->IsNodeIdValid(cameranodepos[0])) // TODO: Check cam. nodes once on spawn! They never change --> no reason to repeat the check. ~only_a_ptr, 06/2017
         {
             // position
             Vector3 dir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
@@ -5251,7 +5252,7 @@ void Beam::updateDashBoards(float dt)
         }
 
         // water speed
-        if (cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES)
+        if (this->IsNodeIdValid(cameranodepos[0]))
         {
             Vector3 hdir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
             hdir.normalise();
@@ -5469,7 +5470,8 @@ void Beam::updateDashBoards(float dt)
 
 Vector3 Beam::getGForces()
 {
-    if (cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES && cameranodedir[0] >= 0 && cameranodedir[0] < MAX_NODES && cameranoderoll[0] >= 0 && cameranoderoll[0] < MAX_NODES)
+    // TODO: Check cam. nodes once on spawn! They never change --> no reason to repeat the check. ~only_a_ptr, 06/2017
+    if (this->IsNodeIdValid(cameranodepos[0]) && this->IsNodeIdValid(cameranodedir[0]) && this->IsNodeIdValid(cameranoderoll[0]))
     {
         static Vector3 result = Vector3::ZERO;
 
@@ -6112,21 +6114,6 @@ bool Beam::LoadTruck(
     int mem = 0, memr = 0, tmpmem = 0;
     LOG("BEAM: memory stats following");
 
-    tmpmem = free_beam * sizeof(beam_t);
-    mem += tmpmem;
-    memr += MAX_BEAMS * sizeof(beam_t);
-    LOG("BEAM: beam memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(free_beam) + " x " + TOSTRING(sizeof(beam_t)) + " B) / " + TOSTRING(MAX_BEAMS * sizeof(beam_t)));
-
-    tmpmem = free_node * sizeof(node_t);
-    mem += tmpmem;
-    memr += MAX_NODES * sizeof(beam_t);
-    LOG("BEAM: node memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(free_node) + " x " + TOSTRING(sizeof(node_t)) + " B) / " + TOSTRING(MAX_NODES * sizeof(node_t)));
-
-    tmpmem = free_shock * sizeof(shock_t);
-    mem += tmpmem;
-    memr += MAX_SHOCKS * sizeof(beam_t);
-    LOG("BEAM: shock memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(free_shock) + " x " + TOSTRING(sizeof(shock_t)) + " B) / " + TOSTRING(MAX_SHOCKS * sizeof(shock_t)));
-
     tmpmem = free_prop * sizeof(prop_t);
     mem += tmpmem;
     memr += MAX_PROPS * sizeof(beam_t);
@@ -6136,16 +6123,6 @@ bool Beam::LoadTruck(
     mem += tmpmem;
     memr += MAX_WHEELS * sizeof(beam_t);
     LOG("BEAM: wheel memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(free_wheel) + " x " + TOSTRING(sizeof(wheel_t)) + " B) / " + TOSTRING(MAX_WHEELS * sizeof(wheel_t)));
-
-    tmpmem = free_rigidifier * sizeof(rigidifier_t);
-    mem += tmpmem;
-    memr += MAX_RIGIDIFIERS * sizeof(beam_t);
-    LOG("BEAM: rigidifier memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(free_rigidifier) + " x " + TOSTRING(sizeof(rigidifier_t)) + " B) / " + TOSTRING(MAX_RIGIDIFIERS * sizeof(rigidifier_t)));
-
-    tmpmem = free_flare * sizeof(flare_t);
-    mem += tmpmem;
-    memr += free_flare * sizeof(beam_t);
-    LOG("BEAM: flare memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(free_flare) + " x " + TOSTRING(sizeof(flare_t)) + " B)");
 
     LOG("BEAM: truck memory used: " + TOSTRING(mem) + " B (" + TOSTRING(mem/1024) + " kB)");
     LOG("BEAM: truck memory allocated: " + TOSTRING(memr) + " B (" + TOSTRING(memr/1024) + " kB)");
@@ -6250,12 +6227,13 @@ bool Beam::LoadTruck(
     // Set beam defaults
     for (int i = 0; i < free_beam; i++)
     {
-        initial_beam_strength[i] = beams[i].strength;
-        default_beam_deform[i] = beams[i].minmaxposnegstress;
-        default_beam_plastic_coef[i] = beams[i].plastic_coef;
+        beams[i].initial_beam_strength       = beams[i].strength;
+        beams[i].default_beam_deform         = beams[i].minmaxposnegstress;
+        beams[i].default_beam_plastic_coef   = beams[i].plastic_coef;
     }
 
-    if (cameranodepos[0] != cameranodedir[0] && cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES && cameranodedir[0] >= 0 && cameranodedir[0] < MAX_NODES)
+    // TODO: Check cam. nodes once on spawn! They never change --> no reason to repeat the check. ~only_a_ptr, 06/2017
+    if (cameranodepos[0] != cameranodedir[0] && this->IsNodeIdValid(cameranodepos[0]) && this->IsNodeIdValid(cameranodedir[0]))
     {
         Vector3 cur_dir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
         m_spawn_rotation = atan2(cur_dir.dotProduct(Vector3::UNIT_X), cur_dir.dotProduct(-Vector3::UNIT_Z));
@@ -6278,7 +6256,7 @@ bool Beam::LoadTruck(
     }
 
     Vector3 cinecam = nodes[0].AbsPosition;
-    if (cameranodepos[0] >= 0 && cameranodepos[0] < MAX_NODES)
+    if (this->IsNodeIdValid(cameranodepos[0]))
     {
         cinecam = nodes[cameranodepos[0]].AbsPosition;
     }

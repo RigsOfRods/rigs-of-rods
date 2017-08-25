@@ -657,11 +657,8 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
     BES_STOP(BES_CORE_Wheels);
     BES_START(BES_CORE_Shocks);
 
-    //update position
-    //		if (free_node != 0)
-    //			aposition/=(Real)(free_node);
     //variable shocks for stabilization
-    if (free_active_shock && stabcommand)
+    if (this->has_active_shocks && stabcommand)
     {
         if ((stabcommand == 1 && stabratio < 0.1) || (stabcommand == -1 && stabratio > -0.1))
             stabratio = stabratio + (float)stabcommand * dt * STAB_RATE;
@@ -675,7 +672,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
         }
     }
     //auto shock adjust
-    if (free_active_shock && doUpdate)
+    if (this->has_active_shocks && doUpdate)
     {
         stabsleep -= dt * maxsteps;
 

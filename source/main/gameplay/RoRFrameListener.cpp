@@ -171,11 +171,12 @@ void RoRFrameListener::UpdateForceFeedback(float dt)
         int cameranodedir = 0;
         int cameranoderoll = 0;
 
-        if (current_truck->cameranodepos[0] >= 0 && current_truck->cameranodepos[0] < MAX_NODES)
+        // TODO: Check cam. nodes once on spawn! They never change --> no reason to repeat the check. ~only_a_ptr, 06/2017
+        if (current_truck->IsNodeIdValid(current_truck->cameranodepos[0]))
             cameranodepos = current_truck->cameranodepos[0];
-        if (current_truck->cameranodedir[0] >= 0 && current_truck->cameranodedir[0] < MAX_NODES)
+        if (current_truck->IsNodeIdValid(current_truck->cameranodedir[0]))
             cameranodedir = current_truck->cameranodedir[0];
-        if (current_truck->cameranoderoll[0] >= 0 && current_truck->cameranoderoll[0] < MAX_NODES)
+        if (current_truck->IsNodeIdValid(current_truck->cameranoderoll[0]))
             cameranoderoll = current_truck->cameranoderoll[0];
 
         Vector3 udir = current_truck->nodes[cameranodepos].RelPosition - current_truck->nodes[cameranodedir].RelPosition;
@@ -1987,7 +1988,7 @@ void RoRFrameListener::ReloadCurrentTruck()
             newBeam->nodes[i].RelPosition = curr_truck->nodes[i].RelPosition;
             newBeam->nodes[i].Velocity = curr_truck->nodes[i].Velocity;
             newBeam->nodes[i].Forces = curr_truck->nodes[i].Forces;
-            newBeam->initial_node_pos[i] = curr_truck->initial_node_pos[i];
+            newBeam->nodes[i].initial_pos = curr_truck->nodes[i].initial_pos;
             newBeam->origin = curr_truck->origin;
         }
     }

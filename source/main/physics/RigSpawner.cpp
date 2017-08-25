@@ -135,20 +135,119 @@ void RigSpawner::Setup(
     m_messages_num_other = 0;
 }
 
+void RigSpawner::CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::File::Module* module_def)
+{
+    // 'nodes'
+    req.num_nodes += module_def->nodes.size();
+    for (auto& def: module_def->nodes)
+    {
+        if (BITMASK_IS_1(def.options, RigDef::Node::OPTION_h_HOOK_POINT))
+        {
+            req.num_beams += 1;
+        }
+    }
+
+    // 'beams'
+    req.num_beams += module_def->beams.size();
+
+    // 'ties'
+    req.num_beams += module_def->ties.size();
+
+    // 'ropes'
+    req.num_beams += module_def->ropes.size();
+
+    // 'hydros'
+    req.num_beams += module_def->hydros.size();
+
+    // 'triggers'
+    req.num_beams  += module_def->triggers.size();
+    req.num_shocks += module_def->triggers.size();
+
+    // 'animators'
+    req.num_beams += module_def->animators.size();
+
+    // 'cinecam'
+    req.num_nodes += module_def->cinecam.size();
+    req.num_beams += module_def->cinecam.size() * 8;
+
+    // 'shocks' and 'shocks2'
+    req.num_beams  += module_def->shocks.size();
+    req.num_shocks += module_def->shocks.size();
+    req.num_beams  += module_def->shocks_2.size();
+    req.num_shocks += module_def->shocks_2.size();
+
+    // 'commands' and 'commands2' (unified)
+    req.num_beams += module_def->commands_2.size();
+
+    // 'rotators'
+    req.num_rotators += module_def->rotators.size();
+    req.num_rotators += module_def->rotators_2.size();
+
+    // 'wings'
+    req.num_wings += module_def->wings.size();
+
+    // 'wheels'
+    for (RigDef::Wheel& wheel: module_def->wheels)
+    {
+        req.num_nodes += wheel.num_rays * 2; // BuildWheelObjectAndNodes()
+        req.num_beams += wheel.num_rays * ((wheel.rigidity_node.IsValidAnyState()) ? 9 : 8); // BuildWheelBeams()
+    }
+
+    // 'wheels2'
+    for (RigDef::Wheel2& wheel2: module_def->wheels_2)
+    {
+        req.num_nodes += wheel2.num_rays * 4;
+        // Rim beams:  num_rays*10 (*11 with valid rigidity_node)
+        // Tyre beams: num_rays*14
+        req.num_beams += wheel2.num_rays * ((wheel2.rigidity_node.IsValidAnyState()) ? 25 : 24);
+    }
+
+    // 'meshwheels' & 'meshwheels2' (unified)
+    for (RigDef::MeshWheel& meshwheel: module_def->mesh_wheels)
+    {
+        req.num_nodes += meshwheel.num_rays * 2; // BuildWheelObjectAndNodes()
+        req.num_beams += meshwheel.num_rays * ((meshwheel.rigidity_node.IsValidAnyState()) ? 9 : 8); // BuildWheelBeams()
+    }
+
+    // 'flexbodywheels'
+    for (RigDef::FlexBodyWheel& flexwheel: module_def->flex_body_wheels)
+    {
+        req.num_nodes += flexwheel.num_rays * 4;
+        // Rim beams:      num_rays*8
+        // Tyre beams:     num_rays*10 (num_rays*11 with valid rigidity_node)
+        // Support beams:  num_rays*2
+        req.num_beams += flexwheel.num_rays * ((flexwheel.rigidity_node.IsValidAnyState()) ? 21 : 20);
+    }
+}
+
 void RigSpawner::InitializeRig()
 {
     SPAWNER_PROFILE_SCOPED();
 
     m_rig->mCamera = nullptr;
+
+    ActorMemoryRequirements req;
+    for (auto module: m_selected_modules) // _Root_ module is included
+    {
+        this->CalcMemoryRequirements(req, module.get());
+    }
+
+    // Allocate memory as needed
+    m_rig->beams = new beam_t[req.num_beams];
+    m_rig->nodes = new node_t[req.num_nodes];
+
+    if (req.num_shocks > 0)
+        m_rig->shocks = new shock_t[req.num_shocks];
+
+    if (req.num_rotators > 0)
+        m_rig->rotators = new rotator_t[req.num_rotators];
+
+    if (req.num_wings > 0)
+        m_rig->wings = new wing_t[req.num_wings];
+
     // clear rig parent structure
-    memset(m_rig->nodes, 0, sizeof(node_t) * MAX_NODES);
-    m_rig->free_node = 0;
-    memset(m_rig->beams, 0, sizeof(beam_t) * MAX_BEAMS);
-    m_rig->free_beam = 0;
     memset(m_rig->contacters, 0, sizeof(contacter_t) * MAX_CONTACTERS);
     m_rig->free_contacter = 0;
-    memset(m_rig->rigidifiers, 0, sizeof(rigidifier_t) * MAX_RIGIDIFIERS);
-    m_rig->free_rigidifier = 0;
     memset(m_rig->wheels, 0, sizeof(wheel_t) * MAX_WHEELS);
     m_rig->free_wheel = 0;
     memset(m_rig->vwheels, 0, sizeof(vwheel_t) * MAX_WHEELS);
@@ -156,8 +255,6 @@ void RigSpawner::InitializeRig()
     m_rig->ropables.clear();
     m_rig->ties.clear();
     m_rig->hooks.clear();
-    memset(m_rig->wings, 0, sizeof(wing_t) * MAX_WINGS);
-    m_rig->free_wing = 0;
 
     // commands contain complex data structures, do not memset them ...
     for (int i=0;i<MAX_COMMANDS+1;i++)
@@ -168,15 +265,8 @@ void RigSpawner::InitializeRig()
         m_rig->commandkey[i].description="";
     }
 
-    memset(m_rig->rotators, 0, sizeof(rotator_t) * MAX_ROTATORS);
-    m_rig->free_rotator = 0;
-    m_rig->flares.clear();
-    m_rig->free_flare = 0;
     memset(m_rig->props, 0, sizeof(prop_t) * MAX_PROPS);
     m_rig->free_prop = 0;
-    memset(m_rig->shocks, 0, sizeof(shock_t) * MAX_SHOCKS);
-    m_rig->free_shock = 0;
-    m_rig->free_active_shock = 0;
     m_rig->exhausts.clear();
     memset(m_rig->cparticles, 0, sizeof(cparticle_t) * MAX_CPARTICLES);
     m_rig->free_cparticle = 0;
@@ -934,9 +1024,6 @@ void RigSpawner::ProcessAirbrake(RigDef::Airbrake & def)
 void RigSpawner::ProcessWing(RigDef::Wing & def)
 {
     SPAWNER_PROFILE_SCOPED();
-
-    // Perform checks
-    if (! this->CheckWingLimit(1)) { return; }
 
     if ((m_first_wing_index != -1) && (m_rig->wings[m_rig->free_wing - 1].fa == nullptr))
     {
@@ -2256,7 +2343,7 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
     /* Visuals */
     flare.snode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
     std::stringstream flare_name;
-    flare_name << "flare-" << m_rig->truckname << "-" << m_rig->free_flare;
+    flare_name << "flare-" << m_rig->truckname << "-" << m_rig->flares.size();
     flare.bbs = gEnv->sceneManager->createBillboardSet(flare_name.str(), 1);
     bool using_default_material = true;
     if (flare.bbs == nullptr)
@@ -2354,7 +2441,7 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
 
             if (m_rig->netCustomLightArray_counter < 4)
             {
-                m_rig->netCustomLightArray[m_rig->netCustomLightArray_counter] = m_rig->free_flare;
+                m_rig->netCustomLightArray[m_rig->netCustomLightArray_counter] = m_rig->flares.size();
                 m_rig->netCustomLightArray_counter++;
             }
         }
@@ -2368,7 +2455,6 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
         flare.light->setCastShadows(false);
     }
     m_rig->flares.push_back(flare);
-    m_rig->free_flare++;
 }
 
 Ogre::MaterialPtr RigSpawner::InstantiateManagedMaterial(Ogre::String const & source_name, Ogre::String const & clone_name)
@@ -2722,11 +2808,6 @@ void RigSpawner::ProcessTie(RigDef::Tie & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckBeamLimit(1))
-    {
-        return;
-    }
-
     node_t & node_1 = GetNodeOrThrow(def.root_node);
     node_t & node_2 = GetNode( (node_1.pos == 0) ? 1 : 0 );
 
@@ -2763,11 +2844,6 @@ void RigSpawner::ProcessTie(RigDef::Tie & def)
 void RigSpawner::ProcessRope(RigDef::Rope & def)
 {
     SPAWNER_PROFILE_SCOPED();
-
-    if (! CheckBeamLimit(1))
-    {
-        return;
-    }
 
     node_t & root_node = GetNodeOrThrow(def.root_node);
     node_t & end_node = GetNodeOrThrow(def.end_node);
@@ -3099,11 +3175,6 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckBeamLimit(1) || ! CheckShockLimit(1))
-    {
-        return;
-    }
-
     shock_t & shock = this->GetFreeShock();
 
     // Disable trigger on startup? (default enabled)
@@ -3279,14 +3350,7 @@ void RigSpawner::ProcessRotator(RigDef::Rotator & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckRotatorLimit(1))
-    {
-        return;
-    }
-
-    unsigned int rotator_index = m_rig->free_rotator;
-    m_rig->free_rotator++;
-    rotator_t & rotator = m_rig->rotators[rotator_index];
+    rotator_t & rotator = m_rig->rotators[m_rig->free_rotator];
 
     rotator.angle = 0;
     rotator.rate = def.rate;
@@ -3302,15 +3366,16 @@ void RigSpawner::ProcessRotator(RigDef::Rotator & def)
         rotator.nodes2[i] = GetNodeIndexOrThrow(def.rotating_plate_nodes[i]);
     }
 
-    /* Rotate left key */
-    m_rig->commandkey[def.spin_left_key].rotators.push_back(- (static_cast<int>(rotator_index) + 1));
+    // Rotate left key
+    m_rig->commandkey[def.spin_left_key].rotators.push_back(- (m_rig->free_rotator + 1));
     m_rig->commandkey[def.spin_left_key].description = "Rotate_Left/Right";
 
-    /* Rotate right key */
-    m_rig->commandkey[def.spin_right_key].rotators.push_back(rotator_index + 1);
+    // Rotate right key
+    m_rig->commandkey[def.spin_right_key].rotators.push_back(m_rig->free_rotator + 1);
 
     _ProcessKeyInertia(m_rig->rotaInertia, def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
 
+    m_rig->free_rotator++;
     m_rig->hascommands = 1;
 }
 
@@ -3318,21 +3383,14 @@ void RigSpawner::ProcessRotator2(RigDef::Rotator2 & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckRotatorLimit(1))
-    {
-        return;
-    }
-
-    unsigned int rotator_index = m_rig->free_rotator;
-    m_rig->free_rotator++;
-    rotator_t & rotator = m_rig->rotators[rotator_index];
+    rotator_t & rotator = m_rig->rotators[m_rig->free_rotator];
 
     rotator.angle = 0;
     rotator.rate = def.rate;
     rotator.axis1 = GetNodeIndexOrThrow(def.axis_nodes[0]);
     rotator.axis2     = GetNodeIndexOrThrow(def.axis_nodes[1]);
-    rotator.force     = def.rotating_force; /* Default value is set in constructor */
-    rotator.tolerance = def.tolerance; /* Default value is set in constructor */
+    rotator.force     = def.rotating_force; // Default value is set in constructor
+    rotator.tolerance = def.tolerance; // Default value is set in constructor
     rotator.rotatorEngineCoupling = def.engine_coupling;
     rotator.rotatorNeedsEngine = def.needs_engine;
     for (unsigned int i = 0; i < 4; i++)
@@ -3341,8 +3399,8 @@ void RigSpawner::ProcessRotator2(RigDef::Rotator2 & def)
         rotator.nodes2[i] = GetNodeIndexOrThrow(def.rotating_plate_nodes[i]);
     }
 
-    /* Rotate left key */
-    m_rig->commandkey[def.spin_left_key].rotators.push_back(- (static_cast<int>(rotator_index) + 1));
+    // Rotate left key
+    m_rig->commandkey[def.spin_left_key].rotators.push_back(- (m_rig->free_rotator + 1));
     if (! def.description.empty())
     {
         m_rig->commandkey[def.spin_left_key].description = def.description;
@@ -3352,11 +3410,12 @@ void RigSpawner::ProcessRotator2(RigDef::Rotator2 & def)
         m_rig->commandkey[def.spin_left_key].description = "Rotate_Left/Right";
     }
 
-    /* Rotate right key */
-    m_rig->commandkey[def.spin_right_key].rotators.push_back(rotator_index + 1);
+    // Rotate right key
+    m_rig->commandkey[def.spin_right_key].rotators.push_back(m_rig->free_rotator + 1);
 
     _ProcessKeyInertia(m_rig->rotaInertia, def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
 
+    m_rig->free_rotator++;
     m_rig->hascommands = 1;
 }
 
@@ -3426,11 +3485,6 @@ void RigSpawner::ProcessCommand(RigDef::Command2 & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckBeamLimit(1))
-    {
-        return;
-    }
-
     int beam_index = m_rig->free_beam;
     int node_1_index = FindNodeIndex(def.nodes[0]);
     int node_2_index = FindNodeIndex(def.nodes[1]);
@@ -3499,7 +3553,7 @@ void RigSpawner::ProcessAnimator(RigDef::Animator & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckBeamLimit(1) || ! CheckHydroLimit(1))
+    if (! CheckHydroLimit(1)) // TODO: remove the limit! See `RigSpawner::CalcMemoryRequirements()` ~ only_a_ptr, 06/2017
     {
         return;
     }
@@ -3699,7 +3753,7 @@ void RigSpawner::ProcessHydro(RigDef::Hydro & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckHydroLimit(1) || ! CheckBeamLimit(1))
+    if (! CheckHydroLimit(1)) // TODO: remove the limit! See `RigSpawner::CalcMemoryRequirements()` ~ only_a_ptr, 06/2017
     {
         return;
     }
@@ -3799,11 +3853,6 @@ void RigSpawner::ProcessShock2(RigDef::Shock2 & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckShockLimit(1) || ! CheckBeamLimit(1))
-    {
-        return;
-    }
-
     node_t & node_1 = GetNode(def.nodes[0]);
     node_t & node_2 = GetNode(def.nodes[1]);
     float short_bound = def.short_bound;
@@ -3891,11 +3940,6 @@ void RigSpawner::ProcessShock(RigDef::Shock & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckShockLimit(1) || ! CheckBeamLimit(1))
-    {
-        return;
-    }
-
     node_t & node_1 = GetNode(def.nodes[0]);
     node_t & node_2 = GetNode(def.nodes[1]);
     float short_bound = def.short_bound;
@@ -3912,13 +3956,13 @@ void RigSpawner::ProcessShock(RigDef::Shock & def)
     {
         BITMASK_SET_0(shock_flags, SHOCK_FLAG_NORMAL); /* Not normal anymore */
         BITMASK_SET_1(shock_flags, SHOCK_FLAG_LACTIVE);
-        m_rig->free_active_shock++; /* This has no array associated with it. its just to determine if there are active shocks! */
+        m_rig->has_active_shocks = true;
     }
     if (BITMASK_IS_1(def.options, RigDef::Shock::OPTION_R_ACTIVE_RIGHT))
     {
         BITMASK_SET_0(shock_flags, SHOCK_FLAG_NORMAL); /* Not normal anymore */
         BITMASK_SET_1(shock_flags, SHOCK_FLAG_RACTIVE);
-        m_rig->free_active_shock++; /* This has no array associated with it. its just to determine if there are active shocks! */
+        m_rig->has_active_shocks = true;
     }
     if (BITMASK_IS_1(def.options, RigDef::Shock::OPTION_m_METRIC))
     {
@@ -3985,9 +4029,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     SPAWNER_PROFILE_SCOPED();
 
     // Check capacities
-    CheckNodeLimit(def.num_rays * 4);
-    CheckBeamLimit(def.num_rays * (def.rigidity_node.IsValidAnyState()) ? 26 : 25);
-    CheckFlexbodyLimit(1);
+    CheckFlexbodyLimit(1); // TODO: remove the limit! See `RigSpawner::CalcMemoryRequirements()` ~ only_a_ptr, 06/2017
 
     unsigned int base_node_index = m_rig->free_node;
     wheel_t & wheel = m_rig->wheels[m_rig->free_wheel];
@@ -4491,10 +4533,6 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
 {
     SPAWNER_PROFILE_SCOPED();
 
-    /* Check capacity */
-    CheckNodeLimit(reserve_nodes);
-    CheckBeamLimit(reserve_beams);
-
     wheel_t & wheel = m_rig->wheels[m_rig->free_wheel];
 
     /* Axis */
@@ -4958,10 +4996,6 @@ unsigned int RigSpawner::AddWheel(RigDef::Wheel & wheel_def)
 unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 {
     SPAWNER_PROFILE_SCOPED();
-
-    /* Check capacity */
-    CheckNodeLimit(wheel_2_def.num_rays * 4);
-    CheckBeamLimit(wheel_2_def.num_rays * (wheel_2_def.rigidity_node.IsValidAnyState()) ? 26 : 25);
 
     unsigned int base_node_index = m_rig->free_node;
     wheel_t & wheel = m_rig->wheels[m_rig->free_wheel];
@@ -6070,13 +6104,7 @@ std::pair<unsigned int, bool> RigSpawner::AddNode(RigDef::Node::Id & id)
         this->AddMessage(Message::TYPE_ERROR, msg.str());
         return std::make_pair(0, false);
     }
-    if ((m_rig->free_node + 1) > MAX_NODES)
-    {
-        std::stringstream msg;
-        msg << "Node limit (" << MAX_NODES << ") exceeded with node: " << id.ToString();
-        this->AddMessage(Message::TYPE_ERROR, msg.str());
-        return std::make_pair(0, false);
-    }
+
     if (id.IsTypeNamed())
     {
         unsigned int new_index = static_cast<unsigned int>(m_rig->free_node);
@@ -6222,11 +6250,10 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
     node.contactless       = BITMASK_IS_1(options, RigDef::Node::OPTION_c_NO_GROUND_CONTACT);
     node.disable_particles = BITMASK_IS_1(options, RigDef::Node::OPTION_p_NO_PARTICLES);
     node.disable_sparks    = BITMASK_IS_1(options, RigDef::Node::OPTION_f_NO_SPARKS);
-        
+    node.no_mouse_grab     = BITMASK_IS_1(options, RigDef::Node::OPTION_m_NO_MOUSE_GRAB);
+
     m_rig->smokeRef        = BITMASK_IS_1(options, RigDef::Node::OPTION_y_EXHAUST_DIRECTION) ? node.pos : 0;
     m_rig->smokeId         = BITMASK_IS_1(options, RigDef::Node::OPTION_x_EXHAUST_POINT) ? node.pos : 0;
-
-    m_rig->node_mouse_grab_disabled[node.pos] = BITMASK_IS_1(options, RigDef::Node::OPTION_m_NO_MOUSE_GRAB);
 
     // Update "fusedrag" autocalc y & z span
     if (def.position.z < m_fuse_z_min) { m_fuse_z_min = def.position.z; }
@@ -6305,8 +6332,7 @@ bool RigSpawner::AddModule(Ogre::String const & module_name)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    std::map< Ogre::String, std::shared_ptr<RigDef::File::Module> >::iterator result 
-        = m_file->user_modules.find(module_name);
+    auto result = m_file->user_modules.find(module_name);
 
     if (result != m_file->user_modules.end())
     {
@@ -6314,18 +6340,13 @@ bool RigSpawner::AddModule(Ogre::String const & module_name)
         LOG(" == RigSpawner: Module added to configuration: " + module_name);
         return true;
     }
-    AddMessage(Message::TYPE_WARNING, "Selected module not found: " + module_name);
+    this->AddMessage(Message::TYPE_WARNING, "Selected module not found: " + module_name);
     return false;
 }
 
 void RigSpawner::ProcessCinecam(RigDef::Cinecam & def)
 {
     SPAWNER_PROFILE_SCOPED();
-
-    if (! CheckNodeLimit(1) && ! CheckBeamLimit(8))
-    {
-        return;
-    }
 
     // Node
     Ogre::Vector3 node_pos = m_spawn_position + def.position;
@@ -6411,62 +6432,6 @@ void RigSpawner::ProcessGlobals(RigDef::Globals & def)
 /* -------------------------------------------------------------------------- */
 /* Limits.
 /* -------------------------------------------------------------------------- */
-
-bool RigSpawner::CheckNodeLimit(unsigned int count)
-{
-    SPAWNER_PROFILE_SCOPED();
-
-    if ((m_rig->free_node + count) > MAX_NODES)
-    {
-        std::stringstream msg;
-        msg << "Node limit (" << MAX_NODES << ") exceeded";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return false;
-    }
-    return true;
-}
-
-bool RigSpawner::CheckBeamLimit(unsigned int count)
-{
-    SPAWNER_PROFILE_SCOPED();
-
-    if ((m_rig->free_beam + count) > MAX_BEAMS)
-    {
-        std::stringstream msg;
-        msg << "Beam limit (" << MAX_BEAMS << ") exceeded";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return false;
-    }
-    return true;
-}
-
-bool RigSpawner::CheckShockLimit(unsigned int count)
-{
-    SPAWNER_PROFILE_SCOPED();
-
-    if ((m_rig->free_shock + count) > MAX_SHOCKS)
-    {
-        std::stringstream msg;
-        msg << "Shock limit (" << MAX_SHOCKS << ") exceeded";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return false;
-    }
-    return true;
-}
-
-bool RigSpawner::CheckRotatorLimit(unsigned int count)
-{
-    SPAWNER_PROFILE_SCOPED();
-
-    if ((m_rig->free_rotator + count) > MAX_ROTATORS)
-    {
-        std::stringstream msg;
-        msg << "Rotator limit (" << MAX_ROTATORS << ") exceeded";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return false;
-    }
-    return true;
-}
 
 bool RigSpawner::CheckHydroLimit(unsigned int count)
 {
@@ -6611,20 +6576,6 @@ bool RigSpawner::CheckCabLimit(unsigned int count)
     return true;
 }
 
-bool RigSpawner::CheckWingLimit(unsigned int count)
-{
-    SPAWNER_PROFILE_SCOPED();
-
-    if ((m_rig->free_wing + count) > MAX_WINGS)
-    {
-        std::stringstream msg;
-        msg << "Wing limit (" << MAX_WINGS << ") exceeded";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return false;
-    }
-    return true;
-}
-
 bool RigSpawner::CheckCameraRailLimit(unsigned int count)
 {
     SPAWNER_PROFILE_SCOPED();
@@ -6702,7 +6653,6 @@ node_t & RigSpawner::GetFreeNode()
 {
     SPAWNER_PROFILE_SCOPED();
 
-    CheckNodeLimit(1);
     node_t & node = m_rig->nodes[m_rig->free_node];
     node.pos = m_rig->free_node;
     m_rig->free_node++;
@@ -6713,7 +6663,6 @@ beam_t & RigSpawner::GetFreeBeam()
 {
     SPAWNER_PROFILE_SCOPED();
 
-    CheckBeamLimit(1);
     beam_t & beam = m_rig->beams[m_rig->free_beam];
     m_rig->free_beam++;
     return beam;

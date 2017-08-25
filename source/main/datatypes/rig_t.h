@@ -1,9 +1,23 @@
 /*
- * rig.h
- *
- *  Created on: Dec 29, 2012
- *      Author: chris
- */
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
+    Copyright 2016-2017 Petr Ohlidal & contributors
+
+    For more information, see http://www.rigsofrods.org/
+
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
+
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #pragma once
 
@@ -14,60 +28,58 @@
 
 #include <OgrePrerequisites.h>
 
-/**
-* SIM-CORE; Represents a vehicle.
-*/
-struct rig_t
+struct rig_t ///< A simulation actor; typically a vehicle
 {
-    // TODO: sort these a bit more ...
-    node_t nodes[MAX_NODES];
-    Ogre::Vector3 initial_node_pos[MAX_NODES];
-    bool node_mouse_grab_disabled[MAX_NODES];
-    int free_node;
+    rig_t(): nodes(nullptr), free_node(0), beams(nullptr), free_beam(0),
+             shocks(nullptr), free_shock(0), has_active_shocks(false),
+             rotators(nullptr), free_rotator(0), wings(nullptr), free_wing(0)
+    {}
 
-    beam_t beams[MAX_BEAMS];
-    Ogre::Real initial_beam_strength[MAX_BEAMS];
-    Ogre::Real default_beam_deform[MAX_BEAMS];
-    Ogre::Real default_beam_plastic_coef[MAX_BEAMS];
-    int free_beam;
+    ~rig_t()
+    {
+        delete nodes;
+        delete beams;
+        delete shocks;
+        delete rotators;
+        delete wings;
+    }
 
-    std::vector<beam_t*> interTruckBeams;
+    node_t*                    nodes;
+    int                        free_node;            ///< Number of nodes; name is historical (free index in static array)
+
+    beam_t*                    beams;
+    int                        free_beam;            ///< Number of beams; name is historical (free index in static array)
+    std::vector<beam_t*>       interTruckBeams;
+
+    shock_t*                   shocks;               ///< Shock absorbers
+    int                        free_shock;           ///< Number of shock absorbers; name is historical (free index in static array)
+    bool                       has_active_shocks;    ///< Are there active stabilizer shocks?
+
+    rotator_t*                 rotators;
+    int                        free_rotator;         ///< Number of rotators; name is historical (free index in static array)
+
+    wing_t*                    wings;
+    int                        free_wing;            ///< Number of wings; name is historical (free index in static array)
+
+    std::vector<exhaust_t>     exhausts;
+    std::vector<rope_t>        ropes;
+    std::vector<ropable_t>     ropables;
+    std::vector<tie_t>         ties;
+    std::vector<hook_t>        hooks;
+    std::vector<flare_t>       flares;
 
     contacter_t contacters[MAX_CONTACTERS];
     int free_contacter;
-
-    rigidifier_t rigidifiers[MAX_RIGIDIFIERS];
-    int free_rigidifier;
 
     wheel_t wheels[MAX_WHEELS];
     vwheel_t vwheels[MAX_WHEELS];
     int free_wheel;
 
-    std::vector <rope_t> ropes;
-    std::vector <ropable_t> ropables;
-    std::vector <tie_t> ties;
-    std::vector <hook_t> hooks;
-
-    wing_t wings[MAX_WINGS];
-    int free_wing;
-
     command_t commandkey[MAX_COMMANDS + 10]; // 0 for safety
-
-    rotator_t rotators[MAX_ROTATORS];
-    int free_rotator;
-
-    std::vector<flare_t> flares;
-    int free_flare;
 
     prop_t props[MAX_PROPS];
     prop_t *driverSeat;
     int free_prop;
-
-    shock_t shocks[MAX_SHOCKS];
-    int free_shock;
-    int free_active_shock; //!< this has no array associated with it. its just to determine if there are active shocks!
-
-    std::vector < exhaust_t > exhausts;
 
     cparticle_t cparticles[MAX_CPARTICLES];
     int free_cparticle;
