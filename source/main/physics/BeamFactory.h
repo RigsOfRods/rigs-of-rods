@@ -32,6 +32,8 @@
 #include "Network.h"
 #include "Singleton.h"
 
+#include <unordered_set>
+
 #define PHYSICS_DT 0.0005 // fixed delta time of 0.5 ms
 
 class ThreadPool;
