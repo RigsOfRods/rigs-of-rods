@@ -43,7 +43,7 @@
 using namespace Ogre;
 using namespace RoR;
 
-CameraManager::CameraManager() : 
+CameraManager::CameraManager(RoRFrameListener* sim_controller):
       currentBehavior(nullptr)
     , currentBehaviorID(-1)
     , mTransScale(1.0f)
@@ -58,6 +58,7 @@ CameraManager::CameraManager() :
     ctx.mCurrTruck = 0;
     ctx.mDof = 0;
     ctx.mDebug = BSETTING("Camera Debug", false);
+    ctx.sim_controller = sim_controller;
 
     if (BSETTING("DOF", false))
     {

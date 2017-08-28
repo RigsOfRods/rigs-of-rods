@@ -104,7 +104,7 @@ Beam::~Beam()
     // TODO: IMPROVE below: delete/destroy prop entities, etc
 
     //OLD    this->disjoinInterTruckBeams();
-    BeamFactory::getSingleton().RemoveAllInterBeams(this);
+    m_sim_controller->GetBeamFactory()->RemoveAllInterBeams(this);
 
     // hide everything, prevents deleting stuff while drawing
     this->setBeamVisibility(false);
@@ -921,7 +921,7 @@ void Beam::calc_masses2(Real total, bool reCalc)
     for (size_t i = 0; i < ropes.size(); ++i)
     {
         // OLD calc_masses2 // it->beam->p2->mass = 100.0f;
-        inter_beam_t* interbeam = BeamFactory::getSingleton().FindInterBeam(this, InterBeamType::IB_ROPE, i);
+        inter_beam_t* interbeam = m_sim_controller->GetBeamFactory()->FindInterBeam(this, InterBeamType::IB_ROPE, i);
         if (interbeam != nullptr)
             interbeam->ib_beam.p2->mass = 100.f;
         else
@@ -987,7 +987,7 @@ float Beam::getTotalMass(bool withLocked)
     if (!withLocked)
         return totalmass; // already computed in calc_masses2
 
-    return totalmass + BeamFactory::getSingleton().GetTotalLinkedMass(this);
+    return totalmass + m_sim_controller->GetBeamFactory()->GetTotalLinkedMass(this);
 }
 
 // OLD determineLinked // void Beam::determineLinkedBeams()
@@ -1673,7 +1673,7 @@ void Beam::SyncReset()
     }
 
 //OLD    disjoinInterTruckBeams();
-    BeamFactory::getSingleton().RemoveAllInterBeams(this);
+    m_sim_controller->GetBeamFactory()->RemoveAllInterBeams(this);
 
     for (std::vector<hook_t>::iterator it = hooks.begin(); it != hooks.end(); it++)
     {
@@ -3737,12 +3737,12 @@ void Beam::updateVisual(float dt)
     {
         if (m_skeletonview_is_active && m_request_skeletonview_change < 0)
         {
-            BeamFactory::getSingleton().SetSkeletonViewActive(this, false);
+            m_sim_controller->GetBeamFactory()->SetSkeletonViewActive(this, false);
             //OLD  //   hideSkeleton(true);
         }
         else if (!m_skeletonview_is_active && m_request_skeletonview_change > 0)
         {
-            BeamFactory::getSingleton().SetSkeletonViewActive(this, true);
+            m_sim_controller->GetBeamFactory()->SetSkeletonViewActive(this, true);
             // OLD //showSkeleton(true, true);
         }
 
@@ -4197,7 +4197,7 @@ void Beam::tieToggle(int group) // TODO: Move this function into `BeamFactory` w
         if (group != -1 && (it->group != -1 && it->group != group))
             continue;
 
-        inter_beam_t* interbeam = BeamFactory::getSingleton().FindInterBeam(this, InterBeamType::IB_TIE, tie_index);
+        inter_beam_t* interbeam = m_sim_controller->GetBeamFactory()->FindInterBeam(this, InterBeamType::IB_TIE, tie_index);
         if (interbeam == nullptr)
         {
             LOGSTREAM << "INTERNAL ERROR: Tie (index:"<<tie_index<<") has no associated interbeam (actor: "<<this->getTruckName()<<")";
@@ -4208,7 +4208,7 @@ void Beam::tieToggle(int group) // TODO: Move this function into `BeamFactory` w
         if (it->tied)
         {
             // OLD TIE // is_tied = !it->beam->disabled;
-            inter_beam_t* interbeam = BeamFactory::getSingleton().FindInterBeam(this, InterBeamType::IB_TIE, tie_index);
+            inter_beam_t* interbeam = m_sim_controller->GetBeamFactory()->FindInterBeam(this, InterBeamType::IB_TIE, tie_index);
             is_tied = (interbeam->ib_actor_slave != nullptr);
 
             // tie is locked and should get unlocked and stop tying
@@ -4227,7 +4227,7 @@ void Beam::tieToggle(int group) // TODO: Move this function into `BeamFactory` w
             // OLD TIES //     it->locked_truck->m_request_skeletonview_change = -1;
             // OLD TIES // }
             // OLD TIES // it->locked_truck = nullptr;
-            BeamFactory::getSingleton().DetachTieInterBeam(interbeam);
+            m_sim_controller->GetBeamFactory()->DetachTieInterBeam(interbeam);
         }
         ++tie_index;
     }
@@ -4238,7 +4238,7 @@ void Beam::tieToggle(int group) // TODO: Move this function into `BeamFactory` w
         size_t tie_index = 0;
         for (std::vector<tie_t>::iterator it = ties.begin(); it != ties.end(); it++)
         {
-            inter_beam_t* interbeam = BeamFactory::getSingleton().FindInterBeam(this, InterBeamType::IB_TIE, tie_index);
+            inter_beam_t* interbeam = m_sim_controller->GetBeamFactory()->FindInterBeam(this, InterBeamType::IB_TIE, tie_index);
             if (interbeam == nullptr)
             {
                 LOGSTREAM << "INTERNAL ERROR: Tie (actor: "<<this->getTruckName()<<", index:"<<tie_index<<") has no associated inter-beam";
@@ -4301,7 +4301,7 @@ void Beam::tieToggle(int group) // TODO: Move this function into `BeamFactory` w
                     it->tying = true;
                     it->lockedto = target_ropable;
                     it->lockedto->in_use = true;
-                    BeamFactory::getSingleton().AttachTieInterBeam(interbeam, target_actor, closest_node);
+                    m_sim_controller->GetBeamFactory()->AttachTieInterBeam(interbeam, target_actor, closest_node);
                     // OLD TIES // if (it->beam->p2truck)
                     // OLD TIES // {
                     // OLD TIES //     addInterTruckBeam(it->beam, this, shtruck);
@@ -4331,7 +4331,7 @@ void Beam::ropeToggle(int group) // TODO: Move this function into `BeamFactory` 
         if (group != -1 && (it->group != -1 && it->group != group))
             continue;
 
-        inter_beam_t* interbeam = BeamFactory::getSingleton().FindInterBeam(this, InterBeamType::IB_ROPE, rope_index);
+        inter_beam_t* interbeam = m_sim_controller->GetBeamFactory()->FindInterBeam(this, InterBeamType::IB_ROPE, rope_index);
         if (interbeam == nullptr)
         {
             LOGSTREAM << "INTERNAL ERROR: Rope (index:"<<rope_index
@@ -4348,7 +4348,7 @@ void Beam::ropeToggle(int group) // TODO: Move this function into `BeamFactory` 
                 it->lockedto_ropable->in_use = false;
             it->lockedto = &nodes[0];
             // OLD ROPE // it->lockedtruck = 0;
-            BeamFactory::getSingleton().UnlockRopeInterBeam(interbeam);
+            m_sim_controller->GetBeamFactory()->UnlockRopeInterBeam(interbeam);
         }
         else
         {
@@ -4389,7 +4389,7 @@ void Beam::ropeToggle(int group) // TODO: Move this function into `BeamFactory` 
                 //okay, we have found a rope to tie
                 it->lockedto = closest_node;
                 // OLD ROPE // it->lockedtruck = shtruck;
-                BeamFactory::getSingleton().LockRopeInterBeam(interbeam, target_actor);
+                m_sim_controller->GetBeamFactory()->LockRopeInterBeam(interbeam, target_actor);
                 it->locked = PRELOCK;
                 it->lockedto_ropable = target_ropable;
                 it->lockedto_ropable->in_use = true;
@@ -4448,7 +4448,7 @@ void Beam::hookToggle(int group, hook_states mode, int node_number) // TODO: Mov
             continue;
         }
 
-        inter_beam_t* interbeam = BeamFactory::getSingleton().FindInterBeam(this, InterBeamType::IB_HOOK, hook_index);
+        inter_beam_t* interbeam = m_sim_controller->GetBeamFactory()->FindInterBeam(this, InterBeamType::IB_HOOK, hook_index);
         Beam* prev_slave = interbeam->ib_actor_slave;
         Beam* new_slave = nullptr;
 
@@ -4507,7 +4507,7 @@ void Beam::hookToggle(int group, hook_states mode, int node_number) // TODO: Mov
                         // we found a node, lock to it
                         it->lockNode = &(trucks[t]->nodes[last_node]);
                         // OLD HOOK // it->lockTruck = trucks[t];
-                        BeamFactory::getSingleton().PreLockHookInterBeam(interbeam, trucks[t]);
+                        m_sim_controller->GetBeamFactory()->PreLockHookInterBeam(interbeam, trucks[t]);
                         new_slave = trucks[t];
                         it->locked = PRELOCK;
                     }
@@ -4541,7 +4541,7 @@ void Beam::hookToggle(int group, hook_states mode, int node_number) // TODO: Mov
                         // we found a ropable, lock to it
                         it->lockNode = shorter;
                         // OLD HOOK // it->lockTruck = shtruck;
-                        BeamFactory::getSingleton().PreLockHookInterBeam(interbeam, shtruck);
+                        m_sim_controller->GetBeamFactory()->PreLockHookInterBeam(interbeam, shtruck);
                         new_slave = shtruck;
                         it->locked = PRELOCK;
                     }
@@ -4559,7 +4559,7 @@ void Beam::hookToggle(int group, hook_states mode, int node_number) // TODO: Mov
                 it->timer = it->timer_preset; //timer reset for autolock nodes
             }
             it->lockNode = 0;
-            BeamFactory::getSingleton().UnlockHookInterBeam(interbeam);
+            m_sim_controller->GetBeamFactory()->UnlockHookInterBeam(interbeam);
             // OLD ROPES // it->lockTruck = 0;
             // OLD ROPES // //disable hook-assistance beam
             // OLD ROPES // it->beam->p2 = &nodes[0];

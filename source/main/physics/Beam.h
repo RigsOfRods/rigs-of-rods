@@ -637,7 +637,9 @@ protected:
     // OLD    void disjoinInterTruckBeams();
 
     // this is for managing the blinkers on the truck:
+public: // HACK for access by BeamFactory (added during 'interbeam' refactor) ~ only_a_ptr, 08/2017
     blinktype blinkingtype;
+private:
 
     Ogre::Real hydrolen;
 

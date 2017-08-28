@@ -29,6 +29,7 @@
 #include "GUIManager.h"
 #include "InputEngine.h"
 #include "Language.h"
+#include "RoRFrameListener.h"
 #include "Settings.h"
 
 using namespace Ogre;
@@ -71,7 +72,7 @@ void CameraBehaviorVehicleSpline::update(const CameraManager::CameraContext& ctx
     }
 
     // OLD CAMERA //  if (ctx.mCurrTruck->getAllLinkedBeams().size() != numLinkedBeams)
-    if (BeamFactory::getSingleton().GetNumLinkedActors(ctx.mCurrTruck) != numLinkedBeams)
+    if (ctx.sim_controller->GetBeamFactory()->GetNumLinkedActors(ctx.mCurrTruck) != numLinkedBeams)
     {
         this->createSpline(ctx);
     }
@@ -207,7 +208,7 @@ void CameraBehaviorVehicleSpline::createSpline(const CameraManager::CameraContex
     }
 
     std::unordered_set<Beam*> slave_actors;
-    BeamFactory::getSingleton().FindLinkedActors(ctx.mCurrTruck, slave_actors);
+    ctx.sim_controller->GetBeamFactory()->FindLinkedActors(ctx.mCurrTruck, slave_actors);
 
     // OLD CAMERA // std::list<Beam*> linkedBeams = ctx.mCurrTruck->getAllLinkedBeams();
 

@@ -2873,7 +2873,7 @@ void RigSpawner::ProcessTie(RigDef::Tie & def)
     interbeam.ib_type         = InterBeamType::IB_TIE;
     interbeam.ib_entry_index  = m_rig->ropes.size();
     interbeam.ib_rest_node2   = &node_2;
-    BeamFactory::getSingleton().AddNewInterBeam(interbeam);
+    m_sim_controller->GetBeamFactory()->AddNewInterBeam(interbeam);
 
     // Register tie
     tie_t tie;
@@ -2916,7 +2916,7 @@ void RigSpawner::ProcessRope(RigDef::Rope & def)
     interbeam.ib_type         = InterBeamType::IB_ROPE;
     interbeam.ib_entry_index  = m_rig->ropes.size();
     interbeam.ib_rest_node2   = &end_node;
-    BeamFactory::getSingleton().AddNewInterBeam(interbeam);
+    m_sim_controller->GetBeamFactory()->AddNewInterBeam(interbeam);
 
     // Register rope
     rope_t rope;
@@ -3194,7 +3194,7 @@ void RigSpawner::ProcessHook(RigDef::Hook & def)
         return;
     }
 
-    inter_beam_t* interbeam = BeamFactory::getSingleton().FindInterBeam(m_rig, InterBeamType::IB_HOOK, hook_index);
+    inter_beam_t* interbeam = m_sim_controller->GetBeamFactory()->FindInterBeam(m_rig, InterBeamType::IB_HOOK, hook_index);
     if (interbeam == nullptr)
     {
         std::stringstream msg;
@@ -6316,7 +6316,7 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
         interbeam.ib_type = InterBeamType::IB_HOOK;
         interbeam.ib_entry_index = m_rig->hooks.size();
         interbeam.ib_rest_node2 = &node_2;
-        BeamFactory::getSingleton().AddNewInterBeam(interbeam);
+        m_sim_controller->GetBeamFactory()->AddNewInterBeam(interbeam);
 
         // Logic cloned from SerializedRig.cpp, section BTS_NODES
         hook_t hook;

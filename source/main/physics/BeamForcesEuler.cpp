@@ -1229,7 +1229,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
         if (!it->tying)
             continue;
 
-        inter_beam_t* interbeam = BeamFactory::getSingleton().FindInterBeam(this, InterBeamType::IB_TIE, tie_index);
+        inter_beam_t* interbeam = m_sim_controller->GetBeamFactory()->FindInterBeam(this, InterBeamType::IB_TIE, tie_index);
         if (interbeam == nullptr)
         {
             LOGSTREAM << "INTERNAL ERROR: Tie (index:"<<tie_index<<") has no associated interbeam (actor: "<<this->getTruckName()<<"), function: " << __FUNCTION__;
@@ -1306,8 +1306,8 @@ bool Beam::calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int max
     if (state != SIMULATED)
         return false;
 
-    BeamFactory::getSingleton().ForwardCommands(this); // TODO: shouldn't be called from here. ~ only_a_ptr, 04/2017
-    BeamFactory::getSingleton().CalcBeamsInterTruck(); // TODO: as well as this.
+    m_sim_controller->GetBeamFactory()->ForwardCommands(this); // TODO: shouldn't be called from here. ~ only_a_ptr, 04/2017
+    m_sim_controller->GetBeamFactory()->CalcBeamsInterTruck(); // TODO: as well as this.
 
     return true;
 }
@@ -1550,7 +1550,11 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
     BES_STOP(BES_CORE_Beams);
 }
 
-void BeamFactory::CalcBeamsInterTruck() // TODO: !Different class! Left here during development -> more readable diff. Will be moved to `BeamFactory.cpp` when work is done.
+   // ###################################
+   // TODO: !Different class! Left here during development -> more readable diff. Will be moved to `BeamFactory.cpp` when work is done.
+   // ###################################
+
+void RoR::BeamFactory::CalcBeamsInterTruck() 
 {
     for (inter_beam_t& interbeam: m_inter_beams)
     {
@@ -1869,12 +1873,15 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
     }
 }
 
-void BeamFactory::ForwardCommands(Beam* actor) // TODO: !!Different class!! Will be moved to "BeamFactory.cpp" when work is done.
+   // ###################################
+   // TODO: !Different class! Left here during development -> more readable diff. Will be moved to `BeamFactory.cpp` when work is done.
+   // ###################################
+
+void RoR::BeamFactory::ForwardCommands(Beam* actor)
 {
-    auto bf = m_sim_controller->GetBeamFactory();
-    Beam* current_truck = bf->getCurrentTruck();
-    Beam** trucks = bf->getTrucks();
-    int numtrucks = bf->getTruckCount();
+    Beam* current_truck = this->getCurrentTruck();
+    Beam** trucks = this->getTrucks();
+    int numtrucks = this->getTruckCount();
 
     // forward things to trailers
     if (numtrucks > 1 && actor == current_truck && actor->forwardcommands)
@@ -1894,7 +1901,7 @@ void BeamFactory::ForwardCommands(Beam* actor) // TODO: !!Different class!! Will
                 const size_t num_hooks = actor->hooks.size();
                 for (size_t i = 0; i < num_hooks; ++i)
                 {
-                    inter_beam_t* interbeam = BeamFactory::getSingleton().FindInterBeam(actor, InterBeamType::IB_HOOK, i);
+                    inter_beam_t* interbeam = this->FindInterBeam(actor, InterBeamType::IB_HOOK, i);
                     if (interbeam == nullptr)
                     {
                         LOGSTREAM << "INTERNAL ERROR: Tie (actor: "<<actor->getTruckName()<<", index:"<<i<<") has no associated inter-beam";
@@ -1936,14 +1943,18 @@ void BeamFactory::ForwardCommands(Beam* actor) // TODO: !!Different class!! Will
     }
 }
 
-void BeamFactory::CalcHooks(Beam* actor) // TODO: !!Different class!! - will be moved to 'BeamFactory.cpp' when ready
+   // ###################################
+   // TODO: !Different class! Left here during development -> more readable diff. Will be moved to `BeamFactory.cpp` when work is done.
+   // ###################################
+
+void RoR::BeamFactory::CalcHooks(Beam* actor)
 {
     BES_START(BES_CORE_Hooks);
     //locks - this is not active in network mode
     size_t hook_index = 0;
     for (std::vector<hook_t>::iterator it = actor->hooks.begin(); it != actor->hooks.end(); it++)
     {
-        inter_beam_t* interbeam = BeamFactory::getSingleton().FindInterBeam(actor, InterBeamType::IB_HOOK, hook_index);
+        inter_beam_t* interbeam = this->FindInterBeam(actor, InterBeamType::IB_HOOK, hook_index);
         if (interbeam == nullptr)
         {
             LOGSTREAM << "INTERNAL ERROR: Hook (actor: "<<actor->getTruckName()<<", index:"<<hook_index<<") has no associated inter-beam";
@@ -1960,7 +1971,7 @@ void BeamFactory::CalcHooks(Beam* actor) // TODO: !!Different class!! - will be 
                 // OLD // interbeam->ib_beam.L = (it->hookNode->AbsPosition - it->lockNode->AbsPosition).length();
                 // OLD // interbeam->ib_beam.disabled = false;
                 // OLD // addInterTruckBeam(it->beam, this, it->lockTruck);
-                BeamFactory::getSingleton().LockHookInterBeamCalc(interbeam, it->lockNode);
+               this->LockHookInterBeamCalc(interbeam, it->lockNode);
             }
             else
             {
@@ -2003,7 +2014,7 @@ void BeamFactory::CalcHooks(Beam* actor) // TODO: !!Different class!! - will be 
                                 // OLD // interbeam->ib_beam.L = (nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
                                 // OLD // interbeam->ib_beam.disabled = true;
                                 // OLD // removeInterTruckBeam(it->beam);
-                                BeamFactory::getSingleton().UnlockHookInterBeam(interbeam);
+                                this->UnlockHookInterBeam(interbeam);
                             }
                         }
                     }
@@ -2014,7 +2025,7 @@ void BeamFactory::CalcHooks(Beam* actor) // TODO: !!Different class!! - will be 
         {
             it->locked = UNLOCKED;
             // OLD // removeInterTruckBeam(it->beam);
-            BeamFactory::getSingleton().UnlockHookInterBeam(interbeam);
+            this->UnlockHookInterBeam(interbeam);
         }
 
         ++hook_index;
@@ -2022,7 +2033,11 @@ void BeamFactory::CalcHooks(Beam* actor) // TODO: !!Different class!! - will be 
     BES_STOP(BES_CORE_Hooks);
 }
 
-void BeamFactory::CalcRopes(Beam* actor) // TODO: !!Different class!! - will be moved to 'BeamFactory.cpp' when ready
+   // ###################################
+   // TODO: !Different class! Left here during development -> more readable diff. Will be moved to `BeamFactory.cpp` when work is done.
+   // ###################################
+
+void RoR::BeamFactory::CalcRopes(Beam* actor)
 {
     BES_START(BES_CORE_Ropes);
     if (actor->ropes.size())
@@ -2033,7 +2048,7 @@ void BeamFactory::CalcRopes(Beam* actor) // TODO: !!Different class!! - will be 
         {
             if (it->lockedto != nullptr)
             {
-                inter_beam_t* interbeam = BeamFactory::getSingleton().FindInterBeam(actor, InterBeamType::IB_HOOK, rope_index);
+                inter_beam_t* interbeam = this->FindInterBeam(actor, InterBeamType::IB_HOOK, rope_index);
                 if (interbeam == nullptr)
                 {
                     LOGSTREAM << "INTERNAL ERROR: Rope (actor: "<<actor->getTruckName()<<", index:"<<rope_index<<") has no associated inter-beam";
