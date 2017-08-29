@@ -1248,8 +1248,6 @@ void Parser::ParseCruiseControl()
 
 void Parser::ParseDirectiveAddAnimation()
 {
-    assert(m_current_module != nullptr);
-
     if (m_current_module->props.size() == 0)
     {
         AddMessage(Message::TYPE_ERROR, "Directive 'add_animation' has no prop to animate, ignoring...");
@@ -1309,8 +1307,9 @@ void Parser::ParseDirectiveAddAnimation()
             }
             else if (entry[0] == "event")
             {
-                Ogre::StringUtil::trim(entry[1]);
                 animation.event = entry[1];
+                Ogre::StringUtil::trim(animation.event);
+                Ogre::StringUtil::toUpperCase(animation.event);
             }
             else if (entry[0] == "source")
             {
