@@ -1646,59 +1646,45 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
         curr_truck->GetGfxActor()->UpdateVideoCameras(dt);
     }
 
-    // terrain updates
-    if (gEnv->terrainManager)
-    {
-        // update animated objects
-        gEnv->terrainManager->update(dt);
+    // --- terrain updates ---
 
-        // env map update
-        if (gEnv->terrainManager->getEnvmap())
+    // update animated objects
+    gEnv->terrainManager->update(dt);
+
+    // env map update
+    if (curr_truck)
+    {
+        m_gfx_envmap.UpdateEnvMap(curr_truck->getPosition(), curr_truck);
+    }
+    // NOTE: Removed `else` branch which captured the middle of the map (height: ground+50m) - what was that for?? ~ only_a_ptr, 08/2017
+
+    // water
+    if (simRUNNING(s) || simPAUSED(s) || simEDITOR(s))
+    {
+        IWater* water = gEnv->terrainManager->getWater();
+        if (water)
         {
+            water->setCamera(gEnv->mainCamera);
             if (curr_truck)
             {
-                gEnv->terrainManager->getEnvmap()->update(curr_truck->getPosition(), curr_truck);
+                water->moveTo(water->getHeightWaves(curr_truck->getPosition()));
             }
             else
             {
-                Vector3 maxTerrainSize = gEnv->terrainManager->getMaxTerrainSize();
-                float height = maxTerrainSize.y;
-                if (gEnv->terrainManager->getHeightFinder())
-                {
-                    height = gEnv->terrainManager->getHeightFinder()->getHeightAt(maxTerrainSize.x / 2.0f, maxTerrainSize.z / 2.0f);
-                }
-                gEnv->terrainManager->getEnvmap()->update(Vector3(maxTerrainSize.x / 2.0f, height + 50.0f, maxTerrainSize.z / 2.0f));
+                water->moveTo(water->getHeight());
             }
+            water->framestep(dt);
         }
-
-        // water
-        if (simRUNNING(s) || simPAUSED(s) || simEDITOR(s))
-        {
-            IWater* water = gEnv->terrainManager->getWater();
-            if (water)
-            {
-                water->setCamera(gEnv->mainCamera);
-                if (curr_truck)
-                {
-                    water->moveTo(water->getHeightWaves(curr_truck->getPosition()));
-                }
-                else
-                {
-                    water->moveTo(water->getHeight());
-                }
-                water->framestep(dt);
-            }
-        }
-
-        // trigger updating of shadows etc
-#ifdef USE_CAELUM
-        SkyManager* sky = gEnv->terrainManager->getSkyManager();
-        if ((sky != nullptr) && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
-        {
-            sky->detectUpdate();
-        }
-#endif
     }
+
+    // trigger updating of shadows etc
+#ifdef USE_CAELUM
+    SkyManager* sky = gEnv->terrainManager->getSkyManager();
+    if ((sky != nullptr) && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
+    {
+        sky->detectUpdate();
+    }
+#endif
 
     if (simRUNNING(s) || simPAUSED(s) || simEDITOR(s))
     {
@@ -2328,6 +2314,8 @@ bool RoRFrameListener::SetupGameplayLoop()
         // init camera manager after mygui and after we have a character
         gEnv->cameraManager = new CameraManager();
     }
+
+    m_gfx_envmap.SetupEnvMap();
 
     // ============================================================================
     // Loading map

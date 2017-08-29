@@ -51,7 +51,6 @@ public:
 
     // some getters
     Collisions* getCollisions() { return collisions; };
-    Envmap* getEnvmap() { return envmap; };
     IHeightFinder* getHeightFinder();
     IWater* getWater() { return water; };
     Ogre::Light* getMainLight() { return main_light; };
@@ -80,7 +79,6 @@ protected:
     Character* character;
     Collisions* collisions;
     Dashboard* dashboard;
-    Envmap* envmap;
     HDRListener* hdr_listener;
     SurveyMapManager* m_survey_map;
     ShadowManager* shadow_manager;
@@ -104,7 +102,6 @@ protected:
     void initCamera();
     void initTerrainCollisions();
     void initDashboards();
-    void initEnvironmentMap();
     void initFog();
     void initGeometry();
     void initGlow();

@@ -108,9 +108,11 @@ namespace MOC
 
 namespace Ogre
 {
-    class MovableText;
-    class TerrainGroup;
+    class Camera;
     class ConfigFile;
+    class MovableText;
+    class RenderTarget;
+    class TerrainGroup;
 }
 
 class AeroEngine;

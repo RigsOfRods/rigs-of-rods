@@ -20,29 +20,36 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "ForwardDeclarations.h"
 
-class Envmap : public ZeroedMemoryAllocator
+#include <OgreVector3.h>
+#include <OgreTexture.h>
+
+namespace RoR {
+
+/// A dynamic environment probe; Creates a cubemap with realtime reflections around specified point.
+class GfxEnvmap
 {
 public:
 
-    Envmap();
-    ~Envmap();
+    GfxEnvmap();
+    ~GfxEnvmap();
 
-    void prepareShutdown()
-    {
-    };
-
-    void update(Ogre::Vector3 center, Beam* beam = 0);
+    void SetupEnvMap();
+    void UpdateEnvMap(Ogre::Vector3 center, Beam* beam = 0);
 
 private:
 
-    void init(Ogre::Vector3 center);
-
     static const unsigned int NUM_FACES = 6;
 
-    Ogre::Camera* mCameras[NUM_FACES];
-    Ogre::RenderTarget* mRenderTargets[NUM_FACES];
-    bool mInitiated;
-    int mRound;
+    void InitEnvMap(Ogre::Vector3 center);
+
+    Ogre::Camera*        m_cameras[NUM_FACES];
+    Ogre::RenderTarget*  m_render_targets[NUM_FACES];
+    Ogre::TexturePtr     m_rtt_texture;
+    bool                 m_is_initialized;
+    int                  m_update_round; /// Render targets are updated one-by-one; this is the index of next target to update.
+    bool                 m_is_enabled; // TODO: Use a GVar!! ~ only_a_ptr, 08/2017
 };
+
+} // namespace RoR

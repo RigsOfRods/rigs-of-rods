@@ -20,11 +20,12 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
-#include "ForceFeedback.h"
-
-#include "CharacterFactory.h"
 #include "BeamFactory.h"
+#include "CharacterFactory.h"
+#include "EnvironmentMap.h"
+#include "ForceFeedback.h"
+#include "RoRPrerequisites.h"
+
 
 #include <Ogre.h>
 
@@ -81,6 +82,7 @@ protected:
 
     RoR::BeamFactory         m_beam_factory;
     RoR::CharacterFactory    m_character_factory;
+    RoR::GfxEnvmap           m_gfx_envmap;
     HeatHaze*                m_heathaze;
     RoR::SkidmarkConfig*     m_skidmark_conf;
     Ogre::Real               m_time_until_next_toggle; ///< just to stop toggles flipping too fast
