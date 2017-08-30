@@ -35,7 +35,6 @@
 #include "scripthelper/scripthelper.h"
 #include "scriptmath/scriptmath.h"
 #include "scriptstdstring/scriptstdstring.h"
-#include "scriptstring/scriptstring.h"
 // AS addons end
 
 #include "Application.h"

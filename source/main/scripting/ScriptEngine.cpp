@@ -31,7 +31,6 @@
 #include "scriptany/scriptany.h"
 #include "scriptarray/scriptarray.h"
 #include "scripthelper/scripthelper.h"
-#include "scriptstring/scriptstring.h"
 // AS addons end
 
 #ifdef USE_CURL
@@ -259,8 +258,6 @@ void ScriptEngine::init()
     AngelScript::RegisterScriptMath(engine);
     AngelScript::RegisterScriptAny(engine);
     AngelScript::RegisterScriptDictionary(engine);
-    //AngelScript::RegisterScriptString(engine);
-    //AngelScript::RegisterScriptStringUtils(engine);
 
     // register some Ogre objects like the vector3 and the quaternion
     registerOgreObjects(engine);
