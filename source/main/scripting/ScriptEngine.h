@@ -168,13 +168,13 @@ protected:
     Collisions* coll;
     AngelScript::asIScriptEngine* engine; //!< instance of the scripting engine
     AngelScript::asIScriptContext* context; //!< context in which all scripting happens
-    int frameStepFunctionPtr; //!< script function pointer to the frameStep function
-    int wheelEventFunctionPtr; //!< script function pointer
-    int eventCallbackFunctionPtr; //!< script function pointer to the event callback function
-    int defaultEventCallbackFunctionPtr; //!< script function pointer for spawner events
+    AngelScript::asIScriptFunction* frameStepFunctionPtr; //!< script function pointer to the frameStep function
+    AngelScript::asIScriptFunction* wheelEventFunctionPtr; //!< script function pointer
+    AngelScript::asIScriptFunction* eventCallbackFunctionPtr; //!< script function pointer to the event callback function
+    AngelScript::asIScriptFunction* defaultEventCallbackFunctionPtr; //!< script function pointer for spawner events
     Ogre::String scriptName;
     Ogre::String scriptHash;
-    std::map<std::string, std::vector<int>> callbacks;
+    std::map<std::string, std::vector<AngelScript::asIScriptFunction*>> callbacks;
 
     InterThreadStoreVector<Ogre::String> stringExecutionQueue; //!< The string execution queue \see queueStringForExecution
 

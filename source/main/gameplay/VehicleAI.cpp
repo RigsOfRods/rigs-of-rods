@@ -66,11 +66,12 @@ void VehicleAI::AddWaypoint(String& id, Vector3& point)
 
 void VehicleAI::AddWaypoints(AngelScript::CScriptDictionary& d)
 {
-    for (auto dict : d.dict)
+    for (auto item : d)
     {
-        String id = dict.first;
-        Vector3* point = (Vector3 *)dict.second.valueObj;
-        AddWaypoint(id, *(point));
+        Ogre::Vector3* point;
+        item.GetValue(point, item.GetTypeId());
+        Ogre::String key(item.GetKey());
+        this->AddWaypoint(key, (*point));
     }
 }
 

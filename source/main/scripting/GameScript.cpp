@@ -360,14 +360,15 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
     }
     if (!mod)
         return;
-    int functionPtr = mod->GetFunctionIdByName(eventhandler.c_str());
+
+    AngelScript::asIScriptFunction* handler_func = mod->GetFunctionByName(eventhandler.c_str());
 
     // trying to create the new object
     SceneNode* bakeNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
     if (gEnv->terrainManager && gEnv->terrainManager->getObjectManager())
     {
         const String type = "";
-        gEnv->terrainManager->getObjectManager()->loadObject(objectName, pos, rot, bakeNode, instanceName, type, true, functionPtr, uniquifyMaterials);
+        gEnv->terrainManager->getObjectManager()->loadObject(objectName, pos, rot, bakeNode, instanceName, type, true, handler_func->GetId(), uniquifyMaterials);
     }
 }
 
@@ -824,6 +825,9 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 
 int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptDictionary& d, String& result)
 {
+#if 0 // ========================== disabled until new multiplayer portal supports it =============================
+      // At the moment, the call to "useOnlineAPIDirectly()" is dummy, making this whole function dummy.
+
     // malloc this, so we are safe from this function scope
     OnlineAPIParams_t* params = (OnlineAPIParams_t *)malloc(sizeof(OnlineAPIParams_t));
     if (!params)
@@ -878,6 +882,8 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
             params->dict->Release();
             free(params);
         }).detach();
+
+#endif // #if 0 =============== END disabled block of code ========================
 
     return 0;
 }
