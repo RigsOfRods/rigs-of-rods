@@ -4,7 +4,7 @@
 // ###########################
 // Rigs of Rods - notes
 //
-// Function "LoadScriptSection()" changed to virtual.
+// Function "LoadScriptSection()" changed to virtual to enable overloading in `class OgreScriptBuilder`
 // ###########################
 
 //---------------------------
