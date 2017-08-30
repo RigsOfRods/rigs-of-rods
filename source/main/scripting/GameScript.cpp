@@ -30,7 +30,6 @@
 #include "OgreSubsystem.h"
 
 // AS addons start
-#include "contextmgr/contextmgr.h"
 #include "scriptany/scriptany.h"
 #include "scriptarray/scriptarray.h"
 #include "scripthelper/scripthelper.h"

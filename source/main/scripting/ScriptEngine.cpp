@@ -28,7 +28,6 @@
 // AS addons start
 #include "scriptstdstring/scriptstdstring.h"
 #include "scriptmath/scriptmath.h"
-#include "contextmgr/contextmgr.h"
 #include "scriptany/scriptany.h"
 #include "scriptarray/scriptarray.h"
 #include "scripthelper/scripthelper.h"
