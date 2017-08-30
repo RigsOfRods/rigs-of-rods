@@ -2,6 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -75,7 +76,7 @@ GameScript::~GameScript()
 
 void GameScript::log(const String& msg)
 {
-    SLOG(msg);
+    ScriptEngine::getSingleton().SLOG(msg);
 }
 
 void GameScript::activateAllVehicles()
@@ -355,7 +356,7 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
     }
     catch (std::exception e)
     {
-        SLOG("Exception in spawnObject(): " + String(e.what()));
+        this->log("Exception in spawnObject(): " + String(e.what()));
         return;
     }
     if (!mod)
@@ -388,7 +389,7 @@ int GameScript::setMaterialAmbient(const String& materialName, float red, float 
     }
     catch (Exception e)
     {
-        SLOG("Exception in setMaterialAmbient(): " + e.getFullDescription());
+        this->log("Exception in setMaterialAmbient(): " + e.getFullDescription());
         return 0;
     }
     return 1;
@@ -405,7 +406,7 @@ int GameScript::setMaterialDiffuse(const String& materialName, float red, float 
     }
     catch (Exception e)
     {
-        SLOG("Exception in setMaterialDiffuse(): " + e.getFullDescription());
+        this->log("Exception in setMaterialDiffuse(): " + e.getFullDescription());
         return 0;
     }
     return 1;
@@ -422,7 +423,7 @@ int GameScript::setMaterialSpecular(const String& materialName, float red, float
     }
     catch (Exception e)
     {
-        SLOG("Exception in setMaterialSpecular(): " + e.getFullDescription());
+        this->log("Exception in setMaterialSpecular(): " + e.getFullDescription());
         return 0;
     }
     return 1;
@@ -439,7 +440,7 @@ int GameScript::setMaterialEmissive(const String& materialName, float red, float
     }
     catch (Exception e)
     {
-        SLOG("Exception in setMaterialEmissive(): " + e.getFullDescription());
+        this->log("Exception in setMaterialEmissive(): " + e.getFullDescription());
         return 0;
     }
     return 1;
@@ -479,7 +480,7 @@ int GameScript::getSafeTextureUnitState(TextureUnitState** tu, const String mate
     }
     catch (Exception e)
     {
-        SLOG("Exception in getSafeTextureUnitState(): " + e.getFullDescription());
+        this->log("Exception in getSafeTextureUnitState(): " + e.getFullDescription());
     }
     return 1;
 }

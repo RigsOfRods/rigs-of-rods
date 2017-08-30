@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -66,7 +66,7 @@ using namespace RoR;
 
 void logString(const std::string &str)
 {
-    SLOG(str);
+    ScriptEngine::getSingleton().SLOG(str);
 }
 
 // the class implementation
@@ -89,10 +89,9 @@ ScriptEngine::ScriptEngine(Collisions *coll) :
 
     // create our own log
     scriptLog = LogManager::getSingleton().createLog(App::GetSysLogsDir() + PATH_SLASH + "Angelscript.log", false);
-    scriptLog->logMessage("ScriptEngine initialized");
 
     // init not earlier, otherwise crash
-    init();
+    this->init();
 }
 
 ScriptEngine::~ScriptEngine()
@@ -116,61 +115,10 @@ void ScriptEngine::messageLogged( const String& message, LogMessageLevel lml, bo
 
 }
 
-void ScriptEngine::ExceptionCallback(AngelScript::asIScriptContext *ctx, void *param)
-{
-    AngelScript::asIScriptEngine *engine = ctx->GetEngine();
-    AngelScript::asIScriptFunction* function = ctx->GetExceptionFunction();
-    SLOG("--- exception ---");
-    SLOG("desc: " + String(ctx->GetExceptionString()));
-    SLOG("func: " + String(function->GetDeclaration()));
-    SLOG("modl: " + String(function->GetModuleName()));
-    SLOG("sect: " + String(function->GetScriptSectionName()));
-    int col, line = ctx->GetExceptionLineNumber(&col);
-    SLOG("line: "+TOSTRING(line)+","+TOSTRING(col));
-
-    // Show the call stack with the variables
-    SLOG("--- call stack ---");
-    char tmp[2048]="";
-    for ( AngelScript::asUINT n = 1; n < ctx->GetCallstackSize(); n++ )
-    {
-        function = ctx->GetFunction(n);
-        sprintf(tmp, "%s (%d): %s\n", function->GetScriptSectionName(), ctx->GetLineNumber(n), function->GetDeclaration());
-        SLOG(String(tmp));
-    }
-}
-
-void ScriptEngine::exploreScripts()
-{
-    // this shouldn't be used at the moment
-#if 0
-#if USE_ANGELSCRIPT
-    FileInfoListPtr files= ResourceGroupManager::getSingleton().findResourceFileInfo("Scripts", "*.rs", false);
-    for (FileInfoList::iterator iterFiles = files->begin(); iterFiles!= files->end(); ++iterFiles)
-    {
-        loadScript(iterFiles->filename);
-    }
-#endif //USE_ANGELSCRIPT
-#endif
-}
-
-void ScriptEngine::LineCallback(AngelScript::asIScriptContext *ctx, unsigned long *timeOut)
-{
-    // If the time out is reached we abort the script
-    if (RoR::App::GetOgreSubsystem()->GetTimeSinceStartup() > *timeOut)
-    {
-        ctx->Abort();
-    }
-
-    // It would also be possible to only suspend the script,
-    // instead of aborting it. That would allow the application
-    // to resume the execution where it left of at a later
-    // time, by simply calling Execute() again.
-}
-
 // continue with initializing everything
 void ScriptEngine::init()
 {
-    SLOG("ScriptEngine (SE) initializing ...");
+    SLOG("ScriptEngine initializing ...");
     int result;
 
     // Create the script engine
@@ -187,7 +135,8 @@ void ScriptEngine::init()
         {
             SLOG("One of the arguments is incorrect, e.g. obj is null for a class method.");
             return;
-        } else if (result == AngelScript::asNOT_SUPPORTED)
+        }
+        else if (result == AngelScript::asNOT_SUPPORTED)
         {
             SLOG("	The arguments are not supported, e.g. asCALL_GENERIC.");
             return;
@@ -552,7 +501,6 @@ int ScriptEngine::framestep(Real dt)
     // Set the function arguments
     context->SetArgFloat(0, dt);
 
-    //SLOG("Executing framestep()");
     int r = context->Execute();
     if ( r == AngelScript::asEXECUTION_FINISHED )
     {
@@ -564,13 +512,17 @@ int ScriptEngine::framestep(Real dt)
 
 int ScriptEngine::fireEvent(std::string instanceName, float intensity)
 {
-    if (!engine) return 0;
+    if (!engine)
+        return 0;
+
     AngelScript::asIScriptModule *mod = engine->GetModule(moduleName, AngelScript::asGM_CREATE_IF_NOT_EXISTS);
     AngelScript::asIScriptFunction* func = mod->GetFunctionByDecl("void fireEvent(string, float)"); // TODO: this shouldn't be hard coded --neorej16
     if (func == nullptr)
         return 0; // TODO: This function returns 0 no matter what - WTF? ~ only_a_ptr, 08/2017
 
-    if (!context) context = engine->CreateContext();
+    if (!context)
+        context = engine->CreateContext();
+
     context->Prepare(func);
 
     // Set the function arguments
@@ -591,7 +543,8 @@ int ScriptEngine::fireEvent(std::string instanceName, float intensity)
 
 int ScriptEngine::envokeCallback(int functionPtr, eventsource_t *source, node_t *node, int type)
 {
-    if (!engine) return 0; // TODO: this function returns 0 no matter what - WTF? ~ only_a_ptr, 08/2017
+    if (!engine)
+        return 0; // TODO: this function returns 0 no matter what - WTF? ~ only_a_ptr, 08/2017
 
     if (functionPtr <= 0 && (defaultEventCallbackFunctionPtr != nullptr))
     {
@@ -603,7 +556,9 @@ int ScriptEngine::envokeCallback(int functionPtr, eventsource_t *source, node_t 
         // no default callback available, discard the event
         return 0;
     }
-    if (!context) context = engine->CreateContext();
+    if (!context)
+        context = engine->CreateContext();
+
     context->Prepare(engine->GetFunctionById(functionPtr));
 
     // Set the function arguments
@@ -636,8 +591,12 @@ void ScriptEngine::queueStringForExecution(const String command)
 
 int ScriptEngine::executeString(String command)
 {
-    if (!engine) return 1;
-    if (!context) context = engine->CreateContext();
+    if (!engine)
+        return 1;
+
+    if (!context)
+        context = engine->CreateContext();
+
     AngelScript::asIScriptModule *mod = engine->GetModule(moduleName, AngelScript::asGM_CREATE_IF_NOT_EXISTS);
     int result = ExecuteString(engine, command.c_str(), mod, context);
     if (result < 0)
@@ -649,8 +608,12 @@ int ScriptEngine::executeString(String command)
 
 int ScriptEngine::addFunction(const String &arg)
 {
-    if (!engine) return 1;
-    if (!context) context = engine->CreateContext();
+    if (!engine)
+        return 1;
+
+    if (!context)
+        context = engine->CreateContext();
+
     AngelScript::asIScriptModule *mod = engine->GetModule(moduleName, AngelScript::asGM_CREATE_IF_NOT_EXISTS);
 
     AngelScript::asIScriptFunction *func = 0;
@@ -900,19 +863,24 @@ int ScriptEngine::loadScript(String _scriptName)
 
     // get some other optional functions
     frameStepFunctionPtr = mod->GetFunctionByDecl("void frameStep(float)");
-    if (frameStepFunctionPtr > 0) callbacks["frameStep"].push_back(frameStepFunctionPtr);
+    if (frameStepFunctionPtr > 0)
+        callbacks["frameStep"].push_back(frameStepFunctionPtr);
     
     wheelEventFunctionPtr = mod->GetFunctionByDecl("void wheelEvents(int, string, string, string)");
-    if (wheelEventFunctionPtr > 0) callbacks["wheelEvents"].push_back(wheelEventFunctionPtr);
+    if (wheelEventFunctionPtr > 0)
+        callbacks["wheelEvents"].push_back(wheelEventFunctionPtr);
 
     eventCallbackFunctionPtr = mod->GetFunctionByDecl("void eventCallback(int, int)");
-    if (eventCallbackFunctionPtr > 0) callbacks["eventCallback"].push_back(eventCallbackFunctionPtr);
+    if (eventCallbackFunctionPtr > 0)
+        callbacks["eventCallback"].push_back(eventCallbackFunctionPtr);
 
     defaultEventCallbackFunctionPtr = mod->GetFunctionByDecl("void defaultEventCallback(int, string, string, int)");
-    if (defaultEventCallbackFunctionPtr > 0) callbacks["defaultEventCallback"].push_back(defaultEventCallbackFunctionPtr);
+    if (defaultEventCallbackFunctionPtr > 0)
+        callbacks["defaultEventCallback"].push_back(defaultEventCallbackFunctionPtr);
 
     auto cb = mod->GetFunctionByDecl("void on_terrain_loading(string lines)");
-    if (cb > 0) callbacks["on_terrain_loading"].push_back(cb);
+    if (cb > 0)
+        callbacks["on_terrain_loading"].push_back(cb);
 
     // Find the function that is to be called.
     auto main_func = mod->GetFunctionByDecl("void main()");
