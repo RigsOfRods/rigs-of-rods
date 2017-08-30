@@ -35,53 +35,58 @@
 #include "SkyManager.h"
 #include "TerrainManager.h"
 
-using namespace RoR;
-using namespace Ogre;
-
-Envmap::Envmap() :
-    mInitiated(false)
-    , mRound(0)
+RoR::GfxEnvmap::GfxEnvmap():
+    m_is_initialized(false),
+    m_update_round(0)
 {
-    TexturePtr texture = TextureManager::getSingleton().createManual("EnvironmentTexture",
-        ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_CUBE_MAP, 256, 256, 0,
-        PF_R8G8B8, TU_RENDERTARGET);
+    memset(m_cameras, 0, sizeof(m_cameras));
+    memset(m_render_targets, 0, sizeof(m_render_targets));
+}
+
+void RoR::GfxEnvmap::SetupEnvMap()
+{
+    m_is_enabled = !BSETTING("Envmapdisable", false); // TODO: Use a GVar!! Postponed until the 'IMGUI' gVar refactor is merged to upstream ~ only_a_ptr, 08/2017
+
+    m_rtt_texture = Ogre::TextureManager::getSingleton().createManual("EnvironmentTexture",
+        Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_CUBE_MAP, 256, 256, 0,
+        Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET);
 
     for (int face = 0; face < NUM_FACES; face++)
     {
-        mRenderTargets[face] = texture->getBuffer(face)->getRenderTarget();
-        mCameras[face] = gEnv->sceneManager->createCamera("EnvironmentCamera-" + TOSTRING(face));
-        mCameras[face]->setAspectRatio(1.0);
-        mCameras[face]->setProjectionType(PT_PERSPECTIVE);
-        mCameras[face]->setFixedYawAxis(false);
-        mCameras[face]->setFOVy(Degree(90));
-        mCameras[face]->setNearClipDistance(0.1f);
-        mCameras[face]->setFarClipDistance(gEnv->mainCamera->getFarClipDistance());
+        m_render_targets[face] = m_rtt_texture->getBuffer(face)->getRenderTarget();
+        m_cameras[face] = gEnv->sceneManager->createCamera("EnvironmentCamera-" + TOSTRING(face));
+        m_cameras[face]->setAspectRatio(1.0);
+        m_cameras[face]->setProjectionType(Ogre::PT_PERSPECTIVE);
+        m_cameras[face]->setFixedYawAxis(false);
+        m_cameras[face]->setFOVy(Ogre::Degree(90));
+        m_cameras[face]->setNearClipDistance(0.1f);
+        m_cameras[face]->setFarClipDistance(gEnv->mainCamera->getFarClipDistance());
 
-        Viewport* v = mRenderTargets[face]->addViewport(mCameras[face]);
+        Ogre::Viewport* v = m_render_targets[face]->addViewport(m_cameras[face]);
         v->setOverlaysEnabled(false);
         v->setClearEveryFrame(true);
         v->setBackgroundColour(gEnv->mainCamera->getViewport()->getBackgroundColour());
-        mRenderTargets[face]->setAutoUpdated(false);
+        m_render_targets[face]->setAutoUpdated(false);
 
         switch (face)
         {
         case 0:
-            mCameras[face]->setDirection(+Vector3::UNIT_X);
+            m_cameras[face]->setDirection(+Ogre::Vector3::UNIT_X);
             break;
         case 1:
-            mCameras[face]->setDirection(-Vector3::UNIT_X);
+            m_cameras[face]->setDirection(-Ogre::Vector3::UNIT_X);
             break;
         case 2:
-            mCameras[face]->setDirection(+Vector3::UNIT_Y);
+            m_cameras[face]->setDirection(+Ogre::Vector3::UNIT_Y);
             break;
         case 3:
-            mCameras[face]->setDirection(-Vector3::UNIT_Y);
+            m_cameras[face]->setDirection(-Ogre::Vector3::UNIT_Y);
             break;
         case 4:
-            mCameras[face]->setDirection(-Vector3::UNIT_Z);
+            m_cameras[face]->setDirection(-Ogre::Vector3::UNIT_Z);
             break;
         case 5:
-            mCameras[face]->setDirection(+Vector3::UNIT_Z);
+            m_cameras[face]->setDirection(+Ogre::Vector3::UNIT_Z);
             break;
         }
     }
@@ -89,38 +94,36 @@ Envmap::Envmap() :
     if (App::GetDiagEnvmap())
     {
         // create fancy mesh for debugging the envmap
-        Overlay* overlay = OverlayManager::getSingleton().create("EnvMapDebugOverlay");
+        Ogre::Overlay* overlay = Ogre::OverlayManager::getSingleton().create("EnvMapDebugOverlay");
         if (overlay)
         {
-            Vector3 position = Vector3::ZERO;
+            Ogre::Vector3 position = Ogre::Vector3::ZERO;
             float scale = 1.0f;
 
-            MeshPtr mesh = MeshManager::getSingletonPtr()->createManual("cubeMapDebug", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+            Ogre::MeshPtr mesh = Ogre::MeshManager::getSingletonPtr()->createManual("cubeMapDebug", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
             // create sub mesh
-            SubMesh* sub = mesh->createSubMesh();
+            Ogre::SubMesh* sub = mesh->createSubMesh();
 
             // Initialize render operation
-            sub->operationType = RenderOperation::OT_TRIANGLE_LIST;
+            sub->operationType = Ogre::RenderOperation::OT_TRIANGLE_LIST;
             //
             sub->useSharedVertices = true;
-            mesh->sharedVertexData = new VertexData;
-            sub->indexData = new IndexData;
+            mesh->sharedVertexData = new Ogre::VertexData;
+            sub->indexData = new Ogre::IndexData;
 
             // Create vertex declaration
             size_t offset = 0;
-            VertexDeclaration* vertexDeclaration = mesh->sharedVertexData->vertexDeclaration;
-            vertexDeclaration->addElement(0, offset, VET_FLOAT3, VES_POSITION);
-            offset += VertexElement::getTypeSize(VET_FLOAT3);
-            vertexDeclaration->addElement(0, offset, VET_FLOAT3, VES_TEXTURE_COORDINATES);
-            offset += VertexElement::getTypeSize(VET_FLOAT3);
+            mesh->sharedVertexData->vertexDeclaration->addElement(0, offset, Ogre::VET_FLOAT3, Ogre::VES_POSITION);
+            offset += Ogre::VertexElement::getTypeSize(Ogre::VET_FLOAT3);
+            mesh->sharedVertexData->vertexDeclaration->addElement(0, offset, Ogre::VET_FLOAT3, Ogre::VES_TEXTURE_COORDINATES);
 
             // Create and bind vertex buffer
             mesh->sharedVertexData->vertexCount = 14;
-            HardwareVertexBufferSharedPtr vertexBuffer =
-                HardwareBufferManager::getSingleton().createVertexBuffer(
+            Ogre::HardwareVertexBufferSharedPtr vertexBuffer =
+                Ogre::HardwareBufferManager::getSingleton().createVertexBuffer(
                     mesh->sharedVertexData->vertexDeclaration->getVertexSize(0),
                     mesh->sharedVertexData->vertexCount,
-                    HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+                    Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
             mesh->sharedVertexData->vertexBufferBinding->setBinding(0, vertexBuffer);
 
             // Vertex data
@@ -143,7 +146,7 @@ Envmap::Envmap() :
             };
 
             // Fill vertex buffer
-            float* pData = static_cast<float*>(vertexBuffer->lock(HardwareBuffer::HBL_DISCARD));
+            float* pData = static_cast<float*>(vertexBuffer->lock(Ogre::HardwareBuffer::HBL_DISCARD));
             for (size_t vertex = 0, i = 0; vertex < mesh->sharedVertexData->vertexCount; vertex++)
             {
                 // Position
@@ -160,15 +163,15 @@ Envmap::Envmap() :
 
             // Create index buffer
             sub->indexData->indexCount = 36;
-            HardwareIndexBufferSharedPtr indexBuffer =
-                HardwareBufferManager::getSingleton().createIndexBuffer(
-                    HardwareIndexBuffer::IT_16BIT,
+            Ogre::HardwareIndexBufferSharedPtr indexBuffer =
+                Ogre::HardwareBufferManager::getSingleton().createIndexBuffer(
+                    Ogre::HardwareIndexBuffer::IT_16BIT,
                     sub->indexData->indexCount,
-                    HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+                    Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
             sub->indexData->indexBuffer = indexBuffer;
 
             // Index data
-            static const uint16 indexData[] = {
+            static const Ogre::uint16 indexData[] = {
                 // Indices         // Face
                  0,  1,  2,        //  0
                  2,  1,  3,        //  1
@@ -187,20 +190,20 @@ Envmap::Envmap() :
             // Fill index buffer
             indexBuffer->writeData(0, indexBuffer->getSizeInBytes(), indexData, true);
 
-            mesh->_setBounds(AxisAlignedBox::BOX_INFINITE);
+            mesh->_setBounds(Ogre::AxisAlignedBox::BOX_INFINITE);
             mesh->_setBoundingSphereRadius(10);
             mesh->load();
 
-            Entity* e = gEnv->sceneManager->createEntity(mesh->getName());
+            Ogre::Entity* e = gEnv->sceneManager->createEntity(mesh->getName());
             e->setCastShadows(false);
-            e->setRenderQueueGroup(RENDER_QUEUE_OVERLAY - 1);
+            e->setRenderQueueGroup(Ogre::RENDER_QUEUE_OVERLAY - 1);
             e->setVisible(true);
 
             e->setMaterialName("tracks/EnvMapDebug");
-            Ogre::SceneNode* mDebugSceneNode = new SceneNode(gEnv->sceneManager);
+            Ogre::SceneNode* mDebugSceneNode = new Ogre::SceneNode(gEnv->sceneManager);
             mDebugSceneNode->attachObject(e);
-            mDebugSceneNode->setPosition(Vector3(0, 0, -5));
-            mDebugSceneNode->setFixedYawAxis(true, Vector3::UNIT_Y);
+            mDebugSceneNode->setPosition(Ogre::Vector3(0, 0, -5));
+            mDebugSceneNode->setFixedYawAxis(true, Ogre::Vector3::UNIT_Y);
             mDebugSceneNode->setVisible(true);
             mDebugSceneNode->_update(true, true);
             mDebugSceneNode->_updateBounds();
@@ -208,33 +211,38 @@ Envmap::Envmap() :
             overlay->show();
 
             // example update
-            init(Vector3::ZERO);
+            this->InitEnvMap(Ogre::Vector3::ZERO);
         }
     }
 }
 
-Envmap::~Envmap()
+RoR::GfxEnvmap::~GfxEnvmap()
 {
     for (int face = 0; face < NUM_FACES; face++)
     {
         gEnv->sceneManager->destroyCamera("EnvironmentCamera-" + TOSTRING(face));
     }
+
+    Ogre::TextureManager::getSingleton().remove(m_rtt_texture->getName());
 }
 
-void Envmap::update(Ogre::Vector3 center, Beam* beam /* = 0 */)
+void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, Beam* beam /* = 0 */)
 {
+    if (!m_is_enabled)
+        return;
+
     if (!App::GetGfxEnvmapEnabled() || !beam)
     {
-        if (!mInitiated)
+        if (!m_is_initialized)
         {
-            init(center);
+            this->InitEnvMap(center);
         }
         return;
     }
 
     for (int i = 0; i < NUM_FACES; i++)
     {
-        mCameras[i]->setPosition(center);
+        m_cameras[i]->setPosition(center);
     }
 
     // try to hide all flexbodies and cabs prior render, and then show them again after done
@@ -261,11 +269,11 @@ void Envmap::update(Ogre::Vector3 center, Beam* beam /* = 0 */)
 
         if (gEnv->terrainManager->getSkyManager())
         {
-            gEnv->terrainManager->getSkyManager()->notifyCameraChanged(mCameras[mRound]);
+            gEnv->terrainManager->getSkyManager()->notifyCameraChanged(m_cameras[m_update_round]);
         }
 #endif // USE_CAELUM
-        mRenderTargets[mRound]->update();
-        mRound = (mRound + 1) % NUM_FACES;
+        m_render_targets[m_update_round]->update();
+        m_update_round = (m_update_round + 1) % NUM_FACES;
     }
 #ifdef USE_CAELUM
 
@@ -285,14 +293,14 @@ void Envmap::update(Ogre::Vector3 center, Beam* beam /* = 0 */)
     }
 }
 
-void Envmap::init(Vector3 center)
+void RoR::GfxEnvmap::InitEnvMap(Ogre::Vector3 center)
 {
     // capture all images at once
     for (int i = 0; i < NUM_FACES; i++)
     {
-        mCameras[i]->setPosition(center);
-        mRenderTargets[i]->update();
+        m_cameras[i]->setPosition(center);
+        m_render_targets[i]->update();
     }
 
-    mInitiated = true;
+    m_is_initialized = true;
 }

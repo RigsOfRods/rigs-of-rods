@@ -57,7 +57,6 @@ TerrainManager::TerrainManager(RoRFrameListener* sim_controller)
     , character(0)
     , collisions(0)
     , dashboard(0)
-    , envmap(0)
     , geometry_manager(0)
     , hdr_listener(0)
     , object_manager(0)
@@ -89,12 +88,6 @@ TerrainManager::~TerrainManager()
     {
         gEnv->sceneManager->destroyAllLights();
         main_light = nullptr;
-    }
-
-    if (envmap != nullptr)
-    {
-        delete(envmap);
-        envmap = nullptr;
     }
 
     if (dashboard != nullptr)
@@ -270,11 +263,6 @@ void TerrainManager::initSubSystems()
     {
         PROGRESS_WINDOW(41, _L("Initializing Sunburn Subsystem"));
         initSunburn();
-    }
-    if (!BSETTING("Envmapdisable", false))
-    {
-        PROGRESS_WINDOW(43, _L("Initializing Environment Map Subsystem"));
-        initEnvironmentMap();
     }
 
     PROGRESS_WINDOW(47, _L("Initializing Dashboards Subsystem"));
@@ -577,11 +565,6 @@ void TerrainManager::initWater()
 
         water->setHeight (m_def.water_height);
     }
-}
-
-void TerrainManager::initEnvironmentMap()
-{
-    envmap = new Envmap();
 }
 
 void TerrainManager::initDashboards()
