@@ -277,7 +277,7 @@ public:
 	 * @param instanceName A unique name for this object (you can choose one, but make sure that you don't use the same name twice)
 	 * @param pos The position where the object should be spawned
 	 * @param rot The rotation in which the object should be spawned
-	 * @param eventhandler A name of a function that should be called when an event happens (events, as defined in the object definition file)
+	 * @param eventhandler A name of a function that should be called when an event happens (events, as defined in the object definition file). Enter empty string to ignore events.
 	 * @param uniquifyMaterials Set this to true if you need to uniquify the materials
 	 */
 	void spawnObject(const string objectName, const string instanceName, vector3 pos, vector3 rot, const string eventhandler, bool uniquifyMaterials);

@@ -79,6 +79,20 @@ void GameScript::log(const String& msg)
     ScriptEngine::getSingleton().SLOG(msg);
 }
 
+void GameScript::logFormat(const char* format, ...)
+{
+    char buffer[4000] = {};
+    sprintf(buffer, "[RoR|Script] "); // Length: 13 characters
+    char* buffer_pos = buffer + 13;
+
+    va_list args;
+    va_start(args, format);
+        vsprintf(buffer_pos, format, args);
+    va_end(args);
+
+    ScriptEngine::getSingleton().SLOG(buffer);
+}
+
 void GameScript::activateAllVehicles()
 {
     mse->GetFrameListener()->GetBeamFactory()->activateAllTrucks();
@@ -349,27 +363,44 @@ void GameScript::moveObjectVisuals(const String& instanceName, const Vector3& po
 
 void GameScript::spawnObject(const String& objectName, const String& instanceName, const Vector3& pos, const Vector3& rot, const String& eventhandler, bool uniquifyMaterials)
 {
-    AngelScript::asIScriptModule* mod = 0;
+    if ((gEnv->terrainManager == nullptr) || (gEnv->terrainManager->getObjectManager() == nullptr))
+    {
+        this->logFormat("spawnObject(): Cannot spawn object, no terrain loaded!");
+        return;
+    }
+
     try
     {
-        mod = mse->getEngine()->GetModule(mse->moduleName, AngelScript::asGM_ONLY_IF_EXISTS);
+        AngelScript::asIScriptModule* module = mse->getEngine()->GetModule(mse->moduleName, AngelScript::asGM_ONLY_IF_EXISTS);
+        if (module == nullptr)
+        {
+            this->logFormat("spawnObject(): Failed to fetch/create script module '%s'", mse->moduleName);
+            return;
+        }
+
+        int handler_func_id = -1; // no function
+        if (!eventhandler.empty())
+        {
+            AngelScript::asIScriptFunction* handler_func = module->GetFunctionByName(eventhandler.c_str());
+            if (handler_func != nullptr)
+            {
+                handler_func_id = handler_func->GetId();
+            }
+            else
+            {
+                this->logFormat("spawnObject(): Warning; Failed to find handler function '%s' in script module '%s'",
+                    eventhandler.c_str(), mse->moduleName);
+            }
+        }
+
+        SceneNode* bakeNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+        const String type = "";
+        gEnv->terrainManager->getObjectManager()->loadObject(objectName, pos, rot, bakeNode, instanceName, type, true, handler_func_id, uniquifyMaterials);
     }
     catch (std::exception e)
     {
-        this->log("Exception in spawnObject(): " + String(e.what()));
+        this->logFormat("spawnObject(): An exception occurred, message: %s", e.what());
         return;
-    }
-    if (!mod)
-        return;
-
-    AngelScript::asIScriptFunction* handler_func = mod->GetFunctionByName(eventhandler.c_str());
-
-    // trying to create the new object
-    SceneNode* bakeNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-    if (gEnv->terrainManager && gEnv->terrainManager->getObjectManager())
-    {
-        const String type = "";
-        gEnv->terrainManager->getObjectManager()->loadObject(objectName, pos, rot, bakeNode, instanceName, type, true, handler_func->GetId(), uniquifyMaterials);
     }
 }
 

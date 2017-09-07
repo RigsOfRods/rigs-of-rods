@@ -61,6 +61,12 @@ public:
     void log(const Ogre::String& msg);
 
     /**
+     * writes a message to the games log (RoR.log)
+     * @param msg string to log
+     */
+    void logFormat(const char* fmt, ...);
+
+    /**
      * moves the person relative
      * @param vec translation vector
      */
