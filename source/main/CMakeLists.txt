@@ -539,15 +539,10 @@ if(WIN32)
 		OgrePaging.dll
 		OgreTerrain.dll
 		OgreRTShaderSystem.dll
-		OgreVolume.dll
-		Plugin_BSPSceneManager.dll
 		Plugin_CgProgramManager.dll
 		Plugin_OctreeSceneManager.dll
-		Plugin_OctreeZone.dll
 		Plugin_ParticleFX.dll
-		Plugin_PCZSceneManager.dll
 		RenderSystem_GL.dll
-		RenderSystem_GL3Plus.dll
 		RenderSystem_Direct3D9.dll
 		plugins.cfg
 		OIS.dll
