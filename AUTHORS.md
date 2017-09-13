@@ -41,7 +41,7 @@ If you are one of the previous authors and happen to come across this list pleas
 | Speciesx                       | klink                   | ?                      | ?                                |
 | ?                              | hagdervriese            | ?                      | ?                                |
 
-##### authors of the source code since reboot (move to git)
+##### Authors of the source code since reboot (move to git)
 | GitHub nickname                | RoR forum nickname      | real name              | email                            |
 |--------------------------------|-------------------------|------------------------|----------------------------------|
 | only-a-ptr                     | only_a_ptr              | Petr Ohlídal           | my-name@my-surname.cz            |
@@ -49,6 +49,7 @@ If you are one of the previous authors and happen to come across this list pleas
 | Max98                          | max98                   | Moncef Ben Slimane     | moncefbenslimane{at}yahoo{dot}fr |
 | skybon                         | skybon                  | Artem Vorotnikov       | my-name@my-surname.me            |
 | ulteq                          | ulteq                   | <uncompleted>          | my-name@web.de                   |
+| AnotherFoxGuy                  | AnotherFoxGuy           | <uncompleted>          | Edgar{at}AnotherFoxGuy{dot}com   |
 
 If you are a first time commiter please add yourself to this list for legal reasons. You may want to disguise your email adress to prevent crawlers from detecting it. If you do so make sure it does not leave room for different interpretations.
 
