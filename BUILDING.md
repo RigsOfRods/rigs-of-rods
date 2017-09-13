@@ -16,7 +16,7 @@ core requirements:
 * wxWidgets >= 2.6
 
 optional but recommended:
-* angelscript: 2.22.1
+* angelscript: 2.31.2
   * required for scripting (AI, racing, server mods...)
   * when building without AS this has to be removed in resources/particles/water.particle: "affector FireExtinguisher {	effectiveness 	1 }"
 * caelum: >= 0.6.2, compatible with the OGRE version you chose
