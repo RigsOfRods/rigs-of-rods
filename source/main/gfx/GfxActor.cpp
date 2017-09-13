@@ -29,6 +29,9 @@
 #include <OgreTechnique.h>
 #include <OgreTextureUnitState.h>
 #include <OgrePass.h>
+#include <OgreTextureManager.h>
+#include <OgreSceneManager.h>
+#include <OgreRenderWindow.h>
 
 RoR::GfxActor::~GfxActor()
 {
@@ -199,19 +202,19 @@ void RoR::GfxActor::SetVideoCamState(VideoCamState state)
 }
 
 RoR::GfxActor::VideoCamera::VideoCamera():
-    vcam_type(VideoCamType::VCTYPE_INVALID), // VideoCamType         
-    vcam_node_center(nullptr),            // node_t*              
-    vcam_node_dir_y(nullptr),             // node_t*              
-    vcam_node_dir_z(nullptr),             // node_t*              
-    vcam_node_alt_pos(nullptr),           // node_t*              
-    vcam_node_lookat(nullptr),            // node_t*              
-    vcam_pos_offset(Ogre::Vector3::ZERO), // Ogre::Vector3         
-    vcam_ogre_camera(nullptr),            // Ogre::Camera*        
-    vcam_render_target(nullptr),          // Ogre::RenderTexture* 
-    vcam_debug_node(nullptr),             // Ogre::SceneNode*     
-    vcam_render_window(nullptr),          // Ogre::RenderWindow*  
-    vcam_prop_scenenode(nullptr)          // Ogre::SceneNode*     
-{}  
+    vcam_type(VideoCamType::VCTYPE_INVALID), // VideoCamType
+    vcam_node_center(nullptr),            // node_t*
+    vcam_node_dir_y(nullptr),             // node_t*
+    vcam_node_dir_z(nullptr),             // node_t*
+    vcam_node_alt_pos(nullptr),           // node_t*
+    vcam_node_lookat(nullptr),            // node_t*
+    vcam_pos_offset(Ogre::Vector3::ZERO), // Ogre::Vector3
+    vcam_ogre_camera(nullptr),            // Ogre::Camera*
+    vcam_render_target(nullptr),          // Ogre::RenderTexture*
+    vcam_debug_node(nullptr),             // Ogre::SceneNode*
+    vcam_render_window(nullptr),          // Ogre::RenderWindow*
+    vcam_prop_scenenode(nullptr)          // Ogre::SceneNode*
+{}
 
 void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
 {
@@ -312,7 +315,7 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
             normal.normalise();
             Ogre::Vector3 refx = abs_pos_z - abs_pos_center;
             refx.normalise();
-            // why does this flip ~2-3° around zero orientation and only with trackercam. back to slower crossproduct calc, a bit slower but better .. sigh
+            // why does this flip ~2-3ï¿½ around zero orientation and only with trackercam. back to slower crossproduct calc, a bit slower but better .. sigh
             // Ogre::Vector3 refy = abs_pos_center - abs_pos_y;
             Ogre::Vector3 refy = refx.crossProduct(normal);
             refy.normalise();
