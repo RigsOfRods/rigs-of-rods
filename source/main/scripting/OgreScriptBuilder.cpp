@@ -30,28 +30,48 @@
 
 #include "SHA1.h"
 
-using namespace std;
-using namespace Ogre;
-
 // OgreScriptBuilder
-int OgreScriptBuilder::LoadScriptSection(const char* filename)
+int OgreScriptBuilder::LoadScriptSection(const char* full_path_cstr)
 {
-    // Open the script file
-    string scriptFile = filename;
+    // Get filename - required to retrieve file from OGRe's resource system.
+    //  This function received filename in older AngelScript versions, but now receives full path
+    //      (reconstructed wrong by CScriptBuilder because it doesn't know about OGRE's ZIP files).
+    //  TODO: Refactor the entire script building logic 
+    //      - create fully RoR-custom builder instead of hacked stock CScriptBuilder + our overload. ~ only_a_ptr, 08/2017
 
-    DataStreamPtr ds;
+    std::string full_path(full_path_cstr);
+    std::string filename;
+    size_t slash_pos = full_path.rfind('/'); // AngelScript always uses forward slashes in paths.
+    if (slash_pos != std::string::npos)
+    {
+        filename = full_path.substr(slash_pos+1);
+    }
+    else
+    {
+        filename = full_path;
+    }
+
+    Ogre::DataStreamPtr ds;
     try
     {
-        ds = ResourceGroupManager::getSingleton().openResource(scriptFile, ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
+        ds = Ogre::ResourceGroupManager::getSingleton().openResource(filename, Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
+                 //TODO: do not use `AUTODETECT_RESOURCE_GROUP_NAME`, use specific group, lookups are slow!
+                 //see also https://github.com/OGRECave/ogre/blob/master/Docs/1.10-Notes.md#resourcemanager-strict-mode ~ only_a_ptr, 08/2017
     }
     catch (Ogre::Exception e)
     {
-        LOG("exception upon loading script file: " + e.getFullDescription());
+        LOG("[RoR|Scripting] exception upon loading script file '"+filename+"', message: " + e.getFullDescription());
+        return -1;
+    }
+    // In some cases (i.e. when fed a full path with '/'-s on Windows), `openResource()` will silently return NULL for datastream. ~ only_a_ptr, 08/2017
+    if (ds.isNull())
+    {
+        LOG("[RoR|Scripting] Failed to load file '"+filename+"', reason unknown.");
         return -1;
     }
 
     // Read the entire file
-    string code;
+    std::string code;
     code.resize(ds->size());
     ds->read(&code[0], ds->size());
 
@@ -63,8 +83,8 @@ int OgreScriptBuilder::LoadScriptSection(const char* filename)
         sha1.UpdateHash((uint8_t *)code.c_str(), (uint32_t)code.size());
         sha1.Final();
         sha1.ReportHash(hash_result, RoR::CSHA1::REPORT_HEX_SHORT);
-        hash = String(hash_result);
+        hash = Ogre::String(hash_result);
     }
 
-    return ProcessScriptSection(code.c_str(), filename);
+    return ProcessScriptSection(code.c_str(), code.length(), filename.c_str(), 0);
 }

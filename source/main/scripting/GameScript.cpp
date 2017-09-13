@@ -2,6 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -30,13 +31,11 @@
 #include "OgreSubsystem.h"
 
 // AS addons start
-#include "contextmgr/contextmgr.h"
 #include "scriptany/scriptany.h"
 #include "scriptarray/scriptarray.h"
 #include "scripthelper/scripthelper.h"
 #include "scriptmath/scriptmath.h"
 #include "scriptstdstring/scriptstdstring.h"
-#include "scriptstring/scriptstring.h"
 // AS addons end
 
 #include "Application.h"
@@ -77,7 +76,21 @@ GameScript::~GameScript()
 
 void GameScript::log(const String& msg)
 {
-    SLOG(msg);
+    ScriptEngine::getSingleton().SLOG(msg);
+}
+
+void GameScript::logFormat(const char* format, ...)
+{
+    char buffer[4000] = {};
+    sprintf(buffer, "[RoR|Script] "); // Length: 13 characters
+    char* buffer_pos = buffer + 13;
+
+    va_list args;
+    va_start(args, format);
+        vsprintf(buffer_pos, format, args);
+    va_end(args);
+
+    ScriptEngine::getSingleton().SLOG(buffer);
 }
 
 void GameScript::activateAllVehicles()
@@ -350,26 +363,44 @@ void GameScript::moveObjectVisuals(const String& instanceName, const Vector3& po
 
 void GameScript::spawnObject(const String& objectName, const String& instanceName, const Vector3& pos, const Vector3& rot, const String& eventhandler, bool uniquifyMaterials)
 {
-    AngelScript::asIScriptModule* mod = 0;
+    if ((gEnv->terrainManager == nullptr) || (gEnv->terrainManager->getObjectManager() == nullptr))
+    {
+        this->logFormat("spawnObject(): Cannot spawn object, no terrain loaded!");
+        return;
+    }
+
     try
     {
-        mod = mse->getEngine()->GetModule(mse->moduleName, AngelScript::asGM_ONLY_IF_EXISTS);
+        AngelScript::asIScriptModule* module = mse->getEngine()->GetModule(mse->moduleName, AngelScript::asGM_ONLY_IF_EXISTS);
+        if (module == nullptr)
+        {
+            this->logFormat("spawnObject(): Failed to fetch/create script module '%s'", mse->moduleName);
+            return;
+        }
+
+        int handler_func_id = -1; // no function
+        if (!eventhandler.empty())
+        {
+            AngelScript::asIScriptFunction* handler_func = module->GetFunctionByName(eventhandler.c_str());
+            if (handler_func != nullptr)
+            {
+                handler_func_id = handler_func->GetId();
+            }
+            else
+            {
+                this->logFormat("spawnObject(): Warning; Failed to find handler function '%s' in script module '%s'",
+                    eventhandler.c_str(), mse->moduleName);
+            }
+        }
+
+        SceneNode* bakeNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+        const String type = "";
+        gEnv->terrainManager->getObjectManager()->loadObject(objectName, pos, rot, bakeNode, instanceName, type, true, handler_func_id, uniquifyMaterials);
     }
     catch (std::exception e)
     {
-        SLOG("Exception in spawnObject(): " + String(e.what()));
+        this->logFormat("spawnObject(): An exception occurred, message: %s", e.what());
         return;
-    }
-    if (!mod)
-        return;
-    int functionPtr = mod->GetFunctionIdByName(eventhandler.c_str());
-
-    // trying to create the new object
-    SceneNode* bakeNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-    if (gEnv->terrainManager && gEnv->terrainManager->getObjectManager())
-    {
-        const String type = "";
-        gEnv->terrainManager->getObjectManager()->loadObject(objectName, pos, rot, bakeNode, instanceName, type, true, functionPtr, uniquifyMaterials);
     }
 }
 
@@ -389,7 +420,7 @@ int GameScript::setMaterialAmbient(const String& materialName, float red, float 
     }
     catch (Exception e)
     {
-        SLOG("Exception in setMaterialAmbient(): " + e.getFullDescription());
+        this->log("Exception in setMaterialAmbient(): " + e.getFullDescription());
         return 0;
     }
     return 1;
@@ -406,7 +437,7 @@ int GameScript::setMaterialDiffuse(const String& materialName, float red, float 
     }
     catch (Exception e)
     {
-        SLOG("Exception in setMaterialDiffuse(): " + e.getFullDescription());
+        this->log("Exception in setMaterialDiffuse(): " + e.getFullDescription());
         return 0;
     }
     return 1;
@@ -423,7 +454,7 @@ int GameScript::setMaterialSpecular(const String& materialName, float red, float
     }
     catch (Exception e)
     {
-        SLOG("Exception in setMaterialSpecular(): " + e.getFullDescription());
+        this->log("Exception in setMaterialSpecular(): " + e.getFullDescription());
         return 0;
     }
     return 1;
@@ -440,7 +471,7 @@ int GameScript::setMaterialEmissive(const String& materialName, float red, float
     }
     catch (Exception e)
     {
-        SLOG("Exception in setMaterialEmissive(): " + e.getFullDescription());
+        this->log("Exception in setMaterialEmissive(): " + e.getFullDescription());
         return 0;
     }
     return 1;
@@ -480,7 +511,7 @@ int GameScript::getSafeTextureUnitState(TextureUnitState** tu, const String mate
     }
     catch (Exception e)
     {
-        SLOG("Exception in getSafeTextureUnitState(): " + e.getFullDescription());
+        this->log("Exception in getSafeTextureUnitState(): " + e.getFullDescription());
     }
     return 1;
 }
@@ -826,6 +857,9 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
 
 int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptDictionary& d, String& result)
 {
+#if 0 // ========================== disabled until new multiplayer portal supports it =============================
+      // At the moment, the call to "useOnlineAPIDirectly()" is dummy, making this whole function dummy.
+
     // malloc this, so we are safe from this function scope
     OnlineAPIParams_t* params = (OnlineAPIParams_t *)malloc(sizeof(OnlineAPIParams_t));
     if (!params)
@@ -880,6 +914,8 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
             params->dict->Release();
             free(params);
         }).detach();
+
+#endif // #if 0 =============== END disabled block of code ========================
 
     return 0;
 }

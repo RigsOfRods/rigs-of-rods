@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -37,10 +37,6 @@
 #include "scriptdictionary/scriptdictionary.h"
 #include "scriptbuilder/scriptbuilder.h"
 
-#define AS_INTERFACE_VERSION "0.2.0" //!< versioning for the scripting interface
-
-#define SLOG(x) ScriptEngine::getSingleton().scriptLog->logMessage(x);
-
 /**
  * @file ScriptEngine.h
  * @version 0.1.0
@@ -61,8 +57,6 @@ public:
 
     ScriptEngine(Collisions* _coll = nullptr);
     ~ScriptEngine();
-
-    void setCollisions(Collisions* _coll) { coll = _coll; };
 
     /**
      * Loads a script
@@ -136,7 +130,7 @@ public:
 
     int fireEvent(std::string instanceName, float intensity);
 
-    int envokeCallback(int functionPtr, eventsource_t* source, node_t* node = 0, int type = 0);
+    int envokeCallback(int functionId, eventsource_t* source, node_t* node = 0, int type = 0);
 
     AngelScript::asIScriptEngine* getEngine() { return engine; };
 
@@ -145,15 +139,10 @@ public:
 
     // method from Ogre::LogListener
 #if OGRE_VERSION < ((1 << 16) | (8 << 8 ) | 0)
-		void messageLogged( const Ogre::String& message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String &logName);
+    void messageLogged( const Ogre::String& message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String &logName);
 #else
     void messageLogged(const Ogre::String& message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String& logName, bool& skipThisMessage);
 #endif // OGRE_VERSION
-
-    // deprecated
-    void exploreScripts();
-
-    Ogre::Log* scriptLog;
 
     void SetFrameListener(RoRFrameListener* frame_listener)
     {
@@ -162,19 +151,23 @@ public:
 
     RoRFrameListener* GetFrameListener() { return mefl; }
 
+    inline void SLOG(const char* msg) { this->scriptLog->logMessage(msg); } ///< Replacement of macro
+    inline void SLOG(std::string msg) { this->scriptLog->logMessage(msg); } ///< Replacement of macro
+
 protected:
 
     RoRFrameListener* mefl; //!< local RoRFrameListener instance, used as proxy for many functions
     Collisions* coll;
     AngelScript::asIScriptEngine* engine; //!< instance of the scripting engine
     AngelScript::asIScriptContext* context; //!< context in which all scripting happens
-    int frameStepFunctionPtr; //!< script function pointer to the frameStep function
-    int wheelEventFunctionPtr; //!< script function pointer
-    int eventCallbackFunctionPtr; //!< script function pointer to the event callback function
-    int defaultEventCallbackFunctionPtr; //!< script function pointer for spawner events
+    AngelScript::asIScriptFunction* frameStepFunctionPtr; //!< script function pointer to the frameStep function
+    AngelScript::asIScriptFunction* wheelEventFunctionPtr; //!< script function pointer
+    AngelScript::asIScriptFunction* eventCallbackFunctionPtr; //!< script function pointer to the event callback function
+    AngelScript::asIScriptFunction* defaultEventCallbackFunctionPtr; //!< script function pointer for spawner events
     Ogre::String scriptName;
     Ogre::String scriptHash;
-    std::map<std::string, std::vector<int>> callbacks;
+    std::map<std::string, std::vector<AngelScript::asIScriptFunction*>> callbacks;
+    Ogre::Log* scriptLog;
 
     InterThreadStoreVector<Ogre::String> stringExecutionQueue; //!< The string execution queue \see queueStringForExecution
 
@@ -189,23 +182,8 @@ protected:
      * This is the callback function that gets called when script error occur.
      * When the script crashes, this function will provide you with more detail
      * @param msg arguments that contain details about the crash
-     * @param param unkown?
      */
     void msgCallback(const AngelScript::asSMessageInfo* msg);
-
-    /**
-     * This function reads a file into the provided string.
-     * @param filename filename of the file that should be loaded into the script string
-     * @param script reference to a string where the contents of the file is written to
-     * @param hash reference to a string where the hash of the contents is written to
-     * @return 0 on success, everything else on error
-     */
-    int loadScriptFile(const char* fileName, std::string& script, std::string& hash);
-
-    // undocumented debugging functions below, not working.
-    void ExceptionCallback(AngelScript::asIScriptContext* ctx, void* param);
-    void PrintVariables(AngelScript::asIScriptContext* ctx, int stackLevel);
-    void LineCallback(AngelScript::asIScriptContext* ctx, unsigned long* timeOut);
 };
 
 #endif // USE_ANGELSCRIPT

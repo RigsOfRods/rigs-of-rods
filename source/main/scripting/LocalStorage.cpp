@@ -32,9 +32,9 @@ LocalStorage::LocalStorage(AngelScript::asIScriptEngine *engine_in, std::string 
     refCount++;
     cgflag=false;
     this->engine = engine_in;
-    engine->NotifyGarbageCollectorOfNewObject(this, engine->GetTypeIdByDecl("LocalStorage"));
+    engine->NotifyGarbageCollectorOfNewObject(this, engine->GetTypeInfoByDecl("LocalStorage"));
 
-    // inversed logic, better use a whiteliste instead of a blacklist, so you are on the safe side ;) - tdev
+    // inversed logic, better use a whitelist instead of a blacklist, so you are on the safe side ;) - tdev
     std::string allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-";
     for (std::string::iterator it = fileName_in.begin() ; it < fileName_in.end() ; ++it){
         if ( allowedChars.find(*it) == std::string::npos )
@@ -55,7 +55,7 @@ LocalStorage::LocalStorage(AngelScript::asIScriptEngine *engine_in)
     this->engine = engine_in;
     refCount++;
 
-    engine->NotifyGarbageCollectorOfNewObject(this, engine->GetTypeIdByDecl("LocalStorage"));	
+    engine->NotifyGarbageCollectorOfNewObject(this, engine->GetTypeInfoByDecl("LocalStorage"));
     saved = true;
 }
 
