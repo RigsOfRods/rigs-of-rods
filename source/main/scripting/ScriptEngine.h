@@ -161,7 +161,6 @@ protected:
     AngelScript::asIScriptEngine* engine; //!< instance of the scripting engine
     AngelScript::asIScriptContext* context; //!< context in which all scripting happens
     AngelScript::asIScriptFunction* frameStepFunctionPtr; //!< script function pointer to the frameStep function
-    AngelScript::asIScriptFunction* wheelEventFunctionPtr; //!< script function pointer
     AngelScript::asIScriptFunction* eventCallbackFunctionPtr; //!< script function pointer to the event callback function
     AngelScript::asIScriptFunction* defaultEventCallbackFunctionPtr; //!< script function pointer for spawner events
     Ogre::String scriptName;
