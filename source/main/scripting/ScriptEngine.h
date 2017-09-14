@@ -165,7 +165,6 @@ protected:
     AngelScript::asIScriptFunction* defaultEventCallbackFunctionPtr; //!< script function pointer for spawner events
     Ogre::String scriptName;
     Ogre::String scriptHash;
-    std::map<std::string, std::vector<AngelScript::asIScriptFunction*>> callbacks;
     Ogre::Log* scriptLog;
 
     InterThreadStoreVector<Ogre::String> stringExecutionQueue; //!< The string execution queue \see queueStringForExecution
