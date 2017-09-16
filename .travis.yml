@@ -6,9 +6,8 @@ cache:
   directories:
     - $HOME/deps-install
 
-compiler:
-  - gcc
-  - clang
+compiler: gcc
+
 
 addons:
   apt:
