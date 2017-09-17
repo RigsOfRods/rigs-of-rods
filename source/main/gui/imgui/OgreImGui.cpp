@@ -280,8 +280,8 @@ void OgreImGui::createMaterial()
     };
 
     static const char* vertexShaderSrcGLSL =
-    {
-    "#version 150\n"
+    { // See https://www.khronos.org/opengl/wiki/Core_Language_(GLSL)#OpenGL_and_GLSL_versions
+    "#version 130\n"
     "uniform mat4 ProjectionMatrix; \n"
     "in vec2 vertex;\n"
     "in vec2 uv0;\n"
@@ -297,8 +297,8 @@ void OgreImGui::createMaterial()
     };
     
     static const char* pixelShaderSrcGLSL =
-    {
-    "#version 150\n"
+    { // See https://www.khronos.org/opengl/wiki/Core_Language_(GLSL)#OpenGL_and_GLSL_versions
+    "#version 130\n"
     "in vec2 Texcoord;\n"
     "in vec4 col;\n"
     "uniform sampler2D sampler0;\n"
@@ -321,8 +321,8 @@ void OgreImGui::createMaterial()
     Ogre::HighLevelGpuProgramPtr vertexShaderD3D9 = mgr.getByName("imgui/VP/D3D9");
     Ogre::HighLevelGpuProgramPtr pixelShaderD3D9 = mgr.getByName("imgui/FP/D3D9");
 
-    Ogre::HighLevelGpuProgramPtr vertexShaderGL = mgr.getByName("imgui/VP/GL150");
-    Ogre::HighLevelGpuProgramPtr pixelShaderGL = mgr.getByName("imgui/FP/GL150");
+    Ogre::HighLevelGpuProgramPtr vertexShaderGL = mgr.getByName("imgui/VP/GL130");
+    Ogre::HighLevelGpuProgramPtr pixelShaderGL = mgr.getByName("imgui/FP/GL130");
 
     if (vertexShaderUnified.isNull())
     {
@@ -386,7 +386,7 @@ void OgreImGui::createMaterial()
 
     if (vertexShaderGL.isNull())
     {
-        vertexShaderGL = mgr.createProgram("imgui/VP/GL150", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+        vertexShaderGL = mgr.createProgram("imgui/VP/GL130", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
                 "glsl", Ogre::GPT_VERTEX_PROGRAM);
         vertexShaderGL->setSource(vertexShaderSrcGLSL);
         vertexShaderGL->load();
@@ -395,7 +395,7 @@ void OgreImGui::createMaterial()
 
     if (pixelShaderGL.isNull())
     {
-        pixelShaderGL = mgr.createProgram("imgui/FP/GL150", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+        pixelShaderGL = mgr.createProgram("imgui/FP/GL130", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
                 "glsl", Ogre::GPT_FRAGMENT_PROGRAM);
         pixelShaderGL->setSource(pixelShaderSrcGLSL);
         pixelShaderGL->load();
