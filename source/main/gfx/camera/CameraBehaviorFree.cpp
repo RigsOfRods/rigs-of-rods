@@ -112,7 +112,7 @@ bool CameraBehaviorFree::mouseMoved(const CameraManager::CameraContext& ctx, con
     gEnv->mainCamera->yaw(Degree(-ms.X.rel * 0.13f));
     gEnv->mainCamera->pitch(Degree(-ms.Y.rel * 0.13f));
 
-    MyGUI::PointerManager::getInstance().setVisible(false);
+    App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
 
     return true;
 }

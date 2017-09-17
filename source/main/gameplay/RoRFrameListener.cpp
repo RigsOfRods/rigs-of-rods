@@ -338,7 +338,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
         String tmpfn = fn_prefix + fn_name + fn_suffix;
 
         RoR::App::GetGuiManager()->HideNotification();
-        MyGUI::PointerManager::getInstance().setVisible(false);
+        RoR::App::GetGuiManager()->SetMouseCursorVisibility(RoR::GUIManager::MouseCursorVisibility::HIDDEN);
 
         m_beam_factory.updateFlexbodiesFinal(); // Waits until all flexbody tasks are finished
 
@@ -380,7 +380,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
             RoR::App::GetOgreSubsystem()->GetRenderWindow()->writeContentsToFile(tmpfn);
         }
 
-        MyGUI::PointerManager::getInstance().setVisible(true);
+        App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::VISIBLE);
 
         // show new flash message
         String ssmsg = _L("Screenshot:") + String(" ") + fn_name + fn_suffix;

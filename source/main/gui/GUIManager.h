@@ -42,6 +42,14 @@ class GUIManager :
 {
 public:
 
+    // NOTE: RoR's mouse cursor management is a mess - cursor is hidden/revealed ad-hoc in the code (originally by calling `MyGUI::PointerManager::setVisible()`); this enum+API cleans it up a bit ~ only_a_ptr, 09/2017
+    enum class MouseCursorVisibility
+    {
+        VISIBLE,   ///< Visible, will be auto-hidden if not moving for a while.
+        HIDDEN,    ///< Hidden as inactive, will re-appear the moment user moves mouse.
+        SUPRESSED, ///< Hidden manually, will not re-appear until explicitly set VISIBLE.
+    };
+
     GUIManager();
     ~GUIManager();
 
@@ -117,7 +125,7 @@ public:
     void FrictionSettingsUpdateCollisions();
     void ShutdownMyGUI();
     void ReflectGameState();
-    void SetMouseCursorVisible(bool visible);
+    void SetMouseCursorVisibility(MouseCursorVisibility visi);
 
     virtual void AddRigLoadingReport(std::string const& vehicle_name, std::string const& text, int num_errors, int num_warnings, int num_other);
 

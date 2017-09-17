@@ -167,10 +167,8 @@ GUIManager::GUIManager() :
     m_impl = new GuiManagerImpl();
     m_impl->mygui_platform = mygui_platform;
     m_impl->mygui = mygui;
+    MyGUI::PointerManager::getInstance().setVisible(false); // RoR is using mouse cursor drawn by DearIMGUI.
 
-    // move the mouse into the middle of the screen, assuming we start at the top left corner (0,0)
-    MyGUI::InputManager::getInstance().injectMouseMove(RoR::App::GetOgreSubsystem()->GetRenderWindow()->getWidth()*0.5f, RoR::App::GetOgreSubsystem()->GetRenderWindow()->getHeight()*0.5f, 0);
-    MyGUI::PointerManager::getInstance().setVisible(true);
 #ifdef _WIN32
     MyGUI::LanguageManager::getInstance().eventRequestTag = MyGUI::newDelegate(this, &GUIManager::eventRequestTag);
 #endif // _WIN32
@@ -218,8 +216,7 @@ bool GUIManager::frameStarted(const Ogre::FrameEvent& evt)
     // now hide the mouse cursor if not used since a long time
     if (getLastMouseMoveTime() > 5000)
     {
-        MyGUI::PointerManager::getInstance().setVisible(false);
-        //RoR::App::GetGuiManager()->GetTopMenubar()->setVisible(false);
+        App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
     }
 
     return true;
@@ -358,9 +355,24 @@ void GUIManager::FrictionSettingsUpdateCollisions()
     App::GetGuiManager()->GetFrictionSettings()->setCollisions(gEnv->collisions);
 }
 
-void GUIManager::SetMouseCursorVisible(bool visible)
+void GUIManager::SetMouseCursorVisibility(MouseCursorVisibility visi)
 {
-    this->SupressCursor(!visible);
+    switch (visi)
+    {
+    case MouseCursorVisibility::VISIBLE:
+        ImGui::GetIO().MouseDrawCursor = true;
+        this->SupressCursor(false);
+        return;
+
+    case MouseCursorVisibility::HIDDEN:
+        ImGui::GetIO().MouseDrawCursor = false;
+        return;
+
+    case MouseCursorVisibility::SUPRESSED:
+        ImGui::GetIO().MouseDrawCursor = false;
+        this->SupressCursor(true);
+        return;
+    }
 }
 
 void GUIManager::ReflectGameState()
