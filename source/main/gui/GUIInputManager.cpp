@@ -117,8 +117,6 @@ bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
 
     RoR::App::GetGuiManager()->GetImGui().InjectMouseMoved(_arg);
 
-    MyGUI::PointerManager::getInstance().setPointer("arrow");
-
     if (RoR::App::sim_state.GetActive() == RoR::SimState::PAUSED)
     {
         MyGUI::InputManager::getInstance().injectMouseMove(mCursorX, mCursorY, _arg.state.Z.abs);
@@ -349,7 +347,7 @@ void GUIInputManager::WakeUpGUI()
     m_last_mousemove_time->reset();
     if (!m_is_cursor_supressed)
     {
-        MyGUI::PointerManager::getInstance().setVisible(true);
+        RoR::App::GetGuiManager()->SetMouseCursorVisibility(RoR::GUIManager::MouseCursorVisibility::VISIBLE);
     }
 
     RoR::App::GetGuiManager()->SetVisible_TopMenubar(true);

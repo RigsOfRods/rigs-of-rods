@@ -515,8 +515,6 @@ void FrictionSettings::SetVisible(bool value)
         RoR::App::GetGuiManager()->UnfocusGui();
     }
     win->setVisibleSmooth(value);
-    //win->setVisible(value);
-    //MyGUI::PointerManager::getInstance().setVisible(value);
 }
 
 bool FrictionSettings::IsVisible()

@@ -20,7 +20,9 @@
 
 #include "CameraBehaviorCharacter.h"
 
+#include "Application.h"
 #include "Character.h"
+#include "GUIManager.h"
 #include "mygui/BaseLayout.h"
 
 using namespace Ogre;
@@ -59,6 +61,7 @@ bool CameraBehaviorCharacter::mouseMoved(const CameraManager::CameraContext& ctx
 
         gEnv->player->setRotation(angle);
 
+        RoR::App::GetGuiManager()->SetMouseCursorVisibility(RoR::GUIManager::MouseCursorVisibility::HIDDEN);
         MyGUI::PointerManager::getInstance().setVisible(false);
 
         return true;

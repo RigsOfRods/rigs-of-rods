@@ -260,7 +260,12 @@ void TeleportWindow::ShowAltmodeCursor(bool show)
 {
     m_mouse_icon->setVisible(show);
     this->SetAltmodeCursorPos(m_minimap_last_mouse.left, m_minimap_last_mouse.top);
-    App::GetGuiManager()->SetMouseCursorVisible(!show);
+
+    // Deal with mouse cursor
+    if (show)
+        App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::SUPRESSED);
+    else
+        App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::VISIBLE);
 }
 
 } // namespace GUI
