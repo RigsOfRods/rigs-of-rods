@@ -430,6 +430,9 @@ void GUIManager::NewImGuiFrame(float dt)
 
 void GUIManager::SetupImGui()
 {
+    ImGuiIO& io = ImGui::GetIO();
+    io.IniFilename = nullptr; // Disable 'imgui.ini' - we don't need to persist window positions.
+
     m_imgui.Init();
     // Colors
     ImGuiStyle& style = ImGui::GetStyle();
