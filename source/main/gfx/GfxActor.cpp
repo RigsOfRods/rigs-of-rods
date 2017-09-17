@@ -25,10 +25,13 @@
 #include "GlobalEnvironment.h" // TODO: Eliminate!
 #include "SkyManager.h"
 
+#include <OgrePass.h>
+#include <OgreRenderWindow.h>
 #include <OgreResourceGroupManager.h>
+#include <OgreSceneManager.h>
 #include <OgreTechnique.h>
 #include <OgreTextureUnitState.h>
-#include <OgrePass.h>
+#include <OgreTextureManager.h>
 
 #include <OgreTextureManager.h>
 #include <OgreSceneManager.h>
