@@ -27,42 +27,39 @@
 #include "Settings.h"
 #include "Utils.h"
 
-using namespace Ogre;
-using namespace RoR;
+int RoR::Skidmark::m_instance_counter = 0;
 
-int Skidmark::instanceCounter = 0;
-
-SkidmarkConfig::SkidmarkConfig()
+RoR::SkidmarkConfig::SkidmarkConfig()
 {
-    this->loadDefaultModels();
+    this->LoadDefaultSkidmarkDefs();
 }
 
-void SkidmarkConfig::loadDefaultModels()
+void RoR::SkidmarkConfig::LoadDefaultSkidmarkDefs()
 {
     LOG("[RoR] Loading skidmarks.cfg...");
-    String group = "";
+    Ogre::String group = "";
     try
     {
-        group = ResourceGroupManager::getSingleton().findGroupContainingResource("skidmarks.cfg");
+        group = Ogre::ResourceGroupManager::getSingleton().findGroupContainingResource("skidmarks.cfg");
         if (group.empty())
         {
             LOG("[RoR] Failed to load skidmarks.cfg (file not found)");
             return;
         }
 
-        DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource("skidmarks.cfg", group);
-        String line = "";
-        String currentModel = "";
+        Ogre::DataStreamPtr ds = Ogre::ResourceGroupManager::getSingleton().openResource("skidmarks.cfg", group);
+        Ogre::String line = "";
+        Ogre::String currentModel = "";
 
         while (!ds->eof())
         {
             line = RoR::Utils::SanitizeUtf8String(ds->getLine());
-            StringUtil::trim(line);
+            Ogre::StringUtil::trim(line);
 
             if (line.empty() || line[0] == ';')
                 continue;
 
-            StringVector args = StringUtil::split(line, ",");
+            Ogre::StringVector args = Ogre::StringUtil::split(line, ",");
 
             if (args.size() == 1)
             {
@@ -72,7 +69,7 @@ void SkidmarkConfig::loadDefaultModels()
 
             // process the line if we got a model
             if (!currentModel.empty())
-                this->processLine(args, currentModel);
+                this->ProcessSkidmarkConfLine(args, currentModel);
         }
     }
     catch (...)
@@ -84,7 +81,7 @@ void SkidmarkConfig::loadDefaultModels()
     LOG("[RoR] skidmarks.cfg loaded OK");
 }
 
-int SkidmarkConfig::processLine(StringVector args, String modelName)
+int RoR::SkidmarkConfig::ProcessSkidmarkConfLine(Ogre::StringVector args, Ogre::String modelName)
 {
     // we only accept 4 arguments
     if (args.size() != 4)
@@ -93,12 +90,12 @@ int SkidmarkConfig::processLine(StringVector args, String modelName)
     // parse the data
     SkidmarkDef cfg;
     cfg.ground = args[0];
-    StringUtil::trim(cfg.ground);
+    Ogre::StringUtil::trim(cfg.ground);
     cfg.texture = args[1];
-    StringUtil::trim(cfg.texture);
+    Ogre::StringUtil::trim(cfg.texture);
 
-    cfg.slipFrom = StringConverter::parseReal(args[2]);
-    cfg.slipTo = StringConverter::parseReal(args[3]);
+    cfg.slipFrom = Ogre::StringConverter::parseReal(args[2]);
+    cfg.slipTo = Ogre::StringConverter::parseReal(args[3]);
 
     if (!m_models.size() || m_models.find(modelName) == m_models.end())
         m_models[modelName] = std::vector<SkidmarkDef>();
@@ -107,7 +104,7 @@ int SkidmarkConfig::processLine(StringVector args, String modelName)
     return 0;
 }
 
-int SkidmarkConfig::getTexture(String model, String ground, float slip, String& texture)
+int RoR::SkidmarkConfig::getTexture(Ogre::String model, Ogre::String ground, float slip, Ogre::String& texture)
 {
     if (m_models.find(model) == m_models.end())
         return 1;
@@ -123,9 +120,9 @@ int SkidmarkConfig::getTexture(String model, String ground, float slip, String& 
 }
 
 // this is a hardcoded array which we use to map ground types to a certain texture with UV/ coords
-Vector2 Skidmark::m_tex_coords[4] = {Vector2(0, 0), Vector2(0, 1), Vector2(1, 0), Vector2(1, 1)};
+Ogre::Vector2 RoR::Skidmark::m_tex_coords[4] = {Ogre::Vector2(0, 0), Ogre::Vector2(0, 1), Ogre::Vector2(1, 0), Ogre::Vector2(1, 1)};
 
-Skidmark::Skidmark(SkidmarkConfig* config, RoRFrameListener* sim_controller, wheel_t* m_wheel, 
+RoR::Skidmark::Skidmark(RoR::SkidmarkConfig* config, RoRFrameListener* sim_controller, wheel_t* m_wheel, 
         Ogre::SceneNode* snode, int m_length /* = 500 */, int m_bucket_count /* = 20 */)
     : m_scene_node(snode)
     , m_is_dirty(true)
@@ -153,15 +150,14 @@ Skidmark::Skidmark(SkidmarkConfig* config, RoRFrameListener* sim_controller, whe
     }
 }
 
-Skidmark::~Skidmark()
+RoR::Skidmark::~Skidmark()
 {
     while (m_objects.size() != 0) // Remove all skid segments
         this->PopSegment();
 }
 
-void Skidmark::addObject(Vector3 start, String texture)
+void RoR::Skidmark::AddObject(Ogre::Vector3 start, Ogre::String texture)
 {
-    //LOG("new skidmark section");
     SkidmarkSegment skid;
     skid.pos = 0;
     skid.lastPointAv = start;
@@ -169,24 +165,24 @@ void Skidmark::addObject(Vector3 start, String texture)
 
     // new material
     char bname[256] = "";
-    sprintf(bname, "mat-skidmark-%d", instanceCounter);
-    skid.material = MaterialManager::getSingleton().create(bname, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-    Pass* p = skid.material->getTechnique(0)->getPass(0);
+    sprintf(bname, "mat-skidmark-%d", m_instance_counter);
+    skid.material = Ogre::MaterialManager::getSingleton().create(bname, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+    Ogre::Pass* p = skid.material->getTechnique(0)->getPass(0);
 
-    TextureUnitState* tus = p->createTextureUnitState(texture);
-    p->setSceneBlending(SBT_TRANSPARENT_ALPHA);
+    Ogre::TextureUnitState* tus = p->createTextureUnitState(texture);
+    p->setSceneBlending(Ogre::SBT_TRANSPARENT_ALPHA);
     p->setLightingEnabled(false);
     p->setDepthWriteEnabled(false);
     p->setDepthBias(3, 3);
-    p->setCullingMode(CULL_NONE);
+    p->setCullingMode(Ogre::CULL_NONE);
 
     skid.points.resize(m_length);
     skid.faceSizes.resize(m_length);
     skid.groundTexture.resize(m_length);
-    skid.obj = gEnv->sceneManager->createManualObject("skidmark" + TOSTRING(instanceCounter++));
+    skid.obj = gEnv->sceneManager->createManualObject("skidmark" + TOSTRING(m_instance_counter++));
     skid.obj->setDynamic(true);
     skid.obj->setRenderingDistance(800); // 800m view distance
-    skid.obj->begin(bname, RenderOperation::OT_TRIANGLE_STRIP);
+    skid.obj->begin(bname, Ogre::RenderOperation::OT_TRIANGLE_STRIP);
     for (int i = 0; i < m_length; i++)
     {
         skid.points[i] = start;
@@ -200,21 +196,21 @@ void Skidmark::addObject(Vector3 start, String texture)
 
     m_objects.push(skid);
 
-    limitObjects();
+    this->LimitObjects();
 }
 
-void Skidmark::PopSegment()
+void RoR::Skidmark::PopSegment()
 {
     SkidmarkSegment& skid = m_objects.front();
     skid.points.clear();
     skid.faceSizes.clear();
-    MaterialManager::getSingleton().remove(skid.material->getName());
+    Ogre::MaterialManager::getSingleton().remove(skid.material->getName());
     skid.material.setNull();
     gEnv->sceneManager->destroyManualObject(skid.obj);
     m_objects.pop();
 }
 
-void Skidmark::limitObjects()
+void RoR::Skidmark::LimitObjects()
 {
     if ((int)m_objects.size() > m_bucket_count)
     {
@@ -222,7 +218,7 @@ void Skidmark::limitObjects()
     }
 }
 
-void Skidmark::setPointInt(unsigned short index, const Vector3& value, Real fsize, String texture)
+void RoR::Skidmark::SetPointInt(unsigned short index, const Ogre::Vector3& value, Ogre::Real fsize, Ogre::String texture)
 {
     m_objects.back().points[index] = value;
     m_objects.back().faceSizes[index] = fsize;
@@ -231,14 +227,14 @@ void Skidmark::setPointInt(unsigned short index, const Vector3& value, Real fsiz
     m_is_dirty = true;
 }
 
-void Skidmark::updatePoint()
+void RoR::Skidmark::updatePoint()
 {
-    Vector3 thisPoint = m_wheel->lastContactType ? m_wheel->lastContactOuter : m_wheel->lastContactInner;
-    Vector3 axis = m_wheel->lastContactType ? (m_wheel->refnode1->RelPosition - m_wheel->refnode0->RelPosition) : (m_wheel->refnode0->RelPosition - m_wheel->refnode1->RelPosition);
-    Vector3 thisPointAV = thisPoint + axis * 0.5f;
-    Real distance = 0;
-    Real maxDist = m_max_distance;
-    String texture = "none";
+    Ogre::Vector3 thisPoint = m_wheel->lastContactType ? m_wheel->lastContactOuter : m_wheel->lastContactInner;
+    Ogre::Vector3 axis = m_wheel->lastContactType ? (m_wheel->refnode1->RelPosition - m_wheel->refnode0->RelPosition) : (m_wheel->refnode0->RelPosition - m_wheel->refnode1->RelPosition);
+    Ogre::Vector3 thisPointAV = thisPoint + axis * 0.5f;
+    Ogre::Real distance = 0;
+    Ogre::Real maxDist = m_max_distance;
+    Ogre::String texture = "none";
     m_config->getTexture("default", m_wheel->lastGroundModel->name, m_wheel->lastSlip, texture);
 
     // dont add points with no texture
@@ -251,7 +247,7 @@ void Skidmark::updatePoint()
     if (!m_objects.size())
     {
         // add first bucket
-        this->addObject(thisPoint, texture);
+        this->AddObject(thisPoint, texture);
     }
     else
     {
@@ -273,16 +269,16 @@ void Skidmark::updatePoint()
             if (distance > maxDist)
             {
                 // to far away for connection
-                this->addObject(thisPoint, texture);
+                this->AddObject(thisPoint, texture);
             }
             else
             {
                 // add new bucket with connection to last bucket
-                Vector3 lp1 = m_objects.back().points[m_objects.back().pos - 1];
-                Vector3 lp2 = m_objects.back().points[m_objects.back().pos - 2];
-                this->addObject(lp1, texture);
-                this->addPoint(lp2, distance, texture);
-                this->addPoint(lp1, distance, texture);
+                Ogre::Vector3 lp1 = m_objects.back().points[m_objects.back().pos - 1];
+                Ogre::Vector3 lp2 = m_objects.back().points[m_objects.back().pos - 2];
+                this->AddObject(lp1, texture);
+                this->AddPoint(lp2, distance, texture);
+                this->AddPoint(lp1, distance, texture);
             }
         }
         else
@@ -295,22 +291,22 @@ void Skidmark::updatePoint()
                 if (distance > maxDist)
                 {
                     // to far away for connection
-                    this->addObject(thisPoint, texture);
+                    this->AddObject(thisPoint, texture);
                 }
                 else
                 {
                     // add new bucket with connection to last bucket
-                    Vector3 lp1 = m_objects.back().points[m_objects.back().pos - 1];
-                    Vector3 lp2 = m_objects.back().points[m_objects.back().pos - 2];
-                    this->addObject(lp1, texture);
-                    this->addPoint(lp2, distance, texture);
-                    this->addPoint(lp1, distance, texture);
+                    Ogre::Vector3 lp1 = m_objects.back().points[m_objects.back().pos - 1];
+                    Ogre::Vector3 lp2 = m_objects.back().points[m_objects.back().pos - 2];
+                    this->AddObject(lp1, texture);
+                    this->AddPoint(lp2, distance, texture);
+                    this->AddPoint(lp1, distance, texture);
                 }
             }
             else if (distance > m_max_distance)
             {
                 // just new bucket, no connection to last bucket
-                this->addObject(thisPoint, texture);
+                this->AddObject(thisPoint, texture);
             }
         }
     }
@@ -322,41 +318,40 @@ void Skidmark::updatePoint()
     if (!m_wheel->lastContactType)
     {
         // choose inner
-        this->addPoint(m_wheel->lastContactInner - (axis * overaxis), distance, texture);
-        this->addPoint(m_wheel->lastContactInner + axis + (axis * overaxis), distance, texture);
+        this->AddPoint(m_wheel->lastContactInner - (axis * overaxis), distance, texture);
+        this->AddPoint(m_wheel->lastContactInner + axis + (axis * overaxis), distance, texture);
     }
     else
     {
         // choose outer
-        this->addPoint(m_wheel->lastContactOuter + axis + (axis * overaxis), distance, texture);
-        this->addPoint(m_wheel->lastContactOuter - (axis * overaxis), distance, texture);
+        this->AddPoint(m_wheel->lastContactOuter + axis + (axis * overaxis), distance, texture);
+        this->AddPoint(m_wheel->lastContactOuter - (axis * overaxis), distance, texture);
     }
 
     // save as last point (in the middle of the m_wheel)
     m_objects.back().lastPointAv = thisPointAV;
 }
 
-void Skidmark::addPoint(const Vector3& value, Real fsize, String texture)
+void RoR::Skidmark::AddPoint(const Ogre::Vector3& value, Ogre::Real fsize, Ogre::String texture)
 {
     if (m_objects.back().pos >= m_length)
     {
-        //LOG("E: boundary protection hit");
         return;
     }
-    setPointInt(m_objects.back().pos, value, fsize, texture);
+    this->SetPointInt(m_objects.back().pos, value, fsize, texture);
     m_objects.back().pos++;
 }
 
-void Skidmark::update()
+void RoR::Skidmark::update()
 {
     if (!m_objects.size())
         return;
     SkidmarkSegment skid = m_objects.back();
-    Vector3 vaabMin = skid.points[0];
-    Vector3 vaabMax = skid.points[0];
+    Ogre::Vector3 vaabMin = skid.points[0];
+    Ogre::Vector3 vaabMax = skid.points[0];
     skid.obj->beginUpdate(0);
     bool behindEnd = false;
-    Vector3 lastValid = Vector3::ZERO;
+    Ogre::Vector3 lastValid = Ogre::Vector3::ZERO;
     int to_counter = 0;
     float tcox_counter = 0;
 
@@ -383,7 +378,7 @@ void Skidmark::update()
         {
             skid.obj->position(skid.points[i]);
 
-            Vector2 tco = m_tex_coords[to_counter];
+            Ogre::Vector2 tco = m_tex_coords[to_counter];
             tco.x *= skid.faceSizes[i] / m_min_distance; // scale texture according face size
             skid.obj->textureCoord(tco);
 
@@ -405,7 +400,7 @@ void Skidmark::update()
     }
     skid.obj->end();
 
-    skid.obj->setBoundingBox(AxisAlignedBox(vaabMin, vaabMax));
+    skid.obj->setBoundingBox(Ogre::AxisAlignedBox(vaabMin, vaabMax));
 
     m_is_dirty = false;
 }

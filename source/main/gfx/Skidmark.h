@@ -47,8 +47,8 @@ private:
         float slipTo;   ///< Maximum slipping velocity
     };
 
-    void loadDefaultModels();
-    int processLine(Ogre::StringVector args, Ogre::String model);
+    void LoadDefaultSkidmarkDefs();
+    int ProcessSkidmarkConfLine(Ogre::StringVector args, Ogre::String model);
 
     std::map<Ogre::String, std::vector<SkidmarkDef>> m_models;
 };
@@ -68,8 +68,6 @@ public:
 
 private:
 
-    static int instanceCounter;
-
     struct SkidmarkSegment ///< Also reffered to as 'bucket'
     {
         Ogre::ManualObject* obj;
@@ -83,11 +81,12 @@ private:
     };
 
     void PopSegment();
-    void limitObjects();
-    void addObject(Ogre::Vector3 start, Ogre::String texture);
-    void setPointInt(unsigned short index, const Ogre::Vector3& value, Ogre::Real fsize, Ogre::String texture);
-    void addPoint(const Ogre::Vector3& value, Ogre::Real fsize, Ogre::String texture);
-    
+    void LimitObjects();
+    void AddObject(Ogre::Vector3 start, Ogre::String texture);
+    void SetPointInt(unsigned short index, const Ogre::Vector3& value, Ogre::Real fsize, Ogre::String texture);
+    void AddPoint(const Ogre::Vector3& value, Ogre::Real fsize, Ogre::String texture);
+
+    static int           m_instance_counter;
     bool                 m_is_dirty;
     std::queue<SkidmarkSegment> m_objects;
     float                m_max_distance;
