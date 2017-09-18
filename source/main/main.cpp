@@ -160,7 +160,6 @@ int main(int argc, char *argv[])
     #endif
 
         App::CreateContentManager();
-        SkidmarkConfig skidmark_conf; // Loads 'skidmark.cfg' in constructor
 
         LanguageEngine::getSingleton().setup();
 
@@ -264,6 +263,7 @@ int main(int argc, char *argv[])
         RoR::App::GetInputEngine()->windowResized(App::GetOgreSubsystem()->GetRenderWindow());
 
         MainMenu main_obj;
+        SkidmarkConfig skidmark_conf; // Loads 'skidmark.cfg' in constructor
 
         // ### Main loop (switches application states) ###
 
