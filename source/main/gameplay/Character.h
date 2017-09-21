@@ -55,7 +55,7 @@ public:
     void unwindMovement(float distance);
 
     void update(float dt);
-    void updateCharacterColour();
+    void updateCharacterNetworkColour();
     void updateCharacterRotation();
     void updateMapIcon();
     void updateLabels();

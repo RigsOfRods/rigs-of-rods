@@ -176,8 +176,10 @@ void MpClientList::updateSlot(player_row_t* row, RoRnet::UserInfo c, bool self)
     int y = row->playername->getPosition().top;
     // name
     row->playername->setCaption(c.username);
+#if USE_SOCKETW
     ColourValue col = Networking::GetPlayerColor(c.colournum);
     row->playername->setTextColour(MyGUI::Colour(col.r, col.g, col.b, col.a));
+#endif
     row->playername->setVisible(true);
     x -= 18;
 

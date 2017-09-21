@@ -197,6 +197,7 @@ UTFString TopMenubar::getUserString(RoRnet::UserInfo &user, int num_vehicles)
 
 void TopMenubar::addUserToMenu(RoRnet::UserInfo &user)
 {
+#ifdef USE_SOCKETW
     int numTrucks = m_sim_controller->GetBeamFactory()->getTruckCount();
     Beam **trucks = m_sim_controller->GetBeamFactory()->getTrucks();
 
@@ -231,6 +232,7 @@ void TopMenubar::addUserToMenu(RoRnet::UserInfo &user)
             }
         }
     }
+#endif
 }
 
 void TopMenubar::vehiclesListUpdate()

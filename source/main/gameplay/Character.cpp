@@ -141,8 +141,9 @@ void Character::updateCharacterRotation()
     setRotation(characterRotation);
 }
 
-void Character::updateCharacterColour()
+void Character::updateCharacterNetworkColour()
 {
+#ifdef USE_SOCKETW
     const String materialName = "tracks/" + myName;
     const int textureUnitStateNum = 2;
 
@@ -157,6 +158,7 @@ void Character::updateCharacterColour()
         state->setAlphaOperation(LBX_BLEND_CURRENT_ALPHA, LBS_MANUAL, LBS_CURRENT, 0.8);
         state->setColourOperationEx(LBX_BLEND_CURRENT_ALPHA, LBS_MANUAL, LBS_CURRENT, color, color, 1);
     }
+#endif // USE_SOCKETW
 }
 
 void Character::updateLabels()
@@ -179,7 +181,7 @@ void Character::updateLabels()
     networkAuthLevel = info.authstatus;
 
     colourNumber = info.colournum;
-    updateCharacterColour();
+    this->updateCharacterNetworkColour();
 
     if (String(info.username).empty())
         return;
