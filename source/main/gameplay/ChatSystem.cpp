@@ -50,6 +50,7 @@ void SendStreamSetup()
 
 Ogre::UTFString GetColouredName(Ogre::UTFString nick, int colour_number)
 {
+#ifdef USE_SOCKETW
     Ogre::ColourValue col_val = Networking::GetPlayerColor(colour_number);
     char tmp[255] = {0};
     sprintf(tmp, "#%02X%02X%02X", (unsigned int)(col_val.r * 255.0f), (unsigned int)(col_val.g * 255.0f), (unsigned int)(col_val.b * 255.0f));
@@ -60,6 +61,9 @@ Ogre::UTFString GetColouredName(Ogre::UTFString nick, int colour_number)
             nick[i] = 'X';
 
     return tryConvertUTF(tmp) + nick;
+#else // USE_SOCKETW
+    return nick;
+#endif // USE_SOCKETW
 }
 
 #ifdef USE_SOCKETW
