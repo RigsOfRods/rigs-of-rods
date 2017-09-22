@@ -1,11 +1,8 @@
 cmake_minimum_required( VERSION 3.0.2 )
-
-
 set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_SOURCE_DIR}/cmake/3rdparty )
 
-
 # WIN32: remove MinSizeRel, Debug builds : unsupported
-if (WIN32) 
+if (WIN32)
 	set(CMAKE_CONFIGURATION_TYPES "RelWithDebInfo;Release" CACHE STRING "" FORCE)
 endif()
 
@@ -16,16 +13,19 @@ endif()
 set(PROJECT_NAME_SHORT "RoR")
 set(PROJECT_NAME_LONG  "Rigs of Rods")
 
-project( ${PROJECT_NAME_SHORT} VERSION 0.4.7.0 )
-
+project( ${PROJECT_NAME_SHORT} VERSION 0.4.8.0 )
 
 ################################################################################
 # Available build options
 ################################################################################
-option( BUILD_DEV_VERSION   "Disable this for official releases"            ON )
-option( BUILD_DOC_DOXYGEN   "Build documentation from sources with Doxygen" OFF)
-option( BUILD_SHOW_WARNINGS "Show build warnings"                           ON )
+option( BUILD_DEV_VERSION     "Disable this for official releases"            ON )
+option( BUILD_CUSTOM_VERSION  "Specify a custom version"                      OFF)
+option( BUILD_DOC_DOXYGEN     "Build documentation from sources with Doxygen" OFF)
+option( BUILD_SHOW_WARNINGS   "Show build warnings"                           ON )
 
+if (BUILD_CUSTOM_VERSION)
+	set(CUSTOM_VERSION  "0.4.8.0-dev" CACHE STRING "Custom version")
+endif()
 
 
 include(Macros)
@@ -33,17 +33,17 @@ include(Macros)
 
 # check 64 bit
 set(ARCH_DIR "")
-if (WIN32) 
+if (WIN32)
 	message( STATUS "CMAKE_GENERATOR: ${CMAKE_GENERATOR}")
 	message( STATUS "CMAKE_CL_64: ${CMAKE_CL_64}")
-	if (CMAKE_CL_64) 
-		set(ARCH_DIR "x64") 
+	if (CMAKE_CL_64)
+		set(ARCH_DIR "x64")
 		message(STATUS "using 64 bit libraries")
-	else() 
-		set(ARCH_DIR "x86") 
+	else()
+		set(ARCH_DIR "x86")
 		message(STATUS "using 32 bit libraries")
-	endif() 
-endif() 
+	endif()
+endif()
 
 #setup the default build mode
 
@@ -81,7 +81,7 @@ mark_as_advanced(
 
 if(WIN32)
   #set(ROR_USING_VISUAL_STUDIO_PROFESSIONAL "FALSE" CACHE BOOL "if you use VS professional, enable this. DO NOT enable this when using express versions")
-  
+
   if (BUILD_SHOW_WARNINGS)
     set(warnings /W3 /D_CRT_SECURE_NO_WARNINGS /wd4005 /wd4996 /wd4251 /wd4275 /wd4099 /nologo)
   else()
