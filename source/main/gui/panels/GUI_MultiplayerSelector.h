@@ -28,19 +28,21 @@
 #include "ForwardDeclarations.h"
 #include "GUI_MultiplayerSelectorLayout.h"
 
-namespace RoR
-{
+#include <memory>
+#include <thread>
+#include <future>
 
-namespace GUI
-{
+namespace RoR {
+namespace GUI {
 
-struct ServerlistData; // Forward decl
+struct MpServerlistData; // Forward declaration, private implementation.
 
 class MultiplayerSelector : public MultiplayerSelectorLayout
 {
 
 public:
     MultiplayerSelector();
+    ~MultiplayerSelector();
 
     void SetVisible(bool v);
     bool IsVisible();
@@ -60,10 +62,10 @@ private:
     void CenterToScreen();
     void ServerlistJoin(size_t sel_index);
 
-    ServerlistData*            m_serverlist_data;
-    bool                       m_is_refreshing;
+    std::future<MpServerlistData*>     m_serverlist_future;
+    std::unique_ptr<MpServerlistData>  m_serverlist_data;
+    bool                               m_is_refreshing;
 };
 
 } // namespace GUI
-
 } // namespace RoR
