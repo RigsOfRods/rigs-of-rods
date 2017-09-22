@@ -34,11 +34,9 @@
 #include "Application.h"
 #include "MainMenu.h"
 
-#ifdef USE_JSONCPP
-#include "json/json.h"
-#endif //USE_JSONCPP
-
 #include <MyGUI.h>
+#include <rapidjson/document.h>
+#include <string>
 #include <thread>
 #include <future>
 
@@ -47,6 +45,10 @@
 #   include <curl/curl.h>
 #   include <curl/easy.h>
 #endif //USE_CURL
+
+#if defined(_MSC_VER) && defined(GetObject) // This MS Windows macro from <wingdi.h> (Windows Kit 8.1) clashes with RapidJSON
+#   undef GetObject
+#endif
 
 namespace RoR {
 namespace GUI {
@@ -58,23 +60,34 @@ const MyGUI::Colour status_emptylist_color(0.7f, 0.7f, 0.7f);
 #define CLASS        MultiplayerSelector
 #define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
 
-/// Private impl. to minimze header deps ("json.h", <thread>, <future>)
-struct ServerlistData
+struct MpServerlistData
 {
-#ifdef USE_JSONCPP
-    std::future<Json::Value> future_json;
-#endif //USE_JSONCPP
+    struct ServerInfo
+    {
+        std::string display_name;
+        std::string display_users;
+        std::string display_host;
+        std::string display_terrn;
+        std::string net_host;
+        int         net_port;
+    };
+
+    MpServerlistData(): success(false) {}
+
+    std::vector<ServerInfo> servers;
+    std::string             message;
+    bool                    success;
 };
 
 // From example: https://gist.github.com/whoshuu/2dc858b8730079602044
-size_t CurlWriteFunc(void *ptr, size_t size, size_t nmemb, std::string* data) {
+size_t CurlWriteFunc(void *ptr, size_t size, size_t nmemb, std::string* data)
+{
     data->append((char*) ptr, size * nmemb);
     return size * nmemb;
 }
 
-#if defined(USE_CURL) && defined(USE_JSONCPP)
-/// Returns JSON in format { "success":bool, "message":str, "data":$response_string }
-Json::Value FetchServerlist(std::string portal_url)
+#if defined(USE_CURL)
+MpServerlistData* FetchServerlist(std::string portal_url)
 {
     std::string serverlist_url = portal_url + "/server-list?json=true";
     std::string response_payload;
@@ -90,43 +103,56 @@ Json::Value FetchServerlist(std::string portal_url)
 
     curl_easy_perform(curl);
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+
     curl_easy_cleanup(curl);
     curl = nullptr;
 
-    Json::Value result(Json::objectValue);
-
+    MpServerlistData* res = new MpServerlistData();
     if (response_code != 200)
     {
         Ogre::LogManager::getSingleton().stream() 
             << "[RoR|Multiplayer] Failed to retrieve serverlist; HTTP status code: " << response_code;
-        result["success"] = false;
-        result["message"] = "Error connecting to server :(";
-        return result;
+        res->message = "Error connecting to server :(";
+        return res;
     }
 
-    Json::CharReaderBuilder b;
-    Json::CharReader* reader = b.newCharReader(); // Java, anyone?
-    const char* payload = response_payload.c_str();
-    const char* payload_end = payload + response_payload.size();
-    std::string parse_errors;
-    Json::Value parse_output;
-    if (!reader->parse(payload, payload_end, &parse_output, &parse_errors))
+    rapidjson::Document j_data_doc;
+    j_data_doc.Parse(response_payload.c_str());
+    if (j_data_doc.HasParseError() || !j_data_doc.IsArray())
     {
         Ogre::LogManager::getSingleton().stream() 
-            << "[RoR|Multiplayer] Error parsing serverlist JSON, messages: " << parse_errors;
-        result["success"] = false;
-        result["message"] = "Server returned invalid data :(";
-        return result;
+            << "[RoR|Multiplayer] Error parsing serverlist JSON"; // TODO: Report the actual error
+        res->message = "Server returned invalid data :(";
+        return res;
     }
 
-    result["success"] = true;
-    result["data"] = parse_output;
-    return result;
+    // Pre-process data for display
+    size_t num_rows = j_data_doc.GetArray().Size();
+    res->servers.resize(num_rows);
+    for (size_t i = 0; i < num_rows; ++i)
+    {
+        rapidjson::Value& j_row = j_data_doc[i];
+
+        res->servers[i].display_name  = j_row["name"].GetString();
+        res->servers[i].display_terrn = j_row["terrain-name"].GetString();
+        res->servers[i].net_host      = j_row["ip"].GetString();
+        res->servers[i].net_port      = j_row["port"].GetInt();
+
+        char display_host[400];
+        snprintf(display_host, 400, "%s:%d", j_row["ip"].GetString(), j_row["port"].GetInt());
+        res->servers[i].display_host  = display_host;
+
+        char display_users[200];
+        snprintf(display_users, 200, "%d / %d", j_row["current-users"].GetInt(), j_row["max-clients"].GetInt());
+        res->servers[i].display_users = display_users;
+    }
+
+    res->success = true;
+    return res;
 }
-#endif // defined(USE_CURL) && defined(USE_JSONCPP)
+#endif // defined(USE_CURL)
 
 CLASS::CLASS() :
-    m_serverlist_data(nullptr),
     m_is_refreshing(false)
 {
     MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
@@ -141,7 +167,7 @@ CLASS::CLASS() :
     m_entertab_ip_editbox->setCaption(App::GetMpServerHost());
     m_entertab_port_editbox->setCaption(TOSTRING(App::GetMpServerPort()));
 
-#if defined(USE_CURL) && defined(USE_JSONCPP)
+#if defined(USE_CURL)
     m_refresh_button->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::CallbackRefreshOnlineBtnPress);
 #else
     m_refresh_button->setEnabled(false);
@@ -154,10 +180,13 @@ CLASS::CLASS() :
     MAIN_WIDGET->setVisible(false);
 }
 
+CLASS::~CLASS()
+{} // Must be defined here to have `std::unique_ptr<UndefinedClass>` in the header
+
 void CLASS::SetVisible(bool visible)
 {
     MAIN_WIDGET->setVisible(visible);
-    if (visible && m_serverlist_data == nullptr)
+    if (visible && (m_serverlist_data == nullptr))
     {
         this->RefreshServerlist();
     }
@@ -165,21 +194,18 @@ void CLASS::SetVisible(bool visible)
 
 void CLASS::RefreshServerlist()
 {
-#if defined(USE_CURL) && defined(USE_JSONCPP)
+#if defined(USE_CURL)
+    m_serverlist_data.reset();
     m_servers_list->removeAllItems();
     m_status_label->setVisible(true);
     m_status_label->setCaption("* * * * UPDATING * * * *");
     m_status_label->setTextColour(status_updating_color);
     m_refresh_button->setEnabled(false);
     m_is_refreshing = true;
-    if (m_serverlist_data == nullptr)
-    {
-        m_serverlist_data = new ServerlistData;
-    }
-    std::packaged_task<Json::Value(std::string)> task(FetchServerlist);
-    m_serverlist_data->future_json = task.get_future();
+    std::packaged_task<MpServerlistData*(std::string)> task(FetchServerlist);
+    m_serverlist_future = task.get_future();
     std::thread(std::move(task), App::GetMpPortalUrl()).detach(); // launch on a thread
-#endif // defined(USE_CURL) && defined(USE_JSONCPP)
+#endif // defined(USE_CURL)
 }
 
 void CLASS::CenterToScreen()
@@ -209,25 +235,27 @@ void CLASS::CallbackJoinOnlineListItem(MyGUI::MultiListBox* _sender, size_t inde
 
 void CLASS::CheckAndProcessRefreshResult()
 {
-#ifdef USE_JSONCPP
-    std::future_status status = m_serverlist_data->future_json.wait_for(std::chrono::seconds(0));
+    std::future_status status = m_serverlist_future.wait_for(std::chrono::seconds(0));
     if (status != std::future_status::ready)
     {
         return;
     }
 
-    auto json = m_serverlist_data->future_json.get();
-    if (!json.isObject() || json["success"] != true || !json["data"].isArray())
+    m_serverlist_data = std::unique_ptr<MpServerlistData>(m_serverlist_future.get());
+
+    if (!m_serverlist_data->success)
     {
-        std::string message = (json["message"].isString()) ? json["message"].asString() : "Could not connect to server :(";
-        m_status_label->setTextColour(status_failure_color);
-        m_status_label->setCaption(message);
+        if (m_serverlist_data->message.empty())
+            m_status_label->setCaption("Could not connect to server :(");
+        else
+            m_status_label->setCaption(m_serverlist_data->message);
+
         m_refresh_button->setEnabled(true);
         m_is_refreshing = false;
         return;
     }
 
-    int num_rows = json["data"].size();
+    size_t num_rows = m_serverlist_data->servers.size();
     if (num_rows == 0)
     {
         m_status_label->setTextColour(status_emptylist_color);
@@ -237,32 +265,30 @@ void CLASS::CheckAndProcessRefreshResult()
         return;
     }
 
-    for (int i = 0; i < num_rows; ++i)
+    for (size_t i = 0; i < num_rows; ++i)
     {
-        auto row = json["data"][i];
-        m_servers_list->addItem(row["name"].asString(), row); // Only fills 1st column. Userdata = JSON
-        m_servers_list->setSubItemNameAt(1, i, row["terrain-name"].asString()); // Fill other columns
-        m_servers_list->setSubItemNameAt(2, i, row["current-users"].asString() + " / " +row["max-clients"].asString());
-        m_servers_list->setSubItemNameAt(3, i, row["ip"].asString());
+        MpServerlistData::ServerInfo& server = m_serverlist_data->servers[i];
+        m_servers_list->addItem(server.display_name, i); // Only fills 1st column. Userdata = `size_t` index to `m_serverlist_data::servers` array
+        m_servers_list->setSubItemNameAt(1, i, server.display_terrn); // Fill other columns
+        m_servers_list->setSubItemNameAt(2, i, server.display_users);
+        m_servers_list->setSubItemNameAt(3, i, server.display_host);
     }
 
     m_status_label->setVisible(false);
     m_refresh_button->setEnabled(true);
     m_is_refreshing = false;
-#endif // USE_JSONCPP
 }
 
 void CLASS::ServerlistJoin(size_t sel_index)
 {
-#ifdef USE_JSONCPP
     if (sel_index != MyGUI::ITEM_NONE)
     {
-        Json::Value& json = *m_servers_list->getItemDataAt<Json::Value>(sel_index);
-        App::SetMpServerHost(json["ip"].asString());
-        App::SetMpServerPort(json["port"].asInt());
+        size_t i = *m_servers_list->getItemDataAt<size_t>(sel_index);
+
+        App::SetMpServerHost(m_serverlist_data->servers[i].net_host);
+        App::SetMpServerPort(m_serverlist_data->servers[i].net_port);
         App::GetMainMenu()->JoinMultiplayerServer();
     }
-#endif // USE_JSONCPP
 }
 
 void CLASS::CallbackJoinOnlineBtnPress(MyGUI::WidgetPtr _sender)
