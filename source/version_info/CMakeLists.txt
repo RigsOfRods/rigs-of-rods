@@ -17,13 +17,22 @@ endif()
 # CMake custom targets are always out of date. Therefore the following target will update the
 # versioning information on each build. It executes the GenerateVersionInfo.cmake script which
 # generates the version_info.cpp and version_def.h files.
-set( VERSION_FLAGS 
-  -DVERSION_MAJOR=${PROJECT_VERSION_MAJOR}
-  -DVERSION_MINOR=${PROJECT_VERSION_MINOR}
-  -DVERSION_PATCH=${PROJECT_VERSION_PATCH}
-  -DVERSION_TWEAK=${PROJECT_VERSION_TWEAK}
-  -DBUILD_DEV_VERSION=${BUILD_DEV_VERSION}
-)
+
+if(BUILD_CUSTOM_VERSION)
+	set( VERSION_FLAGS
+	  -DCUSTOM_VERSION=${CUSTOM_VERSION}
+	  -DBUILD_CUSTOM_VERSION=${BUILD_CUSTOM_VERSION}
+	)
+else()
+	set( VERSION_FLAGS
+	  -DVERSION_MAJOR=${PROJECT_VERSION_MAJOR}
+	  -DVERSION_MINOR=${PROJECT_VERSION_MINOR}
+	  -DVERSION_PATCH=${PROJECT_VERSION_PATCH}
+	  -DVERSION_TWEAK=${PROJECT_VERSION_TWEAK}
+	  -DBUILD_DEV_VERSION=${BUILD_DEV_VERSION}
+	)
+endif()
+
 add_custom_target( generate_version
   COMMAND ${CMAKE_COMMAND} ${VERSION_FLAGS}
     -DGIT_EXECUTABLE=${GIT_EXECUTABLE}

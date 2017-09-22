@@ -1,16 +1,16 @@
 # The MIT License (MIT)
-# 
+#
 # Copyright (c) 2016 Fabian Killus
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 # associated documentation files (the "Software"), to deal in the Software without restriction,
 # including without limitation the rights to use, copy, modify, merge, publish, distribute,
 # sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all copies or
 # substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
 # NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
@@ -28,6 +28,8 @@
 #  * VERSION_PATCH
 #  * VERSION_TWEAK
 #  * BUILD_DEV_VERSION
+#  * BUILD_CUSTOM_VERSION
+#  * CUSTOM_VERSION
 #
 # The git executable is expected to be specified in
 #
@@ -41,11 +43,20 @@
 # This implementation was inspired by
 # https://github.com/minetest/minetest/blob/master/cmake/Modules/GenerateVersion.cmake
 
+MACRO( VERSION_STR_TO_INTS version major minor patch tweak suffix )
+  STRING( REGEX REPLACE "([0-9]+).[0-9]+.[0-9]+.[0-9]+.[^\n\r]+" "\\1" ${major} ${version} )
+  STRING( REGEX REPLACE "[0-9]+.([0-9]+).[0-9]+.[0-9]+.[^\n\r]+" "\\1" ${minor} ${version} )
+  STRING( REGEX REPLACE "[0-9]+.[0-9]+.([0-9]+).[0-9]+.[^\n\r]+" "\\1" ${patch} ${version} )
+  STRING( REGEX REPLACE "[0-9]+.[0-9]+.[0-9]+.([0-9]+).[^\n\r]+" "\\1" ${tweak} ${version} )
+  STRING( REGEX REPLACE "[0-9]+.[0-9]+.[0-9]+.[0-9]+.([^\n\r]+)" "\\1" ${suffix} ${version} )
+ENDMACRO( VERSION_STR_TO_INTS )
 
 # Define a suffix to append to the version string in case of a development build (as opposed to
 # an official release). This suffix contains additional information gathered from the git VCS.
-if( BUILD_DEV_VERSION )
-
+if( BUILD_CUSTOM_VERSION )
+   VERSION_STR_TO_INTS(${CUSTOM_VERSION} VERSION_MAJOR VERSION_MINOR VERSION_PATCH VERSION_TWEAK VERSION_SUFFIX)
+   set( VERSION_SUFFIX "-${VERSION_SUFFIX}" )
+elseif( BUILD_DEV_VERSION )
    # Check if we are inside an actual git repository
    if( GIT_EXECUTABLE )
       execute_process(
@@ -73,7 +84,7 @@ if( BUILD_DEV_VERSION )
 	 RESULT_VARIABLE IS_DIRTY
       )
 
-      # Define the version string suffix containing 
+      # Define the version string suffix containing
       #   * 'dev' to indicate development build
       #   * sha1sum of latest commit
       #   * 'dirty' flag in case of local modifications
@@ -87,7 +98,6 @@ if( BUILD_DEV_VERSION )
      # git repository
      set( VERSION_SUFFIX "-dev-without-git" )
    endif()
-
 endif()
 
 # This whole if and else can replaced, when using cmake >= 3.8 (as it then uses environment variable SOURCE_DATE_EPOCH), with this:
@@ -111,4 +121,3 @@ endif ()
 
 # Fill in the actual version information in the provided template
 configure_file( ${VERSION_FILE_INPUT} ${VERSION_FILE_OUTPUT} @ONLY )
-

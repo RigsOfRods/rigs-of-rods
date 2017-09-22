@@ -23,4 +23,3 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 /* The following definitions are automatically set by the CMake build system */
 #define ROR_RESOURCE_VERSION_STRING "@VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@.@VERSION_TWEAK@@VERSION_SUFFIX@"
 #define ROR_RESOURCE_VERSION @VERSION_MAJOR@,@VERSION_MINOR@,@VERSION_PATCH@,@VERSION_TWEAK@
-
