@@ -309,6 +309,7 @@ int main(int argc, char *argv[])
         while (App::app_state.GetPending() != AppState::SHUTDOWN)
         {
             if (App::app_state.GetPending() == AppState::MAIN_MENU)
+           
             {
                 App::app_state.ApplyPending();
 
@@ -368,6 +369,8 @@ int main(int argc, char *argv[])
                 gEnv->sceneManager->clearScene(); // Wipe the scene after SimController was destroyed
             }
             prev_app_state = App::app_state.GetActive();
+
+
         } // End of app state loop
 
         // ========================================================================

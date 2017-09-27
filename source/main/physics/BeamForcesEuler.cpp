@@ -44,12 +44,15 @@
 #include "Water.h"
 #include "TerrainManager.h"
 #include "VehicleAI.h"
+#include "microprofile.h"
 
 using namespace Ogre;
 using namespace RoR;
 
 void Actor::calcForcesEulerCompute(int step, int num_steps)
 {
+    MICROPROFILE_SCOPEI ("Actor", "calc Force sEuler Compute", MP_BLUE);
+
     const bool doUpdate = (step == 0);
     const float dt = static_cast<float>(PHYSICS_DT);
     IWater* water = App::GetSimTerrain()->getWater();
@@ -1210,6 +1213,7 @@ void LogBeamNodes(RoR::Str<L>& msg, beam_t& beam) // Internal helper
 
 void Actor::CalcBeams(bool trigger_hooks)
 {
+    MICROPROFILE_SCOPEI ("Actor", "Calc Beams", MP_BLUE);
     const float dt = static_cast<float>(PHYSICS_DT);
 
     // Springs
@@ -1587,6 +1591,7 @@ void Actor::CalcBeamsInterActor()
 
 void Actor::CalcNodes()
 {
+    MICROPROFILE_SCOPEI ("Actor", "Calc Nodes", MP_BLUE1);
     const float dt = static_cast<float>(PHYSICS_DT);
     IWater* water = App::GetSimTerrain()->getWater();
     const float gravity = App::GetSimTerrain()->getGravity();

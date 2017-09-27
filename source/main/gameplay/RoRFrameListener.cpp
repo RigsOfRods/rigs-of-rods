@@ -77,6 +77,7 @@
 
 #include "SurveyMapManager.h"
 #include "SurveyMapEntity.h"
+#include "microprofile.h"
 
 #include <ctime>
 #include <fstream>
@@ -193,6 +194,8 @@ float SimController::StopRaceTimer()
 
 void SimController::UpdateInputEvents(float dt)
 {
+    MICROPROFILE_SCOPEI ("Main", "Update Input Events", MP_YELLOW);
+
     if (dt == 0.0f)
         return;
 
@@ -1469,6 +1472,8 @@ void SimController::FinalizeActorSpawning(Actor* local_actor, Actor* prev_actor,
 
 void SimController::UpdateSimulation(float dt)
 {
+    MICROPROFILE_SCOPEI ("Main", "Update Simulation", MP_YELLOW);
+
     m_actor_manager.SyncWithSimThread();
 
     const bool mp_connected = (App::mp_state.GetActive() == MpState::CONNECTED);
@@ -1741,6 +1746,7 @@ void SimController::UpdateSimulation(float dt)
             m_actor_manager.UpdateActors(m_player_actor, dt); // *** Start new physics tasks. No reading from Actor N/B beyond this point.
         }
     }
+    MicroProfileFlip (nullptr);
 }
 
 void SimController::ShowLoaderGUI(int type, const Ogre::String& instance, const Ogre::String& box)
@@ -2114,6 +2120,11 @@ bool SimController::SetupGameplayLoop()
     {
         m_camera_manager.ActivateDepthOfFieldEffect();
     }
+
+    MicroProfileOnThreadCreate ("Main");
+    //	MicroProfileSetForceEnable(true);
+    MicroProfileSetEnableAllGroups (true);
+    MicroProfileSetForceMetaCounters (true);
 
     return true;
 }

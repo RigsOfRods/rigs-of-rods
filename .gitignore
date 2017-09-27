@@ -31,3 +31,5 @@ cmake-build-debug
 /.vs
 
 build/
+
+source/main/utils/microprofile\.config\.h

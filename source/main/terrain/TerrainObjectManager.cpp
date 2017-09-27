@@ -43,6 +43,7 @@
 #include "TerrainManager.h"
 #include "Utils.h"
 #include "WriteTextToTexture.h"
+#include "microprofile.h"
 
 #include <OgreRTShaderSystem.h>
 #include <OgreFontManager.h>
@@ -1340,6 +1341,8 @@ void TerrainObjectManager::LoadPredefinedActors()
 
 bool TerrainObjectManager::UpdateTerrainObjects(float dt)
 {
+    MICROPROFILE_SCOPEI ("TerrainObjectManager", "Update Terrain Objects", MP_GREEN);
+
 #ifdef USE_PAGED
     // paged geometry
     for (auto it : m_paged_geometry)
