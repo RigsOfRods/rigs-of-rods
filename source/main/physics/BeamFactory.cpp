@@ -45,7 +45,6 @@
 #include "Replay.h"
 #include "RigDef_Parser.h"
 #include "RigDef_Validator.h"
-#include "RigLoadingProfilerControl.h"
 #include "RigSpawner.h"
 #include "RoRFrameListener.h"
 #include "Scripting.h"
@@ -54,6 +53,7 @@
 #include "ThreadPool.h"
 #include "Utils.h"
 #include "VehicleAI.h"
+#include "microprofile.h"
 
 #ifdef _GNU_SOURCE
 #include <sys/sysinfo.h>
@@ -942,6 +942,8 @@ Actor* ActorManager::FetchRescueVehicle()
 
 void ActorManager::UpdateActors(Actor* player_actor, float dt)
 {
+    MICROPROFILE_SCOPEI ("ActorManager", "Update Actors", MP_GREEN);
+
     m_physics_frames++;
 
     // do not allow dt > 1/20
@@ -1043,6 +1045,8 @@ Actor* ActorManager::GetActorByIdInternal(int actor_id)
 
 void ActorManager::UpdatePhysicsSimulation()
 {
+    MICROPROFILE_SCOPEI ("ActorManager", "Update Physics Simulation", MP_ORANGE);
+
     for (auto actor : m_actors)
     {
         actor->UpdatePhysicsOrigin();

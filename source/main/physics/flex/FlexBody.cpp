@@ -27,7 +27,7 @@
 #include "FlexFactory.h"
 #include "GfxActor.h"
 #include "RigDef_File.h"
-#include "RigLoadingProfilerControl.h"
+#include "microprofile.h"
 
 #include <Ogre.h>
 
@@ -60,7 +60,6 @@ FlexBody::FlexBody(
     , m_src_colors(nullptr)
     , m_gfx_actor(gfx_actor)
 {
-    FLEXBODY_PROFILER_START("Compute pos + orientation");
 
     Ogre::Vector3* vertices = nullptr;
 
@@ -93,8 +92,6 @@ FlexBody::FlexBody(
         position = nodes[0].AbsPosition + def->offset;
         orientation = rot;
     }
-
-    FLEXBODY_PROFILER_ENTER("Check texcoord presence")
 
     Ogre::MeshPtr mesh=ent->getMesh();
     int num_submeshes = mesh->getNumSubMeshes();
@@ -142,29 +139,21 @@ FlexBody::FlexBody(
         m_has_texture        = preloaded_from_cache->header.HasTexture();
         m_has_texture_blend  = preloaded_from_cache->header.HasTextureBlend();
     }
-    FLEXBODY_PROFILER_ENTER("Detect missing normals")
-
-    FLEXBODY_PROFILER_ENTER("Create vertex declaration")
 
     //create optimal VertexDeclaration
     VertexDeclaration* optimalVD=HardwareBufferManager::getSingleton().createVertexDeclaration();
-    FLEXBODY_PROFILER_ENTER("Setup vertex declaration")
     optimalVD->addElement(0, 0, VET_FLOAT3, VES_POSITION);
     optimalVD->addElement(1, 0, VET_FLOAT3, VES_NORMAL);
     if (m_has_texture_blend) optimalVD->addElement(2, 0, VET_COLOUR_ARGB, VES_DIFFUSE);
     if (m_has_texture) optimalVD->addElement(3, 0, VET_FLOAT2, VES_TEXTURE_COORDINATES);
-    FLEXBODY_PROFILER_ENTER("Sort vertex decl")
     optimalVD->sort();
-    FLEXBODY_PROFILER_ENTER("Vertex decl -> closeGapsInSource()")
     optimalVD->closeGapsInSource();
-    FLEXBODY_PROFILER_ENTER("Create 'optimal buffer usage' list")
     BufferUsageList optimalBufferUsages;
     for (size_t u = 0; u <= optimalVD->getMaxSource(); ++u)
     {
         optimalBufferUsages.push_back(HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
     }
 
-    FLEXBODY_PROFILER_ENTER("Create color buffers")
     //adding color buffers, well get the reference later
     if (m_has_texture_blend)
     {
@@ -201,7 +190,6 @@ FlexBody::FlexBody(
             }
         }
     }
-    FLEXBODY_PROFILER_ENTER("Reorganise vertex buffers")
 
     //reorg
     //LOG("FLEXBODY reorganizing buffers");
@@ -222,7 +210,6 @@ FlexBody::FlexBody(
             sm->vertexData->closeGapsInBindings();
         }
     }
-    FLEXBODY_PROFILER_ENTER("Count vertices")
 
     //print mesh information
     //LOG("FLEXBODY Printing modififed mesh informations:");
@@ -263,8 +250,6 @@ FlexBody::FlexBody(
     double stat_located_time = -1;
     if (preloaded_from_cache != nullptr)
     {
-        FLEXBODY_PROFILER_ENTER("Copy buffers + locators from cache")
-
         m_dst_pos     = preloaded_from_cache->dst_pos;
         m_src_normals = preloaded_from_cache->src_normals;
         m_locators    = preloaded_from_cache->locators;
@@ -318,7 +303,6 @@ FlexBody::FlexBody(
     }
     else
     {
-        FLEXBODY_PROFILER_ENTER("Alloc buffers")
         vertices=(Vector3*)malloc(sizeof(Vector3)*m_vertex_count);
         m_dst_pos=(Vector3*)malloc(sizeof(Vector3)*m_vertex_count);
         m_src_normals=(Vector3*)malloc(sizeof(Vector3)*m_vertex_count);
@@ -328,7 +312,6 @@ FlexBody::FlexBody(
             m_src_colors=(ARGB*)malloc(sizeof(ARGB)*m_vertex_count);
             for (int i=0; i<(int)m_vertex_count; i++) m_src_colors[i]=0x00000000;
         }
-        FLEXBODY_PROFILER_ENTER("Fill buffers")
         Vector3* vpt=vertices;
         Vector3* npt=m_src_normals;
         if (mesh->sharedVertexData)
@@ -383,14 +366,11 @@ FlexBody::FlexBody(
             cursubmesh++;
         }
 
-        FLEXBODY_PROFILER_ENTER("Transform vertices")
         //transform
         for (int i=0; i<(int)m_vertex_count; i++)
         {
             vertices[i]=(orientation*vertices[i])+position;
         }
-
-        FLEXBODY_PROFILER_ENTER("Locate nodes")
         m_locators = new Locator_t[m_vertex_count];
         for (int i=0; i<(int)m_vertex_count; i++)
         {
@@ -489,7 +469,6 @@ FlexBody::FlexBody(
     } // if (preloaded_from_cache == nullptr)
 
     //adjusting bounds
-    FLEXBODY_PROFILER_ENTER("Adjust bounds")
     AxisAlignedBox aab=mesh->getBounds();
     Vector3 v=aab.getMinimum();
     float mi=v.x;
@@ -506,7 +485,6 @@ FlexBody::FlexBody(
     aab.setMaximum(Vector3(ma,ma,ma));
     mesh->_setBounds(aab, true);
 
-    FLEXBODY_PROFILER_ENTER("Attach mesh to scene")
     LOG("FLEXBODY show mesh");
     //okay, show the mesh now
     m_scene_node=gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
@@ -515,7 +493,6 @@ FlexBody::FlexBody(
 
     if (preloaded_from_cache == nullptr)
     {
-        FLEXBODY_PROFILER_ENTER("Transform normals")
         for (int i=0; i<(int)m_vertex_count; i++)
         {
             Matrix3 mat;
@@ -534,8 +511,6 @@ FlexBody::FlexBody(
     }
 
     if (vertices != nullptr) { free(vertices); }
-
-    FLEXBODY_PROFILER_ENTER("Printing time stats");
 
 #ifdef FLEXBODY_LOG_LOADING_TIMES
     char stats[1000];
@@ -558,7 +533,6 @@ FlexBody::FlexBody(
 #else
     LOG("FLEXBODY ready");
 #endif
-    FLEXBODY_PROFILER_EXIT();
 }
 
 FlexBody::~FlexBody()
@@ -637,6 +611,8 @@ void FlexBody::printMeshInfo(Mesh* mesh)
 
 void FlexBody::ComputeFlexbody()
 {
+    MICROPROFILE_SCOPEI ("Flexbody", "Compute Flexbody", MP_RED1);
+
     // // if (m_has_texture_blend) updateBlend(); Disabled for {AsyncScene} refactor ~ only_a_ptr, 08/2018
 
     RoR::GfxActor::NodeData* nodes = m_gfx_actor->GetSimNodeBuffer();
@@ -681,6 +657,7 @@ void FlexBody::ComputeFlexbody()
 
 void FlexBody::UpdateFlexbodyVertexBuffers()
 {
+    MICROPROFILE_SCOPEI ("Flexbody", "Update Vertex Buffers", MP_RED);
     Vector3 *ppt = m_dst_pos;
     Vector3 *npt = m_dst_normals;
     if (m_uses_shared_vertex_data)

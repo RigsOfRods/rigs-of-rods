@@ -26,6 +26,7 @@
 #include "Settings.h"
 #include "TerrainManager.h"
 #include "TerrainGeometryManager.h"
+#include "microprofile.h"
 
 using namespace Ogre;
 using namespace RoR;
@@ -71,6 +72,8 @@ Light *SkyXManager::getMainLight()
 
 bool SkyXManager::update(float dt)
 {
+    MICROPROFILE_SCOPEI ("SkyXManager", "Update SkyX", MP_WHEAT);
+
 	UpdateSkyLight();
 	mSkyX->update(dt);
 	return true;

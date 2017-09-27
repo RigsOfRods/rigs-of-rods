@@ -1,5 +1,11 @@
 project(RoR_Main)
 
+option(MICROPROFILE_ENABLED "Enable microprofile" OFF)
+configure_file(${CMAKE_SOURCE_DIR}/source/main/utils/microprofile.config.h.in
+			   ${CMAKE_SOURCE_DIR}/source/main/utils/microprofile.config.h
+)
+
+
 ####################################################################################################
 #  SOURCE FILES
 ####################################################################################################
@@ -244,6 +250,9 @@ set(SOURCE_FILES
         utils/InterThreadStoreVector.h
         utils/Language.{h,cpp}
         utils/MeshObject.{h,cpp}
+        utils/microprofile.config.h
+        utils/microprofile/microprofile.{h,cpp}
+        utils/microprofile/microprofile_html.h
         utils/PlatformUtils.{h,cpp}
         utils/RoRWindowEventUtilities.{h,cpp}
         utils/Settings.{h,cpp}
@@ -255,8 +264,6 @@ set(SOURCE_FILES
         utils/Utils.{h,cpp}
         utils/WriteTextToTexture.{h,cpp}
         utils/ZeroedMemoryAllocator.h
-        utils/profiler/Profiler.{h,cpp}
-        utils/profiler/RigLoadingProfilerControl.h
         )
 
 if (ROR_USE_ANGELSCRIPT)
@@ -269,7 +276,6 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/ScriptEngine.{h,cpp}
             )
 endif ()
-
 
 include(SourceFileUtils)
 
@@ -307,6 +313,7 @@ endif ()
 
 target_compile_definitions(${BINNAME} PRIVATE
         USE_MUMBLE  # build with support for Mumble positional audio, has no dependencies but requires linking against librt on UNIX
+        MICROPROFILE_USE_CONFIG
         #FEAT_DEBUG_MUTEX
         )
 
@@ -361,7 +368,7 @@ target_include_directories(${BINNAME} PRIVATE
         terrain/map
         threadpool
         utils
-        utils/profiler
+        utils/microprofile
         )
 
 

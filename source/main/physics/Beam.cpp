@@ -80,6 +80,7 @@
 #include "VehicleAI.h"
 #include "Water.h"
 #include "GUIManager.h"
+#include "microprofile.h"
 
 using namespace Ogre;
 using namespace RoR;
@@ -2850,6 +2851,7 @@ void Actor::UpdateSoundSources()
 
 void Actor::updateVisual(float dt)
 {
+    MICROPROFILE_SCOPEI ("Actor", "update Visual", MP_BLUE2);
     Vector3 ref(Vector3::UNIT_Y);
     autoBlinkReset();
     UpdateSoundSources();
@@ -3614,6 +3616,8 @@ bool Actor::isLocked()
 
 void Actor::updateDashBoards(float dt)
 {
+    MICROPROFILE_SCOPEI ("Actor", "update DashBoards", MP_BLUE3);
+
     if (!ar_dashboard)
         return;
     // some temp vars

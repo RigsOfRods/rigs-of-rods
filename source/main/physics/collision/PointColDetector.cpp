@@ -22,6 +22,7 @@
 
 #include "Beam.h"
 #include "RoRFrameListener.h"
+#include "microprofile.h"
 
 // Microsoft Visual Studio 2010 doesn't have std::log2
 // Version macros: http://stackoverflow.com/a/70630
@@ -158,7 +159,10 @@ void PointColDetector::update_structures_for_contacters()
     m_kdtree.resize(pow(2.f, exp_factor), kdelem);
 }
 
-void PointColDetector::query(const Vector3 &vec1, const Vector3 &vec2, const Vector3 &vec3, float enlargeBB) {
+void PointColDetector::query(const Vector3 &vec1, const Vector3 &vec2, const Vector3 &vec3, float enlargeBB)
+{
+    MICROPROFILE_SCOPEI ("PointColDetector", "query", MP_BEIGE);
+
     Vector3 enlarge = Vector3(enlargeBB, enlargeBB, enlargeBB);
 
     m_bbmin = vec1;

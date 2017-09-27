@@ -54,7 +54,6 @@
 #include "MeshObject.h"
 #include "OgreSubsystem.h"
 #include "PointColDetector.h"
-#include "RigLoadingProfilerControl.h"
 #include "RoRFrameListener.h"
 #include "ScrewProp.h"
 #include "Settings.h"
