@@ -32,13 +32,14 @@
 #include "RoRPrerequisites.h"
 
 #include <map>
+#include <OgreFrameListener.h>
 #include <OgreWindowEventUtilities.h>
 
 class GameScript;
 
 namespace RoR {
 
-class MainMenu: public Ogre::WindowEventListener
+class MainMenu: public Ogre::WindowEventListener, public Ogre::FrameListener
 {
 public:
 
@@ -52,6 +53,9 @@ public:
     void MainMenuLoopUpdate(float seconds_since_last_frame);
 
     void MainMenuLoopUpdateEvents(float seconds_since_last_frame);
+
+    // From Ogre::FrameListener
+    bool frameRenderingQueued(const Ogre::FrameEvent & evt) override;
 
 private:
 

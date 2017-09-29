@@ -50,6 +50,7 @@ public:
 
     // Ogre::FrameListener public interface
     bool   frameStarted          (const Ogre::FrameEvent& evt) override;
+    bool   frameRenderingQueued  (const Ogre::FrameEvent& evt) override;
     bool   frameEnded            (const Ogre::FrameEvent& evt) override;
 
     // Actor management interface

@@ -45,8 +45,9 @@
 #include <OgreHardwarePixelBuffer.h>
 #include <OgreRenderTarget.h>
 
-void OgreImGui::Init()
+void OgreImGui::Init(Ogre::SceneManager* scenemgr)
 {
+    mSceneMgr = scenemgr;
     ImGuiIO& io = ImGui::GetIO();
 
     io.KeyMap[ImGuiKey_Tab] = OIS::KC_TAB;                       // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array that we will update during the application lifetime.
@@ -119,57 +120,14 @@ void OgreImGui::InjectKeyReleased( const OIS::KeyEvent &arg )
     io.KeysDown[arg.key] = false;
 }
 
-void OgreImGui::updateVertexData()
+void OgreImGui::Render()
 {
-    int currentFrame = ImGui::GetFrameCount();
-    if (currentFrame == mLastRenderedFrame)
-    {
-        return ;
-    }
-    mLastRenderedFrame=currentFrame;
-
-    ImDrawData* draw_data = ImGui::GetDrawData();
-    size_t cmd_list_count = static_cast<size_t>(draw_data->CmdListsCount);
-    while(mRenderables.size() < cmd_list_count)
-    {
-        mRenderables.push_back(new ImGUIRenderable());
-    }
-    while(mRenderables.size() > cmd_list_count)
-    {
-        delete mRenderables.back();
-        mRenderables.pop_back();
-    }
-    unsigned int index=0;
-    for (std::list<ImGUIRenderable*>::iterator it = mRenderables.begin();it!=mRenderables.end();++it,++index)
-    {
-        (*it)->updateVertexData(draw_data,index);
-    }
-}
-
-void OgreImGui::renderQueueEnded(Ogre::uint8 queueGroupId, const Ogre::String& invocation,bool& repeatThisInvocation)
-{
-    if ((queueGroupId != Ogre::RENDER_QUEUE_OVERLAY) || (invocation == "SHADOWS"))
-    {
-        return;
-    }
-
-    Ogre::RenderSystem* renderSys = Ogre::Root::getSingletonPtr()->getRenderSystem();
-    Ogre::Viewport* vp = renderSys->_getViewport();
-
-    if ((vp == nullptr) || (!vp->getTarget()->isPrimary()) || mFrameEnded)
-    {
-        return;
-    }
-
-    mFrameEnded = true;
-    ImGui::Render();
-    this->updateVertexData();
-    ImGuiIO& io = ImGui::GetIO();
-
     // Construct projection matrix, taking texel offset corrections in account (important for DirectX9)
     // See also:
     //     - OGRE-API specific hint: http://www.ogre3d.org/forums/viewtopic.php?f=5&p=536881#p536881
     //     - IMGUI Dx9 demo solution: https://github.com/ocornut/imgui/blob/master/examples/directx9_example/imgui_impl_dx9.cpp#L127-L138
+    ImGuiIO& io = ImGui::GetIO();
+    Ogre::RenderSystem* renderSys = Ogre::Root::getSingletonPtr()->getRenderSystem();
     const float texelOffsetX = renderSys->getHorizontalTexelOffset();
     const float texelOffsetY = renderSys->getVerticalTexelOffset();
     const float L = texelOffsetX;
@@ -183,10 +141,48 @@ void OgreImGui::renderQueueEnded(Ogre::uint8 queueGroupId, const Ogre::String& i
                                     0.0f,          0.0f,         0.0f,       1.0f);
 
     mPass->getVertexProgramParameters()->setNamedConstant("ProjectionMatrix", projMatrix);
-    for(std::list<ImGUIRenderable*>::iterator it = mRenderables.begin(); it!=mRenderables.end(); ++it)
+
+    // Instruct ImGui to Render() and process the resulting CmdList-s
+    /// Adopted from https://bitbucket.org/ChaosCreator/imgui-ogre2.1-binding
+    /// ... Commentary on OGRE forums: http://www.ogre3d.org/forums/viewtopic.php?f=5&t=89081#p531059
+    ImGui::Render();
+    ImDrawData* draw_data = ImGui::GetDrawData();
+    Ogre::Viewport* vp = renderSys->_getViewport();
+    int vpWidth  = vp->getActualWidth();
+    int vpHeight = vp->getActualHeight();
+    for (int i = 0; i < draw_data->CmdListsCount; ++i)
     {
-        mSceneMgr->_injectRenderWithPass(mPass, (*it), false, false, nullptr);
+        const ImDrawList* draw_list = draw_data->CmdLists[i];
+        unsigned int startIdx = 0;
+
+        for (int j = 0; j < draw_list->CmdBuffer.Size; ++j)
+        {
+            // Create a renderable and fill it's buffers
+            ImGUIRenderable renderable;
+            const ImDrawCmd *drawCmd = &draw_list->CmdBuffer[j];
+            renderable.updateVertexData(draw_list->VtxBuffer.Data, &draw_list->IdxBuffer.Data[startIdx], draw_list->VtxBuffer.Size, drawCmd->ElemCount);
+
+            // Set scissoring
+            int scLeft   = static_cast<int>(drawCmd->ClipRect.x); // Obtain bounds
+            int scTop    = static_cast<int>(drawCmd->ClipRect.y);
+            int scRight  = static_cast<int>(drawCmd->ClipRect.z);
+            int scBottom = static_cast<int>(drawCmd->ClipRect.w);
+
+            scLeft   = scLeft   < 0 ? 0 : (scLeft  > vpWidth ? vpWidth : scLeft); // Clamp bounds to viewport dimensions
+            scRight  = scRight  < 0 ? 0 : (scRight > vpWidth ? vpWidth : scRight);
+            scTop    = scTop    < 0 ? 0 : (scTop    > vpHeight ? vpHeight : scTop);
+            scBottom = scBottom < 0 ? 0 : (scBottom > vpHeight ? vpHeight : scBottom);
+
+            renderSys->setScissorTest(true, scLeft, scTop, scRight, scBottom);
+
+            // Render!
+            mSceneMgr->_injectRenderWithPass(mPass, &renderable, false, false, nullptr);
+
+            // Update counts
+            startIdx += drawCmd->ElemCount;
+        }
     }
+    renderSys->setScissorTest(false);
 }
 
 void OgreImGui::createMaterial()
@@ -439,9 +435,8 @@ void OgreImGui::createFontTexture()
     mFontTex->getBuffer()->unlock();
 }
 
-void OgreImGui::NewFrame(float deltaTime,const Ogre::Rect & windowRect, bool ctrl, bool alt, bool shift)
+void OgreImGui::NewFrame(float deltaTime, float displayWidth, float displayHeight, bool ctrl, bool alt, bool shift)
 {
-    mFrameEnded=false;
     ImGuiIO& io = ImGui::GetIO();
     io.DeltaTime = deltaTime;
 
@@ -452,7 +447,7 @@ void OgreImGui::NewFrame(float deltaTime,const Ogre::Rect & windowRect, bool ctr
     io.KeySuper = false;
 
     // Setup display size (every frame to accommodate for window resizing)
-    io.DisplaySize = ImVec2((float)(windowRect.right - windowRect.left), (float)(windowRect.bottom - windowRect.top));
+    io.DisplaySize = ImVec2(displayWidth, displayHeight);
 
     // Start the frame
     ImGui::NewFrame();
@@ -498,12 +493,16 @@ void OgreImGui::ImGUIRenderable::initImGUIRenderable(void)
     offset += Ogre::VertexElement::getTypeSize( Ogre::VET_FLOAT2 );
     decl->addElement(0,offset,Ogre::VET_COLOUR,Ogre::VES_DIFFUSE);
 
+        
+        // set basic white material
     this->setMaterial( "imgui/material" );
 }
 
 OgreImGui::ImGUIRenderable::~ImGUIRenderable()
 {
     OGRE_DELETE mRenderOp.vertexData;
+    OGRE_DELETE mRenderOp.indexData;
+    mMaterial.setNull();
 }
 
 void OgreImGui::ImGUIRenderable::setMaterial( const Ogre::String& matName )
@@ -528,37 +527,38 @@ const Ogre::MaterialPtr& OgreImGui::ImGUIRenderable::getMaterial(void) const
     return mMaterial;
 }
 
-void OgreImGui::ImGUIRenderable::updateVertexData(ImDrawData* draw_data,unsigned int cmdIndex)
+/// @author https://bitbucket.org/ChaosCreator/imgui-ogre2.1-binding/src/8f1a01db510f543a987c3c16859d0a33400d9097/ImguiRenderable.cpp?at=master&fileviewer=file-view-default
+/// Commentary on OGRE forums: http://www.ogre3d.org/forums/viewtopic.php?f=5&t=89081#p531059
+void OgreImGui::ImGUIRenderable::updateVertexData(const ImDrawVert* vtxBuf, const ImDrawIdx* idxBuf, unsigned int vtxCount, unsigned int idxCount)
 {
-    Ogre::VertexBufferBinding* bind   = mRenderOp.vertexData->vertexBufferBinding;
+    Ogre::VertexBufferBinding* bind = mRenderOp.vertexData->vertexBufferBinding;
 
-    const ImDrawList* cmd_list = draw_data->CmdLists[cmdIndex];
-
-    if (bind->getBindings().empty() || mVertexBufferSize != cmd_list->VtxBuffer.size())
+    if (bind->getBindings().empty() || mVertexBufferSize != vtxCount)
     {
-        mVertexBufferSize = cmd_list->VtxBuffer.size();
-        bind->setBinding(0,Ogre::HardwareBufferManager::getSingleton().createVertexBuffer(sizeof(ImDrawVert),mVertexBufferSize,Ogre::HardwareBuffer::HBU_WRITE_ONLY));
+        mVertexBufferSize = vtxCount;
+
+        bind->setBinding(0, Ogre::HardwareBufferManager::getSingleton().createVertexBuffer(sizeof(ImDrawVert), mVertexBufferSize, Ogre::HardwareBuffer::HBU_WRITE_ONLY));
     }
-
-    if (mRenderOp.indexData->indexBuffer.isNull() || mIndexBufferSize != cmd_list->IdxBuffer.size())
+    if (mRenderOp.indexData->indexBuffer.isNull() || mIndexBufferSize != idxCount)
     {
-        mIndexBufferSize = cmd_list->IdxBuffer.size();
+        mIndexBufferSize = idxCount;
 
-        mRenderOp.indexData->indexBuffer=
-        Ogre::HardwareBufferManager::getSingleton().createIndexBuffer(Ogre::HardwareIndexBuffer::IT_16BIT,mIndexBufferSize,Ogre::HardwareBuffer::HBU_WRITE_ONLY);
+        mRenderOp.indexData->indexBuffer =
+            Ogre::HardwareBufferManager::getSingleton().createIndexBuffer(Ogre::HardwareIndexBuffer::IT_16BIT, mIndexBufferSize, Ogre::HardwareBuffer::HBU_WRITE_ONLY);
     }
 
     // Copy all vertices
-    ImDrawVert* vtx_dst = (ImDrawVert*)(bind->getBuffer(0)->lock(Ogre::HardwareBuffer::HBL_DISCARD));
-    ImDrawIdx* idx_dst = (ImDrawIdx*)(mRenderOp.indexData->indexBuffer->lock(Ogre::HardwareBuffer::HBL_DISCARD));
+    ImDrawVert* vtxDst = (ImDrawVert*)(bind->getBuffer(0)->lock(Ogre::HardwareBuffer::HBL_DISCARD));
+    ImDrawIdx* idxDst = (ImDrawIdx*)(mRenderOp.indexData->indexBuffer->lock(Ogre::HardwareBuffer::HBL_DISCARD));
 
-    memcpy(vtx_dst, &cmd_list->VtxBuffer[0], mVertexBufferSize * sizeof(ImDrawVert));
-    memcpy(idx_dst, &cmd_list->IdxBuffer[0], mIndexBufferSize * sizeof(ImDrawIdx));
+    memcpy(vtxDst, vtxBuf, mVertexBufferSize * sizeof(ImDrawVert));
+    memcpy(idxDst, idxBuf, mIndexBufferSize * sizeof(ImDrawIdx));
 
     mRenderOp.vertexData->vertexStart = 0;
-    mRenderOp.vertexData->vertexCount =  cmd_list->VtxBuffer.size();
+    mRenderOp.vertexData->vertexCount = vtxCount;
     mRenderOp.indexData->indexStart = 0;
-    mRenderOp.indexData->indexCount =  cmd_list->IdxBuffer.size();
+    mRenderOp.indexData->indexCount = idxCount;
+
 
     bind->getBuffer(0)->unlock();
     mRenderOp.indexData->indexBuffer->unlock();
@@ -578,16 +578,4 @@ const Ogre::LightList& OgreImGui::ImGUIRenderable::getLights(void) const
 {
     static const Ogre::LightList light_list;
     return light_list;
-}
-
-void OgreImGui::StartRendering(Ogre::SceneManager* scene_mgr)
-{
-    scene_mgr->addRenderQueueListener(this);
-    mSceneMgr = scene_mgr;
-}
-
-void OgreImGui::StopRendering()
-{
-    mSceneMgr->removeRenderQueueListener(this);
-    mSceneMgr = nullptr;
 }
