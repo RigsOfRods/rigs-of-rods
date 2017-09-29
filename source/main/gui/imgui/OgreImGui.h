@@ -36,25 +36,20 @@
 #include "OgreRenderable.h"
 #include <OgreRenderOperation.h>
 
-/// ImGui rendering for OGRE engine
-/// Usage:
+/// ImGui rendering for OGRE engine; Usage:
 ///  1. Call `Init()` after OGRE was started
-///  2. Call `StartRendering()` when you're ready. This attaches OgreImGui as render queue listener. IMPORTANT: see next step.
-///  3. Call `NewFrame()` before each render, otherwise IMGUI will crash!! This is because IMGUI rendering is done automatically by `OgreImGui` and expects `NewFrame()` to be called.
-///  4. Use any MyGUI functions to create your GUI; You need to use `Inject*()` functions to handle inputs.
-///  5. Call `StopRendering()` to detach OgreImGui from render queue.
-class OgreImGui : public Ogre::RenderQueueListener
+///  2. Call `NewFrame()` before each render, otherwise IMGUI will crash.
+///  3. Use `Inject*()` functions to handle inputs.
+///  4. Use any MyGUI functions to create your GUI.
+///  5. Call `Render()` to render the GUI.
+class OgreImGui
 {
 public:
-    OgreImGui(): mLastRenderedFrame(-1), mSceneMgr(nullptr) {}
+    OgreImGui(): mSceneMgr(nullptr) {}
 
-    void Init();
-    void StartRendering(Ogre::SceneManager* scene_mgr);
-    void StopRendering();
-    void NewFrame(float deltaTime,const Ogre::Rect & windowRect, bool ctrl, bool alt, bool shift);
-
-    //inherited from RenderQueueListener
-    virtual void renderQueueEnded(Ogre::uint8 queueGroupId, const Ogre::String& invocation,bool& repeatThisInvocation) override;
+    void Init(Ogre::SceneManager* scenemgr);
+    void NewFrame(float deltaTime, float vpWidth, float vpHeight, bool ctrl, bool alt, bool shift);
+    void Render();
 
     // Input-injecting functions
     void InjectMouseMoved( const OIS::MouseEvent &arg );
@@ -71,7 +66,7 @@ private:
         ImGUIRenderable();
         virtual ~ImGUIRenderable();
 
-        void updateVertexData(ImDrawData* data,unsigned int cmdIndex);
+        void updateVertexData(const ImDrawVert* vtxBuf, const ImDrawIdx* idxBuf, unsigned int vtxCount, unsigned int idxCount);
         Ogre::Real getSquaredViewDepth(const Ogre::Camera* cam) const   { (void)cam; return 0; }
 
         void setMaterial( const Ogre::String& matName );
@@ -93,13 +88,9 @@ private:
 
     void createFontTexture();
     void createMaterial();
-    void updateVertexData();
 
-    std::list<ImGUIRenderable*> mRenderables;
     Ogre::Pass*                 mPass;
-    int                         mLastRenderedFrame;
     Ogre::TexturePtr            mFontTex;
-    bool                        mFrameEnded;
     Ogre::SceneManager*         mSceneMgr;
 
 };

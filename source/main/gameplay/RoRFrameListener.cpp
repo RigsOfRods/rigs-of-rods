@@ -1803,6 +1803,14 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
         }
     }
 
+    App::GetGuiManager()->GetImGui().Render();
+
+    return true;
+}
+
+bool RoRFrameListener::frameRenderingQueued(const FrameEvent& evt)
+{
+    App::GetGuiManager()->GetImGui().Render();
     return true;
 }
 

@@ -107,7 +107,8 @@ void MainMenu::EnterMainMenuLoop()
         minTimePerFrame = 1000 / fpsLimit;
     }
 
-    App::GetGuiManager()->GetImGui().StartRendering(gEnv->sceneManager);
+    App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(this);
+
     while (App::app_state.GetPending() == AppState::MAIN_MENU)
     {
         startTime = App::GetOgreSubsystem()->GetTimer()->getMilliseconds();
@@ -135,10 +136,9 @@ void MainMenu::EnterMainMenuLoop()
             continue;
         }
 
-        App::GetGuiManager()->NewImGuiFrame(timeSinceLastFrame);
+        App::GetGuiManager()->NewImGuiFrame(static_cast<float>(timeSinceLastFrame));
         App::GetGuiManager()->DrawMainMenuGui();
-
-        RoR::App::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
+        App::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
 
 #ifdef USE_SOCKETW
         if ((App::mp_state.GetActive() == MpState::CONNECTED) && RoR::Networking::CheckError())
@@ -166,8 +166,8 @@ void MainMenu::EnterMainMenuLoop()
 
         timeSinceLastFrame = RoR::App::GetOgreSubsystem()->GetTimer()->getMilliseconds() - startTime;
     }
-    App::GetGuiManager()->GetImGui().StopRendering();
     RoRWindowEventUtilities::removeWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
+    App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(this);
 }
 
 void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
@@ -320,6 +320,12 @@ void MainMenu::windowResized(Ogre::RenderWindow* rw)
 void MainMenu::windowFocusChange(Ogre::RenderWindow* rw)
 {
     App::GetInputEngine()->resetKeys();
+}
+
+bool MainMenu::frameRenderingQueued(const Ogre::FrameEvent & evt)
+{
+    App::GetGuiManager()->GetImGui().Render();
+    return true;
 }
 
 } // namespace RoR
