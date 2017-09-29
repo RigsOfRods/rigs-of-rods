@@ -485,6 +485,11 @@ void GUIManager::DrawMainMenuGui()
     {
         m_impl->panel_GameMainMenu.Draw();
     }
+
+    if (m_impl->panel_MultiplayerSelector.IsVisible())
+    {
+        m_impl->panel_MultiplayerSelector.Draw();
+    }
 }
 
 } // namespace RoR
