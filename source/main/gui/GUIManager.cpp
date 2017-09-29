@@ -93,6 +93,13 @@ struct GuiManagerImpl
     MyGUI::OgrePlatform*        mygui_platform;
 };
 
+GUIManager::GuiTheme::GuiTheme():
+    in_progress_text_color(1.f, 0.832031f, 0.f, 1.f),
+    no_entries_text_color(0.7f, 0.7f, 0.7f, 1.f),
+    error_text_color(1.f, 0.175439f, 0.175439f, 1.f),
+    selected_entry_text_color(.9f, 0.7f, 0.05f, 1.f)
+{}
+
 void GUIManager::SetVisible_GameMainMenu        (bool v) { m_impl->panel_GameMainMenu       .SetVisible(v); }
 void GUIManager::SetVisible_GameAbout           (bool v) { m_impl->panel_GameAbout          .SetVisible(v); }
 void GUIManager::SetVisible_GamePauseMenu       (bool v) { m_impl->panel_GamePauseMenu      .SetVisible(v); }
@@ -501,4 +508,11 @@ void GUIManager::SetupImGui()
     style.ChildWindowRounding   = 4.f;
 }
 
+void GUIManager::DrawMainMenuGui()
+{
+    if (m_impl->panel_MultiplayerSelector.IsVisible())
+    {
+        m_impl->panel_MultiplayerSelector.Draw();
+    }
+}
 } // namespace RoR
