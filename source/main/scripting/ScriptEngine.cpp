@@ -83,7 +83,6 @@ ScriptEngine::ScriptEngine(Collisions *coll) :
     , scriptHash()
     , scriptLog(0)
     , scriptName()
-    , wheelEventFunctionPtr(nullptr)
 {
     setSingleton(this);
 
@@ -633,33 +632,16 @@ int ScriptEngine::addFunction(const String &arg)
         {
             if (frameStepFunctionPtr == nullptr)
                 frameStepFunctionPtr = func;
-
-            callbacks["frameStep"].push_back(func);
-        }
-        else if (func == mod->GetFunctionByDecl("void wheelEvents(int, string, string, string)"))
-        {
-            if (wheelEventFunctionPtr == nullptr)
-                wheelEventFunctionPtr = func;
-
-            callbacks["wheelEvents"].push_back(func);
         }
         else if (func == mod->GetFunctionByDecl("void eventCallback(int, int)"))
         {
             if (eventCallbackFunctionPtr == nullptr)
                 eventCallbackFunctionPtr = func;
-
-            callbacks["eventCallback"].push_back(func);
         }
         else if (func == mod->GetFunctionByDecl("void defaultEventCallback(int, string, string, int)"))
         {
             if (defaultEventCallbackFunctionPtr == nullptr)
                 defaultEventCallbackFunctionPtr = func;
-
-            callbacks["defaultEventCallback"].push_back(func);
-        }
-        else if (func == mod->GetFunctionByDecl("void on_terrain_loading(string lines)"))
-        {
-            callbacks["on_terrain_loading"].push_back(func);
         }
     }
 
@@ -719,17 +701,9 @@ int ScriptEngine::deleteFunction(const String &arg)
         engine->GarbageCollect();
 
         // Check if we removed a "special" function
-        for (auto it=callbacks.begin(); it!=callbacks.end(); it++)
-        {
-            auto found_itor = std::find(it->second.begin(), it->second.end(), func);
-            if (found_itor != it->second.end())
-                it->second.erase(found_itor);
-        }
+
         if ( frameStepFunctionPtr == func )
             frameStepFunctionPtr = nullptr;
-
-        if ( wheelEventFunctionPtr == func )
-            wheelEventFunctionPtr = nullptr;
 
         if ( eventCallbackFunctionPtr == func )
             eventCallbackFunctionPtr = nullptr;
@@ -871,24 +845,10 @@ int ScriptEngine::loadScript(String _scriptName)
 
     // get some other optional functions
     frameStepFunctionPtr = mod->GetFunctionByDecl("void frameStep(float)");
-    if (frameStepFunctionPtr != nullptr)
-        callbacks["frameStep"].push_back(frameStepFunctionPtr);
-    
-    wheelEventFunctionPtr = mod->GetFunctionByDecl("void wheelEvents(int, string, string, string)");
-    if (wheelEventFunctionPtr != nullptr)
-        callbacks["wheelEvents"].push_back(wheelEventFunctionPtr);
 
     eventCallbackFunctionPtr = mod->GetFunctionByDecl("void eventCallback(int, int)");
-    if (eventCallbackFunctionPtr != nullptr)
-        callbacks["eventCallback"].push_back(eventCallbackFunctionPtr);
 
     defaultEventCallbackFunctionPtr = mod->GetFunctionByDecl("void defaultEventCallback(int, string, string, int)");
-    if (defaultEventCallbackFunctionPtr != nullptr)
-        callbacks["defaultEventCallback"].push_back(defaultEventCallbackFunctionPtr);
-
-    AngelScript::asIScriptFunction* callback_fn = mod->GetFunctionByDecl("void on_terrain_loading(string lines)");
-    if (callback_fn != nullptr)
-        callbacks["on_terrain_loading"].push_back(callback_fn);
 
     // Find the function that is to be called.
     auto main_func = mod->GetFunctionByDecl("void main()");
