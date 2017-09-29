@@ -136,6 +136,9 @@ void MainMenu::EnterMainMenuLoop()
             continue;
         }
 
+        App::GetGuiManager()->NewImGuiFrame(timeSinceLastFrame);
+        App::GetGuiManager()->DrawMainMenuGui();
+
         App::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
 
 #ifdef USE_SOCKETW
