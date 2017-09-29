@@ -335,11 +335,9 @@ int main(int argc, char *argv[])
                     {
                         App::app_state.ApplyPending();
                         App::GetGuiManager()->ReflectGameState();
-                        App::GetGuiManager()->GetImGui().StartRendering(scene_manager);
                         App::SetSimController(&sim_controller);
                         sim_controller.EnterGameplayLoop();
                         App::SetSimController(nullptr);
-                        App::GetGuiManager()->GetImGui().StopRendering();
                     }
                     else
                     {

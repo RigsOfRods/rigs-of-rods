@@ -437,7 +437,7 @@ void GUIManager::NewImGuiFrame(float dt)
     bool alt   = kb->isKeyDown(OIS::KC_LMENU);
 
     // Call IMGUI
-    m_imgui.NewFrame(dt, Ogre::Rect(left, top, width, height), ctrl, alt, shift);
+    m_imgui.NewFrame(dt, static_cast<float>(width), static_cast<float>(height), ctrl, alt, shift);
 }
 
 void GUIManager::SetupImGui()
@@ -445,7 +445,7 @@ void GUIManager::SetupImGui()
     ImGuiIO& io = ImGui::GetIO();
     io.IniFilename = nullptr; // Disable 'imgui.ini' - we don't need to persist window positions.
 
-    m_imgui.Init();
+    m_imgui.Init(gEnv->sceneManager);
     // Colors
     ImGuiStyle& style = ImGui::GetStyle();
     style.Colors[ImGuiCol_Text]                  = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);
