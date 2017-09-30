@@ -14,6 +14,7 @@ core requirements:
 * OIS: 1.3
 * openal-soft (any version should work, crashes with 1.15.x)
 * wxWidgets >= 2.6
+* RapidJSON >= 1.1.0
 
 optional but recommended:
 * angelscript: 2.31.2
@@ -39,7 +40,6 @@ optional but recommended:
 | ROR_USE_ANGELSCRIPT:BOOL       | Build with Angelscript support                       |
 | ROR_USE_CAELUM:BOOL            | Build with OGRE:Caelum sky plugin                    |
 | ROR_USE_CURL:BOOL              | Build with curl for online services                  |
-| ROR_USE_JSONCPP:BOOL           | Build with jsoncpp for the multiplayer server list   |
 | ROR_USE_SOCKETW:BOOL           | Build with SocketW for cross-platform socket support |
 | ROR_USE_OPENAL:BOOL            | Build with OpenAL for sound                          |
 | ROR_USE_PAGED:BOOL             | Build with OGRE:Paged Geometry for vegetation        |
@@ -64,7 +64,5 @@ optional but recommended:
 | PAGED_LIBRARIES:FILEPATH       | Path to Paged Geometry library                       |
 | SOCKETW_INCLUDE_DIRS:PATH      | Path to SocketW header files                         |
 | SOCKETW_LIBRARIES:FILEPATH     | Path to SocketW library                              |
-| JSONCPP_INCLUDE_DIRS:PATH      | Path to JsonCPP header files                         |
-| JSONCPP_LIBRARIES:FILEPATH     | Path to JsonCPP library                              |
 
 For additional information refer to CMakeCache.txt after CMake has been configured at least once.
