@@ -1355,8 +1355,8 @@ void RoR::BeamFactory::RemoveAllInterBeams(Beam* actor)
                 const node_t& node0 = itor->ib_actor_master->nodes[0];
                 itor->ib_beam.L = (node0.AbsPosition - hook.hookNode->AbsPosition).length();
             }
+            ++itor;
         }
-        ++itor;
     }
 }
 
