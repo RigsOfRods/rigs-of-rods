@@ -48,8 +48,6 @@ set(SOURCE_FILES
         gfx/DecalManager.{h,cpp}
         gfx/DustManager.{h,cpp}
         gfx/DustPool.{h,cpp}
-        gfx/DynamicLines.{h,cpp}
-        gfx/DynamicRenderable.{h,cpp}
         gfx/EnvironmentMap.{h,cpp}
         gfx/GfxActor.{h,cpp}
         gfx/GlowMaterialListener.h
