@@ -42,6 +42,16 @@ class GUIManager :
 {
 public:
 
+    struct GuiTheme
+    {
+        GuiTheme();
+
+        ImVec4 in_progress_text_color;
+        ImVec4 no_entries_text_color;
+        ImVec4 error_text_color;
+        ImVec4 selected_entry_text_color;
+    };
+
     // NOTE: RoR's mouse cursor management is a mess - cursor is hidden/revealed ad-hoc in the code (originally by calling `MyGUI::PointerManager::setVisible()`); this enum+API cleans it up a bit ~ only_a_ptr, 09/2017
     enum class MouseCursorVisibility
     {
@@ -133,6 +143,7 @@ public:
 
     void SetSimController(RoRFrameListener* sim);
     inline OgreImGui& GetImGui() { return m_imgui; }
+    inline GuiTheme&  GetTheme() { return m_theme; }
 
 
 private:
@@ -144,9 +155,10 @@ private:
 
     void eventRequestTag(const MyGUI::UString& _tag, MyGUI::UString& _result);
 
-    GuiManagerImpl* m_impl;
-    bool m_renderwindow_closed;
-    OgreImGui m_imgui;
+    GuiManagerImpl*    m_impl;
+    bool               m_renderwindow_closed;
+    OgreImGui          m_imgui;
+    GuiTheme           m_theme;
 };
 
 } // namespace RoR

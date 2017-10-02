@@ -1,38 +1,47 @@
+/*
+    This source file is part of Rigs of Rods
+
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2017 Petr Ohlidal & contributors
+
+    For more information, see http://www.rigsofrods.org/
+
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
+
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #pragma once
 
 #include "Application.h"
 
+#include <future>
+#include <memory>
+#include <thread>
 #include <vector>
 
 namespace RoR{
 namespace GUI {
 
+struct MpServerlistData; // Forward declaration, private implementation.
+
 class MultiplayerSelector
 {
 public:
 
-    struct MpServerData
-    {
-        MpServerData(const char* name, const char* terrn, int users, int cap, const char* ip, int port, bool pw, int ping);
-
-        bool        has_password;
-        Str<50>     display_passwd;
-        Str<100>    server_name;
-        Str<100>    terrain_name;
-        int         num_users;
-        int         max_users;
-        Str<20>     display_users;
-        Str<100>    ip_addr;
-        int         net_port;
-        int         net_ping;
-        Str<50>     display_addr;
-        Str<20>     display_ping;
-    };
-
     MultiplayerSelector();
+    ~MultiplayerSelector();
 
-    inline void  SetVisible(bool v)                    { m_is_visible = v; }
+    void         SetVisible(bool v);
     inline bool  IsVisible()                           { return m_is_visible; }
     void         RefreshServerlist();                  /// Launch refresh from main thread
     bool         IsRefreshThreadRunning() const;       /// Check status from main thread
@@ -42,12 +51,13 @@ public:
 private:
     enum class Mode { ONLINE, DIRECT, SETUP };
 
-    std::vector<MpServerData>       m_servers;
-    int                             m_selected_item;
-    Mode                            m_mode;
-    bool                            m_is_refreshing;
-    char                            m_window_title[100];
-    bool                            m_is_visible;
+    std::future<MpServerlistData*> m_serverlist_future;
+    std::unique_ptr<MpServerlistData> m_serverlist_data;
+    int                            m_selected_item;
+    Mode                           m_mode;
+    bool                           m_is_refreshing;
+    char                           m_window_title[100];
+    bool                           m_is_visible;
 };
 
 } // namespace GUI
