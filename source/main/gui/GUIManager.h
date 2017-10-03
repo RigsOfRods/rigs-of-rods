@@ -127,7 +127,7 @@ public:
     void DrawMainMenuGui();
 
     int getMessageBoxResult(); //TODO
-
+    void DrawMpConnectingStatusBox();
     void InitMainSelector(RoR::SkinManager* skin_manager);
 
     void hideGUI(bool visible);
@@ -166,5 +166,8 @@ private:
     OgreImGui          m_imgui;
     GuiTheme           m_theme;
 };
+
+/// Utility - draws animated loading spinner
+void DrawImGuiSpinner(float& counter, const ImVec2 size = ImVec2(16.f, 16.f), const float spacing = 2.f, const float step_sec = 0.15f);
 
 } // namespace RoR
