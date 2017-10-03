@@ -136,7 +136,7 @@ void MainMenu::EnterMainMenuLoop()
             continue;
         }
 
-        App::GetGuiManager()->NewImGuiFrame(static_cast<float>(timeSinceLastFrame));
+        App::GetGuiManager()->NewImGuiFrame(static_cast<float>(timeSinceLastFrame) * 0.001);
         App::GetGuiManager()->DrawMainMenuGui();
         App::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
 
@@ -187,12 +187,64 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
         return;
     }
 
+    auto gui = App::GetGuiManager();
+
 #ifdef USE_SOCKETW
     if (App::mp_state.GetActive() == MpState::CONNECTED)
     {
-        App::GetGuiManager()->GetMpClientList()->update();
+        gui->GetMpClientList()->update();
     }
-    else if (App::GetGuiManager()->GetMpSelector()->IsRefreshThreadRunning())
+    else if (App::mp_state.GetPending() == MpState::CONNECTED)
+    {
+        Networking::ConnectState con_state = Networking::CheckConnectingState();
+        if (con_state == Networking::ConnectState::IDLE) // Not connecting yet
+        {
+            gui->SetVisible_MultiplayerSelector(false);
+            bool connect_started = Networking::StartConnecting();
+            gui->SetVisible_GameMainMenu(!connect_started);
+            if (!connect_started)
+            {
+                App::GetGuiManager()->ShowMessageBox("Multiplayer: connection failed", Networking::GetErrorMessage().asUTF8_c_str(), false);
+                App::mp_state.SetActive(RoR::MpState::DISABLED);
+            }
+        }
+        else if (con_state == Networking::ConnectState::FAILURE) // Just failed (only returned once)
+        {
+            App::mp_state.SetActive(RoR::MpState::DISABLED);
+            App::GetGuiManager()->ShowMessageBox("Multiplayer: connection failed", Networking::GetErrorMessage().asUTF8_c_str(), false);
+            App::GetGuiManager()->SetVisible_GameMainMenu(true);
+        }
+        else if (con_state == Networking::ConnectState::SUCCESS) // Just succeeded (only returned once)
+        {
+            App::mp_state.SetActive(RoR::MpState::CONNECTED);
+            gui->SetVisible_MpClientList(true);
+            ChatSystem::SendStreamSetup();
+#ifdef USE_MUMBLE
+            SoundScriptManager::getSingleton().CheckAndCreateMumble();
+#endif // USE_MUMBLE
+            String terrain_name = Networking::GetTerrainName();
+            if (terrain_name != "any")
+            {
+                App::sim_terrain_name.SetPending(terrain_name.c_str());
+                App::app_state.SetPending(AppState::SIMULATION);
+            }
+            else
+            {
+                // Connected -> go directly to map selector
+                if (App::diag_preset_terrain.IsActiveEmpty())
+                {
+                    gui->GetMainSelector()->Reset();
+                    gui->GetMainSelector()->Show(LT_Terrain);
+                }
+                else
+                {
+                    App::app_state.SetPending(AppState::SIMULATION);
+                }
+            }
+        }
+    }
+
+    if (App::GetGuiManager()->GetMpSelector()->IsRefreshThreadRunning())
     {
         App::GetGuiManager()->GetMpSelector()->CheckAndProcessRefreshResult();
     }
@@ -245,58 +297,6 @@ void MainMenu::MainMenuLoopUpdateEvents(float seconds_since_last_frame)
 
     // FIXME: full screen/windowed screen switching
     //if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FULLSCREEN_TOGGLE, 2.0f)) {}
-}
-
-void MainMenu::JoinMultiplayerServer()
-{
-#ifdef USE_SOCKETW
-
-    auto gui = App::GetGuiManager();
-    gui->SetVisible_MultiplayerSelector(false);
-    gui->SetVisible_GameMainMenu(false);
-
-    gui->GetLoadingWindow()->setAutotrack(_L("Connecting to server ..."));
-
-    if (!Networking::Connect())
-    {
-        LOG("connection failed. server down?");
-        gui->SetVisible_LoadingWindow(false);
-        gui->SetVisible_GameMainMenu(true);
-
-        gui->ShowMessageBox("Connection failed", Networking::GetErrorMessage().asUTF8_c_str());
-        return;
-    }
-
-    gui->SetVisible_LoadingWindow(false);
-    gui->SetVisible_MpClientList(true);
-    gui->GetMpClientList()->update();
-
-    ChatSystem::SendStreamSetup();
-
-#ifdef USE_MUMBLE
-    SoundScriptManager::getSingleton().CheckAndCreateMumble();
-#endif // USE_MUMBLE
-
-    String terrain_name = Networking::GetTerrainName();
-    if (terrain_name != "any")
-    {
-        App::sim_terrain_name.SetPending(terrain_name.c_str());
-        App::app_state.SetPending(AppState::SIMULATION);
-    }
-    else
-    {
-        // Connected -> go directly to map selector
-        if (App::diag_preset_terrain.IsActiveEmpty())
-        {
-            gui->GetMainSelector()->Reset();
-            gui->GetMainSelector()->Show(LT_Terrain);
-        }
-        else
-        {
-            App::app_state.SetPending(AppState::SIMULATION);
-        }
-    }
-#endif //SOCKETW
 }
 
 void MainMenu::LeaveMultiplayerServer()

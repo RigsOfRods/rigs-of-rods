@@ -165,7 +165,6 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
     const float CONTENT_TOP_PADDING = 4.f; // Extra space under top horizontal separator bar.
     const float BUTTONS_EXTRA_SPACE = 6.f;
     const float TABLE_PADDING_LEFT = 4.f;
-    bool join_server = false;
 
     int window_flags = ImGuiWindowFlags_NoCollapse;
     ImGui::SetNextWindowSize(ImVec2(750.f, 400.f), ImGuiSetCond_FirstUseEver);
@@ -360,7 +359,7 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
                 {
                     App::mp_server_host.SetActive(m_serverlist_data->servers[m_selected_item].net_host);
                     App::mp_server_port.SetActive(m_serverlist_data->servers[m_selected_item].net_port);
-                    join_server = true;
+                    App::mp_state.SetPending(MpState::CONNECTED);
                 }
             }
         }
@@ -376,11 +375,6 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
     }
 
     ImGui::End();
-
-    if (join_server)
-    {
-        App::GetMainMenu()->JoinMultiplayerServer(); // TODO: Use GVar 'mp_state' / 'pending' mechanism instead ~ only_a_ptr, 10/2017
-    }
 }
 
 void RoR::GUI::MultiplayerSelector::RefreshServerlist()

@@ -45,7 +45,6 @@ public:
 
     MainMenu();
 
-    void JoinMultiplayerServer();
     void LeaveMultiplayerServer();
 
     void EnterMainMenuLoop();

@@ -120,6 +120,7 @@ public:
     void NewImGuiFrame(float dt);
     void DrawMainMenuGui();
     void DrawSimulationGui(float dt);
+    void DrawMpConnectingStatusBox();
 
     void hideGUI(bool visible);
 
@@ -155,5 +156,8 @@ private:
     OgreImGui          m_imgui;
     GuiTheme           m_theme;
 };
+
+/// Utility - draws animated loading spinner
+void DrawImGuiSpinner(float& counter, const ImVec2 size = ImVec2(16.f, 16.f), const float spacing = 2.f, const float step_sec = 0.15f);
 
 } // namespace RoR

@@ -275,11 +275,6 @@ int main(int argc, char *argv[])
             App::app_state.SetPending(AppState::SIMULATION);
         }
 
-        if (App::mp_state.GetPending() == MpState::CONNECTED)
-        {
-            main_obj.JoinMultiplayerServer();
-        }
-
         while (App::app_state.GetPending() != AppState::SHUTDOWN)
         {
             if (App::app_state.GetPending() == AppState::MAIN_MENU)
