@@ -23,9 +23,9 @@
 
 #ifdef USE_SOCKETW
 
-#include "RoRPrerequisites.h"
-
+#include "Application.h"
 #include "RoRnet.h"
+#include "RoRPrerequisites.h"
 
 namespace RoR {
 namespace Networking {
@@ -74,28 +74,40 @@ struct recv_packet_t
 
 // ------------------------ End of network messages --------------------------
 
-bool Connect();
-void Disconnect();
+enum class ConnectState
+{
+    IDLE,
+    WORKING,
+    SUCCESS,
+    FAILURE
+};
 
-void AddPacket(int streamid, int type, int len, char *content);
-void AddLocalStream(RoRnet::StreamRegister *reg, int size);
+typedef Str<100> StatusStr;
+
+bool                 StartConnecting();             ///< Launches connecting on background.
+ConnectState         CheckConnectingState();        ///< Reports state of background connecting and updates GVar 'mp_state'
+void                 Disconnect();
+
+void                 AddPacket(int streamid, int type, int len, char *content);
+void                 AddLocalStream(RoRnet::StreamRegister *reg, int size);
 
 std::vector<recv_packet_t> GetIncomingStreamData();
 
-int GetUID();
-int GetNetQuality();
+int                  GetUID();
+int                  GetNetQuality();
 
-Ogre::String GetTerrainName();
+Ogre::String         GetTerrainName();
 
-int GetUserColor();
-Ogre::UTFString GetUsername();
-RoRnet::UserInfo GetLocalUserData();
+int                  GetUserColor();
+Ogre::UTFString      GetUsername();
+RoRnet::UserInfo     GetLocalUserData();
 std::vector<RoRnet::UserInfo> GetUserInfos();
-bool GetUserInfo(int uid, RoRnet::UserInfo &result);
-Ogre::ColourValue GetPlayerColor(int color_num);
+bool                 GetUserInfo(int uid, RoRnet::UserInfo &result);
+Ogre::ColourValue    GetPlayerColor(int color_num);
 
-Ogre::UTFString GetErrorMessage();
-bool CheckError();
+Ogre::UTFString      GetErrorMessage();
+StatusStr            GetStatusMessage();
+bool                 CheckError();
 
 } // namespace Networking
 } // namespace RoR

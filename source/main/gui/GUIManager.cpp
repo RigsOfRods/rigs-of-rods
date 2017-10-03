@@ -514,5 +514,85 @@ void GUIManager::DrawMainMenuGui()
     {
         m_impl->panel_MultiplayerSelector.Draw();
     }
+
+    if ((App::mp_state.GetActive() != MpState::CONNECTED) && (App::mp_state.GetPending() == MpState::CONNECTED))
+    {
+        this->DrawMpConnectingStatusBox();
+    }
 }
+
+void GUIManager::DrawMpConnectingStatusBox()
+{
+    static float spin_counter=0.f;
+
+    const ImVec2 spin_size(20.f, 20.f);
+    const float spin_column_w(50.f);
+    const int win_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoInputs
+        | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
+
+    ImGui::SetNextWindowPosCenter();
+    ImGui::Begin("Connecting to MP server...", nullptr, win_flags);
+    ImGui::Columns(2);
+    ImGui::SetColumnOffset(1, spin_column_w);
+
+    ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(5.f, 7.f)); // NOTE: Hand aligned; I failed calculate the positioning here ~ only_a_ptr, 10/2017
+    DrawImGuiSpinner(spin_counter, spin_size);
+
+    ImGui::NextColumn();
+    // HACK: The trailing space is a workaround for a scissoring issue in OGRE/DearIMGUI integration. ~ only_a_ptr, 10/2017
+    ImGui::Text("Joining [%s:%d] ", App::mp_server_host.GetActive(), App::mp_server_port.GetActive());
+    ImGui::TextDisabled(Networking::GetStatusMessage().GetBuffer());
+    ImGui::End();
+}
+
+void DrawImGuiSpinner(float& counter, const ImVec2 size, const float spacing, const float step_sec)
+{
+    // Hardcoded to 4 segments, counter is reset after full round (4 steps)
+    // --------------------------------------------------------------------
+
+    const ImU32 COLORS[] = { ImColor(255,255,255,255), ImColor(210,210,210,255), ImColor(120,120,120,255), ImColor(60,60,60,255) };
+
+    // Update counter, determine coloring
+    counter += ImGui::GetIO().DeltaTime;
+    int color_start = 0; // Index to GUI_SPINNER_COLORS array for the top middle segment (segment 0)
+    while (counter > (step_sec*4.f))
+    {
+        counter -= (step_sec*4.f);
+    }
+
+    if (counter > (step_sec*3.f))
+    {
+        color_start = 3;
+    }
+    else if (counter > (step_sec*2.f))
+    {
+        color_start = 2;
+    }
+    else if (counter > (step_sec))
+    {
+        color_start = 1;
+    }
+
+    // Draw segments
+    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+    const ImVec2 pos = ImGui::GetCursorScreenPos();
+    const float left = pos.x;
+    const float top = pos.y;
+    const float right = pos.x + size.x;
+    const float bottom = pos.y + size.y;
+    const float mid_x = pos.x + (size.x / 2.f);
+    const float mid_y = pos.y + (size.y / 2.f);
+
+    // NOTE: Enter vertices in clockwise order, otherwise anti-aliasing doesn't work and polygon is rasterized larger! -- Observed under OpenGL2 / OGRE 1.9
+
+    // Top triangle, vertices: mid, left, right
+    draw_list->AddTriangleFilled(ImVec2(mid_x, mid_y-spacing),   ImVec2(left + spacing, top),     ImVec2(right - spacing, top),     COLORS[color_start]);
+    // Right triangle, vertices: mid, top, bottom
+    draw_list->AddTriangleFilled(ImVec2(mid_x+spacing, mid_y),   ImVec2(right, top + spacing),    ImVec2(right, bottom - spacing),  COLORS[(color_start+3)%4]);
+    // Bottom triangle, vertices: mid, right, left
+    draw_list->AddTriangleFilled(ImVec2(mid_x, mid_y+spacing),   ImVec2(right - spacing, bottom), ImVec2(left + spacing, bottom),   COLORS[(color_start+2)%4]);
+    // Left triangle, vertices: mid, bottom, top
+    draw_list->AddTriangleFilled(ImVec2(mid_x-spacing, mid_y),   ImVec2(left, bottom - spacing),  ImVec2(left, top + spacing),      COLORS[(color_start+1)%4]);
+}
+
 } // namespace RoR
