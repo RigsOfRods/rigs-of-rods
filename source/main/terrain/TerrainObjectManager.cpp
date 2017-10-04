@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -197,13 +197,6 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
             continue; //comments
         if (!strcmp("end", line))
             break;
-
-        if (!strncmp(line, "collision-tris", 14))
-        {
-            long amount = Collisions::MAX_COLLISION_TRIS;
-            sscanf(line, "collision-tris %ld", &amount);
-            gEnv->collisions->resizeMemory(amount);
-        }
 
         if (!strncmp(line, "grid", 4))
         {
