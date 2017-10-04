@@ -3,7 +3,7 @@
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
     Copyright 2009      Lefteris Stamatogiannakis
-    Copyright 2013-2015 Petr Ohlidal
+    Copyright 2013-2017 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -46,6 +46,8 @@ struct eventsource_t
     bool enabled;
 };
 
+/// Values below CELL_COLLISION_TRI_BASE are collision box indices (Collisions::m_collision_boxes),
+///    values above are collision tri indices (Collisions::m_collision_tris).
 typedef std::vector<int> cell_t;
 
 class Landusemap;
@@ -63,9 +65,7 @@ public:
         FX_PARTICLE
     };
 
-    // these are absolute maximums per terrain
-    static const int MAX_COLLISION_BOXES = 5000;
-    static const int MAX_COLLISION_TRIS = 100000;
+    static const int CELL_COLLISION_TRI_BASE = 1000000; // Effectively a maximum number of collision boxes
 
 private:
 
@@ -108,13 +108,11 @@ private:
     RoRFrameListener* m_sim_controller;
 
     // collision boxes pool
-    collision_box_t collision_boxes[MAX_COLLISION_BOXES];
-    collision_box_t* last_called_cbox;
-    int free_collision_box;
+    std::vector<collision_box_t> m_collision_boxes; // Formerly MAX_COLLISION_BOXES = 5000
+    collision_box_t* m_last_called_cbox;
 
     // collision tris pool;
-    collision_tri_t* collision_tris;
-    int free_collision_tri;
+    std::vector<collision_tri_t> m_collision_tris; // Formerly MAX_COLLISION_TRIS = 100000
 
     // collision hashtable
     hash_t hashtable[HASH_SIZE];
@@ -139,7 +137,8 @@ private:
     int collision_count;
     int collision_version;
     int largest_cellcount;
-    long max_col_tris;
+    inline int GetNumCollisionTris() const { return static_cast<int>(m_collision_tris.size()); }
+    inline int GetNumCollisionBoxes() const { return static_cast<int>(m_collision_boxes.size()); }
     unsigned int hashmask;
 
     void hash_add(int cell_x, int cell_z, int value);
@@ -201,7 +200,6 @@ public:
         size_t& index_count, unsigned* & indices,
         const Ogre::Vector3& position = Ogre::Vector3::ZERO,
         const Ogre::Quaternion& orient = Ogre::Quaternion::IDENTITY, const Ogre::Vector3& scale = Ogre::Vector3::UNIT_SCALE);
-    void resizeMemory(long newSize);
 };
 
 void primitiveCollision(node_t* node, Ogre::Vector3& force, const Ogre::Vector3& velocity, const Ogre::Vector3& normal, float dt, ground_model_t* gm, float* nso, float penetration = 0, float reaction = -1.0f);
