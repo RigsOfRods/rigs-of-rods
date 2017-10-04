@@ -992,9 +992,22 @@ Beam* GameScript::spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::
     return mse->GetFrameListener()->GetBeamFactory()->CreateLocalRigInstance(pos, rotation, truckName);
 }
 
-void GameScript::showMessageBox(Ogre::String& mTitle, Ogre::String& mText, bool button1, Ogre::String& mButton1, bool AllowClose, bool button2, Ogre::String& mButton2)
+void GameScript::showMessageBox(Ogre::String& title, Ogre::String& text, bool use_btn1, Ogre::String& btn1_text, bool allow_close, bool use_btn2, Ogre::String& btn2_text)
 {
-    RoR::App::GetGuiManager()->ShowMessageBox(mTitle, mText, button1, mButton1, AllowClose, button2, mButton2);
+    // Sanitize inputs
+    const char* btn1_cstr = nullptr; // = Button disabled
+    const char* btn2_cstr = nullptr;
+
+    if (use_btn1)
+    {
+        btn1_cstr = (btn1_text.empty() ? "~1~" : btn1_text.c_str());
+    }
+    if (use_btn2)
+    {
+        btn2_cstr = (btn2_text.empty() ? "~2~" : btn2_text.c_str());
+    }
+
+    RoR::App::GetGuiManager()->ShowMessageBox(title.c_str(), text.c_str(), allow_close, btn1_cstr, btn2_cstr);
 }
 
 void GameScript::backToMenu()

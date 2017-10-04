@@ -143,9 +143,9 @@ void MainMenu::EnterMainMenuLoop()
 #ifdef USE_SOCKETW
         if ((App::mp_state.GetActive() == MpState::CONNECTED) && RoR::Networking::CheckError())
         {
-            Ogre::String title = Ogre::UTFString(_L("Network fatal error: ")).asUTF8();
-            Ogre::String msg = RoR::Networking::GetErrorMessage().asUTF8();
-            App::GetGuiManager()->ShowMessageBox(title, msg, true, "OK", true, false, "");
+            const char* title = LanguageEngine::getSingleton().lookUp("Network fatal error: ").asUTF8_c_str();
+            const char* text = RoR::Networking::GetErrorMessage().asUTF8_c_str();
+            App::GetGuiManager()->ShowMessageBox(title, text);
             App::app_state.SetPending(AppState::MAIN_MENU);
 
             RoR::App::GetGuiManager()->GetMainSelector()->Hide();
@@ -263,7 +263,7 @@ void MainMenu::JoinMultiplayerServer()
         gui->SetVisible_LoadingWindow(false);
         gui->SetVisible_GameMainMenu(true);
 
-        gui->ShowMessageBox("Connection failed", Networking::GetErrorMessage().asUTF8_c_str(), true, "OK", true, false, "");
+        gui->ShowMessageBox("Connection failed", Networking::GetErrorMessage().asUTF8_c_str());
         return;
     }
 
