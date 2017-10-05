@@ -117,9 +117,6 @@ private:
     // collision hashtable
     hash_t hashtable[HASH_SIZE];
 
-    // cell pool
-    std::vector<cell_t*> cells;
-
     // ground models
     std::map<Ogre::String, ground_model_t> ground_models;
 

@@ -446,11 +446,10 @@ void Collisions::hash_add(int cell_x, int cell_z, int value)
     {
         // create a new cell
         cell_t* newcell = new cell_t;
-        
+
         hashtable[pos].cellid = cellid;
         hashtable[pos].cell = newcell;
         newcell->push_back(value);
-        cells.push_back(newcell);
         if (pos != hashfunc(cellid))
         {
             collision_count++;
@@ -837,7 +836,6 @@ void Collisions::printStats()
 {
     LOG("COLL: Collision system statistics:");
     LOG("COLL: Cell size: "+TOSTRING((float)CELL_SIZE)+" m");
-    LOG("COLL: Hashtable occupation: "+TOSTRING(cells.size()));
     LOG("COLL: Hashtable collisions: "+TOSTRING(collision_count));
     LOG("COLL: Largest cell: "+TOSTRING(largest_cellcount));
 }
