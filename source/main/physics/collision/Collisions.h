@@ -46,10 +46,6 @@ struct eventsource_t
     bool enabled;
 };
 
-/// Values below CELL_COLLISION_TRI_BASE are collision box indices (Collisions::m_collision_boxes),
-///    values above are collision tri indices (Collisions::m_collision_tris).
-typedef std::vector<int> cell_t;
-
 class Landusemap;
 
 class Collisions : public ZeroedMemoryAllocator
@@ -65,14 +61,26 @@ public:
         FX_PARTICLE
     };
 
-    static const int CELL_COLLISION_TRI_BASE = 1000000; // Effectively a maximum number of collision boxes
-
 private:
 
-    struct hash_t
+    /// Static collision object lookup system
+    /// -------------------------------------
+    /// Terrain is split into equal-size 'cells' of dimension CELL_SIZE, identified by CellID
+    /// A hash table aggregates elements from multiple cells in one entry
+    struct hash_coll_element_t
     {
-        unsigned int cellid;
-        cell_t* cell;
+        static const int ELEMENT_TRI_BASE_INDEX = 1000000; // Effectively a maximum number of collision boxes
+
+        inline hash_coll_element_t(unsigned int cell_id_, int value): cell_id(cell_id_), element_index(value) {}
+
+        inline bool IsCollisionBox() const { return element_index < ELEMENT_TRI_BASE_INDEX; }
+        inline bool IsCollisionTri() const { return element_index >= ELEMENT_TRI_BASE_INDEX; }
+
+        unsigned int cell_id;
+
+        /// Values below ELEMENT_TRI_BASE_INDEX are collision box indices (Collisions::m_collision_boxes),
+        ///    values above are collision tri indices (Collisions::m_collision_tris).
+        int element_index;
     };
 
     struct collision_tri_t
@@ -96,11 +104,6 @@ private:
     // how many elements per cell? power of 2 minus 2 is better
     static const int CELL_BLOCKSIZE = 126;
 
-    // how many cells in the pool? Increase in case of sparse distribution of objects
-    //static const int MAX_CELLS = 10000;
-    static const int UNUSED_CELLID = 0xFFFFFFFF;
-    static const int UNUSED_CELLELEMENT = 0xFFFFFFFF;
-
     // terrain size is limited to 327km x 327km:
     static const int CELL_SIZE = 2.0; // we divide through this
     static const int MAXIMUM_CELL = 0x7FFF;
@@ -115,7 +118,7 @@ private:
     std::vector<collision_tri_t> m_collision_tris; // Formerly MAX_COLLISION_TRIS = 100000
 
     // collision hashtable
-    hash_t hashtable[HASH_SIZE];
+    std::vector<hash_coll_element_t> hashtable[HASH_SIZE];
 
     // ground models
     std::map<Ogre::String, ground_model_t> ground_models;
@@ -133,14 +136,13 @@ private:
     bool debugMode;
     int collision_count;
     int collision_version;
-    int largest_cellcount;
     inline int GetNumCollisionTris() const { return static_cast<int>(m_collision_tris.size()); }
     inline int GetNumCollisionBoxes() const { return static_cast<int>(m_collision_boxes.size()); }
     unsigned int hashmask;
 
     void hash_add(int cell_x, int cell_z, int value);
     void hash_free(int cell_x, int cell_z, int value);
-    cell_t* hash_find(int cell_x, int cell_z);
+    int hash_find(int cell_x, int cell_z); /// Returns index to 'hashtable'
     unsigned int hashfunc(unsigned int cellid);
     void parseGroundConfig(Ogre::ConfigFile* cfg, Ogre::String groundModel = "");
 
