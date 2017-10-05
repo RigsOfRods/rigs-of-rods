@@ -1281,7 +1281,6 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
             Vector3 lpos, ldir;
             float lrange = 10;
             ColourValue lcol;
-            String lname = "pointlight_" + TOSTRING(Math::RangeRandom(1000, 9999));
 
             int res = sscanf(ptline, "pointlight %f, %f, %f, %f, %f, %f, %f, %f, %f, %f",
                 &lpos.x, &lpos.y, &lpos.z, &ldir.x, &ldir.y, &ldir.z, &lcol.r, &lcol.g, &lcol.b, &lrange);
@@ -1291,7 +1290,11 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
                 continue;
             }
 
-            Light* pointlight = gEnv->sceneManager->createLight(lname);
+            static size_t counter = 0;
+            char name[50];
+            snprintf(name, 50, "terrn2/pointlight-%x", counter);
+            ++counter;
+            Light* pointlight = gEnv->sceneManager->createLight(name);
 
             pointlight->setType(Light::LT_POINT);
             pointlight->setPosition(lpos);
