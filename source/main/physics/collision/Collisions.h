@@ -134,7 +134,6 @@ private:
     Landusemap* landuse;
     Ogre::ManualObject* debugmo;
     bool debugMode;
-    int collision_count;
     int collision_version;
     inline int GetNumCollisionTris() const { return static_cast<int>(m_collision_tris.size()); }
     inline int GetNumCollisionBoxes() const { return static_cast<int>(m_collision_boxes.size()); }
@@ -177,7 +176,6 @@ public:
 
     void clearEventCache();
     void finishLoadingTerrain();
-    void printStats();
 
     int addCollisionBox(Ogre::SceneNode* tenode, bool rotating, bool virt, Ogre::Vector3 pos, Ogre::Vector3 rot, Ogre::Vector3 l, Ogre::Vector3 h, Ogre::Vector3 sr, const Ogre::String& eventname, const Ogre::String& instancename, bool forcecam, Ogre::Vector3 campos, Ogre::Vector3 sc = Ogre::Vector3::UNIT_SCALE, Ogre::Vector3 dr = Ogre::Vector3::ZERO, int event_filter = EVENT_ALL, int scripthandler = -1);
     int addCollisionMesh(Ogre::String meshname, Ogre::Vector3 pos, Ogre::Quaternion q, Ogre::Vector3 scale, ground_model_t* gm = 0, std::vector<int>* collTris = 0);

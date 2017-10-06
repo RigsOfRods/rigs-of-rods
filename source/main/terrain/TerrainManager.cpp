@@ -181,8 +181,6 @@ void TerrainManager::loadTerrain(String filename)
     PROGRESS_WINDOW(90, _L("Loading Terrain Objects"));
     loadTerrainObjects();
 
-    collisions->printStats();
-
     // bake the decals
     //finishTerrainDecal();
 
