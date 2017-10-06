@@ -113,7 +113,6 @@ using namespace Ogre;
 
 Collisions::Collisions(RoRFrameListener* sim_controller)
     : m_sim_controller(sim_controller)
-    , collision_count(0)
     , debugMode(false)
     , forcecam(false)
     , free_eventsource(0)
@@ -775,13 +774,6 @@ int Collisions::addCollisionTri(Vector3 p1, Vector3 p2, Vector3 p3, ground_model
 
     m_collision_tris.push_back(new_tri);
     return new_tri_index;
-}
-
-void Collisions::printStats()
-{
-    LOG("COLL: Collision system statistics:");
-    LOG("COLL: Cell size: "+TOSTRING((float)CELL_SIZE)+" m");
-    LOG("COLL: Hashtable collisions: "+TOSTRING(collision_count));
 }
 
 bool Collisions::envokeScriptCallback(collision_box_t *cbox, node_t *node)
