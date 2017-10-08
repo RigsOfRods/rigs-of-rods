@@ -63,7 +63,7 @@ static RoRFrameListener* g_sim_controller;
  GVarStr<50>              app_screenshot_format   ("app_screenshot_format",   "Screenshot Format",         "jpg",                   "jpg");
 
 // Simulation
- GVarEnum<SimState>       sim_state               ("sim_state",               nullptr,                     SimState::NONE,          SimState::NONE);
+ GVarEnum<SimState>       sim_state               ("sim_state",               nullptr,                     SimState::OFF,           SimState::OFF);
  GVarStr<200>             sim_terrain_name        ("sim_terrain_name",        nullptr,                     "",                      "");
  GVarPod<bool>            sim_replay_enabled      ("sim_replay_enabled",      "Replay mode",               false,                   false);
  GVarPod<int>             sim_replay_length       ("sim_replay_length",       "Replay length",             200,                     200);
@@ -265,7 +265,6 @@ const char* EnumToStr(AppState v)
 {
     switch (v)
     {
-    case AppState::NONE:                return "NONE";
     case AppState::BOOTSTRAP:           return "BOOTSTRAP";
     case AppState::CHANGE_MAP:          return "CHANGE_MAP";
     case AppState::MAIN_MENU:           return "MAIN_MENU";
@@ -281,7 +280,6 @@ const char* EnumToStr(MpState v)
 {
     switch (v)
     {
-    case MpState::NONE:      return "NONE";
     case MpState::DISABLED:  return "DISABLED";
     case MpState::CONNECTED: return "CONNECTED";
     default:                 return "~invalid~";
@@ -292,7 +290,7 @@ const char* EnumToStr(SimState v)
 {
     switch (v)
     {
-    case SimState::NONE       : return "NONE";
+    case SimState::OFF        : return "OFF";
     case SimState::RUNNING    : return "RUNNING";
     case SimState::PAUSED     : return "PAUSED";
     case SimState::SELECTING  : return "SELECTING";
