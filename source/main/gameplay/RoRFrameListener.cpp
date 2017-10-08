@@ -2503,7 +2503,7 @@ void RoRFrameListener::EnterGameplayLoop()
         timeSinceLastFrame = RoR::App::GetOgreSubsystem()->GetTimer()->getMilliseconds() - startTime;
     }
 
-    App::sim_state.SetActive(SimState::NONE);
+    App::sim_state.SetActive(SimState::OFF);
     this->CleanupAfterSimulation();
 
     /* RESTORE ENVIRONMENT */

@@ -41,7 +41,6 @@ namespace RoR {
 
 enum class AppState
 {
-    NONE,               ///< Only valid for GVar 'app_state_pending'. Means no change is requested.
     BOOTSTRAP,          ///< Initial state
     MAIN_MENU,
     CHANGE_MAP,         ///< Enter main menu & immediatelly launch singleplayer map selector.
@@ -54,7 +53,6 @@ const char* EnumToStr(AppState v);
 
 enum class MpState
 {
-    NONE,      ///< Only valid for GVar 'app_state_pending'. Means no change is requested.
     DISABLED,  ///< Not connected for whatever reason.
     CONNECTED,
 };
@@ -62,7 +60,7 @@ const char* EnumToStr(MpState v);
 
 enum class SimState
 {
-    NONE,
+    OFF,
     RUNNING,
     PAUSED,
     SELECTING,  ///< The selector GUI window is displayed.
@@ -211,25 +209,25 @@ inline const char*     BoolToStr(bool b)                        { return (b) ? "
 
 
 /// A global variable - only for use in 'Application.(h/cpp)'
+/// Has 2 values: Active and Pending. When Pending equals Active, it's considered empty.
+/// Usage pattern (with visual logging):
+///   [RoR|Gvar]  gvar_name  (NEW) ==> {PEND}     [ACTIV]  | SetPending():   new pending value, active stands
+///   [RoR|Gvar]  gvar_name  (NEW) ==> {PEND} ==> [ACTIV]  | SetActive():    direct update of active (+pending) value
+///   [RoR|Gvar]  gvar_name     ()     {PEND} ==> [ACTIV]  | ApplyPending(): updates active from pending
+///   [RoR|Gvar]  gvar_name     ()     {PEND} <== [ACTIV]  | ResetPending(): updates pending from active
 /// Usage guidelines:
-///  * There are no definite rules how to use and update a GVar. Each one is specific.
-///  * The 'active' value should be safe to read from any thread at any time, except when being updated.
-///  * Each GVar should have a Master - a piece of code which checks for 'pending' values and Apply()-es them.
-///    This may be any thread and any code location, but there should be just 1 per GVar.
+///   * There are no definite rules how to use and update a GVar. Each one is specific.
+///   * Each GVar should have an Owner - a piece of code which checks for 'pending' values and Apply()-ies them.
+///      This may be any thread and any code location, but there should be just 1 per GVar.
 struct GVarBase
 {
     GVarBase(const char* name, const char* conf_name):
         name(name), conf_name(conf_name)
     {}
 
-    // Logging - visual style:
-    //     [RoR|Gvar]  sim_gvar_name  (NEW) ==> (PEND)     [ACTIV]            ~~ new pending value, active stands
-    //     [RoR|Gvar]  sim_gvar_name  (NEW) ==> (PEND) ==> [ACTIV]            ~~ direct update of active (+pending) value
-    //     [RoR|Gvar]  sim_gvar_name     ()     (PEND) ==> [ACTIV]            ~~ direct update of active (+pending) value
-
-    const char* LOG_FMT_S = "[RoR|GVar]  %20s:  (%10s) %s (10%s) %s [10%s]";
-    const char* LOG_FMT_D = "[RoR|GVar]  %20s:  (%10d) %s (10%d) %s [10%d]";
-    const char* LOG_FMT_F = "[RoR|GVar]  %20s:  (%10f) %s (10%f) %s [10%f]";
+    const char* LOG_FMT_S = "[RoR|GVar]  %20s:  (%10s) %s (%10s) %s [%10s]";
+    const char* LOG_FMT_D = "[RoR|GVar]  %20s:  (%10d) %s (%10d) %s [%10d]";
+    const char* LOG_FMT_F = "[RoR|GVar]  %20s:  (%10f) %s (%10f) %s [%10f]";
 
     inline void LogSetPending(const char* input, const char* pending, const char* active) const  { RoR::LogFormat(LOG_FMT_S, name, input, "==>", pending, "   ", active); }
     inline void LogSetPending(int         input, int         pending, int         active) const  { RoR::LogFormat(LOG_FMT_D, name, input, "==>", pending, "   ", active); }
@@ -242,9 +240,14 @@ struct GVarBase
     inline void LogSetActive(bool        input, bool        active) const                        { this->LogSetActive(BoolToStr(input),  BoolToStr(active)); }
 
     inline void LogApplyPending(const char* pending, const char* active) const                   { RoR::LogFormat(LOG_FMT_S, name, "~~", "   ", pending, "==>", active); }
-    inline void LogApplyPending(int         pending, int         active) const                   { RoR::LogFormat(LOG_FMT_S, name, "~~", "   ", pending, "==>", active); }
-    inline void LogApplyPending(float       pending, float       active) const                   { RoR::LogFormat(LOG_FMT_S, name, "~~", "   ", pending, "==>", active); }
+    inline void LogApplyPending(int         pending, int         active) const                   { RoR::LogFormat(LOG_FMT_D, name, "~~", "   ", pending, "==>", active); }
+    inline void LogApplyPending(float       pending, float       active) const                   { RoR::LogFormat(LOG_FMT_F, name, "~~", "   ", pending, "==>", active); }
     inline void LogApplyPending(bool        pending, bool        active) const                   { this->LogApplyPending(BoolToStr(pending),  BoolToStr(active)); }
+
+    inline void LogResetPending(const char* pending, const char* active) const                   { RoR::LogFormat(LOG_FMT_S, name, "~~", "   ", pending, "<==", active); }
+    inline void LogResetPending(int         pending, int         active) const                   { RoR::LogFormat(LOG_FMT_D, name, "~~", "   ", pending, "<==", active); }
+    inline void LogResetPending(float       pending, float       active) const                   { RoR::LogFormat(LOG_FMT_F, name, "~~", "   ", pending, "<==", active); }
+    inline void LogResetPending(bool        pending, bool        active) const                   { this->LogResetPending(BoolToStr(pending),  BoolToStr(active)); }
 
     const char* name;
     const char* conf_name;
@@ -262,12 +265,14 @@ public:
     inline T     GetPending() const       { return m_value_pending; }
     void         SetPending(T val);
     void         ApplyPending();
+    void         ResetPending();
     void         SetActive(T val);
 
 protected:
     void         LogSetPending  (T val) const  { GVarBase::LogSetPending  (val, m_value_pending, m_value_active); }
     void         LogSetActive   (T val) const  { GVarBase::LogSetActive   (val, m_value_active); }
     void         LogApplyPending()      const  { GVarBase::LogApplyPending(m_value_pending, m_value_active); }
+    void         LogResetPending()      const  { GVarBase::LogResetPending(m_value_pending, m_value_active); }
 
     T            m_value_active;
     T            m_value_pending;
@@ -283,9 +288,10 @@ public:
 
     const char*  GetActiveAsStr () const       { return EnumToStr(GVarPod<E>::m_value_active);  }
     const char*  GetPendingAsStr() const       { return EnumToStr(GVarPod<E>::m_value_pending); }
-    void         SetPending(E val);
     void         ApplyPending();
+    void         ResetPending();
     void         SetActive(E val);
+    void         SetPending(E val);
 };
 
 
@@ -298,12 +304,13 @@ public:
 
     inline const char*     GetActive() const        { return m_value_active; }
     inline bool            IsActiveEmpty() const    { return m_value_active.IsEmpty(); }
-    inline Str<L> &       GetPending()             { return m_value_pending; }
+    inline Str<L> &        GetPending()             { return m_value_pending; }
     inline const char*     GetPendingCStr()         { return m_value_pending.ToCStr(); }
 
     void                   SetActive (const char* val);
     void                   SetPending(const char* val);
     void                   ApplyPending();
+    void                   ResetPending();
 
 protected:
     Str<L>         m_value_active;
@@ -474,9 +481,20 @@ template <typename T> void GVarPod<T>::ApplyPending()
     }
 }
 
+template <typename T> void GVarPod<T>::ResetPending()
+{
+    if (m_value_active != m_value_pending)
+    {
+        if (App::diag_trace_globals.GetActive())
+            this->LogResetPending();
+
+        m_value_pending = m_value_active;
+    }
+}
+
 template <typename T> void GVarPod<T>::SetActive(T val)
 {
-    if (val != m_value_active)
+    if ((val != m_value_active) || (val != m_value_pending))
     {
         if (App::diag_trace_globals.GetActive())
             this->LogSetActive(val);
@@ -508,9 +526,20 @@ template <typename T> void GVarEnum<T>::ApplyPending()
     }
 }
 
+template <typename T> void GVarEnum<T>::ResetPending()
+{
+    if (GVarPod<T>::m_value_active != GVarPod<T>::m_value_pending)
+    {
+        if (App::diag_trace_globals.GetActive())
+            GVarBase::LogResetPending(EnumToStr(GVarPod<T>::m_value_pending), EnumToStr(GVarPod<T>::m_value_active));
+
+        GVarPod<T>::m_value_pending = GVarPod<T>::m_value_active;
+    }
+}
+
 template <typename T> void GVarEnum<T>::SetActive(T val)
 {
-    if (val != GVarPod<T>::m_value_active)
+    if ((val != GVarPod<T>::m_value_active) || (val != GVarPod<T>::m_value_pending))
     {
         if (App::diag_trace_globals.GetActive())
             GVarBase::LogSetActive(EnumToStr(val), EnumToStr(GVarPod<T>::m_value_active));
@@ -522,7 +551,7 @@ template <typename T> void GVarEnum<T>::SetActive(T val)
 
 template <size_t L> void GVarStr<L>::SetActive(const char* val)
 {
-    if (val != m_value_active)
+    if ((val != m_value_active) || (val != m_value_pending))
     {
         if (App::diag_trace_globals.GetActive())
             GVarBase::LogSetActive(val, m_value_active);
@@ -551,6 +580,17 @@ template <size_t L> void GVarStr<L>::ApplyPending()
             GVarBase::LogApplyPending(m_value_pending, m_value_active);
 
         m_value_active.Assign(m_value_pending.ToCStr());
+    }
+}
+
+template <size_t L> void GVarStr<L>::ResetPending()
+{
+    if (m_value_active != m_value_pending)
+    {
+        if (App::diag_trace_globals.GetActive())
+            GVarBase::LogResetPending(m_value_pending, m_value_active);
+
+        m_value_pending.Assign(m_value_active.ToCStr());
     }
 }
 
