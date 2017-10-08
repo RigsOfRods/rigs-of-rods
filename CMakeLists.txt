@@ -139,3 +139,8 @@ include(DependenciesConfig)
 ################################################################################
 add_subdirectory(source)
 add_subdirectory(doc)
+
+################################################################################
+# Include install script and CPack configuration
+################################################################################
+include(Install)
