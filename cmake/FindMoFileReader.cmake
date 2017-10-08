@@ -35,26 +35,26 @@
 # * MoFileReader::MoFileReader
 #
 
-find_path( MoFileReader_INCLUDE_DIR MoFileReader.h )
-find_library( MoFileReader_LIBRARY
-  NAMES MoFileReader.static MoFileReader
-  PATH_SUFFIXES Debug Release RelWithDebInfo
-)
+find_path(MoFileReader_INCLUDE_DIR MoFileReader.h)
+find_library(MoFileReader_LIBRARY
+        NAMES MoFileReader.static MoFileReader
+        PATH_SUFFIXES Debug Release RelWithDebInfo
+        )
 
 set(MoFileReader_INCLUDE_DIRS ${MoFileReader_INCLUDE_DIR})
 set(MoFileReader_LIBRARIES ${MoFileReader_LIBRARY})
 
-include( FindPackageHandleStandardArgs )
-find_package_handle_standard_args( MoFileReader FOUND_VAR MoFileReader_FOUND
-  REQUIRED_VARS MoFileReader_INCLUDE_DIRS MoFileReader_LIBRARIES
-)
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(MoFileReader FOUND_VAR MoFileReader_FOUND
+        REQUIRED_VARS MoFileReader_INCLUDE_DIRS MoFileReader_LIBRARIES
+        )
 
-if( MoFileReader_FOUND )
-  add_library( MoFileReader::MoFileReader INTERFACE IMPORTED )
-  set_target_properties( MoFileReader::MoFileReader PROPERTIES
-    INTERFACE_LINK_LIBRARIES "${MoFileReader_LIBRARIES}" 
-    INTERFACE_INCLUDE_DIRECTORIES "${MoFileReader_INCLUDE_DIRS}"
-  )
-endif()
+if (MoFileReader_FOUND)
+    add_library(MoFileReader::MoFileReader INTERFACE IMPORTED)
+    set_target_properties(MoFileReader::MoFileReader PROPERTIES
+            INTERFACE_LINK_LIBRARIES "${MoFileReader_LIBRARIES}"
+            INTERFACE_INCLUDE_DIRECTORIES "${MoFileReader_INCLUDE_DIRS}"
+            )
+endif ()
 
-mark_as_advanced( MoFileReader_INCLUDE_DIR MoFileReader_LIBRARY )
+mark_as_advanced(MoFileReader_INCLUDE_DIR MoFileReader_LIBRARY)

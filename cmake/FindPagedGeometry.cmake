@@ -35,23 +35,23 @@
 # * PagedGeometry::PagedGeometry
 #
 
-find_path( PagedGeometry_INCLUDE_DIR PagedGeometry.h PATH_SUFFIXES PagedGeometry )
-find_library( PagedGeometry_LIBRARY PagedGeometry )
+find_path(PagedGeometry_INCLUDE_DIR PagedGeometry.h PATH_SUFFIXES PagedGeometry)
+find_library(PagedGeometry_LIBRARY PagedGeometry)
 
 set(PagedGeometry_INCLUDE_DIRS ${PagedGeometry_INCLUDE_DIR})
 set(PagedGeometry_LIBRARIES ${PagedGeometry_LIBRARY})
 
-include( FindPackageHandleStandardArgs )
-find_package_handle_standard_args( PagedGeometry FOUND_VAR PagedGeometry_FOUND
-  REQUIRED_VARS PagedGeometry_INCLUDE_DIRS PagedGeometry_LIBRARIES
-)
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(PagedGeometry FOUND_VAR PagedGeometry_FOUND
+        REQUIRED_VARS PagedGeometry_INCLUDE_DIRS PagedGeometry_LIBRARIES
+        )
 
-if( PagedGeometry_FOUND )
-  add_library( PagedGeometry::PagedGeometry INTERFACE IMPORTED )
-  set_target_properties( PagedGeometry::PagedGeometry PROPERTIES
-    INTERFACE_LINK_LIBRARIES "${PagedGeometry_LIBRARIES}"
-    INTERFACE_INCLUDE_DIRECTORIES "${PagedGeometry_INCLUDE_DIRS}"
-  )
-endif()
+if (PagedGeometry_FOUND)
+    add_library(PagedGeometry::PagedGeometry INTERFACE IMPORTED)
+    set_target_properties(PagedGeometry::PagedGeometry PROPERTIES
+            INTERFACE_LINK_LIBRARIES "${PagedGeometry_LIBRARIES}"
+            INTERFACE_INCLUDE_DIRECTORIES "${PagedGeometry_INCLUDE_DIRS}"
+            )
+endif ()
 
-mark_as_advanced( PagedGeometry_INCLUDE_DIR PagedGeometry_LIBRARY )
+mark_as_advanced(PagedGeometry_INCLUDE_DIR PagedGeometry_LIBRARY)

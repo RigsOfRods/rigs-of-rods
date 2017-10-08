@@ -35,26 +35,26 @@
 # * SocketW::SocketW
 #
 
-find_path( SocketW_INCLUDE_DIR SocketW.h )
-find_library( SocketW_LIBRARY SocketW )
+find_path(SocketW_INCLUDE_DIR SocketW.h)
+find_library(SocketW_LIBRARY SocketW)
 
 set(SocketW_INCLUDE_DIRS ${SocketW_INCLUDE_DIR})
 set(SocketW_LIBRARIES ${SocketW_LIBRARY})
 
-include( FindPackageHandleStandardArgs )
-find_package_handle_standard_args( SocketW FOUND_VAR SocketW_FOUND
-  REQUIRED_VARS SocketW_INCLUDE_DIRS SocketW_LIBRARIES
-)
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(SocketW FOUND_VAR SocketW_FOUND
+        REQUIRED_VARS SocketW_INCLUDE_DIRS SocketW_LIBRARIES
+        )
 
-if( SocketW_FOUND )
-  add_library( SocketW::SocketW INTERFACE IMPORTED )
-  set_target_properties( SocketW::SocketW PROPERTIES
-    INTERFACE_LINK_LIBRARIES "${SocketW_LIBRARIES}" 
-    INTERFACE_INCLUDE_DIRECTORIES "${SocketW_INCLUDE_DIRS}"
-  )
-  if( WIN32 )
-    set_property( TARGET SocketW::SocketW APPEND PROPERTY INTERFACE_LINK_LIBRARIES ws2_32 )
-  endif()
-endif()
+if (SocketW_FOUND)
+    add_library(SocketW::SocketW INTERFACE IMPORTED)
+    set_target_properties(SocketW::SocketW PROPERTIES
+            INTERFACE_LINK_LIBRARIES "${SocketW_LIBRARIES}"
+            INTERFACE_INCLUDE_DIRECTORIES "${SocketW_INCLUDE_DIRS}"
+            )
+    if (WIN32)
+        set_property(TARGET SocketW::SocketW APPEND PROPERTY INTERFACE_LINK_LIBRARIES ws2_32)
+    endif ()
+endif ()
 
-mark_as_advanced( SocketW_INCLUDE_DIR SocketW_LIBRARY )
+mark_as_advanced(SocketW_INCLUDE_DIR SocketW_LIBRARY)
