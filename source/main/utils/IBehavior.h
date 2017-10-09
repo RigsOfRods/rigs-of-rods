@@ -39,10 +39,5 @@ public:
     virtual bool mousePressed(const context& ctx, const OIS::MouseEvent& _arg, OIS::MouseButtonID _id) = 0;
     virtual bool mouseReleased(const context& ctx, const OIS::MouseEvent& _arg, OIS::MouseButtonID _id) = 0;
 
-    virtual void activate(const context& ctx, bool reset = true) = 0;
-    virtual void deactivate(const context& ctx) = 0;
-    virtual void reset(const context& ctx) = 0;
-    virtual void notifyContextChange(const context& ctx) = 0;
-
     virtual bool switchBehavior(const context& ctx) = 0;
 };

@@ -33,15 +33,12 @@ public:
 
     void update(const CameraManager::CameraContext& ctx);
 
-    void activate(const CameraManager::CameraContext& ctx, bool reset = true)
-    {
-    };
+    virtual void ResetOrbitStyleCam();
 
-    void deactivate(const CameraManager::CameraContext& ctx)
+    void ResetCamLastLookatPosition()
     {
-    };
-    void reset(const CameraManager::CameraContext& ctx);
-    void notifyContextChange(const CameraManager::CameraContext& ctx);
+        camLookAtLast = Ogre::Vector3::ZERO; // TODO: shouldn't we reset 'camLookAtSmoothLast' as well?
+    }
 
     bool mouseMoved(const CameraManager::CameraContext& ctx, const OIS::MouseEvent& _arg);
     bool mousePressed(const CameraManager::CameraContext& ctx, const OIS::MouseEvent& _arg, OIS::MouseButtonID _id) { return false; };

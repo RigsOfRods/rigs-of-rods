@@ -61,73 +61,11 @@ void CameraBehaviorVehicleCineCam::update(const CameraManager::CameraContext &ct
     gEnv->mainCamera->setOrientation(orientation);
 }
 
-void CameraBehaviorVehicleCineCam::activate(const CameraManager::CameraContext &ctx, bool reset /* = true */)
+void CameraBehaviorVehicleCineCam::ResetOrbitStyleCam()
 {
-    Beam* current_vehicle = ctx.mCurrTruck;
-    if (current_vehicle == nullptr)
-    {
-        m_camera_manager->switchToNextBehavior();
-        return;
-    }
-    RoR::PerVehicleCameraContext* vehicle_cam_context = current_vehicle->GetCameraContext();
-    if ( current_vehicle->freecinecamera <= 0 )
-    {
-        m_camera_manager->switchToNextBehavior();
-        return;
-    } 
-    else if ( reset )
-    {
-        this->reset(ctx);
-    }
-
-    gEnv->mainCamera->setFOVy(ctx.fovInternal);
-
-    current_vehicle->prepareInside(true);
-
-    if ( RoR::App::GetOverlayWrapper() )
-    {
-        RoR::App::GetOverlayWrapper()->showDashboardOverlays(
-            (current_vehicle->driveable == AIRPLANE), 
-            current_vehicle
-        );
-    }
-
-    current_vehicle->currentcamera = current_vehicle->GetCameraContext()->last_cinecam_index;
-    current_vehicle->changedCamera();
-
-    vehicle_cam_context->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_CINECAM;
-}
-
-void CameraBehaviorVehicleCineCam::deactivate(const CameraManager::CameraContext &ctx)
-{
-    Beam* current_vehicle = ctx.mCurrTruck;
-    if ( current_vehicle == nullptr 
-        || current_vehicle->GetCameraContext()->behavior != RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_CINECAM )
-    {
-        return;
-    }
-
-    gEnv->mainCamera->setFOVy(ctx.fovExternal);
-    
-    current_vehicle->prepareInside(false);
-
-    if ( RoR::App::GetOverlayWrapper() != nullptr )
-    {
-        RoR::App::GetOverlayWrapper()->showDashboardOverlays(true, current_vehicle);
-    }
-
-    current_vehicle->GetCameraContext()->last_cinecam_index = current_vehicle->currentcamera;
-
-    current_vehicle->GetCameraContext()->last_cinecam_index = false;
-    current_vehicle->currentcamera = -1;
-    current_vehicle->changedCamera();
-}
-
-void CameraBehaviorVehicleCineCam::reset(const CameraManager::CameraContext &ctx)
-{
-    CameraBehaviorOrbit::reset(ctx);
+    CameraBehaviorOrbit::ResetOrbitStyleCam();
     camRotY = Degree(DEFAULT_INTERNAL_CAM_PITCH);
-    gEnv->mainCamera->setFOVy(ctx.fovInternal);
+    gEnv->mainCamera->setFOVy(Ogre::Degree(RoR::App::GetGfxFovInternal()));
 }
 
 bool CameraBehaviorVehicleCineCam::switchBehavior(const CameraManager::CameraContext &ctx)

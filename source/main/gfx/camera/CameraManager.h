@@ -25,6 +25,15 @@
 #include "IBehavior.h"
 
 #include <OIS.h>
+#include <OgreTimer.h>
+#include <OgreVector3.h>
+
+// Forward decl.
+class CameraBehaviorVehicleSpline;
+class CameraBehaviorCharacter;
+class CameraBehaviorVehicle;
+class CameraBehaviorVehicleCineCam;
+class CameraBehaviorOrbit;
 
 class CameraManager
 {
@@ -60,19 +69,18 @@ public:
         CAMERA_BEHAVIOR_END,
         CAMERA_BEHAVIOR_FREE,
         CAMERA_BEHAVIOR_FIXED,
-        CAMERA_BEHAVIOR_ISOMETRIC
+        CAMERA_BEHAVIOR_ISOMETRIC,
+        CAMERA_BEHAVIOR_INVALID = 0xFFFFFFFF,
     };
 
     bool Update(float dt, Beam* cur_truck, float sim_speed);
 
     void switchBehavior(int newBehavior, bool reset = true);
-    void switchToNextBehavior(bool force = true);
+    void switchToNextBehavior();
     void toggleBehavior(int behavior);
 
     bool gameControlsLocked();
     bool hasActiveBehavior();
-    bool hasActiveCharacterBehavior();
-    bool hasActiveVehicleBehavior();
 
     int getCurrentBehavior();
 
@@ -83,18 +91,31 @@ public:
 
 protected:
 
-    void createGlobalBehaviors();
     void SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset, Beam* old_vehicle, Beam* new_vehicle);
+    void ActivateNewBehavior(CameraBehaviors behav_id, bool reset);
+    void DeActivateCurrentBehavior();
+    void UpdateFreeCamera();
+    void UpdateStaticCamera();
+
+    IBehavior<CameraContext>* FindBehavior(int behaviorID); // TODO: eliminate the `int ID`
 
     CameraContext ctx;
 
     float mTransScale, mTransSpeed;
     float mRotScale, mRotateSpeed;
 
-    int currentBehaviorID;
-    IBehavior<CameraContext>* currentBehavior;
-
-    std::map<int, IBehavior<CameraContext> *> globalBehaviors;
+    CameraBehaviors m_active_behavior;
+    CameraBehaviors m_cam_before_free;  ///< Activated by toggling; remembers previous mode.
+    CameraBehaviors m_cam_before_fixed; ///< Activated by toggling; remembers previous mode.
+    // Global behaviors
+    CameraBehaviorCharacter*      m_cam_behav_character;
+    CameraBehaviorVehicle*        m_cam_behav_vehicle;
+    CameraBehaviorVehicleSpline*  m_cam_behav_vehicle_spline;
+    CameraBehaviorVehicleCineCam* m_cam_behav_vehicle_cinecam;
+    // Static cam
+    Ogre::Radian  m_static_cam_previous_fov;
+    Ogre::Vector3 m_static_cam_last_pos;
+    Ogre::Timer   m_static_cam_update_timer;
 
     bool m_config_enter_vehicle_keep_fixedfreecam;
     bool m_config_exit_vehicle_keep_fixedfreecam;

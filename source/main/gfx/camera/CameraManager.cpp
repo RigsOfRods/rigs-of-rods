@@ -22,21 +22,24 @@
 
 #include "Application.h"
 #include "BeamFactory.h"
+#include "Character.h"
 #include "DepthOfFieldEffect.h"
-#include "InputEngine.h"
-#include "Settings.h"
+#include "GlobalEnvironment.h"
+#include "GUI_GameConsole.h"
 #include "GUIManager.h"
+#include "IHeightFinder.h"
+#include "InputEngine.h"
+#include "Language.h"
+#include "OverlayWrapper.h"
 #include "PerVehicleCameraContext.h"
+#include "Settings.h"
+#include "TerrainManager.h"
 
 #include "CameraBehaviorOrbit.h"
 #include "CameraBehaviorCharacter.h"
-#include "CameraBehaviorFixed.h"
-#include "CameraBehaviorFree.h"
-#include "CameraBehaviorStatic.h"
 #include "CameraBehaviorVehicle.h"
 #include "CameraBehaviorVehicleCineCam.h"
 #include "CameraBehaviorVehicleSpline.h"
-#include "CameraBehaviorIsometric.h"
 
 #include <stack>
 
@@ -44,8 +47,9 @@ using namespace Ogre;
 using namespace RoR;
 
 CameraManager::CameraManager() : 
-      currentBehavior(nullptr)
-    , currentBehaviorID(-1)
+      m_active_behavior(CAMERA_BEHAVIOR_INVALID)
+    , m_cam_before_free(CAMERA_BEHAVIOR_INVALID)
+    , m_cam_before_fixed(CAMERA_BEHAVIOR_INVALID)
     , mTransScale(1.0f)
     , mTransSpeed(50.0f)
     , mRotScale(0.1f)
@@ -53,7 +57,11 @@ CameraManager::CameraManager() :
     , m_config_exit_vehicle_keep_fixedfreecam(false)
     , mRotateSpeed(100.0f)
 {
-    createGlobalBehaviors();
+    // Create global behaviors
+    m_cam_behav_character        = new CameraBehaviorCharacter();
+    m_cam_behav_vehicle          = new CameraBehaviorVehicle();
+    m_cam_behav_vehicle_spline   = new CameraBehaviorVehicleSpline();
+    m_cam_behav_vehicle_cinecam  = new CameraBehaviorVehicleCineCam(this);
 
     ctx.mCurrTruck = 0;
     ctx.mDof = 0;
@@ -71,12 +79,10 @@ CameraManager::CameraManager() :
 
 CameraManager::~CameraManager()
 {
-    for (std::map <int , IBehavior<CameraContext> *>::iterator it = globalBehaviors.begin(); it != globalBehaviors.end(); ++it)
-    {
-        delete it->second;
-    }
-
-    globalBehaviors.clear();
+    delete m_cam_behav_character;
+    delete m_cam_behav_vehicle;
+    delete m_cam_behav_vehicle_spline;
+    delete m_cam_behav_vehicle_cinecam;
 
     delete ctx.mDof;
 }
@@ -91,10 +97,6 @@ void CameraManager::SetSimController(RoRFrameListener* sim)
 
 bool CameraManager::Update(float dt, Beam* cur_truck, float sim_speed) // Called every frame
 {
-    if (RoR::App::GetActiveSimState() == RoR::App::SIM_STATE_PAUSED) { return true; } // Do nothing when paused
-
-    if ( dt == 0 ) return false;
-
     mTransScale = mTransSpeed  * dt;
     mRotScale   = mRotateSpeed * dt;
 
@@ -106,9 +108,12 @@ bool CameraManager::Update(float dt, Beam* cur_truck, float sim_speed) // Called
     ctx.fovInternal = Degree(App::GetGfxFovInternal());
     ctx.fovExternal = Degree(App::GetGfxFovExternal());
 
-    if ( currentBehaviorID < CAMERA_BEHAVIOR_END && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_CHANGE) )
+    if ( m_active_behavior < CAMERA_BEHAVIOR_END && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_CHANGE) )
     {
-        switchToNextBehavior(false);
+        if ( (m_active_behavior == CAMERA_BEHAVIOR_INVALID) || this->FindBehavior(m_active_behavior)->switchBehavior(ctx) )
+        {
+            this->switchToNextBehavior();
+        }
     }
 
     if ( RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_FREE_MODE_FIX) )
@@ -121,10 +126,19 @@ bool CameraManager::Update(float dt, Beam* cur_truck, float sim_speed) // Called
         toggleBehavior(CAMERA_BEHAVIOR_FREE);
     }
 
-    if ( currentBehavior )
+    if (m_active_behavior == CAMERA_BEHAVIOR_FREE)
     {
-        currentBehavior->update(ctx);
-    } else
+        this->UpdateFreeCamera();
+    }
+    else if (m_active_behavior == CAMERA_BEHAVIOR_STATIC)
+    {
+        this->UpdateStaticCamera();
+    }
+    else if (m_active_behavior != CAMERA_BEHAVIOR_INVALID)
+    {
+        this->FindBehavior(m_active_behavior)->update(ctx);
+    }
+    else
     {
         switchBehavior(CAMERA_BEHAVIOR_CHARACTER);
     }
@@ -132,165 +146,271 @@ bool CameraManager::Update(float dt, Beam* cur_truck, float sim_speed) // Called
     return true;
 }
 
-void CameraManager::switchToNextBehavior(bool force /* = true */)
+void CameraManager::switchToNextBehavior()
 {
-    if ( !currentBehavior || force || currentBehavior->switchBehavior(ctx) )
+    int i = (m_active_behavior + 1) % CAMERA_BEHAVIOR_END;
+    this->switchBehavior(i);
+}
+
+void CameraManager::ActivateNewBehavior(CameraBehaviors behav_id, bool reset)
+{
+    // Assign new behavior
+    m_active_behavior = behav_id;
+
+    // Resolve per-behavior constraints and actions
+    switch (behav_id)
     {
-        int i = (currentBehaviorID + 1) % CAMERA_BEHAVIOR_END;
-        switchBehavior(i);
+    case CAMERA_BEHAVIOR_FREE:
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Free camera"), "camera_go.png", 3000);
+        RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Free camera"));
+        break;
+
+    case CAMERA_BEHAVIOR_ISOMETRIC:
+    case CAMERA_BEHAVIOR_FIXED:
+        RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE, _L("Fixed camera"), "camera_link.png", 3000);
+        RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Fixed camera"));
+        break;
+
+    case CAMERA_BEHAVIOR_STATIC:
+        m_static_cam_previous_fov = gEnv->mainCamera->getFOVy();
+        break;
+
+    case CAMERA_BEHAVIOR_VEHICLE_SPLINE:
+        if ( (ctx.mCurrTruck == nullptr) || ctx.mCurrTruck->free_camerarail <= 0)
+        {
+            this->switchToNextBehavior();
+            return;
+        }
+        else if (reset)
+        {
+            m_cam_behav_vehicle_spline->ResetOrbitStyleCam();
+            m_cam_behav_vehicle_spline->createSpline(ctx);
+        }
+        ctx.mCurrTruck->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_VEHICLE_SPLINE;
+        break;
+
+    case CAMERA_BEHAVIOR_VEHICLE_CINECAM:
+        if ((ctx.mCurrTruck == nullptr) || (ctx.mCurrTruck->freecinecamera <= 0))
+        {
+            this->switchToNextBehavior();
+            return;
+        }
+        else if ( reset )
+        {
+            m_cam_behav_vehicle_cinecam->ResetOrbitStyleCam();
+        }
+
+        gEnv->mainCamera->setFOVy(ctx.fovInternal);
+
+        ctx.mCurrTruck->prepareInside(true);
+
+        if ( RoR::App::GetOverlayWrapper() != nullptr )
+        {
+            RoR::App::GetOverlayWrapper()->showDashboardOverlays((ctx.mCurrTruck->driveable == AIRPLANE), ctx.mCurrTruck);
+        }
+
+        ctx.mCurrTruck->currentcamera = ctx.mCurrTruck->GetCameraContext()->last_cinecam_index;
+        ctx.mCurrTruck->changedCamera();
+
+        ctx.mCurrTruck->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_VEHICLE_CINECAM;
+        break;
+
+    case CAMERA_BEHAVIOR_VEHICLE:
+        if ( ctx.mCurrTruck == nullptr )
+        {
+            this->switchToNextBehavior();
+            return;
+        }
+        else if ( reset )
+        {
+            m_cam_behav_vehicle->ResetOrbitStyleCam();
+        }
+        ctx.mCurrTruck->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_VEHICLE_3rdPERSON;
+        break;
+
+    case CAMERA_BEHAVIOR_CHARACTER:
+        if (ctx.mCurrTruck != nullptr)
+        {
+            this->switchToNextBehavior();
+            return;
+        }
+        else if (reset)
+        {
+            m_cam_behav_character->ResetOrbitStyleCam();
+        }
+        break;
+
+    default:;
     }
 }
 
 void CameraManager::switchBehavior(int newBehaviorID, bool reset)
 {
-    if (newBehaviorID == currentBehaviorID)
+    if (newBehaviorID == m_active_behavior)
     {
-        return;
+        return; // Nothing to do
     }
 
-    if ( globalBehaviors.find(newBehaviorID) == globalBehaviors.end() )
+    IBehavior<CameraContext>* new_behav = this->FindBehavior(newBehaviorID);
+    if ( new_behav == nullptr )
     {
-        return;
+        return; // Legacy logic - behavior is looked up before fully determined. TODO: Research and refactor.
     }
 
-    // deactivate old
-    if ( currentBehavior )
-    {
-        currentBehavior->deactivate(ctx);
-    }
+    this->DeActivateCurrentBehavior();
 
-    // set new
-    currentBehavior = globalBehaviors[newBehaviorID];
-    currentBehaviorID = newBehaviorID;
-
-    // activate new
     if (ctx.mCurrTruck != nullptr)
     {
         ctx.mCurrTruck->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_EXTERNAL;
     }
-    currentBehavior->activate(ctx, reset);
+
+    this->ActivateNewBehavior(static_cast<CameraBehaviors>(newBehaviorID), reset);
 }
 
 void CameraManager::SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset, Beam* old_vehicle, Beam* new_vehicle)
 {
-    if (newBehaviorID == currentBehaviorID)
+    if (newBehaviorID == m_active_behavior)
     {
         if (old_vehicle != new_vehicle)
         {
-            currentBehavior->notifyContextChange(ctx);
+            this->NotifyContextChange();
         }
         return;
     }
 
-    if ( globalBehaviors.find(newBehaviorID) == globalBehaviors.end() )
+    auto* new_behav = this->FindBehavior(newBehaviorID);
+    if ( new_behav == nullptr )
     {
         return;
     }
 
     // deactivate old
     ctx.mCurrTruck = old_vehicle;
-    if ( currentBehavior )
-    {
-        currentBehavior->deactivate(ctx);
-    }
-
-    // set new
-    currentBehavior = globalBehaviors[newBehaviorID];
-    currentBehaviorID = newBehaviorID;
+    this->DeActivateCurrentBehavior();
 
     // activate new
     ctx.mCurrTruck = new_vehicle;
-    currentBehavior->activate(ctx, reset);
+    this->ActivateNewBehavior(static_cast<CameraBehaviors>(newBehaviorID), reset);
 }
 
 void CameraManager::toggleBehavior(int behavior)
 {
-    static std::stack<int> precedingBehaviors;
-
-    if ( behavior != currentBehaviorID && (precedingBehaviors.empty() || precedingBehaviors.top() != behavior))
+    switch (behavior)
     {
-        if ( currentBehaviorID >= 0 )
+    case CAMERA_BEHAVIOR_FIXED:
+        if (m_active_behavior == CAMERA_BEHAVIOR_FIXED)
         {
-            precedingBehaviors.push(currentBehaviorID);
+            this->switchBehavior(m_cam_before_fixed);
+            m_cam_before_fixed = CAMERA_BEHAVIOR_INVALID;
         }
-        switchBehavior(behavior);
-    } else if ( !precedingBehaviors.empty() )
-    {
-        switchBehavior(precedingBehaviors.top(), false);
-        precedingBehaviors.pop();
-    } else
-    {
-        switchToNextBehavior();
+        else
+        {
+            m_cam_before_fixed = m_active_behavior;
+            this->switchBehavior(CAMERA_BEHAVIOR_FIXED);
+        }
+        return;
+
+    case CAMERA_BEHAVIOR_FREE:
+        if (m_active_behavior == CAMERA_BEHAVIOR_FREE)
+        {
+            this->switchBehavior(m_cam_before_free);
+            m_cam_before_free = CAMERA_BEHAVIOR_INVALID;
+        }
+        else
+        {
+            m_cam_before_free = m_active_behavior;
+            this->switchBehavior(CAMERA_BEHAVIOR_FREE);
+        }
+        return;
+
+    default:
+        this->switchToNextBehavior();
+        return;
     }
 }
 
 bool CameraManager::hasActiveBehavior()
 {
-    return currentBehavior != 0;
-}
-
-bool CameraManager::hasActiveCharacterBehavior()
-{
-    return dynamic_cast<CameraBehaviorCharacter*>(currentBehavior) != 0;
-}
-
-bool CameraManager::hasActiveVehicleBehavior()
-{
-    return dynamic_cast<CameraBehaviorVehicle*>(currentBehavior) != 0;
+    return (m_active_behavior != CAMERA_BEHAVIOR_INVALID);
 }
 
 int CameraManager::getCurrentBehavior()
 {
-    return currentBehaviorID;
-}
-
-void CameraManager::createGlobalBehaviors()
-{
-    globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_CHARACTER,       new CameraBehaviorCharacter()));
-    globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_STATIC,          new CameraBehaviorStatic()));
-    globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_VEHICLE,         new CameraBehaviorVehicle()));
-    globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_VEHICLE_SPLINE,  new CameraBehaviorVehicleSpline()));
-    globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_VEHICLE_CINECAM, new CameraBehaviorVehicleCineCam(this)));
-    globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_FREE,            new CameraBehaviorFree()));
-    globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_FIXED,           new CameraBehaviorFixed()));
-    globalBehaviors.insert(std::pair<int, IBehavior<CameraContext>*>(CAMERA_BEHAVIOR_ISOMETRIC,       new CameraBehaviorIsometric()));
+    return m_active_behavior;
 }
 
 bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
 {
-    if ( !currentBehavior ) return false;
-    return currentBehavior->mouseMoved(ctx, _arg);
+    switch (m_active_behavior)
+    {
+    case CAMERA_BEHAVIOR_FREE:
+        gEnv->mainCamera->yaw(Degree(-_arg.state.X.rel * 0.13f));
+        gEnv->mainCamera->pitch(Degree(-_arg.state.Y.rel * 0.13f));
+        MyGUI::PointerManager::getInstance().setVisible(false);
+        return true;
+
+    default:;
+    }
+
+    auto* obj = this->FindBehavior(m_active_behavior);
+    if (obj = nullptr)
+        return false;
+    else
+        return obj->mouseMoved(ctx, _arg);
 }
 
 bool CameraManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
 {
-    if ( !currentBehavior ) return false;
-    return currentBehavior->mousePressed(ctx, _arg, _id);
+    auto* obj = this->FindBehavior(m_active_behavior);
+    if (obj = nullptr)
+        return false;
+    else
+        return obj->mousePressed(ctx, _arg, _id);
 }
 
 bool CameraManager::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
 {
-    if ( !currentBehavior ) return false;
-    return currentBehavior->mouseReleased(ctx, _arg, _id);
+    auto* obj = this->FindBehavior(m_active_behavior);
+    if (obj = nullptr)
+        return false;
+    else
+        return obj->mouseReleased(ctx, _arg, _id);
 }
 
 bool CameraManager::gameControlsLocked()
 {
     // game controls are only disabled in free camera mode for now
-    return (currentBehaviorID == CAMERA_BEHAVIOR_FREE);
+    return (m_active_behavior == CAMERA_BEHAVIOR_FREE);
 }
 
 void CameraManager::OnReturnToMainMenu()
 {
     ctx.mCurrTruck = nullptr;
-    currentBehavior = nullptr;
-    currentBehaviorID = -1;
+    m_active_behavior = CAMERA_BEHAVIOR_INVALID;
 }
 
 void CameraManager::NotifyContextChange()
 {
-    if ( !currentBehavior ) return;
-    currentBehavior->notifyContextChange(ctx);
+    switch (m_active_behavior)
+    {
+    case CAMERA_BEHAVIOR_CHARACTER:
+        m_cam_behav_character->ResetCamLastLookatPosition();
+        break;
+
+    case CAMERA_BEHAVIOR_VEHICLE:
+        m_cam_behav_vehicle->ResetCamLastLookatPosition();
+        break;
+
+    case CAMERA_BEHAVIOR_VEHICLE_CINECAM:
+        m_cam_behav_vehicle_cinecam->ResetCamLastLookatPosition();
+        break;
+
+    case CAMERA_BEHAVIOR_VEHICLE_SPLINE:
+        m_cam_behav_vehicle_spline->ResetCamLastLookatPosition();
+        break;
+
+    default:;
+    }
 }
 
 void CameraManager::NotifyVehicleChanged(Beam* old_vehicle, Beam* new_vehicle)
@@ -299,9 +419,9 @@ void CameraManager::NotifyVehicleChanged(Beam* old_vehicle, Beam* new_vehicle)
     if (new_vehicle == nullptr)
     {
         ctx.mCurrTruck = nullptr;
-        if ( !(this->currentBehaviorID == CAMERA_BEHAVIOR_STATIC && m_config_exit_vehicle_keep_fixedfreecam) &&
-             !(this->currentBehaviorID == CAMERA_BEHAVIOR_FIXED  && m_config_exit_vehicle_keep_fixedfreecam) &&
-             !(this->currentBehaviorID == CAMERA_BEHAVIOR_FREE   && m_config_exit_vehicle_keep_fixedfreecam) )
+        if ( !(this->m_active_behavior == CAMERA_BEHAVIOR_STATIC && m_config_exit_vehicle_keep_fixedfreecam) &&
+             !(this->m_active_behavior == CAMERA_BEHAVIOR_FIXED  && m_config_exit_vehicle_keep_fixedfreecam) &&
+             !(this->m_active_behavior == CAMERA_BEHAVIOR_FREE   && m_config_exit_vehicle_keep_fixedfreecam) )
         {
             this->switchBehavior(CAMERA_BEHAVIOR_CHARACTER);
         }
@@ -309,9 +429,9 @@ void CameraManager::NotifyVehicleChanged(Beam* old_vehicle, Beam* new_vehicle)
     }
 
     // Getting in vehicle
-    if ( !(this->currentBehaviorID == CAMERA_BEHAVIOR_STATIC && m_config_enter_vehicle_keep_fixedfreecam) &&
-         !(this->currentBehaviorID == CAMERA_BEHAVIOR_FIXED  && m_config_enter_vehicle_keep_fixedfreecam) &&
-         !(this->currentBehaviorID == CAMERA_BEHAVIOR_FREE   && m_config_enter_vehicle_keep_fixedfreecam) )
+    if ( !(this->m_active_behavior == CAMERA_BEHAVIOR_STATIC && m_config_enter_vehicle_keep_fixedfreecam) &&
+         !(this->m_active_behavior == CAMERA_BEHAVIOR_FIXED  && m_config_enter_vehicle_keep_fixedfreecam) &&
+         !(this->m_active_behavior == CAMERA_BEHAVIOR_FREE   && m_config_enter_vehicle_keep_fixedfreecam) )
     {
         // Change camera
         switch (new_vehicle->GetCameraContext()->behavior)
@@ -332,5 +452,224 @@ void CameraManager::NotifyVehicleChanged(Beam* old_vehicle, Beam* new_vehicle)
             this->SwitchBehaviorOnVehicleChange(CAMERA_BEHAVIOR_VEHICLE, true, old_vehicle, new_vehicle);
         }
     }
-    
+}
+
+IBehavior<CameraManager::CameraContext>* CameraManager::FindBehavior(int behaviorID) // TODO: eliminate the `int ID`
+{
+    switch (behaviorID)
+    {
+    case CAMERA_BEHAVIOR_CHARACTER:       return m_cam_behav_character;
+    case CAMERA_BEHAVIOR_VEHICLE:         return m_cam_behav_vehicle;
+    case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return m_cam_behav_vehicle_spline;
+    case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return m_cam_behav_vehicle_cinecam;
+    default:                              return nullptr;
+    };
+}
+
+void CameraManager::DeActivateCurrentBehavior()
+{
+    switch (m_active_behavior)
+    {
+    case CAMERA_BEHAVIOR_STATIC:
+        gEnv->mainCamera->setFOVy(m_static_cam_previous_fov);
+        break;
+
+    case CAMERA_BEHAVIOR_VEHICLE_CINECAM:
+        if ( ctx.mCurrTruck == nullptr 
+            || ctx.mCurrTruck->GetCameraContext()->behavior != RoR::PerVehicleCameraContext::CAMERA_BEHAVIOR_VEHICLE_CINECAM )
+        {
+            return;
+        }
+
+        gEnv->mainCamera->setFOVy(ctx.fovExternal);
+
+        ctx.mCurrTruck->prepareInside(false);
+
+        if ( RoR::App::GetOverlayWrapper() != nullptr )
+        {
+            RoR::App::GetOverlayWrapper()->showDashboardOverlays(true, ctx.mCurrTruck);
+        }
+
+        ctx.mCurrTruck->GetCameraContext()->last_cinecam_index = ctx.mCurrTruck->currentcamera;
+
+        ctx.mCurrTruck->GetCameraContext()->last_cinecam_index = false; // WTF?! ~ Verbatim legacy logic, TODO: research and fix ~ only_a_ptr, 05/2017
+        ctx.mCurrTruck->currentcamera = -1;
+        ctx.mCurrTruck->changedCamera();
+        break;
+
+    default:;
+    }
+}
+
+void CameraManager::UpdateFreeCamera()
+{
+    Ogre::Degree mRotX(0.0f);
+    Ogre::Degree mRotY(0.0f);
+    Ogre::Degree mRotScale(ctx.mRotScale * 10.0f * ctx.mDt);
+    Ogre::Vector3 mTrans(Ogre::Vector3::ZERO);
+    Ogre::Real mTransScale(ctx.mTransScale * 10.0f * ctx.mDt);
+
+    if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) || RoR::App::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT))
+    {
+        mRotScale *= 3.0f;
+        mTransScale *= 3.0f;
+    }
+    if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL))
+    {
+        mRotScale *= 6.0f;
+        mTransScale *= 20.0f;
+    }
+    if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU))
+    {
+        mRotScale *= 0.1f;
+        mTransScale *= 0.1f;
+    }
+
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_SIDESTEP_LEFT))
+    {
+        mTrans.x -= mTransScale;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_SIDESTEP_RIGHT))
+    {
+        mTrans.x += mTransScale;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_FORWARD))
+    {
+        mTrans.z -= mTransScale;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_BACKWARDS))
+    {
+        mTrans.z += mTransScale;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_UP))
+    {
+        mTrans.y += mTransScale;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_DOWN))
+    {
+        mTrans.y -= mTransScale;
+    }
+
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_RIGHT))
+    {
+        mRotX -= mRotScale;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_LEFT))
+    {
+        mRotX += mRotScale;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_ROT_UP))
+    {
+        mRotY += mRotScale;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_ROT_DOWN))
+    {
+        mRotY -= mRotScale;
+    }
+
+    gEnv->mainCamera->yaw(mRotX);
+    gEnv->mainCamera->pitch(mRotY);
+
+    Ogre::Vector3 camPosition = gEnv->mainCamera->getPosition() + gEnv->mainCamera->getOrientation() * mTrans.normalisedCopy() * mTransScale;
+
+    gEnv->mainCamera->setPosition(camPosition);
+}
+
+bool intersectsTerrain(Vector3 a, Vector3 b) // Internal helper
+{
+    int steps = std::max(10.0f, a.distance(b));
+    for (int i = 0; i < steps; i++)
+    {
+        Vector3 pos = a + (b - a) * (float)i / steps;
+        float y = a.y + (b.y - a.y) * (float)i / steps;
+        float h = gEnv->terrainManager->getHeightFinder()->getHeightAt(pos.x, pos.z);
+        if (h > y)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void CameraManager::UpdateStaticCamera()
+{
+    Ogre::Vector3 lookAt = Ogre::Vector3::ZERO;
+    Ogre::Vector3 velocity = Ogre::Vector3::ZERO;
+    Ogre::Radian angle = Ogre::Degree(90);
+    float rotation = 0.0f;
+    float speed = 0.0f;
+
+    if (ctx.mCurrTruck)
+    {
+        lookAt = ctx.mCurrTruck->getPosition();
+        rotation = ctx.mCurrTruck->getRotation();
+        velocity = ctx.mCurrTruck->nodes[0].Velocity * BeamFactory::getSingleton().getSimulationSpeed();
+        angle = (lookAt - m_static_cam_last_pos).angleBetween(velocity);
+        speed = velocity.length();
+        if (ctx.mCurrTruck->replaymode)
+        {
+            speed *= ctx.mCurrTruck->replayPrecision;
+        }
+    }
+    else
+    {
+        lookAt = gEnv->player->getPosition();
+        rotation = gEnv->player->getRotation().valueRadians();
+    }
+
+    bool forceUpdate = RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_RESET, 2.0f);
+    forceUpdate = forceUpdate || (m_static_cam_last_pos.distance(lookAt) > 200.0f && speed < 1.0f);
+
+    if (forceUpdate || m_static_cam_update_timer.getMilliseconds() > 2000)
+    {
+        float distance = m_static_cam_last_pos.distance(lookAt);
+        bool terrainIntersection = intersectsTerrain(m_static_cam_last_pos, lookAt + Ogre::Vector3::UNIT_Y) 
+            || intersectsTerrain(m_static_cam_last_pos, lookAt + velocity + Ogre::Vector3::UNIT_Y);
+
+        if (forceUpdate || terrainIntersection || distance > std::max(75.0f, speed * 3.5f) || (distance > 25.0f && angle < Degree(30)))
+        {
+            if (speed < 0.1f)
+            {
+                velocity = Vector3(cos(rotation), 0.0f, sin(rotation));
+            }
+            speed = std::max(5.0f, speed);
+            m_static_cam_last_pos = lookAt + velocity.normalisedCopy() * speed * 3.0f;
+            Ogre::Vector3 offset = (velocity.crossProduct(Ogre::Vector3::UNIT_Y)).normalisedCopy() * speed;
+            float r = (float)std::rand() / RAND_MAX;
+            if (gEnv->terrainManager && gEnv->terrainManager->getHeightFinder())
+            {
+                for (int i = 0; i < 100; i++)
+                {
+                    r = (float)std::rand() / RAND_MAX;
+                    Ogre::Vector3 pos = m_static_cam_last_pos + offset * (0.5f - r) * 2.0f;
+                    float h = gEnv->terrainManager->getHeightFinder()->getHeightAt(pos.x, pos.z);
+                    pos.y = std::max(h, pos.y);
+                    if (!intersectsTerrain(pos, lookAt + Ogre::Vector3::UNIT_Y))
+                    {
+                        m_static_cam_last_pos = pos;
+                        break;
+                    }
+                }
+            }
+            m_static_cam_last_pos += offset * (0.5f - r) * 2.0f;
+
+            if (gEnv->terrainManager && gEnv->terrainManager->getHeightFinder())
+            {
+                float h = gEnv->terrainManager->getHeightFinder()->getHeightAt(m_static_cam_last_pos.x, m_static_cam_last_pos.z);
+
+                m_static_cam_last_pos.y = std::max(h, m_static_cam_last_pos.y);
+            }
+
+            m_static_cam_last_pos.y += 5.0f;
+
+            m_static_cam_update_timer.reset();
+        }
+    }
+
+    float camDist = m_static_cam_last_pos.distance(lookAt);
+    float fov = atan2(20.0f, camDist);
+
+    gEnv->mainCamera->setPosition(m_static_cam_last_pos);
+    gEnv->mainCamera->lookAt(lookAt);
+    gEnv->mainCamera->setFOVy(Ogre::Radian(fov));
 }

@@ -24,6 +24,7 @@
 
 #include "Application.h"
 #include "Beam.h"
+#include "BeamFactory.h"
 #include "GUI_GameConsole.h"
 #include "GUIManager.h"
 #include "InputEngine.h"
@@ -167,26 +168,11 @@ bool CameraBehaviorVehicleSpline::mouseMoved(const CameraManager::CameraContext&
     }
 }
 
-void CameraBehaviorVehicleSpline::activate(const CameraManager::CameraContext& ctx, bool reset /* = true */)
+void CameraBehaviorVehicleSpline::ResetOrbitStyleCam()
 {
-    if (!ctx.mCurrTruck || ctx.mCurrTruck->free_camerarail <= 0)
-    {
-        gEnv->cameraManager->switchToNextBehavior();
-        return;
-    }
-    else if (reset)
-    {
-        this->reset(ctx);
-        createSpline(ctx);
-    }
-    ctx.mCurrTruck->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_SPLINE;
-}
+    CameraBehaviorOrbit::ResetOrbitStyleCam();
 
-void CameraBehaviorVehicleSpline::reset(const CameraManager::CameraContext& ctx)
-{
-    CameraBehaviorOrbit::reset(ctx);
-
-    camDist = std::min(ctx.mCurrTruck->getMinimalCameraRadius() * 2.0f, 33.0f);
+    camDist = std::min(BeamFactory::getSingleton().getCurrentTruck()->getMinimalCameraRadius() * 2.0f, 33.0f);
 
     splinePos = 0.5f;
 }

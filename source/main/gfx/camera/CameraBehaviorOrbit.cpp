@@ -99,7 +99,7 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext& ctx)
 
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_RESET))
     {
-        reset(ctx);
+        this->ResetOrbitStyleCam();
     }
 
     if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT) && RoR::App::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE))
@@ -196,7 +196,7 @@ bool CameraBehaviorOrbit::mouseMoved(const CameraManager::CameraContext& ctx, co
     return false;
 }
 
-void CameraBehaviorOrbit::reset(const CameraManager::CameraContext& ctx)
+void CameraBehaviorOrbit::ResetOrbitStyleCam()
 {
     camRotX = 0.0f;
     camRotXSwivel = 0.0f;
@@ -205,10 +205,6 @@ void CameraBehaviorOrbit::reset(const CameraManager::CameraContext& ctx)
     camLookAtLast = Vector3::ZERO;
     camLookAtSmooth = Vector3::ZERO;
     camLookAtSmoothLast = Vector3::ZERO;
-    gEnv->mainCamera->setFOVy(ctx.fovExternal);
+    gEnv->mainCamera->setFOVy(Ogre::Degree(App::GetGfxFovExternal()));
 }
 
-void CameraBehaviorOrbit::notifyContextChange(const CameraManager::CameraContext& ctx)
-{
-    camLookAtLast = Vector3::ZERO;
-}
