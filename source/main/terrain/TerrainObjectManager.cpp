@@ -1235,7 +1235,6 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
             Vector3 lpos, ldir;
             float lrange = 10, innerAngle = 45, outerAngle = 45;
             ColourValue lcol;
-            String lname = "spotlight_" + TOSTRING(Math::RangeRandom(1000, 9999));
 
             int res = sscanf(ptline, "spotlight %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f",
                 &lpos.x, &lpos.y, &lpos.z, &ldir.x, &ldir.y, &ldir.z, &lcol.r, &lcol.g, &lcol.b, &lrange, &innerAngle, &outerAngle);
@@ -1245,7 +1244,11 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
                 continue;
             }
 
-            Light* spotLight = gEnv->sceneManager->createLight(lname);
+            static size_t counter = 0;
+            char name[50];
+            snprintf(name, 50, "terrn2/spotlight-%x", counter);
+            ++counter;
+            Light* spotLight = gEnv->sceneManager->createLight(name);
 
             spotLight->setType(Light::LT_SPOTLIGHT);
             spotLight->setPosition(lpos);
