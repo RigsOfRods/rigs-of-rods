@@ -2513,5 +2513,9 @@ void RoRFrameListener::EnterGameplayLoop()
     App::GetGuiManager()->SetSimController(nullptr);
     // DO NOT: App::GetSceneMouse()    ->SetSimController(nullptr); -- already deleted via App::DeleteSceneMouse();      // TODO: de-globalize that object!
     // DO NOT: App::GetOverlayWrapper()->SetSimController(nullptr); -- already deleted via App::DestroyOverlayWrapper(); // TODO: de-globalize that object!
-    gEnv->cameraManager->SetSimController(nullptr);  // TODO: de-globalize that object!
+
+    // TODO: CameraManager shouldn't be global - it's created by SimController(RoRFrameListener) when starting sim for first time.
+    //       Make it's lifetime tied to one of SimController ~ only_a_ptr, 10/2017
+    gEnv->cameraManager->SetSimController(nullptr);
+    gEnv->cameraManager->OnReturnToMainMenu();
 }

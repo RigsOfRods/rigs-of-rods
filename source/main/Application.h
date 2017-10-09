@@ -43,7 +43,6 @@ enum class AppState
 {
     BOOTSTRAP,          ///< Initial state
     MAIN_MENU,
-    CHANGE_MAP,         ///< Enter main menu & immediatelly launch singleplayer map selector.
     SIMULATION,
     SHUTDOWN,
     PRINT_HELP_EXIT,

@@ -286,7 +286,6 @@ const char* EnumToStr(AppState v)
     switch (v)
     {
     case AppState::BOOTSTRAP:           return "BOOTSTRAP";
-    case AppState::CHANGE_MAP:          return "CHANGE_MAP";
     case AppState::MAIN_MENU:           return "MAIN_MENU";
     case AppState::PRINT_HELP_EXIT:     return "PRINT_HELP_EXIT";
     case AppState::PRINT_VERSION_EXIT:  return "PRINT_VERSION_EXIT";

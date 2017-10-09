@@ -65,20 +65,14 @@ void RoR::GUI::GamePauseMenu::Draw() // TODO: Copypaste of 'GameMainMenu' -- cle
         {
             App::sim_state.SetPending(SimState::RUNNING);
         }
-            
-        const char* chmap_title = (m_kb_focus_index == 1) ? "--> Change map <--" : "Change map";
-        if (ImGui::Button(chmap_title , btn_size) || (m_kb_enter_index == 1))
-        {
-            App::app_state.SetPending(RoR::AppState::CHANGE_MAP);
-        }
 
-        const char* settings_title = (m_kb_focus_index == 2) ? "--> Return to menu <--" : "Return to menu";
+        const char* settings_title = (m_kb_focus_index == 1) ? "--> Return to menu <--" : "Return to menu";
         if (ImGui::Button(settings_title, btn_size) || (m_kb_enter_index == 2))
         {
             App::app_state.SetPending(RoR::AppState::MAIN_MENU);
         }
 
-        const char* exit_title = (m_kb_focus_index == 3) ? "--> Exit game <--" : "Exit game";
+        const char* exit_title = (m_kb_focus_index == 2) ? "--> Exit game <--" : "Exit game";
         if (ImGui::Button(exit_title, btn_size) || (m_kb_enter_index == 3))
         {
             App::app_state.SetPending(RoR::AppState::SHUTDOWN);
