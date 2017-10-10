@@ -591,8 +591,16 @@ add_custom_command(
         VERBATIM
 )
 
-INSTALL(TARGETS ${BINNAME}
-        RUNTIME DESTINATION games/RoR
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-)
+IF (UNIX)
+    INSTALL(
+            DIRECTORY $<TARGET_FILE_DIR:${BINNAME}>/
+            DESTINATION games/RoR
+            FILES_MATCHING PATTERN "*"
+    )
+ELSEIF (WIN32)
+    INSTALL(
+            DIRECTORY $<TARGET_FILE_DIR:${BINNAME}>/
+            DESTINATION ./
+            FILES_MATCHING PATTERN "*"
+    )
+ENDIF (UNIX)

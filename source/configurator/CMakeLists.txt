@@ -104,8 +104,3 @@ target_link_libraries(RoRConfig PRIVATE
         version_info
         )
 
-INSTALL(TARGETS RoRConfig
-        RUNTIME DESTINATION games/RoR
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION games/RoR
-        )
