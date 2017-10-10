@@ -27,6 +27,7 @@
 #include "MainMenu.h"
 #include "RoRnet.h"
 #include "RoRVersion.h"
+#include "SHA1.h"
 
 #include <imgui.h>
 #include <rapidjson/document.h>
@@ -207,14 +208,15 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
     {
         if (m_mode == Mode::SETUP) // If leaving SETUP mode, reset 'pending' values of GVars
         {
-            App::mp_player_name    .SetPending(App::mp_player_name.GetActive()); // TODO: implement 'ResetPending()' ?
-            App::mp_server_password.SetPending(App::mp_server_password.GetActive());
+            App::mp_player_name.ResetPending();
+            App::mp_server_password.ResetPending();
+            m_user_token_buf.Clear();
         }
         if (m_mode == Mode::DIRECT) // If leaving DIRECT mode, reset 'pending' values of GVars
         {
-            App::mp_server_password.SetPending(App::mp_server_password.GetActive()); // TODO: implement 'ResetPending()' ?
-            App::mp_server_host    .SetPending(App::mp_server_host.GetActive());
-            App::mp_server_port    .SetPending(App::mp_server_port.GetActive());
+            App::mp_server_password.ResetPending();
+            App::mp_server_host    .ResetPending();
+            App::mp_server_port    .ResetPending();
         }
     }
     m_mode = next_mode;
@@ -234,6 +236,29 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
             App::mp_player_name.ApplyPending();
             App::mp_server_password.ApplyPending();
         }
+        ImGui::Separator();
+
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + CONTENT_TOP_PADDING);
+        ImGui::PushItemWidth(250.f);
+        ImGui::InputText("Player token", m_user_token_buf.GetBuffer(), m_user_token_buf.GetCapacity());
+        ImGui::PopItemWidth();
+
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
+        if (ImGui::Button("Update saved hash") && (m_user_token_buf.GetLength() > 0))
+        {
+            RoR::CSHA1 sha1;
+            uint8_t* input_text = (uint8_t *)m_user_token_buf.GetBuffer();
+            uint32_t input_size = (uint32_t)m_user_token_buf.GetLength();
+            sha1.UpdateHash(input_text, input_size);
+            sha1.Final();
+            App::mp_player_token_hash.GetPending().Clear(); // The CSHA1::ReportHash() appends rather than overwrites
+            sha1.ReportHash(App::mp_player_token_hash.GetPending().GetBuffer(), RoR::CSHA1::REPORT_HEX_SHORT);
+
+            App::mp_player_token_hash.ApplyPending();
+            m_user_token_buf.Clear();
+        }
+        ImGui::SameLine();
+        ImGui::TextDisabled(" Hash: [%s]", App::mp_player_token_hash.GetActive());
 
         ImGui::PopID();
     }
