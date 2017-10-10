@@ -97,6 +97,7 @@ static RoRFrameListener* g_sim_controller;
  GVarPod<bool>            diag_log_beam_deform    ("diag_log_beam_deform",    "Beam Deform Debug",         false,                   false);
  GVarPod<bool>            diag_log_beam_trigger   ("diag_log_beam_trigger",   "Trigger Debug",             false,                   false);
  GVarPod<bool>            diag_dof_effect         ("diag_dof_effect",         "DOFDebug",                  false,                   false);
+ GVarStr<300>             diag_extra_resource_dir ("diag_extra_resource_dir", "resourceIncludePath",       "",                      "");
 
 // System                                         (all paths are without ending slash!)
  GVarStr<300>             sys_process_dir         ("sys_process_dir",         nullptr,                     "",                      "");
