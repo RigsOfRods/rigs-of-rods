@@ -97,6 +97,7 @@ static RoRFrameListener* g_sim_controller;
  GVarPod<int>             mp_server_port          ("mp_server_port",          "Server port",               0,                       0);
  GVarStr<100>             mp_server_password      ("mp_server_password",      "Server password",           "",                      "");
  GVarStr<100>             mp_player_name          ("mp_player_name",          "Nickname",                  "Player",                "Player");
+ GVarStr<250>             mp_player_token_hash    ("mp_player_token_hash",    "User Token Hash",           "",                      "");
  GVarStr<400>             mp_portal_url           ("mp_portal_url",           "MP portal URL",             "http://multiplayer.rigsofrods.org", "http://multiplayer.rigsofrods.org");
 
 // Diagnostic
