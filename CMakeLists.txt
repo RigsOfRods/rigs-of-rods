@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0.2)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_SOURCE_DIR}/cmake/3rdparty)
 
+find_package( PythonInterp 3.0 REQUIRED )
+
 # WIN32: remove MinSizeRel, Debug builds : unsupported
 if (WIN32)
     set(CMAKE_CONFIGURATION_TYPES "RelWithDebInfo;Release" CACHE STRING "" FORCE)

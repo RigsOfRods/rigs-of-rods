@@ -1,0 +1,7 @@
+largedockoutercorner.mesh
+1,1,1
+beginmesh
+mesh largedockoutercornercol.mesh
+stdfriction asphalt
+endmesh
+end

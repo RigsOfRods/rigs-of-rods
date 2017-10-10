@@ -1,0 +1,41 @@
+overlay tracks/3D_DashboardOverlay
+{
+	zorder 520
+	container Panel (tracks/3Duptex)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align top
+			width 1.0
+			left 0.0
+			top 0.0
+			height 0.5
+			material tracks/3Duptex
+		}
+		
+		container Panel (tracks/3Dtacho)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align top
+			width 0.18
+			height 0.36
+
+			left 0.05
+			top 0.51
+			material tracks/Tacho
+		}
+		container Panel (tracks/3Dspeedo)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align top
+			width 0.18
+			height 0.36
+
+			left 0.25
+			top 0.51
+			material tracks/Speedo
+		}
+
+}

@@ -1,0 +1,22 @@
+road.mesh
+1, 1, 1
+
+beginbox
+boxcoords 0, 10, -5, 0, -3, 3
+endbox
+
+beginbox
+boxcoords 0, 10, -5, -0.5, -4.5, 4.5
+endbox
+
+beginbox
+boxcoords 0, 10, -0.7635, -0.2365, -4.4572, -2.8761
+rotate -18.4349, 0, 0
+endbox
+
+beginbox
+boxcoords 0, 10, -0.7635, -0.2365, 2.8761, 4.4572
+rotate 18.4349, 0, 0
+endbox
+
+end

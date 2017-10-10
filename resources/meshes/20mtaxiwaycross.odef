@@ -1,0 +1,7 @@
+20mtaxiwaycross.mesh
+1,1,1
+beginmesh
+mesh 20mtaxiwaycross_col.mesh
+stdfriction concrete
+endmesh
+end

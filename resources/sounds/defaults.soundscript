@@ -1,0 +1,957 @@
+//DEFAULT SOUND SCRIPTS
+
+tracks/main_menu_tune
+{
+	trigger_source main_menu
+	gain_source	music_volume
+	start_sound unpitched main_menu_tune.wav
+}
+
+tracks/default_diesel
+{
+	trigger_source	engine
+	pitch_source	engine_rpm
+	sound	750.0	default_diesel_idle.wav
+	sound	849.0	default_diesel_low.wav
+	sound	1035.0	default_diesel_medium.wav
+	sound	1455.0	default_diesel_high.wav
+}
+
+tracks/default_force
+{
+	trigger_source	engine
+	gain_source	injector_ratio
+	gain_factors	0.0	0.5
+	sound	unpitched	default_diesel_force.wav
+}
+
+tracks/default_car
+{
+	trigger_source	engine
+	pitch_source	engine_rpm
+	gain_source	injector_ratio
+	gain_factors	0.5	0.5
+	sound 1500 default_car_idle.wav
+}
+
+tracks/default_starter
+{
+	trigger_source	starter
+	start_sound	unpitched default_starter_start.wav
+	sound		unpitched default_starter.wav
+	stop_sound	unpitched default_starter_stop.wav
+}
+
+tracks/default_turbo
+{
+	trigger_source engine
+	pitch_source	turbo_rpm
+	gain_source		turbo_rpm
+	gain_factors	0.0	0.0	1.852E-12
+	sound	100000.0	default_turbo.wav
+}
+
+tracks/default_turbo_small
+{
+	trigger_source engine
+	pitch_source	turbo_rpm
+	gain_source		turbo_rpm
+	gain_factors	0.0	0.0	1.852E-12
+	sound	45000.0	default_turbo.wav
+}
+
+tracks/default_turbo_mid
+{
+	trigger_source engine
+	pitch_source	turbo_rpm
+	gain_source		turbo_rpm
+	gain_factors	0.0	0.0	1.852E-12
+	sound	80000.0	default_turbo.wav
+}
+
+tracks/default_turbo_big
+{
+	trigger_source engine
+	pitch_source	turbo_rpm
+	gain_source		turbo_rpm
+	gain_factors	0.0	0.0	1.852E-12
+	sound	150000.0 default_turbo.wav
+}
+
+tracks/default_turbo_bov
+{
+	trigger_source	turbo_BOV
+	gain_source	turbo_rpm
+	gain_factors -0.00005	0.000001 1.852E-12
+	start_sound	unpitched default_turbo_bov.wav
+}
+
+tracks/default_wastegate_flutter
+{
+	trigger_source	turbo_waste_gate
+	gain_source	turbo_rpm
+	gain_factors -0.00005	0.000001 1.852E-12
+	start_sound	unpitched default_wastegate_flutter.wav
+}
+
+tracks/default_turbo_backfire
+{
+	trigger_source	turbo_back_fire
+	start_sound	unpitched default_turbo_backfire.wav
+}
+
+tracks/default_air_purge
+{
+	trigger_source air_purge
+	sound unpitched default_valve.wav
+}
+
+tracks/default_horn
+{
+	trigger_source	horn
+	start_sound	unpitched default_horn_start.wav
+	sound		unpitched default_horn.wav
+	stop_sound	unpitched default_horn_stop.wav
+}
+
+tracks/default_pump
+{
+	trigger_source	pump
+	pitch_source	pump_rpm
+	start_sound	660.0 default_pump_start.wav
+	sound		660.0 default_pump.wav
+	stop_sound	660.0 default_pump_stop.wav
+}
+
+tracks/default_police
+{
+	trigger_source horn
+	sound unpitched default_police.wav
+}
+
+tracks/default_screetch
+{
+	trigger_source screetch
+	gain_source		screetch
+	sound unpitched default_screetch.wav
+}
+
+tracks/default_brakes
+{
+	trigger_source brake
+	stop_sound unpitched default_brakes.wav
+}
+
+tracks/default_parkbrakes
+{
+	trigger_source parking_brake
+	start_sound unpitched default_parking_brakes.wav
+}
+
+tracks/default_air
+{
+	trigger_source air
+	sound unpitched default_air.wav
+}
+
+tracks/default_shift
+{
+	trigger_source shift
+	start_sound unpitched default_shift.wav
+}
+
+tracks/default_break
+{
+	trigger_source	break
+	pitch_source	break
+	pitch_factors	1.0	1.0
+	start_sound 1.0 default_break.wav
+}
+
+tracks/default_creak
+{
+	trigger_source	creak
+	pitch_source	creak
+	pitch_factors	1.0	0.2
+	gain_source		creak
+	gain_factors	0.3	1.0
+	start_sound 1.0 default_creak.wav
+}
+
+tracks/default_gear_slide
+{
+	trigger_source	gear_slide
+	start_sound unpitched default_gear_slide.wav
+}
+
+tracks/default_marine_large
+{
+	trigger_source	engine
+	pitch_source	engine_rpm
+	sound	100.0	default_marine_large.wav
+}
+
+tracks/default_marine_small
+{
+	trigger_source	engine
+	pitch_source	engine_rpm
+	sound	100.0	default_marine_small.wav
+}
+
+tracks/default_turboprop_start1
+{
+	trigger_source	aeroengine1
+	start_sound unpitched default_turboprop_start.wav
+}
+
+tracks/default_turboprop_lopower1
+{
+	trigger_source	always_on
+	pitch_source	aeroengine1_rpm
+	gain_source		aeroengine1_throttle
+	gain_factors	0.5	0.5
+	sound	1000.0	default_turboprop_lopower.wav
+}
+
+tracks/default_turboprop_hipower1
+{
+	trigger_source	aeroengine1
+	pitch_source	aeroengine1_rpm
+	gain_source		aeroengine1_throttle
+	gain_factors	-0.5 1.0
+	sound	1000.0	default_turboprop_hipower.wav
+}
+
+tracks/default_turboprop_start2
+{
+	trigger_source	aeroengine2
+	start_sound unpitched default_turboprop_start.wav
+}
+
+tracks/default_turboprop_lopower2
+{
+	trigger_source	always_on
+	pitch_source	aeroengine2_rpm
+	gain_source		aeroengine2_throttle
+	gain_factors	0.5	0.5
+	sound	1000.0	default_turboprop_lopower.wav
+}
+
+tracks/default_turboprop_hipower2
+{
+	trigger_source	aeroengine2
+	pitch_source	aeroengine2_rpm
+	gain_source		aeroengine2_throttle
+	gain_factors	-0.5 1.0
+	sound	1000.0	default_turboprop_hipower.wav
+}
+
+tracks/default_turboprop_start3
+{
+	trigger_source	aeroengine3
+	start_sound unpitched default_turboprop_start.wav
+}
+
+tracks/default_turboprop_lopower3
+{
+	trigger_source	always_on
+	pitch_source	aeroengine3_rpm
+	gain_source		aeroengine3_throttle
+	gain_factors	0.5	0.5
+	sound	1000.0	default_turboprop_lopower.wav
+}
+
+tracks/default_turboprop_hipower3
+{
+	trigger_source	aeroengine3
+	pitch_source	aeroengine3_rpm
+	gain_source		aeroengine3_throttle
+	gain_factors	-0.5 1.0
+	sound	1000.0	default_turboprop_hipower.wav
+}
+
+tracks/default_turboprop_start4
+{
+	trigger_source	aeroengine4
+	start_sound unpitched default_turboprop_start.wav
+}
+
+tracks/default_turboprop_lopower4
+{
+	trigger_source	always_on
+	pitch_source	aeroengine4_rpm
+	gain_source		aeroengine4_throttle
+	gain_factors	0.5	0.5
+	sound	1000.0	default_turboprop_lopower.wav
+}
+
+tracks/default_turboprop_hipower4
+{
+	trigger_source	aeroengine4
+	pitch_source	aeroengine4_rpm
+	gain_source		aeroengine4_throttle
+	gain_factors	-0.5 1.0
+	sound	1000.0	default_turboprop_hipower.wav
+}
+
+tracks/default_turboprop_start5
+{
+	trigger_source	aeroengine5
+	start_sound unpitched default_turboprop_start.wav
+}
+
+tracks/default_turboprop_lopower5
+{
+	trigger_source	always_on
+	pitch_source	aeroengine5_rpm
+	gain_source		aeroengine5_throttle
+	gain_factors	0.5	0.5
+	sound	1000.0	default_turboprop_lopower.wav
+}
+
+tracks/default_turboprop_hipower5
+{
+	trigger_source	aeroengine5
+	pitch_source	aeroengine5_rpm
+	gain_source		aeroengine5_throttle
+	gain_factors	-0.5 1.0
+	sound	1000.0	default_turboprop_hipower.wav
+}
+
+tracks/default_turboprop_start6
+{
+	trigger_source	aeroengine6
+	start_sound unpitched default_turboprop_start.wav
+}
+
+tracks/default_turboprop_lopower6
+{
+	trigger_source	always_on
+	pitch_source	aeroengine6_rpm
+	gain_source		aeroengine6_throttle
+	gain_factors	0.5	0.5
+	sound	1000.0	default_turboprop_lopower.wav
+}
+
+tracks/default_turboprop_hipower6
+{
+	trigger_source	aeroengine6
+	pitch_source	aeroengine6_rpm
+	gain_source		aeroengine6_throttle
+	gain_factors	-0.5 1.0
+	sound	1000.0	default_turboprop_hipower.wav
+}
+
+tracks/default_turboprop_start7
+{
+	trigger_source	aeroengine7
+	start_sound unpitched default_turboprop_start.wav
+}
+
+tracks/default_turboprop_lopower7
+{
+	trigger_source	always_on
+	pitch_source	aeroengine7_rpm
+	gain_source		aeroengine7_throttle
+	gain_factors	0.5	0.5
+	sound	1000.0	default_turboprop_lopower.wav
+}
+
+tracks/default_turboprop_hipower7
+{
+	trigger_source	aeroengine7
+	pitch_source	aeroengine7_rpm
+	gain_source		aeroengine7_throttle
+	gain_factors	-0.5 1.0
+	sound	1000.0	default_turboprop_hipower.wav
+}
+
+tracks/default_turboprop_start8
+{
+	trigger_source	aeroengine8
+	start_sound unpitched default_turboprop_start.wav
+}
+
+tracks/default_turboprop_lopower8
+{
+	trigger_source	always_on
+	pitch_source	aeroengine8_rpm
+	gain_source		aeroengine8_throttle
+	gain_factors	0.5	0.5
+	sound	1000.0	default_turboprop_lopower.wav
+}
+
+tracks/default_turboprop_hipower8
+{
+	trigger_source	aeroengine8
+	pitch_source	aeroengine8_rpm
+	gain_source		aeroengine8_throttle
+	gain_factors	-0.5 1.0
+	sound	1000.0	default_turboprop_hipower.wav
+}
+
+tracks/default_pistonprop_start1
+{
+	trigger_source	aeroengine1
+	start_sound unpitched default_pistonprop_start.wav
+}
+
+tracks/default_pistonprop_lopower1
+{
+	trigger_source	always_on
+	pitch_source	aeroengine1_rpm
+	gain_source		aeroengine1_throttle
+	gain_factors	0.5	0.5
+	sound	1000.0	default_pistonprop_lopower.wav
+}
+
+tracks/default_pistonprop_hipower1
+{
+	trigger_source	aeroengine1
+	pitch_source	aeroengine1_rpm
+	gain_source		aeroengine1_throttle
+	gain_factors	-0.5 1.0
+	sound	1000.0	default_pistonprop_hipower.wav
+}
+
+tracks/default_pistonprop_start2
+{
+	trigger_source	aeroengine2
+	start_sound unpitched default_pistonprop_start.wav
+}
+
+tracks/default_pistonprop_lopower2
+{
+	trigger_source	always_on
+	pitch_source	aeroengine2_rpm
+	gain_source		aeroengine2_throttle
+	gain_factors	0.5	0.5
+	sound	1000.0	default_pistonprop_lopower.wav
+}
+
+tracks/default_pistonprop_hipower2
+{
+	trigger_source	aeroengine2
+	pitch_source	aeroengine2_rpm
+	gain_source		aeroengine2_throttle
+	gain_factors	-0.5 1.0
+	sound	1000.0	default_pistonprop_hipower.wav
+}
+
+tracks/default_pistonprop_start3
+{
+	trigger_source	aeroengine3
+	start_sound unpitched default_pistonprop_start.wav
+}
+
+tracks/default_pistonprop_lopower3
+{
+	trigger_source	always_on
+	pitch_source	aeroengine3_rpm
+	gain_source		aeroengine3_throttle
+	gain_factors	0.5	0.5
+	sound	1000.0	default_pistonprop_lopower.wav
+}
+
+tracks/default_pistonprop_hipower3
+{
+	trigger_source	aeroengine3
+	pitch_source	aeroengine3_rpm
+	gain_source		aeroengine3_throttle
+	gain_factors	-0.5 1.0
+	sound	1000.0	default_pistonprop_hipower.wav
+}
+
+tracks/default_pistonprop_start4
+{
+	trigger_source	aeroengine4
+	start_sound unpitched default_pistonprop_start.wav
+}
+
+tracks/default_pistonprop_lopower4
+{
+	trigger_source	always_on
+	pitch_source	aeroengine4_rpm
+	gain_source		aeroengine4_throttle
+	gain_factors	0.5	0.5
+	sound	1000.0	default_pistonprop_lopower.wav
+}
+
+tracks/default_pistonprop_hipower4
+{
+	trigger_source	aeroengine4
+	pitch_source	aeroengine4_rpm
+	gain_source		aeroengine4_throttle
+	gain_factors	-0.5 1.0
+	sound	1000.0	default_pistonprop_hipower.wav
+}
+
+tracks/default_pistonprop_lopower5
+{
+	trigger_source	always_on
+	pitch_source	aeroengine5_rpm
+	gain_source		aeroengine5_throttle
+	gain_factors	0.5	0.5
+	sound	1000.0	default_pistonprop_lopower.wav
+}
+
+tracks/default_pistonprop_hipower5
+{
+	trigger_source	aeroengine5
+	pitch_source	aeroengine5_rpm
+	gain_source		aeroengine5_throttle
+	gain_factors	-0.5 1.0
+	sound	1000.0	default_pistonprop_hipower.wav
+}
+
+tracks/default_pistonprop_lopower6
+{
+	trigger_source	always_on
+	pitch_source	aeroengine6_rpm
+	gain_source		aeroengine6_throttle
+	gain_factors	0.5	0.5
+	sound	1000.0	default_pistonprop_lopower.wav
+}
+
+tracks/default_pistonprop_hipower6
+{
+	trigger_source	aeroengine6
+	pitch_source	aeroengine6_rpm
+	gain_source		aeroengine6_throttle
+	gain_factors	-0.5 1.0
+	sound	1000.0	default_pistonprop_hipower.wav
+}
+
+tracks/default_pistonprop_lopower7
+{
+	trigger_source	always_on
+	pitch_source	aeroengine7_rpm
+	gain_source		aeroengine7_throttle
+	gain_factors	0.5	0.5
+	sound	1000.0	default_pistonprop_lopower.wav
+}
+
+tracks/default_pistonprop_hipower7
+{
+	trigger_source	aeroengine7
+	pitch_source	aeroengine7_rpm
+	gain_source		aeroengine7_throttle
+	gain_factors	-0.5 1.0
+	sound	1000.0	default_pistonprop_hipower.wav
+}
+
+tracks/default_pistonprop_lopower8
+{
+	trigger_source	always_on
+	pitch_source	aeroengine8_rpm
+	gain_source		aeroengine8_throttle
+	gain_factors	0.5	0.5
+	sound	1000.0	default_pistonprop_lopower.wav
+}
+
+tracks/default_pistonprop_hipower8
+{
+	trigger_source	aeroengine8
+	pitch_source	aeroengine8_rpm
+	gain_source		aeroengine8_throttle
+	gain_factors	-0.5 1.0
+	sound	1000.0	default_pistonprop_hipower.wav
+}
+
+
+tracks/default_turbojet_start1
+{
+	trigger_source	aeroengine1
+	start_sound unpitched default_turbojet_start.wav
+}
+
+tracks/default_turbojet_lopower1
+{
+	trigger_source	always_on
+	pitch_source	aeroengine1_rpm
+	gain_source		aeroengine1_rpm
+	gain_factors	2.0 -0.02
+	sound	25.0	default_turbojet_lopower.wav
+}
+
+tracks/default_turbojet_hipower1
+{
+	trigger_source	aeroengine1
+	gain_source		aeroengine1_rpm
+	gain_factors	-0.30 0.013
+	sound unpitched default_turbojet_hipower.wav
+}
+
+tracks/default_turbojet_afterburner1
+{
+	trigger_source	afterburner1
+	sound unpitched default_turbojet_afterburner.wav
+}
+
+tracks/default_turbojet_start2
+{
+	trigger_source	aeroengine2
+	start_sound unpitched default_turbojet_start.wav
+}
+
+tracks/default_turbojet_lopower2
+{
+	trigger_source	always_on
+	pitch_source	aeroengine2_rpm
+	gain_source		aeroengine2_rpm
+	gain_factors	2.0 -0.02
+	sound	25.0	default_turbojet_lopower.wav
+}
+
+tracks/default_turbojet_hipower2
+{
+	trigger_source	aeroengine2
+	gain_source		aeroengine2_rpm
+	gain_factors	-0.30 0.013
+	sound unpitched default_turbojet_hipower.wav
+}
+
+tracks/default_turbojet_afterburner2
+{
+	trigger_source	afterburner2
+	sound unpitched default_turbojet_afterburner.wav
+}
+
+tracks/default_turbojet_start3
+{
+	trigger_source	aeroengine3
+	start_sound unpitched default_turbojet_start.wav
+}
+
+tracks/default_turbojet_lopower3
+{
+	trigger_source	always_on
+	pitch_source	aeroengine3_rpm
+	gain_source		aeroengine3_rpm
+	gain_factors	2.0 -0.02
+	sound	25.0	default_turbojet_lopower.wav
+}
+
+tracks/default_turbojet_hipower3
+{
+	trigger_source	aeroengine3
+	gain_source		aeroengine3_rpm
+	gain_factors	-0.30 0.013
+	sound unpitched default_turbojet_hipower.wav
+}
+
+tracks/default_turbojet_afterburner3
+{
+	trigger_source	afterburner3
+	sound unpitched default_turbojet_afterburner.wav
+}
+
+tracks/default_turbojet_start4
+{
+	trigger_source	aeroengine4
+	start_sound unpitched default_turbojet_start.wav
+}
+
+tracks/default_turbojet_lopower4
+{
+	trigger_source	always_on
+	pitch_source	aeroengine4_rpm
+	gain_source		aeroengine4_rpm
+	gain_factors	2.0 -0.02
+	sound	25.0	default_turbojet_lopower.wav
+}
+
+tracks/default_turbojet_hipower4
+{
+	trigger_source	aeroengine4
+	gain_source		aeroengine4_rpm
+	gain_factors	-0.30 0.013
+	sound unpitched default_turbojet_hipower.wav
+}
+
+tracks/default_turbojet_afterburner4
+{
+	trigger_source	afterburner4
+	sound unpitched default_turbojet_afterburner.wav
+}
+
+tracks/default_turbojet_start5
+{
+	trigger_source	aeroengine5
+	start_sound unpitched default_turbojet_start.wav
+}
+
+tracks/default_turbojet_lopower5
+{
+	trigger_source	always_on
+	pitch_source	aeroengine5_rpm
+	gain_source		aeroengine5_rpm
+	gain_factors	2.0 -0.02
+	sound	25.0	default_turbojet_lopower.wav
+}
+
+tracks/default_turbojet_hipower5
+{
+	trigger_source	aeroengine5
+	gain_source		aeroengine5_rpm
+	gain_factors	-0.30 0.013
+	sound unpitched default_turbojet_hipower.wav
+}
+
+tracks/default_turbojet_afterburner5
+{
+	trigger_source	afterburner5
+	sound unpitched default_turbojet_afterburner.wav
+}
+
+tracks/default_turbojet_start6
+{
+	trigger_source	aeroengine6
+	start_sound unpitched default_turbojet_start.wav
+}
+
+tracks/default_turbojet_lopower6
+{
+	trigger_source	always_on
+	pitch_source	aeroengine6_rpm
+	gain_source		aeroengine6_rpm
+	gain_factors	2.0 -0.02
+	sound	25.0	default_turbojet_lopower.wav
+}
+
+tracks/default_turbojet_hipower6
+{
+	trigger_source	aeroengine6
+	gain_source		aeroengine6_rpm
+	gain_factors	-0.30 0.013
+	sound unpitched default_turbojet_hipower.wav
+}
+
+tracks/default_turbojet_afterburner6
+{
+	trigger_source	afterburner6
+	sound unpitched default_turbojet_afterburner.wav
+}
+
+tracks/default_turbojet_start7
+{
+	trigger_source	aeroengine7
+	start_sound unpitched default_turbojet_start.wav
+}
+
+tracks/default_turbojet_lopower7
+{
+	trigger_source	always_on
+	pitch_source	aeroengine7_rpm
+	gain_source		aeroengine7_rpm
+	gain_factors	2.0 -0.02
+	sound	25.0	default_turbojet_lopower.wav
+}
+
+tracks/default_turbojet_hipower7
+{
+	trigger_source	aeroengine7
+	gain_source		aeroengine7_rpm
+	gain_factors	-0.30 0.013
+	sound unpitched default_turbojet_hipower.wav
+}
+
+tracks/default_turbojet_afterburner7
+{
+	trigger_source	afterburner7
+	sound unpitched default_turbojet_afterburner.wav
+}
+
+tracks/default_turbojet_start8
+{
+	trigger_source	aeroengine8
+	start_sound unpitched default_turbojet_start.wav
+}
+
+tracks/default_turbojet_lopower8
+{
+	trigger_source	always_on
+	pitch_source	aeroengine8_rpm
+	gain_source		aeroengine8_rpm
+	gain_factors	2.0 -0.02
+	sound	25.0	default_turbojet_lopower.wav
+}
+
+tracks/default_turbojet_hipower8
+{
+	trigger_source	aeroengine8
+	gain_source		aeroengine8_rpm
+	gain_factors	-0.30 0.013
+	sound unpitched default_turbojet_hipower.wav
+}
+
+tracks/default_turbojet_afterburner8
+{
+	trigger_source	afterburner8
+	sound unpitched default_turbojet_afterburner.wav
+}
+
+tracks/default_reverse_beep
+{
+	trigger_source reverse_gear
+	sound unpitched default_reverse_beep.wav
+}
+
+tracks/default_turn_signal
+{
+	trigger_source turn_signal
+	sound unpitched default_turn_signal.wav
+}
+tracks/default_antilock
+{
+   trigger_source   antilock
+   gain_source   air_speed_knots
+   gain_factors   0.75   0.0075
+   sound unpitched default_alb.wav
+}
+
+tracks/default_tractioncontrol
+{
+   trigger_source   tractioncontrol
+   gain_source   air_speed_knots
+   gain_factors   1.2   -0.015
+   sound   unpitched   default_tc.wav
+}
+
+tracks/default_gpws_10
+{
+   trigger_source   gpws_10
+   sound   unpitched   default_GPWS10.WAV
+}
+
+tracks/default_gpws_20
+{
+   trigger_source   gpws_20
+   sound   unpitched   default_GPWS20.WAV
+}
+
+tracks/default_gpws_30
+{
+   trigger_source   gpws_30
+   sound   unpitched   default_GPWS30.WAV
+}
+
+tracks/default_gpws_40
+{
+   trigger_source   gpws_40
+   sound   unpitched   default_GPWS40.WAV
+}
+
+tracks/default_gpws_50
+{
+   trigger_source   gpws_50
+   sound   unpitched   default_GPWS50.WAV
+}
+
+tracks/default_gpws_100
+{
+   trigger_source   gpws_100
+   sound   unpitched   default_GPWS100.WAV
+}
+
+tracks/default_gpws_pullup
+{
+   trigger_source   gpws_pull_up
+   sound   unpitched   default_GPWSpullup.wav
+}
+
+tracks/default_gpws_minimums
+{
+   trigger_source   gpws_minimums
+   sound   unpitched   default_GPWSminimums.wav
+}
+
+tracks/default_gpws_apdisconnect
+{
+   trigger_source   gpws_ap_disconnect
+   sound   unpitched   default_GPWSapdisconnect.wav
+}
+
+tracks/default_aoa_warning
+{
+   trigger_source   aoa_horn
+   sound   unpitched   default_AOAwarning.wav
+}
+
+tracks/default_aivionic_chat01
+{
+	trigger_source avionic_chat_01
+	sound unpitched default_chatter01.wav
+}
+
+tracks/default_aivionic_chat02
+{
+	trigger_source avionic_chat_02
+	sound unpitched default_chatter02.wav
+}
+
+tracks/default_aivionic_chat03
+{
+	trigger_source avionic_chat_03
+	sound unpitched default_chatter03.wav
+}
+
+tracks/default_aivionic_chat04
+{
+	trigger_source avionic_chat_04
+	sound unpitched default_chatter04.wav
+}
+
+tracks/default_aivionic_chat05
+{
+	trigger_source avionic_chat_05
+	sound unpitched default_chatter05.wav
+}
+
+tracks/default_aivionic_chat06
+{
+	trigger_source avionic_chat_06
+	sound unpitched default_chatter06.wav
+}
+
+tracks/default_aivionic_chat07
+{
+	trigger_source avionic_chat_07
+	sound unpitched default_chatter07.wav
+}
+
+tracks/default_aivionic_chat08
+{
+	trigger_source avionic_chat_08
+	sound unpitched default_chatter08.wav
+}
+
+tracks/default_aivionic_chat09
+{
+	trigger_source avionic_chat_09
+	sound unpitched default_chatter09.wav
+}
+
+tracks/default_aivionic_chat10
+{
+	trigger_source avionic_chat_10
+	sound unpitched default_chatter10.wav
+}
+
+tracks/default_aivionic_chat11
+{
+	trigger_source avionic_chat_11
+	sound unpitched default_chatter11.wav
+}
+
+tracks/default_aivionic_chat12
+{
+	trigger_source avionic_chat_12
+	sound unpitched default_chatter12.wav
+}
+
+tracks/default_aivionic_chat13
+{
+	trigger_source avionic_chat_13
+	sound unpitched default_chatter13.wav
+}

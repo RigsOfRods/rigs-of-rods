@@ -2,7 +2,7 @@
 # This source file is part of Rigs of Rods
 # Copyright 2015 Artem Vorotnikov
 
-# For more information, see https://rigsofrods.github.io/
+# For more information, see https://rigsofrods.org
 
 # Rigs of Rods is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3, as
@@ -33,9 +33,8 @@ def zipper(src, dst):
         for filename in files:
             absname = os.path.abspath(os.path.join(dirname, filename))
             arcname = absname[len(abs_src) + 1:]
-            print('zipping %s as %s' % (os.path.join(dirname, filename),
-                                        arcname))
             zipfile_object.write(absname, arcname)
+        print('Created %s.zip' % (dst))
     zipfile_object.close()
 
 

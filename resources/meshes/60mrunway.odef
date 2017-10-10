@@ -1,0 +1,7 @@
+60mrunway.mesh
+1,1,1
+beginmesh
+mesh 60mrunway.mesh
+stdfriction asphalt
+endmesh
+end

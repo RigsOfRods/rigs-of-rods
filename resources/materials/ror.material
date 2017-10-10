@@ -1,0 +1,2964 @@
+import * from "managed_mats.material"
+
+material tracks/3Duptex
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture dashboard.dds
+			}
+		}
+	}
+}
+
+material tracks/dashblend
+{
+	technique
+	{
+		pass
+		{
+			scene_blend add
+			texture_unit
+			{
+				texture dashblend.dds
+			}
+		}
+	}
+}
+material tracks/bigsign/empty
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 0
+			cull_hardware none
+			cull_software none
+
+			texture_unit
+			{
+				texture bigsign_empty.dds
+			}
+		}
+	}
+}
+
+material tracks/bigsign/town
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 0
+			cull_hardware none
+			cull_software none
+
+			texture_unit
+			{
+				texture bigsign_town.dds
+			}
+		}
+	}
+}
+
+
+material chp: RoR/Managed_Mats/Base
+{
+	set_texture_alias diffuse_tex chp.dds
+}
+
+
+material tracks/netchat2/bg/left
+{
+    technique
+    {
+        pass
+        {
+			lighting off
+			depth_check off
+            scene_blend alpha_blend
+            texture_unit
+            {
+                colour_op_ex source1 src_manual src_current 0.3 0.3 0.3
+                alpha_op_ex source1 src_manual src_current 0.7
+            }
+        } 
+    }
+}
+
+material tracks/netchat2/bg/box
+{
+    technique
+    {
+        pass
+        {
+			lighting off
+			depth_check off
+            scene_blend alpha_blend
+            texture_unit
+            {
+                colour_op_ex source1 src_manual src_current 0.3 0.3 0.3
+                alpha_op_ex source1 src_manual src_current 0.7
+            }
+        } 
+    }
+}
+
+material dashboard
+{
+ receive_shadows off
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture dashboard.dds
+			}
+		}
+	}
+}
+
+material mirror
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture mirror.dds
+			}
+		}
+		pass
+		{
+			scene_blend alpha_blend
+
+			texture_unit
+			{
+				texture mirrorlayer.dds
+			}
+		}
+	}
+}
+
+material dirwheel
+{
+ receive_shadows off
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture dirwheel.dds
+			}
+		}
+	}
+}
+
+material tracks/beam
+{
+ receive_shadows off
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture RustySteel.dds
+			}
+		}
+	}
+}
+
+material tracks/invisible
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				colour_op_ex source1 src_manual src_current 0.0 0.0 0.0 0.0 0.0
+			}
+		}
+	}
+	technique HydraxDepth
+    {
+        scheme HydraxDepth
+        pass
+        {
+					lighting off
+					texture_unit
+					{
+            colour_op_ex modulate src_manual src_current 0 0 0
+					}
+        }
+    } 
+}
+
+material tracks/EnvMapDebug
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			fog_override true
+			lighting off
+			depth_write off
+			depth_check off
+			cull_software none
+			cull_hardware none
+
+			texture_unit
+			{
+				cubic_texture EnvironmentTexture combinedUVW
+			}
+		}
+	}
+}
+
+material tracks/Chrome
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				//texture Chrome.dds
+				cubic_texture EnvironmentTexture combinedUVW
+				env_map cubic_reflection 
+			}
+		}
+	}
+}
+
+material tracks/chrome
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				//texture Chrome.dds
+				cubic_texture EnvironmentTexture combinedUVW
+				env_map cubic_reflection 
+			}
+		}
+	}
+}
+
+material tracks/wheelface
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture wheelface.dds
+			}
+		}
+	}
+}
+
+material tracks/wheelfaceb
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture wheelfaceb.dds
+			}
+		}
+	}
+}
+
+material tracks/wheelband1
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture wheelband1.dds
+			}
+		}
+	}
+}
+
+material tracks/wheelband2
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture wheelband2.dds
+			}
+		}
+	}
+}
+
+material seat
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture seat.dds
+			}
+		}
+	}
+}
+
+material driversseat
+{
+	technique
+	{
+		pass
+		{
+//			scene_blend alpha_blend
+//			depth_write off
+			texture_unit
+			{
+				texture seat.dds
+				alpha_op_ex source1 src_manual src_current 0.5
+			}
+		}
+	}
+}
+
+material beacon
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			cull_hardware none
+			texture_unit
+			{
+				texture beacon.dds
+			}
+		}
+	}
+}
+
+material redbeacon
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			cull_hardware none
+			texture_unit
+			{
+				texture redbeacon.dds
+			}
+		}
+	}
+}
+
+material lightbar
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			cull_hardware none
+			texture_unit
+			{
+				texture lightbar.dds
+			}
+		}
+	}
+}
+
+
+material mouse
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture mouse.dds
+			}
+		}
+	}
+}
+
+material mouse-rotate
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture mouse_rotate.dds
+			}
+		}
+	}
+}
+
+material mouse-locked
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture mouse_locked.dds
+			}
+		}
+	}
+}
+
+material mouse-locked-heavy
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture mouse_locked_heavy.dds
+			}
+		}
+	}
+}
+
+material tracks/ap-up
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture ap-up.dds
+			}
+		}
+	}
+}
+
+material tracks/ap-dn
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture ap-dn.dds
+			}
+		}
+	}
+}
+
+material tracks/hdg-on
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture hdg-on.dds
+			}
+		}
+	}
+}
+material tracks/hdg-off
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture hdg-off.dds
+			}
+		}
+	}
+}
+material tracks/wlv-on
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture wlv-on.dds
+			}
+		}
+	}
+}
+material tracks/wlv-off
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture wlv-off.dds
+			}
+		}
+	}
+}
+material tracks/nav-on
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture nav-on.dds
+			}
+		}
+	}
+}
+material tracks/nav-off
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture nav-off.dds
+			}
+		}
+	}
+}
+material tracks/hold-on
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture hold-on.dds
+			}
+		}
+	}
+}
+material tracks/hold-off
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture hold-off.dds
+			}
+		}
+	}
+}
+material tracks/vs-on
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture vs-on.dds
+			}
+		}
+	}
+}
+material tracks/vs-off
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture vs-off.dds
+			}
+		}
+	}
+}
+material tracks/athr-on
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture athr-on.dds
+			}
+		}
+	}
+}
+material tracks/athr-off
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture athr-off.dds
+			}
+		}
+	}
+}
+material tracks/gpws-on
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture gpws-on.dds
+			}
+		}
+	}
+}
+material tracks/gpws-off
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture gpws-off.dds
+			}
+		}
+	}
+}
+material tracks/brks-on
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture brks-on.dds
+			}
+		}
+	}
+}
+material tracks/brks-off
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture brks-off.dds
+			}
+		}
+	}
+}
+material tracks/val-bg
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture val-bg.dds
+			}
+		}
+	}
+}
+
+material tracks/pressuremat
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+
+			texture_unit
+			{
+				texture pressure.dds
+			}
+		}
+	}
+}
+
+material tracks/pressureneedle_mat
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+
+			texture_unit
+			{
+				tex_address_mode clamp
+				texture redneedle.dds
+			}
+		}
+	}
+}
+
+material tracks/needle
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				colour_op_ex modulate src_manual src_current 1.0 0.2 0.2 0.0 0.0
+			}
+		}
+	}
+}
+
+material tracks/stabneedle
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				colour_op_ex modulate src_manual src_current 0.25 0.25 1.0 0.0 0.0
+			}
+		}
+	}
+}
+
+material tracks/Speedo
+{
+	technique
+	{
+		pass
+		{
+            scene_blend alpha_blend
+			texture_unit
+			{
+				texture speedo.dds
+			}
+		}
+	}
+}
+
+material tracks/speedoneedle_mat
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+
+			texture_unit
+			{
+				tex_address_mode clamp
+				texture redneedle.dds
+			}
+		}
+	}
+}
+
+material tracks/tachoneedle_mat
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+
+			texture_unit
+			{
+				tex_address_mode clamp
+				texture redneedle.dds
+			}
+		}
+	}
+}
+
+material tracks/rollneedle_mat
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+
+			texture_unit
+			{
+				tex_address_mode clamp
+				texture whiteneedle.dds
+			}
+		}
+	}
+}
+
+material tracks/pitchneedle_mat
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+
+			texture_unit
+			{
+				tex_address_mode clamp
+				texture whiteneedle.dds
+			}
+		}
+	}
+}
+
+material tracks/Tacho
+{
+	technique
+	{
+		pass
+		{
+            scene_blend alpha_blend
+			texture_unit
+			{
+				texture tacho.dds
+			}
+		}
+	}
+}
+
+material tracks/Anglo
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture anglo.dds
+			}
+		}
+	}
+}
+
+material tracks/instructions
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture instructions.dds
+			}
+		}
+	}
+}
+
+material tracks/dashbar
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture dashbar.dds
+			}
+		}
+	}
+}
+
+material tracks/thrusthandle
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture thrusthandle.dds
+			}
+		}
+	}
+}
+material tracks/thrusttrack
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture thrusttrack.dds
+			}
+		}
+	}
+}
+material tracks/engfire-off
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture engfire-off.dds
+			}
+		}
+	}
+}
+material tracks/engfire-on
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture engfire-on.dds
+			}
+		}
+	}
+}
+material tracks/engstart-off
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture engstart-off.dds
+			}
+		}
+	}
+}
+material tracks/engstart-on
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture engstart-on.dds
+			}
+		}
+	}
+}
+material tracks/airrpm
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture airrpm.dds
+			}
+		}
+	}
+}
+material tracks/airtorque
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture airtorque.dds
+			}
+		}
+	}
+}
+material tracks/airpitch
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture airpitch.dds
+			}
+		}
+	}
+}
+material tracks/airspeed
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture airspeed.dds
+			}
+		}
+	}
+}
+material tracks/altimeter
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture altimeter.dds
+			}
+		}
+	}
+}
+material tracks/vvi
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture vvi.dds
+			}
+		}
+	}
+}
+
+material tracks/hsi-rose
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			texture_unit
+			{
+				tex_address_mode clamp 
+				texture hsi-rose.dds
+			}
+		}
+	}
+}
+
+material tracks/hsi-bug
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			texture_unit
+			{
+				tex_address_mode clamp 
+				texture hsi-bug.dds
+			}
+		}
+	}
+}
+
+material tracks/hsi-v
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			texture_unit
+			{
+				tex_address_mode clamp 
+				texture hsi-v.dds
+			}
+		}
+	}
+}
+
+material tracks/hsi-h
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			texture_unit
+			{
+				tex_address_mode clamp 
+				texture hsi-h.dds
+			}
+		}
+	}
+}
+
+material tracks/adi
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			texture_unit
+			{
+				texture adi.dds
+			}
+		}
+	}
+}
+material tracks/adi-bugs
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			texture_unit
+			{
+				tex_address_mode clamp 
+				texture adi-bugs.dds
+			}
+		}
+	}
+}
+material tracks/adi-tape
+{
+	technique
+	{
+		pass
+		{
+ 			texture_unit
+			{
+				tex_address_mode clamp 
+				texture adi-tape.dds
+			}
+		}
+	}
+}
+material tracks/aoa
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture aoa.dds
+			}
+		}
+	}
+}
+material tracks/hsi
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture hsi.dds
+			}
+		}
+	}
+}
+
+material tracks/airhelp
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture airhelp.dds
+			}
+		}
+	}
+}
+
+material tracks/airspeedneedle_mat
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+
+			texture_unit
+			{
+				tex_address_mode clamp
+				texture whiteneedle.dds
+			}
+		}
+	}
+}
+
+material tracks/altimeterneedle_mat
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+
+			texture_unit
+			{
+				tex_address_mode clamp
+				texture whiteneedle.dds
+			}
+		}
+	}
+}
+material tracks/vvineedle_mat
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+
+			texture_unit
+			{
+				tex_address_mode clamp
+				texture whiteneedle.dds
+			}
+		}
+	}
+}
+material tracks/aoaneedle_mat
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+
+			texture_unit
+			{
+				tex_address_mode clamp
+				texture whiteneedle.dds
+			}
+		}
+	}
+}
+
+
+material tracks/airrpm1needle_mat
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+
+			texture_unit
+			{
+				tex_address_mode clamp
+				texture whiteneedle.dds
+			}
+		}
+	}
+}
+material tracks/airrpm2needle_mat
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+
+			texture_unit
+			{
+				tex_address_mode clamp
+				texture whiteneedle.dds
+			}
+		}
+	}
+}
+material tracks/airrpm3needle_mat
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+
+			texture_unit
+			{
+				tex_address_mode clamp
+				texture whiteneedle.dds
+			}
+		}
+	}
+}
+material tracks/airrpm4needle_mat
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+
+			texture_unit
+			{
+				tex_address_mode clamp
+				texture whiteneedle.dds
+			}
+		}
+	}
+}
+
+material tracks/airpitch1needle_mat
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+
+			texture_unit
+			{
+				tex_address_mode clamp
+				texture whiteneedle.dds
+			}
+		}
+	}
+}
+material tracks/airpitch2needle_mat
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+
+			texture_unit
+			{
+				tex_address_mode clamp
+				texture whiteneedle.dds
+			}
+		}
+	}
+}
+material tracks/airpitch3needle_mat
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+
+			texture_unit
+			{
+				tex_address_mode clamp
+				texture whiteneedle.dds
+			}
+		}
+	}
+}
+material tracks/airpitch4needle_mat
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+
+			texture_unit
+			{
+				tex_address_mode clamp
+				texture whiteneedle.dds
+			}
+		}
+	}
+}
+
+material tracks/airtorque1needle_mat
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+
+			texture_unit
+			{
+				tex_address_mode clamp
+				texture whiteneedle.dds
+			}
+		}
+	}
+}
+material tracks/airtorque2needle_mat
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+
+			texture_unit
+			{
+				tex_address_mode clamp
+				texture whiteneedle.dds
+			}
+		}
+	}
+}
+material tracks/airtorque3needle_mat
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+
+			texture_unit
+			{
+				tex_address_mode clamp
+				texture whiteneedle.dds
+			}
+		}
+	}
+}
+material tracks/airtorque4needle_mat
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+
+			texture_unit
+			{
+				tex_address_mode clamp
+				texture whiteneedle.dds
+			}
+		}
+	}
+}
+
+material tracks/boatspeedneedle_mat
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+
+			texture_unit
+			{
+				tex_address_mode clamp
+				texture whiteneedle.dds
+			}
+		}
+	}
+}
+
+material tracks/boatspeed
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+
+			texture_unit
+			{
+				texture boatspeed.dds
+			}
+		}
+	}
+}
+
+
+material tracks/boatsteer/fg_mat
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+
+			texture_unit
+			{
+				tex_address_mode clamp
+				texture shipsteer.dds
+			}
+		}
+	}
+}
+
+material tracks/boatsteer/bg_mat
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture shipsteer_bg.dds
+			}
+		}
+	}
+}
+
+material tracks/boatdepthmeter
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture boatdepthmeter.dds
+			}
+		}
+	}
+}
+
+material tracks/boatthrusttrack
+{
+	technique
+	{
+		pass
+		{
+			scene_blend alpha_blend
+			alpha_rejection greater 128
+			texture_unit
+			{
+				texture boatthrusttrack.dds
+			}
+		}
+	}
+}
+
+
+
+material tracks/dafrwheelface
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture dafrwheelface.dds
+			}
+		}
+	}
+}
+
+material tracks/daffwheelface
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture daffwheelface.dds
+			}
+		}
+	}
+}
+
+material tracks/dafwheelband
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture dafwheelband.dds
+			}
+		}
+	}
+}
+
+material tracks/dodgewheelband
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture dodgewheelband.dds
+			}
+		}
+	}
+}
+
+
+material tracks/dodgewheelface
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture dodgewheelface.dds
+			}
+		}
+	}
+}
+
+
+material tracks/an12wheelface
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture an12wheelface.dds
+			}
+		}
+	}
+}
+
+material tracks/an12wheelband
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture an12wheelband.dds
+			}
+		}
+	}
+}
+
+material prop
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture prop.dds
+			}
+		}
+	}
+}
+
+material tracks/ttwinwheelface
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture ttwinwheelface.dds
+			}
+		}
+	}
+}
+
+material tracks/ttwinwheelband
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture ttwinwheelband.dds
+			}
+		}
+	}
+}
+
+material tracks/tatrawheelface
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture tatrawheelface.dds
+			}
+		}
+	}
+}
+
+material tracks/tatrawheelband
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture tatrawheelband.dds
+			}
+		}
+	}
+}
+
+material tracks/map/icons/missing
+{
+}
+
+material tracks/map/background
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+
+			texture_unit
+			{
+				texture MapRttTex1
+			}
+		}
+	}
+}
+
+material asphalt: RoR/Managed_Mats/Base
+{
+	set_texture_alias diffuse_tex asphalt.dds
+}
+
+material roadcross: RoR/Managed_Mats/Base
+{
+	set_texture_alias diffuse_tex roadcross.dds
+}
+
+material roadtee: RoR/Managed_Mats/Base
+{
+	set_texture_alias diffuse_tex roadtee.dds
+}
+
+material road: RoR/Managed_Mats/Base
+{
+	set_texture_alias diffuse_tex road.dds
+}
+
+material roadturn: RoR/Managed_Mats/Base
+{
+	set_texture_alias diffuse_tex roadturn.dds
+}
+
+material roadbf: RoR/Managed_Mats/Base
+{
+	set_texture_alias diffuse_tex road.dds
+}
+
+material runway: RoR/Managed_Mats/Base
+{
+	set_texture_alias diffuse_tex runway.dds
+}
+
+material sign-nhelens
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture sign-nhelens.dds
+			}
+		}
+	}
+}
+material tracks/master: RoR/Managed_Mats/Base
+{
+	set_texture_alias diffuse_tex master.dds
+}
+
+material tracks/nozzle
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture nozzle.dds
+			}
+		}
+	}
+}
+
+material tracks/abflame
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend alpha_blend
+			alpha_rejection greater 2
+			depth_write off
+     	    cull_hardware none
+		    cull_software none
+			texture_unit
+			{
+				texture abflame.dds
+			}
+		}
+	}
+}
+
+
+material tracks/skyboxcol
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			fog_override true
+			lighting off
+			depth_write off
+//			depth_check off
+
+			texture_unit
+			{
+				cubic_texture cloudy_noon.dds separateUV
+				tex_address_mode clamp
+			}
+		}
+	}
+}
+
+material Sky/EarlyMorning
+{
+	technique
+	{
+		pass
+		{
+			fog_override true
+			lighting off
+			depth_write off
+
+			texture_unit
+			{
+				cubic_texture early_morning.dds separateUV
+				tex_address_mode clamp
+			}
+		}
+	}
+}
+
+material Sky/ClubTropicana
+{
+	technique
+	{
+		pass
+		{
+			fog_override true
+			lighting off
+			depth_write off
+
+			texture_unit
+			{
+				cubic_texture ct.dds separateUV
+				tex_address_mode clamp
+			}
+		}
+	}
+}
+
+material Sky/Clouds
+{
+	technique
+	{
+		pass
+		{
+			fog_override true
+			lighting off
+			depth_write off
+
+			texture_unit
+			{
+				cubic_texture clouds.dds separateUV
+				tex_address_mode clamp
+			}
+		}
+	}
+}
+
+material metal
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				colour_op_ex modulate src_manual src_current 0.5 0.5 0.5 0.0 0.0
+			}
+		}
+	}
+}
+
+
+material renderdash
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture dashboard.dds
+			}
+		}
+	}
+}
+
+material road2: RoR/Managed_Mats/Base
+{
+	set_texture_alias diffuse_tex road2.dds
+}
+
+
+
+material tracks/skyplanecol
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				colour_op_ex modulate src_manual src_current 0.125 0.3125 1.0 1.0 0.0
+			}
+		}
+	}
+}
+
+material tracks/black
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				colour_op_ex source1 src_manual src_current 0.0 0.0 0.0 1.0 0.0
+			}
+		}
+	}
+}
+
+material tracks/blackFade
+{
+   technique
+   {
+      pass
+      {
+         scene_blend alpha_blend
+
+         texture_unit
+         {
+				colour_op_ex source1 src_manual src_current 0.0 0.0 0.0 1.0 0.0
+         }
+      }
+   }
+}
+
+material tracks/graytrans
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				colour_op_ex source1 src_manual src_current 0.5 0.5 0.5 0.3 0.0
+			}
+		}
+	}
+}
+
+material tracks/trans
+{
+	technique
+	{
+		pass
+		{
+			colour_write off
+			depth_write off
+			scene_blend alpha_blend
+			alpha_rejection greater 0
+		}
+	}
+	technique HydraxDepth
+    {
+        scheme HydraxDepth
+        pass
+        {
+					lighting off
+					texture_unit
+					{
+            colour_op_ex modulate src_manual src_current 0 0 0
+					}
+        }
+    } 
+}
+
+material tracks/seabottom
+{
+	technique
+	{
+		pass
+		{
+			depth_bias -20
+
+			cull_hardware none
+			cull_software none
+			
+			texture_unit
+			{
+				colour_op_ex source1 src_manual src_current 0.0 0.0 0.0 1.0 0.0
+			}
+		}
+	}
+}
+
+
+material tracks/white
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				colour_op_ex modulate src_manual src_current 1.0 1.0 1.0 1.0 0.0
+			}
+		}
+	}
+}
+
+
+material tracks/Viewer
+{
+//	receive_shadows off
+	technique
+	{
+		pass
+		{
+//depth_check off
+//cull_hardware none
+//cull_software none
+//			scene_blend alpha_blend
+			texture_unit
+			{
+				texture unknown.dds
+			}
+		}
+	}
+}
+
+material tracks/spinprop
+{
+	receive_shadows off
+	//transparency_casts_shadows on
+	technique
+	{
+		pass
+		{
+			lighting on
+     	   cull_hardware none
+		   cull_software none
+			scene_blend alpha_blend
+			alpha_rejection greater 2
+			depth_write off
+
+			texture_unit
+			{
+				texture spinprop.dds
+				tex_address_mode border
+				tex_border_colour 0 0 0 0
+				rotate_anim 1.0
+			}
+		}
+	}
+}
+
+
+material tracks/flare
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			lighting off
+ 			scene_blend alpha_blend
+			alpha_rejection greater 2
+			depth_write off
+			//depth_check off
+
+			texture_unit
+			{
+				texture flare.dds
+			}
+		}
+	}
+}
+
+material tracks/brakeflare
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			lighting off
+ 			scene_blend alpha_blend
+			alpha_rejection greater 2
+			depth_write off
+			//depth_check off
+
+			texture_unit
+			{
+				texture brakeflare.dds
+			}
+		}
+	}
+}
+
+material tracks/aimflare
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			lighting off
+ 			scene_blend alpha_blend
+			alpha_rejection greater 2
+			depth_write off
+			//depth_check off
+
+			texture_unit
+			{
+				texture aimflare.dds
+			}
+		}
+	}
+}
+
+material tracks/blinkflare
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			lighting off
+ 			scene_blend alpha_blend
+			alpha_rejection greater 2
+			depth_write off
+			//depth_check off
+
+			texture_unit
+			{
+				texture blinkflare.dds
+			}
+		}
+	}
+}
+material tracks/beaconflare
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			lighting off
+ 			scene_blend alpha_blend
+			alpha_rejection greater 2
+			depth_write off
+			//depth_check off
+
+			texture_unit
+			{
+				texture beaconflare.dds
+			}
+		}
+	}
+}
+
+material tracks/redbeaconflare
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			lighting off
+ 			scene_blend alpha_blend
+			alpha_rejection greater 2
+			depth_write off
+			//depth_check off
+
+			texture_unit
+			{
+				texture redbeaconflare.dds
+			}
+		}
+	}
+}
+
+material tracks/redflare
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			lighting off
+ 			scene_blend alpha_blend
+			alpha_rejection greater 2
+			depth_write off
+			//depth_check off
+
+			texture_unit
+			{
+				texture redflare.dds
+			}
+		}
+	}
+}
+material tracks/greenflare
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			lighting off
+ 			scene_blend alpha_blend
+			alpha_rejection greater 2
+			depth_write off
+			//depth_check off
+
+			texture_unit
+			{
+				texture greenflare.dds
+			}
+		}
+	}
+}
+
+material tracks/brightredflare
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			lighting off
+ 			scene_blend alpha_blend
+			alpha_rejection greater 2
+			depth_write off
+			//depth_check off
+
+			texture_unit
+			{
+				texture brightredflare.dds
+			}
+		}
+	}
+}
+
+material tracks/brightblueflare
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			lighting off
+ 			scene_blend alpha_blend
+			alpha_rejection greater 2
+			depth_write off
+			//depth_check off
+
+			texture_unit
+			{
+				texture brightblueflare.dds
+			}
+		}
+	}
+}
+
+
+
+material tracks/credits
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture credits.dds
+			}
+		}
+	}
+}
+
+
+material tracks/directionArrowNormal
+{
+    technique
+    {
+        pass
+        {
+			lighting off
+			depth_check on
+            cull_hardware none 
+            scene_blend alpha_blend
+            //depth_write off
+            texture_unit
+            {
+				texture targetarrowtex.dds
+            }
+        } 
+    }
+}
+
+// empty materials on purpose, filled at runtime
+material tracks/ReflectionAbove
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+
+			texture_unit
+			{
+			}
+		}
+	}
+}
+material tracks/ReflectionBelow
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+
+			texture_unit
+			{
+			}
+		}
+	}
+}
+material tracks/RefractionAbove
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+
+			texture_unit
+			{
+			}
+		}
+	}
+}
+material tracks/RefractionBelow
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+
+			texture_unit
+			{
+			}
+		}
+	}
+}
+
+material tracks/simple
+{
+    technique
+    {
+        pass
+        {
+            cull_hardware none 
+			diffuse 0.607843 0.607843 0.607843 1
+			//ambient 0.307843 0.307843 0.307843 1
+			specular 0 0 0 255 0
+		
+        } 
+    }
+}
+material tracks/transred
+{
+    technique
+    {
+        pass
+        {
+			lighting off
+			//depth_check off
+            cull_hardware none 
+            scene_blend alpha_blend
+            depth_write off
+            texture_unit
+            {
+                colour_op_ex source1 src_manual src_current 0.5 0 0
+                alpha_op_ex source1 src_manual src_current 0.8
+            }
+        } 
+    }
+}
+
+material tracks/debug/collision/box
+{
+    technique
+    {
+        pass
+        {
+			depth_bias 20
+			lighting off
+			//depth_check off
+            cull_hardware none 
+            scene_blend alpha_blend
+            depth_write off
+            texture_unit
+            {
+                colour_op_ex source1 src_manual src_current 0 1 1
+                alpha_op_ex source1 src_manual src_current 0.5
+            }
+        } 
+    }
+}
+
+material tracks/debug/collision/mesh
+{
+    technique
+    {
+        pass
+        {
+			depth_bias 20
+			lighting off
+			//depth_check off
+            cull_hardware none 
+            scene_blend alpha_blend
+            depth_write off
+            texture_unit
+            {
+                colour_op_ex source1 src_manual src_current 1 0.7 0
+                alpha_op_ex source1 src_manual src_current 0.5
+            }
+        } 
+    }
+}
+
+material tracks/debug/collision/triangle
+{
+    technique
+    {
+        pass
+        {
+			depth_bias 20
+			lighting off
+			//depth_check off
+            cull_hardware none 
+            scene_blend alpha_blend
+            depth_write off
+            texture_unit
+            {
+                colour_op_ex source1 src_manual src_current 1 0.3 0
+                alpha_op_ex source1 src_manual src_current 0.3
+            }
+        } 
+    }
+}
+
+material tracks/debug/eventbox/unused
+{
+    technique
+    {
+        pass
+        {
+			depth_bias 20
+			lighting off
+			//depth_check off
+            cull_hardware none 
+            scene_blend alpha_blend
+            depth_write off
+            texture_unit
+            {
+                colour_op_ex source1 src_manual src_current 0.7 0 0.6
+                alpha_op_ex source1 src_manual src_current 0.1
+            }
+        } 
+    }
+}
+
+material tracks/debug/eventbox/used
+{
+    technique
+    {
+        pass
+        {
+			depth_bias 20
+			lighting off
+			//depth_check off
+            cull_hardware none 
+            scene_blend alpha_blend
+            depth_write off
+            texture_unit
+            {
+                colour_op_ex source1 src_manual src_current 1 0 0.9
+                alpha_op_ex source1 src_manual src_current 0.3
+            }
+        } 
+    }
+}
+
+material tracks/transgreen
+{
+    technique
+    {
+        pass
+        {
+			lighting off
+			//depth_check off
+            cull_hardware none 
+            scene_blend alpha_blend
+            depth_write off
+            texture_unit
+            {
+                colour_op_ex source1 src_manual src_current 0 0.5 0
+                alpha_op_ex source1 src_manual src_current 0.8
+            }
+        } 
+    }
+}
+
+material tracks/pointingArrowBackground
+{
+    technique
+    {
+        pass
+        {
+            scene_blend alpha_blend
+            texture_unit
+            {
+                colour_op_ex source1 src_manual src_current 1 1 1
+                alpha_op_ex source1 src_manual src_current 0
+            }
+        } 
+    }
+}
+
+material tracks/TruckTrail
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend alpha_blend
+			//alpha_rejection greater 128
+			//depth_check off
+			depth_bias 1
+			//polygon_mode wireframe
+
+			texture_unit
+			{
+				texture tracks.dds
+			//    alpha_op_ex source1 src_manual src_current 0.5
+			}
+		}
+	}
+}
+
+material tracks/trigger/transgray
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			//depth_check off
+			cull_hardware none
+			scene_blend alpha_blend
+			//depth_write off
+			texture_unit
+			{
+				colour_op_ex source1 src_manual src_current 0.5 0.5 0.5
+				alpha_op_ex source1 src_manual src_current 0.5
+			}
+		}
+	}
+}
+
+material tracks/trigger/transred
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			//depth_check off
+			cull_hardware none
+			scene_blend alpha_blend
+			//depth_write off
+			texture_unit
+			{
+				colour_op_ex source1 src_manual src_current 0.5 0 0
+				alpha_op_ex source1 src_manual src_current 0.5
+			}
+		}
+	}
+}
+
+material tracks/trigger/transgreen
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			//depth_check off
+			cull_hardware none 
+			scene_blend alpha_blend
+			depth_write off
+			texture_unit
+			{
+				colour_op_ex source1 src_manual src_current 0 0.5 0
+				alpha_op_ex source1 src_manual src_current 0.5
+			}
+		}
+	}
+}
+
+material tracks/trigger/transblue
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			//depth_check off
+			cull_hardware none
+			scene_blend alpha_blend
+			depth_write off
+			texture_unit
+			{
+				colour_op_ex source1 src_manual src_current 0 0 0.5
+				alpha_op_ex source1 src_manual src_current 0.5
+			}
+		}
+	}
+}
+
+
+material tracks/trigger/transredsel
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			//depth_check off
+			cull_hardware none
+			scene_blend alpha_blend
+			depth_write off
+			texture_unit
+			{
+				colour_op_ex source1 src_manual src_current 1 0 0
+				alpha_op_ex source1 src_manual src_current 0.5
+			}
+		}
+	}
+}
+
+material tracks/trigger/transgreensel
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			//depth_check off
+			cull_hardware none
+			scene_blend alpha_blend
+			depth_write off
+			texture_unit
+			{
+				colour_op_ex source1 src_manual src_current 0 1 0
+				alpha_op_ex source1 src_manual src_current 0.5
+			}
+		}
+	}
+}
+
+material tracks/trigger/transbluesel
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			//depth_check off
+			cull_hardware none
+			scene_blend alpha_blend
+			depth_write off
+			texture_unit
+			{
+				colour_op_ex source1 src_manual src_current 0 0 1
+				alpha_op_ex source1 src_manual src_current 0.5
+			}
+		}
+	}
+}
+//Water
+
+material tracks/endlessbasicwater
+{
+	receive_shadows off 
+	technique
+	{
+		pass
+		{
+		   ambient 0.5 0.5 0.5
+		   //specular 0.5 0.5 1.0 10.0
+		   scene_blend modulate
+		   // double-sided
+		   cull_hardware none
+		   cull_software none
+		   depth_write off
+		   texture_unit
+		   {
+			  texture water.dds
+		   }
+		 }
+		pass
+		{
+		   ambient 0.3 0.3 0.3
+		   specular 0.5 0.5 1.0 10.0
+		   scene_blend add
+		   // double-sided
+		   cull_hardware none
+		   cull_software none
+		   depth_write off
+		   texture_unit
+		   {
+			  texture water.dds
+		   }
+		 }
+	}
+}
+
+material tracks/basicwater
+{
+	receive_shadows off 
+	technique
+	{
+		pass
+		{
+		   ambient 0.5 0.5 0.5
+		   //specular 0.5 0.5 1.0 10.0
+		   scene_blend modulate
+		   // double-sided
+		   cull_hardware none
+		   cull_software none
+		   depth_write off
+		   texture_unit
+		   {
+			  texture water.dds
+			  scroll_anim .01 .01
+		   }
+		 }
+		pass
+		{
+		   ambient 0.3 0.3 0.3
+		   specular 0.5 0.5 1.0 10.0
+		   scene_blend add
+		   // double-sided
+		   cull_hardware none
+		   cull_software none
+		   depth_write off
+		   texture_unit
+		   {
+			  texture water.dds
+			  scroll_anim -.01 -.01
+		   }
+		 }
+	}
+}
+
+material tracks/otherbasicwater
+{
+	receive_shadows off 
+   technique
+   {
+      pass
+      {
+         ambient 0.5 0.5 0.5
+         scene_blend alpha_blend
+         depth_write off
+
+         texture_unit
+         {
+            texture water.dds
+			alpha_op_ex source1 src_manual src_manual 0.5 0.5
+            scroll_anim 0.01 0
+         }
+
+         texture_unit
+         {
+            texture water.dds
+			alpha_op_ex source1 src_manual src_manual 0.5 0.5
+            wave_xform scroll_y sine 0 0.1 0 0.5
+         }
+      }
+   }
+} 
+
+material tracks/beamblack
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				colour_op_ex modulate src_manual src_current 0.0 0.0 0.0 0.0 0.0
+			}
+		}
+	}
+}
+
+// Instantiated per-managedmaterial, globally
+// This is necessary to load meshes with original material names (= unchanged managed mat names)
+// - if not found, OGRE substitutes them with 'BaseWhite' which breaks subsequent processing.
+// See `RigSpawner::ProcessManagedMaterial()` in RigSpawner.cpp
+material rigsofrods/managedmaterial-placeholder
+{
+    technique
+    {
+        pass
+        {
+             // Awful bright pink to be easily visible
+             ambient 0.5 0.5 0.5
+             diffuse 1 0 0.7 1
+             specular 1 1 1 10
+             lighting off 
+        }
+    }
+}

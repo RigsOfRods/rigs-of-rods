@@ -1,0 +1,6 @@
+ferryslip.mesh
+1,1,1
+beginmesh
+mesh ferryslipcol.mesh
+endmesh
+end

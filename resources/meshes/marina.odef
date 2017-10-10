@@ -1,0 +1,22 @@
+marina.mesh
+1, 1, 1
+
+beginmesh
+mesh marinacol.mesh
+endmesh
+
+beginbox
+boxcoords -25, -17, 0, 3, -11, 11
+virtual
+event shopboat avatar
+endbox
+
+beginbox
+boxcoords  -9, 28, -10, 10, 13,  23
+virtual
+event spawnzone
+direction 0, 180, 0
+endbox
+
+
+end

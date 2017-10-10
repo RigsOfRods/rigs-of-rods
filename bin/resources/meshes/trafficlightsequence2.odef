@@ -1,8 +1,0 @@
-trafficlightsequence2.mesh
-1,1,1
-
-beginmesh
-mesh trafficlightcol.mesh
-endmesh
-
-end

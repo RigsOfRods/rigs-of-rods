@@ -1,0 +1,83 @@
+;This is the input map for the Rigs of Rods game for the following device:
+; 
+;"ST290 Pro" by Saitek 
+; 
+;Joystick 0:
+;    Vendor: Saitek ST290 Pro
+;    VendorMapFilename: Saitek_ST290_Pro.map
+;    ID: 0
+;    Type: [3] OISJoyStick
+;    Axes: 4
+;    Sliders: 0
+;    POV/HATs: 1
+;    Buttons: 6
+;    Vector3: 0
+;    Vector3Sensitivity: 2.28
+; created by woozy in September 2012.
+; Axis 0: stick forward/back
+; Axis 1: stick left/right
+; Axis 2: up/down throttle control (lever in front)
+; Axis 3: left/right twist stick
+; JostickPOV: coolie hat on top of stick
+; Button 0: main trigger at front
+; Button 1...5: marked with numbers (button 1 here is marked as button 2 on the stick)
+; Setup for Manual shift-auto clutch operation
+
+; AIRPLANE
+AIRPLANE_ELEVATOR_DOWN         JoystickAxis         0 0 UPPER 
+AIRPLANE_ELEVATOR_UP           JoystickAxis         0 0 LOWER 
+AIRPLANE_REVERSE               JoystickButton       0 0 
+AIRPLANE_FLAPS_LESS            JoystickButton       0 2
+AIRPLANE_FLAPS_MORE            JoystickButton       0 3
+AIRPLANE_PARKING_BRAKE         JoystickButton       0 5
+AIRPLANE_RUDDER_LEFT           JoystickAxis         0 3 LOWER+DEADZONE=0.10
+AIRPLANE_RUDDER_RIGHT          JoystickAxis         0 3 UPPER+DEADZONE=0.10
+AIRPLANE_STEER_LEFT            JoystickAxis         0 1 LOWER+DEADZONE=0.15 
+AIRPLANE_STEER_RIGHT           JoystickAxis         0 1 UPPER+DEADZONE=0.15 
+AIRPLANE_THROTTLE_AXIS         None                 
+; Throttle axis seems to be upside down?
+AIRPLANE_THROTTLE_DOWN         JoystickAxis         0 2 UPPER
+AIRPLANE_THROTTLE_UP           JoystickAxis         0 2 LOWER
+
+
+; BOAT
+BOAT_STEER_LEFT_AXIS           JoystickAxis         0 1 LOWER 
+BOAT_STEER_RIGHT_AXIS          JoystickAxis         0 1 UPPER 
+BOAT_THROTTLE_AXIS             None                 
+; Throttle axis seems to be upside down?
+BOAT_THROTTLE_DOWN             JoystickAxis         0 2 UPPER
+BOAT_THROTTLE_UP               JoystickAxis         0 2 LOWER
+
+; CAMERA
+CAMERA_ROTATE_DOWN             JoystickPov          0 0 South
+CAMERA_ROTATE_LEFT             JoystickPov          0 0 West
+CAMERA_ROTATE_RIGHT            JoystickPov          0 0 East
+CAMERA_ROTATE_UP               JoystickPov          0 0 North
+
+; CHARACTER
+CHARACTER_BACKWARDS            JoystickAxis         0 0 UPPER 
+CHARACTER_FORWARD              JoystickAxis         0 0 LOWER 
+CHARACTER_JUMP                 JoystickButton       0 0 
+CHARACTER_LEFT                 JoystickAxis         0 1 LOWER 
+CHARACTER_RIGHT                JoystickAxis         0 1 UPPER 
+CHARACTER_LEFT                 JoystickAxis         0 3 LOWER 
+CHARACTER_RIGHT                JoystickAxis         0 3 UPPER 
+CHARACTER_RUN                  JoystickButton       0 1 
+
+; COMMON
+COMMON_TOGGLE_TRUCK_LIGHTS     JoystickButton       0 4
+
+; TRUCK
+TRUCK_BLINK_LEFT               JoystickAxis         0 3 LOWER+DEADZONE=0.15
+TRUCK_BLINK_RIGHT              JoystickAxis         0 3 UPPER+DEADZONE=0.15
+TRUCK_HORN                     JoystickButton       0 0
+TRUCK_SHIFT_NEUTRAL            JoystickButton       0 1
+TRUCK_SHIFT_DOWN               JoystickButton       0 2 
+TRUCK_SHIFT_UP                 JoystickButton       0 3 
+TRUCK_STARTER                  JoystickButton       0 5 
+TRUCK_ACCELERATE               JoystickAxis         0 0 LOWER 
+TRUCK_BRAKE                    JoystickAxis         0 0 UPPER 
+TRUCK_STEER_LEFT               JoystickAxis         0 1 LOWER 
+TRUCK_STEER_RIGHT              JoystickAxis         0 1 UPPER 
+; This doesn't work: parking brake goes crazy - can one use an axis like a button??? ;)
+;TRUCK_PARKING_BRAKE            JoystickAxis         0 2 LOWER

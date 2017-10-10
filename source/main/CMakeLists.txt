@@ -585,14 +585,14 @@ endif ()
 # Copy resources needed for execution to the build directory
 add_custom_command(
         TARGET ${BINNAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/bin/resources $<TARGET_FILE_DIR:${BINNAME}>/resources
-        COMMENT "Copy resources to build directory"
+        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/recursive_zipper.py ${CMAKE_SOURCE_DIR}/resources $<TARGET_FILE_DIR:${BINNAME}>/resources
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/resources/managed_materials $<TARGET_FILE_DIR:${BINNAME}>/resources/managed_materials
+        COMMENT "Zip and copy resources to build directory"
         VERBATIM
 )
-
 
 INSTALL(TARGETS ${BINNAME}
         RUNTIME DESTINATION games/RoR
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
-        )
+)

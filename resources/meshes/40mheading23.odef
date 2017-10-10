@@ -1,0 +1,7 @@
+40mheading23.mesh
+1,1,1
+beginmesh
+mesh 40mheading23.mesh
+stdfriction asphalt
+endmesh
+end

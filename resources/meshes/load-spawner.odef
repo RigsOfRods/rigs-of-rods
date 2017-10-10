@@ -1,0 +1,24 @@
+load-spawner.mesh
+1, 1, 1
+
+beginmesh
+mesh load-spawner.mesh
+endmesh
+
+
+beginbox
+boxcoords -0.9, 0.9, 0, 2, 11, 12
+virtual
+event shopextension avatar
+endbox
+
+beginbox
+boxcoords  -12, 12, 0.1, 20, -7, 7
+virtual
+event spawnzone
+direction 0, 0, 0
+endbox
+
+
+
+end

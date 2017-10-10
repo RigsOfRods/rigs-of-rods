@@ -1,0 +1,7 @@
+60mheading05.mesh
+1,1,1
+beginmesh
+mesh 60mheading05.mesh
+stdfriction asphalt
+endmesh
+end

@@ -1,8 +1,0 @@
-road-park.mesh
-1, 1, 1
-
-beginbox
-boxcoords -5, 5, -3, 0.3, -5, 5
-endbox
-
-end

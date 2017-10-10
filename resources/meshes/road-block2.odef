@@ -1,0 +1,8 @@
+road-block2.mesh
+1, 1, 1
+
+beginbox
+boxcoords -1.0, 1.0, 0, 2, -1.0, 1.0
+endbox
+
+end

@@ -1,0 +1,793 @@
+overlay tracks/AirDashboardOverlay
+{
+	zorder 20
+
+
+	container Panel (tracks/airdashbar)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align bottom
+//			horz_align center
+//			vert_align center
+			width 0.0
+			left 0.0
+//this part is recalculated for screen ratio
+			top -0.15
+			height 0.01
+			material tracks/dashbar
+		}
+
+	container Panel (tracks/airdashfiller)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align bottom
+//			horz_align center
+//			vert_align center
+//			width 0.37
+//			left 0.28
+			width 0.0
+			left 0.0
+//this part is recalculated for screen ratio
+			top -0.14
+			height 0.14
+			material tracks/black
+		}
+	
+
+	container Panel (tracks/airspeed)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align bottom
+			width 0.11
+			left 0.14
+//this part is recalculated for screen ratio
+			top -0.11
+			height 0.11
+			material tracks/airspeed
+		}
+
+
+	container Panel (tracks/altimeter)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align bottom
+			width 0.11
+			left 0.25
+//this part is recalculated for screen ratio
+			top -0.11
+			height 0.11
+			material tracks/altimeter
+			element TextArea(tracks/altimeter_val)
+			{
+				metrics_mode relative
+				left 0.020
+				width 0.05
+				top 0.048
+				height 0.025
+				font_name cent
+				char_height 0.025
+				colour_top 0.8 0.8 0.8
+				colour_bottom 0.7 0.7 0.7
+				caption 000
+			}
+		}
+
+	container Panel (tracks/vvi)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align bottom
+			width 0.056
+			left 0.36
+//this part is recalculated for screen ratio
+			top -0.11
+			height 0.11
+			material tracks/vvi
+		}
+
+	container Panel (tracks/adi-tape)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align bottom
+			width 0.11
+			left 0.416
+//this part is recalculated for screen ratio
+			top -0.11
+			height 0.11
+			material tracks/adi-tape
+			container Panel (tracks/adi)
+				{
+					metrics_mode relative
+					width 0.11
+					height 0.11
+					material tracks/adi
+					container Panel (tracks/adi-bugs)
+						{
+							metrics_mode relative
+							width 0.11
+							height 0.11
+							material tracks/adi-bugs
+						}
+				}
+		}
+
+	container Panel (tracks/aoa)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align bottom
+			width 0.056
+			left 0.526
+//this part is recalculated for screen ratio
+			top -0.11
+			height 0.11
+			material tracks/aoa
+		}
+
+	container Panel (tracks/hsi)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align bottom
+			width 0.11
+			left 0.582
+//this part is recalculated for screen ratio
+			top -0.11
+			height 0.11
+			material tracks/hsi
+			container Panel (tracks/hsi-rose)
+				{
+					metrics_mode relative
+					width 0.11
+					height 0.11
+					material tracks/hsi-rose
+					container Panel (tracks/hsi-bug)
+						{
+							metrics_mode relative
+							width 0.11
+							height 0.11
+							material tracks/hsi-bug
+						}
+				}
+			container Panel (tracks/hsi-v)
+				{
+					metrics_mode relative
+					width 0.11
+					height 0.11
+					material tracks/hsi-v
+				}
+			container Panel (tracks/hsi-h)
+				{
+					metrics_mode relative
+					width 0.11
+					height 0.11
+					material tracks/hsi-h
+				}
+		}
+
+
+	container Panel (tracks/thrusttrack1)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.03
+			left -0.12
+			top -0.14
+			height 0.14
+			material tracks/thrusttrack
+			container Panel (tracks/engfire1)
+			{
+				metrics_mode relative
+				width 0.03
+				height 0.015
+				material tracks/engfire-off
+			}
+			container Panel (tracks/engstart1)
+			{
+				metrics_mode relative
+				vert_align bottom
+				top -0.015
+				width 0.03
+				height 0.015
+				material tracks/engstart-off
+			}
+		}
+	container Panel (tracks/thrusttrack2)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.03
+			left -0.09
+			top -0.14
+			height 0.14
+			material tracks/thrusttrack
+			container Panel (tracks/engfire2)
+			{
+				metrics_mode relative
+				width 0.03
+				height 0.015
+				material tracks/engfire-off
+			}
+			container Panel (tracks/engstart2)
+			{
+				metrics_mode relative
+				vert_align bottom
+				top -0.015
+				width 0.03
+				height 0.015
+				material tracks/engstart-off
+			}
+		}
+	container Panel (tracks/thrusttrack3)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.03
+			left -0.06
+			top -0.14
+			height 0.14
+			material tracks/thrusttrack
+			container Panel (tracks/engfire3)
+			{
+				metrics_mode relative
+				width 0.03
+				height 0.015
+				material tracks/engfire-off
+			}
+			container Panel (tracks/engstart3)
+			{
+				metrics_mode relative
+				vert_align bottom
+				top -0.015
+				width 0.03
+				height 0.015
+				material tracks/engstart-off
+			}
+		}
+	container Panel (tracks/thrusttrack4)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.03
+			left -0.03
+			top -0.14
+			height 0.14
+			material tracks/thrusttrack
+			container Panel (tracks/engfire4)
+			{
+				metrics_mode relative
+				width 0.03
+				height 0.015
+				material tracks/engfire-off
+			}
+			container Panel (tracks/engstart4)
+			{
+				metrics_mode relative
+				vert_align bottom
+				top -0.015
+				width 0.03
+				height 0.015
+				material tracks/engstart-off
+			}
+		}
+
+	container Panel (tracks/airrpm1)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.047
+			left -0.308
+			top -0.14
+			height 0.047
+			material tracks/airrpm
+		}
+	container Panel (tracks/airrpm2)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.047
+			left -0.261
+			top -0.14
+			height 0.047
+			material tracks/airrpm
+		}
+	container Panel (tracks/airrpm3)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.047
+			left -0.214
+			top -0.14
+			height 0.047
+			material tracks/airrpm
+		}
+	container Panel (tracks/airrpm4)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.047
+			left -0.167
+			top -0.14
+			height 0.047
+			material tracks/airrpm
+		}
+
+	container Panel (tracks/airpitch1)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.047
+			left -0.308
+			top -0.093
+			height 0.047
+			material tracks/airpitch
+		}
+	container Panel (tracks/airpitch2)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.047
+			left -0.261
+			top -0.093
+			height 0.047
+			material tracks/airpitch
+		}
+	container Panel (tracks/airpitch3)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.047
+			left -0.214
+			top -0.093
+			height 0.047
+			material tracks/airpitch
+		}
+	container Panel (tracks/airpitch4)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.047
+			left -0.167
+			top -0.093
+			height 0.047
+			material tracks/airpitch
+		}
+
+	container Panel (tracks/airtorque1)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.047
+			left -0.308
+			top -0.046
+			height 0.047
+			material tracks/airtorque
+		}
+	container Panel (tracks/airtorque2)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.047
+			left -0.261
+			top -0.0460
+			height 0.047
+			material tracks/airtorque
+		}
+	container Panel (tracks/airtorque3)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.047
+			left -0.214
+			top -0.046
+			height 0.047
+			material tracks/airtorque
+		}
+	container Panel (tracks/airtorque4)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.047
+			left -0.167
+			top -0.046
+			height 0.047
+			material tracks/airtorque
+		}
+
+	container Panel (tracks/ap_hdg_pack)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align bottom
+			width 0.095
+			left 0.17
+			top -0.14
+			height 0.04
+			material tracks/black
+			container Panel (tracks/ap_hdg_title_bg)
+			{
+				metrics_mode relative
+				width 0.06
+				height 0.02
+				material tracks/black
+				element TextArea(tracks/ap_hdg_title)
+				{
+					metrics_mode relative
+					left 0.01
+					width 0.06
+					top 0.002
+					height 0.02
+					font_name CyberbitEnglish
+					char_height 0.018
+					colour_top 1 1 1
+					colour_bottom 0.9 0.9 0.9
+					caption Heading
+				}
+			}
+			container Panel (tracks/ap_hdg_val_bg)
+			{
+				metrics_mode relative
+				vert_align bottom
+				top -0.02
+				left 0.015
+				width 0.045
+				height 0.02
+				material tracks/val-bg
+				element TextArea(tracks/ap_hdg_val)
+				{
+					metrics_mode relative
+					left 0.005
+					width 0.05
+					top -0.001
+					height 0.02
+					font_name cent
+					char_height 0.02
+					colour_top 1 1 1
+					colour_bottom 0.7 0.7 0.7
+					caption 000
+				}
+			}			
+			container Panel (tracks/ap_hdg_up)
+			{
+				metrics_mode relative
+				vert_align bottom
+				top -0.02
+				width 0.015
+				height 0.01
+				material tracks/ap-up
+			}
+			container Panel (tracks/ap_hdg_dn)
+			{
+				metrics_mode relative
+				vert_align bottom
+				top -0.01
+				width 0.015
+				height 0.01
+				material tracks/ap-dn
+			}
+			container Panel (tracks/ap_hdg_but)
+			{
+				metrics_mode relative
+				vert_align bottom
+				top -0.04
+				left 0.065
+				width 0.03
+				height 0.04
+				material tracks/hdg-off
+			}
+		}
+		container Panel (tracks/ap_wlv_but)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align bottom
+			width 0.03
+			left 0.265
+			top -0.14
+			height 0.04
+			material tracks/wlv-off
+		}
+		container Panel (tracks/ap_nav_but)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align bottom
+			width 0.03
+			left 0.295
+			top -0.14
+			height 0.04
+			material tracks/nav-off
+		}
+
+	container Panel (tracks/ap_alt_pack)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align bottom
+			width 0.095
+			left 0.325
+			top -0.14
+			height 0.04
+			material tracks/black
+			container Panel (tracks/ap_alt_title_bg)
+			{
+				metrics_mode relative
+				width 0.06
+				height 0.02
+				material tracks/black
+				element TextArea(tracks/ap_alt_title)
+				{
+					metrics_mode relative
+					left 0.01
+					width 0.06
+					top 0.002
+					height 0.02
+					font_name CyberbitEnglish
+					char_height 0.018
+					colour_top 1 1 1
+					colour_bottom 0.9 0.9 0.9
+					caption Altitude
+				}
+			}
+			container Panel (tracks/ap_alt_val_bg)
+			{
+				metrics_mode relative
+				vert_align bottom
+				top -0.02
+				left 0.015
+				width 0.045
+				height 0.02
+				material tracks/val-bg
+				element TextArea(tracks/ap_alt_val)
+				{
+					metrics_mode relative
+					left 0.005
+					width 0.05
+					top -0.001
+					height 0.02
+					font_name cent
+					char_height 0.02
+					colour_top 1 1 1
+					colour_bottom 0.7 0.7 0.7
+					caption 1000
+				}
+			}
+			container Panel (tracks/ap_alt_up)
+			{
+				metrics_mode relative
+				vert_align bottom
+				top -0.02
+				width 0.015
+				height 0.01
+				material tracks/ap-up
+			}
+			container Panel (tracks/ap_alt_dn)
+			{
+				metrics_mode relative
+				vert_align bottom
+				top -0.01
+				width 0.015
+				height 0.01
+				material tracks/ap-dn
+			}
+			container Panel (tracks/ap_alt_but)
+			{
+				metrics_mode relative
+				vert_align bottom
+				top -0.04
+				left 0.065
+				width 0.03
+				height 0.04
+				material tracks/hold-off
+			}
+		}
+	container Panel (tracks/ap_vs_pack)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align bottom
+			width 0.095
+			left 0.420
+			top -0.14
+			height 0.04
+			material tracks/black
+			container Panel (tracks/ap_vs_title_bg)
+			{
+				metrics_mode relative
+				width 0.06
+				height 0.02
+				material tracks/black
+				element TextArea(tracks/ap_vs_title)
+				{
+					metrics_mode relative
+					left 0.01
+					width 0.06
+					top 0.002
+					height 0.02
+					font_name CyberbitEnglish
+					char_height 0.018
+					colour_top 1 1 1
+					colour_bottom 0.9 0.9 0.9
+					caption Vert.Speed
+				}
+			}
+			container Panel (tracks/ap_vs_val_bg)
+			{
+				metrics_mode relative
+				vert_align bottom
+				top -0.02
+				left 0.015
+				width 0.045
+				height 0.02
+				material tracks/val-bg
+				element TextArea(tracks/ap_vs_val)
+				{
+					metrics_mode relative
+					left 0.005
+					width 0.05
+					top -0.001
+					height 0.02
+					font_name cent
+					char_height 0.02
+					colour_top 1 1 1
+					colour_bottom 0.7 0.7 0.7
+					caption 000
+				}
+			}
+			container Panel (tracks/ap_vs_up)
+			{
+				metrics_mode relative
+				vert_align bottom
+				top -0.02
+				width 0.015
+				height 0.01
+				material tracks/ap-up
+			}
+			container Panel (tracks/ap_vs_dn)
+			{
+				metrics_mode relative
+				vert_align bottom
+				top -0.01
+				width 0.015
+				height 0.01
+				material tracks/ap-dn
+			}
+			container Panel (tracks/ap_vs_but)
+			{
+				metrics_mode relative
+				vert_align bottom
+				top -0.04
+				left 0.065
+				width 0.03
+				height 0.04
+				material tracks/vs-off
+			}
+		}
+	container Panel (tracks/ap_ias_pack)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align bottom
+			width 0.095
+			left 0.515
+			top -0.14
+			height 0.04
+			material tracks/black
+			container Panel (tracks/ap_ias_title_bg)
+			{
+				metrics_mode relative
+				width 0.06
+				height 0.02
+				material tracks/black
+				element TextArea(tracks/ap_ias_title)
+				{
+					metrics_mode relative
+					left 0.01
+					width 0.06
+					top 0.002
+					height 0.02
+					font_name CyberbitEnglish
+					char_height 0.018
+					colour_top 1 1 1
+					colour_bottom 0.9 0.9 0.9
+					caption IAS
+				}
+			}
+			container Panel (tracks/ap_ias_val_bg)
+			{
+				metrics_mode relative
+				vert_align bottom
+				top -0.02
+				left 0.015
+				width 0.045
+				height 0.02
+				material tracks/val-bg
+				element TextArea(tracks/ap_ias_val)
+				{
+					metrics_mode relative
+					left 0.005
+					width 0.05
+					top -0.001
+					height 0.02
+					font_name cent
+					char_height 0.02
+					colour_top 1 1 1
+					colour_bottom 0.7 0.7 0.7
+					caption 150
+				}
+			}
+			container Panel (tracks/ap_ias_up)
+			{
+				metrics_mode relative
+				vert_align bottom
+				top -0.02
+				width 0.015
+				height 0.01
+				material tracks/ap-up
+			}
+			container Panel (tracks/ap_ias_dn)
+			{
+				metrics_mode relative
+				vert_align bottom
+				top -0.01
+				width 0.015
+				height 0.01
+				material tracks/ap-dn
+			}
+			container Panel (tracks/ap_ias_but)
+			{
+				metrics_mode relative
+				vert_align bottom
+				top -0.04
+				left 0.065
+				width 0.03
+				height 0.04
+				material tracks/athr-off
+			}
+		}
+		container Panel (tracks/ap_gpws_but)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align bottom
+			width 0.03
+			left 0.610
+			top -0.14
+			height 0.04
+			material tracks/gpws-on
+		}
+		container Panel (tracks/ap_brks_but)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align bottom
+			width 0.03
+			left 0.640
+			top -0.14
+			height 0.04
+			material tracks/brks-off
+		}
+
+
+}

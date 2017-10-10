@@ -1,0 +1,33 @@
+; BOAT
+BOAT_STEER_LEFT_AXIS           JoystickAxis         0 0 LOWER 
+BOAT_STEER_RIGHT_AXIS          JoystickAxis         0 0 UPPER 
+BOAT_THROTTLE_DOWN             JoystickButton       0 5
+BOAT_THROTTLE_UP               JoystickButton       0 4
+
+; CAMERA
+CAMERA_CHANGE                  JoystickButton       0 3 
+CAMERA_RESET                   JoystickButton       0 7 
+CAMERA_ROTATE_DOWN             JoystickPov          0 0 South
+CAMERA_ROTATE_LEFT             JoystickPov          0 0 West
+CAMERA_ROTATE_RIGHT            JoystickPov          0 0 East
+CAMERA_ROTATE_UP               JoystickPov          0 0 North
+
+; COMMANDS
+COMMANDS_01                    JoystickButton       0 11 
+COMMANDS_02                    JoystickButton       0 8 
+
+; COMMON
+COMMON_REPAIR_TRUCK            JoystickButton       0 0 
+
+; TRUCK
+TRUCK_ACCELERATE               JoystickAxis         0 2 REVERSE 
+TRUCK_BRAKE                    JoystickAxis         0 1 REVERSE 
+TRUCK_HORN                     JoystickButton       0 1 
+TRUCK_SHIFT_DOWN               JoystickButton       0 5 
+TRUCK_SHIFT_UP                 JoystickButton       0 4 
+TRUCK_STARTER                  JoystickButton       0 10
+TRUCK_STEER_LEFT               JoystickAxis         0 0 LOWER+DEADZONE=0.00 
+TRUCK_STEER_RIGHT              JoystickAxis         0 0 UPPER+DEADZONE=0.00 
+TRUCK_SWITCH_SHIFT_MODES       JoystickButton       0 2 
+TRUCK_TOGGLE_CONTACT           JoystickButton       0 9 
+TRUCK_TOGGLE_AXLE_LOCK         JoystickButton       0 6 

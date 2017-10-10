@@ -1,7 +1,0 @@
-railplatform1t5m.mesh
-1,1,1
-beginmesh
-mesh railplatform1t5m.mesh
-stdfriction concrete
-endmesh
-end

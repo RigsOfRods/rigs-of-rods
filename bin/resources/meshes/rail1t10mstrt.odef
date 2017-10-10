@@ -1,7 +1,0 @@
-rail1t10mstrt.mesh
-1,1,1
-beginmesh
-mesh rail1t10mstrt.mesh
-stdfriction metal
-endmesh
-end

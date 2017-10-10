@@ -1,0 +1,7 @@
+largedockstraight.mesh
+1,1,1
+beginmesh
+mesh largedockstraightcol.mesh
+stdfriction asphalt
+endmesh
+end

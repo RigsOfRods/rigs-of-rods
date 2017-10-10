@@ -1,0 +1,47 @@
+material SOLID/TEX/wood7.jpg
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture wood7.jpg
+			}
+		}
+	}
+}
+
+material SOLID/TEX/Leaves.png
+{
+	technique
+	{
+		pass
+		{
+			cull_hardware none
+			alpha_rejection greater_equal 128
+
+			texture_unit
+			{
+				texture leaves.png alpha
+			}
+		}
+	}
+}
+
+material SOLID/TEX/PineLeaves.png
+{
+	technique
+	{
+		pass
+		{
+			cull_hardware none
+			alpha_rejection greater_equal 128
+
+			texture_unit
+			{
+				texture pineleaves.png alpha
+			}
+		}
+	}
+}
