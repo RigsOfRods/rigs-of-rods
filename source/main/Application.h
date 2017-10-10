@@ -362,6 +362,7 @@ extern GVarPod<bool>           diag_log_beam_break;
 extern GVarPod<bool>           diag_log_beam_deform;
 extern GVarPod<bool>           diag_log_beam_trigger;
 extern GVarPod<bool>           diag_dof_effect;
+extern GVarStr<300>            diag_extra_resource_dir;
 
 // System
 extern GVarStr<300>            sys_process_dir;

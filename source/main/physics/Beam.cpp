@@ -5280,20 +5280,6 @@ bool Beam::LoadTruck(
     int cache_entry_number // = -1
 )
 {
-    /* add custom include path */
-    if (!SSETTING("resourceIncludePath", "").empty())
-    {
-        Ogre::ResourceGroupManager::getSingleton().addResourceLocation(SSETTING("resourceIncludePath", ""), "FileSystem", "customInclude");
-    }
-
-    //ScopeLog scope_log("beam_"+filename);
-
-    /* initialize custom include path */
-    if (!SSETTING("resourceIncludePath", "").empty())
-    {
-        Ogre::ResourceBackgroundQueue::getSingleton().initialiseResourceGroup("customInclude");
-    }
-
     Ogre::DataStreamPtr ds = Ogre::DataStreamPtr();
     Ogre::String fixed_file_name = file_name;
     Ogre::String found_resource_group;

@@ -114,19 +114,14 @@ void RigSpawner::Setup(
         m_generate_wing_position_lights = false; // Disable aerial pos. lights for land vehicles.
     }
 
-    // add custom include path
-    if (!SSETTING("resourceIncludePath", "").empty())
+    if (App::diag_extra_resource_dir.GetActive() != App::diag_extra_resource_dir.GetPending())
+    {
+        App::diag_extra_resource_dir.ApplyPending();
+    }
+    if (! App::diag_extra_resource_dir.IsActiveEmpty())
     {
         Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
-            SSETTING("resourceIncludePath", ""), 
-            "FileSystem", 
-            "customInclude"
-        );
-    }
-
-    // initialize custom include path
-    if (!SSETTING("resourceIncludePath", "").empty())
-    {
+            App::diag_extra_resource_dir.GetActive(), "FileSystem", "customInclude");
         Ogre::ResourceBackgroundQueue::getSingleton().initialiseResourceGroup("customInclude");
     }
 
