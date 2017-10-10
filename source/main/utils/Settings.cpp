@@ -276,19 +276,19 @@ void Settings::ProcessCommandLine(int argc, char *argv[])
             RoR::App::app_state.SetPending(RoR::AppState::PRINT_VERSION_EXIT);
             return;
         }
-        else if (args.OptionId() == OPT_TRUCK) 
+        else if (args.OptionId() == OPT_TRUCK)
         {
             App::diag_preset_vehicle.SetActive(args.OptionArg());
         }
-        else if (args.OptionId() == OPT_TRUCKCONFIG) 
+        else if (args.OptionId() == OPT_TRUCKCONFIG)
         {
             App::diag_preset_veh_config.SetActive(args.OptionArg());
         }
-        else if (args.OptionId() == OPT_MAP) 
+        else if (args.OptionId() == OPT_MAP)
         {
             App::diag_preset_terrain.SetActive(args.OptionArg());
         }
-        else if (args.OptionId() == OPT_USERPATH) 
+        else if (args.OptionId() == OPT_USERPATH)
         {
             SETTINGS.setSetting("userpath", String(args.OptionArg()));
         }
@@ -298,36 +298,36 @@ void Settings::ProcessCommandLine(int argc, char *argv[])
             SetCurrentDirectory(args.OptionArg());
 #endif
         }
-        else if (args.OptionId() == OPT_STATE) 
+        else if (args.OptionId() == OPT_STATE)
         {
             SETTINGS.setSetting("StartState", args.OptionArg());
         }
-        else if (args.OptionId() == OPT_NOCACHE) 
+        else if (args.OptionId() == OPT_NOCACHE)
         {
             SETTINGS.setSetting("NOCACHE", "Yes");
         }
-        else if (args.OptionId() == OPT_ADVLOG) 
+        else if (args.OptionId() == OPT_ADVLOG)
         {
             SETTINGS.setSetting("Advanced Logging", "Yes");
         }
-        else if (args.OptionId() == OPT_INCLUDEPATH) 
+        else if (args.OptionId() == OPT_INCLUDEPATH)
         {
-            SETTINGS.setSetting("resourceIncludePath", args.OptionArg());
-        } 
-        else if (args.OptionId() == OPT_CHECKCACHE) 
+            App::diag_extra_resource_dir.SetActive(args.OptionArg());
+        }
+        else if (args.OptionId() == OPT_CHECKCACHE)
         {
             // just regen cache and exit
             SETTINGS.setSetting("regen-cache-only", "Yes");
-        } 
-        else if (args.OptionId() == OPT_ENTERTRUCK) 
+        }
+        else if (args.OptionId() == OPT_ENTERTRUCK)
         {
             App::diag_preset_veh_enter.SetActive(true);
-        } 
-        else if (args.OptionId() == OPT_SETUP) 
+        }
+        else if (args.OptionId() == OPT_SETUP)
         {
             SETTINGS.setSetting("USE_OGRE_CONFIG", "Yes");
-        } 
-        else if (args.OptionId() == OPT_JOINMPSERVER) 
+        }
+        else if (args.OptionId() == OPT_JOINMPSERVER)
         {
             std::string server_args = args.OptionArg();
             const int colon = server_args.rfind(":");
@@ -652,6 +652,7 @@ static const char* CONF_PRESET_TERRAIN  = "Preselected Map";
 static const char* CONF_PRESET_TRUCK    = "Preselected Truck";
 static const char* CONF_PRESET_TRUCKCFG = "Preselected TruckConfig";
 static const char* CONF_PRESET_ENTER_RIG= "Enter PreselectedTruck";
+static const char* CONF_EXTRA_RES_DIR   = App::diag_extra_resource_dir.conf_name; // TODO: These constants are obsolete duplicates now - refactor! ~only_a_ptr, 10/2017
 // App
 static const char* CONF_SCREENSHOT_FMT  = "Screenshot Format";
 static const char* CONF_REPLAY_MODE     = "Replay mode";
@@ -738,6 +739,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (k == CONF_PRESET_TRUCK    ) { App::diag_preset_vehicle      .SetActive(S(v)); return true; }
     if (k == CONF_PRESET_TRUCKCFG ) { App::diag_preset_veh_config   .SetActive(S(v)); return true; }
     if (k == CONF_PRESET_ENTER_RIG) { App::diag_preset_veh_enter    .SetActive(B(v)); return true; }
+    if (k == CONF_EXTRA_RES_DIR)    { App::diag_extra_resource_dir  .SetActive(S(v)); return true; }
     // App
     if (k == CONF_SCREENSHOT_FMT  ) { App__SetScreenshotFormat     (S(v)); return true; }
     if (k == CONF_REPLAY_MODE     ) { App::sim_replay_enabled       .SetActive(B(v)); return true; }
