@@ -44,7 +44,6 @@
 #include "Language.h"
 #include "PlatformUtils.h"
 #include "RoRVersion.h"
-#include "SHA1.h"
 #include "Utils.h"
 
 // simpleopt by http://code.jellycan.com/simpleopt/
@@ -590,6 +589,7 @@ static const char* CONF_MP_HOSTNAME     = "Server name";
 static const char* CONF_MP_PORT         = "Server port";
 static const char* CONF_MP_PASSWORD     = "Server password";
 static const char* CONF_MP_PORTAL_URL   = "Multiplayer portal URL";
+static const char* CONF_MP_TOKEN_HASH   = App::mp_player_token_hash.conf_name;
 // Sim
 static const char* CONF_SIM_GEARBOX     = "GearboxMode";
 static const char* CONF_SIM_MULTITHREAD = "Multi-threading";
@@ -678,6 +678,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (k == CONF_MP_PORT         ) { App::mp_server_port      .SetActive(I(v)); return true; }
     if (k == CONF_MP_PASSWORD     ) { App::mp_server_password  .SetActive(S(v)); return true; }
     if (k == CONF_MP_PORTAL_URL   ) { App::mp_portal_url       .SetActive(S(v)); return true; }
+    if (k == CONF_MP_TOKEN_HASH   ) { App::mp_player_token_hash.SetActive(S(v)); return true; }
     // Sim
     if (k == CONF_SIM_GEARBOX     ) { App__SetSimGearboxMode             (S(v)); return true; }
     if (k == CONF_SIM_MULTITHREAD ) { App::app_multithread     .SetActive(B(v)); return true; }
@@ -787,20 +788,6 @@ void Settings::LoadRoRCfg()
         }
     }
     catch (Ogre::FileNotFoundException&) {} // Just continue with defaults...
-
-    // generate hash of the token
-    String usertoken = SSETTING("User Token", "");
-    char usertokensha1result[250];
-    memset(usertokensha1result, 0, 250);
-    if (usertoken.size()>0)
-    {
-        RoR::CSHA1 sha1;
-        sha1.UpdateHash((uint8_t *)usertoken.c_str(), (uint32_t)usertoken.size());
-        sha1.Final();
-        sha1.ReportHash(usertokensha1result, RoR::CSHA1::REPORT_HEX_SHORT);
-    }
-
-    setSetting("User Token Hash", String(usertokensha1result));
 }
 
 inline const char* IoInputGrabToStr(IoInputGrabMode v)

@@ -343,6 +343,7 @@ extern GVarStr<200>            mp_server_host;
 extern GVarPod<int>            mp_server_port;
 extern GVarStr<100>            mp_server_password;
 extern GVarStr<100>            mp_player_name;
+extern GVarStr<250>            mp_player_token_hash;
 extern GVarStr<400>            mp_portal_url;
 
 // Diagnostic

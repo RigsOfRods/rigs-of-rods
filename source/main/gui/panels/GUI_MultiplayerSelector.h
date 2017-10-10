@@ -58,6 +58,7 @@ private:
     bool                           m_is_refreshing;
     char                           m_window_title[100];
     bool                           m_is_visible;
+    Str<200>                       m_user_token_buf;
 };
 
 } // namespace GUI
