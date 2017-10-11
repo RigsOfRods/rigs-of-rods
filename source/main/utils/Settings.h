@@ -169,9 +169,8 @@ public:
 protected:
 
     // Helpers
-    void SetMpNetworkEnable(bool enable);
-    void SetGfxFovExternal(float fov);
-    void SetGfxFovInternal(float fov);
+    bool CheckMpEnable(std::string const & k, std::string const & v);
+    bool CheckFov(std::string const & k, std::string const & v);
 
     static Settings* myInstance;
 
