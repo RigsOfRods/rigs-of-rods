@@ -78,7 +78,7 @@ static RoRFrameListener* g_sim_controller;
  GVarStr<100>             mp_server_password      ("mp_server_password",      "Server password",           "",                      "");
  GVarStr<100>             mp_player_name          ("mp_player_name",          "Nickname",                  "Player",                "Player");
  GVarStr<250>             mp_player_token_hash    ("mp_player_token_hash",    "User Token Hash",           "",                      "");
- GVarStr<400>             mp_portal_url           ("mp_portal_url",           "MP portal URL",             "http://multiplayer.rigsofrods.org", "http://multiplayer.rigsofrods.org");
+ GVarStr<400>             mp_portal_url           ("mp_portal_url",           "Multiplayer portal URL",    "http://multiplayer.rigsofrods.org", "http://multiplayer.rigsofrods.org");
 
 // Diagnostic
  GVarPod<bool>            diag_trace_globals      ("diag_trace_globals",      nullptr,                     false,                   false); // Don't init to 'true', logger is not ready at startup

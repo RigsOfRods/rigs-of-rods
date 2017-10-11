@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2016 Petr Ohlidal
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -52,6 +52,8 @@
 #    undef _UNICODE // We want narrow-string args.
 #endif
 #include "SimpleOpt.h"
+
+static const char* CONF_MP_NET_ENABLE   = "Network enable";
 
 // option identifiers
 enum {
@@ -477,286 +479,300 @@ const char* CONF_INPUT_GRAB_DYNAMIC = "Dynamically";
 const char* CONF_INPUT_GRAB_NONE    = "None";
 const char* CONF_INPUT_GRAB_ALL     = "All";
 
-void App__SetIoInputGrabMode(std::string const & s)
+// ---------------------------- READING CONFIG FILE ------------------------------- //
+
+inline bool CheckIoInputGrabMode(std::string const & key, std::string const & s)
 {
-    if (s == CONF_INPUT_GRAB_DYNAMIC) { App::io_input_grab_mode.SetActive(RoR::IoInputGrabMode::DYNAMIC); return; }
-    if (s == CONF_INPUT_GRAB_NONE   ) { App::io_input_grab_mode.SetActive(RoR::IoInputGrabMode::NONE);    return; }
-    else                              { App::io_input_grab_mode.SetActive(RoR::IoInputGrabMode::ALL);     return; }
+    if (key != App::io_input_grab_mode.conf_name)
+        return false;
+
+    if (s == CONF_INPUT_GRAB_DYNAMIC) { App::io_input_grab_mode.SetActive(RoR::IoInputGrabMode::DYNAMIC); return true; }
+    if (s == CONF_INPUT_GRAB_NONE   ) { App::io_input_grab_mode.SetActive(RoR::IoInputGrabMode::NONE);    return true; }
+    else                              { App::io_input_grab_mode.SetActive(RoR::IoInputGrabMode::ALL);     return true; }
 }
 
-void App__SetShadowTech(std::string const & s)
+inline bool CheckShadowTech(std::string const & key, std::string const & s)
 {
-    if (s == CONF_GFX_SHADOW_TEX)     { App::gfx_shadow_type.SetActive(GfxShadowType::TEXTURE); return; }
-    if (s == CONF_GFX_SHADOW_PSSM)    { App::gfx_shadow_type.SetActive(GfxShadowType::PSSM   ); return; }
-    else                              { App::gfx_shadow_type.SetActive(GfxShadowType::NONE   ); return; }
+    if (key != App::gfx_shadow_type.conf_name)
+        return false;
+
+    if (s == CONF_GFX_SHADOW_TEX)     { App::gfx_shadow_type.SetActive(GfxShadowType::TEXTURE); return true; }
+    if (s == CONF_GFX_SHADOW_PSSM)    { App::gfx_shadow_type.SetActive(GfxShadowType::PSSM   ); return true; }
+    else                              { App::gfx_shadow_type.SetActive(GfxShadowType::NONE   ); return true; }
 }
 
-void App__SetExtcamMode(std::string const & s)
+inline bool CheckExtcamMode(std::string const & key, std::string const & s)
 {
-    if (s == CONF_EXTCAM_PITCHING)    { App::gfx_extcam_mode.SetActive(GfxExtCamMode::PITCHING); return; }
-    if (s == CONF_EXTCAM_STATIC)      { App::gfx_extcam_mode.SetActive(GfxExtCamMode::STATIC  ); return; }
-    else                              { App::gfx_extcam_mode.SetActive(GfxExtCamMode::NONE    ); return; }
+    if (key != App::gfx_extcam_mode.conf_name)
+        return false;
+
+    if (s == CONF_EXTCAM_PITCHING)    { App::gfx_extcam_mode.SetActive(GfxExtCamMode::PITCHING); return true; }
+    if (s == CONF_EXTCAM_STATIC)      { App::gfx_extcam_mode.SetActive(GfxExtCamMode::STATIC  ); return true; }
+    else                              { App::gfx_extcam_mode.SetActive(GfxExtCamMode::NONE    ); return true; }
 }
 
-void App__SetTexFiltering(std::string const & s)
+inline bool CheckTexFiltering(std::string const & key, std::string const & s)
 {
-    if (s == CONF_TEXFILTER_NONE)     { App::gfx_texture_filter.SetActive(GfxTexFilter::NONE);        return; }
-    if (s == CONF_TEXFILTER_BILI)     { App::gfx_texture_filter.SetActive(GfxTexFilter::BILINEAR);    return; }
-    if (s == CONF_TEXFILTER_TRILI)    { App::gfx_texture_filter.SetActive(GfxTexFilter::TRILINEAR);   return; }
-    if (s == CONF_TEXFILTER_ANISO)    { App::gfx_texture_filter.SetActive(GfxTexFilter::ANISOTROPIC); return; }
+    if (key != App::gfx_texture_filter.conf_name)
+        return false;
+
+    if (s == CONF_TEXFILTER_NONE)     { App::gfx_texture_filter.SetActive(GfxTexFilter::NONE);        return true; }
+    if (s == CONF_TEXFILTER_BILI)     { App::gfx_texture_filter.SetActive(GfxTexFilter::BILINEAR);    return true; }
+    if (s == CONF_TEXFILTER_TRILI)    { App::gfx_texture_filter.SetActive(GfxTexFilter::TRILINEAR);   return true; }
+    if (s == CONF_TEXFILTER_ANISO)    { App::gfx_texture_filter.SetActive(GfxTexFilter::ANISOTROPIC); return true; }
+    return true;
 }
 
-void App__SetVegetationMode(std::string const & s)
+inline bool CheckVegetationMode(std::string const & key, std::string const & s)
 {
-    if (s == CONF_VEGET_NONE  )       { App::gfx_vegetation_mode.SetActive(GfxVegetation::NONE);    return; }
-    if (s == CONF_VEGET_20PERC)       { App::gfx_vegetation_mode.SetActive(GfxVegetation::x20PERC); return; }
-    if (s == CONF_VEGET_50PERC)       { App::gfx_vegetation_mode.SetActive(GfxVegetation::x50PERC); return; }
-    if (s == CONF_VEGET_FULL  )       { App::gfx_vegetation_mode.SetActive(GfxVegetation::FULL);    return; }
+    if (key != App::gfx_vegetation_mode.conf_name)
+        return false;
+
+    if (s == CONF_VEGET_NONE  )       { App::gfx_vegetation_mode.SetActive(GfxVegetation::NONE);    return true; }
+    if (s == CONF_VEGET_20PERC)       { App::gfx_vegetation_mode.SetActive(GfxVegetation::x20PERC); return true; }
+    if (s == CONF_VEGET_50PERC)       { App::gfx_vegetation_mode.SetActive(GfxVegetation::x50PERC); return true; }
+    if (s == CONF_VEGET_FULL  )       { App::gfx_vegetation_mode.SetActive(GfxVegetation::FULL);    return true; }
+    return true;
 }
 
-void App__SetSimGearboxMode(std::string const & s)
+inline bool CheckSimGearboxMode(std::string const & key, std::string const & s)
 {
-    if (s == CONF_GEARBOX_AUTO      ) { App::sim_gearbox_mode.SetActive(SimGearboxMode::AUTO         ); return; }
-    if (s == CONF_GEARBOX_SEMIAUTO  ) { App::sim_gearbox_mode.SetActive(SimGearboxMode::SEMI_AUTO    ); return; }
-    if (s == CONF_GEARBOX_MANUAL    ) { App::sim_gearbox_mode.SetActive(SimGearboxMode::MANUAL       ); return; }
-    if (s == CONF_GEARBOX_MAN_STICK ) { App::sim_gearbox_mode.SetActive(SimGearboxMode::MANUAL_STICK ); return; }
-    if (s == CONF_GEARBOX_MAN_RANGES) { App::sim_gearbox_mode.SetActive(SimGearboxMode::MANUAL_RANGES); return; }
+    if (key != App::sim_gearbox_mode.conf_name)
+        return false;
+
+    if (s == CONF_GEARBOX_AUTO      ) { App::sim_gearbox_mode.SetActive(SimGearboxMode::AUTO         ); return true; }
+    if (s == CONF_GEARBOX_SEMIAUTO  ) { App::sim_gearbox_mode.SetActive(SimGearboxMode::SEMI_AUTO    ); return true; }
+    if (s == CONF_GEARBOX_MANUAL    ) { App::sim_gearbox_mode.SetActive(SimGearboxMode::MANUAL       ); return true; }
+    if (s == CONF_GEARBOX_MAN_STICK ) { App::sim_gearbox_mode.SetActive(SimGearboxMode::MANUAL_STICK ); return true; }
+    if (s == CONF_GEARBOX_MAN_RANGES) { App::sim_gearbox_mode.SetActive(SimGearboxMode::MANUAL_RANGES); return true; }
+    return true;
 }
 
-void App__SetGfxFlaresMode(std::string const & s)
+inline bool CheckGfxFlaresMode(std::string const & key, std::string const & s)
 {
-    if (s == CONF_FLARES_NONE      )  { App::gfx_flares_mode.SetActive(GfxFlaresMode::NONE);                    return; }
-    if (s == CONF_FLARES_NO_LIGHT  )  { App::gfx_flares_mode.SetActive(GfxFlaresMode::NO_LIGHTSOURCES);         return; }
-    if (s == CONF_FLARES_CURR_HEAD )  { App::gfx_flares_mode.SetActive(GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY);  return; }
-    if (s == CONF_FLARES_ALL_HEADS )  { App::gfx_flares_mode.SetActive(GfxFlaresMode::ALL_VEHICLES_HEAD_ONLY);  return; }
-    if (s == CONF_FLARES_ALL_LIGHTS)  { App::gfx_flares_mode.SetActive(GfxFlaresMode::ALL_VEHICLES_ALL_LIGHTS); return; }
+    if (key != App::gfx_flares_mode.conf_name)
+        return false;
+
+    if (s == CONF_FLARES_NONE      )  { App::gfx_flares_mode.SetActive(GfxFlaresMode::NONE);                    return true; }
+    if (s == CONF_FLARES_NO_LIGHT  )  { App::gfx_flares_mode.SetActive(GfxFlaresMode::NO_LIGHTSOURCES);         return true; }
+    if (s == CONF_FLARES_CURR_HEAD )  { App::gfx_flares_mode.SetActive(GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY);  return true; }
+    if (s == CONF_FLARES_ALL_HEADS )  { App::gfx_flares_mode.SetActive(GfxFlaresMode::ALL_VEHICLES_HEAD_ONLY);  return true; }
+    if (s == CONF_FLARES_ALL_LIGHTS)  { App::gfx_flares_mode.SetActive(GfxFlaresMode::ALL_VEHICLES_ALL_LIGHTS); return true; }
+    return true;
 }
 
-void App__SetGfxWaterMode(std::string const & s)
+inline bool CheckGfxWaterMode(std::string const & key, std::string const & s)
 {
-    if (s == CONF_WATER_NONE     )    { App::gfx_water_mode.SetActive(GfxWaterMode::NONE     ); return; }
-    if (s == CONF_WATER_BASIC    )    { App::gfx_water_mode.SetActive(GfxWaterMode::BASIC    ); return; }
-    if (s == CONF_WATER_REFLECT  )    { App::gfx_water_mode.SetActive(GfxWaterMode::REFLECT  ); return; }
-    if (s == CONF_WATER_FULL_FAST)    { App::gfx_water_mode.SetActive(GfxWaterMode::FULL_FAST); return; }
-    if (s == CONF_WATER_FULL_HQ  )    { App::gfx_water_mode.SetActive(GfxWaterMode::FULL_HQ  ); return; }
-    if (s == CONF_WATER_HYDRAX   )    { App::gfx_water_mode.SetActive(GfxWaterMode::HYDRAX   ); return; }
+    if (key != App::gfx_water_mode.conf_name)
+        return false;
+
+    if (s == CONF_WATER_NONE     )    { App::gfx_water_mode.SetActive(GfxWaterMode::NONE     ); return true; }
+    if (s == CONF_WATER_BASIC    )    { App::gfx_water_mode.SetActive(GfxWaterMode::BASIC    ); return true; }
+    if (s == CONF_WATER_REFLECT  )    { App::gfx_water_mode.SetActive(GfxWaterMode::REFLECT  ); return true; }
+    if (s == CONF_WATER_FULL_FAST)    { App::gfx_water_mode.SetActive(GfxWaterMode::FULL_FAST); return true; }
+    if (s == CONF_WATER_FULL_HQ  )    { App::gfx_water_mode.SetActive(GfxWaterMode::FULL_HQ  ); return true; }
+    if (s == CONF_WATER_HYDRAX   )    { App::gfx_water_mode.SetActive(GfxWaterMode::HYDRAX   ); return true; }
+    return true;
 }
 
-void App__SetGfxSkyMode(std::string const & s)
+inline bool CheckGfxSkyMode(std::string const & key, std::string const & s)
 {
-    if (s == CONF_SKY_SANDSTORM)      { App::gfx_sky_mode.SetActive(GfxSkyMode::SANDSTORM); return; }
-    if (s == CONF_SKY_CAELUM   )      { App::gfx_sky_mode.SetActive(GfxSkyMode::CAELUM);    return; }
-    if (s == CONF_SKY_SKYX     )      { App::gfx_sky_mode.SetActive(GfxSkyMode::SKYX);      return; }
+    if (key != App::gfx_sky_mode.conf_name)
+        return false;
+
+    if (s == CONF_SKY_SANDSTORM)      { App::gfx_sky_mode.SetActive(GfxSkyMode::SANDSTORM); return true; }
+    if (s == CONF_SKY_CAELUM   )      { App::gfx_sky_mode.SetActive(GfxSkyMode::CAELUM);    return true; }
+    if (s == CONF_SKY_SKYX     )      { App::gfx_sky_mode.SetActive(GfxSkyMode::SKYX);      return true; }
+    return true;
 }
 
-void App__SetScreenshotFormat(std::string const & s)
+inline bool CheckScreenshotFormat(std::string const & key, std::string const & s)
 {
+    if (key != App::app_screenshot_format.conf_name)
+        return false;
+
     if (s.size() >= 3) { App::app_screenshot_format.SetActive(s.substr(0, 3).c_str()); }
+    return true;
 }
 
-void App__SetGfxEnvmapRate(std::string const & s)
+inline bool CheckEnvmapRate(std::string const & key, std::string const & s)
 {
+    if (key != App::gfx_envmap_rate.conf_name)
+        return false;
+
     int rate = Ogre::StringConverter::parseInt(s);
     if (rate < 0) { rate = 0; }
     if (rate > 6) { rate = 6; }
     App::gfx_envmap_rate.SetActive(rate);
+    return true;
 }
 
-void Settings::SetMpNetworkEnable(bool enable)
+inline bool Settings::CheckMpEnable(std::string const & k, std::string const & v)
 {
-    m_network_enable = enable;
+    if (k != CONF_MP_NET_ENABLE)
+        return false;
+
+    m_network_enable = Ogre::StringConverter::parseBool(v);
     if (m_network_enable)
     {
         App::mp_state.SetPending(RoR::MpState::CONNECTED);
     }
+    return true;
 }
 
-void Settings::SetGfxFovExternal(float fov)
+inline bool Settings::CheckFov(std::string const & k, std::string const & v)
 {
-    m_fov_external = fov;
-    App::gfx_fov_external.SetActive(m_fov_external);
+    if (k == App::gfx_fov_external.conf_name)
+    {
+        m_fov_external = Ogre::StringConverter::parseReal(v);
+        App::gfx_fov_external.SetActive(m_fov_external);
+        return true;
+    }
+
+    if (k == App::gfx_fov_internal.conf_name)
+    {
+        m_fov_internal = Ogre::StringConverter::parseReal(v);
+        App::gfx_fov_internal.SetActive(m_fov_internal);
+        return true;
+    }
+
+    return false;
 }
 
-void Settings::SetGfxFovInternal(float fov)
+template <typename GVarStr_T>
+inline bool CheckStr(GVarStr_T& gvar, std::string const & key, std::string const & value)
 {
-    m_fov_internal = fov;
-    App::gfx_fov_internal.SetActive(m_fov_internal);
+    if (key == gvar.conf_name)
+    {
+        gvar.SetActive(value.c_str());
+        return true;
+    }
+    return false;
 }
 
-static const char* CONF_MP_NET_ENABLE   = "Network enable";
-static const char* CONF_MP_NICKNAME     = "Nickname";
-static const char* CONF_MP_HOSTNAME     = "Server name";
-static const char* CONF_MP_PORT         = "Server port";
-static const char* CONF_MP_PASSWORD     = "Server password";
-static const char* CONF_MP_PORTAL_URL   = "Multiplayer portal URL";
-static const char* CONF_MP_TOKEN_HASH   = App::mp_player_token_hash.conf_name;
-// Sim
-static const char* CONF_SIM_GEARBOX     = "GearboxMode";
-static const char* CONF_SIM_MULTITHREAD = "Multi-threading";
-// Input-Output
-static const char* CONF_FF_ENABLED      = "Force Feedback";
-static const char* CONF_FF_CAMERA       = "Force Feedback Camera";
-static const char* CONF_FF_CENTERING    = "Force Feedback Centering";
-static const char* CONF_FF_GAIN         = "Force Feedback Gain";
-static const char* CONF_FF_STRESS       = "Force Feedback Stress";
-static const char* CONF_INPUT_GRAB      = "Input Grab";
-static const char* CONF_ARCADE_CONTROL  = "ArcadeControls";
-static const char* CONF_OUTGAUGE_MODE   = "OutGauge Mode";
-static const char* CONF_OUTGAUGE_IP     = "OutGauge IP";
-static const char* CONF_OUTGAUGE_PORT   = "OutGauge Port";
-static const char* CONF_OUTGAUGE_DELAY  = "OutGauge Delay";
-static const char* CONF_OUTGAUGE_ID     = "OutGauge ID";
-// Gfx
-static const char* CONF_GFX_SHADOWS     = "Shadow technique";
-static const char* CONF_GFX_EXTCAM      = "External CameraMode";
-static const char* CONF_GFX_TEX_FILTER  = "Texture Filtering";
-static const char* CONF_GFX_VEGETATION  = "Vegetation";
-static const char* CONF_GFX_SUNBURN     = "Sunburn";
-static const char* CONF_GFX_WAVES       = "Waves";
-static const char* CONF_MINIMAP_OFF     = "disableOverViewMap";
-static const char* CONF_GFX_PARTICLES   = "Particles";
-static const char* CONF_GFX_GLOW        = "Glow";
-static const char* CONF_GFX_HDR         = "HDR";
-static const char* CONF_GFX_HEATHAZE    = "HeatHaze";
-static const char* CONF_GFX_VIDEOCAMS   = "gfx_enable_videocams";
-static const char* CONF_GFX_SKIDMARKS   = "Skidmarks";
-static const char* CONF_ENVMAP_RATE     = "EnvmapUpdateRate";
-static const char* CONF_ENVMAP_ENABLED  = "Envmap";
-static const char* CONF_GFX_LIGHTS      = "Lights";
-static const char* CONF_GFX_WATER_MODE  = "Water effects";
-static const char* CONF_GFX_SIGHT_RANGE = "SightRange";
-static const char* CONF_GFX_FOV_EXTERN  = "FOV External";
-static const char* CONF_GFX_FOV_INTERN  = "FOV Internal";
-static const char* CONF_GFX_FPS_LIMIT   = "FPS-Limiter";
-static const char* CONF_GFX_SKY_EFFECTS = "Sky effects";
-// Audio
-static const char* CONF_SOUND_VOLUME    = "Sound Volume";
-static const char* CONF_SOUND_CREAK     = "Creak Sound";
-static const char* CONF_MUSIC_MAIN_MENU = "MainMenuMusic";
-static const char* CONF_AUDIO_DEVICE    = "AudioDevice";
-// Diag
-static const char* CONF_LOG_NODE_IMPORT = "RigImporter_Debug_TraverseAndLogAllNodes";
-static const char* CONF_LOG_NODE_STATS  = "RigImporter_PrintNodeStatsToLog";
-static const char* CONF_LOG_RIG_IMPORT  = "RigImporter_PrintMessagesToLog";
-static const char* CONF_COLLISION_DBG   = "Debug Collisions";
-static const char* CONF_TRUCKMASS_DBG   = "Debug TruckMass";
-static const char* CONF_ENVMAP_DEBUG    = "EnvMapDebug";
-static const char* CONF_VIDEOCAM_DEBUG  = "VideoCameraDebug";
-static const char* CONF_DIAG_MASS_CALC  = "Debug Truck Mass";
-static const char* CONF_CONSOLE_ECHO    = "Enable Ingame Console";
-static const char* CONF_DIAG_BREAK_LOG  = "Beam Break Debug";
-static const char* CONF_DIAG_DEFORM_LOG = "Beam Deform Debug";
-static const char* CONF_DIAG_TRIG_LOG   = "Trigger Debug";
-static const char* CONF_DIAG_DOF_EFFECT = "DOFDebug";
-static const char* CONF_PRESET_TERRAIN  = "Preselected Map";
-static const char* CONF_PRESET_TRUCK    = "Preselected Truck";
-static const char* CONF_PRESET_TRUCKCFG = "Preselected TruckConfig";
-static const char* CONF_PRESET_ENTER_RIG= "Enter PreselectedTruck";
-static const char* CONF_EXTRA_RES_DIR   = App::diag_extra_resource_dir.conf_name; // TODO: These constants are obsolete duplicates now - refactor! ~only_a_ptr, 10/2017
-// App
-static const char* CONF_SCREENSHOT_FMT  = "Screenshot Format";
-static const char* CONF_REPLAY_MODE     = "Replay mode";
-static const char* CONF_REPLAY_LENGTH   = "Replay length";
-static const char* CONF_REPLAY_STEPPING = "Replay Steps per second";
-static const char* CONF_POS_STORAGE     = "Position Storage";
-static const char* CONF_LANGUAGE_SHORT  = "Language Short";
+inline bool CheckInt(GVarPod<int>& gvar, std::string const & key, std::string const & value)
+{
+    if (key == gvar.conf_name)
+    {
+        gvar.SetActive(Ogre::StringConverter::parseInt(value));
+        return true;
+    }
+    return false;
+}
 
-#define I(_VAL_)  Ogre::StringConverter::parseInt (_VAL_)
-#define F(_VAL_)  Ogre::StringConverter::parseReal(_VAL_)
-#define B(_VAL_)  Ogre::StringConverter::parseBool(_VAL_)
-#define M(_VAL_)  ((int)B(_VAL_))
-#define S(_VAL_)  (_VAL_.c_str())
+inline bool CheckBool(GVarPod<bool>& gvar, std::string const & key, std::string const & value)
+{
+    if (key == gvar.conf_name)
+    {
+        gvar.SetActive(Ogre::StringConverter::parseBool(value));
+        return true;
+    }
+    return false;
+}
+
+inline bool CheckB2I(GVarPod<int>& gvar, std::string const & key, std::string const & value) // bool to int
+{
+    if (key == gvar.conf_name)
+    {
+        gvar.SetActive(Ogre::StringConverter::parseBool(value) ? 1 : 0);
+        return true;
+    }
+    return false;
+}
+
+inline bool CheckFloat(GVarPod<float>& gvar, std::string const & key, std::string const & value)
+{
+    if (key == gvar.conf_name)
+    {
+        gvar.SetActive(static_cast<float>(Ogre::StringConverter::parseReal(value)));
+        return true;
+    }
+    return false;
+}
 
 bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & v)
 {
     // Process and erase settings which propagate to global vars.
 
     // Multiplayer
-    if (k == CONF_MP_NET_ENABLE   ) { this->SetMpNetworkEnable           (B(v)); return true; }
-    if (k == CONF_MP_NICKNAME     ) { App::mp_player_name      .SetActive(S(v)); return true; }
-    if (k == CONF_MP_HOSTNAME     ) { App::mp_server_host      .SetActive(S(v)); return true; }
-    if (k == CONF_MP_PORT         ) { App::mp_server_port      .SetActive(I(v)); return true; }
-    if (k == CONF_MP_PASSWORD     ) { App::mp_server_password  .SetActive(S(v)); return true; }
-    if (k == CONF_MP_PORTAL_URL   ) { App::mp_portal_url       .SetActive(S(v)); return true; }
-    if (k == CONF_MP_TOKEN_HASH   ) { App::mp_player_token_hash.SetActive(S(v)); return true; }
+    if (this->CheckMpEnable                       (k, v)) { return true; }
+    if (CheckStr  (App::mp_player_name,            k, v)) { return true; }
+    if (CheckStr  (App::mp_server_host,            k, v)) { return true; }
+    if (CheckInt  (App::mp_server_port,            k, v)) { return true; }
+    if (CheckStr  (App::mp_server_password,        k, v)) { return true; }
+    if (CheckStr  (App::mp_portal_url,             k, v)) { return true; }
+    if (CheckStr  (App::mp_player_token_hash,      k, v)) { return true; }
     // Sim
-    if (k == CONF_SIM_GEARBOX     ) { App__SetSimGearboxMode             (S(v)); return true; }
-    if (k == CONF_SIM_MULTITHREAD ) { App::app_multithread     .SetActive(B(v)); return true; }
+    if (CheckSimGearboxMode                       (k, v)) { return true; }
+    if (CheckBool (App::app_multithread,           k, v)) { return true; }
     // Input&Output
-    if (k == CONF_FF_ENABLED      ) { App::io_ffb_enabled      .SetActive(B(v)); return true; }
-    if (k == CONF_FF_CAMERA       ) { App::io_ffb_camera_gain  .SetActive(F(v)); return true; }
-    if (k == CONF_FF_CENTERING    ) { App::io_ffb_center_gain  .SetActive(F(v)); return true; }
-    if (k == CONF_FF_GAIN         ) { App::io_ffb_master_gain  .SetActive(F(v)); return true; }
-    if (k == CONF_FF_STRESS       ) { App::io_ffb_stress_gain  .SetActive(F(v)); return true; }
-    if (k == CONF_INPUT_GRAB      ) { App__SetIoInputGrabMode            (S(v)); return true; }
-    if (k == CONF_ARCADE_CONTROL  ) { App::io_arcade_controls  .SetActive(B(v)); return true; }
-    if (k == CONF_OUTGAUGE_MODE   ) { App::io_outgauge_mode    .SetActive(I(v)); return true; }
-    if (k == CONF_OUTGAUGE_IP     ) { App::io_outgauge_ip      .SetActive(S(v)); return true; }
-    if (k == CONF_OUTGAUGE_PORT   ) { App::io_outgauge_port    .SetActive(I(v)); return true; }
-    if (k == CONF_OUTGAUGE_DELAY  ) { App::io_outgauge_delay   .SetActive(F(v)); return true; }
-    if (k == CONF_OUTGAUGE_ID     ) { App::io_outgauge_id      .SetActive(I(v)); return true; }
+    if (CheckBool (App::io_ffb_enabled,            k, v)) { return true; }
+    if (CheckFloat(App::io_ffb_camera_gain,        k, v)) { return true; }
+    if (CheckFloat(App::io_ffb_center_gain,        k, v)) { return true; }
+    if (CheckFloat(App::io_ffb_master_gain,        k, v)) { return true; }
+    if (CheckFloat(App::io_ffb_stress_gain,        k, v)) { return true; }
+    if (CheckBool (App::io_arcade_controls,        k, v)) { return true; }
+    if (CheckInt  (App::io_outgauge_mode,          k, v)) { return true; }
+    if (CheckStr  (App::io_outgauge_ip,            k, v)) { return true; }
+    if (CheckInt  (App::io_outgauge_port,          k, v)) { return true; }
+    if (CheckFloat(App::io_outgauge_delay,         k, v)) { return true; }
+    if (CheckInt  (App::io_outgauge_id,            k, v)) { return true; }
+    if (CheckIoInputGrabMode                      (k, v)) { return true; }
     // Gfx
-    if (k == CONF_GFX_SHADOWS     ) { App__SetShadowTech                 (S(v)); return true; }
-    if (k == CONF_GFX_EXTCAM      ) { App__SetExtcamMode                 (S(v)); return true; }
-    if (k == CONF_GFX_TEX_FILTER  ) { App__SetTexFiltering               (S(v)); return true; }
-    if (k == CONF_GFX_VEGETATION  ) { App__SetVegetationMode             (S(v)); return true; }
-    if (k == CONF_GFX_SUNBURN     ) { App::gfx_enable_sunburn  .SetActive(B(v)); return true; }
-    if (k == CONF_GFX_WAVES       ) { App::gfx_water_waves     .SetActive(B(v)); return true; }
-    if (k == CONF_MINIMAP_OFF     ) { App::gfx_minimap_disabled.SetActive(B(v)); return true; }
-    if (k == CONF_GFX_PARTICLES   ) { App::gfx_particles_mode  .SetActive(M(v)); return true; }
-    if (k == CONF_GFX_GLOW        ) { App::gfx_enable_glow     .SetActive(B(v)); return true; }
-    if (k == CONF_GFX_HDR         ) { App::gfx_enable_hdr      .SetActive(B(v)); return true; }
-    if (k == CONF_GFX_HEATHAZE    ) { App::gfx_enable_heathaze .SetActive(B(v)); return true; }
-    if (k == CONF_GFX_VIDEOCAMS   ) { App::gfx_enable_videocams.SetActive(B(v)); return true; }
-    if (k == CONF_GFX_SKIDMARKS   ) { App::gfx_skidmarks_mode  .SetActive(M(v)); return true; }
-    if (k == CONF_ENVMAP_RATE     ) { App__SetGfxEnvmapRate              (S(v)); return true; }
-    if (k == CONF_ENVMAP_ENABLED  ) { App::gfx_envmap_enabled  .SetActive(B(v)); return true; }
-    if (k == CONF_GFX_LIGHTS      ) { App__SetGfxFlaresMode              (S(v)); return true; }
-    if (k == CONF_GFX_WATER_MODE  ) { App__SetGfxWaterMode               (S(v)); return true; }
-    if (k == CONF_GFX_SIGHT_RANGE ) { App::gfx_sight_range     .SetActive(F(v)); return true; }
-    if (k == CONF_GFX_FOV_EXTERN  ) { this->SetGfxFovExternal            (F(v)); return true; }
-    if (k == CONF_GFX_FOV_INTERN  ) { this->SetGfxFovInternal            (F(v)); return true; }
-    if (k == CONF_GFX_FPS_LIMIT   ) { App::gfx_fps_limit       .SetActive(I(v)); return true; }
-    if (k == CONF_GFX_SKY_EFFECTS ) { App__SetGfxSkyMode                 (S(v)); return true; }
+    if (CheckEnvmapRate                           (k, v)) { return true; }
+    if (CheckShadowTech                           (k, v)) { return true; }
+    if (CheckExtcamMode                           (k, v)) { return true; }
+    if (CheckTexFiltering                         (k, v)) { return true; }
+    if (CheckVegetationMode                       (k, v)) { return true; }
+    if (CheckGfxFlaresMode                        (k, v)) { return true; }
+    if (CheckGfxWaterMode                         (k, v)) { return true; }
+    if (CheckGfxSkyMode                           (k, v)) { return true; }
+    if (CheckFov                                  (k, v)) { return true; }
+    if (CheckBool (App::gfx_enable_sunburn,        k, v)) { return true; }
+    if (CheckBool (App::gfx_water_waves,           k, v)) { return true; }
+    if (CheckBool (App::gfx_minimap_disabled,      k, v)) { return true; }
+    if (CheckB2I  (App::gfx_particles_mode,        k, v)) { return true; }
+    if (CheckBool (App::gfx_enable_glow,           k, v)) { return true; }
+    if (CheckBool (App::gfx_enable_hdr,            k, v)) { return true; }
+    if (CheckBool (App::gfx_enable_heathaze,       k, v)) { return true; }
+    if (CheckBool (App::gfx_enable_videocams,      k, v)) { return true; }
+    if (CheckB2I  (App::gfx_skidmarks_mode,        k, v)) { return true; }
+    if (CheckBool (App::gfx_envmap_enabled,        k, v)) { return true; }
+    if (CheckFloat(App::gfx_sight_range,           k, v)) { return true; }
+    if (CheckInt  (App::gfx_fps_limit,             k, v)) { return true; }
     // Audio
-    if (k == CONF_SOUND_VOLUME    ) { App::audio_master_volume .SetActive(F(v)); return true; }
-    if (k == CONF_SOUND_CREAK     ) { App::audio_enable_creak  .SetActive(B(v)); return true; }
-    if (k == CONF_MUSIC_MAIN_MENU ) { App::audio_menu_music    .SetActive(B(v)); return true; }
-    if (k == CONF_AUDIO_DEVICE    ) { App::audio_device_name   .SetActive(S(v)); return true; }
+    if (CheckFloat(App::audio_master_volume,       k, v)) { return true; }
+    if (CheckBool (App::audio_enable_creak,        k, v)) { return true; }
+    if (CheckBool (App::audio_menu_music,          k, v)) { return true; }
+    if (CheckStr  (App::audio_device_name,         k, v)) { return true; }
     // Diag
-    if (k == CONF_LOG_NODE_IMPORT ) { App::diag_rig_log_node_import .SetActive(B(v)); return true; }
-    if (k == CONF_LOG_NODE_STATS  ) { App::diag_rig_log_node_stats  .SetActive(B(v)); return true; }
-    if (k == CONF_LOG_RIG_IMPORT  ) { App::diag_rig_log_messages    .SetActive(B(v)); return true; }
-    if (k == CONF_COLLISION_DBG   ) { App::diag_collisions          .SetActive(B(v)); return true; }
-    if (k == CONF_DIAG_MASS_CALC  ) { App::diag_truck_mass          .SetActive(B(v)); return true; }
-    if (k == CONF_ENVMAP_DEBUG    ) { App::diag_envmap              .SetActive(B(v)); return true; }
-    if (k == CONF_VIDEOCAM_DEBUG  ) { App::diag_videocameras        .SetActive(B(v)); return true; }
-    if (k == CONF_CONSOLE_ECHO    ) { App::diag_log_console_echo    .SetActive(B(v)); return true; }
-    if (k == CONF_DIAG_BREAK_LOG  ) { App::diag_log_beam_break      .SetActive(B(v)); return true; }
-    if (k == CONF_DIAG_DEFORM_LOG ) { App::diag_log_beam_deform     .SetActive(B(v)); return true; }
-    if (k == CONF_DIAG_TRIG_LOG   ) { App::diag_log_beam_trigger    .SetActive(B(v)); return true; }
-    if (k == CONF_DIAG_DOF_EFFECT ) { App::diag_dof_effect          .SetActive(B(v)); return true; }
-    if (k == CONF_PRESET_TERRAIN  ) { App::diag_preset_terrain      .SetActive(S(v)); return true; }
-    if (k == CONF_PRESET_TRUCK    ) { App::diag_preset_vehicle      .SetActive(S(v)); return true; }
-    if (k == CONF_PRESET_TRUCKCFG ) { App::diag_preset_veh_config   .SetActive(S(v)); return true; }
-    if (k == CONF_PRESET_ENTER_RIG) { App::diag_preset_veh_enter    .SetActive(B(v)); return true; }
-    if (k == CONF_EXTRA_RES_DIR)    { App::diag_extra_resource_dir  .SetActive(S(v)); return true; }
+    if (CheckBool (App::diag_rig_log_node_import,  k, v)) { return true; }
+    if (CheckBool (App::diag_rig_log_node_stats,   k, v)) { return true; }
+    if (CheckBool (App::diag_rig_log_messages,     k, v)) { return true; }
+    if (CheckBool (App::diag_collisions,           k, v)) { return true; }
+    if (CheckBool (App::diag_truck_mass,           k, v)) { return true; }
+    if (CheckBool (App::diag_envmap,               k, v)) { return true; }
+    if (CheckBool (App::diag_videocameras,         k, v)) { return true; }
+    if (CheckBool (App::diag_log_console_echo,     k, v)) { return true; }
+    if (CheckBool (App::diag_log_beam_break,       k, v)) { return true; }
+    if (CheckBool (App::diag_log_beam_deform,      k, v)) { return true; }
+    if (CheckBool (App::diag_log_beam_trigger,     k, v)) { return true; }
+    if (CheckBool (App::diag_dof_effect,           k, v)) { return true; }
+    if (CheckStr  (App::diag_preset_terrain,       k, v)) { return true; }
+    if (CheckStr  (App::diag_preset_vehicle,       k, v)) { return true; }
+    if (CheckStr  (App::diag_preset_veh_config,    k, v)) { return true; }
+    if (CheckBool (App::diag_preset_veh_enter,     k, v)) { return true; }
+    if (CheckStr  (App::diag_extra_resource_dir,   k, v)) { return true; }
     // App
-    if (k == CONF_SCREENSHOT_FMT  ) { App__SetScreenshotFormat     (S(v)); return true; }
-    if (k == CONF_REPLAY_MODE     ) { App::sim_replay_enabled       .SetActive(B(v)); return true; }
-    if (k == CONF_REPLAY_LENGTH   ) { App::sim_replay_length        .SetActive(I(v)); return true; }
-    if (k == CONF_REPLAY_STEPPING ) { App::sim_replay_stepping      .SetActive(I(v)); return true; }
-    if (k == CONF_POS_STORAGE     ) { App::sim_position_storage     .SetActive(B(v)); return true; }
-    if (k == CONF_LANGUAGE_SHORT  ) { App::app_locale               .SetActive(S(v)); return true; }
+    if (CheckScreenshotFormat                     (k, v)) { return true; }
+    if (CheckBool (App::sim_replay_enabled,        k, v)) { return true; }
+    if (CheckInt  (App::sim_replay_length,         k, v)) { return true; }
+    if (CheckInt  (App::sim_replay_stepping,       k, v)) { return true; }
+    if (CheckBool (App::sim_position_storage,      k, v)) { return true; }
+    if (CheckStr  (App::app_locale,                k, v)) { return true; }
 
     return false;
 }
-
-#undef I
-#undef F
-#undef B
-#undef M
-#undef S
 
 void Settings::LoadRoRCfg()
 {
@@ -789,6 +805,8 @@ void Settings::LoadRoRCfg()
     }
     catch (Ogre::FileNotFoundException&) {} // Just continue with defaults...
 }
+
+// --------------------------- WRITING CONFIG FILE ------------------------------- //
 
 inline const char* IoInputGrabToStr(IoInputGrabMode v)
 {
@@ -897,25 +915,31 @@ inline const char* GfxSkyToStr(GfxSkyMode v)
     }
 }
 
-inline const char* App__IoInputGrabToStr   () { return IoInputGrabToStr   (App::io_input_grab_mode.GetActive  ()); }
-inline const char* App__GfxShadowTechToStr () { return GfxShadowTechToStr (App::gfx_shadow_type.GetActive     ()); }
-inline const char* App__GfxExtcamModeToStr () { return GfxExtcamModeToStr (App::gfx_extcam_mode.GetActive     ()); }
-inline const char* App__GfxTexFilterToStr  () { return GfxTexFilterToStr  (App::gfx_texture_filter.GetActive  ()); }
-inline const char* App__GfxVegetationToStr () { return GfxVegetationToStr (App::gfx_vegetation_mode.GetActive ()); }
-inline const char* App__SimGearboxToStr    () { return SimGearboxToStr    (App::sim_gearbox_mode.GetActive    ()); }
-inline const char* App__GfxFlaresToStr     () { return GfxFlaresToStr     (App::gfx_flares_mode.GetActive     ()); }
-inline const char* App__GfxWaterToStr      () { return GfxWaterToStr      (App::gfx_water_mode.GetActive      ()); }
-inline const char* App__GfxSkyToStr        () { return GfxSkyToStr        (App::gfx_sky_mode.GetActive        ()); }
-inline int         App__GetEnvmapRate      () { return std::min(6, std::max(0, App::gfx_envmap_rate.GetActive())); }
+template <typename GVarStr_T>
+inline void WriteStr(std::ofstream& f, GVarStr_T& gvar)
+{
+    f << gvar.conf_name << "=" << gvar.GetActive() << std::endl;
+}
 
-#define _(_V_) (_V_)
-#define B(_V_) (_V_ ? "Yes" : "No")
-#define Y(_V_) ((_V_ != 0) ? "Yes" : "No")
+template <typename GVarPod_T>
+inline void WritePod(std::ofstream& f, GVarPod_T& gvar)
+{
+    f << gvar.conf_name << "=" << gvar.GetActive() << std::endl;
+}
+
+template <typename GVarPod_T>
+inline void WriteYN(std::ofstream& f, GVarPod_T& gvar) ///< Writes "Yes/No" - handles `bool` and `int(1/0)`
+{
+    f << gvar.conf_name << "=" << (static_cast<int>(gvar.GetActive()) == 0 ? "No" : "Yes") << std::endl;
+}
+
+inline void WriteAny(std::ofstream& f, const char* name, const char* value)
+{
+    f << name << "=" << value << std::endl;
+}
 
 void Settings::SaveSettings()
 {
-    using namespace std;
-
     Str<300> rorcfg_path;
     rorcfg_path << App::sys_config_dir.GetActive() << PATH_SLASH << "RoR.cfg";
     std::ofstream f(rorcfg_path);
@@ -925,103 +949,100 @@ void Settings::SaveSettings()
         return;
     }
 
-    f << "; Rigs of Rods configuration file"                                     << endl;
-    f << "; -------------------------------"                                     << endl;
-    f                                                                            << endl;
-    f << "; Multiplayer"                                                         << endl;
-    f << CONF_MP_NET_ENABLE   << "=" << B(m_network_enable                     ) << endl;
-    f << CONF_MP_NICKNAME     << "=" << _(App::mp_player_name.GetActive      ()) << endl;
-    f << CONF_MP_HOSTNAME     << "=" << _(App::mp_server_host.GetActive      ()) << endl;
-    f << CONF_MP_PORT         << "=" << _(App::mp_server_port.GetActive      ()) << endl;
-    f << CONF_MP_PASSWORD     << "=" << _(App::mp_server_password.GetActive  ()) << endl;
-    f << CONF_MP_PORTAL_URL   << "=" << _(App::mp_portal_url.GetActive       ()) << endl;
-    f                                                                            << endl;
-    f << "; Simulation"                                                          << endl;
-    f << CONF_SIM_GEARBOX     << "=" << _(App__SimGearboxToStr               ()) << endl;
-    f << CONF_SIM_MULTITHREAD << "=" << B(App::app_multithread.GetActive     ()) << endl;
-    f                                                                            << endl;
-    f << "; Input/Output"                                                        << endl;
-    f << CONF_FF_ENABLED      << "=" << B(App::io_ffb_enabled.GetActive      ()) << endl;
-    f << CONF_FF_CAMERA       << "=" << _(App::io_ffb_camera_gain.GetActive  ()) << endl;
-    f << CONF_FF_CENTERING    << "=" << _(App::io_ffb_center_gain.GetActive  ()) << endl;
-    f << CONF_FF_GAIN         << "=" << _(App::io_ffb_master_gain.GetActive  ()) << endl;
-    f << CONF_FF_STRESS       << "=" << _(App::io_ffb_stress_gain.GetActive  ()) << endl;
-    f << CONF_INPUT_GRAB      << "=" << _(App__IoInputGrabToStr              ()) << endl;
-    f << CONF_ARCADE_CONTROL  << "=" << B(App::io_arcade_controls.GetActive  ()) << endl;
-    f << CONF_OUTGAUGE_MODE   << "=" << _(App::io_outgauge_mode.GetActive    ()) << endl;
-    f << CONF_OUTGAUGE_IP     << "=" << _(App::io_outgauge_ip.GetActive      ()) << endl;
-    f << CONF_OUTGAUGE_PORT   << "=" << _(App::io_outgauge_port.GetActive    ()) << endl;
-    f << CONF_OUTGAUGE_DELAY  << "=" << _(App::io_outgauge_delay.GetActive   ()) << endl;
-    f << CONF_OUTGAUGE_ID     << "=" << _(App::io_outgauge_id.GetActive      ()) << endl;
-    f                                                                            << endl;
-    f << "; Graphics"                                                            << endl;
-    f << CONF_GFX_SHADOWS     << "=" << _(App__GfxShadowTechToStr            ()) << endl;
-    f << CONF_GFX_EXTCAM      << "=" << _(App__GfxExtcamModeToStr            ()) << endl;
-    f << CONF_GFX_TEX_FILTER  << "=" << _(App__GfxTexFilterToStr             ()) << endl;
-    f << CONF_GFX_VEGETATION  << "=" << _(App__GfxVegetationToStr            ()) << endl;
-    f << CONF_GFX_SUNBURN     << "=" << B(App::gfx_enable_sunburn  .GetActive()) << endl;
-    f << CONF_GFX_WAVES       << "=" << B(App::gfx_water_waves     .GetActive()) << endl;
-    f << CONF_MINIMAP_OFF     << "=" << B(App::gfx_minimap_disabled.GetActive()) << endl;
-    f << CONF_GFX_PARTICLES   << "=" << Y(App::gfx_particles_mode  .GetActive()) << endl;
-    f << CONF_GFX_GLOW        << "=" << B(App::gfx_enable_glow     .GetActive()) << endl;
-    f << CONF_GFX_HDR         << "=" << B(App::gfx_enable_hdr      .GetActive()) << endl;
-    f << CONF_GFX_HEATHAZE    << "=" << B(App::gfx_enable_heathaze .GetActive()) << endl;
-    f << CONF_GFX_VIDEOCAMS   << "=" << B(App::diag_videocameras   .GetActive()) << endl;
-    f << CONF_GFX_SKIDMARKS   << "=" << Y(App::gfx_skidmarks_mode  .GetActive()) << endl;
-    f << CONF_ENVMAP_ENABLED  << "=" << B(App::gfx_envmap_enabled  .GetActive()) << endl;
-    f << CONF_ENVMAP_RATE     << "=" << _(App::gfx_envmap_rate     .GetActive()) << endl;
-    f << CONF_GFX_LIGHTS      << "=" << _(App__GfxFlaresToStr                ()) << endl;
-    f << CONF_GFX_WATER_MODE  << "=" << _(App__GfxWaterToStr                 ()) << endl;
-    f << CONF_GFX_SIGHT_RANGE << "=" << _(App::gfx_sight_range     .GetActive()) << endl;
-    f << CONF_GFX_FOV_EXTERN  << "=" << _(m_fov_external)                        << endl;
-    f << CONF_GFX_FOV_INTERN  << "=" << _(m_fov_internal)                        << endl;
-    f << CONF_GFX_FPS_LIMIT   << "=" << _(App::gfx_fps_limit.GetActive       ()) << endl;
-    f << CONF_GFX_SKY_EFFECTS << "=" << _(App__GfxSkyToStr                   ()) << endl;
-    f                                                                            << endl;
-    f << "; Audio"                                                               << endl;
-    f << CONF_SOUND_VOLUME    << "=" << _(App::audio_master_volume      .GetActive()) << endl;
-    f << CONF_SOUND_CREAK     << "=" << B(App::audio_enable_creak       .GetActive()) << endl;
-    f << CONF_MUSIC_MAIN_MENU << "=" << B(App::audio_menu_music         .GetActive()) << endl;
-    f << CONF_AUDIO_DEVICE    << "=" << _(App::audio_device_name        .GetActive()) << endl;
-    f                                                                                 << endl;
-    f << "; Diagnostics"                                                              << endl;
-    f << CONF_LOG_NODE_IMPORT << "=" << B(App::diag_rig_log_node_import .GetActive()) << endl;
-    f << CONF_LOG_NODE_STATS  << "=" << B(App::diag_rig_log_node_stats  .GetActive()) << endl;
-    f << CONF_LOG_RIG_IMPORT  << "=" << B(App::diag_rig_log_messages    .GetActive()) << endl;
-    f << CONF_COLLISION_DBG   << "=" << B(App::diag_collisions          .GetActive()) << endl;
-    f << CONF_DIAG_MASS_CALC  << "=" << B(App::diag_truck_mass          .GetActive()) << endl;
-    f << CONF_ENVMAP_DEBUG    << "=" << B(App::diag_envmap              .GetActive()) << endl;
-    f << CONF_CONSOLE_ECHO    << "=" << B(App::diag_log_console_echo    .GetActive()) << endl;
-    f << CONF_DIAG_BREAK_LOG  << "=" << B(App::diag_log_beam_break      .GetActive()) << endl;
-    f << CONF_DIAG_DEFORM_LOG << "=" << B(App::diag_log_beam_deform     .GetActive()) << endl;
-    f << CONF_DIAG_TRIG_LOG   << "=" << B(App::diag_log_beam_trigger    .GetActive()) << endl;
-    f << CONF_DIAG_DOF_EFFECT << "=" << B(App::diag_dof_effect          .GetActive()) << endl;
-    f << CONF_PRESET_TERRAIN  << "=" << _(App::diag_preset_terrain      .GetActive()) << endl;
-    f << CONF_PRESET_TRUCK    << "=" << _(App::diag_preset_vehicle      .GetActive()) << endl;
-    f << CONF_PRESET_TRUCKCFG << "=" << _(App::diag_preset_veh_config   .GetActive()) << endl;
-    f << CONF_PRESET_ENTER_RIG<< "=" << B(App::diag_preset_veh_enter    .GetActive()) << endl;
-    f                                                                                 << endl;
-    f << "; Application"                                                              << endl;
-    f << CONF_SCREENSHOT_FMT  << "=" << _(App::app_screenshot_format    .GetActive()) << endl;
-    f << CONF_REPLAY_MODE     << "=" << B(App::sim_replay_enabled       .GetActive()) << endl;
-    f << CONF_REPLAY_LENGTH   << "=" << _(App::sim_replay_length        .GetActive()) << endl;
-    f << CONF_REPLAY_STEPPING << "=" << _(App::sim_replay_stepping      .GetActive()) << endl;
-    f << CONF_POS_STORAGE     << "=" << B(App::sim_position_storage     .GetActive()) << endl;
-    f << CONF_LANGUAGE_SHORT  << "=" << _(App::app_locale               .GetActive()) << endl;
+    f << "; Rigs of Rods configuration file" << std::endl;
+    f << "; -------------------------------" << std::endl;
+
+    f << std::endl << "; Multiplayer" << std::endl;
+    WriteAny (f, CONF_MP_NET_ENABLE, (m_network_enable ? "Yes" : "No"));
+    WriteStr (f, App::mp_player_name);
+    WriteStr (f, App::mp_server_host);
+    WritePod (f, App::mp_server_port);
+    WriteStr (f, App::mp_server_password);
+    WriteStr (f, App::mp_portal_url);
+
+    f << std::endl << "; Simulation" << std::endl;
+    WriteAny (f, App::sim_gearbox_mode.conf_name, SimGearboxToStr(App::sim_gearbox_mode.GetActive()));
+    WriteYN  (f, App::sim_replay_enabled    );
+    WritePod (f, App::sim_replay_length     );
+    WritePod (f, App::sim_replay_stepping   );
+    WriteYN  (f, App::sim_position_storage  );
+
+    f << std::endl << "; Input/Output" << std::endl;
+    WriteAny (f, App::io_input_grab_mode.conf_name, IoInputGrabToStr(App::io_input_grab_mode.GetActive()));
+    WriteYN  (f, App::io_ffb_enabled);
+    WritePod (f, App::io_ffb_camera_gain);
+    WritePod (f, App::io_ffb_center_gain);
+    WritePod (f, App::io_ffb_master_gain);
+    WritePod (f, App::io_ffb_stress_gain);
+    WriteYN  (f, App::io_arcade_controls);
+    WritePod (f, App::io_outgauge_mode);
+    WriteStr (f, App::io_outgauge_ip);
+    WritePod (f, App::io_outgauge_port);
+    WritePod (f, App::io_outgauge_delay);
+    WritePod (f, App::io_outgauge_id);
+
+    f << std::endl << "; Graphics" << std::endl;
+    WriteAny (f, App::gfx_shadow_type.conf_name    , GfxShadowTechToStr(App::gfx_shadow_type.GetActive     ()));
+    WriteAny (f, App::gfx_extcam_mode.conf_name    , GfxExtcamModeToStr(App::gfx_extcam_mode.GetActive     ()));
+    WriteAny (f, App::gfx_texture_filter.conf_name , GfxTexFilterToStr (App::gfx_texture_filter.GetActive  ()));
+    WriteAny (f, App::gfx_vegetation_mode.conf_name, GfxVegetationToStr(App::gfx_vegetation_mode.GetActive ()));
+    WriteAny (f, App::gfx_flares_mode.conf_name    , GfxFlaresToStr    (App::gfx_flares_mode.GetActive     ()));
+    WriteAny (f, App::gfx_water_mode.conf_name     , GfxWaterToStr     (App::gfx_water_mode.GetActive      ()));
+    WriteAny (f, App::gfx_sky_mode.conf_name       , GfxSkyToStr       (App::gfx_sky_mode.GetActive        ()));
+    WriteYN  (f, App::gfx_enable_sunburn  );
+    WriteYN  (f, App::gfx_enable_videocams);
+    WriteYN  (f, App::gfx_water_waves     );
+    WriteYN  (f, App::gfx_minimap_disabled);
+    WriteYN  (f, App::gfx_particles_mode  );
+    WriteYN  (f, App::gfx_enable_glow     );
+    WriteYN  (f, App::gfx_enable_hdr      );
+    WriteYN  (f, App::gfx_enable_heathaze );
+    WriteYN  (f, App::gfx_skidmarks_mode  );
+    WriteYN  (f, App::gfx_envmap_enabled  );
+    WritePod (f, App::gfx_envmap_rate     );
+    WritePod (f, App::gfx_sight_range     );
+    WritePod (f, App::gfx_fps_limit       );
+    f << App::gfx_fov_external.conf_name << "=" << m_fov_external << std::endl;
+    f << App::gfx_fov_internal.conf_name << "=" << m_fov_internal << std::endl;
+
+    f << std::endl << "; Audio" << std::endl;
+    WritePod (f, App::audio_master_volume);
+    WriteYN  (f, App::audio_enable_creak );
+    WriteYN  (f, App::audio_menu_music   );
+    WriteStr (f, App::audio_device_name  );
+
+    f << std::endl << "; Diagnostics" << std::endl;
+    WriteYN  (f, App::diag_rig_log_node_import);
+    WriteYN  (f, App::diag_rig_log_node_stats );
+    WriteYN  (f, App::diag_rig_log_messages   );
+    WriteYN  (f, App::diag_collisions         );
+    WriteYN  (f, App::diag_truck_mass         );
+    WriteYN  (f, App::diag_envmap             );
+    WriteYN  (f, App::diag_log_console_echo   );
+    WriteYN  (f, App::diag_log_beam_break     );
+    WriteYN  (f, App::diag_log_beam_deform    );
+    WriteYN  (f, App::diag_log_beam_trigger   );
+    WriteYN  (f, App::diag_dof_effect         );
+    WriteYN  (f, App::diag_preset_veh_enter   );
+    WriteStr (f, App::diag_preset_terrain     );
+    WriteStr (f, App::diag_preset_vehicle     );
+    WriteStr (f, App::diag_preset_veh_config  );
+    WriteYN  (f, App::diag_videocameras       );
+
+    f << std::endl << "; Application"<< std::endl;
+    WriteStr (f, App::app_screenshot_format );
+    WriteStr (f, App::app_locale            );
+    WriteYN  (f, App::app_multithread       );
 
     // Append misc legacy entries
-    f << endl << "; Misc" << endl;
+    f << std::endl << "; Misc" << std::endl;
     for (auto itor = settings.begin(); itor != settings.end(); ++itor)
     {
-        f << itor->first << "=" << itor->second << endl;
+        f << itor->first << "=" << itor->second << std::endl;
     }
 
     f.close();
 }
-
-#undef _
-#undef B
-#undef Y
 
 bool Settings::SetupAllPaths()
 {
