@@ -592,8 +592,13 @@ add_custom_command(
 )
 
 IF (UNIX)
+    INSTALL(TARGETS ${BINNAME}
+            RUNTIME DESTINATION games/RoR
+            LIBRARY DESTINATION games/RoR
+            ARCHIVE DESTINATION games/RoR
+    )
     INSTALL(
-            DIRECTORY $<TARGET_FILE_DIR:${BINNAME}>/
+            DIRECTORY $<TARGET_FILE_DIR:${BINNAME}>/resources
             DESTINATION games/RoR
             FILES_MATCHING PATTERN "*"
     )

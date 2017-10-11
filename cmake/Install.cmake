@@ -39,7 +39,7 @@ ENDIF (UNIX)
 # CPack
 set(CPACK_PACKAGE_DESCRIPTION "Rigs of Rods soft-body physics simulator")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Rigs of Rods is an open source vehicle simulator based on soft-body physics.")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libogre-1.9.0v5, libmygui.ogreplatform0debian1v5, libopenal1, libgtk2.0-0, libwxgtk3.0-0v5, libois-1.3.0v5")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "angelscript, socketw, caelum, pagedgeometry, libogre-1.9.0v5, libmygui.ogreplatform0debian1v5, libopenal1, libgtk2.0-0, libwxgtk3.0-0v5, libois-1.3.0v5")
 set(CPACK_PACKAGE_CONTACT "Edgar@AnotherFoxGuy.com")
 set(CPACK_PACKAGE_VENDOR "AnotherFoxGuy")
 SET(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
