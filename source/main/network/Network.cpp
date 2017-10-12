@@ -94,7 +94,11 @@ struct send_packet_t
 
 static RoRnet::ServerInfo m_server_settings;
 
-static Ogre::UTFString m_username; // Shadows gEnv->mp_player_name for multithreaded access.
+static Ogre::UTFString m_username; // Shadows GVar 'mp_player_name' for multithreaded access.
+static Str<400> m_net_host; // Shadows GVar 'mp_server_host' for multithreaded access.
+static Str<100> m_password; // Shadows GVar 'mp_server_password' for multithreaded access.
+static Str<100> m_token; // Shadows GVar 'mp_player_token_hash' for multithreaded access.
+static int      m_net_port; // Shadows GVar 'mp_server_port' for multithreaded access.
 static int m_uid;
 static int m_authlevel;
 static RoRnet::UserInfo m_userdata;
@@ -109,13 +113,16 @@ static SWInetSocket socket;
 
 static std::thread m_send_thread;
 static std::thread m_recv_thread;
+static std::thread m_connect_thread;
 
+static std::atomic<ConnectState> m_connecting_status(ConnectState::IDLE);
 static std::atomic<bool> m_shutdown;
 static std::atomic<bool> m_recv_stopped;
 
 static std::mutex m_users_mutex;
 static std::mutex m_userdata_mutex;
 static std::mutex m_error_message_mutex;
+static std::mutex m_status_message_mutex;
 static std::mutex m_recv_packetqueue_mutex;
 static std::mutex m_send_packetqueue_mutex;
 
@@ -129,11 +136,14 @@ static const unsigned int m_packet_buffer_size = 20;
 static std::atomic<bool> m_net_fatal_error;
 static std::atomic<bool> m_socket_broken;
 static Ogre::UTFString   m_error_message;
+static StatusStr         m_status_message;
 
 #define LOG_THREAD(_MSG_) { std::stringstream s; s << _MSG_ << " (Thread ID: " << std::this_thread::get_id() << ")"; LOG(s.str()); }
 #define LOGSTREAM         Ogre::LogManager().getSingleton().stream()
 
 static const int RECVMESSAGE_RETVAL_SHUTDOWN = -43;
+
+bool ConnectThread(); // Declaration.
 
 Ogre::ColourValue GetPlayerColor(int color_num)
 {
@@ -156,11 +166,23 @@ void SetErrorMessage(Ogre::UTFString msg)
     m_error_message = msg;
 }
 
+StatusStr GetStatusMessage()
+{
+    std::lock_guard<std::mutex> lock(m_status_message_mutex);
+    return m_status_message;
+}
+
+void SetStatusMessage(const char* msg)
+{
+    std::lock_guard<std::mutex> lock(m_status_message_mutex);
+    m_status_message = msg;
+}
+
 bool CheckError()
 {
     if (m_net_fatal_error)
     {
-        RoR::App::SetActiveMpState(RoR::App::MP_STATE_DISABLED);
+        App::mp_state.SetActive(RoR::MpState::DISABLED);
         return true;
     }
     return false;
@@ -506,11 +528,9 @@ void RecvThread()
 
 void CouldNotConnect(Ogre::UTFString const & msg, bool close_socket = true)
 {
-    Ogre::UTFString message = "Error connecting to server: [" + App::GetMpServerHost()
-                            + ":" + TOSTRING(App::GetMpServerPort()) + "]\n\n" + msg.asUTF8();
-    SetErrorMessage(message);
-    RoR::App::SetActiveMpState(App::MP_STATE_DISABLED);
-    RoR::App::SetPendingMpState(App::MP_STATE_NONE);
+    RoR::LogFormat("[RoR|Networking] Failed to connect to server [%s:%d], message: %s", m_net_host.GetBuffer(), m_net_port, msg.asUTF8_c_str());
+    SetErrorMessage(msg);
+    m_connecting_status = ConnectState::FAILURE;
 
     if (close_socket)
     {
@@ -519,17 +539,19 @@ void CouldNotConnect(Ogre::UTFString const & msg, bool close_socket = true)
     }
 }
 
-bool Connect()
+bool StartConnecting()
 {
+    SetStatusMessage("Starting...");
+
     // Temporary workaround for unrecoverable error
     if (m_socket_broken)
     {
-        RoR::App::SetActiveMpState(App::MP_STATE_DISABLED);
-        RoR::App::SetPendingMpState(App::MP_STATE_NONE);
+        App::mp_state.SetActive(MpState::DISABLED);
         Ogre::UTFString msg = "Connection failed."
             "\n\nNetworking is unable to recover from previous error (abrupt disconnect)."
             "\n\nPlease restart Rigs of Rods.";
         SetErrorMessage(msg);
+        m_connecting_status = ConnectState::FAILURE;
         return false;
     }
 
@@ -537,19 +559,67 @@ bool Connect()
     SetErrorMessage("");
     m_net_fatal_error = false;
 
-    m_username = App::GetMpPlayerName();
+    // Shadow vars for threaded access
+    m_username = App::mp_player_name.GetActive();
+    m_token    = App::mp_player_token_hash.GetActive();
+    m_net_host = App::mp_server_host.GetActive();
+    m_net_port = App::mp_server_port.GetActive();
+    m_password = App::mp_server_password.GetActive();
 
-    LOG("[RoR|Networking] Trying to join server '" + App::GetMpServerHost() + "' on port " + TOSTRING(App::GetMpServerPort()) + "'...");
+    try
+    {
+        m_connect_thread = std::thread(ConnectThread);
+        m_connecting_status = ConnectState::WORKING;
+        return true;
+    }
+    catch (std::exception& e)
+    {
+        App::mp_state.SetActive(MpState::DISABLED);
+        m_connecting_status = ConnectState::FAILURE;
+        RoR::LogFormat("[RoR|Networking] Failed to launch connection thread, message: %s", e.what());
+        SetErrorMessage(_L("Failed to launch connection thread"));
+        SetStatusMessage("Failed");
+        return false;
+    }
+}
+
+ConnectState CheckConnectingState()
+{
+    switch (m_connecting_status)
+    {
+    case ConnectState::SUCCESS:
+        if (m_connect_thread.joinable())
+            m_connect_thread.join(); // Clean up
+        m_connecting_status = ConnectState::IDLE;
+        return ConnectState::SUCCESS;
+
+    case ConnectState::FAILURE:
+        if (m_connect_thread.joinable())
+            m_connect_thread.join(); // Clean up
+        m_connecting_status = ConnectState::IDLE;
+        return ConnectState::FAILURE;
+
+    default:
+        return m_connecting_status;
+    }
+}
+
+bool ConnectThread()
+{
+    RoR::LogFormat("[RoR|Networking] Trying to join server '%s' on port '%d' ...", m_net_host.GetBuffer(), m_net_port);
 
     SWBaseSocket::SWBaseError error;
 
+    SetStatusMessage("Estabilishing connection...");
     socket.set_timeout(10, 10000);
-    socket.connect(App::GetMpServerPort(), App::GetMpServerHost(), &error);
+    socket.connect(App::mp_server_port.GetActive(), App::mp_server_host.GetActive(), &error);
     if (error != SWBaseSocket::ok)
     {
-        CouldNotConnect("Could not create connection", false);
+        CouldNotConnect(_L("Could not create connection"), false);
         return false;
     }
+
+    SetStatusMessage("Getting server info...");
     if (!SendNetMessage(MSG2_HELLO, 0, (int)strlen(RORNET_VERSION), (char *)RORNET_VERSION))
     {
         CouldNotConnect(_L("Establishing network session: error sending hello"));
@@ -599,23 +669,20 @@ bool Connect()
         return false;
     }
 
+    SetStatusMessage("Authorizing...");
+
     // First handshake done, increase the timeout, important!
     socket.set_timeout(0, 0);
 
     // Send credentials
-    char pwbuffer[250] = {0};
-    strncpy(pwbuffer, App::GetMpServerPassword().c_str(), 250);
-
     char sha1pwresult[250] = {0};
-    if (strnlen(pwbuffer, 250) > 0)
+    if (!m_password.IsEmpty())
     {
         RoR::CSHA1 sha1;
-        sha1.UpdateHash((uint8_t *)pwbuffer, (uint32_t)strnlen(pwbuffer, 250));
+        sha1.UpdateHash((uint8_t*)m_password.GetBuffer(), m_password.GetLength());
         sha1.Final();
         sha1.ReportHash(sha1pwresult, RoR::CSHA1::REPORT_HEX_SHORT);
     }
-
-    Ogre::String usertokenhash = SSETTING("User Token Hash", "");
 
     // Construct user credentials
     // Beware of the wchar_t converted to UTF8 for networking
@@ -624,11 +691,10 @@ bool Connect()
     // Cut off the UTF string on the highest level, otherwise you will break UTF info
     strncpy((char *)c.username, m_username.substr(0, RORNET_MAX_USERNAME_LEN * 0.5f).asUTF8_c_str(), RORNET_MAX_USERNAME_LEN);
     strncpy(c.serverpassword, sha1pwresult, 40);
-    strncpy(c.usertoken, usertokenhash.c_str(), 40);
+    strncpy(c.usertoken, m_token.ToCStr(), 40);
     strncpy(c.clientversion, ROR_VERSION_STRING, strnlen(ROR_VERSION_STRING, 25));
-    strcpy(c.clientname, "RoR");
-    Ogre::String lang = App::GetAppLocale();
-    strncpy(c.language, lang.c_str(), std::min<int>((int)lang.size(), 10));
+    strncpy(c.clientname, "RoR", 10);
+    strncpy(c.language, App::app_locale.GetActive(), 10);
     strcpy(c.sessiontype, "normal");
     if (!SendNetMessage(MSG2_USER_INFO, 0, sizeof(RoRnet::UserInfo), (char*)&c))
     {
@@ -682,6 +748,8 @@ bool Connect()
         return false;
     }
 
+    SetStatusMessage("Finishing...");
+
     m_uid = header.source;
 
     // we get our userdata back
@@ -692,8 +760,7 @@ bool Connect()
     LOG("[RoR|Networking] Connect(): Creating Send/Recv threads");
     m_send_thread = std::thread(SendThread);
     m_recv_thread = std::thread(RecvThread);
-    RoR::App::SetActiveMpState(RoR::App::MP_STATE_CONNECTED);
-    RoR::App::SetPendingMpState(RoR::App::MP_STATE_NONE);
+    m_connecting_status = ConnectState::SUCCESS;
 
     return true;
 }
@@ -727,8 +794,7 @@ void Disconnect()
     m_send_packet_buffer.clear();
 
     m_shutdown = false;
-    RoR::App::SetActiveMpState(RoR::App::MP_STATE_DISABLED);
-    RoR::App::SetPendingMpState(RoR::App::MP_STATE_NONE);
+    App::mp_state.SetActive(RoR::MpState::DISABLED);
 
     LOG("[RoR|Networking] Disconnect() done");
 }

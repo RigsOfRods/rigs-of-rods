@@ -1,8 +1,9 @@
 /*
     This source file is part of Rigs of Rods
+
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -19,29 +20,20 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// @file
-/// @author Moncef Ben Slimane
-/// @date   11/2014
-
 #include "GUI_MultiplayerSelector.h"
 
-#include "RoRPrerequisites.h"
-#include "Utils.h"
-#include "RoRVersion.h"
-#include "RoRnet.h"
-#include "Language.h"
-#include "GUIManager.h"
 #include "Application.h"
+#include "GUIManager.h"
 #include "MainMenu.h"
+#include "RoRnet.h"
+#include "RoRVersion.h"
+#include "SHA1.h"
 
-#include <MyGUI.h>
+#include <imgui.h>
 #include <rapidjson/document.h>
-#include <string>
-#include <thread>
-#include <future>
+#include <vector>
 
 #ifdef USE_CURL
-#   include <stdio.h>
 #   include <curl/curl.h>
 #   include <curl/easy.h>
 #endif //USE_CURL
@@ -50,26 +42,20 @@
 #   undef GetObject
 #endif
 
-namespace RoR {
-namespace GUI {
-
-const MyGUI::Colour status_updating_color(1.f, 0.832031f, 0.f);
-const MyGUI::Colour status_failure_color(1.f, 0.175439f, 0.175439f);
-const MyGUI::Colour status_emptylist_color(0.7f, 0.7f, 0.7f);
-
-#define CLASS        MultiplayerSelector
-#define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
-
-struct MpServerlistData
+struct RoR::GUI::MpServerlistData
 {
     struct ServerInfo
     {
-        std::string display_name;
-        std::string display_users;
-        std::string display_host;
-        std::string display_terrn;
-        std::string net_host;
+        bool        has_password;
+        Str<50>     display_passwd;
+        Str<100>    display_name;
+        Str<100>    display_terrn;
+        int         num_users;
+        int         max_users;
+        Str<20>     display_users;
+        Str<100>    net_host;
         int         net_port;
+        Str<50>     display_host;
     };
 
     MpServerlistData(): success(false) {}
@@ -79,6 +65,8 @@ struct MpServerlistData
     bool                    success;
 };
 
+#if defined(USE_CURL)
+
 // From example: https://gist.github.com/whoshuu/2dc858b8730079602044
 size_t CurlWriteFunc(void *ptr, size_t size, size_t nmemb, std::string* data)
 {
@@ -86,8 +74,7 @@ size_t CurlWriteFunc(void *ptr, size_t size, size_t nmemb, std::string* data)
     return size * nmemb;
 }
 
-#if defined(USE_CURL)
-MpServerlistData* FetchServerlist(std::string portal_url)
+RoR::GUI::MpServerlistData* FetchServerlist(std::string portal_url)
 {
     std::string serverlist_url = portal_url + "/server-list?json=true";
     std::string response_payload;
@@ -107,7 +94,7 @@ MpServerlistData* FetchServerlist(std::string portal_url)
     curl_easy_cleanup(curl);
     curl = nullptr;
 
-    MpServerlistData* res = new MpServerlistData();
+    RoR::GUI::MpServerlistData* res = new RoR::GUI::MpServerlistData();
     if (response_code != 200)
     {
         Ogre::LogManager::getSingleton().stream() 
@@ -138,6 +125,10 @@ MpServerlistData* FetchServerlist(std::string portal_url)
         res->servers[i].net_host      = j_row["ip"].GetString();
         res->servers[i].net_port      = j_row["port"].GetInt();
 
+        const bool has_pw = j_row["has-password"].GetBool();
+        res->servers[i].has_password  = has_pw;
+        res->servers[i].display_passwd = (has_pw) ? "Yes" : "No";
+
         char display_host[400];
         snprintf(display_host, 400, "%s:%d", j_row["ip"].GetString(), j_row["port"].GetInt());
         res->servers[i].display_host  = display_host;
@@ -152,88 +143,283 @@ MpServerlistData* FetchServerlist(std::string portal_url)
 }
 #endif // defined(USE_CURL)
 
-CLASS::CLASS() :
-    m_is_refreshing(false)
+inline void DrawTableHeader(const char* title) // Internal helper
 {
-    MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
-    win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::NotifyWindowButtonPressed); //The "X" button thing
-
-    m_join_button->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::CallbackJoinOnlineBtnPress);
-    m_entertab_button_connect->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::CallbackJoinDirectBtnPress);
-    m_servers_list->eventListSelectAccept += MyGUI::newDelegate(this, &CLASS::CallbackJoinOnlineListItem);
-
-    m_ror_net_ver->setCaptionWithReplacing(RORNET_VERSION);
-
-    m_entertab_ip_editbox->setCaption(App::GetMpServerHost());
-    m_entertab_port_editbox->setCaption(TOSTRING(App::GetMpServerPort()));
-
-#if defined(USE_CURL)
-    m_refresh_button->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::CallbackRefreshOnlineBtnPress);
-#else
-    m_refresh_button->setEnabled(false);
-    m_status_label->setVisible(true);
-    m_status_label->setCaption("---- Serverlist not supported in this version ----");
-#endif
-
-    CenterToScreen();
-
-    MAIN_WIDGET->setVisible(false);
+    float table_padding_y = 4.f;
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + table_padding_y);
+    ImGui::Text(title);
+    ImGui::NextColumn();
 }
 
-CLASS::~CLASS()
-{} // Must be defined here to have `std::unique_ptr<UndefinedClass>` in the header
-
-void CLASS::SetVisible(bool visible)
+RoR::GUI::MultiplayerSelector::MultiplayerSelector():
+    m_selected_item(-1), m_mode(Mode::ONLINE), m_is_refreshing(false), m_is_visible(false)
 {
-    MAIN_WIDGET->setVisible(visible);
-    if (visible && (m_serverlist_data == nullptr))
+    snprintf(m_window_title, 100, "Multiplayer (Rigs of Rods %s | %s)", ROR_VERSION_STRING, RORNET_VERSION);
+}
+
+RoR::GUI::MultiplayerSelector::~MultiplayerSelector()
+{}
+
+void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
+{
+    const float TABS_BOTTOM_PADDING = 4.f; // They're actually buttons in role of tabs.
+    const float CONTENT_TOP_PADDING = 4.f; // Extra space under top horizontal separator bar.
+    const float BUTTONS_EXTRA_SPACE = 6.f;
+    const float TABLE_PADDING_LEFT = 4.f;
+
+    int window_flags = ImGuiWindowFlags_NoCollapse;
+    ImGui::SetNextWindowSize(ImVec2(750.f, 400.f), ImGuiSetCond_FirstUseEver);
+    if (!ImGui::Begin(m_window_title, &m_is_visible, window_flags))
     {
-        this->RefreshServerlist();
+        return;
     }
+
+    if (!m_is_visible) // If the window was closed...
+    {
+        App::GetGuiManager()->SetVisible_GameMainMenu(true);
+    }
+
+    // Window mode buttons
+    MultiplayerSelector::Mode next_mode = m_mode;
+
+    if (ImGui::Button("Online (click to refresh)"))
+    {
+        if (m_mode == Mode::ONLINE)
+            this->RefreshServerlist();
+        else
+            next_mode = Mode::ONLINE;
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Direct IP"))
+    {
+        next_mode = Mode::DIRECT;
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Setup"))
+    {
+        next_mode = Mode::SETUP;
+    }
+
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + TABS_BOTTOM_PADDING);
+    ImGui::Separator();
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + CONTENT_TOP_PADDING);
+
+    if (next_mode != m_mode) // Handle switching window modes
+    {
+        if (m_mode == Mode::SETUP) // If leaving SETUP mode, reset 'pending' values of GVars
+        {
+            App::mp_player_name.ResetPending();
+            App::mp_server_password.ResetPending();
+            m_user_token_buf.Clear();
+        }
+        if (m_mode == Mode::DIRECT) // If leaving DIRECT mode, reset 'pending' values of GVars
+        {
+            App::mp_server_password.ResetPending();
+            App::mp_server_host    .ResetPending();
+            App::mp_server_port    .ResetPending();
+        }
+    }
+    m_mode = next_mode;
+
+    if (m_mode == Mode::SETUP)
+    {
+        ImGui::PushID("setup");
+
+        ImGui::PushItemWidth(250.f);
+        ImGui::InputText("Player nickname",         App::mp_player_name.GetPending().GetBuffer(),        App::mp_player_name.GetPending().GetCapacity());
+        ImGui::InputText("Default server password", App::mp_server_password.GetPending().GetBuffer(),    App::mp_server_password.GetPending().GetCapacity());
+        ImGui::PopItemWidth();
+
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
+        if (ImGui::Button("Save"))
+        {
+            App::mp_player_name.ApplyPending();
+            App::mp_server_password.ApplyPending();
+        }
+        ImGui::Separator();
+
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + CONTENT_TOP_PADDING);
+        ImGui::PushItemWidth(250.f);
+        ImGui::InputText("Player token", m_user_token_buf.GetBuffer(), m_user_token_buf.GetCapacity());
+        ImGui::PopItemWidth();
+
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
+        if (ImGui::Button("Update saved hash") && (m_user_token_buf.GetLength() > 0))
+        {
+            RoR::CSHA1 sha1;
+            uint8_t* input_text = (uint8_t *)m_user_token_buf.GetBuffer();
+            uint32_t input_size = (uint32_t)m_user_token_buf.GetLength();
+            sha1.UpdateHash(input_text, input_size);
+            sha1.Final();
+            App::mp_player_token_hash.GetPending().Clear(); // The CSHA1::ReportHash() appends rather than overwrites
+            sha1.ReportHash(App::mp_player_token_hash.GetPending().GetBuffer(), RoR::CSHA1::REPORT_HEX_SHORT);
+
+            App::mp_player_token_hash.ApplyPending();
+            m_user_token_buf.Clear();
+        }
+        ImGui::SameLine();
+        ImGui::TextDisabled(" Hash: [%s]", App::mp_player_token_hash.GetActive());
+
+        ImGui::PopID();
+    }
+    else if (m_mode == Mode::DIRECT)
+    {
+        ImGui::PushID("direct");
+
+        ImGui::PushItemWidth(250.f);
+        ImGui::InputText("Server host", App::mp_server_host.GetPending().GetBuffer(), App::mp_server_host.GetPending().GetCapacity());
+        int port = App::mp_server_port.GetPending();
+        if (ImGui::InputInt("Server port", &port))
+        {
+            App::mp_server_port.SetPending(port);
+        }
+        ImGui::InputText("Server password (default)", App::mp_server_password.GetPending().GetBuffer(), App::mp_server_password.GetPending().GetCapacity());
+        ImGui::PopItemWidth();
+
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
+        if (ImGui::Button("Save & join"))
+        {
+            App::mp_server_host.ApplyPending();
+            App::mp_server_port.ApplyPending();
+            App::mp_server_password.ApplyPending();
+
+            // TODO: perform the join.
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Save only"))
+        {
+            App::mp_server_host.ApplyPending();
+            App::mp_server_port.ApplyPending();
+            App::mp_server_password.ApplyPending();
+        }
+
+        ImGui::PopID();
+    }
+    else if (m_mode == Mode::ONLINE)
+    {
+        const char* draw_label_text = nullptr;
+        ImVec4      draw_label_color;
+        bool        draw_table = false;
+
+        // DETERMINE WHAT TO DRAW
+        if (m_is_refreshing)
+        {
+            draw_label_text = "... refreshing ...";
+            draw_label_color = App::GetGuiManager()->GetTheme().in_progress_text_color;
+        }
+        else if (m_serverlist_data != nullptr)
+        {
+            if (m_serverlist_data->success == true)
+            {
+                draw_table = true;
+                if (m_serverlist_data->servers.size() == 0)
+                {
+                    draw_label_text = "There are no available servers :/"; // Draw empty table _and_ the label.
+                    draw_label_color = App::GetGuiManager()->GetTheme().no_entries_text_color;
+                }
+            }
+            else
+            {
+                draw_label_text = m_serverlist_data->message.c_str();
+                draw_label_color = App::GetGuiManager()->GetTheme().error_text_color;
+            }
+        }
+
+        // DRAW SERVERLIST TABLE
+        if (draw_table)
+        {
+            // Setup serverlist table ... the scroll area
+            const float table_height = ImGui::GetWindowHeight()
+                - ((2.f * ImGui::GetStyle().WindowPadding.y) + (3.f * ImGui::GetItemsLineHeightWithSpacing())
+                    + TABS_BOTTOM_PADDING + CONTENT_TOP_PADDING - ImGui::GetStyle().ItemSpacing.y);
+            ImGui::BeginChild("scrolling", ImVec2(0.f, table_height), false);
+            // ... and the table itself
+            const float table_width = ImGui::GetWindowContentRegionWidth();
+            ImGui::Columns(6, "mp-selector-columns");         // Col #0: Passwd
+            ImGui::SetColumnOffset(1, 0.08f * table_width);   // Col #1: Server name
+            ImGui::SetColumnOffset(2, 0.35f * table_width);   // Col #2: Terrain name
+            ImGui::SetColumnOffset(3, 0.70f * table_width);   // Col #3: Users/Max
+            ImGui::SetColumnOffset(4, 0.77f * table_width);   // Col #4: Ping
+            ImGui::SetColumnOffset(5, 0.82f * table_width);   // Col #5: Host/Port
+            // Draw table header
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + TABLE_PADDING_LEFT);
+            DrawTableHeader("Passwd?");
+            DrawTableHeader("Name");
+            DrawTableHeader("Terrain");
+            DrawTableHeader("Users");
+            DrawTableHeader("Ping");
+            DrawTableHeader("Host/Port");
+            ImGui::Separator();
+            // Draw table body
+            int num_servers = static_cast<int>(m_serverlist_data->servers.size());
+            for (int i = 0; i < num_servers; i++)
+            {
+                ImGui::PushID(i);
+
+                // First column - selection control
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + TABLE_PADDING_LEFT);
+                MpServerlistData::ServerInfo& server = m_serverlist_data->servers[i];
+                if (ImGui::Selectable(server.display_passwd, m_selected_item == i, ImGuiSelectableFlags_SpanAllColumns))
+                {
+                    m_selected_item = i;
+                }
+                ImGui::NextColumn();
+
+                // Other collumns
+                ImGui::Text(server.display_name);           ImGui::NextColumn();
+                ImGui::Text(server.display_terrn);          ImGui::NextColumn();
+                ImGui::Text(server.display_users);          ImGui::NextColumn();
+                ImGui::Text("~");                           ImGui::NextColumn(); // TODO: ping
+                ImGui::Text(server.display_host);           ImGui::NextColumn();
+
+                ImGui::PopID();
+            }
+            ImGui::Columns(1);
+            ImGui::EndChild(); // End of scroll area
+
+            // Simple join button
+            if (m_selected_item != -1)
+            {
+                if (ImGui::Button("Join", ImVec2(200.f, 0.f)))
+                {
+                    App::mp_server_host.SetActive(m_serverlist_data->servers[m_selected_item].net_host);
+                    App::mp_server_port.SetActive(m_serverlist_data->servers[m_selected_item].net_port);
+                    App::mp_state.SetPending(MpState::CONNECTED);
+                }
+            }
+        }
+
+        // DRAW CENTERED LABEL
+        if (draw_label_text != nullptr)
+        {
+            const ImVec2 label_size = ImGui::CalcTextSize(draw_label_text);
+            ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - (label_size.x / 2.f));
+            ImGui::SetCursorPosY((ImGui::GetWindowSize().y / 2.f) - (label_size.y / 2.f));
+            ImGui::TextColored(draw_label_color, draw_label_text);
+        }
+    }
+
+    ImGui::End();
 }
 
-void CLASS::RefreshServerlist()
+void RoR::GUI::MultiplayerSelector::RefreshServerlist()
 {
 #if defined(USE_CURL)
     m_serverlist_data.reset();
-    m_servers_list->removeAllItems();
-    m_status_label->setVisible(true);
-    m_status_label->setCaption("* * * * UPDATING * * * *");
-    m_status_label->setTextColour(status_updating_color);
-    m_refresh_button->setEnabled(false);
+    m_selected_item = -1;
     m_is_refreshing = true;
     std::packaged_task<MpServerlistData*(std::string)> task(FetchServerlist);
     m_serverlist_future = task.get_future();
-    std::thread(std::move(task), App::GetMpPortalUrl()).detach(); // launch on a thread
+    std::thread(std::move(task), App::mp_portal_url.GetActive()).detach(); // launch on a thread
 #endif // defined(USE_CURL)
 }
 
-void CLASS::CenterToScreen()
+bool RoR::GUI::MultiplayerSelector::IsRefreshThreadRunning() const
 {
-    MyGUI::IntSize windowSize = MAIN_WIDGET->getSize();
-    MyGUI::IntSize parentSize = MAIN_WIDGET->getParentSize();
-
-    MAIN_WIDGET->setPosition((parentSize.width - windowSize.width) / 2, (parentSize.height - windowSize.height) / 2);
+    return m_is_refreshing;
 }
 
-bool CLASS::IsVisible()
-{
-    return MAIN_WIDGET->getVisible();
-}
-
-
-void CLASS::CallbackRefreshOnlineBtnPress(MyGUI::WidgetPtr _sender)
-{
-    this->RefreshServerlist();
-}
-
-void CLASS::CallbackJoinOnlineListItem(MyGUI::MultiListBox* _sender, size_t index)
-{
-    this->ServerlistJoin(index);
-}
-
-
-void CLASS::CheckAndProcessRefreshResult()
+void RoR::GUI::MultiplayerSelector::CheckAndProcessRefreshResult()
 {
     std::future_status status = m_serverlist_future.wait_for(std::chrono::seconds(0));
     if (status != std::future_status::ready)
@@ -242,79 +428,15 @@ void CLASS::CheckAndProcessRefreshResult()
     }
 
     m_serverlist_data = std::unique_ptr<MpServerlistData>(m_serverlist_future.get());
-
-    if (!m_serverlist_data->success)
-    {
-        if (m_serverlist_data->message.empty())
-            m_status_label->setCaption("Could not connect to server :(");
-        else
-            m_status_label->setCaption(m_serverlist_data->message);
-
-        m_refresh_button->setEnabled(true);
-        m_is_refreshing = false;
-        return;
-    }
-
-    size_t num_rows = m_serverlist_data->servers.size();
-    if (num_rows == 0)
-    {
-        m_status_label->setTextColour(status_emptylist_color);
-        m_status_label->setCaption("There are no available servers :/");
-        m_refresh_button->setEnabled(true);
-        m_is_refreshing = false;
-        return;
-    }
-
-    for (size_t i = 0; i < num_rows; ++i)
-    {
-        MpServerlistData::ServerInfo& server = m_serverlist_data->servers[i];
-        m_servers_list->addItem(server.display_name, i); // Only fills 1st column. Userdata = `size_t` index to `m_serverlist_data::servers` array
-        m_servers_list->setSubItemNameAt(1, i, server.display_terrn); // Fill other columns
-        m_servers_list->setSubItemNameAt(2, i, server.display_users);
-        m_servers_list->setSubItemNameAt(3, i, server.display_host);
-    }
-
-    m_status_label->setVisible(false);
-    m_refresh_button->setEnabled(true);
     m_is_refreshing = false;
+    return;
 }
 
-void CLASS::ServerlistJoin(size_t sel_index)
+void RoR::GUI::MultiplayerSelector::SetVisible(bool visible)
 {
-    if (sel_index != MyGUI::ITEM_NONE)
+    m_is_visible = visible;
+    if (visible && (m_serverlist_data == nullptr)) // Do an initial refresh
     {
-        size_t i = *m_servers_list->getItemDataAt<size_t>(sel_index);
-
-        App::SetMpServerHost(m_serverlist_data->servers[i].net_host);
-        App::SetMpServerPort(m_serverlist_data->servers[i].net_port);
-        App::GetMainMenu()->JoinMultiplayerServer();
+        this->RefreshServerlist();
     }
 }
-
-void CLASS::CallbackJoinOnlineBtnPress(MyGUI::WidgetPtr _sender)
-{
-    this->ServerlistJoin(m_servers_list->getIndexSelected());
-}
-
-void CLASS::CallbackJoinDirectBtnPress(MyGUI::WidgetPtr _sender)
-{
-    MAIN_WIDGET->setVisibleSmooth(false);
-    App::SetMpServerHost(m_entertab_ip_editbox->getCaption().asUTF8());
-    App::SetMpServerPort(Ogre::StringConverter::parseInt(m_entertab_port_editbox->getCaption().asUTF8()));
-    App::GetMainMenu()->JoinMultiplayerServer();
-}
-
-void CLASS::NotifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name)
-{
-    if (_name == "close")
-    {
-        MAIN_WIDGET->setVisibleSmooth(false);
-        if (App::GetActiveAppState() == App::APP_STATE_MAIN_MENU)
-        {
-            App::GetGuiManager()->SetVisible_GameMainMenu(true);
-        }
-    }
-}
-
-} // namespace RoR
-} // namespace GUI

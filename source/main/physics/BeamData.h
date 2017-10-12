@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -417,14 +417,6 @@ struct cparticle_t
     bool active;
     Ogre::SceneNode *snode;
     Ogre::ParticleSystem* psys;
-};
-
-
-struct debugtext_t
-{
-    int id;
-    Ogre::MovableText *txt;
-    Ogre::SceneNode *node;
 };
 
 #include "datatypes/rig_t.h"

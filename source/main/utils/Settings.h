@@ -42,7 +42,7 @@
 namespace RoR {
 namespace System {
 
-std::string GetParentDirectory(const char* src_buff);
+void GetParentDirectory(char* dst_buf, const char* src_buff);
 int DetectBasePaths();
 
 } // namespace System
@@ -137,7 +137,7 @@ public:
     void setSetting(Ogre::String key, Ogre::String value);
     void setUTFSetting(Ogre::UTFString key, Ogre::UTFString value);
 
-    void LoadSettings(std::string filepath);
+    void LoadRoRCfg(); // Reads GVars
 
     void SaveSettings();
 
@@ -169,9 +169,8 @@ public:
 protected:
 
     // Helpers
-    void SetMpNetworkEnable(bool enable);
-    void SetGfxFovExternal(float fov);
-    void SetGfxFovInternal(float fov);
+    bool CheckMpEnable(std::string const & k, std::string const & v);
+    bool CheckFov(std::string const & k, std::string const & v);
 
     static Settings* myInstance;
 

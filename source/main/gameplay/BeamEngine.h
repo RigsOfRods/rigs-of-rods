@@ -45,7 +45,7 @@ public:
     float getSmoke();
     float getTorque();
     float getTurboPSI();
-    RoR::App::SimGearboxMode getAutoMode();
+    RoR::SimGearboxMode getAutoMode();
 
     /**
     * Sets current engine state; Needed mainly for smoke.
@@ -60,7 +60,7 @@ public:
     void netForceSettings(float rpm, float force, float clutch, int gear, bool running, bool contact, char automode);
 
     void setAcc(float val);
-    void setAutoMode(RoR::App::SimGearboxMode mode);
+    void setAutoMode(RoR::SimGearboxMode mode);
     void setClutch(float clutch);
 
     /**

@@ -114,19 +114,14 @@ void RigSpawner::Setup(
         m_generate_wing_position_lights = false; // Disable aerial pos. lights for land vehicles.
     }
 
-    // add custom include path
-    if (!SSETTING("resourceIncludePath", "").empty())
+    if (App::diag_extra_resource_dir.GetActive() != App::diag_extra_resource_dir.GetPending())
+    {
+        App::diag_extra_resource_dir.ApplyPending();
+    }
+    if (! App::diag_extra_resource_dir.IsActiveEmpty())
     {
         Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
-            SSETTING("resourceIncludePath", ""), 
-            "FileSystem", 
-            "customInclude"
-        );
-    }
-
-    // initialize custom include path
-    if (!SSETTING("resourceIncludePath", "").empty())
-    {
+            App::diag_extra_resource_dir.GetActive(), "FileSystem", "customInclude");
         Ogre::ResourceBackgroundQueue::getSingleton().initialiseResourceGroup("customInclude");
     }
 
@@ -270,8 +265,6 @@ void RigSpawner::InitializeRig()
     m_rig->exhausts.clear();
     memset(m_rig->cparticles, 0, sizeof(cparticle_t) * MAX_CPARTICLES);
     m_rig->free_cparticle = 0;
-    m_rig->nodes_debug.clear();
-    m_rig->beams_debug.clear();
     memset(m_rig->soundsources, 0, sizeof(soundsource_t) * MAX_SOUNDSCRIPTS_PER_TRUCK);
     m_rig->free_soundsource = 0;
     memset(m_rig->pressure_beams, 0, sizeof(int) * MAX_PRESSURE_BEAMS);
@@ -321,13 +314,13 @@ void RigSpawner::InitializeRig()
     
     m_rig->collrange=DEFAULT_COLLISION_RANGE;
     m_rig->masscount=0;
-    m_rig->disable_smoke = App::GetGfxParticlesMode() == 0;
+    m_rig->disable_smoke = App::gfx_particles_mode.GetActive() == 0;
     m_rig->smokeId=0;
     m_rig->smokeRef=0;
     m_rig->editorId=-1;
-    m_rig->beambreakdebug  = SETTINGS.getBooleanSetting("Beam Break Debug", false);
-    m_rig->beamdeformdebug = SETTINGS.getBooleanSetting("Beam Deform Debug", false);
-    m_rig->triggerdebug    = SETTINGS.getBooleanSetting("Trigger Debug", false);
+    m_rig->beambreakdebug  = App::diag_log_beam_break.GetActive(); // TODO: make interactive - don't copy Gvar, use it directly
+    m_rig->beamdeformdebug = App::diag_log_beam_deform.GetActive();
+    m_rig->triggerdebug    = App::diag_log_beam_trigger.GetActive();
     m_rig->rotaInertia = nullptr;
     m_rig->hydroInertia = nullptr;
     m_rig->cmdInertia = nullptr;
@@ -367,7 +360,6 @@ void RigSpawner::InitializeRig()
     m_rig->fuseWidth=0;
     m_rig->brakeforce=30000.0;
     m_rig->hbrakeforce = 2 * m_rig->brakeforce;
-    m_rig->debugVisuals = SETTINGS.getBooleanSetting("DebugBeams", false);
     m_rig->shadowOptimizations = SETTINGS.getBooleanSetting("Shadow optimizations", true);
 
     m_rig->proped_wheels=0;
@@ -418,8 +410,6 @@ void RigSpawner::InitializeRig()
 
     m_rig->collisionRelevant = false;
 
-    m_rig->debugVisuals = 0;
-
     m_rig->driverSeat = nullptr;
 
     m_rig->heathaze = !m_rig->disable_smoke && BSETTING("HeatHaze", false);
@@ -451,9 +441,6 @@ void RigSpawner::InitializeRig()
     statistics = BES.getClient(tnum, BES_CORE);
     statistics_gfx = BES.getClient(tnum, BES_GFX);
 #endif
-
-    m_rig->simpleSkeletonNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-    m_rig->deletion_sceneNodes.emplace_back(m_rig->simpleSkeletonNode);
     
     m_rig->beamsRoot = m_parent_scene_node;
 
@@ -471,7 +458,7 @@ void RigSpawner::InitializeRig()
     }
 
     m_rig->submesh_ground_model = gEnv->collisions->defaultgm;
-    m_rig->cparticle_enabled = App::GetGfxParticlesMode() == 1;
+    m_rig->cparticle_enabled = App::gfx_particles_mode.GetActive() == 1;
 
     DustManager& dustman = m_sim_controller->GetBeamFactory()->GetParticleManager();
     m_rig->dustp   = dustman.getDustPool("dust");
@@ -486,7 +473,7 @@ void RigSpawner::InitializeRig()
     m_rig->rotaInertia  = new CmdKeyInertia();
 
     // Lights mode
-    m_rig->m_flares_mode = App::GetGfxFlaresMode();
+    m_rig->m_flares_mode = App::gfx_flares_mode.GetActive();
 
     m_rig->m_definition = m_file;
 
@@ -538,7 +525,7 @@ void RigSpawner::FinalizeRig()
         }
 
         //Gearbox
-        m_rig->engine->setAutoMode(App::GetSimGearboxMode());
+        m_rig->engine->setAutoMode(App::sim_gearbox_mode.GetActive());
     }
     
     //calculate gwps height offset
@@ -1105,7 +1092,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
             previous_wing.fa->enableInducedDrag(span, m_wing_area, true);
 
             //we want also to add positional lights for first wing
-            if (m_generate_wing_position_lights && (m_rig->m_flares_mode != App::GFX_FLARES_NONE))
+            if (m_generate_wing_position_lights && (m_rig->m_flares_mode != GfxFlaresMode::NONE))
             {
                 if (! CheckPropLimit(4))
                 {
@@ -1909,7 +1896,7 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
             this->AddMessage(Message::TYPE_INFO, "Found more than one 'seat[2]' special props. Only the first one will be the driver's seat.");
         }
     }
-    else if (m_rig->m_flares_mode != App::GFX_FLARES_NONE)
+    else if (m_rig->m_flares_mode != GfxFlaresMode::NONE)
     {
         if(def.special == RigDef::Prop::SPECIAL_BEACON)
         {
@@ -2298,7 +2285,7 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (m_rig->m_flares_mode == App::GFX_FLARES_NONE) { return; }
+    if (m_rig->m_flares_mode == GfxFlaresMode::NONE) { return; }
 
     int blink_delay = def.blink_delay_milis;
     float size = def.size;
@@ -2380,7 +2367,7 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
     flare.isVisible = true;
     flare.light = nullptr;
 
-    if ((App::GetGfxFlaresMode() >= App::GFX_FLARES_CURR_VEHICLE_HEAD_ONLY) && size > 0.001)
+    if ((App::gfx_flares_mode.GetActive() >= GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY) && size > 0.001)
     {
         //if (type == 'f' && usingDefaultMaterial && flaresMode >=2 && size > 0.001)
         if (def.type == RigDef::Flare2::TYPE_f_HEADLIGHT && using_default_material )
@@ -2395,7 +2382,7 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
             flare.light->setCastShadows(false);
         }
     }
-    if ((App::GetGfxFlaresMode() >= App::GFX_FLARES_ALL_VEHICLES_ALL_LIGHTS) && size > 0.001)
+    if ((App::gfx_flares_mode.GetActive() >= GfxFlaresMode::ALL_VEHICLES_ALL_LIGHTS) && size > 0.001)
     {
         //else if (type == 'f' && !usingDefaultMaterial && flaresMode >=4 && size > 0.001)
         if (def.type == RigDef::Flare2::TYPE_f_HEADLIGHT && ! using_default_material)
@@ -5612,7 +5599,7 @@ void RigSpawner::ProcessEngine(RigDef::Engine & def)
         m_rig
     );
 
-    m_rig->engine->setAutoMode(App::GetSimGearboxMode());
+    m_rig->engine->setAutoMode(App::sim_gearbox_mode.GetActive());
 };
 
 void RigSpawner::ProcessHelp()
@@ -7194,7 +7181,7 @@ void RigSpawner::FinalizeGfxSetup()
         }
     }
 
-    if (!App::GetGfxEnableVideocams())
+    if (!App::gfx_enable_videocams.GetActive())
     {
         m_rig->m_gfx_actor->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_DISABLED);
     }
@@ -7418,7 +7405,7 @@ void RigSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
             vcam.vcam_material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(vcam.vcam_off_tex_name);
         }
 
-        if (App::GetDiagVideoCameras())
+        if (App::diag_videocameras.GetActive())
         {
             Ogre::ManualObject* mo = CreateVideocameraDebugMesh(); // local helper function
             vcam.vcam_debug_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();

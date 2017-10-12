@@ -40,6 +40,8 @@ namespace RoR {
 /// Builds and manages softbody actors; Manages multithreading.
 class BeamFactory
 {
+    friend class GameScript; // needs to call RemoveActorByCollisionBox()
+    friend class ::RoRFrameListener; // Needs to call removeTruck() and RemoveActorByCollisionBox()
 public:
 
     BeamFactory(RoRFrameListener* sim_controller);
@@ -78,7 +80,7 @@ public:
     Beam** getTrucks() { return m_trucks; };
     int getPreviousTruckNumber() { return m_previous_truck; };
     int getCurrentTruckNumber() { return m_current_truck; };
-    int getTruckCount() { return m_free_truck; };
+    int getTruckCount() const { return m_free_truck; };
 
     void enterNextTruck();
     void enterPreviousTruck();
@@ -87,10 +89,7 @@ public:
     void setSimulationSpeed(float speed) { m_simulation_speed = std::max(0.0f, speed); };
     float getSimulationSpeed() { return m_simulation_speed; };
 
-    void removeCurrentTruck();
     void CleanUpAllTrucks(); /// Call this after simulation loop finishes.
-    void removeTruck(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
-    void removeTruck(int truck);
 
     void MuteAllTrucks();
     void UnmuteAllTrucks();
@@ -98,25 +97,18 @@ public:
     bool enterRescueTruck();
     void repairTruck(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box, bool keepPosition = false);
 
-    /**
-    * TIGHT-LOOP; Logic: display, particles, sound; 
-    */
-    void updateVisual(float dt);
+    void updateVisual(float dt); /// TIGHT-LOOP; Logic: display, particles, sound; 
 
-    /**
-    * TIGHT-LOOP; Logic: flexbodies 
-    */
-    void updateFlexbodiesPrepare();
-    void updateFlexbodiesFinal();
+    void updateFlexbodiesPrepare(); /// TIGHT-LOOP; Logic: flexbodies 
+    void updateFlexbodiesFinal();   /// TIGHT-LOOP; Logic: flexbodies 
 
-    /**
-     * Waits until all flexbody tasks are finished, but does not update the hardware buffers
-     */
+    /// Waits until all flexbody tasks are finished, but does not update the hardware buffers
     void joinFlexbodyTasks();
 
     void UpdatePhysicsSimulation();
 
     inline unsigned long getPhysFrame() { return m_physics_frames; };
+    inline bool          AreTrucksForcedActive() const { return m_forced_active; }
 
     void recalcGravityMasses();
 
@@ -148,29 +140,22 @@ public:
 
 protected:
 
-    /** 
-    * Returns whether or not the two (scaled) bounding boxes intersect.
-    */
+    void RemoveActorByCollisionBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box); ///< Only for scripting
+    void removeTruck(int truck); ///< Internal+friends use only; see `RoRFrameListener::*Actor*()` functions.
+
+    /// Returns whether or not the two (scaled) bounding boxes intersect.
     bool intersectionAABB(Ogre::AxisAlignedBox a, Ogre::AxisAlignedBox b, float scale = 1.0f);
 
-    /** 
-    * Returns whether or not the bounding boxes of truck a and truck b intersect. Based on the default truck bounding boxes.
-    */
+    /// Returns whether or not the bounding boxes of truck a and truck b intersect. Based on the default truck bounding boxes.
     bool truckIntersectionAABB(int a, int b, float scale = 1.0f);
 
-    /** 
-    * Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the default truck bounding boxes.
-    */
+    /// Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the default truck bounding boxes.
     bool predictTruckIntersectionAABB(int a, int b, float scale = 1.0f);
 
-    /** 
-    * Returns whether or not the bounding boxes of truck a and truck b intersect. Based on the truck collision bounding boxes.
-    */
+    /// Returns whether or not the bounding boxes of truck a and truck b intersect. Based on the truck collision bounding boxes.
     bool truckIntersectionCollAABB(int a, int b, float scale = 1.0f);
 
-    /** 
-    * Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the truck collision bounding boxes.
-    */
+    /// Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the truck collision bounding boxes.
     bool predictTruckIntersectionCollAABB(int a, int b, float scale = 1.0f);
 
     int CreateRemoteInstance(RoRnet::TruckStreamRegister* reg);

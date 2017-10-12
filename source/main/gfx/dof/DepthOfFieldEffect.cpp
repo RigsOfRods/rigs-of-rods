@@ -244,7 +244,7 @@ DOFManager::DOFManager():
     RoR::App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(this);
 
     debugNode = 0;
-    if (BSETTING("DOFDebug", false))
+    if (RoR::App::diag_dof_effect.GetActive())
     {
         MaterialPtr material = MaterialManager::getSingleton().getByName("DoF_DepthDebug");
         material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName("DoF_Depth");

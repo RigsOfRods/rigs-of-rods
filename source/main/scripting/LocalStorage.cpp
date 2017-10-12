@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -43,7 +43,7 @@ LocalStorage::LocalStorage(AngelScript::asIScriptEngine *engine_in, std::string 
 
     sectionName = sectionName_in.substr(0, sectionName_in.find(".", 0));
     
-    filename = RoR::App::GetSysCacheDir() + PATH_SLASH + fileName_in + ".asdata";
+    filename = std::string(RoR::App::sys_cache_dir.GetActive()) + PATH_SLASH + fileName_in + ".asdata";
     separators = "=";
     loadDict();
     

@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -137,8 +137,6 @@ Beam::~Beam()
 
     if (cabMesh != nullptr)
     {
-        this->fadeMesh(cabNode, 1.f); // Reset transparency of "skeleton view"
-
         cabNode->detachAllObjects();
         cabNode->getParentSceneNode()->removeAndDestroyChild(cabNode->getName());
         cabNode = nullptr;
@@ -458,64 +456,6 @@ void Beam::scaleTruck(float value)
     BES_GFX_STOP(BES_GFX_ScaleTruck);
 }
 
-void Beam::initSimpleSkeleton()
-{
-    simpleSkeletonManualObject = gEnv->sceneManager->createManualObject();
-
-    simpleSkeletonManualObject->estimateIndexCount(free_beam * 2);
-    simpleSkeletonManualObject->setCastShadows(false);
-    simpleSkeletonManualObject->setDynamic(true);
-    simpleSkeletonManualObject->setRenderingDistance(300);
-    simpleSkeletonManualObject->begin("vehicle-skeletonview-material", RenderOperation::OT_LINE_LIST);
-    for (int i = 0; i < free_beam; i++)
-    {
-        simpleSkeletonManualObject->position(beams[i].p1->AbsPosition);
-        simpleSkeletonManualObject->colour(1.0f, 1.0f, 1.0f);
-        simpleSkeletonManualObject->position(beams[i].p2->AbsPosition);
-        simpleSkeletonManualObject->colour(0.0f, 0.0f, 0.0f);
-    }
-    simpleSkeletonManualObject->end();
-    simpleSkeletonNode->attachObject(simpleSkeletonManualObject);
-    simpleSkeletonInitiated = true;
-}
-
-void Beam::updateSimpleSkeleton()
-{
-    BES_GFX_START(BES_GFX_UpdateSkeleton);
-
-    ColourValue color;
-
-    if (!simpleSkeletonInitiated)
-        initSimpleSkeleton();
-
-    simpleSkeletonManualObject->beginUpdate(0);
-    for (int i = 0; i < free_beam; i++)
-    {
-        float stress_ratio = beams[i].stress / beams[i].minmaxposnegstress;
-        float color_scale = std::abs(stress_ratio);
-        color_scale = std::min(color_scale, 1.0f);
-
-        if (stress_ratio <= 0)
-            color = ColourValue(0.2f, 1.0f - color_scale, color_scale, 0.8f);
-        else
-            color = ColourValue(color_scale, 1.0f - color_scale, 0.2f, 0.8f);
-
-        simpleSkeletonManualObject->position(beams[i].p1->AbsPosition);
-        simpleSkeletonManualObject->colour(color);
-
-        // remove broken beams
-        if (beams[i].broken || beams[i].disabled)
-            simpleSkeletonManualObject->position(beams[i].p1->AbsPosition);
-        else
-            simpleSkeletonManualObject->position(beams[i].p2->AbsPosition);
-
-        simpleSkeletonManualObject->colour(color);
-    }
-    simpleSkeletonManualObject->end();
-
-    BES_GFX_STOP(BES_GFX_UpdateSkeleton);
-}
-
 void Beam::moveOrigin(Vector3 offset)
 {
     origin += offset;
@@ -563,22 +503,6 @@ Vector3 Beam::getDirection()
 Vector3 Beam::getPosition()
 {
     return position; //the position is already in absolute position
-}
-
-void Beam::CreateSimpleSkeletonMaterial()
-{
-    if (MaterialManager::getSingleton().resourceExists("vehicle-skeletonview-material"))
-    {
-        return;
-    }
-
-    MaterialPtr mat = (MaterialPtr)(MaterialManager::getSingleton().create("vehicle-skeletonview-material", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME));
-
-    mat->getTechnique(0)->getPass(0)->createTextureUnitState();
-    mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(TFO_ANISOTROPIC);
-    mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureAnisotropy(3);
-    mat->setLightingEnabled(false);
-    mat->setReceiveShadows(false);
 }
 
 void Beam::pushNetwork(char* data, int size)
@@ -777,12 +701,11 @@ void Beam::calcNetwork()
     if (engine)
     {
         int automode = -1;
-        if ((flagmask & NETMASK_ENGINE_MODE_AUTOMATIC) != 0) { automode = App::SIM_GEARBOX_AUTO; }
-        else if ((flagmask & NETMASK_ENGINE_MODE_SEMIAUTO) != 0) { automode = App::SIM_GEARBOX_SEMI_AUTO; }
-        else if ((flagmask & NETMASK_ENGINE_MODE_MANUAL) != 0) { automode = App::SIM_GEARBOX_MANUAL; }
-        else if ((flagmask & NETMASK_ENGINE_MODE_MANUAL_STICK) != 0) { automode = App::SIM_GEARBOX_MANUAL_STICK; }
-        else
-        if ((flagmask & NETMASK_ENGINE_MODE_MANUAL_RANGES) != 0) { automode = App::SIM_GEARBOX_MANUAL_RANGES; }
+             if ((flagmask & NETMASK_ENGINE_MODE_AUTOMATIC)     != 0) { automode = static_cast<int>(SimGearboxMode::AUTO); }
+        else if ((flagmask & NETMASK_ENGINE_MODE_SEMIAUTO)      != 0) { automode = static_cast<int>(SimGearboxMode::SEMI_AUTO); }
+        else if ((flagmask & NETMASK_ENGINE_MODE_MANUAL)        != 0) { automode = static_cast<int>(SimGearboxMode::MANUAL); }
+        else if ((flagmask & NETMASK_ENGINE_MODE_MANUAL_STICK)  != 0) { automode = static_cast<int>(SimGearboxMode::MANUAL_STICK); }
+        else if ((flagmask & NETMASK_ENGINE_MODE_MANUAL_RANGES) != 0) { automode = static_cast<int>(SimGearboxMode::MANUAL_RANGES); }
 
         bool contact = ((flagmask & NETMASK_ENGINE_CONT) != 0);
         bool running = ((flagmask & NETMASK_ENGINE_RUN) != 0);
@@ -867,7 +790,7 @@ void Beam::calc_masses2(Real total, bool reCalc)
 {
     BES_GFX_START(BES_GFX_calc_masses2);
 
-    bool debugMass = App::GetDiagTruckMass();
+    bool debugMass = App::diag_truck_mass.GetActive();
 
     //reset
     for (int i = 0; i < free_node; i++)
@@ -938,8 +861,12 @@ void Beam::calc_masses2(Real total, bool reCalc)
         //for stability
         if (!nodes[i].iswheel && nodes[i].mass < minimass)
         {
-            if (debugMass)
-            LOG("Node " + TOSTRING(i) +" mass ("+TOSTRING(nodes[i].mass)+"kg) too light. Resetting to minimass ("+ TOSTRING(minimass) +"kg).");
+            if (App::diag_truck_mass.GetActive())
+            {
+                char buf[300];
+                snprintf(buf, 300, "Node '%d' mass (%f Kg) is too light. Resetting to 'minimass' (%f Kg)", i, nodes[i].mass, minimass);
+                LOG(buf);
+            }
             nodes[i].mass = minimass;
         }
     }
@@ -947,7 +874,7 @@ void Beam::calc_masses2(Real total, bool reCalc)
     totalmass = 0;
     for (int i = 0; i < free_node; i++)
     {
-        if (debugMass)
+        if (App::diag_truck_mass.GetActive())
         {
             String msg = "Node " + TOSTRING(i) + " : " + TOSTRING((int)nodes[i].mass) + " kg";
             if (nodes[i].loadedMass)
@@ -1891,15 +1818,15 @@ void Beam::sendStreamData()
 
             switch (engine->getAutoMode())
             {
-            case RoR::App::SIM_GEARBOX_AUTO: send_oob->flagmask += NETMASK_ENGINE_MODE_AUTOMATIC;
+            case RoR::SimGearboxMode::AUTO: send_oob->flagmask += NETMASK_ENGINE_MODE_AUTOMATIC;
                 break;
-            case RoR::App::SIM_GEARBOX_SEMI_AUTO: send_oob->flagmask += NETMASK_ENGINE_MODE_SEMIAUTO;
+            case RoR::SimGearboxMode::SEMI_AUTO: send_oob->flagmask += NETMASK_ENGINE_MODE_SEMIAUTO;
                 break;
-            case RoR::App::SIM_GEARBOX_MANUAL: send_oob->flagmask += NETMASK_ENGINE_MODE_MANUAL;
+            case RoR::SimGearboxMode::MANUAL: send_oob->flagmask += NETMASK_ENGINE_MODE_MANUAL;
                 break;
-            case RoR::App::SIM_GEARBOX_MANUAL_STICK: send_oob->flagmask += NETMASK_ENGINE_MODE_MANUAL_STICK;
+            case RoR::SimGearboxMode::MANUAL_STICK: send_oob->flagmask += NETMASK_ENGINE_MODE_MANUAL_STICK;
                 break;
-            case RoR::App::SIM_GEARBOX_MANUAL_RANGES: send_oob->flagmask += NETMASK_ENGINE_MODE_MANUAL_RANGES;
+            case RoR::SimGearboxMode::MANUAL_RANGES: send_oob->flagmask += NETMASK_ENGINE_MODE_MANUAL_RANGES;
                 break;
             }
         }
@@ -2972,10 +2899,6 @@ void Beam::prepareInside(bool inside)
 
 void Beam::lightsToggle()
 {
-    // no lights toggling in skeleton mode because of possible bug with emissive texture
-    if (m_skeletonview_is_active)
-        return;
-
     Beam** trucks = m_sim_controller->GetBeamFactory()->getTrucks();
     int trucksnum = m_sim_controller->GetBeamFactory()->getTruckCount();
 
@@ -3030,10 +2953,10 @@ void Beam::updateFlares(float dt, bool isCurrent)
     if (mTimeUntilNextToggle > -1)
         mTimeUntilNextToggle -= dt;
 
-    if (m_flares_mode == App::GFX_FLARES_NONE) { return; }
+    if (m_flares_mode == GfxFlaresMode::NONE) { return; }
 
     bool enableAll = true;
-    if ((m_flares_mode == App::GFX_FLARES_CURR_VEHICLE_HEAD_ONLY) && !isCurrent) { enableAll = false; }
+    if ((m_flares_mode == GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY) && !isCurrent) { enableAll = false; }
 
     BES_GFX_START(BES_GFX_updateFlares);
 
@@ -3568,9 +3491,6 @@ void Beam::updateVisual(float dt)
     autoBlinkReset();
     updateSoundSources();
 
-    if (debugVisuals)
-        updateDebugOverlay();
-
 #ifdef USE_OPENAL
     //airplane radio chatter
     if (driveable == AIRPLANE && state != SLEEPING)
@@ -3687,28 +3607,6 @@ void Beam::updateVisual(float dt)
     hydroruddercommand = autorudder;
     hydroelevatorcommand = autoelevator;
 
-    if (cabFadeMode > 0 && dt > 0)
-    {
-        if (cabFadeTimer > 0)
-            cabFadeTimer -= dt;
-
-        if (cabFadeTimer < 0.1 && cabFadeMode == 1)
-        {
-            cabFadeMode = 0;
-            cabFade(0.4);
-        }
-        else if (cabFadeTimer < 0.1 && cabFadeMode == 2)
-        {
-            cabFadeMode = 0;
-            cabFade(1);
-        }
-
-        if (cabFadeMode == 1)
-            cabFade(0.4 + 0.6 * cabFadeTimer / cabFadeTime);
-        else if (cabFadeMode == 2)
-            cabFade(1 - 0.6 * cabFadeTimer / cabFadeTime);
-    }
-
     for (int i = 0; i < free_beam; i++)
     {
         if (!beams[i].mSceneNode)
@@ -3729,22 +3627,7 @@ void Beam::updateVisual(float dt)
         }
     }
 
-    if (m_request_skeletonview_change)
-    {
-        if (m_skeletonview_is_active && m_request_skeletonview_change < 0)
-        {
-            hideSkeleton(true);
-        }
-        else if (!m_skeletonview_is_active && m_request_skeletonview_change > 0)
-        {
-            showSkeleton(true, true);
-        }
-
-        m_request_skeletonview_change = 0;
-    }
-
-    if (m_skeletonview_is_active)
-        updateSimpleSkeleton();
+    m_gfx_actor->UpdateDebugView();
 
     BES_GFX_STOP(BES_GFX_updateVisual);
 }
@@ -3802,225 +3685,6 @@ void Beam::setDetailLevel(int v)
     }
 }
 
-void Beam::showSkeleton(bool meshes, bool linked)
-{
-    m_skeletonview_is_active = true;
-
-    if (meshes)
-    {
-        cabFadeMode = 1;
-        cabFadeTimer = cabFadeTime;
-    }
-    else
-    {
-        cabFadeMode = -1;
-        // directly hide meshes, no fading
-        cabFade(0);
-    }
-
-    for (int i = 0; i < free_wheel; i++)
-    {
-        if (vwheels[i].cnode)
-            vwheels[i].cnode->setVisible(false);
-
-        if (vwheels[i].fm)
-            vwheels[i].fm->setVisible(false);
-    }
-
-    for (int i = 0; i < free_prop; i++)
-    {
-        if (props[i].scene_node)
-            setMeshWireframe(props[i].scene_node, true);
-
-        if (props[i].wheel)
-            setMeshWireframe(props[i].wheel, true);
-    }
-
-    if (simpleSkeletonNode)
-    {
-        simpleSkeletonNode->setVisible(true);
-    }
-
-    // hide mesh wheels
-    for (int i = 0; i < free_wheel; i++)
-    {
-        if (vwheels[i].fm && vwheels[i].meshwheel)
-        {
-            Entity* e = ((FlexMeshWheel*)(vwheels[i].fm))->getRimEntity();
-            if (e)
-                e->setVisible(false);
-        }
-    }
-
-    // wireframe drawning for flexbody
-    for (int i = 0; i < free_flexbody; i++)
-    {
-        SceneNode* s = flexbodies[i]->getSceneNode();
-        if (s)
-            setMeshWireframe(s, true);
-    }
-
-    if (linked)
-    {
-        // apply to all locked trucks
-        determineLinkedBeams();
-        for (std::list<Beam*>::iterator it = linkedBeams.begin(); it != linkedBeams.end(); ++it)
-        {
-            (*it)->showSkeleton(meshes, false);
-        }
-    }
-
-    updateSimpleSkeleton();
-
-    TRIGGER_EVENT(SE_TRUCK_SKELETON_TOGGLE, trucknum);
-}
-
-void Beam::hideSkeleton(bool linked)
-{
-    m_skeletonview_is_active = false;
-
-    if (cabFadeMode >= 0)
-    {
-        cabFadeMode = 2;
-        cabFadeTimer = cabFadeTime;
-    }
-    else
-    {
-        cabFadeMode = -1;
-        // directly show meshes, no fading
-        cabFade(1);
-    }
-
-    for (int i = 0; i < free_wheel; i++)
-    {
-        if (vwheels[i].cnode)
-            vwheels[i].cnode->setVisible(true);
-
-        if (vwheels[i].fm)
-            vwheels[i].fm->setVisible(true);
-    }
-    for (int i = 0; i < free_prop; i++)
-    {
-        if (props[i].scene_node)
-            setMeshWireframe(props[i].scene_node, false);
-
-        if (props[i].wheel)
-            setMeshWireframe(props[i].wheel, false);
-    }
-
-    if (simpleSkeletonNode)
-        simpleSkeletonNode->setVisible(false);
-
-    // show mesh wheels
-    for (int i = 0; i < free_wheel; i++)
-    {
-        if (vwheels[i].fm && vwheels[i].meshwheel)
-        {
-            Entity* e = ((FlexMeshWheel *)(vwheels[i].fm))->getRimEntity();
-            if (e)
-                e->setVisible(true);
-        }
-    }
-
-    // normal drawning for flexbody
-    for (int i = 0; i < free_flexbody; i++)
-    {
-        SceneNode* s = flexbodies[i]->getSceneNode();
-        if (!s)
-            continue;
-        setMeshWireframe(s, false);
-    }
-
-    if (linked)
-    {
-        // apply to all locked trucks
-        determineLinkedBeams();
-        for (std::list<Beam*>::iterator it = linkedBeams.begin(); it != linkedBeams.end(); ++it)
-        {
-            (*it)->hideSkeleton(false);
-        }
-    }
-}
-
-void Beam::fadeMesh(SceneNode* node, float amount)
-{
-    for (int a = 0; a < node->numAttachedObjects(); a++)
-    {
-        Entity* e = (Entity *)node->getAttachedObject(a);
-        MaterialPtr m = e->getSubEntity(0)->getMaterial();
-        if (m.getPointer() == 0)
-            continue;
-        for (int x = 0; x < m->getNumTechniques(); x++)
-        {
-            for (int y = 0; y < m->getTechnique(x)->getNumPasses(); y++)
-            {
-                // TODO: fix this
-                //m->getTechnique(x)->getPass(y)->setAlphaRejectValue(0);
-                if (m->getTechnique(x)->getPass(y)->getNumTextureUnitStates() > 0)
-                    m->getTechnique(x)->getPass(y)->getTextureUnitState(0)->setAlphaOperation(LBX_MODULATE, LBS_TEXTURE, LBS_MANUAL, 1.0, amount);
-            }
-        }
-    }
-}
-
-float Beam::getAlphaRejection(SceneNode* node)
-{
-    for (int a = 0; a < node->numAttachedObjects(); a++)
-    {
-        Entity* e = (Entity *)node->getAttachedObject(a);
-        MaterialPtr m = e->getSubEntity(0)->getMaterial();
-        if (m.getPointer() == 0)
-            continue;
-        for (int x = 0; x < m->getNumTechniques(); x++)
-        {
-            for (int y = 0; y < m->getTechnique(x)->getNumPasses(); y++)
-            {
-                return m->getTechnique(x)->getPass(y)->getAlphaRejectValue();
-            }
-        }
-    }
-    return 0;
-}
-
-void Beam::setAlphaRejection(SceneNode* node, float amount)
-{
-    for (int a = 0; a < node->numAttachedObjects(); a++)
-    {
-        Entity* e = (Entity *)node->getAttachedObject(a);
-        MaterialPtr m = e->getSubEntity(0)->getMaterial();
-        if (m.getPointer() == 0)
-            continue;
-        for (int x = 0; x < m->getNumTechniques(); x++)
-        {
-            for (int y = 0; y < m->getTechnique(x)->getNumPasses(); y++)
-            {
-                m->getTechnique(x)->getPass(y)->setAlphaRejectValue((unsigned char)amount);
-                return;
-            }
-        }
-    }
-}
-
-void Beam::setMeshWireframe(SceneNode* node, bool value)
-{
-    for (int a = 0; a < node->numAttachedObjects(); a++)
-    {
-        Entity* e = (Entity *)node->getAttachedObject(a);
-        for (int se = 0; se < (int)e->getNumSubEntities(); se++)
-        {
-            MaterialPtr m = e->getSubEntity(se)->getMaterial();
-            if (m.getPointer() == 0)
-                continue;
-            for (int x = 0; x < m->getNumTechniques(); x++)
-                for (int y = 0; y < m->getTechnique(x)->getNumPasses(); y++)
-                    if (value)
-                        m->getTechnique(x)->getPass(y)->setPolygonMode(PM_WIREFRAME);
-                    else
-                        m->getTechnique(x)->getPass(y)->setPolygonMode(PM_SOLID);
-        }
-    }
-}
-
 void Beam::setBeamVisibility(bool visible)
 {
     for (int i = 0; i < free_beam; i++)
@@ -4072,47 +3736,6 @@ void Beam::setMeshVisibility(bool visible)
     }
 
     meshesVisible = visible;
-}
-
-void Beam::cabFade(float amount)
-{
-    static float savedCabAlphaRejection = 0;
-
-    // truck cab
-    if (cabNode)
-    {
-        if (amount == 0)
-        {
-            cabNode->setVisible(false);
-        }
-        else
-        {
-            if (amount == 1)
-                cabNode->setVisible(true);
-            if (savedCabAlphaRejection == 0)
-                savedCabAlphaRejection = getAlphaRejection(cabNode);
-            if (amount == 1)
-                setAlphaRejection(cabNode, savedCabAlphaRejection);
-            else if (amount < 1)
-                setAlphaRejection(cabNode, 0);
-            fadeMesh(cabNode, amount);
-        }
-    }
-
-    // wings
-    for (int i = 0; i < free_wing; i++)
-    {
-        if (amount == 0)
-        {
-            wings[i].cnode->setVisible(false);
-        }
-        else
-        {
-            if (amount == 1)
-                wings[i].cnode->setVisible(true);
-            fadeMesh(wings[i].cnode, amount);
-        }
-    }
 }
 
 void Beam::addInterTruckBeam(beam_t* beam, Beam* a, Beam* b)
@@ -4230,7 +3853,7 @@ void Beam::tieToggle(int group)
             {
                 removeInterTruckBeam(it->beam);
                 // update skeletonview on the untied truck
-                it->locked_truck->m_request_skeletonview_change = -1;
+                it->locked_truck->GetGfxActor()->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
             }
             it->locked_truck = nullptr;
         }
@@ -4300,7 +3923,7 @@ void Beam::tieToggle(int group)
                     {
                         addInterTruckBeam(it->beam, this, shtruck);
                         // update skeletonview on the tied truck
-                        shtruck->m_request_skeletonview_change = m_skeletonview_is_active ? 1 : -1;
+                        shtruck->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
                     }
                 }
             }
@@ -4544,11 +4167,11 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
         {
             if (it->lockTruck)
             {
-                it->lockTruck->m_request_skeletonview_change = m_skeletonview_is_active ? 1 : -1;
+                it->lockTruck->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
             }
             else if (lastLockTruck != this)
             {
-                lastLockTruck->m_request_skeletonview_change = -1;
+                lastLockTruck->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
             }
         }
     }
@@ -4598,9 +4221,9 @@ void Beam::cruisecontrolToggle()
 
 void Beam::beaconsToggle()
 {
-    if (m_flares_mode == App::GFX_FLARES_NONE) { return; }
+    if (m_flares_mode == GfxFlaresMode::NONE) { return; }
 
-    const bool enableLight = (m_flares_mode != App::GFX_FLARES_NO_LIGHTSOURCES);
+    const bool enableLight = (m_flares_mode != GfxFlaresMode::NO_LIGHTSOURCES);
 
     bool beacon_light_is_active = !m_beacon_light_is_active;
     for (int i = 0; i < free_prop; i++)
@@ -4686,199 +4309,9 @@ void Beam::setReplayMode(bool rm)
     replay->setVisible(replaymode);
 }
 
-void Beam::setDebugOverlayState(int mode)
-{
-    // enable disable debug visuals
-    debugVisuals = mode;
-
-    if (nodes_debug.empty())
-    {
-        LOG("initializing debugVisuals");
-        // add node labels
-        for (int i = 0; i < free_node; i++)
-        {
-            debugtext_t t;
-            char nodeName[256] = "", entName[256] = "";
-            sprintf(nodeName, "%s-nodesDebug-%d", truckname, i);
-            sprintf(entName, "%s-nodesDebug-%d-Ent", truckname, i);
-            t.id = i;
-            t.txt = new MovableText(nodeName, "n" + TOSTRING(i));
-            t.txt->setFontName("highcontrast_black");
-            t.txt->setTextAlignment(MovableText::H_LEFT, MovableText::V_BELOW);
-            //t.txt->setAdditionalHeight(0);
-            t.txt->showOnTop(true);
-            t.txt->setCharacterHeight(0.5f);
-            t.txt->setColor(ColourValue::White);
-            t.txt->setRenderingDistance(2);
-
-            t.node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-            deletion_sceneNodes.emplace_back(t.node);
-            t.node->attachObject(t.txt);
-            t.node->setPosition(nodes[i].AbsPosition);
-            t.node->setScale(Vector3(0.5, 0.5, 0.5));
-
-            // collision nodes debug, also mimics as node visual
-            SceneNode* s = t.node->createChildSceneNode();
-            deletion_sceneNodes.emplace_back(s);
-            Entity* b = gEnv->sceneManager->createEntity(entName, "sphere.mesh");
-            deletion_Entities.emplace_back(b);
-            b->setMaterialName("tracks/transgreen");
-            s->attachObject(b);
-            float f = 0.005f;
-            s->setScale(f, f, f);
-            nodes_debug.push_back(t);
-        }
-
-        // add beam labels
-        for (int i = 0; i < free_beam; i++)
-        {
-            debugtext_t t;
-            char nodeName[256] = "";
-            sprintf(nodeName, "%s-beamsDebug-%d", truckname, i);
-            t.id = i;
-            t.txt = new MovableText(nodeName, "b" + TOSTRING(i));
-            t.txt->setFontName("highcontrast_black");
-            t.txt->setTextAlignment(MovableText::H_LEFT, MovableText::V_BELOW);
-            //t.txt->setAdditionalHeight(0);
-            t.txt->showOnTop(true);
-            t.txt->setCharacterHeight(1);
-            t.txt->setColor(ColourValue::Black);
-            t.txt->setRenderingDistance(2);
-
-            t.node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-            deletion_sceneNodes.emplace_back(t.node);
-            t.node->attachObject(t.txt);
-
-            Vector3 pos = beams[i].p1->AbsPosition - (beams[i].p1->AbsPosition - beams[i].p2->AbsPosition) / 2;
-            t.node->setPosition(pos);
-            t.node->setVisible(false);
-            t.node->setScale(Vector3(0.1, 0.1, 0.1));
-            beams_debug.push_back(t);
-        }
-    }
-
-    // then hide them according to the state:
-    bool nodesVisible = debugVisuals == 1 || (debugVisuals >= 3 && debugVisuals <= 5);
-    bool beamsVisible = debugVisuals == 2 || debugVisuals == 3 || (debugVisuals >= 6 && debugVisuals <= 11);
-
-    for (std::vector<debugtext_t>::iterator it = nodes_debug.begin(); it != nodes_debug.end(); it++)
-        it->node->setVisible(nodesVisible);
-    for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
-        it->node->setVisible(beamsVisible);
-
-    updateDebugOverlay();
-}
-
-void Beam::updateDebugOverlay()
-{
-    if (!debugVisuals)
-        return;
-
-    switch (debugVisuals)
-    {
-    case 0: // off
-        return;
-    case 1: // node-numbers
-        // not written dynamically
-        for (std::vector<debugtext_t>::iterator it = nodes_debug.begin(); it != nodes_debug.end(); it++)
-            it->node->setPosition(nodes[it->id].AbsPosition);
-        break;
-    case 2: // beam-numbers
-        // not written dynamically
-        for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
-            it->node->setPosition(beams[it->id].p1->AbsPosition - (beams[it->id].p1->AbsPosition - beams[it->id].p2->AbsPosition) / 2);
-        break;
-    case 3: // node-and-beam-numbers
-        // not written dynamically
-        for (std::vector<debugtext_t>::iterator it = nodes_debug.begin(); it != nodes_debug.end(); it++)
-            it->node->setPosition(nodes[it->id].AbsPosition);
-        for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
-            it->node->setPosition(beams[it->id].p1->AbsPosition - (beams[it->id].p1->AbsPosition - beams[it->id].p2->AbsPosition) / 2);
-        break;
-    case 4: // node-mass
-        for (std::vector<debugtext_t>::iterator it = nodes_debug.begin(); it != nodes_debug.end(); it++)
-        {
-            it->node->setPosition(nodes[it->id].AbsPosition);
-            it->txt->setCaption(TOSTRING(nodes[it->id].mass));
-        }
-        break;
-    case 5: // node-locked
-        for (std::vector<debugtext_t>::iterator it = nodes_debug.begin(); it != nodes_debug.end(); it++)
-        {
-            it->txt->setCaption((nodes[it->id].locked) ? "locked" : "unlocked");
-            it->node->setPosition(nodes[it->id].AbsPosition);
-        }
-        break;
-    case 6: // beam-compression
-        for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
-        {
-            it->node->setPosition(beams[it->id].p1->AbsPosition - (beams[it->id].p1->AbsPosition - beams[it->id].p2->AbsPosition) / 2);
-            float stress_ratio = beams[it->id].stress / beams[it->id].minmaxposnegstress;
-            float color_scale = std::abs(stress_ratio);
-            color_scale = std::min(color_scale, 1.0f);
-            int scale = (int)(color_scale * 100);
-            it->txt->setCaption(TOSTRING(scale));
-        }
-        break;
-    case 7: // beam-broken
-        for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
-        {
-            it->node->setPosition(beams[it->id].p1->AbsPosition - (beams[it->id].p1->AbsPosition - beams[it->id].p2->AbsPosition) / 2);
-            if (beams[it->id].broken)
-            {
-                it->node->setVisible(true);
-                it->txt->setCaption("BROKEN");
-            }
-            else
-            {
-                it->node->setVisible(false);
-            }
-        }
-        break;
-    case 8: // beam-stress
-        for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
-        {
-            it->node->setPosition(beams[it->id].p1->AbsPosition - (beams[it->id].p1->AbsPosition - beams[it->id].p2->AbsPosition) / 2);
-            it->txt->setCaption(TOSTRING((float) fabs(beams[it->id].stress)));
-        }
-        break;
-    case 9: // beam-strength
-        for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
-        {
-            it->node->setPosition(beams[it->id].p1->AbsPosition - (beams[it->id].p1->AbsPosition - beams[it->id].p2->AbsPosition) / 2);
-            it->txt->setCaption(TOSTRING(beams[it->id].strength));
-        }
-        break;
-    case 10: // beam-hydros
-        for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
-        {
-            if (beams[it->id].type == BEAM_HYDRO || beams[it->id].type == BEAM_INVISIBLE_HYDRO)
-            {
-                it->node->setPosition(beams[it->id].p1->AbsPosition - (beams[it->id].p1->AbsPosition - beams[it->id].p2->AbsPosition) / 2);
-                int v = (beams[it->id].L / beams[it->id].Lhydro) * 100;
-                it->txt->setCaption(TOSTRING(v));
-                it->node->setVisible(true);
-            }
-            else
-            {
-                it->node->setVisible(false);
-            }
-        }
-        break;
-    case 11: // beam-commands
-        for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
-        {
-            it->node->setPosition(beams[it->id].p1->AbsPosition - (beams[it->id].p1->AbsPosition - beams[it->id].p2->AbsPosition) / 2);
-            int v = (beams[it->id].L / beams[it->id].commandLong) * 100;
-            it->txt->setCaption(TOSTRING(v));
-        }
-        break;
-    }
-}
-
 void Beam::updateNetworkInfo()
 {
-    if (!(RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED))
+    if (!(RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED))
         return;
 
 #ifdef USE_SOCKETW
@@ -5575,9 +5008,6 @@ Beam::Beam(
     , blinkingtype(BLINK_NONE)
     , blinktreshpassed(false)
     , brake(0.0)
-    , cabFadeMode(0)
-    , cabFadeTime(0.3)
-    , cabFadeTimer(0)
     , cameranodeacc(Ogre::Vector3::ZERO)
     , cameranodecount(0)
     , canwork(true)
@@ -5618,9 +5048,7 @@ Beam::Beam(
     , m_hide_own_net_label(BSETTING("HideOwnNetLabel", false))
     , m_is_cinecam_rotation_center(false)
     , m_preloaded_with_terrain(preloaded_with_terrain)
-    , m_request_skeletonview_change(0)
     , m_reset_request(REQUEST_RESET_NONE)
-    , m_skeletonview_is_active(false)
     , m_source_id(0)
     , m_spawn_rotation(0.0)
     , m_stream_id(0)
@@ -5651,8 +5079,6 @@ Beam::Beam(
     , reverselight(false)
     , rightMirrorAngle(-0.52)
     , rudder(0)
-    , simpleSkeletonInitiated(false)
-    , simpleSkeletonManualObject(0)
     , simulated(false)
     , sleeptime(0.0f)
     , smokeNode(NULL)
@@ -5665,7 +5091,7 @@ Beam::Beam(
     , watercontactold(false)
 {
     high_res_wheelnode_collisions = BSETTING("HighResWheelNodeCollisions", false);
-    useSkidmarks = RoR::App::GetGfxSkidmarksMode() == 1;
+    useSkidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;
     LOG(" ===== LOADING VEHICLE: " + Ogre::String(fname));
 
     /* struct <rig_t> parameters */
@@ -5713,12 +5139,12 @@ Beam::Beam(
 
     // setup replay mode
 
-    if (App::GetSimReplayEnabled() && !_networked && !networking)
+    if (App::sim_replay_enabled.GetActive() && !_networked && !networking)
     {
-        replaylen = App::GetSimReplayLength();
+        replaylen = App::sim_replay_length.GetActive();
         replay = new Replay(this, replaylen);
 
-        int steps = App::GetSimReplayStepping();
+        int steps = App::sim_replay_stepping.GetActive();
 
         if (steps <= 0)
             replayPrecision = 0.0f;
@@ -5727,8 +5153,7 @@ Beam::Beam(
     }
 
     // add storage
-    bool enablePosStor = App::GetSimPositionStorage();
-    if (enablePosStor)
+    if (App::sim_position_storage.GetActive())
     {
         posStorage = new PositionStorage(free_node, 10);
     }
@@ -5775,8 +5200,6 @@ Beam::Beam(
     }
     // pressurize tires
     addPressure(0.0);
-
-    CreateSimpleSkeletonMaterial();
 
     state = SLEEPING;
 
@@ -5857,20 +5280,6 @@ bool Beam::LoadTruck(
     int cache_entry_number // = -1
 )
 {
-    /* add custom include path */
-    if (!SSETTING("resourceIncludePath", "").empty())
-    {
-        Ogre::ResourceGroupManager::getSingleton().addResourceLocation(SSETTING("resourceIncludePath", ""), "FileSystem", "customInclude");
-    }
-
-    //ScopeLog scope_log("beam_"+filename);
-
-    /* initialize custom include path */
-    if (!SSETTING("resourceIncludePath", "").empty())
-    {
-        Ogre::ResourceBackgroundQueue::getSingleton().initialiseResourceGroup("customInclude");
-    }
-
     Ogre::DataStreamPtr ds = Ogre::DataStreamPtr();
     Ogre::String fixed_file_name = file_name;
     Ogre::String found_resource_group;
@@ -5931,7 +5340,7 @@ bool Beam::LoadTruck(
     LOG(report_text);
 
     auto* importer = parser.GetSequentialImporter();
-    if (importer->IsEnabled() && App::GetDiagRigLogMessages())
+    if (importer->IsEnabled() && App::diag_rig_log_messages.GetActive())
     {
         report_num_errors += importer->GetMessagesNumErrors();
         report_num_warnings += importer->GetMessagesNumWarnings();
@@ -6004,11 +5413,11 @@ bool Beam::LoadTruck(
     // Extra information to RoR.log
     if (importer->IsEnabled())
     {
-        if (App::GetDiagRigLogNodeStats())
+        if (App::diag_rig_log_node_stats.GetActive())
         {
             LOG(importer->GetNodeStatistics());
         }
-        if (App::GetDiagRigLogNodeImport())
+        if (App::diag_rig_log_node_import.GetActive())
         {
             LOG(importer->IterateAndPrintAllNodes());
         }
@@ -6136,9 +5545,9 @@ bool Beam::LoadTruck(
             // load default for a truck
             if (driveable == TRUCK)
             {
-                if (Settings::getSingleton().getSetting("DigitalSpeedo", "No") == "Yes")
+                if (App::gfx_speedo_digital.GetActive())
                 {
-                    if (Settings::getSingleton().getSetting("SpeedUnit", "Metric") == "Imperial")
+                    if (App::gfx_speedo_imperial.GetActive())
                     {
                         if (engine->getMaxRPM() > 3500)
                         {
@@ -6173,7 +5582,7 @@ bool Beam::LoadTruck(
                 }
                 else
                 {
-                    if (Settings::getSingleton().getSetting("SpeedUnit", "Metric") == "Imperial")
+                    if (App::gfx_speedo_imperial.GetActive())
                     {
                         if (engine->getMaxRPM() > 3500)
                         {

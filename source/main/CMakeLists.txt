@@ -12,7 +12,7 @@ set( SOURCE_FILES
   GlobalEnvironment.h
   MainMenu.{h,cpp}
   RoRPrerequisites.h
-  audio/MumbleIntegration.{h,cpp}  
+  audio/MumbleIntegration.{h,cpp}
   audio/Sound.{h,cpp}
   audio/SoundManager.{h,cpp}
   audio/SoundScriptManager.{h,cpp}
@@ -48,8 +48,6 @@ set( SOURCE_FILES
   gfx/DecalManager.{h,cpp}
   gfx/DustManager.{h,cpp}
   gfx/DustPool.{h,cpp}
-  gfx/DynamicLines.{h,cpp}
-  gfx/DynamicRenderable.{h,cpp}
   gfx/EnvironmentMap.{h,cpp}
   gfx/GfxActor.{h,cpp}
   gfx/GlowMaterialListener.h
@@ -111,6 +109,15 @@ set( SOURCE_FILES
   gui/GUIManager.{h,cpp}
   gui/OverlayWrapper.{h,cpp}
   gui/RTTLayer.{h,cpp}
+  gui/imgui/imgui.{h,cpp}
+  gui/imgui/imgui_demo.cpp
+  gui/imgui/imgui_draw.cpp
+  gui/imgui/OgreImGui.{h,cpp}
+  gui/imgui/imconfig.h
+  gui/imgui/imgui_internal.h
+  gui/imgui/stb_rect_pack.h
+  gui/imgui/stb_textedit.h
+  gui/imgui/stb_truetype.h
   gui/mygui/Attribute.h
   gui/mygui/BaseLayout.h
   gui/mygui/Dialog.{h,cpp}
@@ -129,17 +136,11 @@ set( SOURCE_FILES
   gui/panels/GUI_GameChatBoxLayout.{h,cpp}
   gui/panels/GUI_GameConsoleLayout.{h,cpp}
   gui/panels/GUI_GameMainMenu.{h,cpp}
-  gui/panels/GUI_GameMainMenuLayout.{h,cpp}
   gui/panels/GUI_GamePauseMenu.{h,cpp}
-  gui/panels/GUI_GamePauseMenuLayout.{h,cpp}
-  gui/panels/GUI_GameSettings.{h,cpp}
-  gui/panels/GUI_GameSettingsLayout.{h,cpp}
   gui/panels/GUI_MainSelector.{h,cpp}
   gui/panels/GUI_MainSelectorLayout.{h,cpp}
   gui/panels/GUI_MessageBox.{h,cpp}
-  gui/panels/GUI_MessageBoxLayout.{h,cpp}
   gui/panels/GUI_MultiplayerSelector.{h,cpp}
-  gui/panels/GUI_MultiplayerSelectorLayout.{h,cpp}
   gui/panels/GUI_MultiplayerClientList.{h,cpp}
   gui/panels/GUI_OpenSaveFileDialog.{h,cpp}
   gui/panels/GUI_RigSpawnerReportWindow.{h,cpp}
@@ -308,6 +309,7 @@ target_include_directories( ${BINNAME} PRIVATE
  gfx/particle
  gfx/procedural
  gui
+ gui/imgui
  gui/mygui
  gui/panels
  network

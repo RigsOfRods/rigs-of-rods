@@ -43,7 +43,6 @@
 #include "ErrorUtils.h"
 #include "PlatformUtils.h"
 #include "RoRVersion.h"
-#include "SHA1.h"
 
 #include "utf8/checked.h"
 #include "utf8/unchecked.h"
@@ -169,20 +168,6 @@ void Settings::loadSettings(String configFile, bool overwrite)
         }
         settings[s_name] = s_value;
     }
-
-    // generate hash of the token
-    String usertoken = SSETTING("User Token", "");
-    char usertokensha1result[250];
-    memset(usertokensha1result, 0, 250);
-    if (usertoken.size()>0)
-    {
-        RoR::CSHA1 sha1;
-        sha1.UpdateHash((uint8_t *)usertoken.c_str(), (uint32_t)usertoken.size());
-        sha1.Final();
-        sha1.ReportHash(usertokensha1result, RoR::CSHA1::REPORT_HEX_SHORT);
-    }
-
-    setSetting("User Token Hash", String(usertokensha1result));
 }
 
 bool Settings::get_system_paths(char *program_path, char *user_path)

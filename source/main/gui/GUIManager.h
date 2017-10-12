@@ -25,6 +25,7 @@
 #pragma once
 
 #include "GUIInputManager.h"
+#include "OgreImGui.h"
 #include "RoRPrerequisites.h"
 
 #include <OgreWindowEventUtilities.h>
@@ -32,9 +33,6 @@
 #include <MyGUI_UString.h>
 
 namespace RoR {
-
-// Forward
-namespace GUI { class SimUtils; class TopMenubar; class TeleportWindow; }
 
 class GUIManager :
     public GUIInputManager
@@ -44,14 +42,30 @@ class GUIManager :
 {
 public:
 
+    struct GuiTheme
+    {
+        GuiTheme();
+
+        ImVec4 in_progress_text_color;
+        ImVec4 no_entries_text_color;
+        ImVec4 error_text_color;
+        ImVec4 selected_entry_text_color;
+    };
+
+    // NOTE: RoR's mouse cursor management is a mess - cursor is hidden/revealed ad-hoc in the code (originally by calling `MyGUI::PointerManager::setVisible()`); this enum+API cleans it up a bit ~ only_a_ptr, 09/2017
+    enum class MouseCursorVisibility
+    {
+        VISIBLE,   ///< Visible, will be auto-hidden if not moving for a while.
+        HIDDEN,    ///< Hidden as inactive, will re-appear the moment user moves mouse.
+        SUPRESSED, ///< Hidden manually, will not re-appear until explicitly set VISIBLE.
+    };
+
     GUIManager();
     ~GUIManager();
 
     // GUI SetVisible*()
     void SetVisible_GameMainMenu        (bool visible);
     void SetVisible_GameAbout           (bool visible);
-    void SetVisible_GameSettings        (bool visible);
-    void SetVisible_GamePauseMenu       (bool visible);
     void SetVisible_DebugOptions        (bool visible);
     void SetVisible_MultiplayerSelector (bool visible);
     void SetVisible_ChatBox             (bool visible);
@@ -62,14 +76,11 @@ public:
     void SetVisible_TextureToolWindow   (bool visible);
     void SetVisible_TeleportWindow      (bool visible);
     void SetVisible_LoadingWindow       (bool visible);
-    void SetVisible_TopMenubar          (bool visible);
     void SetVisible_Console             (bool visible);
 
     // GUI IsVisible*()
     bool IsVisible_GameMainMenu         ();
     bool IsVisible_GameAbout            ();
-    bool IsVisible_GameSettings         ();
-    bool IsVisible_GamePauseMenu        ();
     bool IsVisible_DebugOptions         ();
     bool IsVisible_MessageBox           ();
     bool IsVisible_MultiplayerSelector  ();
@@ -82,12 +93,13 @@ public:
     bool IsVisible_TextureToolWindow    ();
     bool IsVisible_TeleportWindow       ();
     bool IsVisible_LoadingWindow        ();
-    bool IsVisible_TopMenubar           ();
     bool IsVisible_Console              ();
 
     // GUI GetInstance*()
     Console* GetConsole();
     GUI::MainSelector* GetMainSelector();
+    GUI::GameMainMenu* GetMainMenu();
+    GUI::GamePauseMenu* GetPauseMenu();
     GUI::LoadingWindow* GetLoadingWindow();
     GUI::MpClientList* GetMpClientList();
     GUI::MultiplayerSelector* GetMpSelector();
@@ -98,25 +110,19 @@ public:
 
     // GUI manipulation
     void pushMessageChatBox(Ogre::String txt);
-    void ShowMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1, Ogre::String mButton1, bool AllowClose, bool button2, Ogre::String mButton2);
-    void UpdateMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1, Ogre::String mButton1, bool AllowClose, bool button2, Ogre::String mButton2, bool IsVisible);
+    void ShowMessageBox(const char* title, const char* text, bool allow_close = true, const char* btn1_text = "OK", const char* btn2_text = nullptr);
     void UnfocusGui();
     void PushNotification(Ogre::String Title, Ogre::UTFString text);
     void HideNotification();
     void CenterSpawnerReportWindow();
-    void AdjustPauseMenuPosition();
-    void AdjustMainMenuPosition();
 
     void UpdateSimUtils(float dt, Beam* truck);
-    void framestep(float dt);
-
-    int getMessageBoxResult(); //TODO
-
-    void InitMainSelector(RoR::SkinManager* skin_manager);
+    void NewImGuiFrame(float dt);
+    void DrawMainMenuGui();
+    void DrawSimulationGui(float dt);
+    void DrawMpConnectingStatusBox();
 
     void hideGUI(bool visible);
-
-    void destroy();
 
     void windowResized(Ogre::RenderWindow* rw);
 
@@ -125,15 +131,19 @@ public:
     void FrictionSettingsUpdateCollisions();
     void ShutdownMyGUI();
     void ReflectGameState();
-    void SetMouseCursorVisible(bool visible);
+    void SetMouseCursorVisibility(MouseCursorVisibility visi);
 
     virtual void AddRigLoadingReport(std::string const& vehicle_name, std::string const& text, int num_errors, int num_warnings, int num_other);
 
     static Ogre::String getRandomWallpaperImage();
 
     void SetSimController(RoRFrameListener* sim);
+    inline OgreImGui& GetImGui() { return m_imgui; }
+    inline GuiTheme&  GetTheme() { return m_theme; }
+
 
 private:
+    void SetupImGui();
 
     virtual bool frameStarted(const Ogre::FrameEvent& _evt);
     virtual bool frameEnded(const Ogre::FrameEvent& _evt);
@@ -141,8 +151,13 @@ private:
 
     void eventRequestTag(const MyGUI::UString& _tag, MyGUI::UString& _result);
 
-    GuiManagerImpl* m_impl;
-    bool m_renderwindow_closed;
+    GuiManagerImpl*    m_impl;
+    bool               m_renderwindow_closed;
+    OgreImGui          m_imgui;
+    GuiTheme           m_theme;
 };
+
+/// Utility - draws animated loading spinner
+void DrawImGuiSpinner(float& counter, const ImVec2 size = ImVec2(16.f, 16.f), const float spacing = 2.f, const float step_sec = 0.15f);
 
 } // namespace RoR

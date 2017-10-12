@@ -210,8 +210,6 @@ void Replay::setVisible(bool value)
 {
     visible = value;
     panel->setVisible(visible && !hidden);
-    // we need no mouse yet
-    //MyGUI::PointerManager::getInstance().setVisible(value);
 }
 
 bool Replay::getVisible()

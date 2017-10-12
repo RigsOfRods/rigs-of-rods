@@ -72,6 +72,14 @@ public:
         VCTYPE_MIRROR_PROP_RIGHT, ///< The classic 'special prop/rear view mirror'
     };
 
+    enum class DebugViewType
+    {
+        DEBUGVIEW_NONE,
+        DEBUGVIEW_SKELETON,
+        DEBUGVIEW_NODES,
+        DEBUGVIEW_BEAMS,
+    };
+
     /// An Ogre::Camera mounted on the actor and rendering into
     /// either in-scene texture or external window.
     struct VideoCamera
@@ -99,19 +107,24 @@ public:
     GfxActor(Beam* actor, std::string ogre_resource_group):
         m_actor(actor),
         m_custom_resource_group(ogre_resource_group),
-        m_vidcam_state(VideoCamState::VCSTATE_ENABLED_ONLINE)
+        m_vidcam_state(VideoCamState::VCSTATE_ENABLED_ONLINE),
+        m_debug_view(DebugViewType::DEBUGVIEW_NONE)
     {}
 
     ~GfxActor();
 
-    void                 AddMaterialFlare    (int flare_index, Ogre::MaterialPtr mat);
-    void                 SetMaterialFlareOn  (int flare_index, bool state_on);
-    void                 RegisterCabMaterial (Ogre::MaterialPtr mat, Ogre::MaterialPtr mat_trans);
-    void                 SetCabLightsActive  (bool state_on);
-    Ogre::MaterialPtr&   GetCabTransMaterial () { return m_cab_mat_visual_trans; }
-    void                 SetVideoCamState    (VideoCamState state);
-    inline VideoCamState GetVideoCamState    () const { return m_vidcam_state; }
-    void                 UpdateVideoCameras  (float dt_sec);
+    void                      AddMaterialFlare   (int flare_index, Ogre::MaterialPtr mat);
+    void                      SetMaterialFlareOn (int flare_index, bool state_on);
+    void                      RegisterCabMaterial(Ogre::MaterialPtr mat, Ogre::MaterialPtr mat_trans);
+    void                      SetCabLightsActive (bool state_on);
+    void                      SetVideoCamState   (VideoCamState state);
+    void                      UpdateVideoCameras (float dt_sec);
+    void                      UpdateDebugView    ();
+    void                      CycleDebugViews    ();
+    inline void               SetDebugView       (DebugViewType dv)       { m_debug_view = dv; }
+    inline Ogre::MaterialPtr& GetCabTransMaterial()                       { return m_cab_mat_visual_trans; }
+    inline VideoCamState      GetVideoCamState   () const                 { return m_vidcam_state; }
+    inline DebugViewType      GetDebugView       () const                 { return m_debug_view; }
 
 private:
 
@@ -120,6 +133,7 @@ private:
     std::vector<FlareMaterial>  m_flare_materials;
     VideoCamState               m_vidcam_state;
     std::vector<VideoCamera>    m_videocameras;
+    DebugViewType               m_debug_view;
 
     // Cab materials and their features
     Ogre::MaterialPtr           m_cab_mat_visual; ///< Updated in-place from templates

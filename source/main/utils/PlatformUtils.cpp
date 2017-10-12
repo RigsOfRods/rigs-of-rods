@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -150,18 +150,18 @@ void InstallCrashRpt()
     }
 
     // logs
-    crAddFile2((RoR::App::GetSysLogsDir() + PATH_SLASH + "RoR.log").c_str(), "RoR.log", "Rigs of Rods Log", CR_AF_FILE_MUST_EXIST);
-    crAddFile2((RoR::App::GetSysLogsDir() + PATH_SLASH + "mygui.log").c_str(), "mygui.log", "Rigs of Rods GUI Log", CR_AF_FILE_MUST_EXIST);
-    crAddFile2((RoR::App::GetSysLogsDir() + PATH_SLASH + "configlog.txt").c_str(), "configlog.txt", "Rigs of Rods Configurator Log", CR_AF_FILE_MUST_EXIST);
+    crAddFile2((std::string(RoR::App::sys_logs_dir.GetActive()) + PATH_SLASH + "RoR.log").c_str(), "RoR.log", "Rigs of Rods Log", CR_AF_FILE_MUST_EXIST);
+    crAddFile2((std::string(RoR::App::sys_logs_dir.GetActive()) + PATH_SLASH + "mygui.log").c_str(), "mygui.log", "Rigs of Rods GUI Log", CR_AF_FILE_MUST_EXIST);
+    crAddFile2((std::string(RoR::App::sys_logs_dir.GetActive()) + PATH_SLASH + "configlog.txt").c_str(), "configlog.txt", "Rigs of Rods Configurator Log", CR_AF_FILE_MUST_EXIST);
 
     // cache
-    crAddFile2((RoR::App::GetSysCacheDir() + PATH_SLASH + "mods.cache").c_str(), "mods.cache", "Rigs of Rods Cache File", CR_AF_FILE_MUST_EXIST);
+    crAddFile2((std::string(App::sys_cache_dir.GetActive()) + PATH_SLASH + "mods.cache").c_str(), "mods.cache", "Rigs of Rods Cache File", CR_AF_FILE_MUST_EXIST);
 
     // configs
-    crAddFile2((RoR::App::GetSysConfigDir() + PATH_SLASH + "ground_models.cfg").c_str(), "ground_models.cfg", "Rigs of Rods Ground Configuration", CR_AF_FILE_MUST_EXIST);
-    crAddFile2((RoR::App::GetSysConfigDir() + PATH_SLASH + "input.map").c_str(), "input.map", "Rigs of Rods Input Configuration", CR_AF_FILE_MUST_EXIST);
-    crAddFile2((RoR::App::GetSysConfigDir() + PATH_SLASH + "ogre.cfg").c_str(), "ogre.cfg", "Rigs of Rods Renderer Configuration", CR_AF_FILE_MUST_EXIST);
-    crAddFile2((RoR::App::GetSysConfigDir() + PATH_SLASH + "RoR.cfg").c_str(), "RoR.cfg", "Rigs of Rods Configuration", CR_AF_FILE_MUST_EXIST);
+    crAddFile2((std::string(RoR::App::sys_config_dir.GetActive()) + PATH_SLASH + "ground_models.cfg").c_str(), "ground_models.cfg", "Rigs of Rods Ground Configuration", CR_AF_FILE_MUST_EXIST);
+    crAddFile2((std::string(RoR::App::sys_config_dir.GetActive()) + PATH_SLASH + "input.map").c_str(), "input.map", "Rigs of Rods Input Configuration", CR_AF_FILE_MUST_EXIST);
+    crAddFile2((std::string(RoR::App::sys_config_dir.GetActive()) + PATH_SLASH + "ogre.cfg").c_str(), "ogre.cfg", "Rigs of Rods Renderer Configuration", CR_AF_FILE_MUST_EXIST);
+    crAddFile2((std::string(RoR::App::sys_config_dir.GetActive()) + PATH_SLASH + "RoR.cfg").c_str(), "RoR.cfg", "Rigs of Rods Configuration", CR_AF_FILE_MUST_EXIST);
 
     crAddProperty("Version", ROR_VERSION_STRING);
     crAddProperty("protocol_version", RORNET_VERSION);
@@ -169,7 +169,7 @@ void InstallCrashRpt()
     crAddProperty("build_time", ROR_BUILD_TIME);
 
     crAddProperty("System_GUID", SSETTING("GUID", "None").c_str());
-    crAddProperty("Multiplayer", RoR::App::GetActiveMpState() ? "1" : "0");
+    crAddProperty("Multiplayer", RoR::App::mp_state.GetActive() ? "1" : "0");
 
     crAddScreenshot2(CR_AS_MAIN_WINDOW, 0);
 }

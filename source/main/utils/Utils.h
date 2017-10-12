@@ -30,6 +30,7 @@
 #include "RoRPrerequisites.h"
 
 #include <OgreDataStream.h>
+#include "imgui.h" // For ImVec2
 #include "utf8/checked.h"
 #include "utf8/unchecked.h"
 
@@ -113,4 +114,29 @@ const Ogre::UTFString NormalColour = Ogre::UTFString("#FFFFFF");
 const Ogre::UTFString WhisperColour = Ogre::UTFString("#FFCC00");
 const Ogre::UTFString ScriptCommandColour = Ogre::UTFString("#0099FF");
 }
-}
+
+/// @author http://www.ogre3d.org/forums/viewtopic.php?p=463232#p463232
+/// @author http://www.ogre3d.org/tikiwiki/tiki-index.php?page=GetScreenspaceCoords&structure=Cookbook
+class World2ScreenConverter ///< Keeps data close for faster access.
+{
+public:
+    World2ScreenConverter(Ogre::Matrix4 view_mtx, Ogre::Matrix4 proj_mtx, Ogre::Vector2 screen_size):
+        m_view_matrix(view_mtx), m_projection_matrix(proj_mtx), m_screen_size(screen_size)
+    {}
+
+    inline ImVec2 Convert(Ogre::Vector3 world_pos) // TODO: optimize
+    {
+        Ogre::Vector3 view_space_pos = m_view_matrix * world_pos;
+        Ogre::Vector3 clip_space_pos = m_projection_matrix * view_space_pos; // Clip space pos is [-1.f, 1.f]
+        float screen_x = ((clip_space_pos.x / 2.f) + 0.5f) * m_screen_size.x;
+        float screen_y = (1.f - ((clip_space_pos.y / 2.f) + 0.5f)) * m_screen_size.y;
+        return ImVec2(screen_x, screen_y);
+    }
+
+private:
+    Ogre::Matrix4 m_view_matrix;
+    Ogre::Matrix4 m_projection_matrix;
+    Ogre::Vector2 m_screen_size;
+};
+
+} // namespace RoR

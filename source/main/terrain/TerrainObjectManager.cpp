@@ -288,11 +288,12 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
                 continue;
             }
             densityMap->setFilter(Forests::MAPFILTER_BILINEAR);
-            //densityMap->setMapBounds(TRect(0, 0, m_terrain_size_x, m_map_size_z));
 
             paged_geometry_t paged;
             paged.geom = new PagedGeometry();
-            paged.geom->setTempDir(RoR::App::GetSysCacheDir() + PATH_SLASH);
+            RoR::Str<300> temp_path;
+            temp_path << RoR::App::sys_cache_dir.GetActive() << PATH_SLASH;
+            paged.geom->setTempDir(temp_path.GetBuffer());
             paged.geom->setCamera(gEnv->mainCamera);
             paged.geom->setPageSize(50);
             paged.geom->setInfinite();
@@ -300,7 +301,6 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
             paged.geom->setBounds(bounds);
 
             //Set up LODs
-            //trees->addDetailLevel<EntityPage>(50);
             float min = minDist * terrainManager->getPagedDetailFactor();
             if (min < 10)
                 min = 10;
@@ -1368,7 +1368,7 @@ bool TerrainObjectManager::updateAnimatedObjects(float dt)
 void TerrainObjectManager::loadPreloadedTrucks()
 {
     // in netmode, don't load other trucks!
-    if (RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED)
+    if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
     {
         return;
     }

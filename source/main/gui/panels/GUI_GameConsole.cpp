@@ -170,7 +170,7 @@ void Console::messageLogged(const String& message, LogMessageLevel lml, bool mas
     }
     else
     {
-        if (BSETTING("Enable Ingame Console", false))
+        if (App::diag_log_console_echo.GetActive())
         {
             if (lml == LML_NORMAL)
                 putMessage(CONSOLE_MSGTYPE_LOG, CONSOLE_LOGMESSAGE, UTFString("#FFFFFF") + (msg), "script_error.png");
@@ -224,8 +224,8 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 {
     UTFString msg = convertFromMyGUIString(m_Console_TextBox->getCaption());
 
-    const bool is_appstate_sim = (App::GetActiveAppState() == App::APP_STATE_SIMULATION);
-    const bool is_sim_select = (App::GetActiveSimState() == App::SIM_STATE_SELECTING);
+    const bool is_appstate_sim = (App::app_state.GetActive() == AppState::SIMULATION);
+    const bool is_sim_select = (App::sim_state.GetActive() == SimState::SELECTING);
 
     // we did not autoComplete, so try to handle the message
     m_Console_TextBox->setCaption("");
@@ -380,7 +380,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
         }
         else if (args[0] == "/quit")
         {
-            RoR::App::SetPendingAppState(RoR::App::APP_STATE_SHUTDOWN);
+            RoR::App::app_state.SetPending(RoR::AppState::SHUTDOWN);
             return;
         }
 #ifdef USE_ANGELSCRIPT
@@ -404,17 +404,10 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
         else if (args[0] == "/log")
         {
             // switch to console logging
-            bool logging = BSETTING("Enable Ingame Console", false);
-            if (!logging)
-            {
-                putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_NOTICE, _L(" logging to console enabled"), "information.png");
-                SETTINGS.setSetting("Enable Ingame Console", "Yes");
-            }
-            else
-            {
-                putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_NOTICE, _L(" logging to console disabled"), "information.png");
-                SETTINGS.setSetting("Enable Ingame Console", "No");
-            }
+            bool now_logging = !App::diag_log_console_echo.GetActive();
+            const char* msg = (now_logging) ? " logging to console enabled" : " logging to console disabled";
+            this->putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_NOTICE, _L(msg), "information.png");
+            App::diag_log_console_echo.SetActive(now_logging);
             return;
         }
         else

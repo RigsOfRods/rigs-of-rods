@@ -22,6 +22,8 @@
 
 #include "FireExtinguisherAffector.h"
 
+#include "Application.h"
+
 #include <OgreParticleSystem.h>
 #include <OgreParticle.h>
 #include <OgreStringConverter.h>

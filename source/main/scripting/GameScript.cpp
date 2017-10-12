@@ -119,7 +119,7 @@ void GameScript::setPersonPosition(const Vector3& vec)
 
 void GameScript::loadTerrain(const String& terrain)
 {
-    App::SetSimNextTerrain(terrain);
+    App::sim_terrain_name.SetPending(terrain.c_str());
     mse->GetFrameListener()->LoadTerrain();
 }
 
@@ -340,9 +340,9 @@ void GameScript::repairVehicle(const String& instance, const String& box, bool k
     mse->GetFrameListener()->GetBeamFactory()->repairTruck(gEnv->collisions, instance, box, keepPosition);
 }
 
-void GameScript::removeVehicle(const String& instance, const String& box)
+void GameScript::removeVehicle(const String& event_source_instance_name, const String& event_source_box_name)
 {
-    mse->GetFrameListener()->GetBeamFactory()->removeTruck(gEnv->collisions, instance, box);
+    mse->GetFrameListener()->RemoveActorByCollisionBox(event_source_instance_name, event_source_box_name);
 }
 
 void GameScript::destroyObject(const String& instanceName)
@@ -736,11 +736,11 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
     {
         server_port_str = TOSTRING(port);
     }
-    const bool mp_connected = (RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED);
+    const bool mp_connected = (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED);
     curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_ScriptName", CURLFORM_COPYCONTENTS, mse->getScriptName().c_str(), CURLFORM_END);
     curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_ScriptHash", CURLFORM_COPYCONTENTS, mse->getScriptHash().c_str(), CURLFORM_END);
-    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_NickName", CURLFORM_COPYCONTENTS, App::GetMpPlayerName().c_str(), CURLFORM_END);
-    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_Language", CURLFORM_COPYCONTENTS, App::GetAppLanguage().c_str(), CURLFORM_END);
+    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_NickName", CURLFORM_COPYCONTENTS, App::mp_player_name.GetActive().c_str(), CURLFORM_END);
+    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_Language", CURLFORM_COPYCONTENTS, App::app_language.GetActive().c_str(), CURLFORM_END);
     curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_Token", CURLFORM_COPYCONTENTS, SSETTING("User Token Hash", "-").c_str(), CURLFORM_END);
     curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "RoR_VersionString", CURLFORM_COPYCONTENTS, ROR_VERSION_STRING, CURLFORM_END);
     curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "RoR_ProtocolVersion", CURLFORM_COPYCONTENTS, RORNET_VERSION, CURLFORM_END);
@@ -960,7 +960,7 @@ int GameScript::deleteScriptVariable(const String& arg)
 int GameScript::sendGameCmd(const String& message)
 {
 #ifdef USE_SOCKETW
-    if (RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED)
+    if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
     {
         RoR::Networking::AddPacket(0, RoRnet::MSG2_GAME_CMD, (int)message.size(), const_cast<char*>(message.c_str()));
         return 0;
@@ -992,19 +992,32 @@ Beam* GameScript::spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::
     return mse->GetFrameListener()->GetBeamFactory()->CreateLocalRigInstance(pos, rotation, truckName);
 }
 
-void GameScript::showMessageBox(Ogre::String& mTitle, Ogre::String& mText, bool button1, Ogre::String& mButton1, bool AllowClose, bool button2, Ogre::String& mButton2)
+void GameScript::showMessageBox(Ogre::String& title, Ogre::String& text, bool use_btn1, Ogre::String& btn1_text, bool allow_close, bool use_btn2, Ogre::String& btn2_text)
 {
-    RoR::App::GetGuiManager()->ShowMessageBox(mTitle, mText, button1, mButton1, AllowClose, button2, mButton2);
+    // Sanitize inputs
+    const char* btn1_cstr = nullptr; // = Button disabled
+    const char* btn2_cstr = nullptr;
+
+    if (use_btn1)
+    {
+        btn1_cstr = (btn1_text.empty() ? "~1~" : btn1_text.c_str());
+    }
+    if (use_btn2)
+    {
+        btn2_cstr = (btn2_text.empty() ? "~2~" : btn2_text.c_str());
+    }
+
+    RoR::App::GetGuiManager()->ShowMessageBox(title.c_str(), text.c_str(), allow_close, btn1_cstr, btn2_cstr);
 }
 
 void GameScript::backToMenu()
 {
-    App::SetPendingAppState(App::APP_STATE_MAIN_MENU);
+    App::app_state.SetPending(AppState::MAIN_MENU);
 }
 
 void GameScript::quitGame()
 {
-    RoR::App::SetPendingAppState(RoR::App::APP_STATE_SHUTDOWN);
+    RoR::App::app_state.SetPending(RoR::AppState::SHUTDOWN);
 }
 
 float GameScript::getFPS()

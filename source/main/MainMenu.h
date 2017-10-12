@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -32,19 +32,19 @@
 #include "RoRPrerequisites.h"
 
 #include <map>
+#include <OgreFrameListener.h>
 #include <OgreWindowEventUtilities.h>
 
 class GameScript;
 
 namespace RoR {
 
-class MainMenu: public Ogre::WindowEventListener
+class MainMenu: public Ogre::WindowEventListener, public Ogre::FrameListener
 {
 public:
 
     MainMenu();
 
-    void JoinMultiplayerServer();
     void LeaveMultiplayerServer();
 
     void EnterMainMenuLoop();
@@ -52,6 +52,9 @@ public:
     void MainMenuLoopUpdate(float seconds_since_last_frame);
 
     void MainMenuLoopUpdateEvents(float seconds_since_last_frame);
+
+    // From Ogre::FrameListener
+    bool frameRenderingQueued(const Ogre::FrameEvent & evt) override;
 
 private:
 

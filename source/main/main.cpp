@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -93,7 +93,6 @@ int main(int argc, char *argv[])
     try
     {
         gEnv = &gEnvInstance;
-        App::Init();
 
         // ### Detect system paths ###
 
@@ -111,14 +110,17 @@ int main(int argc, char *argv[])
 
         // ### Create OGRE default logger early. ###
 
-        App::SetSysLogsDir(App::GetSysUserDir() + PATH_SLASH + "logs");
-        if (!PlatformUtils::FolderExists(App::GetSysLogsDir()))
-            PlatformUtils::CreateFolder(App::GetSysLogsDir());
+        Str<300> logs_dir;
+        logs_dir << App::sys_user_dir.GetActive() << PATH_SLASH << "logs";
+        if (!PlatformUtils::FolderExists(App::sys_logs_dir.GetActive()))
+            PlatformUtils::CreateFolder(App::sys_logs_dir.GetActive());
+        App::sys_logs_dir.SetActive(logs_dir);
 
         auto ogre_log_manager = OGRE_NEW Ogre::LogManager();
-        Ogre::String log_filepath = App::GetSysLogsDir() + PATH_SLASH + "RoR.log";
-        ogre_log_manager->createLog(log_filepath, true, true);
-        App::SetDiagTraceGlobals(true); // We have logger -> we can trace.
+        Str<300> rorlog_path;
+        rorlog_path << logs_dir << PATH_SLASH << "RoR.log";
+        ogre_log_manager->createLog(Ogre::String(rorlog_path), true, true);
+        App::diag_trace_globals.SetActive(true); // We have logger -> we can trace.
 
         // ### Setup program paths ###
 
@@ -128,23 +130,23 @@ int main(int argc, char *argv[])
             return -1;
         }
 
-        App::GetSettings().LoadSettings(App::GetSysConfigDir() + PATH_SLASH + "RoR.cfg"); // Main config file
+        Settings::getSingleton().LoadRoRCfg(); // Main config file - path obtained from GVars
 
-        if (!PlatformUtils::FolderExists(App::GetSysCacheDir()))
-            PlatformUtils::CreateFolder(App::GetSysCacheDir());
+        if (!PlatformUtils::FolderExists(App::sys_cache_dir.GetActive()))
+            PlatformUtils::CreateFolder(App::sys_cache_dir.GetActive());
 
         // ### Process command-line arguments ###
 
 #if OGRE_PLATFORM != OGRE_PLATFORM_APPLE //MacOSX adds an extra argument in the form of -psn_0_XXXXXX when the app is double clicked
-        App::GetSettings().ProcessCommandLine(argc, argv);
+        Settings::getSingleton().ProcessCommandLine(argc, argv);
 #endif
 
-        if (App::GetPendingAppState() == App::APP_STATE_PRINT_HELP_EXIT)
+        if (App::app_state.GetPending() == AppState::PRINT_HELP_EXIT)
         {
             ShowCommandLineUsage();
             return 0;
         }
-        if (App::GetPendingAppState() == App::APP_STATE_PRINT_VERSION_EXIT)
+        if (App::app_state.GetPending() == AppState::PRINT_VERSION_EXIT)
         {
             ShowVersion();
             return 0;
@@ -191,9 +193,7 @@ int main(int argc, char *argv[])
 
         Ogre::String menu_wallpaper_texture_name = GUIManager::getRandomWallpaperImage();
 
-        App::CreateCacheSystem();
-
-        App::GetCacheSystem()->setLocation(App::GetSysCacheDir() + PATH_SLASH, App::GetSysConfigDir() + PATH_SLASH);
+        App::CreateCacheSystem(); // Reads GVars
 
         App::GetContentManager()->init();
 
@@ -231,14 +231,14 @@ int main(int argc, char *argv[])
         if (BSETTING("regen-cache-only", false)) //Can be usefull so we will leave it here -max98
         {
             App::GetContentManager()->RegenCache();
-            App::SetPendingAppState(App::APP_STATE_SHUTDOWN);
+            App::app_state.SetPending(AppState::SHUTDOWN);
         }
 
         App::GetCacheSystem()->Startup();
 
         RoR::ForceFeedback force_feedback;
 #ifdef _WIN32
-        if (App::GetIoFFbackEnabled()) // Force feedback
+        if (App::io_ffb_enabled.GetActive()) // Force feedback
         {
             if (App::GetInputEngine()->getForceFeedbackDevice())
             {
@@ -247,7 +247,7 @@ int main(int argc, char *argv[])
             else
             {
                 LOG("No force feedback device detected, disabling force feedback");
-                App::SetIoFFbackEnabled(false);
+                App::io_ffb_enabled.SetActive(false);
             }
         }
 #endif // _WIN32
@@ -267,59 +267,31 @@ int main(int argc, char *argv[])
 
         // ### Main loop (switches application states) ###
 
-        App::State previous_application_state = App::GetActiveAppState();
-        App::SetActiveAppState(App::APP_STATE_MAIN_MENU);
+        AppState prev_app_state = App::app_state.GetActive();
+        App::app_state.SetPending(AppState::MAIN_MENU);
 
-        if (! App::GetDiagPreselectedTerrain().empty())
+        if (! App::diag_preset_terrain.IsActiveEmpty())
         {
-            App::SetPendingAppState(App::APP_STATE_SIMULATION);
+            App::app_state.SetPending(AppState::SIMULATION);
         }
 
-        if (App::GetPendingMpState() == App::MP_STATE_CONNECTED)
+        while (App::app_state.GetPending() != AppState::SHUTDOWN)
         {
-            main_obj.JoinMultiplayerServer();
-        }
-
-        while (App::GetPendingAppState() != App::APP_STATE_SHUTDOWN)
-        {
-            if (App::GetPendingAppState() == App::APP_STATE_MAIN_MENU)
+            if (App::app_state.GetPending() == AppState::MAIN_MENU)
             {
-                App::SetActiveAppState(App::APP_STATE_MAIN_MENU);
-                App::SetPendingAppState(App::APP_STATE_NONE);
+                App::app_state.ApplyPending();
 
-                if (previous_application_state == App::APP_STATE_SIMULATION)
-                {
-#ifdef USE_SOCKETW
-                    if (App::GetActiveMpState() == App::MP_STATE_CONNECTED)
-                    {
-                        RoR::Networking::Disconnect();
-                        App::GetGuiManager()->SetVisible_MpClientList(false);
-                    }
-#endif
-                    gEnv->cameraManager->OnReturnToMainMenu();
-                    /* Hide top menu */
-                    App::GetGuiManager()->SetVisible_TopMenubar(false);
-                    /* Restore wallpaper */
-                    menu_wallpaper_widget->setVisible(true);
-
-#ifdef USE_MUMBLE
-                    auto* mumble = SoundScriptManager::getSingleton().GetMumble();
-                    if (mumble != nullptr)
-                        mumble->SetNonPositionalAudio();
-#endif // USE_MUMBLE
-                }
-
-                if (App::GetAudioMenuMusic())
+                if (App::audio_menu_music.GetActive())
                 {
                     SoundScriptManager::getSingleton().createInstance("tracks/main_menu_tune", -1, nullptr);
                     SoundScriptManager::getSingleton().trigStart(-1, SS_TRIG_MAIN_MENU);
                 }
 
                 App::GetGuiManager()->ReflectGameState();
-                if (App::GetPendingMpState() == App::MP_STATE_CONNECTED || BSETTING("SkipMainMenu", false))
+                if (App::mp_state.GetPending() == MpState::CONNECTED || BSETTING("SkipMainMenu", false))
                 {
                     // Multiplayer started from configurator / MainMenu disabled -> go directly to map selector (traditional behavior)
-                    if (App::GetDiagPreselectedTerrain() == "")
+                    if (App::diag_preset_terrain.IsActiveEmpty())
                     {
                         App::GetGuiManager()->SetVisible_GameMainMenu(false);
                         App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
@@ -328,57 +300,50 @@ int main(int argc, char *argv[])
 
                 main_obj.EnterMainMenuLoop();
             }
-            else if (App::GetPendingAppState() == App::APP_STATE_SIMULATION)
+            else if (App::app_state.GetPending() == AppState::SIMULATION)
             {
+                RoRFrameListener sim_controller(&force_feedback, &skidmark_conf);
+                if (sim_controller.SetupGameplayLoop())
                 {
-                    RoRFrameListener sim_controller(&force_feedback, &skidmark_conf);
-                    if (sim_controller.SetupGameplayLoop())
+                    App::app_state.ApplyPending();
+                    App::GetGuiManager()->ReflectGameState();
+                    App::SetSimController(&sim_controller);
+                    sim_controller.EnterGameplayLoop();
+                    App::SetSimController(nullptr);
+#ifdef USE_SOCKETW
+                    if (App::mp_state.GetActive() == MpState::CONNECTED)
                     {
-                        App::SetActiveAppState(App::APP_STATE_SIMULATION);
-                        App::SetPendingAppState(App::APP_STATE_NONE);
-                        App::GetGuiManager()->ReflectGameState();
-                        sim_controller.EnterGameplayLoop();
+                        RoR::Networking::Disconnect();
+                        App::GetGuiManager()->SetVisible_MpClientList(false);
                     }
-                    else
-                    {
-                        App::SetPendingAppState(App::APP_STATE_MAIN_MENU);
-                    }
-                }
-                gEnv->sceneManager->clearScene(); // Wipe the scene after RoRFrameListener was destroyed (->cleanups invoked)
-            }
-            else if (App::GetPendingAppState() == App::APP_STATE_CHANGE_MAP)
-            {
-                //Sim -> change map -> sim
-                //                  -> back to menu
-
-                App::SetActiveAppState(App::APP_STATE_CHANGE_MAP);
-                App::SetPendingAppState(App::APP_STATE_NONE);
-                menu_wallpaper_widget->setVisible(true);
-
-                if (App::GetDiagPreselectedTerrain() == "")
-                {
-                    App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
+#endif
+#ifdef USE_MUMBLE
+                    auto* mumble = SoundScriptManager::getSingleton().GetMumble();
+                    if (mumble != nullptr)
+                        mumble->SetNonPositionalAudio();
+#endif // USE_MUMBLE
+                    menu_wallpaper_widget->setVisible(true);
                 }
                 else
                 {
-                    App::GetGuiManager()->SetVisible_GameMainMenu(true);
+                    App::app_state.SetPending(AppState::MAIN_MENU);
                 }
-                //It's the same thing so..
-                main_obj.EnterMainMenuLoop();
+                sim_controller.~RoRFrameListener(); // Destruct manually (-> invokes cleanups)
+                gEnv->sceneManager->clearScene(); // Wipe the scene after RoRFrameListener was destroyed
             }
-            previous_application_state = App::GetActiveAppState();
+            prev_app_state = App::app_state.GetActive();
         } // End of app state loop
 
         // ========================================================================
         // Cleanup
         // ========================================================================
 
-        App::GetSettings().SaveSettings(); // Save RoR.cfg
+        Settings::getSingleton().SaveSettings(); // Save RoR.cfg
 
         App::GetGuiManager()->GetMainSelector()->~MainSelector();
 
 #ifdef USE_SOCKETW
-        if (App::GetActiveMpState() == App::MP_STATE_CONNECTED)
+        if (App::mp_state.GetActive() == MpState::CONNECTED)
         {
             RoR::Networking::Disconnect();
         }

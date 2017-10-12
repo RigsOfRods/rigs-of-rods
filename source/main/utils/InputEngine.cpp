@@ -1052,10 +1052,10 @@ eventInfo_t eventInfo[] = {
         _L("tie a load to the truck")
     },
     {
-        "COMMON_SHOW_SKELETON",
-        EV_COMMON_SHOW_SKELETON,
+        "COMMON_SHOW_SKELETON", // TODO: rename. Re-purposed to cycle debug view
+        EV_COMMON_CYCLE_DEBUG_VIEWS,
         "Keyboard K",
-        _L("toggle skeleton display mode")
+        _L("Cycle debug views on current vehicle")
     },
     {
         "COMMON_TOGGLE_TERRAIN_EDITOR",
@@ -1898,7 +1898,7 @@ bool InputEngine::setup(String hwnd, bool capture, bool capturemouse, bool captu
 #endif // LINUX
 
         pl.insert(OIS::ParamList::value_type("WINDOW", hwnd));
-        if (RoR::App::GetIoInputGrabMode() != RoR::App::INPUT_GRAB_ALL)
+        if (RoR::App::io_input_grab_mode.GetActive() != RoR::IoInputGrabMode::ALL)
         {
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
             pl.insert(OIS::ParamList::value_type("x11_mouse_hide", "false"));
