@@ -69,7 +69,6 @@ enum {
     OPT_USERPATH,
     OPT_STATE,
     OPT_INCLUDEPATH,
-    OPT_ADVLOG,
     OPT_NOCACHE,
     OPT_JOINMPSERVER
 };
@@ -88,7 +87,6 @@ CSimpleOpt::SOption cmdline_options[] = {
     { OPT_CHECKCACHE,     ("-checkcache"),  SO_NONE    },
     { OPT_VER,            ("-version"),     SO_NONE    },
     { OPT_USERPATH,       ("-userpath"),    SO_REQ_SEP },
-    { OPT_ADVLOG,         ("-advlog"),      SO_NONE    },
     { OPT_STATE,          ("-state"),       SO_REQ_SEP },
     { OPT_INCLUDEPATH,    ("-includepath"), SO_REQ_SEP },
     { OPT_NOCACHE,        ("-nocache"),     SO_NONE    },
@@ -306,10 +304,6 @@ void Settings::ProcessCommandLine(int argc, char *argv[])
         else if (args.OptionId() == OPT_NOCACHE)
         {
             SETTINGS.setSetting("NOCACHE", "Yes");
-        }
-        else if (args.OptionId() == OPT_ADVLOG)
-        {
-            SETTINGS.setSetting("Advanced Logging", "Yes");
         }
         else if (args.OptionId() == OPT_INCLUDEPATH)
         {
