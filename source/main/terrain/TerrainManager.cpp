@@ -254,7 +254,7 @@ void TerrainManager::initSubSystems()
         PROGRESS_WINDOW(37, _L("Initializing Glow Subsystem"));
         initGlow();
     }
-    if (BSETTING("Motion blur", false))
+    if (App::gfx_motion_blur.GetActive())
     {
         PROGRESS_WINDOW(39, _L("Initializing Motion Blur Subsystem"));
         initMotionBlur();

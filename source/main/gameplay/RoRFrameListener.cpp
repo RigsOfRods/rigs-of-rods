@@ -2285,7 +2285,7 @@ bool RoRFrameListener::SetupGameplayLoop()
     if (App::gfx_enable_glow.GetActive() && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::GLOW.mask))
         RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GLOW);
 
-    if (BSETTING("Motion blur", false) && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::BLUR.mask))
+    if (App::gfx_motion_blur.GetActive() && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::BLUR.mask))
         RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::BLUR);
 
     if (App::gfx_enable_heathaze.GetActive() && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::HEATHAZE.mask))
