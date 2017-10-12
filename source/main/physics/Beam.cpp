@@ -5545,9 +5545,9 @@ bool Beam::LoadTruck(
             // load default for a truck
             if (driveable == TRUCK)
             {
-                if (Settings::getSingleton().getSetting("DigitalSpeedo", "No") == "Yes")
+                if (App::gfx_speedo_digital.GetActive())
                 {
-                    if (Settings::getSingleton().getSetting("SpeedUnit", "Metric") == "Imperial")
+                    if (App::gfx_speedo_imperial.GetActive())
                     {
                         if (engine->getMaxRPM() > 3500)
                         {
@@ -5582,7 +5582,7 @@ bool Beam::LoadTruck(
                 }
                 else
                 {
-                    if (Settings::getSingleton().getSetting("SpeedUnit", "Metric") == "Imperial")
+                    if (App::gfx_speedo_imperial.GetActive())
                     {
                         if (engine->getMaxRPM() > 3500)
                         {

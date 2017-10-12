@@ -418,6 +418,9 @@ extern GVarPod<float>          gfx_sight_range;
 extern GVarPod<float>          gfx_fov_external;
 extern GVarPod<float>          gfx_fov_internal;
 extern GVarPod<int>            gfx_fps_limit;
+extern GVarPod<bool>           gfx_speedo_digital;
+extern GVarPod<bool>           gfx_speedo_imperial;
+extern GVarPod<bool>           gfx_motion_blur;
 
 // Getters
 OgreSubsystem*       GetOgreSubsystem();

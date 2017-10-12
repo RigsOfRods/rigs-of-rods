@@ -172,6 +172,9 @@ static RoRFrameListener* g_sim_controller;
  GVarPod<float>           gfx_fov_external        ("gfx_fov_external",        "FOV External",              60.f,                    60.f);
  GVarPod<float>           gfx_fov_internal        ("gfx_fov_internal",        "FOV Internal",              75.f,                    75.f);
  GVarPod<int>             gfx_fps_limit           ("gfx_fps_limit",           "FPS-Limiter",               0,                       0); // 0 = unlimited
+ GVarPod<bool>            gfx_speedo_digital      ("gfx_speedo_digital",      "DigitalSpeedo",             false,                   false);
+ GVarPod<bool>            gfx_speedo_imperial     ("gfx_speedo_imperial",     "gfx_speedo_imperial",       false,                   false);
+ GVarPod<bool>            gfx_motion_blur         ("gfx_motion_blur",         "Motion blur",               false,                   false);
 
 // Instance management
 void SetMainMenu       (MainMenu* obj)                { g_main_menu = obj; }
