@@ -171,7 +171,6 @@ private:
     wxButton *btnDeleteKey;
     wxButton *btnUpdate, *btnToken;
     wxButton *btnLoadInputDeviceInfo;
-    wxCheckBox *advanced_logging;
     wxCheckBox *arcadeControls;
     wxCheckBox *beam_break_debug;
     wxCheckBox *beam_deform_debug;
@@ -861,10 +860,6 @@ MyDialog::MyDialog(const wxString& title) : wxDialog(NULL, wxID_ANY, title,  wxP
 
     dtm=new wxCheckBox(debugPanel, -1, _("Debug Truck Mass"), wxPoint(10, y));
     dtm->SetToolTip(_("Prints all node masses to the RoR.log"));
-    y+=15;
-
-    advanced_logging=new wxCheckBox(debugPanel, -1, _("Advanced Logging"), wxPoint(10, y));
-    advanced_logging->SetToolTip(_("Enables fancy HTML logs for loaded terrains, objects and trucks"));
     y+=15;
 
     beam_break_debug=new wxCheckBox(debugPanel, -1, _("Beam Break Debug"), wxPoint(10, y));
@@ -1617,7 +1612,6 @@ void MyDialog::SetDefaults()
 {
     wxScrollEvent dummye;
     OnScrollForceFeedback(dummye);
-    advanced_logging->SetValue(false);
     arcadeControls->SetValue(true);
     beam_break_debug->SetValue(false);
     beam_deform_debug->SetValue(false);
@@ -1681,7 +1675,6 @@ void MyDialog::SetDefaults()
 
 void MyDialog::getSettingsControls()
 {
-    settings["Advanced Logging"] = (advanced_logging->GetValue()) ? "Yes" : "No";
     settings["ArcadeControls"] = (arcadeControls->GetValue()) ? "Yes" : "No";
     settings["Beam Break Debug"] = (beam_break_debug->GetValue()) ? "Yes" : "No";
     settings["Beam Deform Debug"] = (beam_deform_debug->GetValue()) ? "Yes" : "No";
@@ -1802,7 +1795,6 @@ void MyDialog::updateSettingsControls()
 #endif //USE_OPENAL
 
     st = settings["Skidmarks"]; if (st.length()>0) skidmarks->SetValue(st=="Yes");
-    st = settings["Advanced Logging"]; if (st.length()>0) advanced_logging->SetValue(st=="Yes");
     st = settings["ArcadeControls"]; if (st.length()>0) arcadeControls->SetValue(st=="Yes");
     st = settings["Beam Break Debug"]; if (st.length()>0) beam_break_debug->SetValue(st=="Yes");
     st = settings["Beam Deform Debug"]; if (st.length()>0) beam_deform_debug->SetValue(st=="Yes");
