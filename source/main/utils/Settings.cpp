@@ -684,6 +684,16 @@ inline bool CheckFloat(GVarPod<float>& gvar, std::string const & key, std::strin
     return false;
 }
 
+inline bool CheckSpeedoImperial(std::string const & key, std::string const & value)
+{
+    if (key == "SpeedUnit") // String ["Metric"/"Imperial"], decommissioned 10/2017
+    {
+        App::gfx_speedo_imperial.SetActive(value == "Imperial");
+        return true;
+    }
+    return CheckBool(App::gfx_speedo_imperial, key, value);
+}
+
 bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & v)
 {
     // Process and erase settings which propagate to global vars.
@@ -721,6 +731,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckGfxFlaresMode                        (k, v)) { return true; }
     if (CheckGfxWaterMode                         (k, v)) { return true; }
     if (CheckGfxSkyMode                           (k, v)) { return true; }
+    if (CheckSpeedoImperial                       (k, v)) { return true; }
     if (CheckFov                                  (k, v)) { return true; }
     if (CheckBool (App::gfx_enable_sunburn,        k, v)) { return true; }
     if (CheckBool (App::gfx_water_waves,           k, v)) { return true; }
@@ -734,6 +745,9 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckBool (App::gfx_envmap_enabled,        k, v)) { return true; }
     if (CheckFloat(App::gfx_sight_range,           k, v)) { return true; }
     if (CheckInt  (App::gfx_fps_limit,             k, v)) { return true; }
+    if (CheckBool (App::gfx_minimap_disabled,      k, v)) { return true; }
+    if (CheckBool (App::gfx_speedo_digital,        k, v)) { return true; }
+    if (CheckBool (App::gfx_motion_blur,           k, v)) { return true; }
     // Audio
     if (CheckFloat(App::audio_master_volume,       k, v)) { return true; }
     if (CheckBool (App::audio_enable_creak,        k, v)) { return true; }
@@ -992,6 +1006,9 @@ void Settings::SaveSettings()
     WriteYN  (f, App::gfx_enable_hdr      );
     WriteYN  (f, App::gfx_enable_heathaze );
     WriteYN  (f, App::gfx_skidmarks_mode  );
+    WriteYN  (f, App::gfx_speedo_digital  );
+    WriteYN  (f, App::gfx_speedo_imperial );
+    WriteYN  (f, App::gfx_motion_blur     );
     WriteYN  (f, App::gfx_envmap_enabled  );
     WritePod (f, App::gfx_envmap_rate     );
     WritePod (f, App::gfx_sight_range     );
