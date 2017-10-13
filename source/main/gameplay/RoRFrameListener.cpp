@@ -2324,7 +2324,7 @@ bool RoRFrameListener::SetupGameplayLoop()
     gEnv->player = m_character_factory.createLocal(colourNum);
 
     // heathaze effect
-    if (BSETTING("HeatHaze", false) && RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::HEATHAZE.mask))
+    if (App::gfx_enable_heathaze.GetActive() && RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::HEATHAZE.mask))
     {
         m_heathaze = new HeatHaze();
         m_heathaze->setEnable(true);

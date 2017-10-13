@@ -417,7 +417,7 @@ void RigSpawner::InitializeRig()
 
     m_rig->driverSeat = nullptr;
 
-    m_rig->heathaze = !m_rig->disable_smoke && BSETTING("HeatHaze", false);
+    m_rig->heathaze = !m_rig->disable_smoke && App::gfx_enable_heathaze.GetActive();
     m_rig->hideInChooser = false;
 
     m_rig->previousCrank = 0.f;
