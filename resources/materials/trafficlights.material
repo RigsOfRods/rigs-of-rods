@@ -1,0 +1,52 @@
+import * from "managed_mats.material"
+
+material trafficlightsequence2: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				anim_texture signalred.dds signalred.dds signalred.dds signalred.dds signalred.dds signalred.dds signalgreen.dds signalgreen.dds signalgreen.dds signalamber.dds 40
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material trafficlightmain: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			texture_unit Diffuse_Map
+			{
+				texture trafficlightsdiffuse.dds
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material trafficlightsequence1: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender Diffuse_Map
+		{
+			depth_bias 2 [2]
+			texture_unit
+			{
+				anim_texture signalred.dds signalgreen.dds signalgreen.dds signalgreen.dds signalamber.dds signalred.dds signalred.dds signalred.dds signalred.dds signalred.dds 40
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}

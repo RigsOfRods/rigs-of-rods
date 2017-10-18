@@ -1,0 +1,238 @@
+overlay tracks/AirNeedlesOverlay
+{
+	zorder 30
+
+	container Panel (tracks/thrust1)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.03
+			left -0.12
+			top -0.04
+			height 0.03
+			material tracks/thrusthandle
+		}
+	container Panel (tracks/thrust2)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.03
+			left -0.09
+			top -0.04
+			height 0.03
+			material tracks/thrusthandle
+		}
+	container Panel (tracks/thrust3)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.03
+			left -0.06
+			top -0.04
+			height 0.03
+			material tracks/thrusthandle
+		}
+	container Panel (tracks/thrust4)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.03
+			left -0.03
+			top -0.04
+			height 0.03
+			material tracks/thrusthandle
+		}
+
+	container Panel (tracks/airspeedneedle)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align bottom
+			width 0.11
+			left 0.14
+//this part is recalculated for screen ratio
+			top -0.11
+			height 0.11
+			material tracks/airspeedneedle_mat
+		}
+
+	container Panel (tracks/airrpm1needle)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.047
+			left -0.308
+			top -0.14
+			height 0.047
+			material tracks/airrpm1needle_mat
+		}
+	container Panel (tracks/airrpm2needle)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.047
+			left -0.261
+			top -0.14
+			height 0.047
+			material tracks/airrpm2needle_mat
+		}
+	container Panel (tracks/airrpm3needle)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.047
+			left -0.214
+			top -0.14
+			height 0.047
+			material tracks/airrpm3needle_mat
+		}
+	container Panel (tracks/airrpm4needle)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.047
+			left -0.167
+			top -0.14
+			height 0.047
+			material tracks/airrpm4needle_mat
+		}
+
+	container Panel (tracks/airpitch1needle)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.047
+			left -0.308
+			top -0.093
+			height 0.047
+			material tracks/airpitch1needle_mat
+		}
+	container Panel (tracks/airpitch2needle)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.047
+			left -0.261
+			top -0.093
+			height 0.047
+			material tracks/airpitch2needle_mat
+		}
+	container Panel (tracks/airpitch3needle)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.047
+			left -0.214
+			top -0.093
+			height 0.047
+			material tracks/airpitch3needle_mat
+		}
+	container Panel (tracks/airpitch4needle)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.047
+			left -0.167
+			top -0.093
+			height 0.047
+			material tracks/airpitch4needle_mat
+		}
+		
+	container Panel (tracks/airtorque1needle)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.047
+			left -0.308
+			top -0.046
+			height 0.047
+			material tracks/airtorque1needle_mat
+		}
+	container Panel (tracks/airtorque2needle)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.047
+			left -0.261
+			top -0.0460
+			height 0.047
+			material tracks/airtorque2needle_mat
+		}
+	container Panel (tracks/airtorque3needle)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.047
+			left -0.214
+			top -0.046
+			height 0.047
+			material tracks/airtorque3needle_mat
+		}
+	container Panel (tracks/airtorque4needle)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.047
+			left -0.167
+			top -0.046
+			height 0.047
+			material tracks/airtorque4needle_mat
+		}
+
+	container Panel (tracks/altimeterneedle)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align bottom
+			width 0.11
+			left 0.25
+//this part is recalculated for screen ratio
+			top -0.11
+			height 0.11
+			material tracks/altimeterneedle_mat
+		}
+
+	container Panel (tracks/vvineedle)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align bottom
+			width 0.11
+			left 0.35
+//this part is recalculated for screen ratio
+			top -0.11
+			height 0.11
+			material tracks/vvineedle_mat
+		}
+
+	container Panel (tracks/aoaneedle)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align bottom
+			width 0.11
+			left 0.516
+//this part is recalculated for screen ratio
+			top -0.11
+			height 0.11
+			material tracks/aoaneedle_mat
+		}
+
+
+}

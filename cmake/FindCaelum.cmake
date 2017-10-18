@@ -35,23 +35,23 @@
 # * Caelum::Caelum
 #
 
-find_path( Caelum_INCLUDE_DIR Caelum.h PATH_SUFFIXES Caelum )
-find_library( Caelum_LIBRARY Caelum )
+find_path(Caelum_INCLUDE_DIR Caelum.h PATH_SUFFIXES Caelum)
+find_library(Caelum_LIBRARY Caelum)
 
 set(Caelum_INCLUDE_DIRS ${Caelum_INCLUDE_DIR})
 set(Caelum_LIBRARIES ${Caelum_LIBRARY})
 
-include( FindPackageHandleStandardArgs )
-find_package_handle_standard_args( Caelum FOUND_VAR Caelum_FOUND
-  REQUIRED_VARS Caelum_INCLUDE_DIRS Caelum_LIBRARIES
-)
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(Caelum FOUND_VAR Caelum_FOUND
+        REQUIRED_VARS Caelum_INCLUDE_DIRS Caelum_LIBRARIES
+        )
 
-if( Caelum_FOUND )
-  add_library( Caelum::Caelum INTERFACE IMPORTED )
-  set_target_properties( Caelum::Caelum PROPERTIES
-    INTERFACE_LINK_LIBRARIES "${Caelum_LIBRARIES}"
-    INTERFACE_INCLUDE_DIRECTORIES "${Caelum_INCLUDE_DIRS}"
-  )
-endif()
+if (Caelum_FOUND)
+    add_library(Caelum::Caelum INTERFACE IMPORTED)
+    set_target_properties(Caelum::Caelum PROPERTIES
+            INTERFACE_LINK_LIBRARIES "${Caelum_LIBRARIES}"
+            INTERFACE_INCLUDE_DIRECTORIES "${Caelum_INCLUDE_DIRS}"
+            )
+endif ()
 
-mark_as_advanced( Caelum_INCLUDE_DIR Caelum_LIBRARY )
+mark_as_advanced(Caelum_INCLUDE_DIR Caelum_LIBRARY)

@@ -1,0 +1,15 @@
+roadborderboth.mesh
+1, 1, 1
+beginbox
+boxcoords 0, 10, -5, 0, -4.5, 4.5
+endbox
+
+beginbox
+boxcoords 0, 10, -5, 0.5, -4.5, -4
+endbox
+
+beginbox
+boxcoords 0, 10, -5, 0.5, 4, 4.5
+endbox
+
+end

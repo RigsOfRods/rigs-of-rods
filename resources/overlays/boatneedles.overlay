@@ -1,0 +1,53 @@
+overlay tracks/BoatNeedlesOverlay
+{
+	zorder 30
+
+	container Panel (tracks/boatthrust1)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.03
+			left -0.10
+			top -0.04
+			height 0.03
+			material tracks/thrusthandle
+		}
+	container Panel (tracks/boatthrust2)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.03
+			left -0.06
+			top -0.04
+			height 0.03
+			material tracks/thrusthandle
+		}
+
+	container Panel (tracks/boatspeedneedle)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align bottom
+			width 0.11
+			left 0.7
+//this part is recalculated for screen ratio
+			top -0.12
+			height 0.11
+			material tracks/boatspeedneedle_mat
+		}
+
+	container Panel (tracks/boatsteer/fg)
+		{
+			metrics_mode relative
+			horz_align left
+			vert_align bottom
+			width 0.14
+			left 0.3
+//this part is recalculated for screen ratio
+			top -0.11
+			height 0.10
+			material tracks/boatsteer/fg_mat
+		}
+}

@@ -25,3 +25,6 @@ dependencies-*.zip
 _build
 0_build
 libangelscript_addons*.a
+.idea
+cmake-build-release
+cmake-build-debug

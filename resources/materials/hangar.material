@@ -1,0 +1,15 @@
+import * from "managed_mats.material"
+
+material hangarskin: RoR/Managed_Mats/Base
+{
+	set_texture_alias diffuse_tex hangarskindiffuse.dds
+}
+material hangarskintrans: RoR/Managed_Mats/Transparent
+{
+	set_texture_alias diffuse_tex hangarskindiffuse.dds
+}
+
+material hangarskin2: RoR/Managed_Mats/Base
+{
+	set_texture_alias diffuse_tex  hangarskindiffuse.dds
+}

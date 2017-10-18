@@ -1,0 +1,668 @@
+import * from "managed_mats.material"
+
+material runwayheading09: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwayheading90.dds
+			}
+		}
+	}
+}
+material runwaytouchdown: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwaytouchdown.dds
+			}
+		}
+	}
+}
+material runwaythreshold: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwaythreshold.dds
+			}
+		}
+	}
+}
+material runwaybase: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwaybase.dds
+			}
+		}
+	}
+}
+material runwayfixeddistance: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwayfixeddistance.dds
+			}
+		}
+	}
+}
+material runwayedge: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture runwayedge2.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwayblastpad: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwayblastpad.dds
+				tex_address_mode wrap
+				filtering trilinear
+
+			}
+		}
+	}
+}
+material runwaytaxient1: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwaytaxiwayentrance1.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwaydispthresh: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwaydisplacedthreshold.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material taxiwayedge: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture taxiwayedge.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material taxiwaylines: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture taxiwaylines.dds
+			}
+		}
+	}
+}
+material taxiwayconcrete: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture taxiwaybase.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material taxiway: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture taxiwaybase.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwaytaxiwaycross1: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwaytaxiwayentrance4.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwaytaxiwaytee1: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwaytaxiwayentrance3.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material rapidexit1: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwaytaxiwayentrance5.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material rapidexit2: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwaytaxiwayentrance7.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material rapidexit3: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwaytaxiwayentrance6.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwaytaxient3: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwaytaxiwayentrance13.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwaytaxiwaycross2: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwaytaxiwayentrance12.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwaytaxiwaytee2: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwaytaxiwayentrance11.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material rapidexit4: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]	
+			texture_unit Diffuse_Map
+			{
+				texture Runwaytaxiwayentrance8.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material rapidexit5: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]	
+			texture_unit Diffuse_Map
+			{
+				texture Runwaytaxiwayentrance10.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material rapidexit6: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]	
+			texture_unit Diffuse_Map
+			{
+				texture Runwaytaxiwayentrance9.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwaytaxient4: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwaytaxiwayentrance2.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwaytaxitee3: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]	
+			texture_unit Diffuse_Map
+			{
+				texture Runwaytaxiwayentrance17.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material rapidexit7: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]	
+			texture_unit Diffuse_Map
+			{
+				texture Runwaytaxiwayentrance14.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material rapidexit8: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwaytaxiwayentrance16.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material rapidexit9: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwaytaxiwayentrance15.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwaytaxitee3.001: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			alpha_rejection greater 0
+			alpha_to_coverage on
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwaytaxiwayentrance18.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material airportgrass: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			texture_unit Diffuse_Map
+			{
+				texture airportgrass.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwayheading05: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwayheading05.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwayheading23: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwayheading23.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwayheading27: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwayheading27.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwayheading36: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwayheading36.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwayheading18: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwayheading18.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwayheading03: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwayheading03.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwayheading21: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwayheading21.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwayheading29: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwayheading29.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+material runwayheading11: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			depth_bias 2 [2]
+			texture_unit Diffuse_Map
+			{
+				texture Runwayheading11.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}

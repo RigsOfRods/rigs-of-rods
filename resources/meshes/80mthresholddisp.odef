@@ -1,0 +1,7 @@
+80mthresholddisp.mesh
+1,1,1
+beginmesh
+mesh 80mthresholddisp.mesh
+stdfriction asphalt
+endmesh
+end

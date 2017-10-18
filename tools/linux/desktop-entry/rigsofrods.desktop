@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Rigs of Rods
+GenericName=Rigs of Rods
+Comment=Rigs of Rods Simulator
+Exec=/usr/games/RoR/RoR
+Terminal=false
+Type=Application
+StartupNotify=false
+MimeType=text/plain;
+Icon=ror
+Categories=GNOME;GTK;Game;Simulator;

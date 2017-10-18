@@ -1,0 +1,40 @@
+overlay tracks/DirectionArrow
+{
+	zorder 12
+	container BorderPanel(tracks/DirectionArrow/MainPanel)
+	{
+		horz_align left
+		vert_align top
+		left 0.005
+		top 0.005
+		width 0.16
+		height 0.09
+		material tracks/pointingArrowBackground
+
+		container TextArea(tracks/DirectionArrow/Text)
+		{
+			left 0
+			top 0
+			width 0.1
+			height 0.02
+			font_name highcontrast_black
+			char_height 0.03
+			caption next checkpoint
+			colour_top 1 1 1
+			colour_bottom 1 1 1
+		}
+
+		container TextArea(tracks/DirectionArrow/Distance)
+		{
+			left 0
+			top 0.06
+			width 0.1
+			height 0.03
+			font_name highcontrast_black
+			char_height 0.03
+			caption 500m
+			colour_top 1 1 1
+			colour_bottom 1 1 1
+		}
+    }
+}

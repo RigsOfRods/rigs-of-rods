@@ -1,0 +1,69 @@
+import * from "managed_mats.material"
+
+material a474UID_invisible
+{
+   technique
+   {
+      pass
+      {
+         ambient 0.0 0.0 0.0 0.0
+         diffuse 0.0 0.0 0.0 0.0
+         scene_blend alpha_blend  
+                        depth_write off
+      }
+
+   }
+
+}
+
+material invisible
+{
+   technique
+   {
+      pass
+      {
+         ambient 0.0 0.0 0.0 0.0
+         diffuse 0.0 0.0 0.0 0.0
+         scene_blend alpha_blend  
+                        depth_write off
+      }
+
+   }
+
+}
+
+
+material a474UID_rails: RoR/Managed_Mats/Base
+{
+	set_texture_alias diffuse_tex train_rails.dds
+}
+
+
+material a474UID_crossing: RoR/Managed_Mats/Base
+{
+	set_texture_alias diffuse_tex train_crossing.dds
+}
+
+
+material a474UID_switch: RoR/Managed_Mats/Base
+{
+	set_texture_alias diffuse_tex train_switch.dds
+}
+
+
+material a474UID_buffer: RoR/Managed_Mats/Base
+{
+	set_texture_alias diffuse_tex train_buffer.dds
+}
+
+
+material a474UID_huette: RoR/Managed_Mats/Base
+{
+	set_texture_alias diffuse_tex train_spawner.dds
+}
+
+
+material a474UID_fenster: RoR/Managed_Mats/Base
+{
+	set_texture_alias diffuse_tex train_spawnerwindow.dds
+}

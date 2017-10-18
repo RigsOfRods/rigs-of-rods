@@ -1,0 +1,6 @@
+40mtaxient.mesh
+1,1,1
+beginmesh
+mesh 40mtaxient.mesh
+endmesh
+end

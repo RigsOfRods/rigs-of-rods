@@ -1,0 +1,17 @@
+VeraMono
+{
+	type 		truetype
+	source 		VeraMoBd.ttf
+	size 		32
+	resolution 	55
+	code_points   33-289
+}
+
+VeraMonoBold
+{
+	type 		truetype
+	source 		VeraMoBd.ttf
+	size 		32
+	resolution 	55
+	code_points   33-289
+}

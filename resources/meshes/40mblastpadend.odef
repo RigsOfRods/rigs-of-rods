@@ -1,0 +1,7 @@
+40mblastpadend.mesh
+1,1,1
+beginmesh
+mesh 40mblastpadend.mesh
+stdfriction asphalt
+endmesh
+end

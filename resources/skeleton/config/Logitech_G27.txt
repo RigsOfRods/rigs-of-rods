@@ -1,0 +1,43 @@
+This is the input map for the Rigs of Rods game for the following device:
+ 
+Joystick 0:
+	Vendor: Logitech G27 Racing Wheel USB
+	VendorMapFilename: Logitech_G27_Racing_Wheel_USB.map
+	ID: 0
+	Type: [3] OISJoyStick
+	Axes: 3
+	Sliders: 2
+	POV/HATs: 1
+	Buttons: 23
+	Vector3: 0
+	Vector3Sensitivity: 2.28
+
+Control Overview:
+* D-PAD on the left of the wheel:					Controls Rorbot
+*
+* LAND VEHICLES:
+* Steering Wheel: 									Steering left/right
+* Left pedal:										Clutch
+* Middle pedal:										Brake
+* Right pedal:										Acclerator
+* Left paddle:			                                                        shift down
+* Right paddle:		 	                                                        shift up
+* Button 3: 										Ignition
+* Shifter:                                                                              Shift gears 1-6
+* D-Pad on shifter                                                                      Low mid, high gear range
+* Red button 1: 								        Parking brake
+* Red button 2:										Lock trailer
+* Red button 3:										Axle lock
+* Red button 4:										Shift modes
+* Left buttons on wheel top:                                                            Left blinker
+* Left buttons on wheel mid:                                                            Horn
+* Left buttons on wheel bottom:                                                         Ign on/off
+* Right buttons on wheel top:                                                           Right blinker
+* Right buttons on wheel mid:                                                           Horn
+* Right buttons on wheel bottom:						        Starter
+*
+* CHARACTER:
+* D-Pad: 									        Move
+* Top black button:									Enter vehicle
+* Left black button:		 							Run
+* Bottom Black button:		 							Jump

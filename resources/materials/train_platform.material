@@ -1,0 +1,39 @@
+import * from "managed_mats.material"
+
+material platform: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.640000 0.640000 0.640000 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			texture_unit Diffuse_Map
+			{
+				texture train_platform.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}
+
+material platformedge: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.240000 0.240000 0.240000 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			texture_unit Diffuse_Map
+			{
+				texture train_platformedge.dds
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}

@@ -1,0 +1,15 @@
+import * from "managed_mats.material"
+
+material default
+{
+	technique
+	{
+		pass
+		{
+		}
+	}
+}
+material truckshop: RoR/Managed_Mats/Base
+{
+	set_texture_alias diffuse_tex truckshopdiffuse.dds
+}

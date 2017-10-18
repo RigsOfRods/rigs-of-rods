@@ -1,0 +1,131 @@
+//  old
+material grass
+{
+	//transparency_casts_shadows off
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			//ambient 0.9 0.9 0.9 1
+			//diffuse 0.7 0.7 0.7 1
+			//specular 0.5 0.5 0.5 1 32
+			lighting off
+	
+			cull_hardware none
+			//cull_software none
+
+			scene_blend alpha_blend
+			alpha_rejection greater_equal 128
+			//transparency_casts_shadows off
+			//depth_write off
+			
+			texture_unit
+			{
+				texture grass1.png
+			}
+		}
+	}
+}
+
+//--------------------------------------------------------------------------------
+//  grass shadowed pssm
+vertex_program grassVP cg 
+{ 
+	source grass.cg 
+	entry_point main_vp 
+	profiles vs_1_1 arbvp1 
+
+	default_params
+	{ 
+		param_named_auto camPos  camera_position_object_space
+		param_named_auto worldViewProj worldviewproj_matrix 
+
+		param_named time float 1
+		param_named frequency float 1
+		param_named direction float4 0 1 0 0
+
+		//param_named grassHeight float 1
+		param_named fadeRange float 1
+
+		//objSpaceLight ACT_LIGHT_POSITION_OBJECT_SPACE
+		//lightDiffuse ACT_DERIVED_LIGHT_DIFFUSE_COLOUR
+		//lightAmbient ACT_DERIVED_AMBIENT_LIGHT_COLOUR
+
+		//param_named_auto lightPos light_position_object_space 0 
+		//param_named_auto lightDir light_direction_object_space 0 
+
+		param_named_auto texWorldViewProjMatrix0  texture_worldviewproj_matrix 0
+		param_named_auto texWorldViewProjMatrix1  texture_worldviewproj_matrix 1
+		param_named_auto texWorldViewProjMatrix2  texture_worldviewproj_matrix 2
+	} 
+} 
+
+fragment_program grassFP cg 
+{ 
+	source grass.cg 
+	entry_point main_fp 
+	profiles ps_2_x arbfp1 
+
+	default_params
+	{ 
+		/*param_named_auto lightAmbient  derived_ambient_light_colour
+		param_named_auto lightDiffuse  derived_light_diffuse_colour 0 
+		param_named_auto lightSpecular derived_light_specular_colour 0 
+		param_named_auto matShininess surface_shininess
+		/**/
+
+		param_named_auto invShadowMapSize0	inverse_texture_size 0
+		param_named_auto invShadowMapSize1	inverse_texture_size 1
+		param_named_auto invShadowMapSize2	inverse_texture_size 2
+		//param_named pssmSplitPoints MANUAL 0
+		param_named pssmSplitPoints float4 1.0 187 774 10000.0
+	}
+}
+
+
+//  grass
+//material grass_GrassVS_anim_1_0_40_vp
+material grass_GrassVS_
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			lighting off
+	
+			cull_hardware none
+			//cull_software none
+
+			scene_blend alpha_blend
+			alpha_rejection greater_equal 128
+			//transparency_casts_shadows off
+			//depth_write off
+			
+			vertex_program_ref   grassVP { }
+			fragment_program_ref grassFP { }
+
+			texture_unit diffuseMap
+			{
+				texture grass1.png
+			}
+
+			texture_unit shadow_tex0
+			{
+				content_type shadow
+				tex_address_mode clamp
+			}
+			texture_unit shadow_tex1
+			{
+				content_type shadow
+				tex_address_mode clamp
+			}
+			texture_unit shadow_tex2
+			{
+				content_type shadow
+				tex_address_mode clamp
+			}
+		}
+	}
+}

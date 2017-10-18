@@ -1,0 +1,136 @@
+overlay tracks/NeedlesOverlay
+{
+	zorder 30
+
+
+	container Panel (tracks/speedoneedle)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+//			horz_align center
+//			vert_align center
+			width 0.14
+			left -0.14
+//this part is recalculated for screen ratio
+			top -0.14
+			height 0.14
+			material tracks/speedoneedle_mat
+		}
+
+	container Panel (tracks/tachoneedle)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+//			horz_align center
+//			vert_align center
+			width 0.14
+			left -0.28
+//this part is recalculated for screen ratio
+			top -0.14
+			height 0.14
+			material tracks/tachoneedle_mat
+		}
+
+
+	container TextArea(tracks/Gear)
+		{
+			metrics_mode relative
+//			horz_align center
+//			vert_align center
+			horz_align right
+			vert_align bottom
+			width 0.03
+			height 0.03
+			left -0.16
+			top -0.04
+			font_name CyberbitEnglish
+			char_height 0.03
+			caption N
+			colour_top 0.8 0.8 0.8
+			colour_bottom 0.6 0.6 0.6
+		}
+
+	container TextArea(tracks/AGearR)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.03
+			height 0.03
+			left -0.37
+			top -0.17
+			font_name CyberbitEnglish
+			char_height 0.03
+			caption R
+			colour_top 0.8 0.8 0.8
+			colour_bottom 0.6 0.6 0.6
+		}
+
+	container TextArea(tracks/AGearN)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.03
+			height 0.03
+			left -0.37
+			top -0.14
+			font_name CyberbitEnglish
+			char_height 0.03
+			caption N
+			colour_top 0.8 0.2 0.2
+			colour_bottom 0.6 0.1 0.1
+		}
+
+	container TextArea(tracks/AGearD)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.03
+			height 0.03
+			left -0.37
+			top -0.11
+			font_name CyberbitEnglish
+			char_height 0.03
+			caption D
+			colour_top 0.8 0.8 0.8
+			colour_bottom 0.6 0.6 0.6
+		}
+
+	container TextArea(tracks/AGear2)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.03
+			height 0.03
+			left -0.37
+			top -0.08
+			font_name CyberbitEnglish
+			char_height 0.03
+			caption 2
+			colour_top 0.8 0.8 0.8
+			colour_bottom 0.6 0.6 0.6
+		}
+
+	container TextArea(tracks/AGear1)
+		{
+			metrics_mode relative
+			horz_align right
+			vert_align bottom
+			width 0.03
+			height 0.03
+			left -0.37
+			top -0.05
+			font_name CyberbitEnglish
+			char_height 0.03
+			caption 1
+			colour_top 0.8 0.8 0.8
+			colour_bottom 0.6 0.6 0.6
+		}
+
+	
+}

@@ -1,0 +1,7 @@
+20mtaxiwaystraight.mesh
+1,1,1
+beginmesh
+mesh 20mtaxiwaystraight.mesh
+stdfriction concrete
+endmesh
+end

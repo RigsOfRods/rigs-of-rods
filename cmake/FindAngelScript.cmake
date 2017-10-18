@@ -36,25 +36,25 @@
 # * AngelScript::use_namespace
 #
 
-find_path( AngelScript_INCLUDE_DIR angelscript.h )
-find_library( AngelScript_LIBRARY angelscript PATH_SUFFIXES Debug Release )
+find_path(AngelScript_INCLUDE_DIR angelscript.h)
+find_library(AngelScript_LIBRARY angelscript PATH_SUFFIXES Debug Release)
 
 set(AngelScript_INCLUDE_DIRS ${AngelScript_INCLUDE_DIR})
 set(AngelScript_LIBRARIES ${AngelScript_LIBRARY})
 
-include( FindPackageHandleStandardArgs )
-find_package_handle_standard_args( AngelScript FOUND_VAR AngelScript_FOUND
-  REQUIRED_VARS AngelScript_INCLUDE_DIRS AngelScript_LIBRARIES
-)
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(AngelScript FOUND_VAR AngelScript_FOUND
+        REQUIRED_VARS AngelScript_INCLUDE_DIRS AngelScript_LIBRARIES
+        )
 
-if( AngelScript_FOUND )
-  add_library( AngelScript::AngelScript INTERFACE IMPORTED )
-  set_target_properties( AngelScript::AngelScript PROPERTIES
-    INTERFACE_LINK_LIBRARIES "${AngelScript_LIBRARIES}"
-    INTERFACE_INCLUDE_DIRECTORIES "${AngelScript_INCLUDE_DIRS}"
-  )
-  add_library( AngelScript::use_namespace INTERFACE IMPORTED )
-  set_target_properties( AngelScript::use_namespace PROPERTIES INTERFACE_COMPILE_DEFINITIONS AS_USE_NAMESPACE )
-endif()
+if (AngelScript_FOUND)
+    add_library(AngelScript::AngelScript INTERFACE IMPORTED)
+    set_target_properties(AngelScript::AngelScript PROPERTIES
+            INTERFACE_LINK_LIBRARIES "${AngelScript_LIBRARIES}"
+            INTERFACE_INCLUDE_DIRECTORIES "${AngelScript_INCLUDE_DIRS}"
+            )
+    add_library(AngelScript::use_namespace INTERFACE IMPORTED)
+    set_target_properties(AngelScript::use_namespace PROPERTIES INTERFACE_COMPILE_DEFINITIONS AS_USE_NAMESPACE)
+endif ()
 
-mark_as_advanced( AngelScript_INCLUDE_DIR AngelScript_LIBRARY )
+mark_as_advanced(AngelScript_INCLUDE_DIR AngelScript_LIBRARY)
