@@ -115,55 +115,60 @@ wxString LoadInputDevicesInfo(WXWidget wx_window_handle)
 
 bool ExtractZipFiles(const wxString& aZipFile, const wxString& aTargetDir)
 {
-    // from http://wiki.wxwidgets.org/WxZipInputStream
-    bool ret = true;
-    //wxFileSystem fs;
-    std::unique_ptr<wxZipEntry> entry(new wxZipEntry());
-    do
+    wxFileInputStream in(aZipFile);
+    if (! in.IsOk())
     {
-        wxFileInputStream in(aZipFile);
-        if (!in)
+        wxLogError(_T("Cannot open input ZIP file '") + aZipFile + wxT("'."));
+        return false;
+    }
+
+    wxZipInputStream zip(in);
+    if (! zip.IsOk())
+    {
+        wxLogError(_T("Cannot read from ZIP file '") + aZipFile + wxT("'."));
+        return false;
+    }
+
+    std::unique_ptr<wxZipEntry> entry; // Defaults to nullptr
+    while (entry.reset(zip.GetNextEntry()), entry.get() != nullptr)
+    {
+        if (entry->IsDir()) // We detect directories from file paths
         {
-            wxLogError(_T("Can not open file '")+aZipFile+wxT("'."));
-            ret = false;
-            break;
+            continue;
         }
-        wxZipInputStream zip(in);
 
-        while (entry.reset(zip.GetNextEntry()), entry.get() != NULL)
+        wxString entryName = entry->GetName();
+
+        // Handle subdirectories
+        int lastSepPos = entryName.rfind(wxFileName::GetPathSeparator());
+        if (lastSepPos != -1)
         {
-            // access meta-data
-            wxString name = entry->GetName();
-            name = aTargetDir + wxFileName::GetPathSeparator() + name;
-
-            // read 'zip' to access the entry's data
-            if (entry->IsDir())
+            wxString subdirPath = aTargetDir + wxFileName::GetPathSeparator() + entryName.SubString(0, lastSepPos);
+            // With flag 'wxPATH_MKDIR_FULL', existing directories are OK
+            if (! wxFileName::Mkdir(subdirPath, wxPosixPermissions::wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL))
             {
-                int perm = entry->GetMode();
-                wxFileName::Mkdir(name, perm, wxPATH_MKDIR_FULL);
-            } else
-            {
-                zip.OpenEntry(*entry.get());
-                if (!zip.CanRead())
-                {
-                    wxLogError(_T("Can not read zip entry '") + entry->GetName() + wxT("'."));
-                    ret = false;
-                    break;
-                }
-
-                wxFileOutputStream file(name);
-
-                if (!file)
-                {
-                    wxLogError(_T("Can not create file '")+name+wxT("'."));
-                    ret = false;
-                    break;
-                }
-                zip.Read(file);
+                wxLogError(_T("Could not create full subdirectory path '") + subdirPath + wxT("'."));
+                continue;
             }
         }
-    } while(false);
-    return ret;
+
+        // Skip dummy 'keep empty directory' files
+        if ((lastSepPos != -1) && (entryName.substr(lastSepPos+1) == "empty") && (entry->GetSize() == 0))
+        {
+            continue;
+        }
+
+        // Extract the file
+        wxString targetName = aTargetDir + wxFileName::GetPathSeparator() + entryName;
+        wxFileOutputStream outFile(targetName);
+        if (! outFile.IsOk())
+        {
+            wxLogError(_T("Could not create output file '") + targetName + wxT("'."));
+            continue;
+        }
+        zip.Read(outFile); // Entry already open by 'GetNextEntry()'
+    }
+    return true;
 }
 
 // ========== Internal helpers ==========
