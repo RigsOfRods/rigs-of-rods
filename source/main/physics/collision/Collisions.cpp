@@ -966,11 +966,11 @@ int Collisions::enableCollisionTri(int number, bool enable)
     return 0;
 }
 
-bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, float* nso, ground_model_t** ogm)
+bool Collisions::NodeStaticGeometryCollision(node_t *node, float* nso, ground_model_t** ogm)
 {
-    bool smoky = false;
-    // float corrf=1.0;
-    Vector3 oripos = node->AbsPosition;
+    float dt = node->collTestTimer;
+    bool contacted = false;
+
     // find the correct cell
     int refx = (int)(node->AbsPosition.x/CELL_SIZE);
     int refz = (int)(node->AbsPosition.z/CELL_SIZE);
@@ -1021,10 +1021,7 @@ bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, float* ns
                             // collision, process as usual
                             // we have a collision
                             contacted=true;
-                            // setup smoke
-                            //float ns=node->Velocity.length();
-                            smoky=true;
-                            //*nso=ns;
+
                             // determine which side collided
                             float min=Pos.z-(cbox->relo).z;
                             Vector3 normal=Vector3(0,0,-1);
@@ -1064,10 +1061,7 @@ bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, float* ns
                     {
                         // we have a collision
                         contacted=true;
-                        // setup smoke
-                        //float ns=node->Velocity.length();
-                        smoky=true;
-                        //*nso=ns;
+
                         // determine which side collided
                         float min=node->AbsPosition.z-cbox->lo.z;
                         Vector3 normal=Vector3(0,0,-1);
@@ -1117,10 +1111,6 @@ bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, float* ns
     {
         // we have a contact
         contacted=true;
-        // setup smoke
-        //float ns=node->Velocity.length();
-        smoky=true;
-        //*nso=ns;
 
         // we need the normal
         // resume repere for the normal
@@ -1151,10 +1141,8 @@ bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, float* ns
         //node->Velocity=Vector3::ZERO;
 #endif
     }
-    // correct relative position too
-    if (contacted) node->RelPosition=node->RelPosition+(node->AbsPosition-oripos);
-    node->contacted=contacted;
-    return smoky;
+
+    return contacted;
 }
 
 
@@ -1269,7 +1257,7 @@ bool Collisions::isInside(Vector3 pos, collision_box_t *cbox, float border)
     return false;
 }
 
-bool Collisions::groundCollision(node_t *node, float dt, ground_model_t** ogm, float *nso)
+bool Collisions::NodeGroundCollision(node_t *node, ground_model_t** ogm, float *nso)
 {
     if (!hFinder) return false;
     if (landuse) *ogm = landuse->getGroundModelAt(node->AbsPosition.x, node->AbsPosition.z);
@@ -1283,7 +1271,7 @@ bool Collisions::groundCollision(node_t *node, float dt, ground_model_t** ogm, f
     {
         // collision!
         Ogre::Vector3 normal = hFinder->getNormalAt(node->AbsPosition.x, v, node->AbsPosition.z);
-        primitiveCollision(node, node->Forces, node->Velocity, normal, dt, *ogm, nso, v-node->AbsPosition.y);
+        primitiveCollision(node, node->Forces, node->Velocity, normal, node->collTestTimer, *ogm, nso, v-node->AbsPosition.y);
         return true;
     }
     return false;

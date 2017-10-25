@@ -1715,12 +1715,21 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
             if (nodes[i].contacted || nodes[i].collTestTimer > 0.005 || ((nodes[i].iswheel || nodes[i].wheelid != -1) && (high_res_wheelnode_collisions || nodes[i].collTestTimer > 0.0025)) || increased_accuracy)
             {
                 float ns = 0;
-                ground_model_t* gm = 0; // this is used as result storage, so we can use it later on
-                bool contacted = gEnv->collisions->groundCollision(&nodes[i], nodes[i].collTestTimer, &gm, &ns);
-                // reverted this construct to the old form, don't mess with it, the binary operator is intentionally!
-                if (contacted | gEnv->collisions->nodeCollision(&nodes[i], contacted, nodes[i].collTestTimer, &ns, &gm))
+                ground_model_t* gm = nullptr;
+                const Vector3 node_orig_pos = nodes[i].AbsPosition;
+                const bool ground_contact = gEnv->collisions->NodeGroundCollision(&nodes[i], &gm, &ns);
+                const bool static_contact = gEnv->collisions->NodeStaticGeometryCollision(&nodes[i], &ns, &gm);
+
+                nodes[i].contacted = (ground_contact || static_contact);
+                if (ground_contact || static_contact)
                 {
+                    // correct relative position
+                    nodes[i].RelPosition += (nodes[i].AbsPosition - node_orig_pos);
+
                     // FX
+                    // ## TODO: Instead of doing GFX/SFX right here right now using the sloppy 'doUpdate' flag,
+                    // ##       we should just record collision info and process FX in rendering thread.
+                    // ##       Good thing Skidmarks already work this way ~ only_a_ptr, 10/2017
                     if (gm && doUpdate && !nodes[i].disable_particles)
                     {
                         float thresold = 10.0f;
@@ -1742,7 +1751,8 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                                 SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_SCREETCH, (ns - thresold) / thresold);
                                 SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_SCREETCH);
 #endif //USE_OPENAL
-                                //Shouldn't skidmarks be activated from here?
+                                //Shouldn't skidmarks be activated from here? ~Max98, 2015
+                                // No, totally shouldn't. In fact, no GFX should be done here ~ only_a_ptr, 10/2017
                                 if (useSkidmarks)
                                 {
                                     wheels[nodes[i].wheelid].isSkiding = true;

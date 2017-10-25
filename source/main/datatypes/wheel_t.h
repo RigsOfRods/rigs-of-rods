@@ -58,11 +58,11 @@ struct wheel_t
     float       wh_width;
     int         wh_detacher_group;
     bool        wh_is_detached;
+    bool firstLock; // anti lock brake
 
     // for skidmarks
     Ogre::Vector3 lastContactInner;
     Ogre::Vector3 lastContactOuter;
-    bool firstLock;
     float lastSlip;
     int lastContactType;
     ground_model_t *lastGroundModel;
