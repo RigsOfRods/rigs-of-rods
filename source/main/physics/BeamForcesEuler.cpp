@@ -591,6 +591,15 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
             wheels[i].wh_arm_node->Forces -= cforce;
             wheels[i].wh_near_attach_node->Forces += cforce;
         }
+
+        // Gfx: skidmarks
+        if (! wheels[i].wfx_skidmark_fresh)
+        {
+            wheels[i].UpdateGfxSkidmarkSlip(0.f);
+            wheels[i].wfx_skidmark_node = nullptr;
+            wheels[i].wfx_skidmark_gm = nullptr;
+        }
+        wheels[i].wfx_skidmark_fresh = false;
     }
 
     // dashboard overlays for tc+alb
@@ -1711,11 +1720,13 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
         // COLLISION
         if (!nodes[i].contactless)
         {
+            float ns = 0;
+            ground_model_t* gm = nullptr;
+            bool contact = false;
+
             nodes[i].collTestTimer += dt;
             if (nodes[i].contacted || nodes[i].collTestTimer > 0.005 || ((nodes[i].iswheel || nodes[i].wheelid != -1) && (high_res_wheelnode_collisions || nodes[i].collTestTimer > 0.0025)) || increased_accuracy)
             {
-                float ns = 0;
-                ground_model_t* gm = nullptr;
                 const Vector3 node_orig_pos = nodes[i].AbsPosition;
                 const bool ground_contact = gEnv->collisions->NodeGroundCollision(&nodes[i], &gm, &ns);
                 const bool static_contact = gEnv->collisions->NodeStaticGeometryCollision(&nodes[i], &ns, &gm);
@@ -1723,6 +1734,8 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                 nodes[i].contacted = (ground_contact || static_contact);
                 if (ground_contact || static_contact)
                 {
+                    contact = true;
+
                     // correct relative position
                     nodes[i].RelPosition += (nodes[i].AbsPosition - node_orig_pos);
 
@@ -1747,24 +1760,6 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                             {
                                 if (dustp)
                                     dustp->allocSmoke(nodes[i].AbsPosition, nodes[i].Velocity);
-#ifdef USE_OPENAL
-                                SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_SCREETCH, (ns - thresold) / thresold);
-                                SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_SCREETCH);
-#endif //USE_OPENAL
-                                //Shouldn't skidmarks be activated from here? ~Max98, 2015
-                                // No, totally shouldn't. In fact, no GFX should be done here ~ only_a_ptr, 10/2017
-                                if (useSkidmarks)
-                                {
-                                    wheels[nodes[i].wheelid].isSkiding = true;
-                                    if (!(nodes[i].iswheel % 2))
-                                        wheels[nodes[i].wheelid].lastContactInner = nodes[i].AbsPosition;
-                                    else
-                                        wheels[nodes[i].wheelid].lastContactOuter = nodes[i].AbsPosition;
-
-                                    wheels[nodes[i].wheelid].lastContactType = (nodes[i].iswheel % 2);
-                                    wheels[nodes[i].wheelid].lastSlip = ns;
-                                    wheels[nodes[i].wheelid].lastGroundModel = gm;
-                                }
                             }
                             // sparks
                             if (!nodes[i].iswheel && ns > 1.0 && !nodes[i].disable_sparks)
@@ -1772,13 +1767,6 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                                 // friction < 10 will remove the 'f' nodes from the spark generation nodes
                                 if (sparksp)
                                     sparksp->allocSparks(nodes[i].AbsPosition, nodes[i].Velocity);
-                            }
-                            if (nodes[i].iswheel && ns < thresold)
-                            {
-                                if (useSkidmarks)
-                                {
-                                    wheels[nodes[i].wheelid].isSkiding = false;
-                                }
                             }
                             break;
 
@@ -1798,6 +1786,17 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                     lastFuzzyGroundModel = gm;
                 }
                 nodes[i].collTestTimer = 0.0;
+            }
+
+            // Fx: skidmarks
+            if (contact && (nodes[i].IsWheel()))
+            {
+                wheel_t& wheel = wheels[nodes[i].wheelid];
+
+                wheel.UpdateGfxSkidmarkSlip(ns);
+                wheel.wfx_skidmark_gm = gm;
+                wheel.wfx_skidmark_node = &nodes[i];
+                wheel.wfx_skidmark_fresh = true;
             }
         }
 

@@ -2839,15 +2839,21 @@ void Beam::updateSkidmarks()
 
     BES_START(BES_CORE_Skidmarks);
 
+    const float SLIP_THRESHOLD = 10.f; // TODO: copypaste from BeamForcesEuler.cpp; unify under GfxActor! ~ only_a_ptr, 10/2017
+
     for (int i = 0; i < free_wheel; i++)
     {
-        // ignore wheels without data
-        if (wheels[i].lastContactInner == Vector3::ZERO && wheels[i].lastContactOuter == Vector3::ZERO)
+        if ((wheels[i].wfx_skidmark_node == nullptr) || (wheels[i].wfx_skidmark_slip < SLIP_THRESHOLD))
             continue;
 
+#ifdef USE_OPENAL
+        float snd_modulation = (wheels[i].wfx_skidmark_slip - SLIP_THRESHOLD) / SLIP_THRESHOLD;
+        SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_SCREETCH, snd_modulation);
+        SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_SCREETCH);
+#endif //USE_OPENAL
+
         skidtrails[i]->updatePoint();
-        if (skidtrails[i] && wheels[i].isSkiding)
-            skidtrails[i]->update();
+        skidtrails[i]->update();
     }
 
     BES_STOP(BES_CORE_Skidmarks);

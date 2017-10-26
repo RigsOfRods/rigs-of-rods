@@ -19,6 +19,9 @@ struct node_t
     node_t()               { memset(this, 0, sizeof(node_t)); }
     node_t(size_t _pos)    { memset(this, 0, sizeof(node_t)); pos = static_cast<short>(_pos); }
 
+    inline bool IsWheel() const            { return iswheel != 0; }
+    inline bool IsWheelOuter() const       { return (iswheel != 0) && (iswheel % 2 != 0); }
+
     Ogre::Vector3 RelPosition; //!< relative to the local physics origin (one origin per truck) (shaky)
     Ogre::Vector3 AbsPosition; //!< absolute position in the world (shaky)
 

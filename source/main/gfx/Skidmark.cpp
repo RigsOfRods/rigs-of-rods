@@ -229,15 +229,15 @@ void RoR::Skidmark::SetPointInt(unsigned short index, const Ogre::Vector3& value
 
 void RoR::Skidmark::updatePoint()
 {
-    Ogre::Vector3 thisPoint = m_wheel->lastContactType ? m_wheel->lastContactOuter : m_wheel->lastContactInner;
-    Ogre::Vector3 axis = m_wheel->lastContactType 
+    Ogre::Vector3 thisPoint = m_wheel->wfx_skidmark_node->AbsPosition;
+    Ogre::Vector3 axis = m_wheel->wfx_skidmark_node->IsWheelOuter()
                          ? (m_wheel->wh_axis_node_1->RelPosition - m_wheel->wh_axis_node_0->RelPosition)
                          : (m_wheel->wh_axis_node_0->RelPosition - m_wheel->wh_axis_node_1->RelPosition);
     Ogre::Vector3 thisPointAV = thisPoint + axis * 0.5f;
     Ogre::Real distance = 0;
     Ogre::Real maxDist = m_max_distance;
     Ogre::String texture = "none";
-    m_config->getTexture("default", m_wheel->lastGroundModel->name, m_wheel->lastSlip, texture);
+    m_config->getTexture("default", m_wheel->wfx_skidmark_gm->name, m_wheel->wfx_skidmark_slip, texture);
 
     // dont add points with no texture
     if (texture == "none")
@@ -317,17 +317,17 @@ void RoR::Skidmark::updatePoint()
     // tactics: we always choose the latest point and then create two points
 
     // choose node m_wheel by the latest added point
-    if (!m_wheel->lastContactType)
+    if (!m_wheel->wfx_skidmark_node->IsWheelOuter())
     {
         // choose inner
-        this->AddPoint(m_wheel->lastContactInner - (axis * overaxis), distance, texture);
-        this->AddPoint(m_wheel->lastContactInner + axis + (axis * overaxis), distance, texture);
+        this->AddPoint(thisPoint - (axis * overaxis), distance, texture);
+        this->AddPoint(thisPoint + axis + (axis * overaxis), distance, texture);
     }
     else
     {
         // choose outer
-        this->AddPoint(m_wheel->lastContactOuter + axis + (axis * overaxis), distance, texture);
-        this->AddPoint(m_wheel->lastContactOuter - (axis * overaxis), distance, texture);
+        this->AddPoint(thisPoint + axis + (axis * overaxis), distance, texture);
+        this->AddPoint(thisPoint - (axis * overaxis), distance, texture);
     }
 
     // save as last point (in the middle of the m_wheel)

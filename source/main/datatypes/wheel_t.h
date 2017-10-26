@@ -38,6 +38,12 @@ struct wheel_t
         FOOT_ONLY             /// - 4 = yes footbrake, no  handbrake, no  direction control -- footbrake only, such as with the front wheels of a passenger car
     };
 
+    inline void UpdateGfxSkidmarkSlip(float slip_velo) // TODO: This shouldn't be here; refactor and move to GfxActor ~ only_a_ptr, 10/2017
+    {
+        const float SMOOTH_FACTOR = 0.7; // See https://en.wikipedia.org/wiki/Exponential_smoothing
+        wfx_skidmark_slip = (slip_velo * SMOOTH_FACTOR) + (wfx_skidmark_slip * (1.f - SMOOTH_FACTOR));
+    }
+
     int         wh_num_nodes;
     node_t*     wh_nodes[50];             // TODO: remove limit, make this dyn-allocated ~ only_a_ptr, 08/2017
     BrakeCombo  wh_braking;
@@ -60,15 +66,10 @@ struct wheel_t
     bool        wh_is_detached;
     bool        wh_alb_first_lock; // anti lock brake
 
-    // for skidmarks
-    Ogre::Vector3 lastContactInner;
-    Ogre::Vector3 lastContactOuter;
-    float lastSlip;
-    int lastContactType;
-    ground_model_t *lastGroundModel;
-
-    //skidmarks v2
-    bool isSkiding;
+    node_t*         wfx_skidmark_node;    ///< GFX state: current node touching ground
+    ground_model_t* wfx_skidmark_gm;      ///< GFX state: current ground surface in touch with wheel
+    float           wfx_skidmark_slip;    ///< GFX state: current slipping velocity
+    bool            wfx_skidmark_fresh;   ///< Helper flag: was there any contact in last physics tick?
 };
 
 /**
