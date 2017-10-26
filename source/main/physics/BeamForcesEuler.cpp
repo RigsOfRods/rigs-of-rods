@@ -460,10 +460,10 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
                 }
                 if (fabs(wheels[i].wh_speed) < 1.0f)
                 {
-                    if (wheels[i].firstLock)
+                    if (wheels[i].wh_alb_first_lock)
                     {
                         wheels[i].wh_avg_speed = 0.0f;
-                        wheels[i].firstLock = false;
+                        wheels[i].wh_alb_first_lock = false;
                     }
                     // anti-jitter
                     if (fabs(wheels[i].wh_avg_speed) < 2.0f)
@@ -486,7 +486,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
                 }
                 else
                 {
-                    wheels[i].firstLock = true;
+                    wheels[i].wh_alb_first_lock = true;
                 }
 
                 if (wheels[i].wh_speed > 0)
@@ -497,7 +497,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
         }
         else
         {
-            wheels[i].firstLock = true;
+            wheels[i].wh_alb_first_lock = true;
         }
 
         // traction control

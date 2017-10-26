@@ -58,7 +58,7 @@ struct wheel_t
     float       wh_width;
     int         wh_detacher_group;
     bool        wh_is_detached;
-    bool firstLock; // anti lock brake
+    bool        wh_alb_first_lock; // anti lock brake
 
     // for skidmarks
     Ogre::Vector3 lastContactInner;
