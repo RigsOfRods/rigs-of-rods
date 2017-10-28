@@ -530,6 +530,8 @@ if (WIN32)
     set(WXWIDGETS_VERSION 311u)
     set(WXWIDGETS_COMPILER vc_custom)
     post_build_copy_commands(DEPENDENCY_COPY_COMMANDS ${BINNAME}
+            # Angelscript
+            angelscript.dll
             # OGRE
             OgreMain.dll
             OgreOverlay.dll
