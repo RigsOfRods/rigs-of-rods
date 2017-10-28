@@ -103,8 +103,11 @@ target_link_libraries(RoRConfig PRIVATE
         ${optional_libs}
         version_info
 )
-INSTALL(TARGETS RoRConfig
-        RUNTIME DESTINATION games/RoR
-        LIBRARY DESTINATION games/RoR
-        ARCHIVE DESTINATION games/RoR
-)
+
+IF (UNIX)
+  INSTALL(TARGETS RoRConfig
+          RUNTIME DESTINATION games/RoR
+          LIBRARY DESTINATION games/RoR
+          ARCHIVE DESTINATION games/RoR
+  )
+ENDIF (UNIX)
