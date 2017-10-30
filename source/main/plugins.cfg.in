@@ -1,7 +1,7 @@
 # Defines plugins to load
 
 # Define plugin folder
-PluginFolder=/usr/lib/x86_64-linux-gnu/OGRE-1.9.0/
+PluginFolder=@OGRE_PLUGIN_DIR_REL@
 
 # Define plugins
 Plugin=RenderSystem_GL
@@ -9,6 +9,4 @@ Plugin=RenderSystem_GL3Plus
 Plugin=Plugin_ParticleFX
 Plugin=Plugin_OctreeSceneManager
 #Plugin=Plugin_CgProgramManager
-Plugin=libCaelum.so
-
-
+@CAELUM_PLUGIN@
