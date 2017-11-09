@@ -230,7 +230,7 @@ void RoR::Skidmark::SetPointInt(unsigned short index, const Ogre::Vector3& value
 void RoR::Skidmark::updatePoint()
 {
     Ogre::Vector3 thisPoint = m_wheel->wfx_skidmark_node->AbsPosition;
-    Ogre::Vector3 axis = m_wheel->wfx_skidmark_node->IsWheelOuter()
+    Ogre::Vector3 axis = (!m_wheel->wfx_skidmark_node->is_wheel_left_side)
                          ? (m_wheel->wh_axis_node_1->RelPosition - m_wheel->wh_axis_node_0->RelPosition)
                          : (m_wheel->wh_axis_node_0->RelPosition - m_wheel->wh_axis_node_1->RelPosition);
     Ogre::Vector3 thisPointAV = thisPoint + axis * 0.5f;
@@ -317,15 +317,13 @@ void RoR::Skidmark::updatePoint()
     // tactics: we always choose the latest point and then create two points
 
     // choose node m_wheel by the latest added point
-    if (!m_wheel->wfx_skidmark_node->IsWheelOuter())
+    if (m_wheel->wfx_skidmark_node->is_wheel_left_side)
     {
-        // choose inner
         this->AddPoint(thisPoint - (axis * overaxis), distance, texture);
         this->AddPoint(thisPoint + axis + (axis * overaxis), distance, texture);
     }
     else
     {
-        // choose outer
         this->AddPoint(thisPoint + axis + (axis * overaxis), distance, texture);
         this->AddPoint(thisPoint - (axis * overaxis), distance, texture);
     }

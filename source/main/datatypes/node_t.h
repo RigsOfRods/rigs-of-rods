@@ -19,9 +19,6 @@ struct node_t
     node_t()               { memset(this, 0, sizeof(node_t)); }
     node_t(size_t _pos)    { memset(this, 0, sizeof(node_t)); pos = static_cast<short>(_pos); }
 
-    inline bool IsWheel() const            { return iswheel != 0; }
-    inline bool IsWheelOuter() const       { return (iswheel != 0) && (iswheel % 2 != 0); }
-
     Ogre::Vector3 RelPosition; //!< relative to the local physics origin (one origin per truck) (shaky)
     Ogre::Vector3 AbsPosition; //!< absolute position in the world (shaky)
 
@@ -30,7 +27,11 @@ struct node_t
 
     Ogre::Real mass;
     float collTestTimer;
-    short iswheel; //!< 0=no, 1, 2=wheel1  3,4=wheel2, etc...
+
+    // 'iswheel' was a multipurpose 'short' before; these bitflags will be padded to 2 bytes by compiler because 'short' follows. ~ only_a_ptr, 11/2017
+    bool iswheel:1;
+    bool iswheel_net:1; // Ulteq's workarounds for networking: https://github.com/RigsOfRods/rigs-of-rods/commit/78a7ec2f1dc3a6c2a192f31532dd82f06302802e and https://github.com/RigsOfRods/rigs-of-rods/commit/194baf439e006058bb9f3b81aea16b169a2c20d6
+    bool is_wheel_left_side:1; // With regard to vehicle's orientation
     short locked;  //!< {UNLOCKED | PRELOCK | LOCKED}
 
     bool contacted;

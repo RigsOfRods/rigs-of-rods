@@ -196,13 +196,6 @@ enum {
     DEFAULT_DETACHER_GROUP  = 0, // default for detaching beam group
 };
 
-enum {
-    NOWHEEL,
-    WHEEL_DEFAULT,
-    WHEEL_2,
-    WHEEL_FLEXBODY
-};
-
 /* some info holding arrays */
 static const float flapangles[6] = {0.f, -0.07f, -0.17f, -0.33f, -0.67f, -1.f};
 

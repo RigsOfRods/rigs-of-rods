@@ -1789,7 +1789,7 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
             }
 
             // Fx: skidmarks
-            if (contact && (nodes[i].IsWheel()))
+            if (contact && nodes[i].iswheel)
             {
                 wheel_t& wheel = wheels[nodes[i].wheelid];
 

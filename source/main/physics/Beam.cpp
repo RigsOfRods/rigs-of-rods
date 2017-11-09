@@ -5743,7 +5743,7 @@ Beam::Beam(
     wheel_node_count = 0;
     for (int i = 0; i < free_node; i++)
     {
-        if (nodes[i].iswheel != NOWHEEL)
+        if (nodes[i].iswheel)
             wheel_node_count++;
     }
 
@@ -5751,7 +5751,7 @@ Beam::Beam(
     first_wheel_node = free_node;
     for (int i = 0; i < free_node; i++)
     {
-        if (nodes[i].iswheel == WHEEL_DEFAULT)
+        if (nodes[i].iswheel_net)
         {
             first_wheel_node = i;
             break;
