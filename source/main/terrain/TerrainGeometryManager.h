@@ -62,7 +62,7 @@ private:
     bool loadTerrainConfig(Ogre::String filename);
     void configureTerrainDefaults();
     void SetupGeometry(RoR::OTCPage& page, bool flat=false);
-    void SetupBlendMaps(RoR::OTCPage& page, Ogre::Terrain* t );
+    void SetupBlendMaps(RoR::OTCPage& page, Ogre::Terrain* t);
     void initTerrain();
     void SetupLayers(RoR::OTCPage& page, Ogre::Terrain *terrain);
     Ogre::DataStreamPtr getPageConfig(int x, int z);

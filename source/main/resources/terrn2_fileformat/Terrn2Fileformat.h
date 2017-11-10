@@ -70,6 +70,7 @@ struct Terrn2Def
     bool                     has_water;
     std::string              hydrax_conf_file;
     std::string              traction_map_file;
+    std::string              custom_material_name;
 };
 
 class Terrn2Parser
