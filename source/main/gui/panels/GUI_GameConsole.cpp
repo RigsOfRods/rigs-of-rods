@@ -235,40 +235,38 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
         // discard the empty message
         return;
     }
-    if (msg[0] == '/' || msg[0] == '\\')
-    {
         Ogre::StringVector args = StringUtil::split(msg, " ");
         sTextHistory[iText] = msg;
         iText++; //Used for text history
-        if (args[0] == "/help")
+        if (args[0] == "help")
         {
             putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_TITLE, _L("Available commands:"), "help.png");
-            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/help - information on commands (this)"), "help.png");
-            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/ver - shows the Rigs of Rods version"), "information.png");
-            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/pos - outputs the current position"), "world.png");
-            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/goto <x> <y> <z> - jumps to the mentioned position"), "world.png");
+            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("help - information on commands (this)"), "help.png");
+            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("ver - shows the Rigs of Rods version"), "information.png");
+            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("pos - outputs the current position"), "world.png");
+            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("goto <x> <y> <z> - jumps to the mentioned position"), "world.png");
 
             //if (gEnv->terrainManager->getHeightFinder()) //Not needed imo -max98
-            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/terrainheight - get height of terrain at current position"), "world.png");
+            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("terrainheight - get height of terrain at current position"), "world.png");
 
-            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/log - toggles log output on the console"), "table_save.png");
+            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("log - toggles log output on the console"), "table_save.png");
 
-            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/quit - exit Rigs of Rods"), "table_save.png");
+            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("quit - exit Rigs of Rods"), "table_save.png");
 
 #ifdef USE_ANGELSCRIPT
-            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/as <code here> - interpret angel code using console"), "script_go.png");
+            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("as <code here> - interpret angel code using console"), "script_go.png");
 #endif // USE_ANGELSCRIPT
 
-            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/gravity <real> or <text string> - changes gravity constant. Outputs current value if no argument is given"), "script_go.png");
+            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("gravity <real> or <text string> - changes gravity constant. Outputs current value if no argument is given"), "script_go.png");
             putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("Possible values: \n earth \n moon \n jupiter \n A random number (use negative)"), "script_go.png");
 
-            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("/setwaterlevel <real> - changes water's level"), "script_go.png");
+            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("setwaterlevel <real> - changes water's level"), "script_go.png");
 
             putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_TITLE, _L("Tips:"), "help.png");
             putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("- use Arrow Up/Down Keys in the InputBox to reuse old messages"), "information.png");
             return;
         }
-        else if (args[0] == "/gravity")
+        else if (args[0] == "gravity")
         {
             float gValue;
 
@@ -293,7 +291,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
             putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Gravity set to: ") + StringConverter::toString(gValue), "information.png");
             return;
         }
-        else if (args[0] == "/setwaterlevel")
+        else if (args[0] == "setwaterlevel")
         {
             if (gEnv->terrainManager && gEnv->terrainManager->getWater() && args.size() > 1)
             {
@@ -309,7 +307,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
             }
             return;
         }
-        else if (args[0] == "/pos" && (is_appstate_sim && !is_sim_select))
+        else if (args[0] == "pos" && (is_appstate_sim && !is_sim_select))
         {
             Beam* b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
             if (!b && gEnv->player)
@@ -325,11 +323,11 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 
             return;
         }
-        else if (args[0] == "/goto" && (is_appstate_sim && !is_sim_select))
+        else if (args[0] == "goto" && (is_appstate_sim && !is_sim_select))
         {
             if (args.size() != 4)
             {
-                putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, RoR::Color::CommandColour + _L("usage: /goto x y z"), "information.png");
+                putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, RoR::Color::CommandColour + _L("usage: goto x y z"), "information.png");
                 return;
             }
 
@@ -349,7 +347,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 
             return;
         }
-        else if (args[0] == "/terrainheight" && (is_appstate_sim && !is_sim_select))
+        else if (args[0] == "terrainheight" && (is_appstate_sim && !is_sim_select))
         {
             if (!gEnv->terrainManager->getHeightFinder())
                 return;
@@ -370,7 +368,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 
             return;
         }
-        else if (args[0] == "/ver")
+        else if (args[0] == "ver")
         {
             putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_TITLE, "Rigs of Rods:", "information.png");
             putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, " Version: " + String(ROR_VERSION_STRING), "information.png");
@@ -378,13 +376,13 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
             putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, " build time: " + String(ROR_BUILD_DATE) + ", " + String(ROR_BUILD_TIME), "information.png");
             return;
         }
-        else if (args[0] == "/quit")
+        else if (args[0] == "quit")
         {
             RoR::App::app_state.SetPending(RoR::AppState::SHUTDOWN);
             return;
         }
 #ifdef USE_ANGELSCRIPT
-        else if (args[0] == "/as" && (is_appstate_sim && !is_sim_select))
+        else if (args[0] == "as" && (is_appstate_sim && !is_sim_select))
         {
             // we want to notify any running scripts that we might change something (prevent cheating)
             ScriptEngine::getSingleton().triggerEvent(SE_ANGELSCRIPT_MANIPULATIONS);
@@ -401,7 +399,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
             return;
         }
 #endif //ANGELSCRIPT
-        else if (args[0] == "/log")
+        else if (args[0] == "log")
         {
             // switch to console logging
             bool now_logging = !App::diag_log_console_echo.GetActive();
@@ -415,5 +413,5 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
             //TODO: Angelscript here
             putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_ERROR, _L("unknown command: ") + msg, "error.png");
         }
-    }
+    
 }
