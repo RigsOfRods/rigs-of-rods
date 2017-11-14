@@ -325,7 +325,7 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
     {
         if ((m_sim_controller->GetBeamFactory()->getCurrentTruckNumber() != -1) && (m_sim_controller != nullptr))
         {
-            m_sim_controller->ReloadCurrentTruck(); // TODO: Use SIM_STATE + 'pending' mechanisms
+            m_sim_controller->ReloadCurrentActor(); // TODO: Use SIM_STATE + 'pending' mechanisms
             gui_man->UnfocusGui();
         }
     }

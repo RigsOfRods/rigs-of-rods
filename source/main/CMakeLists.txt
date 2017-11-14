@@ -111,6 +111,15 @@ set(SOURCE_FILES
         gui/GUIManager.{h,cpp}
         gui/OverlayWrapper.{h,cpp}
         gui/RTTLayer.{h,cpp}
+        gui/imgui/imgui.{h,cpp}
+        gui/imgui/imgui_demo.cpp
+        gui/imgui/imgui_draw.cpp
+        gui/imgui/OgreImGui.{h,cpp}
+        gui/imgui/imconfig.h
+        gui/imgui/imgui_internal.h
+        gui/imgui/stb_rect_pack.h
+        gui/imgui/stb_textedit.h
+        gui/imgui/stb_truetype.h
         gui/mygui/Attribute.h
         gui/mygui/BaseLayout.h
         gui/mygui/Dialog.{h,cpp}
@@ -305,6 +314,7 @@ target_include_directories(${BINNAME} PRIVATE
         gfx/particle
         gfx/procedural
         gui
+        gui/imgui
         gui/mygui
         gui/panels
         network
