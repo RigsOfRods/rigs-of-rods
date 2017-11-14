@@ -20,6 +20,7 @@
 
 #include "Landusemap.h"
 
+#include "Application.h"
 #include "Collisions.h"
 #include "ErrorUtils.h"
 #include "Language.h"

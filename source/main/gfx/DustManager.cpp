@@ -36,7 +36,7 @@ void DustManager::DustManCheckAndInit(Ogre::SceneManager* sm)
     {
         return;
     }
-    mEnabled = RoR::App::GetGfxParticlesMode() == 1;
+    mEnabled = RoR::App::gfx_particles_mode.GetActive() == 1;
 
     if (mEnabled)
     {

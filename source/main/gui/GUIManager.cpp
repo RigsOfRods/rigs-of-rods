@@ -27,6 +27,7 @@
 #include "Application.h"
 #include "BeamFactory.h"
 #include "ContentManager.h"
+#include "InputEngine.h"
 #include "Language.h"
 #include "OgreSubsystem.h"
 #include "RoRWindowEventUtilities.h"
@@ -40,7 +41,6 @@
 #include "GUI_GameMainMenu.h"
 #include "GUI_GameAbout.h"
 #include "GUI_GameConsole.h"
-#include "GUI_GameSettings.h"
 #include "GUI_GamePauseMenu.h"
 #include "GUI_GameChatBox.h"
 #include "GUI_LoadingWindow.h"
@@ -71,7 +71,6 @@ struct GuiManagerImpl
 
     GUI::GameMainMenu           panel_GameMainMenu;
     GUI::GameAbout              panel_GameAbout;
-    GUI::GameSettings           panel_GameSettings;
     GUI::GamePauseMenu          panel_GamePauseMenu;
     GUI::DebugOptions           panel_DebugOptions;
     GUI::SimUtils               panel_SimUtils;
@@ -95,7 +94,6 @@ struct GuiManagerImpl
 
 void GUIManager::SetVisible_GameMainMenu        (bool v) { m_impl->panel_GameMainMenu       .SetVisible(v); }
 void GUIManager::SetVisible_GameAbout           (bool v) { m_impl->panel_GameAbout          .SetVisible(v); }
-void GUIManager::SetVisible_GameSettings        (bool v) { m_impl->panel_GameSettings       .SetVisible(v); }
 void GUIManager::SetVisible_GamePauseMenu       (bool v) { m_impl->panel_GamePauseMenu      .SetVisible(v); }
 void GUIManager::SetVisible_DebugOptions        (bool v) { m_impl->panel_DebugOptions       .SetVisible(v); }
 void GUIManager::SetVisible_MultiplayerSelector (bool v) { m_impl->panel_MultiplayerSelector.SetVisible(v); }
@@ -112,7 +110,6 @@ void GUIManager::SetVisible_Console             (bool v) { m_impl->panel_GameCon
 
 bool GUIManager::IsVisible_GameMainMenu         () { return m_impl->panel_GameMainMenu       .IsVisible(); }
 bool GUIManager::IsVisible_GameAbout            () { return m_impl->panel_GameAbout          .IsVisible(); }
-bool GUIManager::IsVisible_GameSettings         () { return m_impl->panel_GameSettings       .IsVisible(); }
 bool GUIManager::IsVisible_GamePauseMenu        () { return m_impl->panel_GamePauseMenu      .IsVisible(); }
 bool GUIManager::IsVisible_DebugOptions         () { return m_impl->panel_DebugOptions       .IsVisible(); }
 bool GUIManager::IsVisible_MessageBox           () { return m_impl->panel_MessageBox         .IsVisible(); }
@@ -147,13 +144,14 @@ GUIManager::GUIManager() :
     RoR::App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(this);
     RoRWindowEventUtilities::addWindowEventListener(RoR::App::GetOgreSubsystem()->GetRenderWindow(), this);
 
-    std::string gui_logfilename = App::GetSysLogsDir() + PATH_SLASH + "MyGUI.log";
+    GStr<300> gui_logpath;
+    gui_logpath << App::sys_logs_dir.GetActive() << PATH_SLASH << "MyGUI.log";
     auto mygui_platform = new MyGUI::OgrePlatform();
     mygui_platform->initialise(
         RoR::App::GetOgreSubsystem()->GetRenderWindow(), 
         gEnv->sceneManager,
         Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME,
-        gui_logfilename); // use cache resource group so preview images are working
+        gui_logpath.GetBuffer()); // use cache resource group so preview images are working
     auto mygui = new MyGUI::Gui();
 
     // empty init
@@ -382,9 +380,9 @@ void GUIManager::SetMouseCursorVisible(bool visible)
 
 void GUIManager::ReflectGameState()
 {
-    const auto app_state = App::GetActiveAppState();
-    const auto mp_state  = App::GetActiveMpState();
-    if (app_state == App::APP_STATE_MAIN_MENU)
+    const auto app_state = App::app_state.GetActive();
+    const auto mp_state  = App::mp_state.GetActive();
+    if (app_state == AppState::MAIN_MENU)
     {
         m_impl->panel_GameMainMenu       .SetVisible(!m_impl->panel_MainSelector.IsVisible());
 
@@ -398,10 +396,10 @@ void GUIManager::ReflectGameState()
         m_impl->panel_VehicleDescription .SetVisible(false);
         m_impl->panel_SpawnerReport      .SetVisible(false);
         m_impl->panel_SimUtils           .SetBaseVisible(false);
-        m_impl->panel_MpClientList       .SetVisible(mp_state == App::MP_STATE_CONNECTED);
+        m_impl->panel_MpClientList       .SetVisible(mp_state == MpState::CONNECTED);
         return;
     }
-    if (app_state == App::APP_STATE_SIMULATION)
+    if (app_state == AppState::SIMULATION)
     {
         m_impl->panel_TopMenubar         .SetVisible(true);
         m_impl->panel_TopMenubar         .ReflectMultiplayerState();

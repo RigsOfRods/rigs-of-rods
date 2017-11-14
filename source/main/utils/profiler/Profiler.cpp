@@ -27,6 +27,7 @@
 #endif
 
 #include "RoRPrerequisites.h"
+#include "Application.h"
 
 #include <stdio.h>
 #include <string.h>

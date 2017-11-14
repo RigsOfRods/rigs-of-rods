@@ -866,12 +866,12 @@ void BeamEngine::toggleAutoMode()
     }
 }
 
-RoR::App::SimGearboxMode BeamEngine::getAutoMode()
+RoR::SimGearboxMode BeamEngine::getAutoMode()
 {
-    return (RoR::App::SimGearboxMode)this->automode;
+    return (RoR::SimGearboxMode)this->automode;
 }
 
-void BeamEngine::setAutoMode(RoR::App::SimGearboxMode mode)
+void BeamEngine::setAutoMode(RoR::SimGearboxMode mode)
 {
     this->automode = (shiftmodes)mode;
 }

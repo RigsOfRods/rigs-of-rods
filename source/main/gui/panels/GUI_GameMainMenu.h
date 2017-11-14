@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2014-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -29,7 +29,6 @@
 #include "GUI_GameMainMenuLayout.h"
 
 #include "GUI_GameAbout.h"
-#include "GUI_GameSettings.h"
 
 namespace RoR {
 namespace GUI {

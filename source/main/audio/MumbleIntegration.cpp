@@ -27,9 +27,11 @@
 
 #include "MumbleIntegration.h"
 
-#include <Ogre.h>
 #include "Settings.h"
 #include "Application.h"
+
+#include <Ogre.h>
+#include <MyGUI_UString.h>
 
 using namespace Ogre;
 
@@ -153,9 +155,8 @@ void MumbleIntegration::update(Ogre::Vector3 cameraPos, Ogre::Vector3 cameraDir,
     lm->fCameraTop[2] = -cameraUp.z;
 
     // Identifier which uniquely identifies a certain player in a context (e.g. the ingame Name).
-    std::wstring wplayername;
-    wplayername.assign(RoR::App::GetMpPlayerName().begin(), RoR::App::GetMpPlayerName().end());
-    wcsncpy(lm->identity, wplayername.c_str(), 256);
+    MyGUI::UString player_name(RoR::App::mp_player_name.GetActive());
+    wcsncpy(lm->identity, player_name.asWStr_c_str(), 256);
 
     // Context should be equal for players which should be able to hear each other _positional_ and
     // differ for those who shouldn't (e.g. it could contain the server+port and team)
@@ -167,9 +168,9 @@ void MumbleIntegration::update(Ogre::Vector3 cameraPos, Ogre::Vector3 cameraDir,
     // so we should take that into account as well
 
     int teamID = 0; // RoR currently doesn't have any kind of team-based gameplay
-    int port = RoR::App::GetMpServerPort();
+    int port = RoR::App::mp_server_port.GetActive();
     port = (port != 0) ? port : 1337;
-    sprintf((char *)lm->context, "%s:%s|%d", RoR::App::GetMpServerHost().c_str(), TOSTRING(port).c_str(), teamID);
+    sprintf((char *)lm->context, "%s:%s|%d", RoR::App::mp_server_host.GetActive(), TOSTRING(port).c_str(), teamID);
     lm->context_len = (int)strnlen((char *)lm->context, 256);
 }
 

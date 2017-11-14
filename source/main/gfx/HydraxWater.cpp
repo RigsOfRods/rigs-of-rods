@@ -144,7 +144,7 @@ void HydraxWater::setVisible(bool value)
 
 float HydraxWater::getHeightWaves(Vector3 pos)
 {
-    if (!RoR::App::GetGfxWaterUseWaves())
+    if (!RoR::App::gfx_water_waves.GetActive())
     {
         return waterHeight;
     }
@@ -154,7 +154,7 @@ float HydraxWater::getHeightWaves(Vector3 pos)
 
 Vector3 HydraxWater::getVelocity(Vector3 pos)
 {
-    if (!RoR::App::GetGfxWaterUseWaves())
+    if (!RoR::App::gfx_water_waves.GetActive())
         return Vector3(0, 0, 0);
 
     return Vector3(0, 0, 0); //TODO

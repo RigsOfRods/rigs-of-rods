@@ -88,7 +88,7 @@ ScriptEngine::ScriptEngine(Collisions *coll) :
     setSingleton(this);
 
     // create our own log
-    scriptLog = LogManager::getSingleton().createLog(App::GetSysLogsDir() + PATH_SLASH + "Angelscript.log", false);
+    scriptLog = LogManager::getSingleton().createLog(std::string(App::sys_logs_dir.GetActive()) + PATH_SLASH + "Angelscript.log", false);
 
     // init not earlier, otherwise crash
     this->init();
@@ -862,7 +862,7 @@ int ScriptEngine::loadScript(String _scriptName)
         // save the bytecode
         scriptHash = builder.getHash();
         {
-            String filepath = App::GetSysCacheDir() + PATH_SLASH + "script" + scriptHash + "_" + scriptName + "c";
+            String filepath = std::string(App::sys_cache_dir.GetActive()) + PATH_SLASH + "script" + scriptHash + "_" + scriptName + "c";
             SLOG("saving script bytecode to file " + filepath);
             CBytecodeStream bstream(filepath);
             mod->SaveByteCode(&bstream);

@@ -41,7 +41,7 @@ void CameraBehaviorVehicle::update(const CameraManager::CameraContext &ctx)
 	targetDirection = -atan2(dir.dotProduct(Vector3::UNIT_X), dir.dotProduct(-Vector3::UNIT_Z));
 	targetPitch     = 0.0f;
 
-	if ( RoR::App::GetGfxExternCamMode() == RoR::App::GFX_EXTCAM_MODE_PITCHING)
+	if ( RoR::App::gfx_extcam_mode.GetActive() == RoR::GfxExtCamMode::PITCHING)
 	{
 		targetPitch = -asin(dir.dotProduct(Vector3::UNIT_Y));
 	}

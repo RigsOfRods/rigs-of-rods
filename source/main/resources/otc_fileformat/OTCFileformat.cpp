@@ -21,14 +21,14 @@
 /// @author Petr Ohlidal, 11/2016
 
 #include "OTCFileformat.h"
+
+#include "Application.h"
+#include "BeamConstants.h"
 #include "ConfigFile.h"
 #include "Utils.h"
-#include "BeamConstants.h"
-#include "RoRPrerequisites.h"
-
-#include <OgreException.h>
 
 #include <algorithm>
+#include <OgreException.h>
 
 bool RoR::OTCParser::LoadMasterConfig(Ogre::DataStreamPtr &ds, const char* filename)
 {
