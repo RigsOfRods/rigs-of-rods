@@ -33,8 +33,7 @@
 
 namespace RoR {
 
-/** Adds direct parsing of custom types.
-*/
+/// Adds direct parsing of custom types.
 class ConfigFile: public Ogre::ConfigFile
 {
 public:

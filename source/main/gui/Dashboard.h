@@ -20,14 +20,9 @@
 
 #pragma once
 
-#include <Ogre.h>
-
 #include "RoRPrerequisites.h"
 
-// Forward
-namespace Ogre {
-class Overlay;
-}
+#include <Ogre.h>
 
 /////////////////////////////////////////////////////////////////////////////
 // TODO: Rename these classes! Danger of confusion with 'class DashBoard'. //

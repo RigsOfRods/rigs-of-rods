@@ -30,9 +30,6 @@
 #include <OgreHardwareBuffer.h>
 #include <string>
 
-// Forward decl
-namespace RoR { class FlexFactory; }
-
 /// Consists of static mesh, representing the rim, and dynamic mesh, representing the tire.
 class FlexMeshWheel: public Flexable
 {

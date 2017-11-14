@@ -22,6 +22,8 @@
 /// @file
 /// @author Petr Ohlidal, 11/2016
 
+#include "ForwardDeclarations.h"
+
 #include <string>
 #include <list>
 
@@ -30,8 +32,6 @@
 #include <OgreVector3.h>
 
 namespace RoR {
-
-class ConfigFile; // Forward
 
 struct Terrn2Author
 {
