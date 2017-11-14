@@ -34,9 +34,6 @@
 
 namespace RoR {
 
-// Forward
-namespace GUI { class SimUtils; class TopMenubar; class TeleportWindow; }
-
 class GUIManager :
     public GUIInputManager
     , public Ogre::FrameListener

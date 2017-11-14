@@ -4,6 +4,25 @@
 // See file 'README-OgreImGui.txt' for details
 // -------------------------------------------
 
+/*
+    This source file is part of Rigs of Rods
+    Copyright 2016-2017 Petr Ohlidal & contributors
+
+    For more information, see http://www.rigsofrods.org/
+
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
+
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "OgreImGui.h"
 
 #include <imgui.h>
@@ -67,7 +86,7 @@ void OgreImGui::InjectMouseMoved( const OIS::MouseEvent &arg )
 void OgreImGui::InjectMousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
 {
     ImGuiIO& io = ImGui::GetIO();
-    if(id<5)
+    if (id<5)
     {
         io.MouseDown[id] = true;
     }
@@ -76,7 +95,7 @@ void OgreImGui::InjectMousePressed( const OIS::MouseEvent &arg, OIS::MouseButton
 void OgreImGui::InjectMouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
 {
     ImGuiIO& io = ImGui::GetIO();
-    if(id<5)
+    if (id<5)
     {
         io.MouseDown[id] = false;
     }
@@ -88,7 +107,7 @@ void OgreImGui::InjectKeyPressed( const OIS::KeyEvent &arg )
     ImGuiIO& io = ImGui::GetIO();
     io.KeysDown[arg.key] = true;
 
-    if(arg.text>0)
+    if (arg.text>0)
     {
         io.AddInputCharacter((unsigned short)arg.text);
     }
@@ -103,24 +122,25 @@ void OgreImGui::InjectKeyReleased( const OIS::KeyEvent &arg )
 void OgreImGui::updateVertexData()
 {
     int currentFrame = ImGui::GetFrameCount();
-    if(currentFrame == mLastRenderedFrame)
+    if (currentFrame == mLastRenderedFrame)
     {
         return ;
     }
     mLastRenderedFrame=currentFrame;
 
     ImDrawData* draw_data = ImGui::GetDrawData();
-    while(mRenderables.size()<draw_data->CmdListsCount)
+    size_t cmd_list_count = static_cast<size_t>(draw_data->CmdListsCount);
+    while(mRenderables.size() < cmd_list_count)
     {
         mRenderables.push_back(new ImGUIRenderable());
     }
-    while(mRenderables.size()>draw_data->CmdListsCount)
+    while(mRenderables.size() > cmd_list_count)
     {
         delete mRenderables.back();
         mRenderables.pop_back();
     }
     unsigned int index=0;
-    for(std::list<ImGUIRenderable*>::iterator it = mRenderables.begin();it!=mRenderables.end();++it,++index)
+    for (std::list<ImGUIRenderable*>::iterator it = mRenderables.begin();it!=mRenderables.end();++it,++index)
     {
         (*it)->updateVertexData(draw_data,index);
     }
@@ -128,7 +148,7 @@ void OgreImGui::updateVertexData()
 
 void OgreImGui::renderQueueEnded(Ogre::uint8 queueGroupId, const Ogre::String& invocation,bool& repeatThisInvocation)
 {
-    if((queueGroupId != Ogre::RENDER_QUEUE_OVERLAY) || (invocation == "SHADOWS"))
+    if ((queueGroupId != Ogre::RENDER_QUEUE_OVERLAY) || (invocation == "SHADOWS"))
     {
         return;
     }
@@ -303,12 +323,12 @@ void OgreImGui::createMaterial()
 
     Ogre::HighLevelGpuProgramPtr vertexShaderGL = mgr.getByName("imgui/VP/GL150");
     Ogre::HighLevelGpuProgramPtr pixelShaderGL = mgr.getByName("imgui/FP/GL150");
-    
-    if(vertexShaderUnified.isNull())
+
+    if (vertexShaderUnified.isNull())
     {
         vertexShaderUnified = mgr.createProgram("imgui/VP",Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,"unified",Ogre::GPT_VERTEX_PROGRAM);
     }
-    if(pixelShaderUnified.isNull())
+    if (pixelShaderUnified.isNull())
     {
         pixelShaderUnified = mgr.createProgram("imgui/FP",Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,"unified",Ogre::GPT_FRAGMENT_PROGRAM);
     }
@@ -417,11 +437,6 @@ void OgreImGui::createFontTexture()
 
     // Unlock
     mFontTex->getBuffer()->unlock();
-
-    // Save the texture for inspection
-    Ogre::Image outImage;
-    mFontTex->convertToImage(outImage);
-    outImage.save("FontTexture_" + Ogre::Root::getSingleton().getRenderSystem()->getName() + ".png");
 }
 
 void OgreImGui::NewFrame(float deltaTime,const Ogre::Rect & windowRect, bool ctrl, bool alt, bool shift)
@@ -464,16 +479,16 @@ void OgreImGui::ImGUIRenderable::initImGUIRenderable(void)
     mRenderOp.vertexData = OGRE_NEW Ogre::VertexData();
     mRenderOp.indexData  = OGRE_NEW Ogre::IndexData();
 
-    mRenderOp.vertexData->vertexCount   = 0;
-    mRenderOp.vertexData->vertexStart   = 0;
+    mRenderOp.vertexData->vertexCount = 0;
+    mRenderOp.vertexData->vertexStart = 0;
 
     mRenderOp.indexData->indexCount = 0;
     mRenderOp.indexData->indexStart = 0;
-    mRenderOp.operationType             = Ogre::RenderOperation::OT_TRIANGLE_LIST;
-    mRenderOp.useIndexes                                    = true; 
-    mRenderOp.useGlobalInstancingVertexBufferIsAvailable    = false;
+    mRenderOp.operationType = Ogre::RenderOperation::OT_TRIANGLE_LIST;
+    mRenderOp.useIndexes  = true; 
+    mRenderOp.useGlobalInstancingVertexBufferIsAvailable = false;
 
-    Ogre::VertexDeclaration* decl     = mRenderOp.vertexData->vertexDeclaration;
+    Ogre::VertexDeclaration* decl = mRenderOp.vertexData->vertexDeclaration;
         
     // vertex declaration
     size_t offset = 0;
@@ -483,8 +498,6 @@ void OgreImGui::ImGUIRenderable::initImGUIRenderable(void)
     offset += Ogre::VertexElement::getTypeSize( Ogre::VET_FLOAT2 );
     decl->addElement(0,offset,Ogre::VET_COLOUR,Ogre::VES_DIFFUSE);
 
-        
-        // set basic white material
     this->setMaterial( "imgui/material" );
 }
 
@@ -496,7 +509,7 @@ OgreImGui::ImGUIRenderable::~ImGUIRenderable()
 void OgreImGui::ImGUIRenderable::setMaterial( const Ogre::String& matName )
 {
     mMaterial = Ogre::MaterialManager::getSingleton().getByName( matName );
-    if( !mMaterial.isNull() )
+    if ( !mMaterial.isNull() )
     {
         return;
     }
@@ -563,8 +576,8 @@ void OgreImGui::ImGUIRenderable::getRenderOperation(Ogre::RenderOperation& op)
 
 const Ogre::LightList& OgreImGui::ImGUIRenderable::getLights(void) const
 {
-    static const Ogre::LightList l;
-    return l;
+    static const Ogre::LightList light_list;
+    return light_list;
 }
 
 void OgreImGui::StartRendering(Ogre::SceneManager* scene_mgr)
