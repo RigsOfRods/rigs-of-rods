@@ -123,7 +123,7 @@ Collisions::Collisions(RoRFrameListener* sim_controller)
 {
     hFinder = gEnv->terrainManager->getHeightFinder();
 
-    debugMode = RoR::App::GetDiagCollisions(); // TODO: make interactive
+    debugMode = RoR::App::diag_collisions.GetActive(); // TODO: make interactive - do not copy the value, use GVar directly
     for (int i=0; i < HASH_POWER; i++)
     {
         hashmask = hashmask << 1;
@@ -147,7 +147,7 @@ Collisions::~Collisions()
 
 int Collisions::loadDefaultModels()
 {
-    return loadGroundModelsConfigFile(RoR::App::GetSysConfigDir() + PATH_SLASH + "ground_models.cfg");
+    return loadGroundModelsConfigFile(std::string(RoR::App::sys_config_dir.GetActive()) + PATH_SLASH + "ground_models.cfg");
 }
 
 int Collisions::loadGroundModelsConfigFile(Ogre::String filename)

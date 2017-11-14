@@ -174,9 +174,6 @@ public:
 
     int getTimeStamp();
 
-    // this location MUST include a path separator at the end!
-    void setLocation(Ogre::String cachepath, Ogre::String configpath);
-    
     // this is for stats only, maybe protect it by getter later
     int changedFiles, newFiles, deletedFiles;
 

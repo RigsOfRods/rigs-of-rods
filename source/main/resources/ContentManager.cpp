@@ -129,7 +129,7 @@ void ContentManager::AddResourcePack(ResourcePack const& resource_pack)
         return;
     }
     log_msg << "[RoR|ContentManager] Loading resource pack \"" << resource_pack.name << "\" from group \"" << resource_pack.resource_group_name << "\"";
-    Ogre::String resources_dir = App::GetSysResourcesDir() + PATH_SLASH;
+    Ogre::String resources_dir = Ogre::String(App::sys_resources_dir.GetActive()) + PATH_SLASH;
     Ogre::String zip_path = resources_dir + resource_pack.name + Ogre::String(".zip");
     if (PlatformUtils::FileExists(zip_path))
     {
@@ -213,17 +213,17 @@ bool ContentManager::init(void)
     LOG("RoR|ContentManager: Loading filesystems");
 
 #if OGRE_VERSION_MAJOR >= 1 && OGRE_VERSION_MINOR >= 9
-    ResourceGroupManager::getSingleton().addResourceLocation(App::GetSysCacheDir(), "FileSystem", "cache", false, false);
+    ResourceGroupManager::getSingleton().addResourceLocation(App::sys_cache_dir.GetActive(), "FileSystem", "cache", false, false);
 #else
-    ResourceGroupManager::getSingleton().addResourceLocation(App::GetSysCacheDir(), "FileSystem", "cache");
+    ResourceGroupManager::getSingleton().addResourceLocation(std::string(App::sys_cache_dir.GetActive()), "FileSystem", "cache");
 #endif
 
     // config, flat
-    ResourceGroupManager::getSingleton().addResourceLocation(App::GetSysConfigDir(), "FileSystem", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+    ResourceGroupManager::getSingleton().addResourceLocation(std::string(RoR::App::sys_config_dir.GetActive()), "FileSystem", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
     // packs, to be processed later by the cache system
 
     // add scripts folder
-    ResourceGroupManager::getSingleton().addResourceLocation(App::GetSysUserDir() + PATH_SLASH + "scripts", "FileSystem", "Scripts");
+    ResourceGroupManager::getSingleton().addResourceLocation(std::string(App::sys_user_dir.GetActive()) + PATH_SLASH + "scripts", "FileSystem", "Scripts");
 
     // init skin manager, important to happen before trucks resource loading!
     LOG("RoR|ContentManager: Registering Skin Manager");
@@ -238,16 +238,12 @@ bool ContentManager::init(void)
         TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
     TextureFilterOptions tfo = TFO_NONE;
-    switch (App::GetGfxTexFiltering())
+    switch (App::gfx_texture_filter.GetActive())
     {
-    case App::GFX_TEXFILTER_ANISOTROPIC: tfo = TFO_ANISOTROPIC;
-        break;
-    case App::GFX_TEXFILTER_TRILINEAR: tfo = TFO_TRILINEAR;
-        break;
-    case App::GFX_TEXFILTER_BILINEAR: tfo = TFO_BILINEAR;
-        break;
-    case App::GFX_TEXFILTER_NONE: tfo = TFO_NONE;
-        break;
+    case GfxTexFilter::ANISOTROPIC: tfo = TFO_ANISOTROPIC;        break;
+    case GfxTexFilter::TRILINEAR:   tfo = TFO_TRILINEAR;          break;
+    case GfxTexFilter::BILINEAR:    tfo = TFO_BILINEAR;           break;
+    case GfxTexFilter::NONE:        tfo = TFO_NONE;               break;
     }
     MaterialManager::getSingleton().setDefaultAnisotropy(8);
     MaterialManager::getSingleton().setDefaultTextureFiltering(tfo);
@@ -270,7 +266,7 @@ bool ContentManager::init(void)
 #endif // USE_OPENAL
 
     // and the content
-    std::string content_base = App::GetSysUserDir() + PATH_SLASH;
+    std::string content_base = std::string(App::sys_user_dir.GetActive()) + PATH_SLASH;
     ResourceGroupManager::getSingleton().addResourceLocation(content_base + "packs", "FileSystem", "Packs", true);
     ResourceGroupManager::getSingleton().addResourceLocation(content_base + "mods", "FileSystem", "Packs", true);
 
@@ -375,10 +371,10 @@ void ContentManager::exploreFolders(Ogre::String rg)
 
 void ContentManager::InitManagedMaterials()
 {
-    Ogre::String managed_materials_dir = App::GetSysResourcesDir() + PATH_SLASH + "managed_materials" + PATH_SLASH;
+    Ogre::String managed_materials_dir = Ogre::String(App::sys_resources_dir.GetActive()) + PATH_SLASH + "managed_materials" + PATH_SLASH;
 
     //Dirty, needs to be improved
-    if (App::GetGfxShadowType() == App::GFX_SHADOW_TYPE_PSSM)
+    if (App::gfx_shadow_type.GetActive() == GfxShadowType::PSSM)
         ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir + "shadows/pssm/on/", "FileSystem", "ShadowsMats");
     else
         ResourceGroupManager::getSingleton().addResourceLocation(managed_materials_dir + "shadows/pssm/off/", "FileSystem", "ShadowsMats");

@@ -131,16 +131,15 @@ CacheSystem::CacheSystem() :
     known_extensions.push_back("trailer");
     known_extensions.push_back("load");
     known_extensions.push_back("train");
+
+    // TODO: Use GVars directly, don't copy values
+    // this location MUST include a path separator at the end!
+    location       = Ogre::String(App::sys_cache_dir.GetActive())  + PATH_SLASH;
+    configlocation = Ogre::String(App::sys_config_dir.GetActive()) + PATH_SLASH;
 }
 
 CacheSystem::~CacheSystem()
 {
-}
-
-void CacheSystem::setLocation(String cachepath, String configpath)
-{
-    location = cachepath;
-    configlocation = configpath;
 }
 
 void CacheSystem::Startup(bool force_check)

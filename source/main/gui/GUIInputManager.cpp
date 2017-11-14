@@ -113,7 +113,7 @@ bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
 
     MyGUI::PointerManager::getInstance().setPointer("arrow");
 
-    if (RoR::App::GetActiveSimState() == RoR::App::SIM_STATE_PAUSED)
+    if (RoR::App::sim_state.GetActive() == RoR::SimState::PAUSED)
     {
         MyGUI::InputManager::getInstance().injectMouseMove(mCursorX, mCursorY, _arg.state.Z.abs);
         mCursorX = _arg.state.X.abs;

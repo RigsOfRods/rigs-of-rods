@@ -37,6 +37,7 @@
 #include "GUIManager.h"
 #include "Application.h"
 #include "OgreSubsystem.h"
+#include "Settings.h"
 
 using namespace RoR;
 using namespace GUI;
@@ -122,7 +123,7 @@ void CLASS::eventCommandAccept(MyGUI::Edit* _sender)
     }
 
 #ifdef USE_SOCKETW
-    if (RoR::App::GetActiveMpState() == RoR::App::MP_STATE_CONNECTED)
+    if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
     {
         RoR::ChatSystem::SendChat(msg.c_str());
         return;
@@ -135,7 +136,7 @@ void CLASS::eventCommandAccept(MyGUI::Edit* _sender)
 
 void CLASS::Update(float dt)
 {
-    if (App::GetActiveMpState() != App::MP_STATE_CONNECTED)
+    if (App::mp_state.GetActive() != MpState::CONNECTED)
     {
         MAIN_WIDGET->setVisible(false);
         return;

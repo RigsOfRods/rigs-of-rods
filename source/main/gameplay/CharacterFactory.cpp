@@ -21,6 +21,7 @@
 
 #include "CharacterFactory.h"
 
+#include "Application.h"
 #include "Character.h"
 
 using namespace RoR;

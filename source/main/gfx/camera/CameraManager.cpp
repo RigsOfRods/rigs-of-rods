@@ -91,7 +91,7 @@ void CameraManager::SetSimController(RoRFrameListener* sim)
 
 bool CameraManager::Update(float dt, Beam* cur_truck, float sim_speed) // Called every frame
 {
-    if (RoR::App::GetActiveSimState() == RoR::App::SIM_STATE_PAUSED) { return true; } // Do nothing when paused
+    if (RoR::App::sim_state.GetActive() == RoR::SimState::PAUSED) { return true; } // Do nothing when paused
 
     if ( dt == 0 ) return false;
 
@@ -103,8 +103,8 @@ bool CameraManager::Update(float dt, Beam* cur_truck, float sim_speed) // Called
     ctx.mDt         = dt;
     ctx.mRotScale   = Degree(mRotScale);
     ctx.mTransScale = mTransScale;
-    ctx.fovInternal = Degree(App::GetGfxFovInternal());
-    ctx.fovExternal = Degree(App::GetGfxFovExternal());
+    ctx.fovInternal = Degree(App::gfx_fov_internal.GetActive()); // TODO: don't copy Gvar!
+    ctx.fovExternal = Degree(App::gfx_fov_external.GetActive());
 
     if ( currentBehaviorID < CAMERA_BEHAVIOR_END && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_CHANGE) )
     {

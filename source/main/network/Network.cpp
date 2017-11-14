@@ -160,7 +160,7 @@ bool CheckError()
 {
     if (m_net_fatal_error)
     {
-        RoR::App::SetActiveMpState(RoR::App::MP_STATE_DISABLED);
+        App::mp_state.SetActive(RoR::MpState::DISABLED);
         return true;
     }
     return false;
@@ -506,11 +506,10 @@ void RecvThread()
 
 void CouldNotConnect(Ogre::UTFString const & msg, bool close_socket = true)
 {
-    Ogre::UTFString message = "Error connecting to server: [" + App::GetMpServerHost()
-                            + ":" + TOSTRING(App::GetMpServerPort()) + "]\n\n" + msg.asUTF8();
+    Ogre::UTFString message = std::string("Error connecting to server: [") + App::mp_server_host.GetActive()
+                            + ":" + TOSTRING(App::mp_server_port.GetActive()) + "]\n\n" + msg.asUTF8();
     SetErrorMessage(message);
-    RoR::App::SetActiveMpState(App::MP_STATE_DISABLED);
-    RoR::App::SetPendingMpState(App::MP_STATE_NONE);
+    App::mp_state.SetActive(MpState::DISABLED);
 
     if (close_socket)
     {
@@ -524,8 +523,7 @@ bool Connect()
     // Temporary workaround for unrecoverable error
     if (m_socket_broken)
     {
-        RoR::App::SetActiveMpState(App::MP_STATE_DISABLED);
-        RoR::App::SetPendingMpState(App::MP_STATE_NONE);
+        App::mp_state.SetActive(MpState::DISABLED);
         Ogre::UTFString msg = "Connection failed."
             "\n\nNetworking is unable to recover from previous error (abrupt disconnect)."
             "\n\nPlease restart Rigs of Rods.";
@@ -537,14 +535,14 @@ bool Connect()
     SetErrorMessage("");
     m_net_fatal_error = false;
 
-    m_username = App::GetMpPlayerName();
+    m_username = App::mp_player_name.GetActive();
 
-    LOG("[RoR|Networking] Trying to join server '" + App::GetMpServerHost() + "' on port " + TOSTRING(App::GetMpServerPort()) + "'...");
+    RoR::LogFormat("[RoR|Networking] Trying to join server '%s' on port '%d' ...", App::mp_server_host.GetActive(), App::mp_server_port.GetActive());
 
     SWBaseSocket::SWBaseError error;
 
     socket.set_timeout(10, 10000);
-    socket.connect(App::GetMpServerPort(), App::GetMpServerHost(), &error);
+    socket.connect(App::mp_server_port.GetActive(), App::mp_server_host.GetActive(), &error);
     if (error != SWBaseSocket::ok)
     {
         CouldNotConnect("Could not create connection", false);
@@ -603,14 +601,12 @@ bool Connect()
     socket.set_timeout(0, 0);
 
     // Send credentials
-    char pwbuffer[250] = {0};
-    strncpy(pwbuffer, App::GetMpServerPassword().c_str(), 250);
-
     char sha1pwresult[250] = {0};
-    if (strnlen(pwbuffer, 250) > 0)
+    if (!App::mp_server_password.IsActiveEmpty())
     {
         RoR::CSHA1 sha1;
-        sha1.UpdateHash((uint8_t *)pwbuffer, (uint32_t)strnlen(pwbuffer, 250));
+        const char* pw = App::mp_server_password.GetActive();
+        sha1.UpdateHash((uint8_t*)pw, std::strlen(pw));
         sha1.Final();
         sha1.ReportHash(sha1pwresult, RoR::CSHA1::REPORT_HEX_SHORT);
     }
@@ -626,9 +622,8 @@ bool Connect()
     strncpy(c.serverpassword, sha1pwresult, 40);
     strncpy(c.usertoken, usertokenhash.c_str(), 40);
     strncpy(c.clientversion, ROR_VERSION_STRING, strnlen(ROR_VERSION_STRING, 25));
-    strcpy(c.clientname, "RoR");
-    Ogre::String lang = App::GetAppLocale();
-    strncpy(c.language, lang.c_str(), std::min<int>((int)lang.size(), 10));
+    strncpy(c.clientname, "RoR", 10);
+    strncpy(c.language, App::app_locale.GetActive(), 10);
     strcpy(c.sessiontype, "normal");
     if (!SendNetMessage(MSG2_USER_INFO, 0, sizeof(RoRnet::UserInfo), (char*)&c))
     {
@@ -692,8 +687,7 @@ bool Connect()
     LOG("[RoR|Networking] Connect(): Creating Send/Recv threads");
     m_send_thread = std::thread(SendThread);
     m_recv_thread = std::thread(RecvThread);
-    RoR::App::SetActiveMpState(RoR::App::MP_STATE_CONNECTED);
-    RoR::App::SetPendingMpState(RoR::App::MP_STATE_NONE);
+    App::mp_state.SetActive(RoR::MpState::CONNECTED);
 
     return true;
 }
@@ -727,8 +721,7 @@ void Disconnect()
     m_send_packet_buffer.clear();
 
     m_shutdown = false;
-    RoR::App::SetActiveMpState(RoR::App::MP_STATE_DISABLED);
-    RoR::App::SetPendingMpState(RoR::App::MP_STATE_NONE);
+    App::mp_state.SetActive(RoR::MpState::DISABLED);
 
     LOG("[RoR|Networking] Disconnect() done");
 }
