@@ -180,6 +180,7 @@ public:
     inline GStr&       Append(const char* src)               { std::strncat(m_buffer, src, (L-(strlen(src)+1))); return *this; }
     inline GStr&       Append(float f)                       { char buf[50]; std::snprintf(buf, 50, "%f", f); this->Append(buf); return *this; }
     inline GStr&       Append(int i)                         { char buf[50]; std::snprintf(buf, 50, "%d", i); this->Append(buf); return *this; }
+    inline GStr&       Append(size_t z)                      { char buf[50]; std::snprintf(buf, 50, "%lu", static_cast<unsigned long>(z)); this->Append(buf); return *this; }
     inline GStr&       Append(char c)                        { char buf[2] = {}; buf[0] = c; this->Append(buf); return *this; }
 
     // Operators
@@ -188,6 +189,7 @@ public:
     inline GStr&       operator<< (const char* src)          { return this->Append(src); }
     inline GStr&       operator<< (float f)                  { return this->Append(f); }
     inline GStr&       operator<< (int i)                    { return this->Append(i); }
+    inline GStr&       operator<< (size_t z)                 { return this->Append(z); }
     inline GStr&       operator<< (char c)                   { return this->Append(c); }
     inline bool        operator== (const char* other) const  { return (this->Compare(other) == 0); }
 
