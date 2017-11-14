@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -335,7 +335,11 @@ int main(int argc, char *argv[])
                     {
                         App::app_state.ApplyPending();
                         App::GetGuiManager()->ReflectGameState();
+                        App::GetGuiManager()->GetImGui().StartRendering(scene_manager);
+                        App::SetSimController(&sim_controller);
                         sim_controller.EnterGameplayLoop();
+                        App::SetSimController(nullptr);
+                        App::GetGuiManager()->GetImGui().StopRendering();
                     }
                     else
                     {

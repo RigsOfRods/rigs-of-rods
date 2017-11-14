@@ -26,6 +26,10 @@
 #include "OverlayWrapper.h"
 #include "SceneMouse.h"
 
+#include <MyGUI_KeyCode.h>
+#include <MyGUI_InputManager.h>
+#include <MyGUI_PointerManager.h>
+
 #if MYGUI_PLATFORM == MYGUI_PLATFORM_WIN32
 MyGUI::Char translateWin32Text(MyGUI::KeyCode kc)
 {
@@ -111,6 +115,8 @@ bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
 {
     this->WakeUpGUI();
 
+    RoR::App::GetGuiManager()->GetImGui().InjectMouseMoved(_arg);
+
     MyGUI::PointerManager::getInstance().setPointer("arrow");
 
     if (RoR::App::sim_state.GetActive() == RoR::SimState::PAUSED)
@@ -170,6 +176,8 @@ bool GUIInputManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButton
 {
     this->WakeUpGUI();
 
+    RoR::App::GetGuiManager()->GetImGui().InjectMousePressed(_arg, _id);
+
     mCursorX = _arg.state.X.abs;
     mCursorY = _arg.state.Y.abs;
 
@@ -207,6 +215,8 @@ bool GUIInputManager::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButto
 {
     this->WakeUpGUI();
 
+    RoR::App::GetGuiManager()->GetImGui().InjectMouseReleased(_arg, _id);
+
     // fallback, handle by GUI, then by RoR::SceneMouse
     bool handled = MyGUI::InputManager::getInstance().injectMouseRelease(mCursorX, mCursorY, MyGUI::MouseButton::Enum(_id));
 
@@ -237,6 +247,8 @@ bool GUIInputManager::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButto
 
 bool GUIInputManager::keyPressed(const OIS::KeyEvent& _arg)
 {
+    RoR::App::GetGuiManager()->GetImGui().InjectKeyPressed(_arg);
+
     MyGUI::Char text = (MyGUI::Char)_arg.text;
     MyGUI::KeyCode key = MyGUI::KeyCode::Enum(_arg.key);
     int scan_code = MYGUI_GET_SCANCODE(key);
@@ -280,6 +292,8 @@ bool GUIInputManager::keyPressed(const OIS::KeyEvent& _arg)
 
 bool GUIInputManager::keyReleased(const OIS::KeyEvent& _arg)
 {
+    RoR::App::GetGuiManager()->GetImGui().InjectKeyReleased(_arg);
+
     // fallback, handle by GUI, then by RoR::SceneMouse
     bool handled = MyGUI::InputManager::getInstance().injectKeyRelease(MyGUI::KeyCode::Enum(_arg.key));
 

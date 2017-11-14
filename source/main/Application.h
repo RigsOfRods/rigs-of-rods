@@ -21,7 +21,7 @@
 /// @file   Application.h
 /// @author Petr Ohlidal
 /// @date   05/2014
-/// @brief  Central state/object manager and communications hub
+/// @brief  Central state/object manager and communications hub.
 
 #pragma once
 
@@ -420,6 +420,8 @@ CacheSystem*         GetCacheSystem();
 MainMenu*            GetMainMenu();
 RoRFrameListener*    GetSimController();
 
+void SetMainMenu             (MainMenu*          obj);
+void SetSimController        (RoRFrameListener*  obj);
 // Factories
 void StartOgreSubsystem();
 void ShutdownOgreSubsystem();
