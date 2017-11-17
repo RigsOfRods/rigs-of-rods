@@ -3,6 +3,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_SOU
 
 find_package( PythonInterp 3.0 REQUIRED )
 
+set(CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/dependencies" CACHE PATH "Path to the dependencies")
+
 # WIN32: remove MinSizeRel, Debug builds : unsupported
 if (WIN32)
     set(CMAKE_CONFIGURATION_TYPES "RelWithDebInfo;Release" CACHE STRING "" FORCE)
@@ -54,13 +56,11 @@ SET(BUILD_SHARED_LIBS ON)
 SET(CMAKE_USE_RELATIVE_PATHS OFF)
 
 # setup paths
-SET(ROR_DEPENDENCY_DIR "${RoR_SOURCE_DIR}/source/dependencies")
 SET(RUNTIME_OUTPUT_DIRECTORY "${RoR_BINARY_DIR}/bin/")
 SET(LIBRARY_OUTPUT_DIRECTORY "${RoR_BINARY_DIR}/lib/")
 SET(ARCHIVE_OUTPUT_DIRECTORY "${RoR_BINARY_DIR}/lib/")
 SET(EXECUTABLE_OUTPUT_PATH ${RUNTIME_OUTPUT_DIRECTORY})
 SET(LIBRARY_OUTPUT_PATH ${RUNTIME_OUTPUT_DIRECTORY})
-SET(RoR_Dependencies_CMAKE_DIR "${ROR_DEPENDENCY_DIR}/cmake")
 
 # set the tools binary directory accordingly to the used platform
 IF (WIN32)
