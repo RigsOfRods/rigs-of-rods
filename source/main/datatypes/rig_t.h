@@ -72,7 +72,6 @@ struct rig_t ///< A simulation actor; typically a vehicle
     int free_contacter;
 
     wheel_t wheels[MAX_WHEELS];
-    vwheel_t vwheels[MAX_WHEELS];
     int free_wheel;
 
     command_t commandkey[MAX_COMMANDS + 10]; // 0 for safety
@@ -115,9 +114,6 @@ struct rig_t ///< A simulation actor; typically a vehicle
 
     Airbrake *airbrakes[MAX_AIRBRAKES];
     int free_airbrake;
-
-    RoR::Skidmark *skidtrails[MAX_WHEELS*2];
-    bool useSkidmarks;
 
     FlexBody *flexbodies[MAX_FLEXBODIES];
     int free_flexbody;

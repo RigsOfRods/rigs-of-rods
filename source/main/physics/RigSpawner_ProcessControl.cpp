@@ -236,7 +236,7 @@ rig_t *RigSpawner::SpawnRig()
     PROCESS_SECTION_IN_ALL_MODULES_COND(RigDef::File::KEYWORD_MESHWHEELS2, mesh_wheels, (itor->_is_meshwheel2), ProcessMeshWheel2);
 
     // Section 'flexbodywheels'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLEXBODYWHEELS, flex_body_wheels, ProcessFlexBodyWheel);
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLEXBODYWHEELS, flex_body_wheels, ProcessFlexBodyWheelSim);
 
     // ---------------------------- WheelDetachers ----------------------------
 

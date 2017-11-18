@@ -48,16 +48,17 @@
 /// instead it's designed to resolve all order-dependent references to order-independent, see `RigDef::SequentialImporter` (resources/rig_def_fileformat/RigDef_SequentialImporter.h) for more info.
 /// `RigSpawner` was created by carefully refactoring old `SerializedRig` described above, so a lot of the dirty logic remained. Elements were still written into constant-size arrays.
 ///
-/// PRESENT (06/2017):
+/// ONGOING WORK (08/2017):
 ///
-/// RoR is being refactored to get rid of the MAX_[BEAMS/NODES/***] limits. Static arrays in `rig_t` are replaced with pointers to dynamically allocated memory.
-/// Memory requirements are calculated upfront from `RigDef::File`.
+/// Getting rid of the MAX_[BEAMS/NODES/***] limits.
+///  * Static arrays in `rig_t` are replaced with pointers to dynamically allocated memory.
+///  * Memory requirements are calculated upfront from `RigDef::File`.
 ///
-/// FUTURE:
-///
-/// RigSpawner will work in 2 steps:
-///  1. Physics/simulation data are fully prepared. This should be very fast (we can pre-calculate and cache things if needed).
-///  2. Graphics/sounds are set up, reading the completed physics/sim data. Graphics are fully managed by `GfxActor`. Similar utility will be added for sound.
+/// OGRE object handling (see function `FinalizeGfxSetup()` for details.):
+///   Historically, both sim and gfx elements were spawned at the same time (and handled at the same time, single-thread).
+///   The future architecture is 2 phase:
+///     1. Internal simulation (physics, scripting, gameplay...) is prepared. This should be very fast (we can pre-calculate and cache things if needed).
+///     2. Gfx/sfx are done by reading the sim. data + defs. This may be done asynchronously in the future.
 ///
 /// CONVENTIONS:
 ///
@@ -94,7 +95,7 @@ public:
             type(type),
             text(text),
             keyword(keyword)
-        {}		
+        {}
 
         Ogre::String text;
         Type type;
@@ -109,6 +110,24 @@ public:
             runtime_error(message)
         {}
 
+    };
+
+    /// Link between sim. wheel instance (`wheel_t`) and definition.
+    /// Rationale: Sim. wheels are spawned first, gfx wgeels (`GfxActor::Wheel`) later; see also comments above `RigSpawner`.
+    struct WheelDefLink
+    {
+        WheelDefLink(RigDef::Wheel*          def) { this->Reset(); def_wheel      = def; }
+        WheelDefLink(RigDef::Wheel2*         def) { this->Reset(); def_wheel2     = def; }
+        WheelDefLink(RigDef::MeshWheel*      def) { this->Reset(); def_meshwheel  = def; }
+        WheelDefLink(RigDef::FlexBodyWheel*  def) { this->Reset(); def_flexbwheel = def; }
+
+        void Reset() { memset(this, 0, sizeof(WheelDefLink)); }
+
+        // Only one of these is filled at a time.
+        RigDef::Wheel*          def_wheel;
+        RigDef::Wheel2*         def_wheel2;
+        RigDef::MeshWheel*      def_meshwheel;
+        RigDef::FlexBodyWheel*  def_flexbwheel;
     };
 
     RigSpawner(RoRFrameListener* sim): m_sim_controller(sim) {}
@@ -333,10 +352,8 @@ private:
     */
     void ProcessFlexbody(std::shared_ptr<RigDef::Flexbody> def);
 
-    /**
-    * Section 'flexbodywheels'.
-    */
-    void ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def);
+    void ProcessFlexBodyWheelSim(RigDef::FlexBodyWheel & def);                      ///< Section 'flexbodywheels' - physics&sim.
+    void ProcessFlexBodyWheelGfx(RigDef::FlexBodyWheel* def, int sim_wheel_index);  ///< Section 'flexbodywheels' - gfx.
 
     /**
     * Section 'fusedrag'.
@@ -544,27 +561,6 @@ private:
         std::shared_ptr<RigDef::BeamDefaults> & defaults,
         int detacher_group
     );
-
-    /**
-    * Adds visuals to wheel from section 'wheels'.
-    */
-    void CreateWheelVisuals(
-        unsigned int wheel_index, 
-        RigDef::Wheel & wheel_def, 
-        unsigned int node_base_index
-    );
-
-    /**
-    * Adds complete wheel (section 'wheels') to the rig.
-    * @return wheel index in rig_t::wheels array.
-    */
-    unsigned int AddWheel(RigDef::Wheel & wheel);
-
-    /**
-    * Adds wheel from section 'wheels2'.
-    * @return wheel index.
-    */
-    unsigned int AddWheel2(RigDef::Wheel2 & wheel_2_def);
 
     void CreateBeamVisuals(beam_t & beam, int beam_index, std::shared_ptr<RigDef::BeamDefaults> beam_defaults);
 
@@ -863,6 +859,8 @@ private:
     */
     int FindLowestContactingNodeInRig();
 
+    wheel_t::BrakeCombo TranslateBrakingDef(RigDef::Wheels::Braking def);
+
     /**
     * Checks a section only appears in one module and reports a warning if not.
     */
@@ -900,12 +898,7 @@ private:
         float rim_ratio = 1.f
     );
 
-    void CreateWheelSkidmarks(unsigned int wheel_index);
-
-    /**
-    * Adds visuals to 'wheels2' wheel.
-    */
-    void CreateWheelVisuals(unsigned int wheel_index, RigDef::Wheel2 & wheel_2_def, unsigned int node_base_index);
+    RoR::Skidmark* CreateWheelSkidmarks(unsigned int wheel_index);
 
     /**
     * Performs full material setup for a new entity.
@@ -1077,12 +1070,15 @@ private:
     int                   m_messages_num_warnings;
     int                   m_messages_num_other;
 
-    /* RIG CONTEXT */
+    // RIG CONTEXT
 
     Ogre::SceneNode *m_parent_scene_node;
     Ogre::Vector3 m_spawn_position;
     std::vector<CabTexcoord> m_oldstyle_cab_texcoords;
     std::vector<CabSubmesh>  m_oldstyle_cab_submeshes;
+
+    std::vector<WheelDefLink> m_wheel_def_map; ///< A 1:1 match with `rig_t::wheels` array, links wheel instances to definitions for gfx spawn phase.
+
     /// Maps original material names (shared) to their actor-specific substitutes.
     /// There's 1 substitute per 1 material, regardless of user count.
     std::map<std::string, CustomMaterial> m_material_substitutions;

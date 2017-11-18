@@ -239,11 +239,6 @@ public:
     ground_model_t *getLastFuzzyGroundModel();
 
     /**
-    * Creates or updates skidmarks. No side effects.
-    */
-    void updateSkidmarks();
-
-    /**
     * Prepares vehicle for in-cabin camera use.
     */
     void prepareInside(bool inside);

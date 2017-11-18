@@ -1,9 +1,23 @@
 /*
- * wheel.h
- *
- *  Created on: Dec 29, 2012
- *      Author: chris
- */
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
+    Copyright 2014-2017 Petr Ohlidal & contributors
+
+    For more information, see http://www.rigsofrods.org/
+
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
+
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #pragma once
 
@@ -15,55 +29,41 @@
 */
 struct wheel_t
 {
-    int nbnodes;
-    node_t* nodes[50];
-    /**
-     * Defines the braking characteristics of a wheel. Wheels are braked by three mechanisms:
-     * A footbrake, a handbrake/parkingbrake, and directional brakes used for skidsteer steering.
-     * - 0 = no  footbrake, no  handbrake, no  direction control -- wheel is unbraked
-     * - 1 = yes footbrake, yes handbrake, no  direction control
-     * - 2 = yes footbrake, yes handbrake, yes direction control (braked when truck steers to the left)
-     * - 3 = yes footbrake, yes handbrake, yes direction control (braked when truck steers to the right)
-     * - 4 = yes footbrake, no  handbrake, no  direction control -- wheel has footbrake only, such as with the front wheels of a normal car
-     **/
-    int braked;
-    node_t* arm;
-    node_t* near_attach;
-    node_t* refnode0;
-    node_t* refnode1;
-    int propulsed;
-    Ogre::Real radius;
-    Ogre::Real speed;
-    Ogre::Real lastSpeed;
-    Ogre::Real avgSpeed;
-    Ogre::Real delta_rotation; //!< Difference in wheel position
-    float rp;
-    float rp1; //<! Networking; triple buffer
-    float rp2; //<! Networking; triple buffer
-    float rp3; //<! Networking; triple buffer
-    float width;
+    enum class BrakeCombo /// Wheels are braked by three mechanisms: A footbrake, a handbrake/parkingbrake, and directional brakes used for skidsteer steering.
+    {
+        NONE,                 /// - 0 = no  footbrake, no  handbrake, no  direction control -- wheel is unbraked
+        FOOT_HAND,            /// - 1 = yes footbrake, yes handbrake, no  direction control
+        FOOT_HAND_SKID_LEFT,  /// - 2 = yes footbrake, yes handbrake, yes direction control (braked when truck steers to the left)
+        FOOT_HAND_SKID_RIGHT, /// - 3 = yes footbrake, yes handbrake, yes direction control (braked when truck steers to the right)
+        FOOT_ONLY             /// - 4 = yes footbrake, no  handbrake, no  direction control -- footbrake only, such as with the front wheels of a passenger car
+    };
 
-    // for skidmarks
-    Ogre::Vector3 lastContactInner;
-    Ogre::Vector3 lastContactOuter;
-    bool firstLock;
-    float lastSlip;
-    int lastContactType;
-    ground_model_t *lastGroundModel;
-
-    int detacher_group;
-    bool detached;
-
-    //skidmarks v2
-    bool isSkiding;
-};
-
-/**
-* SIM-CORE; Visual wheel.
-*/
-struct vwheel_t
-{
-    Flexable *fm;
-    Ogre::SceneNode *cnode;
-    bool meshwheel;
+    int              wh_num_nodes;
+    node_t*          wh_nodes[50];             // TODO: remove limit, make this dyn-allocated ~ only_a_ptr, 08/2017
+    BrakeCombo       wh_braking;
+    node_t*          wh_arm_node;
+    node_t*          wh_near_attach_node;
+    node_t*          wh_axis_node_0;
+    node_t*          wh_axis_node_1;
+    int              wh_propulsed;             // TODO: add enum ~ only_a_ptr, 08/2017
+    Ogre::Real       wh_radius;
+    Ogre::Real       wh_speed;
+    Ogre::Real       wh_last_speed;
+    Ogre::Real       wh_avg_speed;
+    Ogre::Real       wh_delta_rotation;         ///< Difference in wheel position
+    float            wh_net_rp;
+    float            wh_net_rp1;                ///< Networking; triple buffer
+    float            wh_net_rp2;                ///< Networking; triple buffer
+    float            wh_net_rp3;                ///< Networking; triple buffer
+    float            wh_width;
+    int              wh_detacher_group;
+    bool             wh_is_detached;
+    bool             wh_alb_first_lock;         ///< Anti-lock brakes: first lock
+    //  Skidmarks simulation (gfx + sound only, no effect on handling)
+    Ogre::Vector3    wh_last_contact_inner;     ///< Skidmarks
+    Ogre::Vector3    wh_last_contact_outer;     ///< Skidmarks
+    bool             wh_last_contact_was_outer; ///< Skidmarks
+    float            wh_last_slip;              ///< Skidmarks
+    ground_model_t*  wh_last_ground_model;      ///< Skidmarks
+    bool             wh_is_skidding;            ///< Skidmarks
 };

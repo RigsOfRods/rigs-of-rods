@@ -19,12 +19,12 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**	
-    @file   RigSpawner.cpp
-    @brief  Vehicle spawning logic.
-    @author Petr Ohlidal
-    @date   12/2013
-*/
+
+/// @file   RigSpawner.cpp
+/// @brief  Vehicle spawning logic.
+/// @author Petr Ohlidal
+/// @date   12/2013
+
 
 #include "RoRPrerequisites.h"
 #include "RigSpawner.h"
@@ -250,7 +250,6 @@ void RigSpawner::InitializeRig()
     m_rig->free_contacter = 0;
     memset(m_rig->wheels, 0, sizeof(wheel_t) * MAX_WHEELS);
     m_rig->free_wheel = 0;
-    memset(m_rig->vwheels, 0, sizeof(vwheel_t) * MAX_WHEELS);
     m_rig->ropes.clear();
     m_rig->ropables.clear();
     m_rig->ties.clear();
@@ -291,7 +290,6 @@ void RigSpawner::InitializeRig()
     memset(m_rig->buoycabtypes, 0, sizeof(int) * MAX_CABS);
     memset(m_rig->airbrakes, 0, sizeof(Airbrake *) * MAX_AIRBRAKES);
     m_rig->free_airbrake = 0;
-    memset(m_rig->skidtrails, 0, sizeof(Skidmark *) * (MAX_WHEELS*2));
     memset(m_rig->flexbodies, 0, sizeof(FlexBody *) * MAX_FLEXBODIES);
     m_rig->free_flexbody = 0;
     m_rig->description.clear();
@@ -318,7 +316,7 @@ void RigSpawner::InitializeRig()
     m_rig->dashBoardLayouts.clear();
 
     memset(m_rig->helpmat, 0, 255);
-    
+
     m_rig->collrange=DEFAULT_COLLISION_RANGE;
     m_rig->masscount=0;
     m_rig->disable_smoke = App::GetGfxParticlesMode() == 0;
@@ -394,7 +392,7 @@ void RigSpawner::InitializeRig()
     m_rig->vehicle_ai = new VehicleAI(m_rig);
 #endif // USE_ANGELSCRIPT
 
-    /* Init code from Beam::Beam() */
+    // Init code from Beam::Beam()
 
     m_rig->airbrakeval = 0;
     m_rig->alb_minspeed = 0.0f;
@@ -442,9 +440,7 @@ void RigSpawner::InitializeRig()
 
     m_rig->tractioncontrol = 0;
 
-
     m_rig->dash = new DashBoardManager();
-
 
 #ifdef FEAT_TIMING
     // this enables beam engine timing statistics
@@ -454,10 +450,10 @@ void RigSpawner::InitializeRig()
 
     m_rig->simpleSkeletonNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
     m_rig->deletion_sceneNodes.emplace_back(m_rig->simpleSkeletonNode);
-    
+
     m_rig->beamsRoot = m_parent_scene_node;
 
-    /* Collisions */
+    // Collisions
 
     m_rig->disableTruckTruckCollisions = BSETTING("DisableCollisions", false);
     if (! m_rig->disableTruckTruckCollisions)
@@ -540,7 +536,7 @@ void RigSpawner::FinalizeRig()
         //Gearbox
         m_rig->engine->setAutoMode(App::GetSimGearboxMode());
     }
-    
+
     //calculate gwps height offset
     //get a starting value
     m_rig->posnode_spawn_height=m_rig->nodes[0].RelPosition.y;
@@ -558,7 +554,7 @@ void RigSpawner::FinalizeRig()
     {
         // store the y-difference between the trucks lowest node and the campos-node for the gwps system
         m_rig->posnode_spawn_height = m_rig->nodes[m_rig->cameranodepos[0]].RelPosition.y - m_rig->posnode_spawn_height;
-    } 
+    }
     else
     {
         //this can not be an airplane, just set it to 0.
@@ -568,18 +564,17 @@ void RigSpawner::FinalizeRig()
     //cameras workaround
     for (int i=0; i<m_rig->freecamera; i++)
     {
-        //LogManager::getSingleton().logMessage("Camera dir="+StringConverter::toString(nodes[cameranodedir[i]].RelPosition-nodes[cameranodepos[i]].RelPosition)+" roll="+StringConverter::toString(nodes[cameranoderoll[i]].RelPosition-nodes[cameranodepos[i]].RelPosition));
         Ogre::Vector3 dir_node_offset = GetNode(m_rig->cameranodedir[i]).RelPosition - GetNode(m_rig->cameranodepos[i]).RelPosition;
         Ogre::Vector3 roll_node_offset = GetNode(m_rig->cameranoderoll[i]).RelPosition - GetNode(m_rig->cameranodepos[i]).RelPosition;
         Ogre::Vector3 cross = dir_node_offset.crossProduct(roll_node_offset);
-        
-        m_rig->revroll[i]=cross.y > 0;//(nodes[cameranodedir[i]].RelPosition-nodes[cameranodepos[i]].RelPosition).crossProduct(nodes[cameranoderoll[i]].RelPosition-nodes[cameranodepos[i]].RelPosition).y>0;
+
+        m_rig->revroll[i]=cross.y > 0;
         if (m_rig->revroll[i])
         {
             AddMessage(Message::TYPE_WARNING, "camera definition is probably invalid and has been corrected. It should be center, back, left");
         }
     }
-    
+
     //wing closure
     if (m_first_wing_index!=-1)
     {
@@ -650,9 +645,9 @@ void RigSpawner::FinalizeRig()
         if (transmat->getTechnique(0)->getPass(0)->getNumTextureUnitStates()>0)
         {
             backmat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setColourOperationEx(
-                Ogre::LBX_SOURCE1, 
-                Ogre::LBS_MANUAL, 
-                Ogre::LBS_MANUAL, 
+                Ogre::LBX_SOURCE1,
+                Ogre::LBS_MANUAL,
+                Ogre::LBS_MANUAL,
                 Ogre::ColourValue(0,0,0),
                 Ogre::ColourValue(0,0,0)
             );
@@ -666,16 +661,16 @@ void RigSpawner::FinalizeRig()
         char cab_material_name_cstr[1000] = {};
         strncpy(cab_material_name_cstr, m_cab_material_name.c_str(), 999);
         std::string mesh_name = this->ComposeName("VehicleCabMesh", 0);
-        m_rig->cabMesh =new FlexObj( // Names in FlexObj ctor
-            m_rig->nodes,            // node_t* nds
-            m_oldstyle_cab_texcoords,// std::vector<CabNodeTexcoords>& texcoords
-            m_rig->free_cab,         // int     numtriangles
-            m_rig->cabs,             // int*    triangles
-            m_oldstyle_cab_submeshes,// std::vector<CabSubmesh>& submeshes
-            cab_material_name_cstr,          // char*   texname
+        m_rig->cabMesh =new FlexObj(
+            m_rig->nodes,
+            m_oldstyle_cab_texcoords,
+            m_rig->free_cab,
+            m_rig->cabs,
+            m_oldstyle_cab_submeshes,
+            cab_material_name_cstr,
             mesh_name.c_str(),
-            backmatname,             // char*   backtexname
-            transmatname             // char*   transtexname
+            backmatname,
+            transmatname
         );
 
         m_rig->cabNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
@@ -750,7 +745,7 @@ void RigSpawner::WashCalculator()
                         float wratio=(aleft-aright)/(wleft-wright);
                         m_rig->wings[w].fa->addwash(p, wratio);
                         Ogre::String msg = "Wing "+TOSTRING(w)+" is washed by prop "+TOSTRING(p)+" at "+TOSTRING((float)(wratio*100.0))+"%";
-                        AddMessage(Message::TYPE_INFO, msg);
+                        this->AddMessage(Message::TYPE_INFO, msg);
                     }
                 }
             }
@@ -763,24 +758,24 @@ void RigSpawner::ProcessTurbojet(RigDef::Turbojet & def)
     SPAWNER_PROFILE_SCOPED();
 
     int front,back,ref;
-    front = GetNodeIndexOrThrow(def.front_node);
-    back  = GetNodeIndexOrThrow(def.back_node);
-    ref   = GetNodeIndexOrThrow(def.side_node);
-    
-    Turbojet *tj=new Turbojet(
-        m_rig->free_aeroengine, 
-        m_rig->trucknum, 
-        m_rig->nodes, 
-        front, 
-        back, 
-        ref, 
+    front = this->GetNodeIndexOrThrow(def.front_node);
+    back  = this->GetNodeIndexOrThrow(def.back_node);
+    ref   = this->GetNodeIndexOrThrow(def.side_node);
+
+    Turbojet *tj = new Turbojet(
+        m_rig->free_aeroengine,
+        m_rig->trucknum,
+        m_rig->nodes,
+        front,
+        back,
+        ref,
         def.dry_thrust,
         def.is_reversable != 0,
         def.wet_thrust,
-        def.front_diameter, 
+        def.front_diameter,
         m_rig->heathaze);
-    
-    // Visuals
+
+    // Visuals // TODO: Defer this to `FinalizeGfxSetup()` ~ only_a_ptr, 08/2017
     std::string nozzle_name = this->ComposeName("TurbojetNozzle", m_rig->free_aeroengine);
     Ogre::Entity* nozzle_ent = gEnv->sceneManager->createEntity(nozzle_name, "nozzle.mesh");
     this->SetupNewEntity(nozzle_ent, Ogre::ColourValue(1, 0.5, 0.5));
@@ -793,7 +788,7 @@ void RigSpawner::ProcessTurbojet(RigDef::Turbojet & def)
     }
     std::string propname = this->ComposeName("Turbojet", m_rig->free_aeroengine);
     tj->SetupVisuals(propname, nozzle_ent, def.back_diameter, def.nozzle_length, afterburn_ent, m_rig->disable_smoke);
-    
+
     m_rig->aeroengines[m_rig->free_aeroengine]=tj;
     m_rig->driveable=AIRPLANE;
     if (m_rig->autopilot == nullptr && m_rig->state != NETWORKED)
@@ -818,9 +813,9 @@ void RigSpawner::ProcessScrewprop(RigDef::Screwprop & def)
         return;
     }
 
-    int ref_node_idx = GetNodeIndexOrThrow(def.prop_node);
-    int back_node_idx = GetNodeIndexOrThrow(def.back_node);
-    int top_node_idx = GetNodeIndexOrThrow(def.top_node);
+    int ref_node_idx  = this->GetNodeIndexOrThrow(def.prop_node);
+    int back_node_idx = this->GetNodeIndexOrThrow(def.back_node);
+    int top_node_idx  = this->GetNodeIndexOrThrow(def.top_node);
 
     m_rig->screwprops[m_rig->free_screwprop] = new Screwprop(
         &m_sim_controller->GetBeamFactory()->GetParticleManager(),
@@ -840,8 +835,8 @@ void RigSpawner::ProcessFusedrag(RigDef::Fusedrag & def)
     SPAWNER_PROFILE_SCOPED();
 
     //parse fusedrag
-    int front_node_idx = GetNodeIndexOrThrow(def.front_node);
-    int back_node_idx = GetNodeIndexOrThrow(def.rear_node);
+    int front_node_idx = this->GetNodeIndexOrThrow(def.front_node);
+    int back_node_idx  = this->GetNodeIndexOrThrow(def.rear_node);
     float width = 1.f;
     float factor = 1.f;
     char fusefoil[256];
@@ -918,13 +913,13 @@ void RigSpawner::BuildAerialEngine(
     m_rig->free_aeroengine++;
     m_rig->driveable = AIRPLANE;
 
-    /* Autopilot */
+    // Autopilot
     if (m_rig->autopilot == nullptr && m_rig->state != NETWORKED)
     {
         m_rig->autopilot = new Autopilot(m_rig->trucknum);
     }
 
-    /* Visuals */
+    // Visuals -- TODO: Defer this to `FinalizeGfxSetup()`
     float scale = GetNode(ref_node_index).RelPosition.distance(GetNode(blade_1_node_index).RelPosition) / 2.25f;
     for (unsigned int i = 0; i < static_cast<unsigned int>(m_rig->free_prop); i++)
     {
@@ -949,15 +944,15 @@ void RigSpawner::ProcessTurboprop2(RigDef::Turboprop2 & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    int p3_node_index = (def.blade_tip_nodes[2].IsValidAnyState()) ? GetNodeIndexOrThrow(def.blade_tip_nodes[2]) : -1;
-    int p4_node_index = (def.blade_tip_nodes[3].IsValidAnyState()) ? GetNodeIndexOrThrow(def.blade_tip_nodes[3]) : -1;
-    int couple_node_index = (def.couple_node.IsValidAnyState()) ? GetNodeIndexOrThrow(def.couple_node) : -1;
+    int p3_node_index = (def.blade_tip_nodes[2].IsValidAnyState()) ? this->GetNodeIndexOrThrow(def.blade_tip_nodes[2]) : -1;
+    int p4_node_index = (def.blade_tip_nodes[3].IsValidAnyState()) ? this->GetNodeIndexOrThrow(def.blade_tip_nodes[3]) : -1;
+    int couple_node_index = (def.couple_node.IsValidAnyState())    ? this->GetNodeIndexOrThrow(def.couple_node) : -1;
 
-    BuildAerialEngine(
-        GetNodeIndexOrThrow(def.reference_node),
-        GetNodeIndexOrThrow(def.axis_node),
-        GetNodeIndexOrThrow(def.blade_tip_nodes[0]),
-        GetNodeIndexOrThrow(def.blade_tip_nodes[1]),
+    this->BuildAerialEngine(
+        this->GetNodeIndexOrThrow(def.reference_node),
+        this->GetNodeIndexOrThrow(def.axis_node),
+        this->GetNodeIndexOrThrow(def.blade_tip_nodes[0]),
+        this->GetNodeIndexOrThrow(def.blade_tip_nodes[1]),
         p3_node_index,
         p4_node_index,
         couple_node_index,
@@ -972,15 +967,15 @@ void RigSpawner::ProcessPistonprop(RigDef::Pistonprop & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    int p3_node_index = (def.blade_tip_nodes[2].IsValidAnyState()) ? GetNodeIndexOrThrow(def.blade_tip_nodes[2]) : -1;
-    int p4_node_index = (def.blade_tip_nodes[3].IsValidAnyState()) ? GetNodeIndexOrThrow(def.blade_tip_nodes[3]) : -1;
-    int couple_node_index = (def.couple_node.IsValidAnyState()) ? GetNodeIndexOrThrow(def.couple_node) : -1;
+    int p3_node_index = (def.blade_tip_nodes[2].IsValidAnyState()) ? this->GetNodeIndexOrThrow(def.blade_tip_nodes[2]) : -1;
+    int p4_node_index = (def.blade_tip_nodes[3].IsValidAnyState()) ? this->GetNodeIndexOrThrow(def.blade_tip_nodes[3]) : -1;
+    int couple_node_index = (def.couple_node.IsValidAnyState())    ? this->GetNodeIndexOrThrow(def.couple_node) : -1;
 
-    BuildAerialEngine(
-        GetNodeIndexOrThrow(def.reference_node),
-        GetNodeIndexOrThrow(def.axis_node),
-        GetNodeIndexOrThrow(def.blade_tip_nodes[0]),
-        GetNodeIndexOrThrow(def.blade_tip_nodes[1]),
+    this->BuildAerialEngine(
+        this->GetNodeIndexOrThrow(def.reference_node),
+        this->GetNodeIndexOrThrow(def.axis_node),
+        this->GetNodeIndexOrThrow(def.blade_tip_nodes[0]),
+        this->GetNodeIndexOrThrow(def.blade_tip_nodes[1]),
         p3_node_index,
         p4_node_index,
         couple_node_index,
@@ -995,7 +990,7 @@ void RigSpawner::ProcessAirbrake(RigDef::Airbrake & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckAirBrakeLimit(1))
+    if (! this->CheckAirBrakeLimit(1))
     {
         return;
     }
@@ -1003,10 +998,10 @@ void RigSpawner::ProcessAirbrake(RigDef::Airbrake & def)
     m_rig->airbrakes[m_rig->free_airbrake] = new Airbrake(
         m_rig->truckname,
         m_rig->free_airbrake, 
-        GetNodePointerOrThrow(def.reference_node), 
-        GetNodePointerOrThrow(def.x_axis_node),
-        GetNodePointerOrThrow(def.y_axis_node),
-        GetNodePointerOrThrow(def.aditional_node),
+        this->GetNodePointerOrThrow(def.reference_node), 
+        this->GetNodePointerOrThrow(def.x_axis_node),
+        this->GetNodePointerOrThrow(def.y_axis_node),
+        this->GetNodePointerOrThrow(def.aditional_node),
         def.offset,
         def.width, 
         def.height,
@@ -1068,6 +1063,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
     Ogre::Entity* entity = nullptr;
     try
     {
+        // ## TODO: Defer creating visuals to `FinalizeGfxSetup` ~ only_a_ptr, 08/2017
         const std::string wing_instance_name = this->ComposeName("WingEntity", m_rig->free_wing);
         entity = gEnv->sceneManager->createEntity(wing_instance_name, wing_name);
         m_rig->deletion_Entities.emplace_back(entity);
@@ -1084,7 +1080,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
     if (m_first_wing_index == -1)
     {
         m_first_wing_index = m_rig->free_wing;
-        m_wing_area=ComputeWingArea(
+        m_wing_area=this->ComputeWingArea(
             this->GetNode(flex_airfoil->nfld).AbsPosition,    this->GetNode(flex_airfoil->nfrd).AbsPosition,
             this->GetNode(flex_airfoil->nbld).AbsPosition,    this->GetNode(flex_airfoil->nbrd).AbsPosition
         );
@@ -1099,7 +1095,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
 
             //discontinuity
             //inform wing segments
-            float span = GetNode( start_wing.fa->nfrd).RelPosition.distance( GetNode(previous_wing.fa->nfld).RelPosition );
+            float span = this->GetNode( start_wing.fa->nfrd).RelPosition.distance( this->GetNode(previous_wing.fa->nfld).RelPosition );
             
             start_wing.fa->enableInducedDrag(span, m_wing_area, false);
             previous_wing.fa->enableInducedDrag(span, m_wing_area, true);
@@ -1107,7 +1103,8 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
             //we want also to add positional lights for first wing
             if (m_generate_wing_position_lights && (m_rig->m_flares_mode != App::GFX_FLARES_NONE))
             {
-                if (! CheckPropLimit(4))
+                // ## TODO: Defer creating visuals to `FinalizeGfxSetup` ~ only_a_ptr, 08/2017
+                if (! this->CheckPropLimit(4))
                 {
                     return;
                 }
@@ -1150,7 +1147,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
                 left_green_prop.beacon_flares_billboard_system[0]->setDefaultDimensions(0.5, 0.5);
                 left_green_prop.animFlags[0]=0;
                 left_green_prop.animMode[0]=0;
-                
+
                 //Left flash
                 prop_t & left_flash_prop = m_rig->props[m_rig->free_prop];
                 m_rig->free_prop++;
@@ -1192,13 +1189,12 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
                 }
                 left_flash_prop.beacon_flare_billboard_scene_node[0]->setVisible(false);
                 left_flash_prop.beacon_flares_billboard_system[0]->setDefaultDimensions(1.0, 1.0);
-                
+
                 //Right red
                 m_airplane_right_light=previous_wing.fa->nfrd;
                 prop_t & right_red_prop = m_rig->props[m_rig->free_prop];
                 m_rig->free_prop++;
 
-                
                 right_red_prop.noderef=start_wing.fa->nfrd;
                 right_red_prop.nodex=start_wing.fa->nfru;
                 right_red_prop.nodey=start_wing.fa->nfrd; //ignored
@@ -1215,7 +1211,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
                 right_red_prop.beacon_light_rotation_angle[0]=0.0;
                 right_red_prop.beacon_light_rotation_rate[0]=1.0;
                 right_red_prop.beacontype='R';
-                right_red_prop.beacon_light[0]=nullptr; /* No light */
+                right_red_prop.beacon_light[0]=nullptr; // No light
                 //the flare billboard
                 sprintf(propname, "prop-%s-%i", m_rig->truckname, m_rig->free_prop);
                 right_red_prop.beacon_flare_billboard_scene_node[0] = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
@@ -1275,7 +1271,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
                 right_flash_prop.beacon_flares_billboard_system[0]->setDefaultDimensions(1.0, 1.0);
                 right_flash_prop.animFlags[0]=0;
                 right_flash_prop.animMode[0]=0;
-                
+
                 m_generate_wing_position_lights = false; // Already done
             }
 
@@ -1314,12 +1310,12 @@ void RigSpawner::ProcessSoundSource2(RigDef::SoundSource2 & def)
     SPAWNER_PROFILE_SCOPED();
 
     int mode = (def.mode == RigDef::SoundSource2::MODE_CINECAM) ? def.cinecam_index : def.mode;
-    int node_index = FindNodeIndex(def.node);
+    int node_index = this->FindNodeIndex(def.node);
     if (node_index == -1)
     {
         return;
     }
-    AddSoundSource(
+    RigSpawner::AddSoundSource(
             m_rig,
             SoundScriptManager::getSingleton().createInstance(def.sound_script_name, m_rig->trucknum), 
             node_index,
@@ -1331,14 +1327,14 @@ void RigSpawner::AddSoundSourceInstance(Beam *vehicle, Ogre::String const & soun
 {
     SPAWNER_PROFILE_SCOPED();
 
-    AddSoundSource(vehicle, SoundScriptManager::getSingleton().createInstance(sound_script_name, vehicle->trucknum, nullptr), node_index);
+    RigSpawner::AddSoundSource(vehicle, SoundScriptManager::getSingleton().createInstance(sound_script_name, vehicle->trucknum, nullptr), node_index);
 }
 
 void RigSpawner::AddSoundSource(Beam *vehicle, SoundScriptInstance *sound_script, int node_index, int type)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckSoundScriptLimit(vehicle, 1))
+    if (! RigSpawner::CheckSoundScriptLimit(vehicle, 1))
     {
         return;
     }
@@ -1358,7 +1354,7 @@ void RigSpawner::ProcessSoundSource(RigDef::SoundSource & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    AddSoundSource(
+    RigSpawner::AddSoundSource(
             m_rig,
             SoundScriptManager::getSingleton().createInstance(def.sound_script_name, m_rig->trucknum), 
             GetNodeIndexOrThrow(def.node),
@@ -1374,11 +1370,11 @@ void RigSpawner::ProcessCameraRail(RigDef::CameraRail & def)
     auto end  = def.nodes.end();
     for(; itor != end; ++itor)
     {
-        if (! CheckCameraRailLimit(1))
+        if (! this->CheckCameraRailLimit(1))
         {
             return;
         }
-        m_rig->cameraRail[m_rig->free_camerarail] = GetNodeIndexOrThrow(*itor);
+        m_rig->cameraRail[m_rig->free_camerarail] = this->GetNodeIndexOrThrow(*itor);
         m_rig->free_camerarail++;
     }
 }
@@ -1390,7 +1386,7 @@ void RigSpawner::ProcessExtCamera(RigDef::ExtCamera & def)
     m_rig->externalcameramode = def.mode;
     if (def.node.IsValidAnyState())
     {
-        m_rig->externalcameranode = GetNodeIndexOrThrow(def.node);
+        m_rig->externalcameranode = this->GetNodeIndexOrThrow(def.node);
     }
 }
 
@@ -1406,7 +1402,7 @@ void RigSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
     }
     if (def.speedo_highest_kph > 10 && def.speedo_highest_kph < 32000)
     {
-        m_rig->speedoMax = def.speedo_highest_kph; /* Handles default */
+        m_rig->speedoMax = def.speedo_highest_kph; // Handles default
     }
     else
     {
@@ -1415,7 +1411,7 @@ void RigSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
         AddMessage(Message::TYPE_ERROR, msg.str());
         m_rig->speedoMax = RigDef::GuiSettings::DEFAULT_SPEEDO_MAX;
     }
-    m_rig->useMaxRPMforGUI = def.use_max_rpm;  /* Handles default */
+    m_rig->useMaxRPMforGUI = def.use_max_rpm;  // Handles default
 
     std::list<Ogre::String>::iterator dash_itor = def.dashboard_layouts.begin();
     for ( ; dash_itor != def.dashboard_layouts.end(); dash_itor++)
@@ -1433,7 +1429,7 @@ void RigSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
 
 void RigSpawner::ProcessFixedNode(RigDef::Node::Ref node_ref)
 {
-    node_t & node = GetNodeOrThrow(node_ref);
+    node_t & node = this->GetNodeOrThrow(node_ref);
     node.locked = 1;
 }
 
@@ -1446,9 +1442,9 @@ void RigSpawner::ProcessExhaust(RigDef::Exhaust & def)
     {
         return;
     }
-    
-    node_t & ref_node = GetNodeOrThrow(def.reference_node);//id1;
-    node_t & dir_node = GetNodeOrThrow(def.direction_node);//id2;
+
+    node_t & ref_node = this->GetNodeOrThrow(def.reference_node);
+    node_t & dir_node = this->GetNodeOrThrow(def.direction_node);
 
     exhaust_t exhaust;
     exhaust.emitterNode = ref_node.pos;
@@ -1456,7 +1452,7 @@ void RigSpawner::ProcessExhaust(RigDef::Exhaust & def)
     exhaust.isOldFormat = false;
     exhaust.factor = 1.f; // Unused, according to wiki documentation.
     std::memset(exhaust.material, 0, sizeof(exhaust.material));
-    
+
     exhaust.smokeNode = m_parent_scene_node->createChildSceneNode();
     std::stringstream instance_name;
     instance_name << "exhaust-" << m_rig->exhausts.size() << "-" << m_rig->truckname;
@@ -1488,7 +1484,7 @@ void RigSpawner::ProcessExhaust(RigDef::Exhaust & def)
     exhaust.smoker->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
     exhaust.smokeNode->attachObject(exhaust.smoker);
     exhaust.smokeNode->setPosition(m_rig->nodes[exhaust.emitterNode].AbsPosition);
-    
+
     ref_node.isHot=true;
     dir_node.isHot=true;
     m_rig->exhausts.push_back(exhaust);
@@ -1498,7 +1494,7 @@ void RigSpawner::ProcessSubmeshGroundmodel()
 {
     SPAWNER_PROFILE_SCOPED();
 
-    SetCurrentKeyword(RigDef::File::KEYWORD_SUBMESH_GROUNDMODEL);
+    this->SetCurrentKeyword(RigDef::File::KEYWORD_SUBMESH_GROUNDMODEL);
 
     auto module_itor = m_selected_modules.begin();
     auto module_end  = m_selected_modules.end();
@@ -1511,42 +1507,42 @@ void RigSpawner::ProcessSubmeshGroundmodel()
         }
     }
 
-    SetCurrentKeyword(RigDef::File::KEYWORD_INVALID);
+    this->SetCurrentKeyword(RigDef::File::KEYWORD_INVALID);
 };
 
 void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckSubmeshLimit(1))
+    if (! this->CheckSubmeshLimit(1))
     {
         return;
     }
 
-    /* TEXCOORDS */
+    // TEXCOORDS
 
     std::vector<RigDef::Texcoord>::iterator texcoord_itor = def.texcoords.begin();
     for ( ; texcoord_itor != def.texcoords.end(); texcoord_itor++)
     {
-        if (! CheckTexcoordLimit(1))
+        if (! this->CheckTexcoordLimit(1))
         {
             break;
         }
 
         CabTexcoord texcoord;
-        texcoord.node_id    = GetNodeIndexOrThrow(texcoord_itor->node);
+        texcoord.node_id    = this->GetNodeIndexOrThrow(texcoord_itor->node);
         texcoord.texcoord_u = texcoord_itor->u;
         texcoord.texcoord_v = texcoord_itor->v;
         m_oldstyle_cab_texcoords.push_back(texcoord);
     }
 
-    /* CAB */
+    // CAB
 
     auto cab_itor = def.cab_triangles.begin();
     auto cab_itor_end = def.cab_triangles.end();
     for ( ; cab_itor != cab_itor_end; ++cab_itor)
     {
-        if (! CheckCabLimit(1))
+        if (! this->CheckCabLimit(1))
         {
             return;
         }
@@ -1554,50 +1550,50 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
         {
             std::stringstream msg;
             msg << "Collcab limit (" << MAX_CABS << ") exceeded";
-            AddMessage(Message::TYPE_ERROR, msg.str());
+            this->AddMessage(Message::TYPE_ERROR, msg.str());
             return;
         }
 
         bool mk_buoyance = false;
 
-        m_rig->cabs[m_rig->free_cab*3]=GetNodeIndexOrThrow(cab_itor->nodes[0]); //id1;
-        m_rig->cabs[m_rig->free_cab*3+1]=GetNodeIndexOrThrow(cab_itor->nodes[1]);//id2;
-        m_rig->cabs[m_rig->free_cab*3+2]=GetNodeIndexOrThrow(cab_itor->nodes[2]);//id3;
+        m_rig->cabs[m_rig->free_cab*3]  =this->GetNodeIndexOrThrow(cab_itor->nodes[0]);
+        m_rig->cabs[m_rig->free_cab*3+1]=this->GetNodeIndexOrThrow(cab_itor->nodes[1]);
+        m_rig->cabs[m_rig->free_cab*3+2]=this->GetNodeIndexOrThrow(cab_itor->nodes[2]);
 
         if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_c_CONTACT))
         {
-            m_rig->collcabs[m_rig->free_collcab]=m_rig->free_cab; 
+            m_rig->collcabs[m_rig->free_collcab]=m_rig->free_cab;
             m_rig->free_collcab++;
         }
         if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_p_10xTOUGHER))
         {
-            m_rig->collcabs[m_rig->free_collcab]=m_rig->free_cab; 
+            m_rig->collcabs[m_rig->free_collcab]=m_rig->free_cab;
             m_rig->free_collcab++;
         }
         if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_u_INVULNERABLE))
         {
-            m_rig->collcabs[m_rig->free_collcab]=m_rig->free_cab; 
+            m_rig->collcabs[m_rig->free_collcab]=m_rig->free_cab;
             m_rig->free_collcab++;
         }
         if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_b_BUOYANT))
         {
-            m_rig->buoycabs[m_rig->free_buoycab]=m_rig->free_cab; 
-            m_rig->buoycabtypes[m_rig->free_buoycab]=Buoyance::BUOY_NORMAL; 
-            m_rig->free_buoycab++;   
+            m_rig->buoycabs[m_rig->free_buoycab]=m_rig->free_cab;
+            m_rig->buoycabtypes[m_rig->free_buoycab]=Buoyance::BUOY_NORMAL;
+            m_rig->free_buoycab++;
             mk_buoyance = true;
         }
         if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_r_BUOYANT_ONLY_DRAG))
         {
-            m_rig->buoycabs[m_rig->free_buoycab]=m_rig->free_cab; 
-            m_rig->buoycabtypes[m_rig->free_buoycab]=Buoyance::BUOY_DRAGONLY; 
-            m_rig->free_buoycab++; 
+            m_rig->buoycabs[m_rig->free_buoycab]=m_rig->free_cab;
+            m_rig->buoycabtypes[m_rig->free_buoycab]=Buoyance::BUOY_DRAGONLY;
+            m_rig->free_buoycab++;
             mk_buoyance = true;
         }
         if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_s_BUOYANT_NO_DRAG))
         {
-            m_rig->buoycabs[m_rig->free_buoycab]=m_rig->free_cab; 
-            m_rig->buoycabtypes[m_rig->free_buoycab]=Buoyance::BUOY_DRAGLESS; 
-            m_rig->free_buoycab++; 
+            m_rig->buoycabs[m_rig->free_buoycab]=m_rig->free_cab;
+            m_rig->buoycabtypes[m_rig->free_buoycab]=Buoyance::BUOY_DRAGLESS;
+            m_rig->free_buoycab++;
             mk_buoyance = true;
         }
 
@@ -1615,7 +1611,6 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
             collcabs_type = 2;
         }
 
-        //if (type=='D' || type == 'F' || type == 'S')
         if (collcabs_type != -1)
         {
 
@@ -1623,14 +1618,14 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
             {
                 std::stringstream msg;
                 msg << "Collcab limit (" << MAX_CABS << ") exceeded";
-                AddMessage(Message::TYPE_ERROR, msg.str());
+                this->AddMessage(Message::TYPE_ERROR, msg.str());
                 return;
             }
             else if (m_rig->free_buoycab >= MAX_CABS)
             {
                 std::stringstream msg;
                 msg << "Buoycab limit (" << MAX_CABS << ") exceeded";
-                AddMessage(Message::TYPE_ERROR, msg.str());
+                this->AddMessage(Message::TYPE_ERROR, msg.str());
                 return;
             }
 
@@ -1657,13 +1652,13 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
     submesh.backmesh_type = CabSubmesh::BACKMESH_NONE;
     m_oldstyle_cab_submeshes.push_back(submesh);
 
-    /* BACKMESH */
+    // BACKMESH
 
     if (def.backmesh)
     {
 
         // Check limit
-        if (! CheckCabLimit(1))
+        if (! this->CheckCabLimit(1))
         {
             return;
         }
@@ -1785,9 +1780,11 @@ void RigSpawner::ProcessFlexbody(std::shared_ptr<RigDef::Flexbody> def)
 
 void RigSpawner::ProcessProp(RigDef::Prop & def)
 {
+    // ####### TODO: Props are gfx-only feature, they should be spawned by `FinalizeGfxSetup()` ~ only_a_ptr, 08/2017 ####### //
+
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckPropLimit(1))
+    if (! this->CheckPropLimit(1))
     {
         return;
     }
@@ -1796,9 +1793,9 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
     int prop_index = m_rig->free_prop;
     memset(&prop, 0, sizeof(prop_t));
 
-    prop.noderef         = GetNodeIndexOrThrow(def.reference_node);
-    prop.nodex           = FindNodeIndex(def.x_axis_node);
-    prop.nodey           = FindNodeIndex(def.y_axis_node);
+    prop.noderef         = this->GetNodeIndexOrThrow(def.reference_node);
+    prop.nodex           = this->FindNodeIndex(def.x_axis_node);
+    prop.nodey           = this->FindNodeIndex(def.y_axis_node);
     if (prop.nodex == -1 || prop.nodey == -1)
     {
         return;
@@ -1815,29 +1812,29 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
     prop.rot             = Ogre::Quaternion(Ogre::Degree(def.rotation.z), Ogre::Vector3::UNIT_Z);
     prop.rot             = prop.rot * Ogre::Quaternion(Ogre::Degree(def.rotation.y), Ogre::Vector3::UNIT_Y);
     prop.rot             = prop.rot * Ogre::Quaternion(Ogre::Degree(def.rotation.x), Ogre::Vector3::UNIT_X);
-    prop.cameramode      = def.camera_settings.mode; /* Handles default value */
+    prop.cameramode      = def.camera_settings.mode; // Handles default value
     prop.wheelrotdegree  = 160.f;
-    /* Set no animation by default */
+    // Set no animation by default
     prop.animKey[0]      = -1;
     prop.animKeyState[0] = -1.f;
 
-    /* SPECIAL PROPS */
+    // SPECIAL PROPS
 
-    /* Rear view mirror (left) */
+    // Rear view mirror (left)
     if (def.special == RigDef::Prop::SPECIAL_MIRROR_LEFT)
     {
         prop.mirror = 1;
         m_curr_mirror_prop_type = CustomMaterial::MirrorPropType::MPROP_LEFT;
     }
 
-    /* Rear view mirror (right) */
+    // Rear view mirror (right)
     if (def.special == RigDef::Prop::SPECIAL_MIRROR_RIGHT)
     {
         prop.mirror = -1;
         m_curr_mirror_prop_type = CustomMaterial::MirrorPropType::MPROP_RIGHT;
     }
 
-    /* Custom steering wheel */
+    // Custom steering wheel
     Ogre::Vector3 steering_wheel_offset = Ogre::Vector3::ZERO;
     if (def.special == RigDef::Prop::SPECIAL_DASHBOARD_LEFT)
     {
@@ -1866,7 +1863,7 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
         this->SetupNewEntity(prop.wheelmo->getEntity(), Ogre::ColourValue(0, 0.5, 0.5));
     }
 
-    /* CREATE THE PROP */
+    // CREATE THE PROP
 
     prop.scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
     const std::string instance_name = this->ComposeName("PropEntity", prop_index);
@@ -1916,7 +1913,7 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
             prop.beacontype = 'b';
             prop.beacon_light_rotation_angle[0] = 2.0 * 3.14 * (std::rand() / RAND_MAX);
             prop.beacon_light_rotation_rate[0] = 4.0 * 3.14 + (std::rand() / RAND_MAX) - 0.5;
-            /* the light */
+            // the light
             auto beacon_light = gEnv->sceneManager->createLight();
             beacon_light->setType(Ogre::Light::LT_SPOTLIGHT);
             beacon_light->setDiffuseColour(def.special_prop_beacon.color);
@@ -1925,10 +1922,10 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
             beacon_light->setSpotlightRange( Ogre::Degree(35), Ogre::Degree(45) );
             beacon_light->setCastShadows(false);
             beacon_light->setVisible(false);
-            /* the flare billboard */
+            // the flare billboard
 
             auto flare_scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-            auto flare_billboard_sys = gEnv->sceneManager->createBillboardSet(1); //(propname,1);
+            auto flare_billboard_sys = gEnv->sceneManager->createBillboardSet(1);
             flare_scene_node->attachObject(flare_billboard_sys);
             flare_billboard_sys->createBillboard(0,0,0);
             if (flare_billboard_sys)
@@ -1950,7 +1947,7 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
             prop.beacon_light_rotation_rate[0] = 1.0;
             prop.beacontype = 'r';
             //the light
-            auto beacon_light=gEnv->sceneManager->createLight();//propname);
+            auto beacon_light=gEnv->sceneManager->createLight();
             beacon_light->setType(Ogre::Light::LT_POINT);
             beacon_light->setDiffuseColour( Ogre::ColourValue(1.0, 0.0, 0.0));
             beacon_light->setSpecularColour( Ogre::ColourValue(1.0, 0.0, 0.0));
@@ -1959,7 +1956,7 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
             beacon_light->setVisible(false);
             //the flare billboard
             auto flare_scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-            auto flare_billboard_sys =gEnv->sceneManager->createBillboardSet(1); //propname,1);
+            auto flare_billboard_sys =gEnv->sceneManager->createBillboardSet(1);
             flare_billboard_sys->createBillboard(0,0,0);
             flare_billboard_sys->setMaterialName("tracks/redbeaconflare");
             flare_billboard_sys->setVisibilityFlags(DEPTHMAP_DISABLED);
@@ -1979,7 +1976,7 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
             prop.beacontype='p';
             for (int k=0; k<4; k++)
             {
-                // Randomize rotation speed and timing, 
+                // Randomize rotation speed and timing,
                 // IMPORTANT: Do not remove the (Ogre::Real) casts, they affect result!
                 prop.beacon_light_rotation_angle[k]=2.0*3.14*((Ogre::Real)std::rand()/(Ogre::Real)RAND_MAX);
                 prop.beacon_light_rotation_rate[k]=4.0*3.14+((Ogre::Real)std::rand()/(Ogre::Real)RAND_MAX)-0.5;
@@ -2034,7 +2031,7 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
     m_curr_mirror_prop_scenenode = nullptr;
     m_curr_mirror_prop_type = CustomMaterial::MirrorPropType::MPROP_NONE;
 
-    /* PROCESS ANIMATIONS */
+    // PROCESS ANIMATIONS
 
     if (def.animations.size() > 10)
     {
@@ -2049,7 +2046,7 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
     {
         prop.animKeyState[anim_index] = -1.0f; // Orig: hardcoded in {add_animation}
 
-        /* Arg #1: ratio */
+        // Arg #1: ratio
         prop.animratio[anim_index] = anim_itor->ratio;
         if (anim_itor->ratio == 0) 
         {
@@ -2058,14 +2055,14 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
             AddMessage(Message::TYPE_WARNING, msg.str());
         }
 
-        /* Arg #2: option1 (lower limit) */
-        prop.constraints[anim_index].lower_limit = anim_itor->lower_limit; /* Handles default */
+        // Arg #2: option1 (lower limit)
+        prop.constraints[anim_index].lower_limit = anim_itor->lower_limit; // Handles default
 
-        /* Arg #3: option2 (upper limit) */
-        prop.constraints[anim_index].upper_limit = anim_itor->upper_limit; /* Handles default */
+        // Arg #3: option2 (upper limit)
+        prop.constraints[anim_index].upper_limit = anim_itor->upper_limit; // Handles default
 
-        /* Arg #4: source */
-        if (BITMASK_IS_1(anim_itor->source, RigDef::Animation::SOURCE_AIRSPEED)) { /* (NOTE: code formatting relaxed) */
+        // Arg #4: source
+        if (BITMASK_IS_1(anim_itor->source, RigDef::Animation::SOURCE_AIRSPEED)) { // (NOTE: code formatting relaxed)
             BITMASK_SET_1(prop.animFlags[anim_index], ANIM_FLAG_AIRSPEED);
         }
         if (BITMASK_IS_1(anim_itor->source, RigDef::Animation::SOURCE_VERTICAL_VELOCITY)) {
@@ -2168,7 +2165,7 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
         if (BITMASK_IS_1(anim_itor->source, RigDef::Animation::SOURCE_EVENT)) {
             BITMASK_SET_1(prop.animFlags[anim_index], ANIM_FLAG_EVENT);
         }
-        /* Motor-indexed sources */
+        // Motor-indexed sources
         std::list<RigDef::Animation::MotorSource>::iterator source_itor = anim_itor->motor_sources.begin();
         for ( ; source_itor != anim_itor->motor_sources.end(); source_itor++)
         {
@@ -2195,10 +2192,10 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
         }
         if (prop.animFlags[anim_index] == 0)
         {
-            AddMessage(Message::TYPE_ERROR, "Failed to identify animation source");
+            this->AddMessage(Message::TYPE_ERROR, "Failed to identify animation source");
         }
 
-        /* Anim modes */
+        // Anim modes
         if (BITMASK_IS_1(anim_itor->mode, RigDef::Animation::MODE_ROTATION_X)) {
             BITMASK_SET_1(prop.animMode[anim_index], ANIM_MODE_ROTA_X);
         }
@@ -2219,7 +2216,7 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
         }
         if (prop.animMode[anim_index] == 0)
         {
-            AddMessage(Message::TYPE_ERROR, "Failed to identify animation mode");
+            this->AddMessage(Message::TYPE_ERROR, "Failed to identify animation mode");
         }
 
         if (BITMASK_IS_1(anim_itor->mode, RigDef::Animation::MODE_AUTO_ANIMATE)) 
@@ -2269,8 +2266,8 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
             prop.animKeyState[anim_index] = 0.0f;
             prop.lastanimKS[anim_index] = 0.0f;
         }
-        
-        /* Parameter 'event:' */
+
+        // Parameter 'event:'
 
         if (! anim_itor->event.empty())
         {
@@ -2280,7 +2277,7 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
             int event_id = RoR::App::GetInputEngine()->resolveEventName(anim_itor->event);
             if (event_id == -1)
             {
-                AddMessage(Message::TYPE_ERROR, "Unknown animation event: " + anim_itor->event);
+                this->AddMessage(Message::TYPE_ERROR, "Unknown animation event: " + anim_itor->event);
             }
             else
             {
@@ -2288,7 +2285,7 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
             }
         }
 
-        /* Advance */
+        // Advance
         anim_itor++;
         anim_index++;
     }
@@ -2296,6 +2293,8 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
 
 void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
 {
+    // ####### TODO: Props are gfx-only feature, they should be spawned by `FinalizeGfxSetup()` ~ only_a_ptr, 08/2017 ####### //
+
     SPAWNER_PROFILE_SCOPED();
 
     if (m_rig->m_flares_mode == App::GFX_FLARES_NONE) { return; }
@@ -2303,16 +2302,16 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
     int blink_delay = def.blink_delay_milis;
     float size = def.size;
 
-    /* Backwards compatibility */
+    // Backwards compatibility
     if (blink_delay == -2) 
     {
         if (def.type == RigDef::Flare2::TYPE_l_LEFT_BLINKER || def.type == RigDef::Flare2::TYPE_r_RIGHT_BLINKER)
         {
-            blink_delay = -1; /* Default blink */
+            blink_delay = -1; // Default blink
         }
         else
         {
-            blink_delay = 0; /* Default no blink */
+            blink_delay = 0; // Default no blink
         }
     }
     
@@ -2332,15 +2331,15 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
     flare.blinkdelay           = (blink_delay == -1) ? 0.5f : blink_delay / 1000.f;
     flare.blinkdelay_curr      = 0.f;
     flare.blinkdelay_state     = false;
-    flare.noderef              = GetNodeIndexOrThrow(def.reference_node);
-    flare.nodex                = GetNodeIndexOrThrow(def.node_axis_x);
-    flare.nodey                = GetNodeIndexOrThrow(def.node_axis_y);
+    flare.noderef              = this->GetNodeIndexOrThrow(def.reference_node);
+    flare.nodex                = this->GetNodeIndexOrThrow(def.node_axis_x);
+    flare.nodey                = this->GetNodeIndexOrThrow(def.node_axis_y);
     flare.offsetx              = def.offset.x;
     flare.offsety              = def.offset.y;
     flare.offsetz              = def.offset.z;
     flare.size                 = size;
 
-    /* Visuals */
+    // Visuals
     flare.snode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
     std::stringstream flare_name;
     flare_name << "flare-" << m_rig->truckname << "-" << m_rig->flares.size();
@@ -2348,13 +2347,13 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
     bool using_default_material = true;
     if (flare.bbs == nullptr)
     {
-        AddMessage(Message::TYPE_WARNING, "Failed to create flare: '" + flare_name.str() + "', continuing without it (compatibility)...");
+        this->AddMessage(Message::TYPE_WARNING, "Failed to create flare: '" + flare_name.str() + "', continuing without it (compatibility)...");
     }
     else
     {
         flare.bbs->createBillboard(0,0,0);
         flare.bbs->setVisibilityFlags(DEPTHMAP_DISABLED);
-        
+
         if (def.material_name.length() == 0 || def.material_name == "default")
         {
             if (def.type == RigDef::Flare2::TYPE_b_BRAKELIGHT)
@@ -2382,10 +2381,9 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
 
     if ((App::GetGfxFlaresMode() >= App::GFX_FLARES_CURR_VEHICLE_HEAD_ONLY) && size > 0.001)
     {
-        //if (type == 'f' && usingDefaultMaterial && flaresMode >=2 && size > 0.001)
         if (def.type == RigDef::Flare2::TYPE_f_HEADLIGHT && using_default_material )
         {
-            /* front light */
+            // front light
             flare.light=gEnv->sceneManager->createLight(flare_name.str());
             flare.light->setType(Ogre::Light::LT_SPOTLIGHT);
             flare.light->setDiffuseColour( Ogre::ColourValue(1, 1, 1));
@@ -2397,16 +2395,14 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
     }
     if ((App::GetGfxFlaresMode() >= App::GFX_FLARES_ALL_VEHICLES_ALL_LIGHTS) && size > 0.001)
     {
-        //else if (type == 'f' && !usingDefaultMaterial && flaresMode >=4 && size > 0.001)
         if (def.type == RigDef::Flare2::TYPE_f_HEADLIGHT && ! using_default_material)
         {
-            /* this is a quick fix for the red backlight when frontlight is switched on */
+            // this is a quick fix for the red backlight when frontlight is switched on
             flare.light=gEnv->sceneManager->createLight(flare_name.str());
             flare.light->setDiffuseColour( Ogre::ColourValue(1.0, 0, 0));
             flare.light->setSpecularColour( Ogre::ColourValue(1.0, 0, 0));
             flare.light->setAttenuation(10.0, 1.0, 0, 0);
         }
-        //else if (type == 'R' && flaresMode >= 4 && size > 0.001)
         else if (def.type == RigDef::Flare2::TYPE_R_REVERSE_LIGHT)
         {
             flare.light=gEnv->sceneManager->createLight(flare_name.str());
@@ -2414,7 +2410,6 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
             flare.light->setSpecularColour(Ogre::ColourValue(1, 1, 1));
             flare.light->setAttenuation(20.0, 1, 0, 0);
         }
-        //else if (type == 'b' && flaresMode >= 4 && size > 0.001)
         else if (def.type == RigDef::Flare2::TYPE_b_BRAKELIGHT)
         {
             flare.light=gEnv->sceneManager->createLight(flare_name.str());
@@ -2422,7 +2417,6 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
             flare.light->setSpecularColour( Ogre::ColourValue(1.0, 0, 0));
             flare.light->setAttenuation(10.0, 1.0, 0, 0);
         }
-        //else if ((type == 'l' || type == 'r') && flaresMode >= 4 && size > 0.001)
         else if (def.type == RigDef::Flare2::TYPE_l_LEFT_BLINKER || (def.type == RigDef::Flare2::TYPE_r_RIGHT_BLINKER))
         {
             flare.light=gEnv->sceneManager->createLight(flare_name.str());
@@ -2430,10 +2424,9 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
             flare.light->setSpecularColour( Ogre::ColourValue(1, 1, 0));
             flare.light->setAttenuation(10.0, 1, 1, 0);
         }
-        //else if ((type == 'u') && flaresMode >= 4 && size > 0.001)
         else if (def.type == RigDef::Flare2::TYPE_u_USER)
         {
-            /* user light always white (TODO: improve this) */
+            // user light always white (TODO: improve this)
             flare.light=gEnv->sceneManager->createLight(flare_name.str());
             flare.light->setDiffuseColour( Ogre::ColourValue(1, 1, 1));
             flare.light->setSpecularColour( Ogre::ColourValue(1, 1, 1));
@@ -2447,7 +2440,7 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
         }
     }
 
-    /* Finalize light */
+    // Finalize light
     if (flare.light != nullptr)
     {
         flare.light->setType(Ogre::Light::LT_SPOTLIGHT);
@@ -2466,7 +2459,7 @@ Ogre::MaterialPtr RigSpawner::InstantiateManagedMaterial(Ogre::String const & so
     {
         std::stringstream msg;
         msg << "Built-in material '" << source_name << "' missing! Skipping...";
-        AddMessage(Message::TYPE_ERROR, msg.str());
+        this->AddMessage(Message::TYPE_ERROR, msg.str());
         return Ogre::MaterialPtr();
     }
 
@@ -2504,7 +2497,7 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
         {
             if (def.HasSpecularMap())
             {
-                /* FLEXMESH, damage, specular */
+                // FLEXMESH, damage, specular
                 material = this->InstantiateManagedMaterial(mat_name_base + "/speculardamage", custom_name);
                 if (material.isNull())
                 {
@@ -2516,7 +2509,7 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
             }
             else
             {
-                /* FLEXMESH, damage, no_specular */
+                // FLEXMESH, damage, no_specular
                 material = this->InstantiateManagedMaterial(mat_name_base + "/damageonly", custom_name);
                 if (material.isNull())
                 {
@@ -2530,7 +2523,7 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
         {
             if (def.HasSpecularMap())
             {
-                /* FLEXMESH, no_damage, specular */
+                // FLEXMESH, no_damage, specular
                 material = this->InstantiateManagedMaterial(mat_name_base + "/specularonly", custom_name);
                 if (material.isNull())
                 {
@@ -2541,7 +2534,7 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
             }
             else
             {
-                /* FLEXMESH, no_damage, no_specular */
+                // FLEXMESH, no_damage, no_specular
                 material = this->InstantiateManagedMaterial(mat_name_base + "/simple", custom_name);
                 if (material.isNull())
                 {
@@ -2560,7 +2553,7 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 
         if (def.HasSpecularMap())
         {
-            /* MESH, specular */
+            // MESH, specular
             material = this->InstantiateManagedMaterial(mat_name_base + "/specular", custom_name);
             if (material.isNull())
             {
@@ -2571,7 +2564,7 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
         }
         else
         {
-            /* MESH, no_specular */
+            // MESH, no_specular
             material = this->InstantiateManagedMaterial(mat_name_base + "/simple", custom_name);
             if (material.isNull())
             {
@@ -2594,7 +2587,7 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
         }
     }
 
-    /* Finalize */
+    // Finalize
 
     material->compile();
     m_managed_materials.insert(std::make_pair(def.name, material));
@@ -2608,11 +2601,12 @@ void RigSpawner::ProcessCollisionBox(RigDef::CollisionBox & def)
     auto end  = def.nodes.end();
     for ( ; itor != end; ++itor)
     {
-        std::pair<unsigned int, bool> node_result = GetNodeIndex(*itor);
+        std::pair<unsigned int, bool> node_result = this->GetNodeIndex(*itor);
         if (! node_result.second)
         {
             std::stringstream msg;
             msg << "Invalid node '" << itor->ToString() << "'";
+            this->AddMessage(Message::TYPE_ERROR, msg.str());
             continue;
         }
         m_rig->nodes[node_result.first].collisionBoundingBoxID = static_cast<char>(m_rig->collisionBoundingBoxes.size());
@@ -2628,9 +2622,8 @@ bool RigSpawner::AssignWheelToAxle(int & _out_axle_wheel, node_t *axis_node_1, n
     for (int i = 0; i < m_rig->free_wheel; i++)
     {
         wheel_t & wheel = m_rig->wheels[i];
-        if	(	(wheel.refnode0 == axis_node_1 && wheel.refnode1 == axis_node_2)
-            ||	(wheel.refnode0 == axis_node_2 && wheel.refnode1 == axis_node_1)
-            )
+        if ((wheel.wh_axis_node_0 == axis_node_1 && wheel.wh_axis_node_1 == axis_node_2) ||
+            (wheel.wh_axis_node_0 == axis_node_2 && wheel.wh_axis_node_1 == axis_node_1))
         {
             _out_axle_wheel = i;
             return true;
@@ -2643,15 +2636,15 @@ void RigSpawner::ProcessAxle(RigDef::Axle & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckAxleLimit(1))
+    if (! this->CheckAxleLimit(1))
     {
         return;
     }
 
-    node_t *wheel_1_node_1 = GetNodePointerOrThrow(def.wheels[0][0]);
-    node_t *wheel_1_node_2 = GetNodePointerOrThrow(def.wheels[0][1]);
-    node_t *wheel_2_node_1 = GetNodePointerOrThrow(def.wheels[1][0]);
-    node_t *wheel_2_node_2 = GetNodePointerOrThrow(def.wheels[1][1]);
+    node_t *wheel_1_node_1 = this->GetNodePointerOrThrow(def.wheels[0][0]);
+    node_t *wheel_1_node_2 = this->GetNodePointerOrThrow(def.wheels[0][1]);
+    node_t *wheel_2_node_1 = this->GetNodePointerOrThrow(def.wheels[1][0]);
+    node_t *wheel_2_node_2 = this->GetNodePointerOrThrow(def.wheels[1][1]);
     Axle *axle = new Axle();
 
     if (! AssignWheelToAxle(axle->wheel_1, wheel_1_node_1, wheel_1_node_2))
@@ -2659,7 +2652,7 @@ void RigSpawner::ProcessAxle(RigDef::Axle & def)
         std::stringstream msg;
         msg << "Couldn't find wheel with axis nodes '" << def.wheels[0][0].ToString()
             << "' and '" << def.wheels[0][1].ToString() << "'";
-        AddMessage(Message::TYPE_WARNING, msg.str());
+        this->AddMessage(Message::TYPE_WARNING, msg.str());
     }
 
     if (! AssignWheelToAxle(axle->wheel_2, wheel_2_node_1, wheel_2_node_2))
@@ -2667,12 +2660,12 @@ void RigSpawner::ProcessAxle(RigDef::Axle & def)
         std::stringstream msg;
         msg << "Couldn't find wheel with axis nodes '" << def.wheels[1][0].ToString()
             << "' and '" << def.wheels[1][1].ToString() << "'";
-        AddMessage(Message::TYPE_WARNING, msg.str());
+        this->AddMessage(Message::TYPE_WARNING, msg.str());
     }
 
     if (def.options.size() == 0)
     {
-        AddMessage(Message::TYPE_INFO, "No differential defined, defaulting to Open & Locked");
+        this->AddMessage(Message::TYPE_INFO, "No differential defined, defaulting to Open & Locked");
         axle->addDiffType(OPEN_DIFF);
         axle->addDiffType(LOCKED_DIFF);
     }
@@ -2693,7 +2686,7 @@ void RigSpawner::ProcessAxle(RigDef::Axle & def)
                 axle->addDiffType(SPLIT_DIFF);
                 break;
             default:
-                AddMessage(Message::TYPE_WARNING, "Unknown differential type: " + *itor);
+                this->AddMessage(Message::TYPE_WARNING, "Unknown differential type: " + *itor);
                 break;
             }
         }
@@ -2731,7 +2724,7 @@ void RigSpawner::ProcessTorqueCurve(RigDef::TorqueCurve & def)
 
     if (m_rig->engine == nullptr)
     {
-        AddMessage(Message::TYPE_WARNING, "Section 'torquecurve' found but no 'engine' defined, skipping...");
+        this->AddMessage(Message::TYPE_WARNING, "Section 'torquecurve' found but no 'engine' defined, skipping...");
         return;
     }
 
@@ -2765,10 +2758,10 @@ void RigSpawner::ProcessParticle(RigDef::Particle & def)
     m_rig->free_cparticle++;
     cparticle_t & particle = m_rig->cparticles[particle_index];
 
-    particle.emitterNode = GetNodeIndexOrThrow(def.emitter_node);
-    particle.directionNode = GetNodeIndexOrThrow(def.reference_node);
+    particle.emitterNode   = this->GetNodeIndexOrThrow(def.emitter_node);
+    particle.directionNode = this->GetNodeIndexOrThrow(def.reference_node);
 
-    /* Setup visuals */
+    // Setup visuals
     std::stringstream name;
     name << "cparticle-" << particle_index << "-" << m_rig->truckname;
     particle.snode = m_parent_scene_node->createChildSceneNode();
@@ -2783,8 +2776,8 @@ void RigSpawner::ProcessParticle(RigDef::Particle & def)
     particle.psys->setVisibilityFlags(DEPTHMAP_DISABLED);
     particle.snode->attachObject(particle.psys);
     particle.snode->setPosition(GetNode(particle.emitterNode).AbsPosition);
-    
-    /* Shut down the emitters */
+
+    // Shut down the emitters
     particle.active = false; 
     for (unsigned int i = 0; i < particle.psys->getNumEmitters(); i++)
     {
@@ -2797,7 +2790,7 @@ void RigSpawner::ProcessRopable(RigDef::Ropable & def)
     SPAWNER_PROFILE_SCOPED();
 
     ropable_t ropable;
-    ropable.node = GetNodePointerOrThrow(def.node);
+    ropable.node = this->GetNodePointerOrThrow(def.node);
     ropable.group = def.group;
     ropable.in_use = false;
     ropable.multilock = def.has_multilock;
@@ -2808,11 +2801,11 @@ void RigSpawner::ProcessTie(RigDef::Tie & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    node_t & node_1 = GetNodeOrThrow(def.root_node);
-    node_t & node_2 = GetNode( (node_1.pos == 0) ? 1 : 0 );
+    node_t & node_1 = this->GetNodeOrThrow(def.root_node);
+    node_t & node_2 = this->GetNode( (node_1.pos == 0) ? 1 : 0 );
 
     int beam_index = m_rig->free_beam;
-    beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
+    beam_t & beam = this->AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
     SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
     beam.k = def.beam_defaults->GetScaledSpringiness();
     beam.d = def.beam_defaults->GetScaledDamping();
@@ -2829,7 +2822,7 @@ void RigSpawner::ProcessTie(RigDef::Tie & def)
     beam.maxtiestress = def.max_stress;
     CreateBeamVisuals(beam, beam_index, def.beam_defaults);
 
-    /* Register tie */
+    // Register tie
     tie_t tie;
     tie.group = def.group;
     tie.tying = false;
@@ -2845,18 +2838,18 @@ void RigSpawner::ProcessRope(RigDef::Rope & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    node_t & root_node = GetNodeOrThrow(def.root_node);
-    node_t & end_node = GetNodeOrThrow(def.end_node);
+    node_t & root_node = this->GetNodeOrThrow(def.root_node);
+    node_t & end_node  = this->GetNodeOrThrow(def.end_node);
 
-    /* Add beam */
-    beam_t & beam = AddBeam(root_node, end_node, def.beam_defaults, def.detacher_group);
+    // Add beam
+    beam_t & beam = this->AddBeam(root_node, end_node, def.beam_defaults, def.detacher_group);
     SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
     beam.k = def.beam_defaults->GetScaledSpringiness();
     beam.d = def.beam_defaults->GetScaledDamping();
     beam.bounded = ROPE;
     beam.type = (def.invisible) ? BEAM_INVISIBLE_HYDRO : BEAM_HYDRO;
 
-    /* Register rope */
+    // Register rope
     rope_t rope;
     rope.beam = & beam;
     rope.locked = UNLOCKED;
@@ -2883,7 +2876,7 @@ void RigSpawner::ProcessSlidenode(RigDef::SlideNode & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    node_t & node = GetNodeOrThrow(def.slide_node);
+    node_t & node = this->GetNodeOrThrow(def.slide_node);
     SlideNode slide_node(& node, nullptr);
     slide_node.setThreshold(def.tolerance);
     slide_node.setSpringRate(def.spring_rate);
@@ -2894,7 +2887,7 @@ void RigSpawner::ProcessSlidenode(RigDef::SlideNode & def)
     }
     slide_node.setAttachmentDistance(def.max_attachment_distance);
 
-    /* Constraints */
+    // Constraints
     if (BITMASK_IS_1(def.constraint_flags, RigDef::SlideNode::CONSTRAINT_ATTACH_ALL))
     {
         slide_node.setAttachRule( ATTACH_ALL );
@@ -2912,7 +2905,7 @@ void RigSpawner::ProcessSlidenode(RigDef::SlideNode & def)
         slide_node.setAttachRule( ATTACH_NONE );
     }
 
-    /* RailGroup */
+    // RailGroup
     RailGroup *rail_group = nullptr;
     if (def._railgroup_id_set)
     {
@@ -2930,7 +2923,7 @@ void RigSpawner::ProcessSlidenode(RigDef::SlideNode & def)
         {
             std::stringstream msg;
             msg << "Specified rail group id '" << def.railgroup_id << "' not found. Ignoring slidenode...";
-            AddMessage(Message::TYPE_ERROR, msg.str());
+            this->AddMessage(Message::TYPE_ERROR, msg.str());
             return;
         }
     }
@@ -2946,7 +2939,7 @@ void RigSpawner::ProcessSlidenode(RigDef::SlideNode & def)
     }
     else
     {
-        AddMessage(Message::TYPE_ERROR, "No RailGroup available for SlideNode, skipping...");
+        this->AddMessage(Message::TYPE_ERROR, "No RailGroup available for SlideNode, skipping...");
     }
 
     slide_node.setDefaultRail(rail_group);
@@ -2957,7 +2950,7 @@ int RigSpawner::FindNodeIndex(RigDef::Node::Ref & node_ref, bool silent /* Defau
 {
     SPAWNER_PROFILE_SCOPED();
 
-    std::pair<unsigned int, bool> result = GetNodeIndex(node_ref, /* quiet */ true);
+    std::pair<unsigned int, bool> result = this->GetNodeIndex(node_ref, /* quiet */ true);
     if (result.second)
     {
         return static_cast<int>(result.first);
@@ -2968,9 +2961,9 @@ int RigSpawner::FindNodeIndex(RigDef::Node::Ref & node_ref, bool silent /* Defau
         {
             std::stringstream msg;
             msg << "Failed to find node by reference: " << node_ref.ToString();
-            AddMessage(Message::TYPE_ERROR, msg.str());
+            this->AddMessage(Message::TYPE_ERROR, msg.str());
         }
-        return -1; /* Node not found */
+        return -1; // Node not found
     }
 }
 
@@ -2987,8 +2980,8 @@ bool RigSpawner::CollectNodesFromRanges(
         if (itor->IsRange())
         {
 
-            int result_a = FindNodeIndex(itor->start, /* silent */ false);
-            int result_b = FindNodeIndex(itor->end,   /* silent */ true);
+            int result_a = this->FindNodeIndex(itor->start, /* silent */ false);
+            int result_b = this->FindNodeIndex(itor->end,   /* silent */ true);
 
             unsigned int start = 0;
             unsigned int end = 0;
@@ -3008,16 +3001,16 @@ bool RigSpawner::CollectNodesFromRanges(
                 msg << "Encountered non-existent node '" << itor->end.ToString() << "' in range [" << itor->start.ToString() << " - " << itor->end.ToString() << "], "
                     << "highest node index is '" << m_rig->free_node - 1 << "'.";
 
-                if (itor->end.Str().empty()) /* If the node is numeric... */
+                if (itor->end.Str().empty()) // If the node is numeric...
                 {
                     msg << " However, this node must be accepted anyway for backwards compatibility."
                         << " Please fix this as soon as possible.";
                     end = itor->end.Num();
-                    AddMessage(Message::TYPE_ERROR, msg.str());
+                    this->AddMessage(Message::TYPE_ERROR, msg.str());
                 }
                 else
                 {
-                    AddMessage(Message::TYPE_ERROR, msg.str());
+                    this->AddMessage(Message::TYPE_ERROR, msg.str());
                     return false;
                 }
             }
@@ -3050,14 +3043,14 @@ Rail *RigSpawner::CreateRail(std::vector<RigDef::Node::Range> & node_ranges)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    /* Collect nodes */
+    // Collect nodes
     std::vector<unsigned int> node_indices;
     node_indices.reserve(100);
 
-    CollectNodesFromRanges(node_ranges, node_indices);
+    this->CollectNodesFromRanges(node_ranges, node_indices);
 
-    /* Find beams &build rail */
-    RailBuilder rail_builder; /* rail builder allocates the memory for each rail, it will not free it */
+    // Find beams &build rail
+    RailBuilder rail_builder; // rail builder allocates the memory for each rail, it will not free it
     if (node_indices.front() == node_indices.back())
     {
         rail_builder.loopRail();
@@ -3065,18 +3058,18 @@ Rail *RigSpawner::CreateRail(std::vector<RigDef::Node::Range> & node_ranges)
 
     for (unsigned int i = 0; i < node_indices.size() - 1; i++)
     {
-        beam_t *beam = FindBeamInRig(node_indices[i], node_indices[i + 1]);
+        beam_t *beam = this->FindBeamInRig(node_indices[i], node_indices[i + 1]);
         if (beam == nullptr)
         {
             std::stringstream msg;
             msg << "No beam between nodes indexed '" << node_indices[i] << "' and '" << node_indices[i + 1] << "'";
-            AddMessage(Message::TYPE_ERROR, msg.str());
+            this->AddMessage(Message::TYPE_ERROR, msg.str());
             return nullptr;
         }
         rail_builder.pushBack(beam);
     }
 
-    return rail_builder.getCompletedRail(); /* Transfers memory ownership */
+    return rail_builder.getCompletedRail(); // Transfers memory ownership
 }
 
 beam_t *RigSpawner::FindBeamInRig(unsigned int node_a_index, unsigned int node_b_index)
@@ -3088,12 +3081,10 @@ beam_t *RigSpawner::FindBeamInRig(unsigned int node_a_index, unsigned int node_b
 
     for (unsigned int i = 0; i < static_cast<unsigned int>(m_rig->free_beam); i++)
     {
-        if	(
-                (GetBeam(i).p1 == node_a && GetBeam(i).p2 == node_b)
-            ||	(GetBeam(i).p2 == node_a && GetBeam(i).p1 == node_b)
-            )
+        if ((this->GetBeam(i).p1 == node_a && GetBeam(i).p2 == node_b) ||
+            (this->GetBeam(i).p2 == node_a && GetBeam(i).p1 == node_b))
         {
-            return & GetBeam(i);
+            return & this->GetBeam(i);
         }
     }
     return nullptr;
@@ -3103,14 +3094,14 @@ void RigSpawner::ProcessHook(RigDef::Hook & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    /* Find the node */
-    node_t *node = GetNodePointer(def.node);
+    // Find the node
+    node_t *node = this->GetNodePointer(def.node);
     if (node ==  nullptr)
     {
         return;
     }
-    
-    /* Find the hook */
+
+    // Find the hook
     hook_t *hook = nullptr;
     std::vector <hook_t>::iterator itor = m_rig->hooks.begin();
     for (; itor != m_rig->hooks.end(); itor++)
@@ -3126,11 +3117,11 @@ void RigSpawner::ProcessHook(RigDef::Hook & def)
     {
         std::stringstream msg;
         msg << "Node '" << def.node.ToString() << "' is not a hook-node (not marked with flag 'h'), ignoring...";
-        AddMessage(Message::TYPE_ERROR, msg.str());
+        this->AddMessage(Message::TYPE_ERROR, msg.str());
         return;
     }
 
-    /* Process options */
+    // Process options
     hook->lockrange = def.option_hook_range;
     hook->lockspeed = def.option_speed_coef * HOOK_SPEED_DEFAULT;
     hook->maxforce  = def.option_max_force;
@@ -3146,7 +3137,7 @@ void RigSpawner::ProcessHook(RigDef::Hook & def)
         hook->autolock = true;
         if (hook->group == -1)
         {
-            hook->group = -2; /* only overwrite hgroup when its still default (-1) */
+            hook->group = -2; // only overwrite hgroup when its still default (-1)
         }
     }
     if (BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_NO_ROPE))
@@ -3167,7 +3158,7 @@ void RigSpawner::ProcessLockgroup(RigDef::Lockgroup & lockgroup)
     auto end  = lockgroup.nodes.end();
     for (; itor != end; ++itor)
     {
-        GetNodeOrThrow(*itor).lockgroup = lockgroup.number;
+        this->GetNodeOrThrow(*itor).lockgroup = lockgroup.number;
     }
 }
 
@@ -3237,7 +3228,7 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
         {
             std::stringstream msg;
             msg << "Invalid value of 'shortbound_trigger_action': '" << def.shortbound_trigger_action << "'. Must be between 1 and "<<MAX_COMMANDS<<". Ignoring trigger.";
-            AddMessage(Message::TYPE_ERROR, msg.str());
+            this->AddMessage(Message::TYPE_ERROR, msg.str());
             return;
         }
     }
@@ -3246,7 +3237,7 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
         // this is a Trigger-Blocker, make special check
         if (def.shortbound_trigger_action < 0 || def.longbound_trigger_action < 0)
         {
-            AddMessage(Message::TYPE_ERROR, "Wrong command-eventnumber (Triggers). Trigger-Blocker deactivated.");
+            this->AddMessage(Message::TYPE_ERROR, "Wrong command-eventnumber (Triggers). Trigger-Blocker deactivated.");
             return;
         }
     }
@@ -3254,30 +3245,30 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
     {
         if (def.IsTriggerBlockerAnyType() || def.IsHookToggleTrigger() || def.HasFlag_s_CmdNumSwitch())
         {
-            AddMessage(Message::TYPE_ERROR, "Wrong command-eventnumber (Triggers). Engine trigger deactivated.");
+            this->AddMessage(Message::TYPE_ERROR, "Wrong command-eventnumber (Triggers). Engine trigger deactivated.");
             return;
         }
     }
 
-    int node_1_index = FindNodeIndex(def.nodes[0]);
-    int node_2_index = FindNodeIndex(def.nodes[1]);
+    int node_1_index = this->FindNodeIndex(def.nodes[0]);
+    int node_2_index = this->FindNodeIndex(def.nodes[1]);
     if (node_1_index == -1 || node_2_index == -1 )
     {
         return;
     }
     int beam_index = m_rig->free_beam;
-    beam_t & beam = AddBeam(GetNode(node_1_index), GetNode(node_2_index), def.beam_defaults, def.detacher_group);
+    beam_t & beam = this->AddBeam(GetNode(node_1_index), GetNode(node_2_index), def.beam_defaults, def.detacher_group);
     beam.type = hydro_type;
-    SetBeamStrength(beam, def.beam_defaults->breaking_threshold);
-    SetBeamSpring(beam, 0.f);
-    SetBeamDamping(beam, 0.f);
-    CalculateBeamLength(beam);
+    this->SetBeamStrength(beam, def.beam_defaults->breaking_threshold);
+    this->SetBeamSpring(beam, 0.f);
+    this->SetBeamDamping(beam, 0.f);
+    this->CalculateBeamLength(beam);
     beam.shortbound = short_limit;
     beam.longbound = long_limit;
     beam.bounded = SHOCK2;
     beam.shock = &shock;
 
-    CreateBeamVisuals(beam, beam_index, def.beam_defaults);
+    this->CreateBeamVisuals(beam, beam_index, def.beam_defaults);
 
     if (m_rig->triggerdebug)
     {
@@ -3300,8 +3291,8 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
             // this is a commandkeyblocker
             shock_flags |= SHOCK_FLAG_TRG_CMD_BLOCKER;
         }
-    } 
-    else 
+    }
+    else
     {
         // this is a trigger_blocker
         if (!def.HasFlag_A_InvTriggerBlocker())
@@ -3310,7 +3301,7 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
             shock_flags |= SHOCK_FLAG_TRG_BLOCKER;
             shock.trigger_cmdshort = def.shortbound_trigger_action;
             shock.trigger_cmdlong  = def.longbound_trigger_action;
-        } 
+        }
         else
         {
             //inverted BLOCKER
@@ -3334,14 +3325,13 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
     shock.sbd_spring         = def.beam_defaults->springiness;
     shock.sbd_damp           = def.beam_defaults->damping_constant;
     shock.last_debug_state   = 0;
-    
 }
 
 void RigSpawner::ProcessContacter(RigDef::Node::Ref & node_ref)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    unsigned int node_index = GetNodeIndexOrThrow(node_ref);
+    unsigned int node_index = this->GetNodeIndexOrThrow(node_ref);
     m_rig->contacters[m_rig->free_contacter].nodeid = node_index;
     m_rig->free_contacter++;
 };
@@ -3354,16 +3344,16 @@ void RigSpawner::ProcessRotator(RigDef::Rotator & def)
 
     rotator.angle = 0;
     rotator.rate = def.rate;
-    rotator.axis1 = GetNodeIndexOrThrow(def.axis_nodes[0]);
-    rotator.axis2     = GetNodeIndexOrThrow(def.axis_nodes[1]);
+    rotator.axis1     = this->GetNodeIndexOrThrow(def.axis_nodes[0]);
+    rotator.axis2     = this->GetNodeIndexOrThrow(def.axis_nodes[1]);
     rotator.force     = ROTATOR_FORCE_DEFAULT;
     rotator.tolerance = ROTATOR_TOLERANCE_DEFAULT;
     rotator.rotatorEngineCoupling = def.engine_coupling;
     rotator.rotatorNeedsEngine = def.needs_engine;
     for (unsigned int i = 0; i < 4; i++)
     {
-        rotator.nodes1[i] = GetNodeIndexOrThrow(def.base_plate_nodes[i]);
-        rotator.nodes2[i] = GetNodeIndexOrThrow(def.rotating_plate_nodes[i]);
+        rotator.nodes1[i] = this->GetNodeIndexOrThrow(def.base_plate_nodes[i]);
+        rotator.nodes2[i] = this->GetNodeIndexOrThrow(def.rotating_plate_nodes[i]);
     }
 
     // Rotate left key
@@ -3373,7 +3363,7 @@ void RigSpawner::ProcessRotator(RigDef::Rotator & def)
     // Rotate right key
     m_rig->commandkey[def.spin_right_key].rotators.push_back(m_rig->free_rotator + 1);
 
-    _ProcessKeyInertia(m_rig->rotaInertia, def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
+    this->_ProcessKeyInertia(m_rig->rotaInertia, def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
 
     m_rig->free_rotator++;
     m_rig->hascommands = 1;
@@ -3387,16 +3377,16 @@ void RigSpawner::ProcessRotator2(RigDef::Rotator2 & def)
 
     rotator.angle = 0;
     rotator.rate = def.rate;
-    rotator.axis1 = GetNodeIndexOrThrow(def.axis_nodes[0]);
-    rotator.axis2     = GetNodeIndexOrThrow(def.axis_nodes[1]);
+    rotator.axis1     = this->GetNodeIndexOrThrow(def.axis_nodes[0]);
+    rotator.axis2     = this->GetNodeIndexOrThrow(def.axis_nodes[1]);
     rotator.force     = def.rotating_force; // Default value is set in constructor
     rotator.tolerance = def.tolerance; // Default value is set in constructor
     rotator.rotatorEngineCoupling = def.engine_coupling;
     rotator.rotatorNeedsEngine = def.needs_engine;
     for (unsigned int i = 0; i < 4; i++)
     {
-        rotator.nodes1[i] = GetNodeIndexOrThrow(def.base_plate_nodes[i]);
-        rotator.nodes2[i] = GetNodeIndexOrThrow(def.rotating_plate_nodes[i]);
+        rotator.nodes1[i] = this->GetNodeIndexOrThrow(def.base_plate_nodes[i]);
+        rotator.nodes2[i] = this->GetNodeIndexOrThrow(def.rotating_plate_nodes[i]);
     }
 
     // Rotate left key
@@ -3413,7 +3403,7 @@ void RigSpawner::ProcessRotator2(RigDef::Rotator2 & def)
     // Rotate right key
     m_rig->commandkey[def.spin_right_key].rotators.push_back(m_rig->free_rotator + 1);
 
-    _ProcessKeyInertia(m_rig->rotaInertia, def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
+    this->_ProcessKeyInertia(m_rig->rotaInertia, def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
 
     m_rig->free_rotator++;
     m_rig->hascommands = 1;
@@ -3486,18 +3476,18 @@ void RigSpawner::ProcessCommand(RigDef::Command2 & def)
     SPAWNER_PROFILE_SCOPED();
 
     int beam_index = m_rig->free_beam;
-    int node_1_index = FindNodeIndex(def.nodes[0]);
-    int node_2_index = FindNodeIndex(def.nodes[1]);
+    int node_1_index = this->FindNodeIndex(def.nodes[0]);
+    int node_2_index = this->FindNodeIndex(def.nodes[1]);
     if (node_1_index == -1 || node_2_index == -1)
     {
         AddMessage(Message::TYPE_ERROR, "Failed to fetch node");
         return;
     }
     beam_t & beam = AddBeam(m_rig->nodes[node_1_index], m_rig->nodes[node_2_index], def.beam_defaults, def.detacher_group);
-    CalculateBeamLength(beam);
-    SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold()); /* Override settings from AddBeam() */
-    SetBeamSpring(beam, def.beam_defaults->GetScaledSpringiness());
-    SetBeamDamping(beam, def.beam_defaults->GetScaledDamping());
+    this->CalculateBeamLength(beam);
+    this->SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold()); // Override settings from AddBeam()
+    this->SetBeamSpring  (beam, def.beam_defaults->GetScaledSpringiness());
+    this->SetBeamDamping (beam, def.beam_defaults->GetScaledDamping());
     beam.type = BEAM_HYDRO;
 
     /* Options */
@@ -3516,7 +3506,7 @@ void RigSpawner::ProcessCommand(RigDef::Command2 & def)
     beam.commandNeedsEngine    = def.needs_engine;
     beam.playsSound            = def.plays_sound;
 
-    /* set the middle of the command, so its not required to recalculate this everytime ... */
+    // set the middle of the command, so its not required to recalculate this everytime ...
     if (def.max_extension > def.max_contraction)
     {
         beam.centerLength = (def.max_extension - def.max_contraction) / 2 + def.max_contraction;
@@ -3526,9 +3516,9 @@ void RigSpawner::ProcessCommand(RigDef::Command2 & def)
         beam.centerLength = (def.max_contraction - def.max_extension) / 2 + def.max_extension;
     }
 
-    _ProcessKeyInertia(m_rig->cmdInertia, def.inertia, *def.inertia_defaults, def.contract_key, def.extend_key);	
+    this->_ProcessKeyInertia(m_rig->cmdInertia, def.inertia, *def.inertia_defaults, def.contract_key, def.extend_key);	
 
-    /* Add keys */
+    // Add keys
     command_t* contract_command = &m_rig->commandkey[def.contract_key];
     contract_command->beams.push_back(-beam_index);
     if (contract_command->description.empty())
@@ -3543,7 +3533,7 @@ void RigSpawner::ProcessCommand(RigDef::Command2 & def)
         extend_command->description = def.description;
     }
 
-    CreateBeamVisuals(beam, beam_index, def.beam_defaults);
+    this->CreateBeamVisuals(beam, beam_index, def.beam_defaults); // TODO: defer this to `FinalizeGfxSetup()` ~ only_a_ptr, 08/2017
 
     m_rig->free_commands++;
     m_rig->hascommands = 1;
@@ -3553,7 +3543,7 @@ void RigSpawner::ProcessAnimator(RigDef::Animator & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckHydroLimit(1)) // TODO: remove the limit! See `RigSpawner::CalcMemoryRequirements()` ~ only_a_ptr, 06/2017
+    if (! this->CheckHydroLimit(1)) // TODO: remove the limit! See `RigSpawner::CalcMemoryRequirements()` ~ only_a_ptr, 06/2017
     {
         return;
     }
@@ -3576,7 +3566,7 @@ void RigSpawner::ProcessAnimator(RigDef::Animator & def)
     unsigned int anim_flags = 0;
     float anim_option = 0;
 
-    /* Options. '{' intentionally misplaced. */
+    // Options. '{' intentionally misplaced.
 
     if (BITMASK_IS_1(def.flags, RigDef::Animator::OPTION_VISIBLE)) {
         hydro_type = BEAM_HYDRO;
@@ -3663,8 +3653,8 @@ void RigSpawner::ProcessAnimator(RigDef::Animator & def)
         BITMASK_SET_1(anim_flags, ANIM_FLAG_ALTIMETER);
         anim_option = 3.f;
     }
-    
-    /* Aerial */
+
+    // Aerial
     if (BITMASK_IS_1(def.aero_animator.flags, RigDef::AeroAnimator::OPTION_THROTTLE)) {
         BITMASK_SET_1(anim_flags, ANIM_FLAG_THROTTLE);
         anim_option = static_cast<float>(def.aero_animator.motor);
@@ -3688,18 +3678,18 @@ void RigSpawner::ProcessAnimator(RigDef::Animator & def)
 
     unsigned int beam_index = m_rig->free_beam;
     beam_t & beam = AddBeam(GetNode(def.nodes[0]), GetNode(def.nodes[1]), def.beam_defaults, def.detacher_group);
-    /* set the limits to something with sense by default */
+    // set the limits to something with sense by default
     beam.shortbound = 0.99999f;
     beam.longbound = 1000000.0f;
     beam.type = hydro_type;
     beam.hydroRatio = def.lenghtening_factor;
     beam.animFlags = anim_flags;
     beam.animOption = anim_option;
-    CalculateBeamLength(beam);
-    SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
-    SetBeamSpring(beam, def.beam_defaults->GetScaledSpringiness());
-    SetBeamDamping(beam, def.beam_defaults->GetScaledDamping());
-    CreateBeamVisuals(beam, beam_index, def.beam_defaults);
+    this->CalculateBeamLength(beam);
+    this->SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
+    this->SetBeamSpring  (beam, def.beam_defaults->GetScaledSpringiness());
+    this->SetBeamDamping (beam, def.beam_defaults->GetScaledDamping());
+    this->CreateBeamVisuals(beam, beam_index, def.beam_defaults); // TODO: defer this to `FinalizeGfxSetup()` ~ only_a_ptr, 08/2017
 
     if (BITMASK_IS_1(def.flags, RigDef::Animator::OPTION_SHORT_LIMIT)) 
     {
@@ -3715,26 +3705,26 @@ void RigSpawner::ProcessAnimator(RigDef::Animator & def)
 }
 
 beam_t & RigSpawner::AddBeam(
-    node_t & node_1, 
-    node_t & node_2, 
+    node_t & node_1,
+    node_t & node_2,
     std::shared_ptr<RigDef::BeamDefaults> & beam_defaults,
     int detacher_group
 )
 {
     SPAWNER_PROFILE_SCOPED();
 
-    /* Init */
-    beam_t & beam = GetAndInitFreeBeam(node_1, node_2);
+    // Init
+    beam_t & beam = this->GetAndInitFreeBeam(node_1, node_2);
     beam.detacher_group = detacher_group;
     beam.diameter = beam_defaults->visual_beam_diameter;
     beam.disabled = false;
 
-    /* Breaking threshold (strength) */
+    // Breaking threshold (strength)
     float strength = beam_defaults->breaking_threshold;
     beam.strength = strength;
 
-    /* Deformation */
-    SetBeamDeformationThreshold(beam, beam_defaults);
+    // Deformation
+    this->SetBeamDeformationThreshold(beam, beam_defaults);
 
     float plastic_coef = beam_defaults->plastic_deform_coef;
     beam.plastic_coef = plastic_coef;
@@ -3774,48 +3764,48 @@ void RigSpawner::ProcessHydro(RigDef::Hydro & def)
             const char c = def.options[i];
             switch (c)
             {
-                case RigDef::Hydro::OPTION_i_INVISIBLE:  // i
+                case RigDef::Hydro::OPTION_i_INVISIBLE:
                     hydro_type = BEAM_INVISIBLE_HYDRO;
                     break;
-                case RigDef::Hydro::OPTION_n_NORMAL:  // n
+                case RigDef::Hydro::OPTION_n_NORMAL:
                     hydro_type = BEAM_HYDRO;
                     hydro_flags |= HYDRO_FLAG_DIR;
                     break;
-                case RigDef::Hydro::OPTION_s_DISABLE_ON_HIGH_SPEED:  // 's': // speed changing hydro
+                case RigDef::Hydro::OPTION_s_DISABLE_ON_HIGH_SPEED:
                     hydro_flags |= HYDRO_FLAG_SPEED;
                     break;
-                case RigDef::Hydro::OPTION_a_INPUT_AILERON:  // 'a':
+                case RigDef::Hydro::OPTION_a_INPUT_AILERON:
                     hydro_flags |= HYDRO_FLAG_AILERON;
                     break;
-                case RigDef::Hydro::OPTION_r_INPUT_RUDDER:  // 'r':
+                case RigDef::Hydro::OPTION_r_INPUT_RUDDER:
                     hydro_flags |= HYDRO_FLAG_RUDDER;
                     break;
-                case RigDef::Hydro::OPTION_e_INPUT_ELEVATOR:  // 'e':
+                case RigDef::Hydro::OPTION_e_INPUT_ELEVATOR:
                     hydro_flags |= HYDRO_FLAG_ELEVATOR;
                     break;
-                case RigDef::Hydro::OPTION_u_INPUT_AILERON_ELEVATOR:  // 'u':
+                case RigDef::Hydro::OPTION_u_INPUT_AILERON_ELEVATOR:
                     hydro_flags |= (HYDRO_FLAG_AILERON | HYDRO_FLAG_ELEVATOR);
                     break;
-                case RigDef::Hydro::OPTION_v_INPUT_InvAILERON_ELEVATOR:  // 'v':
+                case RigDef::Hydro::OPTION_v_INPUT_InvAILERON_ELEVATOR:
                     hydro_flags |= (HYDRO_FLAG_REV_AILERON | HYDRO_FLAG_ELEVATOR);
                     break;
-                case RigDef::Hydro::OPTION_x_INPUT_AILERON_RUDDER:  // 'x':
+                case RigDef::Hydro::OPTION_x_INPUT_AILERON_RUDDER:
                     hydro_flags |= (HYDRO_FLAG_AILERON | HYDRO_FLAG_RUDDER);
                     break;
-                case RigDef::Hydro::OPTION_y_INPUT_InvAILERON_RUDDER:  // 'y':
+                case RigDef::Hydro::OPTION_y_INPUT_InvAILERON_RUDDER:
                     hydro_flags |= (HYDRO_FLAG_REV_AILERON | HYDRO_FLAG_RUDDER);
                     break;
-                case RigDef::Hydro::OPTION_g_INPUT_ELEVATOR_RUDDER:  // 'g':
+                case RigDef::Hydro::OPTION_g_INPUT_ELEVATOR_RUDDER:
                     hydro_flags |= (HYDRO_FLAG_ELEVATOR | HYDRO_FLAG_RUDDER);
                     break;
-                case RigDef::Hydro::OPTION_h_INPUT_InvELEVATOR_RUDDER:  // 'h':
+                case RigDef::Hydro::OPTION_h_INPUT_InvELEVATOR_RUDDER:
                     hydro_flags |= (HYDRO_FLAG_REV_ELEVATOR | HYDRO_FLAG_RUDDER);
                     break;
                 default:
                     this->AddMessage(Message::TYPE_WARNING, std::string("Ignoring invalid flag:") + c);
                     break;
             }
-            
+
             // NOTE: This is a quirk ported from v0.4.0.7 spawner (for compatibility)
             //       This code obviously belongs after the options-loop.
             //       However, since it's inside the loop, it only works correctly if the 'i' flag is last.
@@ -3828,22 +3818,22 @@ void RigSpawner::ProcessHydro(RigDef::Hydro & def)
         }
     }
 
-    _ProcessKeyInertia(m_rig->hydroInertia, def.inertia, *def.inertia_defaults, m_rig->free_hydro, m_rig->free_hydro);	
+    this->_ProcessKeyInertia(m_rig->hydroInertia, def.inertia, *def.inertia_defaults, m_rig->free_hydro, m_rig->free_hydro);	
 
-    node_t & node_1 = GetNode(def.nodes[0]);
-    node_t & node_2 = GetNode(def.nodes[1]);
+    node_t & node_1 = this->GetNode(def.nodes[0]);
+    node_t & node_2 = this->GetNode(def.nodes[1]);
 
     int beam_index = m_rig->free_beam;
-    beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
-    SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
-    CalculateBeamLength(beam);
+    beam_t & beam = this->AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
+    this->SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
+    this->CalculateBeamLength(beam);
     beam.type                 = hydro_type;
     beam.k                    = def.beam_defaults->GetScaledSpringiness();
     beam.d                    = def.beam_defaults->GetScaledDamping();
     beam.hydroFlags           = hydro_flags;
     beam.hydroRatio           = def.lenghtening_factor;
 
-    CreateBeamVisuals(beam, beam_index, def.beam_defaults);
+    this->CreateBeamVisuals(beam, beam_index, def.beam_defaults);
 
     m_rig->hydro[m_rig->free_hydro] = beam_index;
     m_rig->free_hydro++;
@@ -3853,8 +3843,8 @@ void RigSpawner::ProcessShock2(RigDef::Shock2 & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    node_t & node_1 = GetNode(def.nodes[0]);
-    node_t & node_2 = GetNode(def.nodes[1]);
+    node_t & node_1 = this->GetNode(def.nodes[0]);
+    node_t & node_2 = this->GetNode(def.nodes[1]);
     float short_bound = def.short_bound;
     float long_bound = def.long_bound;
     unsigned int hydro_type = BEAM_HYDRO;
@@ -3884,7 +3874,7 @@ void RigSpawner::ProcessShock2(RigDef::Shock2 & def)
 
         if (long_bound < 0.f)
         {
-            AddMessage(
+            this->AddMessage(
                 Message::TYPE_WARNING, 
                 "Metric shock length calculation failed, 'short_bound' less than beams spawn length. Resetting to beam's spawn length (short_bound = 0)"
             );
@@ -3893,7 +3883,7 @@ void RigSpawner::ProcessShock2(RigDef::Shock2 & def)
 
         if (short_bound > 1.f)
         {
-            AddMessage(
+            this->AddMessage(
                 Message::TYPE_WARNING, 
                 "Metric shock length calculation failed, 'short_bound' less than 0 meters. Resetting to 0 meters (short_bound = 1)"
             );
@@ -3902,8 +3892,8 @@ void RigSpawner::ProcessShock2(RigDef::Shock2 & def)
     }
     
     int beam_index = m_rig->free_beam;
-    beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
-    SetBeamStrength(beam, def.beam_defaults->breaking_threshold * 4.f);
+    beam_t & beam = this->AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
+    this->SetBeamStrength(beam, def.beam_defaults->breaking_threshold * 4.f);
     beam.type                 = hydro_type;
     beam.bounded              = SHOCK2;
     beam.k                    = def.spring_in;
@@ -3911,15 +3901,15 @@ void RigSpawner::ProcessShock2(RigDef::Shock2 & def)
     beam.shortbound           = short_bound;
     beam.longbound            = long_bound;
 
-    /* Length + pre-compression */
-    CalculateBeamLength(beam);
+    // Length + pre-compression
+    this->CalculateBeamLength(beam);
     beam.L          *= def.precompression;
     beam.refL       *= def.precompression;
     beam.Lhydro     *= def.precompression;
 
-    CreateBeamVisuals(beam, beam_index, def.beam_defaults);
+    this->CreateBeamVisuals(beam, beam_index, def.beam_defaults);
 
-    shock_t & shock  = GetFreeShock();
+    shock_t & shock  = this->GetFreeShock();
     shock.flags      = shock_flags;
     shock.sbd_spring = def.beam_defaults->springiness;
     shock.sbd_damp   = def.beam_defaults->damping_constant;
@@ -3940,8 +3930,8 @@ void RigSpawner::ProcessShock(RigDef::Shock & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    node_t & node_1 = GetNode(def.nodes[0]);
-    node_t & node_2 = GetNode(def.nodes[1]);
+    node_t & node_1 = this->GetNode(def.nodes[0]);
+    node_t & node_2 = this->GetNode(def.nodes[1]);
     float short_bound = def.short_bound;
     float long_bound = def.long_bound;
     unsigned int hydro_type = BEAM_HYDRO;
@@ -3954,13 +3944,13 @@ void RigSpawner::ProcessShock(RigDef::Shock & def)
     }
     if (BITMASK_IS_1(def.options, RigDef::Shock::OPTION_L_ACTIVE_LEFT))
     {
-        BITMASK_SET_0(shock_flags, SHOCK_FLAG_NORMAL); /* Not normal anymore */
+        BITMASK_SET_0(shock_flags, SHOCK_FLAG_NORMAL); // Not normal anymore
         BITMASK_SET_1(shock_flags, SHOCK_FLAG_LACTIVE);
         m_rig->has_active_shocks = true;
     }
     if (BITMASK_IS_1(def.options, RigDef::Shock::OPTION_R_ACTIVE_RIGHT))
     {
-        BITMASK_SET_0(shock_flags, SHOCK_FLAG_NORMAL); /* Not normal anymore */
+        BITMASK_SET_0(shock_flags, SHOCK_FLAG_NORMAL); // Not normal anymore
         BITMASK_SET_1(shock_flags, SHOCK_FLAG_RACTIVE);
         m_rig->has_active_shocks = true;
     }
@@ -3972,17 +3962,17 @@ void RigSpawner::ProcessShock(RigDef::Shock & def)
     }
     
     int beam_index = m_rig->free_beam;
-    beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
+    beam_t & beam = this->AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
     beam.shortbound = short_bound;
     beam.longbound  = long_bound;
     beam.bounded    = SHOCK1;
     beam.type       = hydro_type;
     beam.k          = def.spring_rate;
     beam.d          = def.damping;
-    SetBeamStrength(beam, def.beam_defaults->breaking_threshold * 4.f);
+    this->SetBeamStrength(beam, def.beam_defaults->breaking_threshold * 4.f);
 
-    /* Length + pre-compression */
-    CalculateBeamLength(beam);
+    // Length + pre-compression
+    this->CalculateBeamLength(beam);
     beam.L          *= def.precompression;
     beam.refL       *= def.precompression;
     beam.Lhydro     *= def.precompression;
@@ -3992,30 +3982,30 @@ void RigSpawner::ProcessShock(RigDef::Shock & def)
     shock.sbd_spring = def.beam_defaults->springiness;
     shock.sbd_damp   = def.beam_defaults->damping_constant;
 
-    /* Create beam visuals, but don't attach them to scene graph */
-    /* Old parser did it like this, I don't know why ~ only_a_ptr 13-04-14 */
-    CreateBeamVisuals(beam, beam_index, def.beam_defaults);
+    // Create beam visuals, but don't attach them to scene graph
+    // Old parser did it like this, I don't know why ~ only_a_ptr 04/2014
+    this->CreateBeamVisuals(beam, beam_index, def.beam_defaults);
 
     beam.shock = & shock;
     shock.beamid = beam_index;
 }
 
 void RigSpawner::FetchAxisNodes(
-    node_t* & axis_node_1, 
-    node_t* & axis_node_2, 
+    node_t* & axis_node_1,
+    node_t* & axis_node_2,
     RigDef::Node::Ref const & axis_node_1_id,
     RigDef::Node::Ref const & axis_node_2_id
 )
 {
     SPAWNER_PROFILE_SCOPED();
 
-    axis_node_1 = GetNodePointer(axis_node_1_id);
-    axis_node_2 = GetNodePointer(axis_node_2_id);
+    axis_node_1 = this->GetNodePointer(axis_node_1_id);
+    axis_node_2 = this->GetNodePointer(axis_node_2_id);
 
     Ogre::Vector3 pos_1 = axis_node_1->AbsPosition;
     Ogre::Vector3 pos_2 = axis_node_2->AbsPosition;
 
-    /* Enforce the "second node must have a larger Z coordinate than the first" constraint */
+    // Enforce the "second node must have a larger Z coordinate than the first" constraint
     if (pos_1.z > pos_2.z)
     {
         node_t *swap = axis_node_1;
@@ -4024,7 +4014,7 @@ void RigSpawner::FetchAxisNodes(
     }
 }
 
-void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
+void RigSpawner::ProcessFlexBodyWheelSim(RigDef::FlexBodyWheel & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
@@ -4036,14 +4026,14 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 
     node_t *axis_node_1 = nullptr;
     node_t *axis_node_2 = nullptr;
-    FetchAxisNodes(axis_node_1, axis_node_2, def.nodes[0], def.nodes[1]);
+    this->FetchAxisNodes(axis_node_1, axis_node_2, def.nodes[0], def.nodes[1]);
 
     // Rigidity node
     node_t *rigidity_node = nullptr;
     node_t *axis_node_closest_to_rigidity_node = nullptr;
     if (def.rigidity_node.IsValidAnyState())
     {
-        rigidity_node = GetNodePointer(def.rigidity_node);
+        rigidity_node = this->GetNodePointer(def.rigidity_node);
         Ogre::Real distance_1 = (rigidity_node->RelPosition - axis_node_1->RelPosition).length();
         Ogre::Real distance_2 = (rigidity_node->RelPosition - axis_node_2->RelPosition).length();
         axis_node_closest_to_rigidity_node = ((distance_1 < distance_2)) ? axis_node_1 : axis_node_2;
@@ -4051,7 +4041,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 
     // Node&beam generation
     Ogre::Vector3 axis_vector = axis_node_2->RelPosition - axis_node_1->RelPosition;
-    wheel.width = axis_vector.length(); /* wheel_def.width is ignored. */
+    wheel.wh_width = axis_vector.length(); // wheel_def.width is ignored.
     axis_vector.normalise();
     Ogre::Vector3 rim_ray_vector = axis_vector.perpendicular() * def.rim_radius;
     Ogre::Quaternion rim_ray_rotator = Ogre::Quaternion(Ogre::Degree(-360.f / (def.num_rays * 2)), axis_vector);
@@ -4066,21 +4056,21 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         Ogre::Vector3 ray_point = axis_node_1->RelPosition + rim_ray_vector;
         rim_ray_vector = rim_ray_rotator * rim_ray_vector;
 
-        node_t & outer_node      = GetFreeNode();
+        node_t & outer_node      = this->GetFreeNode();
         InitNode(outer_node, ray_point, def.node_defaults);
 
         outer_node.mass          = node_mass;
         outer_node.id            = -1; // Orig: hardcoded (addWheel2)
         outer_node.wheelid       = m_rig->free_wheel;
         outer_node.friction_coef = def.node_defaults->friction;
-        AdjustNodeBuoyancy(outer_node, def.node_defaults);
+        this->AdjustNodeBuoyancy(outer_node, def.node_defaults);
 
         // Inner ring
         ray_point = axis_node_2->RelPosition + rim_ray_vector;
         rim_ray_vector = rim_ray_rotator * rim_ray_vector;
 
-        node_t & inner_node      = GetFreeNode();
-        InitNode(inner_node, ray_point, def.node_defaults);
+        node_t & inner_node      = this->GetFreeNode();
+        this->InitNode(inner_node, ray_point, def.node_defaults);
 
         inner_node.mass          = node_mass;
         inner_node.id            = -1; // Orig: hardcoded (addWheel2)
@@ -4089,8 +4079,8 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         AdjustNodeBuoyancy(inner_node, def.node_defaults);
 
         // Wheel object
-        wheel.nodes[i * 2]       = & outer_node;
-        wheel.nodes[(i * 2) + 1] = & inner_node;
+        wheel.wh_nodes[i * 2]       = & outer_node;
+        wheel.wh_nodes[(i * 2) + 1] = & inner_node;
     }
 
     Ogre::Vector3 tyre_ray_vector = axis_vector.perpendicular() * def.tyre_radius;
@@ -4100,13 +4090,13 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     // Tyre nodes
     for (unsigned int i = 0; i < def.num_rays; i++)
     {
-        /* Outer ring */
+        // Outer ring
         float node_mass = def.mass / (4.f * def.num_rays);
         Ogre::Vector3 ray_point = axis_node_1->RelPosition + tyre_ray_vector;
         tyre_ray_vector = tyre_ray_rotator * tyre_ray_vector;
 
-        node_t & outer_node = GetFreeNode();
-        InitNode(outer_node, ray_point);
+        node_t & outer_node = this->GetFreeNode();
+        this->InitNode(outer_node, ray_point);
         outer_node.mass          = node_mass;
         outer_node.id            = -1; // Orig: hardcoded (addWheel3)
         outer_node.wheelid       = m_rig->free_wheel;
@@ -4114,18 +4104,18 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         outer_node.volume_coef   = def.node_defaults->volume;
         outer_node.surface_coef  = def.node_defaults->surface;
         outer_node.iswheel       = WHEEL_FLEXBODY;
-        AdjustNodeBuoyancy(outer_node, def.node_defaults);
+        this->AdjustNodeBuoyancy(outer_node, def.node_defaults);
 
         contacter_t & outer_contacter = m_rig->contacters[m_rig->free_contacter];
-        outer_contacter.nodeid        = outer_node.pos; /* Node index */
+        outer_contacter.nodeid        = outer_node.pos; // Node index
         m_rig->free_contacter++;
 
         // Inner ring
         ray_point = axis_node_2->RelPosition + tyre_ray_vector;
         tyre_ray_vector = tyre_ray_rotator * tyre_ray_vector;
 
-        node_t & inner_node = GetFreeNode();
-        InitNode(inner_node, ray_point);
+        node_t & inner_node = this->GetFreeNode();
+        this->InitNode(inner_node, ray_point);
         inner_node.mass          = node_mass;
         inner_node.id            = -1; // Orig: hardcoded (addWheel3)
         inner_node.wheelid       = m_rig->free_wheel;
@@ -4133,15 +4123,15 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         inner_node.volume_coef   = def.node_defaults->volume;
         inner_node.surface_coef  = def.node_defaults->surface;
         inner_node.iswheel       = WHEEL_FLEXBODY;
-        AdjustNodeBuoyancy(inner_node, def.node_defaults);
+        this->AdjustNodeBuoyancy(inner_node, def.node_defaults);
 
         contacter_t & inner_contacter = m_rig->contacters[m_rig->free_contacter];
         inner_contacter.nodeid        = inner_node.pos; // Node index
         m_rig->free_contacter++;
 
         // Wheel object
-        wheel.nodes[i * 2] = & outer_node;
-        wheel.nodes[(i * 2) + 1] = & inner_node;
+        wheel.wh_nodes[i * 2] = & outer_node;
+        wheel.wh_nodes[(i * 2) + 1] = & inner_node;
     }
 
     // Beams
@@ -4161,20 +4151,20 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         node_t *rim_outer_node = & m_rig->nodes[rim_outer_node_index];
         node_t *rim_inner_node = & m_rig->nodes[rim_outer_node_index + 1];
 
-        AddWheelBeam(axis_node_1, rim_outer_node, rim_spring, rim_damp, def.beam_defaults);
-        AddWheelBeam(axis_node_2, rim_inner_node, rim_spring, rim_damp, def.beam_defaults);
-        AddWheelBeam(axis_node_2, rim_outer_node, rim_spring, rim_damp, def.beam_defaults);
-        AddWheelBeam(axis_node_1, rim_inner_node, rim_spring, rim_damp, def.beam_defaults);
+        this->AddWheelBeam(axis_node_1, rim_outer_node, rim_spring, rim_damp, def.beam_defaults);
+        this->AddWheelBeam(axis_node_2, rim_inner_node, rim_spring, rim_damp, def.beam_defaults);
+        this->AddWheelBeam(axis_node_2, rim_outer_node, rim_spring, rim_damp, def.beam_defaults);
+        this->AddWheelBeam(axis_node_1, rim_inner_node, rim_spring, rim_damp, def.beam_defaults);
 
         // Reinforcement rim ring
         unsigned int rim_next_outer_node_index = base_node_index + (((i + 1) % def.num_rays) * 2);
         node_t *rim_next_outer_node = & m_rig->nodes[rim_next_outer_node_index];
         node_t *rim_next_inner_node = & m_rig->nodes[rim_next_outer_node_index + 1];
 
-        AddWheelBeam(rim_outer_node, rim_inner_node,      rim_spring, rim_damp, def.beam_defaults);
-        AddWheelBeam(rim_outer_node, rim_next_outer_node, rim_spring, rim_damp, def.beam_defaults);
-        AddWheelBeam(rim_inner_node, rim_next_inner_node, rim_spring, rim_damp, def.beam_defaults);
-        AddWheelBeam(rim_inner_node, rim_next_outer_node, rim_spring, rim_damp, def.beam_defaults);
+        this->AddWheelBeam(rim_outer_node, rim_inner_node,      rim_spring, rim_damp, def.beam_defaults);
+        this->AddWheelBeam(rim_outer_node, rim_next_outer_node, rim_spring, rim_damp, def.beam_defaults);
+        this->AddWheelBeam(rim_inner_node, rim_next_inner_node, rim_spring, rim_damp, def.beam_defaults);
+        this->AddWheelBeam(rim_inner_node, rim_next_outer_node, rim_spring, rim_damp, def.beam_defaults);
     }
 
     // Tyre beams
@@ -4185,20 +4175,20 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         int tyre_node_index   = base_node_index + i*2 + def.num_rays*2;
         node_t * rim_node     = & m_rig->nodes[rim_node_index];
 
-        AddWheelBeam(rim_node, & m_rig->nodes[tyre_node_index], tyre_spring/2.f, tyre_damp, def.beam_defaults);
+        this->AddWheelBeam(rim_node, & m_rig->nodes[tyre_node_index], tyre_spring/2.f, tyre_damp, def.beam_defaults);
 
         int tyre_base_index = (i == 0) ? tyre_node_index + (def.num_rays * 2) : tyre_node_index;
-        AddWheelBeam(rim_node, & m_rig->nodes[tyre_base_index - 1], tyre_spring/2.f, tyre_damp, def.beam_defaults);
-        AddWheelBeam(rim_node, & m_rig->nodes[tyre_base_index - 2], tyre_spring/2.f, tyre_damp, def.beam_defaults);
+        this->AddWheelBeam(rim_node, & m_rig->nodes[tyre_base_index - 1], tyre_spring/2.f, tyre_damp, def.beam_defaults);
+        this->AddWheelBeam(rim_node, & m_rig->nodes[tyre_base_index - 2], tyre_spring/2.f, tyre_damp, def.beam_defaults);
 
         node_t * next_rim_node = & m_rig->nodes[rim_node_index + 1];
-        AddWheelBeam(next_rim_node, & m_rig->nodes[tyre_node_index],     tyre_spring/2.f, tyre_damp, def.beam_defaults);
-        AddWheelBeam(next_rim_node, & m_rig->nodes[tyre_node_index + 1], tyre_spring/2.f, tyre_damp, def.beam_defaults);
+        this->AddWheelBeam(next_rim_node, & m_rig->nodes[tyre_node_index],     tyre_spring/2.f, tyre_damp, def.beam_defaults);
+        this->AddWheelBeam(next_rim_node, & m_rig->nodes[tyre_node_index + 1], tyre_spring/2.f, tyre_damp, def.beam_defaults);
 
         {
             int index = (i == 0) ? tyre_node_index + (def.num_rays * 2) - 1 : tyre_node_index - 1;
             node_t * tyre_node = & m_rig->nodes[index];
-            AddWheelBeam(next_rim_node, tyre_node, tyre_spring/2.f, tyre_damp, def.beam_defaults);
+            this->AddWheelBeam(next_rim_node, tyre_node, tyre_spring/2.f, tyre_damp, def.beam_defaults);
         }
 
         //reinforcement (tire tread)
@@ -4208,10 +4198,10 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
             int rimnode = rim_node_index;
             int rays = def.num_rays;
 
-            AddWheelBeam(&m_rig->nodes[rimnode+rays*2], &m_rig->nodes[base_node_index+i*2+1+rays*2], tread_spring, tread_damp, def.beam_defaults);
-            AddWheelBeam(&m_rig->nodes[rimnode+rays*2], &m_rig->nodes[base_node_index+((i+1)%rays)*2+rays*2], tread_spring, tread_damp, def.beam_defaults);
-            AddWheelBeam(&m_rig->nodes[base_node_index+i*2+1+rays*2], &m_rig->nodes[base_node_index+((i+1)%rays)*2+1+rays*2], tread_spring, tread_damp, def.beam_defaults);
-            AddWheelBeam(&m_rig->nodes[rimnode+1+rays*2], &m_rig->nodes[base_node_index+((i+1)%rays)*2+rays*2], tread_spring, tread_damp, def.beam_defaults);
+            this->AddWheelBeam(&m_rig->nodes[rimnode+rays*2], &m_rig->nodes[base_node_index+i*2+1+rays*2], tread_spring, tread_damp, def.beam_defaults);
+            this->AddWheelBeam(&m_rig->nodes[rimnode+rays*2], &m_rig->nodes[base_node_index+((i+1)%rays)*2+rays*2], tread_spring, tread_damp, def.beam_defaults);
+            this->AddWheelBeam(&m_rig->nodes[base_node_index+i*2+1+rays*2], &m_rig->nodes[base_node_index+((i+1)%rays)*2+1+rays*2], tread_spring, tread_damp, def.beam_defaults);
+            this->AddWheelBeam(&m_rig->nodes[rimnode+1+rays*2], &m_rig->nodes[base_node_index+((i+1)%rays)*2+rays*2], tread_spring, tread_damp, def.beam_defaults);
 
             if (rigidity_node != nullptr)
             {
@@ -4222,8 +4212,8 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
                 {
                     axis_node_closest_to_rigidity_node = & m_rig->nodes[base_node_index+i*2+1+rays*2];
                 };
-                unsigned int beam_index = AddWheelBeam(rigidity_node, axis_node_closest_to_rigidity_node, tyre_spring, tyre_damp, def.beam_defaults);
-                GetBeam(beam_index).type = BEAM_VIRTUAL;
+                unsigned int beam_index = this->AddWheelBeam(rigidity_node, axis_node_closest_to_rigidity_node, tyre_spring, tyre_damp, def.beam_defaults);
+                this->GetBeam(beam_index).type = BEAM_VIRTUAL;
             }
         }
     }
@@ -4239,25 +4229,25 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         unsigned int tirenode = base_node_index + i*2 + def.num_rays*2;
         unsigned int beam_index;
 
-        beam_index = AddWheelBeam(axis_node_1, &m_rig->nodes[tirenode],     tyre_spring/2.f, tyre_damp, def.beam_defaults);
-        GetBeam(beam_index).shortbound = support_beams_short_bound;
-        GetBeam(beam_index).longbound  = 0.f;
-        GetBeam(beam_index).bounded = SHOCK1;
+        beam_index = this->AddWheelBeam(axis_node_1, &m_rig->nodes[tirenode],     tyre_spring/2.f, tyre_damp, def.beam_defaults);
+        this->GetBeam(beam_index).shortbound = support_beams_short_bound;
+        this->GetBeam(beam_index).longbound  = 0.f;
+        this->GetBeam(beam_index).bounded = SHOCK1;
 
-        beam_index = AddWheelBeam(axis_node_2, &m_rig->nodes[tirenode + 1], tyre_spring/2.f, tyre_damp, def.beam_defaults);
-        GetBeam(beam_index).shortbound = support_beams_short_bound;
-        GetBeam(beam_index).longbound  = 0.f;
-        GetBeam(beam_index).bounded = SHOCK1;
+        beam_index = this->AddWheelBeam(axis_node_2, &m_rig->nodes[tirenode + 1], tyre_spring/2.f, tyre_damp, def.beam_defaults);
+        this->GetBeam(beam_index).shortbound = support_beams_short_bound;
+        this->GetBeam(beam_index).longbound  = 0.f;
+        this->GetBeam(beam_index).bounded = SHOCK1;
     }
 
     // Wheel object
-    wheel.braked = def.braking;
-    wheel.propulsed = def.propulsion;
-    wheel.nbnodes = 2 * def.num_rays;
-    wheel.refnode0 = axis_node_1;
-    wheel.refnode1 = axis_node_2;
-    wheel.radius = def.tyre_radius;
-    wheel.arm = GetNodePointer(def.reference_arm_node);
+    wheel.wh_braking = this->TranslateBrakingDef(def.braking);
+    wheel.wh_propulsed = def.propulsion;
+    wheel.wh_num_nodes = 2 * def.num_rays;
+    wheel.wh_axis_node_0 = axis_node_1;
+    wheel.wh_axis_node_1 = axis_node_2;
+    wheel.wh_radius = def.tyre_radius;
+    wheel.wh_arm_node = this->GetNodePointer(def.reference_arm_node);
 
     if (def.propulsion != RigDef::Wheels::PROPULSION_NONE)
     {
@@ -4272,30 +4262,35 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     }
 
     // Find near attach
-    Ogre::Real length_1 = (axis_node_1->RelPosition - wheel.arm->RelPosition).length();
-    Ogre::Real length_2 = (axis_node_2->RelPosition - wheel.arm->RelPosition).length();
-    wheel.near_attach = (length_1 < length_2) ? axis_node_1 : axis_node_2;
+    Ogre::Real length_1 = (axis_node_1->RelPosition - wheel.wh_arm_node->RelPosition).length();
+    Ogre::Real length_2 = (axis_node_2->RelPosition - wheel.wh_arm_node->RelPosition).length();
+    wheel.wh_near_attach_node = (length_1 < length_2) ? axis_node_1 : axis_node_2;
 
     // Commit the wheel
-    int wheel_index = m_rig->free_wheel;
+    m_wheel_def_map.emplace_back(&def);
     ++m_rig->free_wheel;
+}
 
-    // Create visuals
-    BuildMeshWheelVisuals(
-        wheel_index,
-        base_node_index,
-        axis_node_1->pos,
-        axis_node_2->pos,
-        def.num_rays,
-        def.rim_mesh_name,
+void RigSpawner::ProcessFlexBodyWheelGfx(RigDef::FlexBodyWheel* def, int sim_wheel_index)
+{
+    wheel_t& sim_wheel = m_rig->wheels[sim_wheel_index];
+    int base_node_index = static_cast<int>(sim_wheel.wh_nodes[0]->pos);
+
+    this->BuildMeshWheelVisuals( // Pushes wheel to GfxActor. TODO: refactor for cleaner flow ~ only_a_ptr, 08/2017
+        sim_wheel_index,
+        sim_wheel.wh_nodes[0]->pos,
+        sim_wheel.wh_axis_node_0->pos,
+        sim_wheel.wh_axis_node_1->pos,
+        def->num_rays,
+        def->rim_mesh_name,
         "tracks/trans", // Rim material name. Original parser: was hardcoded in BTS_FLEXBODYWHEELS
-        def.rim_radius,
-        def.side != RigDef::MeshWheel::SIDE_RIGHT
+        def->rim_radius,
+        def->side != RigDef::MeshWheel::SIDE_RIGHT
         );
 
     const std::string flexwheel_name = this->ComposeName("FlexBodyWheel", m_rig->free_flexbody);
 
-    int num_nodes = def.num_rays * 4;
+    int num_nodes = def->num_rays * 4;
     std::vector<unsigned int> node_indices;
     node_indices.reserve(num_nodes);
     for (int i = 0; i < num_nodes; ++i)
@@ -4304,16 +4299,16 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     }
 
     RigDef::Flexbody flexbody_def;
-    flexbody_def.mesh_name = def.tyre_mesh_name;
+    flexbody_def.mesh_name = def->tyre_mesh_name;
     flexbody_def.offset = Ogre::Vector3(0.5,0,0);
 
     try
     {
-        auto* flexbody = m_flex_factory.CreateFlexBody(
+        FlexBody* flexbody = m_flex_factory.CreateFlexBody(
             &flexbody_def,
-            axis_node_1->pos,
-            axis_node_2->pos,
-            static_cast<int>(base_node_index),
+            sim_wheel.wh_axis_node_0->pos,
+            sim_wheel.wh_axis_node_1->pos,
+            base_node_index,
             Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3::UNIT_Y),
             node_indices
             );
@@ -4321,15 +4316,25 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         if (flexbody == nullptr)
             return; // Error already logged
 
-        this->CreateWheelSkidmarks(static_cast<unsigned>(wheel_index));
-
         m_rig->flexbodies[m_rig->free_flexbody] = flexbody;
         m_rig->free_flexbody++;
     }
     catch (Ogre::Exception& e)
     {
-        this->AddMessage(Message::TYPE_ERROR, 
-            "Failed to create flexbodywheel '" + def.tyre_mesh_name + "', reason:" + e.getFullDescription());
+        this->AddMessage(Message::TYPE_ERROR, "Failed to create flexbodywheel '" + def->tyre_mesh_name + "', reason:" + e.getFullDescription());
+    }
+}
+
+wheel_t::BrakeCombo RigSpawner::TranslateBrakingDef(RigDef::Wheels::Braking def)
+{
+    switch (def)
+    {
+    case RigDef::Wheels::Braking::BRAKING_NO:                return wheel_t::BrakeCombo::NONE;
+    case RigDef::Wheels::Braking::BRAKING_YES:               return wheel_t::BrakeCombo::FOOT_HAND;
+    case RigDef::Wheels::Braking::BRAKING_DIRECTIONAL_LEFT:  return wheel_t::BrakeCombo::FOOT_HAND_SKID_LEFT;
+    case RigDef::Wheels::Braking::BRAKING_DIRECTIONAL_RIGHT: return wheel_t::BrakeCombo::FOOT_HAND_SKID_RIGHT;
+    case RigDef::Wheels::Braking::BRAKING_ONLY_FOOT:         return wheel_t::BrakeCombo::FOOT_ONLY;
+    default:                                                 return wheel_t::BrakeCombo::NONE;
     }
 }
 
@@ -4350,7 +4355,7 @@ void RigSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
     Ogre::Vector3 pos_1 = axis_node_1->AbsPosition;
     Ogre::Vector3 pos_2 = axis_node_2->AbsPosition;
 
-    /* Enforce the "second node must have a larger Z coordinate than the first" constraint */
+    // Enforce the "second node must have a larger Z coordinate than the first" constraint
     if (pos_1.z > pos_2.z)
     {
         node_t *swap = axis_node_1;
@@ -4358,11 +4363,11 @@ void RigSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
         axis_node_2 = swap;
     }
 
-    unsigned int wheel_index = BuildWheelObjectAndNodes(
+    unsigned int wheel_index = this->BuildWheelObjectAndNodes(
         meshwheel_def.num_rays,
         axis_node_1,
         axis_node_2,
-        GetNodePointer(meshwheel_def.reference_arm_node),
+        this->GetNodePointer(meshwheel_def.reference_arm_node),
         meshwheel_def.num_rays * 2,
         meshwheel_def.num_rays * 8,
         meshwheel_def.tyre_radius,
@@ -4372,32 +4377,20 @@ void RigSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
         meshwheel_def.mass
     );
 
-    BuildWheelBeams(
+    this->BuildWheelBeams(
         meshwheel_def.num_rays,
         base_node_index,
         axis_node_1,
         axis_node_2,
-        meshwheel_def.spring,      /* Tyre */
-        meshwheel_def.damping,     /* Tyre */
-        meshwheel_def.spring,      /* Rim */
-        meshwheel_def.damping,     /* Rim */
+        meshwheel_def.spring,      // Tyre
+        meshwheel_def.damping,     // Tyre
+        meshwheel_def.spring,      // Rim
+        meshwheel_def.damping,     // Rim
         meshwheel_def.beam_defaults,
         meshwheel_def.rigidity_node
     );
 
-    BuildMeshWheelVisuals(
-        wheel_index, 
-        base_node_index, 
-        axis_node_1->pos,
-        axis_node_2->pos,
-        meshwheel_def.num_rays,
-        meshwheel_def.mesh_name,
-        meshwheel_def.material_name,
-        meshwheel_def.rim_radius,
-        meshwheel_def.side != RigDef::MeshWheel::SIDE_RIGHT
-        );
-
-    CreateWheelSkidmarks(wheel_index);
+    m_wheel_def_map.emplace_back(&meshwheel_def);
 }
 
 void RigSpawner::ProcessMeshWheel2(RigDef::MeshWheel & def)
@@ -4405,8 +4398,8 @@ void RigSpawner::ProcessMeshWheel2(RigDef::MeshWheel & def)
     SPAWNER_PROFILE_SCOPED();
 
     unsigned int base_node_index = m_rig->free_node;
-    node_t *axis_node_1 = GetNodePointer(def.nodes[0]);
-    node_t *axis_node_2 = GetNodePointer(def.nodes[1]);
+    node_t *axis_node_1 = this->GetNodePointer(def.nodes[0]);
+    node_t *axis_node_2 = this->GetNodePointer(def.nodes[1]);
 
     if (axis_node_1 == nullptr || axis_node_2 == nullptr)
     {
@@ -4417,19 +4410,19 @@ void RigSpawner::ProcessMeshWheel2(RigDef::MeshWheel & def)
     Ogre::Vector3 pos_1 = axis_node_1->AbsPosition;
     Ogre::Vector3 pos_2 = axis_node_2->AbsPosition;
 
-    /* Enforce the "second node must have a larger Z coordinate than the first" constraint */
+    // Enforce the "second node must have a larger Z coordinate than the first" constraint
     if (pos_1.z > pos_2.z)
     {
         node_t *swap = axis_node_1;
         axis_node_1 = axis_node_2;
         axis_node_2 = swap;
-    }	
+    }
 
-    unsigned int wheel_index = BuildWheelObjectAndNodes(
+    unsigned int wheel_index = this->BuildWheelObjectAndNodes(
         def.num_rays,
         axis_node_1,
         axis_node_2,
-        GetNodePointer(def.reference_arm_node),
+        this->GetNodePointer(def.reference_arm_node),
         def.num_rays * 2,
         def.num_rays * 8,
         def.tyre_radius,
@@ -4439,14 +4432,13 @@ void RigSpawner::ProcessMeshWheel2(RigDef::MeshWheel & def)
         def.mass
     );
 
-    /* --- Beams --- */
-    /* Use data from directive 'set_beam_defaults' for the tiretread beams */
+    // --- Beams --- Use data from directive 'set_beam_defaults' for the tiretread beams
     float tyre_spring = def.spring;
     float tyre_damp = def.damping;
     float rim_spring = def.beam_defaults->springiness;
     float rim_damp = def.beam_defaults->damping_constant;
 
-    BuildWheelBeams(
+    this->BuildWheelBeams(
         def.num_rays,
         base_node_index,
         axis_node_1,
@@ -4460,20 +4452,7 @@ void RigSpawner::ProcessMeshWheel2(RigDef::MeshWheel & def)
         0.15 // max_extension
     );
 
-    /* --- Visuals --- */
-    BuildMeshWheelVisuals(
-        wheel_index, 
-        base_node_index, 
-        axis_node_1->pos,
-        axis_node_2->pos,
-        def.num_rays,
-        def.mesh_name,
-        def.material_name,
-        def.rim_radius,
-        def.side != RigDef::MeshWheel::SIDE_RIGHT
-        );
-
-    CreateWheelSkidmarks(wheel_index);
+    m_wheel_def_map.emplace_back(&def);
 }
 
 void RigSpawner::BuildMeshWheelVisuals(
@@ -4505,9 +4484,13 @@ void RigSpawner::BuildMeshWheelVisuals(
         Ogre::SceneNode* scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
         scene_node->attachObject(flexmesh_wheel->GetTireEntity());
 
-        m_rig->deletion_Entities.emplace_back(flexmesh_wheel->GetTireEntity());
-        m_rig->vwheels[wheel_index].fm = flexmesh_wheel;
-        m_rig->vwheels[wheel_index].cnode = scene_node;
+        GfxActor::Wheel gfx_wheel;
+        gfx_wheel.gw_ogre_entity = flexmesh_wheel->GetTireEntity();
+        gfx_wheel.gw_ogre_scene_node = scene_node;
+        gfx_wheel.gw_flex_mesh = flexmesh_wheel;
+        gfx_wheel.gw_skidtrail = this->CreateWheelSkidmarks(wheel_index);
+        // TODO: shouldn't we fill the `is_meshwheel` flag here?
+        m_rig->GetGfxActor()->AddWheel(gfx_wheel);
     }
     catch (Ogre::Exception& e)
     {
@@ -4516,7 +4499,7 @@ void RigSpawner::BuildMeshWheelVisuals(
     }
 }
 
-unsigned int RigSpawner::BuildWheelObjectAndNodes( 
+unsigned int RigSpawner::BuildWheelObjectAndNodes(
     unsigned int num_rays,
     node_t *axis_node_1,
     node_t *axis_node_2,
@@ -4528,38 +4511,38 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
     RigDef::Wheels::Braking braking,
     std::shared_ptr<RigDef::NodeDefaults> node_defaults,
     float wheel_mass,
-    bool set_param_iswheel, /* Default: true */
-    float wheel_width       /* Default: -1.f */
+    bool set_param_iswheel, // Default: true
+    float wheel_width       // Default: -1.f
 )
 {
     SPAWNER_PROFILE_SCOPED();
 
     wheel_t & wheel = m_rig->wheels[m_rig->free_wheel];
 
-    /* Axis */
+    // Axis
     Ogre::Vector3 axis_vector = axis_node_2->RelPosition - axis_node_1->RelPosition;
     float axis_length = axis_vector.length();
     axis_vector.normalise();
 
-    /* Wheel object */
-    wheel.braked    = braking;
-    wheel.propulsed = propulsion;
-    wheel.nbnodes   = 2 * num_rays;
-    wheel.refnode0  = axis_node_1;
-    wheel.refnode1  = axis_node_2;
-    wheel.radius    = wheel_radius;
-    wheel.width     = (wheel_width < 0) ? axis_length : wheel_width;
-    wheel.arm       = reference_arm_node;
+    // Wheel object
+    wheel.wh_braking      = this->TranslateBrakingDef(braking);
+    wheel.wh_propulsed    = propulsion;
+    wheel.wh_num_nodes    = 2 * num_rays;
+    wheel.wh_axis_node_0  = axis_node_1;
+    wheel.wh_axis_node_1  = axis_node_2;
+    wheel.wh_radius       = wheel_radius;
+    wheel.wh_width        = (wheel_width < 0) ? axis_length : wheel_width;
+    wheel.wh_arm_node     = reference_arm_node;
 
-    /* Find near attach */
-    Ogre::Real length_1 = (axis_node_1->RelPosition - wheel.arm->RelPosition).length();
-    Ogre::Real length_2 = (axis_node_2->RelPosition - wheel.arm->RelPosition).length();
-    wheel.near_attach = (length_1 < length_2) ? axis_node_1 : axis_node_2;
+    // Find near attach
+    Ogre::Real length_1 = (axis_node_1->RelPosition - wheel.wh_arm_node->RelPosition).length();
+    Ogre::Real length_2 = (axis_node_2->RelPosition - wheel.wh_arm_node->RelPosition).length();
+    wheel.wh_near_attach_node = (length_1 < length_2) ? axis_node_1 : axis_node_2;
 
     if (propulsion != RigDef::Wheels::PROPULSION_NONE)
     {
         m_rig->propwheelcount++;
-        /* for inter-differential locking */
+        // for inter-differential locking
         m_rig->proped_wheels++;
         m_rig->proppairs[m_rig->proped_wheels] = m_rig->free_wheel;
     }
@@ -4567,8 +4550,8 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
     {
         m_rig->braked_wheels++;
     }
-    
-    /* Nodes */
+
+    // Nodes
     Ogre::Vector3 ray_vector = axis_vector.perpendicular() * wheel_radius;
     Ogre::Quaternion ray_rotator = Ogre::Quaternion(Ogre::Degree(-360.0 / (num_rays * 2)), axis_vector);
 
@@ -4582,41 +4565,41 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
 
     for (unsigned int i = 0; i < num_rays; i++)
     {
-        /* Outer ring */
+        // Outer ring
         Ogre::Vector3 ray_point = axis_node_1->RelPosition + ray_vector;
         ray_vector = ray_rotator * ray_vector;
 
-        node_t & outer_node = GetFreeNode();
-        InitNode(outer_node, ray_point, node_defaults);
+        node_t & outer_node = this->GetFreeNode();
+        this->InitNode(outer_node, ray_point, node_defaults);
         outer_node.mass    = wheel_mass / (2.f * num_rays);
         outer_node.iswheel = (set_param_iswheel) ? WHEEL_DEFAULT : NOWHEEL;
         outer_node.id      = -1; // Orig: hardcoded (BTS_WHEELS)
         outer_node.wheelid = m_rig->free_wheel;
-        AdjustNodeBuoyancy(outer_node, node_defaults);
+        this->AdjustNodeBuoyancy(outer_node, node_defaults);
 
         contacter_t & outer_contacter = m_rig->contacters[m_rig->free_contacter];
-        outer_contacter.nodeid        = outer_node.pos; /* Node index */
+        outer_contacter.nodeid        = outer_node.pos; // Node index
         m_rig->free_contacter++;
 
-        /* Inner ring */
+        // Inner ring
         ray_point = axis_node_2->RelPosition + ray_vector;
         ray_vector = ray_rotator * ray_vector;
 
-        node_t & inner_node = GetFreeNode();
-        InitNode(inner_node, ray_point, node_defaults);
+        node_t & inner_node = this->GetFreeNode();
+        this->InitNode(inner_node, ray_point, node_defaults);
         inner_node.mass    = wheel_mass / (2.f * num_rays);
         inner_node.iswheel = (set_param_iswheel) ? WHEEL_DEFAULT : NOWHEEL;
         inner_node.id      = -1; // Orig: hardcoded (BTS_WHEELS)
         inner_node.wheelid = m_rig->free_wheel; 
-        AdjustNodeBuoyancy(inner_node, node_defaults);
+        this->AdjustNodeBuoyancy(inner_node, node_defaults);
 
         contacter_t & contacter = m_rig->contacters[m_rig->free_contacter];
-        contacter.nodeid        = inner_node.pos; /* Node index */
+        contacter.nodeid        = inner_node.pos;
         m_rig->free_contacter++;
 
         /* Wheel object */
-        wheel.nodes[i * 2] = & outer_node;
-        wheel.nodes[(i * 2) + 1] = & inner_node;
+        wheel.wh_nodes[i * 2] = & outer_node;
+        wheel.wh_nodes[(i * 2) + 1] = & inner_node;
 
 #ifdef DEBUG_TRUCKPARSER2013
         // TRUCK PARSER 2013 DEBUG
@@ -4720,12 +4703,12 @@ void RigSpawner::BuildWheelBeams(
     // END DEBUG
 #endif
 
-    /* Find out where to connect rigidity node */
+    // Find out where to connect rigidity node
     bool rigidity_beam_side_1 = false;
     node_t *rigidity_node = nullptr;
     if (rigidity_node_id.IsValidAnyState())
     {
-        rigidity_node = GetNodePointerOrThrow(rigidity_node_id);
+        rigidity_node = this->GetNodePointerOrThrow(rigidity_node_id);
         float distance_1 = rigidity_node->RelPosition.distance(axis_node_1->RelPosition);
         float distance_2 = rigidity_node->RelPosition.distance(axis_node_2->RelPosition);
         rigidity_beam_side_1 = distance_1 < distance_2;
@@ -4733,25 +4716,25 @@ void RigSpawner::BuildWheelBeams(
 
     for (unsigned int i = 0; i < num_rays; i++)
     {
-        /* Bounded */
+        // Bounded
         unsigned int outer_ring_node_index = base_node_index + (i * 2);
         node_t *outer_ring_node = & m_rig->nodes[outer_ring_node_index];
         node_t *inner_ring_node = & m_rig->nodes[outer_ring_node_index + 1];
-        
-        AddWheelBeam(axis_node_1, outer_ring_node, tyre_spring, tyre_damping, beam_defaults, 0.66f, max_extension);
-        AddWheelBeam(axis_node_2, inner_ring_node, tyre_spring, tyre_damping, beam_defaults, 0.66f, max_extension);
-        AddWheelBeam(axis_node_2, outer_ring_node, tyre_spring, tyre_damping, beam_defaults);
-        AddWheelBeam(axis_node_1, inner_ring_node, tyre_spring, tyre_damping, beam_defaults);
 
-        /* Reinforcement */
+        this->AddWheelBeam(axis_node_1, outer_ring_node, tyre_spring, tyre_damping, beam_defaults, 0.66f, max_extension);
+        this->AddWheelBeam(axis_node_2, inner_ring_node, tyre_spring, tyre_damping, beam_defaults, 0.66f, max_extension);
+        this->AddWheelBeam(axis_node_2, outer_ring_node, tyre_spring, tyre_damping, beam_defaults);
+        this->AddWheelBeam(axis_node_1, inner_ring_node, tyre_spring, tyre_damping, beam_defaults);
+
+        // Reinforcement
         unsigned int next_outer_ring_node_index = base_node_index + (((i + 1) % num_rays) * 2);
         node_t *next_outer_ring_node = & m_rig->nodes[next_outer_ring_node_index];
         node_t *next_inner_ring_node = & m_rig->nodes[next_outer_ring_node_index + 1];
 
-        AddWheelBeam(outer_ring_node, inner_ring_node,      rim_spring, rim_damping, beam_defaults);
-        AddWheelBeam(outer_ring_node, next_outer_ring_node, rim_spring, rim_damping, beam_defaults);
-        AddWheelBeam(inner_ring_node, next_inner_ring_node, rim_spring, rim_damping, beam_defaults);
-        AddWheelBeam(inner_ring_node, next_outer_ring_node, rim_spring, rim_damping, beam_defaults);
+        this->AddWheelBeam(outer_ring_node, inner_ring_node,      rim_spring, rim_damping, beam_defaults);
+        this->AddWheelBeam(outer_ring_node, next_outer_ring_node, rim_spring, rim_damping, beam_defaults);
+        this->AddWheelBeam(inner_ring_node, next_inner_ring_node, rim_spring, rim_damping, beam_defaults);
+        this->AddWheelBeam(inner_ring_node, next_outer_ring_node, rim_spring, rim_damping, beam_defaults);
 
 #ifdef DEBUG_TRUCKPARSER2013
         // TRUCK PARSER 2013 DEBUG
@@ -4770,11 +4753,11 @@ void RigSpawner::BuildWheelBeams(
         // END
 #endif
 
-        /* Rigidity beams */
+        // Rigidity beams
         if (rigidity_node != nullptr)
         {
             node_t *target_node = (rigidity_beam_side_1) ? outer_ring_node : inner_ring_node;
-            unsigned int beam_index = AddWheelBeam(rigidity_node, target_node, tyre_spring, tyre_damping, beam_defaults, -1.f, -1.f, BEAM_VIRTUAL);
+            unsigned int beam_index = this->AddWheelBeam(rigidity_node, target_node, tyre_spring, tyre_damping, beam_defaults, -1.f, -1.f, BEAM_VIRTUAL);
             m_rig->beams[beam_index].type = BEAM_VIRTUAL;
 
 #ifdef DEBUG_TRUCKPARSER2013
@@ -4792,13 +4775,13 @@ void RigSpawner::BuildWheelBeams(
 #endif
 }
 
-unsigned int RigSpawner::AddWheel(RigDef::Wheel & wheel_def)
+void RigSpawner::ProcessWheel(RigDef::Wheel & wheel_def)
 {
     SPAWNER_PROFILE_SCOPED();
 
     unsigned int base_node_index = m_rig->free_node;
-    node_t *axis_node_1 = GetNodePointer(wheel_def.nodes[0]);
-    node_t *axis_node_2 = GetNodePointer(wheel_def.nodes[1]);
+    node_t *axis_node_1 = this->GetNodePointer(wheel_def.nodes[0]);
+    node_t *axis_node_2 = this->GetNodePointer(wheel_def.nodes[1]);
 
     if (axis_node_1 == nullptr || axis_node_2 == nullptr)
     {
@@ -4806,26 +4789,26 @@ unsigned int RigSpawner::AddWheel(RigDef::Wheel & wheel_def)
         msg << "Error creating 'wheel': Some axis nodes were not found";
         msg << " (Node1: " << wheel_def.nodes[0].ToString() << " => " << (axis_node_1 == nullptr) ? "NOT FOUND)" : "found)";
         msg << " (Node2: " << wheel_def.nodes[1].ToString() << " => " << (axis_node_2 == nullptr) ? "NOT FOUND)" : "found)";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return -1;
+        this->AddMessage(Message::TYPE_ERROR, msg.str());
+        return;
     }
 
     Ogre::Vector3 pos_1 = axis_node_1->AbsPosition;
     Ogre::Vector3 pos_2 = axis_node_2->AbsPosition;
 
-    /* Enforce the "second node must have a larger Z coordinate than the first" constraint */
+    // Enforce the "second node must have a larger Z coordinate than the first" constraint
     if (pos_1.z > pos_2.z)
     {
         node_t *swap = axis_node_1;
         axis_node_1 = axis_node_2;
         axis_node_2 = swap;
-    }	
+    }
 
-    unsigned int wheel_index = BuildWheelObjectAndNodes(
+    this->BuildWheelObjectAndNodes(
         wheel_def.num_rays,
         axis_node_1,
         axis_node_2,
-        GetNodePointer(wheel_def.reference_arm_node),
+        this->GetNodePointer(wheel_def.reference_arm_node),
         wheel_def.num_rays * 2,
         wheel_def.num_rays * 8,
         wheel_def.radius,
@@ -4837,171 +4820,36 @@ unsigned int RigSpawner::AddWheel(RigDef::Wheel & wheel_def)
         -1.f // Set width to axis length (width in definition is ignored)
     );
 
-    BuildWheelBeams(
+    this->BuildWheelBeams(
         wheel_def.num_rays,
         base_node_index,
         axis_node_1,
         axis_node_2,
-        wheel_def.springiness, /* Tyre */
-        wheel_def.damping,     /* Tyre */
-        wheel_def.springiness, /* Rim */
-        wheel_def.damping,     /* Rim */
+        wheel_def.springiness, // Tyre
+        wheel_def.damping,     // Tyre
+        wheel_def.springiness, // Rim
+        wheel_def.damping,     // Rim
         wheel_def.beam_defaults,
         wheel_def.rigidity_node
     );
 
-    CreateWheelVisuals(wheel_index, wheel_def, base_node_index);
-
-    CreateWheelSkidmarks(wheel_index);
-
-    return wheel_index;
+    m_wheel_def_map.emplace_back(&wheel_def);
 }
 
-void RigSpawner::CreateWheelSkidmarks(unsigned int wheel_index)
+RoR::Skidmark* RigSpawner::CreateWheelSkidmarks(unsigned int wheel_index)
 {
     // Always create, even if disabled by config
-    m_rig->skidtrails[wheel_index] = new RoR::Skidmark(
-        m_sim_controller->GetSkidmarkConf(), m_sim_controller, &m_rig->wheels[wheel_index], m_rig->beamsRoot, 300, 20);
+    return new RoR::Skidmark(m_sim_controller->GetSkidmarkConf(), m_sim_controller, &m_rig->wheels[wheel_index], m_rig->beamsRoot, 300, 20);
 }
 
-#if 0 // refactored into pieces
-unsigned int RigSpawner::AddWheel(RigDef::Wheel & wheel_def)
-{
-    /* Check capacity */
-    CheckNodeLimit(wheel_def.num_rays * 2);
-    CheckBeamLimit(wheel_def.num_rays * 8);
-
-    unsigned int base_node_index = m_rig->free_node;
-    wheel_t & wheel = m_rig->wheels[m_rig->free_wheel];
-
-    /* Enforce the "second node must have a larger Z coordinate than the first" constraint */
-    unsigned int axis_nodes[2];
-    if (GetNode(wheel_def.nodes[0]).RelPosition.z < GetNode(wheel_def.nodes[1]).RelPosition.z)
-    {
-        axis_nodes[0] = GetNodeIndexOrThrow(wheel_def.nodes[0]);
-        axis_nodes[1] = GetNodeIndexOrThrow(wheel_def.nodes[1]);
-    }
-    else
-    {
-        axis_nodes[0] = GetNodeIndexOrThrow(wheel_def.nodes[1]);
-        axis_nodes[1] = GetNodeIndexOrThrow(wheel_def.nodes[0]);
-    }
-    node_t & axis_node_1 = m_rig->nodes[axis_nodes[0]];
-    node_t & axis_node_2 = m_rig->nodes[axis_nodes[1]];
-
-    Ogre::Vector3 axis_vector = axis_node_2.RelPosition - axis_node_1.RelPosition;
-    axis_vector.normalise();
-    Ogre::Vector3 ray_vector = axis_vector.perpendicular() * wheel_def.radius;
-    Ogre::Quaternion ray_rotator = Ogre::Quaternion(Ogre::Degree(-360.f / wheel_def.num_rays * 2), axis_vector);
-
-    /* Nodes */
-    for (unsigned int i = 0; i < wheel_def.num_rays; i++)
-    {
-        /* Outer ring */
-        Ogre::Vector3 ray_point = axis_node_1.RelPosition + ray_vector;
-        ray_vector = ray_rotator * ray_vector;
-
-        node_t & outer_node = GetFreeNode();
-        InitNode(outer_node, ray_point, wheel_def.node_defaults);
-        outer_node.mass    = wheel_def.mass / (2.f * wheel_def.num_rays);
-        outer_node.iswheel = (m_rig->free_wheel * 2) + 1;
-        outer_node.id      = -1; // Orig: hardcoded (BTS_WHEELS)
-        outer_node.wheelid = m_rig->free_wheel;
-
-        contacter_t & contacter = m_rig->contacters[m_rig->free_contacter];
-        contacter.nodeid        = outer_node.pos; /* Node index */
-        m_rig->free_contacter++;
-
-        /* Inner ring */
-        ray_point = axis_node_2.RelPosition + ray_vector;
-        ray_vector = ray_rotator * ray_vector;
-
-        node_t & inner_node = GetFreeNode();
-        InitNode(inner_node, ray_point, wheel_def.node_defaults);
-        inner_node.mass    = wheel_def.mass / (2.f * wheel_def.num_rays);
-        inner_node.iswheel = (m_rig->free_wheel * 2) + 2;
-        inner_node.id      = -1; // Orig: hardcoded (BTS_WHEELS)
-        inner_node.wheelid = m_rig->free_wheel; 
-
-        contacter_t & contacter = m_rig->contacters[m_rig->free_contacter];
-        contacter.nodeid        = inner_node.pos; /* Node index */
-        m_rig->free_contacter++;
-
-        /* Wheel object */
-        wheel.nodes[i * 2] = & outer_node;
-        wheel.nodes[(i * 2) + 1] = & inner_node;
-    }
-
-    /* Beams */
-    for (unsigned int i = 0; i < wheel_def.num_rays; i++)
-    {
-        /* Bounded */
-        unsigned int outer_ring_node_index = base_node_index + (i * 2);
-        node_t *outer_ring_node = & m_rig->nodes[outer_ring_node_index];
-        node_t *inner_ring_node = & m_rig->nodes[outer_ring_node_index + 1];
-        
-        unsigned int beam_index = SectionWheelsAddBeam(wheel_def, & axis_node_1, outer_ring_node);
-        GetBeam(beam_index).shortbound = 0.66f;
-        GetBeam(beam_index).longbound = 0.0f;
-        beam_index = SectionWheelsAddBeam(wheel_def, & axis_node_2, inner_ring_node);
-        GetBeam(beam_index).shortbound = 0.66f;
-        GetBeam(beam_index).longbound = 0.0f;
-        SectionWheelsAddBeam(wheel_def, & axis_node_2, outer_ring_node);
-        SectionWheelsAddBeam(wheel_def, & axis_node_1, inner_ring_node);
-
-        /* Reinforcement */
-        unsigned int next_outer_ring_node_index = base_node_index + (((i + 1) % wheel_def.num_rays) * 2);
-        node_t *next_outer_ring_node = & m_rig->nodes[next_outer_ring_node_index];
-        node_t *next_inner_ring_node = & m_rig->nodes[next_outer_ring_node_index + 1];
-
-        SectionWheelsAddBeam(wheel_def, outer_ring_node, inner_ring_node);
-        SectionWheelsAddBeam(wheel_def, outer_ring_node, next_outer_ring_node);
-        SectionWheelsAddBeam(wheel_def, inner_ring_node, next_inner_ring_node);
-        SectionWheelsAddBeam(wheel_def, inner_ring_node, next_outer_ring_node);
-    }
-
-    /* Wheel object */
-    wheel.braked    = wheel_def.braking;
-    wheel.propulsed = wheel_def.propulsion;
-    wheel.nbnodes   = 2 * wheel_def.num_rays;
-    wheel.refnode0  = & axis_node_1;
-    wheel.refnode1  = & axis_node_2;
-    wheel.radius    = wheel_def.radius;
-    wheel.width     = axis_vector.length(); /* wheel_def.width is ignored. */
-    wheel.arm       = GetNodePointer(wheel_def.reference_arm_node);
-
-    if (wheel_def.propulsion != RigDef::Wheels::PROPULSION_NONE)
-    {
-        m_rig->propwheelcount++;
-        /* for inter-differential locking */
-        m_rig->proped_wheels++;
-        m_rig->proppairs[m_rig->proped_wheels] = m_rig->free_wheel;
-    }
-    if (wheel_def.braking != RigDef::Wheels::BRAKING_NO)
-    {
-        m_rig->braked_wheels++;
-    }
-
-    /* Find near attach */
-    Ogre::Real length_1 = (axis_node_1.RelPosition - wheel.arm->RelPosition).length();
-    Ogre::Real length_2 = (axis_node_2.RelPosition - wheel.arm->RelPosition).length();
-    wheel.near_attach = & ((length_1 < length_2) ? axis_node_1 : axis_node_2);
-
-    /* Advance */
-    unsigned int wheel_index = m_rig->free_wheel;
-    m_rig->free_wheel++;
-    return wheel_index;
-}
-#endif
-
-unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
+void RigSpawner::ProcessWheel2(RigDef::Wheel2 & wheel_2_def)
 {
     SPAWNER_PROFILE_SCOPED();
 
     unsigned int base_node_index = m_rig->free_node;
     wheel_t & wheel = m_rig->wheels[m_rig->free_wheel];
-    node_t *axis_node_1 = GetNodePointer(wheel_2_def.nodes[0]);
-    node_t *axis_node_2 = GetNodePointer(wheel_2_def.nodes[1]);
+    node_t *axis_node_1 = this->GetNodePointer(wheel_2_def.nodes[0]);
+    node_t *axis_node_2 = this->GetNodePointer(wheel_2_def.nodes[1]);
 
     if (axis_node_1 == nullptr || axis_node_2 == nullptr)
     {
@@ -5009,68 +4857,68 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         msg << "Error creating 'wheel2': Some axis nodes were not found";
         msg << " (Node1: " << wheel_2_def.nodes[0].ToString() << " => " << (axis_node_1 == nullptr) ? "NOT FOUND)" : "found)";
         msg << " (Node2: " << wheel_2_def.nodes[1].ToString() << " => " << (axis_node_2 == nullptr) ? "NOT FOUND)" : "found)";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return -1;
+        this->AddMessage(Message::TYPE_ERROR, msg.str());
+        return;
     }
 
     Ogre::Vector3 pos_1 = axis_node_1->AbsPosition;
     Ogre::Vector3 pos_2 = axis_node_2->AbsPosition;
 
-    /* Enforce the "second node must have a larger Z coordinate than the first" constraint */
+    // Enforce the "second node must have a larger Z coordinate than the first" constraint
     if (pos_1.z > pos_2.z)
     {
         node_t *swap = axis_node_1;
         axis_node_1 = axis_node_2;
         axis_node_2 = swap;
-    }	
+    }
 
-    /* Rigidity node */
+    // Rigidity node
     node_t *axis_node_closest_to_rigidity_node = nullptr;
     if (wheel_2_def.rigidity_node.IsValidAnyState())
     {
-        node_t & rigidity_node = GetNode(wheel_2_def.rigidity_node);
+        node_t & rigidity_node = this->GetNode(wheel_2_def.rigidity_node);
         Ogre::Real distance_1 = (rigidity_node.RelPosition - axis_node_1->RelPosition).length();
         Ogre::Real distance_2 = (rigidity_node.RelPosition - axis_node_2->RelPosition).length();
         axis_node_closest_to_rigidity_node = ((distance_1 < distance_2)) ? axis_node_1 : axis_node_2;
     }
 
-    /* Node&beam generation */
+    // Node&beam generation
     Ogre::Vector3 axis_vector = axis_node_2->RelPosition - axis_node_1->RelPosition;
     axis_vector.normalise();
     Ogre::Vector3 rim_ray_vector = Ogre::Vector3(0, wheel_2_def.rim_radius, 0);
     Ogre::Quaternion rim_ray_rotator = Ogre::Quaternion(Ogre::Degree(-360.f / wheel_2_def.num_rays), axis_vector);
 
-    /* Width */
-    wheel.width = axis_vector.length(); /* wheel_def.width is ignored. */
+    // Width
+    wheel.wh_width = axis_vector.length(); // wheel_def.width is ignored.
 
-    /* Rim nodes */
+    // Rim nodes
     for (unsigned int i = 0; i < wheel_2_def.num_rays; i++)
     {
         float node_mass = wheel_2_def.mass / (4.f * wheel_2_def.num_rays);
 
-        /* Outer ring */
+        // Outer ring
         Ogre::Vector3 ray_point = axis_node_1->RelPosition + rim_ray_vector;
 
-        node_t & outer_node = GetFreeNode();
-        InitNode(outer_node, ray_point, wheel_2_def.node_defaults);
+        node_t & outer_node = this->GetFreeNode();
+        this->InitNode(outer_node, ray_point, wheel_2_def.node_defaults);
         outer_node.mass    = node_mass;
         outer_node.iswheel = WHEEL_2;
         outer_node.id      = -1; // Orig: hardcoded (addWheel2)
         outer_node.wheelid = m_rig->free_wheel;
 
-        /* Inner ring */
+        // Inner ring
         ray_point = axis_node_2->RelPosition + rim_ray_vector;
 
-        node_t & inner_node = GetFreeNode();
-        InitNode(inner_node, ray_point, wheel_2_def.node_defaults);
+        node_t & inner_node = this->GetFreeNode();
+        this->InitNode(inner_node, ray_point, wheel_2_def.node_defaults);
         inner_node.mass    = node_mass;
         inner_node.iswheel = WHEEL_2; 
         inner_node.id      = -1; // Orig: hardcoded (addWheel2)
         inner_node.wheelid = m_rig->free_wheel;
 
-        /* Wheel object */
-        wheel.nodes[i * 2] = & outer_node;
-        wheel.nodes[(i * 2) + 1] = & inner_node;
+        // Wheel object
+        wheel.wh_nodes[i * 2] = & outer_node;
+        wheel.wh_nodes[(i * 2) + 1] = & inner_node;
 
         rim_ray_vector = rim_ray_rotator * rim_ray_vector;
     }
@@ -5079,90 +4927,90 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
     Ogre::Quaternion tyre_ray_rotator = Ogre::Quaternion(Ogre::Degree(-180.f / wheel_2_def.num_rays), axis_vector);
     tyre_ray_vector = tyre_ray_rotator * tyre_ray_vector;
 
-    /* Tyre nodes */
+    // Tyre nodes
     for (unsigned int i = 0; i < wheel_2_def.num_rays; i++)
     {
-        /* Outer ring */
+        // Outer ring
         Ogre::Vector3 ray_point = axis_node_1->RelPosition + tyre_ray_vector;
 
-        node_t & outer_node = GetFreeNode();
-        InitNode(outer_node, ray_point);
+        node_t & outer_node = this->GetFreeNode();
+        this->InitNode(outer_node, ray_point);
         outer_node.mass          = (0.67f * wheel_2_def.mass) / (2.f * wheel_2_def.num_rays);
         outer_node.iswheel       = WHEEL_2;
         outer_node.id            = -1; // Orig: hardcoded (addWheel2)
         outer_node.wheelid       = m_rig->free_wheel;
-        outer_node.friction_coef = wheel.width * WHEEL_FRICTION_COEF;
+        outer_node.friction_coef = wheel.wh_width * WHEEL_FRICTION_COEF;
         outer_node.volume_coef   = wheel_2_def.node_defaults->volume;
         outer_node.surface_coef  = wheel_2_def.node_defaults->surface;
 
         contacter_t & contacter = m_rig->contacters[m_rig->free_contacter];
-        contacter.nodeid        = outer_node.pos; /* Node index */
+        contacter.nodeid        = outer_node.pos; // Node index
         m_rig->free_contacter++;
 
-        /* Inner ring */
+        // Inner ring
         ray_point = axis_node_2->RelPosition + tyre_ray_vector;
 
-        node_t & inner_node = GetFreeNode();
-        InitNode(inner_node, ray_point);
+        node_t & inner_node = this->GetFreeNode();
+        this->InitNode(inner_node, ray_point);
         inner_node.mass          = (0.33f * wheel_2_def.mass) / (2.f * wheel_2_def.num_rays);
         inner_node.iswheel       = WHEEL_2;
         inner_node.id            = -1; // Orig: hardcoded (addWheel2)
         inner_node.wheelid       = m_rig->free_wheel;
-        inner_node.friction_coef = wheel.width * WHEEL_FRICTION_COEF;
+        inner_node.friction_coef = wheel.wh_width * WHEEL_FRICTION_COEF;
         inner_node.volume_coef   = wheel_2_def.node_defaults->volume;
         inner_node.surface_coef  = wheel_2_def.node_defaults->surface;
 
         contacter_t & inner_contacter = m_rig->contacters[m_rig->free_contacter];
-        inner_contacter.nodeid        = inner_node.pos; /* Node index */
+        inner_contacter.nodeid        = inner_node.pos; // Node index
         m_rig->free_contacter++;
 
-        /* Wheel object */
-        wheel.nodes[i * 2] = & outer_node;
-        wheel.nodes[(i * 2) + 1] = & inner_node;
+        // Wheel object
+        wheel.wh_nodes[i * 2] = & outer_node;
+        wheel.wh_nodes[(i * 2) + 1] = & inner_node;
 
         tyre_ray_vector = rim_ray_rotator * tyre_ray_vector; // This is OK
     }
 
-    /* Beams */
+    // Beams
     for (unsigned int i = 0; i < wheel_2_def.num_rays; i++)
     {
-        /* --- Rim ---  */
+        // --- Rim --- 
 
-        /* Bounded */
+        // Bounded
         unsigned int rim_outer_node_index = base_node_index + (i * 2);
         node_t *rim_outer_node = & m_rig->nodes[rim_outer_node_index];
         node_t *rim_inner_node = & m_rig->nodes[rim_outer_node_index + 1];
 
         unsigned int beam_index;
-        beam_index = AddWheelRimBeam(wheel_2_def, axis_node_1, rim_outer_node);
-        GetBeam(beam_index).shortbound = 0.66;
-        beam_index = AddWheelRimBeam(wheel_2_def, axis_node_2, rim_inner_node);
-        GetBeam(beam_index).shortbound = 0.66;
-        AddWheelRimBeam(wheel_2_def, axis_node_2, rim_outer_node);
-        AddWheelRimBeam(wheel_2_def, axis_node_1, rim_inner_node);
+        beam_index = this->AddWheelRimBeam(wheel_2_def, axis_node_1, rim_outer_node);
+        this->GetBeam(beam_index).shortbound = 0.66;
+        beam_index = this->AddWheelRimBeam(wheel_2_def, axis_node_2, rim_inner_node);
+        this->GetBeam(beam_index).shortbound = 0.66;
+        this->AddWheelRimBeam(wheel_2_def, axis_node_2, rim_outer_node);
+        this->AddWheelRimBeam(wheel_2_def, axis_node_1, rim_inner_node);
 
-        /* Reinforcement */
+        // Reinforcement
         unsigned int rim_next_outer_node_index = base_node_index + (((i + 1) % wheel_2_def.num_rays) * 2);
         node_t *rim_next_outer_node = & m_rig->nodes[rim_next_outer_node_index];
         node_t *rim_next_inner_node = & m_rig->nodes[rim_next_outer_node_index + 1];
 
-        AddWheelRimBeam(wheel_2_def, axis_node_1, rim_outer_node);
-        AddWheelRimBeam(wheel_2_def, rim_outer_node, rim_inner_node);
-        AddWheelRimBeam(wheel_2_def, rim_outer_node, rim_next_outer_node);
-        AddWheelRimBeam(wheel_2_def, rim_inner_node, rim_next_inner_node);
-        AddWheelRimBeam(wheel_2_def, rim_outer_node, rim_next_inner_node);
-        AddWheelRimBeam(wheel_2_def, rim_inner_node, rim_next_outer_node);
+        this->AddWheelRimBeam(wheel_2_def, axis_node_1, rim_outer_node);
+        this->AddWheelRimBeam(wheel_2_def, rim_outer_node, rim_inner_node);
+        this->AddWheelRimBeam(wheel_2_def, rim_outer_node, rim_next_outer_node);
+        this->AddWheelRimBeam(wheel_2_def, rim_inner_node, rim_next_inner_node);
+        this->AddWheelRimBeam(wheel_2_def, rim_outer_node, rim_next_inner_node);
+        this->AddWheelRimBeam(wheel_2_def, rim_inner_node, rim_next_outer_node);
         if (axis_node_closest_to_rigidity_node != nullptr)
         {
-            beam_t & beam = GetFreeBeam();
-            InitBeam(beam, GetNodePointer(wheel_2_def.rigidity_node), axis_node_closest_to_rigidity_node);
+            beam_t & beam = this->GetFreeBeam();
+            this->InitBeam(beam, GetNodePointer(wheel_2_def.rigidity_node), axis_node_closest_to_rigidity_node);
             beam.type = BEAM_VIRTUAL;
             beam.k = wheel_2_def.rim_springiness;
             beam.d = wheel_2_def.rim_damping;
-            SetBeamStrength(beam, wheel_2_def.beam_defaults->breaking_threshold);
+            this->SetBeamStrength(beam, wheel_2_def.beam_defaults->breaking_threshold);
         }
 
-        /* --- Tyre --- */
+        // --- Tyre ---
 
         unsigned int tyre_node_index = rim_outer_node_index + (2 * wheel_2_def.num_rays);
         node_t *tyre_outer_node = & m_rig->nodes[tyre_node_index];
@@ -5171,38 +5019,38 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         node_t *tyre_next_outer_node = & m_rig->nodes[tyre_next_node_index];
         node_t *tyre_next_inner_node = & m_rig->nodes[tyre_next_node_index + 1];
 
-        /* Tyre band */
-        AddTyreBeam(wheel_2_def, tyre_outer_node, tyre_next_outer_node);
-        AddTyreBeam(wheel_2_def, tyre_outer_node, tyre_next_inner_node);
-        AddTyreBeam(wheel_2_def, tyre_inner_node, tyre_next_outer_node);
-        AddTyreBeam(wheel_2_def, tyre_inner_node, tyre_next_inner_node);
-        /* Tyre sidewalls */
-        AddTyreBeam(wheel_2_def, tyre_outer_node, rim_outer_node);
-        AddTyreBeam(wheel_2_def, tyre_outer_node, rim_next_outer_node);
-        AddTyreBeam(wheel_2_def, tyre_inner_node, rim_inner_node);
-        AddTyreBeam(wheel_2_def, tyre_inner_node, rim_next_inner_node);
-        /* Reinforcement */
-        AddTyreBeam(wheel_2_def, tyre_outer_node, rim_inner_node);
-        AddTyreBeam(wheel_2_def, tyre_outer_node, rim_next_inner_node);
-        AddTyreBeam(wheel_2_def, tyre_inner_node, rim_outer_node);
-        AddTyreBeam(wheel_2_def, tyre_inner_node, rim_next_outer_node);
-        /* Backpressure, bounded */
-        AddTyreBeam(wheel_2_def, axis_node_1, tyre_outer_node);
-        AddTyreBeam(wheel_2_def, axis_node_2, tyre_inner_node);
+        // Tyre band
+        this->AddTyreBeam(wheel_2_def, tyre_outer_node, tyre_next_outer_node);
+        this->AddTyreBeam(wheel_2_def, tyre_outer_node, tyre_next_inner_node);
+        this->AddTyreBeam(wheel_2_def, tyre_inner_node, tyre_next_outer_node);
+        this->AddTyreBeam(wheel_2_def, tyre_inner_node, tyre_next_inner_node);
+        // Tyre sidewalls
+        this->AddTyreBeam(wheel_2_def, tyre_outer_node, rim_outer_node);
+        this->AddTyreBeam(wheel_2_def, tyre_outer_node, rim_next_outer_node);
+        this->AddTyreBeam(wheel_2_def, tyre_inner_node, rim_inner_node);
+        this->AddTyreBeam(wheel_2_def, tyre_inner_node, rim_next_inner_node);
+        // Reinforcement
+        this->AddTyreBeam(wheel_2_def, tyre_outer_node, rim_inner_node);
+        this->AddTyreBeam(wheel_2_def, tyre_outer_node, rim_next_inner_node);
+        this->AddTyreBeam(wheel_2_def, tyre_inner_node, rim_outer_node);
+        this->AddTyreBeam(wheel_2_def, tyre_inner_node, rim_next_outer_node);
+        // Backpressure, bounded
+        this->AddTyreBeam(wheel_2_def, axis_node_1, tyre_outer_node);
+        this->AddTyreBeam(wheel_2_def, axis_node_2, tyre_inner_node);
     }
 
-    /* Wheel object */
-    wheel.braked = wheel_2_def.braking;
-    wheel.propulsed = wheel_2_def.propulsion;
-    wheel.nbnodes = 2 * wheel_2_def.num_rays;
-    wheel.refnode0 = axis_node_1;
-    wheel.refnode1 = axis_node_2;
-    wheel.radius = wheel_2_def.tyre_radius;
-    wheel.arm = GetNodePointer(wheel_2_def.reference_arm_node);
+    // Wheel object
+    wheel.wh_braking       = this->TranslateBrakingDef(wheel_2_def.braking);
+    wheel.wh_propulsed     = wheel_2_def.propulsion;
+    wheel.wh_num_nodes     = 2 * wheel_2_def.num_rays;
+    wheel.wh_axis_node_0   = axis_node_1;
+    wheel.wh_axis_node_1   = axis_node_2;
+    wheel.wh_radius        = wheel_2_def.tyre_radius;
+    wheel.wh_arm_node      = this->GetNodePointer(wheel_2_def.reference_arm_node);
 
     if (wheel_2_def.propulsion != RigDef::Wheels::PROPULSION_NONE)
     {
-        /* for inter-differential locking */
+        // for inter-differential locking
         m_rig->proped_wheels++;
         m_rig->proppairs[m_rig->proped_wheels] = m_rig->free_wheel;
     }
@@ -5211,50 +5059,18 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         m_rig->braked_wheels++;
     }
 
-    /* Find near attach */
-    Ogre::Real length_1 = (axis_node_1->RelPosition - wheel.arm->RelPosition).length();
-    Ogre::Real length_2 = (axis_node_2->RelPosition - wheel.arm->RelPosition).length();
-    wheel.near_attach = (length_1 < length_2) ? axis_node_1 : axis_node_2;
+    // Find near attach
+    Ogre::Real length_1 = (axis_node_1->RelPosition - wheel.wh_arm_node->RelPosition).length();
+    Ogre::Real length_2 = (axis_node_2->RelPosition - wheel.wh_arm_node->RelPosition).length();
+    wheel.wh_near_attach_node = (length_1 < length_2) ? axis_node_1 : axis_node_2;
 
-    CreateWheelSkidmarks(static_cast<unsigned>(m_rig->free_wheel));
-
-    /* Advance */
-    unsigned int wheel_index = m_rig->free_wheel;
+    // Advance
+    m_wheel_def_map.emplace_back(&wheel_2_def);
     m_rig->free_wheel++;
-    return wheel_index;
-}
-
-void RigSpawner::CreateWheelVisuals(unsigned int wheel_index, RigDef::Wheel & wheel_def, unsigned int node_base_index)
-{
-    // Wrapper, not profiling
-
-    CreateWheelVisuals(
-        wheel_index, 
-        node_base_index, 
-        wheel_def.num_rays,
-        wheel_def.face_material_name,
-        wheel_def.band_material_name,
-        false
-        );
-}
-
-void RigSpawner::CreateWheelVisuals(unsigned int wheel_index, RigDef::Wheel2 & wheel_2_def, unsigned int node_base_index)
-{
-    // Wrapper, not profiling
-
-    CreateWheelVisuals(
-        wheel_index, 
-        node_base_index, 
-        wheel_2_def.num_rays,
-        wheel_2_def.face_material_name,
-        wheel_2_def.band_material_name,
-        true,
-        wheel_2_def.rim_radius / wheel_2_def.tyre_radius
-        );
 }
 
 void RigSpawner::CreateWheelVisuals(
-    unsigned int wheel_index, 
+    unsigned int sim_wheel_index,
     unsigned int node_base_index,
     unsigned int num_rays,
     Ogre::String const & rim_material_name,
@@ -5265,18 +5081,18 @@ void RigSpawner::CreateWheelVisuals(
 {
     SPAWNER_PROFILE_SCOPED();
 
-    wheel_t & wheel = m_rig->wheels[wheel_index];
-    vwheel_t & visual_wheel = m_rig->vwheels[wheel_index];
+    wheel_t & sim_wheel = m_rig->wheels[sim_wheel_index];
+    GfxActor::Wheel gfx_wheel;
 
     try
     {
-        const std::string wheel_mesh_name = this->ComposeName("WheelMesh", wheel_index);
-        visual_wheel.meshwheel = false;
-        visual_wheel.fm = new FlexMesh(
+        const std::string wheel_mesh_name = this->ComposeName("WheelMesh", sim_wheel_index);
+        gfx_wheel.gw_is_meshwheel = false;
+        gfx_wheel.gw_flex_mesh = new FlexMesh(
             wheel_mesh_name,
             m_rig->nodes,
-            wheel.refnode0->pos,
-            wheel.refnode1->pos,
+            sim_wheel.wh_axis_node_0->pos,
+            sim_wheel.wh_axis_node_1->pos,
             node_base_index,
             num_rays,
             rim_material_name,
@@ -5285,16 +5101,17 @@ void RigSpawner::CreateWheelVisuals(
             rim_ratio
         );
 
-        const std::string instance_name = this->ComposeName("WheelEntity", wheel_index);
-        Ogre::Entity *ec = gEnv->sceneManager->createEntity(instance_name, wheel_mesh_name);
-        this->SetupNewEntity(ec, Ogre::ColourValue(0, 0.5, 0.5));
-        visual_wheel.cnode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-        m_rig->deletion_Entities.emplace_back(ec);
-        visual_wheel.cnode->attachObject(ec);
+        gfx_wheel.gw_ogre_entity = gEnv->sceneManager->createEntity(this->ComposeName("WheelEntity", sim_wheel_index), wheel_mesh_name);
+        this->SetupNewEntity(gfx_wheel.gw_ogre_entity, Ogre::ColourValue(0, 0.5, 0.5));
+        gfx_wheel.gw_ogre_scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+        gfx_wheel.gw_ogre_scene_node->attachObject(gfx_wheel.gw_ogre_entity);
+        gfx_wheel.gw_skidtrail = this->CreateWheelSkidmarks(sim_wheel_index);
+        gfx_wheel.gw_sim_wheel_index = sim_wheel_index;
+        m_rig->GetGfxActor()->AddWheel(gfx_wheel);
     }
     catch (Ogre::Exception& e)
     {
-        AddMessage(Message::TYPE_ERROR, "Failed to create wheel visuals: " +  e.getFullDescription());
+        this->AddMessage(Message::TYPE_ERROR, "Failed to create wheel visuals: " +  e.getFullDescription());
     }
 }
 
@@ -5304,15 +5121,15 @@ unsigned int RigSpawner::AddWheelBeam(
     float spring, 
     float damping, 
     std::shared_ptr<RigDef::BeamDefaults> beam_defaults,
-    float max_contraction,   /* Default: -1.f */
-    float max_extension,     /* Default: -1.f */
-    int type                 /* Default: BEAM_INVISIBLE */
+    float max_contraction,   // Default: -1.f
+    float max_extension,     // Default: -1.f
+    int type                 // Default: BEAM_INVISIBLE
 )
 {
     SPAWNER_PROFILE_SCOPED();
 
     unsigned int index = m_rig->free_beam;
-    beam_t & beam = AddBeam(*node_1, *node_2, beam_defaults, DEFAULT_DETACHER_GROUP); 
+    beam_t & beam = this->AddBeam(*node_1, *node_2, beam_defaults, DEFAULT_DETACHER_GROUP); 
     beam.type = type;
     beam.k = spring;
     beam.d = damping;
@@ -5322,12 +5139,12 @@ unsigned int RigSpawner::AddWheelBeam(
         beam.longbound = max_extension;
         beam.bounded = SHOCK1;
     }
-    CalculateBeamLength(beam);
+    this->CalculateBeamLength(beam);
 
     if (type != BEAM_VIRTUAL)
     {
-        /* Create visuals, but don't attach to scene-graph (compatibility with show-skeleton function) */
-        CreateBeamVisuals(beam, index, beam_defaults);
+        // Create visuals, but don't attach to scene-graph (compatibility with show-skeleton function)
+        this->CreateBeamVisuals(beam, index, beam_defaults);
     }
 
     return index;
@@ -5337,8 +5154,8 @@ unsigned int RigSpawner::AddWheelRimBeam(RigDef::Wheel2 & wheel_2_def, node_t *n
 {
     SPAWNER_PROFILE_SCOPED();
 
-    unsigned int beam_index = _SectionWheels2AddBeam(wheel_2_def, node_1, node_2);
-    beam_t & beam = GetBeam(beam_index);
+    unsigned int beam_index = this->_SectionWheels2AddBeam(wheel_2_def, node_1, node_2);
+    beam_t & beam = this->GetBeam(beam_index);
     beam.k = wheel_2_def.rim_springiness;
     beam.d = wheel_2_def.rim_damping;
     return beam_index;
@@ -5348,8 +5165,8 @@ unsigned int RigSpawner::AddTyreBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_
 {
     SPAWNER_PROFILE_SCOPED();
 
-    unsigned int beam_index = _SectionWheels2AddBeam(wheel_2_def, node_1, node_2);
-    beam_t & beam = GetBeam(beam_index);
+    unsigned int beam_index = this->_SectionWheels2AddBeam(wheel_2_def, node_1, node_2);
+    beam_t & beam = this->GetBeam(beam_index);
     beam.k = wheel_2_def.tyre_springiness;
     beam.d = wheel_2_def.tyre_damping;
 
@@ -5364,27 +5181,13 @@ unsigned int RigSpawner::_SectionWheels2AddBeam(RigDef::Wheel2 & wheel_2_def, no
     SPAWNER_PROFILE_SCOPED();
 
     unsigned int index = m_rig->free_beam;
-    beam_t & beam = GetFreeBeam();
-    InitBeam(beam, node_1, node_2);
+    beam_t & beam = this->GetFreeBeam();
+    this->InitBeam(beam, node_1, node_2);
     beam.type = BEAM_INVISIBLE;
-    SetBeamStrength(beam, wheel_2_def.beam_defaults->breaking_threshold);
-    SetBeamDeformationThreshold(beam, wheel_2_def.beam_defaults);
+    this->SetBeamStrength(beam, wheel_2_def.beam_defaults->breaking_threshold);
+    this->SetBeamDeformationThreshold(beam, wheel_2_def.beam_defaults);
     return index;
 }
-
-void RigSpawner::ProcessWheel2(RigDef::Wheel2 & def)
-{
-    SPAWNER_PROFILE_SCOPED();
-
-    unsigned int node_base_index = m_rig->free_node;
-    unsigned int wheel_index = AddWheel2(def);
-    CreateWheelVisuals(wheel_index, def, node_base_index);
-};
-
-void RigSpawner::ProcessWheel(RigDef::Wheel & def)
-{
-    AddWheel(def);
-};
 
 void RigSpawner::ProcessWheelDetacher(RigDef::WheelDetacher & def)
 {
@@ -5392,11 +5195,11 @@ void RigSpawner::ProcessWheelDetacher(RigDef::WheelDetacher & def)
 
     if (def.wheel_id > m_rig->free_wheel - 1)
     {
-        AddMessage(Message::TYPE_ERROR, std::string("Invalid wheel_id: ") + TOSTRING(def.wheel_id));
+        this->AddMessage(Message::TYPE_ERROR, std::string("Invalid wheel_id: ") + TOSTRING(def.wheel_id));
         return;
     }
 
-    m_rig->wheels[def.wheel_id].detacher_group = def.detacher_group;
+    m_rig->wheels[def.wheel_id].wh_detacher_group = def.detacher_group;
 };
 
 void RigSpawner::ProcessSlopeBrake(RigDef::SlopeBrake & def)
@@ -5409,7 +5212,7 @@ void RigSpawner::ProcessSlopeBrake(RigDef::SlopeBrake & def)
     {
         std::stringstream msg;
         msg << "Clamping 'regulating_force' value '" << force << "' to allowed range <0 - 20>";
-        AddMessage(Message::TYPE_INFO, msg.str());
+        this->AddMessage(Message::TYPE_INFO, msg.str());
         force = (force < 0.f) ? 0.f : 20.f;
     }
     m_rig->slopeBrakeFactor = force;
@@ -5420,7 +5223,7 @@ void RigSpawner::ProcessSlopeBrake(RigDef::SlopeBrake & def)
     {
         std::stringstream msg;
         msg << "Clamping 'attach_angle' value '" << force << "' to allowed range <1 - 45>";
-        AddMessage(Message::TYPE_INFO, msg.str());
+        this->AddMessage(Message::TYPE_INFO, msg.str());
         attach_angle = (attach_angle < 1.f) ? 1.f : 45.f;
     }
     m_rig->slopeBrakeAttAngle = attach_angle;
@@ -5431,7 +5234,7 @@ void RigSpawner::ProcessSlopeBrake(RigDef::SlopeBrake & def)
     {
         std::stringstream msg;
         msg << "Clamping 'release_angle' value '" << force << "' to allowed range <1 - 45>";
-        AddMessage(Message::TYPE_INFO, msg.str());
+        this->AddMessage(Message::TYPE_INFO, msg.str());
         release_angle = (release_angle < 1.f) ? 1.f : 45.f;
     }
     m_rig->slopeBrakeRelAngle = release_angle + attach_angle;
@@ -5444,24 +5247,24 @@ void RigSpawner::ProcessTractionControl(RigDef::TractionControl & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    /* #1: regulating_force */
+    // #1: regulating_force
     float force = def.regulation_force;
     if (force < 0.f || force > 20.f)
     {
         std::stringstream msg;
         msg << "Clamping 'regulating_force' value '" << force << "' to allowed range <0 - 20>";
-        AddMessage(Message::TYPE_INFO, msg.str());
+        this->AddMessage(Message::TYPE_INFO, msg.str());
         force = (force < 0.f) ? 0.f : 20.f;
     }
     m_rig->tc_ratio = force;
 
-    /* #2: wheelslip */
+    // #2: wheelslip
     m_rig->tc_wheelslip = (def.wheel_slip < 0.f) ? 0.f : def.wheel_slip;
 
-    /* #3: fade_speed */
+    // #3: fade_speed
     m_rig->tc_fade = (def.fade_speed < 0.1f) ? 0.1f : def.fade_speed;
 
-    /* #4: pulse/sec */
+    // #4: pulse/sec
     float pulse = def.pulse_per_sec;
     if (pulse <= 1.0f || pulse >= 2000.0f)
     {
@@ -5469,7 +5272,7 @@ void RigSpawner::ProcessTractionControl(RigDef::TractionControl & def)
     } 
     m_rig->tc_pulse_time = 1 / pulse;
 
-    /* #4: mode */
+    // #4: mode
     m_rig->tc_mode = static_cast<int>(def.attr_is_on);
     m_rig->tc_present = def.attr_is_on;
     m_rig->tc_notoggle = def.attr_no_toggle;
@@ -7167,8 +6970,7 @@ void RigSpawner::SetupNewEntity(Ogre::Entity* ent, Ogre::ColourValue simple_colo
 
 void RigSpawner::FinalizeGfxSetup()
 {
-    // Check and warn if there are unclaimed managed materials
-    // TODO &*&*
+    // TODO: Check and warn if there are unclaimed managed materials
 
     // Create the actor
     m_rig->m_gfx_actor = std::unique_ptr<RoR::GfxActor>(new RoR::GfxActor(m_rig, m_custom_resource_group));
@@ -7206,6 +7008,52 @@ void RigSpawner::FinalizeGfxSetup()
         m_rig->m_gfx_actor->RegisterCabMaterial(search_itor->second.material, m_cab_trans_material);
         m_rig->m_gfx_actor->SetCabLightsActive(false); // Reset emissive lights to "off" state
     }
+
+    // Process wheel gfx
+    for (int i = 0; i < m_rig->free_wheel; ++i)
+    {
+        wheel_t& sim_wheel = m_rig->wheels[i];
+
+        if (m_wheel_def_map[i].def_flexbwheel != nullptr)
+        {
+            this->ProcessFlexBodyWheelGfx(m_wheel_def_map[i].def_flexbwheel, i);
+        }
+        else if (m_wheel_def_map[i].def_meshwheel != nullptr)
+        {
+            this->BuildMeshWheelVisuals(
+                i,
+                sim_wheel.wh_nodes[0]->pos,
+                sim_wheel.wh_axis_node_0->pos,
+                sim_wheel.wh_axis_node_1->pos,
+                m_wheel_def_map[i].def_meshwheel->num_rays,
+                m_wheel_def_map[i].def_meshwheel->mesh_name,
+                m_wheel_def_map[i].def_meshwheel->material_name,
+                m_wheel_def_map[i].def_meshwheel->rim_radius,
+                m_wheel_def_map[i].def_meshwheel->side != RigDef::MeshWheel::SIDE_RIGHT);
+        }
+        else if (m_wheel_def_map[i].def_wheel != nullptr)
+        {
+            this->CreateWheelVisuals(
+                i,
+                sim_wheel.wh_nodes[0]->pos,
+                m_wheel_def_map[i].def_wheel->num_rays,
+                m_wheel_def_map[i].def_wheel->face_material_name,
+                m_wheel_def_map[i].def_wheel->band_material_name,
+                false);
+        }
+        else if (m_wheel_def_map[i].def_wheel2 != nullptr)
+        {
+            this->CreateWheelVisuals(
+                i,
+                sim_wheel.wh_nodes[0]->pos,
+                m_wheel_def_map[i].def_wheel2->num_rays,
+                m_wheel_def_map[i].def_wheel2->face_material_name,
+                m_wheel_def_map[i].def_wheel2->band_material_name,
+                true,
+                m_wheel_def_map[i].def_wheel2->rim_radius / m_wheel_def_map[i].def_wheel2->tyre_radius);
+        }
+        else this->AddMessage(Message::TYPE_INTERNAL_ERROR, "Invalid wheel->def link!");
+    }
 }
 
 Ogre::ManualObject* CreateVideocameraDebugMesh()
@@ -7224,7 +7072,7 @@ Ogre::ManualObject* CreateVideocameraDebugMesh()
     Ogre::ManualObject* mo = gEnv->sceneManager->createManualObject(); // TODO: Eliminate gEnv
     mo->begin(mat->getName(), Ogre::RenderOperation::OT_LINE_LIST);
     Ogre::ColourValue pos_mark_col(1.f, 0.82f, 0.26f);
-    Ogre::ColourValue dir_mark_col(0.f, 1.f, 1.f); // TODO: This comes out green in simulation - why? ~ only_a_ptr, 05/2017
+    Ogre::ColourValue dir_mark_col(0.f, 1.f, 1.f); // TODO: This comes out green in simulation - why? ~ only_a_ptr, 05/2017      UPDATE: it's an OpenGL+Windows only issue ~ only_a_ptr, 08/2017
     const float pos_mark_len = 0.8f;
     const float dir_mark_len = 4.f;
     // X
