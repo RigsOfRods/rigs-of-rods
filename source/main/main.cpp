@@ -322,8 +322,6 @@ int main(int argc, char *argv[])
                     }
 #endif
                     gEnv->cameraManager->OnReturnToMainMenu();
-                    /* Hide top menu */
-                    App::GetGuiManager()->SetVisible_TopMenubar(false);
                     /* Restore wallpaper */
                     menu_wallpaper_widget->setVisible(true);
 

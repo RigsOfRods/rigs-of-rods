@@ -78,6 +78,7 @@ public:
     void           UpdateFlexbodiesFinal();
     DustManager&   GetParticleManager()                    { return m_particle_manager; }
     void           SetTrucksForcedAwake(bool forced)       { m_forced_awake = forced; };
+    bool           AreTrucksForcedAwake() const            { return m_forced_awake; }
     int            GetNumUsedActorSlots() const            { return m_free_actor_slot; }; // TODO: Tasks requiring search over all actors should be done internally. ~ only_a_ptr, 01/2018
     Actor**        GetInternalActorSlots()                 { return m_actors; }; // TODO: Tasks requiring search over all actors should be done internally. ~ only_a_ptr, 01/2018
     void           SetSimulationSpeed(float speed)         { m_simulation_speed = std::max(0.0f, speed); };
@@ -92,6 +93,8 @@ public:
     void           RemoveActorByCollisionBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box); //!< Only for scripting
     void           RemoveActorInternal(int actor_id); //!< DO NOT CALL DIRECTLY! Use `SimController` for public interface
     Actor*         GetActorByIdInternal(int number); //!< DO NOT CALL DIRECTLY! Use `SimController` for public interface
+    int            CountActorsInternal() const;
+    int            CountPlayableActorsInternal() const; //!< For selector GUI
 
 #ifdef USE_SOCKETW
     void           HandleActorStreamData(std::vector<RoR::Networking::recv_packet_t> packet);

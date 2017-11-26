@@ -1681,3 +1681,29 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(const char* filename, 
         return nullptr;
     }
 }
+
+int ActorManager::CountActorsInternal() const
+{
+    int count = 0;
+    for (int t = 0; t < m_free_actor_slot; t++)
+    {
+        if (m_actors[t] != nullptr)
+        {
+            ++count;
+        }
+    }
+    return count;
+}
+
+int ActorManager::CountPlayableActorsInternal() const // for selector GUI
+{
+    int count = 0;
+    for (int t = 0; t < m_free_actor_slot; t++)
+    {
+        if ((m_actors[t] != nullptr) && (!m_actors[t]->ar_hide_in_actor_list))
+        {
+            ++count;
+        }
+    }
+    return count;
+}

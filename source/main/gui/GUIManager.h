@@ -78,7 +78,6 @@ public:
     void SetVisible_TextureToolWindow   (bool visible);
     void SetVisible_TeleportWindow      (bool visible);
     void SetVisible_LoadingWindow       (bool visible);
-    void SetVisible_TopMenubar          (bool visible);
     void SetVisible_Console             (bool visible);
 
     // GUI IsVisible*()
@@ -98,7 +97,6 @@ public:
     bool IsVisible_TextureToolWindow    ();
     bool IsVisible_TeleportWindow       ();
     bool IsVisible_LoadingWindow        ();
-    bool IsVisible_TopMenubar           ();
     bool IsVisible_Console              ();
 
     // GUI GetInstance*()

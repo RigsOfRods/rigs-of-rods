@@ -2483,3 +2483,14 @@ void SimController::SetPlayerActorById(int actor_id)
         this->SetPlayerActor(actor);
     }
 }
+
+int SimController::GetNumActors() const
+{
+    return m_actor_manager.CountActorsInternal();
+}
+
+int SimController::GetNumPlayableActors() const
+{
+    return m_actor_manager.CountPlayableActorsInternal();
+}
+

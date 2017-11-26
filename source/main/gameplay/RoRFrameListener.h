@@ -59,6 +59,8 @@ public:
     void   ReloadPlayerActor     ();
     void   RemovePlayerActor     ();
     void   RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name); ///< Scripting utility. TODO: Does anybody use it? ~ only_a_ptr, 08/2017
+    int    GetNumActors          () const; //!< All actors
+    int    GetNumPlayableActors  () const;
 
     // Scripting interface
     double getTime               () { return m_time; }
@@ -76,7 +78,7 @@ public:
     bool   SetupGameplayLoop     ();
     void   EnterGameplayLoop     ();
 
-    RoR::ActorManager*           GetBeamFactory  ()         { return &m_actor_manager; } // TODO: Eliminate this. All operations upon actors should be done through above methods. ~ only_a_ptr, 06/2017
+    RoR::ActorManager*          GetBeamFactory  ()         { return &m_actor_manager; } // TODO: Eliminate this. All operations upon actors should be done through above methods. ~ only_a_ptr, 06/2017
     RoR::SkidmarkConfig*        GetSkidmarkConf ()         { return m_skidmark_conf; }
 
 private:
@@ -86,8 +88,6 @@ private:
     void   windowClosed            (Ogre::RenderWindow* rw);
     void   windowFocusChange       (Ogre::RenderWindow* rw);
     void   windowResized           (Ogre::RenderWindow* rw);
-
-    int PreDefineSkyXExemple; //For predefined skyx weathers
 
     void   UpdateForceFeedback     (float dt);
     bool   UpdateInputEvents       (float dt);
@@ -116,6 +116,7 @@ private:
     bool                     m_was_app_window_closed;
     bool                     m_actor_info_gui_visible;
     bool                     m_pressure_pressed;
+    int                      PreDefineSkyXExemple; //For predefined skyx weathers
 
     CacheEntry*              m_last_cache_selection;
     RoR::SkinDef*            m_last_skin_selection;

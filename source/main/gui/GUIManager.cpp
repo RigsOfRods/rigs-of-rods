@@ -117,7 +117,6 @@ void GUIManager::SetVisible_FrictionSettings    (bool v) { m_impl->panel_Frictio
 void GUIManager::SetVisible_TextureToolWindow   (bool v) { m_impl->panel_TextureToolWindow  .SetVisible(v); }
 void GUIManager::SetVisible_TeleportWindow      (bool v) { m_impl->panel_TeleportWindow     .SetVisible(v); }
 void GUIManager::SetVisible_LoadingWindow       (bool v) { m_impl->panel_LoadingWindow      .SetVisible(v); }
-void GUIManager::SetVisible_TopMenubar          (bool v) { m_impl->panel_TopMenubar         .SetVisible(v); }
 void GUIManager::SetVisible_Console             (bool v) { m_impl->panel_GameConsole        .SetVisible(v); }
 void GUIManager::SetVisible_GameSettings        (bool v) { m_impl->panel_GameSettings       .SetVisible(v); }
 
@@ -136,7 +135,6 @@ bool GUIManager::IsVisible_FrictionSettings     () { return m_impl->panel_Fricti
 bool GUIManager::IsVisible_TextureToolWindow    () { return m_impl->panel_TextureToolWindow  .IsVisible(); }
 bool GUIManager::IsVisible_TeleportWindow       () { return m_impl->panel_TeleportWindow     .IsVisible(); }
 bool GUIManager::IsVisible_LoadingWindow        () { return m_impl->panel_LoadingWindow      .IsVisible(); }
-bool GUIManager::IsVisible_TopMenubar           () { return m_impl->panel_TopMenubar         .IsVisible(); }
 bool GUIManager::IsVisible_Console              () { return m_impl->panel_GameConsole        .IsVisible(); }
 bool GUIManager::IsVisible_GameSettings         () { return m_impl->panel_GameSettings       .IsVisible(); }
 
@@ -245,6 +243,10 @@ bool GUIManager::frameEnded(const Ogre::FrameEvent& evt)
 void GUIManager::FrameStepGui(float dt)
 {
     m_impl->panel_SimUtils.FrameStepSimGui(dt);
+    if (App::app_state.GetActive() == AppState::SIMULATION)
+    {
+        m_impl->panel_TopMenubar.Update();
+    }
 };
 
 void GUIManager::PushNotification(Ogre::String Title, Ogre::UTFString text)
@@ -406,7 +408,6 @@ void GUIManager::ReflectGameState()
     {
         m_impl->panel_GameMainMenu       .SetVisible(!m_impl->panel_MainSelector.IsVisible());
 
-        m_impl->panel_TopMenubar         .SetVisible(false);
         m_impl->panel_ChatBox            .SetVisible(false);
         m_impl->panel_DebugOptions       .SetVisible(false);
         m_impl->panel_FrictionSettings   .SetVisible(false);
@@ -421,8 +422,6 @@ void GUIManager::ReflectGameState()
     }
     if (app_state == AppState::SIMULATION)
     {
-        m_impl->panel_TopMenubar         .SetVisible(true);
-        m_impl->panel_TopMenubar         .ReflectMultiplayerState();
         m_impl->panel_SimUtils           .SetBaseVisible(true);
         m_impl->panel_GameMainMenu       .SetVisible(false);
         return;
