@@ -254,8 +254,6 @@ void ActorSpawner::InitializeRig()
     m_actor->exhausts.clear();
     memset(m_actor->ar_custom_particles, 0, sizeof(cparticle_t) * MAX_CPARTICLES);
     m_actor->ar_num_custom_particles = 0;
-    m_actor->m_nodes_debug_text.clear();
-    m_actor->m_beams_debug_text.clear();
     memset(m_actor->ar_soundsources, 0, sizeof(soundsource_t) * MAX_SOUNDSCRIPTS_PER_TRUCK);
     m_actor->ar_num_soundsources = 0;
     memset(m_actor->ar_collcabs, 0, sizeof(int) * MAX_CABS);

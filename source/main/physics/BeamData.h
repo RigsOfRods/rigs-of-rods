@@ -415,13 +415,6 @@ struct cparticle_t
 };
 
 
-struct debugtext_t
-{
-    int id;
-    Ogre::MovableText *txt;
-    Ogre::SceneNode *node;
-};
-
 
 // some non-beam structs
 

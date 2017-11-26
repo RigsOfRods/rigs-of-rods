@@ -36,6 +36,26 @@
 #include "SceneMouse.h"
 #include "MumbleIntegration.h"
 
+/* -------------------- Research of debug options (only_a_ptr, 06/2017) ----------------------
+
+    ROR.CONF NAME            | GVar name ('+': added) --- Description
+
+["Debug Truck Mass"]         | GVar: diag_truck_mass  --- extra logging on runtime - mass recalculation.
+["Debug Collisions"]         | GVar: diag_collisions  --- visual debug of static map collisions. Only effective on map load.
+["EnvMapDebug"]              | GVar: diag_envmap      --- effective on terrain load (envmap init).
+["VideoCameraDebug"]         | GVar: diag_videocameras--- creates debug mesh showing videocamera direction. Effective on vehicle spawn.
+
+["Enable Ingame Console"]    |       +                --- Equivalent to "\log" console command, echoes all RoR.log output to console. Reported to cause massive slowdown on startup.
+["Beam Break Debug"]         |       +                --- Use before spawn, lasts entire vehicle lifetime.
+["Beam Deform Debug"]        |       +                --- Use before spawn, lasts entire vehicle lifetime.
+["Trigger Debug"]            |       +                --- Use before spawn, lasts entire vehicle lifetime.
+["DOFDebug"]                 |       +                --- Effective on CameraManager init (map loading)
+
+["Advanced Logging"]         | ~ no gvar ~            --- DEAD, used in removed 'ScopeLog' feature of old spawner.
+["DebugBeams"]                                        --- Pre configured debug overlay mode --- DEAD since debug overlay has been remade with different modes 
+
+*/
+
 namespace RoR {
 namespace App {
 

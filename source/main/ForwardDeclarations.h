@@ -103,7 +103,6 @@ struct prop_t;
 struct rope_t;
 struct exhaust_t;
 struct cparticle_t;
-struct debugtext_t;
 struct collision_box_t;
 struct tie_t;
 struct hook_t;

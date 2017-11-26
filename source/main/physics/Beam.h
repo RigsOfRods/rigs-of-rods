@@ -147,7 +147,6 @@ public:
     void              disconnectAutopilot();
     void              ScaleActor(float value);
     void              UpdateDebugOverlay();
-    void              setDebugOverlayState(int mode);
     Ogre::Quaternion  specialGetRotationTo(const Ogre::Vector3& src, const Ogre::Vector3& dest) const;
     Ogre::String      getAxleLockName();                   //!< get the name of the current differential model
     int               getAxleLockCount();
@@ -449,8 +448,6 @@ private:
     std::vector<RailGroup*>            m_railgroups;       //!< all the available RailGroups for this actor
     std::vector<Ogre::Entity*>         m_deletion_entities;    //!< For unloading vehicle; filled at spawn.
     std::vector<Ogre::SceneNode*>      m_deletion_scene_nodes; //!< For unloading vehicle; filled at spawn.
-    std::vector<debugtext_t>           m_nodes_debug_text;     //!< Gfx state
-    std::vector<debugtext_t>           m_beams_debug_text;     //!< Gfx state
     Ogre::SceneNode*  m_beam_visuals_parent_scenenode;     //!< Gfx
     int               m_proped_wheel_pairs[MAX_WHEELS];    //!< Physics attr; For inter-differential locking
     int               m_num_braked_wheels;          //!< Physics attr, filled at spawn - Number of braked wheels.
