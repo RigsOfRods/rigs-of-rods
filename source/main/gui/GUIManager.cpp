@@ -44,6 +44,7 @@
 #include "GUI_GameConsole.h"
 #include "GUI_GamePauseMenu.h"
 #include "GUI_GameChatBox.h"
+#include "GUI_GameSettings.h"
 #include "GUI_LoadingWindow.h"
 #include "GUI_MessageBox.h"
 #include "GUI_MultiplayerSelector.h"
@@ -73,6 +74,7 @@ struct GuiManagerImpl
     GUI::GameMainMenu           panel_GameMainMenu;
     GUI::GameAbout              panel_GameAbout;
     GUI::GamePauseMenu          panel_GamePauseMenu;
+    GUI::GameSettings           panel_GameSettings;
     GUI::DebugOptions           panel_DebugOptions;
     GUI::SimUtils               panel_SimUtils;
     GUI::gMessageBox            panel_MessageBox;
@@ -115,6 +117,7 @@ void GUIManager::SetVisible_TeleportWindow      (bool v) { m_impl->panel_Telepor
 void GUIManager::SetVisible_LoadingWindow       (bool v) { m_impl->panel_LoadingWindow      .SetVisible(v); }
 void GUIManager::SetVisible_TopMenubar          (bool v) { m_impl->panel_TopMenubar         .SetVisible(v); }
 void GUIManager::SetVisible_Console             (bool v) { m_impl->panel_GameConsole        .SetVisible(v); }
+void GUIManager::SetVisible_GameSettings        (bool v) { m_impl->panel_GameSettings       .SetVisible(v); }
 
 bool GUIManager::IsVisible_GameMainMenu         () { return m_impl->panel_GameMainMenu       .IsVisible(); }
 bool GUIManager::IsVisible_GameAbout            () { return m_impl->panel_GameAbout          .IsVisible(); }
@@ -133,6 +136,7 @@ bool GUIManager::IsVisible_TeleportWindow       () { return m_impl->panel_Telepo
 bool GUIManager::IsVisible_LoadingWindow        () { return m_impl->panel_LoadingWindow      .IsVisible(); }
 bool GUIManager::IsVisible_TopMenubar           () { return m_impl->panel_TopMenubar         .IsVisible(); }
 bool GUIManager::IsVisible_Console              () { return m_impl->panel_GameConsole        .IsVisible(); }
+bool GUIManager::IsVisible_GameSettings         () { return m_impl->panel_GameSettings       .IsVisible(); }
 
 // GUI GetInstance*()
 Console*                    GUIManager::GetConsole()           { return &m_impl->panel_GameConsole         ; }
@@ -518,6 +522,11 @@ void GUIManager::DrawMainMenuGui()
     if ((App::mp_state.GetActive() != MpState::CONNECTED) && (App::mp_state.GetPending() == MpState::CONNECTED))
     {
         this->DrawMpConnectingStatusBox();
+    }
+
+    if (m_impl->panel_GameSettings.IsVisible())
+    {
+        m_impl->panel_GameSettings.Draw();
     }
 }
 
