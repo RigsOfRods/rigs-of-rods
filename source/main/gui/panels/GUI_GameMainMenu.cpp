@@ -106,8 +106,8 @@ void CLASS::eventMouseButtonClickSelectTerrainButton(MyGUI::WidgetPtr _sender)
 
 void CLASS::eventMouseButtonClickSettingButton(MyGUI::WidgetPtr _sender)
 {
-// TODO: Re-implement the settings GUI using 'DearIMGUI' library! ~ only_a_ptr, 06/2017
-
+    App::GetGuiManager()->SetVisible_GameSettings(true);
+    this->Hide();
 }
 
 void CLASS::eventMouseButtonClickAboutButton(MyGUI::WidgetPtr _sender)
