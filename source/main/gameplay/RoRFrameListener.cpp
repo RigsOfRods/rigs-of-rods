@@ -1107,12 +1107,9 @@ bool SimController::UpdateInputEvents(float dt)
                         m_player_actor->ToggleCustomParticles();
                     }
 
-                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SHOW_SKELETON))
+                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CYCLE_DEBUG_VIEWS))
                     {
-                        if (m_player_actor->ar_skeletonview_is_active)
-                            m_player_actor->HideSkeleton();
-                        else
-                            m_player_actor->ShowSkeleton(true);
+                        m_player_actor->GetGfxActor()->CycleDebugViews();
                     }
 
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_LIGHTS))

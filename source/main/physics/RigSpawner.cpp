@@ -372,9 +372,6 @@ void ActorSpawner::InitializeRig()
 
     m_actor->ar_dashboard = new DashBoardManager();
 
-    m_actor->m_skeletonview_scenenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-    m_actor->m_deletion_scene_nodes.emplace_back(m_actor->m_skeletonview_scenenode);
-    
     m_actor->m_beam_visuals_parent_scenenode = m_parent_scene_node;
 
     /* Collisions */

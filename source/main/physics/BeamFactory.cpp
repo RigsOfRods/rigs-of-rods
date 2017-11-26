@@ -473,8 +473,6 @@ void ActorManager::SetupActor(
     // pressurize tires
     actor->AddTyrePressure(0.0);
 
-    actor->CreateSimpleSkeletonMaterial();
-
     actor->ar_sim_state = Actor::SimState::LOCAL_SLEEPING;
 
     // start network stuff

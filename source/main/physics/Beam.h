@@ -143,9 +143,6 @@ public:
     void              JoinFlexbodyTasks();                 //!< Waits until all flexbody tasks are finished, but does not update the hardware buffers
     void              UpdateActorNetLabels(float dt=0);    //!< Gfx;
     void              setDetailLevel(int v);               //!< @param v 0 = full detail, 1 = no beams
-    void              ShowSkeleton(bool meshes=true, bool linked=true); //!< Gfx; shows "skeletonview" (diagnostic view) mesh.
-    void              HideSkeleton(bool linked=true);      //!< Gfx; hides "skeletonview" (diagnostic view) mesh.
-    void              updateSimpleSkeleton();              //!< Gfx; updates the "skeletonview" (diagnostic view) mesh.
     void              resetAutopilot();
     void              disconnectAutopilot();
     void              ScaleActor(float value);
@@ -428,13 +425,6 @@ private:
     void              AddInterActorBeam(beam_t* beam, Actor* a, Actor* b);
     void              RemoveInterActorBeam(beam_t* beam);
     void              DisjoinInterActorBeams();            //!< Destroys all inter-actor beams which are connected with this actor
-    void              CreateSimpleSkeletonMaterial();
-    void              cabFade(float amount);
-    void              setMeshWireframe(Ogre::SceneNode *node, bool value);
-    void              fadeMesh(Ogre::SceneNode *node, float amount);
-    float             getAlphaRejection(Ogre::SceneNode *node);
-    void              setAlphaRejection(Ogre::SceneNode *node, float amount);
-    void              initSimpleSkeleton();                //!< Builds the rig-skeleton mesh.
     void              autoBlinkReset();                    //!< Resets the turn signal when the steering wheel is turned back.
     void              sendStreamSetup();
     void              updateSlideNodeForces(const Ogre::Real delta_time_sec); //!< calculate and apply Corrective forces

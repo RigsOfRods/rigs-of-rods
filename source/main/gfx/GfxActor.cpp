@@ -22,9 +22,12 @@
 #include "GfxActor.h"
 
 #include "Beam.h"
+#include "beam_t.h"
 #include "GlobalEnvironment.h" // TODO: Eliminate!
 #include "SkyManager.h"
 #include "TerrainManager.h"
+#include "imgui.h"
+#include "Utils.h"
 
 #include <OgrePass.h>
 #include <OgreRenderWindow.h>
@@ -337,5 +340,104 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
 
         // set the new position
         vidcam.vcam_ogre_camera->setPosition(pos);
+    }
+}
+
+const ImU32 BEAM_COLOR       (0xcc33aabb); // ABGR
+const float BEAM_THICKNESS   (1.2f);
+const ImU32 NODE_COLOR       (0xeeaa5523); // ABGR
+const float NODE_RADIUS      (2.f);
+const ImU32 NODE_TEXT_COLOR  (0xffcccccf); // ABGR
+
+void RoR::GfxActor::UpdateDebugView()
+{
+    if (m_debug_view == DebugViewType::DEBUGVIEW_NONE)
+    {
+        return; // Nothing to do
+    }
+
+    // Var
+    ImVec2 screen_size = ImGui::GetIO().DisplaySize;
+    World2ScreenConverter world2screen(
+        gEnv->mainCamera->getViewMatrix(true), gEnv->mainCamera->getProjectionMatrix(), Ogre::Vector2(screen_size.x, screen_size.y));
+
+    // Dummy fullscreen window to draw to
+    int window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar| ImGuiWindowFlags_NoInputs 
+                     | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus;
+    ImGui::Begin("RoR-SoftBodyView", NULL, screen_size, 0, window_flags);
+    ImDrawList* drawlist = ImGui::GetWindowDrawList();
+    ImGui::End();
+
+    // Skeleton display. NOTE: Order matters, it determines Z-ordering on render
+    if ((m_debug_view == DebugViewType::DEBUGVIEW_SKELETON) ||
+        (m_debug_view == DebugViewType::DEBUGVIEW_NODES))
+    {
+        // Beams
+        beam_t* beams = m_actor->ar_beams;
+        size_t num_beams = static_cast<size_t>(m_actor->ar_num_beams);
+        for (size_t i = 0; i < num_beams; ++i)
+        {
+            Ogre::Vector3 pos1 = world2screen.Convert(beams[i].p1->AbsPosition);
+            Ogre::Vector3 pos2 = world2screen.Convert(beams[i].p2->AbsPosition);
+
+            // Original coloring logic:
+            // // float stress_ratio = beams[i].stress / beams[i].minmaxposnegstress;
+            // // float color_scale = std::abs(stress_ratio);
+            // // color_scale = std::min(color_scale, 1.0f);
+            // // 
+            // // if (stress_ratio <= 0)
+            // //     color = ColourValue(0.2f, 1.0f - color_scale, color_scale, 0.8f);
+            // // else
+            // //     color = ColourValue(color_scale, 1.0f - color_scale, 0.2f, 0.8f);            
+
+            if ((pos1.z < 0.f) && (pos2.z < 0.f))
+            {
+                ImVec2 pos1xy(pos1.x, pos1.y);
+                ImVec2 pos2xy(pos2.x, pos2.y);
+                drawlist->AddLine(pos1xy, pos2xy, BEAM_COLOR, BEAM_THICKNESS);
+            }
+        }
+
+        // Nodes
+        node_t* nodes = m_actor->ar_nodes;
+        size_t num_nodes = static_cast<size_t>(m_actor->ar_num_nodes);
+        for (size_t i = 0; i < num_nodes; ++i)
+        {
+            Ogre::Vector3 pos = world2screen.Convert(nodes[i].AbsPosition);
+
+            if (pos.z < 0.f)
+            {
+                ImVec2 pos_xy(pos.x, pos.y);
+                drawlist->AddCircleFilled(pos_xy, NODE_RADIUS, NODE_COLOR);
+            }
+        }
+
+        // Node numbers; drawn after nodes to have higher Z-order
+        if (m_debug_view == DebugViewType::DEBUGVIEW_NODES)
+        {
+            for (size_t i = 0; i < num_nodes; ++i)
+            {
+                Ogre::Vector3 pos = world2screen.Convert(nodes[i].AbsPosition);
+
+                if (pos.z < 0.f)
+                {
+                    ImVec2 pos_xy(pos.x, pos.y);
+                    Str<25> id_buf;
+                    id_buf << nodes[i].id;
+                    drawlist->AddText(pos_xy, NODE_TEXT_COLOR, id_buf.ToCStr());
+                }
+            }
+        }
+    }
+}
+
+void RoR::GfxActor::CycleDebugViews()
+{
+    switch (m_debug_view)
+    {
+    case DebugViewType::DEBUGVIEW_NONE:     m_debug_view = DebugViewType::DEBUGVIEW_SKELETON; break;
+    case DebugViewType::DEBUGVIEW_SKELETON: m_debug_view = DebugViewType::DEBUGVIEW_NODES;    break;
+    case DebugViewType::DEBUGVIEW_NODES:    m_debug_view = DebugViewType::DEBUGVIEW_NONE;     break;
+    default:;
     }
 }
