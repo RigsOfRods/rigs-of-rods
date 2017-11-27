@@ -34,7 +34,7 @@ class GamePauseMenu // TODO: Copypaste of 'GameMainMenu' -- cleanup and unify th
 {
 public:
     // This class implements hand-made keyboard focus - button count must be known for wrapping
-    const int     NUM_BUTTONS           = 4; // Buttons: Resumegame, ChangeMap, BackToMenu, Quitgame
+    const int     NUM_BUTTONS           = 3; // Buttons: Resumegame, BackToMenu, Quitgame
     const float   WINDOW_WIDTH          = 200.f;
     const ImVec4  WINDOW_BG_COLOR       = ImVec4(0.1f, 0.1f, 0.1f, 0.8f);
     const ImVec4  BUTTON_BG_COLOR       = ImVec4(0.3f, 0.3f, 0.3f, 0.5f); // Drawn on top of a transparent panel; make it just a shade
