@@ -66,7 +66,6 @@ public:
     // GUI SetVisible*()
     void SetVisible_GameMainMenu        (bool visible);
     void SetVisible_GameAbout           (bool visible);
-    void SetVisible_GamePauseMenu       (bool visible);
     void SetVisible_GameSettings        (bool visible);
     void SetVisible_DebugOptions        (bool visible);
     void SetVisible_MultiplayerSelector (bool visible);
@@ -83,7 +82,6 @@ public:
     // GUI IsVisible*()
     bool IsVisible_GameMainMenu         ();
     bool IsVisible_GameAbout            ();
-    bool IsVisible_GamePauseMenu        ();
     bool IsVisible_GameSettings         ();
     bool IsVisible_DebugOptions         ();
     bool IsVisible_MessageBox           ();
@@ -103,6 +101,7 @@ public:
     Console* GetConsole();
     GUI::MainSelector* GetMainSelector();
     GUI::GameMainMenu* GetMainMenu();
+    GUI::GamePauseMenu* GetPauseMenu();
     GUI::LoadingWindow* GetLoadingWindow();
     GUI::MpClientList* GetMpClientList();
     GUI::MultiplayerSelector* GetMpSelector();
@@ -119,16 +118,14 @@ public:
     void PushNotification(Ogre::String Title, Ogre::UTFString text);
     void HideNotification();
     void CenterSpawnerReportWindow();
-    void AdjustPauseMenuPosition();
 
     void UpdateSimUtils(float dt, Actor* truck);
-    void FrameStepGui(float dt);
     void NewImGuiFrame(float dt);
     void DrawMainMenuGui();
+    void DrawSimulationGui(float dt);
 
     int getMessageBoxResult(); //TODO
     void DrawMpConnectingStatusBox();
-    void InitMainSelector(RoR::SkinManager* skin_manager);
 
     void hideGUI(bool visible);
 

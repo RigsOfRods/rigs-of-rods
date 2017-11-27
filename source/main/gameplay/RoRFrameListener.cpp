@@ -1737,7 +1737,7 @@ bool SimController::frameStarted(const FrameEvent& evt)
         m_time_until_next_toggle -= dt;
     }
 
-    RoR::App::GetGuiManager()->FrameStepGui(dt);
+    RoR::App::GetGuiManager()->DrawSimulationGui(dt);
 
     // CAUTION: 'FrameStepGui()' might have changed 'm_player_actor'
     //           TODO: This is a mess - actor updates from misc. inputs should be buffered, evaluated and executed at once, not ad-hoc ~ only_a_ptr, 07/2017
@@ -1778,7 +1778,7 @@ bool SimController::frameStarted(const FrameEvent& evt)
 
                 if (m_race_in_progress && (App::sim_state.GetActive() != SimState::PAUSED))
                 {
-                    UpdateRacingGui(); //I really think that this should stay here.
+                    this->UpdateRacingGui();
                 }
 
                 if (m_player_actor->ar_driveable == TRUCK && m_player_actor->ar_engine != nullptr)
@@ -1802,14 +1802,12 @@ bool SimController::frameStarted(const FrameEvent& evt)
 
         if (simRUNNING(s) && (App::sim_state.GetPending() == SimState::PAUSED))
         {
-            App::GetGuiManager()->SetVisible_GamePauseMenu(true);
             m_actor_manager.MuteAllActors();
 
             App::sim_state.ApplyPending();
         }
         else if (simPAUSED(s) && (App::sim_state.GetPending() == SimState::RUNNING))
         {
-            App::GetGuiManager()->SetVisible_GamePauseMenu(false);
             m_actor_manager.UnmuteAllActors();
 
             App::sim_state.ApplyPending();
