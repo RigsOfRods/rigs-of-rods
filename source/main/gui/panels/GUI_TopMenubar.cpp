@@ -317,7 +317,7 @@ void RoR::GUI::TopMenubar::Update()
                 if (current_actor != nullptr)
                 {
                     debug_view_type = static_cast<int>(current_actor->GetGfxActor()->GetDebugView());
-                    }
+                }
                 ImGui::RadioButton("Normal view",   &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_NONE));
                 ImGui::RadioButton("Skeleton view", &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_SKELETON));
                 ImGui::RadioButton("Node details",  &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_NODES));

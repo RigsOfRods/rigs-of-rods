@@ -112,8 +112,7 @@ public:
 
     // GUI manipulation
     void pushMessageChatBox(Ogre::String txt);
-    void ShowMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1, Ogre::String mButton1, bool AllowClose, bool button2, Ogre::String mButton2);
-    void UpdateMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1, Ogre::String mButton1, bool AllowClose, bool button2, Ogre::String mButton2, bool IsVisible);
+    void ShowMessageBox(const char* title, const char* text, bool allow_close = true, const char* btn1_text = "OK", const char* btn2_text = nullptr);
     void UnfocusGui();
     void PushNotification(Ogre::String Title, Ogre::UTFString text);
     void HideNotification();
@@ -124,12 +123,8 @@ public:
     void DrawMainMenuGui();
     void DrawSimulationGui(float dt);
 
-    int getMessageBoxResult(); //TODO
     void DrawMpConnectingStatusBox();
-
     void hideGUI(bool visible);
-
-    void destroy();
 
     void windowResized(Ogre::RenderWindow* rw);
 

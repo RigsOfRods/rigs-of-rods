@@ -2150,7 +2150,7 @@ bool SimController::LoadTerrain()
             LOG("Terrain not found: " + terrain_file);
             Ogre::UTFString title(_L("Terrain loading error"));
             Ogre::UTFString msg(_L("Terrain not found: ") + terrain_file);
-            App::GetGuiManager()->ShowMessageBox(title.asUTF8(), msg.asUTF8(), true, "OK", true, false, "");
+            App::GetGuiManager()->ShowMessageBox(title.asUTF8_c_str(), msg.asUTF8_c_str());
             return false;
         }
     }
@@ -2432,9 +2432,9 @@ void SimController::EnterGameplayLoop()
 #ifdef USE_SOCKETW
         if ((App::mp_state.GetActive() == MpState::CONNECTED) && RoR::Networking::CheckError())
         {
-            Ogre::String title = Ogre::UTFString(_L("Network fatal error: ")).asUTF8();
-            Ogre::String msg = RoR::Networking::GetErrorMessage().asUTF8();
-            App::GetGuiManager()->ShowMessageBox(title, msg, true, "OK", true, false, "");
+            const char* title = LanguageEngine::getSingleton().lookUp("Network fatal error: ").asUTF8_c_str();
+            const char* text = RoR::Networking::GetErrorMessage().asUTF8_c_str();
+            App::GetGuiManager()->ShowMessageBox(title, text);
             App::app_state.SetPending(AppState::MAIN_MENU);
         }
 #endif

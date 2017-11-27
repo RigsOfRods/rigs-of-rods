@@ -24,118 +24,70 @@
 /// @date   12/2014
 
 #include "GUI_MessageBox.h"
-
-#include "RoRPrerequisites.h"
-#include "Utils.h"
-#include "RoRVersion.h"
-#include "RoRnet.h"
-#include "Language.h"
-#include "GUIManager.h"
 #include "ScriptEvents.h"
 #include "Scripting.h"
 
-#include <MyGUI.h>
+#include <imgui.h>
 
-using namespace RoR;
-using namespace GUI;
+RoR::GUI::MessageBoxDialog::MessageBoxDialog():
+    m_close_handle(nullptr),
+    m_is_visible(false)
+{}
 
-#define CLASS        gMessageBox
-#define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
+RoR::GUI::MessageBoxDialog::~MessageBoxDialog()
+{}
 
-CLASS::CLASS()
+void RoR::GUI::MessageBoxDialog::Draw()
 {
-    MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
-    win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::notifyWindowButtonPressed); //The "X" button thing
+    const bool was_visible = m_is_visible;
 
-    MyGUI::IntSize gui_area = MyGUI::RenderManager::getInstance().getViewSize();
-    mMainWidget->setPosition(gui_area.width / 2 - mMainWidget->getWidth() / 2, gui_area.height / 2 - mMainWidget->getHeight() / 2);
+    // Draw window
+    ImGui::SetNextWindowContentWidth(300.f); // Initial size only
+    ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing); // Initial pos. only
+    ImGui::Begin(m_title.c_str(), m_close_handle);
+    ImGui::TextWrapped(m_text.c_str());
 
-    b_AllowClose = false;
-
-    m_button1->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButton1ClickSaveButton);
-    m_button2->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButton2ClickSaveButton);
-
-    MAIN_WIDGET->setVisible(false);
-}
-
-CLASS::~CLASS()
-{
-}
-
-void CLASS::Show()
-{
-    MAIN_WIDGET->setVisibleSmooth(true);
-}
-
-void CLASS::UpdateMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1, Ogre::String mButton1, bool AllowClose, bool button2, Ogre::String mButton2, bool IsVisible)
-{
-    ((MyGUI::Window*)mMainWidget)->setCaptionWithReplacing(mTitle);
-    m_text->setCaptionWithReplacing(mText);
-
-    if (button1)
-        m_button1->setCaptionWithReplacing(mButton1);
-
-    if (button2)
-        m_button2->setCaptionWithReplacing(mButton2);
-
-    if (!MAIN_WIDGET->getVisible())
-        Show();
-    else if (IsVisible == false)
-        Hide();
-}
-
-void CLASS::ShowMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1, Ogre::String mButton1, bool AllowClose, bool button2, Ogre::String mButton2)
-{
-    i_Results = 0; //Reinit
-    ((MyGUI::Window*)mMainWidget)->setCaptionWithReplacing(mTitle);
-    m_text->setCaptionWithReplacing(mText);
-
-    if (button1)
-        m_button1->setCaptionWithReplacing(mButton1);
-
-    if (button2)
-        m_button2->setCaptionWithReplacing(mButton2);
-
-    Show(); //Last thing to be done
-}
-
-bool CLASS::IsVisible()
-{
-    return MAIN_WIDGET->getVisible();
-}
-
-int CLASS::getResult()
-{
-    if (i_Results > 0)
-        return i_Results;
-
-    return 0;
-}
-
-void CLASS::Hide()
-{
-    MAIN_WIDGET->setVisibleSmooth(false);
-}
-
-void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name)
-{
-    if (_name == "close" && !b_AllowClose)
+    // Draw buttons
+    if (!m_button1_text.empty())
     {
-        TRIGGER_EVENT(SE_GENERIC_MESSAGEBOX_CLICK, 0);
-        Hide();
+        if (ImGui::Button(m_button1_text.c_str()))
+        {
+            TRIGGER_EVENT(SE_GENERIC_MESSAGEBOX_CLICK, 1); // Scripting
+            m_is_visible = false;
+        }
+    }
+    if (!m_button2_text.empty())
+    {
+        if (ImGui::Button(m_button2_text.c_str()))
+        {
+            TRIGGER_EVENT(SE_GENERIC_MESSAGEBOX_CLICK, 2); // Scripting
+            m_is_visible = false;
+        }
+    }
+
+    // Finalize
+    ImGui::End();
+    if (m_is_visible != was_visible)
+    {
+        TRIGGER_EVENT(SE_GENERIC_MESSAGEBOX_CLICK, 0); // Scripting
     }
 }
 
-void CLASS::eventMouseButton1ClickSaveButton(MyGUI::WidgetPtr _sender)
+void RoR::GUI::MessageBoxDialog::Show(const char* title, const char* text, bool allow_close, const char* button1_text, const char* button2_text)
 {
-    TRIGGER_EVENT(SE_GENERIC_MESSAGEBOX_CLICK, 1);
-    i_Results = 1;
-    Hide();
+    m_is_visible = true;
+    m_title = title;
+    m_text = text;
+    m_button1_text = ((button1_text != nullptr) ? button1_text : "");
+    m_button2_text = ((button2_text != nullptr) ? button2_text : "");
+
+    if (allow_close)
+    {
+        m_close_handle = &m_is_visible;
+    }
+    else
+    {
+        m_close_handle = nullptr;
+    }
 }
 
-void CLASS::eventMouseButton2ClickSaveButton(MyGUI::WidgetPtr _sender)
-{
-    TRIGGER_EVENT(SE_GENERIC_MESSAGEBOX_CLICK, 2);
-    i_Results = 2;
-    Hide();
-}

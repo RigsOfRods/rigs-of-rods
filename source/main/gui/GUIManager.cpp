@@ -79,7 +79,7 @@ struct GuiManagerImpl
     GUI::GameSettings           panel_GameSettings;
     GUI::DebugOptions           panel_DebugOptions;
     GUI::SimUtils               panel_SimUtils;
-    GUI::gMessageBox            panel_MessageBox;
+    GUI::MessageBoxDialog       panel_MessageBox;
     GUI::MultiplayerSelector    panel_MultiplayerSelector;
     GUI::MainSelector           panel_MainSelector;
     GUI::GameChatBox            panel_ChatBox;
@@ -122,7 +122,6 @@ void GUIManager::SetVisible_GameSettings        (bool v) { m_impl->panel_GameSet
 bool GUIManager::IsVisible_GameMainMenu         () { return m_impl->panel_GameMainMenu       .IsVisible(); }
 bool GUIManager::IsVisible_GameAbout            () { return m_impl->panel_GameAbout          .IsVisible(); }
 bool GUIManager::IsVisible_DebugOptions         () { return m_impl->panel_DebugOptions       .IsVisible(); }
-bool GUIManager::IsVisible_MessageBox           () { return m_impl->panel_MessageBox         .IsVisible(); }
 bool GUIManager::IsVisible_MultiplayerSelector  () { return m_impl->panel_MultiplayerSelector.IsVisible(); }
 bool GUIManager::IsVisible_MainSelector         () { return m_impl->panel_MainSelector       .IsVisible(); }
 bool GUIManager::IsVisible_ChatBox              () { return m_impl->panel_ChatBox            .IsVisible(); }
@@ -252,6 +251,11 @@ void GUIManager::DrawSimulationGui(float dt)
             m_impl->panel_GamePauseMenu.Draw();
         }
     }
+
+    if (m_impl->panel_MessageBox.IsVisible())
+    {
+        m_impl->panel_MessageBox.Draw();
+    }
 };
 
 void GUIManager::PushNotification(Ogre::String Title, Ogre::UTFString text)
@@ -312,21 +316,6 @@ void GUIManager::UpdateSimUtils(float dt, Actor *truck)
     {
         m_impl->panel_SimUtils.UpdateStats(dt, truck);
     }
-}
-
-void GUIManager::ShowMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1, Ogre::String mButton1, bool AllowClose = false, bool button2 = false, Ogre::String mButton2 = "")
-{
-    m_impl->panel_MessageBox.ShowMessageBox(mTitle, mText, button1, mButton1, AllowClose, button2, mButton2);
-}
-
-void GUIManager::UpdateMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1, Ogre::String mButton1, bool AllowClose = false, bool button2 = false, Ogre::String mButton2 = "", bool IsVisible = true)
-{
-    m_impl->panel_MessageBox.UpdateMessageBox(mTitle, mText, button1, mButton1, AllowClose, button2, mButton2, IsVisible);
-}
-
-int GUIManager::getMessageBoxResult()
-{
-    return m_impl->panel_MessageBox.getResult();
 }
 
 void GUIManager::AddRigLoadingReport(std::string const & vehicle_name, std::string const & text, int num_errors, int num_warnings, int num_other)
@@ -506,6 +495,11 @@ void GUIManager::DrawMainMenuGui()
     {
         m_impl->panel_GameSettings.Draw();
     }
+
+    if (m_impl->panel_MessageBox.IsVisible())
+    {
+        m_impl->panel_MessageBox.Draw();
+    }
 }
 
 void GUIManager::DrawMpConnectingStatusBox()
@@ -532,6 +526,11 @@ void GUIManager::DrawMpConnectingStatusBox()
     ImGui::TextDisabled(Networking::GetStatusMessage().GetBuffer());
 #endif
     ImGui::End();
+}
+
+void GUIManager::ShowMessageBox(const char* title, const char* text, bool allow_close, const char* btn1_text, const char* btn2_text)
+{
+    m_impl->panel_MessageBox.Show(title, text, allow_close, btn1_text, btn2_text);
 }
 
 } // namespace RoR

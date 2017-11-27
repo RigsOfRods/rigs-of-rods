@@ -144,9 +144,9 @@ void MainMenu::EnterMainMenuLoop()
 #ifdef USE_SOCKETW
         if ((App::mp_state.GetActive() == MpState::CONNECTED) && RoR::Networking::CheckError())
         {
-            Ogre::String title = Ogre::UTFString(_L("Network fatal error: ")).asUTF8();
-            Ogre::String msg = RoR::Networking::GetErrorMessage().asUTF8();
-            App::GetGuiManager()->ShowMessageBox(title, msg, true, "OK", true, false, "");
+            const char* title = LanguageEngine::getSingleton().lookUp("Network fatal error: ").asUTF8_c_str();
+            const char* text = RoR::Networking::GetErrorMessage().asUTF8_c_str();
+            App::GetGuiManager()->ShowMessageBox(title, text);
             App::app_state.SetPending(AppState::MAIN_MENU);
 
             RoR::App::GetGuiManager()->GetMainSelector()->Hide();
@@ -205,14 +205,14 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
             gui->SetVisible_GameMainMenu(!connect_started);
             if (!connect_started)
             {
-                App::GetGuiManager()->ShowMessageBox("Multiplayer: connection failed", Networking::GetErrorMessage().asUTF8_c_str(), true, "OK", false, false, "");
+                App::GetGuiManager()->ShowMessageBox("Multiplayer: connection failed", Networking::GetErrorMessage().asUTF8_c_str());
                 App::mp_state.SetActive(RoR::MpState::DISABLED);
             }
         }
         else if (con_state == Networking::ConnectState::FAILURE) // Just failed (only returned once)
         {
             App::mp_state.SetActive(RoR::MpState::DISABLED);
-            App::GetGuiManager()->ShowMessageBox("Multiplayer: connection failed", Networking::GetErrorMessage().asUTF8_c_str(), true, "OK", false, false, "");
+            App::GetGuiManager()->ShowMessageBox("Multiplayer: connection failed", Networking::GetErrorMessage().asUTF8_c_str());
             App::GetGuiManager()->SetVisible_GameMainMenu(true);
         }
         else if (con_state == Networking::ConnectState::SUCCESS) // Just succeeded (only returned once)
