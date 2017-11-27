@@ -102,6 +102,7 @@ public:
     // GUI GetInstance*()
     Console* GetConsole();
     GUI::MainSelector* GetMainSelector();
+    GUI::GameMainMenu* GetMainMenu();
     GUI::LoadingWindow* GetLoadingWindow();
     GUI::MpClientList* GetMpClientList();
     GUI::MultiplayerSelector* GetMpSelector();
@@ -119,7 +120,6 @@ public:
     void HideNotification();
     void CenterSpawnerReportWindow();
     void AdjustPauseMenuPosition();
-    void AdjustMainMenuPosition();
 
     void UpdateSimUtils(float dt, Actor* truck);
     void FrameStepGui(float dt);

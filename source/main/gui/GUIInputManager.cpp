@@ -23,6 +23,7 @@
 #include "Application.h"
 #include "GUIManager.h"
 #include "GUI_TopMenubar.h"
+#include "GUI_GameMainMenu.h" // TODO: remove this hack ~ only_a_ptr, 02/2017
 #include "OverlayWrapper.h"
 #include "SceneMouse.h"
 
@@ -243,6 +244,21 @@ bool GUIInputManager::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButto
 bool GUIInputManager::keyPressed(const OIS::KeyEvent& _arg)
 {
     RoR::App::GetGuiManager()->GetImGui().InjectKeyPressed(_arg);
+    if (RoR::App::GetGuiManager()->IsVisible_GameMainMenu()) // Special hacky handling of main-menu key control. TODO: Remove this!
+    {
+        if (_arg.key == OIS::KC_UP)
+        {
+            RoR::App::GetGuiManager()->GetMainMenu()->KeyUpPressed();
+        }
+        else if  (_arg.key == OIS::KC_DOWN)
+        {
+            RoR::App::GetGuiManager()->GetMainMenu()->KeyDownPressed();
+        }
+        else if (_arg.key == OIS::KC_RETURN)
+        {
+            RoR::App::GetGuiManager()->GetMainMenu()->EnterKeyPressed();
+        }
+    }
 
     MyGUI::Char text = (MyGUI::Char)_arg.text;
     MyGUI::KeyCode key = MyGUI::KeyCode::Enum(_arg.key);
