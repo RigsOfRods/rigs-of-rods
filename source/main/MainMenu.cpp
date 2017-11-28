@@ -113,7 +113,7 @@ void MainMenu::EnterMainMenuLoop()
     {
         startTime = App::GetOgreSubsystem()->GetTimer()->getMilliseconds();
 
-        this->MainMenuLoopUpdate(timeSinceLastFrame);
+        this->MainMenuLoopUpdate(static_cast<float>(timeSinceLastFrame)/1000);
 
         if (RoR::App::GetGuiManager()->GetMainSelector()->IsFinishedSelecting())
         {
@@ -136,7 +136,7 @@ void MainMenu::EnterMainMenuLoop()
             continue;
         }
 
-        App::GetGuiManager()->NewImGuiFrame(timeSinceLastFrame);
+        App::GetGuiManager()->NewImGuiFrame(static_cast<float>(timeSinceLastFrame)/1000);
         App::GetGuiManager()->DrawMainMenuGui();
 
         App::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
