@@ -49,7 +49,6 @@ struct rig_t ///< A simulation actor; typically a vehicle
 
     beam_t*                    beams;
     int                        free_beam;            ///< Number of beams; name is historical (free index in static array)
-    std::vector<beam_t*>       interTruckBeams;
 
     shock_t*                   shocks;               ///< Shock absorbers
     int                        free_shock;           ///< Number of shock absorbers; name is historical (free index in static array)

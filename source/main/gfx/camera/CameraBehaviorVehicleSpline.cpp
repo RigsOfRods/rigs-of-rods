@@ -24,10 +24,12 @@
 
 #include "Application.h"
 #include "Beam.h"
+#include "BeamFactory.h"
 #include "GUI_GameConsole.h"
 #include "GUIManager.h"
 #include "InputEngine.h"
 #include "Language.h"
+#include "RoRFrameListener.h"
 #include "Settings.h"
 
 using namespace Ogre;
@@ -69,9 +71,10 @@ void CameraBehaviorVehicleSpline::update(const CameraManager::CameraContext& ctx
         targetPitch = -asin(dir.dotProduct(Vector3::UNIT_Y));
     }
 
-    if (ctx.mCurrTruck->getAllLinkedBeams().size() != numLinkedBeams)
+    // OLD CAMERA //  if (ctx.mCurrTruck->getAllLinkedBeams().size() != numLinkedBeams)
+    if (ctx.sim_controller->GetBeamFactory()->GetNumLinkedActors(ctx.mCurrTruck) != numLinkedBeams)
     {
-        createSpline(ctx);
+        this->createSpline(ctx);
     }
     updateSpline();
     updateSplineDisplay();
@@ -204,13 +207,16 @@ void CameraBehaviorVehicleSpline::createSpline(const CameraManager::CameraContex
         splineNodes.push_back(&ctx.mCurrTruck->nodes[ctx.mCurrTruck->cameraRail[i]]);
     }
 
-    std::list<Beam*> linkedBeams = ctx.mCurrTruck->getAllLinkedBeams();
+    std::unordered_set<Beam*> slave_actors;
+    ctx.sim_controller->GetBeamFactory()->FindLinkedActors(ctx.mCurrTruck, slave_actors);
 
-    numLinkedBeams = linkedBeams.size();
+    // OLD CAMERA // std::list<Beam*> linkedBeams = ctx.mCurrTruck->getAllLinkedBeams();
+
+    numLinkedBeams = slave_actors.size(); // OLD CAMERA // linkedBeams.size();
 
     if (numLinkedBeams > 0)
     {
-        for (std::list<Beam*>::iterator it = linkedBeams.begin(); it != linkedBeams.end(); ++it)
+        for (auto it = slave_actors.begin(); it != slave_actors.end(); ++it)
         {
             if ((*it)->free_camerarail <= 0)
                 continue;

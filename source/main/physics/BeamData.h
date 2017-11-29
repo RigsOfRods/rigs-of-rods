@@ -249,8 +249,8 @@ struct hook_t
     float timer_preset;
     node_t *hookNode;
     node_t *lockNode;
-    beam_t *beam;
-    Beam *lockTruck;
+    // OLD   beam_t *beam;
+    // OLD?  Beam *lockTruck;
 };
 
 struct ropable_t
@@ -265,17 +265,17 @@ struct rope_t
 {
     int locked;
     int group;
-    beam_t *beam;
+    // ROPE - OLD // beam_t *beam;
     node_t *lockedto;
     ropable_t *lockedto_ropable;
-    Beam *lockedtruck;
+    // ROPE-OLD // Beam *lockedtruck;
 };
 
 
 struct tie_t
 {
-    Beam* locked_truck;
-    beam_t *beam;
+    // TIE-OLD // Beam* locked_truck;
+    // TIE-OLD // beam_t *beam;
     ropable_t *lockedto;
     int group;
     bool tied;

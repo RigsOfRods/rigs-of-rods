@@ -2312,7 +2312,7 @@ bool RoRFrameListener::SetupGameplayLoop()
     if (gEnv->cameraManager == nullptr)
     {
         // init camera manager after mygui and after we have a character
-        gEnv->cameraManager = new CameraManager();
+        gEnv->cameraManager = new CameraManager(this);
     }
 
     m_gfx_envmap.SetupEnvMap();

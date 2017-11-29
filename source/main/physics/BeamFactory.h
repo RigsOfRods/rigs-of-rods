@@ -2,6 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -31,13 +32,23 @@
 #include "Network.h"
 #include "Singleton.h"
 
-#define PHYSICS_DT 0.0005 // fixed dt of 0.5 ms
+#include <unordered_set>
+
+#define PHYSICS_DT 0.0005 // fixed delta time of 0.5 ms
 
 class ThreadPool;
 
 namespace RoR {
 
-/// Builds and manages softbody actors; Manages multithreading.
+/// @brief Builds and manages softbody actors; Manages multithreading.
+///
+/// HANDLING CONNECTED ACTORS
+///   Beams which can connect 2 different actors (ties, hooks, ropes...) are reffered to as 'inter-beams'
+///   and they are global (managed directly by `class BeamFactory`). Their attachments are reffered to as
+///   'master' and 'slave'.
+///
+///   Coding guideline: A method of `class Beam` should never update other actors directly,
+///     but delegate work to `class BeamFactory`. This applies to i.e "Skeleton view".
 class BeamFactory
 {
 public:
@@ -141,12 +152,34 @@ public:
 
     void SyncWithSimThread();
 
+    // Interbeams
+    void             AddNewInterBeam       (inter_beam_t & new_ib);
+    inter_beam_t*    FindInterBeam         (const Beam* actor, const InterBeamType type, const size_t entry_index);
+    void             RemoveAllInterBeams   (Beam* actor);
+    float            GetTotalLinkedMass    (Beam* actor); ///< Convenience
+    size_t           GetNumLinkedActors    (Beam* actor); ///< Convenience
+    void             FindLinkedActors      (Beam* actor, std::unordered_set<Beam*>& slaves);
+    void             SetSkeletonViewActive (Beam* actor, bool active);
+    void             DetachTieInterBeam    (inter_beam_t* interbeam);
+    void             AttachTieInterBeam    (inter_beam_t* interbeam, Beam* slave, node_t* node);
+    void             UnlockRopeInterBeam   (inter_beam_t* interbeam);
+    void             LockRopeInterBeam     (inter_beam_t* interbeam, Beam* slave);
+    void             UnlockHookInterBeam   (inter_beam_t* interbeam);
+    void             PreLockHookInterBeam  (inter_beam_t* interbeam, Beam* slave);
+    void             LockHookInterBeamCalc (inter_beam_t* interbeam, node_t* node);
+
+    // Update functions
+    void   CalcBeamsInterTruck   (); // Traditional name, moved from 'BeamForcesEuler.cpp'
+    void   ForwardCommands       (Beam* actor); // Moved from "BeamForcesEuler.cpp"
+    void   CalcHooks             (Beam* actor); // Traditional name, moved from 'BeamForcesEuler.cpp'
+    void   CalcRopes             (Beam* actor); // Traditional name, moved from 'BeamForcesEuler.cpp'
+
     DustManager& GetParticleManager() { return m_particle_manager; }
 
     // A list of all beams interconnecting two trucks
-    std::map<beam_t*, std::pair<Beam*, Beam*>> interTruckLinks;
+    // OLD std::map<beam_t*, std::pair<Beam*, Beam*>> interTruckLinks;
 
-protected:
+private:
 
     /** 
     * Returns whether or not the two (scaled) bounding boxes intersect.
@@ -203,6 +236,8 @@ protected:
     int             m_previous_truck;
     int             m_current_truck;
     int             m_simulated_truck;
+
+    std::vector<inter_beam_t> m_inter_beams;
     bool            m_forced_active; // disables sleepcount
     unsigned long   m_physics_frames;
     int             m_physics_steps;

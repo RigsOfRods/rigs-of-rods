@@ -42,7 +42,7 @@ class Beam :
     public ZeroedMemoryAllocator
 {
     friend class RigSpawner;
-    friend class RigInspector; // Debug utility class
+    friend class BeamFactory;
 
 public:
     Beam() {}; // for wrapper, DO NOT USE!
@@ -207,7 +207,6 @@ public:
     * Event handler
     */
     void beaconsToggle();
-    void forwardCommands();
 
     /**
     * Event handler; toggle replay mode.
@@ -293,12 +292,12 @@ public:
     /**
     * Display; displays "skeleton" (visual rig) mesh.
     */
-    void showSkeleton(bool meshes=true, bool linked=true);
+    void showSkeleton(bool meshes=true);
 
     /**
     * Display; hides "skeleton" (visual rig) mesh.
     */
-    void hideSkeleton(bool linked=true);
+    void hideSkeleton();
 
     /**
     * Display; updates the "skeleton" (visual rig) mesh.
@@ -330,7 +329,6 @@ public:
     //! @{ calc forces euler division
     void calcTruckEngine(bool doUpdate, Ogre::Real dt);
     void calcAnimatedProps(bool doUpdate, Ogre::Real dt);
-    void calcHooks(bool doUpdate);
     void calcForceFeedBack(bool doUpdate);
     void calcMouse();
     void calcNodes_(bool doUpdate, Ogre::Real dt, int step, int maxsteps);
@@ -465,7 +463,7 @@ public:
     /**
      * @return Returns a list of all connected (hooked) beams
      */
-    std::list<Beam*> getAllLinkedBeams() { return linkedBeams; };
+    // OLD     std::list<Beam*> getAllLinkedBeams() { return linkedBeams; };
 
     /**
     * This must be in the header as the network stuff is using it...
@@ -564,11 +562,6 @@ public:
     */
     void calcForcesEulerCompute(int doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1);
 
-    /**
-    * TIGHT LOOP; Physics;
-    */
-    void calcForcesEulerFinal(int doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1);
-
         // TODO may be removed soon
     PointColDetector* IntraPointCD() { return intraPointCD; }
     PointColDetector* InterPointCD() { return interPointCD; }
@@ -585,11 +578,6 @@ protected:
     void calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps);
 
     /**
-    * TIGHT LOOP; Physics & sound - only beams between multiple truck (noshock or ropes)
-    */
-    void calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxsteps);
-
-    /**
     * TIGHT LOOP; Physics;
     */
     void calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps);
@@ -602,7 +590,6 @@ protected:
     /**
     * TIGHT LOOP; Physics;
     */
-    void calcRopes();
     void calcShocks2(int beam_i, Ogre::Real difftoBeamL, Ogre::Real &k, Ogre::Real &d, Ogre::Real dt, int update);
     void calcAnimators(const int flag_state, float &cstate, int &div, float timer, const float lower_limit, const float upper_limit, const float option3);
 
@@ -622,8 +609,8 @@ protected:
     std::vector<std::shared_ptr<Task>> flexbody_tasks;
 
     // linked beams (hooks)
-    std::list<Beam*> linkedBeams;
-    void determineLinkedBeams();
+    //OLD     std::list<Beam*> linkedBeams;
+    // OLD    void determineLinkedBeams();
 
     void calc_masses2(Ogre::Real total, bool reCalc=false);
     void calcNodeConnectivityGraph();
@@ -642,15 +629,17 @@ protected:
 
     bool high_res_wheelnode_collisions;
 
-    void addInterTruckBeam(beam_t* beam, Beam* a, Beam* b);
-    void removeInterTruckBeam(beam_t* beam);
-    /**
-    * Destroys all inter truck beams which are connected with this truck
-    */
-    void disjoinInterTruckBeams();
+    // OLD    void addInterTruckBeam(beam_t* beam, Beam* a, Beam* b);
+    // OLD    void removeInterTruckBeam(beam_t* beam);
+    // OLD    /**
+    // OLD    * Destroys all inter truck beams which are connected with this truck
+    // OLD    */
+    // OLD    void disjoinInterTruckBeams();
 
     // this is for managing the blinkers on the truck:
+public: // HACK for access by BeamFactory (added during 'interbeam' refactor) ~ only_a_ptr, 08/2017
     blinktype blinkingtype;
+private:
 
     Ogre::Real hydrolen;
 

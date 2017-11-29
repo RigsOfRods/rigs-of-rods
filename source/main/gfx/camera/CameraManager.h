@@ -32,13 +32,13 @@ class CameraManager
 
 public:
 
-    CameraManager();
+    CameraManager(RoRFrameListener* sim_controller);
     ~CameraManager();
 
     class CameraContext
     {
     public:
-
+        RoRFrameListener* sim_controller;
         Beam* mCurrTruck;
         DOFManager* mDof;
         Ogre::Degree mRotScale;

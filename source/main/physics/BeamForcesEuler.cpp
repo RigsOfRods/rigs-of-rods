@@ -44,6 +44,8 @@
 #include "TerrainManager.h"
 #include "VehicleAI.h"
 
+#define LOGSTREAM Ogre::LogManager::getSingleton().stream() << "[RoR|Simulation] "
+
 using namespace Ogre;
 
 void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
@@ -1220,20 +1222,28 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
     BES_STOP(BES_CORE_Commands);
 
     // go through all ties and process them
+    size_t tie_index = 0;
     for (std::vector<tie_t>::iterator it = ties.begin(); it != ties.end(); it++)
     {
         // only process tying ties
         if (!it->tying)
             continue;
 
+        inter_beam_t* interbeam = m_sim_controller->GetBeamFactory()->FindInterBeam(this, InterBeamType::IB_TIE, tie_index);
+        if (interbeam == nullptr)
+        {
+            LOGSTREAM << "INTERNAL ERROR: Tie (index:"<<tie_index<<") has no associated interbeam (actor: "<<this->getTruckName()<<"), function: " << __FUNCTION__;
+            continue;
+        }
+
         // division through zero guard
-        if (it->beam->refL == 0 || it->beam->L == 0)
+        if (interbeam->ib_beam.refL == 0 || interbeam->ib_beam.L == 0)
             continue;
 
-        float clen = it->beam->L / it->beam->refL;
-        if (clen > it->beam->commandShort)
+        float clen = interbeam->ib_beam.L / interbeam->ib_beam.refL;
+        if (clen > interbeam->ib_beam.commandShort)
         {
-            it->beam->L *= (1.0 - it->beam->commandRatioShort * dt / it->beam->L);
+            interbeam->ib_beam.L *= (1.0 - interbeam->ib_beam.commandRatioShort * dt / interbeam->ib_beam.L);
         }
         else
         {
@@ -1242,8 +1252,10 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
         }
 
         // check if we hit a certain force limit, then abort the tying process
-        if (fabs(it->beam->stress) > it->beam->maxtiestress)
+        if (fabs(interbeam->ib_beam.stress) > interbeam->ib_beam.maxtiestress)
             it->tying = false;
+
+        ++tie_index;
     }
 
     BES_START(BES_CORE_Replay);
@@ -1294,20 +1306,10 @@ bool Beam::calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int max
     if (state != SIMULATED)
         return false;
 
-    BES_START(BES_CORE_WholeTruckCalc);
-
-    forwardCommands();
-    calcBeamsInterTruck(doUpdate, dt, step, maxsteps);
+    m_sim_controller->GetBeamFactory()->ForwardCommands(this); // TODO: shouldn't be called from here. ~ only_a_ptr, 04/2017
+    m_sim_controller->GetBeamFactory()->CalcBeamsInterTruck(); // TODO: as well as this.
 
     return true;
-}
-
-void Beam::calcForcesEulerFinal(int doUpdate, Ogre::Real dt, int step, int maxsteps)
-{
-    calcHooks();
-    calcRopes();
-
-    BES_STOP(BES_CORE_WholeTruckCalc);
 }
 
 void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
@@ -1316,7 +1318,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
     // Springs
     for (int i = 0; i < free_beam; i++)
     {
-        if (!beams[i].disabled && !beams[i].p2truck)
+        if (!beams[i].disabled)
         {
             // Calculate beam length
             Vector3 dis = beams[i].p1->RelPosition - beams[i].p2->RelPosition;
@@ -1548,14 +1550,19 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
     BES_STOP(BES_CORE_Beams);
 }
 
-void Beam::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxsteps)
+   // ###################################
+   // TODO: !Different class! Left here during development -> more readable diff. Will be moved to `BeamFactory.cpp` when work is done.
+   // ###################################
+
+void RoR::BeamFactory::CalcBeamsInterTruck() 
 {
-    for (int i = 0; i < static_cast<int>(interTruckBeams.size()); i++)
+    for (inter_beam_t& interbeam: m_inter_beams)
     {
-        if (!interTruckBeams[i]->disabled && interTruckBeams[i]->p2truck)
+        if (! interbeam.ib_beam.disabled)
         {
             // Calculate beam length
-            Vector3 dis = interTruckBeams[i]->p1->AbsPosition - interTruckBeams[i]->p2->AbsPosition;
+            // OLD    Vector3 dis = interbeam.ib_beam.p1->AbsPosition - interbeam.ib_beam.p2->AbsPosition;
+            Vector3 dis = interbeam.ib_beam.p1->AbsPosition - interbeam.ib_beam.p2->AbsPosition;
 
             Real dislen = dis.squaredLength();
             Real inverted_dislen = fast_invSqrt(dislen);
@@ -1563,83 +1570,84 @@ void Beam::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxste
             dislen *= inverted_dislen;
 
             // Calculate beam's deviation from normal
-            Real difftoBeamL = dislen - interTruckBeams[i]->L;
+            Real difftoBeamL = dislen - interbeam.ib_beam.L;
 
-            Real k = interTruckBeams[i]->k;
-            Real d = interTruckBeams[i]->d;
+            Real k = interbeam.ib_beam.k;
+            Real d = interbeam.ib_beam.d;
 
-            if (interTruckBeams[i]->bounded == ROPE && difftoBeamL < 0.0f)
+            if (interbeam.ib_beam.bounded == ROPE && difftoBeamL < 0.0f)
             {
                 k = 0.0f;
                 d *= 0.1f;
             }
 
             // Calculate beam's rate of change
-            Vector3 v = interTruckBeams[i]->p1->Velocity - interTruckBeams[i]->p2->Velocity;
+            Vector3 v = interbeam.ib_beam.p1->Velocity - interbeam.ib_beam.p2->Velocity;
 
             float slen = -k * (difftoBeamL) - d * v.dotProduct(dis) * inverted_dislen;
-            interTruckBeams[i]->stress = slen;
+            interbeam.ib_beam.stress = slen;
 
             // Fast test for deformation
             float len = std::abs(slen);
-            if (len > interTruckBeams[i]->minmaxposnegstress)
+            if (len > interbeam.ib_beam.minmaxposnegstress)
             {
-                if ((interTruckBeams[i]->type == BEAM_NORMAL || interTruckBeams[i]->type == BEAM_INVISIBLE) && interTruckBeams[i]->bounded != SHOCK1 && k != 0.0f)
+                if ((interbeam.ib_beam.type == BEAM_NORMAL || interbeam.ib_beam.type == BEAM_INVISIBLE) && interbeam.ib_beam.bounded != SHOCK1 && k != 0.0f)
                 {
                     // Actual deformation tests
-                    if (slen > interTruckBeams[i]->maxposstress && difftoBeamL < 0.0f) // compression
+                    if (slen > interbeam.ib_beam.maxposstress && difftoBeamL < 0.0f) // compression
                     {
-                        Real yield_length = interTruckBeams[i]->maxposstress / k;
-                        Real deform = difftoBeamL + yield_length * (1.0f - interTruckBeams[i]->plastic_coef);
-                        Real Lold = interTruckBeams[i]->L;
-                        interTruckBeams[i]->L += deform;
-                        interTruckBeams[i]->L = std::max(MIN_BEAM_LENGTH, interTruckBeams[i]->L);
-                        slen = slen - (slen - interTruckBeams[i]->maxposstress) * 0.5f;
+                        Real yield_length = interbeam.ib_beam.maxposstress / k;
+                        Real deform = difftoBeamL + yield_length * (1.0f - interbeam.ib_beam.plastic_coef);
+                        Real Lold = interbeam.ib_beam.L;
+                        interbeam.ib_beam.L += deform;
+                        interbeam.ib_beam.L = std::max(MIN_BEAM_LENGTH, interbeam.ib_beam.L);
+                        slen = slen - (slen - interbeam.ib_beam.maxposstress) * 0.5f;
                         len = slen;
-                        if (interTruckBeams[i]->L > 0.0f && Lold > interTruckBeams[i]->L)
+                        if (interbeam.ib_beam.L > 0.0f && Lold > interbeam.ib_beam.L)
                         {
-                            interTruckBeams[i]->maxposstress *= Lold / interTruckBeams[i]->L;
-                            interTruckBeams[i]->minmaxposnegstress = std::min(interTruckBeams[i]->maxposstress, -interTruckBeams[i]->maxnegstress);
-                            interTruckBeams[i]->minmaxposnegstress = std::min(interTruckBeams[i]->minmaxposnegstress, interTruckBeams[i]->strength);
+                            interbeam.ib_beam.maxposstress *= Lold / interbeam.ib_beam.L;
+                            interbeam.ib_beam.minmaxposnegstress = std::min(interbeam.ib_beam.maxposstress, -interbeam.ib_beam.maxnegstress);
+                            interbeam.ib_beam.minmaxposnegstress = std::min(interbeam.ib_beam.minmaxposnegstress, interbeam.ib_beam.strength);
                         }
                         // For the compression case we do not remove any of the beam's
                         // strength for structure stability reasons
-                        //interTruckBeams[i]->strength += deform * k * 0.5f;
-                        if (beamdeformdebug)
-                        {
-                            LOG(" YYY Beam " + TOSTRING(i) + " just deformed with extension force " + TOSTRING(len) +
-                                " / " + TOSTRING(interTruckBeams[i]->strength) + ". It was between nodes " + TOSTRING(interTruckBeams[i]->p1->id) + " and " + TOSTRING(interTruckBeams[i]->p2->id) + ".");
-                        }
+                        //interbeam.ib_beam.strength += deform * k * 0.5f;
+                        // OLD DEBUG // if (beamdeformdebug)
+                        // OLD DEBUG // {
+                        // OLD DEBUG //     LOG(" YYY Beam " + TOSTRING(i) + " just deformed with extension force " + TOSTRING(len) +
+                        // OLD DEBUG //         " / " + TOSTRING(interbeam.ib_beam.strength) + ". It was between nodes " + TOSTRING(interbeam.ib_beam.p1->id) + " and " + TOSTRING(interbeam.ib_beam.p2->id) + ".");
+                        // OLD DEBUG // }
                     }
-                    else if (slen < interTruckBeams[i]->maxnegstress && difftoBeamL > 0.0f) // expansion
+                    else if (slen < interbeam.ib_beam.maxnegstress && difftoBeamL > 0.0f) // expansion
                     {
-                        Real yield_length = interTruckBeams[i]->maxnegstress / k;
-                        Real deform = difftoBeamL + yield_length * (1.0f - interTruckBeams[i]->plastic_coef);
-                        Real Lold = interTruckBeams[i]->L;
-                        interTruckBeams[i]->L += deform;
-                        slen = slen - (slen - interTruckBeams[i]->maxnegstress) * 0.5f;
+                        Real yield_length = interbeam.ib_beam.maxnegstress / k;
+                        Real deform = difftoBeamL + yield_length * (1.0f - interbeam.ib_beam.plastic_coef);
+                        Real Lold = interbeam.ib_beam.L;
+                        interbeam.ib_beam.L += deform;
+                        slen = slen - (slen - interbeam.ib_beam.maxnegstress) * 0.5f;
                         len = -slen;
-                        if (Lold > 0.0f && interTruckBeams[i]->L > Lold)
+                        if (Lold > 0.0f && interbeam.ib_beam.L > Lold)
                         {
-                            interTruckBeams[i]->maxnegstress *= interTruckBeams[i]->L / Lold;
-                            interTruckBeams[i]->minmaxposnegstress = std::min(interTruckBeams[i]->maxposstress, -interTruckBeams[i]->maxnegstress);
-                            interTruckBeams[i]->minmaxposnegstress = std::min(interTruckBeams[i]->minmaxposnegstress, interTruckBeams[i]->strength);
+                            interbeam.ib_beam.maxnegstress *= interbeam.ib_beam.L / Lold;
+                            interbeam.ib_beam.minmaxposnegstress = std::min(interbeam.ib_beam.maxposstress, -interbeam.ib_beam.maxnegstress);
+                            interbeam.ib_beam.minmaxposnegstress = std::min(interbeam.ib_beam.minmaxposnegstress, interbeam.ib_beam.strength);
                         }
-                        interTruckBeams[i]->strength -= deform * k;
-                        if (beamdeformdebug)
-                        {
-                            LOG(" YYY Beam " + TOSTRING(i) + " just deformed with extension force " + TOSTRING(len) +
-                                " / " + TOSTRING(interTruckBeams[i]->strength) + ". It was between nodes " + TOSTRING(interTruckBeams[i]->p1->id) + " and " + TOSTRING(interTruckBeams[i]->p2->id) + ".");
-                        }
+                        interbeam.ib_beam.strength -= deform * k;
+                        // OLD DEBUG // if (beamdeformdebug)
+                        // OLD DEBUG // {
+                        // OLD DEBUG //     LOG(" YYY Beam " + TOSTRING(i) + " just deformed with extension force " + TOSTRING(len) +
+                        // OLD DEBUG //         " / " + TOSTRING(interbeam.ib_beam.strength) + ". It was between nodes " + TOSTRING(interbeam.ib_beam.p1->id) + " and " + TOSTRING(interbeam.ib_beam.p2->id) + ".");
+                        // OLD DEBUG // }
                     }
                 }
 
                 // Test if the beam should break
-                if (len > interTruckBeams[i]->strength)
+                if (len > interbeam.ib_beam.strength)
                 {
                     // Sound effect.
                     // Sound volume depends on springs stored energy
 #ifdef USE_OPENAL
+                    const int trucknum = interbeam.ib_actor_master->trucknum;
                     SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_BREAK, 0.5 * k * difftoBeamL * difftoBeamL);
                     SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_BREAK);
 #endif //OPENAL
@@ -1647,21 +1655,21 @@ void Beam::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxste
                     //Break the beam only when it is not connected to a node
                     //which is a part of a collision triangle and has 2 "live" beams or less
                     //connected to it.
-                    if (!((interTruckBeams[i]->p1->contacter && nodeBeamConnections(interTruckBeams[i]->p1->pos) < 3) || (interTruckBeams[i]->p2->contacter && nodeBeamConnections(interTruckBeams[i]->p2->pos) < 3)))
+                    if (!((interbeam.ib_beam.p1->contacter && interbeam.ib_actor_master->nodeBeamConnections(interbeam.ib_beam.p1->pos) < 3) || (interbeam.ib_beam.p2->contacter && interbeam.ib_actor_master->nodeBeamConnections(interbeam.ib_beam.p2->pos) < 3)))
                     {
                         slen = 0.0f;
-                        interTruckBeams[i]->broken = true;
-                        interTruckBeams[i]->disabled = true;
+                        interbeam.ib_beam.broken = true;
+                        interbeam.ib_beam.disabled = true;
 
-                        if (beambreakdebug)
-                        {
-                            LOG(" XXX Beam " + TOSTRING(i) + " just broke with force " + TOSTRING(len) +
-                                " / " + TOSTRING(interTruckBeams[i]->strength) + ". It was between nodes " + TOSTRING(interTruckBeams[i]->p1->id) + " and " + TOSTRING(interTruckBeams[i]->p2->id) + ".");
-                        }
+                        // OLDD DEBUG // if (beambreakdebug)
+                        // OLDD DEBUG // {
+                        // OLDD DEBUG //     LOG(" XXX Beam " + TOSTRING(i) + " just broke with force " + TOSTRING(len) +
+                        // OLDD DEBUG //         " / " + TOSTRING(interbeam.ib_beam.strength) + ". It was between nodes " + TOSTRING(interbeam.ib_beam.p1->id) + " and " + TOSTRING(interbeam.ib_beam.p2->id) + ".");
+                        // OLDD DEBUG // }
                     }
                     else
                     {
-                        interTruckBeams[i]->strength = 2.0f * interTruckBeams[i]->minmaxposnegstress;
+                        interbeam.ib_beam.strength = 2.0f * interbeam.ib_beam.minmaxposnegstress;
                     }
                 }
             }
@@ -1669,8 +1677,8 @@ void Beam::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxste
             // At last update the beam forces
             Vector3 f = dis;
             f *= (slen * inverted_dislen);
-            interTruckBeams[i]->p1->Forces += f;
-            interTruckBeams[i]->p2->Forces -= f;
+            interbeam.ib_beam.p1->Forces += f;
+            interbeam.ib_beam.p2->Forces -= f;
         }
     }
 }
@@ -1865,15 +1873,18 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
     }
 }
 
-void Beam::forwardCommands()
+   // ###################################
+   // TODO: !Different class! Left here during development -> more readable diff. Will be moved to `BeamFactory.cpp` when work is done.
+   // ###################################
+
+void RoR::BeamFactory::ForwardCommands(Beam* actor)
 {
-    auto bf = m_sim_controller->GetBeamFactory();
-    Beam* current_truck = bf->getCurrentTruck();
-    Beam** trucks = bf->getTrucks();
-    int numtrucks = bf->getTruckCount();
+    Beam* current_truck = this->getCurrentTruck();
+    Beam** trucks = this->getTrucks();
+    int numtrucks = this->getTruckCount();
 
     // forward things to trailers
-    if (numtrucks > 1 && this == current_truck && forwardcommands)
+    if (numtrucks > 1 && actor == current_truck && actor->forwardcommands)
     {
         for (int i = 0; i < numtrucks; i++)
         {
@@ -1884,50 +1895,87 @@ void Beam::forwardCommands()
                 // forward commands
                 for (int j = 1; j <= MAX_COMMANDS; j++)
                 {
-                    trucks[i]->commandkey[j].playerInputValue = std::max(commandkey[j].playerInputValue, commandkey[j].commandValue);
+                    trucks[i]->commandkey[j].playerInputValue = std::max(actor->commandkey[j].playerInputValue, actor->commandkey[j].commandValue);
                 }
                 // just send brake and lights to the connected truck, and no one else :)
-                for (std::vector<hook_t>::iterator it = hooks.begin(); it != hooks.end(); it++)
+                const size_t num_hooks = actor->hooks.size();
+                for (size_t i = 0; i < num_hooks; ++i)
                 {
-                    if (!it->lockTruck)
+                    inter_beam_t* interbeam = this->FindInterBeam(actor, InterBeamType::IB_HOOK, i);
+                    if (interbeam == nullptr)
+                    {
+                        LOGSTREAM << "INTERNAL ERROR: Tie (actor: "<<actor->getTruckName()<<", index:"<<i<<") has no associated inter-beam";
                         continue;
-                    // forward brake
-                    it->lockTruck->brake = brake;
-                    it->lockTruck->parkingbrake = parkingbrake;
+                    }
 
-                    // forward lights
-                    it->lockTruck->lights = lights;
-                    it->lockTruck->blinkingtype = blinkingtype;
-                    //for (int k=0; k<4; k++)
-                    //	lockTruck->setCustomLight(k, getCustomLight(k));
-                    //forward reverse light e.g. for trailers
-                    it->lockTruck->reverselight = getReverseLightVisible();
+                    Beam* slave = interbeam->ib_actor_slave;
+                    if (slave == nullptr)
+                        continue;
+
+                    // Forward brake
+                    slave->brake        = actor->brake;
+                    slave->parkingbrake = actor->parkingbrake;
+
+                    // Forward lights
+                    slave->lights       = actor->lights;
+                    slave->blinkingtype = actor->blinkingtype;
+                    slave->reverselight = actor->getReverseLightVisible();
                 }
+                // OLD // for (std::vector<hook_t>::iterator it = hooks.begin(); it != hooks.end(); it++)
+                // OLD // {
+                // OLD // 
+                // OLD //     if (!it->lockTruck)
+                // OLD //         continue;
+                // OLD //     // forward brake
+                // OLD //     it->lockTruck->brake = brake;
+                // OLD //     it->lockTruck->parkingbrake = parkingbrake;
+                // OLD // 
+                // OLD //     // forward lights
+                // OLD //     it->lockTruck->lights = lights;
+                // OLD //     it->lockTruck->blinkingtype = blinkingtype;
+                // OLD //     //for (int k=0; k<4; k++)
+                // OLD //     //	lockTruck->setCustomLight(k, getCustomLight(k));
+                // OLD //     //forward reverse light e.g. for trailers
+                // OLD //     it->lockTruck->reverselight = getReverseLightVisible();
+                // OLD // }
             }
         }
     }
 }
 
-void Beam::calcHooks()
+   // ###################################
+   // TODO: !Different class! Left here during development -> more readable diff. Will be moved to `BeamFactory.cpp` when work is done.
+   // ###################################
+
+void RoR::BeamFactory::CalcHooks(Beam* actor)
 {
     BES_START(BES_CORE_Hooks);
     //locks - this is not active in network mode
-    for (std::vector<hook_t>::iterator it = hooks.begin(); it != hooks.end(); it++)
+    size_t hook_index = 0;
+    for (std::vector<hook_t>::iterator it = actor->hooks.begin(); it != actor->hooks.end(); it++)
     {
-        if (it->lockNode && it->locked == PRELOCK)
+        inter_beam_t* interbeam = this->FindInterBeam(actor, InterBeamType::IB_HOOK, hook_index);
+        if (interbeam == nullptr)
         {
-            if (it->beam->disabled)
+            LOGSTREAM << "INTERNAL ERROR: Hook (actor: "<<actor->getTruckName()<<", index:"<<hook_index<<") has no associated inter-beam";
+            continue;
+        }
+
+        if ((it->lockNode != nullptr) && (it->locked == PRELOCK))
+        {
+            if (interbeam->ib_beam.disabled)
             {
                 //enable beam if not enabled yet between those 2 nodes
-                it->beam->p2 = it->lockNode;
-                it->beam->p2truck = it->lockTruck != 0;
-                it->beam->L = (it->hookNode->AbsPosition - it->lockNode->AbsPosition).length();
-                it->beam->disabled = false;
-                addInterTruckBeam(it->beam, this, it->lockTruck);
+                // OLD // interbeam->ib_beam.p2 = it->lockNode;
+                // OLD // interbeam->ib_beam.p2truck = it->lockTruck != 0;
+                // OLD // interbeam->ib_beam.L = (it->hookNode->AbsPosition - it->lockNode->AbsPosition).length();
+                // OLD // interbeam->ib_beam.disabled = false;
+                // OLD // addInterTruckBeam(it->beam, this, it->lockTruck);
+               this->LockHookInterBeamCalc(interbeam, it->lockNode);
             }
             else
             {
-                if (it->beam->L < it->beam->commandShort)
+                if (interbeam->ib_beam.L < interbeam->ib_beam.commandShort)
                 {
                     //shortlimit reached -> status LOCKED
                     it->locked = LOCKED;
@@ -1935,15 +1983,15 @@ void Beam::calcHooks()
                 else
                 {
                     //shorten the connecting beam slowly to locking minrange
-                    if (it->beam->L > it->lockspeed && fabs(it->beam->stress) < it->maxforce)
+                    if (interbeam->ib_beam.L > it->lockspeed && fabs(interbeam->ib_beam.stress) < it->maxforce)
                     {
-                        it->beam->L = (it->beam->L - it->lockspeed);
+                        interbeam->ib_beam.L = (interbeam->ib_beam.L - it->lockspeed);
                     }
                     else
                     {
-                        if (fabs(it->beam->stress) < it->maxforce)
+                        if (fabs(interbeam->ib_beam.stress) < it->maxforce)
                         {
-                            it->beam->L = 0.001f;
+                            interbeam->ib_beam.L = 0.001f;
                             //locking minrange or stress exeeded -> status LOCKED
                             it->locked = LOCKED;
                         }
@@ -1956,16 +2004,17 @@ void Beam::calcHooks()
                             }
                             else
                             {
-                                //force exceeded reset the hook node
-                                it->beam->mSceneNode->detachAllObjects();
+                                //force exceeded -> reset the hook node
+                                interbeam->ib_beam.mSceneNode->detachAllObjects();
                                 it->locked = UNLOCKED;
-                                it->lockNode = 0;
-                                it->lockTruck = 0;
-                                it->beam->p2 = &nodes[0];
-                                it->beam->p2truck = false;
-                                it->beam->L = (nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
-                                it->beam->disabled = true;
-                                removeInterTruckBeam(it->beam);
+                                it->lockNode = nullptr;
+                                // OLD // it->lockTruck = 0;
+                                // OLD // interbeam->ib_beam.p2 = &nodes[0];
+                                // OLD // interbeam->ib_beam.p2truck = false;
+                                // OLD // interbeam->ib_beam.L = (nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
+                                // OLD // interbeam->ib_beam.disabled = true;
+                                // OLD // removeInterTruckBeam(it->beam);
+                                this->UnlockHookInterBeam(interbeam);
                             }
                         }
                     }
@@ -1975,27 +2024,50 @@ void Beam::calcHooks()
         if (it->locked == PREUNLOCK)
         {
             it->locked = UNLOCKED;
-            removeInterTruckBeam(it->beam);
+            // OLD // removeInterTruckBeam(it->beam);
+            this->UnlockHookInterBeam(interbeam);
         }
+
+        ++hook_index;
     }
     BES_STOP(BES_CORE_Hooks);
 }
 
-void Beam::calcRopes()
+   // ###################################
+   // TODO: !Different class! Left here during development -> more readable diff. Will be moved to `BeamFactory.cpp` when work is done.
+   // ###################################
+
+void RoR::BeamFactory::CalcRopes(Beam* actor)
 {
     BES_START(BES_CORE_Ropes);
-    if (ropes.size())
+    if (actor->ropes.size())
     {
-        for (std::vector<rope_t>::iterator it = ropes.begin(); it != ropes.end(); it++)
+        auto end_itor = actor->ropes.end();
+        size_t rope_index = 0;
+        for (std::vector<rope_t>::iterator it = actor->ropes.begin(); it != end_itor; it++)
         {
-            if (it->lockedto)
+            if (it->lockedto != nullptr)
             {
-                it->beam->p2->AbsPosition = it->lockedto->AbsPosition;
-                it->beam->p2->RelPosition = it->lockedto->AbsPosition - origin; //ropes[i].lockedtruck->origin; //we have a problem here
-                it->beam->p2->Velocity = it->lockedto->Velocity;
-                it->lockedto->Forces = it->lockedto->Forces + it->beam->p2->Forces;
-                it->beam->p2->Forces = Vector3::ZERO;
+                inter_beam_t* interbeam = this->FindInterBeam(actor, InterBeamType::IB_HOOK, rope_index);
+                if (interbeam == nullptr)
+                {
+                    LOGSTREAM << "INTERNAL ERROR: Rope (actor: "<<actor->getTruckName()<<", index:"<<rope_index<<") has no associated inter-beam";
+                    continue;
+                }
+
+                node_t* n = interbeam->ib_beam.p2;
+                // ORIG // it->beam->p2->AbsPosition = it->lockedto->AbsPosition;
+                // ORIG // it->beam->p2->RelPosition = it->lockedto->AbsPosition - origin; //ropes[i].lockedtruck->origin; //we have a problem here
+                // ORIG // it->beam->p2->Velocity = it->lockedto->Velocity;
+                // ORIG // it->lockedto->Forces = it->lockedto->Forces + it->beam->p2->Forces;
+                // ORIG // it->beam->p2->Forces = Vector3::ZERO;
+                n->AbsPosition = it->lockedto->AbsPosition;
+                n->RelPosition = it->lockedto->AbsPosition - actor->origin;
+                n->Velocity    = it->lockedto->Velocity;
+                it->lockedto->Forces = it->lockedto->Forces + interbeam->ib_beam.p2->Forces;
+                n->Forces = Vector3::ZERO;
             }
+            ++rope_index;
         }
     }
     BES_STOP(BES_CORE_Ropes);

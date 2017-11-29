@@ -32,7 +32,7 @@ struct beam_t
     int detacher_group;	//!< Attribute: detacher group number (integer)
     short bounded;      //!< { SHOCK1=1, SHOCK2=2, SUPPORTBEAM=3, ROPE=4 }
     short type;         //!< { BEAM_NORMAL=0, BEAM_HYDRO=1, BEAM_VIRTUAL=2, BEAM_MARKED=3, BEAM_INVISIBLE=4, BEAM_INVISIBLE_HYDRO=5 }
-    bool p2truck;       //!< in case p2 is on another truck
+    // removed bool
     bool disabled;
     bool broken;
     bool autoMoveLock;
@@ -73,4 +73,35 @@ struct beam_t
     Ogre::Real initial_beam_strength; ///< for reset
     Ogre::Real default_beam_deform; ///< for reset
     Ogre::Real default_beam_plastic_coef; ///< for reset
+};
+
+enum class InterBeamType
+{
+    IB_NONE,
+    IB_HOOK,
+    IB_ROPE,
+    IB_TIE
+};
+
+/// IMPORTANT NOTE:
+/// The update of this struct is governed by "(ib_beam::disabled == false)", not "(ib_actor_slave != nullptr)"
+///   because during locking, the "ib_actor_slave" may be already filled while the beam is still disabled.
+///   This is how HOOKS seem to operate.
+///   **** review of previously written code needed ****
+struct inter_beam_t
+{
+    inter_beam_t():
+        ib_type(InterBeamType::IB_NONE),
+        ib_entry_index(0),
+        ib_actor_master(nullptr),
+        ib_actor_slave(nullptr),
+        ib_rest_node2(nullptr)
+    {}
+
+    beam_t         ib_beam;
+    InterBeamType  ib_type;
+    size_t         ib_entry_index;
+    Beam*          ib_actor_master; ///< Corresponds to node1
+    Beam*          ib_actor_slave;  ///< Corresponds to node2
+    node_t*        ib_rest_node2;
 };
