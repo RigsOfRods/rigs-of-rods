@@ -243,6 +243,8 @@ private:
     unsigned           ParseArgUint       (const std::string& s);
     float              ParseArgFloat      (const std::string& s);
 
+    bool               GetNamedArg        (int index, const char* name, char* out_buf, size_t buf_len);
+
     void _CheckInvalidTrailingText(Ogre::String const & line, std::smatch const & results, unsigned int index);
 
     /// Keyword scan function. 

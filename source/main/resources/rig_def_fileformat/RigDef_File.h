@@ -1298,7 +1298,7 @@ struct Command2
     Inertia inertia;
     float affect_engine;
     bool needs_engine;
-    bool plays_sound;
+    bool plays_sound; //!< Currently unused
     std::shared_ptr<BeamDefaults> beam_defaults;
     std::shared_ptr<Inertia> inertia_defaults;
     int detacher_group;
@@ -1767,13 +1767,24 @@ struct SoundSource2: SoundSource
         MODE_INVALID = 0xFFFFFFFF
     };
 
+    enum class SoundLinkType
+    {
+        NONE,
+        COMMAND_HYDRO_EXTEND,
+        COMMAND_HYDRO_RETRACT
+    };
+
     SoundSource2():
         mode(MODE_INVALID),
-        cinecam_index(0)
+        cinecam_index(0),
+        link_type(SoundLinkType::NONE),
+        link_num(-1)
     {}
 
     Mode mode;
     unsigned int cinecam_index;
+    SoundLinkType link_type;
+    int           link_num;
 };
 
 /* -------------------------------------------------------------------------- */

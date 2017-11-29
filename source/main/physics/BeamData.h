@@ -311,15 +311,18 @@ struct commandbeam_t
     std::shared_ptr<commandbeam_state_t> cmb_state;
 };
 
-struct command_t
+struct command_t //!< A commandkey: controls any number of command-beams or rotators, can be triggered by user via keyboard or via trigger beams
 {
+    enum class SoundAction { NONE, START, STOP };
+
+    SoundAction soundAction;
     int commandValueState;
     float commandValue;
     float triggerInputValue;
     float playerInputValue;
     bool trigger_cmdkeyblock_state;  //!< identifies blocked F-commands for triggers
     std::vector<commandbeam_t> beams;
-    std::vector<int> rotators;
+    std::vector<int> rotators; //!< Indices; sign is direction (negative = rotate left, positive = rotate right)
     Ogre::String description;
 };
 

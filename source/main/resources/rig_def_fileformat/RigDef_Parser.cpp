@@ -1679,7 +1679,7 @@ void Parser::ParseCommandsUnified()
 
     if (m_num_args > pos) { command2.affect_engine = this->GetArgFloat(pos++);}
     if (m_num_args > pos) { command2.needs_engine  = this->GetArgBool (pos++);}
-    if (m_num_args > pos) { command2.plays_sound   = this->GetArgBool (pos++);}
+    if (m_num_args > pos) { command2.plays_sound   = this->GetArgBool (pos++);} // Currently unused
 
     m_current_module->commands_2.push_back(command2);
 }
@@ -2131,7 +2131,7 @@ void Parser::ParseSoundsources()
 void Parser::ParseSoundsources2()
 {
     if (! this->CheckNumArguments(3)) { return; }
-    
+
     SoundSource2 soundsource2;
     soundsource2.node              = this->GetArgNodeRef(0);
     soundsource2.sound_script_name = this->GetArgStr(2);
@@ -2151,6 +2151,59 @@ void Parser::ParseSoundsources2()
     {
         soundsource2.mode = SoundSource2::MODE_CINECAM;
         soundsource2.cinecam_index = mode;
+    }
+
+    // Optional named arguments in form "name=value" - IMPORTANT: no whitespace around '=', whitespace is token separator!
+    for (int i = 3; i < m_num_args; ++i)
+    {
+        RoR::Str<200> val;
+        if (this->GetNamedArg(i, "link_type", val.GetBuffer(), val.GetCapacity()))
+        {
+            if (val == "command_retract")
+            {
+                soundsource2.link_type = SoundSource2::SoundLinkType::COMMAND_HYDRO_RETRACT;
+            }
+            else if (val == "command_extend")
+            {
+                soundsource2.link_type = SoundSource2::SoundLinkType::COMMAND_HYDRO_EXTEND;
+            }
+            else
+            {
+                RoR::Str<200> msg;
+                msg << "Invalid value of soundsources2/link_type: \"" << val << "\".";
+                this->AddMessage(Message::TYPE_WARNING, msg.ToCStr());
+            }
+        }
+        else if (this->GetNamedArg(i, "link_num", val.GetBuffer(), val.GetCapacity()))
+        {
+            errno = 0;
+            long res = std::strtol(val.ToCStr(), nullptr, 10);
+            if (errno != 0)
+            {
+                RoR::Str<200> msg;
+                msg << "Invalid value of soundsources2/link_num: \"" << val << "\" (must be 0 or a positive whole number). Removing link.";
+                this->AddMessage(Message::TYPE_WARNING, msg.ToCStr());
+            }
+            soundsource2.link_num = static_cast<int>(res);
+        }
+        else
+        {
+            RoR::Str<200> msg;
+            msg << "Invalid parameter of soundsources2: \"" << this->GetArgStr(i).c_str() << "\".";
+            this->AddMessage(Message::TYPE_WARNING, msg.ToCStr());
+        }
+    }
+
+    // Consistency checks
+    if ((soundsource2.link_num != -1) && (soundsource2.link_type == SoundSource2::SoundLinkType::NONE))
+    {
+        this->AddMessage(Message::TYPE_WARNING, "soundsources2: 'link_num' is defined but 'link_type' is not. Clearing 'link_num'.");
+        soundsource2.link_num = -1;
+    }
+    else if ((soundsource2.link_num == -1) && (soundsource2.link_type != SoundSource2::SoundLinkType::NONE))
+    {
+        this->AddMessage(Message::TYPE_WARNING, "soundsources2: 'link_type' is defined but 'link_num' is not. Clearing 'link_type'.");
+        soundsource2.link_type = SoundSource2::SoundLinkType::NONE;
     }
 
     m_current_module->soundsources2.push_back(soundsource2);
@@ -3600,6 +3653,26 @@ int Parser::ParseArgInt(const char* str)
 bool Parser::GetArgBool(int index)
 {
     return Ogre::StringConverter::parseBool(this->GetArgStr(index));
+}
+
+bool Parser::GetNamedArg(int index, const char* name, char* out_buf, size_t buf_len)
+{
+    bool starts_with_eq = (*m_args[index].start == '=');
+    bool ends_with_eq = (*(m_args[index].start + (m_args[index].length - 1)) == '=');
+    if (starts_with_eq || ends_with_eq)
+    {
+        return false; // Must not start/end with '='
+    }
+
+    const char* eq_char = strchr(m_args[index].start, '=');
+    if (eq_char == nullptr)
+    {
+        return false; // Must contain '='
+    }
+
+    int eq_pos = (eq_char - m_args[index].start) + 1;
+    strncpy(out_buf, (eq_char + 1), (m_args[index].length - eq_pos));
+    return true;
 }
 
 Wing::Control Parser::GetArgWingSurface(int index)

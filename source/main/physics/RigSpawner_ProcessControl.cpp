@@ -255,7 +255,16 @@ Actor *ActorSpawner::SpawnActor()
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SHOCKS3, shocks_3, ProcessShock3);
 
     // Section 'commands' and 'commands2' (Use generated nodes)
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_COMMANDS2, commands_2, ProcessCommand);
+    SetCurrentKeyword(RigDef::File::KEYWORD_COMMANDS2);
+    for (auto& module : m_selected_modules)
+    {
+        size_t num_commands = module->commands_2.size();
+        for (size_t i = 0; i < num_commands; ++i)
+        {
+            this->ProcessCommand(module->commands_2[i], static_cast<uint16_t>(i));
+        }
+    }
+    SetCurrentKeyword(RigDef::File::KEYWORD_INVALID);
 
     // Section 'hydros'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_HYDROS, hydros, ProcessHydro);

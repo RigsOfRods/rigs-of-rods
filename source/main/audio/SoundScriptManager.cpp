@@ -822,9 +822,9 @@ bool SoundScriptTemplate::setParameter(Ogre::StringVector vec)
             trigger_source = SS_TRIG_TURN_SIGNAL_WARN_TICK;
             return true;
         };
-        if (vec[1] == String("linked_command"))
+        if (vec[1] == String("user_defined"))
         {
-            trigger_source = SS_TRIG_LINKED_COMMAND;
+            trigger_source = SS_TRIG_USER_DEFINED;
             return true;
         };
         if (vec[1] == String("main_menu"))

@@ -322,7 +322,7 @@ private:
     /**
     * Processes sections 'commands' and 'commands2' (unified).
     */
-    void ProcessCommand(RigDef::Command2 & def);
+    void ProcessCommand(RigDef::Command2 & def, uint16_t command_id);
 
     /**
     * Section 'contacters'.

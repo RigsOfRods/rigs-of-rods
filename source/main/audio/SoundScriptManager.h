@@ -108,7 +108,7 @@ enum SoundTriggers {
     SS_TRIG_AVICHAT11,
     SS_TRIG_AVICHAT12,
     SS_TRIG_AVICHAT13,
-    SS_TRIG_LINKED_COMMAND,
+    SS_TRIG_USER_DEFINED,
     SS_TRIG_MAIN_MENU,
     SS_MAX_TRIG
 };
@@ -148,22 +148,11 @@ enum ModulationSources {
     SS_MAX_MOD
 };
 
-enum SoundLinkTypes {
+enum SoundLinkTypes
+{
     SL_DEFAULT,
-    SL_COMMAND, 
-    SL_HYDRO, 
-    SL_COLLISION, 
-    SL_SHOCKS, 
-    SL_BRAKES, 
-    SL_ROPES, 
-    SL_TIES, 
-    SL_PARTICLES, 
-    SL_AXLES, 
-    SL_FLARES, 
-    SL_FLEXBODIES, 
-    SL_EXHAUSTS, 
-    SL_VIDEOCAMERA, 
-    SL_MAX
+    SL_COMMAND_EXTEND,
+    SL_COMMAND_RETRACT,
 };
 
 class Sound;
@@ -220,7 +209,6 @@ class SoundScriptInstance : public ZeroedMemoryAllocator
 
 public:
 
-    SoundScriptInstance(int actor_id, SoundScriptTemplate* templ, SoundManager* sm, Ogre::String instancename, int soundLinkType=SL_DEFAULT, int soundLinkItemId=-1);
     void runOnce();
     void setEnabled(bool e);
     void setGain(float value);
@@ -234,6 +222,9 @@ public:
     static const float PITCHDOWN_CUTOFF_FACTOR;
 
 private:
+
+    /// Constructed by SoundScriptManager
+    SoundScriptInstance(int truck, SoundScriptTemplate* templ, SoundManager* sm, Ogre::String instancename, int soundLinkType=SL_DEFAULT, int soundLinkItemId=-1);
 
     float pitchgain_cutoff(float sourcepitch, float targetpitch);
 
@@ -275,7 +266,7 @@ public:
     void trigStop    (Actor* actor, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
     void trigToggle  (int actor_id, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
     void trigToggle  (Actor* actor, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
-    void trigKill	 (int actor_id, int trig, int linkType = SL_DEFAULT, int linkItemID = -1);
+    void trigKill    (int actor_id, int trig, int linkType = SL_DEFAULT, int linkItemID = -1);
     void trigKill    (Actor* actor, int trig, int linkType = SL_DEFAULT, int linkItemID = -1);
     bool getTrigState(int actor_id, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
     bool getTrigState(Actor* actor, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);

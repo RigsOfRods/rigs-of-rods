@@ -760,15 +760,18 @@ void Actor::CalcCommands(bool doUpdate)
 
             ar_command_key[i].triggerInputValue = 0.0f;
 
-            if (ar_command_key[i].commandValue > 0.01f && oldValue < 0.01f)
+            // Determine sound update
+            if ((ar_command_key[i].commandValue > 0.01f) && (oldValue < 0.01f))
             {
-                // just started
-                ar_command_key[i].commandValueState = 1;
+                ar_command_key[i].soundAction = command_t::SoundAction::START;
             }
-            else if (ar_command_key[i].commandValue < 0.01f && oldValue > 0.01f)
+            else if ((ar_command_key[i].commandValue < 0.01f) && (oldValue > 0.01f))
             {
-                // just stopped
-                ar_command_key[i].commandValueState = -1;
+                ar_command_key[i].soundAction = command_t::SoundAction::STOP;
+            }
+            else
+            {
+                ar_command_key[i].soundAction = command_t::SoundAction::NONE;
             }
 
             for (int j = 0; j < (int)ar_command_key[i].beams.size(); j++)
@@ -785,7 +788,7 @@ void Actor::CalcCommands(bool doUpdate)
         }
 
         // now process normal commands
-        for (int i = 0; i <= MAX_COMMANDS; i++)
+        for (int i = 0; i <= MAX_COMMANDS; i++) // Iterate over commandkeys
         {
             bool requestpower = false;
             for (int j = 0; j < (int)ar_command_key[i].beams.size(); j++)
@@ -802,7 +805,6 @@ void Actor::CalcCommands(bool doUpdate)
                     crankfactor = std::min(crankfactor, 1.0f);
 
                 float v = ar_command_key[i].commandValue;
-                int& vst = ar_command_key[i].commandValueState;
 
                 // self centering
                 if (cmd_beam.cmb_is_autocentering && !cmd_beam.cmb_state->auto_move_lock)
@@ -891,27 +893,28 @@ void Actor::CalcCommands(bool doUpdate)
                             requestpower = true;
 
 #ifdef USE_OPENAL
-                        if (cmd_beam.cmb_plays_sound)
+                        // Update command sounds
+                        SoundLinkTypes bbeam_snd_link = (bbeam_dir) ? SL_COMMAND_EXTEND : SL_COMMAND_RETRACT;
+                        SoundLinkTypes bbeam_snd_opposite_link = (bbeam_dir) ? SL_COMMAND_RETRACT : SL_COMMAND_EXTEND;
+
+                        if (ar_command_key[i].soundAction == command_t::SoundAction::START)
                         {
-                            // command sounds
-                            if (vst == 1)
-                            {
-                                // just started
-                                SoundScriptManager::getSingleton().trigStop(ar_instance_id, SS_TRIG_LINKED_COMMAND, SL_COMMAND, -i);
-                                SoundScriptManager::getSingleton().trigStart(ar_instance_id, SS_TRIG_LINKED_COMMAND, SL_COMMAND, i);
-                                vst = 0;
-                            }
-                            else if (vst == -1)
-                            {
-                                // just stopped
-                                SoundScriptManager::getSingleton().trigStop(ar_instance_id, SS_TRIG_LINKED_COMMAND, SL_COMMAND, i);
-                                vst = 0;
-                            }
-                            else if (vst == 0)
-                            {
-                                // already running, modulate
-                                SoundScriptManager::getSingleton().modulate(ar_instance_id, SS_MOD_LINKED_COMMANDRATE, v, SL_COMMAND, i);
-                            }
+                            // Start the linked sound
+                            SoundScriptManager::getSingleton().trigStop(this, SS_TRIG_USER_DEFINED, bbeam_snd_link, ar_beams[bbeam].commandID);
+                            // Stop linked sound in opposite direction (just in case)
+                            SoundScriptManager::getSingleton().trigStop(this, SS_TRIG_USER_DEFINED, bbeam_snd_opposite_link, ar_beams[bbeam].commandID);
+                        }
+                        else if (ar_command_key[i].soundAction == command_t::SoundAction::STOP)
+                        {
+                            // Stop the linked sound
+                            SoundScriptManager::getSingleton().trigStop(this, SS_TRIG_USER_DEFINED, bbeam_snd_link, ar_beams[bbeam].commandID);
+                        }
+                        else // Already running
+                        {
+                            // Modulate linked sound
+                            SoundScriptManager::getSingleton().modulate(this, SS_TRIG_USER_DEFINED, v, bbeam_snd_link, ar_beams[bbeam].commandID);
+                            // Stop linked sound in opposite direction (just in case)
+                            SoundScriptManager::getSingleton().trigStop(this, SS_TRIG_USER_DEFINED, bbeam_snd_opposite_link, ar_beams[bbeam].commandID);
                         }
 #endif //USE_OPENAL
                         float cf = 1.0f;
