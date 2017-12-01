@@ -19,11 +19,11 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/** 
-    @file   
-    @author Petr Ohlidal
-    @date   05/2014
-*/
+
+/// @file
+/// @author Petr Ohlidal
+/// @date   05/2014
+
 
 #include "MainMenu.h"
 
@@ -279,10 +279,32 @@ void MainMenu::MainMenuLoopUpdateEvents(float seconds_since_last_frame)
         RoR::App::GetOverlayWrapper()->update(seconds_since_last_frame); // TODO: What's the meaning of this? It only updates some internal timer. ~ only_a_ptr
     }
 
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUIT_GAME))
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUIT_GAME)) // TODO: EV_COMMON_QUIT_GAME should really be EV_COMMON_ESCAPE ~ only_a_ptr, 12/2017
     {
-        //TODO: Go back to menu 
-        App::app_state.SetPending(AppState::SHUTDOWN);
+        if (App::GetGuiManager()->IsVisible_GameAbout())
+        {
+            App::GetGuiManager()->SetVisible_GameAbout(false);
+            App::GetGuiManager()->SetVisible_GameMainMenu(true);
+        }
+        else if (App::GetGuiManager()->IsVisible_MainSelector())
+        {
+            App::GetGuiManager()->GetMainSelector()->Cancel();
+            App::GetGuiManager()->SetVisible_GameMainMenu(true);
+        }
+        else if (App::GetGuiManager()->IsVisible_GameSettings())
+        {
+            App::GetGuiManager()->SetVisible_GameSettings(false);
+            App::GetGuiManager()->SetVisible_GameMainMenu(true);
+        }
+        else if (App::GetGuiManager()->IsVisible_MultiplayerSelector())
+        {
+            App::GetGuiManager()->SetVisible_MultiplayerSelector(false);
+            App::GetGuiManager()->SetVisible_GameMainMenu(true);
+        }
+        else
+        {
+            App::app_state.SetPending(AppState::SHUTDOWN);
+        }
         return;
     }
 
