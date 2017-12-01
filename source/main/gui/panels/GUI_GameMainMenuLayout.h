@@ -38,9 +38,6 @@ protected:
     ATTRIBUTE_FIELD_WIDGET_NAME(GameMainMenuLayout, m_exit, "exit");
     MyGUI::Button* m_exit;
 
-    ATTRIBUTE_FIELD_WIDGET_NAME(GameMainMenuLayout, m_rig_editor, "rig_editor");
-    MyGUI::Button* m_rig_editor;
-
     ATTRIBUTE_FIELD_WIDGET_NAME(GameMainMenuLayout, m_multi_player, "multi_player");
     MyGUI::Button* m_multi_player;
 

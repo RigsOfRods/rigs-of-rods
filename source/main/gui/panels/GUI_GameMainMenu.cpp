@@ -44,14 +44,12 @@ CLASS::CLASS()
     MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
 
     m_single_player->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickSelectTerrainButton);
-    m_rig_editor->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickRigEditorButton);
     m_settings->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickSettingButton);
     m_about->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickAboutButton);
     m_exit->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickExitButton);
     m_multi_player->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickMultiPlayerButton);
 
     m_single_player->setCaption(_L("Singleplayer"));
-    m_rig_editor->setCaption(_L("Rig-Editor"));
     m_settings->setCaption(_L("Settings"));
     m_about->setCaption(_L("About"));
     m_exit->setCaption(_L("Quit"));
@@ -126,10 +124,6 @@ void CLASS::eventMouseButtonClickMultiPlayerButton(MyGUI::WidgetPtr _sender)
 {
     App::GetGuiManager()->SetVisible_MultiplayerSelector(true);
     Hide();
-}
-
-void CLASS::eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender)
-{
 }
 
 void CLASS::SetVisible(bool v)

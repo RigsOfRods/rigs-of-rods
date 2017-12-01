@@ -49,18 +49,15 @@ CLASS::CLASS()
     m_resume_game ->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickResumeButton);
     m_change_map  ->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickChangeMapButton);
     m_back_to_menu->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickBackToMenuButton);
-    m_rig_editor  ->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickRigEditorButton);
     m_quit_game   ->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickQuitButton);
 
     win->setCaption(_L("Pause"));
     m_resume_game ->setCaption(_L("Resume Game"));
     m_change_map  ->setCaption(_L("Change Map"));
     m_back_to_menu->setCaption(_L("Back to menu"));
-    m_rig_editor  ->setCaption(_L("Rig Editor"));
     m_quit_game   ->setCaption(_L("Quit to Desktop"));
 
     MAIN_WIDGET->setVisible(false);
-    m_rig_editor->setEnabled(false);
 }
 
 CLASS::~CLASS()
@@ -117,10 +114,6 @@ void CLASS::eventMouseButtonClickBackToMenuButton(MyGUI::WidgetPtr _sender)
 {
     Hide();
     App::app_state.SetPending(RoR::AppState::MAIN_MENU);
-}
-
-void CLASS::eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender)
-{
 }
 
 void CLASS::eventMouseButtonClickQuitButton(MyGUI::WidgetPtr _sender)

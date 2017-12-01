@@ -50,7 +50,6 @@ private:
     void eventMouseButtonClickResumeButton(MyGUI::WidgetPtr _sender);
     void eventMouseButtonClickChangeMapButton(MyGUI::WidgetPtr _sender);
     void eventMouseButtonClickBackToMenuButton(MyGUI::WidgetPtr _sender);
-    void eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender);
     void eventMouseButtonClickQuitButton(MyGUI::WidgetPtr _sender);
 };
 
