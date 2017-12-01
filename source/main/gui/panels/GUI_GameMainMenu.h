@@ -48,7 +48,6 @@ public:
 
 private:
     void eventMouseButtonClickSelectTerrainButton(MyGUI::WidgetPtr _sender);
-    void eventMouseButtonClickRigEditorButton(MyGUI::WidgetPtr _sender);
     void eventMouseButtonClickSettingButton(MyGUI::WidgetPtr _sender);
     void eventMouseButtonClickAboutButton(MyGUI::WidgetPtr _sender);
     void eventMouseButtonClickExitButton(MyGUI::WidgetPtr _sender);
