@@ -20,11 +20,6 @@
 IF (UNIX)
     # install the files required for the runtime
     INSTALL(
-            DIRECTORY ${ROR_BINTOOL_DIR}/
-            DESTINATION games/RoR
-            FILES_MATCHING PATTERN "*"
-    )
-    INSTALL(
             DIRECTORY ${RoR_SOURCE_DIR}/tools/linux/desktop-entry/
             DESTINATION share/applications/
             FILES_MATCHING PATTERN "*.desktop"
