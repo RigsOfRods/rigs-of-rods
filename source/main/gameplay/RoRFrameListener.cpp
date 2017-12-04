@@ -2208,28 +2208,22 @@ void RoRFrameListener::CleanupAfterSimulation()
 #endif
 
     if (gEnv->surveyMap)
+    {
         gEnv->surveyMap->setVisibility(false);
-    auto loading_window = App::GetGuiManager()->GetLoadingWindow();
+    }
 
-    loading_window->setProgress(0, _L("Unloading Terrain"), !m_was_app_window_closed);
-
-    RoR::App::GetGuiManager()->GetMainSelector()->Reset();
+    App::GetGuiManager()->GetMainSelector()->Reset();
 
     this->StopRaceTimer();
 
-    RoR::App::DestroyOverlayWrapper();
-
-    loading_window->setProgress(15, _L("Unloading Terrain"), !m_was_app_window_closed);
+    App::DestroyOverlayWrapper();
 
     //Unload all vehicules
     m_beam_factory.CleanUpAllTrucks();
-    loading_window->setProgress(30, _L("Unloading Terrain"), !m_was_app_window_closed);
 
     delete gEnv->player;
     gEnv->player = nullptr;
     m_character_factory.DeleteAllRemoteCharacters();
-
-    loading_window->setProgress(45, _L("Unloading Terrain"), !m_was_app_window_closed);
 
     if (gEnv->terrainManager != nullptr)
     {
@@ -2237,16 +2231,11 @@ void RoRFrameListener::CleanupAfterSimulation()
         delete(gEnv->terrainManager);
         gEnv->terrainManager = nullptr;
     }
-    loading_window->setProgress(60, _L("Unloading Terrain"), !m_was_app_window_closed);
 
     App::DeleteSceneMouse();
-    loading_window->setProgress(75, _L("Unloading Terrain"), !m_was_app_window_closed);
-
-    //Reinit few things
-    loading_window->setProgress(100, _L("Unloading Terrain"), !m_was_app_window_closed);
-    // hide loading window
-    App::GetGuiManager()->SetVisible_LoadingWindow(false);
     App::GetGuiManager()->GetTeleport()->Reset();
+
+    App::GetGuiManager()->SetVisible_LoadingWindow(false);
 }
 
 bool RoRFrameListener::SetupGameplayLoop()
@@ -2509,11 +2498,9 @@ void RoRFrameListener::EnterGameplayLoop()
     }
 
     App::sim_state.SetActive(SimState::OFF);
+    App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(this); // IMPORTANT: Stop receiving render events during cleanups.
+    App::GetGuiManager()->GetLoadingWindow()->setProgress(50, _L("Unloading Terrain"), !m_was_app_window_closed); // Renders a frame
     this->CleanupAfterSimulation();
-
-    /* RESTORE ENVIRONMENT */
-
-    App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(this);
     RoRWindowEventUtilities::removeWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
     App::GetGuiManager()->SetSimController(nullptr);
     // DO NOT: App::GetSceneMouse()    ->SetSimController(nullptr); -- already deleted via App::DeleteSceneMouse();      // TODO: de-globalize that object!
