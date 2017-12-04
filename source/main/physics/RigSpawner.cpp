@@ -4500,7 +4500,6 @@ void RigSpawner::BuildMeshWheelVisuals(
         Ogre::SceneNode* scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
         scene_node->attachObject(flexmesh_wheel->GetTireEntity());
 
-        m_rig->deletion_Entities.emplace_back(flexmesh_wheel->GetTireEntity());
         m_rig->vwheels[wheel_index].fm = flexmesh_wheel;
         m_rig->vwheels[wheel_index].cnode = scene_node;
     }

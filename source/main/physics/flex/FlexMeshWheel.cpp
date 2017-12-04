@@ -160,7 +160,23 @@ FlexMeshWheel::FlexMeshWheel(
 FlexMeshWheel::~FlexMeshWheel()
 {
     if (m_vertices != nullptr) { delete m_vertices; }
-    if (m_indices      != nullptr) { free (m_indices); }
+    if (m_indices != nullptr) { free (m_indices); }
+
+    // Rim: we own both Entity and SceneNode
+    m_rim_scene_node->detachAllObjects();
+    gEnv->sceneManager->destroySceneNode(m_rim_scene_node);
+    gEnv->sceneManager->destroyEntity(m_rim_entity);
+    m_rim_entity = nullptr;
+
+    // Tyre: we own the Entity, SceneNode is owned by vwheel_t
+    m_tire_entity->detachFromParent();
+    gEnv->sceneManager->destroyEntity(m_tire_entity);
+    m_tire_entity = nullptr;
+
+    // Delete tyre mesh
+    m_mesh->unload();
+    Ogre::MeshManager::getSingleton().remove(m_mesh->getHandle());
+    m_mesh.setNull();
 }
 
 Vector3 FlexMeshWheel::updateVertices()
