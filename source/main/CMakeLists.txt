@@ -613,6 +613,10 @@ IF (UNIX)
             DESTINATION games/RoR
             FILES_MATCHING PATTERN "*"
     )
+    INSTALL(
+            FILES $<TARGET_FILE_DIR:${BINNAME}>/plugins.cfg
+            DESTINATION games/RoR
+    )
 ELSEIF (WIN32)
     INSTALL(
             DIRECTORY $<TARGET_FILE_DIR:${BINNAME}>/
