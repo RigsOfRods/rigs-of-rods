@@ -209,12 +209,31 @@ inline const char*     BoolToStr(bool b)                        { return (b) ? "
 
 
 /// A global variable - only for use in 'Application.(h/cpp)'
-/// Has 2 values: Active and Pending. When Pending equals Active, it's considered empty.
-/// Usage pattern (with visual logging):
-///   [RoR|Gvar]  gvar_name  (NEW) ==> {PEND}     [ACTIV]  | SetPending():   new pending value, active stands
-///   [RoR|Gvar]  gvar_name  (NEW) ==> {PEND} ==> [ACTIV]  | SetActive():    direct update of active (+pending) value
-///   [RoR|Gvar]  gvar_name     ()     {PEND} ==> [ACTIV]  | ApplyPending(): updates active from pending
-///   [RoR|Gvar]  gvar_name     ()     {PEND} <== [ACTIV]  | ResetPending(): updates pending from active
+///
+/// Concept: A GVar may contain 1-3 values:
+///   * [A] Active value = the value currently in effect. Each GVar has an active value.
+///   * [P] Pending value = the value to be set as active on earliest occasion (occasion may be anything from next frame to game restart)
+///                         When no change is requested, value of Pending equals value of Active.
+///                         Currently all GVars contain a pending value, but this design may be changed in the future.
+///   * [S] Stored value = The user-defined value to be persisted in config file.
+///                        - When not present, Active is taken as Stored.
+///                        - When present, it's unaffected by Active and only changes when user wants.
+/// GVar classes are named _A, _AP or _APS depending on which values they contain. NOTE this concept is not fully implemented yet.
+///
+/// API usage:
+///   SetPending():   new pending value, active stands. GVars without pending value don't have this function.
+///   SetActive():    direct update of active (+pending, if present) value
+///   ApplyPending(): updates active from pending. GVars without pending value don't have this function.
+///   ResetPending(): updates pending from active. GVars without pending value don't have this function.
+///   GetStored():    gets stored value, if present, or active value if not.
+///   SetStored():    direct update of stored value. GVars without stored value don't have this function.
+///
+/// Usage pattern (with old visual logging which is currently in place):
+///   SetPending():  [RoR|Gvar]  gvar_name  (NEW) ==> {PEND}     [ACTIV]
+///   SetActive():   [RoR|Gvar]  gvar_name  (NEW) ==> {PEND} ==> [ACTIV]
+///   ApplyPending():[RoR|Gvar]  gvar_name     ()     {PEND} ==> [ACTIV]
+///   ResetPending():[RoR|Gvar]  gvar_name     ()     {PEND} <== [ACTIV]
+///
 /// Usage guidelines:
 ///   * There are no definite rules how to use and update a GVar. Each one is specific.
 ///   * Each GVar should have an Owner - a piece of code which checks for 'pending' values and Apply()-ies them.
@@ -278,7 +297,6 @@ protected:
     T            m_value_pending;
 };
 
-
 template <typename E> class GVarEnum: public GVarPod<E>
 {
 public:
@@ -294,11 +312,11 @@ public:
     void         SetPending(E val);
 };
 
-
-template <size_t L> class GVarStr: public GVarBase
+// TODO: Make separate _A (active only) and _AP (active + pending) classes
+template <size_t L> class GVarStrBase: public GVarBase
 {
 public:
-    GVarStr(const char* name, const char* conf, const char* active_val, const char* pending_val):
+    GVarStrBase(const char* name, const char* conf, const char* active_val, const char* pending_val):
         GVarBase(name, conf), m_value_active(active_val), m_value_pending(pending_val)
     {}
 
@@ -317,20 +335,46 @@ protected:
     Str<L>         m_value_pending;
 };
 
+/// _AP = Active+Pending: 'Active' value is taken as 'Stored'
+template <size_t L> class GVarStr_AP: public GVarStrBase<L>
+{
+public:
+    GVarStr_AP(const char* name, const char* conf, const char* active_val, const char* pending_val):
+        GVarStrBase<L>(name, conf, active_val, pending_val)
+    {}
+
+    inline const char* GetStored() const            { return GVarStrBase<L>::m_value_active; }
+    // !not defined:   SetStored()
+};
+
+/// _APS = Active+Pending+Stored: Has separate 'Stored' value
+template <size_t L> class GVarStr_APS: public GVarStrBase<L>
+{
+public:
+    GVarStr_APS(const char* name, const char* conf, const char* active_val, const char* pending_val):
+        GVarStrBase<L>(name, conf, active_val, pending_val)
+    {}
+
+    inline const char* GetStored() const            { return m_value_stored; }
+    void               SetStored(const char* val);
+
+protected:
+    Str<L>         m_value_stored;
+};
 
 namespace App {
 
 
 // App
 extern GVarEnum<AppState>      app_state;
-extern GVarStr<100>            app_language;
-extern GVarStr<50>             app_locale;
+extern GVarStr_AP<100>         app_language;
+extern GVarStr_AP<50>          app_locale;
 extern GVarPod<bool>           app_multithread;
-extern GVarStr<50>             app_screenshot_format;
+extern GVarStr_AP<50>          app_screenshot_format;
 
 // Simulation
 extern GVarEnum<SimState>      sim_state;
-extern GVarStr<200>            sim_terrain_name;
+extern GVarStr_AP<200>         sim_terrain_name;
 extern GVarPod<bool>           sim_replay_enabled;
 extern GVarPod<int>            sim_replay_length;
 extern GVarPod<int>            sim_replay_stepping;
@@ -339,12 +383,12 @@ extern GVarEnum<SimGearboxMode>sim_gearbox_mode;
 
 // Multiplayer
 extern GVarEnum<MpState>       mp_state;
-extern GVarStr<200>            mp_server_host;
+extern GVarStr_AP<200>         mp_server_host;
 extern GVarPod<int>            mp_server_port;
-extern GVarStr<100>            mp_server_password;
-extern GVarStr<100>            mp_player_name;
-extern GVarStr<250>            mp_player_token_hash;
-extern GVarStr<400>            mp_portal_url;
+extern GVarStr_AP<100>         mp_server_password;
+extern GVarStr_AP<100>         mp_player_name;
+extern GVarStr_AP<250>         mp_player_token_hash;
+extern GVarStr_AP<400>         mp_portal_url;
 
 // Diagnostic
 extern GVarPod<bool>           diag_trace_globals;
@@ -355,26 +399,26 @@ extern GVarPod<bool>           diag_collisions;
 extern GVarPod<bool>           diag_truck_mass;
 extern GVarPod<bool>           diag_envmap;
 extern GVarPod<bool>           diag_videocameras;
-extern GVarStr<100>            diag_preset_terrain;
-extern GVarStr<100>            diag_preset_vehicle;
-extern GVarStr<100>            diag_preset_veh_config;
+extern GVarStr_APS<100>        diag_preset_terrain;
+extern GVarStr_AP<100>         diag_preset_vehicle;
+extern GVarStr_AP<100>         diag_preset_veh_config;
 extern GVarPod<bool>           diag_preset_veh_enter;
 extern GVarPod<bool>           diag_log_console_echo;
 extern GVarPod<bool>           diag_log_beam_break;
 extern GVarPod<bool>           diag_log_beam_deform;
 extern GVarPod<bool>           diag_log_beam_trigger;
 extern GVarPod<bool>           diag_dof_effect;
-extern GVarStr<300>            diag_extra_resource_dir;
+extern GVarStr_AP<300>         diag_extra_resource_dir;
 
 // System
-extern GVarStr<300>            sys_process_dir;
-extern GVarStr<300>            sys_user_dir;
-extern GVarStr<300>            sys_config_dir;
-extern GVarStr<300>            sys_cache_dir;
-extern GVarStr<300>            sys_logs_dir;
-extern GVarStr<300>            sys_resources_dir;
-extern GVarStr<300>            sys_profiler_dir;
-extern GVarStr<300>            sys_screenshot_dir;
+extern GVarStr_AP<300>         sys_process_dir;
+extern GVarStr_AP<300>         sys_user_dir;
+extern GVarStr_AP<300>         sys_config_dir;
+extern GVarStr_AP<300>         sys_cache_dir;
+extern GVarStr_AP<300>         sys_logs_dir;
+extern GVarStr_AP<300>         sys_resources_dir;
+extern GVarStr_AP<300>         sys_profiler_dir;
+extern GVarStr_AP<300>         sys_screenshot_dir;
 
 // Input - Output
 extern GVarPod<bool>           io_ffb_enabled;
@@ -385,7 +429,7 @@ extern GVarPod<float>          io_ffb_stress_gain;
 extern GVarEnum<IoInputGrabMode>io_input_grab_mode;
 extern GVarPod<bool>           io_arcade_controls;
 extern GVarPod<int>            io_outgauge_mode;
-extern GVarStr<50>             io_outgauge_ip;
+extern GVarStr_AP<50>          io_outgauge_ip;
 extern GVarPod<int>            io_outgauge_port;
 extern GVarPod<float>          io_outgauge_delay;
 extern GVarPod<int>            io_outgauge_id;
@@ -393,7 +437,7 @@ extern GVarPod<int>            io_outgauge_id;
 // Audio
 extern GVarPod<float>          audio_master_volume;
 extern GVarPod<bool>           audio_enable_creak;
-extern GVarStr<100>            audio_device_name;
+extern GVarStr_AP<100>         audio_device_name;
 extern GVarPod<bool>           audio_menu_music;
 
 // Graphics
@@ -554,7 +598,7 @@ template <typename T> void GVarEnum<T>::SetActive(T val)
     }
 }
 
-template <size_t L> void GVarStr<L>::SetActive(const char* val)
+template <size_t L> void GVarStrBase<L>::SetActive(const char* val)
 {
     if ((val != m_value_active) || (val != m_value_pending))
     {
@@ -566,7 +610,7 @@ template <size_t L> void GVarStr<L>::SetActive(const char* val)
     }
 }
 
-template <size_t L> void GVarStr<L>::SetPending(const char* val)
+template <size_t L> void GVarStrBase<L>::SetPending(const char* val)
 {
     if (val != m_value_pending)
     {
@@ -577,7 +621,7 @@ template <size_t L> void GVarStr<L>::SetPending(const char* val)
     }
 }
 
-template <size_t L> void GVarStr<L>::ApplyPending()
+template <size_t L> void GVarStrBase<L>::ApplyPending()
 {
     if (m_value_active != m_value_pending)
     {
@@ -588,7 +632,7 @@ template <size_t L> void GVarStr<L>::ApplyPending()
     }
 }
 
-template <size_t L> void GVarStr<L>::ResetPending()
+template <size_t L> void GVarStrBase<L>::ResetPending()
 {
     if (m_value_active != m_value_pending)
     {
@@ -596,6 +640,19 @@ template <size_t L> void GVarStr<L>::ResetPending()
             GVarBase::LogResetPending(m_value_pending, m_value_active);
 
         m_value_pending.Assign(m_value_active.ToCStr());
+    }
+}
+
+template <size_t L> void GVarStr_APS<L>::SetStored(const char* val)
+{
+    if (m_value_stored != val)
+    {
+        if (App::diag_trace_globals.GetActive())
+        {
+            RoR::LogFormat("[RoR|GVars] %20s: SetStored(), new value: '%s', old value: '%s'",
+                GVarBase::name, m_value_stored.ToCStr(), val);
+        }
+        m_value_stored.Assign(val);
     }
 }
 

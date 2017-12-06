@@ -57,14 +57,14 @@ static RoRFrameListener* g_sim_controller;
 
 // App
  GVarEnum<AppState>       app_state               ("app_state",               nullptr,                     AppState::BOOTSTRAP,     AppState::MAIN_MENU);
- GVarStr<100>             app_language            ("app_language",            "Language",                  "English",               "English");
- GVarStr<50>              app_locale              ("app_locale",              "Language Short",            "en",                    "en");
+ GVarStr_AP<100>          app_language            ("app_language",            "Language",                  "English",               "English");
+ GVarStr_AP<50>           app_locale              ("app_locale",              "Language Short",            "en",                    "en");
  GVarPod<bool>            app_multithread         ("app_multithread",         "Multi-threading",           true,                    true);
- GVarStr<50>              app_screenshot_format   ("app_screenshot_format",   "Screenshot Format",         "jpg",                   "jpg");
+ GVarStr_AP<50>           app_screenshot_format   ("app_screenshot_format",   "Screenshot Format",         "jpg",                   "jpg");
 
 // Simulation
  GVarEnum<SimState>       sim_state               ("sim_state",               nullptr,                     SimState::OFF,           SimState::OFF);
- GVarStr<200>             sim_terrain_name        ("sim_terrain_name",        nullptr,                     "",                      "");
+ GVarStr_AP<200>             sim_terrain_name        ("sim_terrain_name",        nullptr,                     "",                      "");
  GVarPod<bool>            sim_replay_enabled      ("sim_replay_enabled",      "Replay mode",               false,                   false);
  GVarPod<int>             sim_replay_length       ("sim_replay_length",       "Replay length",             200,                     200);
  GVarPod<int>             sim_replay_stepping     ("sim_replay_stepping",     "Replay Steps per second",   1000,                    1000);
@@ -73,12 +73,12 @@ static RoRFrameListener* g_sim_controller;
 
 // Multiplayer
  GVarEnum<MpState>        mp_state                ("mp_state",                nullptr,                     MpState::DISABLED,       MpState::DISABLED);
- GVarStr<200>             mp_server_host          ("mp_server_host",          "Server name",               "",                      "");
+ GVarStr_AP<200>          mp_server_host          ("mp_server_host",          "Server name",               "",                      "");
  GVarPod<int>             mp_server_port          ("mp_server_port",          "Server port",               0,                       0);
- GVarStr<100>             mp_server_password      ("mp_server_password",      "Server password",           "",                      "");
- GVarStr<100>             mp_player_name          ("mp_player_name",          "Nickname",                  "Player",                "Player");
- GVarStr<250>             mp_player_token_hash    ("mp_player_token_hash",    "User Token Hash",           "",                      "");
- GVarStr<400>             mp_portal_url           ("mp_portal_url",           "Multiplayer portal URL",    "http://multiplayer.rigsofrods.org", "http://multiplayer.rigsofrods.org");
+ GVarStr_AP<100>          mp_server_password      ("mp_server_password",      "Server password",           "",                      "");
+ GVarStr_AP<100>          mp_player_name          ("mp_player_name",          "Nickname",                  "Player",                "Player");
+ GVarStr_AP<250>          mp_player_token_hash    ("mp_player_token_hash",    "User Token Hash",           "",                      "");
+ GVarStr_AP<400>          mp_portal_url           ("mp_portal_url",           "Multiplayer portal URL",    "http://multiplayer.rigsofrods.org", "http://multiplayer.rigsofrods.org");
 
 // Diagnostic
  GVarPod<bool>            diag_trace_globals      ("diag_trace_globals",      nullptr,                     false,                   false); // Don't init to 'true', logger is not ready at startup
@@ -89,26 +89,26 @@ static RoRFrameListener* g_sim_controller;
  GVarPod<bool>            diag_truck_mass         ("diag_truck_mass",         "Debug Truck Mass",          false,                   false);
  GVarPod<bool>            diag_envmap             ("diag_envmap",             "EnvMapDebug",               false,                   false);
  GVarPod<bool>            diag_videocameras       ("diag_videocameras",       "VideoCameraDebug",          false,                   false);
- GVarStr<100>             diag_preset_terrain     ("diag_preset_terrain",     "Preselected Map",           "",                      "");
- GVarStr<100>             diag_preset_vehicle     ("diag_preset_vehicle",     "Preselected Truck",         "",                      "");
- GVarStr<100>             diag_preset_veh_config  ("diag_preset_veh_config",  "Preselected TruckConfig",   "",                      "");
+ GVarStr_APS<100>         diag_preset_terrain     ("diag_preset_terrain",     "Preselected Map",           "",                      "");
+ GVarStr_AP<100>          diag_preset_vehicle     ("diag_preset_vehicle",     "Preselected Truck",         "",                      "");
+ GVarStr_AP<100>          diag_preset_veh_config  ("diag_preset_veh_config",  "Preselected TruckConfig",   "",                      "");
  GVarPod<bool>            diag_preset_veh_enter   ("diag_preset_veh_enter",   "Enter Preselected Truck",   false,                   false);
  GVarPod<bool>            diag_log_console_echo   ("diag_log_console_echo",   "Enable Ingame Console",     false,                   false);
  GVarPod<bool>            diag_log_beam_break     ("diag_log_beam_break",     "Beam Break Debug",          false,                   false);
  GVarPod<bool>            diag_log_beam_deform    ("diag_log_beam_deform",    "Beam Deform Debug",         false,                   false);
  GVarPod<bool>            diag_log_beam_trigger   ("diag_log_beam_trigger",   "Trigger Debug",             false,                   false);
  GVarPod<bool>            diag_dof_effect         ("diag_dof_effect",         "DOFDebug",                  false,                   false);
- GVarStr<300>             diag_extra_resource_dir ("diag_extra_resource_dir", "resourceIncludePath",       "",                      "");
+ GVarStr_AP<300>          diag_extra_resource_dir ("diag_extra_resource_dir", "resourceIncludePath",       "",                      "");
 
 // System                                         (all paths are without ending slash!)
- GVarStr<300>             sys_process_dir         ("sys_process_dir",         nullptr,                     "",                      "");
- GVarStr<300>             sys_user_dir            ("sys_user_dir",            nullptr,                     "",                      "");
- GVarStr<300>             sys_config_dir          ("sys_config_dir",          "Config Root",               "",                      "");
- GVarStr<300>             sys_cache_dir           ("sys_cache_dir",           "Cache Path",                "",                      "");
- GVarStr<300>             sys_logs_dir            ("sys_logs_dir",            "Log Path",                  "",                      "");
- GVarStr<300>             sys_resources_dir       ("sys_resources_dir",       "Resources Path",            "",                      "");
- GVarStr<300>             sys_profiler_dir        ("sys_profiler_dir",        "Profiler output dir",       "",                      "");
- GVarStr<300>             sys_screenshot_dir      ("sys_screenshot_dir",      nullptr,                     "",                      "");
+ GVarStr_AP<300>          sys_process_dir         ("sys_process_dir",         nullptr,                     "",                      "");
+ GVarStr_AP<300>          sys_user_dir            ("sys_user_dir",            nullptr,                     "",                      "");
+ GVarStr_AP<300>          sys_config_dir          ("sys_config_dir",          "Config Root",               "",                      "");
+ GVarStr_AP<300>          sys_cache_dir           ("sys_cache_dir",           "Cache Path",                "",                      "");
+ GVarStr_AP<300>          sys_logs_dir            ("sys_logs_dir",            "Log Path",                  "",                      "");
+ GVarStr_AP<300>          sys_resources_dir       ("sys_resources_dir",       "Resources Path",            "",                      "");
+ GVarStr_AP<300>          sys_profiler_dir        ("sys_profiler_dir",        "Profiler output dir",       "",                      "");
+ GVarStr_AP<300>          sys_screenshot_dir      ("sys_screenshot_dir",      nullptr,                     "",                      "");
 
 // Input - Output
  GVarPod<bool>            io_ffb_enabled          ("io_ffb_enabled",          "Force Feedback",            false,                   false);
@@ -119,7 +119,7 @@ static RoRFrameListener* g_sim_controller;
  GVarEnum<IoInputGrabMode>io_input_grab_mode      ("io_input_grab_mode",      "Input Grab",                IoInputGrabMode::NONE,   IoInputGrabMode::NONE);
  GVarPod<bool>            io_arcade_controls      ("io_arcade_controls",      "ArcadeControls",            false,                   false);
  GVarPod<int>             io_outgauge_mode        ("io_outgauge_mode",        "OutGauge Mode",             0,                       0); // 0 = disabled, 1 = enabled
- GVarStr<50>              io_outgauge_ip          ("io_outgauge_ip",          "OutGauge IP",               "192.168.1.100",         "192.168.1.100");
+ GVarStr_AP<50>           io_outgauge_ip          ("io_outgauge_ip",          "OutGauge IP",               "192.168.1.100",         "192.168.1.100");
  GVarPod<int>             io_outgauge_port        ("io_outgauge_port",        "OutGauge Port",             1337,                    1337);
  GVarPod<float>           io_outgauge_delay       ("io_outgauge_delay",       "OutGauge Delay",            10.f,                    10.f);
  GVarPod<int>             io_outgauge_id          ("io_outgauge_id",          "OutGauge ID",               0,                       0);
@@ -127,7 +127,7 @@ static RoRFrameListener* g_sim_controller;
 // Audio
  GVarPod<float>           audio_master_volume     ("audio_master_volume",     "Sound Volume",              0,                       0);
  GVarPod<bool>            audio_enable_creak      ("audio_enable_creak",      "Creak Sound",               false,                   false);
- GVarStr<100>             audio_device_name       ("audio_device_name",       "AudioDevice",               "",                      "");
+ GVarStr_AP<100>          audio_device_name       ("audio_device_name",       "AudioDevice",               "",                      "");
  GVarPod<bool>            audio_menu_music        ("audio_menu_music",        "MainMenuMusic",             false,                   false);
 
 // Graphics

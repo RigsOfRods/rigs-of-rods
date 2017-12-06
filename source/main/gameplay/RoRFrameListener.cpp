@@ -2334,6 +2334,7 @@ bool RoRFrameListener::SetupGameplayLoop()
     if (!App::diag_preset_terrain.IsActiveEmpty())
     {
         App::sim_terrain_name.SetPending(App::diag_preset_terrain.GetActive());
+        App::diag_preset_terrain.SetActive("");
     }
 
     if (App::sim_terrain_name.GetPending().IsEmpty())
