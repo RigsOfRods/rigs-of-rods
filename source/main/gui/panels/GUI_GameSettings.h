@@ -63,7 +63,7 @@ public:
     }
 
     template <size_t GVarLen>
-    inline void DrawGTextEdit(GVarStr<GVarLen>& gvar, const char* label, Str<GVarLen>& buf)
+    inline void DrawGTextEdit(GVarStr_AP<GVarLen>& gvar, const char* label, Str<GVarLen>& buf)
     {
         if (ImGui::InputText(label, buf.GetBuffer(), buf.GetCapacity(), ImGuiInputTextFlags_EnterReturnsTrue))
         {
@@ -76,6 +76,27 @@ public:
         else
         {
             buf.Assign(gvar.GetActive());
+        }
+    }
+
+    template <size_t GVarLen>
+    inline void DrawGTextEdit(GVarStr_APS<GVarLen>& gvar, const char* label, Str<GVarLen>& buf, bool update_active)
+    {
+        if (ImGui::InputText(label, buf.GetBuffer(), buf.GetCapacity(), ImGuiInputTextFlags_EnterReturnsTrue))
+        {
+            if (update_active)
+            {
+                gvar.SetActive(buf.GetBuffer());
+            }
+            gvar.SetStored(buf.GetBuffer());
+        }
+        if (ImGui::IsItemActive())
+        {
+            ImGui::TextDisabled("(hit Enter key to submit)");
+        }
+        else
+        {
+            buf.Assign(gvar.GetStored());
         }
     }
 

@@ -644,6 +644,18 @@ inline bool CheckStr(GVarStr_T& gvar, std::string const & key, std::string const
     return false;
 }
 
+template <typename GVarStr_T>
+inline bool CheckStrAS(GVarStr_T& gvar, std::string const & key, std::string const & value)
+{
+    if (key == gvar.conf_name)
+    {
+        gvar.SetActive(value.c_str());
+        gvar.SetStored(value.c_str());
+        return true;
+    }
+    return false;
+}
+
 inline bool CheckInt(GVarPod<int>& gvar, std::string const & key, std::string const & value)
 {
     if (key == gvar.conf_name)
@@ -766,7 +778,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckBool (App::diag_log_beam_deform,      k, v)) { return true; }
     if (CheckBool (App::diag_log_beam_trigger,     k, v)) { return true; }
     if (CheckBool (App::diag_dof_effect,           k, v)) { return true; }
-    if (CheckStr  (App::diag_preset_terrain,       k, v)) { return true; }
+    if (CheckStrAS(App::diag_preset_terrain,       k, v)) { return true; }
     if (CheckStr  (App::diag_preset_vehicle,       k, v)) { return true; }
     if (CheckStr  (App::diag_preset_veh_config,    k, v)) { return true; }
     if (CheckBool (App::diag_preset_veh_enter,     k, v)) { return true; }
@@ -926,7 +938,7 @@ inline const char* GfxSkyToStr(GfxSkyMode v)
 template <typename GVarStr_T>
 inline void WriteStr(std::ofstream& f, GVarStr_T& gvar)
 {
-    f << gvar.conf_name << "=" << gvar.GetActive() << std::endl;
+    f << gvar.conf_name << "=" << gvar.GetStored() << std::endl;
 }
 
 template <typename GVarPod_T>

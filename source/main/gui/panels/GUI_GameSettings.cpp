@@ -179,7 +179,7 @@ void RoR::GUI::GameSettings::Draw()
         this->DrawGCheckbox(App::diag_log_beam_deform,     "Log beam deforming");
         this->DrawGCheckbox(App::diag_log_beam_trigger,    "Log beam triggers");
         this->DrawGCheckbox(App::diag_dof_effect,          "Debug DOF (depth of field)");
-        this->DrawGTextEdit(App::diag_preset_terrain,      "Preselected terrain",         m_buf_diag_preset_terrain);
+        this->DrawGTextEdit(App::diag_preset_terrain,      "Preselected terrain",         m_buf_diag_preset_terrain, false);
         this->DrawGTextEdit(App::diag_preset_vehicle,      "Preselected vehicle",         m_buf_diag_preset_vehicle);
         this->DrawGTextEdit(App::diag_preset_veh_config,   "Presel. veh. config",         m_buf_diag_preset_veh_config);
         this->DrawGTextEdit(App::diag_extra_resource_dir,  "Extra resources directory",   m_buf_diag_extra_resource_dir);
