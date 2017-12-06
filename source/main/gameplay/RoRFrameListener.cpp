@@ -2138,7 +2138,7 @@ void RoRFrameListener::ChangedCurrentVehicle(Beam* previous_vehicle, Beam* curre
 bool RoRFrameListener::LoadTerrain()
 {
     // check if the resource is loaded
-    Ogre::String terrain_file = App::sim_terrain_name.GetPendingCStr();
+    Ogre::String terrain_file = App::sim_terrain_name.GetPending();
     if (! RoR::App::GetCacheSystem()->checkResourceLoaded(terrain_file)) // Input-output argument.
     {
         // fallback for terrains, add .terrn if not found and retry
@@ -2337,7 +2337,7 @@ bool RoRFrameListener::SetupGameplayLoop()
         App::diag_preset_terrain.SetActive("");
     }
 
-    if (App::sim_terrain_name.GetPending().IsEmpty())
+    if (App::sim_terrain_name.IsPendingEmpty())
     {
         CacheEntry* selected_map = RoR::App::GetGuiManager()->GetMainSelector()->GetSelectedEntry();
         if (selected_map != nullptr)

@@ -228,244 +228,528 @@ inline const char*     BoolToStr(bool b)                        { return (b) ? "
 ///   GetStored():    gets stored value, if present, or active value if not.
 ///   SetStored():    direct update of stored value. GVars without stored value don't have this function.
 ///
-/// Usage pattern (with old visual logging which is currently in place):
-///   SetPending():  [RoR|Gvar]  gvar_name  (NEW) ==> {PEND}     [ACTIV]
-///   SetActive():   [RoR|Gvar]  gvar_name  (NEW) ==> {PEND} ==> [ACTIV]
-///   ApplyPending():[RoR|Gvar]  gvar_name     ()     {PEND} ==> [ACTIV]
-///   ResetPending():[RoR|Gvar]  gvar_name     ()     {PEND} <== [ACTIV]
-///
 /// Usage guidelines:
 ///   * There are no definite rules how to use and update a GVar. Each one is specific.
 ///   * Each GVar should have an Owner - a piece of code which checks for 'pending' values and Apply()-ies them.
 ///      This may be any thread and any code location, but there should be just 1 per GVar.
+///
+/// Implementation notes:
+///   GVars use virtual functions (-> overhead: vtable per class, vptr per instance, function-ptr calls).
+///   The choice was 1) duplicate code in A/AP/APS classes 2) virtual inheritance. Rationale:
+///   * Call overhead is not considered a problem because virtuals only do non-frequent tasks:
+///     setting value (user action) and retrieving 'Stored' value (user console action/saving config on game exit).
+///   * Vtable pointer is not considered a problem because sane number of GVars is not more than ~250 (RoR has ~100 now).
 struct GVarBase
 {
+public:
     GVarBase(const char* name, const char* conf_name):
         name(name), conf_name(conf_name)
     {}
 
-    const char* LOG_FMT_S = "[RoR|GVar]  %20s:  (%10s) %s (%10s) %s [%10s]";
-    const char* LOG_FMT_D = "[RoR|GVar]  %20s:  (%10d) %s (%10d) %s [%10d]";
-    const char* LOG_FMT_F = "[RoR|GVar]  %20s:  (%10f) %s (%10f) %s [%10f]";
-
-    inline void LogSetPending(const char* input, const char* pending, const char* active) const  { RoR::LogFormat(LOG_FMT_S, name, input, "==>", pending, "   ", active); }
-    inline void LogSetPending(int         input, int         pending, int         active) const  { RoR::LogFormat(LOG_FMT_D, name, input, "==>", pending, "   ", active); }
-    inline void LogSetPending(float       input, float       pending, float       active) const  { RoR::LogFormat(LOG_FMT_F, name, input, "==>", pending, "   ", active); }
-    inline void LogSetPending(bool        input, bool        pending, bool        active) const  { this->LogSetPending(BoolToStr(input), BoolToStr(pending), BoolToStr(active)); }
-
-    inline void LogSetActive(const char* input, const char* active) const                        { RoR::LogFormat(LOG_FMT_S, name, input, "==>", active, "==>", active); }
-    inline void LogSetActive(int         input, int         active) const                        { RoR::LogFormat(LOG_FMT_D, name, input, "==>", active, "==>", active); }
-    inline void LogSetActive(float       input, float       active) const                        { RoR::LogFormat(LOG_FMT_F, name, input, "==>", active, "==>", active); }
-    inline void LogSetActive(bool        input, bool        active) const                        { this->LogSetActive(BoolToStr(input),  BoolToStr(active)); }
-
-    inline void LogApplyPending(const char* pending, const char* active) const                   { RoR::LogFormat(LOG_FMT_S, name, "~~", "   ", pending, "==>", active); }
-    inline void LogApplyPending(int         pending, int         active) const                   { RoR::LogFormat(LOG_FMT_D, name, "~~", "   ", pending, "==>", active); }
-    inline void LogApplyPending(float       pending, float       active) const                   { RoR::LogFormat(LOG_FMT_F, name, "~~", "   ", pending, "==>", active); }
-    inline void LogApplyPending(bool        pending, bool        active) const                   { this->LogApplyPending(BoolToStr(pending),  BoolToStr(active)); }
-
-    inline void LogResetPending(const char* pending, const char* active) const                   { RoR::LogFormat(LOG_FMT_S, name, "~~", "   ", pending, "<==", active); }
-    inline void LogResetPending(int         pending, int         active) const                   { RoR::LogFormat(LOG_FMT_D, name, "~~", "   ", pending, "<==", active); }
-    inline void LogResetPending(float       pending, float       active) const                   { RoR::LogFormat(LOG_FMT_F, name, "~~", "   ", pending, "<==", active); }
-    inline void LogResetPending(bool        pending, bool        active) const                   { this->LogResetPending(BoolToStr(pending),  BoolToStr(active)); }
-
-    const char* name;
-    const char* conf_name;
-};
-
-
-template <typename T> class GVarPod: public GVarBase
-{
-public:
-    GVarPod(const char* name, const char* conf, T active_val, T pending_val):
-        GVarBase(name, conf), m_value_active(active_val), m_value_pending(pending_val)
-    {}
-
-    inline T     GetActive() const        { return m_value_active; }
-    inline T     GetPending() const       { return m_value_pending; }
-    void         SetPending(T val);
-    void         ApplyPending();
-    void         ResetPending();
-    void         SetActive(T val);
+    const char* const name;
+    const char* const conf_name;
 
 protected:
-    void         LogSetPending  (T val) const  { GVarBase::LogSetPending  (val, m_value_pending, m_value_active); }
-    void         LogSetActive   (T val) const  { GVarBase::LogSetActive   (val, m_value_active); }
-    void         LogApplyPending()      const  { GVarBase::LogApplyPending(m_value_pending, m_value_active); }
-    void         LogResetPending()      const  { GVarBase::LogResetPending(m_value_pending, m_value_active); }
 
-    T            m_value_active;
-    T            m_value_pending;
+    static const char* LOG_FMT_S;
+    static const char* LOG_FMT_D;
+    static const char* LOG_FMT_F;
+
+    void LogFormat(const char* format, ...) const;
+
+    // arg = the new value, cur = the old value
+    inline void LogSetPending(const char* arg, const char* cur) const     { this->LogFormat(LOG_FMT_S, name, "SetPending", arg, cur); }
+    inline void LogSetPending(int         arg, int         cur) const     { this->LogFormat(LOG_FMT_D, name, "SetPending", arg, cur); }
+    inline void LogSetPending(float       arg, float       cur) const     { this->LogFormat(LOG_FMT_F, name, "SetPending", arg, cur); }
+    inline void LogSetPending(bool        arg, bool        cur) const     { this->LogSetPending(BoolToStr(arg), BoolToStr(cur)); }
+
+    inline void LogSetActive(const char* arg, const char* cur) const      { this->LogFormat(LOG_FMT_S, name, "SetActive", arg, cur); }
+    inline void LogSetActive(int         arg, int         cur) const      { this->LogFormat(LOG_FMT_D, name, "SetActive", arg, cur); }
+    inline void LogSetActive(float       arg, float       cur) const      { this->LogFormat(LOG_FMT_F, name, "SetActive", arg, cur); }
+    inline void LogSetActive(bool        arg, bool        cur) const      { this->LogSetActive(BoolToStr(arg), BoolToStr(cur)); }
+
+    inline void LogSetStored(const char* arg, const char* cur) const      { this->LogFormat(LOG_FMT_S, name, "SetStored", arg, cur); }
+    inline void LogSetStored(int         arg, int         cur) const      { this->LogFormat(LOG_FMT_D, name, "SetStored", arg, cur); }
+    inline void LogSetStored(float       arg, float       cur) const      { this->LogFormat(LOG_FMT_F, name, "SetStored", arg, cur); }
+    inline void LogSetStored(bool        arg, bool        cur) const      { this->LogSetStored(BoolToStr(arg), BoolToStr(cur)); }
+
+    // p = 'Pending' value, a = 'Active' value
+    inline void LogApplyPending(const char* p, const char* a) const       { this->LogFormat(LOG_FMT_S, name, "ApplyPending", p, a); }
+    inline void LogApplyPending(int         p, int         a) const       { this->LogFormat(LOG_FMT_D, name, "ApplyPending", p, a); }
+    inline void LogApplyPending(float       p, float       a) const       { this->LogFormat(LOG_FMT_F, name, "ApplyPending", p, a); }
+    inline void LogApplyPending(bool        p, bool        a) const       { this->LogApplyPending(BoolToStr(p), BoolToStr(a)); }
+
+    inline void LogResetPending(const char* p, const char* a) const       { this->LogFormat(LOG_FMT_S, name, "ResetPending", a, p); }
+    inline void LogResetPending(int         p, int         a) const       { this->LogFormat(LOG_FMT_D, name, "ResetPending", a, p); }
+    inline void LogResetPending(float       p, float       a) const       { this->LogFormat(LOG_FMT_F, name, "ResetPending", a, p); }
+    inline void LogResetPending(bool        p, bool        a) const       { this->LogResetPending(BoolToStr(p), BoolToStr(a)); }
 };
 
-template <typename E> class GVarEnum: public GVarPod<E>
+
+/// POD = Plain old data (C++ concept); _A = Has only 'Active' field
+template <typename T> class GVarPod_A: public GVarBase
 {
 public:
-    GVarEnum(const char* name, const char* conf, E active_val, E pending_val):
-        GVarPod<E>(name, conf, active_val, pending_val)
+    GVarPod_A(const char* name, const char* conf, T active_val):
+        GVarBase(name, conf), m_value_active(active_val)
     {}
 
-    const char*  GetActiveAsStr () const       { return EnumToStr(GVarPod<E>::m_value_active);  }
-    const char*  GetPendingAsStr() const       { return EnumToStr(GVarPod<E>::m_value_pending); }
-    void         ApplyPending();
-    void         ResetPending();
-    void         SetActive(E val);
-    void         SetPending(E val);
-};
+    virtual ~GVarPod_A() {}
 
-// TODO: Make separate _A (active only) and _AP (active + pending) classes
-template <size_t L> class GVarStrBase: public GVarBase
-{
-public:
-    GVarStrBase(const char* name, const char* conf, const char* active_val, const char* pending_val):
-        GVarBase(name, conf), m_value_active(active_val), m_value_pending(pending_val)
-    {}
+    inline T GetActive() const
+    {
+        return m_value_active;
+    }
 
-    inline const char*     GetActive() const        { return m_value_active; }
-    inline bool            IsActiveEmpty() const    { return m_value_active.IsEmpty(); }
-    inline Str<L> &        GetPending()             { return m_value_pending; }
-    inline const char*     GetPendingCStr()         { return m_value_pending.ToCStr(); }
+    virtual T GetStored() const
+    {
+        return m_value_active;
+    }
 
-    void                   SetActive (const char* val);
-    void                   SetPending(const char* val);
-    void                   ApplyPending();
-    void                   ResetPending();
+    virtual void SetActive(T val)
+    {
+        if (val != m_value_active)
+        {
+            GVarBase::LogSetActive(val, m_value_active);
+            m_value_active = val;
+        }
+    }
 
 protected:
-    Str<L>         m_value_active;
-    Str<L>         m_value_pending;
+    T m_value_active;
 };
 
-/// _AP = Active+Pending: 'Active' value is taken as 'Stored'
-template <size_t L> class GVarStr_AP: public GVarStrBase<L>
+
+/// POD = Plain old data (C++ concept); _AP = Has 'Active' and 'Pending' fields
+template <typename T> class GVarPod_AP: public GVarPod_A<T>
+{
+public:
+    GVarPod_AP(const char* name, const char* conf, T active_val, T pending_val):
+        GVarPod_A<T>(name, conf, active_val), m_value_pending(pending_val)
+    {}
+
+    virtual ~GVarPod_AP() {}
+
+    inline T GetPending() const
+    {
+        return m_value_pending;
+    }
+
+    void SetPending(T val)
+    {
+        if (val != m_value_pending)
+        {
+            GVarBase::LogSetPending(val, m_value_pending);
+            m_value_pending = val;
+        }
+    }
+
+    virtual void SetActive(T val) override
+    {
+        if ((val != GVarPod_A<T>::m_value_active) || (val != m_value_pending))
+        {
+            GVarBase::LogSetActive(val, GVarPod_A<T>::m_value_active);
+            GVarPod_A<T>::m_value_active = val;
+            m_value_pending = val;
+        }
+    }
+
+    void ApplyPending()
+    {
+        if (GVarPod_A<T>::m_value_active != m_value_pending)
+        {
+            GVarBase::LogApplyPending(m_value_pending, GVarPod_A<T>::m_value_active);
+            GVarPod_A<T>::m_value_active = m_value_pending;
+        }
+    }
+
+    void ResetPending()
+    {
+        if (GVarPod_A<T>::m_value_active != m_value_pending)
+        {
+            GVarBase::LogResetPending(m_value_pending, GVarPod_A<T>::m_value_active);
+            m_value_pending = GVarPod_A<T>::m_value_active;
+        }
+    }
+
+protected:
+    T m_value_pending;
+};
+
+
+/// POD = Plain old data (C++ concept); _APS = Has 'Active, Pending, Stored' fields
+template <typename T> class GVarPod_APS: public GVarPod_AP<T>
+{
+public:
+    GVarPod_APS(const char* name, const char* conf, T active_val, T pending_val, T stored_val):
+        GVarPod_AP<T>(name, conf, active_val, pending_val), m_value_stored(stored_val)
+    {}
+
+    virtual ~GVarPod_APS() {}
+
+    virtual T GetStored() const override
+    {
+        return m_value_stored;
+    }
+
+    void SetStored(T val)
+    {
+        if (val != m_value_stored)
+        {
+            GVarBase::LogSetStored(val, m_value_stored);
+            m_value_stored = val;
+        }
+    }
+
+protected:
+    T m_value_stored;
+};
+
+
+/// _A = Has only 'Active' field
+template <typename E> class GVarEnum_A: public GVarBase
+{
+public:
+    GVarEnum_A(const char* name, const char* conf, E active_val):
+        GVarBase(name, conf),  m_value_active(active_val)
+    {}
+
+    virtual ~GVarEnum_A() {};
+
+    inline E GetActive() const
+    {
+        return m_value_active;
+    }
+
+    virtual void SetActive(E val)
+    {
+        if (val != m_value_active)
+        {
+            GVarBase::LogSetActive(EnumToStr(val), EnumToStr(m_value_active)); // Conversion needed
+            m_value_active = val;
+        }
+    }
+
+protected:
+    E m_value_active;
+};
+
+
+/// _AP = Has 'Active' and 'Pending' fields
+template <typename E> class GVarEnum_AP: public GVarEnum_A<E>
+{
+public:
+    GVarEnum_AP(const char* name, const char* conf, E active_val, E pending_val):
+        GVarEnum_A<E>(name, conf, active_val), m_value_pending(pending_val)
+    {}
+
+    virtual ~GVarEnum_AP() {}
+
+    inline E GetPending()
+    {
+        return m_value_pending;
+    }
+
+    void SetPending(E val)
+    {
+        if (val != m_value_pending)
+        {
+            GVarBase::LogSetPending(EnumToStr(val), EnumToStr(m_value_pending));
+            m_value_pending = val;
+        }
+    }
+
+    virtual void SetActive(E val) override
+    {
+        if ((val != GVarEnum_A<E>::m_value_active) || (val != m_value_pending))
+        {
+            GVarBase::LogSetPending(EnumToStr(val), EnumToStr(GVarEnum_A<E>::m_value_active));
+            GVarEnum_A<E>::m_value_active = val;
+            m_value_pending = val;
+        }
+    }
+
+    void ApplyPending()
+    {
+        if (GVarEnum_A<E>::m_value_active != m_value_pending)
+        {
+            GVarBase::LogApplyPending(EnumToStr(m_value_pending), EnumToStr(GVarEnum_A<E>::m_value_active));
+            GVarEnum_A<E>::m_value_active = m_value_pending;
+        }
+    }
+
+    void ResetPending()
+    {
+        if (GVarEnum_A<E>::m_value_active != m_value_pending)
+        {
+            GVarBase::LogResetPending(EnumToStr(m_value_pending), EnumToStr(GVarEnum_A<E>::m_value_active));
+            m_value_pending = GVarEnum_A<E>::m_value_active;
+        }
+    }
+
+protected:
+    E m_value_pending;
+};
+
+
+/// _APS = Has 'Active, Pending, Stored' fields
+template <typename E> class GVarEnum_APS: public GVarEnum_AP<E>
+{
+public:
+    GVarEnum_APS(const char* name, const char* conf, E active_val, E pending_val, E stored_val):
+        GVarEnum_AP<E>(name, conf, active_val, pending_val), m_value_stored(stored_val)
+    {}
+
+    virtual ~GVarEnum_APS() {}
+
+    void SetStored(E val)
+    {
+        if (val != m_value_stored)
+        {
+            GVarBase::LogSetStored(EnumToStr(val), EnumToStr(m_value_stored));
+            m_value_stored = val;
+        }
+    }
+
+protected:
+    E m_value_stored;
+};
+
+
+template <size_t L> class GVarStr_A: public GVarBase
+{
+public:
+    GVarStr_A(const char* name, const char* conf, const char* active_val):
+        GVarBase(name, conf), m_value_active(active_val)
+    {}
+
+    virtual ~GVarStr_A() {}
+
+    inline const char* GetActive() const
+    {
+        return m_value_active;
+    }
+
+    virtual const char* GetStored() const
+    {
+        return m_value_active;
+    }
+
+    virtual void SetActive(const char* val)
+    {
+        if (val != m_value_active)
+        {
+            GVarBase::LogSetActive(val, m_value_active);
+            m_value_active = val;
+        }
+    }
+
+    inline bool IsActiveEmpty() const
+    {
+        return m_value_active.IsEmpty();
+    }
+
+protected:
+    Str<L> m_value_active;
+};
+
+
+/// _AP = Has 'Active' and 'Pending' fields
+template <size_t L> class GVarStr_AP: public GVarStr_A<L>
 {
 public:
     GVarStr_AP(const char* name, const char* conf, const char* active_val, const char* pending_val):
-        GVarStrBase<L>(name, conf, active_val, pending_val)
+        GVarStr_A<L>(name, conf, active_val), m_value_pending(pending_val)
     {}
 
-    inline const char* GetStored() const            { return GVarStrBase<L>::m_value_active; }
-    // !not defined:   SetStored()
-};
+    virtual ~GVarStr_AP() {}
 
-/// _APS = Active+Pending+Stored: Has separate 'Stored' value
-template <size_t L> class GVarStr_APS: public GVarStrBase<L>
-{
-public:
-    GVarStr_APS(const char* name, const char* conf, const char* active_val, const char* pending_val):
-        GVarStrBase<L>(name, conf, active_val, pending_val)
-    {}
+    inline const char* GetPending() const
+    {
+        return m_value_pending;
+    }
 
-    inline const char* GetStored() const            { return m_value_stored; }
-    void               SetStored(const char* val);
+    inline bool IsPendingEmpty() const
+    {
+        return m_value_pending.IsEmpty();
+    }
+
+    void SetPending(const char* val)
+    {
+        if (val != m_value_pending)
+        {
+            GVarBase::LogSetPending(val, m_value_pending);
+            m_value_pending = val;
+        }
+    }
+
+    virtual void SetActive(const char* val) override
+    {
+        if ((val != GVarStr_A<L>::m_value_active) || (val != m_value_pending))
+        {
+            GVarBase::LogSetActive(val, GVarStr_A<L>::m_value_active);
+            GVarStr_A<L>::m_value_active = val;
+            m_value_pending = val;
+        }
+    }
+
+    void ApplyPending()
+    {
+        if (GVarStr_A<L>::m_value_active != m_value_pending)
+        {
+            GVarBase::LogApplyPending(m_value_pending, GVarStr_A<L>::m_value_active);
+            GVarStr_A<L>::m_value_active.Assign(m_value_pending);
+        }
+    }
+
+    void ResetPending()
+    {
+        if (GVarStr_A<L>::m_value_active != m_value_pending)
+        {
+            GVarBase::LogResetPending(m_value_pending, GVarStr_A<L>::m_value_active);
+            m_value_pending.Assign(GVarStr_A<L>::m_value_active);
+        }
+    }
 
 protected:
-    Str<L>         m_value_stored;
+    Str<L> m_value_pending;
 };
+
+
+/// _APS = Has 'Active, Pending, Stored' fields
+template <size_t L> class GVarStr_APS: public GVarStr_AP<L>
+{
+public:
+    GVarStr_APS(const char* name, const char* conf, const char* active_val, const char* pending_val, const char* stored_val):
+        GVarStr_AP<L>(name, conf, active_val, pending_val), m_value_stored(stored_val)
+    {}
+
+    virtual ~GVarStr_APS() {}
+
+    virtual const char* GetStored() const override
+    {
+        return m_value_stored;
+    }
+
+    void SetStored(const char* val)
+    {
+        if (val != m_value_stored)
+        {
+            GVarBase::LogSetStored(val, m_value_stored);
+            m_value_stored = val;
+        }
+    }
+
+protected:
+    Str<L> m_value_stored;
+};
+
 
 namespace App {
 
 
 // App
-extern GVarEnum<AppState>      app_state;
-extern GVarStr_AP<100>         app_language;
-extern GVarStr_AP<50>          app_locale;
-extern GVarPod<bool>           app_multithread;
+extern GVarEnum_AP<AppState>   app_state;
+extern GVarStr_A<100>          app_language;
+extern GVarStr_A<50>           app_locale;
+extern GVarPod_A<bool>         app_multithread;
 extern GVarStr_AP<50>          app_screenshot_format;
 
 // Simulation
-extern GVarEnum<SimState>      sim_state;
+extern GVarEnum_AP<SimState>   sim_state;
 extern GVarStr_AP<200>         sim_terrain_name;
-extern GVarPod<bool>           sim_replay_enabled;
-extern GVarPod<int>            sim_replay_length;
-extern GVarPod<int>            sim_replay_stepping;
-extern GVarPod<bool>           sim_position_storage;
-extern GVarEnum<SimGearboxMode>sim_gearbox_mode;
+extern GVarPod_A<bool>         sim_replay_enabled;
+extern GVarPod_A<int>          sim_replay_length;
+extern GVarPod_A<int>          sim_replay_stepping;
+extern GVarPod_A<bool>             sim_position_storage;
+extern GVarEnum_AP<SimGearboxMode> sim_gearbox_mode;
 
 // Multiplayer
-extern GVarEnum<MpState>       mp_state;
+extern GVarEnum_AP<MpState>    mp_state;
+extern GVarPod_A<bool>         mp_join_on_startup;
 extern GVarStr_AP<200>         mp_server_host;
-extern GVarPod<int>            mp_server_port;
-extern GVarStr_AP<100>         mp_server_password;
+extern GVarPod_A<int>          mp_server_port;
+extern GVarStr_A<100>          mp_server_password;
 extern GVarStr_AP<100>         mp_player_name;
 extern GVarStr_AP<250>         mp_player_token_hash;
 extern GVarStr_AP<400>         mp_portal_url;
 
 // Diagnostic
-extern GVarPod<bool>           diag_trace_globals;
-extern GVarPod<bool>           diag_rig_log_node_import;
-extern GVarPod<bool>           diag_rig_log_node_stats;
-extern GVarPod<bool>           diag_rig_log_messages;
-extern GVarPod<bool>           diag_collisions;
-extern GVarPod<bool>           diag_truck_mass;
-extern GVarPod<bool>           diag_envmap;
-extern GVarPod<bool>           diag_videocameras;
+extern GVarPod_A<bool>         diag_trace_globals;
+extern GVarPod_A<bool>         diag_rig_log_node_import;
+extern GVarPod_A<bool>         diag_rig_log_node_stats;
+extern GVarPod_A<bool>         diag_rig_log_messages;
+extern GVarPod_A<bool>         diag_collisions;
+extern GVarPod_A<bool>         diag_truck_mass;
+extern GVarPod_A<bool>         diag_envmap;
+extern GVarPod_A<bool>         diag_videocameras;
 extern GVarStr_APS<100>        diag_preset_terrain;
-extern GVarStr_AP<100>         diag_preset_vehicle;
-extern GVarStr_AP<100>         diag_preset_veh_config;
-extern GVarPod<bool>           diag_preset_veh_enter;
-extern GVarPod<bool>           diag_log_console_echo;
-extern GVarPod<bool>           diag_log_beam_break;
-extern GVarPod<bool>           diag_log_beam_deform;
-extern GVarPod<bool>           diag_log_beam_trigger;
-extern GVarPod<bool>           diag_dof_effect;
+extern GVarStr_A<100>          diag_preset_vehicle;
+extern GVarStr_A<100>          diag_preset_veh_config;
+extern GVarPod_A<bool>         diag_preset_veh_enter;
+extern GVarPod_A<bool>         diag_log_console_echo;
+extern GVarPod_A<bool>         diag_log_beam_break;
+extern GVarPod_A<bool>         diag_log_beam_deform;
+extern GVarPod_A<bool>         diag_log_beam_trigger;
+extern GVarPod_A<bool>         diag_dof_effect;
 extern GVarStr_AP<300>         diag_extra_resource_dir;
 
 // System
-extern GVarStr_AP<300>         sys_process_dir;
-extern GVarStr_AP<300>         sys_user_dir;
-extern GVarStr_AP<300>         sys_config_dir;
-extern GVarStr_AP<300>         sys_cache_dir;
-extern GVarStr_AP<300>         sys_logs_dir;
-extern GVarStr_AP<300>         sys_resources_dir;
-extern GVarStr_AP<300>         sys_profiler_dir;
-extern GVarStr_AP<300>         sys_screenshot_dir;
+extern GVarStr_A<300>          sys_process_dir;
+extern GVarStr_A<300>          sys_user_dir;
+extern GVarStr_A<300>          sys_config_dir;
+extern GVarStr_A<300>          sys_cache_dir;
+extern GVarStr_A<300>          sys_logs_dir;
+extern GVarStr_A<300>          sys_resources_dir;
+extern GVarStr_A<300>          sys_profiler_dir;
+extern GVarStr_A<300>          sys_screenshot_dir;
 
 // Input - Output
-extern GVarPod<bool>           io_ffb_enabled;
-extern GVarPod<float>          io_ffb_camera_gain;
-extern GVarPod<float>          io_ffb_center_gain;
-extern GVarPod<float>          io_ffb_master_gain;
-extern GVarPod<float>          io_ffb_stress_gain;
-extern GVarEnum<IoInputGrabMode>io_input_grab_mode;
-extern GVarPod<bool>           io_arcade_controls;
-extern GVarPod<int>            io_outgauge_mode;
-extern GVarStr_AP<50>          io_outgauge_ip;
-extern GVarPod<int>            io_outgauge_port;
-extern GVarPod<float>          io_outgauge_delay;
-extern GVarPod<int>            io_outgauge_id;
+extern GVarPod_A<bool>         io_ffb_enabled;
+extern GVarPod_A<float>        io_ffb_camera_gain;
+extern GVarPod_A<float>        io_ffb_center_gain;
+extern GVarPod_A<float>        io_ffb_master_gain;
+extern GVarPod_A<float>             io_ffb_stress_gain;
+extern GVarEnum_AP<IoInputGrabMode> io_input_grab_mode;
+extern GVarPod_A<bool>              io_arcade_controls;
+extern GVarPod_A<int>          io_outgauge_mode;
+extern GVarStr_A<50>           io_outgauge_ip;
+extern GVarPod_A<int>          io_outgauge_port;
+extern GVarPod_A<float>        io_outgauge_delay;
+extern GVarPod_A<int>          io_outgauge_id;
 
 // Audio
-extern GVarPod<float>          audio_master_volume;
-extern GVarPod<bool>           audio_enable_creak;
+extern GVarPod_A<float>        audio_master_volume;
+extern GVarPod_A<bool>         audio_enable_creak;
 extern GVarStr_AP<100>         audio_device_name;
-extern GVarPod<bool>           audio_menu_music;
+extern GVarPod_A<bool>         audio_menu_music;
 
 // Graphics
-extern GVarEnum<GfxFlaresMode> gfx_flares_mode;
-extern GVarEnum<GfxShadowType> gfx_shadow_type;
-extern GVarEnum<GfxExtCamMode> gfx_extcam_mode;
-extern GVarEnum<GfxSkyMode>    gfx_sky_mode;
-extern GVarEnum<GfxTexFilter>  gfx_texture_filter;
-extern GVarEnum<GfxVegetation> gfx_vegetation_mode;
-extern GVarEnum<GfxWaterMode>  gfx_water_mode;
-extern GVarPod<bool>           gfx_enable_sunburn;
-extern GVarPod<bool>           gfx_water_waves;
-extern GVarPod<bool>           gfx_minimap_disabled;
-extern GVarPod<int>            gfx_particles_mode;
-extern GVarPod<bool>           gfx_enable_glow;
-extern GVarPod<bool>           gfx_enable_hdr;
-extern GVarPod<bool>           gfx_enable_heathaze;
-extern GVarPod<bool>           gfx_enable_videocams;
-extern GVarPod<bool>           gfx_envmap_enabled;
-extern GVarPod<int>            gfx_envmap_rate;
-extern GVarPod<int>            gfx_skidmarks_mode;
-extern GVarPod<float>          gfx_sight_range;
-extern GVarPod<float>          gfx_fov_external;
-extern GVarPod<float>          gfx_fov_internal;
-extern GVarPod<int>            gfx_fps_limit;
-extern GVarPod<bool>           gfx_speedo_digital;
-extern GVarPod<bool>           gfx_speedo_imperial;
-extern GVarPod<bool>           gfx_motion_blur;
+extern GVarEnum_AP<GfxFlaresMode> gfx_flares_mode;
+extern GVarEnum_AP<GfxShadowType> gfx_shadow_type;
+extern GVarEnum_AP<GfxExtCamMode> gfx_extcam_mode;
+extern GVarEnum_AP<GfxSkyMode>    gfx_sky_mode;
+extern GVarEnum_AP<GfxTexFilter>  gfx_texture_filter;
+extern GVarEnum_AP<GfxVegetation> gfx_vegetation_mode;
+extern GVarEnum_AP<GfxWaterMode>  gfx_water_mode;
+extern GVarPod_A<bool>            gfx_enable_sunburn;
+extern GVarPod_A<bool>         gfx_water_waves;
+extern GVarPod_A<bool>         gfx_minimap_disabled;
+extern GVarPod_A<int>          gfx_particles_mode;
+extern GVarPod_A<bool>         gfx_enable_glow;
+extern GVarPod_A<bool>         gfx_enable_hdr;
+extern GVarPod_A<bool>         gfx_enable_heathaze;
+extern GVarPod_A<bool>         gfx_enable_videocams;
+extern GVarPod_A<bool>         gfx_envmap_enabled;
+extern GVarPod_A<int>          gfx_envmap_rate;
+extern GVarPod_A<int>          gfx_skidmarks_mode;
+extern GVarPod_A<float>        gfx_sight_range;
+extern GVarPod_APS<float>      gfx_fov_external;
+extern GVarPod_APS<float>      gfx_fov_internal;
+extern GVarPod_A<int>          gfx_fps_limit;
+extern GVarPod_A<bool>         gfx_speedo_digital;
+extern GVarPod_A<bool>         gfx_speedo_imperial;
+extern GVarPod_A<bool>         gfx_motion_blur;
 
 // Getters
 OgreSubsystem*       GetOgreSubsystem();
@@ -501,161 +785,6 @@ void SetSimController        (RoRFrameListener*  obj);
 
 
 } // namespace App
-
-
-// ------------------------------------------------------------------------------------------------
-// Implemetations
-// ------------------------------------------------------------------------------------------------
-
-
-template <typename T> void GVarPod<T>::SetPending(T val)
-{
-    if (val != m_value_pending)
-    {
-        if (App::diag_trace_globals.GetActive())
-            this->LogSetPending(val);
-
-        m_value_pending = val;
-    }
-}
-
-template <typename T> void GVarPod<T>::ApplyPending()
-{
-    if (m_value_active != m_value_pending)
-    {
-        if (App::diag_trace_globals.GetActive())
-            this->LogApplyPending();
-
-        m_value_active = m_value_pending;
-    }
-}
-
-template <typename T> void GVarPod<T>::ResetPending()
-{
-    if (m_value_active != m_value_pending)
-    {
-        if (App::diag_trace_globals.GetActive())
-            this->LogResetPending();
-
-        m_value_pending = m_value_active;
-    }
-}
-
-template <typename T> void GVarPod<T>::SetActive(T val)
-{
-    if ((val != m_value_active) || (val != m_value_pending))
-    {
-        if (App::diag_trace_globals.GetActive())
-            this->LogSetActive(val);
-
-        m_value_active = val;
-        m_value_pending = val;
-    }
-}
-
-template <typename T> void GVarEnum<T>::SetPending(T val)
-{
-    if (val != GVarPod<T>::m_value_pending)
-    {
-        if (App::diag_trace_globals.GetActive())
-            GVarBase::LogSetPending(EnumToStr(val), EnumToStr(GVarPod<T>::m_value_pending), EnumToStr(GVarPod<T>::m_value_active));
-
-        GVarPod<T>::m_value_pending = val;
-    }
-}
-
-template <typename T> void GVarEnum<T>::ApplyPending()
-{
-    if (GVarPod<T>::m_value_active != GVarPod<T>::m_value_pending)
-    {
-        if (App::diag_trace_globals.GetActive())
-            GVarBase::LogApplyPending(EnumToStr(GVarPod<T>::m_value_pending), EnumToStr(GVarPod<T>::m_value_active));
-
-        GVarPod<T>::m_value_active = GVarPod<T>::m_value_pending;
-    }
-}
-
-template <typename T> void GVarEnum<T>::ResetPending()
-{
-    if (GVarPod<T>::m_value_active != GVarPod<T>::m_value_pending)
-    {
-        if (App::diag_trace_globals.GetActive())
-            GVarBase::LogResetPending(EnumToStr(GVarPod<T>::m_value_pending), EnumToStr(GVarPod<T>::m_value_active));
-
-        GVarPod<T>::m_value_pending = GVarPod<T>::m_value_active;
-    }
-}
-
-template <typename T> void GVarEnum<T>::SetActive(T val)
-{
-    if ((val != GVarPod<T>::m_value_active) || (val != GVarPod<T>::m_value_pending))
-    {
-        if (App::diag_trace_globals.GetActive())
-            GVarBase::LogSetActive(EnumToStr(val), EnumToStr(GVarPod<T>::m_value_active));
-
-        GVarPod<T>::m_value_active = val;
-        GVarPod<T>::m_value_pending = val;
-    }
-}
-
-template <size_t L> void GVarStrBase<L>::SetActive(const char* val)
-{
-    if ((val != m_value_active) || (val != m_value_pending))
-    {
-        if (App::diag_trace_globals.GetActive())
-            GVarBase::LogSetActive(val, m_value_active);
-
-        m_value_active = val;
-        m_value_pending = val;
-    }
-}
-
-template <size_t L> void GVarStrBase<L>::SetPending(const char* val)
-{
-    if (val != m_value_pending)
-    {
-        if (App::diag_trace_globals.GetActive())
-            GVarBase::LogSetPending(val, m_value_pending, m_value_active);
-
-        m_value_pending = val;
-    }
-}
-
-template <size_t L> void GVarStrBase<L>::ApplyPending()
-{
-    if (m_value_active != m_value_pending)
-    {
-        if (App::diag_trace_globals.GetActive())
-            GVarBase::LogApplyPending(m_value_pending, m_value_active);
-
-        m_value_active.Assign(m_value_pending.ToCStr());
-    }
-}
-
-template <size_t L> void GVarStrBase<L>::ResetPending()
-{
-    if (m_value_active != m_value_pending)
-    {
-        if (App::diag_trace_globals.GetActive())
-            GVarBase::LogResetPending(m_value_pending, m_value_active);
-
-        m_value_pending.Assign(m_value_active.ToCStr());
-    }
-}
-
-template <size_t L> void GVarStr_APS<L>::SetStored(const char* val)
-{
-    if (m_value_stored != val)
-    {
-        if (App::diag_trace_globals.GetActive())
-        {
-            RoR::LogFormat("[RoR|GVars] %20s: SetStored(), new value: '%s', old value: '%s'",
-                GVarBase::name, m_value_stored.ToCStr(), val);
-        }
-        m_value_stored.Assign(val);
-    }
-}
-
 } // namespace RoR
 
 inline void          LOG(const char* msg)           { RoR::Log(msg); }         ///< Legacy alias - formerly a macro

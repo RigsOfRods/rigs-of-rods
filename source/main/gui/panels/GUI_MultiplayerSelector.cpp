@@ -24,6 +24,7 @@
 
 #include "Application.h"
 #include "GUIManager.h"
+#include "GUIUtils.h"
 #include "MainMenu.h"
 #include "RoRnet.h"
 #include "RoRVersion.h"
@@ -204,21 +205,6 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
     ImGui::Separator();
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + CONTENT_TOP_PADDING);
 
-    if (next_mode != m_mode) // Handle switching window modes
-    {
-        if (m_mode == Mode::SETUP) // If leaving SETUP mode, reset 'pending' values of GVars
-        {
-            App::mp_player_name.ResetPending();
-            App::mp_server_password.ResetPending();
-            m_user_token_buf.Clear();
-        }
-        if (m_mode == Mode::DIRECT) // If leaving DIRECT mode, reset 'pending' values of GVars
-        {
-            App::mp_server_password.ResetPending();
-            App::mp_server_host    .ResetPending();
-            App::mp_server_port    .ResetPending();
-        }
-    }
     m_mode = next_mode;
 
     if (m_mode == Mode::SETUP)
@@ -226,16 +212,11 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
         ImGui::PushID("setup");
 
         ImGui::PushItemWidth(250.f);
-        ImGui::InputText("Player nickname",         App::mp_player_name.GetPending().GetBuffer(),        App::mp_player_name.GetPending().GetCapacity());
-        ImGui::InputText("Default server password", App::mp_server_password.GetPending().GetBuffer(),    App::mp_server_password.GetPending().GetCapacity());
+        DrawGTextEdit(App::mp_player_name, "Player nickname", m_player_name_buf);
+        DrawGTextEdit(App::mp_server_password, "Default server password", m_password_buf);
         ImGui::PopItemWidth();
 
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
-        if (ImGui::Button("Save"))
-        {
-            App::mp_player_name.ApplyPending();
-            App::mp_server_password.ApplyPending();
-        }
         ImGui::Separator();
 
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + CONTENT_TOP_PADDING);
@@ -251,10 +232,9 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
             uint32_t input_size = (uint32_t)m_user_token_buf.GetLength();
             sha1.UpdateHash(input_text, input_size);
             sha1.Final();
-            App::mp_player_token_hash.GetPending().Clear(); // The CSHA1::ReportHash() appends rather than overwrites
-            sha1.ReportHash(App::mp_player_token_hash.GetPending().GetBuffer(), RoR::CSHA1::REPORT_HEX_SHORT);
-
-            App::mp_player_token_hash.ApplyPending();
+            Str<250> hash;
+            sha1.ReportHash(hash.GetBuffer(), RoR::CSHA1::REPORT_HEX_SHORT);
+            App::mp_player_token_hash.SetActive(hash.ToCStr());
             m_user_token_buf.Clear();
         }
         ImGui::SameLine();
@@ -267,30 +247,15 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
         ImGui::PushID("direct");
 
         ImGui::PushItemWidth(250.f);
-        ImGui::InputText("Server host", App::mp_server_host.GetPending().GetBuffer(), App::mp_server_host.GetPending().GetCapacity());
-        int port = App::mp_server_port.GetPending();
-        if (ImGui::InputInt("Server port", &port))
-        {
-            App::mp_server_port.SetPending(port);
-        }
-        ImGui::InputText("Server password (default)", App::mp_server_password.GetPending().GetBuffer(), App::mp_server_password.GetPending().GetCapacity());
+        DrawGTextEdit(App::mp_server_host, "Server host", m_server_host_buf);
+        DrawGIntBox(App::mp_server_port, "Server port");
+        DrawGTextEdit(App::mp_server_password, "Server password (default)", m_password_buf);
         ImGui::PopItemWidth();
 
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
-        if (ImGui::Button("Save & join"))
+        if (ImGui::Button("Join (dummy)"))
         {
-            App::mp_server_host.ApplyPending();
-            App::mp_server_port.ApplyPending();
-            App::mp_server_password.ApplyPending();
-
             // TODO: perform the join.
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Save only"))
-        {
-            App::mp_server_host.ApplyPending();
-            App::mp_server_port.ApplyPending();
-            App::mp_server_password.ApplyPending();
         }
 
         ImGui::PopID();

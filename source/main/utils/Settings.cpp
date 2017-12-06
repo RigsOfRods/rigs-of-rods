@@ -19,11 +19,10 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
-    @file
-    @date   4th of January 2009
-    @author Thomas Fischer
-*/
+
+/// @file
+/// @date   4th of January 2009
+/// @author Thomas Fischer
 
 #include "Settings.h"
 #include "Utils.h"
@@ -52,8 +51,6 @@
 #    undef _UNICODE // We want narrow-string args.
 #endif
 #include "SimpleOpt.h"
-
-static const char* CONF_MP_NET_ENABLE   = "Network enable";
 
 // option identifiers
 enum {
@@ -601,38 +598,6 @@ inline bool CheckEnvmapRate(std::string const & key, std::string const & s)
     return true;
 }
 
-inline bool Settings::CheckMpEnable(std::string const & k, std::string const & v)
-{
-    if (k != CONF_MP_NET_ENABLE)
-        return false;
-
-    m_network_enable = Ogre::StringConverter::parseBool(v);
-    if (m_network_enable)
-    {
-        App::mp_state.SetPending(RoR::MpState::CONNECTED);
-    }
-    return true;
-}
-
-inline bool Settings::CheckFov(std::string const & k, std::string const & v)
-{
-    if (k == App::gfx_fov_external.conf_name)
-    {
-        m_fov_external = Ogre::StringConverter::parseReal(v);
-        App::gfx_fov_external.SetActive(m_fov_external);
-        return true;
-    }
-
-    if (k == App::gfx_fov_internal.conf_name)
-    {
-        m_fov_internal = Ogre::StringConverter::parseReal(v);
-        App::gfx_fov_internal.SetActive(m_fov_internal);
-        return true;
-    }
-
-    return false;
-}
-
 template <typename GVarStr_T>
 inline bool CheckStr(GVarStr_T& gvar, std::string const & key, std::string const & value)
 {
@@ -656,7 +621,7 @@ inline bool CheckStrAS(GVarStr_T& gvar, std::string const & key, std::string con
     return false;
 }
 
-inline bool CheckInt(GVarPod<int>& gvar, std::string const & key, std::string const & value)
+inline bool CheckInt(GVarPod_A<int>& gvar, std::string const & key, std::string const & value)
 {
     if (key == gvar.conf_name)
     {
@@ -666,7 +631,19 @@ inline bool CheckInt(GVarPod<int>& gvar, std::string const & key, std::string co
     return false;
 }
 
-inline bool CheckBool(GVarPod<bool>& gvar, std::string const & key, std::string const & value)
+inline bool CheckInt(GVarPod_APS<int>& gvar, std::string const & key, std::string const & value)
+{
+    if (key == gvar.conf_name)
+    {
+        int val = Ogre::StringConverter::parseInt(value);
+        gvar.SetActive(val);
+        gvar.SetStored(val);
+        return true;
+    }
+    return false;
+}
+
+inline bool CheckBool(GVarPod_A<bool>& gvar, std::string const & key, std::string const & value)
 {
     if (key == gvar.conf_name)
     {
@@ -676,7 +653,19 @@ inline bool CheckBool(GVarPod<bool>& gvar, std::string const & key, std::string 
     return false;
 }
 
-inline bool CheckB2I(GVarPod<int>& gvar, std::string const & key, std::string const & value) // bool to int
+inline bool CheckBool(GVarPod_APS<bool>& gvar, std::string const & key, std::string const & value)
+{
+    if (key == gvar.conf_name)
+    {
+        bool val = Ogre::StringConverter::parseBool(value);
+        gvar.SetActive(val);
+        gvar.SetStored(val);
+        return true;
+    }
+    return false;
+}
+
+inline bool CheckB2I(GVarPod_A<int>& gvar, std::string const & key, std::string const & value) // bool to int
 {
     if (key == gvar.conf_name)
     {
@@ -686,11 +675,23 @@ inline bool CheckB2I(GVarPod<int>& gvar, std::string const & key, std::string co
     return false;
 }
 
-inline bool CheckFloat(GVarPod<float>& gvar, std::string const & key, std::string const & value)
+inline bool CheckFloat(GVarPod_A<float>& gvar, std::string const & key, std::string const & value)
 {
     if (key == gvar.conf_name)
     {
         gvar.SetActive(static_cast<float>(Ogre::StringConverter::parseReal(value)));
+        return true;
+    }
+    return false;
+}
+
+inline bool CheckFloat(GVarPod_APS<float>& gvar, std::string const & key, std::string const & value)
+{
+    if (key == gvar.conf_name)
+    {
+        float val = static_cast<float>(Ogre::StringConverter::parseReal(value));
+        gvar.SetActive(val);
+        gvar.SetStored(val);
         return true;
     }
     return false;
@@ -711,7 +712,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     // Process and erase settings which propagate to global vars.
 
     // Multiplayer
-    if (this->CheckMpEnable                       (k, v)) { return true; }
+    if (CheckBool (App::mp_join_on_startup,        k, v)) { return true; }
     if (CheckStr  (App::mp_player_name,            k, v)) { return true; }
     if (CheckStr  (App::mp_server_host,            k, v)) { return true; }
     if (CheckInt  (App::mp_server_port,            k, v)) { return true; }
@@ -744,7 +745,6 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckGfxWaterMode                         (k, v)) { return true; }
     if (CheckGfxSkyMode                           (k, v)) { return true; }
     if (CheckSpeedoImperial                       (k, v)) { return true; }
-    if (CheckFov                                  (k, v)) { return true; }
     if (CheckBool (App::gfx_enable_sunburn,        k, v)) { return true; }
     if (CheckBool (App::gfx_water_waves,           k, v)) { return true; }
     if (CheckBool (App::gfx_minimap_disabled,      k, v)) { return true; }
@@ -756,6 +756,8 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckB2I  (App::gfx_skidmarks_mode,        k, v)) { return true; }
     if (CheckBool (App::gfx_envmap_enabled,        k, v)) { return true; }
     if (CheckFloat(App::gfx_sight_range,           k, v)) { return true; }
+    if (CheckFloat(App::gfx_fov_external,          k, v)) { return true; }
+    if (CheckFloat(App::gfx_fov_internal,          k, v)) { return true; }
     if (CheckInt  (App::gfx_fps_limit,             k, v)) { return true; }
     if (CheckBool (App::gfx_minimap_disabled,      k, v)) { return true; }
     if (CheckBool (App::gfx_speedo_digital,        k, v)) { return true; }
@@ -973,7 +975,7 @@ void Settings::SaveSettings()
     f << "; -------------------------------" << std::endl;
 
     f << std::endl << "; Multiplayer" << std::endl;
-    WriteAny (f, CONF_MP_NET_ENABLE, (m_network_enable ? "Yes" : "No"));
+    WriteYN  (f, App::mp_join_on_startup);
     WriteStr (f, App::mp_player_name);
     WriteStr (f, App::mp_server_host);
     WritePod (f, App::mp_server_port);
@@ -1025,8 +1027,8 @@ void Settings::SaveSettings()
     WritePod (f, App::gfx_envmap_rate     );
     WritePod (f, App::gfx_sight_range     );
     WritePod (f, App::gfx_fps_limit       );
-    f << App::gfx_fov_external.conf_name << "=" << m_fov_external << std::endl;
-    f << App::gfx_fov_internal.conf_name << "=" << m_fov_internal << std::endl;
+    WritePod (f, App::gfx_fov_external    );
+    WritePod (f, App::gfx_fov_internal    );
 
     f << std::endl << "; Audio" << std::endl;
     WritePod (f, App::audio_master_volume);

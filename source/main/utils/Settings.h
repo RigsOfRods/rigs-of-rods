@@ -19,21 +19,18 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
-    @file
-    @date   4th of January 2009
-    @author Thomas Fischer
-    @description This is a global configuration hub.
-        Values from both config file and command line are propagated here
-            and accessed ad-hoc by macros like SSETTING(), BSETTING() etc...
-            See 'ProcessCommandLine()' for details.
-        NOTE: Since 09/2016, this class is being superceded by GlobalEnvironment.
-            See 'ParseGlobalVarSetting()' for details.
-*/
+
+/// @file
+/// @date   4th of January 2009
+/// @author Thomas Fischer
+/// @description This is a global configuration hub.
+///     Values from both config file and command line are propagated here
+///     and converted to GVars - see 'ParseGlobalVarSetting()' for details.
+///     Entries without corresponding GVar can be read
+///     by ad-hoc by macros like SSETTING(), BSETTING() etc...
+
 
 #pragma once
-#ifndef __Settings_H_
-#define __Settings_H_
 
 #include "RoRPrerequisites.h"
 
@@ -168,21 +165,10 @@ public:
 
 protected:
 
-    // Helpers
-    bool CheckMpEnable(std::string const & k, std::string const & v);
-    bool CheckFov(std::string const & k, std::string const & v);
-
     static Settings* myInstance;
 
     // members
     // TODO: use wide char / UTFString ...
     typedef std::map<Ogre::String, Ogre::String> settings_map_t;
     settings_map_t settings;
-
-    // Cached config values
-    bool m_network_enable;
-    float m_fov_internal;
-    float m_fov_external;
 };
-
-#endif // __Settings_H_

@@ -275,6 +275,11 @@ int main(int argc, char *argv[])
             App::app_state.SetPending(AppState::SIMULATION);
         }
 
+        if (App::mp_join_on_startup.GetActive() == true)
+        {
+            App::mp_state.SetPending(RoR::MpState::CONNECTED);
+        }
+
         while (App::app_state.GetPending() != AppState::SHUTDOWN)
         {
             if (App::app_state.GetPending() == AppState::MAIN_MENU)
