@@ -169,7 +169,4 @@ private:
     GuiTheme           m_theme;
 };
 
-/// Utility - draws animated loading spinner
-void DrawImGuiSpinner(float& counter, const ImVec2 size = ImVec2(16.f, 16.f), const float spacing = 2.f, const float step_sec = 0.15f);
-
 } // namespace RoR

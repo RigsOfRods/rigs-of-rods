@@ -59,6 +59,9 @@ private:
     char                           m_window_title[100];
     bool                           m_is_visible;
     Str<200>                       m_user_token_buf;
+    Str<100>                       m_player_name_buf;
+    Str<100>                       m_password_buf;
+    Str<200>                       m_server_host_buf;
 };
 
 } // namespace GUI
