@@ -1,5 +1,6 @@
 project(RoR_Main)
 
+set(TMP_FILE_DIR ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/tmp)
 
 ####################################################################################################
 #  SOURCE FILES
@@ -599,11 +600,11 @@ add_custom_command(
 )
 
 IF (UNIX)
-    configure_file(plugins.cfg.in ${CMAKE_FILES_DIRECTORY}/plugins.cfg)
+    configure_file(plugins.cfg.in ${TMP_FILE_DIR}/plugins.cfg)
     add_custom_command(
             TARGET ${BINNAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_FILES_DIRECTORY}/plugins.cfg $<TARGET_FILE_DIR:${BINNAME}>/
-            COMMAND ${CMAKE_COMMAND} -E copy_directory $<TARGET_FILE_DIR:${BINNAME}>/resources ${CMAKE_FILES_DIRECTORY}/resources
+            COMMAND ${CMAKE_COMMAND} -E copy ${TMP_FILE_DIR}/plugins.cfg $<TARGET_FILE_DIR:${BINNAME}>/
+            COMMAND ${CMAKE_COMMAND} -E copy_directory $<TARGET_FILE_DIR:${BINNAME}>/resources ${TMP_FILE_DIR}/resources
     )
 
     INSTALL(
@@ -613,12 +614,12 @@ IF (UNIX)
             ARCHIVE DESTINATION games/RoR
     )
     INSTALL(
-            DIRECTORY ${CMAKE_FILES_DIRECTORY}/resources
+            DIRECTORY ${TMP_FILE_DIR}/resources
             DESTINATION games/RoR
             FILES_MATCHING PATTERN "*"
     )
     INSTALL(
-            FILES ${CMAKE_FILES_DIRECTORY}/plugins.cfg
+            FILES ${TMP_FILE_DIR}/plugins.cfg
             DESTINATION games/RoR
     )
 ELSEIF (WIN32)
