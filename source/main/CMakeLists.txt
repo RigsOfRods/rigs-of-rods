@@ -589,10 +589,6 @@ if (WIN32)
     )
 endif ()
 
-if (UNIX)
-    configure_file(plugins.cfg.in $<TARGET_FILE_DIR:${BINNAME}>/plugins.cfg)
-endif ()
-
 # Copy resources needed for execution to the build directory
 add_custom_command(
         TARGET ${BINNAME} POST_BUILD
@@ -603,18 +599,26 @@ add_custom_command(
 )
 
 IF (UNIX)
-    INSTALL(TARGETS ${BINNAME}
+    configure_file(plugins.cfg.in ${CMAKE_FILES_DIRECTORY}/plugins.cfg)
+    add_custom_command(
+            TARGET ${BINNAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_FILES_DIRECTORY}/plugins.cfg $<TARGET_FILE_DIR:${BINNAME}>/
+            COMMAND ${CMAKE_COMMAND} -E copy_directory $<TARGET_FILE_DIR:${BINNAME}>/resources ${CMAKE_FILES_DIRECTORY}/resources
+    )
+
+    INSTALL(
+            TARGETS ${BINNAME}
             RUNTIME DESTINATION games/RoR
             LIBRARY DESTINATION games/RoR
             ARCHIVE DESTINATION games/RoR
     )
     INSTALL(
-            DIRECTORY $<TARGET_FILE_DIR:${BINNAME}>/resources
+            DIRECTORY ${CMAKE_FILES_DIRECTORY}/resources
             DESTINATION games/RoR
             FILES_MATCHING PATTERN "*"
     )
     INSTALL(
-            FILES $<TARGET_FILE_DIR:${BINNAME}>/plugins.cfg
+            FILES ${CMAKE_FILES_DIRECTORY}/plugins.cfg
             DESTINATION games/RoR
     )
 ELSEIF (WIN32)
