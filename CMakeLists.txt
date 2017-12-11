@@ -146,3 +146,6 @@ add_subdirectory(doc)
 # Include install script and CPack configuration
 ################################################################################
 include(Install)
+
+include(FeatureSummary)
+feature_summary(WHAT ALL)
