@@ -67,7 +67,7 @@ public:
         ~Profile() override {};
 
         bool               isVertexCompressionSupported () const { return false; }
-        void               setLightmapEnabled           (bool set) override {}
+        void               setLightmapEnabled           (bool set) /*override*/ {} // OGRE 1.8 doesn't have this method
         Ogre::MaterialPtr  generate                     (const Ogre::Terrain* terrain) override;
         Ogre::uint8        getMaxLayers                 (const Ogre::Terrain* terrain) const override { return 0; };
         void               updateParams                 (const Ogre::MaterialPtr& mat, const Ogre::Terrain* terrain) override {};
