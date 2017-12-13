@@ -116,8 +116,19 @@ public:
         bool       nx_is_hot:1;           //!< User-defined attr; emits vapour particles when in contact with water.
         bool       nx_under_water_prev:1; //!< State
         bool       nx_no_sparks:1;        //!< User-defined attr; 
-        
+
     }; // more to come... ~only_a_ptr, 04/2018
+
+    /// Visuals of softbody beam (`beam_t` struct)
+    struct Rod
+    {
+        // We don't keep pointer to the Ogre::Entity - we rely on the SceneNode keeping it attached all the time.
+        Ogre::SceneNode* rod_scenenode;
+        uint16_t         rod_beam_index;  //!< Index of the associated `beam_t` instance; assumes Actor has at most 65536 beams (RoR doesn't have a soft limit now, but until v0.4.8 it was 5000 beams).
+        uint16_t         rod_diameter_mm; //!< Diameter in millimeters
+        uint16_t         rod_node1;       //!< Node index - assumes the Actor has at most 65536 nodes (RoR doesn't have a soft limit now, but until v0.4.8 it was 1000 nodes).
+        uint16_t         rod_node2;       //!< Node index - assumes the Actor has at most 65536 nodes (RoR doesn't have a soft limit now, but until v0.4.8 it was 1000 nodes).
+    };
 
     GfxActor(Actor* actor, std::string ogre_resource_group, std::vector<NodeGfx>& gfx_nodes);
 
@@ -130,6 +141,10 @@ public:
     void                      SetVideoCamState   (VideoCamState state);
     void                      UpdateVideoCameras (float dt_sec);
     void                      UpdateParticles    (float dt_sec);
+    void                      AddRod             (int beam_index, int node1_index, int node2_index, const char* material_name, bool visible, float diameter_meters);
+    void                      UpdateRods         ();
+    void                      SetRodsVisible     (bool visible);
+    void                      ScaleActor         (float ratio);
     void                      UpdateDebugView    ();
     void                      CycleDebugViews    ();
     inline void               SetDebugView       (DebugViewType dv)       { m_debug_view = dv; }
@@ -139,7 +154,10 @@ public:
 
 private:
 
+    static Ogre::Quaternion SpecialGetRotationTo(const Ogre::Vector3& src, const Ogre::Vector3& dest);
+
     Actor*                      m_actor;
+
     std::string                 m_custom_resource_group; ///< Stores OGRE resources individual to this actor
     std::vector<FlareMaterial>  m_flare_materials;
     VideoCamState               m_vidcam_state;
@@ -152,6 +170,8 @@ private:
     DustPool*                   m_particles_ripple;
     DustPool*                   m_particles_sparks;
     DustPool*                   m_particles_clump;
+    std::vector<Rod>            m_rods;
+    Ogre::SceneNode*            m_rods_parent_scenenode;
 
     // Cab materials and their features
     Ogre::MaterialPtr           m_cab_mat_visual; ///< Updated in-place from templates

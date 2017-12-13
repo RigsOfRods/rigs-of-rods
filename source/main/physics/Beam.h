@@ -147,7 +147,6 @@ public:
     void              disconnectAutopilot();
     void              ScaleActor(float value);
     void              UpdateDebugOverlay();
-    Ogre::Quaternion  specialGetRotationTo(const Ogre::Vector3& src, const Ogre::Vector3& dest) const;
     Ogre::String      getAxleLockName();                   //!< get the name of the current differential model
     int               getAxleLockCount();
     Ogre::Vector3     getGForces();

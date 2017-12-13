@@ -96,7 +96,7 @@ void ActorSpawner::Setup(
     m_actor = rig;
     m_file = file;
     m_cache_entry_number = cache_entry_number;
-    m_parent_scene_node = parent;
+    m_particles_parent_scenenode = parent;
     m_spawn_position = spawn_position;
     m_current_keyword = RigDef::File::KEYWORD_INVALID;
     m_enable_background_loading = BSETTING("Background Loading", false);
@@ -369,8 +369,6 @@ void ActorSpawner::InitializeRig()
     m_actor->tc_timer = 0.f;
 
     m_actor->ar_dashboard = new DashBoardManager();
-
-    m_actor->m_beam_visuals_parent_scenenode = m_parent_scene_node;
 
     /* Collisions */
 
@@ -1386,7 +1384,7 @@ void ActorSpawner::ProcessExhaust(RigDef::Exhaust & def)
         return;
     }
     exhaust.smoker->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
-    exhaust.smokeNode = m_parent_scene_node->createChildSceneNode();
+    exhaust.smokeNode = m_particles_parent_scenenode->createChildSceneNode();
     exhaust.smokeNode->attachObject(exhaust.smoker);
     exhaust.smokeNode->setPosition(m_actor->ar_nodes[exhaust.emitterNode].AbsPosition);
 
@@ -2669,7 +2667,7 @@ void ActorSpawner::ProcessParticle(RigDef::Particle & def)
     /* Setup visuals */
     std::stringstream name;
     name << "cparticle-" << particle_index << "-" << m_actor->ar_design_name;
-    particle.snode = m_parent_scene_node->createChildSceneNode();
+    particle.snode = m_particles_parent_scenenode->createChildSceneNode();
     particle.psys = gEnv->sceneManager->createParticleSystem(name.str(), def.particle_system_name);
     if (particle.psys == nullptr)
     {
@@ -2714,12 +2712,16 @@ void ActorSpawner::ProcessTie(RigDef::Tie & def)
     SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
     beam.k = def.beam_defaults->GetScaledSpringiness();
     beam.d = def.beam_defaults->GetScaledDamping();
-    beam.bm_type = (def.is_invisible) ? BEAM_INVISIBLE_HYDRO : BEAM_HYDRO;
+    beam.bm_type = BEAM_HYDRO;
     beam.L = def.max_reach_length;
     beam.refL = def.max_reach_length;
     beam.bounded = ROPE;
     beam.bm_disabled = true;
-    CreateBeamVisuals(beam, beam_index, def.beam_defaults);
+
+    if (!def.is_invisible)
+    {
+        this->CreateBeamVisuals(beam, beam_index, false, def.beam_defaults);
+    }
 
     /* Register tie */
     tie_t tie;
@@ -2749,7 +2751,9 @@ void ActorSpawner::ProcessRope(RigDef::Rope & def)
     beam.k = def.beam_defaults->GetScaledSpringiness();
     beam.d = def.beam_defaults->GetScaledDamping();
     beam.bounded = ROPE;
-    beam.bm_type = (def.invisible) ? BEAM_INVISIBLE_HYDRO : BEAM_HYDRO;
+    beam.bm_type = BEAM_HYDRO;
+
+    // TODO: BUG?? Visuals are never created here.
 
     /* Register rope */
     rope_t rope;
@@ -3064,9 +3068,31 @@ void ActorSpawner::ProcessHook(RigDef::Hook & def)
     {
         hook->hk_beam->bounded = NOSHOCK;
     }
-    if (!BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_VISIBLE))
+    if (BITMASK_IS_0(def.flags, RigDef::Hook::FLAG_VISIBLE)) // NOTE: This flag can only hide a visible beam - it won't show a beam defined with 'invisible' flag.
     {
-        hook->hk_beam->bm_type = BEAM_INVISIBLE_HYDRO;
+        // Find beam index
+        int beam_index = -1;
+        for (int i = 0; i < m_actor->ar_num_beams; ++i)
+        {
+            if (hook->hk_beam == &m_actor->ar_beams[i])
+            {
+                beam_index = i;
+                break;
+            }
+        }
+
+        // Find beam visuals in the queue (only exist if defined without 'invisible' flag - we don't know at this point)
+        auto itor = m_beam_visuals_queue.begin();
+        auto endi = m_beam_visuals_queue.end();
+        while (itor != endi)
+        {
+            if (itor->beam_index == beam_index)
+            {
+                m_beam_visuals_queue.erase(itor);
+                break;
+            }
+            ++itor;
+        }
     }
 }
 
@@ -3102,11 +3128,6 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
     float short_limit = def.contraction_trigger_limit;
     float long_limit = def.expansion_trigger_limit;
 
-    if (def.HasFlag_i_Invisible())
-    {
-        hydro_type = BEAM_INVISIBLE_HYDRO;
-        BITMASK_SET_1(shock_flags, SHOCK_FLAG_INVISIBLE);
-    }
     if (def.HasFlag_B_TriggerBlocker())
     {
         BITMASK_SET_1(shock_flags, SHOCK_FLAG_TRG_BLOCKER);
@@ -3188,7 +3209,10 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
     beam.bounded = SHOCK2;
     beam.shock = &shock;
 
-    CreateBeamVisuals(beam, beam_index, def.beam_defaults);
+    if (! def.HasFlag_i_Invisible())
+    {
+        this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+    }
 
     if (m_actor->m_trigger_debug_enabled)
     {
@@ -3412,7 +3436,6 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
     beam.bm_type = BEAM_HYDRO;
 
     /* Options */
-    if (def.option_i_invisible)     { beam.bm_type = BEAM_INVISIBLE_HYDRO; }
     if (def.option_r_rope)          { beam.bounded = ROPE; }
 
     /* set the middle of the command, so its not required to recalculate this everytime ... */
@@ -3459,7 +3482,10 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
         extend_command->description = def.description;
     }
 
-    CreateBeamVisuals(beam, beam_index, def.beam_defaults);
+    if (! def.option_i_invisible)
+    {
+        this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+    }
 
     m_actor->m_num_command_beams++;
     m_actor->m_has_command_beams = true;
@@ -3483,18 +3509,11 @@ void ActorSpawner::ProcessAnimator(RigDef::Animator & def)
         }
     }
 
-    unsigned int hydro_type = BEAM_HYDRO;
     unsigned int anim_flags = 0;
     float anim_option = 0;
 
     /* Options. '{' intentionally misplaced. */
 
-    if (BITMASK_IS_1(def.flags, RigDef::Animator::OPTION_VISIBLE)) {
-        hydro_type = BEAM_HYDRO;
-    }
-    if (BITMASK_IS_1(def.flags, RigDef::Animator::OPTION_INVISIBLE)) {
-        hydro_type = BEAM_INVISIBLE_HYDRO;
-    }
     if (BITMASK_IS_1(def.flags, RigDef::Animator::OPTION_AIRSPEED)) {
         BITMASK_SET_1(anim_flags, ANIM_FLAG_AIRSPEED);
     }
@@ -3602,14 +3621,18 @@ void ActorSpawner::ProcessAnimator(RigDef::Animator & def)
     /* set the limits to something with sense by default */
     beam.shortbound = 0.99999f;
     beam.longbound = 1000000.0f;
-    beam.bm_type = hydro_type;
+    beam.bm_type = BEAM_HYDRO;
     beam.animFlags = anim_flags;
     beam.animOption = anim_option;
     CalculateBeamLength(beam);
     SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
     SetBeamSpring(beam, def.beam_defaults->GetScaledSpringiness());
     SetBeamDamping(beam, def.beam_defaults->GetScaledDamping());
-    CreateBeamVisuals(beam, beam_index, def.beam_defaults);
+
+    if (BITMASK_IS_0(def.flags, RigDef::Animator::OPTION_INVISIBLE))
+    {
+        this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+    }
 
     if (BITMASK_IS_1(def.flags, RigDef::Animator::OPTION_SHORT_LIMIT)) 
     {
@@ -3641,7 +3664,6 @@ beam_t & ActorSpawner::AddBeam(
     /* Init */
     beam_t & beam = GetAndInitFreeBeam(node_1, node_2);
     beam.detacher_group = detacher_group;
-    beam.diameter = beam_defaults->visual_beam_diameter;
     beam.bm_disabled = false;
 
     /* Breaking threshold (strength) */
@@ -3668,13 +3690,13 @@ void ActorSpawner::ProcessHydro(RigDef::Hydro & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    unsigned int hydro_type = BEAM_HYDRO;
+    bool invisible = false;
     unsigned int hydro_flags = 0;
 
     // Parse options
     if (def.options.empty()) // Parse as if option 'n' (OPTION_n_NORMAL) was present
     {
-        hydro_type = BEAM_HYDRO;
+        invisible = false;
         hydro_flags |= HYDRO_FLAG_DIR;
     }
     else
@@ -3685,10 +3707,10 @@ void ActorSpawner::ProcessHydro(RigDef::Hydro & def)
             switch (c)
             {
                 case RigDef::Hydro::OPTION_i_INVISIBLE:  // i
-                    hydro_type = BEAM_INVISIBLE_HYDRO;
+                    invisible = true;
                     break;
                 case RigDef::Hydro::OPTION_n_NORMAL:  // n
-                    hydro_type = BEAM_HYDRO;
+                    invisible = false;
                     hydro_flags |= HYDRO_FLAG_DIR;
                     break;
                 case RigDef::Hydro::OPTION_s_DISABLE_ON_HIGH_SPEED:  // 's': // speed changing hydro
@@ -3731,7 +3753,7 @@ void ActorSpawner::ProcessHydro(RigDef::Hydro & def)
             //       However, since it's inside the loop, it only works correctly if the 'i' flag is last.
             //
             // ORIGINAL COMMENT: if you use the i flag on its own, add the direction to it
-            if (hydro_type == BEAM_INVISIBLE_HYDRO && !hydro_flags)
+            if (invisible && !hydro_flags)
             {
                 hydro_flags |= HYDRO_FLAG_DIR;
             }
@@ -3748,11 +3770,14 @@ void ActorSpawner::ProcessHydro(RigDef::Hydro & def)
     beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
     SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
     CalculateBeamLength(beam);
-    beam.bm_type              = hydro_type;
+    beam.bm_type              = BEAM_HYDRO;
     beam.k                    = def.beam_defaults->GetScaledSpringiness();
     beam.d                    = def.beam_defaults->GetScaledDamping();
 
-    CreateBeamVisuals(beam, beam_index, def.beam_defaults);
+    if (!invisible)
+    {
+        this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+    }
 
     hydrobeam_t hb;
     hb.hb_flags = hydro_flags;
@@ -3771,14 +3796,8 @@ void ActorSpawner::ProcessShock2(RigDef::Shock2 & def)
     node_t & node_2 = GetNode(def.nodes[1]);
     float short_bound = def.short_bound;
     float long_bound = def.long_bound;
-    unsigned int hydro_type = BEAM_HYDRO;
     unsigned int shock_flags = SHOCK_FLAG_NORMAL | SHOCK_FLAG_ISSHOCK2;
 
-    if (BITMASK_IS_1(def.options, RigDef::Shock2::OPTION_i_INVISIBLE))
-    {
-        BITMASK_SET_1(shock_flags, SHOCK_FLAG_INVISIBLE);
-        hydro_type = BEAM_INVISIBLE_HYDRO;
-    }
     if (BITMASK_IS_1(def.options, RigDef::Shock2::OPTION_s_SOFT_BUMP_BOUNDS))
     {
         BITMASK_SET_0(shock_flags, SHOCK_FLAG_NORMAL); /* Not normal anymore */
@@ -3818,7 +3837,7 @@ void ActorSpawner::ProcessShock2(RigDef::Shock2 & def)
     int beam_index = m_actor->ar_num_beams;
     beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
     SetBeamStrength(beam, def.beam_defaults->breaking_threshold * 4.f);
-    beam.bm_type              = hydro_type;
+    beam.bm_type              = BEAM_HYDRO;
     beam.bounded              = SHOCK2;
     beam.k                    = def.spring_in;
     beam.d                    = def.damp_in;
@@ -3830,7 +3849,10 @@ void ActorSpawner::ProcessShock2(RigDef::Shock2 & def)
     beam.L          *= def.precompression;
     beam.refL       *= def.precompression;
 
-    CreateBeamVisuals(beam, beam_index, def.beam_defaults);
+    if (BITMASK_IS_0(def.options, RigDef::Shock2::OPTION_i_INVISIBLE))
+    {
+        this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+    }
 
     shock_t & shock  = GetFreeShock();
     shock.flags      = shock_flags;
@@ -3857,14 +3879,8 @@ void ActorSpawner::ProcessShock(RigDef::Shock & def)
     node_t & node_2 = GetNode(def.nodes[1]);
     float short_bound = def.short_bound;
     float long_bound = def.long_bound;
-    unsigned int hydro_type = BEAM_HYDRO;
     unsigned int shock_flags = SHOCK_FLAG_NORMAL;
 
-    if (BITMASK_IS_1(def.options, RigDef::Shock::OPTION_i_INVISIBLE))
-    {
-        BITMASK_SET_1(shock_flags, SHOCK_FLAG_INVISIBLE);
-        hydro_type = BEAM_INVISIBLE_HYDRO;
-    }
     if (BITMASK_IS_1(def.options, RigDef::Shock::OPTION_L_ACTIVE_LEFT))
     {
         BITMASK_SET_0(shock_flags, SHOCK_FLAG_NORMAL); /* Not normal anymore */
@@ -3889,7 +3905,7 @@ void ActorSpawner::ProcessShock(RigDef::Shock & def)
     beam.shortbound = short_bound;
     beam.longbound  = long_bound;
     beam.bounded    = SHOCK1;
-    beam.bm_type    = hydro_type;
+    beam.bm_type    = BEAM_HYDRO;
     beam.k          = def.spring_rate;
     beam.d          = def.damping;
     SetBeamStrength(beam, def.beam_defaults->breaking_threshold * 4.f);
@@ -3904,9 +3920,10 @@ void ActorSpawner::ProcessShock(RigDef::Shock & def)
     shock.sbd_spring = def.beam_defaults->springiness;
     shock.sbd_damp   = def.beam_defaults->damping_constant;
 
-    /* Create beam visuals, but don't attach them to scene graph */
-    /* Old parser did it like this, I don't know why ~ only_a_ptr 13-04-14 */
-    CreateBeamVisuals(beam, beam_index, def.beam_defaults);
+    if (BITMASK_IS_0(def.options, RigDef::Shock::OPTION_i_INVISIBLE))
+    {
+        this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+    }
 
     beam.shock = & shock;
     shock.beamid = beam_index;
@@ -4795,7 +4812,7 @@ void ActorSpawner::CreateWheelSkidmarks(unsigned int wheel_index)
 {
     // Always create, even if disabled by config
     m_actor->m_skid_trails[wheel_index] = new RoR::Skidmark(
-        RoR::App::GetSimController()->GetSkidmarkConf(), &m_actor->ar_wheels[wheel_index], m_actor->m_beam_visuals_parent_scenenode, 300, 20);
+        RoR::App::GetSimController()->GetSkidmarkConf(), &m_actor->ar_wheels[wheel_index], m_particles_parent_scenenode, 300, 20);
 }
 
 #if 0 // refactored into pieces
@@ -5267,12 +5284,6 @@ unsigned int ActorSpawner::AddWheelBeam(
     }
     CalculateBeamLength(beam);
 
-    if (type != BEAM_VIRTUAL)
-    {
-        /* Create visuals, but don't attach to scene-graph (compatibility with show-skeleton function) */
-        CreateBeamVisuals(beam, index, beam_defaults);
-    }
-
     return index;
 }
 
@@ -5309,7 +5320,7 @@ unsigned int ActorSpawner::_SectionWheels2AddBeam(RigDef::Wheel2 & wheel_2_def, 
     unsigned int index = m_actor->ar_num_beams;
     beam_t & beam = GetFreeBeam();
     InitBeam(beam, node_1, node_2);
-    beam.bm_type = BEAM_INVISIBLE;
+    beam.bm_type = BEAM_NORMAL;
     SetBeamStrength(beam, wheel_2_def.beam_defaults->breaking_threshold);
     SetBeamDeformationThreshold(beam, wheel_2_def.beam_defaults);
     return index;
@@ -5678,10 +5689,6 @@ void ActorSpawner::ProcessBeam(RigDef::Beam & def)
     beam.strength  = beam_strength;
 
     /* Options */
-    if (BITMASK_IS_1(def.options, RigDef::Beam::OPTION_i_INVISIBLE))
-    {
-        beam.bm_type = BEAM_INVISIBLE;
-    }
     if (BITMASK_IS_1(def.options, RigDef::Beam::OPTION_r_ROPE))
     {
         beam.bounded = ROPE;
@@ -5692,7 +5699,10 @@ void ActorSpawner::ProcessBeam(RigDef::Beam & def)
         beam.longbound = def.extension_break_limit;
     }
 
-    CreateBeamVisuals(beam, beam_index, def.defaults);
+    if (BITMASK_IS_0(def.options, RigDef::Beam::OPTION_i_INVISIBLE))
+    {
+        this->CreateBeamVisuals(beam, beam_index, true, def.defaults);
+    }
 }
 
 void ActorSpawner::SetBeamDeformationThreshold(beam_t & beam, std::shared_ptr<RigDef::BeamDefaults> beam_defaults)
@@ -5823,29 +5833,21 @@ void ActorSpawner::SetBeamDeformationThreshold(beam_t & beam, std::shared_ptr<Ri
     beam.maxnegstress       = -(deformation_threshold);
 }
 
-void ActorSpawner::CreateBeamVisuals(beam_t & beam, int beam_index, std::shared_ptr<RigDef::BeamDefaults> beam_defaults)
+void ActorSpawner::CreateBeamVisuals(beam_t const & beam, int beam_index, bool visible, std::shared_ptr<RigDef::BeamDefaults> const& beam_defaults)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    try
-    {
-        beam.mEntity = gEnv->sceneManager->createEntity(this->ComposeName("Beam", beam_index), "beam.mesh");
-    }
-    catch (...)
-    {
-        throw Exception("Failed to load file 'beam.mesh' (should come with RoR installation)");
-    }
-    m_actor->m_deletion_entities.push_back(beam.mEntity);
-    beam.mSceneNode = m_actor->m_beam_visuals_parent_scenenode->createChildSceneNode();
-    beam.mSceneNode->setScale(beam.diameter, -1, beam.diameter);
+    const char* mat_name = nullptr;
     if (beam.bm_type == BEAM_HYDRO)
     {
-        beam.mEntity->setMaterialName("tracks/Chrome");
+        mat_name = "tracks/Chrome";
     }
     else
     {
-        beam.mEntity->setMaterialName(beam_defaults->beam_material_name);
+        mat_name = beam_defaults->beam_material_name.c_str();
     }
+
+    m_beam_visuals_queue.emplace_back(beam_index, beam_defaults->visual_beam_diameter, mat_name, visible);
 }
 
 void ActorSpawner::CalculateBeamLength(beam_t & beam)
@@ -6096,7 +6098,7 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
         beam.L                 = HOOK_RANGE_DEFAULT;
         beam.refL              = HOOK_RANGE_DEFAULT;
         SetBeamDeformationThreshold(beam, def.beam_defaults);
-        CreateBeamVisuals(beam, beam_index, def.beam_defaults);
+        CreateBeamVisuals(beam, beam_index, false, def.beam_defaults);
             
         // Logic cloned from SerializedRig.cpp, section BTS_NODES
         hook_t hook;
@@ -6195,7 +6197,7 @@ void ActorSpawner::AddExhaust(
     exhaust.smoker->setVisibilityFlags(DEPTHMAP_DISABLED); // Disable particles in depthmap
 
     
-    exhaust.smokeNode = m_parent_scene_node->createChildSceneNode();
+    exhaust.smokeNode = m_particles_parent_scenenode->createChildSceneNode();
     exhaust.smokeNode->attachObject(exhaust.smoker);
     exhaust.smokeNode->setPosition(m_actor->ar_nodes[exhaust.emitterNode].AbsPosition);
 
@@ -6251,11 +6253,10 @@ void ActorSpawner::ProcessCinecam(RigDef::Cinecam & def)
     {
         int beam_index = m_actor->ar_num_beams;
         beam_t & beam = AddBeam(camera_node, GetNode(def.nodes[i]), def.beam_defaults, DEFAULT_DETACHER_GROUP);
-        beam.bm_type = BEAM_INVISIBLE;
+        beam.bm_type = BEAM_NORMAL;
         CalculateBeamLength(beam);
         beam.k = def.spring;
         beam.d = def.damping;
-        CreateBeamVisuals(beam, beam_index, def.beam_defaults);
     }
 };
 
@@ -7149,6 +7150,14 @@ void ActorSpawner::FinalizeGfxSetup()
     }
 
     m_actor->ar_dashboard->setVisible(false);
+
+    // Process rods (beam visuals)
+    for (BeamVisuals& bv: m_beam_visuals_queue)
+    {
+        int node1 = m_actor->ar_beams[bv.beam_index].p1->pos;
+        int node2 = m_actor->ar_beams[bv.beam_index].p2->pos;
+        m_actor->m_gfx_actor->AddRod(bv.beam_index, node1, node2, bv.material_name.c_str(), bv.visible, bv.diameter);
+    }
 }
 
 Ogre::ManualObject* CreateVideocameraDebugMesh()

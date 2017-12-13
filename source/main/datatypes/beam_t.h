@@ -32,7 +32,7 @@ struct beam_t
     Ogre::Real plastic_coef;
     int detacher_group;	//!< Attribute: detacher group number (integer)
     short bounded;      //!< { SHOCK1=1, SHOCK2=2, SUPPORTBEAM=3, ROPE=4 }
-    short bm_type;      //!< { BEAM_NORMAL, BEAM_HYDRO, BEAM_VIRTUAL, BEAM_INVISIBLE, BEAM_INVISIBLE_HYDRO }
+    short bm_type;      //!< { BEAM_NORMAL, BEAM_HYDRO, BEAM_VIRTUAL }
     bool bm_inter_actor;       //!< in case p2 is on another actor
 
     /// Multipurpose; excludes beam from physics, controls visibility (gfx) and indicates multiple other states (hooks/ties).
@@ -78,11 +78,7 @@ struct beam_t
     float animOption;
     int animFlags;
 
-    Ogre::Real diameter;
-
     shock_t *shock;
-    Ogre::SceneNode *mSceneNode; //!< visual
-    Ogre::Entity *mEntity; //!< visual
 
     Ogre::Real initial_beam_strength; ///< for reset
     Ogre::Real default_beam_deform; ///< for reset

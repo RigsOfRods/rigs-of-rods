@@ -93,7 +93,6 @@ Actor::~Actor()
     this->DisjoinInterActorBeams();
 
     // hide everything, prevents deleting stuff while drawing
-    this->setBeamVisibility(false);
     this->setMeshVisibility(false);
 
     // delete all classes we might have constructed
@@ -328,16 +327,6 @@ Actor::~Actor()
         }
     }
 
-    // delete beams
-    for (int i = 0; i < ar_num_beams; i++)
-    {
-        if (ar_beams[i].mSceneNode)
-        {
-            ar_beams[i].mSceneNode->removeAndDestroyAllChildren();
-            gEnv->sceneManager->destroySceneNode(ar_beams[i].mSceneNode);
-        }
-    }
-
     // delete Rails
     for (std::vector<RailGroup*>::iterator it = m_railgroups.begin(); it != m_railgroups.end(); it++)
     {
@@ -397,8 +386,6 @@ void Actor::ScaleActor(float value)
         ar_beams[i].d *= value;
         ar_beams[i].L *= value;
         ar_beams[i].refL *= value;
-
-        ar_beams[i].diameter *= value;
     }
     // scale hydros
     for (hydrobeam_t& hbeam: ar_hydros)
@@ -454,6 +441,9 @@ void Actor::ScaleActor(float value)
     {
         ar_flexbodies[i]->getSceneNode()->scale(value, value, value);
     }
+
+
+    m_gfx_actor->ScaleActor(value);
 
 }
 
@@ -2750,50 +2740,6 @@ void Actor::updateSkidmarks()
     }
 }
 
-Quaternion Actor::specialGetRotationTo(const Vector3& src, const Vector3& dest) const
-{
-    // Based on Stan Melax's article in Game Programming Gems
-    Quaternion q;
-    // Copy, since cannot modify local
-    Vector3 v0 = src;
-    Vector3 v1 = dest;
-    v0.normalise();
-    v1.normalise();
-
-    // NB if the crossProduct approaches zero, we get unstable because ANY axis will do
-    // when v0 == -v1
-    Real d = v0.dotProduct(v1);
-    // If dot == 1, vectors are the same
-    if (d >= 1.0f)
-    {
-        return Quaternion::IDENTITY;
-    }
-    if (d < (1e-6f - 1.0f))
-    {
-        // Generate an axis
-        Vector3 axis = Vector3::UNIT_X.crossProduct(src);
-        if (axis.isZeroLength()) // pick another if colinear
-            axis = Vector3::UNIT_Y.crossProduct(src);
-        axis.normalise();
-        q.FromAngleAxis(Radian(Math::PI), axis);
-    }
-    else
-    {
-        Real s = fast_sqrt((1 + d) * 2);
-        if (s == 0)
-            return Quaternion::IDENTITY;
-
-        Vector3 c = v0.crossProduct(v1);
-        Real invs = 1 / s;
-
-        q.x = c.x * invs;
-        q.y = c.y * invs;
-        q.z = c.z * invs;
-        q.w = s * 0.5;
-    }
-    return q;
-}
-
 void Actor::SetPropsCastShadows(bool do_cast_shadows)
 {
     if (m_cab_scene_node && m_cab_scene_node->numAttachedObjects() && m_cab_scene_node->getAttachedObject(0))
@@ -2819,13 +2765,8 @@ void Actor::SetPropsCastShadows(bool do_cast_shadows)
             ar_wheel_visuals[i].cnode->getAttachedObject(0)->setCastShadows(do_cast_shadows);
         }
     }
-    for (i = 0; i < ar_num_beams; i++)
-    {
-        if (ar_beams[i].mEntity)
-        {
-            ar_beams[i].mEntity->setCastShadows(do_cast_shadows);
-        }
-    }
+    // TODO: updating beam visuals removed when implementing `GfxActor::Rod` concept
+    //       Does it matter anyway? Does 'setCastShadows()' affect PSSM? ~ only_a_ptr, 12/2017
 }
 
 void Actor::prepareInside(bool inside)
@@ -3562,25 +3503,7 @@ void Actor::updateVisual(float dt)
     ar_hydro_rudder_command = autorudder;
     ar_hydro_elevator_command = autoelevator;
 
-    for (int i = 0; i < ar_num_beams; i++)
-    {
-        if (!ar_beams[i].mSceneNode)
-            continue;
-
-        if (ar_beams[i].bm_disabled || ar_beams[i].bm_broken)
-        {
-            ar_beams[i].mSceneNode->detachAllObjects();
-        }
-        else if (ar_beams[i].bm_type != BEAM_INVISIBLE && ar_beams[i].bm_type != BEAM_INVISIBLE_HYDRO && ar_beams[i].bm_type != BEAM_VIRTUAL)
-        {
-            if (ar_beams[i].mSceneNode->numAttachedObjects() == 0)
-                ar_beams[i].mSceneNode->attachObject(ar_beams[i].mEntity);
-
-            ar_beams[i].mSceneNode->setPosition(ar_beams[i].p1->AbsPosition.midPoint(ar_beams[i].p2->AbsPosition));
-            ar_beams[i].mSceneNode->setOrientation(specialGetRotationTo(ref, ar_beams[i].p1->AbsPosition - ar_beams[i].p2->AbsPosition));
-            ar_beams[i].mSceneNode->setScale(ar_beams[i].diameter, (ar_beams[i].p1->AbsPosition - ar_beams[i].p2->AbsPosition).length(), ar_beams[i].diameter);
-        }
-    }
+    m_gfx_actor->UpdateRods();
 
     m_gfx_actor->UpdateDebugView();
 }
@@ -3622,17 +3545,20 @@ void Actor::UpdateFlexbodiesFinal()
 //v=1: no beams
 void Actor::setDetailLevel(int v)
 {
-    if (v != m_gfx_detail_level)
+    // TODO: There are 2 separate detail control mechanisms in the Actor: 'detailLevel' and 'beamsVisible' - investigate and refactor! ~ only_a_ptr, 12/2017
+    //       'beamsVisible' previously worked by hiding all individual Entities, while 'detailLevel' detached 'beamsRoot' sceneNode
+
     {
         if (m_gfx_detail_level == 0 && v == 1)
         {
-            // detach
-            gEnv->sceneManager->getRootSceneNode()->removeChild(m_beam_visuals_parent_scenenode);
+            m_gfx_actor->SetRodsVisible(false);
         }
         if (m_gfx_detail_level == 1 && v == 0)
         {
-            // attach
-            gEnv->sceneManager->getRootSceneNode()->addChild(m_beam_visuals_parent_scenenode);
+            if (ar_beams_visible) // Check if not hidden by the other method
+            {
+                m_gfx_actor->SetRodsVisible(true);
+            }
         }
         m_gfx_detail_level = v;
     }
@@ -3640,14 +3566,14 @@ void Actor::setDetailLevel(int v)
 
 void Actor::setBeamVisibility(bool visible)
 {
-    for (int i = 0; i < ar_num_beams; i++)
-    {
-        if (ar_beams[i].mSceneNode)
-        {
-            ar_beams[i].mSceneNode->setVisible(visible);
-        }
-    }
+    // TODO: There are 2 separate detail control mechanisms in the Actor: 'm_gfx_detail_level' (old:'detailLevel') 
+     //       and 'ar_beams_visible' (old:'beamsVisible') - investigate and refactor! ~ only_a_ptr, 12/2017
+    //       'beamsVisible' previously worked by hiding all individual Entities, while 'detailLevel' detached 'beamsRoot' sceneNode
 
+    if (!visible || (visible && (m_gfx_detail_level != 1))) // Check if not hidden by the other method
+    {
+        m_gfx_actor->SetRodsVisible(visible);
+    }
     ar_beams_visible = visible;
 }
 

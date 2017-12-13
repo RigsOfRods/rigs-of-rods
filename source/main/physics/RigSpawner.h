@@ -216,6 +216,18 @@ private:
         // ... more to come ...
     };
 
+    struct BeamVisuals //!< Visuals are queued for processing using this struct
+    {
+        BeamVisuals(int idx, float diam, const char* mtr=nullptr, bool vis=true):
+            beam_index(idx), diameter(diam), material_name(mtr), visible(vis)
+        {}
+
+        int beam_index;
+        std::string material_name; // TODO: how does std::string behave when parent struct is re-allocated within std::vector?  ;)
+        float diameter;
+        bool visible; // Some beams are spawned as hidden (ties, hooks) and displayed only when activated
+    };
+
 /* -------------------------------------------------------------------------- */
 /* Processing functions.                                                      */
 /* NOTE: Please maintain alphabetical order.                                  */
@@ -559,7 +571,7 @@ private:
     */
     unsigned int AddWheel2(RigDef::Wheel2 & wheel_2_def);
 
-    void CreateBeamVisuals(beam_t & beam, int beam_index, std::shared_ptr<RigDef::BeamDefaults> beam_defaults);
+    void CreateBeamVisuals(beam_t const& beam, int beam_index, bool visible, std::shared_ptr<RigDef::BeamDefaults> const& beam_defaults);
 
     RailGroup *CreateRail(std::vector<RigDef::Node::Range> & node_ranges);
 
@@ -981,7 +993,7 @@ private:
         std::shared_ptr<RigDef::BeamDefaults> beam_defaults,
         float max_contraction = -1.f,
         float max_extension = -1.f,
-        int type = BEAM_INVISIBLE /* Anonymous enum in BeamData.h */
+        int type = BEAM_NORMAL /* Anonymous enum in BeamData.h */
     );
 
     /**
@@ -1054,6 +1066,7 @@ private:
     Ogre::Vector3      m_spawn_position;
     bool               m_enable_background_loading;
     bool               m_apply_simple_materials;
+    std::vector<BeamVisuals> m_beam_visuals_queue; //!< We want to spawn visuals asynchronously in the future
     std::string        m_cab_material_name; ///< Original name defined in truckfile/globals.
     std::string        m_custom_resource_group;
     float              m_wing_area;
@@ -1061,7 +1074,7 @@ private:
     int                m_airplane_right_light;
     RoR::FlexFactory   m_flex_factory;
     Ogre::MaterialPtr  m_placeholder_managedmat;
-    Ogre::SceneNode*   m_parent_scene_node;
+    Ogre::SceneNode*   m_particles_parent_scenenode;
     Ogre::MaterialPtr  m_cab_trans_material;
     Ogre::MaterialPtr  m_simple_material_base;
     float              m_fuse_z_min;

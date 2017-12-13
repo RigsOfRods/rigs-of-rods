@@ -21,6 +21,7 @@
 
 #include "GfxActor.h"
 
+#include "ApproxMath.h"
 #include "Beam.h"
 #include "beam_t.h"
 #include "Collisions.h"
@@ -29,6 +30,7 @@
 #include "RoRFrameListener.h" // SimController
 #include "SkyManager.h"
 #include "SoundScriptManager.h"
+#include "Utils.h"
 #include "TerrainManager.h"
 #include "imgui.h"
 #include "Utils.h"
@@ -50,6 +52,7 @@ RoR::GfxActor::GfxActor(Actor* actor, std::string ogre_resource_group, std::vect
     m_custom_resource_group(ogre_resource_group),
     m_vidcam_state(VideoCamState::VCSTATE_ENABLED_ONLINE),
     m_debug_view(DebugViewType::DEBUGVIEW_NONE),
+    m_rods_parent_scenenode(nullptr),
     m_gfx_nodes(gfx_nodes)
 {
     // Setup particles
@@ -75,6 +78,22 @@ RoR::GfxActor::~GfxActor()
         gEnv->sceneManager->destroyCamera(vcam.vcam_ogre_camera);
 
         m_videocameras.pop_back();
+    }
+
+    // Dispose rods
+    if (m_rods_parent_scenenode != nullptr)
+    {
+        for (Rod& rod: m_rods)
+        {
+            Ogre::MovableObject* ogre_object = rod.rod_scenenode->getAttachedObject(0);
+            rod.rod_scenenode->detachAllObjects();
+            gEnv->sceneManager->destroyEntity(static_cast<Ogre::Entity*>(ogre_object));
+        }
+        m_rods.clear();
+
+        m_rods_parent_scenenode->removeAndDestroyAllChildren();
+        gEnv->sceneManager->destroySceneNode(m_rods_parent_scenenode);
+        m_rods_parent_scenenode = nullptr;
     }
 
     Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(m_custom_resource_group);
@@ -611,7 +630,7 @@ void RoR::GfxActor::UpdateDebugView()
                 {
                     drawlist->AddLine(pos1xy, pos2xy, BEAM_BROKEN_COLOR, BEAM_BROKEN_THICKNESS);
                 }
-                else if ((beams[i].bm_type == BEAM_HYDRO || (beams[i].bm_type == BEAM_INVISIBLE_HYDRO)))
+                else if (beams[i].bm_type == BEAM_HYDRO)
                 {
                     drawlist->AddLine(pos1xy, pos2xy, BEAM_HYDRO_COLOR, BEAM_HYDRO_THICKNESS);
                 }
@@ -724,5 +743,133 @@ void RoR::GfxActor::CycleDebugViews()
     case DebugViewType::DEBUGVIEW_NODES:    m_debug_view = DebugViewType::DEBUGVIEW_BEAMS;    break;
     case DebugViewType::DEBUGVIEW_BEAMS:    m_debug_view = DebugViewType::DEBUGVIEW_NONE;     break;
     default:;
+    }
+}
+
+void RoR::GfxActor::AddRod(int beam_index,  int node1_index, int node2_index, const char* material_name, bool visible, float diameter_meters)
+{
+    try
+    {
+        Str<100> entity_name;
+        entity_name << "rod" << beam_index << "@actor" << m_actor->ar_instance_id;
+        Ogre::Entity* entity = gEnv->sceneManager->createEntity(entity_name.ToCStr(), "beam.mesh");
+        entity->setMaterialName(material_name);
+
+        if (m_rods_parent_scenenode == nullptr)
+        {
+            m_rods_parent_scenenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+        }
+
+        Rod rod;
+        rod.rod_scenenode = m_rods_parent_scenenode->createChildSceneNode();
+        rod.rod_scenenode->attachObject(entity);
+        rod.rod_scenenode->setVisible(visible, /*cascade=*/ false);
+
+        rod.rod_scenenode->setScale(diameter_meters, -1, diameter_meters);
+        rod.rod_diameter_mm = uint16_t(diameter_meters * 1000.f);
+
+        rod.rod_beam_index = static_cast<uint16_t>(beam_index);
+        rod.rod_node1 = static_cast<uint16_t>(node1_index);
+        rod.rod_node2 = static_cast<uint16_t>(node2_index);
+
+        m_rods.push_back(rod);
+    }
+    catch (Ogre::Exception& e)
+    {
+        LogFormat("[RoR|Gfx] Failed to create visuals for beam %d, message: %s", beam_index, e.getFullDescription().c_str());
+    }
+}
+
+void RoR::GfxActor::UpdateRods()
+{
+    // TODO: Apply visibility updates from a queue (to be implemented!)
+    // fulltext-label: QUEUE_VIS_CHANGE
+
+    for (Rod& rod: m_rods)
+    {
+        Ogre::Vector3 pos1 = m_actor->ar_nodes[rod.rod_node1].AbsPosition;
+        Ogre::Vector3 pos2 = m_actor->ar_nodes[rod.rod_node2].AbsPosition;
+
+        // Classic method
+        float beam_diameter = static_cast<float>(rod.rod_diameter_mm) * 0.001;
+        float beam_length = pos1.distance(pos2);
+
+        rod.rod_scenenode->setPosition(pos1.midPoint(pos2));
+        rod.rod_scenenode->setScale(beam_diameter, beam_length, beam_diameter);
+        rod.rod_scenenode->setOrientation(GfxActor::SpecialGetRotationTo(Ogre::Vector3::UNIT_Y, (pos1 - pos2)));
+    }
+}
+
+Ogre::Quaternion RoR::GfxActor::SpecialGetRotationTo(const Ogre::Vector3& src, const Ogre::Vector3& dest)
+{
+    // Based on Stan Melax's article in Game Programming Gems
+    Ogre::Quaternion q;
+    // Copy, since cannot modify local
+    Ogre::Vector3 v0 = src;
+    Ogre::Vector3 v1 = dest;
+    v0.normalise();
+    v1.normalise();
+
+    // NB if the crossProduct approaches zero, we get unstable because ANY axis will do
+    // when v0 == -v1
+    Ogre::Real d = v0.dotProduct(v1);
+    // If dot == 1, vectors are the same
+    if (d >= 1.0f)
+    {
+        return Ogre::Quaternion::IDENTITY;
+    }
+    if (d < (1e-6f - 1.0f))
+    {
+        // Generate an axis
+        Ogre::Vector3 axis = Ogre::Vector3::UNIT_X.crossProduct(src);
+        if (axis.isZeroLength()) // pick another if colinear
+            axis = Ogre::Vector3::UNIT_Y.crossProduct(src);
+        axis.normalise();
+        q.FromAngleAxis(Ogre::Radian(Ogre::Math::PI), axis);
+    }
+    else
+    {
+        Ogre::Real s = fast_sqrt((1 + d) * 2);
+        if (s == 0)
+            return Ogre::Quaternion::IDENTITY;
+
+        Ogre::Vector3 c = v0.crossProduct(v1);
+        Ogre::Real invs = 1 / s;
+
+        q.x = c.x * invs;
+        q.y = c.y * invs;
+        q.z = c.z * invs;
+        q.w = s * 0.5;
+    }
+    return q;
+}
+
+void RoR::GfxActor::ScaleActor(float ratio)
+{
+    for (Rod& rod: m_rods)
+    {
+        float diameter2 = static_cast<float>(rod.rod_diameter_mm) * (ratio*1000.f);
+        rod.rod_diameter_mm = static_cast<uint16_t>(diameter2);
+    }
+}
+
+void RoR::GfxActor::SetRodsVisible(bool visible)
+{
+    if (m_rods_parent_scenenode == nullptr)
+    {
+        return; // Vehicle has no visual softbody beams -> nothing to do.
+    }
+
+    // NOTE: We don't use Ogre::SceneNode::setVisible() for performance reasons:
+    //       1. That function traverses all attached Entities and updates their visibility - too much overhead
+    //       2. For OGRE up to 1.9 (I don't know about 1.10+) OGRE developers recommended to detach rather than hide.
+    //       ~ only_a_ptr, 12/2017
+    if (visible && !m_rods_parent_scenenode->isInSceneGraph())
+    {
+        gEnv->sceneManager->getRootSceneNode()->addChild(m_rods_parent_scenenode);
+    }
+    else if (!visible && m_rods_parent_scenenode->isInSceneGraph())
+    {
+        gEnv->sceneManager->getRootSceneNode()->removeChild(m_rods_parent_scenenode);
     }
 }

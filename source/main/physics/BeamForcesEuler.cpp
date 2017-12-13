@@ -1340,7 +1340,7 @@ void Actor::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                     float tdamp = DEFAULT_DAMP;
 
                     // Skip camera, wheels or any other shocks which are not generated in a shocks or shocks2 section
-                    if (ar_beams[i].bm_type == BEAM_HYDRO || ar_beams[i].bm_type == BEAM_INVISIBLE_HYDRO)
+                    if (ar_beams[i].bm_type == BEAM_HYDRO)
                     {
                         tspring = ar_beams[i].shock->sbd_spring;
                         tdamp = ar_beams[i].shock->sbd_damp;
@@ -1403,7 +1403,7 @@ void Actor::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
             float len = std::abs(slen);
             if (len > ar_beams[i].minmaxposnegstress)
             {
-                if ((ar_beams[i].bm_type == BEAM_NORMAL || ar_beams[i].bm_type == BEAM_INVISIBLE) && ar_beams[i].bounded != SHOCK1 && k != 0.0f)
+                if (ar_beams[i].bm_type == BEAM_NORMAL && ar_beams[i].bounded != SHOCK1 && k != 0.0f)
                 {
                     // Actual deformation tests
                     if (slen > ar_beams[i].maxposstress && difftoBeamL < 0.0f) // compression
@@ -1582,7 +1582,7 @@ void Actor::CalcBeamsInterActor(int doUpdate, Ogre::Real dt, int step, int maxst
             float len = std::abs(slen);
             if (len > ar_inter_beams[i]->minmaxposnegstress)
             {
-                if ((ar_inter_beams[i]->bm_type == BEAM_NORMAL || ar_inter_beams[i]->bm_type == BEAM_INVISIBLE) && ar_inter_beams[i]->bounded != SHOCK1 && k != 0.0f)
+                if (ar_inter_beams[i]->bm_type == BEAM_NORMAL && ar_inter_beams[i]->bounded != SHOCK1 && k != 0.0f)
                 {
                     // Actual deformation tests
                     if (slen > ar_inter_beams[i]->maxposstress && difftoBeamL < 0.0f) // compression
@@ -1865,7 +1865,7 @@ void Actor::calcHooks()
                             else
                             {
                                 //force exceeded reset the hook node
-                                it->hk_beam->mSceneNode->detachAllObjects();
+                                // TODO: request hiding of the visuals -- search: QUEUE_VIS_CHANGE
                                 it->hk_locked = UNLOCKED;
                                 it->hk_lock_node = 0;
                                 it->hk_locked_actor = 0;
