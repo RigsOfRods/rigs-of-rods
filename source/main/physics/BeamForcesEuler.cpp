@@ -1841,7 +1841,7 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                     // basic buoyance
                     nodes[i].Forces += nodes[i].buoyancy * Vector3::UNIT_Y;
                     // basic splashing
-                    if (doUpdate && water->getHeight() - nodes[i].AbsPosition.y < 0.2 && nodes[i].Velocity.squaredLength() > 4.0 && !nodes[i].disable_particles)
+                    if (doUpdate && water->GetStaticWaterHeight() - nodes[i].AbsPosition.y < 0.2 && nodes[i].Velocity.squaredLength() > 4.0 && !nodes[i].disable_particles)
                     {
                         if (splashp)
                             splashp->allocSplash(nodes[i].AbsPosition, nodes[i].Velocity);

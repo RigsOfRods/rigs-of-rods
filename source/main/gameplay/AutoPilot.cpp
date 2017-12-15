@@ -321,8 +321,8 @@ void Autopilot::gpws_update(float spawnheight)
     if (mode_gpws && gEnv->terrainManager->getHeightFinder() && ref_b)
     {
         float groundalt = gEnv->terrainManager->getHeightFinder()->getHeightAt(ref_c->AbsPosition.x, ref_c->AbsPosition.z);
-        if (gEnv->terrainManager->getWater() && groundalt < gEnv->terrainManager->getWater()->getHeight())
-            groundalt = gEnv->terrainManager->getWater()->getHeight();
+        if (gEnv->terrainManager->getWater() && groundalt < gEnv->terrainManager->getWater()->GetStaticWaterHeight())
+            groundalt = gEnv->terrainManager->getWater()->GetStaticWaterHeight();
         float height = (ref_c->AbsPosition.y - groundalt - spawnheight) * 3.28083f; //in feet!
         //skip height warning sounds when the plane is slower then ~10 knots
         if ((ref_c->Velocity.length() * 1.9685f) > 10.0f)

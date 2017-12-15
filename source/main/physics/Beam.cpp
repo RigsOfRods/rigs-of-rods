@@ -1386,7 +1386,7 @@ void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
     float vertical_offset = -nodes[lowestcontactingnode].AbsPosition.y + miny;
     if (gEnv->terrainManager->getWater())
     {
-        vertical_offset += std::max(0.0f, gEnv->terrainManager->getWater()->getHeight() - (nodes[lowestcontactingnode].AbsPosition.y + vertical_offset));
+        vertical_offset += std::max(0.0f, gEnv->terrainManager->getWater()->GetStaticWaterHeight() - (nodes[lowestcontactingnode].AbsPosition.y + vertical_offset));
     }
     for (int i = 1; i < free_node; i++)
     {

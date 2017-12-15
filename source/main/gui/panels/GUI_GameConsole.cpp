@@ -301,7 +301,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
                 water->setCamera(gEnv->mainCamera);
                 water->setHeight(std::stof(args[1]));
                 water->update();
-                putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Water level set to: ") + StringConverter::toString(water->getHeight()), "information.png");
+                putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Water level set to: ") + StringConverter::toString(water->GetStaticWaterHeight()), "information.png");
             }
             else
             {

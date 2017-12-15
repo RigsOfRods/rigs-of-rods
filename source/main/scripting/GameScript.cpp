@@ -212,7 +212,7 @@ float GameScript::getWaterHeight()
 {
     float result = 0.0f;
     if (gEnv->terrainManager && gEnv->terrainManager->getWater())
-        result = gEnv->terrainManager->getWater()->getHeight();
+        result = gEnv->terrainManager->getWater()->GetStaticWaterHeight();
     return result;
 }
 

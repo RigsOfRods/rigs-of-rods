@@ -142,7 +142,7 @@ void SurveyMapTextureCreator::preRenderTargetUpdate()
     if (water)
     {
         water->setCamera(mCamera);
-        water->moveTo(water->getHeight());
+        water->moveTo(water->GetStaticWaterHeight());
         water->update();
     }
 }
@@ -156,7 +156,7 @@ void SurveyMapTextureCreator::postRenderTargetUpdate()
     if (water)
     {
         water->setCamera(gEnv->mainCamera);
-        water->moveTo(water->getHeight());
+        water->moveTo(water->GetStaticWaterHeight());
         water->update();
     }
 }
