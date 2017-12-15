@@ -266,12 +266,15 @@ bool ContentManager::init(void)
 #endif // USE_OPENAL
 
     // and the content
-    std::string content_base = std::string(App::sys_user_dir.GetActive()) + PATH_SLASH;
-    ResourceGroupManager::getSingleton().addResourceLocation(content_base + "packs", "FileSystem", "Packs", true);
-    ResourceGroupManager::getSingleton().addResourceLocation(content_base + "mods", "FileSystem", "Packs", true);
+    std::string user_content_base = std::string(App::sys_user_dir.GetActive())    + PATH_SLASH;
+    std::string content_base      = std::string(App::sys_process_dir.GetActive()) + PATH_SLASH;
 
-    ResourceGroupManager::getSingleton().addResourceLocation(content_base + "vehicles", "FileSystem", "VehicleFolders");
-    ResourceGroupManager::getSingleton().addResourceLocation(content_base + "terrains", "FileSystem", "TerrainFolders");
+    ResourceGroupManager::getSingleton().addResourceLocation(content_base      + "content" , "FileSystem", "Packs", true);
+    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "packs"   , "FileSystem", "Packs", true);
+    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "mods"    , "FileSystem", "Packs", true);
+
+    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "vehicles", "FileSystem", "VehicleFolders");
+    ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "terrains", "FileSystem", "TerrainFolders");
 
     exploreFolders("VehicleFolders");
     exploreFolders("TerrainFolders");
