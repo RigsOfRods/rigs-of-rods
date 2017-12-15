@@ -34,10 +34,10 @@ using namespace Ogre;
 HydraxWater::HydraxWater(float water_height, Ogre::String conf_file):
     waternoise(0)
     , mHydrax(0)
-    , waterHeight(5)
-, waveHeight(water_height)
+    , waterHeight(water_height)
+    , waveHeight(water_height)
     , mRenderCamera(gEnv->mainCamera)
-, CurrentConfigFile(conf_file)
+    , CurrentConfigFile(conf_file)
 {
     mRenderCamera->setNearClipDistance(0.1f);
 
