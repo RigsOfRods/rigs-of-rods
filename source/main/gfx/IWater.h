@@ -34,7 +34,7 @@ public:
     {
     }
 
-    virtual float getHeight() = 0;
+    virtual float GetStaticWaterHeight() = 0; //!< Returns static water level configured in 'terrn2'
     virtual float getHeightWaves(Ogre::Vector3 pos) = 0;
     virtual Ogre::Vector3 getVelocity(Ogre::Vector3 pos) = 0;
 

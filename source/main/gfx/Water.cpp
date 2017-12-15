@@ -543,7 +543,7 @@ void Water::prepareShutdown()
         rttTex2->removeListener(&mReflectionListener);
 }
 
-float Water::getHeight()
+float Water::GetStaticWaterHeight()
 {
     return wHeight;
 };

@@ -33,7 +33,7 @@ public:
     HydraxWater(float waterHeight, Ogre::String configFile = "HydraxDefault.hdx");
     ~HydraxWater();
 
-    float getHeight();
+    float GetStaticWaterHeight();
     float getHeightWaves(Ogre::Vector3 pos);
     Ogre::Vector3 getVelocity(Ogre::Vector3 pos);
 

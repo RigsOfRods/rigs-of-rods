@@ -287,7 +287,7 @@ void DustPool::update()
         }
         else if (types[i] == DUST_RIPPLE)
         {
-            positions[i].y = gEnv->terrainManager->getWater()->getHeight() - 0.02;
+            positions[i].y = gEnv->terrainManager->getWater()->GetStaticWaterHeight() - 0.02;
             sns[i]->setPosition(positions[i]);
 
             col.a = vel * 0.04;

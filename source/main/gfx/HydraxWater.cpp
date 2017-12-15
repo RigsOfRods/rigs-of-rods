@@ -126,7 +126,7 @@ void HydraxWater::prepareShutdown()
 {
 }
 
-float HydraxWater::getHeight()
+float HydraxWater::GetStaticWaterHeight()
 {
     return waterHeight;
 }

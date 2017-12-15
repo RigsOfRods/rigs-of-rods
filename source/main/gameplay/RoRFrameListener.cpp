@@ -1669,7 +1669,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
             }
             else
             {
-                water->moveTo(water->getHeight());
+                water->moveTo(water->GetStaticWaterHeight());
             }
             water->framestep(dt);
         }
