@@ -4718,7 +4718,7 @@ void Beam::setDebugOverlayState(int mode)
             deletion_sceneNodes.emplace_back(t.node);
             t.node->attachObject(t.txt);
             t.node->setPosition(nodes[i].AbsPosition);
-            t.node->setScale(Vector3(0.5, 0.5, 0.5));
+            t.node->setScale(Vector3(0.05, 0.05, 0.05));
 
             // collision nodes debug, also mimics as node visual
             SceneNode* s = t.node->createChildSceneNode();
