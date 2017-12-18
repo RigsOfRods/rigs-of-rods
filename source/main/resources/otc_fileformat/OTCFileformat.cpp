@@ -153,7 +153,6 @@ bool RoR::OTCParser::LoadPageConfig(Ogre::DataStreamPtr &ds, RoR::OTCPage& page,
         this->HandleException(filename);
         return false;
     }
-    page.was_pageconf_parsed = true;
     return true;
 }
 
@@ -184,7 +183,6 @@ RoR::OTCFile::OTCFile():
 
 RoR::OTCPage::OTCPage(int x_pos, int z_pos, std::string const & conf_filename, bool flipX, bool flipY, int rawsize, int rawbpp):
     pageconf_filename(conf_filename),
-    was_pageconf_parsed(false),
     pos_x(x_pos), pos_z(z_pos),
     is_heightmap_raw(false), raw_flip_x(flipX), raw_flip_y(flipY),
     raw_size(rawsize), raw_bpp(rawbpp)
