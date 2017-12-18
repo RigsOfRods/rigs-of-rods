@@ -56,8 +56,11 @@ FlexMesh::FlexMesh(
     m_submesh_tiretread->setMaterialName(band_material_name);
 
     // Define the vertices
-    size_t vertex_count = 4*nrays+2;
-    if (m_is_rimmed) vertex_count+=2*nrays;
+    size_t vertex_count = 4*nrays+2; // each ray needs 4 verts (2 for sidewalls and 2 for band). The axis needs an extra 2.
+    if (m_is_rimmed) // For truckfile sections "[mesh]wheels2".
+    {
+        vertex_count+=2*nrays; // 1 extra vertex for each sidewall.
+    }
     m_vertices = new FlexMeshVertex[vertex_count];
     m_vertex_nodes=(int*)malloc(vertex_count*sizeof(int));
 
@@ -87,15 +90,33 @@ FlexMesh::FlexMesh(
     }
 
     //textures coordinates
-    m_vertices[0].texcoord=Vector2(0.5, 0.5);
+    m_vertices[0].texcoord=Vector2(0.5, 0.5); // Axis vertices - texcoord is middle of the wheelface texture.
     m_vertices[1].texcoord=Vector2(0.5, 0.5);
+    const bool odd_num_rays = (nrays % 2 == 0);
     for (i=0; i<nrays; i++)
     {
         //band
-        m_vertices[2+2*nrays+(i/2)*4].texcoord=Vector2(0.0, 0.0);
-        m_vertices[2+2*nrays+(i/2)*4+1].texcoord=Vector2(0.0, 1.0);
-        m_vertices[2+2*nrays+(i/2)*4+2].texcoord=Vector2(1.0, 0.0);
-        m_vertices[2+2*nrays+(i/2)*4+3].texcoord=Vector2(1.0, 1.0);
+        int band_vert = 2+2*nrays+i*2;
+        if (i % 2 == 0) // Even index
+        {
+            if (odd_num_rays && ((i+1) == nrays))
+            {
+                // Finalize a wheel with odd number of rays like 'bombinette.load' in 'miniredmars' map.
+                m_vertices[band_vert].texcoord=Vector2(0.5, 0.0); // Stretch the texture over 2 quads instead of 1... ugly, but best we can do here
+                m_vertices[band_vert+1].texcoord=Vector2(0.5, 1.0);
+            }
+            else
+            {
+                m_vertices[band_vert].texcoord=Vector2(0.0, 0.0);
+                m_vertices[band_vert+1].texcoord=Vector2(0.0, 1.0);
+            }
+        }
+        else // Odd index
+        {
+            m_vertices[band_vert].texcoord=Vector2(1.0, 0.0);
+            m_vertices[band_vert+1].texcoord=Vector2(1.0, 1.0);
+        }
+
         //face
         if (m_is_rimmed)
         {
