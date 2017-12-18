@@ -35,6 +35,7 @@ void RoR::GUI::GameSettings::Draw()
         {
             App::GetGuiManager()->SetVisible_GameMainMenu(true);
         }
+        ImGui::End();
         return;
     }
 

@@ -42,7 +42,7 @@ public:
             m_tab = SettingsTab::GENERAL;
         }
         m_is_visible = v;
-    }    
+    }
 
 private:
     bool m_is_visible;
