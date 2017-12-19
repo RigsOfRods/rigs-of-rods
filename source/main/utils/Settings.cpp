@@ -751,6 +751,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckB2I  (App::gfx_particles_mode,        k, v)) { return true; }
     if (CheckBool (App::gfx_enable_glow,           k, v)) { return true; }
     if (CheckBool (App::gfx_enable_hdr,            k, v)) { return true; }
+    if (CheckBool (App::gfx_enable_dof,            k, v)) { return true; }
     if (CheckBool (App::gfx_enable_heathaze,       k, v)) { return true; }
     if (CheckBool (App::gfx_enable_videocams,      k, v)) { return true; }
     if (CheckB2I  (App::gfx_skidmarks_mode,        k, v)) { return true; }
@@ -1018,6 +1019,7 @@ void Settings::SaveSettings()
     WriteYN  (f, App::gfx_particles_mode  );
     WriteYN  (f, App::gfx_enable_glow     );
     WriteYN  (f, App::gfx_enable_hdr      );
+    WriteYN  (f, App::gfx_enable_dof      );
     WriteYN  (f, App::gfx_enable_heathaze );
     WriteYN  (f, App::gfx_skidmarks_mode  );
     WriteYN  (f, App::gfx_speedo_digital  );
