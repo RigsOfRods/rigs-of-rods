@@ -2268,7 +2268,7 @@ bool RoRFrameListener::SetupGameplayLoop()
     if (App::gfx_enable_hdr.GetActive() && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::HDR.mask))
         RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HDR);
 
-    if (BSETTING("DOF", false) && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::DEPTH_OF_FIELD.mask))
+    if (App::gfx_enable_dof.GetActive() && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::DEPTH_OF_FIELD.mask))
         RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::DEPTH_OF_FIELD);
 
     if (App::gfx_enable_glow.GetActive() && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::GLOW.mask))
@@ -2429,6 +2429,11 @@ bool RoRFrameListener::SetupGameplayLoop()
 
     gEnv->sceneManager->setAmbientLight(Ogre::ColourValue(0.3f, 0.3f, 0.3f));
 
+    if (App::gfx_enable_dof.GetActive())
+    {
+        gEnv->cameraManager->ActivateDepthOfFieldEffect(this);
+    }
+
     return true;
 }
 
@@ -2441,7 +2446,6 @@ void RoRFrameListener::EnterGameplayLoop()
     App::GetGuiManager()->SetSimController(this);
     App::GetSceneMouse()->SetSimController(this);
     App::GetOverlayWrapper()->SetSimController(this);
-    gEnv->cameraManager->SetSimController(this);
 
     unsigned long timeSinceLastFrame = 1;
     unsigned long startTime = 0;
@@ -2506,5 +2510,5 @@ void RoRFrameListener::EnterGameplayLoop()
     App::GetGuiManager()->SetSimController(nullptr);
     // DO NOT: App::GetSceneMouse()    ->SetSimController(nullptr); -- already deleted via App::DeleteSceneMouse();      // TODO: de-globalize that object!
     // DO NOT: App::GetOverlayWrapper()->SetSimController(nullptr); -- already deleted via App::DestroyOverlayWrapper(); // TODO: de-globalize that object!
-    gEnv->cameraManager->SetSimController(nullptr);  // TODO: de-globalize that object!
+    gEnv->cameraManager->DisableDepthOfFieldEffect(); // TODO: de-globalize the CameraManager
 }

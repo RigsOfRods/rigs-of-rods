@@ -738,6 +738,7 @@ extern GVarPod_A<bool>         gfx_minimap_disabled;
 extern GVarPod_A<int>          gfx_particles_mode;
 extern GVarPod_A<bool>         gfx_enable_glow;
 extern GVarPod_A<bool>         gfx_enable_hdr;
+extern GVarPod_A<bool>         gfx_enable_dof;
 extern GVarPod_A<bool>         gfx_enable_heathaze;
 extern GVarPod_A<bool>         gfx_enable_videocams;
 extern GVarPod_A<bool>         gfx_envmap_enabled;

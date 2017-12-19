@@ -79,7 +79,8 @@ public:
     void OnReturnToMainMenu();
     void NotifyContextChange();
     void NotifyVehicleChanged(Beam* old_vehicle, Beam* new_vehicle);
-    void SetSimController(RoRFrameListener* sim);
+    void ActivateDepthOfFieldEffect(RoRFrameListener* sim);
+    void DisableDepthOfFieldEffect();
 
 protected:
 

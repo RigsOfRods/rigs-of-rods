@@ -146,6 +146,7 @@ void RoR::GUI::GameSettings::Draw()
         DrawGCheckbox(App::gfx_minimap_disabled, "Minimap disabled");
         DrawGCheckbox(App::gfx_enable_glow,      "Glow (bloom) effect");
         DrawGCheckbox(App::gfx_enable_hdr,       "HDR (high dynamic range)");
+        DrawGCheckbox(App::gfx_enable_dof,       "DOF (depth of field)");
         DrawGCheckbox(App::gfx_enable_heathaze,  "HeatHaze effect");
         DrawGCheckbox(App::gfx_enable_videocams, "Render VideoCameras");
         DrawGCheckbox(App::gfx_envmap_enabled,   "Realtime reflections");

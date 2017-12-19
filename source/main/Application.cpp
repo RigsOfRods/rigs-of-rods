@@ -145,6 +145,7 @@ static RoRFrameListener* g_sim_controller;
  GVarPod_A<int>           gfx_particles_mode      ("gfx_particles_mode",      "Particles",                 0);
  GVarPod_A<bool>          gfx_enable_glow         ("gfx_enable_glow",         "Glow",                      false);
  GVarPod_A<bool>          gfx_enable_hdr          ("gfx_enable_hdr",          "HDR",                       false);
+ GVarPod_A<bool>          gfx_enable_dof          ("gfx_enable_dof",          "DOF",                       false);
  GVarPod_A<bool>          gfx_enable_heathaze     ("gfx_enable_heathaze",     "HeatHaze",                  false);
  GVarPod_A<bool>          gfx_enable_videocams    ("gfx_enable_videocams",    "gfx_enable_videocams",      false);
  GVarPod_A<bool>          gfx_envmap_enabled      ("gfx_envmap_enabled",      "Envmap",                    false);
