@@ -359,5 +359,4 @@ void GUIInputManager::WakeUpGUI()
 void GUIInputManager::SupressCursor(bool do_supress)
 {
     m_is_cursor_supressed = do_supress;
-    MyGUI::PointerManager::getInstance().setVisible(!do_supress);
 }

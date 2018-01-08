@@ -62,7 +62,6 @@ bool CameraBehaviorCharacter::mouseMoved(const CameraManager::CameraContext& ctx
         gEnv->player->setRotation(angle);
 
         RoR::App::GetGuiManager()->SetMouseCursorVisibility(RoR::GUIManager::MouseCursorVisibility::HIDDEN);
-        MyGUI::PointerManager::getInstance().setVisible(false);
 
         return true;
     }
