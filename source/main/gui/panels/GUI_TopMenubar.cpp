@@ -439,7 +439,6 @@ void TopMenubar::SetVisible(bool value)
 {
     m_menubar_widget->setVisible(value);
     if (!value) RoR::App::GetGuiManager()->UnfocusGui();
-    //MyGUI::PointerManager::getInstance().setVisible(value);
 }
 
 bool TopMenubar::IsVisible()
