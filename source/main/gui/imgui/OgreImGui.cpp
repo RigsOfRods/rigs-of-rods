@@ -147,9 +147,14 @@ void OgreImGui::Render()
     /// ... Commentary on OGRE forums: http://www.ogre3d.org/forums/viewtopic.php?f=5&t=89081#p531059
     ImGui::Render();
     ImDrawData* draw_data = ImGui::GetDrawData();
+    int vpWidth = 2000; // Dummy viewport size
+    int vpHeight = 2000;
     Ogre::Viewport* vp = renderSys->_getViewport();
-    int vpWidth  = vp->getActualWidth();
-    int vpHeight = vp->getActualHeight();
+    if (vp != nullptr) // Viewport is sometimes 'null' on Windows/Dx9 right after game startup or map load - probably related to switching Ogre::Camera-s ~ only_a_ptr, 01/2018
+    {
+        vpWidth  = vp->getActualWidth();
+        vpHeight = vp->getActualHeight();
+    }
     for (int i = 0; i < draw_data->CmdListsCount; ++i)
     {
         const ImDrawList* draw_list = draw_data->CmdLists[i];
