@@ -350,7 +350,10 @@ void GUIInputManager::WakeUpGUI()
         RoR::App::GetGuiManager()->SetMouseCursorVisibility(RoR::GUIManager::MouseCursorVisibility::VISIBLE);
     }
 
-    RoR::App::GetGuiManager()->SetVisible_TopMenubar(true);
+    if (RoR::App::app_state.GetActive() == RoR::AppState::SIMULATION)
+    {
+        RoR::App::GetGuiManager()->SetVisible_TopMenubar(true);
+    }
 }
 
 void GUIInputManager::SupressCursor(bool do_supress)
