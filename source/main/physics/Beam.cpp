@@ -116,10 +116,10 @@ Beam::~Beam()
 #ifdef USE_OPENAL
     for (int i = SS_TRIG_NONE + 1; i < SS_MAX_TRIG; i++)
     {
-        SoundScriptManager::getSingleton().trigStop(this->trucknum, i);
+        SOUND_STOP(this->trucknum, i);
     }
+#endif
     StopAllSounds();
-#endif // USE_OPENAL
 
     // destruct and remove every tiny bit of stuff we created :-|
     if (engine)
@@ -758,19 +758,17 @@ void Beam::calcNetwork()
     int gear = oob1->engine_gear;
     unsigned int flagmask = oob1->flagmask;
 
-#ifdef USE_OPENAL
     if (engine)
     {
-        SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_ENGINE, engspeed);
+        SOUND_MODULATE(trucknum, SS_MOD_ENGINE, engspeed);
     }
     if (free_aeroengine > 0)
     {
-        SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_AEROENGINE1, engspeed);
-        SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_AEROENGINE2, engspeed);
-        SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_AEROENGINE3, engspeed);
-        SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_AEROENGINE4, engspeed);
+        SOUND_MODULATE(trucknum, SS_MOD_AEROENGINE1, engspeed);
+        SOUND_MODULATE(trucknum, SS_MOD_AEROENGINE2, engspeed);
+        SOUND_MODULATE(trucknum, SS_MOD_AEROENGINE3, engspeed);
+        SOUND_MODULATE(trucknum, SS_MOD_AEROENGINE4, engspeed);
     }
-#endif //OPENAL
 
     brake = netbrake;
 
@@ -820,17 +818,15 @@ void Beam::calcNetwork()
     netBrakeLight = ((flagmask & NETMASK_BRAKES) != 0);
     netReverseLight = ((flagmask & NETMASK_REVERSE) != 0);
 
-#ifdef USE_OPENAL
     if ((flagmask & NETMASK_HORN))
-        SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_HORN);
+        SOUND_START(trucknum, SS_TRIG_HORN);
     else
-        SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_HORN);
+        SOUND_STOP(trucknum, SS_TRIG_HORN);
 
     if (netReverseLight)
-        SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_REVERSE_GEAR);
+        SOUND_START(trucknum, SS_TRIG_REVERSE_GEAR);
     else
-        SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_REVERSE_GEAR);
-#endif //OPENAL
+        SOUND_STOP(trucknum, SS_TRIG_REVERSE_GEAR);
 
     updateDashBoards(tratio);
 
@@ -1951,10 +1947,8 @@ void Beam::sendStreamData()
         if (antilockbrake)
             send_oob->flagmask += NETMASK_ALB_ACTIVE;
 
-#ifdef USE_OPENAL
-        if (SoundScriptManager::getSingleton().getTrigState(trucknum, SS_TRIG_HORN))
+        if (SOUND_GET_STATE(trucknum, SS_TRIG_HORN))
             send_oob->flagmask += NETMASK_HORN;
-#endif //OPENAL
     }
 
     // then process the contents
@@ -3267,28 +3261,28 @@ void Beam::updateFlares(float dt, bool isCurrent)
         if (flares[i].type == 'l' && blinkingtype == BLINK_LEFT)
         {
             left_blink_on = isvisible;
-#ifdef USE_OPENAL
+
             if (left_blink_on)
-                SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_TURN_SIGNAL_TICK);
-#endif //USE_OPENAL
+                SOUND_PLAY_ONCE(trucknum, SS_TRIG_TURN_SIGNAL_TICK);
+
             dash->setBool(DD_SIGNAL_TURNLEFT, isvisible);
         }
         else if (flares[i].type == 'r' && blinkingtype == BLINK_RIGHT)
         {
             right_blink_on = isvisible;
-#ifdef USE_OPENAL
+
             if (right_blink_on)
-                SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_TURN_SIGNAL_TICK);
-#endif //USE_OPENAL
+                SOUND_PLAY_ONCE(trucknum, SS_TRIG_TURN_SIGNAL_TICK);
+
             dash->setBool(DD_SIGNAL_TURNRIGHT, isvisible);
         }
         else if (flares[i].type == 'l' && blinkingtype == BLINK_WARN)
         {
             warn_blink_on = isvisible;
-#ifdef USE_OPENAL
+
             if (warn_blink_on)
-                SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_TURN_SIGNAL_WARN_TICK);
-#endif //USE_OPENAL
+                SOUND_PLAY_ONCE(trucknum, SS_TRIG_TURN_SIGNAL_WARN_TICK);
+
             dash->setBool(DD_SIGNAL_TURNRIGHT, isvisible);
             dash->setBool(DD_SIGNAL_TURNLEFT, isvisible);
         }
@@ -3356,16 +3350,14 @@ void Beam::setBlinkType(blinktype blink)
     right_blink_on = false;
     warn_blink_on = false;
 
-#ifdef USE_OPENAL
     if (blink == BLINK_NONE)
     {
-        SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_TURN_SIGNAL);
+        SOUND_STOP(trucknum, SS_TRIG_TURN_SIGNAL);
     }
     else
     {
-        SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_TURN_SIGNAL);
+        SOUND_START(trucknum, SS_TRIG_TURN_SIGNAL);
     }
-#endif //OPENAL
 }
 
 void Beam::autoBlinkReset()
@@ -3467,8 +3459,8 @@ void Beam::updateSoundSources()
         soundsources[i].ssi->setPosition(nodes[soundsources[i].nodenum].AbsPosition, nodes[soundsources[i].nodenum].Velocity);
     }
     //also this, so it is updated always, and for any vehicle
-    SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_AIRSPEED, nodes[0].Velocity.length() * 1.9438);
-    SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_WHEELSPEED, WheelSpeed * 3.6);
+    SOUND_MODULATE(trucknum, SS_MOD_AIRSPEED, nodes[0].Velocity.length() * 1.9438);
+    SOUND_MODULATE(trucknum, SS_MOD_WHEELSPEED, WheelSpeed * 3.6);
 #endif //OPENAL
     BES_GFX_STOP(BES_GFX_updateSoundSources);
 }
@@ -3582,7 +3574,7 @@ void Beam::updateVisual(float dt)
         avichatter_timer -= dt;
         if (avichatter_timer < 0)
         {
-            SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_AVICHAT01 + Math::RangeRandom(0, 12));
+            SOUND_PLAY_ONCE(trucknum, SS_TRIG_AVICHAT01 + Math::RangeRandom(0, 12));
             avichatter_timer = Math::RangeRandom(11, 30);
         }
     }
@@ -4561,12 +4553,10 @@ void Beam::parkingbrakeToggle()
 {
     parkingbrake = !parkingbrake;
 
-#ifdef USE_OPENAL
     if (parkingbrake)
-        SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_PARK);
+        SOUND_START(trucknum, SS_TRIG_PARK);
     else
-        SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_PARK);
-#endif // USE_OPENAL
+        SOUND_STOP(trucknum, SS_TRIG_PARK);
 
     //ScriptEvent - Parking Brake toggle
     TRIGGER_EVENT(SE_TRUCK_PARKINGBREAK_TOGGLE, trucknum);
@@ -4948,20 +4938,24 @@ bool Beam::getReverseLightVisible()
 
 void Beam::StopAllSounds()
 {
+#ifdef USE_OPENAL
     for (int i = 0; i < free_soundsource; i++)
     {
         if (soundsources[i].ssi)
             soundsources[i].ssi->setEnabled(false);
     }
+#endif // USE_OPENAL
 }
 
 void Beam::UnmuteAllSounds()
 {
+#ifdef USE_OPENAL
     for (int i = 0; i < free_soundsource; i++)
     {
         bool enabled = (soundsources[i].type == -2 || soundsources[i].type == currentcamera);
         soundsources[i].ssi->setEnabled(enabled);
     }
+#endif // USE_OPENAL
 }
 
 void Beam::changedCamera()

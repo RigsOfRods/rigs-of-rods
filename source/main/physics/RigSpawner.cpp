@@ -1306,6 +1306,7 @@ float RigSpawner::ComputeWingArea(Ogre::Vector3 const & ref, Ogre::Vector3 const
 
 void RigSpawner::ProcessSoundSource2(RigDef::SoundSource2 & def)
 {
+#ifdef USE_OPENAL
     SPAWNER_PROFILE_SCOPED();
 
     int mode = (def.mode == RigDef::SoundSource2::MODE_CINECAM) ? def.cinecam_index : def.mode;
@@ -1320,13 +1321,15 @@ void RigSpawner::ProcessSoundSource2(RigDef::SoundSource2 & def)
             node_index,
             mode
         );
+#endif // USE_OPENAL
 }
 
 void RigSpawner::AddSoundSourceInstance(Beam *vehicle, Ogre::String const & sound_script_name, int node_index, int type)
 {
     SPAWNER_PROFILE_SCOPED();
-
+#ifdef USE_OPENAL
     AddSoundSource(vehicle, SoundScriptManager::getSingleton().createInstance(sound_script_name, vehicle->trucknum, nullptr), node_index);
+#endif // USE_OPENAL
 }
 
 void RigSpawner::AddSoundSource(Beam *vehicle, SoundScriptInstance *sound_script, int node_index, int type)
@@ -1351,6 +1354,7 @@ void RigSpawner::AddSoundSource(Beam *vehicle, SoundScriptInstance *sound_script
 
 void RigSpawner::ProcessSoundSource(RigDef::SoundSource & def)
 {
+#ifdef USE_OPENAL
     SPAWNER_PROFILE_SCOPED();
 
     AddSoundSource(
@@ -1359,6 +1363,7 @@ void RigSpawner::ProcessSoundSource(RigDef::SoundSource & def)
             GetNodeIndexOrThrow(def.node),
             -2
         );
+#endif // USE_OPENAL
 }
 
 void RigSpawner::ProcessCameraRail(RigDef::CameraRail & def)
@@ -6836,8 +6841,8 @@ void RigSpawner::SetupDefaultSoundSources(Beam *vehicle)
         else
             AddSoundSourceInstance(vehicle, "tracks/default_marine_small", smokeId);
         //no start/stop engine for boats, so set sound always on!
-        SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_ENGINE);
-        SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_ENGINE, 0.5);
+        SOUND_START(trucknum, SS_TRIG_ENGINE);
+        SOUND_MODULATE(trucknum, SS_MOD_ENGINE, 0.5);
     }
     //airplane warnings
     if (vehicle->driveable==AIRPLANE)
