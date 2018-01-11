@@ -606,28 +606,20 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
     {
         if (!antilockbrake)
         {
-#ifdef USE_OPENAL
-            SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_ALB_ACTIVE);
-#endif //USE_OPENAL
+            SOUND_STOP(trucknum, SS_TRIG_ALB_ACTIVE);
         }
         else
         {
-#ifdef USE_OPENAL
-            SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_ALB_ACTIVE);
-#endif //USE_OPENAL
+            SOUND_START(trucknum, SS_TRIG_ALB_ACTIVE);
         }
 
         if (!tractioncontrol)
         {
-#ifdef USE_OPENAL
-            SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_TC_ACTIVE);
-#endif //USE_OPENAL
+            SOUND_STOP(trucknum, SS_TRIG_TC_ACTIVE);
         }
         else
         {
-#ifdef USE_OPENAL
-            SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_TC_ACTIVE);
-#endif //USE_OPENAL
+            SOUND_START(trucknum, SS_TRIG_TC_ACTIVE);
         }
     }
 
@@ -705,12 +697,10 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
             stabcommand = 0;
         }
 
-#ifdef USE_OPENAL
         if (stabcommand && fabs(stabratio) < 0.1)
-            SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_AIR);
+            SOUND_START(trucknum, SS_TRIG_AIR);
         else
-            SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_AIR);
-#endif //OPENAL
+            SOUND_STOP(trucknum, SS_TRIG_AIR);
     }
 
     BES_STOP(BES_CORE_Shocks);
@@ -1161,13 +1151,13 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
 #ifdef USE_OPENAL
             if (active > 0)
             {
-                SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_PUMP);
+                SOUND_START(trucknum, SS_TRIG_PUMP);
                 float pump_rpm = 660.0f * (1.0f - (work / (float)active) / 100.0f);
-                SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_PUMP, pump_rpm);
+                SOUND_MODULATE(trucknum, SS_MOD_PUMP, pump_rpm);
             }
             else
             {
-                SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_PUMP);
+                SOUND_STOP(trucknum, SS_TRIG_PUMP);
             }
 #endif //USE_OPENAL
         }
@@ -1468,10 +1458,9 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                 {
                     // Sound effect.
                     // Sound volume depends on springs stored energy
-#ifdef USE_OPENAL
-                    SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_BREAK, 0.5 * k * difftoBeamL * difftoBeamL);
-                    SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_BREAK);
-#endif //OPENAL
+                    SOUND_MODULATE(trucknum, SS_MOD_BREAK, 0.5 * k * difftoBeamL * difftoBeamL);
+                    SOUND_PLAY_ONCE(trucknum, SS_TRIG_BREAK);
+
                     increased_accuracy = true;
 
                     //Break the beam only when it is not connected to a node
@@ -1639,10 +1628,8 @@ void Beam::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxste
                 {
                     // Sound effect.
                     // Sound volume depends on springs stored energy
-#ifdef USE_OPENAL
-                    SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_BREAK, 0.5 * k * difftoBeamL * difftoBeamL);
-                    SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_BREAK);
-#endif //OPENAL
+                    SOUND_MODULATE(trucknum, SS_MOD_BREAK, 0.5 * k * difftoBeamL * difftoBeamL);
+                    SOUND_PLAY_ONCE(trucknum, SS_TRIG_BREAK);
 
                     //Break the beam only when it is not connected to a node
                     //which is a part of a collision triangle and has 2 "live" beams or less
@@ -1737,10 +1724,10 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                             {
                                 if (dustp)
                                     dustp->allocSmoke(nodes[i].AbsPosition, nodes[i].Velocity);
-#ifdef USE_OPENAL
-                                SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_SCREETCH, (ns - thresold) / thresold);
-                                SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_SCREETCH);
-#endif //USE_OPENAL
+
+                                SOUND_MODULATE(trucknum, SS_MOD_SCREETCH, (ns - thresold) / thresold);
+                                SOUND_PLAY_ONCE(trucknum, SS_TRIG_SCREETCH);
+
                                 //Shouldn't skidmarks be activated from here?
                                 if (useSkidmarks)
                                 {

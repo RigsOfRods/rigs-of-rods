@@ -157,9 +157,9 @@ Turboprop::~Turboprop()
 {
     //A fast work around 
     //
-    SoundScriptManager::getSingleton().modulate(trucknum, thr_id, 0);
-    SoundScriptManager::getSingleton().modulate(trucknum, mod_id, 0);
-    SoundScriptManager::getSingleton().trigStop(trucknum, src_id);
+    SOUND_MODULATE(trucknum, thr_id, 0);
+    SOUND_MODULATE(trucknum, mod_id, 0);
+    SOUND_STOP(trucknum, src_id);
 
     if (airfoil != nullptr)
         delete airfoil;
@@ -255,10 +255,7 @@ void Turboprop::updateForces(float dt, int doUpdate)
         //float airtemperature=sea_level_temperature-altitude*0.0065; //in Kelvin
         float airpressure = sea_level_pressure * pow(1.0 - 0.0065 * altitude / 288.15, 5.24947); //in Pa
         airdensity = airpressure * 0.0000120896;//1.225 at sea level
-#ifdef USE_OPENAL
-        //sound update
-        SoundScriptManager::getSingleton().modulate(trucknum, mod_id, rpm);
-#endif //OPENAL
+        SOUND_MODULATE(trucknum, mod_id, rpm);
     }
 
     timer += dt;
@@ -471,10 +468,7 @@ void Turboprop::setThrottle(float val)
     if (val < 0.0)
         val = 0.0;
     throtle = val;
-#ifdef USE_OPENAL
-    //sound update
-    SoundScriptManager::getSingleton().modulate(trucknum, thr_id, val);
-#endif //OPENAL
+    SOUND_MODULATE(trucknum, thr_id, val);
 }
 
 float Turboprop::getThrottle()
@@ -514,15 +508,11 @@ void Turboprop::flipStart()
     {
         warmup = true;
         warmupstart = timer;
-#ifdef USE_OPENAL
-        SoundScriptManager::getSingleton().trigStart(trucknum, src_id);
-#endif //OPENAL
+        SOUND_START(trucknum, src_id);
     }
     else
     {
-#ifdef USE_OPENAL
-        SoundScriptManager::getSingleton().trigStop(trucknum, src_id);
-#endif //OPENAL
+        SOUND_STOP(trucknum, src_id);
     }
     lastflip = timer;
 }

@@ -78,9 +78,7 @@ void Screwprop::setThrottle(float val)
     reverse = (val < 0);
     //pseudo-rpm
     float prpm = (0.5 + fabs(val) / 2.0) * 100.0;
-#ifdef USE_OPENAL
-    SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_ENGINE, prpm);
-#endif // USE_OPENAL
+    SOUND_MODULATE(trucknum, SS_MOD_ENGINE, prpm);
 }
 
 void Screwprop::setRudder(float val)

@@ -100,5 +100,5 @@ private:
     float lastradiorwd;
     float last_closest_hdist;
 
-    int trucknum;
+    int m_actor_id;
 };

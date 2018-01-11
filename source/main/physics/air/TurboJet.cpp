@@ -116,10 +116,10 @@ Turbojet::~Turbojet()
 {
     //A fast work around 
     //
-    SoundScriptManager::getSingleton().modulate(trucknum, thr_id, 0);
-    SoundScriptManager::getSingleton().modulate(trucknum, mod_id, 0);
-    SoundScriptManager::getSingleton().trigStop(trucknum, ab_id);
-    SoundScriptManager::getSingleton().trigStop(trucknum, src_id);
+    SOUND_MODULATE(trucknum, thr_id, 0);
+    SOUND_MODULATE(trucknum, mod_id, 0);
+    SOUND_STOP(trucknum, ab_id);
+    SOUND_STOP(trucknum, src_id);
 
     if (flameMesh != nullptr)
     {
@@ -214,10 +214,7 @@ void Turbojet::updateForces(float dt, int doUpdate)
 {
     if (doUpdate)
     {
-#ifdef USE_OPENAL
-        //sound update
-        SoundScriptManager::getSingleton().modulate(trucknum, mod_id, rpm);
-#endif //OPENAL
+        SOUND_MODULATE(trucknum, mod_id, rpm);
     }
     timer += dt;
     axis = nodes[nodefront].RelPosition - nodes[nodeback].RelPosition;
@@ -258,12 +255,11 @@ void Turbojet::updateForces(float dt, int doUpdate)
     }
     else
         afterburner = false;
-#ifdef USE_OPENAL
+
     if (afterburner)
-        SoundScriptManager::getSingleton().trigStart(trucknum, ab_id);
+        SOUND_START(trucknum, ab_id);
     else
-        SoundScriptManager::getSingleton().trigStop(trucknum, ab_id);
-#endif //OPENAL
+        SOUND_START(trucknum, ab_id);
 
     nodes[nodeback].Forces += (enginethrust * 1000.0) * axis;
     exhaust_velocity = enginethrust * 5.6 / area;
@@ -273,13 +269,12 @@ void Turbojet::setThrottle(float val)
 {
     if (val > 1.0)
         val = 1.0;
+
     if (val < 0.0)
         val = 0.0;
+
     throtle = val;
-#ifdef USE_OPENAL
-    //sound update
-    SoundScriptManager::getSingleton().modulate(trucknum, thr_id, val);
-#endif //OPENAL
+    SOUND_MODULATE(trucknum, thr_id, val);
 }
 
 float Turbojet::getThrottle()
@@ -319,15 +314,11 @@ void Turbojet::flipStart()
     {
         warmup = true;
         warmupstart = timer;
-#ifdef USE_OPENAL
-        SoundScriptManager::getSingleton().trigStart(trucknum, src_id);
-#endif //OPENAL
+        SOUND_START(trucknum, src_id);
     }
     else
     {
-#ifdef USE_OPENAL
-        SoundScriptManager::getSingleton().trigStop(trucknum, src_id);
-#endif //OPENAL
+        SOUND_STOP(trucknum, src_id);
     }
 
     lastflip = timer;
