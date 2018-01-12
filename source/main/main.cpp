@@ -302,9 +302,8 @@ int main(int argc, char *argv[])
                     menu_wallpaper_widget->setVisible(true);
 
 #ifdef USE_MUMBLE
-                    auto* mumble = SoundScriptManager::getSingleton().GetMumble();
-                    if (mumble != nullptr)
-                        mumble->SetNonPositionalAudio();
+                    if (App::GetMumble() != nullptr)
+                        App::GetMumble()->SetNonPositionalAudio();
 #endif // USE_MUMBLE
                 }
 

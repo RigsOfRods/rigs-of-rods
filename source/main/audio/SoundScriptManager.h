@@ -282,11 +282,6 @@ public:
 
     bool isDisabled() { return disabled; }
 
-#ifdef USE_MUMBLE
-    MumbleIntegration* GetMumble() { return m_mumble; }
-    void               CheckAndCreateMumble();
-#endif // USE_MUMBLE
-
 private:
 
     SoundScriptTemplate* createTemplate(Ogre::String name, Ogre::String groupname, Ogre::String filename);
@@ -318,9 +313,6 @@ private:
     std::map <int, std::map <int, std::map <int, std::map <int, bool > > > > state_map;
 
     SoundManager* sound_manager;
-#ifdef USE_MUMBLE
-    MumbleIntegration* m_mumble; // TODO: Not a perfect spot, but better than `class MainMenu`.
-#endif // USE_MUMBLE
 };
 
 #endif // USE_OPENAL
