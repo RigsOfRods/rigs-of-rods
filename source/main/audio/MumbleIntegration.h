@@ -23,9 +23,9 @@
 /// @author Thomas Fischer (thomas{AT}thomasfischer{DOT}biz)
 /// @date   26th of March 2011
 
-#ifdef USE_MUMBLE
-
 #pragma once
+
+#ifdef USE_MUMBLE
 
 #include "RoRPrerequisites.h"
 

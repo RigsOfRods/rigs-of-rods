@@ -34,6 +34,7 @@
 #include "OgreSubsystem.h"
 #include "OverlayWrapper.h"
 #include "SceneMouse.h"
+#include "MumbleIntegration.h"
 
 namespace RoR {
 namespace App {
@@ -54,6 +55,7 @@ static InputEngine*     g_input_engine;
 static CacheSystem*     g_cache_system;
 static MainMenu*        g_main_menu;
 static RoRFrameListener* g_sim_controller;
+static MumbleIntegration* g_mumble;
 
 // App
  GVarEnum_AP<AppState>    app_state               ("app_state",               nullptr,                     AppState::BOOTSTRAP,     AppState::MAIN_MENU);
@@ -174,6 +176,7 @@ InputEngine*           GetInputEngine        () { return g_input_engine;}
 CacheSystem*           GetCacheSystem        () { return g_cache_system;}
 MainMenu*              GetMainMenu           () { return g_main_menu;}
 RoRFrameListener*      GetSimController      () { return g_sim_controller; }
+MumbleIntegration*     GetMumble             () { return g_mumble; }
 
 void StartOgreSubsystem()
 {
@@ -264,6 +267,15 @@ void CreateCacheSystem()
 {
     assert(g_cache_system == nullptr);
     g_cache_system = new CacheSystem();
+}
+
+
+void CheckAndCreateMumble()
+{
+#ifdef USE_MUMBLE // The class is always forward-declared but only defined if USE_MUMBLE is defined
+    if (g_mumble == nullptr)
+        g_mumble = new MumbleIntegration();
+#endif // USE_MUMBLE
 }
 
 } // namespace App

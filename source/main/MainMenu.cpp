@@ -220,9 +220,7 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
             App::mp_state.SetActive(RoR::MpState::CONNECTED);
             gui->SetVisible_MpClientList(true);
             ChatSystem::SendStreamSetup();
-#ifdef USE_MUMBLE
-            SoundScriptManager::getSingleton().CheckAndCreateMumble();
-#endif // USE_MUMBLE
+            App::CheckAndCreateMumble();
             String terrain_name = Networking::GetTerrainName();
             if (terrain_name != "any")
             {
