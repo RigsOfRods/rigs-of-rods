@@ -747,9 +747,8 @@ void BeamFactory::repairTruck(Collisions* collisions, const Ogre::String& inst, 
     if (rtruck >= 0)
     {
         // take a position reference
-#ifdef USE_OPENAL
-        SoundScriptManager::getSingleton().trigOnce(rtruck, SS_TRIG_REPAIR);
-#endif // USE_OPENAL
+        SOUND_PLAY_ONCE(rtruck, SS_TRIG_REPAIR);
+
         Vector3 ipos = m_trucks[rtruck]->nodes[0].AbsPosition;
         m_trucks[rtruck]->reset();
         m_trucks[rtruck]->resetPosition(ipos.x, ipos.z, false, 0);

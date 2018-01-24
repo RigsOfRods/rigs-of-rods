@@ -2,6 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
+    Copyright 2017-2018 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -27,6 +28,14 @@
 #include "Singleton.h"
 
 #include <OgreScriptLoader.h>
+
+#define SOUND_PLAY_ONCE(_ACTOR_, _TRIG_)        SoundScriptManager::getSingleton().trigOnce    ( (_ACTOR_), (_TRIG_) )
+#define SOUND_START(_ACTOR_, _TRIG_)            SoundScriptManager::getSingleton().trigStart   ( (_ACTOR_), (_TRIG_) )
+#define SOUND_STOP(_ACTOR_, _TRIG_)             SoundScriptManager::getSingleton().trigStop    ( (_ACTOR_), (_TRIG_) )
+#define SOUND_TOGGLE(_ACTOR_, _TRIG_)           SoundScriptManager::getSingleton().trigToggle  ( (_ACTOR_), (_TRIG_) )
+#define SOUND_KILL(_ACTOR_, _TRIG_)             SoundScriptManager::getSingleton().trigKill    ( (_ACTOR_), (_TRIG_) )
+#define SOUND_GET_STATE(_ACTOR_, _TRIG_)        SoundScriptManager::getSingleton().getTrigState( (_ACTOR_), (_TRIG_) )
+#define SOUND_MODULATE(_ACTOR_, _MOD_, _VALUE_) SoundScriptManager::getSingleton().modulate    ( (_ACTOR_), (_MOD_), (_VALUE_) )
 
 enum {
     MAX_SOUNDS_PER_SCRIPT = 16,
@@ -282,11 +291,6 @@ public:
 
     bool isDisabled() { return disabled; }
 
-#ifdef USE_MUMBLE
-    MumbleIntegration* GetMumble() { return m_mumble; }
-    void               CheckAndCreateMumble();
-#endif // USE_MUMBLE
-
 private:
 
     SoundScriptTemplate* createTemplate(Ogre::String name, Ogre::String groupname, Ogre::String filename);
@@ -318,9 +322,16 @@ private:
     std::map <int, std::map <int, std::map <int, std::map <int, bool > > > > state_map;
 
     SoundManager* sound_manager;
-#ifdef USE_MUMBLE
-    MumbleIntegration* m_mumble; // TODO: Not a perfect spot, but better than `class MainMenu`.
-#endif // USE_MUMBLE
 };
+
+#else // USE_OPENAL
+
+#define SOUND_PLAY_ONCE(_ACTOR_, _TRIG_)
+#define SOUND_START(_ACTOR_, _TRIG_)
+#define SOUND_STOP(_ACTOR_, _TRIG_)
+#define SOUND_TOGGLE(_ACTOR_, _TRIG_)
+#define SOUND_KILL(_ACTOR_, _TRIG_)
+#define SOUND_GET_STATE(_ACTOR_, _TRIG_) (false)
+#define SOUND_MODULATE(_ACTOR_, _MOD_, _VALUE_)
 
 #endif // USE_OPENAL

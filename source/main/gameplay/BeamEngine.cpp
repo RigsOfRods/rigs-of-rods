@@ -260,9 +260,7 @@ void BeamEngine::update(float dt, int doUpdate)
 
     if (doUpdate)
     {
-#ifdef USE_OPENAL
-        SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_INJECTOR, acc);
-#endif // USE_OPENAL
+        SOUND_MODULATE(m_actor, SS_MOD_INJECTOR, acc);
     }
 
     if (hasair)
@@ -271,9 +269,7 @@ void BeamEngine::update(float dt, int doUpdate)
         apressure += dt * curEngineRPM;
         if (apressure > 50000.0f)
         {
-#ifdef USE_OPENAL
-            SoundScriptManager::getSingleton().trigOnce(trucknum, SS_TRIG_AIR_PURGE);
-#endif // USE_OPENAL
+            SOUND_PLAY_ONCE(m_actor, SS_TRIG_AIR_PURGE);
             apressure = 0.0f;
         }
     }
@@ -336,11 +332,11 @@ void BeamEngine::update(float dt, int doUpdate)
 
                             if (b_flutter)
                             {
-                                SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_TURBOWASTEGATE);
+                                SOUND_START(m_actor, SS_TRIG_TURBOWASTEGATE);
                                 if (curTurboRPM[i] < minWGPsi * wastegate_threshold_n)
                                 {
                                     b_flutter = false;
-                                    SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_TURBOWASTEGATE);
+                                    SOUND_STOP(m_actor, SS_TRIG_TURBOWASTEGATE);
                                 }
                             }
                         }
@@ -380,11 +376,13 @@ void BeamEngine::update(float dt, int doUpdate)
                         if (curTurboRPM[i] > maxTurboRPM * 0.35 && curTurboRPM[i] < maxTurboRPM)
                         {
                             turbotorque -= (turbotorque * (f * antilag_power_factor));
-                            SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_TURBOBACKFIRE);
+                            SOUND_START(m_actor, SS_TRIG_TURBOBACKFIRE);
                         }
                     }
                     else
-                        SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_TURBOBACKFIRE);
+                    {
+                        SOUND_STOP(m_actor, SS_TRIG_TURBOBACKFIRE);
+                    }
                 }
 
                 // update main turbo rpm
@@ -403,12 +401,12 @@ void BeamEngine::update(float dt, int doUpdate)
 
                     if (curAcc < 0.06 && curTurboRPM[i] > minBOVPsi * 10000)
                     {
-                        SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_TURBOBOV);
+                        SOUND_START(m_actor, SS_TRIG_TURBOBOV);
                         curBOVTurboRPM[i] += dt * turboBOVtorque / (turboInertia * 0.1);
                     }
                     else
                     {
-                        SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_TURBOBOV);
+                        SOUND_STOP(m_actor, SS_TRIG_TURBOBOV);
                         if (curBOVTurboRPM[i] < curTurboRPM[i])
                             curBOVTurboRPM[i] += dt * turboBOVtorque / (turboInertia * 0.05);
                         else
@@ -459,9 +457,7 @@ void BeamEngine::update(float dt, int doUpdate)
             else
             {
                 running = true;
-#ifdef USE_OPENAL
-                SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_ENGINE);
-#endif // USE_OPENAL
+                SOUND_START(m_actor, SS_TRIG_ENGINE);
             }
         }
     }
@@ -512,9 +508,7 @@ void BeamEngine::update(float dt, int doUpdate)
                 else
                 {
                     // engage a gear
-#ifdef USE_OPENAL
-                    SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_SHIFT);
-#endif // USE_OPENAL
+                    SOUND_START(m_actor, SS_TRIG_SHIFT);
                     if (autoselect != NEUTRAL)
                     {
                         curGear += shiftval;
@@ -528,9 +522,8 @@ void BeamEngine::update(float dt, int doUpdate)
             if (shiftclock > shift_time)
             {
                 // we're done shifting
-#ifdef USE_OPENAL
-                SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_SHIFT);
-#endif // USE_OPENAL
+                SOUND_STOP(m_actor, SS_TRIG_SHIFT);
+
                 setAcc(autocurAcc);
                 shifting = 0;
                 postshifting = 1;
@@ -811,28 +804,26 @@ void BeamEngine::update(float dt, int doUpdate)
 void BeamEngine::updateAudio(int doUpdate)
 {
 #ifdef USE_OPENAL
-    const int trucknum = m_actor->trucknum;
-
     if (hasturbo)
     {
         for (int i = 0; i < numTurbos; i++)
-            SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_TURBO, curTurboRPM[i]);
+             SOUND_MODULATE(m_actor, SS_MOD_TURBO, curTurboRPM[i]);
     }
 
     if (doUpdate)
     {
-        SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_ENGINE, curEngineRPM);
-        SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_TORQUE, curClutchTorque);
-        SoundScriptManager::getSingleton().modulate(trucknum, SS_MOD_GEARBOX, curWheelRevolutions);
+        SOUND_MODULATE(m_actor, SS_MOD_ENGINE, curEngineRPM);
+        SOUND_MODULATE(m_actor, SS_MOD_TORQUE, curClutchTorque);
+        SOUND_MODULATE(m_actor, SS_MOD_GEARBOX, curWheelRevolutions);
     }
     // reverse gear beep
     if (curGear == -1 && running)
     {
-        SoundScriptManager::getSingleton().trigStart(trucknum, SS_TRIG_REVERSE_GEAR);
+        SOUND_START(m_actor, SS_TRIG_REVERSE_GEAR);
     }
     else
     {
-        SoundScriptManager::getSingleton().trigStop(trucknum, SS_TRIG_REVERSE_GEAR);
+        SOUND_STOP(m_actor, SS_TRIG_REVERSE_GEAR);
     }
 #endif // USE_OPENAL
 }
@@ -995,16 +986,14 @@ float BeamEngine::getClutchForce()
 void BeamEngine::toggleContact()
 {
     contact = !contact;
-#ifdef USE_OPENAL
     if (contact)
     {
-        SoundScriptManager::getSingleton().trigStart(m_actor->trucknum, SS_TRIG_IGNITION);
+        SOUND_START(m_actor, SS_TRIG_IGNITION);
     }
     else
     {
-        SoundScriptManager::getSingleton().trigStop(m_actor->trucknum, SS_TRIG_IGNITION);
+        SOUND_STOP(m_actor, SS_TRIG_IGNITION);
     }
-#endif // USE_OPENAL
 }
 
 void BeamEngine::start()
@@ -1021,10 +1010,8 @@ void BeamEngine::start()
     {
         autoselect = DRIVE;
     }
-#ifdef USE_OPENAL
-    SoundScriptManager::getSingleton().trigStart(m_actor->trucknum, SS_TRIG_IGNITION);
-    SoundScriptManager::getSingleton().trigStart(m_actor->trucknum, SS_TRIG_ENGINE);
-#endif // USE_OPENAL
+    SOUND_START(m_actor, SS_TRIG_IGNITION);
+    SOUND_START(m_actor, SS_TRIG_ENGINE);
 }
 
 void BeamEngine::offstart()
@@ -1084,11 +1071,8 @@ void BeamEngine::stop()
         return;
 
     running = false;
-    // Script Event - engine death
     TRIGGER_EVENT(SE_TRUCK_ENGINE_DIED, m_actor->trucknum);
-#ifdef USE_OPENAL
-    SoundScriptManager::getSingleton().trigStop(m_actor->trucknum, SS_TRIG_ENGINE);
-#endif // USE_OPENAL
+    SOUND_STOP(m_actor, SS_TRIG_ENGINE);
 }
 
 // high level controls
@@ -1115,15 +1099,11 @@ void BeamEngine::shift(int val)
     {
         if (curClutch > 0.25f)
         {
-#ifdef USE_OPENAL
-            SoundScriptManager::getSingleton().trigOnce(m_actor->trucknum, SS_TRIG_GEARSLIDE);
-#endif // USE_OPENAL
+            SOUND_PLAY_ONCE(m_actor, SS_TRIG_GEARSLIDE);
         }
         else
         {
-#ifdef USE_OPENAL
-            SoundScriptManager::getSingleton().trigOnce(m_actor->trucknum, SS_TRIG_SHIFT);
-#endif // USE_OPENAL
+            SOUND_PLAY_ONCE(m_actor, SS_TRIG_SHIFT);
             curGear += val;
         }
     }
@@ -1141,9 +1121,7 @@ void BeamEngine::updateShifts()
     if (autoselect == MANUALMODE)
         return;
 
-#ifdef USE_OPENAL
-    SoundScriptManager::getSingleton().trigOnce(m_actor->trucknum, SS_TRIG_SHIFT);
-#endif // USE_OPENAL
+    SOUND_PLAY_ONCE(m_actor, SS_TRIG_SHIFT);
 
     if (autoselect == REAR)
     {

@@ -1140,9 +1140,8 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                         {
                             if (RoR::App::GetOverlayWrapper())
                                 RoR::App::GetOverlayWrapper()->showPressureOverlay(true);
-#ifdef USE_OPENAL
-                            SoundScriptManager::getSingleton().trigStart(curr_truck, SS_TRIG_AIR);
-#endif // OPENAL
+
+                            SOUND_START(curr_truck, SS_TRIG_AIR);
                         }
                     }
                     else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_PRESSURE_MORE))
@@ -1151,16 +1150,13 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                         {
                             if (RoR::App::GetOverlayWrapper())
                                 RoR::App::GetOverlayWrapper()->showPressureOverlay(true);
-#ifdef USE_OPENAL
-                            SoundScriptManager::getSingleton().trigStart(curr_truck, SS_TRIG_AIR);
-#endif // OPENAL
+
+                            SOUND_START(curr_truck, SS_TRIG_AIR);
                         }
                     }
                     else if (m_pressure_pressed)
                     {
-#ifdef USE_OPENAL
-                        SoundScriptManager::getSingleton().trigStop(curr_truck, SS_TRIG_AIR);
-#endif // OPENAL
+                        SOUND_STOP(curr_truck, SS_TRIG_AIR);
                         m_pressure_pressed = false;
                         if (RoR::App::GetOverlayWrapper())
                             RoR::App::GetOverlayWrapper()->showPressureOverlay(false);
@@ -1607,7 +1603,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
             // calculate orientation of avatar first
             Ogre::Vector3 avatarDir = Ogre::Vector3(Math::Cos(gEnv->player->getRotation()), 0.0f, Math::Sin(gEnv->player->getRotation()));
 
-            SoundScriptManager::getSingleton().GetMumble()->update(gEnv->mainCamera->getPosition(), gEnv->mainCamera->getDirection(), gEnv->mainCamera->getUp(),
+            App::GetMumble()->update(gEnv->mainCamera->getPosition(), gEnv->mainCamera->getDirection(), gEnv->mainCamera->getUp(),
                 gEnv->player->getPosition() + Vector3(0, 1.8f, 0), avatarDir, Ogre::Vector3(0.0f, 1.0f, 0.0f));
         }
 #endif // USE_MUMBLE
@@ -2040,10 +2036,8 @@ void RoRFrameListener::ChangedCurrentVehicle(Beam* previous_vehicle, Beam* curre
             RoR::App::GetOverlayWrapper()->showDashboardOverlays(false, previous_vehicle);
         }
 
-#ifdef USE_OPENAL
-        SoundScriptManager::getSingleton().trigStop(previous_vehicle, SS_TRIG_AIR);
-        SoundScriptManager::getSingleton().trigStop(previous_vehicle, SS_TRIG_PUMP);
-#endif // OPENAL
+        SOUND_STOP(previous_vehicle, SS_TRIG_AIR);
+        SOUND_STOP(previous_vehicle, SS_TRIG_PUMP);
     }
 
     if (current_vehicle == nullptr)
@@ -2422,7 +2416,7 @@ bool RoRFrameListener::SetupGameplayLoop()
 
     if (App::audio_menu_music.GetActive())
     {
-        SoundScriptManager::getSingleton().trigKill(-1, SS_TRIG_MAIN_MENU);
+        SOUND_KILL(-1, SS_TRIG_MAIN_MENU);
     }
 
     App::CreateSceneMouse();

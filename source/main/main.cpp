@@ -302,17 +302,18 @@ int main(int argc, char *argv[])
                     menu_wallpaper_widget->setVisible(true);
 
 #ifdef USE_MUMBLE
-                    auto* mumble = SoundScriptManager::getSingleton().GetMumble();
-                    if (mumble != nullptr)
-                        mumble->SetNonPositionalAudio();
+                    if (App::GetMumble() != nullptr)
+                        App::GetMumble()->SetNonPositionalAudio();
 #endif // USE_MUMBLE
                 }
 
+#ifdef USE_OPENAL
                 if (App::audio_menu_music.GetActive())
                 {
                     SoundScriptManager::getSingleton().createInstance("tracks/main_menu_tune", -1, nullptr);
-                    SoundScriptManager::getSingleton().trigStart(-1, SS_TRIG_MAIN_MENU);
+                    SOUND_START(-1, SS_TRIG_MAIN_MENU);
                 }
+#endif // USE_OPENAL
 
                 App::GetGuiManager()->ReflectGameState();
                 if (App::mp_state.GetPending() == MpState::CONNECTED || BSETTING("SkipMainMenu", false))

@@ -951,13 +951,11 @@ void OverlayWrapper::UpdateAerialHUD(Beam* vehicle)
     if (absangle < 0)
         absangle = -absangle;
 
-#ifdef USE_OPENAL
-    SoundScriptManager::getSingleton().modulate(vehicle, SS_MOD_AOA, absangle);
+    SOUND_MODULATE(vehicle, SS_MOD_AOA, absangle);
     if (absangle > 18.0) // TODO: magicccc
-        SoundScriptManager::getSingleton().trigStart(vehicle, SS_TRIG_AOA);
+        SOUND_START(vehicle, SS_TRIG_AOA);
     else
-        SoundScriptManager::getSingleton().trigStop(vehicle, SS_TRIG_AOA);
-#endif // OPENAL
+        SOUND_STOP(vehicle, SS_TRIG_AOA);
 
     if (angle > 25.0)
         angle = 25.0;

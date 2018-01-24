@@ -763,9 +763,8 @@ InputEngine*         GetInputEngine();
 CacheSystem*         GetCacheSystem();
 MainMenu*            GetMainMenu();
 RoRFrameListener*    GetSimController();
+MumbleIntegration*   GetMumble();
 
-void SetMainMenu             (MainMenu*          obj);
-void SetSimController        (RoRFrameListener*  obj);
 // Factories
 void StartOgreSubsystem();
 void ShutdownOgreSubsystem();
@@ -779,6 +778,7 @@ void CreateGuiManagerIfNotExists();
 void DeleteGuiManagerIfExists();
 void CreateInputEngine();
 void CreateCacheSystem();
+void CheckAndCreateMumble();
 
 // Setters
 void SetMainMenu             (MainMenu*          obj);

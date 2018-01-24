@@ -188,37 +188,39 @@ void GetParentDirectory(char* dst_buf, const char* src_buff)
 
 int DetectBasePaths()
 {
-    char buf[500] = "";
+    constexpr int bufsize = 500;
+    char buf[bufsize] = "";
 
     // Process dir (system)    
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 // NOTE: We use non-UNICODE interfaces for simplicity
     // Process dir
-    if (!GetModuleFileNameA(nullptr, buf, 1000))
+    if (!GetModuleFileNameA(nullptr, buf, bufsize))
     {
         return -1;
     }
-    
+
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX // http://stackoverflow.com/a/625523
+    memset(buf, 0, bufsize);
     // Process dir
-    if (readlink("/proc/self/exe", buf, 1000) == -1)
+    if (readlink("/proc/self/exe", buf, bufsize-1) == -1)
     {
         return -1;
     }
-    
+
 #elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
     // Process dir
-    uint32_t length = 1000;
+    uint32_t length = bufsize;
     if (_NSGetExecutablePath(procpath, &length) == -1) // Returns absolute path to binary
     {
         return -1;
-    } 
+    }
 #endif
-    Str<500> process_dir;
+    Str<bufsize> process_dir;
     GetParentDirectory(process_dir.GetBuffer(), buf);
     App::sys_process_dir.SetActive(process_dir);
 
     // User directory (local override - portable installation)
-    Str<500> local_userdir;
+    Str<bufsize> local_userdir;
     local_userdir << App::sys_process_dir.GetActive() << PATH_SLASH << "config";
     if (FolderExists(local_userdir))
     {
@@ -233,12 +235,12 @@ int DetectBasePaths()
         return -2;
     }
     sprintf(buf, "%s\\Rigs of Rods %s", buf, ROR_VERSION_STRING_SHORT);
-     
+
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-    snprintf(buf, 1000, "%s/.rigsofrods", getenv("HOME"));
+    snprintf(buf, bufsize, "%s/.rigsofrods", getenv("HOME"));
 
 #elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-    snprintf(buf, 1000, "%s/RigsOfRods", getenv("HOME"));
+    snprintf(buf, bufsize, "%s/RigsOfRods", getenv("HOME"));
 
 #endif
 

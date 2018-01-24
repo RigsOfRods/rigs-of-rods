@@ -318,16 +318,12 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
             {
                 // starter
                 curr_truck->engine->setstarter(1);
-#ifdef USE_OPENAL
-                SoundScriptManager::getSingleton().trigStart(curr_truck, SS_TRIG_STARTER);
-#endif // OPENAL
+                SOUND_START(curr_truck, SS_TRIG_STARTER);
             }
             else
             {
                 curr_truck->engine->setstarter(0);
-#ifdef USE_OPENAL
-                SoundScriptManager::getSingleton().trigStop(curr_truck, SS_TRIG_STARTER);
-#endif // OPENAL
+                SOUND_STOP(curr_truck, SS_TRIG_STARTER);
             }
 
             if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SWITCH_SHIFT_MODES))
@@ -502,16 +498,14 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
                 }
             }
         } // end of ->engine
-#ifdef USE_OPENAL
         if (curr_truck->brake > curr_truck->brakeforce / 6.0f)
         {
-            SoundScriptManager::getSingleton().trigStart(curr_truck, SS_TRIG_BRAKE);
+            SOUND_START(curr_truck, SS_TRIG_BRAKE);
         }
         else
         {
-            SoundScriptManager::getSingleton().trigStop(curr_truck, SS_TRIG_BRAKE);
+            SOUND_STOP(curr_truck, SS_TRIG_BRAKE);
         }
-#endif // USE_OPENAL
     } // end of ->replaymode
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_AXLE_LOCK))
@@ -530,26 +524,24 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
         }
     }
 
-#ifdef USE_OPENAL
     if (curr_truck->ispolice)
     {
         if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_HORN))
         {
-            SoundScriptManager::getSingleton().trigToggle(curr_truck, SS_TRIG_HORN);
+            SOUND_TOGGLE(curr_truck, SS_TRIG_HORN);
         }
     }
     else
     {
         if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_HORN) && !curr_truck->replaymode)
         {
-            SoundScriptManager::getSingleton().trigStart(curr_truck, SS_TRIG_HORN);
+            SOUND_START(curr_truck, SS_TRIG_HORN);
         }
         else
         {
-            SoundScriptManager::getSingleton().trigStop(curr_truck, SS_TRIG_HORN);
+            SOUND_STOP(curr_truck, SS_TRIG_HORN);
         }
     }
-#endif // OPENAL
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_PARKING_BRAKE))
     {

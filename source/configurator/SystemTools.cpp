@@ -144,8 +144,9 @@ bool ExtractZipFiles(const wxString& aZipFile, const wxString& aTargetDir)
         if (lastSepPos != -1)
         {
             wxString subdirPath = aTargetDir + wxFileName::GetPathSeparator() + entryName.SubString(0, lastSepPos);
+            const int permissions = 0777; // Equivalent of 'wxPosixPermissions::wxS_DIR_DEFAULT' in WxWidgets 3.x, we want to remain 2.x compatible.
             // With flag 'wxPATH_MKDIR_FULL', existing directories are OK
-            if (! wxFileName::Mkdir(subdirPath, wxPosixPermissions::wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL))
+            if (! wxFileName::Mkdir(subdirPath, permissions, wxPATH_MKDIR_FULL))
             {
                 wxLogError(_T("Could not create full subdirectory path '") + subdirPath + wxT("'."));
                 continue;
@@ -153,7 +154,7 @@ bool ExtractZipFiles(const wxString& aZipFile, const wxString& aTargetDir)
         }
 
         // Skip dummy 'keep empty directory' files
-        if ((lastSepPos != -1) && (entryName.substr(lastSepPos+1) == "empty") && (entry->GetSize() == 0))
+        if ((lastSepPos != -1) && (entryName.substr(lastSepPos+1) == wxString("empty")) && (entry->GetSize() == 0))
         {
             continue;
         }
