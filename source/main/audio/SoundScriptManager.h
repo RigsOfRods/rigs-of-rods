@@ -2,6 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
+    Copyright 2017-2018 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -28,13 +29,13 @@
 
 #include <OgreScriptLoader.h>
 
-#define SOUND_PLAY_ONCE(_ACTOR_, _TRIG_)        SoundScriptManager::getSingleton().trigOnce    (_ACTOR_, _TRIG_)
-#define SOUND_START(_ACTOR_, _TRIG_)            SoundScriptManager::getSingleton().trigStart   (_ACTOR_, _TRIG_)
-#define SOUND_STOP(_ACTOR_, _TRIG_)             SoundScriptManager::getSingleton().trigStop    (_ACTOR_, _TRIG_)
-#define SOUND_TOGGLE(_ACTOR_, _TRIG_)           SoundScriptManager::getSingleton().trigToggle  (_ACTOR_, _TRIG_)
-#define SOUND_KILL(_ACTOR_, _TRIG_)             SoundScriptManager::getSingleton().trigKill    (_ACTOR_, _TRIG_)
-#define SOUND_GET_STATE(_ACTOR_, _TRIG_)        SoundScriptManager::getSingleton().getTrigState(_ACTOR_, _TRIG_)
-#define SOUND_MODULATE(_ACTOR_, _MOD_, _VALUE_) SoundScriptManager::getSingleton().modulate    (_ACTOR_, _MOD_, _VALUE_)
+#define SOUND_PLAY_ONCE(_ACTOR_, _TRIG_)        SoundScriptManager::getSingleton().trigOnce    ( (_ACTOR_), (_TRIG_) )
+#define SOUND_START(_ACTOR_, _TRIG_)            SoundScriptManager::getSingleton().trigStart   ( (_ACTOR_), (_TRIG_) )
+#define SOUND_STOP(_ACTOR_, _TRIG_)             SoundScriptManager::getSingleton().trigStop    ( (_ACTOR_), (_TRIG_) )
+#define SOUND_TOGGLE(_ACTOR_, _TRIG_)           SoundScriptManager::getSingleton().trigToggle  ( (_ACTOR_), (_TRIG_) )
+#define SOUND_KILL(_ACTOR_, _TRIG_)             SoundScriptManager::getSingleton().trigKill    ( (_ACTOR_), (_TRIG_) )
+#define SOUND_GET_STATE(_ACTOR_, _TRIG_)        SoundScriptManager::getSingleton().getTrigState( (_ACTOR_), (_TRIG_) )
+#define SOUND_MODULATE(_ACTOR_, _MOD_, _VALUE_) SoundScriptManager::getSingleton().modulate    ( (_ACTOR_), (_MOD_), (_VALUE_) )
 
 enum {
     MAX_SOUNDS_PER_SCRIPT = 16,
