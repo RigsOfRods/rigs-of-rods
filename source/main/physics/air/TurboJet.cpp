@@ -259,7 +259,7 @@ void Turbojet::updateForces(float dt, int doUpdate)
     if (afterburner)
         SOUND_START(trucknum, ab_id);
     else
-        SOUND_START(trucknum, ab_id);
+        SOUND_STOP(trucknum, ab_id);
 
     nodes[nodeback].Forces += (enginethrust * 1000.0) * axis;
     exhaust_velocity = enginethrust * 5.6 / area;
