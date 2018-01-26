@@ -946,10 +946,16 @@ inline void WriteStr(std::ofstream& f, GVarStr_T& gvar)
     f << gvar.conf_name << "=" << gvar.GetStored() << std::endl;
 }
 
-template <typename GVarPod_T>
-inline void WritePod(std::ofstream& f, GVarPod_T& gvar)
+template <typename T>
+inline void WritePod(std::ofstream& f, GVarPod_A<T>& gvar)
 {
     f << gvar.conf_name << "=" << gvar.GetActive() << std::endl;
+}
+
+template <typename T>
+inline void WritePod(std::ofstream& f, GVarPod_APS<T>& gvar)
+{
+    f << gvar.conf_name << "=" << gvar.GetStored() << std::endl;
 }
 
 template <typename GVarPod_T>
