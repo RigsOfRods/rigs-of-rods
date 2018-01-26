@@ -70,6 +70,7 @@ static MumbleIntegration* g_mumble;
  GVarPod_A<bool>          sim_replay_enabled      ("sim_replay_enabled",      "Replay mode",               false);
  GVarPod_A<int>           sim_replay_length       ("sim_replay_length",       "Replay length",             200);
  GVarPod_A<int>           sim_replay_stepping     ("sim_replay_stepping",     "Replay Steps per second",   1000);
+ GVarPod_A<bool>          sim_hires_wheel_col     ("sim_hires_wheel_col",     "HighResWheelNodeCollision", false);
  GVarPod_A<bool>             sim_position_storage ("sim_position_storage",    "Position Storage",          false);
  GVarEnum_AP<SimGearboxMode> sim_gearbox_mode     ("sim_gearbox_mode",        "GearboxMode",               SimGearboxMode::AUTO,    SimGearboxMode::AUTO);
 

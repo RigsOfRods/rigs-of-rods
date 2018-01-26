@@ -69,6 +69,7 @@ void RoR::GUI::GameSettings::Draw()
         ImGui::Separator();
         ImGui::TextDisabled("Simulation settings");
 
+        DrawGCheckbox(App::sim_hires_wheel_col, "Hi-res wheel collisions");
         DrawGCheckbox(App::sim_position_storage, "Use position storage");
         DrawGCheckbox(App::sim_replay_enabled, "Replay mode");
 
