@@ -40,6 +40,8 @@ void RoR::GUI::GameSettings::Draw()
     }
 
     // 'Tabs' buttons
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.f, 8.f));
+
     if (ImGui::Button("General"))    { m_tab = SettingsTab::GENERAL; }
     ImGui::SameLine();
     if (ImGui::Button("Controls"))   { m_tab = SettingsTab::CONTROL; }
@@ -47,6 +49,8 @@ void RoR::GUI::GameSettings::Draw()
     if (ImGui::Button("Video"))      { m_tab = SettingsTab::VIDEO;   }
     ImGui::SameLine();
     if (ImGui::Button("Diagnostic")) { m_tab = SettingsTab::DIAG;    }
+
+    ImGui::PopStyleVar(1);
 
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4.f);
     ImGui::Separator();
