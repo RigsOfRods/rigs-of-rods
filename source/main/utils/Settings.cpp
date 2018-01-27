@@ -721,8 +721,9 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckStr  (App::mp_server_password,        k, v)) { return true; }
     if (CheckStr  (App::mp_portal_url,             k, v)) { return true; }
     if (CheckStr  (App::mp_player_token_hash,      k, v)) { return true; }
-    // Sim
-    if (CheckSimGearboxMode                       (k, v)) { return true; }
+    // App
+    if (CheckScreenshotFormat                     (k, v)) { return true; }
+    if (CheckStr  (App::app_locale,                k, v)) { return true; }
     if (CheckBool (App::app_multithread,           k, v)) { return true; }
     // Input&Output
     if (CheckBool (App::io_ffb_enabled,            k, v)) { return true; }
@@ -788,13 +789,13 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckStr  (App::diag_preset_veh_config,    k, v)) { return true; }
     if (CheckBool (App::diag_preset_veh_enter,     k, v)) { return true; }
     if (CheckStr  (App::diag_extra_resource_dir,   k, v)) { return true; }
-    // App
-    if (CheckScreenshotFormat                     (k, v)) { return true; }
+    // Sim
+    if (CheckSimGearboxMode                       (k, v)) { return true; }
     if (CheckBool (App::sim_replay_enabled,        k, v)) { return true; }
     if (CheckInt  (App::sim_replay_length,         k, v)) { return true; }
     if (CheckInt  (App::sim_replay_stepping,       k, v)) { return true; }
     if (CheckBool (App::sim_position_storage,      k, v)) { return true; }
-    if (CheckStr  (App::app_locale,                k, v)) { return true; }
+    if (CheckBool (App::sim_hires_wheel_col,       k, v)) { return true; }
 
     return false;
 }
@@ -946,10 +947,16 @@ inline void WriteStr(std::ofstream& f, GVarStr_T& gvar)
     f << gvar.conf_name << "=" << gvar.GetStored() << std::endl;
 }
 
-template <typename GVarPod_T>
-inline void WritePod(std::ofstream& f, GVarPod_T& gvar)
+template <typename T>
+inline void WritePod(std::ofstream& f, GVarPod_A<T>& gvar)
 {
     f << gvar.conf_name << "=" << gvar.GetActive() << std::endl;
+}
+
+template <typename T>
+inline void WritePod(std::ofstream& f, GVarPod_APS<T>& gvar)
+{
+    f << gvar.conf_name << "=" << gvar.GetStored() << std::endl;
 }
 
 template <typename GVarPod_T>
@@ -991,6 +998,7 @@ void Settings::SaveSettings()
     WritePod (f, App::sim_replay_length     );
     WritePod (f, App::sim_replay_stepping   );
     WriteYN  (f, App::sim_position_storage  );
+    WriteYN  (f, App::sim_hires_wheel_col   );
 
     f << std::endl << "; Input/Output" << std::endl;
     WriteAny (f, App::io_input_grab_mode.conf_name, IoInputGrabToStr(App::io_input_grab_mode.GetActive()));
