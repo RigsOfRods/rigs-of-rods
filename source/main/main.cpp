@@ -168,8 +168,6 @@ int main(int argc, char *argv[])
         // Add startup resources
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OGRE_CORE);
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::WALLPAPERS);
-        Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Bootstrap");
-        Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Wallpapers");
 
         // Setup rendering (menu + simulation)
         Ogre::SceneManager* scene_manager = App::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "main_scene_manager");
@@ -195,7 +193,7 @@ int main(int argc, char *argv[])
 
         App::CreateCacheSystem(); // Reads GVars
 
-        App::GetContentManager()->init();
+        App::GetContentManager()->OnApplicationStartup();
 
         App::CreateGuiManagerIfNotExists();
 
