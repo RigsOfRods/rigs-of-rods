@@ -63,46 +63,44 @@ using namespace RoR;
 // Static variables
 // ================================================================================
 
-#define DECLARE_RESOURCE_PACK(_NUMBER_, _FIELD_, _NAME_, _RESOURCE_GROUP_) \
-    const ContentManager::ResourcePack ContentManager::ResourcePack::_FIELD_(BITMASK_64(_NUMBER_), _NAME_, _RESOURCE_GROUP_);
+#define DECLARE_RESOURCE_PACK(_FIELD_, _NAME_, _RESOURCE_GROUP_) \
+    const ContentManager::ResourcePack ContentManager::ResourcePack::_FIELD_(_NAME_, _RESOURCE_GROUP_);
 
-DECLARE_RESOURCE_PACK(  1, OGRE_CORE,             "OgreCore",             "Bootstrap");
-DECLARE_RESOURCE_PACK(  2, WALLPAPERS,            "wallpapers",           "Wallpapers");
-// UNUSED               3
-DECLARE_RESOURCE_PACK(  4, AIRFOILS,              "airfoils",             "LoadBeforeMap");
-DECLARE_RESOURCE_PACK(  5, BEAM_OBJECTS,          "beamobjects",          "LoadBeforeMap");
-DECLARE_RESOURCE_PACK(  6, BLUR,                  "blur",                 "LoadBeforeMap");
-DECLARE_RESOURCE_PACK(  7, CAELUM,                "caelum",               "LoadBeforeMap");
-DECLARE_RESOURCE_PACK(  8, CUBEMAPS,              "cubemaps",             "General");
-DECLARE_RESOURCE_PACK(  9, DASHBOARDS,            "dashboards",           "General");
-DECLARE_RESOURCE_PACK( 10, DEPTH_OF_FIELD,        "dof",                  "LoadBeforeMap");
-DECLARE_RESOURCE_PACK( 11, FAMICONS,              "famicons",             "LoadBeforeMap");
-DECLARE_RESOURCE_PACK( 12, FLAGS,                 "flags",                "LoadBeforeMap");
-DECLARE_RESOURCE_PACK( 13, GLOW,                  "glow",                 "LoadBeforeMap");
-DECLARE_RESOURCE_PACK( 14, HDR,                   "hdr",                  "LoadBeforeMap");
-DECLARE_RESOURCE_PACK( 15, HEATHAZE,              "heathaze",             "LoadBeforeMap");
-DECLARE_RESOURCE_PACK( 16, HYDRAX,                "hydrax",               "LoadBeforeMap");
-DECLARE_RESOURCE_PACK( 17, ICONS,                 "icons",                "LoadBeforeMap");
-DECLARE_RESOURCE_PACK( 18, MATERIALS,             "materials",            "LoadBeforeMap");
-DECLARE_RESOURCE_PACK( 19, MESHES,                "meshes",               "LoadBeforeMap");
-DECLARE_RESOURCE_PACK( 20, MYGUI,                 "mygui",                "General");
-DECLARE_RESOURCE_PACK( 21, OVERLAYS,              "overlays",             "LoadBeforeMap");
-DECLARE_RESOURCE_PACK( 22, PAGED,                 "paged",                "LoadBeforeMap");
-DECLARE_RESOURCE_PACK( 23, PARTICLES,             "particles",            "LoadBeforeMap");
-DECLARE_RESOURCE_PACK( 24, PSSM,                  "pssm",                 "LoadBeforeMap");
-DECLARE_RESOURCE_PACK( 25, RTSHADER,              "rtshader",             "General");
-DECLARE_RESOURCE_PACK( 26, SCRIPTS,               "scripts",              "LoadBeforeMap");
-DECLARE_RESOURCE_PACK( 27, SOUNDS,                "sounds",               "General");
-DECLARE_RESOURCE_PACK( 28, SUNBURN,               "sunburn",              "LoadBeforeMap");
-DECLARE_RESOURCE_PACK( 29, TEXTURES,              "textures",             "LoadBeforeMap");
+DECLARE_RESOURCE_PACK( OGRE_CORE,             "OgreCore",             "OgreCoreRG");
+DECLARE_RESOURCE_PACK( WALLPAPERS,            "wallpapers",           "Wallpapers");
+DECLARE_RESOURCE_PACK( AIRFOILS,              "airfoils",             "AirfoilsRG");
+DECLARE_RESOURCE_PACK( BEAM_OBJECTS,          "beamobjects",          "BeamObjectsRG");
+DECLARE_RESOURCE_PACK( BLUR,                  "blur",                 "BlurRG");
+DECLARE_RESOURCE_PACK( CAELUM,                "caelum",               "CaelumRG");
+DECLARE_RESOURCE_PACK( CUBEMAPS,              "cubemaps",             "CubemapsRG");
+DECLARE_RESOURCE_PACK( DASHBOARDS,            "dashboards",           "DashboardsRG");
+DECLARE_RESOURCE_PACK( DEPTH_OF_FIELD,        "dof",                  "DepthOfFieldRG");
+DECLARE_RESOURCE_PACK( FAMICONS,              "famicons",             "FamiconsRG");
+DECLARE_RESOURCE_PACK( FLAGS,                 "flags",                "FlagsRG");
+DECLARE_RESOURCE_PACK( GLOW,                  "glow",                 "GlowRG");
+DECLARE_RESOURCE_PACK( HDR,                   "hdr",                  "HdrRG");
+DECLARE_RESOURCE_PACK( HEATHAZE,              "heathaze",             "HeatHazeRG");
+DECLARE_RESOURCE_PACK( HYDRAX,                "hydrax",               "HydraxRG");
+DECLARE_RESOURCE_PACK( ICONS,                 "icons",                "IconsRG");
+DECLARE_RESOURCE_PACK( MATERIALS,             "materials",            "MaterialsRG");
+DECLARE_RESOURCE_PACK( MESHES,                "meshes",               "MeshesRG");
+DECLARE_RESOURCE_PACK( MYGUI,                 "mygui",                "MyGuiRG");
+DECLARE_RESOURCE_PACK( OVERLAYS,              "overlays",             "OverlaysRG");
+DECLARE_RESOURCE_PACK( PAGED,                 "paged",                "PagedRG");
+DECLARE_RESOURCE_PACK( PARTICLES,             "particles",            "ParticlesRG");
+DECLARE_RESOURCE_PACK( PSSM,                  "pssm",                 "PssmRG");
+DECLARE_RESOURCE_PACK( RTSHADER,              "rtshader",             "RtShaderRG");
+DECLARE_RESOURCE_PACK( SCRIPTS,               "scripts",              "ScriptsRG");
+DECLARE_RESOURCE_PACK( SOUNDS,                "sounds",               "SoundsRG");
+DECLARE_RESOURCE_PACK( SUNBURN,               "sunburn",              "SunburnRG");
+DECLARE_RESOURCE_PACK( TEXTURES,              "textures",             "TexturesRG");
 
 // ================================================================================
 // Functions
 // ================================================================================
 
 ContentManager::ContentManager():
-    m_skin_manager(nullptr),
-    m_loaded_resource_packs(0)
+    m_skin_manager(nullptr)
 {
 }
 
@@ -110,24 +108,16 @@ ContentManager::~ContentManager()
 {
 }
 
-bool ContentManager::isLoaded(Ogre::uint64 res_pack_id)
-{
-    if (BITMASK_64_IS_1(m_loaded_resource_packs, res_pack_id)) // Already loaded?
-    {
-        return true;
-    }
-    return false;
-}
-
 void ContentManager::AddResourcePack(ResourcePack const& resource_pack)
 {
-    std::stringstream log_msg;
-    if (BITMASK_64_IS_1(m_loaded_resource_packs, resource_pack.mask)) // Already loaded?
+    Ogre::ResourceGroupManager& rgm = Ogre::ResourceGroupManager::getSingleton();
+
+    if (rgm.resourceGroupExists(resource_pack.resource_group_name)) // Already loaded?
     {
-        log_msg << "[RoR|ContentManager] Resource pack \"" << resource_pack.name << "\" already loaded.";
-        LOG(log_msg.str());
-        return;
+        return; // Nothing to do, nothing to report
     }
+
+    std::stringstream log_msg;
     log_msg << "[RoR|ContentManager] Loading resource pack \"" << resource_pack.name << "\" from group \"" << resource_pack.resource_group_name << "\"";
     Ogre::String resources_dir = Ogre::String(App::sys_resources_dir.GetActive()) + PATH_SLASH;
     Ogre::String zip_path = resources_dir + resource_pack.name + Ogre::String(".zip");
@@ -135,8 +125,8 @@ void ContentManager::AddResourcePack(ResourcePack const& resource_pack)
     {
         log_msg << " (ZIP archive)";
         LOG(log_msg.str());
-        ResourceGroupManager::getSingleton().addResourceLocation(zip_path, "Zip", resource_pack.resource_group_name);
-        BITMASK_64_SET_1(m_loaded_resource_packs, resource_pack.mask);
+        rgm.addResourceLocation(zip_path, "Zip", resource_pack.resource_group_name);
+        rgm.initialiseResourceGroup(resource_pack.resource_group_name);
     }
     else
     {
@@ -146,7 +136,7 @@ void ContentManager::AddResourcePack(ResourcePack const& resource_pack)
             log_msg << " (directory)";
             LOG(log_msg.str());
             ResourceGroupManager::getSingleton().addResourceLocation(dir_path, "FileSystem", resource_pack.resource_group_name);
-            BITMASK_64_SET_1(m_loaded_resource_packs, resource_pack.mask);
+            rgm.initialiseResourceGroup(resource_pack.resource_group_name);
         }
         else
         {
@@ -156,25 +146,18 @@ void ContentManager::AddResourcePack(ResourcePack const& resource_pack)
     }
 }
 
-bool ContentManager::init(void)
+bool ContentManager::OnApplicationStartup(void)
 {
     // set listener if none has already been set
     if (!Ogre::ResourceGroupManager::getSingleton().getLoadingListener())
         Ogre::ResourceGroupManager::getSingleton().setLoadingListener(this);
 
-    // try to get correct paths
-    // note: we don't have LogManager available yet!
-    // FIRST: Get the "program path" and the user space path
-
-    // note: this is now done in the settings class, so set it up
-    // note: you need to set the build mode correctly before you build the paths!
-
     // by default, display everything in the depth map
     Ogre::MovableObject::setDefaultVisibilityFlags(DEPTHMAP_ENABLED);
 
 
-    AddResourcePack(ResourcePack::MYGUI);
-    AddResourcePack(ResourcePack::DASHBOARDS);
+    this->AddResourcePack(ResourcePack::MYGUI);
+    this->AddResourcePack(ResourcePack::DASHBOARDS);
 
 
 #ifdef _WIN32
@@ -392,25 +375,52 @@ void ContentManager::InitManagedMaterials()
     ResourceGroupManager::getSingleton().initialiseResourceGroup("ManagedMats");
 }
 
-void ContentManager::CheckAndLoadBaseResources()
+void ContentManager::LoadGameplayResources()
 {
     if (!m_base_resource_loaded)
     {
-        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::AIRFOILS);
-        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::BEAM_OBJECTS);
+        this->AddResourcePack(ContentManager::ResourcePack::AIRFOILS);
+        this->AddResourcePack(ContentManager::ResourcePack::BEAM_OBJECTS);
 
-        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
-        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES);
-        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OVERLAYS);
-        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PARTICLES);
-        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SCRIPTS);
-        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::TEXTURES);
-        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FLAGS);
-        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::ICONS);
-        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
+        this->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
+        this->AddResourcePack(ContentManager::ResourcePack::MESHES);
+        this->AddResourcePack(ContentManager::ResourcePack::OVERLAYS);
+        this->AddResourcePack(ContentManager::ResourcePack::PARTICLES);
+        this->AddResourcePack(ContentManager::ResourcePack::SCRIPTS);
+        this->AddResourcePack(ContentManager::ResourcePack::TEXTURES);
+        this->AddResourcePack(ContentManager::ResourcePack::FLAGS);
+        this->AddResourcePack(ContentManager::ResourcePack::ICONS);
+        this->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
 
         m_base_resource_loaded = true;
     }
+
+    if (App::gfx_water_mode.GetActive() == GfxWaterMode::HYDRAX)
+        this->AddResourcePack(ContentManager::ResourcePack::HYDRAX);
+
+    if (App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM)
+        this->AddResourcePack(ContentManager::ResourcePack::CAELUM);
+
+    if (App::gfx_vegetation_mode.GetActive() != RoR::GfxVegetation::NONE)
+        this->AddResourcePack(ContentManager::ResourcePack::PAGED);
+
+    if (App::gfx_enable_hdr.GetActive())
+        this->AddResourcePack(ContentManager::ResourcePack::HDR);
+
+    if (App::gfx_enable_dof.GetActive())
+        this->AddResourcePack(ContentManager::ResourcePack::DEPTH_OF_FIELD);
+
+    if (App::gfx_enable_glow.GetActive())
+        this->AddResourcePack(ContentManager::ResourcePack::GLOW);
+
+    if (App::gfx_motion_blur.GetActive())
+        this->AddResourcePack(ContentManager::ResourcePack::BLUR);
+
+    if (App::gfx_enable_heathaze.GetActive())
+        this->AddResourcePack(ContentManager::ResourcePack::HEATHAZE);
+
+    if (App::gfx_enable_sunburn.GetActive())
+        this->AddResourcePack(ContentManager::ResourcePack::SUNBURN);
 }
 
 void ContentManager::RegenCache()
