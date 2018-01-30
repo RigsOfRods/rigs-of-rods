@@ -33,7 +33,6 @@ public:
         , mainCamera(0)
         , player(0)
         , sceneManager(0)
-        , sky(0)
         , surveyMap(0)
         , terrainManager(0)
         , threadPool(0)
@@ -47,7 +46,6 @@ public:
     Character*          player;
     Collisions*         collisions;
     SurveyMapManager*   surveyMap;
-    SkyManager*         sky;
     TerrainManager*     terrainManager;
     ThreadPool*         threadPool;
     float               mrTime;
