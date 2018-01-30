@@ -1212,7 +1212,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
 
 #ifdef USE_CAELUM
 
-        static const bool caelum_enabled = App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM;
+        const bool caelum_enabled = App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM;
         if (caelum_enabled && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
         {
             Real time_factor = 1000.0f;
