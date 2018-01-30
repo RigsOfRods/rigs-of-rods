@@ -80,7 +80,6 @@ TerrainManager::~TerrainManager()
     if (sky_manager != nullptr)
     {
         delete(sky_manager);
-        gEnv->sky = nullptr;
         sky_manager = nullptr;
     }
 
@@ -295,18 +294,17 @@ void TerrainManager::initSkySubSystem()
     if (App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM)
     {
         sky_manager = new SkyManager();
-        gEnv->sky = sky_manager;
 
         // try to load caelum config
         if (!m_def.caelum_config.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def.caelum_config))
         {
             // config provided and existing, use it :)
-            sky_manager->loadScript(m_def.caelum_config, m_def.caelum_fog_start, m_def.caelum_fog_end);
+            sky_manager->LoadCaelumScript(m_def.caelum_config, m_def.caelum_fog_start, m_def.caelum_fog_end);
         }
         else
         {
             // no config provided, fall back to the default one
-            sky_manager->loadScript("ror_default_sky");
+            sky_manager->LoadCaelumScript("ror_default_sky");
         }
     }
     else
@@ -331,7 +329,7 @@ void TerrainManager::initLight()
     if (App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM)
     {
 #ifdef USE_CAELUM
-        main_light = sky_manager->getMainLight();
+        main_light = sky_manager->GetSkyMainLight();
 #endif
     }
     else

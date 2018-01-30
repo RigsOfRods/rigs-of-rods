@@ -1241,14 +1241,14 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
             else
             {
                 time_factor = 1.0f;
-                update_time = gEnv->terrainManager->getSkyManager()->getTimeFactor() != 1.0f;
+                update_time = gEnv->terrainManager->getSkyManager()->GetSkyTimeFactor() != 1.0f;
             }
 
             if (update_time)
             {
-                gEnv->terrainManager->getSkyManager()->setTimeFactor(time_factor);
-                RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Time set to ") + gEnv->terrainManager->getSkyManager()->getPrettyTime());
-                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Time set to ") + gEnv->terrainManager->getSkyManager()->getPrettyTime(), "weather_sun.png", 1000);
+                gEnv->terrainManager->getSkyManager()->SetSkyTimeFactor(time_factor);
+                RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Time set to ") + gEnv->terrainManager->getSkyManager()->GetPrettyTime());
+                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Time set to ") + gEnv->terrainManager->getSkyManager()->GetPrettyTime(), "weather_sun.png", 1000);
             }
         }
 
@@ -1676,7 +1676,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
     SkyManager* sky = gEnv->terrainManager->getSkyManager();
     if ((sky != nullptr) && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
     {
-        sky->detectUpdate();
+        sky->DetectSkyUpdate();
     }
 #endif
 

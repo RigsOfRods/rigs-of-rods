@@ -156,7 +156,7 @@ String GameScript::getCaelumTime()
     String result = "";
 #ifdef USE_CAELUM
     if (gEnv->terrainManager)
-        result = gEnv->terrainManager->getSkyManager()->getPrettyTime();
+        result = gEnv->terrainManager->getSkyManager()->GetPrettyTime();
 #endif // USE_CAELUM
     return result;
 }
@@ -165,7 +165,7 @@ void GameScript::setCaelumTime(float value)
 {
 #ifdef USE_CAELUM
     if (gEnv->terrainManager)
-        gEnv->terrainManager->getSkyManager()->setTimeFactor(value);
+        gEnv->terrainManager->getSkyManager()->SetSkyTimeFactor(value);
 #endif // USE_CAELUM
 }
 
