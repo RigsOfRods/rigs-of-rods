@@ -1254,6 +1254,33 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
 
 #endif // USE_CAELUM
 
+
+        const bool skyx_enabled = App::gfx_sky_mode.GetActive() == GfxSkyMode::SKYX;
+        if (skyx_enabled && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
+        {
+
+            if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME) && gEnv->terrainManager->getSkyXManager())
+            {
+                gEnv->terrainManager->getSkyXManager()->GetSkyX()->setTimeMultiplier(1.0f);
+            }
+            else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME_FAST) && gEnv->terrainManager->getSkyXManager())
+            {
+                gEnv->terrainManager->getSkyXManager()->GetSkyX()->setTimeMultiplier(2.0f);
+            }
+            else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME) && gEnv->terrainManager->getSkyXManager())
+            {
+                gEnv->terrainManager->getSkyXManager()->GetSkyX()->setTimeMultiplier(-1.0f);
+            }
+            else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME_FAST) && gEnv->terrainManager->getSkyXManager())
+            {
+                gEnv->terrainManager->getSkyXManager()->GetSkyX()->setTimeMultiplier(-2.0f);
+            }
+            else
+            {
+                gEnv->terrainManager->getSkyXManager()->GetSkyX()->setTimeMultiplier(0.01f);
+            }
+        }
+
         if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_RENDER_MODE, 0.5f))
         {
             static int mSceneDetailIndex;
@@ -1679,6 +1706,10 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
         sky->DetectSkyUpdate();
     }
 #endif
+
+    SkyXManager *SkyX = gEnv->terrainManager->getSkyXManager();
+    if ((SkyX != nullptr) && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
+       SkyX->update(dt); //Light update
 
     if (simRUNNING(s) || simPAUSED(s) || simEDITOR(s))
     {

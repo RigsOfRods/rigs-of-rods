@@ -1,0 +1,48 @@
+#SkyX cfg file.
+
+#SkyX version field
+SkyXVersion=0.4.0
+
+#Main options field
+<float>TimeMultiplier=0.1
+<vector3>Time=7.59x7.5x20.5
+<float>MoonPhase=0
+
+#Atmoshperic options
+<float>_InnerRadius=9.77501
+<float>_OuterRadius=10.2963
+<float>_HeightPosition=0.01
+<float>_RayleighMultiplier=0.0072
+<float>_MieMultiplier=0.000925
+<float>_SunIntensity=30
+<float>_G=-0.997
+<float>_Exposure=2.5
+<float>_NumerOfSamples=1
+<vector3>_WaveLength=0.71fx0.59fx0.53
+
+#Layered clouds
+<bool>layeredclouds=false
+<float>Height=100
+<float>Scale=0.001
+<float>TimeMultiplier=0.125
+<float>DistanceAttenuation=0.05
+<float>DetailAttenuation=1
+<float>HeightVolume=0.25
+<float>VolumetricDisplacement=0.01
+<vector2>WindDirection=1x1
+
+#Volumetric clouds
+<bool>volClouds=true 
+<float>WindSpeed=80.0f
+<bool>AutoUpdate=false
+<degree>WindDirection=0
+<vector3>AmbientColor=0.63x0.63x0.7
+<vector4>LightResponse=0.25x0.2x1.0x0.1
+<vector4>AmbientFactors=0.45x0.3x0.6x1.0
+<vector2>Wheater=0.02x0.7
+
+#Lightnings 
+<bool>lightnings=false
+<float>AverageLightningApparitionTime=1.5
+<vector3>LightningColor=1x0.925x0.85
+<float>LightningTimeMultiplier=2.0
