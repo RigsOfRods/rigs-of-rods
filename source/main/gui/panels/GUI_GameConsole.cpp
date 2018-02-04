@@ -236,6 +236,13 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
         // discard the empty message
         return;
     }
+
+    if (msg[0] == '/' || msg[0] == '\\')
+    {
+        putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L ("Using slashes before commands are deprecated, you can now type command without any slashes"), "help.png");
+        msg.erase(0, 1);
+    }
+
     Ogre::StringVector args = StringUtil::split(msg, " ");
     sTextHistory[iText] = msg;
     iText++; //Used for text history
@@ -298,7 +305,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
     {
         if (gEnv->terrainManager && gEnv->terrainManager->getWater() && args.size() > 1)
         {
-            IWater* water = gEnv->terrainManager->getWater();
+            IWater* water = gEnv->terrainManager->getWater ();
             water->setCamera(gEnv->mainCamera);
             water->setHeight(std::stof(args[1]));
             water->update();
