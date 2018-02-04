@@ -191,11 +191,25 @@ Water::~Water()
         rttTex1 = nullptr;
     }
 
+    if (!m_refraction_rtt_texture.isNull())
+    {
+        m_refraction_rtt_texture->unload();
+        Ogre::TextureManager::getSingleton().remove(m_refraction_rtt_texture->getHandle());
+        m_refraction_rtt_texture.setNull();
+    }
+
     if (rttTex2)
     {
         //vRtt2->clear();
         rttTex2->removeAllListeners();
         rttTex2 = nullptr;
+    }
+
+    if (!m_reflection_rtt_texture.isNull())
+    {
+        m_reflection_rtt_texture->unload();
+        Ogre::TextureManager::getSingleton().remove(m_reflection_rtt_texture->getHandle());
+        m_reflection_rtt_texture.setNull();
     }
 
     if (wbuffer)
@@ -245,6 +259,7 @@ void Water::processWater()
         if (full_gfx)
         {
             TexturePtr rttTex1Ptr = TextureManager::getSingleton().createManual("Refraction", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 512, 512, 0, PF_R8G8B8, TU_RENDERTARGET);
+            m_refraction_rtt_texture = rttTex1Ptr;
             rttTex1 = rttTex1Ptr->getBuffer()->getRenderTarget();
             {
                 mRefractCam = gEnv->sceneManager->createCamera("RefractCam");
@@ -278,6 +293,7 @@ void Water::processWater()
         }
 
         TexturePtr rttTex2Ptr = TextureManager::getSingleton().createManual("Reflection", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 512, 512, 0, PF_R8G8B8, TU_RENDERTARGET);
+        m_reflection_rtt_texture = rttTex2Ptr;
         rttTex2 = rttTex2Ptr->getBuffer()->getRenderTarget();
         {
             mReflectCam = gEnv->sceneManager->createCamera("ReflectCam");
