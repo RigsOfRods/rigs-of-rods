@@ -91,6 +91,8 @@ private:
     Ogre::HardwareVertexBufferSharedPtr wbuf;
     Ogre::RenderTexture* rttTex1;
     Ogre::RenderTexture* rttTex2;
+    Ogre::TexturePtr     m_refraction_rtt_texture;
+    Ogre::TexturePtr     m_reflection_rtt_texture;
     Ogre::SceneNode* pBottomNode;
     Ogre::SceneNode* pWaterNode;
     Ogre::Viewport *vRtt1, *vRtt2;
