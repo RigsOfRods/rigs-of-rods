@@ -27,6 +27,8 @@
 #include "Settings.h"
 #include "TerrainManager.h"
 
+#include <Ogre.h>
+
 using namespace Ogre;
 using namespace RoR;
 
@@ -40,7 +42,6 @@ Plane refractionPlane;
 SceneManager* waterSceneMgr;
 
 const int Water::WAVEREZ;
-const int Water::MAX_WAVETRAINS;
 
 class RefractionTextureListener : public RenderTargetListener, public ZeroedMemoryAllocator
 {
@@ -93,7 +94,6 @@ ReflectionTextureListener mReflectionListener;
 
 Water::Water() :
     maxampl(0),
-    free_wavetrain(0),
     visible(true),
     mScale(1.0f),
     vRtt1(0),
@@ -128,20 +128,23 @@ Water::Water() :
             res = sscanf(line, "%f, %f, %f, %f", &wl, &amp, &mx, &dir);
             if (res < 4)
                 continue;
-            wavetrains[free_wavetrain].wavelength = wl;
-            wavetrains[free_wavetrain].amplitude = amp;
-            wavetrains[free_wavetrain].maxheight = mx;
-            wavetrains[free_wavetrain].direction = dir / 57.0;
-            wavetrains[free_wavetrain].dir_sin = sin(wavetrains[free_wavetrain].direction);
-            wavetrains[free_wavetrain].dir_cos = cos(wavetrains[free_wavetrain].direction);
-            free_wavetrain++;
+
+            WaveTrain wavetrain;
+            wavetrain.wavelength = wl;
+            wavetrain.amplitude = amp;
+            wavetrain.maxheight = mx;
+            wavetrain.direction = dir / 57.0;
+            wavetrain.dir_sin = sin(wavetrain.direction);
+            wavetrain.dir_cos = cos(wavetrain.direction);
+
+            m_wavetrain_defs.push_back(wavetrain);
         }
         fclose(fd);
     }
-    for (int i = 0; i < free_wavetrain; i++)
+    for (size_t i = 0; i < m_wavetrain_defs.size(); i++)
     {
-        wavetrains[i].wavespeed = 1.25 * sqrt(wavetrains[i].wavelength);
-        maxampl += wavetrains[i].maxheight;
+        m_wavetrain_defs[i].wavespeed = 1.25 * sqrt(m_wavetrain_defs[i].wavelength);
+        maxampl += m_wavetrain_defs[i].maxheight;
     }
 
     this->processWater();
@@ -587,14 +590,14 @@ float Water::getHeightWaves(Vector3 pos)
     // we will store the result in this variable, init it with the default height
     float result = wHeight;
     // now walk through all the wave trains. One 'train' is one sin/cos set that will generate once wave. All the trains together will sum up, so that they generate a 'rough' sea
-    for (int i = 0; i < free_wavetrain; i++)
+    for (size_t i = 0; i < m_wavetrain_defs.size(); i++)
     {
         // calculate the amplitude that this wave will have. wavetrains[i].amplitude is read from the config
         // upper limit: prevent too big waves by setting an upper limit
-        float amp = std::min(wavetrains[i].amplitude * waveheight, wavetrains[i].maxheight);
+        float amp = std::min(m_wavetrain_defs[i].amplitude * waveheight, m_wavetrain_defs[i].maxheight);
         // now the main thing:
         // calculate the sinus with the values of the config file and add it to the result
-        result += amp * sin(Math::TWO_PI * ((gEnv->mrTime * wavetrains[i].wavespeed + wavetrains[i].dir_sin * pos.x + wavetrains[i].dir_cos * pos.z) / wavetrains[i].wavelength));
+        result += amp * sin(Math::TWO_PI * ((gEnv->mrTime * m_wavetrain_defs[i].wavespeed + m_wavetrain_defs[i].dir_sin * pos.x + m_wavetrain_defs[i].dir_cos * pos.z) / m_wavetrain_defs[i].wavelength));
     }
     // return the summed up waves
     return result;
@@ -629,13 +632,13 @@ Vector3 Water::getVelocity(Vector3 pos)
 
     Vector3 result(Vector3::ZERO);
 
-    for (int i = 0; i < free_wavetrain; i++)
+    for (size_t i = 0; i < m_wavetrain_defs.size(); i++)
     {
-        float amp = std::min(wavetrains[i].amplitude * waveheight, wavetrains[i].maxheight);
-        float speed = Math::TWO_PI * amp / (wavetrains[i].wavelength / wavetrains[i].wavespeed);
-        float coeff = Math::TWO_PI * (gEnv->mrTime * wavetrains[i].wavespeed + wavetrains[i].dir_sin * pos.x + wavetrains[i].dir_cos * pos.z) / wavetrains[i].wavelength;
+        float amp = std::min(m_wavetrain_defs[i].amplitude * waveheight, m_wavetrain_defs[i].maxheight);
+        float speed = Math::TWO_PI * amp / (m_wavetrain_defs[i].wavelength / m_wavetrain_defs[i].wavespeed);
+        float coeff = Math::TWO_PI * (gEnv->mrTime * m_wavetrain_defs[i].wavespeed + m_wavetrain_defs[i].dir_sin * pos.x + m_wavetrain_defs[i].dir_cos * pos.z) / m_wavetrain_defs[i].wavelength;
         result.y += speed * cos(coeff);
-        result += Vector3(wavetrains[i].dir_sin, 0, wavetrains[i].dir_cos) * speed * sin(coeff);
+        result += Vector3(m_wavetrain_defs[i].dir_sin, 0, m_wavetrain_defs[i].dir_cos) * speed * sin(coeff);
     }
 
     return result;
