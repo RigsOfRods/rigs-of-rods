@@ -2842,9 +2842,14 @@ void Beam::updateSkidmarks()
         if (wheels[i].lastContactInner == Vector3::ZERO && wheels[i].lastContactOuter == Vector3::ZERO)
             continue;
 
-        skidtrails[i]->updatePoint();
-        if (skidtrails[i] && wheels[i].isSkiding)
-            skidtrails[i]->update();
+        if (skidtrails[i])
+        {
+            skidtrails[i]->updatePoint();
+            if (wheels[i].isSkiding)
+            {
+                skidtrails[i]->update();
+            }
+        }
     }
 
     BES_STOP(BES_CORE_Skidmarks);
