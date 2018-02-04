@@ -166,12 +166,6 @@ void HydraxWater::updateReflectionPlane(float h)
 {
 }
 
-void HydraxWater::setFadeColour(ColourValue ambient)
-{
-    if (mHydrax)
-        mHydrax->setSunColor(Vector3(ambient.r, ambient.g, ambient.b));
-}
-
 void HydraxWater::setSunPosition(Ogre::Vector3 pos)
 {
     if (mHydrax)
