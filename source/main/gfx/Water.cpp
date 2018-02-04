@@ -108,7 +108,6 @@ Water::Water() :
 {
     //Ugh.. Why so ugly and hard to read
     mapSize = gEnv->terrainManager->getMaxTerrainSize();
-    fade = gEnv->sceneManager->getFogColour();
     waterSceneMgr = gEnv->sceneManager;
 
     if (mapSize.x < 1500 && mapSize.z < 1500)
@@ -274,7 +273,7 @@ void Water::processWater()
 
                 vRtt1 = rttTex1->addViewport(mRefractCam);
                 vRtt1->setClearEveryFrame(true);
-                vRtt1->setBackgroundColour(fade);
+                vRtt1->setBackgroundColour(gEnv->sceneManager->getFogColour());
                 //            v->setBackgroundColour( ColourValue::Black );
 
                 MaterialPtr mat = MaterialManager::getSingleton().getByName("Examples/FresnelReflectionRefraction");
@@ -308,7 +307,7 @@ void Water::processWater()
 
             vRtt2 = rttTex2->addViewport(mReflectCam);
             vRtt2->setClearEveryFrame(true);
-            vRtt2->setBackgroundColour(fade);
+            vRtt2->setBackgroundColour(gEnv->sceneManager->getFogColour());
 
             MaterialPtr mat;
             if (full_gfx)
@@ -407,15 +406,6 @@ void Water::setVisible(bool value)
         pWaterNode->setVisible(value);
     if (pBottomNode)
         pBottomNode->setVisible(value);
-}
-
-void Water::setFadeColour(ColourValue ambient)
-{
-    // update the viewports background colour!
-    if (vRtt1)
-        vRtt1->setBackgroundColour(ambient);
-    if (vRtt2)
-        vRtt2->setBackgroundColour(ambient);
 }
 
 void Water::moveTo(float centerheight)

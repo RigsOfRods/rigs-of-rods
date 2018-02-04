@@ -24,7 +24,6 @@
 #include "IWater.h"
 #include "RoRPrerequisites.h"
 
-#include <OgreColourValue.h>
 #include <OgreMesh.h>
 #include <OgreVector3.h>
 #include <vector>
@@ -41,7 +40,6 @@ public:
     Ogre::Vector3 getVelocity(Ogre::Vector3 pos);
 
     void setCamera(Ogre::Camera* cam);
-    void setFadeColour(Ogre::ColourValue ambient);
     void setHeight(float value);
     void setSunPosition(Ogre::Vector3);
     void setVisible(bool value);
@@ -96,6 +94,5 @@ private:
     Ogre::SceneNode* pBottomNode;
     Ogre::SceneNode* pWaterNode;
     Ogre::Viewport *vRtt1, *vRtt2;
-    Ogre::ColourValue fade;
     std::vector<WaveTrain> m_wavetrain_defs;
 };
