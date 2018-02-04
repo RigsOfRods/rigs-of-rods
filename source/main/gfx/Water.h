@@ -21,11 +21,13 @@
 
 #pragma once
 
-#include <Ogre.h>
-
+#include "IWater.h"
 #include "RoRPrerequisites.h"
 
-#include "IWater.h"
+#include <OgreColourValue.h>
+#include <OgreMesh.h>
+#include <OgreVector3.h>
+#include <vector>
 
 class Water : public IWater, public ZeroedMemoryAllocator
 {
@@ -60,7 +62,7 @@ private:
 
     float getWaveHeight(Ogre::Vector3 pos);
 
-    struct wavetrain_t
+    struct WaveTrain
     {
         float amplitude;
         float maxheight;
@@ -72,7 +74,6 @@ private:
     };
 
     static const int WAVEREZ = 100;
-    static const int MAX_WAVETRAINS = 10;
 
     bool visible;
     float* wbuffer;
@@ -80,7 +81,6 @@ private:
     float maxampl;
     float mScale;
     int framecounter;
-    int free_wavetrain;
     bool ForceUpdate;
 
     Ogre::MeshPtr mprt;
@@ -97,5 +97,5 @@ private:
     Ogre::SceneNode* pWaterNode;
     Ogre::Viewport *vRtt1, *vRtt2;
     Ogre::ColourValue fade;
-    wavetrain_t wavetrains[MAX_WAVETRAINS];
+    std::vector<WaveTrain> m_wavetrain_defs;
 };
