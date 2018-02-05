@@ -24,7 +24,10 @@
 #include "IWater.h"
 #include "RoRPrerequisites.h"
 
+#include <OgreHardwareVertexBuffer.h> // Ogre::HardwareVertexBufferSharedPtr
 #include <OgreMesh.h>
+#include <OgrePrerequisites.h> // Ogre::TexturePtr
+#include <OgreTexture.h>
 #include <OgreVector3.h>
 #include <vector>
 
