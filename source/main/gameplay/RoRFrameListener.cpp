@@ -2159,7 +2159,7 @@ bool RoRFrameListener::LoadTerrain()
         delete(gEnv->terrainManager); // TODO: do it when leaving simulation.
     }
 
-    gEnv->terrainManager = new TerrainManager(this);
+    gEnv->terrainManager = new TerrainManager();
     gEnv->terrainManager->loadTerrain(terrain_file);
     App::sim_terrain_name.ApplyPending();
 
