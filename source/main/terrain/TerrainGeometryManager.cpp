@@ -276,35 +276,56 @@ Ogre::Vector3 TerrainGeometryManager::getNormalAt(float x, float y, float z, flo
     return down;
 }
 
-void TerrainGeometryManager::InitTerrain(std::string otc_filename)
+bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
 {
+    OTCParser otc_parser;
+
+    // Load main *.otc file
     try
     {
-        OTCParser otc_parser;
         DataStreamPtr ds_config = ResourceGroupManager::getSingleton().openResource(otc_filename);
-        otc_parser.LoadMasterConfig(ds_config, otc_filename.c_str());
-
-        for (OTCPage& page : otc_parser.GetDefinition()->pages)
+        if (ds_config.isNull() || !ds_config->isReadable())
         {
-            if (page.pageconf_filename.empty())
-                continue;
+            RoR::LogFormat("[RoR|Terrain] Cannot read main *.otc file [%s].", otc_filename.c_str());
+            return false;
+        }
+        if (!otc_parser.LoadMasterConfig(ds_config, otc_filename.c_str()))
+        {
+            return false; // Error already reported
+        }
+    }
+    catch (...)
+    {
+        m_terrain_mgr->HandleException("Error reading main *.otc file");
+        return false;
+    }
 
+    // Load *.otc files for pages
+    for (OTCPage& page : otc_parser.GetDefinition()->pages)
+    {
+        if (page.pageconf_filename.empty())
+        {
+            continue;
+        }
+
+        try
+        {
             DataStreamPtr ds_page = ResourceGroupManager::getSingleton().openResource(page.pageconf_filename);
             if (ds_page.isNull() || !ds_page->isReadable())
             {
-                LOG("[RoR|Terrain] Cannot read file [" + page.pageconf_filename + "].");
+                RoR::LogFormat("[RoR|Terrain] Cannot read file [%s].", page.pageconf_filename.c_str());
                 continue;
             }
-
             otc_parser.LoadPageConfig(ds_page, page, page.pageconf_filename.c_str());
+            page.is_valid = true;
         }
+        catch (...)
+        {
+            m_terrain_mgr->HandleException("Error reading page config *.otc file (will be skipped)");
+        }
+    }
 
-        m_spec = otc_parser.GetDefinition();
-    }
-    catch(...) // Error already reported
-    {
-        return;
-    }
+    m_spec = otc_parser.GetDefinition();
 
     const std::string cache_filename_format = m_spec->cache_filename_base + "_OGRE_" + TOSTRING(OGRE_VERSION) + "_";
 
@@ -318,8 +339,11 @@ void TerrainGeometryManager::InitTerrain(std::string otc_filename)
     auto* loading_win = RoR::App::GetGuiManager()->GetLoadingWindow();
     for (OTCPage& page : m_spec->pages)
     {
-        loading_win->setProgress(23, _L("preparing terrain page ") + XZSTR(page.pos_x, page.pos_z));
-        this->SetupGeometry(page, m_spec->is_flat);
+        if (page.is_valid)
+        {
+            loading_win->setProgress(23, _L("preparing terrain page ") + XZSTR(page.pos_x, page.pos_z));
+            this->SetupGeometry(page, m_spec->is_flat);
+        }
     }
 
     // sync load since we want everything in place when we start
@@ -342,6 +366,11 @@ void TerrainGeometryManager::InitTerrain(std::string otc_filename)
         {
             for (OTCPage& page : m_spec->pages)
             {
+                if (!page.is_valid)
+                {
+                    continue;
+                }
+
                 Ogre::Terrain* terrain = m_ogre_terrain_group->getTerrain(page.pos_x, page.pos_z);
 
                 if (terrain != nullptr)
@@ -367,6 +396,7 @@ void TerrainGeometryManager::InitTerrain(std::string otc_filename)
     }
 
     m_ogre_terrain_group->freeTemporaryResources();
+    return true;
 }
 
 void TerrainGeometryManager::updateLightMap()

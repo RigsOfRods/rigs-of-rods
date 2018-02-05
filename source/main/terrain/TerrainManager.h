@@ -31,8 +31,6 @@ public:
     TerrainManager();
     ~TerrainManager();
 
-    void loadTerrain(Ogre::String filename);
-
     bool update(float dt);
 
     void setGravity(float value);
@@ -64,6 +62,8 @@ public:
 
     ShadowManager*     getShadowManager() { return shadow_manager; };
     std::string        GetMinimapTextureName();
+    bool               LoadAndPrepareTerrain(std::string terrn2_filename);
+    void               HandleException(const char* summary);
 
     // preloaded trucks
     void loadPreloadedTrucks();

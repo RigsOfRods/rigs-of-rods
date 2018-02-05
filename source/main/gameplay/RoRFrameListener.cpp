@@ -2160,7 +2160,14 @@ bool RoRFrameListener::LoadTerrain()
     }
 
     gEnv->terrainManager = new TerrainManager();
-    gEnv->terrainManager->loadTerrain(terrain_file);
+    if (!gEnv->terrainManager->LoadAndPrepareTerrain(terrain_file))
+    {
+        App::GetGuiManager()->ShowMessageBox("Failed to load terrain", "See 'RoR.log' for more info.", true, "OK", true, false, "");
+        delete gEnv->terrainManager;
+        gEnv->terrainManager = nullptr;
+        App::sim_terrain_name.ResetPending();
+        return false;
+    }
     App::sim_terrain_name.ApplyPending();
 
     App::GetGuiManager()->FrictionSettingsUpdateCollisions();

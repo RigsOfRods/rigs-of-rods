@@ -54,6 +54,7 @@ struct OTCPage
     int          pos_x, pos_z;
     bool         is_heightmap_raw, raw_flip_x, raw_flip_y;
     int          raw_size, raw_bpp;
+    bool         is_valid;
 
     std::list<OTCLayer> layers;
 };

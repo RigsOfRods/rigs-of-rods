@@ -128,35 +128,29 @@ TerrainManager::~TerrainManager()
 // some shortcut to remove ugly code
 #   define PROGRESS_WINDOW(x, y) { LOG(Ogre::String("  ## ") + y); RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(x, y); }
 
-void TerrainManager::loadTerrain(String filename)
+bool TerrainManager::LoadAndPrepareTerrain(std::string filename)
 {
-    DataStreamPtr ds;
-
     try
     {
-        String group = ResourceGroupManager::getSingleton().findGroupContainingResource(filename);
-        ds = ResourceGroupManager::getSingleton().openResource(filename, group);
+        Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(filename);
+        LOG(" ===== LOADING TERRAIN " + filename);
+        Terrn2Parser parser;
+        if (! parser.LoadTerrn2(m_def, stream))
+        {
+            LOG("[RoR|Terrain] Failed to parse: " + filename);
+            for (std::string msg : parser.GetMessages())
+            {
+                LOG("[RoR|Terrain] \tMessage: " + msg);
+            }
+            return false;
+        }
     }
     catch (...)
     {
-        LOG("[RoR|Terrain] File not found: " + filename);
-        return;
+        this->HandleException("Error reading *.terrn2 file");
+        return false;
     }
 
-    PROGRESS_WINDOW(10, _L("Loading Terrain Configuration"));
-
-    LOG(" ===== LOADING TERRAIN " + filename);
-
-    Terrn2Parser parser;
-    if (! parser.LoadTerrn2(m_def, ds))
-    {
-        LOG("[RoR|Terrain] Failed to parse: " + filename);
-        for (std::string msg : parser.GetMessages())
-        {
-            LOG("[RoR|Terrain] \tMessage: " + msg);
-        }
-        return;
-    }
     gravity = m_def.gravity;
 
     // then, init the subsystems, order is important :)
@@ -168,7 +162,10 @@ void TerrainManager::loadTerrain(String filename)
 
     // load the terrain geometry
     PROGRESS_WINDOW(80, _L("Loading Terrain Geometry"));
-    geometry_manager->InitTerrain(m_def.ogre_ter_conf_filename);
+    if (!geometry_manager->InitTerrain(m_def.ogre_ter_conf_filename))
+    {
+        return false; // Error already reported
+    }
 
     LOG(" ===== LOADING TERRAIN WATER " + filename);
     // must happen here
@@ -196,6 +193,8 @@ void TerrainManager::loadTerrain(String filename)
     geometry_manager->UpdateMainLightPosition(); // Initial update takes a while
     collisions->finishLoadingTerrain();
     LOG(" ===== TERRAIN LOADING DONE " + filename);
+
+    return true;
 }
 
 void TerrainManager::initSubSystems()
@@ -681,5 +680,25 @@ std::string TerrainManager::GetMinimapTextureName()
         return m_survey_map->GetMinimapTextureName();
     else
         return "";
+}
+
+void TerrainManager::HandleException(const char* summary)
+{
+    try
+    {
+        throw; // rethrow
+    }
+    catch (Ogre::Exception& oex)
+    {
+        RoR::LogFormat("[RoR|Terrain] %s, message: '%s', type: <Ogre::Exception>.", summary, oex.getFullDescription().c_str());
+    }
+    catch (std::exception& stex)
+    {
+        RoR::LogFormat("[RoR|Terrain] %s, message: '%s', type: <std::exception>.", summary, stex.what());
+    }
+    catch (...)
+    {
+        RoR::LogFormat("[RoR|Terrain] %s, unknown error occurred.", summary);
+    }
 }
 
