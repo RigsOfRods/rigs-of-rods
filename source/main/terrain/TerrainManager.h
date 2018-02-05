@@ -38,7 +38,6 @@ public:
     TerrainManager();
     ~TerrainManager();
 
-    void               loadTerrain(Ogre::String filename);
     void               setGravity(float value);
     std::vector<authorinfo_t>& GetAuthors();
     TerrainGeometryManager* getGeometryManager()     { return m_geometry_manager; };
@@ -64,6 +63,8 @@ public:
     std::string        GetMinimapTextureName();
     void               LoadPredefinedActors();
     bool               HasPredefinedActors();
+    bool               LoadAndPrepareTerrain(std::string terrn2_filename);
+    void               HandleException(const char* summary);
     float              GetHeightAt(float x, float z);
     Ogre::Vector3      GetNormalAt(float x, float y, float z);
 

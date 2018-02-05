@@ -193,7 +193,8 @@ RoR::OTCPage::OTCPage(int x_pos, int z_pos, std::string const & conf_filename, b
     pageconf_filename(conf_filename),
     pos_x(x_pos), pos_z(z_pos),
     is_heightmap_raw(false), raw_flip_x(flipX), raw_flip_y(flipY),
-    raw_size(rawsize), raw_bpp(rawbpp)
+    raw_size(rawsize), raw_bpp(rawbpp),
+    num_layers(0)
 {}
 
 RoR::OTCLayer::OTCLayer():

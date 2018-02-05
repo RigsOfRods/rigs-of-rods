@@ -38,7 +38,7 @@ public:
     TerrainGeometryManager(TerrainManager* terrainManager);
     ~TerrainGeometryManager();
 
-    void InitTerrain(std::string otc_filename);
+    bool InitTerrain(std::string otc_filename);
 
     Ogre::TerrainGroup* getTerrainGroup() { return m_ogre_terrain_group; };
 

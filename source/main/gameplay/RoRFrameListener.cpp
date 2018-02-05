@@ -1967,9 +1967,21 @@ bool SimController::LoadTerrain()
         delete(App::GetSimTerrain()); // TODO: do it when leaving simulation.
     }
 
-    App::SetSimTerrain(new TerrainManager());
-    App::GetSimTerrain()->loadTerrain(terrain_file);
+    TerrainManager* terrain = new TerrainManager();
+    App::SetSimTerrain(terrain); // The terrain preparation logic relies on it.
+    if (!terrain->LoadAndPrepareTerrain(terrain_file))
+    {
+        App::GetGuiManager()->ShowMessageBox("Failed to load terrain", "See 'RoR.log' for more info.", true, "OK", nullptr);
+        App::SetSimTerrain(nullptr);
+        delete terrain;
+        App::sim_terrain_name.ResetPending();
+        return false;
+    }
     App::sim_terrain_name.ApplyPending();
+
+    // Init minimap
+    RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(50, _L("Initializing Overview Map Subsystem"));
+    App::GetSimController()->GetGfxScene().InitSurveyMap(terrain->getMaxTerrainSize());
 
     App::GetGuiManager()->FrictionSettingsUpdateCollisions();
 
