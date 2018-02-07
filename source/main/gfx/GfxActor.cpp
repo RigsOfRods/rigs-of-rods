@@ -24,6 +24,7 @@
 #include "Beam.h"
 #include "GlobalEnvironment.h" // TODO: Eliminate!
 #include "SkyManager.h"
+#include "TerrainManager.h"
 
 #include <OgrePass.h>
 #include <OgreRenderWindow.h>
@@ -229,9 +230,10 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
     {
 #ifdef USE_CAELUM
         // caelum needs to know that we changed the cameras
-        if (gEnv->sky && RoR::App::app_state.GetActive() == RoR::AppState::SIMULATION)
+        SkyManager* sky = gEnv->terrainManager->getSkyManager();
+        if ((sky != nullptr) && (RoR::App::app_state.GetActive() == RoR::AppState::SIMULATION))
         {
-            gEnv->sky->notifyCameraChanged(vidcam.vcam_ogre_camera);
+            sky->NotifySkyCameraChanged(vidcam.vcam_ogre_camera);
         }
 #endif // USE_CAELUM
 

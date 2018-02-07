@@ -40,12 +40,9 @@ public:
 
     struct ResourcePack
     {
-        ResourcePack(Ogre::uint64 mask, const char* name, const char* resource_group_name):
-            mask(mask),
-            name(name),
-            resource_group_name(resource_group_name)
-        {
-        }
+        ResourcePack(const char* name, const char* resource_group_name):
+            name(name), resource_group_name(resource_group_name)
+        {}
 
         static const ResourcePack OGRE_CORE;
         static const ResourcePack WALLPAPERS;
@@ -76,22 +73,16 @@ public:
         static const ResourcePack SUNBURN;
         static const ResourcePack TEXTURES;
 
-        Ogre::uint64 mask;
         const char* name;
         const char* resource_group_name;
     };
 
-    void AddResourcePack(ResourcePack const& resource_pack);
-
-    bool isLoaded(Ogre::uint64 res_pack_id);
-
-    bool init(void);
-
-    inline RoR::SkinManager* GetSkinManager() const { return m_skin_manager; }
-
-    void InitManagedMaterials();
-    void CheckAndLoadBaseResources();
-    void RegenCache();
+    void               AddResourcePack(ResourcePack const& resource_pack); //!< Loads resources if not already loaded (currently resources never unload until shutdown)
+    bool               OnApplicationStartup(void);
+    void               InitManagedMaterials();
+    void               LoadGameplayResources();  //!< Checks GVar settings and loads required resources.
+    void               RegenCache();
+    RoR::SkinManager*  GetSkinManager()  { return m_skin_manager; }
 
 protected:
 
@@ -103,7 +94,6 @@ protected:
     void resourceStreamOpened(const Ogre::String& name, const Ogre::String& group, Ogre::Resource* resource, Ogre::DataStreamPtr& dataStream);
     bool resourceCollision(Ogre::Resource* resource, Ogre::ResourceManager* resourceManager);
 
-    Ogre::uint64 m_loaded_resource_packs;
     RoR::SkinManager* m_skin_manager;
     bool              m_base_resource_loaded;
 };

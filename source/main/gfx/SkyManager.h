@@ -2,6 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
+    Copyright 2017-2018 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -22,45 +23,30 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "ForwardDeclarations.h"
 
 #include "CaelumPrerequisites.h"
 
-class SkyManager : public ZeroedMemoryAllocator
+class SkyManager
 {
 public:
 
     SkyManager();
     ~SkyManager();
 
-    void loadScript(Ogre::String script, int fogStart = -1, int fogEnd = -1);
+    void           LoadCaelumScript(Ogre::String script, int fogStart = -1, int fogEnd = -1);
+    void           SetSkyTimeFactor(Ogre::Real f);  //!< change the time scale
+    Ogre::Light*   GetSkyMainLight();
+    float          GetSkyTimeFactor();              //!< gets the current time scale
+    std::string    GetPrettyTime();                 //!< prints the current time of the simulation in the format of HH:MM:SS
+    bool           UpdateSky(float dt);
+    void           NotifySkyCameraChanged(Ogre::Camera* cam);
+    void           DetectSkyUpdate();
+    Caelum::CaelumSystem* GetCaelumSys()        { return m_caelum_system; }
 
-    /// change the time scale
-    void setTimeFactor(Ogre::Real f);
-    Ogre::Light* getMainLight();
-    /// gets the current time scale
-    Ogre::Real getTimeFactor();
-
-    /// prints the current time of the simulation in the format of HH:MM:SS
-    Ogre::String getPrettyTime();
-
-    bool update(float dt);
-
-    void forceUpdate(float dt);
-
-    void notifyCameraChanged(Ogre::Camera* cam);
-
-    void detectUpdate();
-
-    Caelum::CaelumSystem* getCaelumSys()
-    {
-        return mCaelumSystem;
-    }
-
-protected:
-    Caelum::LongReal lc;
-    Caelum::CaelumSystem* mCaelumSystem;
-    Caelum::CaelumSystem* getCaelumSystem() { return mCaelumSystem; };
+private:
+    Caelum::LongReal      m_last_clock;
+    Caelum::CaelumSystem* m_caelum_system;
 };
 
 #endif // USE_CAELUM

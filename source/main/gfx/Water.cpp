@@ -27,6 +27,8 @@
 #include "Settings.h"
 #include "TerrainManager.h"
 
+#include <Ogre.h>
+
 using namespace Ogre;
 using namespace RoR;
 
@@ -40,7 +42,6 @@ Plane refractionPlane;
 SceneManager* waterSceneMgr;
 
 const int Water::WAVEREZ;
-const int Water::MAX_WAVETRAINS;
 
 class RefractionTextureListener : public RenderTargetListener, public ZeroedMemoryAllocator
 {
@@ -93,7 +94,6 @@ ReflectionTextureListener mReflectionListener;
 
 Water::Water() :
     maxampl(0),
-    free_wavetrain(0),
     visible(true),
     mScale(1.0f),
     vRtt1(0),
@@ -108,7 +108,6 @@ Water::Water() :
 {
     //Ugh.. Why so ugly and hard to read
     mapSize = gEnv->terrainManager->getMaxTerrainSize();
-    fade = gEnv->sceneManager->getFogColour();
     waterSceneMgr = gEnv->sceneManager;
 
     if (mapSize.x < 1500 && mapSize.z < 1500)
@@ -128,20 +127,23 @@ Water::Water() :
             res = sscanf(line, "%f, %f, %f, %f", &wl, &amp, &mx, &dir);
             if (res < 4)
                 continue;
-            wavetrains[free_wavetrain].wavelength = wl;
-            wavetrains[free_wavetrain].amplitude = amp;
-            wavetrains[free_wavetrain].maxheight = mx;
-            wavetrains[free_wavetrain].direction = dir / 57.0;
-            wavetrains[free_wavetrain].dir_sin = sin(wavetrains[free_wavetrain].direction);
-            wavetrains[free_wavetrain].dir_cos = cos(wavetrains[free_wavetrain].direction);
-            free_wavetrain++;
+
+            WaveTrain wavetrain;
+            wavetrain.wavelength = wl;
+            wavetrain.amplitude = amp;
+            wavetrain.maxheight = mx;
+            wavetrain.direction = dir / 57.0;
+            wavetrain.dir_sin = sin(wavetrain.direction);
+            wavetrain.dir_cos = cos(wavetrain.direction);
+
+            m_wavetrain_defs.push_back(wavetrain);
         }
         fclose(fd);
     }
-    for (int i = 0; i < free_wavetrain; i++)
+    for (size_t i = 0; i < m_wavetrain_defs.size(); i++)
     {
-        wavetrains[i].wavespeed = 1.25 * sqrt(wavetrains[i].wavelength);
-        maxampl += wavetrains[i].maxheight;
+        m_wavetrain_defs[i].wavespeed = 1.25 * sqrt(m_wavetrain_defs[i].wavelength);
+        maxampl += m_wavetrain_defs[i].maxheight;
     }
 
     this->processWater();
@@ -191,11 +193,25 @@ Water::~Water()
         rttTex1 = nullptr;
     }
 
+    if (!m_refraction_rtt_texture.isNull())
+    {
+        m_refraction_rtt_texture->unload();
+        Ogre::TextureManager::getSingleton().remove(m_refraction_rtt_texture->getHandle());
+        m_refraction_rtt_texture.setNull();
+    }
+
     if (rttTex2)
     {
         //vRtt2->clear();
         rttTex2->removeAllListeners();
         rttTex2 = nullptr;
+    }
+
+    if (!m_reflection_rtt_texture.isNull())
+    {
+        m_reflection_rtt_texture->unload();
+        Ogre::TextureManager::getSingleton().remove(m_reflection_rtt_texture->getHandle());
+        m_reflection_rtt_texture.setNull();
     }
 
     if (wbuffer)
@@ -245,6 +261,7 @@ void Water::processWater()
         if (full_gfx)
         {
             TexturePtr rttTex1Ptr = TextureManager::getSingleton().createManual("Refraction", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 512, 512, 0, PF_R8G8B8, TU_RENDERTARGET);
+            m_refraction_rtt_texture = rttTex1Ptr;
             rttTex1 = rttTex1Ptr->getBuffer()->getRenderTarget();
             {
                 mRefractCam = gEnv->sceneManager->createCamera("RefractCam");
@@ -256,7 +273,7 @@ void Water::processWater()
 
                 vRtt1 = rttTex1->addViewport(mRefractCam);
                 vRtt1->setClearEveryFrame(true);
-                vRtt1->setBackgroundColour(fade);
+                vRtt1->setBackgroundColour(gEnv->sceneManager->getFogColour());
                 //            v->setBackgroundColour( ColourValue::Black );
 
                 MaterialPtr mat = MaterialManager::getSingleton().getByName("Examples/FresnelReflectionRefraction");
@@ -278,6 +295,7 @@ void Water::processWater()
         }
 
         TexturePtr rttTex2Ptr = TextureManager::getSingleton().createManual("Reflection", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 512, 512, 0, PF_R8G8B8, TU_RENDERTARGET);
+        m_reflection_rtt_texture = rttTex2Ptr;
         rttTex2 = rttTex2Ptr->getBuffer()->getRenderTarget();
         {
             mReflectCam = gEnv->sceneManager->createCamera("ReflectCam");
@@ -289,7 +307,7 @@ void Water::processWater()
 
             vRtt2 = rttTex2->addViewport(mReflectCam);
             vRtt2->setClearEveryFrame(true);
-            vRtt2->setBackgroundColour(fade);
+            vRtt2->setBackgroundColour(gEnv->sceneManager->getFogColour());
 
             MaterialPtr mat;
             if (full_gfx)
@@ -388,15 +406,6 @@ void Water::setVisible(bool value)
         pWaterNode->setVisible(value);
     if (pBottomNode)
         pBottomNode->setVisible(value);
-}
-
-void Water::setFadeColour(ColourValue ambient)
-{
-    // update the viewports background colour!
-    if (vRtt1)
-        vRtt1->setBackgroundColour(ambient);
-    if (vRtt2)
-        vRtt2->setBackgroundColour(ambient);
 }
 
 void Water::moveTo(float centerheight)
@@ -571,14 +580,14 @@ float Water::getHeightWaves(Vector3 pos)
     // we will store the result in this variable, init it with the default height
     float result = wHeight;
     // now walk through all the wave trains. One 'train' is one sin/cos set that will generate once wave. All the trains together will sum up, so that they generate a 'rough' sea
-    for (int i = 0; i < free_wavetrain; i++)
+    for (size_t i = 0; i < m_wavetrain_defs.size(); i++)
     {
         // calculate the amplitude that this wave will have. wavetrains[i].amplitude is read from the config
         // upper limit: prevent too big waves by setting an upper limit
-        float amp = std::min(wavetrains[i].amplitude * waveheight, wavetrains[i].maxheight);
+        float amp = std::min(m_wavetrain_defs[i].amplitude * waveheight, m_wavetrain_defs[i].maxheight);
         // now the main thing:
         // calculate the sinus with the values of the config file and add it to the result
-        result += amp * sin(Math::TWO_PI * ((gEnv->mrTime * wavetrains[i].wavespeed + wavetrains[i].dir_sin * pos.x + wavetrains[i].dir_cos * pos.z) / wavetrains[i].wavelength));
+        result += amp * sin(Math::TWO_PI * ((gEnv->mrTime * m_wavetrain_defs[i].wavespeed + m_wavetrain_defs[i].dir_sin * pos.x + m_wavetrain_defs[i].dir_cos * pos.z) / m_wavetrain_defs[i].wavelength));
     }
     // return the summed up waves
     return result;
@@ -613,13 +622,13 @@ Vector3 Water::getVelocity(Vector3 pos)
 
     Vector3 result(Vector3::ZERO);
 
-    for (int i = 0; i < free_wavetrain; i++)
+    for (size_t i = 0; i < m_wavetrain_defs.size(); i++)
     {
-        float amp = std::min(wavetrains[i].amplitude * waveheight, wavetrains[i].maxheight);
-        float speed = Math::TWO_PI * amp / (wavetrains[i].wavelength / wavetrains[i].wavespeed);
-        float coeff = Math::TWO_PI * (gEnv->mrTime * wavetrains[i].wavespeed + wavetrains[i].dir_sin * pos.x + wavetrains[i].dir_cos * pos.z) / wavetrains[i].wavelength;
+        float amp = std::min(m_wavetrain_defs[i].amplitude * waveheight, m_wavetrain_defs[i].maxheight);
+        float speed = Math::TWO_PI * amp / (m_wavetrain_defs[i].wavelength / m_wavetrain_defs[i].wavespeed);
+        float coeff = Math::TWO_PI * (gEnv->mrTime * m_wavetrain_defs[i].wavespeed + m_wavetrain_defs[i].dir_sin * pos.x + m_wavetrain_defs[i].dir_cos * pos.z) / m_wavetrain_defs[i].wavelength;
         result.y += speed * cos(coeff);
-        result += Vector3(wavetrains[i].dir_sin, 0, wavetrains[i].dir_cos) * speed * sin(coeff);
+        result += Vector3(m_wavetrain_defs[i].dir_sin, 0, m_wavetrain_defs[i].dir_cos) * speed * sin(coeff);
     }
 
     return result;

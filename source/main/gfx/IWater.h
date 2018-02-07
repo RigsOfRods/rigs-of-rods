@@ -39,7 +39,6 @@ public:
     virtual Ogre::Vector3 getVelocity(Ogre::Vector3 pos) = 0;
 
     virtual void setCamera(Ogre::Camera* cam) = 0;
-    virtual void setFadeColour(Ogre::ColourValue ambient) = 0;
     virtual void setHeight(float value) = 0;
     virtual void setSunPosition(Ogre::Vector3) = 0;
     virtual void setVisible(bool value) = 0;

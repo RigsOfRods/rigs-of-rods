@@ -1212,7 +1212,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
 
 #ifdef USE_CAELUM
 
-        static const bool caelum_enabled = App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM;
+        const bool caelum_enabled = App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM;
         if (caelum_enabled && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
         {
             Real time_factor = 1000.0f;
@@ -1241,14 +1241,14 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
             else
             {
                 time_factor = 1.0f;
-                update_time = gEnv->terrainManager->getSkyManager()->getTimeFactor() != 1.0f;
+                update_time = gEnv->terrainManager->getSkyManager()->GetSkyTimeFactor() != 1.0f;
             }
 
             if (update_time)
             {
-                gEnv->terrainManager->getSkyManager()->setTimeFactor(time_factor);
-                RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Time set to ") + gEnv->terrainManager->getSkyManager()->getPrettyTime());
-                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Time set to ") + gEnv->terrainManager->getSkyManager()->getPrettyTime(), "weather_sun.png", 1000);
+                gEnv->terrainManager->getSkyManager()->SetSkyTimeFactor(time_factor);
+                RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Time set to ") + gEnv->terrainManager->getSkyManager()->GetPrettyTime());
+                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Time set to ") + gEnv->terrainManager->getSkyManager()->GetPrettyTime(), "weather_sun.png", 1000);
             }
         }
 
@@ -1676,7 +1676,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
     SkyManager* sky = gEnv->terrainManager->getSkyManager();
     if ((sky != nullptr) && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
     {
-        sky->detectUpdate();
+        sky->DetectSkyUpdate();
     }
 #endif
 
@@ -2240,48 +2240,10 @@ bool RoRFrameListener::SetupGameplayLoop()
 
     auto* loading_window = App::GetGuiManager()->GetLoadingWindow();
 
-    LOG("Loading base resources");
+    RoR::Log("[RoR] Loading resources...");
 
-    loading_window->setProgress(0, _L("Loading base resources"));
-    App::GetContentManager()->CheckAndLoadBaseResources();
-
-
-    // ============================================================================
-    // Loading settings resources
-    // ============================================================================
-
-    if (App::gfx_water_mode.GetActive() == GfxWaterMode::HYDRAX && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::HYDRAX.mask))
-        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HYDRAX);
-
-    if (App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::CAELUM.mask))
-        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::CAELUM);
-
-    if (App::gfx_vegetation_mode.GetActive() != RoR::GfxVegetation::NONE && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::PAGED.mask))
-        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PAGED);
-
-    if (App::gfx_enable_hdr.GetActive() && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::HDR.mask))
-        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HDR);
-
-    if (App::gfx_enable_dof.GetActive() && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::DEPTH_OF_FIELD.mask))
-        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::DEPTH_OF_FIELD);
-
-    if (App::gfx_enable_glow.GetActive() && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::GLOW.mask))
-        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::GLOW);
-
-    if (App::gfx_motion_blur.GetActive() && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::BLUR.mask))
-        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::BLUR);
-
-    if (App::gfx_enable_heathaze.GetActive() && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::HEATHAZE.mask))
-        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::HEATHAZE);
-
-    if (App::gfx_enable_sunburn.GetActive() && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::SUNBURN.mask))
-        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SUNBURN);
-
-    /*if (SSETTING("Shadow technique", "") == "Parallel-split Shadow Maps" && !RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::PSSM.mask))
-        RoR::App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::PSSM);
-        */
-
-    Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("LoadBeforeMap");
+    loading_window->setProgress(0, _L("Loading resources"));
+    App::GetContentManager()->LoadGameplayResources();
 
     // ============================================================================
     // Setup
@@ -2307,7 +2269,7 @@ bool RoRFrameListener::SetupGameplayLoop()
     gEnv->player = m_character_factory.createLocal(colourNum);
 
     // heathaze effect
-    if (App::gfx_enable_heathaze.GetActive() && RoR::App::GetContentManager()->isLoaded(ContentManager::ResourcePack::HEATHAZE.mask))
+    if (App::gfx_enable_heathaze.GetActive())
     {
         m_heathaze = new HeatHaze();
         m_heathaze->setEnable(true);

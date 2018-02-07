@@ -23,6 +23,7 @@
 #include "Application.h"
 #include "OgreSubsystem.h"
 #include "SkyManager.h"
+#include "TerrainManager.h"
 
 #ifdef USE_CAELUM
 #include <Caelum.h>
@@ -108,12 +109,13 @@ void HydraxWater::update()
 {
     //This has to change in the next versions when SkyX will be added.
 #ifdef USE_CAELUM
-    if (gEnv->sky) //Caelum way of doing things
+    SkyManager* sky = gEnv->terrainManager->getSkyManager();
+    if (sky != nullptr) //Caelum way of doing things
     {
         Ogre::Vector3 sunPosition = gEnv->mainCamera->getDerivedPosition();
-        sunPosition -= gEnv->sky->getCaelumSys()->getSun()->getLightDirection() * 80000;
+        sunPosition -= sky->GetCaelumSys()->getSun()->getLightDirection() * 80000;
         mHydrax->setSunPosition(sunPosition);
-        mHydrax->setSunColor(Ogre::Vector3(gEnv->sky->getCaelumSys()->getSun()->getBodyColour().r, gEnv->sky->getCaelumSys()->getSun()->getBodyColour().g, gEnv->sky->getCaelumSys()->getSun()->getBodyColour().b));
+        mHydrax->setSunColor(Ogre::Vector3(sky->GetCaelumSys()->getSun()->getBodyColour().r, sky->GetCaelumSys()->getSun()->getBodyColour().g, sky->GetCaelumSys()->getSun()->getBodyColour().b));
     }
     else
 #endif // USE_CAELUM
@@ -162,12 +164,6 @@ Vector3 HydraxWater::getVelocity(Vector3 pos)
 
 void HydraxWater::updateReflectionPlane(float h)
 {
-}
-
-void HydraxWater::setFadeColour(ColourValue ambient)
-{
-    if (mHydrax)
-        mHydrax->setSunColor(Vector3(ambient.r, ambient.g, ambient.b));
 }
 
 void HydraxWater::setSunPosition(Ogre::Vector3 pos)

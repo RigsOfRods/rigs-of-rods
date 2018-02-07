@@ -21,11 +21,12 @@
 
 #pragma once
 
-#include <Ogre.h>
-
+#include "IWater.h"
 #include "RoRPrerequisites.h"
 
-#include "IWater.h"
+#include <OgreMesh.h>
+#include <OgreVector3.h>
+#include <vector>
 
 class Water : public IWater, public ZeroedMemoryAllocator
 {
@@ -39,7 +40,6 @@ public:
     Ogre::Vector3 getVelocity(Ogre::Vector3 pos);
 
     void setCamera(Ogre::Camera* cam);
-    void setFadeColour(Ogre::ColourValue ambient);
     void setHeight(float value);
     void setSunPosition(Ogre::Vector3);
     void setVisible(bool value);
@@ -60,7 +60,7 @@ private:
 
     float getWaveHeight(Ogre::Vector3 pos);
 
-    struct wavetrain_t
+    struct WaveTrain
     {
         float amplitude;
         float maxheight;
@@ -72,7 +72,6 @@ private:
     };
 
     static const int WAVEREZ = 100;
-    static const int MAX_WAVETRAINS = 10;
 
     bool visible;
     float* wbuffer;
@@ -80,7 +79,6 @@ private:
     float maxampl;
     float mScale;
     int framecounter;
-    int free_wavetrain;
     bool ForceUpdate;
 
     Ogre::MeshPtr mprt;
@@ -91,9 +89,10 @@ private:
     Ogre::HardwareVertexBufferSharedPtr wbuf;
     Ogre::RenderTexture* rttTex1;
     Ogre::RenderTexture* rttTex2;
+    Ogre::TexturePtr     m_refraction_rtt_texture;
+    Ogre::TexturePtr     m_reflection_rtt_texture;
     Ogre::SceneNode* pBottomNode;
     Ogre::SceneNode* pWaterNode;
     Ogre::Viewport *vRtt1, *vRtt2;
-    Ogre::ColourValue fade;
-    wavetrain_t wavetrains[MAX_WAVETRAINS];
+    std::vector<WaveTrain> m_wavetrain_defs;
 };

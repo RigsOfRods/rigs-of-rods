@@ -28,13 +28,13 @@ For a simple overview of the features Rigs of Rods provides please refer to [doc
 
 ## Further documentation
 * Website: https://rigsofrods.org/
-* Wiki: http://docs.rigsofrods.org/
-* Developer Wiki: http://developer.rigsofrods.org/
+* Documentation: http://docs.rigsofrods.org/
+* Developer Wiki: https://github.com/RigsOfRods/rigs-of-rods/wiki
 * Forum: https://forum.rigsofrods.org/
 * Mod Repository: https://repository.rigsofrods.org/
 * Github: https://github.com/RigsOfRods/rigs-of-rods
 * IRC: #rigsofrods and #rigsofrods-dev on irc.freenode.net
-* Discord: http://discord.gg/0lHqnBd15Cfz5g94
+* Discord: https://discord.gg/rigsofrods
 * [doc/](doc/)
 * Translation interface: https://www.transifex.com/rigsofrods/rigs-of-rods/
 
@@ -87,7 +87,7 @@ Rigs is Rods can also be played with Gamepads, Joysticks, Wheels and other contr
 
 
 ## Content/Mods
-Rigs of Rods only comes with a very small selection of vehicles and terrains. For the best experience download some mods from the [Rigs of Rods Mod Repository](http://www.repository.rigsofrods.org/). The [Showroom Subforum](http://forum.rigsofrods.org/forum-6.html) may contain additional content not found in the Mod Repository.  
+Rigs of Rods only comes with a very small selection of vehicles and terrains. For the best experience download some mods from the [Rigs of Rods Mod Repository](http://www.repository.rigsofrods.org/). The [Showroom Subforum](https://forum.rigsofrods.org/showrooms/) may contain additional content not found in the Mod Repository.  
 If you want to get going quickly have a look at modpacks which can be found in the Mod Repository as well.
 
 

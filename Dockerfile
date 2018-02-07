@@ -1,4 +1,4 @@
-FROM anotherfoxguy/ror-build-box
+FROM anotherfoxguy/ror-build-box:master
 
 RUN mkdir -p /src/
 WORKDIR /src/

@@ -54,6 +54,7 @@ endif ()
 # global cmake options
 SET(BUILD_SHARED_LIBS ON)
 SET(CMAKE_USE_RELATIVE_PATHS OFF)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # setup paths
 SET(RUNTIME_OUTPUT_DIRECTORY "${RoR_BINARY_DIR}/bin/")
