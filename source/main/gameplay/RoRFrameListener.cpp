@@ -2159,8 +2159,15 @@ bool RoRFrameListener::LoadTerrain()
         delete(gEnv->terrainManager); // TODO: do it when leaving simulation.
     }
 
-    gEnv->terrainManager = new TerrainManager(this);
-    gEnv->terrainManager->loadTerrain(terrain_file);
+    gEnv->terrainManager = new TerrainManager();
+    if (!gEnv->terrainManager->LoadAndPrepareTerrain(terrain_file))
+    {
+        App::GetGuiManager()->ShowMessageBox("Failed to load terrain", "See 'RoR.log' for more info.", true, "OK", true, false, "");
+        delete gEnv->terrainManager;
+        gEnv->terrainManager = nullptr;
+        App::sim_terrain_name.ResetPending();
+        return false;
+    }
     App::sim_terrain_name.ApplyPending();
 
     App::GetGuiManager()->FrictionSettingsUpdateCollisions();

@@ -1345,7 +1345,7 @@ void TerrainObjectManager::loadPreloadedTrucks()
     for (unsigned int i = 0; i < truck_preload.size(); i++)
     {
         Vector3 pos = Vector3(truck_preload[i].px, truck_preload[i].py, truck_preload[i].pz);
-        Beam* b = terrainManager->GetSimController()->GetBeamFactory()->CreateLocalRigInstance(
+        Beam* b = RoR::App::GetSimController()->GetBeamFactory()->CreateLocalRigInstance(
             pos,
             truck_preload[i].rotation,
             truck_preload[i].name,
