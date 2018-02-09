@@ -382,15 +382,15 @@ void ContentManager::LoadGameplayResources()
         this->AddResourcePack(ContentManager::ResourcePack::AIRFOILS);
         this->AddResourcePack(ContentManager::ResourcePack::BEAM_OBJECTS);
 
+        this->AddResourcePack(ContentManager::ResourcePack::TEXTURES);
+        this->AddResourcePack(ContentManager::ResourcePack::ICONS);
+        this->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
+        this->AddResourcePack(ContentManager::ResourcePack::FLAGS);
         this->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
         this->AddResourcePack(ContentManager::ResourcePack::MESHES);
         this->AddResourcePack(ContentManager::ResourcePack::OVERLAYS);
         this->AddResourcePack(ContentManager::ResourcePack::PARTICLES);
         this->AddResourcePack(ContentManager::ResourcePack::SCRIPTS);
-        this->AddResourcePack(ContentManager::ResourcePack::TEXTURES);
-        this->AddResourcePack(ContentManager::ResourcePack::FLAGS);
-        this->AddResourcePack(ContentManager::ResourcePack::ICONS);
-        this->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
 
         m_base_resource_loaded = true;
     }
