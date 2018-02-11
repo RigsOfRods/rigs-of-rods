@@ -49,9 +49,11 @@ SkyXManager::SkyXManager(Ogre::String configFile)
 
 SkyXManager::~SkyXManager()
 {
-	//TODO
-	delete mSkyX;
-	delete mBasicController;
+    RoR::App::GetOgreSubsystem ()->GetRenderWindow ()->removeListener (mSkyX);
+    mSkyX->remove();
+
+    mSkyX = nullptr;
+    mBasicController = nullptr;
 }
 
 Vector3 SkyXManager::getMainLightDirection()
