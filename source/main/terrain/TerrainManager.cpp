@@ -334,11 +334,11 @@ void TerrainManager::initSkySubSystem()
     // SkyX skies
     if (App::gfx_sky_mode.GetActive() == GfxSkyMode::SKYX)
     {
-         // try to load caelum config
+         // try to load SkyX config
          if (!m_def.skyx_config.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def.skyx_config))
-         SkyX_manager = new SkyXManager(m_def.skyx_config);
+            SkyX_manager = new SkyXManager(m_def.skyx_config);
          else
-             SkyX_manager = new SkyXManager("SkyXDefault.skx");
+            SkyX_manager = new SkyXManager("SkyXDefault.skx");
 
          gEnv->SkyX = SkyX_manager;
     }
