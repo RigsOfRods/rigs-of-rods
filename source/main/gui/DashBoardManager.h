@@ -211,7 +211,7 @@ public:
     void update(float& dt);
     void updateFeatures();
 
-    bool wasLoaded() { return (free_dashboard > 0); };
+    bool WasDashboardLoaded() const { return (free_dashboard > 0); };
 
     void setVisible(bool visibility);
     void setVisible3d(bool visibility);

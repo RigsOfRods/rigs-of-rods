@@ -461,8 +461,6 @@ private:
 
     // -------------------- data -------------------- //
 
-    std::vector<std::pair<Ogre::String, bool> > m_dashboard_layouts; // TODO: Spawn context only, remove!
-
     std::vector<std::shared_ptr<Task>> m_flexbody_tasks;   //!< Gfx state
     std::shared_ptr<RigDef::File>      m_definition;
     std::unique_ptr<RoR::GfxActor>     m_gfx_actor;
