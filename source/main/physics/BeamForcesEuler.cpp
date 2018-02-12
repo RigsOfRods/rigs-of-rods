@@ -201,9 +201,9 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     BES_START(BES_CORE_Wing);
 
     //wing forces
-    for (int i = 0; i < free_wing; i++)
-        if (wings[i].fa)
-            wings[i].fa->updateForces();
+    for (int i = 0; i < ar_num_wings; i++)
+        if (ar_wings[i].fa)
+            ar_wings[i].fa->updateForces();
 
     BES_STOP(BES_CORE_Wing);
     BES_START(BES_CORE_FuseDrag);
@@ -1124,26 +1124,26 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
                 float v = 0.0f;
                 int rota = std::abs(commandkey[i].rotators[j]) - 1;
 
-                if (rotators[rota].rotatorNeedsEngine && ((engine && !engine->isRunning()) || !canwork))
+                if (ar_rotators[rota].rotatorNeedsEngine && ((engine && !engine->isRunning()) || !canwork))
                     continue;
 
                 if (rotaInertia)
                 {
                     v = rotaInertia->calcCmdKeyDelay(commandkey[i].commandValue, i, dt);
 
-                    if (v > 0.0f && rotators[rota].rotatorEngineCoupling > 0.0f)
+                    if (v > 0.0f && ar_rotators[rota].rotatorEngineCoupling > 0.0f)
                         requestpower = true;
                 }
 
                 float cf = 1.0f;
 
-                if (rotators[rota].rotatorEngineCoupling > 0.0f)
+                if (ar_rotators[rota].rotatorEngineCoupling > 0.0f)
                     cf = crankfactor;
 
                 if (commandkey[i].rotators[j] > 0)
-                    rotators[rota].angle += rotators[rota].rate * v * cf * dt;
+                    ar_rotators[rota].angle += ar_rotators[rota].rate * v * cf * dt;
                 else
-                    rotators[rota].angle -= rotators[rota].rate * v * cf * dt;
+                    ar_rotators[rota].angle -= ar_rotators[rota].rate * v * cf * dt;
             }
             if (requestpower)
                 requested=true;
@@ -1171,27 +1171,27 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
 #endif //USE_OPENAL
         }
         // rotators
-        for (int i = 0; i < free_rotator; i++)
+        for (int i = 0; i < ar_num_rotators; i++)
         {
             // compute rotation axis
-            Vector3 axis = ar_nodes[rotators[i].axis1].RelPosition - ar_nodes[rotators[i].axis2].RelPosition;
+            Vector3 axis = ar_nodes[ar_rotators[i].axis1].RelPosition - ar_nodes[ar_rotators[i].axis2].RelPosition;
             //axis.normalise();
             axis = fast_normalise(axis);
             // find the reference plane
             Plane pl = Plane(axis, 0);
-            // for each pair
+            // for each pairar
             for (int k = 0; k < 2; k++)
             {
                 // find the reference vectors
-                Vector3 ref1 = pl.projectVector(ar_nodes[rotators[i].axis2].RelPosition - ar_nodes[rotators[i].nodes1[k]].RelPosition);
-                Vector3 ref2 = pl.projectVector(ar_nodes[rotators[i].axis2].RelPosition - ar_nodes[rotators[i].nodes2[k]].RelPosition);
+                Vector3 ref1 = pl.projectVector(ar_nodes[ar_rotators[i].axis2].RelPosition - ar_nodes[ar_rotators[i].nodes1[k]].RelPosition);
+                Vector3 ref2 = pl.projectVector(ar_nodes[ar_rotators[i].axis2].RelPosition - ar_nodes[ar_rotators[i].nodes2[k]].RelPosition);
                 // theory vector
-                Vector3 th1 = Quaternion(Radian(rotators[i].angle + 3.14159 / 2.0), axis) * ref1;
+                Vector3 th1 = Quaternion(Radian(ar_rotators[i].angle + 3.14159 / 2.0), axis) * ref1;
                 // find the angle error
                 float aerror = asin((th1.normalisedCopy()).dotProduct(ref2.normalisedCopy()));
                 //mWindow->setDebugText("Error:"+ TOSTRING(aerror));
                 // exert forces
-                float rigidity = rotators[i].force;
+                float rigidity = ar_rotators[i].force;
                 Vector3 dir1 = ref1.crossProduct(axis);
                 //dir1.normalise();
                 dir1 = fast_normalise(dir1);
@@ -1202,16 +1202,16 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
                 float ref2len = ref2.length();
 
                 // simple jitter fix
-                if (ref1len <= rotators[i].tolerance)
+                if (ref1len <= ar_rotators[i].tolerance)
                     ref1len = 0.0f;
-                if (ref2len <= rotators[i].tolerance)
+                if (ref2len <= ar_rotators[i].tolerance)
                     ref2len = 0.0f;
 
-                ar_nodes[rotators[i].nodes1[k]].Forces += (aerror * ref1len * rigidity) * dir1;
-                ar_nodes[rotators[i].nodes2[k]].Forces -= (aerror * ref2len * rigidity) * dir2;
+                ar_nodes[ar_rotators[i].nodes1[k]].Forces += (aerror * ref1len * rigidity) * dir1;
+                ar_nodes[ar_rotators[i].nodes2[k]].Forces -= (aerror * ref2len * rigidity) * dir2;
                 // symmetric
-                ar_nodes[rotators[i].nodes1[k + 2]].Forces -= (aerror * ref1len * rigidity) * dir1;
-                ar_nodes[rotators[i].nodes2[k + 2]].Forces += (aerror * ref2len * rigidity) * dir2;
+                ar_nodes[ar_rotators[i].nodes1[k + 2]].Forces -= (aerror * ref1len * rigidity) * dir1;
+                ar_nodes[ar_rotators[i].nodes2[k + 2]].Forces += (aerror * ref2len * rigidity) * dir2;
             }
         }
     }

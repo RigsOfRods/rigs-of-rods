@@ -271,12 +271,12 @@ public:
     int               ar_num_beams;
     std::vector<beam_t*> ar_inter_beams;    //!< Beams connecting 2 actors
     shock_t*          ar_shocks;            //!< Shock absorbers
-    int               ar_num_shocks;        //!< Number of shock absorbers; name is historical (free index in static array)
+    int               ar_num_shocks;        //!< Number of shock absorbers
     bool              ar_has_active_shocks; //!< Are there active stabilizer shocks?
-    rotator_t*        rotators;
-    int               free_rotator;         //!< Number of rotators; name is historical (free index in static array)
-    wing_t*           wings;
-    int               free_wing;            //!< Number of wings; name is historical (free index in static array)
+    rotator_t*        ar_rotators;
+    int               ar_num_rotators;
+    wing_t*           ar_wings;
+    int               ar_num_wings;
     std::vector<exhaust_t> exhausts;
     std::vector<rope_t>    ropes;
     std::vector<ropable_t> ropables;

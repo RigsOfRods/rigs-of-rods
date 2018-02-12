@@ -235,10 +235,10 @@ void RigSpawner::InitializeRig()
         m_rig->ar_shocks = new shock_t[req.num_shocks];
 
     if (req.num_rotators > 0)
-        m_rig->rotators = new rotator_t[req.num_rotators];
+        m_rig->ar_rotators = new rotator_t[req.num_rotators];
 
     if (req.num_wings > 0)
-        m_rig->wings = new wing_t[req.num_wings];
+        m_rig->ar_wings = new wing_t[req.num_wings];
 
     // clear rig parent structure
     memset(m_rig->contacters, 0, sizeof(contacter_t) * MAX_CONTACTERS);
@@ -585,10 +585,10 @@ void RigSpawner::FinalizeRig()
                 );
         }
         //inform wing segments
-        float span=GetNode(m_rig->wings[m_first_wing_index].fa->nfrd).RelPosition.distance(GetNode(m_rig->wings[m_rig->free_wing-1].fa->nfld).RelPosition);
+        float span=GetNode(m_rig->ar_wings[m_first_wing_index].fa->nfrd).RelPosition.distance(GetNode(m_rig->ar_wings[m_rig->ar_num_wings-1].fa->nfld).RelPosition);
         
-        m_rig->wings[m_first_wing_index].fa->enableInducedDrag(span,m_wing_area, false);
-        m_rig->wings[m_rig->free_wing-1].fa->enableInducedDrag(span,m_wing_area, true);
+        m_rig->ar_wings[m_first_wing_index].fa->enableInducedDrag(span,m_wing_area, false);
+        m_rig->ar_wings[m_rig->ar_num_wings-1].fa->enableInducedDrag(span,m_wing_area, true);
         //wash calculator
         WashCalculator();
     }
@@ -717,10 +717,10 @@ void RigSpawner::WashCalculator()
     {
         Ogre::Vector3 prop=m_rig->ar_nodes[m_rig->aeroengines[p]->getNoderef()].RelPosition;
         float radius=m_rig->aeroengines[p]->getRadius();
-        for (w=0; w<m_rig->free_wing; w++)
+        for (w=0; w<m_rig->ar_num_wings; w++)
         {
             //left wash
-            Ogre::Vector3 wcent=((m_rig->ar_nodes[m_rig->wings[w].fa->nfld].RelPosition+m_rig->ar_nodes[m_rig->wings[w].fa->nfrd].RelPosition)/2.0);
+            Ogre::Vector3 wcent=((m_rig->ar_nodes[m_rig->ar_wings[w].fa->nfld].RelPosition+m_rig->ar_nodes[m_rig->ar_wings[w].fa->nfrd].RelPosition)/2.0);
             //check if wing is near enough along X (less than 15m back)
             if (wcent.x>prop.x && wcent.x<prop.x+15.0)
             {
@@ -728,8 +728,8 @@ void RigSpawner::WashCalculator()
                 if (wcent.y>prop.y-radius && wcent.y<prop.y+radius)
                 {
                     //okay, compute wash coverage ratio along Z
-                    float wleft=(m_rig->ar_nodes[m_rig->wings[w].fa->nfld].RelPosition).z;
-                    float wright=(m_rig->ar_nodes[m_rig->wings[w].fa->nfrd].RelPosition).z;
+                    float wleft=(m_rig->ar_nodes[m_rig->ar_wings[w].fa->nfld].RelPosition).z;
+                    float wright=(m_rig->ar_nodes[m_rig->ar_wings[w].fa->nfrd].RelPosition).z;
                     float pleft=prop.z+radius;
                     float pright=prop.z-radius;
                     float aleft=wleft;
@@ -740,7 +740,7 @@ void RigSpawner::WashCalculator()
                     {
                         //we have a wash
                         float wratio=(aleft-aright)/(wleft-wright);
-                        m_rig->wings[w].fa->addwash(p, wratio);
+                        m_rig->ar_wings[w].fa->addwash(p, wratio);
                         Ogre::String msg = "Wing "+TOSTRING(w)+" is washed by prop "+TOSTRING(p)+" at "+TOSTRING((float)(wratio*100.0))+"%";
                         AddMessage(Message::TYPE_INFO, msg);
                     }
@@ -1017,7 +1017,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if ((m_first_wing_index != -1) && (m_rig->wings[m_rig->free_wing - 1].fa == nullptr))
+    if ((m_first_wing_index != -1) && (m_rig->ar_wings[m_rig->ar_num_wings - 1].fa == nullptr))
     {
         this->AddMessage(Message::TYPE_ERROR, "Unable to process wing, previous wing has no Airfoil");
         return;
@@ -1030,7 +1030,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
         node_indices[i] = this->GetNodeIndexOrThrow(def.nodes[i]);
     }
 
-    const std::string wing_name = this->ComposeName("Wing", m_rig->free_wing);
+    const std::string wing_name = this->ComposeName("Wing", m_rig->ar_num_wings);
     auto flex_airfoil = new FlexAirfoil(
         wing_name,
         m_rig->ar_nodes,
@@ -1060,7 +1060,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
     Ogre::Entity* entity = nullptr;
     try
     {
-        const std::string wing_instance_name = this->ComposeName("WingEntity", m_rig->free_wing);
+        const std::string wing_instance_name = this->ComposeName("WingEntity", m_rig->ar_num_wings);
         entity = gEnv->sceneManager->createEntity(wing_instance_name, wing_name);
         m_rig->deletion_Entities.emplace_back(entity);
         this->SetupNewEntity(entity, Ogre::ColourValue(0.5, 1, 0));
@@ -1075,7 +1075,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
     // induced drag
     if (m_first_wing_index == -1)
     {
-        m_first_wing_index = m_rig->free_wing;
+        m_first_wing_index = m_rig->ar_num_wings;
         m_wing_area=ComputeWingArea(
             this->GetNode(flex_airfoil->nfld).AbsPosition,    this->GetNode(flex_airfoil->nfrd).AbsPosition,
             this->GetNode(flex_airfoil->nbld).AbsPosition,    this->GetNode(flex_airfoil->nbrd).AbsPosition
@@ -1083,11 +1083,11 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
     }
     else
     {
-        wing_t & previous_wing = m_rig->wings[m_rig->free_wing - 1];
+        wing_t & previous_wing = m_rig->ar_wings[m_rig->ar_num_wings - 1];
 
         if (node_indices[1] != previous_wing.fa->nfld)
         {
-            wing_t & start_wing    = m_rig->wings[m_first_wing_index];
+            wing_t & start_wing    = m_rig->ar_wings[m_first_wing_index];
 
             //discontinuity
             //inform wing segments
@@ -1271,7 +1271,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
                 m_generate_wing_position_lights = false; // Already done
             }
 
-            m_first_wing_index = m_rig->free_wing;
+            m_first_wing_index = m_rig->ar_num_wings;
             m_wing_area=ComputeWingArea(
                 this->GetNode(flex_airfoil->nfld).AbsPosition,    this->GetNode(flex_airfoil->nfrd).AbsPosition,
                 this->GetNode(flex_airfoil->nbld).AbsPosition,    this->GetNode(flex_airfoil->nbrd).AbsPosition
@@ -1287,11 +1287,11 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
     }
 
     // Add new wing to rig
-    m_rig->wings[m_rig->free_wing].fa = flex_airfoil;
-    m_rig->wings[m_rig->free_wing].cnode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-    m_rig->wings[m_rig->free_wing].cnode->attachObject(entity);
+    m_rig->ar_wings[m_rig->ar_num_wings].fa = flex_airfoil;
+    m_rig->ar_wings[m_rig->ar_num_wings].cnode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+    m_rig->ar_wings[m_rig->ar_num_wings].cnode->attachObject(entity);
 
-    ++m_rig->free_wing;
+    ++m_rig->ar_num_wings;
 }
 
 float RigSpawner::ComputeWingArea(Ogre::Vector3 const & ref, Ogre::Vector3 const & x, Ogre::Vector3 const & y, Ogre::Vector3 const & aref)
@@ -3347,7 +3347,7 @@ void RigSpawner::ProcessRotator(RigDef::Rotator & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    rotator_t & rotator = m_rig->rotators[m_rig->free_rotator];
+    rotator_t & rotator = m_rig->ar_rotators[m_rig->ar_num_rotators];
 
     rotator.angle = 0;
     rotator.rate = def.rate;
@@ -3364,15 +3364,15 @@ void RigSpawner::ProcessRotator(RigDef::Rotator & def)
     }
 
     // Rotate left key
-    m_rig->commandkey[def.spin_left_key].rotators.push_back(- (m_rig->free_rotator + 1));
+    m_rig->commandkey[def.spin_left_key].rotators.push_back(- (m_rig->ar_num_rotators + 1));
     m_rig->commandkey[def.spin_left_key].description = "Rotate_Left/Right";
 
     // Rotate right key
-    m_rig->commandkey[def.spin_right_key].rotators.push_back(m_rig->free_rotator + 1);
+    m_rig->commandkey[def.spin_right_key].rotators.push_back(m_rig->ar_num_rotators + 1);
 
     _ProcessKeyInertia(m_rig->rotaInertia, def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
 
-    m_rig->free_rotator++;
+    m_rig->ar_num_rotators++;
     m_rig->hascommands = 1;
 }
 
@@ -3380,7 +3380,7 @@ void RigSpawner::ProcessRotator2(RigDef::Rotator2 & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    rotator_t & rotator = m_rig->rotators[m_rig->free_rotator];
+    rotator_t & rotator = m_rig->ar_rotators[m_rig->ar_num_rotators];
 
     rotator.angle = 0;
     rotator.rate = def.rate;
@@ -3397,7 +3397,7 @@ void RigSpawner::ProcessRotator2(RigDef::Rotator2 & def)
     }
 
     // Rotate left key
-    m_rig->commandkey[def.spin_left_key].rotators.push_back(- (m_rig->free_rotator + 1));
+    m_rig->commandkey[def.spin_left_key].rotators.push_back(- (m_rig->ar_num_rotators + 1));
     if (! def.description.empty())
     {
         m_rig->commandkey[def.spin_left_key].description = def.description;
@@ -3408,11 +3408,11 @@ void RigSpawner::ProcessRotator2(RigDef::Rotator2 & def)
     }
 
     // Rotate right key
-    m_rig->commandkey[def.spin_right_key].rotators.push_back(m_rig->free_rotator + 1);
+    m_rig->commandkey[def.spin_right_key].rotators.push_back(m_rig->ar_num_rotators + 1);
 
     _ProcessKeyInertia(m_rig->rotaInertia, def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
 
-    m_rig->free_rotator++;
+    m_rig->ar_num_rotators++;
     m_rig->hascommands = 1;
 }
 
