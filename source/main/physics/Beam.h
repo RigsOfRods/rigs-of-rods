@@ -434,9 +434,6 @@ public:
     int               cameranoderoll[MAX_CAMERAS];
     bool              revroll[MAX_CAMERAS];
     bool              shadowOptimizations;
-    FlexObj*          cabMesh;
-    Ogre::SceneNode*  cabNode;
-    Ogre::Entity*     cabEntity;
     int               lowestnode;         //!< never updated after truck init!?!
     int               lowestcontactingnode;
     float             posnode_spawn_height;
@@ -589,6 +586,9 @@ private:
     float             m_cab_fade_timer;
     float             m_cab_fade_time;
     int               m_cab_fade_mode;            //<! Cab fading effect; values { -1, 0, 1, 2 }
+    FlexObj*          m_cab_mesh;
+    Ogre::SceneNode*  m_cab_scene_node;
+    Ogre::Entity*     m_cab_entity;
     Ogre::ManualObject* m_skeletonview_manual_mesh;
     Ogre::SceneNode*  m_skeletonview_scenenode;
     Ogre::Vector3     m_camera_gforces_accu;      //!< Accumulator for 'camera' G-forces
