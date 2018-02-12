@@ -192,8 +192,8 @@ public:
     void              setDebugOverlayState(int mode);
     void              calcBeam(beam_t& beam, bool doUpdate, Ogre::Real dt, int& m_increased_accuracy);
     Ogre::Quaternion  specialGetRotationTo(const Ogre::Vector3& src, const Ogre::Vector3& dest) const;
-    Ogre::String      getAxleLockName();	               //!< get the name of the current differential model
-    int               getAxleLockCount();    
+    Ogre::String      getAxleLockName();                   //!< get the name of the current differential model
+    int               getAxleLockCount();
     Ogre::Vector3     getGForces();
     bool              hasDriverSeat();
     void              calculateDriverPos(Ogre::Vector3 &pos, Ogre::Quaternion &rot);
@@ -277,12 +277,23 @@ public:
     int               ar_num_rotators;
     wing_t*           ar_wings;
     int               ar_num_wings;
-    std::vector<exhaust_t> exhausts;
-    std::vector<rope_t>    ropes;
-    std::vector<ropable_t> ropables;
-    std::vector<tie_t>     ties;
-    std::vector<hook_t>    hooks;
-    std::vector<flare_t>   flares;
+    std::vector<std::string>  description;
+    std::vector<authorinfo_t> authors;
+    std::vector<exhaust_t>    exhausts;
+    std::vector<rope_t>       ropes;
+    std::vector<ropable_t>    ropables;
+    std::vector<tie_t>        ties;
+    std::vector<hook_t>       hooks;
+    std::vector<flare_t>      flares;
+    std::vector<debugtext_t>  nodes_debug;
+    std::vector<debugtext_t>  beams_debug;
+    Ogre::AxisAlignedBox      boundingBox;     //!< standard bounding box (surrounds all nodes of a truck)
+    Ogre::AxisAlignedBox      predictedBoundingBox;
+    std::vector<Ogre::Entity*>         deletion_Entities;   //!< For unloading vehicle; filled at spawn.
+    std::vector<Ogre::MovableObject *> deletion_Objects;    //!< For unloading vehicle; filled at spawn.
+    std::vector<Ogre::SceneNode*>      deletion_sceneNodes; //!< For unloading vehicle; filled at spawn.
+    std::vector<Ogre::AxisAlignedBox>  collisionBoundingBoxes; //!< smart bounding boxes, used for determining the state of a truck (every box surrounds only a subset of nodes)
+    std::vector<Ogre::AxisAlignedBox>  predictedCollisionBoundingBoxes;
     contacter_t       contacters[MAX_CONTACTERS];
     int               free_contacter;
     wheel_t           wheels[MAX_WHEELS];
@@ -294,8 +305,6 @@ public:
     int               ar_num_props;
     cparticle_t       cparticles[MAX_CPARTICLES];
     int               free_cparticle;
-    std::vector<debugtext_t> nodes_debug;
-    std::vector<debugtext_t> beams_debug;
     soundsource_t     soundsources[MAX_SOUNDSCRIPTS_PER_TRUCK];
     int               free_soundsource;
     int               pressure_beams[MAX_PRESSURE_BEAMS];
@@ -321,7 +330,6 @@ public:
     bool              useSkidmarks;
     FlexBody*         flexbodies[MAX_FLEXBODIES];
     int               free_flexbody;
-    std::vector<std::string> description;
     int               ar_camera_rail[MAX_CAMERARAIL]; //!< Nodes defining camera-movement spline
     int               free_camerarail;
     bool              ar_hide_in_actor_list; //!< Hide in list of spawned actors (available in top menubar). Useful for fixed-place machinery, i.e. cranes.
@@ -366,7 +374,6 @@ public:
     float             sl_speed_limit;     //!< Speed limiter;
     int               ar_extern_camera_mode;
     int               ar_extern_camera_node;
-    std::vector<authorinfo_t> authors;
     float             collrange;
     int               masscount;          //!< Number of nodes loaded with l option
     bool              disable_smoke;
@@ -390,9 +397,6 @@ public:
     int               cinecameranodepos[MAX_CAMERAS];       //!< Cine-camera node indexes
     int               freecinecamera;                       //!< Number of cine-cameras (lowest free index)
     RoR::GfxFlaresMode m_flares_mode;
-    std::vector<Ogre::Entity*>         deletion_Entities;   //!< For unloading vehicle; filled at spawn.
-    std::vector<Ogre::MovableObject *> deletion_Objects;    //!< For unloading vehicle; filled at spawn.
-    std::vector<Ogre::SceneNode*>      deletion_sceneNodes; //!< For unloading vehicle; filled at spawn.
     unsigned int      netCustomLightArray[4];
     unsigned char     netCustomLightArray_counter;
     bool              ispolice;
@@ -433,10 +437,6 @@ public:
     FlexObj*          cabMesh;
     Ogre::SceneNode*  cabNode;
     Ogre::Entity*     cabEntity;
-    Ogre::AxisAlignedBox boundingBox;     //!< standard bounding box (surrounds all nodes of a truck)
-    Ogre::AxisAlignedBox predictedBoundingBox;
-    std::vector<Ogre::AxisAlignedBox> collisionBoundingBoxes; //!< smart bounding boxes, used for determining the state of a truck (every box surrounds only a subset of nodes)
-    std::vector<Ogre::AxisAlignedBox> predictedCollisionBoundingBoxes;
     int               lowestnode;         //!< never updated after truck init!?!
     int               lowestcontactingnode;
     float             posnode_spawn_height;
@@ -503,7 +503,8 @@ public:
 
 private:
 
-    enum ResetRequest {
+    enum ResetRequest
+    {
         REQUEST_RESET_NONE,
         REQUEST_RESET_ON_INIT_POS,
         REQUEST_RESET_ON_SPOT,
@@ -547,12 +548,18 @@ private:
     // -------------------- data -------------------- //
 
     std::vector<std::pair<Ogre::String, bool> > m_dashboard_layouts; // TODO: Spawn context only, remove!
+    std::vector<std::shared_ptr<Task>> m_flexbody_tasks;   //!< Gfx state
+    std::shared_ptr<RigDef::File>      m_definition;
+    std::unique_ptr<RoR::GfxActor>     m_gfx_actor;
+    RoR::PerVehicleCameraContext       m_camera_context;
+    std::bitset<MAX_WHEELS>            m_flexmesh_prepare; //!< Gfx state
+    std::bitset<MAX_FLEXBODIES>        m_flexbody_prepare; //!< Gfx state
+    std::vector<Ogre::String>          m_truck_config;
+    std::vector<SlideNode>             m_slidenodes;       //!< all the SlideNodes available on this truck
+    std::vector<RailGroup*>            m_railgroups;       //!< all the available RailGroups for this actor
     float             m_avionic_chatter_timer;      //!< Sound fx state
     PointColDetector* m_inter_point_col_detector;   //!< Physics
     PointColDetector* m_intra_point_col_detector;   //!< Physics
-    std::bitset<MAX_WHEELS> m_flexmesh_prepare;     //!< Gfx state
-    std::bitset<MAX_FLEXBODIES> m_flexbody_prepare; //!< Gfx state
-    std::vector<std::shared_ptr<Task>> m_flexbody_tasks; //!< Gfx state
     std::list<Beam*>  m_linked_actors;              //!< Sim state; other actors linked using 'hooks'
     Ogre::Vector3     position; // average node position
     Ogre::Vector3     iPosition; // initial position
@@ -566,9 +573,6 @@ private:
     Replay*           m_replay_handler;
     PositionStorage*  m_position_storage;
     RoRFrameListener* m_sim_controller; // Temporary ~ only_a_ptr, 01/2017
-    std::shared_ptr<RigDef::File> m_definition;
-    std::unique_ptr<RoR::GfxActor> m_gfx_actor;
-    RoR::PerVehicleCameraContext m_camera_context;
     int               m_gfx_detail_level;      //!< Gfx state
     float             m_total_mass;            //!< Physics state; total mass in Kg
     int               m_mouse_grab_node;       //!< Sim state; node currently being dragged by user
@@ -576,9 +580,6 @@ private:
     float             m_mouse_grab_move_force;
     float             m_spawn_rotation;
     ResetRequest      m_reset_request;
-    std::vector<Ogre::String> m_truck_config;
-    std::vector<SlideNode> m_slidenodes;       //!< all the SlideNodes available on this truck
-    std::vector<RailGroup*> m_railgroups;      //!< all the available RailGroups for this actor
     RoRnet::TruckState* oob1;                  //!< Network; Triple buffer for incoming data (truck properties)
     RoRnet::TruckState* oob2;                  //!< Network; Triple buffer for incoming data (truck properties)
     RoRnet::TruckState* oob3;                  //!< Network; Triple buffer for incoming data (truck properties)
@@ -593,13 +594,13 @@ private:
     float             m_custom_light_toggle_countdown; //!< Input system helper status
     float             m_cab_fade_timer;
     float             m_cab_fade_time;
-    int               m_cab_fade_mode;         //<! Cab fading effect; values { -1, 0, 1, 2 }
+    int               m_cab_fade_mode;            //<! Cab fading effect; values { -1, 0, 1, 2 }
     Ogre::ManualObject* m_skeletonview_manual_mesh;
     Ogre::SceneNode*  m_skeletonview_scenenode;
-    Ogre::Vector3     m_camera_gforces_accu;   //!< Accumulator for 'camera' G-forces
-    int               m_camera_gforces_count;  //!< Counter for 'camera' G-forces
-    float             m_ref_tyre_pressure;     //!< Physics state
-    float             m_stabilizer_shock_ratio; //!< Physics state
+    Ogre::Vector3     m_camera_gforces_accu;      //!< Accumulator for 'camera' G-forces
+    int               m_camera_gforces_count;     //!< Counter for 'camera' G-forces
+    float             m_ref_tyre_pressure;        //!< Physics state
+    float             m_stabilizer_shock_ratio;   //!< Physics state
     int               m_stabilizer_shock_request; //!< Physics state; values: { -1, 0, 1 }
     DustPool*         m_particles_dust;
     DustPool*         m_particles_drip;
