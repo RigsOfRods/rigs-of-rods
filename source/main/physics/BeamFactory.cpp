@@ -39,10 +39,14 @@
 #include "MainMenu.h"
 #include "Network.h"
 #include "PointColDetector.h"
+#include "PositionStorage.h"
+#include "Replay.h"
 #include "RigDef_Parser.h"
 #include "RigDef_Validator.h"
 #include "RigLoadingProfilerControl.h"
+#include "RigSpawner.h"
 #include "RoRFrameListener.h"
+#include "Scripting.h"
 #include "Settings.h"
 #include "SoundScriptManager.h"
 #include "ThreadPool.h"
@@ -204,6 +208,323 @@ ActorManager::~ActorManager()
     m_particle_manager.DustManDiscard(gEnv->sceneManager); // TODO: de-globalize SceneManager
 }
 
+void ActorManager::SetupActor(
+        Actor* actor,
+        std::shared_ptr<RigDef::File> def,
+        Ogre::Vector3 const& spawn_position,
+        Ogre::Quaternion const& spawn_rotation,
+        collision_box_t* spawn_box,
+        bool _networked,
+        int cache_entry_number // = -1
+)
+{
+    // ~~~~ Code ported from Actor::Actor()
+
+    Ogre::SceneNode* parent_scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+
+    // ~~~~ Code ported from Actor::LoadActor()
+    //      LoadActor(def, beams_parent, pos, rot, spawnbox, cache_entry_number)
+    //      bool Actor::LoadActor(
+    //          std::shared_ptr<RigDef::File> def,
+    //          Ogre::SceneNode* parent_scene_node,
+    //          Ogre::Vector3 const& spawn_position,
+    //          Ogre::Quaternion& spawn_rotation,
+    //          collision_box_t* spawn_box,
+    //          int cache_entry_number // = -1
+
+    LOG(" == Spawning vehicle: " + def->name);
+
+    RigSpawner spawner;
+    spawner.Setup(actor, def, parent_scene_node, spawn_position, cache_entry_number);
+    /* Setup modules */
+    spawner.AddModule(def->root_module);
+    if (def->user_modules.size() > 0) /* The vehicle-selector may return selected modules even for vehicle with no modules defined! Hence this check. */
+    {
+        std::vector<Ogre::String>::iterator itor = actor->m_actor_config.begin();
+        for (; itor != actor->m_actor_config.end(); itor++)
+        {
+            spawner.AddModule(*itor);
+        }
+    }
+    spawner.SpawnRig();
+    def->report_num_errors += spawner.GetMessagesNumErrors();
+    def->report_num_warnings += spawner.GetMessagesNumWarnings();
+    def->report_num_other += spawner.GetMessagesNumOther();
+    // Spawner log already printed to RoR.log
+    def->loading_report += spawner.ProcessMessagesToString() + "\n\n";
+
+    RoR::App::GetGuiManager()->AddRigLoadingReport(def->name, def->loading_report, def->report_num_errors, def->report_num_warnings, def->report_num_other);
+    if (def->report_num_errors != 0)
+    {
+        if (BSETTING("AutoRigSpawnerReport", false))
+        {
+            RoR::App::GetGuiManager()->SetVisible_SpawnerReport(true);
+        }
+    }
+    /* POST-PROCESSING (Old-spawn code from Actor::loadTruck2) */
+
+    // Apply spawn position & spawn rotation
+    for (int i = 0; i < actor->ar_num_nodes; i++)
+    {
+        actor->ar_nodes[i].AbsPosition = spawn_position + spawn_rotation * (actor->ar_nodes[i].AbsPosition - spawn_position);
+        actor->ar_nodes[i].RelPosition = actor->ar_nodes[i].AbsPosition - actor->ar_origin;
+    };
+
+    /* Place correctly */
+    if (! def->HasFixes())
+    {
+        Ogre::Vector3 vehicle_position = spawn_position;
+
+        // check if over-sized
+        RigSpawner::RecalculateBoundingBoxes(actor);
+        vehicle_position.x -= (actor->ar_bounding_box.getMaximum().x + actor->ar_bounding_box.getMinimum().x) / 2.0 - vehicle_position.x;
+        vehicle_position.z -= (actor->ar_bounding_box.getMaximum().z + actor->ar_bounding_box.getMinimum().z) / 2.0 - vehicle_position.z;
+
+        float miny = 0.0f;
+
+        if (!actor->m_preloaded_with_terrain)
+        {
+            miny = vehicle_position.y;
+        }
+
+        if (spawn_box != nullptr)
+        {
+            miny = spawn_box->relo.y + spawn_box->center.y;
+        }
+
+        if (actor->m_spawn_free_positioned)
+            actor->ResetPosition(vehicle_position, true);
+        else
+            actor->ResetPosition(vehicle_position.x, vehicle_position.z, true, miny);
+
+        if (spawn_box != nullptr)
+        {
+            bool inside = true;
+
+            for (int i = 0; i < actor->ar_num_nodes; i++)
+                inside = (inside && gEnv->collisions->isInside(actor->ar_nodes[i].AbsPosition, spawn_box, 0.2f));
+
+            if (!inside)
+            {
+                Vector3 gpos = Vector3(vehicle_position.x, 0.0f, vehicle_position.z);
+
+                gpos -= spawn_rotation * Vector3((spawn_box->hi.x - spawn_box->lo.x + actor->ar_bounding_box.getMaximum().x - actor->ar_bounding_box.getMinimum().x) * 0.6f, 0.0f, 0.0f);
+
+                actor->ResetPosition(gpos.x, gpos.z, true, miny);
+            }
+        }
+    }
+    else
+    {
+        actor->ResetPosition(spawn_position, true);
+    }
+
+    //compute final mass
+    actor->RecalculateNodeMasses(actor->m_dry_mass);
+    //setup default sounds
+    if (!actor->m_disable_default_sounds)
+    {
+        RigSpawner::SetupDefaultSoundSources(actor);
+    }
+
+    //compute node connectivity graph
+    actor->calcNodeConnectivityGraph();
+
+    RigSpawner::RecalculateBoundingBoxes(actor);
+
+    // fix up submesh collision model
+    std::string subMeshGroundModelName = spawner.GetSubmeshGroundmodelName();
+    if (!subMeshGroundModelName.empty())
+    {
+        actor->ar_submesh_ground_model = gEnv->collisions->getGroundModelByString(subMeshGroundModelName);
+        if (!actor->ar_submesh_ground_model)
+        {
+            actor->ar_submesh_ground_model = gEnv->collisions->defaultgm;
+        }
+    }
+
+    // Set beam defaults
+    for (int i = 0; i < actor->ar_num_beams; i++)
+    {
+        actor->ar_beams[i].initial_beam_strength       = actor->ar_beams[i].strength;
+        actor->ar_beams[i].default_beam_deform         = actor->ar_beams[i].minmaxposnegstress;
+        actor->ar_beams[i].default_beam_plastic_coef   = actor->ar_beams[i].plastic_coef;
+    }
+
+    // TODO: Check cam. nodes once on spawn! They never change --> no reason to repeat the check. ~only_a_ptr, 06/2017
+    if (actor->ar_camera_node_pos[0] != actor->ar_camera_node_dir[0] && actor->IsNodeIdValid(actor->ar_camera_node_pos[0]) && actor->IsNodeIdValid(actor->ar_camera_node_dir[0]))
+    {
+        Vector3 cur_dir = actor->ar_nodes[actor->ar_camera_node_pos[0]].RelPosition - actor->ar_nodes[actor->ar_camera_node_dir[0]].RelPosition;
+        actor->m_spawn_rotation = atan2(cur_dir.dotProduct(Vector3::UNIT_X), cur_dir.dotProduct(-Vector3::UNIT_Z));
+    }
+    else if (actor->ar_num_nodes > 1)
+    {
+        float max_dist = 0.0f;
+        int furthest_node = 1;
+        for (int i = 0; i < actor->ar_num_nodes; i++)
+        {
+            float dist = actor->ar_nodes[i].RelPosition.squaredDistance(actor->ar_nodes[0].RelPosition);
+            if (dist > max_dist)
+            {
+                max_dist = dist;
+                furthest_node = i;
+            }
+        }
+        Vector3 cur_dir = actor->ar_nodes[0].RelPosition - actor->ar_nodes[furthest_node].RelPosition;
+        actor->m_spawn_rotation = atan2(cur_dir.dotProduct(Vector3::UNIT_X), cur_dir.dotProduct(-Vector3::UNIT_Z));
+    }
+
+    Vector3 cinecam = actor->ar_nodes[0].AbsPosition;
+    if (actor->IsNodeIdValid(actor->ar_camera_node_pos[0]))
+    {
+        cinecam = actor->ar_nodes[actor->ar_camera_node_pos[0]].AbsPosition;
+    }
+
+    // Calculate the approximate median
+    std::vector<Real> mx(actor->ar_num_nodes, 0.0f);
+    std::vector<Real> my(actor->ar_num_nodes, 0.0f);
+    std::vector<Real> mz(actor->ar_num_nodes, 0.0f);
+    for (int i = 0; i < actor->ar_num_nodes; i++)
+    {
+        mx[i] = actor->ar_nodes[i].AbsPosition.x;
+        my[i] = actor->ar_nodes[i].AbsPosition.y;
+        mz[i] = actor->ar_nodes[i].AbsPosition.z;
+    }
+    std::nth_element(mx.begin(), mx.begin() + actor->ar_num_nodes / 2, mx.end());
+    std::nth_element(my.begin(), my.begin() + actor->ar_num_nodes / 2, my.end());
+    std::nth_element(mz.begin(), mz.begin() + actor->ar_num_nodes / 2, mz.end());
+    Vector3 median = Vector3(mx[actor->ar_num_nodes / 2], my[actor->ar_num_nodes / 2], mz[actor->ar_num_nodes / 2]);
+
+    // Calculate the average
+    Vector3 sum = Vector3::ZERO;
+    for (int i = 0; i < actor->ar_num_nodes; i++)
+    {
+        sum += actor->ar_nodes[i].AbsPosition;
+    }
+    Vector3 average = sum / actor->ar_num_nodes;
+
+    // Decide whether or not the cinecam node is an appropriate rotation center
+    actor->m_cinecam_is_rotation_center = cinecam.squaredDistance(median) < average.squaredDistance(median);
+
+    TRIGGER_EVENT(SE_GENERIC_NEW_TRUCK, actor->ar_instance_id);
+
+    // ~~~~~~~~~~~~~~~~ (continued)  code ported from Actor::Actor()
+
+    actor->NotifyActorCameraChanged(); // setup sounds properly
+
+    if (App::sim_replay_enabled.GetActive() && !_networked && !actor->ar_uses_networking)     // setup replay mode
+    {
+        actor->ar_replay_length = App::sim_replay_length.GetActive();
+        actor->m_replay_handler = new Replay(actor, actor->ar_replay_length);
+
+        int steps = App::sim_replay_stepping.GetActive();
+
+        if (steps <= 0)
+            actor->ar_replay_precision = 0.0f;
+        else
+            actor->ar_replay_precision = 1.0f / ((float)steps);
+    }
+
+    // add storage
+    if (App::sim_position_storage.GetActive())
+    {
+        actor->m_position_storage = new PositionStorage(actor->ar_num_nodes, 10);
+    }
+
+    // calculate the number of wheel nodes
+    actor->m_wheel_node_count = 0;
+    for (int i = 0; i < actor->ar_num_nodes; i++)
+    {
+        if (actor->ar_nodes[i].iswheel != NOWHEEL)
+            actor->m_wheel_node_count++;
+    }
+
+    // search m_net_first_wheel_node
+    actor->m_net_first_wheel_node = actor->ar_num_nodes;
+    for (int i = 0; i < actor->ar_num_nodes; i++)
+    {
+        if (actor->ar_nodes[i].iswheel == WHEEL_DEFAULT)
+        {
+            actor->m_net_first_wheel_node = i;
+            break;
+        }
+    }
+
+    // network buffer layout (without RoRnet::VehicleState):
+    //
+    //  - 3 floats (x,y,z) for the reference node 0
+    //  - ar_num_nodes - 1 times 3 short ints (compressed position info)
+    //  - ar_num_wheels times a float for the wheel rotation
+    //
+    actor->m_net_node_buf_size = sizeof(float) * 3 + (actor->m_net_first_wheel_node - 1) * sizeof(short int) * 3;
+    actor->m_net_buffer_size = actor->m_net_node_buf_size + actor->ar_num_wheels * sizeof(float);
+    actor->UpdateFlexbodiesPrepare();
+    actor->UpdateFlexbodiesFinal();
+    actor->updateVisual();
+    // stop lights
+    actor->ToggleLights();
+
+    actor->updateFlares(0);
+    actor->updateProps();
+    if (actor->ar_engine)
+    {
+        actor->ar_engine->OffStart();
+    }
+    // pressurize tires
+    actor->AddTyrePressure(0.0);
+
+    actor->CreateSimpleSkeletonMaterial();
+
+    actor->ar_sim_state = Actor::SimState::LOCAL_SLEEPING;
+
+    // start network stuff
+    if (_networked)
+    {
+        actor->ar_sim_state = Actor::SimState::NETWORKED_OK;
+        // malloc memory
+        actor->oob1 = (RoRnet::VehicleState*)malloc(sizeof(RoRnet::VehicleState));
+        actor->oob2 = (RoRnet::VehicleState*)malloc(sizeof(RoRnet::VehicleState));
+        actor->oob3 = (RoRnet::VehicleState*)malloc(sizeof(RoRnet::VehicleState));
+        actor->netb1 = (char*)malloc(actor->m_net_buffer_size);
+        actor->netb2 = (char*)malloc(actor->m_net_buffer_size);
+        actor->netb3 = (char*)malloc(actor->m_net_buffer_size);
+        actor->m_net_time_offset = 0;
+        actor->m_net_update_counter = 0;
+        if (actor->ar_engine)
+        {
+            actor->ar_engine->StartEngine();
+        }
+    }
+
+    if (actor->ar_uses_networking)
+    {
+        if (actor->ar_sim_state != Actor::SimState::NETWORKED_OK)
+        {
+            actor->sendStreamSetup();
+        }
+
+        if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK || !actor->m_hide_own_net_label)
+        {
+            RoR::Str<100> element_name;
+            RigSpawner::ComposeName(element_name, "NetLabel", 0, actor->ar_instance_id);
+            actor->m_net_label_mt = new MovableText(element_name.ToCStr(), actor->m_net_username);
+            actor->m_net_label_mt->setFontName("CyberbitEnglish");
+            actor->m_net_label_mt->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
+            actor->m_net_label_mt->showOnTop(false);
+            actor->m_net_label_mt->setCharacterHeight(2);
+            actor->m_net_label_mt->setColor(ColourValue::Black);
+            actor->m_net_label_mt->setVisible(true);
+
+            actor->m_net_label_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+            actor->m_net_label_node->attachObject(actor->m_net_label_mt);
+            actor->m_net_label_node->setVisible(true);
+            actor->m_deletion_scene_nodes.emplace_back(actor->m_net_label_node);
+        }
+    }
+
+    LOG(" ===== DONE LOADING VEHICLE");
+}
+
 Actor* ActorManager::CreateLocalActor(
     Ogre::Vector3 pos,
     Ogre::Quaternion rot,
@@ -234,7 +555,7 @@ Actor* ActorManager::CreateLocalActor(
         return 0;
     }
 
-    Actor* b = new Actor(
+    Actor* actor = new Actor(
         m_sim_controller,
         actor_id,
         def,
@@ -252,18 +573,14 @@ Actor* ActorManager::CreateLocalActor(
         cache_entry_number
     );
 
-    if (b->ar_sim_state == Actor::SimState::INVALID)
-    {
-        this->DeleteActorInternal(b);
-        return nullptr;
-    }
+    this->SetupActor(actor, def, pos, rot, spawnbox, false, cache_entry_number);
 
-    m_actors[actor_id] = b;
+    m_actors[actor_id] = actor;
 
     // lock slide nodes after spawning the actor?
-    if (b->getSlideNodesLockInstant())
+    if (actor->getSlideNodesLockInstant())
     {
-        b->ToggleSlideNodeLock();
+        actor->ToggleSlideNodeLock();
     }
 
     RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
@@ -271,14 +588,14 @@ Actor* ActorManager::CreateLocalActor(
     // add own username to the actor
     if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
     {
-        b->UpdateNetworkInfo();
+        actor->UpdateNetworkInfo();
     }
 
 #ifdef ROR_PROFILE_RIG_LOADING
     std::string out_path = std::string(App::sys_user_dir.GetActive()) + PATH_SLASH + "profiler" + PATH_SLASH + ROR_PROFILE_RIG_LOADING_OUTFILE;
     ::Profiler::DumpHtml(out_path.c_str());
 #endif
-    return b;
+    return actor;
 }
 
 int ActorManager::CreateRemoteInstance(RoRnet::ActorStreamRegister* reg)
@@ -329,7 +646,7 @@ int ActorManager::CreateRemoteInstance(RoRnet::ActorStreamRegister* reg)
         return -1;
     }
 
-    Actor* b = new Actor(
+    Actor* actor = new Actor(
         m_sim_controller,
         actor_id,
         def,
@@ -344,16 +661,13 @@ int ActorManager::CreateRemoteInstance(RoRnet::ActorStreamRegister* reg)
         nullptr // skin
     );
 
-    if (b->ar_sim_state == Actor::SimState::INVALID)
-    {
-        this->DeleteActorInternal(b);
-        return -1;
-    }
-    m_actors[actor_id] = b;
+    this->SetupActor(actor, def, pos, Ogre::Quaternion::ZERO, nullptr, true, -1);
 
-    b->ar_net_source_id = reg->origin_sourceid;
-    b->ar_net_stream_id = reg->origin_streamid;
-    b->UpdateNetworkInfo();
+    m_actors[actor_id] = actor;
+
+    actor->ar_net_source_id = reg->origin_sourceid;
+    actor->ar_net_stream_id = reg->origin_streamid;
+    actor->UpdateNetworkInfo();
 
 
     RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
