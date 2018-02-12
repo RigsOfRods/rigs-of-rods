@@ -268,19 +268,19 @@ public:
 
     // functions
     void trigOnce    (int truck, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
-    void trigOnce    (Beam *b,   int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
+    void trigOnce    (Actor *b,   int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
     void trigStart   (int truck, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
-    void trigStart   (Beam *b,   int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
+    void trigStart   (Actor *b,   int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
     void trigStop    (int truck, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
-    void trigStop    (Beam *b,   int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
+    void trigStop    (Actor *b,   int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
     void trigToggle  (int truck, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
-    void trigToggle  (Beam *b,   int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
+    void trigToggle  (Actor *b,   int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
     void trigKill	 (int truck, int trig, int linkType = SL_DEFAULT, int linkItemID = -1);
-    void trigKill    (Beam *b,   int trig, int linkType = SL_DEFAULT, int linkItemID = -1);
+    void trigKill    (Actor *b,   int trig, int linkType = SL_DEFAULT, int linkItemID = -1);
     bool getTrigState(int truck, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
-    bool getTrigState(Beam *b,   int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
+    bool getTrigState(Actor *b,   int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
     void modulate    (int truck, int mod, float value, int linkType = SL_DEFAULT, int linkItemID=-1);
-    void modulate    (Beam *b,   int mod, float value, int linkType = SL_DEFAULT, int linkItemID=-1);
+    void modulate    (Actor *b,   int mod, float value, int linkType = SL_DEFAULT, int linkItemID=-1);
 
     void setEnabled(bool state);
 

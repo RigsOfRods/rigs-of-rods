@@ -43,7 +43,7 @@ public:
     bool isRemote() { return remote; };
     bool getBeamCoupling() { return isCoupled; };
 
-    void setBeamCoupling(bool enabled, Beam* truck = 0);
+    void setBeamCoupling(bool enabled, Actor* truck = 0);
     void setColour(int color) { this->colourNumber = color; };
     void setPhysicsEnabled(bool enabled) { physicsEnabled = enabled; };
     void setPosition(Ogre::Vector3 position);
@@ -69,7 +69,7 @@ protected:
     void updateNetLabelSize();
     void ReportError(const char* detail);
 
-    Beam* beamCoupling;
+    Actor* beamCoupling;
     bool isCoupled;
     SurveyMapEntity* mapEntity;
     RoRFrameListener* m_sim_controller;

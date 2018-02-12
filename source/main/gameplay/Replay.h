@@ -43,7 +43,7 @@ struct beam_simple_t
 class Replay : public ZeroedMemoryAllocator
 {
 public:
-    Replay(Beam* b, int nframes);
+    Replay(Actor* b, int nframes);
     ~Replay();
 
     void* getWriteBuffer(int type);

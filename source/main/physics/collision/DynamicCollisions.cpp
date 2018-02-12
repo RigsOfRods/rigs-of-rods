@@ -139,7 +139,7 @@ void ResolveCollisionForces(const float penetration_depth,
 void interTruckCollisions(const float dt, PointColDetector &interPointCD,
         const int free_collcab, int collcabs[], int cabs[],
         collcab_rate_t inter_collcabrate[], node_t nodes[],
-        const float collrange, Beam **trucks,
+        const float collrange, Actor **trucks,
         const int numtrucks,
         ground_model_t &submesh_ground_model)
 {

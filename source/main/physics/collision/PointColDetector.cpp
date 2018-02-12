@@ -44,10 +44,10 @@ PointColDetector::PointColDetector()
 PointColDetector::~PointColDetector() {
 }
 
-void PointColDetector::update(Beam* truck, bool ignorestate) {
+void PointColDetector::update(Actor* truck, bool ignorestate) {
     int contacters_size = 0;
 
-    if (truck && (ignorestate || truck->ar_sim_state < Beam::SimState::LOCAL_SLEEPING)) {
+    if (truck && (ignorestate || truck->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)) {
         m_trucks.resize(1, truck);
         contacters_size += truck->ar_num_contacters;
     } else {
@@ -64,15 +64,15 @@ void PointColDetector::update(Beam* truck, bool ignorestate) {
     kdtree[0].end = -object_list_size;
 }
 
-void PointColDetector::update(Beam* truck, Beam** trucks, const int numtrucks, bool ignorestate) {
+void PointColDetector::update(Actor* truck, Actor** trucks, const int numtrucks, bool ignorestate) {
     bool update_required = false;
     int contacters_size = 0;
 
-    if (truck && (ignorestate || truck->ar_sim_state < Beam::SimState::LOCAL_SLEEPING)) {
+    if (truck && (ignorestate || truck->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)) {
         truck->ar_collision_relevant = false;
         m_trucks.resize(numtrucks);
         for (int t = 0; t < numtrucks; t++) {
-            if (t != truck->ar_instance_id && trucks[t] && (ignorestate || trucks[t]->ar_sim_state < Beam::SimState::LOCAL_SLEEPING) && truck->ar_bounding_box.intersects(trucks[t]->ar_bounding_box)) {
+            if (t != truck->ar_instance_id && trucks[t] && (ignorestate || trucks[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING) && truck->ar_bounding_box.intersects(trucks[t]->ar_bounding_box)) {
                 update_required = update_required || (m_trucks[t] != trucks[t]);
                 m_trucks[t] = trucks[t];
                 truck->ar_collision_relevant = true;

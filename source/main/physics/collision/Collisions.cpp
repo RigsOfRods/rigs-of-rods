@@ -935,7 +935,7 @@ bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
 
 bool Collisions::permitEvent(int filter)
 {
-    Beam *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+    Actor *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
 
     switch (filter)
     {
@@ -1194,7 +1194,7 @@ collision_box_t *Collisions::getBox(const Ogre::String &inst, const Ogre::String
     return NULL;
 }
 
-eventsource_t *Collisions::isTruckInEventBox(Beam *truck)
+eventsource_t *Collisions::isTruckInEventBox(Actor *truck)
 {
     if (!truck) return 0;
     // check all boxes

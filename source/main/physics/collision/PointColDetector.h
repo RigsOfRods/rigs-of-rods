@@ -38,8 +38,8 @@ public:
     PointColDetector();
     ~PointColDetector();
 
-    void update(Beam* truck, bool ignorestate = false);
-    void update(Beam* truck, Beam** trucks, const int numtrucks, bool ignorestate = false);
+    void update(Actor* truck, bool ignorestate = false);
+    void update(Actor* truck, Actor** trucks, const int numtrucks, bool ignorestate = false);
     void query(const Ogre::Vector3& vec1, const Ogre::Vector3& vec2, const Ogre::Vector3& vec3, const float enlargeBB = 0.0f);
 
 private:
@@ -61,7 +61,7 @@ private:
     };
 
     int object_list_size;
-    std::vector<Beam*> m_trucks;
+    std::vector<Actor*> m_trucks;
 
     std::vector<refelem_t> ref_list;
     std::vector<pointid_t> pointid_list;

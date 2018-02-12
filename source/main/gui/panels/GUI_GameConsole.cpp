@@ -317,7 +317,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
     }
     else if (args[0] == "pos" && (is_appstate_sim && !is_sim_select))
     {
-        Beam* b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor* b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
         if (!b && gEnv->player)
         {
             Vector3 pos = gEnv->player->getPosition();
@@ -341,7 +341,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 
         Vector3 pos = Vector3(PARSEREAL(args[1]), PARSEREAL(args[2]), PARSEREAL(args[3]));
 
-        Beam* b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor* b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
         if (!b && gEnv->player)
         {
             gEnv->player->setPosition(pos);
@@ -361,7 +361,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
             return;
         Vector3 pos = Vector3::ZERO;
 
-        Beam* b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor* b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
         if (!b && gEnv->player)
         {
             pos = gEnv->player->getPosition();

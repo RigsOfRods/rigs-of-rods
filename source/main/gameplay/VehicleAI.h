@@ -55,7 +55,7 @@ enum Ai_values
 class VehicleAI : public ZeroedMemoryAllocator
 {
 public:
-    VehicleAI(Beam* b);
+    VehicleAI(Actor* b);
     ~VehicleAI();
     /**
      *  Activates/Deactivates the AI.
@@ -125,7 +125,7 @@ private:
     int task_after_waiting;//!< The task to do after it has waited.
 
     float maxspeed = 50;//!<(KM/H) The max speed the AI is allowed to drive.
-    Beam* beam;//!< The verhicle the AI is driving.
+    Actor* beam;//!< The verhicle the AI is driving.
     bool is_enabled = false;//!< True if the AI is driving.
     Ogre::Vector3 current_waypoint;//!< The coordinates of the waypoint that the AI is driving to.
     int current_waypoint_id = 0;//!< The curent waypoint ID.

@@ -55,10 +55,10 @@ public:
 
     // Actor management interface
     size_t GetNumActors          () const                  { return m_beam_factory.getTruckCount(); }
-    Beam*  GetActorById          (int actor_id)            { return m_beam_factory.getTruck(actor_id); }
+    Actor* GetActorById          (int actor_id)            { return m_beam_factory.getTruck(actor_id); }
     void   SetPlayerActorById    (int actor_id)            { m_beam_factory.setCurrentTruck(actor_id); } // TODO: Eliminate, use pointers ~ only_a_ptr, 06/2017
-    void   SetPlayerActor        (Beam* actor)             { m_beam_factory.setCurrentTruck((actor == nullptr) ? -1 : actor->ar_instance_id); }
-    Beam*  GetPlayerActor        ()                        { return m_beam_factory.getCurrentTruck(); }
+    void   SetPlayerActor        (Actor* actor)            { m_beam_factory.setCurrentTruck((actor == nullptr) ? -1 : actor->ar_instance_id); }
+    Actor* GetPlayerActor        ()                        { return m_beam_factory.getCurrentTruck(); }
     void   ReloadPlayerActor     ();
     void   RemovePlayerActor     ();
     void   RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name); ///< Scripting utility. TODO: Does anybody use it? ~ only_a_ptr, 08/2017
@@ -95,13 +95,13 @@ private:
     void   UpdateForceFeedback     (float dt);
     bool   UpdateInputEvents       (float dt);
     void   UpdateRacingGui         ();
-    void   FinalizeTruckSpawning   (Beam* local_truck, Beam* previous_truck);
+    void   FinalizeTruckSpawning   (Actor* local_truck, Actor* previous_truck);
     void   HideGUI                 (bool hidden);
     void   CleanupAfterSimulation  (); /// Unloads all data
 
     // BeamFactory callback, requires a `friend` declaration above.
     //TODO: Eliminate this. This is one of the reasons for the "BeamFactory should not be accessible directly" guideline above ~ only_a_ptr, 06/2017
-    void   ChangedCurrentVehicle (Beam* previous_vehicle, Beam* current_vehicle);
+    void   ChangedCurrentVehicle (Actor* previous_vehicle, Actor* current_vehicle);
 
     RoR::BeamFactory         m_beam_factory;
     RoR::CharacterFactory    m_character_factory;

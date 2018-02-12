@@ -26,7 +26,7 @@
 
 using namespace Ogre;
 
-Replay::Replay(Beam* b, int _numFrames)
+Replay::Replay(Actor* b, int _numFrames)
 {
     numNodes = b->getNodeCount();
     numBeams = b->getBeamCount();

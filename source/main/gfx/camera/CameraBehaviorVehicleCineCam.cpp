@@ -63,7 +63,7 @@ void CameraBehaviorVehicleCineCam::update(const CameraManager::CameraContext &ct
 
 void CameraBehaviorVehicleCineCam::activate(const CameraManager::CameraContext &ctx, bool reset /* = true */)
 {
-    Beam* current_vehicle = ctx.mCurrTruck;
+    Actor* current_vehicle = ctx.mCurrTruck;
     if (current_vehicle == nullptr)
     {
         m_camera_manager->switchToNextBehavior();
@@ -100,7 +100,7 @@ void CameraBehaviorVehicleCineCam::activate(const CameraManager::CameraContext &
 
 void CameraBehaviorVehicleCineCam::deactivate(const CameraManager::CameraContext &ctx)
 {
-    Beam* current_vehicle = ctx.mCurrTruck;
+    Actor* current_vehicle = ctx.mCurrTruck;
     if ( current_vehicle == nullptr 
         || current_vehicle->GetCameraContext()->behavior != RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_CINECAM )
     {
@@ -132,7 +132,7 @@ void CameraBehaviorVehicleCineCam::reset(const CameraManager::CameraContext &ctx
 
 bool CameraBehaviorVehicleCineCam::switchBehavior(const CameraManager::CameraContext &ctx)
 {
-    Beam* vehicle = ctx.mCurrTruck;
+    Actor* vehicle = ctx.mCurrTruck;
     if ( (vehicle != nullptr) && (vehicle->ar_current_cinecam) < (vehicle->ar_num_cinecams-1) )
     {
         vehicle->ar_current_cinecam++;

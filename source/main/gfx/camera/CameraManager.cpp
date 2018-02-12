@@ -95,7 +95,7 @@ void CameraManager::DisableDepthOfFieldEffect()
     }
 }
 
-bool CameraManager::Update(float dt, Beam* cur_truck, float sim_speed) // Called every frame
+bool CameraManager::Update(float dt, Actor* cur_truck, float sim_speed) // Called every frame
 {
     if (RoR::App::sim_state.GetActive() == RoR::SimState::PAUSED) { return true; } // Do nothing when paused
 
@@ -177,7 +177,7 @@ void CameraManager::switchBehavior(int newBehaviorID, bool reset)
     currentBehavior->activate(ctx, reset);
 }
 
-void CameraManager::SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset, Beam* old_vehicle, Beam* new_vehicle)
+void CameraManager::SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset, Actor* old_vehicle, Actor* new_vehicle)
 {
     if (newBehaviorID == currentBehaviorID)
     {
@@ -299,7 +299,7 @@ void CameraManager::NotifyContextChange()
     currentBehavior->notifyContextChange(ctx);
 }
 
-void CameraManager::NotifyVehicleChanged(Beam* old_vehicle, Beam* new_vehicle)
+void CameraManager::NotifyVehicleChanged(Actor* old_vehicle, Actor* new_vehicle)
 {
     // Getting out of vehicle
     if (new_vehicle == nullptr)

@@ -135,10 +135,10 @@ void SurveyMapEntity::setState(int truckstate)
 
     switch (truckstate)
     {
-    case static_cast<int>(Beam::SimState::LOCAL_SIMULATED):
+    case static_cast<int>(Actor::SimState::LOCAL_SIMULATED):
         mapstate = Activated;
         break;
-    case static_cast<int>(Beam::SimState::NETWORKED_OK):
+    case static_cast<int>(Actor::SimState::NETWORKED_OK):
         mapstate = Networked;
     default:
         mapstate = Sleeping;

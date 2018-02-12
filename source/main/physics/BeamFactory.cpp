@@ -207,7 +207,7 @@ BeamFactory::~BeamFactory()
 
 #define LOADRIG_PROFILER_CHECKPOINT(ENTRY_ID) rig_loading_profiler.Checkpoint(RoR::RigLoadingProfiler::ENTRY_ID);
 
-Beam* BeamFactory::CreateLocalRigInstance(
+Actor* BeamFactory::CreateLocalRigInstance(
     Ogre::Vector3 pos,
     Ogre::Quaternion rot,
     Ogre::String fname,
@@ -232,7 +232,7 @@ Beam* BeamFactory::CreateLocalRigInstance(
         return 0;
     }
 
-    Beam* b = new Beam(
+    Actor* b = new Actor(
         m_sim_controller,
         truck_num,
         pos,
@@ -250,7 +250,7 @@ Beam* BeamFactory::CreateLocalRigInstance(
         cache_entry_number
     );
 
-    if (b->ar_sim_state == Beam::SimState::INVALID)
+    if (b->ar_sim_state == Actor::SimState::INVALID)
     {
         this->DeleteTruck(b);
         return nullptr;
@@ -325,7 +325,7 @@ int BeamFactory::CreateRemoteInstance(RoRnet::TruckStreamRegister* reg)
         return -1;
     }
     RoR::RigLoadingProfiler p; // TODO: Placeholder. Use it
-    Beam* b = new Beam(
+    Actor* b = new Actor(
         m_sim_controller,
         truck_num,
         pos,
@@ -340,7 +340,7 @@ int BeamFactory::CreateRemoteInstance(RoRnet::TruckStreamRegister* reg)
         nullptr // skin
     );
 
-    if (b->ar_sim_state == Beam::SimState::INVALID)
+    if (b->ar_sim_state == Actor::SimState::INVALID)
     {
         this->DeleteTruck(b);
         return -1;
@@ -366,7 +366,7 @@ void BeamFactory::RemoveStreamSource(int sourceid)
     {
         if (!m_trucks[t])
             continue;
-        if (m_trucks[t]->ar_sim_state != Beam::SimState::NETWORKED_OK)
+        if (m_trucks[t]->ar_sim_state != Actor::SimState::NETWORKED_OK)
             continue;
 
         if (m_trucks[t]->ar_net_source_id == sourceid)
@@ -397,7 +397,7 @@ void BeamFactory::handleStreamData(std::vector<RoR::Networking::recv_packet_t> p
             {
                 if (!m_trucks[t])
                     continue;
-                if (m_trucks[t]->ar_sim_state == Beam::SimState::NETWORKED_OK)
+                if (m_trucks[t]->ar_sim_state == Actor::SimState::NETWORKED_OK)
                     continue;
                 if (m_trucks[t]->ar_net_stream_id == reg->origin_streamid)
                 {
@@ -415,8 +415,8 @@ void BeamFactory::handleStreamData(std::vector<RoR::Networking::recv_packet_t> p
         }
         else if (packet.header.command == RoRnet::MSG2_STREAM_UNREGISTER)
         {
-            Beam* b = this->getBeam(packet.header.source, packet.header.streamid);
-            if (b && b->ar_sim_state == Beam::SimState::NETWORKED_OK)
+            Actor* b = this->getBeam(packet.header.source, packet.header.streamid);
+            if (b && b->ar_sim_state == Actor::SimState::NETWORKED_OK)
             {
                 this->DeleteTruck(b);
             }
@@ -439,7 +439,7 @@ void BeamFactory::handleStreamData(std::vector<RoR::Networking::recv_packet_t> p
             {
                 if (!m_trucks[t])
                     continue;
-                if (m_trucks[t]->ar_sim_state != Beam::SimState::NETWORKED_OK)
+                if (m_trucks[t]->ar_sim_state != Actor::SimState::NETWORKED_OK)
                     continue;
 
                 m_trucks[t]->receiveStreamData(packet.header.command, packet.header.source, packet.header.streamid, packet.buffer, packet.header.size);
@@ -458,7 +458,7 @@ int BeamFactory::checkStreamsOK(int sourceid)
     {
         if (!m_trucks[t])
             continue;
-        if (m_trucks[t]->ar_sim_state != Beam::SimState::NETWORKED_OK)
+        if (m_trucks[t]->ar_sim_state != Actor::SimState::NETWORKED_OK)
             continue;
 
         if (m_trucks[t]->ar_net_source_id == sourceid)
@@ -478,7 +478,7 @@ int BeamFactory::checkStreamsRemoteOK(int sourceid)
     {
         if (!m_trucks[t])
             continue;
-        if (m_trucks[t]->ar_sim_state == Beam::SimState::NETWORKED_OK)
+        if (m_trucks[t]->ar_sim_state == Actor::SimState::NETWORKED_OK)
             continue;
 
         int stream_result = m_trucks[t]->ar_net_stream_results[sourceid];
@@ -491,13 +491,13 @@ int BeamFactory::checkStreamsRemoteOK(int sourceid)
     return result;
 }
 
-Beam* BeamFactory::getBeam(int source_id, int stream_id)
+Actor* BeamFactory::getBeam(int source_id, int stream_id)
 {
     for (int t = 0; t < m_free_truck; t++)
     {
         if (!m_trucks[t])
             continue;
-        if (m_trucks[t]->ar_sim_state != Beam::SimState::NETWORKED_OK)
+        if (m_trucks[t]->ar_sim_state != Actor::SimState::NETWORKED_OK)
             continue;
 
         if (m_trucks[t]->ar_net_source_id == source_id && m_trucks[t]->ar_net_stream_id == stream_id)
@@ -597,7 +597,7 @@ bool BeamFactory::predictTruckIntersectionCollAABB(int a, int b, float scale)
 
 void BeamFactory::RecursiveActivation(int j, std::bitset<MAX_TRUCKS>& visited)
 {
-    if (visited[j] || !m_trucks[j] || m_trucks[j]->ar_sim_state != Beam::SimState::LOCAL_SIMULATED)
+    if (visited[j] || !m_trucks[j] || m_trucks[j]->ar_sim_state != Actor::SimState::LOCAL_SIMULATED)
         return;
 
     visited.set(j, true);
@@ -606,15 +606,15 @@ void BeamFactory::RecursiveActivation(int j, std::bitset<MAX_TRUCKS>& visited)
     {
         if (t == j || !m_trucks[t] || visited[t])
             continue;
-        if (m_trucks[t]->ar_sim_state == Beam::SimState::LOCAL_SIMULATED && truckIntersectionCollAABB(t, j, 1.2f))
+        if (m_trucks[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && truckIntersectionCollAABB(t, j, 1.2f))
         {
             m_trucks[t]->ar_sleep_counter = 0.0f;
             this->RecursiveActivation(t, visited);
         }
-        if (m_trucks[t]->ar_sim_state == Beam::SimState::LOCAL_SLEEPING && predictTruckIntersectionCollAABB(t, j))
+        if (m_trucks[t]->ar_sim_state == Actor::SimState::LOCAL_SLEEPING && predictTruckIntersectionCollAABB(t, j))
         {
             m_trucks[t]->ar_sleep_counter = 0.0f;
-            m_trucks[t]->ar_sim_state = Beam::SimState::LOCAL_SIMULATED;
+            m_trucks[t]->ar_sim_state = Actor::SimState::LOCAL_SIMULATED;
             this->RecursiveActivation(t, visited);
         }
     }
@@ -628,7 +628,7 @@ void BeamFactory::UpdateSleepingState(float dt)
         {
             if (!m_trucks[t])
                 continue;
-            if (m_trucks[t]->ar_sim_state != Beam::SimState::LOCAL_SIMULATED)
+            if (m_trucks[t]->ar_sim_state != Actor::SimState::LOCAL_SIMULATED)
                 continue;
             if (m_trucks[t]->getVelocity().squaredLength() > 0.01f)
                 continue;
@@ -637,20 +637,20 @@ void BeamFactory::UpdateSleepingState(float dt)
 
             if (m_trucks[t]->ar_sleep_counter >= 10.0f)
             {
-                m_trucks[t]->ar_sim_state = Beam::SimState::LOCAL_SLEEPING;
+                m_trucks[t]->ar_sim_state = Actor::SimState::LOCAL_SLEEPING;
             }
         }
     }
 
-    Beam* current_truck = getCurrentTruck();
-    if (current_truck && current_truck->ar_sim_state == Beam::SimState::LOCAL_SLEEPING)
+    Actor* current_truck = getCurrentTruck();
+    if (current_truck && current_truck->ar_sim_state == Actor::SimState::LOCAL_SLEEPING)
     {
-        current_truck->ar_sim_state = Beam::SimState::LOCAL_SIMULATED;
+        current_truck->ar_sim_state = Actor::SimState::LOCAL_SIMULATED;
     }
 
     std::bitset<MAX_TRUCKS> visited;
     // Recursivly activate all trucks which can be reached from current_truck
-    if (current_truck && current_truck->ar_sim_state == Beam::SimState::LOCAL_SIMULATED)
+    if (current_truck && current_truck->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
     {
         current_truck->ar_sleep_counter = 0.0f;
         this->RecursiveActivation(m_current_truck, visited);
@@ -658,7 +658,7 @@ void BeamFactory::UpdateSleepingState(float dt)
     // Snowball effect (activate all trucks which might soon get hit by a moving truck)
     for (int t = 0; t < m_free_truck; t++)
     {
-        if (m_trucks[t] && m_trucks[t]->ar_sim_state == Beam::SimState::LOCAL_SIMULATED && m_trucks[t]->ar_sleep_counter == 0.0f)
+        if (m_trucks[t] && m_trucks[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && m_trucks[t]->ar_sleep_counter == 0.0f)
             this->RecursiveActivation(t, visited);
     }
 }
@@ -683,9 +683,9 @@ void BeamFactory::activateAllTrucks()
 {
     for (int t = 0; t < m_free_truck; t++)
     {
-        if (m_trucks[t] && m_trucks[t]->ar_sim_state == Beam::SimState::LOCAL_SLEEPING)
+        if (m_trucks[t] && m_trucks[t]->ar_sim_state == Actor::SimState::LOCAL_SLEEPING)
         {
-            m_trucks[t]->ar_sim_state = Beam::SimState::LOCAL_SIMULATED;
+            m_trucks[t]->ar_sim_state = Actor::SimState::LOCAL_SIMULATED;
             m_trucks[t]->ar_sleep_counter = 0.0f;
 
             if (this->getTruck(m_simulated_truck))
@@ -701,9 +701,9 @@ void BeamFactory::sendAllTrucksSleeping()
     m_forced_active = false;
     for (int t = 0; t < m_free_truck; t++)
     {
-        if (m_trucks[t] && m_trucks[t]->ar_sim_state == Beam::SimState::LOCAL_SIMULATED)
+        if (m_trucks[t] && m_trucks[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
         {
-            m_trucks[t]->ar_sim_state = Beam::SimState::LOCAL_SLEEPING;
+            m_trucks[t]->ar_sim_state = Actor::SimState::LOCAL_SLEEPING;
         }
     }
 }
@@ -791,7 +791,7 @@ void BeamFactory::removeTruck(int truck)
     if (!m_trucks[truck])
         return;
 
-    if (m_trucks[truck]->ar_sim_state == Beam::SimState::NETWORKED_OK)
+    if (m_trucks[truck]->ar_sim_state == Actor::SimState::NETWORKED_OK)
         return;
 
     this->DeleteTruck(m_trucks[truck]);
@@ -819,7 +819,7 @@ void BeamFactory::CleanUpAllTrucks() // Called after simulation finishes
     //m_free_truck = 0;
 }
 
-void BeamFactory::DeleteTruck(Beam* b)
+void BeamFactory::DeleteTruck(Actor* b)
 {
     if (b == 0)
         return;
@@ -827,7 +827,7 @@ void BeamFactory::DeleteTruck(Beam* b)
     this->SyncWithSimThread();
 
 #ifdef USE_SOCKETW
-    if (b->ar_uses_networking && b->ar_sim_state != Beam::SimState::NETWORKED_OK && b->ar_sim_state != Beam::SimState::INVALID)
+    if (b->ar_uses_networking && b->ar_sim_state != Actor::SimState::NETWORKED_OK && b->ar_sim_state != Actor::SimState::INVALID)
     {
         RoR::Networking::AddPacket(b->ar_net_stream_id, RoRnet::MSG2_STREAM_UNREGISTER, 0, 0);
     }
@@ -864,7 +864,7 @@ void BeamFactory::enterNextTruck()
 
     for (int i = pivot_index + 1; i < m_free_truck; i++)
     {
-        if (m_trucks[i] && m_trucks[i]->ar_sim_state != Beam::SimState::NETWORKED_OK && !m_trucks[i]->isPreloadedWithTerrain())
+        if (m_trucks[i] && m_trucks[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_trucks[i]->isPreloadedWithTerrain())
         {
             setCurrentTruck(i);
             return;
@@ -873,14 +873,14 @@ void BeamFactory::enterNextTruck()
 
     for (int i = 0; i < pivot_index; i++)
     {
-        if (m_trucks[i] && m_trucks[i]->ar_sim_state != Beam::SimState::NETWORKED_OK && !m_trucks[i]->isPreloadedWithTerrain())
+        if (m_trucks[i] && m_trucks[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_trucks[i]->isPreloadedWithTerrain())
         {
             setCurrentTruck(i);
             return;
         }
     }
 
-    if (pivot_index >= 0 && m_trucks[pivot_index] && m_trucks[pivot_index]->ar_sim_state != Beam::SimState::NETWORKED_OK && !m_trucks[pivot_index]->isPreloadedWithTerrain())
+    if (pivot_index >= 0 && m_trucks[pivot_index] && m_trucks[pivot_index]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_trucks[pivot_index]->isPreloadedWithTerrain())
     {
         setCurrentTruck(pivot_index);
         return;
@@ -893,7 +893,7 @@ void BeamFactory::enterPreviousTruck()
 
     for (int i = pivot_index - 1; i >= 0; i--)
     {
-        if (m_trucks[i] && m_trucks[i]->ar_sim_state != Beam::SimState::NETWORKED_OK && !m_trucks[i]->isPreloadedWithTerrain())
+        if (m_trucks[i] && m_trucks[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_trucks[i]->isPreloadedWithTerrain())
         {
             setCurrentTruck(i);
             return;
@@ -902,14 +902,14 @@ void BeamFactory::enterPreviousTruck()
 
     for (int i = m_free_truck - 1; i > pivot_index; i--)
     {
-        if (m_trucks[i] && m_trucks[i]->ar_sim_state != Beam::SimState::NETWORKED_OK && !m_trucks[i]->isPreloadedWithTerrain())
+        if (m_trucks[i] && m_trucks[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_trucks[i]->isPreloadedWithTerrain())
         {
             setCurrentTruck(i);
             return;
         }
     }
 
-    if (pivot_index >= 0 && m_trucks[pivot_index] && m_trucks[pivot_index]->ar_sim_state != Beam::SimState::NETWORKED_OK && !m_trucks[pivot_index]->isPreloadedWithTerrain())
+    if (pivot_index >= 0 && m_trucks[pivot_index] && m_trucks[pivot_index]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_trucks[pivot_index]->isPreloadedWithTerrain())
     {
         setCurrentTruck(pivot_index);
         return;
@@ -963,7 +963,7 @@ void BeamFactory::updateFlexbodiesPrepare()
 {
     for (int t = 0; t < m_free_truck; t++)
     {
-        if (m_trucks[t] && m_trucks[t]->ar_sim_state < Beam::SimState::LOCAL_SLEEPING)
+        if (m_trucks[t] && m_trucks[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
         {
             m_trucks[t]->updateFlexbodiesPrepare();
         }
@@ -974,7 +974,7 @@ void BeamFactory::joinFlexbodyTasks()
 {
     for (int t = 0; t < m_free_truck; t++)
     {
-        if (m_trucks[t] && m_trucks[t]->ar_sim_state < Beam::SimState::LOCAL_SLEEPING)
+        if (m_trucks[t] && m_trucks[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
         {
             m_trucks[t]->joinFlexbodyTasks();
         }
@@ -985,7 +985,7 @@ void BeamFactory::updateFlexbodiesFinal()
 {
     for (int t = 0; t < m_free_truck; t++)
     {
-        if (m_trucks[t] && m_trucks[t]->ar_sim_state < Beam::SimState::LOCAL_SLEEPING)
+        if (m_trucks[t] && m_trucks[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
         {
             m_trucks[t]->updateFlexbodiesFinal();
         }
@@ -1004,7 +1004,7 @@ void BeamFactory::updateVisual(float dt)
         // always update the labels
         m_trucks[t]->updateLabels(dt);
 
-        if (m_trucks[t]->ar_sim_state < Beam::SimState::LOCAL_SLEEPING)
+        if (m_trucks[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
         {
             m_trucks[t]->updateVisual(dt);
             m_trucks[t]->updateSkidmarks();
@@ -1048,27 +1048,27 @@ void BeamFactory::update(float dt)
 
         switch (m_trucks[t]->ar_sim_state)
         {
-        case Beam::SimState::NETWORKED_OK:
+        case Actor::SimState::NETWORKED_OK:
             m_trucks[t]->calcNetwork();
             break;
 
-        case Beam::SimState::INVALID:
+        case Actor::SimState::INVALID:
             break;
 
         default:
-            if (m_trucks[t]->ar_sim_state != Beam::SimState::LOCAL_SIMULATED && m_trucks[t]->ar_engine)
+            if (m_trucks[t]->ar_sim_state != Actor::SimState::LOCAL_SIMULATED && m_trucks[t]->ar_engine)
                 m_trucks[t]->ar_engine->update(dt, 1);
-            if (m_trucks[t]->ar_sim_state < Beam::SimState::LOCAL_SLEEPING)
+            if (m_trucks[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
                 m_trucks[t]->UpdatePropAnimations(dt);
             if (m_trucks[t]->ar_uses_networking)
             {
-                if (m_trucks[t]->ar_sim_state == Beam::SimState::LOCAL_SIMULATED)
+                if (m_trucks[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
                     m_trucks[t]->sendStreamData();
-                else if (m_trucks[t]->ar_sim_state == Beam::SimState::LOCAL_SLEEPING && m_trucks[t]->ar_net_timer.getMilliseconds() < 10000)
-                // Also send update messages for 'Beam::SimState::LOCAL_SLEEPING' trucks during the first 10 seconds of lifetime
+                else if (m_trucks[t]->ar_sim_state == Actor::SimState::LOCAL_SLEEPING && m_trucks[t]->ar_net_timer.getMilliseconds() < 10000)
+                // Also send update messages for 'Actor::SimState::LOCAL_SLEEPING' trucks during the first 10 seconds of lifetime
                     m_trucks[t]->sendStreamData();
-                else if (m_trucks[t]->ar_sim_state == Beam::SimState::LOCAL_SLEEPING && m_trucks[t]->ar_net_timer.getMilliseconds() - m_trucks[t]->ar_net_last_update_time > 5000)
-                // Also send update messages for 'Beam::SimState::LOCAL_SLEEPING' trucks periodically every 5 seconds
+                else if (m_trucks[t]->ar_sim_state == Actor::SimState::LOCAL_SLEEPING && m_trucks[t]->ar_net_timer.getMilliseconds() - m_trucks[t]->ar_net_last_update_time > 5000)
+                // Also send update messages for 'Actor::SimState::LOCAL_SLEEPING' trucks periodically every 5 seconds
                     m_trucks[t]->sendStreamData();
             }
             break;
@@ -1081,7 +1081,7 @@ void BeamFactory::update(float dt)
     {
         for (int t = 0; t < m_free_truck; t++)
         {
-            if (m_trucks[t] && m_trucks[t]->ar_sim_state == Beam::SimState::LOCAL_SIMULATED)
+            if (m_trucks[t] && m_trucks[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
             {
                 m_simulated_truck = t;
                 break;
@@ -1138,12 +1138,12 @@ void BeamFactory::prepareShutdown()
     this->SyncWithSimThread();
 }
 
-Beam* BeamFactory::getCurrentTruck()
+Actor* BeamFactory::getCurrentTruck()
 {
     return this->getTruck(m_current_truck);
 }
 
-Beam* BeamFactory::getTruck(int number)
+Actor* BeamFactory::getTruck(int number)
 {
     if (number >= 0 && number < m_free_truck)
     {

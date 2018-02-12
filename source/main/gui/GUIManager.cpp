@@ -315,7 +315,7 @@ void GUIManager::AdjustMainMenuPosition()
     m_impl->panel_GameMainMenu.SetPosition(margin, top);
 }
 
-void GUIManager::UpdateSimUtils(float dt, Beam *truck)
+void GUIManager::UpdateSimUtils(float dt, Actor *truck)
 {
     if (m_impl->panel_SimUtils.IsBaseVisible()) //Better to update only when it's visible.
     {

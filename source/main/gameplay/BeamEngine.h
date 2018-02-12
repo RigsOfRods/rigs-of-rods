@@ -30,11 +30,10 @@
 class BeamEngine : public ZeroedMemoryAllocator
 {
     friend class RigSpawner;
-    friend class RigInspector; // Debug utility class
 
 public:
 
-    BeamEngine(float minRPM, float maxRPM, float torque, std::vector<float> gears, float dratio, Beam* actor);
+    BeamEngine(float minRPM, float maxRPM, float torque, std::vector<float> gears, float dratio, Actor* actor);
     ~BeamEngine();
 
     float getAcc();
@@ -209,7 +208,7 @@ protected:
         MANUAL_RANGES
     };
 
-    Beam* m_actor;
+    Actor* m_actor;
 
     // gear stuff
     float refWheelRevolutions; //!< Gears; estimated wheel revolutions based on current vehicle speed along the long axis

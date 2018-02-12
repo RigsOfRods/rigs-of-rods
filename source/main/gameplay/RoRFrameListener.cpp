@@ -162,7 +162,7 @@ void RoRFrameListener::UpdateForceFeedback(float dt)
         return;
     }
 
-    Beam* current_truck = m_beam_factory.getCurrentTruck();
+    Actor* current_truck = m_beam_factory.getCurrentTruck();
     if (current_truck && current_truck->ar_driveable == TRUCK)
     {
         int ar_camera_node_pos = 0;
@@ -270,7 +270,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
     if (RoR::App::GetOverlayWrapper())
         RoR::App::GetOverlayWrapper()->update(dt);
 
-    Beam* curr_truck = m_beam_factory.getCurrentTruck();
+    Actor* curr_truck = m_beam_factory.getCurrentTruck();
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUIT_GAME))
     {
@@ -1311,7 +1311,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
             // perso in/out
             int current_truck = m_beam_factory.getCurrentTruckNumber();
             int free_truck = m_beam_factory.getTruckCount();
-            Beam** trucks = m_beam_factory.getTrucks();
+            Actor** trucks = m_beam_factory.getTrucks();
             if (current_truck == -1)
             {
                 // find the nearest truck
@@ -1373,7 +1373,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                     config_ptr = & m_last_vehicle_configs;
                 }
 
-                Beam* current_truck = m_beam_factory.getCurrentTruck();
+                Actor* current_truck = m_beam_factory.getCurrentTruck();
                 if (current_truck != nullptr)
                 {
                     m_reload_dir = Quaternion(Degree(270) - Radian(current_truck->getRotation()), Vector3::UNIT_Y);
@@ -1388,7 +1388,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                     m_reload_pos = gEnv->player->getPosition();
                 }
 
-                Beam* local_truck = m_beam_factory.CreateLocalRigInstance(m_reload_pos, m_reload_dir, m_last_cache_selection->fname, m_last_cache_selection->number, 0, false, config_ptr, m_last_skin_selection);
+                Actor* local_truck = m_beam_factory.CreateLocalRigInstance(m_reload_pos, m_reload_dir, m_last_cache_selection->fname, m_last_cache_selection->number, 0, false, config_ptr, m_last_skin_selection);
 
                 this->FinalizeTruckSpawning(local_truck, current_truck);
             }
@@ -1419,7 +1419,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                     m_last_skin_selection = skin;
                     m_last_vehicle_configs = config;
 
-                    Beam* current_truck = m_beam_factory.getCurrentTruck();
+                    Actor* current_truck = m_beam_factory.getCurrentTruck();
 
                     if (m_reload_box == nullptr)
                     {
@@ -1438,7 +1438,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                         }
                     }
 
-                    Beam* local_truck = m_beam_factory.CreateLocalRigInstance(m_reload_pos, m_reload_dir, selection->fname, selection->number, m_reload_box, false, config_ptr, skin);
+                    Actor* local_truck = m_beam_factory.CreateLocalRigInstance(m_reload_pos, m_reload_dir, selection->fname, selection->number, m_reload_box, false, config_ptr, skin);
 
                     this->FinalizeTruckSpawning(local_truck, current_truck);
                 }
@@ -1541,7 +1541,7 @@ void RoRFrameListener::TeleportPlayerXZ(float x, float z)
     gEnv->player->setPosition(Ogre::Vector3(x, y, z));
 }
 
-void RoRFrameListener::FinalizeTruckSpawning(Beam* local_truck, Beam* previous_truck)
+void RoRFrameListener::FinalizeTruckSpawning(Actor* local_truck, Actor* previous_truck)
 {
     if (local_truck != nullptr)
     {
@@ -1666,7 +1666,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
     }
 #endif // USE_OPENAL
 
-    Beam* curr_truck = m_beam_factory.getCurrentTruck();
+    Actor* curr_truck = m_beam_factory.getCurrentTruck();
 
     if ((curr_truck != nullptr) && (!simPAUSED(s)))
     {
@@ -1775,7 +1775,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
             // update survey map
             if (gEnv->surveyMap != nullptr && gEnv->surveyMap->getVisibility())
             {
-                Beam** vehicles = m_beam_factory.getTrucks();
+                Actor** vehicles = m_beam_factory.getTrucks();
                 int num_vehicles = m_beam_factory.getTruckCount();
 
                 gEnv->surveyMap->UpdateVehicles(vehicles, num_vehicles);
@@ -1866,7 +1866,7 @@ bool RoRFrameListener::frameEnded(const FrameEvent& evt)
 void RoRFrameListener::ShowLoaderGUI(int type, const Ogre::String& instance, const Ogre::String& box)
 {
     int free_truck = m_beam_factory.getTruckCount();
-    Beam** trucks = m_beam_factory.getTrucks();
+    Actor** trucks = m_beam_factory.getTrucks();
 
     // first, test if the place if clear, BUT NOT IN MULTIPLAYER
     if (!(App::mp_state.GetActive() == MpState::CONNECTED))
@@ -1957,7 +1957,7 @@ void RoRFrameListener::windowFocusChange(Ogre::RenderWindow* rw)
 
 void RoRFrameListener::HideGUI(bool hidden)
 {
-    Beam* curr_truck = m_beam_factory.getCurrentTruck();
+    Actor* curr_truck = m_beam_factory.getCurrentTruck();
 
     if (curr_truck && curr_truck->getReplay())
         curr_truck->getReplay()->setHidden(hidden);
@@ -1992,7 +1992,7 @@ void RoRFrameListener::HideGUI(bool hidden)
 
 void RoRFrameListener::RemovePlayerActor()
 {
-    Beam* actor = m_beam_factory.getCurrentTruck();
+    Actor* actor = m_beam_factory.getCurrentTruck();
     this->SetPlayerActor(nullptr);
     m_beam_factory.removeTruck(actor->ar_instance_id);
 }
@@ -2004,14 +2004,14 @@ void RoRFrameListener::RemoveActorByCollisionBox(std::string const & ev_src_inst
 
 void RoRFrameListener::ReloadPlayerActor()
 {
-    Beam* curr_truck = m_beam_factory.getCurrentTruck();
+    Actor* curr_truck = m_beam_factory.getCurrentTruck();
     if (!curr_truck)
         return;
-    if (curr_truck->ar_sim_state == Beam::SimState::NETWORKED_OK)
+    if (curr_truck->ar_sim_state == Actor::SimState::NETWORKED_OK)
         return;
 
     // try to load the same truck again
-    Beam* newBeam = m_beam_factory.CreateLocalRigInstance(m_reload_pos, m_reload_dir, curr_truck->ar_filename, -1);
+    Actor* newBeam = m_beam_factory.CreateLocalRigInstance(m_reload_pos, m_reload_dir, curr_truck->ar_filename, -1);
 
     if (!newBeam)
     {
@@ -2053,7 +2053,7 @@ void RoRFrameListener::ReloadPlayerActor()
     m_beam_factory.setCurrentTruck(newBeam->ar_instance_id);
 }
 
-void RoRFrameListener::ChangedCurrentVehicle(Beam* previous_vehicle, Beam* current_vehicle)
+void RoRFrameListener::ChangedCurrentVehicle(Actor* previous_vehicle, Actor* current_vehicle)
 {
     // hide any old dashes
     if (previous_vehicle && previous_vehicle->ar_dashboard)
@@ -2375,7 +2375,7 @@ bool RoRFrameListener::SetupGameplayLoop()
         Vector3 pos = gEnv->player->getPosition();
         Quaternion rot = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
 
-        Beam* b = m_beam_factory.CreateLocalRigInstance(pos, rot, App::diag_preset_vehicle.GetActive(), -1, nullptr, false, &truckConfig);
+        Actor* b = m_beam_factory.CreateLocalRigInstance(pos, rot, App::diag_preset_vehicle.GetActive(), -1, nullptr, false, &truckConfig);
 
         if (b != nullptr)
         {

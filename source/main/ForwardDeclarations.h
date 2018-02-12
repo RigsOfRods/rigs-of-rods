@@ -131,7 +131,7 @@ class Airbrake;
 class Airfoil;
 class Autopilot;
 class Axle;
-class Beam;
+class Actor;
 class BeamEngine;
 class BeamThreadStats;
 class Buoyance;

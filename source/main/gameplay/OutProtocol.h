@@ -45,7 +45,7 @@ public:
     OutProtocol(void);
     ~OutProtocol(void);
 
-    bool Update(float dt, Beam* truck);
+    bool Update(float dt, Actor* truck);
 
 private:
 

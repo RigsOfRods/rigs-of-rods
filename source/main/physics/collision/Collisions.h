@@ -166,7 +166,7 @@ public:
     Ogre::Quaternion getDirection(const Ogre::String& inst, const Ogre::String& box);
     collision_box_t* getBox(const Ogre::String& inst, const Ogre::String& box);
 
-    eventsource_t* isTruckInEventBox(Beam* truck);
+    eventsource_t* isTruckInEventBox(Actor* truck);
 
     bool collisionCorrect(Ogre::Vector3* refpos, bool envokeScriptCallbacks = true);
     bool groundCollision(node_t* node, float dt, ground_model_t** gm, float* nso = 0);

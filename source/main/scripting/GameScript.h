@@ -142,13 +142,13 @@ public:
      * returns the current selected truck, 0 if in person mode
      * @return reference to Beam object that is currently in use
      */
-    Beam* getCurrentTruck();
+    Actor* getCurrentTruck();
 
     /**
      * returns a truck by index, get max index by calling getNumTrucks
      * @return reference to Beam object that the selected slot
      */
-    Beam* getTruckByNum(int num);
+    Actor* getTruckByNum(int num);
 
     /**
      * returns the current amount of loaded trucks
@@ -377,7 +377,7 @@ public:
     VehicleAI* getCurrentTruckAI();
     VehicleAI* getTruckAIByNum(int num);
 
-    Beam* spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot);
+    Actor* spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot);
 
     void showMessageBox(Ogre::String& mTitle, Ogre::String& mText, bool button1, Ogre::String& mButton1, bool AllowClose, bool button2, Ogre::String& mButton2);
     void backToMenu();

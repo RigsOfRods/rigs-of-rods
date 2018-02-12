@@ -132,7 +132,7 @@ void BeamEngineStats::setup(bool enabled)
 bool BeamEngineStats::updateGUI(float dt)
 {
     int current_truck = BeamFactory::getSingleton().getCurrentTruckNumber();
-    Beam **trucks = BeamFactory::getSingleton().getTrucks();
+    Actor **trucks = BeamFactory::getSingleton().getTrucks();
     
     updateTimeGUI += dt;
     if (updateTimeGUI < 5.0f)
@@ -156,7 +156,7 @@ bool BeamEngineStats::updateGUI(float dt)
     {
         
         if (!trucks[statClients[c].trucknum]) continue;
-        if (trucks[statClients[c].trucknum]->ar_sim_state == Beam::SimState::LOCAL_SLEEPING)
+        if (trucks[statClients[c].trucknum]->ar_sim_state == Actor::SimState::LOCAL_SLEEPING)
             continue;
 
         BeamThreadStats *core = statClients[c].stat;

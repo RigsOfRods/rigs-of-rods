@@ -39,8 +39,6 @@
 namespace RoR
 {
 
-/// Visuals of `Beam`
-/// TODO: Move all OGRE interactions of `class Beam` to here.
 class GfxActor
 {
     friend class ::RigSpawner; // The factory
@@ -96,7 +94,7 @@ public:
         Ogre::SceneNode*     vcam_prop_scenenode; // Only for type=MIRROR_PROP_*
     };
 
-    GfxActor(Beam* actor, std::string ogre_resource_group):
+    GfxActor(Actor* actor, std::string ogre_resource_group):
         m_actor(actor),
         m_custom_resource_group(ogre_resource_group),
         m_vidcam_state(VideoCamState::VCSTATE_ENABLED_ONLINE)
@@ -115,7 +113,7 @@ public:
 
 private:
 
-    Beam*                       m_actor;
+    Actor*                      m_actor;
     std::string                 m_custom_resource_group; ///< Stores OGRE resources individual to this actor
     std::vector<FlareMaterial>  m_flare_materials;
     VideoCamState               m_vidcam_state;

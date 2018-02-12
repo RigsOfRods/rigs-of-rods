@@ -60,7 +60,7 @@ CLASS::~CLASS()
 
 void CLASS::LoadText()
 {
-    Beam* currTruck = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+    Actor* currTruck = m_sim_controller->GetBeamFactory()->getCurrentTruck();
 
     if (currTruck == nullptr)
         return;

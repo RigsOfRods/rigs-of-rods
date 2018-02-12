@@ -123,7 +123,7 @@ public:
     void AdjustPauseMenuPosition();
     void AdjustMainMenuPosition();
 
-    void UpdateSimUtils(float dt, Beam* truck);
+    void UpdateSimUtils(float dt, Actor* truck);
     void FrameStepGui(float dt);
     void NewImGuiFrame(float dt);
     void DrawMainMenuGui();

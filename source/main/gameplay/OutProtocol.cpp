@@ -110,7 +110,7 @@ void OutProtocol::startup()
 #endif // _WIN32
 }
 
-bool OutProtocol::Update(float dt, Beam* truck)
+bool OutProtocol::Update(float dt, Actor* truck)
 {
 #if defined(_WIN32) && defined(USE_SOCKETW)
     if (!working)

@@ -204,13 +204,13 @@ void CameraBehaviorVehicleSpline::createSpline(const CameraManager::CameraContex
         splineNodes.push_back(&ctx.mCurrTruck->ar_nodes[ctx.mCurrTruck->ar_camera_rail[i]]);
     }
 
-    std::list<Beam*> linkedBeams = ctx.mCurrTruck->getAllLinkedBeams();
+    std::list<Actor*> linkedBeams = ctx.mCurrTruck->getAllLinkedBeams();
 
     numLinkedBeams = linkedBeams.size();
 
     if (numLinkedBeams > 0)
     {
-        for (std::list<Beam*>::iterator it = linkedBeams.begin(); it != linkedBeams.end(); ++it)
+        for (std::list<Actor*>::iterator it = linkedBeams.begin(); it != linkedBeams.end(); ++it)
         {
             if ((*it)->ar_num_camera_rails <= 0)
                 continue;

@@ -418,7 +418,7 @@ void OverlayWrapper::showPressureOverlay(bool show)
     }
 }
 
-void OverlayWrapper::showDashboardOverlays(bool show, Beam* truck)
+void OverlayWrapper::showDashboardOverlays(bool show, Actor* truck)
 {
     // check if we use the new style dashboards
     if (truck && truck->ar_dashboard && truck->ar_dashboard->wasLoaded())
@@ -533,7 +533,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
     bool res = false;
     const OIS::MouseState ms = _arg.state;
     
-    Beam* curr_truck = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+    Actor* curr_truck = m_sim_controller->GetBeamFactory()->getCurrentTruck();
 
     if (!curr_truck)
         return res;
@@ -765,11 +765,11 @@ void OverlayWrapper::SetupDirectionArrow()
     }
 }
 
-void OverlayWrapper::UpdateDirectionArrow(Beam* vehicle, Ogre::Vector3 const& point_to)
+void OverlayWrapper::UpdateDirectionArrow(Actor* vehicle, Ogre::Vector3 const& point_to)
 {
     m_direction_arrow_node->lookAt(point_to, Node::TS_WORLD, Vector3::UNIT_Y);
     Real distance = 0.0f;
-    if (vehicle != nullptr && vehicle->ar_sim_state == Beam::SimState::LOCAL_SIMULATED)
+    if (vehicle != nullptr && vehicle->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
     {
         distance = vehicle->getPosition().distance(point_to);
     }
@@ -804,7 +804,7 @@ void OverlayWrapper::UpdatePressureTexture(float pressure)
     pressuretexture->setTextureRotate(Degree(angle));
 }
 
-void OverlayWrapper::UpdateLandVehicleHUD(Beam* vehicle)
+void OverlayWrapper::UpdateLandVehicleHUD(Actor* vehicle)
 {
     // gears
     int truck_getgear = vehicle->ar_engine->getGear();
@@ -884,7 +884,7 @@ void OverlayWrapper::UpdateLandVehicleHUD(Beam* vehicle)
     tachotexture->setTextureRotate(Degree(angle));
 }
 
-void OverlayWrapper::UpdateAerialHUD(Beam* vehicle)
+void OverlayWrapper::UpdateAerialHUD(Actor* vehicle)
 {
     int ftp = vehicle->ar_num_aeroengines;
 
@@ -1155,7 +1155,7 @@ void OverlayWrapper::UpdateAerialHUD(Beam* vehicle)
         engstarto4->setMaterialName("tracks/engstart-off");
 }
 
-void OverlayWrapper::UpdateMarineHUD(Beam* vehicle)
+void OverlayWrapper::UpdateMarineHUD(Actor* vehicle)
 {
     int fsp = vehicle->ar_num_screwprops;
     //throttles
@@ -1204,7 +1204,7 @@ void OverlayWrapper::HideRacingOverlay()
     BITMASK_SET_0(m_visible_overlays, VisibleOverlays::RACING);
 }
 
-void OverlayWrapper::TemporarilyHideAllOverlays(Beam* current_vehicle)
+void OverlayWrapper::TemporarilyHideAllOverlays(Actor* current_vehicle)
 {
     m_racing_overlay->hide();
     m_direction_arrow_overlay->hide();
@@ -1214,7 +1214,7 @@ void OverlayWrapper::TemporarilyHideAllOverlays(Beam* current_vehicle)
     showDashboardOverlays(false, current_vehicle);
 }
 
-void OverlayWrapper::RestoreOverlaysVisibility(Beam* current_vehicle)
+void OverlayWrapper::RestoreOverlaysVisibility(Actor* current_vehicle)
 {
     if (BITMASK_IS_1(m_visible_overlays, VisibleOverlays::RACING))
     {

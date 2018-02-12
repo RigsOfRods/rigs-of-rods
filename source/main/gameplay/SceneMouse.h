@@ -60,7 +60,7 @@ protected:
 
     int minnode;
     float mindist;
-    Beam* grab_truck;
+    Actor* grab_truck;
     Ogre::Vector3 lastgrabpos;
     int lastMouseX, lastMouseY;
 
