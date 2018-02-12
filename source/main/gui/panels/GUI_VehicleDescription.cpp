@@ -98,7 +98,7 @@ void CLASS::LoadText()
     int filledCommands = 0;
     for (int i = 1; i < MAX_COMMANDS && filledCommands < COMMANDS_VISIBLE; i += 2)
     {
-        if (currTruck->commandkey[i].beams.empty() || currTruck->commandkey[i].description == "hide")
+        if (currTruck->ar_command_key[i].beams.empty() || currTruck->ar_command_key[i].description == "hide")
             continue;
 
         filledCommands++;
@@ -120,13 +120,13 @@ void CLASS::LoadText()
 
         keyStr = keya + "/" + keyb;
 
-        if (currTruck->commandkey[i].description.empty())
+        if (currTruck->ar_command_key[i].description.empty())
         {
             txt = txt + "* " + keyStr + ": " + _L("unknown function");
         }
         else
         {
-            txt = txt + "* " + keyStr + ": " + currTruck->commandkey[i].description;
+            txt = txt + "* " + keyStr + ": " + currTruck->ar_command_key[i].description;
         }
 
         txt = txt + "\n";

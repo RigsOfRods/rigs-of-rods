@@ -900,7 +900,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                     {
                         int eventID = EV_COMMANDS_01 + (i - 1);
 
-                        curr_truck->commandkey[i].playerInputValue = RoR::App::GetInputEngine()->getEventValue(eventID);
+                        curr_truck->ar_command_key[i].playerInputValue = RoR::App::GetInputEngine()->getEventValue(eventID);
                     }
 
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_FORWARDCOMMANDS))

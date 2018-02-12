@@ -282,17 +282,17 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         //first, evaluate torque from inter-differential locking
         for (int i = 0; i < m_num_proped_wheels / 2 - 1; i++)
         {
-            if (wheels[m_proped_wheel_pairs[i * 2 + 0]].wh_is_detached)
-                wheels[m_proped_wheel_pairs[i * 2 + 0]].wh_speed = wheels[m_proped_wheel_pairs[i * 2 + 1]].wh_speed;
-            if (wheels[m_proped_wheel_pairs[i * 2 + 1]].wh_is_detached)
-                wheels[m_proped_wheel_pairs[i * 2 + 1]].wh_speed = wheels[m_proped_wheel_pairs[i * 2 + 0]].wh_speed;
-            if (wheels[m_proped_wheel_pairs[i * 2 + 2]].wh_is_detached)
-                wheels[m_proped_wheel_pairs[i * 2 + 2]].wh_speed = wheels[m_proped_wheel_pairs[i * 2 + 3]].wh_speed;
-            if (wheels[m_proped_wheel_pairs[i * 2 + 3]].wh_is_detached)
-                wheels[m_proped_wheel_pairs[i * 2 + 3]].wh_speed = wheels[m_proped_wheel_pairs[i * 2 + 2]].wh_speed;
+            if (ar_wheels[m_proped_wheel_pairs[i * 2 + 0]].wh_is_detached)
+                ar_wheels[m_proped_wheel_pairs[i * 2 + 0]].wh_speed = ar_wheels[m_proped_wheel_pairs[i * 2 + 1]].wh_speed;
+            if (ar_wheels[m_proped_wheel_pairs[i * 2 + 1]].wh_is_detached)
+                ar_wheels[m_proped_wheel_pairs[i * 2 + 1]].wh_speed = ar_wheels[m_proped_wheel_pairs[i * 2 + 0]].wh_speed;
+            if (ar_wheels[m_proped_wheel_pairs[i * 2 + 2]].wh_is_detached)
+                ar_wheels[m_proped_wheel_pairs[i * 2 + 2]].wh_speed = ar_wheels[m_proped_wheel_pairs[i * 2 + 3]].wh_speed;
+            if (ar_wheels[m_proped_wheel_pairs[i * 2 + 3]].wh_is_detached)
+                ar_wheels[m_proped_wheel_pairs[i * 2 + 3]].wh_speed = ar_wheels[m_proped_wheel_pairs[i * 2 + 2]].wh_speed;
 
-            float speed1 = (wheels[m_proped_wheel_pairs[i * 2 + 0]].wh_speed + wheels[m_proped_wheel_pairs[i * 2 + 1]].wh_speed) * 0.5f;
-            float speed2 = (wheels[m_proped_wheel_pairs[i * 2 + 2]].wh_speed + wheels[m_proped_wheel_pairs[i * 2 + 3]].wh_speed) * 0.5f;
+            float speed1 = (ar_wheels[m_proped_wheel_pairs[i * 2 + 0]].wh_speed + ar_wheels[m_proped_wheel_pairs[i * 2 + 1]].wh_speed) * 0.5f;
+            float speed2 = (ar_wheels[m_proped_wheel_pairs[i * 2 + 2]].wh_speed + ar_wheels[m_proped_wheel_pairs[i * 2 + 3]].wh_speed) * 0.5f;
             float torque = (speed1 - speed2) * 10000.0f;
 
             intertorque[i * 2 + 0] -= torque * 0.5f;
@@ -310,32 +310,32 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         if (!m_axles[i])
             continue;
 
-        if (wheels[m_axles[i - 1]->wheel_1].wh_is_detached)
-            wheels[m_axles[i - 1]->wheel_1].wh_speed = wheels[m_axles[i - 1]->wheel_2].wh_speed;
-        if (wheels[m_axles[i - 0]->wheel_1].wh_is_detached)
-            wheels[m_axles[i - 0]->wheel_1].wh_speed = wheels[m_axles[i - 0]->wheel_2].wh_speed;
-        if (wheels[m_axles[i - 1]->wheel_2].wh_is_detached)
-            wheels[m_axles[i - 1]->wheel_2].wh_speed = wheels[m_axles[i - 1]->wheel_1].wh_speed;
-        if (wheels[m_axles[i - 0]->wheel_2].wh_is_detached)
-            wheels[m_axles[i - 0]->wheel_2].wh_speed = wheels[m_axles[i - 0]->wheel_1].wh_speed;
+        if (ar_wheels[m_axles[i - 1]->wheel_1].wh_is_detached)
+            ar_wheels[m_axles[i - 1]->wheel_1].wh_speed = ar_wheels[m_axles[i - 1]->wheel_2].wh_speed;
+        if (ar_wheels[m_axles[i - 0]->wheel_1].wh_is_detached)
+            ar_wheels[m_axles[i - 0]->wheel_1].wh_speed = ar_wheels[m_axles[i - 0]->wheel_2].wh_speed;
+        if (ar_wheels[m_axles[i - 1]->wheel_2].wh_is_detached)
+            ar_wheels[m_axles[i - 1]->wheel_2].wh_speed = ar_wheels[m_axles[i - 1]->wheel_1].wh_speed;
+        if (ar_wheels[m_axles[i - 0]->wheel_2].wh_is_detached)
+            ar_wheels[m_axles[i - 0]->wheel_2].wh_speed = ar_wheels[m_axles[i - 0]->wheel_1].wh_speed;
 
-        if (wheels[m_axles[i - 1]->wheel_1].wh_is_detached && wheels[m_axles[i - 1]->wheel_2].wh_is_detached)
+        if (ar_wheels[m_axles[i - 1]->wheel_1].wh_is_detached && ar_wheels[m_axles[i - 1]->wheel_2].wh_is_detached)
         {
-            wheels[m_axles[i - 1]->wheel_1].wh_speed = wheels[m_axles[i - 0]->wheel_1].wh_speed;
-            wheels[m_axles[i - 1]->wheel_2].wh_speed = wheels[m_axles[i - 0]->wheel_2].wh_speed;
+            ar_wheels[m_axles[i - 1]->wheel_1].wh_speed = ar_wheels[m_axles[i - 0]->wheel_1].wh_speed;
+            ar_wheels[m_axles[i - 1]->wheel_2].wh_speed = ar_wheels[m_axles[i - 0]->wheel_2].wh_speed;
         }
-        if (wheels[m_axles[i - 0]->wheel_1].wh_is_detached && wheels[m_axles[i - 0]->wheel_2].wh_is_detached)
+        if (ar_wheels[m_axles[i - 0]->wheel_1].wh_is_detached && ar_wheels[m_axles[i - 0]->wheel_2].wh_is_detached)
         {
-            wheels[m_axles[i - 0]->wheel_1].wh_speed = wheels[m_axles[i - 1]->wheel_1].wh_speed;
-            wheels[m_axles[i - 0]->wheel_2].wh_speed = wheels[m_axles[i - 1]->wheel_2].wh_speed;
+            ar_wheels[m_axles[i - 0]->wheel_1].wh_speed = ar_wheels[m_axles[i - 1]->wheel_1].wh_speed;
+            ar_wheels[m_axles[i - 0]->wheel_2].wh_speed = ar_wheels[m_axles[i - 1]->wheel_2].wh_speed;
         }
 
         Ogre::Real axle_torques[2] = {0.0f, 0.0f};
         differential_data_t diff_data =
         {
             {
-                (wheels[m_axles[i - 1]->wheel_1].wh_speed + wheels[m_axles[i - 1]->wheel_2].wh_speed) * 0.5f,
-                (wheels[m_axles[i]->wheel_1].wh_speed + wheels[m_axles[i]->wheel_2].wh_speed) * 0.5f
+                (ar_wheels[m_axles[i - 1]->wheel_1].wh_speed + ar_wheels[m_axles[i - 1]->wheel_2].wh_speed) * 0.5f,
+                (ar_wheels[m_axles[i]->wheel_1].wh_speed + ar_wheels[m_axles[i]->wheel_2].wh_speed) * 0.5f
             },
             m_axles[i - 1]->delta_rotation,
             {axle_torques[0], axle_torques[1]},
@@ -366,7 +366,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         if (!m_axles[i])
             continue;
         Ogre::Real axle_torques[2] = {0.0f, 0.0f};
-        wheel_t* axle_wheels[2] = {&wheels[m_axles[i]->wheel_1], &wheels[m_axles[i]->wheel_2]};
+        wheel_t* axle_wheels[2] = {&ar_wheels[m_axles[i]->wheel_1], &ar_wheels[m_axles[i]->wheel_2]};
 
         if (axle_wheels[0]->wh_is_detached)
             axle_wheels[0]->wh_speed = axle_wheels[1]->wh_speed;
@@ -424,23 +424,23 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         currentAcc = ar_engine->getAcc();
     }
 
-    for (int i = 0; i < free_wheel; i++)
+    for (int i = 0; i < ar_num_wheels; i++)
     {
         Real speedacc = 0.0;
 
         // total torque estimation
         Real total_torque = 0.0;
-        if (wheels[i].wh_propulsed > 0)
+        if (ar_wheels[i].wh_propulsed > 0)
         {
             total_torque = (m_num_axles == 0) ? engine_torque : intertorque[i];
         }
 
-        if (wheels[i].wh_braking != wheel_t::BrakeCombo::NONE)
+        if (ar_wheels[i].wh_braking != wheel_t::BrakeCombo::NONE)
         {
             // handbrake
             float hbrake = 0.0f;
 
-            if (ar_parking_brake && (wheels[i].wh_braking != wheel_t::BrakeCombo::FOOT_ONLY))
+            if (ar_parking_brake && (ar_wheels[i].wh_braking != wheel_t::BrakeCombo::FOOT_ONLY))
             {
                 hbrake = m_handbrake_force;
             }
@@ -449,55 +449,55 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
             float dbrake = 0.0f;
 
             if ((ar_wheel_speed < 20.0f)
-                && (((wheels[i].wh_braking == wheel_t::BrakeCombo::FOOT_HAND_SKID_LEFT)  && (ar_hydro_dir_state > 0.0f))
-                 || ((wheels[i].wh_braking == wheel_t::BrakeCombo::FOOT_HAND_SKID_RIGHT) && (ar_hydro_dir_state < 0.0f))))
+                && (((ar_wheels[i].wh_braking == wheel_t::BrakeCombo::FOOT_HAND_SKID_LEFT)  && (ar_hydro_dir_state > 0.0f))
+                 || ((ar_wheels[i].wh_braking == wheel_t::BrakeCombo::FOOT_HAND_SKID_RIGHT) && (ar_hydro_dir_state < 0.0f))))
             {
                 dbrake = ar_brake_force * abs(ar_hydro_dir_state);
             }
 
-            if ((ar_brake != 0.0 || dbrake != 0.0 || hbrake != 0.0) && m_num_braked_wheels != 0 && fabs(wheels[i].wh_speed) > 0.0f)
+            if ((ar_brake != 0.0 || dbrake != 0.0 || hbrake != 0.0) && m_num_braked_wheels != 0 && fabs(ar_wheels[i].wh_speed) > 0.0f)
             {
                 float brake_coef = 1.0f;
                 float antilock_coef = 1.0f;
                 // anti-lock braking
-                if (alb_mode && alb_pulse_state && (ar_brake > 0.0f || dbrake > 0.0f) && curspeed > fabs(wheels[i].wh_speed) && curspeed > alb_minspeed)
+                if (alb_mode && alb_pulse_state && (ar_brake > 0.0f || dbrake > 0.0f) && curspeed > fabs(ar_wheels[i].wh_speed) && curspeed > alb_minspeed)
                 {
-                    antilock_coef = fabs(wheels[i].wh_speed) / curspeed;
+                    antilock_coef = fabs(ar_wheels[i].wh_speed) / curspeed;
                     antilock_coef = pow(antilock_coef, alb_ratio);
                     alb_active = (antilock_coef < 0.9);
                 }
-                if (fabs(wheels[i].wh_speed) < 1.0f)
+                if (fabs(ar_wheels[i].wh_speed) < 1.0f)
                 {
-                    if (wheels[i].firstLock)
+                    if (ar_wheels[i].firstLock)
                     {
-                        wheels[i].wh_avg_speed = 0.0f;
-                        wheels[i].firstLock = false;
+                        ar_wheels[i].wh_avg_speed = 0.0f;
+                        ar_wheels[i].firstLock = false;
                     }
                     // anti-jitter
-                    if (fabs(wheels[i].wh_avg_speed) < 2.0f)
+                    if (fabs(ar_wheels[i].wh_avg_speed) < 2.0f)
                     {
-                        brake_coef = pow(fabs(wheels[i].wh_speed), 2.0f);
+                        brake_coef = pow(fabs(ar_wheels[i].wh_speed), 2.0f);
                     }
                     else
                     {
-                        brake_coef = pow(fabs(wheels[i].wh_speed), 0.5f);
+                        brake_coef = pow(fabs(ar_wheels[i].wh_speed), 0.5f);
                     }
                     // anti-skidding
-                    wheels[i].wh_avg_speed += wheels[i].wh_speed;
-                    wheels[i].wh_avg_speed = std::max(-10.0f, std::min(wheels[i].wh_avg_speed, 10.0f));
-                    float speed_diff = wheels[i].wh_speed - wheels[i].wh_last_speed;
-                    float speed_prediction = wheels[i].wh_speed + 0.5f * speed_diff;
-                    if (speed_prediction * wheels[i].wh_avg_speed < 0.0f)
+                    ar_wheels[i].wh_avg_speed += ar_wheels[i].wh_speed;
+                    ar_wheels[i].wh_avg_speed = std::max(-10.0f, std::min(ar_wheels[i].wh_avg_speed, 10.0f));
+                    float speed_diff = ar_wheels[i].wh_speed - ar_wheels[i].wh_last_speed;
+                    float speed_prediction = ar_wheels[i].wh_speed + 0.5f * speed_diff;
+                    if (speed_prediction * ar_wheels[i].wh_avg_speed < 0.0f)
                     {
                         brake_coef = 0.0f;
                     }
                 }
                 else
                 {
-                    wheels[i].firstLock = true;
+                    ar_wheels[i].firstLock = true;
                 }
 
-                if (wheels[i].wh_speed > 0)
+                if (ar_wheels[i].wh_speed > 0)
                     total_torque -= ((ar_brake + dbrake) * antilock_coef + hbrake) * brake_coef;
                 else
                     total_torque += ((ar_brake + dbrake) * antilock_coef + hbrake) * brake_coef;
@@ -505,11 +505,11 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         }
         else
         {
-            wheels[i].firstLock = true;
+            ar_wheels[i].firstLock = true;
         }
 
         // traction control
-        if (tc_mode && tc_pulse_state && wheels[i].wh_propulsed > 0 && currentAcc > 0.0f && fabs(wheels[i].wh_speed) > curspeed)
+        if (tc_mode && tc_pulse_state && ar_wheels[i].wh_propulsed > 0 && currentAcc > 0.0f && fabs(ar_wheels[i].wh_speed) > curspeed)
         {
             curspeed = std::max(0.5f, curspeed);
 
@@ -518,9 +518,9 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
             // wheelslip allowed doubles up to tc_fade, a tribute to RoRs wheelspeed calculation and friction
             wheelslip += tc_wheelslip * (curspeed / tc_fade);
 
-            if (fabs(wheels[i].wh_speed) > curspeed * wheelslip)
+            if (fabs(ar_wheels[i].wh_speed) > curspeed * wheelslip)
             {
-                float torque_coef = (curspeed * wheelslip) / fabs(wheels[i].wh_speed);
+                float torque_coef = (curspeed * wheelslip) / fabs(ar_wheels[i].wh_speed);
                 torque_coef = pow(torque_coef, tc_ratio);
                 total_torque *= torque_coef;
                 tc_active = (torque_coef < 0.9f);
@@ -528,62 +528,62 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         }
 
         // old-style
-        if (m_num_axles == 0 && wheels[i].wh_propulsed > 0)
+        if (m_num_axles == 0 && ar_wheels[i].wh_propulsed > 0)
         {
             // differential locking
             if (i % 2)
-                if (!wheels[i].wh_is_detached && !wheels[i - 1].wh_is_detached)
-                    total_torque -= (wheels[i].wh_speed - wheels[i - 1].wh_speed) * 10000.0;
-                else if (!wheels[i].wh_is_detached && !wheels[i + 1].wh_is_detached)
-                    total_torque -= (wheels[i].wh_speed - wheels[i + 1].wh_speed) * 10000.0;
+                if (!ar_wheels[i].wh_is_detached && !ar_wheels[i - 1].wh_is_detached)
+                    total_torque -= (ar_wheels[i].wh_speed - ar_wheels[i - 1].wh_speed) * 10000.0;
+                else if (!ar_wheels[i].wh_is_detached && !ar_wheels[i + 1].wh_is_detached)
+                    total_torque -= (ar_wheels[i].wh_speed - ar_wheels[i + 1].wh_speed) * 10000.0;
             // inter differential locking
             total_torque += intertorque[propcounter];
             propcounter++;
         }
 
-        if (wheels[i].wh_is_detached)
+        if (ar_wheels[i].wh_is_detached)
             continue;
 
         // application to wheel
-        Vector3 axis = wheels[i].wh_axis_node_1->RelPosition - wheels[i].wh_axis_node_0->RelPosition;
-        float axis_precalc = total_torque / (Real)(wheels[i].wh_num_nodes);
+        Vector3 axis = ar_wheels[i].wh_axis_node_1->RelPosition - ar_wheels[i].wh_axis_node_0->RelPosition;
+        float axis_precalc = total_torque / (Real)(ar_wheels[i].wh_num_nodes);
         axis = fast_normalise(axis);
 
-        for (int j = 0; j < wheels[i].wh_num_nodes; j++)
+        for (int j = 0; j < ar_wheels[i].wh_num_nodes; j++)
         {
             Vector3 radius(Vector3::ZERO);
 
             if (j % 2)
-                radius = wheels[i].wh_nodes[j]->RelPosition - wheels[i].wh_axis_node_1->RelPosition;
+                radius = ar_wheels[i].wh_nodes[j]->RelPosition - ar_wheels[i].wh_axis_node_1->RelPosition;
             else
-                radius = wheels[i].wh_nodes[j]->RelPosition - wheels[i].wh_axis_node_0->RelPosition;
+                radius = ar_wheels[i].wh_nodes[j]->RelPosition - ar_wheels[i].wh_axis_node_0->RelPosition;
 
             float inverted_rlen = fast_invSqrt(radius.squaredLength());
 
-            if (wheels[i].wh_propulsed == 2)
+            if (ar_wheels[i].wh_propulsed == 2)
             {
                 radius = -radius;
             }
 
             Vector3 dir = axis.crossProduct(radius);
-            wheels[i].wh_nodes[j]->Forces += dir * (axis_precalc * inverted_rlen * inverted_rlen);
+            ar_wheels[i].wh_nodes[j]->Forces += dir * (axis_precalc * inverted_rlen * inverted_rlen);
             //wheel speed
             if (j % 2)
-                speedacc += (wheels[i].wh_nodes[j]->Velocity - wheels[i].wh_axis_node_1->Velocity).dotProduct(dir) * inverted_rlen;
+                speedacc += (ar_wheels[i].wh_nodes[j]->Velocity - ar_wheels[i].wh_axis_node_1->Velocity).dotProduct(dir) * inverted_rlen;
             else
-                speedacc += (wheels[i].wh_nodes[j]->Velocity - wheels[i].wh_axis_node_0->Velocity).dotProduct(dir) * inverted_rlen;
+                speedacc += (ar_wheels[i].wh_nodes[j]->Velocity - ar_wheels[i].wh_axis_node_0->Velocity).dotProduct(dir) * inverted_rlen;
         }
         // wheel speed
-        newspeeds[i] = speedacc / wheels[i].wh_num_nodes;
-        if (wheels[i].wh_propulsed == 1)
+        newspeeds[i] = speedacc / ar_wheels[i].wh_num_nodes;
+        if (ar_wheels[i].wh_propulsed == 1)
         {
             wspeed += newspeeds[i];
         }
         // for network
-        wheels[i].wh_net_rp += (newspeeds[i] / wheels[i].wh_radius) * dt;
+        ar_wheels[i].wh_net_rp += (newspeeds[i] / ar_wheels[i].wh_radius) * dt;
         // reaction torque
-        Vector3 rradius = wheels[i].wh_arm_node->RelPosition - wheels[i].wh_near_attach_node->RelPosition;
-        Vector3 radius = Plane(axis, wheels[i].wh_near_attach_node->RelPosition).projectVector(rradius);
+        Vector3 rradius = ar_wheels[i].wh_arm_node->RelPosition - ar_wheels[i].wh_near_attach_node->RelPosition;
+        Vector3 radius = Plane(axis, ar_wheels[i].wh_near_attach_node->RelPosition).projectVector(rradius);
         Real rlen = radius.length(); // length of the projected arm
         float offset = (rradius - radius).length(); // length of the error arm
         axis *= total_torque;
@@ -596,8 +596,8 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
                 cforce = Vector3::ZERO; // too much error!
             else
                 cforce *= (1.0f - ((offset * 2.0f) / rlen)); // linear modulation
-            wheels[i].wh_arm_node->Forces -= cforce;
-            wheels[i].wh_near_attach_node->Forces += cforce;
+            ar_wheels[i].wh_arm_node->Forces -= cforce;
+            ar_wheels[i].wh_near_attach_node->Forces += cforce;
         }
     }
 
@@ -632,10 +632,10 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         }
     }
 
-    for (int i = 0; i < free_wheel; i++)
+    for (int i = 0; i < ar_num_wheels; i++)
     {
-        wheels[i].wh_last_speed = wheels[i].wh_speed;
-        wheels[i].wh_speed = newspeeds[i];
+        ar_wheels[i].wh_last_speed = ar_wheels[i].wh_speed;
+        ar_wheels[i].wh_speed = newspeeds[i];
     }
     if (m_num_proped_wheels)
     {
@@ -645,9 +645,9 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     // wheel speed  in m/s !
     ar_wheel_speed = wspeed;
 
-    if (ar_engine && free_wheel && wheels[0].wh_radius > 0.0f)
+    if (ar_engine && ar_num_wheels && ar_wheels[0].wh_radius > 0.0f)
     {
-        ar_engine->setSpin(wspeed / wheels[0].wh_radius * RAD_PER_SEC_TO_RPM);
+        ar_engine->setSpin(wspeed / ar_wheels[0].wh_radius * RAD_PER_SEC_TO_RPM);
     }
 
     // calculate driven distance
@@ -923,9 +923,9 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
 
         for (int i = 0; i <= MAX_COMMANDS; i++)
         {
-            for (int j = 0; j < (int)commandkey[i].beams.size(); j++)
+            for (int j = 0; j < (int)ar_command_key[i].beams.size(); j++)
             {
-                int k = abs(commandkey[i].beams[j]);
+                int k = abs(ar_command_key[i].beams[j]);
                 if (k >= 0 && k < ar_num_beams)
                 {
                     ar_beams[k].autoMoveLock = false;
@@ -935,28 +935,28 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
 
         for (int i = 0; i <= MAX_COMMANDS; i++)
         {
-            float oldValue = commandkey[i].commandValue;
+            float oldValue = ar_command_key[i].commandValue;
 
-            commandkey[i].commandValue = std::max(commandkey[i].playerInputValue, commandkey[i].triggerInputValue);
+            ar_command_key[i].commandValue = std::max(ar_command_key[i].playerInputValue, ar_command_key[i].triggerInputValue);
 
-            commandkey[i].triggerInputValue = 0.0f;
+            ar_command_key[i].triggerInputValue = 0.0f;
 
-            if (commandkey[i].commandValue > 0.01f && oldValue < 0.01f)
+            if (ar_command_key[i].commandValue > 0.01f && oldValue < 0.01f)
             {
                 // just started
-                commandkey[i].commandValueState = 1;
+                ar_command_key[i].commandValueState = 1;
             }
-            else if (commandkey[i].commandValue < 0.01f && oldValue > 0.01f)
+            else if (ar_command_key[i].commandValue < 0.01f && oldValue > 0.01f)
             {
                 // just stopped
-                commandkey[i].commandValueState = -1;
+                ar_command_key[i].commandValueState = -1;
             }
 
-            for (int j = 0; j < (int)commandkey[i].beams.size(); j++)
+            for (int j = 0; j < (int)ar_command_key[i].beams.size(); j++)
             {
-                if (commandkey[i].commandValue >= 0.5)
+                if (ar_command_key[i].commandValue >= 0.5)
                 {
-                    int k = abs(commandkey[i].beams[j]);
+                    int k = abs(ar_command_key[i].beams[j]);
                     if (k >= 0 && k < ar_num_beams)
                     {
                         ar_beams[k].autoMoveLock = true;
@@ -969,10 +969,10 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         for (int i = 0; i <= MAX_COMMANDS; i++)
         {
             bool requestpower = false;
-            for (int j = 0; j < (int)commandkey[i].beams.size(); j++)
+            for (int j = 0; j < (int)ar_command_key[i].beams.size(); j++)
             {
-                int bbeam_dir = (commandkey[i].beams[j] > 0) ? 1 : -1;
-                int bbeam = std::abs(commandkey[i].beams[j]);
+                int bbeam_dir = (ar_command_key[i].beams[j] > 0) ? 1 : -1;
+                int bbeam = std::abs(ar_command_key[i].beams[j]);
 
                 if (bbeam > ar_num_beams)
                     continue;
@@ -981,8 +981,8 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
                 if (ar_beams[bbeam].isForceRestricted)
                     crankfactor = std::min(crankfactor, 1.0f);
 
-                float v = commandkey[i].commandValue;
-                int& vst = commandkey[i].commandValueState;
+                float v = ar_command_key[i].commandValue;
+                int& vst = ar_command_key[i].commandValueState;
 
                 // self centering
                 if (ar_beams[bbeam].isCentering && !ar_beams[bbeam].autoMoveLock)
@@ -1119,17 +1119,17 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
                 }
             }
             // also for rotators
-            for (int j = 0; j < (int)commandkey[i].rotators.size(); j++)
+            for (int j = 0; j < (int)ar_command_key[i].rotators.size(); j++)
             {
                 float v = 0.0f;
-                int rota = std::abs(commandkey[i].rotators[j]) - 1;
+                int rota = std::abs(ar_command_key[i].rotators[j]) - 1;
 
                 if (ar_rotators[rota].rotatorNeedsEngine && ((ar_engine && !ar_engine->isRunning()) || !ar_engine_hydraulics_ready))
                     continue;
 
                 if (m_rotator_inertia)
                 {
-                    v = m_rotator_inertia->calcCmdKeyDelay(commandkey[i].commandValue, i, dt);
+                    v = m_rotator_inertia->calcCmdKeyDelay(ar_command_key[i].commandValue, i, dt);
 
                     if (v > 0.0f && ar_rotators[rota].rotatorEngineCoupling > 0.0f)
                         requestpower = true;
@@ -1140,7 +1140,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
                 if (ar_rotators[rota].rotatorEngineCoupling > 0.0f)
                     cf = crankfactor;
 
-                if (commandkey[i].rotators[j] > 0)
+                if (ar_command_key[i].rotators[j] > 0)
                     ar_rotators[rota].angle += ar_rotators[rota].rate * v * cf * dt;
                 else
                     ar_rotators[rota].angle -= ar_rotators[rota].rate * v * cf * dt;
@@ -1542,11 +1542,11 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                                 }
                             }
                             // cycle once through all wheels
-                            for (int j = 0; j < free_wheel; j++)
+                            for (int j = 0; j < ar_num_wheels; j++)
                             {
-                                if (wheels[j].wh_detacher_group == ar_beams[i].detacher_group)
+                                if (ar_wheels[j].wh_detacher_group == ar_beams[i].detacher_group)
                                 {
-                                    wheels[j].wh_is_detached = true;
+                                    ar_wheels[j].wh_is_detached = true;
                                 }
                             }
                         }
@@ -1783,15 +1783,15 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                                 //Shouldn't skidmarks be activated from here?
                                 if (m_use_skidmarks)
                                 {
-                                    wheels[ar_nodes[i].wheelid].isSkiding = true;
+                                    ar_wheels[ar_nodes[i].wheelid].isSkiding = true;
                                     if (!(ar_nodes[i].iswheel % 2))
-                                        wheels[ar_nodes[i].wheelid].lastContactInner = ar_nodes[i].AbsPosition;
+                                        ar_wheels[ar_nodes[i].wheelid].lastContactInner = ar_nodes[i].AbsPosition;
                                     else
-                                        wheels[ar_nodes[i].wheelid].lastContactOuter = ar_nodes[i].AbsPosition;
+                                        ar_wheels[ar_nodes[i].wheelid].lastContactOuter = ar_nodes[i].AbsPosition;
 
-                                    wheels[ar_nodes[i].wheelid].lastContactType = (ar_nodes[i].iswheel % 2);
-                                    wheels[ar_nodes[i].wheelid].lastSlip = ns;
-                                    wheels[ar_nodes[i].wheelid].lastGroundModel = gm;
+                                    ar_wheels[ar_nodes[i].wheelid].lastContactType = (ar_nodes[i].iswheel % 2);
+                                    ar_wheels[ar_nodes[i].wheelid].lastSlip = ns;
+                                    ar_wheels[ar_nodes[i].wheelid].lastGroundModel = gm;
                                 }
                             }
                             // sparks
@@ -1805,7 +1805,7 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                             {
                                 if (m_use_skidmarks)
                                 {
-                                    wheels[ar_nodes[i].wheelid].isSkiding = false;
+                                    ar_wheels[ar_nodes[i].wheelid].isSkiding = false;
                                 }
                             }
                             break;
@@ -1923,7 +1923,7 @@ void Beam::forwardCommands()
                 // forward commands
                 for (int j = 1; j <= MAX_COMMANDS; j++)
                 {
-                    trucks[i]->commandkey[j].playerInputValue = std::max(commandkey[j].playerInputValue, commandkey[j].commandValue);
+                    trucks[i]->ar_command_key[j].playerInputValue = std::max(ar_command_key[j].playerInputValue, ar_command_key[j].commandValue);
                 }
                 // just send brake and lights to the connected truck, and no one else :)
                 for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
