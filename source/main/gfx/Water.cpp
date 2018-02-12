@@ -24,6 +24,7 @@
 #include "Application.h"
 #include "BeamFactory.h"
 #include "OgreSubsystem.h"
+#include "RoRFrameListener.h"
 #include "Settings.h"
 #include "TerrainManager.h"
 
@@ -32,65 +33,7 @@
 using namespace Ogre;
 using namespace RoR;
 
-//Some ugly code here..
-Entity* pPlaneEnt;
-
-Plane waterPlane;
-Plane bottomPlane;
-Plane reflectionPlane;
-Plane refractionPlane;
-SceneManager* waterSceneMgr;
-
 static const int WAVEREZ = 100;
-
-class RefractionTextureListener : public RenderTargetListener, public ZeroedMemoryAllocator
-{
-public:
-
-    void preRenderTargetUpdate(const RenderTargetEvent& evt)
-    {
-        waterSceneMgr->getRenderQueue()->getQueueGroup(RENDER_QUEUE_MAIN)->setShadowsEnabled(false);
-        // Hide plane
-        pPlaneEnt->setVisible(false);
-        //hide Water spray
-        //// Commented out while de-singletonizing ActorManager 
-        //// because I don't know (and don't care) whether this code is actually used ~ only_a_ptr, 01/2017
-        ////ActorManager ::getSingleton().GetParticleManager().setVisible(false);
-    }
-
-    void postRenderTargetUpdate(const RenderTargetEvent& evt)
-    {
-        // Show plane
-        pPlaneEnt->setVisible(true);
-        waterSceneMgr->getRenderQueue()->getQueueGroup(RENDER_QUEUE_MAIN)->setShadowsEnabled(true);
-        //restore Water spray;
-        //// Commented out while de-singletonizing ActorManager 
-        //// because I don't know (and don't care) whether this code is actually used ~ only_a_ptr, 01/2017
-        ////ActorManager ::getSingleton().GetParticleManager().setVisible(true);
-    }
-};
-
-class ReflectionTextureListener : public RenderTargetListener, public ZeroedMemoryAllocator
-{
-public:
-    void preRenderTargetUpdate(const RenderTargetEvent& evt)
-    {
-        waterSceneMgr->getRenderQueue()->getQueueGroup(RENDER_QUEUE_MAIN)->setShadowsEnabled(false);
-        // Hide plane
-        pPlaneEnt->setVisible(false);
-    }
-
-    void postRenderTargetUpdate(const RenderTargetEvent& evt)
-    {
-        // Show plane
-        pPlaneEnt->setVisible(true);
-        waterSceneMgr->getRenderQueue()->getQueueGroup(RENDER_QUEUE_MAIN)->setShadowsEnabled(true);
-    }
-};
-
-RefractionTextureListener mRefractionListener;
-ReflectionTextureListener mReflectionListener;
-//End ugly code
 
 Water::Water() :
     m_max_ampl(0),
@@ -108,7 +51,8 @@ Water::Water() :
 {
     //Ugh.. Why so ugly and hard to read
     m_map_size = gEnv->terrainManager->getMaxTerrainSize();
-    waterSceneMgr = gEnv->sceneManager;
+    m_reflect_listener.scene_mgr = gEnv->sceneManager;
+    m_refract_listener.scene_mgr = gEnv->sceneManager;
 
     if (m_map_size.x < 1500 && m_map_size.z < 1500)
         m_waterplane_mesh_scale = 1.5f;
@@ -163,10 +107,10 @@ Water::~Water()
         m_reflect_cam = nullptr;
     }
 
-    if (pPlaneEnt != nullptr)
+    if (m_waterplane_entity != nullptr)
     {
-        gEnv->sceneManager->destroyEntity(pPlaneEnt);
-        pPlaneEnt = nullptr;
+        gEnv->sceneManager->destroyEntity(m_waterplane_entity);
+        m_waterplane_entity = nullptr;
     }
 
     if (m_waterplane_node != nullptr)
@@ -184,7 +128,6 @@ Water::~Water()
 
     m_water_height = m_bottom_height = 0;
     m_render_cam = nullptr;
-    waterSceneMgr = nullptr;
 
     if (m_refract_rtt_target)
     {
@@ -221,8 +164,8 @@ Water::~Water()
 
 void Water::PrepareWater()
 {
-    waterPlane.normal = Vector3::UNIT_Y;
-    waterPlane.d = 0;
+    m_water_plane.normal = Vector3::UNIT_Y;
+    m_water_plane.d = 0;
 
     const auto type = App::gfx_water_mode.GetActive();
     const bool full_gfx = type == GfxWaterMode::FULL_HQ || type == GfxWaterMode::FULL_FAST;
@@ -251,10 +194,10 @@ void Water::PrepareWater()
         }
         // Ok
         // Define a floor plane mesh
-        reflectionPlane.normal = Vector3::UNIT_Y;
-        reflectionPlane.d = - 0.15;
-        refractionPlane.normal = -Vector3::UNIT_Y;
-        refractionPlane.d = 0.15;
+        m_reflect_plane.normal = Vector3::UNIT_Y;
+        m_reflect_plane.d = - 0.15;
+        m_refract_plane.normal = -Vector3::UNIT_Y;
+        m_refract_plane.d = 0.15;
 
         if (full_gfx)
         {
@@ -281,13 +224,13 @@ void Water::PrepareWater()
 
                 m_refract_rtt_viewport->setOverlaysEnabled(false);
 
-                m_refract_rtt_target->addListener(&mRefractionListener);
+                m_refract_rtt_target->addListener(&m_refract_listener);
 
                 //optimisation
                 m_refract_rtt_target->setAutoUpdated(false);
 
                 // Also clip
-                m_refract_cam->enableCustomNearClipPlane(refractionPlane);
+                m_refract_cam->enableCustomNearClipPlane(m_refract_plane);
             }
         }
 
@@ -323,50 +266,52 @@ void Water::PrepareWater()
 
             m_reflect_rtt_viewport->setOverlaysEnabled(false);
 
-            m_reflect_rtt_target->addListener(&mReflectionListener);
+            m_reflect_rtt_target->addListener(&m_reflect_listener);
 
             //optimisation
             m_reflect_rtt_target->setAutoUpdated(false);
 
             // set up linked reflection
-            m_reflect_cam->enableReflection(waterPlane);
+            m_reflect_cam->enableReflection(m_water_plane);
             // Also clip
-            m_reflect_cam->enableCustomNearClipPlane(reflectionPlane);
+            m_reflect_cam->enableCustomNearClipPlane(m_reflect_plane);
         }
 
         m_waterplane_mesh = MeshManager::getSingleton().createPlane("ReflectPlane",
             ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-            waterPlane,
+            m_water_plane,
             m_map_size.x * m_waterplane_mesh_scale, m_map_size.z * m_waterplane_mesh_scale, WAVEREZ, WAVEREZ, true, 1, 50, 50, Vector3::UNIT_Z, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
 
-        pPlaneEnt = gEnv->sceneManager->createEntity("plane", "ReflectPlane");
+        m_waterplane_entity = gEnv->sceneManager->createEntity("plane", "ReflectPlane");
         if (full_gfx)
-            pPlaneEnt->setMaterialName("Examples/FresnelReflectionRefraction");
+            m_waterplane_entity->setMaterialName("Examples/FresnelReflectionRefraction");
         else
-            pPlaneEnt->setMaterialName("Examples/FresnelReflection");
+            m_waterplane_entity->setMaterialName("Examples/FresnelReflection");
     }
     else
     {
         m_waterplane_mesh = MeshManager::getSingleton().createPlane("WaterPlane",
             ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-            waterPlane,
+            m_water_plane,
             m_map_size.x * m_waterplane_mesh_scale, m_map_size.z * m_waterplane_mesh_scale, WAVEREZ, WAVEREZ, true, 1, 50, 50, Vector3::UNIT_Z, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
-        pPlaneEnt = gEnv->sceneManager->createEntity("plane", "WaterPlane");
-        pPlaneEnt->setMaterialName("tracks/basicwater");
+        m_waterplane_entity = gEnv->sceneManager->createEntity("plane", "WaterPlane");
+        m_waterplane_entity->setMaterialName("tracks/basicwater");
     }
 
-    pPlaneEnt->setCastShadows(false);
+    m_waterplane_entity->setCastShadows(false);
+    m_reflect_listener.waterplane_entity = m_waterplane_entity;
+    m_refract_listener.waterplane_entity = m_waterplane_entity;
     //position
     m_waterplane_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode("WaterPlane");
-    m_waterplane_node->attachObject(pPlaneEnt);
+    m_waterplane_node->attachObject(m_waterplane_entity);
     m_waterplane_node->setPosition(Vector3((m_map_size.x * m_waterplane_mesh_scale) / 2, m_water_height, (m_map_size.z * m_waterplane_mesh_scale) / 2));
 
     //bottom
-    bottomPlane.normal = Vector3::UNIT_Y;
-    bottomPlane.d = -m_bottom_height; //30m below waterline
+    m_bottom_plane.normal = Vector3::UNIT_Y;
+    m_bottom_plane.d = -m_bottom_height; //30m below waterline
     MeshManager::getSingleton().createPlane("BottomPlane",
         ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-        bottomPlane,
+        m_bottom_plane,
         m_map_size.x * m_waterplane_mesh_scale, m_map_size.z * m_waterplane_mesh_scale, 1, 1, true, 1, 1, 1, Vector3::UNIT_Z);
     Entity* pE = gEnv->sceneManager->createEntity("bplane", "BottomPlane");
     pE->setMaterialName("tracks/seabottom");
@@ -392,8 +337,8 @@ void Water::PrepareWater()
 void Water::SetWaterVisible(bool value)
 {
     m_water_visible = value;
-    if (pPlaneEnt)
-        pPlaneEnt->setVisible(value);
+    if (m_waterplane_entity)
+        m_waterplane_entity->setVisible(value);
     if (m_waterplane_node)
         m_waterplane_node->setVisible(value);
     if (m_bottomplane_node)
@@ -530,9 +475,9 @@ void Water::UpdateWater()
 void Water::WaterPrepareShutdown()
 {
     if (m_refract_rtt_target)
-        m_refract_rtt_target->removeListener(&mRefractionListener);
+        m_refract_rtt_target->removeListener(&m_refract_listener);
     if (m_reflect_rtt_target)
-        m_reflect_rtt_target->removeListener(&mReflectionListener);
+        m_reflect_rtt_target->removeListener(&m_reflect_listener);
 }
 
 float Water::GetStaticWaterHeight()
@@ -622,30 +567,30 @@ void Water::UpdateReflectionPlane(float h)
     bool underwater = this->IsCameraUnderWater();
     if (underwater)
     {
-        reflectionPlane.normal = -Vector3::UNIT_Y;
-        refractionPlane.normal = Vector3::UNIT_Y;
-        reflectionPlane.d = h + 0.15;
-        refractionPlane.d = -h + 0.15;
-        waterPlane.d = -h;
+        m_reflect_plane.normal = -Vector3::UNIT_Y;
+        m_refract_plane.normal = Vector3::UNIT_Y;
+        m_reflect_plane.d = h + 0.15;
+        m_refract_plane.d = -h + 0.15;
+        m_water_plane.d = -h;
     }
     else
     {
-        reflectionPlane.normal = Vector3::UNIT_Y;
-        refractionPlane.normal = -Vector3::UNIT_Y;
-        reflectionPlane.d = -h + 0.15;
-        refractionPlane.d = h + 0.15;
-        waterPlane.d = -h;
+        m_reflect_plane.normal = Vector3::UNIT_Y;
+        m_refract_plane.normal = -Vector3::UNIT_Y;
+        m_reflect_plane.d = -h + 0.15;
+        m_refract_plane.d = h + 0.15;
+        m_water_plane.d = -h;
     }
 
     if (m_refract_cam)
     {
-        m_refract_cam->enableCustomNearClipPlane(refractionPlane);
+        m_refract_cam->enableCustomNearClipPlane(m_refract_plane);
     }
 
     if (m_reflect_cam)
     {
-        m_reflect_cam->enableReflection(waterPlane);
-        m_reflect_cam->enableCustomNearClipPlane(reflectionPlane);
+        m_reflect_cam->enableReflection(m_water_plane);
+        m_reflect_cam->enableCustomNearClipPlane(m_reflect_plane);
     };
 }
 
@@ -671,4 +616,34 @@ float Water::GetWaveHeight(Vector3 pos)
     float waveheight = (pos - Vector3((m_map_size.x * m_waterplane_mesh_scale) * 0.5, m_water_height, (m_map_size.z * m_waterplane_mesh_scale) * 0.5)).squaredLength() / 3000000.0;
 
     return waveheight;
+}
+
+
+// ------------------------- The listeners -------------------------
+
+
+void Water::RefractionListener::preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt)
+{
+    this->scene_mgr->getRenderQueue()->getQueueGroup(RENDER_QUEUE_MAIN)->setShadowsEnabled(false);
+    this->waterplane_entity->setVisible(false);
+    App::GetSimController()->GetBeamFactory()->GetParticleManager().setVisible(false); // Hide water spray
+}
+
+void Water::RefractionListener::postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt)
+{
+    this->scene_mgr->getRenderQueue()->getQueueGroup(RENDER_QUEUE_MAIN)->setShadowsEnabled(true);
+    this->waterplane_entity->setVisible(true);
+    App::GetSimController()->GetBeamFactory()->GetParticleManager().setVisible(true); // Restore water spray
+}
+
+void Water::ReflectionListener::preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt)
+{
+    this->scene_mgr->getRenderQueue()->getQueueGroup(RENDER_QUEUE_MAIN)->setShadowsEnabled(false);
+    this->waterplane_entity->setVisible(false);
+}
+
+void Water::ReflectionListener::postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt)
+{
+    this->scene_mgr->getRenderQueue()->getQueueGroup(RENDER_QUEUE_MAIN)->setShadowsEnabled(true);
+    this->waterplane_entity->setVisible(true);
 }

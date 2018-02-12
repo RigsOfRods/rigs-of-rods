@@ -24,7 +24,12 @@
 #include "IWater.h"
 #include "RoRPrerequisites.h"
 
+#include <OgreHardwareVertexBuffer.h> // Ogre::HardwareVertexBufferSharedPtr
 #include <OgreMesh.h>
+#include <OgrePlane.h>
+#include <OgrePrerequisites.h> // Ogre::TexturePtr
+#include <OgreRenderTargetListener.h>
+#include <OgreTexture.h>
 #include <OgreVector3.h>
 #include <vector>
 
@@ -62,6 +67,28 @@ private:
         float dir_cos;
     };
 
+    struct ReflectionListener: Ogre::RenderTargetListener
+    {
+        ReflectionListener(): scene_mgr(nullptr), waterplane_entity(nullptr) {}
+
+        void preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt) override;
+        void postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt) override;
+
+        Ogre::SceneManager* scene_mgr;
+        Ogre::Entity*       waterplane_entity;
+    };
+
+    struct RefractionListener: Ogre::RenderTargetListener
+    {
+        RefractionListener(): scene_mgr(nullptr), waterplane_entity(nullptr) {}
+
+        void preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt) override;
+        void postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt) override;
+
+        Ogre::SceneManager* scene_mgr;
+        Ogre::Entity*       waterplane_entity;
+    };
+
     float          GetWaveHeight(Ogre::Vector3 pos);
     void           ShowWave(Ogre::Vector3 refpos);
     bool           IsCameraUnderWater();
@@ -75,10 +102,17 @@ private:
     int                   m_frame_counter;
     Ogre::Vector3         m_map_size;
     Ogre::Camera*         m_render_cam;
+    Ogre::Plane           m_water_plane;
     Ogre::MeshPtr         m_waterplane_mesh;
+    Ogre::Entity*         m_waterplane_entity;
+    Ogre::SceneNode*      m_waterplane_node;
     Ogre::HardwareVertexBufferSharedPtr  m_waterplane_vert_buf;
     float*                m_waterplane_vert_buf_local;
     bool                  m_waterplane_force_update_pos;
+    Ogre::Plane           m_reflect_plane;
+    Ogre::Plane           m_refract_plane;
+    ReflectionListener    m_reflect_listener;
+    RefractionListener    m_refract_listener;
     Ogre::Camera*         m_reflect_cam;
     Ogre::Camera*         m_refract_cam;
     Ogre::RenderTexture*  m_refract_rtt_target;
@@ -88,6 +122,6 @@ private:
     Ogre::Viewport*       m_refract_rtt_viewport;
     Ogre::Viewport*       m_reflect_rtt_viewport;
     Ogre::SceneNode*      m_bottomplane_node;
-    Ogre::SceneNode*      m_waterplane_node;
+    Ogre::Plane           m_bottom_plane;
     std::vector<WaveTrain>  m_wavetrain_defs;
 };
