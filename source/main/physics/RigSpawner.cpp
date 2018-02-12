@@ -329,15 +329,14 @@ void RigSpawner::InitializeRig()
     m_rig->freecinecamera=0;
     m_rig->deletion_sceneNodes.clear();
     m_rig->deletion_Objects.clear();
-    m_rig->netCustomLightArray[0] = UINT_MAX;
-    m_rig->netCustomLightArray[1] = UINT_MAX;
-    m_rig->netCustomLightArray[2] = UINT_MAX;
-    m_rig->netCustomLightArray[3] = UINT_MAX;
-    m_rig->netCustomLightArray_counter = 0;
+    m_rig->m_net_custom_lights[0] = UINT_MAX;
+    m_rig->m_net_custom_lights[1] = UINT_MAX;
+    m_rig->m_net_custom_lights[2] = UINT_MAX;
+    m_rig->m_net_custom_lights[3] = UINT_MAX;
+    m_rig->m_net_custom_light_count = 0;
 
-    m_rig->ispolice=false;
     m_rig->ar_sim_state = Beam::SimState::LOCAL_SLEEPING;
-    m_rig->heathaze=false;
+    m_rig->ar_use_heathaze=false;
     m_rig->m_fusealge_airfoil = nullptr;
     m_rig->m_fusealge_front = nullptr;
     m_rig->m_fusealge_back = nullptr;
@@ -391,7 +390,7 @@ void RigSpawner::InitializeRig()
 
     m_rig->ar_driverseat_prop = nullptr;
 
-    m_rig->heathaze = !m_rig->disable_smoke && App::gfx_enable_heathaze.GetActive();
+    m_rig->ar_use_heathaze = !m_rig->disable_smoke && App::gfx_enable_heathaze.GetActive();
     m_rig->ar_hide_in_actor_list = false;
 
     m_rig->ar_anim_previous_crank = 0.f;
@@ -747,7 +746,7 @@ void RigSpawner::ProcessTurbojet(RigDef::Turbojet & def)
         def.is_reversable != 0,
         def.wet_thrust,
         def.front_diameter, 
-        m_rig->heathaze);
+        m_rig->ar_use_heathaze);
     
     // Visuals
     std::string nozzle_name = this->ComposeName("TurbojetNozzle", m_rig->free_aeroengine);
@@ -883,7 +882,7 @@ void RigSpawner::BuildAerialEngine(
         m_rig->disable_smoke,
         ! is_turboprops,
         pitch,
-        m_rig->heathaze
+        m_rig->ar_use_heathaze
     );
     m_rig->aeroengines[m_rig->free_aeroengine] = turbo_prop;
     m_rig->free_aeroengine++;
@@ -1945,7 +1944,7 @@ void RigSpawner::ProcessProp(RigDef::Prop & def)
         }
         else if(def.special == RigDef::Prop::SPECIAL_LIGHTBAR)
         {
-            m_rig->ispolice = true;
+            m_rig->ar_is_police = true;
             prop.beacontype='p';
             for (int k=0; k<4; k++)
             {
@@ -2409,10 +2408,10 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
             flare.light->setSpecularColour( Ogre::ColourValue(1, 1, 1));
             flare.light->setAttenuation(50.0, 1.0, 1, 0.2);
 
-            if (m_rig->netCustomLightArray_counter < 4)
+            if (m_rig->m_net_custom_light_count < 4)
             {
-                m_rig->netCustomLightArray[m_rig->netCustomLightArray_counter] = m_rig->flares.size();
-                m_rig->netCustomLightArray_counter++;
+                m_rig->m_net_custom_lights[m_rig->m_net_custom_light_count] = m_rig->flares.size();
+                m_rig->m_net_custom_light_count++;
             }
         }
     }
@@ -6748,7 +6747,7 @@ void RigSpawner::SetupDefaultSoundSources(Beam *vehicle)
     if (vehicle->driveable==TRUCK)
     {
         //horn
-        if (vehicle->ispolice)
+        if (vehicle->ar_is_police)
             AddSoundSourceInstance(vehicle, "tracks/default_police", 0);
         else
             AddSoundSourceInstance(vehicle, "tracks/default_horn", 0);

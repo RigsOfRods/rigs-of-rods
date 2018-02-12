@@ -5645,6 +5645,7 @@ Beam::Beam(
     , m_dry_mass(0.f)
     , ar_gui_use_engine_max_rpm(false)
     , ar_autopilot(nullptr)
+    , ar_is_police(false)
 {
     m_high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();
     useSkidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;
@@ -6305,7 +6306,7 @@ bool Beam::getCustomLightVisible(int number)
         return false;
     }
 
-    unsigned int flareID = netCustomLightArray[number];
+    unsigned int flareID = m_net_custom_lights[number];
 
     return flareID < flares.size() && flares[flareID].controltoggle_status;
 }
@@ -6318,7 +6319,7 @@ void Beam::setCustomLightVisible(int number, bool visible)
         return;
     }
 
-    unsigned int flareID = netCustomLightArray[number];
+    unsigned int flareID = m_net_custom_lights[number];
 
     if (flareID < flares.size() && flares[flareID].snode)
     {

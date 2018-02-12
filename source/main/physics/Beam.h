@@ -395,10 +395,6 @@ public:
     int               cinecameranodepos[MAX_CAMERAS];       //!< Cine-camera node indexes
     int               freecinecamera;                       //!< Number of cine-cameras (lowest free index)
     RoR::GfxFlaresMode m_flares_mode;
-    unsigned int      netCustomLightArray[4];
-    unsigned char     netCustomLightArray_counter;
-    bool              ispolice;
-    bool              heathaze;
     Autopilot*        ar_autopilot;
     float             ar_brake_force;              //!< Physics attr; filled at spawn
     float             ar_speedo_max_kph;           //!< GUI attr
@@ -467,6 +463,8 @@ public:
     bool ar_hydro_speed_coupling:1;
     bool ar_collision_relevant:1;      //!< Physics state;
     bool ar_replay_mode:1;      //!< Sim state
+    bool ar_is_police:1;        //!< Gfx/sfx attr
+    bool ar_use_heathaze:1;     //!< Spawner context; TODO:remove
 
 private:
 
@@ -605,6 +603,8 @@ private:
     int               m_masscount;             //!< Physics attr; Number of nodes loaded with l option
     float             m_dry_mass;              //!< Physics attr;
     int               m_debug_visuals;         //!< GUI state; Dbg. overlay type { NODES: 1-Numbers, 4-Mass, 5-Locked | BEAMS: 2-Numbers, 6-Compression, 7-Broken, 8-Stress, 9-Strength, 10-Hydros, 11-Commands, OTHER: 3-N&B numbers, 12-14 unknown }
+    unsigned int      m_net_custom_lights[4];  //!< Sim state
+    unsigned char     m_net_custom_light_count;//!< Sim attr
 
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?

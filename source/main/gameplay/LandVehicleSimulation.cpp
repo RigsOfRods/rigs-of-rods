@@ -524,7 +524,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
         }
     }
 
-    if (curr_truck->ispolice)
+    if (curr_truck->ar_is_police)
     {
         if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_HORN))
         {
