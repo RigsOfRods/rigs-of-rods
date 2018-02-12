@@ -259,13 +259,13 @@ void CLASS::UpdateStats(float dt, Beam* truck)
 
             truckstats = truckstats + MainThemeColor + _L("Current power: ") + WhiteColor + TOUTFSTRING(Round(currentKw *1.34102209)) + U(" hp / ") + TOUTFSTRING(Round(currentKw)) + U(" Kw") + "\n";
 
-            float velocityKMH = truck->WheelSpeed * 3.6f;
-            float velocityMPH = truck->WheelSpeed * 2.23693629f;
+            float velocityKMH = truck->ar_wheel_speed * 3.6f;
+            float velocityMPH = truck->ar_wheel_speed * 2.23693629f;
             float carSpeedKPH = truck->ar_nodes[0].Velocity.length() * 3.6f;
             float carSpeedMPH = truck->ar_nodes[0].Velocity.length() * 2.23693629f;
 
             // apply a deadzone ==> no flickering +/-
-            if (fabs(truck->WheelSpeed) < 1.0f)
+            if (fabs(truck->ar_wheel_speed) < 1.0f)
             {
                 velocityKMH = velocityMPH = 0.0f;
             }

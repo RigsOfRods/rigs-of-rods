@@ -255,7 +255,7 @@ public:
     bool              isPreloadedWithTerrain()          { return m_preloaded_with_terrain; };
     VehicleAI*        getVehicleAI()                    { return ar_vehicle_ai; }
     bool              IsNodeIdValid(int id) const       { return (id > 0) && (id < ar_num_nodes); }
-    float             getWheelSpeed() const             { return WheelSpeed; }
+    float             getWheelSpeed() const             { return ar_wheel_speed; }
     Ogre::Vector3     getVelocity()                     { return m_avg_node_velocity; }; //!< average truck velocity calculated using the truck positions of the last two frames
 #ifdef USE_ANGELSCRIPT
     // we have to add this to be able to use the class as reference inside scripts
@@ -438,7 +438,7 @@ public:
     VehicleAI*        ar_vehicle_ai;
     float             currentScale;
     Ogre::Real        ar_brake;           //!< Physics state; braking intensity
-    float             WheelSpeed;         //!< wheel speed in m/s
+    float             ar_wheel_speed;         //!< wheel speed in m/s
     float             ar_hydro_dir_command;
     float             ar_hydro_dir_state;
     Ogre::Real        ar_hydro_dir_wheel_display;

@@ -155,7 +155,7 @@ bool OutProtocol::Update(float dt, Beam* truck)
         }
         gd.Gear = std::max(0, truck->engine->getGear() + 1); // we only support one reverse gear
         gd.PLID = 0;
-        gd.Speed = fabs(truck->WheelSpeed);
+        gd.Speed = fabs(truck->ar_wheel_speed);
         gd.RPM = truck->engine->getRPM();
         gd.Turbo = truck->engine->getTurboPSI() * 0.0689475729f;
         gd.EngTemp = 0; // TODO

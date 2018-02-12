@@ -449,7 +449,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
             // directional braking
             float dbrake = 0.0f;
 
-            if ((WheelSpeed < 20.0f)
+            if ((ar_wheel_speed < 20.0f)
                 && (((wheels[i].wh_braking == wheel_t::BrakeCombo::FOOT_HAND_SKID_LEFT)  && (ar_hydro_dir_state > 0.0f))
                  || ((wheels[i].wh_braking == wheel_t::BrakeCombo::FOOT_HAND_SKID_RIGHT) && (ar_hydro_dir_state < 0.0f))))
             {
@@ -644,7 +644,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     }
 
     // wheel speed  in m/s !
-    WheelSpeed = wspeed;
+    ar_wheel_speed = wspeed;
 
     if (engine && free_wheel && wheels[0].wh_radius > 0.0f)
     {
@@ -820,8 +820,8 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         if (ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_SPEED)
         {
             //special treatment for SPEED
-            if (WheelSpeed < 12.0f)
-                cstate += ar_hydro_dir_state * (12.0f - WheelSpeed) / 12.0f;
+            if (ar_wheel_speed < 12.0f)
+                cstate += ar_hydro_dir_state * (12.0f - ar_wheel_speed) / 12.0f;
             div++;
         }
         if (ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_DIR)
