@@ -874,7 +874,7 @@ void Parser::ParseGuiSettings()
     
     else if (key == "tachoMaterial")  { gui_settings->tacho_material     =  this->GetArgStr(1); }
     else if (key == "speedoMaterial") { gui_settings->speedo_material    =  this->GetArgStr(1); }
-    else if (key == "speedoMax")      { gui_settings->speedo_highest_kph =  this->GetArgInt(1); }
+    else if (key == "ar_speedo_max_kph")      { gui_settings->speedo_highest_kph =  this->GetArgInt(1); }
     else if (key == "useMaxRPM")      { gui_settings->use_max_rpm        = (this->GetArgInt(1) == 1); }
     else if (key == "helpMaterial")   { gui_settings->help_material      =  this->GetArgStr(1); }
     

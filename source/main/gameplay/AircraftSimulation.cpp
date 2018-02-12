@@ -40,7 +40,7 @@ using namespace RoR;
 void AircraftSimulation::UpdateVehicle(Beam* vehicle, float seconds_since_last_frame)
 {
     //autopilot
-    if (vehicle->autopilot && vehicle->autopilot->wantsdisconnect)
+    if (vehicle->ar_autopilot && vehicle->ar_autopilot->wantsdisconnect)
     {
         vehicle->disconnectAutopilot();
     }
@@ -237,11 +237,11 @@ void AircraftSimulation::UpdateVehicle(Beam* vehicle, float seconds_since_last_f
             vehicle->aeroengines[i]->setThrottle(1);
         }
     }
-    if (vehicle->autopilot)
+    if (vehicle->ar_autopilot)
     {
         for (int i = 0; i < vehicle->free_aeroengine; i++)
         {
-            vehicle->aeroengines[i]->setThrottle(vehicle->autopilot->getThrottle(vehicle->aeroengines[i]->getThrottle(), seconds_since_last_frame));
+            vehicle->aeroengines[i]->setThrottle(vehicle->ar_autopilot->getThrottle(vehicle->aeroengines[i]->getThrottle(), seconds_since_last_frame));
         }
     }
 }

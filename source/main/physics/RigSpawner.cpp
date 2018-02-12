@@ -338,22 +338,19 @@ void RigSpawner::InitializeRig()
     m_rig->ispolice=false;
     m_rig->ar_sim_state = Beam::SimState::LOCAL_SLEEPING;
     m_rig->heathaze=false;
-    m_rig->autopilot = nullptr;
-    m_rig->hfinder = nullptr;
     m_rig->m_fusealge_airfoil = nullptr;
     m_rig->m_fusealge_front = nullptr;
     m_rig->m_fusealge_back = nullptr;
     m_rig->m_fusealge_width=0;
     m_rig->ar_brake_force=30000.0;
     m_rig->m_handbrake_force = 2 * m_rig->ar_brake_force;
-    m_rig->debugVisuals = SETTINGS.getBooleanSetting("DebugBeams", false);
+    m_rig->m_debug_visuals = SETTINGS.getBooleanSetting("DebugBeams", false);
     m_rig->m_gfx_reduce_shadows = SETTINGS.getBooleanSetting("Shadow optimizations", true);
 
     m_rig->m_num_proped_wheels=0;
     m_rig->m_num_braked_wheels=0;
 
-    m_rig->speedoMax=140;
-    m_rig->useMaxRPMforGUI=false;
+    m_rig->ar_speedo_max_kph=140;
     m_rig->ar_num_cameras=0;
     m_rig->m_cab_mesh = nullptr;
     m_rig->m_cab_scene_node = nullptr;
@@ -390,7 +387,7 @@ void RigSpawner::InitializeRig()
 
     m_rig->collisionRelevant = false;
 
-    m_rig->debugVisuals = 0;
+    m_rig->m_debug_visuals = 0;
 
     m_rig->ar_driverseat_prop = nullptr;
 
@@ -555,9 +552,9 @@ void RigSpawner::FinalizeRig()
     //wing closure
     if (m_first_wing_index!=-1)
     {
-        if (m_rig->autopilot != nullptr) 
+        if (m_rig->ar_autopilot != nullptr) 
         {
-            m_rig->autopilot->setInertialReferences(
+            m_rig->ar_autopilot->setInertialReferences(
                 & GetNode(m_airplane_left_light),
                 & GetNode(m_airplane_right_light),
                 m_rig->m_fusealge_back,
@@ -768,8 +765,10 @@ void RigSpawner::ProcessTurbojet(RigDef::Turbojet & def)
     
     m_rig->aeroengines[m_rig->free_aeroengine]=tj;
     m_rig->driveable=AIRPLANE;
-    if (m_rig->autopilot == nullptr && m_rig->ar_sim_state != Beam::SimState::NETWORKED_OK)
-        m_rig->autopilot=new Autopilot(m_rig->trucknum);
+    if (m_rig->ar_autopilot == nullptr && m_rig->ar_sim_state != Beam::SimState::NETWORKED_OK)
+    {
+        m_rig->ar_autopilot=new Autopilot(m_rig->trucknum);
+    }
 
     m_rig->free_aeroengine++;
 }
@@ -891,9 +890,9 @@ void RigSpawner::BuildAerialEngine(
     m_rig->driveable = AIRPLANE;
 
     /* Autopilot */
-    if (m_rig->autopilot == nullptr && m_rig->ar_sim_state != Beam::SimState::NETWORKED_OK)
+    if (m_rig->ar_autopilot == nullptr && m_rig->ar_sim_state != Beam::SimState::NETWORKED_OK)
     {
-        m_rig->autopilot = new Autopilot(m_rig->trucknum);
+        m_rig->ar_autopilot = new Autopilot(m_rig->trucknum);
     }
 
     /* Visuals */
@@ -1383,16 +1382,16 @@ void RigSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
     }
     if (def.speedo_highest_kph > 10 && def.speedo_highest_kph < 32000)
     {
-        m_rig->speedoMax = def.speedo_highest_kph; /* Handles default */
+        m_rig->ar_speedo_max_kph = def.speedo_highest_kph; /* Handles default */
     }
     else
     {
         std::stringstream msg;
         msg << "Invalid 'speedo_highest_kph' value (" << def.speedo_highest_kph << "), allowed range is <10 -32000>. Falling back to default...";
         AddMessage(Message::TYPE_ERROR, msg.str());
-        m_rig->speedoMax = RigDef::GuiSettings::DEFAULT_SPEEDO_MAX;
+        m_rig->ar_speedo_max_kph = RigDef::GuiSettings::DEFAULT_SPEEDO_MAX;
     }
-    m_rig->useMaxRPMforGUI = def.use_max_rpm;  /* Handles default */
+    m_rig->ar_gui_use_engine_max_rpm = def.use_max_rpm;  /* Handles default */
 
     std::list<Ogre::String>::iterator dash_itor = def.dashboard_layouts.begin();
     for ( ; dash_itor != def.dashboard_layouts.end(); dash_itor++)
