@@ -1096,14 +1096,14 @@ Vector3 Beam::calculateCollisionOffset(Vector3 direction)
         // Test own contacters against others cabs
         if (m_intra_point_col_detector)
         {
-            for (int i = 0; i < trucks[t]->free_collcab; i++)
+            for (int i = 0; i < trucks[t]->ar_num_collcabs; i++)
             {
                 if (collision_offset.length() >= max_distance)
                     break;
                 Vector3 offset = collision_offset;
                 while (offset.length() < max_distance)
                 {
-                    int tmpv = trucks[t]->collcabs[i] * 3;
+                    int tmpv = trucks[t]->ar_collcabs[i] * 3;
                     node_t* no = &trucks[t]->ar_nodes[cabs[tmpv]];
                     node_t* na = &trucks[t]->ar_nodes[cabs[tmpv + 1]];
                     node_t* nb = &trucks[t]->ar_nodes[cabs[tmpv + 2]];
@@ -1165,14 +1165,14 @@ Vector3 Beam::calculateCollisionOffset(Vector3 direction)
     // Test own cabs against others contacters
     if (m_inter_point_col_detector)
     {
-        for (int i = 0; i < free_collcab; i++)
+        for (int i = 0; i < ar_num_collcabs; i++)
         {
             if (collision_offset.length() >= max_distance)
                 break;
             Vector3 offset = collision_offset;
             while (offset.length() < max_distance)
             {
-                int tmpv = collcabs[i] * 3;
+                int tmpv = ar_collcabs[i] * 3;
                 node_t* no = &ar_nodes[cabs[tmpv]];
                 node_t* na = &ar_nodes[cabs[tmpv + 1]];
                 node_t* nb = &ar_nodes[cabs[tmpv + 2]];

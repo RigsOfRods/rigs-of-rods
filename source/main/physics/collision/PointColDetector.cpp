@@ -79,15 +79,15 @@ void PointColDetector::update(Beam* truck, Beam** trucks, const int numtrucks, b
                 contacters_size += trucks[t]->free_contacter;
                 if (truck->ar_nodes[0].Velocity.squaredDistance(trucks[t]->ar_nodes[0].Velocity) > 25)
                 {
-                    for (int i=0; i<truck->free_collcab; i++)
+                    for (int i=0; i<truck->ar_num_collcabs; i++)
                     {
-                        truck->intra_collcabrate[i].rate = 0;
-                        truck->inter_collcabrate[i].rate = 0;
+                        truck->ar_intra_collcabrate[i].rate = 0;
+                        truck->ar_inter_collcabrate[i].rate = 0;
                     }
-                    for (int i=0; i<trucks[t]->free_collcab; i++)
+                    for (int i=0; i<trucks[t]->ar_num_collcabs; i++)
                     {
-                        trucks[t]->intra_collcabrate[i].rate = 0;
-                        trucks[t]->inter_collcabrate[i].rate = 0;
+                        trucks[t]->ar_intra_collcabrate[i].rate = 0;
+                        trucks[t]->ar_inter_collcabrate[i].rate = 0;
                     }
                 }
             } else {

@@ -251,12 +251,12 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     BES_START(BES_CORE_Buoyance);
 
     //water buoyance
-    if (free_buoycab && water)
+    if (ar_num_buoycabs && water)
     {
-        for (int i = 0; i < free_buoycab; i++)
+        for (int i = 0; i < ar_num_buoycabs; i++)
         {
-            int tmpv = buoycabs[i] * 3;
-            m_buoyance->computeNodeForce(&ar_nodes[cabs[tmpv]], &ar_nodes[cabs[tmpv + 1]], &ar_nodes[cabs[tmpv + 2]], doUpdate == 1, buoycabtypes[i]);
+            int tmpv = ar_buoycabs[i] * 3;
+            m_buoyance->computeNodeForce(&ar_nodes[cabs[tmpv]], &ar_nodes[cabs[tmpv + 1]], &ar_nodes[cabs[tmpv + 2]], doUpdate == 1, ar_buoycab_types[i]);
         }
     }
 
@@ -1557,10 +1557,10 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                     }
 
                     // something broke, check buoyant hull
-                    for (int mk = 0; mk < free_buoycab; mk++)
+                    for (int mk = 0; mk < ar_num_buoycabs; mk++)
                     {
-                        int tmpv = buoycabs[mk] * 3;
-                        if (buoycabtypes[mk] == Buoyance::BUOY_DRAGONLY)
+                        int tmpv = ar_buoycabs[mk] * 3;
+                        if (ar_buoycab_types[mk] == Buoyance::BUOY_DRAGONLY)
                             continue;
                         if ((ar_beams[i].p1 == &ar_nodes[cabs[tmpv]] || ar_beams[i].p1 == &ar_nodes[cabs[tmpv + 1]] || ar_beams[i].p1 == &ar_nodes[cabs[tmpv + 2]]) &&
                             (ar_beams[i].p2 == &ar_nodes[cabs[tmpv]] || ar_beams[i].p2 == &ar_nodes[cabs[tmpv + 1]] || ar_beams[i].p2 == &ar_nodes[cabs[tmpv + 2]]))
@@ -1872,7 +1872,7 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
             if (water->isUnderWater(ar_nodes[i].AbsPosition))
             {
                 m_water_contact = true;
-                if (free_buoycab == 0)
+                if (ar_num_buoycabs == 0)
                 {
                     // water drag (turbulent)
                     Real speed = approx_sqrt(ar_nodes[i].Velocity.squaredLength()); //we will (not) reuse this
