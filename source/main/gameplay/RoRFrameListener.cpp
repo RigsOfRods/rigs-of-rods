@@ -1323,7 +1323,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                         continue;
                     if (!trucks[i]->driveable)
                         continue;
-                    if (trucks[i]->cinecameranodepos[0] == -1)
+                    if (trucks[i]->ar_cinecam_node[0] == -1)
                     {
                         LOG("cinecam missing, cannot enter truck!");
                         continue;
@@ -1331,7 +1331,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                     float len = 0.0f;
                     if (gEnv->player)
                     {
-                        len = trucks[i]->ar_nodes[trucks[i]->cinecameranodepos[0]].AbsPosition.distance(gEnv->player->getPosition() + Vector3(0.0, 2.0, 0.0));
+                        len = trucks[i]->ar_nodes[trucks[i]->ar_cinecam_node[0]].AbsPosition.distance(gEnv->player->getPosition() + Vector3(0.0, 2.0, 0.0));
                     }
                     if (len < mindist)
                     {
@@ -2092,10 +2092,10 @@ void RoRFrameListener::ChangedCurrentVehicle(Beam* previous_vehicle, Beam* curre
             // get player out of the vehicle
             float rotation = previous_vehicle->getRotation() - Math::HALF_PI;
             Vector3 position = previous_vehicle->ar_nodes[0].AbsPosition;
-            if (previous_vehicle->cinecameranodepos[0] != -1 && previous_vehicle->ar_camera_node_pos[0] != -1 && previous_vehicle->ar_camera_node_roll[0] != -1)
+            if (previous_vehicle->ar_cinecam_node[0] != -1 && previous_vehicle->ar_camera_node_pos[0] != -1 && previous_vehicle->ar_camera_node_roll[0] != -1)
             {
                 // truck has a cinecam
-                position = previous_vehicle->ar_nodes[previous_vehicle->cinecameranodepos[0]].AbsPosition;
+                position = previous_vehicle->ar_nodes[previous_vehicle->ar_cinecam_node[0]].AbsPosition;
                 position += -2.0 * ((previous_vehicle->ar_nodes[previous_vehicle->ar_camera_node_pos[0]].RelPosition - previous_vehicle->ar_nodes[previous_vehicle->ar_camera_node_roll[0]].RelPosition).normalisedCopy());
                 position += Vector3(0.0, -1.0, 0.0);
             }

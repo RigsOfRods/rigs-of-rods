@@ -385,8 +385,8 @@ public:
     Buoyance*         buoyance;
     int               driveable;
     BeamEngine*       engine;
-    int               cinecameranodepos[MAX_CAMERAS];       //!< Cine-camera node indexes
-    int               freecinecamera;                       //!< Number of cine-cameras (lowest free index)
+    int               ar_cinecam_node[MAX_CAMERAS];//!< Sim attr; Cine-camera node indexes
+    int               ar_num_cinecams;             //!< Sim attr;
     std::string       ar_help_panel_material;      //!< GUI attr, defined in truckfile
     Autopilot*        ar_autopilot;
     float             ar_brake_force;              //!< Physics attr; filled at spawn

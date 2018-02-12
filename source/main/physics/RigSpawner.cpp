@@ -321,8 +321,8 @@ void RigSpawner::InitializeRig()
     m_rig->m_slidenodes.clear();
 
     m_rig->engine = nullptr;
-    m_rig->cinecameranodepos[0]=-1;
-    m_rig->freecinecamera=0;
+    m_rig->ar_cinecam_node[0]=-1;
+    m_rig->ar_num_cinecams=0;
     m_rig->deletion_sceneNodes.clear();
     m_rig->deletion_Objects.clear();
     m_rig->m_net_custom_lights[0] = UINT_MAX;
@@ -6314,8 +6314,8 @@ void RigSpawner::ProcessCinecam(RigDef::Cinecam & def)
     camera_node.surface_coef  = def.node_defaults->surface;
     // NOTE: Not applying the 'node_mass' value here for backwards compatibility - this node must go through initial `Beam::calc_masses2()` pass with default weight.
 
-    m_rig->cinecameranodepos[m_rig->freecinecamera] = camera_node.pos;
-    m_rig->freecinecamera++;
+    m_rig->ar_cinecam_node[m_rig->ar_num_cinecams] = camera_node.pos;
+    m_rig->ar_num_cinecams++;
 
     // Beams
     for (unsigned int i = 0; i < 8; i++)

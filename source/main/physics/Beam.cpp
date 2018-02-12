@@ -930,10 +930,10 @@ void Beam::calc_masses2(Real total, bool reCalc)
     }
 
     // Apply pre-defined cinecam node mass
-    for (int i = 0; i < this->freecinecamera; ++i)
+    for (int i = 0; i < this->ar_num_cinecams; ++i)
     {
         // TODO: this expects all cinecams to be defined in root module (i.e. outside 'section/end_section')
-        ar_nodes[cinecameranodepos[i]].mass = m_definition->root_module->cinecam[i].node_mass;
+        ar_nodes[ar_cinecam_node[i]].mass = m_definition->root_module->cinecam[i].node_mass;
     }
 
 
@@ -1305,10 +1305,10 @@ void Beam::calculateAveragePosition()
     {
         m_avg_node_position = ar_nodes[ar_custom_camera_node].AbsPosition;
     }
-    else if (ar_extern_camera_mode == 1 && freecinecamera > 0)
+    else if (ar_extern_camera_mode == 1 && ar_num_cinecams > 0)
     {
         // the new (strange) approach: reuse the cinecam node
-        m_avg_node_position = ar_nodes[cinecameranodepos[0]].AbsPosition;
+        m_avg_node_position = ar_nodes[ar_cinecam_node[0]].AbsPosition;
     }
     else if (ar_extern_camera_mode == 2 && ar_extern_camera_node >= 0)
     {
