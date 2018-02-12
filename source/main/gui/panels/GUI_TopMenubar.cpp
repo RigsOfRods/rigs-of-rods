@@ -207,7 +207,7 @@ void TopMenubar::addUserToMenu(RoRnet::UserInfo &user)
     {
         if (!trucks[j]) continue;
 
-        if (trucks[j]->m_source_id == user.uniqueid)
+        if (trucks[j]->ar_net_source_id == user.uniqueid)
         {
             // match, found truck :)
             matches.push_back(j);

@@ -498,13 +498,11 @@ public:
     Ogre::SceneNode*  netLabelNode;
     Ogre::String      realtruckfilename;
     int               airbrakeval;
-    Ogre::Vector3     cameranodeacc;
-    int               cameranodecount;
-    int               m_source_id;
-    int               m_stream_id;
-    std::map<int, int> m_stream_results;
-    Ogre::Timer       netTimer;
-    unsigned long     lastNetUpdateTime;
+    int               ar_net_source_id;
+    int               ar_net_stream_id;
+    std::map<int,int> ar_net_stream_results;
+    Ogre::Timer       ar_net_timer;
+    unsigned long     ar_net_last_update_time;
     DashBoardManager* ar_dashboard;
     int               ar_request_skeletonview_change; //!< Gfx state; Request activation(1) / deactivation(-1) of skeletonview
     SimState          ar_sim_state;                   //!< Physics state
@@ -593,12 +591,11 @@ private:
     bool              cparticle_mode;
     int               detailLevel;
     bool              increased_accuracy;
-    bool              isInside;
     bool              m_beacon_light_is_active;
     float             totalmass;
-    int               mousenode;
-    Ogre::Vector3     mousepos;
-    float             mousemoveforce;
+    int               m_mouse_grab_node;       //!< Sim state; node currently being dragged by user
+    Ogre::Vector3     m_mouse_grab_pos;
+    float             m_mouse_grab_move_force;
     float             m_spawn_rotation;
     bool              m_is_cinecam_rotation_center;
     bool              m_preloaded_with_terrain;
@@ -628,6 +625,8 @@ private:
     Ogre::SceneNode*  simpleSkeletonNode;
     bool              simpleSkeletonInitiated; //!< Was the rig-skeleton mesh built?
     bool              m_slidenodes_connect_on_spawn; //TODO: Remove! spawner context only!  //<! try to connect slide-nodes directly after spawning
+    Ogre::Vector3     m_camera_gforces_accu;  //!< Accumulator for 'camera' G-forces
+    int               m_camera_gforces_count; //!< Counter for 'camera' G-forces
     // dustpools
     DustPool*         dustp;
     DustPool*         dripp;

@@ -664,7 +664,7 @@ void Beam::calcNetwork()
     BES_GFX_START(BES_GFX_calcNetwork);
 
     // we must update Nodes positions from available network informations
-    int tnow = netTimer.getMilliseconds();
+    int tnow = ar_net_timer.getMilliseconds();
     // adjust offset to match remote time
     int rnow = tnow + net_toffset;
     // if we receive older data from the future, we must correct the offset
@@ -1474,9 +1474,9 @@ void Beam::resetPosition(Vector3 translation, bool setInitPosition)
 
 void Beam::mouseMove(int node, Vector3 pos, float force)
 {
-    mousenode = node;
-    mousemoveforce = force;
-    mousepos = pos;
+    m_mouse_grab_node = node;
+    m_mouse_grab_move_force = force;
+    m_mouse_grab_pos = pos;
 }
 
 bool Beam::hasDriverSeat()
@@ -1850,8 +1850,8 @@ void Beam::sendStreamSetup()
     RoR::Networking::AddLocalStream((RoRnet::StreamRegister *)&reg, sizeof(RoRnet::TruckStreamRegister));
 #endif // USE_SOCKETW
 
-    m_source_id = reg.origin_sourceid;
-    m_stream_id = reg.origin_streamid;
+    ar_net_source_id = reg.origin_sourceid;
+    ar_net_stream_id = reg.origin_streamid;
 }
 
 void Beam::sendStreamData()
@@ -1860,7 +1860,7 @@ void Beam::sendStreamData()
 
     BES_GFX_START(BES_GFX_sendStreamData);
 #ifdef USE_SOCKETW
-    lastNetUpdateTime = netTimer.getMilliseconds();
+    ar_net_last_update_time = ar_net_timer.getMilliseconds();
 
     //look if the packet is too big first
     int final_packet_size = sizeof(RoRnet::TruckState) + sizeof(float) * 3 + m_net_first_wheel_node * sizeof(float) * 3 + free_wheel * sizeof(float);
@@ -1881,7 +1881,7 @@ void Beam::sendStreamData()
 
         send_oob->flagmask = 0;
 
-        send_oob->time = netTimer.getMilliseconds();
+        send_oob->time = ar_net_timer.getMilliseconds();
         if (engine)
         {
             send_oob->engine_speed = engine->getRPM();
@@ -1994,7 +1994,7 @@ void Beam::sendStreamData()
         }
     }
 
-    RoR::Networking::AddPacket(m_stream_id, MSG2_STREAM_DATA, packet_len, send_buffer);
+    RoR::Networking::AddPacket(ar_net_stream_id, MSG2_STREAM_DATA, packet_len, send_buffer);
 #endif //SOCKETW
     BES_GFX_STOP(BES_GFX_sendStreamData);
 }
@@ -2005,7 +2005,7 @@ void Beam::receiveStreamData(unsigned int type, int source, unsigned int streami
         return;
 
     BES_GFX_START(BES_GFX_receiveStreamData);
-    if (type == RoRnet::MSG2_STREAM_DATA && source == m_source_id && streamid == m_stream_id)
+    if (type == RoRnet::MSG2_STREAM_DATA && source == ar_net_source_id && streamid == ar_net_stream_id)
     {
         pushNetwork(buffer, len);
     }
@@ -2941,8 +2941,6 @@ void Beam::SetPropsCastShadows(bool do_cast_shadows)
 
 void Beam::prepareInside(bool inside)
 {
-    isInside = inside;
-
     if (inside)
     {
         mCamera->setNearClipDistance(0.1f);
@@ -4893,7 +4891,7 @@ void Beam::updateNetworkInfo()
 
     if (ar_sim_state == SimState::NETWORKED_OK)
     {
-        if (!RoR::Networking::GetUserInfo(m_source_id, info))
+        if (!RoR::Networking::GetUserInfo(ar_net_source_id, info))
         {
             return;
         }
@@ -5473,14 +5471,14 @@ Vector3 Beam::getGForces()
     {
         static Vector3 result = Vector3::ZERO;
 
-        if (cameranodecount == 0) // multiple calls in one single frame, avoid division by 0
+        if (m_camera_gforces_count == 0) // multiple calls in one single frame, avoid division by 0
         {
             return result;
         }
 
-        Vector3 acc = cameranodeacc / cameranodecount;
-        cameranodeacc = Vector3::ZERO;
-        cameranodecount = 0;
+        Vector3 acc = m_camera_gforces_accu / m_camera_gforces_count;
+        m_camera_gforces_accu = Vector3::ZERO;
+        m_camera_gforces_count = 0;
 
         float longacc = acc.dotProduct((ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranodedir[0]].RelPosition).normalisedCopy());
         float latacc = acc.dotProduct((ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranoderoll[0]].RelPosition).normalisedCopy());
@@ -5577,8 +5575,8 @@ Beam::Beam(
     , cabFadeMode(0)
     , cabFadeTime(0.3)
     , cabFadeTimer(0)
-    , cameranodeacc(Ogre::Vector3::ZERO)
-    , cameranodecount(0)
+    , m_camera_gforces_accu(Ogre::Vector3::ZERO)
+    , m_camera_gforces_count(0)
     , canwork(true)
     , cparticle_mode(false)
     , currentScale(1)
@@ -5605,8 +5603,7 @@ Beam::Beam(
     , increased_accuracy(false)
     , interPointCD()
     , intraPointCD()
-    , isInside(false)
-    , lastNetUpdateTime(0)
+    , ar_net_last_update_time(0)
     , lastposition(pos)
     , leftMirrorAngle(0.52)
     , lights(1)
@@ -5620,15 +5617,15 @@ Beam::Beam(
     , ar_request_skeletonview_change(0)
     , m_reset_request(REQUEST_RESET_NONE)
     , ar_skeletonview_is_active(false)
-    , m_source_id(0)
+    , ar_net_source_id(0)
     , m_spawn_rotation(0.0)
-    , m_stream_id(0)
+    , ar_net_stream_id(0)
     , mTimeUntilNextToggle(0)
     , ar_meshes_visible(true)
     , minCameraRadius(-1.0f)
-    , mousemoveforce(0.0f)
-    , mousenode(-1)
-    , mousepos(Ogre::Vector3::ZERO)
+    , m_mouse_grab_move_force(0.0f)
+    , m_mouse_grab_node(-1)
+    , m_mouse_grab_pos(Ogre::Vector3::ZERO)
     , netBrakeLight(false)
     , netLabelNode(0)
     , netMT(0)

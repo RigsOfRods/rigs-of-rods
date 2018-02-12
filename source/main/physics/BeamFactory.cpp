@@ -347,8 +347,8 @@ int BeamFactory::CreateRemoteInstance(RoRnet::TruckStreamRegister* reg)
     }
     m_trucks[truck_num] = b;
 
-    b->m_source_id = reg->origin_sourceid;
-    b->m_stream_id = reg->origin_streamid;
+    b->ar_net_source_id = reg->origin_sourceid;
+    b->ar_net_stream_id = reg->origin_streamid;
     b->updateNetworkInfo();
 
 
@@ -369,7 +369,7 @@ void BeamFactory::RemoveStreamSource(int sourceid)
         if (m_trucks[t]->ar_sim_state != Beam::SimState::NETWORKED_OK)
             continue;
 
-        if (m_trucks[t]->m_source_id == sourceid)
+        if (m_trucks[t]->ar_net_source_id == sourceid)
         {
             this->DeleteTruck(m_trucks[t]);
         }
@@ -399,10 +399,10 @@ void BeamFactory::handleStreamData(std::vector<RoR::Networking::recv_packet_t> p
                     continue;
                 if (m_trucks[t]->ar_sim_state == Beam::SimState::NETWORKED_OK)
                     continue;
-                if (m_trucks[t]->m_stream_id == reg->origin_streamid)
+                if (m_trucks[t]->ar_net_stream_id == reg->origin_streamid)
                 {
                     int sourceid = packet.header.source;
-                    m_trucks[t]->m_stream_results[sourceid] = reg->status;
+                    m_trucks[t]->ar_net_stream_results[sourceid] = reg->status;
 
                     if (reg->status == 1)
                     LOG("Client " + TOSTRING(sourceid) + " successfully loaded stream " + TOSTRING(reg->origin_streamid) + " with name '" + reg->name + "', result code: " + TOSTRING(reg->status));
@@ -461,7 +461,7 @@ int BeamFactory::checkStreamsOK(int sourceid)
         if (m_trucks[t]->ar_sim_state != Beam::SimState::NETWORKED_OK)
             continue;
 
-        if (m_trucks[t]->m_source_id == sourceid)
+        if (m_trucks[t]->ar_net_source_id == sourceid)
         {
             return 1;
         }
@@ -481,7 +481,7 @@ int BeamFactory::checkStreamsRemoteOK(int sourceid)
         if (m_trucks[t]->ar_sim_state == Beam::SimState::NETWORKED_OK)
             continue;
 
-        int stream_result = m_trucks[t]->m_stream_results[sourceid];
+        int stream_result = m_trucks[t]->ar_net_stream_results[sourceid];
         if (stream_result == -1)
             return 0;
         if (stream_result == 1)
@@ -500,7 +500,7 @@ Beam* BeamFactory::getBeam(int source_id, int stream_id)
         if (m_trucks[t]->ar_sim_state != Beam::SimState::NETWORKED_OK)
             continue;
 
-        if (m_trucks[t]->m_source_id == source_id && m_trucks[t]->m_stream_id == stream_id)
+        if (m_trucks[t]->ar_net_source_id == source_id && m_trucks[t]->ar_net_stream_id == stream_id)
         {
             return m_trucks[t];
         }
@@ -829,7 +829,7 @@ void BeamFactory::DeleteTruck(Beam* b)
 #ifdef USE_SOCKETW
     if (b->networking && b->ar_sim_state != Beam::SimState::NETWORKED_OK && b->ar_sim_state != Beam::SimState::INVALID)
     {
-        RoR::Networking::AddPacket(b->m_stream_id, RoRnet::MSG2_STREAM_UNREGISTER, 0, 0);
+        RoR::Networking::AddPacket(b->ar_net_stream_id, RoRnet::MSG2_STREAM_UNREGISTER, 0, 0);
     }
 #endif // USE_SOCKETW
 
@@ -1064,10 +1064,10 @@ void BeamFactory::update(float dt)
             {
                 if (m_trucks[t]->ar_sim_state == Beam::SimState::LOCAL_SIMULATED)
                     m_trucks[t]->sendStreamData();
-                else if (m_trucks[t]->ar_sim_state == Beam::SimState::LOCAL_SLEEPING && m_trucks[t]->netTimer.getMilliseconds() < 10000)
+                else if (m_trucks[t]->ar_sim_state == Beam::SimState::LOCAL_SLEEPING && m_trucks[t]->ar_net_timer.getMilliseconds() < 10000)
                 // Also send update messages for 'Beam::SimState::LOCAL_SLEEPING' trucks during the first 10 seconds of lifetime
                     m_trucks[t]->sendStreamData();
-                else if (m_trucks[t]->ar_sim_state == Beam::SimState::LOCAL_SLEEPING && m_trucks[t]->netTimer.getMilliseconds() - m_trucks[t]->lastNetUpdateTime > 5000)
+                else if (m_trucks[t]->ar_sim_state == Beam::SimState::LOCAL_SLEEPING && m_trucks[t]->ar_net_timer.getMilliseconds() - m_trucks[t]->ar_net_last_update_time > 5000)
                 // Also send update messages for 'Beam::SimState::LOCAL_SLEEPING' trucks periodically every 5 seconds
                     m_trucks[t]->sendStreamData();
             }
