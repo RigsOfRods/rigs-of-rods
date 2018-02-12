@@ -2945,7 +2945,7 @@ void Beam::prepareInside(bool inside)
 {
     if (inside)
     {
-        mCamera->setNearClipDistance(0.1f);
+        gEnv->mainCamera->setNearClipDistance(0.1f);
 
         // enable transparent seat
         MaterialPtr seatmat = (MaterialPtr)(MaterialManager::getSingleton().getByName("driversseat"));
@@ -2959,7 +2959,7 @@ void Beam::prepareInside(bool inside)
             ar_dashboard->setVisible(false);
         }
 
-        mCamera->setNearClipDistance(0.5f);
+        gEnv->mainCamera->setNearClipDistance(0.5f);
 
         // disable transparent seat
         MaterialPtr seatmat = (MaterialPtr)(MaterialManager::getSingleton().getByName("driversseat"));
@@ -3048,7 +3048,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
     //okay, this is just ugly, we have flares in props!
     //we have to update them here because they run
 
-    Ogre::Vector3 camera_position = mCamera->getPosition();
+    Ogre::Vector3 camera_position = gEnv->mainCamera->getPosition();
 
     if (m_beacon_light_is_active)
     {
@@ -3114,7 +3114,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
                     ar_props[i].beacon_light_rotation_angle[k] += dt * ar_props[i].beacon_light_rotation_rate[k];//rotate baby!
                     ar_props[i].beacon_light[k]->setDirection(orientation * Vector3(cos(ar_props[i].beacon_light_rotation_angle[k]), sin(ar_props[i].beacon_light_rotation_angle[k]), 0));
                     //billboard
-                    Vector3 vdir = ar_props[i].beacon_light[k]->getPosition() - mCamera->getPosition();
+                    Vector3 vdir = ar_props[i].beacon_light[k]->getPosition() - gEnv->mainCamera->getPosition();
                     float vlen = vdir.length();
                     if (vlen > 100.0)
                     {
@@ -3144,7 +3144,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
                 ar_props[i].beacon_light[0]->setPosition(ar_props[i].scene_node->getPosition() + orientation * Vector3(0, 0, 0.06));
                 ar_props[i].beacon_light_rotation_angle[0] += dt * ar_props[i].beacon_light_rotation_rate[0];//rotate baby!
                 //billboard
-                Vector3 vdir = ar_props[i].beacon_light[0]->getPosition() - mCamera->getPosition();
+                Vector3 vdir = ar_props[i].beacon_light[0]->getPosition() - gEnv->mainCamera->getPosition();
                 float vlen = vdir.length();
                 if (vlen > 100.0)
                 {
@@ -3168,7 +3168,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
             {
                 Vector3 mposition = ar_nodes[ar_props[i].noderef].AbsPosition + ar_props[i].offsetx * (ar_nodes[ar_props[i].nodex].AbsPosition - ar_nodes[ar_props[i].noderef].AbsPosition) + ar_props[i].offsety * (ar_nodes[ar_props[i].nodey].AbsPosition - ar_nodes[ar_props[i].noderef].AbsPosition);
                 //billboard
-                Vector3 vdir = mposition - mCamera->getPosition();
+                Vector3 vdir = mposition - gEnv->mainCamera->getPosition();
                 float vlen = vdir.length();
                 if (vlen > 100.0)
                 {
@@ -3185,7 +3185,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
                 ar_props[i].beacon_light[0]->setPosition(mposition);
                 ar_props[i].beacon_light_rotation_angle[0] += dt * ar_props[i].beacon_light_rotation_rate[0];//rotate baby!
                 //billboard
-                Vector3 vdir = mposition - mCamera->getPosition();
+                Vector3 vdir = mposition - gEnv->mainCamera->getPosition();
                 float vlen = vdir.length();
                 if (vlen > 100.0)
                 {
@@ -3309,7 +3309,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
         Vector3 normal = (ar_nodes[flares[i].nodey].AbsPosition - ar_nodes[flares[i].noderef].AbsPosition).crossProduct(ar_nodes[flares[i].nodex].AbsPosition - ar_nodes[flares[i].noderef].AbsPosition);
         normal.normalise();
         Vector3 mposition = ar_nodes[flares[i].noderef].AbsPosition + flares[i].offsetx * (ar_nodes[flares[i].nodex].AbsPosition - ar_nodes[flares[i].noderef].AbsPosition) + flares[i].offsety * (ar_nodes[flares[i].nodey].AbsPosition - ar_nodes[flares[i].noderef].AbsPosition);
-        Vector3 vdir = mposition - mCamera->getPosition();
+        Vector3 vdir = mposition - gEnv->mainCamera->getPosition();
         float vlen = vdir.length();
         // not visible from 500m distance
         if (vlen > 500.0)
@@ -3482,7 +3482,7 @@ void Beam::updateLabels(float dt)
     {
         // this ensures that the nickname is always in a readable size
         m_net_label_node->setPosition(m_avg_node_position + Vector3(0.0f, (boundingBox.getMaximum().y - boundingBox.getMinimum().y), 0.0f));
-        Vector3 vdir = m_avg_node_position - mCamera->getPosition();
+        Vector3 vdir = m_avg_node_position - gEnv->mainCamera->getPosition();
         float vlen = vdir.length();
         float h = std::max(0.6, vlen / 30.0);
 
@@ -5734,7 +5734,6 @@ Beam::Beam(
     // stop lights
     lightsToggle();
 
-    mCamera = gEnv->mainCamera;
     updateFlares(0);
     updateProps();
     if (engine)
@@ -5792,8 +5791,6 @@ Beam::Beam(
             deletion_sceneNodes.emplace_back(m_net_label_node);
         }
     }
-
-    mCamera = gEnv->mainCamera;
 
     LOG(" ===== DONE LOADING VEHICLE");
 }

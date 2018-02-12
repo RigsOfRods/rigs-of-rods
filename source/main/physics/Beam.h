@@ -428,7 +428,6 @@ public:
     int               proped_wheels;               //!< Number of propelled wheels.
     int               braked_wheels;               //!< Number of braked wheels.
     int               proppairs[MAX_WHEELS];       //!< For inter-differential locking
-    Ogre::Camera*     mCamera;
     int               freecamera;
     int               cameranodepos[MAX_CAMERAS];
     int               cameranodedir[MAX_CAMERAS];
