@@ -35,30 +35,27 @@ public:
     Water();
     ~Water();
 
-    float GetStaticWaterHeight();
-    float getHeightWaves(Ogre::Vector3 pos);
-    Ogre::Vector3 getVelocity(Ogre::Vector3 pos);
-
-    void setCamera(Ogre::Camera* cam);
-    void setHeight(float value);
-    void setSunPosition(Ogre::Vector3);
-    void setVisible(bool value);
-
-    bool isUnderWater(Ogre::Vector3 pos);
-    bool allowUnderWater();
-    void moveTo(float centerheight);
-    void prepareShutdown();
-    void showWave(Ogre::Vector3 refpos);
-    void update();
-    void framestep(float dt);
-    void updateReflectionPlane(float h);
-    bool isCameraUnderWater();
-
-    void processWater();
+    // Interface `IWater`
+    float          GetStaticWaterHeight() override;
+    void           SetStaticWaterHeight(float value) override;
+    float          CalcWavesHeight(Ogre::Vector3 pos) override;
+    Ogre::Vector3  CalcWavesVelocity(Ogre::Vector3 pos) override;
+    void           SetWaterVisible(bool value) override;
+    void           WaterSetCamera(Ogre::Camera* cam) override;
+    bool           IsUnderWater(Ogre::Vector3 pos) override;
+    void           SetReflectionPlaneHeight(float centerheight) override;
+    void           UpdateReflectionPlane(float h) override;
+    void           WaterPrepareShutdown() override;
+    void           UpdateWater() override;
+    void           FrameStepWater(float dt) override;
+    
+    bool           isCameraUnderWater();
+    void           processWater();
 
 private:
 
     float getWaveHeight(Ogre::Vector3 pos);
+    void  showWave(Ogre::Vector3 refpos);
 
     struct WaveTrain
     {

@@ -1869,7 +1869,7 @@ void Actor::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 
         if (water)
         {
-            if (water->isUnderWater(ar_nodes[i].AbsPosition))
+            if (water->IsUnderWater(ar_nodes[i].AbsPosition))
             {
                 m_water_contact = true;
                 if (ar_num_buoycabs == 0)

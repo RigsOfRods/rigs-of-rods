@@ -141,9 +141,9 @@ void SurveyMapTextureCreator::preRenderTargetUpdate()
     IWater* water = gEnv->terrainManager->getWater();
     if (water)
     {
-        water->setCamera(mCamera);
-        water->moveTo(water->GetStaticWaterHeight());
-        water->update();
+        water->WaterSetCamera(mCamera);
+        water->SetReflectionPlaneHeight(water->GetStaticWaterHeight());
+        water->UpdateWater();
     }
 }
 
@@ -155,8 +155,8 @@ void SurveyMapTextureCreator::postRenderTargetUpdate()
     IWater* water = gEnv->terrainManager->getWater();
     if (water)
     {
-        water->setCamera(gEnv->mainCamera);
-        water->moveTo(water->GetStaticWaterHeight());
-        water->update();
+        water->WaterSetCamera(gEnv->mainCamera);
+        water->SetReflectionPlaneHeight(water->GetStaticWaterHeight());
+        water->UpdateWater();
     }
 }
