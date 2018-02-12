@@ -366,8 +366,8 @@ void RigSpawner::InitializeRig()
     m_rig->advanced_node_drag=0;
     m_rig->advanced_total_drag=0;
     m_rig->freecamera=0;
-    m_rig->cabMesh = nullptr;
-    m_rig->cabNode = nullptr;
+    m_rig->m_cab_mesh = nullptr;
+    m_rig->m_cab_scene_node = nullptr;
     m_rig->cameranodepos[0]=-1;
     m_rig->cameranodedir[0]=-1;
     m_rig->cameranoderoll[0]=-1;
@@ -391,7 +391,7 @@ void RigSpawner::InitializeRig()
     m_rig->ar_anim_shift_timer = 0.0f;
     m_rig->antilockbrake = 0;
 
-    m_rig->cabMesh = nullptr;
+    m_rig->m_cab_mesh = nullptr;
 
     m_rig->cc_mode = false;
     m_rig->cc_can_brake = false;
@@ -650,7 +650,7 @@ void RigSpawner::FinalizeRig()
         char cab_material_name_cstr[1000] = {};
         strncpy(cab_material_name_cstr, m_cab_material_name.c_str(), 999);
         std::string mesh_name = this->ComposeName("VehicleCabMesh", 0);
-        m_rig->cabMesh =new FlexObj( // Names in FlexObj ctor
+        m_rig->m_cab_mesh =new FlexObj( // Names in FlexObj ctor
             m_rig->ar_nodes,            // node_t* nds
             m_oldstyle_cab_texcoords,// std::vector<CabNodeTexcoords>& texcoords
             m_rig->free_cab,         // int     numtriangles
@@ -662,7 +662,7 @@ void RigSpawner::FinalizeRig()
             transmatname             // char*   transtexname
         );
 
-        m_rig->cabNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+        m_rig->m_cab_scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
         Ogre::Entity *ec = nullptr;
         try
         {
@@ -670,14 +670,14 @@ void RigSpawner::FinalizeRig()
             this->SetupNewEntity(ec, Ogre::ColourValue(0.5, 1, 0.5));
             if (ec)
             {
-                m_rig->cabNode->attachObject(ec);
+                m_rig->m_cab_scene_node->attachObject(ec);
             }
         }
         catch (...)
         {
             this->AddMessage(Message::TYPE_ERROR, "error loading mesh: "+mesh_name);
         }
-        m_rig->cabEntity = ec;
+        m_rig->m_cab_entity = ec;
     };
 
     m_rig->lowestnode = FindLowestNodeInRig();
@@ -7160,7 +7160,7 @@ void RigSpawner::FinalizeGfxSetup()
     }
 
     // Process "emissive cab" materials
-    if (m_rig->cabEntity != nullptr)
+    if (m_rig->m_cab_entity != nullptr)
     {
         auto search_itor = m_material_substitutions.find(m_cab_material_name);
         m_rig->m_gfx_actor->RegisterCabMaterial(search_itor->second.material, m_cab_trans_material);

@@ -134,19 +134,19 @@ Beam::~Beam()
         delete fuseAirfoil;
     fuseAirfoil = 0;
 
-    if (cabMesh != nullptr)
+    if (m_cab_mesh != nullptr)
     {
-        this->fadeMesh(cabNode, 1.f); // Reset transparency of "skeleton view"
+        this->fadeMesh(m_cab_scene_node, 1.f); // Reset transparency of "skeleton view"
 
-        cabNode->detachAllObjects();
-        cabNode->getParentSceneNode()->removeAndDestroyChild(cabNode->getName());
-        cabNode = nullptr;
+        m_cab_scene_node->detachAllObjects();
+        m_cab_scene_node->getParentSceneNode()->removeAndDestroyChild(m_cab_scene_node->getName());
+        m_cab_scene_node = nullptr;
 
-        cabEntity->_getManager()->destroyEntity(cabEntity);
-        cabEntity = nullptr;
+        m_cab_entity->_getManager()->destroyEntity(m_cab_entity);
+        m_cab_entity = nullptr;
 
-        delete cabMesh; // Unloads the ManualMesh resource; do this last
-        cabMesh = nullptr;
+        delete m_cab_mesh; // Unloads the ManualMesh resource; do this last
+        m_cab_mesh = nullptr;
     }
 
     if (m_replay_handler)
@@ -445,8 +445,8 @@ void Beam::scaleTruck(float value)
             ar_props[i].beacon_flare_billboard_scene_node[3]->scale(value, value, value);
     }
     // tell the cabmesh that resizing is ok, and they dont need to break ;)
-    if (cabMesh)
-        cabMesh->ScaleFlexObj(value);
+    if (m_cab_mesh)
+        m_cab_mesh->ScaleFlexObj(value);
     // update engine values
     if (engine)
     {
@@ -2909,9 +2909,9 @@ Quaternion Beam::specialGetRotationTo(const Vector3& src, const Vector3& dest) c
 
 void Beam::SetPropsCastShadows(bool do_cast_shadows)
 {
-    if (cabNode && cabNode->numAttachedObjects() && cabNode->getAttachedObject(0))
+    if (m_cab_scene_node && m_cab_scene_node->numAttachedObjects() && m_cab_scene_node->getAttachedObject(0))
     {
-        ((Entity*)(cabNode->getAttachedObject(0)))->setCastShadows(do_cast_shadows);
+        ((Entity*)(m_cab_scene_node->getAttachedObject(0)))->setCastShadows(do_cast_shadows);
     }
     int i;
     for (i = 0; i < ar_num_props; i++)
@@ -2967,7 +2967,7 @@ void Beam::prepareInside(bool inside)
         seatmat->setSceneBlending(SBT_REPLACE);
     }
 
-    if (cabNode != nullptr)
+    if (m_cab_scene_node != nullptr)
     {
         m_gfx_actor->GetCabTransMaterial()->setReceiveShadows(!inside);
     }
@@ -3502,8 +3502,8 @@ void Beam::updateFlexbodiesPrepare()
 {
     BES_GFX_START(BES_GFX_updateFlexBodies);
 
-    if (cabNode && cabMesh)
-        cabNode->setPosition(cabMesh->UpdateFlexObj());
+    if (m_cab_scene_node && m_cab_mesh)
+        m_cab_scene_node->setPosition(m_cab_mesh->UpdateFlexObj());
 
     if (gEnv->threadPool)
     {
@@ -4073,9 +4073,9 @@ void Beam::setMeshVisibility(bool visible)
             vwheels[i].fm->setVisible(visible);
         }
     }
-    if (cabNode)
+    if (m_cab_scene_node)
     {
-        cabNode->setVisible(visible);
+        m_cab_scene_node->setVisible(visible);
     }
 
     ar_meshes_visible = visible;
@@ -4086,23 +4086,23 @@ void Beam::cabFade(float amount)
     static float savedCabAlphaRejection = 0;
 
     // truck cab
-    if (cabNode)
+    if (m_cab_scene_node)
     {
         if (amount == 0)
         {
-            cabNode->setVisible(false);
+            m_cab_scene_node->setVisible(false);
         }
         else
         {
             if (amount == 1)
-                cabNode->setVisible(true);
+                m_cab_scene_node->setVisible(true);
             if (savedCabAlphaRejection == 0)
-                savedCabAlphaRejection = getAlphaRejection(cabNode);
+                savedCabAlphaRejection = getAlphaRejection(m_cab_scene_node);
             if (amount == 1)
-                setAlphaRejection(cabNode, savedCabAlphaRejection);
+                setAlphaRejection(m_cab_scene_node, savedCabAlphaRejection);
             else if (amount < 1)
-                setAlphaRejection(cabNode, 0);
-            fadeMesh(cabNode, amount);
+                setAlphaRejection(m_cab_scene_node, 0);
+            fadeMesh(m_cab_scene_node, amount);
         }
     }
 
