@@ -27,8 +27,8 @@ public:
 
     struct pointid_t
     {
-        int nodeid;
-        int truckid;
+        int node_id;
+        int actor_id;
     };
 
     std::vector<Ogre::Vector3>* object_list;
@@ -60,15 +60,13 @@ private:
         int begin;
     };
 
-    int object_list_size;
-    std::vector<Actor*> m_trucks;
-
-    std::vector<refelem_t> ref_list;
-    std::vector<pointid_t> pointid_list;
-    std::vector<kdnode_t> kdtree;
-
-    Ogre::Vector3 bbmin;
-    Ogre::Vector3 bbmax;
+    std::vector<Actor*>    m_actors;
+    std::vector<refelem_t> m_ref_list;
+    std::vector<pointid_t> m_pointid_list;
+    std::vector<kdnode_t>  m_kdtree;
+    Ogre::Vector3          m_bbmin;
+    Ogre::Vector3          m_bbmax;
+    int                    m_object_list_size;
 
     void queryrec(int kdindex, int axis);
     void build_kdtree_incr(int axis, int index);
