@@ -495,7 +495,6 @@ public:
     int               currentcamera;
     int               m_custom_camera_node;
     int               wheel_node_count;
-    Ogre::SceneNode*  netLabelNode;
     Ogre::String      realtruckfilename;
     int               airbrakeval;
     int               ar_net_source_id;
@@ -609,14 +608,11 @@ private:
     char*               netb1;              //!< Network; Triple buffer for incoming data
     char*               netb2;              //!< Network; Triple buffer for incoming data
     char*               netb3;              //!< Network; Triple buffer for incoming data
-    int                 net_toffset;
-    int                 netcounter;
-    Ogre::MovableText*  netMT;
-    bool              m_hide_own_net_label;
-    Ogre::String      networkUsername;
-    int               networkAuthlevel;
-    bool              netBrakeLight;
-    bool              netReverseLight;
+    int                 m_net_time_offset;
+    int                 m_net_update_counter;
+    Ogre::MovableText*  m_net_label_mt;
+    Ogre::SceneNode*    m_net_label_node;
+    Ogre::String        m_net_username;
     Ogre::Real        mTimeUntilNextToggle;
     float             cabFadeTimer;
     float             cabFadeTime;
@@ -642,6 +638,9 @@ private:
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?
     bool m_blinker_autoreset:1;    //!< Gfx state; We're steering - when we finish, the blinker should turn off
+    bool m_net_brake_light:1;
+    bool m_net_reverse_light:1;
+    bool m_hide_own_net_label:1;
 
 #ifdef FEAT_TIMING
     BeamThreadStats *statistics, *statistics_gfx;

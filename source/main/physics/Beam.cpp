@@ -345,11 +345,11 @@ Beam::~Beam()
         delete (*it);
     }
 
-    if (netMT)
+    if (m_net_label_mt)
     {
-        netMT->setVisible(false);
-        delete netMT;
-        netMT = 0;
+        m_net_label_mt->setVisible(false);
+        delete m_net_label_mt;
+        m_net_label_mt = 0;
     }
 
     if (intraPointCD)
@@ -644,7 +644,7 @@ void Beam::pushNetwork(char* data, int size)
         wheels[i].wh_net_rp2 = wheels[i].wh_net_rp3;
         wheels[i].wh_net_rp3 = rp;
     }
-    netcounter++;
+    m_net_update_counter++;
 
     BES_GFX_STOP(BES_GFX_pushNetwork);
 }
@@ -653,10 +653,10 @@ void Beam::calcNetwork()
 {
     using namespace RoRnet;
 
-    if (netcounter < 1)
+    if (m_net_update_counter < 1)
         return;
 
-    if (netcounter == 1)
+    if (m_net_update_counter == 1)
     {
         memcpy((char*)oob1, oob2, sizeof(RoRnet::TruckState));
     }
@@ -666,18 +666,18 @@ void Beam::calcNetwork()
     // we must update Nodes positions from available network informations
     int tnow = ar_net_timer.getMilliseconds();
     // adjust offset to match remote time
-    int rnow = tnow + net_toffset;
+    int rnow = tnow + m_net_time_offset;
     // if we receive older data from the future, we must correct the offset
     if (oob1->time > rnow)
     {
-        net_toffset = oob1->time - tnow;
-        rnow = tnow + net_toffset;
+        m_net_time_offset = oob1->time - tnow;
+        rnow = tnow + m_net_time_offset;
     }
     //if we receive last data from the past, we must correct the offset
     if (oob2->time < rnow)
     {
-        net_toffset = oob2->time - tnow;
-        rnow = tnow + net_toffset;
+        m_net_time_offset = oob2->time - tnow;
+        rnow = tnow + m_net_time_offset;
     }
     float tratio = (float)(rnow - oob1->time) / (float)(oob2->time - oob1->time);
 
@@ -820,15 +820,15 @@ void Beam::calcNetwork()
     setCustomLightVisible(2, ((flagmask & NETMASK_CLIGHT3) > 0));
     setCustomLightVisible(3, ((flagmask & NETMASK_CLIGHT4) > 0));
 
-    netBrakeLight = ((flagmask & NETMASK_BRAKES) != 0);
-    netReverseLight = ((flagmask & NETMASK_REVERSE) != 0);
+    m_net_brake_light = ((flagmask & NETMASK_BRAKES) != 0);
+    m_net_reverse_light = ((flagmask & NETMASK_REVERSE) != 0);
 
     if ((flagmask & NETMASK_HORN))
         SOUND_START(trucknum, SS_TRIG_HORN);
     else
         SOUND_STOP(trucknum, SS_TRIG_HORN);
 
-    if (netReverseLight)
+    if (m_net_reverse_light)
         SOUND_START(trucknum, SS_TRIG_REVERSE_GEAR);
     else
         SOUND_STOP(trucknum, SS_TRIG_REVERSE_GEAR);
@@ -3476,23 +3476,23 @@ void Beam::updateSoundSources()
 
 void Beam::updateLabels(float dt)
 {
-    if (netLabelNode && netMT)
+    if (m_net_label_node && m_net_label_mt)
     {
         // this ensures that the nickname is always in a readable size
-        netLabelNode->setPosition(position + Vector3(0.0f, (boundingBox.getMaximum().y - boundingBox.getMinimum().y), 0.0f));
+        m_net_label_node->setPosition(position + Vector3(0.0f, (boundingBox.getMaximum().y - boundingBox.getMinimum().y), 0.0f));
         Vector3 vdir = position - mCamera->getPosition();
         float vlen = vdir.length();
         float h = std::max(0.6, vlen / 30.0);
 
-        netMT->setCharacterHeight(h);
+        m_net_label_mt->setCharacterHeight(h);
         if (vlen > 1000) // 1000 ... vlen
-            netMT->setCaption(networkUsername + "  (" + TOSTRING((float)(ceil(vlen / 100) / 10.0) ) + " km)");
+            m_net_label_mt->setCaption(m_net_username + "  (" + TOSTRING((float)(ceil(vlen / 100) / 10.0) ) + " km)");
         else if (vlen > 20) // 20 ... vlen ... 1000
-            netMT->setCaption(networkUsername + "  (" + TOSTRING((int)vlen) + " m)");
+            m_net_label_mt->setCaption(m_net_username + "  (" + TOSTRING((int)vlen) + " m)");
         else // 0 ... vlen ... 20
-            netMT->setCaption(networkUsername);
+            m_net_label_mt->setCaption(m_net_username);
 
-        //netMT->setAdditionalHeight((boundingBox.getMaximum().y - boundingBox.getMinimum().y) + h + 0.1);
+        //m_net_label_mt->setAdditionalHeight((boundingBox.getMaximum().y - boundingBox.getMinimum().y) + h + 0.1);
     }
 }
 
@@ -4901,24 +4901,7 @@ void Beam::updateNetworkInfo()
         info = RoR::Networking::GetLocalUserData();
     }
 
-    networkUsername = UTFString(info.username);
-    networkAuthlevel = info.authstatus;
-
-#if 0
-	if (netMT)
-	{
-		if (networkAuthlevel & AUTH_ADMIN)
-		{
-			netMT->setFontName("highcontrast_red");
-		} else if (networkAuthlevel & AUTH_RANKED)
-		{
-			netMT->setFontName("highcontrast_green");
-		} else
-		{
-			netMT->setFontName("highcontrast_black");
-		}
-	}
-#endif
+    m_net_username = UTFString(info.username);
 
     BES_GFX_STOP(BES_GFX_updateNetworkInfo);
 #endif //SOCKETW
@@ -4938,7 +4921,7 @@ float Beam::getHeadingDirectionAngle()
 bool Beam::getReverseLightVisible()
 {
     if (ar_sim_state == SimState::NETWORKED_OK)
-        return netReverseLight;
+        return m_net_reverse_light;
 
     if (engine)
         return (engine->getGear() < 0);
@@ -5626,12 +5609,10 @@ Beam::Beam(
     , m_mouse_grab_move_force(0.0f)
     , m_mouse_grab_node(-1)
     , m_mouse_grab_pos(Ogre::Vector3::ZERO)
-    , netBrakeLight(false)
-    , netLabelNode(0)
-    , netMT(0)
-    , netReverseLight(false)
-    , networkAuthlevel(0)
-    , networkUsername("")
+    , m_net_brake_light(false)
+    , m_net_label_node(0)
+    , m_net_label_mt(0)
+    , m_net_reverse_light(false)
     , oldreplaypos(-1)
     , parkingbrake(0)
     , posStorage(0)
@@ -5786,8 +5767,8 @@ Beam::Beam(
         netb1 = (char*)malloc(m_net_buffer_size);
         netb2 = (char*)malloc(m_net_buffer_size);
         netb3 = (char*)malloc(m_net_buffer_size);
-        net_toffset = 0;
-        netcounter = 0;
+        m_net_time_offset = 0;
+        m_net_update_counter = 0;
         if (engine)
         {
             engine->start();
@@ -5805,39 +5786,22 @@ Beam::Beam(
         {
             char wname[256];
             sprintf(wname, "netlabel-%s", truckname);
-            netMT = new MovableText(wname, networkUsername);
-            netMT->setFontName("CyberbitEnglish");
-            netMT->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
-            //netMT->setAdditionalHeight(2);
-            netMT->showOnTop(false);
-            netMT->setCharacterHeight(2);
-            netMT->setColor(ColourValue::Black);
-            netMT->setVisible(true);
+            m_net_label_mt = new MovableText(wname, m_net_username);
+            m_net_label_mt->setFontName("CyberbitEnglish");
+            m_net_label_mt->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
+            m_net_label_mt->showOnTop(false);
+            m_net_label_mt->setCharacterHeight(2);
+            m_net_label_mt->setColor(ColourValue::Black);
+            m_net_label_mt->setVisible(true);
 
-            /*
-            if (networkAuthlevel & AUTH_ADMIN)
-            {
-                netMT->setFontName("highcontrast_red");
-            } else if (networkAuthlevel & AUTH_RANKED)
-            {
-                netMT->setFontName("highcontrast_green");
-            } else
-            {
-                netMT->setFontName("highcontrast_black");
-            }
-            */
-
-            netLabelNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-            netLabelNode->attachObject(netMT);
-            netLabelNode->setVisible(true);
-            deletion_sceneNodes.emplace_back(netLabelNode);
+            m_net_label_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+            m_net_label_node->attachObject(m_net_label_mt);
+            m_net_label_node->setVisible(true);
+            deletion_sceneNodes.emplace_back(m_net_label_node);
         }
     }
 
     mCamera = gEnv->mainCamera;
-
-    // DEBUG UTILITY
-    // RigInspector::InspectRig(this, "d:\\Projects\\Rigs of Rods\\rig-inspection\\NextStable.log");
 
     LOG(" ===== DONE LOADING VEHICLE");
 }
@@ -6328,7 +6292,7 @@ void Beam::setMass(float m)
 bool Beam::getBrakeLightVisible()
 {
     if (ar_sim_state == SimState::NETWORKED_OK)
-        return netBrakeLight;
+        return m_net_brake_light;
 
     //		return (brake > 0.15 && !parkingbrake);
     return (brake > 0.15);
