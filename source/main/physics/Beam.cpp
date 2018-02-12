@@ -127,9 +127,13 @@ Beam::~Beam()
     if (buoyance)
         delete buoyance;
     buoyance = 0;
-    if (autopilot)
-        delete autopilot;
-    autopilot = 0;
+
+    if (ar_autopilot != nullptr)
+    {
+        delete ar_autopilot;
+        ar_autopilot = nullptr;
+    }
+
     if (m_fusealge_airfoil)
         delete m_fusealge_airfoil;
     m_fusealge_airfoil = 0;
@@ -1527,7 +1531,7 @@ void Beam::calculateDriverPos(Vector3& out_pos, Quaternion& out_rot)
 
 void Beam::resetAutopilot()
 {
-    autopilot->disconnect();
+    ar_autopilot->disconnect();
     OverlayManager::getSingleton().getOverlayElement("tracks/ap_hdg_but")->setMaterialName("tracks/hdg-off");
     OverlayManager::getSingleton().getOverlayElement("tracks/ap_wlv_but")->setMaterialName("tracks/wlv-off");
     OverlayManager::getSingleton().getOverlayElement("tracks/ap_nav_but")->setMaterialName("tracks/nav-off");
@@ -1544,7 +1548,7 @@ void Beam::resetAutopilot()
 
 void Beam::disconnectAutopilot()
 {
-    autopilot->disconnect();
+    ar_autopilot->disconnect();
     OverlayManager::getSingleton().getOverlayElement("tracks/ap_hdg_but")->setMaterialName("tracks/hdg-off");
     OverlayManager::getSingleton().getOverlayElement("tracks/ap_wlv_but")->setMaterialName("tracks/wlv-off");
     OverlayManager::getSingleton().getOverlayElement("tracks/ap_nav_but")->setMaterialName("tracks/nav-off");
@@ -1731,7 +1735,7 @@ void Beam::SyncReset()
         buoyance->setsink(0);
     m_ref_tyre_pressure = 50.0;
     addPressure(0.0);
-    if (autopilot)
+    if (ar_autopilot)
         resetAutopilot();
     for (int i = 0; i < free_flexbody; i++)
         flexbodies[i]->reset();
@@ -2197,7 +2201,7 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
     //speedo ( scales with speedomax )
     if (flag_state & ANIM_FLAG_SPEEDO)
     {
-        float speedo = ar_wheel_speed / speedoMax;
+        float speedo = ar_wheel_speed / ar_speedo_max_kph;
         cstate -= speedo * 3.0f;
         div++;
     }
@@ -3574,7 +3578,7 @@ void Beam::updateVisual(float dt)
     autoBlinkReset();
     updateSoundSources();
 
-    if (debugVisuals)
+    if (m_debug_visuals)
         updateDebugOverlay();
 
 #ifdef USE_OPENAL
@@ -3640,13 +3644,13 @@ void Beam::updateVisual(float dt)
     float autoaileron = 0;
     float autorudder = 0;
     float autoelevator = 0;
-    if (autopilot)
+    if (ar_autopilot)
     {
-        autopilot->UpdateIls(gEnv->terrainManager->getObjectManager()->GetLocalizers());
-        autoaileron = autopilot->getAilerons();
-        autorudder = autopilot->getRudder();
-        autoelevator = autopilot->getElevator();
-        autopilot->gpws_update(ar_posnode_spawn_height);
+        ar_autopilot->UpdateIls(gEnv->terrainManager->getObjectManager()->GetLocalizers());
+        autoaileron = ar_autopilot->getAilerons();
+        autorudder = ar_autopilot->getRudder();
+        autoelevator = ar_autopilot->getElevator();
+        ar_autopilot->gpws_update(ar_posnode_spawn_height);
     }
     autoaileron += ar_aileron;
     autorudder += ar_rudder;
@@ -4694,11 +4698,11 @@ void Beam::setReplayMode(bool rm)
 void Beam::setDebugOverlayState(int mode)
 {
     // enable disable debug visuals
-    debugVisuals = mode;
+    m_debug_visuals = mode;
 
     if (nodes_debug.empty())
     {
-        LOG("initializing debugVisuals");
+        LOG("initializing m_debug_visuals");
         // add node labels
         for (int i = 0; i < ar_num_nodes; i++)
         {
@@ -4763,8 +4767,8 @@ void Beam::setDebugOverlayState(int mode)
     }
 
     // then hide them according to the state:
-    bool nodesVisible = debugVisuals == 1 || (debugVisuals >= 3 && debugVisuals <= 5);
-    bool beamsVisible = debugVisuals == 2 || debugVisuals == 3 || (debugVisuals >= 6 && debugVisuals <= 11);
+    bool nodesVisible = m_debug_visuals == 1 || (m_debug_visuals >= 3 && m_debug_visuals <= 5);
+    bool beamsVisible = m_debug_visuals == 2 || m_debug_visuals == 3 || (m_debug_visuals >= 6 && m_debug_visuals <= 11);
 
     for (std::vector<debugtext_t>::iterator it = nodes_debug.begin(); it != nodes_debug.end(); it++)
         it->node->setVisible(nodesVisible);
@@ -4776,10 +4780,10 @@ void Beam::setDebugOverlayState(int mode)
 
 void Beam::updateDebugOverlay()
 {
-    if (!debugVisuals)
+    if (!m_debug_visuals)
         return;
 
-    switch (debugVisuals)
+    switch (m_debug_visuals)
     {
     case 0: // off
         return;
@@ -5639,6 +5643,8 @@ Beam::Beam(
     , m_minimass(50.f)
     , m_load_mass(0.f)
     , m_dry_mass(0.f)
+    , ar_gui_use_engine_max_rpm(false)
+    , ar_autopilot(nullptr)
 {
     m_high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();
     useSkidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;

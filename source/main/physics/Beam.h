@@ -400,12 +400,9 @@ public:
     bool              ispolice;
     bool              collisionRelevant;
     bool              heathaze;
-    Autopilot*        autopilot;
-    HeightFinder*     hfinder;
+    Autopilot*        ar_autopilot;
     float             ar_brake_force;              //!< Physics attr; filled at spawn
-    int               debugVisuals;                //!< Dbg. overlay type { NODES: 1-Numbers, 4-Mass, 5-Locked | BEAMS: 2-Numbers, 6-Compression, 7-Broken, 8-Stress, 9-Strength, 10-Hydros, 11-Commands, OTHER: 3-N&B numbers, 12-14 unknown }
-    float             speedoMax;
-    bool              useMaxRPMforGUI;
+    float             ar_speedo_max_kph;           //!< GUI attr
     Ogre::Vector3     ar_origin;
     int               ar_num_cameras;
     int               ar_camera_node_pos[MAX_CAMERAS]; //!< Physics attr; 'camera' = frame of reference; origin node
@@ -467,6 +464,7 @@ public:
     bool ar_disable_actor2actor_collision:1; //!< Physics attribute; clone of RoR.cfg entry "DisableCollisions"
     bool ar_disable_aerodyn_turbulent_drag:1; //!< Physics state
     bool ar_engine_hydraulics_ready:1; //!< Sim state; does engine have enough RPM to power hydraulics?
+    bool ar_gui_use_engine_max_rpm:1;  //!< Gfx attr
     bool ar_hydro_speed_coupling:1;
     bool ar_replay_mode:1;      //!< Sim state
 
@@ -606,6 +604,7 @@ private:
     float             m_load_mass;             //!< Physics attr; predefined load mass in Kg
     int               m_masscount;             //!< Physics attr; Number of nodes loaded with l option
     float             m_dry_mass;              //!< Physics attr;
+    int               m_debug_visuals;         //!< GUI state; Dbg. overlay type { NODES: 1-Numbers, 4-Mass, 5-Locked | BEAMS: 2-Numbers, 6-Compression, 7-Broken, 8-Stress, 9-Strength, 10-Hydros, 11-Commands, OTHER: 3-N&B numbers, 12-14 unknown }
 
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?
