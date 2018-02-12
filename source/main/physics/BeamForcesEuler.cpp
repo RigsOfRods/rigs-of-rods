@@ -1337,6 +1337,22 @@ void LogBeamNodes(RoR::Str<L>& msg, beam_t& beam) // Internal helper
 void Actor::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 {
     BES_START(BES_CORE_Beams);
+    // HOT DATA: 
+    //  node_t:
+    //     RelPosition, velocity, Forces
+    //  beam_t:
+    //     bm_disabled, bm_inter_actor
+    //     L, k, d
+    //     bounded, stress, minmaxposnegstress
+    //  <>beam-bounded-SHOCK1:
+    //     longbound, shortbound, bm_type, shock(ptr)
+    //  <>beam-bounded-SHOCK2
+    //     !! function-call !!
+    //  <>beam-bounded-SUPPORTBEAM:
+    //     longbound
+    //  <>beam ~ deformation:
+    //     bm_type, bounded, maxposstress, maxnegstress, strength, plastic_coef, detacher_group
+
     // Springs
     for (int i = 0; i < ar_num_beams; i++)
     {
