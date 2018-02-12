@@ -804,14 +804,14 @@ void Beam::calcNetwork()
         toggleCustomParticles();
 
     // set lights
-    if (((flagmask & NETMASK_LIGHTS) != 0) != lights)
+    if (((flagmask & NETMASK_LIGHTS) != 0) != ar_lights)
         lightsToggle();
     if (((flagmask & NETMASK_BEACONS) != 0) != m_beacon_light_is_active)
         beaconsToggle();
 
     antilockbrake = flagmask & NETMASK_ALB_ACTIVE;
     tractioncontrol = flagmask & NETMASK_TC_ACTIVE;
-    parkingbrake = flagmask & NETMASK_PBRAKE;
+    ar_parking_brake = flagmask & NETMASK_PBRAKE;
 
     blinktype btype = BLINK_NONE;
     if ((flagmask & NETMASK_BLINK_LEFT) != 0)
@@ -1650,7 +1650,7 @@ void Beam::SyncReset()
     hydrodirwheeldisplay = 0.0;
     if (m_hydro_inertia)
         m_hydro_inertia->resetCmdKeyDelay();
-    parkingbrake = 0;
+    ar_parking_brake = 0;
     cc_mode = false;
     ar_fusedrag = Vector3::ZERO;
     origin = Vector3::ZERO;
@@ -1817,14 +1817,8 @@ void Beam::ForceFeedbackStep(int steps)
 void Beam::updateAngelScriptEvents(float dt)
 {
 #ifdef USE_ANGELSCRIPT
-    if (locked != lockedold)
-    {
-        if (locked == LOCKED)
-            ScriptEngine::getSingleton().triggerEvent(SE_TRUCK_LOCKED, trucknum);
-        if (locked == UNLOCKED)
-            ScriptEngine::getSingleton().triggerEvent(SE_TRUCK_UNLOCKED, trucknum);
-        lockedold = locked;
-    }
+
+    // TODO: restore events SE_TRUCK_LOCKED and SE_TRUCK_UNLOCKED
     if (m_water_contact && !m_water_contact_old)
     {
         m_water_contact_old = m_water_contact;
@@ -1934,7 +1928,7 @@ void Beam::sendStreamData()
         else if (b == BLINK_WARN)
             send_oob->flagmask += NETMASK_BLINK_WARN;
 
-        if (lights)
+        if (ar_lights)
             send_oob->flagmask += NETMASK_LIGHTS;
         if (getCustomLightVisible(0))
             send_oob->flagmask += NETMASK_CLIGHT1;
@@ -1954,7 +1948,7 @@ void Beam::sendStreamData()
         if (getCustomParticleMode())
             send_oob->flagmask += NETMASK_PARTICLE;
 
-        if (parkingbrake)
+        if (ar_parking_brake)
             send_oob->flagmask += NETMASK_PBRAKE;
         if (tractioncontrol)
             send_oob->flagmask += NETMASK_TC_ACTIVE;
@@ -2195,7 +2189,7 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
     //parking brake
     if (flag_state & ANIM_FLAG_PBRAKE)
     {
-        float pbrake = parkingbrake;
+        float pbrake = ar_parking_brake;
         cstate -= pbrake;
         div++;
     }
@@ -3003,8 +2997,8 @@ void Beam::lightsToggle()
                 trucks[i]->lightsToggle();
         }
     }
-    lights = !lights;
-    if (!lights)
+    ar_lights = !ar_lights;
+    if (!ar_lights)
     {
         for (size_t i = 0; i < flares.size(); i++)
         {
@@ -3034,7 +3028,7 @@ void Beam::lightsToggle()
         }
     }
 
-    m_gfx_actor->SetCabLightsActive(lights != 0);
+    m_gfx_actor->SetCabLightsActive(ar_lights != 0);
 
     TRIGGER_EVENT(SE_TRUCK_LIGHT_TOGGLE, trucknum);
 }
@@ -3236,8 +3230,8 @@ void Beam::updateFlares(float dt, bool isCurrent)
         bool isvisible = true; //this must be true to be able to switch on the frontlight
         if (flares[i].type == 'f')
         {
-            m_gfx_actor->SetMaterialFlareOn(i, (lights == 1));
-            if (!lights)
+            m_gfx_actor->SetMaterialFlareOn(i, (ar_lights == 1));
+            if (!ar_lights)
                 continue;
         }
         else if (flares[i].type == 'b')
@@ -3654,9 +3648,9 @@ void Beam::updateVisual(float dt)
         autoelevator = autopilot->getElevator();
         autopilot->gpws_update(posnode_spawn_height);
     }
-    autoaileron += aileron;
-    autorudder += rudder;
-    autoelevator += elevator;
+    autoaileron += ar_aileron;
+    autorudder += ar_rudder;
+    autoelevator += ar_elevator;
     if (autoaileron < -1.0)
         autoaileron = -1.0;
     if (autoaileron > 1.0)
@@ -4569,9 +4563,9 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
 
 void Beam::parkingbrakeToggle()
 {
-    parkingbrake = !parkingbrake;
+    ar_parking_brake = !ar_parking_brake;
 
-    if (parkingbrake)
+    if (ar_parking_brake)
         SOUND_START(trucknum, SS_TRIG_PARK);
     else
         SOUND_STOP(trucknum, SS_TRIG_PARK);
@@ -5152,7 +5146,7 @@ void Beam::updateDashBoards(float dt)
     }
 
     // parking brake
-    bool pbrake = (parkingbrake > 0);
+    bool pbrake = (ar_parking_brake > 0);
     ar_dashboard->setBool(DD_PARKINGBRAKE, pbrake);
 
     // locked lamp
@@ -5164,7 +5158,7 @@ void Beam::updateDashBoards(float dt)
     ar_dashboard->setBool(DD_LOW_PRESSURE, low_pres);
 
     // lights
-    bool lightsOn = (lights > 0);
+    bool lightsOn = (ar_lights > 0);
     ar_dashboard->setBool(DD_LIGHTS, lightsOn);
 
     // Traction Control
@@ -5552,7 +5546,7 @@ Beam::Beam(
     , ar_wings(nullptr), ar_num_wings(0)
     , m_hud_features_ok(false)
     , m_sim_controller(sim_controller)
-    , aileron(0)
+    , ar_aileron(0)
     , m_avionic_chatter_timer(11.0f) // some pseudo random number,  doesn't matter
     , m_beacon_light_is_active(false)
     , ar_beams_visible(true)
@@ -5573,7 +5567,7 @@ Beam::Beam(
     , ar_disable_aerodyn_turbulent_drag(false)
     , ar_disable_actor2actor_collision(false)
     , ar_disable_self_collision(false)
-    , elevator(0)
+    , ar_elevator(0)
     , ar_aerial_flap(0)
     , ar_fusedrag(Ogre::Vector3::ZERO)
     , m_high_res_wheelnode_collisions(false)
@@ -5593,9 +5587,7 @@ Beam::Beam(
     , ar_net_last_update_time(0)
     , lastposition(pos)
     , ar_left_mirror_angle(0.52)
-    , lights(1)
-    , locked(0)
-    , lockedold(0)
+    , ar_lights(1)
     , velocity(Ogre::Vector3::ZERO)
     , ar_custom_camera_node(-1)
     , m_hide_own_net_label(BSETTING("HideOwnNetLabel", false))
@@ -5618,7 +5610,7 @@ Beam::Beam(
     , m_net_label_mt(0)
     , m_net_reverse_light(false)
     , m_replay_pos_prev(-1)
-    , parkingbrake(0)
+    , ar_parking_brake(0)
     , m_position_storage(0)
     , position(pos)
     , m_previous_gear(0)
@@ -5631,7 +5623,7 @@ Beam::Beam(
     , ar_replay_pos(0)
     , m_reverse_light_active(false)
     , ar_right_mirror_angle(-0.52)
-    , rudder(0)
+    , ar_rudder(0)
     , m_skeletonview_mesh_initialized(false)
     , m_skeletonview_manual_mesh(0)
     , ar_update_physics(false)

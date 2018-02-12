@@ -175,9 +175,9 @@ bool OutProtocol::Update(float dt, Beam* truck)
             gd.DashLights |= DL_ABS;
 
         gd.ShowLights = 0;
-        if (truck->parkingbrake)
+        if (truck->ar_parking_brake)
             gd.ShowLights |= DL_HANDBRAKE;
-        if (truck->lights)
+        if (truck->ar_lights)
             gd.ShowLights |= DL_FULLBEAM;
         if (truck->engine->hasContact() && !truck->engine->isRunning())
             gd.ShowLights |= DL_BATTERY;

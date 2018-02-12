@@ -289,6 +289,8 @@ public:
     std::vector<debugtext_t>  beams_debug;
     Ogre::AxisAlignedBox      boundingBox;     //!< standard bounding box (surrounds all nodes of a truck)
     Ogre::AxisAlignedBox      predictedBoundingBox;
+    std::vector< std::vector< int > >  nodetonodeconnections;
+    std::vector< std::vector< int > >  nodebeamconnections;
     std::vector<Ogre::Entity*>         deletion_Entities;   //!< For unloading vehicle; filled at spawn.
     std::vector<Ogre::MovableObject *> deletion_Objects;    //!< For unloading vehicle; filled at spawn.
     std::vector<Ogre::SceneNode*>      deletion_sceneNodes; //!< For unloading vehicle; filled at spawn.
@@ -445,8 +447,6 @@ public:
     VehicleAI*        ar_vehicle_ai;
     float             currentScale;
     Ogre::Real        brake;
-    std::vector< std::vector< int > > nodetonodeconnections;
-    std::vector< std::vector< int > > nodebeamconnections;
     float             WheelSpeed;         //!< wheel speed in m/s
     float             hydrodircommand;
     bool              hydroSpeedCoupling;
@@ -460,19 +460,17 @@ public:
     float             hydroelevatorstate;
     bool              canwork;
     Ogre::Real        ar_replay_precision;            //!< Sim attribute; determined at startup
-    int               locked;
-    int               lockedold;
     int               ar_replay_length;               //!< Sim attribute; clone of GVar 'sim_replay_length'
     int               ar_replay_pos;                  //!< Sim state
     float             sleeptime;
     ground_model_t*   ar_submesh_ground_model;
-    int               parkingbrake;
-    int               lights;
+    int               ar_parking_brake;
+    int               ar_lights;
     float             ar_left_mirror_angle;           //!< Sim state; rear view mirror angle
     float             ar_right_mirror_angle;          //!< Sim state; rear view mirror angle
-    float             elevator;
-    float             rudder;
-    float             aileron;
+    float             ar_elevator;
+    float             ar_rudder;
+    float             ar_aileron;
     int               ar_aerial_flap;                 //!< Physics state; state of aircraft flaps (values: 0-5)
     Ogre::Vector3     ar_fusedrag;                    //!< Physics state
     int               ar_current_cinecam;             //!< Sim state; index of current CineCam (-1 if using external camera)

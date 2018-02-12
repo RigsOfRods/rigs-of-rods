@@ -37,7 +37,7 @@ void LandVehicleSimulation::UpdateCruiseControl(Beam* curr_truck, float dt)
 {
     if ((curr_truck->engine->getGear() > 0 && RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE) > 0.05f) ||
         (curr_truck->engine->getGear() > 0 && RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH) > 0.05f) ||
-        (curr_truck->engine->getGear() > 0 && curr_truck->parkingbrake) ||
+        (curr_truck->engine->getGear() > 0 && curr_truck->ar_parking_brake) ||
         (curr_truck->engine->getGear() < 0) ||
         (curr_truck->cc_target_speed < curr_truck->cc_target_speed_lower_limit) ||
         !curr_truck->engine->isRunning() ||
@@ -491,7 +491,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
                         curr_truck->brake = curr_truck->brakeforce * sqrt(ratio);
                     }
                 }
-                else if (brake == 0.0f && accl == 0.0f && curr_truck->parkingbrake == 0)
+                else if (brake == 0.0f && accl == 0.0f && curr_truck->ar_parking_brake == 0)
                 {
                     float ratio = std::max(0.0f, 0.1f - std::abs(curr_truck->WheelSpeed)) * 5.0f;
                     curr_truck->brake = curr_truck->brakeforce * ratio;
