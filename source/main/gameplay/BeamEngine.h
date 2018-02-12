@@ -33,7 +33,7 @@ class EngineSim : public ZeroedMemoryAllocator
 
 public:
 
-    EngineSim(float minRPM, float maxRPM, float torque, std::vector<float> gears, float dratio, Actor* actor);
+    EngineSim(float m_engine_min_rpm, float m_engine_max_rpm, float torque, std::vector<float> gears, float dratio, Actor* actor);
     ~EngineSim();
 
     float getAcc();
@@ -89,7 +89,7 @@ public:
     void           toggleAutoMode();
     void           toggleContact();
     void           offstart();                   //!< Quick start of vehicle engine. Plays sounds.
-    void           setstarter(bool v);           //!< Controls vehicle starter. No side effects.
+    void           setstarter(bool v);           //!< Controls vehicle m_starter. No side effects.
     void           start();                      //!< Quick engine start. Plays sounds.
     int            getGear();                    //!< low level gear changing
     int            getGearRange();               //!< low level gear changing
@@ -100,11 +100,11 @@ public:
     bool           hasTurbo() const         { return m_engine_has_turbo; };
     bool           isRunning() const        { return m_engine_is_running; };
     char           getType() const          { return m_engine_type; };
-    float          getEngineTorque() const  { return engineTorque; };
+    float          getEngineTorque() const  { return m_engine_torque; };
     float          getBrakingTorque() const { return m_braking_torque; };
-    float          getIdleRPM() const       { return idleRPM; };
-    float          getMaxRPM() const        { return maxRPM; };
-    float          getMinRPM() const        { return minRPM; };
+    float          getIdleRPM() const       { return m_idle_rpm; };
+    float          getMaxRPM() const        { return m_engine_max_rpm; };
+    float          getMinRPM() const        { return m_engine_min_rpm; };
     int            getNumGears() const      { return m_gear_ratios.size() - 2; };
     int            getNumGearsRanges() const{ return getNumGears() / 6 + 1; };
     TorqueCurve*   getTorqueCurve()         { return torqueCurve; };
@@ -183,41 +183,39 @@ protected:
     float          m_cur_acc;               //!< Engine
     float          m_cur_engine_rpm;        //!< Engine
     float          m_diff_ratio;            //!< Engine
-    float engineTorque; //!< Engine
-    float hydropump; //!< Engine
-    float idleRPM; //!< Engine attribute
-    float minIdleMixture; //!< Engine attribute
-    float maxIdleMixture; //!< Engine attribute
-    float inertia; //!< Engine attribute
-    float maxRPM; //!< Engine attribute
-    float minRPM; //!< Engine attribute
-    float stallRPM; //!< Engine
-    bool is_priming; //!< Engine
+    float          m_engine_torque;         //!< Engine
+    float          m_hydropump_state;       //!< Engine
+    float          m_idle_rpm;              //!< Engine attribute
+    float          m_min_idle_mixture;      //!< Engine attribute
+    float          m_max_idle_mixture;      //!< Engine attribute
+    float          m_engine_inertia;        //!< Engine attribute
+    float          m_engine_max_rpm;        //!< Engine attribute
+    float          m_engine_min_rpm;        //!< Engine attribute
+    float          m_engine_stall_rpm;      //!< Engine
+    bool           m_engine_is_priming;     //!< Engine
 
-    // shifting
-    float post_shift_time; //!< Shift attribute
-    float postshiftclock;
-    float shift_time; //!< Shift attribute
-    float shiftclock;
-    int postshifting;
-    int shifting;
-    int shiftval;
+    // Shifting
+    float          m_post_shift_time;       //!< Shift attribute
+    float          m_post_shift_clock;
+    float          m_shift_time;            //!< Shift attribute
+    float          m_shift_clock;
+    int            m_post_shifting;
+    int            m_shifting;
+    int            m_shift_val;
 
-    // auto
-    autoswitch autoselect;
-    float autocurAcc;
-    int starter;
-
-    // auto transmission
-    float fullRPMRange;
-    float oneThirdRPMRange;
-    float halfRPMRange;
-    float shiftBehaviour;
-    int upShiftDelayCounter;
-    int kickdownDelayCounter;
-    std::deque<float> rpms;
-    std::deque<float> accs;
-    std::deque<float> brakes;
+    // Auto transmission
+    autoswitch     m_autoselect;
+    float          m_auto_cur_acc;
+    int            m_starter;
+    float          m_full_rpm_range;
+    float          m_one_third_rpm_range;
+    float          m_half_rpm_range;
+    float          m_shift_behaviour;
+    int            m_upshift_delay_counter;
+    int            m_kickdown_delay_counter;
+    std::deque<float> m_rpms;
+    std::deque<float> m_accs;
+    std::deque<float> m_brakes;
 
     // turbo
     //Yeah i know, a bit dirty
