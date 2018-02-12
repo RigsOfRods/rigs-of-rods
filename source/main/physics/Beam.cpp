@@ -94,7 +94,7 @@ using namespace RoR;
 
 Beam::~Beam()
 {
-    TRIGGER_EVENT(SE_GENERIC_DELETED_TRUCK, trucknum);
+    TRIGGER_EVENT(SE_GENERIC_DELETED_TRUCK, ar_instance_id);
 
     // TODO: IMPROVE below: delete/destroy prop entities, etc
 
@@ -115,7 +115,7 @@ Beam::~Beam()
 #ifdef USE_OPENAL
     for (int i = SS_TRIG_NONE + 1; i < SS_MAX_TRIG; i++)
     {
-        SOUND_STOP(this->trucknum, i);
+        SOUND_STOP(this, i);
     }
 #endif // USE_OPENAL
     StopAllSounds();
@@ -766,14 +766,14 @@ void Beam::calcNetwork()
 
     if (ar_engine)
     {
-        SOUND_MODULATE(trucknum, SS_MOD_ENGINE, engspeed);
+        SOUND_MODULATE(ar_instance_id, SS_MOD_ENGINE, engspeed);
     }
     if (free_aeroengine > 0)
     {
-        SOUND_MODULATE(trucknum, SS_MOD_AEROENGINE1, engspeed);
-        SOUND_MODULATE(trucknum, SS_MOD_AEROENGINE2, engspeed);
-        SOUND_MODULATE(trucknum, SS_MOD_AEROENGINE3, engspeed);
-        SOUND_MODULATE(trucknum, SS_MOD_AEROENGINE4, engspeed);
+        SOUND_MODULATE(ar_instance_id, SS_MOD_AEROENGINE1, engspeed);
+        SOUND_MODULATE(ar_instance_id, SS_MOD_AEROENGINE2, engspeed);
+        SOUND_MODULATE(ar_instance_id, SS_MOD_AEROENGINE3, engspeed);
+        SOUND_MODULATE(ar_instance_id, SS_MOD_AEROENGINE4, engspeed);
     }
 
     ar_brake = netbrake;
@@ -825,14 +825,14 @@ void Beam::calcNetwork()
     m_net_reverse_light = ((flagmask & NETMASK_REVERSE) != 0);
 
     if ((flagmask & NETMASK_HORN))
-        SOUND_START(trucknum, SS_TRIG_HORN);
+        SOUND_START(ar_instance_id, SS_TRIG_HORN);
     else
-        SOUND_STOP(trucknum, SS_TRIG_HORN);
+        SOUND_STOP(ar_instance_id, SS_TRIG_HORN);
 
     if (m_net_reverse_light)
-        SOUND_START(trucknum, SS_TRIG_REVERSE_GEAR);
+        SOUND_START(ar_instance_id, SS_TRIG_REVERSE_GEAR);
     else
-        SOUND_STOP(trucknum, SS_TRIG_REVERSE_GEAR);
+        SOUND_STOP(ar_instance_id, SS_TRIG_REVERSE_GEAR);
 
     updateDashBoards(tratio);
 
@@ -1087,7 +1087,7 @@ Vector3 Beam::calculateCollisionOffset(Vector3 direction)
     {
         if (!trucks[t])
             continue;
-        if (t == trucknum)
+        if (t == ar_instance_id)
             continue;
         if (!bb.intersects(trucks[t]->boundingBox))
             continue;
@@ -1819,7 +1819,7 @@ void Beam::updateAngelScriptEvents(float dt)
     if (m_water_contact && !m_water_contact_old)
     {
         m_water_contact_old = m_water_contact;
-        ScriptEngine::getSingleton().triggerEvent(SE_TRUCK_TOUCHED_WATER, trucknum);
+        ScriptEngine::getSingleton().triggerEvent(SE_TRUCK_TOUCHED_WATER, ar_instance_id);
     }
 #endif // USE_ANGELSCRIPT
 }
@@ -1952,7 +1952,7 @@ void Beam::sendStreamData()
         if (antilockbrake)
             send_oob->flagmask += NETMASK_ALB_ACTIVE;
 
-        if (SOUND_GET_STATE(trucknum, SS_TRIG_HORN))
+        if (SOUND_GET_STATE(ar_instance_id, SS_TRIG_HORN))
             send_oob->flagmask += NETMASK_HORN;
     }
 
@@ -2990,7 +2990,7 @@ void Beam::lightsToggle()
     {
         for (int i = 0; i < trucksnum; i++)
         {
-            if (trucks[i] && trucks[i]->ar_sim_state == Beam::SimState::LOCAL_SIMULATED && this->trucknum != i && trucks[i]->importcommands)
+            if (trucks[i] && trucks[i]->ar_sim_state == Beam::SimState::LOCAL_SIMULATED && this->ar_instance_id != i && trucks[i]->importcommands)
                 trucks[i]->lightsToggle();
         }
     }
@@ -3027,7 +3027,7 @@ void Beam::lightsToggle()
 
     m_gfx_actor->SetCabLightsActive(ar_lights != 0);
 
-    TRIGGER_EVENT(SE_TRUCK_LIGHT_TOGGLE, trucknum);
+    TRIGGER_EVENT(SE_TRUCK_LIGHT_TOGGLE, ar_instance_id);
 }
 
 void Beam::updateFlares(float dt, bool isCurrent)
@@ -3271,7 +3271,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
             ar_left_blink_on = isvisible;
 
             if (ar_left_blink_on)
-                SOUND_PLAY_ONCE(trucknum, SS_TRIG_TURN_SIGNAL_TICK);
+                SOUND_PLAY_ONCE(ar_instance_id, SS_TRIG_TURN_SIGNAL_TICK);
 
             ar_dashboard->setBool(DD_SIGNAL_TURNLEFT, isvisible);
         }
@@ -3280,7 +3280,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
             ar_right_blink_on = isvisible;
 
             if (ar_right_blink_on)
-                SOUND_PLAY_ONCE(trucknum, SS_TRIG_TURN_SIGNAL_TICK);
+                SOUND_PLAY_ONCE(ar_instance_id, SS_TRIG_TURN_SIGNAL_TICK);
 
             ar_dashboard->setBool(DD_SIGNAL_TURNRIGHT, isvisible);
         }
@@ -3289,7 +3289,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
             ar_warn_blink_on = isvisible;
 
             if (ar_warn_blink_on)
-                SOUND_PLAY_ONCE(trucknum, SS_TRIG_TURN_SIGNAL_WARN_TICK);
+                SOUND_PLAY_ONCE(ar_instance_id, SS_TRIG_TURN_SIGNAL_WARN_TICK);
 
             ar_dashboard->setBool(DD_SIGNAL_TURNRIGHT, isvisible);
             ar_dashboard->setBool(DD_SIGNAL_TURNLEFT, isvisible);
@@ -3360,11 +3360,11 @@ void Beam::setBlinkType(blinktype blink)
 
     if (blink == BLINK_NONE)
     {
-        SOUND_STOP(trucknum, SS_TRIG_TURN_SIGNAL);
+        SOUND_STOP(ar_instance_id, SS_TRIG_TURN_SIGNAL);
     }
     else
     {
-        SOUND_START(trucknum, SS_TRIG_TURN_SIGNAL);
+        SOUND_START(ar_instance_id, SS_TRIG_TURN_SIGNAL);
     }
 }
 
@@ -3453,7 +3453,7 @@ void Beam::toggleCustomParticles()
     }
 
     //ScriptEvent - Particle Toggle
-    TRIGGER_EVENT(SE_TRUCK_CPARTICLES_TOGGLE, trucknum);
+    TRIGGER_EVENT(SE_TRUCK_CPARTICLES_TOGGLE, ar_instance_id);
 }
 
 void Beam::updateSoundSources()
@@ -3467,8 +3467,8 @@ void Beam::updateSoundSources()
         soundsources[i].ssi->setPosition(ar_nodes[soundsources[i].nodenum].AbsPosition, ar_nodes[soundsources[i].nodenum].Velocity);
     }
     //also this, so it is updated always, and for any vehicle
-    SOUND_MODULATE(trucknum, SS_MOD_AIRSPEED, ar_nodes[0].Velocity.length() * 1.9438);
-    SOUND_MODULATE(trucknum, SS_MOD_WHEELSPEED, ar_wheel_speed * 3.6);
+    SOUND_MODULATE(ar_instance_id, SS_MOD_AIRSPEED, ar_nodes[0].Velocity.length() * 1.9438);
+    SOUND_MODULATE(ar_instance_id, SS_MOD_WHEELSPEED, ar_wheel_speed * 3.6);
 #endif //OPENAL
     BES_GFX_STOP(BES_GFX_updateSoundSources);
 }
@@ -3582,7 +3582,7 @@ void Beam::updateVisual(float dt)
         m_avionic_chatter_timer -= dt;
         if (m_avionic_chatter_timer < 0)
         {
-            SOUND_PLAY_ONCE(trucknum, SS_TRIG_AVICHAT01 + Math::RangeRandom(0, 12));
+            SOUND_PLAY_ONCE(ar_instance_id, SS_TRIG_AVICHAT01 + Math::RangeRandom(0, 12));
             m_avionic_chatter_timer = Math::RangeRandom(11, 30);
         }
     }
@@ -3876,7 +3876,7 @@ void Beam::showSkeleton(bool meshes, bool linked)
 
     updateSimpleSkeleton();
 
-    TRIGGER_EVENT(SE_TRUCK_SKELETON_TOGGLE, trucknum);
+    TRIGGER_EVENT(SE_TRUCK_SKELETON_TOGGLE, ar_instance_id);
 }
 
 void Beam::hideSkeleton(bool linked)
@@ -4202,7 +4202,7 @@ void Beam::tieToggle(int group)
     {
         for (int i = 0; i < trucksnum; i++)
         {
-            if (trucks[i] && trucks[i]->ar_sim_state == Beam::SimState::LOCAL_SIMULATED && this->trucknum != i && trucks[i]->importcommands)
+            if (trucks[i] && trucks[i]->ar_sim_state == Beam::SimState::LOCAL_SIMULATED && this->ar_instance_id != i && trucks[i]->importcommands)
                 trucks[i]->tieToggle(group);
         }
     }
@@ -4312,7 +4312,7 @@ void Beam::tieToggle(int group)
     }
 
     //ScriptEvent - Tie toggle
-    TRIGGER_EVENT(SE_TRUCK_TIE_TOGGLE, trucknum);
+    TRIGGER_EVENT(SE_TRUCK_TIE_TOGGLE, ar_instance_id);
 }
 
 void Beam::ropeToggle(int group)
@@ -4447,7 +4447,7 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
                     continue;
                 if (trucks[t]->ar_sim_state == SimState::LOCAL_SLEEPING || trucks[t]->ar_sim_state == SimState::INVALID)
                     continue;
-                if (t == this->trucknum && !it->selflock)
+                if (t == this->ar_instance_id && !it->selflock)
                     continue; // don't lock to self
 
                 // do we lock against all nodes or just against ropables?
@@ -4563,12 +4563,12 @@ void Beam::parkingbrakeToggle()
     ar_parking_brake = !ar_parking_brake;
 
     if (ar_parking_brake)
-        SOUND_START(trucknum, SS_TRIG_PARK);
+        SOUND_START(ar_instance_id, SS_TRIG_PARK);
     else
-        SOUND_STOP(trucknum, SS_TRIG_PARK);
+        SOUND_STOP(ar_instance_id, SS_TRIG_PARK);
 
     //ScriptEvent - Parking Brake toggle
-    TRIGGER_EVENT(SE_TRUCK_PARKINGBREAK_TOGGLE, trucknum);
+    TRIGGER_EVENT(SE_TRUCK_PARKINGBREAK_TOGGLE, ar_instance_id);
 }
 
 void Beam::antilockbrakeToggle()
@@ -4670,7 +4670,7 @@ void Beam::beaconsToggle()
     m_beacon_light_is_active = beacon_light_is_active;
 
     //ScriptEvent - Beacon toggle
-    TRIGGER_EVENT(SE_TRUCK_BEACONS_TOGGLE, trucknum);
+    TRIGGER_EVENT(SE_TRUCK_BEACONS_TOGGLE, ar_instance_id);
 }
 
 void Beam::setReplayMode(bool rm)
@@ -5645,12 +5645,12 @@ Beam::Beam(
     , ar_driveable(NOT_DRIVEABLE)
     , m_skid_trails{} // Init array to nullptr
     , ar_collision_range(DEFAULT_COLLISION_RANGE)
+    , ar_instance_id(truck_number)
 {
     m_high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();
     useSkidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;
     LOG(" ===== LOADING VEHICLE: " + Ogre::String(fname));
 
-    trucknum = truck_number;
     m_spawn_free_positioned = freeposition;
     m_used_skin = skin;
     ar_uses_networking = _networking;
@@ -6231,7 +6231,7 @@ bool Beam::LoadTruck(
     // Decide whether or not the cinecam node is an appropriate rotation center
     m_is_cinecam_rotation_center = cinecam.squaredDistance(median) < average.squaredDistance(median);
 
-    TRIGGER_EVENT(SE_GENERIC_NEW_TRUCK, trucknum);
+    TRIGGER_EVENT(SE_GENERIC_NEW_TRUCK, ar_instance_id);
 
     return true;
 }

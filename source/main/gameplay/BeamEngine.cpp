@@ -252,7 +252,7 @@ void BeamEngine::setOptions(float einertia, char etype, float eclutch, float cti
 void BeamEngine::update(float dt, int doUpdate)
 {
     Beam* truck = m_actor;
-    int trucknum = m_actor->trucknum;
+    int trucknum = m_actor->ar_instance_id;
     float acc = curAcc;
 
     acc = std::max(getIdleMixture(), acc);
@@ -1071,7 +1071,7 @@ void BeamEngine::stop()
         return;
 
     running = false;
-    TRIGGER_EVENT(SE_TRUCK_ENGINE_DIED, m_actor->trucknum);
+    TRIGGER_EVENT(SE_TRUCK_ENGINE_DIED, m_actor->ar_instance_id);
     SOUND_STOP(m_actor, SS_TRIG_ENGINE);
 }
 

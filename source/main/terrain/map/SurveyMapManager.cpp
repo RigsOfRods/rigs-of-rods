@@ -434,7 +434,7 @@ void SurveyMapManager::UpdateVehicles(Beam** vehicles, int num_vehicles)
     {
         if (!vehicles[t])
             continue;
-        SurveyMapEntity* e = getMapEntityByName("Truck" + TOSTRING(vehicles[t]->trucknum));
+        SurveyMapEntity* e = getMapEntityByName("Truck" + TOSTRING(vehicles[t]->ar_instance_id));
         if (e)
         {
             e->setState(static_cast<int>(Beam::SimState::LOCAL_SIMULATED));

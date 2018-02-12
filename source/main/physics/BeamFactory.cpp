@@ -833,10 +833,10 @@ void BeamFactory::DeleteTruck(Beam* b)
     }
 #endif // USE_SOCKETW
 
-    if (m_current_truck == b->trucknum)
+    if (m_current_truck == b->ar_instance_id)
         setCurrentTruck(-1);
 
-    m_trucks[b->trucknum] = 0;
+    m_trucks[b->ar_instance_id] = 0;
     delete b;
 
 

@@ -460,7 +460,7 @@ void RigSpawner::InitializeRig()
     m_flex_factory.CheckAndLoadFlexbodyCache();
 
     std::stringstream grp_name;
-    grp_name << m_rig->truckname << ACTOR_ID_TOKEN << m_rig->trucknum;
+    grp_name << m_rig->truckname << ACTOR_ID_TOKEN << m_rig->ar_instance_id;
     Ogre::ResourceGroupManager::getSingleton().createResourceGroup(grp_name.str());
     m_custom_resource_group = grp_name.str();
 
@@ -730,7 +730,7 @@ void RigSpawner::ProcessTurbojet(RigDef::Turbojet & def)
     
     Turbojet *tj=new Turbojet(
         m_rig->free_aeroengine, 
-        m_rig->trucknum, 
+        m_rig->ar_instance_id, 
         m_rig->ar_nodes, 
         front, 
         back, 
@@ -759,7 +759,7 @@ void RigSpawner::ProcessTurbojet(RigDef::Turbojet & def)
     m_rig->ar_driveable=AIRPLANE;
     if (m_rig->ar_autopilot == nullptr && m_rig->ar_sim_state != Beam::SimState::NETWORKED_OK)
     {
-        m_rig->ar_autopilot=new Autopilot(m_rig->trucknum);
+        m_rig->ar_autopilot=new Autopilot(m_rig->ar_instance_id);
     }
 
     m_rig->free_aeroengine++;
@@ -768,7 +768,7 @@ void RigSpawner::ProcessTurbojet(RigDef::Turbojet & def)
 std::string RigSpawner::ComposeName(const char* type, int number)
 {
     char buf[500];
-    snprintf(buf, 500, "%s_%d%s%d", type, number, ACTOR_ID_TOKEN, m_rig->trucknum);
+    snprintf(buf, 500, "%s_%d%s%d", type, number, ACTOR_ID_TOKEN, m_rig->ar_instance_id);
     return buf;
 }
 
@@ -792,7 +792,7 @@ void RigSpawner::ProcessScrewprop(RigDef::Screwprop & def)
         back_node_idx,
         top_node_idx,
         def.power,
-        m_rig->trucknum
+        m_rig->ar_instance_id
     );
     m_rig->ar_driveable=BOAT;
     m_rig->free_screwprop++;
@@ -871,7 +871,7 @@ void RigSpawner::BuildAerialEngine(
         power,
         airfoil,
         m_rig->free_aeroengine,
-        m_rig->trucknum,
+        m_rig->ar_instance_id,
         m_rig->disable_smoke,
         ! is_turboprops,
         pitch,
@@ -884,7 +884,7 @@ void RigSpawner::BuildAerialEngine(
     /* Autopilot */
     if (m_rig->ar_autopilot == nullptr && m_rig->ar_sim_state != Beam::SimState::NETWORKED_OK)
     {
-        m_rig->ar_autopilot = new Autopilot(m_rig->trucknum);
+        m_rig->ar_autopilot = new Autopilot(m_rig->ar_instance_id);
     }
 
     /* Visuals */
@@ -1285,7 +1285,7 @@ void RigSpawner::ProcessSoundSource2(RigDef::SoundSource2 & def)
     }
     AddSoundSource(
             m_rig,
-            SoundScriptManager::getSingleton().createInstance(def.sound_script_name, m_rig->trucknum), 
+            SoundScriptManager::getSingleton().createInstance(def.sound_script_name, m_rig->ar_instance_id), 
             node_index,
             mode
         );
@@ -1296,7 +1296,7 @@ void RigSpawner::AddSoundSourceInstance(Beam *vehicle, Ogre::String const & soun
 {
     SPAWNER_PROFILE_SCOPED();
 #ifdef USE_OPENAL
-    AddSoundSource(vehicle, SoundScriptManager::getSingleton().createInstance(sound_script_name, vehicle->trucknum, nullptr), node_index);
+    AddSoundSource(vehicle, SoundScriptManager::getSingleton().createInstance(sound_script_name, vehicle->ar_instance_id, nullptr), node_index);
 #endif // USE_OPENAL
 }
 
@@ -1327,7 +1327,7 @@ void RigSpawner::ProcessSoundSource(RigDef::SoundSource & def)
 
     AddSoundSource(
             m_rig,
-            SoundScriptManager::getSingleton().createInstance(def.sound_script_name, m_rig->trucknum), 
+            SoundScriptManager::getSingleton().createInstance(def.sound_script_name, m_rig->ar_instance_id), 
             GetNodeIndexOrThrow(def.node),
             -2
         );
@@ -2453,7 +2453,7 @@ void RigSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
         m_placeholder_managedmat->clone(def.name);
     }
 
-    std::string custom_name = def.name + ACTOR_ID_TOKEN + TOSTRING(m_rig->trucknum);
+    std::string custom_name = def.name + ACTOR_ID_TOKEN + TOSTRING(m_rig->ar_instance_id);
     Ogre::MaterialPtr material;
     if (def.type == RigDef::ManagedMaterial::TYPE_FLEXMESH_STANDARD || def.type == RigDef::ManagedMaterial::TYPE_FLEXMESH_TRANSPARENT)
     {
@@ -6694,7 +6694,7 @@ void RigSpawner::SetupDefaultSoundSources(Beam *vehicle)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    int trucknum = vehicle->trucknum;
+    int trucknum = vehicle->ar_instance_id;
     int ar_exhaust_pos_node = vehicle->ar_exhaust_pos_node;
 
 #ifdef USE_OPENAL
@@ -6996,7 +6996,7 @@ Ogre::MaterialPtr RigSpawner::FindOrCreateCustomizedMaterial(std::string mat_loo
                 if (!skin_mat.isNull())
                 {
                     std::stringstream name_buf;
-                    name_buf << videocam_def->material_name << ACTOR_ID_TOKEN << m_rig->trucknum;
+                    name_buf << videocam_def->material_name << ACTOR_ID_TOKEN << m_rig->ar_instance_id;
                     lookup_entry.material = skin_mat->clone(name_buf.str(), true, m_custom_resource_group);
                     m_material_substitutions.insert(std::make_pair(mat_lookup_name, lookup_entry));
                     return lookup_entry.material;
@@ -7030,7 +7030,7 @@ Ogre::MaterialPtr RigSpawner::FindOrCreateCustomizedMaterial(std::string mat_loo
             }
 
             std::stringstream name_buf;
-            name_buf << orig_mat->getName() << ACTOR_ID_TOKEN << m_rig->trucknum;
+            name_buf << orig_mat->getName() << ACTOR_ID_TOKEN << m_rig->ar_instance_id;
             lookup_entry.material = orig_mat->clone(name_buf.str(), true, m_custom_resource_group);
         }
 
@@ -7058,7 +7058,7 @@ Ogre::MaterialPtr RigSpawner::CreateSimpleMaterial(Ogre::ColourValue color)
 
     static size_t simple_mat_counter = 0;
     char name_buf[300];
-    snprintf(name_buf, 300, "SimpleMaterial-%u%s%d", simple_mat_counter, ACTOR_ID_TOKEN, m_rig->trucknum);
+    snprintf(name_buf, 300, "SimpleMaterial-%u%s%d", simple_mat_counter, ACTOR_ID_TOKEN, m_rig->ar_instance_id);
     Ogre::MaterialPtr newmat = m_simple_material_base->clone(name_buf);
     ++simple_mat_counter;
     newmat->getTechnique(0)->getPass(0)->setAmbient(color);

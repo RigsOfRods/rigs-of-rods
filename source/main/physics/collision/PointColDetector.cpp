@@ -72,7 +72,7 @@ void PointColDetector::update(Beam* truck, Beam** trucks, const int numtrucks, b
         truck->ar_collision_relevant = false;
         m_trucks.resize(numtrucks);
         for (int t = 0; t < numtrucks; t++) {
-            if (t != truck->trucknum && trucks[t] && (ignorestate || trucks[t]->ar_sim_state < Beam::SimState::LOCAL_SLEEPING) && truck->boundingBox.intersects(trucks[t]->boundingBox)) {
+            if (t != truck->ar_instance_id && trucks[t] && (ignorestate || trucks[t]->ar_sim_state < Beam::SimState::LOCAL_SLEEPING) && truck->boundingBox.intersects(trucks[t]->boundingBox)) {
                 update_required = update_required || (m_trucks[t] != trucks[t]);
                 m_trucks[t] = trucks[t];
                 truck->ar_collision_relevant = true;
