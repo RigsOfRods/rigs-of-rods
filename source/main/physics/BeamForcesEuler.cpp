@@ -105,10 +105,10 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     }
 
     //mouse stuff
-    if (mousenode != -1)
+    if (m_mouse_grab_node != -1)
     {
-        Vector3 dir = mousepos - ar_nodes[mousenode].AbsPosition;
-        ar_nodes[mousenode].Forces += mousemoveforce * dir;
+        Vector3 dir = m_mouse_grab_pos - ar_nodes[m_mouse_grab_node].AbsPosition;
+        ar_nodes[m_mouse_grab_node].Forces += m_mouse_grab_move_force * dir;
     }
 
     // START Slidenode section /////////////////////////////////////////////////
@@ -1832,8 +1832,8 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
         // record g forces on cameras
         if (i == cameranodepos[0])
         {
-            cameranodeacc += ar_nodes[i].Forces / ar_nodes[i].mass;
-            cameranodecount++;
+            m_camera_gforces_accu += ar_nodes[i].Forces / ar_nodes[i].mass;
+            m_camera_gforces_count++;
         }
 
         // integration
