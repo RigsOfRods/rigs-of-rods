@@ -35,7 +35,7 @@ using namespace RoR;
 
 void LandVehicleSimulation::UpdateCruiseControl(Actor* vehicle, float dt)
 {
-    BeamEngine* engine = vehicle->ar_engine;
+    EngineSim* engine = vehicle->ar_engine;
 
     if ((engine->getGear() > 0 && RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE) > 0.05f) ||
         (engine->getGear() > 0 && RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH) > 0.05f) ||
@@ -141,7 +141,7 @@ void LandVehicleSimulation::UpdateCruiseControl(Actor* vehicle, float dt)
 
 void LandVehicleSimulation::CheckSpeedLimit(Actor* vehicle, float dt)
 {
-    BeamEngine* engine = vehicle->ar_engine;
+    EngineSim* engine = vehicle->ar_engine;
 
     if (vehicle->sl_enabled && engine->getGear() != 0)
     {
@@ -156,7 +156,7 @@ void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_la
 {
     using namespace Ogre;
 
-    BeamEngine* engine = vehicle->ar_engine;
+    EngineSim* engine = vehicle->ar_engine;
 
     if (!vehicle->ar_replay_mode)
     {
@@ -279,7 +279,7 @@ void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_la
                         // we are on the brake, jump to reverse gear
                         if (engine->getAutoMode() == SimGearboxMode::AUTO)
                         {
-                            engine->autoShiftSet(BeamEngine::REAR);
+                            engine->autoShiftSet(EngineSim::REAR);
                         }
                         else
                         {
@@ -291,7 +291,7 @@ void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_la
                         // we are on the gas pedal, jump to first gear when we were in rear gear
                         if (engine->getAutoMode() == SimGearboxMode::AUTO)
                         {
-                            engine->autoShiftSet(BeamEngine::DRIVE);
+                            engine->autoShiftSet(EngineSim::DRIVE);
                         }
                         else
                         {
@@ -478,7 +478,7 @@ void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_la
 
             if (engine->hasContact() &&
                 engine->getAutoMode() == SimGearboxMode::AUTO &&
-                engine->getAutoShift() != BeamEngine::NEUTRAL &&
+                engine->getAutoShift() != EngineSim::NEUTRAL &&
                 std::abs(vehicle->ar_wheel_speed) < 0.1f)
             {
                 Vector3 dirDiff = vehicle->getDirection();
@@ -486,8 +486,8 @@ void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_la
 
                 if (std::abs(pitchAngle.valueDegrees()) > 1.0f)
                 {
-                    if (engine->getAutoShift() > BeamEngine::NEUTRAL && vehicle->ar_wheel_speed < +0.1f && pitchAngle.valueDegrees() > +1.0f ||
-                        engine->getAutoShift() < BeamEngine::NEUTRAL && vehicle->ar_wheel_speed > -0.1f && pitchAngle.valueDegrees() < -1.0f)
+                    if (engine->getAutoShift() > EngineSim::NEUTRAL && vehicle->ar_wheel_speed < +0.1f && pitchAngle.valueDegrees() > +1.0f ||
+                        engine->getAutoShift() < EngineSim::NEUTRAL && vehicle->ar_wheel_speed > -0.1f && pitchAngle.valueDegrees() < -1.0f)
                     {
                         // anti roll back in SimGearboxMode::AUTO (DRIVE, TWO, ONE) mode
                         // anti roll forth in SimGearboxMode::AUTO (REAR) mode

@@ -132,7 +132,7 @@ class Airfoil;
 class Autopilot;
 class Axle;
 class Actor;
-class BeamEngine;
+class EngineSim;
 class BeamThreadStats;
 class Buoyance;
 class CacheEntry;

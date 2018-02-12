@@ -28,7 +28,7 @@
 
 using namespace Ogre;
 
-BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<float> gears, float dratio, Actor* actor) :
+EngineSim::EngineSim(float minRPM, float maxRPM, float torque, std::vector<float> gears, float dratio, Actor* actor) :
     apressure(0.0f)
     , autocurAcc(0.0f)
     , automode(AUTOMATIC)
@@ -36,7 +36,7 @@ BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<flo
     , brakingTorque(-torque / 5.0f)
     , clutchForce(10000.0f)
     , clutchTime(0.2f)
-    , contact(false)
+    , m_starter_has_contact(false)
     , curAcc(0.0f)
     , curClutch(0.0f)
     , curClutchTorque(0.0f)
@@ -47,8 +47,8 @@ BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<flo
     , diffRatio(dratio)
     , engineTorque(torque - brakingTorque)
     , gearsRatio(gears)
-    , hasair(true)
-    , hasturbo(true)
+    , m_engine_has_air(true)
+    , m_engine_has_turbo(true)
     , hydropump(0.0f)
     , idleRPM(std::min(minRPM, 800.0f))
     , inertia(10.0f)
@@ -62,7 +62,7 @@ BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<flo
     , postshiftclock(0.0f)
     , postshifting(0)
     , is_priming(false)
-    , running(false)
+    , m_engine_is_running(false)
     , shiftBehaviour(0.0f)
     , shift_time(0.5f)
     , shiftclock(0.0f)
@@ -72,10 +72,10 @@ BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<flo
     , starter(0)
     , torqueCurve(new TorqueCurve())
     , m_actor(actor)
-    , turbomode(OLD)
-    , type('t')
+    , m_engine_turbo_mode(OLD)
+    , m_engine_type('t')
     , upShiftDelayCounter(0)
-    , is_Electric(false)
+    , m_engine_is_electric(false)
     , turboInertiaFactor(1)
     , numTurbos(1)
     , maxTurboRPM(200000.0f)
@@ -110,17 +110,17 @@ BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<flo
     }
 }
 
-BeamEngine::~BeamEngine()
+EngineSim::~EngineSim()
 {
     // delete NULL is safe
     delete torqueCurve;
     torqueCurve = NULL;
 }
 
-void BeamEngine::setTurboOptions(int type, float tinertiaFactor, int nturbos, float param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8, float param9, float param10, float param11)
+void EngineSim::setTurboOptions(int type, float tinertiaFactor, int nturbos, float param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8, float param9, float param10, float param11)
 {
-    hasturbo = true;
-    turbomode = NEW;
+    m_engine_has_turbo = true;
+    m_engine_turbo_mode = NEW;
 
     if (nturbos > MAXTURBO)
     {
@@ -185,10 +185,10 @@ void BeamEngine::setTurboOptions(int type, float tinertiaFactor, int nturbos, fl
     }
 }
 
-void BeamEngine::setOptions(float einertia, char etype, float eclutch, float ctime, float stime, float pstime, float irpm, float srpm, float maximix, float minimix)
+void EngineSim::setOptions(float einertia, char etype, float eclutch, float ctime, float stime, float pstime, float irpm, float srpm, float maximix, float minimix)
 {
     inertia = einertia;
-    type = etype;
+    m_engine_type = etype;
     clutchForce = eclutch;
 
     if (ctime > 0)
@@ -219,9 +219,9 @@ void BeamEngine::setOptions(float einertia, char etype, float eclutch, float cti
     if (etype == 'c')
     {
         // it's a car!
-        hasair = false;
-        hasturbo = false;
-        is_Electric = false;
+        m_engine_has_air = false;
+        m_engine_has_turbo = false;
+        m_engine_is_electric = false;
         // set default clutch force
         if (clutchForce < 0.0f)
         {
@@ -230,9 +230,9 @@ void BeamEngine::setOptions(float einertia, char etype, float eclutch, float cti
     }
     else if (etype == 'e') //electric
     {
-        is_Electric = true;
-        hasair = false;
-        hasturbo = false;
+        m_engine_is_electric = true;
+        m_engine_has_air = false;
+        m_engine_has_turbo = false;
         if (clutchForce < 0.0f)
         {
             clutchForce = 5000.0f;
@@ -240,7 +240,7 @@ void BeamEngine::setOptions(float einertia, char etype, float eclutch, float cti
     }
     else
     {
-        is_Electric = false;
+        m_engine_is_electric = false;
         // it's a truck
         if (clutchForce < 0.0f)
         {
@@ -249,7 +249,7 @@ void BeamEngine::setOptions(float einertia, char etype, float eclutch, float cti
     }
 }
 
-void BeamEngine::update(float dt, int doUpdate)
+void EngineSim::update(float dt, int doUpdate)
 {
     int actor_id = m_actor->ar_instance_id;
     float acc = curAcc;
@@ -262,7 +262,7 @@ void BeamEngine::update(float dt, int doUpdate)
         SOUND_MODULATE(m_actor, SS_MOD_INJECTOR, acc);
     }
 
-    if (hasair)
+    if (m_engine_has_air)
     {
         // air pressure
         apressure += dt * curEngineRPM;
@@ -273,9 +273,9 @@ void BeamEngine::update(float dt, int doUpdate)
         }
     }
 
-    if (hasturbo)
+    if (m_engine_has_turbo)
     {
-        if (turbomode == OLD)
+        if (m_engine_turbo_mode == OLD)
         {
             // update turbo speed (lag)
             float turbotorque = 0.0f;
@@ -285,7 +285,7 @@ void BeamEngine::update(float dt, int doUpdate)
             turbotorque -= curTurboRPM[0] / 200000.0f;
 
             // powering (exhaust) with limiter
-            if (curTurboRPM[0] < 200000.0f && running && curAcc > 0.06f)
+            if (curTurboRPM[0] < 200000.0f && m_engine_is_running && curAcc > 0.06f)
             {
                 turbotorque += 1.5f * curAcc * (curEngineRPM / maxRPM);
             }
@@ -315,7 +315,7 @@ void BeamEngine::update(float dt, int doUpdate)
                 // powering (exhaust) with limiter
                 if (curEngineRPM >= turboEngineRpmOperation)
                 {
-                    if (curTurboRPM[i] <= maxTurboRPM && running && acc > 0.06f)
+                    if (curTurboRPM[i] <= maxTurboRPM && m_engine_is_running && acc > 0.06f)
                     {
                         if (b_WasteGate)
                         {
@@ -420,7 +420,7 @@ void BeamEngine::update(float dt, int doUpdate)
     float totaltorque = 0.0f;
 
     // engine braking
-    if (contact)
+    if (m_starter_has_contact)
     {
         totaltorque += brakingTorque * curEngineRPM / maxRPM;
     }
@@ -435,19 +435,19 @@ void BeamEngine::update(float dt, int doUpdate)
         totaltorque -= 8.0f * hydropump / (curEngineRPM * 0.105f * dt);
     }
 
-    if (running && contact && curEngineRPM < (maxRPM * 1.25f))
+    if (m_engine_is_running && m_starter_has_contact && curEngineRPM < (maxRPM * 1.25f))
     {
         totaltorque += getEnginePower(curEngineRPM) * acc;
     }
 
-    if (!is_Electric)
+    if (!m_engine_is_electric)
     {
-        if (running && curEngineRPM < stallRPM)
+        if (m_engine_is_running && curEngineRPM < stallRPM)
         {
             stop();
         }
 
-        if (contact && starter && !running)
+        if (m_starter_has_contact && starter && !m_engine_is_running)
         {
             if (curEngineRPM < stallRPM)
             {
@@ -455,7 +455,7 @@ void BeamEngine::update(float dt, int doUpdate)
             }
             else
             {
-                running = true;
+                m_engine_is_running = true;
                 SOUND_START(m_actor, SS_TRIG_ENGINE);
             }
         }
@@ -626,7 +626,7 @@ void BeamEngine::update(float dt, int doUpdate)
             refWheelRevolutions = velocity / m_actor->ar_wheels[0].wh_radius * RAD_PER_SEC_TO_RPM;
         }
 
-        if (!is_Electric && automode == AUTOMATIC && (autoselect == DRIVE || autoselect == TWO) && curGear > 0)
+        if (!m_engine_is_electric && automode == AUTOMATIC && (autoselect == DRIVE || autoselect == TWO) && curGear > 0)
         {
             if ((curEngineRPM > maxRPM - 100.0f && curGear > 1) || curWheelRevolutions * gearsRatio[curGear + 1] > maxRPM - 100.0f)
             {
@@ -799,10 +799,10 @@ void BeamEngine::update(float dt, int doUpdate)
     updateAudio(doUpdate);
 }
 
-void BeamEngine::updateAudio(int doUpdate)
+void EngineSim::updateAudio(int doUpdate)
 {
 #ifdef USE_OPENAL
-    if (hasturbo)
+    if (m_engine_has_turbo)
     {
         for (int i = 0; i < numTurbos; i++)
              SOUND_MODULATE(m_actor, SS_MOD_TURBO, curTurboRPM[i]);
@@ -815,7 +815,7 @@ void BeamEngine::updateAudio(int doUpdate)
         SOUND_MODULATE(m_actor, SS_MOD_GEARBOX, curWheelRevolutions);
     }
     // reverse gear beep
-    if (curGear == -1 && running)
+    if (curGear == -1 && m_engine_is_running)
     {
         SOUND_START(m_actor, SS_TRIG_REVERSE_GEAR);
     }
@@ -826,12 +826,12 @@ void BeamEngine::updateAudio(int doUpdate)
 #endif // USE_OPENAL
 }
 
-float BeamEngine::getRPM()
+float EngineSim::getRPM()
 {
     return curEngineRPM;
 }
 
-void BeamEngine::toggleAutoMode()
+void EngineSim::toggleAutoMode()
 {
     automode = (automode + 1) % (MANUAL_RANGES + 1);
 
@@ -855,24 +855,24 @@ void BeamEngine::toggleAutoMode()
     }
 }
 
-RoR::SimGearboxMode BeamEngine::getAutoMode()
+RoR::SimGearboxMode EngineSim::getAutoMode()
 {
     return (RoR::SimGearboxMode)this->automode;
 }
 
-void BeamEngine::setAutoMode(RoR::SimGearboxMode mode)
+void EngineSim::setAutoMode(RoR::SimGearboxMode mode)
 {
     this->automode = (shiftmodes)mode;
 }
 
-void BeamEngine::setAcc(float val)
+void EngineSim::setAcc(float val)
 {
     curAcc = val;
 }
 
-float BeamEngine::getTurboPSI()
+float EngineSim::getTurboPSI()
 {
-    if (turbomode == OLD)
+    if (m_engine_turbo_mode == OLD)
     {
         return curTurboRPM[0] / 10000.0f;
     }
@@ -893,29 +893,29 @@ float BeamEngine::getTurboPSI()
     return turboPSI;
 }
 
-float BeamEngine::getAcc()
+float EngineSim::getAcc()
 {
     return curAcc;
 }
 
 // this is mainly for smoke...
-void BeamEngine::netForceSettings(float rpm, float force, float clutch, int gear, bool _running, bool _contact, char _automode)
+void EngineSim::netForceSettings(float rpm, float force, float clutch, int gear, bool _running, bool _contact, char _automode)
 {
     curEngineRPM = rpm;
     curAcc = force;
     curClutch = clutch;
     curGear = gear;
-    running = _running; //(fabs(rpm)>10.0);
-    contact = _contact;
+    m_engine_is_running = _running; //(fabs(rpm)>10.0);
+    m_starter_has_contact = _contact;
     if (_automode != -1)
     {
         automode = _automode;
     }
 }
 
-float BeamEngine::getSmoke()
+float EngineSim::getSmoke()
 {
-    if (running)
+    if (m_engine_is_running)
     {
         return curAcc * (1.0f - curTurboRPM[0] /* doesn't matter */ / maxTurboRPM);// * engineTorque / 5000.0f;
     }
@@ -923,7 +923,7 @@ float BeamEngine::getSmoke()
     return -1;
 }
 
-float BeamEngine::getTorque()
+float EngineSim::getTorque()
 {
     if (curClutchTorque > 1000000.0)
         return 1000000.0;
@@ -932,28 +932,28 @@ float BeamEngine::getTorque()
     return curClutchTorque;
 }
 
-void BeamEngine::setRPM(float rpm)
+void EngineSim::SetEngineRpm(float rpm)
 {
     curEngineRPM = rpm;
 }
 
-void BeamEngine::setPrime(bool p)
+void EngineSim::SetEnginePriming(bool p)
 {
     is_priming = p;
 }
 
-void BeamEngine::setHydroPumpWork(float work)
+void EngineSim::setHydroPumpWork(float work)
 {
     hydropump = work;
 }
 
-void BeamEngine::setSpin(float rpm)
+void EngineSim::setSpin(float rpm)
 {
     curWheelRevolutions = rpm;
 }
 
 // for hydros acceleration
-float BeamEngine::getCrankFactor()
+float EngineSim::getCrankFactor()
 {
     float minWorkingRPM = idleRPM * 1.1f; // minWorkingRPM > idleRPM avoids commands deadlocking the engine
 
@@ -966,25 +966,25 @@ float BeamEngine::getCrankFactor()
     return crankfactor;
 }
 
-void BeamEngine::setClutch(float clutch)
+void EngineSim::setClutch(float clutch)
 {
     curClutch = clutch;
 }
 
-float BeamEngine::getClutch()
+float EngineSim::getClutch()
 {
     return curClutch;
 }
 
-float BeamEngine::getClutchForce()
+float EngineSim::getClutchForce()
 {
     return clutchForce;
 }
 
-void BeamEngine::toggleContact()
+void EngineSim::toggleContact()
 {
-    contact = !contact;
-    if (contact)
+    m_starter_has_contact = !m_starter_has_contact;
+    if (m_starter_has_contact)
     {
         SOUND_START(m_actor, SS_TRIG_IGNITION);
     }
@@ -994,12 +994,12 @@ void BeamEngine::toggleContact()
     }
 }
 
-void BeamEngine::start()
+void EngineSim::start()
 {
     offstart();
-    contact = true;
+    m_starter_has_contact = true;
     curEngineRPM = idleRPM;
-    running = true;
+    m_engine_is_running = true;
     if (automode <= SEMIAUTO)
     {
         curGear = 1;
@@ -1012,18 +1012,18 @@ void BeamEngine::start()
     SOUND_START(m_actor, SS_TRIG_ENGINE);
 }
 
-void BeamEngine::offstart()
+void EngineSim::offstart()
 {
     apressure = 0.0f;
     autoselect = MANUALMODE;
-    contact = false;
+    m_starter_has_contact = false;
     curAcc = 0.0f;
     curClutch = 0.0f;
     curClutchTorque = 0.0f;
     curEngineRPM = 0.0f;
     curGear = 0;
     postshifting = 0;
-    running = false;
+    m_engine_is_running = false;
     shifting = 0;
     shiftval = 0;
     if (automode == AUTOMATIC)
@@ -1037,44 +1037,44 @@ void BeamEngine::offstart()
     }
 }
 
-void BeamEngine::setstarter(int v)
+void EngineSim::setstarter(bool v)
 {
-    starter = v;
+    starter = static_cast<int>(v);
 }
 
-int BeamEngine::getGear()
+int EngineSim::getGear()
 {
     return curGear;
 }
 
 // low level gear changing
-void BeamEngine::setGear(int v)
+void EngineSim::setGear(int v)
 {
     curGear = v;
 }
 
-int BeamEngine::getGearRange()
+int EngineSim::getGearRange()
 {
     return curGearRange;
 }
 
-void BeamEngine::setGearRange(int v)
+void EngineSim::setGearRange(int v)
 {
     curGearRange = v;
 }
 
-void BeamEngine::stop()
+void EngineSim::stop()
 {
-    if (!running)
+    if (!m_engine_is_running)
         return;
 
-    running = false;
+    m_engine_is_running = false;
     TRIGGER_EVENT(SE_TRUCK_ENGINE_DIED, m_actor->ar_instance_id);
     SOUND_STOP(m_actor, SS_TRIG_ENGINE);
 }
 
 // high level controls
-void BeamEngine::autoSetAcc(float val)
+void EngineSim::autoSetAcc(float val)
 {
     autocurAcc = val;
     if (!shifting)
@@ -1083,7 +1083,7 @@ void BeamEngine::autoSetAcc(float val)
     }
 }
 
-void BeamEngine::shift(int val)
+void EngineSim::shift(int val)
 {
     if (!val || curGear + val < -1 || curGear + val > getNumGears())
         return;
@@ -1107,14 +1107,14 @@ void BeamEngine::shift(int val)
     }
 }
 
-void BeamEngine::shiftTo(int newGear)
+void EngineSim::shiftTo(int newGear)
 {
     shift(newGear - curGear);
 }
 
-void BeamEngine::updateShifts()
+void EngineSim::updateShifts()
 {
-    if (is_Electric)
+    if (m_engine_is_electric)
         return;
     if (autoselect == MANUALMODE)
         return;
@@ -1152,13 +1152,13 @@ void BeamEngine::updateShifts()
     }
 }
 
-void BeamEngine::autoShiftSet(int mode)
+void EngineSim::autoShiftSet(int mode)
 {
     autoselect = (autoswitch)mode;
     updateShifts();
 }
 
-void BeamEngine::autoShiftUp()
+void EngineSim::autoShiftUp()
 {
     if (autoselect != REAR)
     {
@@ -1167,7 +1167,7 @@ void BeamEngine::autoShiftUp()
     }
 }
 
-void BeamEngine::autoShiftDown()
+void EngineSim::autoShiftDown()
 {
     if (autoselect != ONE)
     {
@@ -1176,12 +1176,12 @@ void BeamEngine::autoShiftDown()
     }
 }
 
-int BeamEngine::getAutoShift()
+int EngineSim::getAutoShift()
 {
     return (int)autoselect;
 }
 
-void BeamEngine::setManualClutch(float val)
+void EngineSim::setManualClutch(float val)
 {
     if (automode >= MANUAL)
     {
@@ -1190,11 +1190,11 @@ void BeamEngine::setManualClutch(float val)
     }
 }
 
-float BeamEngine::getTurboPower()
+float EngineSim::getTurboPower()
 {
-    if (!hasturbo)
+    if (!m_engine_has_turbo)
         return 0.0f;
-    if (turbomode != NEW)
+    if (m_engine_turbo_mode != NEW)
         return 0.0f;
 
     float atValue = 0.0f; // torque (turbo integreation)
@@ -1214,7 +1214,7 @@ float BeamEngine::getTurboPower()
     return atValue;
 }
 
-float BeamEngine::getEnginePower(float rpm)
+float EngineSim::getEnginePower(float rpm)
 {
     // engine power with limiter
     float tqValue = 1.0f; // ratio (0-1)
@@ -1232,7 +1232,7 @@ float BeamEngine::getEnginePower(float rpm)
     return (engineTorque * tqValue) + getTurboPower();
 }
 
-float BeamEngine::getAccToHoldRPM(float rpm)
+float EngineSim::getAccToHoldRPM(float rpm)
 {
     float rpmRatio = rpm / (maxRPM * 1.25f);
 
@@ -1241,7 +1241,7 @@ float BeamEngine::getAccToHoldRPM(float rpm)
     return (-brakingTorque * rpmRatio) / getEnginePower(curEngineRPM);
 }
 
-float BeamEngine::getIdleMixture()
+float EngineSim::getIdleMixture()
 {
     if (curEngineRPM < idleRPM)
     {
@@ -1261,7 +1261,7 @@ float BeamEngine::getIdleMixture()
     return 0.0f;
 }
 
-float BeamEngine::getPrimeMixture()
+float EngineSim::getPrimeMixture()
 {
     if (is_priming)
     {

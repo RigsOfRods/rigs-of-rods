@@ -928,7 +928,7 @@ void GameScript::boostCurrentTruck(float factor)
     {
         float rpm = b->ar_engine->getRPM();
         rpm += 2000.0f * factor;
-        b->ar_engine->setRPM(rpm);
+        b->ar_engine->SetEngineRpm(rpm);
     }
 }
 

@@ -334,7 +334,7 @@ public:
     int               ar_exhaust_dir_node; //!< Old-format exhaust (one per vehicle) backwards direction node
     int               ar_instance_id;              //!< Static attr; session-unique ID
     int               ar_driveable;                //!< Sim attr; marks vehicle type and features
-    BeamEngine*       ar_engine;
+    EngineSim*       ar_engine;
     int               ar_cinecam_node[MAX_CAMERAS];//!< Sim attr; Cine-camera node indexes
     int               ar_num_cinecams;             //!< Sim attr;
     std::string       ar_help_panel_material;      //!< GUI attr, defined in truckfile
