@@ -304,11 +304,10 @@ void RigSpawner::InitializeRig()
     m_rig->ar_extern_camera_mode=0;
     m_rig->ar_extern_camera_node=-1;
     m_rig->authors.clear();
-    m_rig->slideNodesConnectInstantly=false;
+    m_rig->m_slidenodes_connect_on_spawn=false;
 
     m_rig->odometerTotal = 0;
     m_rig->odometerUser  = 0;
-    m_rig->dashBoardLayouts.clear();
 
     memset(m_rig->helpmat, 0, 255);
     
@@ -326,14 +325,10 @@ void RigSpawner::InitializeRig()
     m_rig->truckmass=0;
     m_rig->loadmass=0;
     m_rig->buoyance = nullptr;
-
-    m_rig->free_fixes=0;
     m_rig->propwheelcount=0;
     m_rig->free_commands=0;
-    m_rig->fileformatversion=0;
-
     m_rig->origin=Ogre::Vector3::ZERO;
-    m_rig->mSlideNodes.clear();
+    m_rig->m_slidenodes.clear();
 
     m_rig->engine = nullptr;
     m_rig->hascommands=0;
@@ -435,7 +430,7 @@ void RigSpawner::InitializeRig()
     m_rig->tractioncontrol = 0;
 
 
-    m_rig->dash = new DashBoardManager();
+    m_rig->ar_dashboard = new DashBoardManager();
 
 
 #ifdef FEAT_TIMING
@@ -1417,13 +1412,13 @@ void RigSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
     std::list<Ogre::String>::iterator dash_itor = def.dashboard_layouts.begin();
     for ( ; dash_itor != def.dashboard_layouts.end(); dash_itor++)
     {
-        m_rig->dashBoardLayouts.push_back(std::pair<Ogre::String, bool>(*dash_itor, false));
+        m_rig->m_dashboard_layouts.push_back(std::pair<Ogre::String, bool>(*dash_itor, false));
     }
 
     std::list<Ogre::String>::iterator rtt_itor = def.rtt_dashboard_layouts.begin();
     for ( ; rtt_itor != def.rtt_dashboard_layouts.end(); rtt_itor++)
     {
-        m_rig->dashBoardLayouts.push_back(std::pair<Ogre::String, bool>(*rtt_itor, true));
+        m_rig->m_dashboard_layouts.push_back(std::pair<Ogre::String, bool>(*rtt_itor, true));
     }
 
 }
@@ -2873,7 +2868,7 @@ void RigSpawner::ProcessRailGroup(RigDef::RailGroup & def)
         return;
     }
     RailGroup *rail_group = new RailGroup(rail, def.id);
-    m_rig->mRailGroups.push_back(rail_group);
+    m_rig->m_railgroups.push_back(rail_group);
 }
 
 void RigSpawner::ProcessSlidenode(RigDef::SlideNode & def)
@@ -2913,8 +2908,8 @@ void RigSpawner::ProcessSlidenode(RigDef::SlideNode & def)
     RailGroup *rail_group = nullptr;
     if (def._railgroup_id_set)
     {
-        std::vector<RailGroup*>::iterator itor = m_rig->mRailGroups.begin();
-        for ( ; itor != m_rig->mRailGroups.end(); itor++)
+        std::vector<RailGroup*>::iterator itor = m_rig->m_railgroups.begin();
+        for ( ; itor != m_rig->m_railgroups.end(); itor++)
         {
             if ((*itor)->getID() == def.railgroup_id)
             {
@@ -2939,7 +2934,7 @@ void RigSpawner::ProcessSlidenode(RigDef::SlideNode & def)
             return;
         }
         rail_group = new RailGroup(rail);
-        m_rig->mRailGroups.push_back(rail_group);
+        m_rig->m_railgroups.push_back(rail_group);
     }
     else
     {
@@ -2947,7 +2942,7 @@ void RigSpawner::ProcessSlidenode(RigDef::SlideNode & def)
     }
 
     slide_node.setDefaultRail(rail_group);
-    m_rig->mSlideNodes.push_back(slide_node);
+    m_rig->m_slidenodes.push_back(slide_node);
 }
 
 int RigSpawner::FindNodeIndex(RigDef::Node::Ref & node_ref, bool silent /* Default: false */)

@@ -1127,7 +1127,7 @@ void BeamFactory::windowResized()
     {
         if (m_trucks[t])
         {
-            m_trucks[t]->dash->windowResized();
+            m_trucks[t]->ar_dashboard->windowResized();
         }
     }
 

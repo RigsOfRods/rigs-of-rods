@@ -421,9 +421,9 @@ void OverlayWrapper::showPressureOverlay(bool show)
 void OverlayWrapper::showDashboardOverlays(bool show, Beam* truck)
 {
     // check if we use the new style dashboards
-    if (truck && truck->dash && truck->dash->wasLoaded())
+    if (truck && truck->ar_dashboard && truck->ar_dashboard->wasLoaded())
     {
-        truck->dash->setVisible(show);
+        truck->ar_dashboard->setVisible(show);
         return;
     }
 

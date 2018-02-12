@@ -36,7 +36,7 @@ void Beam::toggleSlideNodeLock()
     int curTruck = m_sim_controller->GetBeamFactory()->getCurrentTruckNumber();
 
     // for every slide node on this truck
-    for (std::vector<SlideNode>::iterator itNode = mSlideNodes.begin(); itNode != mSlideNodes.end(); itNode++)
+    for (std::vector<SlideNode>::iterator itNode = m_slidenodes.begin(); itNode != m_slidenodes.end(); itNode++)
     {
         std::pair<RailGroup*, Ogre::Real> closest((RailGroup*)NULL, std::numeric_limits<Ogre::Real>::infinity());
         std::pair<RailGroup*, Ogre::Real> current((RailGroup*)NULL, std::numeric_limits<Ogre::Real>::infinity());
@@ -76,8 +76,8 @@ std::pair<RailGroup*, Ogre::Real> Beam::getClosestRailOnTruck(Beam* truck, const
     Rail* curRail = NULL;
     Ogre::Real lenToCurRail = std::numeric_limits<Ogre::Real>::infinity();
 
-    for (std::vector<RailGroup*>::iterator itGroup = truck->mRailGroups.begin();
-         itGroup != truck->mRailGroups.end();
+    for (std::vector<RailGroup*>::iterator itGroup = truck->m_railgroups.begin();
+         itGroup != truck->m_railgroups.end();
          itGroup++)
     {
         // find the rail closest to the Node
@@ -90,7 +90,7 @@ std::pair<RailGroup*, Ogre::Real> Beam::getClosestRailOnTruck(Beam* truck, const
         // Only for use with a single slide node attaching to multiple rails,
         // which currently is not implemented
         // oh well git'r done... :P
-        for (std::vector< SlideNode >::iterator itNode = mSlideNodes.begin(); itNode != mSlideNodes.end(); itNode++)
+        for (std::vector< SlideNode >::iterator itNode = m_slidenodes.begin(); itNode != m_slidenodes.end(); itNode++)
         {
         // check if node is already hooked up to
             if ( node.getNodeID() == itNode->getNodeID() &&
@@ -112,7 +112,7 @@ std::pair<RailGroup*, Ogre::Real> Beam::getClosestRailOnTruck(Beam* truck, const
 
 void Beam::updateSlideNodeForces(const Ogre::Real dt)
 {
-    for (std::vector<SlideNode>::iterator it = mSlideNodes.begin(); it != mSlideNodes.end(); ++it)
+    for (std::vector<SlideNode>::iterator it = m_slidenodes.begin(); it != m_slidenodes.end(); ++it)
     {
         it->UpdatePosition();
         it->UpdateForces(dt);
@@ -121,9 +121,9 @@ void Beam::updateSlideNodeForces(const Ogre::Real dt)
 
 void Beam::resetSlideNodePositions()
 {
-    if (mSlideNodes.empty())
+    if (m_slidenodes.empty())
         return;
-    for (std::vector<SlideNode>::iterator it = mSlideNodes.begin(); it != mSlideNodes.end(); ++it)
+    for (std::vector<SlideNode>::iterator it = m_slidenodes.begin(); it != m_slidenodes.end(); ++it)
     {
         it->ResetPositions();
     }
@@ -131,7 +131,7 @@ void Beam::resetSlideNodePositions()
 
 void Beam::resetSlideNodes()
 {
-    for (std::vector<SlideNode>::iterator it = mSlideNodes.begin(); it != mSlideNodes.end(); ++it)
+    for (std::vector<SlideNode>::iterator it = m_slidenodes.begin(); it != m_slidenodes.end(); ++it)
     {
         it->reset();
     }
@@ -139,7 +139,7 @@ void Beam::resetSlideNodes()
 
 void Beam::updateSlideNodePositions()
 {
-    for (std::vector<SlideNode>::iterator it = mSlideNodes.begin(); it != mSlideNodes.end(); ++it)
+    for (std::vector<SlideNode>::iterator it = m_slidenodes.begin(); it != m_slidenodes.end(); ++it)
     {
         it->UpdatePosition();
     }

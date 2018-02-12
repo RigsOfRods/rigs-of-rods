@@ -150,7 +150,7 @@ Beam *RigSpawner::SpawnRig()
     m_rig->rescuer                     = m_file->rescuer;
     m_rig->disable_default_sounds      = m_file->disable_default_sounds;
     m_rig->ar_hide_in_actor_list       = m_file->hide_in_chooser;
-    m_rig->slideNodesConnectInstantly  = m_file->slide_nodes_connect_instantly;
+    m_rig->m_slidenodes_connect_on_spawn  = m_file->slide_nodes_connect_instantly;
 
     // Section 'authors' in root module
     ProcessAuthors();
@@ -169,9 +169,6 @@ Beam *RigSpawner::SpawnRig()
 
     // Section 'description'
     m_rig->description.assign(m_file->description.begin(), m_file->description.end());
-
-    // Section 'fileformatversion' in root module
-    m_rig->fileformatversion = m_file->file_format_version;
 
     // Section 'managedmaterials'
     // This prepares substitute materials -> MUST be processed before any meshes are loaded.

@@ -2056,14 +2056,14 @@ void RoRFrameListener::ReloadPlayerActor()
 void RoRFrameListener::ChangedCurrentVehicle(Beam* previous_vehicle, Beam* current_vehicle)
 {
     // hide any old dashes
-    if (previous_vehicle && previous_vehicle->dash)
+    if (previous_vehicle && previous_vehicle->ar_dashboard)
     {
-        previous_vehicle->dash->setVisible3d(false);
+        previous_vehicle->ar_dashboard->setVisible3d(false);
     }
     // show new
-    if (current_vehicle && current_vehicle->dash)
+    if (current_vehicle && current_vehicle->ar_dashboard)
     {
-        current_vehicle->dash->setVisible3d(true);
+        current_vehicle->ar_dashboard->setVisible3d(true);
     }
 
     if (previous_vehicle)
