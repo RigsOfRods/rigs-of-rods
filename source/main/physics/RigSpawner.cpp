@@ -2749,11 +2749,11 @@ void RigSpawner::ProcessTie(RigDef::Tie & def)
 
     /* Register tie */
     tie_t tie;
-    tie.group = def.group;
-    tie.tying = false;
-    tie.tied = false;
-    tie.beam = & beam;
-    tie.commandValue = -1.f;
+    tie.ti_group = def.group;
+    tie.ti_tying = false;
+    tie.ti_tied = false;
+    tie.ti_beam = & beam;
+    tie.ti_command_value = -1.f;
     m_rig->ar_ties.push_back(tie);
 
     m_rig->m_has_command_beams = true;
@@ -2776,11 +2776,11 @@ void RigSpawner::ProcessRope(RigDef::Rope & def)
 
     /* Register rope */
     rope_t rope;
-    rope.beam = & beam;
-    rope.locked = UNLOCKED;
-    rope.lockedto = & m_rig->ar_nodes[0]; // Orig: hardcoded in BTS_ROPES
-    rope.lockedto_ropable = nullptr;
-    rope.group = 0; // Orig: hardcoded in BTS_ROPES. TODO: To be used.
+    rope.rp_beam = & beam;
+    rope.rp_locked = UNLOCKED;
+    rope.rp_locked_node = & m_rig->ar_nodes[0]; // Orig: hardcoded in BTS_ROPES
+    rope.rp_locked_ropable = nullptr;
+    rope.rp_group = 0; // Orig: hardcoded in BTS_ROPES. TODO: To be used.
     m_rig->ar_ropes.push_back(rope);
 }
 
@@ -3033,7 +3033,7 @@ void RigSpawner::ProcessHook(RigDef::Hook & def)
     std::vector <hook_t>::iterator itor = m_rig->ar_hooks.begin();
     for (; itor != m_rig->ar_hooks.end(); itor++)
     {
-        if (itor->hookNode == node)
+        if (itor->hk_hook_node == node)
         {
             hook = &*itor;
             break;
@@ -3049,31 +3049,31 @@ void RigSpawner::ProcessHook(RigDef::Hook & def)
     }
 
     /* Process options */
-    hook->lockrange = def.option_hook_range;
-    hook->lockspeed = def.option_speed_coef * HOOK_SPEED_DEFAULT;
-    hook->maxforce  = def.option_max_force;
-    hook->group     = def.option_hookgroup;
-    hook->lockgroup = def.option_lockgroup;
-    hook->timer     = 0.f; // Hardcoded in BTS_HOOKS
-    hook->timer_preset = def.option_timer;
-    hook->beam->commandShort = def.option_min_range_meters;
-    hook->selflock = BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_SELF_LOCK);
-    hook->nodisable = BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_NO_DISABLE);
+    hook->hk_lockrange = def.option_hook_range;
+    hook->hk_lockspeed = def.option_speed_coef * HOOK_SPEED_DEFAULT;
+    hook->hk_maxforce  = def.option_max_force;
+    hook->hk_group     = def.option_hookgroup;
+    hook->hk_lockgroup = def.option_lockgroup;
+    hook->hk_timer     = 0.f; // Hardcoded in BTS_HOOKS
+    hook->hk_timer_preset = def.option_timer;
+    hook->hk_beam->commandShort = def.option_min_range_meters;
+    hook->hk_selflock = BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_SELF_LOCK);
+    hook->hk_nodisable = BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_NO_DISABLE);
     if (BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_AUTO_LOCK))
     {
-        hook->autolock = true;
-        if (hook->group == -1)
+        hook->hk_autolock = true;
+        if (hook->hk_group == -1)
         {
-            hook->group = -2; /* only overwrite hgroup when its still default (-1) */
+            hook->hk_group = -2; /* only overwrite hgroup when its still default (-1) */
         }
     }
     if (BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_NO_ROPE))
     {
-        hook->beam->bounded = NOSHOCK;
+        hook->hk_beam->bounded = NOSHOCK;
     }
     if (!BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_VISIBLE))
     {
-        hook->beam->bm_type = BEAM_INVISIBLE_HYDRO;
+        hook->hk_beam->bm_type = BEAM_INVISIBLE_HYDRO;
     }
 }
 
@@ -6092,22 +6092,22 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
             
         // Logic cloned from SerializedRig.cpp, section BTS_NODES
         hook_t hook;
-        hook.hookNode          = & node;
-        hook.group             = -1;
-        hook.locked            = UNLOCKED;
-        hook.lockNode          = 0;
-        hook.lockTruck         = 0;
-        hook.lockNodes         = true;
-        hook.lockgroup         = -1;
-        hook.beam              = & beam;
-        hook.maxforce          = HOOK_FORCE_DEFAULT;
-        hook.lockrange         = HOOK_RANGE_DEFAULT;
-        hook.lockspeed         = HOOK_SPEED_DEFAULT;
-        hook.selflock          = false;
-        hook.nodisable         = false;
-        hook.timer             = 0.0f;
-        hook.timer_preset      = HOOK_LOCK_TIMER_DEFAULT;
-        hook.autolock          = false;
+        hook.hk_hook_node         = & node;
+        hook.hk_group             = -1;
+        hook.hk_locked            = UNLOCKED;
+        hook.hk_lock_node         = nullptr;
+        hook.hk_locked_actor      = nullptr;
+        hook.hk_lock_nodes        = true;
+        hook.hk_lockgroup         = -1;
+        hook.hk_beam              = & beam;
+        hook.hk_maxforce          = HOOK_FORCE_DEFAULT;
+        hook.hk_lockrange         = HOOK_RANGE_DEFAULT;
+        hook.hk_lockspeed         = HOOK_SPEED_DEFAULT;
+        hook.hk_selflock          = false;
+        hook.hk_nodisable         = false;
+        hook.hk_timer             = 0.0f;
+        hook.hk_timer_preset      = HOOK_LOCK_TIMER_DEFAULT;
+        hook.hk_autolock          = false;
         m_rig->ar_hooks.push_back(hook);
     }
     AdjustNodeBuoyancy(node, def, def.node_defaults);

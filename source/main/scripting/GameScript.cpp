@@ -761,7 +761,7 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
         int i = 0;
         for (std::vector<hook_t>::iterator it = truck->hooks.begin(); it != truck->hooks.end(); it++ , i++)
         {
-            Beam* trailer = it->lockTruck;
+            Beam* trailer = it->hk_locked_actor;
             if (trailer && trailer->getTruckName() != trailer->GetActorDesignName())
             {
                 String name = "Trailer_" + TOSTRING(i) + "_Name";
