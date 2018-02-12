@@ -1350,7 +1350,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
             }
             else
             {
-                curr_truck->brake = curr_truck->brakeforce * 0.66;
+                curr_truck->ar_brake = curr_truck->ar_brake_force * 0.66;
                 m_time_until_next_toggle = 0.0; // No delay in this case: the truck must brake like braking normally
             }
         }
@@ -2030,7 +2030,7 @@ void RoRFrameListener::ReloadPlayerActor()
             newBeam->ar_nodes[i].Velocity    = curr_truck->ar_nodes[i].Velocity;
             newBeam->ar_nodes[i].Forces      = curr_truck->ar_nodes[i].Forces;
             newBeam->ar_nodes[i].initial_pos = curr_truck->ar_nodes[i].initial_pos;
-            newBeam->origin                  = curr_truck->origin;
+            newBeam->ar_origin               = curr_truck->ar_origin;
         }
     }
 

@@ -327,7 +327,7 @@ void RigSpawner::InitializeRig()
     m_rig->buoyance = nullptr;
     m_rig->propwheelcount=0;
     m_rig->free_commands=0;
-    m_rig->origin=Ogre::Vector3::ZERO;
+    m_rig->ar_origin=Ogre::Vector3::ZERO;
     m_rig->m_slidenodes.clear();
 
     m_rig->engine = nullptr;
@@ -352,8 +352,8 @@ void RigSpawner::InitializeRig()
     m_rig->fuseFront = nullptr;
     m_rig->fuseBack = nullptr;
     m_rig->fuseWidth=0;
-    m_rig->brakeforce=30000.0;
-    m_rig->hbrakeforce = 2 * m_rig->brakeforce;
+    m_rig->ar_brake_force=30000.0;
+    m_rig->m_handbrake_force = 2 * m_rig->ar_brake_force;
     m_rig->debugVisuals = SETTINGS.getBooleanSetting("DebugBeams", false);
     m_rig->shadowOptimizations = SETTINGS.getBooleanSetting("Shadow optimizations", true);
 
@@ -5512,11 +5512,11 @@ void RigSpawner::ProcessBrakes(RigDef::Brakes & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    m_rig->brakeforce = def.default_braking_force;
-    m_rig->hbrakeforce = 2.f * m_rig->brakeforce;
+    m_rig->ar_brake_force = def.default_braking_force;
+    m_rig->m_handbrake_force = 2.f * m_rig->ar_brake_force;
     if (def.parking_brake_force != -1.f)
     {
-        m_rig->hbrakeforce = def.parking_brake_force;
+        m_rig->m_handbrake_force = def.parking_brake_force;
     }
 };
 
@@ -6137,7 +6137,7 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
     /* Positioning */
     Ogre::Vector3 node_position = m_spawn_position + def.position;
     node.AbsPosition = node_position; 
-    node.RelPosition = node_position - m_rig->origin;
+    node.RelPosition = node_position - m_rig->ar_origin;
         
     node.wetstate = DRY; // orig = hardcoded (init_node)
     node.iswheel = NOWHEEL;
@@ -6360,7 +6360,7 @@ void RigSpawner::InitNode(node_t & node, Ogre::Vector3 const & position)
 
     /* Position */
     node.AbsPosition = position;
-    node.RelPosition = position - m_rig->origin;
+    node.RelPosition = position - m_rig->ar_origin;
 
     /* Misc. */
     node.collisionBoundingBoxID = -1; // orig = hardcoded (init_node)

@@ -442,7 +442,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
 
             if (ar_parking_brake && (wheels[i].wh_braking != wheel_t::BrakeCombo::FOOT_ONLY))
             {
-                hbrake = hbrakeforce;
+                hbrake = m_handbrake_force;
             }
 
             // directional braking
@@ -452,15 +452,15 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
                 && (((wheels[i].wh_braking == wheel_t::BrakeCombo::FOOT_HAND_SKID_LEFT)  && (hydrodirstate > 0.0f))
                  || ((wheels[i].wh_braking == wheel_t::BrakeCombo::FOOT_HAND_SKID_RIGHT) && (hydrodirstate < 0.0f))))
             {
-                dbrake = brakeforce * abs(hydrodirstate);
+                dbrake = ar_brake_force * abs(hydrodirstate);
             }
 
-            if ((brake != 0.0 || dbrake != 0.0 || hbrake != 0.0) && braked_wheels != 0 && fabs(wheels[i].wh_speed) > 0.0f)
+            if ((ar_brake != 0.0 || dbrake != 0.0 || hbrake != 0.0) && braked_wheels != 0 && fabs(wheels[i].wh_speed) > 0.0f)
             {
                 float brake_coef = 1.0f;
                 float antilock_coef = 1.0f;
                 // anti-lock braking
-                if (alb_mode && alb_pulse_state && (brake > 0.0f || dbrake > 0.0f) && curspeed > fabs(wheels[i].wh_speed) && curspeed > alb_minspeed)
+                if (alb_mode && alb_pulse_state && (ar_brake > 0.0f || dbrake > 0.0f) && curspeed > fabs(wheels[i].wh_speed) && curspeed > alb_minspeed)
                 {
                     antilock_coef = fabs(wheels[i].wh_speed) / curspeed;
                     antilock_coef = pow(antilock_coef, alb_ratio);
@@ -498,9 +498,9 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
                 }
 
                 if (wheels[i].wh_speed > 0)
-                    total_torque -= ((brake + dbrake) * antilock_coef + hbrake) * brake_coef;
+                    total_torque -= ((ar_brake + dbrake) * antilock_coef + hbrake) * brake_coef;
                 else
-                    total_torque += ((brake + dbrake) * antilock_coef + hbrake) * brake_coef;
+                    total_torque += ((ar_brake + dbrake) * antilock_coef + hbrake) * brake_coef;
             }
         }
         else
@@ -1841,7 +1841,7 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
         {
             ar_nodes[i].Velocity += ar_nodes[i].Forces / ar_nodes[i].mass * dt;
             ar_nodes[i].RelPosition += ar_nodes[i].Velocity * dt;
-            ar_nodes[i].AbsPosition = origin;
+            ar_nodes[i].AbsPosition = ar_origin;
             ar_nodes[i].AbsPosition += ar_nodes[i].RelPosition;
         }
 
@@ -1931,7 +1931,7 @@ void Beam::forwardCommands()
                     if (!it->lockTruck)
                         continue;
                     // forward brake
-                    it->lockTruck->brake = brake;
+                    it->lockTruck->ar_brake = ar_brake;
                     it->lockTruck->ar_parking_brake = ar_parking_brake;
 
                     // forward lights
@@ -2030,7 +2030,7 @@ void Beam::calcRopes()
             if (it->lockedto)
             {
                 it->beam->p2->AbsPosition = it->lockedto->AbsPosition;
-                it->beam->p2->RelPosition = it->lockedto->AbsPosition - origin; //ropes[i].lockedtruck->origin; //we have a problem here
+                it->beam->p2->RelPosition = it->lockedto->AbsPosition - ar_origin; //ropes[i].lockedtruck->origin; //we have a problem here
                 it->beam->p2->Velocity = it->lockedto->Velocity;
                 it->lockedto->Forces = it->lockedto->Forces + it->beam->p2->Forces;
                 it->beam->p2->Forces = Vector3::ZERO;

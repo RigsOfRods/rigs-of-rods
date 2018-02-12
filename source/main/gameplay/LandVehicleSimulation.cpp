@@ -132,7 +132,7 @@ void LandVehicleSimulation::UpdateCruiseControl(Beam* curr_truck, float dt)
         {
             float brake = (curr_truck->WheelSpeed - curr_truck->cc_target_speed) * 0.5f;
             brake = std::min(brake, 1.0f);
-            curr_truck->brake = curr_truck->brakeforce * brake;
+            curr_truck->ar_brake = curr_truck->ar_brake_force * brake;
         }
     }
 }
@@ -237,7 +237,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
             {
                 // classic mode, realistic
                 curr_truck->engine->autoSetAcc(accl);
-                curr_truck->brake = brake * curr_truck->brakeforce;
+                curr_truck->ar_brake = brake * curr_truck->ar_brake_force;
             }
             else
             {
@@ -252,13 +252,13 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
                 {
                     // neutral or drive forward, everything is as its used to be: brake is brake and accel. is accel.
                     curr_truck->engine->autoSetAcc(accl);
-                    curr_truck->brake = brake * curr_truck->brakeforce;
+                    curr_truck->ar_brake = brake * curr_truck->ar_brake_force;
                 }
                 else
                 {
                     // reverse gear, reverse controls: brake is accel. and accel. is brake.
                     curr_truck->engine->autoSetAcc(brake);
-                    curr_truck->brake = accl * curr_truck->brakeforce;
+                    curr_truck->ar_brake = accl * curr_truck->ar_brake_force;
                 }
 
                 // only when the truck really is not moving anymore
@@ -488,17 +488,17 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
                         float downhill_force = std::abs(sin(pitchAngle.valueRadians()) * curr_truck->getTotalMass());
                         float engine_force = std::abs(curr_truck->engine->getTorque());
                         float ratio = std::max(0.0f, 1.0f - (engine_force / downhill_force) / 2.0f);
-                        curr_truck->brake = curr_truck->brakeforce * sqrt(ratio);
+                        curr_truck->ar_brake = curr_truck->ar_brake_force * sqrt(ratio);
                     }
                 }
                 else if (brake == 0.0f && accl == 0.0f && curr_truck->ar_parking_brake == 0)
                 {
                     float ratio = std::max(0.0f, 0.1f - std::abs(curr_truck->WheelSpeed)) * 5.0f;
-                    curr_truck->brake = curr_truck->brakeforce * ratio;
+                    curr_truck->ar_brake = curr_truck->ar_brake_force * ratio;
                 }
             }
         } // end of ->engine
-        if (curr_truck->brake > curr_truck->brakeforce / 6.0f)
+        if (curr_truck->ar_brake > curr_truck->ar_brake_force / 6.0f)
         {
             SOUND_START(curr_truck, SS_TRIG_BRAKE);
         }
