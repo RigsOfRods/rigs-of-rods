@@ -284,7 +284,7 @@ Actor* ActorManager::CreateLocalActor(
 
 #undef LOADRIG_PROFILER_CHECKPOINT
 
-int ActorManager::CreateRemoteInstance(RoRnet::TruckStreamRegister* reg)
+int ActorManager::CreateRemoteInstance(RoRnet::ActorStreamRegister* reg)
 {
     LOG("[RoR] Creating remote actor for " + TOSTRING(reg->origin_sourceid) + ":" + TOSTRING(reg->origin_streamid));
 
@@ -309,9 +309,9 @@ int ActorManager::CreateRemoteInstance(RoRnet::TruckStreamRegister* reg)
     std::vector<String> actor_config;
     for (int t = 0; t < 10; t++)
     {
-        if (!strnlen(reg->truckconfig[t], 60))
+        if (!strnlen(reg->actorconfig[t], 60))
             break;
-        actor_config.push_back(String(reg->truckconfig[t]));
+        actor_config.push_back(String(reg->actorconfig[t]));
     }
 
     // DO NOT spawn the actor far off anywhere
@@ -386,7 +386,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
             RoRnet::StreamRegister* reg = (RoRnet::StreamRegister *)packet.buffer;
             if (reg->type == 0)
             {
-                reg->status = this->CreateRemoteInstance((RoRnet::TruckStreamRegister *)packet.buffer);
+                reg->status = this->CreateRemoteInstance((RoRnet::ActorStreamRegister *)packet.buffer);
                 RoR::Networking::AddPacket(0, RoRnet::MSG2_STREAM_REGISTER_RESULT, sizeof(RoRnet::StreamRegister), (char *)reg);
             }
         }
@@ -595,7 +595,7 @@ bool ActorManager::PredictActorCollAabbIntersect(int a, int b, float scale)
     return false;
 }
 
-void ActorManager::RecursiveActivation(int j, std::bitset<MAX_TRUCKS>& visited)
+void ActorManager::RecursiveActivation(int j, std::bitset<MAX_ACTORS>& visited)
 {
     if (visited[j] || !m_actors[j] || m_actors[j]->ar_sim_state != Actor::SimState::LOCAL_SIMULATED)
         return;
@@ -648,7 +648,7 @@ void ActorManager::UpdateSleepingState(float dt)
         player_actor->ar_sim_state = Actor::SimState::LOCAL_SIMULATED;
     }
 
-    std::bitset<MAX_TRUCKS> visited;
+    std::bitset<MAX_ACTORS> visited;
     // Recursivly activate all actors which can be reached from current actor
     if (player_actor && player_actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
     {
@@ -666,7 +666,7 @@ void ActorManager::UpdateSleepingState(float dt)
 int ActorManager::GetFreeActorSlot()
 {
     // find a free slot for the actor
-    for (int t = 0; t < MAX_TRUCKS; t++)
+    for (int t = 0; t < MAX_ACTORS; t++)
     {
         if (!m_actors[t] && t >= m_free_actor_slot) // XXX: TODO: remove this hack
         {

@@ -80,9 +80,9 @@ namespace RoRnet
     struct Header;
     struct UserInfo;
     struct StreamRegister;
-    struct TruckStreamRegister;
+    struct ActorStreamRegister;
     struct ServerInfo;
-    struct TruckState;
+    struct VehicleState;
 }
 
 struct node_t;

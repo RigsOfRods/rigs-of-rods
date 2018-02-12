@@ -603,14 +603,14 @@ void Actor::PushNetwork(char* data, int size)
         return;
 
     // check if the size of the data matches to what we expected
-    if ((unsigned int)size == (m_net_buffer_size + sizeof(RoRnet::TruckState)))
+    if ((unsigned int)size == (m_net_buffer_size + sizeof(RoRnet::VehicleState)))
     {
         // we walk through the incoming data and separate it a bit
         char* ptr = data;
 
-        // put the RoRnet::TruckState in front, describes actor basics, engine state, flares, etc
-        memcpy((char*)oob3, ptr, sizeof(RoRnet::TruckState));
-        ptr += sizeof(RoRnet::TruckState);
+        // put the RoRnet::VehicleState in front, describes actor basics, engine state, flares, etc
+        memcpy((char*)oob3, ptr, sizeof(RoRnet::VehicleState));
+        ptr += sizeof(RoRnet::VehicleState);
 
         // then copy the node data
         memcpy((char*)netb3, ptr, m_net_node_buf_size);
@@ -629,13 +629,13 @@ void Actor::PushNetwork(char* data, int size)
     {
         // TODO: show the user the problem in the GUI
         LogFormat("[RoR|Network] Wrong data size: %d bytes, expected %d bytes, actor ID: %d",
-            size, m_net_buffer_size+sizeof(RoRnet::TruckState), ar_instance_id);
+            size, m_net_buffer_size+sizeof(RoRnet::VehicleState), ar_instance_id);
         ar_sim_state = SimState::INVALID;
         return;
     }
 
     // and the buffer switching to have linear smoothing
-    RoRnet::TruckState* ot;
+    RoRnet::VehicleState* ot;
     ot = oob1;
     oob1 = oob2;
     oob2 = oob3;
@@ -669,7 +669,7 @@ void Actor::CalcNetwork()
 
     if (m_net_update_counter == 1)
     {
-        memcpy((char*)oob1, oob2, sizeof(RoRnet::TruckState));
+        memcpy((char*)oob1, oob2, sizeof(RoRnet::VehicleState));
     }
 
     BES_GFX_START(BES_GFX_calcNetwork);
@@ -1841,8 +1841,8 @@ void Actor::HandleResetRequests(float dt)
 
 void Actor::sendStreamSetup()
 {
-    RoRnet::TruckStreamRegister reg;
-    memset(&reg, 0, sizeof(RoRnet::TruckStreamRegister));
+    RoRnet::ActorStreamRegister reg;
+    memset(&reg, 0, sizeof(RoRnet::ActorStreamRegister));
     reg.status = 0;
     reg.type = 0;
     reg.bufferSize = m_net_buffer_size;
@@ -1851,11 +1851,11 @@ void Actor::sendStreamSetup()
     {
         // insert section config
         for (int i = 0; i < std::min<int>((int)m_actor_config.size(), 10); i++)
-            strncpy(reg.truckconfig[i], m_actor_config[i].c_str(), 60);
+            strncpy(reg.actorconfig[i], m_actor_config[i].c_str(), 60);
     }
 
 #ifdef USE_SOCKETW
-    RoR::Networking::AddLocalStream((RoRnet::StreamRegister *)&reg, sizeof(RoRnet::TruckStreamRegister));
+    RoR::Networking::AddLocalStream((RoRnet::StreamRegister *)&reg, sizeof(RoRnet::ActorStreamRegister));
 #endif // USE_SOCKETW
 
     ar_net_source_id = reg.origin_sourceid;
@@ -1871,7 +1871,7 @@ void Actor::sendStreamData()
     ar_net_last_update_time = ar_net_timer.getMilliseconds();
 
     //look if the packet is too big first
-    int final_packet_size = sizeof(RoRnet::TruckState) + sizeof(float) * 3 + m_net_first_wheel_node * sizeof(float) * 3 + ar_num_wheels * sizeof(float);
+    int final_packet_size = sizeof(RoRnet::VehicleState) + sizeof(float) * 3 + m_net_first_wheel_node * sizeof(float) * 3 + ar_num_wheels * sizeof(float);
     if (final_packet_size > 8192)
     {
         ErrorUtils::ShowError(_L("Actor is too big to be sent over the net."), _L("Network error!"));
@@ -1882,10 +1882,10 @@ void Actor::sendStreamData()
 
     unsigned int packet_len = 0;
 
-    // RoRnet::TruckState is at the beginning of the buffer
+    // RoRnet::VehicleState is at the beginning of the buffer
     {
-        RoRnet::TruckState* send_oob = (RoRnet::TruckState *)send_buffer;
-        packet_len += sizeof(RoRnet::TruckState);
+        RoRnet::VehicleState* send_oob = (RoRnet::VehicleState *)send_buffer;
+        packet_len += sizeof(RoRnet::VehicleState);
 
         send_oob->flagmask = 0;
 
@@ -1967,7 +1967,7 @@ void Actor::sendStreamData()
 
     // then process the contents
     {
-        char* ptr = send_buffer + sizeof(RoRnet::TruckState);
+        char* ptr = send_buffer + sizeof(RoRnet::VehicleState);
         float* send_nodes = (float *)ptr;
         packet_len += m_net_buffer_size;
 
@@ -5762,7 +5762,7 @@ Actor::Actor(
         }
     }
 
-    // network buffer layout (without RoRnet::TruckState):
+    // network buffer layout (without RoRnet::VehicleState):
     //
     //  - 3 floats (x,y,z) for the reference node 0
     //  - ar_num_nodes - 1 times 3 short ints (compressed position info)
@@ -5794,9 +5794,9 @@ Actor::Actor(
     {
         ar_sim_state = SimState::NETWORKED_OK;
         // malloc memory
-        oob1 = (RoRnet::TruckState*)malloc(sizeof(RoRnet::TruckState));
-        oob2 = (RoRnet::TruckState*)malloc(sizeof(RoRnet::TruckState));
-        oob3 = (RoRnet::TruckState*)malloc(sizeof(RoRnet::TruckState));
+        oob1 = (RoRnet::VehicleState*)malloc(sizeof(RoRnet::VehicleState));
+        oob2 = (RoRnet::VehicleState*)malloc(sizeof(RoRnet::VehicleState));
+        oob3 = (RoRnet::VehicleState*)malloc(sizeof(RoRnet::VehicleState));
         netb1 = (char*)malloc(m_net_buffer_size);
         netb2 = (char*)malloc(m_net_buffer_size);
         netb3 = (char*)malloc(m_net_buffer_size);

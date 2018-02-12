@@ -125,19 +125,19 @@ struct StreamRegister              //!< Sent from the client to server and vice 
     int32_t status;                //!< initial stream status
     int32_t origin_sourceid;       //!< origin sourceid
     int32_t origin_streamid;       //!< origin streamid
-    char    name[128];             //!< the truck filename
+    char    name[128];             //!< the actor filename
     char    data[8000];            //!< data used for stream setup
 };
 
-struct TruckStreamRegister
+struct ActorStreamRegister
 {
     int32_t type;                  //!< stream type
     int32_t status;                //!< initial stream status
     int32_t origin_sourceid;       //!< origin sourceid
     int32_t origin_streamid;       //!< origin streamid
     int32_t bufferSize;            //!< initial stream status
-    char    name[128];             //!< the truck filename
-    char    truckconfig[10][60];   //!< truck section configuration
+    char    name[128];             //!< filename
+    char    actorconfig[10][60];   //!< section configuration
 };
 
 struct StreamUnRegister            //< sent to remove a stream
@@ -163,7 +163,7 @@ struct UserInfo
     char     sessionoptions[128];  //!< reserved for future options
 };
 
-struct TruckState                  //!< Formerly `oob_t`
+struct VehicleState                  //!< Formerly `oob_t`
 {
     int32_t  time;                 //!< time data
     float    engine_speed;         //!< engine RPM

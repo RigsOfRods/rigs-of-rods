@@ -78,7 +78,7 @@ CSimpleOpt::SOption cmdline_options[] = {
     { OPT_ENTERTRUCK,     ("-enter"),       SO_NONE    },
     { OPT_WDIR,           ("-wd"),          SO_REQ_SEP },
     { OPT_SETUP,          ("-setup"),       SO_NONE    },
-    { OPT_TRUCKCONFIG,    ("-truckconfig"), SO_REQ_SEP },
+    { OPT_TRUCKCONFIG,    ("-actorconfig"), SO_REQ_SEP },
     { OPT_HELP,           ("--help"),       SO_NONE    },
     { OPT_HELP,           ("-help"),        SO_NONE    },
     { OPT_CHECKCACHE,     ("-checkcache"),  SO_NONE    },
