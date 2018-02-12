@@ -57,7 +57,7 @@ CLASS::CLASS()
     mMainWidget->setPosition(gui_area.width / 2 - mMainWidget->getWidth() / 2, gui_area.height / 2 - mMainWidget->getHeight() / 2);
 
     //checkboxes
-    m_debug_truck_mass->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnDebugTruckMassCheck);
+    m_debug_truck_mass->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnDebugActorMassCheck);
     m_debug_collision_meshes->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnDebugColiMeshesCheck);
     m_ingame_console->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnIngameConsoleCheck);
     m_debug_envmap->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::OnDebugEnvMapCheck);
@@ -101,7 +101,7 @@ void CLASS::notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::strin
         Hide();
 }
 
-void CLASS::OnDebugTruckMassCheck(MyGUI::WidgetPtr _sender)
+void CLASS::OnDebugActorMassCheck(MyGUI::WidgetPtr _sender)
 {
 
 }

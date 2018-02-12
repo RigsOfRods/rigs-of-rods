@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2013-2018 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -49,7 +49,7 @@ private:
     void SaveConfig();
 
     //checkboxes
-    void OnDebugTruckMassCheck(MyGUI::WidgetPtr _sender);
+    void OnDebugActorMassCheck(MyGUI::WidgetPtr _sender);
     void OnDebugColiMeshesCheck(MyGUI::WidgetPtr _sender);
     void OnIngameConsoleCheck(MyGUI::WidgetPtr _sender);
     void OnDebugEnvMapCheck(MyGUI::WidgetPtr _sender);

@@ -49,7 +49,7 @@ public:
         Ogre::Overlay *o;
     };
 
-    void showDashboardOverlays(bool show, Actor *truck);
+    void showDashboardOverlays(bool show, Actor *actor);
     void showDebugOverlay(int mode);
     void showPressureOverlay(bool show);
 

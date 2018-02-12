@@ -60,8 +60,8 @@ protected:
         MyGUI::StaticImagePtr flagimg;
         MyGUI::StaticImagePtr statimg;
         MyGUI::StaticImagePtr usergoimg;
-        MyGUI::StaticImagePtr userTruckOKImg;
-        MyGUI::StaticImagePtr userTruckOKRemoteImg;
+        MyGUI::StaticImagePtr user_actor_ok_img;
+        MyGUI::StaticImagePtr user_remote_actor_ok_img;
         MyGUI::StaticTextPtr playername;
     };
 
