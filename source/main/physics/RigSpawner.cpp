@@ -309,7 +309,7 @@ void RigSpawner::InitializeRig()
     memset(m_rig->helpmat, 0, 255);
     
     m_rig->collrange=DEFAULT_COLLISION_RANGE;
-    m_rig->masscount=0;
+    m_rig->m_masscount=0;
     m_rig->disable_smoke = App::gfx_particles_mode.GetActive() == 0;
     m_rig->ar_exhaust_pos_node=0;
     m_rig->ar_exhaust_dir_node=0;
@@ -319,8 +319,6 @@ void RigSpawner::InitializeRig()
     m_rig->m_rotator_inertia = nullptr;
     m_rig->m_hydro_inertia = nullptr;
     m_rig->m_command_inertia = nullptr;
-    m_rig->truckmass=0;
-    m_rig->loadmass=0;
     m_rig->buoyance = nullptr;
     m_rig->ar_origin=Ogre::Vector3::ZERO;
     m_rig->m_slidenodes.clear();
@@ -356,7 +354,6 @@ void RigSpawner::InitializeRig()
 
     m_rig->speedoMax=140;
     m_rig->useMaxRPMforGUI=false;
-    m_rig->minimass=50.0;
     m_rig->cparticle_enabled=false;
     m_rig->ar_num_cameras=0;
     m_rig->m_cab_mesh = nullptr;
@@ -4632,14 +4629,14 @@ void RigSpawner::AdjustNodeBuoyancy(node_t & node, RigDef::Node & node_def, std:
     SPAWNER_PROFILE_SCOPED();
 
     unsigned int options = (defaults->options | node_def.options); // Merge flags
-    node.buoyancy = BITMASK_IS_1(options, RigDef::Node::OPTION_b_EXTRA_BUOYANCY) ? 10000.f : m_rig->truckmass/15.f;
+    node.buoyancy = BITMASK_IS_1(options, RigDef::Node::OPTION_b_EXTRA_BUOYANCY) ? 10000.f : m_rig->m_dry_mass/15.f;
 }
 
 void RigSpawner::AdjustNodeBuoyancy(node_t & node, std::shared_ptr<RigDef::NodeDefaults> defaults)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    node.buoyancy = BITMASK_IS_1(defaults->options, RigDef::Node::OPTION_b_EXTRA_BUOYANCY) ? 10000.f : m_rig->truckmass/15.f;
+    node.buoyancy = BITMASK_IS_1(defaults->options, RigDef::Node::OPTION_b_EXTRA_BUOYANCY) ? 10000.f : m_rig->m_dry_mass/15.f;
 }
 
 int RigSpawner::FindLowestNodeInRig()
@@ -6164,7 +6161,7 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
         }
         else
         {
-            m_rig->masscount++;
+            m_rig->m_masscount++;
         }
     }
     if (BITMASK_IS_1(options, RigDef::Node::OPTION_h_HOOK_POINT))
@@ -6373,8 +6370,8 @@ void RigSpawner::ProcessGlobals(RigDef::Globals & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    m_rig->truckmass = def.dry_mass;
-    m_rig->loadmass = def.cargo_mass;
+    m_rig->m_dry_mass = def.dry_mass;
+    m_rig->m_load_mass = def.cargo_mass;
 
     // NOTE: Don't do any material pre-processing here; it'll be done on actual entities (via `SetupNewEntity()`).
     if (! def.material_name.empty())

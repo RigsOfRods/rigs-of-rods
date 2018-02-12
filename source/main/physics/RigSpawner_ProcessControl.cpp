@@ -164,7 +164,7 @@ Beam *RigSpawner::SpawnRig()
     // Section 'minimass' in root module
     if (m_file->_minimum_mass_set)
     {
-        m_rig->minimass = m_file->minimum_mass;
+        m_rig->m_minimass = m_file->minimum_mass;
     }
 
     // Section 'description'
