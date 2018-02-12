@@ -994,8 +994,8 @@ protected:
     DustPool *ripplep;
 
     // SLIDE NODES /////////////////////////////////////////////////////////////
-    //! true if SlideNodes are locked, false if not
-    bool SlideNodesLocked;
+    
+    
 
     /**
      * calculate and apply Corrective forces
@@ -1017,5 +1017,6 @@ protected:
      */
     std::pair<RailGroup*, Ogre::Real> getClosestRailOnTruck( Beam* truck, const SlideNode& node);
 
-    bool m_hud_features_ok:1; //!< Gfx; Are HUD features matching actor's capabilities?
+    bool m_hud_features_ok:1;   //!< Gfx; Are HUD features matching actor's capabilities?
+    bool m_slidenodes_locked:1; //!< Physics; Are SlideNodes locked?
 };
