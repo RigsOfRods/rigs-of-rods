@@ -305,8 +305,6 @@ void RigSpawner::InitializeRig()
     m_rig->m_odometer_total = 0;
     m_rig->m_odometer_user  = 0;
 
-    memset(m_rig->helpmat, 0, 255);
-    
     m_rig->collrange=DEFAULT_COLLISION_RANGE;
     m_rig->m_masscount=0;
     m_rig->disable_smoke = App::gfx_particles_mode.GetActive() == 0;
@@ -323,7 +321,6 @@ void RigSpawner::InitializeRig()
     m_rig->m_slidenodes.clear();
 
     m_rig->engine = nullptr;
-    m_rig->hashelp=0;
     m_rig->cinecameranodepos[0]=-1;
     m_rig->freecinecamera=0;
     m_rig->deletion_sceneNodes.clear();
@@ -1376,7 +1373,7 @@ void RigSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
 
     if (! def.help_material.empty())
     {
-        strncpy(m_rig->helpmat, def.help_material.c_str(), sizeof(m_rig->helpmat) - 1);
+        m_rig->ar_help_panel_material = def.help_material;
     }
     if (def.speedo_highest_kph > 10 && def.speedo_highest_kph < 32000)
     {
@@ -5605,8 +5602,7 @@ void RigSpawner::ProcessHelp()
         auto module = module_itor->get();
         if (! module->help_panel_material_name.empty())
         {
-            strncpy(m_rig->helpmat, module->help_panel_material_name.c_str(), sizeof(m_rig->helpmat) - 1);
-            m_rig->hashelp = 1;
+            m_rig->ar_help_panel_material = module->help_panel_material_name;
             material_count++;
         }
     }

@@ -2134,9 +2134,9 @@ void RoRFrameListener::ChangedCurrentVehicle(Beam* previous_vehicle, Beam* curre
         {
             try
             {
-                if (current_vehicle->hashelp)
+                if (!current_vehicle->ar_help_panel_material.empty())
                 {
-                    OverlayManager::getSingleton().getOverlayElement("tracks/machinehelppanel")->setMaterialName(current_vehicle->helpmat);
+                    OverlayManager::getSingleton().getOverlayElement("tracks/machinehelppanel")->setMaterialName(current_vehicle->ar_help_panel_material);
                 }
                 else
                 {
@@ -2152,8 +2152,7 @@ void RoRFrameListener::ChangedCurrentVehicle(Beam* previous_vehicle, Beam* curre
                 LOG(msg.str());
 
                 // Do not retry
-                current_vehicle->hashelp = 0;
-                current_vehicle->helpmat[0] = '\0';
+                current_vehicle->ar_help_panel_material.clear();
             }
         }
 

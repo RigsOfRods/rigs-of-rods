@@ -178,7 +178,7 @@ Beam *RigSpawner::SpawnRig()
     PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_GLOBALS, globals, ProcessGlobals);
 
     // Section 'help' in any module.
-    // NOTE: Must be done before "guisettings" (rig_t::helpmat override)
+    // NOTE: Must be done before "guisettings" (overrides help panel material)
     ProcessHelp();
 
     // Section 'engine' in any module
