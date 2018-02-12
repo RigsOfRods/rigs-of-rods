@@ -288,7 +288,6 @@ void RigSpawner::InitializeRig()
     memset(m_rig->flexbodies, 0, sizeof(FlexBody *) * MAX_FLEXBODIES);
     m_rig->free_flexbody = 0;
     m_rig->description.clear();
-    m_rig->free_axle = 0;
     m_rig->free_camerarail = 0;
     m_rig->free_screwprop = 0;
 
@@ -2681,8 +2680,8 @@ void RigSpawner::ProcessAxle(RigDef::Axle & def)
         }
     }
 
-    m_rig->axles[m_rig->free_axle] = axle;
-    m_rig->free_axle++;
+    m_rig->m_axles[m_rig->m_num_axles] = axle;
+    m_rig->m_num_axles++;
 }
 
 void RigSpawner::ProcessSpeedLimiter(RigDef::SpeedLimiter & def)
@@ -6437,7 +6436,7 @@ bool RigSpawner::CheckAxleLimit(unsigned int count)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if ((m_rig->free_axle + count) > MAX_WHEELS/2)
+    if ((m_rig->m_num_axles + count) > MAX_WHEELS/2)
     {
         std::stringstream msg;
         msg << "Axle limit (" << MAX_WHEELS/2 << ") exceeded";

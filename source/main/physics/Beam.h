@@ -415,8 +415,6 @@ public:
     bool              advanced_drag;
     float             advanced_node_drag;
     float             advanced_total_drag;
-    Axle*             axles[MAX_WHEELS/2];
-    int               free_axle;
     int               free_commands;
     Ogre::Vector3     ar_origin;
     int               ar_num_cameras;
@@ -611,6 +609,8 @@ private:
     float             m_fusealge_width;        //!< Physics attr; defined in truckfile
     float             m_odometer_total;        //!< GUI state
     float             m_odometer_user;         //!< GUI state
+    Axle*             m_axles[MAX_WHEELS/2];   //!< Physics
+    int               m_num_axles;             //!< Physics
 
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?

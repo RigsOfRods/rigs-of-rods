@@ -371,10 +371,10 @@ Beam::~Beam()
     if (m_rotator_inertia)
         delete m_rotator_inertia;
 
-    for (int i = 0; i < free_axle; ++i)
+    for (int i = 0; i < m_num_axles; ++i)
     {
-        if (axles[i] != nullptr)
-            delete (axles[i]);
+        if (m_axles[i] != nullptr)
+            delete (m_axles[i]);
     }
 
     delete ar_nodes;
@@ -1555,24 +1555,24 @@ void Beam::disconnectAutopilot()
 
 void Beam::toggleAxleLock()
 {
-    for (int i = 0; i < free_axle; ++i)
+    for (int i = 0; i < m_num_axles; ++i)
     {
-        if (!axles[i])
+        if (!m_axles[i])
             continue;
-        axles[i]->toggleDiff();
+        m_axles[i]->toggleDiff();
     }
 }
 
 int Beam::getAxleLockCount()
 {
-    return free_axle;
+    return m_num_axles;
 }
 
 String Beam::getAxleLockName()
 {
-    if (!axles[0])
+    if (!m_axles[0])
         return String();
-    return axles[0]->getDiffTypeName();
+    return m_axles[0]->getDiffTypeName();
 }
 
 void Beam::reset(bool keepPosition)
@@ -2052,7 +2052,7 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
     //differential lock status
     if (flag_state & ANIM_FLAG_DIFFLOCK)
     {
-        if (free_axle)
+        if (m_num_axles)
         {
             if (getAxleLockName() == "Open")
                 cstate = 0.0f;
@@ -5632,6 +5632,8 @@ Beam::Beam(
     , m_total_mass(0)
     , m_water_contact(false)
     , m_water_contact_old(false)
+    , m_num_axles(0)
+    , m_axles{} // Init array to nullptr
 {
     m_high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();
     useSkidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;

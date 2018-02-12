@@ -278,7 +278,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     float newspeeds[MAX_WHEELS] = {};
     float intertorque[MAX_WHEELS] = {};
     //old-style viscous code
-    if (free_axle == 0)
+    if (m_num_axles == 0)
     {
         //first, evaluate torque from inter-differential locking
         for (int i = 0; i < m_num_proped_wheels / 2 - 1; i++)
@@ -306,39 +306,39 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     // new-style Axles
     // loop through all axles for inter axle torque, this is the torsion to keep
     // the axles aligned with each other as if they connected by a shaft
-    for (int i = 1; i < free_axle; i++)
+    for (int i = 1; i < m_num_axles; i++)
     {
-        if (!axles[i])
+        if (!m_axles[i])
             continue;
 
-        if (wheels[axles[i - 1]->wheel_1].wh_is_detached)
-            wheels[axles[i - 1]->wheel_1].wh_speed = wheels[axles[i - 1]->wheel_2].wh_speed;
-        if (wheels[axles[i - 0]->wheel_1].wh_is_detached)
-            wheels[axles[i - 0]->wheel_1].wh_speed = wheels[axles[i - 0]->wheel_2].wh_speed;
-        if (wheels[axles[i - 1]->wheel_2].wh_is_detached)
-            wheels[axles[i - 1]->wheel_2].wh_speed = wheels[axles[i - 1]->wheel_1].wh_speed;
-        if (wheels[axles[i - 0]->wheel_2].wh_is_detached)
-            wheels[axles[i - 0]->wheel_2].wh_speed = wheels[axles[i - 0]->wheel_1].wh_speed;
+        if (wheels[m_axles[i - 1]->wheel_1].wh_is_detached)
+            wheels[m_axles[i - 1]->wheel_1].wh_speed = wheels[m_axles[i - 1]->wheel_2].wh_speed;
+        if (wheels[m_axles[i - 0]->wheel_1].wh_is_detached)
+            wheels[m_axles[i - 0]->wheel_1].wh_speed = wheels[m_axles[i - 0]->wheel_2].wh_speed;
+        if (wheels[m_axles[i - 1]->wheel_2].wh_is_detached)
+            wheels[m_axles[i - 1]->wheel_2].wh_speed = wheels[m_axles[i - 1]->wheel_1].wh_speed;
+        if (wheels[m_axles[i - 0]->wheel_2].wh_is_detached)
+            wheels[m_axles[i - 0]->wheel_2].wh_speed = wheels[m_axles[i - 0]->wheel_1].wh_speed;
 
-        if (wheels[axles[i - 1]->wheel_1].wh_is_detached && wheels[axles[i - 1]->wheel_2].wh_is_detached)
+        if (wheels[m_axles[i - 1]->wheel_1].wh_is_detached && wheels[m_axles[i - 1]->wheel_2].wh_is_detached)
         {
-            wheels[axles[i - 1]->wheel_1].wh_speed = wheels[axles[i - 0]->wheel_1].wh_speed;
-            wheels[axles[i - 1]->wheel_2].wh_speed = wheels[axles[i - 0]->wheel_2].wh_speed;
+            wheels[m_axles[i - 1]->wheel_1].wh_speed = wheels[m_axles[i - 0]->wheel_1].wh_speed;
+            wheels[m_axles[i - 1]->wheel_2].wh_speed = wheels[m_axles[i - 0]->wheel_2].wh_speed;
         }
-        if (wheels[axles[i - 0]->wheel_1].wh_is_detached && wheels[axles[i - 0]->wheel_2].wh_is_detached)
+        if (wheels[m_axles[i - 0]->wheel_1].wh_is_detached && wheels[m_axles[i - 0]->wheel_2].wh_is_detached)
         {
-            wheels[axles[i - 0]->wheel_1].wh_speed = wheels[axles[i - 1]->wheel_1].wh_speed;
-            wheels[axles[i - 0]->wheel_2].wh_speed = wheels[axles[i - 1]->wheel_2].wh_speed;
+            wheels[m_axles[i - 0]->wheel_1].wh_speed = wheels[m_axles[i - 1]->wheel_1].wh_speed;
+            wheels[m_axles[i - 0]->wheel_2].wh_speed = wheels[m_axles[i - 1]->wheel_2].wh_speed;
         }
 
         Ogre::Real axle_torques[2] = {0.0f, 0.0f};
         differential_data_t diff_data =
         {
             {
-                (wheels[axles[i - 1]->wheel_1].wh_speed + wheels[axles[i - 1]->wheel_2].wh_speed) * 0.5f,
-                (wheels[axles[i]->wheel_1].wh_speed + wheels[axles[i]->wheel_2].wh_speed) * 0.5f
+                (wheels[m_axles[i - 1]->wheel_1].wh_speed + wheels[m_axles[i - 1]->wheel_2].wh_speed) * 0.5f,
+                (wheels[m_axles[i]->wheel_1].wh_speed + wheels[m_axles[i]->wheel_2].wh_speed) * 0.5f
             },
-            axles[i - 1]->delta_rotation,
+            m_axles[i - 1]->delta_rotation,
             {axle_torques[0], axle_torques[1]},
             0, // no input torque, just calculate forces from different axle positions
             dt
@@ -352,22 +352,22 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         Axle::calcLockedDiff(diff_data);
 #endif
 
-        axles[i - 1]->delta_rotation = diff_data.delta_rotation;
-        axles[i]->delta_rotation = -diff_data.delta_rotation;
+        m_axles[i - 1]->delta_rotation = diff_data.delta_rotation;
+        m_axles[i]->delta_rotation = -diff_data.delta_rotation;
 
-        intertorque[axles[i - 1]->wheel_1] = diff_data.out_torque[0];
-        intertorque[axles[i - 1]->wheel_2] = diff_data.out_torque[0];
-        intertorque[axles[i]->wheel_1] = diff_data.out_torque[1];
-        intertorque[axles[i]->wheel_2] = diff_data.out_torque[1];
+        intertorque[m_axles[i - 1]->wheel_1] = diff_data.out_torque[0];
+        intertorque[m_axles[i - 1]->wheel_2] = diff_data.out_torque[0];
+        intertorque[m_axles[i]->wheel_1] = diff_data.out_torque[1];
+        intertorque[m_axles[i]->wheel_2] = diff_data.out_torque[1];
     }
 
     // loop through all the wheels (new style again)
-    for (int i = 0; i < free_axle; i++)
+    for (int i = 0; i < m_num_axles; i++)
     {
-        if (!axles[i])
+        if (!m_axles[i])
             continue;
         Ogre::Real axle_torques[2] = {0.0f, 0.0f};
-        wheel_t* axle_wheels[2] = {&wheels[axles[i]->wheel_1], &wheels[axles[i]->wheel_2]};
+        wheel_t* axle_wheels[2] = {&wheels[m_axles[i]->wheel_1], &wheels[m_axles[i]->wheel_2]};
 
         if (axle_wheels[0]->wh_is_detached)
             axle_wheels[0]->wh_speed = axle_wheels[1]->wh_speed;
@@ -381,17 +381,17 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
             {axle_torques[0], axle_torques[1]},
             // twice the torque since this is for two wheels, plus extra torque from
             // inter-axle torsion
-            2.0f * engine_torque + intertorque[axles[i]->wheel_1],
+            2.0f * engine_torque + intertorque[m_axles[i]->wheel_1],
             dt
         };
 
-        axles[i]->calcTorque(diff_data);
+        m_axles[i]->calcTorque(diff_data);
 
         axle_wheels[0]->wh_delta_rotation = diff_data.delta_rotation;
         axle_wheels[1]->wh_delta_rotation = -diff_data.delta_rotation;
 
-        intertorque[axles[i]->wheel_1] = diff_data.out_torque[0];
-        intertorque[axles[i]->wheel_2] = diff_data.out_torque[1];
+        intertorque[m_axles[i]->wheel_1] = diff_data.out_torque[0];
+        intertorque[m_axles[i]->wheel_2] = diff_data.out_torque[1];
     }
 
     BES_STOP(BES_CORE_Axles);
@@ -433,7 +433,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         Real total_torque = 0.0;
         if (wheels[i].wh_propulsed > 0)
         {
-            total_torque = (free_axle == 0) ? engine_torque : intertorque[i];
+            total_torque = (m_num_axles == 0) ? engine_torque : intertorque[i];
         }
 
         if (wheels[i].wh_braking != wheel_t::BrakeCombo::NONE)
@@ -529,7 +529,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         }
 
         // old-style
-        if (free_axle == 0 && wheels[i].wh_propulsed > 0)
+        if (m_num_axles == 0 && wheels[i].wh_propulsed > 0)
         {
             // differential locking
             if (i % 2)
