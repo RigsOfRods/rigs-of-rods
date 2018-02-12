@@ -1346,7 +1346,7 @@ void TerrainObjectManager::LoadPredefinedActors()
     for (unsigned int i = 0; i < m_predefined_actors.size(); i++)
     {
         Vector3 pos = Vector3(m_predefined_actors[i].px, m_predefined_actors[i].py, m_predefined_actors[i].pz);
-        Actor* b = terrainManager->GetSimController()->GetBeamFactory()->CreateLocalRigInstance(
+        Actor* b = terrainManager->GetSimController()->GetBeamFactory()->CreateLocalActor(
             pos,
             m_predefined_actors[i].rotation,
             m_predefined_actors[i].name,

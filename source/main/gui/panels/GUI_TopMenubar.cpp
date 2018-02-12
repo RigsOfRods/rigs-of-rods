@@ -285,7 +285,7 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
         int truck = PARSEINT(id.substr(6));
         if (truck >= 0 && truck < App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots())
         {
-            App::GetSimController()->GetBeamFactory()->setCurrentTruck(truck);
+            App::GetSimController()->GetBeamFactory()->SetPlayerVehicleByActorId(truck);
         }
     }
 
@@ -323,7 +323,7 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
 
     } else if (miname == _L("Reload current vehicle") && gEnv->player)
     {
-        if ((App::GetSimController()->GetBeamFactory()->getCurrentTruckNumber() != -1) && (App::GetSimController() != nullptr))
+        if ((App::GetSimController()->GetBeamFactory()->GetPlayerActorId() != -1) && (App::GetSimController() != nullptr))
         {
             App::GetSimController()->ReloadPlayerActor(); // TODO: Use SIM_STATE + 'pending' mechanisms
             gui_man->UnfocusGui();
@@ -339,24 +339,24 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
 
     } else if (miname == _L("Activate all vehicles"))
     {
-        App::GetSimController()->GetBeamFactory()->activateAllTrucks();
+        App::GetSimController()->GetBeamFactory()->WakeUpAllActors();
 
     } else if (miname == _L("Activated vehicles never sleep"))
     {
-        App::GetSimController()->GetBeamFactory()->setTrucksForcedActive(true);
+        App::GetSimController()->GetBeamFactory()->SetTrucksForcedAwake(true);
         _item->setCaption(_L("Activated vehicles can sleep"));
 
     } else if (miname == _L("Activated vehicles can sleep"))
     {
-        App::GetSimController()->GetBeamFactory()->setTrucksForcedActive(false);
+        App::GetSimController()->GetBeamFactory()->SetTrucksForcedAwake(false);
         _item->setCaption(_L("Activated vehicles never sleep"));
 
     } else if (miname == _L("Send all vehicles to sleep"))
     {
         // get out first
-        if (App::GetSimController()->GetBeamFactory()->getCurrentTruckNumber() != -1)
-            App::GetSimController()->GetBeamFactory()->setCurrentTruck(-1);
-        App::GetSimController()->GetBeamFactory()->sendAllTrucksSleeping();
+        if (App::GetSimController()->GetBeamFactory()->GetPlayerActorId() != -1)
+            App::GetSimController()->GetBeamFactory()->SetPlayerVehicleByActorId(-1);
+        App::GetSimController()->GetBeamFactory()->SendAllActorsSleeping();
 
     } else if (miname == _L("Friction Settings"))
     {

@@ -372,7 +372,7 @@ namespace Hydrax
 		{
 			mHydrax->setGodRaysExposure(_getVector3Value(CfgFile,"GodRaysExposure"));
 			mHydrax->setGodRaysIntensity(_getFloatValue(CfgFile,"GodRaysIntensity"));
-			mHydrax->getGodRaysManager()->setSimulationSpeed(_getFloatValue(CfgFile,"GodRaysSpeed"));
+			mHydrax->getGodRaysManager()->SetSimulationSpeed(_getFloatValue(CfgFile,"GodRaysSpeed"));
 			mHydrax->getGodRaysManager()->setNumberOfRays(_getIntValue(CfgFile,"GodRaysNumberOfRays"));
 			mHydrax->getGodRaysManager()->setRaysSize(_getFloatValue(CfgFile,"GodRaysRaysSize"));
 			mHydrax->getGodRaysManager()->setObjectIntersectionsEnabled(_getBoolValue(CfgFile,"GodRaysIntersections"));

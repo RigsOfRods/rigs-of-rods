@@ -34,7 +34,7 @@
 void Actor::toggleSlideNodeLock()
 {
     int trucksnum = RoR::App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots();
-    int curTruck = RoR::App::GetSimController()->GetBeamFactory()->getCurrentTruckNumber();
+    int curTruck = RoR::App::GetSimController()->GetBeamFactory()->GetPlayerActorId();
 
     // for every slide node on this truck
     for (std::vector<SlideNode>::iterator itNode = m_slidenodes.begin(); itNode != m_slidenodes.end(); itNode++)

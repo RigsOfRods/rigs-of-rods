@@ -76,7 +76,7 @@ public:
      * moves the person relative
      * @param vec translation vector
      */
-    void setTrucksForcedActive(bool forceActive);
+    void SetTrucksForcedAwake(bool forceActive);
 
     /**
      * returns the time in seconds since the game was started
@@ -160,7 +160,7 @@ public:
      * returns the current truck number. >=0 when using a truck, -1 when in person mode
      * @return integer truck number
      */
-    int getCurrentTruckNumber();
+    int GetPlayerActorId();
 
     /**
      * returns the currently set upo gravity

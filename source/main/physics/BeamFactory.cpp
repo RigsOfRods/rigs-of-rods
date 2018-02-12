@@ -146,9 +146,9 @@ unsigned int getNumberOfCPUCores()
 using namespace RoR;
 
 ActorManager::ActorManager(RoRFrameListener* sim_controller)
-    : m_player_actor(-1)
+    : m_player_actor_id(-1)
     , m_dt_remainder(0.0f)
-    , m_forced_active(false)
+    , m_forced_awake(false)
     , m_free_actor_slot(0)
     , m_num_cpu_cores(0)
     , m_physics_frames(0)
@@ -207,7 +207,7 @@ ActorManager::~ActorManager()
 
 #define LOADRIG_PROFILER_CHECKPOINT(ENTRY_ID) rig_loading_profiler.Checkpoint(RoR::RigLoadingProfiler::ENTRY_ID);
 
-Actor* ActorManager::CreateLocalRigInstance(
+Actor* ActorManager::CreateLocalActor(
     Ogre::Vector3 pos,
     Ogre::Quaternion rot,
     Ogre::String fname,
@@ -377,7 +377,7 @@ void ActorManager::RemoveStreamSource(int sourceid)
 }
 
 #ifdef USE_SOCKETW
-void ActorManager::handleStreamData(std::vector<RoR::Networking::recv_packet_t> packet_buffer)
+void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packet_t> packet_buffer)
 {
     for (auto packet : packet_buffer)
     {
@@ -449,7 +449,7 @@ void ActorManager::handleStreamData(std::vector<RoR::Networking::recv_packet_t> 
 }
 #endif // USE_SOCKETW
 
-int ActorManager::checkStreamsOK(int sourceid)
+int ActorManager::CheckNetworkStreamsOk(int sourceid)
 {
     if (m_stream_mismatches[sourceid].size() > 0)
         return 0;
@@ -470,7 +470,7 @@ int ActorManager::checkStreamsOK(int sourceid)
     return 2;
 }
 
-int ActorManager::checkStreamsRemoteOK(int sourceid)
+int ActorManager::CheckNetRemoteStreamsOk(int sourceid)
 {
     int result = 2;
 
@@ -622,7 +622,7 @@ void ActorManager::RecursiveActivation(int j, std::bitset<MAX_TRUCKS>& visited)
 
 void ActorManager::UpdateSleepingState(float dt)
 {
-    if (!m_forced_active)
+    if (!m_forced_awake)
     {
         for (int t = 0; t < m_free_actor_slot; t++)
         {
@@ -653,7 +653,7 @@ void ActorManager::UpdateSleepingState(float dt)
     if (current_truck && current_truck->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
     {
         current_truck->ar_sleep_counter = 0.0f;
-        this->RecursiveActivation(m_player_actor, visited);
+        this->RecursiveActivation(m_player_actor_id, visited);
     }
     // Snowball effect (activate all trucks which might soon get hit by a moving truck)
     for (int t = 0; t < m_free_actor_slot; t++)
@@ -679,7 +679,7 @@ int ActorManager::GetFreeTruckSlot()
     return -1;
 }
 
-void ActorManager::activateAllTrucks()
+void ActorManager::WakeUpAllActors()
 {
     for (int t = 0; t < m_free_actor_slot; t++)
     {
@@ -696,9 +696,9 @@ void ActorManager::activateAllTrucks()
     }
 }
 
-void ActorManager::sendAllTrucksSleeping()
+void ActorManager::SendAllActorsSleeping()
 {
-    m_forced_active = false;
+    m_forced_awake = false;
     for (int t = 0; t < m_free_actor_slot; t++)
     {
         if (m_actors[t] && m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
@@ -708,7 +708,7 @@ void ActorManager::sendAllTrucksSleeping()
     }
 }
 
-void ActorManager::recalcGravityMasses()
+void ActorManager::RecalcGravityMasses()
 {
     // update the mass of all trucks
     for (int t = 0; t < m_free_actor_slot; t++)
@@ -741,7 +741,7 @@ int ActorManager::FindTruckInsideBox(Collisions* collisions, const Ogre::String&
     return id;
 }
 
-void ActorManager::repairTruck(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box, bool keepPosition)
+void ActorManager::RepairActor(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box, bool keepPosition)
 {
     int rtruck = this->FindTruckInsideBox(collisions, inst, box);
     if (rtruck >= 0)
@@ -756,7 +756,7 @@ void ActorManager::repairTruck(Collisions* collisions, const Ogre::String& inst,
     }
 }
 
-void ActorManager::MuteAllTrucks()
+void ActorManager::MuteAllActors()
 {
     for (int i = 0; i < m_free_actor_slot; i++)
     {
@@ -767,7 +767,7 @@ void ActorManager::MuteAllTrucks()
     }
 }
 
-void ActorManager::UnmuteAllTrucks()
+void ActorManager::UnmuteAllActors()
 {
     for (int i = 0; i < m_free_actor_slot; i++)
     {
@@ -797,7 +797,7 @@ void ActorManager::removeTruck(int truck)
     this->DeleteTruck(m_actors[truck]);
 }
 
-void ActorManager::CleanUpAllTrucks() // Called after simulation finishes
+void ActorManager::CleanUpAllActors() // Called after simulation finishes
 {
     for (int i = 0; i < m_free_actor_slot; i++)
     {
@@ -808,8 +808,8 @@ void ActorManager::CleanUpAllTrucks() // Called after simulation finishes
         m_actors[i] = nullptr;
     }
 
-    // Reset to empty value. Do NOT call `setCurrentTruck(-1)` - performs updates which are invalid at this point
-    m_player_actor = -1;
+    // Reset to empty value. Do NOT call `SetPlayerVehicleByActorId(-1)` - performs updates which are invalid at this point
+    m_player_actor_id = -1;
 
     // TEMPORARY: DO !NOT! attempt to reuse slots
     // Yields bad behavior when player disconnects from game where other players had vehicles spawned
@@ -833,8 +833,8 @@ void ActorManager::DeleteTruck(Actor* b)
     }
 #endif // USE_SOCKETW
 
-    if (m_player_actor == b->ar_instance_id)
-        setCurrentTruck(-1);
+    if (m_player_actor_id == b->ar_instance_id)
+        SetPlayerVehicleByActorId(-1);
 
     m_actors[b->ar_instance_id] = 0;
     delete b;
@@ -846,9 +846,9 @@ void ActorManager::DeleteTruck(Actor* b)
 
 int ActorManager::GetMostRecentTruckSlot()
 {
-    if (GetActorByIdInternal(m_player_actor))
+    if (GetActorByIdInternal(m_player_actor_id))
     {
-        return m_player_actor;
+        return m_player_actor_id;
     }
     else if (GetActorByIdInternal(m_prev_player_actor))
     {
@@ -858,7 +858,7 @@ int ActorManager::GetMostRecentTruckSlot()
     return -1;
 }
 
-void ActorManager::enterNextTruck()
+void ActorManager::EnterNextVehicle()
 {
     int pivot_index = this->GetMostRecentTruckSlot();
 
@@ -866,7 +866,7 @@ void ActorManager::enterNextTruck()
     {
         if (m_actors[i] && m_actors[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
-            setCurrentTruck(i);
+            SetPlayerVehicleByActorId(i);
             return;
         }
     }
@@ -875,19 +875,19 @@ void ActorManager::enterNextTruck()
     {
         if (m_actors[i] && m_actors[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
-            setCurrentTruck(i);
+            SetPlayerVehicleByActorId(i);
             return;
         }
     }
 
     if (pivot_index >= 0 && m_actors[pivot_index] && m_actors[pivot_index]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[pivot_index]->isPreloadedWithTerrain())
     {
-        setCurrentTruck(pivot_index);
+        SetPlayerVehicleByActorId(pivot_index);
         return;
     }
 }
 
-void ActorManager::enterPreviousTruck()
+void ActorManager::EnterPreviousVehicle()
 {
     int pivot_index = this->GetMostRecentTruckSlot();
 
@@ -895,7 +895,7 @@ void ActorManager::enterPreviousTruck()
     {
         if (m_actors[i] && m_actors[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
-            setCurrentTruck(i);
+            SetPlayerVehicleByActorId(i);
             return;
         }
     }
@@ -904,34 +904,34 @@ void ActorManager::enterPreviousTruck()
     {
         if (m_actors[i] && m_actors[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
-            setCurrentTruck(i);
+            SetPlayerVehicleByActorId(i);
             return;
         }
     }
 
     if (pivot_index >= 0 && m_actors[pivot_index] && m_actors[pivot_index]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[pivot_index]->isPreloadedWithTerrain())
     {
-        setCurrentTruck(pivot_index);
+        SetPlayerVehicleByActorId(pivot_index);
         return;
     }
 }
 
-void ActorManager::setCurrentTruck(int new_truck)
+void ActorManager::SetPlayerVehicleByActorId(int new_truck)
 {
-    m_prev_player_actor = m_player_actor;
-    m_player_actor = new_truck;
+    m_prev_player_actor = m_player_actor_id;
+    m_player_actor_id = new_truck;
 
-    if (m_prev_player_actor >= 0 && m_player_actor >= 0)
+    if (m_prev_player_actor >= 0 && m_player_actor_id >= 0)
     {
-        m_sim_controller->ChangedCurrentVehicle(m_actors[m_prev_player_actor], m_actors[m_player_actor]);
+        m_sim_controller->ChangedCurrentVehicle(m_actors[m_prev_player_actor], m_actors[m_player_actor_id]);
     }
     else if (m_prev_player_actor >= 0)
     {
         m_sim_controller->ChangedCurrentVehicle(m_actors[m_prev_player_actor], nullptr);
     }
-    else if (m_player_actor >= 0)
+    else if (m_player_actor_id >= 0)
     {
-        m_sim_controller->ChangedCurrentVehicle(nullptr, m_actors[m_player_actor]);
+        m_sim_controller->ChangedCurrentVehicle(nullptr, m_actors[m_player_actor_id]);
     }
     else
     {
@@ -941,7 +941,7 @@ void ActorManager::setCurrentTruck(int new_truck)
     this->UpdateSleepingState(0.0f);
 }
 
-bool ActorManager::enterRescueTruck()
+bool ActorManager::EnterRescueVehicle()
 {
     // rescue!
     // search a rescue truck
@@ -950,49 +950,49 @@ bool ActorManager::enterRescueTruck()
         if (m_actors[t] && m_actors[t]->ar_rescuer_flag)
         {
             // go to person mode first
-            setCurrentTruck(-1);
+            SetPlayerVehicleByActorId(-1);
             // then to the rescue truck, this fixes overlapping interfaces
-            setCurrentTruck(t);
+            SetPlayerVehicleByActorId(t);
             return true;
         }
     }
     return false;
 }
 
-void ActorManager::updateFlexbodiesPrepare()
+void ActorManager::UpdateFlexbodiesPrepare()
 {
     for (int t = 0; t < m_free_actor_slot; t++)
     {
         if (m_actors[t] && m_actors[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
         {
-            m_actors[t]->updateFlexbodiesPrepare();
+            m_actors[t]->UpdateFlexbodiesPrepare();
         }
     }
 }
 
-void ActorManager::joinFlexbodyTasks()
+void ActorManager::JoinFlexbodyTasks()
 {
     for (int t = 0; t < m_free_actor_slot; t++)
     {
         if (m_actors[t] && m_actors[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
         {
-            m_actors[t]->joinFlexbodyTasks();
+            m_actors[t]->JoinFlexbodyTasks();
         }
     }
 }
 
-void ActorManager::updateFlexbodiesFinal()
+void ActorManager::UpdateFlexbodiesFinal()
 {
     for (int t = 0; t < m_free_actor_slot; t++)
     {
         if (m_actors[t] && m_actors[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
         {
-            m_actors[t]->updateFlexbodiesFinal();
+            m_actors[t]->UpdateFlexbodiesFinal();
         }
     }
 }
 
-void ActorManager::updateVisual(float dt)
+void ActorManager::UpdateActorVisuals(float dt)
 {
     dt *= m_simulation_speed;
 
@@ -1008,12 +1008,12 @@ void ActorManager::updateVisual(float dt)
         {
             m_actors[t]->updateVisual(dt);
             m_actors[t]->updateSkidmarks();
-            m_actors[t]->updateFlares(dt, (t == m_player_actor));
+            m_actors[t]->updateFlares(dt, (t == m_player_actor_id));
         }
     }
 }
 
-void ActorManager::update(float dt)
+void ActorManager::UpdateActors(float dt)
 {
     m_physics_frames++;
 
@@ -1075,7 +1075,7 @@ void ActorManager::update(float dt)
         }
     }
 
-    m_simulated_actor = m_player_actor;
+    m_simulated_actor = m_player_actor_id;
 
     if (m_simulated_actor == -1)
     {
@@ -1091,7 +1091,7 @@ void ActorManager::update(float dt)
 
     if (m_simulated_actor >= 0 && m_simulated_actor < m_free_actor_slot)
     {
-        if (m_simulated_actor == m_player_actor)
+        if (m_simulated_actor == m_player_actor_id)
         {
 
             m_actors[m_simulated_actor]->updateDashBoards(dt);
@@ -1120,7 +1120,7 @@ void ActorManager::update(float dt)
     }
 }
 
-void ActorManager::windowResized()
+void ActorManager::NotifyActorsWindowResized()
 {
 
     for (int t = 0; t < m_free_actor_slot; t++)
@@ -1133,14 +1133,9 @@ void ActorManager::windowResized()
 
 }
 
-void ActorManager::prepareShutdown()
-{
-    this->SyncWithSimThread();
-}
-
 Actor* ActorManager::GetPlayerActorInternal()
 {
-    return this->GetActorByIdInternal(m_player_actor);
+    return this->GetActorByIdInternal(m_player_actor_id);
 }
 
 Actor* ActorManager::GetActorByIdInternal(int number)
