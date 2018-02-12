@@ -219,8 +219,6 @@ void RigSpawner::InitializeRig()
 {
     SPAWNER_PROFILE_SCOPED();
 
-    m_rig->mCamera = nullptr;
-
     ActorMemoryRequirements req;
     for (auto module: m_selected_modules) // _Root_ module is included
     {
