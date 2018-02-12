@@ -53,7 +53,7 @@ struct beam_t
     ///   Actor::calcHooks() -- READ/WRITE: If disabled during locking, it's enabled
     ///                     -- WRITE: When locking fails, beam is reset to disabled
     ///   Actor::updateVisual() -- READ: when 'disabled' or 'broken', hides all visuals - and vice versa.
-    ///   RigSpawner* -- WRITE: Ties and hook-beams are init to disabled. Others to enabled.
+    ///   ActorSpawner* -- WRITE: Ties and hook-beams are init to disabled. Others to enabled.
     /// ## TODO: Separate physics/visual meaning, create sensible usage pattern ~ only_a_ptr, 12/2017
     bool bm_disabled;
 

@@ -40,7 +40,7 @@ class Task;
 /// NOTE: Until 01/2018, this class was named `Beam` (and was derived from `rig_t`), you may find references to this.
 class Actor : public ZeroedMemoryAllocator
 {
-    friend class RigSpawner;
+    friend class ActorSpawner;
     friend class RoR::ActorManager;
 public:
 

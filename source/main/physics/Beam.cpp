@@ -4704,7 +4704,7 @@ void Actor::setDebugOverlayState(int mode)
         {
             debugtext_t t;
             RoR::Str<100> element_name;
-            RigSpawner::ComposeName(element_name, "DbgNode", i, ar_instance_id);
+            ActorSpawner::ComposeName(element_name, "DbgNode", i, ar_instance_id);
             t.id = i;
             t.txt = new MovableText(element_name.ToCStr(), "n" + TOSTRING(i));
             t.txt->setFontName("highcontrast_black");
@@ -4724,7 +4724,7 @@ void Actor::setDebugOverlayState(int mode)
             // collision nodes debug, also mimics as node visual
             SceneNode* s = t.node->createChildSceneNode();
             m_deletion_scene_nodes.emplace_back(s);
-            RigSpawner::ComposeName(element_name, "DbgEntity", i, ar_instance_id);
+            ActorSpawner::ComposeName(element_name, "DbgEntity", i, ar_instance_id);
             Entity* b = gEnv->sceneManager->createEntity(element_name.ToCStr(), "sphere.mesh");
             m_deletion_entities.emplace_back(b);
             b->setMaterialName("tracks/transgreen");
@@ -4739,7 +4739,7 @@ void Actor::setDebugOverlayState(int mode)
         {
             debugtext_t t;
             RoR::Str<100> element_name;
-            RigSpawner::ComposeName(element_name, "DbgBeam", i, ar_instance_id);
+            ActorSpawner::ComposeName(element_name, "DbgBeam", i, ar_instance_id);
             t.id = i;
             t.txt = new MovableText(element_name.ToCStr(), "b" + TOSTRING(i));
             t.txt->setFontName("highcontrast_black");

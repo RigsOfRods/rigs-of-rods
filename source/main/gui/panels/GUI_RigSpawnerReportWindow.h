@@ -32,11 +32,11 @@
 namespace RoR {
 namespace GUI {
 
-class RigSpawnerReportWindow: public RigSpawnerReportWindowLayout, public GuiPanelBase
+class ActorSpawnerReportWindow: public ActorSpawnerReportWindowLayout, public GuiPanelBase
 {
 public:
 
-    RigSpawnerReportWindow();
+    ActorSpawnerReportWindow();
 
     void SetRigLoadingReport(std::string const& vehicle_name, std::string const& text, int num_errors, int num_warnings, int num_other);
 

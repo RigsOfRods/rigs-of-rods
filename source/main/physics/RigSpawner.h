@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2014-2017 Petr Ohlidal & contributors
+    Copyright 2014-2018 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -19,7 +19,7 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// @file   RigSpawner.h
+/// @file
 /// @brief  Vehicle spawning logic.
 /// @author Petr Ohlidal
 /// @date   12/2013
@@ -48,7 +48,7 @@
 ///
 /// Since v0.4.5, RoR has `RigDef::Parser` which reads truckfile and emits instance of `RigDef::File` - all data from truckfile in memory. `RigDef::File` doesn't preserve the order of definitions,
 /// instead it's designed to resolve all order-dependent references to order-independent, see `RigDef::SequentialImporter` (resources/rig_def_fileformat/RigDef_SequentialImporter.h) for more info.
-/// `RigSpawner` was created by carefully refactoring old `SerializedRig` described above, so a lot of the dirty logic remained. Elements were still written into constant-size arrays.
+/// `ActorSpawner` was created by carefully refactoring old `SerializedRig` described above, so a lot of the dirty logic remained. Elements were still written into constant-size arrays.
 ///
 /// PRESENT (06/2017):
 ///
@@ -57,7 +57,7 @@
 ///
 /// FUTURE:
 ///
-/// RigSpawner will work in 2 steps:
+/// ActorSpawner will work in 2 steps:
 ///  1. Physics/simulation data are fully prepared. This should be very fast (we can pre-calculate and cache things if needed).
 ///  2. Graphics/sounds are set up, reading the completed physics/sim data. Graphics are fully managed by `GfxActor`. Similar utility will be added for sound.
 ///
@@ -69,7 +69,7 @@
 /// * Functions Other functions are utilities.
 ///
 /// @author Petr Ohlidal
-class RigSpawner
+class ActorSpawner
 {
     friend class VideoCamera; // Needs to add log messages
     friend class RoR::FlexFactory; // Needs to use `ComposeName()` and `SetupNewEntity()`
@@ -114,14 +114,14 @@ public:
     };
 
     void Setup(
-        Actor *rig,
+        Actor *actor,
         std::shared_ptr<RigDef::File> file,
         Ogre::SceneNode *parent,
         Ogre::Vector3 const & spawn_position,
         int cache_entry_number = -1
         );
 
-    Actor *SpawnRig();
+    Actor *SpawnActor();
 
     /**
     * Adds a vehicle module to the validated configuration.
@@ -138,9 +138,9 @@ public:
         m_selected_modules.push_back(module);
     }
 
-    Actor *GetRig()
+    Actor *GetActor()
     {
-        return m_rig;
+        return m_actor;
     }
 
     /**
@@ -1047,16 +1047,6 @@ private:
 
     void CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::File::Module* module_def);
 
-    std::shared_ptr<RigDef::File> m_file; //!< The parsed input file.
-    int m_cache_entry_number;
-    Actor *m_rig; //!< The output actor.
-    std::list<std::shared_ptr<RigDef::File::Module>> m_selected_modules;
-    std::map<Ogre::String, unsigned int> m_named_nodes;
-
-    bool m_enable_background_loading;
-    bool m_apply_simple_materials;
-    Ogre::MaterialPtr m_simple_material_base;
-
     // Logging
     std::list<Message>    m_messages;
     RigDef::File::Keyword m_current_keyword; //!< For error reports
@@ -1064,31 +1054,37 @@ private:
     int                   m_messages_num_warnings;
     int                   m_messages_num_other;
 
-    /* RIG CONTEXT */
+    // Spawn
+    Actor*             m_actor; //!< The output actor.
+    int                m_cache_entry_number;
+    Ogre::Vector3      m_spawn_position;
+    bool               m_enable_background_loading;
+    bool               m_apply_simple_materials;
+    std::string        m_cab_material_name; ///< Original name defined in truckfile/globals.
+    std::string        m_custom_resource_group;
+    float              m_wing_area;
+    int                m_airplane_left_light;
+    int                m_airplane_right_light;
+    RoR::FlexFactory   m_flex_factory;
+    Ogre::MaterialPtr  m_placeholder_managedmat;
+    Ogre::SceneNode*   m_parent_scene_node;
+    Ogre::MaterialPtr  m_cab_trans_material;
+    Ogre::MaterialPtr  m_simple_material_base;
+    float              m_fuse_z_min;
+    float              m_fuse_z_max;
+    float              m_fuse_y_min;
+    float              m_fuse_y_max;
+    bool               m_generate_wing_position_lights;
+    int                m_first_wing_index;
+    Ogre::SceneNode*   m_curr_mirror_prop_scenenode;
+    std::vector<CabTexcoord>  m_oldstyle_cab_texcoords;
+    std::vector<CabSubmesh>   m_oldstyle_cab_submeshes;
 
-    Ogre::SceneNode *m_parent_scene_node;
-    Ogre::Vector3 m_spawn_position;
-    std::vector<CabTexcoord> m_oldstyle_cab_texcoords;
-    std::vector<CabSubmesh>  m_oldstyle_cab_submeshes;
-    /// Maps original material names (shared) to their actor-specific substitutes.
-    /// There's 1 substitute per 1 material, regardless of user count.
-    std::map<std::string, CustomMaterial> m_material_substitutions;
-    std::map<std::string, Ogre::MaterialPtr> m_managed_materials;
-    Ogre::MaterialPtr m_placeholder_managedmat;
-    std::string m_cab_material_name; ///< Original name defined in truckfile/globals.
-    Ogre::MaterialPtr m_cab_trans_material;
-    CustomMaterial::MirrorPropType m_curr_mirror_prop_type;
-    Ogre::SceneNode* m_curr_mirror_prop_scenenode;
-    std::string m_custom_resource_group;
-    float m_wing_area;
-    int m_airplane_left_light;
-    int m_airplane_right_light;
-    float m_fuse_z_min;
-    float m_fuse_z_max;
-    float m_fuse_y_min;
-    float m_fuse_y_max;
-    bool  m_generate_wing_position_lights;
-    int   m_first_wing_index;
+    CustomMaterial::MirrorPropType         m_curr_mirror_prop_type;
+    std::shared_ptr<RigDef::File>          m_file; //!< The parsed input file.
+    std::map<Ogre::String, unsigned int>   m_named_nodes;
+    std::map<std::string, CustomMaterial>  m_material_substitutions; //!< Maps original material names (shared) to their actor-specific substitutes; There's 1 substitute per 1 material, regardless of user count.
+    std::map<std::string, Ogre::MaterialPtr>  m_managed_materials;
+    std::list<std::shared_ptr<RigDef::File::Module>>  m_selected_modules;
 
-    RoR::FlexFactory m_flex_factory;
 };

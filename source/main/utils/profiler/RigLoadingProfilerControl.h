@@ -51,7 +51,7 @@
 //#define FLEXBODY_LOG_LOADING_TIMES
 
 // HTML profiler
-// Profile entire class RigSpawner, per-function
+// Profile entire class ActorSpawner, per-function
 //#define SPAWNER_USE_PROFILER
 
 // ============================================================================

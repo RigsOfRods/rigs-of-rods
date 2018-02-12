@@ -21,7 +21,7 @@
 
 /*
     @file
-    @brief  Implements part of RigSpawner class. Code separated for easier debugging.
+    @brief  Implements part of ActorSpawner class. Code separated for easier debugging.
     @author Petr Ohlidal
     @date   12/2013
 */
@@ -94,7 +94,7 @@
             try {                                                                          \
                 _FUNCTION_(*section_itor);                                                 \
             }                                                                              \
-            catch (RigSpawner::Exception & ex)                                             \
+            catch (ActorSpawner::Exception & ex)                                             \
             {                                                                              \
                 AddMessage(Message::TYPE_ERROR, ex.what());                                \
             }                                                                              \
@@ -136,20 +136,20 @@
     SetCurrentKeyword(RigDef::File::KEYWORD_INVALID);                                      \
 }
 
-Actor *RigSpawner::SpawnRig()
+Actor *ActorSpawner::SpawnActor()
 {
     InitializeRig();
 
     // Vehicle name
-    m_rig->ar_design_name = m_file->name;
+    m_actor->ar_design_name = m_file->name;
 
     // Flags in root module
-    m_rig->ar_forward_commands         = m_file->forward_commands;
-    m_rig->ar_import_commands          = m_file->import_commands;
-    m_rig->ar_rescuer_flag             = m_file->rescuer;
-    m_rig->m_disable_default_sounds    = m_file->disable_default_sounds;
-    m_rig->ar_hide_in_actor_list       = m_file->hide_in_chooser;
-    m_rig->m_slidenodes_connect_on_spawn  = m_file->slide_nodes_connect_instantly;
+    m_actor->ar_forward_commands         = m_file->forward_commands;
+    m_actor->ar_import_commands          = m_file->import_commands;
+    m_actor->ar_rescuer_flag             = m_file->rescuer;
+    m_actor->m_disable_default_sounds    = m_file->disable_default_sounds;
+    m_actor->ar_hide_in_actor_list       = m_file->hide_in_chooser;
+    m_actor->m_slidenodes_connect_on_spawn  = m_file->slide_nodes_connect_instantly;
 
     // Section 'authors' in root module
     ProcessAuthors();
@@ -163,11 +163,11 @@ Actor *RigSpawner::SpawnRig()
     // Section 'minimass' in root module
     if (m_file->_minimum_mass_set)
     {
-        m_rig->m_minimass = m_file->minimum_mass;
+        m_actor->m_minimass = m_file->minimum_mass;
     }
 
     // Section 'description'
-    m_rig->description.assign(m_file->description.begin(), m_file->description.end());
+    m_actor->description.assign(m_file->description.begin(), m_file->description.end());
 
     // Section 'managedmaterials'
     // This prepares substitute materials -> MUST be processed before any meshes are loaded.
@@ -204,9 +204,9 @@ Actor *RigSpawner::SpawnRig()
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_NODES, nodes, ProcessNode);
 
     // Old-format exhaust (defined by flags 'x/y' in section 'nodes', one per vehicle)
-    if (m_rig->ar_exhaust_pos_node != 0 && m_rig->ar_exhaust_dir_node != 0)
+    if (m_actor->ar_exhaust_pos_node != 0 && m_actor->ar_exhaust_dir_node != 0)
     {
-        AddExhaust(m_rig->ar_exhaust_pos_node, m_rig->ar_exhaust_dir_node, true, nullptr);
+        AddExhaust(m_actor->ar_exhaust_pos_node, m_actor->ar_exhaust_dir_node, true, nullptr);
     }
 
     // ---------------------------- Node generating sections ----------------------------
@@ -377,7 +377,7 @@ Actor *RigSpawner::SpawnRig()
     FinalizeRig();
 
     // Pass ownership
-    Actor *rig = m_rig;
-    m_rig = nullptr;
+    Actor *rig = m_actor;
+    m_actor = nullptr;
     return rig;
 }

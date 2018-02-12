@@ -51,7 +51,7 @@ using namespace RoR;
 const char * FlexBodyFileIO::SIGNATURE = "RoR FlexBody";
 
 FlexFactory::FlexFactory(
-        RigSpawner*               rig_spawner,
+        ActorSpawner*               rig_spawner,
         bool                      is_flexbody_cache_enabled,
         int                       cache_entry_number
         ):
@@ -75,17 +75,17 @@ FlexBody* FlexFactory::CreateFlexBody(
             = Ogre::ResourceGroupManager::getSingleton().findGroupContainingResource(def->mesh_name);
     if (resource_group_name.empty())
     {
-        m_rig_spawner->AddMessage(RigSpawner::Message::TYPE_ERROR, "Failed to create flexbody, mesh not found: " + def->mesh_name);
+        m_rig_spawner->AddMessage(ActorSpawner::Message::TYPE_ERROR, "Failed to create flexbody, mesh not found: " + def->mesh_name);
         return nullptr;
     }
     Ogre::MeshPtr common_mesh = Ogre::MeshManager::getSingleton().load(def->mesh_name, resource_group_name);
-    const std::string mesh_unique_name = m_rig_spawner->ComposeName("FlexbodyMesh", m_rig_spawner->GetRig()->ar_num_flexbodies);
+    const std::string mesh_unique_name = m_rig_spawner->ComposeName("FlexbodyMesh", m_rig_spawner->GetActor()->ar_num_flexbodies);
     Ogre::MeshPtr mesh = common_mesh->clone(mesh_unique_name);
     if (BSETTING("Flexbody_EnableLODs", false))
     {
         this->ResolveFlexbodyLOD(def->mesh_name, mesh);
     }
-    const std::string flexbody_name = m_rig_spawner->ComposeName("Flexbody", m_rig_spawner->GetRig()->ar_num_flexbodies);
+    const std::string flexbody_name = m_rig_spawner->ComposeName("Flexbody", m_rig_spawner->GetActor()->ar_num_flexbodies);
     Ogre::Entity* entity = gEnv->sceneManager->createEntity(flexbody_name, mesh_unique_name);
     m_rig_spawner->SetupNewEntity(entity, Ogre::ColourValue(0.5, 0.5, 1));
 
@@ -101,8 +101,8 @@ FlexBody* FlexFactory::CreateFlexBody(
     FlexBody* new_flexbody = new FlexBody(
         def,
         from_cache,
-        m_rig_spawner->GetRig()->ar_nodes,
-        m_rig_spawner->GetRig()->ar_num_nodes,
+        m_rig_spawner->GetActor()->ar_nodes,
+        m_rig_spawner->GetActor()->ar_num_nodes,
         entity,
         ref_node,
         x_node,
@@ -136,7 +136,7 @@ FlexMeshWheel* FlexFactory::CreateFlexMeshWheel(
     // Create dynamic mesh for tire
     const std::string tire_mesh_name = m_rig_spawner->ComposeName("MWheelTireMesh", wheel_index);
     FlexMeshWheel* flex_mesh_wheel = new FlexMeshWheel(
-        rim_prop_entity, m_rig_spawner->GetRig()->ar_nodes, axis_node_1_index, axis_node_2_index, nstart, nrays,
+        rim_prop_entity, m_rig_spawner->GetActor()->ar_nodes, axis_node_1_index, axis_node_2_index, nstart, nrays,
         tire_mesh_name, tire_material_name, rim_radius, rim_reverse);
 
     // Instantiate the dynamic tire mesh

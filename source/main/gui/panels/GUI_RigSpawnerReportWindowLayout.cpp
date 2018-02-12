@@ -11,11 +11,11 @@
 using namespace RoR;
 using namespace GUI;
 
-RigSpawnerReportWindowLayout::RigSpawnerReportWindowLayout(MyGUI::Widget* _parent)
+ActorSpawnerReportWindowLayout::ActorSpawnerReportWindowLayout(MyGUI::Widget* _parent)
 {
     initialiseByAttributes(this, _parent);
 }
 
-RigSpawnerReportWindowLayout::~RigSpawnerReportWindowLayout()
+ActorSpawnerReportWindowLayout::~ActorSpawnerReportWindowLayout()
 {
 }

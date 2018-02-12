@@ -28,12 +28,12 @@
 using namespace RoR;
 using namespace GUI;
 
-RigSpawnerReportWindow::RigSpawnerReportWindow():
+ActorSpawnerReportWindow::ActorSpawnerReportWindow():
     GuiPanelBase(m_rig_spawner_report_window)
 {
     // Close window [X] button
     MyGUI::Window* main_window = m_rig_spawner_report_window->castType<MyGUI::Window>();
-    main_window->eventWindowButtonPressed += MyGUI::newDelegate(this, &RigSpawnerReportWindow::WindowButtonClicked);
+    main_window->eventWindowButtonPressed += MyGUI::newDelegate(this, &ActorSpawnerReportWindow::WindowButtonClicked);
 
     // Center on screen
     MyGUI::IntSize windowSize = main_window->getSize();
@@ -44,7 +44,7 @@ RigSpawnerReportWindow::RigSpawnerReportWindow():
     main_window->setVisible(false);
 }
 
-void RigSpawnerReportWindow::SetRigLoadingReport(std::string const& vehicle_name, std::string const& text, int num_errors, int num_warnings, int num_other)
+void ActorSpawnerReportWindow::SetRigLoadingReport(std::string const& vehicle_name, std::string const& text, int num_errors, int num_warnings, int num_other)
 {
     m_rig_spawner_report_window->setCaption("Loading report: " + vehicle_name);
 
@@ -77,10 +77,10 @@ void RigSpawnerReportWindow::SetRigLoadingReport(std::string const& vehicle_name
     m_report_text_area->setCaption(text);
 }
 
-void RigSpawnerReportWindow::WindowButtonClicked(MyGUI::Widget* sender, const std::string& name)
+void ActorSpawnerReportWindow::WindowButtonClicked(MyGUI::Widget* sender, const std::string& name)
 {
     this->Hide();
 }
 
-void RigSpawnerReportWindow::SetVisible(bool v) { m_rig_spawner_report_window->setVisible(v); }
-bool RigSpawnerReportWindow::IsVisible() { return m_rig_spawner_report_window->getVisible(); }
+void ActorSpawnerReportWindow::SetVisible(bool v) { m_rig_spawner_report_window->setVisible(v); }
+bool ActorSpawnerReportWindow::IsVisible() { return m_rig_spawner_report_window->getVisible(); }

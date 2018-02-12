@@ -41,7 +41,7 @@ namespace RoR
 
 class GfxActor
 {
-    friend class ::RigSpawner; // The factory
+    friend class ::ActorSpawner; // The factory
 
 public:
 

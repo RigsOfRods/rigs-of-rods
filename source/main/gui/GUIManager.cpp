@@ -82,7 +82,7 @@ struct GuiManagerImpl
     GUI::MultiplayerSelector    panel_MultiplayerSelector;
     GUI::MainSelector           panel_MainSelector;
     GUI::GameChatBox            panel_ChatBox;
-    GUI::RigSpawnerReportWindow panel_SpawnerReport;
+    GUI::ActorSpawnerReportWindow panel_SpawnerReport;
     GUI::VehicleDescription     panel_VehicleDescription;
     GUI::MpClientList           panel_MpClientList;
     GUI::FrictionSettings       panel_FrictionSettings;
