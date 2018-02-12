@@ -50,9 +50,9 @@ public:
     ~TerrainObjectManager();
 
     std::vector<EditorObject> GetEditorObjects() const { return m_editor_objects; }
-    void           loadObjectConfigFile(Ogre::String filename);
-    void           loadObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, Ogre::SceneNode* m_staticgeometry_bake_node, const Ogre::String& instancename, const Ogre::String& type, bool enable_collisions = true, int scripthandler = -1, bool uniquifyMaterial = false);
-    void           moveObjectVisuals(const Ogre::String& instancename, const Ogre::Vector3& pos);
+    void           LoadTObjFile(Ogre::String filename);
+    void           LoadTerrainObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, Ogre::SceneNode* m_staticgeometry_bake_node, const Ogre::String& instancename, const Ogre::String& type, bool enable_collisions = true, int scripthandler = -1, bool uniquifyMaterial = false);
+    void           MoveObjectVisuals(const Ogre::String& instancename, const Ogre::Vector3& pos);
     void           unloadObject(const Ogre::String& instancename);
     void           LoadPredefinedActors();
     bool           HasPredefinedActors() { return !m_predefined_actors.empty(); };

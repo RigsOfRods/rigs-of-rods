@@ -353,11 +353,11 @@ void GameScript::destroyObject(const String& instanceName)
     }
 }
 
-void GameScript::moveObjectVisuals(const String& instanceName, const Vector3& pos)
+void GameScript::MoveTerrainObjectVisuals(const String& instanceName, const Vector3& pos)
 {
     if (gEnv->terrainManager && gEnv->terrainManager->getObjectManager())
     {
-        gEnv->terrainManager->getObjectManager()->moveObjectVisuals(instanceName, pos);
+        gEnv->terrainManager->getObjectManager()->MoveObjectVisuals(instanceName, pos);
     }
 }
 
@@ -395,7 +395,7 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
 
         SceneNode* bakeNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
         const String type = "";
-        gEnv->terrainManager->getObjectManager()->loadObject(objectName, pos, rot, bakeNode, instanceName, type, true, handler_func_id, uniquifyMaterials);
+        gEnv->terrainManager->getObjectManager()->LoadTerrainObject(objectName, pos, rot, bakeNode, instanceName, type, true, handler_func_id, uniquifyMaterials);
     }
     catch (std::exception e)
     {

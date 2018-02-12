@@ -427,7 +427,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
         try
         {
             SceneNode* bakeNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-            gEnv->terrainManager->getObjectManager()->loadObject(args[1], pos, Vector3::ZERO, bakeNode, "Console", "");
+            gEnv->terrainManager->getObjectManager()->LoadTerrainObject(args[1], pos, Vector3::ZERO, bakeNode, "Console", "");
 
             putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Spawned object at position: ") + String("x: ") + TOSTRING(pos.x) + String("z: ") + TOSTRING(pos.z), "world.png");
         }

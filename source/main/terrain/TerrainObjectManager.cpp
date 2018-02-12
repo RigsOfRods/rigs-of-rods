@@ -107,7 +107,7 @@ TerrainObjectManager::~TerrainObjectManager()
     gEnv->sceneManager->destroyAllEntities();
 }
 
-void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
+void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
 {
     if (m_procedural_mgr == nullptr)
     {
@@ -619,7 +619,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 
             continue;
         }
-        loadObject(oname, pos, rot, m_staticgeometry_bake_node, name, type);
+        LoadTerrainObject(oname, pos, rot, m_staticgeometry_bake_node, name, type);
     }
 
     // ds closes automatically, so do not close it explicitly here: ds->close();
@@ -677,7 +677,7 @@ void removeCollisionBox(int number)
         gEnv->collisions->removeCollisionBox(number);
 }
 
-void TerrainObjectManager::moveObjectVisuals(const String& instancename, const Ogre::Vector3& pos)
+void TerrainObjectManager::MoveObjectVisuals(const String& instancename, const Ogre::Vector3& pos)
 {
     if (m_static_objects.find(instancename) == m_static_objects.end())
     {
@@ -717,7 +717,7 @@ void TerrainObjectManager::unloadObject(const String& instancename)
     obj.enabled = false;
 }
 
-void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, Ogre::SceneNode* m_staticgeometry_bake_node, const Ogre::String& instancename, const Ogre::String& type, bool enable_collisions /* = true */, int scripthandler /* = -1 */, bool uniquifyMaterial /* = false */)
+void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, Ogre::SceneNode* m_staticgeometry_bake_node, const Ogre::String& instancename, const Ogre::String& type, bool enable_collisions /* = true */, int scripthandler /* = -1 */, bool uniquifyMaterial /* = false */)
 {
     if (type == "grid")
     {
@@ -727,7 +727,7 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
             for (int z = 0; z < 500; z += 50)
             {
                 const String notype = "";
-                loadObject(name, pos + Vector3(x, 0.0f, z), rot, m_staticgeometry_bake_node, name, notype, enable_collisions, scripthandler, uniquifyMaterial);
+                LoadTerrainObject(name, pos + Vector3(x, 0.0f, z), rot, m_staticgeometry_bake_node, name, notype, enable_collisions, scripthandler, uniquifyMaterial);
             }
         }
         return;
