@@ -30,7 +30,7 @@
 using namespace Ogre;
 
 Turboprop::Turboprop(
-    char* propname,
+    const char* propname,
     node_t* nd,
     int nr,
     int nb,

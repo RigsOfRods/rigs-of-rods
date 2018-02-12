@@ -75,7 +75,7 @@
 #include <OgreParticleSystem.h>
 #include <OgreEntity.h>
 
-static const char* ACTOR_ID_TOKEN = "@Actor_"; // Appended to material name, followed by actor ID (aka 'trucknum')
+const char* ACTOR_ID_TOKEN = "@Actor_"; // Appended to material name, followed by actor ID (aka 'trucknum')
 
 using namespace RoR;
 
@@ -459,10 +459,8 @@ void RigSpawner::InitializeRig()
 
     m_flex_factory.CheckAndLoadFlexbodyCache();
 
-    std::stringstream grp_name;
-    grp_name << m_rig->truckname << ACTOR_ID_TOKEN << m_rig->ar_instance_id;
-    Ogre::ResourceGroupManager::getSingleton().createResourceGroup(grp_name.str());
-    m_custom_resource_group = grp_name.str();
+    m_custom_resource_group = this->ComposeName("ResourceGroup", 1);
+    Ogre::ResourceGroupManager::getSingleton().createResourceGroup(m_custom_resource_group);
 
     m_placeholder_managedmat = RoR::OgreSubsystem::GetMaterialByName("rigsofrods/managedmaterial-placeholder"); // Built-in
 
@@ -772,6 +770,13 @@ std::string RigSpawner::ComposeName(const char* type, int number)
     return buf;
 }
 
+// static
+void RigSpawner::ComposeName(RoR::Str<100>& str, const char* type, int number, int actor_id)
+{
+    str.Clear();
+    str << type << "_" << number << ACTOR_ID_TOKEN << actor_id;
+}
+
 void RigSpawner::ProcessScrewprop(RigDef::Screwprop & def)
 {
     SPAWNER_PROFILE_SCOPED();
@@ -855,11 +860,8 @@ void RigSpawner::BuildAerialEngine(
 {
     SPAWNER_PROFILE_SCOPED();
 
-    char propname[256];
-    sprintf(propname, "turboprop-%s-%i", m_rig->truckname, m_rig->free_aeroengine);
-
     Turboprop *turbo_prop = new Turboprop(
-        propname,
+        this->ComposeName("Turboprop", m_rig->free_aeroengine).c_str(),
         m_rig->ar_nodes, 
         ref_node_index,
         back_node_index,
@@ -964,7 +966,7 @@ void RigSpawner::ProcessAirbrake(RigDef::Airbrake & def)
     }
 
     m_rig->airbrakes[m_rig->free_airbrake] = new Airbrake(
-        m_rig->truckname,
+        this->ComposeName("Airbrake", m_rig->free_airbrake).c_str(),
         m_rig->free_airbrake, 
         GetNodePointerOrThrow(def.reference_node), 
         GetNodePointerOrThrow(def.x_axis_node),
@@ -1098,10 +1100,8 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
                 left_green_prop.beacontype='L';
                 left_green_prop.beacon_light[0]=nullptr; //no light
                 //the flare billboard
-                char propname[256];
-                sprintf(propname, "prop-%s-%i", m_rig->truckname, m_rig->ar_num_props);
                 left_green_prop.beacon_flare_billboard_scene_node[0] = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-                left_green_prop.beacon_flares_billboard_system[0]=gEnv->sceneManager->createBillboardSet(propname,1);
+                left_green_prop.beacon_flares_billboard_system[0]=gEnv->sceneManager->createBillboardSet(this->ComposeName("Prop", m_rig->ar_num_props),1);
                 left_green_prop.beacon_flares_billboard_system[0]->createBillboard(0,0,0);
                 if (left_green_prop.beacon_flares_billboard_system[0])
                 {
@@ -1135,8 +1135,8 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
                 left_flash_prop.beacon_light_rotation_rate[0]=1.0;
                 left_flash_prop.beacontype='w';
                 //light
-                sprintf(propname, "prop-%s-%i", m_rig->truckname, m_rig->ar_num_props);
-                left_flash_prop.beacon_light[0]=gEnv->sceneManager->createLight(propname);
+                std::string prop_name = this->ComposeName("Prop", m_rig->ar_num_props);
+                left_flash_prop.beacon_light[0]=gEnv->sceneManager->createLight(prop_name);
                 left_flash_prop.beacon_light[0]->setType(Ogre::Light::LT_POINT);
                 left_flash_prop.beacon_light[0]->setDiffuseColour( Ogre::ColourValue(1.0, 1.0, 1.0));
                 left_flash_prop.beacon_light[0]->setSpecularColour( Ogre::ColourValue(1.0, 1.0, 1.0));
@@ -1145,7 +1145,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
                 left_flash_prop.beacon_light[0]->setVisible(false);
                 //the flare billboard
                 left_flash_prop.beacon_flare_billboard_scene_node[0] = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-                left_flash_prop.beacon_flares_billboard_system[0]=gEnv->sceneManager->createBillboardSet(propname,1);
+                left_flash_prop.beacon_flares_billboard_system[0]=gEnv->sceneManager->createBillboardSet(prop_name,1);
                 left_flash_prop.beacon_flares_billboard_system[0]->createBillboard(0,0,0);
                 if (left_flash_prop.beacon_flares_billboard_system[0])
                 {
@@ -1180,9 +1180,8 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
                 right_red_prop.beacontype='R';
                 right_red_prop.beacon_light[0]=nullptr; /* No light */
                 //the flare billboard
-                sprintf(propname, "prop-%s-%i", m_rig->truckname, m_rig->ar_num_props);
                 right_red_prop.beacon_flare_billboard_scene_node[0] = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-                right_red_prop.beacon_flares_billboard_system[0]=gEnv->sceneManager->createBillboardSet(propname,1);
+                right_red_prop.beacon_flares_billboard_system[0]=gEnv->sceneManager->createBillboardSet(this->ComposeName("Prop", m_rig->ar_num_props),1);
                 right_red_prop.beacon_flares_billboard_system[0]->createBillboard(0,0,0);
                 if (right_red_prop.beacon_flares_billboard_system[0])
                 {
@@ -1216,8 +1215,8 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
                 right_flash_prop.beacon_light_rotation_rate[0]=1.0;
                 right_flash_prop.beacontype='w';
                 //light
-                sprintf(propname, "prop-%s-%i", m_rig->truckname, m_rig->ar_num_props);
-                right_flash_prop.beacon_light[0]=gEnv->sceneManager->createLight(propname);
+                prop_name = this->ComposeName("Prop", m_rig->ar_num_props);
+                right_flash_prop.beacon_light[0]=gEnv->sceneManager->createLight(prop_name);
                 right_flash_prop.beacon_light[0]->setType(Ogre::Light::LT_POINT);
                 right_flash_prop.beacon_light[0]->setDiffuseColour( Ogre::ColourValue(1.0, 1.0, 1.0));
                 right_flash_prop.beacon_light[0]->setSpecularColour( Ogre::ColourValue(1.0, 1.0, 1.0));
@@ -1226,7 +1225,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
                 right_flash_prop.beacon_light[0]->setVisible(false);
                 //the flare billboard
                 right_flash_prop.beacon_flare_billboard_scene_node[0] = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-                right_flash_prop.beacon_flares_billboard_system[0]=gEnv->sceneManager->createBillboardSet(propname,1);
+                right_flash_prop.beacon_flares_billboard_system[0]=gEnv->sceneManager->createBillboardSet(prop_name,1);
                 right_flash_prop.beacon_flares_billboard_system[0]->createBillboard(0,0,0);
                 if (right_flash_prop.beacon_flares_billboard_system[0] != nullptr)
                 {
@@ -1424,10 +1423,7 @@ void RigSpawner::ProcessExhaust(RigDef::Exhaust & def)
     exhaust.isOldFormat = false;
     exhaust.factor = 1.f; // Unused, according to wiki documentation.
     std::memset(exhaust.material, 0, sizeof(exhaust.material));
-    
-    exhaust.smokeNode = m_parent_scene_node->createChildSceneNode();
-    std::stringstream instance_name;
-    instance_name << "exhaust-" << m_rig->exhausts.size() << "-" << m_rig->truckname;
+
     Ogre::String material_name;
     if (def.material_name.empty() || def.material_name == "default")
     {
@@ -1447,16 +1443,18 @@ void RigSpawner::ProcessExhaust(RigDef::Exhaust & def)
         }
     }
 
-    exhaust.smoker = gEnv->sceneManager->createParticleSystem(instance_name.str(), material_name);
+    exhaust.smoker = gEnv->sceneManager->createParticleSystem(
+        this->ComposeName("Exhaust", static_cast<int>(m_rig->exhausts.size())), material_name);
     if (!exhaust.smoker)
     {
         AddMessage(Message::TYPE_ERROR, "Failed to create exhaust particle system");
         return;
     }
     exhaust.smoker->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
+    exhaust.smokeNode = m_parent_scene_node->createChildSceneNode();
     exhaust.smokeNode->attachObject(exhaust.smoker);
     exhaust.smokeNode->setPosition(m_rig->ar_nodes[exhaust.emitterNode].AbsPosition);
-    
+
     ref_node.isHot=true;
     dir_node.isHot=true;
     m_rig->exhausts.push_back(exhaust);
@@ -2304,13 +2302,12 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
 
     /* Visuals */
     flare.snode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-    std::stringstream flare_name;
-    flare_name << "flare-" << m_rig->truckname << "-" << m_rig->flares.size();
-    flare.bbs = gEnv->sceneManager->createBillboardSet(flare_name.str(), 1);
+    std::string flare_name = this->ComposeName("Flare", static_cast<int>(m_rig->flares.size()));
+    flare.bbs = gEnv->sceneManager->createBillboardSet(flare_name, 1);
     bool using_default_material = true;
     if (flare.bbs == nullptr)
     {
-        AddMessage(Message::TYPE_WARNING, "Failed to create flare: '" + flare_name.str() + "', continuing without it (compatibility)...");
+        AddMessage(Message::TYPE_WARNING, "Failed to create flare: '" + flare_name + "', continuing without it (compatibility)...");
     }
     else
     {
@@ -2348,7 +2345,7 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
         if (def.type == RigDef::Flare2::TYPE_f_HEADLIGHT && using_default_material )
         {
             /* front light */
-            flare.light=gEnv->sceneManager->createLight(flare_name.str());
+            flare.light=gEnv->sceneManager->createLight(flare_name);
             flare.light->setType(Ogre::Light::LT_SPOTLIGHT);
             flare.light->setDiffuseColour( Ogre::ColourValue(1, 1, 1));
             flare.light->setSpecularColour( Ogre::ColourValue(1, 1, 1));
@@ -2359,35 +2356,31 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
     }
     if ((App::gfx_flares_mode.GetActive() >= GfxFlaresMode::ALL_VEHICLES_ALL_LIGHTS) && size > 0.001)
     {
-        //else if (type == 'f' && !usingDefaultMaterial && flaresMode >=4 && size > 0.001)
         if (def.type == RigDef::Flare2::TYPE_f_HEADLIGHT && ! using_default_material)
         {
             /* this is a quick fix for the red backlight when frontlight is switched on */
-            flare.light=gEnv->sceneManager->createLight(flare_name.str());
+            flare.light=gEnv->sceneManager->createLight(flare_name);
             flare.light->setDiffuseColour( Ogre::ColourValue(1.0, 0, 0));
             flare.light->setSpecularColour( Ogre::ColourValue(1.0, 0, 0));
             flare.light->setAttenuation(10.0, 1.0, 0, 0);
         }
-        //else if (type == 'R' && flaresMode >= 4 && size > 0.001)
         else if (def.type == RigDef::Flare2::TYPE_R_REVERSE_LIGHT)
         {
-            flare.light=gEnv->sceneManager->createLight(flare_name.str());
+            flare.light=gEnv->sceneManager->createLight(flare_name);
             flare.light->setDiffuseColour(Ogre::ColourValue(1, 1, 1));
             flare.light->setSpecularColour(Ogre::ColourValue(1, 1, 1));
             flare.light->setAttenuation(20.0, 1, 0, 0);
         }
-        //else if (type == 'b' && flaresMode >= 4 && size > 0.001)
         else if (def.type == RigDef::Flare2::TYPE_b_BRAKELIGHT)
         {
-            flare.light=gEnv->sceneManager->createLight(flare_name.str());
+            flare.light=gEnv->sceneManager->createLight(flare_name);
             flare.light->setDiffuseColour( Ogre::ColourValue(1.0, 0, 0));
             flare.light->setSpecularColour( Ogre::ColourValue(1.0, 0, 0));
             flare.light->setAttenuation(10.0, 1.0, 0, 0);
         }
-        //else if ((type == 'l' || type == 'r') && flaresMode >= 4 && size > 0.001)
         else if (def.type == RigDef::Flare2::TYPE_l_LEFT_BLINKER || (def.type == RigDef::Flare2::TYPE_r_RIGHT_BLINKER))
         {
-            flare.light=gEnv->sceneManager->createLight(flare_name.str());
+            flare.light=gEnv->sceneManager->createLight(flare_name);
             flare.light->setDiffuseColour( Ogre::ColourValue(1, 1, 0));
             flare.light->setSpecularColour( Ogre::ColourValue(1, 1, 0));
             flare.light->setAttenuation(10.0, 1, 1, 0);
@@ -2396,7 +2389,7 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
         else if (def.type == RigDef::Flare2::TYPE_u_USER)
         {
             /* user light always white (TODO: improve this) */
-            flare.light=gEnv->sceneManager->createLight(flare_name.str());
+            flare.light=gEnv->sceneManager->createLight(flare_name);
             flare.light->setDiffuseColour( Ogre::ColourValue(1, 1, 1));
             flare.light->setSpecularColour( Ogre::ColourValue(1, 1, 1));
             flare.light->setAttenuation(50.0, 1.0, 1, 0.2);
@@ -2731,10 +2724,7 @@ void RigSpawner::ProcessParticle(RigDef::Particle & def)
     particle.directionNode = GetNodeIndexOrThrow(def.reference_node);
 
     /* Setup visuals */
-    std::stringstream name;
-    name << "cparticle-" << particle_index << "-" << m_rig->truckname;
-    particle.snode = m_parent_scene_node->createChildSceneNode();
-    particle.psys = gEnv->sceneManager->createParticleSystem(name.str(), def.particle_system_name);
+    particle.psys = gEnv->sceneManager->createParticleSystem(this->ComposeName("CustomParticles",0), def.particle_system_name);
     if (particle.psys == nullptr)
     {
         std::stringstream msg;
@@ -5896,11 +5886,9 @@ void RigSpawner::CreateBeamVisuals(beam_t & beam, int beam_index, std::shared_pt
 {
     SPAWNER_PROFILE_SCOPED();
 
-    std::stringstream beam_name;
-    beam_name << "beam-" << m_rig->truckname << "-" << beam_index;
     try
     {
-        beam.mEntity = gEnv->sceneManager->createEntity(beam_name.str(), "beam.mesh");
+        beam.mEntity = gEnv->sceneManager->createEntity(this->ComposeName("Beam", beam_index), "beam.mesh");
     }
     catch (...)
     {
@@ -6257,10 +6245,8 @@ void RigSpawner::AddExhaust(
             material_name = search->second;
         }
     }
-    
-    std::stringstream particle_sys_name;
-    particle_sys_name << "exhaust-" << m_rig->exhausts.size() << "-" << m_rig->truckname;
-    exhaust.smoker = gEnv->sceneManager->createParticleSystem(particle_sys_name.str(), material_name);
+
+    exhaust.smoker = gEnv->sceneManager->createParticleSystem(this->ComposeName("Exhaust", static_cast<int>(m_rig->exhausts.size())), material_name);
     if (exhaust.smoker == nullptr)
     {
         AddMessage(Message::TYPE_INTERNAL_ERROR, "Failed to create exhaust");

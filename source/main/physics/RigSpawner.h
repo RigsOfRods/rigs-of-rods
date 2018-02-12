@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include "Application.h"
 #include "RoRPrerequisites.h"
 #include "RigDef_Parser.h"
 #include "BeamData.h"
@@ -158,6 +159,8 @@ public:
     static void RecalculateBoundingBoxes(Beam *rig);
 
     static void SetupDefaultSoundSources(Beam *vehicle);
+
+    static void ComposeName(RoR::Str<100>& str, const char* type, int number, int actor_id);
 
     std::string GetSubmeshGroundmodelName();
 

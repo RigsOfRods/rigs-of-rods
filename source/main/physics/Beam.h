@@ -377,7 +377,6 @@ public:
     bool              disable_smoke;
     int               ar_exhaust_pos_node; //!< Old-format exhaust (one per vehicle) emitter node
     int               ar_exhaust_dir_node; //!< Old-format exhaust (one per vehicle) backwards direction node
-    char              truckname[256];
     int               ar_instance_id;              //!< Static attr; session-unique ID
     int               ar_driveable;                //!< Sim attr; marks vehicle type and features
     BeamEngine*       ar_engine;
