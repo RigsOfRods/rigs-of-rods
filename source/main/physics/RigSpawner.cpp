@@ -240,10 +240,6 @@ void RigSpawner::InitializeRig()
 
     // TODO: Perform these inits in constructor instead! ~ only_a_ptr, 01/2018
 
-    m_rig->ropes.clear();
-    m_rig->ropables.clear();
-    m_rig->ties.clear();
-
     // commands contain complex data structures, do not memset them ...
     for (int i=0;i<MAX_COMMANDS+1;i++)
     {
@@ -258,8 +254,8 @@ void RigSpawner::InitializeRig()
     m_rig->exhausts.clear();
     memset(m_rig->ar_custom_particles, 0, sizeof(cparticle_t) * MAX_CPARTICLES);
     m_rig->ar_num_custom_particles = 0;
-    m_rig->nodes_debug.clear();
-    m_rig->beams_debug.clear();
+    m_rig->m_nodes_debug_text.clear();
+    m_rig->m_beams_debug_text.clear();
     memset(m_rig->ar_soundsources, 0, sizeof(soundsource_t) * MAX_SOUNDSCRIPTS_PER_TRUCK);
     m_rig->ar_num_soundsources = 0;
     memset(m_rig->ar_collcabs, 0, sizeof(int) * MAX_CABS);
@@ -2725,7 +2721,7 @@ void RigSpawner::ProcessRopable(RigDef::Ropable & def)
     ropable.group = def.group;
     ropable.in_use = false;
     ropable.multilock = def.has_multilock;
-    m_rig->ropables.push_back(ropable);
+    m_rig->ar_ropables.push_back(ropable);
 }
 
 void RigSpawner::ProcessTie(RigDef::Tie & def)
@@ -2760,7 +2756,7 @@ void RigSpawner::ProcessTie(RigDef::Tie & def)
     tie.tied = false;
     tie.beam = & beam;
     tie.commandValue = -1.f;
-    m_rig->ties.push_back(tie);
+    m_rig->ar_ties.push_back(tie);
 
     m_rig->m_has_command_beams = true;
 }
@@ -2787,7 +2783,7 @@ void RigSpawner::ProcessRope(RigDef::Rope & def)
     rope.lockedto = & m_rig->ar_nodes[0]; // Orig: hardcoded in BTS_ROPES
     rope.lockedto_ropable = nullptr;
     rope.group = 0; // Orig: hardcoded in BTS_ROPES. TODO: To be used.
-    m_rig->ropes.push_back(rope);
+    m_rig->ar_ropes.push_back(rope);
 }
 
 void RigSpawner::ProcessRailGroup(RigDef::RailGroup & def)

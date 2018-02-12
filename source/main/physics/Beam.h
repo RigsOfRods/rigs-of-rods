@@ -280,13 +280,11 @@ public:
     std::vector<std::string>  description;
     std::vector<authorinfo_t> authors;
     std::vector<exhaust_t>    exhausts;
-    std::vector<rope_t>       ropes;
-    std::vector<ropable_t>    ropables;
-    std::vector<tie_t>        ties;
+    std::vector<rope_t>       ar_ropes;
+    std::vector<ropable_t>    ar_ropables;
+    std::vector<tie_t>        ar_ties;
     std::vector<hook_t>       ar_hooks;
     std::vector<flare_t>      ar_flares;
-    std::vector<debugtext_t>  nodes_debug;
-    std::vector<debugtext_t>  beams_debug;
     Ogre::AxisAlignedBox      ar_bounding_box;     //!< standard bounding box (surrounds all nodes of a truck)
     Ogre::AxisAlignedBox      ar_predicted_bounding_box;
     std::vector<std::vector<int>>  ar_node_to_node_connections;
@@ -503,6 +501,8 @@ private:
     std::vector<RailGroup*>            m_railgroups;       //!< all the available RailGroups for this actor
     std::vector<Ogre::Entity*>         m_deletion_entities;    //!< For unloading vehicle; filled at spawn.
     std::vector<Ogre::SceneNode*>      m_deletion_scene_nodes; //!< For unloading vehicle; filled at spawn.
+    std::vector<debugtext_t>           m_nodes_debug_text;     //!< Gfx state
+    std::vector<debugtext_t>           m_beams_debug_text;     //!< Gfx state
     Ogre::SceneNode*  m_beam_visuals_parent_scenenode;     //!< Gfx
     int               m_proped_wheel_pairs[MAX_WHEELS];    //!< Physics attr; For inter-differential locking
     int               m_num_braked_wheels;          //!< Physics attr, filled at spawn - Number of braked wheels.

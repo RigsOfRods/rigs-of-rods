@@ -1219,7 +1219,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     BES_STOP(BES_CORE_Commands);
 
     // go through all ties and process them
-    for (std::vector<tie_t>::iterator it = ties.begin(); it != ties.end(); it++)
+    for (std::vector<tie_t>::iterator it = ar_ties.begin(); it != ar_ties.end(); it++)
     {
         // only process tying ties
         if (!it->tying)
@@ -2023,9 +2023,9 @@ void Beam::calcHooks()
 void Beam::calcRopes()
 {
     BES_START(BES_CORE_Ropes);
-    if (ropes.size())
+    if (ar_ropes.size())
     {
-        for (std::vector<rope_t>::iterator it = ropes.begin(); it != ropes.end(); it++)
+        for (std::vector<rope_t>::iterator it = ar_ropes.begin(); it != ar_ropes.end(); it++)
         {
             if (it->lockedto)
             {
