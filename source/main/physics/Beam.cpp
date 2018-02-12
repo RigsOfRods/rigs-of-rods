@@ -98,7 +98,7 @@ Actor::~Actor()
 
     // TODO: IMPROVE below: delete/destroy prop entities, etc
 
-    this->disjoinInterTruckBeams();
+    this->DisjoinInterActorBeams();
 
     // hide everything, prevents deleting stuff while drawing
     this->setBeamVisibility(false);
@@ -395,9 +395,9 @@ Actor::~Actor()
     delete ar_wings;
 }
 
-// This method scales trucks. Stresses should *NOT* be scaled, they describe
+// This method scales actors. Stresses should *NOT* be scaled, they describe
 // the material type and they do not depend on length or scale.
-void Actor::scaleTruck(float value)
+void Actor::ScaleActor(float value)
 {
     BES_GFX_START(BES_GFX_ScaleTruck);
 
@@ -996,7 +996,7 @@ float Actor::getTotalMass(bool withLocked)
     return mass;
 }
 
-void Actor::determineLinkedBeams()
+void Actor::DetermineLinkedActors() //TODO: Refactor this - logic iterating over all actors should be in `ActorManager`! ~ only_a_ptr, 01/2018
 {
     m_linked_actors.clear();
 
@@ -1006,7 +1006,7 @@ void Actor::determineLinkedBeams()
 
     lookup_table.insert(std::pair<Actor*, bool>(this, false));
     
-    auto interTruckLinks = App::GetSimController()->GetBeamFactory()->interTruckLinks;
+    auto inter_actor_links = App::GetSimController()->GetBeamFactory()->inter_actor_links; // TODO: Shouldn't this have been a reference?? Also, ugly, see the TODO note above ~ only_a_ptr, 01/2018
 
     while (found)
     {
@@ -1016,17 +1016,17 @@ void Actor::determineLinkedBeams()
         {
             if (!it_beam->second)
             {
-                auto truck = it_beam->first;
-                for (auto it = interTruckLinks.begin(); it != interTruckLinks.end(); it++)
+                auto actor = it_beam->first;
+                for (auto it = inter_actor_links.begin(); it != inter_actor_links.end(); it++)
                 {
-                    auto truck_pair = it->second;
-                    if (truck == truck_pair.first || truck == truck_pair.second)
+                    auto actor_pair = it->second;
+                    if (actor == actor_pair.first || actor == actor_pair.second)
                     {
-                        auto other_truck = (truck != truck_pair.first) ? truck_pair.first : truck_pair.second;
-                        ret = lookup_table.insert(std::pair<Actor*, bool>(other_truck, false));
+                        auto other_actor = (actor != actor_pair.first) ? actor_pair.first : actor_pair.second;
+                        ret = lookup_table.insert(std::pair<Actor*, bool>(other_actor, false));
                         if (ret.second)
                         {
-                            m_linked_actors.push_back(other_truck);
+                            m_linked_actors.push_back(other_actor);
                             found = true;
                         }
                     }
@@ -1075,41 +1075,42 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
     Real max_distance = direction.length();
     direction.normalise();
 
-    Actor** trucks = App::GetSimController()->GetBeamFactory()->getTrucks();
-    int trucksnum = App::GetSimController()->GetBeamFactory()->getTruckCount();
+    //TODO: Refactor this - logic iterating over all actors should be in `ActorManager`! ~ only_a_ptr, 01/2018
+    Actor** actors = App::GetSimController()->GetBeamFactory()->GetInternalActorSlots();
+    int num_actor_slots = App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots();
 
     if (m_intra_point_col_detector)
         m_intra_point_col_detector->update(this, true);
 
     if (m_inter_point_col_detector)
-        m_inter_point_col_detector->update(this, trucks, trucksnum, true);
+        m_inter_point_col_detector->update(this, actors, num_actor_slots, true);
 
     // collision displacement
     Vector3 collision_offset = Vector3::ZERO;
 
-    for (int t = 0; t < trucksnum; t++)
+    for (int t = 0; t < num_actor_slots; t++)
     {
-        if (!trucks[t])
+        if (!actors[t])
             continue;
         if (t == ar_instance_id)
             continue;
-        if (!bb.intersects(trucks[t]->ar_bounding_box))
+        if (!bb.intersects(actors[t]->ar_bounding_box))
             continue;
 
         // Test own contacters against others cabs
         if (m_intra_point_col_detector)
         {
-            for (int i = 0; i < trucks[t]->ar_num_collcabs; i++)
+            for (int i = 0; i < actors[t]->ar_num_collcabs; i++)
             {
                 if (collision_offset.length() >= max_distance)
                     break;
                 Vector3 offset = collision_offset;
                 while (offset.length() < max_distance)
                 {
-                    int tmpv = trucks[t]->ar_collcabs[i] * 3;
-                    node_t* no = &trucks[t]->ar_nodes[ar_cabs[tmpv]];
-                    node_t* na = &trucks[t]->ar_nodes[ar_cabs[tmpv + 1]];
-                    node_t* nb = &trucks[t]->ar_nodes[ar_cabs[tmpv + 2]];
+                    int tmpv = actors[t]->ar_collcabs[i] * 3;
+                    node_t* no = &actors[t]->ar_nodes[ar_cabs[tmpv]];
+                    node_t* na = &actors[t]->ar_nodes[ar_cabs[tmpv + 1]];
+                    node_t* nb = &actors[t]->ar_nodes[ar_cabs[tmpv + 2]];
 
                     m_intra_point_col_detector->query(no->AbsPosition + offset,
                         na->AbsPosition + offset,
@@ -1128,7 +1129,7 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
 
         float proximity = 0.05f;
         proximity = std::max(proximity, ar_bounding_box.getSize().length() / 50.0f);
-        proximity = std::max(proximity, trucks[t]->ar_bounding_box.getSize().length() / 50.0f);
+        proximity = std::max(proximity, actors[t]->ar_bounding_box.getSize().length() / 50.0f);
 
         // Test proximity of own nodes against others nodes
         for (int i = 0; i < ar_num_nodes; i++)
@@ -1144,11 +1145,11 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
 
                 bool node_proximity = false;
 
-                for (int j = 0; j < trucks[t]->ar_num_nodes; j++)
+                for (int j = 0; j < actors[t]->ar_num_nodes; j++)
                 {
-                    if (trucks[t]->ar_nodes[j].contactless)
+                    if (actors[t]->ar_nodes[j].contactless)
                         continue;
-                    if (query_position.squaredDistance(trucks[t]->ar_nodes[j].AbsPosition) < proximity)
+                    if (query_position.squaredDistance(actors[t]->ar_nodes[j].AbsPosition) < proximity)
                     {
                         node_proximity = true;
                         break;
@@ -1682,7 +1683,7 @@ void Actor::SyncReset()
         ar_beams[i].bm_disabled     = false;
     }
 
-    disjoinInterTruckBeams();
+    this->DisjoinInterActorBeams();
 
     for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
     {
@@ -1693,7 +1694,7 @@ void Actor::SyncReset()
         it->beam->p2 = &ar_nodes[0];
         it->beam->p2truck = false;
         it->beam->L = (ar_nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
-        removeInterTruckBeam(it->beam);
+        RemoveInterActorBeam(it->beam);
     }
     for (std::vector<rope_t>::iterator it = ar_ropes.begin(); it != ar_ropes.end(); it++)
     {
@@ -1712,7 +1713,7 @@ void Actor::SyncReset()
         it->beam->p2 = &ar_nodes[0];
         it->beam->p2truck = false;
         it->beam->bm_disabled = true;
-        removeInterTruckBeam(it->beam);
+        this->RemoveInterActorBeam(it->beam);
     }
 
     for (int i = 0; i < ar_num_aeroengines; i++)
@@ -1731,9 +1732,10 @@ void Actor::SyncReset()
     if (m_buoyance)
         m_buoyance->setsink(0);
     m_ref_tyre_pressure = 50.0;
-    addPressure(0.0);
+    this->addPressure(0.0);
+
     if (ar_autopilot)
-        resetAutopilot();
+        this->resetAutopilot();
 
     for (int i = 0; i < ar_num_flexbodies; i++)
     {
@@ -1743,8 +1745,8 @@ void Actor::SyncReset()
     // reset on spot with backspace
     if (m_reset_request != REQUEST_RESET_ON_INIT_POS)
     {
-        resetAngle(cur_rot);
-        resetPosition(cur_position.x, cur_position.z, false, yPos);
+        this->resetAngle(cur_rot);
+        this->resetPosition(cur_position.x, cur_position.z, false, yPos);
     }
 
     // reset commands (self centering && push once/twice forced to terminate moving commands)
@@ -1755,7 +1757,7 @@ void Actor::SyncReset()
         ar_command_key[i].playerInputValue = 0.0f;
     }
 
-    resetSlideNodes();
+    this->resetSlideNodes();
 
     if (m_reset_request != REQUEST_RESET_ON_SPOT)
     {
@@ -2989,17 +2991,17 @@ void Actor::lightsToggle()
         return;
 
     // TODO: Refactor! The `ActorManager` class should do this! ~ only_a_ptr, 01/2018
-    Actor** trucks = App::GetSimController()->GetBeamFactory()->getTrucks();
-    int trucksnum = App::GetSimController()->GetBeamFactory()->getTruckCount();
+    Actor** actor_slots = App::GetSimController()->GetBeamFactory()->GetInternalActorSlots();
+    int num_actor_slots = App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots();
 
     // export light command
-    Actor* current_truck = App::GetSimController()->GetPlayerActor();
-    if (ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this == current_truck && ar_forward_commands)
+    Actor* player_actor = App::GetSimController()->GetPlayerActor();
+    if (ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this == player_actor && ar_forward_commands)
     {
-        for (int i = 0; i < trucksnum; i++)
+        for (int i = 0; i < num_actor_slots; i++)
         {
-            if (trucks[i] && trucks[i]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this->ar_instance_id != i && trucks[i]->ar_import_commands)
-                trucks[i]->lightsToggle();
+            if (actor_slots[i] && actor_slots[i]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this->ar_instance_id != i && actor_slots[i]->ar_import_commands)
+                actor_slots[i]->lightsToggle();
         }
     }
     ar_lights = !ar_lights;
@@ -3877,7 +3879,7 @@ void Actor::showSkeleton(bool meshes, bool linked)
     if (linked)
     {
         // apply to all locked trucks
-        determineLinkedBeams();
+        DetermineLinkedActors();
         for (std::list<Actor*>::iterator it = m_linked_actors.begin(); it != m_linked_actors.end(); ++it)
         {
             (*it)->showSkeleton(meshes, false);
@@ -3947,8 +3949,8 @@ void Actor::hideSkeleton(bool linked)
 
     if (linked)
     {
-        // apply to all locked trucks
-        determineLinkedBeams();
+        // apply to all locked actors
+        DetermineLinkedActors();
         for (std::list<Actor*>::iterator it = m_linked_actors.begin(); it != m_linked_actors.end(); ++it)
         {
             (*it)->hideSkeleton(false);
@@ -4092,7 +4094,7 @@ void Actor::cabFade(float amount)
 {
     static float savedCabAlphaRejection = 0;
 
-    // truck cab
+    // vehicle chassis, aka 'cab'
     if (m_cab_scene_node)
     {
         if (amount == 0)
@@ -4129,7 +4131,7 @@ void Actor::cabFade(float amount)
     }
 }
 
-void Actor::addInterTruckBeam(beam_t* beam, Actor* a, Actor* b)
+void Actor::AddInterActorBeam(beam_t* beam, Actor* a, Actor* b)
 {
     auto pos = std::find(ar_inter_beams.begin(), ar_inter_beams.end(), beam);
     if (pos == ar_inter_beams.end())
@@ -4137,19 +4139,19 @@ void Actor::addInterTruckBeam(beam_t* beam, Actor* a, Actor* b)
         ar_inter_beams.push_back(beam);
     }
 
-    std::pair<Actor*, Actor*> truck_pair(a, b);
-    App::GetSimController()->GetBeamFactory()->interTruckLinks[beam] = truck_pair;
+    std::pair<Actor*, Actor*> actor_pair(a, b);
+    App::GetSimController()->GetBeamFactory()->inter_actor_links[beam] = actor_pair;
 
-    a->determineLinkedBeams();
-    for (auto truck : a->m_linked_actors)
-        truck->determineLinkedBeams();
+    a->DetermineLinkedActors();
+    for (auto actor : a->m_linked_actors)
+        actor->DetermineLinkedActors();
 
-    b->determineLinkedBeams();
-    for (auto truck : b->m_linked_actors)
-        truck->determineLinkedBeams();
+    b->DetermineLinkedActors();
+    for (auto actor : b->m_linked_actors)
+        actor->DetermineLinkedActors();
 }
 
-void Actor::removeInterTruckBeam(beam_t* beam)
+void Actor::RemoveInterActorBeam(beam_t* beam)
 {
     auto pos = std::find(ar_inter_beams.begin(), ar_inter_beams.end(), beam);
     if (pos != ar_inter_beams.end())
@@ -4157,42 +4159,42 @@ void Actor::removeInterTruckBeam(beam_t* beam)
         ar_inter_beams.erase(pos);
     }
 
-    auto it = App::GetSimController()->GetBeamFactory()->interTruckLinks.find(beam);
-    if (it != App::GetSimController()->GetBeamFactory()->interTruckLinks.end())
+    auto it = App::GetSimController()->GetBeamFactory()->inter_actor_links.find(beam);
+    if (it != App::GetSimController()->GetBeamFactory()->inter_actor_links.end())
     {
-        auto truck_pair = it->second;
-        App::GetSimController()->GetBeamFactory()->interTruckLinks.erase(it);
+        auto actor_pair = it->second;
+        App::GetSimController()->GetBeamFactory()->inter_actor_links.erase(it);
 
-        truck_pair.first->determineLinkedBeams();
-        for (auto truck : truck_pair.first->m_linked_actors)
-            truck->determineLinkedBeams();
+        actor_pair.first->DetermineLinkedActors();
+        for (auto actor : actor_pair.first->m_linked_actors)
+            actor->DetermineLinkedActors();
 
-        truck_pair.second->determineLinkedBeams();
-        for (auto truck : truck_pair.second->m_linked_actors)
-            truck->determineLinkedBeams();
+        actor_pair.second->DetermineLinkedActors();
+        for (auto actor : actor_pair.second->m_linked_actors)
+            actor->DetermineLinkedActors();
     }
 }
 
-void Actor::disjoinInterTruckBeams()
+void Actor::DisjoinInterActorBeams()
 {
     ar_inter_beams.clear();
-    auto interTruckLinks = &App::GetSimController()->GetBeamFactory()->interTruckLinks;
-    for (auto it = interTruckLinks->begin(); it != interTruckLinks->end();)
+    auto inter_actor_links = &App::GetSimController()->GetBeamFactory()->inter_actor_links;
+    for (auto it = inter_actor_links->begin(); it != inter_actor_links->end();)
     {
-        auto truck_pair = it->second;
-        if (this == truck_pair.first || this == truck_pair.second)
+        auto actor_pair = it->second;
+        if (this == actor_pair.first || this == actor_pair.second)
         {
             it->first->p2truck = false;
             it->first->bm_disabled = true;
-            interTruckLinks->erase(it++);
+            inter_actor_links->erase(it++);
 
-            truck_pair.first->determineLinkedBeams();
-            for (auto truck : truck_pair.first->m_linked_actors)
-                truck->determineLinkedBeams();
+            actor_pair.first->DetermineLinkedActors();
+            for (auto actor : actor_pair.first->m_linked_actors)
+                actor->DetermineLinkedActors();
 
-            truck_pair.second->determineLinkedBeams();
-            for (auto truck : truck_pair.second->m_linked_actors)
-                truck->determineLinkedBeams();
+            actor_pair.second->DetermineLinkedActors();
+            for (auto actor : actor_pair.second->m_linked_actors)
+                actor->DetermineLinkedActors();
         }
         else
         {
@@ -4204,17 +4206,17 @@ void Actor::disjoinInterTruckBeams()
 void Actor::tieToggle(int group)
 {
     //TODO: Refactor this - logic iterating over all actors should be in `ActorManager`! ~ only_a_ptr, 01/2018
-    Actor** trucks = App::GetSimController()->GetBeamFactory()->getTrucks();
-    int trucksnum = App::GetSimController()->GetBeamFactory()->getTruckCount();
+    Actor** actor_slots = App::GetSimController()->GetBeamFactory()->GetInternalActorSlots();
+    int num_actor_slots = App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots();
 
     // export tie commands
     Actor* current_truck = App::GetSimController()->GetPlayerActor();
     if (ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this == current_truck && ar_forward_commands)
     {
-        for (int i = 0; i < trucksnum; i++)
+        for (int i = 0; i < num_actor_slots; i++)
         {
-            if (trucks[i] && trucks[i]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this->ar_instance_id != i && trucks[i]->ar_import_commands)
-                trucks[i]->tieToggle(group);
+            if (actor_slots[i] && actor_slots[i]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this->ar_instance_id != i && actor_slots[i]->ar_import_commands)
+                actor_slots[i]->tieToggle(group);
         }
     }
 
@@ -4243,7 +4245,7 @@ void Actor::tieToggle(int group)
             it->beam->bm_disabled = true;
             if (it->locked_truck != this)
             {
-                removeInterTruckBeam(it->beam);
+                RemoveInterActorBeam(it->beam);
                 // update skeletonview on the untied truck
                 it->locked_truck->ar_request_skeletonview_change = -1;
             }
@@ -4264,18 +4266,18 @@ void Actor::tieToggle(int group)
             {
                 // tie is unlocked and should get locked, search new remote ropable to lock to
                 float mindist = it->beam->refL;
-                node_t* shorter = 0;
-                Actor* shtruck = 0;
+                node_t* nearest_node = 0;
+                Actor* nearest_actor = 0;
                 ropable_t* locktedto = 0;
                 // iterate over all trucks
-                for (int t = 0; t < trucksnum; t++)
+                for (int t = 0; t < num_actor_slots; t++)
                 {
-                    if (!trucks[t])
+                    if (!actor_slots[t])
                         continue;
-                    if (trucks[t]->ar_sim_state == SimState::LOCAL_SLEEPING)
+                    if (actor_slots[t]->ar_sim_state == SimState::LOCAL_SLEEPING)
                         continue;
                     // and their ropables
-                    for (std::vector<ropable_t>::iterator itr = trucks[t]->ar_ropables.begin(); itr != trucks[t]->ar_ropables.end(); itr++)
+                    for (std::vector<ropable_t>::iterator itr = actor_slots[t]->ar_ropables.begin(); itr != actor_slots[t]->ar_ropables.end(); itr++)
                     {
                         // if the ropable is not multilock and used, then discard this ropable
                         if (!itr->multilock && itr->in_use)
@@ -4290,21 +4292,21 @@ void Actor::tieToggle(int group)
                         if (dist < mindist)
                         {
                             mindist = dist;
-                            shorter = itr->node;
-                            shtruck = trucks[t];
+                            nearest_node = itr->node;
+                            nearest_actor = actor_slots[t];
                             locktedto = &(*itr);
                         }
                     }
                 }
                 // if we found a ropable, then tie towards it
-                if (shorter)
+                if (nearest_node)
                 {
                     // enable the beam and visually display the beam
                     it->beam->bm_disabled = false;
                     // now trigger the tying action
-                    it->locked_truck = shtruck;
-                    it->beam->p2 = shorter;
-                    it->beam->p2truck = shtruck != this;
+                    it->locked_truck = nearest_actor;
+                    it->beam->p2 = nearest_node;
+                    it->beam->p2truck = nearest_actor != this;
                     it->beam->stress = 0;
                     it->beam->L = it->beam->refL;
                     it->tied = true;
@@ -4313,9 +4315,9 @@ void Actor::tieToggle(int group)
                     it->lockedto->in_use = true;
                     if (it->beam->p2truck)
                     {
-                        addInterTruckBeam(it->beam, this, shtruck);
+                        AddInterActorBeam(it->beam, this, nearest_actor);
                         // update skeletonview on the tied truck
-                        shtruck->ar_request_skeletonview_change = ar_skeletonview_is_active ? 1 : -1;
+                        nearest_actor->ar_request_skeletonview_change = ar_skeletonview_is_active ? 1 : -1;
                     }
                 }
             }
@@ -4328,8 +4330,8 @@ void Actor::tieToggle(int group)
 
 void Actor::ropeToggle(int group)
 {
-    Actor** trucks = App::GetSimController()->GetBeamFactory()->getTrucks();
-    int trucksnum = App::GetSimController()->GetBeamFactory()->getTruckCount();
+    Actor** actor_slots = App::GetSimController()->GetBeamFactory()->GetInternalActorSlots();
+    int num_actor_slots = App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots();
 
     // iterate over all ropes
     for (std::vector<rope_t>::iterator it = ar_ropes.begin(); it != ar_ropes.end(); it++)
@@ -4356,15 +4358,15 @@ void Actor::ropeToggle(int group)
             node_t* shorter = 0;
             Actor* shtruck = 0;
             ropable_t* rop = 0;
-            // iterate over all trucks
-            for (int t = 0; t < trucksnum; t++)
+            // iterate over all actor_slots
+            for (int t = 0; t < num_actor_slots; t++)
             {
-                if (!trucks[t])
+                if (!actor_slots[t])
                     continue;
-                if (trucks[t]->ar_sim_state == SimState::LOCAL_SLEEPING)
+                if (actor_slots[t]->ar_sim_state == SimState::LOCAL_SLEEPING)
                     continue;
                 // and their ropables
-                for (std::vector<ropable_t>::iterator itr = trucks[t]->ar_ropables.begin(); itr != trucks[t]->ar_ropables.end(); itr++)
+                for (std::vector<ropable_t>::iterator itr = actor_slots[t]->ar_ropables.begin(); itr != actor_slots[t]->ar_ropables.end(); itr++)
                 {
                     // if the ropable is not multilock and used, then discard this ropable
                     if (!itr->multilock && itr->in_use)
@@ -4376,7 +4378,7 @@ void Actor::ropeToggle(int group)
                     {
                         mindist = dist;
                         shorter = itr->node;
-                        shtruck = trucks[t];
+                        shtruck = actor_slots[t];
                         rop = &(*itr);
                     }
                 }
@@ -4397,8 +4399,8 @@ void Actor::ropeToggle(int group)
 
 void Actor::hookToggle(int group, hook_states mode, int node_number)
 {
-    Actor** trucks = App::GetSimController()->GetBeamFactory()->getTrucks();
-    int trucksnum = App::GetSimController()->GetBeamFactory()->getTruckCount();
+    Actor** actor_slots = App::GetSimController()->GetBeamFactory()->GetInternalActorSlots();
+    int num_actor_slots = App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots();
 
     // iterate over all hooks
     for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
@@ -4451,12 +4453,12 @@ void Actor::hookToggle(int group, hook_states mode, int node_number)
             // search new remote ropable to lock to
             float mindist = it->lockrange;
             float distance = 100000000.0f;
-            // iterate over all trucks
-            for (int t = 0; t < trucksnum; t++)
+            // iterate over all actor_slots
+            for (int t = 0; t < num_actor_slots; t++)
             {
-                if (!trucks[t])
+                if (!actor_slots[t])
                     continue;
-                if (trucks[t]->ar_sim_state == SimState::LOCAL_SLEEPING || trucks[t]->ar_sim_state == SimState::INVALID)
+                if (actor_slots[t]->ar_sim_state == SimState::LOCAL_SLEEPING || actor_slots[t]->ar_sim_state == SimState::INVALID)
                     continue;
                 if (t == this->ar_instance_id && !it->selflock)
                     continue; // don't lock to self
@@ -4467,22 +4469,22 @@ void Actor::hookToggle(int group, hook_states mode, int node_number)
                 {
                     int last_node = 0; // node number storage
                     // all nodes, so walk them
-                    for (int i = 0; i < trucks[t]->ar_num_nodes; i++)
+                    for (int i = 0; i < actor_slots[t]->ar_num_nodes; i++)
                     {
                         // skip all nodes with lockgroup 9999 (deny lock)
-                        if (trucks[t]->ar_nodes[i].lockgroup == 9999)
+                        if (actor_slots[t]->ar_nodes[i].lockgroup == 9999)
                             continue;
 
                         // exclude this truck and its current hooknode from the locking search
-                        if (this == trucks[t] && i == it->hookNode->id)
+                        if (this == actor_slots[t] && i == it->hookNode->id)
                             continue;
 
                         // a lockgroup for this hooknode is set -> skip all nodes that do not have the same lockgroup (-1 = default(all nodes))
-                        if (it->lockgroup != -1 && it->lockgroup != trucks[t]->ar_nodes[i].lockgroup)
+                        if (it->lockgroup != -1 && it->lockgroup != actor_slots[t]->ar_nodes[i].lockgroup)
                             continue;
 
                         // measure distance
-                        float n2n_distance = (it->hookNode->AbsPosition - trucks[t]->ar_nodes[i].AbsPosition).length();
+                        float n2n_distance = (it->hookNode->AbsPosition - actor_slots[t]->ar_nodes[i].AbsPosition).length();
                         if (n2n_distance < mindist)
                         {
                             if (distance >= n2n_distance)
@@ -4497,8 +4499,8 @@ void Actor::hookToggle(int group, hook_states mode, int node_number)
                     if (found)
                     {
                         // we found a node, lock to it
-                        it->lockNode = &(trucks[t]->ar_nodes[last_node]);
-                        it->lockTruck = trucks[t];
+                        it->lockNode = &(actor_slots[t]->ar_nodes[last_node]);
+                        it->lockTruck = actor_slots[t];
                         it->locked = PRELOCK;
                     }
                 }
@@ -4506,11 +4508,11 @@ void Actor::hookToggle(int group, hook_states mode, int node_number)
                 {
                     // we lock against ropables
 
-                    node_t* shorter = 0;
-                    Actor* shtruck = 0;
+                    node_t* nearest_node = nullptr;
+                    Actor* nearest_actor = nullptr;
 
                     // and their ropables
-                    for (std::vector<ropable_t>::iterator itr = trucks[t]->ar_ropables.begin(); itr != trucks[t]->ar_ropables.end(); itr++)
+                    for (std::vector<ropable_t>::iterator itr = actor_slots[t]->ar_ropables.begin(); itr != actor_slots[t]->ar_ropables.end(); itr++)
                     {
                         // if the ropable is not multilock and used, then discard this ropable
                         if (!itr->multilock && itr->in_use)
@@ -4521,16 +4523,16 @@ void Actor::hookToggle(int group, hook_states mode, int node_number)
                         if (dist < mindist)
                         {
                             mindist = dist;
-                            shorter = itr->node;
-                            shtruck = trucks[t];
+                            nearest_node = itr->node;
+                            nearest_actor = actor_slots[t];
                         }
                     }
 
-                    if (shorter)
+                    if (nearest_node)
                     {
                         // we found a ropable, lock to it
-                        it->lockNode = shorter;
-                        it->lockTruck = shtruck;
+                        it->lockNode = nearest_node;
+                        it->lockTruck = nearest_actor;
                         it->locked = PRELOCK;
                     }
                 }

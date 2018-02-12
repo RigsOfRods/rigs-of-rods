@@ -198,7 +198,7 @@ void ScriptEngine::init()
     // Register everything
     // class Beam
     result = engine->RegisterObjectType("BeamClass", sizeof(Actor), AngelScript::asOBJ_REF); MYASSERT(result>=0);
-    result = engine->RegisterObjectMethod("BeamClass", "void scaleTruck(float)", AngelScript::asMETHOD(Actor,scaleTruck), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "void scaleTruck(float)", AngelScript::asMETHOD(Actor,ScaleActor), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "string getTruckName()", AngelScript::asMETHOD(Actor,getTruckName), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "string getTruckFileName()", AngelScript::asMETHOD(Actor,getTruckFileName), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "int  getTruckType()", AngelScript::asMETHOD(Actor,getTruckType), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);

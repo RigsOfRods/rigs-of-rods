@@ -415,7 +415,7 @@ void ActorManager::handleStreamData(std::vector<RoR::Networking::recv_packet_t> 
         }
         else if (packet.header.command == RoRnet::MSG2_STREAM_UNREGISTER)
         {
-            Actor* b = this->getBeam(packet.header.source, packet.header.streamid);
+            Actor* b = this->GetActorByNetworkLinks(packet.header.source, packet.header.streamid);
             if (b && b->ar_sim_state == Actor::SimState::NETWORKED_OK)
             {
                 this->DeleteTruck(b);
@@ -491,7 +491,7 @@ int ActorManager::checkStreamsRemoteOK(int sourceid)
     return result;
 }
 
-Actor* ActorManager::getBeam(int source_id, int stream_id)
+Actor* ActorManager::GetActorByNetworkLinks(int source_id, int stream_id)
 {
     for (int t = 0; t < m_free_actor_slot; t++)
     {
@@ -688,9 +688,9 @@ void ActorManager::activateAllTrucks()
             m_actors[t]->ar_sim_state = Actor::SimState::LOCAL_SIMULATED;
             m_actors[t]->ar_sleep_counter = 0.0f;
 
-            if (this->getTruck(m_simulated_actor))
+            if (this->GetActorByIdInternal(m_simulated_actor))
             {
-                m_actors[t]->ar_disable_aerodyn_turbulent_drag = this->getTruck(m_simulated_actor)->ar_driveable == AIRPLANE;
+                m_actors[t]->ar_disable_aerodyn_turbulent_drag = this->GetActorByIdInternal(m_simulated_actor)->ar_driveable == AIRPLANE;
             }
         }
     }
@@ -846,11 +846,11 @@ void ActorManager::DeleteTruck(Actor* b)
 
 int ActorManager::GetMostRecentTruckSlot()
 {
-    if (getTruck(m_player_actor))
+    if (GetActorByIdInternal(m_player_actor))
     {
         return m_player_actor;
     }
-    else if (getTruck(m_prev_player_actor))
+    else if (GetActorByIdInternal(m_prev_player_actor))
     {
         return m_prev_player_actor;
     }
@@ -1140,10 +1140,10 @@ void ActorManager::prepareShutdown()
 
 Actor* ActorManager::GetPlayerActorInternal()
 {
-    return this->getTruck(m_player_actor);
+    return this->GetActorByIdInternal(m_player_actor);
 }
 
-Actor* ActorManager::getTruck(int number)
+Actor* ActorManager::GetActorByIdInternal(int number)
 {
     if (number >= 0 && number < m_free_actor_slot)
     {

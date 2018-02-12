@@ -33,7 +33,7 @@
 // ug... BAD PERFORMNCE, BAD!!
 void Actor::toggleSlideNodeLock()
 {
-    int trucksnum = RoR::App::GetSimController()->GetBeamFactory()->getTruckCount();
+    int trucksnum = RoR::App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots();
     int curTruck = RoR::App::GetSimController()->GetBeamFactory()->getCurrentTruckNumber();
 
     // for every slide node on this truck
@@ -60,7 +60,7 @@ void Actor::toggleSlideNodeLock()
                 (curTruck == i && itNode->getAttachRule(ATTACH_SELF))))
                 continue;
 
-            current = getClosestRailOnTruck(RoR::App::GetSimController()->GetBeamFactory()->getTruck(i), (*itNode));
+            current = getClosestRailOnTruck(RoR::App::GetSimController()->GetActorById(i), (*itNode));
             if (current.second < closest.second)
                 closest = current;
         } // this many

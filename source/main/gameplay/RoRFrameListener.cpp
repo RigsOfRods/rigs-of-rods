@@ -1310,8 +1310,8 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
             m_time_until_next_toggle = 0.5; // Some delay before trying to re-enter(exit) truck
             // perso in/out
             int current_truck = m_actor_manager.getCurrentTruckNumber();
-            int free_truck = m_actor_manager.getTruckCount();
-            Actor** trucks = m_actor_manager.getTrucks();
+            int free_truck = m_actor_manager.GetNumUsedActorSlots();
+            Actor** trucks = m_actor_manager.GetInternalActorSlots();
             if (current_truck == -1)
             {
                 // find the nearest truck
@@ -1775,8 +1775,8 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
             // update survey map
             if (gEnv->surveyMap != nullptr && gEnv->surveyMap->getVisibility())
             {
-                Actor** vehicles = m_actor_manager.getTrucks();
-                int num_vehicles = m_actor_manager.getTruckCount();
+                Actor** vehicles = m_actor_manager.GetInternalActorSlots();
+                int num_vehicles = m_actor_manager.GetNumUsedActorSlots();
 
                 gEnv->surveyMap->UpdateVehicles(vehicles, num_vehicles);
             }
@@ -1865,8 +1865,8 @@ bool RoRFrameListener::frameEnded(const FrameEvent& evt)
 
 void RoRFrameListener::ShowLoaderGUI(int type, const Ogre::String& instance, const Ogre::String& box)
 {
-    int free_truck = m_actor_manager.getTruckCount();
-    Actor** trucks = m_actor_manager.getTrucks();
+    int free_truck = m_actor_manager.GetNumUsedActorSlots();
+    Actor** trucks = m_actor_manager.GetInternalActorSlots();
 
     // first, test if the place if clear, BUT NOT IN MULTIPLAYER
     if (!(App::mp_state.GetActive() == MpState::CONNECTED))
