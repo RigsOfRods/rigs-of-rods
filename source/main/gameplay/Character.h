@@ -58,8 +58,6 @@ public:
     void updateMapIcon();
     void updateLabels();
 
-    static unsigned int characterCounter;
-
 protected:
 
     void createMapEntity();
@@ -77,7 +75,6 @@ protected:
     Ogre::Real characterSpeed;
     Ogre::Real characterVSpeed;
 
-    unsigned int myNumber;
     int colourNumber;
     int networkAuthLevel;
     int m_stream_id;
