@@ -41,7 +41,6 @@
 #include "PointColDetector.h"
 #include "RigDef_Parser.h"
 #include "RigDef_Validator.h"
-#include "RigLoadingProfiler.h"
 #include "RigLoadingProfilerControl.h"
 #include "RoRFrameListener.h"
 #include "Settings.h"
@@ -205,8 +204,6 @@ ActorManager::~ActorManager()
     m_particle_manager.DustManDiscard(gEnv->sceneManager); // TODO: de-globalize SceneManager
 }
 
-#define LOADRIG_PROFILER_CHECKPOINT(ENTRY_ID) rig_loading_profiler.Checkpoint(RoR::RigLoadingProfiler::ENTRY_ID);
-
 Actor* ActorManager::CreateLocalActor(
     Ogre::Vector3 pos,
     Ogre::Quaternion rot,
@@ -220,12 +217,11 @@ Actor* ActorManager::CreateLocalActor(
     bool preloaded_with_terrain /* = false */
 )
 {
-    RoR::RigLoadingProfiler rig_loading_profiler;
 #ifdef ROR_PROFILE_RIG_LOADING
     ::Profiler::reset();
 #endif
 
-    std::shared_ptr<RigDef::File> def = this->FetchActorDef(&rig_loading_profiler, fname.c_str(), preloaded_with_terrain);
+    std::shared_ptr<RigDef::File> def = this->FetchActorDef(fname.c_str(), preloaded_with_terrain);
     if (def == nullptr)
     {
         return nullptr; // Error already reported
@@ -245,7 +241,6 @@ Actor* ActorManager::CreateLocalActor(
         pos,
         rot,
         fname.c_str(),
-        &rig_loading_profiler,
         false, // networked
         (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED), // networking
         spawnbox,
@@ -278,9 +273,6 @@ Actor* ActorManager::CreateLocalActor(
     {
         b->UpdateNetworkInfo();
     }
-    LOADRIG_PROFILER_CHECKPOINT(ENTRY_BEAMFACTORY_CREATELOCAL_POSTPROCESS);
-
-    LOG(rig_loading_profiler.Report());
 
 #ifdef ROR_PROFILE_RIG_LOADING
     std::string out_path = std::string(App::sys_user_dir.GetActive()) + PATH_SLASH + "profiler" + PATH_SLASH + ROR_PROFILE_RIG_LOADING_OUTFILE;
@@ -288,8 +280,6 @@ Actor* ActorManager::CreateLocalActor(
 #endif
     return b;
 }
-
-#undef LOADRIG_PROFILER_CHECKPOINT
 
 int ActorManager::CreateRemoteInstance(RoRnet::ActorStreamRegister* reg)
 {
@@ -321,7 +311,7 @@ int ActorManager::CreateRemoteInstance(RoRnet::ActorStreamRegister* reg)
         actor_config.push_back(String(reg->actorconfig[t]));
     }
 
-    std::shared_ptr<RigDef::File> def = this->FetchActorDef(nullptr, filename.c_str(), false);
+    std::shared_ptr<RigDef::File> def = this->FetchActorDef(filename.c_str(), false);
     if (def == nullptr)
     {
         RoR::LogFormat("[RoR] Cannot create remote actor '%s', error parsing truckfile", filename.c_str());
@@ -338,7 +328,7 @@ int ActorManager::CreateRemoteInstance(RoRnet::ActorStreamRegister* reg)
         LOG("ERROR: could not add beam to main list");
         return -1;
     }
-    RoR::RigLoadingProfiler p; // TODO: Placeholder. Use it
+
     Actor* b = new Actor(
         m_sim_controller,
         actor_id,
@@ -346,7 +336,6 @@ int ActorManager::CreateRemoteInstance(RoRnet::ActorStreamRegister* reg)
         pos,
         Quaternion::ZERO,
         reg->name,
-        &p,
         true, // networked
         (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED), // networking
         nullptr, // spawnbox
@@ -1281,7 +1270,7 @@ void HandleErrorLoadingTruckfile(const char* filename, const char* exception_msg
 #define FETCHACTORDEF_PROF_CHECKPOINT(_ENTRYNAME_) \
     { if (prof != nullptr) { prof->Checkpoint(RoR::RigLoadingProfiler::_ENTRYNAME_); } }
 
-std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(RoR::RigLoadingProfiler* prof, const char* filename, bool predefined_on_terrain)
+std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(const char* filename, bool predefined_on_terrain)
 {
     // First check the loaded defs
     auto search_res = m_actor_defs.find(filename);
@@ -1297,7 +1286,6 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(RoR::RigLoadingProfile
         Ogre::String resource_groupname;
         RoR::App::GetCacheSystem()->checkResourceLoaded(resource_filename, resource_groupname); // Validates the filename and finds resource group
         Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(resource_filename, resource_groupname);
-        FETCHACTORDEF_PROF_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_OPENFILE);
 
         if (stream.isNull() || !stream->isReadable())
         {
@@ -1307,13 +1295,9 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(RoR::RigLoadingProfile
 
         RoR::LogFormat("[RoR] Parsing truckfile '%s'", filename);
         RigDef::Parser parser;
-        FETCHACTORDEF_PROF_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_PARSER_CREATE);
         parser.Prepare();
-        FETCHACTORDEF_PROF_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_PARSER_PREPARE);
         parser.ProcessOgreStream(stream.getPointer());
-        FETCHACTORDEF_PROF_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_PARSER_RUN);
         parser.Finalize();
-        FETCHACTORDEF_PROF_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_PARSER_FINALIZE);
 
         auto def = parser.GetFile();
 
@@ -1337,13 +1321,11 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(RoR::RigLoadingProfile
             def->loading_report += importer_report + "\n\n";
         }
 
-        /* VALIDATING */
-        FETCHACTORDEF_PROF_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_POST_PARSE);
+        // VALIDATING
         LOG(" == Validating vehicle: " + def->name);
 
         RigDef::Validator validator;
         validator.Setup(def);
-        FETCHACTORDEF_PROF_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_VALIDATOR_INIT);
 
         if (predefined_on_terrain)
         {
@@ -1360,7 +1342,6 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(RoR::RigLoadingProfile
             }
         }
         bool valid = validator.Validate();
-        FETCHACTORDEF_PROF_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_VALIDATOR_RUN);
 
         def->report_num_errors += validator.GetMessagesNumErrors();
         def->report_num_warnings += validator.GetMessagesNumWarnings();
@@ -1383,7 +1364,6 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(RoR::RigLoadingProfile
                 LOG(importer->IterateAndPrintAllNodes());
             }
         }
-        FETCHACTORDEF_PROF_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_POST_VALIDATION);
 
         m_actor_defs.insert(std::make_pair(filename, def));
         return def;

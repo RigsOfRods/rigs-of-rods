@@ -67,7 +67,6 @@ public:
         , Ogre::Vector3 pos
         , Ogre::Quaternion rot
         , const char* fname
-        , RoR::RigLoadingProfiler* rig_loading_profiler
         , bool networked = false
         , bool networking = false
         , collision_box_t *spawnbox = nullptr
@@ -82,7 +81,6 @@ public:
     ~Actor();
 
     bool LoadActor( //!< Spawn helper
-        RoR::RigLoadingProfiler* rig_loading_profiler,
         std::shared_ptr<RigDef::File> def,
         Ogre::SceneNode *parent_scene_node,
         Ogre::Vector3 const & spawn_position,

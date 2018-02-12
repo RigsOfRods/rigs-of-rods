@@ -64,7 +64,6 @@
 #include "PointColDetector.h"
 #include "PositionStorage.h"
 #include "Replay.h"
-#include "RigLoadingProfiler.h"
 #include "RigSpawner.h"
 #include "RoRFrameListener.h"
 #include "ScrewProp.h"
@@ -81,8 +80,6 @@
 #include "VehicleAI.h"
 #include "Water.h"
 #include "GUIManager.h"
-
-#define LOAD_RIG_PROFILE_CHECKPOINT(ENTRY) rig_loading_profiler->Checkpoint(RoR::RigLoadingProfiler::ENTRY);
 
 using namespace Ogre;
 using namespace RoR;
@@ -5531,7 +5528,6 @@ Actor::Actor(
     Ogre::Vector3 pos,
     Ogre::Quaternion rot,
     const char* fname,
-    RoR::RigLoadingProfiler* rig_loading_profiler,
     bool _networked, /* = false  */
     bool _networking, /* = false  */
     collision_box_t* spawnbox, /* = nullptr */
@@ -5701,11 +5697,9 @@ Actor::Actor(
 
     Ogre::SceneNode* beams_parent = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
 
-    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_CTOR_PREPARE_LOADTRUCK);
-
     if (strnlen(fname, 200) > 0)
     {
-        if (! LoadActor(rig_loading_profiler, def, beams_parent, pos, rot, spawnbox, cache_entry_number))
+        if (! LoadActor(def, beams_parent, pos, rot, spawnbox, cache_entry_number))
         {
             LOG(" ===== FAILED LOADING VEHICLE: " + Ogre::String(fname));
             ar_sim_state = SimState::INVALID;
@@ -5832,7 +5826,6 @@ Actor::Actor(
 }
 
 bool Actor::LoadActor(
-    RoR::RigLoadingProfiler* rig_loading_profiler,
     std::shared_ptr<RigDef::File> def,
     Ogre::SceneNode* parent_scene_node,
     Ogre::Vector3 const& spawn_position,
@@ -5845,7 +5838,6 @@ bool Actor::LoadActor(
 
     RigSpawner spawner;
     spawner.Setup(this, def, parent_scene_node, spawn_position, cache_entry_number);
-    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_SPAWNER_SETUP);
     /* Setup modules */
     spawner.AddModule(def->root_module);
     if (def->user_modules.size() > 0) /* The vehicle-selector may return selected modules even for vehicle with no modules defined! Hence this check. */
@@ -5856,9 +5848,7 @@ bool Actor::LoadActor(
             spawner.AddModule(*itor);
         }
     }
-    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_SPAWNER_ADDMODULES);
     spawner.SpawnRig();
-    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_SPAWNER_RUN);
     def->report_num_errors += spawner.GetMessagesNumErrors();
     def->report_num_warnings += spawner.GetMessagesNumWarnings();
     def->report_num_other += spawner.GetMessagesNumOther();
@@ -5873,7 +5863,6 @@ bool Actor::LoadActor(
             RoR::App::GetGuiManager()->SetVisible_SpawnerReport(true);
         }
     }
-    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_SPAWNER_LOG);
     /* POST-PROCESSING (Old-spawn code from Actor::loadTruck2) */
 
     // Apply spawn position & spawn rotation
@@ -5931,24 +5920,19 @@ bool Actor::LoadActor(
     {
         ResetPosition(spawn_position, true);
     }
-    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_FIXES);
 
     //compute final mass
     RecalculateNodeMasses(m_dry_mass);
-    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_CALC_MASSES);
     //setup default sounds
     if (!m_disable_default_sounds)
     {
         RigSpawner::SetupDefaultSoundSources(this);
     }
-    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_SET_DEFAULT_SND_SOURCES);
 
     //compute node connectivity graph
     calcNodeConnectivityGraph();
-    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_CALC_NODE_CONNECT_GRAPH);
 
     RigSpawner::RecalculateBoundingBoxes(this);
-    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_RECALC_BOUNDING_BOXES);
 
     // fix up submesh collision model
     std::string subMeshGroundModelName = spawner.GetSubmeshGroundmodelName();
@@ -5960,8 +5944,6 @@ bool Actor::LoadActor(
             ar_submesh_ground_model = gEnv->collisions->defaultgm;
         }
     }
-
-    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_GROUNDMODEL_AND_STATS);
 
     // Set beam defaults
     for (int i = 0; i < ar_num_beams; i++)
