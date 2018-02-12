@@ -406,7 +406,6 @@ public:
     int               debugVisuals;                //!< Dbg. overlay type { NODES: 1-Numbers, 4-Mass, 5-Locked | BEAMS: 2-Numbers, 6-Compression, 7-Broken, 8-Stress, 9-Strength, 10-Hydros, 11-Commands, OTHER: 3-N&B numbers, 12-14 unknown }
     float             speedoMax;
     bool              useMaxRPMforGUI;
-    bool              cparticle_enabled;
     Ogre::Vector3     ar_origin;
     int               ar_num_cameras;
     int               ar_camera_node_pos[MAX_CAMERAS]; //!< Physics attr; 'camera' = frame of reference; origin node
