@@ -274,13 +274,13 @@ void RigSpawner::InitializeRig()
     m_rig->free_cab = 0;
     memset(m_rig->hydro, 0, sizeof(int) * MAX_HYDROS);
     m_rig->free_hydro = 0;
-    memset(m_rig->collcabs, 0, sizeof(int) * MAX_CABS);
-    memset(m_rig->inter_collcabrate, 0, sizeof(collcab_rate_t) * MAX_CABS);
-    m_rig->free_collcab = 0;
-    memset(m_rig->intra_collcabrate, 0, sizeof(collcab_rate_t) * MAX_CABS);
-    memset(m_rig->buoycabs, 0, sizeof(int) * MAX_CABS);
-    m_rig->free_buoycab = 0;
-    memset(m_rig->buoycabtypes, 0, sizeof(int) * MAX_CABS);
+    memset(m_rig->ar_collcabs, 0, sizeof(int) * MAX_CABS);
+    memset(m_rig->ar_inter_collcabrate, 0, sizeof(collcab_rate_t) * MAX_CABS);
+    m_rig->ar_num_collcabs = 0;
+    memset(m_rig->ar_intra_collcabrate, 0, sizeof(collcab_rate_t) * MAX_CABS);
+    memset(m_rig->ar_buoycabs, 0, sizeof(int) * MAX_CABS);
+    m_rig->ar_num_buoycabs = 0;
+    memset(m_rig->ar_buoycab_types, 0, sizeof(int) * MAX_CABS);
     m_rig->ar_num_airbrakes = 0;
     memset(m_rig->m_skid_trails, 0, sizeof(Skidmark *) * (MAX_WHEELS*2));
     m_rig->ar_num_flexbodies = 0;
@@ -1497,7 +1497,7 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
         {
             return;
         }
-        else if (m_rig->free_collcab >= MAX_CABS)
+        else if (m_rig->ar_num_collcabs >= MAX_CABS)
         {
             std::stringstream msg;
             msg << "Collcab limit (" << MAX_CABS << ") exceeded";
@@ -1513,38 +1513,38 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
 
         if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_c_CONTACT))
         {
-            m_rig->collcabs[m_rig->free_collcab]=m_rig->free_cab; 
-            m_rig->free_collcab++;
+            m_rig->ar_collcabs[m_rig->ar_num_collcabs]=m_rig->free_cab;
+            m_rig->ar_num_collcabs++;
         }
         if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_p_10xTOUGHER))
         {
-            m_rig->collcabs[m_rig->free_collcab]=m_rig->free_cab; 
-            m_rig->free_collcab++;
+            m_rig->ar_collcabs[m_rig->ar_num_collcabs]=m_rig->free_cab; 
+            m_rig->ar_num_collcabs++;
         }
         if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_u_INVULNERABLE))
         {
-            m_rig->collcabs[m_rig->free_collcab]=m_rig->free_cab; 
-            m_rig->free_collcab++;
+            m_rig->ar_collcabs[m_rig->ar_num_collcabs]=m_rig->free_cab; 
+            m_rig->ar_num_collcabs++;
         }
         if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_b_BUOYANT))
         {
-            m_rig->buoycabs[m_rig->free_buoycab]=m_rig->free_cab; 
-            m_rig->buoycabtypes[m_rig->free_buoycab]=Buoyance::BUOY_NORMAL; 
-            m_rig->free_buoycab++;   
+            m_rig->ar_buoycabs[m_rig->ar_num_buoycabs]=m_rig->free_cab; 
+            m_rig->ar_buoycab_types[m_rig->ar_num_buoycabs]=Buoyance::BUOY_NORMAL; 
+            m_rig->ar_num_buoycabs++;   
             mk_buoyance = true;
         }
         if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_r_BUOYANT_ONLY_DRAG))
         {
-            m_rig->buoycabs[m_rig->free_buoycab]=m_rig->free_cab; 
-            m_rig->buoycabtypes[m_rig->free_buoycab]=Buoyance::BUOY_DRAGONLY; 
-            m_rig->free_buoycab++; 
+            m_rig->ar_buoycabs[m_rig->ar_num_buoycabs]=m_rig->free_cab; 
+            m_rig->ar_buoycab_types[m_rig->ar_num_buoycabs]=Buoyance::BUOY_DRAGONLY; 
+            m_rig->ar_num_buoycabs++; 
             mk_buoyance = true;
         }
         if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_s_BUOYANT_NO_DRAG))
         {
-            m_rig->buoycabs[m_rig->free_buoycab]=m_rig->free_cab; 
-            m_rig->buoycabtypes[m_rig->free_buoycab]=Buoyance::BUOY_DRAGLESS; 
-            m_rig->free_buoycab++; 
+            m_rig->ar_buoycabs[m_rig->ar_num_buoycabs]=m_rig->free_cab; 
+            m_rig->ar_buoycab_types[m_rig->ar_num_buoycabs]=Buoyance::BUOY_DRAGLESS; 
+            m_rig->ar_num_buoycabs++; 
             mk_buoyance = true;
         }
 
@@ -1566,14 +1566,14 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
         if (collcabs_type != -1)
         {
 
-            if (m_rig->free_collcab >= MAX_CABS)
+            if (m_rig->ar_num_collcabs >= MAX_CABS)
             {
                 std::stringstream msg;
                 msg << "Collcab limit (" << MAX_CABS << ") exceeded";
                 AddMessage(Message::TYPE_ERROR, msg.str());
                 return;
             }
-            else if (m_rig->free_buoycab >= MAX_CABS)
+            else if (m_rig->ar_num_buoycabs >= MAX_CABS)
             {
                 std::stringstream msg;
                 msg << "Buoycab limit (" << MAX_CABS << ") exceeded";
@@ -1581,11 +1581,11 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
                 return;
             }
 
-            m_rig->collcabs[m_rig->free_collcab]=m_rig->free_cab;
-            m_rig->free_collcab++;
-            m_rig->buoycabs[m_rig->free_buoycab]=m_rig->free_cab; 
-            m_rig->buoycabtypes[m_rig->free_buoycab]=Buoyance::BUOY_NORMAL; 
-            m_rig->free_buoycab++; 
+            m_rig->ar_collcabs[m_rig->ar_num_collcabs]=m_rig->free_cab;
+            m_rig->ar_num_collcabs++;
+            m_rig->ar_buoycabs[m_rig->ar_num_buoycabs]=m_rig->free_cab; 
+            m_rig->ar_buoycab_types[m_rig->ar_num_buoycabs]=Buoyance::BUOY_NORMAL; 
+            m_rig->ar_num_buoycabs++; 
             mk_buoyance = true;
         }
 
@@ -6788,9 +6788,9 @@ void RigSpawner::UpdateCollcabContacterNodes()
 {
     SPAWNER_PROFILE_SCOPED();
 
-    for (int i=0; i<m_rig->free_collcab; i++)
+    for (int i=0; i<m_rig->ar_num_collcabs; i++)
     {
-        int tmpv = m_rig->collcabs[i] * 3;
+        int tmpv = m_rig->ar_collcabs[i] * 3;
         m_rig->ar_nodes[m_rig->cabs[tmpv]].contacter = true;
         m_rig->ar_nodes[m_rig->cabs[tmpv+1]].contacter = true;
         m_rig->ar_nodes[m_rig->cabs[tmpv+2]].contacter = true;
