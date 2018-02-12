@@ -947,7 +947,7 @@ bool BeamFactory::enterRescueTruck()
     // search a rescue truck
     for (int t = 0; t < m_free_truck; t++)
     {
-        if (m_trucks[t] && m_trucks[t]->rescuer)
+        if (m_trucks[t] && m_trucks[t]->ar_rescuer_flag)
         {
             // go to person mode first
             setCurrentTruck(-1);

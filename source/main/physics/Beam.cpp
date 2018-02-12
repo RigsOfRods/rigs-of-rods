@@ -804,8 +804,8 @@ void Beam::calcNetwork()
     if (((flagmask & NETMASK_BEACONS) != 0) != m_beacon_light_is_active)
         beaconsToggle();
 
-    antilockbrake = flagmask & NETMASK_ALB_ACTIVE;
-    tractioncontrol = flagmask & NETMASK_TC_ACTIVE;
+    m_antilockbrake = flagmask & NETMASK_ALB_ACTIVE;
+    m_tractioncontrol = flagmask & NETMASK_TC_ACTIVE;
     ar_parking_brake = flagmask & NETMASK_PBRAKE;
 
     blinktype btype = BLINK_NONE;
@@ -1948,9 +1948,9 @@ void Beam::sendStreamData()
 
         if (ar_parking_brake)
             send_oob->flagmask += NETMASK_PBRAKE;
-        if (tractioncontrol)
+        if (m_tractioncontrol)
             send_oob->flagmask += NETMASK_TC_ACTIVE;
-        if (antilockbrake)
+        if (m_antilockbrake)
             send_oob->flagmask += NETMASK_ALB_ACTIVE;
 
         if (SOUND_GET_STATE(ar_instance_id, SS_TRIG_HORN))
@@ -2987,11 +2987,11 @@ void Beam::lightsToggle()
 
     // export light command
     Beam* current_truck = App::GetSimController()->GetBeamFactory()->getCurrentTruck();
-    if (ar_sim_state == Beam::SimState::LOCAL_SIMULATED && this == current_truck && forwardcommands)
+    if (ar_sim_state == Beam::SimState::LOCAL_SIMULATED && this == current_truck && ar_forward_commands)
     {
         for (int i = 0; i < trucksnum; i++)
         {
-            if (trucks[i] && trucks[i]->ar_sim_state == Beam::SimState::LOCAL_SIMULATED && this->ar_instance_id != i && trucks[i]->importcommands)
+            if (trucks[i] && trucks[i]->ar_sim_state == Beam::SimState::LOCAL_SIMULATED && this->ar_instance_id != i && trucks[i]->ar_import_commands)
                 trucks[i]->lightsToggle();
         }
     }
@@ -4199,11 +4199,11 @@ void Beam::tieToggle(int group)
 
     // export tie commands
     Beam* current_truck = App::GetSimController()->GetBeamFactory()->getCurrentTruck();
-    if (ar_sim_state == Beam::SimState::LOCAL_SIMULATED && this == current_truck && forwardcommands)
+    if (ar_sim_state == Beam::SimState::LOCAL_SIMULATED && this == current_truck && ar_forward_commands)
     {
         for (int i = 0; i < trucksnum; i++)
         {
-            if (trucks[i] && trucks[i]->ar_sim_state == Beam::SimState::LOCAL_SIMULATED && this->ar_instance_id != i && trucks[i]->importcommands)
+            if (trucks[i] && trucks[i]->ar_sim_state == Beam::SimState::LOCAL_SIMULATED && this->ar_instance_id != i && trucks[i]->ar_import_commands)
                 trucks[i]->tieToggle(group);
         }
     }
@@ -5165,7 +5165,7 @@ void Beam::updateDashBoards(float dt)
         int dash_tc_mode = 1; // 0 = not present, 1 = off, 2 = on, 3 = active
         if (tc_mode)
         {
-            if (tractioncontrol)
+            if (m_tractioncontrol)
                 dash_tc_mode = 3;
             else
                 dash_tc_mode = 2;
@@ -5179,7 +5179,7 @@ void Beam::updateDashBoards(float dt)
         int dash_alb_mode = 1; // 0 = not present, 1 = off, 2 = on, 3 = active
         if (alb_mode)
         {
-            if (antilockbrake)
+            if (m_antilockbrake)
                 dash_alb_mode = 3;
             else
                 dash_alb_mode = 2;
@@ -5647,6 +5647,11 @@ Beam::Beam(
     , m_skid_trails{} // Init array to nullptr
     , ar_collision_range(DEFAULT_COLLISION_RANGE)
     , ar_instance_id(truck_number)
+    , ar_rescuer_flag(false)
+    , m_antilockbrake(0)
+    , m_tractioncontrol(0)
+    , ar_forward_commands(false)
+    , ar_import_commands(false)
 {
     m_high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();
     useSkidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;
