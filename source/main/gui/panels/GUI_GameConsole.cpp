@@ -305,10 +305,10 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
     {
         if (gEnv->terrainManager && gEnv->terrainManager->getWater() && args.size() > 1)
         {
-            IWater* water = gEnv->terrainManager->getWater ();
-            water->setCamera(gEnv->mainCamera);
-            water->setHeight(std::stof(args[1]));
-            water->update();
+            IWater* water = gEnv->terrainManager->getWater();
+            water->WaterSetCamera(gEnv->mainCamera);
+            water->SetStaticWaterHeight(std::stof(args[1]));
+            water->UpdateWater();
             putMessage (CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L ("Water level set to: ") + StringConverter::toString (water->GetStaticWaterHeight ()), "information.png");
         }
         else

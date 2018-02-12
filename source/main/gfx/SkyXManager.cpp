@@ -90,7 +90,7 @@ bool SkyXManager::UpdateSkyLight()
 
 	mLight0->setPosition(sunPos*0.02);
 	mLight1->setDirection(lightDir);
-	if (gEnv->terrainManager->getWater()) gEnv->terrainManager->getWater()->setSunPosition(sunPos*0.1);
+	if (gEnv->terrainManager->getWater()) gEnv->terrainManager->getWater()->WaterSetSunPosition(sunPos*0.1);
 
 	//setFadeColour was removed with https://github.com/RigsOfRods/rigs-of-rods/pull/1459
 /*	Ogre::Vector3 sunCol = mSunGradient.getColor(point);

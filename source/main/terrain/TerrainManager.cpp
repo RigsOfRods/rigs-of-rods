@@ -599,7 +599,7 @@ void TerrainManager::initWater()
             water = new Water();
         }
 
-        water->setHeight (m_def.water_height);
+        water->SetStaticWaterHeight(m_def.water_height);
     }
 }
 

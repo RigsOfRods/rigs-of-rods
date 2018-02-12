@@ -194,9 +194,9 @@ void GameScript::setWaterHeight(float value)
     if (gEnv->terrainManager && gEnv->terrainManager->getWater())
     {
         IWater* water = gEnv->terrainManager->getWater();
-        water->setCamera(gEnv->mainCamera);
-        water->setHeight(value);
-        water->update();
+        water->WaterSetCamera(gEnv->mainCamera);
+        water->SetStaticWaterHeight(value);
+        water->UpdateWater();
     }
 }
 

@@ -1685,16 +1685,16 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
         IWater* water = gEnv->terrainManager->getWater();
         if (water)
         {
-            water->setCamera(gEnv->mainCamera);
+            water->WaterSetCamera(gEnv->mainCamera);
             if (curr_truck)
             {
-                water->moveTo(water->getHeightWaves(curr_truck->getPosition()));
+                water->SetReflectionPlaneHeight(water->CalcWavesHeight(curr_truck->getPosition()));
             }
             else
             {
-                water->moveTo(water->GetStaticWaterHeight());
+                water->SetReflectionPlaneHeight(water->GetStaticWaterHeight());
             }
-            water->framestep(dt);
+            water->FrameStepWater(dt);
         }
     }
 

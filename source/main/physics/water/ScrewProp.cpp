@@ -46,7 +46,7 @@ void Screwprop::updateForces(int update)
 {
     if (!gEnv->terrainManager->getWater())
         return;
-    float depth = gEnv->terrainManager->getWater()->getHeightWaves(nodes[noderef].AbsPosition) - nodes[noderef].AbsPosition.y;
+    float depth = gEnv->terrainManager->getWater()->CalcWavesHeight(nodes[noderef].AbsPosition) - nodes[noderef].AbsPosition.y;
     if (depth < 0)
         return; //out of water!
     Vector3 dir = nodes[nodeback].RelPosition - nodes[noderef].RelPosition;

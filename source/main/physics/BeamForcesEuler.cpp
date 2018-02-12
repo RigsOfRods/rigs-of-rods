@@ -1817,7 +1817,7 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 
         if (water)
         {
-            if (water->isUnderWater(nodes[i].AbsPosition))
+            if (water->IsUnderWater(nodes[i].AbsPosition))
             {
                 watercontact = true;
                 if (free_buoycab == 0)

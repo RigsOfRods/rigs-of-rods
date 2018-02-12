@@ -377,7 +377,7 @@ void Character::update(float dt)
 
         if (gEnv->terrainManager->getWater())
         {
-            wheight = gEnv->terrainManager->getWater()->getHeightWaves(position);
+            wheight = gEnv->terrainManager->getWater()->CalcWavesHeight(position);
             if (position.y < wheight - 1.8f)
             {
                 position.y = wheight - 1.8f;
