@@ -1339,7 +1339,7 @@ void Actor::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
     // Springs
     for (int i = 0; i < ar_num_beams; i++)
     {
-        if (!ar_beams[i].bm_disabled && !ar_beams[i].p2truck)
+        if (!ar_beams[i].bm_disabled && !ar_beams[i].bm_inter_actor)
         {
             // Calculate beam length
             Vector3 dis = ar_beams[i].p1->RelPosition - ar_beams[i].p2->RelPosition;
@@ -1585,7 +1585,7 @@ void Actor::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxst
 {
     for (int i = 0; i < static_cast<int>(ar_inter_beams.size()); i++)
     {
-        if (!ar_inter_beams[i]->bm_disabled && ar_inter_beams[i]->p2truck)
+        if (!ar_inter_beams[i]->bm_disabled && ar_inter_beams[i]->bm_inter_actor)
         {
             // Calculate beam length
             Vector3 dis = ar_inter_beams[i]->p1->AbsPosition - ar_inter_beams[i]->p2->AbsPosition;
@@ -1959,7 +1959,7 @@ void Actor::calcHooks()
             {
                 //enable beam if not enabled yet between those 2 nodes
                 it->hk_beam->p2 = it->hk_lock_node;
-                it->hk_beam->p2truck = it->hk_locked_actor != 0;
+                it->hk_beam->bm_inter_actor = it->hk_locked_actor != 0;
                 it->hk_beam->L = (it->hk_hook_node->AbsPosition - it->hk_lock_node->AbsPosition).length();
                 it->hk_beam->bm_disabled = false;
                 AddInterActorBeam(it->hk_beam, this, it->hk_locked_actor);
@@ -2001,7 +2001,7 @@ void Actor::calcHooks()
                                 it->hk_lock_node = 0;
                                 it->hk_locked_actor = 0;
                                 it->hk_beam->p2 = &ar_nodes[0];
-                                it->hk_beam->p2truck = false;
+                                it->hk_beam->bm_inter_actor = false;
                                 it->hk_beam->L = (ar_nodes[0].AbsPosition - it->hk_hook_node->AbsPosition).length();
                                 it->hk_beam->bm_disabled = true;
                                 RemoveInterActorBeam(it->hk_beam);

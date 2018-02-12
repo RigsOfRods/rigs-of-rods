@@ -1832,7 +1832,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
         {
             App::GetGuiManager()->SetVisible_GamePauseMenu(false);
             m_actor_manager.UnmuteAllActors();
-            if (gEnv->player->getVisible() && !gEnv->player->getBeamCoupling())
+            if (gEnv->player->getVisible() && !gEnv->player->IsCoupledWithActor())
             {
                 gEnv->player->setPhysicsEnabled(true);
             }
@@ -2099,7 +2099,7 @@ void RoRFrameListener::ChangedCurrentVehicle(Actor* previous_vehicle, Actor* cur
                 position += -2.0 * ((previous_vehicle->ar_nodes[previous_vehicle->ar_camera_node_pos[0]].RelPosition - previous_vehicle->ar_nodes[previous_vehicle->ar_camera_node_roll[0]].RelPosition).normalisedCopy());
                 position += Vector3(0.0, -1.0, 0.0);
             }
-            gEnv->player->setBeamCoupling(false);
+            gEnv->player->SetActorCoupling(false);
             gEnv->player->setRotation(Radian(rotation));
             gEnv->player->setPosition(position);
         }
@@ -2127,7 +2127,7 @@ void RoRFrameListener::ChangedCurrentVehicle(Actor* previous_vehicle, Actor* cur
         // attach player to truck
         if (gEnv->player)
         {
-            gEnv->player->setBeamCoupling(true, current_vehicle);
+            gEnv->player->SetActorCoupling(true, current_vehicle);
         }
 
         if (RoR::App::GetOverlayWrapper())

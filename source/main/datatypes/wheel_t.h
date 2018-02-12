@@ -33,8 +33,8 @@ struct wheel_t
     {
         NONE,                 /// - 0 = no  footbrake, no  handbrake, no  direction control -- wheel is unbraked
         FOOT_HAND,            /// - 1 = yes footbrake, yes handbrake, no  direction control
-        FOOT_HAND_SKID_LEFT,  /// - 2 = yes footbrake, yes handbrake, yes direction control (braked when truck steers to the left)
-        FOOT_HAND_SKID_RIGHT, /// - 3 = yes footbrake, yes handbrake, yes direction control (braked when truck steers to the right)
+        FOOT_HAND_SKID_LEFT,  /// - 2 = yes footbrake, yes handbrake, yes direction control (braked when vehicle steers to the left)
+        FOOT_HAND_SKID_RIGHT, /// - 3 = yes footbrake, yes handbrake, yes direction control (braked when vehicle steers to the right)
         FOOT_ONLY             /// - 4 = yes footbrake, no  handbrake, no  direction control -- footbrake only, such as with the front wheels of a passenger car
     };
 

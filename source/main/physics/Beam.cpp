@@ -1692,7 +1692,7 @@ void Actor::SyncReset()
         it->hk_lock_node = nullptr;
         it->hk_locked_actor = nullptr;
         it->hk_beam->p2 = &ar_nodes[0];
-        it->hk_beam->p2truck = false;
+        it->hk_beam->bm_inter_actor = false;
         it->hk_beam->L = (ar_nodes[0].AbsPosition - it->hk_hook_node->AbsPosition).length();
         this->RemoveInterActorBeam(it->hk_beam);
     }
@@ -1711,7 +1711,7 @@ void Actor::SyncReset()
         if (it->ti_locked_ropable)
             it->ti_locked_ropable->in_use = false;
         it->ti_beam->p2 = &ar_nodes[0];
-        it->ti_beam->p2truck = false;
+        it->ti_beam->bm_inter_actor = false;
         it->ti_beam->bm_disabled = true;
         this->RemoveInterActorBeam(it->ti_beam);
     }
@@ -4184,7 +4184,7 @@ void Actor::DisjoinInterActorBeams()
         auto actor_pair = it->second;
         if (this == actor_pair.first || this == actor_pair.second)
         {
-            it->first->p2truck = false;
+            it->first->bm_inter_actor = false;
             it->first->bm_disabled = true;
             inter_actor_links->erase(it++);
 
@@ -4241,7 +4241,7 @@ void Actor::ToggleTies(int group)
                 it->ti_locked_ropable->in_use = false;
             // disable the ties beam
             it->ti_beam->p2 = &ar_nodes[0];
-            it->ti_beam->p2truck = false;
+            it->ti_beam->bm_inter_actor = false;
             it->ti_beam->bm_disabled = true;
             if (it->ti_locked_actor != this)
             {
@@ -4306,14 +4306,14 @@ void Actor::ToggleTies(int group)
                     // now trigger the tying action
                     it->ti_locked_actor = nearest_actor;
                     it->ti_beam->p2 = nearest_node;
-                    it->ti_beam->p2truck = nearest_actor != this;
+                    it->ti_beam->bm_inter_actor = nearest_actor != this;
                     it->ti_beam->stress = 0;
                     it->ti_beam->L = it->ti_beam->refL;
                     it->ti_tied = true;
                     it->ti_tying = true;
                     it->ti_locked_ropable = locktedto;
                     it->ti_locked_ropable->in_use = true;
-                    if (it->ti_beam->p2truck)
+                    if (it->ti_beam->bm_inter_actor)
                     {
                         AddInterActorBeam(it->ti_beam, this, nearest_actor);
                         // update skeletonview on the tied actor
@@ -4538,8 +4538,8 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
                 }
             }
         }
-        // this is a locked or prelocked hook and its not a locking attempt or the locked actor was removed (p2truck == false)
-        else if ((it->hk_locked == LOCKED || it->hk_locked == PRELOCK) && (mode != HOOK_LOCK || !it->hk_beam->p2truck))
+        // this is a locked or prelocked hook and its not a locking attempt or the locked actor was removed (bm_inter_actor == false)
+        else if ((it->hk_locked == LOCKED || it->hk_locked == PRELOCK) && (mode != HOOK_LOCK || !it->hk_beam->bm_inter_actor))
         {
             // we unlock ropes
             it->hk_locked = PREUNLOCK;
@@ -4551,7 +4551,7 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
             it->hk_locked_actor = 0;
             //disable hook-assistance beam
             it->hk_beam->p2 = &ar_nodes[0];
-            it->hk_beam->p2truck = false;
+            it->hk_beam->bm_inter_actor = false;
             it->hk_beam->L = (ar_nodes[0].AbsPosition - it->hk_hook_node->AbsPosition).length();
             it->hk_beam->bm_disabled = true;
         }

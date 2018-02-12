@@ -43,7 +43,7 @@ using namespace RoR;
 unsigned int Character::characterCounter = 0;
 
 Character::Character(int source, unsigned int streamid, int colourNumber, bool remote) :
-    beamCoupling(0)
+    m_actor_coupling(nullptr)
     , canJump(false)
     , characterRotation(0.0f)
     , characterSpeed(2.0f)
@@ -524,12 +524,12 @@ void Character::update(float dt)
         mCharacterNode->setPosition(position);
         updateMapIcon();
     }
-    else if (beamCoupling && beamCoupling->hasDriverSeat()) // beamCoupling = The vehicle or machine which the character occupies
+    else if (m_actor_coupling && m_actor_coupling->hasDriverSeat()) // The character occupies a vehicle or machine
     {
         Vector3 pos;
         Quaternion rot;
-        beamCoupling->calculateDriverPos(pos, rot);
-        float angle = beamCoupling->ar_hydro_dir_wheel_display * -1.0f; // not getSteeringAngle(), but this, as its smoothed
+        m_actor_coupling->calculateDriverPos(pos, rot);
+        float angle = m_actor_coupling->ar_hydro_dir_wheel_display * -1.0f; // not getSteeringAngle(), but this, as its smoothed
         mCharacterNode->setOrientation(rot);
         setPosition(pos + (rot * Vector3(0.f, -0.6f, 0.f))); // hack to position the character right perfect on the default seat
 
@@ -566,7 +566,7 @@ void Character::updateMapIcon()
     {
         e->setPosition(mCharacterNode->getPosition());
         e->setRotation(mCharacterNode->getOrientation());
-        e->setVisibility(!beamCoupling);
+        e->setVisibility(!m_actor_coupling);
     }
     else
     {
@@ -640,8 +640,8 @@ void Character::sendStreamSetup()
 void Character::sendStreamData()
 {
 #ifdef USE_SOCKETW
-    // do not send position data if coupled to a truck already
-    if (beamCoupling)
+    // do not send position data if coupled to an actor already
+    if (m_actor_coupling)
         return;
 
     Networking::CharacterMsgPos msg;
@@ -672,8 +672,8 @@ void Character::receiveStreamData(unsigned int& type, int& source, unsigned int&
         }
         else if (msg->command == Networking::CHARACTER_CMD_DETACH)
         {
-            if (beamCoupling != nullptr)
-                this->setBeamCoupling(false);
+            if (m_actor_coupling != nullptr)
+                this->SetActorCoupling(false);
             else
                 this->ReportError("Received command `DETACH`, but not currently attached to a vehicle. Ignoring command.");
         }
@@ -683,7 +683,7 @@ void Character::receiveStreamData(unsigned int& type, int& source, unsigned int&
             Actor* beam = m_sim_controller->GetBeamFactory()->GetActorByNetworkLinks(attach_msg->source_id, attach_msg->stream_id);
             if (beam != nullptr)
             {
-                this->setBeamCoupling(true, beam);
+                this->SetActorCoupling(true, beam);
             }
             else
             {
@@ -724,13 +724,13 @@ void Character::updateNetLabelSize()
         mMoveableText->setCaption(networkUsername);
 }
 
-void Character::setBeamCoupling(bool enabled, Actor* truck /* = 0 */)
+void Character::SetActorCoupling(bool enabled, Actor* actor /* = nullptr */)
 {
     if (enabled)
     {
-        if (!truck)
+        if (!actor)
             return;
-        beamCoupling = truck;
+        m_actor_coupling = actor;
         setPhysicsEnabled(false);
         if (mMoveableText && mMoveableText->isVisible())
         {
@@ -741,17 +741,17 @@ void Character::setBeamCoupling(bool enabled, Actor* truck /* = 0 */)
 #ifdef USE_SOCKETW
             Networking::CharacterMsgAttach msg;
             msg.command = Networking::CHARACTER_CMD_ATTACH;
-            msg.source_id = beamCoupling->ar_net_source_id;
-            msg.stream_id = beamCoupling->ar_net_stream_id;
+            msg.source_id = m_actor_coupling->ar_net_source_id;
+            msg.stream_id = m_actor_coupling->ar_net_stream_id;
             RoR::Networking::AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA, sizeof(Networking::CharacterMsgAttach), (char*)&msg);
 #endif // USE_SOCKETW
         }
 
-        // do not cast shadows inside of a truck
+        // do not cast shadows inside of an actor
         mCharacterNode->getAttachedObject(0)->setCastShadows(false);
         isCoupled = true;
         // check if there is a seat, if not, hide our character
-        if (!beamCoupling->hasDriverSeat())
+        if (!m_actor_coupling->hasDriverSeat())
         {
             // driver seat not found
             setVisible(false);
@@ -762,7 +762,7 @@ void Character::setBeamCoupling(bool enabled, Actor* truck /* = 0 */)
     {
         isCoupled = false;
         setPhysicsEnabled(true);
-        beamCoupling = 0;
+        m_actor_coupling = nullptr;
         if (mMoveableText && !mMoveableText->isVisible())
         {
             mMoveableText->setVisible(true);

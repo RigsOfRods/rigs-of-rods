@@ -41,9 +41,9 @@ public:
     int getSourceID() { return m_source_id; };
 
     bool isRemote() { return remote; };
-    bool getBeamCoupling() { return isCoupled; };
+    bool IsCoupledWithActor() { return isCoupled; };
 
-    void setBeamCoupling(bool enabled, Actor* truck = 0);
+    void SetActorCoupling(bool enabled, Actor* actor = nullptr);
     void setColour(int color) { this->colourNumber = color; };
     void setPhysicsEnabled(bool enabled) { physicsEnabled = enabled; };
     void setPosition(Ogre::Vector3 position);
@@ -69,7 +69,7 @@ protected:
     void updateNetLabelSize();
     void ReportError(const char* detail);
 
-    Actor* beamCoupling;
+    Actor* m_actor_coupling; //!< The vehicle or machine which the character occupies
     bool isCoupled;
     SurveyMapEntity* mapEntity;
     RoRFrameListener* m_sim_controller;
