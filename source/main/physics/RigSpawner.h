@@ -312,11 +312,6 @@ private:
     void ProcessExtCamera(RigDef::ExtCamera & def);
 
     /**
-    * Section 'fileinfo' in root module
-    */
-    void ProcessFileInfo();
-
-    /**
     * Section 'fixes'
     */
     void ProcessFixedNode(RigDef::Node::Ref node_ref);
