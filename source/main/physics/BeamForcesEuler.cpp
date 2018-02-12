@@ -1152,7 +1152,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
         if (ar_engine)
         {
             ar_engine->setHydroPumpWork(work);
-            ar_engine->setPrime(requested);
+            ar_engine->SetEnginePriming(requested);
         }
 
         if (doUpdate && is_player_actor)

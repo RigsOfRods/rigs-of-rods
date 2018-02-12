@@ -5049,13 +5049,13 @@ void Actor::updateDashBoards(float dt)
 
         // R N D 2 1 String
         int cg = ar_engine->getAutoShift();
-        if (cg != BeamEngine::MANUALMODE)
+        if (cg != EngineSim::MANUALMODE)
         {
-            str = ((cg == BeamEngine::REAR) ? "#ffffff" : "#868686") + String("R\n");
-            str += ((cg == BeamEngine::NEUTRAL) ? "#ff0012" : "#8a000a") + String("N\n");
-            str += ((cg == BeamEngine::DRIVE) ? "#12ff00" : "#248c00") + String("D\n");
-            str += ((cg == BeamEngine::TWO) ? "#ffffff" : "#868686") + String("2\n");
-            str += ((cg == BeamEngine::ONE) ? "#ffffff" : "#868686") + String("1");
+            str = ((cg == EngineSim::REAR) ? "#ffffff" : "#868686") + String("R\n");
+            str += ((cg == EngineSim::NEUTRAL) ? "#ff0012" : "#8a000a") + String("N\n");
+            str += ((cg == EngineSim::DRIVE) ? "#12ff00" : "#248c00") + String("D\n");
+            str += ((cg == EngineSim::TWO) ? "#ffffff" : "#868686") + String("2\n");
+            str += ((cg == EngineSim::ONE) ? "#ffffff" : "#868686") + String("1");
         }
         else
         {
@@ -5319,7 +5319,7 @@ void Actor::updateDashBoards(float dt)
         if (hasEngine)
         {
             hasturbo = ar_engine->hasTurbo();
-            autogearVisible = (ar_engine->getAutoShift() != BeamEngine::MANUALMODE);
+            autogearVisible = (ar_engine->getAutoShift() != EngineSim::MANUALMODE);
         }
 
         ar_dashboard->setEnabled(DD_ENGINE_TURBO, hasturbo);
@@ -5500,7 +5500,7 @@ Vector3 Actor::getGForces()
 void Actor::EngineTriggerHelper(int engineNumber, int type, float triggerValue)
 {
     // engineNumber tells us which engine
-    BeamEngine* e = ar_engine; // placeholder: actors do not have multiple engines yet
+    EngineSim* e = ar_engine; // placeholder: actors do not have multiple engines yet
 
     switch (type)
     {
@@ -5516,7 +5516,7 @@ void Actor::EngineTriggerHelper(int engineNumber, int type, float triggerValue)
             e->setAcc(triggerValue);
         break;
     case TRG_ENGINE_RPM:
-        // TODO: Implement setTargetRPM in the BeamEngine.cpp
+        // TODO: Implement setTargetRPM in the EngineSim.cpp
         break;
     case TRG_ENGINE_SHIFTUP:
         if (e)

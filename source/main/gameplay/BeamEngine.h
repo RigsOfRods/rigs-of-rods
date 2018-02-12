@@ -24,17 +24,17 @@
 #include "Application.h"
 #include "RoRPrerequisites.h"
 
-/**
-* Represents a virtual engine of a vehicle (not "engine" as in "physics engine").
-*/
-class BeamEngine : public ZeroedMemoryAllocator
+
+/// A land vehicle engine + transmission
+/// NOTE: Formerly named 'BeamEngine' because 'Actor' was 'Beam'
+class EngineSim : public ZeroedMemoryAllocator
 {
     friend class RigSpawner;
 
 public:
 
-    BeamEngine(float minRPM, float maxRPM, float torque, std::vector<float> gears, float dratio, Actor* actor);
-    ~BeamEngine();
+    EngineSim(float minRPM, float maxRPM, float torque, std::vector<float> gears, float dratio, Actor* actor);
+    ~EngineSim();
 
     float getAcc();
     float getClutch();
@@ -52,11 +52,11 @@ public:
     * @param force Current acceleration force
     * @param clutch 
     * @param gear Current gear {-1 = reverse, 0 = neutral, 1...21 = forward}
-    * @param running
+    * @param m_engine_is_running
     * @param contact
     * @param automode
     */
-    void netForceSettings(float rpm, float force, float clutch, int gear, bool running, bool contact, char automode);
+    void netForceSettings(float rpm, float force, float clutch, int gear, bool m_engine_is_running, bool contact, char automode);
 
     void setAcc(float val);
     void setAutoMode(RoR::SimGearboxMode mode);
@@ -85,101 +85,48 @@ public:
     **/
     void setTurboOptions(int type, float tinertiaFactor, int nturbos, float param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8, float param9, float param10, float param11);
 
-    /**
-    * Set current engine RPM.
-    */
-    void setRPM(float rpm);
-
-    /**
-    * Set current engine prime.
-    */
-    void setPrime(bool p);
-
-    /**
-    * Set current hydro pump work.
-    */
-    void setHydroPumpWork(float work);
-
-    /**
-    * Set current wheel spinning speed.
-    */
-    void setSpin(float rpm);
-
-    void toggleAutoMode();
-    void toggleContact();
-
-    /**
-    * Quick start of vehicle engine. Plays sounds.
-    */
-    void offstart();
-
-    /**
-    * Controls vehicle starter. No side effects.
-    * @param v 1 to run starter, 0 to stop it.
-    */
-    void setstarter(int v);
-
-    /**
-    * Quick engine start. Plays sounds.
-    */
-    void start();
-
-    // low level gear changing
-    int getGear();
-    int getGearRange();
-    void setGear(int v);
-    void setGearRange(int v);
-
-    // stall engine
-    void stop();
-
-    // high level controls
-    bool hasContact() { return contact; };
-    bool hasTurbo() { return hasturbo; };
-    bool isRunning() { return running; };
-    char getType() { return type; };
-    float getAccToHoldRPM(float rpm);
-    float getTurboPower();
-    float getEnginePower(float rpm);
-    float getEngineTorque() { return engineTorque; };
-    float getBrakingTorque() { return brakingTorque; };
-    float getIdleMixture();
-    float getIdleRPM() { return idleRPM; };
-    float getMaxRPM() { return maxRPM; };
-    float getMinRPM() { return minRPM; };
-    float getPrimeMixture();
-    int getAutoShift();
-    int getNumGears() { return gearsRatio.size() - 2; };
-    int getNumGearsRanges() { return getNumGears() / 6 + 1; };
-    TorqueCurve* getTorqueCurve() { return torqueCurve; };
-    void autoSetAcc(float val);
-    void autoShiftDown();
-    void autoShiftSet(int mode);
-    void autoShiftUp();
-    void setManualClutch(float val);
-
-    /**
-    * Changes gear by a relative offset. Plays sounds.
-    */
-    void shift(int val);
-
-    /**
-    * Changes gear to given value. Plays sounds.
-    * @see BeamEngine::shift
-    */
-    void shiftTo(int val);
-
-    /**
-    * Changes gears. Plays sounds.
-    */
-    void updateShifts();
-
-    void update(float dt, int doUpdate);
-
-    /**
-    * Updates sound effects (engine/turbo/clutch/etc...)
-    */
-    void updateAudio(int doUpdate);
+    void           SetEngineRpm(float rpm);      //!< Set current engine RPM.
+    void           SetEnginePriming(bool p);     //!< Set current engine prime.
+    void           setHydroPumpWork(float work); //!< Set current hydro pump work.
+    void           setSpin(float rpm);           //!< Set current wheel spinning speed.
+    void           toggleAutoMode();
+    void           toggleContact();
+    void           offstart();                   //!< Quick start of vehicle engine. Plays sounds.
+    void           setstarter(bool v);           //!< Controls vehicle starter. No side effects.
+    void           start();                      //!< Quick engine start. Plays sounds.
+    int            getGear();                    //!< low level gear changing
+    int            getGearRange();               //!< low level gear changing
+    void           setGear(int v);               //!< low level gear changing
+    void           setGearRange(int v);          //!< low level gear changing
+    void           stop();                       //!< stall engine
+    bool           hasContact() const       { return m_starter_has_contact; };
+    bool           hasTurbo() const         { return m_engine_has_turbo; };
+    bool           isRunning() const        { return m_engine_is_running; };
+    char           getType() const          { return m_engine_type; };
+    float          getEngineTorque() const  { return engineTorque; };
+    float          getBrakingTorque() const { return brakingTorque; };
+    float          getIdleRPM() const       { return idleRPM; };
+    float          getMaxRPM() const        { return maxRPM; };
+    float          getMinRPM() const        { return minRPM; };
+    int            getNumGears() const      { return gearsRatio.size() - 2; };
+    int            getNumGearsRanges() const{ return getNumGears() / 6 + 1; };
+    TorqueCurve*   getTorqueCurve()         { return torqueCurve; };
+    float          getAccToHoldRPM(float rpm);
+    float          getTurboPower();
+    float          getEnginePower(float rpm);
+    float          getIdleMixture();
+    float          getPrimeMixture();
+    int            getAutoShift();
+    void           autoSetAcc(float val);
+    void           autoShiftDown();
+    void           autoShiftSet(int mode);
+    void           autoShiftUp();
+    void           setManualClutch(float val);
+    void           shift(int val);             //!< Changes gear by a relative offset. Plays sounds.
+    void           shiftTo(int val);           //!< Changes gear to given value. Plays sounds.
+    void           updateShifts();             //!< Changes gears. Plays sounds.
+    void           update(float dt, int doUpdate);
+    void           updateAudio(int doUpdate);  //!< Updates sound effects (engine/turbo/clutch/etc...)
 
     enum autoswitch
     {
@@ -229,12 +176,13 @@ protected:
     float curClutchTorque;
 
     // engine stuff
-    bool contact; //!< Engine
-    bool hasair; //!< Engine attribute
-    bool hasturbo; //!< Engine attribute
-    int turbomode; //!<Engine attribute
-    bool running; //!< Engine state
-    char type; //!< Engine attribute {'t' = truck (default), 'c' = car}
+    bool  m_engine_is_electric; //!< attribute
+    bool  m_starter_has_contact; //!< Engine state
+    bool  m_engine_has_air; //!< Engine attribute
+    bool  m_engine_has_turbo; //!< Engine attribute
+    int   m_engine_turbo_mode; //!<Engine attribute
+    bool  m_engine_is_running; //!< Engine state
+    char  m_engine_type; //!< Engine attribute {'t' = truck (default), 'c' = car}
     float brakingTorque; //!< Engine
     float curAcc; //!< Engine
     float curEngineRPM; //!< Engine
@@ -302,7 +250,5 @@ protected:
     TorqueCurve* torqueCurve;
     float apressure;
 
-    int automode; //!< Transmission mode (@see enum BeamEngine::shiftmodes)
-
-    bool is_Electric;
+    int automode; //!< Transmission mode (@see enum EngineSim::shiftmodes)
 };

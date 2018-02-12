@@ -5477,8 +5477,8 @@ void RigSpawner::ProcessEngine(RigDef::Engine & def)
     /* Process it */
     m_rig->ar_driveable = TRUCK;
 
-    /* Process gear list to BeamEngine-compatible format */
-    /* TODO: Move this to BeamEngine::BeamEngine() */
+    /* Process gear list to EngineSim-compatible format */
+    /* TODO: Move this to EngineSim::EngineSim() */
     std::vector<float> gears_compat;
     gears_compat.reserve(2 + def.gear_ratios.size());
     gears_compat.push_back(def.reverse_gear_ratio);
@@ -5489,7 +5489,7 @@ void RigSpawner::ProcessEngine(RigDef::Engine & def)
         gears_compat.push_back(*itor);
     }
 
-    m_rig->ar_engine = new BeamEngine(
+    m_rig->ar_engine = new EngineSim(
         def.shift_down_rpm,
         def.shift_up_rpm,
         def.torque,
@@ -6617,7 +6617,7 @@ void RigSpawner::SetupDefaultSoundSources(Actor *vehicle)
     //engine
     if (vehicle->ar_engine != nullptr) /* Land vehicle */
     {
-        if (vehicle->ar_engine->type=='t')
+        if (vehicle->ar_engine->m_engine_type == 't')
         {
             AddSoundSourceInstance(vehicle, "tracks/default_diesel", ar_exhaust_pos_node);
             AddSoundSourceInstance(vehicle, "tracks/default_force", ar_exhaust_pos_node);
@@ -6625,7 +6625,7 @@ void RigSpawner::SetupDefaultSoundSources(Actor *vehicle)
             AddSoundSourceInstance(vehicle, "tracks/default_parkbrakes", 0);
             AddSoundSourceInstance(vehicle, "tracks/default_reverse_beep", 0);
         }
-        if (vehicle->ar_engine->type=='c')
+        if (vehicle->ar_engine->m_engine_type == 'c')
             AddSoundSourceInstance(vehicle, "tracks/default_car", ar_exhaust_pos_node);
         if (vehicle->ar_engine->hasTurbo())
         {
@@ -6640,7 +6640,7 @@ void RigSpawner::SetupDefaultSoundSources(Actor *vehicle)
             AddSoundSourceInstance(vehicle, "tracks/default_wastegate_flutter", ar_exhaust_pos_node);
         }
 
-        if (vehicle->ar_engine->hasair)
+        if (vehicle->ar_engine->m_engine_has_air)
             AddSoundSourceInstance(vehicle, "tracks/default_air_purge", 0);
         //starter
         AddSoundSourceInstance(vehicle, "tracks/default_starter", 0);
