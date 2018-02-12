@@ -1186,7 +1186,7 @@ void BeamFactory::UpdatePhysicsSimulation()
                                         m_trucks[t]->intra_collcabrate,
                                         m_trucks[t]->ar_nodes,
                                         m_trucks[t]->collrange,
-                                        *(m_trucks[t]->submesh_ground_model));
+                                        *(m_trucks[t]->ar_submesh_ground_model));
                                 }
                             });
                         tasks.push_back(func);
@@ -1222,7 +1222,7 @@ void BeamFactory::UpdatePhysicsSimulation()
                                         m_trucks[t]->ar_nodes,
                                         m_trucks[t]->collrange,
                                         m_trucks, m_free_truck,
-                                        *(m_trucks[t]->submesh_ground_model));
+                                        *(m_trucks[t]->ar_submesh_ground_model));
                                 }
                             });
                         tasks.push_back(func);
@@ -1256,7 +1256,7 @@ void BeamFactory::UpdatePhysicsSimulation()
                             m_trucks[t]->intra_collcabrate,
                             m_trucks[t]->ar_nodes,
                             m_trucks[t]->collrange,
-                            *(m_trucks[t]->submesh_ground_model));
+                            *(m_trucks[t]->ar_submesh_ground_model));
                     }
                 }
             }
@@ -1281,7 +1281,7 @@ void BeamFactory::UpdatePhysicsSimulation()
                                 m_trucks[t]->ar_nodes,
                                 m_trucks[t]->collrange,
                                 m_trucks, m_free_truck,
-                                *(m_trucks[t]->submesh_ground_model));
+                                *(m_trucks[t]->ar_submesh_ground_model));
                         }
                     }
                 }

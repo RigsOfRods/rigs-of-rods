@@ -6042,12 +6042,13 @@ bool Beam::LoadTruck(
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_RECALC_BOUNDING_BOXES);
 
     // fix up submesh collision model
+    std::string subMeshGroundModelName = spawner.GetSubmeshGroundmodelName();
     if (!subMeshGroundModelName.empty())
     {
-        submesh_ground_model = gEnv->collisions->getGroundModelByString(subMeshGroundModelName);
-        if (!submesh_ground_model)
+        ar_submesh_ground_model = gEnv->collisions->getGroundModelByString(subMeshGroundModelName);
+        if (!ar_submesh_ground_model)
         {
-            submesh_ground_model = gEnv->collisions->defaultgm;
+            ar_submesh_ground_model = gEnv->collisions->defaultgm;
         }
     }
 

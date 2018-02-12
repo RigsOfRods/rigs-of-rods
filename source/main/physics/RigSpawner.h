@@ -34,6 +34,7 @@
 #include "FlexObj.h"
 
 #include <OgreString.h>
+#include <string>
 
 /// Processes a RigDef::File data structure (result of parsing a "Truckfile" fileformat) into 'an Actor' - a simulated physical object.
 ///
@@ -159,6 +160,8 @@ public:
     static void RecalculateBoundingBoxes(Beam *rig);
 
     static void SetupDefaultSoundSources(Beam *vehicle);
+
+    std::string GetSubmeshGroundmodelName();
 
     std::string ProcessMessagesToString();
     std::list<Message> & GetMessages() { return m_messages; }
@@ -457,11 +460,6 @@ private:
     * Section 'submeshes'.
     */
     void ProcessSubmesh(RigDef::Submesh & def);
-
-    /**
-    * Inline-section 'submesh_groundmodel'.
-    */
-    void ProcessSubmeshGroundmodel();
 
     /**
     * Section 'ties'.

@@ -375,8 +375,6 @@ void RigSpawner::InitializeRig()
     m_rig->cameranoderoll[0]=-1;
     m_rig->lowestnode=0;
 
-    m_rig->subMeshGroundModelName = "";
-
 #ifdef USE_ANGELSCRIPT
     m_rig->vehicle_ai = new VehicleAI(m_rig);
 #endif // USE_ANGELSCRIPT
@@ -457,7 +455,7 @@ void RigSpawner::InitializeRig()
         m_rig->intraPointCD = new PointColDetector();
     }
 
-    m_rig->submesh_ground_model = gEnv->collisions->defaultgm;
+    m_rig->ar_submesh_ground_model = gEnv->collisions->defaultgm;
     m_rig->cparticle_enabled = App::gfx_particles_mode.GetActive() == 1;
 
     DustManager& dustman = m_sim_controller->GetBeamFactory()->GetParticleManager();
@@ -1486,24 +1484,18 @@ void RigSpawner::ProcessExhaust(RigDef::Exhaust & def)
     m_rig->exhausts.push_back(exhaust);
 }
 
-void RigSpawner::ProcessSubmeshGroundmodel()
+std::string RigSpawner::GetSubmeshGroundmodelName()
 {
-    SPAWNER_PROFILE_SCOPED();
-
-    SetCurrentKeyword(RigDef::File::KEYWORD_SUBMESH_GROUNDMODEL);
-
     auto module_itor = m_selected_modules.begin();
     auto module_end  = m_selected_modules.end();
     for (; module_itor != module_end; ++module_itor)
     {
         if (! module_itor->get()->submeshes_ground_model_name.empty())
         {
-            m_rig->subMeshGroundModelName = module_itor->get()->submeshes_ground_model_name;
-            break;
+            return module_itor->get()->submeshes_ground_model_name;
         }
     }
-
-    SetCurrentKeyword(RigDef::File::KEYWORD_INVALID);
+    return std::string();
 };
 
 void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
