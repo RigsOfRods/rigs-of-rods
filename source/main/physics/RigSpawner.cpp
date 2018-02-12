@@ -2841,7 +2841,7 @@ void RigSpawner::ProcessSlidenode(RigDef::SlideNode & def)
         std::vector<RailGroup*>::iterator itor = m_rig->m_railgroups.begin();
         for ( ; itor != m_rig->m_railgroups.end(); itor++)
         {
-            if ((*itor)->getID() == def.railgroup_id)
+            if ((*itor)->GetId() == def.railgroup_id)
             {
                 rail_group = *itor;
                 break;

@@ -351,8 +351,7 @@ Actor::~Actor()
     // delete Rails
     for (std::vector<RailGroup*>::iterator it = m_railgroups.begin(); it != m_railgroups.end(); it++)
     {
-        // signal to the Rail that
-        (*it)->cleanUp();
+        (*it)->CleanUpRailGroup();
         delete (*it);
     }
 

@@ -76,73 +76,39 @@ static inline Ogre::Vector3 nearestPointOnLine(const Ogre::Vector3& pt1,
 }
 //! @}
 
-class Rail : public ZeroedMemoryAllocator
+struct Rail : public ZeroedMemoryAllocator
 {
-// Members /////////////////////////////////////////////////////////////////////
-private:
-	/* no private members */
-public:
-	Rail* prev;
-	beam_t* curBeam;
-	Rail* next;
-	
-// Methods /////////////////////////////////////////////////////////////////////
-private:
-	/* no private methods */
-public:
 	Rail();
 	Rail( beam_t* newBeam );
 	Rail( beam_t* newBeam, Rail* newPrev, Rail* newNext );
 	Rail( Rail& other );
+
+    Rail*   snr_prev;
+    beam_t* snr_beam;
+    Rail*   snr_next;
 };
 
-/**
- *
- */
 class RailGroup : public ZeroedMemoryAllocator
 {
-// Members /////////////////////////////////////////////////////////////////////
 public:
-	/* no public members */
-private:
-	Rail*     mStart; //!< Beginning Rail in the Group
-		
-	//! Identification, for anonymous rails (defined inline) the ID will be
-	//! > 7000000, for Rail groups defined int he rail group section the Id
-	//! needs to be less than 7000000
-	unsigned int mId;
-	
-	static unsigned int nextId;
+	RailGroup(Rail* start);
+	RailGroup(Rail* start, unsigned int id);
 
-// Methods /////////////////////////////////////////////////////////////////////
-public:
-	RailGroup(Rail* start): mStart(start), mId(nextId) { MYASSERT(mStart); nextId++; }
-	RailGroup(Rail* start, unsigned int id): mStart(start), mId(id) { MYASSERT(mStart); }
-
-	const Rail* getStartRail() const { return mStart; }
-	unsigned int getID() const { return mId; }
+	const Rail*       GetStartRail() const    { return m_start_rail; }
+	unsigned int      GetId() const           { return m_id; }
 	
-	/** clears up all the allocated memory this is intentionally not made into a
-	 * destructor to avoid issues like copying Rails when storing in a container
-	 *  it is assumed that if next is not null then next->prev is not null either
-	 */
-	void cleanUp()
-	{
-		Rail* cur = mStart;
-		if ( cur->prev ) cur->prev = cur->prev->next = NULL;
-		while( cur->next )
-		{
-			cur = cur->next;
-			delete cur->prev;
-			cur->prev = NULL;
-		}
-		
-		delete cur;
-		cur = NULL;
-	}
+	/// clears up all the allocated memory this is intentionally not made into a
+	///destructor to avoid issues like copying Rails when storing in a container
+	/// it is assumed that if next is not null then next->prev is not null either
+	void CleanUpRailGroup();
 	
 private:
-	/* no private members */
+		
+	/// Identification, for anonymous rails (defined inline) the ID will be
+	/// > 7000000, for Rail groups defined int he rail group section the Id
+	/// needs to be less than 7000000
+	unsigned int m_id;
+    Rail*        m_start_rail; //!< Beginning Rail in the Group
 };
 
 /**
@@ -271,7 +237,7 @@ public:
      */
     unsigned int getRailID() const
     {
-    	return mCurRailGroup ? mCurRailGroup->getID() : std::numeric_limits<unsigned int>::infinity();
+    	return mCurRailGroup ? mCurRailGroup->GetId() : std::numeric_limits<unsigned int>::infinity();
     }
 
     /**

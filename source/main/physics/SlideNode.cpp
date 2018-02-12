@@ -44,27 +44,52 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include "BeamData.h"
 
 // RAIL GROUP IMPLEMENTATION ///////////////////////////////////////////////////
-unsigned int RailGroup::nextId = 7000000;
+
+RailGroup::RailGroup(Rail* start):
+    m_start_rail(start)
+{
+    static unsigned int id_counter = 7000000;
+    m_id = id_counter;
+    ++id_counter;
+}
+
+RailGroup::RailGroup(Rail* start, unsigned int id): m_start_rail(start), m_id(id)
+{}
+
+void RailGroup::CleanUpRailGroup()
+{
+	Rail* cur = m_start_rail;
+	if ( cur->snr_prev )
+    {
+        cur->snr_prev = cur->snr_prev->snr_next = nullptr;
+    }
+
+	while( cur->snr_next )
+	{
+		cur = cur->snr_next;
+		delete cur->snr_prev;
+		cur->snr_prev = nullptr;
+	}
+		
+	delete cur;
+}
 
 // RAIL IMPLEMENTATION /////////////////////////////////////////////////////////
-Rail::Rail() : prev(NULL), curBeam(NULL), next(NULL)
-{
-}
+Rail::Rail() : snr_prev(nullptr), snr_beam(nullptr), snr_next(nullptr)
+{}
 
-Rail::Rail(beam_t* newBeam) : prev(NULL), curBeam(newBeam), next(NULL)
-{
-}
+Rail::Rail(beam_t* beam) : snr_prev(nullptr), snr_beam(beam), snr_next(nullptr)
+{}
 
-Rail::Rail(beam_t* newBeam, Rail* newPrev, Rail* newNext) :
-    prev(newPrev), curBeam(newBeam), next(newNext)
-{
-}
+Rail::Rail(beam_t* beam, Rail* prev, Rail* next) : snr_prev(prev), snr_beam(beam), snr_next(next)
+{}
 
-Rail::Rail(Rail& o) : prev(o.prev), curBeam(o.curBeam), next(o.next)
+Rail::Rail(Rail& o):
+    snr_prev(o.snr_prev), snr_beam(o.snr_beam), snr_next(o.snr_next)
 {
-    o.prev = NULL;
-    o.curBeam = NULL;
-    o.next = NULL;
+    o.snr_beam = nullptr;
+    o.snr_prev = nullptr;
+    o.snr_next = nullptr;
 }
 
 // RAIL BUILDER IMPLEMENTATION /////////////////////////////////////////////////
@@ -95,13 +120,13 @@ RailBuilder::~RailBuilder()
     if (!mRetreived && mStart)
     {
         Rail* cur = mStart;
-        if (cur->prev)
-            cur->prev = cur->prev->next = NULL;
-        while (cur->next)
+        if (cur->snr_prev)
+            cur->snr_prev = cur->snr_prev->snr_next = NULL;
+        while (cur->snr_next)
         {
-            cur = cur->next;
-            delete cur->prev;
-            cur->prev = NULL;
+            cur = cur->snr_next;
+            delete cur->snr_prev;
+            cur->snr_prev = NULL;
         }
 
         delete cur;
@@ -121,14 +146,14 @@ void RailBuilder::pushBack(beam_t* next)
         mBack = mStart;
         mFront = mStart;
     }
-    else if (!mStart->curBeam)
+    else if (!mStart->snr_beam)
     {
-        mStart->curBeam = next;
+        mStart->snr_beam = next;
     }
     else
     {
-        mBack->next = new Rail(next, mBack, NULL);
-        mBack = mBack->next;
+        mBack->snr_next = new Rail(next, mBack, NULL);
+        mBack = mBack->snr_next;
     }
 }
 
@@ -140,13 +165,13 @@ void RailBuilder::pushFront(beam_t* prev)
         mBack = mStart;
         mFront = mStart;
     }
-    else if (!mStart->curBeam)
+    else if (!mStart->snr_beam)
     {
-        mStart->curBeam = prev;
+        mStart->snr_beam = prev;
     }
     else
-        mFront->prev = new Rail(prev, NULL, mFront);
-    mFront = mFront->prev;
+        mFront->snr_prev = new Rail(prev, NULL, mFront);
+    mFront = mFront->snr_prev;
 }
 
 //! wrapper method
@@ -169,8 +194,8 @@ Rail* RailBuilder::getCompletedRail()
 {
     if (mLoop)
     {
-        mFront->prev = mBack;
-        mBack->next = mFront;
+        mFront->snr_prev = mBack;
+        mBack->snr_next = mFront;
     }
 
     mRetreived = true;
@@ -243,8 +268,8 @@ Rail* SlideNode::getClosestRailAll(RailGroup* railGroup, const Ogre::Vector3& po
     if (!railGroup)
         return NULL;
 
-    Rail* closestRail = (Rail*) railGroup->getStartRail();
-    Rail* curRail = (Rail*) railGroup->getStartRail()->next;
+    Rail* closestRail = (Rail*) railGroup->GetStartRail();
+    Rail* curRail = (Rail*) railGroup->GetStartRail()->snr_next;
 
     Ogre::Real lenToClosest = getLenTo(closestRail, point);
     Ogre::Real lenToCurrent = std::numeric_limits<Ogre::Real>::infinity();
@@ -253,8 +278,8 @@ Rail* SlideNode::getClosestRailAll(RailGroup* railGroup, const Ogre::Vector3& po
         // loop detection, if both id's are the same on the start and the current
         // then it has detected a loop. Hmm however this won't work if we loop
         // back on the start but don't loop.
-        ((curRail->curBeam->p1->id != railGroup->getStartRail()->curBeam->p1->id) ||
-            (curRail->curBeam->p2->id != railGroup->getStartRail()->curBeam->p2->id)))
+        ((curRail->snr_beam->p1->id != railGroup->GetStartRail()->snr_beam->p1->id) ||
+            (curRail->snr_beam->p2->id != railGroup->GetStartRail()->snr_beam->p2->id)))
     {
         lenToCurrent = getLenTo(curRail, point);
 
@@ -263,7 +288,7 @@ Rail* SlideNode::getClosestRailAll(RailGroup* railGroup, const Ogre::Vector3& po
             closestRail = curRail;
             lenToClosest = getLenTo(closestRail, point);
         }
-        curRail = curRail->next;
+        curRail = curRail->snr_next;
     };
 
     return closestRail;
@@ -274,15 +299,15 @@ Rail* SlideNode::getClosestRail(const Rail* rail, const Ogre::Vector3& point)
     Rail* curRail = (Rail*) rail;
 
     Ogre::Real lenToCurrent = getLenTo(curRail, point);
-    Ogre::Real lenToPrev = getLenTo(curRail->prev, point);
-    Ogre::Real lenToNext = getLenTo(curRail->next, point);
+    Ogre::Real lenToPrev = getLenTo(curRail->snr_prev, point);
+    Ogre::Real lenToNext = getLenTo(curRail->snr_next, point);
 
     if (lenToCurrent > lenToPrev || lenToCurrent > lenToNext)
     {
         if (lenToPrev < lenToNext)
-            curRail = curRail->prev;
+            curRail = curRail->snr_prev;
         else
-            curRail = curRail->next;
+            curRail = curRail->snr_next;
     }
 
     return curRail;
@@ -299,7 +324,7 @@ void SlideNode::UpdatePosition()
 
     // find which beam to use
     mSlidingRail = getClosestRail(mSlidingRail, mSlidingNode->AbsPosition);
-    mSlidingBeam = mSlidingRail->curBeam;
+    mSlidingBeam = mSlidingRail->snr_beam;
 
     // Get vector for beam
     Ogre::Vector3 b = mSlidingBeam->p2->AbsPosition;
@@ -343,7 +368,7 @@ unsigned int SlideNode::getNodeID() const
 void SlideNode::ResetPositions()
 {
     mSlidingRail = getClosestRailAll(mCurRailGroup, mSlidingNode->AbsPosition);
-    mSlidingBeam = (mSlidingRail ? mSlidingRail->curBeam : NULL);
+    mSlidingBeam = (mSlidingRail ? mSlidingRail->snr_beam : NULL);
     UpdatePosition();
 }
 
@@ -352,7 +377,7 @@ Ogre::Real SlideNode::getLenTo(const RailGroup* group, const Ogre::Vector3& poin
     if (!group)
         return std::numeric_limits<Ogre::Real>::infinity();
 
-    return getLenTo(group->getStartRail(), point);
+    return getLenTo(group->GetStartRail(), point);
 }
 
 Ogre::Real SlideNode::getLenTo(const Rail* rail, const Ogre::Vector3& point)
@@ -360,7 +385,7 @@ Ogre::Real SlideNode::getLenTo(const Rail* rail, const Ogre::Vector3& point)
     if (!rail)
         return std::numeric_limits<Ogre::Real>::infinity();
 
-    return getLenTo(rail->curBeam, point);
+    return getLenTo(rail->snr_beam, point);
 }
 
 Ogre::Real SlideNode::getLenTo(const beam_t* beam, const Ogre::Vector3& point)
