@@ -251,7 +251,7 @@ int GameScript::getNumTrucksByFlag(int flag)
             result++;
         if (!truck)
             continue;
-        if (truck->state == flag)
+        if (static_cast<int>(truck->ar_sim_state) == flag)
             result++;
     }
     return result;

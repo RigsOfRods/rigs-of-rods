@@ -379,9 +379,9 @@ void ScriptEngine::init()
     
     // enum truckStates
     result = engine->RegisterEnum("truckStates"); MYASSERT(result>=0);
-    result = engine->RegisterEnumValue("truckStates", "TS_SIMULATED", SIMULATED); MYASSERT(result>=0);
-    result = engine->RegisterEnumValue("truckStates", "TS_SLEEPING", SLEEPING); MYASSERT(result>=0);
-    result = engine->RegisterEnumValue("truckStates", "TS_NETWORKED", NETWORKED); MYASSERT(result>=0);
+    result = engine->RegisterEnumValue("truckStates", "TS_SIMULATED", static_cast<int>(Beam::SimState::LOCAL_SIMULATED)); MYASSERT(result>=0);
+    result = engine->RegisterEnumValue("truckStates", "TS_SLEEPING",  static_cast<int>(Beam::SimState::LOCAL_SLEEPING)); MYASSERT(result>=0);
+    result = engine->RegisterEnumValue("truckStates", "TS_NETWORKED", static_cast<int>(Beam::SimState::NETWORKED_OK)); MYASSERT(result>=0);
 
     // enum truckTypes
     result = engine->RegisterEnum("truckTypes"); MYASSERT(result>=0);
