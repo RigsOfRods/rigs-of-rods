@@ -437,7 +437,7 @@ void RigSpawner::InitializeRig()
     m_rig->m_skeletonview_scenenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
     m_rig->deletion_sceneNodes.emplace_back(m_rig->m_skeletonview_scenenode);
     
-    m_rig->beamsRoot = m_parent_scene_node;
+    m_rig->m_beam_visuals_parent_scenenode = m_parent_scene_node;
 
     /* Collisions */
 
@@ -4853,7 +4853,7 @@ void RigSpawner::CreateWheelSkidmarks(unsigned int wheel_index)
 {
     // Always create, even if disabled by config
     m_rig->skidtrails[wheel_index] = new RoR::Skidmark(
-        RoR::App::GetSimController()->GetSkidmarkConf(), RoR::App::GetSimController(), &m_rig->wheels[wheel_index], m_rig->beamsRoot, 300, 20);
+        RoR::App::GetSimController()->GetSkidmarkConf(), RoR::App::GetSimController(), &m_rig->wheels[wheel_index], m_rig->m_beam_visuals_parent_scenenode, 300, 20);
 }
 
 #if 0 // refactored into pieces
@@ -5928,7 +5928,7 @@ void RigSpawner::CreateBeamVisuals(beam_t & beam, int beam_index, std::shared_pt
         throw Exception("Failed to load file 'beam.mesh' (should come with RoR installation)");
     }
     m_rig->deletion_Entities.push_back(beam.mEntity);
-    beam.mSceneNode = m_rig->beamsRoot->createChildSceneNode();
+    beam.mSceneNode = m_rig->m_beam_visuals_parent_scenenode->createChildSceneNode();
     beam.mSceneNode->setScale(beam.diameter, -1, beam.diameter);
     if (beam.bm_type == BEAM_HYDRO)
     {

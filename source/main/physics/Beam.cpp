@@ -3798,12 +3798,12 @@ void Beam::setDetailLevel(int v)
         if (m_gfx_detail_level == 0 && v == 1)
         {
             // detach
-            gEnv->sceneManager->getRootSceneNode()->removeChild(beamsRoot);
+            gEnv->sceneManager->getRootSceneNode()->removeChild(m_beam_visuals_parent_scenenode);
         }
         if (m_gfx_detail_level == 1 && v == 0)
         {
             // attach
-            gEnv->sceneManager->getRootSceneNode()->addChild(beamsRoot);
+            gEnv->sceneManager->getRootSceneNode()->addChild(m_beam_visuals_parent_scenenode);
         }
         m_gfx_detail_level = v;
     }
