@@ -20,82 +20,71 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "ForwardDeclarations.h"
 
-#include "MovableText.h"
+#include <OgreVector3.h>
+#include <OgreMath.h> // Ogre::Radian
+#include <OgreUTFString.h>
 
-class Character : public ZeroedMemoryAllocator
+#include <string>
+#include <string>
+
+class Character
 {
 public:
 
-    Character(int source = -1, unsigned int streamid = 0, int colourNumber = 0, bool remote = true);
+    Character(int source = -1, unsigned int streamid = 0, int color_number = 0, bool is_remote = true);
     ~Character();
+       
+    int            getSourceID() const                  { return m_source_id; }
+    bool           isRemote() const                     { return m_is_remote; }
+    Ogre::Radian   getRotation() const                  { return m_character_rotation; }
+    bool           IsCoupledWithActor() const           { return m_have_coupling_seat; }
+    void           setColour(int color)                 { this->m_color_number = color; }
+    Ogre::Vector3  getPosition();
+    bool           getVisible(); 
+    void           setPosition(Ogre::Vector3 position);
+    void           setRotation(Ogre::Radian rotation);
+    void           setVisible(bool visible);
+    void           move(Ogre::Vector3 offset);
+    void           unwindMovement(float distance);
+    void           update(float dt);
+    void           updateCharacterNetworkColour();
+    void           updateCharacterRotation();
+    void           updateMapIcon();
+    void           updateLabels();
+    void           receiveStreamData(unsigned int& type, int& source, unsigned int& streamid, char* buffer);
+    void           SetActorCoupling(bool enabled, Actor* actor = nullptr);    
 
-    Ogre::Radian getRotation() { return characterRotation; };
-    Ogre::Vector3 getPosition();
-    bool getVisible();
+private:
 
-    void receiveStreamData(unsigned int& type, int& source, unsigned int& streamid, char* buffer);
+    void           AddPersonToSurveyMap();
+    void           ResizePersonNetLabel();
+    void           ReportError(const char* detail);
+    void           SendStreamData();
+    void           SendStreamSetup();
+    void           SetAnimState(std::string mode, float time = 0);
 
-    int getSourceID() { return m_source_id; };
+    Actor*           m_actor_coupling; //!< The vehicle or machine which the character occupies
+    SurveyMapEntity* m_survey_map_entity;
+    Ogre::Radian     m_character_rotation;
+    float            m_character_h_speed;
+    float            m_character_v_speed;
+    int              m_color_number;
+    int              m_stream_id;
+    int              m_source_id;
+    bool             m_can_jump;
+    bool             m_is_remote;
+    bool             m_hide_own_net_label;
+    bool             m_have_coupling_seat;    
+    std::string      m_last_anim;
+    std::string      m_instance_name;
+    Ogre::UTFString  m_net_username;
+    Ogre::SceneNode*          m_character_scenenode;
+    Ogre::MovableText*        m_movable_text;
+    Ogre::AnimationStateSet*  m_anim_state;
+    std::deque<Ogre::Vector3> m_prev_positions; 
 
-    bool isRemote() { return remote; };
-    bool IsCoupledWithActor() { return isCoupled; };
 
-    void SetActorCoupling(bool enabled, Actor* actor = nullptr);
-    void setColour(int color) { this->colourNumber = color; };
-    void setPosition(Ogre::Vector3 position);
-    void setRotation(Ogre::Radian rotation);
-    void setVisible(bool visible);
-
-    void move(Ogre::Vector3 offset);
-
-    void unwindMovement(float distance);
-
-    void update(float dt);
-    void updateCharacterNetworkColour();
-    void updateCharacterRotation();
-    void updateMapIcon();
-    void updateLabels();
-
-protected:
-
-    void createMapEntity();
-    void updateNetLabelSize();
-    void ReportError(const char* detail);
-
-    Actor* m_actor_coupling; //!< The vehicle or machine which the character occupies
-    bool isCoupled;
-    SurveyMapEntity* mapEntity;
-
-    bool canJump;
-    bool remote;
-
-    Ogre::Radian characterRotation;
-    Ogre::Real characterSpeed;
-    Ogre::Real characterVSpeed;
-
-    int colourNumber;
-    int networkAuthLevel;
-    int m_stream_id;
-    int m_source_id;
-
-    Ogre::AnimationStateSet* mAnimState;
-    Ogre::Camera* mCamera;
-    Ogre::MovableText* mMoveableText;
-    Ogre::SceneNode* mCharacterNode;
-    Ogre::String mLastAnimMode;
-    Ogre::String myName;
-    Ogre::UTFString networkUsername;
-    std::deque<Ogre::Vector3> mLastPosition;
-
-    void setAnimationMode(Ogre::String mode, float time = 0);
-
-    Ogre::Timer mNetTimer;
-
-    bool mHideOwnNetLabel;
-
-    void sendStreamData();
-    void sendStreamSetup();
 };
 
