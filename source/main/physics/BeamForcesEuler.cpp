@@ -903,7 +903,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     if (hascommands)
     {
         int active = 0;
-        int requested = 0;
+        bool requested = false;
         float work = 0.0;
 
         // canwork
@@ -1146,7 +1146,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
                     rotators[rota].angle -= rotators[rota].rate * v * cf * dt;
             }
             if (requestpower)
-                requested++;
+                requested=true;
         }
 
         if (engine)
