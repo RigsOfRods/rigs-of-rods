@@ -49,65 +49,66 @@
  */
 //! @{
 static inline Ogre::Vector3 nearestPoint(const Ogre::Vector3& pt1,
-		const Ogre::Vector3& pt2,
-		const Ogre::Vector3& tp)
+        const Ogre::Vector3& pt2,
+        const Ogre::Vector3& tp)
 {	
-	const Ogre::Vector3 a = tp - pt1;
-	const Ogre::Vector3 b = fast_normalise(pt2-pt1);
+    const Ogre::Vector3 a = tp - pt1;
+    const Ogre::Vector3 b = fast_normalise(pt2-pt1);
 
-	return pt1 + (a.dotProduct(b)) * b;
+    return pt1 + (a.dotProduct(b)) * b;
 }
 
 static inline Ogre::Vector3 nearestPointOnLine(const Ogre::Vector3& pt1,
-		const Ogre::Vector3& pt2,
-		const Ogre::Vector3& tp)
+        const Ogre::Vector3& pt2,
+        const Ogre::Vector3& tp)
 {	
-	Ogre::Vector3 a = tp - pt1;
-	Ogre::Vector3 b = pt2 - pt1;
-	Ogre::Real len = fast_length(b);
+    Ogre::Vector3 a = tp - pt1;
+    Ogre::Vector3 b = pt2 - pt1;
+    Ogre::Real len = fast_length(b);
 
-	b = fast_normalise(b);
-	len = std::max(0.0f, std::min(a.dotProduct(b), len));	
-	b *= len;
-	
-	a = pt1;
-	a += b;
-	return a;
+    b = fast_normalise(b);
+    len = std::max(0.0f, std::min(a.dotProduct(b), len));
+    b *= len;
+    
+    a = pt1;
+    a += b;
+    return a;
 }
 //! @}
 
 struct Rail : public ZeroedMemoryAllocator
 {
-	Rail();
-	Rail( beam_t* newBeam );
-	Rail( beam_t* newBeam, Rail* newPrev, Rail* newNext );
-	Rail( Rail& other );
+    Rail();
+    Rail( beam_t* newBeam );
+    Rail( beam_t* newBeam, Rail* newPrev, Rail* newNext );
+    Rail( Rail& other );
 
     Rail*   snr_prev;
     beam_t* snr_beam;
     Rail*   snr_next;
 };
 
+/// A series of softbody beams which node slides along. Can be closed in a loop. The term of 'Rail' means 'single beam' here.
 class RailGroup : public ZeroedMemoryAllocator
 {
 public:
-	RailGroup(Rail* start);
-	RailGroup(Rail* start, unsigned int id);
+    RailGroup(Rail* start);
+    RailGroup(Rail* start, unsigned int id);
 
-	const Rail*       GetStartRail() const    { return m_start_rail; }
-	unsigned int      GetId() const           { return m_id; }
-	
-	/// clears up all the allocated memory this is intentionally not made into a
-	///destructor to avoid issues like copying Rails when storing in a container
-	/// it is assumed that if next is not null then next->prev is not null either
-	void CleanUpRailGroup();
-	
+    const Rail*       GetStartRail() const    { return m_start_rail; }
+    unsigned int      GetId() const           { return m_id; }
+    
+    /// clears up all the allocated memory this is intentionally not made into a
+    ///destructor to avoid issues like copying Rails when storing in a container
+    /// it is assumed that if next is not null then next->prev is not null either
+    void CleanUpRailGroup();
+    
 private:
-		
-	/// Identification, for anonymous rails (defined inline) the ID will be
-	/// > 7000000, for Rail groups defined int he rail group section the Id
-	/// needs to be less than 7000000
-	unsigned int m_id;
+        
+    /// Identification, for anonymous rails (defined inline) the ID will be
+    /// > 7000000, for Rail groups defined int he rail group section the Id
+    /// needs to be less than 7000000
+    unsigned int m_id;
     Rail*        m_start_rail; //!< Beginning Rail in the Group
 };
 
@@ -119,25 +120,25 @@ class RailBuilder : public ZeroedMemoryAllocator
 {
 public:
 
-	RailBuilder();
-	~RailBuilder();
-		
-	void pushBack(beam_t* next);
-	void loopRail();
-	
-	/**
-	 * @return the completed rail, if called before instance goes out of reference
-	 * the internal memory is null referenced, if not the memorey is reclaimed
-	 */
-	Rail* getCompletedRail();
+    RailBuilder();
+    ~RailBuilder();
+        
+    void pushBack(beam_t* next);
+    void loopRail();
+    
+    /**
+     * @return the completed rail, if called before instance goes out of reference
+     * the internal memory is null referenced, if not the memorey is reclaimed
+     */
+    Rail* getCompletedRail();
 
 private:
-	Rail*    mStart;    //! Start of the Rail series
-	Rail*    mFront;    //! Front of the Rail, not necessarily the start
-	Rail*     mBack;    //! Last rail in the series
-	bool      mLoop;    //! Check if rail is to be looped
-	bool mRetreived;    //! Check if RailBuilder needs to deallocate Rails
-	
+    Rail*    mStart;    //! Start of the Rail series
+    Rail*    mFront;    //! Front of the Rail, not necessarily the start
+    Rail*     mBack;    //! Last rail in the series
+    bool      mLoop;    //! Check if rail is to be looped
+    bool mRetreived;    //! Check if RailBuilder needs to deallocate Rails
+    
 };
 
 class SlideNode : public ZeroedMemoryAllocator
@@ -215,7 +216,7 @@ public:
      */
     unsigned int getRailID() const
     {
-    	return mCurRailGroup ? mCurRailGroup->GetId() : std::numeric_limits<unsigned int>::infinity();
+        return mCurRailGroup ? mCurRailGroup->GetId() : std::numeric_limits<unsigned int>::infinity();
     }
 
     /**
@@ -224,9 +225,9 @@ public:
      */
     void reset()
     {
-    	mCurRailGroup = mOrgRailGroup;
-    	sn_slide_broken = false;
-    	ResetPositions();
+        mCurRailGroup = mOrgRailGroup;
+        sn_slide_broken = false;
+        ResetPositions();
     }
 
     /**
@@ -240,8 +241,8 @@ public:
      */
     void setDefaultRail(RailGroup* toAttach)
     {
-    	mOrgRailGroup = mCurRailGroup = toAttach;
-		ResetPositions();
+        mOrgRailGroup = mCurRailGroup = toAttach;
+        ResetPositions();
     }
 
     /**
@@ -250,40 +251,40 @@ public:
      */
     void attachToRail(RailGroup* toAttach)
     {
-		mCurRailGroup = toAttach;
-		ResetPositions();
-		mCurThreshold = (mSlidingBeam ? getLenTo(mSlidingBeam) : mInitThreshold);
+        mCurRailGroup = toAttach;
+        ResetPositions();
+        mCurThreshold = (mSlidingBeam ? getLenTo(mSlidingBeam) : mInitThreshold);
     }
 
 
 
     //! distance from a beam before corrective forces take effect
-	void setThreshold( Ogre::Real threshold ) { mInitThreshold = mCurThreshold = fabs( threshold ); }
-	//! spring force used to calculate corrective forces
-	void setSpringRate( Ogre::Real rate ){ mSpringRate = fabs( rate); }
-	//! Force required to break the Node from the Rail
-	void setBreakForce( Ogre::Real breakRate ) { mBreakForce = fabs( breakRate); }
-	//! how long it will take for springs to fully attach to the Rail
-	void setAttachmentRate( Ogre::Real rate ) { mAttachRate = fabs( rate); }
-	//! maximum distance this spring node is allowed to reach out for a Rail
-	void setAttachmentDistance( Ogre::Real dist ){ mAttachDist = fabs( dist); }
-	
-	//! Distance away from beam before corrective forces begin to act on the node
-	Ogre::Real getThreshold () const { return mCurThreshold; }
-	//! spring force used to calculate corrective forces
-	Ogre::Real getSpringRate() const { return mSpringRate; }
-	//! Force required to break the Node from the Rail
-	Ogre::Real getBreakForce() const { return mBreakForce; }
-	//! how long it will take for springs to fully attach to the Rail
-	Ogre::Real getAttachmentRate() const { return mAttachRate; }
-	//! maximum distance this spring node is allowed to reach out for a Rail
-	Ogre::Real getAttachmentDistance() const { return mAttachDist; }
+    void setThreshold( Ogre::Real threshold ) { mInitThreshold = mCurThreshold = fabs( threshold ); }
+    //! spring force used to calculate corrective forces
+    void setSpringRate( Ogre::Real rate ){ mSpringRate = fabs( rate); }
+    //! Force required to break the Node from the Rail
+    void setBreakForce( Ogre::Real breakRate ) { mBreakForce = fabs( breakRate); }
+    //! how long it will take for springs to fully attach to the Rail
+    void setAttachmentRate( Ogre::Real rate ) { mAttachRate = fabs( rate); }
+    //! maximum distance this spring node is allowed to reach out for a Rail
+    void setAttachmentDistance( Ogre::Real dist ){ mAttachDist = fabs( dist); }
+    
+    //! Distance away from beam before corrective forces begin to act on the node
+    Ogre::Real getThreshold () const { return mCurThreshold; }
+    //! spring force used to calculate corrective forces
+    Ogre::Real getSpringRate() const { return mSpringRate; }
+    //! Force required to break the Node from the Rail
+    Ogre::Real getBreakForce() const { return mBreakForce; }
+    //! how long it will take for springs to fully attach to the Rail
+    Ogre::Real getAttachmentRate() const { return mAttachRate; }
+    //! maximum distance this spring node is allowed to reach out for a Rail
+    Ogre::Real getAttachmentDistance() const { return mAttachDist; }
 
-	/**
-	 * @param group
-	 * @param point
-	 * @return value is always positive, if group is null return infinity.
-	 */
+    /**
+     * @param group
+     * @param point
+     * @return value is always positive, if group is null return infinity.
+     */
     static Ogre::Real getLenTo( const RailGroup* group, const Ogre::Vector3& point );
 
     /**

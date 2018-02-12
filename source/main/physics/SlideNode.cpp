@@ -58,20 +58,20 @@ RailGroup::RailGroup(Rail* start, unsigned int id): m_start_rail(start), m_id(id
 
 void RailGroup::CleanUpRailGroup()
 {
-	Rail* cur = m_start_rail;
-	if ( cur->snr_prev )
+    Rail* cur = m_start_rail;
+    if ( cur->snr_prev )
     {
         cur->snr_prev = cur->snr_prev->snr_next = nullptr;
     }
 
-	while( cur->snr_next )
-	{
-		cur = cur->snr_next;
-		delete cur->snr_prev;
-		cur->snr_prev = nullptr;
-	}
-		
-	delete cur;
+    while( cur->snr_next )
+    {
+        cur = cur->snr_next;
+        delete cur->snr_prev;
+        cur->snr_prev = nullptr;
+    }
+        
+    delete cur;
 }
 
 // RAIL IMPLEMENTATION /////////////////////////////////////////////////////////
