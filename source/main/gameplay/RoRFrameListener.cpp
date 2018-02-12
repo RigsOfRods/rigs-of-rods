@@ -1568,7 +1568,7 @@ void RoRFrameListener::FinalizeActorSpawning(Actor* local_actor, Actor* prev_act
             // We are supposed to be in this vehicle, if it is a vehicle
             if (local_actor->ar_engine != nullptr)
             {
-                local_actor->ar_engine->start();
+                local_actor->ar_engine->StartEngine();
             }
             m_actor_manager.SetPlayerVehicleByActorId(local_actor->ar_instance_id);
         }
@@ -2393,7 +2393,7 @@ bool RoRFrameListener::SetupGameplayLoop()
             }
             if (b->ar_engine)
             {
-                b->ar_engine->start();
+                b->ar_engine->StartEngine();
             }
         }
     }

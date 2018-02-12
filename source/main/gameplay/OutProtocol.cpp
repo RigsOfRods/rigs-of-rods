@@ -149,11 +149,11 @@ bool OutProtocol::Update(float dt, Actor* truck)
     else if (truck && truck->ar_engine)
     {
         // truck and engine valid
-        if (truck->ar_engine->hasTurbo())
+        if (truck->ar_engine->HasTurbo())
         {
             gd.Flags |= OG_TURBO;
         }
-        gd.Gear = std::max(0, truck->ar_engine->getGear() + 1); // we only support one reverse gear
+        gd.Gear = std::max(0, truck->ar_engine->GetGear() + 1); // we only support one reverse gear
         gd.PLID = 0;
         gd.Speed = fabs(truck->ar_wheel_speed);
         gd.RPM = truck->ar_engine->GetEngineRpm();
@@ -179,7 +179,7 @@ bool OutProtocol::Update(float dt, Actor* truck)
             gd.ShowLights |= DL_HANDBRAKE;
         if (truck->ar_lights)
             gd.ShowLights |= DL_FULLBEAM;
-        if (truck->ar_engine->hasContact() && !truck->ar_engine->isRunning())
+        if (truck->ar_engine->HasStarterContact() && !truck->ar_engine->IsRunning())
             gd.ShowLights |= DL_BATTERY;
         if (truck->ar_left_blink_on)
             gd.ShowLights |= DL_SIGNAL_L;
