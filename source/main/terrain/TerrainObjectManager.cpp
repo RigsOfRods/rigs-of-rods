@@ -534,24 +534,24 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
                 continue;
             }
             String group = "";
-            String truckname(type);
+            String actor_filename(type);
 
-            if (!RoR::App::GetCacheSystem()->checkResourceLoaded(truckname, group))
+            if (!RoR::App::GetCacheSystem()->checkResourceLoaded(actor_filename, group))
             {
                 LOG("Error while loading Terrain: truck " + String(type) + " not found. ignoring.");
                 continue;
             }
 
-            truck_prepare_t tempTruckPreload;
+            PredefinedActor predef;
             //this is a truck or load declaration
-            tempTruckPreload.px = pos.x;
-            tempTruckPreload.py = pos.y;
-            tempTruckPreload.pz = pos.z;
-            tempTruckPreload.freePosition = (!strcmp(oname, "truck2"));
-            tempTruckPreload.ismachine = (!strcmp(oname, "machine"));
-            tempTruckPreload.rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
-            strcpy(tempTruckPreload.name, truckname.c_str());
-            truck_preload.push_back(tempTruckPreload);
+            predef.px = pos.x;
+            predef.py = pos.y;
+            predef.pz = pos.z;
+            predef.freePosition = (!strcmp(oname, "truck2"));
+            predef.ismachine = (!strcmp(oname, "machine"));
+            predef.rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
+            strcpy(predef.name, actor_filename.c_str());
+            m_predefined_actors.push_back(predef);
 
             continue;
         }
@@ -988,9 +988,6 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
             else if (!strncmp(ts, "delete", 8))
                 event_filter = EVENT_DELETE;
 
-            //if (!strncmp(ts, "shoptruck", 9))
-            //	terrainManager->terrainHasTruckShop=true;
-
             // fallback
             if (strlen(ts) == 0)
                 event_filter = EVENT_ALL;
@@ -1338,27 +1335,27 @@ bool TerrainObjectManager::updateAnimatedObjects(float dt)
     return true;
 }
 
-void TerrainObjectManager::loadPreloadedTrucks()
+void TerrainObjectManager::LoadPredefinedActors()
 {
-    // in netmode, don't load other trucks!
+    // in netmode, don't load other actors!
     if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
     {
         return;
     }
 
-    for (unsigned int i = 0; i < truck_preload.size(); i++)
+    for (unsigned int i = 0; i < m_predefined_actors.size(); i++)
     {
-        Vector3 pos = Vector3(truck_preload[i].px, truck_preload[i].py, truck_preload[i].pz);
+        Vector3 pos = Vector3(m_predefined_actors[i].px, m_predefined_actors[i].py, m_predefined_actors[i].pz);
         Actor* b = terrainManager->GetSimController()->GetBeamFactory()->CreateLocalRigInstance(
             pos,
-            truck_preload[i].rotation,
-            truck_preload[i].name,
+            m_predefined_actors[i].rotation,
+            m_predefined_actors[i].name,
             -1,
             nullptr, /* spawnbox */
-            truck_preload[i].ismachine,
-            nullptr, /* truckconfig */
+            m_predefined_actors[i].ismachine,
+            nullptr, /* config */
             nullptr, /* skin */
-            truck_preload[i].freePosition,
+            m_predefined_actors[i].freePosition,
             true /* preloaded_with_terrain */
         );
 
@@ -1369,7 +1366,7 @@ void TerrainObjectManager::loadPreloadedTrucks()
             {
                 e->setState(static_cast<int>(Actor::SimState::LOCAL_SIMULATED));
                 e->setVisibility(true);
-                e->setPosition(truck_preload[i].px, truck_preload[i].pz);
+                e->setPosition(m_predefined_actors[i].px, m_predefined_actors[i].pz);
                 e->setRotation(-Radian(b->getHeadingDirectionAngle()));
             }
         }

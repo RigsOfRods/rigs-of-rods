@@ -1396,7 +1396,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
     }
     else
     {
-        //no terrain or truck loaded
+        //no terrain or actor loaded
         terrain_editing_mode = false;
 
         if (App::GetGuiManager()->GetMainSelector()->IsFinishedSelecting())
@@ -1407,7 +1407,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                 RoR::SkinDef* skin = App::GetGuiManager()->GetMainSelector()->GetSelectedSkin();
                 if (selection != nullptr)
                 {
-                    /* We load an extra truck */
+                    // We load an extra actor
                     std::vector<String>* config_ptr = nullptr;
                     std::vector<String> config = App::GetGuiManager()->GetMainSelector()->GetVehicleConfigs();
                     if (config.size() > 0)
@@ -1419,17 +1419,17 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                     m_last_skin_selection = skin;
                     m_last_vehicle_configs = config;
 
-                    Actor* current_truck = m_actor_manager.GetPlayerActorInternal();
+                    Actor* player_actor = m_actor_manager.GetPlayerActorInternal();
 
                     if (m_reload_box == nullptr)
                     {
-                        if (current_truck != nullptr)
+                        if (player_actor != nullptr)
                         {
-                            float rotation = current_truck->getRotation() - Math::HALF_PI;
+                            float rotation = player_actor->getRotation() - Math::HALF_PI;
                             m_reload_dir = Quaternion(Degree(180) - Radian(rotation), Vector3::UNIT_Y);
-                            m_reload_pos = current_truck->getRotationCenter();
+                            m_reload_pos = player_actor->getRotationCenter();
                             // TODO: Fix this by projecting m_reload_pos onto the terrain / mesh
-                            m_reload_pos.y = current_truck->ar_nodes[current_truck->ar_lowest_contacting_node].AbsPosition.y;
+                            m_reload_pos.y = player_actor->ar_nodes[player_actor->ar_lowest_contacting_node].AbsPosition.y;
                         }
                         else
                         {
@@ -1440,7 +1440,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
 
                     Actor* local_truck = m_actor_manager.CreateLocalRigInstance(m_reload_pos, m_reload_dir, selection->fname, selection->number, m_reload_box, false, config_ptr, skin);
 
-                    this->FinalizeActorSpawning(local_truck, current_truck);
+                    this->FinalizeActorSpawning(local_truck, player_actor);
                 }
                 else if (gEnv->player)
                 {
@@ -1547,13 +1547,13 @@ void RoRFrameListener::FinalizeActorSpawning(Actor* local_actor, Actor* prev_act
     {
         if (m_reload_box == nullptr)
         {
-            // Calculate translational offset for node[0] to align the trucks rotation center with m_reload_pos
+            // Calculate translational offset for node[0] to align the actor's rotation center with m_reload_pos
             Vector3 translation = m_reload_pos - local_actor->getRotationCenter();
             local_actor->resetPosition(local_actor->ar_nodes[0].AbsPosition + Vector3(translation.x, 0.0f, translation.z), true);
 
             if (local_actor->ar_driveable != NOT_DRIVEABLE || (prev_actor && prev_actor->ar_driveable != NOT_DRIVEABLE))
             {
-                // Try to resolve collisions with other trucks
+                // Try to resolve collisions with other actors
                 local_actor->resolveCollisions(50.0f, prev_actor == nullptr);
             }
         }
@@ -1565,7 +1565,7 @@ void RoRFrameListener::FinalizeActorSpawning(Actor* local_actor, Actor* prev_act
 
         if (local_actor->ar_driveable != NOT_DRIVEABLE)
         {
-            /* We are supposed to be in this truck, if it is a truck */
+            // We are supposed to be in this vehicle, if it is a vehicle
             if (local_actor->ar_engine != nullptr)
             {
                 local_actor->ar_engine->start();
@@ -1865,20 +1865,20 @@ bool RoRFrameListener::frameEnded(const FrameEvent& evt)
 
 void RoRFrameListener::ShowLoaderGUI(int type, const Ogre::String& instance, const Ogre::String& box)
 {
-    int free_truck = m_actor_manager.GetNumUsedActorSlots();
-    Actor** trucks = m_actor_manager.GetInternalActorSlots();
+    int num_actor_slots = m_actor_manager.GetNumUsedActorSlots();
+    Actor** actor_slots = m_actor_manager.GetInternalActorSlots();
 
     // first, test if the place if clear, BUT NOT IN MULTIPLAYER
     if (!(App::mp_state.GetActive() == MpState::CONNECTED))
     {
         collision_box_t* spawnbox = gEnv->collisions->getBox(instance, box);
-        for (int t = 0; t < free_truck; t++)
+        for (int t = 0; t < num_actor_slots; t++)
         {
-            if (!trucks[t])
+            if (!actor_slots[t])
                 continue;
-            for (int i = 0; i < trucks[t]->ar_num_nodes; i++)
+            for (int i = 0; i < actor_slots[t]->ar_num_nodes; i++)
             {
-                if (gEnv->collisions->isInside(trucks[t]->ar_nodes[i].AbsPosition, spawnbox))
+                if (gEnv->collisions->isInside(actor_slots[t]->ar_nodes[i].AbsPosition, spawnbox))
                 {
                     RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Please clear the place first"), "error.png");
                     RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Please clear the place first"));
@@ -2010,27 +2010,27 @@ void RoRFrameListener::ReloadPlayerActor()
     if (player_actor->ar_sim_state == Actor::SimState::NETWORKED_OK)
         return;
 
-    // try to load the same truck again
-    Actor* newBeam = m_actor_manager.CreateLocalRigInstance(m_reload_pos, m_reload_dir, player_actor->ar_filename, -1);
+    // try to load the same actor again
+    Actor* new_actor = m_actor_manager.CreateLocalRigInstance(m_reload_pos, m_reload_dir, player_actor->ar_filename, -1);
 
-    if (!newBeam)
+    if (!new_actor)
     {
-        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("unable to load new truck: limit reached. Please restart RoR"), "error.png");
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("unable to load new actor: limit reached. Please restart RoR"), "error.png");
         return;
     }
 
     // copy over the most basic info
-    if (player_actor->ar_num_nodes == newBeam->ar_num_nodes)
+    if (player_actor->ar_num_nodes == new_actor->ar_num_nodes)
     {
         for (int i = 0; i < player_actor->ar_num_nodes; i++)
         {
             // copy over nodes attributes if the amount of them didnt change
-            newBeam->ar_nodes[i].AbsPosition = player_actor->ar_nodes[i].AbsPosition;
-            newBeam->ar_nodes[i].RelPosition = player_actor->ar_nodes[i].RelPosition;
-            newBeam->ar_nodes[i].Velocity    = player_actor->ar_nodes[i].Velocity;
-            newBeam->ar_nodes[i].Forces      = player_actor->ar_nodes[i].Forces;
-            newBeam->ar_nodes[i].initial_pos = player_actor->ar_nodes[i].initial_pos;
-            newBeam->ar_origin               = player_actor->ar_origin;
+            new_actor->ar_nodes[i].AbsPosition = player_actor->ar_nodes[i].AbsPosition;
+            new_actor->ar_nodes[i].RelPosition = player_actor->ar_nodes[i].RelPosition;
+            new_actor->ar_nodes[i].Velocity    = player_actor->ar_nodes[i].Velocity;
+            new_actor->ar_nodes[i].Forces      = player_actor->ar_nodes[i].Forces;
+            new_actor->ar_nodes[i].initial_pos = player_actor->ar_nodes[i].initial_pos;
+            new_actor->ar_origin               = player_actor->ar_origin;
         }
     }
 
@@ -2040,17 +2040,17 @@ void RoRFrameListener::ReloadPlayerActor()
     // * other minor stati
 
     // notice the user about the amount of possible reloads
-    String msg = TOSTRING(newBeam->ar_instance_id) + String(" of ") + TOSTRING(MAX_TRUCKS) + String(" possible reloads.");
+    String msg = TOSTRING(new_actor->ar_instance_id) + String(" of ") + TOSTRING(MAX_TRUCKS) + String(" possible reloads.");
     RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, msg, "information.png");
     RoR::App::GetGuiManager()->PushNotification("Notice:", msg);
 
     this->RemovePlayerActor();
 
-    // reset the new truck (starts engine, resets gui, ...)
-    newBeam->reset();
+    // reset the new actor (starts engine, resets gui, ...)
+    new_actor->reset();
 
-    // enter the new truck
-    m_actor_manager.setCurrentTruck(newBeam->ar_instance_id);
+    // enter the new actor
+    this->SetPlayerActor(new_actor);
 }
 
 void RoRFrameListener::ChangedCurrentVehicle(Actor* previous_vehicle, Actor* current_vehicle)
@@ -2208,7 +2208,7 @@ bool RoRFrameListener::LoadTerrain()
 
         // Classic behavior, retained for compatibility.
         // Required for maps like N-Labs or F1 Track.
-        if (!gEnv->terrainManager->hasPreloadedTrucks())
+        if (!gEnv->terrainManager->HasPredefinedActors())
         {
             gEnv->player->setRotation(Degree(180));
         }
@@ -2398,7 +2398,7 @@ bool RoRFrameListener::SetupGameplayLoop()
         }
     }
 
-    gEnv->terrainManager->loadPreloadedTrucks();
+    gEnv->terrainManager->LoadPredefinedActors();
 
     // ========================================================================
     // Extra setup

@@ -45,8 +45,8 @@ public:
     void moveObjectVisuals(const Ogre::String& instancename, const Ogre::Vector3& pos);
     void unloadObject(const Ogre::String& instancename);
 
-    void loadPreloadedTrucks();
-    bool hasPreloadedTrucks() { return !truck_preload.empty(); };
+    void LoadPredefinedActors();
+    bool HasPredefinedActors() { return !m_predefined_actors.empty(); };
 
     void postLoad();
 
@@ -92,7 +92,7 @@ protected:
     Road* road;
     Ogre::SceneNode* bakeNode;
 
-    typedef struct
+    struct PredefinedActor
     {
         float px;
         float py;
@@ -101,9 +101,9 @@ protected:
         char name[256];
         bool ismachine;
         bool freePosition;
-    } truck_prepare_t;
+    };
 
-    std::vector<truck_prepare_t> truck_preload;
+    std::vector<PredefinedActor> m_predefined_actors;
 
     bool background_loading;
     bool use_rt_shader_system;
