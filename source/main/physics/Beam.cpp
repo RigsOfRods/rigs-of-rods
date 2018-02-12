@@ -608,7 +608,7 @@ void Actor::pushNetwork(char* data, int size)
         // we walk through the incoming data and separate it a bit
         char* ptr = data;
 
-        // put the RoRnet::TruckState in front, describes truck basics, engine state, flares, etc
+        // put the RoRnet::TruckState in front, describes actor basics, engine state, flares, etc
         memcpy((char*)oob3, ptr, sizeof(RoRnet::TruckState));
         ptr += sizeof(RoRnet::TruckState);
 
@@ -1347,7 +1347,7 @@ void Actor::postUpdatePhysics(float dt)
 {
     calculateAveragePosition();
 
-    // Calculate average truck velocity
+    // Calculate average velocity
     m_avg_node_velocity = (m_avg_node_position - m_avg_node_position_prev) / dt;
 }
 
@@ -1847,11 +1847,11 @@ void Actor::sendStreamSetup()
     reg.type = 0;
     reg.bufferSize = m_net_buffer_size;
     strncpy(reg.name, ar_filename.c_str(), 128);
-    if (!m_truck_config.empty())
+    if (!m_actor_config.empty())
     {
         // insert section config
-        for (int i = 0; i < std::min<int>((int)m_truck_config.size(), 10); i++)
-            strncpy(reg.truckconfig[i], m_truck_config[i].c_str(), 60);
+        for (int i = 0; i < std::min<int>((int)m_actor_config.size(), 10); i++)
+            strncpy(reg.truckconfig[i], m_actor_config[i].c_str(), 60);
     }
 
 #ifdef USE_SOCKETW
@@ -1874,7 +1874,7 @@ void Actor::sendStreamData()
     int final_packet_size = sizeof(RoRnet::TruckState) + sizeof(float) * 3 + m_net_first_wheel_node * sizeof(float) * 3 + ar_num_wheels * sizeof(float);
     if (final_packet_size > 8192)
     {
-        ErrorUtils::ShowError(_L("Truck is too big to be send over the net."), _L("Network error!"));
+        ErrorUtils::ShowError(_L("Actor is too big to be sent over the net."), _L("Network error!"));
         exit(126);
     }
 
@@ -3382,7 +3382,7 @@ void Actor::autoBlinkReset()
 {
     blinktype blink = getBlinkType();
 
-    // TODO: make this set-able per truck
+    // TODO: make this set-able per actor
     float blink_lock_range = 0.1f;
 
     if (blink == BLINK_LEFT && ar_hydro_dir_state < -blink_lock_range)
@@ -3878,7 +3878,7 @@ void Actor::showSkeleton(bool meshes, bool linked)
 
     if (linked)
     {
-        // apply to all locked trucks
+        // apply to all locked actors
         DetermineLinkedActors();
         for (std::list<Actor*>::iterator it = m_linked_actors.begin(); it != m_linked_actors.end(); ++it)
         {
@@ -4210,8 +4210,8 @@ void Actor::tieToggle(int group)
     int num_actor_slots = App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots();
 
     // export tie commands
-    Actor* current_truck = App::GetSimController()->GetPlayerActor();
-    if (ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this == current_truck && ar_forward_commands)
+    Actor* player_actor = App::GetSimController()->GetPlayerActor();
+    if (ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this == player_actor && ar_forward_commands)
     {
         for (int i = 0; i < num_actor_slots; i++)
         {
@@ -4246,7 +4246,7 @@ void Actor::tieToggle(int group)
             if (it->locked_truck != this)
             {
                 RemoveInterActorBeam(it->beam);
-                // update skeletonview on the untied truck
+                // update skeletonview on the untied actor
                 it->locked_truck->ar_request_skeletonview_change = -1;
             }
             it->locked_truck = nullptr;
@@ -4269,7 +4269,7 @@ void Actor::tieToggle(int group)
                 node_t* nearest_node = 0;
                 Actor* nearest_actor = 0;
                 ropable_t* locktedto = 0;
-                // iterate over all trucks
+                // iterate over all actors
                 for (int t = 0; t < num_actor_slots; t++)
                 {
                     if (!actor_slots[t])
@@ -4316,7 +4316,7 @@ void Actor::tieToggle(int group)
                     if (it->beam->p2truck)
                     {
                         AddInterActorBeam(it->beam, this, nearest_actor);
-                        // update skeletonview on the tied truck
+                        // update skeletonview on the tied actor
                         nearest_actor->ar_request_skeletonview_change = ar_skeletonview_is_active ? 1 : -1;
                     }
                 }
@@ -4355,8 +4355,8 @@ void Actor::ropeToggle(int group)
             //we lock ropes
             // search new remote ropable to lock to
             float mindist = it->beam->L;
-            node_t* shorter = 0;
-            Actor* shtruck = 0;
+            node_t* nearest_node = nullptr;
+            Actor* nearest_actor = nullptr;
             ropable_t* rop = 0;
             // iterate over all actor_slots
             for (int t = 0; t < num_actor_slots; t++)
@@ -4377,18 +4377,18 @@ void Actor::ropeToggle(int group)
                     if (dist < mindist)
                     {
                         mindist = dist;
-                        shorter = itr->node;
-                        shtruck = actor_slots[t];
+                        nearest_node = itr->node;
+                        nearest_actor = actor_slots[t];
                         rop = &(*itr);
                     }
                 }
             }
             // if we found a ropable, then lock it
-            if (shorter)
+            if (nearest_node)
             {
                 //okay, we have found a rope to tie
-                it->lockedto = shorter;
-                it->lockedtruck = shtruck;
+                it->lockedto = nearest_node;
+                it->lockedtruck = nearest_actor;
                 it->locked = PRELOCK;
                 it->lockedto_ropable = rop;
                 it->lockedto_ropable->in_use = true;
@@ -4444,7 +4444,7 @@ void Actor::hookToggle(int group, hook_states mode, int node_number)
             continue;
         }
 
-        Actor* lastLockTruck = it->lockTruck; // memorize current value
+        Actor* prev_locked_actor = it->lockTruck; // memorize current value
 
         // do this only for toggle or lock attempts, skip prelocked or locked nodes for performance
         if (mode != HOOK_UNLOCK && it->locked == UNLOCKED)
@@ -4538,7 +4538,7 @@ void Actor::hookToggle(int group, hook_states mode, int node_number)
                 }
             }
         }
-        // this is a locked or prelocked hook and its not a locking attempt or the locked truck was removed (p2truck == false)
+        // this is a locked or prelocked hook and its not a locking attempt or the locked actor was removed (p2truck == false)
         else if ((it->locked == LOCKED || it->locked == PRELOCK) && (mode != HOOK_LOCK || !it->beam->p2truck))
         {
             // we unlock ropes
@@ -4556,16 +4556,16 @@ void Actor::hookToggle(int group, hook_states mode, int node_number)
             it->beam->bm_disabled = true;
         }
 
-        // update skeletonview on the (un)hooked truck
-        if (it->lockTruck != lastLockTruck)
+        // update skeletonview on the (un)hooked actor
+        if (it->lockTruck != prev_locked_actor)
         {
             if (it->lockTruck)
             {
                 it->lockTruck->ar_request_skeletonview_change = ar_skeletonview_is_active ? 1 : -1;
             }
-            else if (lastLockTruck != this)
+            else if (prev_locked_actor != this)
             {
-                lastLockTruck->ar_request_skeletonview_change = -1;
+                prev_locked_actor->ar_request_skeletonview_change = -1;
             }
         }
     }
@@ -5500,7 +5500,7 @@ Vector3 Actor::getGForces()
 void Actor::engineTriggerHelper(int engineNumber, int type, float triggerValue)
 {
     // engineNumber tells us which engine
-    BeamEngine* e = ar_engine; // placeholder: trucks do not have multiple engines yet
+    BeamEngine* e = ar_engine; // placeholder: actors do not have multiple engines yet
 
     switch (type)
     {
@@ -5533,7 +5533,7 @@ void Actor::engineTriggerHelper(int engineNumber, int type, float triggerValue)
 
 Actor::Actor(
     RoRFrameListener* sim_controller,
-    int truck_number,
+    int actor_id,
     Ogre::Vector3 pos,
     Ogre::Quaternion rot,
     const char* fname,
@@ -5542,7 +5542,7 @@ Actor::Actor(
     bool _networking, /* = false  */
     collision_box_t* spawnbox, /* = nullptr */
     bool ismachine, /* = false  */
-    const std::vector<Ogre::String>* truckconfig, /* = nullptr */
+    const std::vector<Ogre::String>* actor_config, /* = nullptr */
     RoR::SkinDef* skin, /* = nullptr */
     bool freeposition, /* = false */
     bool preloaded_with_terrain, /* = false */
@@ -5658,7 +5658,7 @@ Actor::Actor(
     , ar_driveable(NOT_DRIVEABLE)
     , m_skid_trails{} // Init array to nullptr
     , ar_collision_range(DEFAULT_COLLISION_RANGE)
-    , ar_instance_id(truck_number)
+    , ar_instance_id(actor_id)
     , ar_rescuer_flag(false)
     , m_antilockbrake(0)
     , m_tractioncontrol(0)
@@ -5696,12 +5696,12 @@ Actor::Actor(
     }
     ar_filename = Ogre::String(fname);
 
-    // copy truck config
-    if (truckconfig != nullptr && truckconfig->size() > 0u)
+    // copy config
+    if (actor_config != nullptr && actor_config->size() > 0u)
     {
-        for (std::vector<Ogre::String>::const_iterator it = truckconfig->begin(); it != truckconfig->end(); ++it)
+        for (std::vector<Ogre::String>::const_iterator it = actor_config->begin(); it != actor_config->end(); ++it)
         {
-            m_truck_config.push_back(*it);
+            m_actor_config.push_back(*it);
         }
     }
 
@@ -5962,8 +5962,8 @@ bool Actor::LoadTruck(
     spawner.AddModule(parser.GetFile()->root_module);
     if (parser.GetFile()->user_modules.size() > 0) /* The vehicle-selector may return selected modules even for vehicle with no modules defined! Hence this check. */
     {
-        std::vector<Ogre::String>::iterator itor = m_truck_config.begin();
-        for (; itor != m_truck_config.end(); itor++)
+        std::vector<Ogre::String>::iterator itor = m_actor_config.begin();
+        for (; itor != m_actor_config.end(); itor++)
         {
             spawner.AddModule(*itor);
         }
@@ -6086,7 +6086,7 @@ bool Actor::LoadTruck(
         }
     }
 
-    // print some truck memory stats
+    // print some memory stats
     int mem = 0, memr = 0, tmpmem = 0;
     LOG("BEAM: memory stats following");
 
@@ -6280,17 +6280,17 @@ float Actor::getSteeringAngle()
     return ar_hydro_dir_command;
 }
 
-std::string Actor::getTruckName()
+std::string Actor::GetActorDesignName()
 {
     return ar_design_name;
 }
 
-std::string Actor::getTruckFileName()
+std::string Actor::GetActorFileName()
 {
     return ar_filename;
 }
 
-int Actor::getTruckType()
+int Actor::GetActorType()
 {
     return ar_driveable;
 }
@@ -6477,7 +6477,7 @@ void Actor::UpdatePropAnimations(const float dt)
             }
 
             //propanimation placed here to avoid interference with existing hydros(cstate) and permanent prop animation
-            //truck steering
+            //land vehicle steering
             if (ar_props[propi].animFlags[animnum] & ANIM_FLAG_STEERING)
                 cstate += ar_hydro_dir_state;
             //aileron

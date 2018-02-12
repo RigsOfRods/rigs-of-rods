@@ -123,8 +123,8 @@ public:
     float             getRotation();
     Ogre::Vector3     getDirection();
     Ogre::Vector3     getPosition();
-    /// Moves vehicle.
-    /// @param translation Offset to move vehicle.
+    /// Moves the actor.
+    /// @param translation Offset to move in world coordinates
     /// @param setInitPosition Set initial positions of nodes to current position?
     void              resetPosition(Ogre::Vector3 translation, bool setInitPosition);
     void              reset(bool keepPosition = false);    //!< reset the actor from any context
@@ -196,9 +196,9 @@ public:
     bool              hasDriverSeat();
     void              calculateDriverPos(Ogre::Vector3 &pos, Ogre::Quaternion &rot);
     float             getSteeringAngle();
-    std::string       getTruckName();
-    std::string       getTruckFileName();
-    int               getTruckType();
+    std::string       GetActorDesignName();
+    std::string       GetActorFileName();
+    int               GetActorType();
     int               getBeamCount();
     int               getNodeCount();
     int               nodeBeamConnections(int nodeid);     //!< Returns the number of active (non bounded) beams connected to a node
@@ -494,7 +494,7 @@ private:
     RoR::PerVehicleCameraContext       m_camera_context;
     std::bitset<MAX_WHEELS>            m_flexmesh_prepare; //!< Gfx state
     std::bitset<MAX_FLEXBODIES>        m_flexbody_prepare; //!< Gfx state
-    std::vector<Ogre::String>          m_truck_config;
+    std::vector<Ogre::String>          m_actor_config;
     std::vector<SlideNode>             m_slidenodes;       //!< all the SlideNodes available on this truck
     std::vector<RailGroup*>            m_railgroups;       //!< all the available RailGroups for this actor
     std::vector<Ogre::Entity*>         m_deletion_entities;    //!< For unloading vehicle; filled at spawn.

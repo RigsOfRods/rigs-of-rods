@@ -95,7 +95,7 @@ private:
     void   UpdateForceFeedback     (float dt);
     bool   UpdateInputEvents       (float dt);
     void   UpdateRacingGui         ();
-    void   FinalizeTruckSpawning   (Actor* local_truck, Actor* previous_truck);
+    void   FinalizeActorSpawning   (Actor* local_truck, Actor* previous_truck);
     void   HideGUI                 (bool hidden);
     void   CleanupAfterSimulation  (); /// Unloads all data
 
@@ -118,7 +118,7 @@ private:
     RoR::ForceFeedback*      m_force_feedback;
     bool                     m_hide_gui;
     bool                     m_was_app_window_closed;
-    bool                     m_truck_info_on;
+    bool                     m_actor_info_gui_visible;
     bool                     m_pressure_pressed;
 
     CacheEntry*              m_last_cache_selection;
@@ -135,8 +135,8 @@ private:
     bool                     m_race_in_progress;
     float                    m_race_bestlap_time;
 
-    bool                     m_advanced_truck_repair;
-    float                    m_advanced_truck_repair_timer;
+    bool                     m_advanced_vehicle_repair;
+    float                    m_advanced_vehicle_repair_timer;
 
     Ogre::Vector3            m_reload_pos;
     Ogre::Quaternion         m_reload_dir;
