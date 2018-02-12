@@ -335,11 +335,6 @@ public:
     int               free_camerarail;
     bool              ar_hide_in_actor_list; //!< Hide in list of spawned actors (available in top menubar). Useful for fixed-place machinery, i.e. cranes.
     Ogre::String      realtruckname;
-    bool              wheel_contact_requested;
-    bool              has_slope_brake;
-    float             slopeBrakeFactor;
-    float             slopeBrakeAttAngle;
-    float             slopeBrakeRelAngle;
     float             ar_anim_previous_crank; //!< For 'animator' with flag 'torque'
     float             alb_ratio;          //!< Anti-lock brake attribute: Regulating force
     float             alb_minspeed;       //!< Anti-lock brake attribute;

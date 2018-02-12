@@ -290,8 +290,6 @@ void RigSpawner::InitializeRig()
     m_rig->free_camerarail = 0;
     m_rig->free_screwprop = 0;
 
-    m_rig->wheel_contact_requested = false;
-    m_rig->has_slope_brake=false;
     m_rig->ar_extern_camera_mode=0;
     m_rig->ar_extern_camera_node=-1;
     m_rig->authors.clear();
@@ -5349,47 +5347,6 @@ void RigSpawner::ProcessWheelDetacher(RigDef::WheelDetacher & def)
     }
 
     m_rig->wheels[def.wheel_id].wh_detacher_group = def.detacher_group;
-};
-
-void RigSpawner::ProcessSlopeBrake(RigDef::SlopeBrake & def)
-{
-    SPAWNER_PROFILE_SCOPED();
-
-    // #1: regulating_force
-    float force = def.regulating_force;
-    if (force < 0.f || force > 20.f)
-    {
-        std::stringstream msg;
-        msg << "Clamping 'regulating_force' value '" << force << "' to allowed range <0 - 20>";
-        AddMessage(Message::TYPE_INFO, msg.str());
-        force = (force < 0.f) ? 0.f : 20.f;
-    }
-    m_rig->slopeBrakeFactor = force;
-
-    // #2: attach_angle
-    float attach_angle = def.attach_angle;
-    if (attach_angle < 1.f || attach_angle > 45.f)
-    {
-        std::stringstream msg;
-        msg << "Clamping 'attach_angle' value '" << force << "' to allowed range <1 - 45>";
-        AddMessage(Message::TYPE_INFO, msg.str());
-        attach_angle = (attach_angle < 1.f) ? 1.f : 45.f;
-    }
-    m_rig->slopeBrakeAttAngle = attach_angle;
-
-    // #3: release_angle
-    float release_angle = def.release_angle;
-    if (release_angle < 1.f || release_angle > 45.f)
-    {
-        std::stringstream msg;
-        msg << "Clamping 'release_angle' value '" << force << "' to allowed range <1 - 45>";
-        AddMessage(Message::TYPE_INFO, msg.str());
-        release_angle = (release_angle < 1.f) ? 1.f : 45.f;
-    }
-    m_rig->slopeBrakeRelAngle = release_angle + attach_angle;
-
-    // Flag
-    m_rig->has_slope_brake = true;
 };
 
 void RigSpawner::ProcessTractionControl(RigDef::TractionControl & def)
