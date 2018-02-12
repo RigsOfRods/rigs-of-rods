@@ -60,13 +60,12 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     m_increased_accuracy = false;
 
     //engine callback
-    if (engine)
+    if (ar_engine)
     {
         BES_START(BES_CORE_TruckEngine);
-        engine->update(dt, doUpdate);
+        ar_engine->update(dt, doUpdate);
         BES_STOP(BES_CORE_TruckEngine);
     }
-    //if (doUpdate) mWindow->setDebugText(engine->status);
 
     calcBeams(doUpdate, dt, step, maxsteps);
 
@@ -271,8 +270,8 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     float engine_torque = 0.0;
 
     // calculate torque per wheel
-    if (engine && m_num_proped_wheels != 0)
-        engine_torque = engine->getTorque() / m_num_proped_wheels;
+    if (ar_engine && m_num_proped_wheels != 0)
+        engine_torque = ar_engine->getTorque() / m_num_proped_wheels;
 
     int propcounter = 0;
     float newspeeds[MAX_WHEELS] = {};
@@ -420,9 +419,9 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
 
     // fix for airplanes crashing when getAcc() is used
     float currentAcc = 0.0f;
-    if (driveable == TRUCK && engine)
+    if (driveable == TRUCK && ar_engine)
     {
-        currentAcc = engine->getAcc();
+        currentAcc = ar_engine->getAcc();
     }
 
     for (int i = 0; i < free_wheel; i++)
@@ -646,9 +645,9 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     // wheel speed  in m/s !
     ar_wheel_speed = wspeed;
 
-    if (engine && free_wheel && wheels[0].wh_radius > 0.0f)
+    if (ar_engine && free_wheel && wheels[0].wh_radius > 0.0f)
     {
-        engine->setSpin(wspeed / wheels[0].wh_radius * RAD_PER_SEC_TO_RPM);
+        ar_engine->setSpin(wspeed / wheels[0].wh_radius * RAD_PER_SEC_TO_RPM);
     }
 
     // calculate driven distance
@@ -907,16 +906,16 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         bool requested = false;
         float work = 0.0;
 
-        // ar_engine_hydraulics_ready
-        if (engine)
-            ar_engine_hydraulics_ready = engine->getRPM() > engine->getIdleRPM() * 0.95f;
+        // hydraulics ready?
+        if (ar_engine)
+            ar_engine_hydraulics_ready = ar_engine->getRPM() > ar_engine->getIdleRPM() * 0.95f;
         else
             ar_engine_hydraulics_ready = true;
 
         // crankfactor
         float crankfactor = 1.0f;
-        if (engine)
-            crankfactor = engine->getCrankFactor();
+        if (ar_engine)
+            crankfactor = ar_engine->getCrankFactor();
 
         // speed up machines
         if (driveable == MACHINE)
@@ -1065,7 +1064,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
                         if (bbeam_dir * ar_beams[bbeam].autoMovingMode > 0)
                             v = 1;
 
-                        if (ar_beams[bbeam].commandNeedsEngine && ((engine && !engine->isRunning()) || !ar_engine_hydraulics_ready))
+                        if (ar_beams[bbeam].commandNeedsEngine && ((ar_engine && !ar_engine->isRunning()) || !ar_engine_hydraulics_ready))
                             continue;
 
                         if (v > 0.0f && ar_beams[bbeam].commandEngineCoupling > 0.0f)
@@ -1125,7 +1124,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
                 float v = 0.0f;
                 int rota = std::abs(commandkey[i].rotators[j]) - 1;
 
-                if (ar_rotators[rota].rotatorNeedsEngine && ((engine && !engine->isRunning()) || !ar_engine_hydraulics_ready))
+                if (ar_rotators[rota].rotatorNeedsEngine && ((ar_engine && !ar_engine->isRunning()) || !ar_engine_hydraulics_ready))
                     continue;
 
                 if (m_rotator_inertia)
@@ -1150,10 +1149,10 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
                 requested=true;
         }
 
-        if (engine)
+        if (ar_engine)
         {
-            engine->setHydroPumpWork(work);
-            engine->setPrime(requested);
+            ar_engine->setHydroPumpWork(work);
+            ar_engine->setPrime(requested);
         }
 
         if (doUpdate && is_player_truck)
@@ -1890,9 +1889,9 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                     }
                 }
                 // engine stall
-                if (i == ar_cinecam_node[0] && engine)
+                if (i == ar_cinecam_node[0] && ar_engine)
                 {
-                    engine->stop();
+                    ar_engine->stop();
                 }
                 ar_nodes[i].wetstate = WET;
             }

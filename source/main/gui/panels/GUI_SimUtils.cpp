@@ -248,14 +248,14 @@ void CLASS::UpdateStats(float dt, Beam* truck)
 
         truckstats = truckstats + "\n"; //Some space
 
-        if (truck->driveable == TRUCK && truck->engine)
+        if (truck->driveable == TRUCK && truck->ar_engine)
         {
-            if (truck->engine->getRPM() > truck->engine->getMaxRPM())
-                truckstats = truckstats + MainThemeColor + _L("Engine RPM: ") + RedColor + TOUTFSTRING(Round(truck->engine->getRPM())) + U(" / ") + TOUTFSTRING(Round(truck->engine->getMaxRPM())) + "\n";
+            if (truck->ar_engine->getRPM() > truck->ar_engine->getMaxRPM())
+                truckstats = truckstats + MainThemeColor + _L("Engine RPM: ") + RedColor + TOUTFSTRING(Round(truck->ar_engine->getRPM())) + U(" / ") + TOUTFSTRING(Round(truck->ar_engine->getMaxRPM())) + "\n";
             else
-                truckstats = truckstats + MainThemeColor + _L("Engine RPM: ") + WhiteColor + TOUTFSTRING(Round(truck->engine->getRPM())) + U(" / ") + TOUTFSTRING(Round(truck->engine->getMaxRPM())) + "\n";
+                truckstats = truckstats + MainThemeColor + _L("Engine RPM: ") + WhiteColor + TOUTFSTRING(Round(truck->ar_engine->getRPM())) + U(" / ") + TOUTFSTRING(Round(truck->ar_engine->getMaxRPM())) + "\n";
 
-            float currentKw = (((truck->engine->getRPM() * (truck->engine->getEngineTorque() + ((truck->engine->getTurboPSI() * 6.8) * truck->engine->getEngineTorque()) / 100) * (3.14159265358979323846 /* pi.. */ / 30)) / 1000));
+            float currentKw = (((truck->ar_engine->getRPM() * (truck->ar_engine->getEngineTorque() + ((truck->ar_engine->getTurboPSI() * 6.8) * truck->ar_engine->getEngineTorque()) / 100) * (3.14159265358979323846 /* pi.. */ / 30)) / 1000));
 
             truckstats = truckstats + MainThemeColor + _L("Current power: ") + WhiteColor + TOUTFSTRING(Round(currentKw *1.34102209)) + U(" hp / ") + TOUTFSTRING(Round(currentKw)) + U(" Kw") + "\n";
 
