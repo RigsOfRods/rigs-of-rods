@@ -46,6 +46,15 @@ class Beam :
     friend class RigSpawner;
 
 public:
+
+    enum class SimState
+    {
+        LOCAL_SIMULATED,  //!< simulated (local) truck
+        NETWORKED_OK,     //!< not simulated (remote) truck
+        LOCAL_SLEEPING,   //!< sleeping (local) truck
+        INVALID           //!< not simulated and not updated via the network (e.g. size differs from expected)
+    };
+
     ~Beam();
 
 #ifdef USE_ANGELSCRIPT
@@ -484,7 +493,6 @@ public:
     unsigned int netCustomLightArray[4];
     unsigned char netCustomLightArray_counter;
     bool ispolice;
-    int state;
     bool collisionRelevant;
     bool heathaze;
     Autopilot *autopilot;
@@ -727,7 +735,6 @@ public:
     bool getCustomParticleMode();
     int getLowestNode();
 
-    bool simulated;
     int airbrakeval;
     Ogre::Vector3 cameranodeacc;
     int cameranodecount;
@@ -800,6 +807,7 @@ public:
     void UpdatePropAnimations(const float dt);
 
     int  ar_request_skeletonview_change; //!< Gfx state; Request activation(1) / deactivation(-1) of skeletonview
+    SimState ar_sim_state;    //!< Physics state
 
     bool ar_left_blink_on:1;  //!< Gfx state; turn signals
     bool ar_right_blink_on:1; //!< Gfx state; turn signals
@@ -807,6 +815,7 @@ public:
     bool ar_beams_visible:1;  //!< Gfx state; Are beams visible? @see setBeamVisibility
     bool ar_meshes_visible:1; //!< Gfx state; Are meshes visible? @see setMeshVisibility
     bool ar_skeletonview_is_active:1; //!< Gfx state
+    bool ar_update_physics:1; //!< Physics state; Should this actor be updated (locally) in the next physics step?
 
 protected:
 

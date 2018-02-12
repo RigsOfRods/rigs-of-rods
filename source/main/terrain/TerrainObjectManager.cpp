@@ -1367,7 +1367,7 @@ void TerrainObjectManager::loadPreloadedTrucks()
             SurveyMapEntity* e = gEnv->surveyMap->createNamedMapEntity("Truck" + TOSTRING(b->trucknum), SurveyMapManager::getTypeByDriveable(b->driveable));
             if (e)
             {
-                e->setState(SIMULATED);
+                e->setState(static_cast<int>(Beam::SimState::LOCAL_SIMULATED));
                 e->setVisibility(true);
                 e->setPosition(truck_preload[i].px, truck_preload[i].pz);
                 e->setRotation(-Radian(b->getHeadingDirectionAngle()));

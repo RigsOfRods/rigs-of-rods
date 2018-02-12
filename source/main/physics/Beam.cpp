@@ -620,7 +620,7 @@ void Beam::pushNetwork(char* data, int size)
     {
         // TODO: show the user the problem in the GUI
         LOG("WRONG network size: we expected " + TOSTRING(m_net_buffer_size+sizeof(RoRnet::TruckState)) + " but got " + TOSTRING(size) + " for vehicle " + String(truckname));
-        state = INVALID;
+        ar_sim_state = SimState::INVALID;
         return;
     }
 
@@ -2001,7 +2001,7 @@ void Beam::sendStreamData()
 
 void Beam::receiveStreamData(unsigned int type, int source, unsigned int streamid, char* buffer, unsigned int len)
 {
-    if (state != NETWORKED)
+    if (ar_sim_state != SimState::NETWORKED_OK)
         return;
 
     BES_GFX_START(BES_GFX_receiveStreamData);
@@ -2989,11 +2989,11 @@ void Beam::lightsToggle()
 
     // export light command
     Beam* current_truck = m_sim_controller->GetBeamFactory()->getCurrentTruck();
-    if (state == SIMULATED && this == current_truck && forwardcommands)
+    if (ar_sim_state == Beam::SimState::LOCAL_SIMULATED && this == current_truck && forwardcommands)
     {
         for (int i = 0; i < trucksnum; i++)
         {
-            if (trucks[i] && trucks[i]->state == SIMULATED && this->trucknum != i && trucks[i]->importcommands)
+            if (trucks[i] && trucks[i]->ar_sim_state == Beam::SimState::LOCAL_SIMULATED && this->trucknum != i && trucks[i]->importcommands)
                 trucks[i]->lightsToggle();
         }
     }
@@ -3247,7 +3247,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
         }
         else if (flares[i].type == 'u' && flares[i].controlnumber != -1)
         {
-            if (state == SIMULATED && this == m_sim_controller->GetBeamFactory()->getCurrentTruck()) // no network!!
+            if (ar_sim_state == Beam::SimState::LOCAL_SIMULATED && this == m_sim_controller->GetBeamFactory()->getCurrentTruck()) // no network!!
             {
                 // networked customs are set directly, so skip this
                 if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_LIGHTTOGGLE01 + (flares[i].controlnumber - 1)) && mTimeUntilNextToggle <= 0)
@@ -3579,7 +3579,7 @@ void Beam::updateVisual(float dt)
 
 #ifdef USE_OPENAL
     //airplane radio chatter
-    if (driveable == AIRPLANE && state != SLEEPING)
+    if (driveable == AIRPLANE && ar_sim_state != SimState::LOCAL_SLEEPING)
     {
         // play random chatter at random time
         avichatter_timer -= dt;
@@ -4201,11 +4201,11 @@ void Beam::tieToggle(int group)
 
     // export tie commands
     Beam* current_truck = m_sim_controller->GetBeamFactory()->getCurrentTruck();
-    if (state == SIMULATED && this == current_truck && forwardcommands)
+    if (ar_sim_state == Beam::SimState::LOCAL_SIMULATED && this == current_truck && forwardcommands)
     {
         for (int i = 0; i < trucksnum; i++)
         {
-            if (trucks[i] && trucks[i]->state == SIMULATED && this->trucknum != i && trucks[i]->importcommands)
+            if (trucks[i] && trucks[i]->ar_sim_state == Beam::SimState::LOCAL_SIMULATED && this->trucknum != i && trucks[i]->importcommands)
                 trucks[i]->tieToggle(group);
         }
     }
@@ -4264,7 +4264,7 @@ void Beam::tieToggle(int group)
                 {
                     if (!trucks[t])
                         continue;
-                    if (trucks[t]->state == SLEEPING)
+                    if (trucks[t]->ar_sim_state == SimState::LOCAL_SLEEPING)
                         continue;
                     // and their ropables
                     for (std::vector<ropable_t>::iterator itr = trucks[t]->ropables.begin(); itr != trucks[t]->ropables.end(); itr++)
@@ -4353,7 +4353,7 @@ void Beam::ropeToggle(int group)
             {
                 if (!trucks[t])
                     continue;
-                if (trucks[t]->state == SLEEPING)
+                if (trucks[t]->ar_sim_state == SimState::LOCAL_SLEEPING)
                     continue;
                 // and their ropables
                 for (std::vector<ropable_t>::iterator itr = trucks[t]->ropables.begin(); itr != trucks[t]->ropables.end(); itr++)
@@ -4448,7 +4448,7 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
             {
                 if (!trucks[t])
                     continue;
-                if (trucks[t]->state >= SLEEPING)
+                if (trucks[t]->ar_sim_state == SimState::LOCAL_SLEEPING || trucks[t]->ar_sim_state == SimState::INVALID)
                     continue;
                 if (t == this->trucknum && !it->selflock)
                     continue; // don't lock to self
@@ -4891,7 +4891,7 @@ void Beam::updateNetworkInfo()
 
     RoRnet::UserInfo info;
 
-    if (state == NETWORKED)
+    if (ar_sim_state == SimState::NETWORKED_OK)
     {
         if (!RoR::Networking::GetUserInfo(m_source_id, info))
         {
@@ -4939,7 +4939,7 @@ float Beam::getHeadingDirectionAngle()
 
 bool Beam::getReverseLightVisible()
 {
-    if (state == NETWORKED)
+    if (ar_sim_state == SimState::NETWORKED_OK)
         return netReverseLight;
 
     if (engine)
@@ -5652,7 +5652,7 @@ Beam::Beam(
     , rudder(0)
     , simpleSkeletonInitiated(false)
     , simpleSkeletonManualObject(0)
-    , simulated(false)
+    , ar_update_physics(false)
     , sleeptime(0.0f)
     , smokeNode(NULL)
     , smoker(NULL)
@@ -5702,7 +5702,7 @@ Beam::Beam(
         if (! LoadTruck(rig_loading_profiler, fname, beams_parent, pos, rot, spawnbox, cache_entry_number))
         {
             LOG(" ===== FAILED LOADING VEHICLE: " + Ogre::String(fname));
-            state = INVALID;
+            ar_sim_state = SimState::INVALID;
             return;
         }
     }
@@ -5776,12 +5776,12 @@ Beam::Beam(
 
     CreateSimpleSkeletonMaterial();
 
-    state = SLEEPING;
+    ar_sim_state = SimState::LOCAL_SLEEPING;
 
     // start network stuff
     if (_networked)
     {
-        state = NETWORKED;
+        ar_sim_state = SimState::NETWORKED_OK;
         // malloc memory
         oob1 = (RoRnet::TruckState*)malloc(sizeof(RoRnet::TruckState));
         oob2 = (RoRnet::TruckState*)malloc(sizeof(RoRnet::TruckState));
@@ -5799,12 +5799,12 @@ Beam::Beam(
 
     if (networking)
     {
-        if (state != NETWORKED)
+        if (ar_sim_state != SimState::NETWORKED_OK)
         {
             sendStreamSetup();
         }
 
-        if (state == NETWORKED || !m_hide_own_net_label)
+        if (ar_sim_state == SimState::NETWORKED_OK || !m_hide_own_net_label)
         {
             char wname[256];
             sprintf(wname, "netlabel-%s", truckname);
@@ -6338,7 +6338,7 @@ void Beam::setMass(float m)
 
 bool Beam::getBrakeLightVisible()
 {
-    if (state == NETWORKED)
+    if (ar_sim_state == SimState::NETWORKED_OK)
         return netBrakeLight;
 
     //		return (brake > 0.15 && !parkingbrake);

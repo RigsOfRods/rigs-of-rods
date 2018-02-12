@@ -1282,7 +1282,7 @@ bool Beam::calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int max
         return false;
     if (m_reset_request)
         return false;
-    if (state != SIMULATED)
+    if (ar_sim_state != Beam::SimState::LOCAL_SIMULATED)
         return false;
 
     BES_START(BES_CORE_WholeTruckCalc);

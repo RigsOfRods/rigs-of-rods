@@ -351,7 +351,7 @@ void RigSpawner::InitializeRig()
     m_rig->netCustomLightArray_counter = 0;
 
     m_rig->ispolice=false;
-    m_rig->state=SLEEPING;
+    m_rig->ar_sim_state = Beam::SimState::LOCAL_SLEEPING;
     m_rig->heathaze=false;
     m_rig->autopilot = nullptr;
     m_rig->hfinder = nullptr;
@@ -790,7 +790,7 @@ void RigSpawner::ProcessTurbojet(RigDef::Turbojet & def)
     
     m_rig->aeroengines[m_rig->free_aeroengine]=tj;
     m_rig->driveable=AIRPLANE;
-    if (m_rig->autopilot == nullptr && m_rig->state != NETWORKED)
+    if (m_rig->autopilot == nullptr && m_rig->ar_sim_state != Beam::SimState::NETWORKED_OK)
         m_rig->autopilot=new Autopilot(m_rig->trucknum);
 
     m_rig->free_aeroengine++;
@@ -913,7 +913,7 @@ void RigSpawner::BuildAerialEngine(
     m_rig->driveable = AIRPLANE;
 
     /* Autopilot */
-    if (m_rig->autopilot == nullptr && m_rig->state != NETWORKED)
+    if (m_rig->autopilot == nullptr && m_rig->ar_sim_state != Beam::SimState::NETWORKED_OK)
     {
         m_rig->autopilot = new Autopilot(m_rig->trucknum);
     }
@@ -1056,7 +1056,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
         def.airfoil,
         def.efficacy_coef,
         m_rig->aeroengines,
-        m_rig->state != NETWORKED
+        m_rig->ar_sim_state != Beam::SimState::NETWORKED_OK
     );
 
     Ogre::Entity* entity = nullptr;

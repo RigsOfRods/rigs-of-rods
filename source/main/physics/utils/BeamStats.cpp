@@ -154,9 +154,9 @@ bool BeamEngineStats::updateGUI(float dt)
 
     for (unsigned int c = 0; c < statClients.size(); c++)
     {
-        //if (it->first != current_truck || trucks[it->first]->state == SLEEPING)
+        
         if (!trucks[statClients[c].trucknum]) continue;
-        if (trucks[statClients[c].trucknum]->state == SLEEPING)
+        if (trucks[statClients[c].trucknum]->ar_sim_state == Beam::SimState::LOCAL_SLEEPING)
             continue;
 
         BeamThreadStats *core = statClients[c].stat;

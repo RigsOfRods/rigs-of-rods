@@ -437,7 +437,7 @@ void SurveyMapManager::UpdateVehicles(Beam** vehicles, int num_vehicles)
         SurveyMapEntity* e = getMapEntityByName("Truck" + TOSTRING(vehicles[t]->trucknum));
         if (e)
         {
-            e->setState(SIMULATED);
+            e->setState(static_cast<int>(Beam::SimState::LOCAL_SIMULATED));
             e->setVisibility(true);
             e->setPosition(vehicles[t]->getPosition().x, vehicles[t]->getPosition().z);
             e->setRotation(Radian(vehicles[t]->getHeadingDirectionAngle()));

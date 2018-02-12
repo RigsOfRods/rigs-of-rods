@@ -70,13 +70,6 @@ enum {
 };
 
 enum {
-    SIMULATED,      //!< simulated (local) truck
-    NETWORKED,      //!< not simulated (remote) truck
-    SLEEPING,       //!< sleeping (local) truck
-    INVALID         //!< not simulated and not updated via the network (e.g. size differs from expected)
-};
-
-enum {
     UNLOCKED,       //!< lock not locked
     PREUNLOCK,      //!< preunlocking, inter truck beam deletion in progress
     PRELOCK,        //!< prelocking, attraction forces in action

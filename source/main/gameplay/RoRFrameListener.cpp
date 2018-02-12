@@ -2001,7 +2001,7 @@ void RoRFrameListener::ReloadPlayerActor()
     Beam* curr_truck = m_beam_factory.getCurrentTruck();
     if (!curr_truck)
         return;
-    if (curr_truck->state == NETWORKED)
+    if (curr_truck->ar_sim_state == Beam::SimState::NETWORKED_OK)
         return;
 
     // try to load the same truck again
