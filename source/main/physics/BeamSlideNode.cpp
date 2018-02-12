@@ -45,7 +45,7 @@ void Beam::toggleSlideNodeLock()
         // Rail attachments
         if (!itNode->getAttachRule(ATTACH_ALL))
             continue;
-        if (SlideNodesLocked)
+        if (m_slidenodes_locked)
         {
             itNode->attachToRail(NULL);
             continue;
@@ -67,7 +67,7 @@ void Beam::toggleSlideNodeLock()
         itNode->attachToRail(closest.first);
     } // nests
 
-    SlideNodesLocked = !SlideNodesLocked;
+    m_slidenodes_locked = !m_slidenodes_locked;
 } // is ugly....
 
 std::pair<RailGroup*, Ogre::Real> Beam::getClosestRailOnTruck(Beam* truck, const SlideNode& node)
