@@ -440,7 +440,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
             // handbrake
             float hbrake = 0.0f;
 
-            if (parkingbrake && (wheels[i].wh_braking != wheel_t::BrakeCombo::FOOT_ONLY))
+            if (ar_parking_brake && (wheels[i].wh_braking != wheel_t::BrakeCombo::FOOT_ONLY))
             {
                 hbrake = hbrakeforce;
             }
@@ -1932,10 +1932,10 @@ void Beam::forwardCommands()
                         continue;
                     // forward brake
                     it->lockTruck->brake = brake;
-                    it->lockTruck->parkingbrake = parkingbrake;
+                    it->lockTruck->ar_parking_brake = ar_parking_brake;
 
                     // forward lights
-                    it->lockTruck->lights = lights;
+                    it->lockTruck->ar_lights = ar_lights;
                     it->lockTruck->m_blink_type = m_blink_type;
                     //for (int k=0; k<4; k++)
                     //	lockTruck->setCustomLight(k, getCustomLight(k));

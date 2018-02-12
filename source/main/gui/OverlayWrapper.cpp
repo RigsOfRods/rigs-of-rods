@@ -648,7 +648,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
             if (!strcmp(name, "tracks/ap_brks_but") && curr_truck->autopilot && mTimeUntilNextToggle <= 0)
             {
                 curr_truck->parkingbrakeToggle();
-                if (curr_truck->parkingbrake)
+                if (curr_truck->ar_parking_brake)
                     OverlayManager::getSingleton().getOverlayElement("tracks/ap_brks_but")->setMaterialName("tracks/brks-on");
                 else
                     OverlayManager::getSingleton().getOverlayElement("tracks/ap_brks_but")->setMaterialName("tracks/brks-off");

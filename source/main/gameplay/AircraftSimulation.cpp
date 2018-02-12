@@ -71,8 +71,8 @@ void AircraftSimulation::UpdateVehicle(Beam* vehicle, float seconds_since_last_f
         float tmp_left = RoR::App::GetInputEngine()->getEventValue(EV_AIRPLANE_STEER_LEFT);
         float tmp_right = RoR::App::GetInputEngine()->getEventValue(EV_AIRPLANE_STEER_RIGHT);
         float sum_steer = -tmp_left + tmp_right;
-        RoR::App::GetInputEngine()->smoothValue(vehicle->aileron, sum_steer, seconds_since_last_frame * commandrate);
-        vehicle->hydrodircommand = vehicle->aileron;
+        RoR::App::GetInputEngine()->smoothValue(vehicle->ar_aileron, sum_steer, seconds_since_last_frame * commandrate);
+        vehicle->hydrodircommand = vehicle->ar_aileron;
         vehicle->hydroSpeedCoupling = !(RoR::App::GetInputEngine()->isEventAnalog(EV_AIRPLANE_STEER_LEFT) && RoR::App::GetInputEngine()->isEventAnalog(EV_AIRPLANE_STEER_RIGHT));
     }
 
@@ -80,16 +80,16 @@ void AircraftSimulation::UpdateVehicle(Beam* vehicle, float seconds_since_last_f
     float tmp_pitch_up = RoR::App::GetInputEngine()->getEventValue(EV_AIRPLANE_ELEVATOR_UP);
     float tmp_pitch_down = RoR::App::GetInputEngine()->getEventValue(EV_AIRPLANE_ELEVATOR_DOWN);
     float sum_pitch = tmp_pitch_down - tmp_pitch_up;
-    RoR::App::GetInputEngine()->smoothValue(vehicle->elevator, sum_pitch, seconds_since_last_frame * commandrate);
+    RoR::App::GetInputEngine()->smoothValue(vehicle->ar_elevator, sum_pitch, seconds_since_last_frame * commandrate);
 
     //rudder
     float tmp_rudder_left = RoR::App::GetInputEngine()->getEventValue(EV_AIRPLANE_RUDDER_LEFT);
     float tmp_rudder_right = RoR::App::GetInputEngine()->getEventValue(EV_AIRPLANE_RUDDER_RIGHT);
     float sum_rudder = tmp_rudder_left - tmp_rudder_right;
-    RoR::App::GetInputEngine()->smoothValue(vehicle->rudder, sum_rudder, seconds_since_last_frame * commandrate);
+    RoR::App::GetInputEngine()->smoothValue(vehicle->ar_rudder, sum_rudder, seconds_since_last_frame * commandrate);
 
     //brake
-    if (!vehicle->ar_replay_mode && !vehicle->parkingbrake)
+    if (!vehicle->ar_replay_mode && !vehicle->ar_parking_brake)
     {
         vehicle->brake = 0.0;
         float brakevalue = RoR::App::GetInputEngine()->getEventValue(EV_AIRPLANE_BRAKE);
@@ -100,7 +100,7 @@ void AircraftSimulation::UpdateVehicle(Beam* vehicle, float seconds_since_last_f
         vehicle->parkingbrakeToggle();
         if (RoR::App::GetOverlayWrapper())
         {
-            if (vehicle->parkingbrake)
+            if (vehicle->ar_parking_brake)
             {
                 Ogre::OverlayManager::getSingleton().getOverlayElement("tracks/ap_brks_but")->setMaterialName("tracks/brks-on");
             }
