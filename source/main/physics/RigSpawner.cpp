@@ -306,7 +306,7 @@ void RigSpawner::InitializeRig()
     m_rig->m_odometer_user  = 0;
 
     m_rig->m_masscount=0;
-    m_rig->disable_smoke = App::gfx_particles_mode.GetActive() == 0;
+    m_rig->m_disable_smoke = App::gfx_particles_mode.GetActive() == 0;
     m_rig->ar_exhaust_pos_node=0;
     m_rig->ar_exhaust_dir_node=0;
     m_rig->m_beam_break_debug_enabled  = App::diag_log_beam_break.GetActive();
@@ -383,7 +383,7 @@ void RigSpawner::InitializeRig()
 
     m_rig->ar_driverseat_prop = nullptr;
 
-    m_rig->ar_use_heathaze = !m_rig->disable_smoke && App::gfx_enable_heathaze.GetActive();
+    m_rig->ar_use_heathaze = !m_rig->m_disable_smoke && App::gfx_enable_heathaze.GetActive();
     m_rig->ar_hide_in_actor_list = false;
 
     m_rig->ar_anim_previous_crank = 0.f;
@@ -751,7 +751,7 @@ void RigSpawner::ProcessTurbojet(RigDef::Turbojet & def)
         this->SetupNewEntity(afterburn_ent, Ogre::ColourValue(1, 1, 0));
     }
     std::string propname = this->ComposeName("Turbojet", m_rig->free_aeroengine);
-    tj->SetupVisuals(propname, nozzle_ent, def.back_diameter, def.nozzle_length, afterburn_ent, m_rig->disable_smoke);
+    tj->SetupVisuals(propname, nozzle_ent, def.back_diameter, def.nozzle_length, afterburn_ent, m_rig->m_disable_smoke);
     
     m_rig->aeroengines[m_rig->free_aeroengine]=tj;
     m_rig->ar_driveable=AIRPLANE;
@@ -874,7 +874,7 @@ void RigSpawner::BuildAerialEngine(
         airfoil,
         m_rig->free_aeroengine,
         m_rig->ar_instance_id,
-        m_rig->disable_smoke,
+        m_rig->m_disable_smoke,
         ! is_turboprops,
         pitch,
         m_rig->ar_use_heathaze
@@ -1409,7 +1409,7 @@ void RigSpawner::ProcessExhaust(RigDef::Exhaust & def)
     SPAWNER_PROFILE_SCOPED();
 
     // parse exhausts
-    if (m_rig->disable_smoke)
+    if (m_rig->m_disable_smoke)
     {
         return;
     }
@@ -6218,7 +6218,7 @@ void RigSpawner::AddExhaust(
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (m_rig->disable_smoke)
+    if (m_rig->m_disable_smoke)
     {
         return;
     }

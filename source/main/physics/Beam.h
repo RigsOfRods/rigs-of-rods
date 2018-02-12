@@ -374,7 +374,6 @@ public:
     float             sl_speed_limit;     //!< Speed limiter;
     int               ar_extern_camera_mode;
     int               ar_extern_camera_node;
-    bool              disable_smoke;
     int               ar_exhaust_pos_node; //!< Old-format exhaust (one per vehicle) emitter node
     int               ar_exhaust_dir_node; //!< Old-format exhaust (one per vehicle) backwards direction node
     int               ar_instance_id;              //!< Static attr; session-unique ID
@@ -624,6 +623,7 @@ private:
     bool m_beam_deform_debug_enabled:1; //!< Logging state
     bool m_trigger_debug_enabled:1;     //!< Logging state
     bool m_disable_default_sounds:1;    //!< Spawner context; TODO: remove
+    bool m_disable_smoke:1;             //!< Gfx state
 
 #ifdef FEAT_TIMING
     BeamThreadStats *statistics, *statistics_gfx;
