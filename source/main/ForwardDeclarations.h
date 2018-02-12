@@ -182,7 +182,7 @@ class RailSegment;
 class RailGroup;
 class Replay;
 class RigsOfRods;
-class RigSpawner;
+class ActorSpawner;
 class Road2;
 class Road;
 class RoRFrameListener;

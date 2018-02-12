@@ -235,7 +235,7 @@ void ActorManager::SetupActor(
 
     LOG(" == Spawning vehicle: " + def->name);
 
-    RigSpawner spawner;
+    ActorSpawner spawner;
     spawner.Setup(actor, def, parent_scene_node, spawn_position, cache_entry_number);
     /* Setup modules */
     spawner.AddModule(def->root_module);
@@ -247,7 +247,7 @@ void ActorManager::SetupActor(
             spawner.AddModule(*itor);
         }
     }
-    spawner.SpawnRig();
+    spawner.SpawnActor();
     def->report_num_errors += spawner.GetMessagesNumErrors();
     def->report_num_warnings += spawner.GetMessagesNumWarnings();
     def->report_num_other += spawner.GetMessagesNumOther();
@@ -257,7 +257,7 @@ void ActorManager::SetupActor(
     RoR::App::GetGuiManager()->AddRigLoadingReport(def->name, def->loading_report, def->report_num_errors, def->report_num_warnings, def->report_num_other);
     if (def->report_num_errors != 0)
     {
-        if (BSETTING("AutoRigSpawnerReport", false))
+        if (BSETTING("AutoActorSpawnerReport", false))
         {
             RoR::App::GetGuiManager()->SetVisible_SpawnerReport(true);
         }
@@ -277,7 +277,7 @@ void ActorManager::SetupActor(
         Ogre::Vector3 vehicle_position = spawn_position;
 
         // check if over-sized
-        RigSpawner::RecalculateBoundingBoxes(actor);
+        ActorSpawner::RecalculateBoundingBoxes(actor);
         vehicle_position.x -= (actor->ar_bounding_box.getMaximum().x + actor->ar_bounding_box.getMinimum().x) / 2.0 - vehicle_position.x;
         vehicle_position.z -= (actor->ar_bounding_box.getMaximum().z + actor->ar_bounding_box.getMinimum().z) / 2.0 - vehicle_position.z;
 
@@ -325,13 +325,13 @@ void ActorManager::SetupActor(
     //setup default sounds
     if (!actor->m_disable_default_sounds)
     {
-        RigSpawner::SetupDefaultSoundSources(actor);
+        ActorSpawner::SetupDefaultSoundSources(actor);
     }
 
     //compute node connectivity graph
     actor->calcNodeConnectivityGraph();
 
-    RigSpawner::RecalculateBoundingBoxes(actor);
+    ActorSpawner::RecalculateBoundingBoxes(actor);
 
     // fix up submesh collision model
     std::string subMeshGroundModelName = spawner.GetSubmeshGroundmodelName();
@@ -507,7 +507,7 @@ void ActorManager::SetupActor(
         if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK || !actor->m_hide_own_net_label)
         {
             RoR::Str<100> element_name;
-            RigSpawner::ComposeName(element_name, "NetLabel", 0, actor->ar_instance_id);
+            ActorSpawner::ComposeName(element_name, "NetLabel", 0, actor->ar_instance_id);
             actor->m_net_label_mt = new MovableText(element_name.ToCStr(), actor->m_net_username);
             actor->m_net_label_mt->setFontName("CyberbitEnglish");
             actor->m_net_label_mt->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);

@@ -168,7 +168,7 @@ public:
     FlexFactory() {}
 
     FlexFactory(
-        RigSpawner*               spawner,
+        ActorSpawner*               spawner,
         bool                      is_flexbody_cache_enabled,
         int                       cache_entry_number = -1
         );
@@ -199,7 +199,7 @@ private:
 
     void  ResolveFlexbodyLOD(std::string meshname, Ogre::MeshPtr newmesh);
 
-    RigSpawner*             m_rig_spawner;
+    ActorSpawner*             m_rig_spawner;
 
     FlexBodyFileIO          m_flexbody_cache;
     bool                    m_is_flexbody_cache_enabled;

@@ -29,7 +29,7 @@
 /// NOTE: Formerly named 'BeamEngine' because 'Actor' was 'Beam'
 class EngineSim : public ZeroedMemoryAllocator
 {
-    friend class RigSpawner;
+    friend class ActorSpawner;
 
 public:
 
