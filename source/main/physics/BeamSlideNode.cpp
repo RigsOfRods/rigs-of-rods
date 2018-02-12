@@ -60,7 +60,7 @@ void Actor::ToggleSlideNodeLock()
                 (curTruck == i && itNode->getAttachRule(ATTACH_SELF))))
                 continue;
 
-            current = getClosestRailOnTruck(RoR::App::GetSimController()->GetActorById(i), (*itNode));
+            current = GetClosestRailOnActor(RoR::App::GetSimController()->GetActorById(i), (*itNode));
             if (current.second < closest.second)
                 closest = current;
         } // this many
@@ -71,7 +71,7 @@ void Actor::ToggleSlideNodeLock()
     m_slidenodes_locked = !m_slidenodes_locked;
 } // is ugly....
 
-std::pair<RailGroup*, Ogre::Real> Actor::getClosestRailOnTruck(Actor* truck, const SlideNode& node)
+std::pair<RailGroup*, Ogre::Real> Actor::GetClosestRailOnActor(Actor* truck, const SlideNode& node)
 {
     std::pair<RailGroup*, Ogre::Real> closest((RailGroup*)NULL, std::numeric_limits<Ogre::Real>::infinity());
     Rail* curRail = NULL;

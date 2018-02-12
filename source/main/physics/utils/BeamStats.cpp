@@ -72,7 +72,7 @@ BeamEngineStats::BeamEngineStats()
     typeDescriptions_gfx[BES_GFX_ScaleTruck]                = "ScaleTruck";
     typeDescriptions_gfx[BES_GFX_pushNetwork]               = "PushNetwork";
     typeDescriptions_gfx[BES_GFX_calcNetwork]               = "CalcNetwork";
-    typeDescriptions_gfx[BES_GFX_calc_masses2]              = "calc_masses2";
+    typeDescriptions_gfx[BES_GFX_calc_masses2]              = "RecalculateNodeMasses";
     typeDescriptions_gfx[BES_GFX_calcBox]                   = "calcBox";
     typeDescriptions_gfx[BES_GFX_calcNodeConnectivityGraph] = "calcNodeConGraph";
     typeDescriptions_gfx[BES_GFX_calculateDriverPos]        = "calculateDriverPos";

@@ -360,8 +360,8 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
             {
                 as->addData("Truck_fname", player_actor->ar_filename);
                 as->addData("Truck_name", player_actor->GetActorDesignName());
-                as->addData("Truck_beams", TOSTRING(player_actor->getBeamCount()));
-                as->addData("Truck_nodes", TOSTRING(player_actor->getNodeCount()));
+                as->addData("Truck_beams", TOSTRING(player_actor->ar_num_beams));
+                as->addData("Truck_nodes", TOSTRING(player_actor->ar_num_nodes));
             }
             as->addData("User_NickName", App::mp_player_name.GetActive());
             as->addData("User_Language", App::app_language.GetActive());
@@ -1124,9 +1124,9 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SHOW_SKELETON))
                     {
                         if (player_actor->ar_skeletonview_is_active)
-                            player_actor->hideSkeleton();
+                            player_actor->HideSkeleton();
                         else
-                            player_actor->showSkeleton(true);
+                            player_actor->ShowSkeleton(true);
                     }
 
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_LIGHTS))
@@ -1468,7 +1468,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_INFO) && player_actor)
     {
         m_actor_info_gui_visible = ! m_actor_info_gui_visible;
-        gui_man->GetSimUtils()->SetTruckInfoBoxVisible(m_actor_info_gui_visible);
+        gui_man->GetSimUtils()->SetActorInfoBoxVisible(m_actor_info_gui_visible);
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_DESCRIPTION) && player_actor)

@@ -6220,7 +6220,7 @@ void RigSpawner::ProcessCinecam(RigDef::Cinecam & def)
     AdjustNodeBuoyancy(camera_node, def.node_defaults);
     camera_node.volume_coef   = def.node_defaults->volume;
     camera_node.surface_coef  = def.node_defaults->surface;
-    // NOTE: Not applying the 'node_mass' value here for backwards compatibility - this node must go through initial `Actor::calc_masses2()` pass with default weight.
+    // NOTE: Not applying the 'node_mass' value here for backwards compatibility - this node must go through initial `Actor::RecalculateNodeMasses()` pass with default weight.
 
     m_rig->ar_cinecam_node[m_rig->ar_num_cinecams] = camera_node.pos;
     m_rig->ar_num_cinecams++;

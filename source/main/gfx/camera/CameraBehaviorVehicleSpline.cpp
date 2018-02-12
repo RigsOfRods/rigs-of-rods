@@ -69,7 +69,7 @@ void CameraBehaviorVehicleSpline::update(const CameraManager::CameraContext& ctx
         targetPitch = -asin(dir.dotProduct(Vector3::UNIT_Y));
     }
 
-    if (ctx.cct_player_actor->getAllLinkedBeams().size() != numLinkedBeams)
+    if (ctx.cct_player_actor->GetAllLinkedActors().size() != numLinkedBeams)
     {
         createSpline(ctx);
     }
@@ -204,7 +204,7 @@ void CameraBehaviorVehicleSpline::createSpline(const CameraManager::CameraContex
         splineNodes.push_back(&ctx.cct_player_actor->ar_nodes[ctx.cct_player_actor->ar_camera_rail[i]]);
     }
 
-    std::list<Actor*> linkedBeams = ctx.cct_player_actor->getAllLinkedBeams();
+    std::list<Actor*> linkedBeams = ctx.cct_player_actor->GetAllLinkedActors();
 
     numLinkedBeams = linkedBeams.size();
 

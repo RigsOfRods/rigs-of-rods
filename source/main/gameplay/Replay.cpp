@@ -26,10 +26,10 @@
 
 using namespace Ogre;
 
-Replay::Replay(Actor* b, int _numFrames)
+Replay::Replay(Actor* actor, int _numFrames)
 {
-    numNodes = b->getNodeCount();
-    numBeams = b->getBeamCount();
+    numNodes = actor->ar_num_nodes;
+    numBeams = actor->ar_num_beams;
     numFrames = _numFrames;
 
     replayTimer = new Timer();

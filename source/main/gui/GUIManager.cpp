@@ -243,7 +243,7 @@ bool GUIManager::frameEnded(const Ogre::FrameEvent& evt)
 
 void GUIManager::FrameStepGui(float dt)
 {
-    m_impl->panel_SimUtils.framestep(dt);
+    m_impl->panel_SimUtils.FrameStepSimGui(dt);
 };
 
 void GUIManager::PushNotification(Ogre::String Title, Ogre::UTFString text)
@@ -366,7 +366,7 @@ void GUIManager::hideGUI(bool hidden)
     {
         m_impl->panel_SimUtils.HideNotificationBox();
         m_impl->panel_SimUtils.SetFPSBoxVisible(false);
-        m_impl->panel_SimUtils.SetTruckInfoBoxVisible(false);
+        m_impl->panel_SimUtils.SetActorInfoBoxVisible(false);
         m_impl->panel_ChatBox.Hide();
     }
     m_impl->panel_SimUtils.DisableNotifications(hidden);

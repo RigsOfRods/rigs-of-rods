@@ -42,13 +42,13 @@ struct beam_t
     ///   Actor::ToggleTies(int group)   -- READ: uses it to determine locked/unlocked status.
     ///                                -- WRITE: sets true when tie gets unlocked, false when it gets locked.
     ///   Actor::ToggleHooks()             -- WRITE sets to false when hook is unlocked.
-    ///   Actor::nodeBeamConnections()    -- READ: Counts beams connected to node; Excludes 'disabled' beams.
+    ///   Actor::GetNumActiveConnectedBeams()    -- READ: Counts beams connected to node; Excludes 'disabled' beams.
     ///   Actor::calcForcesEulerCompute() -- READ Saves value to replay buffer
     ///   Actor::ReplayStep()             -- WRITE: fills from replay buffer
     ///   Actor::calcBeams()            -- READ excludes beam from physics
     ///                                -- WRITE: when SUPPORTBEAM breaks, it's set to 'disabled' + 'broken'
     ///                                -- WRITE: when regular beam breaks, 'true' is set to it and all beams in it's detacher group.
-    ///   Actor::calcBeamsInterTruck()    -- READ: excludes beam from physics
+    ///   Actor::CalcBeamsInterActor()    -- READ: excludes beam from physics
     ///                                  -- WRITE: when beam breaks (special conditions), it's set to 'disabled' + 'broken'
     ///   Actor::calcHooks() -- READ/WRITE: If disabled during locking, it's enabled
     ///                     -- WRITE: When locking fails, beam is reset to disabled
@@ -65,7 +65,7 @@ struct beam_t
     ///                                  -- READ Saves value to replay buffer
     ///   Actor::calcBeams()         -- WRITE: when regular beam breaks, 'true' is set to it and all beams in it's detacher group.
     ///                             -- WRITE: when SUPPORTBEAM breaks, it's set to 'disabled' + 'broken'
-    ///   Actor::calcBeamsInterTruck() -- WRITE: when beam breaks (special conditions), it's set to 'disabled' + 'broken'
+    ///   Actor::CalcBeamsInterActor() -- WRITE: when beam breaks (special conditions), it's set to 'disabled' + 'broken'
     ///   SlideNode::UpdateForces() -- READ: Stops updates when sliding beam is broken.
     ///   SlideNode::UpdatePosition() -- READ: Stops updates when sliding beam is broken.
     ///                NOTE: SlideNode handling may be a mistake - the feature was contributed, not developed by core team.
