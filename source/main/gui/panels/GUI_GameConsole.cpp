@@ -161,9 +161,7 @@ void Console::messageLogged(const String& message, LogMessageLevel lml, bool mas
 void Console::messageLogged(const String& message, LogMessageLevel lml, bool maskDebug, const String& logName, bool& skipThisMessage)
 #endif // OGRE_VERSION
 {
-    String msg = message;
-    //this->print(logName+": "+message);
-    // strip script engine things
+    std::string msg = RoR::Utils::SanitizeUtf8String(message);
     if (message.substr(0, 4) == "SE| ")
     {
         msg = message.substr(4);
