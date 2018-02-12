@@ -38,7 +38,7 @@ struct beam_t
     /// Multipurpose; excludes beam from physics, controls visibility (gfx) and indicates multiple other states (hooks/ties).
     /// Users:
     ///   Actor::SyncReset()              -- WRITE: sets to true for hook-beams and tie-beams, false on all other beams.
-    ///   Actor::disjoinInterTruckBeams() -- WRITE: sets to false on all beams managed as 'inter-truck'
+    ///   Actor::DisjoinInterActorBeams() -- WRITE: sets to false on all beams managed as 'inter-truck'
     ///   Actor::tieToggle(int group)   -- READ: uses it to determine locked/unlocked status.
     ///                                -- WRITE: sets true when tie gets unlocked, false when it gets locked.
     ///   Actor::hookToggle()             -- WRITE sets to false when hook is unlocked.

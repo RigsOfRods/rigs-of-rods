@@ -43,7 +43,7 @@ namespace RoR {
 class ActorManager
 {
     friend class GameScript; // needs to call RemoveActorByCollisionBox()
-    friend class ::RoRFrameListener; // Needs to call removeTruck(), RemoveActorByCollisionBox(), GetPlayerActorInternal()
+    friend class ::RoRFrameListener; // Needs to call removeTruck(), RemoveActorByCollisionBox(), GetPlayerActorInternal(), GetPlayerActorInternal()
 public:
 
     ActorManager(RoRFrameListener* sim_controller);
@@ -75,14 +75,12 @@ public:
 
     int getNumCpuCores() { return m_num_cpu_cores; };
 
-    Actor* getBeam(int source_id, int stream_id); // used by character
+    Actor* GetActorByNetworkLinks(int source_id, int stream_id); // used by character
 
-    
-    Actor* getTruck(int number);
-    Actor** getTrucks() { return m_actors; };
+    Actor** GetInternalActorSlots() { return m_actors; }; // TODO: Eliminate this!! Tasks requiring search over all actors should be done internally. ~ only_a_ptr, 01/2018
     int getPreviousTruckNumber() { return m_prev_player_actor; };
     int getCurrentTruckNumber() { return m_player_actor; };
-    int getTruckCount() const { return m_free_actor_slot; };
+    int GetNumUsedActorSlots() const { return m_free_actor_slot; }; // TODO: Eliminate this!! Tasks requiring search over all actors should be done internally. ~ only_a_ptr, 01/2018
 
     void enterNextTruck();
     void enterPreviousTruck();
@@ -137,12 +135,13 @@ public:
 
     DustManager& GetParticleManager() { return m_particle_manager; }
 
-    // A list of all beams interconnecting two trucks
-    std::map<beam_t*, std::pair<Actor*, Actor*>> interTruckLinks;
+    // A list of all beams interconnecting two actors
+    std::map<beam_t*, std::pair<Actor*, Actor*>> inter_actor_links;
 
 protected:
 
-    Actor* GetPlayerActorInternal(); //!< Use `RoRFrameListener` for public interface
+    Actor* GetPlayerActorInternal();         //!< Use `RoRFrameListener` for public interface
+    Actor* GetActorByIdInternal(int number); //!< Use `RoRFrameListener` for public interface
 
     void RemoveActorByCollisionBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box); ///< Only for scripting
     void removeTruck(int truck); ///< Internal+friends use only; see `RoRFrameListener::*Actor*()` functions.

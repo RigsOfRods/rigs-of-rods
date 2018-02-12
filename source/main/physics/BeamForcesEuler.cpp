@@ -1908,22 +1908,22 @@ void Actor::forwardCommands()
 {
     Actor* current_truck = RoR::App::GetSimController()->GetPlayerActor();
     auto bf = RoR::App::GetSimController()->GetBeamFactory();
-    Actor** trucks = bf->getTrucks();
-    int numtrucks = bf->getTruckCount();
+    Actor** actor_slots = bf->GetInternalActorSlots();
+    int num_actor_slots = bf->GetNumUsedActorSlots();
 
     // forward things to trailers
-    if (numtrucks > 1 && this == current_truck && ar_forward_commands)
+    if (num_actor_slots > 1 && this == current_truck && ar_forward_commands)
     {
-        for (int i = 0; i < numtrucks; i++)
+        for (int i = 0; i < num_actor_slots; i++)
         {
-            if (!trucks[i])
+            if (!actor_slots[i])
                 continue;
-            if (trucks[i] != current_truck && trucks[i]->ar_import_commands)
+            if (actor_slots[i] != current_truck && actor_slots[i]->ar_import_commands)
             {
                 // forward commands
                 for (int j = 1; j <= MAX_COMMANDS; j++)
                 {
-                    trucks[i]->ar_command_key[j].playerInputValue = std::max(ar_command_key[j].playerInputValue, ar_command_key[j].commandValue);
+                    actor_slots[i]->ar_command_key[j].playerInputValue = std::max(ar_command_key[j].playerInputValue, ar_command_key[j].commandValue);
                 }
                 // just send brake and lights to the connected truck, and no one else :)
                 for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
@@ -1962,7 +1962,7 @@ void Actor::calcHooks()
                 it->beam->p2truck = it->lockTruck != 0;
                 it->beam->L = (it->hookNode->AbsPosition - it->lockNode->AbsPosition).length();
                 it->beam->bm_disabled = false;
-                addInterTruckBeam(it->beam, this, it->lockTruck);
+                AddInterActorBeam(it->beam, this, it->lockTruck);
             }
             else
             {
@@ -2004,7 +2004,7 @@ void Actor::calcHooks()
                                 it->beam->p2truck = false;
                                 it->beam->L = (ar_nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
                                 it->beam->bm_disabled = true;
-                                removeInterTruckBeam(it->beam);
+                                RemoveInterActorBeam(it->beam);
                             }
                         }
                     }
@@ -2014,7 +2014,7 @@ void Actor::calcHooks()
         if (it->locked == PREUNLOCK)
         {
             it->locked = UNLOCKED;
-            removeInterTruckBeam(it->beam);
+            RemoveInterActorBeam(it->beam);
         }
     }
     BES_STOP(BES_CORE_Hooks);

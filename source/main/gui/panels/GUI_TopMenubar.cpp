@@ -197,16 +197,16 @@ UTFString TopMenubar::getUserString(RoRnet::UserInfo &user, int num_vehicles)
 void TopMenubar::addUserToMenu(RoRnet::UserInfo &user)
 {
 #ifdef USE_SOCKETW
-    int numTrucks = App::GetSimController()->GetBeamFactory()->getTruckCount();
-    Actor **trucks = App::GetSimController()->GetBeamFactory()->getTrucks();
+    int num_actor_slots = App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots();
+    Actor **actor_slots = App::GetSimController()->GetBeamFactory()->GetInternalActorSlots();
 
     // now search the vehicles of that user together
     std::vector<int> matches;
-    for (int j = 0; j < numTrucks; j++)
+    for (int j = 0; j < num_actor_slots; j++)
     {
-        if (!trucks[j]) continue;
+        if (!actor_slots[j]) continue;
 
-        if (trucks[j]->ar_net_source_id == user.uniqueid)
+        if (actor_slots[j]->ar_net_source_id == user.uniqueid)
         {
             // match, found truck :)
             matches.push_back(j);
@@ -225,7 +225,7 @@ void TopMenubar::addUserToMenu(RoRnet::UserInfo &user)
             for (unsigned int j = 0; j < matches.size(); j++)
             {
                 char tmp[512] = "";
-                sprintf(tmp, "  + %s (%s)", trucks[matches[j]]->ar_design_name.c_str(),  trucks[matches[j]]->ar_filename.c_str());
+                sprintf(tmp, "  + %s (%s)", actor_slots[matches[j]]->ar_design_name.c_str(),  actor_slots[matches[j]]->ar_filename.c_str());
                 MyGUI::UString vehName = convertToMyGUIString(ANSI_TO_UTF(tmp));
                 m_vehicles_menu_widget->addItem(vehName, MyGUI::MenuItemType::Normal, "TRUCK_"+TOSTRING(matches[j]));
             }
@@ -241,22 +241,23 @@ void TopMenubar::vehiclesListUpdate()
     if (!(App::mp_state.GetActive() == RoR::MpState::CONNECTED))
     {
         // single player mode: add vehicles simply, no users
-        int numTrucks = App::GetSimController()->GetBeamFactory()->getTruckCount();
-        Actor **trucks = App::GetSimController()->GetBeamFactory()->getTrucks();
+        int num_actor_slots = App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots();
+        Actor **actor_slots = App::GetSimController()->GetBeamFactory()->GetInternalActorSlots();
 
         // simple iterate through :)
-        for (int i = 0; i < numTrucks; i++)
+        for (int i = 0; i < num_actor_slots; i++)
         {
-            if (!trucks[i]) continue;
+            if (!actor_slots[i]) continue;
 
-            if (trucks[i]->ar_hide_in_actor_list) continue;
+            if (actor_slots[i]->ar_hide_in_actor_list) continue;
 
             char tmp[255] = {};
-            sprintf(tmp, "[%d] %s", i, trucks[i]->ar_design_name.c_str());
+            sprintf(tmp, "[%d] %s", i, actor_slots[i]->ar_design_name.c_str());
 
             m_vehicles_menu_widget->addItem(String(tmp), MyGUI::MenuItemType::Normal, "TRUCK_"+TOSTRING(i));
         }
-    } else
+    }
+    else
     {
 #ifdef USE_SOCKETW
         // sort the list according to the network users
@@ -282,7 +283,7 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
     if (id.substr(0,6) == "TRUCK_")
     {
         int truck = PARSEINT(id.substr(6));
-        if (truck >= 0 && truck < App::GetSimController()->GetBeamFactory()->getTruckCount())
+        if (truck >= 0 && truck < App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots())
         {
             App::GetSimController()->GetBeamFactory()->setCurrentTruck(truck);
         }

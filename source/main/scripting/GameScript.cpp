@@ -233,20 +233,20 @@ void GameScript::setGravity(float value)
 
 Actor* GameScript::getTruckByNum(int num)
 {
-    return mse->GetFrameListener()->GetBeamFactory()->getTruck(num);
+    return mse->GetFrameListener()->GetActorById(num);
 }
 
 int GameScript::getNumTrucks()
 {
-    return mse->GetFrameListener()->GetBeamFactory()->getTruckCount();
+    return mse->GetFrameListener()->GetBeamFactory()->GetNumUsedActorSlots();
 }
 
 int GameScript::getNumTrucksByFlag(int flag)
 {
     int result = 0;
-    for (int i = 0; i < mse->GetFrameListener()->GetBeamFactory()->getTruckCount(); i++)
+    for (int i = 0; i < mse->GetFrameListener()->GetBeamFactory()->GetNumUsedActorSlots(); i++)
     {
-        Actor* truck = mse->GetFrameListener()->GetBeamFactory()->getTruck(i);
+        Actor* truck = mse->GetFrameListener()->GetActorById(i);
         if (!truck && !flag)
             result++;
         if (!truck)
@@ -980,7 +980,7 @@ VehicleAI* GameScript::getCurrentTruckAI()
 
 VehicleAI* GameScript::getTruckAIByNum(int num)
 {
-    Actor* b = mse->GetFrameListener()->GetBeamFactory()->getTruck(num);
+    Actor* b = mse->GetFrameListener()->GetActorById(num);
     if (b)
         return b->ar_vehicle_ai;
     return nullptr;

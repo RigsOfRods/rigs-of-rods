@@ -125,8 +125,8 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
         Ray mouseRay = getMouseRay();
 
         // walk all trucks
-        Actor** trucks = App::GetSimController()->GetBeamFactory()->getTrucks();
-        int trucksnum  = App::GetSimController()->GetBeamFactory()->getTruckCount();
+        Actor** trucks = App::GetSimController()->GetBeamFactory()->GetInternalActorSlots();
+        int trucksnum  = App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots();
         minnode = -1;
         grab_truck = NULL;
         for (int i = 0; i < trucksnum; i++)

@@ -680,7 +680,7 @@ void Character::receiveStreamData(unsigned int& type, int& source, unsigned int&
         else if (msg->command == Networking::CHARACTER_CMD_ATTACH)
         {
             auto* attach_msg = reinterpret_cast<Networking::CharacterMsgAttach*>(buffer);
-            Actor* beam = m_sim_controller->GetBeamFactory()->getBeam(attach_msg->source_id, attach_msg->stream_id);
+            Actor* beam = m_sim_controller->GetBeamFactory()->GetActorByNetworkLinks(attach_msg->source_id, attach_msg->stream_id);
             if (beam != nullptr)
             {
                 this->setBeamCoupling(true, beam);

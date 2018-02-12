@@ -185,7 +185,7 @@ public:
     void              updateSimpleSkeleton();              //!< Gfx; updates the "skeletonview" (diagnostic view) mesh.
     void              resetAutopilot();
     void              disconnectAutopilot();
-    void              scaleTruck(float value);
+    void              ScaleActor(float value);
     void              updateDebugOverlay();
     void              setDebugOverlayState(int mode);
     void              calcBeam(beam_t& beam, bool doUpdate, Ogre::Real dt, int& m_increased_accuracy);
@@ -459,13 +459,13 @@ private:
     void              calcAnimators(const int flag_state, float &cstate, int &div, float timer, const float lower_limit, const float upper_limit, const float option3);
     void              SyncReset();                         //!< this one should be called only synchronously (without physics running in background)
     void              SetPropsCastShadows(bool do_cast_shadows);
-    void              determineLinkedBeams();
+    void              DetermineLinkedActors();
     void              calc_masses2(Ogre::Real total, bool reCalc=false);
     void              calcNodeConnectivityGraph();
     void              moveOrigin(Ogre::Vector3 offset);    //!< move physics origin
-    void              addInterTruckBeam(beam_t* beam, Actor* a, Actor* b);
-    void              removeInterTruckBeam(beam_t* beam);
-    void              disjoinInterTruckBeams();            //!< Destroys all inter truck beams which are connected with this truck
+    void              AddInterActorBeam(beam_t* beam, Actor* a, Actor* b);
+    void              RemoveInterActorBeam(beam_t* beam);
+    void              DisjoinInterActorBeams();            //!< Destroys all inter truck beams which are connected with this truck
     void              CreateSimpleSkeletonMaterial();
     void              cabFade(float amount);
     void              setMeshWireframe(Ogre::SceneNode *node, bool value);
