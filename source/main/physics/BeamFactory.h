@@ -43,7 +43,7 @@ namespace RoR {
 class ActorManager
 {
     friend class GameScript; // needs to call RemoveActorByCollisionBox()
-    friend class ::RoRFrameListener; // Needs to call removeTruck(), RemoveActorByCollisionBox(), GetPlayerActorInternal(), GetPlayerActorInternal()
+    friend class ::RoRFrameListener; // Needs to call RemoveActorInternal(), RemoveActorByCollisionBox(), GetPlayerActorInternal(), GetPlayerActorInternal()
 public:
 
     ActorManager(RoRFrameListener* sim_controller);
@@ -107,47 +107,27 @@ public:
 
 protected:
 
-    Actor* GetPlayerActorInternal();         //!< Use `RoRFrameListener` for public interface
-    Actor* GetActorByIdInternal(int number); //!< Use `RoRFrameListener` for public interface
+    Actor*         GetPlayerActorInternal();         //!< Use `RoRFrameListener` for public interface
+    Actor*         GetActorByIdInternal(int number); //!< Use `RoRFrameListener` for public interface
+    void           RemoveActorByCollisionBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box); //!< Only for scripting
+    void           RemoveActorInternal(int actor_id); //!< Internal+friends use only; see `RoRFrameListener::*Actor*()` functions.
+    bool           CheckAabbIntersection(Ogre::AxisAlignedBox a, Ogre::AxisAlignedBox b, float scale = 1.0f); //!< Returns whether or not the two (scaled) bounding boxes intersect.
+    bool           CheckActorAabbIntersection(int a, int b, float scale = 1.0f);     //!< Returns whether or not the bounding boxes of truck a and truck b intersect. Based on the default truck bounding boxes.
+    bool           PredictActorAabbIntersection(int a, int b, float scale = 1.0f);   //!< Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the default truck bounding boxes.
+    bool           CheckActorCollAabbIntersect(int a, int b, float scale = 1.0f);    //!< Returns whether or not the bounding boxes of truck a and truck b intersect. Based on the truck collision bounding boxes.
+    bool           PredictActorCollAabbIntersect(int a, int b, float scale = 1.0f);  //!< Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the truck collision bounding boxes.
+    int            CreateRemoteInstance(RoRnet::TruckStreamRegister* reg);
+    void           RemoveStreamSource(int sourceid);
+    void           LogParserMessages();
+    void           LogSpawnerMessages();
+    void           RecursiveActivation(int j, std::bitset<MAX_TRUCKS>& visited);
+    void           UpdateSleepingState(float dt);
+    int            GetMostRecentActorSlot();
+    int            GetFreeActorSlot();
+    int            FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
+    void           DeleteActorInternal(Actor* b);
 
-    void RemoveActorByCollisionBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box); ///< Only for scripting
-    void removeTruck(int truck); ///< Internal+friends use only; see `RoRFrameListener::*Actor*()` functions.
-
-    /// Returns whether or not the two (scaled) bounding boxes intersect.
-    bool intersectionAABB(Ogre::AxisAlignedBox a, Ogre::AxisAlignedBox b, float scale = 1.0f);
-
-    /// Returns whether or not the bounding boxes of truck a and truck b intersect. Based on the default truck bounding boxes.
-    bool truckIntersectionAABB(int a, int b, float scale = 1.0f);
-
-    /// Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the default truck bounding boxes.
-    bool predictTruckIntersectionAABB(int a, int b, float scale = 1.0f);
-
-    /// Returns whether or not the bounding boxes of truck a and truck b intersect. Based on the truck collision bounding boxes.
-    bool truckIntersectionCollAABB(int a, int b, float scale = 1.0f);
-
-    /// Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the truck collision bounding boxes.
-    bool predictTruckIntersectionCollAABB(int a, int b, float scale = 1.0f);
-
-    int CreateRemoteInstance(RoRnet::TruckStreamRegister* reg);
-    void RemoveStreamSource(int sourceid);
-
-    void LogParserMessages();
-    void LogSpawnerMessages();
-
-    void RecursiveActivation(int j, std::bitset<MAX_TRUCKS>& visited);
-    void UpdateSleepingState(float dt);
-
-    int GetMostRecentTruckSlot();
-
-    int GetFreeTruckSlot();
-    int FindTruckInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
-
-    void DeleteTruck(Actor* b);
-
-    // ---------- variables ---------- //
-
-    /// Networking: A list of streams without a corresponding actor in the actor-array for each stream source
-    std::map<int, std::vector<int>> m_stream_mismatches;
+    std::map<int, std::vector<int>> m_stream_mismatches; //!< Networking: A list of streams without a corresponding actor in the actor-array for each stream source
     std::unique_ptr<ThreadPool>     m_sim_thread_pool;
     std::shared_ptr<Task>           m_sim_task;
     RoRFrameListener*               m_sim_controller;

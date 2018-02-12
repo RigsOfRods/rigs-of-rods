@@ -214,7 +214,7 @@ Actor* ActorManager::CreateLocalActor(
     int cache_entry_number, // = -1,
     collision_box_t* spawnbox /* = nullptr */,
     bool ismachine /* = false */,
-    const std::vector<Ogre::String>* truckconfig /* = nullptr */,
+    const std::vector<Ogre::String>* actor_config /* = nullptr */,
     RoR::SkinDef* skin /* = nullptr */,
     bool freePosition, /* = false */
     bool preloaded_with_terrain /* = false */
@@ -225,8 +225,8 @@ Actor* ActorManager::CreateLocalActor(
     ::Profiler::reset();
 #endif
 
-    int truck_num = this->GetFreeTruckSlot();
-    if (truck_num == -1)
+    int actor_id = this->GetFreeActorSlot();
+    if (actor_id == -1)
     {
         LOG("ERROR: Could not add beam to main list");
         return 0;
@@ -234,7 +234,7 @@ Actor* ActorManager::CreateLocalActor(
 
     Actor* b = new Actor(
         m_sim_controller,
-        truck_num,
+        actor_id,
         pos,
         rot,
         fname.c_str(),
@@ -243,7 +243,7 @@ Actor* ActorManager::CreateLocalActor(
         (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED), // networking
         spawnbox,
         ismachine,
-        truckconfig,
+        actor_config,
         skin,
         freePosition,
         preloaded_with_terrain,
@@ -252,13 +252,13 @@ Actor* ActorManager::CreateLocalActor(
 
     if (b->ar_sim_state == Actor::SimState::INVALID)
     {
-        this->DeleteTruck(b);
+        this->DeleteActorInternal(b);
         return nullptr;
     }
 
-    m_actors[truck_num] = b;
+    m_actors[actor_id] = b;
 
-    // lock slide nodes after spawning the truck?
+    // lock slide nodes after spawning the actor?
     if (b->getSlideNodesLockInstant())
     {
         b->toggleSlideNodeLock();
@@ -266,7 +266,7 @@ Actor* ActorManager::CreateLocalActor(
 
     RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
 
-    // add own username to truck
+    // add own username to the actor
     if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
     {
         b->updateNetworkInfo();
@@ -286,7 +286,7 @@ Actor* ActorManager::CreateLocalActor(
 
 int ActorManager::CreateRemoteInstance(RoRnet::TruckStreamRegister* reg)
 {
-    LOG(" new beam truck for " + TOSTRING(reg->origin_sourceid) + ":" + TOSTRING(reg->origin_streamid));
+    LOG("[RoR] Creating remote actor for " + TOSTRING(reg->origin_sourceid) + ":" + TOSTRING(reg->origin_streamid));
 
 #ifdef USE_SOCKETW
     RoRnet::UserInfo info;
@@ -296,30 +296,30 @@ int ActorManager::CreateRemoteInstance(RoRnet::TruckStreamRegister* reg)
     RoR::App::GetGuiManager()->pushMessageChatBox(message);
 #endif // USE_SOCKETW
 
-    // check if we got this truck installed
+    // check if we got this actor installed
     String filename = String(reg->name);
     String group = "";
     if (!RoR::App::GetCacheSystem()->checkResourceLoaded(filename, group))
     {
-        LOG("wont add remote stream (truck not existing): '"+filename+"'");
+        LOG("[RoR] Cannot create remote actor (not installed), filename: '"+filename+"'");
         return -1;
     }
 
-    // fill truckconfig
-    std::vector<String> truckconfig;
+    // fill config
+    std::vector<String> actor_config;
     for (int t = 0; t < 10; t++)
     {
         if (!strnlen(reg->truckconfig[t], 60))
             break;
-        truckconfig.push_back(String(reg->truckconfig[t]));
+        actor_config.push_back(String(reg->truckconfig[t]));
     }
 
-    // DO NOT spawn the truck far off anywhere
-    // the truck parsing will break flexbodies initialization when using huge numbers here
+    // DO NOT spawn the actor far off anywhere
+    // the actor parsing will break flexbodies initialization when using huge numbers here
     Vector3 pos = Vector3::ZERO;
 
-    int truck_num = this->GetFreeTruckSlot();
-    if (truck_num == -1)
+    int actor_id = this->GetFreeActorSlot();
+    if (actor_id == -1)
     {
         LOG("ERROR: could not add beam to main list");
         return -1;
@@ -327,7 +327,7 @@ int ActorManager::CreateRemoteInstance(RoRnet::TruckStreamRegister* reg)
     RoR::RigLoadingProfiler p; // TODO: Placeholder. Use it
     Actor* b = new Actor(
         m_sim_controller,
-        truck_num,
+        actor_id,
         pos,
         Quaternion::ZERO,
         reg->name,
@@ -336,16 +336,16 @@ int ActorManager::CreateRemoteInstance(RoRnet::TruckStreamRegister* reg)
         (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED), // networking
         nullptr, // spawnbox
         false, // ismachine
-        &truckconfig,
+        &actor_config,
         nullptr // skin
     );
 
     if (b->ar_sim_state == Actor::SimState::INVALID)
     {
-        this->DeleteTruck(b);
+        this->DeleteActorInternal(b);
         return -1;
     }
-    m_actors[truck_num] = b;
+    m_actors[actor_id] = b;
 
     b->ar_net_source_id = reg->origin_sourceid;
     b->ar_net_stream_id = reg->origin_streamid;
@@ -371,7 +371,7 @@ void ActorManager::RemoveStreamSource(int sourceid)
 
         if (m_actors[t]->ar_net_source_id == sourceid)
         {
-            this->DeleteTruck(m_actors[t]);
+            this->DeleteActorInternal(m_actors[t]);
         }
     }
 }
@@ -418,7 +418,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
             Actor* b = this->GetActorByNetworkLinks(packet.header.source, packet.header.streamid);
             if (b && b->ar_sim_state == Actor::SimState::NETWORKED_OK)
             {
-                this->DeleteTruck(b);
+                this->DeleteActorInternal(b);
             }
             auto search = m_stream_mismatches.find(packet.header.source);
             if (search != m_stream_mismatches.end())
@@ -509,7 +509,7 @@ Actor* ActorManager::GetActorByNetworkLinks(int source_id, int stream_id)
     return nullptr;
 }
 
-bool ActorManager::intersectionAABB(Ogre::AxisAlignedBox a, Ogre::AxisAlignedBox b, float scale)
+bool ActorManager::CheckAabbIntersection(Ogre::AxisAlignedBox a, Ogre::AxisAlignedBox b, float scale)
 {
     if (scale != 1.0f)
     {
@@ -527,68 +527,68 @@ bool ActorManager::intersectionAABB(Ogre::AxisAlignedBox a, Ogre::AxisAlignedBox
     return a.intersects(b);
 }
 
-bool ActorManager::truckIntersectionAABB(int a, int b, float scale)
+bool ActorManager::CheckActorAabbIntersection(int a, int b, float scale)
 {
-    return intersectionAABB(m_actors[a]->ar_bounding_box, m_actors[b]->ar_bounding_box, scale);
+    return CheckAabbIntersection(m_actors[a]->ar_bounding_box, m_actors[b]->ar_bounding_box, scale);
 }
 
-bool ActorManager::predictTruckIntersectionAABB(int a, int b, float scale)
+bool ActorManager::PredictActorAabbIntersection(int a, int b, float scale)
 {
-    return intersectionAABB(m_actors[a]->ar_predicted_bounding_box, m_actors[b]->ar_predicted_bounding_box, scale);
+    return CheckAabbIntersection(m_actors[a]->ar_predicted_bounding_box, m_actors[b]->ar_predicted_bounding_box, scale);
 }
 
-bool ActorManager::truckIntersectionCollAABB(int a, int b, float scale)
+bool ActorManager::CheckActorCollAabbIntersect(int a, int b, float scale)
 {
     if (m_actors[a]->ar_collision_bounding_boxes.empty() && m_actors[b]->ar_collision_bounding_boxes.empty())
     {
-        return truckIntersectionAABB(a, b, scale);
+        return CheckActorAabbIntersection(a, b, scale);
     }
     else if (m_actors[a]->ar_collision_bounding_boxes.empty())
     {
         for (std::vector<AxisAlignedBox>::iterator it = m_actors[b]->ar_collision_bounding_boxes.begin(); it != m_actors[b]->ar_collision_bounding_boxes.end(); ++it)
-            if (intersectionAABB(*it, m_actors[a]->ar_bounding_box, scale))
+            if (CheckAabbIntersection(*it, m_actors[a]->ar_bounding_box, scale))
                 return true;
     }
     else if (m_actors[b]->ar_collision_bounding_boxes.empty())
     {
         for (std::vector<AxisAlignedBox>::iterator it = m_actors[a]->ar_collision_bounding_boxes.begin(); it != m_actors[a]->ar_collision_bounding_boxes.end(); ++it)
-            if (intersectionAABB(*it, m_actors[b]->ar_bounding_box, scale))
+            if (CheckAabbIntersection(*it, m_actors[b]->ar_bounding_box, scale))
                 return true;
     }
     else
     {
         for (std::vector<AxisAlignedBox>::iterator it_a = m_actors[a]->ar_collision_bounding_boxes.begin(); it_a != m_actors[a]->ar_collision_bounding_boxes.end(); ++it_a)
             for (std::vector<AxisAlignedBox>::iterator it_b = m_actors[b]->ar_collision_bounding_boxes.begin(); it_b != m_actors[b]->ar_collision_bounding_boxes.end(); ++it_b)
-                if (intersectionAABB(*it_a, *it_b, scale))
+                if (CheckAabbIntersection(*it_a, *it_b, scale))
                     return true;
     }
 
     return false;
 }
 
-bool ActorManager::predictTruckIntersectionCollAABB(int a, int b, float scale)
+bool ActorManager::PredictActorCollAabbIntersect(int a, int b, float scale)
 {
     if (m_actors[a]->ar_predicted_coll_bounding_boxes.empty() && m_actors[b]->ar_predicted_coll_bounding_boxes.empty())
     {
-        return predictTruckIntersectionAABB(a, b, scale);
+        return PredictActorAabbIntersection(a, b, scale);
     }
     else if (m_actors[a]->ar_predicted_coll_bounding_boxes.empty())
     {
         for (std::vector<AxisAlignedBox>::iterator it = m_actors[b]->ar_predicted_coll_bounding_boxes.begin(); it != m_actors[b]->ar_predicted_coll_bounding_boxes.end(); ++it)
-            if (intersectionAABB(*it, m_actors[a]->ar_predicted_bounding_box, scale))
+            if (CheckAabbIntersection(*it, m_actors[a]->ar_predicted_bounding_box, scale))
                 return true;
     }
     else if (m_actors[b]->ar_predicted_coll_bounding_boxes.empty())
     {
         for (std::vector<AxisAlignedBox>::iterator it = m_actors[a]->ar_predicted_coll_bounding_boxes.begin(); it != m_actors[a]->ar_predicted_coll_bounding_boxes.end(); ++it)
-            if (intersectionAABB(*it, m_actors[b]->ar_predicted_bounding_box, scale))
+            if (CheckAabbIntersection(*it, m_actors[b]->ar_predicted_bounding_box, scale))
                 return true;
     }
     else
     {
         for (std::vector<AxisAlignedBox>::iterator it_a = m_actors[a]->ar_predicted_coll_bounding_boxes.begin(); it_a != m_actors[a]->ar_predicted_coll_bounding_boxes.end(); ++it_a)
             for (std::vector<AxisAlignedBox>::iterator it_b = m_actors[b]->ar_predicted_coll_bounding_boxes.begin(); it_b != m_actors[b]->ar_predicted_coll_bounding_boxes.end(); ++it_b)
-                if (intersectionAABB(*it_a, *it_b, scale))
+                if (CheckAabbIntersection(*it_a, *it_b, scale))
                     return true;
     }
 
@@ -606,12 +606,12 @@ void ActorManager::RecursiveActivation(int j, std::bitset<MAX_TRUCKS>& visited)
     {
         if (t == j || !m_actors[t] || visited[t])
             continue;
-        if (m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && truckIntersectionCollAABB(t, j, 1.2f))
+        if (m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && CheckActorCollAabbIntersect(t, j, 1.2f))
         {
             m_actors[t]->ar_sleep_counter = 0.0f;
             this->RecursiveActivation(t, visited);
         }
-        if (m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SLEEPING && predictTruckIntersectionCollAABB(t, j))
+        if (m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SLEEPING && PredictActorCollAabbIntersect(t, j))
         {
             m_actors[t]->ar_sleep_counter = 0.0f;
             m_actors[t]->ar_sim_state = Actor::SimState::LOCAL_SIMULATED;
@@ -642,20 +642,20 @@ void ActorManager::UpdateSleepingState(float dt)
         }
     }
 
-    Actor* current_truck = this->GetPlayerActorInternal();
-    if (current_truck && current_truck->ar_sim_state == Actor::SimState::LOCAL_SLEEPING)
+    Actor* player_actor = this->GetPlayerActorInternal();
+    if (player_actor && player_actor->ar_sim_state == Actor::SimState::LOCAL_SLEEPING)
     {
-        current_truck->ar_sim_state = Actor::SimState::LOCAL_SIMULATED;
+        player_actor->ar_sim_state = Actor::SimState::LOCAL_SIMULATED;
     }
 
     std::bitset<MAX_TRUCKS> visited;
-    // Recursivly activate all trucks which can be reached from current_truck
-    if (current_truck && current_truck->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
+    // Recursivly activate all actors which can be reached from current actor
+    if (player_actor && player_actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
     {
-        current_truck->ar_sleep_counter = 0.0f;
+        player_actor->ar_sleep_counter = 0.0f;
         this->RecursiveActivation(m_player_actor_id, visited);
     }
-    // Snowball effect (activate all trucks which might soon get hit by a moving truck)
+    // Snowball effect (activate all actors which might soon get hit by a moving actor)
     for (int t = 0; t < m_free_actor_slot; t++)
     {
         if (m_actors[t] && m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && m_actors[t]->ar_sleep_counter == 0.0f)
@@ -663,9 +663,9 @@ void ActorManager::UpdateSleepingState(float dt)
     }
 }
 
-int ActorManager::GetFreeTruckSlot()
+int ActorManager::GetFreeActorSlot()
 {
-    // find a free slot for the truck
+    // find a free slot for the actor
     for (int t = 0; t < MAX_TRUCKS; t++)
     {
         if (!m_actors[t] && t >= m_free_actor_slot) // XXX: TODO: remove this hack
@@ -710,7 +710,7 @@ void ActorManager::SendAllActorsSleeping()
 
 void ActorManager::RecalcGravityMasses()
 {
-    // update the mass of all trucks
+    // update the mass of all actors
     for (int t = 0; t < m_free_actor_slot; t++)
     {
         if (m_actors[t])
@@ -720,9 +720,9 @@ void ActorManager::RecalcGravityMasses()
     }
 }
 
-int ActorManager::FindTruckInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box)
+int ActorManager::FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box)
 {
-    // try to find the desired truck (the one in the box)
+    // try to find the desired actor (the one in the box)
     int id = -1;
     for (int t = 0; t < m_free_actor_slot; t++)
     {
@@ -731,10 +731,10 @@ int ActorManager::FindTruckInsideBox(Collisions* collisions, const Ogre::String&
         if (collisions->isInside(m_actors[t]->ar_nodes[0].AbsPosition, inst, box))
         {
             if (id == -1)
-            // first truck found
+            // first actor found
                 id = t;
             else
-            // second truck found -> unclear which vehicle was meant
+            // second actor found -> unclear which one was meant
                 return -1;
         }
     }
@@ -743,16 +743,15 @@ int ActorManager::FindTruckInsideBox(Collisions* collisions, const Ogre::String&
 
 void ActorManager::RepairActor(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box, bool keepPosition)
 {
-    int rtruck = this->FindTruckInsideBox(collisions, inst, box);
-    if (rtruck >= 0)
+    int actor_id = this->FindActorInsideBox(collisions, inst, box);
+    if (actor_id >= 0)
     {
         // take a position reference
-        SOUND_PLAY_ONCE(rtruck, SS_TRIG_REPAIR);
-
-        Vector3 ipos = m_actors[rtruck]->ar_nodes[0].AbsPosition;
-        m_actors[rtruck]->reset();
-        m_actors[rtruck]->resetPosition(ipos.x, ipos.z, false, 0);
-        m_actors[rtruck]->updateVisual();
+        SOUND_PLAY_ONCE(actor_id, SS_TRIG_REPAIR);
+        Vector3 ipos = m_actors[actor_id]->ar_nodes[0].AbsPosition;
+        m_actors[actor_id]->reset();
+        m_actors[actor_id]->resetPosition(ipos.x, ipos.z, false, 0);
+        m_actors[actor_id]->updateVisual();
     }
 }
 
@@ -780,21 +779,21 @@ void ActorManager::UnmuteAllActors()
 
 void ActorManager::RemoveActorByCollisionBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box)
 {
-    removeTruck(this->FindTruckInsideBox(collisions, inst, box));
+    RemoveActorInternal(this->FindActorInsideBox(collisions, inst, box));
 }
 
-void ActorManager::removeTruck(int truck)
+void ActorManager::RemoveActorInternal(int actor_id)
 {
-    if (truck < 0 || truck > m_free_actor_slot)
+    if (actor_id < 0 || actor_id > m_free_actor_slot)
         return;
 
-    if (!m_actors[truck])
+    if (!m_actors[actor_id])
         return;
 
-    if (m_actors[truck]->ar_sim_state == Actor::SimState::NETWORKED_OK)
+    if (m_actors[actor_id]->ar_sim_state == Actor::SimState::NETWORKED_OK)
         return;
 
-    this->DeleteTruck(m_actors[truck]);
+    this->DeleteActorInternal(m_actors[actor_id]);
 }
 
 void ActorManager::CleanUpAllActors() // Called after simulation finishes
@@ -812,39 +811,39 @@ void ActorManager::CleanUpAllActors() // Called after simulation finishes
     m_player_actor_id = -1;
 
     // TEMPORARY: DO !NOT! attempt to reuse slots
-    // Yields bad behavior when player disconnects from game where other players had vehicles spawned
-    // Upon reconnect, vehicles with flexbodies (tested on Gavril MZR) show up badly deformed and twitching.
-    // Vehicles with cabs (tested on Agora L) show up without the cab.
+    // Yields bad behavior when player disconnects from game where other players had actors spawned
+    // Upon reconnect, actors with flexbodies (tested on Gavril MZR) show up badly deformed and twitching.
+    // Actors with cabs (tested on Agora L) show up without the cab.
     // ~only_a_ptr, 01/2017
     //m_free_actor_slot = 0;
 }
 
-void ActorManager::DeleteTruck(Actor* b)
+void ActorManager::DeleteActorInternal(Actor* actor)
 {
-    if (b == 0)
+    if (actor == 0)
         return;
 
     this->SyncWithSimThread();
 
 #ifdef USE_SOCKETW
-    if (b->ar_uses_networking && b->ar_sim_state != Actor::SimState::NETWORKED_OK && b->ar_sim_state != Actor::SimState::INVALID)
+    if (actor->ar_uses_networking && actor->ar_sim_state != Actor::SimState::NETWORKED_OK && actor->ar_sim_state != Actor::SimState::INVALID)
     {
-        RoR::Networking::AddPacket(b->ar_net_stream_id, RoRnet::MSG2_STREAM_UNREGISTER, 0, 0);
+        RoR::Networking::AddPacket(actor->ar_net_stream_id, RoRnet::MSG2_STREAM_UNREGISTER, 0, 0);
     }
 #endif // USE_SOCKETW
 
-    if (m_player_actor_id == b->ar_instance_id)
+    if (m_player_actor_id == actor->ar_instance_id)
         SetPlayerVehicleByActorId(-1);
 
-    m_actors[b->ar_instance_id] = 0;
-    delete b;
+    m_actors[actor->ar_instance_id] = 0;
+    delete actor;
 
 
     RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
 
 }
 
-int ActorManager::GetMostRecentTruckSlot()
+int ActorManager::GetMostRecentActorSlot()
 {
     if (GetActorByIdInternal(m_player_actor_id))
     {
@@ -860,13 +859,13 @@ int ActorManager::GetMostRecentTruckSlot()
 
 void ActorManager::EnterNextVehicle()
 {
-    int pivot_index = this->GetMostRecentTruckSlot();
+    int pivot_index = this->GetMostRecentActorSlot();
 
     for (int i = pivot_index + 1; i < m_free_actor_slot; i++)
     {
         if (m_actors[i] && m_actors[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
-            SetPlayerVehicleByActorId(i);
+            this->SetPlayerVehicleByActorId(i);
             return;
         }
     }
@@ -875,27 +874,27 @@ void ActorManager::EnterNextVehicle()
     {
         if (m_actors[i] && m_actors[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
-            SetPlayerVehicleByActorId(i);
+            this->SetPlayerVehicleByActorId(i);
             return;
         }
     }
 
     if (pivot_index >= 0 && m_actors[pivot_index] && m_actors[pivot_index]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[pivot_index]->isPreloadedWithTerrain())
     {
-        SetPlayerVehicleByActorId(pivot_index);
+        this->SetPlayerVehicleByActorId(pivot_index);
         return;
     }
 }
 
 void ActorManager::EnterPreviousVehicle()
 {
-    int pivot_index = this->GetMostRecentTruckSlot();
+    int pivot_index = this->GetMostRecentActorSlot();
 
     for (int i = pivot_index - 1; i >= 0; i--)
     {
         if (m_actors[i] && m_actors[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
-            SetPlayerVehicleByActorId(i);
+            this->SetPlayerVehicleByActorId(i);
             return;
         }
     }
@@ -904,22 +903,22 @@ void ActorManager::EnterPreviousVehicle()
     {
         if (m_actors[i] && m_actors[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
-            SetPlayerVehicleByActorId(i);
+            this->SetPlayerVehicleByActorId(i);
             return;
         }
     }
 
     if (pivot_index >= 0 && m_actors[pivot_index] && m_actors[pivot_index]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[pivot_index]->isPreloadedWithTerrain())
     {
-        SetPlayerVehicleByActorId(pivot_index);
+        this->SetPlayerVehicleByActorId(pivot_index);
         return;
     }
 }
 
-void ActorManager::SetPlayerVehicleByActorId(int new_truck)
+void ActorManager::SetPlayerVehicleByActorId(int actor_id)
 {
     m_prev_player_actor = m_player_actor_id;
-    m_player_actor_id = new_truck;
+    m_player_actor_id = actor_id;
 
     if (m_prev_player_actor >= 0 && m_player_actor_id >= 0)
     {
@@ -944,14 +943,14 @@ void ActorManager::SetPlayerVehicleByActorId(int new_truck)
 bool ActorManager::EnterRescueVehicle()
 {
     // rescue!
-    // search a rescue truck
+    // search a rescue vehicle
     for (int t = 0; t < m_free_actor_slot; t++)
     {
         if (m_actors[t] && m_actors[t]->ar_rescuer_flag)
         {
             // go to person mode first
             SetPlayerVehicleByActorId(-1);
-            // then to the rescue truck, this fixes overlapping interfaces
+            // then to the rescue vehicle, this fixes overlapping interfaces
             SetPlayerVehicleByActorId(t);
             return true;
         }
@@ -1065,10 +1064,10 @@ void ActorManager::UpdateActors(float dt)
                 if (m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
                     m_actors[t]->sendStreamData();
                 else if (m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SLEEPING && m_actors[t]->ar_net_timer.getMilliseconds() < 10000)
-                // Also send update messages for 'Actor::SimState::LOCAL_SLEEPING' trucks during the first 10 seconds of lifetime
+                // Also send update messages for 'Actor::SimState::LOCAL_SLEEPING' actors during the first 10 seconds of lifetime
                     m_actors[t]->sendStreamData();
                 else if (m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SLEEPING && m_actors[t]->ar_net_timer.getMilliseconds() - m_actors[t]->ar_net_last_update_time > 5000)
-                // Also send update messages for 'Actor::SimState::LOCAL_SLEEPING' trucks periodically every 5 seconds
+                // Also send update messages for 'Actor::SimState::LOCAL_SLEEPING' actors periodically every 5 seconds
                     m_actors[t]->sendStreamData();
             }
             break;
@@ -1159,14 +1158,15 @@ void ActorManager::UpdatePhysicsSimulation()
     {
         for (int i = 0; i < m_physics_steps; i++)
         {
-            int num_simulated_trucks = 0;
+            bool have_actors_to_simulate = false;
+
             {
                 std::vector<std::function<void()>> tasks;
                 for (int t = 0; t < m_free_actor_slot; t++)
                 {
                     if (m_actors[t] && (m_actors[t]->ar_update_physics = m_actors[t]->calcForcesEulerPrepare(i == 0, PHYSICS_DT, i, m_physics_steps)))
                     {
-                        num_simulated_trucks++;
+                        have_actors_to_simulate = true;
                         auto func = std::function<void()>([this, i, t]()
                             {
                                 m_actors[t]->calcForcesEulerCompute(i == 0, PHYSICS_DT, i, m_physics_steps);
@@ -1196,7 +1196,7 @@ void ActorManager::UpdatePhysicsSimulation()
                     m_actors[t]->calcForcesEulerFinal(i == 0, PHYSICS_DT, i, m_physics_steps);
             }
 
-            if (num_simulated_trucks > 1)
+            if (have_actors_to_simulate)
             {
                 std::vector<std::function<void()>> tasks;
                 for (int t = 0; t < m_free_actor_slot; t++)
@@ -1231,13 +1231,14 @@ void ActorManager::UpdatePhysicsSimulation()
     {
         for (int i = 0; i < m_physics_steps; i++)
         {
-            int num_simulated_trucks = 0;
+            bool have_actors_to_simulate = false;
 
             for (int t = 0; t < m_free_actor_slot; t++)
             {
                 if (m_actors[t] && (m_actors[t]->ar_update_physics = m_actors[t]->calcForcesEulerPrepare(i == 0, PHYSICS_DT, i, m_physics_steps)))
                 {
-                    num_simulated_trucks++;
+                    have_actors_to_simulate = true;
+
                     m_actors[t]->calcForcesEulerCompute(i == 0, PHYSICS_DT, i, m_physics_steps);
                     m_actors[t]->calcForcesEulerFinal(i == 0, PHYSICS_DT, i, m_physics_steps);
                     if (!m_actors[t]->ar_disable_self_collision)
@@ -1256,7 +1257,7 @@ void ActorManager::UpdatePhysicsSimulation()
                 }
             }
 
-            if (num_simulated_trucks > 1)
+            if (have_actors_to_simulate)
             {
                 BES_START(BES_CORE_Contacters);
                 for (int t = 0; t < m_free_actor_slot; t++)
