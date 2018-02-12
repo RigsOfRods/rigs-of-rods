@@ -51,22 +51,18 @@ public:
     bool IsBaseVisible();
 
     void SetFPSBoxVisible(bool v);
-    bool IsFPSBoxVisible() { return b_fpsbox; }
+    bool IsFPSBoxVisible() { return m_fps_box_visible; }
 
-    void SetTruckInfoBoxVisible(bool v);
-    bool IsTruckInfoBoxVisible() { return b_truckinfo; }
+    void SetActorInfoBoxVisible(bool v);
 
-    void UpdateStats(float dt, Actor* truck); //different from Framestep!
-    void framestep(float dt);
+    void UpdateStats(float dt, Actor* actor); //different from Framestep!
+    void FrameStepSimGui(float dt);
 
     void PushNotification(Ogre::String Title, Ogre::String text);
     void HideNotificationBox();
     void DisableNotifications(bool disabled);
 
 private:
-    bool b_fpsbox;
-    bool b_truckinfo;
-    bool b_notification;
 
     // taken from truckHUD.h (now removed). TODO: Cleanup
     std::map<int, float> maxNegLatG;
@@ -84,14 +80,12 @@ private:
     Ogre::UTFString RedColor; // colour key shortcut
     Ogre::UTFString BlueColor; // colour key shortcut
 
-    Ogre::String truckstats;
-
-    std::vector<NotificationMessage> tmpWaitingNotifications;
-
-    // logic
-    float alpha;
-    long pushTime;
-    bool m_notifications_disabled;
+    std::string  m_actor_stats_str;
+    float        m_notifi_box_alpha; //!< Animated
+    long         m_last_notifi_push_time;
+    bool         m_notifications_disabled;
+    bool         m_fps_box_visible;
+    bool         m_actor_info_visible;
 };
 
 } // namespace GUI

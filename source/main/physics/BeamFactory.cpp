@@ -1001,7 +1001,7 @@ void ActorManager::UpdateActorVisuals(float dt)
             continue;
 
         // always update the labels
-        m_actors[t]->updateLabels(dt);
+        m_actors[t]->UpdateActorNetLabels(dt);
 
         if (m_actors[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
         {
@@ -1164,7 +1164,7 @@ void ActorManager::UpdatePhysicsSimulation()
                 std::vector<std::function<void()>> tasks;
                 for (int t = 0; t < m_free_actor_slot; t++)
                 {
-                    if (m_actors[t] && (m_actors[t]->ar_update_physics = m_actors[t]->calcForcesEulerPrepare(i == 0, PHYSICS_DT, i, m_physics_steps)))
+                    if (m_actors[t] && (m_actors[t]->ar_update_physics = m_actors[t]->CalcForcesEulerPrepare(i == 0, PHYSICS_DT, i, m_physics_steps)))
                     {
                         have_actors_to_simulate = true;
                         auto func = std::function<void()>([this, i, t]()
@@ -1235,7 +1235,7 @@ void ActorManager::UpdatePhysicsSimulation()
 
             for (int t = 0; t < m_free_actor_slot; t++)
             {
-                if (m_actors[t] && (m_actors[t]->ar_update_physics = m_actors[t]->calcForcesEulerPrepare(i == 0, PHYSICS_DT, i, m_physics_steps)))
+                if (m_actors[t] && (m_actors[t]->ar_update_physics = m_actors[t]->CalcForcesEulerPrepare(i == 0, PHYSICS_DT, i, m_physics_steps)))
                 {
                     have_actors_to_simulate = true;
 

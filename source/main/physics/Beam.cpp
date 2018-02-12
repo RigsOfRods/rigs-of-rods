@@ -874,7 +874,7 @@ float Actor::GetTyrePressure()
     return 0;
 }
 
-void Actor::calc_masses2(Real total, bool reCalc)
+void Actor::RecalculateNodeMasses(Real total, bool reCalc)
 {
     BES_GFX_START(BES_GFX_calc_masses2);
 
@@ -978,13 +978,13 @@ void Actor::calc_masses2(Real total, bool reCalc)
 // this recalculates the masses (useful when the gravity was changed...)
 void Actor::recalc_masses()
 {
-    this->calc_masses2(m_total_mass, true);
+    this->RecalculateNodeMasses(m_total_mass, true);
 }
 
 float Actor::getTotalMass(bool withLocked)
 {
     if (!withLocked)
-        return m_total_mass; // already computed in calc_masses2
+        return m_total_mass; // already computed in RecalculateNodeMasses
 
     float mass = m_total_mass;
 
@@ -3483,7 +3483,7 @@ void Actor::UpdateSoundSources()
     BES_GFX_STOP(BES_GFX_updateSoundSources);
 }
 
-void Actor::updateLabels(float dt)
+void Actor::UpdateActorNetLabels(float dt)
 {
     if (m_net_label_node && m_net_label_mt)
     {
@@ -3582,7 +3582,7 @@ void Actor::updateVisual(float dt)
     UpdateSoundSources();
 
     if (m_debug_visuals)
-        updateDebugOverlay();
+        UpdateDebugOverlay();
 
 #ifdef USE_OPENAL
     //airplane radio chatter
@@ -3747,11 +3747,11 @@ void Actor::updateVisual(float dt)
     {
         if (ar_skeletonview_is_active && ar_request_skeletonview_change < 0)
         {
-            hideSkeleton(true);
+            HideSkeleton(true);
         }
         else if (!ar_skeletonview_is_active && ar_request_skeletonview_change > 0)
         {
-            showSkeleton(true, true);
+            ShowSkeleton(true, true);
         }
 
         ar_request_skeletonview_change = 0;
@@ -3818,7 +3818,7 @@ void Actor::setDetailLevel(int v)
     }
 }
 
-void Actor::showSkeleton(bool meshes, bool linked)
+void Actor::ShowSkeleton(bool meshes, bool linked)
 {
     ar_skeletonview_is_active = true;
 
@@ -3882,7 +3882,7 @@ void Actor::showSkeleton(bool meshes, bool linked)
         DetermineLinkedActors();
         for (std::list<Actor*>::iterator it = m_linked_actors.begin(); it != m_linked_actors.end(); ++it)
         {
-            (*it)->showSkeleton(meshes, false);
+            (*it)->ShowSkeleton(meshes, false);
         }
     }
 
@@ -3891,7 +3891,7 @@ void Actor::showSkeleton(bool meshes, bool linked)
     TRIGGER_EVENT(SE_TRUCK_SKELETON_TOGGLE, ar_instance_id);
 }
 
-void Actor::hideSkeleton(bool linked)
+void Actor::HideSkeleton(bool linked)
 {
     ar_skeletonview_is_active = false;
 
@@ -3953,7 +3953,7 @@ void Actor::hideSkeleton(bool linked)
         DetermineLinkedActors();
         for (std::list<Actor*>::iterator it = m_linked_actors.begin(); it != m_linked_actors.end(); ++it)
         {
-            (*it)->hideSkeleton(false);
+            (*it)->HideSkeleton(false);
         }
     }
 }
@@ -4781,10 +4781,10 @@ void Actor::setDebugOverlayState(int mode)
     for (std::vector<debugtext_t>::iterator it = m_beams_debug_text.begin(); it != m_beams_debug_text.end(); it++)
         it->node->setVisible(beamsVisible);
 
-    updateDebugOverlay();
+    UpdateDebugOverlay();
 }
 
-void Actor::updateDebugOverlay()
+void Actor::UpdateDebugOverlay()
 {
     if (!m_debug_visuals)
         return;
@@ -4963,7 +4963,7 @@ void Actor::UnmuteAllSounds()
 #endif // USE_OPENAL
 }
 
-void Actor::changedCamera()
+void Actor::NotifyActorCameraChanged()
 {
     // change sound setup
 #ifdef USE_OPENAL
@@ -4991,7 +4991,7 @@ void Actor::changedCamera()
 }
 
 //Returns the number of active (non bounded) beams connected to a node
-int Actor::nodeBeamConnections(int nodeid)
+int Actor::GetNumActiveConnectedBeams(int nodeid)
 {
     int totallivebeams = 0;
     for (unsigned int ni = 0; ni < ar_node_to_beam_connections[nodeid].size(); ++ni)
@@ -5720,7 +5720,7 @@ Actor::Actor(
     }
 
     // setup sounds properly
-    changedCamera();
+    NotifyActorCameraChanged();
 
     // setup replay mode
 
@@ -6059,7 +6059,7 @@ bool Actor::LoadActor(
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_FIXES);
 
     //compute final mass
-    calc_masses2(m_dry_mass);
+    RecalculateNodeMasses(m_dry_mass);
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_CALC_MASSES);
     //setup default sounds
     if (!m_disable_default_sounds)
@@ -6303,16 +6303,6 @@ std::vector<authorinfo_t> Actor::getAuthors()
 std::vector<std::string> Actor::getDescription()
 {
     return description;
-}
-
-int Actor::getBeamCount()
-{
-    return ar_num_beams;
-}
-
-int Actor::getNodeCount()
-{
-    return ar_num_nodes;
 }
 
 void Actor::setMass(float m)

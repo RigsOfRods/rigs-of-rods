@@ -120,7 +120,7 @@ public:
     void              EngineTriggerHelper(int engineNumber, int type, float triggerValue);
     void              ToggleSlideNodeLock();
     void              ToggleCustomParticles();
-    void              ToggleAxleLock();	                   //! diff lock on or off
+    void              ToggleAxleLock();                    //! diff lock on or off
     void              ToggleParkingBrake();                //!< Event handler
     void              ToggleAntiLockBrake();               //!< Event handler
     void              ToggleTractionControl();             //!< Event handler
@@ -154,17 +154,16 @@ public:
     void              UpdateFlexbodiesPrepare();
     void              UpdateFlexbodiesFinal();
     void              JoinFlexbodyTasks();                 //!< Waits until all flexbody tasks are finished, but does not update the hardware buffers
-    void              updateLabels(float dt=0);            //!< Gfx;
+    void              UpdateActorNetLabels(float dt=0);    //!< Gfx;
     void              setDetailLevel(int v);               //!< @param v 0 = full detail, 1 = no beams
-    void              showSkeleton(bool meshes=true, bool linked=true); //!< Gfx; shows "skeletonview" (diagnostic view) mesh.
-    void              hideSkeleton(bool linked=true);      //!< Gfx; hides "skeletonview" (diagnostic view) mesh.
+    void              ShowSkeleton(bool meshes=true, bool linked=true); //!< Gfx; shows "skeletonview" (diagnostic view) mesh.
+    void              HideSkeleton(bool linked=true);      //!< Gfx; hides "skeletonview" (diagnostic view) mesh.
     void              updateSimpleSkeleton();              //!< Gfx; updates the "skeletonview" (diagnostic view) mesh.
     void              resetAutopilot();
     void              disconnectAutopilot();
     void              ScaleActor(float value);
-    void              updateDebugOverlay();
+    void              UpdateDebugOverlay();
     void              setDebugOverlayState(int mode);
-    void              calcBeam(beam_t& beam, bool doUpdate, Ogre::Real dt, int& m_increased_accuracy);
     Ogre::Quaternion  specialGetRotationTo(const Ogre::Vector3& src, const Ogre::Vector3& dest) const;
     Ogre::String      getAxleLockName();                   //!< get the name of the current differential model
     int               getAxleLockCount();
@@ -175,10 +174,8 @@ public:
     std::string       GetActorDesignName();
     std::string       GetActorFileName();
     int               GetActorType();
-    int               getBeamCount();
-    int               getNodeCount();
-    int               nodeBeamConnections(int nodeid);     //!< Returns the number of active (non bounded) beams connected to a node
-    void              changedCamera();                     //!< Logic: sound, display; Notify this vehicle that camera changed;
+    int               GetNumActiveConnectedBeams(int nodeid);     //!< Returns the number of active (non bounded) beams connected to a node
+    void              NotifyActorCameraChanged();                 //!< Logic: sound, display; Notify this vehicle that camera changed;
     void              StopAllSounds();
     void              UnmuteAllSounds();
     float             getTotalMass(bool withLocked=true);
@@ -207,7 +204,7 @@ public:
     void              calculateAveragePosition();
     void              preUpdatePhysics(float dt);          //!< TIGHT LOOP; Physics;
     void              postUpdatePhysics(float dt);         //!< TIGHT LOOP; Physics;
-    bool              calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1); //!< TIGHT LOOP; Physics;
+    bool              CalcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1); //!< TIGHT LOOP; Physics;
     void              calcForcesEulerCompute(bool doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1); //!< TIGHT LOOP; Physics;
     void              calcForcesEulerFinal(int doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1); //!< TIGHT LOOP; Physics;
     void              UpdatePropAnimations(const float dt);
@@ -215,7 +212,7 @@ public:
     std::vector<authorinfo_t>     getAuthors();
     std::vector<std::string>      getDescription();
     RoR::PerVehicleCameraContext* GetCameraContext()    { return &m_camera_context; }
-    std::list<Actor*>  getAllLinkedBeams()               { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
+    std::list<Actor*> GetAllLinkedActors()              { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
     Ogre::Vector3     GetFFbBodyForces() const          { return m_force_sensors.out_body_forces; }
     PointColDetector* IntraPointCD()                    { return m_intra_point_col_detector; }
     PointColDetector* InterPointCD()                    { return m_inter_point_col_detector; }
@@ -226,11 +223,12 @@ public:
     Ogre::Real        getMinimalCameraRadius();
     Replay*           getReplay();
     float             GetFFbHydroForces() const         { return m_force_sensors.out_hydros_forces; }
-    bool              isPreloadedWithTerrain()          { return m_preloaded_with_terrain; };
+    bool              isPreloadedWithTerrain() const    { return m_preloaded_with_terrain; };
     VehicleAI*        getVehicleAI()                    { return ar_vehicle_ai; }
     bool              IsNodeIdValid(int id) const       { return (id > 0) && (id < ar_num_nodes); }
     float             getWheelSpeed() const             { return ar_wheel_speed; }
-    Ogre::Vector3     getVelocity()                     { return m_avg_node_velocity; }; //!< average actor velocity, calculated using the actor positions of the last two frames
+    int               GetNumNodes() const               { return ar_num_nodes; }
+    Ogre::Vector3     getVelocity() const               { return m_avg_node_velocity; }; //!< average actor velocity, calculated using the actor positions of the last two frames
 #ifdef USE_ANGELSCRIPT
     // we have to add this to be able to use the class as reference inside scripts
     void              addRef()                          {};
@@ -427,7 +425,7 @@ private:
     };
 
     void              calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps); // !< TIGHT LOOP; Physics & sound;
-    void              calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxsteps); //!< TIGHT LOOP; Physics & sound - only beams between multiple actors (noshock or ropes)
+    void              CalcBeamsInterActor(int doUpdate, Ogre::Real dt, int step, int maxsteps); //!< TIGHT LOOP; Physics & sound - only beams between multiple actors (noshock or ropes)
     void              calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps); //!< TIGHT LOOP; Physics;
     void              calcHooks();                         //!< TIGHT LOOP; Physics;
     void              calcRopes();                         //!< TIGHT LOOP; Physics;
@@ -436,7 +434,7 @@ private:
     void              SyncReset();                         //!< this one should be called only synchronously (without physics running in background)
     void              SetPropsCastShadows(bool do_cast_shadows);
     void              DetermineLinkedActors();
-    void              calc_masses2(Ogre::Real total, bool reCalc=false);
+    void              RecalculateNodeMasses(Ogre::Real total, bool reCalc=false); //!< Previously 'calc_masses2()'
     void              calcNodeConnectivityGraph();
     void              moveOrigin(Ogre::Vector3 offset);    //!< move physics origin
     void              AddInterActorBeam(beam_t* beam, Actor* a, Actor* b);
@@ -451,14 +449,14 @@ private:
     void              initSimpleSkeleton();                //!< Builds the rig-skeleton mesh.
     void              autoBlinkReset();                    //!< Resets the turn signal when the steering wheel is turned back.
     void              sendStreamSetup();
-    void              updateSlideNodeForces(const Ogre::Real delta_time_sec); //!< calculate and apply Corrective forces    
-    void              resetSlideNodePositions();           //!< Recalculate SlideNode positions    
-    void              resetSlideNodes();                   //!< Reset all the SlideNodes    
+    void              updateSlideNodeForces(const Ogre::Real delta_time_sec); //!< calculate and apply Corrective forces
+    void              resetSlideNodePositions();           //!< Recalculate SlideNode positions
+    void              resetSlideNodes();                   //!< Reset all the SlideNodes
     void              updateSlideNodePositions();          //!< incrementally update the position of all SlideNodes
     /// @param actor which actor to retrieve the closest Rail from
     /// @param node which SlideNode is being checked against
     /// @return a pair containing the rail, and the distant to the SlideNode
-    std::pair<RailGroup*, Ogre::Real> getClosestRailOnTruck( Actor* actor, const SlideNode& node);
+    std::pair<RailGroup*, Ogre::Real> GetClosestRailOnActor( Actor* actor, const SlideNode& node);
 
     // -------------------- data -------------------- //
 

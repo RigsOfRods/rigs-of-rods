@@ -52,7 +52,7 @@ using namespace Ogre;
 void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps)
 {
     IWater* water = nullptr;
-    const bool is_player_truck = this == RoR::App::GetSimController()->GetPlayerActor();
+    const bool is_player_actor = (this == RoR::App::GetSimController()->GetPlayerActor());
 
     if (gEnv->terrainManager)
         water = gEnv->terrainManager->getWater();
@@ -75,14 +75,14 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
         ToggleHooks(-2, HOOK_LOCK, -1);
     }
 
-    //auto locks (scan just once per frame, need to use a timer(truck-based) to get
+    //auto locks (scan just once per frame, need to use a timer)
     for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
     {
         //we need to do this here to avoid countdown speedup by triggers
         it->hk_timer = std::max(0.0f, it->hk_timer - dt);
     }
 
-    if (is_player_truck) //force feedback sensors
+    if (is_player_actor) //force feedback sensors
     {
         if (doUpdate)
         {
@@ -164,12 +164,12 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
     // - at 1e7 any typical RoR vehicle falls apart and stops functioning
     // - 1e9 may be reachable only by a vehicle that is 1000 times bigger than a typical RoR vehicle, and it will be a loooong trip
     // to be able to travel such long distances will require switching physics calculations to higher precision numbers
-    // or taking a different approach to the simulation (truck-local coordinate system?)
+    // or taking a different approach to the simulation (actor-local coordinate system?)
     if (!inRange(tBoundingBox.getMinimum().x + tBoundingBox.getMaximum().x +
         tBoundingBox.getMinimum().y + tBoundingBox.getMaximum().y +
         tBoundingBox.getMinimum().z + tBoundingBox.getMaximum().z, -1e9, 1e9))
     {
-        m_reset_request = REQUEST_RESET_ON_INIT_POS; // truck exploded, schedule reset
+        m_reset_request = REQUEST_RESET_ON_INIT_POS; // actor exploded, schedule reset
         return; // return early to avoid propagating invalid values
     }
 
@@ -723,7 +723,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
         {
             //new rate value (30 instead of 40) to deal with the changed cmdKeyInertia settings
             rate = 30.0 / (10.0 + fabs(wspeed / 2.0));
-            // minimum rate: 20% --> enables to steer high velocity trucks
+            // minimum rate: 20% --> enables to steer high velocity vehicles
             if (rate < 1.2)
                 rate = 1.2;
         }
@@ -1155,7 +1155,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
             ar_engine->setPrime(requested);
         }
 
-        if (doUpdate && is_player_truck)
+        if (doUpdate && is_player_actor)
         {
 #ifdef USE_OPENAL
             if (active > 0)
@@ -1284,7 +1284,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
     BES_STOP(BES_CORE_Replay);
 }
 
-bool Actor::calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int maxsteps)
+bool Actor::CalcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 {
     if (dt == 0.0)
         return false;
@@ -1296,7 +1296,7 @@ bool Actor::calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int ma
     BES_START(BES_CORE_WholeTruckCalc);
 
     forwardCommands();
-    calcBeamsInterTruck(doUpdate, dt, step, maxsteps);
+    CalcBeamsInterActor(doUpdate, dt, step, maxsteps);
 
     return true;
 }
@@ -1508,7 +1508,7 @@ void Actor::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                     //Break the beam only when it is not connected to a node
                     //which is a part of a collision triangle and has 2 "live" beams or less
                     //connected to it.
-                    if (!((ar_beams[i].p1->contacter && nodeBeamConnections(ar_beams[i].p1->pos) < 3) || (ar_beams[i].p2->contacter && nodeBeamConnections(ar_beams[i].p2->pos) < 3)))
+                    if (!((ar_beams[i].p1->contacter && GetNumActiveConnectedBeams(ar_beams[i].p1->pos) < 3) || (ar_beams[i].p2->contacter && GetNumActiveConnectedBeams(ar_beams[i].p2->pos) < 3)))
                     {
                         slen = 0.0f;
                         ar_beams[i].bm_broken = true;
@@ -1581,7 +1581,7 @@ void Actor::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
     BES_STOP(BES_CORE_Beams);
 }
 
-void Actor::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxsteps)
+void Actor::CalcBeamsInterActor(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 {
     for (int i = 0; i < static_cast<int>(ar_inter_beams.size()); i++)
     {
@@ -1684,7 +1684,7 @@ void Actor::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxst
                     //Break the beam only when it is not connected to a node
                     //which is a part of a collision triangle and has 2 "live" beams or less
                     //connected to it.
-                    if (!((ar_inter_beams[i]->p1->contacter && nodeBeamConnections(ar_inter_beams[i]->p1->pos) < 3) || (ar_inter_beams[i]->p2->contacter && nodeBeamConnections(ar_inter_beams[i]->p2->pos) < 3)))
+                    if (!((ar_inter_beams[i]->p1->contacter && GetNumActiveConnectedBeams(ar_inter_beams[i]->p1->pos) < 3) || (ar_inter_beams[i]->p2->contacter && GetNumActiveConnectedBeams(ar_inter_beams[i]->p2->pos) < 3)))
                     {
                         slen = 0.0f;
                         ar_inter_beams[i]->bm_broken = true;

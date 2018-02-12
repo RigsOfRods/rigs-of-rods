@@ -93,7 +93,7 @@ void CameraBehaviorVehicleCineCam::activate(const CameraManager::CameraContext &
     }
 
     current_vehicle->ar_current_cinecam = current_vehicle->GetCameraContext()->last_cinecam_index;
-    current_vehicle->changedCamera();
+    current_vehicle->NotifyActorCameraChanged();
 
     vehicle_cam_context->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_CINECAM;
 }
@@ -120,7 +120,7 @@ void CameraBehaviorVehicleCineCam::deactivate(const CameraManager::CameraContext
 
     current_vehicle->GetCameraContext()->last_cinecam_index = false;
     current_vehicle->ar_current_cinecam = -1;
-    current_vehicle->changedCamera();
+    current_vehicle->NotifyActorCameraChanged();
 }
 
 void CameraBehaviorVehicleCineCam::reset(const CameraManager::CameraContext &ctx)
@@ -137,7 +137,7 @@ bool CameraBehaviorVehicleCineCam::switchBehavior(const CameraManager::CameraCon
     {
         vehicle->ar_current_cinecam++;
         vehicle->GetCameraContext()->last_cinecam_index = vehicle->ar_current_cinecam;
-        vehicle->changedCamera();
+        vehicle->NotifyActorCameraChanged();
         return false;
     }
     return true;
