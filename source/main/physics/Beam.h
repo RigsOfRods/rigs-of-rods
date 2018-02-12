@@ -398,12 +398,11 @@ public:
     unsigned int      netCustomLightArray[4];
     unsigned char     netCustomLightArray_counter;
     bool              ispolice;
-    bool              collisionRelevant;
     bool              heathaze;
     Autopilot*        ar_autopilot;
     float             ar_brake_force;              //!< Physics attr; filled at spawn
     float             ar_speedo_max_kph;           //!< GUI attr
-    Ogre::Vector3     ar_origin;
+    Ogre::Vector3     ar_origin;                   //!< Physics state; base position for softbody nodes
     int               ar_num_cameras;
     int               ar_camera_node_pos[MAX_CAMERAS]; //!< Physics attr; 'camera' = frame of reference; origin node
     int               ar_camera_node_dir[MAX_CAMERAS]; //!< Physics attr; 'camera' = frame of reference; back node
@@ -466,6 +465,7 @@ public:
     bool ar_engine_hydraulics_ready:1; //!< Sim state; does engine have enough RPM to power hydraulics?
     bool ar_gui_use_engine_max_rpm:1;  //!< Gfx attr
     bool ar_hydro_speed_coupling:1;
+    bool ar_collision_relevant:1;      //!< Physics state;
     bool ar_replay_mode:1;      //!< Sim state
 
 private:

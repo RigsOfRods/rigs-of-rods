@@ -385,7 +385,7 @@ void RigSpawner::InitializeRig()
     m_rig->cc_target_speed = 0.0f;
     m_rig->cc_target_speed_lower_limit = 0.0f;
 
-    m_rig->collisionRelevant = false;
+    m_rig->ar_collision_relevant = false;
 
     m_rig->m_debug_visuals = 0;
 
