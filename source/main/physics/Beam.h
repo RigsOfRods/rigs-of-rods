@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2016-2017 Petr Ohlidal & contributors
+    Copyright 2016-2018 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -41,7 +41,7 @@ class Task;
 class Actor : public ZeroedMemoryAllocator
 {
     friend class RigSpawner;
-
+    friend class RoR::ActorManager;
 public:
 
     enum class SimState
@@ -79,15 +79,6 @@ public:
         );
 
     ~Actor();
-
-    bool LoadActor( //!< Spawn helper
-        std::shared_ptr<RigDef::File> def,
-        Ogre::SceneNode *parent_scene_node,
-        Ogre::Vector3 const & spawn_position,
-        Ogre::Quaternion & spawn_rotation,
-        collision_box_t *spawn_box,
-        int cache_entry_number = -1
-    );
 
     void              PushNetwork(char* data, int size);   //!< Parses network data; fills actor's data buffers and flips them. Called by the network thread.
     void              CalcNetwork();
@@ -576,7 +567,7 @@ private:
     bool m_custom_particles_enabled:1;      //!< Gfx state
     bool m_skeletonview_mesh_initialized:1; //!< Gfx state; Was the rig-skeleton mesh built?
     bool m_slidenodes_connect_on_spawn:1;   //<! spawn context: try to connect slide-nodes directly after spawning (TODO: remove!)
-    bool m_is_cinecam_rotation_center:1;    //<! Attribute; filled at spawn
+    bool m_cinecam_is_rotation_center:1;    //<! Attribute; filled at spawn
     bool m_preloaded_with_terrain:1;        //!< Spawn context (TODO: remove!)
     bool m_high_res_wheelnode_collisions:1; //!< Physics attr; set at spawn
     bool m_spawn_free_positioned:1;         //!< Spawn context (TODO: remove!)
