@@ -567,31 +567,32 @@ void Water::UpdateReflectionPlane(float h)
     bool underwater = this->IsCameraUnderWater();
     if (underwater)
     {
-        m_reflect_plane.normal = -Vector3::UNIT_Y;
-        m_refract_plane.normal = Vector3::UNIT_Y;
-        m_reflect_plane.d = h + 0.15;
-        m_refract_plane.d = -h + 0.15;
         m_water_plane.d = -h;
+
+        if (m_reflect_cam)
+        {
+            m_reflect_cam->disableReflection();
+            m_reflect_cam->disableCustomNearClipPlane();
+        };
     }
     else
     {
         m_reflect_plane.normal = Vector3::UNIT_Y;
         m_refract_plane.normal = -Vector3::UNIT_Y;
-        m_reflect_plane.d = -h + 0.15;
-        m_refract_plane.d = h + 0.15;
+        m_reflect_plane.d = -h;
+        m_refract_plane.d = h;
         m_water_plane.d = -h;
+        if (m_reflect_cam)
+        {
+            m_reflect_cam->enableReflection(m_water_plane);
+            m_reflect_cam->enableCustomNearClipPlane(m_reflect_plane);
+        };
     }
 
     if (m_refract_cam)
     {
         m_refract_cam->enableCustomNearClipPlane(m_refract_plane);
     }
-
-    if (m_reflect_cam)
-    {
-        m_reflect_cam->enableReflection(m_water_plane);
-        m_reflect_cam->enableCustomNearClipPlane(m_reflect_plane);
-    };
 }
 
 void Water::WaterSetCamera(Ogre::Camera* cam)
@@ -626,14 +627,12 @@ void Water::RefractionListener::preRenderTargetUpdate(const Ogre::RenderTargetEv
 {
     this->scene_mgr->getRenderQueue()->getQueueGroup(RENDER_QUEUE_MAIN)->setShadowsEnabled(false);
     this->waterplane_entity->setVisible(false);
-    App::GetSimController()->GetBeamFactory()->GetParticleManager().setVisible(false); // Hide water spray
 }
 
 void Water::RefractionListener::postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt)
 {
     this->scene_mgr->getRenderQueue()->getQueueGroup(RENDER_QUEUE_MAIN)->setShadowsEnabled(true);
     this->waterplane_entity->setVisible(true);
-    App::GetSimController()->GetBeamFactory()->GetParticleManager().setVisible(true); // Restore water spray
 }
 
 void Water::ReflectionListener::preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt)
