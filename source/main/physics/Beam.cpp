@@ -5522,7 +5522,6 @@ void Actor::EngineTriggerHelper(int engineNumber, int type, float triggerValue)
 }
 
 Actor::Actor(
-    RoRFrameListener* sim_controller,
     int actor_id,
     std::shared_ptr<RigDef::File> def,
     Ogre::Vector3 pos,
@@ -5534,7 +5533,6 @@ Actor::Actor(
     bool ismachine, /* = false  */
     const std::vector<Ogre::String>* actor_config, /* = nullptr */
     RoR::SkinDef* skin, /* = nullptr */
-    bool freeposition, /* = false */
     bool preloaded_with_terrain, /* = false */
     int cache_entry_number /* = -1 */
 ) 
@@ -5677,7 +5675,6 @@ Actor::Actor(
     m_use_skidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;
     LOG(" ===== LOADING VEHICLE: " + Ogre::String(fname));
 
-    m_spawn_free_positioned = freeposition;
     m_used_skin = skin;
     ar_uses_networking = _networking;
     if (ismachine)

@@ -113,6 +113,7 @@ private:
                               Ogre::Vector3 const& spawn_position,
                               Ogre::Quaternion const& spawn_rotation,
                               collision_box_t* spawn_box,
+                              bool free_positioned,
                               bool _networked,
                               int cache_entry_number = -1);
     bool           CheckAabbIntersection(Ogre::AxisAlignedBox a, Ogre::AxisAlignedBox b, float scale = 1.0f); //!< Returns whether or not the two (scaled) bounding boxes intersect.

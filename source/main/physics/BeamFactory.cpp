@@ -214,6 +214,7 @@ void ActorManager::SetupActor(
         Ogre::Vector3 const& spawn_position,
         Ogre::Quaternion const& spawn_rotation,
         collision_box_t* spawn_box,
+        bool free_positioned,
         bool _networked,
         int cache_entry_number // = -1
 )
@@ -292,7 +293,7 @@ void ActorManager::SetupActor(
             miny = spawn_box->relo.y + spawn_box->center.y;
         }
 
-        if (actor->m_spawn_free_positioned)
+        if (free_positioned)
             actor->ResetPosition(vehicle_position, true);
         else
             actor->ResetPosition(vehicle_position.x, vehicle_position.z, true, miny);
@@ -534,7 +535,7 @@ Actor* ActorManager::CreateLocalActor(
     bool ismachine /* = false */,
     const std::vector<Ogre::String>* actor_config /* = nullptr */,
     RoR::SkinDef* skin /* = nullptr */,
-    bool freePosition, /* = false */
+    bool free_position, /* = false */
     bool preloaded_with_terrain /* = false */
 )
 {
@@ -556,7 +557,6 @@ Actor* ActorManager::CreateLocalActor(
     }
 
     Actor* actor = new Actor(
-        m_sim_controller,
         actor_id,
         def,
         pos,
@@ -568,12 +568,11 @@ Actor* ActorManager::CreateLocalActor(
         ismachine,
         actor_config,
         skin,
-        freePosition,
         preloaded_with_terrain,
         cache_entry_number
     );
 
-    this->SetupActor(actor, def, pos, rot, spawnbox, false, cache_entry_number);
+    this->SetupActor(actor, def, pos, rot, spawnbox, free_position, false, cache_entry_number);
 
     m_actors[actor_id] = actor;
 
@@ -647,7 +646,6 @@ int ActorManager::CreateRemoteInstance(RoRnet::ActorStreamRegister* reg)
     }
 
     Actor* actor = new Actor(
-        m_sim_controller,
         actor_id,
         def,
         pos,
