@@ -25,7 +25,6 @@
 #include "ApproxMath.h"
 #include "BeamFactory.h"
 #include "ErrorUtils.h"
-#include "IHeightFinder.h"
 #include "Landusemap.h"
 #include "Language.h"
 #include "MovableText.h"
@@ -110,6 +109,7 @@ unsigned int sbox[] =
 };
 
 using namespace Ogre;
+using namespace RoR;
 
 Collisions::Collisions():
       debugMode(false)
@@ -120,8 +120,6 @@ Collisions::Collisions():
     , m_last_called_cbox(nullptr)
     , last_used_ground_model(0)
 {
-    hFinder = gEnv->terrainManager->getHeightFinder();
-
     debugMode = RoR::App::diag_collisions.GetActive(); // TODO: make interactive - do not copy the value, use GVar directly
     for (int i=0; i < HASH_POWER; i++)
     {
@@ -808,7 +806,7 @@ bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
     bool contacted=false;
     int refx, refz;
 
-    Vector3 mapSize = gEnv->terrainManager->getMaxTerrainSize();
+    Vector3 mapSize = App::GetSimTerrain()->getMaxTerrainSize();
     if (!(refpos->x>0 && refpos->x<mapSize.x && refpos->z>0 && refpos->z<mapSize.z)) return false;
 
     refx=(int)(refpos->x/(float)CELL_SIZE);
@@ -1270,18 +1268,17 @@ bool Collisions::isInside(Vector3 pos, collision_box_t *cbox, float border)
 
 bool Collisions::groundCollision(node_t *node, float dt, ground_model_t** ogm, float *nso)
 {
-    if (!hFinder) return false;
     if (landuse) *ogm = landuse->getGroundModelAt(node->AbsPosition.x, node->AbsPosition.z);
     // when landuse fails or we don't have it, use the default value
     if (!*ogm) *ogm = defaultgroundgm;
     last_used_ground_model = *ogm;
 
     // new ground collision code
-    Real v = hFinder->getHeightAt(node->AbsPosition.x, node->AbsPosition.z);
+    Real v = App::GetSimTerrain()->GetHeightAt(node->AbsPosition.x, node->AbsPosition.z);
     if (v > node->AbsPosition.y)
     {
         // collision!
-        Ogre::Vector3 normal = hFinder->getNormalAt(node->AbsPosition.x, v, node->AbsPosition.z);
+        Ogre::Vector3 normal = App::GetSimTerrain()->GetNormalAt(node->AbsPosition.x, v, node->AbsPosition.z);
         primitiveCollision(node, node->Forces, node->Velocity, normal, dt, *ogm, nso, v-node->AbsPosition.y);
         return true;
     }
@@ -1436,7 +1433,7 @@ int Collisions::createCollisionDebugVisualization()
         mat->setReceiveShadows(false);
     }
 
-    Vector3 mapSize = gEnv->terrainManager->getMaxTerrainSize();
+    Vector3 mapSize = App::GetSimTerrain()->getMaxTerrainSize();
     for (int x=0; x<(int)(mapSize.x); x+=(int)CELL_SIZE)
     {
         for (int z=0; z<(int)(mapSize.z); z+=(int)CELL_SIZE)
@@ -1451,10 +1448,10 @@ int Collisions::createCollisionDebugVisualization()
                 float z2 = z+CELL_SIZE;
 
                 // find a good ground height for all corners of the cell ...
-                Real h1=hFinder->getHeightAt(x, z);
-                Real h2=hFinder->getHeightAt(x2, z);
-                Real h3=hFinder->getHeightAt(x, z2);
-                Real h4=hFinder->getHeightAt(x2, z2);
+                Real h1= App::GetSimTerrain()->GetHeightAt(x, z);
+                Real h2= App::GetSimTerrain()->GetHeightAt(x2, z);
+                Real h3= App::GetSimTerrain()->GetHeightAt(x, z2);
+                Real h4= App::GetSimTerrain()->GetHeightAt(x2, z2);
                 if (h1>groundheight)
                     groundheight = h1;
                 if (h2>groundheight)

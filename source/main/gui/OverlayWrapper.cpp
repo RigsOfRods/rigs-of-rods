@@ -47,7 +47,6 @@
 #include "ErrorUtils.h"
 #include "FlexAirfoil.h"
 #include "GlobalEnvironment.h"
-#include "IHeightFinder.h"
 #include "Language.h"
 #include "OgreSubsystem.h"
 #include "RoRFrameListener.h"
@@ -1172,7 +1171,7 @@ void OverlayWrapper::UpdateMarineHUD(Actor* vehicle)
     if (vehicle->getLowestNode() != -1)
     {
         Vector3 pos = vehicle->ar_nodes[vehicle->getLowestNode()].AbsPosition;
-        float height = pos.y - gEnv->terrainManager->getHeightFinder()->getHeightAt(pos.x, pos.z);
+        float height = pos.y - RoR::App::GetSimTerrain()->GetHeightAt(pos.x, pos.z);
         if (height > 0.1 && height < 99.9)
         {
             sprintf(tmp, "%2.1f", height);

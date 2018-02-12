@@ -20,8 +20,8 @@
 
 #include "Road2.h"
 
+#include "Application.h"
 #include "Collisions.h"
-#include "IHeightFinder.h"
 #include "TerrainManager.h"
 
 using namespace Ogre;
@@ -82,8 +82,8 @@ void Road2::addBlock(Vector3 pos, Quaternion rot, int type, float width, float b
         //define type
         Vector3 leftv = pos + rot * Vector3(0, 0, bwidth + width / 2.0);
         Vector3 rightv = pos + rot * Vector3(0, 0, -bwidth - width / 2.0);
-        float dleft = leftv.y - gEnv->terrainManager->getHeightFinder()->getHeightAt(leftv.x, leftv.z);
-        float dright = rightv.y - gEnv->terrainManager->getHeightFinder()->getHeightAt(rightv.x, rightv.z);
+        float dleft = leftv.y - RoR::App::GetSimTerrain()->GetHeightAt(leftv.x, leftv.z);
+        float dright = rightv.y - RoR::App::GetSimTerrain()->GetHeightAt(rightv.x, rightv.z);
         if (dleft < bheight + 0.1 && dright < bheight + 0.1)
             type = ROAD_FLAT;
         if (dleft < bheight + 0.1 && dright >= bheight + 0.1 && dright < 4.0)
@@ -160,9 +160,9 @@ void Road2::addBlock(Vector3 pos, Quaternion rot, int type, float width, float b
             Vector3 rightv = pos + rot * Vector3(0, 0, -bwidth - width / 2.0);
             Vector3 middle = lpts[0] - ((lpts[0] + (pts[1] - lpts[0]) / 2) -
                 (lpts[7] + (pts[6] - lpts[7]) / 2)) * 0.5;
-            float heightleft = gEnv->terrainManager->getHeightFinder()->getHeightAt(leftv.x, leftv.z);
-            float heightright = gEnv->terrainManager->getHeightFinder()->getHeightAt(rightv.x, rightv.z);
-            float heightmiddle = gEnv->terrainManager->getHeightFinder()->getHeightAt(middle.x, middle.z);
+            float heightleft = RoR::App::GetSimTerrain()->GetHeightAt(leftv.x, leftv.z);
+            float heightright = RoR::App::GetSimTerrain()->GetHeightAt(rightv.x, rightv.z);
+            float heightmiddle = RoR::App::GetSimTerrain()->GetHeightAt(middle.x, middle.z);
 
             bool builtpillars = true;
 
@@ -191,7 +191,7 @@ void Road2::addBlock(Vector3 pos, Quaternion rot, int type, float width, float b
 
             middle = lpts[0] - ((lpts[0] + (pts[1] - lpts[0]) / 2) -
                 (lpts[7] + (pts[6] - lpts[7]) / 2)) * sidefactor;
-            float len = middle.y - gEnv->terrainManager->getHeightFinder()->getHeightAt(middle.x, middle.z) + 5;
+            float len = middle.y - RoR::App::GetSimTerrain()->GetHeightAt(middle.x, middle.z) + 5;
             float width2 = len / 30;
 
             if (pillartype == 2 && len > 20)
@@ -323,7 +323,7 @@ void Road2::computePoints(Vector3* pts, Vector3 pos, Quaternion rot, int type, f
 
 inline Vector3 Road2::baseOf(Vector3 p)
 {
-    float y = gEnv->terrainManager->getHeightFinder()->getHeightAt(p.x, p.z) - 0.01;
+    float y = RoR::App::GetSimTerrain()->GetHeightAt(p.x, p.z) - 0.01;
 
     if (y > p.y)
     {

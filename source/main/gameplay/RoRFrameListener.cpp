@@ -44,7 +44,6 @@
 #include "GUI_TopMenubar.h"
 #include "GUIManager.h"
 #include "Heathaze.h"
-#include "IHeightFinder.h"
 #include "IWater.h"
 #include "InputEngine.h"
 #include "LandVehicleSimulation.h"
@@ -606,7 +605,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
 
         if (terrain_editing_mode)
         {
-            object_list = gEnv->terrainManager->getObjectManager()->GetEditorObjects();
+            object_list = App::GetSimTerrain()->getObjectManager()->GetEditorObjects();
             object_index = -1;
         }
         else
@@ -1225,21 +1224,21 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
             Real multiplier = 10;
             bool update_time = false;
 
-            if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME) && gEnv->terrainManager->getSkyManager())
+            if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME) && App::GetSimTerrain()->getSkyManager())
             {
                 update_time = true;
             }
-            else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME_FAST) && gEnv->terrainManager->getSkyManager())
+            else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME_FAST) && App::GetSimTerrain()->getSkyManager())
             {
                 time_factor *= multiplier;
                 update_time = true;
             }
-            else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME) && gEnv->terrainManager->getSkyManager())
+            else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME) && App::GetSimTerrain()->getSkyManager())
             {
                 time_factor = -time_factor;
                 update_time = true;
             }
-            else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME_FAST) && gEnv->terrainManager->getSkyManager())
+            else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME_FAST) && App::GetSimTerrain()->getSkyManager())
             {
                 time_factor *= -multiplier;
                 update_time = true;
@@ -1247,14 +1246,14 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
             else
             {
                 time_factor = 1.0f;
-                update_time = gEnv->terrainManager->getSkyManager()->GetSkyTimeFactor() != 1.0f;
+                update_time = App::GetSimTerrain()->getSkyManager()->GetSkyTimeFactor() != 1.0f;
             }
 
             if (update_time)
             {
-                gEnv->terrainManager->getSkyManager()->SetSkyTimeFactor(time_factor);
-                RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Time set to ") + gEnv->terrainManager->getSkyManager()->GetPrettyTime());
-                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Time set to ") + gEnv->terrainManager->getSkyManager()->GetPrettyTime(), "weather_sun.png", 1000);
+                App::GetSimTerrain()->getSkyManager()->SetSkyTimeFactor(time_factor);
+                RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Time set to ") + App::GetSimTerrain()->getSkyManager()->GetPrettyTime());
+                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Time set to ") + App::GetSimTerrain()->getSkyManager()->GetPrettyTime(), "weather_sun.png", 1000);
             }
         }
 
@@ -1262,28 +1261,29 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
 
 
         const bool skyx_enabled = App::gfx_sky_mode.GetActive() == GfxSkyMode::SKYX;
-        if (skyx_enabled && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
+        SkyXManager* skyx_mgr = App::GetSimTerrain()->getSkyXManager();
+        if (skyx_enabled && (skyx_mgr != nullptr) && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
         {
 
-            if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME) && gEnv->terrainManager->getSkyXManager())
+            if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME))
             {
-                gEnv->terrainManager->getSkyXManager()->GetSkyX()->setTimeMultiplier(1.0f);
+                skyx_mgr->GetSkyX()->setTimeMultiplier(1.0f);
             }
-            else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME_FAST) && gEnv->terrainManager->getSkyXManager())
+            else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME_FAST))
             {
-                gEnv->terrainManager->getSkyXManager()->GetSkyX()->setTimeMultiplier(2.0f);
+                skyx_mgr->GetSkyX()->setTimeMultiplier(2.0f);
             }
-            else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME) && gEnv->terrainManager->getSkyXManager())
+            else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME))
             {
-                gEnv->terrainManager->getSkyXManager()->GetSkyX()->setTimeMultiplier(-1.0f);
+                skyx_mgr->GetSkyX()->setTimeMultiplier(-1.0f);
             }
-            else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME_FAST) && gEnv->terrainManager->getSkyXManager())
+            else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME_FAST))
             {
-                gEnv->terrainManager->getSkyXManager()->GetSkyX()->setTimeMultiplier(-2.0f);
+                skyx_mgr->GetSkyX()->setTimeMultiplier(-2.0f);
             }
             else
             {
-                gEnv->terrainManager->getSkyXManager()->GetSkyX()->setTimeMultiplier(0.01f);
+                skyx_mgr->GetSkyX()->setTimeMultiplier(0.01f);
             }
         }
 
@@ -1537,7 +1537,7 @@ void RoRFrameListener::TeleportPlayerXZ(float x, float z)
     if (m_actor_manager.GetPlayerActorInternal() != nullptr)
         return; // Player could enter an actor while Teleport-GUI is visible
 
-    float y = gEnv->terrainManager->getHeightFinder()->getHeightAt(x, z);
+    float y = App::GetSimTerrain()->GetHeightAt(x, z);
     gEnv->player->setPosition(Ogre::Vector3(x, y, z));
 }
 
@@ -1676,7 +1676,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
     // --- terrain updates ---
 
     // update animated objects
-    gEnv->terrainManager->update(dt);
+    App::GetSimTerrain()->update(dt);
 
     // env map update
     if (player_actor)
@@ -1688,7 +1688,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
     // water
     if (simRUNNING(s) || simPAUSED(s) || simEDITOR(s))
     {
-        IWater* water = gEnv->terrainManager->getWater();
+        IWater* water = App::GetSimTerrain()->getWater();
         if (water)
         {
             water->WaterSetCamera(gEnv->mainCamera);
@@ -1706,16 +1706,18 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 
     // trigger updating of shadows etc
 #ifdef USE_CAELUM
-    SkyManager* sky = gEnv->terrainManager->getSkyManager();
+    SkyManager* sky = App::GetSimTerrain()->getSkyManager();
     if ((sky != nullptr) && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
     {
         sky->DetectSkyUpdate();
     }
 #endif
 
-    SkyXManager *SkyX = gEnv->terrainManager->getSkyXManager();
-    if ((SkyX != nullptr) && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
-       SkyX->update(dt); //Light update
+    SkyXManager* skyx_man = App::GetSimTerrain()->getSkyXManager();
+    if ((skyx_man != nullptr) && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
+    {
+       skyx_man->update(dt); // Light update
+    }
 
     if (simRUNNING(s) || simPAUSED(s) || simEDITOR(s))
     {
@@ -2189,14 +2191,14 @@ bool RoRFrameListener::LoadTerrain()
 
     LOG("Loading terrain: " + terrain_file);
 
-    if (gEnv->terrainManager != nullptr)
+    if (App::GetSimTerrain() != nullptr)
     {
         // remove old terrain
-        delete(gEnv->terrainManager); // TODO: do it when leaving simulation.
+        delete(App::GetSimTerrain()); // TODO: do it when leaving simulation.
     }
 
-    gEnv->terrainManager = new TerrainManager(this);
-    gEnv->terrainManager->loadTerrain(terrain_file);
+    App::SetSimTerrain(new TerrainManager());
+    App::GetSimTerrain()->loadTerrain(terrain_file);
     App::sim_terrain_name.ApplyPending();
 
     App::GetGuiManager()->FrictionSettingsUpdateCollisions();
@@ -2204,11 +2206,11 @@ bool RoRFrameListener::LoadTerrain()
     if (gEnv->player != nullptr)
     {
         gEnv->player->setVisible(true);
-        gEnv->player->setPosition(gEnv->terrainManager->getSpawnPos());
+        gEnv->player->setPosition(App::GetSimTerrain()->getSpawnPos());
 
         // Classic behavior, retained for compatibility.
         // Required for maps like N-Labs or F1 Track.
-        if (!gEnv->terrainManager->HasPredefinedActors())
+        if (!App::GetSimTerrain()->HasPredefinedActors())
         {
             gEnv->player->setRotation(Degree(180));
         }
@@ -2255,11 +2257,11 @@ void RoRFrameListener::CleanupAfterSimulation()
     gEnv->player = nullptr;
     m_character_factory.DeleteAllRemoteCharacters();
 
-    if (gEnv->terrainManager != nullptr)
+    if (App::GetSimTerrain() != nullptr)
     {
         // remove old terrain
-        delete(gEnv->terrainManager);
-        gEnv->terrainManager = nullptr;
+        delete(App::GetSimTerrain());
+        App::SetSimTerrain(nullptr);
     }
 
     App::DeleteSceneMouse();
@@ -2354,9 +2356,9 @@ bool RoRFrameListener::SetupGameplayLoop()
 
     App::GetGuiManager()->GetTeleport()->SetupMap(
         this,
-        &gEnv->terrainManager->GetDef(),
-        gEnv->terrainManager->getMaxTerrainSize(),
-        gEnv->terrainManager->GetMinimapTextureName());
+        &App::GetSimTerrain()->GetDef(),
+        App::GetSimTerrain()->getMaxTerrainSize(),
+        App::GetSimTerrain()->GetMinimapTextureName());
 
     // ========================================================================
     // Loading vehicle
@@ -2398,7 +2400,7 @@ bool RoRFrameListener::SetupGameplayLoop()
         }
     }
 
-    gEnv->terrainManager->LoadPredefinedActors();
+    App::GetSimTerrain()->LoadPredefinedActors();
 
     // ========================================================================
     // Extra setup

@@ -31,7 +31,7 @@ class TerrainManager : public ZeroedMemoryAllocator
 {
 public:
 
-    TerrainManager(RoRFrameListener* sim_controller);
+    TerrainManager();
     ~TerrainManager();
 
     void loadTerrain(Ogre::String filename);
@@ -54,7 +54,6 @@ public:
 
     // some getters
     Collisions* getCollisions() { return collisions; };
-    IHeightFinder* getHeightFinder();
     IWater* getWater() { return water; };
     Ogre::Light* getMainLight() { return main_light; };
     Ogre::Vector3 getSpawnPos() { return m_def.start_position; };
@@ -65,20 +64,20 @@ public:
     SkyManager* getSkyManager();
     SkyXManager *getSkyXManager() { return SkyX_manager; };
 
-    TerrainGeometryManager* getGeometryManager() { return geometry_manager; };
+    TerrainGeometryManager* getGeometryManager() { return m_geometry_manager; };
     TerrainObjectManager* getObjectManager() { return object_manager; };
 
     ShadowManager*     getShadowManager()        { return shadow_manager; };
     std::string        GetMinimapTextureName();
-    RoRFrameListener*  GetSimController()        { return m_sim_controller; }
     void               LoadPredefinedActors();
     bool               HasPredefinedActors();
+    float              GetHeightAt(float x, float z);
+    Ogre::Vector3      GetNormalAt(float x, float y, float z);
 
     static const int UNLIMITED_SIGHTRANGE = 4999;
 
 protected:
 
-    RoRFrameListener* m_sim_controller;
     // subsystems
     Character* character;
     Collisions* collisions;
@@ -87,7 +86,7 @@ protected:
     SurveyMapManager* m_survey_map;
     ShadowManager* shadow_manager;
     SkyManager* sky_manager;
-    TerrainGeometryManager* geometry_manager;
+    TerrainGeometryManager* m_geometry_manager;
     TerrainObjectManager* object_manager;
     IWater* water;
     HydraxWater* hw;
@@ -108,7 +107,6 @@ protected:
     void initTerrainCollisions();
     void initDashboards();
     void initFog();
-    void initGeometry();
     void initGlow();
     void initHDR();
     void initLight();

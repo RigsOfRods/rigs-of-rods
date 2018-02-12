@@ -27,7 +27,6 @@
 #include "Collisions.h"
 #include "GUI_GameConsole.h"
 #include "GUIManager.h"
-#include "IHeightFinder.h"
 #include "InputEngine.h"
 #include "Language.h"
 #include "TerrainManager.h"
@@ -134,9 +133,9 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext& ctx)
         , cos(targetDirection.valueRadians() + (camRotX - camRotXSwivel).valueRadians()) * cos(targetPitch.valueRadians() + (camRotY - camRotYSwivel).valueRadians())
     );
 
-    if (limitCamMovement && gEnv->terrainManager && gEnv->terrainManager->getHeightFinder())
+    if (limitCamMovement && App::GetSimTerrain())
     {
-        float h = gEnv->terrainManager->getHeightFinder()->getHeightAt(desiredPosition.x, desiredPosition.z) + 1.0f;
+        float h = App::GetSimTerrain()->GetHeightAt(desiredPosition.x, desiredPosition.z) + 1.0f;
 
         desiredPosition.y = std::max(h, desiredPosition.y);
     }

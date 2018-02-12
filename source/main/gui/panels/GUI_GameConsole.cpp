@@ -27,7 +27,6 @@
 #include "BeamFactory.h"
 #include "Character.h"
 #include "GUIManager.h"
-#include "IHeightFinder.h"
 #include "IWater.h"
 #include "Language.h"
 #include "MainMenu.h"
@@ -251,7 +250,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
         putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("pos - outputs the current position"), "world.png");
         putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("goto <x> <y> <z> - jumps to the mentioned position"), "world.png");
 
-        //if (gEnv->terrainManager->getHeightFinder()) //Not needed imo -max98
+
         putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("terrainheight - get height of terrain at current position"), "world.png");
 
         putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_HELP, _L("log - toggles log output on the console"), "table_save.png");
@@ -290,19 +289,19 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
         }
         else
         {
-            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Current gravity is: ") + StringConverter::toString(gEnv->terrainManager->getGravity()), "information.png");
+            putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Current gravity is: ") + StringConverter::toString(App::GetSimTerrain()->getGravity()), "information.png");
             return;
         }
 
-        gEnv->terrainManager->setGravity(gValue);
+        App::GetSimTerrain()->setGravity(gValue);
         putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Gravity set to: ") + StringConverter::toString(gValue), "information.png");
         return;
     }
     else if (args[0] == "setwaterlevel")
     {
-        if (gEnv->terrainManager && gEnv->terrainManager->getWater() && args.size() > 1)
+        if (App::GetSimTerrain() && App::GetSimTerrain()->getWater() && args.size() > 1)
         {
-            IWater* water = gEnv->terrainManager->getWater();
+            IWater* water = App::GetSimTerrain()->getWater();
             water->WaterSetCamera(gEnv->mainCamera);
             water->SetStaticWaterHeight(std::stof(args[1]));
             water->UpdateWater();
@@ -356,7 +355,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
     }
     else if (args[0] == "terrainheight" && (is_appstate_sim && !is_sim_select))
     {
-        if (!gEnv->terrainManager->getHeightFinder())
+        if (!App::GetSimTerrain())
             return;
         Vector3 pos = Vector3::ZERO;
 
@@ -370,7 +369,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
             pos = b->getPosition();
         }
 
-        Real h = gEnv->terrainManager->getHeightFinder()->getHeightAt(pos.x, pos.z);
+        Real h = App::GetSimTerrain()->GetHeightAt(pos.x, pos.z);
         putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Terrain height at position: ") + String("x: ") + TOSTRING(pos.x) + String("z: ") + TOSTRING(pos.z) + _L(" = ") + TOSTRING(h), "world.png");
 
         return;
@@ -427,7 +426,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
         try
         {
             SceneNode* bakeNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-            gEnv->terrainManager->getObjectManager()->LoadTerrainObject(args[1], pos, Vector3::ZERO, bakeNode, "Console", "");
+            App::GetSimTerrain()->getObjectManager()->LoadTerrainObject(args[1], pos, Vector3::ZERO, bakeNode, "Console", "");
 
             putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Spawned object at position: ") + String("x: ") + TOSTRING(pos.x) + String("z: ") + TOSTRING(pos.z), "world.png");
         }

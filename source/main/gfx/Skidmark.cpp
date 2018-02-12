@@ -22,7 +22,6 @@
 
 #include "Application.h"
 #include "BeamData.h"
-#include "IHeightFinder.h"
 #include "Settings.h"
 #include "Utils.h"
 

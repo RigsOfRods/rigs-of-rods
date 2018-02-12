@@ -264,10 +264,9 @@ void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, Actor* beam /* = 0 */)
         // caelum needs to know that we changed the cameras
 #ifdef USE_CAELUM
 
-        SkyManager* sky = gEnv->terrainManager->getSkyManager();
-        if (sky != nullptr)
+        if (App::GetSimTerrain()->getSkyManager())
         {
-            sky->NotifySkyCameraChanged(m_cameras[m_update_round]);
+            App::GetSimTerrain()->getSkyManager()->NotifySkyCameraChanged(m_cameras[m_update_round]);
         }
 #endif // USE_CAELUM
         m_render_targets[m_update_round]->update();
@@ -275,9 +274,9 @@ void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, Actor* beam /* = 0 */)
     }
 #ifdef USE_CAELUM
 
-    if (gEnv->terrainManager->getSkyManager())
+    if (App::GetSimTerrain()->getSkyManager())
     {
-        gEnv->terrainManager->getSkyManager()->NotifySkyCameraChanged(gEnv->mainCamera);
+        App::GetSimTerrain()->getSkyManager()->NotifySkyCameraChanged(gEnv->mainCamera);
     }
 #endif // USE_CAELUM
 

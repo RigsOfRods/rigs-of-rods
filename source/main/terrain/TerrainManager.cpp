@@ -52,12 +52,11 @@
 using namespace RoR;
 using namespace Ogre;
 
-TerrainManager::TerrainManager(RoRFrameListener* sim_controller)
-    : m_sim_controller(sim_controller)
-    , character(0)
+TerrainManager::TerrainManager()
+    : character(0)
     , collisions(0)
     , dashboard(0)
-    , geometry_manager(0)
+    , m_geometry_manager(0)
     , hdr_listener(0)
     , object_manager(0)
     , shadow_manager(0)
@@ -115,10 +114,10 @@ TerrainManager::~TerrainManager()
         object_manager = nullptr;
     }
 
-    if (geometry_manager != nullptr)
+    if (m_geometry_manager != nullptr)
     {
-        delete(geometry_manager);
-        geometry_manager = nullptr;
+        delete(m_geometry_manager);
+        m_geometry_manager = nullptr;
     }
 
     if (shadow_manager != nullptr)
@@ -177,7 +176,7 @@ void TerrainManager::loadTerrain(String filename)
 
     // load the terrain geometry
     PROGRESS_WINDOW(80, _L("Loading Terrain Geometry"));
-    geometry_manager->InitTerrain(m_def.ogre_ter_conf_filename);
+    m_geometry_manager->InitTerrain(m_def.ogre_ter_conf_filename);
 
     LOG(" ===== LOADING TERRAIN WATER " + filename);
     // must happen here
@@ -202,7 +201,7 @@ void TerrainManager::loadTerrain(String filename)
     }
 
     PROGRESS_WINDOW(95, _L("Initializing terrain light properties"));
-    geometry_manager->UpdateMainLightPosition(); // Initial update takes a while
+    m_geometry_manager->UpdateMainLightPosition(); // Initial update takes a while
     collisions->finishLoadingTerrain();
     LOG(" ===== TERRAIN LOADING DONE " + filename);
 
@@ -227,7 +226,7 @@ void TerrainManager::initSubSystems()
     initShadows();
 
     PROGRESS_WINDOW(15, _L("Initializing Geometry Subsystem"));
-    initGeometry();
+    m_geometry_manager = new TerrainGeometryManager(this);
 
     // objects  - .odef support
     PROGRESS_WINDOW(17, _L("Initializing Object Subsystem"));
@@ -581,7 +580,7 @@ void TerrainManager::initWater()
         water = hw;
 
         //Apply depth technique to the terrain
-        TerrainGroup::TerrainIterator ti = geometry_manager->getTerrainGroup()->getTerrainIterator();
+        TerrainGroup::TerrainIterator ti = m_geometry_manager->getTerrainGroup()->getTerrainIterator();
         while (ti.hasMoreElements())
         {
             Terrain* t = ti.getNext()->instance;
@@ -637,8 +636,8 @@ bool TerrainManager::update(float dt)
     if (object_manager)
         object_manager->UpdateTerrainObjects(dt);
 
-    if (geometry_manager)
-        geometry_manager->UpdateMainLightPosition(); // TODO: Is this necessary? I'm leaving it here just in case ~ only_a_ptr, 04/2017
+    if (m_geometry_manager)
+        m_geometry_manager->UpdateMainLightPosition(); // TODO: Is this necessary? I'm leaving it here just in case ~ only_a_ptr, 04/2017
 
     return true;
 }
@@ -671,12 +670,7 @@ void TerrainManager::initScripting()
 void TerrainManager::setGravity(float value)
 {
     gravity = value;
-    m_sim_controller->GetBeamFactory()->RecalcGravityMasses();
-}
-
-void TerrainManager::initGeometry()
-{
-    geometry_manager = new TerrainGeometryManager(this);
+    App::GetSimController()->GetBeamFactory()->RecalcGravityMasses();
 }
 
 void TerrainManager::initObjects()
@@ -686,14 +680,19 @@ void TerrainManager::initObjects()
 
 Ogre::Vector3 TerrainManager::getMaxTerrainSize()
 {
-    if (!geometry_manager)
+    if (!m_geometry_manager)
         return Vector3::ZERO;
-    return geometry_manager->getMaxTerrainSize();
+    return m_geometry_manager->getMaxTerrainSize();
 }
 
-IHeightFinder* TerrainManager::getHeightFinder()
+float TerrainManager::GetHeightAt(float x, float z)
 {
-    return geometry_manager;
+    return m_geometry_manager->getHeightAt(x, z);
+}
+
+Ogre::Vector3 TerrainManager::GetNormalAt(float x, float y, float z)
+{
+    return m_geometry_manager->getNormalAt(x, y, z);
 }
 
 SkyManager* TerrainManager::getSkyManager()

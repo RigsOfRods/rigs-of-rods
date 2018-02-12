@@ -170,7 +170,8 @@ void SurveyMapEntity::update()
         return;
     }
 
-    Vector2 m_terrain_page_size = Vector2(gEnv->terrainManager->getMaxTerrainSize().x, gEnv->terrainManager->getMaxTerrainSize().z);
+    Ogre::Vector3 max_size = RoR::App::GetSimTerrain()->getMaxTerrainSize();
+    Vector2 m_terrain_page_size = Vector2(max_size.x, max_size.z);
     float wscale = mMapControl->getWindowSize().length() / m_terrain_page_size.length();
 
     // TODO: Fix the icon positions based on the overview map size and zoom value

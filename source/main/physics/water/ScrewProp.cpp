@@ -20,6 +20,7 @@
 
 #include "ScrewProp.h"
 
+#include "Application.h"
 #include "BeamData.h"
 #include "BeamFactory.h"
 #include "DustPool.h"
@@ -28,6 +29,7 @@
 #include "Water.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 Screwprop::Screwprop(DustManager* dustman, node_t* nodes, int noderef, int nodeback, int nodeup, float fullpower, int trucknum) :
     nodes(nodes)
@@ -44,9 +46,10 @@ Screwprop::Screwprop(DustManager* dustman, node_t* nodes, int noderef, int nodeb
 
 void Screwprop::updateForces(int update)
 {
-    if (!gEnv->terrainManager->getWater())
+    if (!App::GetSimTerrain()->getWater())
         return;
-    float depth = gEnv->terrainManager->getWater()->CalcWavesHeight(nodes[noderef].AbsPosition) - nodes[noderef].AbsPosition.y;
+
+    float depth = App::GetSimTerrain()->getWater()->CalcWavesHeight(nodes[noderef].AbsPosition) - nodes[noderef].AbsPosition.y;
     if (depth < 0)
         return; //out of water!
     Vector3 dir = nodes[nodeback].RelPosition - nodes[noderef].RelPosition;

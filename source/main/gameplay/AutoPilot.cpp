@@ -20,13 +20,14 @@
 
 #include "AutoPilot.h"
 
+#include "Application.h"
 #include "BeamData.h"
-#include "IHeightFinder.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
 #include "Water.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 Autopilot::Autopilot(int actor_id):
     m_actor_id(actor_id)
@@ -319,11 +320,11 @@ void Autopilot::gpws_update(float spawnheight)
 #ifdef USE_OPENAL
     if (SoundScriptManager::getSingleton().isDisabled())
         return;
-    if (mode_gpws && gEnv->terrainManager->getHeightFinder() && ref_b)
+    if (mode_gpws && ref_b)
     {
-        float groundalt = gEnv->terrainManager->getHeightFinder()->getHeightAt(ref_c->AbsPosition.x, ref_c->AbsPosition.z);
-        if (gEnv->terrainManager->getWater() && groundalt < gEnv->terrainManager->getWater()->GetStaticWaterHeight())
-            groundalt = gEnv->terrainManager->getWater()->GetStaticWaterHeight();
+        float groundalt = App::GetSimTerrain()->GetHeightAt(ref_c->AbsPosition.x, ref_c->AbsPosition.z);
+        if (App::GetSimTerrain()->getWater() && groundalt < App::GetSimTerrain()->getWater()->GetStaticWaterHeight())
+            groundalt = App::GetSimTerrain()->getWater()->GetStaticWaterHeight();
         float height = (ref_c->AbsPosition.y - groundalt - spawnheight) * 3.28083f; //in feet!
         //skip height warning sounds when the plane is slower then ~10 knots
         if ((ref_c->Velocity.length() * 1.9685f) > 10.0f)

@@ -26,11 +26,11 @@
 #include "Beam.h"
 #include "BeamFactory.h"
 #include "Character.h"
-#include "IHeightFinder.h"
 #include "InputEngine.h"
 #include "TerrainManager.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 CameraBehaviorStatic::CameraBehaviorStatic() :
     camPosition(Vector3::ZERO)
@@ -45,7 +45,7 @@ bool intersectsTerrain(Vector3 a, Vector3 b)
     {
         Vector3 pos = a + (b - a) * (float)i / steps;
         float y = a.y + (b.y - a.y) * (float)i / steps;
-        float h = gEnv->terrainManager->getHeightFinder()->getHeightAt(pos.x, pos.z);
+        float h = App::GetSimTerrain()->GetHeightAt(pos.x, pos.z);
         if (h > y)
         {
             return true;
@@ -98,13 +98,13 @@ void CameraBehaviorStatic::update(const CameraManager::CameraContext& ctx)
             camPosition = lookAt + velocity.normalisedCopy() * speed * 3.0f;
             Vector3 offset = (velocity.crossProduct(Vector3::UNIT_Y)).normalisedCopy() * speed;
             float r = (float)std::rand() / RAND_MAX;
-            if (gEnv->terrainManager && gEnv->terrainManager->getHeightFinder())
+            if (App::GetSimTerrain())
             {
                 for (int i = 0; i < 100; i++)
                 {
                     r = (float)std::rand() / RAND_MAX;
                     Vector3 pos = camPosition + offset * (0.5f - r) * 2.0f;
-                    float h = gEnv->terrainManager->getHeightFinder()->getHeightAt(pos.x, pos.z);
+                    float h = App::GetSimTerrain()->GetHeightAt(pos.x, pos.z);
                     pos.y = std::max(h, pos.y);
                     if (!intersectsTerrain(pos, lookAt + Vector3::UNIT_Y))
                     {
@@ -115,9 +115,9 @@ void CameraBehaviorStatic::update(const CameraManager::CameraContext& ctx)
             }
             camPosition += offset * (0.5f - r) * 2.0f;
 
-            if (gEnv->terrainManager && gEnv->terrainManager->getHeightFinder())
+            if (App::GetSimTerrain())
             {
-                float h = gEnv->terrainManager->getHeightFinder()->getHeightAt(camPosition.x, camPosition.z);
+                float h = App::GetSimTerrain()->GetHeightAt(camPosition.x, camPosition.z);
 
                 camPosition.y = std::max(h, camPosition.y);
             }

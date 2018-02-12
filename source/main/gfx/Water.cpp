@@ -50,7 +50,7 @@ Water::Water() :
     m_refract_cam(0)
 {
     //Ugh.. Why so ugly and hard to read
-    m_map_size = gEnv->terrainManager->getMaxTerrainSize();
+    m_map_size = App::GetSimTerrain()->getMaxTerrainSize();
     m_reflect_listener.scene_mgr = gEnv->sceneManager;
     m_refract_listener.scene_mgr = gEnv->sceneManager;
 

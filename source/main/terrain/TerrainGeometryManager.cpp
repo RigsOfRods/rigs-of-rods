@@ -389,7 +389,7 @@ void TerrainGeometryManager::updateLightMap()
 
 void TerrainGeometryManager::UpdateMainLightPosition()
 {
-    Light* light = gEnv->terrainManager->getMainLight();
+    Light* light = App::GetSimTerrain()->getMainLight();
     TerrainGlobalOptions* terrainOptions = TerrainGlobalOptions::getSingletonPtr();
     if (light)
     {
@@ -421,7 +421,7 @@ void TerrainGeometryManager::configureTerrainDefaults()
     terrainOptions->setMaxPixelError(m_spec->max_pixel_error);
 
     // Important to set these so that the terrain knows what to use for derived (non-realtime) data
-    Light* light = gEnv->terrainManager->getMainLight();
+    Light* light = App::GetSimTerrain()->getMainLight();
     if (light)
     {
         terrainOptions->setLightMapDirection(light->getDerivedDirection());
