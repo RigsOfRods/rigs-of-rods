@@ -39,6 +39,7 @@ class Task;
 /// Monsterclass; contains logic related to physics, network, sound, threading, rendering.
 /// HISTORY: this class was derived from data-only `struct rig_t`. The data have been placed here directly. Refactor in progress, you may find leftovers.
 /// FUTURE: Class will be renamed to `Actor` because it's more universal than "truck/vehicle/rig/beam"
+///         Prefix of public variables is 'ar_' as 'Actor'
 class Beam :
     public ZeroedMemoryAllocator
 {
@@ -566,8 +567,6 @@ public:
     Ogre::Vector3 ffforce;
     Ogre::Real affhydro;
     Ogre::Real ffhydro;
-
-    bool left_blink_on, right_blink_on, warn_blink_on;
     //! @}
 
 
@@ -820,6 +819,10 @@ public:
 
     void UpdatePropAnimations(const float dt);
 
+    bool ar_left_blink_on:1;  //!< Gfx state; turn signals
+    bool ar_right_blink_on:1; //!< Gfx state; turn signals
+    bool ar_warn_blink_on:1;  //!< Gfx state; turn signals
+
 protected:
 
     /**
@@ -977,7 +980,7 @@ protected:
      * Resets the turn signal when the steering wheel is turned back.
      */
     void autoBlinkReset();
-    bool blinktreshpassed;
+    
 
 #ifdef FEAT_TIMING
     BeamThreadStats *statistics, *statistics_gfx;
@@ -1017,6 +1020,7 @@ protected:
      */
     std::pair<RailGroup*, Ogre::Real> getClosestRailOnTruck( Beam* truck, const SlideNode& node);
 
-    bool m_hud_features_ok:1;   //!< Gfx; Are HUD features matching actor's capabilities?
-    bool m_slidenodes_locked:1; //!< Physics; Are SlideNodes locked?
+    bool m_hud_features_ok:1;   //!< Gfx state; Are HUD features matching actor's capabilities?
+    bool m_slidenodes_locked:1; //!< Physics state; Are SlideNodes locked?
+    bool m_blinker_autoreset:1; //!< Gfx state; We're steering - when we finish, the blinker should turn off
 };

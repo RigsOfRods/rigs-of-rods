@@ -118,7 +118,7 @@ Beam::~Beam()
     {
         SOUND_STOP(this->trucknum, i);
     }
-#endif
+#endif // USE_OPENAL
     StopAllSounds();
 
     // destruct and remove every tiny bit of stuff we created :-|
@@ -3271,27 +3271,27 @@ void Beam::updateFlares(float dt, bool isCurrent)
 
         if (flares[i].type == 'l' && blinkingtype == BLINK_LEFT)
         {
-            left_blink_on = isvisible;
+            ar_left_blink_on = isvisible;
 
-            if (left_blink_on)
+            if (ar_left_blink_on)
                 SOUND_PLAY_ONCE(trucknum, SS_TRIG_TURN_SIGNAL_TICK);
 
             dash->setBool(DD_SIGNAL_TURNLEFT, isvisible);
         }
         else if (flares[i].type == 'r' && blinkingtype == BLINK_RIGHT)
         {
-            right_blink_on = isvisible;
+            ar_right_blink_on = isvisible;
 
-            if (right_blink_on)
+            if (ar_right_blink_on)
                 SOUND_PLAY_ONCE(trucknum, SS_TRIG_TURN_SIGNAL_TICK);
 
             dash->setBool(DD_SIGNAL_TURNRIGHT, isvisible);
         }
         else if (flares[i].type == 'l' && blinkingtype == BLINK_WARN)
         {
-            warn_blink_on = isvisible;
+            ar_warn_blink_on = isvisible;
 
-            if (warn_blink_on)
+            if (ar_warn_blink_on)
                 SOUND_PLAY_ONCE(trucknum, SS_TRIG_TURN_SIGNAL_WARN_TICK);
 
             dash->setBool(DD_SIGNAL_TURNRIGHT, isvisible);
@@ -3357,9 +3357,9 @@ void Beam::setBlinkType(blinktype blink)
 {
     blinkingtype = blink;
 
-    left_blink_on = false;
-    right_blink_on = false;
-    warn_blink_on = false;
+    ar_left_blink_on = false;
+    ar_right_blink_on = false;
+    ar_warn_blink_on = false;
 
     if (blink == BLINK_NONE)
     {
@@ -3380,23 +3380,23 @@ void Beam::autoBlinkReset()
 
     if (blink == BLINK_LEFT && hydrodirstate < -blink_lock_range)
     // passed the threshold: the turn signal gets locked
-        blinktreshpassed = true;
+        m_blinker_autoreset = true;
 
-    if (blink == BLINK_LEFT && blinktreshpassed && hydrodirstate > -blink_lock_range)
+    if (blink == BLINK_LEFT && m_blinker_autoreset && hydrodirstate > -blink_lock_range)
     {
         // steering wheel turned back: turn signal gets automatically unlocked
         setBlinkType(BLINK_NONE);
-        blinktreshpassed = false;
+        m_blinker_autoreset = false;
     }
 
     // same for the right turn signal
     if (blink == BLINK_RIGHT && hydrodirstate > blink_lock_range)
-        blinktreshpassed = true;
+        m_blinker_autoreset = true;
 
-    if (blink == BLINK_RIGHT && blinktreshpassed && hydrodirstate < blink_lock_range)
+    if (blink == BLINK_RIGHT && m_blinker_autoreset && hydrodirstate < blink_lock_range)
     {
         setBlinkType(BLINK_NONE);
-        blinktreshpassed = false;
+        m_blinker_autoreset = false;
     }
 
     bool stopblink = false;
@@ -5572,7 +5572,7 @@ Beam::Beam(
     , m_beacon_light_is_active(false)
     , beamsVisible(true)
     , blinkingtype(BLINK_NONE)
-    , blinktreshpassed(false)
+    , m_blinker_autoreset(false)
     , brake(0.0)
     , cabFadeMode(0)
     , cabFadeTime(0.3)
