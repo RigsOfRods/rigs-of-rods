@@ -417,13 +417,9 @@ public:
     float             advanced_total_drag;
     Axle*             axles[MAX_WHEELS/2];
     int               free_axle;
-    int               propwheelcount;
     int               free_commands;
     Ogre::Vector3     ar_origin;
     Ogre::SceneNode*  beamsRoot;
-    int               proped_wheels;               //!< Number of propelled wheels.
-    int               braked_wheels;               //!< Number of braked wheels.
-    int               proppairs[MAX_WHEELS];       //!< For inter-differential locking
     int               ar_num_cameras;
     int               ar_camera_node_pos[MAX_CAMERAS]; //!< Physics attr; 'camera' = frame of reference; origin node
     int               ar_camera_node_dir[MAX_CAMERAS]; //!< Physics attr; 'camera' = frame of reference; back node
@@ -534,6 +530,7 @@ private:
     // -------------------- data -------------------- //
 
     std::vector<std::pair<Ogre::String, bool> > m_dashboard_layouts; // TODO: Spawn context only, remove!
+
     std::vector<std::shared_ptr<Task>> m_flexbody_tasks;   //!< Gfx state
     std::shared_ptr<RigDef::File>      m_definition;
     std::unique_ptr<RoR::GfxActor>     m_gfx_actor;
@@ -543,6 +540,9 @@ private:
     std::vector<Ogre::String>          m_truck_config;
     std::vector<SlideNode>             m_slidenodes;       //!< all the SlideNodes available on this truck
     std::vector<RailGroup*>            m_railgroups;       //!< all the available RailGroups for this actor
+    int               m_proped_wheel_pairs[MAX_WHEELS];    //!< Physics attr; For inter-differential locking
+    int               m_num_braked_wheels;          //!< Physics attr, filled at spawn - Number of braked wheels.
+    int               m_num_proped_wheels;          //!< Physics attr, filled at spawn - Number of propelled wheels.
     float             m_avionic_chatter_timer;      //!< Sound fx state
     PointColDetector* m_inter_point_col_detector;   //!< Physics
     PointColDetector* m_intra_point_col_detector;   //!< Physics

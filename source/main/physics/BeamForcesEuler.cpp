@@ -271,8 +271,8 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     float engine_torque = 0.0;
 
     // calculate torque per wheel
-    if (engine && proped_wheels != 0)
-        engine_torque = engine->getTorque() / proped_wheels;
+    if (engine && m_num_proped_wheels != 0)
+        engine_torque = engine->getTorque() / m_num_proped_wheels;
 
     int propcounter = 0;
     float newspeeds[MAX_WHEELS] = {};
@@ -281,19 +281,19 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     if (free_axle == 0)
     {
         //first, evaluate torque from inter-differential locking
-        for (int i = 0; i < proped_wheels / 2 - 1; i++)
+        for (int i = 0; i < m_num_proped_wheels / 2 - 1; i++)
         {
-            if (wheels[proppairs[i * 2 + 0]].wh_is_detached)
-                wheels[proppairs[i * 2 + 0]].wh_speed = wheels[proppairs[i * 2 + 1]].wh_speed;
-            if (wheels[proppairs[i * 2 + 1]].wh_is_detached)
-                wheels[proppairs[i * 2 + 1]].wh_speed = wheels[proppairs[i * 2 + 0]].wh_speed;
-            if (wheels[proppairs[i * 2 + 2]].wh_is_detached)
-                wheels[proppairs[i * 2 + 2]].wh_speed = wheels[proppairs[i * 2 + 3]].wh_speed;
-            if (wheels[proppairs[i * 2 + 3]].wh_is_detached)
-                wheels[proppairs[i * 2 + 3]].wh_speed = wheels[proppairs[i * 2 + 2]].wh_speed;
+            if (wheels[m_proped_wheel_pairs[i * 2 + 0]].wh_is_detached)
+                wheels[m_proped_wheel_pairs[i * 2 + 0]].wh_speed = wheels[m_proped_wheel_pairs[i * 2 + 1]].wh_speed;
+            if (wheels[m_proped_wheel_pairs[i * 2 + 1]].wh_is_detached)
+                wheels[m_proped_wheel_pairs[i * 2 + 1]].wh_speed = wheels[m_proped_wheel_pairs[i * 2 + 0]].wh_speed;
+            if (wheels[m_proped_wheel_pairs[i * 2 + 2]].wh_is_detached)
+                wheels[m_proped_wheel_pairs[i * 2 + 2]].wh_speed = wheels[m_proped_wheel_pairs[i * 2 + 3]].wh_speed;
+            if (wheels[m_proped_wheel_pairs[i * 2 + 3]].wh_is_detached)
+                wheels[m_proped_wheel_pairs[i * 2 + 3]].wh_speed = wheels[m_proped_wheel_pairs[i * 2 + 2]].wh_speed;
 
-            float speed1 = (wheels[proppairs[i * 2 + 0]].wh_speed + wheels[proppairs[i * 2 + 1]].wh_speed) * 0.5f;
-            float speed2 = (wheels[proppairs[i * 2 + 2]].wh_speed + wheels[proppairs[i * 2 + 3]].wh_speed) * 0.5f;
+            float speed1 = (wheels[m_proped_wheel_pairs[i * 2 + 0]].wh_speed + wheels[m_proped_wheel_pairs[i * 2 + 1]].wh_speed) * 0.5f;
+            float speed2 = (wheels[m_proped_wheel_pairs[i * 2 + 2]].wh_speed + wheels[m_proped_wheel_pairs[i * 2 + 3]].wh_speed) * 0.5f;
             float torque = (speed1 - speed2) * 10000.0f;
 
             intertorque[i * 2 + 0] -= torque * 0.5f;
@@ -456,7 +456,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
                 dbrake = ar_brake_force * abs(ar_hydro_dir_state);
             }
 
-            if ((ar_brake != 0.0 || dbrake != 0.0 || hbrake != 0.0) && braked_wheels != 0 && fabs(wheels[i].wh_speed) > 0.0f)
+            if ((ar_brake != 0.0 || dbrake != 0.0 || hbrake != 0.0) && m_num_braked_wheels != 0 && fabs(wheels[i].wh_speed) > 0.0f)
             {
                 float brake_coef = 1.0f;
                 float antilock_coef = 1.0f;
@@ -638,9 +638,9 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         wheels[i].wh_last_speed = wheels[i].wh_speed;
         wheels[i].wh_speed = newspeeds[i];
     }
-    if (proped_wheels)
+    if (m_num_proped_wheels)
     {
-        wspeed /= (float)proped_wheels;
+        wspeed /= (float)m_num_proped_wheels;
     }
 
     // wheel speed  in m/s !
