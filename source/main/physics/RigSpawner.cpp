@@ -270,10 +270,6 @@ void RigSpawner::InitializeRig()
     m_rig->free_pressure_beam = 0;
     memset(m_rig->aeroengines, 0, sizeof(AeroEngine *) * MAX_AEROENGINES);
     m_rig->free_aeroengine = 0;
-    memset(m_rig->cabs, 0, sizeof(int) * (MAX_CABS*3));
-    m_rig->free_cab = 0;
-    memset(m_rig->hydro, 0, sizeof(int) * MAX_HYDROS);
-    m_rig->free_hydro = 0;
     memset(m_rig->ar_collcabs, 0, sizeof(int) * MAX_CABS);
     memset(m_rig->ar_inter_collcabrate, 0, sizeof(collcab_rate_t) * MAX_CABS);
     m_rig->ar_num_collcabs = 0;
@@ -285,8 +281,6 @@ void RigSpawner::InitializeRig()
     memset(m_rig->m_skid_trails, 0, sizeof(Skidmark *) * (MAX_WHEELS*2));
     m_rig->ar_num_flexbodies = 0;
     m_rig->description.clear();
-    m_rig->ar_num_camera_rails = 0;
-    m_rig->free_screwprop = 0;
 
     m_rig->ar_extern_camera_mode=0;
     m_rig->ar_extern_camera_node=-1;
@@ -547,7 +541,7 @@ void RigSpawner::FinalizeRig()
         WashCalculator();
     }
     //add the cab visual
-    if (!m_oldstyle_cab_texcoords.empty() && m_rig->free_cab>0)
+    if (!m_oldstyle_cab_texcoords.empty() && m_rig->ar_num_cabs>0)
     {
         //the cab materials are as follow:
         //texname: base texture with emissive(2 pass) or without emissive if none available(1 pass), alpha cutting
@@ -615,8 +609,8 @@ void RigSpawner::FinalizeRig()
         m_rig->m_cab_mesh =new FlexObj( // Names in FlexObj ctor
             m_rig->ar_nodes,            // node_t* nds
             m_oldstyle_cab_texcoords,// std::vector<CabNodeTexcoords>& texcoords
-            m_rig->free_cab,         // int     numtriangles
-            m_rig->cabs,             // int*    triangles
+            m_rig->ar_num_cabs,         // int     numtriangles
+            m_rig->ar_cabs,             // int*    triangles
             m_oldstyle_cab_submeshes,// std::vector<CabSubmesh>& submeshes
             cab_material_name_cstr,          // char*   texname
             mesh_name.c_str(),
@@ -777,7 +771,7 @@ void RigSpawner::ProcessScrewprop(RigDef::Screwprop & def)
     int back_node_idx = GetNodeIndexOrThrow(def.back_node);
     int top_node_idx = GetNodeIndexOrThrow(def.top_node);
 
-    m_rig->screwprops[m_rig->free_screwprop] = new Screwprop(
+    m_rig->ar_screwprops[m_rig->ar_num_screwprops] = new Screwprop(
         &RoR::App::GetSimController()->GetBeamFactory()->GetParticleManager(),
         m_rig->ar_nodes,
         ref_node_idx,
@@ -787,7 +781,7 @@ void RigSpawner::ProcessScrewprop(RigDef::Screwprop & def)
         m_rig->ar_instance_id
     );
     m_rig->ar_driveable=BOAT;
-    m_rig->free_screwprop++;
+    m_rig->ar_num_screwprops++;
 }
 
 void RigSpawner::ProcessFusedrag(RigDef::Fusedrag & def)
@@ -1507,42 +1501,42 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
 
         bool mk_buoyance = false;
 
-        m_rig->cabs[m_rig->free_cab*3]=GetNodeIndexOrThrow(cab_itor->nodes[0]);
-        m_rig->cabs[m_rig->free_cab*3+1]=GetNodeIndexOrThrow(cab_itor->nodes[1]);
-        m_rig->cabs[m_rig->free_cab*3+2]=GetNodeIndexOrThrow(cab_itor->nodes[2]);
+        m_rig->ar_cabs[m_rig->ar_num_cabs*3]=GetNodeIndexOrThrow(cab_itor->nodes[0]);
+        m_rig->ar_cabs[m_rig->ar_num_cabs*3+1]=GetNodeIndexOrThrow(cab_itor->nodes[1]);
+        m_rig->ar_cabs[m_rig->ar_num_cabs*3+2]=GetNodeIndexOrThrow(cab_itor->nodes[2]);
 
         if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_c_CONTACT))
         {
-            m_rig->ar_collcabs[m_rig->ar_num_collcabs]=m_rig->free_cab;
+            m_rig->ar_collcabs[m_rig->ar_num_collcabs]=m_rig->ar_num_cabs;
             m_rig->ar_num_collcabs++;
         }
         if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_p_10xTOUGHER))
         {
-            m_rig->ar_collcabs[m_rig->ar_num_collcabs]=m_rig->free_cab; 
+            m_rig->ar_collcabs[m_rig->ar_num_collcabs]=m_rig->ar_num_cabs; 
             m_rig->ar_num_collcabs++;
         }
         if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_u_INVULNERABLE))
         {
-            m_rig->ar_collcabs[m_rig->ar_num_collcabs]=m_rig->free_cab; 
+            m_rig->ar_collcabs[m_rig->ar_num_collcabs]=m_rig->ar_num_cabs; 
             m_rig->ar_num_collcabs++;
         }
         if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_b_BUOYANT))
         {
-            m_rig->ar_buoycabs[m_rig->ar_num_buoycabs]=m_rig->free_cab; 
+            m_rig->ar_buoycabs[m_rig->ar_num_buoycabs]=m_rig->ar_num_cabs; 
             m_rig->ar_buoycab_types[m_rig->ar_num_buoycabs]=Buoyance::BUOY_NORMAL; 
             m_rig->ar_num_buoycabs++;   
             mk_buoyance = true;
         }
         if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_r_BUOYANT_ONLY_DRAG))
         {
-            m_rig->ar_buoycabs[m_rig->ar_num_buoycabs]=m_rig->free_cab; 
+            m_rig->ar_buoycabs[m_rig->ar_num_buoycabs]=m_rig->ar_num_cabs; 
             m_rig->ar_buoycab_types[m_rig->ar_num_buoycabs]=Buoyance::BUOY_DRAGONLY; 
             m_rig->ar_num_buoycabs++; 
             mk_buoyance = true;
         }
         if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_s_BUOYANT_NO_DRAG))
         {
-            m_rig->ar_buoycabs[m_rig->ar_num_buoycabs]=m_rig->free_cab; 
+            m_rig->ar_buoycabs[m_rig->ar_num_buoycabs]=m_rig->ar_num_cabs; 
             m_rig->ar_buoycab_types[m_rig->ar_num_buoycabs]=Buoyance::BUOY_DRAGLESS; 
             m_rig->ar_num_buoycabs++; 
             mk_buoyance = true;
@@ -1581,9 +1575,9 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
                 return;
             }
 
-            m_rig->ar_collcabs[m_rig->ar_num_collcabs]=m_rig->free_cab;
+            m_rig->ar_collcabs[m_rig->ar_num_collcabs]=m_rig->ar_num_cabs;
             m_rig->ar_num_collcabs++;
-            m_rig->ar_buoycabs[m_rig->ar_num_buoycabs]=m_rig->free_cab; 
+            m_rig->ar_buoycabs[m_rig->ar_num_buoycabs]=m_rig->ar_num_cabs; 
             m_rig->ar_buoycab_types[m_rig->ar_num_buoycabs]=Buoyance::BUOY_NORMAL; 
             m_rig->ar_num_buoycabs++; 
             mk_buoyance = true;
@@ -1594,13 +1588,13 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
             auto& dustman = App::GetSimController()->GetBeamFactory()->GetParticleManager();
             m_rig->m_buoyance=std::make_unique<Buoyance>(dustman.getDustPool("splash"), dustman.getDustPool("ripple"));
         }
-        m_rig->free_cab++;
+        m_rig->ar_num_cabs++;
     }
 
     //close the current mesh
     CabSubmesh submesh;
     submesh.texcoords_pos = m_oldstyle_cab_texcoords.size();
-    submesh.cabs_pos = static_cast<unsigned int>(m_rig->free_cab);
+    submesh.cabs_pos = static_cast<unsigned int>(m_rig->ar_num_cabs);
     submesh.backmesh_type = CabSubmesh::BACKMESH_NONE;
     m_oldstyle_cab_submeshes.push_back(submesh);
 
@@ -1626,16 +1620,16 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
         int cab_start =  (m_oldstyle_cab_submeshes.size()==1) ? 0 : (m_oldstyle_cab_submeshes.rbegin()+1)->cabs_pos;
         for (size_t i=cab_start; i<m_oldstyle_cab_submeshes.back().cabs_pos; i++)
         {
-            m_rig->cabs[m_rig->free_cab*3]=m_rig->cabs[i*3];
-            m_rig->cabs[m_rig->free_cab*3+1]=m_rig->cabs[i*3+1];
-            m_rig->cabs[m_rig->free_cab*3+2]=m_rig->cabs[i*3+2];
-            m_rig->free_cab++;
+            m_rig->ar_cabs[m_rig->ar_num_cabs*3]=m_rig->ar_cabs[i*3];
+            m_rig->ar_cabs[m_rig->ar_num_cabs*3+1]=m_rig->ar_cabs[i*3+1];
+            m_rig->ar_cabs[m_rig->ar_num_cabs*3+2]=m_rig->ar_cabs[i*3+2];
+            m_rig->ar_num_cabs++;
         }
         // Finalize
         CabSubmesh submesh;
         submesh.backmesh_type = CabSubmesh::BACKMESH_TRANSPARENT;
         submesh.texcoords_pos = m_oldstyle_cab_texcoords.size();
-        submesh.cabs_pos      = static_cast<unsigned int>(m_rig->free_cab);
+        submesh.cabs_pos      = static_cast<unsigned int>(m_rig->ar_num_cabs);
         m_oldstyle_cab_submeshes.push_back(submesh);
 
         // === add an extra back mesh ===
@@ -1650,16 +1644,16 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
         cab_start =  (m_oldstyle_cab_submeshes.size()==1) ? 0 : (m_oldstyle_cab_submeshes.rbegin()+1)->cabs_pos;
         for (size_t i=cab_start; i<m_oldstyle_cab_submeshes.back().cabs_pos; i++)
         {
-            m_rig->cabs[m_rig->free_cab*3]=m_rig->cabs[i*3+1];
-            m_rig->cabs[m_rig->free_cab*3+1]=m_rig->cabs[i*3];
-            m_rig->cabs[m_rig->free_cab*3+2]=m_rig->cabs[i*3+2];
-            m_rig->free_cab++;
+            m_rig->ar_cabs[m_rig->ar_num_cabs*3]=m_rig->ar_cabs[i*3+1];
+            m_rig->ar_cabs[m_rig->ar_num_cabs*3+1]=m_rig->ar_cabs[i*3];
+            m_rig->ar_cabs[m_rig->ar_num_cabs*3+2]=m_rig->ar_cabs[i*3+2];
+            m_rig->ar_num_cabs++;
         }
     
         //close the current mesh
         CabSubmesh submesh2;
         submesh2.texcoords_pos = m_oldstyle_cab_texcoords.size();
-        submesh2.cabs_pos = static_cast<unsigned int>(m_rig->free_cab);
+        submesh2.cabs_pos = static_cast<unsigned int>(m_rig->ar_num_cabs);
         submesh2.backmesh_type = CabSubmesh::BACKMESH_OPAQUE;
         m_oldstyle_cab_submeshes.push_back(submesh2);
     }
@@ -3502,7 +3496,7 @@ void RigSpawner::ProcessAnimator(RigDef::Animator & def)
         if (def.inertia_defaults->start_delay_factor > 0 && def.inertia_defaults->stop_delay_factor > 0)
         {
             m_rig->m_hydro_inertia->setCmdKeyDelay(
-                m_rig->free_hydro,
+                m_rig->ar_num_hydros,
                 def.inertia_defaults->start_delay_factor,
                 def.inertia_defaults->stop_delay_factor,
                 def.inertia_defaults->start_function,
@@ -3649,8 +3643,8 @@ void RigSpawner::ProcessAnimator(RigDef::Animator & def)
         beam.longbound = def.long_limit;
     }
 
-    m_rig->hydro[m_rig->free_hydro] = beam_index;
-    m_rig->free_hydro++;
+    m_rig->ar_hydro[m_rig->ar_num_hydros] = beam_index;
+    m_rig->ar_num_hydros++;
 }
 
 beam_t & RigSpawner::AddBeam(
@@ -3767,7 +3761,7 @@ void RigSpawner::ProcessHydro(RigDef::Hydro & def)
         }
     }
 
-    _ProcessKeyInertia(m_rig->m_hydro_inertia, def.inertia, *def.inertia_defaults, m_rig->free_hydro, m_rig->free_hydro);	
+    _ProcessKeyInertia(m_rig->m_hydro_inertia, def.inertia, *def.inertia_defaults, m_rig->ar_num_hydros, m_rig->ar_num_hydros);	
 
     node_t & node_1 = GetNode(def.nodes[0]);
     node_t & node_2 = GetNode(def.nodes[1]);
@@ -3784,8 +3778,8 @@ void RigSpawner::ProcessHydro(RigDef::Hydro & def)
 
     CreateBeamVisuals(beam, beam_index, def.beam_defaults);
 
-    m_rig->hydro[m_rig->free_hydro] = beam_index;
-    m_rig->free_hydro++;
+    m_rig->ar_hydro[m_rig->ar_num_hydros] = beam_index;
+    m_rig->ar_num_hydros++;
 }
 
 void RigSpawner::ProcessShock2(RigDef::Shock2 & def)
@@ -6434,7 +6428,7 @@ bool RigSpawner::CheckCabLimit(unsigned int count)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if ((m_rig->free_cab + count) > MAX_CABS)
+    if ((m_rig->ar_num_cabs + count) > MAX_CABS)
     {
         std::stringstream msg;
         msg << "Cab limit (" << MAX_CABS << ") exceeded";
@@ -6490,7 +6484,7 @@ bool RigSpawner::CheckScrewpropLimit(unsigned int count)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if ((m_rig->free_screwprop + count) > MAX_SCREWPROPS)
+    if ((m_rig->ar_num_screwprops + count) > MAX_SCREWPROPS)
     {
         std::stringstream msg;
         msg << "Screwprop limit (" << MAX_SCREWPROPS << ") exceeded";
@@ -6791,9 +6785,9 @@ void RigSpawner::UpdateCollcabContacterNodes()
     for (int i=0; i<m_rig->ar_num_collcabs; i++)
     {
         int tmpv = m_rig->ar_collcabs[i] * 3;
-        m_rig->ar_nodes[m_rig->cabs[tmpv]].contacter = true;
-        m_rig->ar_nodes[m_rig->cabs[tmpv+1]].contacter = true;
-        m_rig->ar_nodes[m_rig->cabs[tmpv+2]].contacter = true;
+        m_rig->ar_nodes[m_rig->ar_cabs[tmpv]].contacter = true;
+        m_rig->ar_nodes[m_rig->ar_cabs[tmpv+1]].contacter = true;
+        m_rig->ar_nodes[m_rig->ar_cabs[tmpv+2]].contacter = true;
     }
 }
 

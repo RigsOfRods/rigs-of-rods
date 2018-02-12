@@ -313,12 +313,12 @@ public:
     int               free_pressure_beam;
     AeroEngine*       aeroengines[MAX_AEROENGINES];
     int               free_aeroengine;
-    Screwprop*        screwprops[MAX_SCREWPROPS];
-    int               free_screwprop;
-    int               cabs[MAX_CABS*3];
-    int               free_cab;
-    int               hydro[MAX_HYDROS];
-    int               free_hydro;
+    Screwprop*        ar_screwprops[MAX_SCREWPROPS];
+    int               ar_num_screwprops;
+    int               ar_cabs[MAX_CABS*3];
+    int               ar_num_cabs;
+    int               ar_hydro[MAX_HYDROS];
+    int               ar_num_hydros;
     int               ar_collcabs[MAX_CABS];
     collcab_rate_t    ar_inter_collcabrate[MAX_CABS];
     collcab_rate_t    ar_intra_collcabrate[MAX_CABS];

@@ -992,20 +992,20 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                             float f = RoR::App::GetInputEngine()->getEventValue(EV_BOAT_THROTTLE_AXIS);
                             // use negative values also!
                             f = f * 2 - 1;
-                            for (int i = 0; i < curr_truck->free_screwprop; i++)
-                                curr_truck->screwprops[i]->setThrottle(-f);
+                            for (int i = 0; i < curr_truck->ar_num_screwprops; i++)
+                                curr_truck->ar_screwprops[i]->setThrottle(-f);
                         }
                         if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_BOAT_THROTTLE_DOWN, 0.1f))
                         {
                             //throttle down
-                            for (int i = 0; i < curr_truck->free_screwprop; i++)
-                                curr_truck->screwprops[i]->setThrottle(curr_truck->screwprops[i]->getThrottle() - 0.05);
+                            for (int i = 0; i < curr_truck->ar_num_screwprops; i++)
+                                curr_truck->ar_screwprops[i]->setThrottle(curr_truck->ar_screwprops[i]->getThrottle() - 0.05);
                         }
                         if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_BOAT_THROTTLE_UP, 0.1f))
                         {
                             //throttle up
-                            for (int i = 0; i < curr_truck->free_screwprop; i++)
-                                curr_truck->screwprops[i]->setThrottle(curr_truck->screwprops[i]->getThrottle() + 0.05);
+                            for (int i = 0; i < curr_truck->ar_num_screwprops; i++)
+                                curr_truck->ar_screwprops[i]->setThrottle(curr_truck->ar_screwprops[i]->getThrottle() + 0.05);
                         }
 
                         // steer
@@ -1016,27 +1016,27 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                         // do not center the rudder!
                         if (fabs(sum_steer) > 0 && stime <= 0)
                         {
-                            for (int i = 0; i < curr_truck->free_screwprop; i++)
-                                curr_truck->screwprops[i]->setRudder(curr_truck->screwprops[i]->getRudder() + sum_steer);
+                            for (int i = 0; i < curr_truck->ar_num_screwprops; i++)
+                                curr_truck->ar_screwprops[i]->setRudder(curr_truck->ar_screwprops[i]->getRudder() + sum_steer);
                         }
                         if (RoR::App::GetInputEngine()->isEventDefined(EV_BOAT_STEER_LEFT_AXIS) && RoR::App::GetInputEngine()->isEventDefined(EV_BOAT_STEER_RIGHT_AXIS))
                         {
                             tmp_steer_left = RoR::App::GetInputEngine()->getEventValue(EV_BOAT_STEER_LEFT_AXIS);
                             tmp_steer_right = RoR::App::GetInputEngine()->getEventValue(EV_BOAT_STEER_RIGHT_AXIS);
                             sum_steer = (tmp_steer_left - tmp_steer_right);
-                            for (int i = 0; i < curr_truck->free_screwprop; i++)
-                                curr_truck->screwprops[i]->setRudder(sum_steer);
+                            for (int i = 0; i < curr_truck->ar_num_screwprops; i++)
+                                curr_truck->ar_screwprops[i]->setRudder(sum_steer);
                         }
                         if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_BOAT_CENTER_RUDDER, 0.1f))
                         {
-                            for (int i = 0; i < curr_truck->free_screwprop; i++)
-                                curr_truck->screwprops[i]->setRudder(0);
+                            for (int i = 0; i < curr_truck->ar_num_screwprops; i++)
+                                curr_truck->ar_screwprops[i]->setRudder(0);
                         }
 
                         if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_BOAT_REVERSE))
                         {
-                            for (int i = 0; i < curr_truck->free_screwprop; i++)
-                                curr_truck->screwprops[i]->toggleReverse();
+                            for (int i = 0; i < curr_truck->ar_num_screwprops; i++)
+                                curr_truck->ar_screwprops[i]->toggleReverse();
                         }
                     }
                     //COMMON KEYS

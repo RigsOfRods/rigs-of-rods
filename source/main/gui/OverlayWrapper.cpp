@@ -1157,12 +1157,12 @@ void OverlayWrapper::UpdateAerialHUD(Beam* vehicle)
 
 void OverlayWrapper::UpdateMarineHUD(Beam* vehicle)
 {
-    int fsp = vehicle->free_screwprop;
+    int fsp = vehicle->ar_num_screwprops;
     //throttles
-    bthro1->setTop(thrtop + thrheight * (0.5 - vehicle->screwprops[0]->getThrottle() / 2.0) - 1.0);
+    bthro1->setTop(thrtop + thrheight * (0.5 - vehicle->ar_screwprops[0]->getThrottle() / 2.0) - 1.0);
     if (fsp > 1)
     {
-        bthro2->setTop(thrtop + thrheight * (0.5 - vehicle->screwprops[1]->getThrottle() / 2.0) - 1.0);
+        bthro2->setTop(thrtop + thrheight * (0.5 - vehicle->ar_screwprops[1]->getThrottle() / 2.0) - 1.0);
     }
 
     //position
@@ -1189,7 +1189,7 @@ void OverlayWrapper::UpdateMarineHUD(Beam* vehicle)
     float kt = dir.dotProduct(vehicle->ar_nodes[vehicle->ar_camera_node_pos[0]].Velocity) * 1.9438;
     angle = kt * 4.2;
     boatspeedtexture->setTextureRotate(Degree(-angle));
-    boatsteertexture->setTextureRotate(Degree(vehicle->screwprops[0]->getRudder() * 170));
+    boatsteertexture->setTextureRotate(Degree(vehicle->ar_screwprops[0]->getRudder() * 170));
 }
 
 void OverlayWrapper::ShowRacingOverlay()

@@ -307,8 +307,8 @@ void CLASS::UpdateStats(float dt, Beam* truck)
             {
                 for (int i = 0; i < 8; i++)
                 {
-                    if (truck->screwprops[i])
-                        truckstats = truckstats + MainThemeColor + engmsg + TOUTFSTRING(i + 1 /*not to start with 0, players wont like it i guess*/) + " : " + WhiteColor + TOUTFSTRING(Round(truck->screwprops[i]->getThrottle() *100 )) + "%" + "\n";
+                    if (truck->ar_screwprops[i])
+                        truckstats = truckstats + MainThemeColor + engmsg + TOUTFSTRING(i + 1 /*not to start with 0, players wont like it i guess*/) + " : " + WhiteColor + TOUTFSTRING(Round(truck->ar_screwprops[i]->getThrottle() *100 )) + "%" + "\n";
                 }
             }
         }
