@@ -281,8 +281,7 @@ void RigSpawner::InitializeRig()
     memset(m_rig->buoycabs, 0, sizeof(int) * MAX_CABS);
     m_rig->free_buoycab = 0;
     memset(m_rig->buoycabtypes, 0, sizeof(int) * MAX_CABS);
-    memset(m_rig->airbrakes, 0, sizeof(Airbrake *) * MAX_AIRBRAKES);
-    m_rig->free_airbrake = 0;
+    m_rig->ar_num_airbrakes = 0;
     memset(m_rig->m_skid_trails, 0, sizeof(Skidmark *) * (MAX_WHEELS*2));
     m_rig->ar_num_flexbodies = 0;
     m_rig->description.clear();
@@ -953,9 +952,9 @@ void RigSpawner::ProcessAirbrake(RigDef::Airbrake & def)
         return;
     }
 
-    m_rig->airbrakes[m_rig->free_airbrake] = new Airbrake(
-        this->ComposeName("Airbrake", m_rig->free_airbrake).c_str(),
-        m_rig->free_airbrake, 
+    m_rig->ar_airbrakes[m_rig->ar_num_airbrakes] = new Airbrake(
+        this->ComposeName("Airbrake", m_rig->ar_num_airbrakes).c_str(),
+        m_rig->ar_num_airbrakes, 
         GetNodePointerOrThrow(def.reference_node), 
         GetNodePointerOrThrow(def.x_axis_node),
         GetNodePointerOrThrow(def.y_axis_node),
@@ -971,7 +970,7 @@ void RigSpawner::ProcessAirbrake(RigDef::Airbrake & def)
         def.texcoord_y2,
         def.lift_coefficient
     );
-    m_rig->free_airbrake++;
+    m_rig->ar_num_airbrakes++;
 }
 
 void RigSpawner::ProcessWing(RigDef::Wing & def)
@@ -6463,7 +6462,7 @@ bool RigSpawner::CheckAirBrakeLimit(unsigned int count)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if ((m_rig->free_airbrake + count) > MAX_AIRBRAKES)
+    if ((m_rig->ar_num_airbrakes + count) > MAX_AIRBRAKES)
     {
         std::stringstream msg;
         msg << "AirBrake limit (" << MAX_AIRBRAKES << ") exceeded";

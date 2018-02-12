@@ -242,9 +242,9 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     BES_START(BES_CORE_Airbrakes);
 
     //airbrakes
-    for (int i = 0; i < free_airbrake; i++)
+    for (int i = 0; i < ar_num_airbrakes; i++)
     {
-        airbrakes[i]->applyForce();
+        ar_airbrakes[i]->applyForce();
     }
 
     BES_STOP(BES_CORE_Airbrakes);

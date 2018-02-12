@@ -213,10 +213,13 @@ Beam::~Beam()
     }
 
     // delete airbrakes
-    for (int i = 0; i < free_airbrake; i++)
+    for (int i = 0; i < ar_num_airbrakes; i++)
     {
-        if (airbrakes[i])
-            delete airbrakes[i];
+        if (ar_airbrakes[i])
+        {
+            delete ar_airbrakes[i];
+            ar_airbrakes[i] = 0;
+        }
     }
 
     // delete flexbodies
@@ -3433,9 +3436,9 @@ void Beam::updateProps()
         }
     }
 
-    for (int i = 0; i < free_airbrake; i++)
+    for (int i = 0; i < ar_num_airbrakes; i++)
     {
-        airbrakes[i]->updatePosition((float)ar_airbrake_intensity / 5.0);
+        ar_airbrakes[i]->updatePosition((float)ar_airbrake_intensity / 5.0);
     }
 
     BES_GFX_STOP(BES_GFX_updateProps);
@@ -5655,6 +5658,7 @@ Beam::Beam(
     , ar_forward_commands(false)
     , ar_import_commands(false)
     , ar_flexbodies{} // Init array to nullptr
+    , ar_airbrakes{} // Init array to nullptr
 {
     m_high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();
     m_use_skidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;
