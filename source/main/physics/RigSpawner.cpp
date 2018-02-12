@@ -2812,22 +2812,26 @@ void RigSpawner::ProcessSlidenode(RigDef::SlideNode & def)
     }
     slide_node.setAttachmentDistance(def.max_attachment_distance);
 
-    /* Constraints */
+    // Constraints
     if (BITMASK_IS_1(def.constraint_flags, RigDef::SlideNode::CONSTRAINT_ATTACH_ALL))
     {
-        slide_node.setAttachRule( ATTACH_ALL );
+        slide_node.sn_attach_self = true;
+        slide_node.sn_attach_foreign = true;
     }
     if (BITMASK_IS_1(def.constraint_flags, RigDef::SlideNode::CONSTRAINT_ATTACH_SELF))
     {
-        slide_node.setAttachRule( ATTACH_SELF );
+        slide_node.sn_attach_self = true;
+        slide_node.sn_attach_foreign = false;
     }
     if (BITMASK_IS_1(def.constraint_flags, RigDef::SlideNode::CONSTRAINT_ATTACH_FOREIGN))
     {
-        slide_node.setAttachRule( ATTACH_FOREIGN );
+        slide_node.sn_attach_self = false;
+        slide_node.sn_attach_foreign = true;
     }
     if (BITMASK_IS_1(def.constraint_flags, RigDef::SlideNode::CONSTRAINT_ATTACH_NONE))
     {
-        slide_node.setAttachRule( ATTACH_NONE );
+        slide_node.sn_attach_self = false;
+        slide_node.sn_attach_foreign = false;
     }
 
     /* RailGroup */
