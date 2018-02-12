@@ -34,6 +34,8 @@
 #include "RoRPrerequisites.h"
 
 #include <MyGUI.h>
+#include <OgreRenderWindow.h>
+#include <OgreViewport.h>
 
 using namespace RoR;
 using namespace GUI;

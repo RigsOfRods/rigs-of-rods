@@ -37,6 +37,7 @@
 #include "GUI_TopMenubar.h"
 #include "Language.h"
 #include "MainMenu.h"
+#include "MovableText.h"
 #include "Network.h"
 #include "PointColDetector.h"
 #include "PositionStorage.h"
