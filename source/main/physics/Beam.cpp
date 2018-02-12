@@ -574,7 +574,7 @@ Vector3 Beam::getDirection()
 
 Vector3 Beam::getPosition()
 {
-    return position; //the position is already in absolute position
+    return m_avg_node_position; //the position is already in absolute position
 }
 
 void Beam::CreateSimpleSkeletonMaterial()
@@ -732,7 +732,7 @@ void Beam::calcNetwork()
 
         apos += ar_nodes[i].AbsPosition;
     }
-    position = apos / m_net_first_wheel_node;
+    m_avg_node_position = apos / m_net_first_wheel_node;
 
     for (int i = 0; i < free_wheel; i++)
     {
@@ -1287,7 +1287,7 @@ int Beam::loadPosition(int indexPosition)
 
         pos = pos + nbuff[i];
     }
-    position = pos / (float)(ar_num_nodes);
+    m_avg_node_position = pos / (float)(ar_num_nodes);
 
     resetSlideNodes();
 
@@ -1299,17 +1299,17 @@ void Beam::calculateAveragePosition()
     // calculate average position
     if (ar_custom_camera_node >= 0)
     {
-        position = ar_nodes[ar_custom_camera_node].AbsPosition;
+        m_avg_node_position = ar_nodes[ar_custom_camera_node].AbsPosition;
     }
     else if (ar_extern_camera_mode == 1 && freecinecamera > 0)
     {
         // the new (strange) approach: reuse the cinecam node
-        position = ar_nodes[cinecameranodepos[0]].AbsPosition;
+        m_avg_node_position = ar_nodes[cinecameranodepos[0]].AbsPosition;
     }
     else if (ar_extern_camera_mode == 2 && ar_extern_camera_node >= 0)
     {
         // the new (strange) approach #2: reuse a specified node
-        position = ar_nodes[ar_extern_camera_node].AbsPosition;
+        m_avg_node_position = ar_nodes[ar_extern_camera_node].AbsPosition;
     }
     else
     {
@@ -1319,7 +1319,7 @@ void Beam::calculateAveragePosition()
         {
             aposition += ar_nodes[n].AbsPosition;
         }
-        position = aposition / ar_num_nodes;
+        m_avg_node_position = aposition / ar_num_nodes;
     }
 }
 
@@ -1336,7 +1336,7 @@ void Beam::updateBoundingBox()
 
 void Beam::preUpdatePhysics(float dt)
 {
-    lastposition = position;
+    m_avg_node_position_prev = m_avg_node_position;
 
     if (ar_nodes[0].RelPosition.squaredLength() > 10000.0)
     {
@@ -1349,7 +1349,7 @@ void Beam::postUpdatePhysics(float dt)
     calculateAveragePosition();
 
     // Calculate average truck velocity
-    velocity = (position - lastposition) / dt;
+    m_avg_node_velocity = (m_avg_node_position - m_avg_node_position_prev) / dt;
 }
 
 void Beam::resetAngle(float rot)
@@ -1468,7 +1468,7 @@ void Beam::resetPosition(Vector3 translation, bool setInitPosition)
     {
         for (int i = 0; i < ar_num_nodes; i++)
         {
-            Real dist = ar_nodes[i].AbsPosition.squaredDistance(position);
+            Real dist = ar_nodes[i].AbsPosition.squaredDistance(m_avg_node_position);
             if (dist > m_min_camera_radius)
             {
                 m_min_camera_radius = dist;
@@ -3481,8 +3481,8 @@ void Beam::updateLabels(float dt)
     if (m_net_label_node && m_net_label_mt)
     {
         // this ensures that the nickname is always in a readable size
-        m_net_label_node->setPosition(position + Vector3(0.0f, (boundingBox.getMaximum().y - boundingBox.getMinimum().y), 0.0f));
-        Vector3 vdir = position - mCamera->getPosition();
+        m_net_label_node->setPosition(m_avg_node_position + Vector3(0.0f, (boundingBox.getMaximum().y - boundingBox.getMinimum().y), 0.0f));
+        Vector3 vdir = m_avg_node_position - mCamera->getPosition();
         float vlen = vdir.length();
         float h = std::max(0.6, vlen / 30.0);
 
@@ -5580,15 +5580,14 @@ Beam::Beam(
     , hydroelevatorstate(0)
     , hydroruddercommand(0)
     , hydrorudderstate(0)
-    , iPosition(pos)
     , m_increased_accuracy(false)
     , m_inter_point_col_detector(nullptr)
     , m_intra_point_col_detector(nullptr)
     , ar_net_last_update_time(0)
-    , lastposition(pos)
+    , m_avg_node_position_prev(pos)
     , ar_left_mirror_angle(0.52)
     , ar_lights(1)
-    , velocity(Ogre::Vector3::ZERO)
+    , m_avg_node_velocity(Ogre::Vector3::ZERO)
     , ar_custom_camera_node(-1)
     , m_hide_own_net_label(BSETTING("HideOwnNetLabel", false))
     , m_is_cinecam_rotation_center(false)
@@ -5612,7 +5611,7 @@ Beam::Beam(
     , m_replay_pos_prev(-1)
     , ar_parking_brake(0)
     , m_position_storage(0)
-    , position(pos)
+    , m_avg_node_position(pos)
     , m_previous_gear(0)
     , m_ref_tyre_pressure(50.0)
     , m_replay_handler(nullptr)

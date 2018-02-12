@@ -256,7 +256,7 @@ public:
     VehicleAI*        getVehicleAI()                    { return ar_vehicle_ai; }
     bool              IsNodeIdValid(int id) const       { return (id > 0) && (id < ar_num_nodes); }
     float             getWheelSpeed() const             { return WheelSpeed; }
-    Ogre::Vector3     getVelocity()                     { return velocity; }; //!< average truck velocity calculated using the truck positions of the last two frames
+    Ogre::Vector3     getVelocity()                     { return m_avg_node_velocity; }; //!< average truck velocity calculated using the truck positions of the last two frames
 #ifdef USE_ANGELSCRIPT
     // we have to add this to be able to use the class as reference inside scripts
     void              addRef()                          {};
@@ -559,15 +559,14 @@ private:
     PointColDetector* m_inter_point_col_detector;   //!< Physics
     PointColDetector* m_intra_point_col_detector;   //!< Physics
     std::list<Beam*>  m_linked_actors;              //!< Sim state; other actors linked using 'hooks'
-    Ogre::Vector3     position; // average node position
-    Ogre::Vector3     iPosition; // initial position
+    Ogre::Vector3     m_avg_node_position;          //!< average node position
     Ogre::Real        m_min_camera_radius;
-    Ogre::Vector3     lastposition;
-    Ogre::Vector3     velocity; // average node velocity (compared to the previous frame step)
-    Ogre::Real        m_replay_timer;            //!< Sim state
-    ground_model_t*   m_last_fuzzy_ground_model; //!< GUI state
-    blinktype         m_blink_type;              //!< Sim state; Blinker = turn signal
-    float             m_stabilizer_shock_sleep;  //!< Sim state
+    Ogre::Vector3     m_avg_node_position_prev;
+    Ogre::Vector3     m_avg_node_velocity;          //!< average node velocity (compared to the previous frame step)
+    Ogre::Real        m_replay_timer;               //!< Sim state
+    ground_model_t*   m_last_fuzzy_ground_model;    //!< GUI state
+    blinktype         m_blink_type;                 //!< Sim state; Blinker = turn signal
+    float             m_stabilizer_shock_sleep;     //!< Sim state
     Replay*           m_replay_handler;
     PositionStorage*  m_position_storage;
     RoRFrameListener* m_sim_controller; // Temporary ~ only_a_ptr, 01/2017
