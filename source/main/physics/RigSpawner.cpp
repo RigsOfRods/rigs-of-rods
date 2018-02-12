@@ -247,7 +247,6 @@ void RigSpawner::InitializeRig()
     m_rig->ropes.clear();
     m_rig->ropables.clear();
     m_rig->ties.clear();
-    m_rig->hooks.clear();
 
     // commands contain complex data structures, do not memset them ...
     for (int i=0;i<MAX_COMMANDS+1;i++)
@@ -2294,7 +2293,7 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
 
     /* Visuals */
     flare.snode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-    std::string flare_name = this->ComposeName("Flare", static_cast<int>(m_rig->flares.size()));
+    std::string flare_name = this->ComposeName("Flare", static_cast<int>(m_rig->ar_flares.size()));
     flare.bbs = gEnv->sceneManager->createBillboardSet(flare_name, 1);
     bool using_default_material = true;
     if (flare.bbs == nullptr)
@@ -2388,7 +2387,7 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
 
             if (m_rig->m_net_custom_light_count < 4)
             {
-                m_rig->m_net_custom_lights[m_rig->m_net_custom_light_count] = m_rig->flares.size();
+                m_rig->m_net_custom_lights[m_rig->m_net_custom_light_count] = m_rig->ar_flares.size();
                 m_rig->m_net_custom_light_count++;
             }
         }
@@ -2401,7 +2400,7 @@ void RigSpawner::ProcessFlare2(RigDef::Flare2 & def)
         flare.light->setSpotlightRange( Ogre::Degree(35), Ogre::Degree(45) );
         flare.light->setCastShadows(false);
     }
-    m_rig->flares.push_back(flare);
+    m_rig->ar_flares.push_back(flare);
 }
 
 Ogre::MaterialPtr RigSpawner::InstantiateManagedMaterial(Ogre::String const & source_name, Ogre::String const & clone_name)
@@ -3053,11 +3052,11 @@ void RigSpawner::ProcessHook(RigDef::Hook & def)
     {
         return;
     }
-    
+
     /* Find the hook */
     hook_t *hook = nullptr;
-    std::vector <hook_t>::iterator itor = m_rig->hooks.begin();
-    for (; itor != m_rig->hooks.end(); itor++)
+    std::vector <hook_t>::iterator itor = m_rig->ar_hooks.begin();
+    for (; itor != m_rig->ar_hooks.end(); itor++)
     {
         if (itor->hookNode == node)
         {
@@ -6175,7 +6174,7 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
         hook.timer             = 0.0f;
         hook.timer_preset      = HOOK_LOCK_TIMER_DEFAULT;
         hook.autolock          = false;
-        m_rig->hooks.push_back(hook);
+        m_rig->ar_hooks.push_back(hook);
     }
     AdjustNodeBuoyancy(node, def, def.node_defaults);
     node.contactless       = BITMASK_IS_1(options, RigDef::Node::OPTION_c_NO_GROUND_CONTACT);

@@ -76,7 +76,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     }
 
     //auto locks (scan just once per frame, need to use a timer(truck-based) to get
-    for (std::vector<hook_t>::iterator it = hooks.begin(); it != hooks.end(); it++)
+    for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
     {
         //we need to do this here to avoid countdown speedup by triggers
         it->timer = std::max(0.0f, it->timer - dt);
@@ -1926,7 +1926,7 @@ void Beam::forwardCommands()
                     trucks[i]->commandkey[j].playerInputValue = std::max(commandkey[j].playerInputValue, commandkey[j].commandValue);
                 }
                 // just send brake and lights to the connected truck, and no one else :)
-                for (std::vector<hook_t>::iterator it = hooks.begin(); it != hooks.end(); it++)
+                for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
                 {
                     if (!it->lockTruck)
                         continue;
@@ -1951,7 +1951,7 @@ void Beam::calcHooks()
 {
     BES_START(BES_CORE_Hooks);
     //locks - this is not active in network mode
-    for (std::vector<hook_t>::iterator it = hooks.begin(); it != hooks.end(); it++)
+    for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
     {
         if (it->lockNode && it->locked == PRELOCK)
         {
