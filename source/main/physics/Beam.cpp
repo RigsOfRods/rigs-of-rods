@@ -5647,6 +5647,7 @@ Beam::Beam(
     , ar_autopilot(nullptr)
     , ar_is_police(false)
     , m_disable_default_sounds(false)
+    , ar_uses_networking(false)
 {
     m_high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();
     useSkidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;
@@ -5655,7 +5656,7 @@ Beam::Beam(
     trucknum = truck_number;
     m_spawn_free_positioned = freeposition;
     usedSkin = skin;
-    networking = _networking;
+    ar_uses_networking = _networking;
     memset(truckname, 0, 256);
     sprintf(truckname, "t%i", truck_number);
     driveable = NOT_DRIVEABLE;
@@ -5693,7 +5694,7 @@ Beam::Beam(
 
     // setup replay mode
 
-    if (App::sim_replay_enabled.GetActive() && !_networked && !networking)
+    if (App::sim_replay_enabled.GetActive() && !_networked && !ar_uses_networking)
     {
         ar_replay_length = App::sim_replay_length.GetActive();
         m_replay_handler = new Replay(this, ar_replay_length);
@@ -5777,7 +5778,7 @@ Beam::Beam(
         }
     }
 
-    if (networking)
+    if (ar_uses_networking)
     {
         if (ar_sim_state != SimState::NETWORKED_OK)
         {

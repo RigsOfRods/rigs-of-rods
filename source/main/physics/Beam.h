@@ -380,7 +380,6 @@ public:
     int               ar_exhaust_pos_node; //!< Old-format exhaust (one per vehicle) emitter node
     int               ar_exhaust_dir_node; //!< Old-format exhaust (one per vehicle) backwards direction node
     char              truckname[256];
-    bool              networking;
     int               trucknum;
     RoR::SkinDef*     usedSkin;
     Buoyance*         buoyance;
@@ -460,6 +459,7 @@ public:
     bool ar_replay_mode:1;      //!< Sim state
     bool ar_is_police:1;        //!< Gfx/sfx attr
     bool ar_use_heathaze:1;     //!< Spawner context; TODO:remove
+    bool ar_uses_networking:1;  //!< Networking attr; This actor is either remote or has remote counterpart
 
 private:
 

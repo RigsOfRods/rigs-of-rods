@@ -827,7 +827,7 @@ void BeamFactory::DeleteTruck(Beam* b)
     this->SyncWithSimThread();
 
 #ifdef USE_SOCKETW
-    if (b->networking && b->ar_sim_state != Beam::SimState::NETWORKED_OK && b->ar_sim_state != Beam::SimState::INVALID)
+    if (b->ar_uses_networking && b->ar_sim_state != Beam::SimState::NETWORKED_OK && b->ar_sim_state != Beam::SimState::INVALID)
     {
         RoR::Networking::AddPacket(b->ar_net_stream_id, RoRnet::MSG2_STREAM_UNREGISTER, 0, 0);
     }
@@ -1060,7 +1060,7 @@ void BeamFactory::update(float dt)
                 m_trucks[t]->engine->update(dt, 1);
             if (m_trucks[t]->ar_sim_state < Beam::SimState::LOCAL_SLEEPING)
                 m_trucks[t]->UpdatePropAnimations(dt);
-            if (m_trucks[t]->networking)
+            if (m_trucks[t]->ar_uses_networking)
             {
                 if (m_trucks[t]->ar_sim_state == Beam::SimState::LOCAL_SIMULATED)
                     m_trucks[t]->sendStreamData();
