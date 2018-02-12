@@ -184,7 +184,7 @@ void CLASS::UpdateStats(float dt, Actor* truck)
             m_truckinfo_box->setVisible(true);
 
         m_truck_name->setMaxTextLength(28);
-        m_truck_name->setCaptionWithReplacing(truck->getTruckName());
+        m_truck_name->setCaptionWithReplacing(truck->GetActorDesignName());
         truckstats = "\n"; //always reset on each frame + space
 
         //taken from TruckHUD.cpp (now removed), TODO: needs cleanup

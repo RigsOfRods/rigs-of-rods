@@ -754,20 +754,20 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
     if (mse->GetFrameListener()->GetBeamFactory()->GetPlayerActorInternal())
     {
         Beam* truck = mse->GetFrameListener()->GetBeamFactory()->GetPlayerActorInternal();
-        curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "Truck_Name", CURLFORM_COPYCONTENTS, truck->getTruckName().c_str(), CURLFORM_END);
-        curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "Truck_FileName", CURLFORM_COPYCONTENTS, truck->getTruckFileName().c_str(), CURLFORM_END);
+        curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "Truck_Name", CURLFORM_COPYCONTENTS, truck->GetActorDesignName().c_str(), CURLFORM_END);
+        curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "Truck_FileName", CURLFORM_COPYCONTENTS, truck->GetActorFileName().c_str(), CURLFORM_END);
 
         // look for any locked trucks
         int i = 0;
         for (std::vector<hook_t>::iterator it = truck->hooks.begin(); it != truck->hooks.end(); it++ , i++)
         {
             Beam* trailer = it->lockTruck;
-            if (trailer && trailer->getTruckName() != trailer->getTruckName())
+            if (trailer && trailer->getTruckName() != trailer->GetActorDesignName())
             {
                 String name = "Trailer_" + TOSTRING(i) + "_Name";
-                curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, name.c_str(), CURLFORM_COPYCONTENTS, trailer->getTruckName().c_str(), CURLFORM_END);
+                curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, name.c_str(), CURLFORM_COPYCONTENTS, trailer->GetActorDesignName().c_str(), CURLFORM_END);
                 String filename = "Trailer_" + TOSTRING(i) + "_FileName";
-                curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, filename.c_str(), CURLFORM_COPYCONTENTS, trailer->getTruckFileName().c_str(), CURLFORM_END);
+                curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, filename.c_str(), CURLFORM_COPYCONTENTS, trailer->GetActorFileName().c_str(), CURLFORM_END);
             }
         }
         curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "Trailer_Count", CURLFORM_COPYCONTENTS, TOSTRING(i).c_str(), CURLFORM_END);
