@@ -44,7 +44,6 @@ public:
 
     void SetActorCoupling(bool enabled, Actor* actor = nullptr);
     void setColour(int color) { this->colourNumber = color; };
-    void setPhysicsEnabled(bool enabled) { physicsEnabled = enabled; };
     void setPosition(Ogre::Vector3 position);
     void setRotation(Ogre::Radian rotation);
     void setVisible(bool visible);
@@ -72,7 +71,6 @@ protected:
     SurveyMapEntity* mapEntity;
 
     bool canJump;
-    bool physicsEnabled;
     bool remote;
 
     Ogre::Radian characterRotation;

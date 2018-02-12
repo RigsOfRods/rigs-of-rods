@@ -55,7 +55,6 @@ Character::Character(int source, unsigned int streamid, int colourNumber, bool r
     , mMoveableText(0)
     , networkAuthLevel(0)
     , networkUsername("")
-    , physicsEnabled(true)
     , remote(remote)
     , m_source_id(source)
     , m_stream_id(streamid)
@@ -290,7 +289,7 @@ float calculate_collision_depth(Vector3 pos)
 
 void Character::update(float dt)
 {
-    if (physicsEnabled && !remote)
+    if (!remote && (m_actor_coupling == nullptr) && (App::sim_state.GetActive() != SimState::PAUSED))
     {
         // disable character movement when using the free camera mode or when the menu is opened
         // TODO: check for menu being opened
@@ -729,7 +728,6 @@ void Character::SetActorCoupling(bool enabled, Actor* actor /* = nullptr */)
         if (!actor)
             return;
         m_actor_coupling = actor;
-        setPhysicsEnabled(false);
         if (mMoveableText && mMoveableText->isVisible())
         {
             mMoveableText->setVisible(false);
@@ -759,7 +757,6 @@ void Character::SetActorCoupling(bool enabled, Actor* actor /* = nullptr */)
     else
     {
         isCoupled = false;
-        setPhysicsEnabled(true);
         m_actor_coupling = nullptr;
         if (mMoveableText && !mMoveableText->isVisible())
         {

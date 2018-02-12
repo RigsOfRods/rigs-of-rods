@@ -788,20 +788,11 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
         }
     }
     else if (simRUNNING(s) || simPAUSED(s))
-    //else if (m_loading_state == ALL_LOADED)
     {
         m_character_factory.update(dt);
         if (gEnv->cameraManager && !gEnv->cameraManager->gameControlsLocked())
         {
-            if (!m_player_actor)
-            {
-                if (gEnv->player)
-                {
-                    if (App::sim_state.GetActive() != SimState::PAUSED)
-                        gEnv->player->setPhysicsEnabled(true);
-                }
-            }
-            else // we are in a vehicle
+            if (m_player_actor) // we are in a vehicle
             {
                 if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_TRUCK) && !m_player_actor->ar_replay_mode)
                 {
@@ -1823,7 +1814,6 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
         {
             App::GetGuiManager()->SetVisible_GamePauseMenu(true);
             m_actor_manager.MuteAllActors();
-            gEnv->player->setPhysicsEnabled(false);
 
             App::sim_state.ApplyPending();
         }
@@ -1831,10 +1821,6 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
         {
             App::GetGuiManager()->SetVisible_GamePauseMenu(false);
             m_actor_manager.UnmuteAllActors();
-            if (gEnv->player->getVisible() && !gEnv->player->IsCoupledWithActor())
-            {
-                gEnv->player->setPhysicsEnabled(true);
-            }
 
             App::sim_state.ApplyPending();
         }
