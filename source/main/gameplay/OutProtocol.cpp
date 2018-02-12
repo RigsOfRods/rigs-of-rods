@@ -181,11 +181,11 @@ bool OutProtocol::Update(float dt, Beam* truck)
             gd.ShowLights |= DL_FULLBEAM;
         if (truck->engine->hasContact() && !truck->engine->isRunning())
             gd.ShowLights |= DL_BATTERY;
-        if (truck->left_blink_on)
+        if (truck->ar_left_blink_on)
             gd.ShowLights |= DL_SIGNAL_L;
-        if (truck->right_blink_on)
+        if (truck->ar_right_blink_on)
             gd.ShowLights |= DL_SIGNAL_R;
-        if (truck->warn_blink_on)
+        if (truck->ar_warn_blink_on)
             gd.ShowLights |= DL_SIGNAL_ANY;
         if (truck->tc_mode)
             gd.ShowLights |= DL_TC;
