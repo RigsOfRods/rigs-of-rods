@@ -156,6 +156,7 @@ void RoRFrameListener::UpdateForceFeedback(float dt)
 
     if (!RoR::App::GetInputEngine()->getForceFeedbackDevice())
     {
+         // TODO: <rant> Per-frame check? How about on-session-start check? </rant> ~only_a_ptr, 02/2017
         LOG("No force feedback device detected, disabling force feedback");
         App::io_ffb_enabled.SetActive(false);
         return;
@@ -168,7 +169,10 @@ void RoRFrameListener::UpdateForceFeedback(float dt)
         int cameranodedir = 0;
         int cameranoderoll = 0;
 
+        // TODO: <rant> Per-frame validity check? How about on-spawn check? </rant>
+        // If the camera node is invalid, the FF should be disabled right away, not try to fall back to node0
         // TODO: Check cam. nodes once on spawn! They never change --> no reason to repeat the check. ~only_a_ptr, 06/2017
+                // ~only_a_ptr, 02/2017
         if (current_truck->IsNodeIdValid(current_truck->cameranodepos[0]))
             cameranodepos = current_truck->cameranodepos[0];
         if (current_truck->IsNodeIdValid(current_truck->cameranodedir[0]))
@@ -182,11 +186,13 @@ void RoRFrameListener::UpdateForceFeedback(float dt)
         udir.normalise();
         uroll.normalise();
 
-        m_force_feedback->SetForces(-current_truck->ffforce.dotProduct(uroll) / 10000.0,
-            current_truck->ffforce.dotProduct(udir) / 10000.0,
+        Ogre::Vector3 ff_vehicle = current_truck->GetFFbBodyForces();
+        m_force_feedback->SetForces(
+            -ff_vehicle.dotProduct(uroll) / 10000.0,
+             ff_vehicle.dotProduct(udir)  / 10000.0,
             current_truck->WheelSpeed,
             current_truck->hydrodircommand,
-            current_truck->ffhydro);
+            current_truck->GetFFbHydroForces());
     }
 }
 

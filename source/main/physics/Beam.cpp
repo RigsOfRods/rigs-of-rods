@@ -1800,10 +1800,11 @@ bool Beam::replayStep()
 
 void Beam::ForceFeedbackStep(int steps)
 {
-    ffforce = affforce / steps;
-    ffhydro = affhydro / steps;
-    if (free_hydro)
-        ffhydro = ffhydro / free_hydro;
+    m_force_sensors.out_body_forces = m_force_sensors.accu_body_forces / steps;
+    if (free_hydro != 0) // Vehicle has hydros?
+    {
+        m_force_sensors.out_hydros_forces = (m_force_sensors.accu_hydros_forces / steps) / free_hydro;    
+    }
 }
 
 void Beam::updateAngelScriptEvents(float dt)
