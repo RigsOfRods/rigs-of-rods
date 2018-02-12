@@ -1350,18 +1350,7 @@ void RigSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
     }
     m_rig->ar_gui_use_engine_max_rpm = def.use_max_rpm;  /* Handles default */
 
-    std::list<Ogre::String>::iterator dash_itor = def.dashboard_layouts.begin();
-    for ( ; dash_itor != def.dashboard_layouts.end(); dash_itor++)
-    {
-        m_rig->m_dashboard_layouts.push_back(std::pair<Ogre::String, bool>(*dash_itor, false));
-    }
-
-    std::list<Ogre::String>::iterator rtt_itor = def.rtt_dashboard_layouts.begin();
-    for ( ; rtt_itor != def.rtt_dashboard_layouts.end(); rtt_itor++)
-    {
-        m_rig->m_dashboard_layouts.push_back(std::pair<Ogre::String, bool>(*rtt_itor, true));
-    }
-
+    // NOTE: Dashboard layouts are processed later
 }
 
 void RigSpawner::ProcessFixedNode(RigDef::Node::Ref node_ref)
@@ -7068,6 +7057,96 @@ void RigSpawner::FinalizeGfxSetup()
         m_rig->m_gfx_actor->RegisterCabMaterial(search_itor->second.material, m_cab_trans_material);
         m_rig->m_gfx_actor->SetCabLightsActive(false); // Reset emissive lights to "off" state
     }
+
+    // Load dashboard layouts
+    for (auto& module: m_selected_modules)
+    {
+        if (module->gui_settings != nullptr)
+        {
+            for (std::string& layout: module->gui_settings->dashboard_layouts)
+            {
+                m_rig->ar_dashboard->loadDashBoard(layout, false);
+            }
+
+            for (std::string& layout: module->gui_settings->rtt_dashboard_layouts)
+            {
+                m_rig->ar_dashboard->loadDashBoard(layout, true);
+            }
+        }
+    }
+
+    // If none specified, load default dashboard layouts
+    if (!m_rig->ar_dashboard->WasDashboardLoaded())
+    {
+        if (m_rig->ar_driveable == TRUCK) // load default for a truck
+        {
+            if (App::gfx_speedo_digital.GetActive())
+            {
+                if (App::gfx_speedo_imperial.GetActive())
+                {
+                    if (m_rig->ar_engine->getMaxRPM() > 3500)
+                    {
+                        m_rig->ar_dashboard->loadDashBoard("default_dashboard7000_mph.layout", false); //7000 rpm tachometer thanks to Klink
+                        m_rig->ar_dashboard->loadDashBoard("default_dashboard7000_mph.layout", true);
+                    }
+                    else
+                    {
+                        m_rig->ar_dashboard->loadDashBoard("default_dashboard3500_mph.layout", false);
+                        m_rig->ar_dashboard->loadDashBoard("default_dashboard3500_mph.layout", true);
+                    }
+                }
+                else
+                {
+                    if (m_rig->ar_engine->getMaxRPM() > 3500)
+                    {
+                        m_rig->ar_dashboard->loadDashBoard("default_dashboard7000.layout", false); //7000 rpm tachometer thanks to Klink
+                        m_rig->ar_dashboard->loadDashBoard("default_dashboard7000.layout", true);
+                    }
+                    else
+                    {
+                        m_rig->ar_dashboard->loadDashBoard("default_dashboard3500.layout", false);
+                        m_rig->ar_dashboard->loadDashBoard("default_dashboard3500.layout", true);
+                    }
+                }
+            }
+            else // Analog speedometer
+            {
+                if (App::gfx_speedo_imperial.GetActive())
+                {
+                    if (m_rig->ar_engine->getMaxRPM() > 3500)
+                    {
+                        m_rig->ar_dashboard->loadDashBoard("default_dashboard7000_analog_mph.layout", false); //7000 rpm tachometer thanks to Klink
+                        m_rig->ar_dashboard->loadDashBoard("default_dashboard7000_analog_mph.layout", true);
+                    }
+                    else
+                    {
+                        m_rig->ar_dashboard->loadDashBoard("default_dashboard3500_analog_mph.layout", false);
+                        m_rig->ar_dashboard->loadDashBoard("default_dashboard3500_analog_mph.layout", true);
+                    }
+                }
+                else
+                {
+                    if (m_rig->ar_engine->getMaxRPM() > 3500)
+                    {
+                        m_rig->ar_dashboard->loadDashBoard("default_dashboard7000_analog.layout", false); //7000 rpm tachometer thanks to Klink
+                        m_rig->ar_dashboard->loadDashBoard("default_dashboard7000_analog.layout", true);
+                    }
+                    else
+                    {
+                        m_rig->ar_dashboard->loadDashBoard("default_dashboard3500_analog.layout", false);
+                        m_rig->ar_dashboard->loadDashBoard("default_dashboard3500_analog.layout", true);
+                    }
+                }
+            }
+        }
+        else if (m_rig->ar_driveable == BOAT)
+        {
+            m_rig->ar_dashboard->loadDashBoard("default_dashboard_boat.layout", false);
+            m_rig->ar_dashboard->loadDashBoard("default_dashboard_boat.layout", true);
+        }
+    }
+
+    m_rig->ar_dashboard->setVisible(false);
 }
 
 Ogre::ManualObject* CreateVideocameraDebugMesh()

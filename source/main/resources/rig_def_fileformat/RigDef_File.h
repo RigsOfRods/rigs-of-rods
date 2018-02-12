@@ -48,6 +48,7 @@
 #include <list>
 #include <memory>
 #include <vector>
+#include <string>
 #include <OgreString.h>
 #include <OgreVector3.h>
 #include <OgreStringConverter.h>
@@ -255,14 +256,14 @@ struct GuiSettings
 
     const static unsigned int DEFAULT_SPEEDO_MAX = 140;
 
-    Ogre::String tacho_material;
-    Ogre::String speedo_material;
+    std::string tacho_material;
+    std::string speedo_material;
     unsigned int speedo_highest_kph;
     bool use_max_rpm;
     Ogre::String help_material;
     MapMode interactive_overview_map_mode;
-    std::list<Ogre::String> dashboard_layouts;
-    std::list<Ogre::String> rtt_dashboard_layouts;
+    std::list<std::string> dashboard_layouts;
+    std::list<std::string> rtt_dashboard_layouts;
 };
 
 /* -------------------------------------------------------------------------- */

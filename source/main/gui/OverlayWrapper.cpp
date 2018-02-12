@@ -420,7 +420,7 @@ void OverlayWrapper::showPressureOverlay(bool show)
 void OverlayWrapper::showDashboardOverlays(bool show, Actor* actor)
 {
     // check if we use the new style dashboards
-    if (actor && actor->ar_dashboard && actor->ar_dashboard->wasLoaded())
+    if (actor && actor->ar_dashboard && actor->ar_dashboard->WasDashboardLoaded())
     {
         actor->ar_dashboard->setVisible(show);
         return;
