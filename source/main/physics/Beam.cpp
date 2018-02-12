@@ -926,7 +926,7 @@ void Actor::calc_masses2(Real total, bool reCalc)
     //fix rope masses
     for (std::vector<rope_t>::iterator it = ar_ropes.begin(); it != ar_ropes.end(); it++)
     {
-        it->beam->p2->mass = 100.0f;
+        it->rp_beam->p2->mass = 100.0f;
     }
 
     // Apply pre-defined cinecam node mass
@@ -1687,33 +1687,33 @@ void Actor::SyncReset()
 
     for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
     {
-        it->beam->bm_disabled = true;
-        it->locked = UNLOCKED;
-        it->lockNode = 0;
-        it->lockTruck = 0;
-        it->beam->p2 = &ar_nodes[0];
-        it->beam->p2truck = false;
-        it->beam->L = (ar_nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
-        RemoveInterActorBeam(it->beam);
+        it->hk_beam->bm_disabled = true;
+        it->hk_locked = UNLOCKED;
+        it->hk_lock_node = nullptr;
+        it->hk_locked_actor = nullptr;
+        it->hk_beam->p2 = &ar_nodes[0];
+        it->hk_beam->p2truck = false;
+        it->hk_beam->L = (ar_nodes[0].AbsPosition - it->hk_hook_node->AbsPosition).length();
+        this->RemoveInterActorBeam(it->hk_beam);
     }
     for (std::vector<rope_t>::iterator it = ar_ropes.begin(); it != ar_ropes.end(); it++)
     {
-        it->locked = UNLOCKED;
-        if (it->lockedto_ropable)
-            it->lockedto_ropable->in_use = false;
-        it->lockedto = &ar_nodes[0];
-        it->lockedtruck = 0;
+        it->rp_locked = UNLOCKED;
+        if (it->rp_locked_ropable)
+            it->rp_locked_ropable->in_use = false;
+        it->rp_locked_node = &ar_nodes[0];
+        it->rp_locked_actor = 0;
     }
     for (std::vector<tie_t>::iterator it = ar_ties.begin(); it != ar_ties.end(); it++)
     {
-        it->tied = false;
-        it->tying = false;
-        if (it->lockedto)
-            it->lockedto->in_use = false;
-        it->beam->p2 = &ar_nodes[0];
-        it->beam->p2truck = false;
-        it->beam->bm_disabled = true;
-        this->RemoveInterActorBeam(it->beam);
+        it->ti_tied = false;
+        it->ti_tying = false;
+        if (it->ti_locked_ropable)
+            it->ti_locked_ropable->in_use = false;
+        it->ti_beam->p2 = &ar_nodes[0];
+        it->ti_beam->p2truck = false;
+        it->ti_beam->bm_disabled = true;
+        this->RemoveInterActorBeam(it->ti_beam);
     }
 
     for (int i = 0; i < ar_num_aeroengines; i++)
@@ -4226,30 +4226,30 @@ void Actor::ToggleTies(int group)
     for (std::vector<tie_t>::iterator it = ar_ties.begin(); it != ar_ties.end(); it++)
     {
         // only handle ties with correct group
-        if (group != -1 && (it->group != -1 && it->group != group))
+        if (group != -1 && (it->ti_group != -1 && it->ti_group != group))
             continue;
 
         // if tied, untie it. And the other way round
-        if (it->tied)
+        if (it->ti_tied)
         {
-            istied = !it->beam->bm_disabled;
+            istied = !it->ti_beam->bm_disabled;
 
             // tie is locked and should get unlocked and stop tying
-            it->tied = false;
-            it->tying = false;
-            if (it->lockedto)
-                it->lockedto->in_use = false;
+            it->ti_tied = false;
+            it->ti_tying = false;
+            if (it->ti_locked_ropable)
+                it->ti_locked_ropable->in_use = false;
             // disable the ties beam
-            it->beam->p2 = &ar_nodes[0];
-            it->beam->p2truck = false;
-            it->beam->bm_disabled = true;
-            if (it->locked_truck != this)
+            it->ti_beam->p2 = &ar_nodes[0];
+            it->ti_beam->p2truck = false;
+            it->ti_beam->bm_disabled = true;
+            if (it->ti_locked_actor != this)
             {
-                RemoveInterActorBeam(it->beam);
+                this->RemoveInterActorBeam(it->ti_beam);
                 // update skeletonview on the untied actor
-                it->locked_truck->ar_request_skeletonview_change = -1;
+                it->ti_locked_actor->ar_request_skeletonview_change = -1;
             }
-            it->locked_truck = nullptr;
+            it->ti_locked_actor = nullptr;
         }
     }
 
@@ -4259,13 +4259,13 @@ void Actor::ToggleTies(int group)
         for (std::vector<tie_t>::iterator it = ar_ties.begin(); it != ar_ties.end(); it++)
         {
             // only handle ties with correct group
-            if (group != -1 && (it->group != -1 && it->group != group))
+            if (group != -1 && (it->ti_group != -1 && it->ti_group != group))
                 continue;
 
-            if (!it->tied)
+            if (!it->ti_tied)
             {
                 // tie is unlocked and should get locked, search new remote ropable to lock to
-                float mindist = it->beam->refL;
+                float mindist = it->ti_beam->refL;
                 node_t* nearest_node = 0;
                 Actor* nearest_actor = 0;
                 ropable_t* locktedto = 0;
@@ -4283,12 +4283,12 @@ void Actor::ToggleTies(int group)
                         if (!itr->multilock && itr->in_use)
                             continue;
 
-                        //skip if tienode is ropable too (no selflock)
-                        if (itr->node->id == it->beam->p1->id)
+                        //skip if tienode is ropable too (no hk_selflock)
+                        if (itr->node->id == it->ti_beam->p1->id)
                             continue;
 
                         // calculate the distance and record the nearest ropable
-                        float dist = (it->beam->p1->AbsPosition - itr->node->AbsPosition).length();
+                        float dist = (it->ti_beam->p1->AbsPosition - itr->node->AbsPosition).length();
                         if (dist < mindist)
                         {
                             mindist = dist;
@@ -4302,20 +4302,20 @@ void Actor::ToggleTies(int group)
                 if (nearest_node)
                 {
                     // enable the beam and visually display the beam
-                    it->beam->bm_disabled = false;
+                    it->ti_beam->bm_disabled = false;
                     // now trigger the tying action
-                    it->locked_truck = nearest_actor;
-                    it->beam->p2 = nearest_node;
-                    it->beam->p2truck = nearest_actor != this;
-                    it->beam->stress = 0;
-                    it->beam->L = it->beam->refL;
-                    it->tied = true;
-                    it->tying = true;
-                    it->lockedto = locktedto;
-                    it->lockedto->in_use = true;
-                    if (it->beam->p2truck)
+                    it->ti_locked_actor = nearest_actor;
+                    it->ti_beam->p2 = nearest_node;
+                    it->ti_beam->p2truck = nearest_actor != this;
+                    it->ti_beam->stress = 0;
+                    it->ti_beam->L = it->ti_beam->refL;
+                    it->ti_tied = true;
+                    it->ti_tying = true;
+                    it->ti_locked_ropable = locktedto;
+                    it->ti_locked_ropable->in_use = true;
+                    if (it->ti_beam->p2truck)
                     {
-                        AddInterActorBeam(it->beam, this, nearest_actor);
+                        AddInterActorBeam(it->ti_beam, this, nearest_actor);
                         // update skeletonview on the tied actor
                         nearest_actor->ar_request_skeletonview_change = ar_skeletonview_is_active ? 1 : -1;
                     }
@@ -4337,24 +4337,24 @@ void Actor::ToggleRopes(int group)
     for (std::vector<rope_t>::iterator it = ar_ropes.begin(); it != ar_ropes.end(); it++)
     {
         // only handle ropes with correct group
-        if (group != -1 && (it->group != -1 && it->group != group))
+        if (group != -1 && (it->rp_group != -1 && it->rp_group != group))
             continue;
 
-        if (it->locked == LOCKED || it->locked == PRELOCK)
+        if (it->rp_locked == LOCKED || it->rp_locked == PRELOCK)
         {
             // we unlock ropes
-            it->locked = UNLOCKED;
+            it->rp_locked = UNLOCKED;
             // remove node locking
-            if (it->lockedto_ropable)
-                it->lockedto_ropable->in_use = false;
-            it->lockedto = &ar_nodes[0];
-            it->lockedtruck = 0;
+            if (it->rp_locked_ropable)
+                it->rp_locked_ropable->in_use = false;
+            it->rp_locked_node = &ar_nodes[0];
+            it->rp_locked_actor = 0;
         }
         else
         {
             //we lock ropes
             // search new remote ropable to lock to
-            float mindist = it->beam->L;
+            float mindist = it->rp_beam->L;
             node_t* nearest_node = nullptr;
             Actor* nearest_actor = nullptr;
             ropable_t* rop = 0;
@@ -4373,7 +4373,7 @@ void Actor::ToggleRopes(int group)
                         continue;
 
                     // calculate the distance and record the nearest ropable
-                    float dist = (it->beam->p1->AbsPosition - itr->node->AbsPosition).length();
+                    float dist = (it->rp_beam->p1->AbsPosition - itr->node->AbsPosition).length();
                     if (dist < mindist)
                     {
                         mindist = dist;
@@ -4387,11 +4387,11 @@ void Actor::ToggleRopes(int group)
             if (nearest_node)
             {
                 //okay, we have found a rope to tie
-                it->lockedto = nearest_node;
-                it->lockedtruck = nearest_actor;
-                it->locked = PRELOCK;
-                it->lockedto_ropable = rop;
-                it->lockedto_ropable->in_use = true;
+                it->rp_locked_node = nearest_node;
+                it->rp_locked_actor = nearest_actor;
+                it->rp_locked = PRELOCK;
+                it->rp_locked_ropable = rop;
+                it->rp_locked_ropable->in_use = true;
             }
         }
     }
@@ -4405,7 +4405,7 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
     // iterate over all hooks
     for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
     {
-        if (mode == MOUSE_HOOK_TOGGLE && it->hookNode->id != node_number)
+        if (mode == MOUSE_HOOK_TOGGLE && it->hk_hook_node->id != node_number)
         {
             //skip all other nodes except the one manually toggled by mouse
             continue;
@@ -4413,45 +4413,45 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
         if (mode == HOOK_TOGGLE && group == -1)
         {
             //manually triggerd (EV_COMMON_LOCK). Toggle all hooks groups with group#: -1, 0, 1 ++
-            if (it->group <= -2)
+            if (it->hk_group <= -2)
                 continue;
         }
         if (mode == HOOK_LOCK && group == -2)
         {
             //automatic lock attempt (cyclic with doupdate). Toggle all hooks groups with group#: -2, -3, -4 --, skip the ones which are not autolock (triggered only)
-            if (it->group >= -1 || !it->autolock)
+            if (it->hk_group >= -1 || !it->hk_autolock)
                 continue;
         }
         if (mode == HOOK_UNLOCK && group == -2)
         {
             //manual unlock ALL autolock and triggerlock, do not unlock standard hooks (EV_COMMON_AUTOLOCK)
-            if (it->group >= -1 || !it->autolock)
+            if (it->hk_group >= -1 || !it->hk_autolock)
                 continue;
         }
         if ((mode == HOOK_LOCK || mode == HOOK_UNLOCK) && group <= -3)
         {
             //trigger beam lock or unlock. Toggle one hook group with group#: group
-            if (it->group != group)
+            if (it->hk_group != group)
                 continue;
         }
         if ((mode == HOOK_LOCK || mode == HOOK_UNLOCK) && group >= -1)
         {
             continue;
         }
-        if (mode == HOOK_LOCK && it->timer > 0.0f)
+        if (mode == HOOK_LOCK && it->hk_timer > 0.0f)
         {
             //check relock delay timer for autolock nodes and skip if not 0
             continue;
         }
 
-        Actor* prev_locked_actor = it->lockTruck; // memorize current value
+        Actor* prev_locked_actor = it->hk_locked_actor; // memorize current value
 
         // do this only for toggle or lock attempts, skip prelocked or locked nodes for performance
-        if (mode != HOOK_UNLOCK && it->locked == UNLOCKED)
+        if (mode != HOOK_UNLOCK && it->hk_locked == UNLOCKED)
         {
             // we lock hooks
             // search new remote ropable to lock to
-            float mindist = it->lockrange;
+            float mindist = it->hk_lockrange;
             float distance = 100000000.0f;
             // iterate over all actor_slots
             for (int t = 0; t < num_actor_slots; t++)
@@ -4460,12 +4460,12 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
                     continue;
                 if (actor_slots[t]->ar_sim_state == SimState::LOCAL_SLEEPING || actor_slots[t]->ar_sim_state == SimState::INVALID)
                     continue;
-                if (t == this->ar_instance_id && !it->selflock)
+                if (t == this->ar_instance_id && !it->hk_selflock)
                     continue; // don't lock to self
 
                 // do we lock against all nodes or just against ropables?
                 bool found = false;
-                if (it->lockNodes)
+                if (it->hk_lock_nodes)
                 {
                     int last_node = 0; // node number storage
                     // all nodes, so walk them
@@ -4476,15 +4476,15 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
                             continue;
 
                         // exclude this truck and its current hooknode from the locking search
-                        if (this == actor_slots[t] && i == it->hookNode->id)
+                        if (this == actor_slots[t] && i == it->hk_hook_node->id)
                             continue;
 
                         // a lockgroup for this hooknode is set -> skip all nodes that do not have the same lockgroup (-1 = default(all nodes))
-                        if (it->lockgroup != -1 && it->lockgroup != actor_slots[t]->ar_nodes[i].lockgroup)
+                        if (it->hk_lockgroup != -1 && it->hk_lockgroup != actor_slots[t]->ar_nodes[i].lockgroup)
                             continue;
 
                         // measure distance
-                        float n2n_distance = (it->hookNode->AbsPosition - actor_slots[t]->ar_nodes[i].AbsPosition).length();
+                        float n2n_distance = (it->hk_hook_node->AbsPosition - actor_slots[t]->ar_nodes[i].AbsPosition).length();
                         if (n2n_distance < mindist)
                         {
                             if (distance >= n2n_distance)
@@ -4499,9 +4499,9 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
                     if (found)
                     {
                         // we found a node, lock to it
-                        it->lockNode = &(actor_slots[t]->ar_nodes[last_node]);
-                        it->lockTruck = actor_slots[t];
-                        it->locked = PRELOCK;
+                        it->hk_lock_node = &(actor_slots[t]->ar_nodes[last_node]);
+                        it->hk_locked_actor = actor_slots[t];
+                        it->hk_locked = PRELOCK;
                     }
                 }
                 else
@@ -4519,7 +4519,7 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
                             continue;
 
                         // calculate the distance and record the nearest ropable
-                        float dist = (it->hookNode->AbsPosition - itr->node->AbsPosition).length();
+                        float dist = (it->hk_hook_node->AbsPosition - itr->node->AbsPosition).length();
                         if (dist < mindist)
                         {
                             mindist = dist;
@@ -4531,37 +4531,37 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
                     if (nearest_node)
                     {
                         // we found a ropable, lock to it
-                        it->lockNode = nearest_node;
-                        it->lockTruck = nearest_actor;
-                        it->locked = PRELOCK;
+                        it->hk_lock_node = nearest_node;
+                        it->hk_locked_actor = nearest_actor;
+                        it->hk_locked = PRELOCK;
                     }
                 }
             }
         }
         // this is a locked or prelocked hook and its not a locking attempt or the locked actor was removed (p2truck == false)
-        else if ((it->locked == LOCKED || it->locked == PRELOCK) && (mode != HOOK_LOCK || !it->beam->p2truck))
+        else if ((it->hk_locked == LOCKED || it->hk_locked == PRELOCK) && (mode != HOOK_LOCK || !it->hk_beam->p2truck))
         {
             // we unlock ropes
-            it->locked = PREUNLOCK;
-            if (it->group <= -2)
+            it->hk_locked = PREUNLOCK;
+            if (it->hk_group <= -2)
             {
-                it->timer = it->timer_preset; //timer reset for autolock nodes
+                it->hk_timer = it->hk_timer_preset; //timer reset for autolock nodes
             }
-            it->lockNode = 0;
-            it->lockTruck = 0;
+            it->hk_lock_node = 0;
+            it->hk_locked_actor = 0;
             //disable hook-assistance beam
-            it->beam->p2 = &ar_nodes[0];
-            it->beam->p2truck = false;
-            it->beam->L = (ar_nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
-            it->beam->bm_disabled = true;
+            it->hk_beam->p2 = &ar_nodes[0];
+            it->hk_beam->p2truck = false;
+            it->hk_beam->L = (ar_nodes[0].AbsPosition - it->hk_hook_node->AbsPosition).length();
+            it->hk_beam->bm_disabled = true;
         }
 
         // update skeletonview on the (un)hooked actor
-        if (it->lockTruck != prev_locked_actor)
+        if (it->hk_locked_actor != prev_locked_actor)
         {
-            if (it->lockTruck)
+            if (it->hk_locked_actor)
             {
-                it->lockTruck->ar_request_skeletonview_change = ar_skeletonview_is_active ? 1 : -1;
+                it->hk_locked_actor->ar_request_skeletonview_change = ar_skeletonview_is_active ? 1 : -1;
             }
             else if (prev_locked_actor != this)
             {
@@ -5005,7 +5005,7 @@ int Actor::nodeBeamConnections(int nodeid)
 bool Actor::isTied()
 {
     for (std::vector<tie_t>::iterator it = ar_ties.begin(); it != ar_ties.end(); it++)
-        if (it->tied)
+        if (it->ti_tied)
             return true;
     return false;
 }
@@ -5013,7 +5013,7 @@ bool Actor::isTied()
 bool Actor::isLocked()
 {
     for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
-        if (it->locked == LOCKED)
+        if (it->hk_locked == LOCKED)
             return true;
     return false;
 }

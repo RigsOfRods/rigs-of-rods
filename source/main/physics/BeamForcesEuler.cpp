@@ -79,7 +79,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
     for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
     {
         //we need to do this here to avoid countdown speedup by triggers
-        it->timer = std::max(0.0f, it->timer - dt);
+        it->hk_timer = std::max(0.0f, it->hk_timer - dt);
     }
 
     if (is_player_truck) //force feedback sensors
@@ -1222,27 +1222,27 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
     for (std::vector<tie_t>::iterator it = ar_ties.begin(); it != ar_ties.end(); it++)
     {
         // only process tying ties
-        if (!it->tying)
+        if (!it->ti_tying)
             continue;
 
         // division through zero guard
-        if (it->beam->refL == 0 || it->beam->L == 0)
+        if (it->ti_beam->refL == 0 || it->ti_beam->L == 0)
             continue;
 
-        float clen = it->beam->L / it->beam->refL;
-        if (clen > it->beam->commandShort)
+        float clen = it->ti_beam->L / it->ti_beam->refL;
+        if (clen > it->ti_beam->commandShort)
         {
-            it->beam->L *= (1.0 - it->beam->commandRatioShort * dt / it->beam->L);
+            it->ti_beam->L *= (1.0 - it->ti_beam->commandRatioShort * dt / it->ti_beam->L);
         }
         else
         {
             // tying finished, end reached
-            it->tying = false;
+            it->ti_tying = false;
         }
 
         // check if we hit a certain force limit, then abort the tying process
-        if (fabs(it->beam->stress) > it->beam->maxtiestress)
-            it->tying = false;
+        if (fabs(it->ti_beam->stress) > it->ti_beam->maxtiestress)
+            it->ti_tying = false;
     }
 
     BES_START(BES_CORE_Replay);
@@ -1928,19 +1928,19 @@ void Actor::forwardCommands()
                 // just send brake and lights to the connected truck, and no one else :)
                 for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
                 {
-                    if (!it->lockTruck)
+                    if (!it->hk_locked_actor)
                         continue;
                     // forward brake
-                    it->lockTruck->ar_brake = ar_brake;
-                    it->lockTruck->ar_parking_brake = ar_parking_brake;
+                    it->hk_locked_actor->ar_brake = ar_brake;
+                    it->hk_locked_actor->ar_parking_brake = ar_parking_brake;
 
                     // forward lights
-                    it->lockTruck->ar_lights = ar_lights;
-                    it->lockTruck->m_blink_type = m_blink_type;
+                    it->hk_locked_actor->ar_lights = ar_lights;
+                    it->hk_locked_actor->m_blink_type = m_blink_type;
                     //for (int k=0; k<4; k++)
-                    //	lockTruck->setCustomLight(k, getCustomLight(k));
+                    //	hk_locked_actor->setCustomLight(k, getCustomLight(k));
                     //forward reverse light e.g. for trailers
-                    it->lockTruck->m_reverse_light_active = getReverseLightVisible();
+                    it->hk_locked_actor->m_reverse_light_active = getReverseLightVisible();
                 }
             }
         }
@@ -1953,68 +1953,68 @@ void Actor::calcHooks()
     //locks - this is not active in network mode
     for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
     {
-        if (it->lockNode && it->locked == PRELOCK)
+        if (it->hk_lock_node && it->hk_locked == PRELOCK)
         {
-            if (it->beam->bm_disabled)
+            if (it->hk_beam->bm_disabled)
             {
                 //enable beam if not enabled yet between those 2 nodes
-                it->beam->p2 = it->lockNode;
-                it->beam->p2truck = it->lockTruck != 0;
-                it->beam->L = (it->hookNode->AbsPosition - it->lockNode->AbsPosition).length();
-                it->beam->bm_disabled = false;
-                AddInterActorBeam(it->beam, this, it->lockTruck);
+                it->hk_beam->p2 = it->hk_lock_node;
+                it->hk_beam->p2truck = it->hk_locked_actor != 0;
+                it->hk_beam->L = (it->hk_hook_node->AbsPosition - it->hk_lock_node->AbsPosition).length();
+                it->hk_beam->bm_disabled = false;
+                AddInterActorBeam(it->hk_beam, this, it->hk_locked_actor);
             }
             else
             {
-                if (it->beam->L < it->beam->commandShort)
+                if (it->hk_beam->L < it->hk_beam->commandShort)
                 {
                     //shortlimit reached -> status LOCKED
-                    it->locked = LOCKED;
+                    it->hk_locked = LOCKED;
                 }
                 else
                 {
                     //shorten the connecting beam slowly to locking minrange
-                    if (it->beam->L > it->lockspeed && fabs(it->beam->stress) < it->maxforce)
+                    if (it->hk_beam->L > it->hk_lockspeed && fabs(it->hk_beam->stress) < it->hk_maxforce)
                     {
-                        it->beam->L = (it->beam->L - it->lockspeed);
+                        it->hk_beam->L = (it->hk_beam->L - it->hk_lockspeed);
                     }
                     else
                     {
-                        if (fabs(it->beam->stress) < it->maxforce)
+                        if (fabs(it->hk_beam->stress) < it->hk_maxforce)
                         {
-                            it->beam->L = 0.001f;
+                            it->hk_beam->L = 0.001f;
                             //locking minrange or stress exeeded -> status LOCKED
-                            it->locked = LOCKED;
+                            it->hk_locked = LOCKED;
                         }
                         else
                         {
-                            if (it->nodisable)
+                            if (it->hk_nodisable)
                             {
                                 //force exceed, but beam is set to nodisable, just lock it in this position
-                                it->locked = LOCKED;
+                                it->hk_locked = LOCKED;
                             }
                             else
                             {
                                 //force exceeded reset the hook node
-                                it->beam->mSceneNode->detachAllObjects();
-                                it->locked = UNLOCKED;
-                                it->lockNode = 0;
-                                it->lockTruck = 0;
-                                it->beam->p2 = &ar_nodes[0];
-                                it->beam->p2truck = false;
-                                it->beam->L = (ar_nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
-                                it->beam->bm_disabled = true;
-                                RemoveInterActorBeam(it->beam);
+                                it->hk_beam->mSceneNode->detachAllObjects();
+                                it->hk_locked = UNLOCKED;
+                                it->hk_lock_node = 0;
+                                it->hk_locked_actor = 0;
+                                it->hk_beam->p2 = &ar_nodes[0];
+                                it->hk_beam->p2truck = false;
+                                it->hk_beam->L = (ar_nodes[0].AbsPosition - it->hk_hook_node->AbsPosition).length();
+                                it->hk_beam->bm_disabled = true;
+                                RemoveInterActorBeam(it->hk_beam);
                             }
                         }
                     }
                 }
             }
         }
-        if (it->locked == PREUNLOCK)
+        if (it->hk_locked == PREUNLOCK)
         {
-            it->locked = UNLOCKED;
-            RemoveInterActorBeam(it->beam);
+            it->hk_locked = UNLOCKED;
+            RemoveInterActorBeam(it->hk_beam);
         }
     }
     BES_STOP(BES_CORE_Hooks);
@@ -2027,13 +2027,13 @@ void Actor::calcRopes()
     {
         for (std::vector<rope_t>::iterator it = ar_ropes.begin(); it != ar_ropes.end(); it++)
         {
-            if (it->lockedto)
+            if (it->rp_locked_node)
             {
-                it->beam->p2->AbsPosition = it->lockedto->AbsPosition;
-                it->beam->p2->RelPosition = it->lockedto->AbsPosition - ar_origin; //ropes[i].lockedtruck->origin; //we have a problem here
-                it->beam->p2->Velocity = it->lockedto->Velocity;
-                it->lockedto->Forces = it->lockedto->Forces + it->beam->p2->Forces;
-                it->beam->p2->Forces = Vector3::ZERO;
+                it->rp_beam->p2->AbsPosition = it->rp_locked_node->AbsPosition;
+                it->rp_beam->p2->RelPosition = it->rp_locked_node->AbsPosition - ar_origin; //ropes[i].rp_locked_actor->origin; //we have a problem here
+                it->rp_beam->p2->Velocity = it->rp_locked_node->Velocity;
+                it->rp_locked_node->Forces = it->rp_locked_node->Forces + it->rp_beam->p2->Forces;
+                it->rp_beam->p2->Forces = Vector3::ZERO;
             }
         }
     }

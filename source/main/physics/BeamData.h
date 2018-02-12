@@ -71,13 +71,13 @@ enum {
 
 enum {
     UNLOCKED,       //!< lock not locked
-    PREUNLOCK,      //!< preunlocking, inter truck beam deletion in progress
+    PREUNLOCK,      //!< preunlocking, inter-actor beam deletion in progress
     PRELOCK,        //!< prelocking, attraction forces in action
     LOCKED          //!< lock locked.
 };
 enum {
     NOT_DRIVEABLE,  //!< not drivable at all
-    TRUCK,          //!< its a truck
+    TRUCK,          //!< its a truck (or other land vehicle)
     AIRPLANE,       //!< its an airplane
     BOAT,           //!< its a boat
     MACHINE,        //!< its a machine
@@ -230,22 +230,22 @@ struct contacter_t
 
 struct hook_t
 {
-    int locked;
-    int group;
-    int lockgroup;
-    bool lockNodes;
-    bool selflock;
-    bool autolock;
-    bool nodisable;
-    float maxforce;
-    float lockrange;
-    float lockspeed;
-    float timer;
-    float timer_preset;
-    node_t *hookNode;
-    node_t *lockNode;
-    beam_t *beam;
-    Actor *lockTruck;
+    int     hk_locked;
+    int     hk_group;
+    int     hk_lockgroup;
+    bool    hk_lock_nodes;
+    bool    hk_selflock;
+    bool    hk_autolock;
+    bool    hk_nodisable;
+    float   hk_maxforce;
+    float   hk_lockrange;
+    float   hk_lockspeed;
+    float   hk_timer;
+    float   hk_timer_preset;
+    node_t* hk_hook_node;
+    node_t* hk_lock_node;
+    beam_t* hk_beam;
+    Actor*  hk_locked_actor;
 };
 
 struct ropable_t
@@ -258,24 +258,24 @@ struct ropable_t
 
 struct rope_t
 {
-    int locked;
-    int group;
-    beam_t *beam;
-    node_t *lockedto;
-    ropable_t *lockedto_ropable;
-    Actor *lockedtruck;
+    int        rp_locked;
+    int        rp_group;
+    beam_t*    rp_beam;
+    node_t*    rp_locked_node;
+    ropable_t* rp_locked_ropable;
+    Actor*     rp_locked_actor;
 };
 
 
 struct tie_t
 {
-    Actor* locked_truck;
-    beam_t *beam;
-    ropable_t *lockedto;
-    int group;
-    bool tied;
-    bool tying;
-    float commandValue;
+    Actor*     ti_locked_actor;
+    beam_t*    ti_beam;
+    ropable_t* ti_locked_ropable;
+    int        ti_group;
+    bool       ti_tied;
+    bool       ti_tying;
+    float      ti_command_value;
 };
 
 
