@@ -271,7 +271,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
 
     // calculate torque per wheel
     if (ar_engine && m_num_proped_wheels != 0)
-        engine_torque = ar_engine->getTorque() / m_num_proped_wheels;
+        engine_torque = ar_engine->GetTorque() / m_num_proped_wheels;
 
     int propcounter = 0;
     float newspeeds[MAX_WHEELS] = {};
@@ -417,11 +417,11 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
     // get current speed
     float curspeed = ar_nodes[0].Velocity.length();
 
-    // fix for airplanes crashing when getAcc() is used
+    // fix for airplanes crashing when GetAcceleration() is used
     float currentAcc = 0.0f;
     if (ar_driveable == TRUCK && ar_engine)
     {
-        currentAcc = ar_engine->getAcc();
+        currentAcc = ar_engine->GetAcceleration();
     }
 
     for (int i = 0; i < ar_num_wheels; i++)
@@ -908,14 +908,14 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
 
         // hydraulics ready?
         if (ar_engine)
-            ar_engine_hydraulics_ready = ar_engine->getRPM() > ar_engine->getIdleRPM() * 0.95f;
+            ar_engine_hydraulics_ready = ar_engine->GetEngineRpm() > ar_engine->getIdleRPM() * 0.95f;
         else
             ar_engine_hydraulics_ready = true;
 
         // crankfactor
         float crankfactor = 1.0f;
         if (ar_engine)
-            crankfactor = ar_engine->getCrankFactor();
+            crankfactor = ar_engine->GetCrankFactor();
 
         // speed up machines
         if (ar_driveable == MACHINE)

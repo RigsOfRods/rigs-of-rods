@@ -926,7 +926,7 @@ void GameScript::boostCurrentTruck(float factor)
     Actor* b = mse->GetFrameListener()->GetBeamFactory()->GetPlayerActorInternal();
     if (b && b->ar_engine)
     {
-        float rpm = b->ar_engine->getRPM();
+        float rpm = b->ar_engine->GetEngineRpm();
         rpm += 2000.0f * factor;
         b->ar_engine->SetEngineRpm(rpm);
     }

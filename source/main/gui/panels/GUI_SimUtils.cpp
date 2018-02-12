@@ -248,12 +248,12 @@ void CLASS::UpdateStats(float dt, Actor* actor)
 
         if (actor->ar_driveable == TRUCK && actor->ar_engine)
         {
-            if (actor->ar_engine->getRPM() > actor->ar_engine->getMaxRPM())
-                m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Engine RPM: ") + RedColor + TOUTFSTRING(Round(actor->ar_engine->getRPM())) + U(" / ") + TOUTFSTRING(Round(actor->ar_engine->getMaxRPM())) + "\n";
+            if (actor->ar_engine->GetEngineRpm() > actor->ar_engine->getMaxRPM())
+                m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Engine RPM: ") + RedColor + TOUTFSTRING(Round(actor->ar_engine->GetEngineRpm())) + U(" / ") + TOUTFSTRING(Round(actor->ar_engine->getMaxRPM())) + "\n";
             else
-                m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Engine RPM: ") + WhiteColor + TOUTFSTRING(Round(actor->ar_engine->getRPM())) + U(" / ") + TOUTFSTRING(Round(actor->ar_engine->getMaxRPM())) + "\n";
+                m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Engine RPM: ") + WhiteColor + TOUTFSTRING(Round(actor->ar_engine->GetEngineRpm())) + U(" / ") + TOUTFSTRING(Round(actor->ar_engine->getMaxRPM())) + "\n";
 
-            float currentKw = (((actor->ar_engine->getRPM() * (actor->ar_engine->getEngineTorque() + ((actor->ar_engine->getTurboPSI() * 6.8) * actor->ar_engine->getEngineTorque()) / 100) * (3.14159265358979323846 /* pi.. */ / 30)) / 1000));
+            float currentKw = (((actor->ar_engine->GetEngineRpm() * (actor->ar_engine->getEngineTorque() + ((actor->ar_engine->GetTurboPsi() * 6.8) * actor->ar_engine->getEngineTorque()) / 100) * (3.14159265358979323846 /* pi.. */ / 30)) / 1000));
 
             m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Current power: ") + WhiteColor + TOUTFSTRING(Round(currentKw *1.34102209)) + U(" hp / ") + TOUTFSTRING(Round(currentKw)) + U(" Kw") + "\n";
 

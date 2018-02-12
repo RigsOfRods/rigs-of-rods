@@ -117,7 +117,7 @@ EngineSim::~EngineSim()
     m_torque_curve = NULL;
 }
 
-void EngineSim::setTurboOptions(int type, float tinertiaFactor, int nturbos, float param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8, float param9, float param10, float param11)
+void EngineSim::SetTurboOptions(int type, float tinertiaFactor, int nturbos, float param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8, float param9, float param10, float param11)
 {
     m_engine_has_turbo = true;
     m_engine_turbo_mode = NEW;
@@ -185,7 +185,7 @@ void EngineSim::setTurboOptions(int type, float tinertiaFactor, int nturbos, flo
     }
 }
 
-void EngineSim::setOptions(float einertia, char etype, float eclutch, float ctime, float stime, float pstime, float irpm, float srpm, float maximix, float minimix)
+void EngineSim::SetEngineOptions(float einertia, char etype, float eclutch, float ctime, float stime, float pstime, float irpm, float srpm, float maximix, float minimix)
 {
     m_engine_inertia = einertia;
     m_engine_type = etype;
@@ -522,7 +522,7 @@ void EngineSim::update(float dt, int doUpdate)
             {
                 // we're done m_shifting
                 SOUND_STOP(m_actor, SS_TRIG_SHIFT);
-                setAcc(m_auto_cur_acc);
+                SetAcceleration(m_auto_cur_acc);
                 m_shifting = 0;
                 m_post_shifting = 1;
                 m_post_shift_clock = 0.0f;
@@ -828,11 +828,6 @@ void EngineSim::updateAudio(int doUpdate)
 #endif // USE_OPENAL
 }
 
-float EngineSim::getRPM()
-{
-    return m_cur_engine_rpm;
-}
-
 void EngineSim::toggleAutoMode()
 {
     m_auto_mode = (m_auto_mode + 1) % (MANUAL_RANGES + 1);
@@ -862,17 +857,17 @@ RoR::SimGearboxMode EngineSim::getAutoMode()
     return (RoR::SimGearboxMode)this->m_auto_mode;
 }
 
-void EngineSim::setAutoMode(RoR::SimGearboxMode mode)
+void EngineSim::SetAutoMode(RoR::SimGearboxMode mode)
 {
     this->m_auto_mode = (shiftmodes)mode;
 }
 
-void EngineSim::setAcc(float val)
+void EngineSim::SetAcceleration(float val)
 {
     m_cur_acc = val;
 }
 
-float EngineSim::getTurboPSI()
+float EngineSim::GetTurboPsi()
 {
     if (m_engine_turbo_mode == OLD)
     {
@@ -895,13 +890,13 @@ float EngineSim::getTurboPSI()
     return turboPSI;
 }
 
-float EngineSim::getAcc()
+float EngineSim::GetAcceleration()
 {
     return m_cur_acc;
 }
 
 // this is mainly for smoke...
-void EngineSim::netForceSettings(float rpm, float force, float clutch, int gear, bool _running, bool _contact, char _automode)
+void EngineSim::PushNetworkState(float rpm, float force, float clutch, int gear, bool _running, bool _contact, char _automode)
 {
     m_cur_engine_rpm = rpm;
     m_cur_acc = force;
@@ -915,7 +910,7 @@ void EngineSim::netForceSettings(float rpm, float force, float clutch, int gear,
     }
 }
 
-float EngineSim::getSmoke()
+float EngineSim::GetSmoke()
 {
     if (m_engine_is_running)
     {
@@ -925,7 +920,7 @@ float EngineSim::getSmoke()
     return -1;
 }
 
-float EngineSim::getTorque()
+float EngineSim::GetTorque()
 {
     if (m_cur_clutch_torque > 1000000.0)
         return 1000000.0;
@@ -955,7 +950,7 @@ void EngineSim::setSpin(float rpm)
 }
 
 // for hydros acceleration
-float EngineSim::getCrankFactor()
+float EngineSim::GetCrankFactor()
 {
     float minWorkingRPM = m_idle_rpm * 1.1f; // minWorkingRPM > m_idle_rpm avoids commands deadlocking the engine
 
@@ -968,17 +963,17 @@ float EngineSim::getCrankFactor()
     return crankfactor;
 }
 
-void EngineSim::setClutch(float clutch)
+void EngineSim::SetClutch(float clutch)
 {
     m_cur_clutch = clutch;
 }
 
-float EngineSim::getClutch()
+float EngineSim::GetClutch()
 {
     return m_cur_clutch;
 }
 
-float EngineSim::getClutchForce()
+float EngineSim::GetClutchForce()
 {
     return m_clutch_force;
 }
@@ -1081,7 +1076,7 @@ void EngineSim::autoSetAcc(float val)
     m_auto_cur_acc = val;
     if (!m_shifting)
     {
-        setAcc(val);
+        SetAcceleration(val);
     }
 }
 
@@ -1210,7 +1205,7 @@ float EngineSim::getTurboPower()
     }
     else
     {
-        atValue = (((getTurboPSI() * 6.8) * m_engine_torque) / 100); //1psi = 6% more power
+        atValue = (((GetTurboPsi() * 6.8) * m_engine_torque) / 100); //1psi = 6% more power
     }
 
     return atValue;
@@ -1267,7 +1262,7 @@ float EngineSim::getPrimeMixture()
 {
     if (m_engine_is_priming)
     {
-        float crankfactor = getCrankFactor();
+        float crankfactor = GetCrankFactor();
 
         if (crankfactor < 0.9f)
         {

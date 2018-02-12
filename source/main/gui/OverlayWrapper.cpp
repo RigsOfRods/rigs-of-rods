@@ -878,7 +878,7 @@ void OverlayWrapper::UpdateLandVehicleHUD(Actor* vehicle)
     {
         tachoFactor = 0.072 * (3500 / vehicle->ar_engine->getMaxRPM());
     }
-    angle = 126.0 - fabs(vehicle->ar_engine->getRPM() * tachoFactor);
+    angle = 126.0 - fabs(vehicle->ar_engine->GetEngineRpm() * tachoFactor);
     angle = std::max(-120.0f, angle);
     angle = std::min(angle, 121.0f);
     tachotexture->setTextureRotate(Degree(angle));

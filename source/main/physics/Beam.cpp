@@ -800,7 +800,7 @@ void Actor::CalcNetwork()
         bool contact = ((flagmask & NETMASK_ENGINE_CONT) != 0);
         bool running = ((flagmask & NETMASK_ENGINE_RUN) != 0);
 
-        ar_engine->netForceSettings(engspeed, engforce, engclutch, gear, running, contact, automode);
+        ar_engine->PushNetworkState(engspeed, engforce, engclutch, gear, running, contact, automode);
     }
 
     // set particle cannon
@@ -1892,9 +1892,9 @@ void Actor::sendStreamData()
         send_oob->time = ar_net_timer.getMilliseconds();
         if (ar_engine)
         {
-            send_oob->engine_speed = ar_engine->getRPM();
-            send_oob->engine_force = ar_engine->getAcc();
-            send_oob->engine_clutch = ar_engine->getClutch();
+            send_oob->engine_speed = ar_engine->GetEngineRpm();
+            send_oob->engine_force = ar_engine->GetAcceleration();
+            send_oob->engine_clutch = ar_engine->GetClutch();
             send_oob->engine_gear = ar_engine->getGear();
 
             if (ar_engine->hasContact())
@@ -2085,7 +2085,7 @@ void Actor::calcAnimators(const int flag_state, float& cstate, int& div, Real ti
     //torque
     if (ar_engine && flag_state & ANIM_FLAG_TORQUE)
     {
-        float torque = ar_engine->getCrankFactor();
+        float torque = ar_engine->GetCrankFactor();
         if (torque <= 0.0f)
             torque = 0.0f;
         if (torque >= ar_anim_previous_crank)
@@ -2211,7 +2211,7 @@ void Actor::calcAnimators(const int flag_state, float& cstate, int& div, Real ti
     //engine tacho ( scales with maxrpm, default is 3500 )
     if (ar_engine && flag_state & ANIM_FLAG_TACHO)
     {
-        float tacho = ar_engine->getRPM() / ar_engine->getMaxRPM();
+        float tacho = ar_engine->GetEngineRpm() / ar_engine->getMaxRPM();
         cstate -= tacho;
         div++;
     }
@@ -2219,7 +2219,7 @@ void Actor::calcAnimators(const int flag_state, float& cstate, int& div, Real ti
     //turbo
     if (ar_engine && flag_state & ANIM_FLAG_TURBO)
     {
-        float turbo = ar_engine->getTurboPSI() * 3.34;
+        float turbo = ar_engine->GetTurboPsi() * 3.34;
         cstate -= turbo / 67.0f;
         div++;
     }
@@ -2235,7 +2235,7 @@ void Actor::calcAnimators(const int flag_state, float& cstate, int& div, Real ti
     //accelerator
     if (ar_engine && flag_state & ANIM_FLAG_ACCEL)
     {
-        float accel = ar_engine->getAcc();
+        float accel = ar_engine->GetAcceleration();
         cstate -= accel + 0.06f;
         //( small correction, get acc is nver smaller then 0.06.
         div++;
@@ -2244,7 +2244,7 @@ void Actor::calcAnimators(const int flag_state, float& cstate, int& div, Real ti
     //clutch
     if (ar_engine && flag_state & ANIM_FLAG_CLUTCH)
     {
-        float clutch = ar_engine->getClutch();
+        float clutch = ar_engine->GetClutch();
         cstate -= fabs(1.0f - clutch);
         div++;
     }
@@ -3624,17 +3624,17 @@ void Actor::updateVisual(float dt)
             ParticleEmitter* emit = it->smoker->getEmitter(0);
             it->smokeNode->setPosition(ar_nodes[it->emitterNode].AbsPosition);
             emit->setDirection(dir);
-            if (ar_engine->getSmoke() != -1.0)
+            if (ar_engine->GetSmoke() != -1.0)
             {
                 emit->setEnabled(true);
-                emit->setColour(ColourValue(0.0, 0.0, 0.0, 0.02 + ar_engine->getSmoke() * 0.06));
-                emit->setTimeToLive((0.02 + ar_engine->getSmoke() * 0.06) / 0.04);
+                emit->setColour(ColourValue(0.0, 0.0, 0.0, 0.02 + ar_engine->GetSmoke() * 0.06));
+                emit->setTimeToLive((0.02 + ar_engine->GetSmoke() * 0.06) / 0.04);
             }
             else
             {
                 emit->setEnabled(false);
             }
-            emit->setParticleVelocity(1.0 + ar_engine->getSmoke() * 2.0, 2.0 + ar_engine->getSmoke() * 3.0);
+            emit->setParticleVelocity(1.0 + ar_engine->GetSmoke() * 2.0, 2.0 + ar_engine->GetSmoke() * 3.0);
         }
     }
 
@@ -4601,7 +4601,7 @@ void Actor::ToggleCruiseControl()
     if (cc_mode)
     {
         cc_target_speed = ar_wheel_speed;
-        cc_target_rpm = ar_engine->getRPM();
+        cc_target_rpm = ar_engine->GetEngineRpm();
     }
     else
     {
@@ -5069,19 +5069,19 @@ void Actor::updateDashBoards(float dt)
         ar_dashboard->setInt(DD_ENGINE_AUTO_GEAR, autoGear);
 
         // clutch
-        float clutch = ar_engine->getClutch();
+        float clutch = ar_engine->GetClutch();
         ar_dashboard->setFloat(DD_ENGINE_CLUTCH, clutch);
 
         // accelerator
-        float acc = ar_engine->getAcc();
+        float acc = ar_engine->GetAcceleration();
         ar_dashboard->setFloat(DD_ACCELERATOR, acc);
 
         // RPM
-        float rpm = ar_engine->getRPM();
+        float rpm = ar_engine->GetEngineRpm();
         ar_dashboard->setFloat(DD_ENGINE_RPM, rpm);
 
         // turbo
-        float turbo = ar_engine->getTurboPSI() * 3.34f; // MAGIC :/
+        float turbo = ar_engine->GetTurboPsi() * 3.34f; // MAGIC :/
         ar_dashboard->setFloat(DD_ENGINE_TURBO, turbo);
 
         // ignition
@@ -5093,7 +5093,7 @@ void Actor::updateDashBoards(float dt)
         ar_dashboard->setBool(DD_ENGINE_BATTERY, batt);
 
         // clutch warning
-        bool cw = (fabs(ar_engine->getTorque()) >= ar_engine->getClutchForce() * 10.0f);
+        bool cw = (fabs(ar_engine->GetTorque()) >= ar_engine->GetClutchForce() * 10.0f);
         ar_dashboard->setBool(DD_ENGINE_CLUTCH_WARNING, cw);
     }
 
@@ -5506,14 +5506,14 @@ void Actor::EngineTriggerHelper(int engineNumber, int type, float triggerValue)
     {
     case TRG_ENGINE_CLUTCH:
         if (e)
-            e->setClutch(triggerValue);
+            e->SetClutch(triggerValue);
         break;
     case TRG_ENGINE_BRAKE:
         ar_brake = triggerValue * ar_brake_force;
         break;
     case TRG_ENGINE_ACC:
         if (e)
-            e->setAcc(triggerValue);
+            e->SetAcceleration(triggerValue);
         break;
     case TRG_ENGINE_RPM:
         // TODO: Implement setTargetRPM in the EngineSim.cpp
