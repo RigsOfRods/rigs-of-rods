@@ -392,7 +392,7 @@ void Beam::scaleTruck(float value)
 
     if (value < 0)
         return;
-    currentScale *= value;
+    ar_scale *= value;
     // scale beams
     for (int i = 0; i < ar_num_beams; i++)
     {
@@ -1211,7 +1211,7 @@ void Beam::resolveCollisions(Vector3 direction)
     Vector3 dir = Vector3(offset.x, 0.0f, offset.z).normalisedCopy();
     offset += 0.2f * dir;
 
-    resetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, true, ar_nodes[lowestcontactingnode].AbsPosition.y + offset.y);
+    resetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, true, ar_nodes[ar_lowest_contacting_node].AbsPosition.y + offset.y);
 }
 
 void Beam::resolveCollisions(float max_distance, bool consider_up)
@@ -1249,7 +1249,7 @@ void Beam::resolveCollisions(float max_distance, bool consider_up)
     Vector3 dir = Vector3(offset.x, 0.0f, offset.z).normalisedCopy();
     offset += 0.2f * dir;
 
-    resetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, true, ar_nodes[lowestcontactingnode].AbsPosition.y + offset.y);
+    resetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, true, ar_nodes[ar_lowest_contacting_node].AbsPosition.y + offset.y);
 }
 
 int Beam::savePosition(int indexPosition)
@@ -1392,10 +1392,10 @@ void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
     }
 
     // vertical displacement
-    float vertical_offset = -ar_nodes[lowestcontactingnode].AbsPosition.y + miny;
+    float vertical_offset = -ar_nodes[ar_lowest_contacting_node].AbsPosition.y + miny;
     if (gEnv->terrainManager->getWater())
     {
-        vertical_offset += std::max(0.0f, gEnv->terrainManager->getWater()->GetStaticWaterHeight() - (ar_nodes[lowestcontactingnode].AbsPosition.y + vertical_offset));
+        vertical_offset += std::max(0.0f, gEnv->terrainManager->getWater()->GetStaticWaterHeight() - (ar_nodes[ar_lowest_contacting_node].AbsPosition.y + vertical_offset));
     }
     for (int i = 1; i < ar_num_nodes; i++)
     {
@@ -1654,7 +1654,7 @@ void Beam::SyncReset()
     cc_mode = false;
     ar_fusedrag = Vector3::ZERO;
     ar_origin = Vector3::ZERO;
-    float yPos = ar_nodes[lowestcontactingnode].AbsPosition.y;
+    float yPos = ar_nodes[ar_lowest_contacting_node].AbsPosition.y;
 
     Vector3 cur_position = ar_nodes[0].AbsPosition;
     float cur_rot = getRotation();
@@ -3646,7 +3646,7 @@ void Beam::updateVisual(float dt)
         autoaileron = autopilot->getAilerons();
         autorudder = autopilot->getRudder();
         autoelevator = autopilot->getElevator();
-        autopilot->gpws_update(posnode_spawn_height);
+        autopilot->gpws_update(ar_posnode_spawn_height);
     }
     autoaileron += ar_aileron;
     autorudder += ar_rudder;
@@ -5559,7 +5559,7 @@ Beam::Beam(
     , m_camera_gforces_count(0)
     , ar_engine_hydraulics_ready(true)
     , m_custom_particles_enabled(false)
-    , currentScale(1)
+    , ar_scale(1)
     , ar_current_cinecam(-1) // -1 = external
     , ar_dashboard(nullptr)
     , m_gfx_detail_level(0)
@@ -6334,7 +6334,7 @@ bool Beam::getCustomParticleMode()
 
 int Beam::getLowestNode()
 {
-    return lowestnode;
+    return ar_lowest_node;
 }
 
 Ogre::Real Beam::getMinimalCameraRadius()

@@ -371,7 +371,7 @@ void RigSpawner::InitializeRig()
     m_rig->cameranodepos[0]=-1;
     m_rig->cameranodedir[0]=-1;
     m_rig->cameranoderoll[0]=-1;
-    m_rig->lowestnode=0;
+    m_rig->ar_lowest_node=0;
 
 #ifdef USE_ANGELSCRIPT
     m_rig->ar_vehicle_ai = new VehicleAI(m_rig);
@@ -527,26 +527,26 @@ void RigSpawner::FinalizeRig()
     
     //calculate gwps height offset
     //get a starting value
-    m_rig->posnode_spawn_height=m_rig->ar_nodes[0].RelPosition.y;
+    m_rig->ar_posnode_spawn_height=m_rig->ar_nodes[0].RelPosition.y;
     //start at 0 to avoid a crash whith a 1-node truck
     for (int i=0; i<m_rig->ar_num_nodes; i++)
     {
         // scan and store the y-coord for the lowest node of the truck
-        if (m_rig->ar_nodes[i].RelPosition.y <= m_rig->posnode_spawn_height)
+        if (m_rig->ar_nodes[i].RelPosition.y <= m_rig->ar_posnode_spawn_height)
         {
-            m_rig->posnode_spawn_height = m_rig->ar_nodes[i].RelPosition.y;
+            m_rig->ar_posnode_spawn_height = m_rig->ar_nodes[i].RelPosition.y;
         }
     }
 
     if (m_rig->cameranodepos[0] > 0)
     {
         // store the y-difference between the trucks lowest node and the campos-node for the gwps system
-        m_rig->posnode_spawn_height = m_rig->ar_nodes[m_rig->cameranodepos[0]].RelPosition.y - m_rig->posnode_spawn_height;
+        m_rig->ar_posnode_spawn_height = m_rig->ar_nodes[m_rig->cameranodepos[0]].RelPosition.y - m_rig->ar_posnode_spawn_height;
     } 
     else
     {
         //this can not be an airplane, just set it to 0.
-        m_rig->posnode_spawn_height = 0.0f;
+        m_rig->ar_posnode_spawn_height = 0.0f;
     }
 
     //cameras workaround
@@ -680,8 +680,8 @@ void RigSpawner::FinalizeRig()
         m_rig->m_cab_entity = ec;
     };
 
-    m_rig->lowestnode = FindLowestNodeInRig();
-    m_rig->lowestcontactingnode = FindLowestContactingNodeInRig();
+    m_rig->ar_lowest_node = FindLowestNodeInRig();
+    m_rig->ar_lowest_contacting_node = FindLowestContactingNodeInRig();
 
     this->UpdateCollcabContacterNodes();
 

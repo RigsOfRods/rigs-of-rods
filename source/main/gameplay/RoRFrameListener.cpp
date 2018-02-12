@@ -1380,7 +1380,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                     m_reload_pos = current_truck->getRotationCenter();
 
                     // TODO: Fix this by projecting m_reload_pos onto the terrain / mesh
-                    m_reload_pos.y = current_truck->ar_nodes[current_truck->lowestcontactingnode].AbsPosition.y;
+                    m_reload_pos.y = current_truck->ar_nodes[current_truck->ar_lowest_contacting_node].AbsPosition.y;
                 }
                 else
                 {
@@ -1429,7 +1429,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                             m_reload_dir = Quaternion(Degree(180) - Radian(rotation), Vector3::UNIT_Y);
                             m_reload_pos = current_truck->getRotationCenter();
                             // TODO: Fix this by projecting m_reload_pos onto the terrain / mesh
-                            m_reload_pos.y = current_truck->ar_nodes[current_truck->lowestcontactingnode].AbsPosition.y;
+                            m_reload_pos.y = current_truck->ar_nodes[current_truck->ar_lowest_contacting_node].AbsPosition.y;
                         }
                         else
                         {
