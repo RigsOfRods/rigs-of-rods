@@ -316,7 +316,6 @@ void RigSpawner::InitializeRig()
     m_rig->m_rotator_inertia = nullptr;
     m_rig->m_hydro_inertia = nullptr;
     m_rig->m_command_inertia = nullptr;
-    m_rig->buoyance = nullptr;
     m_rig->ar_origin=Ogre::Vector3::ZERO;
     m_rig->m_slidenodes.clear();
 
@@ -1606,10 +1605,10 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
             mk_buoyance = true;
         }
 
-        if (mk_buoyance && (m_rig->buoyance == nullptr))
+        if (mk_buoyance && (m_rig->m_buoyance == nullptr))
         {
             auto& dustman = App::GetSimController()->GetBeamFactory()->GetParticleManager();
-            m_rig->buoyance=new Buoyance(dustman.getDustPool("splash"), dustman.getDustPool("ripple"));
+            m_rig->m_buoyance=std::make_unique<Buoyance>(dustman.getDustPool("splash"), dustman.getDustPool("ripple"));
         }
         m_rig->free_cab++;
     }
