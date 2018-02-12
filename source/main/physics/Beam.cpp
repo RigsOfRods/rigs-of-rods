@@ -619,7 +619,8 @@ void Beam::pushNetwork(char* data, int size)
     else
     {
         // TODO: show the user the problem in the GUI
-        LOG("WRONG network size: we expected " + TOSTRING(m_net_buffer_size+sizeof(RoRnet::TruckState)) + " but got " + TOSTRING(size) + " for vehicle " + String(truckname));
+        LogFormat("[RoR|Network] Wrong data size: %d bytes, expected %d bytes, actor ID: %d",
+            size, m_net_buffer_size+sizeof(RoRnet::TruckState), ar_instance_id);
         ar_sim_state = SimState::INVALID;
         return;
     }
@@ -4700,11 +4701,10 @@ void Beam::setDebugOverlayState(int mode)
         for (int i = 0; i < ar_num_nodes; i++)
         {
             debugtext_t t;
-            char nodeName[256] = "", entName[256] = "";
-            sprintf(nodeName, "%s-nodesDebug-%d", truckname, i);
-            sprintf(entName, "%s-nodesDebug-%d-Ent", truckname, i);
+            RoR::Str<100> element_name;
+            RigSpawner::ComposeName(element_name, "DbgNode", i, ar_instance_id);
             t.id = i;
-            t.txt = new MovableText(nodeName, "n" + TOSTRING(i));
+            t.txt = new MovableText(element_name.ToCStr(), "n" + TOSTRING(i));
             t.txt->setFontName("highcontrast_black");
             t.txt->setTextAlignment(MovableText::H_LEFT, MovableText::V_BELOW);
             //t.txt->setAdditionalHeight(0);
@@ -4722,7 +4722,8 @@ void Beam::setDebugOverlayState(int mode)
             // collision nodes debug, also mimics as node visual
             SceneNode* s = t.node->createChildSceneNode();
             deletion_sceneNodes.emplace_back(s);
-            Entity* b = gEnv->sceneManager->createEntity(entName, "sphere.mesh");
+            RigSpawner::ComposeName(element_name, "DbgEntity", i, ar_instance_id);
+            Entity* b = gEnv->sceneManager->createEntity(element_name.ToCStr(), "sphere.mesh");
             deletion_Entities.emplace_back(b);
             b->setMaterialName("tracks/transgreen");
             s->attachObject(b);
@@ -4735,10 +4736,10 @@ void Beam::setDebugOverlayState(int mode)
         for (int i = 0; i < ar_num_beams; i++)
         {
             debugtext_t t;
-            char nodeName[256] = "";
-            sprintf(nodeName, "%s-beamsDebug-%d", truckname, i);
+            RoR::Str<100> element_name;
+            RigSpawner::ComposeName(element_name, "DbgBeam", i, ar_instance_id);
             t.id = i;
-            t.txt = new MovableText(nodeName, "b" + TOSTRING(i));
+            t.txt = new MovableText(element_name.ToCStr(), "b" + TOSTRING(i));
             t.txt->setFontName("highcontrast_black");
             t.txt->setTextAlignment(MovableText::H_LEFT, MovableText::V_BELOW);
             //t.txt->setAdditionalHeight(0);
@@ -5654,8 +5655,6 @@ Beam::Beam(
     m_spawn_free_positioned = freeposition;
     m_used_skin = skin;
     ar_uses_networking = _networking;
-    memset(truckname, 0, 256);
-    sprintf(truckname, "t%i", truck_number);
     if (ismachine)
     {
         ar_driveable = MACHINE;
@@ -5783,9 +5782,9 @@ Beam::Beam(
 
         if (ar_sim_state == SimState::NETWORKED_OK || !m_hide_own_net_label)
         {
-            char wname[256];
-            sprintf(wname, "netlabel-%s", truckname);
-            m_net_label_mt = new MovableText(wname, m_net_username);
+            RoR::Str<100> element_name;
+            RigSpawner::ComposeName(element_name, "NetLabel", 0, ar_instance_id);
+            m_net_label_mt = new MovableText(element_name.ToCStr(), m_net_username);
             m_net_label_mt->setFontName("CyberbitEnglish");
             m_net_label_mt->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
             m_net_label_mt->showOnTop(false);

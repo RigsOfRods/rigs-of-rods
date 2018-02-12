@@ -36,7 +36,7 @@ public:
     float max_torque;
 
     Turboprop(
-        char* propname,
+        const char* propname,
         node_t* nd,
         int nr,
         int nb,
