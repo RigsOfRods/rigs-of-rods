@@ -1208,9 +1208,9 @@ eventsource_t *Collisions::isTruckInEventBox(Beam *truck)
         // check all nodes
 
         bool allInside = true;
-        for (int n=0; n < truck->free_node; n++)
+        for (int n=0; n < truck->ar_num_nodes; n++)
         {
-            if (!isInside(truck->nodes[n].AbsPosition, cb))
+            if (!isInside(truck->ar_nodes[n].AbsPosition, cb))
             {
                 // node not in box, no need to check the rest
                 allInside=false;

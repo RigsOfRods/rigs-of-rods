@@ -180,8 +180,8 @@ void RoRFrameListener::UpdateForceFeedback(float dt)
         if (current_truck->IsNodeIdValid(current_truck->cameranoderoll[0]))
             cameranoderoll = current_truck->cameranoderoll[0];
 
-        Vector3 udir = current_truck->nodes[cameranodepos].RelPosition - current_truck->nodes[cameranodedir].RelPosition;
-        Vector3 uroll = current_truck->nodes[cameranodepos].RelPosition - current_truck->nodes[cameranoderoll].RelPosition;
+        Vector3 udir = current_truck->ar_nodes[cameranodepos].RelPosition - current_truck->ar_nodes[cameranodedir].RelPosition;
+        Vector3 uroll = current_truck->ar_nodes[cameranodepos].RelPosition - current_truck->ar_nodes[cameranoderoll].RelPosition;
 
         udir.normalise();
         uroll.normalise();
@@ -1331,7 +1331,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                     float len = 0.0f;
                     if (gEnv->player)
                     {
-                        len = trucks[i]->nodes[trucks[i]->cinecameranodepos[0]].AbsPosition.distance(gEnv->player->getPosition() + Vector3(0.0, 2.0, 0.0));
+                        len = trucks[i]->ar_nodes[trucks[i]->cinecameranodepos[0]].AbsPosition.distance(gEnv->player->getPosition() + Vector3(0.0, 2.0, 0.0));
                     }
                     if (len < mindist)
                     {
@@ -1344,7 +1344,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                     m_beam_factory.setCurrentTruck(minindex);
                 }
             }
-            else if (curr_truck->nodes[0].Velocity.length() < 1.0f)
+            else if (curr_truck->ar_nodes[0].Velocity.length() < 1.0f)
             {
                 m_beam_factory.setCurrentTruck(-1);
             }
@@ -1380,7 +1380,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                     m_reload_pos = current_truck->getRotationCenter();
 
                     // TODO: Fix this by projecting m_reload_pos onto the terrain / mesh
-                    m_reload_pos.y = current_truck->nodes[current_truck->lowestcontactingnode].AbsPosition.y;
+                    m_reload_pos.y = current_truck->ar_nodes[current_truck->lowestcontactingnode].AbsPosition.y;
                 }
                 else
                 {
@@ -1429,7 +1429,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                             m_reload_dir = Quaternion(Degree(180) - Radian(rotation), Vector3::UNIT_Y);
                             m_reload_pos = current_truck->getRotationCenter();
                             // TODO: Fix this by projecting m_reload_pos onto the terrain / mesh
-                            m_reload_pos.y = current_truck->nodes[current_truck->lowestcontactingnode].AbsPosition.y;
+                            m_reload_pos.y = current_truck->ar_nodes[current_truck->lowestcontactingnode].AbsPosition.y;
                         }
                         else
                         {
@@ -1549,7 +1549,7 @@ void RoRFrameListener::FinalizeTruckSpawning(Beam* local_truck, Beam* previous_t
         {
             // Calculate translational offset for node[0] to align the trucks rotation center with m_reload_pos
             Vector3 translation = m_reload_pos - local_truck->getRotationCenter();
-            local_truck->resetPosition(local_truck->nodes[0].AbsPosition + Vector3(translation.x, 0.0f, translation.z), true);
+            local_truck->resetPosition(local_truck->ar_nodes[0].AbsPosition + Vector3(translation.x, 0.0f, translation.z), true);
 
             if (local_truck->driveable != NOT_DRIVEABLE || (previous_truck && previous_truck->driveable != NOT_DRIVEABLE))
             {
@@ -1876,9 +1876,9 @@ void RoRFrameListener::ShowLoaderGUI(int type, const Ogre::String& instance, con
         {
             if (!trucks[t])
                 continue;
-            for (int i = 0; i < trucks[t]->free_node; i++)
+            for (int i = 0; i < trucks[t]->ar_num_nodes; i++)
             {
-                if (gEnv->collisions->isInside(trucks[t]->nodes[i].AbsPosition, spawnbox))
+                if (gEnv->collisions->isInside(trucks[t]->ar_nodes[i].AbsPosition, spawnbox))
                 {
                     RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Please clear the place first"), "error.png");
                     RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Please clear the place first"));
@@ -2020,17 +2020,17 @@ void RoRFrameListener::ReloadPlayerActor()
     }
 
     // copy over the most basic info
-    if (curr_truck->free_node == newBeam->free_node)
+    if (curr_truck->ar_num_nodes == newBeam->ar_num_nodes)
     {
-        for (int i = 0; i < curr_truck->free_node; i++)
+        for (int i = 0; i < curr_truck->ar_num_nodes; i++)
         {
             // copy over nodes attributes if the amount of them didnt change
-            newBeam->nodes[i].AbsPosition = curr_truck->nodes[i].AbsPosition;
-            newBeam->nodes[i].RelPosition = curr_truck->nodes[i].RelPosition;
-            newBeam->nodes[i].Velocity = curr_truck->nodes[i].Velocity;
-            newBeam->nodes[i].Forces = curr_truck->nodes[i].Forces;
-            newBeam->nodes[i].initial_pos = curr_truck->nodes[i].initial_pos;
-            newBeam->origin = curr_truck->origin;
+            newBeam->ar_nodes[i].AbsPosition = curr_truck->ar_nodes[i].AbsPosition;
+            newBeam->ar_nodes[i].RelPosition = curr_truck->ar_nodes[i].RelPosition;
+            newBeam->ar_nodes[i].Velocity    = curr_truck->ar_nodes[i].Velocity;
+            newBeam->ar_nodes[i].Forces      = curr_truck->ar_nodes[i].Forces;
+            newBeam->ar_nodes[i].initial_pos = curr_truck->ar_nodes[i].initial_pos;
+            newBeam->origin                  = curr_truck->origin;
         }
     }
 
@@ -2091,12 +2091,12 @@ void RoRFrameListener::ChangedCurrentVehicle(Beam* previous_vehicle, Beam* curre
 
             // get player out of the vehicle
             float rotation = previous_vehicle->getRotation() - Math::HALF_PI;
-            Vector3 position = previous_vehicle->nodes[0].AbsPosition;
+            Vector3 position = previous_vehicle->ar_nodes[0].AbsPosition;
             if (previous_vehicle->cinecameranodepos[0] != -1 && previous_vehicle->cameranodepos[0] != -1 && previous_vehicle->cameranoderoll[0] != -1)
             {
                 // truck has a cinecam
-                position = previous_vehicle->nodes[previous_vehicle->cinecameranodepos[0]].AbsPosition;
-                position += -2.0 * ((previous_vehicle->nodes[previous_vehicle->cameranodepos[0]].RelPosition - previous_vehicle->nodes[previous_vehicle->cameranoderoll[0]].RelPosition).normalisedCopy());
+                position = previous_vehicle->ar_nodes[previous_vehicle->cinecameranodepos[0]].AbsPosition;
+                position += -2.0 * ((previous_vehicle->ar_nodes[previous_vehicle->cameranodepos[0]].RelPosition - previous_vehicle->ar_nodes[previous_vehicle->cameranoderoll[0]].RelPosition).normalisedCopy());
                 position += Vector3(0.0, -1.0, 0.0);
             }
             gEnv->player->setBeamCoupling(false);
@@ -2382,13 +2382,13 @@ bool RoRFrameListener::SetupGameplayLoop()
         {
             // Calculate translational offset for node[0] to align the trucks rotation center with m_reload_pos
             Vector3 translation = pos - b->getRotationCenter();
-            b->resetPosition(b->nodes[0].AbsPosition + Vector3(translation.x, 0.0f, translation.z), true);
+            b->resetPosition(b->ar_nodes[0].AbsPosition + Vector3(translation.x, 0.0f, translation.z), true);
 
             b->updateFlexbodiesPrepare();
             b->updateFlexbodiesFinal();
             b->updateVisual();
 
-            if (App::diag_preset_veh_enter.GetActive() && b->free_node > 0)
+            if (App::diag_preset_veh_enter.GetActive() && b->ar_num_nodes > 0)
             {
                 m_beam_factory.setCurrentTruck(b->trucknum);
             }

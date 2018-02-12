@@ -173,7 +173,7 @@ void interTruckCollisions(const float dt, PointColDetector &interPointCD,
             {
                 const auto hitnodeid = interPointCD.hit_list[h]->nodeid;
                 const auto hittruckid = interPointCD.hit_list[h]->truckid;
-                const auto hitnode = &trucks[hittruckid]->nodes[hitnodeid];
+                const auto hitnode = &trucks[hittruckid]->ar_nodes[hitnodeid];
                 const auto hittruck = trucks[hittruckid];
 
                 // transform point to triangle local coordinates
@@ -191,7 +191,7 @@ void interTruckCollisions(const float dt, PointColDetector &interPointCD,
 
                     // adapt in case the collision is occuring on the backface of the triangle
                     const auto neighbour_node_ids = hittruck->nodetonodeconnections[hitnodeid];
-                    const bool is_backface = BackfaceCollisionTest(distance, normal, *no, neighbour_node_ids, hittruck->nodes); 
+                    const bool is_backface = BackfaceCollisionTest(distance, normal, *no, neighbour_node_ids, hittruck->ar_nodes); 
                     if (is_backface) {
                         // flip surface normal and distance to triangle plane
                         normal   = -normal;

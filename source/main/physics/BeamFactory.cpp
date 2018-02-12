@@ -728,7 +728,7 @@ int BeamFactory::FindTruckInsideBox(Collisions* collisions, const Ogre::String& 
     {
         if (!m_trucks[t])
             continue;
-        if (collisions->isInside(m_trucks[t]->nodes[0].AbsPosition, inst, box))
+        if (collisions->isInside(m_trucks[t]->ar_nodes[0].AbsPosition, inst, box))
         {
             if (id == -1)
             // first truck found
@@ -749,7 +749,7 @@ void BeamFactory::repairTruck(Collisions* collisions, const Ogre::String& inst, 
         // take a position reference
         SOUND_PLAY_ONCE(rtruck, SS_TRIG_REPAIR);
 
-        Vector3 ipos = m_trucks[rtruck]->nodes[0].AbsPosition;
+        Vector3 ipos = m_trucks[rtruck]->ar_nodes[0].AbsPosition;
         m_trucks[rtruck]->reset();
         m_trucks[rtruck]->resetPosition(ipos.x, ipos.z, false, 0);
         m_trucks[rtruck]->updateVisual();
@@ -1184,7 +1184,7 @@ void BeamFactory::UpdatePhysicsSimulation()
                                         m_trucks[t]->collcabs,
                                         m_trucks[t]->cabs,
                                         m_trucks[t]->intra_collcabrate,
-                                        m_trucks[t]->nodes,
+                                        m_trucks[t]->ar_nodes,
                                         m_trucks[t]->collrange,
                                         *(m_trucks[t]->submesh_ground_model));
                                 }
@@ -1219,7 +1219,7 @@ void BeamFactory::UpdatePhysicsSimulation()
                                         m_trucks[t]->collcabs,
                                         m_trucks[t]->cabs,
                                         m_trucks[t]->inter_collcabrate,
-                                        m_trucks[t]->nodes,
+                                        m_trucks[t]->ar_nodes,
                                         m_trucks[t]->collrange,
                                         m_trucks, m_free_truck,
                                         *(m_trucks[t]->submesh_ground_model));
@@ -1254,7 +1254,7 @@ void BeamFactory::UpdatePhysicsSimulation()
                             m_trucks[t]->collcabs,
                             m_trucks[t]->cabs,
                             m_trucks[t]->intra_collcabrate,
-                            m_trucks[t]->nodes,
+                            m_trucks[t]->ar_nodes,
                             m_trucks[t]->collrange,
                             *(m_trucks[t]->submesh_ground_model));
                     }
@@ -1278,7 +1278,7 @@ void BeamFactory::UpdatePhysicsSimulation()
                                 m_trucks[t]->collcabs,
                                 m_trucks[t]->cabs,
                                 m_trucks[t]->inter_collcabrate,
-                                m_trucks[t]->nodes,
+                                m_trucks[t]->ar_nodes,
                                 m_trucks[t]->collrange,
                                 m_trucks, m_free_truck,
                                 *(m_trucks[t]->submesh_ground_model));

@@ -139,13 +139,13 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
                 if (!pair.first)
                     continue;
 
-                for (int j = 0; j < trucks[i]->free_node; j++)
+                for (int j = 0; j < trucks[i]->ar_num_nodes; j++)
                 {
-                    if (trucks[i]->nodes[j].no_mouse_grab)
+                    if (trucks[i]->ar_nodes[j].no_mouse_grab)
                         continue;
 
                     // check if our ray intersects with the node
-                    std::pair<bool, Real> pair = mouseRay.intersects(Sphere(trucks[i]->nodes[j].AbsPosition, 0.1f));
+                    std::pair<bool, Real> pair = mouseRay.intersects(Sphere(trucks[i]->ar_nodes[j].AbsPosition, 0.1f));
                     if (pair.first)
                     {
                         // we hit it, check if its the nearest node
@@ -209,7 +209,7 @@ void SceneMouse::update(float dt)
 
         // update visual line
         pickLine->beginUpdate(0);
-        pickLine->position(grab_truck->nodes[minnode].AbsPosition);
+        pickLine->position(grab_truck->ar_nodes[minnode].AbsPosition);
         pickLine->position(lastgrabpos);
         pickLine->end();
 
@@ -240,12 +240,12 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
                 Real nearest_ray_distance = std::numeric_limits<float>::max();
                 int nearest_node_index = -1;
 
-                for (int i = 0; i < truck->free_node; i++)
+                for (int i = 0; i < truck->ar_num_nodes; i++)
                 {
-                    std::pair<bool, Real> pair = mouseRay.intersects(Sphere(truck->nodes[i].AbsPosition, 0.25f));
+                    std::pair<bool, Real> pair = mouseRay.intersects(Sphere(truck->ar_nodes[i].AbsPosition, 0.25f));
                     if (pair.first)
                     {
-                        Real ray_distance = mouseRay.getDirection().crossProduct(truck->nodes[i].AbsPosition - mouseRay.getOrigin()).length();
+                        Real ray_distance = mouseRay.getDirection().crossProduct(truck->ar_nodes[i].AbsPosition - mouseRay.getOrigin()).length();
                         if (ray_distance < nearest_ray_distance || (ray_distance == nearest_ray_distance && pair.second < nearest_camera_distance))
                         {
                             nearest_camera_distance = pair.second;

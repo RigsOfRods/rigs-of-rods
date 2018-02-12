@@ -84,9 +84,6 @@
 #include "Water.h"
 #include "GUIManager.h"
 
-// DEBUG UTILITY
-//#include "d:\Projects\Git\rigs-of-rods\tools\rig_inspector\RoR_RigInspector.h"
-
 #define LOAD_RIG_PROFILE_CHECKPOINT(ENTRY) rig_loading_profiler->Checkpoint(RoR::RigLoadingProfiler::ENTRY);
 
 #include "RigDef_Parser.h"
@@ -329,12 +326,12 @@ Beam::~Beam()
     }
 
     // delete beams
-    for (int i = 0; i < free_beam; i++)
+    for (int i = 0; i < ar_num_beams; i++)
     {
-        if (beams[i].mSceneNode)
+        if (ar_beams[i].mSceneNode)
         {
-            beams[i].mSceneNode->removeAndDestroyAllChildren();
-            gEnv->sceneManager->destroySceneNode(beams[i].mSceneNode);
+            ar_beams[i].mSceneNode->removeAndDestroyAllChildren();
+            gEnv->sceneManager->destroySceneNode(ar_beams[i].mSceneNode);
         }
     }
 
@@ -371,8 +368,8 @@ Beam::~Beam()
             delete (axles[i]);
     }
 
-    delete nodes;
-    delete beams;
+    delete ar_nodes;
+    delete ar_beams;
     delete shocks;
     delete rotators;
     delete wings;
@@ -388,28 +385,28 @@ void Beam::scaleTruck(float value)
         return;
     currentScale *= value;
     // scale beams
-    for (int i = 0; i < free_beam; i++)
+    for (int i = 0; i < ar_num_beams; i++)
     {
-        //beams[i].k *= value;
-        beams[i].d *= value;
-        beams[i].L *= value;
-        beams[i].refL *= value;
-        beams[i].Lhydro *= value;
-        beams[i].hydroRatio *= value;
+        //ar_beams[i].k *= value;
+        ar_beams[i].d *= value;
+        ar_beams[i].L *= value;
+        ar_beams[i].refL *= value;
+        ar_beams[i].Lhydro *= value;
+        ar_beams[i].hydroRatio *= value;
 
-        beams[i].diameter *= value;
+        ar_beams[i].diameter *= value;
     }
     // scale nodes
-    Vector3 refpos = nodes[0].AbsPosition;
-    Vector3 relpos = nodes[0].RelPosition;
-    for (int i = 1; i < free_node; i++)
+    Vector3 refpos = ar_nodes[0].AbsPosition;
+    Vector3 relpos = ar_nodes[0].RelPosition;
+    for (int i = 1; i < ar_num_nodes; i++)
     {
-        nodes[i].initial_pos = refpos + (nodes[i].initial_pos - refpos) * value;
-        nodes[i].AbsPosition = refpos + (nodes[i].AbsPosition - refpos) * value;
-        nodes[i].RelPosition = relpos + (nodes[i].RelPosition - relpos) * value;
-        nodes[i].Velocity *= value;
-        nodes[i].Forces *= value;
-        nodes[i].mass *= value;
+        ar_nodes[i].initial_pos = refpos + (ar_nodes[i].initial_pos - refpos) * value;
+        ar_nodes[i].AbsPosition = refpos + (ar_nodes[i].AbsPosition - refpos) * value;
+        ar_nodes[i].RelPosition = relpos + (ar_nodes[i].RelPosition - relpos) * value;
+        ar_nodes[i].Velocity *= value;
+        ar_nodes[i].Forces *= value;
+        ar_nodes[i].mass *= value;
     }
     updateSlideNodePositions();
 
@@ -468,16 +465,16 @@ void Beam::initSimpleSkeleton()
 {
     simpleSkeletonManualObject = gEnv->sceneManager->createManualObject();
 
-    simpleSkeletonManualObject->estimateIndexCount(free_beam * 2);
+    simpleSkeletonManualObject->estimateIndexCount(ar_num_beams * 2);
     simpleSkeletonManualObject->setCastShadows(false);
     simpleSkeletonManualObject->setDynamic(true);
     simpleSkeletonManualObject->setRenderingDistance(300);
     simpleSkeletonManualObject->begin("vehicle-skeletonview-material", RenderOperation::OT_LINE_LIST);
-    for (int i = 0; i < free_beam; i++)
+    for (int i = 0; i < ar_num_beams; i++)
     {
-        simpleSkeletonManualObject->position(beams[i].p1->AbsPosition);
+        simpleSkeletonManualObject->position(ar_beams[i].p1->AbsPosition);
         simpleSkeletonManualObject->colour(1.0f, 1.0f, 1.0f);
-        simpleSkeletonManualObject->position(beams[i].p2->AbsPosition);
+        simpleSkeletonManualObject->position(ar_beams[i].p2->AbsPosition);
         simpleSkeletonManualObject->colour(0.0f, 0.0f, 0.0f);
     }
     simpleSkeletonManualObject->end();
@@ -495,9 +492,9 @@ void Beam::updateSimpleSkeleton()
         initSimpleSkeleton();
 
     simpleSkeletonManualObject->beginUpdate(0);
-    for (int i = 0; i < free_beam; i++)
+    for (int i = 0; i < ar_num_beams; i++)
     {
-        float stress_ratio = beams[i].stress / beams[i].minmaxposnegstress;
+        float stress_ratio = ar_beams[i].stress / ar_beams[i].minmaxposnegstress;
         float color_scale = std::abs(stress_ratio);
         color_scale = std::min(color_scale, 1.0f);
 
@@ -506,14 +503,14 @@ void Beam::updateSimpleSkeleton()
         else
             color = ColourValue(color_scale, 1.0f - color_scale, 0.2f, 0.8f);
 
-        simpleSkeletonManualObject->position(beams[i].p1->AbsPosition);
+        simpleSkeletonManualObject->position(ar_beams[i].p1->AbsPosition);
         simpleSkeletonManualObject->colour(color);
 
         // remove broken beams
-        if (beams[i].bm_broken || beams[i].bm_disabled)
-            simpleSkeletonManualObject->position(beams[i].p1->AbsPosition); // Start+End on same point -> beam will not be visible
+        if (ar_beams[i].bm_broken || ar_beams[i].bm_disabled)
+            simpleSkeletonManualObject->position(ar_beams[i].p1->AbsPosition); // Start+End on same point -> beam will not be visible
         else
-            simpleSkeletonManualObject->position(beams[i].p2->AbsPosition);
+            simpleSkeletonManualObject->position(ar_beams[i].p2->AbsPosition);
 
         simpleSkeletonManualObject->colour(color);
     }
@@ -525,9 +522,9 @@ void Beam::updateSimpleSkeleton()
 void Beam::moveOrigin(Vector3 offset)
 {
     origin += offset;
-    for (int i = 0; i < free_node; i++)
+    for (int i = 0; i < ar_num_nodes; i++)
     {
-        nodes[i].RelPosition -= offset;
+        ar_nodes[i].RelPosition -= offset;
     }
 }
 
@@ -540,25 +537,25 @@ float Beam::getRotation()
 
 Vector3 Beam::getDirection()
 {
-    Vector3 cur_dir = nodes[0].AbsPosition;
+    Vector3 cur_dir = ar_nodes[0].AbsPosition;
     if (cameranodepos[0] != cameranodedir[0] && this->IsNodeIdValid(cameranodepos[0]) && this->IsNodeIdValid(cameranodedir[0]))
     {
-        cur_dir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
+        cur_dir = ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranodedir[0]].RelPosition;
     }
-    else if (free_node > 1)
+    else if (ar_num_nodes > 1)
     {
         float max_dist = 0.0f;
         int furthest_node = 1;
-        for (int i = 0; i < free_node; i++)
+        for (int i = 0; i < ar_num_nodes; i++)
         {
-            float dist = nodes[i].RelPosition.squaredDistance(nodes[0].RelPosition);
+            float dist = ar_nodes[i].RelPosition.squaredDistance(ar_nodes[0].RelPosition);
             if (dist > max_dist)
             {
                 max_dist = dist;
                 furthest_node = i;
             }
         }
-        cur_dir = nodes[0].RelPosition - nodes[furthest_node].RelPosition;
+        cur_dir = ar_nodes[0].RelPosition - ar_nodes[furthest_node].RelPosition;
     }
 
     cur_dir.normalise();
@@ -721,10 +718,10 @@ void Beam::calcNetwork()
         }
 
         // linear interpolation
-        nodes[i].AbsPosition = p1 + tratio * (p2 - p1);
-        nodes[i].RelPosition = nodes[i].AbsPosition - origin;
+        ar_nodes[i].AbsPosition = p1 + tratio * (p2 - p1);
+        ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - origin;
 
-        apos += nodes[i].AbsPosition;
+        apos += ar_nodes[i].AbsPosition;
     }
     position = apos / m_net_first_wheel_node;
 
@@ -852,7 +849,7 @@ bool Beam::addPressure(float v)
     refpressure = newpressure;
     for (int i = 0; i < free_pressure_beam; i++)
     {
-        beams[pressure_beams[i]].k = 10000 + refpressure * 10000;
+        ar_beams[pressure_beams[i]].k = 10000 + refpressure * 10000;
     }
     return true;
 }
@@ -871,45 +868,45 @@ void Beam::calc_masses2(Real total, bool reCalc)
     bool debugMass = App::diag_truck_mass.GetActive();
 
     //reset
-    for (int i = 0; i < free_node; i++)
+    for (int i = 0; i < ar_num_nodes; i++)
     {
-        if (!nodes[i].iswheel)
+        if (!ar_nodes[i].iswheel)
         {
-            if (!nodes[i].loadedMass)
+            if (!ar_nodes[i].loadedMass)
             {
-                nodes[i].mass = 0;
+                ar_nodes[i].mass = 0;
             }
-            else if (!nodes[i].overrideMass)
+            else if (!ar_nodes[i].overrideMass)
             {
-                nodes[i].mass = loadmass / (float)masscount;
+                ar_nodes[i].mass = loadmass / (float)masscount;
             }
         }
     }
     //average linear density
     Real len = 0.0f;
-    for (int i = 0; i < free_beam; i++)
+    for (int i = 0; i < ar_num_beams; i++)
     {
-        if (beams[i].bm_type != BEAM_VIRTUAL)
+        if (ar_beams[i].bm_type != BEAM_VIRTUAL)
         {
-            Real half_newlen = beams[i].L / 2.0;
-            if (!(beams[i].p1->iswheel))
+            Real half_newlen = ar_beams[i].L / 2.0;
+            if (!(ar_beams[i].p1->iswheel))
                 len += half_newlen;
-            if (!(beams[i].p2->iswheel))
+            if (!(ar_beams[i].p2->iswheel))
                 len += half_newlen;
         }
     }
 
     if (!reCalc)
     {
-        for (int i = 0; i < free_beam; i++)
+        for (int i = 0; i < ar_num_beams; i++)
         {
-            if (beams[i].bm_type != BEAM_VIRTUAL)
+            if (ar_beams[i].bm_type != BEAM_VIRTUAL)
             {
-                Real half_mass = beams[i].L * total / len / 2.0f;
-                if (!(beams[i].p1->iswheel))
-                    beams[i].p1->mass += half_mass;
-                if (!(beams[i].p2->iswheel))
-                    beams[i].p2->mass += half_mass;
+                Real half_mass = ar_beams[i].L * total / len / 2.0f;
+                if (!(ar_beams[i].p1->iswheel))
+                    ar_beams[i].p1->mass += half_mass;
+                if (!(ar_beams[i].p2->iswheel))
+                    ar_beams[i].p2->mass += half_mass;
             }
         }
     }
@@ -923,7 +920,7 @@ void Beam::calc_masses2(Real total, bool reCalc)
     for (int i = 0; i < this->freecinecamera; ++i)
     {
         // TODO: this expects all cinecams to be defined in root module (i.e. outside 'section/end_section')
-        nodes[cinecameranodepos[i]].mass = m_definition->root_module->cinecam[i].node_mass;
+        ar_nodes[cinecameranodepos[i]].mass = m_definition->root_module->cinecam[i].node_mass;
     }
 
 
@@ -933,38 +930,38 @@ void Beam::calc_masses2(Real total, bool reCalc)
     //		it->hookNode->mass = 500.0f;
 
     //update mass
-    for (int i = 0; i < free_node; i++)
+    for (int i = 0; i < ar_num_nodes; i++)
     {
-        //LOG("Nodemass "+TOSTRING(i)+"-"+TOSTRING(nodes[i].mass));
+        //LOG("Nodemass "+TOSTRING(i)+"-"+TOSTRING(ar_nodes[i].mass));
         //for stability
-        if (!nodes[i].iswheel && nodes[i].mass < minimass)
+        if (!ar_nodes[i].iswheel && ar_nodes[i].mass < minimass)
         {
             if (App::diag_truck_mass.GetActive())
             {
                 char buf[300];
-                snprintf(buf, 300, "Node '%d' mass (%f Kg) is too light. Resetting to 'minimass' (%f Kg)", i, nodes[i].mass, minimass);
+                snprintf(buf, 300, "Node '%d' mass (%f Kg) is too light. Resetting to 'minimass' (%f Kg)", i, ar_nodes[i].mass, minimass);
                 LOG(buf);
             }
-            nodes[i].mass = minimass;
+            ar_nodes[i].mass = minimass;
         }
     }
 
     totalmass = 0;
-    for (int i = 0; i < free_node; i++)
+    for (int i = 0; i < ar_num_nodes; i++)
     {
         if (App::diag_truck_mass.GetActive())
         {
-            String msg = "Node " + TOSTRING(i) + " : " + TOSTRING((int)nodes[i].mass) + " kg";
-            if (nodes[i].loadedMass)
+            String msg = "Node " + TOSTRING(i) + " : " + TOSTRING((int)ar_nodes[i].mass) + " kg";
+            if (ar_nodes[i].loadedMass)
             {
-                if (nodes[i].overrideMass)
+                if (ar_nodes[i].overrideMass)
                     msg += " (overriden by node mass)";
                 else
                     msg += " (normal load node: " + TOSTRING(loadmass) + " kg / " + TOSTRING(masscount) + " nodes)";
             }
             LOG(msg);
         }
-        totalmass += nodes[i].mass;
+        totalmass += ar_nodes[i].mass;
     }
     LOG("TOTAL VEHICLE MASS: " + TOSTRING((int)totalmass) +" kg");
 
@@ -1043,17 +1040,17 @@ void Beam::calcNodeConnectivityGraph()
     BES_GFX_START(BES_GFX_calcNodeConnectivityGraph);
     int i;
 
-    nodetonodeconnections.resize(free_node, std::vector<int>());
-    nodebeamconnections.resize(free_node, std::vector<int>());
+    nodetonodeconnections.resize(ar_num_nodes, std::vector<int>());
+    nodebeamconnections.resize(ar_num_nodes, std::vector<int>());
 
-    for (i = 0; i < free_beam; i++)
+    for (i = 0; i < ar_num_beams; i++)
     {
-        if (beams[i].p1 != NULL && beams[i].p2 != NULL && beams[i].p1->pos >= 0 && beams[i].p2->pos >= 0)
+        if (ar_beams[i].p1 != NULL && ar_beams[i].p2 != NULL && ar_beams[i].p1->pos >= 0 && ar_beams[i].p2->pos >= 0)
         {
-            nodetonodeconnections[beams[i].p1->pos].push_back(beams[i].p2->pos);
-            nodebeamconnections[beams[i].p1->pos].push_back(i);
-            nodetonodeconnections[beams[i].p2->pos].push_back(beams[i].p1->pos);
-            nodebeamconnections[beams[i].p2->pos].push_back(i);
+            nodetonodeconnections[ar_beams[i].p1->pos].push_back(ar_beams[i].p2->pos);
+            nodebeamconnections[ar_beams[i].p1->pos].push_back(i);
+            nodetonodeconnections[ar_beams[i].p2->pos].push_back(ar_beams[i].p1->pos);
+            nodebeamconnections[ar_beams[i].p2->pos].push_back(i);
         }
     }
     BES_GFX_STOP(BES_GFX_calcNodeConnectivityGraph);
@@ -1102,9 +1099,9 @@ Vector3 Beam::calculateCollisionOffset(Vector3 direction)
                 while (offset.length() < max_distance)
                 {
                     int tmpv = trucks[t]->collcabs[i] * 3;
-                    node_t* no = &trucks[t]->nodes[cabs[tmpv]];
-                    node_t* na = &trucks[t]->nodes[cabs[tmpv + 1]];
-                    node_t* nb = &trucks[t]->nodes[cabs[tmpv + 2]];
+                    node_t* no = &trucks[t]->ar_nodes[cabs[tmpv]];
+                    node_t* na = &trucks[t]->ar_nodes[cabs[tmpv + 1]];
+                    node_t* nb = &trucks[t]->ar_nodes[cabs[tmpv + 2]];
 
                     intraPointCD->query(no->AbsPosition + offset,
                         na->AbsPosition + offset,
@@ -1126,24 +1123,24 @@ Vector3 Beam::calculateCollisionOffset(Vector3 direction)
         proximity = std::max(proximity, trucks[t]->boundingBox.getSize().length() / 50.0f);
 
         // Test proximity of own nodes against others nodes
-        for (int i = 0; i < free_node; i++)
+        for (int i = 0; i < ar_num_nodes; i++)
         {
-            if (nodes[i].contactless)
+            if (ar_nodes[i].contactless)
                 continue;
             if (collision_offset.length() >= max_distance)
                 break;
             Vector3 offset = collision_offset;
             while (offset.length() < max_distance)
             {
-                Vector3 query_position = nodes[i].AbsPosition + offset;
+                Vector3 query_position = ar_nodes[i].AbsPosition + offset;
 
                 bool node_proximity = false;
 
-                for (int j = 0; j < trucks[t]->free_node; j++)
+                for (int j = 0; j < trucks[t]->ar_num_nodes; j++)
                 {
-                    if (trucks[t]->nodes[j].contactless)
+                    if (trucks[t]->ar_nodes[j].contactless)
                         continue;
-                    if (query_position.squaredDistance(trucks[t]->nodes[j].AbsPosition) < proximity)
+                    if (query_position.squaredDistance(trucks[t]->ar_nodes[j].AbsPosition) < proximity)
                     {
                         node_proximity = true;
                         break;
@@ -1171,9 +1168,9 @@ Vector3 Beam::calculateCollisionOffset(Vector3 direction)
             while (offset.length() < max_distance)
             {
                 int tmpv = collcabs[i] * 3;
-                node_t* no = &nodes[cabs[tmpv]];
-                node_t* na = &nodes[cabs[tmpv + 1]];
-                node_t* nb = &nodes[cabs[tmpv + 2]];
+                node_t* no = &ar_nodes[cabs[tmpv]];
+                node_t* na = &ar_nodes[cabs[tmpv + 1]];
+                node_t* nb = &ar_nodes[cabs[tmpv + 2]];
 
                 interPointCD->query(no->AbsPosition + offset,
                     na->AbsPosition + offset,
@@ -1204,7 +1201,7 @@ void Beam::resolveCollisions(Vector3 direction)
     Vector3 dir = Vector3(offset.x, 0.0f, offset.z).normalisedCopy();
     offset += 0.2f * dir;
 
-    resetPosition(nodes[0].AbsPosition.x + offset.x, nodes[0].AbsPosition.z + offset.z, true, nodes[lowestcontactingnode].AbsPosition.y + offset.y);
+    resetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, true, ar_nodes[lowestcontactingnode].AbsPosition.y + offset.y);
 }
 
 void Beam::resolveCollisions(float max_distance, bool consider_up)
@@ -1242,7 +1239,7 @@ void Beam::resolveCollisions(float max_distance, bool consider_up)
     Vector3 dir = Vector3(offset.x, 0.0f, offset.z).normalisedCopy();
     offset += 0.2f * dir;
 
-    resetPosition(nodes[0].AbsPosition.x + offset.x, nodes[0].AbsPosition.z + offset.z, true, nodes[lowestcontactingnode].AbsPosition.y + offset.y);
+    resetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, true, ar_nodes[lowestcontactingnode].AbsPosition.y + offset.y);
 }
 
 int Beam::savePosition(int indexPosition)
@@ -1252,8 +1249,8 @@ int Beam::savePosition(int indexPosition)
     Vector3* nbuff = posStorage->getStorage(indexPosition);
     if (!nbuff)
         return -3;
-    for (int i = 0; i < free_node; i++)
-        nbuff[i] = nodes[i].AbsPosition;
+    for (int i = 0; i < ar_num_nodes; i++)
+        nbuff[i] = ar_nodes[i].AbsPosition;
     posStorage->setUsage(indexPosition, true);
     return 0;
 }
@@ -1269,18 +1266,18 @@ int Beam::loadPosition(int indexPosition)
     if (!nbuff)
         return -3;
     Vector3 pos = Vector3(0, 0, 0);
-    for (int i = 0; i < free_node; i++)
+    for (int i = 0; i < ar_num_nodes; i++)
     {
-        nodes[i].AbsPosition = nbuff[i];
-        nodes[i].RelPosition = nbuff[i] - origin;
+        ar_nodes[i].AbsPosition = nbuff[i];
+        ar_nodes[i].RelPosition = nbuff[i] - origin;
 
         // reset forces
-        nodes[i].Velocity = Vector3::ZERO;
-        nodes[i].Forces = Vector3::ZERO;
+        ar_nodes[i].Velocity = Vector3::ZERO;
+        ar_nodes[i].Forces = Vector3::ZERO;
 
         pos = pos + nbuff[i];
     }
-    position = pos / (float)(free_node);
+    position = pos / (float)(ar_num_nodes);
 
     resetSlideNodes();
 
@@ -1292,36 +1289,36 @@ void Beam::calculateAveragePosition()
     // calculate average position
     if (m_custom_camera_node >= 0)
     {
-        position = nodes[m_custom_camera_node].AbsPosition;
+        position = ar_nodes[m_custom_camera_node].AbsPosition;
     }
     else if (externalcameramode == 1 && freecinecamera > 0)
     {
         // the new (strange) approach: reuse the cinecam node
-        position = nodes[cinecameranodepos[0]].AbsPosition;
+        position = ar_nodes[cinecameranodepos[0]].AbsPosition;
     }
     else if (externalcameramode == 2 && externalcameranode >= 0)
     {
         // the new (strange) approach #2: reuse a specified node
-        position = nodes[externalcameranode].AbsPosition;
+        position = ar_nodes[externalcameranode].AbsPosition;
     }
     else
     {
         // the classic approach: average over all nodes and beams
         Vector3 aposition = Vector3::ZERO;
-        for (int n = 0; n < free_node; n++)
+        for (int n = 0; n < ar_num_nodes; n++)
         {
-            aposition += nodes[n].AbsPosition;
+            aposition += ar_nodes[n].AbsPosition;
         }
-        position = aposition / free_node;
+        position = aposition / ar_num_nodes;
     }
 }
 
 void Beam::updateBoundingBox()
 {
-    boundingBox = AxisAlignedBox(nodes[0].AbsPosition, nodes[0].AbsPosition);
-    for (int i = 0; i < free_node; i++)
+    boundingBox = AxisAlignedBox(ar_nodes[0].AbsPosition, ar_nodes[0].AbsPosition);
+    for (int i = 0; i < ar_num_nodes; i++)
     {
-        boundingBox.merge(nodes[i].AbsPosition);
+        boundingBox.merge(ar_nodes[i].AbsPosition);
     }
     boundingBox.setMinimum(boundingBox.getMinimum() - Vector3(0.05f, 0.05f, 0.05f));
     boundingBox.setMaximum(boundingBox.getMaximum() + Vector3(0.05f, 0.05f, 0.05f));
@@ -1331,9 +1328,9 @@ void Beam::preUpdatePhysics(float dt)
 {
     lastposition = position;
 
-    if (nodes[0].RelPosition.squaredLength() > 10000.0)
+    if (ar_nodes[0].RelPosition.squaredLength() > 10000.0)
     {
-        moveOrigin(nodes[0].RelPosition);
+        moveOrigin(ar_nodes[0].RelPosition);
     }
 }
 
@@ -1348,24 +1345,24 @@ void Beam::postUpdatePhysics(float dt)
 void Beam::resetAngle(float rot)
 {
     // Set origin of rotation to camera node
-    Vector3 origin = nodes[0].AbsPosition;
+    Vector3 origin = ar_nodes[0].AbsPosition;
 
     if (this->IsNodeIdValid(cameranodepos[0]))
     {
-        origin = nodes[cameranodepos[0]].AbsPosition;
+        origin = ar_nodes[cameranodepos[0]].AbsPosition;
     }
 
     // Set up matrix for yaw rotation
     Matrix3 matrix;
     matrix.FromEulerAnglesXYZ(Radian(0), Radian(-rot + m_spawn_rotation), Radian(0));
 
-    for (int i = 0; i < free_node; i++)
+    for (int i = 0; i < ar_num_nodes; i++)
     {
         // Move node back to origin, apply rotation matrix, and move node back
-        nodes[i].AbsPosition -= origin;
-        nodes[i].AbsPosition = matrix * nodes[i].AbsPosition;
-        nodes[i].AbsPosition += origin;
-        nodes[i].RelPosition = nodes[i].AbsPosition - this->origin;
+        ar_nodes[i].AbsPosition -= origin;
+        ar_nodes[i].AbsPosition = matrix * ar_nodes[i].AbsPosition;
+        ar_nodes[i].AbsPosition += origin;
+        ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - this->origin;
     }
 
     resetSlideNodePositions();
@@ -1377,44 +1374,44 @@ void Beam::resetAngle(float rot)
 void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
 {
     // horizontal displacement
-    Vector3 offset = Vector3(px, nodes[0].AbsPosition.y, pz) - nodes[0].AbsPosition;
-    for (int i = 0; i < free_node; i++)
+    Vector3 offset = Vector3(px, ar_nodes[0].AbsPosition.y, pz) - ar_nodes[0].AbsPosition;
+    for (int i = 0; i < ar_num_nodes; i++)
     {
-        nodes[i].AbsPosition += offset;
-        nodes[i].RelPosition = nodes[i].AbsPosition - origin;
+        ar_nodes[i].AbsPosition += offset;
+        ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - origin;
     }
 
     // vertical displacement
-    float vertical_offset = -nodes[lowestcontactingnode].AbsPosition.y + miny;
+    float vertical_offset = -ar_nodes[lowestcontactingnode].AbsPosition.y + miny;
     if (gEnv->terrainManager->getWater())
     {
-        vertical_offset += std::max(0.0f, gEnv->terrainManager->getWater()->GetStaticWaterHeight() - (nodes[lowestcontactingnode].AbsPosition.y + vertical_offset));
+        vertical_offset += std::max(0.0f, gEnv->terrainManager->getWater()->GetStaticWaterHeight() - (ar_nodes[lowestcontactingnode].AbsPosition.y + vertical_offset));
     }
-    for (int i = 1; i < free_node; i++)
+    for (int i = 1; i < ar_num_nodes; i++)
     {
-        if (nodes[i].contactless)
+        if (ar_nodes[i].contactless)
             continue;
-        float terrainHeight = gEnv->terrainManager->getHeightFinder()->getHeightAt(nodes[i].AbsPosition.x, nodes[i].AbsPosition.z);
-        vertical_offset += std::max(0.0f, terrainHeight - (nodes[i].AbsPosition.y + vertical_offset));
+        float terrainHeight = gEnv->terrainManager->getHeightFinder()->getHeightAt(ar_nodes[i].AbsPosition.x, ar_nodes[i].AbsPosition.z);
+        vertical_offset += std::max(0.0f, terrainHeight - (ar_nodes[i].AbsPosition.y + vertical_offset));
     }
-    for (int i = 0; i < free_node; i++)
+    for (int i = 0; i < ar_num_nodes; i++)
     {
-        nodes[i].AbsPosition.y += vertical_offset;
-        nodes[i].RelPosition = nodes[i].AbsPosition - origin;
+        ar_nodes[i].AbsPosition.y += vertical_offset;
+        ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - origin;
     }
 
     // mesh displacement
     float mesh_offset = 0.0f;
-    for (int i = 0; i < free_node; i++)
+    for (int i = 0; i < ar_num_nodes; i++)
     {
         if (mesh_offset >= 1.0f)
             break;
-        if (nodes[i].contactless)
+        if (ar_nodes[i].contactless)
             continue;
         float offset = mesh_offset;
         while (offset < 1.0f)
         {
-            Vector3 query = nodes[i].AbsPosition + Vector3(0.0f, offset, 0.0f);
+            Vector3 query = ar_nodes[i].AbsPosition + Vector3(0.0f, offset, 0.0f);
             if (!gEnv->collisions->collisionCorrect(&query, false))
             {
                 mesh_offset = offset;
@@ -1423,10 +1420,10 @@ void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
             offset += 0.001f;
         }
     }
-    for (int i = 0; i < free_node; i++)
+    for (int i = 0; i < ar_num_nodes; i++)
     {
-        nodes[i].AbsPosition.y += mesh_offset;
-        nodes[i].RelPosition = nodes[i].AbsPosition - origin;
+        ar_nodes[i].AbsPosition.y += mesh_offset;
+        ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - origin;
     }
 
     resetPosition(Vector3::ZERO, setInitPosition);
@@ -1437,19 +1434,19 @@ void Beam::resetPosition(Vector3 translation, bool setInitPosition)
     // total displacement
     if (translation != Vector3::ZERO)
     {
-        Vector3 offset = translation - nodes[0].AbsPosition;
-        for (int i = 0; i < free_node; i++)
+        Vector3 offset = translation - ar_nodes[0].AbsPosition;
+        for (int i = 0; i < ar_num_nodes; i++)
         {
-            nodes[i].AbsPosition += offset;
-            nodes[i].RelPosition = nodes[i].AbsPosition - origin;
+            ar_nodes[i].AbsPosition += offset;
+            ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - origin;
         }
     }
 
     if (setInitPosition)
     {
-        for (int i = 0; i < free_node; i++)
+        for (int i = 0; i < ar_num_nodes; i++)
         {
-            nodes[i].initial_pos = nodes[i].AbsPosition;
+            ar_nodes[i].initial_pos = ar_nodes[i].AbsPosition;
         }
     }
 
@@ -1459,9 +1456,9 @@ void Beam::resetPosition(Vector3 translation, bool setInitPosition)
     // calculate minimum camera radius
     if (minCameraRadius < 0.0f)
     {
-        for (int i = 0; i < free_node; i++)
+        for (int i = 0; i < ar_num_nodes; i++)
         {
-            Real dist = nodes[i].AbsPosition.squaredDistance(position);
+            Real dist = ar_nodes[i].AbsPosition.squaredDistance(position);
             if (dist > minCameraRadius)
             {
                 minCameraRadius = dist;
@@ -1491,9 +1488,9 @@ void Beam::calculateDriverPos(Vector3& out_pos, Quaternion& out_rot)
 
     BES_GFX_START(BES_GFX_calculateDriverPos);
 
-    Vector3 x_pos = nodes[driverSeat->nodex].AbsPosition;
-    Vector3 y_pos = nodes[driverSeat->nodey].AbsPosition;
-    Vector3 center_pos = nodes[driverSeat->noderef].AbsPosition;
+    Vector3 x_pos = ar_nodes[driverSeat->nodex].AbsPosition;
+    Vector3 y_pos = ar_nodes[driverSeat->nodey].AbsPosition;
+    Vector3 center_pos = ar_nodes[driverSeat->noderef].AbsPosition;
 
     Vector3 x_vec = x_pos - center_pos;
     Vector3 y_vec = y_pos - center_pos;
@@ -1583,21 +1580,21 @@ void Beam::displace(Vector3 translation, float rotation)
         Vector3 rotation_center = getRotationCenter();
         Quaternion rot = Quaternion(Radian(rotation), Vector3::UNIT_Y);
 
-        for (int i = 0; i < free_node; i++)
+        for (int i = 0; i < ar_num_nodes; i++)
         {
-            nodes[i].AbsPosition -= rotation_center;
-            nodes[i].AbsPosition = rot * nodes[i].AbsPosition;
-            nodes[i].AbsPosition += rotation_center;
-            nodes[i].RelPosition = nodes[i].AbsPosition - origin;
+            ar_nodes[i].AbsPosition -= rotation_center;
+            ar_nodes[i].AbsPosition = rot * ar_nodes[i].AbsPosition;
+            ar_nodes[i].AbsPosition += rotation_center;
+            ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - origin;
         }
     }
 
     if (translation != Vector3::ZERO)
     {
-        for (int i = 0; i < free_node; i++)
+        for (int i = 0; i < ar_num_nodes; i++)
         {
-            nodes[i].AbsPosition += translation;
-            nodes[i].RelPosition = nodes[i].AbsPosition - origin;
+            ar_nodes[i].AbsPosition += translation;
+            ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - origin;
         }
     }
 
@@ -1614,21 +1611,21 @@ Ogre::Vector3 Beam::getRotationCenter()
 
     if (m_is_cinecam_rotation_center)
     {
-        Vector3 cinecam = nodes[0].AbsPosition;
+        Vector3 cinecam = ar_nodes[0].AbsPosition;
         if (this->IsNodeIdValid(cameranodepos[0])) // TODO: Check cam. nodes once on spawn! They never change --> no reason to repeat the check. ~only_a_ptr, 06/2017
         {
-            cinecam = nodes[cameranodepos[0]].AbsPosition;
+            cinecam = ar_nodes[cameranodepos[0]].AbsPosition;
         }
         rotation_center = cinecam;
     }
     else
     {
         Vector3 sum = Vector3::ZERO;
-        for (int i = 0; i < free_node; i++)
+        for (int i = 0; i < ar_num_nodes; i++)
         {
-            sum += nodes[i].AbsPosition;
+            sum += ar_nodes[i].AbsPosition;
         }
-        rotation_center = sum / free_node;
+        rotation_center = sum / ar_num_nodes;
     }
 
     return rotation_center;
@@ -1647,31 +1644,31 @@ void Beam::SyncReset()
     cc_mode = false;
     fusedrag = Vector3::ZERO;
     origin = Vector3::ZERO;
-    float yPos = nodes[lowestcontactingnode].AbsPosition.y;
+    float yPos = ar_nodes[lowestcontactingnode].AbsPosition.y;
 
-    Vector3 cur_position = nodes[0].AbsPosition;
+    Vector3 cur_position = ar_nodes[0].AbsPosition;
     float cur_rot = getRotation();
     if (engine)
         engine->start();
-    for (int i = 0; i < free_node; i++)
+    for (int i = 0; i < ar_num_nodes; i++)
     {
-        nodes[i].AbsPosition = nodes[i].initial_pos;
-        nodes[i].RelPosition = nodes[i].initial_pos - origin;
-        nodes[i].Velocity = Vector3::ZERO;
-        nodes[i].Forces = Vector3::ZERO;
+        ar_nodes[i].AbsPosition = ar_nodes[i].initial_pos;
+        ar_nodes[i].RelPosition = ar_nodes[i].initial_pos - origin;
+        ar_nodes[i].Velocity = Vector3::ZERO;
+        ar_nodes[i].Forces = Vector3::ZERO;
     }
 
-    for (int i = 0; i < free_beam; i++)
+    for (int i = 0; i < ar_num_beams; i++)
     {
-        beams[i].maxposstress    = beams[i].default_beam_deform;
-        beams[i].maxnegstress    = -beams[i].default_beam_deform;
-        beams[i].minmaxposnegstress = beams[i].default_beam_deform;
-        beams[i].strength        = beams[i].initial_beam_strength;
-        beams[i].plastic_coef    = beams[i].default_beam_plastic_coef;
-        beams[i].L               = beams[i].refL;
-        beams[i].stress          = 0.0;
-        beams[i].bm_broken       = false;
-        beams[i].bm_disabled     = false;
+        ar_beams[i].maxposstress    = ar_beams[i].default_beam_deform;
+        ar_beams[i].maxnegstress    = -ar_beams[i].default_beam_deform;
+        ar_beams[i].minmaxposnegstress = ar_beams[i].default_beam_deform;
+        ar_beams[i].strength        = ar_beams[i].initial_beam_strength;
+        ar_beams[i].plastic_coef    = ar_beams[i].default_beam_plastic_coef;
+        ar_beams[i].L               = ar_beams[i].refL;
+        ar_beams[i].stress          = 0.0;
+        ar_beams[i].bm_broken       = false;
+        ar_beams[i].bm_disabled     = false;
     }
 
     disjoinInterTruckBeams();
@@ -1682,9 +1679,9 @@ void Beam::SyncReset()
         it->locked = UNLOCKED;
         it->lockNode = 0;
         it->lockTruck = 0;
-        it->beam->p2 = &nodes[0];
+        it->beam->p2 = &ar_nodes[0];
         it->beam->p2truck = false;
-        it->beam->L = (nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
+        it->beam->L = (ar_nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
         removeInterTruckBeam(it->beam);
     }
     for (std::vector<rope_t>::iterator it = ropes.begin(); it != ropes.end(); it++)
@@ -1692,7 +1689,7 @@ void Beam::SyncReset()
         it->locked = UNLOCKED;
         if (it->lockedto_ropable)
             it->lockedto_ropable->in_use = false;
-        it->lockedto = &nodes[0];
+        it->lockedto = &ar_nodes[0];
         it->lockedtruck = 0;
     }
     for (std::vector<tie_t>::iterator it = ties.begin(); it != ties.end(); it++)
@@ -1701,7 +1698,7 @@ void Beam::SyncReset()
         it->tying = false;
         if (it->lockedto)
             it->lockedto->in_use = false;
-        it->beam->p2 = &nodes[0];
+        it->beam->p2 = &ar_nodes[0];
         it->beam->p2truck = false;
         it->beam->bm_disabled = true;
         removeInterTruckBeam(it->beam);
@@ -1769,13 +1766,13 @@ bool Beam::replayStep()
         node_simple_t* nbuff = (node_simple_t *)replay->getReadBuffer(replaypos, 0, time);
         if (nbuff)
         {
-            for (int i = 0; i < free_node; i++)
+            for (int i = 0; i < ar_num_nodes; i++)
             {
-                nodes[i].AbsPosition = nbuff[i].position;
-                nodes[i].RelPosition = nbuff[i].position - origin;
+                ar_nodes[i].AbsPosition = nbuff[i].position;
+                ar_nodes[i].RelPosition = nbuff[i].position - origin;
 
-                nodes[i].Velocity = nbuff[i].velocity;
-                nodes[i].Forces = nbuff[i].forces;
+                ar_nodes[i].Velocity = nbuff[i].velocity;
+                ar_nodes[i].Forces = nbuff[i].forces;
             }
 
             updateSlideNodePositions();
@@ -1786,10 +1783,10 @@ bool Beam::replayStep()
         beam_simple_t* bbuff = (beam_simple_t *)replay->getReadBuffer(replaypos, 1, time);
         if (bbuff)
         {
-            for (int i = 0; i < free_beam; i++)
+            for (int i = 0; i < ar_num_beams; i++)
             {
-                beams[i].bm_broken = bbuff[i].broken;
-                beams[i].bm_disabled = bbuff[i].disabled;
+                ar_beams[i].bm_broken = bbuff[i].broken;
+                ar_beams[i].bm_disabled = bbuff[i].disabled;
             }
         }
         oldreplaypos = replaypos;
@@ -1968,7 +1965,7 @@ void Beam::sendStreamData()
         int i;
 
         // reference node first
-        Vector3& refpos = nodes[0].AbsPosition;
+        Vector3& refpos = ar_nodes[0].AbsPosition;
         send_nodes[0] = refpos.x;
         send_nodes[1] = refpos.y;
         send_nodes[2] = refpos.z;
@@ -1979,7 +1976,7 @@ void Beam::sendStreamData()
         short* sbuf = (short*)ptr;
         for (i = 1; i < m_net_first_wheel_node; i++)
         {
-            Vector3 relpos = nodes[i].AbsPosition - refpos;
+            Vector3 relpos = ar_nodes[i].AbsPosition - refpos;
             sbuf[(i - 1) * 3 + 0] = (short int)(relpos.x * 300.0f);
             sbuf[(i - 1) * 3 + 1] = (short int)(relpos.y * 300.0f);
             sbuf[(i - 1) * 3 + 2] = (short int)(relpos.z * 300.0f);
@@ -2301,8 +2298,8 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
     {
         // TODO Unused Varaible
         //float angle=0.0;
-        float ground_speed_kt = nodes[0].Velocity.length() * 1.9438;
-        float altitude = nodes[0].AbsPosition.y;
+        float ground_speed_kt = ar_nodes[0].Velocity.length() * 1.9438;
+        float altitude = ar_nodes[0].AbsPosition.y;
 
         // TODO Unused Varaible
         //float sea_level_temperature=273.15+15.0; //in Kelvin
@@ -2320,7 +2317,7 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
     //vvi indicator
     if (flag_state & ANIM_FLAG_VVI)
     {
-        float vvi = nodes[0].Velocity.y * 196.85;
+        float vvi = ar_nodes[0].Velocity.y * 196.85;
         // limit vvi scale to +/- 6m/s
         cstate -= vvi / 6000.0f;
         if (cstate >= 1.0f)
@@ -2336,7 +2333,7 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
         //altimeter indicator 1k oscillating
         if (option3 == 3.0f)
         {
-            float altimeter = (nodes[0].AbsPosition.y * 1.1811) / 360.0f;
+            float altimeter = (ar_nodes[0].AbsPosition.y * 1.1811) / 360.0f;
             int alti_int = int(altimeter);
             float alti_mod = (altimeter - alti_int);
             cstate -= alti_mod;
@@ -2345,7 +2342,7 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
         //altimeter indicator 10k oscillating
         if (option3 == 2.0f)
         {
-            float alti = nodes[0].AbsPosition.y * 1.1811 / 3600.0f;
+            float alti = ar_nodes[0].AbsPosition.y * 1.1811 / 3600.0f;
             int alti_int = int(alti);
             float alti_mod = (alti - alti_int);
             cstate -= alti_mod;
@@ -2356,7 +2353,7 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
         //altimeter indicator 100k limited
         if (option3 == 1.0f)
         {
-            float alti = nodes[0].AbsPosition.y * 1.1811 / 36000.0f;
+            float alti = ar_nodes[0].AbsPosition.y * 1.1811 / 36000.0f;
             cstate -= alti;
             if (cstate <= -1.0f)
                 cstate = -1.0f;
@@ -2370,7 +2367,7 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
         float aoa = 0;
         if (free_wing > 4)
             aoa = (wings[4].fa->aoa) / 25.0f;
-        if ((nodes[0].Velocity.length() * 1.9438) < 10.0f)
+        if ((ar_nodes[0].Velocity.length() * 1.9438) < 10.0f)
             aoa = 0;
         cstate -= aoa;
         if (cstate <= -1.0f)
@@ -2380,15 +2377,15 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
         div++;
     }
 
-    Vector3 cam_pos = nodes[0].RelPosition;
-    Vector3 cam_roll = nodes[0].RelPosition;
-    Vector3 cam_dir = nodes[0].RelPosition;
+    Vector3 cam_pos = ar_nodes[0].RelPosition;
+    Vector3 cam_roll = ar_nodes[0].RelPosition;
+    Vector3 cam_dir = ar_nodes[0].RelPosition;
 
     if (this->IsNodeIdValid(cameranodepos[0])) // TODO: why check this on each update when it cannot change after spawn?
     {
-        cam_pos = nodes[cameranodepos[0]].RelPosition;
-        cam_roll = nodes[cameranoderoll[0]].RelPosition;
-        cam_dir = nodes[cameranodedir[0]].RelPosition;
+        cam_pos = ar_nodes[cameranodepos[0]].RelPosition;
+        cam_roll = ar_nodes[cameranoderoll[0]].RelPosition;
+        cam_dir = ar_nodes[cameranodedir[0]].RelPosition;
     }
 
     // roll
@@ -2444,25 +2441,25 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
 
 void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt, int update)
 {
-    if (!beams[beam_i].shock)
+    if (!ar_beams[beam_i].shock)
         return;
 
     int i = beam_i;
-    float beamsLep = beams[i].L * 0.8f;
-    float longboundprelimit = beams[i].longbound * beamsLep;
-    float shortboundprelimit = -beams[i].shortbound * beamsLep;
+    float beamsLep = ar_beams[i].L * 0.8f;
+    float longboundprelimit = ar_beams[i].longbound * beamsLep;
+    float shortboundprelimit = -ar_beams[i].shortbound * beamsLep;
     // this is a shock2
     float logafactor;
     //shock extending since last cycle
-    if (beams[i].shock->lastpos < difftoBeamL)
+    if (ar_beams[i].shock->lastpos < difftoBeamL)
     {
         //get outbound values
-        k = beams[i].shock->springout;
-        d = beams[i].shock->dampout;
+        k = ar_beams[i].shock->springout;
+        d = ar_beams[i].shock->dampout;
         // add progression
-        if (beams[i].longbound != 0.0f)
+        if (ar_beams[i].longbound != 0.0f)
         {
-            logafactor = difftoBeamL / (beams[i].longbound * beams[i].L);
+            logafactor = difftoBeamL / (ar_beams[i].longbound * ar_beams[i].L);
             logafactor = logafactor * logafactor;
         }
         else
@@ -2471,19 +2468,19 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt, 
         }
         if (logafactor > 1.0f)
             logafactor = 1.0f;
-        k = k + (beams[i].shock->sprogout * k * logafactor);
-        d = d + (beams[i].shock->dprogout * d * logafactor);
+        k = k + (ar_beams[i].shock->sprogout * k * logafactor);
+        d = d + (ar_beams[i].shock->dprogout * d * logafactor);
     }
     else
     {
         //shock compresssing since last cycle
         //get inbound values
-        k = beams[i].shock->springin;
-        d = beams[i].shock->dampin;
+        k = ar_beams[i].shock->springin;
+        d = ar_beams[i].shock->dampin;
         // add progression
-        if (beams[i].shortbound != 0.0f)
+        if (ar_beams[i].shortbound != 0.0f)
         {
-            logafactor = difftoBeamL / (beams[i].shortbound * beams[i].L);
+            logafactor = difftoBeamL / (ar_beams[i].shortbound * ar_beams[i].L);
             logafactor = logafactor * logafactor;
         }
         else
@@ -2492,21 +2489,21 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt, 
         }
         if (logafactor > 1.0f)
             logafactor = 1.0f;
-        k = k + (beams[i].shock->sprogin * k * logafactor);
-        d = d + (beams[i].shock->dprogin * d * logafactor);
+        k = k + (ar_beams[i].shock->sprogin * k * logafactor);
+        d = d + (ar_beams[i].shock->dprogin * d * logafactor);
     }
-    if (beams[i].shock->flags & SHOCK_FLAG_SOFTBUMP)
+    if (ar_beams[i].shock->flags & SHOCK_FLAG_SOFTBUMP)
     {
         // soft bump shocks
         if (difftoBeamL > longboundprelimit)
         {
             //reset to longbound progressive values (oscillating beam workaround)
-            k = beams[i].shock->springout;
-            d = beams[i].shock->dampout;
+            k = ar_beams[i].shock->springout;
+            d = ar_beams[i].shock->dampout;
             // add progression
-            if (beams[i].longbound != 0.0f)
+            if (ar_beams[i].longbound != 0.0f)
             {
-                logafactor = difftoBeamL / (beams[i].longbound * beams[i].L);
+                logafactor = difftoBeamL / (ar_beams[i].longbound * ar_beams[i].L);
                 logafactor = logafactor * logafactor;
             }
             else
@@ -2515,12 +2512,12 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt, 
             }
             if (logafactor > 1.0f)
                 logafactor = 1.0f;
-            k = k + (beams[i].shock->sprogout * k * logafactor);
-            d = d + (beams[i].shock->dprogout * d * logafactor);
+            k = k + (ar_beams[i].shock->sprogout * k * logafactor);
+            d = d + (ar_beams[i].shock->dprogout * d * logafactor);
             //add shortbump progression
-            if (beams[i].longbound != 0.0f)
+            if (ar_beams[i].longbound != 0.0f)
             {
-                logafactor = ((difftoBeamL - longboundprelimit) * 5.0f) / (beams[i].longbound * beams[i].L);
+                logafactor = ((difftoBeamL - longboundprelimit) * 5.0f) / (ar_beams[i].longbound * ar_beams[i].L);
                 logafactor = logafactor * logafactor;
             }
             else
@@ -2529,23 +2526,23 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt, 
             }
             if (logafactor > 1.0f)
                 logafactor = 1.0f;
-            k = k + (k + 100.0f) * beams[i].shock->sprogout * logafactor;
-            d = d + (d + 100.0f) * beams[i].shock->dprogout * logafactor;
-            if (beams[i].shock->lastpos > difftoBeamL)
+            k = k + (k + 100.0f) * ar_beams[i].shock->sprogout * logafactor;
+            d = d + (d + 100.0f) * ar_beams[i].shock->dprogout * logafactor;
+            if (ar_beams[i].shock->lastpos > difftoBeamL)
             // rebound mode..get new values
             {
-                k = beams[i].shock->springin;
-                d = beams[i].shock->dampin;
+                k = ar_beams[i].shock->springin;
+                d = ar_beams[i].shock->dampin;
             }
         }
         else if (difftoBeamL < shortboundprelimit)
         {
             //reset to shortbound progressive values (oscillating beam workaround)
-            k = beams[i].shock->springin;
-            d = beams[i].shock->dampin;
-            if (beams[i].shortbound != 0.0f)
+            k = ar_beams[i].shock->springin;
+            d = ar_beams[i].shock->dampin;
+            if (ar_beams[i].shortbound != 0.0f)
             {
-                logafactor = difftoBeamL / (beams[i].shortbound * beams[i].L);
+                logafactor = difftoBeamL / (ar_beams[i].shortbound * ar_beams[i].L);
                 logafactor = logafactor * logafactor;
             }
             else
@@ -2554,12 +2551,12 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt, 
             }
             if (logafactor > 1.0f)
                 logafactor = 1.0f;
-            k = k + (beams[i].shock->sprogin * k * logafactor);
-            d = d + (beams[i].shock->dprogin * d * logafactor);
+            k = k + (ar_beams[i].shock->sprogin * k * logafactor);
+            d = d + (ar_beams[i].shock->dprogin * d * logafactor);
             //add shortbump progression
-            if (beams[i].shortbound != 0.0f)
+            if (ar_beams[i].shortbound != 0.0f)
             {
-                logafactor = ((difftoBeamL - shortboundprelimit) * 5.0f) / (beams[i].shortbound * beams[i].L);
+                logafactor = ((difftoBeamL - shortboundprelimit) * 5.0f) / (ar_beams[i].shortbound * ar_beams[i].L);
                 logafactor = logafactor * logafactor;
             }
             else
@@ -2568,104 +2565,104 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt, 
             }
             if (logafactor > 1.0f)
                 logafactor = 1.0f;
-            k = k + (k + 100.0f) * beams[i].shock->sprogout * logafactor;
-            d = d + (d + 100.0f) * beams[i].shock->dprogout * logafactor;
-            if (beams[i].shock->lastpos < difftoBeamL)
+            k = k + (k + 100.0f) * ar_beams[i].shock->sprogout * logafactor;
+            d = d + (d + 100.0f) * ar_beams[i].shock->dprogout * logafactor;
+            if (ar_beams[i].shock->lastpos < difftoBeamL)
             // rebound mode..get new values
             {
-                k = beams[i].shock->springout;
-                d = beams[i].shock->dampout;
+                k = ar_beams[i].shock->springout;
+                d = ar_beams[i].shock->dampout;
             }
         }
-        if (difftoBeamL > beams[i].longbound * beams[i].L || difftoBeamL < -beams[i].shortbound * beams[i].L)
+        if (difftoBeamL > ar_beams[i].longbound * ar_beams[i].L || difftoBeamL < -ar_beams[i].shortbound * ar_beams[i].L)
         {
             // block reached...hard bump in soft mode with 4x default damping
-            if (k < beams[i].shock->sbd_spring)
-                k = beams[i].shock->sbd_spring;
-            if (d < beams[i].shock->sbd_damp)
-                d = beams[i].shock->sbd_damp;
+            if (k < ar_beams[i].shock->sbd_spring)
+                k = ar_beams[i].shock->sbd_spring;
+            if (d < ar_beams[i].shock->sbd_damp)
+                d = ar_beams[i].shock->sbd_damp;
         }
     }
 
-    if (beams[i].shock->flags & SHOCK_FLAG_NORMAL)
+    if (ar_beams[i].shock->flags & SHOCK_FLAG_NORMAL)
     {
-        if (difftoBeamL > beams[i].longbound * beams[i].L || difftoBeamL < -beams[i].shortbound * beams[i].L)
+        if (difftoBeamL > ar_beams[i].longbound * ar_beams[i].L || difftoBeamL < -ar_beams[i].shortbound * ar_beams[i].L)
         {
-            if (beams[i].shock && !(beams[i].shock->flags & SHOCK_FLAG_ISTRIGGER)) // this is NOT a trigger beam
+            if (ar_beams[i].shock && !(ar_beams[i].shock->flags & SHOCK_FLAG_ISTRIGGER)) // this is NOT a trigger beam
             {
                 // hard (normal) shock bump
-                k = beams[i].shock->sbd_spring;
-                d = beams[i].shock->sbd_damp;
+                k = ar_beams[i].shock->sbd_spring;
+                d = ar_beams[i].shock->sbd_damp;
             }
         }
 
-        if (beams[i].shock && (beams[i].shock->flags & SHOCK_FLAG_ISTRIGGER) && beams[i].shock->trigger_enabled) // this is a trigger and its enabled
+        if (ar_beams[i].shock && (ar_beams[i].shock->flags & SHOCK_FLAG_ISTRIGGER) && ar_beams[i].shock->trigger_enabled) // this is a trigger and its enabled
         {
-            if (difftoBeamL > beams[i].longbound * beams[i].L || difftoBeamL < -beams[i].shortbound * beams[i].L) // that has hit boundary
+            if (difftoBeamL > ar_beams[i].longbound * ar_beams[i].L || difftoBeamL < -ar_beams[i].shortbound * ar_beams[i].L) // that has hit boundary
             {
-                beams[i].shock->trigger_switch_state -= dt;
-                if (beams[i].shock->trigger_switch_state <= 0.0f) // emergency release for dead-switched trigger
-                    beams[i].shock->trigger_switch_state = 0.0f;
-                if (beams[i].shock->flags & SHOCK_FLAG_TRG_BLOCKER) // this is an enabled blocker and past boundary
+                ar_beams[i].shock->trigger_switch_state -= dt;
+                if (ar_beams[i].shock->trigger_switch_state <= 0.0f) // emergency release for dead-switched trigger
+                    ar_beams[i].shock->trigger_switch_state = 0.0f;
+                if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_BLOCKER) // this is an enabled blocker and past boundary
                 {
-                    for (int scount = i + 1; scount <= i + beams[i].shock->trigger_cmdshort; scount++) // (cycle blockerbeamID +1) to (blockerbeamID + beams to lock)
+                    for (int scount = i + 1; scount <= i + ar_beams[i].shock->trigger_cmdshort; scount++) // (cycle blockerbeamID +1) to (blockerbeamID + beams to lock)
                     {
-                        if (beams[scount].shock && (beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER)) // don't mess anything up if the user set the number too big
+                        if (ar_beams[scount].shock && (ar_beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER)) // don't mess anything up if the user set the number too big
                         {
-                            if (triggerdebug && !beams[scount].shock->trigger_enabled && beams[i].shock->last_debug_state != 1)
+                            if (triggerdebug && !ar_beams[scount].shock->trigger_enabled && ar_beams[i].shock->last_debug_state != 1)
                             {
                                 LOG(" Trigger disabled. Blocker BeamID " + TOSTRING(i) + " enabled trigger " + TOSTRING(scount));
-                                beams[i].shock->last_debug_state = 1;
+                                ar_beams[i].shock->last_debug_state = 1;
                             }
-                            beams[scount].shock->trigger_enabled = false; // disable the trigger
+                            ar_beams[scount].shock->trigger_enabled = false; // disable the trigger
                         }
                     }
                 }
-                else if (beams[i].shock->flags & SHOCK_FLAG_TRG_BLOCKER_A) // this is an enabled inverted blocker and inside boundary
+                else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_BLOCKER_A) // this is an enabled inverted blocker and inside boundary
                 {
-                    for (int scount = i + 1; scount <= i + beams[i].shock->trigger_cmdlong; scount++) // (cycle blockerbeamID + 1) to (blockerbeamID + beams to release)
+                    for (int scount = i + 1; scount <= i + ar_beams[i].shock->trigger_cmdlong; scount++) // (cycle blockerbeamID + 1) to (blockerbeamID + beams to release)
                     {
-                        if (beams[scount].shock && (beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER)) // don't mess anything up if the user set the number too big
+                        if (ar_beams[scount].shock && (ar_beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER)) // don't mess anything up if the user set the number too big
                         {
-                            if (triggerdebug && beams[scount].shock->trigger_enabled && beams[i].shock->last_debug_state != 9)
+                            if (triggerdebug && ar_beams[scount].shock->trigger_enabled && ar_beams[i].shock->last_debug_state != 9)
                             {
                                 LOG(" Trigger enabled. Inverted Blocker BeamID " + TOSTRING(i) + " disabled trigger " + TOSTRING(scount));
-                                beams[i].shock->last_debug_state = 9;
+                                ar_beams[i].shock->last_debug_state = 9;
                             }
-                            beams[scount].shock->trigger_enabled = true; // enable the triggers
+                            ar_beams[scount].shock->trigger_enabled = true; // enable the triggers
                         }
                     }
                 }
-                else if (beams[i].shock->flags & SHOCK_FLAG_TRG_CMD_BLOCKER) // this an enabled cmd-key-blocker and past a boundary
+                else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CMD_BLOCKER) // this an enabled cmd-key-blocker and past a boundary
                 {
-                    commandkey[beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state = false; // Release the cmdKey
-                    if (triggerdebug && beams[i].shock->last_debug_state != 2)
+                    commandkey[ar_beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state = false; // Release the cmdKey
+                    if (triggerdebug && ar_beams[i].shock->last_debug_state != 2)
                     {
-                        LOG(" F-key trigger block released. Blocker BeamID " + TOSTRING(i) + " Released F" + TOSTRING(beams[i].shock->trigger_cmdshort));
-                        beams[i].shock->last_debug_state = 2;
+                        LOG(" F-key trigger block released. Blocker BeamID " + TOSTRING(i) + " Released F" + TOSTRING(ar_beams[i].shock->trigger_cmdshort));
+                        ar_beams[i].shock->last_debug_state = 2;
                     }
                 }
-                else if (beams[i].shock->flags & SHOCK_FLAG_TRG_CMD_SWITCH) // this is an enabled cmdkey switch and past a boundary
+                else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CMD_SWITCH) // this is an enabled cmdkey switch and past a boundary
                 {
-                    if (!beams[i].shock->trigger_switch_state)// this switch is triggered first time in this boundary
+                    if (!ar_beams[i].shock->trigger_switch_state)// this switch is triggered first time in this boundary
                     {
                         for (int scount = 0; scount < free_shock; scount++)
                         {
-                            int short1 = beams[shocks[scount].beamid].shock->trigger_cmdshort; // cmdshort of checked trigger beam
-                            int short2 = beams[i].shock->trigger_cmdshort; // cmdshort of switch beam
-                            int long1 = beams[shocks[scount].beamid].shock->trigger_cmdlong; // cmdlong of checked trigger beam
-                            int long2 = beams[i].shock->trigger_cmdlong; // cmdlong of switch beam
-                            int tmpi = beams[shocks[scount].beamid].shock->beamid; // beamID global of checked trigger beam
+                            int short1 = ar_beams[shocks[scount].beamid].shock->trigger_cmdshort; // cmdshort of checked trigger beam
+                            int short2 = ar_beams[i].shock->trigger_cmdshort; // cmdshort of switch beam
+                            int long1 = ar_beams[shocks[scount].beamid].shock->trigger_cmdlong; // cmdlong of checked trigger beam
+                            int long2 = ar_beams[i].shock->trigger_cmdlong; // cmdlong of switch beam
+                            int tmpi = ar_beams[shocks[scount].beamid].shock->beamid; // beamID global of checked trigger beam
                             if (((short1 == short2 && long1 == long2) || (short1 == long2 && long1 == short2)) && i != tmpi) // found both command triggers then swap if its not the switching trigger
                             {
-                                int tmpcmdkey = beams[shocks[scount].beamid].shock->trigger_cmdlong;
-                                beams[shocks[scount].beamid].shock->trigger_cmdlong = beams[shocks[scount].beamid].shock->trigger_cmdshort;
-                                beams[shocks[scount].beamid].shock->trigger_cmdshort = tmpcmdkey;
-                                beams[i].shock->trigger_switch_state = beams[i].shock->trigger_boundary_t; //prevent trigger switching again before leaving boundaries or timeout
-                                if (triggerdebug && beams[i].shock->last_debug_state != 3)
+                                int tmpcmdkey = ar_beams[shocks[scount].beamid].shock->trigger_cmdlong;
+                                ar_beams[shocks[scount].beamid].shock->trigger_cmdlong = ar_beams[shocks[scount].beamid].shock->trigger_cmdshort;
+                                ar_beams[shocks[scount].beamid].shock->trigger_cmdshort = tmpcmdkey;
+                                ar_beams[i].shock->trigger_switch_state = ar_beams[i].shock->trigger_boundary_t; //prevent trigger switching again before leaving boundaries or timeout
+                                if (triggerdebug && ar_beams[i].shock->last_debug_state != 3)
                                 {
-                                    LOG(" Trigger F-key commands switched. Switch BeamID " + TOSTRING(i)+ " switched commands of Trigger BeamID " + TOSTRING(beams[shocks[scount].beamid].shock->beamid) + " to cmdShort: F" + TOSTRING(beams[shocks[scount].beamid].shock->trigger_cmdshort) + ", cmdlong: F" + TOSTRING(beams[shocks[scount].beamid].shock->trigger_cmdlong));
-                                    beams[i].shock->last_debug_state = 3;
+                                    LOG(" Trigger F-key commands switched. Switch BeamID " + TOSTRING(i)+ " switched commands of Trigger BeamID " + TOSTRING(ar_beams[shocks[scount].beamid].shock->beamid) + " to cmdShort: F" + TOSTRING(ar_beams[shocks[scount].beamid].shock->trigger_cmdshort) + ", cmdlong: F" + TOSTRING(ar_beams[shocks[scount].beamid].shock->trigger_cmdlong));
+                                    ar_beams[i].shock->last_debug_state = 3;
                                 }
                             }
                         }
@@ -2673,83 +2670,83 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt, 
                 }
                 else
                 { // just a trigger, check high/low boundary and set action
-                    if (difftoBeamL > beams[i].longbound * beams[i].L) // trigger past longbound
+                    if (difftoBeamL > ar_beams[i].longbound * ar_beams[i].L) // trigger past longbound
                     {
-                        if (beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_UNLOCK)
+                        if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_UNLOCK)
                         {
                             if (update)
                             {
                                 //autolock hooktoggle unlock
-                                hookToggle(beams[i].shock->trigger_cmdlong, HOOK_UNLOCK, -1);
+                                hookToggle(ar_beams[i].shock->trigger_cmdlong, HOOK_UNLOCK, -1);
                             }
                         }
-                        else if (beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_LOCK)
+                        else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_LOCK)
                         {
                             if (update)
                             {
                                 //autolock hooktoggle lock
-                                hookToggle(beams[i].shock->trigger_cmdlong, HOOK_LOCK, -1);
+                                hookToggle(ar_beams[i].shock->trigger_cmdlong, HOOK_LOCK, -1);
                             }
                         }
-                        else if (beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE)
+                        else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE)
                         {
-                            engineTriggerHelper(beams[i].shock->trigger_cmdshort, beams[i].shock->trigger_cmdlong, 1.0f);
+                            engineTriggerHelper(ar_beams[i].shock->trigger_cmdshort, ar_beams[i].shock->trigger_cmdlong, 1.0f);
                         }
                         else
                         {
                             //just a trigger
-                            if (!commandkey[beams[i].shock->trigger_cmdlong].trigger_cmdkeyblock_state) // related cmdkey is not blocked
+                            if (!commandkey[ar_beams[i].shock->trigger_cmdlong].trigger_cmdkeyblock_state) // related cmdkey is not blocked
                             {
-                                if (beams[i].shock->flags & SHOCK_FLAG_TRG_CONTINUOUS)
-                                    commandkey[beams[i].shock->trigger_cmdshort].triggerInputValue = 1; // continuous trigger only operates on trigger_cmdshort
+                                if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CONTINUOUS)
+                                    commandkey[ar_beams[i].shock->trigger_cmdshort].triggerInputValue = 1; // continuous trigger only operates on trigger_cmdshort
                                 else
-                                    commandkey[beams[i].shock->trigger_cmdlong].triggerInputValue = 1;
-                                if (triggerdebug && beams[i].shock->last_debug_state != 4)
+                                    commandkey[ar_beams[i].shock->trigger_cmdlong].triggerInputValue = 1;
+                                if (triggerdebug && ar_beams[i].shock->last_debug_state != 4)
                                 {
-                                    LOG(" Trigger Longbound activated. Trigger BeamID " + TOSTRING(i) + " Triggered F" + TOSTRING(beams[i].shock->trigger_cmdlong));
-                                    beams[i].shock->last_debug_state = 4;
+                                    LOG(" Trigger Longbound activated. Trigger BeamID " + TOSTRING(i) + " Triggered F" + TOSTRING(ar_beams[i].shock->trigger_cmdlong));
+                                    ar_beams[i].shock->last_debug_state = 4;
                                 }
                             }
                         }
                     }
                     else // trigger past short bound
                     {
-                        if (beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_UNLOCK)
+                        if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_UNLOCK)
                         {
                             if (update)
                             {
                                 //autolock hooktoggle unlock
-                                hookToggle(beams[i].shock->trigger_cmdshort, HOOK_UNLOCK, -1);
+                                hookToggle(ar_beams[i].shock->trigger_cmdshort, HOOK_UNLOCK, -1);
                             }
                         }
-                        else if (beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_LOCK)
+                        else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_LOCK)
                         {
                             if (update)
                             {
                                 //autolock hooktoggle lock
-                                hookToggle(beams[i].shock->trigger_cmdshort, HOOK_LOCK, -1);
+                                hookToggle(ar_beams[i].shock->trigger_cmdshort, HOOK_LOCK, -1);
                             }
                         }
-                        else if (beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE)
+                        else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE)
                         {
-                            bool triggerValue = !(beams[i].shock->flags & SHOCK_FLAG_TRG_CONTINUOUS); // 0 if trigger is continuous, 1 otherwise
+                            bool triggerValue = !(ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CONTINUOUS); // 0 if trigger is continuous, 1 otherwise
 
-                            engineTriggerHelper(beams[i].shock->trigger_cmdshort, beams[i].shock->trigger_cmdlong, triggerValue);
+                            engineTriggerHelper(ar_beams[i].shock->trigger_cmdshort, ar_beams[i].shock->trigger_cmdlong, triggerValue);
                         }
                         else
                         {
                             //just a trigger
-                            if (!commandkey[beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state) // related cmdkey is not blocked
+                            if (!commandkey[ar_beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state) // related cmdkey is not blocked
                             {
-                                if (beams[i].shock->flags & SHOCK_FLAG_TRG_CONTINUOUS)
-                                    commandkey[beams[i].shock->trigger_cmdshort].triggerInputValue = 0; // continuous trigger only operates on trigger_cmdshort
+                                if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CONTINUOUS)
+                                    commandkey[ar_beams[i].shock->trigger_cmdshort].triggerInputValue = 0; // continuous trigger only operates on trigger_cmdshort
                                 else
-                                    commandkey[beams[i].shock->trigger_cmdshort].triggerInputValue = 1;
+                                    commandkey[ar_beams[i].shock->trigger_cmdshort].triggerInputValue = 1;
 
-                                if (triggerdebug && beams[i].shock->last_debug_state != 5)
+                                if (triggerdebug && ar_beams[i].shock->last_debug_state != 5)
                                 {
-                                    LOG(" Trigger Shortbound activated. Trigger BeamID " + TOSTRING(i) + " Triggered F" + TOSTRING(beams[i].shock->trigger_cmdshort));
-                                    beams[i].shock->last_debug_state = 5;
+                                    LOG(" Trigger Shortbound activated. Trigger BeamID " + TOSTRING(i) + " Triggered F" + TOSTRING(ar_beams[i].shock->trigger_cmdshort));
+                                    ar_beams[i].shock->last_debug_state = 5;
                                 }
                             }
                         }
@@ -2758,81 +2755,81 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt, 
             }
             else // this is a trigger inside boundaries and its enabled
             {
-                if (beams[i].shock->flags & SHOCK_FLAG_TRG_CONTINUOUS) // this is an enabled continuous trigger
+                if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CONTINUOUS) // this is an enabled continuous trigger
                 {
-                    if (beams[i].longbound - beams[i].shortbound > 0.0f)
+                    if (ar_beams[i].longbound - ar_beams[i].shortbound > 0.0f)
                     {
-                        float diffPercentage = difftoBeamL / beams[i].L;
-                        float triggerValue = (diffPercentage - beams[i].shortbound) / (beams[i].longbound - beams[i].shortbound);
+                        float diffPercentage = difftoBeamL / ar_beams[i].L;
+                        float triggerValue = (diffPercentage - ar_beams[i].shortbound) / (ar_beams[i].longbound - ar_beams[i].shortbound);
 
                         triggerValue = std::max(0.0f, triggerValue);
                         triggerValue = std::min(triggerValue, 1.0f);
 
-                        if (beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE) // this trigger controls an engine
+                        if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE) // this trigger controls an engine
                         {
-                            engineTriggerHelper(beams[i].shock->trigger_cmdshort, beams[i].shock->trigger_cmdlong, triggerValue);
+                            engineTriggerHelper(ar_beams[i].shock->trigger_cmdshort, ar_beams[i].shock->trigger_cmdlong, triggerValue);
                         }
                         else
                         {
                             // normal trigger
-                            commandkey[beams[i].shock->trigger_cmdshort].triggerInputValue = triggerValue;
-                            commandkey[beams[i].shock->trigger_cmdlong].triggerInputValue = triggerValue;
+                            commandkey[ar_beams[i].shock->trigger_cmdshort].triggerInputValue = triggerValue;
+                            commandkey[ar_beams[i].shock->trigger_cmdlong].triggerInputValue = triggerValue;
                         }
                     }
                 }
-                else if (beams[i].shock->flags & SHOCK_FLAG_TRG_BLOCKER) // this is an enabled blocker and inside boundary
+                else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_BLOCKER) // this is an enabled blocker and inside boundary
                 {
-                    for (int scount = i + 1; scount <= i + beams[i].shock->trigger_cmdlong; scount++) // (cycle blockerbeamID + 1) to (blockerbeamID + beams to release)
+                    for (int scount = i + 1; scount <= i + ar_beams[i].shock->trigger_cmdlong; scount++) // (cycle blockerbeamID + 1) to (blockerbeamID + beams to release)
                     {
-                        if (beams[scount].shock && (beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER)) // don't mess anything up if the user set the number too big
+                        if (ar_beams[scount].shock && (ar_beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER)) // don't mess anything up if the user set the number too big
                         {
-                            if (triggerdebug && beams[scount].shock->trigger_enabled && beams[i].shock->last_debug_state != 6)
+                            if (triggerdebug && ar_beams[scount].shock->trigger_enabled && ar_beams[i].shock->last_debug_state != 6)
                             {
                                 LOG(" Trigger enabled. Blocker BeamID " + TOSTRING(i) + " disabled trigger " + TOSTRING(scount));
-                                beams[i].shock->last_debug_state = 6;
+                                ar_beams[i].shock->last_debug_state = 6;
                             }
-                            beams[scount].shock->trigger_enabled = true; // enable the triggers
+                            ar_beams[scount].shock->trigger_enabled = true; // enable the triggers
                         }
                     }
                 }
-                else if (beams[i].shock->flags & SHOCK_FLAG_TRG_BLOCKER_A) // this is an enabled reverse blocker and past boundary
+                else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_BLOCKER_A) // this is an enabled reverse blocker and past boundary
                 {
-                    for (int scount = i + 1; scount <= i + beams[i].shock->trigger_cmdshort; scount++) // (cylce blockerbeamID +1) to (blockerbeamID + beams tob lock)
+                    for (int scount = i + 1; scount <= i + ar_beams[i].shock->trigger_cmdshort; scount++) // (cylce blockerbeamID +1) to (blockerbeamID + beams tob lock)
                     {
-                        if (beams[scount].shock && (beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER)) // dont mess anything up if the user set the number too big
+                        if (ar_beams[scount].shock && (ar_beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER)) // dont mess anything up if the user set the number too big
                         {
-                            if (triggerdebug && !beams[scount].shock->trigger_enabled && beams[i].shock->last_debug_state != 10)
+                            if (triggerdebug && !ar_beams[scount].shock->trigger_enabled && ar_beams[i].shock->last_debug_state != 10)
                             {
                                 LOG(" Trigger disabled. Inverted Blocker BeamID " + TOSTRING(i) + " enabled trigger " + TOSTRING(scount));
-                                beams[i].shock->last_debug_state = 10;
+                                ar_beams[i].shock->last_debug_state = 10;
                             }
-                            beams[scount].shock->trigger_enabled = false; // disable the trigger
+                            ar_beams[scount].shock->trigger_enabled = false; // disable the trigger
                         }
                     }
                 }
-                else if ((beams[i].shock->flags & SHOCK_FLAG_TRG_CMD_SWITCH) && beams[i].shock->trigger_switch_state) // this is a switch that was activated and is back inside boundaries again
+                else if ((ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CMD_SWITCH) && ar_beams[i].shock->trigger_switch_state) // this is a switch that was activated and is back inside boundaries again
                 {
-                    beams[i].shock->trigger_switch_state = 0.0f; //trigger_switch reset
-                    if (triggerdebug && beams[i].shock->last_debug_state != 7)
+                    ar_beams[i].shock->trigger_switch_state = 0.0f; //trigger_switch reset
+                    if (triggerdebug && ar_beams[i].shock->last_debug_state != 7)
                     {
                         LOG(" Trigger switch reset. Switch BeamID " + TOSTRING(i));
-                        beams[i].shock->last_debug_state = 7;
+                        ar_beams[i].shock->last_debug_state = 7;
                     }
                 }
-                else if ((beams[i].shock->flags & SHOCK_FLAG_TRG_CMD_BLOCKER) && !commandkey[beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state) // this cmdkeyblocker is inside boundaries and cmdkeystate is diabled
+                else if ((ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CMD_BLOCKER) && !commandkey[ar_beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state) // this cmdkeyblocker is inside boundaries and cmdkeystate is diabled
                 {
-                    commandkey[beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state = true; // activate trigger blocking
-                    if (triggerdebug && beams[i].shock->last_debug_state != 8)
+                    commandkey[ar_beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state = true; // activate trigger blocking
+                    if (triggerdebug && ar_beams[i].shock->last_debug_state != 8)
                     {
-                        LOG(" F-key trigger blocked. Blocker BeamID " + TOSTRING(i) + " Blocked F" + TOSTRING(beams[i].shock->trigger_cmdshort));
-                        beams[i].shock->last_debug_state = 8;
+                        LOG(" F-key trigger blocked. Blocker BeamID " + TOSTRING(i) + " Blocked F" + TOSTRING(ar_beams[i].shock->trigger_cmdshort));
+                        ar_beams[i].shock->last_debug_state = 8;
                     }
                 }
             }
         }
     }
     // save beam position for next simulation cycle
-    beams[i].shock->lastpos = difftoBeamL;
+    ar_beams[i].shock->lastpos = difftoBeamL;
 }
 
 // call this once per frame in order to update the skidmarks
@@ -2931,11 +2928,11 @@ void Beam::SetPropsCastShadows(bool do_cast_shadows)
             vwheels[i].cnode->getAttachedObject(0)->setCastShadows(do_cast_shadows);
         }
     }
-    for (i = 0; i < free_beam; i++)
+    for (i = 0; i < ar_num_beams; i++)
     {
-        if (beams[i].mEntity)
+        if (ar_beams[i].mEntity)
         {
-            beams[i].mEntity->setCastShadows(do_cast_shadows);
+            ar_beams[i].mEntity->setCastShadows(do_cast_shadows);
         }
     }
 }
@@ -3167,7 +3164,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
             }
             if (props[i].beacontype == 'R' || props[i].beacontype == 'L')
             {
-                Vector3 mposition = nodes[props[i].noderef].AbsPosition + props[i].offsetx * (nodes[props[i].nodex].AbsPosition - nodes[props[i].noderef].AbsPosition) + props[i].offsety * (nodes[props[i].nodey].AbsPosition - nodes[props[i].noderef].AbsPosition);
+                Vector3 mposition = ar_nodes[props[i].noderef].AbsPosition + props[i].offsetx * (ar_nodes[props[i].nodex].AbsPosition - ar_nodes[props[i].noderef].AbsPosition) + props[i].offsety * (ar_nodes[props[i].nodey].AbsPosition - ar_nodes[props[i].noderef].AbsPosition);
                 //billboard
                 Vector3 vdir = mposition - mCamera->getPosition();
                 float vlen = vdir.length();
@@ -3182,7 +3179,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
             }
             if (props[i].beacontype == 'w')
             {
-                Vector3 mposition = nodes[props[i].noderef].AbsPosition + props[i].offsetx * (nodes[props[i].nodex].AbsPosition - nodes[props[i].noderef].AbsPosition) + props[i].offsety * (nodes[props[i].nodey].AbsPosition - nodes[props[i].noderef].AbsPosition);
+                Vector3 mposition = ar_nodes[props[i].noderef].AbsPosition + props[i].offsetx * (ar_nodes[props[i].nodex].AbsPosition - ar_nodes[props[i].noderef].AbsPosition) + props[i].offsety * (ar_nodes[props[i].nodey].AbsPosition - ar_nodes[props[i].noderef].AbsPosition);
                 props[i].beacon_light[0]->setPosition(mposition);
                 props[i].beacon_light_rotation_angle[0] += dt * props[i].beacon_light_rotation_rate[0];//rotate baby!
                 //billboard
@@ -3307,9 +3304,9 @@ void Beam::updateFlares(float dt, bool isCurrent)
             flares[i].light->setVisible(isvisible && enableAll);
         flares[i].isVisible = isvisible;
 
-        Vector3 normal = (nodes[flares[i].nodey].AbsPosition - nodes[flares[i].noderef].AbsPosition).crossProduct(nodes[flares[i].nodex].AbsPosition - nodes[flares[i].noderef].AbsPosition);
+        Vector3 normal = (ar_nodes[flares[i].nodey].AbsPosition - ar_nodes[flares[i].noderef].AbsPosition).crossProduct(ar_nodes[flares[i].nodex].AbsPosition - ar_nodes[flares[i].noderef].AbsPosition);
         normal.normalise();
-        Vector3 mposition = nodes[flares[i].noderef].AbsPosition + flares[i].offsetx * (nodes[flares[i].nodex].AbsPosition - nodes[flares[i].noderef].AbsPosition) + flares[i].offsety * (nodes[flares[i].nodey].AbsPosition - nodes[flares[i].noderef].AbsPosition);
+        Vector3 mposition = ar_nodes[flares[i].noderef].AbsPosition + flares[i].offsetx * (ar_nodes[flares[i].nodex].AbsPosition - ar_nodes[flares[i].noderef].AbsPosition) + flares[i].offsety * (ar_nodes[flares[i].nodey].AbsPosition - ar_nodes[flares[i].noderef].AbsPosition);
         Vector3 vdir = mposition - mCamera->getPosition();
         float vlen = vdir.length();
         // not visible from 500m distance
@@ -3414,12 +3411,12 @@ void Beam::updateProps()
         if (!props[i].scene_node)
             continue;
 
-        Vector3 diffX = nodes[props[i].nodex].AbsPosition - nodes[props[i].noderef].AbsPosition;
-        Vector3 diffY = nodes[props[i].nodey].AbsPosition - nodes[props[i].noderef].AbsPosition;
+        Vector3 diffX = ar_nodes[props[i].nodex].AbsPosition - ar_nodes[props[i].noderef].AbsPosition;
+        Vector3 diffY = ar_nodes[props[i].nodey].AbsPosition - ar_nodes[props[i].noderef].AbsPosition;
 
         Vector3 normal = (diffY.crossProduct(diffX)).normalisedCopy();
 
-        Vector3 mposition = nodes[props[i].noderef].AbsPosition + props[i].offsetx * diffX + props[i].offsety * diffY;
+        Vector3 mposition = ar_nodes[props[i].noderef].AbsPosition + props[i].offsetx * diffX + props[i].offsety * diffY;
         props[i].scene_node->setPosition(mposition + normal * props[i].offsetz);
 
         Vector3 refx = diffX.normalisedCopy();
@@ -3468,10 +3465,10 @@ void Beam::updateSoundSources()
         return;
     for (int i = 0; i < free_soundsource; i++)
     {
-        soundsources[i].ssi->setPosition(nodes[soundsources[i].nodenum].AbsPosition, nodes[soundsources[i].nodenum].Velocity);
+        soundsources[i].ssi->setPosition(ar_nodes[soundsources[i].nodenum].AbsPosition, ar_nodes[soundsources[i].nodenum].Velocity);
     }
     //also this, so it is updated always, and for any vehicle
-    SOUND_MODULATE(trucknum, SS_MOD_AIRSPEED, nodes[0].Velocity.length() * 1.9438);
+    SOUND_MODULATE(trucknum, SS_MOD_AIRSPEED, ar_nodes[0].Velocity.length() * 1.9438);
     SOUND_MODULATE(trucknum, SS_MOD_WHEELSPEED, WheelSpeed * 3.6);
 #endif //OPENAL
     BES_GFX_STOP(BES_GFX_updateSoundSources);
@@ -3595,8 +3592,8 @@ void Beam::updateVisual(float dt)
     //update custom particle systems
     for (int i = 0; i < free_cparticle; i++)
     {
-        Vector3 pos = nodes[cparticles[i].emitterNode].AbsPosition;
-        Vector3 dir = pos - nodes[cparticles[i].directionNode].AbsPosition;
+        Vector3 pos = ar_nodes[cparticles[i].emitterNode].AbsPosition;
+        Vector3 dir = pos - ar_nodes[cparticles[i].directionNode].AbsPosition;
         //dir.normalise();
         dir = fast_normalise(dir);
         cparticles[i].snode->setPosition(pos);
@@ -3613,10 +3610,10 @@ void Beam::updateVisual(float dt)
         {
             if (!it->smoker)
                 continue;
-            Vector3 dir = nodes[it->emitterNode].AbsPosition - nodes[it->directionNode].AbsPosition;
+            Vector3 dir = ar_nodes[it->emitterNode].AbsPosition - ar_nodes[it->directionNode].AbsPosition;
             //			dir.normalise();
             ParticleEmitter* emit = it->smoker->getEmitter(0);
-            it->smokeNode->setPosition(nodes[it->emitterNode].AbsPosition);
+            it->smokeNode->setPosition(ar_nodes[it->emitterNode].AbsPosition);
             emit->setDirection(dir);
             if (engine->getSmoke() != -1.0)
             {
@@ -3717,23 +3714,23 @@ void Beam::updateVisual(float dt)
             cabFade(1 - 0.6 * cabFadeTimer / cabFadeTime);
     }
 
-    for (int i = 0; i < free_beam; i++)
+    for (int i = 0; i < ar_num_beams; i++)
     {
-        if (!beams[i].mSceneNode)
+        if (!ar_beams[i].mSceneNode)
             continue;
 
-        if (beams[i].bm_disabled || beams[i].bm_broken)
+        if (ar_beams[i].bm_disabled || ar_beams[i].bm_broken)
         {
-            beams[i].mSceneNode->detachAllObjects();
+            ar_beams[i].mSceneNode->detachAllObjects();
         }
-        else if (beams[i].bm_type != BEAM_INVISIBLE && beams[i].bm_type != BEAM_INVISIBLE_HYDRO && beams[i].bm_type != BEAM_VIRTUAL)
+        else if (ar_beams[i].bm_type != BEAM_INVISIBLE && ar_beams[i].bm_type != BEAM_INVISIBLE_HYDRO && ar_beams[i].bm_type != BEAM_VIRTUAL)
         {
-            if (beams[i].mSceneNode->numAttachedObjects() == 0)
-                beams[i].mSceneNode->attachObject(beams[i].mEntity);
+            if (ar_beams[i].mSceneNode->numAttachedObjects() == 0)
+                ar_beams[i].mSceneNode->attachObject(ar_beams[i].mEntity);
 
-            beams[i].mSceneNode->setPosition(beams[i].p1->AbsPosition.midPoint(beams[i].p2->AbsPosition));
-            beams[i].mSceneNode->setOrientation(specialGetRotationTo(ref, beams[i].p1->AbsPosition - beams[i].p2->AbsPosition));
-            beams[i].mSceneNode->setScale(beams[i].diameter, (beams[i].p1->AbsPosition - beams[i].p2->AbsPosition).length(), beams[i].diameter);
+            ar_beams[i].mSceneNode->setPosition(ar_beams[i].p1->AbsPosition.midPoint(ar_beams[i].p2->AbsPosition));
+            ar_beams[i].mSceneNode->setOrientation(specialGetRotationTo(ref, ar_beams[i].p1->AbsPosition - ar_beams[i].p2->AbsPosition));
+            ar_beams[i].mSceneNode->setScale(ar_beams[i].diameter, (ar_beams[i].p1->AbsPosition - ar_beams[i].p2->AbsPosition).length(), ar_beams[i].diameter);
         }
     }
 
@@ -4031,11 +4028,11 @@ void Beam::setMeshWireframe(SceneNode* node, bool value)
 
 void Beam::setBeamVisibility(bool visible)
 {
-    for (int i = 0; i < free_beam; i++)
+    for (int i = 0; i < ar_num_beams; i++)
     {
-        if (beams[i].mSceneNode)
+        if (ar_beams[i].mSceneNode)
         {
-            beams[i].mSceneNode->setVisible(visible);
+            ar_beams[i].mSceneNode->setVisible(visible);
         }
     }
 
@@ -4231,7 +4228,7 @@ void Beam::tieToggle(int group)
             if (it->lockedto)
                 it->lockedto->in_use = false;
             // disable the ties beam
-            it->beam->p2 = &nodes[0];
+            it->beam->p2 = &ar_nodes[0];
             it->beam->p2truck = false;
             it->beam->bm_disabled = true;
             if (it->locked_truck != this)
@@ -4338,7 +4335,7 @@ void Beam::ropeToggle(int group)
             // remove node locking
             if (it->lockedto_ropable)
                 it->lockedto_ropable->in_use = false;
-            it->lockedto = &nodes[0];
+            it->lockedto = &ar_nodes[0];
             it->lockedtruck = 0;
         }
         else
@@ -4460,10 +4457,10 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
                 {
                     int last_node = 0; // node number storage
                     // all nodes, so walk them
-                    for (int i = 0; i < trucks[t]->free_node; i++)
+                    for (int i = 0; i < trucks[t]->ar_num_nodes; i++)
                     {
                         // skip all nodes with lockgroup 9999 (deny lock)
-                        if (trucks[t]->nodes[i].lockgroup == 9999)
+                        if (trucks[t]->ar_nodes[i].lockgroup == 9999)
                             continue;
 
                         // exclude this truck and its current hooknode from the locking search
@@ -4471,11 +4468,11 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
                             continue;
 
                         // a lockgroup for this hooknode is set -> skip all nodes that do not have the same lockgroup (-1 = default(all nodes))
-                        if (it->lockgroup != -1 && it->lockgroup != trucks[t]->nodes[i].lockgroup)
+                        if (it->lockgroup != -1 && it->lockgroup != trucks[t]->ar_nodes[i].lockgroup)
                             continue;
 
                         // measure distance
-                        float n2n_distance = (it->hookNode->AbsPosition - trucks[t]->nodes[i].AbsPosition).length();
+                        float n2n_distance = (it->hookNode->AbsPosition - trucks[t]->ar_nodes[i].AbsPosition).length();
                         if (n2n_distance < mindist)
                         {
                             if (distance >= n2n_distance)
@@ -4490,7 +4487,7 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
                     if (found)
                     {
                         // we found a node, lock to it
-                        it->lockNode = &(trucks[t]->nodes[last_node]);
+                        it->lockNode = &(trucks[t]->ar_nodes[last_node]);
                         it->lockTruck = trucks[t];
                         it->locked = PRELOCK;
                     }
@@ -4541,9 +4538,9 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
             it->lockNode = 0;
             it->lockTruck = 0;
             //disable hook-assistance beam
-            it->beam->p2 = &nodes[0];
+            it->beam->p2 = &ar_nodes[0];
             it->beam->p2truck = false;
-            it->beam->L = (nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
+            it->beam->L = (ar_nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
             it->beam->bm_disabled = true;
         }
 
@@ -4701,7 +4698,7 @@ void Beam::setDebugOverlayState(int mode)
     {
         LOG("initializing debugVisuals");
         // add node labels
-        for (int i = 0; i < free_node; i++)
+        for (int i = 0; i < ar_num_nodes; i++)
         {
             debugtext_t t;
             char nodeName[256] = "", entName[256] = "";
@@ -4720,7 +4717,7 @@ void Beam::setDebugOverlayState(int mode)
             t.node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
             deletion_sceneNodes.emplace_back(t.node);
             t.node->attachObject(t.txt);
-            t.node->setPosition(nodes[i].AbsPosition);
+            t.node->setPosition(ar_nodes[i].AbsPosition);
             t.node->setScale(Vector3(0.05, 0.05, 0.05));
 
             // collision nodes debug, also mimics as node visual
@@ -4736,7 +4733,7 @@ void Beam::setDebugOverlayState(int mode)
         }
 
         // add beam labels
-        for (int i = 0; i < free_beam; i++)
+        for (int i = 0; i < ar_num_beams; i++)
         {
             debugtext_t t;
             char nodeName[256] = "";
@@ -4755,7 +4752,7 @@ void Beam::setDebugOverlayState(int mode)
             deletion_sceneNodes.emplace_back(t.node);
             t.node->attachObject(t.txt);
 
-            Vector3 pos = beams[i].p1->AbsPosition - (beams[i].p1->AbsPosition - beams[i].p2->AbsPosition) / 2;
+            Vector3 pos = ar_beams[i].p1->AbsPosition - (ar_beams[i].p1->AbsPosition - ar_beams[i].p2->AbsPosition) / 2;
             t.node->setPosition(pos);
             t.node->setVisible(false);
             t.node->setScale(Vector3(0.1, 0.1, 0.1));
@@ -4787,39 +4784,39 @@ void Beam::updateDebugOverlay()
     case 1: // node-numbers
         // not written dynamically
         for (std::vector<debugtext_t>::iterator it = nodes_debug.begin(); it != nodes_debug.end(); it++)
-            it->node->setPosition(nodes[it->id].AbsPosition);
+            it->node->setPosition(ar_nodes[it->id].AbsPosition);
         break;
     case 2: // beam-numbers
         // not written dynamically
         for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
-            it->node->setPosition(beams[it->id].p1->AbsPosition - (beams[it->id].p1->AbsPosition - beams[it->id].p2->AbsPosition) / 2);
+            it->node->setPosition(ar_beams[it->id].p1->AbsPosition - (ar_beams[it->id].p1->AbsPosition - ar_beams[it->id].p2->AbsPosition) / 2);
         break;
     case 3: // node-and-beam-numbers
         // not written dynamically
         for (std::vector<debugtext_t>::iterator it = nodes_debug.begin(); it != nodes_debug.end(); it++)
-            it->node->setPosition(nodes[it->id].AbsPosition);
+            it->node->setPosition(ar_nodes[it->id].AbsPosition);
         for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
-            it->node->setPosition(beams[it->id].p1->AbsPosition - (beams[it->id].p1->AbsPosition - beams[it->id].p2->AbsPosition) / 2);
+            it->node->setPosition(ar_beams[it->id].p1->AbsPosition - (ar_beams[it->id].p1->AbsPosition - ar_beams[it->id].p2->AbsPosition) / 2);
         break;
     case 4: // node-mass
         for (std::vector<debugtext_t>::iterator it = nodes_debug.begin(); it != nodes_debug.end(); it++)
         {
-            it->node->setPosition(nodes[it->id].AbsPosition);
-            it->txt->setCaption(TOSTRING(nodes[it->id].mass));
+            it->node->setPosition(ar_nodes[it->id].AbsPosition);
+            it->txt->setCaption(TOSTRING(ar_nodes[it->id].mass));
         }
         break;
     case 5: // node-locked
         for (std::vector<debugtext_t>::iterator it = nodes_debug.begin(); it != nodes_debug.end(); it++)
         {
-            it->txt->setCaption((nodes[it->id].locked) ? "locked" : "unlocked");
-            it->node->setPosition(nodes[it->id].AbsPosition);
+            it->txt->setCaption((ar_nodes[it->id].locked) ? "locked" : "unlocked");
+            it->node->setPosition(ar_nodes[it->id].AbsPosition);
         }
         break;
     case 6: // beam-compression
         for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
         {
-            it->node->setPosition(beams[it->id].p1->AbsPosition - (beams[it->id].p1->AbsPosition - beams[it->id].p2->AbsPosition) / 2);
-            float stress_ratio = beams[it->id].stress / beams[it->id].minmaxposnegstress;
+            it->node->setPosition(ar_beams[it->id].p1->AbsPosition - (ar_beams[it->id].p1->AbsPosition - ar_beams[it->id].p2->AbsPosition) / 2);
+            float stress_ratio = ar_beams[it->id].stress / ar_beams[it->id].minmaxposnegstress;
             float color_scale = std::abs(stress_ratio);
             color_scale = std::min(color_scale, 1.0f);
             int scale = (int)(color_scale * 100);
@@ -4829,8 +4826,8 @@ void Beam::updateDebugOverlay()
     case 7: // beam-broken
         for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
         {
-            it->node->setPosition(beams[it->id].p1->AbsPosition - (beams[it->id].p1->AbsPosition - beams[it->id].p2->AbsPosition) / 2);
-            if (beams[it->id].bm_broken)
+            it->node->setPosition(ar_beams[it->id].p1->AbsPosition - (ar_beams[it->id].p1->AbsPosition - ar_beams[it->id].p2->AbsPosition) / 2);
+            if (ar_beams[it->id].bm_broken)
             {
                 it->node->setVisible(true);
                 it->txt->setCaption("BROKEN");
@@ -4844,24 +4841,24 @@ void Beam::updateDebugOverlay()
     case 8: // beam-stress
         for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
         {
-            it->node->setPosition(beams[it->id].p1->AbsPosition - (beams[it->id].p1->AbsPosition - beams[it->id].p2->AbsPosition) / 2);
-            it->txt->setCaption(TOSTRING((float) fabs(beams[it->id].stress)));
+            it->node->setPosition(ar_beams[it->id].p1->AbsPosition - (ar_beams[it->id].p1->AbsPosition - ar_beams[it->id].p2->AbsPosition) / 2);
+            it->txt->setCaption(TOSTRING((float) fabs(ar_beams[it->id].stress)));
         }
         break;
     case 9: // beam-strength
         for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
         {
-            it->node->setPosition(beams[it->id].p1->AbsPosition - (beams[it->id].p1->AbsPosition - beams[it->id].p2->AbsPosition) / 2);
-            it->txt->setCaption(TOSTRING(beams[it->id].strength));
+            it->node->setPosition(ar_beams[it->id].p1->AbsPosition - (ar_beams[it->id].p1->AbsPosition - ar_beams[it->id].p2->AbsPosition) / 2);
+            it->txt->setCaption(TOSTRING(ar_beams[it->id].strength));
         }
         break;
     case 10: // beam-hydros
         for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
         {
-            if (beams[it->id].bm_type == BEAM_HYDRO || beams[it->id].bm_type == BEAM_INVISIBLE_HYDRO)
+            if (ar_beams[it->id].bm_type == BEAM_HYDRO || ar_beams[it->id].bm_type == BEAM_INVISIBLE_HYDRO)
             {
-                it->node->setPosition(beams[it->id].p1->AbsPosition - (beams[it->id].p1->AbsPosition - beams[it->id].p2->AbsPosition) / 2);
-                int v = (beams[it->id].L / beams[it->id].Lhydro) * 100;
+                it->node->setPosition(ar_beams[it->id].p1->AbsPosition - (ar_beams[it->id].p1->AbsPosition - ar_beams[it->id].p2->AbsPosition) / 2);
+                int v = (ar_beams[it->id].L / ar_beams[it->id].Lhydro) * 100;
                 it->txt->setCaption(TOSTRING(v));
                 it->node->setVisible(true);
             }
@@ -4874,8 +4871,8 @@ void Beam::updateDebugOverlay()
     case 11: // beam-commands
         for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
         {
-            it->node->setPosition(beams[it->id].p1->AbsPosition - (beams[it->id].p1->AbsPosition - beams[it->id].p2->AbsPosition) / 2);
-            int v = (beams[it->id].L / beams[it->id].commandLong) * 100;
+            it->node->setPosition(ar_beams[it->id].p1->AbsPosition - (ar_beams[it->id].p1->AbsPosition - ar_beams[it->id].p2->AbsPosition) / 2);
+            int v = (ar_beams[it->id].L / ar_beams[it->id].commandLong) * 100;
             it->txt->setCaption(TOSTRING(v));
         }
         break;
@@ -4931,7 +4928,7 @@ float Beam::getHeadingDirectionAngle()
 {
     if (cameranodepos[0] >= 0 && cameranodedir[0] >= 0)
     {
-        Vector3 idir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
+        Vector3 idir = ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranodedir[0]].RelPosition;
         return atan2(idir.dotProduct(Vector3::UNIT_X), (idir).dotProduct(-Vector3::UNIT_Z));
     }
 
@@ -5008,7 +5005,7 @@ int Beam::nodeBeamConnections(int nodeid)
     int totallivebeams = 0;
     for (unsigned int ni = 0; ni < nodebeamconnections[nodeid].size(); ++ni)
     {
-        if (!beams[nodebeamconnections[nodeid][ni]].bm_disabled && !beams[nodebeamconnections[nodeid][ni]].bounded)
+        if (!ar_beams[nodebeamconnections[nodeid][ni]].bm_disabled && !ar_beams[nodebeamconnections[nodeid][ni]].bounded)
             totallivebeams++;
     }
     return totallivebeams;
@@ -5114,12 +5111,12 @@ void Beam::updateDashBoards(float dt)
     dash->setFloat(DD_BRAKE, dash_brake);
 
     // speedo
-    float velocity = nodes[0].Velocity.length();
+    float velocity = ar_nodes[0].Velocity.length();
 
     if (cameranodepos[0] >= 0 && cameranodedir[0] >= 0)
     {
-        Vector3 hdir = (nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition).normalisedCopy();
-        velocity = hdir.dotProduct(nodes[0].Velocity);
+        Vector3 hdir = (ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranodedir[0]].RelPosition).normalisedCopy();
+        velocity = hdir.dotProduct(ar_nodes[0].Velocity);
     }
     float speed_kph = velocity * 3.6f;
     dash->setFloat(DD_ENGINE_SPEEDO_KPH, speed_kph);
@@ -5129,7 +5126,7 @@ void Beam::updateDashBoards(float dt)
     // roll
     if (this->IsNodeIdValid(cameranodepos[0])) // TODO: why check this on each update when it cannot change after spawn?
     {
-        dir = nodes[cameranodepos[0]].RelPosition - nodes[cameranoderoll[0]].RelPosition;
+        dir = ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranoderoll[0]].RelPosition;
         dir.normalise();
         float angle = asin(dir.dotProduct(Vector3::UNIT_Y));
         if (angle < -1)
@@ -5155,7 +5152,7 @@ void Beam::updateDashBoards(float dt)
     // pitch
     if (this->IsNodeIdValid(cameranodepos[0]))
     {
-        dir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
+        dir = ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranodedir[0]].RelPosition;
         dir.normalise();
         float angle = asin(dir.dotProduct(Vector3::UNIT_Y));
         if (angle < -1)
@@ -5239,13 +5236,13 @@ void Beam::updateDashBoards(float dt)
         if (this->IsNodeIdValid(cameranodepos[0])) // TODO: Check cam. nodes once on spawn! They never change --> no reason to repeat the check. ~only_a_ptr, 06/2017
         {
             // position
-            Vector3 dir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
+            Vector3 dir = ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranodedir[0]].RelPosition;
             dir.normalise();
 
             int low_node = getLowestNode();
             if (low_node != -1)
             {
-                Vector3 pos = nodes[low_node].AbsPosition;
+                Vector3 pos = ar_nodes[low_node].AbsPosition;
                 float depth = pos.y - gEnv->terrainManager->getHeightFinder()->getHeightAt(pos.x, pos.z);
                 dash->setFloat(DD_WATER_DEPTH, depth);
             }
@@ -5254,9 +5251,9 @@ void Beam::updateDashBoards(float dt)
         // water speed
         if (this->IsNodeIdValid(cameranodepos[0]))
         {
-            Vector3 hdir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
+            Vector3 hdir = ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranodedir[0]].RelPosition;
             hdir.normalise();
-            float knots = hdir.dotProduct(nodes[cameranodepos[0]].Velocity) * 1.9438f; // 1.943 = m/s in knots/s
+            float knots = hdir.dotProduct(ar_nodes[cameranodepos[0]].Velocity) * 1.9438f; // 1.943 = m/s in knots/s
             dash->setFloat(DD_WATER_SPEED, knots);
         }
     }
@@ -5293,10 +5290,10 @@ void Beam::updateDashBoards(float dt)
     {
         //airspeed
         {
-            float ground_speed_kt = nodes[0].Velocity.length() * 1.9438f; // 1.943 = m/s in knots/s
+            float ground_speed_kt = ar_nodes[0].Velocity.length() * 1.9438f; // 1.943 = m/s in knots/s
 
             //tropospheric model valid up to 11.000m (33.000ft)
-            float altitude = nodes[0].AbsPosition.y;
+            float altitude = ar_nodes[0].AbsPosition.y;
             //float sea_level_temperature = 273.15 + 15.0; //in Kelvin // MAGICs D:
             float sea_level_pressure = 101325; //in Pa
             //float airtemperature        = sea_level_temperature - altitude * 0.0065f; //in Kelvin
@@ -5309,11 +5306,11 @@ void Beam::updateDashBoards(float dt)
 
         // altimeter (height above ground)
         {
-            float alt = nodes[0].AbsPosition.y * 1.1811f; // MAGIC
+            float alt = ar_nodes[0].AbsPosition.y * 1.1811f; // MAGIC
             dash->setFloat(DD_ALTITUDE, alt);
 
             char altc[11];
-            sprintf(altc, "%03u", (int)(nodes[0].AbsPosition.y / 30.48f)); // MAGIC
+            sprintf(altc, "%03u", (int)(ar_nodes[0].AbsPosition.y / 30.48f)); // MAGIC
             dash->setChar(DD_ALTITUDE_STRING, altc);
         }
     }
@@ -5361,12 +5358,12 @@ void Beam::updateDashBoards(float dt)
 #if 0
     // ADI - attitude director indicator
     //roll
-	Vector3 rollv=curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition-curr_truck->nodes[curr_truck->cameranoderoll[0]].RelPosition;
+	Vector3 rollv=curr_truck->ar_nodes[curr_truck->cameranodepos[0]].RelPosition-curr_truck->ar_nodes[curr_truck->cameranoderoll[0]].RelPosition;
 	rollv.normalise();
 	float rollangle=asin(rollv.dotProduct(Vector3::UNIT_Y));
 
     //pitch
-	Vector3 dirv=curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition-curr_truck->nodes[curr_truck->cameranodedir[0]].RelPosition;
+	Vector3 dirv=curr_truck->ar_nodes[curr_truck->cameranodepos[0]].RelPosition-curr_truck->ar_nodes[curr_truck->cameranodedir[0]].RelPosition;
 	dirv.normalise();
 	float pitchangle=asin(dirv.dotProduct(Vector3::UNIT_Y));
 	Vector3 upv=dirv.crossProduct(-rollv);
@@ -5376,7 +5373,7 @@ void Beam::updateDashBoards(float dt)
 	RoR::App::GetOverlayWrapper()->aditapetexture->setTextureRotate(Radian(-rollangle));
 
     // HSI - Horizontal Situation Indicator
-	Vector3 idir=curr_truck->nodes[curr_truck->cameranodepos[0]].RelPosition-curr_truck->nodes[curr_truck->cameranodedir[0]].RelPosition;
+	Vector3 idir=curr_truck->ar_nodes[curr_truck->cameranodepos[0]].RelPosition-curr_truck->ar_nodes[curr_truck->cameranodedir[0]].RelPosition;
     //			idir.normalise();
 	float dirangle=atan2(idir.dotProduct(Vector3::UNIT_X), idir.dotProduct(-Vector3::UNIT_Z));
 	RoR::App::GetOverlayWrapper()->hsirosetexture->setTextureRotate(Radian(dirangle));
@@ -5395,7 +5392,7 @@ void Beam::updateDashBoards(float dt)
 	}
 
     // VVI - Vertical Velocity Indicator
-	float vvi=curr_truck->nodes[0].Velocity.y*196.85;
+	float vvi=curr_truck->ar_nodes[0].Velocity.y*196.85;
 	if (vvi<1000.0 && vvi>-1000.0) angle=vvi*0.047;
 	if (vvi>1000.0 && vvi<6000.0) angle=47.0+(vvi-1000.0)*0.01175;
 	if (vvi>6000.0) angle=105.75;
@@ -5483,11 +5480,11 @@ Vector3 Beam::getGForces()
         cameranodeacc = Vector3::ZERO;
         cameranodecount = 0;
 
-        float longacc = acc.dotProduct((nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition).normalisedCopy());
-        float latacc = acc.dotProduct((nodes[cameranodepos[0]].RelPosition - nodes[cameranoderoll[0]].RelPosition).normalisedCopy());
+        float longacc = acc.dotProduct((ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranodedir[0]].RelPosition).normalisedCopy());
+        float latacc = acc.dotProduct((ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranoderoll[0]].RelPosition).normalisedCopy());
 
-        Vector3 diffdir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
-        Vector3 diffroll = nodes[cameranodepos[0]].RelPosition - nodes[cameranoderoll[0]].RelPosition;
+        Vector3 diffdir = ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranodedir[0]].RelPosition;
+        Vector3 diffroll = ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranoderoll[0]].RelPosition;
 
         Vector3 upv = diffdir.crossProduct(-diffroll);
         upv.normalise();
@@ -5560,8 +5557,8 @@ Beam::Beam(
     bool preloaded_with_terrain, /* = false */
     int cache_entry_number /* = -1 */
 ) 
-    : nodes(nullptr), free_node(0)
-    , beams(nullptr), free_beam(0)
+    : ar_nodes(nullptr), ar_num_nodes(0)
+    , ar_beams(nullptr), ar_num_beams(0)
     , shocks(nullptr), free_shock(0)
     , has_active_shocks(false)
     , rotators(nullptr), free_rotator(0)
@@ -5729,22 +5726,22 @@ Beam::Beam(
     // add storage
     if (App::sim_position_storage.GetActive())
     {
-        posStorage = new PositionStorage(free_node, 10);
+        posStorage = new PositionStorage(ar_num_nodes, 10);
     }
 
     // calculate the number of wheel nodes
     wheel_node_count = 0;
-    for (int i = 0; i < free_node; i++)
+    for (int i = 0; i < ar_num_nodes; i++)
     {
-        if (nodes[i].iswheel != NOWHEEL)
+        if (ar_nodes[i].iswheel != NOWHEEL)
             wheel_node_count++;
     }
 
     // search m_net_first_wheel_node
-    m_net_first_wheel_node = free_node;
-    for (int i = 0; i < free_node; i++)
+    m_net_first_wheel_node = ar_num_nodes;
+    for (int i = 0; i < ar_num_nodes; i++)
     {
-        if (nodes[i].iswheel == WHEEL_DEFAULT)
+        if (ar_nodes[i].iswheel == WHEEL_DEFAULT)
         {
             m_net_first_wheel_node = i;
             break;
@@ -5754,7 +5751,7 @@ Beam::Beam(
     // network buffer layout (without RoRnet::TruckState):
     //
     //  - 3 floats (x,y,z) for the reference node 0
-    //  - free_node - 1 times 3 short ints (compressed position info)
+    //  - ar_num_nodes - 1 times 3 short ints (compressed position info)
     //  - free_wheel times a float for the wheel rotation
     //
     m_net_node_buf_size = sizeof(float) * 3 + (m_net_first_wheel_node - 1) * sizeof(short int) * 3;
@@ -6011,10 +6008,10 @@ bool Beam::LoadTruck(
     /* POST-PROCESSING (Old-spawn code from Beam::loadTruck2) */
 
     // Apply spawn position & spawn rotation
-    for (int i = 0; i < free_node; i++)
+    for (int i = 0; i < ar_num_nodes; i++)
     {
-        nodes[i].AbsPosition = spawn_position + spawn_rotation * (nodes[i].AbsPosition - spawn_position);
-        nodes[i].RelPosition = nodes[i].AbsPosition - origin;
+        ar_nodes[i].AbsPosition = spawn_position + spawn_rotation * (ar_nodes[i].AbsPosition - spawn_position);
+        ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - origin;
     };
 
     /* Place correctly */
@@ -6048,8 +6045,8 @@ bool Beam::LoadTruck(
         {
             bool inside = true;
 
-            for (int i = 0; i < free_node; i++)
-                inside = (inside && gEnv->collisions->isInside(nodes[i].AbsPosition, spawn_box, 0.2f));
+            for (int i = 0; i < ar_num_nodes; i++)
+                inside = (inside && gEnv->collisions->isInside(ar_nodes[i].AbsPosition, spawn_box, 0.2f));
 
             if (!inside)
             {
@@ -6210,64 +6207,64 @@ bool Beam::LoadTruck(
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_LOAD_DASHBOARDS);
 
     // Set beam defaults
-    for (int i = 0; i < free_beam; i++)
+    for (int i = 0; i < ar_num_beams; i++)
     {
-        beams[i].initial_beam_strength       = beams[i].strength;
-        beams[i].default_beam_deform         = beams[i].minmaxposnegstress;
-        beams[i].default_beam_plastic_coef   = beams[i].plastic_coef;
+        ar_beams[i].initial_beam_strength       = ar_beams[i].strength;
+        ar_beams[i].default_beam_deform         = ar_beams[i].minmaxposnegstress;
+        ar_beams[i].default_beam_plastic_coef   = ar_beams[i].plastic_coef;
     }
 
     // TODO: Check cam. nodes once on spawn! They never change --> no reason to repeat the check. ~only_a_ptr, 06/2017
     if (cameranodepos[0] != cameranodedir[0] && this->IsNodeIdValid(cameranodepos[0]) && this->IsNodeIdValid(cameranodedir[0]))
     {
-        Vector3 cur_dir = nodes[cameranodepos[0]].RelPosition - nodes[cameranodedir[0]].RelPosition;
+        Vector3 cur_dir = ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranodedir[0]].RelPosition;
         m_spawn_rotation = atan2(cur_dir.dotProduct(Vector3::UNIT_X), cur_dir.dotProduct(-Vector3::UNIT_Z));
     }
-    else if (free_node > 1)
+    else if (ar_num_nodes > 1)
     {
         float max_dist = 0.0f;
         int furthest_node = 1;
-        for (int i = 0; i < free_node; i++)
+        for (int i = 0; i < ar_num_nodes; i++)
         {
-            float dist = nodes[i].RelPosition.squaredDistance(nodes[0].RelPosition);
+            float dist = ar_nodes[i].RelPosition.squaredDistance(ar_nodes[0].RelPosition);
             if (dist > max_dist)
             {
                 max_dist = dist;
                 furthest_node = i;
             }
         }
-        Vector3 cur_dir = nodes[0].RelPosition - nodes[furthest_node].RelPosition;
+        Vector3 cur_dir = ar_nodes[0].RelPosition - ar_nodes[furthest_node].RelPosition;
         m_spawn_rotation = atan2(cur_dir.dotProduct(Vector3::UNIT_X), cur_dir.dotProduct(-Vector3::UNIT_Z));
     }
 
-    Vector3 cinecam = nodes[0].AbsPosition;
+    Vector3 cinecam = ar_nodes[0].AbsPosition;
     if (this->IsNodeIdValid(cameranodepos[0]))
     {
-        cinecam = nodes[cameranodepos[0]].AbsPosition;
+        cinecam = ar_nodes[cameranodepos[0]].AbsPosition;
     }
 
     // Calculate the approximate median
-    std::vector<Real> mx(free_node, 0.0f);
-    std::vector<Real> my(free_node, 0.0f);
-    std::vector<Real> mz(free_node, 0.0f);
-    for (int i = 0; i < free_node; i++)
+    std::vector<Real> mx(ar_num_nodes, 0.0f);
+    std::vector<Real> my(ar_num_nodes, 0.0f);
+    std::vector<Real> mz(ar_num_nodes, 0.0f);
+    for (int i = 0; i < ar_num_nodes; i++)
     {
-        mx[i] = nodes[i].AbsPosition.x;
-        my[i] = nodes[i].AbsPosition.y;
-        mz[i] = nodes[i].AbsPosition.z;
+        mx[i] = ar_nodes[i].AbsPosition.x;
+        my[i] = ar_nodes[i].AbsPosition.y;
+        mz[i] = ar_nodes[i].AbsPosition.z;
     }
-    std::nth_element(mx.begin(), mx.begin() + free_node / 2, mx.end());
-    std::nth_element(my.begin(), my.begin() + free_node / 2, my.end());
-    std::nth_element(mz.begin(), mz.begin() + free_node / 2, mz.end());
-    Vector3 median = Vector3(mx[free_node / 2], my[free_node / 2], mz[free_node / 2]);
+    std::nth_element(mx.begin(), mx.begin() + ar_num_nodes / 2, mx.end());
+    std::nth_element(my.begin(), my.begin() + ar_num_nodes / 2, my.end());
+    std::nth_element(mz.begin(), mz.begin() + ar_num_nodes / 2, mz.end());
+    Vector3 median = Vector3(mx[ar_num_nodes / 2], my[ar_num_nodes / 2], mz[ar_num_nodes / 2]);
 
     // Calculate the average
     Vector3 sum = Vector3::ZERO;
-    for (int i = 0; i < free_node; i++)
+    for (int i = 0; i < ar_num_nodes; i++)
     {
-        sum += nodes[i].AbsPosition;
+        sum += ar_nodes[i].AbsPosition;
     }
-    Vector3 average = sum / free_node;
+    Vector3 average = sum / ar_num_nodes;
 
     // Decide whether or not the cinecam node is an appropriate rotation center
     m_is_cinecam_rotation_center = cinecam.squaredDistance(median) < average.squaredDistance(median);
@@ -6314,22 +6311,12 @@ std::vector<std::string> Beam::getDescription()
 
 int Beam::getBeamCount()
 {
-    return free_beam;
-}
-
-beam_t* Beam::getBeams()
-{
-    return beams;
+    return ar_num_beams;
 }
 
 int Beam::getNodeCount()
 {
-    return free_node;
-}
-
-node_t* Beam::getNodes()
-{
-    return nodes;
+    return ar_num_nodes;
 }
 
 void Beam::setMass(float m)
@@ -6417,9 +6404,9 @@ bool Beam::inRange(float num, float min, float max)
 
 Vector3 Beam::getNodePosition(int nodeNumber)
 {
-    if (nodeNumber >= 0 && nodeNumber < free_node)
+    if (nodeNumber >= 0 && nodeNumber < ar_num_nodes)
     {
-        return nodes[nodeNumber].AbsPosition;
+        return ar_nodes[nodeNumber].AbsPosition;
     }
     else
     {
