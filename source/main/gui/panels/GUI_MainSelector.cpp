@@ -385,11 +385,6 @@ void CLASS::UpdateGuiData()
     std::sort(entries->begin(), entries->end(), sort_entries<CacheEntry>());
     for (std::vector<CacheEntry>::iterator it = entries->begin(); it != entries->end(); it++)
     {
-        // category hidden
-        /*if (it->categoryid == CacheSystem::CID_Unsorted)
-        continue;
-        */
-        //printf("category: %d\n", it->categoryid);
         bool add = false;
         if (it->fext == "terrn2")
             add = (m_loader_type == LT_Terrain);

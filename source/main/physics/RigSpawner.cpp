@@ -301,8 +301,6 @@ void RigSpawner::InitializeRig()
     m_rig->rescuer = false;
     m_rig->disable_default_sounds=false;
     m_rig->has_slope_brake=false;
-    m_rig->categoryid=-1;
-    m_rig->truckversion=-1;
     m_rig->ar_extern_camera_mode=0;
     m_rig->ar_extern_camera_node=-1;
     m_rig->authors.clear();
@@ -5654,19 +5652,6 @@ void RigSpawner::ProcessHelp()
 
     SetCurrentKeyword(RigDef::File::KEYWORD_INVALID);
 };
-
-void RigSpawner::ProcessFileInfo()
-{
-    SPAWNER_PROFILE_SCOPED();
-
-    if (m_file->file_info != nullptr)
-    {
-        // Do it the 0.3x way ... no error check!
-        // NOTE: UniqueID was removed for being useless
-        m_rig->categoryid = m_file->file_info->category_id;
-        m_rig->truckversion = m_file->file_info->file_version;
-    }
-}
 
 void RigSpawner::ProcessAuthors()
 {

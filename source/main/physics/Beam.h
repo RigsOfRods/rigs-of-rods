@@ -343,15 +343,15 @@ public:
     bool              alb_pulse_state;    //!< Anti-lock brake status;
     bool              alb_present;        //!< Anti-lock brake attribute: Display the dashboard indicator?
     bool              alb_notoggle;       //!< Anti-lock brake attribute: Disable in-game toggle?
-    float             tc_ratio;
-    float             tc_wheelslip;
-    float             tc_fade;
+    float             tc_ratio;           //!< Traction control
+    float             tc_wheelslip;       //!< Traction control
+    float             tc_fade;            //!< Traction control
     int               tc_mode;            //!< Traction control status; Enabled? {1/0}
     float             tc_pulse_time;      //!< Traction control attribute;
-    bool              tc_pulse_state;
+    bool              tc_pulse_state;     //!< Traction control
     bool              tc_present;         //!< Traction control attribute; Display the dashboard indicator?
     bool              tc_notoggle;        //!< Traction control attribute; Disable in-game toggle?
-    float             tc_timer;
+    float             tc_timer;           //!< Traction control
     float             alb_timer;
     int               antilockbrake;
     int               tractioncontrol;
@@ -364,8 +364,6 @@ public:
     std::deque<float> cc_accs;            //!< Cruise Control
     bool              sl_enabled;         //!< Speed limiter;
     float             sl_speed_limit;     //!< Speed limiter;
-    int               categoryid;
-    int               truckversion;
     int               ar_extern_camera_mode;
     int               ar_extern_camera_node;
     std::vector<authorinfo_t> authors;

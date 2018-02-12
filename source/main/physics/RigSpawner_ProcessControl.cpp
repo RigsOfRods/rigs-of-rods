@@ -155,9 +155,6 @@ Beam *RigSpawner::SpawnRig()
     // Section 'authors' in root module
     ProcessAuthors();
 
-    // Section 'fileinfo' in root module
-    ProcessFileInfo();
-
     // Section 'guid' in root module: unused for gameplay
     if (m_file->guid.empty())
     {
