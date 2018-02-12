@@ -326,8 +326,8 @@ public:
     int               buoycabs[MAX_CABS];
     int               buoycabtypes[MAX_CABS];
     int               free_buoycab;
-    Airbrake*         airbrakes[MAX_AIRBRAKES];
-    int               free_airbrake;
+    Airbrake*         ar_airbrakes[MAX_AIRBRAKES];
+    int               ar_num_airbrakes;
     FlexBody*         ar_flexbodies[MAX_FLEXBODIES];
     int               ar_num_flexbodies;
     int               ar_camera_rail[MAX_CAMERARAIL]; //!< Nodes defining camera-movement spline
