@@ -2040,7 +2040,7 @@ void RoRFrameListener::ReloadPlayerActor()
     // * other minor stati
 
     // notice the user about the amount of possible reloads
-    String msg = TOSTRING(new_actor->ar_instance_id) + String(" of ") + TOSTRING(MAX_TRUCKS) + String(" possible reloads.");
+    String msg = TOSTRING(new_actor->ar_instance_id) + String(" of ") + TOSTRING(MAX_ACTORS) + String(" possible reloads.");
     RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, msg, "information.png");
     RoR::App::GetGuiManager()->PushNotification("Notice:", msg);
 

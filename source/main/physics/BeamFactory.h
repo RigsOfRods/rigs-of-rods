@@ -57,7 +57,7 @@ public:
         int cache_entry_number = -1,
         collision_box_t* spawnbox = NULL,
         bool ismachine = false,
-        const std::vector<Ogre::String>* truckconfig = nullptr,
+        const std::vector<Ogre::String>* actorconfig = nullptr,
         RoR::SkinDef* skin = nullptr,
         bool freePosition = false,
         bool preloaded_with_terrain = false
@@ -116,11 +116,11 @@ protected:
     bool           PredictActorAabbIntersection(int a, int b, float scale = 1.0f);   //!< Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the default truck bounding boxes.
     bool           CheckActorCollAabbIntersect(int a, int b, float scale = 1.0f);    //!< Returns whether or not the bounding boxes of truck a and truck b intersect. Based on the truck collision bounding boxes.
     bool           PredictActorCollAabbIntersect(int a, int b, float scale = 1.0f);  //!< Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the truck collision bounding boxes.
-    int            CreateRemoteInstance(RoRnet::TruckStreamRegister* reg);
+    int            CreateRemoteInstance(RoRnet::ActorStreamRegister* reg);
     void           RemoveStreamSource(int sourceid);
     void           LogParserMessages();
     void           LogSpawnerMessages();
-    void           RecursiveActivation(int j, std::bitset<MAX_TRUCKS>& visited);
+    void           RecursiveActivation(int j, std::bitset<MAX_ACTORS>& visited);
     void           UpdateSleepingState(float dt);
     int            GetMostRecentActorSlot();
     int            GetFreeActorSlot();
@@ -133,7 +133,7 @@ protected:
     RoRFrameListener*               m_sim_controller;
 
     int             m_num_cpu_cores;
-    Actor*          m_actors[MAX_TRUCKS];//!< All actors; slots are not reused
+    Actor*          m_actors[MAX_ACTORS];//!< All actors; slots are not reused
     int             m_free_actor_slot;   //!< Slots are not reused
     int             m_prev_player_actor; //!< Previous player-controlled actor
     int             m_player_actor_id;   //!< Current player-controlled actor (i.e. a vehicle)

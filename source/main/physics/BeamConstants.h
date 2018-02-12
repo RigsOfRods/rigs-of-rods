@@ -18,23 +18,23 @@
 #pragma once
 
 /* maximum limits */
-static const int   MAX_TRUCKS                 = 5000;            //!< maximum number of trucks for the engine
-static const int   MAX_CONTACTERS             = 2000;            //!< maximum number of contacters per truck
-static const int   MAX_HYDROS                 = 1000;            //!< maximum number of hydros per truck
-static const int   MAX_WHEELS                 = 64;              //!< maximum number of wheels per truck
-static const int   MAX_SUBMESHES              = 500;             //!< maximum number of submeshes per truck
-static const int   MAX_TEXCOORDS              = 3000;            //!< maximum number of texture coordinates per truck
-static const int   MAX_CABS                   = 3000;            //!< maximum number of cabs per truck
-static const int   MAX_PROPS                  = 200;             //!< maximum number of props per truck
-static const int   MAX_COMMANDS               = 84;              //!< maximum number of commands per truck
-static const int   MAX_CAMERAS                = 10;              //!< maximum number of cameras per truck
-static const int   MAX_FLEXBODIES             = 64;              //!< maximum number of flexbodies per truck
-static const int   MAX_AEROENGINES            = 8;               //!< maximum number of aero engines per truck
-static const int   MAX_SCREWPROPS             = 8;               //!< maximum number of boat screws per truck
-static const int   MAX_AIRBRAKES              = 20;              //!< maximum number of airbrakes per truck
-static const int   MAX_SOUNDSCRIPTS_PER_TRUCK = 128;             //!< maximum number of soundsscripts per truck
-static const int   MAX_CPARTICLES             = 10;              //!< maximum number of custom particles per truck
-static const int   MAX_PRESSURE_BEAMS         = 4000;            //!< maximum number of pressure beams per truck
+static const int   MAX_ACTORS                 = 5000;            //!< maximum number of actors per game session
+static const int   MAX_CONTACTERS             = 2000;            //!< maximum number of contacters per actor
+static const int   MAX_HYDROS                 = 1000;            //!< maximum number of hydros per actor
+static const int   MAX_WHEELS                 = 64;              //!< maximum number of wheels per actor
+static const int   MAX_SUBMESHES              = 500;             //!< maximum number of submeshes per actor
+static const int   MAX_TEXCOORDS              = 3000;            //!< maximum number of texture coordinates per actor
+static const int   MAX_CABS                   = 3000;            //!< maximum number of cabs per actor
+static const int   MAX_PROPS                  = 200;             //!< maximum number of props per actor
+static const int   MAX_COMMANDS               = 84;              //!< maximum number of commands per actor
+static const int   MAX_CAMERAS                = 10;              //!< maximum number of cameras per actor
+static const int   MAX_FLEXBODIES             = 64;              //!< maximum number of flexbodies per actor
+static const int   MAX_AEROENGINES            = 8;               //!< maximum number of aero engines per actor
+static const int   MAX_SCREWPROPS             = 8;               //!< maximum number of boat screws per actor
+static const int   MAX_AIRBRAKES              = 20;              //!< maximum number of airbrakes per actor
+static const int   MAX_SOUNDSCRIPTS_PER_TRUCK = 128;             //!< maximum number of soundsscripts per actor
+static const int   MAX_CPARTICLES             = 10;              //!< maximum number of custom particles per actor
+static const int   MAX_PRESSURE_BEAMS         = 4000;            //!< maximum number of pressure beams per actor
 static const int   MAX_CAMERARAIL             = 50;              //!< maximum number of camera rail points
 
 static const float RAD_PER_SEC_TO_RPM         = 9.5492965855137f; //!< Convert radian/second to RPM (60/2*PI)

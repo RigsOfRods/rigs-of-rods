@@ -502,9 +502,9 @@ private:
     float             m_mouse_grab_move_force;
     float             m_spawn_rotation;
     ResetRequest      m_reset_request;
-    RoRnet::TruckState* oob1;                  //!< Network; Triple buffer for incoming data (actor properties)
-    RoRnet::TruckState* oob2;                  //!< Network; Triple buffer for incoming data (actor properties)
-    RoRnet::TruckState* oob3;                  //!< Network; Triple buffer for incoming data (actor properties)
+    RoRnet::VehicleState* oob1;                  //!< Network; Triple buffer for incoming data (actor properties)
+    RoRnet::VehicleState* oob2;                  //!< Network; Triple buffer for incoming data (actor properties)
+    RoRnet::VehicleState* oob3;                  //!< Network; Triple buffer for incoming data (actor properties)
     char*             netb1;                   //!< Network; Triple buffer for incoming data
     char*             netb2;                   //!< Network; Triple buffer for incoming data
     char*             netb3;                   //!< Network; Triple buffer for incoming data
