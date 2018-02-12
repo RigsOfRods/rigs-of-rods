@@ -340,7 +340,6 @@ public:
     bool              importcommands;
     bool              wheel_contact_requested;
     bool              rescuer;
-    bool              disable_default_sounds;
     bool              has_slope_brake;
     float             slopeBrakeFactor;
     float             slopeBrakeAttAngle;
@@ -382,9 +381,6 @@ public:
     int               ar_exhaust_dir_node; //!< Old-format exhaust (one per vehicle) backwards direction node
     char              truckname[256];
     bool              networking;
-    bool              beambreakdebug;
-    bool              beamdeformdebug;
-    bool              triggerdebug;
     int               trucknum;
     RoR::SkinDef*     usedSkin;
     Buoyance*         buoyance;
@@ -394,7 +390,6 @@ public:
     char              helpmat[256];
     int               cinecameranodepos[MAX_CAMERAS];       //!< Cine-camera node indexes
     int               freecinecamera;                       //!< Number of cine-cameras (lowest free index)
-    RoR::GfxFlaresMode m_flares_mode;
     Autopilot*        ar_autopilot;
     float             ar_brake_force;              //!< Physics attr; filled at spawn
     float             ar_speedo_max_kph;           //!< GUI attr
@@ -605,6 +600,7 @@ private:
     int               m_debug_visuals;         //!< GUI state; Dbg. overlay type { NODES: 1-Numbers, 4-Mass, 5-Locked | BEAMS: 2-Numbers, 6-Compression, 7-Broken, 8-Stress, 9-Strength, 10-Hydros, 11-Commands, OTHER: 3-N&B numbers, 12-14 unknown }
     unsigned int      m_net_custom_lights[4];  //!< Sim state
     unsigned char     m_net_custom_light_count;//!< Sim attr
+    RoR::GfxFlaresMode m_flares_mode;          //!< Gfx attr, clone of GVar -- TODO: remove
 
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?
@@ -625,7 +621,11 @@ private:
     bool m_preloaded_with_terrain:1;        //!< Spawn context (TODO: remove!)
     bool m_high_res_wheelnode_collisions:1; //!< Physics attr; set at spawn
     bool m_spawn_free_positioned:1;         //!< Spawn context (TODO: remove!)
-    bool m_gfx_reduce_shadows:1;       //!< Gfx switch; alias of RoR.cfg entry "Shadow optimizations"
+    bool m_gfx_reduce_shadows:1;        //!< Gfx switch; alias of RoR.cfg entry "Shadow optimizations"
+    bool m_beam_break_debug_enabled:1;  //!< Logging state
+    bool m_beam_deform_debug_enabled:1; //!< Logging state
+    bool m_trigger_debug_enabled:1;     //!< Logging state
+    bool m_disable_default_sounds:1;    //!< Spawner context; TODO: remove
 
 #ifdef FEAT_TIMING
     BeamThreadStats *statistics, *statistics_gfx;

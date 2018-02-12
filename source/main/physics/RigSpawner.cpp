@@ -296,7 +296,6 @@ void RigSpawner::InitializeRig()
 
     m_rig->wheel_contact_requested = false;
     m_rig->rescuer = false;
-    m_rig->disable_default_sounds=false;
     m_rig->has_slope_brake=false;
     m_rig->ar_extern_camera_mode=0;
     m_rig->ar_extern_camera_node=-1;
@@ -313,9 +312,9 @@ void RigSpawner::InitializeRig()
     m_rig->disable_smoke = App::gfx_particles_mode.GetActive() == 0;
     m_rig->ar_exhaust_pos_node=0;
     m_rig->ar_exhaust_dir_node=0;
-    m_rig->beambreakdebug  = App::diag_log_beam_break.GetActive(); // TODO: make interactive - don't copy Gvar, use it directly
-    m_rig->beamdeformdebug = App::diag_log_beam_deform.GetActive();
-    m_rig->triggerdebug    = App::diag_log_beam_trigger.GetActive();
+    m_rig->m_beam_break_debug_enabled  = App::diag_log_beam_break.GetActive();
+    m_rig->m_beam_deform_debug_enabled = App::diag_log_beam_deform.GetActive();
+    m_rig->m_trigger_debug_enabled    = App::diag_log_beam_trigger.GetActive();
     m_rig->m_rotator_inertia = nullptr;
     m_rig->m_hydro_inertia = nullptr;
     m_rig->m_command_inertia = nullptr;
@@ -3248,7 +3247,7 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
 
     CreateBeamVisuals(beam, beam_index, def.beam_defaults);
 
-    if (m_rig->triggerdebug)
+    if (m_rig->m_trigger_debug_enabled)
     {
         LOG("Trigger added. BeamID " + TOSTRING(beam_index));
     }
