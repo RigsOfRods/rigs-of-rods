@@ -193,7 +193,7 @@ bool OutProtocol::Update(float dt, Beam* truck)
             gd.ShowLights |= DL_ABS;
 
         gd.Throttle = truck->engine->getAcc();
-        gd.Brake = truck->brake / truck->brakeforce;
+        gd.Brake = truck->ar_brake / truck->ar_brake_force;
         gd.Clutch = 1 - truck->engine->getClutch(); // 0-1
 
         strncpy(gd.Display1, truck->realtruckname.c_str(), 15);

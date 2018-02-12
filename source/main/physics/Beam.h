@@ -410,9 +410,8 @@ public:
     node_t*           fuseFront;
     node_t*           fuseBack;
     float             fuseWidth;
-    float             brakeforce;
-    float             hbrakeforce;
-    int               debugVisuals; //!< Dbg. overlay type { NODES: 1-Numbers, 4-Mass, 5-Locked | BEAMS: 2-Numbers, 6-Compression, 7-Broken, 8-Stress, 9-Strength, 10-Hydros, 11-Commands, OTHER: 3-N&B numbers, 12-14 unknown }
+    float             ar_brake_force;              //!< Physics attr; filled at spawn
+    int               debugVisuals;                //!< Dbg. overlay type { NODES: 1-Numbers, 4-Mass, 5-Locked | BEAMS: 2-Numbers, 6-Compression, 7-Broken, 8-Stress, 9-Strength, 10-Hydros, 11-Commands, OTHER: 3-N&B numbers, 12-14 unknown }
     float             speedoMax;
     bool              useMaxRPMforGUI;
     float             minimass;
@@ -424,7 +423,7 @@ public:
     int               free_axle;
     int               propwheelcount;
     int               free_commands;
-    Ogre::Vector3     origin;
+    Ogre::Vector3     ar_origin;
     Ogre::SceneNode*  beamsRoot;
     int               proped_wheels;               //!< Number of propelled wheels.
     int               braked_wheels;               //!< Number of braked wheels.
@@ -446,7 +445,7 @@ public:
     float             odometerUser;
     VehicleAI*        ar_vehicle_ai;
     float             currentScale;
-    Ogre::Real        brake;
+    Ogre::Real        ar_brake;           //!< Physics state; braking intensity
     float             WheelSpeed;         //!< wheel speed in m/s
     float             hydrodircommand;
     bool              hydroSpeedCoupling;
@@ -497,7 +496,7 @@ public:
     bool ar_disable_self_collision:1; //!< Physics attribute; clone of RoR.cfg entry "DisableSelfCollisions"
     bool ar_disable_actor2actor_collision:1; //!< Physics attribute; clone of RoR.cfg entry "DisableCollisions"
     bool ar_disable_aerodyn_turbulent_drag:1; //!< Physics state
-    bool ar_replay_mode;      //!< Sim state
+    bool ar_replay_mode:1;      //!< Sim state
 
 private:
 
@@ -614,6 +613,7 @@ private:
     CmdKeyInertia*    m_rotator_inertia;       //!< Physics
     CmdKeyInertia*    m_hydro_inertia;         //!< Physics
     CmdKeyInertia*    m_command_inertia;       //!< Physics
+    float             m_handbrake_force;       //!< Physics attr; set at spawn
 
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?

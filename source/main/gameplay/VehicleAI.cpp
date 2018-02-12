@@ -206,17 +206,17 @@ void VehicleAI::update(float dt, int doUpdate)
         {
             if (kmh_wheel_speed < maxspeed - 1)
             {
-                beam->brake = 0;
+                beam->ar_brake = 0;
                 beam->engine->autoSetAcc(acc_power);
             }
             else if (kmh_wheel_speed > maxspeed + 1)
             {
-                beam->brake = beam->brakeforce / 3;
+                beam->ar_brake = beam->ar_brake_force / 3;
                 beam->engine->autoSetAcc(0);
             }
             else
             {
-                beam->brake = 0;
+                beam->ar_brake = 0;
                 beam->engine->autoSetAcc(0);
             }
         }
@@ -224,17 +224,17 @@ void VehicleAI::update(float dt, int doUpdate)
         {
             if (kmh_wheel_speed < maxspeed - 1)
             {
-                beam->brake = 0;
+                beam->ar_brake = 0;
                 beam->engine->autoSetAcc(acc_power / 3);
             }
             else if (kmh_wheel_speed > maxspeed + 1)
             {
-                beam->brake = beam->brakeforce / 2;
+                beam->ar_brake = beam->ar_brake_force / 2;
                 beam->engine->autoSetAcc(0);
             }
             else
             {
-                beam->brake = 0;
+                beam->ar_brake = 0;
                 beam->engine->autoSetAcc(0);
             }
         }

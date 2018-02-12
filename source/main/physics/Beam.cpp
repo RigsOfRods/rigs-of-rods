@@ -530,7 +530,7 @@ void Beam::updateSimpleSkeleton()
 
 void Beam::moveOrigin(Vector3 offset)
 {
-    origin += offset;
+    ar_origin += offset;
     for (int i = 0; i < ar_num_nodes; i++)
     {
         ar_nodes[i].RelPosition -= offset;
@@ -728,7 +728,7 @@ void Beam::calcNetwork()
 
         // linear interpolation
         ar_nodes[i].AbsPosition = p1 + tratio * (p2 - p1);
-        ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - origin;
+        ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - ar_origin;
 
         apos += ar_nodes[i].AbsPosition;
     }
@@ -751,10 +751,10 @@ void Beam::calcNetwork()
             Vector3 uray = Quaternion(Radian(rp - drp * j), axis) * ray;
 
             wheels[i].wh_nodes[j * 2 + 0]->AbsPosition = wheels[i].wh_axis_node_0->AbsPosition + uray;
-            wheels[i].wh_nodes[j * 2 + 0]->RelPosition = wheels[i].wh_nodes[j * 2]->AbsPosition - origin;
+            wheels[i].wh_nodes[j * 2 + 0]->RelPosition = wheels[i].wh_nodes[j * 2]->AbsPosition - ar_origin;
 
             wheels[i].wh_nodes[j * 2 + 1]->AbsPosition = wheels[i].wh_axis_node_1->AbsPosition + uray;
-            wheels[i].wh_nodes[j * 2 + 1]->RelPosition = wheels[i].wh_nodes[j * 2 + 1]->AbsPosition - origin;
+            wheels[i].wh_nodes[j * 2 + 1]->RelPosition = wheels[i].wh_nodes[j * 2 + 1]->AbsPosition - ar_origin;
         }
     }
 
@@ -782,7 +782,7 @@ void Beam::calcNetwork()
         SOUND_MODULATE(trucknum, SS_MOD_AEROENGINE4, engspeed);
     }
 
-    brake = netbrake;
+    ar_brake = netbrake;
 
     if (engine)
     {
@@ -1279,7 +1279,7 @@ int Beam::loadPosition(int indexPosition)
     for (int i = 0; i < ar_num_nodes; i++)
     {
         ar_nodes[i].AbsPosition = nbuff[i];
-        ar_nodes[i].RelPosition = nbuff[i] - origin;
+        ar_nodes[i].RelPosition = nbuff[i] - ar_origin;
 
         // reset forces
         ar_nodes[i].Velocity = Vector3::ZERO;
@@ -1372,7 +1372,7 @@ void Beam::resetAngle(float rot)
         ar_nodes[i].AbsPosition -= origin;
         ar_nodes[i].AbsPosition = matrix * ar_nodes[i].AbsPosition;
         ar_nodes[i].AbsPosition += origin;
-        ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - this->origin;
+        ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - this->ar_origin;
     }
 
     resetSlideNodePositions();
@@ -1388,7 +1388,7 @@ void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
     for (int i = 0; i < ar_num_nodes; i++)
     {
         ar_nodes[i].AbsPosition += offset;
-        ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - origin;
+        ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - ar_origin;
     }
 
     // vertical displacement
@@ -1407,7 +1407,7 @@ void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
     for (int i = 0; i < ar_num_nodes; i++)
     {
         ar_nodes[i].AbsPosition.y += vertical_offset;
-        ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - origin;
+        ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - ar_origin;
     }
 
     // mesh displacement
@@ -1433,7 +1433,7 @@ void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
     for (int i = 0; i < ar_num_nodes; i++)
     {
         ar_nodes[i].AbsPosition.y += mesh_offset;
-        ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - origin;
+        ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - ar_origin;
     }
 
     resetPosition(Vector3::ZERO, setInitPosition);
@@ -1448,7 +1448,7 @@ void Beam::resetPosition(Vector3 translation, bool setInitPosition)
         for (int i = 0; i < ar_num_nodes; i++)
         {
             ar_nodes[i].AbsPosition += offset;
-            ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - origin;
+            ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - ar_origin;
         }
     }
 
@@ -1595,7 +1595,7 @@ void Beam::displace(Vector3 translation, float rotation)
             ar_nodes[i].AbsPosition -= rotation_center;
             ar_nodes[i].AbsPosition = rot * ar_nodes[i].AbsPosition;
             ar_nodes[i].AbsPosition += rotation_center;
-            ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - origin;
+            ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - ar_origin;
         }
     }
 
@@ -1604,7 +1604,7 @@ void Beam::displace(Vector3 translation, float rotation)
         for (int i = 0; i < ar_num_nodes; i++)
         {
             ar_nodes[i].AbsPosition += translation;
-            ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - origin;
+            ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - ar_origin;
         }
     }
 
@@ -1653,7 +1653,7 @@ void Beam::SyncReset()
     ar_parking_brake = 0;
     cc_mode = false;
     ar_fusedrag = Vector3::ZERO;
-    origin = Vector3::ZERO;
+    ar_origin = Vector3::ZERO;
     float yPos = ar_nodes[lowestcontactingnode].AbsPosition.y;
 
     Vector3 cur_position = ar_nodes[0].AbsPosition;
@@ -1663,7 +1663,7 @@ void Beam::SyncReset()
     for (int i = 0; i < ar_num_nodes; i++)
     {
         ar_nodes[i].AbsPosition = ar_nodes[i].initial_pos;
-        ar_nodes[i].RelPosition = ar_nodes[i].initial_pos - origin;
+        ar_nodes[i].RelPosition = ar_nodes[i].initial_pos - ar_origin;
         ar_nodes[i].Velocity = Vector3::ZERO;
         ar_nodes[i].Forces = Vector3::ZERO;
     }
@@ -1779,7 +1779,7 @@ bool Beam::replayStep()
             for (int i = 0; i < ar_num_nodes; i++)
             {
                 ar_nodes[i].AbsPosition = nbuff[i].position;
-                ar_nodes[i].RelPosition = nbuff[i].position - origin;
+                ar_nodes[i].RelPosition = nbuff[i].position - ar_origin;
 
                 ar_nodes[i].Velocity = nbuff[i].velocity;
                 ar_nodes[i].Forces = nbuff[i].forces;
@@ -1917,7 +1917,7 @@ void Beam::sendStreamData()
         }
 
         send_oob->hydrodirstate = hydrodirstate;
-        send_oob->brake = brake;
+        send_oob->brake = ar_brake;
         send_oob->wheelspeed = WheelSpeed;
 
         blinktype b = getBlinkType();
@@ -2221,7 +2221,7 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
     //brake
     if (flag_state & ANIM_FLAG_BRAKE)
     {
-        float brakes = brake / brakeforce;
+        float brakes = ar_brake / ar_brake_force;
         cstate -= brakes;
         div++;
     }
@@ -5088,7 +5088,7 @@ void Beam::updateDashBoards(float dt)
     }
 
     // brake
-    float dash_brake = brake / brakeforce;
+    float dash_brake = ar_brake / ar_brake_force;
     ar_dashboard->setFloat(DD_BRAKE, dash_brake);
 
     // speedo
@@ -5499,7 +5499,7 @@ void Beam::engineTriggerHelper(int engineNumber, int type, float triggerValue)
             e->setClutch(triggerValue);
         break;
     case TRG_ENGINE_BRAKE:
-        brake = triggerValue * brakeforce;
+        ar_brake = triggerValue * ar_brake_force;
         break;
     case TRG_ENGINE_ACC:
         if (e)
@@ -5552,7 +5552,7 @@ Beam::Beam(
     , ar_beams_visible(true)
     , m_blink_type(BLINK_NONE)
     , m_blinker_autoreset(false)
-    , brake(0.0)
+    , ar_brake(0.0)
     , m_cab_fade_mode(0)
     , m_cab_fade_time(0.3)
     , m_cab_fade_timer(0)
@@ -5967,7 +5967,7 @@ bool Beam::LoadTruck(
     for (int i = 0; i < ar_num_nodes; i++)
     {
         ar_nodes[i].AbsPosition = spawn_position + spawn_rotation * (ar_nodes[i].AbsPosition - spawn_position);
-        ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - origin;
+        ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - ar_origin;
     };
 
     /* Place correctly */
@@ -6289,7 +6289,7 @@ bool Beam::getBrakeLightVisible()
         return m_net_brake_light;
 
     //		return (brake > 0.15 && !parkingbrake);
-    return (brake > 0.15);
+    return (ar_brake > 0.15);
 }
 
 bool Beam::getCustomLightVisible(int number)
