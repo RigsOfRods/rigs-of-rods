@@ -323,7 +323,6 @@ void RigSpawner::InitializeRig()
     m_rig->truckmass=0;
     m_rig->loadmass=0;
     m_rig->buoyance = nullptr;
-    m_rig->propwheelcount=0;
     m_rig->free_commands=0;
     m_rig->ar_origin=Ogre::Vector3::ZERO;
     m_rig->m_slidenodes.clear();
@@ -355,8 +354,8 @@ void RigSpawner::InitializeRig()
     m_rig->debugVisuals = SETTINGS.getBooleanSetting("DebugBeams", false);
     m_rig->m_gfx_reduce_shadows = SETTINGS.getBooleanSetting("Shadow optimizations", true);
 
-    m_rig->proped_wheels=0;
-    m_rig->braked_wheels=0;
+    m_rig->m_num_proped_wheels=0;
+    m_rig->m_num_braked_wheels=0;
 
     m_rig->speedoMax=140;
     m_rig->useMaxRPMforGUI=false;
@@ -4245,13 +4244,12 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     if (def.propulsion != RigDef::Wheels::PROPULSION_NONE)
     {
         // for inter-differential locking
-        m_rig->proped_wheels++;
-        m_rig->proppairs[m_rig->proped_wheels] = m_rig->free_wheel;
-        m_rig->propwheelcount++;
+        m_rig->m_num_proped_wheels++;
+        m_rig->m_proped_wheel_pairs[m_rig->m_num_proped_wheels] = m_rig->free_wheel;
     }
     if (def.braking != RigDef::Wheels::BRAKING_NO)
     {
-        m_rig->braked_wheels++;
+        m_rig->m_num_braked_wheels++;
     }
 
     // Find near attach
@@ -4553,14 +4551,13 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
 
     if (propulsion != RigDef::Wheels::PROPULSION_NONE)
     {
-        m_rig->propwheelcount++;
         /* for inter-differential locking */
-        m_rig->proped_wheels++;
-        m_rig->proppairs[m_rig->proped_wheels] = m_rig->free_wheel;
+        m_rig->m_num_proped_wheels++;
+        m_rig->m_proped_wheel_pairs[m_rig->m_num_proped_wheels] = m_rig->free_wheel;
     }
     if (braking != RigDef::Wheels::BRAKING_NO)
     {
-        m_rig->braked_wheels++;
+        m_rig->m_num_braked_wheels++;
     }
     
     /* Nodes */
@@ -4967,14 +4964,13 @@ unsigned int RigSpawner::AddWheel(RigDef::Wheel & wheel_def)
 
     if (wheel_def.propulsion != RigDef::Wheels::PROPULSION_NONE)
     {
-        m_rig->propwheelcount++;
         /* for inter-differential locking */
-        m_rig->proped_wheels++;
-        m_rig->proppairs[m_rig->proped_wheels] = m_rig->free_wheel;
+        m_rig->m_num_proped_wheels++;
+        m_rig->m_proped_wheel_pairs[m_rig->m_num_proped_wheels] = m_rig->free_wheel;
     }
     if (wheel_def.braking != RigDef::Wheels::BRAKING_NO)
     {
-        m_rig->braked_wheels++;
+        m_rig->m_num_braked_wheels++;
     }
 
     /* Find near attach */
@@ -5198,12 +5194,12 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
     if (wheel_2_def.propulsion != RigDef::Wheels::PROPULSION_NONE)
     {
         /* for inter-differential locking */
-        m_rig->proped_wheels++;
-        m_rig->proppairs[m_rig->proped_wheels] = m_rig->free_wheel;
+        m_rig->m_num_proped_wheels++;
+        m_rig->m_proped_wheel_pairs[m_rig->m_num_proped_wheels] = m_rig->free_wheel;
     }
     if (wheel_2_def.braking != RigDef::Wheels::BRAKING_NO)
     {
-        m_rig->braked_wheels++;
+        m_rig->m_num_braked_wheels++;
     }
 
     /* Find near attach */
