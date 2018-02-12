@@ -121,7 +121,7 @@ private:
     int            GetFreeActorSlot();
     int            FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
     void           DeleteActorInternal(Actor* b);
-    std::shared_ptr<RigDef::File>   FetchActorDef(RoR::RigLoadingProfiler* prof, const char* filename, bool predefined_on_terrain = false);
+    std::shared_ptr<RigDef::File>   FetchActorDef(const char* filename, bool predefined_on_terrain = false);
 
     std::map<std::string, std::shared_ptr<RigDef::File>>   m_actor_defs;
     std::map<int, std::vector<int>> m_stream_mismatches; //!< Networking: A list of streams without a corresponding actor in the actor-array for each stream source
