@@ -278,9 +278,6 @@ Beam *RigSpawner::SpawnRig()
     // Section 'submeshes'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SUBMESH, submeshes, ProcessSubmesh);
 
-    // Inline-section 'submesh_groundmodel' in any module
-    ProcessSubmeshGroundmodel();
-
     // Section 'contacters'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_CONTACTERS, contacters, ProcessContacter);
 

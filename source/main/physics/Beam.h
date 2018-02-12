@@ -444,7 +444,6 @@ public:
     int               lowestnode;         //!< never updated after truck init!?!
     int               lowestcontactingnode;
     float             posnode_spawn_height;
-    Ogre::String      subMeshGroundModelName;
     float             odometerTotal;
     float             odometerUser;
     VehicleAI*        vehicle_ai;
@@ -470,7 +469,7 @@ public:
     int               ar_replay_length;               //!< Sim attribute; clone of GVar 'sim_replay_length'
     int               ar_replay_pos;                  //!< Sim state
     float             sleeptime;
-    ground_model_t*   submesh_ground_model;
+    ground_model_t*   ar_submesh_ground_model;
     int               parkingbrake;
     int               lights;
     float             ar_left_mirror_angle;           //!< Sim state; rear view mirror angle
