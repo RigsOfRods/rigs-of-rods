@@ -1560,7 +1560,7 @@ void RoRFrameListener::FinalizeTruckSpawning(Beam* local_truck, Beam* previous_t
 
         if (gEnv->surveyMap)
         {
-            gEnv->surveyMap->createNamedMapEntity("Truck" + TOSTRING(local_truck->trucknum), SurveyMapManager::getTypeByDriveable(local_truck->ar_driveable));
+            gEnv->surveyMap->createNamedMapEntity("Truck" + TOSTRING(local_truck->ar_instance_id), SurveyMapManager::getTypeByDriveable(local_truck->ar_driveable));
         }
 
         if (local_truck->ar_driveable != NOT_DRIVEABLE)
@@ -1570,7 +1570,7 @@ void RoRFrameListener::FinalizeTruckSpawning(Beam* local_truck, Beam* previous_t
             {
                 local_truck->ar_engine->start();
             }
-            m_beam_factory.setCurrentTruck(local_truck->trucknum);
+            m_beam_factory.setCurrentTruck(local_truck->ar_instance_id);
         }
 
         local_truck->updateFlexbodiesPrepare();
@@ -1994,7 +1994,7 @@ void RoRFrameListener::RemovePlayerActor()
 {
     Beam* actor = m_beam_factory.getCurrentTruck();
     this->SetPlayerActor(nullptr);
-    m_beam_factory.removeTruck(actor->trucknum);
+    m_beam_factory.removeTruck(actor->ar_instance_id);
 }
 
 void RoRFrameListener::RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name)
@@ -2040,7 +2040,7 @@ void RoRFrameListener::ReloadPlayerActor()
     // * other minor stati
 
     // notice the user about the amount of possible reloads
-    String msg = TOSTRING(newBeam->trucknum) + String(" of ") + TOSTRING(MAX_TRUCKS) + String(" possible reloads.");
+    String msg = TOSTRING(newBeam->ar_instance_id) + String(" of ") + TOSTRING(MAX_TRUCKS) + String(" possible reloads.");
     RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, msg, "information.png");
     RoR::App::GetGuiManager()->PushNotification("Notice:", msg);
 
@@ -2050,7 +2050,7 @@ void RoRFrameListener::ReloadPlayerActor()
     newBeam->reset();
 
     // enter the new truck
-    m_beam_factory.setCurrentTruck(newBeam->trucknum);
+    m_beam_factory.setCurrentTruck(newBeam->ar_instance_id);
 }
 
 void RoRFrameListener::ChangedCurrentVehicle(Beam* previous_vehicle, Beam* current_vehicle)
@@ -2106,7 +2106,7 @@ void RoRFrameListener::ChangedCurrentVehicle(Beam* previous_vehicle, Beam* curre
 
         m_force_feedback->SetEnabled(false);
 
-        TRIGGER_EVENT(SE_TRUCK_EXIT, previous_vehicle?previous_vehicle->trucknum:-1);
+        TRIGGER_EVENT(SE_TRUCK_EXIT, previous_vehicle?previous_vehicle->ar_instance_id:-1);
     }
     else
     {
@@ -2156,7 +2156,7 @@ void RoRFrameListener::ChangedCurrentVehicle(Beam* previous_vehicle, Beam* curre
             }
         }
 
-        TRIGGER_EVENT(SE_TRUCK_ENTER, current_vehicle?current_vehicle->trucknum:-1);
+        TRIGGER_EVENT(SE_TRUCK_ENTER, current_vehicle?current_vehicle->ar_instance_id:-1);
     }
 
     if (previous_vehicle != nullptr || current_vehicle != nullptr)
@@ -2389,7 +2389,7 @@ bool RoRFrameListener::SetupGameplayLoop()
 
             if (App::diag_preset_veh_enter.GetActive() && b->ar_num_nodes > 0)
             {
-                m_beam_factory.setCurrentTruck(b->trucknum);
+                m_beam_factory.setCurrentTruck(b->ar_instance_id);
             }
             if (b->ar_engine)
             {

@@ -57,7 +57,7 @@ public:
     size_t GetNumActors          () const                  { return m_beam_factory.getTruckCount(); }
     Beam*  GetActorById          (int actor_id)            { return m_beam_factory.getTruck(actor_id); }
     void   SetPlayerActorById    (int actor_id)            { m_beam_factory.setCurrentTruck(actor_id); } // TODO: Eliminate, use pointers ~ only_a_ptr, 06/2017
-    void   SetPlayerActor        (Beam* actor)             { m_beam_factory.setCurrentTruck((actor == nullptr) ? -1 : actor->trucknum); }
+    void   SetPlayerActor        (Beam* actor)             { m_beam_factory.setCurrentTruck((actor == nullptr) ? -1 : actor->ar_instance_id); }
     Beam*  GetPlayerActor        ()                        { return m_beam_factory.getCurrentTruck(); }
     void   ReloadPlayerActor     ();
     void   RemovePlayerActor     ();

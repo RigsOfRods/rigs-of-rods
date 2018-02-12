@@ -106,7 +106,7 @@ void SoundScriptManager::trigOnce(Beam* truck, int trig, int linkType, int linkI
 
     if (truck)
     {
-        trigOnce(truck->trucknum, trig, linkType, linkItemID);
+        trigOnce(truck->ar_instance_id, trig, linkType, linkItemID);
     }
 }
 
@@ -134,7 +134,7 @@ void SoundScriptManager::trigStart(Beam* truck, int trig, int linkType, int link
 
     if (truck)
     {
-        trigStart(truck->trucknum, trig, linkType, linkItemID);
+        trigStart(truck->ar_instance_id, trig, linkType, linkItemID);
     }
 }
 
@@ -165,7 +165,7 @@ void SoundScriptManager::trigStop(Beam* truck, int trig, int linkType, int linkI
 
     if (truck)
     {
-        trigStop(truck->trucknum, trig, linkType, linkItemID);
+        trigStop(truck->ar_instance_id, trig, linkType, linkItemID);
     }
 }
 
@@ -195,7 +195,7 @@ void SoundScriptManager::trigKill(Beam* truck, int trig, int linkType, int linkI
 
     if (truck)
     {
-        trigKill(truck->trucknum, trig, linkType, linkItemID);
+        trigKill(truck->ar_instance_id, trig, linkType, linkItemID);
     }
 }
 
@@ -225,7 +225,7 @@ void SoundScriptManager::trigToggle(Beam* truck, int trig, int linkType, int lin
 
     if (truck)
     {
-        trigToggle(truck->trucknum, trig, linkType, linkItemID);
+        trigToggle(truck->ar_instance_id, trig, linkType, linkItemID);
     }
 }
 
@@ -246,7 +246,7 @@ bool SoundScriptManager::getTrigState(Beam* truck, int trig, int linkType, int l
         return false;
 
     if (truck)
-        return getTrigState(truck->trucknum, trig, linkType, linkItemID);
+        return getTrigState(truck->ar_instance_id, trig, linkType, linkItemID);
     else
         return false;
 }
@@ -266,7 +266,7 @@ void SoundScriptManager::modulate(Beam* truck, int mod, float value, int linkTyp
 
     if (truck)
     {
-        modulate(truck->trucknum, mod, value, linkType, linkItemID);
+        modulate(truck->ar_instance_id, mod, value, linkType, linkItemID);
     }
 }
 
