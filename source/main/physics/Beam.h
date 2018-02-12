@@ -283,8 +283,8 @@ public:
     std::vector<rope_t>       ropes;
     std::vector<ropable_t>    ropables;
     std::vector<tie_t>        ties;
-    std::vector<hook_t>       hooks;
-    std::vector<flare_t>      flares;
+    std::vector<hook_t>       ar_hooks;
+    std::vector<flare_t>      ar_flares;
     std::vector<debugtext_t>  nodes_debug;
     std::vector<debugtext_t>  beams_debug;
     Ogre::AxisAlignedBox      boundingBox;     //!< standard bounding box (surrounds all nodes of a truck)

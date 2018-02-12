@@ -170,7 +170,7 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
             mouseGrabState = 1;
             pickLineNode->setVisible(true);
 
-            for (std::vector<hook_t>::iterator it = grab_truck->hooks.begin(); it != grab_truck->hooks.end(); it++)
+            for (std::vector<hook_t>::iterator it = grab_truck->ar_hooks.begin(); it != grab_truck->ar_hooks.end(); it++)
             {
                 if (it->hookNode->id == minnode)
                 {

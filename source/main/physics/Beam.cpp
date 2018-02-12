@@ -283,19 +283,19 @@ Beam::~Beam()
     }
 
     // delete flares
-    for (size_t i = 0; i < this->flares.size(); i++)
+    for (size_t i = 0; i < this->ar_flares.size(); i++)
     {
-        if (flares[i].snode)
+        if (ar_flares[i].snode)
         {
-            flares[i].snode->removeAndDestroyAllChildren();
-            gEnv->sceneManager->destroySceneNode(flares[i].snode);
+            ar_flares[i].snode->removeAndDestroyAllChildren();
+            gEnv->sceneManager->destroySceneNode(ar_flares[i].snode);
         }
-        if (flares[i].bbs)
-            gEnv->sceneManager->destroyBillboardSet(flares[i].bbs);
-        if (flares[i].light)
-            gEnv->sceneManager->destroyLight(flares[i].light);
+        if (ar_flares[i].bbs)
+            gEnv->sceneManager->destroyBillboardSet(ar_flares[i].bbs);
+        if (ar_flares[i].light)
+            gEnv->sceneManager->destroyLight(ar_flares[i].light);
     }
-    this->flares.clear();
+    this->ar_flares.clear();
 
     // delete exhausts
     for (std::vector<exhaust_t>::iterator it = exhausts.begin(); it != exhausts.end(); it++)
@@ -926,12 +926,6 @@ void Beam::calc_masses2(Real total, bool reCalc)
         // TODO: this expects all cinecams to be defined in root module (i.e. outside 'section/end_section')
         ar_nodes[ar_cinecam_node[i]].mass = m_definition->root_module->cinecam[i].node_mass;
     }
-
-
-    //hooks must be heavy
-    //for (std::vector<hook_t>::iterator it=hooks.begin(); it!=hooks.end(); it++)
-    //	if (!it->hookNode->overrideMass)
-    //		it->hookNode->mass = 500.0f;
 
     //update mass
     for (int i = 0; i < ar_num_nodes; i++)
@@ -1681,7 +1675,7 @@ void Beam::SyncReset()
 
     disjoinInterTruckBeams();
 
-    for (std::vector<hook_t>::iterator it = hooks.begin(); it != hooks.end(); it++)
+    for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
     {
         it->beam->bm_disabled = true;
         it->locked = UNLOCKED;
@@ -2998,30 +2992,30 @@ void Beam::lightsToggle()
     ar_lights = !ar_lights;
     if (!ar_lights)
     {
-        for (size_t i = 0; i < flares.size(); i++)
+        for (size_t i = 0; i < ar_flares.size(); i++)
         {
-            if (flares[i].type == 'f')
+            if (ar_flares[i].type == 'f')
             {
-                flares[i].snode->setVisible(false);
-                if (flares[i].bbs)
-                    flares[i].snode->detachAllObjects();
-                if (flares[i].light)
-                    flares[i].light->setVisible(false);
-                flares[i].isVisible = false;
+                ar_flares[i].snode->setVisible(false);
+                if (ar_flares[i].bbs)
+                    ar_flares[i].snode->detachAllObjects();
+                if (ar_flares[i].light)
+                    ar_flares[i].light->setVisible(false);
+                ar_flares[i].isVisible = false;
             }
         }
     }
     else
     {
-        for (size_t i = 0; i < flares.size(); i++)
+        for (size_t i = 0; i < ar_flares.size(); i++)
         {
-            if (flares[i].type == 'f')
+            if (ar_flares[i].type == 'f')
             {
-                if (flares[i].light)
-                    flares[i].light->setVisible(true);
-                flares[i].isVisible = true;
-                if (flares[i].bbs)
-                    flares[i].snode->attachObject(flares[i].bbs);
+                if (ar_flares[i].light)
+                    ar_flares[i].light->setVisible(true);
+                ar_flares[i].isVisible = true;
+                if (ar_flares[i].bbs)
+                    ar_flares[i].snode->attachObject(ar_flares[i].bbs);
             }
         }
     }
@@ -3207,67 +3201,67 @@ void Beam::updateFlares(float dt, bool isCurrent)
     }
     //the flares
     bool keysleep = false;
-    for (size_t i = 0; i < this->flares.size(); i++)
+    for (size_t i = 0; i < this->ar_flares.size(); i++)
     {
         // let the light blink
-        if (flares[i].blinkdelay != 0)
+        if (ar_flares[i].blinkdelay != 0)
         {
-            flares[i].blinkdelay_curr -= dt;
-            if (flares[i].blinkdelay_curr <= 0)
+            ar_flares[i].blinkdelay_curr -= dt;
+            if (ar_flares[i].blinkdelay_curr <= 0)
             {
-                flares[i].blinkdelay_curr = flares[i].blinkdelay;
-                flares[i].blinkdelay_state = !flares[i].blinkdelay_state;
+                ar_flares[i].blinkdelay_curr = ar_flares[i].blinkdelay;
+                ar_flares[i].blinkdelay_state = !ar_flares[i].blinkdelay_state;
             }
         }
         else
         {
-            flares[i].blinkdelay_state = true;
+            ar_flares[i].blinkdelay_state = true;
         }
 
         // manage light states
         bool isvisible = true; //this must be true to be able to switch on the frontlight
-        if (flares[i].type == 'f')
+        if (ar_flares[i].type == 'f')
         {
             m_gfx_actor->SetMaterialFlareOn(i, (ar_lights == 1));
             if (!ar_lights)
                 continue;
         }
-        else if (flares[i].type == 'b')
+        else if (ar_flares[i].type == 'b')
         {
             isvisible = getBrakeLightVisible();
         }
-        else if (flares[i].type == 'R')
+        else if (ar_flares[i].type == 'R')
         {
             if (ar_engine || m_reverse_light_active)
                 isvisible = getReverseLightVisible();
             else
                 isvisible = false;
         }
-        else if (flares[i].type == 'u' && flares[i].controlnumber != -1)
+        else if (ar_flares[i].type == 'u' && ar_flares[i].controlnumber != -1)
         {
             if (ar_sim_state == Beam::SimState::LOCAL_SIMULATED && this == App::GetSimController()->GetBeamFactory()->getCurrentTruck()) // no network!!
             {
                 // networked customs are set directly, so skip this
-                if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_LIGHTTOGGLE01 + (flares[i].controlnumber - 1)) && m_custom_light_toggle_countdown <= 0)
+                if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_LIGHTTOGGLE01 + (ar_flares[i].controlnumber - 1)) && m_custom_light_toggle_countdown <= 0)
                 {
-                    flares[i].controltoggle_status = ! flares[i].controltoggle_status;
+                    ar_flares[i].controltoggle_status = ! ar_flares[i].controltoggle_status;
                     keysleep = true;
                 }
             }
-            isvisible = flares[i].controltoggle_status;
+            isvisible = ar_flares[i].controltoggle_status;
         }
-        else if (flares[i].type == 'l')
+        else if (ar_flares[i].type == 'l')
         {
             isvisible = (m_blink_type == BLINK_LEFT || m_blink_type == BLINK_WARN);
         }
-        else if (flares[i].type == 'r')
+        else if (ar_flares[i].type == 'r')
         {
             isvisible = (m_blink_type == BLINK_RIGHT || m_blink_type == BLINK_WARN);
         }
         // apply blinking
-        isvisible = isvisible && flares[i].blinkdelay_state;
+        isvisible = isvisible && ar_flares[i].blinkdelay_state;
 
-        if (flares[i].type == 'l' && m_blink_type == BLINK_LEFT)
+        if (ar_flares[i].type == 'l' && m_blink_type == BLINK_LEFT)
         {
             ar_left_blink_on = isvisible;
 
@@ -3276,7 +3270,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
 
             ar_dashboard->setBool(DD_SIGNAL_TURNLEFT, isvisible);
         }
-        else if (flares[i].type == 'r' && m_blink_type == BLINK_RIGHT)
+        else if (ar_flares[i].type == 'r' && m_blink_type == BLINK_RIGHT)
         {
             ar_right_blink_on = isvisible;
 
@@ -3285,7 +3279,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
 
             ar_dashboard->setBool(DD_SIGNAL_TURNRIGHT, isvisible);
         }
-        else if (flares[i].type == 'l' && m_blink_type == BLINK_WARN)
+        else if (ar_flares[i].type == 'l' && m_blink_type == BLINK_WARN)
         {
             ar_warn_blink_on = isvisible;
 
@@ -3299,52 +3293,52 @@ void Beam::updateFlares(float dt, bool isCurrent)
         // update material Bindings
         m_gfx_actor->SetMaterialFlareOn(i, isvisible);
 
-        flares[i].snode->setVisible(isvisible);
-        if (flares[i].light)
-            flares[i].light->setVisible(isvisible && enableAll);
-        flares[i].isVisible = isvisible;
+        ar_flares[i].snode->setVisible(isvisible);
+        if (ar_flares[i].light)
+            ar_flares[i].light->setVisible(isvisible && enableAll);
+        ar_flares[i].isVisible = isvisible;
 
-        Vector3 normal = (ar_nodes[flares[i].nodey].AbsPosition - ar_nodes[flares[i].noderef].AbsPosition).crossProduct(ar_nodes[flares[i].nodex].AbsPosition - ar_nodes[flares[i].noderef].AbsPosition);
+        Vector3 normal = (ar_nodes[ar_flares[i].nodey].AbsPosition - ar_nodes[ar_flares[i].noderef].AbsPosition).crossProduct(ar_nodes[ar_flares[i].nodex].AbsPosition - ar_nodes[ar_flares[i].noderef].AbsPosition);
         normal.normalise();
-        Vector3 mposition = ar_nodes[flares[i].noderef].AbsPosition + flares[i].offsetx * (ar_nodes[flares[i].nodex].AbsPosition - ar_nodes[flares[i].noderef].AbsPosition) + flares[i].offsety * (ar_nodes[flares[i].nodey].AbsPosition - ar_nodes[flares[i].noderef].AbsPosition);
+        Vector3 mposition = ar_nodes[ar_flares[i].noderef].AbsPosition + ar_flares[i].offsetx * (ar_nodes[ar_flares[i].nodex].AbsPosition - ar_nodes[ar_flares[i].noderef].AbsPosition) + ar_flares[i].offsety * (ar_nodes[ar_flares[i].nodey].AbsPosition - ar_nodes[ar_flares[i].noderef].AbsPosition);
         Vector3 vdir = mposition - gEnv->mainCamera->getPosition();
         float vlen = vdir.length();
         // not visible from 500m distance
         if (vlen > 500.0)
         {
-            flares[i].snode->setVisible(false);
+            ar_flares[i].snode->setVisible(false);
             continue;
         }
         //normalize
         vdir = vdir / vlen;
         float amplitude = normal.dotProduct(vdir);
-        flares[i].snode->setPosition(mposition - 0.1 * amplitude * normal * flares[i].offsetz);
-        flares[i].snode->setDirection(normal);
-        float fsize = flares[i].size;
+        ar_flares[i].snode->setPosition(mposition - 0.1 * amplitude * normal * ar_flares[i].offsetz);
+        ar_flares[i].snode->setDirection(normal);
+        float fsize = ar_flares[i].size;
         if (fsize < 0)
         {
             amplitude = 1;
             fsize *= -1;
         }
-        if (flares[i].light)
+        if (ar_flares[i].light)
         {
-            flares[i].light->setPosition(mposition - 0.2 * amplitude * normal);
+            ar_flares[i].light->setPosition(mposition - 0.2 * amplitude * normal);
             // point the real light towards the ground a bit
-            flares[i].light->setDirection(-normal - Vector3(0, 0.2, 0));
+            ar_flares[i].light->setDirection(-normal - Vector3(0, 0.2, 0));
         }
-        if (flares[i].isVisible)
+        if (ar_flares[i].isVisible)
         {
             if (amplitude > 0)
             {
-                flares[i].bbs->setDefaultDimensions(amplitude * fsize, amplitude * fsize);
-                flares[i].snode->setVisible(true);
+                ar_flares[i].bbs->setDefaultDimensions(amplitude * fsize, amplitude * fsize);
+                ar_flares[i].snode->setVisible(true);
             }
             else
             {
-                flares[i].snode->setVisible(false);
+                ar_flares[i].snode->setVisible(false);
             }
         }
-        //flares[i].bbs->_updateBounds();
+        //ar_flares[i].bbs->_updateBounds();
     }
     if (keysleep)
         m_custom_light_toggle_countdown = 0.2;
@@ -4391,7 +4385,7 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
     int trucksnum = App::GetSimController()->GetBeamFactory()->getTruckCount();
 
     // iterate over all hooks
-    for (std::vector<hook_t>::iterator it = hooks.begin(); it != hooks.end(); it++)
+    for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
     {
         if (mode == MOUSE_HOOK_TOGGLE && it->hookNode->id != node_number)
         {
@@ -5000,7 +4994,7 @@ bool Beam::isTied()
 
 bool Beam::isLocked()
 {
-    for (std::vector<hook_t>::iterator it = hooks.begin(); it != hooks.end(); it++)
+    for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
         if (it->locked == LOCKED)
             return true;
     return false;
@@ -5324,7 +5318,7 @@ void Beam::updateDashBoards(float dt)
         ar_dashboard->setEnabled(DD_TRACTIONCONTROL_MODE, tc_present);
         ar_dashboard->setEnabled(DD_ANTILOCKBRAKE_MODE, alb_present);
         ar_dashboard->setEnabled(DD_TIES_MODE, !ties.empty());
-        ar_dashboard->setEnabled(DD_LOCKED, !hooks.empty());
+        ar_dashboard->setEnabled(DD_LOCKED, !ar_hooks.empty());
 
         ar_dashboard->setEnabled(DD_ENGINE_AUTOGEAR_STRING, autogearVisible);
 
@@ -6309,7 +6303,7 @@ bool Beam::getCustomLightVisible(int number)
 
     unsigned int flareID = m_net_custom_lights[number];
 
-    return flareID < flares.size() && flares[flareID].controltoggle_status;
+    return flareID < ar_flares.size() && ar_flares[flareID].controltoggle_status;
 }
 
 void Beam::setCustomLightVisible(int number, bool visible)
@@ -6322,9 +6316,9 @@ void Beam::setCustomLightVisible(int number, bool visible)
 
     unsigned int flareID = m_net_custom_lights[number];
 
-    if (flareID < flares.size() && flares[flareID].snode)
+    if (flareID < ar_flares.size() && ar_flares[flareID].snode)
     {
-        flares[flareID].controltoggle_status = visible;
+        ar_flares[flareID].controltoggle_status = visible;
     }
 }
 
