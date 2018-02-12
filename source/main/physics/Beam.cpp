@@ -764,7 +764,7 @@ void Beam::calcNetwork()
     float netwspeed = oob1->wheelspeed + tratio * (oob2->wheelspeed - oob1->wheelspeed);
     float netbrake = oob1->brake + tratio * (oob2->brake - oob1->brake);
 
-    hydrodirwheeldisplay = oob1->hydrodirstate;
+    ar_hydro_dir_wheel_display = oob1->hydrodirstate;
     WheelSpeed = netwspeed;
 
     int gear = oob1->engine_gear;
@@ -1643,11 +1643,11 @@ Ogre::Vector3 Beam::getRotationCenter()
 
 void Beam::SyncReset()
 {
-    hydrodirstate = 0.0;
-    hydroaileronstate = 0.0;
-    hydrorudderstate = 0.0;
-    hydroelevatorstate = 0.0;
-    hydrodirwheeldisplay = 0.0;
+    ar_hydro_dir_state = 0.0;
+    ar_hydro_aileron_state = 0.0;
+    ar_hydro_rudder_state = 0.0;
+    ar_hydro_elevator_state = 0.0;
+    ar_hydro_dir_wheel_display = 0.0;
     if (m_hydro_inertia)
         m_hydro_inertia->resetCmdKeyDelay();
     ar_parking_brake = 0;
@@ -1916,7 +1916,7 @@ void Beam::sendStreamData()
             send_oob->engine_speed = rpm;
         }
 
-        send_oob->hydrodirstate = hydrodirstate;
+        send_oob->hydrodirstate = ar_hydro_dir_state;
         send_oob->brake = ar_brake;
         send_oob->wheelspeed = WheelSpeed;
 
@@ -3378,11 +3378,11 @@ void Beam::autoBlinkReset()
     // TODO: make this set-able per truck
     float blink_lock_range = 0.1f;
 
-    if (blink == BLINK_LEFT && hydrodirstate < -blink_lock_range)
+    if (blink == BLINK_LEFT && ar_hydro_dir_state < -blink_lock_range)
     // passed the threshold: the turn signal gets locked
         m_blinker_autoreset = true;
 
-    if (blink == BLINK_LEFT && m_blinker_autoreset && hydrodirstate > -blink_lock_range)
+    if (blink == BLINK_LEFT && m_blinker_autoreset && ar_hydro_dir_state > -blink_lock_range)
     {
         // steering wheel turned back: turn signal gets automatically unlocked
         setBlinkType(BLINK_NONE);
@@ -3390,10 +3390,10 @@ void Beam::autoBlinkReset()
     }
 
     // same for the right turn signal
-    if (blink == BLINK_RIGHT && hydrodirstate > blink_lock_range)
+    if (blink == BLINK_RIGHT && ar_hydro_dir_state > blink_lock_range)
         m_blinker_autoreset = true;
 
-    if (blink == BLINK_RIGHT && m_blinker_autoreset && hydrodirstate < blink_lock_range)
+    if (blink == BLINK_RIGHT && m_blinker_autoreset && ar_hydro_dir_state < blink_lock_range)
     {
         setBlinkType(BLINK_NONE);
         m_blinker_autoreset = false;
@@ -3429,7 +3429,7 @@ void Beam::updateProps()
         if (ar_props[i].wheel)
         {
             Quaternion brot = Quaternion(Degree(-59.0), Vector3::UNIT_X);
-            brot = brot * Quaternion(Degree(hydrodirwheeldisplay * ar_props[i].wheelrotdegree), Vector3::UNIT_Y);
+            brot = brot * Quaternion(Degree(ar_hydro_dir_wheel_display * ar_props[i].wheelrotdegree), Vector3::UNIT_Y);
             ar_props[i].wheel->setPosition(mposition + normal * ar_props[i].offsetz + orientation * ar_props[i].wheelpos);
             ar_props[i].wheel->setOrientation(orientation * brot);
         }
@@ -3690,9 +3690,9 @@ void Beam::updateVisual(float dt)
         ar_wings[i].cnode->setPosition(ar_wings[i].fa->flexit());
     }
     //setup commands for hydros
-    hydroaileroncommand = autoaileron;
-    hydroruddercommand = autorudder;
-    hydroelevatorcommand = autoelevator;
+    ar_hydro_aileron_command = autoaileron;
+    ar_hydro_rudder_command = autorudder;
+    ar_hydro_elevator_command = autoelevator;
 
     if (m_cab_fade_mode > 0 && dt > 0)
     {
@@ -5570,15 +5570,15 @@ Beam::Beam(
     , ar_aerial_flap(0)
     , ar_fusedrag(Ogre::Vector3::ZERO)
     , m_high_res_wheelnode_collisions(false)
-    , hydroaileroncommand(0)
-    , hydroaileronstate(0)
-    , hydrodircommand(0)
-    , hydrodirstate(0)
-    , hydrodirwheeldisplay(0.0)
-    , hydroelevatorcommand(0)
-    , hydroelevatorstate(0)
-    , hydroruddercommand(0)
-    , hydrorudderstate(0)
+    , ar_hydro_aileron_command(0)
+    , ar_hydro_aileron_state(0)
+    , ar_hydro_dir_command(0)
+    , ar_hydro_dir_state(0)
+    , ar_hydro_dir_wheel_display(0.0)
+    , ar_hydro_elevator_command(0)
+    , ar_hydro_elevator_state(0)
+    , ar_hydro_rudder_command(0)
+    , ar_hydro_rudder_state(0)
     , m_increased_accuracy(false)
     , m_inter_point_col_detector(nullptr)
     , m_intra_point_col_detector(nullptr)
@@ -6236,7 +6236,7 @@ ground_model_t* Beam::getLastFuzzyGroundModel()
 
 float Beam::getSteeringAngle()
 {
-    return hydrodircommand;
+    return ar_hydro_dir_command;
 }
 
 std::string Beam::getTruckName()
@@ -6438,16 +6438,16 @@ void Beam::UpdatePropAnimations(const float dt)
             //propanimation placed here to avoid interference with existing hydros(cstate) and permanent prop animation
             //truck steering
             if (ar_props[propi].animFlags[animnum] & ANIM_FLAG_STEERING)
-                cstate += hydrodirstate;
+                cstate += ar_hydro_dir_state;
             //aileron
             if (ar_props[propi].animFlags[animnum] & ANIM_FLAG_AILERONS)
-                cstate += hydroaileronstate;
+                cstate += ar_hydro_aileron_state;
             //elevator
             if (ar_props[propi].animFlags[animnum] & ANIM_FLAG_ELEVATORS)
-                cstate += hydroelevatorstate;
+                cstate += ar_hydro_elevator_state;
             //rudder
             if (ar_props[propi].animFlags[animnum] & ANIM_FLAG_ARUDDER)
-                cstate += hydrorudderstate;
+                cstate += ar_hydro_rudder_state;
             //permanent
             if (ar_props[propi].animFlags[animnum] & ANIM_FLAG_PERMANENT)
                 cstate += 1.0f;

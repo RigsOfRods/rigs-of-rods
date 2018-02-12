@@ -186,15 +186,15 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
         if (sum > 1)
             sum = 1;
 
-        curr_truck->hydrodircommand = sum;
+        curr_truck->ar_hydro_dir_command = sum;
 
         if ((tmp_left_digital < tmp_left_analog) || (tmp_right_digital < tmp_right_analog))
         {
-            curr_truck->hydroSpeedCoupling = false;
+            curr_truck->ar_hydro_speed_coupling = false;
         }
         else
         {
-            curr_truck->hydroSpeedCoupling = true;
+            curr_truck->ar_hydro_speed_coupling = true;
         }
 
         if (curr_truck->engine)

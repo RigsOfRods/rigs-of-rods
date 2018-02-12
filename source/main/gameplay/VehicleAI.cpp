@@ -192,7 +192,7 @@ void VehicleAI::update(float dt, int doUpdate)
     }
 
     // actually steer
-    beam->hydrodircommand = mYaw;//mYaw
+    beam->ar_hydro_dir_command = mYaw;//mYaw
 
     if (beam->engine)
     {

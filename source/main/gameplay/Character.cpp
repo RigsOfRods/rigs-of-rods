@@ -529,7 +529,7 @@ void Character::update(float dt)
         Vector3 pos;
         Quaternion rot;
         beamCoupling->calculateDriverPos(pos, rot);
-        float angle = beamCoupling->hydrodirwheeldisplay * -1.0f; // not getSteeringAngle(), but this, as its smoothed
+        float angle = beamCoupling->ar_hydro_dir_wheel_display * -1.0f; // not getSteeringAngle(), but this, as its smoothed
         mCharacterNode->setOrientation(rot);
         setPosition(pos + (rot * Vector3(0.f, -0.6f, 0.f))); // hack to position the character right perfect on the default seat
 

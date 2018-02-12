@@ -446,16 +446,15 @@ public:
     float             currentScale;
     Ogre::Real        ar_brake;           //!< Physics state; braking intensity
     float             WheelSpeed;         //!< wheel speed in m/s
-    float             hydrodircommand;
-    bool              hydroSpeedCoupling;
-    float             hydrodirstate;
-    Ogre::Real        hydrodirwheeldisplay;
-    float             hydroaileroncommand;
-    float             hydroaileronstate;
-    float             hydroruddercommand;
-    float             hydrorudderstate;
-    float             hydroelevatorcommand;
-    float             hydroelevatorstate;
+    float             ar_hydro_dir_command;
+    float             ar_hydro_dir_state;
+    Ogre::Real        ar_hydro_dir_wheel_display;
+    float             ar_hydro_aileron_command;
+    float             ar_hydro_aileron_state;
+    float             ar_hydro_rudder_command;
+    float             ar_hydro_rudder_state;
+    float             ar_hydro_elevator_command;
+    float             ar_hydro_elevator_state;
     Ogre::Real        ar_replay_precision;            //!< Sim attribute; determined at startup
     int               ar_replay_length;               //!< Sim attribute; clone of GVar 'sim_replay_length'
     int               ar_replay_pos;                  //!< Sim state
@@ -495,6 +494,7 @@ public:
     bool ar_disable_actor2actor_collision:1; //!< Physics attribute; clone of RoR.cfg entry "DisableCollisions"
     bool ar_disable_aerodyn_turbulent_drag:1; //!< Physics state
     bool ar_engine_hydraulics_ready:1; //!< Sim state; does engine have enough RPM to power hydraulics?
+    bool ar_hydro_speed_coupling:1;
     bool ar_replay_mode:1;      //!< Sim state
 
 private:

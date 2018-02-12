@@ -72,8 +72,8 @@ void AircraftSimulation::UpdateVehicle(Beam* vehicle, float seconds_since_last_f
         float tmp_right = RoR::App::GetInputEngine()->getEventValue(EV_AIRPLANE_STEER_RIGHT);
         float sum_steer = -tmp_left + tmp_right;
         RoR::App::GetInputEngine()->smoothValue(vehicle->ar_aileron, sum_steer, seconds_since_last_frame * commandrate);
-        vehicle->hydrodircommand = vehicle->ar_aileron;
-        vehicle->hydroSpeedCoupling = !(RoR::App::GetInputEngine()->isEventAnalog(EV_AIRPLANE_STEER_LEFT) && RoR::App::GetInputEngine()->isEventAnalog(EV_AIRPLANE_STEER_RIGHT));
+        vehicle->ar_hydro_dir_command = vehicle->ar_aileron;
+        vehicle->ar_hydro_speed_coupling = !(RoR::App::GetInputEngine()->isEventAnalog(EV_AIRPLANE_STEER_LEFT) && RoR::App::GetInputEngine()->isEventAnalog(EV_AIRPLANE_STEER_RIGHT));
     }
 
     //pitch
