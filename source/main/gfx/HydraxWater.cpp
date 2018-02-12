@@ -96,7 +96,7 @@ void HydraxWater::UpdateWater()
 {
     //This has to change in the next versions when SkyX will be added.
 #ifdef USE_CAELUM
-    SkyManager* sky = gEnv->terrainManager->getSkyManager();
+    SkyManager* sky = RoR::App::GetSimTerrain()->getSkyManager();
     if (sky != nullptr) //Caelum way of doing things
     {
         Ogre::Vector3 sunPosition = gEnv->mainCamera->getDerivedPosition();

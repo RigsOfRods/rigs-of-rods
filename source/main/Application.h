@@ -765,6 +765,7 @@ CacheSystem*         GetCacheSystem();
 MainMenu*            GetMainMenu();
 RoRFrameListener*    GetSimController();
 MumbleIntegration*   GetMumble();
+TerrainManager*      GetSimTerrain();
 
 // Factories
 void StartOgreSubsystem();
@@ -784,6 +785,7 @@ void CheckAndCreateMumble();
 // Setters
 void SetMainMenu             (MainMenu*          obj);
 void SetSimController        (RoRFrameListener*  obj);
+void SetSimTerrain           (TerrainManager*    obj);
 
 
 } // namespace App

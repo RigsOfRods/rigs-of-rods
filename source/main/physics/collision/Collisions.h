@@ -128,7 +128,6 @@ private:
     bool permitEvent(int filter);
     bool envokeScriptCallback(collision_box_t* cbox, node_t* node = 0);
 
-    IHeightFinder* hFinder;
     Landusemap* landuse;
     Ogre::ManualObject* debugmo;
     bool debugMode;

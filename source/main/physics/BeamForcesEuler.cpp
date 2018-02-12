@@ -46,6 +46,7 @@
 #include "VehicleAI.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 // Param "doUpdate" means "also update things which should be updated only once per frame, not per every physics tick"
 //     In this case, doUpdate is TRUE on first tick after rendering, FALSE in all other ticks 
@@ -54,8 +55,8 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
     IWater* water = nullptr;
     const bool is_player_actor = (this == RoR::App::GetSimController()->GetPlayerActor());
 
-    if (gEnv->terrainManager)
-        water = gEnv->terrainManager->getWater();
+    if (App::GetSimTerrain())
+        water = App::GetSimTerrain()->getWater();
 
     m_increased_accuracy = false;
 
@@ -1718,10 +1719,10 @@ void Actor::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 {
     IWater* water = 0;
     float gravity = -9.81f;
-    if (gEnv->terrainManager)
+    if (App::GetSimTerrain())
     {
-        water = gEnv->terrainManager->getWater();
-        gravity = gEnv->terrainManager->getGravity();
+        water = App::GetSimTerrain()->getWater();
+        gravity = App::GetSimTerrain()->getGravity();
     }
 
     for (int i = 0; i < ar_num_nodes; i++)

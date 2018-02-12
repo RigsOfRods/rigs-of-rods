@@ -70,7 +70,7 @@ SurveyMapManager::~SurveyMapManager()
 
 void SurveyMapManager::init()
 {
-    mMapSize = gEnv->terrainManager->getMaxTerrainSize();
+    mMapSize = RoR::App::GetSimTerrain()->getMaxTerrainSize();
     mMapCenter = Vector2(mMapSize.x / 2.0f, mMapSize.z / 2.0f);
 
     mMapTextureCreator = new SurveyMapTextureCreator();

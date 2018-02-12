@@ -24,7 +24,6 @@
 #include "BeamFactory.h"
 #include "CameraManager.h"
 #include "Collisions.h"
-#include "IHeightFinder.h"
 #include "InputEngine.h"
 #include "Network.h"
 #include "RoRFrameListener.h"
@@ -362,7 +361,7 @@ void Character::update(float dt)
         }
 
         // ground contact
-        float pheight = gEnv->terrainManager->getHeightFinder()->getHeightAt(position.x, position.z);
+        float pheight = App::GetSimTerrain()->GetHeightAt(position.x, position.z);
 
         if (position.y < pheight)
         {
@@ -375,9 +374,9 @@ void Character::update(float dt)
         bool isswimming = false;
         float wheight = -99999;
 
-        if (gEnv->terrainManager->getWater())
+        if (App::GetSimTerrain()->getWater())
         {
-            wheight = gEnv->terrainManager->getWater()->CalcWavesHeight(position);
+            wheight = App::GetSimTerrain()->getWater()->CalcWavesHeight(position);
             if (position.y < wheight - 1.8f)
             {
                 position.y = wheight - 1.8f;
@@ -386,7 +385,7 @@ void Character::update(float dt)
         }
 
         // 0.1 due to 'jumping' from waves -> not nice looking
-        if (gEnv->terrainManager->getWater() && (wheight - pheight > 1.8f) && (position.y + 0.1f <= wheight))
+        if (App::GetSimTerrain()->getWater() && (wheight - pheight > 1.8f) && (position.y + 0.1f <= wheight))
         {
             isswimming = true;
         }

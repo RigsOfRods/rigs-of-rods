@@ -23,7 +23,6 @@
 
 #include "RoRPrerequisites.h"
 #include "ConfigFile.h"
-#include "IHeightFinder.h"
 #include "OTCFileformat.h"
 
 #include <OgreVector3.h>
@@ -33,7 +32,7 @@
 namespace Ogre { class Terrain; class TerrainGroup; class TerrainPaging; class PageManager; }
 
 /// this class handles all interactions with the Ogre Terrain system
-class TerrainGeometryManager : public ZeroedMemoryAllocator, public IHeightFinder
+class TerrainGeometryManager : public ZeroedMemoryAllocator
 {
 public:
     TerrainGeometryManager(TerrainManager* terrainManager);

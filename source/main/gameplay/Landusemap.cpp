@@ -34,12 +34,13 @@
 #include <OgreConfigFile.h>
 
 using namespace Ogre;
+using namespace RoR;
 
 Landusemap::Landusemap(String configFilename) :
     data(0)
     , mapsize(Vector3::ZERO)
 {
-    mapsize = gEnv->terrainManager->getMaxTerrainSize();
+    mapsize = App::GetSimTerrain()->getMaxTerrainSize();
     loadConfig(configFilename);
 #ifndef USE_PAGED
 	LOG("RoR was not compiled with PagedGeometry support. You cannot use Landuse maps with it.");
@@ -58,7 +59,7 @@ ground_model_t* Landusemap::getGroundModelAt(int x, int z)
 {
     if (!data)
         return 0;
-    Vector3 mapsize = gEnv->terrainManager->getMaxTerrainSize();
+    Vector3 mapsize = App::GetSimTerrain()->getMaxTerrainSize();
 #ifdef USE_PAGED
     // we return the default ground model if we are not anymore in this map
     if (x < 0 || x >= mapsize.x || z < 0 || z >= mapsize.z)
@@ -72,7 +73,7 @@ ground_model_t* Landusemap::getGroundModelAt(int x, int z)
 
 int Landusemap::loadConfig(Ogre::String filename)
 {
-    Vector3 mapsize = gEnv->terrainManager->getMaxTerrainSize();
+    Vector3 mapsize = App::GetSimTerrain()->getMaxTerrainSize();
     std::map<unsigned int, String> usemap;
     String textureFilename = "";
 
@@ -186,9 +187,19 @@ int Landusemap::loadConfig(Ogre::String filename)
             }
         }
     }
+    catch (Ogre::Exception& oex)
+    {
+        LogFormat("[RoR|Physics] Landuse: failed to load texture '%s', <Ogre::Exception> message: '%s'",
+            textureFilename.c_str(), oex.getFullDescription().c_str());
+    }
+    catch (std::exception& stex)
+    {
+        LogFormat("[RoR|Physics] Landuse: failed to load texture '%s', <std::exception> message: '%s'",
+            textureFilename.c_str(), stex.what());
+    }
     catch (...)
     {
-        Log("Landuse: Failed to load texture: " + textureFilename);
+        LogFormat("[RoR|Physics] Landuse: failed to load texture '%s', unknown error", textureFilename.c_str());
     }
 #endif // USE_PAGED
 

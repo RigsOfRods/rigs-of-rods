@@ -56,6 +56,7 @@ static CacheSystem*     g_cache_system;
 static MainMenu*        g_main_menu;
 static RoRFrameListener* g_sim_controller;
 static MumbleIntegration* g_mumble;
+static TerrainManager*  g_sim_terrain;
 
 // App
  GVarEnum_AP<AppState>    app_state               ("app_state",               nullptr,                     AppState::BOOTSTRAP,     AppState::MAIN_MENU);
@@ -165,6 +166,7 @@ static MumbleIntegration* g_mumble;
 // Instance management
 void SetMainMenu       (MainMenu* obj)                { g_main_menu = obj; }
 void SetSimController  (RoRFrameListener* obj)        { g_sim_controller = obj;}
+void SetSimTerrain     (TerrainManager* obj)          { g_sim_terrain = obj;}
 
 // Instance access
 OgreSubsystem*         GetOgreSubsystem      () { return g_ogre_subsystem; };
@@ -178,6 +180,7 @@ CacheSystem*           GetCacheSystem        () { return g_cache_system;}
 MainMenu*              GetMainMenu           () { return g_main_menu;}
 RoRFrameListener*      GetSimController      () { return g_sim_controller; }
 MumbleIntegration*     GetMumble             () { return g_mumble; }
+TerrainManager*        GetSimTerrain         () { return g_sim_terrain; }
 
 void StartOgreSubsystem()
 {

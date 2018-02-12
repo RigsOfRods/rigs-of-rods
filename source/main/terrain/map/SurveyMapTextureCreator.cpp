@@ -20,11 +20,13 @@
 
 #include "SurveyMapTextureCreator.h"
 
+#include "Application.h"
 #include "IWater.h"
 #include "SurveyMapManager.h"
 #include "TerrainManager.h"
 
 using namespace Ogre;
+using namespace RoR;
 
 int SurveyMapTextureCreator::mCounter = 0;
 
@@ -94,7 +96,7 @@ void SurveyMapTextureCreator::update()
     mMapCenter = Vector2::ZERO;
     mMapZoom = 0.0f;
 
-    if (gEnv->terrainManager)
+    if (App::GetSimTerrain())
         mMapSize = gEnv->surveyMap->getMapSize();
 
     if (gEnv->surveyMap)
@@ -138,7 +140,7 @@ void SurveyMapTextureCreator::preRenderTargetUpdate()
     if (mStatics)
         mStatics->setRenderingDistance(0);
 
-    IWater* water = gEnv->terrainManager->getWater();
+    IWater* water = App::GetSimTerrain()->getWater();
     if (water)
     {
         water->WaterSetCamera(mCamera);
@@ -152,7 +154,7 @@ void SurveyMapTextureCreator::postRenderTargetUpdate()
     if (mStatics)
         mStatics->setRenderingDistance(1000);
 
-    IWater* water = gEnv->terrainManager->getWater();
+    IWater* water = App::GetSimTerrain()->getWater();
     if (water)
     {
         water->WaterSetCamera(gEnv->mainCamera);

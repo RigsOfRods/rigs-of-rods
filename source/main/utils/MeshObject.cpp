@@ -123,7 +123,7 @@ void MeshObject::postProcess()
             float distance = 3;
 
             // we need to tune this according to our sightrange
-            if (sightrange > gEnv->terrainManager->UNLIMITED_SIGHTRANGE)
+            if (sightrange > App::GetSimTerrain()->UNLIMITED_SIGHTRANGE)
             {
                 // unlimited
                 if (i == 1)

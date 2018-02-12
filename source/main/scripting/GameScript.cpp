@@ -46,7 +46,6 @@
 #include "Collisions.h"
 #include "GUI_GameConsole.h"
 #include "GUIManager.h"
-#include "IHeightFinder.h"
 #include "Language.h"
 #include "MainMenu.h"
 #include "Network.h"
@@ -155,8 +154,10 @@ String GameScript::getCaelumTime()
 {
     String result = "";
 #ifdef USE_CAELUM
-    if (gEnv->terrainManager)
-        result = gEnv->terrainManager->getSkyManager()->GetPrettyTime();
+    if (App::GetSimTerrain())
+    {
+        result = App::GetSimTerrain()->getSkyManager()->GetPrettyTime();
+    }
 #endif // USE_CAELUM
     return result;
 }
@@ -164,8 +165,10 @@ String GameScript::getCaelumTime()
 void GameScript::setCaelumTime(float value)
 {
 #ifdef USE_CAELUM
-    if (gEnv->terrainManager)
-        gEnv->terrainManager->getSkyManager()->SetSkyTimeFactor(value);
+    if (App::GetSimTerrain())
+    {
+        App::GetSimTerrain()->getSkyManager()->SetSkyTimeFactor(value);
+    }
 #endif // USE_CAELUM
 }
 
@@ -173,8 +176,8 @@ bool GameScript::getCaelumAvailable()
 {
     bool result = false;
 #ifdef USE_CAELUM
-    if (gEnv->terrainManager)
-        result = gEnv->terrainManager->getSkyManager() != 0;
+    if (App::GetSimTerrain())
+        result = App::GetSimTerrain()->getSkyManager() != 0;
 #endif // USE_CAELUM
     return result;
 }
@@ -191,9 +194,9 @@ void GameScript::startTimer()
 
 void GameScript::setWaterHeight(float value)
 {
-    if (gEnv->terrainManager && gEnv->terrainManager->getWater())
+    if (App::GetSimTerrain() && App::GetSimTerrain()->getWater())
     {
-        IWater* water = gEnv->terrainManager->getWater();
+        IWater* water = App::GetSimTerrain()->getWater();
         water->WaterSetCamera(gEnv->mainCamera);
         water->SetStaticWaterHeight(value);
         water->UpdateWater();
@@ -203,16 +206,16 @@ void GameScript::setWaterHeight(float value)
 float GameScript::getGroundHeight(Vector3& v)
 {
     float result = -1.0f;
-    if (gEnv->terrainManager && gEnv->terrainManager->getHeightFinder())
-        result = gEnv->terrainManager->getHeightFinder()->getHeightAt(v.x, v.z);
+    if (App::GetSimTerrain())
+        result = App::GetSimTerrain()->GetHeightAt(v.x, v.z);
     return result;
 }
 
 float GameScript::getWaterHeight()
 {
     float result = 0.0f;
-    if (gEnv->terrainManager && gEnv->terrainManager->getWater())
-        result = gEnv->terrainManager->getWater()->GetStaticWaterHeight();
+    if (App::GetSimTerrain() && App::GetSimTerrain()->getWater())
+        result = App::GetSimTerrain()->getWater()->GetStaticWaterHeight();
     return result;
 }
 
@@ -223,12 +226,12 @@ Actor* GameScript::getCurrentTruck()
 
 float GameScript::getGravity()
 {
-    return gEnv->terrainManager->getGravity();
+    return App::GetSimTerrain()->getGravity();
 }
 
 void GameScript::setGravity(float value)
 {
-    gEnv->terrainManager->setGravity(value);
+    App::GetSimTerrain()->setGravity(value);
 }
 
 Actor* GameScript::getTruckByNum(int num)
@@ -347,23 +350,23 @@ void GameScript::removeVehicle(const String& event_source_instance_name, const S
 
 void GameScript::destroyObject(const String& instanceName)
 {
-    if (gEnv->terrainManager && gEnv->terrainManager->getObjectManager())
+    if (App::GetSimTerrain() && App::GetSimTerrain()->getObjectManager())
     {
-        gEnv->terrainManager->getObjectManager()->unloadObject(instanceName);
+        App::GetSimTerrain()->getObjectManager()->unloadObject(instanceName);
     }
 }
 
 void GameScript::MoveTerrainObjectVisuals(const String& instanceName, const Vector3& pos)
 {
-    if (gEnv->terrainManager && gEnv->terrainManager->getObjectManager())
+    if (App::GetSimTerrain() && App::GetSimTerrain()->getObjectManager())
     {
-        gEnv->terrainManager->getObjectManager()->MoveObjectVisuals(instanceName, pos);
+        App::GetSimTerrain()->getObjectManager()->MoveObjectVisuals(instanceName, pos);
     }
 }
 
 void GameScript::spawnObject(const String& objectName, const String& instanceName, const Vector3& pos, const Vector3& rot, const String& eventhandler, bool uniquifyMaterials)
 {
-    if ((gEnv->terrainManager == nullptr) || (gEnv->terrainManager->getObjectManager() == nullptr))
+    if ((App::GetSimTerrain() == nullptr) || (App::GetSimTerrain()->getObjectManager() == nullptr))
     {
         this->logFormat("spawnObject(): Cannot spawn object, no terrain loaded!");
         return;
@@ -395,7 +398,7 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
 
         SceneNode* bakeNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
         const String type = "";
-        gEnv->terrainManager->getObjectManager()->LoadTerrainObject(objectName, pos, rot, bakeNode, instanceName, type, true, handler_func_id, uniquifyMaterials);
+        App::GetSimTerrain()->getObjectManager()->LoadTerrainObject(objectName, pos, rot, bakeNode, instanceName, type, true, handler_func_id, uniquifyMaterials);
     }
     catch (std::exception e)
     {
@@ -570,9 +573,9 @@ int GameScript::getLoadedTerrain(String& result)
 {
     String terrainName = "";
 
-    if (gEnv->terrainManager)
+    if (App::GetSimTerrain())
     {
-        terrainName = gEnv->terrainManager->getTerrainName();
+        terrainName = App::GetSimTerrain()->getTerrainName();
         result = terrainName;
     }
 

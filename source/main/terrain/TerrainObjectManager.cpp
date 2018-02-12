@@ -51,6 +51,7 @@
 #endif // USE_ANGELSCRIPT
 
 using namespace Ogre;
+using namespace RoR;
 
 #ifdef USE_PAGED
 using namespace Forests;
@@ -59,9 +60,7 @@ using namespace Forests;
 //workaround for pagedgeometry
 inline float getTerrainHeight(Real x, Real z, void* unused = 0)
 {
-    if (!gEnv->terrainManager->getHeightFinder())
-        return 1;
-    return gEnv->terrainManager->getHeightFinder()->getHeightAt(x, z);
+    return App::GetSimTerrain()->GetHeightAt(x, z);
 }
 
 TerrainObjectManager::TerrainObjectManager(TerrainManager* terrainManager) :
@@ -304,7 +303,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
                         m_tree_loader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
                         if (strlen(treeCollmesh))
                         {
-                            pos.y = gEnv->terrainManager->getHeightFinder()->getHeightAt(pos.x, pos.z);
+                            pos.y = App::GetSimTerrain()->GetHeightAt(pos.x, pos.z);
                             scale *= 0.1f;
                             gEnv->collisions->addCollisionMesh(String(treeCollmesh), pos, Quaternion(Degree(yaw), Vector3::UNIT_Y), Vector3(scale, scale, scale));
                         }
@@ -339,7 +338,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
                             m_tree_loader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
                             if (strlen(treeCollmesh))
                             {
-                                pos.y = gEnv->terrainManager->getHeightFinder()->getHeightAt(pos.x, pos.z);
+                                pos.y = App::GetSimTerrain()->GetHeightAt(pos.x, pos.z);
                                 gEnv->collisions->addCollisionMesh(String(treeCollmesh), pos, Quaternion(Degree(yaw), Vector3::UNIT_Y), Vector3(scale, scale, scale));
                             }
                         }
@@ -1345,7 +1344,7 @@ void TerrainObjectManager::LoadPredefinedActors()
     for (unsigned int i = 0; i < m_predefined_actors.size(); i++)
     {
         Vector3 pos = Vector3(m_predefined_actors[i].px, m_predefined_actors[i].py, m_predefined_actors[i].pz);
-        Actor* b = terrainManager->GetSimController()->GetBeamFactory()->CreateLocalActor(
+        Actor* actor = App::GetSimController()->GetBeamFactory()->CreateLocalActor(
             pos,
             m_predefined_actors[i].rotation,
             m_predefined_actors[i].name,
@@ -1358,15 +1357,15 @@ void TerrainObjectManager::LoadPredefinedActors()
             true /* preloaded_with_terrain */
         );
 
-        if (b && gEnv->surveyMap)
+        if (actor && gEnv->surveyMap)
         {
-            SurveyMapEntity* e = gEnv->surveyMap->createNamedMapEntity("Truck" + TOSTRING(b->ar_instance_id), SurveyMapManager::getTypeByDriveable(b->ar_driveable));
+            SurveyMapEntity* e = gEnv->surveyMap->createNamedMapEntity("Truck" + TOSTRING(actor->ar_instance_id), SurveyMapManager::getTypeByDriveable(actor->ar_driveable));
             if (e)
             {
                 e->setState(static_cast<int>(Actor::SimState::LOCAL_SIMULATED));
                 e->setVisibility(true);
                 e->setPosition(m_predefined_actors[i].px, m_predefined_actors[i].pz);
-                e->setRotation(-Radian(b->getHeadingDirectionAngle()));
+                e->setRotation(-Radian(actor->getHeadingDirectionAngle()));
             }
         }
 

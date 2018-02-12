@@ -56,7 +56,6 @@
 #include "FlexMesh.h"
 #include "FlexMeshWheel.h"
 #include "FlexObj.h"
-#include "IHeightFinder.h"
 #include "InputEngine.h"
 #include "Language.h"
 #include "MeshObject.h"
@@ -1390,15 +1389,15 @@ void Actor::ResetPosition(float px, float pz, bool setInitPosition, float miny)
 
     // vertical displacement
     float vertical_offset = -ar_nodes[ar_lowest_contacting_node].AbsPosition.y + miny;
-    if (gEnv->terrainManager->getWater())
+    if (App::GetSimTerrain()->getWater())
     {
-        vertical_offset += std::max(0.0f, gEnv->terrainManager->getWater()->GetStaticWaterHeight() - (ar_nodes[ar_lowest_contacting_node].AbsPosition.y + vertical_offset));
+        vertical_offset += std::max(0.0f, App::GetSimTerrain()->getWater()->GetStaticWaterHeight() - (ar_nodes[ar_lowest_contacting_node].AbsPosition.y + vertical_offset));
     }
     for (int i = 1; i < ar_num_nodes; i++)
     {
         if (ar_nodes[i].contactless)
             continue;
-        float terrainHeight = gEnv->terrainManager->getHeightFinder()->getHeightAt(ar_nodes[i].AbsPosition.x, ar_nodes[i].AbsPosition.z);
+        float terrainHeight = App::GetSimTerrain()->GetHeightAt(ar_nodes[i].AbsPosition.x, ar_nodes[i].AbsPosition.z);
         vertical_offset += std::max(0.0f, terrainHeight - (ar_nodes[i].AbsPosition.y + vertical_offset));
     }
     for (int i = 0; i < ar_num_nodes; i++)
@@ -3647,7 +3646,7 @@ void Actor::updateVisual(float dt)
     float autoelevator = 0;
     if (ar_autopilot)
     {
-        ar_autopilot->UpdateIls(gEnv->terrainManager->getObjectManager()->GetLocalizers());
+        ar_autopilot->UpdateIls(App::GetSimTerrain()->getObjectManager()->GetLocalizers());
         autoaileron = ar_autopilot->getAilerons();
         autorudder = ar_autopilot->getRudder();
         autoelevator = ar_autopilot->getElevator();
@@ -5232,7 +5231,7 @@ void Actor::updateDashBoards(float dt)
             if (low_node != -1)
             {
                 Vector3 pos = ar_nodes[low_node].AbsPosition;
-                float depth = pos.y - gEnv->terrainManager->getHeightFinder()->getHeightAt(pos.x, pos.z);
+                float depth = pos.y - App::GetSimTerrain()->GetHeightAt(pos.x, pos.z);
                 ar_dashboard->setFloat(DD_WATER_DEPTH, depth);
             }
         }
@@ -5480,9 +5479,9 @@ Vector3 Actor::getGForces()
 
         float gravity = DEFAULT_GRAVITY;
 
-        if (gEnv->terrainManager)
+        if (App::GetSimTerrain())
         {
-            gravity = gEnv->terrainManager->getGravity();
+            gravity = App::GetSimTerrain()->getGravity();
         }
 
         float vertacc = std::abs(gravity) - acc.dotProduct(-upv);

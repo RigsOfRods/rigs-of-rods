@@ -31,6 +31,8 @@
 
 #include <Caelum.h>
 
+using namespace RoR;
+
 SkyManager::SkyManager() : m_caelum_system(nullptr), m_last_clock(0.0)
 {
     // Initialise CaelumSystem.
@@ -62,13 +64,16 @@ void SkyManager::NotifySkyCameraChanged(Ogre::Camera* cam)
 
 void SkyManager::DetectSkyUpdate()
 {
-    if (!m_caelum_system || !gEnv->terrainManager)
+    if (!m_caelum_system || !App::GetSimTerrain())
+    {
         return;
+    }
+
     Caelum::LongReal c = m_caelum_system->getUniversalClock()->getJulianDay();
 
     if (c - m_last_clock > 0.001f)
     {
-        TerrainGeometryManager* gm = gEnv->terrainManager->getGeometryManager();
+        TerrainGeometryManager* gm = App::GetSimTerrain()->getGeometryManager();
         if (gm)
             gm->updateLightMap();
     }
