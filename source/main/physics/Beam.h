@@ -458,7 +458,7 @@ public:
     Ogre::Real        ar_replay_precision;            //!< Sim attribute; determined at startup
     int               ar_replay_length;               //!< Sim attribute; clone of GVar 'sim_replay_length'
     int               ar_replay_pos;                  //!< Sim state
-    float             sleeptime;
+    float             ar_sleep_counter;               //!< Sim state; idle time counter
     ground_model_t*   ar_submesh_ground_model;
     int               ar_parking_brake;
     int               ar_lights;
