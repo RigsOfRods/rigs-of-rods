@@ -1350,12 +1350,16 @@ void TerrainObjectManager::LoadPredefinedActors()
             m_predefined_actors[i].name,
             -1,
             nullptr, /* spawnbox */
-            m_predefined_actors[i].ismachine,
             nullptr, /* config */
             nullptr, /* skin */
             m_predefined_actors[i].freePosition,
             true /* preloaded_with_terrain */
         );
+
+        if (m_predefined_actors[i].ismachine)
+        {
+            actor->ar_driveable = MACHINE;
+        }
 
         if (actor && gEnv->surveyMap)
         {

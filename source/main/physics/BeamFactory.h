@@ -55,7 +55,6 @@ public:
         Ogre::String fname,
         int cache_entry_number = -1,
         collision_box_t* spawnbox = NULL,
-        bool ismachine = false,
         const std::vector<Ogre::String>* actorconfig = nullptr,
         RoR::SkinDef* skin = nullptr,
         bool freePosition = false,

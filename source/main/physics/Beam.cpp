@@ -5530,7 +5530,6 @@ Actor::Actor(
     bool _networked, /* = false  */
     bool _networking, /* = false  */
     collision_box_t* spawnbox, /* = nullptr */
-    bool ismachine, /* = false  */
     const std::vector<Ogre::String>* actor_config, /* = nullptr */
     RoR::SkinDef* skin, /* = nullptr */
     bool preloaded_with_terrain, /* = false */
@@ -5677,10 +5676,6 @@ Actor::Actor(
 
     m_used_skin = skin;
     ar_uses_networking = _networking;
-    if (ismachine)
-    {
-        ar_driveable = MACHINE;
-    }
     ar_filename = fname;
 
     // copy config
