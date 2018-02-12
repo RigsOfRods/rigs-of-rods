@@ -289,15 +289,15 @@ public:
     std::vector<debugtext_t>  beams_debug;
     Ogre::AxisAlignedBox      ar_bounding_box;     //!< standard bounding box (surrounds all nodes of a truck)
     Ogre::AxisAlignedBox      ar_predicted_bounding_box;
-    std::vector< std::vector< int > >  nodetonodeconnections;
-    std::vector< std::vector< int > >  nodebeamconnections;
+    std::vector<std::vector<int>>  ar_node_to_node_connections;
+    std::vector<std::vector<int>>  ar_node_to_beam_connections;
     std::vector<Ogre::Entity*>         deletion_Entities;   //!< For unloading vehicle; filled at spawn.
     std::vector<Ogre::MovableObject *> deletion_Objects;    //!< For unloading vehicle; filled at spawn.
     std::vector<Ogre::SceneNode*>      deletion_sceneNodes; //!< For unloading vehicle; filled at spawn.
     std::vector<Ogre::AxisAlignedBox>  ar_collision_bounding_boxes; //!< smart bounding boxes, used for determining the state of a truck (every box surrounds only a subset of nodes)
     std::vector<Ogre::AxisAlignedBox>  ar_predicted_coll_bounding_boxes;
-    contacter_t       contacters[MAX_CONTACTERS];
-    int               free_contacter;
+    contacter_t       ar_contacters[MAX_CONTACTERS];
+    int               ar_num_contacters;
     wheel_t           wheels[MAX_WHEELS];
     vwheel_t          vwheels[MAX_WHEELS];
     int               free_wheel;
@@ -305,10 +305,10 @@ public:
     prop_t            ar_props[MAX_PROPS];
     prop_t*           ar_driverseat_prop;
     int               ar_num_props;
-    cparticle_t       cparticles[MAX_CPARTICLES];
-    int               free_cparticle;
-    soundsource_t     soundsources[MAX_SOUNDSCRIPTS_PER_TRUCK];
-    int               free_soundsource;
+    cparticle_t       ar_custom_particles[MAX_CPARTICLES];
+    int               ar_num_custom_particles;
+    soundsource_t     ar_soundsources[MAX_SOUNDSCRIPTS_PER_TRUCK];
+    int               ar_num_soundsources;
     int               ar_pressure_beams[MAX_PRESSURE_BEAMS];
     int               ar_free_pressure_beam;
     AeroEngine*       ar_aeroengines[MAX_AEROENGINES];

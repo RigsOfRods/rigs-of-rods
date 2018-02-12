@@ -578,7 +578,7 @@ private:
     bool CheckHydroLimit(unsigned int count);
 
     /**
-    * Checks there is still space left in rig_t::cparticles array.
+    * Checks there is still space left in rig_t::ar_custom_particles array.
     * @param count Required number of free slots.
     * @return True if there is space left.
     */

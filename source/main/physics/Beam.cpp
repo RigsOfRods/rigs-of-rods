@@ -322,19 +322,19 @@ Beam::~Beam()
         }
     }
 
-    // delete cparticles
-    for (int i = 0; i < free_cparticle; i++)
+    // delete ar_custom_particles
+    for (int i = 0; i < ar_num_custom_particles; i++)
     {
-        if (cparticles[i].snode)
+        if (ar_custom_particles[i].snode)
         {
-            cparticles[i].snode->removeAndDestroyAllChildren();
-            gEnv->sceneManager->destroySceneNode(cparticles[i].snode);
+            ar_custom_particles[i].snode->removeAndDestroyAllChildren();
+            gEnv->sceneManager->destroySceneNode(ar_custom_particles[i].snode);
         }
-        if (cparticles[i].psys)
+        if (ar_custom_particles[i].psys)
         {
-            cparticles[i].psys->removeAllAffectors();
-            cparticles[i].psys->removeAllEmitters();
-            gEnv->sceneManager->destroyParticleSystem(cparticles[i].psys);
+            ar_custom_particles[i].psys->removeAllAffectors();
+            ar_custom_particles[i].psys->removeAllEmitters();
+            gEnv->sceneManager->destroyParticleSystem(ar_custom_particles[i].psys);
         }
     }
 
@@ -1047,17 +1047,17 @@ void Beam::calcNodeConnectivityGraph()
     BES_GFX_START(BES_GFX_calcNodeConnectivityGraph);
     int i;
 
-    nodetonodeconnections.resize(ar_num_nodes, std::vector<int>());
-    nodebeamconnections.resize(ar_num_nodes, std::vector<int>());
+    ar_node_to_node_connections.resize(ar_num_nodes, std::vector<int>());
+    ar_node_to_beam_connections.resize(ar_num_nodes, std::vector<int>());
 
     for (i = 0; i < ar_num_beams; i++)
     {
         if (ar_beams[i].p1 != NULL && ar_beams[i].p2 != NULL && ar_beams[i].p1->pos >= 0 && ar_beams[i].p2->pos >= 0)
         {
-            nodetonodeconnections[ar_beams[i].p1->pos].push_back(ar_beams[i].p2->pos);
-            nodebeamconnections[ar_beams[i].p1->pos].push_back(i);
-            nodetonodeconnections[ar_beams[i].p2->pos].push_back(ar_beams[i].p1->pos);
-            nodebeamconnections[ar_beams[i].p2->pos].push_back(i);
+            ar_node_to_node_connections[ar_beams[i].p1->pos].push_back(ar_beams[i].p2->pos);
+            ar_node_to_beam_connections[ar_beams[i].p1->pos].push_back(i);
+            ar_node_to_node_connections[ar_beams[i].p2->pos].push_back(ar_beams[i].p1->pos);
+            ar_node_to_beam_connections[ar_beams[i].p2->pos].push_back(i);
         }
     }
     BES_GFX_STOP(BES_GFX_calcNodeConnectivityGraph);
@@ -3450,12 +3450,12 @@ void Beam::updateProps()
 void Beam::toggleCustomParticles()
 {
     m_custom_particles_enabled = !m_custom_particles_enabled;
-    for (int i = 0; i < free_cparticle; i++)
+    for (int i = 0; i < ar_num_custom_particles; i++)
     {
-        cparticles[i].active = !cparticles[i].active;
-        for (int j = 0; j < cparticles[i].psys->getNumEmitters(); j++)
+        ar_custom_particles[i].active = !ar_custom_particles[i].active;
+        for (int j = 0; j < ar_custom_particles[i].psys->getNumEmitters(); j++)
         {
-            cparticles[i].psys->getEmitter(j)->setEnabled(cparticles[i].active);
+            ar_custom_particles[i].psys->getEmitter(j)->setEnabled(ar_custom_particles[i].active);
         }
     }
 
@@ -3469,9 +3469,9 @@ void Beam::updateSoundSources()
 #ifdef USE_OPENAL
     if (SoundScriptManager::getSingleton().isDisabled())
         return;
-    for (int i = 0; i < free_soundsource; i++)
+    for (int i = 0; i < ar_num_soundsources; i++)
     {
-        soundsources[i].ssi->setPosition(ar_nodes[soundsources[i].nodenum].AbsPosition, ar_nodes[soundsources[i].nodenum].Velocity);
+        ar_soundsources[i].ssi->setPosition(ar_nodes[ar_soundsources[i].nodenum].AbsPosition, ar_nodes[ar_soundsources[i].nodenum].Velocity);
     }
     //also this, so it is updated always, and for any vehicle
     SOUND_MODULATE(ar_instance_id, SS_MOD_AIRSPEED, ar_nodes[0].Velocity.length() * 1.9438);
@@ -3596,16 +3596,16 @@ void Beam::updateVisual(float dt)
 #endif //openAL
 
     //update custom particle systems
-    for (int i = 0; i < free_cparticle; i++)
+    for (int i = 0; i < ar_num_custom_particles; i++)
     {
-        Vector3 pos = ar_nodes[cparticles[i].emitterNode].AbsPosition;
-        Vector3 dir = pos - ar_nodes[cparticles[i].directionNode].AbsPosition;
+        Vector3 pos = ar_nodes[ar_custom_particles[i].emitterNode].AbsPosition;
+        Vector3 dir = pos - ar_nodes[ar_custom_particles[i].directionNode].AbsPosition;
         //dir.normalise();
         dir = fast_normalise(dir);
-        cparticles[i].snode->setPosition(pos);
-        for (int j = 0; j < cparticles[i].psys->getNumEmitters(); j++)
+        ar_custom_particles[i].snode->setPosition(pos);
+        for (int j = 0; j < ar_custom_particles[i].psys->getNumEmitters(); j++)
         {
-            cparticles[i].psys->getEmitter(j)->setDirection(dir);
+            ar_custom_particles[i].psys->getEmitter(j)->setDirection(dir);
         }
     }
     // update exhausts
@@ -4940,10 +4940,10 @@ bool Beam::getReverseLightVisible()
 void Beam::StopAllSounds()
 {
 #ifdef USE_OPENAL
-    for (int i = 0; i < free_soundsource; i++)
+    for (int i = 0; i < ar_num_soundsources; i++)
     {
-        if (soundsources[i].ssi)
-            soundsources[i].ssi->setEnabled(false);
+        if (ar_soundsources[i].ssi)
+            ar_soundsources[i].ssi->setEnabled(false);
     }
 #endif // USE_OPENAL
 }
@@ -4951,10 +4951,10 @@ void Beam::StopAllSounds()
 void Beam::UnmuteAllSounds()
 {
 #ifdef USE_OPENAL
-    for (int i = 0; i < free_soundsource; i++)
+    for (int i = 0; i < ar_num_soundsources; i++)
     {
-        bool enabled = (soundsources[i].type == -2 || soundsources[i].type == ar_current_cinecam);
-        soundsources[i].ssi->setEnabled(enabled);
+        bool enabled = (ar_soundsources[i].type == -2 || ar_soundsources[i].type == ar_current_cinecam);
+        ar_soundsources[i].ssi->setEnabled(enabled);
     }
 #endif // USE_OPENAL
 }
@@ -4963,10 +4963,10 @@ void Beam::changedCamera()
 {
     // change sound setup
 #ifdef USE_OPENAL
-    for (int i = 0; i < free_soundsource; i++)
+    for (int i = 0; i < ar_num_soundsources; i++)
     {
-        bool enabled = (soundsources[i].type == -2 || soundsources[i].type == ar_current_cinecam);
-        soundsources[i].ssi->setEnabled(enabled);
+        bool enabled = (ar_soundsources[i].type == -2 || ar_soundsources[i].type == ar_current_cinecam);
+        ar_soundsources[i].ssi->setEnabled(enabled);
     }
 #endif // USE_OPENAL
 
@@ -4990,9 +4990,9 @@ void Beam::changedCamera()
 int Beam::nodeBeamConnections(int nodeid)
 {
     int totallivebeams = 0;
-    for (unsigned int ni = 0; ni < nodebeamconnections[nodeid].size(); ++ni)
+    for (unsigned int ni = 0; ni < ar_node_to_beam_connections[nodeid].size(); ++ni)
     {
-        if (!ar_beams[nodebeamconnections[nodeid][ni]].bm_disabled && !ar_beams[nodebeamconnections[nodeid][ni]].bounded)
+        if (!ar_beams[ar_node_to_beam_connections[nodeid][ni]].bm_disabled && !ar_beams[ar_node_to_beam_connections[nodeid][ni]].bounded)
             totallivebeams++;
     }
     return totallivebeams;
@@ -5673,6 +5673,8 @@ Beam::Beam(
     , ar_num_aeroengines() // Zero-init
     , ar_pressure_beams() // Zero-init array
     , ar_free_pressure_beam() // Zero-init
+    , ar_contacters() // memset() the array to zero
+    , ar_num_contacters() // zero-init
 {
     m_high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();
     m_use_skidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;

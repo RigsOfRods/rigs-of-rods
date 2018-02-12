@@ -190,7 +190,7 @@ void interTruckCollisions(const float dt, PointColDetector &interPointCD,
                     auto normal     = triangle.normal();
 
                     // adapt in case the collision is occuring on the backface of the triangle
-                    const auto neighbour_node_ids = hittruck->nodetonodeconnections[hitnodeid];
+                    const auto neighbour_node_ids = hittruck->ar_node_to_node_connections[hitnodeid];
                     const bool is_backface = BackfaceCollisionTest(distance, normal, *no, neighbour_node_ids, hittruck->ar_nodes); 
                     if (is_backface) {
                         // flip surface normal and distance to triangle plane

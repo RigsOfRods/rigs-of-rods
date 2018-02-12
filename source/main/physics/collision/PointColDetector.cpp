@@ -49,7 +49,7 @@ void PointColDetector::update(Beam* truck, bool ignorestate) {
 
     if (truck && (ignorestate || truck->ar_sim_state < Beam::SimState::LOCAL_SLEEPING)) {
         m_trucks.resize(1, truck);
-        contacters_size += truck->free_contacter;
+        contacters_size += truck->ar_num_contacters;
     } else {
         m_trucks.clear();
     }
@@ -76,7 +76,7 @@ void PointColDetector::update(Beam* truck, Beam** trucks, const int numtrucks, b
                 update_required = update_required || (m_trucks[t] != trucks[t]);
                 m_trucks[t] = trucks[t];
                 truck->ar_collision_relevant = true;
-                contacters_size += trucks[t]->free_contacter;
+                contacters_size += trucks[t]->ar_num_contacters;
                 if (truck->ar_nodes[0].Velocity.squaredDistance(trucks[t]->ar_nodes[0].Velocity) > 25)
                 {
                     for (int i=0; i<truck->ar_num_collcabs; i++)
@@ -124,10 +124,10 @@ void PointColDetector::update_structures_for_contacters() {
     //Insert all contacters, into the list of points to consider when building the kdtree
     for (int t = 0; t < static_cast<int>(m_trucks.size()); t++) {
         if (m_trucks[t]) {
-            for (int i = 0; i < m_trucks[t]->free_contacter; ++i) {
+            for (int i = 0; i < m_trucks[t]->ar_num_contacters; ++i) {
                 ref_list[refi].pidref = &pointid_list[refi];
                 pointid_list[refi].truckid = t;
-                pointid_list[refi].nodeid = m_trucks[t]->contacters[i].nodeid;
+                pointid_list[refi].nodeid = m_trucks[t]->ar_contacters[i].nodeid;
                 ref_list[refi].point = &(m_trucks[t]->ar_nodes[pointid_list[refi].nodeid].AbsPosition.x);
                 refi++;
             }

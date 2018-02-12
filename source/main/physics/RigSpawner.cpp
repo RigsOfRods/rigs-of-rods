@@ -239,8 +239,6 @@ void RigSpawner::InitializeRig()
         m_rig->ar_wings = new wing_t[req.num_wings];
 
     // TODO: Perform these inits in constructor instead! ~ only_a_ptr, 01/2018
-    memset(m_rig->contacters, 0, sizeof(contacter_t) * MAX_CONTACTERS);
-    m_rig->free_contacter = 0;
     memset(m_rig->wheels, 0, sizeof(wheel_t) * MAX_WHEELS);
     m_rig->free_wheel = 0;
     memset(m_rig->vwheels, 0, sizeof(vwheel_t) * MAX_WHEELS);
@@ -260,12 +258,12 @@ void RigSpawner::InitializeRig()
     memset(m_rig->ar_props, 0, sizeof(prop_t) * MAX_PROPS);
     m_rig->ar_num_props = 0;
     m_rig->exhausts.clear();
-    memset(m_rig->cparticles, 0, sizeof(cparticle_t) * MAX_CPARTICLES);
-    m_rig->free_cparticle = 0;
+    memset(m_rig->ar_custom_particles, 0, sizeof(cparticle_t) * MAX_CPARTICLES);
+    m_rig->ar_num_custom_particles = 0;
     m_rig->nodes_debug.clear();
     m_rig->beams_debug.clear();
-    memset(m_rig->soundsources, 0, sizeof(soundsource_t) * MAX_SOUNDSCRIPTS_PER_TRUCK);
-    m_rig->free_soundsource = 0;
+    memset(m_rig->ar_soundsources, 0, sizeof(soundsource_t) * MAX_SOUNDSCRIPTS_PER_TRUCK);
+    m_rig->ar_num_soundsources = 0;
     memset(m_rig->ar_collcabs, 0, sizeof(int) * MAX_CABS);
     memset(m_rig->ar_inter_collcabrate, 0, sizeof(collcab_rate_t) * MAX_CABS);
     m_rig->ar_num_collcabs = 0;
@@ -1290,10 +1288,10 @@ void RigSpawner::AddSoundSource(Beam *vehicle, SoundScriptInstance *sound_script
         return;
     }
 
-    vehicle->soundsources[vehicle->free_soundsource].ssi=sound_script;
-    vehicle->soundsources[vehicle->free_soundsource].nodenum=node_index;
-    vehicle->soundsources[vehicle->free_soundsource].type=type;
-    vehicle->free_soundsource++;
+    vehicle->ar_soundsources[vehicle->ar_num_soundsources].ssi=sound_script;
+    vehicle->ar_soundsources[vehicle->ar_num_soundsources].nodenum=node_index;
+    vehicle->ar_soundsources[vehicle->ar_num_soundsources].type=type;
+    vehicle->ar_num_soundsources++;
 }
 
 void RigSpawner::ProcessSoundSource(RigDef::SoundSource & def)
@@ -2693,9 +2691,9 @@ void RigSpawner::ProcessParticle(RigDef::Particle & def)
         return;
     }
 
-    unsigned int particle_index = m_rig->free_cparticle;
-    m_rig->free_cparticle++;
-    cparticle_t & particle = m_rig->cparticles[particle_index];
+    unsigned int particle_index = m_rig->ar_num_custom_particles;
+    m_rig->ar_num_custom_particles++;
+    cparticle_t & particle = m_rig->ar_custom_particles[particle_index];
 
     particle.emitterNode = GetNodeIndexOrThrow(def.emitter_node);
     particle.directionNode = GetNodeIndexOrThrow(def.reference_node);
@@ -3271,8 +3269,8 @@ void RigSpawner::ProcessContacter(RigDef::Node::Ref & node_ref)
     SPAWNER_PROFILE_SCOPED();
 
     unsigned int node_index = GetNodeIndexOrThrow(node_ref);
-    m_rig->contacters[m_rig->free_contacter].nodeid = node_index;
-    m_rig->free_contacter++;
+    m_rig->ar_contacters[m_rig->ar_num_contacters].nodeid = node_index;
+    m_rig->ar_num_contacters++;
 };
 
 void RigSpawner::ProcessRotator(RigDef::Rotator & def)
@@ -4045,9 +4043,9 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         outer_node.iswheel       = WHEEL_FLEXBODY;
         AdjustNodeBuoyancy(outer_node, def.node_defaults);
 
-        contacter_t & outer_contacter = m_rig->contacters[m_rig->free_contacter];
+        contacter_t & outer_contacter = m_rig->ar_contacters[m_rig->ar_num_contacters];
         outer_contacter.nodeid        = outer_node.pos; /* Node index */
-        m_rig->free_contacter++;
+        m_rig->ar_num_contacters++;
 
         // Inner ring
         ray_point = axis_node_2->RelPosition + tyre_ray_vector;
@@ -4064,9 +4062,9 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         inner_node.iswheel       = WHEEL_FLEXBODY;
         AdjustNodeBuoyancy(inner_node, def.node_defaults);
 
-        contacter_t & inner_contacter = m_rig->contacters[m_rig->free_contacter];
+        contacter_t & inner_contacter = m_rig->ar_contacters[m_rig->ar_num_contacters];
         inner_contacter.nodeid        = inner_node.pos; // Node index
-        m_rig->free_contacter++;
+        m_rig->ar_num_contacters++;
 
         // Wheel object
         wheel.wh_nodes[i * 2] = & outer_node;
@@ -4533,9 +4531,9 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
         outer_node.wheelid = m_rig->free_wheel;
         AdjustNodeBuoyancy(outer_node, node_defaults);
 
-        contacter_t & outer_contacter = m_rig->contacters[m_rig->free_contacter];
+        contacter_t & outer_contacter = m_rig->ar_contacters[m_rig->ar_num_contacters];
         outer_contacter.nodeid        = outer_node.pos; /* Node index */
-        m_rig->free_contacter++;
+        m_rig->ar_num_contacters++;
 
         /* Inner ring */
         ray_point = axis_node_2->RelPosition + ray_vector;
@@ -4549,9 +4547,9 @@ unsigned int RigSpawner::BuildWheelObjectAndNodes(
         inner_node.wheelid = m_rig->free_wheel; 
         AdjustNodeBuoyancy(inner_node, node_defaults);
 
-        contacter_t & contacter = m_rig->contacters[m_rig->free_contacter];
+        contacter_t & contacter = m_rig->ar_contacters[m_rig->ar_num_contacters];
         contacter.nodeid        = inner_node.pos; /* Node index */
-        m_rig->free_contacter++;
+        m_rig->ar_num_contacters++;
 
         /* Wheel object */
         wheel.wh_nodes[i * 2] = & outer_node;
@@ -4847,9 +4845,9 @@ unsigned int RigSpawner::AddWheel(RigDef::Wheel & wheel_def)
         outer_node.id      = -1; // Orig: hardcoded (BTS_WHEELS)
         outer_node.wheelid = m_rig->free_wheel;
 
-        contacter_t & contacter = m_rig->contacters[m_rig->free_contacter];
+        contacter_t & contacter = m_rig->ar_contacters[m_rig->ar_num_contacters];
         contacter.nodeid        = outer_node.pos; /* Node index */
-        m_rig->free_contacter++;
+        m_rig->ar_num_contacters++;
 
         /* Inner ring */
         ray_point = axis_node_2.RelPosition + ray_vector;
@@ -4862,9 +4860,9 @@ unsigned int RigSpawner::AddWheel(RigDef::Wheel & wheel_def)
         inner_node.id      = -1; // Orig: hardcoded (BTS_WHEELS)
         inner_node.wheelid = m_rig->free_wheel; 
 
-        contacter_t & contacter = m_rig->contacters[m_rig->free_contacter];
+        contacter_t & contacter = m_rig->ar_contacters[m_rig->ar_num_contacters];
         contacter.nodeid        = inner_node.pos; /* Node index */
-        m_rig->free_contacter++;
+        m_rig->ar_num_contacters++;
 
         /* Wheel object */
         wheel.ar_nodes[i * 2] = & outer_node;
@@ -5033,9 +5031,9 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         outer_node.volume_coef   = wheel_2_def.node_defaults->volume;
         outer_node.surface_coef  = wheel_2_def.node_defaults->surface;
 
-        contacter_t & contacter = m_rig->contacters[m_rig->free_contacter];
+        contacter_t & contacter = m_rig->ar_contacters[m_rig->ar_num_contacters];
         contacter.nodeid        = outer_node.pos; /* Node index */
-        m_rig->free_contacter++;
+        m_rig->ar_num_contacters++;
 
         /* Inner ring */
         ray_point = axis_node_2->RelPosition + tyre_ray_vector;
@@ -5050,9 +5048,9 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         inner_node.volume_coef   = wheel_2_def.node_defaults->volume;
         inner_node.surface_coef  = wheel_2_def.node_defaults->surface;
 
-        contacter_t & inner_contacter = m_rig->contacters[m_rig->free_contacter];
+        contacter_t & inner_contacter = m_rig->ar_contacters[m_rig->ar_num_contacters];
         inner_contacter.nodeid        = inner_node.pos; /* Node index */
-        m_rig->free_contacter++;
+        m_rig->ar_num_contacters++;
 
         /* Wheel object */
         wheel.wh_nodes[i * 2] = & outer_node;
@@ -6324,7 +6322,7 @@ bool RigSpawner::CheckParticleLimit(unsigned int count)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if ((m_rig->free_cparticle + count) > MAX_CPARTICLES)
+    if ((m_rig->ar_num_custom_particles + count) > MAX_CPARTICLES)
     {
         std::stringstream msg;
         msg << "Particle limit (" << MAX_CPARTICLES << ") exceeded";
@@ -6410,7 +6408,7 @@ bool RigSpawner::CheckSoundScriptLimit(Beam *vehicle, unsigned int count)
     SPAWNER_PROFILE_SCOPED();
 
     //return CheckSoundScriptLimit(m_rig, count);
-    if ((vehicle->free_soundsource + count) > MAX_SOUNDSCRIPTS_PER_TRUCK)
+    if ((vehicle->ar_num_soundsources + count) > MAX_SOUNDSCRIPTS_PER_TRUCK)
     {
         std::stringstream msg;
         msg << "SoundScript limit (" << MAX_SOUNDSCRIPTS_PER_TRUCK << ") exceeded";
