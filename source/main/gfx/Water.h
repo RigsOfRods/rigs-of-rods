@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2016 Petr Ohlidal & contributors
+    Copyright 2013-2018 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -51,14 +51,8 @@ public:
     void           WaterPrepareShutdown() override;
     void           UpdateWater() override;
     void           FrameStepWater(float dt) override;
-    
-    bool           isCameraUnderWater();
-    void           processWater();
 
 private:
-
-    float getWaveHeight(Ogre::Vector3 pos);
-    void  showWave(Ogre::Vector3 refpos);
 
     struct WaveTrain
     {
@@ -71,28 +65,32 @@ private:
         float dir_cos;
     };
 
-    static const int WAVEREZ = 100;
+    float          GetWaveHeight(Ogre::Vector3 pos);
+    void           ShowWave(Ogre::Vector3 refpos);
+    bool           IsCameraUnderWater();
+    void           PrepareWater();
 
-    bool visible;
-    float* wbuffer;
-    float wHeight, orgHeight, wbHeight;
-    float maxampl;
-    float mScale;
-    int framecounter;
-    bool ForceUpdate;
-
-    Ogre::MeshPtr mprt;
-    Ogre::Vector3 mapSize;
-    Ogre::Camera* mRenderCamera;
-    Ogre::Camera* mReflectCam;
-    Ogre::Camera* mRefractCam;
-    Ogre::HardwareVertexBufferSharedPtr wbuf;
-    Ogre::RenderTexture* rttTex1;
-    Ogre::RenderTexture* rttTex2;
-    Ogre::TexturePtr     m_refraction_rtt_texture;
-    Ogre::TexturePtr     m_reflection_rtt_texture;
-    Ogre::SceneNode* pBottomNode;
-    Ogre::SceneNode* pWaterNode;
-    Ogre::Viewport *vRtt1, *vRtt2;
-    std::vector<WaveTrain> m_wavetrain_defs;
+    bool                  m_water_visible;
+    float                 m_water_height;
+    float                 m_bottom_height;
+    float                 m_max_ampl;
+    float                 m_waterplane_mesh_scale;
+    int                   m_frame_counter;
+    Ogre::Vector3         m_map_size;
+    Ogre::Camera*         m_render_cam;
+    Ogre::MeshPtr         m_waterplane_mesh;
+    Ogre::HardwareVertexBufferSharedPtr  m_waterplane_vert_buf;
+    float*                m_waterplane_vert_buf_local;
+    bool                  m_waterplane_force_update_pos;
+    Ogre::Camera*         m_reflect_cam;
+    Ogre::Camera*         m_refract_cam;
+    Ogre::RenderTexture*  m_refract_rtt_target;
+    Ogre::RenderTexture*  m_reflect_rtt_target;
+    Ogre::TexturePtr      m_refract_rtt_texture;
+    Ogre::TexturePtr      m_reflect_rtt_texture;
+    Ogre::Viewport*       m_refract_rtt_viewport;
+    Ogre::Viewport*       m_reflect_rtt_viewport;
+    Ogre::SceneNode*      m_bottomplane_node;
+    Ogre::SceneNode*      m_waterplane_node;
+    std::vector<WaveTrain>  m_wavetrain_defs;
 };

@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2016 Petr Ohlidal & contributors
+    Copyright 2013-2018 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -41,7 +41,7 @@ Plane reflectionPlane;
 Plane refractionPlane;
 SceneManager* waterSceneMgr;
 
-const int Water::WAVEREZ;
+static const int WAVEREZ = 100;
 
 class RefractionTextureListener : public RenderTargetListener, public ZeroedMemoryAllocator
 {
@@ -93,25 +93,25 @@ ReflectionTextureListener mReflectionListener;
 //End ugly code
 
 Water::Water() :
-    maxampl(0),
-    visible(true),
-    mScale(1.0f),
-    vRtt1(0),
-    vRtt2(0),
-    mRenderCamera(gEnv->mainCamera),
-    pWaterNode(0),
-    framecounter(0),
-    rttTex1(0),
-    rttTex2(0),
-    mReflectCam(0),
-    mRefractCam(0)
+    m_max_ampl(0),
+    m_water_visible(true),
+    m_waterplane_mesh_scale(1.0f),
+    m_refract_rtt_viewport(0),
+    m_reflect_rtt_viewport(0),
+    m_render_cam(gEnv->mainCamera),
+    m_waterplane_node(0),
+    m_frame_counter(0),
+    m_refract_rtt_target(0),
+    m_reflect_rtt_target(0),
+    m_reflect_cam(0),
+    m_refract_cam(0)
 {
     //Ugh.. Why so ugly and hard to read
-    mapSize = gEnv->terrainManager->getMaxTerrainSize();
+    m_map_size = gEnv->terrainManager->getMaxTerrainSize();
     waterSceneMgr = gEnv->sceneManager;
 
-    if (mapSize.x < 1500 && mapSize.z < 1500)
-        mScale = 1.5f;
+    if (m_map_size.x < 1500 && m_map_size.z < 1500)
+        m_waterplane_mesh_scale = 1.5f;
 
     char line[1024] = {};
     std::string filepath = std::string(RoR::App::sys_config_dir.GetActive()) + PATH_SLASH + "wavefield.cfg";
@@ -143,24 +143,24 @@ Water::Water() :
     for (size_t i = 0; i < m_wavetrain_defs.size(); i++)
     {
         m_wavetrain_defs[i].wavespeed = 1.25 * sqrt(m_wavetrain_defs[i].wavelength);
-        maxampl += m_wavetrain_defs[i].maxheight;
+        m_max_ampl += m_wavetrain_defs[i].maxheight;
     }
 
-    this->processWater();
+    this->PrepareWater();
 }
 
 Water::~Water()
 {
-    if (mRefractCam != nullptr)
+    if (m_refract_cam != nullptr)
     {
-        gEnv->sceneManager->destroyCamera(mRefractCam);
-        mRefractCam = nullptr;
+        gEnv->sceneManager->destroyCamera(m_refract_cam);
+        m_refract_cam = nullptr;
     }
 
-    if (mReflectCam != nullptr)
+    if (m_reflect_cam != nullptr)
     {
-        gEnv->sceneManager->destroyCamera(mReflectCam);
-        mReflectCam = nullptr;
+        gEnv->sceneManager->destroyCamera(m_reflect_cam);
+        m_reflect_cam = nullptr;
     }
 
     if (pPlaneEnt != nullptr)
@@ -169,59 +169,59 @@ Water::~Water()
         pPlaneEnt = nullptr;
     }
 
-    if (pWaterNode != nullptr)
+    if (m_waterplane_node != nullptr)
     {
         gEnv->sceneManager->getRootSceneNode()->removeAndDestroyChild("WaterPlane");
-        pWaterNode = nullptr;
+        m_waterplane_node = nullptr;
     }
 
-    if (pBottomNode != nullptr)
+    if (m_bottomplane_node != nullptr)
     {
         gEnv->sceneManager->destroyEntity("bplane");
         gEnv->sceneManager->getRootSceneNode()->removeAndDestroyChild("BottomWaterPlane");
-        pBottomNode = nullptr;
+        m_bottomplane_node = nullptr;
     }
 
-    wHeight = wbHeight = 0;
-    mRenderCamera = nullptr;
+    m_water_height = m_bottom_height = 0;
+    m_render_cam = nullptr;
     waterSceneMgr = nullptr;
 
-    if (rttTex1)
+    if (m_refract_rtt_target)
     {
-        //vRtt1->clear();
-        rttTex1->removeAllListeners();
-        rttTex1 = nullptr;
+        //m_refract_rtt_viewport->clear();
+        m_refract_rtt_target->removeAllListeners();
+        m_refract_rtt_target = nullptr;
     }
 
-    if (!m_refraction_rtt_texture.isNull())
+    if (!m_refract_rtt_texture.isNull())
     {
-        m_refraction_rtt_texture->unload();
-        Ogre::TextureManager::getSingleton().remove(m_refraction_rtt_texture->getHandle());
-        m_refraction_rtt_texture.setNull();
+        m_refract_rtt_texture->unload();
+        Ogre::TextureManager::getSingleton().remove(m_refract_rtt_texture->getHandle());
+        m_refract_rtt_texture.setNull();
     }
 
-    if (rttTex2)
+    if (m_reflect_rtt_target)
     {
-        //vRtt2->clear();
-        rttTex2->removeAllListeners();
-        rttTex2 = nullptr;
+        //m_reflect_rtt_viewport->clear();
+        m_reflect_rtt_target->removeAllListeners();
+        m_reflect_rtt_target = nullptr;
     }
 
-    if (!m_reflection_rtt_texture.isNull())
+    if (!m_reflect_rtt_texture.isNull())
     {
-        m_reflection_rtt_texture->unload();
-        Ogre::TextureManager::getSingleton().remove(m_reflection_rtt_texture->getHandle());
-        m_reflection_rtt_texture.setNull();
+        m_reflect_rtt_texture->unload();
+        Ogre::TextureManager::getSingleton().remove(m_reflect_rtt_texture->getHandle());
+        m_reflect_rtt_texture.setNull();
     }
 
-    if (wbuffer)
+    if (m_waterplane_vert_buf_local)
     {
-        free(wbuffer);
-        wbuffer = nullptr;
+        free(m_waterplane_vert_buf_local);
+        m_waterplane_vert_buf_local = nullptr;
     }
 }
 
-void Water::processWater()
+void Water::PrepareWater()
 {
     waterPlane.normal = Vector3::UNIT_Y;
     waterPlane.d = 0;
@@ -260,20 +260,20 @@ void Water::processWater()
 
         if (full_gfx)
         {
-            TexturePtr rttTex1Ptr = TextureManager::getSingleton().createManual("Refraction", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 512, 512, 0, PF_R8G8B8, TU_RENDERTARGET);
-            m_refraction_rtt_texture = rttTex1Ptr;
-            rttTex1 = rttTex1Ptr->getBuffer()->getRenderTarget();
+            TexturePtr m_refract_rtt_targetPtr = TextureManager::getSingleton().createManual("Refraction", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 512, 512, 0, PF_R8G8B8, TU_RENDERTARGET);
+            m_refract_rtt_texture = m_refract_rtt_targetPtr;
+            m_refract_rtt_target = m_refract_rtt_targetPtr->getBuffer()->getRenderTarget();
             {
-                mRefractCam = gEnv->sceneManager->createCamera("RefractCam");
-                mRefractCam->setNearClipDistance(mRenderCamera->getNearClipDistance());
-                mRefractCam->setFarClipDistance(mRenderCamera->getFarClipDistance());
-                mRefractCam->setAspectRatio(
+                m_refract_cam = gEnv->sceneManager->createCamera("RefractCam");
+                m_refract_cam->setNearClipDistance(m_render_cam->getNearClipDistance());
+                m_refract_cam->setFarClipDistance(m_render_cam->getFarClipDistance());
+                m_refract_cam->setAspectRatio(
                     (Real)RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualWidth() /
                     (Real)RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualHeight());
 
-                vRtt1 = rttTex1->addViewport(mRefractCam);
-                vRtt1->setClearEveryFrame(true);
-                vRtt1->setBackgroundColour(gEnv->sceneManager->getFogColour());
+                m_refract_rtt_viewport = m_refract_rtt_target->addViewport(m_refract_cam);
+                m_refract_rtt_viewport->setClearEveryFrame(true);
+                m_refract_rtt_viewport->setBackgroundColour(gEnv->sceneManager->getFogColour());
                 //            v->setBackgroundColour( ColourValue::Black );
 
                 MaterialPtr mat = MaterialManager::getSingleton().getByName("Examples/FresnelReflectionRefraction");
@@ -282,32 +282,32 @@ void Water::processWater()
                 mat = MaterialManager::getSingleton().getByName("Examples/FresnelReflectionRefractioninverted");
                 mat->getTechnique(0)->getPass(0)->getTextureUnitState(2)->setTextureName("Refraction");
 
-                vRtt1->setOverlaysEnabled(false);
+                m_refract_rtt_viewport->setOverlaysEnabled(false);
 
-                rttTex1->addListener(&mRefractionListener);
+                m_refract_rtt_target->addListener(&mRefractionListener);
 
                 //optimisation
-                rttTex1->setAutoUpdated(false);
+                m_refract_rtt_target->setAutoUpdated(false);
 
                 // Also clip
-                mRefractCam->enableCustomNearClipPlane(refractionPlane);
+                m_refract_cam->enableCustomNearClipPlane(refractionPlane);
             }
         }
 
-        TexturePtr rttTex2Ptr = TextureManager::getSingleton().createManual("Reflection", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 512, 512, 0, PF_R8G8B8, TU_RENDERTARGET);
-        m_reflection_rtt_texture = rttTex2Ptr;
-        rttTex2 = rttTex2Ptr->getBuffer()->getRenderTarget();
+        TexturePtr m_reflect_rtt_targetPtr = TextureManager::getSingleton().createManual("Reflection", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 512, 512, 0, PF_R8G8B8, TU_RENDERTARGET);
+        m_reflect_rtt_texture = m_reflect_rtt_targetPtr;
+        m_reflect_rtt_target = m_reflect_rtt_targetPtr->getBuffer()->getRenderTarget();
         {
-            mReflectCam = gEnv->sceneManager->createCamera("ReflectCam");
-            mReflectCam->setNearClipDistance(mRenderCamera->getNearClipDistance());
-            mReflectCam->setFarClipDistance(mRenderCamera->getFarClipDistance());
-            mReflectCam->setAspectRatio(
+            m_reflect_cam = gEnv->sceneManager->createCamera("ReflectCam");
+            m_reflect_cam->setNearClipDistance(m_render_cam->getNearClipDistance());
+            m_reflect_cam->setFarClipDistance(m_render_cam->getFarClipDistance());
+            m_reflect_cam->setAspectRatio(
                 (Real)RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualWidth() /
                 (Real)RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0)->getActualHeight());
 
-            vRtt2 = rttTex2->addViewport(mReflectCam);
-            vRtt2->setClearEveryFrame(true);
-            vRtt2->setBackgroundColour(gEnv->sceneManager->getFogColour());
+            m_reflect_rtt_viewport = m_reflect_rtt_target->addViewport(m_reflect_cam);
+            m_reflect_rtt_viewport->setClearEveryFrame(true);
+            m_reflect_rtt_viewport->setBackgroundColour(gEnv->sceneManager->getFogColour());
 
             MaterialPtr mat;
             if (full_gfx)
@@ -324,23 +324,23 @@ void Water::processWater()
                 mat->getTechnique(0)->getPass(0)->getTextureUnitState(1)->setTextureName("Reflection");
             }
 
-            vRtt2->setOverlaysEnabled(false);
+            m_reflect_rtt_viewport->setOverlaysEnabled(false);
 
-            rttTex2->addListener(&mReflectionListener);
+            m_reflect_rtt_target->addListener(&mReflectionListener);
 
             //optimisation
-            rttTex2->setAutoUpdated(false);
+            m_reflect_rtt_target->setAutoUpdated(false);
 
             // set up linked reflection
-            mReflectCam->enableReflection(waterPlane);
+            m_reflect_cam->enableReflection(waterPlane);
             // Also clip
-            mReflectCam->enableCustomNearClipPlane(reflectionPlane);
+            m_reflect_cam->enableCustomNearClipPlane(reflectionPlane);
         }
 
-        mprt = MeshManager::getSingleton().createPlane("ReflectPlane",
+        m_waterplane_mesh = MeshManager::getSingleton().createPlane("ReflectPlane",
             ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
             waterPlane,
-            mapSize.x * mScale, mapSize.z * mScale, WAVEREZ, WAVEREZ, true, 1, 50, 50, Vector3::UNIT_Z, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
+            m_map_size.x * m_waterplane_mesh_scale, m_map_size.z * m_waterplane_mesh_scale, WAVEREZ, WAVEREZ, true, 1, 50, 50, Vector3::UNIT_Z, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
 
         pPlaneEnt = gEnv->sceneManager->createEntity("plane", "ReflectPlane");
         if (full_gfx)
@@ -350,57 +350,57 @@ void Water::processWater()
     }
     else
     {
-        mprt = MeshManager::getSingleton().createPlane("WaterPlane",
+        m_waterplane_mesh = MeshManager::getSingleton().createPlane("WaterPlane",
             ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
             waterPlane,
-            mapSize.x * mScale, mapSize.z * mScale, WAVEREZ, WAVEREZ, true, 1, 50, 50, Vector3::UNIT_Z, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
+            m_map_size.x * m_waterplane_mesh_scale, m_map_size.z * m_waterplane_mesh_scale, WAVEREZ, WAVEREZ, true, 1, 50, 50, Vector3::UNIT_Z, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
         pPlaneEnt = gEnv->sceneManager->createEntity("plane", "WaterPlane");
         pPlaneEnt->setMaterialName("tracks/basicwater");
     }
 
     pPlaneEnt->setCastShadows(false);
     //position
-    pWaterNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode("WaterPlane");
-    pWaterNode->attachObject(pPlaneEnt);
-    pWaterNode->setPosition(Vector3((mapSize.x * mScale) / 2, wHeight, (mapSize.z * mScale) / 2));
+    m_waterplane_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode("WaterPlane");
+    m_waterplane_node->attachObject(pPlaneEnt);
+    m_waterplane_node->setPosition(Vector3((m_map_size.x * m_waterplane_mesh_scale) / 2, m_water_height, (m_map_size.z * m_waterplane_mesh_scale) / 2));
 
     //bottom
     bottomPlane.normal = Vector3::UNIT_Y;
-    bottomPlane.d = -wbHeight; //30m below waterline
+    bottomPlane.d = -m_bottom_height; //30m below waterline
     MeshManager::getSingleton().createPlane("BottomPlane",
         ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
         bottomPlane,
-        mapSize.x * mScale, mapSize.z * mScale, 1, 1, true, 1, 1, 1, Vector3::UNIT_Z);
+        m_map_size.x * m_waterplane_mesh_scale, m_map_size.z * m_waterplane_mesh_scale, 1, 1, true, 1, 1, 1, Vector3::UNIT_Z);
     Entity* pE = gEnv->sceneManager->createEntity("bplane", "BottomPlane");
     pE->setMaterialName("tracks/seabottom");
     pE->setCastShadows(false);
 
     //position
-    pBottomNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode("BottomWaterPlane");
-    pBottomNode->attachObject(pE);
-    pBottomNode->setPosition(Vector3((mapSize.x * mScale) / 2, 0, (mapSize.z * mScale) / 2));
+    m_bottomplane_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode("BottomWaterPlane");
+    m_bottomplane_node->attachObject(pE);
+    m_bottomplane_node->setPosition(Vector3((m_map_size.x * m_waterplane_mesh_scale) / 2, 0, (m_map_size.z * m_waterplane_mesh_scale) / 2));
 
     //setup for waves
-    wbuf = mprt->sharedVertexData->vertexBufferBinding->getBuffer(0);
+    m_waterplane_vert_buf = m_waterplane_mesh->sharedVertexData->vertexBufferBinding->getBuffer(0);
 
-    if (wbuf->getSizeInBytes() == (WAVEREZ + 1) * (WAVEREZ + 1) * 32)
+    if (m_waterplane_vert_buf->getSizeInBytes() == (WAVEREZ + 1) * (WAVEREZ + 1) * 32)
     {
-        wbuffer = (float*)malloc(wbuf->getSizeInBytes());
-        wbuf->readData(0, wbuf->getSizeInBytes(), wbuffer);
+        m_waterplane_vert_buf_local = (float*)malloc(m_waterplane_vert_buf->getSizeInBytes());
+        m_waterplane_vert_buf->readData(0, m_waterplane_vert_buf->getSizeInBytes(), m_waterplane_vert_buf_local);
     }
     else
-        wbuffer = 0;
+        m_waterplane_vert_buf_local = 0;
 }
 
 void Water::SetWaterVisible(bool value)
 {
-    visible = value;
+    m_water_visible = value;
     if (pPlaneEnt)
         pPlaneEnt->setVisible(value);
-    if (pWaterNode)
-        pWaterNode->setVisible(value);
-    if (pBottomNode)
-        pBottomNode->setVisible(value);
+    if (m_waterplane_node)
+        m_waterplane_node->setVisible(value);
+    if (m_bottomplane_node)
+        m_bottomplane_node->setVisible(value);
 }
 
 void Water::SetReflectionPlaneHeight(float centerheight)
@@ -412,19 +412,19 @@ void Water::SetReflectionPlaneHeight(float centerheight)
     }
 }
 
-void Water::showWave(Vector3 refpos)
+void Water::ShowWave(Vector3 refpos)
 {
-    if (!wbuffer)
+    if (!m_waterplane_vert_buf_local)
         return;
 
-    float xScaled = mapSize.x * mScale;
-    float zScaled = mapSize.z * mScale;
+    float xScaled = m_map_size.x * m_waterplane_mesh_scale;
+    float zScaled = m_map_size.z * m_waterplane_mesh_scale;
 
     for (int pz = 0; pz < WAVEREZ + 1; pz++)
     {
         for (int px = 0; px < WAVEREZ + 1; px++)
         {
-            wbuffer[(pz * (WAVEREZ + 1) + px) * 8 + 1] = CalcWavesHeight(refpos + Vector3(xScaled * 0.5 - (float)px * xScaled / WAVEREZ, 0, (float)pz * zScaled / WAVEREZ - zScaled * 0.5)) - wHeight;
+            m_waterplane_vert_buf_local[(pz * (WAVEREZ + 1) + px) * 8 + 1] = CalcWavesHeight(refpos + Vector3(xScaled * 0.5 - (float)px * xScaled / WAVEREZ, 0, (float)pz * zScaled / WAVEREZ - zScaled * 0.5)) - m_water_height;
         }
     }
 
@@ -438,61 +438,61 @@ void Water::showWave(Vector3 refpos)
             int up = std::max(0, pz - 1);
             int down = std::min(pz + 1, WAVEREZ);
 
-            Vector3 normal = (Vector3(wbuffer + ((pz * (WAVEREZ + 1) + left) * 8)) - Vector3(wbuffer + ((pz * (WAVEREZ + 1) + right) * 8))).crossProduct(Vector3(wbuffer + ((up * (WAVEREZ + 1) + px) * 8)) - Vector3(wbuffer + ((down * (WAVEREZ + 1) + px) * 8)));
+            Vector3 normal = (Vector3(m_waterplane_vert_buf_local + ((pz * (WAVEREZ + 1) + left) * 8)) - Vector3(m_waterplane_vert_buf_local + ((pz * (WAVEREZ + 1) + right) * 8))).crossProduct(Vector3(m_waterplane_vert_buf_local + ((up * (WAVEREZ + 1) + px) * 8)) - Vector3(m_waterplane_vert_buf_local + ((down * (WAVEREZ + 1) + px) * 8)));
             normal.normalise();
 
-            wbuffer[(pz * (WAVEREZ + 1) + px) * 8 + 3] = normal.x;
-            wbuffer[(pz * (WAVEREZ + 1) + px) * 8 + 4] = normal.y;
-            wbuffer[(pz * (WAVEREZ + 1) + px) * 8 + 5] = normal.z;
+            m_waterplane_vert_buf_local[(pz * (WAVEREZ + 1) + px) * 8 + 3] = normal.x;
+            m_waterplane_vert_buf_local[(pz * (WAVEREZ + 1) + px) * 8 + 4] = normal.y;
+            m_waterplane_vert_buf_local[(pz * (WAVEREZ + 1) + px) * 8 + 5] = normal.z;
         }
     }
 
-    wbuf->writeData(0, (WAVEREZ + 1) * (WAVEREZ + 1) * 32, wbuffer, true);
+    m_waterplane_vert_buf->writeData(0, (WAVEREZ + 1) * (WAVEREZ + 1) * 32, m_waterplane_vert_buf_local, true);
 }
 
-bool Water::isCameraUnderWater()
+bool Water::IsCameraUnderWater()
 {
-    if (mRenderCamera)
+    if (m_render_cam)
     {
-        return (mRenderCamera->getPosition().y < CalcWavesHeight(mRenderCamera->getPosition()));
+        return (m_render_cam->getPosition().y < CalcWavesHeight(m_render_cam->getPosition()));
     }
     return false;
 }
 
 void Water::UpdateWater()
 {
-    if (!visible || !mRenderCamera)
+    if (!m_water_visible || !m_render_cam)
         return;
 
-    if (pWaterNode)
+    if (m_waterplane_node)
     {
-        Vector3 cameraPos(mRenderCamera->getPosition().x, wHeight, mRenderCamera->getPosition().z);
+        Vector3 cameraPos(m_render_cam->getPosition().x, m_water_height, m_render_cam->getPosition().z);
         Vector3 sightPos(cameraPos);
 
-        Ray lineOfSight(mRenderCamera->getPosition(), mRenderCamera->getDirection());
-        Plane waterPlane(Vector3::UNIT_Y, Vector3::UNIT_Y * wHeight);
+        Ray lineOfSight(m_render_cam->getPosition(), m_render_cam->getDirection());
+        Plane waterPlane(Vector3::UNIT_Y, Vector3::UNIT_Y * m_water_height);
 
         std::pair<bool, Real> intersection = lineOfSight.intersects(waterPlane);
 
         if (intersection.first && intersection.second > 0.0f)
             sightPos = lineOfSight.getPoint(intersection.second);
 
-        Real offset = std::min(cameraPos.distance(sightPos), std::min(mapSize.x, mapSize.z) * 0.5f);
+        Real offset = std::min(cameraPos.distance(sightPos), std::min(m_map_size.x, m_map_size.z) * 0.5f);
 
         Vector3 waterPos = cameraPos + (sightPos - cameraPos).normalisedCopy() * offset;
-        Vector3 bottomPos = Vector3(waterPos.x, wbHeight, waterPos.z);
+        Vector3 bottomPos = Vector3(waterPos.x, m_bottom_height, waterPos.z);
 
-        if (waterPos.distance(pWaterNode->getPosition()) > 200.0f || ForceUpdate)
+        if (waterPos.distance(m_waterplane_node->getPosition()) > 200.0f || m_waterplane_force_update_pos)
         {
-            pWaterNode->setPosition(Vector3(waterPos.x, wHeight, waterPos.z));
-            pBottomNode->setPosition(bottomPos);
-            ForceUpdate = false; //Happens only once
+            m_waterplane_node->setPosition(Vector3(waterPos.x, m_water_height, waterPos.z));
+            m_bottomplane_node->setPosition(bottomPos);
+            m_waterplane_force_update_pos = false; //Happens only once
         }
         if (RoR::App::gfx_water_waves.GetActive() && RoR::App::mp_state.GetActive() == RoR::MpState::DISABLED)
-            this->showWave(pWaterNode->getPosition());
+            this->ShowWave(m_waterplane_node->getPosition());
     }
 
-    bool underwater = isCameraUnderWater();
+    bool underwater = IsCameraUnderWater();
     static bool lastWaterMode = false;
     bool underWaterModeChanged = false;
     if (underwater != lastWaterMode)
@@ -501,61 +501,61 @@ void Water::UpdateWater()
         lastWaterMode = underwater;
     }
 
-    framecounter++;
+    m_frame_counter++;
     if (App::gfx_water_mode.GetActive() == GfxWaterMode::FULL_FAST)
     {
-        if (framecounter % 2)
+        if (m_frame_counter % 2)
         {
-            mReflectCam->setOrientation(mRenderCamera->getOrientation());
-            mReflectCam->setPosition(mRenderCamera->getPosition());
-            mReflectCam->setFOVy(mRenderCamera->getFOVy());
-            rttTex2->update();
+            m_reflect_cam->setOrientation(m_render_cam->getOrientation());
+            m_reflect_cam->setPosition(m_render_cam->getPosition());
+            m_reflect_cam->setFOVy(m_render_cam->getFOVy());
+            m_reflect_rtt_target->update();
         }
         else
         {
-            mRefractCam->setOrientation(mRenderCamera->getOrientation());
-            mRefractCam->setPosition(mRenderCamera->getPosition());
-            mRefractCam->setFOVy(mRenderCamera->getFOVy());
-            rttTex1->update();
+            m_refract_cam->setOrientation(m_render_cam->getOrientation());
+            m_refract_cam->setPosition(m_render_cam->getPosition());
+            m_refract_cam->setFOVy(m_render_cam->getFOVy());
+            m_refract_rtt_target->update();
         }
     }
     else if (App::gfx_water_mode.GetActive() == GfxWaterMode::FULL_HQ)
     {
-        mReflectCam->setOrientation(mRenderCamera->getOrientation());
-        mReflectCam->setPosition(mRenderCamera->getPosition());
-        mReflectCam->setFOVy(mRenderCamera->getFOVy());
-        rttTex2->update();
-        mRefractCam->setOrientation(mRenderCamera->getOrientation());
-        mRefractCam->setPosition(mRenderCamera->getPosition());
-        mRefractCam->setFOVy(mRenderCamera->getFOVy());
-        rttTex1->update();
+        m_reflect_cam->setOrientation(m_render_cam->getOrientation());
+        m_reflect_cam->setPosition(m_render_cam->getPosition());
+        m_reflect_cam->setFOVy(m_render_cam->getFOVy());
+        m_reflect_rtt_target->update();
+        m_refract_cam->setOrientation(m_render_cam->getOrientation());
+        m_refract_cam->setPosition(m_render_cam->getPosition());
+        m_refract_cam->setFOVy(m_render_cam->getFOVy());
+        m_refract_rtt_target->update();
     }
     else if (App::gfx_water_mode.GetActive() == GfxWaterMode::REFLECT)
     {
-        mReflectCam->setOrientation(mRenderCamera->getOrientation());
-        mReflectCam->setPosition(mRenderCamera->getPosition());
-        mReflectCam->setFOVy(mRenderCamera->getFOVy());
-        rttTex2->update();
+        m_reflect_cam->setOrientation(m_render_cam->getOrientation());
+        m_reflect_cam->setPosition(m_render_cam->getPosition());
+        m_reflect_cam->setFOVy(m_render_cam->getFOVy());
+        m_reflect_rtt_target->update();
     }
 }
 
 void Water::WaterPrepareShutdown()
 {
-    if (rttTex1)
-        rttTex1->removeListener(&mRefractionListener);
-    if (rttTex2)
-        rttTex2->removeListener(&mReflectionListener);
+    if (m_refract_rtt_target)
+        m_refract_rtt_target->removeListener(&mRefractionListener);
+    if (m_reflect_rtt_target)
+        m_reflect_rtt_target->removeListener(&mReflectionListener);
 }
 
 float Water::GetStaticWaterHeight()
 {
-    return wHeight;
+    return m_water_height;
 };
 
 void Water::SetStaticWaterHeight(float value)
 {
-    wHeight = value;
-    ForceUpdate = true;
+    m_water_height = value;
+    m_waterplane_force_update_pos = true;
 }
 
 float Water::CalcWavesHeight(Vector3 pos)
@@ -564,16 +564,16 @@ float Water::CalcWavesHeight(Vector3 pos)
     if (!RoR::App::gfx_water_waves.GetActive() || RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
     {
         // constant height, sea is flat as pancake
-        return wHeight;
+        return m_water_height;
     }
 
     // uh, some upper limit?!
-    if (pos.y > wHeight + maxampl)
-        return wHeight;
+    if (pos.y > m_water_height + m_max_ampl)
+        return m_water_height;
 
-    float waveheight = getWaveHeight(pos);
+    float waveheight = GetWaveHeight(pos);
     // we will store the result in this variable, init it with the default height
-    float result = wHeight;
+    float result = m_water_height;
     // now walk through all the wave trains. One 'train' is one sin/cos set that will generate once wave. All the trains together will sum up, so that they generate a 'rough' sea
     for (size_t i = 0; i < m_wavetrain_defs.size(); i++)
     {
@@ -590,13 +590,13 @@ float Water::CalcWavesHeight(Vector3 pos)
 
 bool Water::IsUnderWater(Vector3 pos)
 {
-    float waterheight = wHeight;
+    float waterheight = m_water_height;
 
     if (RoR::App::gfx_water_waves.GetActive() && RoR::App::mp_state.GetActive() == RoR::MpState::DISABLED)
     {
-        float waveheight = getWaveHeight(pos);
+        float waveheight = GetWaveHeight(pos);
 
-        if (pos.y > wHeight + maxampl * waveheight || pos.y > wHeight + maxampl)
+        if (pos.y > m_water_height + m_max_ampl * waveheight || pos.y > m_water_height + m_max_ampl)
             return false;
 
         waterheight = CalcWavesHeight(pos);
@@ -610,9 +610,9 @@ Vector3 Water::CalcWavesVelocity(Vector3 pos)
     if (!RoR::App::gfx_water_waves.GetActive() || RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
         return Vector3::ZERO;
 
-    float waveheight = getWaveHeight(pos);
+    float waveheight = GetWaveHeight(pos);
 
-    if (pos.y > wHeight + maxampl)
+    if (pos.y > m_water_height + m_max_ampl)
         return Vector3::ZERO;
 
     Vector3 result(Vector3::ZERO);
@@ -631,7 +631,7 @@ Vector3 Water::CalcWavesVelocity(Vector3 pos)
 
 void Water::UpdateReflectionPlane(float h)
 {
-    bool underwater = this->isCameraUnderWater();
+    bool underwater = this->IsCameraUnderWater();
     if (underwater)
     {
         reflectionPlane.normal = -Vector3::UNIT_Y;
@@ -649,21 +649,21 @@ void Water::UpdateReflectionPlane(float h)
         waterPlane.d = -h;
     }
 
-    if (mRefractCam)
+    if (m_refract_cam)
     {
-        mRefractCam->enableCustomNearClipPlane(refractionPlane);
+        m_refract_cam->enableCustomNearClipPlane(refractionPlane);
     }
 
-    if (mReflectCam)
+    if (m_reflect_cam)
     {
-        mReflectCam->enableReflection(waterPlane);
-        mReflectCam->enableCustomNearClipPlane(reflectionPlane);
+        m_reflect_cam->enableReflection(waterPlane);
+        m_reflect_cam->enableCustomNearClipPlane(reflectionPlane);
     };
 }
 
 void Water::WaterSetCamera(Ogre::Camera* cam)
 {
-    mRenderCamera = cam;
+    m_render_cam = cam;
 }
 
 void Water::FrameStepWater(float dt)
@@ -674,13 +674,13 @@ void Water::FrameStepWater(float dt)
     }
 }
 
-float Water::getWaveHeight(Vector3 pos)
+float Water::GetWaveHeight(Vector3 pos)
 {
     // calculate how high the waves should be at this point
-    //  (mapsize.x * mScale) / 2 = terrain width / 2
-    //  (mapsize.z * mScale) / 2 = terrain height / 2
+    //  (mapsize.x * m_waterplane_mesh_scale) / 2 = terrain width / 2
+    //  (mapsize.z * m_waterplane_mesh_scale) / 2 = terrain height / 2
     // calculate distance to the center of the terrain and divide by 3.000.000
-    float waveheight = (pos - Vector3((mapSize.x * mScale) * 0.5, wHeight, (mapSize.z * mScale) * 0.5)).squaredLength() / 3000000.0;
+    float waveheight = (pos - Vector3((m_map_size.x * m_waterplane_mesh_scale) * 0.5, m_water_height, (m_map_size.z * m_waterplane_mesh_scale) * 0.5)).squaredLength() / 3000000.0;
 
     return waveheight;
 }
