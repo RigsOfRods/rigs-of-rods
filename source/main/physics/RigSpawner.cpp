@@ -346,10 +346,10 @@ void RigSpawner::InitializeRig()
     m_rig->heathaze=false;
     m_rig->autopilot = nullptr;
     m_rig->hfinder = nullptr;
-    m_rig->fuseAirfoil = nullptr;
-    m_rig->fuseFront = nullptr;
-    m_rig->fuseBack = nullptr;
-    m_rig->fuseWidth=0;
+    m_rig->m_fusealge_airfoil = nullptr;
+    m_rig->m_fusealge_front = nullptr;
+    m_rig->m_fusealge_back = nullptr;
+    m_rig->m_fusealge_width=0;
     m_rig->ar_brake_force=30000.0;
     m_rig->m_handbrake_force = 2 * m_rig->ar_brake_force;
     m_rig->debugVisuals = SETTINGS.getBooleanSetting("DebugBeams", false);
@@ -572,7 +572,7 @@ void RigSpawner::FinalizeRig()
             m_rig->autopilot->setInertialReferences(
                 & GetNode(m_airplane_left_light),
                 & GetNode(m_airplane_right_light),
-                m_rig->fuseBack,
+                m_rig->m_fusealge_back,
                 & GetNode(m_rig->cameranodepos[0])
                 );
         }
@@ -838,12 +838,12 @@ void RigSpawner::ProcessFusedrag(RigDef::Fusedrag & def)
         // calculate fusedrag by truck size
         factor = def.area_coefficient;
         width  =  (m_fuse_z_max - m_fuse_z_min) * (m_fuse_y_max - m_fuse_y_min) * factor;
-        
-        m_rig->fuseAirfoil = new Airfoil(fusefoil);
-        
-        m_rig->fuseFront   = & GetNode(front_node_idx);
-        m_rig->fuseBack    = & GetNode(front_node_idx); // This equals v0.38 / v0.4.0.7, but it's probably a bug
-        m_rig->fuseWidth   = width;
+
+        m_rig->m_fusealge_airfoil = new Airfoil(fusefoil);
+
+        m_rig->m_fusealge_front   = & GetNode(front_node_idx);
+        m_rig->m_fusealge_back    = & GetNode(front_node_idx); // This equals v0.38 / v0.4.0.7, but it's probably a bug
+        m_rig->m_fusealge_width   = width;
         AddMessage(Message::TYPE_INFO, "Fusedrag autocalculation size: "+TOSTRING(width)+" m^2");
     } 
     else
@@ -851,12 +851,12 @@ void RigSpawner::ProcessFusedrag(RigDef::Fusedrag & def)
         // original fusedrag calculation
 
         width  = def.approximate_width;
-                    
-        m_rig->fuseAirfoil = new Airfoil(fusefoil);
-        
-        m_rig->fuseFront   = & GetNode(front_node_idx);
-        m_rig->fuseBack    = & GetNode(front_node_idx); // This equals v0.38 / v0.4.0.7, but it's probably a bug
-        m_rig->fuseWidth   = width;
+
+        m_rig->m_fusealge_airfoil = new Airfoil(fusefoil);
+
+        m_rig->m_fusealge_front   = & GetNode(front_node_idx);
+        m_rig->m_fusealge_back    = & GetNode(front_node_idx); // This equals v0.38 / v0.4.0.7, but it's probably a bug
+        m_rig->m_fusealge_width   = width;
     }
 }
 

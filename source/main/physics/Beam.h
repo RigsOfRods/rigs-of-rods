@@ -406,10 +406,6 @@ public:
     bool              heathaze;
     Autopilot*        autopilot;
     HeightFinder*     hfinder;
-    Airfoil*          fuseAirfoil;
-    node_t*           fuseFront;
-    node_t*           fuseBack;
-    float             fuseWidth;
     float             ar_brake_force;              //!< Physics attr; filled at spawn
     int               debugVisuals;                //!< Dbg. overlay type { NODES: 1-Numbers, 4-Mass, 5-Locked | BEAMS: 2-Numbers, 6-Compression, 7-Broken, 8-Stress, 9-Strength, 10-Hydros, 11-Commands, OTHER: 3-N&B numbers, 12-14 unknown }
     float             speedoMax;
@@ -611,7 +607,11 @@ private:
     CmdKeyInertia*    m_rotator_inertia;       //!< Physics
     CmdKeyInertia*    m_hydro_inertia;         //!< Physics
     CmdKeyInertia*    m_command_inertia;       //!< Physics
-    float             m_handbrake_force;       //!< Physics attr; set at spawn
+    float             m_handbrake_force;       //!< Physics attr; defined in truckfile
+    Airfoil*          m_fusealge_airfoil;      //!< Physics attr; defined in truckfile
+    node_t*           m_fusealge_front;        //!< Physics attr; defined in truckfile
+    node_t*           m_fusealge_back;         //!< Physics attr; defined in truckfile
+    float             m_fusealge_width;        //!< Physics attr; defined in truckfile
 
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?
