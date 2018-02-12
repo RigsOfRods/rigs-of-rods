@@ -552,13 +552,13 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
             char name[256];
             strcpy(name, element->getName().c_str());
             if (!strncmp(name, "tracks/thrust1", 14))
-                curr_truck->aeroengines[0]->setThrottle(1.0f - ((mouseY - thrtop - throffset) / thrheight));
-            if (!strncmp(name, "tracks/thrust2", 14) && curr_truck->free_aeroengine > 1)
-                curr_truck->aeroengines[1]->setThrottle(1.0f - ((mouseY - thrtop - throffset) / thrheight));
-            if (!strncmp(name, "tracks/thrust3", 14) && curr_truck->free_aeroengine > 2)
-                curr_truck->aeroengines[2]->setThrottle(1.0f - ((mouseY - thrtop - throffset) / thrheight));
-            if (!strncmp(name, "tracks/thrust4", 14) && curr_truck->free_aeroengine > 3)
-                curr_truck->aeroengines[3]->setThrottle(1.0f - ((mouseY - thrtop - throffset) / thrheight));
+                curr_truck->ar_aeroengines[0]->setThrottle(1.0f - ((mouseY - thrtop - throffset) / thrheight));
+            if (!strncmp(name, "tracks/thrust2", 14) && curr_truck->ar_num_aeroengines > 1)
+                curr_truck->ar_aeroengines[1]->setThrottle(1.0f - ((mouseY - thrtop - throffset) / thrheight));
+            if (!strncmp(name, "tracks/thrust3", 14) && curr_truck->ar_num_aeroengines > 2)
+                curr_truck->ar_aeroengines[2]->setThrottle(1.0f - ((mouseY - thrtop - throffset) / thrheight));
+            if (!strncmp(name, "tracks/thrust4", 14) && curr_truck->ar_num_aeroengines > 3)
+                curr_truck->ar_aeroengines[3]->setThrottle(1.0f - ((mouseY - thrtop - throffset) / thrheight));
         }
         //also for main dashboard
         OverlayElement* element2 = m_aerial_dashboard_overlay->findElementAt(mouseX, mouseY);
@@ -569,13 +569,13 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
             strcpy(name, element2->getName().c_str());
             //LogManager::getSingleton().logMessage("element "+element2->getName());
             if (!strncmp(name, "tracks/engstart1", 16))
-                curr_truck->aeroengines[0]->flipStart();
-            if (!strncmp(name, "tracks/engstart2", 16) && curr_truck->free_aeroengine > 1)
-                curr_truck->aeroengines[1]->flipStart();
-            if (!strncmp(name, "tracks/engstart3", 16) && curr_truck->free_aeroengine > 2)
-                curr_truck->aeroengines[2]->flipStart();
-            if (!strncmp(name, "tracks/engstart4", 16) && curr_truck->free_aeroengine > 3)
-                curr_truck->aeroengines[3]->flipStart();
+                curr_truck->ar_aeroengines[0]->flipStart();
+            if (!strncmp(name, "tracks/engstart2", 16) && curr_truck->ar_num_aeroengines > 1)
+                curr_truck->ar_aeroengines[1]->flipStart();
+            if (!strncmp(name, "tracks/engstart3", 16) && curr_truck->ar_num_aeroengines > 2)
+                curr_truck->ar_aeroengines[2]->flipStart();
+            if (!strncmp(name, "tracks/engstart4", 16) && curr_truck->ar_num_aeroengines > 3)
+                curr_truck->ar_aeroengines[3]->flipStart();
             //heading group
             if (!strcmp(name, "tracks/ap_hdg_but") && curr_truck->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
@@ -886,31 +886,31 @@ void OverlayWrapper::UpdateLandVehicleHUD(Beam* vehicle)
 
 void OverlayWrapper::UpdateAerialHUD(Beam* vehicle)
 {
-    int ftp = vehicle->free_aeroengine;
+    int ftp = vehicle->ar_num_aeroengines;
 
     //throttles
-    thro1->setTop(thrtop + thrheight * (1.0 - vehicle->aeroengines[0]->getThrottle()) - 1.0);
+    thro1->setTop(thrtop + thrheight * (1.0 - vehicle->ar_aeroengines[0]->getThrottle()) - 1.0);
     if (ftp > 1)
-        thro2->setTop(thrtop + thrheight * (1.0 - vehicle->aeroengines[1]->getThrottle()) - 1.0);
+        thro2->setTop(thrtop + thrheight * (1.0 - vehicle->ar_aeroengines[1]->getThrottle()) - 1.0);
     if (ftp > 2)
-        thro3->setTop(thrtop + thrheight * (1.0 - vehicle->aeroengines[2]->getThrottle()) - 1.0);
+        thro3->setTop(thrtop + thrheight * (1.0 - vehicle->ar_aeroengines[2]->getThrottle()) - 1.0);
     if (ftp > 3)
-        thro4->setTop(thrtop + thrheight * (1.0 - vehicle->aeroengines[3]->getThrottle()) - 1.0);
+        thro4->setTop(thrtop + thrheight * (1.0 - vehicle->ar_aeroengines[3]->getThrottle()) - 1.0);
 
     //fire
-    if (vehicle->aeroengines[0]->isFailed())
+    if (vehicle->ar_aeroengines[0]->isFailed())
         engfireo1->setMaterialName("tracks/engfire-on");
     else
         engfireo1->setMaterialName("tracks/engfire-off");
-    if (ftp > 1 && vehicle->aeroengines[1]->isFailed())
+    if (ftp > 1 && vehicle->ar_aeroengines[1]->isFailed())
         engfireo2->setMaterialName("tracks/engfire-on");
     else
         engfireo2->setMaterialName("tracks/engfire-off");
-    if (ftp > 2 && vehicle->aeroengines[2]->isFailed())
+    if (ftp > 2 && vehicle->ar_aeroengines[2]->isFailed())
         engfireo3->setMaterialName("tracks/engfire-on");
     else
         engfireo3->setMaterialName("tracks/engfire-off");
-    if (ftp > 3 && vehicle->aeroengines[3]->isFailed())
+    if (ftp > 3 && vehicle->ar_aeroengines[3]->isFailed())
         engfireo4->setMaterialName("tracks/engfire-on");
     else
         engfireo4->setMaterialName("tracks/engfire-off");
@@ -1027,7 +1027,7 @@ void OverlayWrapper::UpdateAerialHUD(Beam* vehicle)
     vvitexture->setTextureRotate(Degree(-angle + 90.0));
 
     //rpm
-    float pcent = vehicle->aeroengines[0]->getRPMpc();
+    float pcent = vehicle->ar_aeroengines[0]->getRPMpc();
     if (pcent < 60.0)
         angle = -5.0 + pcent * 1.9167;
     else if (pcent < 110.0)
@@ -1037,7 +1037,7 @@ void OverlayWrapper::UpdateAerialHUD(Beam* vehicle)
     airrpm1texture->setTextureRotate(Degree(-angle));
 
     if (ftp > 1)
-        pcent = vehicle->aeroengines[1]->getRPMpc();
+        pcent = vehicle->ar_aeroengines[1]->getRPMpc();
     else
         pcent = 0;
     if (pcent < 60.0)
@@ -1049,7 +1049,7 @@ void OverlayWrapper::UpdateAerialHUD(Beam* vehicle)
     airrpm2texture->setTextureRotate(Degree(-angle));
 
     if (ftp > 2)
-        pcent = vehicle->aeroengines[2]->getRPMpc();
+        pcent = vehicle->ar_aeroengines[2]->getRPMpc();
     else
         pcent = 0;
     if (pcent < 60.0)
@@ -1061,7 +1061,7 @@ void OverlayWrapper::UpdateAerialHUD(Beam* vehicle)
     airrpm3texture->setTextureRotate(Degree(-angle));
 
     if (ftp > 3)
-        pcent = vehicle->aeroengines[3]->getRPMpc();
+        pcent = vehicle->ar_aeroengines[3]->getRPMpc();
     else
         pcent = 0;
     if (pcent < 60.0)
@@ -1072,9 +1072,9 @@ void OverlayWrapper::UpdateAerialHUD(Beam* vehicle)
         angle = 314.0;
     airrpm4texture->setTextureRotate(Degree(-angle));
 
-    if (vehicle->aeroengines[0]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP)
+    if (vehicle->ar_aeroengines[0]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP)
     {
-        Turboprop* tp = (Turboprop*)vehicle->aeroengines[0];
+        Turboprop* tp = (Turboprop*)vehicle->ar_aeroengines[0];
         //pitch
         airpitch1texture->setTextureRotate(Degree(-tp->pitch * 2.0));
         //torque
@@ -1088,9 +1088,9 @@ void OverlayWrapper::UpdateAerialHUD(Beam* vehicle)
         airtorque1texture->setTextureRotate(Degree(-angle));
     }
 
-    if (ftp > 1 && vehicle->aeroengines[1]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP)
+    if (ftp > 1 && vehicle->ar_aeroengines[1]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP)
     {
-        Turboprop* tp = (Turboprop*)vehicle->aeroengines[1];
+        Turboprop* tp = (Turboprop*)vehicle->ar_aeroengines[1];
         //pitch
         airpitch2texture->setTextureRotate(Degree(-tp->pitch * 2.0));
         //torque
@@ -1104,9 +1104,9 @@ void OverlayWrapper::UpdateAerialHUD(Beam* vehicle)
         airtorque2texture->setTextureRotate(Degree(-angle));
     }
 
-    if (ftp > 2 && vehicle->aeroengines[2]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP)
+    if (ftp > 2 && vehicle->ar_aeroengines[2]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP)
     {
-        Turboprop* tp = (Turboprop*)vehicle->aeroengines[2];
+        Turboprop* tp = (Turboprop*)vehicle->ar_aeroengines[2];
         //pitch
         airpitch3texture->setTextureRotate(Degree(-tp->pitch * 2.0));
         //torque
@@ -1120,9 +1120,9 @@ void OverlayWrapper::UpdateAerialHUD(Beam* vehicle)
         airtorque3texture->setTextureRotate(Degree(-angle));
     }
 
-    if (ftp > 3 && vehicle->aeroengines[3]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP)
+    if (ftp > 3 && vehicle->ar_aeroengines[3]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP)
     {
-        Turboprop* tp = (Turboprop*)vehicle->aeroengines[3];
+        Turboprop* tp = (Turboprop*)vehicle->ar_aeroengines[3];
         //pitch
         airpitch4texture->setTextureRotate(Degree(-tp->pitch * 2.0));
         //torque
@@ -1137,19 +1137,19 @@ void OverlayWrapper::UpdateAerialHUD(Beam* vehicle)
     }
 
     //starters
-    if (vehicle->aeroengines[0]->getIgnition())
+    if (vehicle->ar_aeroengines[0]->getIgnition())
         engstarto1->setMaterialName("tracks/engstart-on");
     else
         engstarto1->setMaterialName("tracks/engstart-off");
-    if (ftp > 1 && vehicle->aeroengines[1]->getIgnition())
+    if (ftp > 1 && vehicle->ar_aeroengines[1]->getIgnition())
         engstarto2->setMaterialName("tracks/engstart-on");
     else
         engstarto2->setMaterialName("tracks/engstart-off");
-    if (ftp > 2 && vehicle->aeroengines[2]->getIgnition())
+    if (ftp > 2 && vehicle->ar_aeroengines[2]->getIgnition())
         engstarto3->setMaterialName("tracks/engstart-on");
     else
         engstarto3->setMaterialName("tracks/engstart-off");
-    if (ftp > 3 && vehicle->aeroengines[3]->getIgnition())
+    if (ftp > 3 && vehicle->ar_aeroengines[3]->getIgnition())
         engstarto4->setMaterialName("tracks/engstart-on");
     else
         engstarto4->setMaterialName("tracks/engstart-off");

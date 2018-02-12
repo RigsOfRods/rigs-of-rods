@@ -297,10 +297,10 @@ void CLASS::UpdateStats(float dt, Beam* truck)
                 truckstats = truckstats + MainThemeColor + _L("Altitude: ") + WhiteColor + TOUTFSTRING(Round(altitude)) + U(" feet (") + TOUTFSTRING(Round(altitude * 0.30480)) + U(" meters)") + "\n";
                 for (int i = 0; i < 8; i++)
                 {
-                    if (truck->aeroengines[i] && truck->aeroengines[i]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOJET)
-                        truckstats = truckstats + MainThemeColor + engmsg + TOUTFSTRING(i + 1 /*not to start with 0, players wont like it i guess*/) + " : " + WhiteColor + TOUTFSTRING(Round(truck->aeroengines[i]->getRPM())) + "%" + "\n";
-                    else if (truck->aeroengines[i] && truck->aeroengines[i]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP)
-                        truckstats = truckstats + MainThemeColor + engmsg + TOUTFSTRING(i + 1 /*not to start with 0, players wont like it i guess*/) + " : " + WhiteColor + TOUTFSTRING(Round(truck->aeroengines[i]->getRPM())) + " RPM" + "\n";
+                    if (truck->ar_aeroengines[i] && truck->ar_aeroengines[i]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOJET)
+                        truckstats = truckstats + MainThemeColor + engmsg + TOUTFSTRING(i + 1 /*not to start with 0, players wont like it i guess*/) + " : " + WhiteColor + TOUTFSTRING(Round(truck->ar_aeroengines[i]->getRPM())) + "%" + "\n";
+                    else if (truck->ar_aeroengines[i] && truck->ar_aeroengines[i]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP)
+                        truckstats = truckstats + MainThemeColor + engmsg + TOUTFSTRING(i + 1 /*not to start with 0, players wont like it i guess*/) + " : " + WhiteColor + TOUTFSTRING(Round(truck->ar_aeroengines[i]->getRPM())) + " RPM" + "\n";
                 }
             }
             else if (truck->ar_driveable == BOAT)

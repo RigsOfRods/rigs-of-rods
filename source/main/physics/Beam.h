@@ -309,10 +309,10 @@ public:
     int               free_cparticle;
     soundsource_t     soundsources[MAX_SOUNDSCRIPTS_PER_TRUCK];
     int               free_soundsource;
-    int               pressure_beams[MAX_PRESSURE_BEAMS];
-    int               free_pressure_beam;
-    AeroEngine*       aeroengines[MAX_AEROENGINES];
-    int               free_aeroengine;
+    int               ar_pressure_beams[MAX_PRESSURE_BEAMS];
+    int               ar_free_pressure_beam;
+    AeroEngine*       ar_aeroengines[MAX_AEROENGINES];
+    int               ar_num_aeroengines;
     Screwprop*        ar_screwprops[MAX_SCREWPROPS];
     int               ar_num_screwprops;
     int               ar_cabs[MAX_CABS*3];
