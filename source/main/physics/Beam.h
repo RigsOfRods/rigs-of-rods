@@ -393,7 +393,6 @@ public:
     Buoyance*         buoyance;
     int               driveable;
     BeamEngine*       engine;
-    int               hascommands;
     int               hashelp;
     char              helpmat[256];
     int               cinecameranodepos[MAX_CAMERAS];       //!< Cine-camera node indexes
@@ -622,6 +621,7 @@ private:
     bool m_water_contact:1;        //!< Scripting state
     bool m_water_contact_old:1;    //!< Scripting state
     bool m_increased_accuracy:1;   //!< Physics state; temporarily bypass collision test cooldown timers
+    bool m_has_command_beams:1;    //!< Physics attr;
     bool m_beacon_light_is_active:1;        //!< Gfx state
     bool m_custom_particles_enabled:1;      //!< Gfx state
     bool m_skeletonview_mesh_initialized:1; //!< Gfx state; Was the rig-skeleton mesh built?

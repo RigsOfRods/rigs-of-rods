@@ -901,7 +901,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     BES_START(BES_CORE_Commands);
 
     // commands
-    if (hascommands)
+    if (m_has_command_beams)
     {
         int active = 0;
         bool requested = false;
