@@ -924,7 +924,7 @@ void Beam::calc_masses2(Real total, bool reCalc)
         }
     }
     //fix rope masses
-    for (std::vector<rope_t>::iterator it = ropes.begin(); it != ropes.end(); it++)
+    for (std::vector<rope_t>::iterator it = ar_ropes.begin(); it != ar_ropes.end(); it++)
     {
         it->beam->p2->mass = 100.0f;
     }
@@ -1695,7 +1695,7 @@ void Beam::SyncReset()
         it->beam->L = (ar_nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
         removeInterTruckBeam(it->beam);
     }
-    for (std::vector<rope_t>::iterator it = ropes.begin(); it != ropes.end(); it++)
+    for (std::vector<rope_t>::iterator it = ar_ropes.begin(); it != ar_ropes.end(); it++)
     {
         it->locked = UNLOCKED;
         if (it->lockedto_ropable)
@@ -1703,7 +1703,7 @@ void Beam::SyncReset()
         it->lockedto = &ar_nodes[0];
         it->lockedtruck = 0;
     }
-    for (std::vector<tie_t>::iterator it = ties.begin(); it != ties.end(); it++)
+    for (std::vector<tie_t>::iterator it = ar_ties.begin(); it != ar_ties.end(); it++)
     {
         it->tied = false;
         it->tying = false;
@@ -4219,7 +4219,7 @@ void Beam::tieToggle(int group)
     // untie all ties if one is tied
     bool istied = false;
 
-    for (std::vector<tie_t>::iterator it = ties.begin(); it != ties.end(); it++)
+    for (std::vector<tie_t>::iterator it = ar_ties.begin(); it != ar_ties.end(); it++)
     {
         // only handle ties with correct group
         if (group != -1 && (it->group != -1 && it->group != group))
@@ -4252,7 +4252,7 @@ void Beam::tieToggle(int group)
     // iterate over all ties
     if (!istied)
     {
-        for (std::vector<tie_t>::iterator it = ties.begin(); it != ties.end(); it++)
+        for (std::vector<tie_t>::iterator it = ar_ties.begin(); it != ar_ties.end(); it++)
         {
             // only handle ties with correct group
             if (group != -1 && (it->group != -1 && it->group != group))
@@ -4273,7 +4273,7 @@ void Beam::tieToggle(int group)
                     if (trucks[t]->ar_sim_state == SimState::LOCAL_SLEEPING)
                         continue;
                     // and their ropables
-                    for (std::vector<ropable_t>::iterator itr = trucks[t]->ropables.begin(); itr != trucks[t]->ropables.end(); itr++)
+                    for (std::vector<ropable_t>::iterator itr = trucks[t]->ar_ropables.begin(); itr != trucks[t]->ar_ropables.end(); itr++)
                     {
                         // if the ropable is not multilock and used, then discard this ropable
                         if (!itr->multilock && itr->in_use)
@@ -4330,7 +4330,7 @@ void Beam::ropeToggle(int group)
     int trucksnum = App::GetSimController()->GetBeamFactory()->getTruckCount();
 
     // iterate over all ropes
-    for (std::vector<rope_t>::iterator it = ropes.begin(); it != ropes.end(); it++)
+    for (std::vector<rope_t>::iterator it = ar_ropes.begin(); it != ar_ropes.end(); it++)
     {
         // only handle ropes with correct group
         if (group != -1 && (it->group != -1 && it->group != group))
@@ -4362,7 +4362,7 @@ void Beam::ropeToggle(int group)
                 if (trucks[t]->ar_sim_state == SimState::LOCAL_SLEEPING)
                     continue;
                 // and their ropables
-                for (std::vector<ropable_t>::iterator itr = trucks[t]->ropables.begin(); itr != trucks[t]->ropables.end(); itr++)
+                for (std::vector<ropable_t>::iterator itr = trucks[t]->ar_ropables.begin(); itr != trucks[t]->ar_ropables.end(); itr++)
                 {
                     // if the ropable is not multilock and used, then discard this ropable
                     if (!itr->multilock && itr->in_use)
@@ -4508,7 +4508,7 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
                     Beam* shtruck = 0;
 
                     // and their ropables
-                    for (std::vector<ropable_t>::iterator itr = trucks[t]->ropables.begin(); itr != trucks[t]->ropables.end(); itr++)
+                    for (std::vector<ropable_t>::iterator itr = trucks[t]->ar_ropables.begin(); itr != trucks[t]->ar_ropables.end(); itr++)
                     {
                         // if the ropable is not multilock and used, then discard this ropable
                         if (!itr->multilock && itr->in_use)
@@ -4702,7 +4702,7 @@ void Beam::setDebugOverlayState(int mode)
     // enable disable debug visuals
     m_debug_visuals = mode;
 
-    if (nodes_debug.empty())
+    if (m_nodes_debug_text.empty())
     {
         LOG("initializing m_debug_visuals");
         // add node labels
@@ -4737,7 +4737,7 @@ void Beam::setDebugOverlayState(int mode)
             s->attachObject(b);
             float f = 0.005f;
             s->setScale(f, f, f);
-            nodes_debug.push_back(t);
+            m_nodes_debug_text.push_back(t);
         }
 
         // add beam labels
@@ -4764,7 +4764,7 @@ void Beam::setDebugOverlayState(int mode)
             t.node->setPosition(pos);
             t.node->setVisible(false);
             t.node->setScale(Vector3(0.1, 0.1, 0.1));
-            beams_debug.push_back(t);
+            m_beams_debug_text.push_back(t);
         }
     }
 
@@ -4772,9 +4772,9 @@ void Beam::setDebugOverlayState(int mode)
     bool nodesVisible = m_debug_visuals == 1 || (m_debug_visuals >= 3 && m_debug_visuals <= 5);
     bool beamsVisible = m_debug_visuals == 2 || m_debug_visuals == 3 || (m_debug_visuals >= 6 && m_debug_visuals <= 11);
 
-    for (std::vector<debugtext_t>::iterator it = nodes_debug.begin(); it != nodes_debug.end(); it++)
+    for (std::vector<debugtext_t>::iterator it = m_nodes_debug_text.begin(); it != m_nodes_debug_text.end(); it++)
         it->node->setVisible(nodesVisible);
-    for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
+    for (std::vector<debugtext_t>::iterator it = m_beams_debug_text.begin(); it != m_beams_debug_text.end(); it++)
         it->node->setVisible(beamsVisible);
 
     updateDebugOverlay();
@@ -4791,37 +4791,37 @@ void Beam::updateDebugOverlay()
         return;
     case 1: // node-numbers
         // not written dynamically
-        for (std::vector<debugtext_t>::iterator it = nodes_debug.begin(); it != nodes_debug.end(); it++)
+        for (std::vector<debugtext_t>::iterator it = m_nodes_debug_text.begin(); it != m_nodes_debug_text.end(); it++)
             it->node->setPosition(ar_nodes[it->id].AbsPosition);
         break;
     case 2: // beam-numbers
         // not written dynamically
-        for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
+        for (std::vector<debugtext_t>::iterator it = m_beams_debug_text.begin(); it != m_beams_debug_text.end(); it++)
             it->node->setPosition(ar_beams[it->id].p1->AbsPosition - (ar_beams[it->id].p1->AbsPosition - ar_beams[it->id].p2->AbsPosition) / 2);
         break;
     case 3: // node-and-beam-numbers
         // not written dynamically
-        for (std::vector<debugtext_t>::iterator it = nodes_debug.begin(); it != nodes_debug.end(); it++)
+        for (std::vector<debugtext_t>::iterator it = m_nodes_debug_text.begin(); it != m_nodes_debug_text.end(); it++)
             it->node->setPosition(ar_nodes[it->id].AbsPosition);
-        for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
+        for (std::vector<debugtext_t>::iterator it = m_beams_debug_text.begin(); it != m_beams_debug_text.end(); it++)
             it->node->setPosition(ar_beams[it->id].p1->AbsPosition - (ar_beams[it->id].p1->AbsPosition - ar_beams[it->id].p2->AbsPosition) / 2);
         break;
     case 4: // node-mass
-        for (std::vector<debugtext_t>::iterator it = nodes_debug.begin(); it != nodes_debug.end(); it++)
+        for (std::vector<debugtext_t>::iterator it = m_nodes_debug_text.begin(); it != m_nodes_debug_text.end(); it++)
         {
             it->node->setPosition(ar_nodes[it->id].AbsPosition);
             it->txt->setCaption(TOSTRING(ar_nodes[it->id].mass));
         }
         break;
     case 5: // node-locked
-        for (std::vector<debugtext_t>::iterator it = nodes_debug.begin(); it != nodes_debug.end(); it++)
+        for (std::vector<debugtext_t>::iterator it = m_nodes_debug_text.begin(); it != m_nodes_debug_text.end(); it++)
         {
             it->txt->setCaption((ar_nodes[it->id].locked) ? "locked" : "unlocked");
             it->node->setPosition(ar_nodes[it->id].AbsPosition);
         }
         break;
     case 6: // beam-compression
-        for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
+        for (std::vector<debugtext_t>::iterator it = m_beams_debug_text.begin(); it != m_beams_debug_text.end(); it++)
         {
             it->node->setPosition(ar_beams[it->id].p1->AbsPosition - (ar_beams[it->id].p1->AbsPosition - ar_beams[it->id].p2->AbsPosition) / 2);
             float stress_ratio = ar_beams[it->id].stress / ar_beams[it->id].minmaxposnegstress;
@@ -4832,7 +4832,7 @@ void Beam::updateDebugOverlay()
         }
         break;
     case 7: // beam-broken
-        for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
+        for (std::vector<debugtext_t>::iterator it = m_beams_debug_text.begin(); it != m_beams_debug_text.end(); it++)
         {
             it->node->setPosition(ar_beams[it->id].p1->AbsPosition - (ar_beams[it->id].p1->AbsPosition - ar_beams[it->id].p2->AbsPosition) / 2);
             if (ar_beams[it->id].bm_broken)
@@ -4847,21 +4847,21 @@ void Beam::updateDebugOverlay()
         }
         break;
     case 8: // beam-stress
-        for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
+        for (std::vector<debugtext_t>::iterator it = m_beams_debug_text.begin(); it != m_beams_debug_text.end(); it++)
         {
             it->node->setPosition(ar_beams[it->id].p1->AbsPosition - (ar_beams[it->id].p1->AbsPosition - ar_beams[it->id].p2->AbsPosition) / 2);
             it->txt->setCaption(TOSTRING((float) fabs(ar_beams[it->id].stress)));
         }
         break;
     case 9: // beam-strength
-        for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
+        for (std::vector<debugtext_t>::iterator it = m_beams_debug_text.begin(); it != m_beams_debug_text.end(); it++)
         {
             it->node->setPosition(ar_beams[it->id].p1->AbsPosition - (ar_beams[it->id].p1->AbsPosition - ar_beams[it->id].p2->AbsPosition) / 2);
             it->txt->setCaption(TOSTRING(ar_beams[it->id].strength));
         }
         break;
     case 10: // beam-hydros
-        for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
+        for (std::vector<debugtext_t>::iterator it = m_beams_debug_text.begin(); it != m_beams_debug_text.end(); it++)
         {
             if (ar_beams[it->id].bm_type == BEAM_HYDRO || ar_beams[it->id].bm_type == BEAM_INVISIBLE_HYDRO)
             {
@@ -4877,7 +4877,7 @@ void Beam::updateDebugOverlay()
         }
         break;
     case 11: // beam-commands
-        for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
+        for (std::vector<debugtext_t>::iterator it = m_beams_debug_text.begin(); it != m_beams_debug_text.end(); it++)
         {
             it->node->setPosition(ar_beams[it->id].p1->AbsPosition - (ar_beams[it->id].p1->AbsPosition - ar_beams[it->id].p2->AbsPosition) / 2);
             int v = (ar_beams[it->id].L / ar_beams[it->id].commandLong) * 100;
@@ -5000,7 +5000,7 @@ int Beam::nodeBeamConnections(int nodeid)
 
 bool Beam::isTied()
 {
-    for (std::vector<tie_t>::iterator it = ties.begin(); it != ties.end(); it++)
+    for (std::vector<tie_t>::iterator it = ar_ties.begin(); it != ar_ties.end(); it++)
         if (it->tied)
             return true;
     return false;
@@ -5331,7 +5331,7 @@ void Beam::updateDashBoards(float dt)
 
         ar_dashboard->setEnabled(DD_TRACTIONCONTROL_MODE, tc_present);
         ar_dashboard->setEnabled(DD_ANTILOCKBRAKE_MODE, alb_present);
-        ar_dashboard->setEnabled(DD_TIES_MODE, !ties.empty());
+        ar_dashboard->setEnabled(DD_TIES_MODE, !ar_ties.empty());
         ar_dashboard->setEnabled(DD_LOCKED, !ar_hooks.empty());
 
         ar_dashboard->setEnabled(DD_ENGINE_AUTOGEAR_STRING, autogearVisible);
