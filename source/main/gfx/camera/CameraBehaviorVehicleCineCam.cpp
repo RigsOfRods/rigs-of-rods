@@ -57,7 +57,7 @@ void CameraBehaviorVehicleCineCam::update(const CameraManager::CameraContext &ct
 
     Quaternion orientation = Quaternion(camRotX + camRotXSwivel, up) * Quaternion(Degree(180.0) + camRotY + camRotYSwivel, roll) * Quaternion(roll, up, dir);
 
-    gEnv->mainCamera->setPosition(ctx.mCurrTruck->ar_nodes[ctx.mCurrTruck->cinecameranodepos[ctx.mCurrTruck->ar_current_cinecam]].AbsPosition);
+    gEnv->mainCamera->setPosition(ctx.mCurrTruck->ar_nodes[ctx.mCurrTruck->ar_cinecam_node[ctx.mCurrTruck->ar_current_cinecam]].AbsPosition);
     gEnv->mainCamera->setOrientation(orientation);
 }
 
@@ -70,7 +70,7 @@ void CameraBehaviorVehicleCineCam::activate(const CameraManager::CameraContext &
         return;
     }
     RoR::PerVehicleCameraContext* vehicle_cam_context = current_vehicle->GetCameraContext();
-    if ( current_vehicle->freecinecamera <= 0 )
+    if ( current_vehicle->ar_num_cinecams <= 0 )
     {
         m_camera_manager->switchToNextBehavior();
         return;
@@ -133,7 +133,7 @@ void CameraBehaviorVehicleCineCam::reset(const CameraManager::CameraContext &ctx
 bool CameraBehaviorVehicleCineCam::switchBehavior(const CameraManager::CameraContext &ctx)
 {
     Beam* vehicle = ctx.mCurrTruck;
-    if ( (vehicle != nullptr) && (vehicle->ar_current_cinecam) < (vehicle->freecinecamera-1) )
+    if ( (vehicle != nullptr) && (vehicle->ar_current_cinecam) < (vehicle->ar_num_cinecams-1) )
     {
         vehicle->ar_current_cinecam++;
         vehicle->GetCameraContext()->last_cinecam_index = vehicle->ar_current_cinecam;

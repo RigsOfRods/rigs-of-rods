@@ -1890,7 +1890,7 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                     }
                 }
                 // engine stall
-                if (i == cinecameranodepos[0] && engine)
+                if (i == ar_cinecam_node[0] && engine)
                 {
                     engine->stop();
                 }
