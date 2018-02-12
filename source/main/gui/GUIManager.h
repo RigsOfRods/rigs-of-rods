@@ -149,7 +149,6 @@ public:
 
     static Ogre::String getRandomWallpaperImage();
 
-    void SetSimController(RoRFrameListener* sim);
     inline OgreImGui& GetImGui() { return m_imgui; }
     inline GuiTheme&  GetTheme() { return m_theme; }
 

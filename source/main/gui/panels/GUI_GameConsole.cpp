@@ -49,8 +49,7 @@ using namespace Ogre;
 using namespace RoR;
 
 // class
-Console::Console():
-    m_sim_controller(nullptr)
+Console::Console()
 {
     MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
     win->eventWindowButtonPressed += MyGUI::newDelegate(this, &Console::notifyWindowButtonPressed); //The "X" button thing
@@ -317,7 +316,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
     }
     else if (args[0] == "pos" && (is_appstate_sim && !is_sim_select))
     {
-        Actor* b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor* b = App::GetSimController()->GetPlayerActor();
         if (!b && gEnv->player)
         {
             Vector3 pos = gEnv->player->getPosition();
@@ -341,7 +340,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 
         Vector3 pos = Vector3(PARSEREAL(args[1]), PARSEREAL(args[2]), PARSEREAL(args[3]));
 
-        Actor* b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor* b = App::GetSimController()->GetPlayerActor();
         if (!b && gEnv->player)
         {
             gEnv->player->setPosition(pos);
@@ -361,7 +360,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
             return;
         Vector3 pos = Vector3::ZERO;
 
-        Actor* b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor* b = App::GetSimController()->GetPlayerActor();
         if (!b && gEnv->player)
         {
             pos = gEnv->player->getPosition();

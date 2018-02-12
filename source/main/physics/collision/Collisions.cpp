@@ -111,9 +111,8 @@ unsigned int sbox[] =
 
 using namespace Ogre;
 
-Collisions::Collisions(RoRFrameListener* sim_controller)
-    : m_sim_controller(sim_controller)
-    , debugMode(false)
+Collisions::Collisions():
+      debugMode(false)
     , forcecam(false)
     , free_eventsource(0)
     , hashmask(0)
@@ -935,7 +934,7 @@ bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
 
 bool Collisions::permitEvent(int filter)
 {
-    Actor *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+    Actor *b = RoR::App::GetSimController()->GetPlayerActor();
 
     switch (filter)
     {

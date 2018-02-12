@@ -37,9 +37,7 @@ class Task;
 
 /// Softbody object; can be anything from soda can to a space shuttle
 /// Monsterclass; contains logic related to physics, network, sound, threading, rendering.
-/// HISTORY: this class was derived from data-only `struct rig_t`. The data have been placed here directly. Refactor in progress, you may find leftovers.
-/// FUTURE: Class will be renamed to `Actor` because it's more universal than "truck/vehicle/rig/beam"
-///         Prefix of public variables is 'ar_' as 'Actor'
+/// NOTE: Until recently, this class was named `Beam` (and was derived from `rig_t`), you may find references to this.
 class Actor :
     public ZeroedMemoryAllocator
 {

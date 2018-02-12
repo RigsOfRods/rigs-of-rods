@@ -43,8 +43,7 @@ using namespace GUI;
 #define CLASS        VehicleDescription
 #define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
 
-CLASS::CLASS():
-    m_sim_controller(nullptr)
+CLASS::CLASS()
 {
     MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
     win->eventWindowButtonPressed += MyGUI::newDelegate(this, &CLASS::notifyWindowButtonPressed); //The "X" button thing
@@ -60,7 +59,7 @@ CLASS::~CLASS()
 
 void CLASS::LoadText()
 {
-    Actor* currTruck = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+    Actor* currTruck = App::GetSimController()->GetPlayerActor();
 
     if (currTruck == nullptr)
         return;

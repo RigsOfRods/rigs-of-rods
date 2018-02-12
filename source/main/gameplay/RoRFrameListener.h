@@ -36,14 +36,14 @@
 /// RoR's gameplay is quite simple in structure, it consists of:
 ///  - static terrain:  static elevation map, managed by `TerrainManager` singleton.
 ///                     this includes static collision objects (or intrusion detection objects), managed by `TerrainObjectManager`.
-///  - softbody actors: a.k.a "trucks" or "vehicles", managed by `BeamFactory`. They collide with static terrain and each other.
+///  - softbody actors: a.k.a "trucks" or "vehicles", managed by `ActorManager`. They collide with static terrain and each other.
 ///                     this includes 'fixes' - actors with partially fixed position.
 ///  - characters:      player-controlled human figures with their own primitive physics, managed by `CharacterFactory`
 ///                     these only collide with static terrain, not actors.
 /// For convenience and to help manage interactions, this class provides methods to manipulate these elements.
 class RoRFrameListener: public Ogre::FrameListener, public Ogre::WindowEventListener, public ZeroedMemoryAllocator
 {
-    friend class RoR::BeamFactory; // Needed for function `ChangedCurrentVehicle()`. TODO: Eliminate ~ only_a_ptr, 06/2017
+    friend class RoR::ActorManager; // Needed for function `ChangedCurrentVehicle()`. TODO: Eliminate ~ only_a_ptr, 06/2017
 public:
 
     RoRFrameListener(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_conf);
@@ -54,11 +54,11 @@ public:
     bool   frameEnded            (const Ogre::FrameEvent& evt) override;
 
     // Actor management interface
-    size_t GetNumActors          () const                  { return m_beam_factory.getTruckCount(); }
-    Actor* GetActorById          (int actor_id)            { return m_beam_factory.getTruck(actor_id); }
-    void   SetPlayerActorById    (int actor_id)            { m_beam_factory.setCurrentTruck(actor_id); } // TODO: Eliminate, use pointers ~ only_a_ptr, 06/2017
-    void   SetPlayerActor        (Actor* actor)            { m_beam_factory.setCurrentTruck((actor == nullptr) ? -1 : actor->ar_instance_id); }
-    Actor* GetPlayerActor        ()                        { return m_beam_factory.getCurrentTruck(); }
+    size_t GetNumActors          () const                  { return m_actor_manager.getTruckCount(); }
+    Actor* GetActorById          (int actor_id)            { return m_actor_manager.getTruck(actor_id); }
+    void   SetPlayerActorById    (int actor_id)            { m_actor_manager.setCurrentTruck(actor_id); } // TODO: Eliminate, use pointers ~ only_a_ptr, 06/2017
+    void   SetPlayerActor        (Actor* actor)            { m_actor_manager.setCurrentTruck((actor == nullptr) ? -1 : actor->ar_instance_id); }
+    Actor* GetPlayerActor        ()                        { return m_actor_manager.GetPlayerActorInternal(); }
     void   ReloadPlayerActor     ();
     void   RemovePlayerActor     ();
     void   RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name); ///< Scripting utility. TODO: Does anybody use it? ~ only_a_ptr, 08/2017
@@ -79,7 +79,7 @@ public:
     bool   SetupGameplayLoop     ();
     void   EnterGameplayLoop     ();
 
-    RoR::BeamFactory*           GetBeamFactory  ()         { return &m_beam_factory; } // TODO: Eliminate this. All operations upon actors should be done through above methods. ~ only_a_ptr, 06/2017
+    RoR::ActorManager*           GetBeamFactory  ()         { return &m_actor_manager; } // TODO: Eliminate this. All operations upon actors should be done through above methods. ~ only_a_ptr, 06/2017
     RoR::SkidmarkConfig*        GetSkidmarkConf ()         { return m_skidmark_conf; }
 
 private:
@@ -99,11 +99,11 @@ private:
     void   HideGUI                 (bool hidden);
     void   CleanupAfterSimulation  (); /// Unloads all data
 
-    // BeamFactory callback, requires a `friend` declaration above.
-    //TODO: Eliminate this. This is one of the reasons for the "BeamFactory should not be accessible directly" guideline above ~ only_a_ptr, 06/2017
+    // ActorManager callback, requires a `friend` declaration above.
+    //TODO: Eliminate this. This is one of the reasons for the "ActorManager should not be accessible directly" guideline above ~ only_a_ptr, 06/2017
     void   ChangedCurrentVehicle (Actor* previous_vehicle, Actor* current_vehicle);
 
-    RoR::BeamFactory         m_beam_factory;
+    RoR::ActorManager        m_actor_manager;
     RoR::CharacterFactory    m_character_factory;
     RoR::GfxEnvmap           m_gfx_envmap;
     HeatHaze*                m_heathaze;

@@ -246,7 +246,7 @@ void MpClientList::updateSlot(player_row_t* row, RoRnet::UserInfo c, bool self)
         row->userTruckOKRemoteImg->setPosition(x, y);
         x -= 10;
 
-        int ok = m_sim_controller->GetBeamFactory()->checkStreamsOK(c.uniqueid);
+        int ok = App::GetSimController()->GetBeamFactory()->checkStreamsOK(c.uniqueid);
         if (ok == 0)
         {
             row->userTruckOKImg->setImageTexture("arrow_down_red.png");
@@ -266,7 +266,7 @@ void MpClientList::updateSlot(player_row_t* row, RoRnet::UserInfo c, bool self)
             row->userTruckOKImg->setUserString("tooltip", tmp.asUTF8());
         }
 
-        int rok = m_sim_controller->GetBeamFactory()->checkStreamsRemoteOK(c.uniqueid);
+        int rok = App::GetSimController()->GetBeamFactory()->checkStreamsRemoteOK(c.uniqueid);
         if (rok == 0)
         {
             row->userTruckOKRemoteImg->setImageTexture("arrow_up_red.png");

@@ -82,7 +82,6 @@ void CameraManager::ActivateDepthOfFieldEffect(RoRFrameListener* sim)
         ctx.mDof = new DOFManager();
         ctx.mDof->setFocusMode(DOFManager::Auto);
     }
-    ctx.mDof->SetSimController(sim);
     ctx.mDof->setEnabled(true);
 }
 
@@ -91,7 +90,6 @@ void CameraManager::DisableDepthOfFieldEffect()
     if (ctx.mDof != nullptr)
     {
         ctx.mDof->setEnabled(false);
-        ctx.mDof->SetSimController(nullptr);
     }
 }
 

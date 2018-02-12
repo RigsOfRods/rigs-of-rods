@@ -218,7 +218,7 @@ float GameScript::getWaterHeight()
 
 Actor* GameScript::getCurrentTruck()
 {
-    return mse->GetFrameListener()->GetBeamFactory()->getCurrentTruck();
+    return mse->GetFrameListener()->GetPlayerActor();
 }
 
 float GameScript::getGravity()
@@ -751,9 +751,9 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
     curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "MP_NetworkEnabled", CURLFORM_COPYCONTENTS, (mp_connected) ? "Yes" : "No", CURLFORM_END);
     curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "APIProtocolVersion", CURLFORM_COPYCONTENTS, "2", CURLFORM_END);
 
-    if (mse->GetFrameListener()->GetBeamFactory()->getCurrentTruck())
+    if (mse->GetFrameListener()->GetBeamFactory()->GetPlayerActorInternal())
     {
-        Beam* truck = mse->GetFrameListener()->GetBeamFactory()->getCurrentTruck();
+        Beam* truck = mse->GetFrameListener()->GetBeamFactory()->GetPlayerActorInternal();
         curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "Truck_Name", CURLFORM_COPYCONTENTS, truck->getTruckName().c_str(), CURLFORM_END);
         curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "Truck_FileName", CURLFORM_COPYCONTENTS, truck->getTruckFileName().c_str(), CURLFORM_END);
 
@@ -923,7 +923,7 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
 void GameScript::boostCurrentTruck(float factor)
 {
     // add C++ code here
-    Actor* b = mse->GetFrameListener()->GetBeamFactory()->getCurrentTruck();
+    Actor* b = mse->GetFrameListener()->GetBeamFactory()->GetPlayerActorInternal();
     if (b && b->ar_engine)
     {
         float rpm = b->ar_engine->getRPM();
@@ -972,7 +972,7 @@ int GameScript::sendGameCmd(const String& message)
 
 VehicleAI* GameScript::getCurrentTruckAI()
 {
-    Actor* b = mse->GetFrameListener()->GetBeamFactory()->getCurrentTruck();
+    Actor* b = mse->GetFrameListener()->GetBeamFactory()->GetPlayerActorInternal();
     if (b)
         return b->ar_vehicle_ai;
     return nullptr;

@@ -234,7 +234,7 @@ void TerrainManager::initSubSystems()
     initObjects();
 
     PROGRESS_WINDOW(19, _L("Initializing Collision Subsystem"));
-    collisions = new Collisions(m_sim_controller);
+    collisions = new Collisions();
     gEnv->collisions = collisions;
 
     PROGRESS_WINDOW(19, _L("Initializing Script Subsystem"));

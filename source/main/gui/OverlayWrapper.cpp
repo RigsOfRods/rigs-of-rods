@@ -533,7 +533,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
     bool res = false;
     const OIS::MouseState ms = _arg.state;
     
-    Actor* curr_truck = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+    Actor* curr_truck = RoR::App::GetSimController()->GetPlayerActor();
 
     if (!curr_truck)
         return res;
