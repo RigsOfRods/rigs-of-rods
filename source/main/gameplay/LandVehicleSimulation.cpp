@@ -155,16 +155,16 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
     if (!curr_truck->replaymode)
     {
         if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_LEFT_MIRROR_LEFT))
-            curr_truck->leftMirrorAngle -= 0.001;
+            curr_truck->ar_left_mirror_angle -= 0.001;
 
         if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_LEFT_MIRROR_RIGHT))
-            curr_truck->leftMirrorAngle += 0.001;
+            curr_truck->ar_left_mirror_angle += 0.001;
 
         if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_RIGHT_MIRROR_LEFT))
-            curr_truck->rightMirrorAngle -= 0.001;
+            curr_truck->ar_right_mirror_angle -= 0.001;
 
         if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_RIGHT_MIRROR_RIGHT))
-            curr_truck->rightMirrorAngle += 0.001;
+            curr_truck->ar_right_mirror_angle += 0.001;
     } // end of (!curr_truck->replaymode) block
 
 #ifdef USE_ANGELSCRIPT

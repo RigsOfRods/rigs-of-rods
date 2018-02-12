@@ -226,7 +226,7 @@ void TopMenubar::addUserToMenu(RoRnet::UserInfo &user)
             for (unsigned int j = 0; j < matches.size(); j++)
             {
                 char tmp[512] = "";
-                sprintf(tmp, "  + %s (%s)", trucks[matches[j]]->realtruckname.c_str(),  trucks[matches[j]]->realtruckfilename.c_str());
+                sprintf(tmp, "  + %s (%s)", trucks[matches[j]]->realtruckname.c_str(),  trucks[matches[j]]->ar_filename.c_str());
                 MyGUI::UString vehName = convertToMyGUIString(ANSI_TO_UTF(tmp));
                 m_vehicles_menu_widget->addItem(vehName, MyGUI::MenuItemType::Normal, "TRUCK_"+TOSTRING(matches[j]));
             }

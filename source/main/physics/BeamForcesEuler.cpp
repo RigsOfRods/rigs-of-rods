@@ -89,9 +89,9 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
             m_force_sensors.Reset();
         }
 
-        if (currentcamera != -1)
+        if (ar_current_cinecam != -1)
         {
-            m_force_sensors.accu_body_forces += ar_nodes[cameranodepos[currentcamera]].Forces;
+            m_force_sensors.accu_body_forces += ar_nodes[cameranodepos[ar_current_cinecam]].Forces;
         }
 
         for (int i = 0; i < free_hydro; i++)
@@ -120,7 +120,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
 
     BES_START(BES_CORE_Nodes);
 
-    watercontact = false;
+    m_water_contact = false;
 
     calcNodes(doUpdate, dt, step, maxsteps);
 
@@ -235,7 +235,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         float airdensity = airpressure * 0.0000120896f;//1.225 at sea level
 
         //fuselage as an airfoil + parasitic drag (half fuselage front surface almost as a flat plane!)
-        fusedrag = ((cx * s + fuseWidth * fuseWidth * 0.5) * 0.5 * airdensity * wspeed / ar_num_nodes) * wind; 
+        ar_fusedrag = ((cx * s + fuseWidth * fuseWidth * 0.5) * 0.5 * airdensity * wspeed / ar_num_nodes) * wind; 
     }
 
     BES_STOP(BES_CORE_FuseDrag);
@@ -1853,9 +1853,9 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
         if (fuseAirfoil)
         {
             // aerodynamics on steroids!
-            ar_nodes[i].Forces += fusedrag;
+            ar_nodes[i].Forces += ar_fusedrag;
         }
-        else if (!disableDrag)
+        else if (!ar_disable_aerodyn_turbulent_drag)
         {
             // add viscous drag (turbulent model)
             Real speed = approx_sqrt(ar_nodes[i].Velocity.squaredLength()); //we will (not) reuse this
@@ -1871,7 +1871,7 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
         {
             if (water->isUnderWater(ar_nodes[i].AbsPosition))
             {
-                watercontact = true;
+                m_water_contact = true;
                 if (free_buoycab == 0)
                 {
                     // water drag (turbulent)
@@ -1940,7 +1940,7 @@ void Beam::forwardCommands()
                     //for (int k=0; k<4; k++)
                     //	lockTruck->setCustomLight(k, getCustomLight(k));
                     //forward reverse light e.g. for trailers
-                    it->lockTruck->reverselight = getReverseLightVisible();
+                    it->lockTruck->m_reverse_light_active = getReverseLightVisible();
                 }
             }
         }

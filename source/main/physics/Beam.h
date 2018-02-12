@@ -247,10 +247,10 @@ public:
     PointColDetector* InterPointCD()                    { return interPointCD; }
     Ogre::SceneNode*  getSceneNode()                    { return beamsRoot; }
     RoR::GfxActor*    GetGfxActor()                     { return m_gfx_actor.get(); }
-    void              RequestUpdateHudFeatures()        { m_hud_features_ok = false; }    
+    void              RequestUpdateHudFeatures()        { m_hud_features_ok = false; }
     Ogre::Vector3     getNodePosition(int nodeNumber);     //!< Returns world position of node
     Ogre::Real        getMinimalCameraRadius();
-    Replay*           getReplay();    
+    Replay*           getReplay();
     float             GetFFbHydroForces() const         { return m_force_sensors.out_hydros_forces; }
     bool              isPreloadedWithTerrain()          { return m_preloaded_with_terrain; };
     VehicleAI*        getVehicleAI()                    { return vehicle_ai; }
@@ -468,8 +468,6 @@ public:
     bool              canwork;
     bool              replaymode;
     Ogre::Real        replayPrecision;
-    bool              watercontact;
-    bool              watercontactold;
     int               locked;
     int               lockedold;
     int               oldreplaypos;
@@ -480,23 +478,17 @@ public:
     ground_model_t*   submesh_ground_model;
     int               parkingbrake;
     int               lights;
-    bool              reverselight;
-    float             leftMirrorAngle;
-    float             rightMirrorAngle;
-    float             refpressure;
+    float             ar_left_mirror_angle;           //!< Sim state; rear view mirror angle
+    float             ar_right_mirror_angle;          //!< Sim state; rear view mirror angle
     float             elevator;
     float             rudder;
     float             aileron;
-    int               flap;
-    Ogre::Vector3     fusedrag;
-    bool              disableDrag;
-    bool              disableTruckTruckCollisions;
-    bool              disableTruckTruckSelfCollisions;
-    int               currentcamera;
-    int               m_custom_camera_node;
-    int               wheel_node_count;
-    Ogre::String      realtruckfilename;
-    int               airbrakeval;
+    int               ar_aerial_flap;                 //!< Physics state; state of aircraft flaps (values: 0-5)
+    Ogre::Vector3     ar_fusedrag;                    //!< Physics state
+    int               ar_current_cinecam;             //!< Sim state; index of current CineCam (-1 if using external camera)
+    int               ar_custom_camera_node;          //!< Sim state; custom tracking node for 3rd-person camera
+    std::string       ar_filename;                    //!< Attribute; filled at spawn
+    int               ar_airbrake_intensity;          //!< Physics state; values 0-5
     int               ar_net_source_id;
     int               ar_net_stream_id;
     std::map<int,int> ar_net_stream_results;
@@ -514,6 +506,9 @@ public:
     bool ar_meshes_visible:1; //!< Gfx state; Are meshes visible? @see setMeshVisibility
     bool ar_skeletonview_is_active:1; //!< Gfx state
     bool ar_update_physics:1; //!< Physics state; Should this actor be updated (locally) in the next physics step?
+    bool ar_disable_self_collision:1; //!< Physics attribute; clone of RoR.cfg entry "DisableSelfCollisions"
+    bool ar_disable_actor2actor_collision:1; //!< Physics attribute; clone of RoR.cfg entry "DisableCollisions"
+    bool ar_disable_aerodyn_turbulent_drag:1; //!< Physics state
 
 private:
 
@@ -623,6 +618,7 @@ private:
     bool              m_slidenodes_connect_on_spawn; //TODO: Remove! spawner context only!  //<! try to connect slide-nodes directly after spawning
     Ogre::Vector3     m_camera_gforces_accu;  //!< Accumulator for 'camera' G-forces
     int               m_camera_gforces_count; //!< Counter for 'camera' G-forces
+    float             m_ref_tyre_pressure;    //!< Physics state
     // dustpools
     DustPool*         dustp;
     DustPool*         dripp;
@@ -634,6 +630,7 @@ private:
     int  m_net_first_wheel_node;   //!< Network attr; Determines data buffer layout
     int  m_net_node_buf_size;      //!< Network attr; buffer size
     int  m_net_buffer_size;        //!< Network attr; buffer size
+    int  m_wheel_node_count;       //!< Static attr; filled at spawn
 
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?
@@ -641,6 +638,9 @@ private:
     bool m_net_brake_light:1;
     bool m_net_reverse_light:1;
     bool m_hide_own_net_label:1;
+    bool m_reverse_light_active:1; //!< Gfx state
+    bool m_water_contact:1;        //!< Scripting state
+    bool m_water_contact_old:1;    //!< Scripting state
 
 #ifdef FEAT_TIMING
     BeamThreadStats *statistics, *statistics_gfx;
