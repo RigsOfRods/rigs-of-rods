@@ -39,8 +39,6 @@ using namespace RoR;
 
 #define LOGSTREAM Ogre::LogManager::getSingleton().stream()
 
-unsigned int Character::characterCounter = 0;
-
 Character::Character(int source, unsigned int streamid, int colourNumber, bool remote) :
     m_actor_coupling(nullptr)
     , canJump(false)
@@ -60,8 +58,8 @@ Character::Character(int source, unsigned int streamid, int colourNumber, bool r
     , m_stream_id(streamid)
     , isCoupled(0)
 {
-    myNumber = characterCounter++;
-    myName = "Character" + TOSTRING(myNumber);
+    static int id_counter = 0;
+    myName = "Character" + TOSTRING(id_counter);
 
     Entity* entity = gEnv->sceneManager->createEntity(myName + "_mesh", "character.mesh");
 #if OGRE_VERSION<0x010602
