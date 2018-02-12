@@ -1211,7 +1211,7 @@ void BeamFactory::UpdatePhysicsSimulation()
                         auto func = std::function<void()>([this, t]()
                             {
                                 m_trucks[t]->InterPointCD()->update(m_trucks[t], m_trucks, m_free_truck);
-                                if (m_trucks[t]->collisionRelevant)
+                                if (m_trucks[t]->ar_collision_relevant)
                                 {
                                     interTruckCollisions(PHYSICS_DT,
                                         *(m_trucks[t]->InterPointCD()),
@@ -1269,7 +1269,7 @@ void BeamFactory::UpdatePhysicsSimulation()
                     if (m_trucks[t] && m_trucks[t]->ar_update_physics && !m_trucks[t]->ar_disable_actor2actor_collision)
                     {
                         m_trucks[t]->InterPointCD()->update(m_trucks[t], m_trucks, m_free_truck);
-                        if (m_trucks[t]->collisionRelevant)
+                        if (m_trucks[t]->ar_collision_relevant)
                         {
                             interTruckCollisions(
                                 PHYSICS_DT,
