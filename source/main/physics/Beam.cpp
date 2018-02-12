@@ -126,10 +126,6 @@ Beam::~Beam()
         ar_engine = nullptr;
     }
 
-    if (buoyance)
-        delete buoyance;
-    buoyance = 0;
-
     if (ar_autopilot != nullptr)
     {
         delete ar_autopilot;
@@ -1728,8 +1724,8 @@ void Beam::SyncReset()
         wheels[i].wh_speed = 0.0;
         wheels[i].wh_is_detached = false;
     }
-    if (buoyance)
-        buoyance->setsink(0);
+    if (m_buoyance)
+        m_buoyance->setsink(0);
     m_ref_tyre_pressure = 50.0;
     addPressure(0.0);
     if (ar_autopilot)

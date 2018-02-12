@@ -382,7 +382,6 @@ public:
     char              truckname[256];
     int               trucknum;
     RoR::SkinDef*     usedSkin;
-    Buoyance*         buoyance;
     int               ar_driveable;                //!< Sim attr; marks vehicle type and features
     BeamEngine*       ar_engine;
     int               ar_cinecam_node[MAX_CAMERAS];//!< Sim attr; Cine-camera node indexes
@@ -600,6 +599,7 @@ private:
     unsigned int      m_net_custom_lights[4];  //!< Sim state
     unsigned char     m_net_custom_light_count;//!< Sim attr
     RoR::GfxFlaresMode m_flares_mode;          //!< Gfx attr, clone of GVar -- TODO: remove
+    std::unique_ptr<Buoyance> m_buoyance;      //!< Physics
 
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?

@@ -256,7 +256,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         for (int i = 0; i < free_buoycab; i++)
         {
             int tmpv = buoycabs[i] * 3;
-            buoyance->computeNodeForce(&ar_nodes[cabs[tmpv]], &ar_nodes[cabs[tmpv + 1]], &ar_nodes[cabs[tmpv + 2]], doUpdate == 1, buoycabtypes[i]);
+            m_buoyance->computeNodeForce(&ar_nodes[cabs[tmpv]], &ar_nodes[cabs[tmpv + 1]], &ar_nodes[cabs[tmpv + 2]], doUpdate == 1, buoycabtypes[i]);
         }
     }
 
@@ -1565,7 +1565,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                         if ((ar_beams[i].p1 == &ar_nodes[cabs[tmpv]] || ar_beams[i].p1 == &ar_nodes[cabs[tmpv + 1]] || ar_beams[i].p1 == &ar_nodes[cabs[tmpv + 2]]) &&
                             (ar_beams[i].p2 == &ar_nodes[cabs[tmpv]] || ar_beams[i].p2 == &ar_nodes[cabs[tmpv + 1]] || ar_beams[i].p2 == &ar_nodes[cabs[tmpv + 2]]))
                         {
-                            buoyance->setsink(1);
+                            m_buoyance->setsink(1);
                         }
                     }
                 }
