@@ -116,22 +116,22 @@ MpClientList::MpClientList() :
         row->statimg->setVisible(false);
 
         x -= 18;
-        row->userTruckOKImg = mpPanel->createWidget<MyGUI::ImageBox>("ImageBox", x, y, 16, 16, MyGUI::Align::Default, "Main");
+        row->user_actor_ok_img = mpPanel->createWidget<MyGUI::ImageBox>("ImageBox", x, y, 16, 16, MyGUI::Align::Default, "Main");
         tmp = _L("truck loading state");
-        row->userTruckOKImg->setUserString("tooltip", tmp.asUTF8());
-        row->userTruckOKImg->eventToolTip += MyGUI::newDelegate(this, &MpClientList::openToolTip);
-        row->userTruckOKImg->setNeedToolTip(true);
-        row->userTruckOKImg->setVisible(false);
-        row->userTruckOKImg->eventMouseButtonClick += MyGUI::newDelegate(this, &MpClientList::clickInfoIcon);
+        row->user_actor_ok_img->setUserString("tooltip", tmp.asUTF8());
+        row->user_actor_ok_img->eventToolTip += MyGUI::newDelegate(this, &MpClientList::openToolTip);
+        row->user_actor_ok_img->setNeedToolTip(true);
+        row->user_actor_ok_img->setVisible(false);
+        row->user_actor_ok_img->eventMouseButtonClick += MyGUI::newDelegate(this, &MpClientList::clickInfoIcon);
 
         x -= 18;
-        row->userTruckOKRemoteImg = mpPanel->createWidget<MyGUI::ImageBox>("ImageBox", x, y, 16, 16, MyGUI::Align::Default, "Main");
+        row->user_remote_actor_ok_img = mpPanel->createWidget<MyGUI::ImageBox>("ImageBox", x, y, 16, 16, MyGUI::Align::Default, "Main");
         tmp = _L("remote truck loading state");
-        row->userTruckOKRemoteImg->setUserString("tooltip", tmp.asUTF8());
-        row->userTruckOKRemoteImg->eventToolTip += MyGUI::newDelegate(this, &MpClientList::openToolTip);
-        row->userTruckOKRemoteImg->setNeedToolTip(true);
-        row->userTruckOKRemoteImg->setVisible(false);
-        row->userTruckOKRemoteImg->eventMouseButtonClick += MyGUI::newDelegate(this, &MpClientList::clickInfoIcon);
+        row->user_remote_actor_ok_img->setUserString("tooltip", tmp.asUTF8());
+        row->user_remote_actor_ok_img->eventToolTip += MyGUI::newDelegate(this, &MpClientList::openToolTip);
+        row->user_remote_actor_ok_img->setNeedToolTip(true);
+        row->user_remote_actor_ok_img->setVisible(false);
+        row->user_remote_actor_ok_img->eventMouseButtonClick += MyGUI::newDelegate(this, &MpClientList::clickInfoIcon);
 
         x -= 18;
         row->usergoimg = mpPanel->createWidget<MyGUI::ImageBox>("ImageBox", x, y, 16, 16, MyGUI::Align::Default, "Main");
@@ -237,59 +237,59 @@ void MpClientList::updateSlot(player_row_t* row, RoRnet::UserInfo c, bool self)
     // truck ok image
     if (!self)
     {
-        row->userTruckOKImg->setVisible(true);
-        row->userTruckOKRemoteImg->setVisible(true);
-        row->userTruckOKImg->setUserString("uid", TOSTRING(c.uniqueid));
-        row->userTruckOKRemoteImg->setUserString("uid", TOSTRING(c.uniqueid));
-        row->userTruckOKImg->setPosition(x, y);
+        row->user_actor_ok_img->setVisible(true);
+        row->user_remote_actor_ok_img->setVisible(true);
+        row->user_actor_ok_img->setUserString("uid", TOSTRING(c.uniqueid));
+        row->user_remote_actor_ok_img->setUserString("uid", TOSTRING(c.uniqueid));
+        row->user_actor_ok_img->setPosition(x, y);
         x -= 10;
-        row->userTruckOKRemoteImg->setPosition(x, y);
+        row->user_remote_actor_ok_img->setPosition(x, y);
         x -= 10;
 
         int ok = App::GetSimController()->GetBeamFactory()->CheckNetworkStreamsOk(c.uniqueid);
         if (ok == 0)
         {
-            row->userTruckOKImg->setImageTexture("arrow_down_red.png");
+            row->user_actor_ok_img->setImageTexture("arrow_down_red.png");
             tmp = _L("Truck loading errors");
-            row->userTruckOKImg->setUserString("tooltip", tmp.asUTF8());
+            row->user_actor_ok_img->setUserString("tooltip", tmp.asUTF8());
         }
         else if (ok == 1)
         {
-            row->userTruckOKImg->setImageTexture("arrow_down.png");
+            row->user_actor_ok_img->setImageTexture("arrow_down.png");
             tmp = _L("Truck loaded correctly, no errors");
-            row->userTruckOKImg->setUserString("tooltip", tmp.asUTF8());
+            row->user_actor_ok_img->setUserString("tooltip", tmp.asUTF8());
         }
         else if (ok == 2)
         {
-            row->userTruckOKImg->setImageTexture("arrow_down_grey.png");
+            row->user_actor_ok_img->setImageTexture("arrow_down_grey.png");
             tmp = _L("no truck loaded");
-            row->userTruckOKImg->setUserString("tooltip", tmp.asUTF8());
+            row->user_actor_ok_img->setUserString("tooltip", tmp.asUTF8());
         }
 
         int rok = App::GetSimController()->GetBeamFactory()->CheckNetRemoteStreamsOk(c.uniqueid);
         if (rok == 0)
         {
-            row->userTruckOKRemoteImg->setImageTexture("arrow_up_red.png");
+            row->user_remote_actor_ok_img->setImageTexture("arrow_up_red.png");
             tmp = _L("Remote Truck loading errors");
-            row->userTruckOKRemoteImg->setUserString("tooltip", tmp.asUTF8());
+            row->user_remote_actor_ok_img->setUserString("tooltip", tmp.asUTF8());
         }
         else if (rok == 1)
         {
-            row->userTruckOKRemoteImg->setImageTexture("arrow_up.png");
+            row->user_remote_actor_ok_img->setImageTexture("arrow_up.png");
             tmp = _L("Remote Truck loaded correctly, no errors");
-            row->userTruckOKRemoteImg->setUserString("tooltip", tmp.asUTF8());
+            row->user_remote_actor_ok_img->setUserString("tooltip", tmp.asUTF8());
         }
         else if (rok == 2)
         {
-            row->userTruckOKRemoteImg->setImageTexture("arrow_up_grey.png");
+            row->user_remote_actor_ok_img->setImageTexture("arrow_up_grey.png");
             tmp = _L("No Trucks loaded");
-            row->userTruckOKRemoteImg->setUserString("tooltip", tmp.asUTF8());
+            row->user_remote_actor_ok_img->setUserString("tooltip", tmp.asUTF8());
         }
     }
     else
     {
-        row->userTruckOKImg->setVisible(false);
-        row->userTruckOKRemoteImg->setVisible(false);
+        row->user_actor_ok_img->setVisible(false);
+        row->user_remote_actor_ok_img->setVisible(false);
     }
 
     // user go img
@@ -332,8 +332,8 @@ void MpClientList::update()
         row->playername->setVisible(false);
         row->statimg->setVisible(false);
         row->usergoimg->setVisible(false);
-        row->userTruckOKImg->setVisible(false);
-        row->userTruckOKRemoteImg->setVisible(false);
+        row->user_actor_ok_img->setVisible(false);
+        row->user_remote_actor_ok_img->setVisible(false);
     }
 
     netmsgwin->setVisible(RoR::Networking::GetNetQuality() != 0);
