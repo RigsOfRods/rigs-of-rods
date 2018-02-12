@@ -59,7 +59,6 @@
 #include "InputEngine.h"
 #include "Language.h"
 #include "MeshObject.h"
-
 #include "MovableText.h"
 #include "Network.h"
 #include "PointColDetector.h"
@@ -84,9 +83,6 @@
 #include "GUIManager.h"
 
 #define LOAD_RIG_PROFILE_CHECKPOINT(ENTRY) rig_loading_profiler->Checkpoint(RoR::RigLoadingProfiler::ENTRY);
-
-#include "RigDef_Parser.h"
-#include "RigDef_Validator.h"
 
 using namespace Ogre;
 using namespace RoR;
@@ -5531,6 +5527,7 @@ void Actor::EngineTriggerHelper(int engineNumber, int type, float triggerValue)
 Actor::Actor(
     RoRFrameListener* sim_controller,
     int actor_id,
+    std::shared_ptr<RigDef::File> def,
     Ogre::Vector3 pos,
     Ogre::Quaternion rot,
     const char* fname,
@@ -5708,7 +5705,7 @@ Actor::Actor(
 
     if (strnlen(fname, 200) > 0)
     {
-        if (! LoadActor(rig_loading_profiler, fname, beams_parent, pos, rot, spawnbox, cache_entry_number))
+        if (! LoadActor(rig_loading_profiler, def, beams_parent, pos, rot, spawnbox, cache_entry_number))
         {
             LOG(" ===== FAILED LOADING VEHICLE: " + Ogre::String(fname));
             ar_sim_state = SimState::INVALID;
@@ -5836,7 +5833,7 @@ Actor::Actor(
 
 bool Actor::LoadActor(
     RoR::RigLoadingProfiler* rig_loading_profiler,
-    Ogre::String const& file_name,
+    std::shared_ptr<RigDef::File> def,
     Ogre::SceneNode* parent_scene_node,
     Ogre::Vector3 const& spawn_position,
     Ogre::Quaternion& spawn_rotation,
@@ -5844,120 +5841,14 @@ bool Actor::LoadActor(
     int cache_entry_number // = -1
 )
 {
-    Ogre::DataStreamPtr ds = Ogre::DataStreamPtr();
-    Ogre::String fixed_file_name = file_name;
-    Ogre::String found_resource_group;
-    Ogre::String errorStr;
-
-    try
-    {
-        RoR::App::GetCacheSystem()->checkResourceLoaded(fixed_file_name, found_resource_group); /* Fixes the filename and finds resource group */
-
-        // error on ds open lower
-        // open the stream and start reading :)
-        ds = Ogre::ResourceGroupManager::getSingleton().openResource(fixed_file_name, found_resource_group);
-    }
-    catch (Ogre::Exception& e)
-    {
-        errorStr = Ogre::String(e.what());
-        return false;
-    }
-
-    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_OPENFILE);
-
-    if (ds.isNull() || !ds->isReadable())
-    {
-        Console* console = RoR::App::GetConsole();
-        if (console != nullptr)
-        {
-            console->putMessage(
-                Console::CONSOLE_MSGTYPE_INFO,
-                Console::CONSOLE_SYSTEM_ERROR,
-                "unable to load vehicle (unable to open file): " + fixed_file_name + " : " + errorStr,
-                "error.png",
-                30000,
-                true
-            );
-            RoR::App::GetGuiManager()->PushNotification("Error:", "unable to load vehicle (unable to open file): " + fixed_file_name + " : " + errorStr);
-        }
-        return false;
-    }
-
-    /* PARSING */
-
-    LOG(" == Parsing vehicle file: " + file_name);
-
-    RigDef::Parser parser;
-    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_PARSER_CREATE);
-    parser.Prepare();
-    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_PARSER_PREPARE);
-    parser.ProcessOgreStream(ds.getPointer());
-    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_PARSER_RUN);
-    parser.Finalize();
-    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_PARSER_FINALIZE);
-
-    int report_num_errors = parser.GetMessagesNumErrors();
-    int report_num_warnings = parser.GetMessagesNumWarnings();
-    int report_num_other = parser.GetMessagesNumOther();
-    std::string report_text = parser.ProcessMessagesToString();
-    report_text += "\n\n";
-    LOG(report_text);
-
-    auto* importer = parser.GetSequentialImporter();
-    if (importer->IsEnabled() && App::diag_rig_log_messages.GetActive())
-    {
-        report_num_errors += importer->GetMessagesNumErrors();
-        report_num_warnings += importer->GetMessagesNumWarnings();
-        report_num_other += importer->GetMessagesNumOther();
-
-        std::string importer_report = importer->ProcessMessagesToString();
-        LOG(importer_report);
-
-        report_text += importer_report + "\n\n";
-    }
-
-    /* VALIDATING */
-    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_POST_PARSE);
-    LOG(" == Validating vehicle: " + parser.GetFile()->name);
-
-    RigDef::Validator validator;
-    validator.Setup(parser.GetFile());
-    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_VALIDATOR_INIT);
-
-    // Workaround: Some terrains pre-load truckfiles with special purpose:
-    //     "soundloads" = play sound effect at certain spot
-    //     "fixes"      = structures of N/B fixed to the ground
-    // These files can have no beams. Possible extensions: .load or .fixed
-    Ogre::String file_extension = file_name.substr(file_name.find_last_of('.'));
-    Ogre::StringUtil::toLowerCase(file_extension);
-    bool extension_matches = (file_extension == ".load") | (file_extension == ".fixed");
-    if (m_preloaded_with_terrain && extension_matches)
-    {
-        validator.SetCheckBeams(false);
-    }
-    bool valid = validator.Validate();
-    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_VALIDATOR_RUN);
-
-    report_num_errors += validator.GetMessagesNumErrors();
-    report_num_warnings += validator.GetMessagesNumWarnings();
-    report_num_other += validator.GetMessagesNumOther();
-    std::string validator_report = validator.ProcessMessagesToString();
-    LOG(validator_report);
-    report_text += validator_report;
-    report_text += "\n\n";
-    // Continue anyway...
-    LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_POST_VALIDATION);
-
-    /* PROCESSING */
-
-    LOG(" == Spawning vehicle: " + parser.GetFile()->name);
+    LOG(" == Spawning vehicle: " + def->name);
 
     RigSpawner spawner;
-    spawner.Setup(this, parser.GetFile(), parent_scene_node, spawn_position, cache_entry_number);
+    spawner.Setup(this, def, parent_scene_node, spawn_position, cache_entry_number);
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_SPAWNER_SETUP);
     /* Setup modules */
-    spawner.AddModule(parser.GetFile()->root_module);
-    if (parser.GetFile()->user_modules.size() > 0) /* The vehicle-selector may return selected modules even for vehicle with no modules defined! Hence this check. */
+    spawner.AddModule(def->root_module);
+    if (def->user_modules.size() > 0) /* The vehicle-selector may return selected modules even for vehicle with no modules defined! Hence this check. */
     {
         std::vector<Ogre::String>::iterator itor = m_actor_config.begin();
         for (; itor != m_actor_config.end(); itor++)
@@ -5968,27 +5859,14 @@ bool Actor::LoadActor(
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_SPAWNER_ADDMODULES);
     spawner.SpawnRig();
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_SPAWNER_RUN);
-    report_num_errors += spawner.GetMessagesNumErrors();
-    report_num_warnings += spawner.GetMessagesNumWarnings();
-    report_num_other += spawner.GetMessagesNumOther();
+    def->report_num_errors += spawner.GetMessagesNumErrors();
+    def->report_num_warnings += spawner.GetMessagesNumWarnings();
+    def->report_num_other += spawner.GetMessagesNumOther();
     // Spawner log already printed to RoR.log
-    report_text += spawner.ProcessMessagesToString() + "\n\n";
+    def->loading_report += spawner.ProcessMessagesToString() + "\n\n";
 
-    // Extra information to RoR.log
-    if (importer->IsEnabled())
-    {
-        if (App::diag_rig_log_node_stats.GetActive())
-        {
-            LOG(importer->GetNodeStatistics());
-        }
-        if (App::diag_rig_log_node_import.GetActive())
-        {
-            LOG(importer->IterateAndPrintAllNodes());
-        }
-    }
-
-    RoR::App::GetGuiManager()->AddRigLoadingReport(parser.GetFile()->name, report_text, report_num_errors, report_num_warnings, report_num_other);
-    if (report_num_errors != 0)
+    RoR::App::GetGuiManager()->AddRigLoadingReport(def->name, def->loading_report, def->report_num_errors, def->report_num_warnings, def->report_num_other);
+    if (def->report_num_errors != 0)
     {
         if (BSETTING("AutoRigSpawnerReport", false))
         {
@@ -6006,7 +5884,7 @@ bool Actor::LoadActor(
     };
 
     /* Place correctly */
-    if (! parser.GetFile()->HasFixes())
+    if (! def->HasFixes())
     {
         Ogre::Vector3 vehicle_position = spawn_position;
 

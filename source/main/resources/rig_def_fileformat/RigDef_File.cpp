@@ -626,7 +626,10 @@ File::File():
     slide_nodes_connect_instantly(false),
     collision_range(DEFAULT_COLLISION_RANGE),
     minimum_mass(0.f),
-    _minimum_mass_set(false)
+    _minimum_mass_set(false),
+    report_num_errors(0),
+    report_num_warnings(0),
+    report_num_other(0)
 {
     authors.reserve(10);
     description.reserve(20);

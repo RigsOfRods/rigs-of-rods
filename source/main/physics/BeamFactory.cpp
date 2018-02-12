@@ -33,12 +33,14 @@
 #include "Collisions.h"
 #include "DynamicCollisions.h"
 #include "GUIManager.h"
+#include "GUI_GameConsole.h"
 #include "GUI_TopMenubar.h"
 #include "Language.h"
 #include "MainMenu.h"
-
 #include "Network.h"
 #include "PointColDetector.h"
+#include "RigDef_Parser.h"
+#include "RigDef_Validator.h"
 #include "RigLoadingProfiler.h"
 #include "RigLoadingProfilerControl.h"
 #include "RoRFrameListener.h"
@@ -225,6 +227,12 @@ Actor* ActorManager::CreateLocalActor(
     ::Profiler::reset();
 #endif
 
+    std::shared_ptr<RigDef::File> def = this->FetchActorDef(&rig_loading_profiler, fname.c_str(), preloaded_with_terrain);
+    if (def == nullptr)
+    {
+        return nullptr; // Error already reported
+    }
+
     int actor_id = this->GetFreeActorSlot();
     if (actor_id == -1)
     {
@@ -235,6 +243,7 @@ Actor* ActorManager::CreateLocalActor(
     Actor* b = new Actor(
         m_sim_controller,
         actor_id,
+        def,
         pos,
         rot,
         fname.c_str(),
@@ -314,6 +323,13 @@ int ActorManager::CreateRemoteInstance(RoRnet::ActorStreamRegister* reg)
         actor_config.push_back(String(reg->actorconfig[t]));
     }
 
+    std::shared_ptr<RigDef::File> def = this->FetchActorDef(nullptr, filename.c_str(), false);
+    if (def == nullptr)
+    {
+        RoR::LogFormat("[RoR] Cannot create remote actor '%s', error parsing truckfile", filename.c_str());
+        return -1;
+    }
+
     // DO NOT spawn the actor far off anywhere
     // the actor parsing will break flexbodies initialization when using huge numbers here
     Vector3 pos = Vector3::ZERO;
@@ -328,6 +344,7 @@ int ActorManager::CreateRemoteInstance(RoRnet::ActorStreamRegister* reg)
     Actor* b = new Actor(
         m_sim_controller,
         actor_id,
+        def,
         pos,
         Quaternion::ZERO,
         reg->name,
@@ -1297,4 +1314,145 @@ void ActorManager::SyncWithSimThread()
 {
     if (m_sim_task)
         m_sim_task->join();
+}
+
+void HandleErrorLoadingTruckfile(const char* filename, const char* exception_msg)
+{
+    RoR::Str<200> msg;
+    msg << "Failed to load actor '" << filename << "', message: " << exception_msg;
+    RoR::App::GetGuiManager()->PushNotification("Error:", msg.ToCStr());
+    RoR::LogFormat("[RoR] %s", msg.ToCStr());
+
+    if (RoR::App::GetConsole())
+    {
+        RoR::App::GetConsole()->putMessage(
+            Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr(), "error.png", 30000, true);
+    }
+}
+
+#define FETCHACTORDEF_PROF_CHECKPOINT(_ENTRYNAME_) \
+    { if (prof != nullptr) { prof->Checkpoint(RoR::RigLoadingProfiler::_ENTRYNAME_); } }
+
+std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(RoR::RigLoadingProfiler* prof, const char* filename, bool predefined_on_terrain)
+{
+    // First check the loaded defs
+    auto search_res = m_actor_defs.find(filename);
+    if (search_res != m_actor_defs.end())
+    {
+        return search_res->second;
+    }
+
+    // Load the 'truckfile'
+    try
+    {
+        Ogre::String resource_filename = filename;
+        Ogre::String resource_groupname;
+        RoR::App::GetCacheSystem()->checkResourceLoaded(resource_filename, resource_groupname); // Validates the filename and finds resource group
+        Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(resource_filename, resource_groupname);
+        FETCHACTORDEF_PROF_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_OPENFILE);
+
+        if (stream.isNull() || !stream->isReadable())
+        {
+            HandleErrorLoadingTruckfile(filename, "Unable to open/read truckfile");
+            return nullptr;
+        }
+
+        RoR::LogFormat("[RoR] Parsing truckfile '%s'", filename);
+        RigDef::Parser parser;
+        FETCHACTORDEF_PROF_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_PARSER_CREATE);
+        parser.Prepare();
+        FETCHACTORDEF_PROF_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_PARSER_PREPARE);
+        parser.ProcessOgreStream(stream.getPointer());
+        FETCHACTORDEF_PROF_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_PARSER_RUN);
+        parser.Finalize();
+        FETCHACTORDEF_PROF_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_PARSER_FINALIZE);
+
+        auto def = parser.GetFile();
+
+        def->report_num_errors = parser.GetMessagesNumErrors();
+        def->report_num_warnings = parser.GetMessagesNumWarnings();
+        def->report_num_other = parser.GetMessagesNumOther();
+        def->loading_report = parser.ProcessMessagesToString();
+        def->loading_report += "\n\n";
+        LOG(def->loading_report);
+
+        auto* importer = parser.GetSequentialImporter();
+        if (importer->IsEnabled() && App::diag_rig_log_messages.GetActive())
+        {
+            def->report_num_errors += importer->GetMessagesNumErrors();
+            def->report_num_warnings += importer->GetMessagesNumWarnings();
+            def->report_num_other += importer->GetMessagesNumOther();
+
+            std::string importer_report = importer->ProcessMessagesToString();
+            LOG(importer_report);
+
+            def->loading_report += importer_report + "\n\n";
+        }
+
+        /* VALIDATING */
+        FETCHACTORDEF_PROF_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_POST_PARSE);
+        LOG(" == Validating vehicle: " + def->name);
+
+        RigDef::Validator validator;
+        validator.Setup(def);
+        FETCHACTORDEF_PROF_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_VALIDATOR_INIT);
+
+        if (predefined_on_terrain)
+        {
+            // Workaround: Some terrains pre-load truckfiles with special purpose:
+            //     "soundloads" = play sound effect at certain spot
+            //     "fixes"      = structures of N/B fixed to the ground
+            // These files can have no beams. Possible extensions: .load or .fixed
+            std::string file_name(filename);
+            std::string file_extension = file_name.substr(file_name.find_last_of('.'));
+            Ogre::StringUtil::toLowerCase(file_extension);
+            if ((file_extension == ".load") | (file_extension == ".fixed"))
+            {
+                validator.SetCheckBeams(false);
+            }
+        }
+        bool valid = validator.Validate();
+        FETCHACTORDEF_PROF_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_VALIDATOR_RUN);
+
+        def->report_num_errors += validator.GetMessagesNumErrors();
+        def->report_num_warnings += validator.GetMessagesNumWarnings();
+        def->report_num_other += validator.GetMessagesNumOther();
+        std::string validator_report = validator.ProcessMessagesToString();
+        LOG(validator_report);
+        def->loading_report += validator_report;
+        def->loading_report += "\n\n";
+        // Continue anyway...
+
+        // Extra information to RoR.log
+        if (importer->IsEnabled())
+        {
+            if (App::diag_rig_log_node_stats.GetActive())
+            {
+                LOG(importer->GetNodeStatistics());
+            }
+            if (App::diag_rig_log_node_import.GetActive())
+            {
+                LOG(importer->IterateAndPrintAllNodes());
+            }
+        }
+        FETCHACTORDEF_PROF_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_POST_VALIDATION);
+
+        m_actor_defs.insert(std::make_pair(filename, def));
+        return def;
+    }
+    catch (Ogre::Exception& oex)
+    {
+        HandleErrorLoadingTruckfile(filename, oex.getFullDescription().c_str());
+        return nullptr;
+    }
+    catch (std::exception& stex)
+    {
+        HandleErrorLoadingTruckfile(filename, stex.what());
+        return nullptr;
+    }
+    catch (...)
+    {
+        HandleErrorLoadingTruckfile(filename, "<Unknown exception occurred>");
+        return nullptr;
+    }
 }

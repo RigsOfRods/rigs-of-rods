@@ -63,6 +63,7 @@ public:
     Actor(
           RoRFrameListener* sim_controller
         , int actor_id
+        , std::shared_ptr<RigDef::File> def
         , Ogre::Vector3 pos
         , Ogre::Quaternion rot
         , const char* fname
@@ -82,7 +83,7 @@ public:
 
     bool LoadActor( //!< Spawn helper
         RoR::RigLoadingProfiler* rig_loading_profiler,
-        Ogre::String const & file_name,
+        std::shared_ptr<RigDef::File> def,
         Ogre::SceneNode *parent_scene_node,
         Ogre::Vector3 const & spawn_position,
         Ogre::Quaternion & spawn_rotation,
