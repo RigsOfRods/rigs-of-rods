@@ -354,7 +354,6 @@ void RigSpawner::InitializeRig()
 
     m_rig->speedoMax=140;
     m_rig->useMaxRPMforGUI=false;
-    m_rig->cparticle_enabled=false;
     m_rig->ar_num_cameras=0;
     m_rig->m_cab_mesh = nullptr;
     m_rig->m_cab_scene_node = nullptr;
@@ -445,7 +444,6 @@ void RigSpawner::InitializeRig()
     }
 
     m_rig->ar_submesh_ground_model = gEnv->collisions->defaultgm;
-    m_rig->cparticle_enabled = App::gfx_particles_mode.GetActive() == 1;
 
     DustManager& dustman = RoR::App::GetSimController()->GetBeamFactory()->GetParticleManager();
     m_rig->m_particles_dust   = dustman.getDustPool("dust");
@@ -2729,7 +2727,7 @@ void RigSpawner::ProcessParticle(RigDef::Particle & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! m_rig->cparticle_enabled)
+    if (App::gfx_particles_mode.GetActive() != 1)
     {
         return;
     }
