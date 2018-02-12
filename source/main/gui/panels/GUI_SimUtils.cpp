@@ -248,7 +248,7 @@ void CLASS::UpdateStats(float dt, Beam* truck)
 
         truckstats = truckstats + "\n"; //Some space
 
-        if (truck->driveable == TRUCK && truck->ar_engine)
+        if (truck->ar_driveable == TRUCK && truck->ar_engine)
         {
             if (truck->ar_engine->getRPM() > truck->ar_engine->getMaxRPM())
                 truckstats = truckstats + MainThemeColor + _L("Engine RPM: ") + RedColor + TOUTFSTRING(Round(truck->ar_engine->getRPM())) + U(" / ") + TOUTFSTRING(Round(truck->ar_engine->getMaxRPM())) + "\n";
@@ -291,7 +291,7 @@ void CLASS::UpdateStats(float dt, Beam* truck)
             truckstats = truckstats + MainThemeColor + _L("Current speed: ") + WhiteColor + TOUTFSTRING(Round(speedKN)) + U(" kn (") + TOUTFSTRING(Round(speedKN * 1.852)) + U(" km/h) (") + TOUTFSTRING(Round(speedKN * 1.151)) + U(" mph)") + "\n";
 
             Ogre::UTFString engmsg = _L("Engine ");
-            if (truck->driveable == AIRPLANE)
+            if (truck->ar_driveable == AIRPLANE)
             {
                 float altitude = truck->ar_nodes[0].AbsPosition.y / 30.48 * 100;
                 truckstats = truckstats + MainThemeColor + _L("Altitude: ") + WhiteColor + TOUTFSTRING(Round(altitude)) + U(" feet (") + TOUTFSTRING(Round(altitude * 0.30480)) + U(" meters)") + "\n";
@@ -303,7 +303,7 @@ void CLASS::UpdateStats(float dt, Beam* truck)
                         truckstats = truckstats + MainThemeColor + engmsg + TOUTFSTRING(i + 1 /*not to start with 0, players wont like it i guess*/) + " : " + WhiteColor + TOUTFSTRING(Round(truck->aeroengines[i]->getRPM())) + " RPM" + "\n";
                 }
             }
-            else if (truck->driveable == BOAT)
+            else if (truck->ar_driveable == BOAT)
             {
                 for (int i = 0; i < 8; i++)
                 {
@@ -331,31 +331,31 @@ void CLASS::UpdateStats(float dt, Beam* truck)
         swprintf(geesstr, 256, tmp.asWStr_c_str(), gees.x, gees.y, gees.z);
         truckstats = truckstats + MainThemeColor + _L("G-Forces:\n") + WhiteColor + Ogre::UTFString(geesstr) + "\n";
 
-        if (truck->driveable == TRUCK || truck->driveable == AIRPLANE || truck->driveable == BOAT)
+        if (truck->ar_driveable == TRUCK || truck->ar_driveable == AIRPLANE || truck->ar_driveable == BOAT)
         {
-            if (gees.x > maxPosVerG[truck->driveable])
-                maxPosVerG[truck->driveable] = gees.x;
-            if (gees.x < maxNegVerG[truck->driveable])
-                maxNegVerG[truck->driveable] = gees.x;
+            if (gees.x > maxPosVerG[truck->ar_driveable])
+                maxPosVerG[truck->ar_driveable] = gees.x;
+            if (gees.x < maxNegVerG[truck->ar_driveable])
+                maxNegVerG[truck->ar_driveable] = gees.x;
 
-            if (gees.y > maxPosSagG[truck->driveable])
-                maxPosSagG[truck->driveable] = gees.y;
-            if (gees.y < maxNegSagG[truck->driveable])
-                maxNegSagG[truck->driveable] = gees.y;
+            if (gees.y > maxPosSagG[truck->ar_driveable])
+                maxPosSagG[truck->ar_driveable] = gees.y;
+            if (gees.y < maxNegSagG[truck->ar_driveable])
+                maxNegSagG[truck->ar_driveable] = gees.y;
 
-            if (gees.z > maxPosLatG[truck->driveable])
-                maxPosLatG[truck->driveable] = gees.z;
-            if (gees.z < maxNegLatG[truck->driveable])
-                maxNegLatG[truck->driveable] = gees.z;
+            if (gees.z > maxPosLatG[truck->ar_driveable])
+                maxPosLatG[truck->ar_driveable] = gees.z;
+            if (gees.z < maxNegLatG[truck->ar_driveable])
+                maxNegLatG[truck->ar_driveable] = gees.z;
 
             tmp = _L("Vertical: % 1.2fg % 1.2fg\nSagittal: % 1.2fg % 1.2fg\nLateral:  % 1.2fg % 1.2fg");
             swprintf(geesstr, 256, tmp.asWStr_c_str(),
-                maxPosVerG[truck->driveable],
-                maxNegVerG[truck->driveable],
-                maxPosSagG[truck->driveable],
-                maxNegSagG[truck->driveable],
-                maxPosLatG[truck->driveable],
-                maxNegLatG[truck->driveable]
+                maxPosVerG[truck->ar_driveable],
+                maxNegVerG[truck->ar_driveable],
+                maxPosSagG[truck->ar_driveable],
+                maxNegSagG[truck->ar_driveable],
+                maxPosLatG[truck->ar_driveable],
+                maxNegLatG[truck->ar_driveable]
             );
             truckstats = truckstats + MainThemeColor + _L("G-Forces: Maximum - Minimum:\n") + WhiteColor + Ogre::UTFString(geesstr) + "\n";
         }

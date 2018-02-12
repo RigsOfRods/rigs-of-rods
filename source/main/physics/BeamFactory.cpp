@@ -690,7 +690,7 @@ void BeamFactory::activateAllTrucks()
 
             if (this->getTruck(m_simulated_truck))
             {
-                m_trucks[t]->ar_disable_aerodyn_turbulent_drag = this->getTruck(m_simulated_truck)->driveable == AIRPLANE;
+                m_trucks[t]->ar_disable_aerodyn_turbulent_drag = this->getTruck(m_simulated_truck)->ar_driveable == AIRPLANE;
             }
         }
     }

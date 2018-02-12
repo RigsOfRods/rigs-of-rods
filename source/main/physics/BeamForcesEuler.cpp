@@ -419,7 +419,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
 
     // fix for airplanes crashing when getAcc() is used
     float currentAcc = 0.0f;
-    if (driveable == TRUCK && ar_engine)
+    if (ar_driveable == TRUCK && ar_engine)
     {
         currentAcc = ar_engine->getAcc();
     }
@@ -918,7 +918,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
             crankfactor = ar_engine->getCrankFactor();
 
         // speed up machines
-        if (driveable == MACHINE)
+        if (ar_driveable == MACHINE)
             crankfactor = 2;
 
         for (int i = 0; i <= MAX_COMMANDS; i++)

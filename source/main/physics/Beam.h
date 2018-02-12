@@ -383,7 +383,7 @@ public:
     int               trucknum;
     RoR::SkinDef*     usedSkin;
     Buoyance*         buoyance;
-    int               driveable;
+    int               ar_driveable;                //!< Sim attr; marks vehicle type and features
     BeamEngine*       ar_engine;
     int               ar_cinecam_node[MAX_CAMERAS];//!< Sim attr; Cine-camera node indexes
     int               ar_num_cinecams;             //!< Sim attr;
