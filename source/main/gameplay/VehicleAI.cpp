@@ -197,8 +197,8 @@ void VehicleAI::update(float dt, int doUpdate)
     if (beam->ar_engine)
     {
         // start engine if not running
-        if (!beam->ar_engine->isRunning())
-            beam->ar_engine->start();
+        if (!beam->ar_engine->IsRunning())
+            beam->ar_engine->StartEngine();
 
         float kmh_wheel_speed = beam->getWheelSpeed() * 3.6;
 

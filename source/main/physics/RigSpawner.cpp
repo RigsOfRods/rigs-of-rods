@@ -6627,7 +6627,7 @@ void RigSpawner::SetupDefaultSoundSources(Actor *vehicle)
         }
         if (vehicle->ar_engine->m_engine_type == 'c')
             AddSoundSourceInstance(vehicle, "tracks/default_car", ar_exhaust_pos_node);
-        if (vehicle->ar_engine->hasTurbo())
+        if (vehicle->ar_engine->HasTurbo())
         {
             if (vehicle->ar_engine->m_turbo_inertia_factor >= 3)
                 AddSoundSourceInstance(vehicle, "tracks/default_turbo_big", ar_exhaust_pos_node);

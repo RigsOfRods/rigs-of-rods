@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2016 Petr Ohlidal & contributors
+    Copyright 2013-2018 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -249,7 +249,7 @@ void EngineSim::SetEngineOptions(float einertia, char etype, float eclutch, floa
     }
 }
 
-void EngineSim::update(float dt, int doUpdate)
+void EngineSim::UpdateEngineSim(float dt, int doUpdate)
 {
     int actor_id = m_actor->ar_instance_id;
     float acc = m_cur_acc;
@@ -444,7 +444,7 @@ void EngineSim::update(float dt, int doUpdate)
     {
         if (m_engine_is_running && m_cur_engine_rpm < m_engine_stall_rpm)
         {
-            stop();
+            this->StopEngine();
         }
 
         if (m_starter_has_contact && m_starter && !m_engine_is_running)
@@ -796,10 +796,10 @@ void EngineSim::update(float dt, int doUpdate)
     }
 
     // audio stuff
-    updateAudio(doUpdate);
+    this->UpdateEngineAudio(doUpdate);
 }
 
-void EngineSim::updateAudio(int doUpdate)
+void EngineSim::UpdateEngineAudio(int doUpdate)
 {
 #ifdef USE_OPENAL
     if (m_engine_has_turbo)
@@ -828,7 +828,7 @@ void EngineSim::updateAudio(int doUpdate)
 #endif // USE_OPENAL
 }
 
-void EngineSim::toggleAutoMode()
+void EngineSim::ToggleAutoShiftMode()
 {
     m_auto_mode = (m_auto_mode + 1) % (MANUAL_RANGES + 1);
 
@@ -852,7 +852,7 @@ void EngineSim::toggleAutoMode()
     }
 }
 
-RoR::SimGearboxMode EngineSim::getAutoMode()
+RoR::SimGearboxMode EngineSim::GetAutoShiftMode()
 {
     return (RoR::SimGearboxMode)this->m_auto_mode;
 }
@@ -939,12 +939,12 @@ void EngineSim::SetEnginePriming(bool p)
     m_engine_is_priming = p;
 }
 
-void EngineSim::setHydroPumpWork(float work)
+void EngineSim::SetHydroPumpWork(float work)
 {
     m_hydropump_state = work;
 }
 
-void EngineSim::setSpin(float rpm)
+void EngineSim::SetWheelSpin(float rpm)
 {
     m_cur_wheel_revolutions = rpm;
 }
@@ -978,7 +978,7 @@ float EngineSim::GetClutchForce()
     return m_clutch_force;
 }
 
-void EngineSim::toggleContact()
+void EngineSim::ToggleStarterContact()
 {
     m_starter_has_contact = !m_starter_has_contact;
     if (m_starter_has_contact)
@@ -991,9 +991,9 @@ void EngineSim::toggleContact()
     }
 }
 
-void EngineSim::start()
+void EngineSim::StartEngine()
 {
-    offstart();
+    this->OffStart();
     m_starter_has_contact = true;
     m_cur_engine_rpm = m_idle_rpm;
     m_engine_is_running = true;
@@ -1009,7 +1009,7 @@ void EngineSim::start()
     SOUND_START(m_actor, SS_TRIG_ENGINE);
 }
 
-void EngineSim::offstart()
+void EngineSim::OffStart()
 {
     m_air_pressure = 0.0f;
     m_autoselect = MANUALMODE;
@@ -1034,33 +1034,33 @@ void EngineSim::offstart()
     }
 }
 
-void EngineSim::setstarter(bool v)
+void EngineSim::SetStarter(bool v)
 {
     m_starter = static_cast<int>(v);
 }
 
-int EngineSim::getGear()
+int EngineSim::GetGear()
 {
     return m_cur_gear;
 }
 
 // low level gear changing
-void EngineSim::setGear(int v)
+void EngineSim::SetGear(int v)
 {
     m_cur_gear = v;
 }
 
-int EngineSim::getGearRange()
+int EngineSim::GetGearRange()
 {
     return m_cur_gear_range;
 }
 
-void EngineSim::setGearRange(int v)
+void EngineSim::SetGearRange(int v)
 {
     m_cur_gear_range = v;
 }
 
-void EngineSim::stop()
+void EngineSim::StopEngine()
 {
     if (!m_engine_is_running)
         return;

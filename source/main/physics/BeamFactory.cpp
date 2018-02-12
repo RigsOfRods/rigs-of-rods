@@ -1056,7 +1056,7 @@ void ActorManager::UpdateActors(float dt)
 
         default:
             if (m_actors[t]->ar_sim_state != Actor::SimState::LOCAL_SIMULATED && m_actors[t]->ar_engine)
-                m_actors[t]->ar_engine->update(dt, 1);
+                m_actors[t]->ar_engine->UpdateEngineSim(dt, 1);
             if (m_actors[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
                 m_actors[t]->UpdatePropAnimations(dt);
             if (m_actors[t]->ar_uses_networking)

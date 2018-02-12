@@ -63,7 +63,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
     if (ar_engine)
     {
         BES_START(BES_CORE_TruckEngine);
-        ar_engine->update(dt, doUpdate);
+        ar_engine->UpdateEngineSim(dt, doUpdate);
         BES_STOP(BES_CORE_TruckEngine);
     }
 
@@ -647,7 +647,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
 
     if (ar_engine && ar_num_wheels && ar_wheels[0].wh_radius > 0.0f)
     {
-        ar_engine->setSpin(wspeed / ar_wheels[0].wh_radius * RAD_PER_SEC_TO_RPM);
+        ar_engine->SetWheelSpin(wspeed / ar_wheels[0].wh_radius * RAD_PER_SEC_TO_RPM);
     }
 
     // calculate driven distance
@@ -1064,7 +1064,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
                         if (bbeam_dir * ar_beams[bbeam].autoMovingMode > 0)
                             v = 1;
 
-                        if (ar_beams[bbeam].commandNeedsEngine && ((ar_engine && !ar_engine->isRunning()) || !ar_engine_hydraulics_ready))
+                        if (ar_beams[bbeam].commandNeedsEngine && ((ar_engine && !ar_engine->IsRunning()) || !ar_engine_hydraulics_ready))
                             continue;
 
                         if (v > 0.0f && ar_beams[bbeam].commandEngineCoupling > 0.0f)
@@ -1124,7 +1124,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
                 float v = 0.0f;
                 int rota = std::abs(ar_command_key[i].rotators[j]) - 1;
 
-                if (ar_rotators[rota].rotatorNeedsEngine && ((ar_engine && !ar_engine->isRunning()) || !ar_engine_hydraulics_ready))
+                if (ar_rotators[rota].rotatorNeedsEngine && ((ar_engine && !ar_engine->IsRunning()) || !ar_engine_hydraulics_ready))
                     continue;
 
                 if (m_rotator_inertia)
@@ -1151,7 +1151,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
 
         if (ar_engine)
         {
-            ar_engine->setHydroPumpWork(work);
+            ar_engine->SetHydroPumpWork(work);
             ar_engine->SetEnginePriming(requested);
         }
 
@@ -1891,7 +1891,7 @@ void Actor::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                 // engine stall
                 if (i == ar_cinecam_node[0] && ar_engine)
                 {
-                    ar_engine->stop();
+                    ar_engine->StopEngine();
                 }
                 ar_nodes[i].wetstate = WET;
             }

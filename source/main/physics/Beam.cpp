@@ -1659,7 +1659,7 @@ void Actor::SyncReset()
     float cur_rot = getRotation();
     if (ar_engine)
     {
-        ar_engine->start();
+        ar_engine->StartEngine();
     }
 
     for (int i = 0; i < ar_num_nodes; i++)
@@ -1895,14 +1895,14 @@ void Actor::sendStreamData()
             send_oob->engine_speed = ar_engine->GetEngineRpm();
             send_oob->engine_force = ar_engine->GetAcceleration();
             send_oob->engine_clutch = ar_engine->GetClutch();
-            send_oob->engine_gear = ar_engine->getGear();
+            send_oob->engine_gear = ar_engine->GetGear();
 
-            if (ar_engine->hasContact())
+            if (ar_engine->HasStarterContact())
                 send_oob->flagmask += NETMASK_ENGINE_CONT;
-            if (ar_engine->isRunning())
+            if (ar_engine->IsRunning())
                 send_oob->flagmask += NETMASK_ENGINE_RUN;
 
-            switch (ar_engine->getAutoMode())
+            switch (ar_engine->GetAutoShiftMode())
             {
             case RoR::SimGearboxMode::AUTO: send_oob->flagmask += NETMASK_ENGINE_MODE_AUTOMATIC;
                 break;
@@ -2105,7 +2105,7 @@ void Actor::calcAnimators(const int flag_state, float& cstate, int& div, Real ti
         // opt1 &opt2 = 0   this is a shifter
         if (!lower_limit && !upper_limit)
         {
-            int shifter = ar_engine->getGear();
+            int shifter = ar_engine->GetGear();
             if (shifter > m_previous_gear)
             {
                 cstate = 1.0f;
@@ -2151,7 +2151,7 @@ void Actor::calcAnimators(const int flag_state, float& cstate, int& div, Real ti
     //shifterman1, left/right
     if (ar_engine && (flag_state & ANIM_FLAG_SHIFTER) && option3 == 1.0f)
     {
-        int shifter = ar_engine->getGear();
+        int shifter = ar_engine->GetGear();
         if (!shifter)
         {
             cstate = -0.5f;
@@ -2170,7 +2170,7 @@ void Actor::calcAnimators(const int flag_state, float& cstate, int& div, Real ti
     //shifterman2, up/down
     if (ar_engine && (flag_state & ANIM_FLAG_SHIFTER) && option3 == 2.0f)
     {
-        int shifter = ar_engine->getGear();
+        int shifter = ar_engine->GetGear();
         cstate = 0.5f;
         if (shifter < 0)
         {
@@ -2186,7 +2186,7 @@ void Actor::calcAnimators(const int flag_state, float& cstate, int& div, Real ti
     //shifterlinear, to amimate cockpit gearselect gauge and autotransmission stick
     if (ar_engine && (flag_state & ANIM_FLAG_SHIFTER) && option3 == 4.0f)
     {
-        int shifter = ar_engine->getGear();
+        int shifter = ar_engine->GetGear();
         int numgears = ar_engine->getNumGears();
         cstate -= (shifter + 2.0) / (numgears + 2.0);
         div++;
@@ -4936,7 +4936,7 @@ bool Actor::getReverseLightVisible()
         return m_net_reverse_light;
 
     if (ar_engine)
-        return (ar_engine->getGear() < 0);
+        return (ar_engine->GetGear() < 0);
 
     return m_reverse_light_active;
 }
@@ -5029,7 +5029,7 @@ void Actor::updateDashBoards(float dt)
     if (ar_engine)
     {
         // gears first
-        int gear = ar_engine->getGear();
+        int gear = ar_engine->GetGear();
         ar_dashboard->setInt(DD_ENGINE_GEAR, gear);
 
         int numGears = (int)ar_engine->getNumGears();
@@ -5085,11 +5085,11 @@ void Actor::updateDashBoards(float dt)
         ar_dashboard->setFloat(DD_ENGINE_TURBO, turbo);
 
         // ignition
-        bool ign = (ar_engine->hasContact() && !ar_engine->isRunning());
+        bool ign = (ar_engine->HasStarterContact() && !ar_engine->IsRunning());
         ar_dashboard->setBool(DD_ENGINE_IGNITION, ign);
 
         // battery
-        bool batt = (ar_engine->hasContact() && !ar_engine->isRunning());
+        bool batt = (ar_engine->HasStarterContact() && !ar_engine->IsRunning());
         ar_dashboard->setBool(DD_ENGINE_BATTERY, batt);
 
         // clutch warning
@@ -5318,7 +5318,7 @@ void Actor::updateDashBoards(float dt)
 
         if (hasEngine)
         {
-            hasturbo = ar_engine->hasTurbo();
+            hasturbo = ar_engine->HasTurbo();
             autogearVisible = (ar_engine->getAutoShift() != EngineSim::MANUALMODE);
         }
 
@@ -5780,7 +5780,7 @@ Actor::Actor(
     updateProps();
     if (ar_engine)
     {
-        ar_engine->offstart();
+        ar_engine->OffStart();
     }
     // pressurize tires
     AddTyrePressure(0.0);
@@ -5804,7 +5804,7 @@ Actor::Actor(
         m_net_update_counter = 0;
         if (ar_engine)
         {
-            ar_engine->start();
+            ar_engine->StartEngine();
         }
     }
 

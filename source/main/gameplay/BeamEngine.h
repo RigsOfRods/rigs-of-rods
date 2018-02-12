@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2016 Petr Ohlidal & contributors
+    Copyright 2013-2018 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -69,25 +69,25 @@ public:
     float          GetSmoke();
     float          GetTorque();
     float          GetTurboPsi();
-    RoR::SimGearboxMode getAutoMode();
+    RoR::SimGearboxMode GetAutoShiftMode();
     void           SetEngineRpm(float rpm);      //!< Set current engine RPM.
     void           SetEnginePriming(bool p);     //!< Set current engine prime.
-    void           setHydroPumpWork(float work); //!< Set current hydro pump work.
-    void           setSpin(float rpm);           //!< Set current wheel spinning speed.
-    void           toggleAutoMode();
-    void           toggleContact();
-    void           offstart();                   //!< Quick start of vehicle engine. Plays sounds.
-    void           setstarter(bool v);           //!< Controls vehicle m_starter. No side effects.
-    void           start();                      //!< Quick engine start. Plays sounds.
-    int            getGear();                    //!< low level gear changing
-    int            getGearRange();               //!< low level gear changing
-    void           setGear(int v);               //!< low level gear changing
-    void           setGearRange(int v);          //!< low level gear changing
-    void           stop();                       //!< stall engine
-    bool           hasContact() const       { return m_starter_has_contact; };
-    bool           hasTurbo() const         { return m_engine_has_turbo; };
-    bool           isRunning() const        { return m_engine_is_running; };
-    char           getType() const          { return m_engine_type; };
+    void           SetHydroPumpWork(float work); //!< Set current hydro pump work.
+    void           SetWheelSpin(float rpm);      //!< Set current wheel spinning speed.
+    void           ToggleAutoShiftMode();
+    void           ToggleStarterContact();
+    void           OffStart();                   //!< Quick start of vehicle engine.
+    void           SetStarter(bool v);           //!< Controls vehicle m_starter. No side effects.
+    void           StartEngine();                //!< Quick engine start. Plays sounds.
+    int            GetGear();                    //!< low level gear changing
+    int            GetGearRange();               //!< low level gear changing
+    void           SetGear(int v);               //!< low level gear changing
+    void           SetGearRange(int v);          //!< low level gear changing
+    void           StopEngine();                 //!< stall engine
+    bool           HasStarterContact() const{ return m_starter_has_contact; };
+    bool           HasTurbo() const         { return m_engine_has_turbo; };
+    bool           IsRunning() const        { return m_engine_is_running; };
+    char           GetEngineType() const    { return m_engine_type; };
     float          getEngineTorque() const  { return m_engine_torque; };
     float          getBrakingTorque() const { return m_braking_torque; };
     float          getIdleRPM() const       { return m_idle_rpm; };
@@ -111,8 +111,7 @@ public:
     void           shift(int val);             //!< Changes gear by a relative offset. Plays sounds.
     void           shiftTo(int val);           //!< Changes gear to given value. Plays sounds.
     void           updateShifts();             //!< Changes gears. Plays sounds.
-    void           update(float dt, int doUpdate);
-    void           updateAudio(int doUpdate);  //!< Updates sound effects (engine/turbo/clutch/etc...)
+    void           UpdateEngineSim(float dt, int doUpdate);
 
     enum autoswitch
     {
@@ -130,7 +129,7 @@ public:
         NEW
     };
 
-protected:
+private:
 
     enum shiftmodes
     {
@@ -140,6 +139,8 @@ protected:
         MANUAL_STICK,
         MANUAL_RANGES
     };
+
+    void           UpdateEngineAudio(int doUpdate);  //!< Updates sound effects (engine/turbo/clutch/etc...)
 
     // Vehicle
     Actor*         m_actor;

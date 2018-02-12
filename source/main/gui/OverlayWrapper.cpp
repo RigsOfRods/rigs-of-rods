@@ -807,7 +807,7 @@ void OverlayWrapper::UpdatePressureTexture(float pressure)
 void OverlayWrapper::UpdateLandVehicleHUD(Actor* vehicle)
 {
     // gears
-    int vehicle_getgear = vehicle->ar_engine->getGear();
+    int vehicle_getgear = vehicle->ar_engine->GetGear();
     if (vehicle_getgear > 0)
     {
         size_t numgears = vehicle->ar_engine->getNumGears();
