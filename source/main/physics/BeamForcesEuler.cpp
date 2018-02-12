@@ -210,21 +210,21 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     BES_START(BES_CORE_FuseDrag);
 
     //compute fuse drag
-    if (fuseAirfoil)
+    if (m_fusealge_airfoil)
     {
-        Vector3 wind = -fuseFront->Velocity;
+        Vector3 wind = -m_fusealge_front->Velocity;
         float wspeed = wind.length();
-        Vector3 axis = fuseFront->RelPosition - fuseBack->RelPosition;
-        float s = axis.length() * fuseWidth;
+        Vector3 axis = m_fusealge_front->RelPosition - m_fusealge_back->RelPosition;
+        float s = axis.length() * m_fusealge_width;
         float cz, cx, cm;
         float v = axis.getRotationTo(wind).w;
         float aoa = 0;
         if (v < 1.0 && v > -1.0)
             aoa = 2.0 * acos(v); //quaternion fun
-        fuseAirfoil->getparams(aoa, 1.0, 0.0, &cz, &cx, &cm);
+        m_fusealge_airfoil->getparams(aoa, 1.0, 0.0, &cz, &cx, &cm);
 
         //tropospheric model valid up to 11.000m (33.000ft)
-        float altitude = fuseFront->AbsPosition.y;
+        float altitude = m_fusealge_front->AbsPosition.y;
 
         // TODO Unused Varaible
         //float sea_level_temperature=273.15f+15.0f; //in Kelvin
@@ -236,7 +236,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         float airdensity = airpressure * 0.0000120896f;//1.225 at sea level
 
         //fuselage as an airfoil + parasitic drag (half fuselage front surface almost as a flat plane!)
-        ar_fusedrag = ((cx * s + fuseWidth * fuseWidth * 0.5) * 0.5 * airdensity * wspeed / ar_num_nodes) * wind; 
+        ar_fusedrag = ((cx * s + m_fusealge_width * m_fusealge_width * 0.5) * 0.5 * airdensity * wspeed / ar_num_nodes) * wind; 
     }
 
     BES_STOP(BES_CORE_FuseDrag);
@@ -1851,7 +1851,7 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
         // start with gravity
         ar_nodes[i].Forces = Vector3(0, ar_nodes[i].mass * gravity, 0);
 
-        if (fuseAirfoil)
+        if (m_fusealge_airfoil)
         {
             // aerodynamics on steroids!
             ar_nodes[i].Forces += ar_fusedrag;

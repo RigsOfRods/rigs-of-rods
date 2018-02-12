@@ -130,9 +130,9 @@ Beam::~Beam()
     if (autopilot)
         delete autopilot;
     autopilot = 0;
-    if (fuseAirfoil)
-        delete fuseAirfoil;
-    fuseAirfoil = 0;
+    if (m_fusealge_airfoil)
+        delete m_fusealge_airfoil;
+    m_fusealge_airfoil = 0;
 
     if (m_cab_mesh != nullptr)
     {
