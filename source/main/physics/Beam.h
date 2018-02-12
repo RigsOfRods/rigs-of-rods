@@ -61,8 +61,7 @@ public:
     /// @param preloaded_with_terrain Is this rig being pre-loaded along with terrain?
     /// @param cache_entry_number Needed for flexbody caching. Pass -1 if unavailable (flexbody caching will be disabled)
     Actor(
-          RoRFrameListener* sim_controller
-        , int actor_id
+          int actor_id
         , std::shared_ptr<RigDef::File> def
         , Ogre::Vector3 pos
         , Ogre::Quaternion rot
@@ -73,7 +72,6 @@ public:
         , bool ismachine = false
         , const std::vector<Ogre::String> *actor_config = nullptr
         , RoR::SkinDef *skin = nullptr
-        , bool freeposition = false
         , bool preloaded_with_terrain = false
         , int cache_entry_number = -1
         );
@@ -570,7 +568,6 @@ private:
     bool m_cinecam_is_rotation_center:1;    //<! Attribute; filled at spawn
     bool m_preloaded_with_terrain:1;        //!< Spawn context (TODO: remove!)
     bool m_high_res_wheelnode_collisions:1; //!< Physics attr; set at spawn
-    bool m_spawn_free_positioned:1;         //!< Spawn context (TODO: remove!)
     bool m_gfx_reduce_shadows:1;        //!< Gfx switch; alias of RoR.cfg entry "Shadow optimizations"
     bool m_beam_break_debug_enabled:1;  //!< Logging state
     bool m_beam_deform_debug_enabled:1; //!< Logging state
