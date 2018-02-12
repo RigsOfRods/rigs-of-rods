@@ -170,7 +170,7 @@ SlideNode::SlideNode():
     spring_rate(9000000),
     break_force(0),
     tolerance(0),
-    railgroup_id(0),
+    railgroup_id(-1),
     _railgroup_id_set(false),
     attachment_rate(1.f),
     max_attachment_distance(0.1f),

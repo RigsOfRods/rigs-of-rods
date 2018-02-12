@@ -560,7 +560,7 @@ private:
 
     void CreateBeamVisuals(beam_t & beam, int beam_index, std::shared_ptr<RigDef::BeamDefaults> beam_defaults);
 
-    Rail *CreateRail(std::vector<RigDef::Node::Range> & node_ranges);
+    RailGroup *CreateRail(std::vector<RigDef::Node::Range> & node_ranges);
 
     static void AddSoundSource(Actor *vehicle, SoundScriptInstance *sound_script, int node_index, int type = -2);
 

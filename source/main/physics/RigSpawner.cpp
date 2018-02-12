@@ -2788,13 +2788,12 @@ void RigSpawner::ProcessRailGroup(RigDef::RailGroup & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    Rail *rail = CreateRail(def.node_list);
-    if (rail == nullptr)
+    RailGroup* rail_group = this->CreateRail(def.node_list);
+    rail_group->rg_id = def.id;
+    if (rail_group != nullptr)
     {
-        return;
+        m_rig->m_railgroups.push_back(rail_group);
     }
-    RailGroup *rail_group = new RailGroup(rail, def.id);
-    m_rig->m_railgroups.push_back(rail_group);
 }
 
 void RigSpawner::ProcessSlidenode(RigDef::SlideNode & def)
@@ -2841,7 +2840,7 @@ void RigSpawner::ProcessSlidenode(RigDef::SlideNode & def)
         std::vector<RailGroup*>::iterator itor = m_rig->m_railgroups.begin();
         for ( ; itor != m_rig->m_railgroups.end(); itor++)
         {
-            if ((*itor)->GetId() == def.railgroup_id)
+            if ((*itor)->rg_id == def.railgroup_id)
             {
                 rail_group = *itor;
                 break;
@@ -2858,13 +2857,11 @@ void RigSpawner::ProcessSlidenode(RigDef::SlideNode & def)
     }
     else if (def.rail_node_ranges.size() > 0)
     {
-        Rail *rail = CreateRail(def.rail_node_ranges);
-        if (rail == nullptr)
+        rail_group = this->CreateRail(def.rail_node_ranges);
+        if (rail_group != nullptr)
         {
-            return;
+            m_rig->m_railgroups.push_back(rail_group);
         }
-        rail_group = new RailGroup(rail);
-        m_rig->m_railgroups.push_back(rail_group);
     }
     else
     {
@@ -2968,23 +2965,16 @@ bool RigSpawner::CollectNodesFromRanges(
     return true;
 }
 
-Rail *RigSpawner::CreateRail(std::vector<RigDef::Node::Range> & node_ranges)
+RailGroup *RigSpawner::CreateRail(std::vector<RigDef::Node::Range> & node_ranges)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    /* Collect nodes */
+    // Collect nodes
     std::vector<unsigned int> node_indices;
-    node_indices.reserve(100);
+    this->CollectNodesFromRanges(node_ranges, node_indices);
 
-    CollectNodesFromRanges(node_ranges, node_indices);
-
-    /* Find beams &build rail */
-    RailBuilder rail_builder; /* rail builder allocates the memory for each rail, it will not free it */
-    if (node_indices.front() == node_indices.back())
-    {
-        rail_builder.loopRail();
-    }
-
+    // Build the rail
+    RailGroup* rg = new RailGroup();
     for (unsigned int i = 0; i < node_indices.size() - 1; i++)
     {
         beam_t *beam = FindBeamInRig(node_indices[i], node_indices[i + 1]);
@@ -2993,12 +2983,34 @@ Rail *RigSpawner::CreateRail(std::vector<RigDef::Node::Range> & node_ranges)
             std::stringstream msg;
             msg << "No beam between nodes indexed '" << node_indices[i] << "' and '" << node_indices[i + 1] << "'";
             AddMessage(Message::TYPE_ERROR, msg.str());
+            delete rg;
             return nullptr;
         }
-        rail_builder.pushBack(beam);
+        rg->rg_segments.emplace_back(beam);
     }
 
-    return rail_builder.getCompletedRail(); /* Transfers memory ownership */
+    // Link middle segments
+    const size_t num_seg = rg->rg_segments.size();
+    for (size_t i = 1; i < (num_seg - 1); ++i)
+    {
+        rg->rg_segments[i].rs_prev = &rg->rg_segments[i - 1];
+        rg->rg_segments[i].rs_next = &rg->rg_segments[i + 1];
+    }
+
+    // Link end segments
+    const bool is_loop = (node_indices.front() == node_indices.back());
+    if (rg->rg_segments.size() > 1)
+    {
+        rg->rg_segments[0].rs_next = &rg->rg_segments[1];
+        rg->rg_segments[num_seg - 1].rs_prev = &rg->rg_segments[num_seg - 2];
+        if (is_loop)
+        {
+            rg->rg_segments[0].rs_prev = &rg->rg_segments[num_seg - 1];
+            rg->rg_segments[num_seg - 1].rs_next = &rg->rg_segments[0];
+        }
+    }
+
+    return rg; // Transfers memory ownership
 }
 
 beam_t *RigSpawner::FindBeamInRig(unsigned int node_a_index, unsigned int node_b_index)

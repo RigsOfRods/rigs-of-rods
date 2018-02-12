@@ -77,7 +77,7 @@ void Actor::ToggleSlideNodeLock()
 std::pair<RailGroup*, Ogre::Real> Actor::GetClosestRailOnActor(Actor* actor, const SlideNode& node)
 {
     std::pair<RailGroup*, Ogre::Real> closest((RailGroup*)NULL, std::numeric_limits<Ogre::Real>::infinity());
-    Rail* curRail = NULL;
+    RailSegment* curRail = NULL;
     Ogre::Real lenToCurRail = std::numeric_limits<Ogre::Real>::infinity();
 
     for (std::vector<RailGroup*>::iterator itGroup = actor->m_railgroups.begin();
@@ -85,23 +85,9 @@ std::pair<RailGroup*, Ogre::Real> Actor::GetClosestRailOnActor(Actor* actor, con
          itGroup++)
     {
         // find the rail closest to the Node
-        curRail = SlideNode::getClosestRailAll((*itGroup), node.getNodePosition());
+        curRail = SlideNode::FindClosestRailSegment((*itGroup), node.getNodePosition());
         lenToCurRail = node.getLenTo(curRail);
-#if 0
-        // if this rail closer than the previous one keep, also check that this
-        // slide node is not already attached to this rail, now how to do that
-        // without looping through the entire slide node array AGAIN...
-        // Only for use with a single slide node attaching to multiple rails,
-        // which currently is not implemented
-        // oh well git'r done... :P
-        for (std::vector< SlideNode >::iterator itNode = m_slidenodes.begin(); itNode != m_slidenodes.end(); itNode++)
-        {
-        // check if node is already hooked up to
-            if ( node.getNodeID() == itNode->getNodeID() &&
-                node.getRailID() == (*itGroup)->getID() )
-                continue;
-        }
-#endif
+
         if (lenToCurRail < node.getAttachmentDistance() && lenToCurRail < closest.second)
         {
             closest.first = (*itGroup);

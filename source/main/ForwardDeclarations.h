@@ -178,7 +178,7 @@ class OutProtocol;
 class PointColDetector;
 class PositionStorage;
 class ProceduralManager;
-class Rail;
+class RailSegment;
 class RailGroup;
 class Replay;
 class RigsOfRods;
