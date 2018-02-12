@@ -765,7 +765,7 @@ void Beam::calcNetwork()
     float netbrake = oob1->brake + tratio * (oob2->brake - oob1->brake);
 
     ar_hydro_dir_wheel_display = oob1->hydrodirstate;
-    WheelSpeed = netwspeed;
+    ar_wheel_speed = netwspeed;
 
     int gear = oob1->engine_gear;
     unsigned int flagmask = oob1->flagmask;
@@ -1918,7 +1918,7 @@ void Beam::sendStreamData()
 
         send_oob->hydrodirstate = ar_hydro_dir_state;
         send_oob->brake = ar_brake;
-        send_oob->wheelspeed = WheelSpeed;
+        send_oob->wheelspeed = ar_wheel_speed;
 
         blinktype b = getBlinkType();
         if (b == BLINK_LEFT)
@@ -2197,7 +2197,7 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
     //speedo ( scales with speedomax )
     if (flag_state & ANIM_FLAG_SPEEDO)
     {
-        float speedo = WheelSpeed / speedoMax;
+        float speedo = ar_wheel_speed / speedoMax;
         cstate -= speedo * 3.0f;
         div++;
     }
@@ -3471,7 +3471,7 @@ void Beam::updateSoundSources()
     }
     //also this, so it is updated always, and for any vehicle
     SOUND_MODULATE(trucknum, SS_MOD_AIRSPEED, ar_nodes[0].Velocity.length() * 1.9438);
-    SOUND_MODULATE(trucknum, SS_MOD_WHEELSPEED, WheelSpeed * 3.6);
+    SOUND_MODULATE(trucknum, SS_MOD_WHEELSPEED, ar_wheel_speed * 3.6);
 #endif //OPENAL
     BES_GFX_STOP(BES_GFX_updateSoundSources);
 }
@@ -4590,7 +4590,7 @@ void Beam::cruisecontrolToggle()
 
     if (cc_mode)
     {
-        cc_target_speed = WheelSpeed;
+        cc_target_speed = ar_wheel_speed;
         cc_target_rpm = engine->getRPM();
     }
     else

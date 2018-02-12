@@ -54,7 +54,7 @@ void LandVehicleSimulation::UpdateCruiseControl(Beam* curr_truck, float dt)
         // Try to maintain the target speed
         float torque = (curr_truck->engine->getEngineTorque() + curr_truck->engine->getBrakingTorque()) * 0.8f;
         float forceRatio = curr_truck->getTotalMass(true) / torque;
-        acc += (curr_truck->cc_target_speed - curr_truck->WheelSpeed) * forceRatio * 0.25;
+        acc += (curr_truck->cc_target_speed - curr_truck->ar_wheel_speed) * forceRatio * 0.25;
         acc = std::max(-2.0f, acc);
         acc = std::min(acc, +2.0f);
     }
@@ -118,7 +118,7 @@ void LandVehicleSimulation::UpdateCruiseControl(Beam* curr_truck, float dt)
     }
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_CRUISE_CONTROL_READJUST))
     {
-        curr_truck->cc_target_speed = std::max(curr_truck->WheelSpeed, curr_truck->cc_target_speed);
+        curr_truck->cc_target_speed = std::max(curr_truck->ar_wheel_speed, curr_truck->cc_target_speed);
         if (curr_truck->sl_enabled)
         {
             curr_truck->cc_target_speed = std::min(curr_truck->cc_target_speed, curr_truck->sl_speed_limit);
@@ -128,9 +128,9 @@ void LandVehicleSimulation::UpdateCruiseControl(Beam* curr_truck, float dt)
 
     if (curr_truck->cc_can_brake)
     {
-        if (curr_truck->WheelSpeed > curr_truck->cc_target_speed + 0.5f && !RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE))
+        if (curr_truck->ar_wheel_speed > curr_truck->cc_target_speed + 0.5f && !RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE))
         {
-            float brake = (curr_truck->WheelSpeed - curr_truck->cc_target_speed) * 0.5f;
+            float brake = (curr_truck->ar_wheel_speed - curr_truck->cc_target_speed) * 0.5f;
             brake = std::min(brake, 1.0f);
             curr_truck->ar_brake = curr_truck->ar_brake_force * brake;
         }
@@ -141,7 +141,7 @@ void LandVehicleSimulation::CheckSpeedLimit(Beam* curr_truck, float dt)
 {
     if (curr_truck->sl_enabled && curr_truck->engine->getGear() != 0)
     {
-        float accl = (curr_truck->sl_speed_limit - std::abs(curr_truck->WheelSpeed)) * 2.0f;
+        float accl = (curr_truck->sl_speed_limit - std::abs(curr_truck->ar_wheel_speed)) * 2.0f;
         accl = std::max(0.0f, accl);
         accl = std::min(accl, curr_truck->engine->getAcc());
         curr_truck->engine->setAcc(accl);
@@ -262,7 +262,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
                 }
 
                 // only when the truck really is not moving anymore
-                if (fabs(curr_truck->WheelSpeed) <= 1.0f)
+                if (fabs(curr_truck->ar_wheel_speed) <= 1.0f)
                 {
                     Vector3 hdir = curr_truck->getDirection();
                     float velocity = hdir.dotProduct(curr_truck->ar_nodes[0].Velocity);
@@ -473,15 +473,15 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
             if (curr_truck->engine->hasContact() &&
                 curr_truck->engine->getAutoMode() == SimGearboxMode::AUTO &&
                 curr_truck->engine->getAutoShift() != BeamEngine::NEUTRAL &&
-                std::abs(curr_truck->WheelSpeed) < 0.1f)
+                std::abs(curr_truck->ar_wheel_speed) < 0.1f)
             {
                 Vector3 dirDiff = curr_truck->getDirection();
                 Degree pitchAngle = Radian(asin(dirDiff.dotProduct(Vector3::UNIT_Y)));
 
                 if (std::abs(pitchAngle.valueDegrees()) > 1.0f)
                 {
-                    if (curr_truck->engine->getAutoShift() > BeamEngine::NEUTRAL && curr_truck->WheelSpeed < +0.1f && pitchAngle.valueDegrees() > +1.0f ||
-                        curr_truck->engine->getAutoShift() < BeamEngine::NEUTRAL && curr_truck->WheelSpeed > -0.1f && pitchAngle.valueDegrees() < -1.0f)
+                    if (curr_truck->engine->getAutoShift() > BeamEngine::NEUTRAL && curr_truck->ar_wheel_speed < +0.1f && pitchAngle.valueDegrees() > +1.0f ||
+                        curr_truck->engine->getAutoShift() < BeamEngine::NEUTRAL && curr_truck->ar_wheel_speed > -0.1f && pitchAngle.valueDegrees() < -1.0f)
                     {
                         // anti roll back in SimGearboxMode::AUTO (DRIVE, TWO, ONE) mode
                         // anti roll forth in SimGearboxMode::AUTO (REAR) mode
@@ -493,7 +493,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
                 }
                 else if (brake == 0.0f && accl == 0.0f && curr_truck->ar_parking_brake == 0)
                 {
-                    float ratio = std::max(0.0f, 0.1f - std::abs(curr_truck->WheelSpeed)) * 5.0f;
+                    float ratio = std::max(0.0f, 0.1f - std::abs(curr_truck->ar_wheel_speed)) * 5.0f;
                     curr_truck->ar_brake = curr_truck->ar_brake_force * ratio;
                 }
             }

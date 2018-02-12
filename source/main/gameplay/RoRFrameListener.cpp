@@ -190,7 +190,7 @@ void RoRFrameListener::UpdateForceFeedback(float dt)
         m_force_feedback->SetForces(
             -ff_vehicle.dotProduct(uroll) / 10000.0,
              ff_vehicle.dotProduct(udir)  / 10000.0,
-            current_truck->WheelSpeed,
+            current_truck->ar_wheel_speed,
             current_truck->ar_hydro_dir_command,
             current_truck->GetFFbHydroForces());
     }

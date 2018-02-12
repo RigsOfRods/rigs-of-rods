@@ -868,7 +868,7 @@ void OverlayWrapper::UpdateLandVehicleHUD(Beam* vehicle)
 
     // speedo / calculate speed
     Real guiSpeedFactor = 7.0 * (140.0 / vehicle->speedoMax);
-    Real angle = 140 - fabs(vehicle->WheelSpeed * guiSpeedFactor);
+    Real angle = 140 - fabs(vehicle->ar_wheel_speed * guiSpeedFactor);
     angle = std::max(-140.0f, angle);
     speedotexture->setTextureRotate(Degree(angle));
 
