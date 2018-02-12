@@ -377,7 +377,6 @@ public:
     int               ar_extern_camera_mode;
     int               ar_extern_camera_node;
     float             collrange;
-    int               masscount;          //!< Number of nodes loaded with l option
     bool              disable_smoke;
     int               ar_exhaust_pos_node; //!< Old-format exhaust (one per vehicle) emitter node
     int               ar_exhaust_dir_node; //!< Old-format exhaust (one per vehicle) backwards direction node
@@ -386,8 +385,6 @@ public:
     bool              beambreakdebug;
     bool              beamdeformdebug;
     bool              triggerdebug;
-    float             truckmass;
-    float             loadmass;
     int               trucknum;
     RoR::SkinDef*     usedSkin;
     Buoyance*         buoyance;
@@ -409,7 +406,6 @@ public:
     int               debugVisuals;                //!< Dbg. overlay type { NODES: 1-Numbers, 4-Mass, 5-Locked | BEAMS: 2-Numbers, 6-Compression, 7-Broken, 8-Stress, 9-Strength, 10-Hydros, 11-Commands, OTHER: 3-N&B numbers, 12-14 unknown }
     float             speedoMax;
     bool              useMaxRPMforGUI;
-    float             minimass;
     bool              cparticle_enabled;
     Ogre::Vector3     ar_origin;
     int               ar_num_cameras;
@@ -605,8 +601,12 @@ private:
     float             m_odometer_total;        //!< GUI state
     float             m_odometer_user;         //!< GUI state
     Axle*             m_axles[MAX_WHEELS/2];   //!< Physics
-    int               m_num_axles;             //!< Physics
+    int               m_num_axles;             //!< Physics attr
     int               m_num_command_beams;     //!< TODO: Remove! Spawner context only; likely unused feature
+    float             m_minimass;              //!< Physics attr; minimum node mass in Kg
+    float             m_load_mass;             //!< Physics attr; predefined load mass in Kg
+    int               m_masscount;             //!< Physics attr; Number of nodes loaded with l option
+    float             m_dry_mass;              //!< Physics attr;
 
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?

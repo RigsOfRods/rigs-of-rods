@@ -887,7 +887,7 @@ void Beam::calc_masses2(Real total, bool reCalc)
             }
             else if (!ar_nodes[i].overrideMass)
             {
-                ar_nodes[i].mass = loadmass / (float)masscount;
+                ar_nodes[i].mass = m_load_mass / (float)m_masscount;
             }
         }
     }
@@ -943,15 +943,15 @@ void Beam::calc_masses2(Real total, bool reCalc)
     {
         //LOG("Nodemass "+TOSTRING(i)+"-"+TOSTRING(ar_nodes[i].mass));
         //for stability
-        if (!ar_nodes[i].iswheel && ar_nodes[i].mass < minimass)
+        if (!ar_nodes[i].iswheel && ar_nodes[i].mass < m_minimass)
         {
             if (App::diag_truck_mass.GetActive())
             {
                 char buf[300];
-                snprintf(buf, 300, "Node '%d' mass (%f Kg) is too light. Resetting to 'minimass' (%f Kg)", i, ar_nodes[i].mass, minimass);
+                snprintf(buf, 300, "Node '%d' mass (%f Kg) is too light. Resetting to 'minimass' (%f Kg)", i, ar_nodes[i].mass, m_minimass);
                 LOG(buf);
             }
-            ar_nodes[i].mass = minimass;
+            ar_nodes[i].mass = m_minimass;
         }
     }
 
@@ -966,7 +966,7 @@ void Beam::calc_masses2(Real total, bool reCalc)
                 if (ar_nodes[i].overrideMass)
                     msg += " (overriden by node mass)";
                 else
-                    msg += " (normal load node: " + TOSTRING(loadmass) + " kg / " + TOSTRING(masscount) + " nodes)";
+                    msg += " (normal load node: " + TOSTRING(m_load_mass) + " kg / " + TOSTRING(m_masscount) + " nodes)";
             }
             LOG(msg);
         }
@@ -5636,6 +5636,9 @@ Beam::Beam(
     , m_axles{} // Init array to nullptr
     , m_has_command_beams(false)
     , m_num_command_beams(0)
+    , m_minimass(50.f)
+    , m_load_mass(0.f)
+    , m_dry_mass(0.f)
 {
     m_high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();
     useSkidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;
@@ -6017,7 +6020,7 @@ bool Beam::LoadTruck(
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_FIXES);
 
     //compute final mass
-    calc_masses2(truckmass);
+    calc_masses2(m_dry_mass);
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_CALC_MASSES);
     //setup default sounds
     if (!disable_default_sounds)
@@ -6276,7 +6279,7 @@ int Beam::getNodeCount()
 
 void Beam::setMass(float m)
 {
-    truckmass = m;
+    m_dry_mass = m;
 }
 
 bool Beam::getBrakeLightVisible()
