@@ -633,7 +633,7 @@ private:
     bool CheckCabLimit(unsigned int count);
 
     /**
-    * Checks there is still space left in rig_t::cameraRail array.
+    * Checks there is still space left in rig_t::ar_camera_rail array.
     * @param count Required number of free slots.
     * @return True if there is space left.
     */

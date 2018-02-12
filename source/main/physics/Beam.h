@@ -269,10 +269,10 @@ public:
     int               ar_num_nodes;
     beam_t*           ar_beams;
     int               ar_num_beams;
-    std::vector<beam_t*> interTruckBeams;
+    std::vector<beam_t*> ar_inter_beams;    //!< Beams connecting 2 actors
     shock_t*          shocks;               //!< Shock absorbers
     int               free_shock;           //!< Number of shock absorbers; name is historical (free index in static array)
-    bool              has_active_shocks;    //!< Are there active stabilizer shocks?
+    bool              ar_has_active_shocks;    //!< Are there active stabilizer shocks?
     rotator_t*        rotators;
     int               free_rotator;         //!< Number of rotators; name is historical (free index in static array)
     wing_t*           wings;
@@ -322,9 +322,9 @@ public:
     FlexBody*         flexbodies[MAX_FLEXBODIES];
     int               free_flexbody;
     std::vector<std::string> description;
-    int               cameraRail[MAX_CAMERARAIL];
+    int               ar_camera_rail[MAX_CAMERARAIL]; //!< Nodes defining camera-movement spline
     int               free_camerarail;
-    bool              hideInChooser;
+    bool              ar_hide_in_actor_list; //!< Hide in list of spawned actors (available in top menubar). Useful for fixed-place machinery, i.e. cranes.
     Ogre::String      realtruckname;
     bool              forwardcommands;
     bool              importcommands;
@@ -335,7 +335,7 @@ public:
     float             slopeBrakeFactor;
     float             slopeBrakeAttAngle;
     float             slopeBrakeRelAngle;
-    float             previousCrank;
+    float             ar_anim_previous_crank; //!< For 'animator' with flag 'torque'
     float             alb_ratio;          //!< Anti-lock brake attribute: Regulating force
     float             alb_minspeed;       //!< Anti-lock brake attribute;
     int               alb_mode;           //!< Anti-lock brake status; Enabled? {1/0}
@@ -355,7 +355,7 @@ public:
     float             alb_timer;
     int               antilockbrake;
     int               tractioncontrol;
-    float             animTimer;
+    float             ar_anim_shift_timer;//!< For 'animator' with flag 'shifter'
     bool              cc_mode;            //!< Cruise Control
     bool              cc_can_brake;       //!< Cruise Control
     float             cc_target_rpm;      //!< Cruise Control
@@ -366,14 +366,14 @@ public:
     float             sl_speed_limit;     //!< Speed limiter;
     int               categoryid;
     int               truckversion;
-    int               externalcameramode;
-    int               externalcameranode;
+    int               ar_extern_camera_mode;
+    int               ar_extern_camera_node;
     std::vector<authorinfo_t> authors;
     float             collrange;
     int               masscount;          //!< Number of nodes loaded with l option
     bool              disable_smoke;
-    int               smokeId;            //!< Old-format exhaust (one per vehicle) emitter node
-    int               smokeRef;           //!< Old-format exhaust (one per vehicle) backwards direction node
+    int               ar_exhaust_pos_node; //!< Old-format exhaust (one per vehicle) emitter node
+    int               ar_exhaust_dir_node; //!< Old-format exhaust (one per vehicle) backwards direction node
     char              truckname[256];
     bool              networking;
     bool              beambreakdebug;

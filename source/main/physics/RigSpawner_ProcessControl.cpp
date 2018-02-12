@@ -149,7 +149,7 @@ Beam *RigSpawner::SpawnRig()
     m_rig->wheel_contact_requested     = m_file->rollon;
     m_rig->rescuer                     = m_file->rescuer;
     m_rig->disable_default_sounds      = m_file->disable_default_sounds;
-    m_rig->hideInChooser               = m_file->hide_in_chooser;
+    m_rig->ar_hide_in_actor_list       = m_file->hide_in_chooser;
     m_rig->slideNodesConnectInstantly  = m_file->slide_nodes_connect_instantly;
 
     // Section 'authors' in root module
@@ -211,9 +211,9 @@ Beam *RigSpawner::SpawnRig()
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_NODES, nodes, ProcessNode);
 
     // Old-format exhaust (defined by flags 'x/y' in section 'nodes', one per vehicle)
-    if (m_rig->smokeId != 0 && m_rig->smokeRef != 0)
+    if (m_rig->ar_exhaust_pos_node != 0 && m_rig->ar_exhaust_dir_node != 0)
     {
-        AddExhaust(m_rig->smokeId, m_rig->smokeRef, true, nullptr);
+        AddExhaust(m_rig->ar_exhaust_pos_node, m_rig->ar_exhaust_dir_node, true, nullptr);
     }
 
     // ---------------------------- Node generating sections ----------------------------

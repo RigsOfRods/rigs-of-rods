@@ -659,7 +659,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     BES_START(BES_CORE_Shocks);
 
     //variable shocks for stabilization
-    if (this->has_active_shocks && stabcommand)
+    if (this->ar_has_active_shocks && stabcommand)
     {
         if ((stabcommand == 1 && stabratio < 0.1) || (stabcommand == -1 && stabratio > -0.1))
             stabratio = stabratio + (float)stabcommand * dt * STAB_RATE;
@@ -673,7 +673,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         }
     }
     //auto shock adjust
-    if (this->has_active_shocks && doUpdate)
+    if (this->ar_has_active_shocks && doUpdate)
     {
         stabsleep -= dt * maxsteps;
 
@@ -1583,12 +1583,12 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 
 void Beam::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 {
-    for (int i = 0; i < static_cast<int>(interTruckBeams.size()); i++)
+    for (int i = 0; i < static_cast<int>(ar_inter_beams.size()); i++)
     {
-        if (!interTruckBeams[i]->bm_disabled && interTruckBeams[i]->p2truck)
+        if (!ar_inter_beams[i]->bm_disabled && ar_inter_beams[i]->p2truck)
         {
             // Calculate beam length
-            Vector3 dis = interTruckBeams[i]->p1->AbsPosition - interTruckBeams[i]->p2->AbsPosition;
+            Vector3 dis = ar_inter_beams[i]->p1->AbsPosition - ar_inter_beams[i]->p2->AbsPosition;
 
             Real dislen = dis.squaredLength();
             Real inverted_dislen = fast_invSqrt(dislen);
@@ -1596,85 +1596,85 @@ void Beam::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxste
             dislen *= inverted_dislen;
 
             // Calculate beam's deviation from normal
-            Real difftoBeamL = dislen - interTruckBeams[i]->L;
+            Real difftoBeamL = dislen - ar_inter_beams[i]->L;
 
-            Real k = interTruckBeams[i]->k;
-            Real d = interTruckBeams[i]->d;
+            Real k = ar_inter_beams[i]->k;
+            Real d = ar_inter_beams[i]->d;
 
-            if (interTruckBeams[i]->bounded == ROPE && difftoBeamL < 0.0f)
+            if (ar_inter_beams[i]->bounded == ROPE && difftoBeamL < 0.0f)
             {
                 k = 0.0f;
                 d *= 0.1f;
             }
 
             // Calculate beam's rate of change
-            Vector3 v = interTruckBeams[i]->p1->Velocity - interTruckBeams[i]->p2->Velocity;
+            Vector3 v = ar_inter_beams[i]->p1->Velocity - ar_inter_beams[i]->p2->Velocity;
 
             float slen = -k * (difftoBeamL) - d * v.dotProduct(dis) * inverted_dislen;
-            interTruckBeams[i]->stress = slen;
+            ar_inter_beams[i]->stress = slen;
 
             // Fast test for deformation
             float len = std::abs(slen);
-            if (len > interTruckBeams[i]->minmaxposnegstress)
+            if (len > ar_inter_beams[i]->minmaxposnegstress)
             {
-                if ((interTruckBeams[i]->bm_type == BEAM_NORMAL || interTruckBeams[i]->bm_type == BEAM_INVISIBLE) && interTruckBeams[i]->bounded != SHOCK1 && k != 0.0f)
+                if ((ar_inter_beams[i]->bm_type == BEAM_NORMAL || ar_inter_beams[i]->bm_type == BEAM_INVISIBLE) && ar_inter_beams[i]->bounded != SHOCK1 && k != 0.0f)
                 {
                     // Actual deformation tests
-                    if (slen > interTruckBeams[i]->maxposstress && difftoBeamL < 0.0f) // compression
+                    if (slen > ar_inter_beams[i]->maxposstress && difftoBeamL < 0.0f) // compression
                     {
-                        Real yield_length = interTruckBeams[i]->maxposstress / k;
-                        Real deform = difftoBeamL + yield_length * (1.0f - interTruckBeams[i]->plastic_coef);
-                        Real Lold = interTruckBeams[i]->L;
-                        interTruckBeams[i]->L += deform;
-                        interTruckBeams[i]->L = std::max(MIN_BEAM_LENGTH, interTruckBeams[i]->L);
-                        slen = slen - (slen - interTruckBeams[i]->maxposstress) * 0.5f;
+                        Real yield_length = ar_inter_beams[i]->maxposstress / k;
+                        Real deform = difftoBeamL + yield_length * (1.0f - ar_inter_beams[i]->plastic_coef);
+                        Real Lold = ar_inter_beams[i]->L;
+                        ar_inter_beams[i]->L += deform;
+                        ar_inter_beams[i]->L = std::max(MIN_BEAM_LENGTH, ar_inter_beams[i]->L);
+                        slen = slen - (slen - ar_inter_beams[i]->maxposstress) * 0.5f;
                         len = slen;
-                        if (interTruckBeams[i]->L > 0.0f && Lold > interTruckBeams[i]->L)
+                        if (ar_inter_beams[i]->L > 0.0f && Lold > ar_inter_beams[i]->L)
                         {
-                            interTruckBeams[i]->maxposstress *= Lold / interTruckBeams[i]->L;
-                            interTruckBeams[i]->minmaxposnegstress = std::min(interTruckBeams[i]->maxposstress, -interTruckBeams[i]->maxnegstress);
-                            interTruckBeams[i]->minmaxposnegstress = std::min(interTruckBeams[i]->minmaxposnegstress, interTruckBeams[i]->strength);
+                            ar_inter_beams[i]->maxposstress *= Lold / ar_inter_beams[i]->L;
+                            ar_inter_beams[i]->minmaxposnegstress = std::min(ar_inter_beams[i]->maxposstress, -ar_inter_beams[i]->maxnegstress);
+                            ar_inter_beams[i]->minmaxposnegstress = std::min(ar_inter_beams[i]->minmaxposnegstress, ar_inter_beams[i]->strength);
                         }
                         // For the compression case we do not remove any of the beam's
                         // strength for structure stability reasons
-                        //interTruckBeams[i]->strength += deform * k * 0.5f;
+                        //ar_inter_beams[i]->strength += deform * k * 0.5f;
                         if (beamdeformdebug)
                         {
                             RoR::Str<300> msg;
                             msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
-                                << len << " / " << interTruckBeams[i]->strength << ". ";
-                            LogBeamNodes(msg, (*interTruckBeams[i]));
+                                << len << " / " << ar_inter_beams[i]->strength << ". ";
+                            LogBeamNodes(msg, (*ar_inter_beams[i]));
                             RoR::Log(msg.ToCStr());
                         }
                     }
-                    else if (slen < interTruckBeams[i]->maxnegstress && difftoBeamL > 0.0f) // expansion
+                    else if (slen < ar_inter_beams[i]->maxnegstress && difftoBeamL > 0.0f) // expansion
                     {
-                        Real yield_length = interTruckBeams[i]->maxnegstress / k;
-                        Real deform = difftoBeamL + yield_length * (1.0f - interTruckBeams[i]->plastic_coef);
-                        Real Lold = interTruckBeams[i]->L;
-                        interTruckBeams[i]->L += deform;
-                        slen = slen - (slen - interTruckBeams[i]->maxnegstress) * 0.5f;
+                        Real yield_length = ar_inter_beams[i]->maxnegstress / k;
+                        Real deform = difftoBeamL + yield_length * (1.0f - ar_inter_beams[i]->plastic_coef);
+                        Real Lold = ar_inter_beams[i]->L;
+                        ar_inter_beams[i]->L += deform;
+                        slen = slen - (slen - ar_inter_beams[i]->maxnegstress) * 0.5f;
                         len = -slen;
-                        if (Lold > 0.0f && interTruckBeams[i]->L > Lold)
+                        if (Lold > 0.0f && ar_inter_beams[i]->L > Lold)
                         {
-                            interTruckBeams[i]->maxnegstress *= interTruckBeams[i]->L / Lold;
-                            interTruckBeams[i]->minmaxposnegstress = std::min(interTruckBeams[i]->maxposstress, -interTruckBeams[i]->maxnegstress);
-                            interTruckBeams[i]->minmaxposnegstress = std::min(interTruckBeams[i]->minmaxposnegstress, interTruckBeams[i]->strength);
+                            ar_inter_beams[i]->maxnegstress *= ar_inter_beams[i]->L / Lold;
+                            ar_inter_beams[i]->minmaxposnegstress = std::min(ar_inter_beams[i]->maxposstress, -ar_inter_beams[i]->maxnegstress);
+                            ar_inter_beams[i]->minmaxposnegstress = std::min(ar_inter_beams[i]->minmaxposnegstress, ar_inter_beams[i]->strength);
                         }
-                        interTruckBeams[i]->strength -= deform * k;
+                        ar_inter_beams[i]->strength -= deform * k;
                         if (beamdeformdebug)
                         {
                             RoR::Str<300> msg;
                             msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
-                                << len << " / " << interTruckBeams[i]->strength << ". ";
-                            LogBeamNodes(msg, (*interTruckBeams[i]));
+                                << len << " / " << ar_inter_beams[i]->strength << ". ";
+                            LogBeamNodes(msg, (*ar_inter_beams[i]));
                             RoR::Log(msg.ToCStr());
                         }
                     }
                 }
 
                 // Test if the beam should break
-                if (len > interTruckBeams[i]->strength)
+                if (len > ar_inter_beams[i]->strength)
                 {
                     // Sound effect.
                     // Sound volume depends on springs stored energy
@@ -1684,23 +1684,23 @@ void Beam::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxste
                     //Break the beam only when it is not connected to a node
                     //which is a part of a collision triangle and has 2 "live" beams or less
                     //connected to it.
-                    if (!((interTruckBeams[i]->p1->contacter && nodeBeamConnections(interTruckBeams[i]->p1->pos) < 3) || (interTruckBeams[i]->p2->contacter && nodeBeamConnections(interTruckBeams[i]->p2->pos) < 3)))
+                    if (!((ar_inter_beams[i]->p1->contacter && nodeBeamConnections(ar_inter_beams[i]->p1->pos) < 3) || (ar_inter_beams[i]->p2->contacter && nodeBeamConnections(ar_inter_beams[i]->p2->pos) < 3)))
                     {
                         slen = 0.0f;
-                        interTruckBeams[i]->bm_broken = true;
-                        interTruckBeams[i]->bm_disabled = true;
+                        ar_inter_beams[i]->bm_broken = true;
+                        ar_inter_beams[i]->bm_disabled = true;
 
                         if (beambreakdebug)
                         {
                             RoR::Str<200> msg;
-                            msg << "[RoR|Diag] XXX Beam " << i << " just broke with force " << len << " / " << interTruckBeams[i]->strength << ". ";
-                            LogBeamNodes(msg, (*interTruckBeams[i]));
+                            msg << "[RoR|Diag] XXX Beam " << i << " just broke with force " << len << " / " << ar_inter_beams[i]->strength << ". ";
+                            LogBeamNodes(msg, (*ar_inter_beams[i]));
                             RoR::Log(msg.ToCStr());
                         }
                     }
                     else
                     {
-                        interTruckBeams[i]->strength = 2.0f * interTruckBeams[i]->minmaxposnegstress;
+                        ar_inter_beams[i]->strength = 2.0f * ar_inter_beams[i]->minmaxposnegstress;
                     }
                 }
             }
@@ -1708,8 +1708,8 @@ void Beam::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxste
             // At last update the beam forces
             Vector3 f = dis;
             f *= (slen * inverted_dislen);
-            interTruckBeams[i]->p1->Forces += f;
-            interTruckBeams[i]->p2->Forces -= f;
+            ar_inter_beams[i]->p1->Forces += f;
+            ar_inter_beams[i]->p2->Forces -= f;
         }
     }
 }

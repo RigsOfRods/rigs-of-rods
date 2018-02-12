@@ -303,8 +303,8 @@ void RigSpawner::InitializeRig()
     m_rig->has_slope_brake=false;
     m_rig->categoryid=-1;
     m_rig->truckversion=-1;
-    m_rig->externalcameramode=0;
-    m_rig->externalcameranode=-1;
+    m_rig->ar_extern_camera_mode=0;
+    m_rig->ar_extern_camera_node=-1;
     m_rig->authors.clear();
     m_rig->slideNodesConnectInstantly=false;
 
@@ -317,8 +317,8 @@ void RigSpawner::InitializeRig()
     m_rig->collrange=DEFAULT_COLLISION_RANGE;
     m_rig->masscount=0;
     m_rig->disable_smoke = App::gfx_particles_mode.GetActive() == 0;
-    m_rig->smokeId=0;
-    m_rig->smokeRef=0;
+    m_rig->ar_exhaust_pos_node=0;
+    m_rig->ar_exhaust_dir_node=0;
     m_rig->beambreakdebug  = App::diag_log_beam_break.GetActive(); // TODO: make interactive - don't copy Gvar, use it directly
     m_rig->beamdeformdebug = App::diag_log_beam_deform.GetActive();
     m_rig->triggerdebug    = App::diag_log_beam_trigger.GetActive();
@@ -399,7 +399,7 @@ void RigSpawner::InitializeRig()
     m_rig->alb_pulse_state = false;
     m_rig->alb_ratio = 0.0f;
     m_rig->alb_timer = 0.0f;
-    m_rig->animTimer = 0.0f;
+    m_rig->ar_anim_shift_timer = 0.0f;
     m_rig->antilockbrake = 0;
 
     m_rig->cabMesh = nullptr;
@@ -417,9 +417,9 @@ void RigSpawner::InitializeRig()
     m_rig->driverSeat = nullptr;
 
     m_rig->heathaze = !m_rig->disable_smoke && App::gfx_enable_heathaze.GetActive();
-    m_rig->hideInChooser = false;
+    m_rig->ar_hide_in_actor_list = false;
 
-    m_rig->previousCrank = 0.f;
+    m_rig->ar_anim_previous_crank = 0.f;
 
     m_rig->sl_enabled = false;
     m_rig->sl_speed_limit = 0.f;
@@ -1377,7 +1377,7 @@ void RigSpawner::ProcessCameraRail(RigDef::CameraRail & def)
         {
             return;
         }
-        m_rig->cameraRail[m_rig->free_camerarail] = GetNodeIndexOrThrow(*itor);
+        m_rig->ar_camera_rail[m_rig->free_camerarail] = GetNodeIndexOrThrow(*itor);
         m_rig->free_camerarail++;
     }
 }
@@ -1386,10 +1386,10 @@ void RigSpawner::ProcessExtCamera(RigDef::ExtCamera & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    m_rig->externalcameramode = def.mode;
+    m_rig->ar_extern_camera_mode = def.mode;
     if (def.node.IsValidAnyState())
     {
-        m_rig->externalcameranode = GetNodeIndexOrThrow(def.node);
+        m_rig->ar_extern_camera_node = GetNodeIndexOrThrow(def.node);
     }
 }
 
@@ -3955,13 +3955,13 @@ void RigSpawner::ProcessShock(RigDef::Shock & def)
     {
         BITMASK_SET_0(shock_flags, SHOCK_FLAG_NORMAL); /* Not normal anymore */
         BITMASK_SET_1(shock_flags, SHOCK_FLAG_LACTIVE);
-        m_rig->has_active_shocks = true;
+        m_rig->ar_has_active_shocks = true;
     }
     if (BITMASK_IS_1(def.options, RigDef::Shock::OPTION_R_ACTIVE_RIGHT))
     {
         BITMASK_SET_0(shock_flags, SHOCK_FLAG_NORMAL); /* Not normal anymore */
         BITMASK_SET_1(shock_flags, SHOCK_FLAG_RACTIVE);
-        m_rig->has_active_shocks = true;
+        m_rig->ar_has_active_shocks = true;
     }
     if (BITMASK_IS_1(def.options, RigDef::Shock::OPTION_m_METRIC))
     {
@@ -6257,8 +6257,8 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
     node.disable_sparks    = BITMASK_IS_1(options, RigDef::Node::OPTION_f_NO_SPARKS);
     node.no_mouse_grab     = BITMASK_IS_1(options, RigDef::Node::OPTION_m_NO_MOUSE_GRAB);
 
-    m_rig->smokeRef        = BITMASK_IS_1(options, RigDef::Node::OPTION_y_EXHAUST_DIRECTION) ? node.pos : 0;
-    m_rig->smokeId         = BITMASK_IS_1(options, RigDef::Node::OPTION_x_EXHAUST_POINT) ? node.pos : 0;
+    m_rig->ar_exhaust_dir_node        = BITMASK_IS_1(options, RigDef::Node::OPTION_y_EXHAUST_DIRECTION) ? node.pos : 0;
+    m_rig->ar_exhaust_pos_node         = BITMASK_IS_1(options, RigDef::Node::OPTION_x_EXHAUST_POINT) ? node.pos : 0;
 
     // Update "fusedrag" autocalc y & z span
     if (def.position.z < m_fuse_z_min) { m_fuse_z_min = def.position.z; }
@@ -6749,7 +6749,7 @@ void RigSpawner::SetupDefaultSoundSources(Beam *vehicle)
     SPAWNER_PROFILE_SCOPED();
 
     int trucknum = vehicle->trucknum;
-    int smokeId = vehicle->smokeId;
+    int ar_exhaust_pos_node = vehicle->ar_exhaust_pos_node;
 
 #ifdef USE_OPENAL
     if (SoundScriptManager::getSingleton().isDisabled()) 
@@ -6762,25 +6762,25 @@ void RigSpawner::SetupDefaultSoundSources(Beam *vehicle)
     {
         if (vehicle->engine->type=='t')
         {
-            AddSoundSourceInstance(vehicle, "tracks/default_diesel", smokeId);
-            AddSoundSourceInstance(vehicle, "tracks/default_force", smokeId);
+            AddSoundSourceInstance(vehicle, "tracks/default_diesel", ar_exhaust_pos_node);
+            AddSoundSourceInstance(vehicle, "tracks/default_force", ar_exhaust_pos_node);
             AddSoundSourceInstance(vehicle, "tracks/default_brakes", 0);
             AddSoundSourceInstance(vehicle, "tracks/default_parkbrakes", 0);
             AddSoundSourceInstance(vehicle, "tracks/default_reverse_beep", 0);
         }
         if (vehicle->engine->type=='c')
-            AddSoundSourceInstance(vehicle, "tracks/default_car", smokeId);
+            AddSoundSourceInstance(vehicle, "tracks/default_car", ar_exhaust_pos_node);
         if (vehicle->engine->hasTurbo())
         {
             if (vehicle->engine->turboInertiaFactor >= 3)
-                AddSoundSourceInstance(vehicle, "tracks/default_turbo_big", smokeId);
+                AddSoundSourceInstance(vehicle, "tracks/default_turbo_big", ar_exhaust_pos_node);
             else if (vehicle->engine->turboInertiaFactor <= 0.5)
-                AddSoundSourceInstance(vehicle, "tracks/default_turbo_small", smokeId);
+                AddSoundSourceInstance(vehicle, "tracks/default_turbo_small", ar_exhaust_pos_node);
             else
-                AddSoundSourceInstance(vehicle, "tracks/default_turbo_mid", smokeId);
+                AddSoundSourceInstance(vehicle, "tracks/default_turbo_mid", ar_exhaust_pos_node);
 
-            AddSoundSourceInstance(vehicle, "tracks/default_turbo_bov", smokeId);
-            AddSoundSourceInstance(vehicle, "tracks/default_wastegate_flutter", smokeId);
+            AddSoundSourceInstance(vehicle, "tracks/default_turbo_bov", ar_exhaust_pos_node);
+            AddSoundSourceInstance(vehicle, "tracks/default_wastegate_flutter", ar_exhaust_pos_node);
         }
             
         if (vehicle->engine->hasair)
@@ -6827,9 +6827,9 @@ void RigSpawner::SetupDefaultSoundSources(Beam *vehicle)
     if (vehicle->driveable==BOAT)
     {
         if (vehicle->totalmass>50000.0)
-            AddSoundSourceInstance(vehicle, "tracks/default_marine_large", smokeId);
+            AddSoundSourceInstance(vehicle, "tracks/default_marine_large", ar_exhaust_pos_node);
         else
-            AddSoundSourceInstance(vehicle, "tracks/default_marine_small", smokeId);
+            AddSoundSourceInstance(vehicle, "tracks/default_marine_small", ar_exhaust_pos_node);
         //no start/stop engine for boats, so set sound always on!
         SOUND_START(trucknum, SS_TRIG_ENGINE);
         SOUND_MODULATE(trucknum, SS_MOD_ENGINE, 0.5);
