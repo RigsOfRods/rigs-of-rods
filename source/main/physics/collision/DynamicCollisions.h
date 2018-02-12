@@ -24,14 +24,13 @@
 #include "ForwardDeclarations.h"
 #include "BeamData.h"
 
-void interTruckCollisions(const float dt, PointColDetector &interPointCD,
+void ResolveInterActorCollisions(const float dt, PointColDetector &interPointCD,
         const int free_collcab, int collcabs[], int cabs[],
         collcab_rate_t inter_collcabrate[], node_t nodes[],
-        const float collrange, Actor **trucks,
-        const int numtrucks,
+        const float collrange,
         ground_model_t &submesh_ground_model);
 
-void intraTruckCollisions(const float dt, PointColDetector &intraPointCD,
+void ResolveIntraActorCollisions(const float dt, PointColDetector &intraPointCD,
         const int free_collcab, int collcabs[], int cabs[],
         collcab_rate_t intra_collcabrate[], node_t nodes[],
         const float collrange,

@@ -33,8 +33,8 @@
 // ug... BAD PERFORMNCE, BAD!!
 void Actor::ToggleSlideNodeLock()
 {
-    int trucksnum = RoR::App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots();
-    int curTruck = RoR::App::GetSimController()->GetBeamFactory()->GetPlayerActorId();
+    unsigned int num_slots = static_cast<unsigned int>(RoR::App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots());
+    int player_actor_id = RoR::App::GetSimController()->GetBeamFactory()->GetPlayerActorId();
 
     // for every slide node on this truck
     for (std::vector<SlideNode>::iterator itNode = m_slidenodes.begin(); itNode != m_slidenodes.end(); itNode++)
@@ -53,11 +53,11 @@ void Actor::ToggleSlideNodeLock()
         }
 
         // check all the slide rail on all the other trucks :(
-        for (unsigned int i = 0; i < (unsigned int) trucksnum; ++i)
+        for (unsigned int i = 0; i < num_slots; ++i)
         {
             // make sure this truck is allowed
-            if (!((curTruck != i && itNode->getAttachRule(ATTACH_FOREIGN)) ||
-                (curTruck == i && itNode->getAttachRule(ATTACH_SELF))))
+            if (!((player_actor_id != i && itNode->getAttachRule(ATTACH_FOREIGN)) ||
+                (player_actor_id == i && itNode->getAttachRule(ATTACH_SELF))))
                 continue;
 
             current = GetClosestRailOnActor(RoR::App::GetSimController()->GetActorById(i), (*itNode));
@@ -71,14 +71,14 @@ void Actor::ToggleSlideNodeLock()
     m_slidenodes_locked = !m_slidenodes_locked;
 } // is ugly....
 
-std::pair<RailGroup*, Ogre::Real> Actor::GetClosestRailOnActor(Actor* truck, const SlideNode& node)
+std::pair<RailGroup*, Ogre::Real> Actor::GetClosestRailOnActor(Actor* actor, const SlideNode& node)
 {
     std::pair<RailGroup*, Ogre::Real> closest((RailGroup*)NULL, std::numeric_limits<Ogre::Real>::infinity());
     Rail* curRail = NULL;
     Ogre::Real lenToCurRail = std::numeric_limits<Ogre::Real>::infinity();
 
-    for (std::vector<RailGroup*>::iterator itGroup = truck->m_railgroups.begin();
-         itGroup != truck->m_railgroups.end();
+    for (std::vector<RailGroup*>::iterator itGroup = actor->m_railgroups.begin();
+         itGroup != actor->m_railgroups.end();
          itGroup++)
     {
         // find the rail closest to the Node

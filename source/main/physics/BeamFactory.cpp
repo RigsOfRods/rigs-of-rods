@@ -1173,7 +1173,7 @@ void ActorManager::UpdatePhysicsSimulation()
                                 if (!m_actors[t]->ar_disable_self_collision)
                                 {
                                     m_actors[t]->IntraPointCD()->update(m_actors[t]);
-                                    intraTruckCollisions(PHYSICS_DT,
+                                    ResolveIntraActorCollisions(PHYSICS_DT,
                                         *(m_actors[t]->IntraPointCD()),
                                         m_actors[t]->ar_num_collcabs,
                                         m_actors[t]->ar_collcabs,
@@ -1208,7 +1208,7 @@ void ActorManager::UpdatePhysicsSimulation()
                                 m_actors[t]->InterPointCD()->update(m_actors[t], m_actors, m_free_actor_slot);
                                 if (m_actors[t]->ar_collision_relevant)
                                 {
-                                    interTruckCollisions(PHYSICS_DT,
+                                    ResolveInterActorCollisions(PHYSICS_DT,
                                         *(m_actors[t]->InterPointCD()),
                                         m_actors[t]->ar_num_collcabs,
                                         m_actors[t]->ar_collcabs,
@@ -1216,7 +1216,6 @@ void ActorManager::UpdatePhysicsSimulation()
                                         m_actors[t]->ar_inter_collcabrate,
                                         m_actors[t]->ar_nodes,
                                         m_actors[t]->ar_collision_range,
-                                        m_actors, m_free_actor_slot,
                                         *(m_actors[t]->ar_submesh_ground_model));
                                 }
                             });
@@ -1244,7 +1243,7 @@ void ActorManager::UpdatePhysicsSimulation()
                     if (!m_actors[t]->ar_disable_self_collision)
                     {
                         m_actors[t]->IntraPointCD()->update(m_actors[t]);
-                        intraTruckCollisions(PHYSICS_DT,
+                        ResolveIntraActorCollisions(PHYSICS_DT,
                             *(m_actors[t]->IntraPointCD()),
                             m_actors[t]->ar_num_collcabs,
                             m_actors[t]->ar_collcabs,
@@ -1267,7 +1266,7 @@ void ActorManager::UpdatePhysicsSimulation()
                         m_actors[t]->InterPointCD()->update(m_actors[t], m_actors, m_free_actor_slot);
                         if (m_actors[t]->ar_collision_relevant)
                         {
-                            interTruckCollisions(
+                            ResolveInterActorCollisions(
                                 PHYSICS_DT,
                                 *(m_actors[t]->InterPointCD()),
                                 m_actors[t]->ar_num_collcabs,
@@ -1276,7 +1275,6 @@ void ActorManager::UpdatePhysicsSimulation()
                                 m_actors[t]->ar_inter_collcabrate,
                                 m_actors[t]->ar_nodes,
                                 m_actors[t]->ar_collision_range,
-                                m_actors, m_free_actor_slot,
                                 *(m_actors[t]->ar_submesh_ground_model));
                         }
                     }

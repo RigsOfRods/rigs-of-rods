@@ -37,44 +37,54 @@
 using namespace Ogre;
 
 PointColDetector::PointColDetector()
-    : object_list_size(-1)
+    : m_object_list_size(-1)
 {
 }
 
-PointColDetector::~PointColDetector() {
+PointColDetector::~PointColDetector()
+{
 }
 
-void PointColDetector::update(Actor* truck, bool ignorestate) {
+void PointColDetector::update(Actor* actor, bool ignorestate)
+{
     int contacters_size = 0;
 
-    if (truck && (ignorestate || truck->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)) {
-        m_trucks.resize(1, truck);
-        contacters_size += truck->ar_num_contacters;
-    } else {
-        m_trucks.clear();
+    if (actor && (ignorestate || actor->ar_sim_state < Actor::SimState::LOCAL_SLEEPING))
+    {
+        m_actors.resize(1, actor);
+        contacters_size += actor->ar_num_contacters;
+    }
+    else
+    {
+        m_actors.clear();
     }
 
-    if (contacters_size != object_list_size) {
-        object_list_size = contacters_size;
+    if (contacters_size != m_object_list_size)
+    {
+        m_object_list_size = contacters_size;
         update_structures_for_contacters();
     }
 
-    kdtree[0].ref = NULL;
-    kdtree[0].begin = 0;
-    kdtree[0].end = -object_list_size;
+    m_kdtree[0].ref = NULL;
+    m_kdtree[0].begin = 0;
+    m_kdtree[0].end = -m_object_list_size;
 }
 
-void PointColDetector::update(Actor* truck, Actor** trucks, const int numtrucks, bool ignorestate) {
+void PointColDetector::update(Actor* truck, Actor** trucks, const int numtrucks, bool ignorestate)
+{
     bool update_required = false;
     int contacters_size = 0;
 
-    if (truck && (ignorestate || truck->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)) {
+    if (truck && (ignorestate || truck->ar_sim_state < Actor::SimState::LOCAL_SLEEPING))
+    {
         truck->ar_collision_relevant = false;
-        m_trucks.resize(numtrucks);
-        for (int t = 0; t < numtrucks; t++) {
-            if (t != truck->ar_instance_id && trucks[t] && (ignorestate || trucks[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING) && truck->ar_bounding_box.intersects(trucks[t]->ar_bounding_box)) {
-                update_required = update_required || (m_trucks[t] != trucks[t]);
-                m_trucks[t] = trucks[t];
+        m_actors.resize(numtrucks);
+        for (int t = 0; t < numtrucks; t++)
+        {
+            if (t != truck->ar_instance_id && trucks[t] && (ignorestate || trucks[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING) && truck->ar_bounding_box.intersects(trucks[t]->ar_bounding_box))
+            {
+                update_required = update_required || (m_actors[t] != trucks[t]);
+                m_actors[t] = trucks[t];
                 truck->ar_collision_relevant = true;
                 contacters_size += trucks[t]->ar_num_contacters;
                 if (truck->ar_nodes[0].Velocity.squaredDistance(trucks[t]->ar_nodes[0].Velocity) > 25)
@@ -90,96 +100,110 @@ void PointColDetector::update(Actor* truck, Actor** trucks, const int numtrucks,
                         trucks[t]->ar_inter_collcabrate[i].rate = 0;
                     }
                 }
-            } else {
-                m_trucks[t] = 0;
+            }
+            else
+            {
+                m_actors[t] = 0;
             }
         }
-    } else {
-        m_trucks.clear();
+    }
+    else
+    {
+        m_actors.clear();
     }
 
-    if (update_required || contacters_size != object_list_size) {
-        object_list_size = contacters_size;
+    if (update_required || contacters_size != m_object_list_size)
+    {
+        m_object_list_size = contacters_size;
         update_structures_for_contacters();
     }
 
-    kdtree[0].ref = NULL;
-    kdtree[0].begin = 0;
-    kdtree[0].end = -object_list_size;
+    m_kdtree[0].ref = NULL;
+    m_kdtree[0].begin = 0;
+    m_kdtree[0].end = -m_object_list_size;
 }
 
-void PointColDetector::update_structures_for_contacters() {
+void PointColDetector::update_structures_for_contacters()
+{
     kdnode_t kdelem = {0.0f, 0, 0.0f, NULL, 0.0f, 0};
-    hit_list.resize(object_list_size, NULL);
-    int exp_factor = std::max(0, (int) ceil(LOG2(object_list_size)) + 1);
+    hit_list.resize(m_object_list_size, NULL);
+    int exp_factor = std::max(0, (int) ceil(LOG2(m_object_list_size)) + 1);
 
-    ref_list.clear();
-    pointid_list.clear();
+    m_ref_list.clear();
+    m_pointid_list.clear();
 
-    ref_list.resize(object_list_size);
-    pointid_list.resize(object_list_size);
+    m_ref_list.resize(m_object_list_size);
+    m_pointid_list.resize(m_object_list_size);
 
     int refi = 0;
 
     //Insert all contacters, into the list of points to consider when building the kdtree
-    for (int t = 0; t < static_cast<int>(m_trucks.size()); t++) {
-        if (m_trucks[t]) {
-            for (int i = 0; i < m_trucks[t]->ar_num_contacters; ++i) {
-                ref_list[refi].pidref = &pointid_list[refi];
-                pointid_list[refi].truckid = t;
-                pointid_list[refi].nodeid = m_trucks[t]->ar_contacters[i].nodeid;
-                ref_list[refi].point = &(m_trucks[t]->ar_nodes[pointid_list[refi].nodeid].AbsPosition.x);
+    for (int t = 0; t < static_cast<int>(m_actors.size()); t++)
+    {
+        if (m_actors[t])
+        {
+            for (int i = 0; i < m_actors[t]->ar_num_contacters; ++i)
+            {
+                m_ref_list[refi].pidref = &m_pointid_list[refi];
+                m_pointid_list[refi].actor_id = t;
+                m_pointid_list[refi].node_id = m_actors[t]->ar_contacters[i].nodeid;
+                m_ref_list[refi].point = &(m_actors[t]->ar_nodes[m_pointid_list[refi].node_id].AbsPosition.x);
                 refi++;
             }
         }
     }
 
-    kdtree.resize(pow(2.f, exp_factor), kdelem);
+    m_kdtree.resize(pow(2.f, exp_factor), kdelem);
 }
 
 void PointColDetector::query(const Vector3 &vec1, const Vector3 &vec2, const Vector3 &vec3, float enlargeBB) {
     Vector3 enlarge = Vector3(enlargeBB, enlargeBB, enlargeBB);
 
-    bbmin = vec1;
-      
-    bbmin.x = std::min(vec2.x, bbmin.x);
-    bbmin.x = std::min(vec3.x, bbmin.x);
-                                
-    bbmin.y = std::min(vec2.y, bbmin.y);
-    bbmin.y = std::min(vec3.y, bbmin.y);
-                                
-    bbmin.z = std::min(vec2.z, bbmin.z);
-    bbmin.z = std::min(vec3.z, bbmin.z);
-      
-    bbmin -= enlarge;
-     
-    bbmax = vec1;
-      
-    bbmax.x = std::max(bbmax.x, vec2.x);
-    bbmax.x = std::max(bbmax.x, vec3.x);
-                                     
-    bbmax.y = std::max(bbmax.y, vec2.y);
-    bbmax.y = std::max(bbmax.y, vec3.y);
-                                     
-    bbmax.z = std::max(bbmax.z, vec2.z);
-    bbmax.z = std::max(bbmax.z, vec3.z);
-      
-    bbmax += enlarge;
+    m_bbmin = vec1;
+
+    m_bbmin.x = std::min(vec2.x, m_bbmin.x);
+    m_bbmin.x = std::min(vec3.x, m_bbmin.x);
+
+    m_bbmin.y = std::min(vec2.y, m_bbmin.y);
+    m_bbmin.y = std::min(vec3.y, m_bbmin.y);
+
+    m_bbmin.z = std::min(vec2.z, m_bbmin.z);
+    m_bbmin.z = std::min(vec3.z, m_bbmin.z);
+
+    m_bbmin -= enlarge;
+
+    m_bbmax = vec1;
+
+    m_bbmax.x = std::max(m_bbmax.x, vec2.x);
+    m_bbmax.x = std::max(m_bbmax.x, vec3.x);
+
+    m_bbmax.y = std::max(m_bbmax.y, vec2.y);
+    m_bbmax.y = std::max(m_bbmax.y, vec3.y);
+
+    m_bbmax.z = std::max(m_bbmax.z, vec2.z);
+    m_bbmax.z = std::max(m_bbmax.z, vec3.z);
+
+    m_bbmax += enlarge;
 
     hit_count = 0;
     queryrec(0, 0);
 }
 
-void PointColDetector::queryrec(int kdindex, int axis) {
-    for (;;) {
-        if (kdtree[kdindex].end < 0) {
+void PointColDetector::queryrec(int kdindex, int axis)
+{
+    for (;;)
+    {
+        if (m_kdtree[kdindex].end < 0)
+        {
             build_kdtree_incr(axis, kdindex);
         }
 
-        if (kdtree[kdindex].ref != NULL) {
-            float *point = kdtree[kdindex].ref->point;
-            if (point[0] >= bbmin.x && point[0] <= bbmax.x && point[1] >= bbmin.y && point[1] <= bbmax.y && point[2] >= bbmin.z && point[2] <= bbmax.z ) {
-                hit_list[hit_count] = kdtree[kdindex].ref->pidref;
+        if (m_kdtree[kdindex].ref != NULL)
+        {
+            float *point = m_kdtree[kdindex].ref->point;
+            if (point[0] >= m_bbmin.x && point[0] <= m_bbmax.x && point[1] >= m_bbmin.y && point[1] <= m_bbmax.y && point[2] >= m_bbmin.z && point[2] <= m_bbmax.z )
+            {
+                hit_list[hit_count] = m_kdtree[kdindex].ref->pidref;
                 hit_count++;
             }
             return;
@@ -188,8 +212,10 @@ void PointColDetector::queryrec(int kdindex, int axis) {
         int newaxis;
         int newindex;
 
-        if (bbmax[axis] >= kdtree[kdindex].middle) {
-            if (bbmin[axis] > kdtree[kdindex].max) {
+        if (m_bbmax[axis] >= m_kdtree[kdindex].middle)
+        {
+            if (m_bbmin[axis] > m_kdtree[kdindex].max)
+            {
                 return;
             }
 
@@ -201,22 +227,26 @@ void PointColDetector::queryrec(int kdindex, int axis) {
 
             newindex = kdindex + kdindex + 1;
 
-            if (bbmin[axis] <= kdtree[kdindex].middle) {
+            if (m_bbmin[axis] <= m_kdtree[kdindex].middle)
+            {
                 queryrec(newindex, newaxis);
             }
 
             kdindex = newindex + 1;
             axis = newaxis;
         }
-        else {
-            if (bbmax[axis] < kdtree[kdindex].min) {
+        else
+        {
+            if (m_bbmax[axis] < m_kdtree[kdindex].min)
+            {
                 return;
             }
 
             kdindex = 2 * kdindex + 1;
             axis++;
 
-            if (axis >= 3) {
+            if (axis >= 3)
+            {
                 axis = 0;
             }
         }
@@ -225,64 +255,70 @@ void PointColDetector::queryrec(int kdindex, int axis) {
 
 void PointColDetector::build_kdtree_incr(int axis, int index)
 {
-    int end = -kdtree[index].end;
-    kdtree[index].end = end;
-    int begin = kdtree[index].begin;
+    int end = -m_kdtree[index].end;
+    m_kdtree[index].end = end;
+    int begin = m_kdtree[index].begin;
     int median;
     int slice_size = end - begin;
-    if (slice_size != 1) {
+    if (slice_size != 1)
+    {
         int newindex=index+index+1;
-        if (slice_size == 2) {
+        if (slice_size == 2)
+        {
             median = begin+1;
-            if (ref_list[begin].point[axis] > ref_list[median].point[axis]) {
-                std::swap(ref_list[begin], ref_list[median]);
+            if (m_ref_list[begin].point[axis] > m_ref_list[median].point[axis])
+            {
+                std::swap(m_ref_list[begin], m_ref_list[median]);
             }
 
-            kdtree[index].min = ref_list[begin].point[axis];
-            kdtree[index].max = ref_list[median].point[axis];
-            kdtree[index].middle = kdtree[index].max;
-            kdtree[index].ref = NULL;
+            m_kdtree[index].min = m_ref_list[begin].point[axis];
+            m_kdtree[index].max = m_ref_list[median].point[axis];
+            m_kdtree[index].middle = m_kdtree[index].max;
+            m_kdtree[index].ref = NULL;
 
             axis++;
-            if (axis >= 3) {
+            if (axis >= 3)
+            {
                 axis = 0;
             }
 
-            kdtree[newindex].ref = &ref_list[begin];
-            kdtree[newindex].middle = kdtree[newindex].ref->point[axis];
-            kdtree[newindex].min = kdtree[newindex].middle;
-            kdtree[newindex].max = kdtree[newindex].middle;
-            kdtree[newindex].end = median;
+            m_kdtree[newindex].ref = &m_ref_list[begin];
+            m_kdtree[newindex].middle = m_kdtree[newindex].ref->point[axis];
+            m_kdtree[newindex].min = m_kdtree[newindex].middle;
+            m_kdtree[newindex].max = m_kdtree[newindex].middle;
+            m_kdtree[newindex].end = median;
             newindex++;
 
-            kdtree[newindex].ref = &ref_list[median];
-            kdtree[newindex].middle = kdtree[newindex].ref->point[axis];
-            kdtree[newindex].min = kdtree[newindex].middle;
-            kdtree[newindex].max = kdtree[newindex].middle;
-            kdtree[newindex].end = end;
+            m_kdtree[newindex].ref = &m_ref_list[median];
+            m_kdtree[newindex].middle = m_kdtree[newindex].ref->point[axis];
+            m_kdtree[newindex].min = m_kdtree[newindex].middle;
+            m_kdtree[newindex].max = m_kdtree[newindex].middle;
+            m_kdtree[newindex].end = end;
             return;
         }
-        else {
+        else
+        {
             median = begin + (slice_size / 2);
-            partintwo(begin, median, end, axis, kdtree[index].min, kdtree[index].max);
+            partintwo(begin, median, end, axis, m_kdtree[index].min, m_kdtree[index].max);
         }
 
-        kdtree[index].middle = ref_list[median].point[axis];
-        kdtree[index].ref = NULL;
+        m_kdtree[index].middle = m_ref_list[median].point[axis];
+        m_kdtree[index].ref = NULL;
 
-        kdtree[newindex].begin = begin;
-        kdtree[newindex].end = -median;
+        m_kdtree[newindex].begin = begin;
+        m_kdtree[newindex].end = -median;
 
         newindex++;
-        kdtree[newindex].begin = median;
-        kdtree[newindex].end = -end;
+        m_kdtree[newindex].begin = median;
+        m_kdtree[newindex].end = -end;
 
     }
-    else {
-        kdtree[index].ref = &ref_list[begin];
-        kdtree[index].middle = kdtree[index].ref->point[axis];
-        kdtree[index].min = kdtree[index].middle;
-        kdtree[index].max = kdtree[index].middle;
+    else
+    {
+        m_kdtree[index].ref = &m_ref_list[begin];
+        m_kdtree[index].middle = m_kdtree[index].ref->point[axis];
+        m_kdtree[index].min = m_kdtree[index].middle;
+        m_kdtree[index].max = m_kdtree[index].middle;
     }
 }
 
@@ -293,37 +329,45 @@ void PointColDetector::partintwo(const int start, const int median, const int en
     l = start;
     m = end - 1;
 
-    float x = ref_list[k].point[axis];
-    while (l < m) {
+    float x = m_ref_list[k].point[axis];
+    while (l < m)
+    {
         i = l;
         j = m;
-        while (!(j < k || k < i)) {
-            while (ref_list[i].point[axis] < x) {
+        while (!(j < k || k < i))
+        {
+            while (m_ref_list[i].point[axis] < x)
+            {
                 i++;
             }
-            while (x < ref_list[j].point[axis]) {
+            while (x < m_ref_list[j].point[axis])
+            {
                 j--;
             }
 
-            std::swap(ref_list[i], ref_list[j]);
+            std::swap(m_ref_list[i], m_ref_list[j]);
             i++;
             j--;
         }
-        if (j < k) {
+        if (j < k)
+        {
             l = i;
         }
-        if (k < i) {
+        if (k < i)
+        {
             m = j;
         }
-        x = ref_list[k].point[axis];
+        x = m_ref_list[k].point[axis];
     }
 
     minex = x;
     maxex = x;
-    for (int i = start; i < median; ++i) {
-        minex = std::min(ref_list[i].point[axis], minex);
+    for (int i = start; i < median; ++i)
+    {
+        minex = std::min(m_ref_list[i].point[axis], minex);
     }
-    for (int i = median+1; i < end; ++i) {
-        maxex = std::max(maxex, ref_list[i].point[axis]);
+    for (int i = median+1; i < end; ++i)
+    {
+        maxex = std::max(maxex, m_ref_list[i].point[axis]);
     }
 }

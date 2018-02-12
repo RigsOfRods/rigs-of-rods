@@ -21,11 +21,13 @@
 
 #include "DynamicCollisions.h"
 
+#include "Application.h"
 #include "Beam.h"
 #include "BeamData.h"
 #include "CartesianToTriangleTransform.h"
 #include "Collisions.h"
 #include "PointColDetector.h"
+#include "RoRFrameListener.h"
 #include "Triangle.h"
 #include "node_t.h"
 
@@ -136,13 +138,14 @@ void ResolveCollisionForces(const float penetration_depth,
 }
 
 
-void interTruckCollisions(const float dt, PointColDetector &interPointCD,
+void ResolveInterActorCollisions(const float dt, PointColDetector &interPointCD,
         const int free_collcab, int collcabs[], int cabs[],
         collcab_rate_t inter_collcabrate[], node_t nodes[],
-        const float collrange, Actor **trucks,
-        const int numtrucks,
+        const float collrange,
         ground_model_t &submesh_ground_model)
 {
+    Actor** actor_slots = RoR::App::GetSimController()->GetBeamFactory()->GetInternalActorSlots();
+
     for (int i=0; i<free_collcab; i++)
     {
         if (inter_collcabrate[i].rate > 0)
@@ -171,10 +174,10 @@ void interTruckCollisions(const float dt, PointColDetector &interPointCD,
 
             for (int h=0; h<interPointCD.hit_count; h++)
             {
-                const auto hitnodeid = interPointCD.hit_list[h]->nodeid;
-                const auto hittruckid = interPointCD.hit_list[h]->truckid;
-                const auto hitnode = &trucks[hittruckid]->ar_nodes[hitnodeid];
-                const auto hittruck = trucks[hittruckid];
+                const auto hitnodeid = interPointCD.hit_list[h]->node_id;
+                const auto hit_actor_id = interPointCD.hit_list[h]->actor_id;
+                const auto hitnode = &actor_slots[hit_actor_id]->ar_nodes[hitnodeid];
+                const Actor* hit_actor = actor_slots[hit_actor_id];
 
                 // transform point to triangle local coordinates
                 const auto local_point = transform(hitnode->AbsPosition);
@@ -190,9 +193,10 @@ void interTruckCollisions(const float dt, PointColDetector &interPointCD,
                     auto normal     = triangle.normal();
 
                     // adapt in case the collision is occuring on the backface of the triangle
-                    const auto neighbour_node_ids = hittruck->ar_node_to_node_connections[hitnodeid];
-                    const bool is_backface = BackfaceCollisionTest(distance, normal, *no, neighbour_node_ids, hittruck->ar_nodes); 
-                    if (is_backface) {
+                    const auto neighbour_node_ids = hit_actor->ar_node_to_node_connections[hitnodeid];
+                    const bool is_backface = BackfaceCollisionTest(distance, normal, *no, neighbour_node_ids, hit_actor->ar_nodes);
+                    if (is_backface)
+                    {
                         // flip surface normal and distance to triangle plane
                         normal   = -normal;
                         distance = -distance;
@@ -204,7 +208,8 @@ void interTruckCollisions(const float dt, PointColDetector &interPointCD,
                             coord.beta, coord.gamma, normal, dt, submesh_ground_model);
                 }
             }
-        } else
+        }
+        else
         {
             inter_collcabrate[i].rate++;
         }
@@ -212,7 +217,7 @@ void interTruckCollisions(const float dt, PointColDetector &interPointCD,
 }
 
 
-void intraTruckCollisions(const float dt, PointColDetector &intraPointCD,
+void ResolveIntraActorCollisions(const float dt, PointColDetector &intraPointCD,
         const int free_collcab, int collcabs[], int cabs[],
         collcab_rate_t intra_collcabrate[], node_t nodes[],
         const float collrange,
@@ -251,7 +256,7 @@ void intraTruckCollisions(const float dt, PointColDetector &intraPointCD,
 
             for (int h=0; h<intraPointCD.hit_count; h++)
             {
-                const auto hitnodeid = intraPointCD.hit_list[h]->nodeid;
+                const auto hitnodeid = intraPointCD.hit_list[h]->node_id;
                 const auto hitnode = &nodes[hitnodeid];
 
                 //ignore wheel/chassis self contact
