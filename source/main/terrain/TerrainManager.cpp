@@ -618,7 +618,7 @@ void TerrainManager::loadTerrainObjects()
 {
     for (std::string tobj_filename : m_def.tobj_files)
     {
-        object_manager->loadObjectConfigFile(tobj_filename);
+        object_manager->LoadTObjFile(tobj_filename);
     }
 
     object_manager->PostLoadTerrain(); // bakes the geometry and things

@@ -330,7 +330,7 @@ public:
     * @param instanceName The unique name that you chose when spawning this object
     * @param pos The position where the object should be moved to
     */
-    void moveObjectVisuals(const Ogre::String& instanceName, const Ogre::Vector3& pos);
+    void MoveTerrainObjectVisuals(const Ogre::String& instanceName, const Ogre::Vector3& pos);
 
     // new things, not documented yet
     void showChooser(const Ogre::String& type, const Ogre::String& instance, const Ogre::String& box);
