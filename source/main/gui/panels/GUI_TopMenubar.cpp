@@ -250,7 +250,7 @@ void TopMenubar::vehiclesListUpdate()
         {
             if (!trucks[i]) continue;
 
-            if (trucks[i]->hideInChooser) continue;
+            if (trucks[i]->ar_hide_in_actor_list) continue;
 
             char tmp[255] = {};
             sprintf(tmp, "[%d] %s", i, trucks[i]->realtruckname.c_str());

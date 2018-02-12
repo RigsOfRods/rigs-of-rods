@@ -1291,15 +1291,15 @@ void Beam::calculateAveragePosition()
     {
         position = ar_nodes[m_custom_camera_node].AbsPosition;
     }
-    else if (externalcameramode == 1 && freecinecamera > 0)
+    else if (ar_extern_camera_mode == 1 && freecinecamera > 0)
     {
         // the new (strange) approach: reuse the cinecam node
         position = ar_nodes[cinecameranodepos[0]].AbsPosition;
     }
-    else if (externalcameramode == 2 && externalcameranode >= 0)
+    else if (ar_extern_camera_mode == 2 && ar_extern_camera_node >= 0)
     {
         // the new (strange) approach #2: reuse a specified node
-        position = ar_nodes[externalcameranode].AbsPosition;
+        position = ar_nodes[ar_extern_camera_node].AbsPosition;
     }
     else
     {
@@ -2078,14 +2078,14 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
         float torque = engine->getCrankFactor();
         if (torque <= 0.0f)
             torque = 0.0f;
-        if (torque >= previousCrank)
+        if (torque >= ar_anim_previous_crank)
             cstate -= torque / 10.0f;
         else
             cstate = 0.0f;
 
         if (cstate <= -1.0f)
             cstate = -1.0f;
-        previousCrank = torque;
+        ar_anim_previous_crank = torque;
         div++;
     }
 
@@ -2099,28 +2099,28 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
             if (shifter > previousGear)
             {
                 cstate = 1.0f;
-                animTimer = 0.2f;
+                ar_anim_shift_timer = 0.2f;
             }
             if (shifter < previousGear)
             {
                 cstate = -1.0f;
-                animTimer = -0.2f;
+                ar_anim_shift_timer = -0.2f;
             }
             previousGear = shifter;
 
-            if (animTimer > 0.0f)
+            if (ar_anim_shift_timer > 0.0f)
             {
                 cstate = 1.0f;
-                animTimer -= dt;
-                if (animTimer < 0.0f)
-                    animTimer = 0.0f;
+                ar_anim_shift_timer -= dt;
+                if (ar_anim_shift_timer < 0.0f)
+                    ar_anim_shift_timer = 0.0f;
             }
-            if (animTimer < 0.0f)
+            if (ar_anim_shift_timer < 0.0f)
             {
                 cstate = -1.0f;
-                animTimer += dt;
-                if (animTimer > 0.0f)
-                    animTimer = 0.0f;
+                ar_anim_shift_timer += dt;
+                if (ar_anim_shift_timer > 0.0f)
+                    ar_anim_shift_timer = 0.0f;
             }
         }
         else
@@ -4122,10 +4122,10 @@ void Beam::cabFade(float amount)
 
 void Beam::addInterTruckBeam(beam_t* beam, Beam* a, Beam* b)
 {
-    auto pos = std::find(interTruckBeams.begin(), interTruckBeams.end(), beam);
-    if (pos == interTruckBeams.end())
+    auto pos = std::find(ar_inter_beams.begin(), ar_inter_beams.end(), beam);
+    if (pos == ar_inter_beams.end())
     {
-        interTruckBeams.push_back(beam);
+        ar_inter_beams.push_back(beam);
     }
 
     std::pair<Beam*, Beam*> truck_pair(a, b);
@@ -4142,10 +4142,10 @@ void Beam::addInterTruckBeam(beam_t* beam, Beam* a, Beam* b)
 
 void Beam::removeInterTruckBeam(beam_t* beam)
 {
-    auto pos = std::find(interTruckBeams.begin(), interTruckBeams.end(), beam);
-    if (pos != interTruckBeams.end())
+    auto pos = std::find(ar_inter_beams.begin(), ar_inter_beams.end(), beam);
+    if (pos != ar_inter_beams.end())
     {
-        interTruckBeams.erase(pos);
+        ar_inter_beams.erase(pos);
     }
 
     auto it = m_sim_controller->GetBeamFactory()->interTruckLinks.find(beam);
@@ -4166,7 +4166,7 @@ void Beam::removeInterTruckBeam(beam_t* beam)
 
 void Beam::disjoinInterTruckBeams()
 {
-    interTruckBeams.clear();
+    ar_inter_beams.clear();
     auto interTruckLinks = &m_sim_controller->GetBeamFactory()->interTruckLinks;
     for (auto it = interTruckLinks->begin(); it != interTruckLinks->end();)
     {
@@ -5139,7 +5139,7 @@ void Beam::updateDashBoards(float dt)
     }
 
     // active shocks / roll correction
-    if (this->has_active_shocks)
+    if (this->ar_has_active_shocks)
     {
         // TOFIX: certainly not working:
         float roll_corr = - stabratio * 10.0f;
@@ -5560,7 +5560,7 @@ Beam::Beam(
     : ar_nodes(nullptr), ar_num_nodes(0)
     , ar_beams(nullptr), ar_num_beams(0)
     , shocks(nullptr), free_shock(0)
-    , has_active_shocks(false)
+    , ar_has_active_shocks(false)
     , rotators(nullptr), free_rotator(0)
     , wings(nullptr), free_wing(0)
     , m_hud_features_ok(false)

@@ -201,7 +201,7 @@ void CameraBehaviorVehicleSpline::createSpline(const CameraManager::CameraContex
 
     for (int i = 0; i < ctx.mCurrTruck->free_camerarail; i++)
     {
-        splineNodes.push_back(&ctx.mCurrTruck->ar_nodes[ctx.mCurrTruck->cameraRail[i]]);
+        splineNodes.push_back(&ctx.mCurrTruck->ar_nodes[ctx.mCurrTruck->ar_camera_rail[i]]);
     }
 
     std::list<Beam*> linkedBeams = ctx.mCurrTruck->getAllLinkedBeams();
@@ -218,35 +218,35 @@ void CameraBehaviorVehicleSpline::createSpline(const CameraManager::CameraContex
             Vector3 curSplineFront = splineNodes.front()->AbsPosition;
             Vector3 curSplineBack = splineNodes.back()->AbsPosition;
 
-            Vector3 linkedSplineFront = (*it)->ar_nodes[(*it)->cameraRail[0]].AbsPosition;
-            Vector3 linkedSplineBack = (*it)->ar_nodes[(*it)->cameraRail[(*it)->free_camerarail - 1]].AbsPosition;
+            Vector3 linkedSplineFront = (*it)->ar_nodes[(*it)->ar_camera_rail[0]].AbsPosition;
+            Vector3 linkedSplineBack = (*it)->ar_nodes[(*it)->ar_camera_rail[(*it)->free_camerarail - 1]].AbsPosition;
 
             if (curSplineBack.distance(linkedSplineFront) < 5.0f)
             {
                 for (int i = 1; i < (*it)->free_camerarail; i++)
                 {
-                    splineNodes.push_back(&(*it)->ar_nodes[(*it)->cameraRail[i]]);
+                    splineNodes.push_back(&(*it)->ar_nodes[(*it)->ar_camera_rail[i]]);
                 }
             }
             else if (curSplineFront.distance(linkedSplineFront) < 5.0f)
             {
                 for (int i = 1; i < (*it)->free_camerarail; i++)
                 {
-                    splineNodes.push_front(&(*it)->ar_nodes[(*it)->cameraRail[i]]);
+                    splineNodes.push_front(&(*it)->ar_nodes[(*it)->ar_camera_rail[i]]);
                 }
             }
             else if (curSplineBack.distance(linkedSplineBack) < 5.0f)
             {
                 for (int i = (*it)->free_camerarail - 2; i >= 0; i--)
                 {
-                    splineNodes.push_back(&(*it)->ar_nodes[(*it)->cameraRail[i]]);
+                    splineNodes.push_back(&(*it)->ar_nodes[(*it)->ar_camera_rail[i]]);
                 }
             }
             else if (curSplineFront.distance(linkedSplineBack) < 5.0f)
             {
                 for (int i = (*it)->free_camerarail - 2; i >= 0; i--)
                 {
-                    splineNodes.push_front(&(*it)->ar_nodes[(*it)->cameraRail[i]]);
+                    splineNodes.push_front(&(*it)->ar_nodes[(*it)->ar_camera_rail[i]]);
                 }
             }
         }
