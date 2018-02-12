@@ -95,7 +95,7 @@ public:
             type(type),
             text(text),
             keyword(keyword)
-        {}		
+        {}
 
         Ogre::String text;
         Type type;
@@ -111,8 +111,6 @@ public:
         {}
 
     };
-
-    RigSpawner(RoRFrameListener* sim): m_sim_controller(sim) {}
 
     void Setup(
         Beam *rig,
@@ -1090,5 +1088,4 @@ private:
     int   m_first_wing_index;
 
     RoR::FlexFactory m_flex_factory;
-    RoRFrameListener* m_sim_controller;
 };
