@@ -99,18 +99,18 @@ SoundScriptManager::SoundScriptManager() :
     ResourceGroupManager::getSingleton()._registerScriptLoader(this);
 }
 
-void SoundScriptManager::trigOnce(Actor* truck, int trig, int linkType, int linkItemID)
+void SoundScriptManager::trigOnce(Actor* actor, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return;
 
-    if (truck)
+    if (actor)
     {
-        trigOnce(truck->ar_instance_id, trig, linkType, linkItemID);
+        trigOnce(actor->ar_instance_id, trig, linkType, linkItemID);
     }
 }
 
-void SoundScriptManager::trigOnce(int truck, int trig, int linkType, int linkItemID)
+void SoundScriptManager::trigOnce(int actor_id, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return;
@@ -120,157 +120,157 @@ void SoundScriptManager::trigOnce(int truck, int trig, int linkType, int linkIte
         // cycle through all instance groups
         SoundScriptInstance* inst = trigs[trig + i * SS_MAX_TRIG];
 
-        if (inst && inst->truck == truck && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
+        if (inst && inst->actor_id == actor_id && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
         {
             inst->runOnce();
         }
     }
 }
 
-void SoundScriptManager::trigStart(Actor* truck, int trig, int linkType, int linkItemID)
+void SoundScriptManager::trigStart(Actor* actor, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return;
 
-    if (truck)
+    if (actor)
     {
-        trigStart(truck->ar_instance_id, trig, linkType, linkItemID);
+        trigStart(actor->ar_instance_id, trig, linkType, linkItemID);
     }
 }
 
-void SoundScriptManager::trigStart(int truck, int trig, int linkType, int linkItemID)
+void SoundScriptManager::trigStart(int actor_id, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return;
-    if (getTrigState(truck, trig, linkType, linkItemID))
+    if (getTrigState(actor_id, trig, linkType, linkItemID))
         return;
 
-    state_map[linkType][linkItemID][truck][trig] = true;
+    state_map[linkType][linkItemID][actor_id][trig] = true;
 
     for (int i = 0; i < free_trigs[trig]; i++)
     {
         SoundScriptInstance* inst = trigs[trig + i * SS_MAX_TRIG];
 
-        if (inst && inst->truck == truck && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
+        if (inst && inst->actor_id == actor_id && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
         {
             inst->start();
         }
     }
 }
 
-void SoundScriptManager::trigStop(Actor* truck, int trig, int linkType, int linkItemID)
+void SoundScriptManager::trigStop(Actor* actor, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return;
 
-    if (truck)
+    if (actor)
     {
-        trigStop(truck->ar_instance_id, trig, linkType, linkItemID);
+        trigStop(actor->ar_instance_id, trig, linkType, linkItemID);
     }
 }
 
-void SoundScriptManager::trigStop(int truck, int trig, int linkType, int linkItemID)
+void SoundScriptManager::trigStop(int actor_id, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return;
-    if (!getTrigState(truck, trig, linkType, linkItemID))
+    if (!getTrigState(actor_id, trig, linkType, linkItemID))
         return;
 
-    state_map[linkType][linkItemID][truck][trig] = false;
+    state_map[linkType][linkItemID][actor_id][trig] = false;
     for (int i = 0; i < free_trigs[trig]; i++)
     {
         SoundScriptInstance* inst = trigs[trig + i * SS_MAX_TRIG];
 
-        if (inst && inst->truck == truck && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
+        if (inst && inst->actor_id == actor_id && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
         {
             inst->stop();
         }
     }
 }
 
-void SoundScriptManager::trigKill(Actor* truck, int trig, int linkType, int linkItemID)
+void SoundScriptManager::trigKill(Actor* actor, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return;
 
-    if (truck)
+    if (actor)
     {
-        trigKill(truck->ar_instance_id, trig, linkType, linkItemID);
+        trigKill(actor->ar_instance_id, trig, linkType, linkItemID);
     }
 }
 
-void SoundScriptManager::trigKill(int truck, int trig, int linkType, int linkItemID)
+void SoundScriptManager::trigKill(int actor_id, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return;
-    if (!getTrigState(truck, trig, linkType, linkItemID))
+    if (!getTrigState(actor_id, trig, linkType, linkItemID))
         return;
 
-    state_map[linkType][linkItemID][truck][trig] = false;
+    state_map[linkType][linkItemID][actor_id][trig] = false;
     for (int i = 0; i < free_trigs[trig]; i++)
     {
         SoundScriptInstance* inst = trigs[trig + i * SS_MAX_TRIG];
 
-        if (inst && inst->truck == truck && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
+        if (inst && inst->actor_id == actor_id && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
         {
             inst->kill();
         }
     }
 }
 
-void SoundScriptManager::trigToggle(Actor* truck, int trig, int linkType, int linkItemID)
+void SoundScriptManager::trigToggle(Actor* actor, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return;
 
-    if (truck)
+    if (actor)
     {
-        trigToggle(truck->ar_instance_id, trig, linkType, linkItemID);
+        trigToggle(actor->ar_instance_id, trig, linkType, linkItemID);
     }
 }
 
-void SoundScriptManager::trigToggle(int truck, int trig, int linkType, int linkItemID)
+void SoundScriptManager::trigToggle(int actor_id, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return;
 
-    if (getTrigState(truck, trig, linkType, linkItemID))
-        trigStop(truck, trig, linkType, linkItemID);
+    if (getTrigState(actor_id, trig, linkType, linkItemID))
+        trigStop(actor_id, trig, linkType, linkItemID);
     else
-        trigStart(truck, trig, linkType, linkItemID);
+        trigStart(actor_id, trig, linkType, linkItemID);
 }
 
-bool SoundScriptManager::getTrigState(Actor* truck, int trig, int linkType, int linkItemID)
+bool SoundScriptManager::getTrigState(Actor* actor, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return false;
 
-    if (truck)
-        return getTrigState(truck->ar_instance_id, trig, linkType, linkItemID);
+    if (actor)
+        return getTrigState(actor->ar_instance_id, trig, linkType, linkItemID);
     else
         return false;
 }
 
-bool SoundScriptManager::getTrigState(int truck, int trig, int linkType, int linkItemID)
+bool SoundScriptManager::getTrigState(int actor_id, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return false;
 
-    return state_map[linkType][linkItemID][truck][trig];
+    return state_map[linkType][linkItemID][actor_id][trig];
 }
 
-void SoundScriptManager::modulate(Actor* truck, int mod, float value, int linkType, int linkItemID)
+void SoundScriptManager::modulate(Actor* actor, int mod, float value, int linkType, int linkItemID)
 {
     if (disabled)
         return;
 
-    if (truck)
+    if (actor)
     {
-        modulate(truck->ar_instance_id, mod, value, linkType, linkItemID);
+        modulate(actor->ar_instance_id, mod, value, linkType, linkItemID);
     }
 }
 
-void SoundScriptManager::modulate(int truck, int mod, float value, int linkType, int linkItemID)
+void SoundScriptManager::modulate(int actor_id, int mod, float value, int linkType, int linkItemID)
 {
     if (disabled)
         return;
@@ -281,7 +281,7 @@ void SoundScriptManager::modulate(int truck, int mod, float value, int linkType,
     for (int i = 0; i < free_gains[mod]; i++)
     {
         SoundScriptInstance* inst = gains[mod + i * SS_MAX_MOD];
-        if (inst && inst->truck == truck && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
+        if (inst && inst->actor_id == actor_id && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
         {
             // this one requires modulation
             float gain = value * value * inst->templ->gain_square + value * inst->templ->gain_multiplier + inst->templ->gain_offset;
@@ -294,7 +294,7 @@ void SoundScriptManager::modulate(int truck, int mod, float value, int linkType,
     for (int i = 0; i < free_pitches[mod]; i++)
     {
         SoundScriptInstance* inst = pitches[mod + i * SS_MAX_MOD];
-        if (inst && inst->truck == truck && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
+        if (inst && inst->actor_id == actor_id && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
         {
             // this one requires modulation
             float pitch = value * value * inst->templ->pitch_square + value * inst->templ->pitch_multiplier + inst->templ->pitch_offset;
@@ -362,7 +362,7 @@ void SoundScriptManager::clearNonBaseTemplates()
     }
 }
 
-SoundScriptInstance* SoundScriptManager::createInstance(Ogre::String templatename, int truck, Ogre::SceneNode* toAttach, int soundLinkType, int soundLinkItemId)
+SoundScriptInstance* SoundScriptManager::createInstance(Ogre::String templatename, int actor_id, Ogre::SceneNode* toAttach, int soundLinkType, int soundLinkItemId)
 {
     //first, search template
     SoundScriptTemplate* templ = NULL;
@@ -387,7 +387,7 @@ SoundScriptInstance* SoundScriptManager::createInstance(Ogre::String templatenam
         return NULL; // reached limit!
     }
 
-    SoundScriptInstance* inst = new SoundScriptInstance(truck, templ, sound_manager, templ->file_name + "-" + TOSTRING(truck) + "-" + TOSTRING(instance_counter), soundLinkType, soundLinkItemId);
+    SoundScriptInstance* inst = new SoundScriptInstance(actor_id, templ, sound_manager, templ->file_name + "-" + TOSTRING(actor_id) + "-" + TOSTRING(instance_counter), soundLinkType, soundLinkItemId);
     instance_counter++;
 
     // register to lookup tables
@@ -1032,8 +1032,8 @@ int SoundScriptTemplate::parseModulation(String str)
 
 //====================================================================
 
-SoundScriptInstance::SoundScriptInstance(int truck, SoundScriptTemplate* templ, SoundManager* sound_manager, String instancename, int soundLinkType, int soundLinkItemId) :
-    truck(truck)
+SoundScriptInstance::SoundScriptInstance(int actor_id, SoundScriptTemplate* templ, SoundManager* sound_manager, String instancename, int soundLinkType, int soundLinkItemId) :
+    actor_id(actor_id)
     , templ(templ)
     , sound_manager(sound_manager)
     , sound_link_type(soundLinkType)
