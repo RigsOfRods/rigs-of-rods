@@ -843,15 +843,15 @@ bool Beam::addPressure(float v)
     if (!free_pressure_beam)
         return false;
 
-    float newpressure = std::max(0.0f, std::min(refpressure + v, 100.0f));
+    float newpressure = std::max(0.0f, std::min(m_ref_tyre_pressure + v, 100.0f));
 
-    if (newpressure == refpressure)
+    if (newpressure == m_ref_tyre_pressure)
         return false;
 
-    refpressure = newpressure;
+    m_ref_tyre_pressure = newpressure;
     for (int i = 0; i < free_pressure_beam; i++)
     {
-        ar_beams[pressure_beams[i]].k = 10000 + refpressure * 10000;
+        ar_beams[pressure_beams[i]].k = 10000 + m_ref_tyre_pressure * 10000;
     }
     return true;
 }
@@ -859,7 +859,7 @@ bool Beam::addPressure(float v)
 float Beam::getPressure()
 {
     if (free_pressure_beam)
-        return refpressure;
+        return m_ref_tyre_pressure;
     return 0;
 }
 
@@ -1034,7 +1034,7 @@ void Beam::determineLinkedBeams()
 
 int Beam::getWheelNodeCount()
 {
-    return wheel_node_count;
+    return m_wheel_node_count;
 }
 
 void Beam::calcNodeConnectivityGraph()
@@ -1289,9 +1289,9 @@ int Beam::loadPosition(int indexPosition)
 void Beam::calculateAveragePosition()
 {
     // calculate average position
-    if (m_custom_camera_node >= 0)
+    if (ar_custom_camera_node >= 0)
     {
-        position = ar_nodes[m_custom_camera_node].AbsPosition;
+        position = ar_nodes[ar_custom_camera_node].AbsPosition;
     }
     else if (ar_extern_camera_mode == 1 && freecinecamera > 0)
     {
@@ -1644,7 +1644,7 @@ void Beam::SyncReset()
         hydroInertia->resetCmdKeyDelay();
     parkingbrake = 0;
     cc_mode = false;
-    fusedrag = Vector3::ZERO;
+    ar_fusedrag = Vector3::ZERO;
     origin = Vector3::ZERO;
     float yPos = ar_nodes[lowestcontactingnode].AbsPosition.y;
 
@@ -1721,7 +1721,7 @@ void Beam::SyncReset()
     }
     if (buoyance)
         buoyance->setsink(0);
-    refpressure = 50.0;
+    m_ref_tyre_pressure = 50.0;
     addPressure(0.0);
     if (autopilot)
         resetAutopilot();
@@ -1817,9 +1817,9 @@ void Beam::updateAngelScriptEvents(float dt)
             ScriptEngine::getSingleton().triggerEvent(SE_TRUCK_UNLOCKED, trucknum);
         lockedold = locked;
     }
-    if (watercontact && !watercontactold)
+    if (m_water_contact && !m_water_contact_old)
     {
-        watercontactold = watercontact;
+        m_water_contact_old = m_water_contact;
         ScriptEngine::getSingleton().triggerEvent(SE_TRUCK_TOUCHED_WATER, trucknum);
     }
 #endif // USE_ANGELSCRIPT
@@ -1838,7 +1838,7 @@ void Beam::sendStreamSetup()
     reg.status = 0;
     reg.type = 0;
     reg.bufferSize = m_net_buffer_size;
-    strncpy(reg.name, realtruckfilename.c_str(), 128);
+    strncpy(reg.name, ar_filename.c_str(), 128);
     if (!m_truck_config.empty())
     {
         // insert section config
@@ -2423,7 +2423,7 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
     // airbrake
     if (flag_state & ANIM_FLAG_AIRBRAKE)
     {
-        float airbrake = airbrakeval;
+        float airbrake = ar_airbrake_intensity;
         // cstate limited to -1.0f
         cstate -= airbrake / 5.0f;
         div++;
@@ -2432,7 +2432,7 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
     //flaps
     if (flag_state & ANIM_FLAG_FLAP)
     {
-        float flaps = flapangles[flap];
+        float flaps = flapangles[ar_aerial_flap];
         // cstate limited to -1.0f
         cstate = flaps;
         div++;
@@ -3238,7 +3238,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
         }
         else if (flares[i].type == 'R')
         {
-            if (engine || reverselight)
+            if (engine || m_reverse_light_active)
                 isvisible = getReverseLightVisible();
             else
                 isvisible = false;
@@ -3435,7 +3435,7 @@ void Beam::updateProps()
 
     for (int i = 0; i < free_airbrake; i++)
     {
-        airbrakes[i]->updatePosition((float)airbrakeval / 5.0);
+        airbrakes[i]->updatePosition((float)ar_airbrake_intensity / 5.0);
     }
 
     BES_GFX_STOP(BES_GFX_updateProps);
@@ -3672,15 +3672,15 @@ void Beam::updateVisual(float dt)
         if (ar_wings[i].fa->type == 'e' || ar_wings[i].fa->type == 'S' || ar_wings[i].fa->type == 'T')
             ar_wings[i].fa->setControlDeflection(autoelevator);
         if (ar_wings[i].fa->type == 'f')
-            ar_wings[i].fa->setControlDeflection(flapangles[flap]);
+            ar_wings[i].fa->setControlDeflection(flapangles[ar_aerial_flap]);
         if (ar_wings[i].fa->type == 'c' || ar_wings[i].fa->type == 'V')
             ar_wings[i].fa->setControlDeflection((autoaileron + autoelevator) / 2.0);
         if (ar_wings[i].fa->type == 'd' || ar_wings[i].fa->type == 'U')
             ar_wings[i].fa->setControlDeflection((-autoaileron + autoelevator) / 2.0);
         if (ar_wings[i].fa->type == 'g')
-            ar_wings[i].fa->setControlDeflection((autoaileron + flapangles[flap]) / 2.0);
+            ar_wings[i].fa->setControlDeflection((autoaileron + flapangles[ar_aerial_flap]) / 2.0);
         if (ar_wings[i].fa->type == 'h')
-            ar_wings[i].fa->setControlDeflection((-autoaileron + flapangles[flap]) / 2.0);
+            ar_wings[i].fa->setControlDeflection((-autoaileron + flapangles[ar_aerial_flap]) / 2.0);
         if (ar_wings[i].fa->type == 'i')
             ar_wings[i].fa->setControlDeflection((-autoelevator + autorudder) / 2.0);
         if (ar_wings[i].fa->type == 'j')
@@ -4926,7 +4926,7 @@ bool Beam::getReverseLightVisible()
     if (engine)
         return (engine->getGear() < 0);
 
-    return reverselight;
+    return m_reverse_light_active;
 }
 
 void Beam::StopAllSounds()
@@ -4945,7 +4945,7 @@ void Beam::UnmuteAllSounds()
 #ifdef USE_OPENAL
     for (int i = 0; i < free_soundsource; i++)
     {
-        bool enabled = (soundsources[i].type == -2 || soundsources[i].type == currentcamera);
+        bool enabled = (soundsources[i].type == -2 || soundsources[i].type == ar_current_cinecam);
         soundsources[i].ssi->setEnabled(enabled);
     }
 #endif // USE_OPENAL
@@ -4957,19 +4957,15 @@ void Beam::changedCamera()
 #ifdef USE_OPENAL
     for (int i = 0; i < free_soundsource; i++)
     {
-        bool enabled = (soundsources[i].type == -2 || soundsources[i].type == currentcamera);
+        bool enabled = (soundsources[i].type == -2 || soundsources[i].type == ar_current_cinecam);
         soundsources[i].ssi->setEnabled(enabled);
     }
 #endif // USE_OPENAL
 
-    // change video camera mode needs for-loop through all video(mirror)cams, check camera mode against currentcamera and then send the right bool
-    // bool state = true;
-    // VideoCamera *v = VideoCamera::setActive(state);
-
     // look for props
     for (int i = 0; i < ar_num_props; i++)
     {
-        bool enabled = (ar_props[i].cameramode == -2 || ar_props[i].cameramode == currentcamera);
+        bool enabled = (ar_props[i].cameramode == -2 || ar_props[i].cameramode == ar_current_cinecam);
         if (ar_props[i].mo)
             ar_props[i].mo->setMeshEnabled(enabled);
     }
@@ -4977,7 +4973,7 @@ void Beam::changedCamera()
     // look for flexbodies
     for (int i = 0; i < free_flexbody; i++)
     {
-        bool enabled = (flexbodies[i]->getCameraMode() == -2 || flexbodies[i]->getCameraMode() == currentcamera);
+        bool enabled = (flexbodies[i]->getCameraMode() == -2 || flexbodies[i]->getCameraMode() == ar_current_cinecam);
         flexbodies[i]->setEnabled(enabled);
     }
 }
@@ -5563,15 +5559,15 @@ Beam::Beam(
     , canwork(true)
     , cparticle_mode(false)
     , currentScale(1)
-    , currentcamera(-1) // -1 = external
+    , ar_current_cinecam(-1) // -1 = external
     , ar_dashboard(nullptr)
     , detailLevel(0)
-    , disableDrag(false)
-    , disableTruckTruckCollisions(false)
-    , disableTruckTruckSelfCollisions(false)
+    , ar_disable_aerodyn_turbulent_drag(false)
+    , ar_disable_actor2actor_collision(false)
+    , ar_disable_self_collision(false)
     , elevator(0)
-    , flap(0)
-    , fusedrag(Ogre::Vector3::ZERO)
+    , ar_aerial_flap(0)
+    , ar_fusedrag(Ogre::Vector3::ZERO)
     , high_res_wheelnode_collisions(false)
     , hydroaileroncommand(0)
     , hydroaileronstate(0)
@@ -5588,12 +5584,12 @@ Beam::Beam(
     , intraPointCD()
     , ar_net_last_update_time(0)
     , lastposition(pos)
-    , leftMirrorAngle(0.52)
+    , ar_left_mirror_angle(0.52)
     , lights(1)
     , locked(0)
     , lockedold(0)
     , velocity(Ogre::Vector3::ZERO)
-    , m_custom_camera_node(-1)
+    , ar_custom_camera_node(-1)
     , m_hide_own_net_label(BSETTING("HideOwnNetLabel", false))
     , m_is_cinecam_rotation_center(false)
     , m_preloaded_with_terrain(preloaded_with_terrain)
@@ -5618,15 +5614,15 @@ Beam::Beam(
     , posStorage(0)
     , position(pos)
     , previousGear(0)
-    , refpressure(50.0)
+    , m_ref_tyre_pressure(50.0)
     , replay(0)
     , replayPrecision(0)
     , replayTimer(0)
     , replaylen(10000)
     , replaymode(false)
     , replaypos(0)
-    , reverselight(false)
-    , rightMirrorAngle(-0.52)
+    , m_reverse_light_active(false)
+    , ar_right_mirror_angle(-0.52)
     , rudder(0)
     , simpleSkeletonInitiated(false)
     , simpleSkeletonManualObject(0)
@@ -5638,8 +5634,8 @@ Beam::Beam(
     , stabratio(0.0)
     , stabsleep(0.0)
     , totalmass(0)
-    , watercontact(false)
-    , watercontactold(false)
+    , m_water_contact(false)
+    , m_water_contact_old(false)
 {
     high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();
     useSkidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;
@@ -5660,7 +5656,7 @@ Beam::Beam(
     }
 
     /* class <Beam> parameters */
-    realtruckfilename = Ogre::String(fname);
+    ar_filename = Ogre::String(fname);
 
     // copy truck config
     if (truckconfig != nullptr && truckconfig->size() > 0u)
@@ -5710,11 +5706,11 @@ Beam::Beam(
     }
 
     // calculate the number of wheel nodes
-    wheel_node_count = 0;
+    m_wheel_node_count = 0;
     for (int i = 0; i < ar_num_nodes; i++)
     {
         if (ar_nodes[i].iswheel != NOWHEEL)
-            wheel_node_count++;
+            m_wheel_node_count++;
     }
 
     // search m_net_first_wheel_node
@@ -6256,7 +6252,7 @@ std::string Beam::getTruckName()
 
 std::string Beam::getTruckFileName()
 {
-    return realtruckfilename;
+    return ar_filename;
 }
 
 int Beam::getTruckType()

@@ -383,7 +383,7 @@ void RigSpawner::InitializeRig()
 
     /* Init code from Beam::Beam() */
 
-    m_rig->airbrakeval = 0;
+    m_rig->ar_airbrake_intensity = 0;
     m_rig->alb_minspeed = 0.0f;
     m_rig->alb_mode = 0;
     m_rig->alb_notoggle = false;
@@ -446,13 +446,13 @@ void RigSpawner::InitializeRig()
 
     /* Collisions */
 
-    m_rig->disableTruckTruckCollisions = BSETTING("DisableCollisions", false);
-    if (! m_rig->disableTruckTruckCollisions)
+    m_rig->ar_disable_actor2actor_collision = BSETTING("DisableCollisions", false);
+    if (! m_rig->ar_disable_actor2actor_collision)
     {
         m_rig->interPointCD = new PointColDetector();
     }
-    m_rig->disableTruckTruckSelfCollisions = BSETTING("DisableSelfCollisions", false);
-    if (! m_rig->disableTruckTruckSelfCollisions)
+    m_rig->ar_disable_self_collision = BSETTING("DisableSelfCollisions", false);
+    if (! m_rig->ar_disable_self_collision)
     {
         m_rig->intraPointCD = new PointColDetector();
     }

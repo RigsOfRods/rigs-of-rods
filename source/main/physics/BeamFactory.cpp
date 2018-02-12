@@ -690,7 +690,7 @@ void BeamFactory::activateAllTrucks()
 
             if (this->getTruck(m_simulated_truck))
             {
-                m_trucks[t]->disableDrag = this->getTruck(m_simulated_truck)->driveable == AIRPLANE;
+                m_trucks[t]->ar_disable_aerodyn_turbulent_drag = this->getTruck(m_simulated_truck)->driveable == AIRPLANE;
             }
         }
     }
@@ -1175,7 +1175,7 @@ void BeamFactory::UpdatePhysicsSimulation()
                         auto func = std::function<void()>([this, i, t]()
                             {
                                 m_trucks[t]->calcForcesEulerCompute(i == 0, PHYSICS_DT, i, m_physics_steps);
-                                if (!m_trucks[t]->disableTruckTruckSelfCollisions)
+                                if (!m_trucks[t]->ar_disable_self_collision)
                                 {
                                     m_trucks[t]->IntraPointCD()->update(m_trucks[t]);
                                     intraTruckCollisions(PHYSICS_DT,
@@ -1206,7 +1206,7 @@ void BeamFactory::UpdatePhysicsSimulation()
                 std::vector<std::function<void()>> tasks;
                 for (int t = 0; t < m_free_truck; t++)
                 {
-                    if (m_trucks[t] && m_trucks[t]->ar_update_physics && !m_trucks[t]->disableTruckTruckCollisions)
+                    if (m_trucks[t] && m_trucks[t]->ar_update_physics && !m_trucks[t]->ar_disable_actor2actor_collision)
                     {
                         auto func = std::function<void()>([this, t]()
                             {
@@ -1245,7 +1245,7 @@ void BeamFactory::UpdatePhysicsSimulation()
                     num_simulated_trucks++;
                     m_trucks[t]->calcForcesEulerCompute(i == 0, PHYSICS_DT, i, m_physics_steps);
                     m_trucks[t]->calcForcesEulerFinal(i == 0, PHYSICS_DT, i, m_physics_steps);
-                    if (!m_trucks[t]->disableTruckTruckSelfCollisions)
+                    if (!m_trucks[t]->ar_disable_self_collision)
                     {
                         m_trucks[t]->IntraPointCD()->update(m_trucks[t]);
                         intraTruckCollisions(PHYSICS_DT,
@@ -1266,7 +1266,7 @@ void BeamFactory::UpdatePhysicsSimulation()
                 BES_START(BES_CORE_Contacters);
                 for (int t = 0; t < m_free_truck; t++)
                 {
-                    if (m_trucks[t] && m_trucks[t]->ar_update_physics && !m_trucks[t]->disableTruckTruckCollisions)
+                    if (m_trucks[t] && m_trucks[t]->ar_update_physics && !m_trucks[t]->ar_disable_actor2actor_collision)
                     {
                         m_trucks[t]->InterPointCD()->update(m_trucks[t], m_trucks, m_free_truck);
                         if (m_trucks[t]->collisionRelevant)

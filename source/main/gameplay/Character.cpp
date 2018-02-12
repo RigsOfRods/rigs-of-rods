@@ -741,8 +741,8 @@ void Character::setBeamCoupling(bool enabled, Beam* truck /* = 0 */)
 #ifdef USE_SOCKETW
             Networking::CharacterMsgAttach msg;
             msg.command = Networking::CHARACTER_CMD_ATTACH;
-            msg.source_id = beamCoupling->m_source_id;
-            msg.stream_id = beamCoupling->m_stream_id;
+            msg.source_id = beamCoupling->ar_net_source_id;
+            msg.stream_id = beamCoupling->ar_net_stream_id;
             RoR::Networking::AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA, sizeof(Networking::CharacterMsgAttach), (char*)&msg);
 #endif // USE_SOCKETW
         }

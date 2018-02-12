@@ -245,12 +245,12 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
             Ogre::Vector3 offset(Ogre::Vector3::ZERO);
             if (vidcam.vcam_type == VideoCamType::VCTYPE_MIRROR_PROP_LEFT)
             {
-                mirror_angle = m_actor->leftMirrorAngle;
+                mirror_angle = m_actor->ar_left_mirror_angle;
                 offset = Ogre::Vector3(0.07f, -0.22f, 0);
             }
             else
             {
-                mirror_angle = m_actor->rightMirrorAngle;
+                mirror_angle = m_actor->ar_right_mirror_angle;
                 offset = Ogre::Vector3(0.07f, +0.22f, 0);
             }
 

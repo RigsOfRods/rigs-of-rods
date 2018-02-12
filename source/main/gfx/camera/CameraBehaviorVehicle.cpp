@@ -83,10 +83,10 @@ bool CameraBehaviorVehicle::mousePressed(const CameraManager::CameraContext &ctx
 
 	if ( ms.buttonDown(OIS::MB_Middle) && RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) )
 	{
-		if ( ctx.mCurrTruck && ctx.mCurrTruck->m_custom_camera_node >= 0 )
+		if ( ctx.mCurrTruck && ctx.mCurrTruck->ar_custom_camera_node >= 0 )
 		{
 			// Calculate new camera distance
-			Vector3 lookAt = ctx.mCurrTruck->ar_nodes[ctx.mCurrTruck->m_custom_camera_node].AbsPosition;
+			Vector3 lookAt = ctx.mCurrTruck->ar_nodes[ctx.mCurrTruck->ar_custom_camera_node].AbsPosition;
 			camDist = 2.0f * gEnv->mainCamera->getPosition().distance(lookAt);
 
 			// Calculate new camera pitch

@@ -358,7 +358,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
             as->addData("Truck_Num", TOSTRING(m_beam_factory.getCurrentTruckNumber()));
             if (curr_truck)
             {
-                as->addData("Truck_fname", curr_truck->realtruckfilename);
+                as->addData("Truck_fname", curr_truck->ar_filename);
                 as->addData("Truck_name", curr_truck->getTruckName());
                 as->addData("Truck_beams", TOSTRING(curr_truck->getBeamCount()));
                 as->addData("Truck_nodes", TOSTRING(curr_truck->getNodeCount()));
@@ -2011,7 +2011,7 @@ void RoRFrameListener::ReloadPlayerActor()
         return;
 
     // try to load the same truck again
-    Beam* newBeam = m_beam_factory.CreateLocalRigInstance(m_reload_pos, m_reload_dir, curr_truck->realtruckfilename, -1);
+    Beam* newBeam = m_beam_factory.CreateLocalRigInstance(m_reload_pos, m_reload_dir, curr_truck->ar_filename, -1);
 
     if (!newBeam)
     {

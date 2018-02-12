@@ -131,60 +131,60 @@ void AircraftSimulation::UpdateVehicle(Beam* vehicle, float seconds_since_last_f
     //flaps
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_FLAPS_NONE))
     {
-        if (vehicle->flap > 0)
+        if (vehicle->ar_aerial_flap > 0)
         {
-            vehicle->flap = 0;
+            vehicle->ar_aerial_flap = 0;
         }
     }
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_FLAPS_FULL))
     {
-        if (vehicle->flap < 5)
+        if (vehicle->ar_aerial_flap < 5)
         {
-            vehicle->flap = 5;
+            vehicle->ar_aerial_flap = 5;
         }
     }
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_FLAPS_LESS))
     {
-        if (vehicle->flap > 0)
+        if (vehicle->ar_aerial_flap > 0)
         {
-            vehicle->flap = (vehicle->flap) - 1;
+            vehicle->ar_aerial_flap = (vehicle->ar_aerial_flap) - 1;
         }
     }
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_FLAPS_MORE))
     {
-        if (vehicle->flap < 5)
+        if (vehicle->ar_aerial_flap < 5)
         {
-            vehicle->flap = (vehicle->flap) + 1;
+            vehicle->ar_aerial_flap = (vehicle->ar_aerial_flap) + 1;
         }
     }
 
     //airbrakes
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_AIRBRAKES_NONE))
     {
-        if (vehicle->airbrakeval > 0)
+        if (vehicle->ar_airbrake_intensity > 0)
         {
-            vehicle->airbrakeval = 0;
+            vehicle->ar_airbrake_intensity = 0;
         }
     }
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_AIRBRAKES_FULL))
     {
-        if (vehicle->airbrakeval < 5)
+        if (vehicle->ar_airbrake_intensity < 5)
         {
-            vehicle->airbrakeval = 5;
+            vehicle->ar_airbrake_intensity = 5;
         }
     }
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_AIRBRAKES_LESS))
     {
-        if (vehicle->airbrakeval > 0)
+        if (vehicle->ar_airbrake_intensity > 0)
         {
-            vehicle->airbrakeval = (vehicle->airbrakeval) - 1;
+            vehicle->ar_airbrake_intensity = (vehicle->ar_airbrake_intensity) - 1;
         }
     }
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_AIRBRAKES_MORE))
     {
-        if (vehicle->airbrakeval < 5)
+        if (vehicle->ar_airbrake_intensity < 5)
         {
-            vehicle->airbrakeval = (vehicle->airbrakeval) + 1;
+            vehicle->ar_airbrake_intensity = (vehicle->ar_airbrake_intensity) + 1;
         }
     }
 
