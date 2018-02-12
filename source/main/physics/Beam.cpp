@@ -5321,7 +5321,7 @@ void Beam::updateDashBoards(float dt)
     dash->setFloat(DD_ODOMETER_USER, odometerUser);
 
     // set the features of this vehicle once
-    if (!GUIFeaturesChanged)
+    if (!m_hud_features_ok)
     {
         bool hasEngine = (engine != 0);
         bool hasturbo = false;
@@ -5337,7 +5337,6 @@ void Beam::updateDashBoards(float dt)
         dash->setEnabled(DD_ENGINE_GEAR, hasEngine);
         dash->setEnabled(DD_ENGINE_NUM_GEAR, hasEngine);
         dash->setEnabled(DD_ENGINE_GEAR_STRING, hasEngine);
-        dash->setEnabled(DD_ENGINE_AUTOGEAR_STRING, hasEngine);
         dash->setEnabled(DD_ENGINE_AUTO_GEAR, hasEngine);
         dash->setEnabled(DD_ENGINE_CLUTCH, hasEngine);
         dash->setEnabled(DD_ENGINE_RPM, hasEngine);
@@ -5353,7 +5352,7 @@ void Beam::updateDashBoards(float dt)
         dash->setEnabled(DD_ENGINE_AUTOGEAR_STRING, autogearVisible);
 
         dash->updateFeatures();
-        GUIFeaturesChanged = true;
+        m_hud_features_ok = true;
     }
 
     // TODO: compass value
@@ -5509,11 +5508,6 @@ Vector3 Beam::getGForces()
     return Vector3::ZERO;
 }
 
-void Beam::triggerGUIFeaturesChanged()
-{
-    GUIFeaturesChanged = true;
-}
-
 void Beam::engineTriggerHelper(int engineNumber, int type, float triggerValue)
 {
     // engineNumber tells us which engine
@@ -5571,7 +5565,7 @@ Beam::Beam(
     , has_active_shocks(false)
     , rotators(nullptr), free_rotator(0)
     , wings(nullptr), free_wing(0)
-    , GUIFeaturesChanged(false)
+    , m_hud_features_ok(false)
     , m_sim_controller(sim_controller)
     , aileron(0)
     , avichatter_timer(11.0f) // some pseudo random number,  doesn't matter
