@@ -55,9 +55,9 @@ CameraManager::CameraManager() :
 {
     createGlobalBehaviors();
 
-    ctx.mCurrTruck = nullptr;
-    ctx.mDof = nullptr;
-    ctx.mDebug = BSETTING("Camera Debug", false);
+    ctx.cct_player_actor = nullptr;
+    ctx.cct_dof_manager = nullptr;
+    ctx.cct_debug = BSETTING("Camera Debug", false);
 
     m_config_enter_vehicle_keep_fixedfreecam = BSETTING("Camera_EnterVehicle_KeepFixedFreeCam", true);
     m_config_exit_vehicle_keep_fixedfreecam  = BSETTING("Camera_ExitVehicle_KeepFixedFreeCam",  false);
@@ -72,28 +72,28 @@ CameraManager::~CameraManager()
 
     globalBehaviors.clear();
 
-    delete ctx.mDof;
+    delete ctx.cct_dof_manager;
 }
 
-void CameraManager::ActivateDepthOfFieldEffect(RoRFrameListener* sim)
+void CameraManager::ActivateDepthOfFieldEffect()
 {
-    if (ctx.mDof == nullptr)
+    if (ctx.cct_dof_manager == nullptr)
     {
-        ctx.mDof = new DOFManager();
-        ctx.mDof->setFocusMode(DOFManager::Auto);
+        ctx.cct_dof_manager = new DOFManager();
+        ctx.cct_dof_manager->setFocusMode(DOFManager::Auto);
     }
-    ctx.mDof->setEnabled(true);
+    ctx.cct_dof_manager->setEnabled(true);
 }
 
 void CameraManager::DisableDepthOfFieldEffect()
 {
-    if (ctx.mDof != nullptr)
+    if (ctx.cct_dof_manager != nullptr)
     {
-        ctx.mDof->setEnabled(false);
+        ctx.cct_dof_manager->setEnabled(false);
     }
 }
 
-bool CameraManager::Update(float dt, Actor* cur_truck, float sim_speed) // Called every frame
+bool CameraManager::Update(float dt, Actor* player_vehicle, float sim_speed) // Called every frame
 {
     if (RoR::App::sim_state.GetActive() == RoR::SimState::PAUSED) { return true; } // Do nothing when paused
 
@@ -102,13 +102,13 @@ bool CameraManager::Update(float dt, Actor* cur_truck, float sim_speed) // Calle
     mTransScale = mTransSpeed  * dt;
     mRotScale   = mRotateSpeed * dt;
 
-    ctx.mCurrTruck  = cur_truck;
-    ctx.mSimSpeed   = sim_speed;
-    ctx.mDt         = dt;
-    ctx.mRotScale   = Degree(mRotScale);
-    ctx.mTransScale = mTransScale;
-    ctx.fovInternal = Degree(App::gfx_fov_internal.GetActive()); // TODO: don't copy Gvar!
-    ctx.fovExternal = Degree(App::gfx_fov_external.GetActive());
+    ctx.cct_player_actor  = player_vehicle;
+    ctx.cct_sim_speed   = sim_speed;
+    ctx.cct_dt         = dt;
+    ctx.cct_rot_scale   = Degree(mRotScale);
+    ctx.cct_trans_scale = mTransScale;
+    ctx.cct_fov_interior = Degree(App::gfx_fov_internal.GetActive()); // TODO: don't copy Gvar!
+    ctx.cct_fov_exterior = Degree(App::gfx_fov_external.GetActive());
 
     if ( currentBehaviorID < CAMERA_BEHAVIOR_END && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_CHANGE) )
     {
@@ -168,9 +168,9 @@ void CameraManager::switchBehavior(int newBehaviorID, bool reset)
     currentBehaviorID = newBehaviorID;
 
     // activate new
-    if (ctx.mCurrTruck != nullptr)
+    if (ctx.cct_player_actor != nullptr)
     {
-        ctx.mCurrTruck->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_EXTERNAL;
+        ctx.cct_player_actor->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_EXTERNAL;
     }
     currentBehavior->activate(ctx, reset);
 }
@@ -192,7 +192,7 @@ void CameraManager::SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset,
     }
 
     // deactivate old
-    ctx.mCurrTruck = old_vehicle;
+    ctx.cct_player_actor = old_vehicle;
     if ( currentBehavior )
     {
         currentBehavior->deactivate(ctx);
@@ -203,7 +203,7 @@ void CameraManager::SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset,
     currentBehaviorID = newBehaviorID;
 
     // activate new
-    ctx.mCurrTruck = new_vehicle;
+    ctx.cct_player_actor = new_vehicle;
     currentBehavior->activate(ctx, reset);
 }
 
@@ -286,7 +286,7 @@ bool CameraManager::gameControlsLocked()
 
 void CameraManager::OnReturnToMainMenu()
 {
-    ctx.mCurrTruck = nullptr;
+    ctx.cct_player_actor = nullptr;
     currentBehavior = nullptr;
     currentBehaviorID = -1;
 }
@@ -302,7 +302,7 @@ void CameraManager::NotifyVehicleChanged(Actor* old_vehicle, Actor* new_vehicle)
     // Getting out of vehicle
     if (new_vehicle == nullptr)
     {
-        ctx.mCurrTruck = nullptr;
+        ctx.cct_player_actor = nullptr;
         if ( !(this->currentBehaviorID == CAMERA_BEHAVIOR_STATIC && m_config_exit_vehicle_keep_fixedfreecam) &&
              !(this->currentBehaviorID == CAMERA_BEHAVIOR_FIXED  && m_config_exit_vehicle_keep_fixedfreecam) &&
              !(this->currentBehaviorID == CAMERA_BEHAVIOR_FREE   && m_config_exit_vehicle_keep_fixedfreecam) )

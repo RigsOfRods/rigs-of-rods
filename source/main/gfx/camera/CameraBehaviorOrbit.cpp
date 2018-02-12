@@ -68,8 +68,8 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext& ctx)
         }
     }
 
-    camRotX += (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_RIGHT) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_LEFT)) * ctx.mRotScale;
-    camRotY += (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_UP) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_DOWN)) * ctx.mRotScale;
+    camRotX += (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_RIGHT) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_LEFT)) * ctx.cct_rot_scale;
+    camRotY += (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_UP) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_DOWN)) * ctx.cct_rot_scale;
 
     camRotY = std::max((Radian)Degree(-80), camRotY);
     camRotY = std::min(camRotY, (Radian)Degree(88));
@@ -82,19 +82,19 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext& ctx)
 
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_IN) && camDist > 1)
     {
-        camDist -= ctx.mTransScale;
+        camDist -= ctx.cct_trans_scale;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_IN_FAST) && camDist > 1)
     {
-        camDist -= ctx.mTransScale * 10;
+        camDist -= ctx.cct_trans_scale * 10;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_OUT))
     {
-        camDist += ctx.mTransScale;
+        camDist += ctx.cct_trans_scale;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_OUT_FAST))
     {
-        camDist += ctx.mTransScale * 10;
+        camDist += ctx.cct_trans_scale * 10;
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_RESET))
@@ -167,7 +167,7 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext& ctx)
     }
     else
     {
-        if (ctx.mCurrTruck && ctx.mCurrTruck->ar_replay_mode && camDisplacement != Vector3::ZERO)
+        if (ctx.cct_player_actor && ctx.cct_player_actor->ar_replay_mode && camDisplacement != Vector3::ZERO)
             gEnv->mainCamera->setPosition(desiredPosition);
         else
             gEnv->mainCamera->setPosition(camPosition);
@@ -205,7 +205,7 @@ void CameraBehaviorOrbit::reset(const CameraManager::CameraContext& ctx)
     camLookAtLast = Vector3::ZERO;
     camLookAtSmooth = Vector3::ZERO;
     camLookAtSmoothLast = Vector3::ZERO;
-    gEnv->mainCamera->setFOVy(ctx.fovExternal);
+    gEnv->mainCamera->setFOVy(ctx.cct_fov_exterior);
 }
 
 void CameraBehaviorOrbit::notifyContextChange(const CameraManager::CameraContext& ctx)

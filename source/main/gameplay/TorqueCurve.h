@@ -32,7 +32,7 @@
 /// @authors Thomas Fischer (thomas{AT}rigsofrods{DOT}com)
 
 /**
- *  @brief This class loads and processes a torque curve for a truck.
+ *  @brief This class loads and processes a torque curve for a vehicle.
  */
 class TorqueCurve : public ZeroedMemoryAllocator
 {
@@ -50,7 +50,7 @@ public:
     Ogre::Real getEngineTorque(Ogre::Real rpmRatio);
 
     /**
-     * Sets the torque model which is used for the truck.
+     * Sets the torque model which is used for the vehicle.
      * @param name name of the torque model which should be used.
      * @return 0 on success, 1 if torque model is not found.
      */
@@ -71,13 +71,13 @@ public:
 
     /**
      * Returns the used spline.
-     * @return The torque spline used by the truck.
+     * @return The torque spline used by the vehicle.
      */
     Ogre::SimpleSpline* getUsedSpline() { return usedSpline; };
 
     /**
-     * Returns the name of the torque model used by the truck.
-     * @return The name of the torque model used by the truck.
+     * Returns the name of the torque model used by the vehicle.
+     * @return The name of the torque model used by the vehicle.
      */
     Ogre::String getTorqueModel() { return usedModel; };
 

@@ -40,13 +40,13 @@ void CameraBehaviorVehicleCineCam::update(const CameraManager::CameraContext &ct
 {
     CameraBehaviorOrbit::update(ctx);
 
-    Vector3 dir = (ctx.mCurrTruck->ar_nodes[ctx.mCurrTruck->ar_camera_node_pos[ctx.mCurrTruck->ar_current_cinecam]].AbsPosition
-                 - ctx.mCurrTruck->ar_nodes[ctx.mCurrTruck->ar_camera_node_dir[ctx.mCurrTruck->ar_current_cinecam]].AbsPosition).normalisedCopy();
+    Vector3 dir = (ctx.cct_player_actor->ar_nodes[ctx.cct_player_actor->ar_camera_node_pos[ctx.cct_player_actor->ar_current_cinecam]].AbsPosition
+                 - ctx.cct_player_actor->ar_nodes[ctx.cct_player_actor->ar_camera_node_dir[ctx.cct_player_actor->ar_current_cinecam]].AbsPosition).normalisedCopy();
 
-    Vector3 roll = (ctx.mCurrTruck->ar_nodes[ctx.mCurrTruck->ar_camera_node_pos[ctx.mCurrTruck->ar_current_cinecam]].AbsPosition
-                  - ctx.mCurrTruck->ar_nodes[ctx.mCurrTruck->ar_camera_node_roll[ctx.mCurrTruck->ar_current_cinecam]].AbsPosition).normalisedCopy();
+    Vector3 roll = (ctx.cct_player_actor->ar_nodes[ctx.cct_player_actor->ar_camera_node_pos[ctx.cct_player_actor->ar_current_cinecam]].AbsPosition
+                  - ctx.cct_player_actor->ar_nodes[ctx.cct_player_actor->ar_camera_node_roll[ctx.cct_player_actor->ar_current_cinecam]].AbsPosition).normalisedCopy();
 
-    if ( ctx.mCurrTruck->ar_camera_node_roll_inv[ctx.mCurrTruck->ar_current_cinecam] )
+    if ( ctx.cct_player_actor->ar_camera_node_roll_inv[ctx.cct_player_actor->ar_current_cinecam] )
     {
         roll = -roll;
     }
@@ -57,13 +57,13 @@ void CameraBehaviorVehicleCineCam::update(const CameraManager::CameraContext &ct
 
     Quaternion orientation = Quaternion(camRotX + camRotXSwivel, up) * Quaternion(Degree(180.0) + camRotY + camRotYSwivel, roll) * Quaternion(roll, up, dir);
 
-    gEnv->mainCamera->setPosition(ctx.mCurrTruck->ar_nodes[ctx.mCurrTruck->ar_cinecam_node[ctx.mCurrTruck->ar_current_cinecam]].AbsPosition);
+    gEnv->mainCamera->setPosition(ctx.cct_player_actor->ar_nodes[ctx.cct_player_actor->ar_cinecam_node[ctx.cct_player_actor->ar_current_cinecam]].AbsPosition);
     gEnv->mainCamera->setOrientation(orientation);
 }
 
 void CameraBehaviorVehicleCineCam::activate(const CameraManager::CameraContext &ctx, bool reset /* = true */)
 {
-    Actor* current_vehicle = ctx.mCurrTruck;
+    Actor* current_vehicle = ctx.cct_player_actor;
     if (current_vehicle == nullptr)
     {
         m_camera_manager->switchToNextBehavior();
@@ -80,7 +80,7 @@ void CameraBehaviorVehicleCineCam::activate(const CameraManager::CameraContext &
         this->reset(ctx);
     }
 
-    gEnv->mainCamera->setFOVy(ctx.fovInternal);
+    gEnv->mainCamera->setFOVy(ctx.cct_fov_interior);
 
     current_vehicle->prepareInside(true);
 
@@ -100,14 +100,14 @@ void CameraBehaviorVehicleCineCam::activate(const CameraManager::CameraContext &
 
 void CameraBehaviorVehicleCineCam::deactivate(const CameraManager::CameraContext &ctx)
 {
-    Actor* current_vehicle = ctx.mCurrTruck;
+    Actor* current_vehicle = ctx.cct_player_actor;
     if ( current_vehicle == nullptr 
         || current_vehicle->GetCameraContext()->behavior != RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_CINECAM )
     {
         return;
     }
 
-    gEnv->mainCamera->setFOVy(ctx.fovExternal);
+    gEnv->mainCamera->setFOVy(ctx.cct_fov_exterior);
     
     current_vehicle->prepareInside(false);
 
@@ -127,12 +127,12 @@ void CameraBehaviorVehicleCineCam::reset(const CameraManager::CameraContext &ctx
 {
     CameraBehaviorOrbit::reset(ctx);
     camRotY = Degree(DEFAULT_INTERNAL_CAM_PITCH);
-    gEnv->mainCamera->setFOVy(ctx.fovInternal);
+    gEnv->mainCamera->setFOVy(ctx.cct_fov_interior);
 }
 
 bool CameraBehaviorVehicleCineCam::switchBehavior(const CameraManager::CameraContext &ctx)
 {
-    Actor* vehicle = ctx.mCurrTruck;
+    Actor* vehicle = ctx.cct_player_actor;
     if ( (vehicle != nullptr) && (vehicle->ar_current_cinecam) < (vehicle->ar_num_cinecams-1) )
     {
         vehicle->ar_current_cinecam++;

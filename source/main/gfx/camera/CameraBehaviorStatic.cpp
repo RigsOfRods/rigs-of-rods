@@ -62,16 +62,16 @@ void CameraBehaviorStatic::update(const CameraManager::CameraContext& ctx)
     float rotation = 0.0f;
     float speed = 0.0f;
 
-    if (ctx.mCurrTruck)
+    if (ctx.cct_player_actor)
     {
-        lookAt = ctx.mCurrTruck->getPosition();
-        rotation = ctx.mCurrTruck->getRotation();
-        velocity = ctx.mCurrTruck->ar_nodes[0].Velocity * ctx.mSimSpeed;
+        lookAt = ctx.cct_player_actor->getPosition();
+        rotation = ctx.cct_player_actor->getRotation();
+        velocity = ctx.cct_player_actor->ar_nodes[0].Velocity * ctx.cct_sim_speed;
         angle = (lookAt - camPosition).angleBetween(velocity);
         speed = velocity.length();
-        if (ctx.mCurrTruck->ar_replay_mode)
+        if (ctx.cct_player_actor->ar_replay_mode)
         {
-            speed *= ctx.mCurrTruck->ar_replay_precision;
+            speed *= ctx.cct_player_actor->ar_replay_precision;
         }
     }
     else
