@@ -167,11 +167,11 @@ void ScriptEngine::init()
     result = engine->RegisterGlobalFunction("void log(const string &in)", AngelScript::asFUNCTION(logString), AngelScript::asCALL_CDECL); MYASSERT( result >= 0 );
     result = engine->RegisterGlobalFunction("void print(const string &in)", AngelScript::asFUNCTION(logString), AngelScript::asCALL_CDECL); MYASSERT( result >= 0 );
 
-    result = engine->RegisterObjectType("BeamFactoryClass", sizeof(BeamFactory), AngelScript::asOBJ_REF); MYASSERT(result>=0);
-    result = engine->RegisterObjectMethod("BeamFactoryClass", "bool enterRescueTruck()", AngelScript::asMETHOD(BeamFactory,enterRescueTruck), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
-    result = engine->RegisterObjectMethod("BeamFactoryClass", "void setSimulationSpeed(float)", AngelScript::asMETHOD(BeamFactory,setSimulationSpeed), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
-    result = engine->RegisterObjectBehaviour("BeamFactoryClass", AngelScript::asBEHAVE_ADDREF, "void f()", AngelScript::asMETHOD(BeamFactory,addRef), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
-    result = engine->RegisterObjectBehaviour("BeamFactoryClass", AngelScript::asBEHAVE_RELEASE, "void f()", AngelScript::asMETHOD(BeamFactory,release), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+    result = engine->RegisterObjectType("BeamFactoryClass", sizeof(ActorManager), AngelScript::asOBJ_REF); MYASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamFactoryClass", "bool enterRescueTruck()", AngelScript::asMETHOD(ActorManager,enterRescueTruck), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamFactoryClass", "void setSimulationSpeed(float)", AngelScript::asMETHOD(ActorManager,setSimulationSpeed), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+    result = engine->RegisterObjectBehaviour("BeamFactoryClass", AngelScript::asBEHAVE_ADDREF, "void f()", AngelScript::asMETHOD(ActorManager,addRef), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+    result = engine->RegisterObjectBehaviour("BeamFactoryClass", AngelScript::asBEHAVE_RELEASE, "void f()", AngelScript::asMETHOD(ActorManager,release), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 
     // enum aiEvents
     result = engine->RegisterEnum("aiEvents"); MYASSERT(result >= 0);

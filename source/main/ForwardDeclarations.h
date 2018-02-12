@@ -30,7 +30,7 @@
 
 namespace RoR
 {
-    class  BeamFactory;
+    class  ActorManager;
     class  ConfigFile;
     class  Console;
     class  ContentManager;

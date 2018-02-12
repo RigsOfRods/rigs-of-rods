@@ -230,8 +230,7 @@ bool DepthOfFieldEffect::renderableQueued(Ogre::Renderable* rend, Ogre::uint8 gr
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-DOFManager::DOFManager():
-    m_sim_controller(nullptr)
+DOFManager::DOFManager()
 {
     mFocusMode = Manual;
     mAutoSpeed = 30;
@@ -368,7 +367,7 @@ bool DOFManager::frameStarted(const FrameEvent& evt)
 
                 Vector3 lookAt(Vector3::ZERO);
 
-                Actor* currTruck = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+                Actor* currTruck = RoR::App::GetSimController()->GetPlayerActor();
                 if (currTruck)
                 {
                     lookAt = currTruck->getPosition();

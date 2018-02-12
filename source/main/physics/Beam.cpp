@@ -2988,11 +2988,12 @@ void Actor::lightsToggle()
     if (ar_skeletonview_is_active)
         return;
 
+    // TODO: Refactor! The `ActorManager` class should do this! ~ only_a_ptr, 01/2018
     Actor** trucks = App::GetSimController()->GetBeamFactory()->getTrucks();
     int trucksnum = App::GetSimController()->GetBeamFactory()->getTruckCount();
 
     // export light command
-    Actor* current_truck = App::GetSimController()->GetBeamFactory()->getCurrentTruck();
+    Actor* current_truck = App::GetSimController()->GetPlayerActor();
     if (ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this == current_truck && ar_forward_commands)
     {
         for (int i = 0; i < trucksnum; i++)
@@ -3251,7 +3252,7 @@ void Actor::updateFlares(float dt, bool isCurrent)
         }
         else if (ar_flares[i].type == 'u' && ar_flares[i].controlnumber != -1)
         {
-            if (ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this == App::GetSimController()->GetBeamFactory()->getCurrentTruck()) // no network!!
+            if (ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this == App::GetSimController()->GetPlayerActor()) // no network!!
             {
                 // networked customs are set directly, so skip this
                 if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_LIGHTTOGGLE01 + (ar_flares[i].controlnumber - 1)) && m_custom_light_toggle_countdown <= 0)
@@ -4202,11 +4203,12 @@ void Actor::disjoinInterTruckBeams()
 
 void Actor::tieToggle(int group)
 {
+    //TODO: Refactor this - logic iterating over all actors should be in `ActorManager`! ~ only_a_ptr, 01/2018
     Actor** trucks = App::GetSimController()->GetBeamFactory()->getTrucks();
     int trucksnum = App::GetSimController()->GetBeamFactory()->getTruckCount();
 
     // export tie commands
-    Actor* current_truck = App::GetSimController()->GetBeamFactory()->getCurrentTruck();
+    Actor* current_truck = App::GetSimController()->GetPlayerActor();
     if (ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this == current_truck && ar_forward_commands)
     {
         for (int i = 0; i < trucksnum; i++)

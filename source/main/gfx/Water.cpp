@@ -53,9 +53,9 @@ public:
         // Hide plane
         pPlaneEnt->setVisible(false);
         //hide Water spray
-        //// Commented out while de-singletonizing BeamFactory 
+        //// Commented out while de-singletonizing ActorManager 
         //// because I don't know (and don't care) whether this code is actually used ~ only_a_ptr, 01/2017
-        ////BeamFactory ::getSingleton().GetParticleManager().setVisible(false);
+        ////ActorManager ::getSingleton().GetParticleManager().setVisible(false);
     }
 
     void postRenderTargetUpdate(const RenderTargetEvent& evt)
@@ -64,9 +64,9 @@ public:
         pPlaneEnt->setVisible(true);
         waterSceneMgr->getRenderQueue()->getQueueGroup(RENDER_QUEUE_MAIN)->setShadowsEnabled(true);
         //restore Water spray;
-        //// Commented out while de-singletonizing BeamFactory 
+        //// Commented out while de-singletonizing ActorManager 
         //// because I don't know (and don't care) whether this code is actually used ~ only_a_ptr, 01/2017
-        ////BeamFactory ::getSingleton().GetParticleManager().setVisible(true);
+        ////ActorManager ::getSingleton().GetParticleManager().setVisible(true);
     }
 };
 

@@ -42,8 +42,7 @@
 using namespace Ogre;
 using namespace RoR;
 
-SceneMouse::SceneMouse():
-    m_sim_controller(nullptr)
+SceneMouse::SceneMouse()
 {
     mouseGrabForce = 30000.0f;
     grab_truck = NULL;
@@ -126,8 +125,8 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
         Ray mouseRay = getMouseRay();
 
         // walk all trucks
-        Actor** trucks = m_sim_controller->GetBeamFactory()->getTrucks();
-        int trucksnum = m_sim_controller->GetBeamFactory()->getTruckCount();
+        Actor** trucks = App::GetSimController()->GetBeamFactory()->getTrucks();
+        int trucksnum  = App::GetSimController()->GetBeamFactory()->getTruckCount();
         minnode = -1;
         grab_truck = NULL;
         for (int i = 0; i < trucksnum; i++)
@@ -228,7 +227,7 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
     {
         if (gEnv->cameraManager && gEnv->cameraManager->getCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE)
         {
-            Actor* truck = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+            Actor* truck = App::GetSimController()->GetPlayerActor();
 
             if (truck)
             {

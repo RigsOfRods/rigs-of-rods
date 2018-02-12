@@ -145,20 +145,20 @@ unsigned int getNumberOfCPUCores()
 
 using namespace RoR;
 
-BeamFactory::BeamFactory(RoRFrameListener* sim_controller)
-    : m_current_truck(-1)
+ActorManager::ActorManager(RoRFrameListener* sim_controller)
+    : m_player_actor(-1)
     , m_dt_remainder(0.0f)
     , m_forced_active(false)
-    , m_free_truck(0)
+    , m_free_actor_slot(0)
     , m_num_cpu_cores(0)
     , m_physics_frames(0)
     , m_physics_steps(2000)
-    , m_previous_truck(-1)
-    , m_simulated_truck(0)
+    , m_prev_player_actor(-1)
+    , m_simulated_actor(0)
     , m_simulation_speed(1.0f)
     , m_sim_controller(sim_controller)
+    , m_actors() // Array
 {
-    memset(m_trucks, 0, MAX_TRUCKS * sizeof(void*));
 
     if (RoR::App::app_multithread.GetActive())
     {
@@ -198,7 +198,7 @@ BeamFactory::BeamFactory(RoRFrameListener* sim_controller)
     }
 }
 
-BeamFactory::~BeamFactory()
+ActorManager::~ActorManager()
 {
     this->SyncWithSimThread(); // Wait for sim task to finish
     delete gEnv->threadPool;
@@ -207,7 +207,7 @@ BeamFactory::~BeamFactory()
 
 #define LOADRIG_PROFILER_CHECKPOINT(ENTRY_ID) rig_loading_profiler.Checkpoint(RoR::RigLoadingProfiler::ENTRY_ID);
 
-Actor* BeamFactory::CreateLocalRigInstance(
+Actor* ActorManager::CreateLocalRigInstance(
     Ogre::Vector3 pos,
     Ogre::Quaternion rot,
     Ogre::String fname,
@@ -256,7 +256,7 @@ Actor* BeamFactory::CreateLocalRigInstance(
         return nullptr;
     }
 
-    m_trucks[truck_num] = b;
+    m_actors[truck_num] = b;
 
     // lock slide nodes after spawning the truck?
     if (b->getSlideNodesLockInstant())
@@ -284,7 +284,7 @@ Actor* BeamFactory::CreateLocalRigInstance(
 
 #undef LOADRIG_PROFILER_CHECKPOINT
 
-int BeamFactory::CreateRemoteInstance(RoRnet::TruckStreamRegister* reg)
+int ActorManager::CreateRemoteInstance(RoRnet::TruckStreamRegister* reg)
 {
     LOG(" new beam truck for " + TOSTRING(reg->origin_sourceid) + ":" + TOSTRING(reg->origin_streamid));
 
@@ -345,7 +345,7 @@ int BeamFactory::CreateRemoteInstance(RoRnet::TruckStreamRegister* reg)
         this->DeleteTruck(b);
         return -1;
     }
-    m_trucks[truck_num] = b;
+    m_actors[truck_num] = b;
 
     b->ar_net_source_id = reg->origin_sourceid;
     b->ar_net_stream_id = reg->origin_streamid;
@@ -358,26 +358,26 @@ int BeamFactory::CreateRemoteInstance(RoRnet::TruckStreamRegister* reg)
     return 1;
 }
 
-void BeamFactory::RemoveStreamSource(int sourceid)
+void ActorManager::RemoveStreamSource(int sourceid)
 {
     m_stream_mismatches.erase(sourceid);
 
-    for (int t = 0; t < m_free_truck; t++)
+    for (int t = 0; t < m_free_actor_slot; t++)
     {
-        if (!m_trucks[t])
+        if (!m_actors[t])
             continue;
-        if (m_trucks[t]->ar_sim_state != Actor::SimState::NETWORKED_OK)
+        if (m_actors[t]->ar_sim_state != Actor::SimState::NETWORKED_OK)
             continue;
 
-        if (m_trucks[t]->ar_net_source_id == sourceid)
+        if (m_actors[t]->ar_net_source_id == sourceid)
         {
-            this->DeleteTruck(m_trucks[t]);
+            this->DeleteTruck(m_actors[t]);
         }
     }
 }
 
 #ifdef USE_SOCKETW
-void BeamFactory::handleStreamData(std::vector<RoR::Networking::recv_packet_t> packet_buffer)
+void ActorManager::handleStreamData(std::vector<RoR::Networking::recv_packet_t> packet_buffer)
 {
     for (auto packet : packet_buffer)
     {
@@ -393,16 +393,16 @@ void BeamFactory::handleStreamData(std::vector<RoR::Networking::recv_packet_t> p
         else if (packet.header.command == RoRnet::MSG2_STREAM_REGISTER_RESULT)
         {
             RoRnet::StreamRegister* reg = (RoRnet::StreamRegister *)packet.buffer;
-            for (int t = 0; t < m_free_truck; t++)
+            for (int t = 0; t < m_free_actor_slot; t++)
             {
-                if (!m_trucks[t])
+                if (!m_actors[t])
                     continue;
-                if (m_trucks[t]->ar_sim_state == Actor::SimState::NETWORKED_OK)
+                if (m_actors[t]->ar_sim_state == Actor::SimState::NETWORKED_OK)
                     continue;
-                if (m_trucks[t]->ar_net_stream_id == reg->origin_streamid)
+                if (m_actors[t]->ar_net_stream_id == reg->origin_streamid)
                 {
                     int sourceid = packet.header.source;
-                    m_trucks[t]->ar_net_stream_results[sourceid] = reg->status;
+                    m_actors[t]->ar_net_stream_results[sourceid] = reg->status;
 
                     if (reg->status == 1)
                     LOG("Client " + TOSTRING(sourceid) + " successfully loaded stream " + TOSTRING(reg->origin_streamid) + " with name '" + reg->name + "', result code: " + TOSTRING(reg->status));
@@ -435,33 +435,33 @@ void BeamFactory::handleStreamData(std::vector<RoR::Networking::recv_packet_t> p
         }
         else
         {
-            for (int t = 0; t < m_free_truck; t++)
+            for (int t = 0; t < m_free_actor_slot; t++)
             {
-                if (!m_trucks[t])
+                if (!m_actors[t])
                     continue;
-                if (m_trucks[t]->ar_sim_state != Actor::SimState::NETWORKED_OK)
+                if (m_actors[t]->ar_sim_state != Actor::SimState::NETWORKED_OK)
                     continue;
 
-                m_trucks[t]->receiveStreamData(packet.header.command, packet.header.source, packet.header.streamid, packet.buffer, packet.header.size);
+                m_actors[t]->receiveStreamData(packet.header.command, packet.header.source, packet.header.streamid, packet.buffer, packet.header.size);
             }
         }
     }
 }
 #endif // USE_SOCKETW
 
-int BeamFactory::checkStreamsOK(int sourceid)
+int ActorManager::checkStreamsOK(int sourceid)
 {
     if (m_stream_mismatches[sourceid].size() > 0)
         return 0;
 
-    for (int t = 0; t < m_free_truck; t++)
+    for (int t = 0; t < m_free_actor_slot; t++)
     {
-        if (!m_trucks[t])
+        if (!m_actors[t])
             continue;
-        if (m_trucks[t]->ar_sim_state != Actor::SimState::NETWORKED_OK)
+        if (m_actors[t]->ar_sim_state != Actor::SimState::NETWORKED_OK)
             continue;
 
-        if (m_trucks[t]->ar_net_source_id == sourceid)
+        if (m_actors[t]->ar_net_source_id == sourceid)
         {
             return 1;
         }
@@ -470,18 +470,18 @@ int BeamFactory::checkStreamsOK(int sourceid)
     return 2;
 }
 
-int BeamFactory::checkStreamsRemoteOK(int sourceid)
+int ActorManager::checkStreamsRemoteOK(int sourceid)
 {
     int result = 2;
 
-    for (int t = 0; t < m_free_truck; t++)
+    for (int t = 0; t < m_free_actor_slot; t++)
     {
-        if (!m_trucks[t])
+        if (!m_actors[t])
             continue;
-        if (m_trucks[t]->ar_sim_state == Actor::SimState::NETWORKED_OK)
+        if (m_actors[t]->ar_sim_state == Actor::SimState::NETWORKED_OK)
             continue;
 
-        int stream_result = m_trucks[t]->ar_net_stream_results[sourceid];
+        int stream_result = m_actors[t]->ar_net_stream_results[sourceid];
         if (stream_result == -1)
             return 0;
         if (stream_result == 1)
@@ -491,25 +491,25 @@ int BeamFactory::checkStreamsRemoteOK(int sourceid)
     return result;
 }
 
-Actor* BeamFactory::getBeam(int source_id, int stream_id)
+Actor* ActorManager::getBeam(int source_id, int stream_id)
 {
-    for (int t = 0; t < m_free_truck; t++)
+    for (int t = 0; t < m_free_actor_slot; t++)
     {
-        if (!m_trucks[t])
+        if (!m_actors[t])
             continue;
-        if (m_trucks[t]->ar_sim_state != Actor::SimState::NETWORKED_OK)
+        if (m_actors[t]->ar_sim_state != Actor::SimState::NETWORKED_OK)
             continue;
 
-        if (m_trucks[t]->ar_net_source_id == source_id && m_trucks[t]->ar_net_stream_id == stream_id)
+        if (m_actors[t]->ar_net_source_id == source_id && m_actors[t]->ar_net_stream_id == stream_id)
         {
-            return m_trucks[t];
+            return m_actors[t];
         }
     }
 
     return nullptr;
 }
 
-bool BeamFactory::intersectionAABB(Ogre::AxisAlignedBox a, Ogre::AxisAlignedBox b, float scale)
+bool ActorManager::intersectionAABB(Ogre::AxisAlignedBox a, Ogre::AxisAlignedBox b, float scale)
 {
     if (scale != 1.0f)
     {
@@ -527,38 +527,38 @@ bool BeamFactory::intersectionAABB(Ogre::AxisAlignedBox a, Ogre::AxisAlignedBox 
     return a.intersects(b);
 }
 
-bool BeamFactory::truckIntersectionAABB(int a, int b, float scale)
+bool ActorManager::truckIntersectionAABB(int a, int b, float scale)
 {
-    return intersectionAABB(m_trucks[a]->ar_bounding_box, m_trucks[b]->ar_bounding_box, scale);
+    return intersectionAABB(m_actors[a]->ar_bounding_box, m_actors[b]->ar_bounding_box, scale);
 }
 
-bool BeamFactory::predictTruckIntersectionAABB(int a, int b, float scale)
+bool ActorManager::predictTruckIntersectionAABB(int a, int b, float scale)
 {
-    return intersectionAABB(m_trucks[a]->ar_predicted_bounding_box, m_trucks[b]->ar_predicted_bounding_box, scale);
+    return intersectionAABB(m_actors[a]->ar_predicted_bounding_box, m_actors[b]->ar_predicted_bounding_box, scale);
 }
 
-bool BeamFactory::truckIntersectionCollAABB(int a, int b, float scale)
+bool ActorManager::truckIntersectionCollAABB(int a, int b, float scale)
 {
-    if (m_trucks[a]->ar_collision_bounding_boxes.empty() && m_trucks[b]->ar_collision_bounding_boxes.empty())
+    if (m_actors[a]->ar_collision_bounding_boxes.empty() && m_actors[b]->ar_collision_bounding_boxes.empty())
     {
         return truckIntersectionAABB(a, b, scale);
     }
-    else if (m_trucks[a]->ar_collision_bounding_boxes.empty())
+    else if (m_actors[a]->ar_collision_bounding_boxes.empty())
     {
-        for (std::vector<AxisAlignedBox>::iterator it = m_trucks[b]->ar_collision_bounding_boxes.begin(); it != m_trucks[b]->ar_collision_bounding_boxes.end(); ++it)
-            if (intersectionAABB(*it, m_trucks[a]->ar_bounding_box, scale))
+        for (std::vector<AxisAlignedBox>::iterator it = m_actors[b]->ar_collision_bounding_boxes.begin(); it != m_actors[b]->ar_collision_bounding_boxes.end(); ++it)
+            if (intersectionAABB(*it, m_actors[a]->ar_bounding_box, scale))
                 return true;
     }
-    else if (m_trucks[b]->ar_collision_bounding_boxes.empty())
+    else if (m_actors[b]->ar_collision_bounding_boxes.empty())
     {
-        for (std::vector<AxisAlignedBox>::iterator it = m_trucks[a]->ar_collision_bounding_boxes.begin(); it != m_trucks[a]->ar_collision_bounding_boxes.end(); ++it)
-            if (intersectionAABB(*it, m_trucks[b]->ar_bounding_box, scale))
+        for (std::vector<AxisAlignedBox>::iterator it = m_actors[a]->ar_collision_bounding_boxes.begin(); it != m_actors[a]->ar_collision_bounding_boxes.end(); ++it)
+            if (intersectionAABB(*it, m_actors[b]->ar_bounding_box, scale))
                 return true;
     }
     else
     {
-        for (std::vector<AxisAlignedBox>::iterator it_a = m_trucks[a]->ar_collision_bounding_boxes.begin(); it_a != m_trucks[a]->ar_collision_bounding_boxes.end(); ++it_a)
-            for (std::vector<AxisAlignedBox>::iterator it_b = m_trucks[b]->ar_collision_bounding_boxes.begin(); it_b != m_trucks[b]->ar_collision_bounding_boxes.end(); ++it_b)
+        for (std::vector<AxisAlignedBox>::iterator it_a = m_actors[a]->ar_collision_bounding_boxes.begin(); it_a != m_actors[a]->ar_collision_bounding_boxes.end(); ++it_a)
+            for (std::vector<AxisAlignedBox>::iterator it_b = m_actors[b]->ar_collision_bounding_boxes.begin(); it_b != m_actors[b]->ar_collision_bounding_boxes.end(); ++it_b)
                 if (intersectionAABB(*it_a, *it_b, scale))
                     return true;
     }
@@ -566,28 +566,28 @@ bool BeamFactory::truckIntersectionCollAABB(int a, int b, float scale)
     return false;
 }
 
-bool BeamFactory::predictTruckIntersectionCollAABB(int a, int b, float scale)
+bool ActorManager::predictTruckIntersectionCollAABB(int a, int b, float scale)
 {
-    if (m_trucks[a]->ar_predicted_coll_bounding_boxes.empty() && m_trucks[b]->ar_predicted_coll_bounding_boxes.empty())
+    if (m_actors[a]->ar_predicted_coll_bounding_boxes.empty() && m_actors[b]->ar_predicted_coll_bounding_boxes.empty())
     {
         return predictTruckIntersectionAABB(a, b, scale);
     }
-    else if (m_trucks[a]->ar_predicted_coll_bounding_boxes.empty())
+    else if (m_actors[a]->ar_predicted_coll_bounding_boxes.empty())
     {
-        for (std::vector<AxisAlignedBox>::iterator it = m_trucks[b]->ar_predicted_coll_bounding_boxes.begin(); it != m_trucks[b]->ar_predicted_coll_bounding_boxes.end(); ++it)
-            if (intersectionAABB(*it, m_trucks[a]->ar_predicted_bounding_box, scale))
+        for (std::vector<AxisAlignedBox>::iterator it = m_actors[b]->ar_predicted_coll_bounding_boxes.begin(); it != m_actors[b]->ar_predicted_coll_bounding_boxes.end(); ++it)
+            if (intersectionAABB(*it, m_actors[a]->ar_predicted_bounding_box, scale))
                 return true;
     }
-    else if (m_trucks[b]->ar_predicted_coll_bounding_boxes.empty())
+    else if (m_actors[b]->ar_predicted_coll_bounding_boxes.empty())
     {
-        for (std::vector<AxisAlignedBox>::iterator it = m_trucks[a]->ar_predicted_coll_bounding_boxes.begin(); it != m_trucks[a]->ar_predicted_coll_bounding_boxes.end(); ++it)
-            if (intersectionAABB(*it, m_trucks[b]->ar_predicted_bounding_box, scale))
+        for (std::vector<AxisAlignedBox>::iterator it = m_actors[a]->ar_predicted_coll_bounding_boxes.begin(); it != m_actors[a]->ar_predicted_coll_bounding_boxes.end(); ++it)
+            if (intersectionAABB(*it, m_actors[b]->ar_predicted_bounding_box, scale))
                 return true;
     }
     else
     {
-        for (std::vector<AxisAlignedBox>::iterator it_a = m_trucks[a]->ar_predicted_coll_bounding_boxes.begin(); it_a != m_trucks[a]->ar_predicted_coll_bounding_boxes.end(); ++it_a)
-            for (std::vector<AxisAlignedBox>::iterator it_b = m_trucks[b]->ar_predicted_coll_bounding_boxes.begin(); it_b != m_trucks[b]->ar_predicted_coll_bounding_boxes.end(); ++it_b)
+        for (std::vector<AxisAlignedBox>::iterator it_a = m_actors[a]->ar_predicted_coll_bounding_boxes.begin(); it_a != m_actors[a]->ar_predicted_coll_bounding_boxes.end(); ++it_a)
+            for (std::vector<AxisAlignedBox>::iterator it_b = m_actors[b]->ar_predicted_coll_bounding_boxes.begin(); it_b != m_actors[b]->ar_predicted_coll_bounding_boxes.end(); ++it_b)
                 if (intersectionAABB(*it_a, *it_b, scale))
                     return true;
     }
@@ -595,54 +595,54 @@ bool BeamFactory::predictTruckIntersectionCollAABB(int a, int b, float scale)
     return false;
 }
 
-void BeamFactory::RecursiveActivation(int j, std::bitset<MAX_TRUCKS>& visited)
+void ActorManager::RecursiveActivation(int j, std::bitset<MAX_TRUCKS>& visited)
 {
-    if (visited[j] || !m_trucks[j] || m_trucks[j]->ar_sim_state != Actor::SimState::LOCAL_SIMULATED)
+    if (visited[j] || !m_actors[j] || m_actors[j]->ar_sim_state != Actor::SimState::LOCAL_SIMULATED)
         return;
 
     visited.set(j, true);
 
-    for (int t = 0; t < m_free_truck; t++)
+    for (int t = 0; t < m_free_actor_slot; t++)
     {
-        if (t == j || !m_trucks[t] || visited[t])
+        if (t == j || !m_actors[t] || visited[t])
             continue;
-        if (m_trucks[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && truckIntersectionCollAABB(t, j, 1.2f))
+        if (m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && truckIntersectionCollAABB(t, j, 1.2f))
         {
-            m_trucks[t]->ar_sleep_counter = 0.0f;
+            m_actors[t]->ar_sleep_counter = 0.0f;
             this->RecursiveActivation(t, visited);
         }
-        if (m_trucks[t]->ar_sim_state == Actor::SimState::LOCAL_SLEEPING && predictTruckIntersectionCollAABB(t, j))
+        if (m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SLEEPING && predictTruckIntersectionCollAABB(t, j))
         {
-            m_trucks[t]->ar_sleep_counter = 0.0f;
-            m_trucks[t]->ar_sim_state = Actor::SimState::LOCAL_SIMULATED;
+            m_actors[t]->ar_sleep_counter = 0.0f;
+            m_actors[t]->ar_sim_state = Actor::SimState::LOCAL_SIMULATED;
             this->RecursiveActivation(t, visited);
         }
     }
 }
 
-void BeamFactory::UpdateSleepingState(float dt)
+void ActorManager::UpdateSleepingState(float dt)
 {
     if (!m_forced_active)
     {
-        for (int t = 0; t < m_free_truck; t++)
+        for (int t = 0; t < m_free_actor_slot; t++)
         {
-            if (!m_trucks[t])
+            if (!m_actors[t])
                 continue;
-            if (m_trucks[t]->ar_sim_state != Actor::SimState::LOCAL_SIMULATED)
+            if (m_actors[t]->ar_sim_state != Actor::SimState::LOCAL_SIMULATED)
                 continue;
-            if (m_trucks[t]->getVelocity().squaredLength() > 0.01f)
+            if (m_actors[t]->getVelocity().squaredLength() > 0.01f)
                 continue;
 
-            m_trucks[t]->ar_sleep_counter += dt;
+            m_actors[t]->ar_sleep_counter += dt;
 
-            if (m_trucks[t]->ar_sleep_counter >= 10.0f)
+            if (m_actors[t]->ar_sleep_counter >= 10.0f)
             {
-                m_trucks[t]->ar_sim_state = Actor::SimState::LOCAL_SLEEPING;
+                m_actors[t]->ar_sim_state = Actor::SimState::LOCAL_SLEEPING;
             }
         }
     }
 
-    Actor* current_truck = getCurrentTruck();
+    Actor* current_truck = this->GetPlayerActorInternal();
     if (current_truck && current_truck->ar_sim_state == Actor::SimState::LOCAL_SLEEPING)
     {
         current_truck->ar_sim_state = Actor::SimState::LOCAL_SIMULATED;
@@ -653,82 +653,82 @@ void BeamFactory::UpdateSleepingState(float dt)
     if (current_truck && current_truck->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
     {
         current_truck->ar_sleep_counter = 0.0f;
-        this->RecursiveActivation(m_current_truck, visited);
+        this->RecursiveActivation(m_player_actor, visited);
     }
     // Snowball effect (activate all trucks which might soon get hit by a moving truck)
-    for (int t = 0; t < m_free_truck; t++)
+    for (int t = 0; t < m_free_actor_slot; t++)
     {
-        if (m_trucks[t] && m_trucks[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && m_trucks[t]->ar_sleep_counter == 0.0f)
+        if (m_actors[t] && m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && m_actors[t]->ar_sleep_counter == 0.0f)
             this->RecursiveActivation(t, visited);
     }
 }
 
-int BeamFactory::GetFreeTruckSlot()
+int ActorManager::GetFreeTruckSlot()
 {
     // find a free slot for the truck
     for (int t = 0; t < MAX_TRUCKS; t++)
     {
-        if (!m_trucks[t] && t >= m_free_truck) // XXX: TODO: remove this hack
+        if (!m_actors[t] && t >= m_free_actor_slot) // XXX: TODO: remove this hack
         {
             // reuse slots
-            if (t >= m_free_truck)
-                m_free_truck = t + 1;
+            if (t >= m_free_actor_slot)
+                m_free_actor_slot = t + 1;
             return t;
         }
     }
     return -1;
 }
 
-void BeamFactory::activateAllTrucks()
+void ActorManager::activateAllTrucks()
 {
-    for (int t = 0; t < m_free_truck; t++)
+    for (int t = 0; t < m_free_actor_slot; t++)
     {
-        if (m_trucks[t] && m_trucks[t]->ar_sim_state == Actor::SimState::LOCAL_SLEEPING)
+        if (m_actors[t] && m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SLEEPING)
         {
-            m_trucks[t]->ar_sim_state = Actor::SimState::LOCAL_SIMULATED;
-            m_trucks[t]->ar_sleep_counter = 0.0f;
+            m_actors[t]->ar_sim_state = Actor::SimState::LOCAL_SIMULATED;
+            m_actors[t]->ar_sleep_counter = 0.0f;
 
-            if (this->getTruck(m_simulated_truck))
+            if (this->getTruck(m_simulated_actor))
             {
-                m_trucks[t]->ar_disable_aerodyn_turbulent_drag = this->getTruck(m_simulated_truck)->ar_driveable == AIRPLANE;
+                m_actors[t]->ar_disable_aerodyn_turbulent_drag = this->getTruck(m_simulated_actor)->ar_driveable == AIRPLANE;
             }
         }
     }
 }
 
-void BeamFactory::sendAllTrucksSleeping()
+void ActorManager::sendAllTrucksSleeping()
 {
     m_forced_active = false;
-    for (int t = 0; t < m_free_truck; t++)
+    for (int t = 0; t < m_free_actor_slot; t++)
     {
-        if (m_trucks[t] && m_trucks[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
+        if (m_actors[t] && m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
         {
-            m_trucks[t]->ar_sim_state = Actor::SimState::LOCAL_SLEEPING;
+            m_actors[t]->ar_sim_state = Actor::SimState::LOCAL_SLEEPING;
         }
     }
 }
 
-void BeamFactory::recalcGravityMasses()
+void ActorManager::recalcGravityMasses()
 {
     // update the mass of all trucks
-    for (int t = 0; t < m_free_truck; t++)
+    for (int t = 0; t < m_free_actor_slot; t++)
     {
-        if (m_trucks[t])
+        if (m_actors[t])
         {
-            m_trucks[t]->recalc_masses();
+            m_actors[t]->recalc_masses();
         }
     }
 }
 
-int BeamFactory::FindTruckInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box)
+int ActorManager::FindTruckInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box)
 {
     // try to find the desired truck (the one in the box)
     int id = -1;
-    for (int t = 0; t < m_free_truck; t++)
+    for (int t = 0; t < m_free_actor_slot; t++)
     {
-        if (!m_trucks[t])
+        if (!m_actors[t])
             continue;
-        if (collisions->isInside(m_trucks[t]->ar_nodes[0].AbsPosition, inst, box))
+        if (collisions->isInside(m_actors[t]->ar_nodes[0].AbsPosition, inst, box))
         {
             if (id == -1)
             // first truck found
@@ -741,7 +741,7 @@ int BeamFactory::FindTruckInsideBox(Collisions* collisions, const Ogre::String& 
     return id;
 }
 
-void BeamFactory::repairTruck(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box, bool keepPosition)
+void ActorManager::repairTruck(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box, bool keepPosition)
 {
     int rtruck = this->FindTruckInsideBox(collisions, inst, box);
     if (rtruck >= 0)
@@ -749,77 +749,77 @@ void BeamFactory::repairTruck(Collisions* collisions, const Ogre::String& inst, 
         // take a position reference
         SOUND_PLAY_ONCE(rtruck, SS_TRIG_REPAIR);
 
-        Vector3 ipos = m_trucks[rtruck]->ar_nodes[0].AbsPosition;
-        m_trucks[rtruck]->reset();
-        m_trucks[rtruck]->resetPosition(ipos.x, ipos.z, false, 0);
-        m_trucks[rtruck]->updateVisual();
+        Vector3 ipos = m_actors[rtruck]->ar_nodes[0].AbsPosition;
+        m_actors[rtruck]->reset();
+        m_actors[rtruck]->resetPosition(ipos.x, ipos.z, false, 0);
+        m_actors[rtruck]->updateVisual();
     }
 }
 
-void BeamFactory::MuteAllTrucks()
+void ActorManager::MuteAllTrucks()
 {
-    for (int i = 0; i < m_free_truck; i++)
+    for (int i = 0; i < m_free_actor_slot; i++)
     {
-        if (m_trucks[i])
+        if (m_actors[i])
         {
-            m_trucks[i]->StopAllSounds();
+            m_actors[i]->StopAllSounds();
         }
     }
 }
 
-void BeamFactory::UnmuteAllTrucks()
+void ActorManager::UnmuteAllTrucks()
 {
-    for (int i = 0; i < m_free_truck; i++)
+    for (int i = 0; i < m_free_actor_slot; i++)
     {
-        if (m_trucks[i])
+        if (m_actors[i])
         {
-            m_trucks[i]->UnmuteAllSounds();
+            m_actors[i]->UnmuteAllSounds();
         }
     }
 }
 
-void BeamFactory::RemoveActorByCollisionBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box)
+void ActorManager::RemoveActorByCollisionBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box)
 {
     removeTruck(this->FindTruckInsideBox(collisions, inst, box));
 }
 
-void BeamFactory::removeTruck(int truck)
+void ActorManager::removeTruck(int truck)
 {
-    if (truck < 0 || truck > m_free_truck)
+    if (truck < 0 || truck > m_free_actor_slot)
         return;
 
-    if (!m_trucks[truck])
+    if (!m_actors[truck])
         return;
 
-    if (m_trucks[truck]->ar_sim_state == Actor::SimState::NETWORKED_OK)
+    if (m_actors[truck]->ar_sim_state == Actor::SimState::NETWORKED_OK)
         return;
 
-    this->DeleteTruck(m_trucks[truck]);
+    this->DeleteTruck(m_actors[truck]);
 }
 
-void BeamFactory::CleanUpAllTrucks() // Called after simulation finishes
+void ActorManager::CleanUpAllTrucks() // Called after simulation finishes
 {
-    for (int i = 0; i < m_free_truck; i++)
+    for (int i = 0; i < m_free_actor_slot; i++)
     {
-        if (m_trucks[i] == nullptr)
+        if (m_actors[i] == nullptr)
             continue; // This is how things currently work (but not for long...) ~ only_a_ptr, 01/2017
 
-        delete m_trucks[i];
-        m_trucks[i] = nullptr;
+        delete m_actors[i];
+        m_actors[i] = nullptr;
     }
 
     // Reset to empty value. Do NOT call `setCurrentTruck(-1)` - performs updates which are invalid at this point
-    m_current_truck = -1;
+    m_player_actor = -1;
 
     // TEMPORARY: DO !NOT! attempt to reuse slots
     // Yields bad behavior when player disconnects from game where other players had vehicles spawned
     // Upon reconnect, vehicles with flexbodies (tested on Gavril MZR) show up badly deformed and twitching.
     // Vehicles with cabs (tested on Agora L) show up without the cab.
     // ~only_a_ptr, 01/2017
-    //m_free_truck = 0;
+    //m_free_actor_slot = 0;
 }
 
-void BeamFactory::DeleteTruck(Actor* b)
+void ActorManager::DeleteTruck(Actor* b)
 {
     if (b == 0)
         return;
@@ -833,10 +833,10 @@ void BeamFactory::DeleteTruck(Actor* b)
     }
 #endif // USE_SOCKETW
 
-    if (m_current_truck == b->ar_instance_id)
+    if (m_player_actor == b->ar_instance_id)
         setCurrentTruck(-1);
 
-    m_trucks[b->ar_instance_id] = 0;
+    m_actors[b->ar_instance_id] = 0;
     delete b;
 
 
@@ -844,27 +844,27 @@ void BeamFactory::DeleteTruck(Actor* b)
 
 }
 
-int BeamFactory::GetMostRecentTruckSlot()
+int ActorManager::GetMostRecentTruckSlot()
 {
-    if (getTruck(m_current_truck))
+    if (getTruck(m_player_actor))
     {
-        return m_current_truck;
+        return m_player_actor;
     }
-    else if (getTruck(m_previous_truck))
+    else if (getTruck(m_prev_player_actor))
     {
-        return m_previous_truck;
+        return m_prev_player_actor;
     }
 
     return -1;
 }
 
-void BeamFactory::enterNextTruck()
+void ActorManager::enterNextTruck()
 {
     int pivot_index = this->GetMostRecentTruckSlot();
 
-    for (int i = pivot_index + 1; i < m_free_truck; i++)
+    for (int i = pivot_index + 1; i < m_free_actor_slot; i++)
     {
-        if (m_trucks[i] && m_trucks[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_trucks[i]->isPreloadedWithTerrain())
+        if (m_actors[i] && m_actors[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
             setCurrentTruck(i);
             return;
@@ -873,65 +873,65 @@ void BeamFactory::enterNextTruck()
 
     for (int i = 0; i < pivot_index; i++)
     {
-        if (m_trucks[i] && m_trucks[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_trucks[i]->isPreloadedWithTerrain())
+        if (m_actors[i] && m_actors[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
             setCurrentTruck(i);
             return;
         }
     }
 
-    if (pivot_index >= 0 && m_trucks[pivot_index] && m_trucks[pivot_index]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_trucks[pivot_index]->isPreloadedWithTerrain())
+    if (pivot_index >= 0 && m_actors[pivot_index] && m_actors[pivot_index]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[pivot_index]->isPreloadedWithTerrain())
     {
         setCurrentTruck(pivot_index);
         return;
     }
 }
 
-void BeamFactory::enterPreviousTruck()
+void ActorManager::enterPreviousTruck()
 {
     int pivot_index = this->GetMostRecentTruckSlot();
 
     for (int i = pivot_index - 1; i >= 0; i--)
     {
-        if (m_trucks[i] && m_trucks[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_trucks[i]->isPreloadedWithTerrain())
+        if (m_actors[i] && m_actors[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
             setCurrentTruck(i);
             return;
         }
     }
 
-    for (int i = m_free_truck - 1; i > pivot_index; i--)
+    for (int i = m_free_actor_slot - 1; i > pivot_index; i--)
     {
-        if (m_trucks[i] && m_trucks[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_trucks[i]->isPreloadedWithTerrain())
+        if (m_actors[i] && m_actors[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
             setCurrentTruck(i);
             return;
         }
     }
 
-    if (pivot_index >= 0 && m_trucks[pivot_index] && m_trucks[pivot_index]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_trucks[pivot_index]->isPreloadedWithTerrain())
+    if (pivot_index >= 0 && m_actors[pivot_index] && m_actors[pivot_index]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[pivot_index]->isPreloadedWithTerrain())
     {
         setCurrentTruck(pivot_index);
         return;
     }
 }
 
-void BeamFactory::setCurrentTruck(int new_truck)
+void ActorManager::setCurrentTruck(int new_truck)
 {
-    m_previous_truck = m_current_truck;
-    m_current_truck = new_truck;
+    m_prev_player_actor = m_player_actor;
+    m_player_actor = new_truck;
 
-    if (m_previous_truck >= 0 && m_current_truck >= 0)
+    if (m_prev_player_actor >= 0 && m_player_actor >= 0)
     {
-        m_sim_controller->ChangedCurrentVehicle(m_trucks[m_previous_truck], m_trucks[m_current_truck]);
+        m_sim_controller->ChangedCurrentVehicle(m_actors[m_prev_player_actor], m_actors[m_player_actor]);
     }
-    else if (m_previous_truck >= 0)
+    else if (m_prev_player_actor >= 0)
     {
-        m_sim_controller->ChangedCurrentVehicle(m_trucks[m_previous_truck], nullptr);
+        m_sim_controller->ChangedCurrentVehicle(m_actors[m_prev_player_actor], nullptr);
     }
-    else if (m_current_truck >= 0)
+    else if (m_player_actor >= 0)
     {
-        m_sim_controller->ChangedCurrentVehicle(nullptr, m_trucks[m_current_truck]);
+        m_sim_controller->ChangedCurrentVehicle(nullptr, m_actors[m_player_actor]);
     }
     else
     {
@@ -941,13 +941,13 @@ void BeamFactory::setCurrentTruck(int new_truck)
     this->UpdateSleepingState(0.0f);
 }
 
-bool BeamFactory::enterRescueTruck()
+bool ActorManager::enterRescueTruck()
 {
     // rescue!
     // search a rescue truck
-    for (int t = 0; t < m_free_truck; t++)
+    for (int t = 0; t < m_free_actor_slot; t++)
     {
-        if (m_trucks[t] && m_trucks[t]->ar_rescuer_flag)
+        if (m_actors[t] && m_actors[t]->ar_rescuer_flag)
         {
             // go to person mode first
             setCurrentTruck(-1);
@@ -959,61 +959,61 @@ bool BeamFactory::enterRescueTruck()
     return false;
 }
 
-void BeamFactory::updateFlexbodiesPrepare()
+void ActorManager::updateFlexbodiesPrepare()
 {
-    for (int t = 0; t < m_free_truck; t++)
+    for (int t = 0; t < m_free_actor_slot; t++)
     {
-        if (m_trucks[t] && m_trucks[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
+        if (m_actors[t] && m_actors[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
         {
-            m_trucks[t]->updateFlexbodiesPrepare();
+            m_actors[t]->updateFlexbodiesPrepare();
         }
     }
 }
 
-void BeamFactory::joinFlexbodyTasks()
+void ActorManager::joinFlexbodyTasks()
 {
-    for (int t = 0; t < m_free_truck; t++)
+    for (int t = 0; t < m_free_actor_slot; t++)
     {
-        if (m_trucks[t] && m_trucks[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
+        if (m_actors[t] && m_actors[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
         {
-            m_trucks[t]->joinFlexbodyTasks();
+            m_actors[t]->joinFlexbodyTasks();
         }
     }
 }
 
-void BeamFactory::updateFlexbodiesFinal()
+void ActorManager::updateFlexbodiesFinal()
 {
-    for (int t = 0; t < m_free_truck; t++)
+    for (int t = 0; t < m_free_actor_slot; t++)
     {
-        if (m_trucks[t] && m_trucks[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
+        if (m_actors[t] && m_actors[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
         {
-            m_trucks[t]->updateFlexbodiesFinal();
+            m_actors[t]->updateFlexbodiesFinal();
         }
     }
 }
 
-void BeamFactory::updateVisual(float dt)
+void ActorManager::updateVisual(float dt)
 {
     dt *= m_simulation_speed;
 
-    for (int t = 0; t < m_free_truck; t++)
+    for (int t = 0; t < m_free_actor_slot; t++)
     {
-        if (!m_trucks[t])
+        if (!m_actors[t])
             continue;
 
         // always update the labels
-        m_trucks[t]->updateLabels(dt);
+        m_actors[t]->updateLabels(dt);
 
-        if (m_trucks[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
+        if (m_actors[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
         {
-            m_trucks[t]->updateVisual(dt);
-            m_trucks[t]->updateSkidmarks();
-            m_trucks[t]->updateFlares(dt, (t == m_current_truck));
+            m_actors[t]->updateVisual(dt);
+            m_actors[t]->updateSkidmarks();
+            m_actors[t]->updateFlares(dt, (t == m_player_actor));
         }
     }
 }
 
-void BeamFactory::update(float dt)
+void ActorManager::update(float dt)
 {
     m_physics_frames++;
 
@@ -1033,77 +1033,77 @@ void BeamFactory::update(float dt)
 
     this->UpdateSleepingState(dt);
 
-    for (int t = 0; t < m_free_truck; t++)
+    for (int t = 0; t < m_free_actor_slot; t++)
     {
-        if (!m_trucks[t])
+        if (!m_actors[t])
             continue;
 
-        m_trucks[t]->handleResetRequests(dt);
-        m_trucks[t]->updateAngelScriptEvents(dt);
+        m_actors[t]->handleResetRequests(dt);
+        m_actors[t]->updateAngelScriptEvents(dt);
 
 #ifdef USE_ANGELSCRIPT
-        if (m_trucks[t]->ar_vehicle_ai && (m_trucks[t]->ar_vehicle_ai->IsActive()))
-            m_trucks[t]->ar_vehicle_ai->update(dt, 0);
+        if (m_actors[t]->ar_vehicle_ai && (m_actors[t]->ar_vehicle_ai->IsActive()))
+            m_actors[t]->ar_vehicle_ai->update(dt, 0);
 #endif // USE_ANGELSCRIPT
 
-        switch (m_trucks[t]->ar_sim_state)
+        switch (m_actors[t]->ar_sim_state)
         {
         case Actor::SimState::NETWORKED_OK:
-            m_trucks[t]->calcNetwork();
+            m_actors[t]->calcNetwork();
             break;
 
         case Actor::SimState::INVALID:
             break;
 
         default:
-            if (m_trucks[t]->ar_sim_state != Actor::SimState::LOCAL_SIMULATED && m_trucks[t]->ar_engine)
-                m_trucks[t]->ar_engine->update(dt, 1);
-            if (m_trucks[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
-                m_trucks[t]->UpdatePropAnimations(dt);
-            if (m_trucks[t]->ar_uses_networking)
+            if (m_actors[t]->ar_sim_state != Actor::SimState::LOCAL_SIMULATED && m_actors[t]->ar_engine)
+                m_actors[t]->ar_engine->update(dt, 1);
+            if (m_actors[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
+                m_actors[t]->UpdatePropAnimations(dt);
+            if (m_actors[t]->ar_uses_networking)
             {
-                if (m_trucks[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
-                    m_trucks[t]->sendStreamData();
-                else if (m_trucks[t]->ar_sim_state == Actor::SimState::LOCAL_SLEEPING && m_trucks[t]->ar_net_timer.getMilliseconds() < 10000)
+                if (m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
+                    m_actors[t]->sendStreamData();
+                else if (m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SLEEPING && m_actors[t]->ar_net_timer.getMilliseconds() < 10000)
                 // Also send update messages for 'Actor::SimState::LOCAL_SLEEPING' trucks during the first 10 seconds of lifetime
-                    m_trucks[t]->sendStreamData();
-                else if (m_trucks[t]->ar_sim_state == Actor::SimState::LOCAL_SLEEPING && m_trucks[t]->ar_net_timer.getMilliseconds() - m_trucks[t]->ar_net_last_update_time > 5000)
+                    m_actors[t]->sendStreamData();
+                else if (m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SLEEPING && m_actors[t]->ar_net_timer.getMilliseconds() - m_actors[t]->ar_net_last_update_time > 5000)
                 // Also send update messages for 'Actor::SimState::LOCAL_SLEEPING' trucks periodically every 5 seconds
-                    m_trucks[t]->sendStreamData();
+                    m_actors[t]->sendStreamData();
             }
             break;
         }
     }
 
-    m_simulated_truck = m_current_truck;
+    m_simulated_actor = m_player_actor;
 
-    if (m_simulated_truck == -1)
+    if (m_simulated_actor == -1)
     {
-        for (int t = 0; t < m_free_truck; t++)
+        for (int t = 0; t < m_free_actor_slot; t++)
         {
-            if (m_trucks[t] && m_trucks[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
+            if (m_actors[t] && m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
             {
-                m_simulated_truck = t;
+                m_simulated_actor = t;
                 break;
             }
         }
     }
 
-    if (m_simulated_truck >= 0 && m_simulated_truck < m_free_truck)
+    if (m_simulated_actor >= 0 && m_simulated_actor < m_free_actor_slot)
     {
-        if (m_simulated_truck == m_current_truck)
+        if (m_simulated_actor == m_player_actor)
         {
 
-            m_trucks[m_simulated_truck]->updateDashBoards(dt);
+            m_actors[m_simulated_actor]->updateDashBoards(dt);
 
 #ifdef FEAT_TIMING
-            if (m_trucks[m_simulated_truck]->statistics)     m_trucks[m_simulated_truck]->statistics->frameStep(dt);
-            if (m_trucks[m_simulated_truck]->statistics_gfx) m_trucks[m_simulated_truck]->statistics_gfx->frameStep(dt);
+            if (m_actors[m_simulated_actor]->statistics)     m_actors[m_simulated_actor]->statistics->frameStep(dt);
+            if (m_actors[m_simulated_actor]->statistics_gfx) m_actors[m_simulated_actor]->statistics_gfx->frameStep(dt);
 #endif // FEAT_TIMING
         }
-        if (!m_trucks[m_simulated_truck]->replayStep())
+        if (!m_actors[m_simulated_actor]->replayStep())
         {
-            m_trucks[m_simulated_truck]->ForceFeedbackStep(m_physics_steps);
+            m_actors[m_simulated_actor]->ForceFeedbackStep(m_physics_steps);
             if (m_sim_thread_pool)
             {
                 auto func = std::function<void()>([this]()
@@ -1120,45 +1120,45 @@ void BeamFactory::update(float dt)
     }
 }
 
-void BeamFactory::windowResized()
+void ActorManager::windowResized()
 {
 
-    for (int t = 0; t < m_free_truck; t++)
+    for (int t = 0; t < m_free_actor_slot; t++)
     {
-        if (m_trucks[t])
+        if (m_actors[t])
         {
-            m_trucks[t]->ar_dashboard->windowResized();
+            m_actors[t]->ar_dashboard->windowResized();
         }
     }
 
 }
 
-void BeamFactory::prepareShutdown()
+void ActorManager::prepareShutdown()
 {
     this->SyncWithSimThread();
 }
 
-Actor* BeamFactory::getCurrentTruck()
+Actor* ActorManager::GetPlayerActorInternal()
 {
-    return this->getTruck(m_current_truck);
+    return this->getTruck(m_player_actor);
 }
 
-Actor* BeamFactory::getTruck(int number)
+Actor* ActorManager::getTruck(int number)
 {
-    if (number >= 0 && number < m_free_truck)
+    if (number >= 0 && number < m_free_actor_slot)
     {
-        return m_trucks[number];
+        return m_actors[number];
     }
     return 0;
 }
 
-void BeamFactory::UpdatePhysicsSimulation()
+void ActorManager::UpdatePhysicsSimulation()
 {
-    for (int t = 0; t < m_free_truck; t++)
+    for (int t = 0; t < m_free_actor_slot; t++)
     {
-        if (!m_trucks[t])
+        if (!m_actors[t])
             continue;
-        m_trucks[t]->preUpdatePhysics(m_physics_steps * PHYSICS_DT);
+        m_actors[t]->preUpdatePhysics(m_physics_steps * PHYSICS_DT);
     }
     if (gEnv->threadPool)
     {
@@ -1167,26 +1167,26 @@ void BeamFactory::UpdatePhysicsSimulation()
             int num_simulated_trucks = 0;
             {
                 std::vector<std::function<void()>> tasks;
-                for (int t = 0; t < m_free_truck; t++)
+                for (int t = 0; t < m_free_actor_slot; t++)
                 {
-                    if (m_trucks[t] && (m_trucks[t]->ar_update_physics = m_trucks[t]->calcForcesEulerPrepare(i == 0, PHYSICS_DT, i, m_physics_steps)))
+                    if (m_actors[t] && (m_actors[t]->ar_update_physics = m_actors[t]->calcForcesEulerPrepare(i == 0, PHYSICS_DT, i, m_physics_steps)))
                     {
                         num_simulated_trucks++;
                         auto func = std::function<void()>([this, i, t]()
                             {
-                                m_trucks[t]->calcForcesEulerCompute(i == 0, PHYSICS_DT, i, m_physics_steps);
-                                if (!m_trucks[t]->ar_disable_self_collision)
+                                m_actors[t]->calcForcesEulerCompute(i == 0, PHYSICS_DT, i, m_physics_steps);
+                                if (!m_actors[t]->ar_disable_self_collision)
                                 {
-                                    m_trucks[t]->IntraPointCD()->update(m_trucks[t]);
+                                    m_actors[t]->IntraPointCD()->update(m_actors[t]);
                                     intraTruckCollisions(PHYSICS_DT,
-                                        *(m_trucks[t]->IntraPointCD()),
-                                        m_trucks[t]->ar_num_collcabs,
-                                        m_trucks[t]->ar_collcabs,
-                                        m_trucks[t]->ar_cabs,
-                                        m_trucks[t]->ar_intra_collcabrate,
-                                        m_trucks[t]->ar_nodes,
-                                        m_trucks[t]->ar_collision_range,
-                                        *(m_trucks[t]->ar_submesh_ground_model));
+                                        *(m_actors[t]->IntraPointCD()),
+                                        m_actors[t]->ar_num_collcabs,
+                                        m_actors[t]->ar_collcabs,
+                                        m_actors[t]->ar_cabs,
+                                        m_actors[t]->ar_intra_collcabrate,
+                                        m_actors[t]->ar_nodes,
+                                        m_actors[t]->ar_collision_range,
+                                        *(m_actors[t]->ar_submesh_ground_model));
                                 }
                             });
                         tasks.push_back(func);
@@ -1195,34 +1195,34 @@ void BeamFactory::UpdatePhysicsSimulation()
                 gEnv->threadPool->Parallelize(tasks);
             }
 
-            for (int t = 0; t < m_free_truck; t++)
+            for (int t = 0; t < m_free_actor_slot; t++)
             {
-                if (m_trucks[t] && m_trucks[t]->ar_update_physics)
-                    m_trucks[t]->calcForcesEulerFinal(i == 0, PHYSICS_DT, i, m_physics_steps);
+                if (m_actors[t] && m_actors[t]->ar_update_physics)
+                    m_actors[t]->calcForcesEulerFinal(i == 0, PHYSICS_DT, i, m_physics_steps);
             }
 
             if (num_simulated_trucks > 1)
             {
                 std::vector<std::function<void()>> tasks;
-                for (int t = 0; t < m_free_truck; t++)
+                for (int t = 0; t < m_free_actor_slot; t++)
                 {
-                    if (m_trucks[t] && m_trucks[t]->ar_update_physics && !m_trucks[t]->ar_disable_actor2actor_collision)
+                    if (m_actors[t] && m_actors[t]->ar_update_physics && !m_actors[t]->ar_disable_actor2actor_collision)
                     {
                         auto func = std::function<void()>([this, t]()
                             {
-                                m_trucks[t]->InterPointCD()->update(m_trucks[t], m_trucks, m_free_truck);
-                                if (m_trucks[t]->ar_collision_relevant)
+                                m_actors[t]->InterPointCD()->update(m_actors[t], m_actors, m_free_actor_slot);
+                                if (m_actors[t]->ar_collision_relevant)
                                 {
                                     interTruckCollisions(PHYSICS_DT,
-                                        *(m_trucks[t]->InterPointCD()),
-                                        m_trucks[t]->ar_num_collcabs,
-                                        m_trucks[t]->ar_collcabs,
-                                        m_trucks[t]->ar_cabs,
-                                        m_trucks[t]->ar_inter_collcabrate,
-                                        m_trucks[t]->ar_nodes,
-                                        m_trucks[t]->ar_collision_range,
-                                        m_trucks, m_free_truck,
-                                        *(m_trucks[t]->ar_submesh_ground_model));
+                                        *(m_actors[t]->InterPointCD()),
+                                        m_actors[t]->ar_num_collcabs,
+                                        m_actors[t]->ar_collcabs,
+                                        m_actors[t]->ar_cabs,
+                                        m_actors[t]->ar_inter_collcabrate,
+                                        m_actors[t]->ar_nodes,
+                                        m_actors[t]->ar_collision_range,
+                                        m_actors, m_free_actor_slot,
+                                        *(m_actors[t]->ar_submesh_ground_model));
                                 }
                             });
                         tasks.push_back(func);
@@ -1238,25 +1238,25 @@ void BeamFactory::UpdatePhysicsSimulation()
         {
             int num_simulated_trucks = 0;
 
-            for (int t = 0; t < m_free_truck; t++)
+            for (int t = 0; t < m_free_actor_slot; t++)
             {
-                if (m_trucks[t] && (m_trucks[t]->ar_update_physics = m_trucks[t]->calcForcesEulerPrepare(i == 0, PHYSICS_DT, i, m_physics_steps)))
+                if (m_actors[t] && (m_actors[t]->ar_update_physics = m_actors[t]->calcForcesEulerPrepare(i == 0, PHYSICS_DT, i, m_physics_steps)))
                 {
                     num_simulated_trucks++;
-                    m_trucks[t]->calcForcesEulerCompute(i == 0, PHYSICS_DT, i, m_physics_steps);
-                    m_trucks[t]->calcForcesEulerFinal(i == 0, PHYSICS_DT, i, m_physics_steps);
-                    if (!m_trucks[t]->ar_disable_self_collision)
+                    m_actors[t]->calcForcesEulerCompute(i == 0, PHYSICS_DT, i, m_physics_steps);
+                    m_actors[t]->calcForcesEulerFinal(i == 0, PHYSICS_DT, i, m_physics_steps);
+                    if (!m_actors[t]->ar_disable_self_collision)
                     {
-                        m_trucks[t]->IntraPointCD()->update(m_trucks[t]);
+                        m_actors[t]->IntraPointCD()->update(m_actors[t]);
                         intraTruckCollisions(PHYSICS_DT,
-                            *(m_trucks[t]->IntraPointCD()),
-                            m_trucks[t]->ar_num_collcabs,
-                            m_trucks[t]->ar_collcabs,
-                            m_trucks[t]->ar_cabs,
-                            m_trucks[t]->ar_intra_collcabrate,
-                            m_trucks[t]->ar_nodes,
-                            m_trucks[t]->ar_collision_range,
-                            *(m_trucks[t]->ar_submesh_ground_model));
+                            *(m_actors[t]->IntraPointCD()),
+                            m_actors[t]->ar_num_collcabs,
+                            m_actors[t]->ar_collcabs,
+                            m_actors[t]->ar_cabs,
+                            m_actors[t]->ar_intra_collcabrate,
+                            m_actors[t]->ar_nodes,
+                            m_actors[t]->ar_collision_range,
+                            *(m_actors[t]->ar_submesh_ground_model));
                     }
                 }
             }
@@ -1264,24 +1264,24 @@ void BeamFactory::UpdatePhysicsSimulation()
             if (num_simulated_trucks > 1)
             {
                 BES_START(BES_CORE_Contacters);
-                for (int t = 0; t < m_free_truck; t++)
+                for (int t = 0; t < m_free_actor_slot; t++)
                 {
-                    if (m_trucks[t] && m_trucks[t]->ar_update_physics && !m_trucks[t]->ar_disable_actor2actor_collision)
+                    if (m_actors[t] && m_actors[t]->ar_update_physics && !m_actors[t]->ar_disable_actor2actor_collision)
                     {
-                        m_trucks[t]->InterPointCD()->update(m_trucks[t], m_trucks, m_free_truck);
-                        if (m_trucks[t]->ar_collision_relevant)
+                        m_actors[t]->InterPointCD()->update(m_actors[t], m_actors, m_free_actor_slot);
+                        if (m_actors[t]->ar_collision_relevant)
                         {
                             interTruckCollisions(
                                 PHYSICS_DT,
-                                *(m_trucks[t]->InterPointCD()),
-                                m_trucks[t]->ar_num_collcabs,
-                                m_trucks[t]->ar_collcabs,
-                                m_trucks[t]->ar_cabs,
-                                m_trucks[t]->ar_inter_collcabrate,
-                                m_trucks[t]->ar_nodes,
-                                m_trucks[t]->ar_collision_range,
-                                m_trucks, m_free_truck,
-                                *(m_trucks[t]->ar_submesh_ground_model));
+                                *(m_actors[t]->InterPointCD()),
+                                m_actors[t]->ar_num_collcabs,
+                                m_actors[t]->ar_collcabs,
+                                m_actors[t]->ar_cabs,
+                                m_actors[t]->ar_inter_collcabrate,
+                                m_actors[t]->ar_nodes,
+                                m_actors[t]->ar_collision_range,
+                                m_actors, m_free_actor_slot,
+                                *(m_actors[t]->ar_submesh_ground_model));
                         }
                     }
                 }
@@ -1289,17 +1289,17 @@ void BeamFactory::UpdatePhysicsSimulation()
             }
         }
     }
-    for (int t = 0; t < m_free_truck; t++)
+    for (int t = 0; t < m_free_actor_slot; t++)
     {
-        if (!m_trucks[t])
+        if (!m_actors[t])
             continue;
-        if (!m_trucks[t]->ar_update_physics)
+        if (!m_actors[t]->ar_update_physics)
             continue;
-        m_trucks[t]->postUpdatePhysics(m_physics_steps * PHYSICS_DT);
+        m_actors[t]->postUpdatePhysics(m_physics_steps * PHYSICS_DT);
     }
 }
 
-void BeamFactory::SyncWithSimThread()
+void ActorManager::SyncWithSimThread()
 {
     if (m_sim_task)
         m_sim_task->join();

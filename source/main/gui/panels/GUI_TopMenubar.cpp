@@ -54,7 +54,6 @@ TopMenubar::TopMenubar() :
     , m_menu_width(350)
     , m_menu_height(20)
     , m_vehicle_list_needs_update(false)
-    , m_sim_controller(nullptr)
 {
 
     /* -------------------------------------------------------------------------------- */
@@ -74,7 +73,7 @@ TopMenubar::TopMenubar() :
     p->setPopupAccept(true);
 
     p->addItem(_L("Get new vehicle"),                 MyGUI::MenuItemType::Normal);
-    p->addItem(_L("Show vehicle description"),		  MyGUI::MenuItemType::Normal);
+    p->addItem(_L("Show vehicle description"),        MyGUI::MenuItemType::Normal);
     p->addItem(_L("Reload current vehicle"),          MyGUI::MenuItemType::Normal);
     p->addItem(_L("Remove current vehicle"),          MyGUI::MenuItemType::Normal);
 
@@ -198,8 +197,8 @@ UTFString TopMenubar::getUserString(RoRnet::UserInfo &user, int num_vehicles)
 void TopMenubar::addUserToMenu(RoRnet::UserInfo &user)
 {
 #ifdef USE_SOCKETW
-    int numTrucks = m_sim_controller->GetBeamFactory()->getTruckCount();
-    Actor **trucks = m_sim_controller->GetBeamFactory()->getTrucks();
+    int numTrucks = App::GetSimController()->GetBeamFactory()->getTruckCount();
+    Actor **trucks = App::GetSimController()->GetBeamFactory()->getTrucks();
 
     // now search the vehicles of that user together
     std::vector<int> matches;
@@ -242,8 +241,8 @@ void TopMenubar::vehiclesListUpdate()
     if (!(App::mp_state.GetActive() == RoR::MpState::CONNECTED))
     {
         // single player mode: add vehicles simply, no users
-        int numTrucks = m_sim_controller->GetBeamFactory()->getTruckCount();
-        Actor **trucks = m_sim_controller->GetBeamFactory()->getTrucks();
+        int numTrucks = App::GetSimController()->GetBeamFactory()->getTruckCount();
+        Actor **trucks = App::GetSimController()->GetBeamFactory()->getTrucks();
 
         // simple iterate through :)
         for (int i = 0; i < numTrucks; i++)
@@ -283,9 +282,9 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
     if (id.substr(0,6) == "TRUCK_")
     {
         int truck = PARSEINT(id.substr(6));
-        if (truck >= 0 && truck < m_sim_controller->GetBeamFactory()->getTruckCount())
+        if (truck >= 0 && truck < App::GetSimController()->GetBeamFactory()->getTruckCount())
         {
-            m_sim_controller->GetBeamFactory()->setCurrentTruck(truck);
+            App::GetSimController()->GetBeamFactory()->setCurrentTruck(truck);
         }
     }
 
@@ -323,9 +322,9 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
 
     } else if (miname == _L("Reload current vehicle") && gEnv->player)
     {
-        if ((m_sim_controller->GetBeamFactory()->getCurrentTruckNumber() != -1) && (m_sim_controller != nullptr))
+        if ((App::GetSimController()->GetBeamFactory()->getCurrentTruckNumber() != -1) && (App::GetSimController() != nullptr))
         {
-            m_sim_controller->ReloadPlayerActor(); // TODO: Use SIM_STATE + 'pending' mechanisms
+            App::GetSimController()->ReloadPlayerActor(); // TODO: Use SIM_STATE + 'pending' mechanisms
             gui_man->UnfocusGui();
         }
     }
@@ -335,28 +334,28 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
     }
     else if (miname == _L("Remove current vehicle"))
     {
-        m_sim_controller->RemovePlayerActor();
+        App::GetSimController()->RemovePlayerActor();
 
     } else if (miname == _L("Activate all vehicles"))
     {
-        m_sim_controller->GetBeamFactory()->activateAllTrucks();
+        App::GetSimController()->GetBeamFactory()->activateAllTrucks();
 
     } else if (miname == _L("Activated vehicles never sleep"))
     {
-        m_sim_controller->GetBeamFactory()->setTrucksForcedActive(true);
+        App::GetSimController()->GetBeamFactory()->setTrucksForcedActive(true);
         _item->setCaption(_L("Activated vehicles can sleep"));
 
     } else if (miname == _L("Activated vehicles can sleep"))
     {
-        m_sim_controller->GetBeamFactory()->setTrucksForcedActive(false);
+        App::GetSimController()->GetBeamFactory()->setTrucksForcedActive(false);
         _item->setCaption(_L("Activated vehicles never sleep"));
 
     } else if (miname == _L("Send all vehicles to sleep"))
     {
         // get out first
-        if (m_sim_controller->GetBeamFactory()->getCurrentTruckNumber() != -1)
-            m_sim_controller->GetBeamFactory()->setCurrentTruck(-1);
-        m_sim_controller->GetBeamFactory()->sendAllTrucksSleeping();
+        if (App::GetSimController()->GetBeamFactory()->getCurrentTruckNumber() != -1)
+            App::GetSimController()->GetBeamFactory()->setCurrentTruck(-1);
+        App::GetSimController()->GetBeamFactory()->sendAllTrucksSleeping();
 
     } else if (miname == _L("Friction Settings"))
     {
@@ -371,51 +370,51 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
     // the debug menu
     else if (miname == _L("no visual debug"))
     {
-        Actor *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor *b = App::GetSimController()->GetPlayerActor();
         if (b) b->setDebugOverlayState(0);
     } else if (miname == _L("show Node numbers"))
     {
-        Actor *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor *b = App::GetSimController()->GetPlayerActor();
         if (b) b->setDebugOverlayState(1);
     } else if (miname == _L("show Beam numbers"))
     {
-        Actor *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor *b = App::GetSimController()->GetPlayerActor();
         if (b) b->setDebugOverlayState(2);
     } else if (miname == _L("show Node&Beam numbers"))
     {
-        Actor *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor *b = App::GetSimController()->GetPlayerActor();
         if (b) b->setDebugOverlayState(3);
     } else if (miname == _L("show Node mass"))
     {
-        Actor *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor *b = App::GetSimController()->GetPlayerActor();
         if (b) b->setDebugOverlayState(4);
     } else if (miname == _L("show Node locked"))
     {
-        Actor *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor *b = App::GetSimController()->GetPlayerActor();
         if (b) b->setDebugOverlayState(5);
     } else if (miname == _L("show Beam compression"))
     {
-        Actor *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor *b = App::GetSimController()->GetPlayerActor();
         if (b) b->setDebugOverlayState(6);
     } else if (miname == _L("show Beam broken"))
     {
-        Actor *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor *b = App::GetSimController()->GetPlayerActor();
         if (b) b->setDebugOverlayState(7);
     } else if (miname == _L("show Beam stress"))
     {
-        Actor *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor *b = App::GetSimController()->GetPlayerActor();
         if (b) b->setDebugOverlayState(8);
     } else if (miname == _L("show Beam strength"))
     {
-        Actor *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor *b = App::GetSimController()->GetPlayerActor();
         if (b) b->setDebugOverlayState(9);
     } else if (miname == _L("show Beam hydros"))
     {
-        Actor *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor *b = App::GetSimController()->GetPlayerActor();
         if (b) b->setDebugOverlayState(10);
     } else if (miname == _L("show Beam commands"))
     {
-        Actor *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor *b = App::GetSimController()->GetPlayerActor();
         if (b) b->setDebugOverlayState(11);
     }
     else if (miname == _L("Texture Tool"))
@@ -428,7 +427,7 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
     }
     else if (miname == _L("Show vehicle description"))
     {
-        if (m_sim_controller->GetBeamFactory()->getCurrentTruck() != 0)
+        if (App::GetSimController()->GetPlayerActor() != 0)
         {
             gui_man->SetVisible_VehicleDescription(true);
         }

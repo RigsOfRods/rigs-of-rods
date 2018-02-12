@@ -48,11 +48,9 @@ public:
 
     void update(float dt);
     bool isMouseGrabbed() { return mouseGrabState != 0; };
-    void SetSimController(RoRFrameListener* sim) { m_sim_controller = sim; }
 
 protected:
 
-    RoRFrameListener* m_sim_controller;
     Ogre::ManualObject* pickLine;
     Ogre::SceneNode* pickLineNode;
     float mouseGrabForce;

@@ -38,14 +38,16 @@ class ThreadPool;
 namespace RoR {
 
 /// Builds and manages softbody actors; Manages multithreading.
-class BeamFactory
+/// HISTORICAL NOTE: Until 01/2018, this class was named `BeamFactory` (because `Actor` was `Beam`)
+/// FUTURE DEV: This class will become a private helper of `RoRFrameListener` because there's tight coupling around player-driven actor.
+class ActorManager
 {
     friend class GameScript; // needs to call RemoveActorByCollisionBox()
-    friend class ::RoRFrameListener; // Needs to call removeTruck() and RemoveActorByCollisionBox()
+    friend class ::RoRFrameListener; // Needs to call removeTruck(), RemoveActorByCollisionBox(), GetPlayerActorInternal()
 public:
 
-    BeamFactory(RoRFrameListener* sim_controller);
-    ~BeamFactory();
+    ActorManager(RoRFrameListener* sim_controller);
+    ~ActorManager();
 
     /**
     * @param cache_entry_number Needed for flexbody caching. Pass -1 if unavailable (flexbody caching will be disabled)
@@ -75,12 +77,12 @@ public:
 
     Actor* getBeam(int source_id, int stream_id); // used by character
 
-    Actor* getCurrentTruck();
+    
     Actor* getTruck(int number);
-    Actor** getTrucks() { return m_trucks; };
-    int getPreviousTruckNumber() { return m_previous_truck; };
-    int getCurrentTruckNumber() { return m_current_truck; };
-    int getTruckCount() const { return m_free_truck; };
+    Actor** getTrucks() { return m_actors; };
+    int getPreviousTruckNumber() { return m_prev_player_actor; };
+    int getCurrentTruckNumber() { return m_player_actor; };
+    int getTruckCount() const { return m_free_actor_slot; };
 
     void enterNextTruck();
     void enterPreviousTruck();
@@ -140,6 +142,8 @@ public:
 
 protected:
 
+    Actor* GetPlayerActorInternal(); //!< Use `RoRFrameListener` for public interface
+
     void RemoveActorByCollisionBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box); ///< Only for scripting
     void removeTruck(int truck); ///< Internal+friends use only; see `RoRFrameListener::*Actor*()` functions.
 
@@ -183,11 +187,11 @@ protected:
     RoRFrameListener*               m_sim_controller;
 
     int             m_num_cpu_cores;
-    Actor*          m_trucks[MAX_TRUCKS];
-    int             m_free_truck;
-    int             m_previous_truck;
-    int             m_current_truck;
-    int             m_simulated_truck;
+    Actor*          m_actors[MAX_TRUCKS];//!< All actors; slots are not reused
+    int             m_free_actor_slot;   //!< Slots are not reused
+    int             m_prev_player_actor; //!< Previous player-controlled actor
+    int             m_player_actor;      //!< Current player-controlled actor (i.e. a vehicle)
+    int             m_simulated_actor;   //!< A player actor if present, or any other local actor if present.
     bool            m_forced_active; // disables sleepcount
     unsigned long   m_physics_frames;
     int             m_physics_steps;

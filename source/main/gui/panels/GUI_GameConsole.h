@@ -94,14 +94,11 @@ public:
 
     void putMessage(int type, int uid, Ogre::UTFString msg, Ogre::String icon = "bullet_black.png", unsigned long ttl = 30000, bool forcevisible = false);
 
-    void SetSimController(RoRFrameListener* sim_controller) { m_sim_controller = sim_controller; }
-
 protected:
 
     void notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name);
     void messageUpdate(float dt);
 
-    RoRFrameListener* m_sim_controller;
     Ogre::String ConsoleText;
     Ogre::UTFString TextCol;
     bool angelscriptMode;
