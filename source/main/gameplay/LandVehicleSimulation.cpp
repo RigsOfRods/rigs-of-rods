@@ -332,7 +332,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
                 curr_truck->engine->toggleAutoMode();
 
                 // force gui update
-                curr_truck->triggerGUIFeaturesChanged();
+                curr_truck->RequestUpdateHudFeatures();
                 const char* msg = nullptr;
                 switch (curr_truck->engine->getAutoMode())
                 {

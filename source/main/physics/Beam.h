@@ -652,7 +652,7 @@ public:
     bool hasDriverSeat();
     void calculateDriverPos(Ogre::Vector3 &pos, Ogre::Quaternion &rot);
     float getSteeringAngle();
-    void triggerGUIFeaturesChanged();
+    inline void RequestUpdateHudFeatures() { m_hud_features_ok = false; }
 
     float elevator;
     float rudder;
@@ -996,7 +996,6 @@ protected:
     // SLIDE NODES /////////////////////////////////////////////////////////////
     //! true if SlideNodes are locked, false if not
     bool SlideNodesLocked;
-    bool GUIFeaturesChanged;
 
     /**
      * calculate and apply Corrective forces
@@ -1018,4 +1017,5 @@ protected:
      */
     std::pair<RailGroup*, Ogre::Real> getClosestRailOnTruck( Beam* truck, const SlideNode& node);
 
+    bool m_hud_features_ok:1; //!< Gfx; Are HUD features matching actor's capabilities?
 };
