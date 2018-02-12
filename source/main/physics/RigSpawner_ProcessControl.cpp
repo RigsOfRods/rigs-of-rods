@@ -146,7 +146,6 @@ Beam *RigSpawner::SpawnRig()
     // Flags in root module
     m_rig->ar_forward_commands         = m_file->forward_commands;
     m_rig->ar_import_commands          = m_file->import_commands;
-    m_rig->wheel_contact_requested     = m_file->rollon;
     m_rig->ar_rescuer_flag             = m_file->rescuer;
     m_rig->m_disable_default_sounds    = m_file->disable_default_sounds;
     m_rig->ar_hide_in_actor_list       = m_file->hide_in_chooser;
@@ -266,8 +265,7 @@ Beam *RigSpawner::SpawnRig()
     // Section 'AntiLockBrakes' in any module.
     PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_ANTI_LOCK_BRAKES, anti_lock_brakes, ProcessAntiLockBrakes);
 
-    // Section 'SlopeBrake' in any module.
-    PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_SLOPE_BRAKE, slope_brake, ProcessSlopeBrake);
+    // Section 'SlopeBrake' in any module (feature removed).
     
     // Sections 'flares' and 'flares2'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLARES2, flares_2, ProcessFlare2);
