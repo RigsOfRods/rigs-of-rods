@@ -194,7 +194,9 @@ SlideNode::SlideNode(node_t* slidingNode, RailGroup* slidingRail):
 
     mAttachRate(1.0f),
     mAttachDist(0.1f),
-    mBoolSettings(ATTACH_NONE)
+    sn_attach_foreign(false),
+    sn_attach_self(false),
+    sn_slide_broken(false)
 {
     // make sure they exist
     MYASSERT( mSlidingNode );
@@ -212,7 +214,7 @@ SlideNode::~SlideNode()
 void SlideNode::UpdateForces(float dt)
 {
     // only do calcs if we have a beam to slide on
-    if (!mSlidingBeam || mSlidingBeam->bm_broken || getFlag(MASK_SLIDE_BROKEN))
+    if (!mSlidingBeam || mSlidingBeam->bm_broken || sn_slide_broken)
     {
         return;
     }
@@ -227,7 +229,10 @@ void SlideNode::UpdateForces(float dt)
     Ogre::Vector3 perpForces = getCorrectiveForces();
     // perpendicular Forces are distributed according to the position along the Beam
     if (perpForces.length() > mBreakForce)
-        setFlag(MASK_SLIDE_BROKEN);
+    {
+        sn_slide_broken = true;
+    }
+
     mSlidingNode->Forces += -perpForces;
     mSlidingBeam->p1->Forces += perpForces * (1 - mRatio);
     mSlidingBeam->p2->Forces += perpForces * mRatio;

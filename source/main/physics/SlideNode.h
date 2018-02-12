@@ -76,27 +76,6 @@ static inline Ogre::Vector3 nearestPointOnLine(const Ogre::Vector3& pt1,
 }
 //! @}
 
-/******************************************************************************\
-|                                                                              |
-|   CLASSES IN THIS FILE STORED IN BEAM NEED TO HAVE A DECLARATION IN beam.h   |
-|                                                                              |
-\******************************************************************************/
-
-//! can only be attached to rail specified at start
-#define ATTACH_NONE (0 << 0)
-//! attach/detach to rails on the current vehicle only
-#define ATTACH_SELF (1 << 1)
-//! attach/detach to rails only on other vehicles
-#define ATTACH_FOREIGN  (1 << 2)
-//!attach/detach to any rail, on the current vehicle or others
-#define ATTACH_ALL ( ATTACH_SELF | ATTACH_FOREIGN )
-
-#define MASK_ATTACH_RULES ATTACH_ALL
-#define MASK_SLIDE_BROKEN (1 << 3)
-
-/**
- *
- */
 class Rail : public ZeroedMemoryAllocator
 {
 // Members /////////////////////////////////////////////////////////////////////
@@ -217,15 +196,14 @@ private:
 	
 };
 
-/**
- *
- */
 class SlideNode : public ZeroedMemoryAllocator
 {
-
-// Members /////////////////////////////////////////////////////////////////////
 public:
-	/* no public  members */
+
+    bool sn_attach_self:1;      //!< attach/detach to rails on the current vehicle only
+    bool sn_attach_foreign:1;   //!< attach/detach to rails only on other vehicles
+    bool sn_slide_broken:1;     //!< The slidenode was pulled away from the rail
+
 private:
     node_t*     mSlidingNode; //!< pointer to node that is sliding
     beam_t*     mSlidingBeam; //!< pointer to current beam sliding on
@@ -246,8 +224,6 @@ private:
 
     Ogre::Real    mAttachRate; //!< how fast the cur threshold changes (m/s)
     Ogre::Real    mAttachDist; //!< maximum distance slide node will attach to a beam (m)
-
-        unsigned int mBoolSettings; //!< bit Array for storing beam settings
 
 // Methods /////////////////////////////////////////////////////////////////////
 public:
@@ -305,7 +281,7 @@ public:
     void reset()
     {
     	mCurRailGroup = mOrgRailGroup;
-    	resetFlag( MASK_SLIDE_BROKEN );
+    	sn_slide_broken = false;
     	ResetPositions();
     }
 
@@ -358,20 +334,6 @@ public:
 	Ogre::Real getAttachmentRate() const { return mAttachRate; }
 	//! maximum distance this spring node is allowed to reach out for a Rail
 	Ogre::Real getAttachmentDistance() const { return mAttachDist; }
-
-
-	/**
-	 * Allows slide node to attach to a rail it was not assigned to.
-	 * @param attachMask bit field for attachment rules
-	 */
-	void setAttachRule( unsigned int attachFlag ) { setFlag(attachFlag); }
-	
-	/**
-	 * @param attachFlag
-	 * @return
-	 */
-	bool getAttachRule( unsigned int attachFlag) { return getFlag(attachFlag); }
-	
 
 	/**
 	 * @param group
@@ -461,25 +423,5 @@ private:
      * @return forces between the ideal position and the slide node
      */
     Ogre::Vector3 getCorrectiveForces();
-
-    /**
-     *  sets a specific bit or bits to 1
-     * @param flag bit(s) to set
-     */
-    void setFlag( unsigned int flag ) { mBoolSettings |= flag; }
-
-    /**
-     * sets a specific bit or bits to 0
-     * @param flag bit(s) to be reset
-     */
-    void resetFlag( unsigned int flag ) { mBoolSettings &= ~flag; }
-
-    /**
-     * Retrieves the state of specific bit or bits
-     * @param flag bit(s) to check against
-     * @return true if one of the bits is 1
-     */
-    bool getFlag( unsigned int flag ) { return (mBoolSettings & flag) != 0; }
-
 };
 

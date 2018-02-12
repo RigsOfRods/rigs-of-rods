@@ -44,8 +44,11 @@ void Actor::ToggleSlideNodeLock()
 
         // if neither foreign, nor self attach is set then we cannot change the
         // Rail attachments
-        if (!itNode->getAttachRule(ATTACH_ALL))
+        if (!itNode->sn_attach_self && !itNode->sn_attach_foreign)
+        {
             continue;
+        }
+
         if (m_slidenodes_locked)
         {
             itNode->attachToRail(NULL);
@@ -56,8 +59,8 @@ void Actor::ToggleSlideNodeLock()
         for (unsigned int i = 0; i < num_slots; ++i)
         {
             // make sure this truck is allowed
-            if (!((player_actor_id != i && itNode->getAttachRule(ATTACH_FOREIGN)) ||
-                (player_actor_id == i && itNode->getAttachRule(ATTACH_SELF))))
+            if (!((player_actor_id != i && itNode->sn_attach_foreign) ||
+                (player_actor_id == i && itNode->sn_attach_self)))
                 continue;
 
             current = GetClosestRailOnActor(RoR::App::GetSimController()->GetActorById(i), (*itNode));
