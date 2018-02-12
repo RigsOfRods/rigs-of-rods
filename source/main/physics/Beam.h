@@ -667,9 +667,6 @@ public:
     int m_custom_camera_node;
 
     int wheel_node_count;
-    int first_wheel_node;
-    int netbuffersize;
-    int nodebuffersize;
     Ogre::SceneNode *netLabelNode;
 
     std::string getTruckName();
@@ -1020,7 +1017,12 @@ protected:
      */
     std::pair<RailGroup*, Ogre::Real> getClosestRailOnTruck( Beam* truck, const SlideNode& node);
 
-    bool m_hud_features_ok:1;   //!< Gfx state; Are HUD features matching actor's capabilities?
-    bool m_slidenodes_locked:1; //!< Physics state; Are SlideNodes locked?
-    bool m_blinker_autoreset:1; //!< Gfx state; We're steering - when we finish, the blinker should turn off
+
+    int  m_net_first_wheel_node;   //!< Network attr; Determines data buffer layout
+    int  m_net_node_buf_size;      //!< Network attr; buffer size
+    int  m_net_buffer_size;        //!< Network attr; buffer size
+
+    bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
+    bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?
+    bool m_blinker_autoreset:1;    //!< Gfx state; We're steering - when we finish, the blinker should turn off
 };

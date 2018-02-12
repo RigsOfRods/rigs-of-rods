@@ -594,7 +594,7 @@ void Beam::pushNetwork(char* data, int size)
         return;
 
     // check if the size of the data matches to what we expected
-    if ((unsigned int)size == (netbuffersize + sizeof(RoRnet::TruckState)))
+    if ((unsigned int)size == (m_net_buffer_size + sizeof(RoRnet::TruckState)))
     {
         // we walk through the incoming data and separate it a bit
         char* ptr = data;
@@ -604,8 +604,8 @@ void Beam::pushNetwork(char* data, int size)
         ptr += sizeof(RoRnet::TruckState);
 
         // then copy the node data
-        memcpy((char*)netb3, ptr, nodebuffersize);
-        ptr += nodebuffersize;
+        memcpy((char*)netb3, ptr, m_net_node_buf_size);
+        ptr += m_net_node_buf_size;
 
         // then take care of the wheel speeds
         for (int i = 0; i < free_wheel; i++)
@@ -619,7 +619,7 @@ void Beam::pushNetwork(char* data, int size)
     else
     {
         // TODO: show the user the problem in the GUI
-        LOG("WRONG network size: we expected " + TOSTRING(netbuffersize+sizeof(RoRnet::TruckState)) + " but got " + TOSTRING(size) + " for vehicle " + String(truckname));
+        LOG("WRONG network size: we expected " + TOSTRING(m_net_buffer_size+sizeof(RoRnet::TruckState)) + " but got " + TOSTRING(size) + " for vehicle " + String(truckname));
         state = INVALID;
         return;
     }
@@ -690,7 +690,7 @@ void Beam::calcNetwork()
     Vector3 p1 = Vector3::ZERO;
     Vector3 p2 = Vector3::ZERO;
 
-    for (int i = 0; i < first_wheel_node; i++)
+    for (int i = 0; i < m_net_first_wheel_node; i++)
     {
         if (i == 0)
         {
@@ -726,7 +726,7 @@ void Beam::calcNetwork()
 
         apos += nodes[i].AbsPosition;
     }
-    position = apos / first_wheel_node;
+    position = apos / m_net_first_wheel_node;
 
     for (int i = 0; i < free_wheel; i++)
     {
@@ -1837,7 +1837,7 @@ void Beam::sendStreamSetup()
     memset(&reg, 0, sizeof(RoRnet::TruckStreamRegister));
     reg.status = 0;
     reg.type = 0;
-    reg.bufferSize = netbuffersize;
+    reg.bufferSize = m_net_buffer_size;
     strncpy(reg.name, realtruckfilename.c_str(), 128);
     if (!m_truck_config.empty())
     {
@@ -1863,7 +1863,7 @@ void Beam::sendStreamData()
     lastNetUpdateTime = netTimer.getMilliseconds();
 
     //look if the packet is too big first
-    int final_packet_size = sizeof(RoRnet::TruckState) + sizeof(float) * 3 + first_wheel_node * sizeof(float) * 3 + free_wheel * sizeof(float);
+    int final_packet_size = sizeof(RoRnet::TruckState) + sizeof(float) * 3 + m_net_first_wheel_node * sizeof(float) * 3 + free_wheel * sizeof(float);
     if (final_packet_size > 8192)
     {
         ErrorUtils::ShowError(_L("Truck is too big to be send over the net."), _L("Network error!"));
@@ -1961,7 +1961,7 @@ void Beam::sendStreamData()
     {
         char* ptr = send_buffer + sizeof(RoRnet::TruckState);
         float* send_nodes = (float *)ptr;
-        packet_len += netbuffersize;
+        packet_len += m_net_buffer_size;
 
         // copy data into the buffer
         int i;
@@ -1976,7 +1976,7 @@ void Beam::sendStreamData()
 
         // then copy the other nodes into a compressed short format
         short* sbuf = (short*)ptr;
-        for (i = 1; i < first_wheel_node; i++)
+        for (i = 1; i < m_net_first_wheel_node; i++)
         {
             Vector3 relpos = nodes[i].AbsPosition - refpos;
             sbuf[(i - 1) * 3 + 0] = (short int)(relpos.x * 300.0f);
@@ -5739,13 +5739,13 @@ Beam::Beam(
             wheel_node_count++;
     }
 
-    // search first_wheel_node
-    first_wheel_node = free_node;
+    // search m_net_first_wheel_node
+    m_net_first_wheel_node = free_node;
     for (int i = 0; i < free_node; i++)
     {
         if (nodes[i].iswheel == WHEEL_DEFAULT)
         {
-            first_wheel_node = i;
+            m_net_first_wheel_node = i;
             break;
         }
     }
@@ -5756,8 +5756,8 @@ Beam::Beam(
     //  - free_node - 1 times 3 short ints (compressed position info)
     //  - free_wheel times a float for the wheel rotation
     //
-    nodebuffersize = sizeof(float) * 3 + (first_wheel_node - 1) * sizeof(short int) * 3;
-    netbuffersize = nodebuffersize + free_wheel * sizeof(float);
+    m_net_node_buf_size = sizeof(float) * 3 + (m_net_first_wheel_node - 1) * sizeof(short int) * 3;
+    m_net_buffer_size = m_net_node_buf_size + free_wheel * sizeof(float);
     updateFlexbodiesPrepare();
     updateFlexbodiesFinal();
     updateVisual();
@@ -5786,9 +5786,9 @@ Beam::Beam(
         oob1 = (RoRnet::TruckState*)malloc(sizeof(RoRnet::TruckState));
         oob2 = (RoRnet::TruckState*)malloc(sizeof(RoRnet::TruckState));
         oob3 = (RoRnet::TruckState*)malloc(sizeof(RoRnet::TruckState));
-        netb1 = (char*)malloc(netbuffersize);
-        netb2 = (char*)malloc(netbuffersize);
-        netb3 = (char*)malloc(netbuffersize);
+        netb1 = (char*)malloc(m_net_buffer_size);
+        netb2 = (char*)malloc(m_net_buffer_size);
+        netb3 = (char*)malloc(m_net_buffer_size);
         net_toffset = 0;
         netcounter = 0;
         if (engine)
