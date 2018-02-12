@@ -5625,7 +5625,7 @@ Beam::Beam(
     , m_skeletonview_mesh_initialized(false)
     , m_skeletonview_manual_mesh(0)
     , ar_update_physics(false)
-    , sleeptime(0.0f)
+    , ar_sleep_counter(0.0f)
     , m_stabilizer_shock_request(0)
     , m_stabilizer_shock_ratio(0.0)
     , m_stabilizer_shock_sleep(0.0)

@@ -608,12 +608,12 @@ void BeamFactory::RecursiveActivation(int j, std::bitset<MAX_TRUCKS>& visited)
             continue;
         if (m_trucks[t]->ar_sim_state == Beam::SimState::LOCAL_SIMULATED && truckIntersectionCollAABB(t, j, 1.2f))
         {
-            m_trucks[t]->sleeptime = 0.0f;
+            m_trucks[t]->ar_sleep_counter = 0.0f;
             this->RecursiveActivation(t, visited);
         }
         if (m_trucks[t]->ar_sim_state == Beam::SimState::LOCAL_SLEEPING && predictTruckIntersectionCollAABB(t, j))
         {
-            m_trucks[t]->sleeptime = 0.0f;
+            m_trucks[t]->ar_sleep_counter = 0.0f;
             m_trucks[t]->ar_sim_state = Beam::SimState::LOCAL_SIMULATED;
             this->RecursiveActivation(t, visited);
         }
@@ -633,9 +633,9 @@ void BeamFactory::UpdateSleepingState(float dt)
             if (m_trucks[t]->getVelocity().squaredLength() > 0.01f)
                 continue;
 
-            m_trucks[t]->sleeptime += dt;
+            m_trucks[t]->ar_sleep_counter += dt;
 
-            if (m_trucks[t]->sleeptime >= 10.0f)
+            if (m_trucks[t]->ar_sleep_counter >= 10.0f)
             {
                 m_trucks[t]->ar_sim_state = Beam::SimState::LOCAL_SLEEPING;
             }
@@ -652,13 +652,13 @@ void BeamFactory::UpdateSleepingState(float dt)
     // Recursivly activate all trucks which can be reached from current_truck
     if (current_truck && current_truck->ar_sim_state == Beam::SimState::LOCAL_SIMULATED)
     {
-        current_truck->sleeptime = 0.0f;
+        current_truck->ar_sleep_counter = 0.0f;
         this->RecursiveActivation(m_current_truck, visited);
     }
     // Snowball effect (activate all trucks which might soon get hit by a moving truck)
     for (int t = 0; t < m_free_truck; t++)
     {
-        if (m_trucks[t] && m_trucks[t]->ar_sim_state == Beam::SimState::LOCAL_SIMULATED && m_trucks[t]->sleeptime == 0.0f)
+        if (m_trucks[t] && m_trucks[t]->ar_sim_state == Beam::SimState::LOCAL_SIMULATED && m_trucks[t]->ar_sleep_counter == 0.0f)
             this->RecursiveActivation(t, visited);
     }
 }
@@ -686,7 +686,7 @@ void BeamFactory::activateAllTrucks()
         if (m_trucks[t] && m_trucks[t]->ar_sim_state == Beam::SimState::LOCAL_SLEEPING)
         {
             m_trucks[t]->ar_sim_state = Beam::SimState::LOCAL_SIMULATED;
-            m_trucks[t]->sleeptime = 0.0f;
+            m_trucks[t]->ar_sleep_counter = 0.0f;
 
             if (this->getTruck(m_simulated_truck))
             {
