@@ -590,7 +590,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
         }
     }
 
-    static std::vector<TerrainObjectManager::object_t> object_list;
+    static std::vector<TerrainObjectManager::EditorObject> object_list;
     static bool terrain_editing_track_object = true;
     static bool terrain_editing_mode = false;
     static int terrain_editing_rotation_axis = 1;
@@ -606,7 +606,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
 
         if (terrain_editing_mode)
         {
-            object_list = gEnv->terrainManager->getObjectManager()->getObjects();
+            object_list = gEnv->terrainManager->getObjectManager()->GetEditorObjects();
             object_index = -1;
         }
         else

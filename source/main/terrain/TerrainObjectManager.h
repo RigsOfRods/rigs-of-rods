@@ -36,8 +36,20 @@ class TerrainObjectManager : public ZeroedMemoryAllocator
 {
 public:
 
+    struct EditorObject
+    {
+        Ogre::String name;
+        Ogre::Vector3 position;
+        Ogre::Vector3 rotation;
+        Ogre::Vector3 initial_position;
+        Ogre::Vector3 initial_rotation;
+        Ogre::SceneNode* node;
+    };
+
     TerrainObjectManager(TerrainManager* terrainManager);
     ~TerrainObjectManager();
+
+    std::vector<EditorObject> GetEditorObjects() const { return m_editor_objects; }
 
     void loadObjectConfigFile(Ogre::String filename);
 
@@ -59,38 +71,18 @@ public:
         Ogre::Quaternion rotation;
     } localizer_t;
 
-    typedef struct object_t
-    {
-        Ogre::String name;
-        Ogre::Vector3 position;
-        Ogre::Vector3 rotation;
-        Ogre::Vector3 initial_position;
-        Ogre::Vector3 initial_rotation;
-        Ogre::SceneNode* node;
-    } object_t;
-
-    std::vector<object_t> getObjects() { return objects; };
     std::vector<localizer_t> GetLocalizers() { return localizers; }
-
     bool update(float dt);
 
-protected:
+private:
 
-    TerrainManager* terrainManager;
-
-    typedef struct
+    struct AnimatedObject
     {
         Ogre::Entity* ent;
         Ogre::SceneNode* node;
         Ogre::AnimationState* anim;
         float speedfactor;
-    } animated_object_t;
-
-    Ogre::StaticGeometry* bakesg;
-    ProceduralManager* proceduralManager;
-
-    Road* road;
-    Ogre::SceneNode* bakeNode;
+    };
 
     struct PredefinedActor
     {
@@ -102,6 +94,23 @@ protected:
         bool ismachine;
         bool freePosition;
     };
+
+    struct StaticObject
+    {
+        Ogre::SceneNode* sceneNode;
+        Ogre::String instanceName;
+        bool enabled;
+        std::vector<int> collBoxes;
+        std::vector<int> collTris;
+    };
+
+    TerrainManager* terrainManager;
+
+    Ogre::StaticGeometry* bakesg;
+    ProceduralManager* proceduralManager;
+
+    Road* road;
+    Ogre::SceneNode* bakeNode;
 
     std::vector<PredefinedActor> m_predefined_actors;
 
@@ -120,23 +129,10 @@ protected:
 #endif //USE_PAGED
 
     std::vector<localizer_t> localizers;
+    std::vector<AnimatedObject> m_animated_objects;
 
-    int objcounter;
-
-    std::vector<animated_object_t> animatedObjects;
     std::vector<MeshObject*> meshObjects;
-
-    typedef struct loadedObject_t
-    {
-        Ogre::SceneNode* sceneNode;
-        Ogre::String instanceName;
-        bool enabled;
-        std::vector<int> collBoxes;
-        std::vector<int> collTris;
-    } loadedObject_t;
-
-    std::map<std::string, loadedObject_t> loadedObjects;
-
-    std::vector<object_t> objects;
+    std::map<std::string, StaticObject> m_static_objects;
+    std::vector<EditorObject> m_editor_objects;
 };
 

@@ -114,9 +114,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
         proceduralManager = new ProceduralManager();
     }
 
-    objcounter = 0;
     localizers.clear();
-
     ProceduralObject po;
     po.loadingState = -1;
     int r2oldmode = 0;
@@ -681,13 +679,13 @@ void removeCollisionBox(int number)
 
 void TerrainObjectManager::moveObjectVisuals(const String& instancename, const Ogre::Vector3& pos)
 {
-    if (loadedObjects.find(instancename) == loadedObjects.end())
+    if (m_static_objects.find(instancename) == m_static_objects.end())
     {
         LOG(instancename+ " not found!");
         return;
     }
 
-    loadedObject_t obj = loadedObjects[instancename];
+    StaticObject obj = m_static_objects[instancename];
 
     if (!obj.enabled)
         return;
@@ -697,13 +695,13 @@ void TerrainObjectManager::moveObjectVisuals(const String& instancename, const O
 
 void TerrainObjectManager::unloadObject(const String& instancename)
 {
-    if (loadedObjects.find(instancename) == loadedObjects.end())
+    if (m_static_objects.find(instancename) == m_static_objects.end())
     {
         LOG("unable to unload object: " + instancename);
         return;
     }
 
-    loadedObject_t obj = loadedObjects[instancename];
+    StaticObject obj = m_static_objects[instancename];
 
     // check if it was already deleted
     if (!obj.enabled)
@@ -786,6 +784,7 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
     //scale
     ds->readLine(line, 1023);
     sscanf(line, "%f, %f, %f", &sc.x, &sc.y, &sc.z);
+    static int objcounter = 0;
     String entity_name = "object" + TOSTRING(objcounter) + "(" + name + ")";
     RoR::Utils::SanitizeUtf8String(entity_name);
     objcounter++;
@@ -806,20 +805,20 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
     tenode->setVisible(true);
 
     // register in map
-    loadedObject_t* obj = &loadedObjects[instancename];
+    StaticObject* obj = &m_static_objects[instancename];
     obj->instanceName = instancename;
     obj->enabled = true;
     obj->sceneNode = tenode;
     obj->collTris.clear();
 
-    object_t object;
+    EditorObject object;
     object.name = name;
     object.position = pos;
     object.rotation = rot;
     object.initial_position = pos;
     object.initial_rotation = rot;
     object.node = tenode;
-    objects.push_back(object);
+    m_editor_objects.push_back(object);
 
     if (mo && uniquifyMaterial && !instancename.empty())
     {
@@ -1089,7 +1088,7 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
                     LOG("[ODEF] animation '" + String(animname) + "' for mesh: '" + String(mesh) + "' in odef file '" + name + ".odef' not found!");
                     continue;
                 }
-                animated_object_t ao;
+                AnimatedObject ao;
                 ao.node = tenode;
                 ao.ent = mo->getEntity();
                 ao.speedfactor = speedfactorMin;
@@ -1110,7 +1109,7 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
                     continue;
                 }
                 ao.anim->setEnabled(true);
-                animatedObjects.push_back(ao);
+                m_animated_objects.push_back(ao);
             }
             continue;
         }
@@ -1319,12 +1318,12 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
 
 bool TerrainObjectManager::updateAnimatedObjects(float dt)
 {
-    if (animatedObjects.size() == 0)
+    if (m_animated_objects.size() == 0)
         return true;
 
-    std::vector<animated_object_t>::iterator it;
+    std::vector<AnimatedObject>::iterator it;
 
-    for (it = animatedObjects.begin(); it != animatedObjects.end(); it++)
+    for (it = m_animated_objects.begin(); it != m_animated_objects.end(); it++)
     {
         if (it->anim && it->speedfactor != 0)
         {
