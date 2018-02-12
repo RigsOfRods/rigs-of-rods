@@ -295,10 +295,10 @@ public:
     std::vector<Ogre::AxisAlignedBox>  ar_predicted_coll_bounding_boxes;
     contacter_t       ar_contacters[MAX_CONTACTERS];
     int               ar_num_contacters;
-    wheel_t           wheels[MAX_WHEELS];
-    vwheel_t          vwheels[MAX_WHEELS];
-    int               free_wheel;
-    command_t         commandkey[MAX_COMMANDS + 10]; // 0 for safety
+    wheel_t           ar_wheels[MAX_WHEELS];
+    vwheel_t          ar_wheel_visuals[MAX_WHEELS];
+    int               ar_num_wheels;
+    command_t         ar_command_key[MAX_COMMANDS + 10]; // 0 for safety
     prop_t            ar_props[MAX_PROPS];
     prop_t*           ar_driverseat_prop;
     int               ar_num_props;

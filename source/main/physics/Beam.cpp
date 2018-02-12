@@ -236,19 +236,19 @@ Beam::~Beam()
     }
 
     // delete meshwheels
-    for (int i = 0; i < free_wheel; i++)
+    for (int i = 0; i < ar_num_wheels; i++)
     {
-        if (vwheels[i].fm)
-            delete vwheels[i].fm;
-        if (vwheels[i].cnode)
+        if (ar_wheel_visuals[i].fm)
+            delete ar_wheel_visuals[i].fm;
+        if (ar_wheel_visuals[i].cnode)
         {
-            vwheels[i].cnode->removeAndDestroyAllChildren();
-            gEnv->sceneManager->destroySceneNode(vwheels[i].cnode);
+            ar_wheel_visuals[i].cnode->removeAndDestroyAllChildren();
+            gEnv->sceneManager->destroySceneNode(ar_wheel_visuals[i].cnode);
         }
     }
 
     // delete skidmarks
-    for (int i = 0; i < free_wheel; ++i)
+    for (int i = 0; i < ar_num_wheels; ++i)
     {
         delete m_skid_trails[i];
         m_skid_trails[i] = nullptr;
@@ -465,10 +465,10 @@ void Beam::scaleTruck(float value)
         ar_flexbodies[i]->getSceneNode()->scale(value, value, value);
     }
     // todo: fix meshwheels
-    //for (int i=0;i<free_wheel;i++)
+    //for (int i=0;i<ar_num_wheels;i++)
     //{
-    //if (vwheels[i].cnode) vwheels[i].cnode->scale(value, value, value);
-    //if (vwheels[i].fm && vwheels[i].cnode) vwheels[i].cnode->scale(value, value, value);
+    //if (ar_wheel_visuals[i].cnode) ar_wheel_visuals[i].cnode->scale(value, value, value);
+    //if (ar_wheel_visuals[i].fm && ar_wheel_visuals[i].cnode) ar_wheel_visuals[i].cnode->scale(value, value, value);
     //}
     BES_GFX_STOP(BES_GFX_ScaleTruck);
 }
@@ -617,10 +617,10 @@ void Beam::pushNetwork(char* data, int size)
         ptr += m_net_node_buf_size;
 
         // then take care of the wheel speeds
-        for (int i = 0; i < free_wheel; i++)
+        for (int i = 0; i < ar_num_wheels; i++)
         {
             float wspeed = *(float*)(ptr);
-            wheels[i].wh_net_rp3 = wspeed;
+            ar_wheels[i].wh_net_rp3 = wspeed;
 
             ptr += sizeof(float);
         }
@@ -647,13 +647,13 @@ void Beam::pushNetwork(char* data, int size)
     netb2 = netb3;
     netb3 = ft;
 
-    for (int i = 0; i < free_wheel; i++)
+    for (int i = 0; i < ar_num_wheels; i++)
     {
         float rp;
-        rp = wheels[i].wh_net_rp1;
-        wheels[i].wh_net_rp1 = wheels[i].wh_net_rp2;
-        wheels[i].wh_net_rp2 = wheels[i].wh_net_rp3;
-        wheels[i].wh_net_rp3 = rp;
+        rp = ar_wheels[i].wh_net_rp1;
+        ar_wheels[i].wh_net_rp1 = ar_wheels[i].wh_net_rp2;
+        ar_wheels[i].wh_net_rp2 = ar_wheels[i].wh_net_rp3;
+        ar_wheels[i].wh_net_rp3 = rp;
     }
     m_net_update_counter++;
 
@@ -738,27 +738,27 @@ void Beam::calcNetwork()
     }
     m_avg_node_position = apos / m_net_first_wheel_node;
 
-    for (int i = 0; i < free_wheel; i++)
+    for (int i = 0; i < ar_num_wheels; i++)
     {
-        float rp = wheels[i].wh_net_rp1 + tratio * (wheels[i].wh_net_rp2 - wheels[i].wh_net_rp1);
+        float rp = ar_wheels[i].wh_net_rp1 + tratio * (ar_wheels[i].wh_net_rp2 - ar_wheels[i].wh_net_rp1);
         //compute ideal positions
-        Vector3 axis = wheels[i].wh_axis_node_1->RelPosition - wheels[i].wh_axis_node_0->RelPosition;
+        Vector3 axis = ar_wheels[i].wh_axis_node_1->RelPosition - ar_wheels[i].wh_axis_node_0->RelPosition;
         axis.normalise();
-        Plane pplan = Plane(axis, wheels[i].wh_axis_node_0->AbsPosition);
-        Vector3 ortho = -pplan.projectVector(wheels[i].wh_near_attach_node->AbsPosition) - wheels[i].wh_axis_node_0->AbsPosition;
+        Plane pplan = Plane(axis, ar_wheels[i].wh_axis_node_0->AbsPosition);
+        Vector3 ortho = -pplan.projectVector(ar_wheels[i].wh_near_attach_node->AbsPosition) - ar_wheels[i].wh_axis_node_0->AbsPosition;
         Vector3 ray = ortho.crossProduct(axis);
         ray.normalise();
-        ray *= wheels[i].wh_radius;
-        float drp = Math::TWO_PI / (wheels[i].wh_num_nodes / 2);
-        for (int j = 0; j < wheels[i].wh_num_nodes / 2; j++)
+        ray *= ar_wheels[i].wh_radius;
+        float drp = Math::TWO_PI / (ar_wheels[i].wh_num_nodes / 2);
+        for (int j = 0; j < ar_wheels[i].wh_num_nodes / 2; j++)
         {
             Vector3 uray = Quaternion(Radian(rp - drp * j), axis) * ray;
 
-            wheels[i].wh_nodes[j * 2 + 0]->AbsPosition = wheels[i].wh_axis_node_0->AbsPosition + uray;
-            wheels[i].wh_nodes[j * 2 + 0]->RelPosition = wheels[i].wh_nodes[j * 2]->AbsPosition - ar_origin;
+            ar_wheels[i].wh_nodes[j * 2 + 0]->AbsPosition = ar_wheels[i].wh_axis_node_0->AbsPosition + uray;
+            ar_wheels[i].wh_nodes[j * 2 + 0]->RelPosition = ar_wheels[i].wh_nodes[j * 2]->AbsPosition - ar_origin;
 
-            wheels[i].wh_nodes[j * 2 + 1]->AbsPosition = wheels[i].wh_axis_node_1->AbsPosition + uray;
-            wheels[i].wh_nodes[j * 2 + 1]->RelPosition = wheels[i].wh_nodes[j * 2 + 1]->AbsPosition - ar_origin;
+            ar_wheels[i].wh_nodes[j * 2 + 1]->AbsPosition = ar_wheels[i].wh_axis_node_1->AbsPosition + uray;
+            ar_wheels[i].wh_nodes[j * 2 + 1]->RelPosition = ar_wheels[i].wh_nodes[j * 2 + 1]->AbsPosition - ar_origin;
         }
     }
 
@@ -1723,10 +1723,10 @@ void Beam::SyncReset()
         ar_rotators[i].angle = 0.0;
     for (int i = 0; i < ar_num_wings; i++)
         ar_wings[i].fa->broken = false;
-    for (int i = 0; i < free_wheel; i++)
+    for (int i = 0; i < ar_num_wheels; i++)
     {
-        wheels[i].wh_speed = 0.0;
-        wheels[i].wh_is_detached = false;
+        ar_wheels[i].wh_speed = 0.0;
+        ar_wheels[i].wh_is_detached = false;
     }
     if (m_buoyance)
         m_buoyance->setsink(0);
@@ -1750,9 +1750,9 @@ void Beam::SyncReset()
     // reset commands (self centering && push once/twice forced to terminate moving commands)
     for (int i = 0; i < MAX_COMMANDS; i++)
     {
-        commandkey[i].commandValue = 0.0;
-        commandkey[i].triggerInputValue = 0.0f;
-        commandkey[i].playerInputValue = 0.0f;
+        ar_command_key[i].commandValue = 0.0;
+        ar_command_key[i].triggerInputValue = 0.0f;
+        ar_command_key[i].playerInputValue = 0.0f;
     }
 
     resetSlideNodes();
@@ -1869,7 +1869,7 @@ void Beam::sendStreamData()
     ar_net_last_update_time = ar_net_timer.getMilliseconds();
 
     //look if the packet is too big first
-    int final_packet_size = sizeof(RoRnet::TruckState) + sizeof(float) * 3 + m_net_first_wheel_node * sizeof(float) * 3 + free_wheel * sizeof(float);
+    int final_packet_size = sizeof(RoRnet::TruckState) + sizeof(float) * 3 + m_net_first_wheel_node * sizeof(float) * 3 + ar_num_wheels * sizeof(float);
     if (final_packet_size > 8192)
     {
         ErrorUtils::ShowError(_L("Truck is too big to be send over the net."), _L("Network error!"));
@@ -1994,9 +1994,9 @@ void Beam::sendStreamData()
 
         // then to the wheels
         float* wfbuf = (float*)ptr;
-        for (i = 0; i < free_wheel; i++)
+        for (i = 0; i < ar_num_wheels; i++)
         {
-            wfbuf[i] = wheels[i].wh_net_rp;
+            wfbuf[i] = ar_wheels[i].wh_net_rp;
         }
     }
 
@@ -2135,11 +2135,11 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
         {
             // check if lower_limit is a valid to get commandvalue, then get commandvalue
             if (lower_limit >= 1.0f && lower_limit <= 48.0)
-                if (commandkey[int(lower_limit)].commandValue > 0)
+                if (ar_command_key[int(lower_limit)].commandValue > 0)
                     cstate += 1.0f;
             // check if upper_limit is a valid to get commandvalue, then get commandvalue
             if (upper_limit >= 1.0f && upper_limit <= 48.0)
-                if (commandkey[int(upper_limit)].commandValue > 0)
+                if (ar_command_key[int(upper_limit)].commandValue > 0)
                     cstate -= 1.0f;
         }
 
@@ -2643,7 +2643,7 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt, 
                 }
                 else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CMD_BLOCKER) // this an enabled cmd-key-blocker and past a boundary
                 {
-                    commandkey[ar_beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state = false; // Release the cmdKey
+                    ar_command_key[ar_beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state = false; // Release the cmdKey
                     if (m_trigger_debug_enabled && ar_beams[i].shock->last_debug_state != 2)
                     {
                         LOG(" F-key trigger block released. Blocker BeamID " + TOSTRING(i) + " Released F" + TOSTRING(ar_beams[i].shock->trigger_cmdshort));
@@ -2703,12 +2703,12 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt, 
                         else
                         {
                             //just a trigger
-                            if (!commandkey[ar_beams[i].shock->trigger_cmdlong].trigger_cmdkeyblock_state) // related cmdkey is not blocked
+                            if (!ar_command_key[ar_beams[i].shock->trigger_cmdlong].trigger_cmdkeyblock_state) // related cmdkey is not blocked
                             {
                                 if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CONTINUOUS)
-                                    commandkey[ar_beams[i].shock->trigger_cmdshort].triggerInputValue = 1; // continuous trigger only operates on trigger_cmdshort
+                                    ar_command_key[ar_beams[i].shock->trigger_cmdshort].triggerInputValue = 1; // continuous trigger only operates on trigger_cmdshort
                                 else
-                                    commandkey[ar_beams[i].shock->trigger_cmdlong].triggerInputValue = 1;
+                                    ar_command_key[ar_beams[i].shock->trigger_cmdlong].triggerInputValue = 1;
                                 if (m_trigger_debug_enabled && ar_beams[i].shock->last_debug_state != 4)
                                 {
                                     LOG(" Trigger Longbound activated. Trigger BeamID " + TOSTRING(i) + " Triggered F" + TOSTRING(ar_beams[i].shock->trigger_cmdlong));
@@ -2744,12 +2744,12 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt, 
                         else
                         {
                             //just a trigger
-                            if (!commandkey[ar_beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state) // related cmdkey is not blocked
+                            if (!ar_command_key[ar_beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state) // related cmdkey is not blocked
                             {
                                 if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CONTINUOUS)
-                                    commandkey[ar_beams[i].shock->trigger_cmdshort].triggerInputValue = 0; // continuous trigger only operates on trigger_cmdshort
+                                    ar_command_key[ar_beams[i].shock->trigger_cmdshort].triggerInputValue = 0; // continuous trigger only operates on trigger_cmdshort
                                 else
-                                    commandkey[ar_beams[i].shock->trigger_cmdshort].triggerInputValue = 1;
+                                    ar_command_key[ar_beams[i].shock->trigger_cmdshort].triggerInputValue = 1;
 
                                 if (m_trigger_debug_enabled && ar_beams[i].shock->last_debug_state != 5)
                                 {
@@ -2780,8 +2780,8 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt, 
                         else
                         {
                             // normal trigger
-                            commandkey[ar_beams[i].shock->trigger_cmdshort].triggerInputValue = triggerValue;
-                            commandkey[ar_beams[i].shock->trigger_cmdlong].triggerInputValue = triggerValue;
+                            ar_command_key[ar_beams[i].shock->trigger_cmdshort].triggerInputValue = triggerValue;
+                            ar_command_key[ar_beams[i].shock->trigger_cmdlong].triggerInputValue = triggerValue;
                         }
                     }
                 }
@@ -2824,9 +2824,9 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt, 
                         ar_beams[i].shock->last_debug_state = 7;
                     }
                 }
-                else if ((ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CMD_BLOCKER) && !commandkey[ar_beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state) // this cmdkeyblocker is inside boundaries and cmdkeystate is diabled
+                else if ((ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CMD_BLOCKER) && !ar_command_key[ar_beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state) // this cmdkeyblocker is inside boundaries and cmdkeystate is diabled
                 {
-                    commandkey[ar_beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state = true; // activate trigger blocking
+                    ar_command_key[ar_beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state = true; // activate trigger blocking
                     if (m_trigger_debug_enabled && ar_beams[i].shock->last_debug_state != 8)
                     {
                         LOG(" F-key trigger blocked. Blocker BeamID " + TOSTRING(i) + " Blocked F" + TOSTRING(ar_beams[i].shock->trigger_cmdshort));
@@ -2848,16 +2848,16 @@ void Beam::updateSkidmarks()
 
     BES_START(BES_CORE_Skidmarks);
 
-    for (int i = 0; i < free_wheel; i++)
+    for (int i = 0; i < ar_num_wheels; i++)
     {
         // ignore wheels without data
-        if (wheels[i].lastContactInner == Vector3::ZERO && wheels[i].lastContactOuter == Vector3::ZERO)
+        if (ar_wheels[i].lastContactInner == Vector3::ZERO && ar_wheels[i].lastContactOuter == Vector3::ZERO)
             continue;
 
         if (m_skid_trails[i])
         {
             m_skid_trails[i]->updatePoint();
-            if (wheels[i].isSkiding)
+            if (ar_wheels[i].isSkiding)
             {
                 m_skid_trails[i]->update();
             }
@@ -2929,11 +2929,11 @@ void Beam::SetPropsCastShadows(bool do_cast_shadows)
             ar_props[i].wheel->getAttachedObject(0)->setCastShadows(do_cast_shadows);
         }
     }
-    for (i = 0; i < free_wheel; i++)
+    for (i = 0; i < ar_num_wheels; i++)
     {
-        if (vwheels[i].cnode && vwheels[i].cnode->numAttachedObjects())
+        if (ar_wheel_visuals[i].cnode && ar_wheel_visuals[i].cnode->numAttachedObjects())
         {
-            vwheels[i].cnode->getAttachedObject(0)->setCastShadows(do_cast_shadows);
+            ar_wheel_visuals[i].cnode->getAttachedObject(0)->setCastShadows(do_cast_shadows);
         }
     }
     for (i = 0; i < ar_num_beams; i++)
@@ -3512,9 +3512,9 @@ void Beam::updateFlexbodiesPrepare()
     if (gEnv->threadPool)
     {
         m_flexmesh_prepare.reset();
-        for (int i = 0; i < free_wheel; i++)
+        for (int i = 0; i < ar_num_wheels; i++)
         {
-            m_flexmesh_prepare.set(i, vwheels[i].cnode && vwheels[i].fm->flexitPrepare());
+            m_flexmesh_prepare.set(i, ar_wheel_visuals[i].cnode && ar_wheel_visuals[i].fm->flexitPrepare());
         }
 
         m_flexbody_prepare.reset();
@@ -3536,13 +3536,13 @@ void Beam::updateFlexbodiesPrepare()
                 m_flexbody_tasks.push_back(task_handle);
             }
         }
-        for (int i = 0; i < free_wheel; i++)
+        for (int i = 0; i < ar_num_wheels; i++)
         {
             if (m_flexmesh_prepare[i])
             {
                 auto func = std::function<void()>([this, i]()
                     {
-                        vwheels[i].fm->flexitCompute();
+                        ar_wheel_visuals[i].fm->flexitCompute();
                     });
                 auto task_handle = gEnv->threadPool->RunTask(func);
                 m_flexbody_tasks.push_back(task_handle);
@@ -3551,12 +3551,12 @@ void Beam::updateFlexbodiesPrepare()
     }
     else
     {
-        for (int i = 0; i < free_wheel; i++)
+        for (int i = 0; i < ar_num_wheels; i++)
         {
-            if (vwheels[i].cnode && vwheels[i].fm->flexitPrepare())
+            if (ar_wheel_visuals[i].cnode && ar_wheel_visuals[i].fm->flexitPrepare())
             {
-                vwheels[i].fm->flexitCompute();
-                vwheels[i].cnode->setPosition(vwheels[i].fm->flexitFinal());
+                ar_wheel_visuals[i].fm->flexitCompute();
+                ar_wheel_visuals[i].cnode->setPosition(ar_wheel_visuals[i].fm->flexitFinal());
             }
         }
         for (int i = 0; i < ar_num_flexbodies; i++)
@@ -3778,10 +3778,10 @@ void Beam::updateFlexbodiesFinal()
     {
         joinFlexbodyTasks();
 
-        for (int i = 0; i < free_wheel; i++)
+        for (int i = 0; i < ar_num_wheels; i++)
         {
             if (m_flexmesh_prepare[i])
-                vwheels[i].cnode->setPosition(vwheels[i].fm->flexitFinal());
+                ar_wheel_visuals[i].cnode->setPosition(ar_wheel_visuals[i].fm->flexitFinal());
         }
         for (int i = 0; i < ar_num_flexbodies; i++)
         {
@@ -3831,13 +3831,13 @@ void Beam::showSkeleton(bool meshes, bool linked)
         cabFade(0);
     }
 
-    for (int i = 0; i < free_wheel; i++)
+    for (int i = 0; i < ar_num_wheels; i++)
     {
-        if (vwheels[i].cnode)
-            vwheels[i].cnode->setVisible(false);
+        if (ar_wheel_visuals[i].cnode)
+            ar_wheel_visuals[i].cnode->setVisible(false);
 
-        if (vwheels[i].fm)
-            vwheels[i].fm->setVisible(false);
+        if (ar_wheel_visuals[i].fm)
+            ar_wheel_visuals[i].fm->setVisible(false);
     }
 
     for (int i = 0; i < ar_num_props; i++)
@@ -3855,11 +3855,11 @@ void Beam::showSkeleton(bool meshes, bool linked)
     }
 
     // hide mesh wheels
-    for (int i = 0; i < free_wheel; i++)
+    for (int i = 0; i < ar_num_wheels; i++)
     {
-        if (vwheels[i].fm && vwheels[i].meshwheel)
+        if (ar_wheel_visuals[i].fm && ar_wheel_visuals[i].meshwheel)
         {
-            Entity* e = ((FlexMeshWheel*)(vwheels[i].fm))->getRimEntity();
+            Entity* e = ((FlexMeshWheel*)(ar_wheel_visuals[i].fm))->getRimEntity();
             if (e)
                 e->setVisible(false);
         }
@@ -3904,13 +3904,13 @@ void Beam::hideSkeleton(bool linked)
         cabFade(1);
     }
 
-    for (int i = 0; i < free_wheel; i++)
+    for (int i = 0; i < ar_num_wheels; i++)
     {
-        if (vwheels[i].cnode)
-            vwheels[i].cnode->setVisible(true);
+        if (ar_wheel_visuals[i].cnode)
+            ar_wheel_visuals[i].cnode->setVisible(true);
 
-        if (vwheels[i].fm)
-            vwheels[i].fm->setVisible(true);
+        if (ar_wheel_visuals[i].fm)
+            ar_wheel_visuals[i].fm->setVisible(true);
     }
     for (int i = 0; i < ar_num_props; i++)
     {
@@ -3925,11 +3925,11 @@ void Beam::hideSkeleton(bool linked)
         m_skeletonview_scenenode->setVisible(false);
 
     // show mesh wheels
-    for (int i = 0; i < free_wheel; i++)
+    for (int i = 0; i < ar_num_wheels; i++)
     {
-        if (vwheels[i].fm && vwheels[i].meshwheel)
+        if (ar_wheel_visuals[i].fm && ar_wheel_visuals[i].meshwheel)
         {
-            Entity* e = ((FlexMeshWheel *)(vwheels[i].fm))->getRimEntity();
+            Entity* e = ((FlexMeshWheel *)(ar_wheel_visuals[i].fm))->getRimEntity();
             if (e)
                 e->setVisible(true);
         }
@@ -4068,15 +4068,15 @@ void Beam::setMeshVisibility(bool visible)
     {
         ar_flexbodies[i]->setVisible(visible);
     }
-    for (int i = 0; i < free_wheel; i++)
+    for (int i = 0; i < ar_num_wheels; i++)
     {
-        if (vwheels[i].cnode)
+        if (ar_wheel_visuals[i].cnode)
         {
-            vwheels[i].cnode->setVisible(visible);
+            ar_wheel_visuals[i].cnode->setVisible(visible);
         }
-        if (vwheels[i].fm)
+        if (ar_wheel_visuals[i].fm)
         {
-            vwheels[i].fm->setVisible(visible);
+            ar_wheel_visuals[i].fm->setVisible(visible);
         }
     }
     if (m_cab_scene_node)
@@ -5199,7 +5199,7 @@ void Beam::updateDashBoards(float dt)
     int ties_mode = 0; // 0 = not locked, 1 = prelock, 2 = lock
     if (isTied())
     {
-        if (fabs(commandkey[0].commandValue) > 0.000001f)
+        if (fabs(ar_command_key[0].commandValue) > 0.000001f)
             ties_mode = 1;
         else
             ties_mode = 2;
@@ -5675,6 +5675,9 @@ Beam::Beam(
     , ar_free_pressure_beam() // Zero-init
     , ar_contacters() // memset() the array to zero
     , ar_num_contacters() // zero-init
+    , ar_wheels() // array
+    , ar_wheel_visuals() // array
+    , ar_num_wheels() // int
 {
     m_high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();
     m_use_skidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;
@@ -5759,10 +5762,10 @@ Beam::Beam(
     //
     //  - 3 floats (x,y,z) for the reference node 0
     //  - ar_num_nodes - 1 times 3 short ints (compressed position info)
-    //  - free_wheel times a float for the wheel rotation
+    //  - ar_num_wheels times a float for the wheel rotation
     //
     m_net_node_buf_size = sizeof(float) * 3 + (m_net_first_wheel_node - 1) * sizeof(short int) * 3;
-    m_net_buffer_size = m_net_node_buf_size + free_wheel * sizeof(float);
+    m_net_buffer_size = m_net_node_buf_size + ar_num_wheels * sizeof(float);
     updateFlexbodiesPrepare();
     updateFlexbodiesFinal();
     updateVisual();
@@ -6088,10 +6091,10 @@ bool Beam::LoadTruck(
     memr += MAX_PROPS * sizeof(beam_t);
     LOG("BEAM: prop memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(ar_num_props) + " x " + TOSTRING(sizeof(prop_t)) + " B) / " + TOSTRING(MAX_PROPS * sizeof(prop_t)));
 
-    tmpmem = free_wheel * sizeof(wheel_t);
+    tmpmem = ar_num_wheels * sizeof(wheel_t);
     mem += tmpmem;
     memr += MAX_WHEELS * sizeof(beam_t);
-    LOG("BEAM: wheel memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(free_wheel) + " x " + TOSTRING(sizeof(wheel_t)) + " B) / " + TOSTRING(MAX_WHEELS * sizeof(wheel_t)));
+    LOG("BEAM: wheel memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(ar_num_wheels) + " x " + TOSTRING(sizeof(wheel_t)) + " B) / " + TOSTRING(MAX_WHEELS * sizeof(wheel_t)));
 
     LOG("BEAM: truck memory used: " + TOSTRING(mem) + " B (" + TOSTRING(mem/1024) + " kB)");
     LOG("BEAM: truck memory allocated: " + TOSTRING(memr) + " B (" + TOSTRING(memr/1024) + " kB)");
