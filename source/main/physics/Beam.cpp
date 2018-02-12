@@ -206,10 +206,13 @@ Beam::~Beam()
     }
 
     // delete screwprops
-    for (int i = 0; i < free_screwprop; i++)
+    for (int i = 0; i < ar_num_screwprops; i++)
     {
-        if (screwprops[i])
-            delete screwprops[i];
+        if (ar_screwprops[i])
+        {
+            delete ar_screwprops[i];
+            ar_screwprops[i] = nullptr;
+        }
     }
 
     // delete airbrakes
@@ -1104,9 +1107,9 @@ Vector3 Beam::calculateCollisionOffset(Vector3 direction)
                 while (offset.length() < max_distance)
                 {
                     int tmpv = trucks[t]->ar_collcabs[i] * 3;
-                    node_t* no = &trucks[t]->ar_nodes[cabs[tmpv]];
-                    node_t* na = &trucks[t]->ar_nodes[cabs[tmpv + 1]];
-                    node_t* nb = &trucks[t]->ar_nodes[cabs[tmpv + 2]];
+                    node_t* no = &trucks[t]->ar_nodes[ar_cabs[tmpv]];
+                    node_t* na = &trucks[t]->ar_nodes[ar_cabs[tmpv + 1]];
+                    node_t* nb = &trucks[t]->ar_nodes[ar_cabs[tmpv + 2]];
 
                     m_intra_point_col_detector->query(no->AbsPosition + offset,
                         na->AbsPosition + offset,
@@ -1173,9 +1176,9 @@ Vector3 Beam::calculateCollisionOffset(Vector3 direction)
             while (offset.length() < max_distance)
             {
                 int tmpv = ar_collcabs[i] * 3;
-                node_t* no = &ar_nodes[cabs[tmpv]];
-                node_t* na = &ar_nodes[cabs[tmpv + 1]];
-                node_t* nb = &ar_nodes[cabs[tmpv + 2]];
+                node_t* no = &ar_nodes[ar_cabs[tmpv]];
+                node_t* na = &ar_nodes[ar_cabs[tmpv + 1]];
+                node_t* nb = &ar_nodes[ar_cabs[tmpv + 2]];
 
                 m_inter_point_col_detector->query(no->AbsPosition + offset,
                     na->AbsPosition + offset,
@@ -1714,8 +1717,8 @@ void Beam::SyncReset()
 
     for (int i = 0; i < free_aeroengine; i++)
         aeroengines[i]->reset();
-    for (int i = 0; i < free_screwprop; i++)
-        screwprops[i]->reset();
+    for (int i = 0; i < ar_num_screwprops; i++)
+        ar_screwprops[i]->reset();
     for (int i = 0; i < ar_num_rotators; i++)
         ar_rotators[i].angle = 0.0;
     for (int i = 0; i < ar_num_wings; i++)
@@ -1809,9 +1812,9 @@ bool Beam::replayStep()
 void Beam::ForceFeedbackStep(int steps)
 {
     m_force_sensors.out_body_forces = m_force_sensors.accu_body_forces / steps;
-    if (free_hydro != 0) // Vehicle has hydros?
+    if (ar_num_hydros != 0) // Vehicle has hydros?
     {
-        m_force_sensors.out_hydros_forces = (m_force_sensors.accu_hydros_forces / steps) / free_hydro;    
+        m_force_sensors.out_hydros_forces = (m_force_sensors.accu_hydros_forces / steps) / ar_num_hydros;    
     }
 }
 
@@ -2025,9 +2028,9 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
     {
         int spi;
         float ctmp = 0.0f;
-        for (spi = 0; spi < free_screwprop; spi++)
-            if (screwprops[spi])
-                ctmp += screwprops[spi]->getRudder();
+        for (spi = 0; spi < ar_num_screwprops; spi++)
+            if (ar_screwprops[spi])
+                ctmp += ar_screwprops[spi]->getRudder();
 
         if (spi > 0)
             ctmp = ctmp / spi;
@@ -2040,9 +2043,9 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
     {
         int spi;
         float ctmp = 0.0f;
-        for (spi = 0; spi < free_screwprop; spi++)
-            if (screwprops[spi])
-                ctmp += screwprops[spi]->getThrottle();
+        for (spi = 0; spi < ar_num_screwprops; spi++)
+            if (ar_screwprops[spi])
+                ctmp += ar_screwprops[spi]->getThrottle();
 
         if (spi > 0)
             ctmp = ctmp / spi;
@@ -5204,15 +5207,15 @@ void Beam::updateDashBoards(float dt)
     ar_dashboard->setInt(DD_TIES_MODE, ties_mode);
 
     // Boat things now: screwprops and alike
-    if (free_screwprop)
+    if (ar_num_screwprops)
     {
         // the throttle and rudder
-        for (int i = 0; i < free_screwprop && i < DD_MAX_SCREWPROP; i++)
+        for (int i = 0; i < ar_num_screwprops && i < DD_MAX_SCREWPROP; i++)
         {
-            float throttle = screwprops[i]->getThrottle();
+            float throttle = ar_screwprops[i]->getThrottle();
             ar_dashboard->setFloat(DD_SCREW_THROTTLE_0 + i, throttle);
 
-            float steering = screwprops[i]->getRudder();
+            float steering = ar_screwprops[i]->getRudder();
             ar_dashboard->setFloat(DD_SCREW_STEER_0 + i, steering);
         }
 
@@ -5659,6 +5662,13 @@ Beam::Beam(
     , ar_import_commands(false)
     , ar_flexbodies{} // Init array to nullptr
     , ar_airbrakes{} // Init array to nullptr
+    , ar_cabs{} // Init array to 0
+    , ar_num_cabs(0)
+    , ar_hydro{} // Init array to 0
+    , ar_num_hydros(0)
+    , ar_screwprops{} // Init array to nullptr
+    , ar_num_screwprops(0)
+    , ar_num_camera_rails(0)
 {
     m_high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();
     m_use_skidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;

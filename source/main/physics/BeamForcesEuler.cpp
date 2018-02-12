@@ -94,9 +94,9 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
             m_force_sensors.accu_body_forces += ar_nodes[ar_camera_node_pos[ar_current_cinecam]].Forces;
         }
 
-        for (int i = 0; i < free_hydro; i++)
+        for (int i = 0; i < ar_num_hydros; i++)
         {
-            beam_t* hydrobeam = &ar_beams[hydro[i]];
+            beam_t* hydrobeam = &ar_beams[ar_hydro[i]];
             if ((hydrobeam->hydroFlags & (HYDRO_FLAG_DIR | HYDRO_FLAG_SPEED)) && !hydrobeam->bm_broken)
             {
                 m_force_sensors.accu_hydros_forces += hydrobeam->hydroRatio * hydrobeam->refL * hydrobeam->stress;
@@ -193,9 +193,9 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     BES_START(BES_CORE_Screwprop);
 
     //screwprop forces
-    for (int i = 0; i < free_screwprop; i++)
-        if (screwprops[i])
-            screwprops[i]->updateForces(doUpdate);
+    for (int i = 0; i < ar_num_screwprops; i++)
+        if (ar_screwprops[i])
+            ar_screwprops[i]->updateForces(doUpdate);
 
     BES_STOP(BES_CORE_Screwprop);
     BES_START(BES_CORE_Wing);
@@ -256,7 +256,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         for (int i = 0; i < ar_num_buoycabs; i++)
         {
             int tmpv = ar_buoycabs[i] * 3;
-            m_buoyance->computeNodeForce(&ar_nodes[cabs[tmpv]], &ar_nodes[cabs[tmpv + 1]], &ar_nodes[cabs[tmpv + 2]], doUpdate == 1, ar_buoycab_types[i]);
+            m_buoyance->computeNodeForce(&ar_nodes[ar_cabs[tmpv]], &ar_nodes[ar_cabs[tmpv + 1]], &ar_nodes[ar_cabs[tmpv + 2]], doUpdate == 1, ar_buoycab_types[i]);
         }
     }
 
@@ -811,49 +811,49 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
             ar_hydro_elevator_state = 0;
     }
     //update length, dirstate between -1.0 and 1.0
-    for (int i = 0; i < free_hydro; i++)
+    for (int i = 0; i < ar_num_hydros; i++)
     {
         //compound hydro
         float cstate = 0.0f;
         int div = 0;
-        if (ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_SPEED)
+        if (ar_beams[ar_hydro[i]].hydroFlags & HYDRO_FLAG_SPEED)
         {
             //special treatment for SPEED
             if (ar_wheel_speed < 12.0f)
                 cstate += ar_hydro_dir_state * (12.0f - ar_wheel_speed) / 12.0f;
             div++;
         }
-        if (ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_DIR)
+        if (ar_beams[ar_hydro[i]].hydroFlags & HYDRO_FLAG_DIR)
         {
             cstate += ar_hydro_dir_state;
             div++;
         }
-        if (ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_AILERON)
+        if (ar_beams[ar_hydro[i]].hydroFlags & HYDRO_FLAG_AILERON)
         {
             cstate += ar_hydro_aileron_state;
             div++;
         }
-        if (ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_RUDDER)
+        if (ar_beams[ar_hydro[i]].hydroFlags & HYDRO_FLAG_RUDDER)
         {
             cstate += ar_hydro_rudder_state;
             div++;
         }
-        if (ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_ELEVATOR)
+        if (ar_beams[ar_hydro[i]].hydroFlags & HYDRO_FLAG_ELEVATOR)
         {
             cstate += ar_hydro_elevator_state;
             div++;
         }
-        if (ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_REV_AILERON)
+        if (ar_beams[ar_hydro[i]].hydroFlags & HYDRO_FLAG_REV_AILERON)
         {
             cstate -= ar_hydro_aileron_state;
             div++;
         }
-        if (ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_REV_RUDDER)
+        if (ar_beams[ar_hydro[i]].hydroFlags & HYDRO_FLAG_REV_RUDDER)
         {
             cstate -= ar_hydro_rudder_state;
             div++;
         }
-        if (ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_REV_ELEVATOR)
+        if (ar_beams[ar_hydro[i]].hydroFlags & HYDRO_FLAG_REV_ELEVATOR)
         {
             cstate -= ar_hydro_elevator_state;
             div++;
@@ -864,10 +864,10 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         if (cstate < -1.0)
             cstate = -1.0;
         // Animators following, if no animator, skip all the tests...
-        int flagstate = ar_beams[hydro[i]].animFlags;
+        int flagstate = ar_beams[ar_hydro[i]].animFlags;
         if (flagstate)
         {
-            float animoption = ar_beams[hydro[i]].animOption;
+            float animoption = ar_beams[ar_hydro[i]].animOption;
             calcAnimators(flagstate, cstate, div, dt, 0.0f, 0.0f, animoption);
         }
 
@@ -878,21 +878,21 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
             if (m_hydro_inertia)
                 cstate = m_hydro_inertia->calcCmdKeyDelay(cstate, i, dt);
 
-            if (!(ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_SPEED) && !flagstate)
+            if (!(ar_beams[ar_hydro[i]].hydroFlags & HYDRO_FLAG_SPEED) && !flagstate)
                 ar_hydro_dir_wheel_display = cstate;
 
-            float factor = 1.0 - cstate * ar_beams[hydro[i]].hydroRatio;
+            float factor = 1.0 - cstate * ar_beams[ar_hydro[i]].hydroRatio;
 
             // check and apply animators limits if set
             if (flagstate)
             {
-                if (factor < 1.0f - ar_beams[hydro[i]].shortbound)
-                    factor = 1.0f - ar_beams[hydro[i]].shortbound;
-                if (factor > 1.0f + ar_beams[hydro[i]].longbound)
-                    factor = 1.0f + ar_beams[hydro[i]].longbound;
+                if (factor < 1.0f - ar_beams[ar_hydro[i]].shortbound)
+                    factor = 1.0f - ar_beams[ar_hydro[i]].shortbound;
+                if (factor > 1.0f + ar_beams[ar_hydro[i]].longbound)
+                    factor = 1.0f + ar_beams[ar_hydro[i]].longbound;
             }
 
-            ar_beams[hydro[i]].L = ar_beams[hydro[i]].Lhydro * factor;
+            ar_beams[ar_hydro[i]].L = ar_beams[ar_hydro[i]].Lhydro * factor;
         }
     }
 
@@ -1562,8 +1562,8 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                         int tmpv = ar_buoycabs[mk] * 3;
                         if (ar_buoycab_types[mk] == Buoyance::BUOY_DRAGONLY)
                             continue;
-                        if ((ar_beams[i].p1 == &ar_nodes[cabs[tmpv]] || ar_beams[i].p1 == &ar_nodes[cabs[tmpv + 1]] || ar_beams[i].p1 == &ar_nodes[cabs[tmpv + 2]]) &&
-                            (ar_beams[i].p2 == &ar_nodes[cabs[tmpv]] || ar_beams[i].p2 == &ar_nodes[cabs[tmpv + 1]] || ar_beams[i].p2 == &ar_nodes[cabs[tmpv + 2]]))
+                        if ((ar_beams[i].p1 == &ar_nodes[ar_cabs[tmpv]] || ar_beams[i].p1 == &ar_nodes[ar_cabs[tmpv + 1]] || ar_beams[i].p1 == &ar_nodes[ar_cabs[tmpv + 2]]) &&
+                            (ar_beams[i].p2 == &ar_nodes[ar_cabs[tmpv]] || ar_beams[i].p2 == &ar_nodes[ar_cabs[tmpv + 1]] || ar_beams[i].p2 == &ar_nodes[ar_cabs[tmpv + 2]]))
                         {
                             m_buoyance->setsink(1);
                         }
