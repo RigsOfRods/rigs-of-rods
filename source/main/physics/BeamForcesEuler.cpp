@@ -450,10 +450,10 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
             float dbrake = 0.0f;
 
             if ((WheelSpeed < 20.0f)
-                && (((wheels[i].wh_braking == wheel_t::BrakeCombo::FOOT_HAND_SKID_LEFT)  && (hydrodirstate > 0.0f))
-                 || ((wheels[i].wh_braking == wheel_t::BrakeCombo::FOOT_HAND_SKID_RIGHT) && (hydrodirstate < 0.0f))))
+                && (((wheels[i].wh_braking == wheel_t::BrakeCombo::FOOT_HAND_SKID_LEFT)  && (ar_hydro_dir_state > 0.0f))
+                 || ((wheels[i].wh_braking == wheel_t::BrakeCombo::FOOT_HAND_SKID_RIGHT) && (ar_hydro_dir_state < 0.0f))))
             {
-                dbrake = ar_brake_force * abs(hydrodirstate);
+                dbrake = ar_brake_force * abs(ar_hydro_dir_state);
             }
 
             if ((ar_brake != 0.0 || dbrake != 0.0 || hbrake != 0.0) && braked_wheels != 0 && fabs(wheels[i].wh_speed) > 0.0f)
@@ -717,10 +717,10 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     BES_START(BES_CORE_Hydros);
 
     //direction
-    if (hydrodirstate != 0 || hydrodircommand != 0)
+    if (ar_hydro_dir_state != 0 || ar_hydro_dir_command != 0)
     {
         float rate = 1;
-        if (hydroSpeedCoupling)
+        if (ar_hydro_speed_coupling)
         {
             //new rate value (30 instead of 40) to deal with the changed cmdKeyInertia settings
             rate = 30.0 / (10.0 + fabs(wspeed / 2.0));
@@ -729,87 +729,87 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
                 rate = 1.2;
         }
         //need a maximum rate for analog devices, otherwise hydro beams break
-        if (!hydroSpeedCoupling)
+        if (!ar_hydro_speed_coupling)
         {
-            float hydrodirstateOld = hydrodirstate;
-            hydrodirstate = hydrodircommand;
-            if (abs(hydrodirstate - hydrodirstateOld) > 0.02)
+            float hydrodirstateOld = ar_hydro_dir_state;
+            ar_hydro_dir_state = ar_hydro_dir_command;
+            if (abs(ar_hydro_dir_state - hydrodirstateOld) > 0.02)
             {
-                hydrodirstate = (hydrodirstate - hydrodirstateOld) * 0.02 + hydrodirstateOld;
+                ar_hydro_dir_state = (ar_hydro_dir_state - hydrodirstateOld) * 0.02 + hydrodirstateOld;
             }
         }
-        if (hydrodircommand != 0 && hydroSpeedCoupling)
+        if (ar_hydro_dir_command != 0 && ar_hydro_speed_coupling)
         {
-            if (hydrodirstate > hydrodircommand)
-                hydrodirstate -= dt * rate;
+            if (ar_hydro_dir_state > ar_hydro_dir_command)
+                ar_hydro_dir_state -= dt * rate;
             else
-                hydrodirstate += dt * rate;
+                ar_hydro_dir_state += dt * rate;
         }
-        if (hydroSpeedCoupling)
+        if (ar_hydro_speed_coupling)
         {
             float dirdelta = dt;
-            if (hydrodirstate > dirdelta)
-                hydrodirstate -= dirdelta;
-            else if (hydrodirstate < -dirdelta)
-                hydrodirstate += dirdelta;
+            if (ar_hydro_dir_state > dirdelta)
+                ar_hydro_dir_state -= dirdelta;
+            else if (ar_hydro_dir_state < -dirdelta)
+                ar_hydro_dir_state += dirdelta;
             else
-                hydrodirstate = 0;
+                ar_hydro_dir_state = 0;
         }
     }
     //aileron
-    if (hydroaileronstate != 0 || hydroaileroncommand != 0)
+    if (ar_hydro_aileron_state != 0 || ar_hydro_aileron_command != 0)
     {
-        if (hydroaileroncommand != 0)
+        if (ar_hydro_aileron_command != 0)
         {
-            if (hydroaileronstate > hydroaileroncommand)
-                hydroaileronstate -= dt * 4.0;
+            if (ar_hydro_aileron_state > ar_hydro_aileron_command)
+                ar_hydro_aileron_state -= dt * 4.0;
             else
-                hydroaileronstate += dt * 4.0;
+                ar_hydro_aileron_state += dt * 4.0;
         }
         float delta = dt;
-        if (hydroaileronstate > delta)
-            hydroaileronstate -= delta;
-        else if (hydroaileronstate < -delta)
-            hydroaileronstate += delta;
+        if (ar_hydro_aileron_state > delta)
+            ar_hydro_aileron_state -= delta;
+        else if (ar_hydro_aileron_state < -delta)
+            ar_hydro_aileron_state += delta;
         else
-            hydroaileronstate = 0;
+            ar_hydro_aileron_state = 0;
     }
     //rudder
-    if (hydrorudderstate != 0 || hydroruddercommand != 0)
+    if (ar_hydro_rudder_state != 0 || ar_hydro_rudder_command != 0)
     {
-        if (hydroruddercommand != 0)
+        if (ar_hydro_rudder_command != 0)
         {
-            if (hydrorudderstate > hydroruddercommand)
-                hydrorudderstate -= dt * 4.0;
+            if (ar_hydro_rudder_state > ar_hydro_rudder_command)
+                ar_hydro_rudder_state -= dt * 4.0;
             else
-                hydrorudderstate += dt * 4.0;
+                ar_hydro_rudder_state += dt * 4.0;
         }
 
         float delta = dt;
-        if (hydrorudderstate > delta)
-            hydrorudderstate -= delta;
-        else if (hydrorudderstate < -delta)
-            hydrorudderstate += delta;
+        if (ar_hydro_rudder_state > delta)
+            ar_hydro_rudder_state -= delta;
+        else if (ar_hydro_rudder_state < -delta)
+            ar_hydro_rudder_state += delta;
         else
-            hydrorudderstate = 0;
+            ar_hydro_rudder_state = 0;
     }
     //elevator
-    if (hydroelevatorstate != 0 || hydroelevatorcommand != 0)
+    if (ar_hydro_elevator_state != 0 || ar_hydro_elevator_command != 0)
     {
-        if (hydroelevatorcommand != 0)
+        if (ar_hydro_elevator_command != 0)
         {
-            if (hydroelevatorstate > hydroelevatorcommand)
-                hydroelevatorstate -= dt * 4.0;
+            if (ar_hydro_elevator_state > ar_hydro_elevator_command)
+                ar_hydro_elevator_state -= dt * 4.0;
             else
-                hydroelevatorstate += dt * 4.0;
+                ar_hydro_elevator_state += dt * 4.0;
         }
         float delta = dt;
-        if (hydroelevatorstate > delta)
-            hydroelevatorstate -= delta;
-        else if (hydroelevatorstate < -delta)
-            hydroelevatorstate += delta;
+        if (ar_hydro_elevator_state > delta)
+            ar_hydro_elevator_state -= delta;
+        else if (ar_hydro_elevator_state < -delta)
+            ar_hydro_elevator_state += delta;
         else
-            hydroelevatorstate = 0;
+            ar_hydro_elevator_state = 0;
     }
     //update length, dirstate between -1.0 and 1.0
     for (int i = 0; i < free_hydro; i++)
@@ -821,42 +821,42 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         {
             //special treatment for SPEED
             if (WheelSpeed < 12.0f)
-                cstate += hydrodirstate * (12.0f - WheelSpeed) / 12.0f;
+                cstate += ar_hydro_dir_state * (12.0f - WheelSpeed) / 12.0f;
             div++;
         }
         if (ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_DIR)
         {
-            cstate += hydrodirstate;
+            cstate += ar_hydro_dir_state;
             div++;
         }
         if (ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_AILERON)
         {
-            cstate += hydroaileronstate;
+            cstate += ar_hydro_aileron_state;
             div++;
         }
         if (ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_RUDDER)
         {
-            cstate += hydrorudderstate;
+            cstate += ar_hydro_rudder_state;
             div++;
         }
         if (ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_ELEVATOR)
         {
-            cstate += hydroelevatorstate;
+            cstate += ar_hydro_elevator_state;
             div++;
         }
         if (ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_REV_AILERON)
         {
-            cstate -= hydroaileronstate;
+            cstate -= ar_hydro_aileron_state;
             div++;
         }
         if (ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_REV_RUDDER)
         {
-            cstate -= hydrorudderstate;
+            cstate -= ar_hydro_rudder_state;
             div++;
         }
         if (ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_REV_ELEVATOR)
         {
-            cstate -= hydroelevatorstate;
+            cstate -= ar_hydro_elevator_state;
             div++;
         }
 
@@ -880,7 +880,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
                 cstate = m_hydro_inertia->calcCmdKeyDelay(cstate, i, dt);
 
             if (!(ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_SPEED) && !flagstate)
-                hydrodirwheeldisplay = cstate;
+                ar_hydro_dir_wheel_display = cstate;
 
             float factor = 1.0 - cstate * ar_beams[hydro[i]].hydroRatio;
 
