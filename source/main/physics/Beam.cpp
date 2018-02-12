@@ -182,15 +182,15 @@ Beam::~Beam()
     }
 
     // delete wings
-    for (int i = 0; i < free_wing; i++)
+    for (int i = 0; i < ar_num_wings; i++)
     {
         // flexAirfoil, airfoil
-        if (wings[i].fa)
-            delete wings[i].fa;
-        if (wings[i].cnode)
+        if (ar_wings[i].fa)
+            delete ar_wings[i].fa;
+        if (ar_wings[i].cnode)
         {
-            wings[i].cnode->removeAndDestroyAllChildren();
-            gEnv->sceneManager->destroySceneNode(wings[i].cnode);
+            ar_wings[i].cnode->removeAndDestroyAllChildren();
+            gEnv->sceneManager->destroySceneNode(ar_wings[i].cnode);
         }
     }
 
@@ -371,8 +371,8 @@ Beam::~Beam()
     delete ar_nodes;
     delete ar_beams;
     delete ar_shocks;
-    delete rotators;
-    delete wings;
+    delete ar_rotators;
+    delete ar_wings;
 }
 
 // This method scales trucks. Stresses should *NOT* be scaled, they describe
@@ -1708,10 +1708,10 @@ void Beam::SyncReset()
         aeroengines[i]->reset();
     for (int i = 0; i < free_screwprop; i++)
         screwprops[i]->reset();
-    for (int i = 0; i < free_rotator; i++)
-        rotators[i].angle = 0.0;
-    for (int i = 0; i < free_wing; i++)
-        wings[i].fa->broken = false;
+    for (int i = 0; i < ar_num_rotators; i++)
+        ar_rotators[i].angle = 0.0;
+    for (int i = 0; i < ar_num_wings; i++)
+        ar_wings[i].fa->broken = false;
     for (int i = 0; i < free_wheel; i++)
     {
         wheels[i].wh_speed = 0.0;
@@ -2365,8 +2365,8 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
     if (flag_state & ANIM_FLAG_AOA)
     {
         float aoa = 0;
-        if (free_wing > 4)
-            aoa = (wings[4].fa->aoa) / 25.0f;
+        if (ar_num_wings > 4)
+            aoa = (ar_wings[4].fa->aoa) / 25.0f;
         if ((ar_nodes[0].Velocity.length() * 1.9438) < 10.0f)
             aoa = 0;
         cstate -= aoa;
@@ -3661,31 +3661,31 @@ void Beam::updateVisual(float dt)
         autoelevator = -1.0;
     if (autoelevator > 1.0)
         autoelevator = 1.0;
-    for (int i = 0; i < free_wing; i++)
+    for (int i = 0; i < ar_num_wings; i++)
     {
-        if (wings[i].fa->type == 'a')
-            wings[i].fa->setControlDeflection(autoaileron);
-        if (wings[i].fa->type == 'b')
-            wings[i].fa->setControlDeflection(-autoaileron);
-        if (wings[i].fa->type == 'r')
-            wings[i].fa->setControlDeflection(autorudder);
-        if (wings[i].fa->type == 'e' || wings[i].fa->type == 'S' || wings[i].fa->type == 'T')
-            wings[i].fa->setControlDeflection(autoelevator);
-        if (wings[i].fa->type == 'f')
-            wings[i].fa->setControlDeflection(flapangles[flap]);
-        if (wings[i].fa->type == 'c' || wings[i].fa->type == 'V')
-            wings[i].fa->setControlDeflection((autoaileron + autoelevator) / 2.0);
-        if (wings[i].fa->type == 'd' || wings[i].fa->type == 'U')
-            wings[i].fa->setControlDeflection((-autoaileron + autoelevator) / 2.0);
-        if (wings[i].fa->type == 'g')
-            wings[i].fa->setControlDeflection((autoaileron + flapangles[flap]) / 2.0);
-        if (wings[i].fa->type == 'h')
-            wings[i].fa->setControlDeflection((-autoaileron + flapangles[flap]) / 2.0);
-        if (wings[i].fa->type == 'i')
-            wings[i].fa->setControlDeflection((-autoelevator + autorudder) / 2.0);
-        if (wings[i].fa->type == 'j')
-            wings[i].fa->setControlDeflection((autoelevator + autorudder) / 2.0);
-        wings[i].cnode->setPosition(wings[i].fa->flexit());
+        if (ar_wings[i].fa->type == 'a')
+            ar_wings[i].fa->setControlDeflection(autoaileron);
+        if (ar_wings[i].fa->type == 'b')
+            ar_wings[i].fa->setControlDeflection(-autoaileron);
+        if (ar_wings[i].fa->type == 'r')
+            ar_wings[i].fa->setControlDeflection(autorudder);
+        if (ar_wings[i].fa->type == 'e' || ar_wings[i].fa->type == 'S' || ar_wings[i].fa->type == 'T')
+            ar_wings[i].fa->setControlDeflection(autoelevator);
+        if (ar_wings[i].fa->type == 'f')
+            ar_wings[i].fa->setControlDeflection(flapangles[flap]);
+        if (ar_wings[i].fa->type == 'c' || ar_wings[i].fa->type == 'V')
+            ar_wings[i].fa->setControlDeflection((autoaileron + autoelevator) / 2.0);
+        if (ar_wings[i].fa->type == 'd' || ar_wings[i].fa->type == 'U')
+            ar_wings[i].fa->setControlDeflection((-autoaileron + autoelevator) / 2.0);
+        if (ar_wings[i].fa->type == 'g')
+            ar_wings[i].fa->setControlDeflection((autoaileron + flapangles[flap]) / 2.0);
+        if (ar_wings[i].fa->type == 'h')
+            ar_wings[i].fa->setControlDeflection((-autoaileron + flapangles[flap]) / 2.0);
+        if (ar_wings[i].fa->type == 'i')
+            ar_wings[i].fa->setControlDeflection((-autoelevator + autorudder) / 2.0);
+        if (ar_wings[i].fa->type == 'j')
+            ar_wings[i].fa->setControlDeflection((autoelevator + autorudder) / 2.0);
+        ar_wings[i].cnode->setPosition(ar_wings[i].fa->flexit());
     }
     //setup commands for hydros
     hydroaileroncommand = autoaileron;
@@ -4105,17 +4105,17 @@ void Beam::cabFade(float amount)
     }
 
     // wings
-    for (int i = 0; i < free_wing; i++)
+    for (int i = 0; i < ar_num_wings; i++)
     {
         if (amount == 0)
         {
-            wings[i].cnode->setVisible(false);
+            ar_wings[i].cnode->setVisible(false);
         }
         else
         {
             if (amount == 1)
-                wings[i].cnode->setVisible(true);
-            fadeMesh(wings[i].cnode, amount);
+                ar_wings[i].cnode->setVisible(true);
+            fadeMesh(ar_wings[i].cnode, amount);
         }
     }
 }
@@ -5275,18 +5275,18 @@ void Beam::updateDashBoards(float dt)
     }
 
     // wings stuff, you dont need an aeroengine
-    if (free_wing)
+    if (ar_num_wings)
     {
-        for (int i = 0; i < free_wing && i < DD_MAX_WING; i++)
+        for (int i = 0; i < ar_num_wings && i < DD_MAX_WING; i++)
         {
             // Angle of Attack (AOA)
-            float aoa = wings[i].fa->aoa;
+            float aoa = ar_wings[i].fa->aoa;
             dash->setFloat(DD_WING_AOA_0 + i, aoa);
         }
     }
 
     // some things only activate when a wing or an aeroengine is present
-    if (free_wing || free_aeroengine)
+    if (ar_num_wings || free_aeroengine)
     {
         //airspeed
         {
@@ -5561,8 +5561,8 @@ Beam::Beam(
     , ar_beams(nullptr), ar_num_beams(0)
     , ar_shocks(nullptr), ar_num_shocks(0)
     , ar_has_active_shocks(false)
-    , rotators(nullptr), free_rotator(0)
-    , wings(nullptr), free_wing(0)
+    , ar_rotators(nullptr), ar_num_rotators(0)
+    , ar_wings(nullptr), ar_num_wings(0)
     , m_hud_features_ok(false)
     , m_sim_controller(sim_controller)
     , aileron(0)

@@ -943,8 +943,8 @@ void OverlayWrapper::UpdateAerialHUD(Beam* vehicle)
 
     // AOA
     angle = 0;
-    if (vehicle->free_wing > 4)
-        angle = vehicle->wings[4].fa->aoa;
+    if (vehicle->ar_num_wings > 4)
+        angle = vehicle->ar_wings[4].fa->aoa;
     if (kt < 10.0)
         angle = 0;
     float absangle = angle;
