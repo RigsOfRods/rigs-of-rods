@@ -31,7 +31,7 @@
 #include "RoRFrameListener.h"
 
 // ug... BAD PERFORMNCE, BAD!!
-void Actor::toggleSlideNodeLock()
+void Actor::ToggleSlideNodeLock()
 {
     int trucksnum = RoR::App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots();
     int curTruck = RoR::App::GetSimController()->GetBeamFactory()->GetPlayerActorId();

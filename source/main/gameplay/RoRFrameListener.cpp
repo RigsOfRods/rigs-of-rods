@@ -808,12 +808,12 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                 if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_TRUCK) && !player_actor->ar_replay_mode)
                 {
                     this->StopRaceTimer();
-                    player_actor->reset();
+                    player_actor->RequestActorReset();
                 }
                 else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REMOVE_CURRENT_TRUCK) && !player_actor->ar_replay_mode)
                 {
                     this->StopRaceTimer();
-                    Vector3 center = player_actor->getRotationCenter();
+                    Vector3 center = player_actor->GetRotationCenter();
                     this->RemovePlayerActor();
                     gEnv->player->setPosition(center);
                 }
@@ -889,7 +889,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                         m_advanced_vehicle_repair_timer += dt;
                     }
 
-                    player_actor->reset(true);
+                    player_actor->RequestActorReset(true);
                 }
                 else
                 {
@@ -1090,23 +1090,23 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                     }
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ROPELOCK))
                     {
-                        player_actor->ropeToggle(-1);
+                        player_actor->ToggleRopes(-1);
                     }
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_LOCK))
                     {
-                        player_actor->hookToggle(-1, HOOK_TOGGLE, -1);
+                        player_actor->ToggleHooks(-1, HOOK_TOGGLE, -1);
                         //SlideNodeLock
-                        player_actor->toggleSlideNodeLock();
+                        player_actor->ToggleSlideNodeLock();
                     }
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_AUTOLOCK))
                     {
                         //unlock all autolocks
-                        player_actor->hookToggle(-2, HOOK_UNLOCK, -1);
+                        player_actor->ToggleHooks(-2, HOOK_UNLOCK, -1);
                     }
                     //strap
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SECURE_LOAD))
                     {
-                        player_actor->tieToggle(-1);
+                        player_actor->ToggleTies(-1);
                     }
 
                     //replay mode
@@ -1118,7 +1118,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
 
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_CUSTOM_PARTICLES))
                     {
-                        player_actor->toggleCustomParticles();
+                        player_actor->ToggleCustomParticles();
                     }
 
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SHOW_SKELETON))
@@ -1131,7 +1131,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
 
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_LIGHTS))
                     {
-                        player_actor->lightsToggle();
+                        player_actor->ToggleLights();
                     }
 
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_BEACONS))
@@ -1142,7 +1142,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                     //camera mode
                     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_PRESSURE_LESS))
                     {
-                        if (m_pressure_pressed = player_actor->addPressure(dt * -10.0))
+                        if (m_pressure_pressed = player_actor->AddTyrePressure(dt * -10.0))
                         {
                             if (RoR::App::GetOverlayWrapper())
                                 RoR::App::GetOverlayWrapper()->showPressureOverlay(true);
@@ -1152,7 +1152,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                     }
                     else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_PRESSURE_MORE))
                     {
-                        if (m_pressure_pressed = player_actor->addPressure(dt * 10.0))
+                        if (m_pressure_pressed = player_actor->AddTyrePressure(dt * 10.0))
                         {
                             if (RoR::App::GetOverlayWrapper())
                                 RoR::App::GetOverlayWrapper()->showPressureOverlay(true);
@@ -1377,7 +1377,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                 if (current_truck != nullptr)
                 {
                     m_reload_dir = Quaternion(Degree(270) - Radian(current_truck->getRotation()), Vector3::UNIT_Y);
-                    m_reload_pos = current_truck->getRotationCenter();
+                    m_reload_pos = current_truck->GetRotationCenter();
 
                     // TODO: Fix this by projecting m_reload_pos onto the terrain / mesh
                     m_reload_pos.y = current_truck->ar_nodes[current_truck->ar_lowest_contacting_node].AbsPosition.y;
@@ -1427,7 +1427,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                         {
                             float rotation = player_actor->getRotation() - Math::HALF_PI;
                             m_reload_dir = Quaternion(Degree(180) - Radian(rotation), Vector3::UNIT_Y);
-                            m_reload_pos = player_actor->getRotationCenter();
+                            m_reload_pos = player_actor->GetRotationCenter();
                             // TODO: Fix this by projecting m_reload_pos onto the terrain / mesh
                             m_reload_pos.y = player_actor->ar_nodes[player_actor->ar_lowest_contacting_node].AbsPosition.y;
                         }
@@ -1548,8 +1548,8 @@ void RoRFrameListener::FinalizeActorSpawning(Actor* local_actor, Actor* prev_act
         if (m_reload_box == nullptr)
         {
             // Calculate translational offset for node[0] to align the actor's rotation center with m_reload_pos
-            Vector3 translation = m_reload_pos - local_actor->getRotationCenter();
-            local_actor->resetPosition(local_actor->ar_nodes[0].AbsPosition + Vector3(translation.x, 0.0f, translation.z), true);
+            Vector3 translation = m_reload_pos - local_actor->GetRotationCenter();
+            local_actor->ResetPosition(local_actor->ar_nodes[0].AbsPosition + Vector3(translation.x, 0.0f, translation.z), true);
 
             if (local_actor->ar_driveable != NOT_DRIVEABLE || (prev_actor && prev_actor->ar_driveable != NOT_DRIVEABLE))
             {
@@ -1793,7 +1793,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
 
                 if (m_pressure_pressed)
                 {
-                    RoR::App::GetOverlayWrapper()->UpdatePressureTexture(player_actor->getPressure());
+                    RoR::App::GetOverlayWrapper()->UpdatePressureTexture(player_actor->GetTyrePressure());
                 }
 
                 if (m_race_in_progress && (App::sim_state.GetActive() != SimState::PAUSED))
@@ -2047,7 +2047,7 @@ void RoRFrameListener::ReloadPlayerActor()
     this->RemovePlayerActor();
 
     // reset the new actor (starts engine, resets gui, ...)
-    new_actor->reset();
+    new_actor->RequestActorReset();
 
     // enter the new actor
     this->SetPlayerActor(new_actor);
@@ -2380,8 +2380,8 @@ bool RoRFrameListener::SetupGameplayLoop()
         if (b != nullptr)
         {
             // Calculate translational offset for node[0] to align the trucks rotation center with m_reload_pos
-            Vector3 translation = pos - b->getRotationCenter();
-            b->resetPosition(b->ar_nodes[0].AbsPosition + Vector3(translation.x, 0.0f, translation.z), true);
+            Vector3 translation = pos - b->GetRotationCenter();
+            b->ResetPosition(b->ar_nodes[0].AbsPosition + Vector3(translation.x, 0.0f, translation.z), true);
 
             b->UpdateFlexbodiesPrepare();
             b->UpdateFlexbodiesFinal();

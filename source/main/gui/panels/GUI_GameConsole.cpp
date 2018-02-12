@@ -348,7 +348,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
         }
         else if (b)
         {
-            b->resetPosition(pos, false);
+            b->ResetPosition(pos, false);
             putMessage(CONSOLE_MSGTYPE_INFO, CONSOLE_SYSTEM_REPLY, _L("Vehicle position set to: ") + String("x: ") + TOSTRING(pos.x) + String(" y: ") + TOSTRING(pos.y) + String(" z: ") + TOSTRING(pos.z), "world.png");
         }
 

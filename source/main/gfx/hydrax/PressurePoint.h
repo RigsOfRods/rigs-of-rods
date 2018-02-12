@@ -103,7 +103,7 @@ public:
     /** Returns pressure pulse.
      * @return Pressure.
      */
-    inline float getPressure() const{return mP;}
+    inline float GetTyrePressure() const{return mP;}
     /** Returns maximum time.
      * @return Maximum time.
      */

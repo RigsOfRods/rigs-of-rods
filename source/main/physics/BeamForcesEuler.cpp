@@ -72,7 +72,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
     if (doUpdate)
     {
         //just call this once per frame to avoid performance impact
-        hookToggle(-2, HOOK_LOCK, -1);
+        ToggleHooks(-2, HOOK_LOCK, -1);
     }
 
     //auto locks (scan just once per frame, need to use a timer(truck-based) to get

@@ -202,7 +202,7 @@ void ScriptEngine::init()
     result = engine->RegisterObjectMethod("BeamClass", "string getTruckName()", AngelScript::asMETHOD(Actor,GetActorDesignName), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "string getTruckFileName()", AngelScript::asMETHOD(Actor,GetActorFileName), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "int  getTruckType()", AngelScript::asMETHOD(Actor,GetActorType), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
-    result = engine->RegisterObjectMethod("BeamClass", "void reset(bool)", AngelScript::asMETHOD(Actor,reset), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "void reset(bool)", AngelScript::asMETHOD(Actor,RequestActorReset), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void setDetailLevel(int)", AngelScript::asMETHOD(Actor,setDetailLevel), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void showSkeleton(bool, bool)", AngelScript::asMETHOD(Actor,showSkeleton), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void hideSkeleton(bool)", AngelScript::asMETHOD(Actor,hideSkeleton), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
@@ -212,7 +212,7 @@ void ScriptEngine::init()
     result = engine->RegisterObjectMethod("BeamClass", "void beaconsToggle()", AngelScript::asMETHOD(Actor,beaconsToggle), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void setReplayMode(bool)", AngelScript::asMETHOD(Actor,setReplayMode), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void resetAutopilot()", AngelScript::asMETHOD(Actor,resetAutopilot), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
-    result = engine->RegisterObjectMethod("BeamClass", "void toggleCustomParticles()", AngelScript::asMETHOD(Actor,toggleCustomParticles), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "void ToggleCustomParticles()", AngelScript::asMETHOD(Actor,ToggleCustomParticles), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "int getNodeCount()", AngelScript::asMETHOD(Actor,getNodeCount), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "float getTotalMass(bool)", AngelScript::asMETHOD(Actor,getTotalMass), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "int getWheelNodeCount()", AngelScript::asMETHOD(Actor,getWheelNodeCount), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
