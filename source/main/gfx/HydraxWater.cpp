@@ -85,27 +85,14 @@ void HydraxWater::InitHydrax()
     mHydrax->setPosition(Ogre::Vector3(0, waterHeight, 0));
 }
 
-bool HydraxWater::isUnderWater(Ogre::Vector3 pos)
+bool HydraxWater::IsUnderWater(Ogre::Vector3 pos)
 {
-    if (pos.y < getHeightWaves(Ogre::Vector3(pos.x, pos.y, pos.z)))
+    if (pos.y < CalcWavesHeight(Ogre::Vector3(pos.x, pos.y, pos.z)))
         return true;
     return false;
 }
 
-void HydraxWater::setCamera(Ogre::Camera* cam)
-{
-}
-
-bool HydraxWater::allowUnderWater()
-{
-    return true;
-}
-
-void HydraxWater::showWave(Vector3 refpos)
-{
-}
-
-void HydraxWater::update()
+void HydraxWater::UpdateWater()
 {
     //This has to change in the next versions when SkyX will be added.
 #ifdef USE_CAELUM
@@ -124,27 +111,23 @@ void HydraxWater::update()
     }
 }
 
-void HydraxWater::prepareShutdown()
-{
-}
-
 float HydraxWater::GetStaticWaterHeight()
 {
     return waterHeight;
 }
 
-void HydraxWater::setHeight(float value)
+void HydraxWater::SetStaticWaterHeight(float value)
 {
     waterHeight = value;
 }
 
-void HydraxWater::setVisible(bool value)
+void HydraxWater::SetWaterVisible(bool value)
 {
     if (mHydrax)
         mHydrax->setVisible(value);
 }
 
-float HydraxWater::getHeightWaves(Vector3 pos)
+float HydraxWater::CalcWavesHeight(Vector3 pos)
 {
     if (!RoR::App::gfx_water_waves.GetActive())
     {
@@ -154,7 +137,7 @@ float HydraxWater::getHeightWaves(Vector3 pos)
     return waveHeight;
 }
 
-Vector3 HydraxWater::getVelocity(Vector3 pos)
+Vector3 HydraxWater::CalcWavesVelocity(Vector3 pos)
 {
     if (!RoR::App::gfx_water_waves.GetActive())
         return Vector3(0, 0, 0);
@@ -162,23 +145,18 @@ Vector3 HydraxWater::getVelocity(Vector3 pos)
     return Vector3(0, 0, 0); //TODO
 }
 
-void HydraxWater::updateReflectionPlane(float h)
-{
-}
-
-void HydraxWater::setSunPosition(Ogre::Vector3 pos)
+void HydraxWater::WaterSetSunPosition(Ogre::Vector3 pos)
 {
     if (mHydrax)
         mHydrax->setSunPosition(pos);
 }
 
-void HydraxWater::framestep(float dt)
+void HydraxWater::FrameStepWater(float dt)
 {
     if (mHydrax)
+    {
         mHydrax->update(dt);
-    update();
+    }
+    this->UpdateWater();
 }
 
-void HydraxWater::moveTo(float centerheight)
-{
-}

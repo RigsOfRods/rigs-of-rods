@@ -392,12 +392,7 @@ void Water::processWater()
         wbuffer = 0;
 }
 
-bool Water::allowUnderWater()
-{
-    return false;
-}
-
-void Water::setVisible(bool value)
+void Water::SetWaterVisible(bool value)
 {
     visible = value;
     if (pPlaneEnt)
@@ -408,12 +403,12 @@ void Water::setVisible(bool value)
         pBottomNode->setVisible(value);
 }
 
-void Water::moveTo(float centerheight)
+void Water::SetReflectionPlaneHeight(float centerheight)
 {
     const auto type = App::gfx_water_mode.GetActive();
     if (type == GfxWaterMode::FULL_HQ || type == GfxWaterMode::FULL_FAST || type == GfxWaterMode::REFLECT)
     {
-        this->updateReflectionPlane(centerheight);
+        this->UpdateReflectionPlane(centerheight);
     }
 }
 
@@ -429,7 +424,7 @@ void Water::showWave(Vector3 refpos)
     {
         for (int px = 0; px < WAVEREZ + 1; px++)
         {
-            wbuffer[(pz * (WAVEREZ + 1) + px) * 8 + 1] = getHeightWaves(refpos + Vector3(xScaled * 0.5 - (float)px * xScaled / WAVEREZ, 0, (float)pz * zScaled / WAVEREZ - zScaled * 0.5)) - wHeight;
+            wbuffer[(pz * (WAVEREZ + 1) + px) * 8 + 1] = CalcWavesHeight(refpos + Vector3(xScaled * 0.5 - (float)px * xScaled / WAVEREZ, 0, (float)pz * zScaled / WAVEREZ - zScaled * 0.5)) - wHeight;
         }
     }
 
@@ -459,12 +454,12 @@ bool Water::isCameraUnderWater()
 {
     if (mRenderCamera)
     {
-        return (mRenderCamera->getPosition().y < getHeightWaves(mRenderCamera->getPosition()));
+        return (mRenderCamera->getPosition().y < CalcWavesHeight(mRenderCamera->getPosition()));
     }
     return false;
 }
 
-void Water::update()
+void Water::UpdateWater()
 {
     if (!visible || !mRenderCamera)
         return;
@@ -494,7 +489,7 @@ void Water::update()
             ForceUpdate = false; //Happens only once
         }
         if (RoR::App::gfx_water_waves.GetActive() && RoR::App::mp_state.GetActive() == RoR::MpState::DISABLED)
-            showWave(pWaterNode->getPosition());
+            this->showWave(pWaterNode->getPosition());
     }
 
     bool underwater = isCameraUnderWater();
@@ -544,7 +539,7 @@ void Water::update()
     }
 }
 
-void Water::prepareShutdown()
+void Water::WaterPrepareShutdown()
 {
     if (rttTex1)
         rttTex1->removeListener(&mRefractionListener);
@@ -557,13 +552,13 @@ float Water::GetStaticWaterHeight()
     return wHeight;
 };
 
-void Water::setHeight(float value)
+void Water::SetStaticWaterHeight(float value)
 {
     wHeight = value;
     ForceUpdate = true;
 }
 
-float Water::getHeightWaves(Vector3 pos)
+float Water::CalcWavesHeight(Vector3 pos)
 {
     // no waves?
     if (!RoR::App::gfx_water_waves.GetActive() || RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
@@ -593,7 +588,7 @@ float Water::getHeightWaves(Vector3 pos)
     return result;
 }
 
-bool Water::isUnderWater(Vector3 pos)
+bool Water::IsUnderWater(Vector3 pos)
 {
     float waterheight = wHeight;
 
@@ -604,13 +599,13 @@ bool Water::isUnderWater(Vector3 pos)
         if (pos.y > wHeight + maxampl * waveheight || pos.y > wHeight + maxampl)
             return false;
 
-        waterheight = getHeightWaves(pos);
+        waterheight = CalcWavesHeight(pos);
     }
 
     return pos.y < waterheight;
 }
 
-Vector3 Water::getVelocity(Vector3 pos)
+Vector3 Water::CalcWavesVelocity(Vector3 pos)
 {
     if (!RoR::App::gfx_water_waves.GetActive() || RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
         return Vector3::ZERO;
@@ -634,13 +629,9 @@ Vector3 Water::getVelocity(Vector3 pos)
     return result;
 }
 
-void Water::updateReflectionPlane(float h)
+void Water::UpdateReflectionPlane(float h)
 {
-    //Ray ra=gEnv->ogreCamera->getCameraToViewportRay(0.5,0.5);
-    //std::pair<bool, Real> mpair=ra.intersects(Plane(Vector3::UNIT_Y, -height));
-    //if (mpair.first) h=ra.getPoint(mpair.second).y;
-
-    bool underwater = isCameraUnderWater();
+    bool underwater = this->isCameraUnderWater();
     if (underwater)
     {
         reflectionPlane.normal = -Vector3::UNIT_Y;
@@ -659,7 +650,10 @@ void Water::updateReflectionPlane(float h)
     }
 
     if (mRefractCam)
+    {
         mRefractCam->enableCustomNearClipPlane(refractionPlane);
+    }
+
     if (mReflectCam)
     {
         mReflectCam->enableReflection(waterPlane);
@@ -667,20 +661,17 @@ void Water::updateReflectionPlane(float h)
     };
 }
 
-void Water::setSunPosition(Vector3)
-{
-    // not used here!
-}
-
-void Water::setCamera(Ogre::Camera* cam)
+void Water::WaterSetCamera(Ogre::Camera* cam)
 {
     mRenderCamera = cam;
 }
 
-void Water::framestep(float dt)
+void Water::FrameStepWater(float dt)
 {
     if (dt)
-        update();
+    {
+        this->UpdateWater();
+    }
 }
 
 float Water::getWaveHeight(Vector3 pos)

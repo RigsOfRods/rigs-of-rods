@@ -33,23 +33,16 @@ public:
     HydraxWater(float waterHeight, Ogre::String configFile = "HydraxDefault.hdx");
     ~HydraxWater();
 
-    float GetStaticWaterHeight();
-    float getHeightWaves(Ogre::Vector3 pos);
-    Ogre::Vector3 getVelocity(Ogre::Vector3 pos);
-
-    void setCamera(Ogre::Camera* cam);
-    void setHeight(float value);
-    void setSunPosition(Ogre::Vector3);
-    void setVisible(bool value);
-
-    bool isUnderWater(Ogre::Vector3 pos);
-    bool allowUnderWater();
-    void framestep(float dt);
-    void moveTo(float centerheight);
-    void prepareShutdown();
-    void showWave(Ogre::Vector3 refpos);
-    void update();
-    void updateReflectionPlane(float h);
+    // Interface IWater
+    float          GetStaticWaterHeight() override;
+    void           SetStaticWaterHeight(float value) override;
+    float          CalcWavesHeight(Ogre::Vector3 pos) override;
+    Ogre::Vector3  CalcWavesVelocity(Ogre::Vector3 pos) override;
+    void           SetWaterVisible(bool value) override;
+    void           WaterSetSunPosition(Ogre::Vector3) override;
+    bool           IsUnderWater(Ogre::Vector3 pos) override;
+    void           FrameStepWater(float dt) override;
+    void           UpdateWater() override;
 
     Hydrax::Hydrax* GetHydrax() { return mHydrax; }
 

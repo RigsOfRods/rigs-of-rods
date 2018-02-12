@@ -2,6 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
+    Copyright 2017-2018 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -20,10 +21,10 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "ForwardDeclarations.h"
+#include <OgreVector3.h>
 
-// interface only
-class IWater
+class IWater //!< TODO: Mixed gfx+physics (waves) - must be separated ~ only_a_ptr, 02/2018
 {
 public:
     IWater()
@@ -34,21 +35,17 @@ public:
     {
     }
 
-    virtual float GetStaticWaterHeight() = 0; //!< Returns static water level configured in 'terrn2'
-    virtual float getHeightWaves(Ogre::Vector3 pos) = 0;
-    virtual Ogre::Vector3 getVelocity(Ogre::Vector3 pos) = 0;
-
-    virtual void setCamera(Ogre::Camera* cam) = 0;
-    virtual void setHeight(float value) = 0;
-    virtual void setSunPosition(Ogre::Vector3) = 0;
-    virtual void setVisible(bool value) = 0;
-
-    virtual bool isUnderWater(Ogre::Vector3 pos) = 0;
-    virtual bool allowUnderWater() = 0;
-    virtual void framestep(float dt) = 0;
-    virtual void moveTo(float centerheight) = 0;
-    virtual void prepareShutdown() = 0;
-    virtual void showWave(Ogre::Vector3 refpos) = 0;
-    virtual void update() = 0;
-    virtual void updateReflectionPlane(float h) = 0;
+    virtual float          GetStaticWaterHeight() = 0; //!< Returns static water level configured in 'terrn2'
+    virtual void           SetStaticWaterHeight(float value) = 0;
+    virtual float          CalcWavesHeight(Ogre::Vector3 pos) = 0;
+    virtual Ogre::Vector3  CalcWavesVelocity(Ogre::Vector3 pos) = 0;
+    virtual void           SetWaterVisible(bool value) = 0;
+    virtual void           WaterSetCamera(Ogre::Camera* cam) {}
+    virtual void           WaterSetSunPosition(Ogre::Vector3) {}
+    virtual bool           IsUnderWater(Ogre::Vector3 pos) = 0;
+    virtual void           FrameStepWater(float dt) = 0;
+    virtual void           SetReflectionPlaneHeight(float centerheight) {}
+    virtual void           UpdateReflectionPlane(float h) {}
+    virtual void           WaterPrepareShutdown() {}
+    virtual void           UpdateWater() = 0;
 };
