@@ -43,9 +43,7 @@
 /// For convenience and to help manage interactions, this class provides methods to manipulate these elements.
 class RoRFrameListener: public Ogre::FrameListener, public Ogre::WindowEventListener, public ZeroedMemoryAllocator
 {
-    friend class RoR::ActorManager; // Needed for function `ChangedCurrentVehicle()`. TODO: Eliminate ~ only_a_ptr, 06/2017
 public:
-
     RoRFrameListener(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_conf);
 
     // Ogre::FrameListener public interface
@@ -54,11 +52,10 @@ public:
     bool   frameEnded            (const Ogre::FrameEvent& evt) override;
 
     // Actor management interface
-    size_t GetNumActors          () const                  { return m_actor_manager.GetNumUsedActorSlots(); }
     Actor* GetActorById          (int actor_id)            { return m_actor_manager.GetActorByIdInternal(actor_id); }
-    void   SetPlayerActorById    (int actor_id)            { m_actor_manager.SetPlayerVehicleByActorId(actor_id); } // TODO: Eliminate, use pointers ~ only_a_ptr, 06/2017
-    void   SetPlayerActor        (Actor* actor)            { m_actor_manager.SetPlayerVehicleByActorId((actor == nullptr) ? -1 : actor->ar_instance_id); }
-    Actor* GetPlayerActor        ()                        { return m_actor_manager.GetPlayerActorInternal(); }
+    void   SetPlayerActorById    (int actor_id);                                                          // TODO: Eliminate, use pointers ~ only_a_ptr, 06/2017
+    void   SetPlayerActor        (Actor* actor);
+    Actor* GetPlayerActor        ()                        { return m_player_actor; }
     void   ReloadPlayerActor     ();
     void   RemovePlayerActor     ();
     void   RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name); ///< Scripting utility. TODO: Does anybody use it? ~ only_a_ptr, 08/2017
@@ -98,18 +95,17 @@ private:
     void   FinalizeActorSpawning   (Actor* local_actor, Actor* previous_actor);
     void   HideGUI                 (bool hidden);
     void   CleanupAfterSimulation  (); /// Unloads all data
+    void   OnPlayerActorChange     (Actor* previous_vehicle, Actor* current_vehicle);
 
-    // ActorManager callback, requires a `friend` declaration above.
-    //TODO: Eliminate this. This is one of the reasons for the "ActorManager should not be accessible directly" guideline above ~ only_a_ptr, 06/2017
-    void   ChangedCurrentVehicle (Actor* previous_vehicle, Actor* current_vehicle);
-
+    Actor*                   m_player_actor;           //!< Actor (vehicle or machine) mounted and controlled by player
+    Actor*                   m_prev_player_actor;      //!< Previous actor (vehicle or machine) mounted and controlled by player
     RoR::ActorManager        m_actor_manager;
     RoR::CharacterFactory    m_character_factory;
     RoR::GfxEnvmap           m_gfx_envmap;
     HeatHaze*                m_heathaze;
     RoR::SkidmarkConfig*     m_skidmark_conf;
-    Ogre::Real               m_time_until_next_toggle; ///< just to stop toggles flipping too fast
-    float                    m_last_simulation_speed;  ///< previously used time ratio between real time (evt.timeSinceLastFrame) and physics time ('dt' used in calcPhysics)
+    Ogre::Real               m_time_until_next_toggle; //!< just to stop toggles flipping too fast
+    float                    m_last_simulation_speed;  //!< previously used time ratio between real time (evt.timeSinceLastFrame) and physics time ('dt' used in calcPhysics)
     bool                     m_is_pace_reset_pressed;
     int                      m_stats_on;
     float                    m_netcheck_gui_timer;

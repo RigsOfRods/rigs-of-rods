@@ -282,11 +282,8 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
 
     if (id.substr(0,6) == "TRUCK_")
     {
-        int truck = PARSEINT(id.substr(6));
-        if (truck >= 0 && truck < App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots())
-        {
-            App::GetSimController()->GetBeamFactory()->SetPlayerVehicleByActorId(truck);
-        }
+        int actor_id = PARSEINT(id.substr(6));
+        App::GetSimController()->SetPlayerActorById(actor_id); // Silently fails if the actor_id is dead.
     }
 
     if (id.substr(0,5) == "USER_")
@@ -323,7 +320,7 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
 
     } else if (miname == _L("Reload current vehicle") && gEnv->player)
     {
-        if ((App::GetSimController()->GetBeamFactory()->GetPlayerActorId() != -1) && (App::GetSimController() != nullptr))
+        if (App::GetSimController()->GetPlayerActor() != nullptr)
         {
             App::GetSimController()->ReloadPlayerActor(); // TODO: Use SIM_STATE + 'pending' mechanisms
             gui_man->UnfocusGui();
@@ -354,8 +351,10 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
     } else if (miname == _L("Send all vehicles to sleep"))
     {
         // get out first
-        if (App::GetSimController()->GetBeamFactory()->GetPlayerActorId() != -1)
-            App::GetSimController()->GetBeamFactory()->SetPlayerVehicleByActorId(-1);
+        if (App::GetSimController()->GetPlayerActor() != nullptr)
+        {
+            App::GetSimController()->SetPlayerActor(nullptr);
+        }
         App::GetSimController()->GetBeamFactory()->SendAllActorsSleeping();
 
     } else if (miname == _L("Friction Settings"))
