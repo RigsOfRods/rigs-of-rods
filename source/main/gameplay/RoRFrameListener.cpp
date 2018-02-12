@@ -1136,7 +1136,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
 
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_BEACONS))
                     {
-                        player_actor->beaconsToggle();
+                        player_actor->ToggleBeacons();
                     }
 
                     //camera mode

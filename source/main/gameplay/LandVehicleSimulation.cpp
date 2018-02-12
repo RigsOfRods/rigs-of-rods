@@ -45,7 +45,7 @@ void LandVehicleSimulation::UpdateCruiseControl(Actor* curr_truck, float dt)
         !engine->isRunning() ||
         !engine->hasContact())
     {
-        curr_truck->cruisecontrolToggle();
+        curr_truck->ToggleCruiseControl();
         return;
     }
 
@@ -524,7 +524,7 @@ void LandVehicleSimulation::UpdateVehicle(Actor* curr_truck, float seconds_since
         }
         else
         {
-            curr_truck->toggleAxleLock();
+            curr_truck->ToggleAxleLock();
             RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE, _L("Differentials switched to: ") + curr_truck->getAxleLockName(), "cog.png", 3000);
             RoR::App::GetGuiManager()->PushNotification("Differential:", "Differentials switched to: " + curr_truck->getAxleLockName());
         }
@@ -551,26 +551,26 @@ void LandVehicleSimulation::UpdateVehicle(Actor* curr_truck, float seconds_since
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_PARKING_BRAKE))
     {
-        curr_truck->parkingbrakeToggle();
+        curr_truck->ToggleParkingBrake();
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_ANTILOCK_BRAKE))
     {
         if (curr_truck->alb_present && !curr_truck->alb_notoggle)
         {
-            curr_truck->antilockbrakeToggle();
+            curr_truck->ToggleAntiLockBrake();
         }
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TRACTION_CONTROL))
     {
         if (!curr_truck->tc_notoggle)
-            curr_truck->tractioncontrolToggle();
+            curr_truck->ToggleTractionControl();
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_CRUISE_CONTROL))
     {
-        curr_truck->cruisecontrolToggle();
+        curr_truck->ToggleCruiseControl();
     }
     if (curr_truck->cc_mode)
     {

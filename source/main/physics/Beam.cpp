@@ -811,7 +811,7 @@ void Actor::CalcNetwork()
     if (((flagmask & NETMASK_LIGHTS) != 0) != ar_lights)
         ToggleLights();
     if (((flagmask & NETMASK_BEACONS) != 0) != m_beacon_light_is_active)
-        beaconsToggle();
+        ToggleBeacons();
 
     m_antilockbrake = flagmask & NETMASK_ALB_ACTIVE;
     m_tractioncontrol = flagmask & NETMASK_TC_ACTIVE;
@@ -1552,7 +1552,7 @@ void Actor::disconnectAutopilot()
     OverlayManager::getSingleton().getOverlayElement("tracks/ap_ias_but")->setMaterialName("tracks/athr-off");
 }
 
-void Actor::toggleAxleLock()
+void Actor::ToggleAxleLock()
 {
     for (int i = 0; i < m_num_axles; ++i)
     {
@@ -4571,7 +4571,7 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
     }
 }
 
-void Actor::parkingbrakeToggle()
+void Actor::ToggleParkingBrake()
 {
     ar_parking_brake = !ar_parking_brake;
 
@@ -4584,17 +4584,17 @@ void Actor::parkingbrakeToggle()
     TRIGGER_EVENT(SE_TRUCK_PARKINGBREAK_TOGGLE, ar_instance_id);
 }
 
-void Actor::antilockbrakeToggle()
+void Actor::ToggleAntiLockBrake()
 {
     alb_mode = !alb_mode;
 }
 
-void Actor::tractioncontrolToggle()
+void Actor::ToggleTractionControl()
 {
     tc_mode = !tc_mode;
 }
 
-void Actor::cruisecontrolToggle()
+void Actor::ToggleCruiseControl()
 {
     cc_mode = !cc_mode;
 
@@ -4611,7 +4611,7 @@ void Actor::cruisecontrolToggle()
     }
 }
 
-void Actor::beaconsToggle()
+void Actor::ToggleBeacons()
 {
     if (m_flares_mode == GfxFlaresMode::NONE) { return; }
 
