@@ -328,7 +328,6 @@ public:
     int               free_buoycab;
     Airbrake*         airbrakes[MAX_AIRBRAKES];
     int               free_airbrake;
-    RoR::Skidmark*    skidtrails[MAX_WHEELS*2];
     bool              useSkidmarks;
     FlexBody*         flexbodies[MAX_FLEXBODIES];
     int               free_flexbody;
@@ -381,7 +380,6 @@ public:
     int               ar_exhaust_dir_node; //!< Old-format exhaust (one per vehicle) backwards direction node
     char              truckname[256];
     int               trucknum;
-    RoR::SkinDef*     usedSkin;
     int               ar_driveable;                //!< Sim attr; marks vehicle type and features
     BeamEngine*       ar_engine;
     int               ar_cinecam_node[MAX_CAMERAS];//!< Sim attr; Cine-camera node indexes
@@ -600,6 +598,8 @@ private:
     unsigned char     m_net_custom_light_count;//!< Sim attr
     RoR::GfxFlaresMode m_flares_mode;          //!< Gfx attr, clone of GVar -- TODO: remove
     std::unique_ptr<Buoyance> m_buoyance;      //!< Physics
+    RoR::SkinDef*     m_used_skin;             //!< Spawner context (TODO: remove!)
+    RoR::Skidmark*    m_skid_trails[MAX_WHEELS*2];
 
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?

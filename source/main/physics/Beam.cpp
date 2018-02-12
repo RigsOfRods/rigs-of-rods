@@ -241,8 +241,8 @@ Beam::~Beam()
     // delete skidmarks
     for (int i = 0; i < free_wheel; ++i)
     {
-        delete skidtrails[i];
-        skidtrails[i] = nullptr;
+        delete m_skid_trails[i];
+        m_skid_trails[i] = nullptr;
     }
 
     // delete props
@@ -2847,12 +2847,12 @@ void Beam::updateSkidmarks()
         if (wheels[i].lastContactInner == Vector3::ZERO && wheels[i].lastContactOuter == Vector3::ZERO)
             continue;
 
-        if (skidtrails[i])
+        if (m_skid_trails[i])
         {
-            skidtrails[i]->updatePoint();
+            m_skid_trails[i]->updatePoint();
             if (wheels[i].isSkiding)
             {
-                skidtrails[i]->update();
+                m_skid_trails[i]->update();
             }
         }
     }
@@ -5643,6 +5643,7 @@ Beam::Beam(
     , ar_uses_networking(false)
     , ar_engine(nullptr)
     , ar_driveable(NOT_DRIVEABLE)
+    , m_skid_trails{} // Init array to nullptr
 {
     m_high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();
     useSkidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;
@@ -5650,7 +5651,7 @@ Beam::Beam(
 
     trucknum = truck_number;
     m_spawn_free_positioned = freeposition;
-    usedSkin = skin;
+    m_used_skin = skin;
     ar_uses_networking = _networking;
     memset(truckname, 0, 256);
     sprintf(truckname, "t%i", truck_number);
