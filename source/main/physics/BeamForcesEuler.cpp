@@ -663,13 +663,13 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     {
         if ((stabcommand == 1 && stabratio < 0.1) || (stabcommand == -1 && stabratio > -0.1))
             stabratio = stabratio + (float)stabcommand * dt * STAB_RATE;
-        for (int i = 0; i < free_shock; i++)
+        for (int i = 0; i < ar_num_shocks; i++)
         {
             // active shocks now
-            if (shocks[i].flags & SHOCK_FLAG_RACTIVE)
-                ar_beams[shocks[i].beamid].L = ar_beams[shocks[i].beamid].refL * (1.0 + stabratio);
-            else if (shocks[i].flags & SHOCK_FLAG_LACTIVE)
-                ar_beams[shocks[i].beamid].L = ar_beams[shocks[i].beamid].refL * (1.0 - stabratio);
+            if (ar_shocks[i].flags & SHOCK_FLAG_RACTIVE)
+                ar_beams[ar_shocks[i].beamid].L = ar_beams[ar_shocks[i].beamid].refL * (1.0 + stabratio);
+            else if (ar_shocks[i].flags & SHOCK_FLAG_LACTIVE)
+                ar_beams[ar_shocks[i].beamid].L = ar_beams[ar_shocks[i].beamid].refL * (1.0 - stabratio);
         }
     }
     //auto shock adjust

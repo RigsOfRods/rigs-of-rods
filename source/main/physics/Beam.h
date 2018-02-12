@@ -270,9 +270,9 @@ public:
     beam_t*           ar_beams;
     int               ar_num_beams;
     std::vector<beam_t*> ar_inter_beams;    //!< Beams connecting 2 actors
-    shock_t*          shocks;               //!< Shock absorbers
-    int               free_shock;           //!< Number of shock absorbers; name is historical (free index in static array)
-    bool              ar_has_active_shocks;    //!< Are there active stabilizer shocks?
+    shock_t*          ar_shocks;            //!< Shock absorbers
+    int               ar_num_shocks;        //!< Number of shock absorbers; name is historical (free index in static array)
+    bool              ar_has_active_shocks; //!< Are there active stabilizer shocks?
     rotator_t*        rotators;
     int               free_rotator;         //!< Number of rotators; name is historical (free index in static array)
     wing_t*           wings;
