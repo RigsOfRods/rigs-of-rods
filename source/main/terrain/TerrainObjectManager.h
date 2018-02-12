@@ -50,19 +50,14 @@ public:
     ~TerrainObjectManager();
 
     std::vector<EditorObject> GetEditorObjects() const { return m_editor_objects; }
-
-    void loadObjectConfigFile(Ogre::String filename);
-
-    void loadObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, Ogre::SceneNode* bakeNode, const Ogre::String& instancename, const Ogre::String& type, bool enable_collisions = true, int scripthandler = -1, bool uniquifyMaterial = false);
-    void moveObjectVisuals(const Ogre::String& instancename, const Ogre::Vector3& pos);
-    void unloadObject(const Ogre::String& instancename);
-
-    void LoadPredefinedActors();
-    bool HasPredefinedActors() { return !m_predefined_actors.empty(); };
-
-    void postLoad();
-
-    bool updateAnimatedObjects(float dt);
+    void           loadObjectConfigFile(Ogre::String filename);
+    void           loadObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, Ogre::SceneNode* m_staticgeometry_bake_node, const Ogre::String& instancename, const Ogre::String& type, bool enable_collisions = true, int scripthandler = -1, bool uniquifyMaterial = false);
+    void           moveObjectVisuals(const Ogre::String& instancename, const Ogre::Vector3& pos);
+    void           unloadObject(const Ogre::String& instancename);
+    void           LoadPredefinedActors();
+    bool           HasPredefinedActors() { return !m_predefined_actors.empty(); };
+    void           PostLoadTerrain();
+    bool           UpdateTerrainObjects(float dt);
 
     typedef struct localizer_t
     {
@@ -72,8 +67,6 @@ public:
     } localizer_t;
 
     std::vector<localizer_t> GetLocalizers() { return localizers; }
-    bool update(float dt);
-
 private:
 
     struct AnimatedObject
@@ -104,35 +97,33 @@ private:
         std::vector<int> collTris;
     };
 
-    TerrainManager* terrainManager;
-
-    Ogre::StaticGeometry* bakesg;
-    ProceduralManager* proceduralManager;
-
-    Road* road;
-    Ogre::SceneNode* bakeNode;
-
-    std::vector<PredefinedActor> m_predefined_actors;
-
-    bool background_loading;
-    bool use_rt_shader_system;
-
 #ifdef USE_PAGED
-    typedef struct
+    struct PaGeomInstance
     {
         Forests::PagedGeometry* geom;
         void* loader;
-    } paged_geometry_t;
-
-    std::vector<paged_geometry_t> pagedGeometry;
-    Forests::TreeLoader2D* treeLoader;
+    };
 #endif //USE_PAGED
 
+    bool           UpdateAnimatedObjects(float dt);
     std::vector<localizer_t> localizers;
-    std::vector<AnimatedObject> m_animated_objects;
 
-    std::vector<MeshObject*> meshObjects;
-    std::map<std::string, StaticObject> m_static_objects;
-    std::vector<EditorObject> m_editor_objects;
+    std::map<std::string, StaticObject>   m_static_objects;
+    std::vector<EditorObject>             m_editor_objects;
+    std::vector<PredefinedActor>          m_predefined_actors;
+    std::vector<AnimatedObject>           m_animated_objects;
+    std::vector<MeshObject*>              m_mesh_objects;
+    TerrainManager*           terrainManager;
+    Ogre::StaticGeometry*     m_staticgeometry;
+    ProceduralManager*        m_procedural_mgr;
+    Road*                     m_road;
+    Ogre::SceneNode*          m_staticgeometry_bake_node;
+    bool                      m_background_loading;
+    bool                      m_use_rtshadersystem;
+
+#ifdef USE_PAGED
+    std::vector<PaGeomInstance> m_paged_geometry;
+    Forests::TreeLoader2D*      m_tree_loader;
+#endif //USE_PAGED
 };
 

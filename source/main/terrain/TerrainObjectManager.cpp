@@ -65,23 +65,23 @@ inline float getTerrainHeight(Real x, Real z, void* unused = 0)
 }
 
 TerrainObjectManager::TerrainObjectManager(TerrainManager* terrainManager) :
-    background_loading(BSETTING("Background Loading", false)),
-    use_rt_shader_system(BSETTING("Use RTShader System", false)),
+    m_background_loading(BSETTING("Background Loading", false)),
+    m_use_rtshadersystem(BSETTING("Use RTShader System", false)),
     terrainManager(terrainManager)
 {
     //prepare for baking
-    bakeNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+    m_staticgeometry_bake_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
 }
 
 TerrainObjectManager::~TerrainObjectManager()
 {
-    for (MeshObject* mo : meshObjects)
+    for (MeshObject* mo : m_mesh_objects)
     {
         if (mo)
             delete mo;
     }
 #ifdef USE_PAGED
-    for (std::vector<paged_geometry_t>::iterator it = pagedGeometry.begin(); it != pagedGeometry.end(); it++)
+    for (std::vector<PaGeomInstance>::iterator it = m_paged_geometry.begin(); it != m_paged_geometry.end(); it++)
     {
         if (it->geom)
         {
@@ -95,23 +95,23 @@ TerrainObjectManager::~TerrainObjectManager()
         }
     }
 #endif //USE_PAGED
-    if (bakesg != nullptr)
+    if (m_staticgeometry != nullptr)
     {
         gEnv->sceneManager->destroyStaticGeometry("bakeSG");
-        bakesg = nullptr;
+        m_staticgeometry = nullptr;
     }
-    if (proceduralManager != nullptr)
+    if (m_procedural_mgr != nullptr)
     {
-        delete proceduralManager;
+        delete m_procedural_mgr;
     }
     gEnv->sceneManager->destroyAllEntities();
 }
 
 void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 {
-    if (proceduralManager == nullptr)
+    if (m_procedural_mgr == nullptr)
     {
-        proceduralManager = new ProceduralManager();
+        m_procedural_mgr = new ProceduralManager();
     }
 
     localizers.clear();
@@ -256,7 +256,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
             }
             densityMap->setFilter(Forests::MAPFILTER_BILINEAR);
 
-            paged_geometry_t paged;
+            PaGeomInstance paged;
             paged.geom = new PagedGeometry();
             RoR::Str<300> temp_path;
             temp_path << RoR::App::sys_cache_dir.GetActive() << PATH_SLASH;
@@ -276,15 +276,15 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
             if (max < 10)
                 max = 10;
             paged.geom->addDetailLevel<ImpostorPage>(max, max / 10);
-            TreeLoader2D* treeLoader = new TreeLoader2D(paged.geom, TBounds(0, 0, m_terrain_size_x, m_map_size_z));
-            paged.geom->setPageLoader(treeLoader);
-            treeLoader->setHeightFunction(&getTerrainHeight);
+            TreeLoader2D* m_tree_loader = new TreeLoader2D(paged.geom, TBounds(0, 0, m_terrain_size_x, m_map_size_z));
+            paged.geom->setPageLoader(m_tree_loader);
+            m_tree_loader->setHeightFunction(&getTerrainHeight);
             if (String(ColorMap) != "none")
             {
-                treeLoader->setColorMap(ColorMap);
+                m_tree_loader->setColorMap(ColorMap);
             }
 
-            Entity* curTree = gEnv->sceneManager->createEntity(String("paged_") + treemesh + TOSTRING(pagedGeometry.size()), treemesh);
+            Entity* curTree = gEnv->sceneManager->createEntity(String("paged_") + treemesh + TOSTRING(m_paged_geometry.size()), treemesh);
 
             if (gridspacing > 0)
             {
@@ -301,7 +301,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
                         float yaw = Math::RangeRandom(yawfrom, yawto);
                         float scale = Math::RangeRandom(scalefrom, scaleto);
                         Vector3 pos = Vector3(nx, 0, nz);
-                        treeLoader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
+                        m_tree_loader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
                         if (strlen(treeCollmesh))
                         {
                             pos.y = gEnv->terrainManager->getHeightFinder()->getHeightAt(pos.x, pos.z);
@@ -336,7 +336,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
                             float yaw = Math::RangeRandom(yawfrom, yawto);
                             float scale = Math::RangeRandom(scalefrom, scaleto);
                             Vector3 pos = Vector3(nx, 0, nz);
-                            treeLoader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
+                            m_tree_loader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
                             if (strlen(treeCollmesh))
                             {
                                 pos.y = gEnv->terrainManager->getHeightFinder()->getHeightAt(pos.x, pos.z);
@@ -346,8 +346,8 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
                     }
                 }
             }
-            paged.loader = (void*)treeLoader;
-            pagedGeometry.push_back(paged);
+            paged.loader = (void*)m_tree_loader;
+            m_paged_geometry.push_back(paged);
         }
 
         //ugly stuff to parse grass :)
@@ -371,7 +371,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
             //Initialize the PagedGeometry engine
             try
             {
-                paged_geometry_t paged;
+                PaGeomInstance paged;
                 PagedGeometry* grass = new PagedGeometry(gEnv->mainCamera, 30);
                 //Set up LODs
 
@@ -431,7 +431,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
                     grassLayer->setFadeTechnique(FADETECH_ALPHA);
                 paged.geom = grass;
                 paged.loader = (void*)grassLoader;
-                pagedGeometry.push_back(paged);
+                m_paged_geometry.push_back(paged);
             }
             catch (...)
             {
@@ -455,8 +455,8 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
             {
                 if (r2oldmode)
                 {
-                    if (proceduralManager)
-                        proceduralManager->addObject(po);
+                    if (m_procedural_mgr)
+                        m_procedural_mgr->addObject(po);
                     po = ProceduralObject();
                 }
                 proroad = false;
@@ -584,8 +584,8 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
                     po.points.push_back(pp);
 
                     // finish it and start new object
-                    if (proceduralManager)
-                        proceduralManager->addObject(po);
+                    if (m_procedural_mgr)
+                        m_procedural_mgr->addObject(po);
                     po = ProceduralObject();
                     r2oldmode = 1;
                 }
@@ -619,7 +619,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
 
             continue;
         }
-        loadObject(oname, pos, rot, bakeNode, name, type);
+        loadObject(oname, pos, rot, m_staticgeometry_bake_node, name, type);
     }
 
     // ds closes automatically, so do not close it explicitly here: ds->close();
@@ -639,25 +639,25 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
         po.points.push_back(pp);
 
         // finish it and start new object
-        if (proceduralManager)
-            proceduralManager->addObject(po);
+        if (m_procedural_mgr)
+            m_procedural_mgr->addObject(po);
     }
 }
 
-void TerrainObjectManager::postLoad()
+void TerrainObjectManager::PostLoadTerrain()
 {
     // okay, now bake everything
-    bakesg = gEnv->sceneManager->createStaticGeometry("bakeSG");
-    bakesg->setCastShadows(true);
-    bakesg->addSceneNode(bakeNode);
-    bakesg->setRegionDimensions(Vector3(terrainManager->getFarClip() / 2.0f, 10000.0, terrainManager->getFarClip() / 2.0f));
-    bakesg->setRenderingDistance(terrainManager->getFarClip());
+    m_staticgeometry = gEnv->sceneManager->createStaticGeometry("bakeSG");
+    m_staticgeometry->setCastShadows(true);
+    m_staticgeometry->addSceneNode(m_staticgeometry_bake_node);
+    m_staticgeometry->setRegionDimensions(Vector3(terrainManager->getFarClip() / 2.0f, 10000.0, terrainManager->getFarClip() / 2.0f));
+    m_staticgeometry->setRenderingDistance(terrainManager->getFarClip());
     try
     {
-        bakesg->build();
-        bakeNode->detachAllObjects();
+        m_staticgeometry->build();
+        m_staticgeometry_bake_node->detachAllObjects();
         // crash under linux:
-        //bakeNode->removeAndDestroyAllChildren();
+        //m_staticgeometry_bake_node->removeAndDestroyAllChildren();
     }
     catch (...)
     {
@@ -717,7 +717,7 @@ void TerrainObjectManager::unloadObject(const String& instancename)
     obj.enabled = false;
 }
 
-void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, Ogre::SceneNode* bakeNode, const Ogre::String& instancename, const Ogre::String& type, bool enable_collisions /* = true */, int scripthandler /* = -1 */, bool uniquifyMaterial /* = false */)
+void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, Ogre::SceneNode* m_staticgeometry_bake_node, const Ogre::String& instancename, const Ogre::String& type, bool enable_collisions /* = true */, int scripthandler /* = -1 */, bool uniquifyMaterial /* = false */)
 {
     if (type == "grid")
     {
@@ -727,7 +727,7 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
             for (int z = 0; z < 500; z += 50)
             {
                 const String notype = "";
-                loadObject(name, pos + Vector3(x, 0.0f, z), rot, bakeNode, name, notype, enable_collisions, scripthandler, uniquifyMaterial);
+                loadObject(name, pos + Vector3(x, 0.0f, z), rot, m_staticgeometry_bake_node, name, notype, enable_collisions, scripthandler, uniquifyMaterial);
             }
         }
         return;
@@ -794,8 +794,8 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
     MeshObject* mo = nullptr;
     if (String(mesh) != "none")
     {
-        mo = new MeshObject(mesh, entity_name, tenode, background_loading);
-        meshObjects.push_back(mo);
+        mo = new MeshObject(mesh, entity_name, tenode, m_background_loading);
+        m_mesh_objects.push_back(mo);
     }
 
     tenode->setScale(sc);
@@ -1067,7 +1067,7 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
         {
             char mat[256] = "";
             sscanf(ptline, "generateMaterialShaders %s", mat);
-            if (use_rt_shader_system)
+            if (m_use_rtshadersystem)
             {
                 Ogre::RTShader::ShaderGenerator::getSingleton().createShaderBasedTechnique(String(mat), Ogre::MaterialManager::DEFAULT_SCHEME_NAME, Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
                 Ogre::RTShader::ShaderGenerator::getSingleton().invalidateMaterial(RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME, String(mat));
@@ -1316,7 +1316,7 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
 
 }
 
-bool TerrainObjectManager::updateAnimatedObjects(float dt)
+bool TerrainObjectManager::UpdateAnimatedObjects(float dt)
 {
     if (m_animated_objects.size() == 0)
         return true;
@@ -1373,18 +1373,18 @@ void TerrainObjectManager::LoadPredefinedActors()
     }
 }
 
-bool TerrainObjectManager::update(float dt)
+bool TerrainObjectManager::UpdateTerrainObjects(float dt)
 {
 #ifdef USE_PAGED
     // paged geometry
-    for (auto it : pagedGeometry)
+    for (auto it : m_paged_geometry)
     {
         if (it.geom)
             it.geom->update();
     }
 #endif //USE_PAGED
 
-    updateAnimatedObjects(dt);
+    this->UpdateAnimatedObjects(dt);
 
     return true;
 }

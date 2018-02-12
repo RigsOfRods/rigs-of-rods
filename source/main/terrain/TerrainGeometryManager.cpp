@@ -136,7 +136,7 @@ Ogre::MaterialPtr Terrn2CustomMaterial::Profile::generate(const Ogre::Terrain* t
 TerrainGeometryManager::TerrainGeometryManager(TerrainManager* terrainManager)
     : mHeightData(nullptr)
     , m_was_new_geometry_generated(false)
-    , m_terrain_mgr(terrainManager)
+    , terrainManager(terrainManager)
 {
 }
 
@@ -338,7 +338,7 @@ void TerrainGeometryManager::InitTerrain(std::string otc_filename)
     // update the blend maps
     if (m_was_new_geometry_generated)
     {
-        if (m_terrain_mgr->GetDef().custom_material_name.empty())
+        if (terrainManager->GetDef().custom_material_name.empty())
         {
             for (OTCPage& page : m_spec->pages)
             {
@@ -406,7 +406,7 @@ void TerrainGeometryManager::configureTerrainDefaults()
     OGRE_NEW TerrainGlobalOptions();
 
     TerrainGlobalOptions* terrainOptions = TerrainGlobalOptions::getSingletonPtr();
-    std::string const & custom_mat = m_terrain_mgr->GetDef().custom_material_name;
+    std::string const & custom_mat = terrainManager->GetDef().custom_material_name;
     if (!custom_mat.empty())
     {
         terrainOptions->setDefaultMaterialGenerator(
@@ -463,7 +463,7 @@ void TerrainGeometryManager::configureTerrainDefaults()
             matProfile->setGlobalColourMapEnabled(m_spec->global_colormap_enabled);
             matProfile->setReceiveDynamicShadowsDepth(m_spec->recv_dyn_shadows_depth);
 
-            m_terrain_mgr->getShadowManager()->updateTerrainMaterial(matProfile);
+            terrainManager->getShadowManager()->updateTerrainMaterial(matProfile);
         }
     }
 
