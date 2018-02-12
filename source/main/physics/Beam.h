@@ -37,9 +37,8 @@ class Task;
 
 /// Softbody object; can be anything from soda can to a space shuttle
 /// Monsterclass; contains logic related to physics, network, sound, threading, rendering.
-/// NOTE: Until recently, this class was named `Beam` (and was derived from `rig_t`), you may find references to this.
-class Actor :
-    public ZeroedMemoryAllocator
+/// NOTE: Until 01/2018, this class was named `Beam` (and was derived from `rig_t`), you may find references to this.
+class Actor : public ZeroedMemoryAllocator
 {
     friend class RigSpawner;
 
@@ -63,7 +62,7 @@ public:
     /// @param cache_entry_number Needed for flexbody caching. Pass -1 if unavailable (flexbody caching will be disabled)
     Actor(
           RoRFrameListener* sim_controller
-        , int tnum
+        , int actor_id
         , Ogre::Vector3 pos
         , Ogre::Quaternion rot
         , const char* fname
@@ -72,7 +71,7 @@ public:
         , bool networking = false
         , collision_box_t *spawnbox = nullptr
         , bool ismachine = false
-        , const std::vector<Ogre::String> *truckconfig = nullptr
+        , const std::vector<Ogre::String> *actor_config = nullptr
         , RoR::SkinDef *skin = nullptr
         , bool freeposition = false
         , bool preloaded_with_terrain = false
@@ -81,7 +80,7 @@ public:
 
     ~Actor();
 
-    bool LoadTruck( //!< Spawn helper
+    bool LoadActor( //!< Spawn helper
         RoR::RigLoadingProfiler* rig_loading_profiler,
         Ogre::String const & file_name,
         Ogre::SceneNode *parent_scene_node,
@@ -91,59 +90,36 @@ public:
         int cache_entry_number = -1
     );
 
-    //! @{ calc forces euler division
-    void              calcTruckEngine(bool doUpdate, Ogre::Real dt);
-    void              calcAnimatedProps(bool doUpdate, Ogre::Real dt);
-    void              calcHooks(bool doUpdate);
-    void              calcForceFeedBack(bool doUpdate);
-    void              calcMouse();
-    void              calcNodes_(bool doUpdate, Ogre::Real dt, int step, int maxsteps);
-    void              calcSlideNodes(Ogre::Real dt);
-    void              calcTurboProp(bool doUpdate, Ogre::Real dt);
-    void              calcScrewProp(bool doUpdate);
-    void              calcWing();
-    void              calcFuseDrag();
-    void              calcAirBrakes();
-    void              calcBuoyance(bool doUpdate, Ogre::Real dt, int step, int maxsteps);
-    void              calcAxles(bool doUpdate, Ogre::Real dt);
-    void              calcWheels(bool doUpdate, Ogre::Real dt, int step, int maxsteps);
-    void              calcShocks(bool doUpdate, Ogre::Real dt);
-    void              calcHydros(bool doUpdate, Ogre::Real dt);
-    void              calcCommands(bool doUpdate, Ogre::Real dt);
-    void              calcReplay(bool doUpdate, Ogre::Real dt);
-    //! @}
-
-    void              pushNetwork(char* data, int size);   //!< Parses network data; fills truck data buffers and flips them. Called by the network thread.
-    void              calcNetwork();
-    void              updateNetworkInfo();
-    bool              addPressure(float v);
-    float             getPressure();
-    void              resetAngle(float rot);
-    void              resetPosition(float px, float pz, bool setInitPosition, float miny);
+    void              PushNetwork(char* data, int size);   //!< Parses network data; fills truck data buffers and flips them. Called by the network thread.
+    void              CalcNetwork();
+    void              UpdateNetworkInfo();
+    bool              AddTyrePressure(float v);
+    float             GetTyrePressure();
+    void              ResetAngle(float rot);
+    void              ResetPosition(float px, float pz, bool setInitPosition, float miny);
     float             getRotation();
     Ogre::Vector3     getDirection();
     Ogre::Vector3     getPosition();
     /// Moves the actor.
     /// @param translation Offset to move in world coordinates
     /// @param setInitPosition Set initial positions of nodes to current position?
-    void              resetPosition(Ogre::Vector3 translation, bool setInitPosition);
-    void              reset(bool keepPosition = false);    //!< reset the actor from any context
+    void              ResetPosition(Ogre::Vector3 translation, bool setInitPosition);
+    void              RequestActorReset(bool keepPosition = false);    //!< reset the actor from any context
     void              displace(Ogre::Vector3 translation, float rotation);
-    Ogre::Vector3     getRotationCenter();                 //!< Return the rotation center of the truck
-    bool              replayStep();
+    Ogre::Vector3     GetRotationCenter();                 //!< Return the rotation center of the truck
+    bool              ReplayStep();
     void              ForceFeedbackStep(int steps);
-    void              updateAngelScriptEvents(float dt);
-    void              handleResetRequests(float dt);
-    void              setupDefaultSoundSources();
-    void              updateSoundSources();
-    void              mouseMove(int node, Ogre::Vector3 pos, float force); //!< Event handler
-    void              lightsToggle();                      //!< Event handler
-    void              tieToggle(int group=-1);
-    void              ropeToggle(int group=-1);            //!< Event handler
-    void              hookToggle(int group=-1, hook_states mode=HOOK_TOGGLE, int node_number=-1); //!< Event handler
-    void              engineTriggerHelper(int engineNumber, int type, float triggerValue);
-    void              toggleSlideNodeLock();
-    void              toggleCustomParticles();
+    void              UpdateAngelScriptEvents(float dt);
+    void              HandleResetRequests(float dt);
+    void              UpdateSoundSources();
+    void              HandleMouseMove(int node, Ogre::Vector3 pos, float force); //!< Event handler
+    void              ToggleLights();                      //!< Event handler
+    void              ToggleTies(int group=-1);
+    void              ToggleRopes(int group=-1);            //!< Event handler
+    void              ToggleHooks(int group=-1, hook_states mode=HOOK_TOGGLE, int node_number=-1); //!< Event handler
+    void              EngineTriggerHelper(int engineNumber, int type, float triggerValue);
+    void              ToggleSlideNodeLock();
+    void              ToggleCustomParticles();
     void              toggleAxleLock();	                   //! diff lock on or off
     void              parkingbrakeToggle();                //!< Event handler
     void              antilockbrakeToggle();               //!< Event handler

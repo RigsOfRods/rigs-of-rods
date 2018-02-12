@@ -261,7 +261,7 @@ Actor* ActorManager::CreateLocalActor(
     // lock slide nodes after spawning the actor?
     if (b->getSlideNodesLockInstant())
     {
-        b->toggleSlideNodeLock();
+        b->ToggleSlideNodeLock();
     }
 
     RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
@@ -269,7 +269,7 @@ Actor* ActorManager::CreateLocalActor(
     // add own username to the actor
     if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
     {
-        b->updateNetworkInfo();
+        b->UpdateNetworkInfo();
     }
     LOADRIG_PROFILER_CHECKPOINT(ENTRY_BEAMFACTORY_CREATELOCAL_POSTPROCESS);
 
@@ -349,7 +349,7 @@ int ActorManager::CreateRemoteInstance(RoRnet::TruckStreamRegister* reg)
 
     b->ar_net_source_id = reg->origin_sourceid;
     b->ar_net_stream_id = reg->origin_streamid;
-    b->updateNetworkInfo();
+    b->UpdateNetworkInfo();
 
 
     RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
@@ -749,8 +749,8 @@ void ActorManager::RepairActor(Collisions* collisions, const Ogre::String& inst,
         // take a position reference
         SOUND_PLAY_ONCE(actor_id, SS_TRIG_REPAIR);
         Vector3 ipos = m_actors[actor_id]->ar_nodes[0].AbsPosition;
-        m_actors[actor_id]->reset();
-        m_actors[actor_id]->resetPosition(ipos.x, ipos.z, false, 0);
+        m_actors[actor_id]->RequestActorReset();
+        m_actors[actor_id]->ResetPosition(ipos.x, ipos.z, false, 0);
         m_actors[actor_id]->updateVisual();
     }
 }
@@ -1037,8 +1037,8 @@ void ActorManager::UpdateActors(float dt)
         if (!m_actors[t])
             continue;
 
-        m_actors[t]->handleResetRequests(dt);
-        m_actors[t]->updateAngelScriptEvents(dt);
+        m_actors[t]->HandleResetRequests(dt);
+        m_actors[t]->UpdateAngelScriptEvents(dt);
 
 #ifdef USE_ANGELSCRIPT
         if (m_actors[t]->ar_vehicle_ai && (m_actors[t]->ar_vehicle_ai->IsActive()))
@@ -1048,7 +1048,7 @@ void ActorManager::UpdateActors(float dt)
         switch (m_actors[t]->ar_sim_state)
         {
         case Actor::SimState::NETWORKED_OK:
-            m_actors[t]->calcNetwork();
+            m_actors[t]->CalcNetwork();
             break;
 
         case Actor::SimState::INVALID:
@@ -1100,7 +1100,7 @@ void ActorManager::UpdateActors(float dt)
             if (m_actors[m_simulated_actor]->statistics_gfx) m_actors[m_simulated_actor]->statistics_gfx->frameStep(dt);
 #endif // FEAT_TIMING
         }
-        if (!m_actors[m_simulated_actor]->replayStep())
+        if (!m_actors[m_simulated_actor]->ReplayStep())
         {
             m_actors[m_simulated_actor]->ForceFeedbackStep(m_physics_steps);
             if (m_sim_thread_pool)

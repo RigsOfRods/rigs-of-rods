@@ -596,7 +596,7 @@ void Actor::CreateSimpleSkeletonMaterial()
     mat->setReceiveShadows(false);
 }
 
-void Actor::pushNetwork(char* data, int size)
+void Actor::PushNetwork(char* data, int size)
 {
     BES_GFX_START(BES_GFX_pushNetwork);
     if (!oob3)
@@ -660,7 +660,7 @@ void Actor::pushNetwork(char* data, int size)
     BES_GFX_STOP(BES_GFX_pushNetwork);
 }
 
-void Actor::calcNetwork()
+void Actor::CalcNetwork()
 {
     using namespace RoRnet;
 
@@ -805,11 +805,11 @@ void Actor::calcNetwork()
 
     // set particle cannon
     if (((flagmask & NETMASK_PARTICLE) != 0) != m_custom_particles_enabled)
-        toggleCustomParticles();
+        ToggleCustomParticles();
 
     // set lights
     if (((flagmask & NETMASK_LIGHTS) != 0) != ar_lights)
-        lightsToggle();
+        ToggleLights();
     if (((flagmask & NETMASK_BEACONS) != 0) != m_beacon_light_is_active)
         beaconsToggle();
 
@@ -849,7 +849,7 @@ void Actor::calcNetwork()
     BES_GFX_STOP(BES_GFX_calcNetwork);
 }
 
-bool Actor::addPressure(float v)
+bool Actor::AddTyrePressure(float v)
 {
     if (!ar_free_pressure_beam)
         return false;
@@ -867,7 +867,7 @@ bool Actor::addPressure(float v)
     return true;
 }
 
-float Actor::getPressure()
+float Actor::GetTyrePressure()
 {
     if (ar_free_pressure_beam)
         return m_ref_tyre_pressure;
@@ -1210,7 +1210,7 @@ void Actor::resolveCollisions(Vector3 direction)
     Vector3 dir = Vector3(offset.x, 0.0f, offset.z).normalisedCopy();
     offset += 0.2f * dir;
 
-    resetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, true, ar_nodes[ar_lowest_contacting_node].AbsPosition.y + offset.y);
+    ResetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, true, ar_nodes[ar_lowest_contacting_node].AbsPosition.y + offset.y);
 }
 
 void Actor::resolveCollisions(float max_distance, bool consider_up)
@@ -1248,7 +1248,7 @@ void Actor::resolveCollisions(float max_distance, bool consider_up)
     Vector3 dir = Vector3(offset.x, 0.0f, offset.z).normalisedCopy();
     offset += 0.2f * dir;
 
-    resetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, true, ar_nodes[ar_lowest_contacting_node].AbsPosition.y + offset.y);
+    ResetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, true, ar_nodes[ar_lowest_contacting_node].AbsPosition.y + offset.y);
 }
 
 int Actor::savePosition(int indexPosition)
@@ -1351,7 +1351,7 @@ void Actor::postUpdatePhysics(float dt)
     m_avg_node_velocity = (m_avg_node_position - m_avg_node_position_prev) / dt;
 }
 
-void Actor::resetAngle(float rot)
+void Actor::ResetAngle(float rot)
 {
     // Set origin of rotation to camera node
     Vector3 origin = ar_nodes[0].AbsPosition;
@@ -1380,7 +1380,7 @@ void Actor::resetAngle(float rot)
     calculateAveragePosition();
 }
 
-void Actor::resetPosition(float px, float pz, bool setInitPosition, float miny)
+void Actor::ResetPosition(float px, float pz, bool setInitPosition, float miny)
 {
     // horizontal displacement
     Vector3 offset = Vector3(px, ar_nodes[0].AbsPosition.y, pz) - ar_nodes[0].AbsPosition;
@@ -1435,10 +1435,10 @@ void Actor::resetPosition(float px, float pz, bool setInitPosition, float miny)
         ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - ar_origin;
     }
 
-    resetPosition(Vector3::ZERO, setInitPosition);
+    ResetPosition(Vector3::ZERO, setInitPosition);
 }
 
-void Actor::resetPosition(Vector3 translation, bool setInitPosition)
+void Actor::ResetPosition(Vector3 translation, bool setInitPosition)
 {
     // total displacement
     if (translation != Vector3::ZERO)
@@ -1479,7 +1479,7 @@ void Actor::resetPosition(Vector3 translation, bool setInitPosition)
     resetSlideNodePositions();
 }
 
-void Actor::mouseMove(int node, Vector3 pos, float force)
+void Actor::HandleMouseMove(int node, Vector3 pos, float force)
 {
     m_mouse_grab_node = node;
     m_mouse_grab_move_force = force;
@@ -1574,7 +1574,7 @@ String Actor::getAxleLockName()
     return m_axles[0]->getDiffTypeName();
 }
 
-void Actor::reset(bool keepPosition)
+void Actor::RequestActorReset(bool keepPosition)
 {
     if (keepPosition)
         m_reset_request = REQUEST_RESET_ON_SPOT;
@@ -1586,7 +1586,7 @@ void Actor::displace(Vector3 translation, float rotation)
 {
     if (rotation != 0.0f)
     {
-        Vector3 rotation_center = getRotationCenter();
+        Vector3 rotation_center = GetRotationCenter();
         Quaternion rot = Quaternion(Radian(rotation), Vector3::UNIT_Y);
 
         for (int i = 0; i < ar_num_nodes; i++)
@@ -1614,7 +1614,7 @@ void Actor::displace(Vector3 translation, float rotation)
     }
 }
 
-Ogre::Vector3 Actor::getRotationCenter()
+Ogre::Vector3 Actor::GetRotationCenter()
 {
     Vector3 rotation_center = Vector3::ZERO;
 
@@ -1732,7 +1732,7 @@ void Actor::SyncReset()
     if (m_buoyance)
         m_buoyance->setsink(0);
     m_ref_tyre_pressure = 50.0;
-    this->addPressure(0.0);
+    this->AddTyrePressure(0.0);
 
     if (ar_autopilot)
         this->resetAutopilot();
@@ -1745,8 +1745,8 @@ void Actor::SyncReset()
     // reset on spot with backspace
     if (m_reset_request != REQUEST_RESET_ON_INIT_POS)
     {
-        this->resetAngle(cur_rot);
-        this->resetPosition(cur_position.x, cur_position.z, false, yPos);
+        this->ResetAngle(cur_rot);
+        this->ResetPosition(cur_position.x, cur_position.z, false, yPos);
     }
 
     // reset commands (self centering && push once/twice forced to terminate moving commands)
@@ -1769,7 +1769,7 @@ void Actor::SyncReset()
     }
 }
 
-bool Actor::replayStep()
+bool Actor::ReplayStep()
 {
     if (!ar_replay_mode || !m_replay_handler || !m_replay_handler->isValid())
         return false;
@@ -1820,7 +1820,7 @@ void Actor::ForceFeedbackStep(int steps)
     }
 }
 
-void Actor::updateAngelScriptEvents(float dt)
+void Actor::UpdateAngelScriptEvents(float dt)
 {
 #ifdef USE_ANGELSCRIPT
 
@@ -1833,7 +1833,7 @@ void Actor::updateAngelScriptEvents(float dt)
 #endif // USE_ANGELSCRIPT
 }
 
-void Actor::handleResetRequests(float dt)
+void Actor::HandleResetRequests(float dt)
 {
     if (m_reset_request)
         SyncReset();
@@ -2015,7 +2015,7 @@ void Actor::receiveStreamData(unsigned int type, int source, unsigned int stream
     BES_GFX_START(BES_GFX_receiveStreamData);
     if (type == RoRnet::MSG2_STREAM_DATA && source == ar_net_source_id && streamid == ar_net_stream_id)
     {
-        pushNetwork(buffer, len);
+        PushNetwork(buffer, len);
     }
     BES_GFX_STOP(BES_GFX_receiveStreamData);
 }
@@ -2687,7 +2687,7 @@ void Actor::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt,
                             if (update)
                             {
                                 //autolock hooktoggle unlock
-                                hookToggle(ar_beams[i].shock->trigger_cmdlong, HOOK_UNLOCK, -1);
+                                ToggleHooks(ar_beams[i].shock->trigger_cmdlong, HOOK_UNLOCK, -1);
                             }
                         }
                         else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_LOCK)
@@ -2695,12 +2695,12 @@ void Actor::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt,
                             if (update)
                             {
                                 //autolock hooktoggle lock
-                                hookToggle(ar_beams[i].shock->trigger_cmdlong, HOOK_LOCK, -1);
+                                ToggleHooks(ar_beams[i].shock->trigger_cmdlong, HOOK_LOCK, -1);
                             }
                         }
                         else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE)
                         {
-                            engineTriggerHelper(ar_beams[i].shock->trigger_cmdshort, ar_beams[i].shock->trigger_cmdlong, 1.0f);
+                            EngineTriggerHelper(ar_beams[i].shock->trigger_cmdshort, ar_beams[i].shock->trigger_cmdlong, 1.0f);
                         }
                         else
                         {
@@ -2726,7 +2726,7 @@ void Actor::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt,
                             if (update)
                             {
                                 //autolock hooktoggle unlock
-                                hookToggle(ar_beams[i].shock->trigger_cmdshort, HOOK_UNLOCK, -1);
+                                ToggleHooks(ar_beams[i].shock->trigger_cmdshort, HOOK_UNLOCK, -1);
                             }
                         }
                         else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_LOCK)
@@ -2734,14 +2734,14 @@ void Actor::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt,
                             if (update)
                             {
                                 //autolock hooktoggle lock
-                                hookToggle(ar_beams[i].shock->trigger_cmdshort, HOOK_LOCK, -1);
+                                ToggleHooks(ar_beams[i].shock->trigger_cmdshort, HOOK_LOCK, -1);
                             }
                         }
                         else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE)
                         {
                             bool triggerValue = !(ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CONTINUOUS); // 0 if trigger is continuous, 1 otherwise
 
-                            engineTriggerHelper(ar_beams[i].shock->trigger_cmdshort, ar_beams[i].shock->trigger_cmdlong, triggerValue);
+                            EngineTriggerHelper(ar_beams[i].shock->trigger_cmdshort, ar_beams[i].shock->trigger_cmdlong, triggerValue);
                         }
                         else
                         {
@@ -2777,7 +2777,7 @@ void Actor::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt,
 
                         if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE) // this trigger controls an engine
                         {
-                            engineTriggerHelper(ar_beams[i].shock->trigger_cmdshort, ar_beams[i].shock->trigger_cmdlong, triggerValue);
+                            EngineTriggerHelper(ar_beams[i].shock->trigger_cmdshort, ar_beams[i].shock->trigger_cmdlong, triggerValue);
                         }
                         else
                         {
@@ -2984,7 +2984,7 @@ void Actor::prepareInside(bool inside)
     }
 }
 
-void Actor::lightsToggle()
+void Actor::ToggleLights()
 {
     // no lights toggling in skeleton mode because of possible bug with emissive texture
     if (ar_skeletonview_is_active)
@@ -3001,7 +3001,7 @@ void Actor::lightsToggle()
         for (int i = 0; i < num_actor_slots; i++)
         {
             if (actor_slots[i] && actor_slots[i]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this->ar_instance_id != i && actor_slots[i]->ar_import_commands)
-                actor_slots[i]->lightsToggle();
+                actor_slots[i]->ToggleLights();
         }
     }
     ar_lights = !ar_lights;
@@ -3450,7 +3450,7 @@ void Actor::updateProps()
     BES_GFX_STOP(BES_GFX_updateProps);
 }
 
-void Actor::toggleCustomParticles()
+void Actor::ToggleCustomParticles()
 {
     m_custom_particles_enabled = !m_custom_particles_enabled;
     for (int i = 0; i < ar_num_custom_particles; i++)
@@ -3466,7 +3466,7 @@ void Actor::toggleCustomParticles()
     TRIGGER_EVENT(SE_TRUCK_CPARTICLES_TOGGLE, ar_instance_id);
 }
 
-void Actor::updateSoundSources()
+void Actor::UpdateSoundSources()
 {
     BES_GFX_START(BES_GFX_updateSoundSources);
 #ifdef USE_OPENAL
@@ -3579,7 +3579,7 @@ void Actor::updateVisual(float dt)
 
     Vector3 ref(Vector3::UNIT_Y);
     autoBlinkReset();
-    updateSoundSources();
+    UpdateSoundSources();
 
     if (m_debug_visuals)
         updateDebugOverlay();
@@ -4203,7 +4203,7 @@ void Actor::DisjoinInterActorBeams()
     }
 }
 
-void Actor::tieToggle(int group)
+void Actor::ToggleTies(int group)
 {
     //TODO: Refactor this - logic iterating over all actors should be in `ActorManager`! ~ only_a_ptr, 01/2018
     Actor** actor_slots = App::GetSimController()->GetBeamFactory()->GetInternalActorSlots();
@@ -4216,7 +4216,7 @@ void Actor::tieToggle(int group)
         for (int i = 0; i < num_actor_slots; i++)
         {
             if (actor_slots[i] && actor_slots[i]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this->ar_instance_id != i && actor_slots[i]->ar_import_commands)
-                actor_slots[i]->tieToggle(group);
+                actor_slots[i]->ToggleTies(group);
         }
     }
 
@@ -4328,7 +4328,7 @@ void Actor::tieToggle(int group)
     TRIGGER_EVENT(SE_TRUCK_TIE_TOGGLE, ar_instance_id);
 }
 
-void Actor::ropeToggle(int group)
+void Actor::ToggleRopes(int group)
 {
     Actor** actor_slots = App::GetSimController()->GetBeamFactory()->GetInternalActorSlots();
     int num_actor_slots = App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots();
@@ -4397,7 +4397,7 @@ void Actor::ropeToggle(int group)
     }
 }
 
-void Actor::hookToggle(int group, hook_states mode, int node_number)
+void Actor::ToggleHooks(int group, hook_states mode, int node_number)
 {
     Actor** actor_slots = App::GetSimController()->GetBeamFactory()->GetInternalActorSlots();
     int num_actor_slots = App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots();
@@ -4891,7 +4891,7 @@ void Actor::updateDebugOverlay()
     }
 }
 
-void Actor::updateNetworkInfo()
+void Actor::UpdateNetworkInfo()
 {
     if (!(RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED))
         return;
@@ -5497,7 +5497,7 @@ Vector3 Actor::getGForces()
     return Vector3::ZERO;
 }
 
-void Actor::engineTriggerHelper(int engineNumber, int type, float triggerValue)
+void Actor::EngineTriggerHelper(int engineNumber, int type, float triggerValue)
 {
     // engineNumber tells us which engine
     BeamEngine* e = ar_engine; // placeholder: actors do not have multiple engines yet
@@ -5711,7 +5711,7 @@ Actor::Actor(
 
     if (strnlen(fname, 200) > 0)
     {
-        if (! LoadTruck(rig_loading_profiler, fname, beams_parent, pos, rot, spawnbox, cache_entry_number))
+        if (! LoadActor(rig_loading_profiler, fname, beams_parent, pos, rot, spawnbox, cache_entry_number))
         {
             LOG(" ===== FAILED LOADING VEHICLE: " + Ogre::String(fname));
             ar_sim_state = SimState::INVALID;
@@ -5774,7 +5774,7 @@ Actor::Actor(
     UpdateFlexbodiesFinal();
     updateVisual();
     // stop lights
-    lightsToggle();
+    ToggleLights();
 
     updateFlares(0);
     updateProps();
@@ -5783,7 +5783,7 @@ Actor::Actor(
         ar_engine->offstart();
     }
     // pressurize tires
-    addPressure(0.0);
+    AddTyrePressure(0.0);
 
     CreateSimpleSkeletonMaterial();
 
@@ -5837,7 +5837,7 @@ Actor::Actor(
     LOG(" ===== DONE LOADING VEHICLE");
 }
 
-bool Actor::LoadTruck(
+bool Actor::LoadActor(
     RoR::RigLoadingProfiler* rig_loading_profiler,
     Ogre::String const& file_name,
     Ogre::SceneNode* parent_scene_node,
@@ -6031,9 +6031,9 @@ bool Actor::LoadTruck(
         }
 
         if (m_spawn_free_positioned)
-            resetPosition(vehicle_position, true);
+            ResetPosition(vehicle_position, true);
         else
-            resetPosition(vehicle_position.x, vehicle_position.z, true, miny);
+            ResetPosition(vehicle_position.x, vehicle_position.z, true, miny);
 
         if (spawn_box != nullptr)
         {
@@ -6048,13 +6048,13 @@ bool Actor::LoadTruck(
 
                 gpos -= spawn_rotation * Vector3((spawn_box->hi.x - spawn_box->lo.x + ar_bounding_box.getMaximum().x - ar_bounding_box.getMinimum().x) * 0.6f, 0.0f, 0.0f);
 
-                resetPosition(gpos.x, gpos.z, true, miny);
+                ResetPosition(gpos.x, gpos.z, true, miny);
             }
         }
     }
     else
     {
-        resetPosition(spawn_position, true);
+        ResetPosition(spawn_position, true);
     }
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_FIXES);
 

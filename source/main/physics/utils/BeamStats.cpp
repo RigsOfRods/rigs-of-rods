@@ -70,8 +70,8 @@ BeamEngineStats::BeamEngineStats()
 
     typeDescriptions_gfx[BES_GFX_UpdateSkeleton]            = "UpdateSkeleton";
     typeDescriptions_gfx[BES_GFX_ScaleTruck]                = "ScaleTruck";
-    typeDescriptions_gfx[BES_GFX_pushNetwork]               = "pushNetwork";
-    typeDescriptions_gfx[BES_GFX_calcNetwork]               = "calcNetwork";
+    typeDescriptions_gfx[BES_GFX_pushNetwork]               = "PushNetwork";
+    typeDescriptions_gfx[BES_GFX_calcNetwork]               = "CalcNetwork";
     typeDescriptions_gfx[BES_GFX_calc_masses2]              = "calc_masses2";
     typeDescriptions_gfx[BES_GFX_calcBox]                   = "calcBox";
     typeDescriptions_gfx[BES_GFX_calcNodeConnectivityGraph] = "calcNodeConGraph";
@@ -82,10 +82,10 @@ BeamEngineStats::BeamEngineStats()
     typeDescriptions_gfx[BES_GFX_calcAnimators]             = "calcAnimators";
     typeDescriptions_gfx[BES_GFX_updateFlares]              = "updateFlares";
     typeDescriptions_gfx[BES_GFX_updateProps]               = "updateProps";
-    typeDescriptions_gfx[BES_GFX_updateSoundSources]        = "updateSoundSources";
+    typeDescriptions_gfx[BES_GFX_updateSoundSources]        = "UpdateSoundSources";
     typeDescriptions_gfx[BES_GFX_updateVisual]              = "updateVisual";
     typeDescriptions_gfx[BES_GFX_updateFlexBodies]          = "updateFlexBodies";
-    typeDescriptions_gfx[BES_GFX_updateNetworkInfo]         = "updateNetworkInfo";
+    typeDescriptions_gfx[BES_GFX_updateNetworkInfo]         = "UpdateNetworkInfo";
 
     stats->setCaption("calculating ...");
 }
