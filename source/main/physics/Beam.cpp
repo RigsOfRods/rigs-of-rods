@@ -161,28 +161,28 @@ Beam::~Beam()
 
     // TODO: Make sure we catch everything here
     // remove all scene nodes
-    if (deletion_sceneNodes.size() > 0)
+    if (m_deletion_scene_nodes.size() > 0)
     {
-        for (unsigned int i = 0; i < deletion_sceneNodes.size(); i++)
+        for (unsigned int i = 0; i < m_deletion_scene_nodes.size(); i++)
         {
-            if (!deletion_sceneNodes[i])
+            if (!m_deletion_scene_nodes[i])
                 continue;
-            deletion_sceneNodes[i]->removeAndDestroyAllChildren();
-            gEnv->sceneManager->destroySceneNode(deletion_sceneNodes[i]);
+            m_deletion_scene_nodes[i]->removeAndDestroyAllChildren();
+            gEnv->sceneManager->destroySceneNode(m_deletion_scene_nodes[i]);
         }
-        deletion_sceneNodes.clear();
+        m_deletion_scene_nodes.clear();
     }
     // remove all entities
-    if (deletion_Entities.size() > 0)
+    if (m_deletion_entities.size() > 0)
     {
-        for (unsigned int i = 0; i < deletion_Entities.size(); i++)
+        for (unsigned int i = 0; i < m_deletion_entities.size(); i++)
         {
-            if (!deletion_Entities[i])
+            if (!m_deletion_entities[i])
                 continue;
-            deletion_Entities[i]->detachAllObjectsFromBone();
-            gEnv->sceneManager->destroyEntity(deletion_Entities[i]->getName());
+            m_deletion_entities[i]->detachAllObjectsFromBone();
+            gEnv->sceneManager->destroyEntity(m_deletion_entities[i]->getName());
         }
-        deletion_Entities.clear();
+        m_deletion_entities.clear();
     }
 
     // delete wings
@@ -4722,17 +4722,17 @@ void Beam::setDebugOverlayState(int mode)
             t.txt->setRenderingDistance(2);
 
             t.node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-            deletion_sceneNodes.emplace_back(t.node);
+            m_deletion_scene_nodes.emplace_back(t.node);
             t.node->attachObject(t.txt);
             t.node->setPosition(ar_nodes[i].AbsPosition);
             t.node->setScale(Vector3(0.05, 0.05, 0.05));
 
             // collision nodes debug, also mimics as node visual
             SceneNode* s = t.node->createChildSceneNode();
-            deletion_sceneNodes.emplace_back(s);
+            m_deletion_scene_nodes.emplace_back(s);
             RigSpawner::ComposeName(element_name, "DbgEntity", i, ar_instance_id);
             Entity* b = gEnv->sceneManager->createEntity(element_name.ToCStr(), "sphere.mesh");
-            deletion_Entities.emplace_back(b);
+            m_deletion_entities.emplace_back(b);
             b->setMaterialName("tracks/transgreen");
             s->attachObject(b);
             float f = 0.005f;
@@ -4757,7 +4757,7 @@ void Beam::setDebugOverlayState(int mode)
             t.txt->setRenderingDistance(2);
 
             t.node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-            deletion_sceneNodes.emplace_back(t.node);
+            m_deletion_scene_nodes.emplace_back(t.node);
             t.node->attachObject(t.txt);
 
             Vector3 pos = ar_beams[i].p1->AbsPosition - (ar_beams[i].p1->AbsPosition - ar_beams[i].p2->AbsPosition) / 2;
@@ -5823,7 +5823,7 @@ Beam::Beam(
             m_net_label_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
             m_net_label_node->attachObject(m_net_label_mt);
             m_net_label_node->setVisible(true);
-            deletion_sceneNodes.emplace_back(m_net_label_node);
+            m_deletion_scene_nodes.emplace_back(m_net_label_node);
         }
     }
 
