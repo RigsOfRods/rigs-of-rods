@@ -153,9 +153,9 @@ Beam::~Beam()
         delete m_replay_handler;
     m_replay_handler = nullptr;
 
-    if (vehicle_ai)
-        delete vehicle_ai;
-    vehicle_ai = 0;
+    if (ar_vehicle_ai)
+        delete ar_vehicle_ai;
+    ar_vehicle_ai = 0;
 
     // TODO: Make sure we catch everything here
     // remove all scene nodes
@@ -349,20 +349,27 @@ Beam::~Beam()
     {
         m_net_label_mt->setVisible(false);
         delete m_net_label_mt;
-        m_net_label_mt = 0;
+        m_net_label_mt = nullptr;
     }
 
-    if (intraPointCD)
-        delete intraPointCD;
-    if (interPointCD)
-        delete interPointCD;
+    if (m_intra_point_col_detector)
+    {
+        delete m_intra_point_col_detector;
+        m_intra_point_col_detector = nullptr;
+    }
 
-    if (cmdInertia)
-        delete cmdInertia;
-    if (hydroInertia)
-        delete hydroInertia;
-    if (rotaInertia)
-        delete rotaInertia;
+    if (m_inter_point_col_detector)
+    {
+        delete m_inter_point_col_detector;
+        m_inter_point_col_detector = nullptr;
+    }
+
+    if (m_command_inertia)
+        delete m_command_inertia;
+    if (m_hydro_inertia)
+        delete m_hydro_inertia;
+    if (m_rotator_inertia)
+        delete m_rotator_inertia;
 
     for (int i = 0; i < free_axle; ++i)
     {
@@ -1073,10 +1080,11 @@ Vector3 Beam::calculateCollisionOffset(Vector3 direction)
     Beam** trucks = m_sim_controller->GetBeamFactory()->getTrucks();
     int trucksnum = m_sim_controller->GetBeamFactory()->getTruckCount();
 
-    if (intraPointCD)
-        intraPointCD->update(this, true);
-    if (interPointCD)
-        interPointCD->update(this, trucks, trucksnum, true);
+    if (m_intra_point_col_detector)
+        m_intra_point_col_detector->update(this, true);
+
+    if (m_inter_point_col_detector)
+        m_inter_point_col_detector->update(this, trucks, trucksnum, true);
 
     // collision displacement
     Vector3 collision_offset = Vector3::ZERO;
@@ -1091,7 +1099,7 @@ Vector3 Beam::calculateCollisionOffset(Vector3 direction)
             continue;
 
         // Test own contacters against others cabs
-        if (intraPointCD)
+        if (m_intra_point_col_detector)
         {
             for (int i = 0; i < trucks[t]->free_collcab; i++)
             {
@@ -1105,12 +1113,12 @@ Vector3 Beam::calculateCollisionOffset(Vector3 direction)
                     node_t* na = &trucks[t]->ar_nodes[cabs[tmpv + 1]];
                     node_t* nb = &trucks[t]->ar_nodes[cabs[tmpv + 2]];
 
-                    intraPointCD->query(no->AbsPosition + offset,
+                    m_intra_point_col_detector->query(no->AbsPosition + offset,
                         na->AbsPosition + offset,
                         nb->AbsPosition + offset,
                         collrange);
 
-                    if (intraPointCD->hit_count == 0)
+                    if (m_intra_point_col_detector->hit_count == 0)
                     {
                         collision_offset = offset;
                         break;
@@ -1160,7 +1168,7 @@ Vector3 Beam::calculateCollisionOffset(Vector3 direction)
     }
 
     // Test own cabs against others contacters
-    if (interPointCD)
+    if (m_inter_point_col_detector)
     {
         for (int i = 0; i < free_collcab; i++)
         {
@@ -1174,12 +1182,12 @@ Vector3 Beam::calculateCollisionOffset(Vector3 direction)
                 node_t* na = &ar_nodes[cabs[tmpv + 1]];
                 node_t* nb = &ar_nodes[cabs[tmpv + 2]];
 
-                interPointCD->query(no->AbsPosition + offset,
+                m_inter_point_col_detector->query(no->AbsPosition + offset,
                     na->AbsPosition + offset,
                     nb->AbsPosition + offset,
                     collrange);
 
-                if (interPointCD->hit_count == 0)
+                if (m_inter_point_col_detector->hit_count == 0)
                 {
                     collision_offset = offset;
                     break;
@@ -1246,25 +1254,25 @@ void Beam::resolveCollisions(float max_distance, bool consider_up)
 
 int Beam::savePosition(int indexPosition)
 {
-    if (!posStorage)
+    if (!m_position_storage)
         return -1;
-    Vector3* nbuff = posStorage->getStorage(indexPosition);
+    Vector3* nbuff = m_position_storage->getStorage(indexPosition);
     if (!nbuff)
         return -3;
     for (int i = 0; i < ar_num_nodes; i++)
         nbuff[i] = ar_nodes[i].AbsPosition;
-    posStorage->setUsage(indexPosition, true);
+    m_position_storage->setUsage(indexPosition, true);
     return 0;
 }
 
 int Beam::loadPosition(int indexPosition)
 {
-    if (!posStorage)
+    if (!m_position_storage)
         return -1;
-    if (!posStorage->getUsage(indexPosition))
+    if (!m_position_storage->getUsage(indexPosition))
         return -2;
 
-    Vector3* nbuff = posStorage->getStorage(indexPosition);
+    Vector3* nbuff = m_position_storage->getStorage(indexPosition);
     if (!nbuff)
         return -3;
     Vector3 pos = Vector3(0, 0, 0);
@@ -1640,8 +1648,8 @@ void Beam::SyncReset()
     hydrorudderstate = 0.0;
     hydroelevatorstate = 0.0;
     hydrodirwheeldisplay = 0.0;
-    if (hydroInertia)
-        hydroInertia->resetCmdKeyDelay();
+    if (m_hydro_inertia)
+        m_hydro_inertia->resetCmdKeyDelay();
     parkingbrake = 0;
     cc_mode = false;
     ar_fusedrag = Vector3::ZERO;
@@ -3258,16 +3266,16 @@ void Beam::updateFlares(float dt, bool isCurrent)
         }
         else if (flares[i].type == 'l')
         {
-            isvisible = (blinkingtype == BLINK_LEFT || blinkingtype == BLINK_WARN);
+            isvisible = (m_blink_type == BLINK_LEFT || m_blink_type == BLINK_WARN);
         }
         else if (flares[i].type == 'r')
         {
-            isvisible = (blinkingtype == BLINK_RIGHT || blinkingtype == BLINK_WARN);
+            isvisible = (m_blink_type == BLINK_RIGHT || m_blink_type == BLINK_WARN);
         }
         // apply blinking
         isvisible = isvisible && flares[i].blinkdelay_state;
 
-        if (flares[i].type == 'l' && blinkingtype == BLINK_LEFT)
+        if (flares[i].type == 'l' && m_blink_type == BLINK_LEFT)
         {
             ar_left_blink_on = isvisible;
 
@@ -3276,7 +3284,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
 
             ar_dashboard->setBool(DD_SIGNAL_TURNLEFT, isvisible);
         }
-        else if (flares[i].type == 'r' && blinkingtype == BLINK_RIGHT)
+        else if (flares[i].type == 'r' && m_blink_type == BLINK_RIGHT)
         {
             ar_right_blink_on = isvisible;
 
@@ -3285,7 +3293,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
 
             ar_dashboard->setBool(DD_SIGNAL_TURNRIGHT, isvisible);
         }
-        else if (flares[i].type == 'l' && blinkingtype == BLINK_WARN)
+        else if (flares[i].type == 'l' && m_blink_type == BLINK_WARN)
         {
             ar_warn_blink_on = isvisible;
 
@@ -3353,7 +3361,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
 
 void Beam::setBlinkType(blinktype blink)
 {
-    blinkingtype = blink;
+    m_blink_type = blink;
 
     ar_left_blink_on = false;
     ar_right_blink_on = false;
@@ -3505,41 +3513,41 @@ void Beam::updateFlexbodiesPrepare()
 
     if (gEnv->threadPool)
     {
-        flexmesh_prepare.reset();
+        m_flexmesh_prepare.reset();
         for (int i = 0; i < free_wheel; i++)
         {
-            flexmesh_prepare.set(i, vwheels[i].cnode && vwheels[i].fm->flexitPrepare());
+            m_flexmesh_prepare.set(i, vwheels[i].cnode && vwheels[i].fm->flexitPrepare());
         }
 
-        flexbody_prepare.reset();
+        m_flexbody_prepare.reset();
         for (int i = 0; i < free_flexbody; i++)
         {
-            flexbody_prepare.set(i, flexbodies[i]->flexitPrepare());
+            m_flexbody_prepare.set(i, flexbodies[i]->flexitPrepare());
         }
 
         // Push tasks into thread pool
         for (int i = 0; i < free_flexbody; i++)
         {
-            if (flexbody_prepare[i])
+            if (m_flexbody_prepare[i])
             {
                 auto func = std::function<void()>([this, i]()
                     {
                         flexbodies[i]->flexitCompute();
                     });
                 auto task_handle = gEnv->threadPool->RunTask(func);
-                flexbody_tasks.push_back(task_handle);
+                m_flexbody_tasks.push_back(task_handle);
             }
         }
         for (int i = 0; i < free_wheel; i++)
         {
-            if (flexmesh_prepare[i])
+            if (m_flexmesh_prepare[i])
             {
                 auto func = std::function<void()>([this, i]()
                     {
                         vwheels[i].fm->flexitCompute();
                     });
                 auto task_handle = gEnv->threadPool->RunTask(func);
-                flexbody_tasks.push_back(task_handle);
+                m_flexbody_tasks.push_back(task_handle);
             }
         }
     }
@@ -3580,11 +3588,11 @@ void Beam::updateVisual(float dt)
     if (driveable == AIRPLANE && ar_sim_state != SimState::LOCAL_SLEEPING)
     {
         // play random chatter at random time
-        avichatter_timer -= dt;
-        if (avichatter_timer < 0)
+        m_avionic_chatter_timer -= dt;
+        if (m_avionic_chatter_timer < 0)
         {
             SOUND_PLAY_ONCE(trucknum, SS_TRIG_AVICHAT01 + Math::RangeRandom(0, 12));
-            avichatter_timer = Math::RangeRandom(11, 30);
+            m_avionic_chatter_timer = Math::RangeRandom(11, 30);
         }
     }
 #endif //openAL
@@ -3758,11 +3766,11 @@ void Beam::joinFlexbodyTasks()
 {
     if (gEnv->threadPool)
     {
-        for (const auto& t : flexbody_tasks)
+        for (const auto& t : m_flexbody_tasks)
         {
             t->join();
         }
-        flexbody_tasks.clear();
+        m_flexbody_tasks.clear();
     }
 }
 
@@ -3774,12 +3782,12 @@ void Beam::updateFlexbodiesFinal()
 
         for (int i = 0; i < free_wheel; i++)
         {
-            if (flexmesh_prepare[i])
+            if (m_flexmesh_prepare[i])
                 vwheels[i].cnode->setPosition(vwheels[i].fm->flexitFinal());
         }
         for (int i = 0; i < free_flexbody; i++)
         {
-            if (flexbody_prepare[i])
+            if (m_flexbody_prepare[i])
                 flexbodies[i]->flexitFinal();
         }
     }
@@ -5545,10 +5553,10 @@ Beam::Beam(
     , m_hud_features_ok(false)
     , m_sim_controller(sim_controller)
     , aileron(0)
-    , avichatter_timer(11.0f) // some pseudo random number,  doesn't matter
+    , m_avionic_chatter_timer(11.0f) // some pseudo random number,  doesn't matter
     , m_beacon_light_is_active(false)
     , ar_beams_visible(true)
-    , blinkingtype(BLINK_NONE)
+    , m_blink_type(BLINK_NONE)
     , m_blinker_autoreset(false)
     , brake(0.0)
     , m_cab_fade_mode(0)
@@ -5568,7 +5576,7 @@ Beam::Beam(
     , elevator(0)
     , ar_aerial_flap(0)
     , ar_fusedrag(Ogre::Vector3::ZERO)
-    , high_res_wheelnode_collisions(false)
+    , m_high_res_wheelnode_collisions(false)
     , hydroaileroncommand(0)
     , hydroaileronstate(0)
     , hydrodircommand(0)
@@ -5580,8 +5588,8 @@ Beam::Beam(
     , hydrorudderstate(0)
     , iPosition(pos)
     , m_increased_accuracy(false)
-    , interPointCD()
-    , intraPointCD()
+    , m_inter_point_col_detector(nullptr)
+    , m_intra_point_col_detector(nullptr)
     , ar_net_last_update_time(0)
     , lastposition(pos)
     , ar_left_mirror_angle(0.52)
@@ -5611,7 +5619,7 @@ Beam::Beam(
     , m_net_reverse_light(false)
     , m_replay_pos_prev(-1)
     , parkingbrake(0)
-    , posStorage(0)
+    , m_position_storage(0)
     , position(pos)
     , m_previous_gear(0)
     , m_ref_tyre_pressure(50.0)
@@ -5628,8 +5636,6 @@ Beam::Beam(
     , m_skeletonview_manual_mesh(0)
     , ar_update_physics(false)
     , sleeptime(0.0f)
-    , smokeNode(NULL)
-    , smoker(NULL)
     , m_stabilizer_shock_request(0)
     , m_stabilizer_shock_ratio(0.0)
     , m_stabilizer_shock_sleep(0.0)
@@ -5637,14 +5643,14 @@ Beam::Beam(
     , m_water_contact(false)
     , m_water_contact_old(false)
 {
-    high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();
+    m_high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();
     useSkidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;
     LOG(" ===== LOADING VEHICLE: " + Ogre::String(fname));
 
     /* struct <rig_t> parameters */
 
     trucknum = truck_number;
-    freePositioned = freeposition;
+    m_spawn_free_positioned = freeposition;
     usedSkin = skin;
     networking = _networking;
     memset(truckname, 0, 256);
@@ -5702,7 +5708,7 @@ Beam::Beam(
     // add storage
     if (App::sim_position_storage.GetActive())
     {
-        posStorage = new PositionStorage(ar_num_nodes, 10);
+        m_position_storage = new PositionStorage(ar_num_nodes, 10);
     }
 
     // calculate the number of wheel nodes
@@ -5995,7 +6001,7 @@ bool Beam::LoadTruck(
             miny = spawn_box->relo.y + spawn_box->center.y;
         }
 
-        if (freePositioned)
+        if (m_spawn_free_positioned)
             resetPosition(vehicle_position, true);
         else
             resetPosition(vehicle_position.x, vehicle_position.z, true, miny);
@@ -6331,7 +6337,7 @@ bool Beam::getBeaconMode() // Angelscript export
 
 blinktype Beam::getBlinkType()
 {
-    return blinkingtype;
+    return m_blink_type;
 }
 
 bool Beam::getCustomParticleMode()

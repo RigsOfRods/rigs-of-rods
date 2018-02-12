@@ -875,8 +875,8 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         {
             cstate /= (float)div;
 
-            if (hydroInertia)
-                cstate = hydroInertia->calcCmdKeyDelay(cstate, i, dt);
+            if (m_hydro_inertia)
+                cstate = m_hydro_inertia->calcCmdKeyDelay(cstate, i, dt);
 
             if (!(ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_SPEED) && !flagstate)
                 hydrodirwheeldisplay = cstate;
@@ -1058,8 +1058,8 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
                             }
                         }
 
-                        if (cmdInertia)
-                            v = cmdInertia->calcCmdKeyDelay(v, i, dt);
+                        if (m_command_inertia)
+                            v = m_command_inertia->calcCmdKeyDelay(v, i, dt);
 
                         if (bbeam_dir * ar_beams[bbeam].autoMovingMode > 0)
                             v = 1;
@@ -1127,9 +1127,9 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
                 if (ar_rotators[rota].rotatorNeedsEngine && ((engine && !engine->isRunning()) || !canwork))
                     continue;
 
-                if (rotaInertia)
+                if (m_rotator_inertia)
                 {
-                    v = rotaInertia->calcCmdKeyDelay(commandkey[i].commandValue, i, dt);
+                    v = m_rotator_inertia->calcCmdKeyDelay(commandkey[i].commandValue, i, dt);
 
                     if (v > 0.0f && ar_rotators[rota].rotatorEngineCoupling > 0.0f)
                         requestpower = true;
@@ -1750,7 +1750,7 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
         if (!ar_nodes[i].contactless)
         {
             ar_nodes[i].collTestTimer += dt;
-            if (ar_nodes[i].contacted || ar_nodes[i].collTestTimer > 0.005 || ((ar_nodes[i].iswheel || ar_nodes[i].wheelid != -1) && (high_res_wheelnode_collisions || ar_nodes[i].collTestTimer > 0.0025)) || m_increased_accuracy)
+            if (ar_nodes[i].contacted || ar_nodes[i].collTestTimer > 0.005 || ((ar_nodes[i].iswheel || ar_nodes[i].wheelid != -1) && (m_high_res_wheelnode_collisions || ar_nodes[i].collTestTimer > 0.0025)) || m_increased_accuracy)
             {
                 float ns = 0;
                 ground_model_t* gm = 0; // this is used as result storage, so we can use it later on
@@ -1936,7 +1936,7 @@ void Beam::forwardCommands()
 
                     // forward lights
                     it->lockTruck->lights = lights;
-                    it->lockTruck->blinkingtype = blinkingtype;
+                    it->lockTruck->m_blink_type = m_blink_type;
                     //for (int k=0; k<4; k++)
                     //	lockTruck->setCustomLight(k, getCustomLight(k));
                     //forward reverse light e.g. for trailers
