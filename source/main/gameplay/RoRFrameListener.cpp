@@ -1994,7 +1994,7 @@ void RoRFrameListener::RemovePlayerActor()
 {
     Actor* actor = m_actor_manager.GetPlayerActorInternal();
     this->SetPlayerActor(nullptr);
-    m_actor_manager.removeTruck(actor->ar_instance_id);
+    m_actor_manager.RemoveActorInternal(actor->ar_instance_id);
 }
 
 void RoRFrameListener::RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name)
