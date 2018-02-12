@@ -97,7 +97,7 @@ void AircraftSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_last_
     }
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_PARKING_BRAKE))
     {
-        vehicle->parkingbrakeToggle();
+        vehicle->ToggleParkingBrake();
         if (RoR::App::GetOverlayWrapper())
         {
             if (vehicle->ar_parking_brake)

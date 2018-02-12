@@ -46,18 +46,18 @@ public:
 
     enum class SimState
     {
-        LOCAL_SIMULATED,  //!< simulated (local) truck
-        NETWORKED_OK,     //!< not simulated (remote) truck
-        LOCAL_SLEEPING,   //!< sleeping (local) truck
+        LOCAL_SIMULATED,  //!< simulated (local) actor
+        NETWORKED_OK,     //!< not simulated (remote) actor
+        LOCAL_SLEEPING,   //!< sleeping (local) actor
         INVALID           //!< not simulated and not updated via the network (e.g. size differs from expected)
     };
 
-    /// @param tnum Vehicle number (alias Truck Number)
+    /// @param actor_id Unique ID (previously 'truck number' or 'trucknum')
     /// @param pos
     /// @param rot
     /// @param fname Rig file name.
     /// @param ismachine (see BeamData.h)
-    /// @param truckconfig Networking related.
+    /// @param actor_config Networking related.
     /// @param preloaded_with_terrain Is this rig being pre-loaded along with terrain?
     /// @param cache_entry_number Needed for flexbody caching. Pass -1 if unavailable (flexbody caching will be disabled)
     Actor(
@@ -90,7 +90,7 @@ public:
         int cache_entry_number = -1
     );
 
-    void              PushNetwork(char* data, int size);   //!< Parses network data; fills truck data buffers and flips them. Called by the network thread.
+    void              PushNetwork(char* data, int size);   //!< Parses network data; fills actor's data buffers and flips them. Called by the network thread.
     void              CalcNetwork();
     void              UpdateNetworkInfo();
     bool              AddTyrePressure(float v);
@@ -106,7 +106,7 @@ public:
     void              ResetPosition(Ogre::Vector3 translation, bool setInitPosition);
     void              RequestActorReset(bool keepPosition = false);    //!< reset the actor from any context
     void              displace(Ogre::Vector3 translation, float rotation);
-    Ogre::Vector3     GetRotationCenter();                 //!< Return the rotation center of the truck
+    Ogre::Vector3     GetRotationCenter();                 //!< Return the rotation center of the actor
     bool              ReplayStep();
     void              ForceFeedbackStep(int steps);
     void              UpdateAngelScriptEvents(float dt);
@@ -120,23 +120,23 @@ public:
     void              EngineTriggerHelper(int engineNumber, int type, float triggerValue);
     void              ToggleSlideNodeLock();
     void              ToggleCustomParticles();
-    void              toggleAxleLock();	                   //! diff lock on or off
-    void              parkingbrakeToggle();                //!< Event handler
-    void              antilockbrakeToggle();               //!< Event handler
-    void              tractioncontrolToggle();             //!< Event handler
-    void              cruisecontrolToggle();               //!< Event handler
-    void              beaconsToggle();                     //!< Event handler
+    void              ToggleAxleLock();	                   //! diff lock on or off
+    void              ToggleParkingBrake();                //!< Event handler
+    void              ToggleAntiLockBrake();               //!< Event handler
+    void              ToggleTractionControl();             //!< Event handler
+    void              ToggleCruiseControl();               //!< Event handler
+    void              ToggleBeacons();                     //!< Event handler
     void              forwardCommands();
     void              setReplayMode(bool rm);              //!< Event handler; toggle replay mode.
     int               savePosition(int position);
     int               loadPosition(int position);
-    /// Virtually moves the truck at most 'direction.length()' meters towards 'direction' trying to resolve any collisions
-    /// Returns a minimal offset by which the truck needs to be moved to resolve any collisions
+    /// Virtually moves the actor at most 'direction.length()' meters towards 'direction' trying to resolve any collisions
+    /// Returns a minimal offset by which the actor needs to be moved to resolve any collisions
     Ogre::Vector3     calculateCollisionOffset(Ogre::Vector3 direction);
-    /// Moves the truck at most 'direction.length()' meters towards 'direction' to resolve any collisions
+    /// Moves the actor at most 'direction.length()' meters towards 'direction' to resolve any collisions
     void              resolveCollisions(Ogre::Vector3 direction);
     /// Auto detects an ideal collision avoidance direction (front, back, left, right, up)
-    /// Then moves the truck at most 'max_distance' meters towards that direction to resolve any collisions
+    /// Then moves the actor at most 'max_distance' meters towards that direction to resolve any collisions
     void              resolveCollisions(float max_distance, bool consider_up);
     ground_model_t*   getLastFuzzyGroundModel();
     void              updateSkidmarks();                   //!< Creates or updates skidmarks. No side effects.
@@ -230,7 +230,7 @@ public:
     VehicleAI*        getVehicleAI()                    { return ar_vehicle_ai; }
     bool              IsNodeIdValid(int id) const       { return (id > 0) && (id < ar_num_nodes); }
     float             getWheelSpeed() const             { return ar_wheel_speed; }
-    Ogre::Vector3     getVelocity()                     { return m_avg_node_velocity; }; //!< average truck velocity calculated using the truck positions of the last two frames
+    Ogre::Vector3     getVelocity()                     { return m_avg_node_velocity; }; //!< average actor velocity, calculated using the actor positions of the last two frames
 #ifdef USE_ANGELSCRIPT
     // we have to add this to be able to use the class as reference inside scripts
     void              addRef()                          {};
@@ -259,11 +259,11 @@ public:
     std::vector<tie_t>        ar_ties;
     std::vector<hook_t>       ar_hooks;
     std::vector<flare_t>      ar_flares;
-    Ogre::AxisAlignedBox      ar_bounding_box;     //!< standard bounding box (surrounds all nodes of a truck)
+    Ogre::AxisAlignedBox      ar_bounding_box;     //!< standard bounding box (surrounds all nodes of an actor)
     Ogre::AxisAlignedBox      ar_predicted_bounding_box;
     std::vector<std::vector<int>>  ar_node_to_node_connections;
     std::vector<std::vector<int>>  ar_node_to_beam_connections;
-    std::vector<Ogre::AxisAlignedBox>  ar_collision_bounding_boxes; //!< smart bounding boxes, used for determining the state of a truck (every box surrounds only a subset of nodes)
+    std::vector<Ogre::AxisAlignedBox>  ar_collision_bounding_boxes; //!< smart bounding boxes, used for determining the state of an actor (every box surrounds only a subset of nodes)
     std::vector<Ogre::AxisAlignedBox>  ar_predicted_coll_bounding_boxes;
     contacter_t       ar_contacters[MAX_CONTACTERS];
     int               ar_num_contacters;
@@ -427,7 +427,7 @@ private:
     };
 
     void              calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps); // !< TIGHT LOOP; Physics & sound;
-    void              calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxsteps); //!< TIGHT LOOP; Physics & sound - only beams between multiple truck (noshock or ropes)
+    void              calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxsteps); //!< TIGHT LOOP; Physics & sound - only beams between multiple actors (noshock or ropes)
     void              calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps); //!< TIGHT LOOP; Physics;
     void              calcHooks();                         //!< TIGHT LOOP; Physics;
     void              calcRopes();                         //!< TIGHT LOOP; Physics;
@@ -441,7 +441,7 @@ private:
     void              moveOrigin(Ogre::Vector3 offset);    //!< move physics origin
     void              AddInterActorBeam(beam_t* beam, Actor* a, Actor* b);
     void              RemoveInterActorBeam(beam_t* beam);
-    void              DisjoinInterActorBeams();            //!< Destroys all inter truck beams which are connected with this truck
+    void              DisjoinInterActorBeams();            //!< Destroys all inter-actor beams which are connected with this actor
     void              CreateSimpleSkeletonMaterial();
     void              cabFade(float amount);
     void              setMeshWireframe(Ogre::SceneNode *node, bool value);
@@ -455,10 +455,10 @@ private:
     void              resetSlideNodePositions();           //!< Recalculate SlideNode positions    
     void              resetSlideNodes();                   //!< Reset all the SlideNodes    
     void              updateSlideNodePositions();          //!< incrementally update the position of all SlideNodes
-    /// @param truck which truck to retrieve the closest Rail from
+    /// @param actor which actor to retrieve the closest Rail from
     /// @param node which SlideNode is being checked against
     /// @return a pair containing the rail, and the distant to the SlideNode
-    std::pair<RailGroup*, Ogre::Real> getClosestRailOnTruck( Actor* truck, const SlideNode& node);
+    std::pair<RailGroup*, Ogre::Real> getClosestRailOnTruck( Actor* actor, const SlideNode& node);
 
     // -------------------- data -------------------- //
 
@@ -471,7 +471,7 @@ private:
     std::bitset<MAX_WHEELS>            m_flexmesh_prepare; //!< Gfx state
     std::bitset<MAX_FLEXBODIES>        m_flexbody_prepare; //!< Gfx state
     std::vector<Ogre::String>          m_actor_config;
-    std::vector<SlideNode>             m_slidenodes;       //!< all the SlideNodes available on this truck
+    std::vector<SlideNode>             m_slidenodes;       //!< all the SlideNodes available on this actor
     std::vector<RailGroup*>            m_railgroups;       //!< all the available RailGroups for this actor
     std::vector<Ogre::Entity*>         m_deletion_entities;    //!< For unloading vehicle; filled at spawn.
     std::vector<Ogre::SceneNode*>      m_deletion_scene_nodes; //!< For unloading vehicle; filled at spawn.
@@ -502,9 +502,9 @@ private:
     float             m_mouse_grab_move_force;
     float             m_spawn_rotation;
     ResetRequest      m_reset_request;
-    RoRnet::TruckState* oob1;                  //!< Network; Triple buffer for incoming data (truck properties)
-    RoRnet::TruckState* oob2;                  //!< Network; Triple buffer for incoming data (truck properties)
-    RoRnet::TruckState* oob3;                  //!< Network; Triple buffer for incoming data (truck properties)
+    RoRnet::TruckState* oob1;                  //!< Network; Triple buffer for incoming data (actor properties)
+    RoRnet::TruckState* oob2;                  //!< Network; Triple buffer for incoming data (actor properties)
+    RoRnet::TruckState* oob3;                  //!< Network; Triple buffer for incoming data (actor properties)
     char*             netb1;                   //!< Network; Triple buffer for incoming data
     char*             netb2;                   //!< Network; Triple buffer for incoming data
     char*             netb3;                   //!< Network; Triple buffer for incoming data

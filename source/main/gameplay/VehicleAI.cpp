@@ -114,7 +114,7 @@ void VehicleAI::updateWaypoint()
             beam->ToggleLights();
             break;
         case AI_BEACONSTOGGLE:
-            beam->beaconsToggle();
+            beam->ToggleBeacons();
             break;
         default:
             break;
@@ -134,7 +134,7 @@ void VehicleAI::updateWaypoint()
     {
         current_waypoint_id = 0;
         is_enabled = false;
-        beam->parkingbrakeToggle();
+        beam->ToggleParkingBrake();
     }
     current_waypoint = waypoints[current_waypoint_id];
 }
