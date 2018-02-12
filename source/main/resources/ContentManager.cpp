@@ -94,6 +94,7 @@ DECLARE_RESOURCE_PACK( SCRIPTS,               "scripts",              "ScriptsRG
 DECLARE_RESOURCE_PACK( SOUNDS,                "sounds",               "SoundsRG");
 DECLARE_RESOURCE_PACK( SUNBURN,               "sunburn",              "SunburnRG");
 DECLARE_RESOURCE_PACK( TEXTURES,              "textures",             "TexturesRG");
+DECLARE_RESOURCE_PACK( SKYX,                  "SkyX",                 "SkyXRG");
 
 // ================================================================================
 // Functions
@@ -382,15 +383,15 @@ void ContentManager::LoadGameplayResources()
         this->AddResourcePack(ContentManager::ResourcePack::AIRFOILS);
         this->AddResourcePack(ContentManager::ResourcePack::BEAM_OBJECTS);
 
+        this->AddResourcePack(ContentManager::ResourcePack::TEXTURES);
+        this->AddResourcePack(ContentManager::ResourcePack::ICONS);
+        this->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
+        this->AddResourcePack(ContentManager::ResourcePack::FLAGS);
         this->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
         this->AddResourcePack(ContentManager::ResourcePack::MESHES);
         this->AddResourcePack(ContentManager::ResourcePack::OVERLAYS);
         this->AddResourcePack(ContentManager::ResourcePack::PARTICLES);
         this->AddResourcePack(ContentManager::ResourcePack::SCRIPTS);
-        this->AddResourcePack(ContentManager::ResourcePack::TEXTURES);
-        this->AddResourcePack(ContentManager::ResourcePack::FLAGS);
-        this->AddResourcePack(ContentManager::ResourcePack::ICONS);
-        this->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
 
         m_base_resource_loaded = true;
     }
@@ -400,6 +401,9 @@ void ContentManager::LoadGameplayResources()
 
     if (App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM)
         this->AddResourcePack(ContentManager::ResourcePack::CAELUM);
+
+    if (App::gfx_sky_mode.GetActive() == GfxSkyMode::SKYX)
+        this->AddResourcePack(ContentManager::ResourcePack::SKYX);
 
     if (App::gfx_vegetation_mode.GetActive() != RoR::GfxVegetation::NONE)
         this->AddResourcePack(ContentManager::ResourcePack::PAGED);

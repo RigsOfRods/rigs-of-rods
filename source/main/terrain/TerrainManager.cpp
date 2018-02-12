@@ -62,6 +62,7 @@ TerrainManager::TerrainManager(RoRFrameListener* sim_controller)
     , object_manager(0)
     , shadow_manager(0)
     , sky_manager(0)
+    , SkyX_manager(0)
     , m_survey_map(0)
     , water(0)
     , far_clip(1000)
@@ -81,6 +82,13 @@ TerrainManager::~TerrainManager()
     {
         delete(sky_manager);
         sky_manager = nullptr;
+    }
+
+    if (SkyX_manager != nullptr)
+    {
+        delete(SkyX_manager);
+        gEnv->SkyX = nullptr;
+        SkyX_manager = nullptr;
     }
 
     if (main_light != nullptr)
@@ -197,6 +205,20 @@ void TerrainManager::loadTerrain(String filename)
     geometry_manager->UpdateMainLightPosition(); // Initial update takes a while
     collisions->finishLoadingTerrain();
     LOG(" ===== TERRAIN LOADING DONE " + filename);
+
+    // causing visual ground glitches
+/* if (App::gfx_sky_mode.GetActive() == GfxSkyMode::SKYX)
+    {
+        TerrainGroup::TerrainIterator ti = geometry_manager->getTerrainGroup()->getTerrainIterator();
+        while (ti.hasMoreElements())
+        {
+            Terrain* t = ti.getNext()->instance;
+            MaterialPtr ptr = t->getMaterial();
+            gEnv->SkyX->GetSkyX()->getGPUManager()->addGroundPass(
+                    static_cast<Ogre::MaterialPtr>(ptr)->getTechnique(0)->createPass(), 5000, Ogre::SBT_TRANSPARENT_COLOUR);
+        }
+    }*/
+
 }
 
 void TerrainManager::initSubSystems()
@@ -309,6 +331,18 @@ void TerrainManager::initSkySubSystem()
     }
     else
 #endif //USE_CAELUM
+    // SkyX skies
+    if (App::gfx_sky_mode.GetActive() == GfxSkyMode::SKYX)
+    {
+         // try to load SkyX config
+         if (!m_def.skyx_config.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def.skyx_config))
+            SkyX_manager = new SkyXManager(m_def.skyx_config);
+         else
+            SkyX_manager = new SkyXManager("SkyXDefault.skx");
+
+         gEnv->SkyX = SkyX_manager;
+    }
+    else
     {
 
         if (!m_def.cubemap_config.empty())
@@ -331,6 +365,10 @@ void TerrainManager::initLight()
 #ifdef USE_CAELUM
         main_light = sky_manager->GetSkyMainLight();
 #endif
+    }
+    else if (App::gfx_sky_mode.GetActive() == GfxSkyMode::SKYX)
+    {
+        main_light = SkyX_manager->getMainLight();
     }
     else
     {

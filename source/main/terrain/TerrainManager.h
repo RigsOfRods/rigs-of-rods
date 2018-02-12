@@ -24,6 +24,9 @@
 #include "RoRPrerequisites.h"
 #include "Terrn2Fileformat.h"
 
+#include "SkyXManager.h"
+#include "HydraxWater.h"
+
 class TerrainManager : public ZeroedMemoryAllocator
 {
 public:
@@ -57,7 +60,10 @@ public:
     Ogre::Vector3 getSpawnPos() { return m_def.start_position; };
     RoR::Terrn2Def& GetDef() { return m_def; }
 
+    HydraxWater *getHydraxManager() { return hw; }
+
     SkyManager* getSkyManager();
+    SkyXManager *getSkyXManager() { return SkyX_manager; };
 
     TerrainGeometryManager* getGeometryManager() { return geometry_manager; };
     TerrainObjectManager* getObjectManager() { return object_manager; };
@@ -87,6 +93,7 @@ protected:
     TerrainObjectManager* object_manager;
     IWater* water;
     HydraxWater* hw;
+    SkyXManager *SkyX_manager;
     Ogre::Light *main_light;
 
     // properties

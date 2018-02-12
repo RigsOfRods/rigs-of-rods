@@ -33,6 +33,7 @@ public:
         , mainCamera(0)
         , player(0)
         , sceneManager(0)
+        , SkyX(0)
         , surveyMap(0)
         , terrainManager(0)
         , threadPool(0)
@@ -45,6 +46,7 @@ public:
     CameraManager*      cameraManager;
     Character*          player;
     Collisions*         collisions;
+    SkyXManager*        SkyX;
     SurveyMapManager*   surveyMap;
     TerrainManager*     terrainManager;
     ThreadPool*         threadPool;

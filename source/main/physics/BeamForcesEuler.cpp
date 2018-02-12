@@ -1300,6 +1300,30 @@ void Beam::calcForcesEulerFinal(int doUpdate, Ogre::Real dt, int step, int maxst
     BES_STOP(BES_CORE_WholeTruckCalc);
 }
 
+template <size_t L>
+void LogNodeId(RoR::Str<L>& msg, node_t* node) // Internal helper
+{
+    if (node->id <= 0) // Named nodes have '0', generated have '-1'
+    {
+        msg << "\"?unknown?\"";
+    }
+    else
+    {
+        msg << "\"" << node->id << "\"";
+    }
+    msg << " (index: " << node->pos << ")";
+}
+
+template <size_t L>
+void LogBeamNodes(RoR::Str<L>& msg, beam_t& beam) // Internal helper
+{
+    msg << "It was between nodes ";
+    LogNodeId(msg, beam.p1);
+    msg << " and ";
+    LogNodeId(msg, beam.p2);
+    msg << ".";
+}
+
 void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 {
     BES_START(BES_CORE_Beams);
@@ -1375,8 +1399,11 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                         beams[i].disabled = true;
                         if (beambreakdebug)
                         {
-                            LOG(" XXX Support-Beam " + TOSTRING(i) + " limit extended and broke. Length: " + TOSTRING(difftoBeamL) +
-                                " / max. Length: " + TOSTRING(beams[i].L*break_limit) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
+                            RoR::Str<300> msg;
+                            msg << "[RoR|Diag] XXX Support-Beam " << i << " limit extended and broke. "
+                                << "Length: " << difftoBeamL << " / max. Length: " << (beams[i].L*break_limit) << ". ";
+                            LogBeamNodes(msg, beams[i]);
+                            RoR::Log(msg.ToCStr());
                         }
                     }
                 }
@@ -1425,8 +1452,10 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                         //beams[i].strength += deform * k * 0.5f;
                         if (beamdeformdebug)
                         {
-                            LOG(" YYY Beam " + TOSTRING(i) + " just deformed with extension force " + TOSTRING(len) +
-                                " / " + TOSTRING(beams[i].strength) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
+                            RoR::Str<300> msg;
+                            msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
+                                << len << " / " << beams[i].strength << ". ";
+                            LogBeamNodes(msg, beams[i]);
                         }
                     }
                     else if (slen < beams[i].maxnegstress && difftoBeamL > 0.0f) // expansion
@@ -1447,8 +1476,10 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                         beams[i].strength -= deform * k;
                         if (beamdeformdebug)
                         {
-                            LOG(" YYY Beam " + TOSTRING(i) + " just deformed with extension force " + TOSTRING(len) +
-                                " / " + TOSTRING(beams[i].strength) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
+                            RoR::Str<300> msg;
+                            msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
+                                << len << " / " << beams[i].strength << ". ";
+                            LogBeamNodes(msg, beams[i]);
                         }
                     }
                 }
@@ -1474,8 +1505,10 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 
                         if (beambreakdebug)
                         {
-                            LOG(" XXX Beam " + TOSTRING(i) + " just broke with force " + TOSTRING(len) +
-                                " / " + TOSTRING(beams[i].strength) + ". It was between nodes " + TOSTRING(beams[i].p1->id) + " and " + TOSTRING(beams[i].p2->id) + ".");
+                            RoR::Str<200> msg;
+                            msg << "[RoR|Diag] XXX Beam " << i << " just broke with force " << len << " / " << beams[i].strength << ". ";
+                            LogBeamNodes(msg, beams[i]);
+                            RoR::Log(msg.ToCStr());
                         }
 
                         // detachergroup check: beam[i] is already broken, check detacher group# == 0/default skip the check ( performance bypass for beams with default setting )
@@ -1596,8 +1629,10 @@ void Beam::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxste
                         //interTruckBeams[i]->strength += deform * k * 0.5f;
                         if (beamdeformdebug)
                         {
-                            LOG(" YYY Beam " + TOSTRING(i) + " just deformed with extension force " + TOSTRING(len) +
-                                " / " + TOSTRING(interTruckBeams[i]->strength) + ". It was between nodes " + TOSTRING(interTruckBeams[i]->p1->id) + " and " + TOSTRING(interTruckBeams[i]->p2->id) + ".");
+                            RoR::Str<300> msg;
+                            msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
+                                << len << " / " << interTruckBeams[i]->strength << ". ";
+                            LogBeamNodes(msg, (*interTruckBeams[i]));
                         }
                     }
                     else if (slen < interTruckBeams[i]->maxnegstress && difftoBeamL > 0.0f) // expansion
@@ -1617,8 +1652,10 @@ void Beam::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxste
                         interTruckBeams[i]->strength -= deform * k;
                         if (beamdeformdebug)
                         {
-                            LOG(" YYY Beam " + TOSTRING(i) + " just deformed with extension force " + TOSTRING(len) +
-                                " / " + TOSTRING(interTruckBeams[i]->strength) + ". It was between nodes " + TOSTRING(interTruckBeams[i]->p1->id) + " and " + TOSTRING(interTruckBeams[i]->p2->id) + ".");
+                            RoR::Str<300> msg;
+                            msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
+                                << len << " / " << interTruckBeams[i]->strength << ". ";
+                            LogBeamNodes(msg, (*interTruckBeams[i]));
                         }
                     }
                 }
@@ -1642,8 +1679,10 @@ void Beam::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxste
 
                         if (beambreakdebug)
                         {
-                            LOG(" XXX Beam " + TOSTRING(i) + " just broke with force " + TOSTRING(len) +
-                                " / " + TOSTRING(interTruckBeams[i]->strength) + ". It was between nodes " + TOSTRING(interTruckBeams[i]->p1->id) + " and " + TOSTRING(interTruckBeams[i]->p2->id) + ".");
+                            RoR::Str<200> msg;
+                            msg << "[RoR|Diag] XXX Beam " << i << " just broke with force " << len << " / " << interTruckBeams[i]->strength << ". ";
+                            LogBeamNodes(msg, (*interTruckBeams[i]));
+                            RoR::Log(msg.ToCStr());
                         }
                     }
                     else

@@ -117,7 +117,7 @@ void HydraxWater::update()
         mHydrax->setSunPosition(sunPosition);
         mHydrax->setSunColor(Ogre::Vector3(sky->GetCaelumSys()->getSun()->getBodyColour().r, sky->GetCaelumSys()->getSun()->getBodyColour().g, sky->GetCaelumSys()->getSun()->getBodyColour().b));
     }
-    else
+    else if (!gEnv->SkyX)
 #endif // USE_CAELUM
     {
         mHydrax->setSunPosition(gEnv->sceneManager->getLight("MainLight")->getPosition());

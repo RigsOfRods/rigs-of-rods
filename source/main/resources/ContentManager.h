@@ -67,6 +67,7 @@ public:
         static const ResourcePack PAGED;
         static const ResourcePack PARTICLES;
         static const ResourcePack PSSM;
+        static const ResourcePack SKYX;
         static const ResourcePack RTSHADER;
         static const ResourcePack SCRIPTS;
         static const ResourcePack SOUNDS;

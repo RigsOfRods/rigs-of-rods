@@ -90,6 +90,8 @@ private:
     void   windowFocusChange       (Ogre::RenderWindow* rw);
     void   windowResized           (Ogre::RenderWindow* rw);
 
+    int PreDefineSkyXExemple; //For predefined skyx weathers
+
     void   UpdateForceFeedback     (float dt);
     bool   UpdateInputEvents       (float dt);
     void   UpdateRacingGui         ();
