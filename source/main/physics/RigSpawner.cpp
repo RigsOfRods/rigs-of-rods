@@ -284,7 +284,7 @@ void RigSpawner::InitializeRig()
     memset(m_rig->buoycabtypes, 0, sizeof(int) * MAX_CABS);
     memset(m_rig->airbrakes, 0, sizeof(Airbrake *) * MAX_AIRBRAKES);
     m_rig->free_airbrake = 0;
-    memset(m_rig->skidtrails, 0, sizeof(Skidmark *) * (MAX_WHEELS*2));
+    memset(m_rig->m_skid_trails, 0, sizeof(Skidmark *) * (MAX_WHEELS*2));
     memset(m_rig->flexbodies, 0, sizeof(FlexBody *) * MAX_FLEXBODIES);
     m_rig->free_flexbody = 0;
     m_rig->description.clear();
@@ -1439,10 +1439,10 @@ void RigSpawner::ProcessExhaust(RigDef::Exhaust & def)
         material_name = def.material_name;
     }
 
-    if (m_rig->usedSkin != nullptr)
+    if (m_rig->m_used_skin != nullptr)
     {
-        auto search = m_rig->usedSkin->replace_materials.find(material_name);
-        if (search != m_rig->usedSkin->replace_materials.end())
+        auto search = m_rig->m_used_skin->replace_materials.find(material_name);
+        if (search != m_rig->m_used_skin->replace_materials.end())
         {
             material_name = search->second;
         }
@@ -4833,7 +4833,7 @@ unsigned int RigSpawner::AddWheel(RigDef::Wheel & wheel_def)
 void RigSpawner::CreateWheelSkidmarks(unsigned int wheel_index)
 {
     // Always create, even if disabled by config
-    m_rig->skidtrails[wheel_index] = new RoR::Skidmark(
+    m_rig->m_skid_trails[wheel_index] = new RoR::Skidmark(
         RoR::App::GetSimController()->GetSkidmarkConf(), RoR::App::GetSimController(), &m_rig->wheels[wheel_index], m_rig->m_beam_visuals_parent_scenenode, 300, 20);
 }
 
@@ -6250,10 +6250,10 @@ void RigSpawner::AddExhaust(
         material_name = "tracks/Smoke";
     }
 
-    if (m_rig->usedSkin != nullptr)
+    if (m_rig->m_used_skin != nullptr)
     {
-        auto search = m_rig->usedSkin->replace_materials.find(material_name);
-        if (search != m_rig->usedSkin->replace_materials.end())
+        auto search = m_rig->m_used_skin->replace_materials.find(material_name);
+        if (search != m_rig->m_used_skin->replace_materials.end())
         {
             material_name = search->second;
         }
@@ -6988,10 +6988,10 @@ Ogre::MaterialPtr RigSpawner::FindOrCreateCustomizedMaterial(std::string mat_loo
         }
 
         // Query SkinZip materials
-        if (m_rig->usedSkin != nullptr)
+        if (m_rig->m_used_skin != nullptr)
         {
-            auto skin_res = m_rig->usedSkin->replace_materials.find(mat_lookup_name);
-            if (skin_res != m_rig->usedSkin->replace_materials.end())
+            auto skin_res = m_rig->m_used_skin->replace_materials.find(mat_lookup_name);
+            if (skin_res != m_rig->m_used_skin->replace_materials.end())
             {
                 Ogre::MaterialPtr skin_mat = RoR::OgreSubsystem::GetMaterialByName(skin_res->second);
                 if (!skin_mat.isNull())
@@ -7005,7 +7005,7 @@ Ogre::MaterialPtr RigSpawner::FindOrCreateCustomizedMaterial(std::string mat_loo
                 else
                 {
                     std::stringstream buf;
-                    buf << "Material '" << skin_res->second << "' from skin '" << m_rig->usedSkin->name << "' not found! Ignoring it...";
+                    buf << "Material '" << skin_res->second << "' from skin '" << m_rig->m_used_skin->name << "' not found! Ignoring it...";
                     this->AddMessage(Message::TYPE_ERROR, buf.str());
                 }
             }
@@ -7036,9 +7036,9 @@ Ogre::MaterialPtr RigSpawner::FindOrCreateCustomizedMaterial(std::string mat_loo
         }
 
         // Finally, query SkinZip textures
-        if (m_rig->usedSkin != nullptr)
+        if (m_rig->m_used_skin != nullptr)
         {
-            RoR::SkinManager::ReplaceMaterialTextures(m_rig->usedSkin, lookup_entry.material->getName());
+            RoR::SkinManager::ReplaceMaterialTextures(m_rig->m_used_skin, lookup_entry.material->getName());
         }
 
         m_material_substitutions.insert(std::make_pair(mat_lookup_name, lookup_entry)); // Register the substitute
