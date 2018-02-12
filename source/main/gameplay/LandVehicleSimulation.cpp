@@ -35,34 +35,36 @@ using namespace RoR;
 
 void LandVehicleSimulation::UpdateCruiseControl(Beam* curr_truck, float dt)
 {
-    if ((curr_truck->engine->getGear() > 0 && RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE) > 0.05f) ||
-        (curr_truck->engine->getGear() > 0 && RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH) > 0.05f) ||
-        (curr_truck->engine->getGear() > 0 && curr_truck->ar_parking_brake) ||
-        (curr_truck->engine->getGear() < 0) ||
+    BeamEngine* engine = curr_truck->ar_engine;
+
+    if ((engine->getGear() > 0 && RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE) > 0.05f) ||
+        (engine->getGear() > 0 && RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH) > 0.05f) ||
+        (engine->getGear() > 0 && curr_truck->ar_parking_brake) ||
+        (engine->getGear() < 0) ||
         (curr_truck->cc_target_speed < curr_truck->cc_target_speed_lower_limit) ||
-        !curr_truck->engine->isRunning() ||
-        !curr_truck->engine->hasContact())
+        !engine->isRunning() ||
+        !engine->hasContact())
     {
         curr_truck->cruisecontrolToggle();
         return;
     }
 
-    float acc = curr_truck->engine->getAccToHoldRPM(curr_truck->engine->getRPM());
+    float acc = engine->getAccToHoldRPM(engine->getRPM());
 
-    if (curr_truck->engine->getGear() > 0)
+    if (engine->getGear() > 0)
     {
         // Try to maintain the target speed
-        float torque = (curr_truck->engine->getEngineTorque() + curr_truck->engine->getBrakingTorque()) * 0.8f;
+        float torque = (engine->getEngineTorque() + engine->getBrakingTorque()) * 0.8f;
         float forceRatio = curr_truck->getTotalMass(true) / torque;
         acc += (curr_truck->cc_target_speed - curr_truck->ar_wheel_speed) * forceRatio * 0.25;
         acc = std::max(-2.0f, acc);
         acc = std::min(acc, +2.0f);
     }
-    else if (curr_truck->engine->getGear() == 0) // out of gear
+    else if (engine->getGear() == 0) // out of gear
     {
         // Try to maintain the target rpm
-        float rpmRatio = 1.0f / (curr_truck->engine->getMaxRPM() - curr_truck->engine->getMinRPM());
-        acc += (curr_truck->cc_target_rpm - curr_truck->engine->getRPM()) * rpmRatio * 2.0f;
+        float rpmRatio = 1.0f / (engine->getMaxRPM() - engine->getMinRPM());
+        acc += (curr_truck->cc_target_rpm - engine->getRPM()) * rpmRatio * 2.0f;
     }
 
     curr_truck->cc_accs.push_front(acc);
@@ -82,13 +84,13 @@ void LandVehicleSimulation::UpdateCruiseControl(Beam* curr_truck, float dt)
     avgAcc /= curr_truck->cc_accs.size();
 
     float accl = avgAcc;
-    accl = std::max(curr_truck->engine->getAcc(), accl);
+    accl = std::max(engine->getAcc(), accl);
     accl = std::min(accl, 1.0f);
-    curr_truck->engine->autoSetAcc(accl);
+    engine->autoSetAcc(accl);
 
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_CRUISE_CONTROL_ACCL))
     {
-        if (curr_truck->engine->getGear() > 0)
+        if (engine->getGear() > 0)
         {
             curr_truck->cc_target_speed += 2.5f * dt;
             curr_truck->cc_target_speed = std::max(curr_truck->cc_target_speed_lower_limit, curr_truck->cc_target_speed);
@@ -97,23 +99,23 @@ void LandVehicleSimulation::UpdateCruiseControl(Beam* curr_truck, float dt)
                 curr_truck->cc_target_speed = std::min(curr_truck->cc_target_speed, curr_truck->sl_speed_limit);
             }
         }
-        else if (curr_truck->engine->getGear() == 0) // out of gear
+        else if (engine->getGear() == 0) // out of gear
         {
             curr_truck->cc_target_rpm += 1000.0f * dt;
-            curr_truck->cc_target_rpm = std::min(curr_truck->cc_target_rpm, curr_truck->engine->getMaxRPM());
+            curr_truck->cc_target_rpm = std::min(curr_truck->cc_target_rpm, engine->getMaxRPM());
         }
     }
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_CRUISE_CONTROL_DECL))
     {
-        if (curr_truck->engine->getGear() > 0)
+        if (engine->getGear() > 0)
         {
             curr_truck->cc_target_speed -= 2.5f * dt;
             curr_truck->cc_target_speed = std::max(curr_truck->cc_target_speed_lower_limit, curr_truck->cc_target_speed);
         }
-        else if (curr_truck->engine->getGear() == 0) // out of gear
+        else if (engine->getGear() == 0) // out of gear
         {
             curr_truck->cc_target_rpm -= 1000.0f * dt;
-            curr_truck->cc_target_rpm = std::max(curr_truck->engine->getMinRPM(), curr_truck->cc_target_rpm);
+            curr_truck->cc_target_rpm = std::max(engine->getMinRPM(), curr_truck->cc_target_rpm);
         }
     }
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_CRUISE_CONTROL_READJUST))
@@ -123,7 +125,7 @@ void LandVehicleSimulation::UpdateCruiseControl(Beam* curr_truck, float dt)
         {
             curr_truck->cc_target_speed = std::min(curr_truck->cc_target_speed, curr_truck->sl_speed_limit);
         }
-        curr_truck->cc_target_rpm = curr_truck->engine->getRPM();
+        curr_truck->cc_target_rpm = engine->getRPM();
     }
 
     if (curr_truck->cc_can_brake)
@@ -139,18 +141,22 @@ void LandVehicleSimulation::UpdateCruiseControl(Beam* curr_truck, float dt)
 
 void LandVehicleSimulation::CheckSpeedLimit(Beam* curr_truck, float dt)
 {
-    if (curr_truck->sl_enabled && curr_truck->engine->getGear() != 0)
+    BeamEngine* engine = curr_truck->ar_engine;
+
+    if (curr_truck->sl_enabled && engine->getGear() != 0)
     {
         float accl = (curr_truck->sl_speed_limit - std::abs(curr_truck->ar_wheel_speed)) * 2.0f;
         accl = std::max(0.0f, accl);
-        accl = std::min(accl, curr_truck->engine->getAcc());
-        curr_truck->engine->setAcc(accl);
+        accl = std::min(accl, engine->getAcc());
+        engine->setAcc(accl);
     }
 }
 
 void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_last_frame)
 {
     using namespace Ogre;
+
+    BeamEngine* engine = curr_truck->ar_engine;
 
     if (!curr_truck->ar_replay_mode)
     {
@@ -197,7 +203,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
             curr_truck->ar_hydro_speed_coupling = true;
         }
 
-        if (curr_truck->engine)
+        if (engine)
         {
             float accl = RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE);
             float brake = RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE);
@@ -233,31 +239,31 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
             }
 
             // arcade controls are only working with auto-clutch!
-            if (!App::io_arcade_controls.GetActive() || (curr_truck->engine->getAutoMode() >= SimGearboxMode::MANUAL))
+            if (!App::io_arcade_controls.GetActive() || (engine->getAutoMode() >= SimGearboxMode::MANUAL))
             {
                 // classic mode, realistic
-                curr_truck->engine->autoSetAcc(accl);
+                engine->autoSetAcc(accl);
                 curr_truck->ar_brake = brake * curr_truck->ar_brake_force;
             }
             else
             {
                 // start engine
-                if (curr_truck->engine->hasContact() && !curr_truck->engine->isRunning() && (accl > 0 || brake > 0))
+                if (engine->hasContact() && !engine->isRunning() && (accl > 0 || brake > 0))
                 {
-                    curr_truck->engine->start();
+                    engine->start();
                 }
 
                 // arcade controls: hey - people wanted it x| ... <- and it's convenient
-                if (curr_truck->engine->getGear() >= 0)
+                if (engine->getGear() >= 0)
                 {
                     // neutral or drive forward, everything is as its used to be: brake is brake and accel. is accel.
-                    curr_truck->engine->autoSetAcc(accl);
+                    engine->autoSetAcc(accl);
                     curr_truck->ar_brake = brake * curr_truck->ar_brake_force;
                 }
                 else
                 {
                     // reverse gear, reverse controls: brake is accel. and accel. is brake.
-                    curr_truck->engine->autoSetAcc(brake);
+                    engine->autoSetAcc(brake);
                     curr_truck->ar_brake = accl * curr_truck->ar_brake_force;
                 }
 
@@ -268,28 +274,28 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
                     float velocity = hdir.dotProduct(curr_truck->ar_nodes[0].Velocity);
 
                     // switching point, does the user want to drive forward from backward or the other way round? change gears?
-                    if (velocity < 1.0f && brake > 0.5f && accl < 0.5f && curr_truck->engine->getGear() > 0)
+                    if (velocity < 1.0f && brake > 0.5f && accl < 0.5f && engine->getGear() > 0)
                     {
                         // we are on the brake, jump to reverse gear
-                        if (curr_truck->engine->getAutoMode() == SimGearboxMode::AUTO)
+                        if (engine->getAutoMode() == SimGearboxMode::AUTO)
                         {
-                            curr_truck->engine->autoShiftSet(BeamEngine::REAR);
+                            engine->autoShiftSet(BeamEngine::REAR);
                         }
                         else
                         {
-                            curr_truck->engine->setGear(-1);
+                            engine->setGear(-1);
                         }
                     }
-                    else if (velocity > -1.0f && brake < 0.5f && accl > 0.5f && curr_truck->engine->getGear() < 0)
+                    else if (velocity > -1.0f && brake < 0.5f && accl > 0.5f && engine->getGear() < 0)
                     {
                         // we are on the gas pedal, jump to first gear when we were in rear gear
-                        if (curr_truck->engine->getAutoMode() == SimGearboxMode::AUTO)
+                        if (engine->getAutoMode() == SimGearboxMode::AUTO)
                         {
-                            curr_truck->engine->autoShiftSet(BeamEngine::DRIVE);
+                            engine->autoShiftSet(BeamEngine::DRIVE);
                         }
                         else
                         {
-                            curr_truck->engine->setGear(1);
+                            engine->setGear(1);
                         }
                     }
                 }
@@ -297,44 +303,44 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 
             // IMI
             // gear management -- it might, should be transferred to a standalone function of Beam or RoRFrameListener
-            if (curr_truck->engine->getAutoMode() == SimGearboxMode::AUTO)
+            if (engine->getAutoMode() == SimGearboxMode::AUTO)
             {
                 if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_AUTOSHIFT_UP))
                 {
-                    curr_truck->engine->autoShiftUp();
+                    engine->autoShiftUp();
                 }
                 if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_AUTOSHIFT_DOWN))
                 {
-                    curr_truck->engine->autoShiftDown();
+                    engine->autoShiftDown();
                 }
             }
 
             if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_CONTACT))
             {
-                curr_truck->engine->toggleContact();
+                engine->toggleContact();
             }
 
-            if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_STARTER) && curr_truck->engine->hasContact() && !curr_truck->engine->isRunning())
+            if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_STARTER) && engine->hasContact() && !engine->isRunning())
             {
                 // starter
-                curr_truck->engine->setstarter(1);
+                engine->setstarter(1);
                 SOUND_START(curr_truck, SS_TRIG_STARTER);
             }
             else
             {
-                curr_truck->engine->setstarter(0);
+                engine->setstarter(0);
                 SOUND_STOP(curr_truck, SS_TRIG_STARTER);
             }
 
             if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SWITCH_SHIFT_MODES))
             {
                 // toggle Auto shift
-                curr_truck->engine->toggleAutoMode();
+                engine->toggleAutoMode();
 
                 // force gui update
                 curr_truck->RequestUpdateHudFeatures();
                 const char* msg = nullptr;
-                switch (curr_truck->engine->getAutoMode())
+                switch (engine->getAutoMode())
                 {
                 case SimGearboxMode::AUTO: msg = "Automatic shift";
                     break;
@@ -353,37 +359,37 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 
             // joy clutch
             float cval = RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH);
-            curr_truck->engine->setManualClutch(cval);
+            engine->setManualClutch(cval);
 
-            SimGearboxMode shiftmode = curr_truck->engine->getAutoMode();
+            SimGearboxMode shiftmode = engine->getAutoMode();
 
             if (shiftmode <= SimGearboxMode::MANUAL) // auto, semi auto and sequential shifting
             {
                 if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_UP))
                 {
-                    curr_truck->engine->shift(1);
+                    engine->shift(1);
                 }
                 else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_DOWN))
                 {
                     if (shiftmode > SimGearboxMode::SEMI_AUTO ||
                         shiftmode == SimGearboxMode::SEMI_AUTO && (!App::io_arcade_controls.GetActive()) ||
-                        shiftmode == SimGearboxMode::SEMI_AUTO && curr_truck->engine->getGear() > 0 ||
+                        shiftmode == SimGearboxMode::SEMI_AUTO && engine->getGear() > 0 ||
                         shiftmode == SimGearboxMode::AUTO)
                     {
-                        curr_truck->engine->shift(-1);
+                        engine->shift(-1);
                     }
                 }
                 else if (shiftmode != SimGearboxMode::AUTO && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_NEUTRAL))
                 {
-                    curr_truck->engine->shiftTo(0);
+                    engine->shiftTo(0);
                 }
             }
             else //if (shiftmode > SimGearboxMode::MANUAL) // h-shift or h-shift with ranges shifting
             {
                 bool gear_changed = false;
                 bool found = false;
-                int curgear = curr_truck->engine->getGear();
-                int curgearrange = curr_truck->engine->getGearRange();
+                int curgear = engine->getGear();
+                int curgearrange = engine->getGearRange();
                 int gearoffset = std::max(0, curgear - curgearrange * 6);
 
                 // one can select range only if in neutral
@@ -392,19 +398,19 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
                     //  maybe this should not be here, but should experiment
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_LOWRANGE) && curgearrange != 0)
                     {
-                        curr_truck->engine->setGearRange(0);
+                        engine->setGearRange(0);
                         gear_changed = true;
                         RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE, _L("Low range selected"), "cog.png", 3000);
                     }
-                    else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_MIDRANGE) && curgearrange != 1 && curr_truck->engine->getNumGearsRanges() > 1)
+                    else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_MIDRANGE) && curgearrange != 1 && engine->getNumGearsRanges() > 1)
                     {
-                        curr_truck->engine->setGearRange(1);
+                        engine->setGearRange(1);
                         gear_changed = true;
                         RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE, _L("Mid range selected"), "cog.png", 3000);
                     }
-                    else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_HIGHRANGE) && curgearrange != 2 && curr_truck->engine->getNumGearsRanges() > 2)
+                    else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_HIGHRANGE) && curgearrange != 2 && engine->getNumGearsRanges() > 2)
                     {
-                        curr_truck->engine->setGearRange(2);
+                        engine->setGearRange(2);
                         gear_changed = true;
                         RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE, _L("High range selected"), "cog.png", 3000);
                     }
@@ -430,12 +436,12 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
                 {
                     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_GEAR_REVERSE))
                     {
-                        curr_truck->engine->shiftTo(-1);
+                        engine->shiftTo(-1);
                         found = true;
                     }
                     else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_NEUTRAL))
                     {
-                        curr_truck->engine->shiftTo(0);
+                        engine->shiftTo(0);
                         found = true;
                     }
                     else
@@ -446,7 +452,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
                             {
                                 if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_GEAR01 + i - 1))
                                 {
-                                    curr_truck->engine->shiftTo(i);
+                                    engine->shiftTo(i);
                                     found = true;
                                 }
                             }
@@ -457,7 +463,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
                             {
                                 if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_GEAR01 + i - 1))
                                 {
-                                    curr_truck->engine->shiftTo(i + curgearrange * 6);
+                                    engine->shiftTo(i + curgearrange * 6);
                                     found = true;
                                 }
                             }
@@ -465,14 +471,14 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
                     }
                     if (!found)
                     {
-                        curr_truck->engine->shiftTo(0);
+                        engine->shiftTo(0);
                     }
                 } // end of if (gear_changed)
             } // end of shitmode > SimGearboxMode::MANUAL
 
-            if (curr_truck->engine->hasContact() &&
-                curr_truck->engine->getAutoMode() == SimGearboxMode::AUTO &&
-                curr_truck->engine->getAutoShift() != BeamEngine::NEUTRAL &&
+            if (engine->hasContact() &&
+                engine->getAutoMode() == SimGearboxMode::AUTO &&
+                engine->getAutoShift() != BeamEngine::NEUTRAL &&
                 std::abs(curr_truck->ar_wheel_speed) < 0.1f)
             {
                 Vector3 dirDiff = curr_truck->getDirection();
@@ -480,13 +486,13 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 
                 if (std::abs(pitchAngle.valueDegrees()) > 1.0f)
                 {
-                    if (curr_truck->engine->getAutoShift() > BeamEngine::NEUTRAL && curr_truck->ar_wheel_speed < +0.1f && pitchAngle.valueDegrees() > +1.0f ||
-                        curr_truck->engine->getAutoShift() < BeamEngine::NEUTRAL && curr_truck->ar_wheel_speed > -0.1f && pitchAngle.valueDegrees() < -1.0f)
+                    if (engine->getAutoShift() > BeamEngine::NEUTRAL && curr_truck->ar_wheel_speed < +0.1f && pitchAngle.valueDegrees() > +1.0f ||
+                        engine->getAutoShift() < BeamEngine::NEUTRAL && curr_truck->ar_wheel_speed > -0.1f && pitchAngle.valueDegrees() < -1.0f)
                     {
                         // anti roll back in SimGearboxMode::AUTO (DRIVE, TWO, ONE) mode
                         // anti roll forth in SimGearboxMode::AUTO (REAR) mode
                         float downhill_force = std::abs(sin(pitchAngle.valueRadians()) * curr_truck->getTotalMass());
-                        float engine_force = std::abs(curr_truck->engine->getTorque());
+                        float engine_force = std::abs(engine->getTorque());
                         float ratio = std::max(0.0f, 1.0f - (engine_force / downhill_force) / 2.0f);
                         curr_truck->ar_brake = curr_truck->ar_brake_force * sqrt(ratio);
                     }

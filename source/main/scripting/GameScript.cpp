@@ -924,11 +924,11 @@ void GameScript::boostCurrentTruck(float factor)
 {
     // add C++ code here
     Beam* b = mse->GetFrameListener()->GetBeamFactory()->getCurrentTruck();
-    if (b && b->engine)
+    if (b && b->ar_engine)
     {
-        float rpm = b->engine->getRPM();
+        float rpm = b->ar_engine->getRPM();
         rpm += 2000.0f * factor;
-        b->engine->setRPM(rpm);
+        b->ar_engine->setRPM(rpm);
     }
 }
 

@@ -1566,9 +1566,9 @@ void RoRFrameListener::FinalizeTruckSpawning(Beam* local_truck, Beam* previous_t
         if (local_truck->driveable != NOT_DRIVEABLE)
         {
             /* We are supposed to be in this truck, if it is a truck */
-            if (local_truck->engine != nullptr)
+            if (local_truck->ar_engine != nullptr)
             {
-                local_truck->engine->start();
+                local_truck->ar_engine->start();
             }
             m_beam_factory.setCurrentTruck(local_truck->trucknum);
         }
@@ -1801,7 +1801,7 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
                     UpdateRacingGui(); //I really think that this should stay here.
                 }
 
-                if (curr_truck->driveable == TRUCK && curr_truck->engine != nullptr)
+                if (curr_truck->driveable == TRUCK && curr_truck->ar_engine != nullptr)
                 {
                     RoR::App::GetOverlayWrapper()->UpdateLandVehicleHUD(curr_truck);
                 }
@@ -2391,9 +2391,9 @@ bool RoRFrameListener::SetupGameplayLoop()
             {
                 m_beam_factory.setCurrentTruck(b->trucknum);
             }
-            if (b->engine)
+            if (b->ar_engine)
             {
-                b->engine->start();
+                b->ar_engine->start();
             }
         }
     }

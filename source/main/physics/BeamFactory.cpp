@@ -1056,8 +1056,8 @@ void BeamFactory::update(float dt)
             break;
 
         default:
-            if (m_trucks[t]->ar_sim_state != Beam::SimState::LOCAL_SIMULATED && m_trucks[t]->engine)
-                m_trucks[t]->engine->update(dt, 1);
+            if (m_trucks[t]->ar_sim_state != Beam::SimState::LOCAL_SIMULATED && m_trucks[t]->ar_engine)
+                m_trucks[t]->ar_engine->update(dt, 1);
             if (m_trucks[t]->ar_sim_state < Beam::SimState::LOCAL_SLEEPING)
                 m_trucks[t]->UpdatePropAnimations(dt);
             if (m_trucks[t]->ar_uses_networking)

@@ -807,10 +807,10 @@ void OverlayWrapper::UpdatePressureTexture(float pressure)
 void OverlayWrapper::UpdateLandVehicleHUD(Beam* vehicle)
 {
     // gears
-    int truck_getgear = vehicle->engine->getGear();
+    int truck_getgear = vehicle->ar_engine->getGear();
     if (truck_getgear > 0)
     {
-        size_t numgears = vehicle->engine->getNumGears();
+        size_t numgears = vehicle->ar_engine->getNumGears();
         String gearstr = TOSTRING(truck_getgear) + "/" + TOSTRING(numgears);
         guiGear->setCaption(gearstr);
         guiGear3D->setCaption(gearstr);
@@ -827,7 +827,7 @@ void OverlayWrapper::UpdateLandVehicleHUD(Beam* vehicle)
     }
 
     //autogears
-    int cg = vehicle->engine->getAutoShift();
+    int cg = vehicle->ar_engine->getAutoShift();
     for (int i = 0; i < 5; i++)
     {
         if (i == cg)
@@ -876,9 +876,9 @@ void OverlayWrapper::UpdateLandVehicleHUD(Beam* vehicle)
     Real tachoFactor = 0.072;
     if (vehicle->ar_gui_use_engine_max_rpm)
     {
-        tachoFactor = 0.072 * (3500 / vehicle->engine->getMaxRPM());
+        tachoFactor = 0.072 * (3500 / vehicle->ar_engine->getMaxRPM());
     }
-    angle = 126.0 - fabs(vehicle->engine->getRPM() * tachoFactor);
+    angle = 126.0 - fabs(vehicle->ar_engine->getRPM() * tachoFactor);
     angle = std::max(-120.0f, angle);
     angle = std::min(angle, 121.0f);
     tachotexture->setTextureRotate(Degree(angle));

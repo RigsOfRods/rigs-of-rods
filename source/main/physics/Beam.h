@@ -384,7 +384,7 @@ public:
     RoR::SkinDef*     usedSkin;
     Buoyance*         buoyance;
     int               driveable;
-    BeamEngine*       engine;
+    BeamEngine*       ar_engine;
     int               ar_cinecam_node[MAX_CAMERAS];//!< Sim attr; Cine-camera node indexes
     int               ar_num_cinecams;             //!< Sim attr;
     std::string       ar_help_panel_material;      //!< GUI attr, defined in truckfile

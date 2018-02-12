@@ -141,23 +141,23 @@ bool OutProtocol::Update(float dt, Beam* truck)
         // not in a truck?
         sprintf(gd.Display2, "not in vehicle");
     }
-    else if (truck && !truck->engine)
+    else if (truck && !truck->ar_engine)
     {
         // no engine?
         sprintf(gd.Display2, "no engine");
     }
-    else if (truck && truck->engine)
+    else if (truck && truck->ar_engine)
     {
         // truck and engine valid
-        if (truck->engine->hasTurbo())
+        if (truck->ar_engine->hasTurbo())
         {
             gd.Flags |= OG_TURBO;
         }
-        gd.Gear = std::max(0, truck->engine->getGear() + 1); // we only support one reverse gear
+        gd.Gear = std::max(0, truck->ar_engine->getGear() + 1); // we only support one reverse gear
         gd.PLID = 0;
         gd.Speed = fabs(truck->ar_wheel_speed);
-        gd.RPM = truck->engine->getRPM();
-        gd.Turbo = truck->engine->getTurboPSI() * 0.0689475729f;
+        gd.RPM = truck->ar_engine->getRPM();
+        gd.Turbo = truck->ar_engine->getTurboPSI() * 0.0689475729f;
         gd.EngTemp = 0; // TODO
         gd.Fuel = 0; // TODO
         gd.OilPressure = 0; // TODO
@@ -179,7 +179,7 @@ bool OutProtocol::Update(float dt, Beam* truck)
             gd.ShowLights |= DL_HANDBRAKE;
         if (truck->ar_lights)
             gd.ShowLights |= DL_FULLBEAM;
-        if (truck->engine->hasContact() && !truck->engine->isRunning())
+        if (truck->ar_engine->hasContact() && !truck->ar_engine->isRunning())
             gd.ShowLights |= DL_BATTERY;
         if (truck->ar_left_blink_on)
             gd.ShowLights |= DL_SIGNAL_L;
@@ -192,9 +192,9 @@ bool OutProtocol::Update(float dt, Beam* truck)
         if (truck->alb_mode)
             gd.ShowLights |= DL_ABS;
 
-        gd.Throttle = truck->engine->getAcc();
+        gd.Throttle = truck->ar_engine->getAcc();
         gd.Brake = truck->ar_brake / truck->ar_brake_force;
-        gd.Clutch = 1 - truck->engine->getClutch(); // 0-1
+        gd.Clutch = 1 - truck->ar_engine->getClutch(); // 0-1
 
         strncpy(gd.Display1, truck->realtruckname.c_str(), 15);
         if (truck->realtruckname.length() > 15)

@@ -194,11 +194,11 @@ void VehicleAI::update(float dt, int doUpdate)
     // actually steer
     beam->ar_hydro_dir_command = mYaw;//mYaw
 
-    if (beam->engine)
+    if (beam->ar_engine)
     {
         // start engine if not running
-        if (!beam->engine->isRunning())
-            beam->engine->start();
+        if (!beam->ar_engine->isRunning())
+            beam->ar_engine->start();
 
         float kmh_wheel_speed = beam->getWheelSpeed() * 3.6;
 
@@ -207,17 +207,17 @@ void VehicleAI::update(float dt, int doUpdate)
             if (kmh_wheel_speed < maxspeed - 1)
             {
                 beam->ar_brake = 0;
-                beam->engine->autoSetAcc(acc_power);
+                beam->ar_engine->autoSetAcc(acc_power);
             }
             else if (kmh_wheel_speed > maxspeed + 1)
             {
                 beam->ar_brake = beam->ar_brake_force / 3;
-                beam->engine->autoSetAcc(0);
+                beam->ar_engine->autoSetAcc(0);
             }
             else
             {
                 beam->ar_brake = 0;
-                beam->engine->autoSetAcc(0);
+                beam->ar_engine->autoSetAcc(0);
             }
         }
         else
@@ -225,17 +225,17 @@ void VehicleAI::update(float dt, int doUpdate)
             if (kmh_wheel_speed < maxspeed - 1)
             {
                 beam->ar_brake = 0;
-                beam->engine->autoSetAcc(acc_power / 3);
+                beam->ar_engine->autoSetAcc(acc_power / 3);
             }
             else if (kmh_wheel_speed > maxspeed + 1)
             {
                 beam->ar_brake = beam->ar_brake_force / 2;
-                beam->engine->autoSetAcc(0);
+                beam->ar_engine->autoSetAcc(0);
             }
             else
             {
                 beam->ar_brake = 0;
-                beam->engine->autoSetAcc(0);
+                beam->ar_engine->autoSetAcc(0);
             }
         }
     }
