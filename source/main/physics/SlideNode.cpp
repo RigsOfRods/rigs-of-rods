@@ -102,17 +102,6 @@ RailBuilder::RailBuilder() :
     mLoop(false),
     mRetreived(false)
 {
-    /* do nothing */
-}
-
-RailBuilder::RailBuilder(Rail* start) :
-    mStart(start),
-    mFront(mStart),
-    mBack(mStart),
-    mLoop(false),
-    mRetreived(false)
-{
-    /* do nothing */
 }
 
 RailBuilder::~RailBuilder()
@@ -157,37 +146,9 @@ void RailBuilder::pushBack(beam_t* next)
     }
 }
 
-void RailBuilder::pushFront(beam_t* prev)
-{
-    if (!mStart)
-    {
-        mStart = new Rail(prev);
-        mBack = mStart;
-        mFront = mStart;
-    }
-    else if (!mStart->snr_beam)
-    {
-        mStart->snr_beam = prev;
-    }
-    else
-        mFront->snr_prev = new Rail(prev, NULL, mFront);
-    mFront = mFront->snr_prev;
-}
-
-//! wrapper method
-void RailBuilder::loopRail(bool doLoop)
-{
-    (doLoop) ? loopRail() : unLoopRail();
-}
-
 void RailBuilder::loopRail()
 {
     mLoop = true;
-}
-
-void RailBuilder::unLoopRail()
-{
-    mLoop = false;
 }
 
 Rail* RailBuilder::getCompletedRail()
