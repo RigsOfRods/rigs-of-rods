@@ -411,10 +411,6 @@ public:
     bool              useMaxRPMforGUI;
     float             minimass;
     bool              cparticle_enabled;
-    bool              advanced_drag;
-    float             advanced_node_drag;
-    float             advanced_total_drag;
-    int               free_commands;
     Ogre::Vector3     ar_origin;
     int               ar_num_cameras;
     int               ar_camera_node_pos[MAX_CAMERAS]; //!< Physics attr; 'camera' = frame of reference; origin node
@@ -610,6 +606,7 @@ private:
     float             m_odometer_user;         //!< GUI state
     Axle*             m_axles[MAX_WHEELS/2];   //!< Physics
     int               m_num_axles;             //!< Physics
+    int               m_num_command_beams;     //!< TODO: Remove! Spawner context only; likely unused feature
 
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?

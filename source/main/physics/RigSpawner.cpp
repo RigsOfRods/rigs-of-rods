@@ -322,7 +322,6 @@ void RigSpawner::InitializeRig()
     m_rig->truckmass=0;
     m_rig->loadmass=0;
     m_rig->buoyance = nullptr;
-    m_rig->free_commands=0;
     m_rig->ar_origin=Ogre::Vector3::ZERO;
     m_rig->m_slidenodes.clear();
 
@@ -359,9 +358,6 @@ void RigSpawner::InitializeRig()
     m_rig->useMaxRPMforGUI=false;
     m_rig->minimass=50.0;
     m_rig->cparticle_enabled=false;
-    m_rig->advanced_drag=false;
-    m_rig->advanced_node_drag=0;
-    m_rig->advanced_total_drag=0;
     m_rig->ar_num_cameras=0;
     m_rig->m_cab_mesh = nullptr;
     m_rig->m_cab_scene_node = nullptr;
@@ -3525,7 +3521,7 @@ void RigSpawner::ProcessCommand(RigDef::Command2 & def)
 
     CreateBeamVisuals(beam, beam_index, def.beam_defaults);
 
-    m_rig->free_commands++;
+    m_rig->m_num_command_beams++;
     m_rig->m_has_command_beams = true;
 }
 
@@ -6862,7 +6858,7 @@ void RigSpawner::SetupDefaultSoundSources(Beam *vehicle)
     }
 
     // linked sounds
-    for (int i=0; i<vehicle->free_commands; i++)
+    for (int i=0; i<vehicle->m_num_command_beams; i++)
     {
         AddSoundSource(vehicle, SoundScriptManager::getSingleton().createInstance(Ogre::String("tracks/linked/default_command/extend"), trucknum, NULL, SL_COMMAND, i), 0);
         AddSoundSource(vehicle, SoundScriptManager::getSingleton().createInstance(Ogre::String("tracks/linked/default_command/retract"), trucknum, NULL, SL_COMMAND, -i), 0);

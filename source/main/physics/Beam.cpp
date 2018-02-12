@@ -5635,6 +5635,7 @@ Beam::Beam(
     , m_num_axles(0)
     , m_axles{} // Init array to nullptr
     , m_has_command_beams(false)
+    , m_num_command_beams(0)
 {
     m_high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();
     useSkidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;
