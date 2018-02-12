@@ -199,10 +199,10 @@ Beam::~Beam()
     }
 
     // delete aeroengines
-    for (int i = 0; i < free_aeroengine; i++)
+    for (int i = 0; i < ar_num_aeroengines; i++)
     {
-        if (aeroengines[i])
-            delete aeroengines[i];
+        if (ar_aeroengines[i])
+            delete ar_aeroengines[i];
     }
 
     // delete screwprops
@@ -778,7 +778,7 @@ void Beam::calcNetwork()
     {
         SOUND_MODULATE(ar_instance_id, SS_MOD_ENGINE, engspeed);
     }
-    if (free_aeroengine > 0)
+    if (ar_num_aeroengines > 0)
     {
         SOUND_MODULATE(ar_instance_id, SS_MOD_AEROENGINE1, engspeed);
         SOUND_MODULATE(ar_instance_id, SS_MOD_AEROENGINE2, engspeed);
@@ -851,7 +851,7 @@ void Beam::calcNetwork()
 
 bool Beam::addPressure(float v)
 {
-    if (!free_pressure_beam)
+    if (!ar_free_pressure_beam)
         return false;
 
     float newpressure = std::max(0.0f, std::min(m_ref_tyre_pressure + v, 100.0f));
@@ -860,16 +860,16 @@ bool Beam::addPressure(float v)
         return false;
 
     m_ref_tyre_pressure = newpressure;
-    for (int i = 0; i < free_pressure_beam; i++)
+    for (int i = 0; i < ar_free_pressure_beam; i++)
     {
-        ar_beams[pressure_beams[i]].k = 10000 + m_ref_tyre_pressure * 10000;
+        ar_beams[ar_pressure_beams[i]].k = 10000 + m_ref_tyre_pressure * 10000;
     }
     return true;
 }
 
 float Beam::getPressure()
 {
-    if (free_pressure_beam)
+    if (ar_free_pressure_beam)
         return m_ref_tyre_pressure;
     return 0;
 }
@@ -1715,8 +1715,8 @@ void Beam::SyncReset()
         removeInterTruckBeam(it->beam);
     }
 
-    for (int i = 0; i < free_aeroengine; i++)
-        aeroengines[i]->reset();
+    for (int i = 0; i < ar_num_aeroengines; i++)
+        ar_aeroengines[i]->reset();
     for (int i = 0; i < ar_num_screwprops; i++)
         ar_screwprops[i]->reset();
     for (int i = 0; i < ar_num_rotators; i++)
@@ -1914,9 +1914,9 @@ void Beam::sendStreamData()
                 break;
             }
         }
-        if (free_aeroengine > 0)
+        if (ar_num_aeroengines > 0)
         {
-            float rpm = aeroengines[0]->getRPM();
+            float rpm = ar_aeroengines[0]->getRPM();
             send_oob->engine_speed = rpm;
         }
 
@@ -2248,7 +2248,7 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
     }
 
     //aeroengines rpm + throttle + torque ( turboprop ) + pitch ( turboprop ) + status +  fire
-    int ftp = free_aeroengine;
+    int ftp = ar_num_aeroengines;
 
     if (ftp > option3 - 1.0f)
     {
@@ -2256,7 +2256,7 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
         if (flag_state & ANIM_FLAG_RPM)
         {
             float angle;
-            float pcent = aeroengines[aenum]->getRPMpc();
+            float pcent = ar_aeroengines[aenum]->getRPMpc();
             if (pcent < 60.0)
                 angle = -5.0 + pcent * 1.9167;
             else if (pcent < 110.0)
@@ -2268,34 +2268,34 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
         }
         if (flag_state & ANIM_FLAG_THROTTLE)
         {
-            float throttle = aeroengines[aenum]->getThrottle();
+            float throttle = ar_aeroengines[aenum]->getThrottle();
             cstate -= throttle;
             div++;
         }
 
         if (flag_state & ANIM_FLAG_AETORQUE)
-            if (aeroengines[aenum]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP)
+            if (ar_aeroengines[aenum]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP)
             {
-                Turboprop* tp = (Turboprop*)aeroengines[aenum];
+                Turboprop* tp = (Turboprop*)ar_aeroengines[aenum];
                 cstate = (100.0 * tp->indicated_torque / tp->max_torque) / 120.0f;
                 div++;
             }
 
         if (flag_state & ANIM_FLAG_AEPITCH)
-            if (aeroengines[aenum]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP)
+            if (ar_aeroengines[aenum]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP)
             {
-                Turboprop* tp = (Turboprop*)aeroengines[aenum];
+                Turboprop* tp = (Turboprop*)ar_aeroengines[aenum];
                 cstate = tp->pitch / 120.0f;
                 div++;
             }
 
         if (flag_state & ANIM_FLAG_AESTATUS)
         {
-            if (!aeroengines[aenum]->getIgnition())
+            if (!ar_aeroengines[aenum]->getIgnition())
                 cstate = 0.0f;
             else
                 cstate = 0.5f;
-            if (aeroengines[aenum]->isFailed())
+            if (ar_aeroengines[aenum]->isFailed())
                 cstate = 1.0f;
             div++;
         }
@@ -3637,8 +3637,8 @@ void Beam::updateVisual(float dt)
 
     updateProps();
 
-    for (int i = 0; i < free_aeroengine; i++)
-        aeroengines[i]->updateVisuals();
+    for (int i = 0; i < ar_num_aeroengines; i++)
+        ar_aeroengines[i]->updateVisuals();
 
     //wings
     float autoaileron = 0;
@@ -5246,17 +5246,17 @@ void Beam::updateDashBoards(float dt)
     }
 
     // now airplane things, aeroengines, etc.
-    if (free_aeroengine)
+    if (ar_num_aeroengines)
     {
-        for (int i = 0; i < free_aeroengine && i < DD_MAX_AEROENGINE; i++)
+        for (int i = 0; i < ar_num_aeroengines && i < DD_MAX_AEROENGINE; i++)
         {
-            float throttle = aeroengines[i]->getThrottle();
+            float throttle = ar_aeroengines[i]->getThrottle();
             ar_dashboard->setFloat(DD_AEROENGINE_THROTTLE_0 + i, throttle);
 
-            bool failed = aeroengines[i]->isFailed();
+            bool failed = ar_aeroengines[i]->isFailed();
             ar_dashboard->setBool(DD_AEROENGINE_FAILED_0 + i, failed);
 
-            float pcent = aeroengines[i]->getRPMpc();
+            float pcent = ar_aeroengines[i]->getRPMpc();
             ar_dashboard->setFloat(DD_AEROENGINE_RPM_0 + i, pcent);
         }
     }
@@ -5273,7 +5273,7 @@ void Beam::updateDashBoards(float dt)
     }
 
     // some things only activate when a wing or an aeroengine is present
-    if (ar_num_wings || free_aeroengine)
+    if (ar_num_wings || ar_num_aeroengines)
     {
         //airspeed
         {
@@ -5669,6 +5669,10 @@ Beam::Beam(
     , ar_screwprops{} // Init array to nullptr
     , ar_num_screwprops(0)
     , ar_num_camera_rails(0)
+    , ar_aeroengines() // Zero-init array
+    , ar_num_aeroengines() // Zero-init
+    , ar_pressure_beams() // Zero-init array
+    , ar_free_pressure_beam() // Zero-init
 {
     m_high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();
     m_use_skidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;

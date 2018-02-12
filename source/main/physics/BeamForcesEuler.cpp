@@ -185,9 +185,9 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     BES_START(BES_CORE_Turboprop);
 
     //turboprop forces
-    for (int i = 0; i < free_aeroengine; i++)
-        if (aeroengines[i])
-            aeroengines[i]->updateForces(dt, doUpdate);
+    for (int i = 0; i < ar_num_aeroengines; i++)
+        if (ar_aeroengines[i])
+            ar_aeroengines[i]->updateForces(dt, doUpdate);
 
     BES_STOP(BES_CORE_Turboprop);
     BES_START(BES_CORE_Screwprop);

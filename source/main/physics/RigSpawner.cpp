@@ -238,7 +238,7 @@ void RigSpawner::InitializeRig()
     if (req.num_wings > 0)
         m_rig->ar_wings = new wing_t[req.num_wings];
 
-    // clear rig parent structure
+    // TODO: Perform these inits in constructor instead! ~ only_a_ptr, 01/2018
     memset(m_rig->contacters, 0, sizeof(contacter_t) * MAX_CONTACTERS);
     m_rig->free_contacter = 0;
     memset(m_rig->wheels, 0, sizeof(wheel_t) * MAX_WHEELS);
@@ -266,10 +266,6 @@ void RigSpawner::InitializeRig()
     m_rig->beams_debug.clear();
     memset(m_rig->soundsources, 0, sizeof(soundsource_t) * MAX_SOUNDSCRIPTS_PER_TRUCK);
     m_rig->free_soundsource = 0;
-    memset(m_rig->pressure_beams, 0, sizeof(int) * MAX_PRESSURE_BEAMS);
-    m_rig->free_pressure_beam = 0;
-    memset(m_rig->aeroengines, 0, sizeof(AeroEngine *) * MAX_AEROENGINES);
-    m_rig->free_aeroengine = 0;
     memset(m_rig->ar_collcabs, 0, sizeof(int) * MAX_CABS);
     memset(m_rig->ar_inter_collcabrate, 0, sizeof(collcab_rate_t) * MAX_CABS);
     m_rig->ar_num_collcabs = 0;
@@ -661,10 +657,10 @@ void RigSpawner::WashCalculator()
 
     //we will compute wash
     int w,p;
-    for (p=0; p<m_rig->free_aeroengine; p++)
+    for (p=0; p<m_rig->ar_num_aeroengines; p++)
     {
-        Ogre::Vector3 prop=m_rig->ar_nodes[m_rig->aeroengines[p]->getNoderef()].RelPosition;
-        float radius=m_rig->aeroengines[p]->getRadius();
+        Ogre::Vector3 prop=m_rig->ar_nodes[m_rig->ar_aeroengines[p]->getNoderef()].RelPosition;
+        float radius=m_rig->ar_aeroengines[p]->getRadius();
         for (w=0; w<m_rig->ar_num_wings; w++)
         {
             //left wash
@@ -708,7 +704,7 @@ void RigSpawner::ProcessTurbojet(RigDef::Turbojet & def)
     ref   = GetNodeIndexOrThrow(def.side_node);
     
     Turbojet *tj=new Turbojet(
-        m_rig->free_aeroengine, 
+        m_rig->ar_num_aeroengines, 
         m_rig->ar_instance_id, 
         m_rig->ar_nodes, 
         front, 
@@ -721,27 +717,27 @@ void RigSpawner::ProcessTurbojet(RigDef::Turbojet & def)
         m_rig->ar_use_heathaze);
     
     // Visuals
-    std::string nozzle_name = this->ComposeName("TurbojetNozzle", m_rig->free_aeroengine);
+    std::string nozzle_name = this->ComposeName("TurbojetNozzle", m_rig->ar_num_aeroengines);
     Ogre::Entity* nozzle_ent = gEnv->sceneManager->createEntity(nozzle_name, "nozzle.mesh");
     this->SetupNewEntity(nozzle_ent, Ogre::ColourValue(1, 0.5, 0.5));
     Ogre::Entity* afterburn_ent = nullptr;
     if (def.wet_thrust > 0.f)
     {
-        std::string flame_name = this->ComposeName("AfterburnerFlame", m_rig->free_aeroengine);
+        std::string flame_name = this->ComposeName("AfterburnerFlame", m_rig->ar_num_aeroengines);
         afterburn_ent = gEnv->sceneManager->createEntity(flame_name, "abflame.mesh");
         this->SetupNewEntity(afterburn_ent, Ogre::ColourValue(1, 1, 0));
     }
-    std::string propname = this->ComposeName("Turbojet", m_rig->free_aeroengine);
+    std::string propname = this->ComposeName("Turbojet", m_rig->ar_num_aeroengines);
     tj->SetupVisuals(propname, nozzle_ent, def.back_diameter, def.nozzle_length, afterburn_ent, m_rig->m_disable_smoke);
     
-    m_rig->aeroengines[m_rig->free_aeroengine]=tj;
+    m_rig->ar_aeroengines[m_rig->ar_num_aeroengines]=tj;
     m_rig->ar_driveable=AIRPLANE;
     if (m_rig->ar_autopilot == nullptr && m_rig->ar_sim_state != Beam::SimState::NETWORKED_OK)
     {
         m_rig->ar_autopilot=new Autopilot(m_rig->ar_instance_id);
     }
 
-    m_rig->free_aeroengine++;
+    m_rig->ar_num_aeroengines++;
 }
 
 std::string RigSpawner::ComposeName(const char* type, int number)
@@ -842,7 +838,7 @@ void RigSpawner::BuildAerialEngine(
     SPAWNER_PROFILE_SCOPED();
 
     Turboprop *turbo_prop = new Turboprop(
-        this->ComposeName("Turboprop", m_rig->free_aeroengine).c_str(),
+        this->ComposeName("Turboprop", m_rig->ar_num_aeroengines).c_str(),
         m_rig->ar_nodes, 
         ref_node_index,
         back_node_index,
@@ -853,15 +849,15 @@ void RigSpawner::BuildAerialEngine(
         couplenode_index,
         power,
         airfoil,
-        m_rig->free_aeroengine,
+        m_rig->ar_num_aeroengines,
         m_rig->ar_instance_id,
         m_rig->m_disable_smoke,
         ! is_turboprops,
         pitch,
         m_rig->ar_use_heathaze
     );
-    m_rig->aeroengines[m_rig->free_aeroengine] = turbo_prop;
-    m_rig->free_aeroengine++;
+    m_rig->ar_aeroengines[m_rig->ar_num_aeroengines] = turbo_prop;
+    m_rig->ar_num_aeroengines++;
     m_rig->ar_driveable = AIRPLANE;
 
     /* Autopilot */
@@ -1007,7 +1003,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
         def.max_deflection,
         def.airfoil,
         def.efficacy_coef,
-        m_rig->aeroengines,
+        m_rig->ar_aeroengines,
         m_rig->ar_sim_state != Beam::SimState::NETWORKED_OK
     );
 
@@ -5295,8 +5291,8 @@ unsigned int RigSpawner::AddTyreBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_
     beam.k = wheel_2_def.tyre_springiness;
     beam.d = wheel_2_def.tyre_damping;
 
-    m_rig->pressure_beams[m_rig->free_pressure_beam] = beam_index;
-    m_rig->free_pressure_beam++;
+    m_rig->ar_pressure_beams[m_rig->ar_free_pressure_beam] = beam_index;
+    m_rig->ar_free_pressure_beam++;
 
     return beam_index;
 }
@@ -6470,7 +6466,7 @@ bool RigSpawner::CheckAeroEngineLimit(unsigned int count)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if ((m_rig->free_aeroengine + count) > MAX_AEROENGINES)
+    if ((m_rig->ar_num_aeroengines + count) > MAX_AEROENGINES)
     {
         std::stringstream msg;
         msg << "AeroEngine limit (" << MAX_AEROENGINES << ") exceeded";
@@ -6736,24 +6732,24 @@ void RigSpawner::SetupDefaultSoundSources(Beam *vehicle)
         AddSoundSourceInstance(vehicle, "tracks/default_aivionic_chat13", 0);
     }
     //airplane engines
-    for (int i=0; i<vehicle->free_aeroengine && i<8; i++)
+    for (int i=0; i<vehicle->ar_num_aeroengines && i<8; i++)
     {
-        int turbojet_node = vehicle->aeroengines[i]->getNoderef();
+        int turbojet_node = vehicle->ar_aeroengines[i]->getNoderef();
         Ogre::String index_str = TOSTRING(i+1);
 
-        if (vehicle->aeroengines[i]->getType()==AeroEngine::AEROENGINE_TYPE_TURBOJET)
+        if (vehicle->ar_aeroengines[i]->getType()==AeroEngine::AEROENGINE_TYPE_TURBOJET)
         {
             AddSoundSourceInstance(vehicle, "tracks/default_turbojet_start" + index_str, turbojet_node);
             AddSoundSourceInstance(vehicle, "tracks/default_turbojet_lopower" + index_str, turbojet_node);
             AddSoundSourceInstance(vehicle, "tracks/default_turbojet_hipower" + index_str, turbojet_node);
-            if (((Turbojet*)(vehicle->aeroengines[i]))->afterburnable)
+            if (((Turbojet*)(vehicle->ar_aeroengines[i]))->afterburnable)
             {
                 AddSoundSourceInstance(vehicle, "tracks/default_turbojet_afterburner" + index_str, turbojet_node);
             }
         }
-        else if (vehicle->aeroengines[i]->getType()==AeroEngine::AEROENGINE_TYPE_TURBOPROP)
+        else if (vehicle->ar_aeroengines[i]->getType()==AeroEngine::AEROENGINE_TYPE_TURBOPROP)
         {
-            if (((Turboprop*)vehicle->aeroengines[i])->is_piston)
+            if (((Turboprop*)vehicle->ar_aeroengines[i])->is_piston)
             {
                 AddSoundSourceInstance(vehicle, "tracks/default_pistonprop_start" + index_str, turbojet_node);
                 AddSoundSourceInstance(vehicle, "tracks/default_pistonprop_lopower" + index_str, turbojet_node);
