@@ -245,7 +245,7 @@ public:
     Ogre::Vector3     GetFFbBodyForces() const          { return m_force_sensors.out_body_forces; }
     PointColDetector* IntraPointCD()                    { return m_intra_point_col_detector; }
     PointColDetector* InterPointCD()                    { return m_inter_point_col_detector; }
-    Ogre::SceneNode*  getSceneNode()                    { return beamsRoot; }
+    Ogre::SceneNode*  getSceneNode()                    { return m_beam_visuals_parent_scenenode; }
     RoR::GfxActor*    GetGfxActor()                     { return m_gfx_actor.get(); }
     void              RequestUpdateHudFeatures()        { m_hud_features_ok = false; }
     Ogre::Vector3     getNodePosition(int nodeNumber);     //!< Returns world position of node
@@ -419,7 +419,6 @@ public:
     int               free_axle;
     int               free_commands;
     Ogre::Vector3     ar_origin;
-    Ogre::SceneNode*  beamsRoot;
     int               ar_num_cameras;
     int               ar_camera_node_pos[MAX_CAMERAS]; //!< Physics attr; 'camera' = frame of reference; origin node
     int               ar_camera_node_dir[MAX_CAMERAS]; //!< Physics attr; 'camera' = frame of reference; back node
@@ -540,6 +539,7 @@ private:
     std::vector<Ogre::String>          m_truck_config;
     std::vector<SlideNode>             m_slidenodes;       //!< all the SlideNodes available on this truck
     std::vector<RailGroup*>            m_railgroups;       //!< all the available RailGroups for this actor
+    Ogre::SceneNode*  m_beam_visuals_parent_scenenode;     //!< Gfx
     int               m_proped_wheel_pairs[MAX_WHEELS];    //!< Physics attr; For inter-differential locking
     int               m_num_braked_wheels;          //!< Physics attr, filled at spawn - Number of braked wheels.
     int               m_num_proped_wheels;          //!< Physics attr, filled at spawn - Number of propelled wheels.
