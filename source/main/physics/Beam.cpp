@@ -3603,7 +3603,7 @@ void Beam::updateVisual(float dt)
         }
     }
     // update exhausts
-    if (!disable_smoke && ar_engine && exhausts.size() > 0)
+    if (!m_disable_smoke && ar_engine && exhausts.size() > 0)
     {
         std::vector<exhaust_t>::iterator it;
         for (it = exhausts.begin(); it != exhausts.end(); it++)
