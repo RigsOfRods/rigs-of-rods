@@ -459,7 +459,7 @@ void RigSpawner::InitializeRig()
     m_rig->ar_submesh_ground_model = gEnv->collisions->defaultgm;
     m_rig->cparticle_enabled = App::gfx_particles_mode.GetActive() == 1;
 
-    DustManager& dustman = m_sim_controller->GetBeamFactory()->GetParticleManager();
+    DustManager& dustman = RoR::App::GetSimController()->GetBeamFactory()->GetParticleManager();
     m_rig->m_particles_dust   = dustman.getDustPool("dust");
     m_rig->m_particles_drip   = dustman.getDustPool("drip");
     m_rig->m_particles_sparks = dustman.getDustPool("sparks");
@@ -809,7 +809,7 @@ void RigSpawner::ProcessScrewprop(RigDef::Screwprop & def)
     int top_node_idx = GetNodeIndexOrThrow(def.top_node);
 
     m_rig->screwprops[m_rig->free_screwprop] = new Screwprop(
-        &m_sim_controller->GetBeamFactory()->GetParticleManager(),
+        &RoR::App::GetSimController()->GetBeamFactory()->GetParticleManager(),
         m_rig->ar_nodes,
         ref_node_idx,
         back_node_idx,
@@ -1629,7 +1629,7 @@ void RigSpawner::ProcessSubmesh(RigDef::Submesh & def)
 
         if (mk_buoyance && (m_rig->buoyance == nullptr))
         {
-            auto& dustman = m_sim_controller->GetBeamFactory()->GetParticleManager();
+            auto& dustman = App::GetSimController()->GetBeamFactory()->GetParticleManager();
             m_rig->buoyance=new Buoyance(dustman.getDustPool("splash"), dustman.getDustPool("ripple"));
         }
         m_rig->free_cab++;
@@ -4858,7 +4858,7 @@ void RigSpawner::CreateWheelSkidmarks(unsigned int wheel_index)
 {
     // Always create, even if disabled by config
     m_rig->skidtrails[wheel_index] = new RoR::Skidmark(
-        m_sim_controller->GetSkidmarkConf(), m_sim_controller, &m_rig->wheels[wheel_index], m_rig->beamsRoot, 300, 20);
+        RoR::App::GetSimController()->GetSkidmarkConf(), RoR::App::GetSimController(), &m_rig->wheels[wheel_index], m_rig->beamsRoot, 300, 20);
 }
 
 #if 0 // refactored into pieces

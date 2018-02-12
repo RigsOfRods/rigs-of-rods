@@ -20,6 +20,7 @@
 
 #include "RoRPrerequisites.h"
 
+#include "Application.h"
 #include "AeroEngine.h"
 #include "AirBrake.h"
 #include "Airfoil.h"
@@ -51,7 +52,7 @@ using namespace Ogre;
 void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps)
 {
     IWater* water = nullptr;
-    const bool is_player_truck = this == m_sim_controller->GetPlayerActor();
+    const bool is_player_truck = this == RoR::App::GetSimController()->GetPlayerActor();
 
     if (gEnv->terrainManager)
         water = gEnv->terrainManager->getWater();
@@ -1906,8 +1907,8 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 
 void Beam::forwardCommands()
 {
-    Beam* current_truck = m_sim_controller->GetPlayerActor();
-    auto bf = m_sim_controller->GetBeamFactory();
+    Beam* current_truck = RoR::App::GetSimController()->GetPlayerActor();
+    auto bf = RoR::App::GetSimController()->GetBeamFactory();
     Beam** trucks = bf->getTrucks();
     int numtrucks = bf->getTruckCount();
 

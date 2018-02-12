@@ -25,6 +25,7 @@
 
 #include "SlideNode.h"
 
+#include "Application.h"
 #include "Beam.h"
 #include "BeamFactory.h"
 #include "RoRFrameListener.h"
@@ -32,8 +33,8 @@
 // ug... BAD PERFORMNCE, BAD!!
 void Beam::toggleSlideNodeLock()
 {
-    int trucksnum = m_sim_controller->GetBeamFactory()->getTruckCount();
-    int curTruck = m_sim_controller->GetBeamFactory()->getCurrentTruckNumber();
+    int trucksnum = RoR::App::GetSimController()->GetBeamFactory()->getTruckCount();
+    int curTruck = RoR::App::GetSimController()->GetBeamFactory()->getCurrentTruckNumber();
 
     // for every slide node on this truck
     for (std::vector<SlideNode>::iterator itNode = m_slidenodes.begin(); itNode != m_slidenodes.end(); itNode++)
@@ -59,7 +60,7 @@ void Beam::toggleSlideNodeLock()
                 (curTruck == i && itNode->getAttachRule(ATTACH_SELF))))
                 continue;
 
-            current = getClosestRailOnTruck(m_sim_controller->GetBeamFactory()->getTruck(i), (*itNode));
+            current = getClosestRailOnTruck(RoR::App::GetSimController()->GetBeamFactory()->getTruck(i), (*itNode));
             if (current.second < closest.second)
                 closest = current;
         } // this many

@@ -568,7 +568,6 @@ private:
     float             m_stabilizer_shock_sleep;     //!< Sim state
     Replay*           m_replay_handler;
     PositionStorage*  m_position_storage;
-    RoRFrameListener* m_sim_controller; // Temporary ~ only_a_ptr, 01/2017
     int               m_gfx_detail_level;      //!< Gfx state
     float             m_total_mass;            //!< Physics state; total mass in Kg
     int               m_mouse_grab_node;       //!< Sim state; node currently being dragged by user

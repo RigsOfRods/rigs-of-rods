@@ -330,11 +330,11 @@ int main(int argc, char *argv[])
             {
                 {
                     RoRFrameListener sim_controller(&force_feedback, &skidmark_conf);
+                    App::SetSimController(&sim_controller);
                     if (sim_controller.SetupGameplayLoop())
                     {
                         App::app_state.ApplyPending();
                         App::GetGuiManager()->ReflectGameState();
-                        App::SetSimController(&sim_controller);
                         sim_controller.EnterGameplayLoop();
                         App::SetSimController(nullptr);
                     }
