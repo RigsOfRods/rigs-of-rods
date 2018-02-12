@@ -56,7 +56,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     if (gEnv->terrainManager)
         water = gEnv->terrainManager->getWater();
 
-    increased_accuracy = false;
+    m_increased_accuracy = false;
 
     //engine callback
     if (engine)
@@ -659,23 +659,23 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     BES_START(BES_CORE_Shocks);
 
     //variable shocks for stabilization
-    if (this->ar_has_active_shocks && stabcommand)
+    if (this->ar_has_active_shocks && m_stabilizer_shock_request)
     {
-        if ((stabcommand == 1 && stabratio < 0.1) || (stabcommand == -1 && stabratio > -0.1))
-            stabratio = stabratio + (float)stabcommand * dt * STAB_RATE;
+        if ((m_stabilizer_shock_request == 1 && m_stabilizer_shock_ratio < 0.1) || (m_stabilizer_shock_request == -1 && m_stabilizer_shock_ratio > -0.1))
+            m_stabilizer_shock_ratio = m_stabilizer_shock_ratio + (float)m_stabilizer_shock_request * dt * STAB_RATE;
         for (int i = 0; i < ar_num_shocks; i++)
         {
             // active shocks now
             if (ar_shocks[i].flags & SHOCK_FLAG_RACTIVE)
-                ar_beams[ar_shocks[i].beamid].L = ar_beams[ar_shocks[i].beamid].refL * (1.0 + stabratio);
+                ar_beams[ar_shocks[i].beamid].L = ar_beams[ar_shocks[i].beamid].refL * (1.0 + m_stabilizer_shock_ratio);
             else if (ar_shocks[i].flags & SHOCK_FLAG_LACTIVE)
-                ar_beams[ar_shocks[i].beamid].L = ar_beams[ar_shocks[i].beamid].refL * (1.0 - stabratio);
+                ar_beams[ar_shocks[i].beamid].L = ar_beams[ar_shocks[i].beamid].refL * (1.0 - m_stabilizer_shock_ratio);
         }
     }
     //auto shock adjust
     if (this->ar_has_active_shocks && doUpdate)
     {
-        stabsleep -= dt * maxsteps;
+        m_stabilizer_shock_sleep -= dt * maxsteps;
 
         Vector3 dir = ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranoderoll[0]].RelPosition;
         dir.normalise();
@@ -683,30 +683,30 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         //mWindow->setDebugText("Roll:"+ TOSTRING(roll));
         if (fabs(roll) > 0.2)
         {
-            stabsleep = -1.0; //emergency timeout stop
+            m_stabilizer_shock_sleep = -1.0; //emergency timeout stop
         }
-        if (fabs(roll) > 0.01 && stabsleep < 0.0)
+        if (fabs(roll) > 0.01 && m_stabilizer_shock_sleep < 0.0)
         {
-            if (roll > 0.0 && stabcommand != -1)
+            if (roll > 0.0 && m_stabilizer_shock_request != -1)
             {
-                stabcommand = 1;
+                m_stabilizer_shock_request = 1;
             }
-            else if (roll < 0.0 && stabcommand != 1)
+            else if (roll < 0.0 && m_stabilizer_shock_request != 1)
             {
-                stabcommand = -1;
+                m_stabilizer_shock_request = -1;
             }
             else
             {
-                stabcommand = 0;
-                stabsleep = 3.0;
+                m_stabilizer_shock_request = 0;
+                m_stabilizer_shock_sleep = 3.0;
             }
         }
         else
         {
-            stabcommand = 0;
+            m_stabilizer_shock_request = 0;
         }
 
-        if (stabcommand && fabs(stabratio) < 0.1)
+        if (m_stabilizer_shock_request && fabs(m_stabilizer_shock_ratio) < 0.1)
             SOUND_START(trucknum, SS_TRIG_AIR);
         else
             SOUND_STOP(trucknum, SS_TRIG_AIR);
@@ -1248,13 +1248,13 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     BES_START(BES_CORE_Replay);
 
     // we also store a new replay frame
-    if (replay && replay->isValid())
+    if (m_replay_handler && m_replay_handler->isValid())
     {
-        replayTimer += dt;
-        if (replayTimer > replayPrecision)
+        m_replay_timer += dt;
+        if (m_replay_timer > ar_replay_precision)
         {
             // store nodes
-            node_simple_t* nbuff = (node_simple_t *)replay->getWriteBuffer(0);
+            node_simple_t* nbuff = (node_simple_t *)m_replay_handler->getWriteBuffer(0);
             if (nbuff)
             {
                 for (int i = 0; i < ar_num_nodes; i++)
@@ -1266,7 +1266,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
             }
 
             // store beams
-            beam_simple_t* bbuff = (beam_simple_t *)replay->getWriteBuffer(1);
+            beam_simple_t* bbuff = (beam_simple_t *)m_replay_handler->getWriteBuffer(1);
             if (bbuff)
             {
                 for (int i = 0; i < ar_num_beams; i++)
@@ -1276,8 +1276,8 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
                 }
             }
 
-            replay->writeDone();
-            replayTimer = 0.0f;
+            m_replay_handler->writeDone();
+            m_replay_timer = 0.0f;
         }
     }
 
@@ -1442,7 +1442,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                     // Actual deformation tests
                     if (slen > ar_beams[i].maxposstress && difftoBeamL < 0.0f) // compression
                     {
-                        increased_accuracy = true;
+                        m_increased_accuracy = true;
                         Real yield_length = ar_beams[i].maxposstress / k;
                         Real deform = difftoBeamL + yield_length * (1.0f - ar_beams[i].plastic_coef);
                         Real Lold = ar_beams[i].L;
@@ -1470,7 +1470,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                     }
                     else if (slen < ar_beams[i].maxnegstress && difftoBeamL > 0.0f) // expansion
                     {
-                        increased_accuracy = true;
+                        m_increased_accuracy = true;
                         Real yield_length = ar_beams[i].maxnegstress / k;
                         Real deform = difftoBeamL + yield_length * (1.0f - ar_beams[i].plastic_coef);
                         Real Lold = ar_beams[i].L;
@@ -1503,7 +1503,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                     SOUND_MODULATE(trucknum, SS_MOD_BREAK, 0.5 * k * difftoBeamL * difftoBeamL);
                     SOUND_PLAY_ONCE(trucknum, SS_TRIG_BREAK);
 
-                    increased_accuracy = true;
+                    m_increased_accuracy = true;
 
                     //Break the beam only when it is not connected to a node
                     //which is a part of a collision triangle and has 2 "live" beams or less
@@ -1738,10 +1738,10 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                 }
                 else
                 {
-                    if (!ar_nodes[i].iswheel && dripp)
-                        dripp->allocDrip(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity, ar_nodes[i].wettime);
-                    if (ar_nodes[i].isHot && dustp)
-                        dustp->allocVapour(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity, ar_nodes[i].wettime);
+                    if (!ar_nodes[i].iswheel && m_particles_drip)
+                        m_particles_drip->allocDrip(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity, ar_nodes[i].wettime);
+                    if (ar_nodes[i].isHot && m_particles_dust)
+                        m_particles_dust->allocVapour(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity, ar_nodes[i].wettime);
                 }
             }
         }
@@ -1750,7 +1750,7 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
         if (!ar_nodes[i].contactless)
         {
             ar_nodes[i].collTestTimer += dt;
-            if (ar_nodes[i].contacted || ar_nodes[i].collTestTimer > 0.005 || ((ar_nodes[i].iswheel || ar_nodes[i].wheelid != -1) && (high_res_wheelnode_collisions || ar_nodes[i].collTestTimer > 0.0025)) || increased_accuracy)
+            if (ar_nodes[i].contacted || ar_nodes[i].collTestTimer > 0.005 || ((ar_nodes[i].iswheel || ar_nodes[i].wheelid != -1) && (high_res_wheelnode_collisions || ar_nodes[i].collTestTimer > 0.0025)) || m_increased_accuracy)
             {
                 float ns = 0;
                 ground_model_t* gm = 0; // this is used as result storage, so we can use it later on
@@ -1766,16 +1766,16 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                         switch (gm->fx_type)
                         {
                         case Collisions::FX_DUSTY:
-                            if (dustp)
-                                dustp->malloc(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity / 2.0, gm->fx_colour);
+                            if (m_particles_dust)
+                                m_particles_dust->malloc(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity / 2.0, gm->fx_colour);
                             break;
 
                         case Collisions::FX_HARD:
                             // smokey
                             if (ar_nodes[i].iswheel && ns > thresold)
                             {
-                                if (dustp)
-                                    dustp->allocSmoke(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity);
+                                if (m_particles_dust)
+                                    m_particles_dust->allocSmoke(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity);
 
                                 SOUND_MODULATE(trucknum, SS_MOD_SCREETCH, (ns - thresold) / thresold);
                                 SOUND_PLAY_ONCE(trucknum, SS_TRIG_SCREETCH);
@@ -1798,8 +1798,8 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                             if (!ar_nodes[i].iswheel && ns > 1.0 && !ar_nodes[i].disable_sparks)
                             {
                                 // friction < 10 will remove the 'f' nodes from the spark generation nodes
-                                if (sparksp)
-                                    sparksp->allocSparks(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity);
+                                if (m_particles_sparks)
+                                    m_particles_sparks->allocSparks(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity);
                             }
                             if (ar_nodes[i].iswheel && ns < thresold)
                             {
@@ -1813,8 +1813,8 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                         case Collisions::FX_CLUMPY:
                             if (ar_nodes[i].Velocity.squaredLength() > 1.0)
                             {
-                                if (clumpp)
-                                    clumpp->allocClump(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity / 2.0, gm->fx_colour);
+                                if (m_particles_clump)
+                                    m_particles_clump->allocClump(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity / 2.0, gm->fx_colour);
                             }
                             break;
                         default:
@@ -1823,7 +1823,7 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                         }
                     }
 
-                    lastFuzzyGroundModel = gm;
+                    m_last_fuzzy_ground_model = gm;
                 }
                 ar_nodes[i].collTestTimer = 0.0;
             }
@@ -1882,10 +1882,10 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                     // basic splashing
                     if (doUpdate && water->GetStaticWaterHeight() - ar_nodes[i].AbsPosition.y < 0.2 && ar_nodes[i].Velocity.squaredLength() > 4.0 && !ar_nodes[i].disable_particles)
                     {
-                        if (splashp)
-                            splashp->allocSplash(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity);
-                        if (ripplep)
-                            ripplep->allocRipple(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity);
+                        if (m_particles_splash)
+                            m_particles_splash->allocSplash(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity);
+                        if (m_particles_ripple)
+                            m_particles_ripple->allocRipple(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity);
                     }
                 }
                 // engine stall

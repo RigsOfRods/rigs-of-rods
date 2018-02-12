@@ -805,19 +805,19 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
             }
             else // we are in a vehicle
             {
-                if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_TRUCK) && !curr_truck->replaymode)
+                if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_TRUCK) && !curr_truck->ar_replay_mode)
                 {
                     this->StopRaceTimer();
                     curr_truck->reset();
                 }
-                else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REMOVE_CURRENT_TRUCK) && !curr_truck->replaymode)
+                else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REMOVE_CURRENT_TRUCK) && !curr_truck->ar_replay_mode)
                 {
                     this->StopRaceTimer();
                     Vector3 center = curr_truck->getRotationCenter();
                     this->RemovePlayerActor();
                     gEnv->player->setPosition(center);
                 }
-                else if ((RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK) || m_advanced_truck_repair) && !curr_truck->replaymode)
+                else if ((RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK) || m_advanced_truck_repair) && !curr_truck->ar_replay_mode)
                 {
                     this->StopRaceTimer();
                     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK))
@@ -928,23 +928,23 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                         }
                     }
                     // replay mode
-                    if (curr_truck->replaymode)
+                    if (curr_truck->ar_replay_mode)
                     {
-                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FORWARD, 0.1f) && curr_truck->replaypos <= 0)
+                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FORWARD, 0.1f) && curr_truck->ar_replay_pos <= 0)
                         {
-                            curr_truck->replaypos++;
+                            curr_truck->ar_replay_pos++;
                         }
-                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_BACKWARD, 0.1f) && curr_truck->replaypos > -curr_truck->replaylen)
+                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_BACKWARD, 0.1f) && curr_truck->ar_replay_pos > -curr_truck->ar_replay_length)
                         {
-                            curr_truck->replaypos--;
+                            curr_truck->ar_replay_pos--;
                         }
-                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FAST_FORWARD, 0.1f) && curr_truck->replaypos + 10 <= 0)
+                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FAST_FORWARD, 0.1f) && curr_truck->ar_replay_pos + 10 <= 0)
                         {
-                            curr_truck->replaypos += 10;
+                            curr_truck->ar_replay_pos += 10;
                         }
-                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FAST_BACKWARD, 0.1f) && curr_truck->replaypos - 10 > -curr_truck->replaylen)
+                        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FAST_BACKWARD, 0.1f) && curr_truck->ar_replay_pos - 10 > -curr_truck->ar_replay_length)
                         {
-                            curr_truck->replaypos -= 10;
+                            curr_truck->ar_replay_pos -= 10;
                         }
                         if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU) && RoR::App::GetInputEngine()->isKeyDown(OIS::KC_V))
                         {
@@ -952,23 +952,23 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
 
                         if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU))
                         {
-                            if (curr_truck->replaypos <= 0 && curr_truck->replaypos >= -curr_truck->replaylen)
+                            if (curr_truck->ar_replay_pos <= 0 && curr_truck->ar_replay_pos >= -curr_truck->ar_replay_length)
                             {
                                 if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) || RoR::App::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT))
                                 {
-                                    curr_truck->replaypos += RoR::App::GetInputEngine()->getMouseState().X.rel * 1.5f;
+                                    curr_truck->ar_replay_pos += RoR::App::GetInputEngine()->getMouseState().X.rel * 1.5f;
                                 }
                                 else
                                 {
-                                    curr_truck->replaypos += RoR::App::GetInputEngine()->getMouseState().X.rel * 0.05f;
+                                    curr_truck->ar_replay_pos += RoR::App::GetInputEngine()->getMouseState().X.rel * 0.05f;
                                 }
-                                if (curr_truck->replaypos > 0)
+                                if (curr_truck->ar_replay_pos > 0)
                                 {
-                                    curr_truck->replaypos = 0;
+                                    curr_truck->ar_replay_pos = 0;
                                 }
-                                if (curr_truck->replaypos < -curr_truck->replaylen)
+                                if (curr_truck->ar_replay_pos < -curr_truck->ar_replay_length)
                                 {
-                                    curr_truck->replaypos = -curr_truck->replaylen;
+                                    curr_truck->ar_replay_pos = -curr_truck->ar_replay_length;
                                 }
                             }
                         }
@@ -1113,7 +1113,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_REPLAY_MODE))
                     {
                         this->StopRaceTimer();
-                        curr_truck->setReplayMode(!curr_truck->replaymode);
+                        curr_truck->setReplayMode(!curr_truck->ar_replay_mode);
                     }
 
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_CUSTOM_PARTICLES))

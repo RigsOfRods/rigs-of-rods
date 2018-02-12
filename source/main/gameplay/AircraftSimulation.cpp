@@ -47,23 +47,23 @@ void AircraftSimulation::UpdateVehicle(Beam* vehicle, float seconds_since_last_f
     //AIRPLANE KEYS
     float commandrate = 4.0;
     //turning
-    if (vehicle->replaymode)
+    if (vehicle->ar_replay_mode)
     {
-        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FORWARD, 0.1f) && vehicle->replaypos <= 0)
+        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FORWARD, 0.1f) && vehicle->ar_replay_pos <= 0)
         {
-            vehicle->replaypos++;
+            vehicle->ar_replay_pos++;
         }
-        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_BACKWARD, 0.1f) && vehicle->replaypos > -vehicle->replaylen)
+        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_BACKWARD, 0.1f) && vehicle->ar_replay_pos > -vehicle->ar_replay_length)
         {
-            vehicle->replaypos--;
+            vehicle->ar_replay_pos--;
         }
-        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FAST_FORWARD, 0.1f) && vehicle->replaypos + 10 <= 0)
+        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FAST_FORWARD, 0.1f) && vehicle->ar_replay_pos + 10 <= 0)
         {
-            vehicle->replaypos += 10;
+            vehicle->ar_replay_pos += 10;
         }
-        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FAST_BACKWARD, 0.1f) && vehicle->replaypos - 10 > -vehicle->replaylen)
+        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FAST_BACKWARD, 0.1f) && vehicle->ar_replay_pos - 10 > -vehicle->ar_replay_length)
         {
-            vehicle->replaypos -= 10;
+            vehicle->ar_replay_pos -= 10;
         }
     }
     else
@@ -89,7 +89,7 @@ void AircraftSimulation::UpdateVehicle(Beam* vehicle, float seconds_since_last_f
     RoR::App::GetInputEngine()->smoothValue(vehicle->rudder, sum_rudder, seconds_since_last_frame * commandrate);
 
     //brake
-    if (!vehicle->replaymode && !vehicle->parkingbrake)
+    if (!vehicle->ar_replay_mode && !vehicle->parkingbrake)
     {
         vehicle->brake = 0.0;
         float brakevalue = RoR::App::GetInputEngine()->getEventValue(EV_AIRPLANE_BRAKE);

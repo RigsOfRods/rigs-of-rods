@@ -190,7 +190,7 @@ public:
     void              scaleTruck(float value);
     void              updateDebugOverlay();
     void              setDebugOverlayState(int mode);
-    void              calcBeam(beam_t& beam, bool doUpdate, Ogre::Real dt, int& increased_accuracy);
+    void              calcBeam(beam_t& beam, bool doUpdate, Ogre::Real dt, int& m_increased_accuracy);
     Ogre::Quaternion  specialGetRotationTo(const Ogre::Vector3& src, const Ogre::Vector3& dest) const;
     Ogre::String      getAxleLockName();	               //!< get the name of the current differential model
     int               getAxleLockCount();    
@@ -241,7 +241,7 @@ public:
     std::vector<authorinfo_t>     getAuthors();
     std::vector<std::string>      getDescription();
     RoR::PerVehicleCameraContext* GetCameraContext()    { return &m_camera_context; }
-    std::list<Beam*>  getAllLinkedBeams()               { return linkedBeams; }; //!< Returns a list of all connected (hooked) beams
+    std::list<Beam*>  getAllLinkedBeams()               { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
     Ogre::Vector3     GetFFbBodyForces() const          { return m_force_sensors.out_body_forces; }
     PointColDetector* IntraPointCD()                    { return intraPointCD; }
     PointColDetector* InterPointCD()                    { return interPointCD; }
@@ -453,8 +453,6 @@ public:
     std::vector< std::vector< int > > nodetonodeconnections;
     std::vector< std::vector< int > > nodebeamconnections;
     float             WheelSpeed;         //!< wheel speed in m/s
-    int               stabcommand;        //!< Stabilization; values: { -1, 0, 1 }
-    float             stabratio;
     float             hydrodircommand;
     bool              hydroSpeedCoupling;
     float             hydrodirstate;
@@ -466,15 +464,12 @@ public:
     float             hydroelevatorcommand;
     float             hydroelevatorstate;
     bool              canwork;
-    bool              replaymode;
-    Ogre::Real        replayPrecision;
+    Ogre::Real        ar_replay_precision;            //!< Sim attribute; determined at startup
     int               locked;
     int               lockedold;
-    int               oldreplaypos;
-    int               replaylen;
-    int               replaypos;
+    int               ar_replay_length;               //!< Sim attribute; clone of GVar 'sim_replay_length'
+    int               ar_replay_pos;                  //!< Sim state
     float             sleeptime;
-    int               previousGear;
     ground_model_t*   submesh_ground_model;
     int               parkingbrake;
     int               lights;
@@ -496,7 +491,7 @@ public:
     unsigned long     ar_net_last_update_time;
     DashBoardManager* ar_dashboard;
     int               ar_request_skeletonview_change; //!< Gfx state; Request activation(1) / deactivation(-1) of skeletonview
-    SimState          ar_sim_state;                   //!< Physics state
+    SimState          ar_sim_state;                   //!< Sim state
 
     // Bit flags
     bool ar_left_blink_on:1;  //!< Gfx state; turn signals
@@ -509,6 +504,7 @@ public:
     bool ar_disable_self_collision:1; //!< Physics attribute; clone of RoR.cfg entry "DisableSelfCollisions"
     bool ar_disable_actor2actor_collision:1; //!< Physics attribute; clone of RoR.cfg entry "DisableCollisions"
     bool ar_disable_aerodyn_turbulent_drag:1; //!< Physics state
+    bool ar_replay_mode;      //!< Sim state
 
 private:
 
@@ -562,37 +558,32 @@ private:
     std::bitset<MAX_WHEELS> flexmesh_prepare;
     std::bitset<MAX_FLEXBODIES> flexbody_prepare;
     std::vector<std::shared_ptr<Task>> flexbody_tasks;
-    std::list<Beam*> linkedBeams;     // linked beams (hooks)
+    std::list<Beam*>  m_linked_actors;     //!< Sim state; other actors linked with 'hooks'
     Ogre::Vector3     position; // average node position
     Ogre::Vector3     iPosition; // initial position
-    Ogre::Real        minCameraRadius;
+    Ogre::Real        m_min_camera_radius;
     Ogre::Vector3     lastposition;
     Ogre::Vector3     velocity; // average node velocity (compared to the previous frame step)
-    Ogre::Real        replayTimer;
-    ground_model_t*   lastFuzzyGroundModel;
+    Ogre::Real        m_replay_timer;            //!< Sim state
+    ground_model_t*   m_last_fuzzy_ground_model; //!< GUI state
     bool              high_res_wheelnode_collisions;
-    blinktype         blinkingtype; //!< Blinker = turn signal
+    blinktype         blinkingtype;              //!< Blinker = turn signal
     Ogre::Real        hydrolen;
     Ogre::SceneNode*  smokeNode;
     Ogre::ParticleSystem* smoker;
-    float             stabsleep;
-    Replay*           replay;
+    float             m_stabilizer_shock_sleep;
+    Replay*           m_replay_handler;
     PositionStorage*  posStorage;
     RoRFrameListener*              m_sim_controller; // Temporary ~ only_a_ptr, 01/2017
     std::shared_ptr<RigDef::File>  m_definition;
     std::unique_ptr<RoR::GfxActor> m_gfx_actor;
     RoR::PerVehicleCameraContext   m_camera_context;
-    bool              cparticle_mode;
-    int               detailLevel;
-    bool              increased_accuracy;
-    bool              m_beacon_light_is_active;
-    float             totalmass;
+    int               m_gfx_detail_level;      //!< Gfx state
+    float             m_total_mass;            //!< Physics state; total mass in Kg
     int               m_mouse_grab_node;       //!< Sim state; node currently being dragged by user
     Ogre::Vector3     m_mouse_grab_pos;
     float             m_mouse_grab_move_force;
     float             m_spawn_rotation;
-    bool              m_is_cinecam_rotation_center;
-    bool              m_preloaded_with_terrain;
     ResetRequest      m_reset_request;
     std::vector<Ogre::String> m_truck_config;
     std::vector<SlideNode> m_slidenodes;    //!< all the SlideNodes available on this truck
@@ -608,29 +599,29 @@ private:
     Ogre::MovableText*  m_net_label_mt;
     Ogre::SceneNode*    m_net_label_node;
     Ogre::String        m_net_username;
-    Ogre::Real        mTimeUntilNextToggle;
-    float             cabFadeTimer;
-    float             cabFadeTime;
-    int               cabFadeMode;           //<! Cab fading effect; values { -1, 0, 1, 2 }
-    Ogre::ManualObject* simpleSkeletonManualObject;
-    Ogre::SceneNode*  simpleSkeletonNode;
-    bool              simpleSkeletonInitiated; //!< Was the rig-skeleton mesh built?
-    bool              m_slidenodes_connect_on_spawn; //TODO: Remove! spawner context only!  //<! try to connect slide-nodes directly after spawning
+    float             m_custom_light_toggle_countdown; //!< Input system helper status
+    float             m_cab_fade_timer;
+    float             m_cab_fade_time;
+    int               m_cab_fade_mode;           //<! Cab fading effect; values { -1, 0, 1, 2 }
+    Ogre::ManualObject* m_skeletonview_manual_mesh;
+    Ogre::SceneNode*  m_skeletonview_scenenode;
     Ogre::Vector3     m_camera_gforces_accu;  //!< Accumulator for 'camera' G-forces
     int               m_camera_gforces_count; //!< Counter for 'camera' G-forces
     float             m_ref_tyre_pressure;    //!< Physics state
-    // dustpools
-    DustPool*         dustp;
-    DustPool*         dripp;
-    DustPool*         sparksp;
-    DustPool*         clumpp;
-    DustPool*         splashp;
-    DustPool*         ripplep;
-
-    int  m_net_first_wheel_node;   //!< Network attr; Determines data buffer layout
-    int  m_net_node_buf_size;      //!< Network attr; buffer size
-    int  m_net_buffer_size;        //!< Network attr; buffer size
-    int  m_wheel_node_count;       //!< Static attr; filled at spawn
+    float             m_stabilizer_shock_ratio;   //!< Physics state
+    int               m_stabilizer_shock_request; //!< Physics state; values: { -1, 0, 1 }
+    DustPool*         m_particles_dust;
+    DustPool*         m_particles_drip;
+    DustPool*         m_particles_sparks;
+    DustPool*         m_particles_clump;
+    DustPool*         m_particles_splash;
+    DustPool*         m_particles_ripple;
+    int               m_net_first_wheel_node; //!< Network attr; Determines data buffer layout
+    int               m_net_node_buf_size;    //!< Network attr; buffer size
+    int               m_net_buffer_size;      //!< Network attr; buffer size
+    int               m_wheel_node_count;     //!< Static attr; filled at spawn
+    int               m_replay_pos_prev;      //!< Sim state
+    int               m_previous_gear;        //!< Sim state; land vehicle shifting
 
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?
@@ -641,6 +632,13 @@ private:
     bool m_reverse_light_active:1; //!< Gfx state
     bool m_water_contact:1;        //!< Scripting state
     bool m_water_contact_old:1;    //!< Scripting state
+    bool m_increased_accuracy:1;   //!< Physics state; temporarily bypass collision test cooldown timers
+    bool m_beacon_light_is_active:1;        //!< Gfx state
+    bool m_custom_particles_enabled:1;      //!< Gfx state
+    bool m_skeletonview_mesh_initialized:1; //!< Gfx state; Was the rig-skeleton mesh built?
+    bool m_slidenodes_connect_on_spawn:1;   //<! spawn context: try to connect slide-nodes directly after spawning (TODO: remove!)
+    bool m_is_cinecam_rotation_center:1;    //<! Attribute; filled at spawn
+    bool m_preloaded_with_terrain:1;        //!< Spawn context (TODO: remove!)
 
 #ifdef FEAT_TIMING
     BeamThreadStats *statistics, *statistics_gfx;

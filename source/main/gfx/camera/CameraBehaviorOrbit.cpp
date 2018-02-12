@@ -167,7 +167,7 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext& ctx)
     }
     else
     {
-        if (ctx.mCurrTruck && ctx.mCurrTruck->replaymode && camDisplacement != Vector3::ZERO)
+        if (ctx.mCurrTruck && ctx.mCurrTruck->ar_replay_mode && camDisplacement != Vector3::ZERO)
             gEnv->mainCamera->setPosition(desiredPosition);
         else
             gEnv->mainCamera->setPosition(camPosition);
