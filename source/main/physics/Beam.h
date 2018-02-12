@@ -289,9 +289,9 @@ public:
     vwheel_t          vwheels[MAX_WHEELS];
     int               free_wheel;
     command_t         commandkey[MAX_COMMANDS + 10]; // 0 for safety
-    prop_t            props[MAX_PROPS];
-    prop_t*           driverSeat;
-    int               free_prop;
+    prop_t            ar_props[MAX_PROPS];
+    prop_t*           ar_driverseat_prop;
+    int               ar_num_props;
     cparticle_t       cparticles[MAX_CPARTICLES];
     int               free_cparticle;
     std::vector<debugtext_t> nodes_debug;
