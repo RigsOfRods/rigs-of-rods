@@ -226,7 +226,7 @@ void TopMenubar::addUserToMenu(RoRnet::UserInfo &user)
             for (unsigned int j = 0; j < matches.size(); j++)
             {
                 char tmp[512] = "";
-                sprintf(tmp, "  + %s (%s)", trucks[matches[j]]->realtruckname.c_str(),  trucks[matches[j]]->ar_filename.c_str());
+                sprintf(tmp, "  + %s (%s)", trucks[matches[j]]->ar_design_name.c_str(),  trucks[matches[j]]->ar_filename.c_str());
                 MyGUI::UString vehName = convertToMyGUIString(ANSI_TO_UTF(tmp));
                 m_vehicles_menu_widget->addItem(vehName, MyGUI::MenuItemType::Normal, "TRUCK_"+TOSTRING(matches[j]));
             }
@@ -253,7 +253,7 @@ void TopMenubar::vehiclesListUpdate()
             if (trucks[i]->ar_hide_in_actor_list) continue;
 
             char tmp[255] = {};
-            sprintf(tmp, "[%d] %s", i, trucks[i]->realtruckname.c_str());
+            sprintf(tmp, "[%d] %s", i, trucks[i]->ar_design_name.c_str());
 
             m_vehicles_menu_widget->addItem(String(tmp), MyGUI::MenuItemType::Normal, "TRUCK_"+TOSTRING(i));
         }

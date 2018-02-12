@@ -287,15 +287,15 @@ public:
     std::vector<flare_t>      ar_flares;
     std::vector<debugtext_t>  nodes_debug;
     std::vector<debugtext_t>  beams_debug;
-    Ogre::AxisAlignedBox      boundingBox;     //!< standard bounding box (surrounds all nodes of a truck)
-    Ogre::AxisAlignedBox      predictedBoundingBox;
+    Ogre::AxisAlignedBox      ar_bounding_box;     //!< standard bounding box (surrounds all nodes of a truck)
+    Ogre::AxisAlignedBox      ar_predicted_bounding_box;
     std::vector< std::vector< int > >  nodetonodeconnections;
     std::vector< std::vector< int > >  nodebeamconnections;
     std::vector<Ogre::Entity*>         deletion_Entities;   //!< For unloading vehicle; filled at spawn.
     std::vector<Ogre::MovableObject *> deletion_Objects;    //!< For unloading vehicle; filled at spawn.
     std::vector<Ogre::SceneNode*>      deletion_sceneNodes; //!< For unloading vehicle; filled at spawn.
-    std::vector<Ogre::AxisAlignedBox>  collisionBoundingBoxes; //!< smart bounding boxes, used for determining the state of a truck (every box surrounds only a subset of nodes)
-    std::vector<Ogre::AxisAlignedBox>  predictedCollisionBoundingBoxes;
+    std::vector<Ogre::AxisAlignedBox>  ar_collision_bounding_boxes; //!< smart bounding boxes, used for determining the state of a truck (every box surrounds only a subset of nodes)
+    std::vector<Ogre::AxisAlignedBox>  ar_predicted_coll_bounding_boxes;
     contacter_t       contacters[MAX_CONTACTERS];
     int               free_contacter;
     wheel_t           wheels[MAX_WHEELS];
@@ -328,14 +328,13 @@ public:
     int               free_buoycab;
     Airbrake*         airbrakes[MAX_AIRBRAKES];
     int               free_airbrake;
-    bool              useSkidmarks;
     FlexBody*         flexbodies[MAX_FLEXBODIES];
     int               free_flexbody;
     int               ar_camera_rail[MAX_CAMERARAIL]; //!< Nodes defining camera-movement spline
     int               free_camerarail;
-    bool              ar_hide_in_actor_list; //!< Hide in list of spawned actors (available in top menubar). Useful for fixed-place machinery, i.e. cranes.
-    Ogre::String      realtruckname;
-    float             ar_anim_previous_crank; //!< For 'animator' with flag 'torque'
+    bool              ar_hide_in_actor_list;      //!< Hide in list of spawned actors (available in top menubar). Useful for fixed-place machinery, i.e. cranes.
+    Ogre::String      ar_design_name;             //!< Name of the vehicle/machine/object this actor represents
+    float             ar_anim_previous_crank;     //!< For 'animator' with flag 'torque'
     float             alb_ratio;          //!< Anti-lock brake attribute: Regulating force
     float             alb_minspeed;       //!< Anti-lock brake attribute;
     int               alb_mode;           //!< Anti-lock brake status; Enabled? {1/0}
@@ -619,6 +618,7 @@ private:
     bool m_trigger_debug_enabled:1;     //!< Logging state
     bool m_disable_default_sounds:1;    //!< Spawner context; TODO: remove
     bool m_disable_smoke:1;             //!< Gfx state
+    bool m_use_skidmarks:1;             //!< Gfx attr; filled at spawn from GVar
 
 #ifdef FEAT_TIMING
     BeamThreadStats *statistics, *statistics_gfx;

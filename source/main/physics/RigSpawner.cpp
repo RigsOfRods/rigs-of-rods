@@ -2559,10 +2559,10 @@ void RigSpawner::ProcessCollisionBox(RigDef::CollisionBox & def)
             msg << "Invalid node '" << itor->ToString() << "'";
             continue;
         }
-        m_rig->ar_nodes[node_result.first].collisionBoundingBoxID = static_cast<char>(m_rig->collisionBoundingBoxes.size());
+        m_rig->ar_nodes[node_result.first].collisionBoundingBoxID = static_cast<char>(m_rig->ar_collision_bounding_boxes.size());
     }
 
-    m_rig->collisionBoundingBoxes.resize(m_rig->collisionBoundingBoxes.size() + 1);
+    m_rig->ar_collision_bounding_boxes.resize(m_rig->ar_collision_bounding_boxes.size() + 1);
 }
 
 bool RigSpawner::AssignWheelToAxle(int & _out_axle_wheel, node_t *axis_node_1, node_t *axis_node_2)
@@ -6581,22 +6581,22 @@ void RigSpawner::RecalculateBoundingBoxes(Beam *rig)
     SPAWNER_PROFILE_SCOPED();
 
     Ogre::Vector3 node_0_pos = rig->ar_nodes[0].AbsPosition;
-    rig->boundingBox.setExtents(
+    rig->ar_bounding_box.setExtents(
         node_0_pos.x, node_0_pos.y, node_0_pos.z, 
         node_0_pos.x, node_0_pos.y, node_0_pos.z
     );
-    rig->collisionBoundingBoxes.clear();
+    rig->ar_collision_bounding_boxes.clear();
 
     for (int i=0; i < rig->ar_num_nodes; i++)
     {
         node_t & node = rig->ar_nodes[i];
         Ogre::Vector3 node_position = node.AbsPosition;
-        rig->boundingBox.merge(node_position);
+        rig->ar_bounding_box.merge(node_position);
         if (node.collisionBoundingBoxID >= 0)
         {
-            if ((unsigned int) node.collisionBoundingBoxID >= rig->collisionBoundingBoxes.size())
+            if ((unsigned int) node.collisionBoundingBoxID >= rig->ar_collision_bounding_boxes.size())
             {
-                rig->collisionBoundingBoxes.push_back(
+                rig->ar_collision_bounding_boxes.push_back(
                     Ogre::AxisAlignedBox(
                         node_position.x, node_position.y, node_position.z, 
                         node_position.x, node_position.y, node_position.z
@@ -6605,22 +6605,22 @@ void RigSpawner::RecalculateBoundingBoxes(Beam *rig)
             } 
             else
             {
-                rig->collisionBoundingBoxes[node.collisionBoundingBoxID].merge(node_position);
+                rig->ar_collision_bounding_boxes[node.collisionBoundingBoxID].merge(node_position);
             }
         }
     }
 
-    for (unsigned int i = 0; i < rig->collisionBoundingBoxes.size(); i++)
+    for (unsigned int i = 0; i < rig->ar_collision_bounding_boxes.size(); i++)
     {
-        rig->collisionBoundingBoxes[i].setMinimum(rig->collisionBoundingBoxes[i].getMinimum() - Ogre::Vector3(0.05f, 0.05f, 0.05f));
-        rig->collisionBoundingBoxes[i].setMaximum(rig->collisionBoundingBoxes[i].getMaximum() + Ogre::Vector3(0.05f, 0.05f, 0.05f));
+        rig->ar_collision_bounding_boxes[i].setMinimum(rig->ar_collision_bounding_boxes[i].getMinimum() - Ogre::Vector3(0.05f, 0.05f, 0.05f));
+        rig->ar_collision_bounding_boxes[i].setMaximum(rig->ar_collision_bounding_boxes[i].getMaximum() + Ogre::Vector3(0.05f, 0.05f, 0.05f));
     }
 
-    rig->boundingBox.setMinimum(rig->boundingBox.getMinimum() - Ogre::Vector3(0.05f, 0.05f, 0.05f));
-    rig->boundingBox.setMaximum(rig->boundingBox.getMaximum() + Ogre::Vector3(0.05f, 0.05f, 0.05f));
+    rig->ar_bounding_box.setMinimum(rig->ar_bounding_box.getMinimum() - Ogre::Vector3(0.05f, 0.05f, 0.05f));
+    rig->ar_bounding_box.setMaximum(rig->ar_bounding_box.getMaximum() + Ogre::Vector3(0.05f, 0.05f, 0.05f));
 
-    rig->predictedBoundingBox = rig->boundingBox;
-    rig->predictedCollisionBoundingBoxes = rig->collisionBoundingBoxes;
+    rig->ar_predicted_bounding_box = rig->ar_bounding_box;
+    rig->ar_predicted_coll_bounding_boxes = rig->ar_collision_bounding_boxes;
 }
 
 

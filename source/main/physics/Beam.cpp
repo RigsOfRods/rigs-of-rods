@@ -1059,9 +1059,9 @@ Vector3 Beam::calculateCollisionOffset(Vector3 direction)
     if (direction == Vector3::ZERO)
         return Vector3::ZERO;
 
-    AxisAlignedBox bb = boundingBox;
-    bb.merge(boundingBox.getMinimum() + direction);
-    bb.merge(boundingBox.getMaximum() + direction);
+    AxisAlignedBox bb = ar_bounding_box;
+    bb.merge(ar_bounding_box.getMinimum() + direction);
+    bb.merge(ar_bounding_box.getMaximum() + direction);
 
     Real max_distance = direction.length();
     direction.normalise();
@@ -1084,7 +1084,7 @@ Vector3 Beam::calculateCollisionOffset(Vector3 direction)
             continue;
         if (t == ar_instance_id)
             continue;
-        if (!bb.intersects(trucks[t]->boundingBox))
+        if (!bb.intersects(trucks[t]->ar_bounding_box))
             continue;
 
         // Test own contacters against others cabs
@@ -1118,8 +1118,8 @@ Vector3 Beam::calculateCollisionOffset(Vector3 direction)
         }
 
         float proximity = 0.05f;
-        proximity = std::max(proximity, boundingBox.getSize().length() / 50.0f);
-        proximity = std::max(proximity, trucks[t]->boundingBox.getSize().length() / 50.0f);
+        proximity = std::max(proximity, ar_bounding_box.getSize().length() / 50.0f);
+        proximity = std::max(proximity, trucks[t]->ar_bounding_box.getSize().length() / 50.0f);
 
         // Test proximity of own nodes against others nodes
         for (int i = 0; i < ar_num_nodes; i++)
@@ -1314,13 +1314,13 @@ void Beam::calculateAveragePosition()
 
 void Beam::updateBoundingBox()
 {
-    boundingBox = AxisAlignedBox(ar_nodes[0].AbsPosition, ar_nodes[0].AbsPosition);
+    ar_bounding_box = AxisAlignedBox(ar_nodes[0].AbsPosition, ar_nodes[0].AbsPosition);
     for (int i = 0; i < ar_num_nodes; i++)
     {
-        boundingBox.merge(ar_nodes[i].AbsPosition);
+        ar_bounding_box.merge(ar_nodes[i].AbsPosition);
     }
-    boundingBox.setMinimum(boundingBox.getMinimum() - Vector3(0.05f, 0.05f, 0.05f));
-    boundingBox.setMaximum(boundingBox.getMaximum() + Vector3(0.05f, 0.05f, 0.05f));
+    ar_bounding_box.setMinimum(ar_bounding_box.getMinimum() - Vector3(0.05f, 0.05f, 0.05f));
+    ar_bounding_box.setMaximum(ar_bounding_box.getMaximum() + Vector3(0.05f, 0.05f, 0.05f));
 }
 
 void Beam::preUpdatePhysics(float dt)
@@ -2831,7 +2831,7 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt, 
 // call this once per frame in order to update the skidmarks
 void Beam::updateSkidmarks()
 {
-    if (!useSkidmarks)
+    if (!m_use_skidmarks)
         return;
 
     BES_START(BES_CORE_Skidmarks);
@@ -3473,7 +3473,7 @@ void Beam::updateLabels(float dt)
     if (m_net_label_node && m_net_label_mt)
     {
         // this ensures that the nickname is always in a readable size
-        m_net_label_node->setPosition(m_avg_node_position + Vector3(0.0f, (boundingBox.getMaximum().y - boundingBox.getMinimum().y), 0.0f));
+        m_net_label_node->setPosition(m_avg_node_position + Vector3(0.0f, (ar_bounding_box.getMaximum().y - ar_bounding_box.getMinimum().y), 0.0f));
         Vector3 vdir = m_avg_node_position - gEnv->mainCamera->getPosition();
         float vlen = vdir.length();
         float h = std::max(0.6, vlen / 30.0);
@@ -5648,7 +5648,7 @@ Beam::Beam(
     , ar_import_commands(false)
 {
     m_high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();
-    useSkidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;
+    m_use_skidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;
     LOG(" ===== LOADING VEHICLE: " + Ogre::String(fname));
 
     m_spawn_free_positioned = freeposition;
@@ -5979,8 +5979,8 @@ bool Beam::LoadTruck(
 
         // check if over-sized
         RigSpawner::RecalculateBoundingBoxes(this);
-        vehicle_position.x -= (boundingBox.getMaximum().x + boundingBox.getMinimum().x) / 2.0 - vehicle_position.x;
-        vehicle_position.z -= (boundingBox.getMaximum().z + boundingBox.getMinimum().z) / 2.0 - vehicle_position.z;
+        vehicle_position.x -= (ar_bounding_box.getMaximum().x + ar_bounding_box.getMinimum().x) / 2.0 - vehicle_position.x;
+        vehicle_position.z -= (ar_bounding_box.getMaximum().z + ar_bounding_box.getMinimum().z) / 2.0 - vehicle_position.z;
 
         float miny = 0.0f;
 
@@ -6010,7 +6010,7 @@ bool Beam::LoadTruck(
             {
                 Vector3 gpos = Vector3(vehicle_position.x, 0.0f, vehicle_position.z);
 
-                gpos -= spawn_rotation * Vector3((spawn_box->hi.x - spawn_box->lo.x + boundingBox.getMaximum().x - boundingBox.getMinimum().x) * 0.6f, 0.0f, 0.0f);
+                gpos -= spawn_rotation * Vector3((spawn_box->hi.x - spawn_box->lo.x + ar_bounding_box.getMaximum().x - ar_bounding_box.getMinimum().x) * 0.6f, 0.0f, 0.0f);
 
                 resetPosition(gpos.x, gpos.z, true, miny);
             }
@@ -6246,7 +6246,7 @@ float Beam::getSteeringAngle()
 
 std::string Beam::getTruckName()
 {
-    return realtruckname;
+    return ar_design_name;
 }
 
 std::string Beam::getTruckFileName()

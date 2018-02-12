@@ -196,10 +196,10 @@ bool OutProtocol::Update(float dt, Beam* truck)
         gd.Brake = truck->ar_brake / truck->ar_brake_force;
         gd.Clutch = 1 - truck->ar_engine->getClutch(); // 0-1
 
-        strncpy(gd.Display1, truck->realtruckname.c_str(), 15);
-        if (truck->realtruckname.length() > 15)
+        strncpy(gd.Display1, truck->ar_design_name.c_str(), 15);
+        if (truck->ar_design_name.length() > 15)
         {
-            strncpy(gd.Display2, truck->realtruckname.c_str() + 15, 15);
+            strncpy(gd.Display2, truck->ar_design_name.c_str() + 15, 15);
         }
     }
     // send the package

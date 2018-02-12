@@ -126,17 +126,17 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
 
     AxisAlignedBox tBoundingBox(ar_nodes[0].AbsPosition, ar_nodes[0].AbsPosition);
 
-    for (unsigned int i = 0; i < collisionBoundingBoxes.size(); i++)
+    for (unsigned int i = 0; i < ar_collision_bounding_boxes.size(); i++)
     {
-        collisionBoundingBoxes[i].scale(Ogre::Vector3(0.0));
+        ar_collision_bounding_boxes[i].scale(Ogre::Vector3(0.0));
     }
 
     for (int i = 0; i < ar_num_nodes; i++)
     {
         tBoundingBox.merge(ar_nodes[i].AbsPosition);
-        if (ar_nodes[i].collisionBoundingBoxID >= 0 && (unsigned int) ar_nodes[i].collisionBoundingBoxID < collisionBoundingBoxes.size())
+        if (ar_nodes[i].collisionBoundingBoxID >= 0 && (unsigned int) ar_nodes[i].collisionBoundingBoxID < ar_collision_bounding_boxes.size())
         {
-            AxisAlignedBox& bb = collisionBoundingBoxes[ar_nodes[i].collisionBoundingBoxID];
+            AxisAlignedBox& bb = ar_collision_bounding_boxes[ar_nodes[i].collisionBoundingBoxID];
             if (bb.getSize().length() == 0.0 && bb.getMinimum().length() == 0.0)
             {
                 bb.setExtents(ar_nodes[i].AbsPosition, ar_nodes[i].AbsPosition);
@@ -148,14 +148,14 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         }
     }
 
-    for (unsigned int i = 0; i < collisionBoundingBoxes.size(); i++)
+    for (unsigned int i = 0; i < ar_collision_bounding_boxes.size(); i++)
     {
-        collisionBoundingBoxes[i].setMinimum(collisionBoundingBoxes[i].getMinimum() - Vector3(0.05f, 0.05f, 0.05f));
-        collisionBoundingBoxes[i].setMaximum(collisionBoundingBoxes[i].getMaximum() + Vector3(0.05f, 0.05f, 0.05f));
+        ar_collision_bounding_boxes[i].setMinimum(ar_collision_bounding_boxes[i].getMinimum() - Vector3(0.05f, 0.05f, 0.05f));
+        ar_collision_bounding_boxes[i].setMaximum(ar_collision_bounding_boxes[i].getMaximum() + Vector3(0.05f, 0.05f, 0.05f));
 
-        predictedCollisionBoundingBoxes[i].setExtents(collisionBoundingBoxes[i].getMinimum(), collisionBoundingBoxes[i].getMaximum());
-        predictedCollisionBoundingBoxes[i].merge(collisionBoundingBoxes[i].getMinimum() + ar_nodes[0].Velocity);
-        predictedCollisionBoundingBoxes[i].merge(collisionBoundingBoxes[i].getMaximum() + ar_nodes[0].Velocity);
+        ar_predicted_coll_bounding_boxes[i].setExtents(ar_collision_bounding_boxes[i].getMinimum(), ar_collision_bounding_boxes[i].getMaximum());
+        ar_predicted_coll_bounding_boxes[i].merge(ar_collision_bounding_boxes[i].getMinimum() + ar_nodes[0].Velocity);
+        ar_predicted_coll_bounding_boxes[i].merge(ar_collision_bounding_boxes[i].getMaximum() + ar_nodes[0].Velocity);
     }
 
     // anti-explosion guard
@@ -173,12 +173,12 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         return; // return early to avoid propagating invalid values
     }
 
-    boundingBox.setMinimum(tBoundingBox.getMinimum() - Vector3(0.05f, 0.05f, 0.05f));
-    boundingBox.setMaximum(tBoundingBox.getMaximum() + Vector3(0.05f, 0.05f, 0.05f));
+    ar_bounding_box.setMinimum(tBoundingBox.getMinimum() - Vector3(0.05f, 0.05f, 0.05f));
+    ar_bounding_box.setMaximum(tBoundingBox.getMaximum() + Vector3(0.05f, 0.05f, 0.05f));
 
-    predictedBoundingBox.setExtents(boundingBox.getMinimum(), boundingBox.getMaximum());
-    predictedBoundingBox.merge(boundingBox.getMinimum() + ar_nodes[0].Velocity);
-    predictedBoundingBox.merge(boundingBox.getMaximum() + ar_nodes[0].Velocity);
+    ar_predicted_bounding_box.setExtents(ar_bounding_box.getMinimum(), ar_bounding_box.getMaximum());
+    ar_predicted_bounding_box.merge(ar_bounding_box.getMinimum() + ar_nodes[0].Velocity);
+    ar_predicted_bounding_box.merge(ar_bounding_box.getMaximum() + ar_nodes[0].Velocity);
 
     BES_STOP(BES_CORE_Nodes);
 
@@ -1781,7 +1781,7 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                                 SOUND_PLAY_ONCE(ar_instance_id, SS_TRIG_SCREETCH);
 
                                 //Shouldn't skidmarks be activated from here?
-                                if (useSkidmarks)
+                                if (m_use_skidmarks)
                                 {
                                     wheels[ar_nodes[i].wheelid].isSkiding = true;
                                     if (!(ar_nodes[i].iswheel % 2))
@@ -1803,7 +1803,7 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                             }
                             if (ar_nodes[i].iswheel && ns < thresold)
                             {
-                                if (useSkidmarks)
+                                if (m_use_skidmarks)
                                 {
                                     wheels[ar_nodes[i].wheelid].isSkiding = false;
                                 }
