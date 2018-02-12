@@ -604,16 +604,16 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     // dashboard overlays for tc+alb
     if (doUpdate)
     {
-        antilockbrake = false;
-        tractioncontrol = false;
+        m_antilockbrake = false;
+        m_tractioncontrol = false;
     }
 
-    antilockbrake = std::max(antilockbrake, (int)alb_active);
-    tractioncontrol = std::max(tractioncontrol, (int)tc_active);
+    m_antilockbrake = std::max(m_antilockbrake, (int)alb_active);
+    m_tractioncontrol = std::max(m_tractioncontrol, (int)tc_active);
 
     if (step == maxsteps)
     {
-        if (!antilockbrake)
+        if (!m_antilockbrake)
         {
             SOUND_STOP(ar_instance_id, SS_TRIG_ALB_ACTIVE);
         }
@@ -622,7 +622,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
             SOUND_START(ar_instance_id, SS_TRIG_ALB_ACTIVE);
         }
 
-        if (!tractioncontrol)
+        if (!m_tractioncontrol)
         {
             SOUND_STOP(ar_instance_id, SS_TRIG_TC_ACTIVE);
         }
@@ -1912,13 +1912,13 @@ void Beam::forwardCommands()
     int numtrucks = bf->getTruckCount();
 
     // forward things to trailers
-    if (numtrucks > 1 && this == current_truck && forwardcommands)
+    if (numtrucks > 1 && this == current_truck && ar_forward_commands)
     {
         for (int i = 0; i < numtrucks; i++)
         {
             if (!trucks[i])
                 continue;
-            if (trucks[i] != current_truck && trucks[i]->importcommands)
+            if (trucks[i] != current_truck && trucks[i]->ar_import_commands)
             {
                 // forward commands
                 for (int j = 1; j <= MAX_COMMANDS; j++)

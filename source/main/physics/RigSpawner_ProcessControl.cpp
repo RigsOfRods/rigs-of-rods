@@ -144,11 +144,11 @@ Beam *RigSpawner::SpawnRig()
     m_rig->realtruckname = m_file->name;
 
     // Flags in root module
-    m_rig->forwardcommands             = m_file->forward_commands;
-    m_rig->importcommands              = m_file->import_commands;
+    m_rig->ar_forward_commands         = m_file->forward_commands;
+    m_rig->ar_import_commands          = m_file->import_commands;
     m_rig->wheel_contact_requested     = m_file->rollon;
-    m_rig->rescuer                     = m_file->rescuer;
-    m_rig->m_disable_default_sounds      = m_file->disable_default_sounds;
+    m_rig->ar_rescuer_flag             = m_file->rescuer;
+    m_rig->m_disable_default_sounds    = m_file->disable_default_sounds;
     m_rig->ar_hide_in_actor_list       = m_file->hide_in_chooser;
     m_rig->m_slidenodes_connect_on_spawn  = m_file->slide_nodes_connect_instantly;
 

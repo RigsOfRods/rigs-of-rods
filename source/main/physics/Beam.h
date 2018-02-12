@@ -335,10 +335,7 @@ public:
     int               free_camerarail;
     bool              ar_hide_in_actor_list; //!< Hide in list of spawned actors (available in top menubar). Useful for fixed-place machinery, i.e. cranes.
     Ogre::String      realtruckname;
-    bool              forwardcommands;
-    bool              importcommands;
     bool              wheel_contact_requested;
-    bool              rescuer;
     bool              has_slope_brake;
     float             slopeBrakeFactor;
     float             slopeBrakeAttAngle;
@@ -361,8 +358,6 @@ public:
     bool              tc_notoggle;        //!< Traction control attribute; Disable in-game toggle?
     float             tc_timer;           //!< Traction control
     float             alb_timer;
-    int               antilockbrake;
-    int               tractioncontrol;
     float             ar_anim_shift_timer;//!< For 'animator' with flag 'shifter'
     bool              cc_mode;            //!< Cruise Control
     bool              cc_can_brake;       //!< Cruise Control
@@ -454,6 +449,9 @@ public:
     bool ar_is_police:1;        //!< Gfx/sfx attr
     bool ar_use_heathaze:1;     //!< Spawner context; TODO:remove
     bool ar_uses_networking:1;  //!< Networking attr; This actor is either remote or has remote counterpart
+    bool ar_rescuer_flag:1;     //!< Gameplay attr; defined in truckfile. TODO: Does anybody use this anymore?
+    bool ar_forward_commands:1; //!< Sim state
+    bool ar_import_commands:1;  //!< Sim state
 
 private:
 
@@ -598,6 +596,8 @@ private:
     std::unique_ptr<Buoyance> m_buoyance;      //!< Physics
     RoR::SkinDef*     m_used_skin;             //!< Spawner context (TODO: remove!)
     RoR::Skidmark*    m_skid_trails[MAX_WHEELS*2];
+    int               m_antilockbrake;
+    int               m_tractioncontrol;
 
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?

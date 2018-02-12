@@ -291,11 +291,7 @@ void RigSpawner::InitializeRig()
     m_rig->free_camerarail = 0;
     m_rig->free_screwprop = 0;
 
-    m_rig->realtruckname = "";
-    m_rig->forwardcommands=false;
-
     m_rig->wheel_contact_requested = false;
-    m_rig->rescuer = false;
     m_rig->has_slope_brake=false;
     m_rig->ar_extern_camera_mode=0;
     m_rig->ar_extern_camera_node=-1;
@@ -367,7 +363,6 @@ void RigSpawner::InitializeRig()
     m_rig->alb_ratio = 0.0f;
     m_rig->alb_timer = 0.0f;
     m_rig->ar_anim_shift_timer = 0.0f;
-    m_rig->antilockbrake = 0;
 
     m_rig->m_cab_mesh = nullptr;
 
@@ -400,9 +395,6 @@ void RigSpawner::InitializeRig()
     m_rig->tc_ratio = 0.f;
     m_rig->tc_wheelslip = 0.f;
     m_rig->tc_timer = 0.f;
-
-    m_rig->tractioncontrol = 0;
-
 
     m_rig->ar_dashboard = new DashBoardManager();
 

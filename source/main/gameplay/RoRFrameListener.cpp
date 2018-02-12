@@ -905,8 +905,8 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
 
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_FORWARDCOMMANDS))
                     {
-                        curr_truck->forwardcommands = !curr_truck->forwardcommands;
-                        if (curr_truck->forwardcommands)
+                        curr_truck->ar_forward_commands = !curr_truck->ar_forward_commands;
+                        if (curr_truck->ar_forward_commands)
                         {
                             RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("forwardcommands enabled"), "information.png", 3000);
                         }
@@ -917,8 +917,8 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                     }
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_IMPORTCOMMANDS))
                     {
-                        curr_truck->importcommands = !curr_truck->importcommands;
-                        if (curr_truck->importcommands)
+                        curr_truck->ar_import_commands = !curr_truck->ar_import_commands;
+                        if (curr_truck->ar_import_commands)
                         {
                             RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("importcommands enabled"), "information.png", 3000);
                         }
