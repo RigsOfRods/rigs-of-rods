@@ -188,7 +188,6 @@ Water::~Water()
 
     if (m_refract_rtt_target)
     {
-        //m_refract_rtt_viewport->clear();
         m_refract_rtt_target->removeAllListeners();
         m_refract_rtt_target = nullptr;
     }
@@ -202,7 +201,6 @@ Water::~Water()
 
     if (m_reflect_rtt_target)
     {
-        //m_reflect_rtt_viewport->clear();
         m_reflect_rtt_target->removeAllListeners();
         m_reflect_rtt_target = nullptr;
     }
@@ -274,7 +272,6 @@ void Water::PrepareWater()
                 m_refract_rtt_viewport = m_refract_rtt_target->addViewport(m_refract_cam);
                 m_refract_rtt_viewport->setClearEveryFrame(true);
                 m_refract_rtt_viewport->setBackgroundColour(gEnv->sceneManager->getFogColour());
-                //            v->setBackgroundColour( ColourValue::Black );
 
                 MaterialPtr mat = MaterialManager::getSingleton().getByName("Examples/FresnelReflectionRefraction");
                 mat->getTechnique(0)->getPass(0)->getTextureUnitState(2)->setTextureName("Refraction");
@@ -490,15 +487,6 @@ void Water::UpdateWater()
         }
         if (RoR::App::gfx_water_waves.GetActive() && RoR::App::mp_state.GetActive() == RoR::MpState::DISABLED)
             this->ShowWave(m_waterplane_node->getPosition());
-    }
-
-    bool underwater = IsCameraUnderWater();
-    static bool lastWaterMode = false;
-    bool underWaterModeChanged = false;
-    if (underwater != lastWaterMode)
-    {
-        underWaterModeChanged = true;
-        lastWaterMode = underwater;
     }
 
     m_frame_counter++;
