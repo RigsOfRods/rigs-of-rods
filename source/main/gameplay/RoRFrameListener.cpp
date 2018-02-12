@@ -165,23 +165,23 @@ void RoRFrameListener::UpdateForceFeedback(float dt)
     Beam* current_truck = m_beam_factory.getCurrentTruck();
     if (current_truck && current_truck->driveable == TRUCK)
     {
-        int cameranodepos = 0;
-        int cameranodedir = 0;
-        int cameranoderoll = 0;
+        int ar_camera_node_pos = 0;
+        int ar_camera_node_dir = 0;
+        int ar_camera_node_roll = 0;
 
         // TODO: <rant> Per-frame validity check? How about on-spawn check? </rant>
         // If the camera node is invalid, the FF should be disabled right away, not try to fall back to node0
         // TODO: Check cam. nodes once on spawn! They never change --> no reason to repeat the check. ~only_a_ptr, 06/2017
                 // ~only_a_ptr, 02/2017
-        if (current_truck->IsNodeIdValid(current_truck->cameranodepos[0]))
-            cameranodepos = current_truck->cameranodepos[0];
-        if (current_truck->IsNodeIdValid(current_truck->cameranodedir[0]))
-            cameranodedir = current_truck->cameranodedir[0];
-        if (current_truck->IsNodeIdValid(current_truck->cameranoderoll[0]))
-            cameranoderoll = current_truck->cameranoderoll[0];
+        if (current_truck->IsNodeIdValid(current_truck->ar_camera_node_pos[0]))
+            ar_camera_node_pos = current_truck->ar_camera_node_pos[0];
+        if (current_truck->IsNodeIdValid(current_truck->ar_camera_node_dir[0]))
+            ar_camera_node_dir = current_truck->ar_camera_node_dir[0];
+        if (current_truck->IsNodeIdValid(current_truck->ar_camera_node_roll[0]))
+            ar_camera_node_roll = current_truck->ar_camera_node_roll[0];
 
-        Vector3 udir = current_truck->ar_nodes[cameranodepos].RelPosition - current_truck->ar_nodes[cameranodedir].RelPosition;
-        Vector3 uroll = current_truck->ar_nodes[cameranodepos].RelPosition - current_truck->ar_nodes[cameranoderoll].RelPosition;
+        Vector3 udir = current_truck->ar_nodes[ar_camera_node_pos].RelPosition - current_truck->ar_nodes[ar_camera_node_dir].RelPosition;
+        Vector3 uroll = current_truck->ar_nodes[ar_camera_node_pos].RelPosition - current_truck->ar_nodes[ar_camera_node_roll].RelPosition;
 
         udir.normalise();
         uroll.normalise();
@@ -2092,11 +2092,11 @@ void RoRFrameListener::ChangedCurrentVehicle(Beam* previous_vehicle, Beam* curre
             // get player out of the vehicle
             float rotation = previous_vehicle->getRotation() - Math::HALF_PI;
             Vector3 position = previous_vehicle->ar_nodes[0].AbsPosition;
-            if (previous_vehicle->cinecameranodepos[0] != -1 && previous_vehicle->cameranodepos[0] != -1 && previous_vehicle->cameranoderoll[0] != -1)
+            if (previous_vehicle->cinecameranodepos[0] != -1 && previous_vehicle->ar_camera_node_pos[0] != -1 && previous_vehicle->ar_camera_node_roll[0] != -1)
             {
                 // truck has a cinecam
                 position = previous_vehicle->ar_nodes[previous_vehicle->cinecameranodepos[0]].AbsPosition;
-                position += -2.0 * ((previous_vehicle->ar_nodes[previous_vehicle->cameranodepos[0]].RelPosition - previous_vehicle->ar_nodes[previous_vehicle->cameranoderoll[0]].RelPosition).normalisedCopy());
+                position += -2.0 * ((previous_vehicle->ar_nodes[previous_vehicle->ar_camera_node_pos[0]].RelPosition - previous_vehicle->ar_nodes[previous_vehicle->ar_camera_node_roll[0]].RelPosition).normalisedCopy());
                 position += Vector3(0.0, -1.0, 0.0);
             }
             gEnv->player->setBeamCoupling(false);

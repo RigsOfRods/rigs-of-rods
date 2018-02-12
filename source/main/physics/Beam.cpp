@@ -547,9 +547,9 @@ float Beam::getRotation()
 Vector3 Beam::getDirection()
 {
     Vector3 cur_dir = ar_nodes[0].AbsPosition;
-    if (cameranodepos[0] != cameranodedir[0] && this->IsNodeIdValid(cameranodepos[0]) && this->IsNodeIdValid(cameranodedir[0]))
+    if (ar_camera_node_pos[0] != ar_camera_node_dir[0] && this->IsNodeIdValid(ar_camera_node_pos[0]) && this->IsNodeIdValid(ar_camera_node_dir[0]))
     {
-        cur_dir = ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranodedir[0]].RelPosition;
+        cur_dir = ar_nodes[ar_camera_node_pos[0]].RelPosition - ar_nodes[ar_camera_node_dir[0]].RelPosition;
     }
     else if (ar_num_nodes > 1)
     {
@@ -1357,9 +1357,9 @@ void Beam::resetAngle(float rot)
     // Set origin of rotation to camera node
     Vector3 origin = ar_nodes[0].AbsPosition;
 
-    if (this->IsNodeIdValid(cameranodepos[0]))
+    if (this->IsNodeIdValid(ar_camera_node_pos[0]))
     {
-        origin = ar_nodes[cameranodepos[0]].AbsPosition;
+        origin = ar_nodes[ar_camera_node_pos[0]].AbsPosition;
     }
 
     // Set up matrix for yaw rotation
@@ -1622,9 +1622,9 @@ Ogre::Vector3 Beam::getRotationCenter()
     if (m_is_cinecam_rotation_center)
     {
         Vector3 cinecam = ar_nodes[0].AbsPosition;
-        if (this->IsNodeIdValid(cameranodepos[0])) // TODO: Check cam. nodes once on spawn! They never change --> no reason to repeat the check. ~only_a_ptr, 06/2017
+        if (this->IsNodeIdValid(ar_camera_node_pos[0])) // TODO: Check cam. nodes once on spawn! They never change --> no reason to repeat the check. ~only_a_ptr, 06/2017
         {
-            cinecam = ar_nodes[cameranodepos[0]].AbsPosition;
+            cinecam = ar_nodes[ar_camera_node_pos[0]].AbsPosition;
         }
         rotation_center = cinecam;
     }
@@ -2385,11 +2385,11 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
     Vector3 cam_roll = ar_nodes[0].RelPosition;
     Vector3 cam_dir = ar_nodes[0].RelPosition;
 
-    if (this->IsNodeIdValid(cameranodepos[0])) // TODO: why check this on each update when it cannot change after spawn?
+    if (this->IsNodeIdValid(ar_camera_node_pos[0])) // TODO: why check this on each update when it cannot change after spawn?
     {
-        cam_pos = ar_nodes[cameranodepos[0]].RelPosition;
-        cam_roll = ar_nodes[cameranoderoll[0]].RelPosition;
-        cam_dir = ar_nodes[cameranodedir[0]].RelPosition;
+        cam_pos = ar_nodes[ar_camera_node_pos[0]].RelPosition;
+        cam_roll = ar_nodes[ar_camera_node_roll[0]].RelPosition;
+        cam_dir = ar_nodes[ar_camera_node_dir[0]].RelPosition;
     }
 
     // roll
@@ -2972,7 +2972,7 @@ void Beam::prepareInside(bool inside)
         m_gfx_actor->GetCabTransMaterial()->setReceiveShadows(!inside);
     }
 
-    if (shadowOptimizations)
+    if (m_gfx_reduce_shadows)
     {
         SetPropsCastShadows(!inside);
     }
@@ -4911,9 +4911,9 @@ void Beam::updateNetworkInfo()
 
 float Beam::getHeadingDirectionAngle()
 {
-    if (cameranodepos[0] >= 0 && cameranodedir[0] >= 0)
+    if (ar_camera_node_pos[0] >= 0 && ar_camera_node_dir[0] >= 0)
     {
-        Vector3 idir = ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranodedir[0]].RelPosition;
+        Vector3 idir = ar_nodes[ar_camera_node_pos[0]].RelPosition - ar_nodes[ar_camera_node_dir[0]].RelPosition;
         return atan2(idir.dotProduct(Vector3::UNIT_X), (idir).dotProduct(-Vector3::UNIT_Z));
     }
 
@@ -5094,9 +5094,9 @@ void Beam::updateDashBoards(float dt)
     // speedo
     float velocity = ar_nodes[0].Velocity.length();
 
-    if (cameranodepos[0] >= 0 && cameranodedir[0] >= 0)
+    if (ar_camera_node_pos[0] >= 0 && ar_camera_node_dir[0] >= 0)
     {
-        Vector3 hdir = (ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranodedir[0]].RelPosition).normalisedCopy();
+        Vector3 hdir = (ar_nodes[ar_camera_node_pos[0]].RelPosition - ar_nodes[ar_camera_node_dir[0]].RelPosition).normalisedCopy();
         velocity = hdir.dotProduct(ar_nodes[0].Velocity);
     }
     float speed_kph = velocity * 3.6f;
@@ -5105,9 +5105,9 @@ void Beam::updateDashBoards(float dt)
     ar_dashboard->setFloat(DD_ENGINE_SPEEDO_MPH, speed_mph);
 
     // roll
-    if (this->IsNodeIdValid(cameranodepos[0])) // TODO: why check this on each update when it cannot change after spawn?
+    if (this->IsNodeIdValid(ar_camera_node_pos[0])) // TODO: why check this on each update when it cannot change after spawn?
     {
-        dir = ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranoderoll[0]].RelPosition;
+        dir = ar_nodes[ar_camera_node_pos[0]].RelPosition - ar_nodes[ar_camera_node_roll[0]].RelPosition;
         dir.normalise();
         float angle = asin(dir.dotProduct(Vector3::UNIT_Y));
         if (angle < -1)
@@ -5131,9 +5131,9 @@ void Beam::updateDashBoards(float dt)
     }
 
     // pitch
-    if (this->IsNodeIdValid(cameranodepos[0]))
+    if (this->IsNodeIdValid(ar_camera_node_pos[0]))
     {
-        dir = ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranodedir[0]].RelPosition;
+        dir = ar_nodes[ar_camera_node_pos[0]].RelPosition - ar_nodes[ar_camera_node_dir[0]].RelPosition;
         dir.normalise();
         float angle = asin(dir.dotProduct(Vector3::UNIT_Y));
         if (angle < -1)
@@ -5214,10 +5214,10 @@ void Beam::updateDashBoards(float dt)
         }
 
         // water depth display, only if we have a screw prop at least
-        if (this->IsNodeIdValid(cameranodepos[0])) // TODO: Check cam. nodes once on spawn! They never change --> no reason to repeat the check. ~only_a_ptr, 06/2017
+        if (this->IsNodeIdValid(ar_camera_node_pos[0])) // TODO: Check cam. nodes once on spawn! They never change --> no reason to repeat the check. ~only_a_ptr, 06/2017
         {
             // position
-            Vector3 dir = ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranodedir[0]].RelPosition;
+            Vector3 dir = ar_nodes[ar_camera_node_pos[0]].RelPosition - ar_nodes[ar_camera_node_dir[0]].RelPosition;
             dir.normalise();
 
             int low_node = getLowestNode();
@@ -5230,11 +5230,11 @@ void Beam::updateDashBoards(float dt)
         }
 
         // water speed
-        if (this->IsNodeIdValid(cameranodepos[0]))
+        if (this->IsNodeIdValid(ar_camera_node_pos[0]))
         {
-            Vector3 hdir = ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranodedir[0]].RelPosition;
+            Vector3 hdir = ar_nodes[ar_camera_node_pos[0]].RelPosition - ar_nodes[ar_camera_node_dir[0]].RelPosition;
             hdir.normalise();
-            float knots = hdir.dotProduct(ar_nodes[cameranodepos[0]].Velocity) * 1.9438f; // 1.943 = m/s in knots/s
+            float knots = hdir.dotProduct(ar_nodes[ar_camera_node_pos[0]].Velocity) * 1.9438f; // 1.943 = m/s in knots/s
             ar_dashboard->setFloat(DD_WATER_SPEED, knots);
         }
     }
@@ -5296,8 +5296,8 @@ void Beam::updateDashBoards(float dt)
         }
     }
 
-    ar_dashboard->setFloat(DD_ODOMETER_TOTAL, odometerTotal);
-    ar_dashboard->setFloat(DD_ODOMETER_USER, odometerUser);
+    ar_dashboard->setFloat(DD_ODOMETER_TOTAL, m_odometer_total);
+    ar_dashboard->setFloat(DD_ODOMETER_USER, m_odometer_user);
 
     // set the features of this vehicle once
     if (!m_hud_features_ok)
@@ -5339,12 +5339,12 @@ void Beam::updateDashBoards(float dt)
 #if 0
     // ADI - attitude director indicator
     //roll
-	Vector3 rollv=curr_truck->ar_nodes[curr_truck->cameranodepos[0]].RelPosition-curr_truck->ar_nodes[curr_truck->cameranoderoll[0]].RelPosition;
+	Vector3 rollv=curr_truck->ar_nodes[curr_truck->ar_camera_node_pos[0]].RelPosition-curr_truck->ar_nodes[curr_truck->ar_camera_node_roll[0]].RelPosition;
 	rollv.normalise();
 	float rollangle=asin(rollv.dotProduct(Vector3::UNIT_Y));
 
     //pitch
-	Vector3 dirv=curr_truck->ar_nodes[curr_truck->cameranodepos[0]].RelPosition-curr_truck->ar_nodes[curr_truck->cameranodedir[0]].RelPosition;
+	Vector3 dirv=curr_truck->ar_nodes[curr_truck->ar_camera_node_pos[0]].RelPosition-curr_truck->ar_nodes[curr_truck->ar_camera_node_dir[0]].RelPosition;
 	dirv.normalise();
 	float pitchangle=asin(dirv.dotProduct(Vector3::UNIT_Y));
 	Vector3 upv=dirv.crossProduct(-rollv);
@@ -5354,7 +5354,7 @@ void Beam::updateDashBoards(float dt)
 	RoR::App::GetOverlayWrapper()->aditapetexture->setTextureRotate(Radian(-rollangle));
 
     // HSI - Horizontal Situation Indicator
-	Vector3 idir=curr_truck->ar_nodes[curr_truck->cameranodepos[0]].RelPosition-curr_truck->ar_nodes[curr_truck->cameranodedir[0]].RelPosition;
+	Vector3 idir=curr_truck->ar_nodes[curr_truck->ar_camera_node_pos[0]].RelPosition-curr_truck->ar_nodes[curr_truck->ar_camera_node_dir[0]].RelPosition;
     //			idir.normalise();
 	float dirangle=atan2(idir.dotProduct(Vector3::UNIT_X), idir.dotProduct(-Vector3::UNIT_Z));
 	RoR::App::GetOverlayWrapper()->hsirosetexture->setTextureRotate(Radian(dirangle));
@@ -5448,7 +5448,7 @@ void Beam::updateDashBoards(float dt)
 Vector3 Beam::getGForces()
 {
     // TODO: Check cam. nodes once on spawn! They never change --> no reason to repeat the check. ~only_a_ptr, 06/2017
-    if (this->IsNodeIdValid(cameranodepos[0]) && this->IsNodeIdValid(cameranodedir[0]) && this->IsNodeIdValid(cameranoderoll[0]))
+    if (this->IsNodeIdValid(ar_camera_node_pos[0]) && this->IsNodeIdValid(ar_camera_node_dir[0]) && this->IsNodeIdValid(ar_camera_node_roll[0]))
     {
         static Vector3 result = Vector3::ZERO;
 
@@ -5461,11 +5461,11 @@ Vector3 Beam::getGForces()
         m_camera_gforces_accu = Vector3::ZERO;
         m_camera_gforces_count = 0;
 
-        float longacc = acc.dotProduct((ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranodedir[0]].RelPosition).normalisedCopy());
-        float latacc = acc.dotProduct((ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranoderoll[0]].RelPosition).normalisedCopy());
+        float longacc = acc.dotProduct((ar_nodes[ar_camera_node_pos[0]].RelPosition - ar_nodes[ar_camera_node_dir[0]].RelPosition).normalisedCopy());
+        float latacc = acc.dotProduct((ar_nodes[ar_camera_node_pos[0]].RelPosition - ar_nodes[ar_camera_node_roll[0]].RelPosition).normalisedCopy());
 
-        Vector3 diffdir = ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranodedir[0]].RelPosition;
-        Vector3 diffroll = ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranoderoll[0]].RelPosition;
+        Vector3 diffdir = ar_nodes[ar_camera_node_pos[0]].RelPosition - ar_nodes[ar_camera_node_dir[0]].RelPosition;
+        Vector3 diffroll = ar_nodes[ar_camera_node_pos[0]].RelPosition - ar_nodes[ar_camera_node_roll[0]].RelPosition;
 
         Vector3 upv = diffdir.crossProduct(-diffroll);
         upv.normalise();
@@ -6170,9 +6170,9 @@ bool Beam::LoadTruck(
     }
 
     // TODO: Check cam. nodes once on spawn! They never change --> no reason to repeat the check. ~only_a_ptr, 06/2017
-    if (cameranodepos[0] != cameranodedir[0] && this->IsNodeIdValid(cameranodepos[0]) && this->IsNodeIdValid(cameranodedir[0]))
+    if (ar_camera_node_pos[0] != ar_camera_node_dir[0] && this->IsNodeIdValid(ar_camera_node_pos[0]) && this->IsNodeIdValid(ar_camera_node_dir[0]))
     {
-        Vector3 cur_dir = ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranodedir[0]].RelPosition;
+        Vector3 cur_dir = ar_nodes[ar_camera_node_pos[0]].RelPosition - ar_nodes[ar_camera_node_dir[0]].RelPosition;
         m_spawn_rotation = atan2(cur_dir.dotProduct(Vector3::UNIT_X), cur_dir.dotProduct(-Vector3::UNIT_Z));
     }
     else if (ar_num_nodes > 1)
@@ -6193,9 +6193,9 @@ bool Beam::LoadTruck(
     }
 
     Vector3 cinecam = ar_nodes[0].AbsPosition;
-    if (this->IsNodeIdValid(cameranodepos[0]))
+    if (this->IsNodeIdValid(ar_camera_node_pos[0]))
     {
-        cinecam = ar_nodes[cameranodepos[0]].AbsPosition;
+        cinecam = ar_nodes[ar_camera_node_pos[0]].AbsPosition;
     }
 
     // Calculate the approximate median
