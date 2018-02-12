@@ -299,8 +299,7 @@ void RigSpawner::InitializeRig()
 
     m_rig->ar_cinecam_node[0]=-1;
     m_rig->ar_num_cinecams=0;
-    m_rig->deletion_sceneNodes.clear();
-    m_rig->deletion_Objects.clear();
+    m_rig->m_deletion_scene_nodes.clear();
     m_rig->m_net_custom_lights[0] = UINT_MAX;
     m_rig->m_net_custom_lights[1] = UINT_MAX;
     m_rig->m_net_custom_lights[2] = UINT_MAX;
@@ -389,7 +388,7 @@ void RigSpawner::InitializeRig()
 #endif
 
     m_rig->m_skeletonview_scenenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-    m_rig->deletion_sceneNodes.emplace_back(m_rig->m_skeletonview_scenenode);
+    m_rig->m_deletion_scene_nodes.emplace_back(m_rig->m_skeletonview_scenenode);
     
     m_rig->m_beam_visuals_parent_scenenode = m_parent_scene_node;
 
@@ -1010,7 +1009,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
     {
         const std::string wing_instance_name = this->ComposeName("WingEntity", m_rig->ar_num_wings);
         entity = gEnv->sceneManager->createEntity(wing_instance_name, wing_name);
-        m_rig->deletion_Entities.emplace_back(entity);
+        m_rig->m_deletion_entities.emplace_back(entity);
         this->SetupNewEntity(entity, Ogre::ColourValue(0.5, 1, 0));
     }
     catch (...)
@@ -5225,7 +5224,7 @@ void RigSpawner::CreateWheelVisuals(
         Ogre::Entity *ec = gEnv->sceneManager->createEntity(instance_name, wheel_mesh_name);
         this->SetupNewEntity(ec, Ogre::ColourValue(0, 0.5, 0.5));
         visual_wheel.cnode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-        m_rig->deletion_Entities.emplace_back(ec);
+        m_rig->m_deletion_entities.emplace_back(ec);
         visual_wheel.cnode->attachObject(ec);
     }
     catch (Ogre::Exception& e)
@@ -5828,7 +5827,7 @@ void RigSpawner::CreateBeamVisuals(beam_t & beam, int beam_index, std::shared_pt
     {
         throw Exception("Failed to load file 'beam.mesh' (should come with RoR installation)");
     }
-    m_rig->deletion_Entities.push_back(beam.mEntity);
+    m_rig->m_deletion_entities.push_back(beam.mEntity);
     beam.mSceneNode = m_rig->m_beam_visuals_parent_scenenode->createChildSceneNode();
     beam.mSceneNode->setScale(beam.diameter, -1, beam.diameter);
     if (beam.bm_type == BEAM_HYDRO)
