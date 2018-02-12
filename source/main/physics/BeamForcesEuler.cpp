@@ -907,11 +907,11 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         bool requested = false;
         float work = 0.0;
 
-        // canwork
+        // ar_engine_hydraulics_ready
         if (engine)
-            canwork = engine->getRPM() > engine->getIdleRPM() * 0.95f;
+            ar_engine_hydraulics_ready = engine->getRPM() > engine->getIdleRPM() * 0.95f;
         else
-            canwork = true;
+            ar_engine_hydraulics_ready = true;
 
         // crankfactor
         float crankfactor = 1.0f;
@@ -1065,7 +1065,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
                         if (bbeam_dir * ar_beams[bbeam].autoMovingMode > 0)
                             v = 1;
 
-                        if (ar_beams[bbeam].commandNeedsEngine && ((engine && !engine->isRunning()) || !canwork))
+                        if (ar_beams[bbeam].commandNeedsEngine && ((engine && !engine->isRunning()) || !ar_engine_hydraulics_ready))
                             continue;
 
                         if (v > 0.0f && ar_beams[bbeam].commandEngineCoupling > 0.0f)
@@ -1125,7 +1125,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
                 float v = 0.0f;
                 int rota = std::abs(commandkey[i].rotators[j]) - 1;
 
-                if (ar_rotators[rota].rotatorNeedsEngine && ((engine && !engine->isRunning()) || !canwork))
+                if (ar_rotators[rota].rotatorNeedsEngine && ((engine && !engine->isRunning()) || !ar_engine_hydraulics_ready))
                     continue;
 
                 if (m_rotator_inertia)

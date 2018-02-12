@@ -5154,7 +5154,7 @@ void Beam::updateDashBoards(float dt)
     ar_dashboard->setBool(DD_LOCKED, locked);
 
     // low pressure lamp
-    bool low_pres = !canwork;
+    bool low_pres = !ar_engine_hydraulics_ready;
     ar_dashboard->setBool(DD_LOW_PRESSURE, low_pres);
 
     // lights
@@ -5557,7 +5557,7 @@ Beam::Beam(
     , m_cab_fade_timer(0)
     , m_camera_gforces_accu(Ogre::Vector3::ZERO)
     , m_camera_gforces_count(0)
-    , canwork(true)
+    , ar_engine_hydraulics_ready(true)
     , m_custom_particles_enabled(false)
     , currentScale(1)
     , ar_current_cinecam(-1) // -1 = external
