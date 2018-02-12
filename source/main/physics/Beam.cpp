@@ -5961,23 +5961,6 @@ bool Actor::LoadActor(
         }
     }
 
-    // print some memory stats
-    int mem = 0, memr = 0, tmpmem = 0;
-    LOG("BEAM: memory stats following");
-
-    tmpmem = ar_num_props * sizeof(prop_t);
-    mem += tmpmem;
-    memr += MAX_PROPS * sizeof(beam_t);
-    LOG("BEAM: prop memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(ar_num_props) + " x " + TOSTRING(sizeof(prop_t)) + " B) / " + TOSTRING(MAX_PROPS * sizeof(prop_t)));
-
-    tmpmem = ar_num_wheels * sizeof(wheel_t);
-    mem += tmpmem;
-    memr += MAX_WHEELS * sizeof(beam_t);
-    LOG("BEAM: wheel memory: " + TOSTRING(tmpmem) + " B (" + TOSTRING(ar_num_wheels) + " x " + TOSTRING(sizeof(wheel_t)) + " B) / " + TOSTRING(MAX_WHEELS * sizeof(wheel_t)));
-
-    LOG("BEAM: truck memory used: " + TOSTRING(mem) + " B (" + TOSTRING(mem/1024) + " kB)");
-    LOG("BEAM: truck memory allocated: " + TOSTRING(memr) + " B (" + TOSTRING(memr/1024) + " kB)");
-
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_GROUNDMODEL_AND_STATS);
     // now load any dashboards
     if (ar_dashboard)
