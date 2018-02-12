@@ -1080,10 +1080,10 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
     int num_actor_slots = App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots();
 
     if (m_intra_point_col_detector)
-        m_intra_point_col_detector->update(this, true);
+        m_intra_point_col_detector->UpdateIntraPoint(this, true);
 
     if (m_inter_point_col_detector)
-        m_inter_point_col_detector->update(this, actors, num_actor_slots, true);
+        m_inter_point_col_detector->UpdateInterPoint(this, actors, num_actor_slots, true);
 
     // collision displacement
     Vector3 collision_offset = Vector3::ZERO;
