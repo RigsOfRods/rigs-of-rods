@@ -37,13 +37,12 @@ class ThreadPool;
 
 namespace RoR {
 
-/// Builds and manages softbody actors; Manages multithreading.
+/// Builds and manages softbody actors. Manage physics and threading.
+/// TODO: Currently also manages gfx, which should be done by GfxActor
 /// HISTORICAL NOTE: Until 01/2018, this class was named `BeamFactory` (because `Actor` was `Beam`)
-/// FUTURE DEV: This class will become a private helper of `RoRFrameListener` because there's tight coupling around player-driven actor.
 class ActorManager
 {
     friend class GameScript; // needs to call RemoveActorByCollisionBox()
-    friend class ::RoRFrameListener; // Needs to call RemoveActorInternal(), RemoveActorByCollisionBox(), GetPlayerActorInternal(), GetPlayerActorInternal()
 public:
 
     ActorManager(RoRFrameListener* sim_controller);
@@ -63,10 +62,10 @@ public:
         bool preloaded_with_terrain = false
     );
 
-    void           UpdateActors(float dt);
+    void           UpdateActors(Actor* player_actor, float dt);
     void           SyncWithSimThread();
     void           UpdatePhysicsSimulation();
-    void           UpdateActorVisuals(float dt);
+    void           UpdateActorVisuals(float dt, Actor* player_actor); // TODO: This should be done by GfxActor
     void           WakeUpAllActors();
     void           SendAllActorsSleeping();
     int            CheckNetworkStreamsOk(int sourceid);
@@ -80,18 +79,20 @@ public:
     void           UpdateFlexbodiesFinal();
     DustManager&   GetParticleManager()                    { return m_particle_manager; }
     void           SetTrucksForcedAwake(bool forced)       { m_forced_awake = forced; };
-    int            GetPlayerActorId() const                { return m_player_actor_id; };
     int            GetNumUsedActorSlots() const            { return m_free_actor_slot; }; // TODO: Tasks requiring search over all actors should be done internally. ~ only_a_ptr, 01/2018
     Actor**        GetInternalActorSlots()                 { return m_actors; }; // TODO: Tasks requiring search over all actors should be done internally. ~ only_a_ptr, 01/2018
     void           SetSimulationSpeed(float speed)         { m_simulation_speed = std::max(0.0f, speed); };
     float          GetSimulationSpeed() const              { return m_simulation_speed; };
-    void           EnterNextVehicle();
-    void           EnterPreviousVehicle();
-    bool           EnterRescueVehicle();
-    void           SetPlayerVehicleByActorId(int new_truck);
+    Actor*         FetchNextVehicleOnList(Actor* player, Actor* prev_player);
+    Actor*         FetchPreviousVehicleOnList(Actor* player, Actor* prev_player);
+    Actor*         FetchRescueVehicle();
     void           CleanUpAllActors(); //!< Call this after simulation loop finishes.
     Actor*         GetActorByNetworkLinks(int source_id, int stream_id); // used by character
     void           RepairActor(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box, bool keepPosition = false);
+    void           UpdateSleepingState(Actor* player_actor, float dt);
+    void           RemoveActorByCollisionBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box); //!< Only for scripting
+    void           RemoveActorInternal(int actor_id); //!< DO NOT CALL DIRECTLY! Use `RoRFrameListener` for public interface
+    Actor*         GetActorByIdInternal(int number); //!< DO NOT CALL DIRECTLY! Use `RoRFrameListener` for public interface
 
 #ifdef USE_SOCKETW
     void           HandleActorStreamData(std::vector<RoR::Networking::recv_packet_t> packet);
@@ -105,12 +106,8 @@ public:
     // A list of all beams interconnecting two actors
     std::map<beam_t*, std::pair<Actor*, Actor*>> inter_actor_links;
 
-protected:
+private:
 
-    Actor*         GetPlayerActorInternal();         //!< Use `RoRFrameListener` for public interface
-    Actor*         GetActorByIdInternal(int number); //!< Use `RoRFrameListener` for public interface
-    void           RemoveActorByCollisionBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box); //!< Only for scripting
-    void           RemoveActorInternal(int actor_id); //!< Internal+friends use only; see `RoRFrameListener::*Actor*()` functions.
     bool           CheckAabbIntersection(Ogre::AxisAlignedBox a, Ogre::AxisAlignedBox b, float scale = 1.0f); //!< Returns whether or not the two (scaled) bounding boxes intersect.
     bool           CheckActorAabbIntersection(int a, int b, float scale = 1.0f);     //!< Returns whether or not the bounding boxes of truck a and truck b intersect. Based on the default truck bounding boxes.
     bool           PredictActorAabbIntersection(int a, int b, float scale = 1.0f);   //!< Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the default truck bounding boxes.
@@ -121,8 +118,6 @@ protected:
     void           LogParserMessages();
     void           LogSpawnerMessages();
     void           RecursiveActivation(int j, std::bitset<MAX_ACTORS>& visited);
-    void           UpdateSleepingState(float dt);
-    int            GetMostRecentActorSlot();
     int            GetFreeActorSlot();
     int            FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
     void           DeleteActorInternal(Actor* b);
@@ -136,8 +131,6 @@ protected:
     int             m_num_cpu_cores;
     Actor*          m_actors[MAX_ACTORS];//!< All actors; slots are not reused
     int             m_free_actor_slot;   //!< Slots are not reused
-    int             m_prev_player_actor; //!< Previous player-controlled actor
-    int             m_player_actor_id;   //!< Current player-controlled actor (i.e. a vehicle)
     int             m_simulated_actor;   //!< A player actor if present, or any other local actor if present.
     bool            m_forced_awake;      //!< disables sleep counters
     unsigned long   m_physics_frames;

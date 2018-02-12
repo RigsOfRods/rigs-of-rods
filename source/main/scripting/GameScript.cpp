@@ -262,7 +262,8 @@ int GameScript::getNumTrucksByFlag(int flag)
 
 int GameScript::GetPlayerActorId()
 {
-    return mse->GetFrameListener()->GetBeamFactory()->GetPlayerActorId();
+    Actor* actor = mse->GetFrameListener()->GetPlayerActor();
+    return (actor != nullptr) ? actor->ar_instance_id : -1;
 }
 
 void GameScript::registerForEvent(int eventValue)
@@ -925,13 +926,12 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
 
 void GameScript::boostCurrentTruck(float factor)
 {
-    // add C++ code here
-    Actor* b = mse->GetFrameListener()->GetBeamFactory()->GetPlayerActorInternal();
-    if (b && b->ar_engine)
+    Actor* actor = mse->GetFrameListener()->GetPlayerActor();
+    if (actor && actor->ar_engine)
     {
-        float rpm = b->ar_engine->GetEngineRpm();
+        float rpm = actor->ar_engine->GetEngineRpm();
         rpm += 2000.0f * factor;
-        b->ar_engine->SetEngineRpm(rpm);
+        actor->ar_engine->SetEngineRpm(rpm);
     }
 }
 
@@ -975,9 +975,9 @@ int GameScript::sendGameCmd(const String& message)
 
 VehicleAI* GameScript::getCurrentTruckAI()
 {
-    Actor* b = mse->GetFrameListener()->GetBeamFactory()->GetPlayerActorInternal();
-    if (b)
-        return b->ar_vehicle_ai;
+    Actor* actor = mse->GetFrameListener()->GetPlayerActor();
+    if (actor != nullptr)
+        return actor->ar_vehicle_ai;
     return nullptr;
 }
 
