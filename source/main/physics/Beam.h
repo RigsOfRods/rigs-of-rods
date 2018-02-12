@@ -419,18 +419,13 @@ public:
     float             advanced_total_drag;
     Axle*             axles[MAX_WHEELS/2];
     int               free_axle;
-    int               free_fixes;
     int               propwheelcount;
     int               free_commands;
-    int               fileformatversion;
     Ogre::Vector3     origin;
     Ogre::SceneNode*  beamsRoot;
-    std::vector< SlideNode > mSlideNodes;          //!< all the SlideNodes available on this truck
     int               proped_wheels;               //!< Number of propelled wheels.
     int               braked_wheels;               //!< Number of braked wheels.
     int               proppairs[MAX_WHEELS];       //!< For inter-differential locking
-    bool              slideNodesConnectInstantly;  //<! try to connect slide-nodes directly after spawning
-    std::vector< RailGroup* > mRailGroups;         //!< all the available RailGroups for this actor
     Ogre::Camera*     mCamera;
     int               freecamera;
     int               cameranodepos[MAX_CAMERAS];
@@ -452,7 +447,6 @@ public:
     Ogre::String      subMeshGroundModelName;
     float             odometerTotal;
     float             odometerUser;
-    std::vector<std::pair<Ogre::String, bool> > dashBoardLayouts;
     VehicleAI*        vehicle_ai;
     float             currentScale;
     Ogre::Real        brake;
@@ -511,7 +505,7 @@ public:
     std::map<int, int> m_stream_results;
     Ogre::Timer       netTimer;
     unsigned long     lastNetUpdateTime;
-    DashBoardManager* dash;
+    DashBoardManager* ar_dashboard;
     int               ar_request_skeletonview_change; //!< Gfx state; Request activation(1) / deactivation(-1) of skeletonview
     SimState          ar_sim_state;                   //!< Physics state
 
@@ -569,6 +563,7 @@ private:
 
     // -------------------- data -------------------- //
 
+    std::vector<std::pair<Ogre::String, bool> > m_dashboard_layouts; // TODO: Spawn context only, remove!
     float             avichatter_timer;
     PointColDetector* interPointCD;
     PointColDetector* intraPointCD;
@@ -609,6 +604,8 @@ private:
     bool              m_preloaded_with_terrain;
     ResetRequest      m_reset_request;
     std::vector<Ogre::String> m_truck_config;
+    std::vector<SlideNode> m_slidenodes;    //!< all the SlideNodes available on this truck
+    std::vector<RailGroup*> m_railgroups;   //!< all the available RailGroups for this actor
     RoRnet::TruckState* oob1;               //!< Network; Triple buffer for incoming data (truck properties)
     RoRnet::TruckState* oob2;               //!< Network; Triple buffer for incoming data (truck properties)
     RoRnet::TruckState* oob3;               //!< Network; Triple buffer for incoming data (truck properties)
@@ -630,6 +627,7 @@ private:
     Ogre::ManualObject* simpleSkeletonManualObject;
     Ogre::SceneNode*  simpleSkeletonNode;
     bool              simpleSkeletonInitiated; //!< Was the rig-skeleton mesh built?
+    bool              m_slidenodes_connect_on_spawn; //TODO: Remove! spawner context only!  //<! try to connect slide-nodes directly after spawning
     // dustpools
     DustPool*         dustp;
     DustPool*         dripp;

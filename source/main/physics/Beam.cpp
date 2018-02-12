@@ -105,9 +105,11 @@ Beam::~Beam()
     this->setMeshVisibility(false);
 
     // delete all classes we might have constructed
-    if (dash)
-        delete dash;
-    dash = 0;
+    if (ar_dashboard != nullptr)
+    {
+        delete ar_dashboard;
+        ar_dashboard = nullptr;
+    }
 
     // stop all the Sounds
 #ifdef USE_OPENAL
@@ -336,7 +338,7 @@ Beam::~Beam()
     }
 
     // delete Rails
-    for (std::vector<RailGroup*>::iterator it = mRailGroups.begin(); it != mRailGroups.end(); it++)
+    for (std::vector<RailGroup*>::iterator it = m_railgroups.begin(); it != m_railgroups.end(); it++)
     {
         // signal to the Rail that
         (*it)->cleanUp();
@@ -2952,9 +2954,9 @@ void Beam::prepareInside(bool inside)
     }
     else
     {
-        if (dash)
+        if (ar_dashboard)
         {
-            dash->setVisible(false);
+            ar_dashboard->setVisible(false);
         }
 
         mCamera->setNearClipDistance(0.5f);
@@ -3274,7 +3276,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
             if (ar_left_blink_on)
                 SOUND_PLAY_ONCE(trucknum, SS_TRIG_TURN_SIGNAL_TICK);
 
-            dash->setBool(DD_SIGNAL_TURNLEFT, isvisible);
+            ar_dashboard->setBool(DD_SIGNAL_TURNLEFT, isvisible);
         }
         else if (flares[i].type == 'r' && blinkingtype == BLINK_RIGHT)
         {
@@ -3283,7 +3285,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
             if (ar_right_blink_on)
                 SOUND_PLAY_ONCE(trucknum, SS_TRIG_TURN_SIGNAL_TICK);
 
-            dash->setBool(DD_SIGNAL_TURNRIGHT, isvisible);
+            ar_dashboard->setBool(DD_SIGNAL_TURNRIGHT, isvisible);
         }
         else if (flares[i].type == 'l' && blinkingtype == BLINK_WARN)
         {
@@ -3292,8 +3294,8 @@ void Beam::updateFlares(float dt, bool isCurrent)
             if (ar_warn_blink_on)
                 SOUND_PLAY_ONCE(trucknum, SS_TRIG_TURN_SIGNAL_WARN_TICK);
 
-            dash->setBool(DD_SIGNAL_TURNRIGHT, isvisible);
-            dash->setBool(DD_SIGNAL_TURNLEFT, isvisible);
+            ar_dashboard->setBool(DD_SIGNAL_TURNRIGHT, isvisible);
+            ar_dashboard->setBool(DD_SIGNAL_TURNLEFT, isvisible);
         }
 
         // update material Bindings
@@ -3398,8 +3400,8 @@ void Beam::autoBlinkReset()
     }
 
     bool stopblink = false;
-    dash->setBool(DD_SIGNAL_TURNLEFT, stopblink);
-    dash->setBool(DD_SIGNAL_TURNRIGHT, stopblink);
+    ar_dashboard->setBool(DD_SIGNAL_TURNLEFT, stopblink);
+    ar_dashboard->setBool(DD_SIGNAL_TURNRIGHT, stopblink);
 }
 
 void Beam::updateProps()
@@ -5029,7 +5031,7 @@ bool Beam::isLocked()
 
 void Beam::updateDashBoards(float dt)
 {
-    if (!dash)
+    if (!ar_dashboard)
         return;
     // some temp vars
     Vector3 dir;
@@ -5039,10 +5041,10 @@ void Beam::updateDashBoards(float dt)
     {
         // gears first
         int gear = engine->getGear();
-        dash->setInt(DD_ENGINE_GEAR, gear);
+        ar_dashboard->setInt(DD_ENGINE_GEAR, gear);
 
         int numGears = (int)engine->getNumGears();
-        dash->setInt(DD_ENGINE_NUM_GEAR, numGears);
+        ar_dashboard->setInt(DD_ENGINE_NUM_GEAR, numGears);
 
         String str = String();
 
@@ -5054,7 +5056,7 @@ void Beam::updateDashBoards(float dt)
         else
             str = String("R");
 
-        dash->setChar(DD_ENGINE_GEAR_STRING, str.c_str());
+        ar_dashboard->setChar(DD_ENGINE_GEAR_STRING, str.c_str());
 
         // R N D 2 1 String
         int cg = engine->getAutoShift();
@@ -5071,44 +5073,44 @@ void Beam::updateDashBoards(float dt)
             //str = "#b8b8b8M\na\nn\nu\na\nl";
             str = "#b8b8b8M\na\nn\nu";
         }
-        dash->setChar(DD_ENGINE_AUTOGEAR_STRING, str.c_str());
+        ar_dashboard->setChar(DD_ENGINE_AUTOGEAR_STRING, str.c_str());
 
         // autogears
         int autoGear = engine->getAutoShift();
-        dash->setInt(DD_ENGINE_AUTO_GEAR, autoGear);
+        ar_dashboard->setInt(DD_ENGINE_AUTO_GEAR, autoGear);
 
         // clutch
         float clutch = engine->getClutch();
-        dash->setFloat(DD_ENGINE_CLUTCH, clutch);
+        ar_dashboard->setFloat(DD_ENGINE_CLUTCH, clutch);
 
         // accelerator
         float acc = engine->getAcc();
-        dash->setFloat(DD_ACCELERATOR, acc);
+        ar_dashboard->setFloat(DD_ACCELERATOR, acc);
 
         // RPM
         float rpm = engine->getRPM();
-        dash->setFloat(DD_ENGINE_RPM, rpm);
+        ar_dashboard->setFloat(DD_ENGINE_RPM, rpm);
 
         // turbo
         float turbo = engine->getTurboPSI() * 3.34f; // MAGIC :/
-        dash->setFloat(DD_ENGINE_TURBO, turbo);
+        ar_dashboard->setFloat(DD_ENGINE_TURBO, turbo);
 
         // ignition
         bool ign = (engine->hasContact() && !engine->isRunning());
-        dash->setBool(DD_ENGINE_IGNITION, ign);
+        ar_dashboard->setBool(DD_ENGINE_IGNITION, ign);
 
         // battery
         bool batt = (engine->hasContact() && !engine->isRunning());
-        dash->setBool(DD_ENGINE_BATTERY, batt);
+        ar_dashboard->setBool(DD_ENGINE_BATTERY, batt);
 
         // clutch warning
         bool cw = (fabs(engine->getTorque()) >= engine->getClutchForce() * 10.0f);
-        dash->setBool(DD_ENGINE_CLUTCH_WARNING, cw);
+        ar_dashboard->setBool(DD_ENGINE_CLUTCH_WARNING, cw);
     }
 
     // brake
     float dash_brake = brake / brakeforce;
-    dash->setFloat(DD_BRAKE, dash_brake);
+    ar_dashboard->setFloat(DD_BRAKE, dash_brake);
 
     // speedo
     float velocity = ar_nodes[0].Velocity.length();
@@ -5119,9 +5121,9 @@ void Beam::updateDashBoards(float dt)
         velocity = hdir.dotProduct(ar_nodes[0].Velocity);
     }
     float speed_kph = velocity * 3.6f;
-    dash->setFloat(DD_ENGINE_SPEEDO_KPH, speed_kph);
+    ar_dashboard->setFloat(DD_ENGINE_SPEEDO_KPH, speed_kph);
     float speed_mph = velocity * 2.23693629f;
-    dash->setFloat(DD_ENGINE_SPEEDO_MPH, speed_mph);
+    ar_dashboard->setFloat(DD_ENGINE_SPEEDO_MPH, speed_mph);
 
     // roll
     if (this->IsNodeIdValid(cameranodepos[0])) // TODO: why check this on each update when it cannot change after spawn?
@@ -5135,7 +5137,7 @@ void Beam::updateDashBoards(float dt)
             angle = 1;
 
         float f = Radian(angle).valueDegrees();
-        dash->setFloat(DD_ROLL, f);
+        ar_dashboard->setFloat(DD_ROLL, f);
     }
 
     // active shocks / roll correction
@@ -5143,10 +5145,10 @@ void Beam::updateDashBoards(float dt)
     {
         // TOFIX: certainly not working:
         float roll_corr = - stabratio * 10.0f;
-        dash->setFloat(DD_ROLL_CORR, roll_corr);
+        ar_dashboard->setFloat(DD_ROLL_CORR, roll_corr);
 
         bool corr_active = (stabcommand > 0);
-        dash->setBool(DD_ROLL_CORR_ACTIVE, corr_active);
+        ar_dashboard->setBool(DD_ROLL_CORR_ACTIVE, corr_active);
     }
 
     // pitch
@@ -5161,24 +5163,24 @@ void Beam::updateDashBoards(float dt)
             angle = 1;
 
         float f = Radian(angle).valueDegrees();
-        dash->setFloat(DD_PITCH, f);
+        ar_dashboard->setFloat(DD_PITCH, f);
     }
 
     // parking brake
     bool pbrake = (parkingbrake > 0);
-    dash->setBool(DD_PARKINGBRAKE, pbrake);
+    ar_dashboard->setBool(DD_PARKINGBRAKE, pbrake);
 
     // locked lamp
     bool locked = isLocked();
-    dash->setBool(DD_LOCKED, locked);
+    ar_dashboard->setBool(DD_LOCKED, locked);
 
     // low pressure lamp
     bool low_pres = !canwork;
-    dash->setBool(DD_LOW_PRESSURE, low_pres);
+    ar_dashboard->setBool(DD_LOW_PRESSURE, low_pres);
 
     // lights
     bool lightsOn = (lights > 0);
-    dash->setBool(DD_LIGHTS, lightsOn);
+    ar_dashboard->setBool(DD_LIGHTS, lightsOn);
 
     // Traction Control
     if (tc_present)
@@ -5191,7 +5193,7 @@ void Beam::updateDashBoards(float dt)
             else
                 dash_tc_mode = 2;
         }
-        dash->setInt(DD_TRACTIONCONTROL_MODE, dash_tc_mode);
+        ar_dashboard->setInt(DD_TRACTIONCONTROL_MODE, dash_tc_mode);
     }
 
     // Anti Lock Brake
@@ -5205,7 +5207,7 @@ void Beam::updateDashBoards(float dt)
             else
                 dash_alb_mode = 2;
         }
-        dash->setInt(DD_ANTILOCKBRAKE_MODE, dash_alb_mode);
+        ar_dashboard->setInt(DD_ANTILOCKBRAKE_MODE, dash_alb_mode);
     }
 
     // load secured lamp
@@ -5217,7 +5219,7 @@ void Beam::updateDashBoards(float dt)
         else
             ties_mode = 2;
     }
-    dash->setInt(DD_TIES_MODE, ties_mode);
+    ar_dashboard->setInt(DD_TIES_MODE, ties_mode);
 
     // Boat things now: screwprops and alike
     if (free_screwprop)
@@ -5226,10 +5228,10 @@ void Beam::updateDashBoards(float dt)
         for (int i = 0; i < free_screwprop && i < DD_MAX_SCREWPROP; i++)
         {
             float throttle = screwprops[i]->getThrottle();
-            dash->setFloat(DD_SCREW_THROTTLE_0 + i, throttle);
+            ar_dashboard->setFloat(DD_SCREW_THROTTLE_0 + i, throttle);
 
             float steering = screwprops[i]->getRudder();
-            dash->setFloat(DD_SCREW_STEER_0 + i, steering);
+            ar_dashboard->setFloat(DD_SCREW_STEER_0 + i, steering);
         }
 
         // water depth display, only if we have a screw prop at least
@@ -5244,7 +5246,7 @@ void Beam::updateDashBoards(float dt)
             {
                 Vector3 pos = ar_nodes[low_node].AbsPosition;
                 float depth = pos.y - gEnv->terrainManager->getHeightFinder()->getHeightAt(pos.x, pos.z);
-                dash->setFloat(DD_WATER_DEPTH, depth);
+                ar_dashboard->setFloat(DD_WATER_DEPTH, depth);
             }
         }
 
@@ -5254,7 +5256,7 @@ void Beam::updateDashBoards(float dt)
             Vector3 hdir = ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranodedir[0]].RelPosition;
             hdir.normalise();
             float knots = hdir.dotProduct(ar_nodes[cameranodepos[0]].Velocity) * 1.9438f; // 1.943 = m/s in knots/s
-            dash->setFloat(DD_WATER_SPEED, knots);
+            ar_dashboard->setFloat(DD_WATER_SPEED, knots);
         }
     }
 
@@ -5264,13 +5266,13 @@ void Beam::updateDashBoards(float dt)
         for (int i = 0; i < free_aeroengine && i < DD_MAX_AEROENGINE; i++)
         {
             float throttle = aeroengines[i]->getThrottle();
-            dash->setFloat(DD_AEROENGINE_THROTTLE_0 + i, throttle);
+            ar_dashboard->setFloat(DD_AEROENGINE_THROTTLE_0 + i, throttle);
 
             bool failed = aeroengines[i]->isFailed();
-            dash->setBool(DD_AEROENGINE_FAILED_0 + i, failed);
+            ar_dashboard->setBool(DD_AEROENGINE_FAILED_0 + i, failed);
 
             float pcent = aeroengines[i]->getRPMpc();
-            dash->setFloat(DD_AEROENGINE_RPM_0 + i, pcent);
+            ar_dashboard->setFloat(DD_AEROENGINE_RPM_0 + i, pcent);
         }
     }
 
@@ -5281,7 +5283,7 @@ void Beam::updateDashBoards(float dt)
         {
             // Angle of Attack (AOA)
             float aoa = ar_wings[i].fa->aoa;
-            dash->setFloat(DD_WING_AOA_0 + i, aoa);
+            ar_dashboard->setFloat(DD_WING_AOA_0 + i, aoa);
         }
     }
 
@@ -5301,22 +5303,22 @@ void Beam::updateDashBoards(float dt)
             float airdensity = airpressure * 0.0000120896f; //1.225 at sea level
 
             float knots = ground_speed_kt * sqrt(airdensity / 1.225f); //KIAS
-            dash->setFloat(DD_AIRSPEED, knots);
+            ar_dashboard->setFloat(DD_AIRSPEED, knots);
         }
 
         // altimeter (height above ground)
         {
             float alt = ar_nodes[0].AbsPosition.y * 1.1811f; // MAGIC
-            dash->setFloat(DD_ALTITUDE, alt);
+            ar_dashboard->setFloat(DD_ALTITUDE, alt);
 
             char altc[11];
             sprintf(altc, "%03u", (int)(ar_nodes[0].AbsPosition.y / 30.48f)); // MAGIC
-            dash->setChar(DD_ALTITUDE_STRING, altc);
+            ar_dashboard->setChar(DD_ALTITUDE_STRING, altc);
         }
     }
 
-    dash->setFloat(DD_ODOMETER_TOTAL, odometerTotal);
-    dash->setFloat(DD_ODOMETER_USER, odometerUser);
+    ar_dashboard->setFloat(DD_ODOMETER_TOTAL, odometerTotal);
+    ar_dashboard->setFloat(DD_ODOMETER_USER, odometerUser);
 
     // set the features of this vehicle once
     if (!m_hud_features_ok)
@@ -5331,25 +5333,25 @@ void Beam::updateDashBoards(float dt)
             autogearVisible = (engine->getAutoShift() != BeamEngine::MANUALMODE);
         }
 
-        dash->setEnabled(DD_ENGINE_TURBO, hasturbo);
-        dash->setEnabled(DD_ENGINE_GEAR, hasEngine);
-        dash->setEnabled(DD_ENGINE_NUM_GEAR, hasEngine);
-        dash->setEnabled(DD_ENGINE_GEAR_STRING, hasEngine);
-        dash->setEnabled(DD_ENGINE_AUTO_GEAR, hasEngine);
-        dash->setEnabled(DD_ENGINE_CLUTCH, hasEngine);
-        dash->setEnabled(DD_ENGINE_RPM, hasEngine);
-        dash->setEnabled(DD_ENGINE_IGNITION, hasEngine);
-        dash->setEnabled(DD_ENGINE_BATTERY, hasEngine);
-        dash->setEnabled(DD_ENGINE_CLUTCH_WARNING, hasEngine);
+        ar_dashboard->setEnabled(DD_ENGINE_TURBO, hasturbo);
+        ar_dashboard->setEnabled(DD_ENGINE_GEAR, hasEngine);
+        ar_dashboard->setEnabled(DD_ENGINE_NUM_GEAR, hasEngine);
+        ar_dashboard->setEnabled(DD_ENGINE_GEAR_STRING, hasEngine);
+        ar_dashboard->setEnabled(DD_ENGINE_AUTO_GEAR, hasEngine);
+        ar_dashboard->setEnabled(DD_ENGINE_CLUTCH, hasEngine);
+        ar_dashboard->setEnabled(DD_ENGINE_RPM, hasEngine);
+        ar_dashboard->setEnabled(DD_ENGINE_IGNITION, hasEngine);
+        ar_dashboard->setEnabled(DD_ENGINE_BATTERY, hasEngine);
+        ar_dashboard->setEnabled(DD_ENGINE_CLUTCH_WARNING, hasEngine);
 
-        dash->setEnabled(DD_TRACTIONCONTROL_MODE, tc_present);
-        dash->setEnabled(DD_ANTILOCKBRAKE_MODE, alb_present);
-        dash->setEnabled(DD_TIES_MODE, !ties.empty());
-        dash->setEnabled(DD_LOCKED, !hooks.empty());
+        ar_dashboard->setEnabled(DD_TRACTIONCONTROL_MODE, tc_present);
+        ar_dashboard->setEnabled(DD_ANTILOCKBRAKE_MODE, alb_present);
+        ar_dashboard->setEnabled(DD_TIES_MODE, !ties.empty());
+        ar_dashboard->setEnabled(DD_LOCKED, !hooks.empty());
 
-        dash->setEnabled(DD_ENGINE_AUTOGEAR_STRING, autogearVisible);
+        ar_dashboard->setEnabled(DD_ENGINE_AUTOGEAR_STRING, autogearVisible);
 
-        dash->updateFeatures();
+        ar_dashboard->updateFeatures();
         m_hud_features_ok = true;
     }
 
@@ -5461,7 +5463,7 @@ void Beam::updateDashBoards(float dt)
 }
 
 #endif //0
-    dash->update(dt);
+    ar_dashboard->update(dt);
 }
 
 Vector3 Beam::getGForces()
@@ -5581,7 +5583,7 @@ Beam::Beam(
     , cparticle_mode(false)
     , currentScale(1)
     , currentcamera(-1) // -1 = external
-    , dash(nullptr)
+    , ar_dashboard(nullptr)
     , detailLevel(0)
     , disableDrag(false)
     , disableTruckTruckCollisions(false)
@@ -6111,9 +6113,9 @@ bool Beam::LoadTruck(
 
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_GROUNDMODEL_AND_STATS);
     // now load any dashboards
-    if (dash)
+    if (ar_dashboard)
     {
-        if (dashBoardLayouts.empty())
+        if (m_dashboard_layouts.empty())
         {
             // load default for a truck
             if (driveable == TRUCK)
@@ -6125,15 +6127,15 @@ bool Beam::LoadTruck(
                         if (engine->getMaxRPM() > 3500)
                         {
                             //7000 rpm tachometer thanks to klink
-                            dash->loadDashBoard("default_dashboard7000_mph.layout", false);
+                            ar_dashboard->loadDashBoard("default_dashboard7000_mph.layout", false);
                             // TODO: load texture dashboard by default as well
-                            dash->loadDashBoard("default_dashboard7000_mph.layout", true);
+                            ar_dashboard->loadDashBoard("default_dashboard7000_mph.layout", true);
                         }
                         else
                         {
-                            dash->loadDashBoard("default_dashboard3500_mph.layout", false);
+                            ar_dashboard->loadDashBoard("default_dashboard3500_mph.layout", false);
                             // TODO: load texture dashboard by default as well
-                            dash->loadDashBoard("default_dashboard3500_mph.layout", true);
+                            ar_dashboard->loadDashBoard("default_dashboard3500_mph.layout", true);
                         }
                     }
                     else
@@ -6141,15 +6143,15 @@ bool Beam::LoadTruck(
                         if (engine->getMaxRPM() > 3500)
                         {
                             //7000 rpm tachometer thanks to klink
-                            dash->loadDashBoard("default_dashboard7000.layout", false);
+                            ar_dashboard->loadDashBoard("default_dashboard7000.layout", false);
                             // TODO: load texture dashboard by default as well
-                            dash->loadDashBoard("default_dashboard7000.layout", true);
+                            ar_dashboard->loadDashBoard("default_dashboard7000.layout", true);
                         }
                         else
                         {
-                            dash->loadDashBoard("default_dashboard3500.layout", false);
+                            ar_dashboard->loadDashBoard("default_dashboard3500.layout", false);
                             // TODO: load texture dashboard by default as well
-                            dash->loadDashBoard("default_dashboard3500.layout", true);
+                            ar_dashboard->loadDashBoard("default_dashboard3500.layout", true);
                         }
                     }
                 }
@@ -6160,15 +6162,15 @@ bool Beam::LoadTruck(
                         if (engine->getMaxRPM() > 3500)
                         {
                             //7000 rpm tachometer thanks to klink
-                            dash->loadDashBoard("default_dashboard7000_analog_mph.layout", false);
+                            ar_dashboard->loadDashBoard("default_dashboard7000_analog_mph.layout", false);
                             // TODO: load texture dashboard by default as well
-                            dash->loadDashBoard("default_dashboard7000_analog_mph.layout", true);
+                            ar_dashboard->loadDashBoard("default_dashboard7000_analog_mph.layout", true);
                         }
                         else
                         {
-                            dash->loadDashBoard("default_dashboard3500_analog_mph.layout", false);
+                            ar_dashboard->loadDashBoard("default_dashboard3500_analog_mph.layout", false);
                             // TODO: load texture dashboard by default as well
-                            dash->loadDashBoard("default_dashboard3500_analog_mph.layout", true);
+                            ar_dashboard->loadDashBoard("default_dashboard3500_analog_mph.layout", true);
                         }
                     }
                     else
@@ -6176,33 +6178,35 @@ bool Beam::LoadTruck(
                         if (engine->getMaxRPM() > 3500)
                         {
                             //7000 rpm tachometer thanks to klink
-                            dash->loadDashBoard("default_dashboard7000_analog.layout", false);
+                            ar_dashboard->loadDashBoard("default_dashboard7000_analog.layout", false);
                             // TODO: load texture dashboard by default as well
-                            dash->loadDashBoard("default_dashboard7000_analog.layout", true);
+                            ar_dashboard->loadDashBoard("default_dashboard7000_analog.layout", true);
                         }
                         else
                         {
-                            dash->loadDashBoard("default_dashboard3500_analog.layout", false);
+                            ar_dashboard->loadDashBoard("default_dashboard3500_analog.layout", false);
                             // TODO: load texture dashboard by default as well
-                            dash->loadDashBoard("default_dashboard3500_analog.layout", true);
+                            ar_dashboard->loadDashBoard("default_dashboard3500_analog.layout", true);
                         }
                     }
                 }
             }
             else if (driveable == BOAT)
             {
-                dash->loadDashBoard("default_dashboard_boat.layout", false);
+                ar_dashboard->loadDashBoard("default_dashboard_boat.layout", false);
                 // TODO: load texture dashboard by default as well
-                dash->loadDashBoard("default_dashboard_boat.layout", true);
+                ar_dashboard->loadDashBoard("default_dashboard_boat.layout", true);
             }
         }
         else
         {
             // load all dashes
-            for (unsigned int i = 0; i < dashBoardLayouts.size(); i++)
-                dash->loadDashBoard(dashBoardLayouts[i].first, dashBoardLayouts[i].second);
+            for (unsigned int i = 0; i < m_dashboard_layouts.size(); i++)
+            {
+                ar_dashboard->loadDashBoard(m_dashboard_layouts[i].first, m_dashboard_layouts[i].second);
+            }
         }
-        dash->setVisible(false);
+        ar_dashboard->setVisible(false);
     }
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_LOAD_DASHBOARDS);
 
@@ -6394,7 +6398,7 @@ Replay* Beam::getReplay()
 
 bool Beam::getSlideNodesLockInstant()
 {
-    return slideNodesConnectInstantly;
+    return m_slidenodes_connect_on_spawn;
 }
 
 bool Beam::inRange(float num, float min, float max)
