@@ -327,7 +327,6 @@ void RigSpawner::InitializeRig()
     m_rig->m_slidenodes.clear();
 
     m_rig->engine = nullptr;
-    m_rig->hascommands=0;
     m_rig->hashelp=0;
     m_rig->cinecameranodepos[0]=-1;
     m_rig->freecinecamera=0;
@@ -2819,7 +2818,7 @@ void RigSpawner::ProcessTie(RigDef::Tie & def)
     tie.commandValue = -1.f;
     m_rig->ties.push_back(tie);
 
-    m_rig->hascommands = 1;
+    m_rig->m_has_command_beams = true;
 }
 
 void RigSpawner::ProcessRope(RigDef::Rope & def)
@@ -3357,7 +3356,7 @@ void RigSpawner::ProcessRotator(RigDef::Rotator & def)
     _ProcessKeyInertia(m_rig->m_rotator_inertia, def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
 
     m_rig->ar_num_rotators++;
-    m_rig->hascommands = 1;
+    m_rig->m_has_command_beams = true;
 }
 
 void RigSpawner::ProcessRotator2(RigDef::Rotator2 & def)
@@ -3397,7 +3396,7 @@ void RigSpawner::ProcessRotator2(RigDef::Rotator2 & def)
     _ProcessKeyInertia(m_rig->m_rotator_inertia, def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
 
     m_rig->ar_num_rotators++;
-    m_rig->hascommands = 1;
+    m_rig->m_has_command_beams = true;
 }
 
 void RigSpawner::_ProcessKeyInertia(
@@ -3527,7 +3526,7 @@ void RigSpawner::ProcessCommand(RigDef::Command2 & def)
     CreateBeamVisuals(beam, beam_index, def.beam_defaults);
 
     m_rig->free_commands++;
-    m_rig->hascommands = 1;
+    m_rig->m_has_command_beams = true;
 }
 
 void RigSpawner::ProcessAnimator(RigDef::Animator & def)
@@ -6767,7 +6766,7 @@ void RigSpawner::SetupDefaultSoundSources(Beam *vehicle)
             AddSoundSourceInstance(vehicle, "tracks/default_shift", 0);
     }
     //pump
-    if (vehicle->hascommands)
+    if (vehicle->m_has_command_beams)
     {
         AddSoundSourceInstance(vehicle, "tracks/default_pump", 0);
     }

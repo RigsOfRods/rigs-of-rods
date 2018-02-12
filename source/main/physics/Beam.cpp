@@ -5634,12 +5634,11 @@ Beam::Beam(
     , m_water_contact_old(false)
     , m_num_axles(0)
     , m_axles{} // Init array to nullptr
+    , m_has_command_beams(false)
 {
     m_high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();
     useSkidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;
     LOG(" ===== LOADING VEHICLE: " + Ogre::String(fname));
-
-    /* struct <rig_t> parameters */
 
     trucknum = truck_number;
     m_spawn_free_positioned = freeposition;
@@ -5652,8 +5651,6 @@ Beam::Beam(
     {
         driveable = MACHINE;
     }
-
-    /* class <Beam> parameters */
     ar_filename = Ogre::String(fname);
 
     // copy truck config
