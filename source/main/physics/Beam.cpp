@@ -370,7 +370,7 @@ Beam::~Beam()
 
     delete ar_nodes;
     delete ar_beams;
-    delete shocks;
+    delete ar_shocks;
     delete rotators;
     delete wings;
 }
@@ -2646,22 +2646,22 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt, 
                 {
                     if (!ar_beams[i].shock->trigger_switch_state)// this switch is triggered first time in this boundary
                     {
-                        for (int scount = 0; scount < free_shock; scount++)
+                        for (int scount = 0; scount < ar_num_shocks; scount++)
                         {
-                            int short1 = ar_beams[shocks[scount].beamid].shock->trigger_cmdshort; // cmdshort of checked trigger beam
+                            int short1 = ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdshort; // cmdshort of checked trigger beam
                             int short2 = ar_beams[i].shock->trigger_cmdshort; // cmdshort of switch beam
-                            int long1 = ar_beams[shocks[scount].beamid].shock->trigger_cmdlong; // cmdlong of checked trigger beam
+                            int long1 = ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdlong; // cmdlong of checked trigger beam
                             int long2 = ar_beams[i].shock->trigger_cmdlong; // cmdlong of switch beam
-                            int tmpi = ar_beams[shocks[scount].beamid].shock->beamid; // beamID global of checked trigger beam
+                            int tmpi = ar_beams[ar_shocks[scount].beamid].shock->beamid; // beamID global of checked trigger beam
                             if (((short1 == short2 && long1 == long2) || (short1 == long2 && long1 == short2)) && i != tmpi) // found both command triggers then swap if its not the switching trigger
                             {
-                                int tmpcmdkey = ar_beams[shocks[scount].beamid].shock->trigger_cmdlong;
-                                ar_beams[shocks[scount].beamid].shock->trigger_cmdlong = ar_beams[shocks[scount].beamid].shock->trigger_cmdshort;
-                                ar_beams[shocks[scount].beamid].shock->trigger_cmdshort = tmpcmdkey;
+                                int tmpcmdkey = ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdlong;
+                                ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdlong = ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdshort;
+                                ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdshort = tmpcmdkey;
                                 ar_beams[i].shock->trigger_switch_state = ar_beams[i].shock->trigger_boundary_t; //prevent trigger switching again before leaving boundaries or timeout
                                 if (triggerdebug && ar_beams[i].shock->last_debug_state != 3)
                                 {
-                                    LOG(" Trigger F-key commands switched. Switch BeamID " + TOSTRING(i)+ " switched commands of Trigger BeamID " + TOSTRING(ar_beams[shocks[scount].beamid].shock->beamid) + " to cmdShort: F" + TOSTRING(ar_beams[shocks[scount].beamid].shock->trigger_cmdshort) + ", cmdlong: F" + TOSTRING(ar_beams[shocks[scount].beamid].shock->trigger_cmdlong));
+                                    LOG(" Trigger F-key commands switched. Switch BeamID " + TOSTRING(i)+ " switched commands of Trigger BeamID " + TOSTRING(ar_beams[ar_shocks[scount].beamid].shock->beamid) + " to cmdShort: F" + TOSTRING(ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdshort) + ", cmdlong: F" + TOSTRING(ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdlong));
                                     ar_beams[i].shock->last_debug_state = 3;
                                 }
                             }
@@ -5559,7 +5559,7 @@ Beam::Beam(
 ) 
     : ar_nodes(nullptr), ar_num_nodes(0)
     , ar_beams(nullptr), ar_num_beams(0)
-    , shocks(nullptr), free_shock(0)
+    , ar_shocks(nullptr), ar_num_shocks(0)
     , ar_has_active_shocks(false)
     , rotators(nullptr), free_rotator(0)
     , wings(nullptr), free_wing(0)

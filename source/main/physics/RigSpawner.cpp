@@ -232,7 +232,7 @@ void RigSpawner::InitializeRig()
     m_rig->ar_nodes = new node_t[req.num_nodes];
 
     if (req.num_shocks > 0)
-        m_rig->shocks = new shock_t[req.num_shocks];
+        m_rig->ar_shocks = new shock_t[req.num_shocks];
 
     if (req.num_rotators > 0)
         m_rig->rotators = new rotator_t[req.num_rotators];
@@ -6442,7 +6442,7 @@ bool RigSpawner::CheckHydroLimit(unsigned int count)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if ((m_rig->free_shock + count) > MAX_HYDROS)
+    if ((m_rig->ar_num_shocks + count) > MAX_HYDROS)
     {
         std::stringstream msg;
         msg << "Hydro limit (" << MAX_HYDROS << ") exceeded";
@@ -6662,8 +6662,8 @@ shock_t & RigSpawner::GetFreeShock()
 {
     SPAWNER_PROFILE_SCOPED();
 
-    shock_t & shock = m_rig->shocks[m_rig->free_shock];
-    m_rig->free_shock++;
+    shock_t & shock = m_rig->ar_shocks[m_rig->ar_num_shocks];
+    m_rig->ar_num_shocks++;
     return shock;
 }
 
