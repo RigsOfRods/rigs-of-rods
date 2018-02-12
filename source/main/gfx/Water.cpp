@@ -582,14 +582,14 @@ Vector3 Water::CalcWavesVelocity(Vector3 pos)
 
 void Water::UpdateReflectionPlane(float h)
 {
-    bool underwater = this->IsCameraUnderWater();
-    if (underwater)
+    if (this->IsCameraUnderWater())
     {
-        m_reflect_plane.normal = -Vector3::UNIT_Y;
-        m_refract_plane.normal = Vector3::UNIT_Y;
-        m_reflect_plane.d = h + 0.15;
-        m_refract_plane.d = -h + 0.15;
         m_water_plane.d = -h;
+        if (m_reflect_cam)
+        {
+            m_reflect_cam->disableReflection();
+            m_reflect_cam->disableCustomNearClipPlane();
+        }
     }
     else
     {
@@ -598,18 +598,17 @@ void Water::UpdateReflectionPlane(float h)
         m_reflect_plane.d = -h + 0.15;
         m_refract_plane.d = h + 0.15;
         m_water_plane.d = -h;
+        if (m_reflect_cam)
+        {
+            m_reflect_cam->enableReflection(m_water_plane);
+            m_reflect_cam->enableCustomNearClipPlane(m_reflect_plane);
+        }
     }
 
     if (m_refract_cam)
     {
         m_refract_cam->enableCustomNearClipPlane(m_refract_plane);
     }
-
-    if (m_reflect_cam)
-    {
-        m_reflect_cam->enableReflection(m_water_plane);
-        m_reflect_cam->enableCustomNearClipPlane(m_reflect_plane);
-    };
 }
 
 void Water::WaterSetCamera(Ogre::Camera* cam)
