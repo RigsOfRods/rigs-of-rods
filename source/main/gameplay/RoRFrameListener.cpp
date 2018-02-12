@@ -1391,7 +1391,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                     m_reload_pos = gEnv->player->getPosition();
                 }
 
-                Actor* local_actor = m_actor_manager.CreateLocalActor(m_reload_pos, m_reload_dir, m_last_cache_selection->fname, m_last_cache_selection->number, 0, false, config_ptr, m_last_skin_selection);
+                Actor* local_actor = m_actor_manager.CreateLocalActor(m_reload_pos, m_reload_dir, m_last_cache_selection->fname, m_last_cache_selection->number, 0, config_ptr, m_last_skin_selection);
 
                 this->FinalizeActorSpawning(local_actor, m_player_actor);
             }
@@ -1439,7 +1439,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                         }
                     }
 
-                    Actor* local_actor = m_actor_manager.CreateLocalActor(m_reload_pos, m_reload_dir, selection->fname, selection->number, m_reload_box, false, config_ptr, skin);
+                    Actor* local_actor = m_actor_manager.CreateLocalActor(m_reload_pos, m_reload_dir, selection->fname, selection->number, m_reload_box, config_ptr, skin);
 
                     this->FinalizeActorSpawning(local_actor, m_player_actor);
                 }
@@ -2371,7 +2371,7 @@ bool RoRFrameListener::SetupGameplayLoop()
         Vector3 pos = gEnv->player->getPosition();
         Quaternion rot = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
 
-        Actor* actor = m_actor_manager.CreateLocalActor(pos, rot, App::diag_preset_vehicle.GetActive(), -1, nullptr, false, &actor_config);
+        Actor* actor = m_actor_manager.CreateLocalActor(pos, rot, App::diag_preset_vehicle.GetActive(), -1, nullptr, &actor_config);
 
         if (actor != nullptr)
         {

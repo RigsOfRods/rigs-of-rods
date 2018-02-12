@@ -532,7 +532,6 @@ Actor* ActorManager::CreateLocalActor(
     Ogre::String fname,
     int cache_entry_number, // = -1,
     collision_box_t* spawnbox /* = nullptr */,
-    bool ismachine /* = false */,
     const std::vector<Ogre::String>* actor_config /* = nullptr */,
     RoR::SkinDef* skin /* = nullptr */,
     bool free_position, /* = false */
@@ -565,7 +564,6 @@ Actor* ActorManager::CreateLocalActor(
         false, // networked
         (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED), // networking
         spawnbox,
-        ismachine,
         actor_config,
         skin,
         preloaded_with_terrain,
@@ -654,7 +652,6 @@ int ActorManager::CreateRemoteInstance(RoRnet::ActorStreamRegister* reg)
         true, // networked
         (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED), // networking
         nullptr, // spawnbox
-        false, // ismachine
         &actor_config,
         nullptr // skin
     );

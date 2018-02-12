@@ -69,7 +69,6 @@ public:
         , bool networked = false
         , bool networking = false
         , collision_box_t *spawnbox = nullptr
-        , bool ismachine = false
         , const std::vector<Ogre::String> *actor_config = nullptr
         , RoR::SkinDef *skin = nullptr
         , bool preloaded_with_terrain = false
