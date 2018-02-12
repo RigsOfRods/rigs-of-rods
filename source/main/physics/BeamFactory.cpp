@@ -1172,7 +1172,7 @@ void ActorManager::UpdatePhysicsSimulation()
                                 m_actors[t]->calcForcesEulerCompute(i == 0, PHYSICS_DT, i, m_physics_steps);
                                 if (!m_actors[t]->ar_disable_self_collision)
                                 {
-                                    m_actors[t]->IntraPointCD()->update(m_actors[t]);
+                                    m_actors[t]->IntraPointCD()->UpdateIntraPoint(m_actors[t]);
                                     ResolveIntraActorCollisions(PHYSICS_DT,
                                         *(m_actors[t]->IntraPointCD()),
                                         m_actors[t]->ar_num_collcabs,
@@ -1205,7 +1205,7 @@ void ActorManager::UpdatePhysicsSimulation()
                     {
                         auto func = std::function<void()>([this, t]()
                             {
-                                m_actors[t]->InterPointCD()->update(m_actors[t], m_actors, m_free_actor_slot);
+                                m_actors[t]->InterPointCD()->UpdateInterPoint(m_actors[t], m_actors, m_free_actor_slot);
                                 if (m_actors[t]->ar_collision_relevant)
                                 {
                                     ResolveInterActorCollisions(PHYSICS_DT,
@@ -1242,7 +1242,7 @@ void ActorManager::UpdatePhysicsSimulation()
                     m_actors[t]->calcForcesEulerFinal(i == 0, PHYSICS_DT, i, m_physics_steps);
                     if (!m_actors[t]->ar_disable_self_collision)
                     {
-                        m_actors[t]->IntraPointCD()->update(m_actors[t]);
+                        m_actors[t]->IntraPointCD()->UpdateIntraPoint(m_actors[t]);
                         ResolveIntraActorCollisions(PHYSICS_DT,
                             *(m_actors[t]->IntraPointCD()),
                             m_actors[t]->ar_num_collcabs,
@@ -1263,7 +1263,7 @@ void ActorManager::UpdatePhysicsSimulation()
                 {
                     if (m_actors[t] && m_actors[t]->ar_update_physics && !m_actors[t]->ar_disable_actor2actor_collision)
                     {
-                        m_actors[t]->InterPointCD()->update(m_actors[t], m_actors, m_free_actor_slot);
+                        m_actors[t]->InterPointCD()->UpdateInterPoint(m_actors[t], m_actors, m_free_actor_slot);
                         if (m_actors[t]->ar_collision_relevant)
                         {
                             ResolveInterActorCollisions(

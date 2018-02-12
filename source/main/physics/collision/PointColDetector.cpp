@@ -45,7 +45,7 @@ PointColDetector::~PointColDetector()
 {
 }
 
-void PointColDetector::update(Actor* actor, bool ignorestate)
+void PointColDetector::UpdateIntraPoint(Actor* actor, bool ignorestate)
 {
     int contacters_size = 0;
 
@@ -70,7 +70,7 @@ void PointColDetector::update(Actor* actor, bool ignorestate)
     m_kdtree[0].end = -m_object_list_size;
 }
 
-void PointColDetector::update(Actor* truck, Actor** trucks, const int numtrucks, bool ignorestate)
+void PointColDetector::UpdateInterPoint(Actor* truck, Actor** all_actors, const int numtrucks, bool ignorestate)
 {
     bool update_required = false;
     int contacters_size = 0;
@@ -81,23 +81,23 @@ void PointColDetector::update(Actor* truck, Actor** trucks, const int numtrucks,
         m_actors.resize(numtrucks);
         for (int t = 0; t < numtrucks; t++)
         {
-            if (t != truck->ar_instance_id && trucks[t] && (ignorestate || trucks[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING) && truck->ar_bounding_box.intersects(trucks[t]->ar_bounding_box))
+            if (t != truck->ar_instance_id && all_actors[t] && (ignorestate || all_actors[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING) && truck->ar_bounding_box.intersects(all_actors[t]->ar_bounding_box))
             {
-                update_required = update_required || (m_actors[t] != trucks[t]);
-                m_actors[t] = trucks[t];
+                update_required = update_required || (m_actors[t] != all_actors[t]);
+                m_actors[t] = all_actors[t];
                 truck->ar_collision_relevant = true;
-                contacters_size += trucks[t]->ar_num_contacters;
-                if (truck->ar_nodes[0].Velocity.squaredDistance(trucks[t]->ar_nodes[0].Velocity) > 25)
+                contacters_size += all_actors[t]->ar_num_contacters;
+                if (truck->ar_nodes[0].Velocity.squaredDistance(all_actors[t]->ar_nodes[0].Velocity) > 25)
                 {
                     for (int i=0; i<truck->ar_num_collcabs; i++)
                     {
                         truck->ar_intra_collcabrate[i].rate = 0;
                         truck->ar_inter_collcabrate[i].rate = 0;
                     }
-                    for (int i=0; i<trucks[t]->ar_num_collcabs; i++)
+                    for (int i=0; i<all_actors[t]->ar_num_collcabs; i++)
                     {
-                        trucks[t]->ar_intra_collcabrate[i].rate = 0;
-                        trucks[t]->ar_inter_collcabrate[i].rate = 0;
+                        all_actors[t]->ar_intra_collcabrate[i].rate = 0;
+                        all_actors[t]->ar_inter_collcabrate[i].rate = 0;
                     }
                 }
             }
