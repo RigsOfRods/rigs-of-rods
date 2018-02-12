@@ -220,10 +220,13 @@ Beam::~Beam()
     }
 
     // delete flexbodies
-    for (int i = 0; i < free_flexbody; i++)
+    for (int i = 0; i < ar_num_flexbodies; i++)
     {
-        if (flexbodies[i])
-            delete flexbodies[i];
+        if (ar_flexbodies[i])
+        {
+            delete ar_flexbodies[i];
+            ar_flexbodies[i] = nullptr;
+        }
     }
 
     // delete meshwheels
@@ -451,9 +454,9 @@ void Beam::scaleTruck(float value)
         m_cab_mesh->ScaleFlexObj(value);
 
     // todo: scale flexbody
-    for (int i = 0; i < free_flexbody; i++)
+    for (int i = 0; i < ar_num_flexbodies; i++)
     {
-        flexbodies[i]->getSceneNode()->scale(value, value, value);
+        ar_flexbodies[i]->getSceneNode()->scale(value, value, value);
     }
     // todo: fix meshwheels
     //for (int i=0;i<free_wheel;i++)
@@ -1725,8 +1728,11 @@ void Beam::SyncReset()
     addPressure(0.0);
     if (ar_autopilot)
         resetAutopilot();
-    for (int i = 0; i < free_flexbody; i++)
-        flexbodies[i]->reset();
+
+    for (int i = 0; i < ar_num_flexbodies; i++)
+    {
+        ar_flexbodies[i]->reset();
+    }
 
     // reset on spot with backspace
     if (m_reset_request != REQUEST_RESET_ON_INIT_POS)
@@ -3506,19 +3512,19 @@ void Beam::updateFlexbodiesPrepare()
         }
 
         m_flexbody_prepare.reset();
-        for (int i = 0; i < free_flexbody; i++)
+        for (int i = 0; i < ar_num_flexbodies; i++)
         {
-            m_flexbody_prepare.set(i, flexbodies[i]->flexitPrepare());
+            m_flexbody_prepare.set(i, ar_flexbodies[i]->flexitPrepare());
         }
 
         // Push tasks into thread pool
-        for (int i = 0; i < free_flexbody; i++)
+        for (int i = 0; i < ar_num_flexbodies; i++)
         {
             if (m_flexbody_prepare[i])
             {
                 auto func = std::function<void()>([this, i]()
                     {
-                        flexbodies[i]->flexitCompute();
+                        ar_flexbodies[i]->flexitCompute();
                     });
                 auto task_handle = gEnv->threadPool->RunTask(func);
                 m_flexbody_tasks.push_back(task_handle);
@@ -3547,12 +3553,12 @@ void Beam::updateFlexbodiesPrepare()
                 vwheels[i].cnode->setPosition(vwheels[i].fm->flexitFinal());
             }
         }
-        for (int i = 0; i < free_flexbody; i++)
+        for (int i = 0; i < ar_num_flexbodies; i++)
         {
-            if (flexbodies[i]->flexitPrepare())
+            if (ar_flexbodies[i]->flexitPrepare())
             {
-                flexbodies[i]->flexitCompute();
-                flexbodies[i]->flexitFinal();
+                ar_flexbodies[i]->flexitCompute();
+                ar_flexbodies[i]->flexitFinal();
             }
         }
     }
@@ -3771,10 +3777,12 @@ void Beam::updateFlexbodiesFinal()
             if (m_flexmesh_prepare[i])
                 vwheels[i].cnode->setPosition(vwheels[i].fm->flexitFinal());
         }
-        for (int i = 0; i < free_flexbody; i++)
+        for (int i = 0; i < ar_num_flexbodies; i++)
         {
             if (m_flexbody_prepare[i])
-                flexbodies[i]->flexitFinal();
+            {
+                ar_flexbodies[i]->flexitFinal();
+            }
         }
     }
 
@@ -3852,9 +3860,9 @@ void Beam::showSkeleton(bool meshes, bool linked)
     }
 
     // wireframe drawning for flexbody
-    for (int i = 0; i < free_flexbody; i++)
+    for (int i = 0; i < ar_num_flexbodies; i++)
     {
-        SceneNode* s = flexbodies[i]->getSceneNode();
+        SceneNode* s = ar_flexbodies[i]->getSceneNode();
         if (s)
             setMeshWireframe(s, true);
     }
@@ -3922,9 +3930,9 @@ void Beam::hideSkeleton(bool linked)
     }
 
     // normal drawning for flexbody
-    for (int i = 0; i < free_flexbody; i++)
+    for (int i = 0; i < ar_num_flexbodies; i++)
     {
-        SceneNode* s = flexbodies[i]->getSceneNode();
+        SceneNode* s = ar_flexbodies[i]->getSceneNode();
         if (!s)
             continue;
         setMeshWireframe(s, false);
@@ -4050,9 +4058,9 @@ void Beam::setMeshVisibility(bool visible)
         if (ar_props[i].beacon_flare_billboard_scene_node[3])
             ar_props[i].beacon_flare_billboard_scene_node[3]->setVisible(visible);
     }
-    for (int i = 0; i < free_flexbody; i++)
+    for (int i = 0; i < ar_num_flexbodies; i++)
     {
-        flexbodies[i]->setVisible(visible);
+        ar_flexbodies[i]->setVisible(visible);
     }
     for (int i = 0; i < free_wheel; i++)
     {
@@ -4965,10 +4973,10 @@ void Beam::changedCamera()
     }
 
     // look for flexbodies
-    for (int i = 0; i < free_flexbody; i++)
+    for (int i = 0; i < ar_num_flexbodies; i++)
     {
-        bool enabled = (flexbodies[i]->getCameraMode() == -2 || flexbodies[i]->getCameraMode() == ar_current_cinecam);
-        flexbodies[i]->setEnabled(enabled);
+        bool enabled = (ar_flexbodies[i]->getCameraMode() == -2 || ar_flexbodies[i]->getCameraMode() == ar_current_cinecam);
+        ar_flexbodies[i]->setEnabled(enabled);
     }
 }
 
@@ -5646,6 +5654,7 @@ Beam::Beam(
     , m_tractioncontrol(0)
     , ar_forward_commands(false)
     , ar_import_commands(false)
+    , ar_flexbodies{} // Init array to nullptr
 {
     m_high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();
     m_use_skidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;
