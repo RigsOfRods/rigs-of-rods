@@ -126,12 +126,13 @@ protected:
     int            GetFreeActorSlot();
     int            FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
     void           DeleteActorInternal(Actor* b);
+    std::shared_ptr<RigDef::File>   FetchActorDef(RoR::RigLoadingProfiler* prof, const char* filename, bool predefined_on_terrain = false);
 
+    std::map<std::string, std::shared_ptr<RigDef::File>>   m_actor_defs;
     std::map<int, std::vector<int>> m_stream_mismatches; //!< Networking: A list of streams without a corresponding actor in the actor-array for each stream source
     std::unique_ptr<ThreadPool>     m_sim_thread_pool;
     std::shared_ptr<Task>           m_sim_task;
     RoRFrameListener*               m_sim_controller;
-
     int             m_num_cpu_cores;
     Actor*          m_actors[MAX_ACTORS];//!< All actors; slots are not reused
     int             m_free_actor_slot;   //!< Slots are not reused

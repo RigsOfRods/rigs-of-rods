@@ -2242,6 +2242,12 @@ struct File
     float minimum_mass;
     bool _minimum_mass_set;
 
+    // Report
+    std::string loading_report;
+    int report_num_errors;
+    int report_num_warnings;
+    int report_num_other;
+
     // Vehicle modules (caled 'sections' in truckfile doc)
     std::shared_ptr<Module> root_module; ///< Required to exist. `shared_ptr` is used for unified handling with other modules.
     std::map< Ogre::String, std::shared_ptr<Module> > user_modules;
