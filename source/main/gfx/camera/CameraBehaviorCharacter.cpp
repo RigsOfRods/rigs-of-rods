@@ -71,7 +71,7 @@ bool CameraBehaviorCharacter::mouseMoved(const CameraManager::CameraContext& ctx
 
 void CameraBehaviorCharacter::activate(const CameraManager::CameraContext& ctx, bool reset /* = true */)
 {
-    if (ctx.mCurrTruck)
+    if (ctx.cct_player_actor)
     {
         gEnv->cameraManager->switchToNextBehavior();
         return;

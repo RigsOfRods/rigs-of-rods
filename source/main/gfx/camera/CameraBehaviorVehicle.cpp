@@ -36,7 +36,7 @@ CameraBehaviorVehicle::CameraBehaviorVehicle() :
 
 void CameraBehaviorVehicle::update(const CameraManager::CameraContext &ctx)
 {
-	Vector3 dir = ctx.mCurrTruck->getDirection();
+	Vector3 dir = ctx.cct_player_actor->getDirection();
 
 	targetDirection = -atan2(dir.dotProduct(Vector3::UNIT_X), dir.dotProduct(-Vector3::UNIT_Z));
 	targetPitch     = 0.0f;
@@ -46,18 +46,18 @@ void CameraBehaviorVehicle::update(const CameraManager::CameraContext &ctx)
 		targetPitch = -asin(dir.dotProduct(Vector3::UNIT_Y));
 	}
 
-	camRatio = 1.0f / (ctx.mDt * 4.0f);
+	camRatio = 1.0f / (ctx.cct_dt * 4.0f);
 
-	camDistMin = std::min(ctx.mCurrTruck->getMinimalCameraRadius() * 2.0f, 33.0f);
+	camDistMin = std::min(ctx.cct_player_actor->getMinimalCameraRadius() * 2.0f, 33.0f);
 
-	camLookAt = ctx.mCurrTruck->getPosition();
+	camLookAt = ctx.cct_player_actor->getPosition();
 
 	CameraBehaviorOrbit::update(ctx);
 }
 
 void CameraBehaviorVehicle::activate(const CameraManager::CameraContext &ctx, bool reset /* = true */)
 {
-	if ( !ctx.mCurrTruck )
+	if ( !ctx.cct_player_actor )
 	{
 		gEnv->cameraManager->switchToNextBehavior();
 		return;
@@ -66,14 +66,14 @@ void CameraBehaviorVehicle::activate(const CameraManager::CameraContext &ctx, bo
 	{
 		this->reset(ctx);
 	}
-	ctx.mCurrTruck->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_3rdPERSON;
+	ctx.cct_player_actor->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_3rdPERSON;
 }
 
 void CameraBehaviorVehicle::reset(const CameraManager::CameraContext &ctx)
 {
 	CameraBehaviorOrbit::reset(ctx);
 	camRotY = 0.35f;
-	camDistMin = std::min(ctx.mCurrTruck->getMinimalCameraRadius() * 2.0f, 33.0f);
+	camDistMin = std::min(ctx.cct_player_actor->getMinimalCameraRadius() * 2.0f, 33.0f);
 	camDist = camDistMin * 1.5f + 2.0f;
 }
 
@@ -83,10 +83,10 @@ bool CameraBehaviorVehicle::mousePressed(const CameraManager::CameraContext &ctx
 
 	if ( ms.buttonDown(OIS::MB_Middle) && RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) )
 	{
-		if ( ctx.mCurrTruck && ctx.mCurrTruck->ar_custom_camera_node >= 0 )
+		if ( ctx.cct_player_actor && ctx.cct_player_actor->ar_custom_camera_node >= 0 )
 		{
 			// Calculate new camera distance
-			Vector3 lookAt = ctx.mCurrTruck->ar_nodes[ctx.mCurrTruck->ar_custom_camera_node].AbsPosition;
+			Vector3 lookAt = ctx.cct_player_actor->ar_nodes[ctx.cct_player_actor->ar_custom_camera_node].AbsPosition;
 			camDist = 2.0f * gEnv->mainCamera->getPosition().distance(lookAt);
 
 			// Calculate new camera pitch
@@ -94,7 +94,7 @@ bool CameraBehaviorVehicle::mousePressed(const CameraManager::CameraContext &ctx
 			camRotY = asin(camDir.y);
 
 			// Calculate new camera yaw
-			Vector3 dir = -ctx.mCurrTruck->getDirection();
+			Vector3 dir = -ctx.cct_player_actor->getDirection();
 			Quaternion rotX = dir.getRotationTo(camDir, Vector3::UNIT_Y);
 			camRotX = rotX.getYaw();
 

@@ -54,13 +54,13 @@ CameraBehaviorVehicleSpline::~CameraBehaviorVehicleSpline()
 
 void CameraBehaviorVehicleSpline::update(const CameraManager::CameraContext& ctx)
 {
-    if (ctx.mCurrTruck->ar_num_camera_rails <= 0)
+    if (ctx.cct_player_actor->ar_num_camera_rails <= 0)
     {
         gEnv->cameraManager->switchToNextBehavior();
         return;
     }
 
-    Vector3 dir = ctx.mCurrTruck->getDirection();
+    Vector3 dir = ctx.cct_player_actor->getDirection();
 
     targetPitch = 0.0f;
 
@@ -69,7 +69,7 @@ void CameraBehaviorVehicleSpline::update(const CameraManager::CameraContext& ctx
         targetPitch = -asin(dir.dotProduct(Vector3::UNIT_Y));
     }
 
-    if (ctx.mCurrTruck->getAllLinkedBeams().size() != numLinkedBeams)
+    if (ctx.cct_player_actor->getAllLinkedBeams().size() != numLinkedBeams)
     {
         createSpline(ctx);
     }
@@ -95,7 +95,7 @@ void CameraBehaviorVehicleSpline::update(const CameraManager::CameraContext& ctx
 
     if (autoTracking)
     {
-        Vector3 centerDir = ctx.mCurrTruck->getPosition() - camLookAt;
+        Vector3 centerDir = ctx.cct_player_actor->getPosition() - camLookAt;
         if (centerDir.length() > 1.0f)
         {
             centerDir.normalise();
@@ -115,7 +115,7 @@ bool CameraBehaviorVehicleSpline::mouseMoved(const CameraManager::CameraContext&
 {
     const OIS::MouseState ms = _arg.state;
 
-    camRatio = 1.0f / (ctx.mDt * 4.0f);
+    camRatio = 1.0f / (ctx.cct_dt * 4.0f);
 
     if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) && ms.buttonDown(OIS::MB_Right))
     {
@@ -169,7 +169,7 @@ bool CameraBehaviorVehicleSpline::mouseMoved(const CameraManager::CameraContext&
 
 void CameraBehaviorVehicleSpline::activate(const CameraManager::CameraContext& ctx, bool reset /* = true */)
 {
-    if (!ctx.mCurrTruck || ctx.mCurrTruck->ar_num_camera_rails <= 0)
+    if (!ctx.cct_player_actor || ctx.cct_player_actor->ar_num_camera_rails <= 0)
     {
         gEnv->cameraManager->switchToNextBehavior();
         return;
@@ -179,14 +179,14 @@ void CameraBehaviorVehicleSpline::activate(const CameraManager::CameraContext& c
         this->reset(ctx);
         createSpline(ctx);
     }
-    ctx.mCurrTruck->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_SPLINE;
+    ctx.cct_player_actor->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_SPLINE;
 }
 
 void CameraBehaviorVehicleSpline::reset(const CameraManager::CameraContext& ctx)
 {
     CameraBehaviorOrbit::reset(ctx);
 
-    camDist = std::min(ctx.mCurrTruck->getMinimalCameraRadius() * 2.0f, 33.0f);
+    camDist = std::min(ctx.cct_player_actor->getMinimalCameraRadius() * 2.0f, 33.0f);
 
     splinePos = 0.5f;
 }
@@ -199,12 +199,12 @@ void CameraBehaviorVehicleSpline::createSpline(const CameraManager::CameraContex
     spline->clear();
     splineNodes.clear();
 
-    for (int i = 0; i < ctx.mCurrTruck->ar_num_camera_rails; i++)
+    for (int i = 0; i < ctx.cct_player_actor->ar_num_camera_rails; i++)
     {
-        splineNodes.push_back(&ctx.mCurrTruck->ar_nodes[ctx.mCurrTruck->ar_camera_rail[i]]);
+        splineNodes.push_back(&ctx.cct_player_actor->ar_nodes[ctx.cct_player_actor->ar_camera_rail[i]]);
     }
 
-    std::list<Actor*> linkedBeams = ctx.mCurrTruck->getAllLinkedBeams();
+    std::list<Actor*> linkedBeams = ctx.cct_player_actor->getAllLinkedBeams();
 
     numLinkedBeams = linkedBeams.size();
 
@@ -272,7 +272,7 @@ void CameraBehaviorVehicleSpline::createSpline(const CameraManager::CameraContex
 
     splineLength /= 2.0f;
 
-    if (!splineObject && ctx.mDebug)
+    if (!splineObject && ctx.cct_debug)
     {
         splineObject = gEnv->sceneManager->createManualObject();
         SceneNode* splineNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();

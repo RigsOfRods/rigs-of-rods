@@ -39,15 +39,15 @@ public:
     {
     public:
 
-        Actor* mCurrTruck;
-        DOFManager* mDof;
-        Ogre::Degree mRotScale;
-        Ogre::Real mDt;
-        Ogre::Real mTransScale;
-        Ogre::Radian fovInternal;
-        Ogre::Radian fovExternal;
-        bool mDebug;
-        float mSimSpeed;
+        Actor*       cct_player_actor;
+        DOFManager*  cct_dof_manager;
+        Ogre::Degree cct_rot_scale;
+        Ogre::Real   cct_dt;
+        Ogre::Real   cct_trans_scale;
+        Ogre::Radian cct_fov_interior;
+        Ogre::Radian cct_fov_exterior;
+        bool         cct_debug;
+        float        cct_sim_speed;
     };
 
     enum CameraBehaviors
@@ -63,7 +63,7 @@ public:
         CAMERA_BEHAVIOR_ISOMETRIC
     };
 
-    bool Update(float dt, Actor* cur_truck, float sim_speed);
+    bool Update(float dt, Actor* player_vehicle, float sim_speed);
 
     void switchBehavior(int newBehavior, bool reset = true);
     void switchToNextBehavior(bool force = true);
@@ -79,7 +79,7 @@ public:
     void OnReturnToMainMenu();
     void NotifyContextChange();
     void NotifyVehicleChanged(Actor* old_vehicle, Actor* new_vehicle);
-    void ActivateDepthOfFieldEffect(RoRFrameListener* sim);
+    void ActivateDepthOfFieldEffect();
     void DisableDepthOfFieldEffect();
 
 protected:

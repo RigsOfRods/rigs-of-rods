@@ -2423,7 +2423,7 @@ bool RoRFrameListener::SetupGameplayLoop()
 
     if (App::gfx_enable_dof.GetActive())
     {
-        gEnv->cameraManager->ActivateDepthOfFieldEffect(this);
+        gEnv->cameraManager->ActivateDepthOfFieldEffect();
     }
 
     return true;

@@ -35,72 +35,72 @@ void CameraBehaviorFree::update(const CameraManager::CameraContext& ctx)
 {
     Degree mRotX(0.0f);
     Degree mRotY(0.0f);
-    Degree mRotScale(ctx.mRotScale * 10.0f * ctx.mDt);
+    Degree cct_rot_scale(ctx.cct_rot_scale * 10.0f * ctx.cct_dt);
     Vector3 mTrans(Vector3::ZERO);
-    Real mTransScale(ctx.mTransScale * 10.0f * ctx.mDt);
+    Real cct_trans_scale(ctx.cct_trans_scale * 10.0f * ctx.cct_dt);
 
     if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) || RoR::App::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT))
     {
-        mRotScale *= 3.0f;
-        mTransScale *= 3.0f;
+        cct_rot_scale *= 3.0f;
+        cct_trans_scale *= 3.0f;
     }
     if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL))
     {
-        mRotScale *= 6.0f;
-        mTransScale *= 20.0f;
+        cct_rot_scale *= 6.0f;
+        cct_trans_scale *= 20.0f;
     }
     if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU))
     {
-        mRotScale *= 0.1f;
-        mTransScale *= 0.1f;
+        cct_rot_scale *= 0.1f;
+        cct_trans_scale *= 0.1f;
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_SIDESTEP_LEFT))
     {
-        mTrans.x -= mTransScale;
+        mTrans.x -= cct_trans_scale;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_SIDESTEP_RIGHT))
     {
-        mTrans.x += mTransScale;
+        mTrans.x += cct_trans_scale;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_FORWARD))
     {
-        mTrans.z -= mTransScale;
+        mTrans.z -= cct_trans_scale;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_BACKWARDS))
     {
-        mTrans.z += mTransScale;
+        mTrans.z += cct_trans_scale;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_UP))
     {
-        mTrans.y += mTransScale;
+        mTrans.y += cct_trans_scale;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_DOWN))
     {
-        mTrans.y -= mTransScale;
+        mTrans.y -= cct_trans_scale;
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_RIGHT))
     {
-        mRotX -= mRotScale;
+        mRotX -= cct_rot_scale;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_LEFT))
     {
-        mRotX += mRotScale;
+        mRotX += cct_rot_scale;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_ROT_UP))
     {
-        mRotY += mRotScale;
+        mRotY += cct_rot_scale;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_ROT_DOWN))
     {
-        mRotY -= mRotScale;
+        mRotY -= cct_rot_scale;
     }
 
     gEnv->mainCamera->yaw(mRotX);
     gEnv->mainCamera->pitch(mRotY);
 
-    Vector3 camPosition = gEnv->mainCamera->getPosition() + gEnv->mainCamera->getOrientation() * mTrans.normalisedCopy() * mTransScale;
+    Vector3 camPosition = gEnv->mainCamera->getPosition() + gEnv->mainCamera->getOrientation() * mTrans.normalisedCopy() * cct_trans_scale;
 
     gEnv->mainCamera->setPosition(camPosition);
 }
