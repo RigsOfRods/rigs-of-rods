@@ -33,7 +33,6 @@ public:
 
     Ogre::Radian getRotation() { return characterRotation; };
     Ogre::Vector3 getPosition();
-    bool getPhysicsEnabled() { return physicsEnabled; };
     bool getVisible();
 
     void receiveStreamData(unsigned int& type, int& source, unsigned int& streamid, char* buffer);
@@ -59,7 +58,6 @@ public:
     void updateCharacterRotation();
     void updateMapIcon();
     void updateLabels();
-    void SetSimController(RoRFrameListener* sim) { m_sim_controller = sim; }
 
     static unsigned int characterCounter;
 
@@ -72,7 +70,6 @@ protected:
     Actor* m_actor_coupling; //!< The vehicle or machine which the character occupies
     bool isCoupled;
     SurveyMapEntity* mapEntity;
-    RoRFrameListener* m_sim_controller;
 
     bool canJump;
     bool physicsEnabled;

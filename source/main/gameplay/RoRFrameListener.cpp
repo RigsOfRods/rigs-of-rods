@@ -120,7 +120,7 @@ RoRFrameListener::RoRFrameListener(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* 
     m_player_actor(nullptr),
     m_prev_player_actor(nullptr),
     m_actor_manager(this),
-    m_character_factory(this),
+    m_character_factory(),
     m_dir_arrow_pointed(Vector3::ZERO),
     m_heathaze(nullptr),
     m_force_feedback(ff),
