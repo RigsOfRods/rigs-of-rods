@@ -243,8 +243,8 @@ public:
     RoR::PerVehicleCameraContext* GetCameraContext()    { return &m_camera_context; }
     std::list<Beam*>  getAllLinkedBeams()               { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
     Ogre::Vector3     GetFFbBodyForces() const          { return m_force_sensors.out_body_forces; }
-    PointColDetector* IntraPointCD()                    { return intraPointCD; }
-    PointColDetector* InterPointCD()                    { return interPointCD; }
+    PointColDetector* IntraPointCD()                    { return m_intra_point_col_detector; }
+    PointColDetector* InterPointCD()                    { return m_inter_point_col_detector; }
     Ogre::SceneNode*  getSceneNode()                    { return beamsRoot; }
     RoR::GfxActor*    GetGfxActor()                     { return m_gfx_actor.get(); }
     void              RequestUpdateHudFeatures()        { m_hud_features_ok = false; }
@@ -253,7 +253,7 @@ public:
     Replay*           getReplay();
     float             GetFFbHydroForces() const         { return m_force_sensors.out_hydros_forces; }
     bool              isPreloadedWithTerrain()          { return m_preloaded_with_terrain; };
-    VehicleAI*        getVehicleAI()                    { return vehicle_ai; }
+    VehicleAI*        getVehicleAI()                    { return ar_vehicle_ai; }
     bool              IsNodeIdValid(int id) const       { return (id > 0) && (id < ar_num_nodes); }
     float             getWheelSpeed() const             { return WheelSpeed; }
     Ogre::Vector3     getVelocity()                     { return velocity; }; //!< average truck velocity calculated using the truck positions of the last two frames
@@ -261,7 +261,7 @@ public:
     // we have to add this to be able to use the class as reference inside scripts
     void              addRef()                          {};
     void              release()                         {};
-#endif    
+#endif
 
     // -------------------- Public data -------------------- //
 
@@ -377,9 +377,6 @@ public:
     bool              beambreakdebug;
     bool              beamdeformdebug;
     bool              triggerdebug;
-    CmdKeyInertia*    rotaInertia;
-    CmdKeyInertia*    hydroInertia;
-    CmdKeyInertia*    cmdInertia;
     float             truckmass;
     float             loadmass;
     int               trucknum;
@@ -440,13 +437,12 @@ public:
     Ogre::AxisAlignedBox predictedBoundingBox;
     std::vector<Ogre::AxisAlignedBox> collisionBoundingBoxes; //!< smart bounding boxes, used for determining the state of a truck (every box surrounds only a subset of nodes)
     std::vector<Ogre::AxisAlignedBox> predictedCollisionBoundingBoxes;
-    bool              freePositioned;
     int               lowestnode;         //!< never updated after truck init!?!
     int               lowestcontactingnode;
     float             posnode_spawn_height;
     float             odometerTotal;
     float             odometerUser;
-    VehicleAI*        vehicle_ai;
+    VehicleAI*        ar_vehicle_ai;
     float             currentScale;
     Ogre::Real        brake;
     std::vector< std::vector< int > > nodetonodeconnections;
@@ -551,13 +547,13 @@ private:
     // -------------------- data -------------------- //
 
     std::vector<std::pair<Ogre::String, bool> > m_dashboard_layouts; // TODO: Spawn context only, remove!
-    float             avichatter_timer;
-    PointColDetector* interPointCD;
-    PointColDetector* intraPointCD;
-    std::bitset<MAX_WHEELS> flexmesh_prepare;
-    std::bitset<MAX_FLEXBODIES> flexbody_prepare;
-    std::vector<std::shared_ptr<Task>> flexbody_tasks;
-    std::list<Beam*>  m_linked_actors;     //!< Sim state; other actors linked with 'hooks'
+    float             m_avionic_chatter_timer;      //!< Sound fx state
+    PointColDetector* m_inter_point_col_detector;   //!< Physics
+    PointColDetector* m_intra_point_col_detector;   //!< Physics
+    std::bitset<MAX_WHEELS> m_flexmesh_prepare;     //!< Gfx state
+    std::bitset<MAX_FLEXBODIES> m_flexbody_prepare; //!< Gfx state
+    std::vector<std::shared_ptr<Task>> m_flexbody_tasks; //!< Gfx state
+    std::list<Beam*>  m_linked_actors;              //!< Sim state; other actors linked using 'hooks'
     Ogre::Vector3     position; // average node position
     Ogre::Vector3     iPosition; // initial position
     Ogre::Real        m_min_camera_radius;
@@ -565,18 +561,14 @@ private:
     Ogre::Vector3     velocity; // average node velocity (compared to the previous frame step)
     Ogre::Real        m_replay_timer;            //!< Sim state
     ground_model_t*   m_last_fuzzy_ground_model; //!< GUI state
-    bool              high_res_wheelnode_collisions;
-    blinktype         blinkingtype;              //!< Blinker = turn signal
-    Ogre::Real        hydrolen;
-    Ogre::SceneNode*  smokeNode;
-    Ogre::ParticleSystem* smoker;
-    float             m_stabilizer_shock_sleep;
+    blinktype         m_blink_type;              //!< Sim state; Blinker = turn signal
+    float             m_stabilizer_shock_sleep;  //!< Sim state
     Replay*           m_replay_handler;
-    PositionStorage*  posStorage;
-    RoRFrameListener*              m_sim_controller; // Temporary ~ only_a_ptr, 01/2017
-    std::shared_ptr<RigDef::File>  m_definition;
+    PositionStorage*  m_position_storage;
+    RoRFrameListener* m_sim_controller; // Temporary ~ only_a_ptr, 01/2017
+    std::shared_ptr<RigDef::File> m_definition;
     std::unique_ptr<RoR::GfxActor> m_gfx_actor;
-    RoR::PerVehicleCameraContext   m_camera_context;
+    RoR::PerVehicleCameraContext m_camera_context;
     int               m_gfx_detail_level;      //!< Gfx state
     float             m_total_mass;            //!< Physics state; total mass in Kg
     int               m_mouse_grab_node;       //!< Sim state; node currently being dragged by user
@@ -585,29 +577,29 @@ private:
     float             m_spawn_rotation;
     ResetRequest      m_reset_request;
     std::vector<Ogre::String> m_truck_config;
-    std::vector<SlideNode> m_slidenodes;    //!< all the SlideNodes available on this truck
-    std::vector<RailGroup*> m_railgroups;   //!< all the available RailGroups for this actor
-    RoRnet::TruckState* oob1;               //!< Network; Triple buffer for incoming data (truck properties)
-    RoRnet::TruckState* oob2;               //!< Network; Triple buffer for incoming data (truck properties)
-    RoRnet::TruckState* oob3;               //!< Network; Triple buffer for incoming data (truck properties)
-    char*               netb1;              //!< Network; Triple buffer for incoming data
-    char*               netb2;              //!< Network; Triple buffer for incoming data
-    char*               netb3;              //!< Network; Triple buffer for incoming data
-    int                 m_net_time_offset;
-    int                 m_net_update_counter;
-    Ogre::MovableText*  m_net_label_mt;
-    Ogre::SceneNode*    m_net_label_node;
-    Ogre::String        m_net_username;
+    std::vector<SlideNode> m_slidenodes;       //!< all the SlideNodes available on this truck
+    std::vector<RailGroup*> m_railgroups;      //!< all the available RailGroups for this actor
+    RoRnet::TruckState* oob1;                  //!< Network; Triple buffer for incoming data (truck properties)
+    RoRnet::TruckState* oob2;                  //!< Network; Triple buffer for incoming data (truck properties)
+    RoRnet::TruckState* oob3;                  //!< Network; Triple buffer for incoming data (truck properties)
+    char*             netb1;                   //!< Network; Triple buffer for incoming data
+    char*             netb2;                   //!< Network; Triple buffer for incoming data
+    char*             netb3;                   //!< Network; Triple buffer for incoming data
+    int               m_net_time_offset;
+    int               m_net_update_counter;
+    Ogre::MovableText* m_net_label_mt;
+    Ogre::SceneNode*  m_net_label_node;
+    Ogre::String      m_net_username;
     float             m_custom_light_toggle_countdown; //!< Input system helper status
     float             m_cab_fade_timer;
     float             m_cab_fade_time;
-    int               m_cab_fade_mode;           //<! Cab fading effect; values { -1, 0, 1, 2 }
+    int               m_cab_fade_mode;         //<! Cab fading effect; values { -1, 0, 1, 2 }
     Ogre::ManualObject* m_skeletonview_manual_mesh;
     Ogre::SceneNode*  m_skeletonview_scenenode;
-    Ogre::Vector3     m_camera_gforces_accu;  //!< Accumulator for 'camera' G-forces
-    int               m_camera_gforces_count; //!< Counter for 'camera' G-forces
-    float             m_ref_tyre_pressure;    //!< Physics state
-    float             m_stabilizer_shock_ratio;   //!< Physics state
+    Ogre::Vector3     m_camera_gforces_accu;   //!< Accumulator for 'camera' G-forces
+    int               m_camera_gforces_count;  //!< Counter for 'camera' G-forces
+    float             m_ref_tyre_pressure;     //!< Physics state
+    float             m_stabilizer_shock_ratio; //!< Physics state
     int               m_stabilizer_shock_request; //!< Physics state; values: { -1, 0, 1 }
     DustPool*         m_particles_dust;
     DustPool*         m_particles_drip;
@@ -615,12 +607,15 @@ private:
     DustPool*         m_particles_clump;
     DustPool*         m_particles_splash;
     DustPool*         m_particles_ripple;
-    int               m_net_first_wheel_node; //!< Network attr; Determines data buffer layout
-    int               m_net_node_buf_size;    //!< Network attr; buffer size
-    int               m_net_buffer_size;      //!< Network attr; buffer size
-    int               m_wheel_node_count;     //!< Static attr; filled at spawn
-    int               m_replay_pos_prev;      //!< Sim state
-    int               m_previous_gear;        //!< Sim state; land vehicle shifting
+    int               m_net_first_wheel_node;  //!< Network attr; Determines data buffer layout
+    int               m_net_node_buf_size;     //!< Network attr; buffer size
+    int               m_net_buffer_size;       //!< Network attr; buffer size
+    int               m_wheel_node_count;      //!< Static attr; filled at spawn
+    int               m_replay_pos_prev;       //!< Sim state
+    int               m_previous_gear;         //!< Sim state; land vehicle shifting
+    CmdKeyInertia*    m_rotator_inertia;       //!< Physics
+    CmdKeyInertia*    m_hydro_inertia;         //!< Physics
+    CmdKeyInertia*    m_command_inertia;       //!< Physics
 
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?
@@ -638,6 +633,8 @@ private:
     bool m_slidenodes_connect_on_spawn:1;   //<! spawn context: try to connect slide-nodes directly after spawning (TODO: remove!)
     bool m_is_cinecam_rotation_center:1;    //<! Attribute; filled at spawn
     bool m_preloaded_with_terrain:1;        //!< Spawn context (TODO: remove!)
+    bool m_high_res_wheelnode_collisions:1; //!< Physics attr; set at spawn
+    bool m_spawn_free_positioned:1;         //!< Spawn context (TODO: remove!)
 
 #ifdef FEAT_TIMING
     BeamThreadStats *statistics, *statistics_gfx;

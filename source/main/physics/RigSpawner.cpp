@@ -319,9 +319,9 @@ void RigSpawner::InitializeRig()
     m_rig->beambreakdebug  = App::diag_log_beam_break.GetActive(); // TODO: make interactive - don't copy Gvar, use it directly
     m_rig->beamdeformdebug = App::diag_log_beam_deform.GetActive();
     m_rig->triggerdebug    = App::diag_log_beam_trigger.GetActive();
-    m_rig->rotaInertia = nullptr;
-    m_rig->hydroInertia = nullptr;
-    m_rig->cmdInertia = nullptr;
+    m_rig->m_rotator_inertia = nullptr;
+    m_rig->m_hydro_inertia = nullptr;
+    m_rig->m_command_inertia = nullptr;
     m_rig->truckmass=0;
     m_rig->loadmass=0;
     m_rig->buoyance = nullptr;
@@ -376,7 +376,7 @@ void RigSpawner::InitializeRig()
     m_rig->lowestnode=0;
 
 #ifdef USE_ANGELSCRIPT
-    m_rig->vehicle_ai = new VehicleAI(m_rig);
+    m_rig->ar_vehicle_ai = new VehicleAI(m_rig);
 #endif // USE_ANGELSCRIPT
 
     /* Init code from Beam::Beam() */
@@ -447,12 +447,13 @@ void RigSpawner::InitializeRig()
     m_rig->ar_disable_actor2actor_collision = BSETTING("DisableCollisions", false);
     if (! m_rig->ar_disable_actor2actor_collision)
     {
-        m_rig->interPointCD = new PointColDetector();
+        m_rig->m_inter_point_col_detector = new PointColDetector();
     }
+
     m_rig->ar_disable_self_collision = BSETTING("DisableSelfCollisions", false);
     if (! m_rig->ar_disable_self_collision)
     {
-        m_rig->intraPointCD = new PointColDetector();
+        m_rig->m_intra_point_col_detector = new PointColDetector();
     }
 
     m_rig->ar_submesh_ground_model = gEnv->collisions->defaultgm;
@@ -466,9 +467,9 @@ void RigSpawner::InitializeRig()
     m_rig->m_particles_splash = dustman.getDustPool("splash");
     m_rig->m_particles_ripple = dustman.getDustPool("ripple");
 
-    m_rig->cmdInertia   = new CmdKeyInertia();
-    m_rig->hydroInertia = new CmdKeyInertia();
-    m_rig->rotaInertia  = new CmdKeyInertia();
+    m_rig->m_command_inertia   = new CmdKeyInertia();
+    m_rig->m_hydro_inertia = new CmdKeyInertia();
+    m_rig->m_rotator_inertia  = new CmdKeyInertia();
 
     // Lights mode
     m_rig->m_flares_mode = App::gfx_flares_mode.GetActive();
@@ -3357,7 +3358,7 @@ void RigSpawner::ProcessRotator(RigDef::Rotator & def)
     // Rotate right key
     m_rig->commandkey[def.spin_right_key].rotators.push_back(m_rig->ar_num_rotators + 1);
 
-    _ProcessKeyInertia(m_rig->rotaInertia, def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
+    _ProcessKeyInertia(m_rig->m_rotator_inertia, def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
 
     m_rig->ar_num_rotators++;
     m_rig->hascommands = 1;
@@ -3397,7 +3398,7 @@ void RigSpawner::ProcessRotator2(RigDef::Rotator2 & def)
     // Rotate right key
     m_rig->commandkey[def.spin_right_key].rotators.push_back(m_rig->ar_num_rotators + 1);
 
-    _ProcessKeyInertia(m_rig->rotaInertia, def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
+    _ProcessKeyInertia(m_rig->m_rotator_inertia, def.inertia, *def.inertia_defaults, def.spin_left_key, def.spin_right_key);
 
     m_rig->ar_num_rotators++;
     m_rig->hascommands = 1;
@@ -3510,7 +3511,7 @@ void RigSpawner::ProcessCommand(RigDef::Command2 & def)
         beam.centerLength = (def.max_contraction - def.max_extension) / 2 + def.max_extension;
     }
 
-    _ProcessKeyInertia(m_rig->cmdInertia, def.inertia, *def.inertia_defaults, def.contract_key, def.extend_key);	
+    _ProcessKeyInertia(m_rig->m_command_inertia, def.inertia, *def.inertia_defaults, def.contract_key, def.extend_key);	
 
     /* Add keys */
     command_t* contract_command = &m_rig->commandkey[def.contract_key];
@@ -3542,11 +3543,11 @@ void RigSpawner::ProcessAnimator(RigDef::Animator & def)
         return;
     }
 
-    if (m_rig->hydroInertia != nullptr)
+    if (m_rig->m_hydro_inertia != nullptr)
     {
         if (def.inertia_defaults->start_delay_factor > 0 && def.inertia_defaults->stop_delay_factor > 0)
         {
-            m_rig->hydroInertia->setCmdKeyDelay(
+            m_rig->m_hydro_inertia->setCmdKeyDelay(
                 m_rig->free_hydro,
                 def.inertia_defaults->start_delay_factor,
                 def.inertia_defaults->stop_delay_factor,
@@ -3812,7 +3813,7 @@ void RigSpawner::ProcessHydro(RigDef::Hydro & def)
         }
     }
 
-    _ProcessKeyInertia(m_rig->hydroInertia, def.inertia, *def.inertia_defaults, m_rig->free_hydro, m_rig->free_hydro);	
+    _ProcessKeyInertia(m_rig->m_hydro_inertia, def.inertia, *def.inertia_defaults, m_rig->free_hydro, m_rig->free_hydro);	
 
     node_t & node_1 = GetNode(def.nodes[0]);
     node_t & node_2 = GetNode(def.nodes[1]);

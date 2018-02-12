@@ -974,7 +974,7 @@ VehicleAI* GameScript::getCurrentTruckAI()
 {
     Beam* b = mse->GetFrameListener()->GetBeamFactory()->getCurrentTruck();
     if (b)
-        return b->vehicle_ai;
+        return b->ar_vehicle_ai;
     return nullptr;
 }
 
@@ -982,7 +982,7 @@ VehicleAI* GameScript::getTruckAIByNum(int num)
 {
     Beam* b = mse->GetFrameListener()->GetBeamFactory()->getTruck(num);
     if (b)
-        return b->vehicle_ai;
+        return b->ar_vehicle_ai;
     return nullptr;
 }
 

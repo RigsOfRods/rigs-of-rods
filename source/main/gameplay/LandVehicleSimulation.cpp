@@ -168,7 +168,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
     } // end of (!curr_truck->ar_replay_mode) block
 
 #ifdef USE_ANGELSCRIPT
-    if (!curr_truck->ar_replay_mode && !curr_truck->vehicle_ai->IsActive())
+    if (!curr_truck->ar_replay_mode && !curr_truck->ar_vehicle_ai->IsActive())
 #else
     if (!curr_truck->ar_replay_mode)
 #endif // USE_ANGELSCRIPT
