@@ -1655,7 +1655,7 @@ struct SlideNode
     float spring_rate;
     float break_force;
     float tolerance;
-    unsigned int railgroup_id;
+    int railgroup_id;
     bool _railgroup_id_set;
     float attachment_rate;
     float max_attachment_distance;

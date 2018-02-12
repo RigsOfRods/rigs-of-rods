@@ -51,7 +51,7 @@
 static inline Ogre::Vector3 nearestPoint(const Ogre::Vector3& pt1,
         const Ogre::Vector3& pt2,
         const Ogre::Vector3& tp)
-{	
+{
     const Ogre::Vector3 a = tp - pt1;
     const Ogre::Vector3 b = fast_normalise(pt2-pt1);
 
@@ -61,7 +61,7 @@ static inline Ogre::Vector3 nearestPoint(const Ogre::Vector3& pt1,
 static inline Ogre::Vector3 nearestPointOnLine(const Ogre::Vector3& pt1,
         const Ogre::Vector3& pt2,
         const Ogre::Vector3& tp)
-{	
+{
     Ogre::Vector3 a = tp - pt1;
     Ogre::Vector3 b = pt2 - pt1;
     Ogre::Real len = fast_length(b);
@@ -69,76 +69,28 @@ static inline Ogre::Vector3 nearestPointOnLine(const Ogre::Vector3& pt1,
     b = fast_normalise(b);
     len = std::max(0.0f, std::min(a.dotProduct(b), len));
     b *= len;
-    
+
     a = pt1;
     a += b;
     return a;
 }
 //! @}
 
-struct Rail : public ZeroedMemoryAllocator
+struct RailSegment //!< A single beam in a chain
 {
-    Rail();
-    Rail( beam_t* newBeam );
-    Rail( beam_t* newBeam, Rail* newPrev, Rail* newNext );
-    Rail( Rail& other );
+    RailSegment(beam_t* beam): rs_prev(nullptr), rs_next(nullptr), rs_beam(beam) {}
 
-    Rail*   snr_prev;
-    beam_t* snr_beam;
-    Rail*   snr_next;
+    RailSegment*   rs_prev;
+    RailSegment*   rs_next;
+    beam_t*        rs_beam;
 };
 
-/// A series of softbody beams which node slides along. Can be closed in a loop. The term of 'Rail' means 'single beam' here.
-class RailGroup : public ZeroedMemoryAllocator
+struct RailGroup //!< A series of RailSegment-s for SlideNode to slide along. Can be closed in a loop.
 {
-public:
-    RailGroup(Rail* start);
-    RailGroup(Rail* start, unsigned int id);
+    RailGroup(): rg_id(-1) {}
 
-    const Rail*       GetStartRail() const    { return m_start_rail; }
-    unsigned int      GetId() const           { return m_id; }
-    
-    /// clears up all the allocated memory this is intentionally not made into a
-    ///destructor to avoid issues like copying Rails when storing in a container
-    /// it is assumed that if next is not null then next->prev is not null either
-    void CleanUpRailGroup();
-    
-private:
-        
-    /// Identification, for anonymous rails (defined inline) the ID will be
-    /// > 7000000, for Rail groups defined int he rail group section the Id
-    /// needs to be less than 7000000
-    unsigned int m_id;
-    Rail*        m_start_rail; //!< Beginning Rail in the Group
-};
-
-/**
- * Rail builder is a utility used for created linked lists effectively and
- * painlessly.
- */
-class RailBuilder : public ZeroedMemoryAllocator
-{
-public:
-
-    RailBuilder();
-    ~RailBuilder();
-        
-    void pushBack(beam_t* next);
-    void loopRail();
-    
-    /**
-     * @return the completed rail, if called before instance goes out of reference
-     * the internal memory is null referenced, if not the memorey is reclaimed
-     */
-    Rail* getCompletedRail();
-
-private:
-    Rail*    mStart;    //! Start of the Rail series
-    Rail*    mFront;    //! Front of the Rail, not necessarily the start
-    Rail*     mBack;    //! Last rail in the series
-    bool      mLoop;    //! Check if rail is to be looped
-    bool mRetreived;    //! Check if RailBuilder needs to deallocate Rails
-    
+    std::vector<RailSegment> rg_segments;
+    int                      rg_id; //!< Spawn context - matching separately defined rails with slidenodes.
 };
 
 class SlideNode : public ZeroedMemoryAllocator
@@ -154,7 +106,7 @@ private:
     beam_t*     mSlidingBeam; //!< pointer to current beam sliding on
     RailGroup* mOrgRailGroup; //!< initial Rail group on spawn
     RailGroup* mCurRailGroup; //!< current Rail group, used for attachments
-    Rail*       mSlidingRail; //!< current rail we are sliding on
+    RailSegment* mSlidingRail; //!< current rail segment we are sliding on
 
     //! ratio of length along the slide beam where the virtual node is
     //! 0.0f = p1, 1.0f = p2
@@ -209,15 +161,6 @@ public:
      * @return Id of the SlideNode
      */
     unsigned int getNodeID() const;
-
-    /**
-     * @return Id of the rail this SlideNode is on, returns infinity if no rail
-     * is defiined
-     */
-    unsigned int getRailID() const
-    {
-        return mCurRailGroup ? mCurRailGroup->GetId() : std::numeric_limits<unsigned int>::infinity();
-    }
 
     /**
      * resets the slide Rail back to the initial rail, restores all broken rail
@@ -292,7 +235,7 @@ public:
      * @param point
      * @return value is always positive, if rail is null return infinity.
      */
-    static Ogre::Real getLenTo( const Rail* rail, const Ogre::Vector3& point );
+    static Ogre::Real getLenTo( const RailSegment* rail, const Ogre::Vector3& point );
 
     /**
      * @param beam
@@ -312,7 +255,7 @@ public:
      * @param rail
      * @return value is always positive, if rail is null return infinity.
      */
-    Ogre::Real getLenTo( const Rail* rail ) const;
+    Ogre::Real getLenTo( const RailSegment* rail ) const;
 
     /**
      *
@@ -321,45 +264,11 @@ public:
      */
     Ogre::Real getLenTo( const beam_t* beam) const;
 
-    /**
-     * Finds the closest rail to the point, non-incremental version.
-     *
-     * This method iterates through the entire Rail and returns the rail closest
-     * to the provided point.
-     *
-     * This is O(n) complexity due to every rail being checked against, useful
-     * when SlideNodes are moved outside of the integrator to avoid beam explosion.
-     * @see getClosestRail for the incremental version.
-     *
-     * @bug if rail loops uses the start rail later in the sequence but does not
-     * form a loop it will exit.
-     *
-     * @param rail rail to start from
-     * @param point point from which to check distance to
-     * @return which rail is closest to the slide Beam
-     */
-    static Rail* getClosestRailAll(RailGroup* railGroup, const Ogre::Vector3& point );
+    /// Search for closest rail segment (the one with closest node in it) in the entire RailGroup
+    static RailSegment* FindClosestRailSegment(RailGroup* railGroup, const Ogre::Vector3& point );
 
-    /**
-     * Find closest Rail to a point, incremental version.
-     *
-     * This method assumed that the current rail is already the closest rail and
-     * checks distance of neighboring rails.
-     *
-     * Under normal operation this method is O(1). This could potentially loop
-     * through the entire Rail series but it extremely unlikely. This method
-     * keeps incrementing to the next or previous rail if it is closer than the
-     * current rail. In order for the method to loop more than twice the node
-     * would have to move beyond 2 rail segments in a single integrator
-     * iteration, which is extremely unlikely.
-     *
-     * @see getClosestRailAll for the non-incremental version.
-     *
-     * @param rail rail to start from
-     * @param point point from which to check distance to
-     * @return which rail is closest to the slide Beam
-     */
-    static Rail* getClosestRail(const Rail* rail, const Ogre::Vector3& point );
+    /// Search for closest rail segment (the one with closest node in it) among the current segment and it's immediate neighbours
+    static RailSegment* FindClosestSurroundingSegment(RailSegment* rail, const Ogre::Vector3& point );
 
 private:
     /**
