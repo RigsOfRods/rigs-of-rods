@@ -117,48 +117,26 @@ private:
  */
 class RailBuilder : public ZeroedMemoryAllocator
 {
-// Members /////////////////////////////////////////////////////////////////////
 public:
-	/* no public members */
+
+	RailBuilder();
+	~RailBuilder();
+		
+	void pushBack(beam_t* next);
+	void loopRail();
+	
+	/**
+	 * @return the completed rail, if called before instance goes out of reference
+	 * the internal memory is null referenced, if not the memorey is reclaimed
+	 */
+	Rail* getCompletedRail();
+
 private:
 	Rail*    mStart;    //! Start of the Rail series
 	Rail*    mFront;    //! Front of the Rail, not necessarily the start
 	Rail*     mBack;    //! Last rail in the series
 	bool      mLoop;    //! Check if rail is to be looped
 	bool mRetreived;    //! Check if RailBuilder needs to deallocate Rails
-	
-// Methods /////////////////////////////////////////////////////////////////////
-public:
-	// pass a rail value, this class does not manage memory
-	RailBuilder();
-	RailBuilder(Rail* start);
-	~RailBuilder();
-		
-	/**
-	 *
-	 * @param next beam attaches to the last beam in the end of the series
-	 */
-	void pushBack(beam_t* next);
-	/**
-	 *
-	 * @param prev adds another beam to the front of the rail series
-	 */
-	void pushFront(beam_t* prev);
-	
-	//! wrapper method
-	void loopRail(bool doLoop);	
-	void loopRail();
-	void unLoopRail();
-	
-	/**
-	 *
-	 * @return the completed rail, if called before instance goes out of reference
-	 * the internal memory is null referenced, if not the memorey is reclaimed
-	 */
-	Rail* getCompletedRail();
-	
-private:
-	/* no private methods */
 	
 };
 
