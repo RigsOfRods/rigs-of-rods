@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2016 Petr Ohlidal
+    Copyright 2013-2018 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -29,7 +29,6 @@ using namespace RoR;
 Character* CharacterFactory::createLocal(int playerColour)
 {
     Character* ch = new Character(-1, 0, playerColour, false);
-    ch->SetSimController(m_sim_controller);
     return ch;
 }
 

@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2016 Petr Ohlidal
+    Copyright 2013-2018 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -34,7 +34,7 @@ namespace RoR {
 class CharacterFactory
 {
 public:
-    CharacterFactory(RoRFrameListener* sim): m_sim_controller(sim) {}
+    CharacterFactory() {}
     Character* createLocal(int playerColour);
     void DeleteAllRemoteCharacters();
     void update(float dt);
@@ -44,7 +44,6 @@ public:
 
 private:
 
-    RoRFrameListener*                       m_sim_controller;
     std::vector<std::unique_ptr<Character>> m_remote_characters;
 
     void createRemoteInstance(int sourceid, int streamid);
