@@ -28,11 +28,11 @@
 
 using namespace Ogre;
 
-EngineSim::EngineSim(float minRPM, float maxRPM, float torque, std::vector<float> gears, float dratio, Actor* actor) :
+EngineSim::EngineSim(float m_engine_min_rpm, float m_engine_max_rpm, float torque, std::vector<float> gears, float dratio, Actor* actor) :
     apressure(0.0f)
-    , autocurAcc(0.0f)
+    , m_auto_cur_acc(0.0f)
     , automode(AUTOMATIC)
-    , autoselect(DRIVE)
+    , m_autoselect(DRIVE)
     , m_braking_torque(-torque / 5.0f)
     , m_clutch_force(10000.0f)
     , m_clutch_time(0.2f)
@@ -45,36 +45,36 @@ EngineSim::EngineSim(float minRPM, float maxRPM, float torque, std::vector<float
     , m_cur_gear_range(0)
     , m_cur_wheel_revolutions(0.0f)
     , m_diff_ratio(dratio)
-    , engineTorque(torque - m_braking_torque)
+    , m_engine_torque(torque - m_braking_torque)
     , m_gear_ratios(gears)
     , m_engine_has_air(true)
     , m_engine_has_turbo(true)
-    , hydropump(0.0f)
-    , idleRPM(std::min(minRPM, 800.0f))
-    , inertia(10.0f)
-    , kickdownDelayCounter(0)
-    , maxIdleMixture(0.2f)
-    , maxRPM(std::abs(maxRPM))
-    , minIdleMixture(0.0f)
-    , minRPM(std::abs(minRPM))
+    , m_hydropump_state(0.0f)
+    , m_idle_rpm(std::min(m_engine_min_rpm, 800.0f))
+    , m_engine_inertia(10.0f)
+    , m_kickdown_delay_counter(0)
+    , m_max_idle_mixture(0.2f)
+    , m_engine_max_rpm(std::abs(m_engine_max_rpm))
+    , m_min_idle_mixture(0.0f)
+    , m_engine_min_rpm(std::abs(m_engine_min_rpm))
     , m_num_gears((int)gears.size() - 2)
-    , post_shift_time(0.2f)
-    , postshiftclock(0.0f)
-    , postshifting(0)
-    , is_priming(false)
+    , m_post_shift_time(0.2f)
+    , m_post_shift_clock(0.0f)
+    , m_post_shifting(0)
+    , m_engine_is_priming(false)
     , m_engine_is_running(false)
-    , shiftBehaviour(0.0f)
-    , shift_time(0.5f)
-    , shiftclock(0.0f)
-    , shifting(0)
-    , shiftval(0)
-    , stallRPM(300.0f)
-    , starter(0)
+    , m_shift_behaviour(0.0f)
+    , m_shift_time(0.5f)
+    , m_shift_clock(0.0f)
+    , m_shifting(0)
+    , m_shift_val(0)
+    , m_engine_stall_rpm(300.0f)
+    , m_starter(0)
     , torqueCurve(new TorqueCurve())
     , m_actor(actor)
     , m_engine_turbo_mode(OLD)
     , m_engine_type('t')
-    , upShiftDelayCounter(0)
+    , m_upshift_delay_counter(0)
     , m_engine_is_electric(false)
     , turboInertiaFactor(1)
     , numTurbos(1)
@@ -93,9 +93,9 @@ EngineSim::EngineSim(float minRPM, float maxRPM, float torque, std::vector<float
     , minRPM_antilag(3000)
     , antilag_power_factor(170)
 {
-    fullRPMRange = (maxRPM - minRPM);
-    oneThirdRPMRange = fullRPMRange / 3.0f;
-    halfRPMRange = fullRPMRange / 2.0f;
+    m_full_rpm_range = (m_engine_max_rpm - m_engine_min_rpm);
+    m_one_third_rpm_range = m_full_rpm_range / 3.0f;
+    m_half_rpm_range = m_full_rpm_range / 2.0f;
 
     m_gear_ratios[0] = -m_gear_ratios[0];
     for (std::vector<float>::iterator it = m_gear_ratios.begin(); it != m_gear_ratios.end(); ++it)
@@ -187,34 +187,34 @@ void EngineSim::setTurboOptions(int type, float tinertiaFactor, int nturbos, flo
 
 void EngineSim::setOptions(float einertia, char etype, float eclutch, float ctime, float stime, float pstime, float irpm, float srpm, float maximix, float minimix)
 {
-    inertia = einertia;
+    m_engine_inertia = einertia;
     m_engine_type = etype;
     m_clutch_force = eclutch;
 
     if (ctime > 0)
         m_clutch_time = ctime;
     if (stime > 0)
-        shift_time = stime;
+        m_shift_time = stime;
     if (pstime > 0)
-        post_shift_time = pstime;
+        m_post_shift_time = pstime;
     if (irpm > 0)
-        idleRPM = irpm;
+        m_idle_rpm = irpm;
     if (srpm > 0)
-        stallRPM = srpm;
+        m_engine_stall_rpm = srpm;
     if (maximix > 0)
-        maxIdleMixture = maximix;
+        m_max_idle_mixture = maximix;
     if (minimix > 0)
-        minIdleMixture = minimix;
+        m_min_idle_mixture = minimix;
 
     m_clutch_time = std::max(0.0f, m_clutch_time);
-    shift_time = std::max(0.0f, shift_time);
-    post_shift_time = std::max(0.0f, post_shift_time);
+    m_shift_time = std::max(0.0f, m_shift_time);
+    m_post_shift_time = std::max(0.0f, m_post_shift_time);
 
-    m_clutch_time = std::min(m_clutch_time, shift_time * 0.9f);
+    m_clutch_time = std::min(m_clutch_time, m_shift_time * 0.9f);
 
-    idleRPM = std::max(0.0f, idleRPM);
-    stallRPM = std::max(0.0f, stallRPM);
-    stallRPM = std::min(idleRPM, stallRPM);
+    m_idle_rpm = std::max(0.0f, m_idle_rpm);
+    m_engine_stall_rpm = std::max(0.0f, m_engine_stall_rpm);
+    m_engine_stall_rpm = std::min(m_idle_rpm, m_engine_stall_rpm);
 
     if (etype == 'c')
     {
@@ -287,11 +287,11 @@ void EngineSim::update(float dt, int doUpdate)
             // powering (exhaust) with limiter
             if (curTurboRPM[0] < 200000.0f && m_engine_is_running && m_cur_acc > 0.06f)
             {
-                turbotorque += 1.5f * m_cur_acc * (m_cur_engine_rpm / maxRPM);
+                turbotorque += 1.5f * m_cur_acc * (m_cur_engine_rpm / m_engine_max_rpm);
             }
             else
             {
-                turbotorque += 0.1f * (m_cur_engine_rpm / maxRPM);
+                turbotorque += 0.1f * (m_cur_engine_rpm / m_engine_max_rpm);
             }
 
             // integration
@@ -321,7 +321,7 @@ void EngineSim::update(float dt, int doUpdate)
                         {
                             if (curTurboRPM[i] < minWGPsi * wastegate_threshold_p && !b_flutter)
                             {
-                                turbotorque += 1.5f * acc * (((m_cur_engine_rpm - turboEngineRpmOperation) / (maxRPM - turboEngineRpmOperation)));
+                                turbotorque += 1.5f * acc * (((m_cur_engine_rpm - turboEngineRpmOperation) / (m_engine_max_rpm - turboEngineRpmOperation)));
                             }
                             else
                             {
@@ -340,11 +340,11 @@ void EngineSim::update(float dt, int doUpdate)
                             }
                         }
                         else
-                            turbotorque += 1.5f * acc * (((m_cur_engine_rpm - turboEngineRpmOperation) / (maxRPM - turboEngineRpmOperation)));
+                            turbotorque += 1.5f * acc * (((m_cur_engine_rpm - turboEngineRpmOperation) / (m_engine_max_rpm - turboEngineRpmOperation)));
                     }
                     else
                     {
-                        turbotorque += 0.1f * (((m_cur_engine_rpm - turboEngineRpmOperation) / (maxRPM - turboEngineRpmOperation)));
+                        turbotorque += 0.1f * (((m_cur_engine_rpm - turboEngineRpmOperation) / (m_engine_max_rpm - turboEngineRpmOperation)));
                     }
 
                     //Update waste gate, it's like a BOV on the exhaust part of the turbo, acts as a limiter
@@ -394,9 +394,9 @@ void EngineSim::update(float dt, int doUpdate)
                 if (b_BOV)
                 {
                     if (curBOVTurboRPM[i] < curTurboRPM[i])
-                        turboBOVtorque += 1.5f * acc * (((m_cur_engine_rpm) / (maxRPM)));
+                        turboBOVtorque += 1.5f * acc * (((m_cur_engine_rpm) / (m_engine_max_rpm)));
                     else
-                        turboBOVtorque += 0.07f * (((m_cur_engine_rpm) / (maxRPM)));
+                        turboBOVtorque += 0.07f * (((m_cur_engine_rpm) / (m_engine_max_rpm)));
 
                     if (m_cur_acc < 0.06 && curTurboRPM[i] > minBOVPsi * 10000)
                     {
@@ -422,34 +422,34 @@ void EngineSim::update(float dt, int doUpdate)
     // engine braking
     if (m_starter_has_contact)
     {
-        totaltorque += m_braking_torque * m_cur_engine_rpm / maxRPM;
+        totaltorque += m_braking_torque * m_cur_engine_rpm / m_engine_max_rpm;
     }
     else
     {
         totaltorque += m_braking_torque;
     }
 
-    // braking by hydropump
+    // braking by m_hydropump_state
     if (m_cur_engine_rpm > 100.0f)
     {
-        totaltorque -= 8.0f * hydropump / (m_cur_engine_rpm * 0.105f * dt);
+        totaltorque -= 8.0f * m_hydropump_state / (m_cur_engine_rpm * 0.105f * dt);
     }
 
-    if (m_engine_is_running && m_starter_has_contact && m_cur_engine_rpm < (maxRPM * 1.25f))
+    if (m_engine_is_running && m_starter_has_contact && m_cur_engine_rpm < (m_engine_max_rpm * 1.25f))
     {
         totaltorque += getEnginePower(m_cur_engine_rpm) * acc;
     }
 
     if (!m_engine_is_electric)
     {
-        if (m_engine_is_running && m_cur_engine_rpm < stallRPM)
+        if (m_engine_is_running && m_cur_engine_rpm < m_engine_stall_rpm)
         {
             stop();
         }
 
-        if (m_starter_has_contact && starter && !m_engine_is_running)
+        if (m_starter_has_contact && m_starter && !m_engine_is_running)
         {
-            if (m_cur_engine_rpm < stallRPM)
+            if (m_cur_engine_rpm < m_engine_stall_rpm)
             {
                 totaltorque += -m_braking_torque;
             }
@@ -472,7 +472,7 @@ void EngineSim::update(float dt, int doUpdate)
     totaltorque -= retorque;
 
     // integration
-    m_cur_engine_rpm += dt * totaltorque / inertia;
+    m_cur_engine_rpm += dt * totaltorque / m_engine_inertia;
 
     // update clutch torque
     if (m_cur_gear)
@@ -490,89 +490,89 @@ void EngineSim::update(float dt, int doUpdate)
     if (automode < MANUAL)
     {
         // auto-shift
-        if (shifting)
+        if (m_shifting)
         {
-            shiftclock += dt;
+            m_shift_clock += dt;
 
-            if (shiftval)
+            if (m_shift_val)
             {
-                float declutchTime = std::min(shift_time - m_clutch_time, m_clutch_time);
-                if (shiftclock <= declutchTime)
+                float declutchTime = std::min(m_shift_time - m_clutch_time, m_clutch_time);
+                if (m_shift_clock <= declutchTime)
                 {
                     // depress the clutch 
-                    float ratio = pow(1.0f - (shiftclock / declutchTime), 2);
+                    float ratio = pow(1.0f - (m_shift_clock / declutchTime), 2);
                     m_cur_clutch = std::min(ratio, m_cur_clutch);
-                    m_cur_acc = std::min(ratio, autocurAcc);
+                    m_cur_acc = std::min(ratio, m_auto_cur_acc);
                 }
                 else
                 {
                     // engage a gear
                     SOUND_START(m_actor, SS_TRIG_SHIFT);
-                    if (autoselect != NEUTRAL)
+                    if (m_autoselect != NEUTRAL)
                     {
-                        m_cur_gear += shiftval;
+                        m_cur_gear += m_shift_val;
                         m_cur_gear = std::max(-1, m_cur_gear);
                         m_cur_gear = std::min(m_cur_gear, m_num_gears);
                     }
-                    shiftval = 0;
+                    m_shift_val = 0;
                 }
             }
 
-            if (shiftclock > shift_time)
+            if (m_shift_clock > m_shift_time)
             {
-                // we're done shifting
+                // we're done m_shifting
                 SOUND_STOP(m_actor, SS_TRIG_SHIFT);
-                setAcc(autocurAcc);
-                shifting = 0;
-                postshifting = 1;
-                postshiftclock = 0.0f;
+                setAcc(m_auto_cur_acc);
+                m_shifting = 0;
+                m_post_shifting = 1;
+                m_post_shift_clock = 0.0f;
             }
-            else if (!shiftval && m_cur_gear && shiftclock >= (shift_time - m_clutch_time))
+            else if (!m_shift_val && m_cur_gear && m_shift_clock >= (m_shift_time - m_clutch_time))
             {
                 // release the clutch <-- Done below
-                float timer = shiftclock - (shift_time - m_clutch_time);
+                float timer = m_shift_clock - (m_shift_time - m_clutch_time);
                 float ratio = sqrt(timer / m_clutch_time);
-                m_cur_acc = (autocurAcc / 2.0f) * ratio;
+                m_cur_acc = (m_auto_cur_acc / 2.0f) * ratio;
             }
         }
 
-        if (postshifting)
+        if (m_post_shifting)
         {
-            postshiftclock += dt;
-            if (postshiftclock > post_shift_time)
+            m_post_shift_clock += dt;
+            if (m_post_shift_clock > m_post_shift_time)
             {
-                postshifting = 0;
+                m_post_shifting = 0;
             }
-            else if (autocurAcc > 0.0f)
+            else if (m_auto_cur_acc > 0.0f)
             {
-                float ratio = postshiftclock / post_shift_time;
-                m_cur_acc = (autocurAcc / 2.0f) + (autocurAcc / 2.0f) * ratio;
+                float ratio = m_post_shift_clock / m_post_shift_time;
+                m_cur_acc = (m_auto_cur_acc / 2.0f) + (m_auto_cur_acc / 2.0f) * ratio;
             }
             else if (m_cur_gear)
             {
                 float gearboxspinner = m_cur_engine_rpm / m_gear_ratios[m_cur_gear + 1];
                 if (m_cur_wheel_revolutions > gearboxspinner)
                 {
-                    float ratio = sqrt(postshiftclock / post_shift_time);
+                    float ratio = sqrt(m_post_shift_clock / m_post_shift_time);
                     m_cur_clutch = std::max(m_cur_clutch, ratio);
                 }
             }
         }
 
         // auto clutch
-        float declutchRPM = (minRPM + stallRPM) / 2.0f;
-        if (m_cur_gear == 0 || m_cur_engine_rpm < declutchRPM || (fabs(m_cur_wheel_revolutions) < 1.0f && (m_cur_engine_rpm < minRPM * 1.01f || autocurAcc == 0.0f)) || (autocurAcc == 0.0f && m_actor->ar_brake > 0.0f && retorque >= 0.0f))
+        float declutchRPM = (m_engine_min_rpm + m_engine_stall_rpm) / 2.0f;
+        if (m_cur_gear == 0 || m_cur_engine_rpm < declutchRPM || (fabs(m_cur_wheel_revolutions) < 1.0f && (m_cur_engine_rpm < m_engine_min_rpm * 1.01f || m_auto_cur_acc == 0.0f)) || (m_auto_cur_acc == 0.0f && m_actor->ar_brake > 0.0f && retorque >= 0.0f))
         {
             m_cur_clutch = 0.0f;
         }
-        else if (m_cur_engine_rpm < minRPM && minRPM > declutchRPM)
+        else if (m_cur_engine_rpm < m_engine_min_rpm && m_engine_min_rpm > declutchRPM)
         {
-            float clutch = (m_cur_engine_rpm - declutchRPM) / (minRPM - declutchRPM);
+            float clutch = (m_cur_engine_rpm - declutchRPM) / (m_engine_min_rpm - declutchRPM);
             m_cur_clutch = std::min(clutch * clutch, m_cur_clutch);
         }
-        else if (!shiftval && m_cur_engine_rpm > minRPM && m_cur_clutch < 1.0f)
+        else if (!m_shift_val && m_cur_engine_rpm > m_engine_min_rpm && m_cur_clutch < 1.0f)
         {
-            float range = (maxRPM - minRPM);
+            float range = (m_engine_max_rpm - m_engine_min_rpm);
             float tAcc = std::max(0.2f, acc);
             if (abs(m_cur_gear) == 1)
             {
@@ -582,7 +582,7 @@ void EngineSim::update(float dt, int doUpdate)
             {
                 range *= 0.4f * sqrt(tAcc);
             }
-            float powerRatio = std::min((m_cur_engine_rpm - minRPM) / range, 1.0f);
+            float powerRatio = std::min((m_cur_engine_rpm - m_engine_min_rpm) / range, 1.0f);
             float enginePower = getEnginePower(m_cur_engine_rpm) * tAcc * powerRatio;
 
             float gearboxspinner = m_cur_engine_rpm / m_gear_ratios[m_cur_gear + 1];
@@ -608,7 +608,7 @@ void EngineSim::update(float dt, int doUpdate)
         m_cur_clutch = std::min(m_cur_clutch, 1.0f);
     }
 
-    if (doUpdate && !shifting && !postshifting)
+    if (doUpdate && !m_shifting && !m_post_shifting)
     {
         // gear hack
         m_abs_velocity = m_actor->ar_nodes[0].Velocity.length();
@@ -626,17 +626,17 @@ void EngineSim::update(float dt, int doUpdate)
             m_ref_wheel_revolutions = velocity / m_actor->ar_wheels[0].wh_radius * RAD_PER_SEC_TO_RPM;
         }
 
-        if (!m_engine_is_electric && automode == AUTOMATIC && (autoselect == DRIVE || autoselect == TWO) && m_cur_gear > 0)
+        if (!m_engine_is_electric && automode == AUTOMATIC && (m_autoselect == DRIVE || m_autoselect == TWO) && m_cur_gear > 0)
         {
-            if ((m_cur_engine_rpm > maxRPM - 100.0f && m_cur_gear > 1) || m_cur_wheel_revolutions * m_gear_ratios[m_cur_gear + 1] > maxRPM - 100.0f)
+            if ((m_cur_engine_rpm > m_engine_max_rpm - 100.0f && m_cur_gear > 1) || m_cur_wheel_revolutions * m_gear_ratios[m_cur_gear + 1] > m_engine_max_rpm - 100.0f)
             {
-                if ((autoselect == DRIVE && m_cur_gear < m_num_gears && m_cur_clutch > 0.99f) || (autoselect == TWO && m_cur_gear < std::min(2, m_num_gears)))
+                if ((m_autoselect == DRIVE && m_cur_gear < m_num_gears && m_cur_clutch > 0.99f) || (m_autoselect == TWO && m_cur_gear < std::min(2, m_num_gears)))
                 {
-                    kickdownDelayCounter = 100;
+                    m_kickdown_delay_counter = 100;
                     shift(1);
                 }
             }
-            else if (m_cur_gear > 1 && m_ref_wheel_revolutions * m_gear_ratios[m_cur_gear] < maxRPM && (m_cur_engine_rpm < minRPM || (m_cur_engine_rpm < minRPM + shiftBehaviour * halfRPMRange / 2.0f &&
+            else if (m_cur_gear > 1 && m_ref_wheel_revolutions * m_gear_ratios[m_cur_gear] < m_engine_max_rpm && (m_cur_engine_rpm < m_engine_min_rpm || (m_cur_engine_rpm < m_engine_min_rpm + m_shift_behaviour * m_half_rpm_range / 2.0f &&
                 getEnginePower(m_cur_wheel_revolutions * m_gear_ratios[m_cur_gear]) > getEnginePower(m_cur_wheel_revolutions * m_gear_ratios[m_cur_gear + 1]))))
             {
                 shift(-1);
@@ -651,9 +651,9 @@ void EngineSim::update(float dt, int doUpdate)
                 brake = m_actor->ar_brake / m_actor->ar_brake_force;
             }
 
-            rpms.push_front(m_cur_engine_rpm);
-            accs.push_front(acc);
-            brakes.push_front(brake);
+            m_rpms.push_front(m_cur_engine_rpm);
+            m_accs.push_front(acc);
+            m_brakes.push_front(brake);
 
             float avgRPM50 = 0.0f;
             float avgRPM200 = 0.0f;
@@ -662,84 +662,84 @@ void EngineSim::update(float dt, int doUpdate)
             float avgBrake50 = 0.0f;
             float avgBrake200 = 0.0f;
 
-            for (unsigned int i = 0; i < accs.size(); i++)
+            for (unsigned int i = 0; i < m_accs.size(); i++)
             {
                 if (i < 50)
                 {
-                    avgRPM50 += rpms[i];
-                    avgAcc50 += accs[i];
-                    avgBrake50 += brakes[i];
+                    avgRPM50 += m_rpms[i];
+                    avgAcc50 += m_accs[i];
+                    avgBrake50 += m_brakes[i];
                 }
 
-                avgRPM200 += rpms[i];
-                avgAcc200 += accs[i];
-                avgBrake200 += brakes[i];
+                avgRPM200 += m_rpms[i];
+                avgAcc200 += m_accs[i];
+                avgBrake200 += m_brakes[i];
             }
 
-            avgRPM50 /= std::min(rpms.size(), (std::deque<float>::size_type)50);
-            avgAcc50 /= std::min(accs.size(), (std::deque<float>::size_type)50);
-            avgBrake50 /= std::min(brakes.size(), (std::deque<float>::size_type)50);
+            avgRPM50 /= std::min(m_rpms.size(), (std::deque<float>::size_type)50);
+            avgAcc50 /= std::min(m_accs.size(), (std::deque<float>::size_type)50);
+            avgBrake50 /= std::min(m_brakes.size(), (std::deque<float>::size_type)50);
 
-            avgRPM200 /= rpms.size();
-            avgAcc200 /= accs.size();
-            avgBrake200 /= brakes.size();
+            avgRPM200 /= m_rpms.size();
+            avgAcc200 /= m_accs.size();
+            avgBrake200 /= m_brakes.size();
 
             if (avgAcc50 > 0.8f || avgAcc200 > 0.8f || avgBrake50 > 0.8f || avgBrake200 > 0.8f)
             {
-                shiftBehaviour = std::min(shiftBehaviour + 0.01f, 1.0f);
+                m_shift_behaviour = std::min(m_shift_behaviour + 0.01f, 1.0f);
             }
             else if (acc < 0.5f && avgAcc50 < 0.5f && avgAcc200 < 0.5f && brake < 0.5f && avgBrake50 < 0.5f && avgBrake200 < 0.5)
             {
-                shiftBehaviour /= 1.01;
+                m_shift_behaviour /= 1.01;
             }
 
-            if (avgAcc50 > 0.8f && m_cur_engine_rpm < maxRPM - oneThirdRPMRange)
+            if (avgAcc50 > 0.8f && m_cur_engine_rpm < m_engine_max_rpm - m_one_third_rpm_range)
             {
-                while (newGear > 1 && m_cur_wheel_revolutions * m_gear_ratios[newGear] < maxRPM - oneThirdRPMRange &&
+                while (newGear > 1 && m_cur_wheel_revolutions * m_gear_ratios[newGear] < m_engine_max_rpm - m_one_third_rpm_range &&
                     getEnginePower(m_cur_wheel_revolutions * m_gear_ratios[newGear]) * m_gear_ratios[newGear] >
                     getEnginePower(m_cur_wheel_revolutions * m_gear_ratios[newGear + 1]) * m_gear_ratios[newGear + 1])
                 {
                     newGear--;
                 }
             }
-            else if (avgAcc50 > 0.6f && acc < 0.8f && acc > avgAcc50 + 0.1f && m_cur_engine_rpm < minRPM + halfRPMRange)
+            else if (avgAcc50 > 0.6f && acc < 0.8f && acc > avgAcc50 + 0.1f && m_cur_engine_rpm < m_engine_min_rpm + m_half_rpm_range)
             {
-                if (newGear > 1 && m_cur_wheel_revolutions * m_gear_ratios[newGear] < minRPM + halfRPMRange &&
+                if (newGear > 1 && m_cur_wheel_revolutions * m_gear_ratios[newGear] < m_engine_min_rpm + m_half_rpm_range &&
                     getEnginePower(m_cur_wheel_revolutions * m_gear_ratios[newGear]) * m_gear_ratios[newGear] >
                     getEnginePower(m_cur_wheel_revolutions * m_gear_ratios[newGear + 1]) * m_gear_ratios[newGear + 1])
                 {
                     newGear--;
                 }
             }
-            else if (avgAcc50 > 0.4f && acc < 0.8f && acc > avgAcc50 + 0.1f && m_cur_engine_rpm < minRPM + halfRPMRange)
+            else if (avgAcc50 > 0.4f && acc < 0.8f && acc > avgAcc50 + 0.1f && m_cur_engine_rpm < m_engine_min_rpm + m_half_rpm_range)
             {
-                if (newGear > 1 && m_cur_wheel_revolutions * m_gear_ratios[newGear] < minRPM + oneThirdRPMRange &&
+                if (newGear > 1 && m_cur_wheel_revolutions * m_gear_ratios[newGear] < m_engine_min_rpm + m_one_third_rpm_range &&
                     getEnginePower(m_cur_wheel_revolutions * m_gear_ratios[newGear]) * m_gear_ratios[newGear] >
                     getEnginePower(m_cur_wheel_revolutions * m_gear_ratios[newGear + 1]) * m_gear_ratios[newGear + 1])
                 {
                     newGear--;
                 }
             }
-            else if (m_cur_gear < (autoselect == TWO ? std::min(2, m_num_gears) : m_num_gears) &&
-                avgBrake200 < 0.2f && acc < std::min(avgAcc200 + 0.1f, 1.0f) && m_cur_engine_rpm > avgRPM200 - fullRPMRange / 20.0f)
+            else if (m_cur_gear < (m_autoselect == TWO ? std::min(2, m_num_gears) : m_num_gears) &&
+                avgBrake200 < 0.2f && acc < std::min(avgAcc200 + 0.1f, 1.0f) && m_cur_engine_rpm > avgRPM200 - m_full_rpm_range / 20.0f)
             {
-                if (avgAcc200 < 0.6f && avgAcc200 > 0.4f && m_cur_engine_rpm > minRPM + oneThirdRPMRange && m_cur_engine_rpm < maxRPM - oneThirdRPMRange)
+                if (avgAcc200 < 0.6f && avgAcc200 > 0.4f && m_cur_engine_rpm > m_engine_min_rpm + m_one_third_rpm_range && m_cur_engine_rpm < m_engine_max_rpm - m_one_third_rpm_range)
                 {
-                    if (m_cur_wheel_revolutions * m_gear_ratios[newGear + 2] > minRPM + oneThirdRPMRange)
+                    if (m_cur_wheel_revolutions * m_gear_ratios[newGear + 2] > m_engine_min_rpm + m_one_third_rpm_range)
                     {
                         newGear++;
                     }
                 }
-                else if (avgAcc200 < 0.4f && avgAcc200 > 0.2f && m_cur_engine_rpm > minRPM + oneThirdRPMRange)
+                else if (avgAcc200 < 0.4f && avgAcc200 > 0.2f && m_cur_engine_rpm > m_engine_min_rpm + m_one_third_rpm_range)
                 {
-                    if (m_cur_wheel_revolutions * m_gear_ratios[newGear + 2] > minRPM + oneThirdRPMRange / 2.0f)
+                    if (m_cur_wheel_revolutions * m_gear_ratios[newGear + 2] > m_engine_min_rpm + m_one_third_rpm_range / 2.0f)
                     {
                         newGear++;
                     }
                 }
-                else if (avgAcc200 < 0.2f && m_cur_engine_rpm > minRPM + oneThirdRPMRange / 2.0f && m_cur_engine_rpm < minRPM + halfRPMRange)
+                else if (avgAcc200 < 0.2f && m_cur_engine_rpm > m_engine_min_rpm + m_one_third_rpm_range / 2.0f && m_cur_engine_rpm < m_engine_min_rpm + m_half_rpm_range)
                 {
-                    if (m_cur_wheel_revolutions * m_gear_ratios[newGear + 2] > minRPM + oneThirdRPMRange / 2.0f)
+                    if (m_cur_wheel_revolutions * m_gear_ratios[newGear + 2] > m_engine_min_rpm + m_one_third_rpm_range / 2.0f)
                     {
                         newGear++;
                     }
@@ -747,43 +747,43 @@ void EngineSim::update(float dt, int doUpdate)
 
                 if (newGear > m_cur_gear)
                 {
-                    upShiftDelayCounter++;
-                    if (upShiftDelayCounter <= 100 * shiftBehaviour)
+                    m_upshift_delay_counter++;
+                    if (m_upshift_delay_counter <= 100 * m_shift_behaviour)
                     {
                         newGear = m_cur_gear;
                     }
                 }
                 else
                 {
-                    upShiftDelayCounter = 0;
+                    m_upshift_delay_counter = 0;
                 }
             }
 
-            if (newGear < m_cur_gear && kickdownDelayCounter > 0)
+            if (newGear < m_cur_gear && m_kickdown_delay_counter > 0)
             {
                 newGear = m_cur_gear;
             }
-            kickdownDelayCounter = std::max(0, kickdownDelayCounter - 1);
+            m_kickdown_delay_counter = std::max(0, m_kickdown_delay_counter - 1);
 
-            if (newGear < m_cur_gear && std::abs(m_cur_wheel_revolutions * (m_gear_ratios[newGear + 1] - m_gear_ratios[m_cur_gear + 1])) > oneThirdRPMRange / 6.0f ||
-                newGear > m_cur_gear && std::abs(m_cur_wheel_revolutions * (m_gear_ratios[newGear + 1] - m_gear_ratios[m_cur_gear + 1])) > oneThirdRPMRange / 3.0f)
+            if (newGear < m_cur_gear && std::abs(m_cur_wheel_revolutions * (m_gear_ratios[newGear + 1] - m_gear_ratios[m_cur_gear + 1])) > m_one_third_rpm_range / 6.0f ||
+                newGear > m_cur_gear && std::abs(m_cur_wheel_revolutions * (m_gear_ratios[newGear + 1] - m_gear_ratios[m_cur_gear + 1])) > m_one_third_rpm_range / 3.0f)
             {
                 if (m_abs_velocity - m_rel_velocity < 0.5f)
                     shiftTo(newGear);
             }
 
-            if (accs.size() > 200)
+            if (m_accs.size() > 200)
             {
-                rpms.pop_back();
-                accs.pop_back();
-                brakes.pop_back();
+                m_rpms.pop_back();
+                m_accs.pop_back();
+                m_brakes.pop_back();
             }
             // avoid over-revving
             if (automode <= SEMIAUTO && m_cur_gear != 0)
             {
-                if (std::abs(m_cur_wheel_revolutions * m_gear_ratios[m_cur_gear + 1]) > maxRPM * 1.25f)
+                if (std::abs(m_cur_wheel_revolutions * m_gear_ratios[m_cur_gear + 1]) > m_engine_max_rpm * 1.25f)
                 {
-                    float clutch = 0.0f + 1.0f / (1.0f + std::abs(m_cur_wheel_revolutions * m_gear_ratios[m_cur_gear + 1] - maxRPM * 1.25f) / 2.0f);
+                    float clutch = 0.0f + 1.0f / (1.0f + std::abs(m_cur_wheel_revolutions * m_gear_ratios[m_cur_gear + 1] - m_engine_max_rpm * 1.25f) / 2.0f);
                     m_cur_clutch = std::min(clutch, m_cur_clutch);
                 }
                 if (m_cur_gear * m_cur_wheel_revolutions < -10.0f)
@@ -838,15 +838,15 @@ void EngineSim::toggleAutoMode()
     if (automode == AUTOMATIC)
     {
         if (m_cur_gear > 0)
-            autoselect = DRIVE;
+            m_autoselect = DRIVE;
         if (m_cur_gear < 0)
-            autoselect = REAR;
+            m_autoselect = REAR;
         if (m_cur_gear == 0)
-            autoselect = NEUTRAL;
+            m_autoselect = NEUTRAL;
     }
     else
     {
-        autoselect = MANUALMODE;
+        m_autoselect = MANUALMODE;
     }
 
     if (automode == MANUAL_RANGES)
@@ -917,7 +917,7 @@ float EngineSim::getSmoke()
 {
     if (m_engine_is_running)
     {
-        return m_cur_acc * (1.0f - curTurboRPM[0] /* doesn't matter */ / maxTurboRPM);// * engineTorque / 5000.0f;
+        return m_cur_acc * (1.0f - curTurboRPM[0] /* doesn't matter */ / maxTurboRPM);// * m_engine_torque / 5000.0f;
     }
 
     return -1;
@@ -939,12 +939,12 @@ void EngineSim::SetEngineRpm(float rpm)
 
 void EngineSim::SetEnginePriming(bool p)
 {
-    is_priming = p;
+    m_engine_is_priming = p;
 }
 
 void EngineSim::setHydroPumpWork(float work)
 {
-    hydropump = work;
+    m_hydropump_state = work;
 }
 
 void EngineSim::setSpin(float rpm)
@@ -955,11 +955,11 @@ void EngineSim::setSpin(float rpm)
 // for hydros acceleration
 float EngineSim::getCrankFactor()
 {
-    float minWorkingRPM = idleRPM * 1.1f; // minWorkingRPM > idleRPM avoids commands deadlocking the engine
+    float minWorkingRPM = m_idle_rpm * 1.1f; // minWorkingRPM > m_idle_rpm avoids commands deadlocking the engine
 
-    float rpmRatio = (m_cur_engine_rpm - minWorkingRPM) / (maxRPM - minWorkingRPM);
+    float rpmRatio = (m_cur_engine_rpm - minWorkingRPM) / (m_engine_max_rpm - minWorkingRPM);
     rpmRatio = std::max(0.0f, rpmRatio); // Avoids a negative rpmRatio when m_cur_engine_rpm < minWorkingRPM
-    rpmRatio = std::min(rpmRatio, 1.0f); // Avoids a rpmRatio > 1.0f when m_cur_engine_rpm > maxRPM
+    rpmRatio = std::min(rpmRatio, 1.0f); // Avoids a rpmRatio > 1.0f when m_cur_engine_rpm > m_engine_max_rpm
 
     float crankfactor = 5.0f * rpmRatio;
 
@@ -998,7 +998,7 @@ void EngineSim::start()
 {
     offstart();
     m_starter_has_contact = true;
-    m_cur_engine_rpm = idleRPM;
+    m_cur_engine_rpm = m_idle_rpm;
     m_engine_is_running = true;
     if (automode <= SEMIAUTO)
     {
@@ -1006,7 +1006,7 @@ void EngineSim::start()
     }
     if (automode == AUTOMATIC)
     {
-        autoselect = DRIVE;
+        m_autoselect = DRIVE;
     }
     SOUND_START(m_actor, SS_TRIG_IGNITION);
     SOUND_START(m_actor, SS_TRIG_ENGINE);
@@ -1015,20 +1015,20 @@ void EngineSim::start()
 void EngineSim::offstart()
 {
     apressure = 0.0f;
-    autoselect = MANUALMODE;
+    m_autoselect = MANUALMODE;
     m_starter_has_contact = false;
     m_cur_acc = 0.0f;
     m_cur_clutch = 0.0f;
     m_cur_clutch_torque = 0.0f;
     m_cur_engine_rpm = 0.0f;
     m_cur_gear = 0;
-    postshifting = 0;
+    m_post_shifting = 0;
     m_engine_is_running = false;
-    shifting = 0;
-    shiftval = 0;
+    m_shifting = 0;
+    m_shift_val = 0;
     if (automode == AUTOMATIC)
     {
-        autoselect = NEUTRAL;
+        m_autoselect = NEUTRAL;
     }
     for (int i = 0; i < numTurbos; i++)
     {
@@ -1039,7 +1039,7 @@ void EngineSim::offstart()
 
 void EngineSim::setstarter(bool v)
 {
-    starter = static_cast<int>(v);
+    m_starter = static_cast<int>(v);
 }
 
 int EngineSim::getGear()
@@ -1076,8 +1076,8 @@ void EngineSim::stop()
 // high level controls
 void EngineSim::autoSetAcc(float val)
 {
-    autocurAcc = val;
-    if (!shifting)
+    m_auto_cur_acc = val;
+    if (!m_shifting)
     {
         setAcc(val);
     }
@@ -1089,9 +1089,9 @@ void EngineSim::shift(int val)
         return;
     if (automode < MANUAL)
     {
-        shiftval = val;
-        shifting = 1;
-        shiftclock = 0.0f;
+        m_shift_val = val;
+        m_shifting = 1;
+        m_shift_clock = 0.0f;
     }
     else
     {
@@ -1116,20 +1116,20 @@ void EngineSim::updateShifts()
 {
     if (m_engine_is_electric)
         return;
-    if (autoselect == MANUALMODE)
+    if (m_autoselect == MANUALMODE)
         return;
 
     SOUND_PLAY_ONCE(m_actor, SS_TRIG_SHIFT);
 
-    if (autoselect == REAR)
+    if (m_autoselect == REAR)
     {
         m_cur_gear = -1;
     }
-    else if (autoselect == NEUTRAL)
+    else if (m_autoselect == NEUTRAL)
     {
         m_cur_gear = 0;
     }
-    else if (autoselect == ONE)
+    else if (m_autoselect == ONE)
     {
         m_cur_gear = 1;
     }
@@ -1138,14 +1138,14 @@ void EngineSim::updateShifts()
         // search for an appropriate gear
         int newGear = 1;
 
-        while (newGear < m_num_gears && m_cur_wheel_revolutions > 0.0f && m_cur_wheel_revolutions * m_gear_ratios[newGear + 1] > maxRPM - 100.0f)
+        while (newGear < m_num_gears && m_cur_wheel_revolutions > 0.0f && m_cur_wheel_revolutions * m_gear_ratios[newGear + 1] > m_engine_max_rpm - 100.0f)
         {
             newGear++;
         }
 
         m_cur_gear = newGear;
 
-        if (autoselect == TWO)
+        if (m_autoselect == TWO)
         {
             m_cur_gear = std::min(m_cur_gear, 2);
         }
@@ -1154,31 +1154,31 @@ void EngineSim::updateShifts()
 
 void EngineSim::autoShiftSet(int mode)
 {
-    autoselect = (autoswitch)mode;
+    m_autoselect = (autoswitch)mode;
     updateShifts();
 }
 
 void EngineSim::autoShiftUp()
 {
-    if (autoselect != REAR)
+    if (m_autoselect != REAR)
     {
-        autoselect = (autoswitch)(autoselect - 1);
+        m_autoselect = (autoswitch)(m_autoselect - 1);
         updateShifts();
     }
 }
 
 void EngineSim::autoShiftDown()
 {
-    if (autoselect != ONE)
+    if (m_autoselect != ONE)
     {
-        autoselect = (autoswitch)(autoselect + 1);
+        m_autoselect = (autoswitch)(m_autoselect + 1);
         updateShifts();
     }
 }
 
 int EngineSim::getAutoShift()
 {
-    return (int)autoselect;
+    return (int)m_autoselect;
 }
 
 void EngineSim::setManualClutch(float val)
@@ -1208,7 +1208,7 @@ float EngineSim::getTurboPower()
     }
     else
     {
-        atValue = (((getTurboPSI() * 6.8) * engineTorque) / 100); //1psi = 6% more power
+        atValue = (((getTurboPSI() * 6.8) * m_engine_torque) / 100); //1psi = 6% more power
     }
 
     return atValue;
@@ -1219,7 +1219,7 @@ float EngineSim::getEnginePower(float rpm)
     // engine power with limiter
     float tqValue = 1.0f; // ratio (0-1)
 
-    float rpmRatio = rpm / (maxRPM * 1.25f);
+    float rpmRatio = rpm / (m_engine_max_rpm * 1.25f);
 
     rpmRatio = std::max(0.0f, rpmRatio);
     rpmRatio = std::min(rpmRatio, 1.0f);
@@ -1229,12 +1229,12 @@ float EngineSim::getEnginePower(float rpm)
         tqValue = torqueCurve->getEngineTorque(rpmRatio);
     }
 
-    return (engineTorque * tqValue) + getTurboPower();
+    return (m_engine_torque * tqValue) + getTurboPower();
 }
 
 float EngineSim::getAccToHoldRPM(float rpm)
 {
-    float rpmRatio = rpm / (maxRPM * 1.25f);
+    float rpmRatio = rpm / (m_engine_max_rpm * 1.25f);
 
     rpmRatio = std::min(rpmRatio, 1.0f);
 
@@ -1243,17 +1243,17 @@ float EngineSim::getAccToHoldRPM(float rpm)
 
 float EngineSim::getIdleMixture()
 {
-    if (m_cur_engine_rpm < idleRPM)
+    if (m_cur_engine_rpm < m_idle_rpm)
     {
         // determine the fuel injection needed to counter the engine braking force
         float idleMix = getAccToHoldRPM(m_cur_engine_rpm);
 
         idleMix = std::max(0.06f, idleMix);
 
-        idleMix = idleMix * (1.0f + (idleRPM - m_cur_engine_rpm) / 100.0f);
+        idleMix = idleMix * (1.0f + (m_idle_rpm - m_cur_engine_rpm) / 100.0f);
 
-        idleMix = std::max(minIdleMixture, idleMix);
-        idleMix = std::min(idleMix, maxIdleMixture);
+        idleMix = std::max(m_min_idle_mixture, idleMix);
+        idleMix = std::min(idleMix, m_max_idle_mixture);
 
         return idleMix;
     }
@@ -1263,7 +1263,7 @@ float EngineSim::getIdleMixture()
 
 float EngineSim::getPrimeMixture()
 {
-    if (is_priming)
+    if (m_engine_is_priming)
     {
         float crankfactor = getCrankFactor();
 
