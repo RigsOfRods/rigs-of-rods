@@ -1110,7 +1110,7 @@ Vector3 Beam::calculateCollisionOffset(Vector3 direction)
                     m_intra_point_col_detector->query(no->AbsPosition + offset,
                         na->AbsPosition + offset,
                         nb->AbsPosition + offset,
-                        collrange);
+                        ar_collision_range);
 
                     if (m_intra_point_col_detector->hit_count == 0)
                     {
@@ -1179,7 +1179,7 @@ Vector3 Beam::calculateCollisionOffset(Vector3 direction)
                 m_inter_point_col_detector->query(no->AbsPosition + offset,
                     na->AbsPosition + offset,
                     nb->AbsPosition + offset,
-                    collrange);
+                    ar_collision_range);
 
                 if (m_inter_point_col_detector->hit_count == 0)
                 {
@@ -5644,6 +5644,7 @@ Beam::Beam(
     , ar_engine(nullptr)
     , ar_driveable(NOT_DRIVEABLE)
     , m_skid_trails{} // Init array to nullptr
+    , ar_collision_range(DEFAULT_COLLISION_RANGE)
 {
     m_high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();
     useSkidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;

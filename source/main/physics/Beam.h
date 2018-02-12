@@ -374,7 +374,6 @@ public:
     float             sl_speed_limit;     //!< Speed limiter;
     int               ar_extern_camera_mode;
     int               ar_extern_camera_node;
-    float             collrange;
     bool              disable_smoke;
     int               ar_exhaust_pos_node; //!< Old-format exhaust (one per vehicle) emitter node
     int               ar_exhaust_dir_node; //!< Old-format exhaust (one per vehicle) backwards direction node
@@ -436,6 +435,7 @@ public:
     DashBoardManager* ar_dashboard;
     int               ar_request_skeletonview_change; //!< Gfx state; Request activation(1) / deactivation(-1) of skeletonview
     SimState          ar_sim_state;                   //!< Sim state
+    float             ar_collision_range;             //!< Physics attr
 
     // Bit flags
     bool ar_left_blink_on:1;  //!< Gfx state; turn signals
