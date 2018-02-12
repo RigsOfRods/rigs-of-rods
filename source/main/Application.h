@@ -763,7 +763,7 @@ Console*             GetConsole();
 InputEngine*         GetInputEngine();
 CacheSystem*         GetCacheSystem();
 MainMenu*            GetMainMenu();
-RoRFrameListener*    GetSimController();
+SimController*       GetSimController();
 MumbleIntegration*   GetMumble();
 TerrainManager*      GetSimTerrain();
 
@@ -784,7 +784,7 @@ void CheckAndCreateMumble();
 
 // Setters
 void SetMainMenu             (MainMenu*          obj);
-void SetSimController        (RoRFrameListener*  obj);
+void SetSimController        (SimController*  obj);
 void SetSimTerrain           (TerrainManager*    obj);
 
 

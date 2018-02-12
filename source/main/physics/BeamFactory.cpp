@@ -151,7 +151,7 @@ unsigned int getNumberOfCPUCores()
 
 using namespace RoR;
 
-ActorManager::ActorManager(RoRFrameListener* sim_controller)
+ActorManager::ActorManager()
     : m_dt_remainder(0.0f)
     , m_forced_awake(false)
     , m_free_actor_slot(0)
@@ -160,7 +160,6 @@ ActorManager::ActorManager(RoRFrameListener* sim_controller)
     , m_physics_steps(2000)
     , m_simulated_actor(0)
     , m_simulation_speed(1.0f)
-    , m_sim_controller(sim_controller)
     , m_actors() // Array
 {
 

@@ -116,10 +116,10 @@ using namespace RoR;
 #define  simSELECT(_S_) (_S_ == SimState::SELECTING  )
 #define  simEDITOR(_S_) (_S_ == SimState::EDITOR_MODE)
 
-RoRFrameListener::RoRFrameListener(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_conf) :
+SimController::SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_conf) :
     m_player_actor(nullptr),
     m_prev_player_actor(nullptr),
-    m_actor_manager(this),
+    m_actor_manager(),
     m_character_factory(),
     m_dir_arrow_pointed(Vector3::ZERO),
     m_heathaze(nullptr),
@@ -151,7 +151,7 @@ RoRFrameListener::RoRFrameListener(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* 
 {
 }
 
-void RoRFrameListener::UpdateForceFeedback(float dt)
+void SimController::UpdateForceFeedback(float dt)
 {
     if (!App::io_ffb_enabled.GetActive()) { return; }
 
@@ -196,7 +196,7 @@ void RoRFrameListener::UpdateForceFeedback(float dt)
     }
 }
 
-void RoRFrameListener::StartRaceTimer()
+void SimController::StartRaceTimer()
 {
     m_race_start_time = (int)m_time;
     m_race_in_progress = true;
@@ -210,7 +210,7 @@ void RoRFrameListener::StartRaceTimer()
     }
 }
 
-float RoRFrameListener::StopRaceTimer()
+float SimController::StopRaceTimer()
 {
     float time;
 
@@ -238,7 +238,7 @@ float RoRFrameListener::StopRaceTimer()
     return m_race_bestlap_time;
 }
 
-void RoRFrameListener::UpdateRacingGui()
+void SimController::UpdateRacingGui()
 {
     OverlayWrapper* ow = RoR::App::GetOverlayWrapper();
     if (!ow)
@@ -254,7 +254,7 @@ void RoRFrameListener::UpdateRacingGui()
     ow->laptimemin->setCaption(UTFString(txt));
 }
 
-bool RoRFrameListener::UpdateInputEvents(float dt)
+bool SimController::UpdateInputEvents(float dt)
 {
     if (dt == 0.0f)
         return true;
@@ -1516,7 +1516,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
     return true;
 }
 
-void RoRFrameListener::TeleportPlayer(RoR::Terrn2Telepoint* telepoint)
+void SimController::TeleportPlayer(RoR::Terrn2Telepoint* telepoint)
 {
     if (m_player_actor != nullptr)
         return; // Player could enter an actor while Teleport-GUI is visible
@@ -1524,7 +1524,7 @@ void RoRFrameListener::TeleportPlayer(RoR::Terrn2Telepoint* telepoint)
     gEnv->player->setPosition(telepoint->position);
 }
 
-void RoRFrameListener::TeleportPlayerXZ(float x, float z)
+void SimController::TeleportPlayerXZ(float x, float z)
 {
     if (m_player_actor)
         return; // Player could enter an actor while Teleport-GUI is visible
@@ -1533,7 +1533,7 @@ void RoRFrameListener::TeleportPlayerXZ(float x, float z)
     gEnv->player->setPosition(Ogre::Vector3(x, y, z));
 }
 
-void RoRFrameListener::FinalizeActorSpawning(Actor* local_actor, Actor* prev_actor)
+void SimController::FinalizeActorSpawning(Actor* local_actor, Actor* prev_actor)
 {
     if (local_actor != nullptr)
     {
@@ -1572,7 +1572,7 @@ void RoRFrameListener::FinalizeActorSpawning(Actor* local_actor, Actor* prev_act
 }
 
 // Override frameStarted event to process that (don't care about frameEnded)
-bool RoRFrameListener::frameStarted(const FrameEvent& evt)
+bool SimController::frameStarted(const FrameEvent& evt)
 {
     float dt = evt.timeSinceLastFrame;
     if (dt == 0.0f)
@@ -1831,13 +1831,13 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
     return true;
 }
 
-bool RoRFrameListener::frameRenderingQueued(const FrameEvent& evt)
+bool SimController::frameRenderingQueued(const FrameEvent& evt)
 {
     App::GetGuiManager()->GetImGui().Render();
     return true;
 }
 
-bool RoRFrameListener::frameEnded(const FrameEvent& evt)
+bool SimController::frameEnded(const FrameEvent& evt)
 {
     // TODO: IMPROVE STATS
     if (m_stats_on && RoR::App::GetOverlayWrapper())
@@ -1848,7 +1848,7 @@ bool RoRFrameListener::frameEnded(const FrameEvent& evt)
     return true;
 }
 
-void RoRFrameListener::ShowLoaderGUI(int type, const Ogre::String& instance, const Ogre::String& box)
+void SimController::ShowLoaderGUI(int type, const Ogre::String& instance, const Ogre::String& box)
 {
     int num_actor_slots = m_actor_manager.GetNumUsedActorSlots();
     Actor** actor_slots = m_actor_manager.GetInternalActorSlots();
@@ -1883,7 +1883,7 @@ void RoRFrameListener::ShowLoaderGUI(int type, const Ogre::String& instance, con
     App::GetGuiManager()->GetMainSelector()->Show(LoaderType(type));
 }
 
-void RoRFrameListener::UpdateDirectionArrow(char* text, Vector3 position)
+void SimController::UpdateDirectionArrow(char* text, Vector3 position)
 {
     if (RoR::App::GetOverlayWrapper() == nullptr)
         return;
@@ -1903,7 +1903,7 @@ void RoRFrameListener::UpdateDirectionArrow(char* text, Vector3 position)
 }
 
 /* --- Window Events ------------------------------------------ */
-void RoRFrameListener::windowResized(Ogre::RenderWindow* rw)
+void SimController::windowResized(Ogre::RenderWindow* rw)
 {
     if (!rw)
         return;
@@ -1921,26 +1921,26 @@ void RoRFrameListener::windowResized(Ogre::RenderWindow* rw)
 }
 
 //Unattach OIS before window shutdown (very important under Linux)
-void RoRFrameListener::windowClosed(Ogre::RenderWindow* rw)
+void SimController::windowClosed(Ogre::RenderWindow* rw)
 {
     // No on-screen rendering must be performed after window is closed -> crashes!
     LOG("[RoR|Simulation] Received \"WindowClosed\" event. Stopping rendering.");
     m_was_app_window_closed = true;
 }
 
-void RoRFrameListener::windowMoved(Ogre::RenderWindow* rw)
+void SimController::windowMoved(Ogre::RenderWindow* rw)
 {
     LOG("*** windowMoved");
 }
 
-void RoRFrameListener::windowFocusChange(Ogre::RenderWindow* rw)
+void SimController::windowFocusChange(Ogre::RenderWindow* rw)
 {
     // Too verbose
     //LOG("*** windowFocusChange");
     RoR::App::GetInputEngine()->resetKeys();
 }
 
-void RoRFrameListener::HideGUI(bool hidden)
+void SimController::HideGUI(bool hidden)
 {
     if (m_player_actor && m_player_actor->getReplay())
         m_player_actor->getReplay()->setHidden(hidden);
@@ -1973,19 +1973,19 @@ void RoRFrameListener::HideGUI(bool hidden)
     App::GetGuiManager()->hideGUI(hidden);
 }
 
-void RoRFrameListener::RemovePlayerActor()
+void SimController::RemovePlayerActor()
 {
     Actor* actor = m_player_actor;
     this->SetPlayerActor(nullptr);
     m_actor_manager.RemoveActorInternal(actor->ar_instance_id);
 }
 
-void RoRFrameListener::RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name)
+void SimController::RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name)
 {
     m_actor_manager.RemoveActorByCollisionBox(gEnv->collisions, ev_src_instance_name, box_name);
 }
 
-void RoRFrameListener::ReloadPlayerActor()
+void SimController::ReloadPlayerActor()
 {
     if (!m_player_actor)
         return;
@@ -2035,7 +2035,7 @@ void RoRFrameListener::ReloadPlayerActor()
     this->SetPlayerActor(new_actor);
 }
 
-void RoRFrameListener::OnPlayerActorChange(Actor* previous_vehicle, Actor* current_vehicle)
+void SimController::OnPlayerActorChange(Actor* previous_vehicle, Actor* current_vehicle)
 {
     // hide any old dashes
     if (previous_vehicle && previous_vehicle->ar_dashboard)
@@ -2147,7 +2147,7 @@ void RoRFrameListener::OnPlayerActorChange(Actor* previous_vehicle, Actor* curre
     }
 }
 
-bool RoRFrameListener::LoadTerrain()
+bool SimController::LoadTerrain()
 {
     // check if the resource is loaded
     Ogre::String terrain_file = App::sim_terrain_name.GetPending();
@@ -2213,12 +2213,8 @@ bool RoRFrameListener::LoadTerrain()
     return true;
 }
 
-void RoRFrameListener::CleanupAfterSimulation()
+void SimController::CleanupAfterSimulation()
 {
-#ifdef USE_ANGELSCRIPT
-    ScriptEngine::getSingleton().SetFrameListener(nullptr);
-#endif
-
     if (gEnv->surveyMap)
     {
         gEnv->surveyMap->setVisibility(false);
@@ -2250,12 +2246,8 @@ void RoRFrameListener::CleanupAfterSimulation()
     App::GetGuiManager()->SetVisible_LoadingWindow(false);
 }
 
-bool RoRFrameListener::SetupGameplayLoop()
+bool SimController::SetupGameplayLoop()
 {
-#ifdef USE_ANGELSCRIPT
-    ScriptEngine::getSingleton().SetFrameListener(this);
-#endif
-
     auto* loading_window = App::GetGuiManager()->GetLoadingWindow();
 
     RoR::Log("[RoR] Loading resources...");
@@ -2335,7 +2327,6 @@ bool RoRFrameListener::SetupGameplayLoop()
     }
 
     App::GetGuiManager()->GetTeleport()->SetupMap(
-        this,
         &App::GetSimTerrain()->GetDef(),
         App::GetSimTerrain()->getMaxTerrainSize(),
         App::GetSimTerrain()->GetMinimapTextureName());
@@ -2411,7 +2402,7 @@ bool RoRFrameListener::SetupGameplayLoop()
     return true;
 }
 
-void RoRFrameListener::EnterGameplayLoop()
+void SimController::EnterGameplayLoop()
 {
     /* SETUP */
 
@@ -2483,7 +2474,7 @@ void RoRFrameListener::EnterGameplayLoop()
     gEnv->cameraManager->DisableDepthOfFieldEffect(); // TODO: de-globalize the CameraManager
 }
 
-void RoRFrameListener::SetPlayerActor(Actor* actor)
+void SimController::SetPlayerActor(Actor* actor)
 {
     m_prev_player_actor = m_player_actor;
     m_player_actor = actor;
@@ -2491,7 +2482,7 @@ void RoRFrameListener::SetPlayerActor(Actor* actor)
     m_actor_manager.UpdateSleepingState(m_player_actor, 0.f);
 }
 
-void RoRFrameListener::SetPlayerActorById(int actor_id)
+void SimController::SetPlayerActorById(int actor_id)
 {
     Actor* actor = m_actor_manager.GetActorByIdInternal(actor_id);
     if (actor != nullptr)

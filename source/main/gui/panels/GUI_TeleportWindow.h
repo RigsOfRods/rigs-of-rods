@@ -31,7 +31,7 @@ class TeleportWindow : public TeleportWindowLayout, public GuiPanelBase
 public:
     TeleportWindow();
 
-    void SetupMap(RoRFrameListener* sim_controller, Terrn2Def* def, Ogre::Vector3 map_size, std::string minimap_tex_name);
+    void SetupMap(Terrn2Def* def, Ogre::Vector3 map_size, std::string minimap_tex_name);
     void Reset();
     void SetVisible(bool v);
     bool IsVisible();
@@ -52,7 +52,6 @@ private:
     void SetAltmodeCursorPos   (int screen_left, int screen_top);
 
     std::vector<MyGUI::ImageBox*> m_telepoint_icons;
-    RoRFrameListener*             m_sim_controller;
     Ogre::Vector3                 m_map_size;
     MyGUI::ImageBox*              m_person_icon;
     MyGUI::ImageBox*              m_mouse_icon;

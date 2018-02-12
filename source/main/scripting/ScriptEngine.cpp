@@ -72,8 +72,7 @@ void logString(const std::string &str)
 // the class implementation
 
 ScriptEngine::ScriptEngine(Collisions *coll) :
-      mefl(nullptr)
-    , coll(coll)
+      coll(coll)
     , context(0)
     , defaultEventCallbackFunctionPtr(nullptr)
     , engine(0)

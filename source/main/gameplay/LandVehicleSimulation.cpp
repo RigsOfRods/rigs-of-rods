@@ -302,7 +302,7 @@ void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_la
             }
 
             // IMI
-            // gear management -- it might, should be transferred to a standalone function of Beam or RoRFrameListener
+            // gear management -- it might, should be transferred to a standalone function of Beam or SimController
             if (engine->GetAutoShiftMode() == SimGearboxMode::AUTO)
             {
                 if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_AUTOSHIFT_UP))

@@ -45,7 +45,7 @@ class ActorManager
     friend class GameScript; // needs to call RemoveActorByCollisionBox()
 public:
 
-    ActorManager(RoRFrameListener* sim_controller);
+    ActorManager();
     ~ActorManager();
 
     /// @param cache_entry_number Needed for flexbody caching. Pass -1 if unavailable (flexbody caching will be disabled)
@@ -90,8 +90,8 @@ public:
     void           RepairActor(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box, bool keepPosition = false);
     void           UpdateSleepingState(Actor* player_actor, float dt);
     void           RemoveActorByCollisionBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box); //!< Only for scripting
-    void           RemoveActorInternal(int actor_id); //!< DO NOT CALL DIRECTLY! Use `RoRFrameListener` for public interface
-    Actor*         GetActorByIdInternal(int number); //!< DO NOT CALL DIRECTLY! Use `RoRFrameListener` for public interface
+    void           RemoveActorInternal(int actor_id); //!< DO NOT CALL DIRECTLY! Use `SimController` for public interface
+    Actor*         GetActorByIdInternal(int number); //!< DO NOT CALL DIRECTLY! Use `SimController` for public interface
 
 #ifdef USE_SOCKETW
     void           HandleActorStreamData(std::vector<RoR::Networking::recv_packet_t> packet);
@@ -134,7 +134,6 @@ private:
     std::map<int, std::vector<int>> m_stream_mismatches; //!< Networking: A list of streams without a corresponding actor in the actor-array for each stream source
     std::unique_ptr<ThreadPool>     m_sim_thread_pool;
     std::shared_ptr<Task>           m_sim_task;
-    RoRFrameListener*               m_sim_controller;
     int             m_num_cpu_cores;
     Actor*          m_actors[MAX_ACTORS];//!< All actors; slots are not reused
     int             m_free_actor_slot;   //!< Slots are not reused

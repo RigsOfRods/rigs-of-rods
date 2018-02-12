@@ -144,19 +144,11 @@ public:
     void messageLogged(const Ogre::String& message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String& logName, bool& skipThisMessage);
 #endif // OGRE_VERSION
 
-    void SetFrameListener(RoRFrameListener* frame_listener)
-    {
-        mefl = frame_listener;
-    }
-
-    RoRFrameListener* GetFrameListener() { return mefl; }
-
     inline void SLOG(const char* msg) { this->scriptLog->logMessage(msg); } ///< Replacement of macro
     inline void SLOG(std::string msg) { this->scriptLog->logMessage(msg); } ///< Replacement of macro
 
 protected:
 
-    RoRFrameListener* mefl; //!< local RoRFrameListener instance, used as proxy for many functions
     Collisions* coll;
     AngelScript::asIScriptEngine* engine; //!< instance of the scripting engine
     AngelScript::asIScriptContext* context; //!< context in which all scripting happens
