@@ -758,7 +758,7 @@ void RigSpawner::ProcessTurbojet(RigDef::Turbojet & def)
     tj->SetupVisuals(propname, nozzle_ent, def.back_diameter, def.nozzle_length, afterburn_ent, m_rig->disable_smoke);
     
     m_rig->aeroengines[m_rig->free_aeroengine]=tj;
-    m_rig->driveable=AIRPLANE;
+    m_rig->ar_driveable=AIRPLANE;
     if (m_rig->ar_autopilot == nullptr && m_rig->ar_sim_state != Beam::SimState::NETWORKED_OK)
     {
         m_rig->ar_autopilot=new Autopilot(m_rig->trucknum);
@@ -796,7 +796,7 @@ void RigSpawner::ProcessScrewprop(RigDef::Screwprop & def)
         def.power,
         m_rig->trucknum
     );
-    m_rig->driveable=BOAT;
+    m_rig->ar_driveable=BOAT;
     m_rig->free_screwprop++;
 }
 
@@ -881,7 +881,7 @@ void RigSpawner::BuildAerialEngine(
     );
     m_rig->aeroengines[m_rig->free_aeroengine] = turbo_prop;
     m_rig->free_aeroengine++;
-    m_rig->driveable = AIRPLANE;
+    m_rig->ar_driveable = AIRPLANE;
 
     /* Autopilot */
     if (m_rig->ar_autopilot == nullptr && m_rig->ar_sim_state != Beam::SimState::NETWORKED_OK)
@@ -5562,7 +5562,7 @@ void RigSpawner::ProcessEngine(RigDef::Engine & def)
     SPAWNER_PROFILE_SCOPED();
 
     /* Process it */
-    m_rig->driveable = TRUCK;
+    m_rig->ar_driveable = TRUCK;
 
     /* Process gear list to BeamEngine-compatible format */
     /* TODO: Move this to BeamEngine::BeamEngine() */
@@ -6738,7 +6738,7 @@ void RigSpawner::SetupDefaultSoundSources(Beam *vehicle)
         // turn signals
         AddSoundSourceInstance(vehicle, "tracks/default_turn_signal", 0);
     }
-    if (vehicle->driveable==TRUCK)
+    if (vehicle->ar_driveable==TRUCK)
     {
         //horn
         if (vehicle->ar_is_police)
@@ -6764,7 +6764,7 @@ void RigSpawner::SetupDefaultSoundSources(Beam *vehicle)
         AddSoundSourceInstance(vehicle, "tracks/default_tractioncontrol", 0);
     }
     //screetch
-    if ((vehicle->driveable==TRUCK || vehicle->driveable==AIRPLANE) && vehicle->free_wheel != 0)
+    if ((vehicle->ar_driveable==TRUCK || vehicle->ar_driveable==AIRPLANE) && vehicle->free_wheel != 0)
     {
         AddSoundSourceInstance(vehicle, "tracks/default_screetch", 0);
     }
@@ -6772,7 +6772,7 @@ void RigSpawner::SetupDefaultSoundSources(Beam *vehicle)
     AddSoundSourceInstance(vehicle, "tracks/default_break", 0);
     AddSoundSourceInstance(vehicle, "tracks/default_creak", 0);
     //boat engine
-    if (vehicle->driveable==BOAT)
+    if (vehicle->ar_driveable==BOAT)
     {
         if (vehicle->m_total_mass>50000.0)
             AddSoundSourceInstance(vehicle, "tracks/default_marine_large", ar_exhaust_pos_node);
@@ -6783,7 +6783,7 @@ void RigSpawner::SetupDefaultSoundSources(Beam *vehicle)
         SOUND_MODULATE(trucknum, SS_MOD_ENGINE, 0.5);
     }
     //airplane warnings
-    if (vehicle->driveable==AIRPLANE)
+    if (vehicle->ar_driveable==AIRPLANE)
     {
         AddSoundSourceInstance(vehicle, "tracks/default_gpws_10", 0);
         AddSoundSourceInstance(vehicle, "tracks/default_gpws_20", 0);

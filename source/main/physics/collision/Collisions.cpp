@@ -944,11 +944,11 @@ bool Collisions::permitEvent(int filter)
     case EVENT_AVATAR:
         return !b;
     case EVENT_TRUCK:
-        return b && b->driveable == TRUCK;
+        return b && b->ar_driveable == TRUCK;
     case EVENT_AIRPLANE:
-        return b && b->driveable == AIRPLANE;
+        return b && b->ar_driveable == AIRPLANE;
     case EVENT_BOAT:
-        return b && b->driveable == BOAT;
+        return b && b->ar_driveable == BOAT;
     case EVENT_DELETE:
         return !b;
     default:

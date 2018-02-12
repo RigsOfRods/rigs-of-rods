@@ -3580,7 +3580,7 @@ void Beam::updateVisual(float dt)
 
 #ifdef USE_OPENAL
     //airplane radio chatter
-    if (driveable == AIRPLANE && ar_sim_state != SimState::LOCAL_SLEEPING)
+    if (ar_driveable == AIRPLANE && ar_sim_state != SimState::LOCAL_SLEEPING)
     {
         // play random chatter at random time
         m_avionic_chatter_timer -= dt;
@@ -5646,6 +5646,7 @@ Beam::Beam(
     , m_disable_default_sounds(false)
     , ar_uses_networking(false)
     , ar_engine(nullptr)
+    , ar_driveable(NOT_DRIVEABLE)
 {
     m_high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();
     useSkidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;
@@ -5657,10 +5658,9 @@ Beam::Beam(
     ar_uses_networking = _networking;
     memset(truckname, 0, 256);
     sprintf(truckname, "t%i", truck_number);
-    driveable = NOT_DRIVEABLE;
     if (ismachine)
     {
-        driveable = MACHINE;
+        ar_driveable = MACHINE;
     }
     ar_filename = Ogre::String(fname);
 
@@ -6078,7 +6078,7 @@ bool Beam::LoadTruck(
         if (m_dashboard_layouts.empty())
         {
             // load default for a truck
-            if (driveable == TRUCK)
+            if (ar_driveable == TRUCK)
             {
                 if (App::gfx_speedo_digital.GetActive())
                 {
@@ -6151,7 +6151,7 @@ bool Beam::LoadTruck(
                     }
                 }
             }
-            else if (driveable == BOAT)
+            else if (ar_driveable == BOAT)
             {
                 ar_dashboard->loadDashBoard("default_dashboard_boat.layout", false);
                 // TODO: load texture dashboard by default as well
@@ -6260,7 +6260,7 @@ std::string Beam::getTruckFileName()
 
 int Beam::getTruckType()
 {
-    return driveable;
+    return ar_driveable;
 }
 
 std::vector<authorinfo_t> Beam::getAuthors()

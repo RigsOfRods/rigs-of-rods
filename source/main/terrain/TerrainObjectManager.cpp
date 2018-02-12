@@ -1364,7 +1364,7 @@ void TerrainObjectManager::loadPreloadedTrucks()
 
         if (b && gEnv->surveyMap)
         {
-            SurveyMapEntity* e = gEnv->surveyMap->createNamedMapEntity("Truck" + TOSTRING(b->trucknum), SurveyMapManager::getTypeByDriveable(b->driveable));
+            SurveyMapEntity* e = gEnv->surveyMap->createNamedMapEntity("Truck" + TOSTRING(b->trucknum), SurveyMapManager::getTypeByDriveable(b->ar_driveable));
             if (e)
             {
                 e->setState(static_cast<int>(Beam::SimState::LOCAL_SIMULATED));

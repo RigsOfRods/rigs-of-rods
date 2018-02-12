@@ -87,7 +87,7 @@ void CameraBehaviorVehicleCineCam::activate(const CameraManager::CameraContext &
     if ( RoR::App::GetOverlayWrapper() )
     {
         RoR::App::GetOverlayWrapper()->showDashboardOverlays(
-            (current_vehicle->driveable == AIRPLANE), 
+            (current_vehicle->ar_driveable == AIRPLANE), 
             current_vehicle
         );
     }

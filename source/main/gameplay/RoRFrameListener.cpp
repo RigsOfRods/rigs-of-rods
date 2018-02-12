@@ -163,7 +163,7 @@ void RoRFrameListener::UpdateForceFeedback(float dt)
     }
 
     Beam* current_truck = m_beam_factory.getCurrentTruck();
-    if (current_truck && current_truck->driveable == TRUCK)
+    if (current_truck && current_truck->ar_driveable == TRUCK)
     {
         int ar_camera_node_pos = 0;
         int ar_camera_node_dir = 0;
@@ -974,15 +974,15 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                         }
                     }
 
-                    if (curr_truck->driveable == TRUCK)
+                    if (curr_truck->ar_driveable == TRUCK)
                     {
                         LandVehicleSimulation::UpdateVehicle(curr_truck, dt);
                     }
-                    if (curr_truck->driveable == AIRPLANE)
+                    if (curr_truck->ar_driveable == AIRPLANE)
                     {
                         AircraftSimulation::UpdateVehicle(curr_truck, dt);
                     }
-                    if (curr_truck->driveable == BOAT)
+                    if (curr_truck->ar_driveable == BOAT)
                     {
                         //BOAT SPECIFICS
 
@@ -1168,7 +1168,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                             RoR::App::GetOverlayWrapper()->showPressureOverlay(false);
                     }
 
-                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK, 0.5f) && !mp_connected && curr_truck->driveable != AIRPLANE)
+                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK, 0.5f) && !mp_connected && curr_truck->ar_driveable != AIRPLANE)
                     {
                         if (!m_beam_factory.enterRescueTruck())
                         {
@@ -1321,7 +1321,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                 {
                     if (!trucks[i])
                         continue;
-                    if (!trucks[i]->driveable)
+                    if (!trucks[i]->ar_driveable)
                         continue;
                     if (trucks[i]->ar_cinecam_node[0] == -1)
                     {
@@ -1551,7 +1551,7 @@ void RoRFrameListener::FinalizeTruckSpawning(Beam* local_truck, Beam* previous_t
             Vector3 translation = m_reload_pos - local_truck->getRotationCenter();
             local_truck->resetPosition(local_truck->ar_nodes[0].AbsPosition + Vector3(translation.x, 0.0f, translation.z), true);
 
-            if (local_truck->driveable != NOT_DRIVEABLE || (previous_truck && previous_truck->driveable != NOT_DRIVEABLE))
+            if (local_truck->ar_driveable != NOT_DRIVEABLE || (previous_truck && previous_truck->ar_driveable != NOT_DRIVEABLE))
             {
                 // Try to resolve collisions with other trucks
                 local_truck->resolveCollisions(50.0f, previous_truck == nullptr);
@@ -1560,10 +1560,10 @@ void RoRFrameListener::FinalizeTruckSpawning(Beam* local_truck, Beam* previous_t
 
         if (gEnv->surveyMap)
         {
-            gEnv->surveyMap->createNamedMapEntity("Truck" + TOSTRING(local_truck->trucknum), SurveyMapManager::getTypeByDriveable(local_truck->driveable));
+            gEnv->surveyMap->createNamedMapEntity("Truck" + TOSTRING(local_truck->trucknum), SurveyMapManager::getTypeByDriveable(local_truck->ar_driveable));
         }
 
-        if (local_truck->driveable != NOT_DRIVEABLE)
+        if (local_truck->ar_driveable != NOT_DRIVEABLE)
         {
             /* We are supposed to be in this truck, if it is a truck */
             if (local_truck->ar_engine != nullptr)
@@ -1801,11 +1801,11 @@ bool RoRFrameListener::frameStarted(const FrameEvent& evt)
                     UpdateRacingGui(); //I really think that this should stay here.
                 }
 
-                if (curr_truck->driveable == TRUCK && curr_truck->ar_engine != nullptr)
+                if (curr_truck->ar_driveable == TRUCK && curr_truck->ar_engine != nullptr)
                 {
                     RoR::App::GetOverlayWrapper()->UpdateLandVehicleHUD(curr_truck);
                 }
-                else if (curr_truck->driveable == AIRPLANE)
+                else if (curr_truck->ar_driveable == AIRPLANE)
                 {
                     RoR::App::GetOverlayWrapper()->UpdateAerialHUD(curr_truck);
                 }
@@ -2122,7 +2122,7 @@ void RoRFrameListener::ChangedCurrentVehicle(Beam* previous_vehicle, Beam* curre
         }
 
         // force feedback
-        m_force_feedback->SetEnabled(current_vehicle->driveable == TRUCK); //only for trucks so far
+        m_force_feedback->SetEnabled(current_vehicle->ar_driveable == TRUCK); //only for trucks so far
 
         // attach player to truck
         if (gEnv->player)

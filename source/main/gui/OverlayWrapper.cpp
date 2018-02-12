@@ -429,7 +429,7 @@ void OverlayWrapper::showDashboardOverlays(bool show, Beam* truck)
 
     if (show)
     {
-        int mode = truck ? truck->driveable : -1;
+        int mode = truck ? truck->ar_driveable : -1;
 
         if (mode == AIRPLANE)
         {
@@ -543,7 +543,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
 
     // TODO: fix: when the window is scaled, the findElementAt doesn not seem to pick up the correct element :-\
 
-    if (curr_truck->driveable == AIRPLANE && ms.buttonDown(OIS::MB_Left))
+    if (curr_truck->ar_driveable == AIRPLANE && ms.buttonDown(OIS::MB_Left))
     {
         OverlayElement* element = m_aerial_dashboard_needles_overlay->findElementAt(mouseX, mouseY);
         if (element)
