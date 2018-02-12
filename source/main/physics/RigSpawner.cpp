@@ -305,7 +305,6 @@ void RigSpawner::InitializeRig()
     m_rig->m_odometer_total = 0;
     m_rig->m_odometer_user  = 0;
 
-    m_rig->collrange=DEFAULT_COLLISION_RANGE;
     m_rig->m_masscount=0;
     m_rig->disable_smoke = App::gfx_particles_mode.GetActive() == 0;
     m_rig->ar_exhaust_pos_node=0;

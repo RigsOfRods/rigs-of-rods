@@ -1185,7 +1185,7 @@ void BeamFactory::UpdatePhysicsSimulation()
                                         m_trucks[t]->cabs,
                                         m_trucks[t]->intra_collcabrate,
                                         m_trucks[t]->ar_nodes,
-                                        m_trucks[t]->collrange,
+                                        m_trucks[t]->ar_collision_range,
                                         *(m_trucks[t]->ar_submesh_ground_model));
                                 }
                             });
@@ -1220,7 +1220,7 @@ void BeamFactory::UpdatePhysicsSimulation()
                                         m_trucks[t]->cabs,
                                         m_trucks[t]->inter_collcabrate,
                                         m_trucks[t]->ar_nodes,
-                                        m_trucks[t]->collrange,
+                                        m_trucks[t]->ar_collision_range,
                                         m_trucks, m_free_truck,
                                         *(m_trucks[t]->ar_submesh_ground_model));
                                 }
@@ -1255,7 +1255,7 @@ void BeamFactory::UpdatePhysicsSimulation()
                             m_trucks[t]->cabs,
                             m_trucks[t]->intra_collcabrate,
                             m_trucks[t]->ar_nodes,
-                            m_trucks[t]->collrange,
+                            m_trucks[t]->ar_collision_range,
                             *(m_trucks[t]->ar_submesh_ground_model));
                     }
                 }
@@ -1279,7 +1279,7 @@ void BeamFactory::UpdatePhysicsSimulation()
                                 m_trucks[t]->cabs,
                                 m_trucks[t]->inter_collcabrate,
                                 m_trucks[t]->ar_nodes,
-                                m_trucks[t]->collrange,
+                                m_trucks[t]->ar_collision_range,
                                 m_trucks, m_free_truck,
                                 *(m_trucks[t]->ar_submesh_ground_model));
                         }
