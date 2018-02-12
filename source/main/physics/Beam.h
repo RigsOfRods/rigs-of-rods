@@ -424,17 +424,14 @@ public:
     int               proped_wheels;               //!< Number of propelled wheels.
     int               braked_wheels;               //!< Number of braked wheels.
     int               proppairs[MAX_WHEELS];       //!< For inter-differential locking
-    int               freecamera;
-    int               cameranodepos[MAX_CAMERAS];
-    int               cameranodedir[MAX_CAMERAS];
-    int               cameranoderoll[MAX_CAMERAS];
-    bool              revroll[MAX_CAMERAS];
-    bool              shadowOptimizations;
+    int               ar_num_cameras;
+    int               ar_camera_node_pos[MAX_CAMERAS]; //!< Physics attr; 'camera' = frame of reference; origin node
+    int               ar_camera_node_dir[MAX_CAMERAS]; //!< Physics attr; 'camera' = frame of reference; back node
+    int               ar_camera_node_roll[MAX_CAMERAS]; //!< Physics attr; 'camera' = frame of reference; left node
+    bool              ar_camera_node_roll_inv[MAX_CAMERAS]; //!< Physics attr; 'camera' = frame of reference; indicates roll node is right instead of left
     int               ar_lowest_node;             //!< Physics attr, filled at spawn, limited use for boats
     int               ar_lowest_contacting_node;  //!< Physics attr, filled at spawn, used for positioning on (re)spawn
     float             ar_posnode_spawn_height;
-    float             odometerTotal;
-    float             odometerUser;
     VehicleAI*        ar_vehicle_ai;
     float             ar_scale;               //!< Physics state; scale of the actor (nominal = 1.0)
     Ogre::Real        ar_brake;               //!< Physics state; braking intensity
@@ -457,10 +454,10 @@ public:
     int               ar_lights;
     float             ar_left_mirror_angle;           //!< Sim state; rear view mirror angle
     float             ar_right_mirror_angle;          //!< Sim state; rear view mirror angle
-    float             ar_elevator;
-    float             ar_rudder;
-    float             ar_aileron;
-    int               ar_aerial_flap;                 //!< Physics state; state of aircraft flaps (values: 0-5)
+    float             ar_elevator;                    //!< Sim state; aerial controller
+    float             ar_rudder;                      //!< Sim state; aerial/marine controller
+    float             ar_aileron;                     //!< Sim state; aerial controller
+    int               ar_aerial_flap;                 //!< Sim state; state of aircraft flaps (values: 0-5)
     Ogre::Vector3     ar_fusedrag;                    //!< Physics state
     int               ar_current_cinecam;             //!< Sim state; index of current CineCam (-1 if using external camera)
     int               ar_custom_camera_node;          //!< Sim state; custom tracking node for 3rd-person camera
@@ -612,6 +609,8 @@ private:
     node_t*           m_fusealge_front;        //!< Physics attr; defined in truckfile
     node_t*           m_fusealge_back;         //!< Physics attr; defined in truckfile
     float             m_fusealge_width;        //!< Physics attr; defined in truckfile
+    float             m_odometer_total;        //!< GUI state
+    float             m_odometer_user;         //!< GUI state
 
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?
@@ -631,6 +630,7 @@ private:
     bool m_preloaded_with_terrain:1;        //!< Spawn context (TODO: remove!)
     bool m_high_res_wheelnode_collisions:1; //!< Physics attr; set at spawn
     bool m_spawn_free_positioned:1;         //!< Spawn context (TODO: remove!)
+    bool m_gfx_reduce_shadows:1;       //!< Gfx switch; alias of RoR.cfg entry "Shadow optimizations"
 
 #ifdef FEAT_TIMING
     BeamThreadStats *statistics, *statistics_gfx;

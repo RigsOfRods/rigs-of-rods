@@ -40,13 +40,13 @@ void CameraBehaviorVehicleCineCam::update(const CameraManager::CameraContext &ct
 {
     CameraBehaviorOrbit::update(ctx);
 
-    Vector3 dir = (ctx.mCurrTruck->ar_nodes[ctx.mCurrTruck->cameranodepos[ctx.mCurrTruck->ar_current_cinecam]].AbsPosition
-                 - ctx.mCurrTruck->ar_nodes[ctx.mCurrTruck->cameranodedir[ctx.mCurrTruck->ar_current_cinecam]].AbsPosition).normalisedCopy();
+    Vector3 dir = (ctx.mCurrTruck->ar_nodes[ctx.mCurrTruck->ar_camera_node_pos[ctx.mCurrTruck->ar_current_cinecam]].AbsPosition
+                 - ctx.mCurrTruck->ar_nodes[ctx.mCurrTruck->ar_camera_node_dir[ctx.mCurrTruck->ar_current_cinecam]].AbsPosition).normalisedCopy();
 
-    Vector3 roll = (ctx.mCurrTruck->ar_nodes[ctx.mCurrTruck->cameranodepos[ctx.mCurrTruck->ar_current_cinecam]].AbsPosition
-                  - ctx.mCurrTruck->ar_nodes[ctx.mCurrTruck->cameranoderoll[ctx.mCurrTruck->ar_current_cinecam]].AbsPosition).normalisedCopy();
+    Vector3 roll = (ctx.mCurrTruck->ar_nodes[ctx.mCurrTruck->ar_camera_node_pos[ctx.mCurrTruck->ar_current_cinecam]].AbsPosition
+                  - ctx.mCurrTruck->ar_nodes[ctx.mCurrTruck->ar_camera_node_roll[ctx.mCurrTruck->ar_current_cinecam]].AbsPosition).normalisedCopy();
 
-    if ( ctx.mCurrTruck->revroll[ctx.mCurrTruck->ar_current_cinecam] )
+    if ( ctx.mCurrTruck->ar_camera_node_roll_inv[ctx.mCurrTruck->ar_current_cinecam] )
     {
         roll = -roll;
     }

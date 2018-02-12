@@ -304,8 +304,8 @@ void RigSpawner::InitializeRig()
     m_rig->authors.clear();
     m_rig->m_slidenodes_connect_on_spawn=false;
 
-    m_rig->odometerTotal = 0;
-    m_rig->odometerUser  = 0;
+    m_rig->m_odometer_total = 0;
+    m_rig->m_odometer_user  = 0;
 
     memset(m_rig->helpmat, 0, 255);
     
@@ -353,7 +353,7 @@ void RigSpawner::InitializeRig()
     m_rig->ar_brake_force=30000.0;
     m_rig->m_handbrake_force = 2 * m_rig->ar_brake_force;
     m_rig->debugVisuals = SETTINGS.getBooleanSetting("DebugBeams", false);
-    m_rig->shadowOptimizations = SETTINGS.getBooleanSetting("Shadow optimizations", true);
+    m_rig->m_gfx_reduce_shadows = SETTINGS.getBooleanSetting("Shadow optimizations", true);
 
     m_rig->proped_wheels=0;
     m_rig->braked_wheels=0;
@@ -365,12 +365,12 @@ void RigSpawner::InitializeRig()
     m_rig->advanced_drag=false;
     m_rig->advanced_node_drag=0;
     m_rig->advanced_total_drag=0;
-    m_rig->freecamera=0;
+    m_rig->ar_num_cameras=0;
     m_rig->m_cab_mesh = nullptr;
     m_rig->m_cab_scene_node = nullptr;
-    m_rig->cameranodepos[0]=-1;
-    m_rig->cameranodedir[0]=-1;
-    m_rig->cameranoderoll[0]=-1;
+    m_rig->ar_camera_node_pos[0]=-1;
+    m_rig->ar_camera_node_dir[0]=-1;
+    m_rig->ar_camera_node_roll[0]=-1;
     m_rig->ar_lowest_node=0;
 
 #ifdef USE_ANGELSCRIPT
@@ -538,10 +538,10 @@ void RigSpawner::FinalizeRig()
         }
     }
 
-    if (m_rig->cameranodepos[0] > 0)
+    if (m_rig->ar_camera_node_pos[0] > 0)
     {
         // store the y-difference between the trucks lowest node and the campos-node for the gwps system
-        m_rig->ar_posnode_spawn_height = m_rig->ar_nodes[m_rig->cameranodepos[0]].RelPosition.y - m_rig->ar_posnode_spawn_height;
+        m_rig->ar_posnode_spawn_height = m_rig->ar_nodes[m_rig->ar_camera_node_pos[0]].RelPosition.y - m_rig->ar_posnode_spawn_height;
     } 
     else
     {
@@ -550,15 +550,15 @@ void RigSpawner::FinalizeRig()
     }
 
     //cameras workaround
-    for (int i=0; i<m_rig->freecamera; i++)
+    for (int i=0; i<m_rig->ar_num_cameras; i++)
     {
-        //LogManager::getSingleton().logMessage("Camera dir="+StringConverter::toString(ar_nodes[cameranodedir[i]].RelPosition-ar_nodes[cameranodepos[i]].RelPosition)+" roll="+StringConverter::toString(ar_nodes[cameranoderoll[i]].RelPosition-ar_nodes[cameranodepos[i]].RelPosition));
-        Ogre::Vector3 dir_node_offset = GetNode(m_rig->cameranodedir[i]).RelPosition - GetNode(m_rig->cameranodepos[i]).RelPosition;
-        Ogre::Vector3 roll_node_offset = GetNode(m_rig->cameranoderoll[i]).RelPosition - GetNode(m_rig->cameranodepos[i]).RelPosition;
+        //LogManager::getSingleton().logMessage("Camera dir="+StringConverter::toString(ar_nodes[ar_camera_node_dir[i]].RelPosition-ar_nodes[ar_camera_node_pos[i]].RelPosition)+" roll="+StringConverter::toString(ar_nodes[ar_camera_node_roll[i]].RelPosition-ar_nodes[ar_camera_node_pos[i]].RelPosition));
+        Ogre::Vector3 dir_node_offset = GetNode(m_rig->ar_camera_node_dir[i]).RelPosition - GetNode(m_rig->ar_camera_node_pos[i]).RelPosition;
+        Ogre::Vector3 roll_node_offset = GetNode(m_rig->ar_camera_node_roll[i]).RelPosition - GetNode(m_rig->ar_camera_node_pos[i]).RelPosition;
         Ogre::Vector3 cross = dir_node_offset.crossProduct(roll_node_offset);
         
-        m_rig->revroll[i]=cross.y > 0;//(ar_nodes[cameranodedir[i]].RelPosition-ar_nodes[cameranodepos[i]].RelPosition).crossProduct(ar_nodes[cameranoderoll[i]].RelPosition-ar_nodes[cameranodepos[i]].RelPosition).y>0;
-        if (m_rig->revroll[i])
+        m_rig->ar_camera_node_roll_inv[i]=cross.y > 0;//(ar_nodes[ar_camera_node_dir[i]].RelPosition-ar_nodes[ar_camera_node_pos[i]].RelPosition).crossProduct(ar_nodes[ar_camera_node_roll[i]].RelPosition-ar_nodes[ar_camera_node_pos[i]].RelPosition).y>0;
+        if (m_rig->ar_camera_node_roll_inv[i])
         {
             AddMessage(Message::TYPE_WARNING, "camera definition is probably invalid and has been corrected. It should be center, back, left");
         }
@@ -573,7 +573,7 @@ void RigSpawner::FinalizeRig()
                 & GetNode(m_airplane_left_light),
                 & GetNode(m_airplane_right_light),
                 m_rig->m_fusealge_back,
-                & GetNode(m_rig->cameranodepos[0])
+                & GetNode(m_rig->ar_camera_node_pos[0])
                 );
         }
         //inform wing segments
@@ -641,7 +641,7 @@ void RigSpawner::FinalizeRig()
                 Ogre::ColourValue(0,0,0)
             );
         }
-        if (m_rig->shadowOptimizations)
+        if (m_rig->m_gfx_reduce_shadows)
         {
             backmat->setReceiveShadows(false);
         }
@@ -5690,38 +5690,38 @@ void RigSpawner::ProcessCamera(RigDef::Camera & def)
     /* Center node */
     if (def.center_node.IsValidAnyState())
     {
-        m_rig->cameranodepos[m_rig->freecamera] 
+        m_rig->ar_camera_node_pos[m_rig->ar_num_cameras] 
             = static_cast<int>(GetNodeIndexOrThrow(def.center_node));
     }
     else
     {
-        m_rig->cameranodepos[m_rig->freecamera] = -1;
+        m_rig->ar_camera_node_pos[m_rig->ar_num_cameras] = -1;
     }
 
     /* Direction node */
     if (def.back_node.IsValidAnyState())
     {
-        m_rig->cameranodedir[m_rig->freecamera] 
+        m_rig->ar_camera_node_dir[m_rig->ar_num_cameras] 
             = static_cast<int>(GetNodeIndexOrThrow(def.back_node));
     }
     else
     {
-        m_rig->cameranodedir[m_rig->freecamera] = -1;
+        m_rig->ar_camera_node_dir[m_rig->ar_num_cameras] = -1;
     }
 
     /* Roll node */
     if (def.left_node.IsValidAnyState())
     {
-        m_rig->cameranoderoll[m_rig->freecamera] 
+        m_rig->ar_camera_node_roll[m_rig->ar_num_cameras] 
             = static_cast<int>(GetNodeIndexOrThrow(def.left_node));
     }
     else
     {
-        m_rig->cameranoderoll[m_rig->freecamera] = -1;
+        m_rig->ar_camera_node_roll[m_rig->ar_num_cameras] = -1;
     }
 
     /* Advance */
-    m_rig->freecamera++;
+    m_rig->ar_num_cameras++;
 };
 
 node_t* RigSpawner::GetBeamNodePointer(RigDef::Node::Ref const & node_ref)

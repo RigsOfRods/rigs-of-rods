@@ -616,9 +616,9 @@ void BeamEngine::update(float dt, int doUpdate)
         absVelocity = truck->ar_nodes[0].Velocity.length();
         float velocity = absVelocity;
 
-        if (truck->cameranodepos[0] >= 0 && truck->cameranodedir[0] >= 0)
+        if (truck->ar_camera_node_pos[0] >= 0 && truck->ar_camera_node_dir[0] >= 0)
         {
-            Vector3 hdir = (truck->ar_nodes[truck->cameranodepos[0]].RelPosition - truck->ar_nodes[truck->cameranodedir[0]].RelPosition).normalisedCopy();
+            Vector3 hdir = (truck->ar_nodes[truck->ar_camera_node_pos[0]].RelPosition - truck->ar_nodes[truck->ar_camera_node_dir[0]].RelPosition).normalisedCopy();
             velocity = hdir.dotProduct(truck->ar_nodes[0].Velocity);
         }
         relVelocity = std::abs(velocity);

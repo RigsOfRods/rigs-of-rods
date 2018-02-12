@@ -92,7 +92,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
 
         if (ar_current_cinecam != -1)
         {
-            m_force_sensors.accu_body_forces += ar_nodes[cameranodepos[ar_current_cinecam]].Forces;
+            m_force_sensors.accu_body_forces += ar_nodes[ar_camera_node_pos[ar_current_cinecam]].Forces;
         }
 
         for (int i = 0; i < free_hydro; i++)
@@ -653,8 +653,8 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
 
     // calculate driven distance
     float distance_driven = fabs(wspeed * dt);
-    odometerTotal += distance_driven;
-    odometerUser += distance_driven;
+    m_odometer_total += distance_driven;
+    m_odometer_user += distance_driven;
 
     BES_STOP(BES_CORE_Wheels);
     BES_START(BES_CORE_Shocks);
@@ -678,7 +678,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     {
         m_stabilizer_shock_sleep -= dt * maxsteps;
 
-        Vector3 dir = ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranoderoll[0]].RelPosition;
+        Vector3 dir = ar_nodes[ar_camera_node_pos[0]].RelPosition - ar_nodes[ar_camera_node_roll[0]].RelPosition;
         dir.normalise();
         float roll = asin(dir.dotProduct(Vector3::UNIT_Y));
         //mWindow->setDebugText("Roll:"+ TOSTRING(roll));
@@ -1831,7 +1831,7 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
         }
 
         // record g forces on cameras
-        if (i == cameranodepos[0])
+        if (i == ar_camera_node_pos[0])
         {
             m_camera_gforces_accu += ar_nodes[i].Forces / ar_nodes[i].mass;
             m_camera_gforces_count++;

@@ -79,7 +79,7 @@ void Autopilot::setInertialReferences(node_t* refl, node_t* refr, node_t* refb, 
     ref_l = refl;
     ref_r = refr;
     ref_b = refb;
-    ref_c = refc; // cameranodepos(0)
+    ref_c = refc; // ar_camera_node_pos(0)
     ref_span = (refl->RelPosition - refr->RelPosition).length();
 }
 
