@@ -175,9 +175,9 @@ public:
     /// - Particles: updates particles (dust, exhausts, custom)
     /// - Display: updates wings; updates props; updates rig-skeleton + cab fade effect; updates debug overlay
     void              updateVisual(float dt=0);
-    void              updateFlexbodiesPrepare();
-    void              updateFlexbodiesFinal();
-    void              joinFlexbodyTasks();                 //!< Waits until all flexbody tasks are finished, but does not update the hardware buffers
+    void              UpdateFlexbodiesPrepare();
+    void              UpdateFlexbodiesFinal();
+    void              JoinFlexbodyTasks();                 //!< Waits until all flexbody tasks are finished, but does not update the hardware buffers
     void              updateLabels(float dt=0);            //!< Gfx;
     void              setDetailLevel(int v);               //!< @param v 0 = full detail, 1 = no beams
     void              showSkeleton(bool meshes=true, bool linked=true); //!< Gfx; shows "skeletonview" (diagnostic view) mesh.

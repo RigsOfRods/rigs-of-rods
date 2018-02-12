@@ -95,7 +95,7 @@ namespace Hydrax
 		/** Set god rays simulation speed
 		    @param Speed Simulation speed
 		 */
-		inline void setSimulationSpeed(const Ogre::Real& Speed)
+		inline void SetSimulationSpeed(const Ogre::Real& Speed)
 		{
 			mSimulationSpeed = Speed;
 		}

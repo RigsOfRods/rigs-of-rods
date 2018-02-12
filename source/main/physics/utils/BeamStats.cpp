@@ -131,7 +131,7 @@ void BeamEngineStats::setup(bool enabled)
 
 bool BeamEngineStats::updateGUI(float dt)
 {
-    int current_truck = ActorManager::getSingleton().getCurrentTruckNumber();
+    int current_truck = ActorManager::getSingleton().GetPlayerActorId();
     Actor **trucks = ActorManager::getSingleton().getTrucks();
     
     updateTimeGUI += dt;

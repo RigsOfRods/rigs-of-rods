@@ -95,12 +95,12 @@ void GameScript::logFormat(const char* format, ...)
 
 void GameScript::activateAllVehicles()
 {
-    mse->GetFrameListener()->GetBeamFactory()->activateAllTrucks();
+    mse->GetFrameListener()->GetBeamFactory()->WakeUpAllActors();
 }
 
-void GameScript::setTrucksForcedActive(bool forceActive)
+void GameScript::SetTrucksForcedAwake(bool forceActive)
 {
-    mse->GetFrameListener()->GetBeamFactory()->setTrucksForcedActive(forceActive);
+    mse->GetFrameListener()->GetBeamFactory()->SetTrucksForcedAwake(forceActive);
 }
 
 double GameScript::getTime()
@@ -257,9 +257,9 @@ int GameScript::getNumTrucksByFlag(int flag)
     return result;
 }
 
-int GameScript::getCurrentTruckNumber()
+int GameScript::GetPlayerActorId()
 {
-    return mse->GetFrameListener()->GetBeamFactory()->getCurrentTruckNumber();
+    return mse->GetFrameListener()->GetBeamFactory()->GetPlayerActorId();
 }
 
 void GameScript::registerForEvent(int eventValue)
@@ -337,7 +337,7 @@ void GameScript::showChooser(const String& type, const String& instance, const S
 
 void GameScript::repairVehicle(const String& instance, const String& box, bool keepPosition)
 {
-    mse->GetFrameListener()->GetBeamFactory()->repairTruck(gEnv->collisions, instance, box, keepPosition);
+    mse->GetFrameListener()->GetBeamFactory()->RepairActor(gEnv->collisions, instance, box, keepPosition);
 }
 
 void GameScript::removeVehicle(const String& event_source_instance_name, const String& event_source_box_name)
@@ -989,7 +989,7 @@ VehicleAI* GameScript::getTruckAIByNum(int num)
 Actor* GameScript::spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot)
 {
     Ogre::Quaternion rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
-    return mse->GetFrameListener()->GetBeamFactory()->CreateLocalRigInstance(pos, rotation, truckName);
+    return mse->GetFrameListener()->GetBeamFactory()->CreateLocalActor(pos, rotation, truckName);
 }
 
 void GameScript::showMessageBox(Ogre::String& mTitle, Ogre::String& mText, bool button1, Ogre::String& mButton1, bool AllowClose, bool button2, Ogre::String& mButton2)

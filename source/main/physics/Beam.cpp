@@ -3505,7 +3505,7 @@ void Actor::updateLabels(float dt)
     }
 }
 
-void Actor::updateFlexbodiesPrepare()
+void Actor::UpdateFlexbodiesPrepare()
 {
     BES_GFX_START(BES_GFX_updateFlexBodies);
 
@@ -3763,7 +3763,7 @@ void Actor::updateVisual(float dt)
     BES_GFX_STOP(BES_GFX_updateVisual);
 }
 
-void Actor::joinFlexbodyTasks()
+void Actor::JoinFlexbodyTasks()
 {
     if (gEnv->threadPool)
     {
@@ -3775,11 +3775,11 @@ void Actor::joinFlexbodyTasks()
     }
 }
 
-void Actor::updateFlexbodiesFinal()
+void Actor::UpdateFlexbodiesFinal()
 {
     if (gEnv->threadPool)
     {
-        joinFlexbodyTasks();
+        JoinFlexbodyTasks();
 
         for (int i = 0; i < ar_num_wheels; i++)
         {
@@ -5770,8 +5770,8 @@ Actor::Actor(
     //
     m_net_node_buf_size = sizeof(float) * 3 + (m_net_first_wheel_node - 1) * sizeof(short int) * 3;
     m_net_buffer_size = m_net_node_buf_size + ar_num_wheels * sizeof(float);
-    updateFlexbodiesPrepare();
-    updateFlexbodiesFinal();
+    UpdateFlexbodiesPrepare();
+    UpdateFlexbodiesFinal();
     updateVisual();
     // stop lights
     lightsToggle();

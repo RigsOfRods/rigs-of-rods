@@ -168,10 +168,10 @@ void ScriptEngine::init()
     result = engine->RegisterGlobalFunction("void print(const string &in)", AngelScript::asFUNCTION(logString), AngelScript::asCALL_CDECL); MYASSERT( result >= 0 );
 
     result = engine->RegisterObjectType("BeamFactoryClass", sizeof(ActorManager), AngelScript::asOBJ_REF); MYASSERT(result>=0);
-    result = engine->RegisterObjectMethod("BeamFactoryClass", "bool enterRescueTruck()", AngelScript::asMETHOD(ActorManager,enterRescueTruck), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
-    result = engine->RegisterObjectMethod("BeamFactoryClass", "void setSimulationSpeed(float)", AngelScript::asMETHOD(ActorManager,setSimulationSpeed), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
-    result = engine->RegisterObjectBehaviour("BeamFactoryClass", AngelScript::asBEHAVE_ADDREF, "void f()", AngelScript::asMETHOD(ActorManager,addRef), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
-    result = engine->RegisterObjectBehaviour("BeamFactoryClass", AngelScript::asBEHAVE_RELEASE, "void f()", AngelScript::asMETHOD(ActorManager,release), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamFactoryClass", "bool enterRescueTruck()", AngelScript::asMETHOD(ActorManager,EnterRescueVehicle), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamFactoryClass", "void setSimulationSpeed(float)", AngelScript::asMETHOD(ActorManager,SetSimulationSpeed), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+    result = engine->RegisterObjectBehaviour("BeamFactoryClass", AngelScript::asBEHAVE_ADDREF, "void f()", AngelScript::asMETHOD(ActorManager,AddRef), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+    result = engine->RegisterObjectBehaviour("BeamFactoryClass", AngelScript::asBEHAVE_RELEASE, "void f()", AngelScript::asMETHOD(ActorManager,Release), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 
     // enum aiEvents
     result = engine->RegisterEnum("aiEvents"); MYASSERT(result >= 0);
@@ -264,7 +264,7 @@ void ScriptEngine::init()
     result = engine->RegisterObjectMethod("GameScriptClass", "float rangeRandom(float, float)", AngelScript::asMETHOD(GameScript,rangeRandom), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 
     result = engine->RegisterObjectMethod("GameScriptClass", "void activateAllVehicles()", AngelScript::asMETHOD(GameScript,activateAllVehicles), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
-    result = engine->RegisterObjectMethod("GameScriptClass", "void setTrucksForcedActive(bool forceActive)", AngelScript::asMETHOD(GameScript,setTrucksForcedActive), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "void setTrucksForcedActive(bool forceActive)", AngelScript::asMETHOD(GameScript,SetTrucksForcedAwake), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 
     result = engine->RegisterObjectMethod("GameScriptClass", "void startTimer()", AngelScript::asMETHOD(GameScript,startTimer), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("GameScriptClass", "float stopTimer()", AngelScript::asMETHOD(GameScript,stopTimer), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
@@ -301,7 +301,7 @@ void ScriptEngine::init()
 
     result = engine->RegisterObjectMethod("GameScriptClass", "void repairVehicle(const string &in, const string &in, bool)", AngelScript::asMETHOD(GameScript,repairVehicle), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void removeVehicle(const string &in, const string &in)", AngelScript::asMETHOD(GameScript,removeVehicle), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
-    result = engine->RegisterObjectMethod("GameScriptClass", "int getCurrentTruckNumber()", AngelScript::asMETHOD(GameScript,getCurrentTruckNumber), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "int getCurrentTruckNumber()", AngelScript::asMETHOD(GameScript,GetPlayerActorId), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void boostCurrentTruck(float)", AngelScript::asMETHOD(GameScript, boostCurrentTruck), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("GameScriptClass", "int getNumTrucks()", AngelScript::asMETHOD(GameScript,getNumTrucks), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("GameScriptClass", "BeamClass @getCurrentTruck()", AngelScript::asMETHOD(GameScript,getCurrentTruck), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);

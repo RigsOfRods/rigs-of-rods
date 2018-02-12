@@ -56,8 +56,8 @@ public:
     // Actor management interface
     size_t GetNumActors          () const                  { return m_actor_manager.GetNumUsedActorSlots(); }
     Actor* GetActorById          (int actor_id)            { return m_actor_manager.GetActorByIdInternal(actor_id); }
-    void   SetPlayerActorById    (int actor_id)            { m_actor_manager.setCurrentTruck(actor_id); } // TODO: Eliminate, use pointers ~ only_a_ptr, 06/2017
-    void   SetPlayerActor        (Actor* actor)            { m_actor_manager.setCurrentTruck((actor == nullptr) ? -1 : actor->ar_instance_id); }
+    void   SetPlayerActorById    (int actor_id)            { m_actor_manager.SetPlayerVehicleByActorId(actor_id); } // TODO: Eliminate, use pointers ~ only_a_ptr, 06/2017
+    void   SetPlayerActor        (Actor* actor)            { m_actor_manager.SetPlayerVehicleByActorId((actor == nullptr) ? -1 : actor->ar_instance_id); }
     Actor* GetPlayerActor        ()                        { return m_actor_manager.GetPlayerActorInternal(); }
     void   ReloadPlayerActor     ();
     void   RemovePlayerActor     ();
