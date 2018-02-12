@@ -611,8 +611,6 @@ public:
     Ogre::Vector3 getGForces();
 
     int stabcommand; //!< Stabilization; values: { -1, 0, 1 }
-    int m_request_skeletonview_change; //!< Request activation(1) / deactivation(-1) of skeletonview
-    bool m_skeletonview_is_active; //!< Visibility of "skeleton" (visual rig) { false = not visible, true = visible }
     float stabratio;
     //direction
     float hydrodircommand;
@@ -742,23 +740,8 @@ public:
     unsigned long lastNetUpdateTime;
 
     void receiveStreamData(unsigned int type, int source, unsigned int streamid, char *buffer, unsigned int len);
-
-    /**
-    * Sets visibility of all beams on this vehicle
-    * @param visibility
-    */
-    void setBeamVisibility(bool visible);
-
-    bool beamsVisible; //!< Are beams visible? @see setBeamVisibility
-
-    /**
-    * Sets visibility of all meshes on this vehicle
-    * @param visibility
-    */
-    void setMeshVisibility(bool visible);
-
-    bool meshesVisible; //!< Are meshes visible? @see setMeshVisibility
-
+    void setBeamVisibility(bool visible); //!< Gfx only; Sets visibility of all beams on this vehicle
+    void setMeshVisibility(bool visible); //!< Gfx only; Sets visibility of all meshes on this vehicle
     bool inRange(float num, float min, float max);
 
     /**
@@ -816,9 +799,14 @@ public:
 
     void UpdatePropAnimations(const float dt);
 
+    int  ar_request_skeletonview_change; //!< Gfx state; Request activation(1) / deactivation(-1) of skeletonview
+
     bool ar_left_blink_on:1;  //!< Gfx state; turn signals
     bool ar_right_blink_on:1; //!< Gfx state; turn signals
     bool ar_warn_blink_on:1;  //!< Gfx state; turn signals
+    bool ar_beams_visible:1;  //!< Gfx state; Are beams visible? @see setBeamVisibility
+    bool ar_meshes_visible:1; //!< Gfx state; Are meshes visible? @see setMeshVisibility
+    bool ar_skeletonview_is_active:1; //!< Gfx state
 
 protected:
 

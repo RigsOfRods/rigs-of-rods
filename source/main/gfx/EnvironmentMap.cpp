@@ -244,10 +244,10 @@ void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, Beam* beam /* = 0 */)
 
     // try to hide all flexbodies and cabs prior render, and then show them again after done
     // but only if they are visible ...
-    bool toggleMeshes = beam && beam->meshesVisible;
+    bool toggleMeshes = beam && beam->ar_meshes_visible;
 
     // same for all beams
-    bool toggleBeams = beam && beam->beamsVisible;
+    bool toggleBeams = beam && beam->ar_beams_visible;
 
     if (toggleMeshes)
     {
