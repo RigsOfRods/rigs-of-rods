@@ -569,13 +569,7 @@ public:
 
     // -------- END Data from historical base class `struct rig_t` --------- //
 
-    //! @{ dynamic physical properties
     Ogre::Real brake;
-    Ogre::Vector3 affforce;
-    Ogre::Vector3 ffforce;
-    Ogre::Real affhydro;
-    Ogre::Real ffhydro;
-    //! @}
 
 
     //! @{ calc forces euler division
@@ -792,7 +786,7 @@ public:
     /**
     * TIGHT LOOP; Physics;
     */
-    void calcForcesEulerCompute(int doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1);
+    void calcForcesEulerCompute(bool doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1);
 
     /**
     * TIGHT LOOP; Physics;
@@ -805,6 +799,9 @@ public:
 
 
     void UpdatePropAnimations(const float dt);
+
+    inline Ogre::Vector3 GetFFbBodyForces() const    { return m_force_sensors.out_body_forces; }
+    inline float         GetFFbHydroForces() const   { return m_force_sensors.out_hydros_forces; }
 
     int  ar_request_skeletonview_change; //!< Gfx state; Request activation(1) / deactivation(-1) of skeletonview
     SimState ar_sim_state;    //!< Physics state
@@ -974,7 +971,6 @@ protected:
      * Resets the turn signal when the steering wheel is turned back.
      */
     void autoBlinkReset();
-    
 
 #ifdef FEAT_TIMING
     BeamThreadStats *statistics, *statistics_gfx;
@@ -991,8 +987,6 @@ protected:
     DustPool *ripplep;
 
     // SLIDE NODES /////////////////////////////////////////////////////////////
-    
-    
 
     /**
      * calculate and apply Corrective forces
@@ -1022,4 +1016,20 @@ protected:
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?
     bool m_blinker_autoreset:1;    //!< Gfx state; We're steering - when we finish, the blinker should turn off
+
+    struct VehicleForceSensors
+    {
+        inline void Reset()
+        {
+            accu_body_forces    = 0;
+            accu_hydros_forces  = 0;
+            out_body_forces     = 0;
+            out_hydros_forces   = 0;
+        };
+
+        Ogre::Vector3 accu_body_forces;
+        float         accu_hydros_forces;
+        Ogre::Vector3 out_body_forces;
+        float         out_hydros_forces;
+    } m_force_sensors; //!< Data for ForceFeedback devices
 };

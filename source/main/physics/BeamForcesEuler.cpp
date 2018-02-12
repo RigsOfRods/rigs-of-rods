@@ -46,9 +46,13 @@
 
 using namespace Ogre;
 
-void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
+// Param "doUpdate" means "also update things which should be updated only once per frame, not per every physics tick"
+//     In this case, doUpdate is TRUE on first tick after rendering, FALSE in all other ticks 
+void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps)
 {
-    IWater* water = 0;
+    IWater* water = nullptr;
+    const bool is_player_truck = this == m_sim_controller->GetPlayerActor();
+
     if (gEnv->terrainManager)
         water = gEnv->terrainManager->getWater();
 
@@ -78,21 +82,25 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
         it->timer = std::max(0.0f, it->timer - dt);
     }
 
-    if (this == m_sim_controller->GetBeamFactory()->getCurrentTruck()) //force feedback sensors
+    if (is_player_truck) //force feedback sensors
     {
         if (doUpdate)
         {
-            affforce = 0;
-            affhydro = 0;
+            m_force_sensors.Reset();
         }
+
         if (currentcamera != -1)
         {
-            affforce += nodes[cameranodepos[currentcamera]].Forces;
+            m_force_sensors.accu_body_forces += nodes[cameranodepos[currentcamera]].Forces;
         }
+
         for (int i = 0; i < free_hydro; i++)
         {
-            if ((beams[hydro[i]].hydroFlags & (HYDRO_FLAG_DIR | HYDRO_FLAG_SPEED)) && !beams[hydro[i]].bm_broken)
-                affhydro += beams[hydro[i]].hydroRatio * beams[hydro[i]].refL * beams[hydro[i]].stress;
+            beam_t* hydrobeam = &beams[hydro[i]];
+            if ((hydrobeam->hydroFlags & (HYDRO_FLAG_DIR | HYDRO_FLAG_SPEED)) && !hydrobeam->bm_broken)
+            {
+                m_force_sensors.accu_hydros_forces += hydrobeam->hydroRatio * hydrobeam->refL * hydrobeam->stress;
+            }
         }
     }
 
@@ -1147,7 +1155,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
             engine->setPrime(requested);
         }
 
-        if (doUpdate && this == m_sim_controller->GetBeamFactory()->getCurrentTruck())
+        if (doUpdate && is_player_truck)
         {
 #ifdef USE_OPENAL
             if (active > 0)
@@ -1898,8 +1906,8 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 
 void Beam::forwardCommands()
 {
+    Beam* current_truck = m_sim_controller->GetPlayerActor();
     auto bf = m_sim_controller->GetBeamFactory();
-    Beam* current_truck = bf->getCurrentTruck();
     Beam** trucks = bf->getTrucks();
     int numtrucks = bf->getTruckCount();
 
