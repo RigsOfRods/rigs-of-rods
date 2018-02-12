@@ -49,7 +49,7 @@ void LandVehicleSimulation::UpdateCruiseControl(Actor* vehicle, float dt)
         return;
     }
 
-    float acc = engine->getAccToHoldRPM(engine->getRPM());
+    float acc = engine->getAccToHoldRPM(engine->GetEngineRpm());
 
     if (engine->getGear() > 0)
     {
@@ -64,7 +64,7 @@ void LandVehicleSimulation::UpdateCruiseControl(Actor* vehicle, float dt)
     {
         // Try to maintain the target rpm
         float rpmRatio = 1.0f / (engine->getMaxRPM() - engine->getMinRPM());
-        acc += (vehicle->cc_target_rpm - engine->getRPM()) * rpmRatio * 2.0f;
+        acc += (vehicle->cc_target_rpm - engine->GetEngineRpm()) * rpmRatio * 2.0f;
     }
 
     vehicle->cc_accs.push_front(acc);
@@ -84,7 +84,7 @@ void LandVehicleSimulation::UpdateCruiseControl(Actor* vehicle, float dt)
     avgAcc /= vehicle->cc_accs.size();
 
     float accl = avgAcc;
-    accl = std::max(engine->getAcc(), accl);
+    accl = std::max(engine->GetAcceleration(), accl);
     accl = std::min(accl, 1.0f);
     engine->autoSetAcc(accl);
 
@@ -125,7 +125,7 @@ void LandVehicleSimulation::UpdateCruiseControl(Actor* vehicle, float dt)
         {
             vehicle->cc_target_speed = std::min(vehicle->cc_target_speed, vehicle->sl_speed_limit);
         }
-        vehicle->cc_target_rpm = engine->getRPM();
+        vehicle->cc_target_rpm = engine->GetEngineRpm();
     }
 
     if (vehicle->cc_can_brake)
@@ -147,8 +147,8 @@ void LandVehicleSimulation::CheckSpeedLimit(Actor* vehicle, float dt)
     {
         float accl = (vehicle->sl_speed_limit - std::abs(vehicle->ar_wheel_speed)) * 2.0f;
         accl = std::max(0.0f, accl);
-        accl = std::min(accl, engine->getAcc());
-        engine->setAcc(accl);
+        accl = std::min(accl, engine->GetAcceleration());
+        engine->SetAcceleration(accl);
     }
 }
 
@@ -492,7 +492,7 @@ void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_la
                         // anti roll back in SimGearboxMode::AUTO (DRIVE, TWO, ONE) mode
                         // anti roll forth in SimGearboxMode::AUTO (REAR) mode
                         float downhill_force = std::abs(sin(pitchAngle.valueRadians()) * vehicle->getTotalMass());
-                        float engine_force = std::abs(engine->getTorque());
+                        float engine_force = std::abs(engine->GetTorque());
                         float ratio = std::max(0.0f, 1.0f - (engine_force / downhill_force) / 2.0f);
                         vehicle->ar_brake = vehicle->ar_brake_force * sqrt(ratio);
                     }

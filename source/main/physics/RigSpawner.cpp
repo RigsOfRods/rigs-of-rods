@@ -463,7 +463,7 @@ void RigSpawner::FinalizeRig()
         }
 
         //Gearbox
-        m_rig->ar_engine->setAutoMode(App::sim_gearbox_mode.GetActive());
+        m_rig->ar_engine->SetAutoMode(App::sim_gearbox_mode.GetActive());
     }
     
     //calculate gwps height offset
@@ -5430,7 +5430,7 @@ void RigSpawner::ProcessEngturbo(RigDef::Engturbo & def)
     }
     
         /* Process it */
-    m_rig->ar_engine->setTurboOptions(engturbo->version, engturbo->tinertiaFactor, engturbo->nturbos, engturbo->param1, engturbo->param2, engturbo->param3, engturbo->param4, engturbo->param5, engturbo->param6, engturbo->param7, engturbo->param8, engturbo->param9, engturbo->param10, engturbo->param11);
+    m_rig->ar_engine->SetTurboOptions(engturbo->version, engturbo->tinertiaFactor, engturbo->nturbos, engturbo->param1, engturbo->param2, engturbo->param3, engturbo->param4, engturbo->param5, engturbo->param6, engturbo->param7, engturbo->param8, engturbo->param9, engturbo->param10, engturbo->param11);
 };
 
 void RigSpawner::ProcessEngoption(RigDef::Engoption & def)
@@ -5456,7 +5456,7 @@ void RigSpawner::ProcessEngoption(RigDef::Engoption & def)
     }
 
     /* Process it */
-    m_rig->ar_engine->setOptions(
+    m_rig->ar_engine->SetEngineOptions(
         engoption->inertia,
         engoption->type,
         engoption->clutch_force,
@@ -5498,7 +5498,7 @@ void RigSpawner::ProcessEngine(RigDef::Engine & def)
         m_rig
     );
 
-    m_rig->ar_engine->setAutoMode(App::sim_gearbox_mode.GetActive());
+    m_rig->ar_engine->SetAutoMode(App::sim_gearbox_mode.GetActive());
 };
 
 void RigSpawner::ProcessHelp()

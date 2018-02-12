@@ -36,52 +36,40 @@ public:
     EngineSim(float min_rpm, float max_rpm, float torque, std::vector<float> gears, float dratio, Actor* actor);
     ~EngineSim();
 
-    float getAcc();
-    float getClutch();
-    float getClutchForce();
-    float getCrankFactor();
-    float getRPM();
-    float getSmoke();
-    float getTorque();
-    float getTurboPSI();
+    /// Sets current engine state; Needed mainly for smoke.
+    /// @param gear Current gear {-1 = reverse, 0 = neutral, 1...21 = forward}
+    void PushNetworkState(float engine_rpm, float acc_force, float clutch, int gear, bool running, bool contact, char auto_mode);
+
+    /// Sets engine options.
+    /// @param einertia Engine inertia
+    /// @param etype Engine type {'t' = truck (default), 'c' = car}
+    /// @param eclutch
+    /// @param ctime Clutch time
+    /// @param stime Shift time
+    /// @param pstime Post-shift time
+    /// @param irpm Idle RPM
+    /// @param srpm Stall RPM
+    /// @param maximix Max. idle mixture
+    /// @param minimix Min. idle mixture
+    void SetEngineOptions(float einertia, char etype, float eclutch, float ctime, float stime, float pstime, float irpm, float srpm, float maximix, float minimix);
+
+    /// Sets turbo options.
+    /// @param tinertiatinertiaFactor Turbo inertia factor
+    /// @param nturbos Number of turbos
+    /// @param additionalTorque Torque that will be added to the engine at max turbo rpm
+    void SetTurboOptions(int type, float tinertiaFactor, int nturbos, float param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8, float param9, float param10, float param11);
+
+    void           SetAcceleration(float val);
+    void           SetAutoMode(RoR::SimGearboxMode mode);
+    void           SetClutch(float clutch);
+    float          GetAcceleration();
+    float          GetClutch();
+    float          GetClutchForce();
+    float          GetCrankFactor();
+    float          GetSmoke();
+    float          GetTorque();
+    float          GetTurboPsi();
     RoR::SimGearboxMode getAutoMode();
-
-    /**
-    * Sets current engine state; Needed mainly for smoke.
-    * @param rpm Current engine RPM
-    * @param force Current acceleration force
-    * @param clutch 
-    * @param gear Current gear {-1 = reverse, 0 = neutral, 1...21 = forward}
-    */
-    void netForceSettings(float rpm, float force, float clutch, int gear, bool running, bool contact, char auto_mode);
-
-    void setAcc(float val);
-    void setAutoMode(RoR::SimGearboxMode mode);
-    void setClutch(float clutch);
-
-    /**
-    * Sets engine options.
-    * @param einertia Engine inertia
-    * @param etype Engine type {'t' = truck (default), 'c' = car}
-    * @param eclutch
-    * @param ctime Clutch time
-    * @param stime Shift time
-    * @param pstime Post-shift time
-    * @param irpm Idle RPM
-    * @param srpm Stall RPM
-    * @param maximix Max. idle mixture
-    * @param minimix Min. idle mixture
-    */
-    void setOptions(float einertia, char etype, float eclutch, float ctime, float stime, float pstime, float irpm, float srpm, float maximix, float minimix);
-
-    /**
-    * Sets turbo options.
-    * @param tinertiatinertiaFactor Turbo inertia factor
-    * @param nturbos Number of turbos
-    * @param additionalTorque Torque that will be added to the engine at max turbo rpm
-    **/
-    void setTurboOptions(int type, float tinertiaFactor, int nturbos, float param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8, float param9, float param10, float param11);
-
     void           SetEngineRpm(float rpm);      //!< Set current engine RPM.
     void           SetEnginePriming(bool p);     //!< Set current engine prime.
     void           setHydroPumpWork(float work); //!< Set current hydro pump work.
@@ -108,6 +96,7 @@ public:
     int            getNumGears() const      { return m_gear_ratios.size() - 2; };
     int            getNumGearsRanges() const{ return getNumGears() / 6 + 1; };
     TorqueCurve*   getTorqueCurve()         { return m_torque_curve; };
+    float          GetEngineRpm() const     { return m_cur_engine_rpm; }
     float          getAccToHoldRPM(float rpm);
     float          getTurboPower();
     float          getEnginePower(float rpm);
