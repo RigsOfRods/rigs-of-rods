@@ -28,10 +28,10 @@
 
 using namespace Ogre;
 
-EngineSim::EngineSim(float m_engine_min_rpm, float m_engine_max_rpm, float torque, std::vector<float> gears, float dratio, Actor* actor) :
-    apressure(0.0f)
+EngineSim::EngineSim(float _min_rpm, float _max_rpm, float torque, std::vector<float> gears, float dratio, Actor* actor) :
+    m_air_pressure(0.0f)
     , m_auto_cur_acc(0.0f)
-    , automode(AUTOMATIC)
+    , m_auto_mode(AUTOMATIC)
     , m_autoselect(DRIVE)
     , m_braking_torque(-torque / 5.0f)
     , m_clutch_force(10000.0f)
@@ -50,13 +50,13 @@ EngineSim::EngineSim(float m_engine_min_rpm, float m_engine_max_rpm, float torqu
     , m_engine_has_air(true)
     , m_engine_has_turbo(true)
     , m_hydropump_state(0.0f)
-    , m_idle_rpm(std::min(m_engine_min_rpm, 800.0f))
+    , m_idle_rpm(std::min(_min_rpm, 800.0f))
     , m_engine_inertia(10.0f)
     , m_kickdown_delay_counter(0)
     , m_max_idle_mixture(0.2f)
-    , m_engine_max_rpm(std::abs(m_engine_max_rpm))
+    , m_engine_max_rpm(std::abs(_max_rpm))
     , m_min_idle_mixture(0.0f)
-    , m_engine_min_rpm(std::abs(m_engine_min_rpm))
+    , m_engine_min_rpm(std::abs(_min_rpm))
     , m_num_gears((int)gears.size() - 2)
     , m_post_shift_time(0.2f)
     , m_post_shift_clock(0.0f)
@@ -70,7 +70,7 @@ EngineSim::EngineSim(float m_engine_min_rpm, float m_engine_max_rpm, float torqu
     , m_shift_val(0)
     , m_engine_stall_rpm(300.0f)
     , m_starter(0)
-    , torqueCurve(new TorqueCurve())
+    , m_torque_curve(new TorqueCurve())
     , m_actor(actor)
     , m_engine_turbo_mode(OLD)
     , m_engine_type('t')
@@ -113,8 +113,8 @@ EngineSim::EngineSim(float m_engine_min_rpm, float m_engine_max_rpm, float torqu
 EngineSim::~EngineSim()
 {
     // delete NULL is safe
-    delete torqueCurve;
-    torqueCurve = NULL;
+    delete m_torque_curve;
+    m_torque_curve = NULL;
 }
 
 void EngineSim::setTurboOptions(int type, float tinertiaFactor, int nturbos, float param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8, float param9, float param10, float param11)
@@ -265,11 +265,11 @@ void EngineSim::update(float dt, int doUpdate)
     if (m_engine_has_air)
     {
         // air pressure
-        apressure += dt * m_cur_engine_rpm;
-        if (apressure > 50000.0f)
+        m_air_pressure += dt * m_cur_engine_rpm;
+        if (m_air_pressure > 50000.0f)
         {
             SOUND_PLAY_ONCE(m_actor, SS_TRIG_AIR_PURGE);
-            apressure = 0.0f;
+            m_air_pressure = 0.0f;
         }
     }
 
@@ -487,7 +487,7 @@ void EngineSim::update(float dt, int doUpdate)
 
     m_cur_engine_rpm = std::max(0.0f, m_cur_engine_rpm);
 
-    if (automode < MANUAL)
+    if (m_auto_mode < MANUAL)
     {
         // auto-shift
         if (m_shifting)
@@ -626,7 +626,7 @@ void EngineSim::update(float dt, int doUpdate)
             m_ref_wheel_revolutions = velocity / m_actor->ar_wheels[0].wh_radius * RAD_PER_SEC_TO_RPM;
         }
 
-        if (!m_engine_is_electric && automode == AUTOMATIC && (m_autoselect == DRIVE || m_autoselect == TWO) && m_cur_gear > 0)
+        if (!m_engine_is_electric && m_auto_mode == AUTOMATIC && (m_autoselect == DRIVE || m_autoselect == TWO) && m_cur_gear > 0)
         {
             if ((m_cur_engine_rpm > m_engine_max_rpm - 100.0f && m_cur_gear > 1) || m_cur_wheel_revolutions * m_gear_ratios[m_cur_gear + 1] > m_engine_max_rpm - 100.0f)
             {
@@ -779,7 +779,7 @@ void EngineSim::update(float dt, int doUpdate)
                 m_brakes.pop_back();
             }
             // avoid over-revving
-            if (automode <= SEMIAUTO && m_cur_gear != 0)
+            if (m_auto_mode <= SEMIAUTO && m_cur_gear != 0)
             {
                 if (std::abs(m_cur_wheel_revolutions * m_gear_ratios[m_cur_gear + 1]) > m_engine_max_rpm * 1.25f)
                 {
@@ -833,9 +833,9 @@ float EngineSim::getRPM()
 
 void EngineSim::toggleAutoMode()
 {
-    automode = (automode + 1) % (MANUAL_RANGES + 1);
+    m_auto_mode = (m_auto_mode + 1) % (MANUAL_RANGES + 1);
 
-    if (automode == AUTOMATIC)
+    if (m_auto_mode == AUTOMATIC)
     {
         if (m_cur_gear > 0)
             m_autoselect = DRIVE;
@@ -849,7 +849,7 @@ void EngineSim::toggleAutoMode()
         m_autoselect = MANUALMODE;
     }
 
-    if (automode == MANUAL_RANGES)
+    if (m_auto_mode == MANUAL_RANGES)
     {
         m_cur_gear_range = 0;
     }
@@ -857,12 +857,12 @@ void EngineSim::toggleAutoMode()
 
 RoR::SimGearboxMode EngineSim::getAutoMode()
 {
-    return (RoR::SimGearboxMode)this->automode;
+    return (RoR::SimGearboxMode)this->m_auto_mode;
 }
 
 void EngineSim::setAutoMode(RoR::SimGearboxMode mode)
 {
-    this->automode = (shiftmodes)mode;
+    this->m_auto_mode = (shiftmodes)mode;
 }
 
 void EngineSim::setAcc(float val)
@@ -909,7 +909,7 @@ void EngineSim::netForceSettings(float rpm, float force, float clutch, int gear,
     m_starter_has_contact = _contact;
     if (_automode != -1)
     {
-        automode = _automode;
+        m_auto_mode = _automode;
     }
 }
 
@@ -1000,11 +1000,11 @@ void EngineSim::start()
     m_starter_has_contact = true;
     m_cur_engine_rpm = m_idle_rpm;
     m_engine_is_running = true;
-    if (automode <= SEMIAUTO)
+    if (m_auto_mode <= SEMIAUTO)
     {
         m_cur_gear = 1;
     }
-    if (automode == AUTOMATIC)
+    if (m_auto_mode == AUTOMATIC)
     {
         m_autoselect = DRIVE;
     }
@@ -1014,7 +1014,7 @@ void EngineSim::start()
 
 void EngineSim::offstart()
 {
-    apressure = 0.0f;
+    m_air_pressure = 0.0f;
     m_autoselect = MANUALMODE;
     m_starter_has_contact = false;
     m_cur_acc = 0.0f;
@@ -1026,7 +1026,7 @@ void EngineSim::offstart()
     m_engine_is_running = false;
     m_shifting = 0;
     m_shift_val = 0;
-    if (automode == AUTOMATIC)
+    if (m_auto_mode == AUTOMATIC)
     {
         m_autoselect = NEUTRAL;
     }
@@ -1087,7 +1087,7 @@ void EngineSim::shift(int val)
 {
     if (!val || m_cur_gear + val < -1 || m_cur_gear + val > getNumGears())
         return;
-    if (automode < MANUAL)
+    if (m_auto_mode < MANUAL)
     {
         m_shift_val = val;
         m_shifting = 1;
@@ -1183,7 +1183,7 @@ int EngineSim::getAutoShift()
 
 void EngineSim::setManualClutch(float val)
 {
-    if (automode >= MANUAL)
+    if (m_auto_mode >= MANUAL)
     {
         val = std::max(0.0f, val);
         m_cur_clutch = 1.0 - val;
@@ -1224,9 +1224,9 @@ float EngineSim::getEnginePower(float rpm)
     rpmRatio = std::max(0.0f, rpmRatio);
     rpmRatio = std::min(rpmRatio, 1.0f);
 
-    if (torqueCurve)
+    if (m_torque_curve)
     {
-        tqValue = torqueCurve->getEngineTorque(rpmRatio);
+        tqValue = m_torque_curve->getEngineTorque(rpmRatio);
     }
 
     return (m_engine_torque * tqValue) + getTurboPower();

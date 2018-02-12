@@ -33,7 +33,7 @@ class EngineSim : public ZeroedMemoryAllocator
 
 public:
 
-    EngineSim(float m_engine_min_rpm, float m_engine_max_rpm, float torque, std::vector<float> gears, float dratio, Actor* actor);
+    EngineSim(float min_rpm, float max_rpm, float torque, std::vector<float> gears, float dratio, Actor* actor);
     ~EngineSim();
 
     float getAcc();
@@ -107,7 +107,7 @@ public:
     float          getMinRPM() const        { return m_engine_min_rpm; };
     int            getNumGears() const      { return m_gear_ratios.size() - 2; };
     int            getNumGearsRanges() const{ return getNumGears() / 6 + 1; };
-    TorqueCurve*   getTorqueCurve()         { return torqueCurve; };
+    TorqueCurve*   getTorqueCurve()         { return m_torque_curve; };
     float          getAccToHoldRPM(float rpm);
     float          getTurboPower();
     float          getEnginePower(float rpm);
@@ -193,6 +193,8 @@ protected:
     float          m_engine_min_rpm;        //!< Engine attribute
     float          m_engine_stall_rpm;      //!< Engine
     bool           m_engine_is_priming;     //!< Engine
+    TorqueCurve*   m_torque_curve;
+    float          m_air_pressure;
 
     // Shifting
     float          m_post_shift_time;       //!< Shift attribute
@@ -204,6 +206,7 @@ protected:
     int            m_shift_val;
 
     // Auto transmission
+    int            m_auto_mode; //!< Transmission mode (@see enum EngineSim::shiftmodes)
     autoswitch     m_autoselect;
     float          m_auto_cur_acc;
     int            m_starter;
@@ -234,15 +237,10 @@ protected:
     bool b_WasteGate;
     float minWGPsi;
     bool b_flutter;
-    float wastegate_threshold_p, wastegate_threshold_n;
+    float wastegate_threshold_p;
+    float wastegate_threshold_n;
     bool b_anti_lag;
     float minRPM_antilag;
     float rnd_antilag_chance;
     float antilag_power_factor;
-
-    // air pressure
-    TorqueCurve* torqueCurve;
-    float apressure;
-
-    int automode; //!< Transmission mode (@see enum EngineSim::shiftmodes)
 };
