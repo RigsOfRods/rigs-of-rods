@@ -1407,7 +1407,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                     {
                         ar_beams[i].bm_broken = true;
                         ar_beams[i].bm_disabled = true;
-                        if (beambreakdebug)
+                        if (m_beam_break_debug_enabled)
                         {
                             RoR::Str<300> msg;
                             msg << "[RoR|Diag] XXX Support-Beam " << i << " limit extended and broke. "
@@ -1460,7 +1460,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                         // For the compression case we do not remove any of the beam's
                         // strength for structure stability reasons
                         //ar_beams[i].strength += deform * k * 0.5f;
-                        if (beamdeformdebug)
+                        if (m_beam_deform_debug_enabled)
                         {
                             RoR::Str<300> msg;
                             msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
@@ -1485,7 +1485,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                             ar_beams[i].minmaxposnegstress = std::min(ar_beams[i].minmaxposnegstress, ar_beams[i].strength);
                         }
                         ar_beams[i].strength -= deform * k;
-                        if (beamdeformdebug)
+                        if (m_beam_deform_debug_enabled)
                         {
                             RoR::Str<300> msg;
                             msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
@@ -1515,7 +1515,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                         ar_beams[i].bm_broken = true;
                         ar_beams[i].bm_disabled = true;
 
-                        if (beambreakdebug)
+                        if (m_beam_break_debug_enabled)
                         {
                             RoR::Str<200> msg;
                             msg << "[RoR|Diag] XXX Beam " << i << " just broke with force " << len << " / " << ar_beams[i].strength << ". ";
@@ -1536,7 +1536,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                                 {
                                     ar_beams[j].bm_broken = true;
                                     ar_beams[j].bm_disabled = true;
-                                    if (beambreakdebug)
+                                    if (m_beam_break_debug_enabled)
                                     {
                                         LOG("Deleting Detacher BeamID: " + TOSTRING(j) + ", Detacher Group: " + TOSTRING(ar_beams[i].detacher_group)+ ", trucknum: " + TOSTRING(trucknum));
                                     }
@@ -1639,7 +1639,7 @@ void Beam::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxste
                         // For the compression case we do not remove any of the beam's
                         // strength for structure stability reasons
                         //ar_inter_beams[i]->strength += deform * k * 0.5f;
-                        if (beamdeformdebug)
+                        if (m_beam_deform_debug_enabled)
                         {
                             RoR::Str<300> msg;
                             msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
@@ -1663,7 +1663,7 @@ void Beam::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxste
                             ar_inter_beams[i]->minmaxposnegstress = std::min(ar_inter_beams[i]->minmaxposnegstress, ar_inter_beams[i]->strength);
                         }
                         ar_inter_beams[i]->strength -= deform * k;
-                        if (beamdeformdebug)
+                        if (m_beam_deform_debug_enabled)
                         {
                             RoR::Str<300> msg;
                             msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
@@ -1691,7 +1691,7 @@ void Beam::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxste
                         ar_inter_beams[i]->bm_broken = true;
                         ar_inter_beams[i]->bm_disabled = true;
 
-                        if (beambreakdebug)
+                        if (m_beam_break_debug_enabled)
                         {
                             RoR::Str<200> msg;
                             msg << "[RoR|Diag] XXX Beam " << i << " just broke with force " << len << " / " << ar_inter_beams[i]->strength << ". ";
