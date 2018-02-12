@@ -149,9 +149,9 @@ Beam::~Beam()
         cabMesh = nullptr;
     }
 
-    if (replay)
-        delete replay;
-    replay = 0;
+    if (m_replay_handler)
+        delete m_replay_handler;
+    m_replay_handler = nullptr;
 
     if (vehicle_ai)
         delete vehicle_ai;
@@ -465,23 +465,23 @@ void Beam::scaleTruck(float value)
 
 void Beam::initSimpleSkeleton()
 {
-    simpleSkeletonManualObject = gEnv->sceneManager->createManualObject();
+    m_skeletonview_manual_mesh = gEnv->sceneManager->createManualObject();
 
-    simpleSkeletonManualObject->estimateIndexCount(ar_num_beams * 2);
-    simpleSkeletonManualObject->setCastShadows(false);
-    simpleSkeletonManualObject->setDynamic(true);
-    simpleSkeletonManualObject->setRenderingDistance(300);
-    simpleSkeletonManualObject->begin("vehicle-skeletonview-material", RenderOperation::OT_LINE_LIST);
+    m_skeletonview_manual_mesh->estimateIndexCount(ar_num_beams * 2);
+    m_skeletonview_manual_mesh->setCastShadows(false);
+    m_skeletonview_manual_mesh->setDynamic(true);
+    m_skeletonview_manual_mesh->setRenderingDistance(300);
+    m_skeletonview_manual_mesh->begin("vehicle-skeletonview-material", RenderOperation::OT_LINE_LIST);
     for (int i = 0; i < ar_num_beams; i++)
     {
-        simpleSkeletonManualObject->position(ar_beams[i].p1->AbsPosition);
-        simpleSkeletonManualObject->colour(1.0f, 1.0f, 1.0f);
-        simpleSkeletonManualObject->position(ar_beams[i].p2->AbsPosition);
-        simpleSkeletonManualObject->colour(0.0f, 0.0f, 0.0f);
+        m_skeletonview_manual_mesh->position(ar_beams[i].p1->AbsPosition);
+        m_skeletonview_manual_mesh->colour(1.0f, 1.0f, 1.0f);
+        m_skeletonview_manual_mesh->position(ar_beams[i].p2->AbsPosition);
+        m_skeletonview_manual_mesh->colour(0.0f, 0.0f, 0.0f);
     }
-    simpleSkeletonManualObject->end();
-    simpleSkeletonNode->attachObject(simpleSkeletonManualObject);
-    simpleSkeletonInitiated = true;
+    m_skeletonview_manual_mesh->end();
+    m_skeletonview_scenenode->attachObject(m_skeletonview_manual_mesh);
+    m_skeletonview_mesh_initialized = true;
 }
 
 void Beam::updateSimpleSkeleton()
@@ -490,10 +490,10 @@ void Beam::updateSimpleSkeleton()
 
     ColourValue color;
 
-    if (!simpleSkeletonInitiated)
+    if (!m_skeletonview_mesh_initialized)
         initSimpleSkeleton();
 
-    simpleSkeletonManualObject->beginUpdate(0);
+    m_skeletonview_manual_mesh->beginUpdate(0);
     for (int i = 0; i < ar_num_beams; i++)
     {
         float stress_ratio = ar_beams[i].stress / ar_beams[i].minmaxposnegstress;
@@ -505,18 +505,18 @@ void Beam::updateSimpleSkeleton()
         else
             color = ColourValue(color_scale, 1.0f - color_scale, 0.2f, 0.8f);
 
-        simpleSkeletonManualObject->position(ar_beams[i].p1->AbsPosition);
-        simpleSkeletonManualObject->colour(color);
+        m_skeletonview_manual_mesh->position(ar_beams[i].p1->AbsPosition);
+        m_skeletonview_manual_mesh->colour(color);
 
         // remove broken beams
         if (ar_beams[i].bm_broken || ar_beams[i].bm_disabled)
-            simpleSkeletonManualObject->position(ar_beams[i].p1->AbsPosition); // Start+End on same point -> beam will not be visible
+            m_skeletonview_manual_mesh->position(ar_beams[i].p1->AbsPosition); // Start+End on same point -> beam will not be visible
         else
-            simpleSkeletonManualObject->position(ar_beams[i].p2->AbsPosition);
+            m_skeletonview_manual_mesh->position(ar_beams[i].p2->AbsPosition);
 
-        simpleSkeletonManualObject->colour(color);
+        m_skeletonview_manual_mesh->colour(color);
     }
-    simpleSkeletonManualObject->end();
+    m_skeletonview_manual_mesh->end();
 
     BES_GFX_STOP(BES_GFX_UpdateSkeleton);
 }
@@ -793,7 +793,7 @@ void Beam::calcNetwork()
     }
 
     // set particle cannon
-    if (((flagmask & NETMASK_PARTICLE) != 0) != cparticle_mode)
+    if (((flagmask & NETMASK_PARTICLE) != 0) != m_custom_particles_enabled)
         toggleCustomParticles();
 
     // set lights
@@ -948,7 +948,7 @@ void Beam::calc_masses2(Real total, bool reCalc)
         }
     }
 
-    totalmass = 0;
+    m_total_mass = 0;
     for (int i = 0; i < ar_num_nodes; i++)
     {
         if (App::diag_truck_mass.GetActive())
@@ -963,9 +963,9 @@ void Beam::calc_masses2(Real total, bool reCalc)
             }
             LOG(msg);
         }
-        totalmass += ar_nodes[i].mass;
+        m_total_mass += ar_nodes[i].mass;
     }
-    LOG("TOTAL VEHICLE MASS: " + TOSTRING((int)totalmass) +" kg");
+    LOG("TOTAL VEHICLE MASS: " + TOSTRING((int)m_total_mass) +" kg");
 
     BES_GFX_STOP(BES_GFX_calc_masses2);
 }
@@ -973,19 +973,19 @@ void Beam::calc_masses2(Real total, bool reCalc)
 // this recalculates the masses (useful when the gravity was changed...)
 void Beam::recalc_masses()
 {
-    this->calc_masses2(totalmass, true);
+    this->calc_masses2(m_total_mass, true);
 }
 
 float Beam::getTotalMass(bool withLocked)
 {
     if (!withLocked)
-        return totalmass; // already computed in calc_masses2
+        return m_total_mass; // already computed in calc_masses2
 
-    float mass = totalmass;
+    float mass = m_total_mass;
 
-    for (std::list<Beam*>::iterator it = linkedBeams.begin(); it != linkedBeams.end(); ++it)
+    for (std::list<Beam*>::iterator it = m_linked_actors.begin(); it != m_linked_actors.end(); ++it)
     {
-        mass += (*it)->totalmass;
+        mass += (*it)->m_total_mass;
     }
 
     return mass;
@@ -993,7 +993,7 @@ float Beam::getTotalMass(bool withLocked)
 
 void Beam::determineLinkedBeams()
 {
-    linkedBeams.clear();
+    m_linked_actors.clear();
 
     bool found = true;
     std::map<Beam*, bool> lookup_table;
@@ -1021,7 +1021,7 @@ void Beam::determineLinkedBeams()
                         ret = lookup_table.insert(std::pair<Beam*, bool>(other_truck, false));
                         if (ret.second)
                         {
-                            linkedBeams.push_back(other_truck);
+                            m_linked_actors.push_back(other_truck);
                             found = true;
                         }
                     }
@@ -1224,7 +1224,7 @@ void Beam::resolveCollisions(float max_distance, bool consider_up)
     offset = front.length() < back.length() * 1.2f ? front : back;
 
     Vector3 side = left.length() < right.length() * 1.1f ? left : right;
-    if (side.length() < offset.length() + minCameraRadius / 2.0f)
+    if (side.length() < offset.length() + m_min_camera_radius / 2.0f)
         offset = side;
 
     if (consider_up)
@@ -1456,17 +1456,17 @@ void Beam::resetPosition(Vector3 translation, bool setInitPosition)
     calculateAveragePosition();
 
     // calculate minimum camera radius
-    if (minCameraRadius < 0.0f)
+    if (m_min_camera_radius < 0.0f)
     {
         for (int i = 0; i < ar_num_nodes; i++)
         {
             Real dist = ar_nodes[i].AbsPosition.squaredDistance(position);
-            if (dist > minCameraRadius)
+            if (dist > m_min_camera_radius)
             {
-                minCameraRadius = dist;
+                m_min_camera_radius = dist;
             }
         }
-        minCameraRadius = std::sqrt(minCameraRadius) * 1.2f; // twenty percent buffer
+        m_min_camera_radius = std::sqrt(m_min_camera_radius) * 1.2f; // twenty percent buffer
     }
 
     resetSlideNodePositions();
@@ -1757,15 +1757,15 @@ void Beam::SyncReset()
 
 bool Beam::replayStep()
 {
-    if (!replaymode || !replay || !replay->isValid())
+    if (!ar_replay_mode || !m_replay_handler || !m_replay_handler->isValid())
         return false;
 
     // no replay update needed if position was not changed
-    if (replaypos != oldreplaypos)
+    if (ar_replay_pos != m_replay_pos_prev)
     {
         unsigned long time = 0;
 
-        node_simple_t* nbuff = (node_simple_t *)replay->getReadBuffer(replaypos, 0, time);
+        node_simple_t* nbuff = (node_simple_t *)m_replay_handler->getReadBuffer(ar_replay_pos, 0, time);
         if (nbuff)
         {
             for (int i = 0; i < ar_num_nodes; i++)
@@ -1782,7 +1782,7 @@ bool Beam::replayStep()
             calculateAveragePosition();
         }
 
-        beam_simple_t* bbuff = (beam_simple_t *)replay->getReadBuffer(replaypos, 1, time);
+        beam_simple_t* bbuff = (beam_simple_t *)m_replay_handler->getReadBuffer(ar_replay_pos, 1, time);
         if (bbuff)
         {
             for (int i = 0; i < ar_num_beams; i++)
@@ -1791,7 +1791,7 @@ bool Beam::replayStep()
                 ar_beams[i].bm_disabled = bbuff[i].disabled;
             }
         }
-        oldreplaypos = replaypos;
+        m_replay_pos_prev = ar_replay_pos;
     }
 
     return true;
@@ -2098,17 +2098,17 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
         if (!lower_limit && !upper_limit)
         {
             int shifter = engine->getGear();
-            if (shifter > previousGear)
+            if (shifter > m_previous_gear)
             {
                 cstate = 1.0f;
                 ar_anim_shift_timer = 0.2f;
             }
-            if (shifter < previousGear)
+            if (shifter < m_previous_gear)
             {
                 cstate = -1.0f;
                 ar_anim_shift_timer = -0.2f;
             }
-            previousGear = shifter;
+            m_previous_gear = shifter;
 
             if (ar_anim_shift_timer > 0.0f)
             {
@@ -3033,8 +3033,8 @@ void Beam::lightsToggle()
 
 void Beam::updateFlares(float dt, bool isCurrent)
 {
-    if (mTimeUntilNextToggle > -1)
-        mTimeUntilNextToggle -= dt;
+    if (m_custom_light_toggle_countdown > -1)
+        m_custom_light_toggle_countdown -= dt;
 
     if (m_flares_mode == GfxFlaresMode::NONE) { return; }
 
@@ -3248,7 +3248,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
             if (ar_sim_state == Beam::SimState::LOCAL_SIMULATED && this == m_sim_controller->GetBeamFactory()->getCurrentTruck()) // no network!!
             {
                 // networked customs are set directly, so skip this
-                if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_LIGHTTOGGLE01 + (flares[i].controlnumber - 1)) && mTimeUntilNextToggle <= 0)
+                if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_LIGHTTOGGLE01 + (flares[i].controlnumber - 1)) && m_custom_light_toggle_countdown <= 0)
                 {
                     flares[i].controltoggle_status = ! flares[i].controltoggle_status;
                     keysleep = true;
@@ -3347,7 +3347,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
         //flares[i].bbs->_updateBounds();
     }
     if (keysleep)
-        mTimeUntilNextToggle = 0.2;
+        m_custom_light_toggle_countdown = 0.2;
     BES_GFX_STOP(BES_GFX_updateFlares);
 }
 
@@ -3443,7 +3443,7 @@ void Beam::updateProps()
 
 void Beam::toggleCustomParticles()
 {
-    cparticle_mode = !cparticle_mode;
+    m_custom_particles_enabled = !m_custom_particles_enabled;
     for (int i = 0; i < free_cparticle; i++)
     {
         cparticles[i].active = !cparticles[i].active;
@@ -3692,26 +3692,26 @@ void Beam::updateVisual(float dt)
     hydroruddercommand = autorudder;
     hydroelevatorcommand = autoelevator;
 
-    if (cabFadeMode > 0 && dt > 0)
+    if (m_cab_fade_mode > 0 && dt > 0)
     {
-        if (cabFadeTimer > 0)
-            cabFadeTimer -= dt;
+        if (m_cab_fade_timer > 0)
+            m_cab_fade_timer -= dt;
 
-        if (cabFadeTimer < 0.1 && cabFadeMode == 1)
+        if (m_cab_fade_timer < 0.1 && m_cab_fade_mode == 1)
         {
-            cabFadeMode = 0;
+            m_cab_fade_mode = 0;
             cabFade(0.4);
         }
-        else if (cabFadeTimer < 0.1 && cabFadeMode == 2)
+        else if (m_cab_fade_timer < 0.1 && m_cab_fade_mode == 2)
         {
-            cabFadeMode = 0;
+            m_cab_fade_mode = 0;
             cabFade(1);
         }
 
-        if (cabFadeMode == 1)
-            cabFade(0.4 + 0.6 * cabFadeTimer / cabFadeTime);
-        else if (cabFadeMode == 2)
-            cabFade(1 - 0.6 * cabFadeTimer / cabFadeTime);
+        if (m_cab_fade_mode == 1)
+            cabFade(0.4 + 0.6 * m_cab_fade_timer / m_cab_fade_time);
+        else if (m_cab_fade_mode == 2)
+            cabFade(1 - 0.6 * m_cab_fade_timer / m_cab_fade_time);
     }
 
     for (int i = 0; i < ar_num_beams; i++)
@@ -3791,19 +3791,19 @@ void Beam::updateFlexbodiesFinal()
 //v=1: no beams
 void Beam::setDetailLevel(int v)
 {
-    if (v != detailLevel)
+    if (v != m_gfx_detail_level)
     {
-        if (detailLevel == 0 && v == 1)
+        if (m_gfx_detail_level == 0 && v == 1)
         {
             // detach
             gEnv->sceneManager->getRootSceneNode()->removeChild(beamsRoot);
         }
-        if (detailLevel == 1 && v == 0)
+        if (m_gfx_detail_level == 1 && v == 0)
         {
             // attach
             gEnv->sceneManager->getRootSceneNode()->addChild(beamsRoot);
         }
-        detailLevel = v;
+        m_gfx_detail_level = v;
     }
 }
 
@@ -3813,12 +3813,12 @@ void Beam::showSkeleton(bool meshes, bool linked)
 
     if (meshes)
     {
-        cabFadeMode = 1;
-        cabFadeTimer = cabFadeTime;
+        m_cab_fade_mode = 1;
+        m_cab_fade_timer = m_cab_fade_time;
     }
     else
     {
-        cabFadeMode = -1;
+        m_cab_fade_mode = -1;
         // directly hide meshes, no fading
         cabFade(0);
     }
@@ -3841,9 +3841,9 @@ void Beam::showSkeleton(bool meshes, bool linked)
             setMeshWireframe(ar_props[i].wheel, true);
     }
 
-    if (simpleSkeletonNode)
+    if (m_skeletonview_scenenode)
     {
-        simpleSkeletonNode->setVisible(true);
+        m_skeletonview_scenenode->setVisible(true);
     }
 
     // hide mesh wheels
@@ -3869,7 +3869,7 @@ void Beam::showSkeleton(bool meshes, bool linked)
     {
         // apply to all locked trucks
         determineLinkedBeams();
-        for (std::list<Beam*>::iterator it = linkedBeams.begin(); it != linkedBeams.end(); ++it)
+        for (std::list<Beam*>::iterator it = m_linked_actors.begin(); it != m_linked_actors.end(); ++it)
         {
             (*it)->showSkeleton(meshes, false);
         }
@@ -3884,14 +3884,14 @@ void Beam::hideSkeleton(bool linked)
 {
     ar_skeletonview_is_active = false;
 
-    if (cabFadeMode >= 0)
+    if (m_cab_fade_mode >= 0)
     {
-        cabFadeMode = 2;
-        cabFadeTimer = cabFadeTime;
+        m_cab_fade_mode = 2;
+        m_cab_fade_timer = m_cab_fade_time;
     }
     else
     {
-        cabFadeMode = -1;
+        m_cab_fade_mode = -1;
         // directly show meshes, no fading
         cabFade(1);
     }
@@ -3913,8 +3913,8 @@ void Beam::hideSkeleton(bool linked)
             setMeshWireframe(ar_props[i].wheel, false);
     }
 
-    if (simpleSkeletonNode)
-        simpleSkeletonNode->setVisible(false);
+    if (m_skeletonview_scenenode)
+        m_skeletonview_scenenode->setVisible(false);
 
     // show mesh wheels
     for (int i = 0; i < free_wheel; i++)
@@ -3940,7 +3940,7 @@ void Beam::hideSkeleton(bool linked)
     {
         // apply to all locked trucks
         determineLinkedBeams();
-        for (std::list<Beam*>::iterator it = linkedBeams.begin(); it != linkedBeams.end(); ++it)
+        for (std::list<Beam*>::iterator it = m_linked_actors.begin(); it != m_linked_actors.end(); ++it)
         {
             (*it)->hideSkeleton(false);
         }
@@ -4132,11 +4132,11 @@ void Beam::addInterTruckBeam(beam_t* beam, Beam* a, Beam* b)
     m_sim_controller->GetBeamFactory()->interTruckLinks[beam] = truck_pair;
 
     a->determineLinkedBeams();
-    for (auto truck : a->linkedBeams)
+    for (auto truck : a->m_linked_actors)
         truck->determineLinkedBeams();
 
     b->determineLinkedBeams();
-    for (auto truck : b->linkedBeams)
+    for (auto truck : b->m_linked_actors)
         truck->determineLinkedBeams();
 }
 
@@ -4155,11 +4155,11 @@ void Beam::removeInterTruckBeam(beam_t* beam)
         m_sim_controller->GetBeamFactory()->interTruckLinks.erase(it);
 
         truck_pair.first->determineLinkedBeams();
-        for (auto truck : truck_pair.first->linkedBeams)
+        for (auto truck : truck_pair.first->m_linked_actors)
             truck->determineLinkedBeams();
 
         truck_pair.second->determineLinkedBeams();
-        for (auto truck : truck_pair.second->linkedBeams)
+        for (auto truck : truck_pair.second->m_linked_actors)
             truck->determineLinkedBeams();
     }
 }
@@ -4178,11 +4178,11 @@ void Beam::disjoinInterTruckBeams()
             interTruckLinks->erase(it++);
 
             truck_pair.first->determineLinkedBeams();
-            for (auto truck : truck_pair.first->linkedBeams)
+            for (auto truck : truck_pair.first->m_linked_actors)
                 truck->determineLinkedBeams();
 
             truck_pair.second->determineLinkedBeams();
-            for (auto truck : truck_pair.second->linkedBeams)
+            for (auto truck : truck_pair.second->m_linked_actors)
                 truck->determineLinkedBeams();
         }
         else
@@ -4676,17 +4676,17 @@ void Beam::beaconsToggle()
 
 void Beam::setReplayMode(bool rm)
 {
-    if (!replay || !replay->isValid())
+    if (!m_replay_handler || !m_replay_handler->isValid())
         return;
 
-    if (replaymode && !rm)
+    if (ar_replay_mode && !rm)
     {
-        replaypos = 0;
-        oldreplaypos = -1;
+        ar_replay_pos = 0;
+        m_replay_pos_prev = -1;
     }
 
-    replaymode = rm;
-    replay->setVisible(replaymode);
+    ar_replay_mode = rm;
+    m_replay_handler->setVisible(ar_replay_mode);
 }
 
 void Beam::setDebugOverlayState(int mode)
@@ -5121,10 +5121,10 @@ void Beam::updateDashBoards(float dt)
     if (this->ar_has_active_shocks)
     {
         // TOFIX: certainly not working:
-        float roll_corr = - stabratio * 10.0f;
+        float roll_corr = - m_stabilizer_shock_ratio * 10.0f;
         ar_dashboard->setFloat(DD_ROLL_CORR, roll_corr);
 
-        bool corr_active = (stabcommand > 0);
+        bool corr_active = (m_stabilizer_shock_request > 0);
         ar_dashboard->setBool(DD_ROLL_CORR_ACTIVE, corr_active);
     }
 
@@ -5551,17 +5551,17 @@ Beam::Beam(
     , blinkingtype(BLINK_NONE)
     , m_blinker_autoreset(false)
     , brake(0.0)
-    , cabFadeMode(0)
-    , cabFadeTime(0.3)
-    , cabFadeTimer(0)
+    , m_cab_fade_mode(0)
+    , m_cab_fade_time(0.3)
+    , m_cab_fade_timer(0)
     , m_camera_gforces_accu(Ogre::Vector3::ZERO)
     , m_camera_gforces_count(0)
     , canwork(true)
-    , cparticle_mode(false)
+    , m_custom_particles_enabled(false)
     , currentScale(1)
     , ar_current_cinecam(-1) // -1 = external
     , ar_dashboard(nullptr)
-    , detailLevel(0)
+    , m_gfx_detail_level(0)
     , ar_disable_aerodyn_turbulent_drag(false)
     , ar_disable_actor2actor_collision(false)
     , ar_disable_self_collision(false)
@@ -5579,7 +5579,7 @@ Beam::Beam(
     , hydroruddercommand(0)
     , hydrorudderstate(0)
     , iPosition(pos)
-    , increased_accuracy(false)
+    , m_increased_accuracy(false)
     , interPointCD()
     , intraPointCD()
     , ar_net_last_update_time(0)
@@ -5599,9 +5599,9 @@ Beam::Beam(
     , ar_net_source_id(0)
     , m_spawn_rotation(0.0)
     , ar_net_stream_id(0)
-    , mTimeUntilNextToggle(0)
+    , m_custom_light_toggle_countdown(0)
     , ar_meshes_visible(true)
-    , minCameraRadius(-1.0f)
+    , m_min_camera_radius(-1.0f)
     , m_mouse_grab_move_force(0.0f)
     , m_mouse_grab_node(-1)
     , m_mouse_grab_pos(Ogre::Vector3::ZERO)
@@ -5609,31 +5609,31 @@ Beam::Beam(
     , m_net_label_node(0)
     , m_net_label_mt(0)
     , m_net_reverse_light(false)
-    , oldreplaypos(-1)
+    , m_replay_pos_prev(-1)
     , parkingbrake(0)
     , posStorage(0)
     , position(pos)
-    , previousGear(0)
+    , m_previous_gear(0)
     , m_ref_tyre_pressure(50.0)
-    , replay(0)
-    , replayPrecision(0)
-    , replayTimer(0)
-    , replaylen(10000)
-    , replaymode(false)
-    , replaypos(0)
+    , m_replay_handler(nullptr)
+    , ar_replay_precision(0)
+    , m_replay_timer(0)
+    , ar_replay_length(10000)
+    , ar_replay_mode(false)
+    , ar_replay_pos(0)
     , m_reverse_light_active(false)
     , ar_right_mirror_angle(-0.52)
     , rudder(0)
-    , simpleSkeletonInitiated(false)
-    , simpleSkeletonManualObject(0)
+    , m_skeletonview_mesh_initialized(false)
+    , m_skeletonview_manual_mesh(0)
     , ar_update_physics(false)
     , sleeptime(0.0f)
     , smokeNode(NULL)
     , smoker(NULL)
-    , stabcommand(0)
-    , stabratio(0.0)
-    , stabsleep(0.0)
-    , totalmass(0)
+    , m_stabilizer_shock_request(0)
+    , m_stabilizer_shock_ratio(0.0)
+    , m_stabilizer_shock_sleep(0.0)
+    , m_total_mass(0)
     , m_water_contact(false)
     , m_water_contact_old(false)
 {
@@ -5688,15 +5688,15 @@ Beam::Beam(
 
     if (App::sim_replay_enabled.GetActive() && !_networked && !networking)
     {
-        replaylen = App::sim_replay_length.GetActive();
-        replay = new Replay(this, replaylen);
+        ar_replay_length = App::sim_replay_length.GetActive();
+        m_replay_handler = new Replay(this, ar_replay_length);
 
         int steps = App::sim_replay_stepping.GetActive();
 
         if (steps <= 0)
-            replayPrecision = 0.0f;
+            ar_replay_precision = 0.0f;
         else
-            replayPrecision = 1.0f / ((float)steps);
+            ar_replay_precision = 1.0f / ((float)steps);
     }
 
     // add storage
@@ -6237,7 +6237,7 @@ bool Beam::LoadTruck(
 
 ground_model_t* Beam::getLastFuzzyGroundModel()
 {
-    return lastFuzzyGroundModel;
+    return m_last_fuzzy_ground_model;
 }
 
 float Beam::getSteeringAngle()
@@ -6335,7 +6335,7 @@ blinktype Beam::getBlinkType()
 
 bool Beam::getCustomParticleMode()
 {
-    return cparticle_mode;
+    return m_custom_particles_enabled;
 }
 
 int Beam::getLowestNode()
@@ -6345,12 +6345,12 @@ int Beam::getLowestNode()
 
 Ogre::Real Beam::getMinimalCameraRadius()
 {
-    return minCameraRadius;
+    return m_min_camera_radius;
 }
 
 Replay* Beam::getReplay()
 {
-    return replay;
+    return m_replay_handler;
 }
 
 bool Beam::getSlideNodesLockInstant()

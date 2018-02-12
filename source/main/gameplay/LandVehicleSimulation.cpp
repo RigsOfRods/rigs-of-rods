@@ -152,7 +152,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 {
     using namespace Ogre;
 
-    if (!curr_truck->replaymode)
+    if (!curr_truck->ar_replay_mode)
     {
         if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_LEFT_MIRROR_LEFT))
             curr_truck->ar_left_mirror_angle -= 0.001;
@@ -165,12 +165,12 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
 
         if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_RIGHT_MIRROR_RIGHT))
             curr_truck->ar_right_mirror_angle += 0.001;
-    } // end of (!curr_truck->replaymode) block
+    } // end of (!curr_truck->ar_replay_mode) block
 
 #ifdef USE_ANGELSCRIPT
-    if (!curr_truck->replaymode && !curr_truck->vehicle_ai->IsActive())
+    if (!curr_truck->ar_replay_mode && !curr_truck->vehicle_ai->IsActive())
 #else
-    if (!curr_truck->replaymode)
+    if (!curr_truck->ar_replay_mode)
 #endif // USE_ANGELSCRIPT
     {
         // steering
@@ -506,7 +506,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
         {
             SOUND_STOP(curr_truck, SS_TRIG_BRAKE);
         }
-    } // end of ->replaymode
+    } // end of ->ar_replay_mode
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_AXLE_LOCK))
     {
@@ -533,7 +533,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
     }
     else
     {
-        if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_HORN) && !curr_truck->replaymode)
+        if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_HORN) && !curr_truck->ar_replay_mode)
         {
             SOUND_START(curr_truck, SS_TRIG_HORN);
         }

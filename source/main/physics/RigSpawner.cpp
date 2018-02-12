@@ -439,8 +439,8 @@ void RigSpawner::InitializeRig()
     statistics_gfx = BES.getClient(tnum, BES_GFX);
 #endif
 
-    m_rig->simpleSkeletonNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-    m_rig->deletion_sceneNodes.emplace_back(m_rig->simpleSkeletonNode);
+    m_rig->m_skeletonview_scenenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+    m_rig->deletion_sceneNodes.emplace_back(m_rig->m_skeletonview_scenenode);
     
     m_rig->beamsRoot = m_parent_scene_node;
 
@@ -461,12 +461,12 @@ void RigSpawner::InitializeRig()
     m_rig->cparticle_enabled = App::gfx_particles_mode.GetActive() == 1;
 
     DustManager& dustman = m_sim_controller->GetBeamFactory()->GetParticleManager();
-    m_rig->dustp   = dustman.getDustPool("dust");
-    m_rig->dripp   = dustman.getDustPool("drip");
-    m_rig->sparksp = dustman.getDustPool("sparks");
-    m_rig->clumpp  = dustman.getDustPool("clump");
-    m_rig->splashp = dustman.getDustPool("splash");
-    m_rig->ripplep = dustman.getDustPool("ripple");
+    m_rig->m_particles_dust   = dustman.getDustPool("dust");
+    m_rig->m_particles_drip   = dustman.getDustPool("drip");
+    m_rig->m_particles_sparks = dustman.getDustPool("sparks");
+    m_rig->m_particles_clump  = dustman.getDustPool("clump");
+    m_rig->m_particles_splash = dustman.getDustPool("splash");
+    m_rig->m_particles_ripple = dustman.getDustPool("ripple");
 
     m_rig->cmdInertia   = new CmdKeyInertia();
     m_rig->hydroInertia = new CmdKeyInertia();
@@ -6806,7 +6806,7 @@ void RigSpawner::SetupDefaultSoundSources(Beam *vehicle)
     //boat engine
     if (vehicle->driveable==BOAT)
     {
-        if (vehicle->totalmass>50000.0)
+        if (vehicle->m_total_mass>50000.0)
             AddSoundSourceInstance(vehicle, "tracks/default_marine_large", ar_exhaust_pos_node);
         else
             AddSoundSourceInstance(vehicle, "tracks/default_marine_small", ar_exhaust_pos_node);

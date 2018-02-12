@@ -69,9 +69,9 @@ void CameraBehaviorStatic::update(const CameraManager::CameraContext& ctx)
         velocity = ctx.mCurrTruck->ar_nodes[0].Velocity * ctx.mSimSpeed;
         angle = (lookAt - camPosition).angleBetween(velocity);
         speed = velocity.length();
-        if (ctx.mCurrTruck->replaymode)
+        if (ctx.mCurrTruck->ar_replay_mode)
         {
-            speed *= ctx.mCurrTruck->replayPrecision;
+            speed *= ctx.mCurrTruck->ar_replay_precision;
         }
     }
     else
