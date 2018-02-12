@@ -1314,7 +1314,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
 
             if (this->GetPlayerActor() == nullptr)
             {
-                // find the nearest truck
+                // find the nearest vehicle
                 float mindist = 1000.0;
                 int minindex = -1;
                 for (int i = 0; i < num_actor_slots; i++)
@@ -1325,7 +1325,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                         continue;
                     if (actor_slots[i]->ar_cinecam_node[0] == -1)
                     {
-                        LOG("cinecam missing, cannot enter truck!");
+                        LOG("cinecam missing, cannot enter the actor!");
                         continue;
                     }
                     float len = 0.0f;
@@ -1351,7 +1351,7 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
             else
             {
                 player_actor->ar_brake = player_actor->ar_brake_force * 0.66;
-                m_time_until_next_toggle = 0.0; // No delay in this case: the truck must brake like braking normally
+                m_time_until_next_toggle = 0.0; // No delay in this case: the vehicle must brake like braking normally
             }
         }
         else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_NEXT_TRUCK, 0.25f))
@@ -1366,21 +1366,21 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
         {
             if (m_last_cache_selection != nullptr)
             {
-                /* We load an extra truck */
+                /* We load an extra actor */
                 std::vector<String>* config_ptr = nullptr;
                 if (m_last_vehicle_configs.size() > 0)
                 {
                     config_ptr = & m_last_vehicle_configs;
                 }
 
-                Actor* current_truck = m_actor_manager.GetPlayerActorInternal();
-                if (current_truck != nullptr)
+                Actor* player_actor = m_actor_manager.GetPlayerActorInternal();
+                if (player_actor != nullptr)
                 {
-                    m_reload_dir = Quaternion(Degree(270) - Radian(current_truck->getRotation()), Vector3::UNIT_Y);
-                    m_reload_pos = current_truck->GetRotationCenter();
+                    m_reload_dir = Quaternion(Degree(270) - Radian(player_actor->getRotation()), Vector3::UNIT_Y);
+                    m_reload_pos = player_actor->GetRotationCenter();
 
                     // TODO: Fix this by projecting m_reload_pos onto the terrain / mesh
-                    m_reload_pos.y = current_truck->ar_nodes[current_truck->ar_lowest_contacting_node].AbsPosition.y;
+                    m_reload_pos.y = player_actor->ar_nodes[player_actor->ar_lowest_contacting_node].AbsPosition.y;
                 }
                 else
                 {
@@ -1388,9 +1388,9 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                     m_reload_pos = gEnv->player->getPosition();
                 }
 
-                Actor* local_truck = m_actor_manager.CreateLocalActor(m_reload_pos, m_reload_dir, m_last_cache_selection->fname, m_last_cache_selection->number, 0, false, config_ptr, m_last_skin_selection);
+                Actor* local_actor = m_actor_manager.CreateLocalActor(m_reload_pos, m_reload_dir, m_last_cache_selection->fname, m_last_cache_selection->number, 0, false, config_ptr, m_last_skin_selection);
 
-                this->FinalizeActorSpawning(local_truck, current_truck);
+                this->FinalizeActorSpawning(local_actor, player_actor);
             }
         }
     }
@@ -1438,9 +1438,9 @@ bool RoRFrameListener::UpdateInputEvents(float dt)
                         }
                     }
 
-                    Actor* local_truck = m_actor_manager.CreateLocalActor(m_reload_pos, m_reload_dir, selection->fname, selection->number, m_reload_box, false, config_ptr, skin);
+                    Actor* local_actor = m_actor_manager.CreateLocalActor(m_reload_pos, m_reload_dir, selection->fname, selection->number, m_reload_box, false, config_ptr, skin);
 
-                    this->FinalizeActorSpawning(local_truck, player_actor);
+                    this->FinalizeActorSpawning(local_actor, player_actor);
                 }
                 else if (gEnv->player)
                 {
@@ -2094,7 +2094,7 @@ void RoRFrameListener::ChangedCurrentVehicle(Actor* previous_vehicle, Actor* cur
             Vector3 position = previous_vehicle->ar_nodes[0].AbsPosition;
             if (previous_vehicle->ar_cinecam_node[0] != -1 && previous_vehicle->ar_camera_node_pos[0] != -1 && previous_vehicle->ar_camera_node_roll[0] != -1)
             {
-                // truck has a cinecam
+                // actor has a cinecam
                 position = previous_vehicle->ar_nodes[previous_vehicle->ar_cinecam_node[0]].AbsPosition;
                 position += -2.0 * ((previous_vehicle->ar_nodes[previous_vehicle->ar_camera_node_pos[0]].RelPosition - previous_vehicle->ar_nodes[previous_vehicle->ar_camera_node_roll[0]].RelPosition).normalisedCopy());
                 position += Vector3(0.0, -1.0, 0.0);
@@ -2124,7 +2124,7 @@ void RoRFrameListener::ChangedCurrentVehicle(Actor* previous_vehicle, Actor* cur
         // force feedback
         m_force_feedback->SetEnabled(current_vehicle->ar_driveable == TRUCK); //only for trucks so far
 
-        // attach player to truck
+        // attach player to vehicle
         if (gEnv->player)
         {
             gEnv->player->SetActorCoupling(true, current_vehicle);
@@ -2370,16 +2370,16 @@ bool RoRFrameListener::SetupGameplayLoop()
             RoR::LogFormat("[RoR|Diag] Preselected Truck Config: %s", App::diag_preset_veh_config.GetActive());
         }
 
-        const std::vector<Ogre::String> truckConfig = std::vector<Ogre::String>(1, App::diag_preset_veh_config.GetActive());
+        const std::vector<Ogre::String> actor_config = std::vector<Ogre::String>(1, App::diag_preset_veh_config.GetActive());
 
         Vector3 pos = gEnv->player->getPosition();
         Quaternion rot = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
 
-        Actor* b = m_actor_manager.CreateLocalActor(pos, rot, App::diag_preset_vehicle.GetActive(), -1, nullptr, false, &truckConfig);
+        Actor* b = m_actor_manager.CreateLocalActor(pos, rot, App::diag_preset_vehicle.GetActive(), -1, nullptr, false, &actor_config);
 
         if (b != nullptr)
         {
-            // Calculate translational offset for node[0] to align the trucks rotation center with m_reload_pos
+            // Calculate translational offset for node[0] to align the actor's rotation center with m_reload_pos
             Vector3 translation = pos - b->GetRotationCenter();
             b->ResetPosition(b->ar_nodes[0].AbsPosition + Vector3(translation.x, 0.0f, translation.z), true);
 

@@ -251,8 +251,7 @@ void BeamEngine::setOptions(float einertia, char etype, float eclutch, float cti
 
 void BeamEngine::update(float dt, int doUpdate)
 {
-    Actor* truck = m_actor;
-    int trucknum = m_actor->ar_instance_id;
+    int actor_id = m_actor->ar_instance_id;
     float acc = curAcc;
 
     acc = std::max(getIdleMixture(), acc);
@@ -523,7 +522,6 @@ void BeamEngine::update(float dt, int doUpdate)
             {
                 // we're done shifting
                 SOUND_STOP(m_actor, SS_TRIG_SHIFT);
-
                 setAcc(autocurAcc);
                 shifting = 0;
                 postshifting = 1;
@@ -563,7 +561,7 @@ void BeamEngine::update(float dt, int doUpdate)
 
         // auto clutch
         float declutchRPM = (minRPM + stallRPM) / 2.0f;
-        if (curGear == 0 || curEngineRPM < declutchRPM || (fabs(curWheelRevolutions) < 1.0f && (curEngineRPM < minRPM * 1.01f || autocurAcc == 0.0f)) || (autocurAcc == 0.0f && truck->ar_brake > 0.0f && retorque >= 0.0f))
+        if (curGear == 0 || curEngineRPM < declutchRPM || (fabs(curWheelRevolutions) < 1.0f && (curEngineRPM < minRPM * 1.01f || autocurAcc == 0.0f)) || (autocurAcc == 0.0f && m_actor->ar_brake > 0.0f && retorque >= 0.0f))
         {
             curClutch = 0.0f;
         }
@@ -613,19 +611,19 @@ void BeamEngine::update(float dt, int doUpdate)
     if (doUpdate && !shifting && !postshifting)
     {
         // gear hack
-        absVelocity = truck->ar_nodes[0].Velocity.length();
+        absVelocity = m_actor->ar_nodes[0].Velocity.length();
         float velocity = absVelocity;
 
-        if (truck->ar_camera_node_pos[0] >= 0 && truck->ar_camera_node_dir[0] >= 0)
+        if (m_actor->ar_camera_node_pos[0] >= 0 && m_actor->ar_camera_node_dir[0] >= 0)
         {
-            Vector3 hdir = (truck->ar_nodes[truck->ar_camera_node_pos[0]].RelPosition - truck->ar_nodes[truck->ar_camera_node_dir[0]].RelPosition).normalisedCopy();
-            velocity = hdir.dotProduct(truck->ar_nodes[0].Velocity);
+            Vector3 hdir = (m_actor->ar_nodes[m_actor->ar_camera_node_pos[0]].RelPosition - m_actor->ar_nodes[m_actor->ar_camera_node_dir[0]].RelPosition).normalisedCopy();
+            velocity = hdir.dotProduct(m_actor->ar_nodes[0].Velocity);
         }
         relVelocity = std::abs(velocity);
 
-        if (truck->ar_wheels[0].wh_radius != 0)
+        if (m_actor->ar_wheels[0].wh_radius != 0)
         {
-            refWheelRevolutions = velocity / truck->ar_wheels[0].wh_radius * RAD_PER_SEC_TO_RPM;
+            refWheelRevolutions = velocity / m_actor->ar_wheels[0].wh_radius * RAD_PER_SEC_TO_RPM;
         }
 
         if (!is_Electric && automode == AUTOMATIC && (autoselect == DRIVE || autoselect == TWO) && curGear > 0)
@@ -648,9 +646,9 @@ void BeamEngine::update(float dt, int doUpdate)
 
             float brake = 0.0f;
 
-            if (truck->ar_brake_force > 0.0f)
+            if (m_actor->ar_brake_force > 0.0f)
             {
-                brake = truck->ar_brake / truck->ar_brake_force;
+                brake = m_actor->ar_brake / m_actor->ar_brake_force;
             }
 
             rpms.push_front(curEngineRPM);

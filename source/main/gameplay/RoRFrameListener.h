@@ -95,7 +95,7 @@ private:
     void   UpdateForceFeedback     (float dt);
     bool   UpdateInputEvents       (float dt);
     void   UpdateRacingGui         ();
-    void   FinalizeActorSpawning   (Actor* local_truck, Actor* previous_truck);
+    void   FinalizeActorSpawning   (Actor* local_actor, Actor* previous_actor);
     void   HideGUI                 (bool hidden);
     void   CleanupAfterSimulation  (); /// Unloads all data
 
