@@ -430,15 +430,15 @@ public:
     int               cameranoderoll[MAX_CAMERAS];
     bool              revroll[MAX_CAMERAS];
     bool              shadowOptimizations;
-    int               lowestnode;         //!< never updated after truck init!?!
-    int               lowestcontactingnode;
-    float             posnode_spawn_height;
+    int               ar_lowest_node;             //!< Physics attr, filled at spawn, limited use for boats
+    int               ar_lowest_contacting_node;  //!< Physics attr, filled at spawn, used for positioning on (re)spawn
+    float             ar_posnode_spawn_height;
     float             odometerTotal;
     float             odometerUser;
     VehicleAI*        ar_vehicle_ai;
-    float             currentScale;
-    Ogre::Real        ar_brake;           //!< Physics state; braking intensity
-    float             ar_wheel_speed;         //!< wheel speed in m/s
+    float             ar_scale;               //!< Physics state; scale of the actor (nominal = 1.0)
+    Ogre::Real        ar_brake;               //!< Physics state; braking intensity
+    float             ar_wheel_speed;         //!< Physics state; wheel speed in m/s
     float             ar_hydro_dir_command;
     float             ar_hydro_dir_state;
     Ogre::Real        ar_hydro_dir_wheel_display;
