@@ -178,7 +178,7 @@ void CLASS::initMisc()
 #endif
     AuthorsText = AuthorsText + color1 + "OIS:" + white + " Used as Input System" + newline;
 #ifdef USE_PAGED
-    AuthorsText = AuthorsText + color1 + "pagedGeometry:" + white + " Used for foliage (grass, trees, etc)" + newline;
+    AuthorsText = AuthorsText + color1 + "m_paged_geometry:" + white + " Used for foliage (grass, trees, etc)" + newline;
 #endif
 #ifdef USE_CURL
     AuthorsText = AuthorsText + color1 + "curl:" + white + " Used for www-server communication" + newline;

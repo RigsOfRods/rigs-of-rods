@@ -621,7 +621,7 @@ void TerrainManager::loadTerrainObjects()
         object_manager->loadObjectConfigFile(tobj_filename);
     }
 
-    object_manager->postLoad(); // bakes the geometry and things
+    object_manager->PostLoadTerrain(); // bakes the geometry and things
 }
 
 void TerrainManager::initTerrainCollisions()
@@ -635,7 +635,7 @@ void TerrainManager::initTerrainCollisions()
 bool TerrainManager::update(float dt)
 {
     if (object_manager)
-        object_manager->update(dt);
+        object_manager->UpdateTerrainObjects(dt);
 
     if (geometry_manager)
         geometry_manager->UpdateMainLightPosition(); // TODO: Is this necessary? I'm leaving it here just in case ~ only_a_ptr, 04/2017
