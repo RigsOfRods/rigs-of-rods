@@ -101,8 +101,8 @@ FlexBody* FlexFactory::CreateFlexBody(
     FlexBody* new_flexbody = new FlexBody(
         def,
         from_cache,
-        m_rig_spawner->GetRig()->nodes,
-        m_rig_spawner->GetRig()->free_node,
+        m_rig_spawner->GetRig()->ar_nodes,
+        m_rig_spawner->GetRig()->ar_num_nodes,
         entity,
         ref_node,
         x_node,
@@ -136,7 +136,7 @@ FlexMeshWheel* FlexFactory::CreateFlexMeshWheel(
     // Create dynamic mesh for tire
     const std::string tire_mesh_name = m_rig_spawner->ComposeName("MWheelTireMesh", wheel_index);
     FlexMeshWheel* flex_mesh_wheel = new FlexMeshWheel(
-        rim_prop_entity, m_rig_spawner->GetRig()->nodes, axis_node_1_index, axis_node_2_index, nstart, nrays,
+        rim_prop_entity, m_rig_spawner->GetRig()->ar_nodes, axis_node_1_index, axis_node_2_index, nstart, nrays,
         tire_mesh_name, tire_material_name, rim_radius, rim_reverse);
 
     // Instantiate the dynamic tire mesh

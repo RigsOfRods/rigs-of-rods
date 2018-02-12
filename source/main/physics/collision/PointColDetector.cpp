@@ -77,7 +77,7 @@ void PointColDetector::update(Beam* truck, Beam** trucks, const int numtrucks, b
                 m_trucks[t] = trucks[t];
                 truck->collisionRelevant = true;
                 contacters_size += trucks[t]->free_contacter;
-                if (truck->nodes[0].Velocity.squaredDistance(trucks[t]->nodes[0].Velocity) > 25)
+                if (truck->ar_nodes[0].Velocity.squaredDistance(trucks[t]->ar_nodes[0].Velocity) > 25)
                 {
                     for (int i=0; i<truck->free_collcab; i++)
                     {
@@ -128,7 +128,7 @@ void PointColDetector::update_structures_for_contacters() {
                 ref_list[refi].pidref = &pointid_list[refi];
                 pointid_list[refi].truckid = t;
                 pointid_list[refi].nodeid = m_trucks[t]->contacters[i].nodeid;
-                ref_list[refi].point = &(m_trucks[t]->nodes[pointid_list[refi].nodeid].AbsPosition.x);
+                ref_list[refi].point = &(m_trucks[t]->ar_nodes[pointid_list[refi].nodeid].AbsPosition.x);
                 refi++;
             }
         }

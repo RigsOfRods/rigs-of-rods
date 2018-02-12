@@ -202,9 +202,7 @@ public:
     std::string       getTruckFileName();
     int               getTruckType();
     int               getBeamCount();
-    beam_t*           getBeams();
     int               getNodeCount();
-    node_t*           getNodes();
     int               nodeBeamConnections(int nodeid);     //!< Returns the number of active (non bounded) beams connected to a node
     void              changedCamera();                     //!< Logic: sound, display; Notify this vehicle that camera changed;
     void              StopAllSounds();
@@ -256,7 +254,7 @@ public:
     float             GetFFbHydroForces() const         { return m_force_sensors.out_hydros_forces; }
     bool              isPreloadedWithTerrain()          { return m_preloaded_with_terrain; };
     VehicleAI*        getVehicleAI()                    { return vehicle_ai; }
-    bool              IsNodeIdValid(int id) const       { return (id > 0) && (id < free_node); }
+    bool              IsNodeIdValid(int id) const       { return (id > 0) && (id < ar_num_nodes); }
     float             getWheelSpeed() const             { return WheelSpeed; }
     Ogre::Vector3     getVelocity()                     { return velocity; }; //!< average truck velocity calculated using the truck positions of the last two frames
 #ifdef USE_ANGELSCRIPT
@@ -267,10 +265,10 @@ public:
 
     // -------------------- Public data -------------------- //
 
-    node_t*           nodes;
-    int               free_node;            //!< Number of nodes; name is historical (free index in static array)
-    beam_t*           beams;
-    int               free_beam;            //!< Number of beams; name is historical (free index in static array)
+    node_t*           ar_nodes;
+    int               ar_num_nodes;
+    beam_t*           ar_beams;
+    int               ar_num_beams;
     std::vector<beam_t*> interTruckBeams;
     shock_t*          shocks;               //!< Shock absorbers
     int               free_shock;           //!< Number of shock absorbers; name is historical (free index in static array)

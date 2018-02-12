@@ -265,7 +265,7 @@ void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_
                 if (fabs(curr_truck->WheelSpeed) <= 1.0f)
                 {
                     Vector3 hdir = curr_truck->getDirection();
-                    float velocity = hdir.dotProduct(curr_truck->nodes[0].Velocity);
+                    float velocity = hdir.dotProduct(curr_truck->ar_nodes[0].Velocity);
 
                     // switching point, does the user want to drive forward from backward or the other way round? change gears?
                     if (velocity < 1.0f && brake > 0.5f && accl < 0.5f && curr_truck->engine->getGear() > 0)

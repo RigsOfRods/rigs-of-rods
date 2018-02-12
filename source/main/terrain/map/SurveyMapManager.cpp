@@ -286,7 +286,7 @@ void SurveyMapManager::Update(Ogre::Real dt, Beam* curr_truck)
 
     if (curr_truck)
     {
-        mVelocity = curr_truck->nodes[0].Velocity.length();
+        mVelocity = curr_truck->ar_nodes[0].Velocity.length();
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE_VIEW))

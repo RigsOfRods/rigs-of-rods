@@ -188,7 +188,7 @@ void CLASS::UpdateStats(float dt, Beam* truck)
         truckstats = "\n"; //always reset on each frame + space
 
         //taken from TruckHUD.cpp (now removed), TODO: needs cleanup
-        beam_t* beam = truck->getBeams();
+        beam_t* beam = truck->ar_beams;
         float average_deformation = 0.0f;
         float beamstress = 0.0f;
         float current_deformation = 0.0f;
@@ -261,15 +261,15 @@ void CLASS::UpdateStats(float dt, Beam* truck)
 
             float velocityKMH = truck->WheelSpeed * 3.6f;
             float velocityMPH = truck->WheelSpeed * 2.23693629f;
-            float carSpeedKPH = truck->nodes[0].Velocity.length() * 3.6f;
-            float carSpeedMPH = truck->nodes[0].Velocity.length() * 2.23693629f;
+            float carSpeedKPH = truck->ar_nodes[0].Velocity.length() * 3.6f;
+            float carSpeedMPH = truck->ar_nodes[0].Velocity.length() * 2.23693629f;
 
             // apply a deadzone ==> no flickering +/-
             if (fabs(truck->WheelSpeed) < 1.0f)
             {
                 velocityKMH = velocityMPH = 0.0f;
             }
-            if (fabs(truck->nodes[0].Velocity.length()) < 1.0f)
+            if (fabs(truck->ar_nodes[0].Velocity.length()) < 1.0f)
             {
                 carSpeedKPH = carSpeedMPH = 0.0f;
             }
@@ -287,13 +287,13 @@ void CLASS::UpdateStats(float dt, Beam* truck)
         }
         else
         {
-            float speedKN = truck->nodes[0].Velocity.length() * 1.94384449f;
+            float speedKN = truck->ar_nodes[0].Velocity.length() * 1.94384449f;
             truckstats = truckstats + MainThemeColor + _L("Current speed: ") + WhiteColor + TOUTFSTRING(Round(speedKN)) + U(" kn (") + TOUTFSTRING(Round(speedKN * 1.852)) + U(" km/h) (") + TOUTFSTRING(Round(speedKN * 1.151)) + U(" mph)") + "\n";
 
             Ogre::UTFString engmsg = _L("Engine ");
             if (truck->driveable == AIRPLANE)
             {
-                float altitude = truck->nodes[0].AbsPosition.y / 30.48 * 100;
+                float altitude = truck->ar_nodes[0].AbsPosition.y / 30.48 * 100;
                 truckstats = truckstats + MainThemeColor + _L("Altitude: ") + WhiteColor + TOUTFSTRING(Round(altitude)) + U(" feet (") + TOUTFSTRING(Round(altitude * 0.30480)) + U(" meters)") + "\n";
                 for (int i = 0; i < 8; i++)
                 {

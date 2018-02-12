@@ -917,10 +917,10 @@ void OverlayWrapper::UpdateAerialHUD(Beam* vehicle)
 
     //airspeed
     float angle = 0.0;
-    float ground_speed_kt = vehicle->nodes[0].Velocity.length() * 1.9438; // 1.943 = m/s in knots/s
+    float ground_speed_kt = vehicle->ar_nodes[0].Velocity.length() * 1.9438; // 1.943 = m/s in knots/s
 
     //tropospheric model valid up to 11.000m (33.000ft)
-    float altitude = vehicle->nodes[0].AbsPosition.y;
+    float altitude = vehicle->ar_nodes[0].AbsPosition.y;
     //float sea_level_temperature=273.15+15.0; //in Kelvin
     float sea_level_pressure = 101325; //in Pa
     //float airtemperature=sea_level_temperature-altitude*0.0065; //in Kelvin
@@ -964,15 +964,15 @@ void OverlayWrapper::UpdateAerialHUD(Beam* vehicle)
     aoatexture->setTextureRotate(Degree(-angle * 4.7 + 90.0));
 
     // altimeter
-    angle = vehicle->nodes[0].AbsPosition.y * 1.1811;
+    angle = vehicle->ar_nodes[0].AbsPosition.y * 1.1811;
     altimetertexture->setTextureRotate(Degree(-angle));
     char altc[10];
-    sprintf(altc, "%03u", (int)(vehicle->nodes[0].AbsPosition.y / 30.48));
+    sprintf(altc, "%03u", (int)(vehicle->ar_nodes[0].AbsPosition.y / 30.48));
     alt_value_taoe->setCaption(altc);
 
     //adi
     //roll
-    Vector3 rollv = vehicle->nodes[vehicle->cameranodepos[0]].RelPosition - vehicle->nodes[vehicle->cameranoderoll[0]].RelPosition;
+    Vector3 rollv = vehicle->ar_nodes[vehicle->cameranodepos[0]].RelPosition - vehicle->ar_nodes[vehicle->cameranoderoll[0]].RelPosition;
     rollv.normalise();
     float rollangle = asin(rollv.dotProduct(Vector3::UNIT_Y));
 
@@ -1013,7 +1013,7 @@ void OverlayWrapper::UpdateAerialHUD(Beam* vehicle)
     }
 
     //vvi
-    float vvi = vehicle->nodes[0].Velocity.y * 196.85;
+    float vvi = vehicle->ar_nodes[0].Velocity.y * 196.85;
     if (vvi < 1000.0 && vvi > -1000.0)
         angle = vvi * 0.047;
     if (vvi > 1000.0 && vvi < 6000.0)
@@ -1171,7 +1171,7 @@ void OverlayWrapper::UpdateMarineHUD(Beam* vehicle)
     char tmp[50] = "";
     if (vehicle->getLowestNode() != -1)
     {
-        Vector3 pos = vehicle->nodes[vehicle->getLowestNode()].AbsPosition;
+        Vector3 pos = vehicle->ar_nodes[vehicle->getLowestNode()].AbsPosition;
         float height = pos.y - gEnv->terrainManager->getHeightFinder()->getHeightAt(pos.x, pos.z);
         if (height > 0.1 && height < 99.9)
         {
@@ -1186,7 +1186,7 @@ void OverlayWrapper::UpdateMarineHUD(Beam* vehicle)
 
     //waterspeed
     float angle = 0.0;
-    float kt = dir.dotProduct(vehicle->nodes[vehicle->cameranodepos[0]].Velocity) * 1.9438;
+    float kt = dir.dotProduct(vehicle->ar_nodes[vehicle->cameranodepos[0]].Velocity) * 1.9438;
     angle = kt * 4.2;
     boatspeedtexture->setTextureRotate(Degree(-angle));
     boatsteertexture->setTextureRotate(Degree(vehicle->screwprops[0]->getRudder() * 170));

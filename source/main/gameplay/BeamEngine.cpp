@@ -613,13 +613,13 @@ void BeamEngine::update(float dt, int doUpdate)
     if (doUpdate && !shifting && !postshifting)
     {
         // gear hack
-        absVelocity = truck->nodes[0].Velocity.length();
+        absVelocity = truck->ar_nodes[0].Velocity.length();
         float velocity = absVelocity;
 
         if (truck->cameranodepos[0] >= 0 && truck->cameranodedir[0] >= 0)
         {
-            Vector3 hdir = (truck->nodes[truck->cameranodepos[0]].RelPosition - truck->nodes[truck->cameranodedir[0]].RelPosition).normalisedCopy();
-            velocity = hdir.dotProduct(truck->nodes[0].Velocity);
+            Vector3 hdir = (truck->ar_nodes[truck->cameranodepos[0]].RelPosition - truck->ar_nodes[truck->cameranodedir[0]].RelPosition).normalisedCopy();
+            velocity = hdir.dotProduct(truck->ar_nodes[0].Velocity);
         }
         relVelocity = std::abs(velocity);
 

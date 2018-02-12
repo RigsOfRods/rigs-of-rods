@@ -91,12 +91,12 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
 
         if (currentcamera != -1)
         {
-            m_force_sensors.accu_body_forces += nodes[cameranodepos[currentcamera]].Forces;
+            m_force_sensors.accu_body_forces += ar_nodes[cameranodepos[currentcamera]].Forces;
         }
 
         for (int i = 0; i < free_hydro; i++)
         {
-            beam_t* hydrobeam = &beams[hydro[i]];
+            beam_t* hydrobeam = &ar_beams[hydro[i]];
             if ((hydrobeam->hydroFlags & (HYDRO_FLAG_DIR | HYDRO_FLAG_SPEED)) && !hydrobeam->bm_broken)
             {
                 m_force_sensors.accu_hydros_forces += hydrobeam->hydroRatio * hydrobeam->refL * hydrobeam->stress;
@@ -107,8 +107,8 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     //mouse stuff
     if (mousenode != -1)
     {
-        Vector3 dir = mousepos - nodes[mousenode].AbsPosition;
-        nodes[mousenode].Forces += mousemoveforce * dir;
+        Vector3 dir = mousepos - ar_nodes[mousenode].AbsPosition;
+        ar_nodes[mousenode].Forces += mousemoveforce * dir;
     }
 
     // START Slidenode section /////////////////////////////////////////////////
@@ -124,26 +124,26 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
 
     calcNodes(doUpdate, dt, step, maxsteps);
 
-    AxisAlignedBox tBoundingBox(nodes[0].AbsPosition, nodes[0].AbsPosition);
+    AxisAlignedBox tBoundingBox(ar_nodes[0].AbsPosition, ar_nodes[0].AbsPosition);
 
     for (unsigned int i = 0; i < collisionBoundingBoxes.size(); i++)
     {
         collisionBoundingBoxes[i].scale(Ogre::Vector3(0.0));
     }
 
-    for (int i = 0; i < free_node; i++)
+    for (int i = 0; i < ar_num_nodes; i++)
     {
-        tBoundingBox.merge(nodes[i].AbsPosition);
-        if (nodes[i].collisionBoundingBoxID >= 0 && (unsigned int) nodes[i].collisionBoundingBoxID < collisionBoundingBoxes.size())
+        tBoundingBox.merge(ar_nodes[i].AbsPosition);
+        if (ar_nodes[i].collisionBoundingBoxID >= 0 && (unsigned int) ar_nodes[i].collisionBoundingBoxID < collisionBoundingBoxes.size())
         {
-            AxisAlignedBox& bb = collisionBoundingBoxes[nodes[i].collisionBoundingBoxID];
+            AxisAlignedBox& bb = collisionBoundingBoxes[ar_nodes[i].collisionBoundingBoxID];
             if (bb.getSize().length() == 0.0 && bb.getMinimum().length() == 0.0)
             {
-                bb.setExtents(nodes[i].AbsPosition, nodes[i].AbsPosition);
+                bb.setExtents(ar_nodes[i].AbsPosition, ar_nodes[i].AbsPosition);
             }
             else
             {
-                bb.merge(nodes[i].AbsPosition);
+                bb.merge(ar_nodes[i].AbsPosition);
             }
         }
     }
@@ -154,8 +154,8 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         collisionBoundingBoxes[i].setMaximum(collisionBoundingBoxes[i].getMaximum() + Vector3(0.05f, 0.05f, 0.05f));
 
         predictedCollisionBoundingBoxes[i].setExtents(collisionBoundingBoxes[i].getMinimum(), collisionBoundingBoxes[i].getMaximum());
-        predictedCollisionBoundingBoxes[i].merge(collisionBoundingBoxes[i].getMinimum() + nodes[0].Velocity);
-        predictedCollisionBoundingBoxes[i].merge(collisionBoundingBoxes[i].getMaximum() + nodes[0].Velocity);
+        predictedCollisionBoundingBoxes[i].merge(collisionBoundingBoxes[i].getMinimum() + ar_nodes[0].Velocity);
+        predictedCollisionBoundingBoxes[i].merge(collisionBoundingBoxes[i].getMaximum() + ar_nodes[0].Velocity);
     }
 
     // anti-explosion guard
@@ -177,8 +177,8 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     boundingBox.setMaximum(tBoundingBox.getMaximum() + Vector3(0.05f, 0.05f, 0.05f));
 
     predictedBoundingBox.setExtents(boundingBox.getMinimum(), boundingBox.getMaximum());
-    predictedBoundingBox.merge(boundingBox.getMinimum() + nodes[0].Velocity);
-    predictedBoundingBox.merge(boundingBox.getMaximum() + nodes[0].Velocity);
+    predictedBoundingBox.merge(boundingBox.getMinimum() + ar_nodes[0].Velocity);
+    predictedBoundingBox.merge(boundingBox.getMaximum() + ar_nodes[0].Velocity);
 
     BES_STOP(BES_CORE_Nodes);
 
@@ -235,7 +235,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         float airdensity = airpressure * 0.0000120896f;//1.225 at sea level
 
         //fuselage as an airfoil + parasitic drag (half fuselage front surface almost as a flat plane!)
-        fusedrag = ((cx * s + fuseWidth * fuseWidth * 0.5) * 0.5 * airdensity * wspeed / free_node) * wind; //free_node is never null
+        fusedrag = ((cx * s + fuseWidth * fuseWidth * 0.5) * 0.5 * airdensity * wspeed / ar_num_nodes) * wind; 
     }
 
     BES_STOP(BES_CORE_FuseDrag);
@@ -256,7 +256,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         for (int i = 0; i < free_buoycab; i++)
         {
             int tmpv = buoycabs[i] * 3;
-            buoyance->computeNodeForce(&nodes[cabs[tmpv]], &nodes[cabs[tmpv + 1]], &nodes[cabs[tmpv + 2]], doUpdate == 1, buoycabtypes[i]);
+            buoyance->computeNodeForce(&ar_nodes[cabs[tmpv]], &ar_nodes[cabs[tmpv + 1]], &ar_nodes[cabs[tmpv + 2]], doUpdate == 1, buoycabtypes[i]);
         }
     }
 
@@ -415,7 +415,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     bool alb_active = false;
 
     // get current speed
-    float curspeed = nodes[0].Velocity.length();
+    float curspeed = ar_nodes[0].Velocity.length();
 
     // fix for airplanes crashing when getAcc() is used
     float currentAcc = 0.0f;
@@ -667,9 +667,9 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         {
             // active shocks now
             if (shocks[i].flags & SHOCK_FLAG_RACTIVE)
-                beams[shocks[i].beamid].L = beams[shocks[i].beamid].refL * (1.0 + stabratio);
+                ar_beams[shocks[i].beamid].L = ar_beams[shocks[i].beamid].refL * (1.0 + stabratio);
             else if (shocks[i].flags & SHOCK_FLAG_LACTIVE)
-                beams[shocks[i].beamid].L = beams[shocks[i].beamid].refL * (1.0 - stabratio);
+                ar_beams[shocks[i].beamid].L = ar_beams[shocks[i].beamid].refL * (1.0 - stabratio);
         }
     }
     //auto shock adjust
@@ -677,7 +677,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     {
         stabsleep -= dt * maxsteps;
 
-        Vector3 dir = nodes[cameranodepos[0]].RelPosition - nodes[cameranoderoll[0]].RelPosition;
+        Vector3 dir = ar_nodes[cameranodepos[0]].RelPosition - ar_nodes[cameranoderoll[0]].RelPosition;
         dir.normalise();
         float roll = asin(dir.dotProduct(Vector3::UNIT_Y));
         //mWindow->setDebugText("Roll:"+ TOSTRING(roll));
@@ -816,44 +816,44 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         //compound hydro
         float cstate = 0.0f;
         int div = 0;
-        if (beams[hydro[i]].hydroFlags & HYDRO_FLAG_SPEED)
+        if (ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_SPEED)
         {
             //special treatment for SPEED
             if (WheelSpeed < 12.0f)
                 cstate += hydrodirstate * (12.0f - WheelSpeed) / 12.0f;
             div++;
         }
-        if (beams[hydro[i]].hydroFlags & HYDRO_FLAG_DIR)
+        if (ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_DIR)
         {
             cstate += hydrodirstate;
             div++;
         }
-        if (beams[hydro[i]].hydroFlags & HYDRO_FLAG_AILERON)
+        if (ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_AILERON)
         {
             cstate += hydroaileronstate;
             div++;
         }
-        if (beams[hydro[i]].hydroFlags & HYDRO_FLAG_RUDDER)
+        if (ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_RUDDER)
         {
             cstate += hydrorudderstate;
             div++;
         }
-        if (beams[hydro[i]].hydroFlags & HYDRO_FLAG_ELEVATOR)
+        if (ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_ELEVATOR)
         {
             cstate += hydroelevatorstate;
             div++;
         }
-        if (beams[hydro[i]].hydroFlags & HYDRO_FLAG_REV_AILERON)
+        if (ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_REV_AILERON)
         {
             cstate -= hydroaileronstate;
             div++;
         }
-        if (beams[hydro[i]].hydroFlags & HYDRO_FLAG_REV_RUDDER)
+        if (ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_REV_RUDDER)
         {
             cstate -= hydrorudderstate;
             div++;
         }
-        if (beams[hydro[i]].hydroFlags & HYDRO_FLAG_REV_ELEVATOR)
+        if (ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_REV_ELEVATOR)
         {
             cstate -= hydroelevatorstate;
             div++;
@@ -864,10 +864,10 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         if (cstate < -1.0)
             cstate = -1.0;
         // Animators following, if no animator, skip all the tests...
-        int flagstate = beams[hydro[i]].animFlags;
+        int flagstate = ar_beams[hydro[i]].animFlags;
         if (flagstate)
         {
-            float animoption = beams[hydro[i]].animOption;
+            float animoption = ar_beams[hydro[i]].animOption;
             calcAnimators(flagstate, cstate, div, dt, 0.0f, 0.0f, animoption);
         }
 
@@ -878,21 +878,21 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
             if (hydroInertia)
                 cstate = hydroInertia->calcCmdKeyDelay(cstate, i, dt);
 
-            if (!(beams[hydro[i]].hydroFlags & HYDRO_FLAG_SPEED) && !flagstate)
+            if (!(ar_beams[hydro[i]].hydroFlags & HYDRO_FLAG_SPEED) && !flagstate)
                 hydrodirwheeldisplay = cstate;
 
-            float factor = 1.0 - cstate * beams[hydro[i]].hydroRatio;
+            float factor = 1.0 - cstate * ar_beams[hydro[i]].hydroRatio;
 
             // check and apply animators limits if set
             if (flagstate)
             {
-                if (factor < 1.0f - beams[hydro[i]].shortbound)
-                    factor = 1.0f - beams[hydro[i]].shortbound;
-                if (factor > 1.0f + beams[hydro[i]].longbound)
-                    factor = 1.0f + beams[hydro[i]].longbound;
+                if (factor < 1.0f - ar_beams[hydro[i]].shortbound)
+                    factor = 1.0f - ar_beams[hydro[i]].shortbound;
+                if (factor > 1.0f + ar_beams[hydro[i]].longbound)
+                    factor = 1.0f + ar_beams[hydro[i]].longbound;
             }
 
-            beams[hydro[i]].L = beams[hydro[i]].Lhydro * factor;
+            ar_beams[hydro[i]].L = ar_beams[hydro[i]].Lhydro * factor;
         }
     }
 
@@ -926,9 +926,9 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
             for (int j = 0; j < (int)commandkey[i].beams.size(); j++)
             {
                 int k = abs(commandkey[i].beams[j]);
-                if (k >= 0 && k < free_beam)
+                if (k >= 0 && k < ar_num_beams)
                 {
-                    beams[k].autoMoveLock = false;
+                    ar_beams[k].autoMoveLock = false;
                 }
             }
         }
@@ -957,9 +957,9 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
                 if (commandkey[i].commandValue >= 0.5)
                 {
                     int k = abs(commandkey[i].beams[j]);
-                    if (k >= 0 && k < free_beam)
+                    if (k >= 0 && k < ar_num_beams)
                     {
-                        beams[k].autoMoveLock = true;
+                        ar_beams[k].autoMoveLock = true;
                     }
                 }
             }
@@ -974,104 +974,104 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
                 int bbeam_dir = (commandkey[i].beams[j] > 0) ? 1 : -1;
                 int bbeam = std::abs(commandkey[i].beams[j]);
 
-                if (bbeam > free_beam)
+                if (bbeam > ar_num_beams)
                     continue;
 
                 // restrict forces
-                if (beams[bbeam].isForceRestricted)
+                if (ar_beams[bbeam].isForceRestricted)
                     crankfactor = std::min(crankfactor, 1.0f);
 
                 float v = commandkey[i].commandValue;
                 int& vst = commandkey[i].commandValueState;
 
                 // self centering
-                if (beams[bbeam].isCentering && !beams[bbeam].autoMoveLock)
+                if (ar_beams[bbeam].isCentering && !ar_beams[bbeam].autoMoveLock)
                 {
                     // check for some error
-                    if (beams[bbeam].refL == 0 || beams[bbeam].L == 0)
+                    if (ar_beams[bbeam].refL == 0 || ar_beams[bbeam].L == 0)
                         continue;
 
-                    float current = (beams[bbeam].L / beams[bbeam].refL);
+                    float current = (ar_beams[bbeam].L / ar_beams[bbeam].refL);
 
-                    if (fabs(current - beams[bbeam].centerLength) < 0.0001)
+                    if (fabs(current - ar_beams[bbeam].centerLength) < 0.0001)
                     {
                         // hold condition
-                        beams[bbeam].autoMovingMode = 0;
+                        ar_beams[bbeam].autoMovingMode = 0;
                     }
                     else
                     {
-                        int mode = beams[bbeam].autoMovingMode;
+                        int mode = ar_beams[bbeam].autoMovingMode;
 
                         // determine direction
-                        if (current > beams[bbeam].centerLength)
-                            beams[bbeam].autoMovingMode = -1;
+                        if (current > ar_beams[bbeam].centerLength)
+                            ar_beams[bbeam].autoMovingMode = -1;
                         else
-                            beams[bbeam].autoMovingMode = 1;
+                            ar_beams[bbeam].autoMovingMode = 1;
 
                         // avoid overshooting
-                        if (mode != 0 && mode != beams[bbeam].autoMovingMode)
+                        if (mode != 0 && mode != ar_beams[bbeam].autoMovingMode)
                         {
-                            beams[bbeam].L = beams[bbeam].centerLength * beams[bbeam].refL;
-                            beams[bbeam].autoMovingMode = 0;
+                            ar_beams[bbeam].L = ar_beams[bbeam].centerLength * ar_beams[bbeam].refL;
+                            ar_beams[bbeam].autoMovingMode = 0;
                         }
                     }
                 }
 
-                if (beams[bbeam].refL != 0 && beams[bbeam].L != 0)
+                if (ar_beams[bbeam].refL != 0 && ar_beams[bbeam].L != 0)
                 {
-                    float clen = beams[bbeam].L / beams[bbeam].refL;
-                    if ((bbeam_dir > 0 && clen < beams[bbeam].commandLong) || (bbeam_dir < 0 && clen > beams[bbeam].commandShort))
+                    float clen = ar_beams[bbeam].L / ar_beams[bbeam].refL;
+                    if ((bbeam_dir > 0 && clen < ar_beams[bbeam].commandLong) || (bbeam_dir < 0 && clen > ar_beams[bbeam].commandShort))
                     {
-                        float dl = beams[bbeam].L;
+                        float dl = ar_beams[bbeam].L;
 
-                        if (beams[bbeam].isOnePressMode == 2)
+                        if (ar_beams[bbeam].isOnePressMode == 2)
                         {
                             // one press + centering
-                            if (bbeam_dir * beams[bbeam].autoMovingMode > 0 && bbeam_dir * clen > bbeam_dir * beams[bbeam].centerLength && !beams[bbeam].pressedCenterMode)
+                            if (bbeam_dir * ar_beams[bbeam].autoMovingMode > 0 && bbeam_dir * clen > bbeam_dir * ar_beams[bbeam].centerLength && !ar_beams[bbeam].pressedCenterMode)
                             {
-                                beams[bbeam].pressedCenterMode = true;
-                                beams[bbeam].autoMovingMode = 0;
+                                ar_beams[bbeam].pressedCenterMode = true;
+                                ar_beams[bbeam].autoMovingMode = 0;
                             }
-                            else if (bbeam_dir * beams[bbeam].autoMovingMode < 0 && bbeam_dir * clen > bbeam_dir * beams[bbeam].centerLength && beams[bbeam].pressedCenterMode)
+                            else if (bbeam_dir * ar_beams[bbeam].autoMovingMode < 0 && bbeam_dir * clen > bbeam_dir * ar_beams[bbeam].centerLength && ar_beams[bbeam].pressedCenterMode)
                             {
-                                beams[bbeam].pressedCenterMode = false;
+                                ar_beams[bbeam].pressedCenterMode = false;
                             }
                         }
-                        if (beams[bbeam].isOnePressMode > 0)
+                        if (ar_beams[bbeam].isOnePressMode > 0)
                         {
                             bool key = (v > 0.5);
-                            if (bbeam_dir * beams[bbeam].autoMovingMode <= 0 && key)
+                            if (bbeam_dir * ar_beams[bbeam].autoMovingMode <= 0 && key)
                             {
-                                beams[bbeam].autoMovingMode = bbeam_dir * 1;
+                                ar_beams[bbeam].autoMovingMode = bbeam_dir * 1;
                             }
-                            else if (beams[bbeam].autoMovingMode == bbeam_dir * 1 && !key)
+                            else if (ar_beams[bbeam].autoMovingMode == bbeam_dir * 1 && !key)
                             {
-                                beams[bbeam].autoMovingMode = bbeam_dir * 2;
+                                ar_beams[bbeam].autoMovingMode = bbeam_dir * 2;
                             }
-                            else if (beams[bbeam].autoMovingMode == bbeam_dir * 2 && key)
+                            else if (ar_beams[bbeam].autoMovingMode == bbeam_dir * 2 && key)
                             {
-                                beams[bbeam].autoMovingMode = bbeam_dir * 3;
+                                ar_beams[bbeam].autoMovingMode = bbeam_dir * 3;
                             }
-                            else if (beams[bbeam].autoMovingMode == bbeam_dir * 3 && !key)
+                            else if (ar_beams[bbeam].autoMovingMode == bbeam_dir * 3 && !key)
                             {
-                                beams[bbeam].autoMovingMode = 0;
+                                ar_beams[bbeam].autoMovingMode = 0;
                             }
                         }
 
                         if (cmdInertia)
                             v = cmdInertia->calcCmdKeyDelay(v, i, dt);
 
-                        if (bbeam_dir * beams[bbeam].autoMovingMode > 0)
+                        if (bbeam_dir * ar_beams[bbeam].autoMovingMode > 0)
                             v = 1;
 
-                        if (beams[bbeam].commandNeedsEngine && ((engine && !engine->isRunning()) || !canwork))
+                        if (ar_beams[bbeam].commandNeedsEngine && ((engine && !engine->isRunning()) || !canwork))
                             continue;
 
-                        if (v > 0.0f && beams[bbeam].commandEngineCoupling > 0.0f)
+                        if (v > 0.0f && ar_beams[bbeam].commandEngineCoupling > 0.0f)
                             requestpower = true;
 
 #ifdef USE_OPENAL
-                        if (beams[bbeam].playsSound)
+                        if (ar_beams[bbeam].playsSound)
                         {
                             // command sounds
                             if (vst == 1)
@@ -1096,25 +1096,25 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
 #endif //USE_OPENAL
                         float cf = 1.0f;
 
-                        if (beams[bbeam].commandEngineCoupling > 0)
+                        if (ar_beams[bbeam].commandEngineCoupling > 0)
                             cf = crankfactor;
 
                         if (bbeam_dir > 0)
-                            beams[bbeam].L *= (1.0 + beams[bbeam].commandRatioLong * v * cf * dt / beams[bbeam].L);
+                            ar_beams[bbeam].L *= (1.0 + ar_beams[bbeam].commandRatioLong * v * cf * dt / ar_beams[bbeam].L);
                         else
-                            beams[bbeam].L *= (1.0 - beams[bbeam].commandRatioShort * v * cf * dt / beams[bbeam].L);
+                            ar_beams[bbeam].L *= (1.0 - ar_beams[bbeam].commandRatioShort * v * cf * dt / ar_beams[bbeam].L);
 
-                        dl = fabs(dl - beams[bbeam].L);
+                        dl = fabs(dl - ar_beams[bbeam].L);
                         if (requestpower)
                         {
                             active++;
-                            work += fabs(beams[bbeam].stress) * dl * beams[bbeam].commandEngineCoupling;
+                            work += fabs(ar_beams[bbeam].stress) * dl * ar_beams[bbeam].commandEngineCoupling;
                         }
                     }
-                    else if (beams[bbeam].isOnePressMode > 0 && bbeam_dir * beams[bbeam].autoMovingMode > 0)
+                    else if (ar_beams[bbeam].isOnePressMode > 0 && bbeam_dir * ar_beams[bbeam].autoMovingMode > 0)
                     {
                         // beyond length
-                        beams[bbeam].autoMovingMode = 0;
+                        ar_beams[bbeam].autoMovingMode = 0;
                     }
                 }
             }
@@ -1174,7 +1174,7 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
         for (int i = 0; i < free_rotator; i++)
         {
             // compute rotation axis
-            Vector3 axis = nodes[rotators[i].axis1].RelPosition - nodes[rotators[i].axis2].RelPosition;
+            Vector3 axis = ar_nodes[rotators[i].axis1].RelPosition - ar_nodes[rotators[i].axis2].RelPosition;
             //axis.normalise();
             axis = fast_normalise(axis);
             // find the reference plane
@@ -1183,8 +1183,8 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
             for (int k = 0; k < 2; k++)
             {
                 // find the reference vectors
-                Vector3 ref1 = pl.projectVector(nodes[rotators[i].axis2].RelPosition - nodes[rotators[i].nodes1[k]].RelPosition);
-                Vector3 ref2 = pl.projectVector(nodes[rotators[i].axis2].RelPosition - nodes[rotators[i].nodes2[k]].RelPosition);
+                Vector3 ref1 = pl.projectVector(ar_nodes[rotators[i].axis2].RelPosition - ar_nodes[rotators[i].nodes1[k]].RelPosition);
+                Vector3 ref2 = pl.projectVector(ar_nodes[rotators[i].axis2].RelPosition - ar_nodes[rotators[i].nodes2[k]].RelPosition);
                 // theory vector
                 Vector3 th1 = Quaternion(Radian(rotators[i].angle + 3.14159 / 2.0), axis) * ref1;
                 // find the angle error
@@ -1207,11 +1207,11 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
                 if (ref2len <= rotators[i].tolerance)
                     ref2len = 0.0f;
 
-                nodes[rotators[i].nodes1[k]].Forces += (aerror * ref1len * rigidity) * dir1;
-                nodes[rotators[i].nodes2[k]].Forces -= (aerror * ref2len * rigidity) * dir2;
+                ar_nodes[rotators[i].nodes1[k]].Forces += (aerror * ref1len * rigidity) * dir1;
+                ar_nodes[rotators[i].nodes2[k]].Forces -= (aerror * ref2len * rigidity) * dir2;
                 // symmetric
-                nodes[rotators[i].nodes1[k + 2]].Forces -= (aerror * ref1len * rigidity) * dir1;
-                nodes[rotators[i].nodes2[k + 2]].Forces += (aerror * ref2len * rigidity) * dir2;
+                ar_nodes[rotators[i].nodes1[k + 2]].Forces -= (aerror * ref1len * rigidity) * dir1;
+                ar_nodes[rotators[i].nodes2[k + 2]].Forces += (aerror * ref2len * rigidity) * dir2;
             }
         }
     }
@@ -1257,11 +1257,11 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
             node_simple_t* nbuff = (node_simple_t *)replay->getWriteBuffer(0);
             if (nbuff)
             {
-                for (int i = 0; i < free_node; i++)
+                for (int i = 0; i < ar_num_nodes; i++)
                 {
-                    nbuff[i].position = nodes[i].AbsPosition;
-                    nbuff[i].velocity = nodes[i].Velocity;
-                    nbuff[i].forces = nodes[i].Forces;
+                    nbuff[i].position = ar_nodes[i].AbsPosition;
+                    nbuff[i].velocity = ar_nodes[i].Velocity;
+                    nbuff[i].forces = ar_nodes[i].Forces;
                 }
             }
 
@@ -1269,10 +1269,10 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
             beam_simple_t* bbuff = (beam_simple_t *)replay->getWriteBuffer(1);
             if (bbuff)
             {
-                for (int i = 0; i < free_beam; i++)
+                for (int i = 0; i < ar_num_beams; i++)
                 {
-                    bbuff[i].broken = beams[i].bm_broken;
-                    bbuff[i].disabled = beams[i].bm_disabled;
+                    bbuff[i].broken = ar_beams[i].bm_broken;
+                    bbuff[i].disabled = ar_beams[i].bm_disabled;
                 }
             }
 
@@ -1337,12 +1337,12 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 {
     BES_START(BES_CORE_Beams);
     // Springs
-    for (int i = 0; i < free_beam; i++)
+    for (int i = 0; i < ar_num_beams; i++)
     {
-        if (!beams[i].bm_disabled && !beams[i].p2truck)
+        if (!ar_beams[i].bm_disabled && !ar_beams[i].p2truck)
         {
             // Calculate beam length
-            Vector3 dis = beams[i].p1->RelPosition - beams[i].p2->RelPosition;
+            Vector3 dis = ar_beams[i].p1->RelPosition - ar_beams[i].p2->RelPosition;
 
             Real dislen = dis.squaredLength();
             Real inverted_dislen = fast_invSqrt(dislen);
@@ -1350,22 +1350,22 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
             dislen *= inverted_dislen;
 
             // Calculate beam's deviation from normal
-            Real difftoBeamL = dislen - beams[i].L;
+            Real difftoBeamL = dislen - ar_beams[i].L;
 
-            Real k = beams[i].k;
-            Real d = beams[i].d;
+            Real k = ar_beams[i].k;
+            Real d = ar_beams[i].d;
 
-            switch (beams[i].bounded)
+            switch (ar_beams[i].bounded)
             {
             case SHOCK1:
                 {
                     float interp_ratio;
 
                     // Following code interpolates between defined beam parameters and default beam parameters
-                    if (difftoBeamL > beams[i].longbound * beams[i].L)
-                        interp_ratio = difftoBeamL - beams[i].longbound * beams[i].L;
-                    else if (difftoBeamL < -beams[i].shortbound * beams[i].L)
-                        interp_ratio = -difftoBeamL - beams[i].shortbound * beams[i].L;
+                    if (difftoBeamL > ar_beams[i].longbound * ar_beams[i].L)
+                        interp_ratio = difftoBeamL - ar_beams[i].longbound * ar_beams[i].L;
+                    else if (difftoBeamL < -ar_beams[i].shortbound * ar_beams[i].L)
+                        interp_ratio = -difftoBeamL - ar_beams[i].shortbound * ar_beams[i].L;
                     else
                         break;
 
@@ -1374,10 +1374,10 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                     float tdamp = DEFAULT_DAMP;
 
                     // Skip camera, wheels or any other shocks which are not generated in a shocks or shocks2 section
-                    if (beams[i].bm_type == BEAM_HYDRO || beams[i].bm_type == BEAM_INVISIBLE_HYDRO)
+                    if (ar_beams[i].bm_type == BEAM_HYDRO || ar_beams[i].bm_type == BEAM_INVISIBLE_HYDRO)
                     {
-                        tspring = beams[i].shock->sbd_spring;
-                        tdamp = beams[i].shock->sbd_damp;
+                        tspring = ar_beams[i].shock->sbd_spring;
+                        tdamp = ar_beams[i].shock->sbd_damp;
                     }
 
                     k += (tspring - k) * interp_ratio;
@@ -1395,23 +1395,23 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                     k = 0.0f;
                     d *= 0.1f;
                     float break_limit = SUPPORT_BEAM_LIMIT_DEFAULT;
-                    if (beams[i].longbound > 0.0f)
+                    if (ar_beams[i].longbound > 0.0f)
                     {
                         // This is a supportbeam with a user set break limit, get the user set limit
-                        break_limit = beams[i].longbound;
+                        break_limit = ar_beams[i].longbound;
                     }
 
                     // If support beam is extended the originallength * break_limit, break and disable it
-                    if (difftoBeamL > beams[i].L * break_limit)
+                    if (difftoBeamL > ar_beams[i].L * break_limit)
                     {
-                        beams[i].bm_broken = true;
-                        beams[i].bm_disabled = true;
+                        ar_beams[i].bm_broken = true;
+                        ar_beams[i].bm_disabled = true;
                         if (beambreakdebug)
                         {
                             RoR::Str<300> msg;
                             msg << "[RoR|Diag] XXX Support-Beam " << i << " limit extended and broke. "
-                                << "Length: " << difftoBeamL << " / max. Length: " << (beams[i].L*break_limit) << ". ";
-                            LogBeamNodes(msg, beams[i]);
+                                << "Length: " << difftoBeamL << " / max. Length: " << (ar_beams[i].L*break_limit) << ". ";
+                            LogBeamNodes(msg, ar_beams[i]);
                             RoR::Log(msg.ToCStr());
                         }
                     }
@@ -1428,75 +1428,75 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
             }
 
             // Calculate beam's rate of change
-            Vector3 v = beams[i].p1->Velocity - beams[i].p2->Velocity;
+            Vector3 v = ar_beams[i].p1->Velocity - ar_beams[i].p2->Velocity;
 
             float slen = -k * (difftoBeamL) - d * v.dotProduct(dis) * inverted_dislen;
-            beams[i].stress = slen;
+            ar_beams[i].stress = slen;
 
             // Fast test for deformation
             float len = std::abs(slen);
-            if (len > beams[i].minmaxposnegstress)
+            if (len > ar_beams[i].minmaxposnegstress)
             {
-                if ((beams[i].bm_type == BEAM_NORMAL || beams[i].bm_type == BEAM_INVISIBLE) && beams[i].bounded != SHOCK1 && k != 0.0f)
+                if ((ar_beams[i].bm_type == BEAM_NORMAL || ar_beams[i].bm_type == BEAM_INVISIBLE) && ar_beams[i].bounded != SHOCK1 && k != 0.0f)
                 {
                     // Actual deformation tests
-                    if (slen > beams[i].maxposstress && difftoBeamL < 0.0f) // compression
+                    if (slen > ar_beams[i].maxposstress && difftoBeamL < 0.0f) // compression
                     {
                         increased_accuracy = true;
-                        Real yield_length = beams[i].maxposstress / k;
-                        Real deform = difftoBeamL + yield_length * (1.0f - beams[i].plastic_coef);
-                        Real Lold = beams[i].L;
-                        beams[i].L += deform;
-                        beams[i].L = std::max(MIN_BEAM_LENGTH, beams[i].L);
-                        slen = slen - (slen - beams[i].maxposstress) * 0.5f;
+                        Real yield_length = ar_beams[i].maxposstress / k;
+                        Real deform = difftoBeamL + yield_length * (1.0f - ar_beams[i].plastic_coef);
+                        Real Lold = ar_beams[i].L;
+                        ar_beams[i].L += deform;
+                        ar_beams[i].L = std::max(MIN_BEAM_LENGTH, ar_beams[i].L);
+                        slen = slen - (slen - ar_beams[i].maxposstress) * 0.5f;
                         len = slen;
-                        if (beams[i].L > 0.0f && Lold > beams[i].L)
+                        if (ar_beams[i].L > 0.0f && Lold > ar_beams[i].L)
                         {
-                            beams[i].maxposstress *= Lold / beams[i].L;
-                            beams[i].minmaxposnegstress = std::min(beams[i].maxposstress, -beams[i].maxnegstress);
-                            beams[i].minmaxposnegstress = std::min(beams[i].minmaxposnegstress, beams[i].strength);
+                            ar_beams[i].maxposstress *= Lold / ar_beams[i].L;
+                            ar_beams[i].minmaxposnegstress = std::min(ar_beams[i].maxposstress, -ar_beams[i].maxnegstress);
+                            ar_beams[i].minmaxposnegstress = std::min(ar_beams[i].minmaxposnegstress, ar_beams[i].strength);
                         }
                         // For the compression case we do not remove any of the beam's
                         // strength for structure stability reasons
-                        //beams[i].strength += deform * k * 0.5f;
+                        //ar_beams[i].strength += deform * k * 0.5f;
                         if (beamdeformdebug)
                         {
                             RoR::Str<300> msg;
                             msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
-                                << len << " / " << beams[i].strength << ". ";
-                            LogBeamNodes(msg, beams[i]);
+                                << len << " / " << ar_beams[i].strength << ". ";
+                            LogBeamNodes(msg, ar_beams[i]);
                             RoR::Log(msg.ToCStr());
                         }
                     }
-                    else if (slen < beams[i].maxnegstress && difftoBeamL > 0.0f) // expansion
+                    else if (slen < ar_beams[i].maxnegstress && difftoBeamL > 0.0f) // expansion
                     {
                         increased_accuracy = true;
-                        Real yield_length = beams[i].maxnegstress / k;
-                        Real deform = difftoBeamL + yield_length * (1.0f - beams[i].plastic_coef);
-                        Real Lold = beams[i].L;
-                        beams[i].L += deform;
-                        slen = slen - (slen - beams[i].maxnegstress) * 0.5f;
+                        Real yield_length = ar_beams[i].maxnegstress / k;
+                        Real deform = difftoBeamL + yield_length * (1.0f - ar_beams[i].plastic_coef);
+                        Real Lold = ar_beams[i].L;
+                        ar_beams[i].L += deform;
+                        slen = slen - (slen - ar_beams[i].maxnegstress) * 0.5f;
                         len = -slen;
-                        if (Lold > 0.0f && beams[i].L > Lold)
+                        if (Lold > 0.0f && ar_beams[i].L > Lold)
                         {
-                            beams[i].maxnegstress *= beams[i].L / Lold;
-                            beams[i].minmaxposnegstress = std::min(beams[i].maxposstress, -beams[i].maxnegstress);
-                            beams[i].minmaxposnegstress = std::min(beams[i].minmaxposnegstress, beams[i].strength);
+                            ar_beams[i].maxnegstress *= ar_beams[i].L / Lold;
+                            ar_beams[i].minmaxposnegstress = std::min(ar_beams[i].maxposstress, -ar_beams[i].maxnegstress);
+                            ar_beams[i].minmaxposnegstress = std::min(ar_beams[i].minmaxposnegstress, ar_beams[i].strength);
                         }
-                        beams[i].strength -= deform * k;
+                        ar_beams[i].strength -= deform * k;
                         if (beamdeformdebug)
                         {
                             RoR::Str<300> msg;
                             msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
-                                << len << " / " << beams[i].strength << ". ";
-                            LogBeamNodes(msg, beams[i]);
+                                << len << " / " << ar_beams[i].strength << ". ";
+                            LogBeamNodes(msg, ar_beams[i]);
                             RoR::Log(msg.ToCStr());
                         }
                     }
                 }
 
                 // Test if the beam should break
-                if (len > beams[i].strength)
+                if (len > ar_beams[i].strength)
                 {
                     // Sound effect.
                     // Sound volume depends on springs stored energy
@@ -1508,43 +1508,43 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                     //Break the beam only when it is not connected to a node
                     //which is a part of a collision triangle and has 2 "live" beams or less
                     //connected to it.
-                    if (!((beams[i].p1->contacter && nodeBeamConnections(beams[i].p1->pos) < 3) || (beams[i].p2->contacter && nodeBeamConnections(beams[i].p2->pos) < 3)))
+                    if (!((ar_beams[i].p1->contacter && nodeBeamConnections(ar_beams[i].p1->pos) < 3) || (ar_beams[i].p2->contacter && nodeBeamConnections(ar_beams[i].p2->pos) < 3)))
                     {
                         slen = 0.0f;
-                        beams[i].bm_broken = true;
-                        beams[i].bm_disabled = true;
+                        ar_beams[i].bm_broken = true;
+                        ar_beams[i].bm_disabled = true;
 
                         if (beambreakdebug)
                         {
                             RoR::Str<200> msg;
-                            msg << "[RoR|Diag] XXX Beam " << i << " just broke with force " << len << " / " << beams[i].strength << ". ";
-                            LogBeamNodes(msg, beams[i]);
+                            msg << "[RoR|Diag] XXX Beam " << i << " just broke with force " << len << " / " << ar_beams[i].strength << ". ";
+                            LogBeamNodes(msg, ar_beams[i]);
                             RoR::Log(msg.ToCStr());
                         }
 
                         // detachergroup check: beam[i] is already broken, check detacher group# == 0/default skip the check ( performance bypass for beams with default setting )
                         // only perform this check if this is a master detacher beams (positive detacher group id > 0)
-                        if (beams[i].detacher_group > 0)
+                        if (ar_beams[i].detacher_group > 0)
                         {
                             // cycle once through the other beams
-                            for (int j = 0; j < free_beam; j++)
+                            for (int j = 0; j < ar_num_beams; j++)
                             {
                                 // beam[i] detacher group# == checked beams detacher group# -> delete & disable checked beam
                                 // do this with all master(positive id) and minor(negative id) beams of this detacher group
-                                if (abs(beams[j].detacher_group) == beams[i].detacher_group)
+                                if (abs(ar_beams[j].detacher_group) == ar_beams[i].detacher_group)
                                 {
-                                    beams[j].bm_broken = true;
-                                    beams[j].bm_disabled = true;
+                                    ar_beams[j].bm_broken = true;
+                                    ar_beams[j].bm_disabled = true;
                                     if (beambreakdebug)
                                     {
-                                        LOG("Deleting Detacher BeamID: " + TOSTRING(j) + ", Detacher Group: " + TOSTRING(beams[i].detacher_group)+ ", trucknum: " + TOSTRING(trucknum));
+                                        LOG("Deleting Detacher BeamID: " + TOSTRING(j) + ", Detacher Group: " + TOSTRING(ar_beams[i].detacher_group)+ ", trucknum: " + TOSTRING(trucknum));
                                     }
                                 }
                             }
                             // cycle once through all wheels
                             for (int j = 0; j < free_wheel; j++)
                             {
-                                if (wheels[j].wh_detacher_group == beams[i].detacher_group)
+                                if (wheels[j].wh_detacher_group == ar_beams[i].detacher_group)
                                 {
                                     wheels[j].wh_is_detached = true;
                                 }
@@ -1553,7 +1553,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                     }
                     else
                     {
-                        beams[i].strength = 2.0f * beams[i].minmaxposnegstress;
+                        ar_beams[i].strength = 2.0f * ar_beams[i].minmaxposnegstress;
                     }
 
                     // something broke, check buoyant hull
@@ -1562,8 +1562,8 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                         int tmpv = buoycabs[mk] * 3;
                         if (buoycabtypes[mk] == Buoyance::BUOY_DRAGONLY)
                             continue;
-                        if ((beams[i].p1 == &nodes[cabs[tmpv]] || beams[i].p1 == &nodes[cabs[tmpv + 1]] || beams[i].p1 == &nodes[cabs[tmpv + 2]]) &&
-                            (beams[i].p2 == &nodes[cabs[tmpv]] || beams[i].p2 == &nodes[cabs[tmpv + 1]] || beams[i].p2 == &nodes[cabs[tmpv + 2]]))
+                        if ((ar_beams[i].p1 == &ar_nodes[cabs[tmpv]] || ar_beams[i].p1 == &ar_nodes[cabs[tmpv + 1]] || ar_beams[i].p1 == &ar_nodes[cabs[tmpv + 2]]) &&
+                            (ar_beams[i].p2 == &ar_nodes[cabs[tmpv]] || ar_beams[i].p2 == &ar_nodes[cabs[tmpv + 1]] || ar_beams[i].p2 == &ar_nodes[cabs[tmpv + 2]]))
                         {
                             buoyance->setsink(1);
                         }
@@ -1574,8 +1574,8 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
             // At last update the beam forces
             Vector3 f = dis;
             f *= (slen * inverted_dislen);
-            beams[i].p1->Forces += f;
-            beams[i].p2->Forces -= f;
+            ar_beams[i].p1->Forces += f;
+            ar_beams[i].p2->Forces -= f;
         }
     }
     BES_STOP(BES_CORE_Beams);
@@ -1724,42 +1724,42 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
         gravity = gEnv->terrainManager->getGravity();
     }
 
-    for (int i = 0; i < free_node; i++)
+    for (int i = 0; i < ar_num_nodes; i++)
     {
         // wetness
         if (doUpdate)
         {
-            if (nodes[i].wetstate == DRIPPING && !nodes[i].contactless && !nodes[i].disable_particles)
+            if (ar_nodes[i].wetstate == DRIPPING && !ar_nodes[i].contactless && !ar_nodes[i].disable_particles)
             {
-                nodes[i].wettime += dt * maxsteps;
-                if (nodes[i].wettime > 5.0)
+                ar_nodes[i].wettime += dt * maxsteps;
+                if (ar_nodes[i].wettime > 5.0)
                 {
-                    nodes[i].wetstate = DRY;
+                    ar_nodes[i].wetstate = DRY;
                 }
                 else
                 {
-                    if (!nodes[i].iswheel && dripp)
-                        dripp->allocDrip(nodes[i].AbsPosition, nodes[i].Velocity, nodes[i].wettime);
-                    if (nodes[i].isHot && dustp)
-                        dustp->allocVapour(nodes[i].AbsPosition, nodes[i].Velocity, nodes[i].wettime);
+                    if (!ar_nodes[i].iswheel && dripp)
+                        dripp->allocDrip(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity, ar_nodes[i].wettime);
+                    if (ar_nodes[i].isHot && dustp)
+                        dustp->allocVapour(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity, ar_nodes[i].wettime);
                 }
             }
         }
 
         // COLLISION
-        if (!nodes[i].contactless)
+        if (!ar_nodes[i].contactless)
         {
-            nodes[i].collTestTimer += dt;
-            if (nodes[i].contacted || nodes[i].collTestTimer > 0.005 || ((nodes[i].iswheel || nodes[i].wheelid != -1) && (high_res_wheelnode_collisions || nodes[i].collTestTimer > 0.0025)) || increased_accuracy)
+            ar_nodes[i].collTestTimer += dt;
+            if (ar_nodes[i].contacted || ar_nodes[i].collTestTimer > 0.005 || ((ar_nodes[i].iswheel || ar_nodes[i].wheelid != -1) && (high_res_wheelnode_collisions || ar_nodes[i].collTestTimer > 0.0025)) || increased_accuracy)
             {
                 float ns = 0;
                 ground_model_t* gm = 0; // this is used as result storage, so we can use it later on
-                bool contacted = gEnv->collisions->groundCollision(&nodes[i], nodes[i].collTestTimer, &gm, &ns);
+                bool contacted = gEnv->collisions->groundCollision(&ar_nodes[i], ar_nodes[i].collTestTimer, &gm, &ns);
                 // reverted this construct to the old form, don't mess with it, the binary operator is intentionally!
-                if (contacted | gEnv->collisions->nodeCollision(&nodes[i], contacted, nodes[i].collTestTimer, &ns, &gm))
+                if (contacted | gEnv->collisions->nodeCollision(&ar_nodes[i], contacted, ar_nodes[i].collTestTimer, &ns, &gm))
                 {
                     // FX
-                    if (gm && doUpdate && !nodes[i].disable_particles)
+                    if (gm && doUpdate && !ar_nodes[i].disable_particles)
                     {
                         float thresold = 10.0f;
 
@@ -1767,15 +1767,15 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                         {
                         case Collisions::FX_DUSTY:
                             if (dustp)
-                                dustp->malloc(nodes[i].AbsPosition, nodes[i].Velocity / 2.0, gm->fx_colour);
+                                dustp->malloc(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity / 2.0, gm->fx_colour);
                             break;
 
                         case Collisions::FX_HARD:
                             // smokey
-                            if (nodes[i].iswheel && ns > thresold)
+                            if (ar_nodes[i].iswheel && ns > thresold)
                             {
                                 if (dustp)
-                                    dustp->allocSmoke(nodes[i].AbsPosition, nodes[i].Velocity);
+                                    dustp->allocSmoke(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity);
 
                                 SOUND_MODULATE(trucknum, SS_MOD_SCREETCH, (ns - thresold) / thresold);
                                 SOUND_PLAY_ONCE(trucknum, SS_TRIG_SCREETCH);
@@ -1783,38 +1783,38 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                                 //Shouldn't skidmarks be activated from here?
                                 if (useSkidmarks)
                                 {
-                                    wheels[nodes[i].wheelid].isSkiding = true;
-                                    if (!(nodes[i].iswheel % 2))
-                                        wheels[nodes[i].wheelid].lastContactInner = nodes[i].AbsPosition;
+                                    wheels[ar_nodes[i].wheelid].isSkiding = true;
+                                    if (!(ar_nodes[i].iswheel % 2))
+                                        wheels[ar_nodes[i].wheelid].lastContactInner = ar_nodes[i].AbsPosition;
                                     else
-                                        wheels[nodes[i].wheelid].lastContactOuter = nodes[i].AbsPosition;
+                                        wheels[ar_nodes[i].wheelid].lastContactOuter = ar_nodes[i].AbsPosition;
 
-                                    wheels[nodes[i].wheelid].lastContactType = (nodes[i].iswheel % 2);
-                                    wheels[nodes[i].wheelid].lastSlip = ns;
-                                    wheels[nodes[i].wheelid].lastGroundModel = gm;
+                                    wheels[ar_nodes[i].wheelid].lastContactType = (ar_nodes[i].iswheel % 2);
+                                    wheels[ar_nodes[i].wheelid].lastSlip = ns;
+                                    wheels[ar_nodes[i].wheelid].lastGroundModel = gm;
                                 }
                             }
                             // sparks
-                            if (!nodes[i].iswheel && ns > 1.0 && !nodes[i].disable_sparks)
+                            if (!ar_nodes[i].iswheel && ns > 1.0 && !ar_nodes[i].disable_sparks)
                             {
                                 // friction < 10 will remove the 'f' nodes from the spark generation nodes
                                 if (sparksp)
-                                    sparksp->allocSparks(nodes[i].AbsPosition, nodes[i].Velocity);
+                                    sparksp->allocSparks(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity);
                             }
-                            if (nodes[i].iswheel && ns < thresold)
+                            if (ar_nodes[i].iswheel && ns < thresold)
                             {
                                 if (useSkidmarks)
                                 {
-                                    wheels[nodes[i].wheelid].isSkiding = false;
+                                    wheels[ar_nodes[i].wheelid].isSkiding = false;
                                 }
                             }
                             break;
 
                         case Collisions::FX_CLUMPY:
-                            if (nodes[i].Velocity.squaredLength() > 1.0)
+                            if (ar_nodes[i].Velocity.squaredLength() > 1.0)
                             {
                                 if (clumpp)
-                                    clumpp->allocClump(nodes[i].AbsPosition, nodes[i].Velocity / 2.0, gm->fx_colour);
+                                    clumpp->allocClump(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity / 2.0, gm->fx_colour);
                             }
                             break;
                         default:
@@ -1825,67 +1825,67 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 
                     lastFuzzyGroundModel = gm;
                 }
-                nodes[i].collTestTimer = 0.0;
+                ar_nodes[i].collTestTimer = 0.0;
             }
         }
 
         // record g forces on cameras
         if (i == cameranodepos[0])
         {
-            cameranodeacc += nodes[i].Forces / nodes[i].mass;
+            cameranodeacc += ar_nodes[i].Forces / ar_nodes[i].mass;
             cameranodecount++;
         }
 
         // integration
-        if (!nodes[i].locked)
+        if (!ar_nodes[i].locked)
         {
-            nodes[i].Velocity += nodes[i].Forces / nodes[i].mass * dt;
-            nodes[i].RelPosition += nodes[i].Velocity * dt;
-            nodes[i].AbsPosition = origin;
-            nodes[i].AbsPosition += nodes[i].RelPosition;
+            ar_nodes[i].Velocity += ar_nodes[i].Forces / ar_nodes[i].mass * dt;
+            ar_nodes[i].RelPosition += ar_nodes[i].Velocity * dt;
+            ar_nodes[i].AbsPosition = origin;
+            ar_nodes[i].AbsPosition += ar_nodes[i].RelPosition;
         }
 
         // prepare next loop (optimisation)
         // we start forces from zero
         // start with gravity
-        nodes[i].Forces = Vector3(0, nodes[i].mass * gravity, 0);
+        ar_nodes[i].Forces = Vector3(0, ar_nodes[i].mass * gravity, 0);
 
         if (fuseAirfoil)
         {
             // aerodynamics on steroids!
-            nodes[i].Forces += fusedrag;
+            ar_nodes[i].Forces += fusedrag;
         }
         else if (!disableDrag)
         {
             // add viscous drag (turbulent model)
-            Real speed = approx_sqrt(nodes[i].Velocity.squaredLength()); //we will (not) reuse this
+            Real speed = approx_sqrt(ar_nodes[i].Velocity.squaredLength()); //we will (not) reuse this
             Real defdragxspeed = DEFAULT_DRAG * speed;
-            Vector3 drag = -defdragxspeed * nodes[i].Velocity;
+            Vector3 drag = -defdragxspeed * ar_nodes[i].Velocity;
             // plus: turbulences
             Real maxtur = defdragxspeed * speed * 0.005f;
             drag += maxtur * Vector3(frand_11(), frand_11(), frand_11());
-            nodes[i].Forces += drag;
+            ar_nodes[i].Forces += drag;
         }
 
         if (water)
         {
-            if (water->isUnderWater(nodes[i].AbsPosition))
+            if (water->isUnderWater(ar_nodes[i].AbsPosition))
             {
                 watercontact = true;
                 if (free_buoycab == 0)
                 {
                     // water drag (turbulent)
-                    Real speed = approx_sqrt(nodes[i].Velocity.squaredLength()); //we will (not) reuse this
-                    nodes[i].Forces -= (DEFAULT_WATERDRAG * speed) * nodes[i].Velocity;
+                    Real speed = approx_sqrt(ar_nodes[i].Velocity.squaredLength()); //we will (not) reuse this
+                    ar_nodes[i].Forces -= (DEFAULT_WATERDRAG * speed) * ar_nodes[i].Velocity;
                     // basic buoyance
-                    nodes[i].Forces += nodes[i].buoyancy * Vector3::UNIT_Y;
+                    ar_nodes[i].Forces += ar_nodes[i].buoyancy * Vector3::UNIT_Y;
                     // basic splashing
-                    if (doUpdate && water->GetStaticWaterHeight() - nodes[i].AbsPosition.y < 0.2 && nodes[i].Velocity.squaredLength() > 4.0 && !nodes[i].disable_particles)
+                    if (doUpdate && water->GetStaticWaterHeight() - ar_nodes[i].AbsPosition.y < 0.2 && ar_nodes[i].Velocity.squaredLength() > 4.0 && !ar_nodes[i].disable_particles)
                     {
                         if (splashp)
-                            splashp->allocSplash(nodes[i].AbsPosition, nodes[i].Velocity);
+                            splashp->allocSplash(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity);
                         if (ripplep)
-                            ripplep->allocRipple(nodes[i].AbsPosition, nodes[i].Velocity);
+                            ripplep->allocRipple(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity);
                     }
                 }
                 // engine stall
@@ -1893,12 +1893,12 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                 {
                     engine->stop();
                 }
-                nodes[i].wetstate = WET;
+                ar_nodes[i].wetstate = WET;
             }
-            else if (nodes[i].wetstate == WET)
+            else if (ar_nodes[i].wetstate == WET)
             {
-                nodes[i].wetstate = DRIPPING;
-                nodes[i].wettime = 0.0f;
+                ar_nodes[i].wetstate = DRIPPING;
+                ar_nodes[i].wettime = 0.0f;
             }
         }
     }
@@ -2000,9 +2000,9 @@ void Beam::calcHooks()
                                 it->locked = UNLOCKED;
                                 it->lockNode = 0;
                                 it->lockTruck = 0;
-                                it->beam->p2 = &nodes[0];
+                                it->beam->p2 = &ar_nodes[0];
                                 it->beam->p2truck = false;
-                                it->beam->L = (nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
+                                it->beam->L = (ar_nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
                                 it->beam->bm_disabled = true;
                                 removeInterTruckBeam(it->beam);
                             }
