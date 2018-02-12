@@ -114,14 +114,14 @@ public:
     };
 
     void Setup(
-        Beam *rig,
+        Actor *rig,
         std::shared_ptr<RigDef::File> file,
         Ogre::SceneNode *parent,
         Ogre::Vector3 const & spawn_position,
         int cache_entry_number = -1
         );
 
-    Beam *SpawnRig();
+    Actor *SpawnRig();
 
     /**
     * Adds a vehicle module to the validated configuration.
@@ -138,7 +138,7 @@ public:
         m_selected_modules.push_back(module);
     }
 
-    Beam *GetRig()
+    Actor *GetRig()
     {
         return m_rig;
     }
@@ -156,9 +156,9 @@ public:
     */
     unsigned int GetNodeIndexOrThrow(RigDef::Node::Ref const & id);
 
-    static void RecalculateBoundingBoxes(Beam *rig);
+    static void RecalculateBoundingBoxes(Actor *rig);
 
-    static void SetupDefaultSoundSources(Beam *vehicle);
+    static void SetupDefaultSoundSources(Actor *vehicle);
 
     static void ComposeName(RoR::Str<100>& str, const char* type, int number, int actor_id);
 
@@ -562,9 +562,9 @@ private:
 
     Rail *CreateRail(std::vector<RigDef::Node::Range> & node_ranges);
 
-    static void AddSoundSource(Beam *vehicle, SoundScriptInstance *sound_script, int node_index, int type = -2);
+    static void AddSoundSource(Actor *vehicle, SoundScriptInstance *sound_script, int node_index, int type = -2);
 
-    static void AddSoundSourceInstance(Beam *vehicle, Ogre::String const & sound_script_name, int node_index, int type = -2);
+    static void AddSoundSourceInstance(Actor *vehicle, Ogre::String const & sound_script_name, int node_index, int type = -2);
 
 /* -------------------------------------------------------------------------- */
 /* Limits.                                                                    */
@@ -638,7 +638,7 @@ private:
     * @param count Required number of free slots.
     * @return True if there is space left.
     */
-    static bool CheckSoundScriptLimit(Beam *vehicle, unsigned int count);
+    static bool CheckSoundScriptLimit(Actor *vehicle, unsigned int count);
 
     /**
     * Checks there is still space left in rig_t::airbrakes array.
@@ -1049,7 +1049,7 @@ private:
 
     std::shared_ptr<RigDef::File> m_file; //!< The parsed input file.
     int m_cache_entry_number;
-    Beam *m_rig; //!< The output rig.
+    Actor *m_rig; //!< The output actor.
     std::list<std::shared_ptr<RigDef::File::Module>> m_selected_modules;
     std::map<Ogre::String, unsigned int> m_named_nodes;
 

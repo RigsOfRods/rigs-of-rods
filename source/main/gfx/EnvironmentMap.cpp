@@ -226,7 +226,7 @@ RoR::GfxEnvmap::~GfxEnvmap()
     Ogre::TextureManager::getSingleton().remove(m_rtt_texture->getName());
 }
 
-void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, Beam* beam /* = 0 */)
+void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, Actor* beam /* = 0 */)
 {
     if (!App::gfx_envmap_enabled.GetActive() || !beam)
     {

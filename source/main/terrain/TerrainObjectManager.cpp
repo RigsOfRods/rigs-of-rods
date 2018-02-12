@@ -1349,7 +1349,7 @@ void TerrainObjectManager::loadPreloadedTrucks()
     for (unsigned int i = 0; i < truck_preload.size(); i++)
     {
         Vector3 pos = Vector3(truck_preload[i].px, truck_preload[i].py, truck_preload[i].pz);
-        Beam* b = terrainManager->GetSimController()->GetBeamFactory()->CreateLocalRigInstance(
+        Actor* b = terrainManager->GetSimController()->GetBeamFactory()->CreateLocalRigInstance(
             pos,
             truck_preload[i].rotation,
             truck_preload[i].name,
@@ -1367,7 +1367,7 @@ void TerrainObjectManager::loadPreloadedTrucks()
             SurveyMapEntity* e = gEnv->surveyMap->createNamedMapEntity("Truck" + TOSTRING(b->ar_instance_id), SurveyMapManager::getTypeByDriveable(b->ar_driveable));
             if (e)
             {
-                e->setState(static_cast<int>(Beam::SimState::LOCAL_SIMULATED));
+                e->setState(static_cast<int>(Actor::SimState::LOCAL_SIMULATED));
                 e->setVisibility(true);
                 e->setPosition(truck_preload[i].px, truck_preload[i].pz);
                 e->setRotation(-Radian(b->getHeadingDirectionAngle()));

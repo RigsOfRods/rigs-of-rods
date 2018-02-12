@@ -72,7 +72,7 @@ public:
     void toggleMapView();
     void toggleMapAlpha();
 
-    void Update(Ogre::Real dt, Beam* curr_truck);
+    void Update(Ogre::Real dt, Actor* curr_truck);
 
     static Ogre::String getTypeByDriveable(int driveable);
 
@@ -84,7 +84,7 @@ public:
         SURVEY_MAP_END
     };
 
-    void          UpdateVehicles(Beam** vehicles, int num_vehicles);
+    void          UpdateVehicles(Actor** vehicles, int num_vehicles);
     std::string   GetMinimapTextureName();
 
 protected:

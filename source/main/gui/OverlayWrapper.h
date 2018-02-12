@@ -49,7 +49,7 @@ public:
         Ogre::Overlay *o;
     };
 
-    void showDashboardOverlays(bool show, Beam *truck);
+    void showDashboardOverlays(bool show, Actor *truck);
     void showDebugOverlay(int mode);
     void showPressureOverlay(bool show);
 
@@ -62,24 +62,24 @@ public:
     float mTimeUntilNextToggle;
 
     void SetupDirectionArrow();
-    void UpdateDirectionArrow(Beam* vehicle, Ogre::Vector3 const & point_to);
+    void UpdateDirectionArrow(Actor* vehicle, Ogre::Vector3 const & point_to);
     void HideDirectionOverlay();
     void ShowDirectionOverlay(Ogre::String const & caption);
 
     void UpdatePressureTexture(float pressure);
 
-    void UpdateLandVehicleHUD(Beam * vehicle);
-    void UpdateAerialHUD(Beam * vehicle);
-    void UpdateMarineHUD(Beam * vehicle);
+    void UpdateLandVehicleHUD(Actor * vehicle);
+    void UpdateAerialHUD(Actor * vehicle);
+    void UpdateMarineHUD(Actor * vehicle);
 
     void ShowRacingOverlay();
     void HideRacingOverlay();
 
     /// Hides all overlays, but doesn't change visibility flags (for further restoring).
-    void TemporarilyHideAllOverlays(Beam *current_vehicle);
+    void TemporarilyHideAllOverlays(Actor *current_vehicle);
 
     /// Shows all overlays flagged as "visible".
-    void RestoreOverlaysVisibility(Beam *current_vehicle);
+    void RestoreOverlaysVisibility(Actor *current_vehicle);
 
     void SetSimController(RoRFrameListener* sim) { m_sim_controller = sim; }
 

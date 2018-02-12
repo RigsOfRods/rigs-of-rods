@@ -368,7 +368,7 @@ bool DOFManager::frameStarted(const FrameEvent& evt)
 
                 Vector3 lookAt(Vector3::ZERO);
 
-                Beam* currTruck = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+                Actor* currTruck = m_sim_controller->GetBeamFactory()->getCurrentTruck();
                 if (currTruck)
                 {
                     lookAt = currTruck->getPosition();

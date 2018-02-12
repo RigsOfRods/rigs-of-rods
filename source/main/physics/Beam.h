@@ -40,7 +40,7 @@ class Task;
 /// HISTORY: this class was derived from data-only `struct rig_t`. The data have been placed here directly. Refactor in progress, you may find leftovers.
 /// FUTURE: Class will be renamed to `Actor` because it's more universal than "truck/vehicle/rig/beam"
 ///         Prefix of public variables is 'ar_' as 'Actor'
-class Beam :
+class Actor :
     public ZeroedMemoryAllocator
 {
     friend class RigSpawner;
@@ -63,7 +63,7 @@ public:
     /// @param truckconfig Networking related.
     /// @param preloaded_with_terrain Is this rig being pre-loaded along with terrain?
     /// @param cache_entry_number Needed for flexbody caching. Pass -1 if unavailable (flexbody caching will be disabled)
-    Beam(
+    Actor(
           RoRFrameListener* sim_controller
         , int tnum
         , Ogre::Vector3 pos
@@ -81,7 +81,7 @@ public:
         , int cache_entry_number = -1
         );
 
-    ~Beam();
+    ~Actor();
 
     bool LoadTruck( //!< Spawn helper
         RoR::RigLoadingProfiler* rig_loading_profiler,
@@ -241,7 +241,7 @@ public:
     std::vector<authorinfo_t>     getAuthors();
     std::vector<std::string>      getDescription();
     RoR::PerVehicleCameraContext* GetCameraContext()    { return &m_camera_context; }
-    std::list<Beam*>  getAllLinkedBeams()               { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
+    std::list<Actor*>  getAllLinkedBeams()               { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
     Ogre::Vector3     GetFFbBodyForces() const          { return m_force_sensors.out_body_forces; }
     PointColDetector* IntraPointCD()                    { return m_intra_point_col_detector; }
     PointColDetector* InterPointCD()                    { return m_inter_point_col_detector; }
@@ -465,7 +465,7 @@ private:
     void              calc_masses2(Ogre::Real total, bool reCalc=false);
     void              calcNodeConnectivityGraph();
     void              moveOrigin(Ogre::Vector3 offset);    //!< move physics origin
-    void              addInterTruckBeam(beam_t* beam, Beam* a, Beam* b);
+    void              addInterTruckBeam(beam_t* beam, Actor* a, Actor* b);
     void              removeInterTruckBeam(beam_t* beam);
     void              disjoinInterTruckBeams();            //!< Destroys all inter truck beams which are connected with this truck
     void              CreateSimpleSkeletonMaterial();
@@ -484,7 +484,7 @@ private:
     /// @param truck which truck to retrieve the closest Rail from
     /// @param node which SlideNode is being checked against
     /// @return a pair containing the rail, and the distant to the SlideNode
-    std::pair<RailGroup*, Ogre::Real> getClosestRailOnTruck( Beam* truck, const SlideNode& node);
+    std::pair<RailGroup*, Ogre::Real> getClosestRailOnTruck( Actor* truck, const SlideNode& node);
 
     // -------------------- data -------------------- //
 
@@ -510,7 +510,7 @@ private:
     float             m_avionic_chatter_timer;      //!< Sound fx state
     PointColDetector* m_inter_point_col_detector;   //!< Physics
     PointColDetector* m_intra_point_col_detector;   //!< Physics
-    std::list<Beam*>  m_linked_actors;              //!< Sim state; other actors linked using 'hooks'
+    std::list<Actor*>  m_linked_actors;              //!< Sim state; other actors linked using 'hooks'
     Ogre::Vector3     m_avg_node_position;          //!< average node position
     Ogre::Real        m_min_camera_radius;
     Ogre::Vector3     m_avg_node_position_prev;

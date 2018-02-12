@@ -50,7 +50,7 @@ public:
     /**
     * @param cache_entry_number Needed for flexbody caching. Pass -1 if unavailable (flexbody caching will be disabled)
     */
-    Beam* CreateLocalRigInstance(
+    Actor* CreateLocalRigInstance(
         Ogre::Vector3 pos,
         Ogre::Quaternion rot,
         Ogre::String fname,
@@ -73,11 +73,11 @@ public:
 
     int getNumCpuCores() { return m_num_cpu_cores; };
 
-    Beam* getBeam(int source_id, int stream_id); // used by character
+    Actor* getBeam(int source_id, int stream_id); // used by character
 
-    Beam* getCurrentTruck();
-    Beam* getTruck(int number);
-    Beam** getTrucks() { return m_trucks; };
+    Actor* getCurrentTruck();
+    Actor* getTruck(int number);
+    Actor** getTrucks() { return m_trucks; };
     int getPreviousTruckNumber() { return m_previous_truck; };
     int getCurrentTruckNumber() { return m_current_truck; };
     int getTruckCount() const { return m_free_truck; };
@@ -136,7 +136,7 @@ public:
     DustManager& GetParticleManager() { return m_particle_manager; }
 
     // A list of all beams interconnecting two trucks
-    std::map<beam_t*, std::pair<Beam*, Beam*>> interTruckLinks;
+    std::map<beam_t*, std::pair<Actor*, Actor*>> interTruckLinks;
 
 protected:
 
@@ -172,7 +172,7 @@ protected:
     int GetFreeTruckSlot();
     int FindTruckInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
 
-    void DeleteTruck(Beam* b);
+    void DeleteTruck(Actor* b);
 
     // ---------- variables ---------- //
 
@@ -183,7 +183,7 @@ protected:
     RoRFrameListener*               m_sim_controller;
 
     int             m_num_cpu_cores;
-    Beam*           m_trucks[MAX_TRUCKS];
+    Actor*          m_trucks[MAX_TRUCKS];
     int             m_free_truck;
     int             m_previous_truck;
     int             m_current_truck;

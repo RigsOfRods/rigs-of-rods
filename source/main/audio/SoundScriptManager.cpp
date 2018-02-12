@@ -99,7 +99,7 @@ SoundScriptManager::SoundScriptManager() :
     ResourceGroupManager::getSingleton()._registerScriptLoader(this);
 }
 
-void SoundScriptManager::trigOnce(Beam* truck, int trig, int linkType, int linkItemID)
+void SoundScriptManager::trigOnce(Actor* truck, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return;
@@ -127,7 +127,7 @@ void SoundScriptManager::trigOnce(int truck, int trig, int linkType, int linkIte
     }
 }
 
-void SoundScriptManager::trigStart(Beam* truck, int trig, int linkType, int linkItemID)
+void SoundScriptManager::trigStart(Actor* truck, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return;
@@ -158,7 +158,7 @@ void SoundScriptManager::trigStart(int truck, int trig, int linkType, int linkIt
     }
 }
 
-void SoundScriptManager::trigStop(Beam* truck, int trig, int linkType, int linkItemID)
+void SoundScriptManager::trigStop(Actor* truck, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return;
@@ -188,7 +188,7 @@ void SoundScriptManager::trigStop(int truck, int trig, int linkType, int linkIte
     }
 }
 
-void SoundScriptManager::trigKill(Beam* truck, int trig, int linkType, int linkItemID)
+void SoundScriptManager::trigKill(Actor* truck, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return;
@@ -218,7 +218,7 @@ void SoundScriptManager::trigKill(int truck, int trig, int linkType, int linkIte
     }
 }
 
-void SoundScriptManager::trigToggle(Beam* truck, int trig, int linkType, int linkItemID)
+void SoundScriptManager::trigToggle(Actor* truck, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return;
@@ -240,7 +240,7 @@ void SoundScriptManager::trigToggle(int truck, int trig, int linkType, int linkI
         trigStart(truck, trig, linkType, linkItemID);
 }
 
-bool SoundScriptManager::getTrigState(Beam* truck, int trig, int linkType, int linkItemID)
+bool SoundScriptManager::getTrigState(Actor* truck, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return false;
@@ -259,7 +259,7 @@ bool SoundScriptManager::getTrigState(int truck, int trig, int linkType, int lin
     return state_map[linkType][linkItemID][truck][trig];
 }
 
-void SoundScriptManager::modulate(Beam* truck, int mod, float value, int linkType, int linkItemID)
+void SoundScriptManager::modulate(Actor* truck, int mod, float value, int linkType, int linkItemID)
 {
     if (disabled)
         return;

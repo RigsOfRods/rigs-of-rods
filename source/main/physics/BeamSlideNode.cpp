@@ -31,7 +31,7 @@
 #include "RoRFrameListener.h"
 
 // ug... BAD PERFORMNCE, BAD!!
-void Beam::toggleSlideNodeLock()
+void Actor::toggleSlideNodeLock()
 {
     int trucksnum = RoR::App::GetSimController()->GetBeamFactory()->getTruckCount();
     int curTruck = RoR::App::GetSimController()->GetBeamFactory()->getCurrentTruckNumber();
@@ -71,7 +71,7 @@ void Beam::toggleSlideNodeLock()
     m_slidenodes_locked = !m_slidenodes_locked;
 } // is ugly....
 
-std::pair<RailGroup*, Ogre::Real> Beam::getClosestRailOnTruck(Beam* truck, const SlideNode& node)
+std::pair<RailGroup*, Ogre::Real> Actor::getClosestRailOnTruck(Actor* truck, const SlideNode& node)
 {
     std::pair<RailGroup*, Ogre::Real> closest((RailGroup*)NULL, std::numeric_limits<Ogre::Real>::infinity());
     Rail* curRail = NULL;
@@ -111,7 +111,7 @@ std::pair<RailGroup*, Ogre::Real> Beam::getClosestRailOnTruck(Beam* truck, const
 
 // SlideNode Utility functions /////////////////////////////////////////////////
 
-void Beam::updateSlideNodeForces(const Ogre::Real dt)
+void Actor::updateSlideNodeForces(const Ogre::Real dt)
 {
     for (std::vector<SlideNode>::iterator it = m_slidenodes.begin(); it != m_slidenodes.end(); ++it)
     {
@@ -120,7 +120,7 @@ void Beam::updateSlideNodeForces(const Ogre::Real dt)
     }
 }
 
-void Beam::resetSlideNodePositions()
+void Actor::resetSlideNodePositions()
 {
     if (m_slidenodes.empty())
         return;
@@ -130,7 +130,7 @@ void Beam::resetSlideNodePositions()
     }
 }
 
-void Beam::resetSlideNodes()
+void Actor::resetSlideNodes()
 {
     for (std::vector<SlideNode>::iterator it = m_slidenodes.begin(); it != m_slidenodes.end(); ++it)
     {
@@ -138,7 +138,7 @@ void Beam::resetSlideNodes()
     }
 }
 
-void Beam::updateSlideNodePositions()
+void Actor::updateSlideNodePositions()
 {
     for (std::vector<SlideNode>::iterator it = m_slidenodes.begin(); it != m_slidenodes.end(); ++it)
     {

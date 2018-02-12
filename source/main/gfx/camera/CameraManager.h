@@ -39,7 +39,7 @@ public:
     {
     public:
 
-        Beam* mCurrTruck;
+        Actor* mCurrTruck;
         DOFManager* mDof;
         Ogre::Degree mRotScale;
         Ogre::Real mDt;
@@ -63,7 +63,7 @@ public:
         CAMERA_BEHAVIOR_ISOMETRIC
     };
 
-    bool Update(float dt, Beam* cur_truck, float sim_speed);
+    bool Update(float dt, Actor* cur_truck, float sim_speed);
 
     void switchBehavior(int newBehavior, bool reset = true);
     void switchToNextBehavior(bool force = true);
@@ -78,14 +78,14 @@ public:
 
     void OnReturnToMainMenu();
     void NotifyContextChange();
-    void NotifyVehicleChanged(Beam* old_vehicle, Beam* new_vehicle);
+    void NotifyVehicleChanged(Actor* old_vehicle, Actor* new_vehicle);
     void ActivateDepthOfFieldEffect(RoRFrameListener* sim);
     void DisableDepthOfFieldEffect();
 
 protected:
 
     void createGlobalBehaviors();
-    void SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset, Beam* old_vehicle, Beam* new_vehicle);
+    void SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset, Actor* old_vehicle, Actor* new_vehicle);
 
     CameraContext ctx;
 

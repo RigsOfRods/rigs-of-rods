@@ -31,17 +31,17 @@ struct LandVehicleSimulation
     /**
     * @param dt Delta time in seconds.
     */
-    static void UpdateCruiseControl(Beam* curr_truck, float dt);
+    static void UpdateCruiseControl(Actor* curr_truck, float dt);
 
     /**
     * @param dt Delta time in seconds.
     */
-    static void CheckSpeedLimit(Beam* curr_truck, float dt);
+    static void CheckSpeedLimit(Actor* curr_truck, float dt);
 
     /**
     * Logic: input, sound, vehicle state
     */
-    static void UpdateVehicle(Beam* curr_truck, float seconds_since_last_frame);
+    static void UpdateVehicle(Actor* curr_truck, float seconds_since_last_frame);
 };
 
 } // namespace RoR

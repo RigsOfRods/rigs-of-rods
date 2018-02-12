@@ -37,7 +37,7 @@
 
 using namespace RoR;
 
-void AircraftSimulation::UpdateVehicle(Beam* vehicle, float seconds_since_last_frame)
+void AircraftSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_last_frame)
 {
     //autopilot
     if (vehicle->ar_autopilot && vehicle->ar_autopilot->wantsdisconnect)

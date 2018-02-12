@@ -28,7 +28,7 @@
 
 using namespace Ogre;
 
-BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<float> gears, float dratio, Beam* actor) :
+BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<float> gears, float dratio, Actor* actor) :
     apressure(0.0f)
     , autocurAcc(0.0f)
     , automode(AUTOMATIC)
@@ -251,7 +251,7 @@ void BeamEngine::setOptions(float einertia, char etype, float eclutch, float cti
 
 void BeamEngine::update(float dt, int doUpdate)
 {
-    Beam* truck = m_actor;
+    Actor* truck = m_actor;
     int trucknum = m_actor->ar_instance_id;
     float acc = curAcc;
 

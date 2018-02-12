@@ -21,16 +21,13 @@
 
 #pragma once
 
-class PointColDetector;
-class collcab_rate_t;
-class node_t;
-class Beam;
-class ground_model_t;
+#include "ForwardDeclarations.h"
+#include "BeamData.h"
 
 void interTruckCollisions(const float dt, PointColDetector &interPointCD,
         const int free_collcab, int collcabs[], int cabs[],
         collcab_rate_t inter_collcabrate[], node_t nodes[],
-        const float collrange, Beam **trucks,
+        const float collrange, Actor **trucks,
         const int numtrucks,
         ground_model_t &submesh_ground_model);
 

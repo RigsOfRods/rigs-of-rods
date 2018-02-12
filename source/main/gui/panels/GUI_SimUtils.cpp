@@ -160,7 +160,7 @@ void CLASS::framestep(float dt)
     }
 }
 
-void CLASS::UpdateStats(float dt, Beam* truck)
+void CLASS::UpdateStats(float dt, Actor* truck)
 {
     if (!MAIN_WIDGET->getVisible())
         return;

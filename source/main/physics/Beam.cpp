@@ -92,7 +92,7 @@
 using namespace Ogre;
 using namespace RoR;
 
-Beam::~Beam()
+Actor::~Actor()
 {
     TRIGGER_EVENT(SE_GENERIC_DELETED_TRUCK, ar_instance_id);
 
@@ -397,7 +397,7 @@ Beam::~Beam()
 
 // This method scales trucks. Stresses should *NOT* be scaled, they describe
 // the material type and they do not depend on length or scale.
-void Beam::scaleTruck(float value)
+void Actor::scaleTruck(float value)
 {
     BES_GFX_START(BES_GFX_ScaleTruck);
 
@@ -473,7 +473,7 @@ void Beam::scaleTruck(float value)
     BES_GFX_STOP(BES_GFX_ScaleTruck);
 }
 
-void Beam::initSimpleSkeleton()
+void Actor::initSimpleSkeleton()
 {
     m_skeletonview_manual_mesh = gEnv->sceneManager->createManualObject();
 
@@ -494,7 +494,7 @@ void Beam::initSimpleSkeleton()
     m_skeletonview_mesh_initialized = true;
 }
 
-void Beam::updateSimpleSkeleton()
+void Actor::updateSimpleSkeleton()
 {
     BES_GFX_START(BES_GFX_UpdateSkeleton);
 
@@ -531,7 +531,7 @@ void Beam::updateSimpleSkeleton()
     BES_GFX_STOP(BES_GFX_UpdateSkeleton);
 }
 
-void Beam::moveOrigin(Vector3 offset)
+void Actor::moveOrigin(Vector3 offset)
 {
     ar_origin += offset;
     for (int i = 0; i < ar_num_nodes; i++)
@@ -540,14 +540,14 @@ void Beam::moveOrigin(Vector3 offset)
     }
 }
 
-float Beam::getRotation()
+float Actor::getRotation()
 {
     Vector3 cur_dir = getDirection();
 
     return atan2(cur_dir.dotProduct(Vector3::UNIT_X), cur_dir.dotProduct(-Vector3::UNIT_Z));
 }
 
-Vector3 Beam::getDirection()
+Vector3 Actor::getDirection()
 {
     Vector3 cur_dir = ar_nodes[0].AbsPosition;
     if (ar_camera_node_pos[0] != ar_camera_node_dir[0] && this->IsNodeIdValid(ar_camera_node_pos[0]) && this->IsNodeIdValid(ar_camera_node_dir[0]))
@@ -575,12 +575,12 @@ Vector3 Beam::getDirection()
     return cur_dir;
 }
 
-Vector3 Beam::getPosition()
+Vector3 Actor::getPosition()
 {
     return m_avg_node_position; //the position is already in absolute position
 }
 
-void Beam::CreateSimpleSkeletonMaterial()
+void Actor::CreateSimpleSkeletonMaterial()
 {
     if (MaterialManager::getSingleton().resourceExists("vehicle-skeletonview-material"))
     {
@@ -596,7 +596,7 @@ void Beam::CreateSimpleSkeletonMaterial()
     mat->setReceiveShadows(false);
 }
 
-void Beam::pushNetwork(char* data, int size)
+void Actor::pushNetwork(char* data, int size)
 {
     BES_GFX_START(BES_GFX_pushNetwork);
     if (!oob3)
@@ -660,7 +660,7 @@ void Beam::pushNetwork(char* data, int size)
     BES_GFX_STOP(BES_GFX_pushNetwork);
 }
 
-void Beam::calcNetwork()
+void Actor::calcNetwork()
 {
     using namespace RoRnet;
 
@@ -849,7 +849,7 @@ void Beam::calcNetwork()
     BES_GFX_STOP(BES_GFX_calcNetwork);
 }
 
-bool Beam::addPressure(float v)
+bool Actor::addPressure(float v)
 {
     if (!ar_free_pressure_beam)
         return false;
@@ -867,14 +867,14 @@ bool Beam::addPressure(float v)
     return true;
 }
 
-float Beam::getPressure()
+float Actor::getPressure()
 {
     if (ar_free_pressure_beam)
         return m_ref_tyre_pressure;
     return 0;
 }
 
-void Beam::calc_masses2(Real total, bool reCalc)
+void Actor::calc_masses2(Real total, bool reCalc)
 {
     BES_GFX_START(BES_GFX_calc_masses2);
 
@@ -976,19 +976,19 @@ void Beam::calc_masses2(Real total, bool reCalc)
 }
 
 // this recalculates the masses (useful when the gravity was changed...)
-void Beam::recalc_masses()
+void Actor::recalc_masses()
 {
     this->calc_masses2(m_total_mass, true);
 }
 
-float Beam::getTotalMass(bool withLocked)
+float Actor::getTotalMass(bool withLocked)
 {
     if (!withLocked)
         return m_total_mass; // already computed in calc_masses2
 
     float mass = m_total_mass;
 
-    for (std::list<Beam*>::iterator it = m_linked_actors.begin(); it != m_linked_actors.end(); ++it)
+    for (std::list<Actor*>::iterator it = m_linked_actors.begin(); it != m_linked_actors.end(); ++it)
     {
         mass += (*it)->m_total_mass;
     }
@@ -996,15 +996,15 @@ float Beam::getTotalMass(bool withLocked)
     return mass;
 }
 
-void Beam::determineLinkedBeams()
+void Actor::determineLinkedBeams()
 {
     m_linked_actors.clear();
 
     bool found = true;
-    std::map<Beam*, bool> lookup_table;
-    std::pair<std::map<Beam*, bool>::iterator, bool> ret;
+    std::map<Actor*, bool> lookup_table;
+    std::pair<std::map<Actor*, bool>::iterator, bool> ret;
 
-    lookup_table.insert(std::pair<Beam*, bool>(this, false));
+    lookup_table.insert(std::pair<Actor*, bool>(this, false));
     
     auto interTruckLinks = App::GetSimController()->GetBeamFactory()->interTruckLinks;
 
@@ -1012,7 +1012,7 @@ void Beam::determineLinkedBeams()
     {
         found = false;
 
-        for (std::map<Beam*, bool>::iterator it_beam = lookup_table.begin(); it_beam != lookup_table.end(); ++it_beam)
+        for (std::map<Actor*, bool>::iterator it_beam = lookup_table.begin(); it_beam != lookup_table.end(); ++it_beam)
         {
             if (!it_beam->second)
             {
@@ -1023,7 +1023,7 @@ void Beam::determineLinkedBeams()
                     if (truck == truck_pair.first || truck == truck_pair.second)
                     {
                         auto other_truck = (truck != truck_pair.first) ? truck_pair.first : truck_pair.second;
-                        ret = lookup_table.insert(std::pair<Beam*, bool>(other_truck, false));
+                        ret = lookup_table.insert(std::pair<Actor*, bool>(other_truck, false));
                         if (ret.second)
                         {
                             m_linked_actors.push_back(other_truck);
@@ -1037,12 +1037,12 @@ void Beam::determineLinkedBeams()
     }
 }
 
-int Beam::getWheelNodeCount()
+int Actor::getWheelNodeCount()
 {
     return m_wheel_node_count;
 }
 
-void Beam::calcNodeConnectivityGraph()
+void Actor::calcNodeConnectivityGraph()
 {
     BES_GFX_START(BES_GFX_calcNodeConnectivityGraph);
     int i;
@@ -1063,7 +1063,7 @@ void Beam::calcNodeConnectivityGraph()
     BES_GFX_STOP(BES_GFX_calcNodeConnectivityGraph);
 }
 
-Vector3 Beam::calculateCollisionOffset(Vector3 direction)
+Vector3 Actor::calculateCollisionOffset(Vector3 direction)
 {
     if (direction == Vector3::ZERO)
         return Vector3::ZERO;
@@ -1075,7 +1075,7 @@ Vector3 Beam::calculateCollisionOffset(Vector3 direction)
     Real max_distance = direction.length();
     direction.normalise();
 
-    Beam** trucks = App::GetSimController()->GetBeamFactory()->getTrucks();
+    Actor** trucks = App::GetSimController()->GetBeamFactory()->getTrucks();
     int trucksnum = App::GetSimController()->GetBeamFactory()->getTruckCount();
 
     if (m_intra_point_col_detector)
@@ -1198,7 +1198,7 @@ Vector3 Beam::calculateCollisionOffset(Vector3 direction)
     return collision_offset;
 }
 
-void Beam::resolveCollisions(Vector3 direction)
+void Actor::resolveCollisions(Vector3 direction)
 {
     Vector3 offset = calculateCollisionOffset(direction);
 
@@ -1212,7 +1212,7 @@ void Beam::resolveCollisions(Vector3 direction)
     resetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, true, ar_nodes[ar_lowest_contacting_node].AbsPosition.y + offset.y);
 }
 
-void Beam::resolveCollisions(float max_distance, bool consider_up)
+void Actor::resolveCollisions(float max_distance, bool consider_up)
 {
     Vector3 offset = Vector3::ZERO;
 
@@ -1250,7 +1250,7 @@ void Beam::resolveCollisions(float max_distance, bool consider_up)
     resetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, true, ar_nodes[ar_lowest_contacting_node].AbsPosition.y + offset.y);
 }
 
-int Beam::savePosition(int indexPosition)
+int Actor::savePosition(int indexPosition)
 {
     if (!m_position_storage)
         return -1;
@@ -1263,7 +1263,7 @@ int Beam::savePosition(int indexPosition)
     return 0;
 }
 
-int Beam::loadPosition(int indexPosition)
+int Actor::loadPosition(int indexPosition)
 {
     if (!m_position_storage)
         return -1;
@@ -1292,7 +1292,7 @@ int Beam::loadPosition(int indexPosition)
     return 0;
 }
 
-void Beam::calculateAveragePosition()
+void Actor::calculateAveragePosition()
 {
     // calculate average position
     if (ar_custom_camera_node >= 0)
@@ -1321,7 +1321,7 @@ void Beam::calculateAveragePosition()
     }
 }
 
-void Beam::updateBoundingBox()
+void Actor::updateBoundingBox()
 {
     ar_bounding_box = AxisAlignedBox(ar_nodes[0].AbsPosition, ar_nodes[0].AbsPosition);
     for (int i = 0; i < ar_num_nodes; i++)
@@ -1332,7 +1332,7 @@ void Beam::updateBoundingBox()
     ar_bounding_box.setMaximum(ar_bounding_box.getMaximum() + Vector3(0.05f, 0.05f, 0.05f));
 }
 
-void Beam::preUpdatePhysics(float dt)
+void Actor::preUpdatePhysics(float dt)
 {
     m_avg_node_position_prev = m_avg_node_position;
 
@@ -1342,7 +1342,7 @@ void Beam::preUpdatePhysics(float dt)
     }
 }
 
-void Beam::postUpdatePhysics(float dt)
+void Actor::postUpdatePhysics(float dt)
 {
     calculateAveragePosition();
 
@@ -1350,7 +1350,7 @@ void Beam::postUpdatePhysics(float dt)
     m_avg_node_velocity = (m_avg_node_position - m_avg_node_position_prev) / dt;
 }
 
-void Beam::resetAngle(float rot)
+void Actor::resetAngle(float rot)
 {
     // Set origin of rotation to camera node
     Vector3 origin = ar_nodes[0].AbsPosition;
@@ -1379,7 +1379,7 @@ void Beam::resetAngle(float rot)
     calculateAveragePosition();
 }
 
-void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
+void Actor::resetPosition(float px, float pz, bool setInitPosition, float miny)
 {
     // horizontal displacement
     Vector3 offset = Vector3(px, ar_nodes[0].AbsPosition.y, pz) - ar_nodes[0].AbsPosition;
@@ -1437,7 +1437,7 @@ void Beam::resetPosition(float px, float pz, bool setInitPosition, float miny)
     resetPosition(Vector3::ZERO, setInitPosition);
 }
 
-void Beam::resetPosition(Vector3 translation, bool setInitPosition)
+void Actor::resetPosition(Vector3 translation, bool setInitPosition)
 {
     // total displacement
     if (translation != Vector3::ZERO)
@@ -1478,19 +1478,19 @@ void Beam::resetPosition(Vector3 translation, bool setInitPosition)
     resetSlideNodePositions();
 }
 
-void Beam::mouseMove(int node, Vector3 pos, float force)
+void Actor::mouseMove(int node, Vector3 pos, float force)
 {
     m_mouse_grab_node = node;
     m_mouse_grab_move_force = force;
     m_mouse_grab_pos = pos;
 }
 
-bool Beam::hasDriverSeat()
+bool Actor::hasDriverSeat()
 {
     return ar_driverseat_prop != 0;
 }
 
-void Beam::calculateDriverPos(Vector3& out_pos, Quaternion& out_rot)
+void Actor::calculateDriverPos(Vector3& out_pos, Quaternion& out_rot)
 {
     assert(this->ar_driverseat_prop != nullptr);
 
@@ -1523,7 +1523,7 @@ void Beam::calculateDriverPos(Vector3& out_pos, Quaternion& out_rot)
     BES_GFX_STOP(BES_GFX_calculateDriverPos);
 }
 
-void Beam::resetAutopilot()
+void Actor::resetAutopilot()
 {
     ar_autopilot->disconnect();
     OverlayManager::getSingleton().getOverlayElement("tracks/ap_hdg_but")->setMaterialName("tracks/hdg-off");
@@ -1540,7 +1540,7 @@ void Beam::resetAutopilot()
     OverlayManager::getSingleton().getOverlayElement("tracks/ap_ias_val")->setCaption("150");
 }
 
-void Beam::disconnectAutopilot()
+void Actor::disconnectAutopilot()
 {
     ar_autopilot->disconnect();
     OverlayManager::getSingleton().getOverlayElement("tracks/ap_hdg_but")->setMaterialName("tracks/hdg-off");
@@ -1551,7 +1551,7 @@ void Beam::disconnectAutopilot()
     OverlayManager::getSingleton().getOverlayElement("tracks/ap_ias_but")->setMaterialName("tracks/athr-off");
 }
 
-void Beam::toggleAxleLock()
+void Actor::toggleAxleLock()
 {
     for (int i = 0; i < m_num_axles; ++i)
     {
@@ -1561,19 +1561,19 @@ void Beam::toggleAxleLock()
     }
 }
 
-int Beam::getAxleLockCount()
+int Actor::getAxleLockCount()
 {
     return m_num_axles;
 }
 
-String Beam::getAxleLockName()
+String Actor::getAxleLockName()
 {
     if (!m_axles[0])
         return String();
     return m_axles[0]->getDiffTypeName();
 }
 
-void Beam::reset(bool keepPosition)
+void Actor::reset(bool keepPosition)
 {
     if (keepPosition)
         m_reset_request = REQUEST_RESET_ON_SPOT;
@@ -1581,7 +1581,7 @@ void Beam::reset(bool keepPosition)
         m_reset_request = REQUEST_RESET_ON_INIT_POS;
 }
 
-void Beam::displace(Vector3 translation, float rotation)
+void Actor::displace(Vector3 translation, float rotation)
 {
     if (rotation != 0.0f)
     {
@@ -1613,7 +1613,7 @@ void Beam::displace(Vector3 translation, float rotation)
     }
 }
 
-Ogre::Vector3 Beam::getRotationCenter()
+Ogre::Vector3 Actor::getRotationCenter()
 {
     Vector3 rotation_center = Vector3::ZERO;
 
@@ -1639,7 +1639,7 @@ Ogre::Vector3 Beam::getRotationCenter()
     return rotation_center;
 }
 
-void Beam::SyncReset()
+void Actor::SyncReset()
 {
     ar_hydro_dir_state = 0.0;
     ar_hydro_aileron_state = 0.0;
@@ -1767,7 +1767,7 @@ void Beam::SyncReset()
     }
 }
 
-bool Beam::replayStep()
+bool Actor::replayStep()
 {
     if (!ar_replay_mode || !m_replay_handler || !m_replay_handler->isValid())
         return false;
@@ -1809,7 +1809,7 @@ bool Beam::replayStep()
     return true;
 }
 
-void Beam::ForceFeedbackStep(int steps)
+void Actor::ForceFeedbackStep(int steps)
 {
     m_force_sensors.out_body_forces = m_force_sensors.accu_body_forces / steps;
     if (ar_num_hydros != 0) // Vehicle has hydros?
@@ -1818,7 +1818,7 @@ void Beam::ForceFeedbackStep(int steps)
     }
 }
 
-void Beam::updateAngelScriptEvents(float dt)
+void Actor::updateAngelScriptEvents(float dt)
 {
 #ifdef USE_ANGELSCRIPT
 
@@ -1831,13 +1831,13 @@ void Beam::updateAngelScriptEvents(float dt)
 #endif // USE_ANGELSCRIPT
 }
 
-void Beam::handleResetRequests(float dt)
+void Actor::handleResetRequests(float dt)
 {
     if (m_reset_request)
         SyncReset();
 }
 
-void Beam::sendStreamSetup()
+void Actor::sendStreamSetup()
 {
     RoRnet::TruckStreamRegister reg;
     memset(&reg, 0, sizeof(RoRnet::TruckStreamRegister));
@@ -1860,7 +1860,7 @@ void Beam::sendStreamSetup()
     ar_net_stream_id = reg.origin_streamid;
 }
 
-void Beam::sendStreamData()
+void Actor::sendStreamData()
 {
     using namespace RoRnet;
 
@@ -2005,7 +2005,7 @@ void Beam::sendStreamData()
     BES_GFX_STOP(BES_GFX_sendStreamData);
 }
 
-void Beam::receiveStreamData(unsigned int type, int source, unsigned int streamid, char* buffer, unsigned int len)
+void Actor::receiveStreamData(unsigned int type, int source, unsigned int streamid, char* buffer, unsigned int len)
 {
     if (ar_sim_state != SimState::NETWORKED_OK)
         return;
@@ -2018,7 +2018,7 @@ void Beam::receiveStreamData(unsigned int type, int source, unsigned int streami
     BES_GFX_STOP(BES_GFX_receiveStreamData);
 }
 
-void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real timer, const float lower_limit, const float upper_limit, const float option3)
+void Actor::calcAnimators(const int flag_state, float& cstate, int& div, Real timer, const float lower_limit, const float upper_limit, const float option3)
 {
     BES_GFX_START(BES_GFX_calcAnimators);
     Real dt = timer;
@@ -2447,7 +2447,7 @@ void Beam::calcAnimators(const int flag_state, float& cstate, int& div, Real tim
     BES_GFX_STOP(BES_GFX_calcAnimators);
 }
 
-void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt, int update)
+void Actor::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt, int update)
 {
     if (!ar_beams[beam_i].shock)
         return;
@@ -2841,7 +2841,7 @@ void Beam::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt, 
 }
 
 // call this once per frame in order to update the skidmarks
-void Beam::updateSkidmarks()
+void Actor::updateSkidmarks()
 {
     if (!m_use_skidmarks)
         return;
@@ -2867,7 +2867,7 @@ void Beam::updateSkidmarks()
     BES_STOP(BES_CORE_Skidmarks);
 }
 
-Quaternion Beam::specialGetRotationTo(const Vector3& src, const Vector3& dest) const
+Quaternion Actor::specialGetRotationTo(const Vector3& src, const Vector3& dest) const
 {
     // Based on Stan Melax's article in Game Programming Gems
     Quaternion q;
@@ -2911,7 +2911,7 @@ Quaternion Beam::specialGetRotationTo(const Vector3& src, const Vector3& dest) c
     return q;
 }
 
-void Beam::SetPropsCastShadows(bool do_cast_shadows)
+void Actor::SetPropsCastShadows(bool do_cast_shadows)
 {
     if (m_cab_scene_node && m_cab_scene_node->numAttachedObjects() && m_cab_scene_node->getAttachedObject(0))
     {
@@ -2945,7 +2945,7 @@ void Beam::SetPropsCastShadows(bool do_cast_shadows)
     }
 }
 
-void Beam::prepareInside(bool inside)
+void Actor::prepareInside(bool inside)
 {
     if (inside)
     {
@@ -2982,22 +2982,22 @@ void Beam::prepareInside(bool inside)
     }
 }
 
-void Beam::lightsToggle()
+void Actor::lightsToggle()
 {
     // no lights toggling in skeleton mode because of possible bug with emissive texture
     if (ar_skeletonview_is_active)
         return;
 
-    Beam** trucks = App::GetSimController()->GetBeamFactory()->getTrucks();
+    Actor** trucks = App::GetSimController()->GetBeamFactory()->getTrucks();
     int trucksnum = App::GetSimController()->GetBeamFactory()->getTruckCount();
 
     // export light command
-    Beam* current_truck = App::GetSimController()->GetBeamFactory()->getCurrentTruck();
-    if (ar_sim_state == Beam::SimState::LOCAL_SIMULATED && this == current_truck && ar_forward_commands)
+    Actor* current_truck = App::GetSimController()->GetBeamFactory()->getCurrentTruck();
+    if (ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this == current_truck && ar_forward_commands)
     {
         for (int i = 0; i < trucksnum; i++)
         {
-            if (trucks[i] && trucks[i]->ar_sim_state == Beam::SimState::LOCAL_SIMULATED && this->ar_instance_id != i && trucks[i]->ar_import_commands)
+            if (trucks[i] && trucks[i]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this->ar_instance_id != i && trucks[i]->ar_import_commands)
                 trucks[i]->lightsToggle();
         }
     }
@@ -3037,7 +3037,7 @@ void Beam::lightsToggle()
     TRIGGER_EVENT(SE_TRUCK_LIGHT_TOGGLE, ar_instance_id);
 }
 
-void Beam::updateFlares(float dt, bool isCurrent)
+void Actor::updateFlares(float dt, bool isCurrent)
 {
     if (m_custom_light_toggle_countdown > -1)
         m_custom_light_toggle_countdown -= dt;
@@ -3251,7 +3251,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
         }
         else if (ar_flares[i].type == 'u' && ar_flares[i].controlnumber != -1)
         {
-            if (ar_sim_state == Beam::SimState::LOCAL_SIMULATED && this == App::GetSimController()->GetBeamFactory()->getCurrentTruck()) // no network!!
+            if (ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this == App::GetSimController()->GetBeamFactory()->getCurrentTruck()) // no network!!
             {
                 // networked customs are set directly, so skip this
                 if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_LIGHTTOGGLE01 + (ar_flares[i].controlnumber - 1)) && m_custom_light_toggle_countdown <= 0)
@@ -3357,7 +3357,7 @@ void Beam::updateFlares(float dt, bool isCurrent)
     BES_GFX_STOP(BES_GFX_updateFlares);
 }
 
-void Beam::setBlinkType(blinktype blink)
+void Actor::setBlinkType(blinktype blink)
 {
     m_blink_type = blink;
 
@@ -3375,7 +3375,7 @@ void Beam::setBlinkType(blinktype blink)
     }
 }
 
-void Beam::autoBlinkReset()
+void Actor::autoBlinkReset()
 {
     blinktype blink = getBlinkType();
 
@@ -3408,7 +3408,7 @@ void Beam::autoBlinkReset()
     ar_dashboard->setBool(DD_SIGNAL_TURNRIGHT, stopblink);
 }
 
-void Beam::updateProps()
+void Actor::updateProps()
 {
     BES_GFX_START(BES_GFX_updateProps);
 
@@ -3447,7 +3447,7 @@ void Beam::updateProps()
     BES_GFX_STOP(BES_GFX_updateProps);
 }
 
-void Beam::toggleCustomParticles()
+void Actor::toggleCustomParticles()
 {
     m_custom_particles_enabled = !m_custom_particles_enabled;
     for (int i = 0; i < ar_num_custom_particles; i++)
@@ -3463,7 +3463,7 @@ void Beam::toggleCustomParticles()
     TRIGGER_EVENT(SE_TRUCK_CPARTICLES_TOGGLE, ar_instance_id);
 }
 
-void Beam::updateSoundSources()
+void Actor::updateSoundSources()
 {
     BES_GFX_START(BES_GFX_updateSoundSources);
 #ifdef USE_OPENAL
@@ -3480,7 +3480,7 @@ void Beam::updateSoundSources()
     BES_GFX_STOP(BES_GFX_updateSoundSources);
 }
 
-void Beam::updateLabels(float dt)
+void Actor::updateLabels(float dt)
 {
     if (m_net_label_node && m_net_label_mt)
     {
@@ -3502,7 +3502,7 @@ void Beam::updateLabels(float dt)
     }
 }
 
-void Beam::updateFlexbodiesPrepare()
+void Actor::updateFlexbodiesPrepare()
 {
     BES_GFX_START(BES_GFX_updateFlexBodies);
 
@@ -3570,7 +3570,7 @@ void Beam::updateFlexbodiesPrepare()
     }
 }
 
-void Beam::updateVisual(float dt)
+void Actor::updateVisual(float dt)
 {
     BES_GFX_START(BES_GFX_updateVisual);
 
@@ -3760,7 +3760,7 @@ void Beam::updateVisual(float dt)
     BES_GFX_STOP(BES_GFX_updateVisual);
 }
 
-void Beam::joinFlexbodyTasks()
+void Actor::joinFlexbodyTasks()
 {
     if (gEnv->threadPool)
     {
@@ -3772,7 +3772,7 @@ void Beam::joinFlexbodyTasks()
     }
 }
 
-void Beam::updateFlexbodiesFinal()
+void Actor::updateFlexbodiesFinal()
 {
     if (gEnv->threadPool)
     {
@@ -3797,7 +3797,7 @@ void Beam::updateFlexbodiesFinal()
 
 //v=0: full detail
 //v=1: no beams
-void Beam::setDetailLevel(int v)
+void Actor::setDetailLevel(int v)
 {
     if (v != m_gfx_detail_level)
     {
@@ -3815,7 +3815,7 @@ void Beam::setDetailLevel(int v)
     }
 }
 
-void Beam::showSkeleton(bool meshes, bool linked)
+void Actor::showSkeleton(bool meshes, bool linked)
 {
     ar_skeletonview_is_active = true;
 
@@ -3877,7 +3877,7 @@ void Beam::showSkeleton(bool meshes, bool linked)
     {
         // apply to all locked trucks
         determineLinkedBeams();
-        for (std::list<Beam*>::iterator it = m_linked_actors.begin(); it != m_linked_actors.end(); ++it)
+        for (std::list<Actor*>::iterator it = m_linked_actors.begin(); it != m_linked_actors.end(); ++it)
         {
             (*it)->showSkeleton(meshes, false);
         }
@@ -3888,7 +3888,7 @@ void Beam::showSkeleton(bool meshes, bool linked)
     TRIGGER_EVENT(SE_TRUCK_SKELETON_TOGGLE, ar_instance_id);
 }
 
-void Beam::hideSkeleton(bool linked)
+void Actor::hideSkeleton(bool linked)
 {
     ar_skeletonview_is_active = false;
 
@@ -3948,14 +3948,14 @@ void Beam::hideSkeleton(bool linked)
     {
         // apply to all locked trucks
         determineLinkedBeams();
-        for (std::list<Beam*>::iterator it = m_linked_actors.begin(); it != m_linked_actors.end(); ++it)
+        for (std::list<Actor*>::iterator it = m_linked_actors.begin(); it != m_linked_actors.end(); ++it)
         {
             (*it)->hideSkeleton(false);
         }
     }
 }
 
-void Beam::fadeMesh(SceneNode* node, float amount)
+void Actor::fadeMesh(SceneNode* node, float amount)
 {
     for (int a = 0; a < node->numAttachedObjects(); a++)
     {
@@ -3976,7 +3976,7 @@ void Beam::fadeMesh(SceneNode* node, float amount)
     }
 }
 
-float Beam::getAlphaRejection(SceneNode* node)
+float Actor::getAlphaRejection(SceneNode* node)
 {
     for (int a = 0; a < node->numAttachedObjects(); a++)
     {
@@ -3995,7 +3995,7 @@ float Beam::getAlphaRejection(SceneNode* node)
     return 0;
 }
 
-void Beam::setAlphaRejection(SceneNode* node, float amount)
+void Actor::setAlphaRejection(SceneNode* node, float amount)
 {
     for (int a = 0; a < node->numAttachedObjects(); a++)
     {
@@ -4014,7 +4014,7 @@ void Beam::setAlphaRejection(SceneNode* node, float amount)
     }
 }
 
-void Beam::setMeshWireframe(SceneNode* node, bool value)
+void Actor::setMeshWireframe(SceneNode* node, bool value)
 {
     for (int a = 0; a < node->numAttachedObjects(); a++)
     {
@@ -4034,7 +4034,7 @@ void Beam::setMeshWireframe(SceneNode* node, bool value)
     }
 }
 
-void Beam::setBeamVisibility(bool visible)
+void Actor::setBeamVisibility(bool visible)
 {
     for (int i = 0; i < ar_num_beams; i++)
     {
@@ -4047,7 +4047,7 @@ void Beam::setBeamVisibility(bool visible)
     ar_beams_visible = visible;
 }
 
-void Beam::setMeshVisibility(bool visible)
+void Actor::setMeshVisibility(bool visible)
 {
     for (int i = 0; i < ar_num_props; i++)
     {
@@ -4087,7 +4087,7 @@ void Beam::setMeshVisibility(bool visible)
     ar_meshes_visible = visible;
 }
 
-void Beam::cabFade(float amount)
+void Actor::cabFade(float amount)
 {
     static float savedCabAlphaRejection = 0;
 
@@ -4128,7 +4128,7 @@ void Beam::cabFade(float amount)
     }
 }
 
-void Beam::addInterTruckBeam(beam_t* beam, Beam* a, Beam* b)
+void Actor::addInterTruckBeam(beam_t* beam, Actor* a, Actor* b)
 {
     auto pos = std::find(ar_inter_beams.begin(), ar_inter_beams.end(), beam);
     if (pos == ar_inter_beams.end())
@@ -4136,7 +4136,7 @@ void Beam::addInterTruckBeam(beam_t* beam, Beam* a, Beam* b)
         ar_inter_beams.push_back(beam);
     }
 
-    std::pair<Beam*, Beam*> truck_pair(a, b);
+    std::pair<Actor*, Actor*> truck_pair(a, b);
     App::GetSimController()->GetBeamFactory()->interTruckLinks[beam] = truck_pair;
 
     a->determineLinkedBeams();
@@ -4148,7 +4148,7 @@ void Beam::addInterTruckBeam(beam_t* beam, Beam* a, Beam* b)
         truck->determineLinkedBeams();
 }
 
-void Beam::removeInterTruckBeam(beam_t* beam)
+void Actor::removeInterTruckBeam(beam_t* beam)
 {
     auto pos = std::find(ar_inter_beams.begin(), ar_inter_beams.end(), beam);
     if (pos != ar_inter_beams.end())
@@ -4172,7 +4172,7 @@ void Beam::removeInterTruckBeam(beam_t* beam)
     }
 }
 
-void Beam::disjoinInterTruckBeams()
+void Actor::disjoinInterTruckBeams()
 {
     ar_inter_beams.clear();
     auto interTruckLinks = &App::GetSimController()->GetBeamFactory()->interTruckLinks;
@@ -4200,18 +4200,18 @@ void Beam::disjoinInterTruckBeams()
     }
 }
 
-void Beam::tieToggle(int group)
+void Actor::tieToggle(int group)
 {
-    Beam** trucks = App::GetSimController()->GetBeamFactory()->getTrucks();
+    Actor** trucks = App::GetSimController()->GetBeamFactory()->getTrucks();
     int trucksnum = App::GetSimController()->GetBeamFactory()->getTruckCount();
 
     // export tie commands
-    Beam* current_truck = App::GetSimController()->GetBeamFactory()->getCurrentTruck();
-    if (ar_sim_state == Beam::SimState::LOCAL_SIMULATED && this == current_truck && ar_forward_commands)
+    Actor* current_truck = App::GetSimController()->GetBeamFactory()->getCurrentTruck();
+    if (ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this == current_truck && ar_forward_commands)
     {
         for (int i = 0; i < trucksnum; i++)
         {
-            if (trucks[i] && trucks[i]->ar_sim_state == Beam::SimState::LOCAL_SIMULATED && this->ar_instance_id != i && trucks[i]->ar_import_commands)
+            if (trucks[i] && trucks[i]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this->ar_instance_id != i && trucks[i]->ar_import_commands)
                 trucks[i]->tieToggle(group);
         }
     }
@@ -4263,7 +4263,7 @@ void Beam::tieToggle(int group)
                 // tie is unlocked and should get locked, search new remote ropable to lock to
                 float mindist = it->beam->refL;
                 node_t* shorter = 0;
-                Beam* shtruck = 0;
+                Actor* shtruck = 0;
                 ropable_t* locktedto = 0;
                 // iterate over all trucks
                 for (int t = 0; t < trucksnum; t++)
@@ -4324,9 +4324,9 @@ void Beam::tieToggle(int group)
     TRIGGER_EVENT(SE_TRUCK_TIE_TOGGLE, ar_instance_id);
 }
 
-void Beam::ropeToggle(int group)
+void Actor::ropeToggle(int group)
 {
-    Beam** trucks = App::GetSimController()->GetBeamFactory()->getTrucks();
+    Actor** trucks = App::GetSimController()->GetBeamFactory()->getTrucks();
     int trucksnum = App::GetSimController()->GetBeamFactory()->getTruckCount();
 
     // iterate over all ropes
@@ -4352,7 +4352,7 @@ void Beam::ropeToggle(int group)
             // search new remote ropable to lock to
             float mindist = it->beam->L;
             node_t* shorter = 0;
-            Beam* shtruck = 0;
+            Actor* shtruck = 0;
             ropable_t* rop = 0;
             // iterate over all trucks
             for (int t = 0; t < trucksnum; t++)
@@ -4393,9 +4393,9 @@ void Beam::ropeToggle(int group)
     }
 }
 
-void Beam::hookToggle(int group, hook_states mode, int node_number)
+void Actor::hookToggle(int group, hook_states mode, int node_number)
 {
-    Beam** trucks = App::GetSimController()->GetBeamFactory()->getTrucks();
+    Actor** trucks = App::GetSimController()->GetBeamFactory()->getTrucks();
     int trucksnum = App::GetSimController()->GetBeamFactory()->getTruckCount();
 
     // iterate over all hooks
@@ -4440,7 +4440,7 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
             continue;
         }
 
-        Beam* lastLockTruck = it->lockTruck; // memorize current value
+        Actor* lastLockTruck = it->lockTruck; // memorize current value
 
         // do this only for toggle or lock attempts, skip prelocked or locked nodes for performance
         if (mode != HOOK_UNLOCK && it->locked == UNLOCKED)
@@ -4505,7 +4505,7 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
                     // we lock against ropables
 
                     node_t* shorter = 0;
-                    Beam* shtruck = 0;
+                    Actor* shtruck = 0;
 
                     // and their ropables
                     for (std::vector<ropable_t>::iterator itr = trucks[t]->ar_ropables.begin(); itr != trucks[t]->ar_ropables.end(); itr++)
@@ -4567,7 +4567,7 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
     }
 }
 
-void Beam::parkingbrakeToggle()
+void Actor::parkingbrakeToggle()
 {
     ar_parking_brake = !ar_parking_brake;
 
@@ -4580,17 +4580,17 @@ void Beam::parkingbrakeToggle()
     TRIGGER_EVENT(SE_TRUCK_PARKINGBREAK_TOGGLE, ar_instance_id);
 }
 
-void Beam::antilockbrakeToggle()
+void Actor::antilockbrakeToggle()
 {
     alb_mode = !alb_mode;
 }
 
-void Beam::tractioncontrolToggle()
+void Actor::tractioncontrolToggle()
 {
     tc_mode = !tc_mode;
 }
 
-void Beam::cruisecontrolToggle()
+void Actor::cruisecontrolToggle()
 {
     cc_mode = !cc_mode;
 
@@ -4607,7 +4607,7 @@ void Beam::cruisecontrolToggle()
     }
 }
 
-void Beam::beaconsToggle()
+void Actor::beaconsToggle()
 {
     if (m_flares_mode == GfxFlaresMode::NONE) { return; }
 
@@ -4682,7 +4682,7 @@ void Beam::beaconsToggle()
     TRIGGER_EVENT(SE_TRUCK_BEACONS_TOGGLE, ar_instance_id);
 }
 
-void Beam::setReplayMode(bool rm)
+void Actor::setReplayMode(bool rm)
 {
     if (!m_replay_handler || !m_replay_handler->isValid())
         return;
@@ -4697,7 +4697,7 @@ void Beam::setReplayMode(bool rm)
     m_replay_handler->setVisible(ar_replay_mode);
 }
 
-void Beam::setDebugOverlayState(int mode)
+void Actor::setDebugOverlayState(int mode)
 {
     // enable disable debug visuals
     m_debug_visuals = mode;
@@ -4780,7 +4780,7 @@ void Beam::setDebugOverlayState(int mode)
     updateDebugOverlay();
 }
 
-void Beam::updateDebugOverlay()
+void Actor::updateDebugOverlay()
 {
     if (!m_debug_visuals)
         return;
@@ -4887,7 +4887,7 @@ void Beam::updateDebugOverlay()
     }
 }
 
-void Beam::updateNetworkInfo()
+void Actor::updateNetworkInfo()
 {
     if (!(RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED))
         return;
@@ -4915,7 +4915,7 @@ void Beam::updateNetworkInfo()
 #endif //SOCKETW
 }
 
-float Beam::getHeadingDirectionAngle()
+float Actor::getHeadingDirectionAngle()
 {
     if (ar_camera_node_pos[0] >= 0 && ar_camera_node_dir[0] >= 0)
     {
@@ -4926,7 +4926,7 @@ float Beam::getHeadingDirectionAngle()
     return 0.0f;
 }
 
-bool Beam::getReverseLightVisible()
+bool Actor::getReverseLightVisible()
 {
     if (ar_sim_state == SimState::NETWORKED_OK)
         return m_net_reverse_light;
@@ -4937,7 +4937,7 @@ bool Beam::getReverseLightVisible()
     return m_reverse_light_active;
 }
 
-void Beam::StopAllSounds()
+void Actor::StopAllSounds()
 {
 #ifdef USE_OPENAL
     for (int i = 0; i < ar_num_soundsources; i++)
@@ -4948,7 +4948,7 @@ void Beam::StopAllSounds()
 #endif // USE_OPENAL
 }
 
-void Beam::UnmuteAllSounds()
+void Actor::UnmuteAllSounds()
 {
 #ifdef USE_OPENAL
     for (int i = 0; i < ar_num_soundsources; i++)
@@ -4959,7 +4959,7 @@ void Beam::UnmuteAllSounds()
 #endif // USE_OPENAL
 }
 
-void Beam::changedCamera()
+void Actor::changedCamera()
 {
     // change sound setup
 #ifdef USE_OPENAL
@@ -4987,7 +4987,7 @@ void Beam::changedCamera()
 }
 
 //Returns the number of active (non bounded) beams connected to a node
-int Beam::nodeBeamConnections(int nodeid)
+int Actor::nodeBeamConnections(int nodeid)
 {
     int totallivebeams = 0;
     for (unsigned int ni = 0; ni < ar_node_to_beam_connections[nodeid].size(); ++ni)
@@ -4998,7 +4998,7 @@ int Beam::nodeBeamConnections(int nodeid)
     return totallivebeams;
 }
 
-bool Beam::isTied()
+bool Actor::isTied()
 {
     for (std::vector<tie_t>::iterator it = ar_ties.begin(); it != ar_ties.end(); it++)
         if (it->tied)
@@ -5006,7 +5006,7 @@ bool Beam::isTied()
     return false;
 }
 
-bool Beam::isLocked()
+bool Actor::isLocked()
 {
     for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
         if (it->locked == LOCKED)
@@ -5014,7 +5014,7 @@ bool Beam::isLocked()
     return false;
 }
 
-void Beam::updateDashBoards(float dt)
+void Actor::updateDashBoards(float dt)
 {
     if (!ar_dashboard)
         return;
@@ -5451,7 +5451,7 @@ void Beam::updateDashBoards(float dt)
     ar_dashboard->update(dt);
 }
 
-Vector3 Beam::getGForces()
+Vector3 Actor::getGForces()
 {
     // TODO: Check cam. nodes once on spawn! They never change --> no reason to repeat the check. ~only_a_ptr, 06/2017
     if (this->IsNodeIdValid(ar_camera_node_pos[0]) && this->IsNodeIdValid(ar_camera_node_dir[0]) && this->IsNodeIdValid(ar_camera_node_roll[0]))
@@ -5493,7 +5493,7 @@ Vector3 Beam::getGForces()
     return Vector3::ZERO;
 }
 
-void Beam::engineTriggerHelper(int engineNumber, int type, float triggerValue)
+void Actor::engineTriggerHelper(int engineNumber, int type, float triggerValue)
 {
     // engineNumber tells us which engine
     BeamEngine* e = ar_engine; // placeholder: trucks do not have multiple engines yet
@@ -5527,7 +5527,7 @@ void Beam::engineTriggerHelper(int engineNumber, int type, float triggerValue)
     }
 }
 
-Beam::Beam(
+Actor::Actor(
     RoRFrameListener* sim_controller,
     int truck_number,
     Ogre::Vector3 pos,
@@ -5833,7 +5833,7 @@ Beam::Beam(
     LOG(" ===== DONE LOADING VEHICLE");
 }
 
-bool Beam::LoadTruck(
+bool Actor::LoadTruck(
     RoR::RigLoadingProfiler* rig_loading_profiler,
     Ogre::String const& file_name,
     Ogre::SceneNode* parent_scene_node,
@@ -5995,7 +5995,7 @@ bool Beam::LoadTruck(
         }
     }
     LOAD_RIG_PROFILE_CHECKPOINT(ENTRY_BEAM_LOADTRUCK_SPAWNER_LOG);
-    /* POST-PROCESSING (Old-spawn code from Beam::loadTruck2) */
+    /* POST-PROCESSING (Old-spawn code from Actor::loadTruck2) */
 
     // Apply spawn position & spawn rotation
     for (int i = 0; i < ar_num_nodes; i++)
@@ -6266,57 +6266,57 @@ bool Beam::LoadTruck(
     return true;
 }
 
-ground_model_t* Beam::getLastFuzzyGroundModel()
+ground_model_t* Actor::getLastFuzzyGroundModel()
 {
     return m_last_fuzzy_ground_model;
 }
 
-float Beam::getSteeringAngle()
+float Actor::getSteeringAngle()
 {
     return ar_hydro_dir_command;
 }
 
-std::string Beam::getTruckName()
+std::string Actor::getTruckName()
 {
     return ar_design_name;
 }
 
-std::string Beam::getTruckFileName()
+std::string Actor::getTruckFileName()
 {
     return ar_filename;
 }
 
-int Beam::getTruckType()
+int Actor::getTruckType()
 {
     return ar_driveable;
 }
 
-std::vector<authorinfo_t> Beam::getAuthors()
+std::vector<authorinfo_t> Actor::getAuthors()
 {
     return authors;
 }
 
-std::vector<std::string> Beam::getDescription()
+std::vector<std::string> Actor::getDescription()
 {
     return description;
 }
 
-int Beam::getBeamCount()
+int Actor::getBeamCount()
 {
     return ar_num_beams;
 }
 
-int Beam::getNodeCount()
+int Actor::getNodeCount()
 {
     return ar_num_nodes;
 }
 
-void Beam::setMass(float m)
+void Actor::setMass(float m)
 {
     m_dry_mass = m;
 }
 
-bool Beam::getBrakeLightVisible()
+bool Actor::getBrakeLightVisible()
 {
     if (ar_sim_state == SimState::NETWORKED_OK)
         return m_net_brake_light;
@@ -6325,7 +6325,7 @@ bool Beam::getBrakeLightVisible()
     return (ar_brake > 0.15);
 }
 
-bool Beam::getCustomLightVisible(int number)
+bool Actor::getCustomLightVisible(int number)
 {
     if (number < 0 || number > 4)
     {
@@ -6338,7 +6338,7 @@ bool Beam::getCustomLightVisible(int number)
     return flareID < ar_flares.size() && ar_flares[flareID].controltoggle_status;
 }
 
-void Beam::setCustomLightVisible(int number, bool visible)
+void Actor::setCustomLightVisible(int number, bool visible)
 {
     if (number < 0 || number > 4)
     {
@@ -6354,47 +6354,47 @@ void Beam::setCustomLightVisible(int number, bool visible)
     }
 }
 
-bool Beam::getBeaconMode() // Angelscript export
+bool Actor::getBeaconMode() // Angelscript export
 {
     return m_beacon_light_is_active;
 }
 
-blinktype Beam::getBlinkType()
+blinktype Actor::getBlinkType()
 {
     return m_blink_type;
 }
 
-bool Beam::getCustomParticleMode()
+bool Actor::getCustomParticleMode()
 {
     return m_custom_particles_enabled;
 }
 
-int Beam::getLowestNode()
+int Actor::getLowestNode()
 {
     return ar_lowest_node;
 }
 
-Ogre::Real Beam::getMinimalCameraRadius()
+Ogre::Real Actor::getMinimalCameraRadius()
 {
     return m_min_camera_radius;
 }
 
-Replay* Beam::getReplay()
+Replay* Actor::getReplay()
 {
     return m_replay_handler;
 }
 
-bool Beam::getSlideNodesLockInstant()
+bool Actor::getSlideNodesLockInstant()
 {
     return m_slidenodes_connect_on_spawn;
 }
 
-bool Beam::inRange(float num, float min, float max)
+bool Actor::inRange(float num, float min, float max)
 {
     return (num <= max && num >= min);
 }
 
-Vector3 Beam::getNodePosition(int nodeNumber)
+Vector3 Actor::getNodePosition(int nodeNumber)
 {
     if (nodeNumber >= 0 && nodeNumber < ar_num_nodes)
     {
@@ -6406,7 +6406,7 @@ Vector3 Beam::getNodePosition(int nodeNumber)
     }
 }
 
-void Beam::UpdatePropAnimations(const float dt)
+void Actor::UpdatePropAnimations(const float dt)
 {
     BES_START(BES_CORE_AnimatedProps);
 

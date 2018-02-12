@@ -56,7 +56,7 @@ public:
     void SetTruckInfoBoxVisible(bool v);
     bool IsTruckInfoBoxVisible() { return b_truckinfo; }
 
-    void UpdateStats(float dt, Beam* truck); //different from Framestep!
+    void UpdateStats(float dt, Actor* truck); //different from Framestep!
     void framestep(float dt);
 
     void PushNotification(Ogre::String Title, Ogre::String text);

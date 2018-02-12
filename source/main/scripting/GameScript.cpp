@@ -216,7 +216,7 @@ float GameScript::getWaterHeight()
     return result;
 }
 
-Beam* GameScript::getCurrentTruck()
+Actor* GameScript::getCurrentTruck()
 {
     return mse->GetFrameListener()->GetBeamFactory()->getCurrentTruck();
 }
@@ -231,7 +231,7 @@ void GameScript::setGravity(float value)
     gEnv->terrainManager->setGravity(value);
 }
 
-Beam* GameScript::getTruckByNum(int num)
+Actor* GameScript::getTruckByNum(int num)
 {
     return mse->GetFrameListener()->GetBeamFactory()->getTruck(num);
 }
@@ -246,7 +246,7 @@ int GameScript::getNumTrucksByFlag(int flag)
     int result = 0;
     for (int i = 0; i < mse->GetFrameListener()->GetBeamFactory()->getTruckCount(); i++)
     {
-        Beam* truck = mse->GetFrameListener()->GetBeamFactory()->getTruck(i);
+        Actor* truck = mse->GetFrameListener()->GetBeamFactory()->getTruck(i);
         if (!truck && !flag)
             result++;
         if (!truck)
@@ -923,7 +923,7 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
 void GameScript::boostCurrentTruck(float factor)
 {
     // add C++ code here
-    Beam* b = mse->GetFrameListener()->GetBeamFactory()->getCurrentTruck();
+    Actor* b = mse->GetFrameListener()->GetBeamFactory()->getCurrentTruck();
     if (b && b->ar_engine)
     {
         float rpm = b->ar_engine->getRPM();
@@ -972,7 +972,7 @@ int GameScript::sendGameCmd(const String& message)
 
 VehicleAI* GameScript::getCurrentTruckAI()
 {
-    Beam* b = mse->GetFrameListener()->GetBeamFactory()->getCurrentTruck();
+    Actor* b = mse->GetFrameListener()->GetBeamFactory()->getCurrentTruck();
     if (b)
         return b->ar_vehicle_ai;
     return nullptr;
@@ -980,13 +980,13 @@ VehicleAI* GameScript::getCurrentTruckAI()
 
 VehicleAI* GameScript::getTruckAIByNum(int num)
 {
-    Beam* b = mse->GetFrameListener()->GetBeamFactory()->getTruck(num);
+    Actor* b = mse->GetFrameListener()->GetBeamFactory()->getTruck(num);
     if (b)
         return b->ar_vehicle_ai;
     return nullptr;
 }
 
-Beam* GameScript::spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot)
+Actor* GameScript::spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot)
 {
     Ogre::Quaternion rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
     return mse->GetFrameListener()->GetBeamFactory()->CreateLocalRigInstance(pos, rotation, truckName);

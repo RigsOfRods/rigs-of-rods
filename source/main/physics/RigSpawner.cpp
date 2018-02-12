@@ -84,7 +84,7 @@ using namespace RoR;
 /* -------------------------------------------------------------------------- */
 
 void RigSpawner::Setup( 
-    Beam *rig,
+    Actor *rig,
     std::shared_ptr<RigDef::File> file,
     Ogre::SceneNode *parent,
     Ogre::Vector3 const & spawn_position,
@@ -300,7 +300,7 @@ void RigSpawner::InitializeRig()
     m_rig->m_net_custom_lights[3] = UINT_MAX;
     m_rig->m_net_custom_light_count = 0;
 
-    m_rig->ar_sim_state = Beam::SimState::LOCAL_SLEEPING;
+    m_rig->ar_sim_state = Actor::SimState::LOCAL_SLEEPING;
     m_rig->ar_use_heathaze=false;
     m_rig->m_fusealge_airfoil = nullptr;
     m_rig->m_fusealge_front = nullptr;
@@ -326,8 +326,6 @@ void RigSpawner::InitializeRig()
 #ifdef USE_ANGELSCRIPT
     m_rig->ar_vehicle_ai = new VehicleAI(m_rig);
 #endif // USE_ANGELSCRIPT
-
-    /* Init code from Beam::Beam() */
 
     m_rig->ar_airbrake_intensity = 0;
     m_rig->alb_minspeed = 0.0f;
@@ -723,7 +721,7 @@ void RigSpawner::ProcessTurbojet(RigDef::Turbojet & def)
     
     m_rig->ar_aeroengines[m_rig->ar_num_aeroengines]=tj;
     m_rig->ar_driveable=AIRPLANE;
-    if (m_rig->ar_autopilot == nullptr && m_rig->ar_sim_state != Beam::SimState::NETWORKED_OK)
+    if (m_rig->ar_autopilot == nullptr && m_rig->ar_sim_state != Actor::SimState::NETWORKED_OK)
     {
         m_rig->ar_autopilot=new Autopilot(m_rig->ar_instance_id);
     }
@@ -852,7 +850,7 @@ void RigSpawner::BuildAerialEngine(
     m_rig->ar_driveable = AIRPLANE;
 
     /* Autopilot */
-    if (m_rig->ar_autopilot == nullptr && m_rig->ar_sim_state != Beam::SimState::NETWORKED_OK)
+    if (m_rig->ar_autopilot == nullptr && m_rig->ar_sim_state != Actor::SimState::NETWORKED_OK)
     {
         m_rig->ar_autopilot = new Autopilot(m_rig->ar_instance_id);
     }
@@ -995,7 +993,7 @@ void RigSpawner::ProcessWing(RigDef::Wing & def)
         def.airfoil,
         def.efficacy_coef,
         m_rig->ar_aeroengines,
-        m_rig->ar_sim_state != Beam::SimState::NETWORKED_OK
+        m_rig->ar_sim_state != Actor::SimState::NETWORKED_OK
     );
 
     Ogre::Entity* entity = nullptr;
@@ -1259,7 +1257,7 @@ void RigSpawner::ProcessSoundSource2(RigDef::SoundSource2 & def)
 #endif // USE_OPENAL
 }
 
-void RigSpawner::AddSoundSourceInstance(Beam *vehicle, Ogre::String const & sound_script_name, int node_index, int type)
+void RigSpawner::AddSoundSourceInstance(Actor *vehicle, Ogre::String const & sound_script_name, int node_index, int type)
 {
     SPAWNER_PROFILE_SCOPED();
 #ifdef USE_OPENAL
@@ -1267,7 +1265,7 @@ void RigSpawner::AddSoundSourceInstance(Beam *vehicle, Ogre::String const & soun
 #endif // USE_OPENAL
 }
 
-void RigSpawner::AddSoundSource(Beam *vehicle, SoundScriptInstance *sound_script, int node_index, int type)
+void RigSpawner::AddSoundSource(Actor *vehicle, SoundScriptInstance *sound_script, int node_index, int type)
 {
     SPAWNER_PROFILE_SCOPED();
 
@@ -6222,7 +6220,7 @@ void RigSpawner::ProcessCinecam(RigDef::Cinecam & def)
     AdjustNodeBuoyancy(camera_node, def.node_defaults);
     camera_node.volume_coef   = def.node_defaults->volume;
     camera_node.surface_coef  = def.node_defaults->surface;
-    // NOTE: Not applying the 'node_mass' value here for backwards compatibility - this node must go through initial `Beam::calc_masses2()` pass with default weight.
+    // NOTE: Not applying the 'node_mass' value here for backwards compatibility - this node must go through initial `Actor::calc_masses2()` pass with default weight.
 
     m_rig->ar_cinecam_node[m_rig->ar_num_cinecams] = camera_node.pos;
     m_rig->ar_num_cinecams++;
@@ -6396,7 +6394,7 @@ bool RigSpawner::CheckTexcoordLimit(unsigned int count)
 }
 
 /* Static version */
-bool RigSpawner::CheckSoundScriptLimit(Beam *vehicle, unsigned int count)
+bool RigSpawner::CheckSoundScriptLimit(Actor *vehicle, unsigned int count)
 {
     SPAWNER_PROFILE_SCOPED();
 
@@ -6555,7 +6553,7 @@ void RigSpawner::SetBeamDamping(beam_t & beam, float damping)
     beam.d = damping;
 }
 
-void RigSpawner::RecalculateBoundingBoxes(Beam *rig)
+void RigSpawner::RecalculateBoundingBoxes(Actor *rig)
 {
     SPAWNER_PROFILE_SCOPED();
 
@@ -6603,7 +6601,7 @@ void RigSpawner::RecalculateBoundingBoxes(Beam *rig)
 }
 
 
-void RigSpawner::SetupDefaultSoundSources(Beam *vehicle)
+void RigSpawner::SetupDefaultSoundSources(Actor *vehicle)
 {
     SPAWNER_PROFILE_SCOPED();
 

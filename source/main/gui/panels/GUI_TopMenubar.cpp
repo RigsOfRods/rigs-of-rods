@@ -199,7 +199,7 @@ void TopMenubar::addUserToMenu(RoRnet::UserInfo &user)
 {
 #ifdef USE_SOCKETW
     int numTrucks = m_sim_controller->GetBeamFactory()->getTruckCount();
-    Beam **trucks = m_sim_controller->GetBeamFactory()->getTrucks();
+    Actor **trucks = m_sim_controller->GetBeamFactory()->getTrucks();
 
     // now search the vehicles of that user together
     std::vector<int> matches;
@@ -243,7 +243,7 @@ void TopMenubar::vehiclesListUpdate()
     {
         // single player mode: add vehicles simply, no users
         int numTrucks = m_sim_controller->GetBeamFactory()->getTruckCount();
-        Beam **trucks = m_sim_controller->GetBeamFactory()->getTrucks();
+        Actor **trucks = m_sim_controller->GetBeamFactory()->getTrucks();
 
         // simple iterate through :)
         for (int i = 0; i < numTrucks; i++)
@@ -371,51 +371,51 @@ void TopMenubar::onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item)
     // the debug menu
     else if (miname == _L("no visual debug"))
     {
-        Beam *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
         if (b) b->setDebugOverlayState(0);
     } else if (miname == _L("show Node numbers"))
     {
-        Beam *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
         if (b) b->setDebugOverlayState(1);
     } else if (miname == _L("show Beam numbers"))
     {
-        Beam *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
         if (b) b->setDebugOverlayState(2);
     } else if (miname == _L("show Node&Beam numbers"))
     {
-        Beam *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
         if (b) b->setDebugOverlayState(3);
     } else if (miname == _L("show Node mass"))
     {
-        Beam *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
         if (b) b->setDebugOverlayState(4);
     } else if (miname == _L("show Node locked"))
     {
-        Beam *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
         if (b) b->setDebugOverlayState(5);
     } else if (miname == _L("show Beam compression"))
     {
-        Beam *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
         if (b) b->setDebugOverlayState(6);
     } else if (miname == _L("show Beam broken"))
     {
-        Beam *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
         if (b) b->setDebugOverlayState(7);
     } else if (miname == _L("show Beam stress"))
     {
-        Beam *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
         if (b) b->setDebugOverlayState(8);
     } else if (miname == _L("show Beam strength"))
     {
-        Beam *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
         if (b) b->setDebugOverlayState(9);
     } else if (miname == _L("show Beam hydros"))
     {
-        Beam *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
         if (b) b->setDebugOverlayState(10);
     } else if (miname == _L("show Beam commands"))
     {
-        Beam *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+        Actor *b = m_sim_controller->GetBeamFactory()->getCurrentTruck();
         if (b) b->setDebugOverlayState(11);
     }
     else if (miname == _L("Texture Tool"))

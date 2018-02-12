@@ -277,7 +277,7 @@ Ogre::String SurveyMapManager::getTypeByDriveable(int driveable)
     }
 }
 
-void SurveyMapManager::Update(Ogre::Real dt, Beam* curr_truck)
+void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
 {
     if (dt == 0)
         return;
@@ -428,7 +428,7 @@ void SurveyMapManager::toggleMapAlpha()
     }
 }
 
-void SurveyMapManager::UpdateVehicles(Beam** vehicles, int num_vehicles)
+void SurveyMapManager::UpdateVehicles(Actor** vehicles, int num_vehicles)
 {
     for (int t = 0; t < num_vehicles; t++)
     {
@@ -437,7 +437,7 @@ void SurveyMapManager::UpdateVehicles(Beam** vehicles, int num_vehicles)
         SurveyMapEntity* e = getMapEntityByName("Truck" + TOSTRING(vehicles[t]->ar_instance_id));
         if (e)
         {
-            e->setState(static_cast<int>(Beam::SimState::LOCAL_SIMULATED));
+            e->setState(static_cast<int>(Actor::SimState::LOCAL_SIMULATED));
             e->setVisibility(true);
             e->setPosition(vehicles[t]->getPosition().x, vehicles[t]->getPosition().z);
             e->setRotation(Radian(vehicles[t]->getHeadingDirectionAngle()));

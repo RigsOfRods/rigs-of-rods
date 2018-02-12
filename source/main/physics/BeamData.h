@@ -245,7 +245,7 @@ struct hook_t
     node_t *hookNode;
     node_t *lockNode;
     beam_t *beam;
-    Beam *lockTruck;
+    Actor *lockTruck;
 };
 
 struct ropable_t
@@ -263,13 +263,13 @@ struct rope_t
     beam_t *beam;
     node_t *lockedto;
     ropable_t *lockedto_ropable;
-    Beam *lockedtruck;
+    Actor *lockedtruck;
 };
 
 
 struct tie_t
 {
-    Beam* locked_truck;
+    Actor* locked_truck;
     beam_t *beam;
     ropable_t *lockedto;
     int group;

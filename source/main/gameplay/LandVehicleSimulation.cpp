@@ -33,7 +33,7 @@
 
 using namespace RoR;
 
-void LandVehicleSimulation::UpdateCruiseControl(Beam* curr_truck, float dt)
+void LandVehicleSimulation::UpdateCruiseControl(Actor* curr_truck, float dt)
 {
     BeamEngine* engine = curr_truck->ar_engine;
 
@@ -139,7 +139,7 @@ void LandVehicleSimulation::UpdateCruiseControl(Beam* curr_truck, float dt)
     }
 }
 
-void LandVehicleSimulation::CheckSpeedLimit(Beam* curr_truck, float dt)
+void LandVehicleSimulation::CheckSpeedLimit(Actor* curr_truck, float dt)
 {
     BeamEngine* engine = curr_truck->ar_engine;
 
@@ -152,7 +152,7 @@ void LandVehicleSimulation::CheckSpeedLimit(Beam* curr_truck, float dt)
     }
 }
 
-void LandVehicleSimulation::UpdateVehicle(Beam* curr_truck, float seconds_since_last_frame)
+void LandVehicleSimulation::UpdateVehicle(Actor* curr_truck, float seconds_since_last_frame)
 {
     using namespace Ogre;
 

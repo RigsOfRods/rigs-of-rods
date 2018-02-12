@@ -49,7 +49,7 @@ using namespace Ogre;
 
 // Param "doUpdate" means "also update things which should be updated only once per frame, not per every physics tick"
 //     In this case, doUpdate is TRUE on first tick after rendering, FALSE in all other ticks 
-void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps)
+void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps)
 {
     IWater* water = nullptr;
     const bool is_player_truck = this == RoR::App::GetSimController()->GetPlayerActor();
@@ -1284,13 +1284,13 @@ void Beam::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps
     BES_STOP(BES_CORE_Replay);
 }
 
-bool Beam::calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int maxsteps)
+bool Actor::calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 {
     if (dt == 0.0)
         return false;
     if (m_reset_request)
         return false;
-    if (ar_sim_state != Beam::SimState::LOCAL_SIMULATED)
+    if (ar_sim_state != Actor::SimState::LOCAL_SIMULATED)
         return false;
 
     BES_START(BES_CORE_WholeTruckCalc);
@@ -1301,7 +1301,7 @@ bool Beam::calcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int max
     return true;
 }
 
-void Beam::calcForcesEulerFinal(int doUpdate, Ogre::Real dt, int step, int maxsteps)
+void Actor::calcForcesEulerFinal(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 {
     calcHooks();
     calcRopes();
@@ -1333,7 +1333,7 @@ void LogBeamNodes(RoR::Str<L>& msg, beam_t& beam) // Internal helper
     msg << ".";
 }
 
-void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
+void Actor::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 {
     BES_START(BES_CORE_Beams);
     // Springs
@@ -1581,7 +1581,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
     BES_STOP(BES_CORE_Beams);
 }
 
-void Beam::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxsteps)
+void Actor::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 {
     for (int i = 0; i < static_cast<int>(ar_inter_beams.size()); i++)
     {
@@ -1714,7 +1714,7 @@ void Beam::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxste
     }
 }
 
-void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
+void Actor::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 {
     IWater* water = 0;
     float gravity = -9.81f;
@@ -1904,11 +1904,11 @@ void Beam::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
     }
 }
 
-void Beam::forwardCommands()
+void Actor::forwardCommands()
 {
-    Beam* current_truck = RoR::App::GetSimController()->GetPlayerActor();
+    Actor* current_truck = RoR::App::GetSimController()->GetPlayerActor();
     auto bf = RoR::App::GetSimController()->GetBeamFactory();
-    Beam** trucks = bf->getTrucks();
+    Actor** trucks = bf->getTrucks();
     int numtrucks = bf->getTruckCount();
 
     // forward things to trailers
@@ -1947,7 +1947,7 @@ void Beam::forwardCommands()
     }
 }
 
-void Beam::calcHooks()
+void Actor::calcHooks()
 {
     BES_START(BES_CORE_Hooks);
     //locks - this is not active in network mode
@@ -2020,7 +2020,7 @@ void Beam::calcHooks()
     BES_STOP(BES_CORE_Hooks);
 }
 
-void Beam::calcRopes()
+void Actor::calcRopes()
 {
     BES_START(BES_CORE_Ropes);
     if (ar_ropes.size())

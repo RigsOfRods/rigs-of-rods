@@ -126,13 +126,13 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
         Ray mouseRay = getMouseRay();
 
         // walk all trucks
-        Beam** trucks = m_sim_controller->GetBeamFactory()->getTrucks();
+        Actor** trucks = m_sim_controller->GetBeamFactory()->getTrucks();
         int trucksnum = m_sim_controller->GetBeamFactory()->getTruckCount();
         minnode = -1;
         grab_truck = NULL;
         for (int i = 0; i < trucksnum; i++)
         {
-            if (trucks[i] && trucks[i]->ar_sim_state == Beam::SimState::LOCAL_SIMULATED)
+            if (trucks[i] && trucks[i]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
             {
                 // check if our ray intersects with the bounding box of the truck
                 std::pair<bool, Real> pair = mouseRay.intersects(trucks[i]->ar_bounding_box);
@@ -228,7 +228,7 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
     {
         if (gEnv->cameraManager && gEnv->cameraManager->getCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE)
         {
-            Beam* truck = m_sim_controller->GetBeamFactory()->getCurrentTruck();
+            Actor* truck = m_sim_controller->GetBeamFactory()->getCurrentTruck();
 
             if (truck)
             {

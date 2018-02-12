@@ -37,35 +37,35 @@ struct beam_t
 
     /// Multipurpose; excludes beam from physics, controls visibility (gfx) and indicates multiple other states (hooks/ties).
     /// Users:
-    ///   Beam::SyncReset()              -- WRITE: sets to true for hook-beams and tie-beams, false on all other beams.
-    ///   Beam::disjoinInterTruckBeams() -- WRITE: sets to false on all beams managed as 'inter-truck'
-    ///   Beam::tieToggle(int group)   -- READ: uses it to determine locked/unlocked status.
+    ///   Actor::SyncReset()              -- WRITE: sets to true for hook-beams and tie-beams, false on all other beams.
+    ///   Actor::disjoinInterTruckBeams() -- WRITE: sets to false on all beams managed as 'inter-truck'
+    ///   Actor::tieToggle(int group)   -- READ: uses it to determine locked/unlocked status.
     ///                                -- WRITE: sets true when tie gets unlocked, false when it gets locked.
-    ///   Beam::hookToggle()             -- WRITE sets to false when hook is unlocked.
-    ///   Beam::nodeBeamConnections()    -- READ: Counts beams connected to node; Excludes 'disabled' beams.
-    ///   Beam::calcForcesEulerCompute() -- READ Saves value to replay buffer
-    ///   Beam::replayStep()             -- WRITE: fills from replay buffer
-    ///   Beam::calcBeams()            -- READ excludes beam from physics
+    ///   Actor::hookToggle()             -- WRITE sets to false when hook is unlocked.
+    ///   Actor::nodeBeamConnections()    -- READ: Counts beams connected to node; Excludes 'disabled' beams.
+    ///   Actor::calcForcesEulerCompute() -- READ Saves value to replay buffer
+    ///   Actor::replayStep()             -- WRITE: fills from replay buffer
+    ///   Actor::calcBeams()            -- READ excludes beam from physics
     ///                                -- WRITE: when SUPPORTBEAM breaks, it's set to 'disabled' + 'broken'
     ///                                -- WRITE: when regular beam breaks, 'true' is set to it and all beams in it's detacher group.
-    ///   Beam::calcBeamsInterTruck()    -- READ: excludes beam from physics
+    ///   Actor::calcBeamsInterTruck()    -- READ: excludes beam from physics
     ///                                  -- WRITE: when beam breaks (special conditions), it's set to 'disabled' + 'broken'
-    ///   Beam::calcHooks() -- READ/WRITE: If disabled during locking, it's enabled
+    ///   Actor::calcHooks() -- READ/WRITE: If disabled during locking, it's enabled
     ///                     -- WRITE: When locking fails, beam is reset to disabled
-    ///   Beam::updateVisual() -- READ: when 'disabled' or 'broken', hides all visuals - and vice versa.
+    ///   Actor::updateVisual() -- READ: when 'disabled' or 'broken', hides all visuals - and vice versa.
     ///   RigSpawner* -- WRITE: Ties and hook-beams are init to disabled. Others to enabled.
     /// ## TODO: Separate physics/visual meaning, create sensible usage pattern ~ only_a_ptr, 12/2017
     bool bm_disabled;
 
     /// Multipurpose: excludes beam from physics (slidenodes) and force feedback, controls visibility
-    ///   Beam::SyncReset()           -- WRITE: set to false
-    ///   Beam::replayStep()          -- WRITE: fills from replay buffer
-    ///   Beam::updateVisual()        -- READ: when 'disabled' or 'broken', hides all visuals - and vice versa.
-    ///   Beam::calcForcesEulerCompute() -- READ Excludes broken hydros from ForceFeedback
+    ///   Actor::SyncReset()           -- WRITE: set to false
+    ///   Actor::replayStep()          -- WRITE: fills from replay buffer
+    ///   Actor::updateVisual()        -- READ: when 'disabled' or 'broken', hides all visuals - and vice versa.
+    ///   Actor::calcForcesEulerCompute() -- READ Excludes broken hydros from ForceFeedback
     ///                                  -- READ Saves value to replay buffer
-    ///   Beam::calcBeams()         -- WRITE: when regular beam breaks, 'true' is set to it and all beams in it's detacher group.
+    ///   Actor::calcBeams()         -- WRITE: when regular beam breaks, 'true' is set to it and all beams in it's detacher group.
     ///                             -- WRITE: when SUPPORTBEAM breaks, it's set to 'disabled' + 'broken'
-    ///   Beam::calcBeamsInterTruck() -- WRITE: when beam breaks (special conditions), it's set to 'disabled' + 'broken'
+    ///   Actor::calcBeamsInterTruck() -- WRITE: when beam breaks (special conditions), it's set to 'disabled' + 'broken'
     ///   SlideNode::UpdateForces() -- READ: Stops updates when sliding beam is broken.
     ///   SlideNode::UpdatePosition() -- READ: Stops updates when sliding beam is broken.
     ///                NOTE: SlideNode handling may be a mistake - the feature was contributed, not developed by core team.

@@ -2825,7 +2825,7 @@ void Parser::ParseBeams()
         for (auto itor = options_str.begin(); itor != options_str.end(); ++itor)
         {
                  if (*itor == 'v') { continue; } // Dummy flag
-            else if (*itor == 'i') { beam.options |= Beam::OPTION_i_INVISIBLE; } 
+            else if (*itor == 'i') { beam.options |= Beam::OPTION_i_INVISIBLE; }
             else if (*itor == 'r') { beam.options |= Beam::OPTION_r_ROPE; }
             else if (*itor == 's') { beam.options |= Beam::OPTION_s_SUPPORT; }
             else

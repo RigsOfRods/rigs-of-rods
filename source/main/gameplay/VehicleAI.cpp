@@ -34,7 +34,7 @@
 
 using namespace Ogre;
 
-VehicleAI::VehicleAI(Beam* b)
+VehicleAI::VehicleAI(Actor* b)
 {
     beam = b;
 }
