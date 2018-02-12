@@ -220,7 +220,7 @@ class SoundScriptInstance : public ZeroedMemoryAllocator
 
 public:
 
-    SoundScriptInstance(int truck, SoundScriptTemplate* templ, SoundManager* sm, Ogre::String instancename, int soundLinkType=SL_DEFAULT, int soundLinkItemId=-1);
+    SoundScriptInstance(int actor_id, SoundScriptTemplate* templ, SoundManager* sm, Ogre::String instancename, int soundLinkType=SL_DEFAULT, int soundLinkItemId=-1);
     void runOnce();
     void setEnabled(bool e);
     void setGain(float value);
@@ -247,7 +247,7 @@ private:
     float sounds_pitchgain[MAX_SOUNDS_PER_SCRIPT];
     float lastgain;
 
-    int truck;              // holds the number of the truck this is for. important
+    int actor_id;           // ID of the actor this sound belongs to.
     int sound_link_type;    // holds the SL_ type this is bound to
     int sound_link_item_id; // holds the item number this is for
 };
@@ -263,24 +263,24 @@ public:
     void parseScript(Ogre::DataStreamPtr& stream, const Ogre::String& groupName);
     Ogre::Real getLoadingOrder(void) const;
 
-    SoundScriptInstance* createInstance(Ogre::String templatename, int truck, Ogre::SceneNode *toAttach=NULL, int soundLinkType=SL_DEFAULT, int soundLinkItemId=-1);
+    SoundScriptInstance* createInstance(Ogre::String templatename, int actor_id, Ogre::SceneNode *toAttach=NULL, int soundLinkType=SL_DEFAULT, int soundLinkItemId=-1);
     void clearNonBaseTemplates();
 
     // functions
-    void trigOnce    (int truck, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
-    void trigOnce    (Actor *b,   int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
-    void trigStart   (int truck, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
-    void trigStart   (Actor *b,   int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
-    void trigStop    (int truck, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
-    void trigStop    (Actor *b,   int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
-    void trigToggle  (int truck, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
-    void trigToggle  (Actor *b,   int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
-    void trigKill	 (int truck, int trig, int linkType = SL_DEFAULT, int linkItemID = -1);
-    void trigKill    (Actor *b,   int trig, int linkType = SL_DEFAULT, int linkItemID = -1);
-    bool getTrigState(int truck, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
-    bool getTrigState(Actor *b,   int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
-    void modulate    (int truck, int mod, float value, int linkType = SL_DEFAULT, int linkItemID=-1);
-    void modulate    (Actor *b,   int mod, float value, int linkType = SL_DEFAULT, int linkItemID=-1);
+    void trigOnce    (int actor_id, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
+    void trigOnce    (Actor* actor, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
+    void trigStart   (int actor_id, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
+    void trigStart   (Actor* actor, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
+    void trigStop    (int actor_id, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
+    void trigStop    (Actor* actor, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
+    void trigToggle  (int actor_id, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
+    void trigToggle  (Actor* actor, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
+    void trigKill	 (int actor_id, int trig, int linkType = SL_DEFAULT, int linkItemID = -1);
+    void trigKill    (Actor* actor, int trig, int linkType = SL_DEFAULT, int linkItemID = -1);
+    bool getTrigState(int actor_id, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
+    bool getTrigState(Actor* actor, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
+    void modulate    (int actor_id, int mod, float value, int linkType = SL_DEFAULT, int linkItemID=-1);
+    void modulate    (Actor* actor, int mod, float value, int linkType = SL_DEFAULT, int linkItemID=-1);
 
     void setEnabled(bool state);
 
@@ -316,7 +316,7 @@ private:
     SoundScriptInstance *gains[SS_MAX_MOD * MAX_INSTANCES_PER_GROUP];
 
     // state map
-    // soundLinks, soundItems, trucks, triggers
+    // soundLinks, soundItems, actor_ids, triggers
     std::map <int, std::map <int, std::map <int, std::map <int, bool > > > > state_map;
 
     SoundManager* sound_manager;
