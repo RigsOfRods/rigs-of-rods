@@ -135,7 +135,7 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
             if (trucks[i] && trucks[i]->ar_sim_state == Beam::SimState::LOCAL_SIMULATED)
             {
                 // check if our ray intersects with the bounding box of the truck
-                std::pair<bool, Real> pair = mouseRay.intersects(trucks[i]->boundingBox);
+                std::pair<bool, Real> pair = mouseRay.intersects(trucks[i]->ar_bounding_box);
                 if (!pair.first)
                     continue;
 

@@ -141,7 +141,7 @@ Beam *RigSpawner::SpawnRig()
     InitializeRig();
 
     // Vehicle name
-    m_rig->realtruckname = m_file->name;
+    m_rig->ar_design_name = m_file->name;
 
     // Flags in root module
     m_rig->ar_forward_commands         = m_file->forward_commands;
