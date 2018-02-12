@@ -94,20 +94,25 @@ void GameScript::logFormat(const char* format, ...)
 
 void GameScript::activateAllVehicles()
 {
-    mse->GetFrameListener()->GetBeamFactory()->WakeUpAllActors();
+    App::GetSimController()->GetBeamFactory()->WakeUpAllActors();
 }
 
 void GameScript::SetTrucksForcedAwake(bool forceActive)
 {
-    mse->GetFrameListener()->GetBeamFactory()->SetTrucksForcedAwake(forceActive);
+    App::GetSimController()->GetBeamFactory()->SetTrucksForcedAwake(forceActive);
 }
 
 double GameScript::getTime()
 {
-    double result = 0.0l;
-    auto fl = mse->GetFrameListener();
-    if (fl != nullptr) { result = fl->getTime(); }
-    return result;
+    auto sim_controller = App::GetSimController();
+    if (sim_controller == nullptr)
+    {
+        return 0.0;
+    }
+    else
+    {
+        return sim_controller->getTime();
+    }
 }
 
 void GameScript::setPersonPosition(const Vector3& vec)
@@ -119,7 +124,7 @@ void GameScript::setPersonPosition(const Vector3& vec)
 void GameScript::loadTerrain(const String& terrain)
 {
     App::sim_terrain_name.SetPending(terrain.c_str());
-    mse->GetFrameListener()->LoadTerrain();
+    App::GetSimController()->LoadTerrain();
 }
 
 Vector3 GameScript::getPersonPosition()
@@ -184,12 +189,12 @@ bool GameScript::getCaelumAvailable()
 
 float GameScript::stopTimer()
 {
-    return mse->GetFrameListener()->StopRaceTimer();
+    return App::GetSimController()->StopRaceTimer();
 }
 
 void GameScript::startTimer()
 {
-    return mse->GetFrameListener()->StartRaceTimer();
+    return App::GetSimController()->StartRaceTimer();
 }
 
 void GameScript::setWaterHeight(float value)
@@ -221,7 +226,7 @@ float GameScript::getWaterHeight()
 
 Actor* GameScript::getCurrentTruck()
 {
-    return mse->GetFrameListener()->GetPlayerActor();
+    return App::GetSimController()->GetPlayerActor();
 }
 
 float GameScript::getGravity()
@@ -236,20 +241,20 @@ void GameScript::setGravity(float value)
 
 Actor* GameScript::getTruckByNum(int num)
 {
-    return mse->GetFrameListener()->GetActorById(num);
+    return App::GetSimController()->GetActorById(num);
 }
 
 int GameScript::getNumTrucks()
 {
-    return mse->GetFrameListener()->GetBeamFactory()->GetNumUsedActorSlots();
+    return App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots();
 }
 
 int GameScript::getNumTrucksByFlag(int flag)
 {
     int result = 0;
-    for (int i = 0; i < mse->GetFrameListener()->GetBeamFactory()->GetNumUsedActorSlots(); i++)
+    for (int i = 0; i < App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots(); i++)
     {
-        Actor* truck = mse->GetFrameListener()->GetActorById(i);
+        Actor* truck = App::GetSimController()->GetActorById(i);
         if (!truck && !flag)
             result++;
         if (!truck)
@@ -262,7 +267,7 @@ int GameScript::getNumTrucksByFlag(int flag)
 
 int GameScript::GetPlayerActorId()
 {
-    Actor* actor = mse->GetFrameListener()->GetPlayerActor();
+    Actor* actor = App::GetSimController()->GetPlayerActor();
     return (actor != nullptr) ? actor->ar_instance_id : -1;
 }
 
@@ -291,7 +296,7 @@ void GameScript::message(String& txt, String& icon, float timeMilliseconds, bool
 
 void GameScript::UpdateDirectionArrow(String& text, Vector3& vec)
 {
-    mse->GetFrameListener()->UpdateDirectionArrow(const_cast<char*>(text.c_str()), Vector3(vec.x, vec.y, vec.z));
+    App::GetSimController()->UpdateDirectionArrow(const_cast<char*>(text.c_str()), Vector3(vec.x, vec.y, vec.z));
 }
 
 int GameScript::getChatFontSize()
@@ -334,19 +339,19 @@ void GameScript::showChooser(const String& type, const String& instance, const S
 
     if (ntype != LT_None)
     {
-        mse->GetFrameListener()->ShowLoaderGUI(ntype, instance, box);
+        App::GetSimController()->ShowLoaderGUI(ntype, instance, box);
     }
 
 }
 
 void GameScript::repairVehicle(const String& instance, const String& box, bool keepPosition)
 {
-    mse->GetFrameListener()->GetBeamFactory()->RepairActor(gEnv->collisions, instance, box, keepPosition);
+    App::GetSimController()->GetBeamFactory()->RepairActor(gEnv->collisions, instance, box, keepPosition);
 }
 
 void GameScript::removeVehicle(const String& event_source_instance_name, const String& event_source_box_name)
 {
-    mse->GetFrameListener()->RemoveActorByCollisionBox(event_source_instance_name, event_source_box_name);
+    App::GetSimController()->RemoveActorByCollisionBox(event_source_instance_name, event_source_box_name);
 }
 
 void GameScript::destroyObject(const String& instanceName)
@@ -410,7 +415,7 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
 
 void GameScript::hideDirectionArrow()
 {
-    mse->GetFrameListener()->UpdateDirectionArrow(0, Vector3::ZERO);
+    App::GetSimController()->UpdateDirectionArrow(0, Vector3::ZERO);
 }
 
 int GameScript::setMaterialAmbient(const String& materialName, float red, float green, float blue)
@@ -755,9 +760,9 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
     curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "MP_NetworkEnabled", CURLFORM_COPYCONTENTS, (mp_connected) ? "Yes" : "No", CURLFORM_END);
     curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "APIProtocolVersion", CURLFORM_COPYCONTENTS, "2", CURLFORM_END);
 
-    if (mse->GetFrameListener()->GetBeamFactory()->GetPlayerActorInternal())
+    if (App::GetSimController()->GetBeamFactory()->GetPlayerActorInternal())
     {
-        Beam* truck = mse->GetFrameListener()->GetBeamFactory()->GetPlayerActorInternal();
+        Beam* truck = App::GetSimController()->GetBeamFactory()->GetPlayerActorInternal();
         curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "Truck_Name", CURLFORM_COPYCONTENTS, truck->GetActorDesignName().c_str(), CURLFORM_END);
         curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "Truck_FileName", CURLFORM_COPYCONTENTS, truck->GetActorFileName().c_str(), CURLFORM_END);
 
@@ -926,7 +931,7 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
 
 void GameScript::boostCurrentTruck(float factor)
 {
-    Actor* actor = mse->GetFrameListener()->GetPlayerActor();
+    Actor* actor = App::GetSimController()->GetPlayerActor();
     if (actor && actor->ar_engine)
     {
         float rpm = actor->ar_engine->GetEngineRpm();
@@ -975,7 +980,7 @@ int GameScript::sendGameCmd(const String& message)
 
 VehicleAI* GameScript::getCurrentTruckAI()
 {
-    Actor* actor = mse->GetFrameListener()->GetPlayerActor();
+    Actor* actor = App::GetSimController()->GetPlayerActor();
     if (actor != nullptr)
         return actor->ar_vehicle_ai;
     return nullptr;
@@ -983,7 +988,7 @@ VehicleAI* GameScript::getCurrentTruckAI()
 
 VehicleAI* GameScript::getTruckAIByNum(int num)
 {
-    Actor* b = mse->GetFrameListener()->GetActorById(num);
+    Actor* b = App::GetSimController()->GetActorById(num);
     if (b)
         return b->ar_vehicle_ai;
     return nullptr;
@@ -992,7 +997,7 @@ VehicleAI* GameScript::getTruckAIByNum(int num)
 Actor* GameScript::spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot)
 {
     Ogre::Quaternion rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
-    return mse->GetFrameListener()->GetBeamFactory()->CreateLocalActor(pos, rotation, truckName);
+    return App::GetSimController()->GetBeamFactory()->CreateLocalActor(pos, rotation, truckName);
 }
 
 void GameScript::showMessageBox(Ogre::String& mTitle, Ogre::String& mText, bool button1, Ogre::String& mButton1, bool AllowClose, bool button2, Ogre::String& mButton2)

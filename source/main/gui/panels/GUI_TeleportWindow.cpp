@@ -39,7 +39,6 @@ static const int           MOUSEICON_SIZE           = 14;
 
 TeleportWindow::TeleportWindow():
     GuiPanelBase(m_teleport_window),
-    m_sim_controller(nullptr),
     m_is_altmode_active(false),
     m_minimap_has_focus(false)
 {
@@ -117,7 +116,7 @@ void TeleportWindow::TelepointIconClicked(MyGUI::Widget* sender)
 {
     this->SetVisible(false);
     static_cast<MyGUI::ImageBox*>(sender)->setImageTexture("telepoint_icon.png");
-    m_sim_controller->TeleportPlayer(GetTeleIconUserdata(sender));
+    App::GetSimController()->TeleportPlayer(GetTeleIconUserdata(sender));
 }
 
 void TeleportWindow::MinimapGotFocus(MyGUI::Widget* widget, MyGUI::Widget* previous)
@@ -153,7 +152,7 @@ void TeleportWindow::MinimapMouseClick(MyGUI::Widget* minimap)
         MyGUI::IntPoint mini_mouse = m_minimap_last_mouse - m_minimap_image->getAbsolutePosition();
         float map_x = (static_cast<float>(mini_mouse.left)/static_cast<float>(m_minimap_image->getSize().width )) * m_map_size.x;
         float map_z = (static_cast<float>(mini_mouse.top) /static_cast<float>(m_minimap_image->getSize().height)) * m_map_size.z;
-        m_sim_controller->TeleportPlayerXZ(map_x, map_z);
+        App::GetSimController()->TeleportPlayerXZ(map_x, map_z);
     }
 }
 
@@ -164,9 +163,8 @@ void TeleportWindow::SetAltmodeCursorPos(int screen_left, int screen_top)
     m_mouse_icon->setPosition(screen_left - minimap_abs.left - half, screen_top - minimap_abs.top - half);
 }
 
-void TeleportWindow::SetupMap(RoRFrameListener* sim_controller, Terrn2Def* def, Ogre::Vector3 map_size, std::string minimap_tex_name)
+void TeleportWindow::SetupMap(Terrn2Def* def, Ogre::Vector3 map_size, std::string minimap_tex_name)
 {
-    m_sim_controller = sim_controller;
     m_map_size = map_size;
     if (!def->teleport_map_image.empty())
         m_minimap_image->setImageTexture(def->teleport_map_image);
@@ -195,7 +193,6 @@ void TeleportWindow::SetupMap(RoRFrameListener* sim_controller, Terrn2Def* def, 
 
 void TeleportWindow::Reset()
 {
-    m_sim_controller = nullptr;
     while (!m_telepoint_icons.empty())
     {
         m_minimap_image->_destroyChildWidget(m_telepoint_icons.back());

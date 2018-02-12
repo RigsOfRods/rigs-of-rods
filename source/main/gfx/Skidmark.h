@@ -58,8 +58,7 @@ class Skidmark
 public:
 
     /// Constructor - see setOperationType() for description of argument.
-    Skidmark(SkidmarkConfig* config, RoRFrameListener* sim_controller,
-        wheel_t* m_wheel, Ogre::SceneNode* snode, int m_length = 500, int m_bucket_count = 20);
+    Skidmark(SkidmarkConfig* config,  wheel_t* m_wheel, Ogre::SceneNode* snode, int m_length = 500, int m_bucket_count = 20);
     virtual ~Skidmark();
 
     void updatePoint();
@@ -99,7 +98,6 @@ private:
     wheel_t*             m_wheel;
     Ogre::SceneNode*     m_scene_node;  
     SkidmarkConfig*      m_config;
-    RoRFrameListener*    m_sim_controller;
 };
 
 } // namespace RoR

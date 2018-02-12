@@ -185,7 +185,7 @@ class RigsOfRods;
 class ActorSpawner;
 class Road2;
 class Road;
-class RoRFrameListener;
+class SimController;
 class ScopeLog;
 class Screwprop;
 class SkyManager;

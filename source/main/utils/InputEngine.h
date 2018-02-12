@@ -581,8 +581,6 @@ protected:
     bool processLine(char* line, int deviceID = -1);
     bool captureMode;
 
-    //RoRFrameListener *mefl;
-
     void initAllKeys();
     std::map<std::string, OIS::KeyCode> allkeys;
     std::map<std::string, OIS::KeyCode>::iterator allit;

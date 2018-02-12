@@ -122,7 +122,7 @@ int RoR::SkidmarkConfig::getTexture(Ogre::String model, Ogre::String ground, flo
 // this is a hardcoded array which we use to map ground types to a certain texture with UV/ coords
 Ogre::Vector2 RoR::Skidmark::m_tex_coords[4] = {Ogre::Vector2(0, 0), Ogre::Vector2(0, 1), Ogre::Vector2(1, 0), Ogre::Vector2(1, 1)};
 
-RoR::Skidmark::Skidmark(RoR::SkidmarkConfig* config, RoRFrameListener* sim_controller, wheel_t* m_wheel, 
+RoR::Skidmark::Skidmark(RoR::SkidmarkConfig* config, wheel_t* m_wheel, 
         Ogre::SceneNode* snode, int m_length /* = 500 */, int m_bucket_count /* = 20 */)
     : m_scene_node(snode)
     , m_is_dirty(true)
@@ -134,7 +134,6 @@ RoR::Skidmark::Skidmark(RoR::SkidmarkConfig* config, RoRFrameListener* sim_contr
     , m_min_distance_squared(m_min_distance * m_min_distance)
     , m_max_distance_squared(m_max_distance * m_max_distance)
     , m_config(config)
-    , m_sim_controller(sim_controller)
 {
     if (m_length % 2)
     {

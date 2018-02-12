@@ -329,7 +329,7 @@ int main(int argc, char *argv[])
             else if (App::app_state.GetPending() == AppState::SIMULATION)
             {
                 {
-                    RoRFrameListener sim_controller(&force_feedback, &skidmark_conf);
+                    SimController sim_controller(&force_feedback, &skidmark_conf);
                     App::SetSimController(&sim_controller);
                     if (sim_controller.SetupGameplayLoop())
                     {
@@ -343,7 +343,7 @@ int main(int argc, char *argv[])
                         App::app_state.SetPending(AppState::MAIN_MENU);
                     }
                 }
-                gEnv->sceneManager->clearScene(); // Wipe the scene after RoRFrameListener was destroyed (->cleanups invoked)
+                gEnv->sceneManager->clearScene(); // Wipe the scene after SimController was destroyed (->cleanups invoked)
             }
             else if (App::app_state.GetPending() == AppState::CHANGE_MAP)
             {

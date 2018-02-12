@@ -30,7 +30,7 @@ struct RoadType_t
 
 class Road : public ZeroedMemoryAllocator
 {
-    friend class RoRFrameListener;
+    friend class SimController;
 
 public:
 

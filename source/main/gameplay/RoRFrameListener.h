@@ -30,7 +30,7 @@
 
 #include <Ogre.h>
 
-/// The simulation controller object (TODO: Rename this class to SimController)
+/// The simulation controller object
 /// It's lifetime is tied to single gameplay session. When user returns to main menu, it's destroyed.
 ///
 /// RoR's gameplay is quite simple in structure, it consists of:
@@ -41,10 +41,10 @@
 ///  - characters:      player-controlled human figures with their own primitive physics, managed by `CharacterFactory`
 ///                     these only collide with static terrain, not actors.
 /// For convenience and to help manage interactions, this class provides methods to manipulate these elements.
-class RoRFrameListener: public Ogre::FrameListener, public Ogre::WindowEventListener, public ZeroedMemoryAllocator
+class SimController: public Ogre::FrameListener, public Ogre::WindowEventListener, public ZeroedMemoryAllocator
 {
 public:
-    RoRFrameListener(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_conf);
+    SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_conf);
 
     // Ogre::FrameListener public interface
     bool   frameStarted          (const Ogre::FrameEvent& evt) override;
