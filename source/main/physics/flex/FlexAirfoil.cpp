@@ -850,7 +850,12 @@ void FlexAirfoil::updateForces()
 FlexAirfoil::~FlexAirfoil()
 {
     if (airfoil) delete airfoil;
-    if (!msh.isNull()) msh->unload();
+    if (!msh.isNull())
+    {
+        msh->unload();
+        Ogre::MeshManager::getSingleton().remove(msh->getHandle()); // Necessary to truly erase manually created resource.
+        msh.setNull(); // Important! It's a shared pointer.
+    }
 
     if (vertices          != nullptr) { free (vertices); }
     if (shadownorvertices != nullptr) { free (shadownorvertices); }
