@@ -53,7 +53,7 @@ public:
     * @param clutch 
     * @param gear Current gear {-1 = reverse, 0 = neutral, 1...21 = forward}
     */
-    void netForceSettings(float rpm, float force, float clutch, int gear, bool running, bool contact, char automode);
+    void netForceSettings(float rpm, float force, float clutch, int gear, bool running, bool contact, char auto_mode);
 
     void setAcc(float val);
     void setAutoMode(RoR::SimGearboxMode mode);
@@ -220,27 +220,26 @@ protected:
     std::deque<float> m_accs;
     std::deque<float> m_brakes;
 
-    // turbo
-    //Yeah i know, a bit dirty
-    int turboVer;
+    // Turbo
 #define MAXTURBO 4
-    float curTurboRPM[MAXTURBO];
-    float turboInertiaFactor;
-    int numTurbos;
-    int maxTurboRPM;
-    float EngineAddiTorque[MAXTURBO];
-    float turboEngineRpmOperation;
-    float turboMaxPSI;
-    bool b_BOV;
-    float curBOVTurboRPM[MAXTURBO];
-    int minBOVPsi;
-    bool b_WasteGate;
-    float minWGPsi;
-    bool b_flutter;
-    float wastegate_threshold_p;
-    float wastegate_threshold_n;
-    bool b_anti_lag;
-    float minRPM_antilag;
-    float rnd_antilag_chance;
-    float antilag_power_factor;
+    int            m_turbo_ver;
+    float          m_cur_turbo_rpm[MAXTURBO];
+    float          m_turbo_inertia_factor;
+    int            m_num_turbos;
+    int            m_max_turbo_rpm;
+    float          m_engine_addi_torque[MAXTURBO];
+    float          m_turbo_engine_rpm_operation;
+    float          m_turbo_max_psi;
+    bool           m_turbo_has_bov;
+    float          m_turbo_bov_rpm[MAXTURBO];
+    int            m_min_bov_psi;
+    bool           m_turbo_has_wastegate;
+    float          m_min_wastegate_psi;
+    bool           m_turbo_flutters;
+    float          m_turbo_wg_threshold_p;
+    float          m_turbo_wg_threshold_n;
+    bool           m_turbo_has_antilag;
+    float          m_antilag_min_rpm;
+    float          m_antilag_rand_chance;
+    float          m_antilag_power_factor;
 };

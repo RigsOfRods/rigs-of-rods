@@ -76,22 +76,22 @@ EngineSim::EngineSim(float _min_rpm, float _max_rpm, float torque, std::vector<f
     , m_engine_type('t')
     , m_upshift_delay_counter(0)
     , m_engine_is_electric(false)
-    , turboInertiaFactor(1)
-    , numTurbos(1)
-    , maxTurboRPM(200000.0f)
-    , turboEngineRpmOperation(0.0f)
-    , turboVer(1)
-    , minBOVPsi(11)
-    , minWGPsi(20)
-    , b_WasteGate(false)
-    , b_BOV(false)
-    , b_flutter(false)
-    , wastegate_threshold_p(0)
-    , wastegate_threshold_n(0)
-    , b_anti_lag(false)
-    , rnd_antilag_chance(0.9975)
-    , minRPM_antilag(3000)
-    , antilag_power_factor(170)
+    , m_turbo_inertia_factor(1)
+    , m_num_turbos(1)
+    , m_max_turbo_rpm(200000.0f)
+    , m_turbo_engine_rpm_operation(0.0f)
+    , m_turbo_ver(1)
+    , m_min_bov_psi(11)
+    , m_min_wastegate_psi(20)
+    , m_turbo_has_wastegate(false)
+    , m_turbo_has_bov(false)
+    , m_turbo_flutters(false)
+    , m_turbo_wg_threshold_p(0)
+    , m_turbo_wg_threshold_n(0)
+    , m_turbo_has_antilag(false)
+    , m_antilag_rand_chance(0.9975)
+    , m_antilag_min_rpm(3000)
+    , m_antilag_power_factor(170)
 {
     m_full_rpm_range = (m_engine_max_rpm - m_engine_min_rpm);
     m_one_third_rpm_range = m_full_rpm_range / 3.0f;
@@ -105,8 +105,8 @@ EngineSim::EngineSim(float _min_rpm, float _max_rpm, float torque, std::vector<f
 
     for (int i = 0; i < MAXTURBO; i++)
     {
-        EngineAddiTorque[i] = 0;
-        curTurboRPM[i] = 0;
+        m_engine_addi_torque[i] = 0;
+        m_cur_turbo_rpm[i] = 0;
     }
 }
 
@@ -124,64 +124,64 @@ void EngineSim::setTurboOptions(int type, float tinertiaFactor, int nturbos, flo
 
     if (nturbos > MAXTURBO)
     {
-        numTurbos = 4;
+        m_num_turbos = 4;
         LOG("Turbo: No more than 4 turbos allowed"); //TODO: move this under RigParser
     }
     else
-        numTurbos = nturbos;
+        m_num_turbos = nturbos;
 
-    turboVer = type;
-    turboInertiaFactor = tinertiaFactor;
+    m_turbo_ver = type;
+    m_turbo_inertia_factor = tinertiaFactor;
 
     if (param2 != 9999)
-        turboEngineRpmOperation = param2;
+        m_turbo_engine_rpm_operation = param2;
 
-    if (turboVer == 1)
+    if (m_turbo_ver == 1)
     {
-        for (int i = 0; i < numTurbos; i++)
-            EngineAddiTorque[i] = param1 / numTurbos; //Additional torque
+        for (int i = 0; i < m_num_turbos; i++)
+            m_engine_addi_torque[i] = param1 / m_num_turbos; //Additional torque
     }
     else
     {
-        turboMaxPSI = param1; //maxPSI
-        maxTurboRPM = turboMaxPSI * 10000;
+        m_turbo_max_psi = param1; //maxPSI
+        m_max_turbo_rpm = m_turbo_max_psi * 10000;
 
         //Duh
         if (param3 == 1)
-            b_BOV = true;
+            m_turbo_has_bov = true;
         else
-            b_BOV = false;
+            m_turbo_has_bov = false;
 
         if (param3 != 9999)
-            minBOVPsi = param4;
+            m_min_bov_psi = param4;
 
         if (param5 == 1)
-            b_WasteGate = true;
+            m_turbo_has_wastegate = true;
         else
-            b_WasteGate = false;
+            m_turbo_has_wastegate = false;
 
         if (param6 != 9999)
-            minWGPsi = param6 * 10000;
+            m_min_wastegate_psi = param6 * 10000;
 
         if (param7 != 9999)
         {
-            wastegate_threshold_n = 1 - param7;
-            wastegate_threshold_p = 1 + param7;
+            m_turbo_wg_threshold_n = 1 - param7;
+            m_turbo_wg_threshold_p = 1 + param7;
         }
 
         if (param8 == 1)
-            b_anti_lag = true;
+            m_turbo_has_antilag = true;
         else
-            b_anti_lag = false;
+            m_turbo_has_antilag = false;
 
         if (param9 != 9999)
-            rnd_antilag_chance = param9;
+            m_antilag_rand_chance = param9;
 
         if (param10 != 9999)
-            minRPM_antilag = param10;
+            m_antilag_min_rpm = param10;
 
         if (param11 != 9999)
-            antilag_power_factor = param11;
+            m_antilag_power_factor = param11;
     }
 }
 
@@ -282,10 +282,10 @@ void EngineSim::update(float dt, int doUpdate)
             float turboInertia = 0.000003f;
 
             // braking (compression)
-            turbotorque -= curTurboRPM[0] / 200000.0f;
+            turbotorque -= m_cur_turbo_rpm[0] / 200000.0f;
 
             // powering (exhaust) with limiter
-            if (curTurboRPM[0] < 200000.0f && m_engine_is_running && m_cur_acc > 0.06f)
+            if (m_cur_turbo_rpm[0] < 200000.0f && m_engine_is_running && m_cur_acc > 0.06f)
             {
                 turbotorque += 1.5f * m_cur_acc * (m_cur_engine_rpm / m_engine_max_rpm);
             }
@@ -295,62 +295,62 @@ void EngineSim::update(float dt, int doUpdate)
             }
 
             // integration
-            curTurboRPM[0] += dt * turbotorque / turboInertia;
+            m_cur_turbo_rpm[0] += dt * turbotorque / turboInertia;
         }
         else
         {
-            for (int i = 0; i < numTurbos; i++)
+            for (int i = 0; i < m_num_turbos; i++)
             {
                 // update turbo speed (lag)
                 // reset each of the values for each turbo
                 float turbotorque = 0.0f;
                 float turboBOVtorque = 0.0f;
 
-                float turboInertia = 0.000003f * turboInertiaFactor;
+                float turboInertia = 0.000003f * m_turbo_inertia_factor;
 
                 // braking (compression)
-                turbotorque -= curTurboRPM[i] / maxTurboRPM;
-                turboBOVtorque -= curBOVTurboRPM[i] / maxTurboRPM;
+                turbotorque -= m_cur_turbo_rpm[i] / m_max_turbo_rpm;
+                turboBOVtorque -= m_turbo_bov_rpm[i] / m_max_turbo_rpm;
 
                 // powering (exhaust) with limiter
-                if (m_cur_engine_rpm >= turboEngineRpmOperation)
+                if (m_cur_engine_rpm >= m_turbo_engine_rpm_operation)
                 {
-                    if (curTurboRPM[i] <= maxTurboRPM && m_engine_is_running && acc > 0.06f)
+                    if (m_cur_turbo_rpm[i] <= m_max_turbo_rpm && m_engine_is_running && acc > 0.06f)
                     {
-                        if (b_WasteGate)
+                        if (m_turbo_has_wastegate)
                         {
-                            if (curTurboRPM[i] < minWGPsi * wastegate_threshold_p && !b_flutter)
+                            if (m_cur_turbo_rpm[i] < m_min_wastegate_psi * m_turbo_wg_threshold_p && !m_turbo_flutters)
                             {
-                                turbotorque += 1.5f * acc * (((m_cur_engine_rpm - turboEngineRpmOperation) / (m_engine_max_rpm - turboEngineRpmOperation)));
+                                turbotorque += 1.5f * acc * (((m_cur_engine_rpm - m_turbo_engine_rpm_operation) / (m_engine_max_rpm - m_turbo_engine_rpm_operation)));
                             }
                             else
                             {
-                                b_flutter = true;
-                                turbotorque -= (curTurboRPM[i] / maxTurboRPM) * 1.5;
+                                m_turbo_flutters = true;
+                                turbotorque -= (m_cur_turbo_rpm[i] / m_max_turbo_rpm) * 1.5;
                             }
 
-                            if (b_flutter)
+                            if (m_turbo_flutters)
                             {
                                 SOUND_START(m_actor, SS_TRIG_TURBOWASTEGATE);
-                                if (curTurboRPM[i] < minWGPsi * wastegate_threshold_n)
+                                if (m_cur_turbo_rpm[i] < m_min_wastegate_psi * m_turbo_wg_threshold_n)
                                 {
-                                    b_flutter = false;
+                                    m_turbo_flutters = false;
                                     SOUND_STOP(m_actor, SS_TRIG_TURBOWASTEGATE);
                                 }
                             }
                         }
                         else
-                            turbotorque += 1.5f * acc * (((m_cur_engine_rpm - turboEngineRpmOperation) / (m_engine_max_rpm - turboEngineRpmOperation)));
+                            turbotorque += 1.5f * acc * (((m_cur_engine_rpm - m_turbo_engine_rpm_operation) / (m_engine_max_rpm - m_turbo_engine_rpm_operation)));
                     }
                     else
                     {
-                        turbotorque += 0.1f * (((m_cur_engine_rpm - turboEngineRpmOperation) / (m_engine_max_rpm - turboEngineRpmOperation)));
+                        turbotorque += 0.1f * (((m_cur_engine_rpm - m_turbo_engine_rpm_operation) / (m_engine_max_rpm - m_turbo_engine_rpm_operation)));
                     }
 
                     //Update waste gate, it's like a BOV on the exhaust part of the turbo, acts as a limiter
-                    if (b_WasteGate)
+                    if (m_turbo_has_wastegate)
                     {
-                        if (curTurboRPM[i] > minWGPsi * 0.95)
+                        if (m_cur_turbo_rpm[i] > m_min_wastegate_psi * 0.95)
                             turboInertia = turboInertia * 0.7; //Kill inertia so it flutters
                         else
                             turboInertia = turboInertia * 1.3; //back to normal inertia
@@ -358,23 +358,23 @@ void EngineSim::update(float dt, int doUpdate)
                 }
 
                 //simulate compressor surge
-                if (!b_BOV)
+                if (!m_turbo_has_bov)
                 {
-                    if (curTurboRPM[i] > 13 * 10000 && m_cur_acc < 0.06f)
+                    if (m_cur_turbo_rpm[i] > 13 * 10000 && m_cur_acc < 0.06f)
                     {
                         turbotorque += (turbotorque * 2.5);
                     }
                 }
 
                 // anti lag
-                if (b_anti_lag && m_cur_acc < 0.5)
+                if (m_turbo_has_antilag && m_cur_acc < 0.5)
                 {
                     float f = frand();
-                    if (m_cur_engine_rpm > minRPM_antilag && f > rnd_antilag_chance)
+                    if (m_cur_engine_rpm > m_antilag_min_rpm && f > m_antilag_rand_chance)
                     {
-                        if (curTurboRPM[i] > maxTurboRPM * 0.35 && curTurboRPM[i] < maxTurboRPM)
+                        if (m_cur_turbo_rpm[i] > m_max_turbo_rpm * 0.35 && m_cur_turbo_rpm[i] < m_max_turbo_rpm)
                         {
-                            turbotorque -= (turbotorque * (f * antilag_power_factor));
+                            turbotorque -= (turbotorque * (f * m_antilag_power_factor));
                             SOUND_START(m_actor, SS_TRIG_TURBOBACKFIRE);
                         }
                     }
@@ -385,31 +385,31 @@ void EngineSim::update(float dt, int doUpdate)
                 }
 
                 // update main turbo rpm
-                curTurboRPM[i] += dt * turbotorque / turboInertia;
+                m_cur_turbo_rpm[i] += dt * turbotorque / turboInertia;
 
                 //Update BOV
                 //It's basicly an other turbo which is limmited to the main one's rpm, but it doesn't affect its rpm.  It only affects the power going into the engine.
                 //This one is used to simulate the pressure between the engine and the compressor.
                 //I should make the whole turbo code work this way. -Max98
-                if (b_BOV)
+                if (m_turbo_has_bov)
                 {
-                    if (curBOVTurboRPM[i] < curTurboRPM[i])
+                    if (m_turbo_bov_rpm[i] < m_cur_turbo_rpm[i])
                         turboBOVtorque += 1.5f * acc * (((m_cur_engine_rpm) / (m_engine_max_rpm)));
                     else
                         turboBOVtorque += 0.07f * (((m_cur_engine_rpm) / (m_engine_max_rpm)));
 
-                    if (m_cur_acc < 0.06 && curTurboRPM[i] > minBOVPsi * 10000)
+                    if (m_cur_acc < 0.06 && m_cur_turbo_rpm[i] > m_min_bov_psi * 10000)
                     {
                         SOUND_START(m_actor, SS_TRIG_TURBOBOV);
-                        curBOVTurboRPM[i] += dt * turboBOVtorque / (turboInertia * 0.1);
+                        m_turbo_bov_rpm[i] += dt * turboBOVtorque / (turboInertia * 0.1);
                     }
                     else
                     {
                         SOUND_STOP(m_actor, SS_TRIG_TURBOBOV);
-                        if (curBOVTurboRPM[i] < curTurboRPM[i])
-                            curBOVTurboRPM[i] += dt * turboBOVtorque / (turboInertia * 0.05);
+                        if (m_turbo_bov_rpm[i] < m_cur_turbo_rpm[i])
+                            m_turbo_bov_rpm[i] += dt * turboBOVtorque / (turboInertia * 0.05);
                         else
-                            curBOVTurboRPM[i] += dt * turboBOVtorque / turboInertia;
+                            m_turbo_bov_rpm[i] += dt * turboBOVtorque / turboInertia;
                     }
                 }
             }
@@ -804,8 +804,10 @@ void EngineSim::updateAudio(int doUpdate)
 #ifdef USE_OPENAL
     if (m_engine_has_turbo)
     {
-        for (int i = 0; i < numTurbos; i++)
-             SOUND_MODULATE(m_actor, SS_MOD_TURBO, curTurboRPM[i]);
+        for (int i = 0; i < m_num_turbos; i++)
+        {
+            SOUND_MODULATE(m_actor, SS_MOD_TURBO, m_cur_turbo_rpm[i]);
+        }
     }
 
     if (doUpdate)
@@ -874,20 +876,20 @@ float EngineSim::getTurboPSI()
 {
     if (m_engine_turbo_mode == OLD)
     {
-        return curTurboRPM[0] / 10000.0f;
+        return m_cur_turbo_rpm[0] / 10000.0f;
     }
 
     float turboPSI = 0;
 
-    if (b_BOV)
+    if (m_turbo_has_bov)
     {
-        for (int i = 0; i < numTurbos; i++)
-            turboPSI += curBOVTurboRPM[i] / 10000.0f;
+        for (int i = 0; i < m_num_turbos; i++)
+            turboPSI += m_turbo_bov_rpm[i] / 10000.0f;
     }
     else
     {
-        for (int i = 0; i < numTurbos; i++)
-            turboPSI += curTurboRPM[i] / 10000.0f;
+        for (int i = 0; i < m_num_turbos; i++)
+            turboPSI += m_cur_turbo_rpm[i] / 10000.0f;
     }
 
     return turboPSI;
@@ -917,7 +919,7 @@ float EngineSim::getSmoke()
 {
     if (m_engine_is_running)
     {
-        return m_cur_acc * (1.0f - curTurboRPM[0] /* doesn't matter */ / maxTurboRPM);// * m_engine_torque / 5000.0f;
+        return m_cur_acc * (1.0f - m_cur_turbo_rpm[0] /* doesn't matter */ / m_max_turbo_rpm);// * m_engine_torque / 5000.0f;
     }
 
     return -1;
@@ -1030,10 +1032,10 @@ void EngineSim::offstart()
     {
         m_autoselect = NEUTRAL;
     }
-    for (int i = 0; i < numTurbos; i++)
+    for (int i = 0; i < m_num_turbos; i++)
     {
-        curTurboRPM[i] = 0.0f;
-        curBOVTurboRPM[i] = 0.0f;
+        m_cur_turbo_rpm[i] = 0.0f;
+        m_turbo_bov_rpm[i] = 0.0f;
     }
 }
 
@@ -1199,11 +1201,11 @@ float EngineSim::getTurboPower()
 
     float atValue = 0.0f; // torque (turbo integreation)
 
-    if (turboVer == 1)
+    if (m_turbo_ver == 1)
     {
-        for (int i = 0; i < numTurbos; i++)
+        for (int i = 0; i < m_num_turbos; i++)
         {
-            atValue += EngineAddiTorque[i] * (curTurboRPM[i] / maxTurboRPM);
+            atValue += m_engine_addi_torque[i] * (m_cur_turbo_rpm[i] / m_max_turbo_rpm);
         }
     }
     else
