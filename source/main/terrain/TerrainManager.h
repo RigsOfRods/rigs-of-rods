@@ -68,13 +68,11 @@ public:
     TerrainGeometryManager* getGeometryManager() { return geometry_manager; };
     TerrainObjectManager* getObjectManager() { return object_manager; };
 
-    ShadowManager*     getShadowManager() { return shadow_manager; };
+    ShadowManager*     getShadowManager()        { return shadow_manager; };
     std::string        GetMinimapTextureName();
-    RoRFrameListener*  GetSimController() { return m_sim_controller; }
-
-    // preloaded trucks
-    void loadPreloadedTrucks();
-    bool hasPreloadedTrucks();
+    RoRFrameListener*  GetSimController()        { return m_sim_controller; }
+    void               LoadPredefinedActors();
+    bool               HasPredefinedActors();
 
     static const int UNLIMITED_SIGHTRANGE = 4999;
 

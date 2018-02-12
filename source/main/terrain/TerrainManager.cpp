@@ -701,16 +701,16 @@ SkyManager* TerrainManager::getSkyManager()
     return sky_manager;
 }
 
-void TerrainManager::loadPreloadedTrucks()
+void TerrainManager::LoadPredefinedActors()
 {
     if (object_manager)
-        object_manager->loadPreloadedTrucks();
+        object_manager->LoadPredefinedActors();
 }
 
-bool TerrainManager::hasPreloadedTrucks()
+bool TerrainManager::HasPredefinedActors()
 {
     if (object_manager)
-        return object_manager->hasPreloadedTrucks();
+        return object_manager->HasPredefinedActors();
     return false;
 }
 
