@@ -33,12 +33,12 @@ struct beam_t
     int detacher_group;	//!< Attribute: detacher group number (integer)
     short bounded;      //!< { SHOCK1=1, SHOCK2=2, SUPPORTBEAM=3, ROPE=4 }
     short bm_type;      //!< { BEAM_NORMAL, BEAM_HYDRO, BEAM_VIRTUAL, BEAM_INVISIBLE, BEAM_INVISIBLE_HYDRO }
-    bool p2truck;       //!< in case p2 is on another truck
+    bool bm_inter_actor;       //!< in case p2 is on another actor
 
     /// Multipurpose; excludes beam from physics, controls visibility (gfx) and indicates multiple other states (hooks/ties).
     /// Users:
     ///   Actor::SyncReset()              -- WRITE: sets to true for hook-beams and tie-beams, false on all other beams.
-    ///   Actor::DisjoinInterActorBeams() -- WRITE: sets to false on all beams managed as 'inter-truck'
+    ///   Actor::DisjoinInterActorBeams() -- WRITE: sets to false on all beams managed as 'inter-actor'
     ///   Actor::ToggleTies(int group)   -- READ: uses it to determine locked/unlocked status.
     ///                                -- WRITE: sets true when tie gets unlocked, false when it gets locked.
     ///   Actor::ToggleHooks()             -- WRITE sets to false when hook is unlocked.

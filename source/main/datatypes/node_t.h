@@ -19,7 +19,7 @@ struct node_t
     node_t()               { memset(this, 0, sizeof(node_t)); }
     node_t(size_t _pos)    { memset(this, 0, sizeof(node_t)); pos = static_cast<short>(_pos); }
 
-    Ogre::Vector3 RelPosition; //!< relative to the local physics origin (one origin per truck) (shaky)
+    Ogre::Vector3 RelPosition; //!< relative to the local physics origin (one origin per actor) (shaky)
     Ogre::Vector3 AbsPosition; //!< absolute position in the world (shaky)
 
     Ogre::Vector3 Velocity;
@@ -45,8 +45,8 @@ struct node_t
     float wettime; //!< Cumulative time this node has been wet. When wet, dripping particles are produced.
     short wheelid; //!< Wheel index
     short lockgroup;
-    short pos;     //!< This node's index in rig_t::nodes array.
-    short id;      //!< Numeric identifier assigned in rig-definition file (if used), or -1 if the node was generated dynamically.
+    short pos;     //!< This node's index in Actor::ar_nodes array.
+    short id;      //!< Numeric identifier assigned in truckfile (if used), or -1 if the node was generated dynamically.
     char wetstate; //!< {DRY | DRIPPING | WET}
     char collisionBoundingBoxID;
 

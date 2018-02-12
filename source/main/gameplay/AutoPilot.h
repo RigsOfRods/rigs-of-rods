@@ -53,7 +53,7 @@ public:
     int heading;
     bool wantsdisconnect;
 
-    Autopilot(int trucknum);
+    Autopilot(int actor_id);
     void reset();
     void disconnect();
     void setInertialReferences(node_t* refl, node_t* refr, node_t* refb, node_t* refc);
