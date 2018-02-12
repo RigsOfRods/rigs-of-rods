@@ -284,10 +284,9 @@ void RigSpawner::InitializeRig()
     memset(m_rig->airbrakes, 0, sizeof(Airbrake *) * MAX_AIRBRAKES);
     m_rig->free_airbrake = 0;
     memset(m_rig->m_skid_trails, 0, sizeof(Skidmark *) * (MAX_WHEELS*2));
-    memset(m_rig->flexbodies, 0, sizeof(FlexBody *) * MAX_FLEXBODIES);
-    m_rig->free_flexbody = 0;
+    m_rig->ar_num_flexbodies = 0;
     m_rig->description.clear();
-    m_rig->free_camerarail = 0;
+    m_rig->ar_num_camera_rails = 0;
     m_rig->free_screwprop = 0;
 
     m_rig->ar_extern_camera_mode=0;
@@ -1334,8 +1333,8 @@ void RigSpawner::ProcessCameraRail(RigDef::CameraRail & def)
         {
             return;
         }
-        m_rig->ar_camera_rail[m_rig->free_camerarail] = GetNodeIndexOrThrow(*itor);
-        m_rig->free_camerarail++;
+        m_rig->ar_camera_rail[m_rig->ar_num_camera_rails] = GetNodeIndexOrThrow(*itor);
+        m_rig->ar_num_camera_rails++;
     }
 }
 
@@ -1722,8 +1721,8 @@ void RigSpawner::ProcessFlexbody(std::shared_ptr<RigDef::Flexbody> def)
         else
             flexbody->setCameraMode(static_cast<int>(def->camera_settings.mode));
 
-        m_rig->flexbodies[m_rig->free_flexbody] = flexbody;
-        m_rig->free_flexbody++;        
+        m_rig->ar_flexbodies[m_rig->ar_num_flexbodies] = flexbody;
+        m_rig->ar_num_flexbodies++;
     }
     catch (Ogre::Exception& e)
     {
@@ -4233,7 +4232,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         def.side != RigDef::MeshWheel::SIDE_RIGHT
         );
 
-    const std::string flexwheel_name = this->ComposeName("FlexBodyWheel", m_rig->free_flexbody);
+    const std::string flexwheel_name = this->ComposeName("FlexBodyWheel", m_rig->ar_num_flexbodies);
 
     int num_nodes = def.num_rays * 4;
     std::vector<unsigned int> node_indices;
@@ -4263,8 +4262,8 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 
         this->CreateWheelSkidmarks(static_cast<unsigned>(wheel_index));
 
-        m_rig->flexbodies[m_rig->free_flexbody] = flexbody;
-        m_rig->free_flexbody++;
+        m_rig->ar_flexbodies[m_rig->ar_num_flexbodies] = flexbody;
+        m_rig->ar_num_flexbodies++;
     }
     catch (Ogre::Exception& e)
     {
@@ -6378,7 +6377,7 @@ bool RigSpawner::CheckFlexbodyLimit(unsigned int count)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if ((m_rig->free_flexbody + count) > MAX_FLEXBODIES)
+    if ((m_rig->ar_num_flexbodies + count) > MAX_FLEXBODIES)
     {
         std::stringstream msg;
         msg << "Flexbody limit (" << MAX_FLEXBODIES << ") exceeded";
@@ -6450,7 +6449,7 @@ bool RigSpawner::CheckCameraRailLimit(unsigned int count)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if ((m_rig->free_camerarail + count) > MAX_CAMERARAIL)
+    if ((m_rig->ar_num_camera_rails + count) > MAX_CAMERARAIL)
     {
         std::stringstream msg;
         msg << "CameraRail limit (" << MAX_CAMERARAIL << ") exceeded";

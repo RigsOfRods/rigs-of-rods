@@ -54,7 +54,7 @@ CameraBehaviorVehicleSpline::~CameraBehaviorVehicleSpline()
 
 void CameraBehaviorVehicleSpline::update(const CameraManager::CameraContext& ctx)
 {
-    if (ctx.mCurrTruck->free_camerarail <= 0)
+    if (ctx.mCurrTruck->ar_num_camera_rails <= 0)
     {
         gEnv->cameraManager->switchToNextBehavior();
         return;
@@ -169,7 +169,7 @@ bool CameraBehaviorVehicleSpline::mouseMoved(const CameraManager::CameraContext&
 
 void CameraBehaviorVehicleSpline::activate(const CameraManager::CameraContext& ctx, bool reset /* = true */)
 {
-    if (!ctx.mCurrTruck || ctx.mCurrTruck->free_camerarail <= 0)
+    if (!ctx.mCurrTruck || ctx.mCurrTruck->ar_num_camera_rails <= 0)
     {
         gEnv->cameraManager->switchToNextBehavior();
         return;
@@ -199,7 +199,7 @@ void CameraBehaviorVehicleSpline::createSpline(const CameraManager::CameraContex
     spline->clear();
     splineNodes.clear();
 
-    for (int i = 0; i < ctx.mCurrTruck->free_camerarail; i++)
+    for (int i = 0; i < ctx.mCurrTruck->ar_num_camera_rails; i++)
     {
         splineNodes.push_back(&ctx.mCurrTruck->ar_nodes[ctx.mCurrTruck->ar_camera_rail[i]]);
     }
@@ -212,39 +212,39 @@ void CameraBehaviorVehicleSpline::createSpline(const CameraManager::CameraContex
     {
         for (std::list<Beam*>::iterator it = linkedBeams.begin(); it != linkedBeams.end(); ++it)
         {
-            if ((*it)->free_camerarail <= 0)
+            if ((*it)->ar_num_camera_rails <= 0)
                 continue;
 
             Vector3 curSplineFront = splineNodes.front()->AbsPosition;
             Vector3 curSplineBack = splineNodes.back()->AbsPosition;
 
             Vector3 linkedSplineFront = (*it)->ar_nodes[(*it)->ar_camera_rail[0]].AbsPosition;
-            Vector3 linkedSplineBack = (*it)->ar_nodes[(*it)->ar_camera_rail[(*it)->free_camerarail - 1]].AbsPosition;
+            Vector3 linkedSplineBack = (*it)->ar_nodes[(*it)->ar_camera_rail[(*it)->ar_num_camera_rails - 1]].AbsPosition;
 
             if (curSplineBack.distance(linkedSplineFront) < 5.0f)
             {
-                for (int i = 1; i < (*it)->free_camerarail; i++)
+                for (int i = 1; i < (*it)->ar_num_camera_rails; i++)
                 {
                     splineNodes.push_back(&(*it)->ar_nodes[(*it)->ar_camera_rail[i]]);
                 }
             }
             else if (curSplineFront.distance(linkedSplineFront) < 5.0f)
             {
-                for (int i = 1; i < (*it)->free_camerarail; i++)
+                for (int i = 1; i < (*it)->ar_num_camera_rails; i++)
                 {
                     splineNodes.push_front(&(*it)->ar_nodes[(*it)->ar_camera_rail[i]]);
                 }
             }
             else if (curSplineBack.distance(linkedSplineBack) < 5.0f)
             {
-                for (int i = (*it)->free_camerarail - 2; i >= 0; i--)
+                for (int i = (*it)->ar_num_camera_rails - 2; i >= 0; i--)
                 {
                     splineNodes.push_back(&(*it)->ar_nodes[(*it)->ar_camera_rail[i]]);
                 }
             }
             else if (curSplineFront.distance(linkedSplineBack) < 5.0f)
             {
-                for (int i = (*it)->free_camerarail - 2; i >= 0; i--)
+                for (int i = (*it)->ar_num_camera_rails - 2; i >= 0; i--)
                 {
                     splineNodes.push_front(&(*it)->ar_nodes[(*it)->ar_camera_rail[i]]);
                 }

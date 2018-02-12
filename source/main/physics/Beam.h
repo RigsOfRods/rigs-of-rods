@@ -328,10 +328,10 @@ public:
     int               free_buoycab;
     Airbrake*         airbrakes[MAX_AIRBRAKES];
     int               free_airbrake;
-    FlexBody*         flexbodies[MAX_FLEXBODIES];
-    int               free_flexbody;
+    FlexBody*         ar_flexbodies[MAX_FLEXBODIES];
+    int               ar_num_flexbodies;
     int               ar_camera_rail[MAX_CAMERARAIL]; //!< Nodes defining camera-movement spline
-    int               free_camerarail;
+    int               ar_num_camera_rails;
     bool              ar_hide_in_actor_list;      //!< Hide in list of spawned actors (available in top menubar). Useful for fixed-place machinery, i.e. cranes.
     Ogre::String      ar_design_name;             //!< Name of the vehicle/machine/object this actor represents
     float             ar_anim_previous_crank;     //!< For 'animator' with flag 'torque'
