@@ -53,22 +53,21 @@ using namespace RoR;
 using namespace Ogre;
 
 TerrainManager::TerrainManager()
-    : character(0)
-    , collisions(0)
-    , dashboard(0)
+    : m_collisions(0)
+    , m_dashboard(0)
     , m_geometry_manager(0)
-    , hdr_listener(0)
-    , object_manager(0)
-    , shadow_manager(0)
-    , sky_manager(0)
+    , m_hdr_listener(0)
+    , m_object_manager(0)
+    , m_shadow_manager(0)
+    , m_sky_manager(0)
     , SkyX_manager(0)
     , m_survey_map(0)
-    , water(0)
-    , far_clip(1000)
-    , main_light(0)
-    , paged_detail_factor(0.0f)
-    , paged_mode(0)
-    , gravity(DEFAULT_GRAVITY)
+    , m_water(0)
+    , m_sight_range(1000)
+    , m_main_light(0)
+    , m_paged_detail_factor(0.0f)
+    , m_paged_mode(0)
+    , m_cur_gravity(DEFAULT_GRAVITY)
 {
 }
 
@@ -77,10 +76,10 @@ TerrainManager::~TerrainManager()
 
     //I think that the order is important
 
-    if (sky_manager != nullptr)
+    if (m_sky_manager != nullptr)
     {
-        delete(sky_manager);
-        sky_manager = nullptr;
+        delete(m_sky_manager);
+        m_sky_manager = nullptr;
     }
 
     if (SkyX_manager != nullptr)
@@ -90,28 +89,28 @@ TerrainManager::~TerrainManager()
         SkyX_manager = nullptr;
     }
 
-    if (main_light != nullptr)
+    if (m_main_light != nullptr)
     {
         gEnv->sceneManager->destroyAllLights();
-        main_light = nullptr;
+        m_main_light = nullptr;
     }
 
-    if (dashboard != nullptr)
+    if (m_dashboard != nullptr)
     {
-        delete(dashboard);
-        dashboard = nullptr;
+        delete(m_dashboard);
+        m_dashboard = nullptr;
     }
 
-    if (water != nullptr)
+    if (m_water != nullptr)
     {
-        delete(water);
-        water = nullptr;
+        delete(m_water);
+        m_water = nullptr;
     }
 
-    if (object_manager != nullptr)
+    if (m_object_manager != nullptr)
     {
-        delete(object_manager);
-        object_manager = nullptr;
+        delete(m_object_manager);
+        m_object_manager = nullptr;
     }
 
     if (m_geometry_manager != nullptr)
@@ -120,10 +119,10 @@ TerrainManager::~TerrainManager()
         m_geometry_manager = nullptr;
     }
 
-    if (shadow_manager != nullptr)
+    if (m_shadow_manager != nullptr)
     {
-        delete(shadow_manager);
-        shadow_manager = nullptr;
+        delete(m_shadow_manager);
+        m_shadow_manager = nullptr;
     }
 
     if (m_survey_map != nullptr)
@@ -165,7 +164,7 @@ void TerrainManager::loadTerrain(String filename)
         }
         return;
     }
-    gravity = m_def.gravity;
+    m_cur_gravity = m_def.gravity;
 
     // then, init the subsystems, order is important :)
     initSubSystems();
@@ -202,7 +201,7 @@ void TerrainManager::loadTerrain(String filename)
 
     PROGRESS_WINDOW(95, _L("Initializing terrain light properties"));
     m_geometry_manager->UpdateMainLightPosition(); // Initial update takes a while
-    collisions->finishLoadingTerrain();
+    m_collisions->finishLoadingTerrain();
     LOG(" ===== TERRAIN LOADING DONE " + filename);
 
     // causing visual ground glitches
@@ -233,8 +232,8 @@ void TerrainManager::initSubSystems()
     initObjects();
 
     PROGRESS_WINDOW(19, _L("Initializing Collision Subsystem"));
-    collisions = new Collisions();
-    gEnv->collisions = collisions;
+    m_collisions = new Collisions();
+    gEnv->collisions = m_collisions;
 
     PROGRESS_WINDOW(19, _L("Initializing Script Subsystem"));
     initScripting();
@@ -244,7 +243,7 @@ void TerrainManager::initSubSystems()
     PROGRESS_WINDOW(25, _L("Initializing Camera Subsystem"));
     initCamera();
 
-    // sky, must come after camera due to far_clip
+    // sky, must come after camera due to m_sight_range
     PROGRESS_WINDOW(23, _L("Initializing Sky Subsystem"));
     initSkySubSystem();
 
@@ -294,10 +293,10 @@ void TerrainManager::initCamera()
     gEnv->mainCamera->getViewport()->setBackgroundColour(m_def.ambient_color);
     gEnv->mainCamera->setPosition(m_def.start_position);
 
-    far_clip = App::gfx_sight_range.GetActive();
+    m_sight_range = App::gfx_sight_range.GetActive();
 
-    if (far_clip < UNLIMITED_SIGHTRANGE)
-        gEnv->mainCamera->setFarClipDistance(far_clip);
+    if (m_sight_range < UNLIMITED_SIGHTRANGE)
+        gEnv->mainCamera->setFarClipDistance(m_sight_range);
     else
     {
         // disabled in global config
@@ -314,18 +313,18 @@ void TerrainManager::initSkySubSystem()
     // Caelum skies
     if (App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM)
     {
-        sky_manager = new SkyManager();
+        m_sky_manager = new SkyManager();
 
         // try to load caelum config
         if (!m_def.caelum_config.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def.caelum_config))
         {
             // config provided and existing, use it :)
-            sky_manager->LoadCaelumScript(m_def.caelum_config, m_def.caelum_fog_start, m_def.caelum_fog_end);
+            m_sky_manager->LoadCaelumScript(m_def.caelum_config, m_def.caelum_fog_start, m_def.caelum_fog_end);
         }
         else
         {
             // no config provided, fall back to the default one
-            sky_manager->LoadCaelumScript("ror_default_sky");
+            m_sky_manager->LoadCaelumScript("ror_default_sky");
         }
     }
     else
@@ -362,60 +361,60 @@ void TerrainManager::initLight()
     if (App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM)
     {
 #ifdef USE_CAELUM
-        main_light = sky_manager->GetSkyMainLight();
+        m_main_light = m_sky_manager->GetSkyMainLight();
 #endif
     }
     else if (App::gfx_sky_mode.GetActive() == GfxSkyMode::SKYX)
     {
-        main_light = SkyX_manager->getMainLight();
+        m_main_light = SkyX_manager->getMainLight();
     }
     else
     {
         // screw caelum, we will roll our own light
 
         // Create a light
-        main_light = gEnv->sceneManager->createLight("MainLight");
+        m_main_light = gEnv->sceneManager->createLight("MainLight");
         //directional light for shadow
-        main_light->setType(Light::LT_DIRECTIONAL);
-        main_light->setDirection(Ogre::Vector3(0.785, -0.423, 0.453).normalisedCopy());
+        m_main_light->setType(Light::LT_DIRECTIONAL);
+        m_main_light->setDirection(Ogre::Vector3(0.785, -0.423, 0.453).normalisedCopy());
 
-        main_light->setDiffuseColour(m_def.ambient_color);
-        main_light->setSpecularColour(m_def.ambient_color);
-        main_light->setCastShadows(true);
-        main_light->setShadowFarDistance(1000.0f);
-        main_light->setShadowNearClipDistance(-1);
+        m_main_light->setDiffuseColour(m_def.ambient_color);
+        m_main_light->setSpecularColour(m_def.ambient_color);
+        m_main_light->setCastShadows(true);
+        m_main_light->setShadowFarDistance(1000.0f);
+        m_main_light->setShadowNearClipDistance(-1);
     }
 }
 
 void TerrainManager::initFog()
 {
-    if (far_clip >= UNLIMITED_SIGHTRANGE)
+    if (m_sight_range >= UNLIMITED_SIGHTRANGE)
         gEnv->sceneManager->setFog(FOG_NONE);
     else
-        gEnv->sceneManager->setFog(FOG_LINEAR, m_def.ambient_color, 0.000f, far_clip * 0.65f, far_clip*0.9);
+        gEnv->sceneManager->setFog(FOG_LINEAR, m_def.ambient_color, 0.000f, m_sight_range * 0.65f, m_sight_range*0.9);
 }
 
 void TerrainManager::initVegetation()
 {
-    paged_mode = static_cast<int>(App::gfx_vegetation_mode.GetActive()); // TODO: don't cast enum to int!
+    m_paged_mode = static_cast<int>(App::gfx_vegetation_mode.GetActive()); // TODO: don't cast enum to int!
 
-    switch (paged_mode)
+    switch (m_paged_mode)
     {
     case 0:
-        paged_detail_factor = 0.001f;
+        m_paged_detail_factor = 0.001f;
         break;
     case 1:
-        paged_detail_factor = 0.2f;
+        m_paged_detail_factor = 0.2f;
         break;
     case 2:
-        paged_detail_factor = 0.5f;
+        m_paged_detail_factor = 0.5f;
         break;
     case 3:
-        paged_detail_factor = 1.0f;
+        m_paged_detail_factor = 1.0f;
         break;
     default:
-        paged_mode = 0;
-        paged_detail_factor = 0.0f;
+        m_paged_mode = 0;
+        m_paged_detail_factor = 0.0f;
         break;
     }
 }
@@ -427,10 +426,10 @@ void TerrainManager::initHDR()
     CompositorManager::getSingleton().setCompositorEnabled(vp, "HDR", true);
 
     // HDR needs a special listener
-    hdr_listener = new HDRListener();
-    instance->addListener(hdr_listener);
-    hdr_listener->notifyViewportSize(vp->getActualWidth(), vp->getActualHeight());
-    hdr_listener->notifyCompositor(instance);
+    m_hdr_listener = new HDRListener();
+    instance->addListener(m_hdr_listener);
+    m_hdr_listener->notifyViewportSize(vp->getActualWidth(), vp->getActualHeight());
+    m_hdr_listener->notifyCompositor(instance);
 }
 
 void TerrainManager::initGlow()
@@ -569,15 +568,15 @@ void TerrainManager::initWater()
         // try to load hydrax config
         if (!m_def.hydrax_conf_file.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def.hydrax_conf_file))
         {
-            hw = new HydraxWater(m_def.water_height, m_def.hydrax_conf_file);
+            m_hydrax_water = new HydraxWater(m_def.water_height, m_def.hydrax_conf_file);
         }
         else
         {
             // no config provided, fall back to the default one
-            hw = new HydraxWater(m_def.water_height);
+            m_hydrax_water = new HydraxWater(m_def.water_height);
         }
 
-        water = hw;
+        m_water = m_hydrax_water;
 
         //Apply depth technique to the terrain
         TerrainGroup::TerrainIterator ti = m_geometry_manager->getTerrainGroup()->getTerrainIterator();
@@ -585,56 +584,56 @@ void TerrainManager::initWater()
         {
             Terrain* t = ti.getNext()->instance;
             MaterialPtr ptr = t->getMaterial();
-            hw->GetHydrax()->getMaterialManager()->addDepthTechnique(ptr->createTechnique());
+            m_hydrax_water->GetHydrax()->getMaterialManager()->addDepthTechnique(ptr->createTechnique());
         }
     }
     else
     {
-        if (water == nullptr)
-           water = new Water();
-        else if (water != nullptr)
+        if (m_water == nullptr)
+           m_water = new Water();
+        else if (m_water != nullptr)
         {
-            delete(water);
-            water = new Water();
+            delete(m_water);
+            m_water = new Water();
         }
 
-        water->SetStaticWaterHeight(m_def.water_height);
+        m_water->SetStaticWaterHeight(m_def.water_height);
     }
 }
 
 void TerrainManager::initDashboards()
 {
-    dashboard = new Dashboard();
+    m_dashboard = new Dashboard();
 }
 
 void TerrainManager::initShadows()
 {
-    shadow_manager = new ShadowManager();
-    shadow_manager->loadConfiguration();
+    m_shadow_manager = new ShadowManager();
+    m_shadow_manager->loadConfiguration();
 }
 
 void TerrainManager::loadTerrainObjects()
 {
     for (std::string tobj_filename : m_def.tobj_files)
     {
-        object_manager->LoadTObjFile(tobj_filename);
+        m_object_manager->LoadTObjFile(tobj_filename);
     }
 
-    object_manager->PostLoadTerrain(); // bakes the geometry and things
+    m_object_manager->PostLoadTerrain(); // bakes the geometry and things
 }
 
 void TerrainManager::initTerrainCollisions()
 {
     if (!m_def.traction_map_file.empty())
     {
-        gEnv->collisions->setupLandUse(m_def.traction_map_file.c_str());
+        m_collisions->setupLandUse(m_def.traction_map_file.c_str());
     }
 }
 
 bool TerrainManager::update(float dt)
 {
-    if (object_manager)
-        object_manager->UpdateTerrainObjects(dt);
+    if (m_object_manager)
+        m_object_manager->UpdateTerrainObjects(dt);
 
     if (m_geometry_manager)
         m_geometry_manager->UpdateMainLightPosition(); // TODO: Is this necessary? I'm leaving it here just in case ~ only_a_ptr, 04/2017
@@ -669,13 +668,13 @@ void TerrainManager::initScripting()
 
 void TerrainManager::setGravity(float value)
 {
-    gravity = value;
+    m_cur_gravity = value;
     App::GetSimController()->GetBeamFactory()->RecalcGravityMasses();
 }
 
 void TerrainManager::initObjects()
 {
-    object_manager = new TerrainObjectManager(this);
+    m_object_manager = new TerrainObjectManager(this);
 }
 
 Ogre::Vector3 TerrainManager::getMaxTerrainSize()
@@ -697,19 +696,19 @@ Ogre::Vector3 TerrainManager::GetNormalAt(float x, float y, float z)
 
 SkyManager* TerrainManager::getSkyManager()
 {
-    return sky_manager;
+    return m_sky_manager;
 }
 
 void TerrainManager::LoadPredefinedActors()
 {
-    if (object_manager)
-        object_manager->LoadPredefinedActors();
+    if (m_object_manager)
+        m_object_manager->LoadPredefinedActors();
 }
 
 bool TerrainManager::HasPredefinedActors()
 {
-    if (object_manager)
-        return object_manager->HasPredefinedActors();
+    if (m_object_manager)
+        return m_object_manager->HasPredefinedActors();
     return false;
 }
 
