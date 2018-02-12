@@ -2981,7 +2981,7 @@ void Beam::prepareInside(bool inside)
 void Beam::lightsToggle()
 {
     // no lights toggling in skeleton mode because of possible bug with emissive texture
-    if (m_skeletonview_is_active)
+    if (ar_skeletonview_is_active)
         return;
 
     Beam** trucks = m_sim_controller->GetBeamFactory()->getTrucks();
@@ -3736,21 +3736,21 @@ void Beam::updateVisual(float dt)
         }
     }
 
-    if (m_request_skeletonview_change)
+    if (ar_request_skeletonview_change)
     {
-        if (m_skeletonview_is_active && m_request_skeletonview_change < 0)
+        if (ar_skeletonview_is_active && ar_request_skeletonview_change < 0)
         {
             hideSkeleton(true);
         }
-        else if (!m_skeletonview_is_active && m_request_skeletonview_change > 0)
+        else if (!ar_skeletonview_is_active && ar_request_skeletonview_change > 0)
         {
             showSkeleton(true, true);
         }
 
-        m_request_skeletonview_change = 0;
+        ar_request_skeletonview_change = 0;
     }
 
-    if (m_skeletonview_is_active)
+    if (ar_skeletonview_is_active)
         updateSimpleSkeleton();
 
     BES_GFX_STOP(BES_GFX_updateVisual);
@@ -3811,7 +3811,7 @@ void Beam::setDetailLevel(int v)
 
 void Beam::showSkeleton(bool meshes, bool linked)
 {
-    m_skeletonview_is_active = true;
+    ar_skeletonview_is_active = true;
 
     if (meshes)
     {
@@ -3884,7 +3884,7 @@ void Beam::showSkeleton(bool meshes, bool linked)
 
 void Beam::hideSkeleton(bool linked)
 {
-    m_skeletonview_is_active = false;
+    ar_skeletonview_is_active = false;
 
     if (cabFadeMode >= 0)
     {
@@ -4038,7 +4038,7 @@ void Beam::setBeamVisibility(bool visible)
         }
     }
 
-    beamsVisible = visible;
+    ar_beams_visible = visible;
 }
 
 void Beam::setMeshVisibility(bool visible)
@@ -4078,7 +4078,7 @@ void Beam::setMeshVisibility(bool visible)
         cabNode->setVisible(visible);
     }
 
-    meshesVisible = visible;
+    ar_meshes_visible = visible;
 }
 
 void Beam::cabFade(float amount)
@@ -4237,7 +4237,7 @@ void Beam::tieToggle(int group)
             {
                 removeInterTruckBeam(it->beam);
                 // update skeletonview on the untied truck
-                it->locked_truck->m_request_skeletonview_change = -1;
+                it->locked_truck->ar_request_skeletonview_change = -1;
             }
             it->locked_truck = nullptr;
         }
@@ -4307,7 +4307,7 @@ void Beam::tieToggle(int group)
                     {
                         addInterTruckBeam(it->beam, this, shtruck);
                         // update skeletonview on the tied truck
-                        shtruck->m_request_skeletonview_change = m_skeletonview_is_active ? 1 : -1;
+                        shtruck->ar_request_skeletonview_change = ar_skeletonview_is_active ? 1 : -1;
                     }
                 }
             }
@@ -4551,11 +4551,11 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
         {
             if (it->lockTruck)
             {
-                it->lockTruck->m_request_skeletonview_change = m_skeletonview_is_active ? 1 : -1;
+                it->lockTruck->ar_request_skeletonview_change = ar_skeletonview_is_active ? 1 : -1;
             }
             else if (lastLockTruck != this)
             {
-                lastLockTruck->m_request_skeletonview_change = -1;
+                lastLockTruck->ar_request_skeletonview_change = -1;
             }
         }
     }
@@ -5570,7 +5570,7 @@ Beam::Beam(
     , aileron(0)
     , avichatter_timer(11.0f) // some pseudo random number,  doesn't matter
     , m_beacon_light_is_active(false)
-    , beamsVisible(true)
+    , ar_beams_visible(true)
     , blinkingtype(BLINK_NONE)
     , m_blinker_autoreset(false)
     , brake(0.0)
@@ -5617,14 +5617,14 @@ Beam::Beam(
     , m_hide_own_net_label(BSETTING("HideOwnNetLabel", false))
     , m_is_cinecam_rotation_center(false)
     , m_preloaded_with_terrain(preloaded_with_terrain)
-    , m_request_skeletonview_change(0)
+    , ar_request_skeletonview_change(0)
     , m_reset_request(REQUEST_RESET_NONE)
-    , m_skeletonview_is_active(false)
+    , ar_skeletonview_is_active(false)
     , m_source_id(0)
     , m_spawn_rotation(0.0)
     , m_stream_id(0)
     , mTimeUntilNextToggle(0)
-    , meshesVisible(true)
+    , ar_meshes_visible(true)
     , minCameraRadius(-1.0f)
     , mousemoveforce(0.0f)
     , mousenode(-1)
