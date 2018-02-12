@@ -52,11 +52,8 @@ public:
     * @param force Current acceleration force
     * @param clutch 
     * @param gear Current gear {-1 = reverse, 0 = neutral, 1...21 = forward}
-    * @param m_engine_is_running
-    * @param contact
-    * @param automode
     */
-    void netForceSettings(float rpm, float force, float clutch, int gear, bool m_engine_is_running, bool contact, char automode);
+    void netForceSettings(float rpm, float force, float clutch, int gear, bool running, bool contact, char automode);
 
     void setAcc(float val);
     void setAutoMode(RoR::SimGearboxMode mode);
@@ -104,11 +101,11 @@ public:
     bool           isRunning() const        { return m_engine_is_running; };
     char           getType() const          { return m_engine_type; };
     float          getEngineTorque() const  { return engineTorque; };
-    float          getBrakingTorque() const { return brakingTorque; };
+    float          getBrakingTorque() const { return m_braking_torque; };
     float          getIdleRPM() const       { return idleRPM; };
     float          getMaxRPM() const        { return maxRPM; };
     float          getMinRPM() const        { return minRPM; };
-    int            getNumGears() const      { return gearsRatio.size() - 2; };
+    int            getNumGears() const      { return m_gear_ratios.size() - 2; };
     int            getNumGearsRanges() const{ return getNumGears() / 6 + 1; };
     TorqueCurve*   getTorqueCurve()         { return torqueCurve; };
     float          getAccToHoldRPM(float rpm);
@@ -155,38 +152,37 @@ protected:
         MANUAL_RANGES
     };
 
-    Actor* m_actor;
+    // Vehicle
+    Actor*         m_actor;
+    float          m_abs_velocity;          //!< Vehicle; current velocity of the vehicle
+    float          m_rel_velocity;          //!< Vehicle; current velocity of the vehicle along the long axis
 
-    // gear stuff
-    float refWheelRevolutions; //!< Gears; estimated wheel revolutions based on current vehicle speed along the long axis
-    float curWheelRevolutions; //!< Gears; measured wheel revolutions
-    int curGear; //!< Gears; Current gear {-1 = reverse, 0 = neutral, 1...21 = forward} 
-    int curGearRange; //!< Gears
-    int numGears; //!< Gears
-    std::vector<float> gearsRatio; //!< Gears
+    // Gearbox
+    float          m_ref_wheel_revolutions; //!< Gears; estimated wheel revolutions based on current vehicle speed along the longi. axis
+    float          m_cur_wheel_revolutions; //!< Gears; measured wheel revolutions
+    int            m_cur_gear;              //!< Gears; Current gear {-1 = reverse, 0 = neutral, 1...21 = forward} 
+    int            m_cur_gear_range;        //!< Gears
+    int            m_num_gears;             //!< Gears
+    std::vector<float> m_gear_ratios;       //!< Gears
 
-    // truck stuff
-    float absVelocity; // Vehicle; current velocity of the vehicle
-    float relVelocity; // Vehicle; current velocity of the vehicle along the long axis
+    // Clutch
+    float          m_clutch_force;          //!< Clutch attribute
+    float          m_clutch_time;           //!< Clutch attribute
+    float          m_cur_clutch;
+    float          m_cur_clutch_torque;
 
-    // clutch stuff
-    float clutchForce; //!< Clutch attribute
-    float clutchTime; //!< Clutch attribute
-    float curClutch;
-    float curClutchTorque;
-
-    // engine stuff
-    bool  m_engine_is_electric; //!< attribute
-    bool  m_starter_has_contact; //!< Engine state
-    bool  m_engine_has_air; //!< Engine attribute
-    bool  m_engine_has_turbo; //!< Engine attribute
-    int   m_engine_turbo_mode; //!<Engine attribute
-    bool  m_engine_is_running; //!< Engine state
-    char  m_engine_type; //!< Engine attribute {'t' = truck (default), 'c' = car}
-    float brakingTorque; //!< Engine
-    float curAcc; //!< Engine
-    float curEngineRPM; //!< Engine
-    float diffRatio; //!< Engine
+    // Engine
+    bool           m_engine_is_electric;    //!< attribute
+    bool           m_starter_has_contact;   //!< Engine state
+    bool           m_engine_has_air;        //!< Engine attribute
+    bool           m_engine_has_turbo;      //!< Engine attribute
+    int            m_engine_turbo_mode;     //!< Engine attribute
+    bool           m_engine_is_running;     //!< Engine state
+    char           m_engine_type;           //!< Engine attribute {'t' = truck (default), 'c' = car}
+    float          m_braking_torque;        //!< Engine
+    float          m_cur_acc;               //!< Engine
+    float          m_cur_engine_rpm;        //!< Engine
+    float          m_diff_ratio;            //!< Engine
     float engineTorque; //!< Engine
     float hydropump; //!< Engine
     float idleRPM; //!< Engine attribute
