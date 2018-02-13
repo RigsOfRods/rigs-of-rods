@@ -61,10 +61,12 @@ enum hook_states {
 enum {
     BEAM_NORMAL,
     BEAM_HYDRO,
-    BEAM_VIRTUAL,
-    BEAM_MARKED,
-    BEAM_INVISIBLE,
-    BEAM_INVISIBLE_HYDRO
+    BEAM_VIRTUAL,         //!< Excluded from mass calculations, visuals permanently disabled
+    BEAM_INVISIBLE,       //!< Exactly the same as BEAM_NORMAL, only permanently disables visuals
+    BEAM_INVISIBLE_HYDRO  //!< Exactly the same as BEAM_HYDRO, only permanently disables visuals
+        // NOTE: The '_INVISIBLE' variants exist because RoR creates visuals for all beams, even those configured as invisible.
+        //       Likely reason: until circa v0.32 RoR used the same beam visuals for both regular display and diagnostic 'skeleton view'.
+        //       Since then, we've had simple LINE_LIST meshed skeletonview. TODO: Clean this up ~ only_a_ptr, 12/2017
 };
 
 enum {

@@ -883,7 +883,7 @@ void Beam::calc_masses2(Real total, bool reCalc)
     Real len = 0.0f;
     for (int i = 0; i < free_beam; i++)
     {
-        if (beams[i].type != BEAM_VIRTUAL)
+        if (beams[i].bm_type != BEAM_VIRTUAL)
         {
             Real half_newlen = beams[i].L / 2.0;
             if (!(beams[i].p1->iswheel))
@@ -897,7 +897,7 @@ void Beam::calc_masses2(Real total, bool reCalc)
     {
         for (int i = 0; i < free_beam; i++)
         {
-            if (beams[i].type != BEAM_VIRTUAL)
+            if (beams[i].bm_type != BEAM_VIRTUAL)
             {
                 Real half_mass = beams[i].L * total / len / 2.0f;
                 if (!(beams[i].p1->iswheel))
@@ -3719,7 +3719,7 @@ void Beam::updateVisual(float dt)
         {
             beams[i].mSceneNode->detachAllObjects();
         }
-        else if (beams[i].type != BEAM_INVISIBLE && beams[i].type != BEAM_INVISIBLE_HYDRO && beams[i].type != BEAM_VIRTUAL)
+        else if (beams[i].bm_type != BEAM_INVISIBLE && beams[i].bm_type != BEAM_INVISIBLE_HYDRO && beams[i].bm_type != BEAM_VIRTUAL)
         {
             if (beams[i].mSceneNode->numAttachedObjects() == 0)
                 beams[i].mSceneNode->attachObject(beams[i].mEntity);
@@ -4851,7 +4851,7 @@ void Beam::updateDebugOverlay()
     case 10: // beam-hydros
         for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
         {
-            if (beams[it->id].type == BEAM_HYDRO || beams[it->id].type == BEAM_INVISIBLE_HYDRO)
+            if (beams[it->id].bm_type == BEAM_HYDRO || beams[it->id].bm_type == BEAM_INVISIBLE_HYDRO)
             {
                 it->node->setPosition(beams[it->id].p1->AbsPosition - (beams[it->id].p1->AbsPosition - beams[it->id].p2->AbsPosition) / 2);
                 int v = (beams[it->id].L / beams[it->id].Lhydro) * 100;
