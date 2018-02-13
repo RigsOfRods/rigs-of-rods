@@ -21,11 +21,12 @@
 
 #include "FlexBody.h"
 
+#include "Application.h"
 #include "ApproxMath.h"
+#include "BeamData.h"
 #include "FlexFactory.h"
 #include "RigDef_File.h"
 #include "RigLoadingProfilerControl.h"
-#include "BeamData.h"
 
 #include <Ogre.h>
 
