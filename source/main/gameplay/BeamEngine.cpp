@@ -623,9 +623,9 @@ void BeamEngine::update(float dt, int doUpdate)
         }
         relVelocity = std::abs(velocity);
 
-        if (truck->wheels[0].radius != 0)
+        if (truck->wheels[0].wh_radius != 0)
         {
-            refWheelRevolutions = velocity / truck->wheels[0].radius * RAD_PER_SEC_TO_RPM;
+            refWheelRevolutions = velocity / truck->wheels[0].wh_radius * RAD_PER_SEC_TO_RPM;
         }
 
         if (!is_Electric && automode == AUTOMATIC && (autoselect == DRIVE || autoselect == TWO) && curGear > 0)
