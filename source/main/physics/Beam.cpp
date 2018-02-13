@@ -504,8 +504,8 @@ void Beam::updateSimpleSkeleton()
         simpleSkeletonManualObject->colour(color);
 
         // remove broken beams
-        if (beams[i].broken || beams[i].disabled)
-            simpleSkeletonManualObject->position(beams[i].p1->AbsPosition);
+        if (beams[i].broken || beams[i].bm_disabled)
+            simpleSkeletonManualObject->position(beams[i].p1->AbsPosition); // Start+End on same point -> beam will not be visible
         else
             simpleSkeletonManualObject->position(beams[i].p2->AbsPosition);
 
@@ -1665,14 +1665,14 @@ void Beam::SyncReset()
         beams[i].L               = beams[i].refL;
         beams[i].stress          = 0.0;
         beams[i].broken          = false;
-        beams[i].disabled        = false;
+        beams[i].bm_disabled     = false;
     }
 
     disjoinInterTruckBeams();
 
     for (std::vector<hook_t>::iterator it = hooks.begin(); it != hooks.end(); it++)
     {
-        it->beam->disabled = true;
+        it->beam->bm_disabled = true;
         it->locked = UNLOCKED;
         it->lockNode = 0;
         it->lockTruck = 0;
@@ -1697,7 +1697,7 @@ void Beam::SyncReset()
             it->lockedto->in_use = false;
         it->beam->p2 = &nodes[0];
         it->beam->p2truck = false;
-        it->beam->disabled = true;
+        it->beam->bm_disabled = true;
         removeInterTruckBeam(it->beam);
     }
 
@@ -1783,7 +1783,7 @@ bool Beam::replayStep()
             for (int i = 0; i < free_beam; i++)
             {
                 beams[i].broken = bbuff[i].broken;
-                beams[i].disabled = bbuff[i].disabled;
+                beams[i].bm_disabled = bbuff[i].disabled;
             }
         }
         oldreplaypos = replaypos;
@@ -3715,7 +3715,7 @@ void Beam::updateVisual(float dt)
         if (!beams[i].mSceneNode)
             continue;
 
-        if (beams[i].disabled || beams[i].broken)
+        if (beams[i].bm_disabled || beams[i].broken)
         {
             beams[i].mSceneNode->detachAllObjects();
         }
@@ -4170,7 +4170,7 @@ void Beam::disjoinInterTruckBeams()
         if (this == truck_pair.first || this == truck_pair.second)
         {
             it->first->p2truck = false;
-            it->first->disabled = true;
+            it->first->bm_disabled = true;
             interTruckLinks->erase(it++);
 
             truck_pair.first->determineLinkedBeams();
@@ -4216,7 +4216,7 @@ void Beam::tieToggle(int group)
         // if tied, untie it. And the other way round
         if (it->tied)
         {
-            istied = !it->beam->disabled;
+            istied = !it->beam->bm_disabled;
 
             // tie is locked and should get unlocked and stop tying
             it->tied = false;
@@ -4226,7 +4226,7 @@ void Beam::tieToggle(int group)
             // disable the ties beam
             it->beam->p2 = &nodes[0];
             it->beam->p2truck = false;
-            it->beam->disabled = true;
+            it->beam->bm_disabled = true;
             if (it->locked_truck != this)
             {
                 removeInterTruckBeam(it->beam);
@@ -4286,7 +4286,7 @@ void Beam::tieToggle(int group)
                 if (shorter)
                 {
                     // enable the beam and visually display the beam
-                    it->beam->disabled = false;
+                    it->beam->bm_disabled = false;
                     // now trigger the tying action
                     it->locked_truck = shtruck;
                     it->beam->p2 = shorter;
@@ -4537,7 +4537,7 @@ void Beam::hookToggle(int group, hook_states mode, int node_number)
             it->beam->p2 = &nodes[0];
             it->beam->p2truck = false;
             it->beam->L = (nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
-            it->beam->disabled = true;
+            it->beam->bm_disabled = true;
         }
 
         // update skeletonview on the (un)hooked truck
@@ -5001,7 +5001,7 @@ int Beam::nodeBeamConnections(int nodeid)
     int totallivebeams = 0;
     for (unsigned int ni = 0; ni < nodebeamconnections[nodeid].size(); ++ni)
     {
-        if (!beams[nodebeamconnections[nodeid][ni]].disabled && !beams[nodebeamconnections[nodeid][ni]].bounded)
+        if (!beams[nodebeamconnections[nodeid][ni]].bm_disabled && !beams[nodebeamconnections[nodeid][ni]].bounded)
             totallivebeams++;
     }
     return totallivebeams;

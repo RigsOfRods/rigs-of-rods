@@ -2821,7 +2821,7 @@ void RigSpawner::ProcessTie(RigDef::Tie & def)
     beam.refL = def.max_reach_length;
     beam.Lhydro = def.max_reach_length;
     beam.bounded = ROPE;
-    beam.disabled = true;
+    beam.bm_disabled = true;
     beam.commandRatioLong = def.auto_shorten_rate;
     beam.commandRatioShort = def.auto_shorten_rate;
     beam.commandShort = def.min_length;
@@ -3727,7 +3727,7 @@ beam_t & RigSpawner::AddBeam(
     beam_t & beam = GetAndInitFreeBeam(node_1, node_2);
     beam.detacher_group = detacher_group;
     beam.diameter = beam_defaults->visual_beam_diameter;
-    beam.disabled = false;
+    beam.bm_disabled = false;
 
     /* Breaking threshold (strength) */
     float strength = beam_defaults->breaking_threshold;
@@ -6214,7 +6214,7 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
         beam.d                 = def.beam_defaults->GetScaledDamping() * 0.1f;
         beam.k                 = def.beam_defaults->GetScaledSpringiness();
         beam.bounded           = ROPE;
-        beam.disabled          = true;
+        beam.bm_disabled       = true;
         beam.L                 = HOOK_RANGE_DEFAULT;
         beam.Lhydro            = HOOK_RANGE_DEFAULT;
         beam.refL              = HOOK_RANGE_DEFAULT;
