@@ -186,7 +186,6 @@ private:
 
     Ogre::String name;
     Ogre::String file_name;
-    Ogre::String group_name;
 
     bool         base_template;
     bool         has_start_sound;
@@ -266,7 +265,6 @@ public:
 
     SoundScriptInstance* createInstance(Ogre::String templatename, int truck, Ogre::SceneNode *toAttach=NULL, int soundLinkType=SL_DEFAULT, int soundLinkItemId=-1);
     void clearNonBaseTemplates();
-    void unloadResourceGroup(Ogre::String groupname);
 
     // functions
     void trigOnce    (int truck, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
