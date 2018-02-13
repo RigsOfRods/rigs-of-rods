@@ -11,9 +11,10 @@
 
 #include "RoRPrerequisites.h"
 
-/**
-* SIM-CORE; Beam data.
-*/
+/// Simulation: An edge in the softbody structure
+///  ##TODO: This struct is a mess - it's blatantly fat (bad CPU cache use) and carries data which it shouldn't (gfx/special-cases)
+///          There were attempts to sort the data, but in current state, it's no use.
+///          PLAN: Until v0.5, this struct will be left mostly as-is for stability. ~ only_a_ptr, 12/2017
 struct beam_t
 {
     beam_t()                              { memset(this, 0, sizeof(beam_t)); }
@@ -43,21 +44,35 @@ struct beam_t
     ///   Beam::hookToggle()             -- WRITE sets to false when hook is unlocked.
     ///   Beam::nodeBeamConnections()    -- READ: Counts beams connected to node; Excludes 'disabled' beams.
     ///   Beam::calcForcesEulerCompute() -- READ Saves value to replay buffer
+    ///   Beam::replayStep()             -- WRITE: fills from replay buffer
     ///   Beam::calcBeams()            -- READ excludes beam from physics
-    ///                                -- WRITE: when SUPPORTBEAM breaks, it's set to true.
+    ///                                -- WRITE: when SUPPORTBEAM breaks, it's set to 'disabled' + 'broken'
     ///                                -- WRITE: when regular beam breaks, 'true' is set to it and all beams in it's detacher group.
     ///   Beam::calcBeamsInterTruck()    -- READ: excludes beam from physics
-    ///                                  -- WRITE: when beam breaks (special conditions), it's set to true.
+    ///                                  -- WRITE: when beam breaks (special conditions), it's set to 'disabled' + 'broken'
     ///   Beam::calcHooks() -- READ/WRITE: If disabled during locking, it's enabled
     ///                     -- WRITE: When locking fails, beam is reset to disabled
-    ///   Beam::updateVisual() -- READ: when 'disabled', hides all visuals. This is probably why 'disabled' is always set for 'broken' beams.
+    ///   Beam::updateVisual() -- READ: when 'disabled' or 'broken', hides all visuals - and vice versa.
     ///   RigSpawner* -- WRITE: Ties and hook-beams are init to disabled. Others to enabled.
     /// ## TODO: Separate physics/visual meaning, create sensible usage pattern ~ only_a_ptr, 12/2017
     bool bm_disabled;
-    bool broken;
-    bool autoMoveLock;
 
-    // < -- 64 Bytes -->
+    /// Multipurpose: excludes beam from physics (slidenodes) and force feedback, controls visibility
+    ///   Beam::SyncReset()           -- WRITE: set to false
+    ///   Beam::replayStep()          -- WRITE: fills from replay buffer
+    ///   Beam::updateVisual()        -- READ: when 'disabled' or 'broken', hides all visuals - and vice versa.
+    ///   Beam::calcForcesEulerCompute() -- READ Excludes broken hydros from ForceFeedback
+    ///                                  -- READ Saves value to replay buffer
+    ///   Beam::calcBeams()         -- WRITE: when regular beam breaks, 'true' is set to it and all beams in it's detacher group.
+    ///                             -- WRITE: when SUPPORTBEAM breaks, it's set to 'disabled' + 'broken'
+    ///   Beam::calcBeamsInterTruck() -- WRITE: when beam breaks (special conditions), it's set to 'disabled' + 'broken'
+    ///   SlideNode::UpdateForces() -- READ: Stops updates when sliding beam is broken.
+    ///   SlideNode::UpdatePosition() -- READ: Stops updates when sliding beam is broken.
+    ///                NOTE: SlideNode handling may be a mistake - the feature was contributed, not developed by core team.
+    /// ## TODO: Separate physics/visual meaning, create sensible usage pattern ~ only_a_ptr, 12/2017
+    bool bm_broken;
+
+    bool autoMoveLock;
 
     Ogre::Real shortbound;
     Ogre::Real longbound;
@@ -80,8 +95,6 @@ struct beam_t
     bool isForceRestricted;
     bool commandNeedsEngine;
     bool isCentering;
-
-    // < -- 128 Bytes -->
 
     Ogre::Real maxtiestress;
     Ogre::Real diameter;
