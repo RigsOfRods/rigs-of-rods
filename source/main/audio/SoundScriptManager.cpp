@@ -336,22 +336,6 @@ SoundScriptTemplate* SoundScriptManager::createTemplate(String name, String grou
     return ssi;
 }
 
-void SoundScriptManager::unloadResourceGroup(String groupname)
-{
-    // first, search if there is a template name collision
-    for (std::map<Ogre::String, SoundScriptTemplate*>::iterator it = templates.begin(); it != templates.end();)
-    {
-        if (it->second && it->second->group_name == groupname)
-        {
-            STL_ERASE(templates, it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
-}
-
 void SoundScriptManager::clearNonBaseTemplates()
 {
     int counter = 0;
@@ -523,7 +507,6 @@ SoundScriptTemplate::SoundScriptTemplate(String name, String groupname, String f
     , gain_offset(0.0f)
     , gain_source(SS_MOD_NONE)
     , gain_square(0.0f)
-    , group_name(groupname)
     , has_start_sound(false)
     , has_stop_sound(false)
     , name(name)
