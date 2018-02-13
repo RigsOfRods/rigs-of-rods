@@ -1263,7 +1263,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
                 for (int i = 0; i < free_beam; i++)
                 {
                     bbuff[i].broken = beams[i].broken;
-                    bbuff[i].disabled = beams[i].disabled;
+                    bbuff[i].disabled = beams[i].bm_disabled;
                 }
             }
 
@@ -1330,7 +1330,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
     // Springs
     for (int i = 0; i < free_beam; i++)
     {
-        if (!beams[i].disabled && !beams[i].p2truck)
+        if (!beams[i].bm_disabled && !beams[i].p2truck)
         {
             // Calculate beam length
             Vector3 dis = beams[i].p1->RelPosition - beams[i].p2->RelPosition;
@@ -1396,7 +1396,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                     if (difftoBeamL > beams[i].L * break_limit)
                     {
                         beams[i].broken = true;
-                        beams[i].disabled = true;
+                        beams[i].bm_disabled = true;
                         if (beambreakdebug)
                         {
                             RoR::Str<300> msg;
@@ -1503,7 +1503,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                     {
                         slen = 0.0f;
                         beams[i].broken = true;
-                        beams[i].disabled = true;
+                        beams[i].bm_disabled = true;
 
                         if (beambreakdebug)
                         {
@@ -1525,7 +1525,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                                 if (abs(beams[j].detacher_group) == beams[i].detacher_group)
                                 {
                                     beams[j].broken = true;
-                                    beams[j].disabled = true;
+                                    beams[j].bm_disabled = true;
                                     if (beambreakdebug)
                                     {
                                         LOG("Deleting Detacher BeamID: " + TOSTRING(j) + ", Detacher Group: " + TOSTRING(beams[i].detacher_group)+ ", trucknum: " + TOSTRING(trucknum));
@@ -1576,7 +1576,7 @@ void Beam::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxste
 {
     for (int i = 0; i < static_cast<int>(interTruckBeams.size()); i++)
     {
-        if (!interTruckBeams[i]->disabled && interTruckBeams[i]->p2truck)
+        if (!interTruckBeams[i]->bm_disabled && interTruckBeams[i]->p2truck)
         {
             // Calculate beam length
             Vector3 dis = interTruckBeams[i]->p1->AbsPosition - interTruckBeams[i]->p2->AbsPosition;
@@ -1679,7 +1679,7 @@ void Beam::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxste
                     {
                         slen = 0.0f;
                         interTruckBeams[i]->broken = true;
-                        interTruckBeams[i]->disabled = true;
+                        interTruckBeams[i]->bm_disabled = true;
 
                         if (beambreakdebug)
                         {
@@ -1946,13 +1946,13 @@ void Beam::calcHooks()
     {
         if (it->lockNode && it->locked == PRELOCK)
         {
-            if (it->beam->disabled)
+            if (it->beam->bm_disabled)
             {
                 //enable beam if not enabled yet between those 2 nodes
                 it->beam->p2 = it->lockNode;
                 it->beam->p2truck = it->lockTruck != 0;
                 it->beam->L = (it->hookNode->AbsPosition - it->lockNode->AbsPosition).length();
-                it->beam->disabled = false;
+                it->beam->bm_disabled = false;
                 addInterTruckBeam(it->beam, this, it->lockTruck);
             }
             else
@@ -1994,7 +1994,7 @@ void Beam::calcHooks()
                                 it->beam->p2 = &nodes[0];
                                 it->beam->p2truck = false;
                                 it->beam->L = (nodes[0].AbsPosition - it->hookNode->AbsPosition).length();
-                                it->beam->disabled = true;
+                                it->beam->bm_disabled = true;
                                 removeInterTruckBeam(it->beam);
                             }
                         }
