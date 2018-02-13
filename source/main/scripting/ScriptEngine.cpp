@@ -82,7 +82,6 @@ ScriptEngine::ScriptEngine(Collisions *coll) :
     , scriptHash()
     , scriptLog(0)
     , scriptName()
-    , wheelEventFunctionPtr(nullptr)
 {
     setSingleton(this);
 
@@ -567,13 +566,6 @@ int ScriptEngine::addFunction(const String &arg)
 
             callbacks["frameStep"].push_back(func);
         }
-        else if (func == mod->GetFunctionByDecl("void wheelEvents(int, string, string, string)"))
-        {
-            if (wheelEventFunctionPtr == nullptr)
-                wheelEventFunctionPtr = func;
-
-            callbacks["wheelEvents"].push_back(func);
-        }
         else if (func == mod->GetFunctionByDecl("void eventCallback(int, int)"))
         {
             if (eventCallbackFunctionPtr == nullptr)
@@ -658,9 +650,6 @@ int ScriptEngine::deleteFunction(const String &arg)
         }
         if ( frameStepFunctionPtr == func )
             frameStepFunctionPtr = nullptr;
-
-        if ( wheelEventFunctionPtr == func )
-            wheelEventFunctionPtr = nullptr;
 
         if ( eventCallbackFunctionPtr == func )
             eventCallbackFunctionPtr = nullptr;
@@ -804,10 +793,6 @@ int ScriptEngine::loadScript(String _scriptName)
     frameStepFunctionPtr = mod->GetFunctionByDecl("void frameStep(float)");
     if (frameStepFunctionPtr != nullptr)
         callbacks["frameStep"].push_back(frameStepFunctionPtr);
-    
-    wheelEventFunctionPtr = mod->GetFunctionByDecl("void wheelEvents(int, string, string, string)");
-    if (wheelEventFunctionPtr != nullptr)
-        callbacks["wheelEvents"].push_back(wheelEventFunctionPtr);
 
     eventCallbackFunctionPtr = mod->GetFunctionByDecl("void eventCallback(int, int)");
     if (eventCallbackFunctionPtr != nullptr)
