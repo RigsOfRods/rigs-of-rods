@@ -5030,16 +5030,6 @@ void Beam::updateDashBoards(float dt)
     // some temp vars
     Vector3 dir;
 
-    //special case for the editor
-    if (editorId >= 0)
-    {
-        String str = "Position: X=" + TOSTRING(nodes[editorId].AbsPosition.x) + "  Y=" + TOSTRING(nodes[editorId].AbsPosition.y) + "  Z=" + TOSTRING(nodes[editorId].AbsPosition.z);
-        // TODO: FIX THIS?
-        //str += "Angles: 0.0 " + TOSTRING(editor->pturn)+ "  "+TOSTRING(editor->ppitch);
-        //str += "Object: " + String(editor->curtype);
-        dash->setChar(DD_EDITOR_NODE_INFO, str.c_str());
-    }
-
     // engine and gears
     if (engine)
     {

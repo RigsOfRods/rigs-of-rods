@@ -319,7 +319,6 @@ void RigSpawner::InitializeRig()
     m_rig->disable_smoke = App::gfx_particles_mode.GetActive() == 0;
     m_rig->smokeId=0;
     m_rig->smokeRef=0;
-    m_rig->editorId=-1;
     m_rig->beambreakdebug  = App::diag_log_beam_break.GetActive(); // TODO: make interactive - don't copy Gvar, use it directly
     m_rig->beamdeformdebug = App::diag_log_beam_deform.GetActive();
     m_rig->triggerdebug    = App::diag_log_beam_trigger.GetActive();
@@ -6205,13 +6204,6 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
         else
         {
             m_rig->masscount++;
-        }
-    }
-    if (BITMASK_IS_1(options, RigDef::Node::OPTION_e_TERRAIN_EDIT_POINT))
-    {
-        if(! m_rig->networking)
-        {
-            m_rig->editorId = node.pos;
         }
     }
     if (BITMASK_IS_1(options, RigDef::Node::OPTION_h_HOOK_POINT))

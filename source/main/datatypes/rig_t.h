@@ -186,7 +186,6 @@ struct rig_t ///< A simulation actor; typically a vehicle
     int smokeRef; //!< Old-format exhaust (one per vehicle) backwards direction node
     char truckname[256];
     bool networking;
-    int editorId;
     bool beambreakdebug, beamdeformdebug, triggerdebug;
     CmdKeyInertia *rotaInertia;
     CmdKeyInertia *hydroInertia;

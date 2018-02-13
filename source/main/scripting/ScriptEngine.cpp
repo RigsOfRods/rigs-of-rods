@@ -280,7 +280,6 @@ void ScriptEngine::init()
     result = engine->RegisterObjectProperty("BeamClass", "int tractioncontrol", offsetof(Beam, tractioncontrol)); MYASSERT(result>=0);
     result = engine->RegisterObjectProperty("BeamClass", "int lights", offsetof(Beam, lights)); MYASSERT(result>=0);
     result = engine->RegisterObjectProperty("BeamClass", "int smokeId", offsetof(Beam, smokeId)); MYASSERT(result>=0);
-    result = engine->RegisterObjectProperty("BeamClass", "int editorId", offsetof(Beam, editorId)); MYASSERT(result>=0);
     result = engine->RegisterObjectProperty("BeamClass", "float leftMirrorAngle", offsetof(Beam, leftMirrorAngle)); MYASSERT(result>=0);
     result = engine->RegisterObjectProperty("BeamClass", "float refpressure", offsetof(Beam, refpressure)); MYASSERT(result>=0);
     result = engine->RegisterObjectProperty("BeamClass", "int free_pressure_beam", offsetof(Beam, free_pressure_beam)); MYASSERT(result>=0);
