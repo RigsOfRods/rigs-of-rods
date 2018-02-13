@@ -205,7 +205,7 @@ void CLASS::UpdateStats(float dt, Beam* truck)
             }
             beamstress += beam->stress;
             current_deformation = fabs(beam->L - beam->refL);
-            if (fabs(current_deformation) > 0.0001f && beam->type != BEAM_HYDRO && beam->type != BEAM_INVISIBLE_HYDRO)
+            if (fabs(current_deformation) > 0.0001f && beam->bm_type != BEAM_HYDRO && beam->bm_type != BEAM_INVISIBLE_HYDRO)
             {
                 beamdeformed++;
             }

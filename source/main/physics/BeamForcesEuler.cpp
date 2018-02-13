@@ -1365,7 +1365,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                     float tdamp = DEFAULT_DAMP;
 
                     // Skip camera, wheels or any other shocks which are not generated in a shocks or shocks2 section
-                    if (beams[i].type == BEAM_HYDRO || beams[i].type == BEAM_INVISIBLE_HYDRO)
+                    if (beams[i].bm_type == BEAM_HYDRO || beams[i].bm_type == BEAM_INVISIBLE_HYDRO)
                     {
                         tspring = beams[i].shock->sbd_spring;
                         tdamp = beams[i].shock->sbd_damp;
@@ -1428,7 +1428,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
             float len = std::abs(slen);
             if (len > beams[i].minmaxposnegstress)
             {
-                if ((beams[i].type == BEAM_NORMAL || beams[i].type == BEAM_INVISIBLE) && beams[i].bounded != SHOCK1 && k != 0.0f)
+                if ((beams[i].bm_type == BEAM_NORMAL || beams[i].bm_type == BEAM_INVISIBLE) && beams[i].bounded != SHOCK1 && k != 0.0f)
                 {
                     // Actual deformation tests
                     if (slen > beams[i].maxposstress && difftoBeamL < 0.0f) // compression
@@ -1608,7 +1608,7 @@ void Beam::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxste
             float len = std::abs(slen);
             if (len > interTruckBeams[i]->minmaxposnegstress)
             {
-                if ((interTruckBeams[i]->type == BEAM_NORMAL || interTruckBeams[i]->type == BEAM_INVISIBLE) && interTruckBeams[i]->bounded != SHOCK1 && k != 0.0f)
+                if ((interTruckBeams[i]->bm_type == BEAM_NORMAL || interTruckBeams[i]->bm_type == BEAM_INVISIBLE) && interTruckBeams[i]->bounded != SHOCK1 && k != 0.0f)
                 {
                     // Actual deformation tests
                     if (slen > interTruckBeams[i]->maxposstress && difftoBeamL < 0.0f) // compression

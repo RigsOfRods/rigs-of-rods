@@ -32,7 +32,7 @@ struct beam_t
     Ogre::Real plastic_coef;
     int detacher_group;	//!< Attribute: detacher group number (integer)
     short bounded;      //!< { SHOCK1=1, SHOCK2=2, SUPPORTBEAM=3, ROPE=4 }
-    short type;         //!< { BEAM_NORMAL=0, BEAM_HYDRO=1, BEAM_VIRTUAL=2, BEAM_MARKED=3, BEAM_INVISIBLE=4, BEAM_INVISIBLE_HYDRO=5 }
+    short bm_type;      //!< { BEAM_NORMAL, BEAM_HYDRO, BEAM_VIRTUAL, BEAM_INVISIBLE, BEAM_INVISIBLE_HYDRO }
     bool p2truck;       //!< in case p2 is on another truck
 
     /// Multipurpose; excludes beam from physics, controls visibility (gfx) and indicates multiple other states (hooks/ties).

@@ -2816,7 +2816,7 @@ void RigSpawner::ProcessTie(RigDef::Tie & def)
     SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
     beam.k = def.beam_defaults->GetScaledSpringiness();
     beam.d = def.beam_defaults->GetScaledDamping();
-    beam.type = (def.is_invisible) ? BEAM_INVISIBLE_HYDRO : BEAM_HYDRO;
+    beam.bm_type = (def.is_invisible) ? BEAM_INVISIBLE_HYDRO : BEAM_HYDRO;
     beam.L = def.max_reach_length;
     beam.refL = def.max_reach_length;
     beam.Lhydro = def.max_reach_length;
@@ -2854,7 +2854,7 @@ void RigSpawner::ProcessRope(RigDef::Rope & def)
     beam.k = def.beam_defaults->GetScaledSpringiness();
     beam.d = def.beam_defaults->GetScaledDamping();
     beam.bounded = ROPE;
-    beam.type = (def.invisible) ? BEAM_INVISIBLE_HYDRO : BEAM_HYDRO;
+    beam.bm_type = (def.invisible) ? BEAM_INVISIBLE_HYDRO : BEAM_HYDRO;
 
     /* Register rope */
     rope_t rope;
@@ -3155,7 +3155,7 @@ void RigSpawner::ProcessHook(RigDef::Hook & def)
     }
     if (!BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_VISIBLE))
     {
-        hook->beam->type = BEAM_INVISIBLE_HYDRO;
+        hook->beam->bm_type = BEAM_INVISIBLE_HYDRO;
     }
 }
 
@@ -3267,7 +3267,7 @@ void RigSpawner::ProcessTrigger(RigDef::Trigger & def)
     }
     int beam_index = m_rig->free_beam;
     beam_t & beam = AddBeam(GetNode(node_1_index), GetNode(node_2_index), def.beam_defaults, def.detacher_group);
-    beam.type = hydro_type;
+    beam.bm_type = hydro_type;
     SetBeamStrength(beam, def.beam_defaults->breaking_threshold);
     SetBeamSpring(beam, 0.f);
     SetBeamDamping(beam, 0.f);
@@ -3498,10 +3498,10 @@ void RigSpawner::ProcessCommand(RigDef::Command2 & def)
     SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold()); /* Override settings from AddBeam() */
     SetBeamSpring(beam, def.beam_defaults->GetScaledSpringiness());
     SetBeamDamping(beam, def.beam_defaults->GetScaledDamping());
-    beam.type = BEAM_HYDRO;
+    beam.bm_type = BEAM_HYDRO;
 
     /* Options */
-    if (def.option_i_invisible)     { beam.type = BEAM_INVISIBLE_HYDRO; }
+    if (def.option_i_invisible)     { beam.bm_type = BEAM_INVISIBLE_HYDRO; }
     if (def.option_r_rope)          { beam.bounded = ROPE; }
     if (def.option_p_1press)        { beam.isOnePressMode = 1; }
     if (def.option_o_1press_center) { beam.isOnePressMode = 2; }
@@ -3691,7 +3691,7 @@ void RigSpawner::ProcessAnimator(RigDef::Animator & def)
     /* set the limits to something with sense by default */
     beam.shortbound = 0.99999f;
     beam.longbound = 1000000.0f;
-    beam.type = hydro_type;
+    beam.bm_type = hydro_type;
     beam.hydroRatio = def.lenghtening_factor;
     beam.animFlags = anim_flags;
     beam.animOption = anim_option;
@@ -3837,7 +3837,7 @@ void RigSpawner::ProcessHydro(RigDef::Hydro & def)
     beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
     SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
     CalculateBeamLength(beam);
-    beam.type                 = hydro_type;
+    beam.bm_type              = hydro_type;
     beam.k                    = def.beam_defaults->GetScaledSpringiness();
     beam.d                    = def.beam_defaults->GetScaledDamping();
     beam.hydroFlags           = hydro_flags;
@@ -3904,7 +3904,7 @@ void RigSpawner::ProcessShock2(RigDef::Shock2 & def)
     int beam_index = m_rig->free_beam;
     beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
     SetBeamStrength(beam, def.beam_defaults->breaking_threshold * 4.f);
-    beam.type                 = hydro_type;
+    beam.bm_type              = hydro_type;
     beam.bounded              = SHOCK2;
     beam.k                    = def.spring_in;
     beam.d                    = def.damp_in;
@@ -3976,7 +3976,7 @@ void RigSpawner::ProcessShock(RigDef::Shock & def)
     beam.shortbound = short_bound;
     beam.longbound  = long_bound;
     beam.bounded    = SHOCK1;
-    beam.type       = hydro_type;
+    beam.bm_type    = hydro_type;
     beam.k          = def.spring_rate;
     beam.d          = def.damping;
     SetBeamStrength(beam, def.beam_defaults->breaking_threshold * 4.f);
@@ -4223,7 +4223,7 @@ void RigSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
                     axis_node_closest_to_rigidity_node = & m_rig->nodes[base_node_index+i*2+1+rays*2];
                 };
                 unsigned int beam_index = AddWheelBeam(rigidity_node, axis_node_closest_to_rigidity_node, tyre_spring, tyre_damp, def.beam_defaults);
-                GetBeam(beam_index).type = BEAM_VIRTUAL;
+                GetBeam(beam_index).bm_type = BEAM_VIRTUAL;
             }
         }
     }
@@ -4774,7 +4774,7 @@ void RigSpawner::BuildWheelBeams(
         {
             node_t *target_node = (rigidity_beam_side_1) ? outer_ring_node : inner_ring_node;
             unsigned int beam_index = AddWheelBeam(rigidity_node, target_node, tyre_spring, tyre_damping, beam_defaults, -1.f, -1.f, BEAM_VIRTUAL);
-            m_rig->beams[beam_index].type = BEAM_VIRTUAL;
+            m_rig->beams[beam_index].bm_type = BEAM_VIRTUAL;
 
 #ifdef DEBUG_TRUCKPARSER2013
             // DEBUG
@@ -5155,7 +5155,7 @@ unsigned int RigSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         {
             beam_t & beam = GetFreeBeam();
             InitBeam(beam, GetNodePointer(wheel_2_def.rigidity_node), axis_node_closest_to_rigidity_node);
-            beam.type = BEAM_VIRTUAL;
+            beam.bm_type = BEAM_VIRTUAL;
             beam.k = wheel_2_def.rim_springiness;
             beam.d = wheel_2_def.rim_damping;
             SetBeamStrength(beam, wheel_2_def.beam_defaults->breaking_threshold);
@@ -5312,7 +5312,7 @@ unsigned int RigSpawner::AddWheelBeam(
 
     unsigned int index = m_rig->free_beam;
     beam_t & beam = AddBeam(*node_1, *node_2, beam_defaults, DEFAULT_DETACHER_GROUP); 
-    beam.type = type;
+    beam.bm_type = type;
     beam.k = spring;
     beam.d = damping;
     if (max_contraction > 0.f)
@@ -5365,7 +5365,7 @@ unsigned int RigSpawner::_SectionWheels2AddBeam(RigDef::Wheel2 & wheel_2_def, no
     unsigned int index = m_rig->free_beam;
     beam_t & beam = GetFreeBeam();
     InitBeam(beam, node_1, node_2);
-    beam.type = BEAM_INVISIBLE;
+    beam.bm_type = BEAM_INVISIBLE;
     SetBeamStrength(beam, wheel_2_def.beam_defaults->breaking_threshold);
     SetBeamDeformationThreshold(beam, wheel_2_def.beam_defaults);
     return index;
@@ -5775,7 +5775,7 @@ void RigSpawner::ProcessBeam(RigDef::Beam & def)
     // Beam
     int beam_index = m_rig->free_beam;
     beam_t & beam = AddBeam(*nodes[0], *nodes[1], def.defaults, def.detacher_group);
-    beam.type = BEAM_NORMAL;
+    beam.bm_type = BEAM_NORMAL;
     beam.k = def.defaults->GetScaledSpringiness();
     beam.d = def.defaults->GetScaledDamping();
     beam.bounded = NOSHOCK; // Orig: if (shortbound) ... hardcoded in BTS_BEAMS
@@ -5791,7 +5791,7 @@ void RigSpawner::ProcessBeam(RigDef::Beam & def)
     /* Options */
     if (BITMASK_IS_1(def.options, RigDef::Beam::OPTION_i_INVISIBLE))
     {
-        beam.type = BEAM_INVISIBLE;
+        beam.bm_type = BEAM_INVISIBLE;
     }
     if (BITMASK_IS_1(def.options, RigDef::Beam::OPTION_r_ROPE))
     {
@@ -5951,7 +5951,7 @@ void RigSpawner::CreateBeamVisuals(beam_t & beam, int beam_index, std::shared_pt
     m_rig->deletion_Entities.push_back(beam.mEntity);
     beam.mSceneNode = m_rig->beamsRoot->createChildSceneNode();
     beam.mSceneNode->setScale(beam.diameter, -1, beam.diameter);
-    if (beam.type == BEAM_HYDRO || beam.type == BEAM_MARKED)
+    if (beam.bm_type == BEAM_HYDRO)
     {
         beam.mEntity->setMaterialName("tracks/Chrome");
     }
@@ -6210,7 +6210,7 @@ void RigSpawner::ProcessNode(RigDef::Node & def)
 
         beam_t & beam = AddBeam(node, node_2, def.beam_defaults, def.detacher_group);
         SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold() * 100.f);
-        beam.type              = BEAM_HYDRO;
+        beam.bm_type           = BEAM_HYDRO;
         beam.d                 = def.beam_defaults->GetScaledDamping() * 0.1f;
         beam.k                 = def.beam_defaults->GetScaledSpringiness();
         beam.bounded           = ROPE;
@@ -6368,7 +6368,7 @@ void RigSpawner::ProcessCinecam(RigDef::Cinecam & def)
     {
         int beam_index = m_rig->free_beam;
         beam_t & beam = AddBeam(camera_node, GetNode(def.nodes[i]), def.beam_defaults, DEFAULT_DETACHER_GROUP);
-        beam.type = BEAM_INVISIBLE;
+        beam.bm_type = BEAM_INVISIBLE;
         CalculateBeamLength(beam);
         beam.k = def.spring;
         beam.d = def.damping;
