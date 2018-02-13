@@ -121,7 +121,7 @@ public:
         int cache_entry_number = -1
         );
 
-    rig_t *SpawnRig();
+    Beam *SpawnRig();
 
     /**
     * Adds a vehicle module to the validated configuration.
@@ -156,7 +156,7 @@ public:
     */
     unsigned int GetNodeIndexOrThrow(RigDef::Node::Ref const & id);
 
-    static void RecalculateBoundingBoxes(rig_t *rig);
+    static void RecalculateBoundingBoxes(Beam *rig);
 
     static void SetupDefaultSoundSources(Beam *vehicle);
 
@@ -165,8 +165,6 @@ public:
     int GetMessagesNumErrors()   const { return m_messages_num_errors;   }
     int GetMessagesNumWarnings() const { return m_messages_num_warnings; }
     int GetMessagesNumOther()    const { return m_messages_num_other;    }
-
-    static bool CheckSoundScriptLimit(Beam *vehicle, unsigned int count);
 
 private:
 
@@ -642,18 +640,11 @@ private:
     bool CheckCameraRailLimit(unsigned int count);
 
     /**
-    * Checks there is still space left in rig_t::soundsources array.
-    * @param count Required number of free slots.
-    * @return True if there is space left.
-    */
-    bool CheckSoundScriptLimit(unsigned int count);
-
-    /**
     * Checks there is still space left in rig_t::soundsources array (static version).
     * @param count Required number of free slots.
     * @return True if there is space left.
     */
-    static bool CheckSoundScriptLimit(rig_t *vehicle, unsigned int count);
+    static bool CheckSoundScriptLimit(Beam *vehicle, unsigned int count);
 
     /**
     * Checks there is still space left in rig_t::airbrakes array.

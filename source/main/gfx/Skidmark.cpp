@@ -20,12 +20,13 @@
 
 #include "Skidmark.h"
 
-#include <Ogre.h>
-
+#include "Application.h"
 #include "BeamData.h"
 #include "IHeightFinder.h"
 #include "Settings.h"
 #include "Utils.h"
+
+#include <Ogre.h>
 
 int RoR::Skidmark::m_instance_counter = 0;
 

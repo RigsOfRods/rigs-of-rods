@@ -429,8 +429,6 @@ struct debugtext_t
     Ogre::SceneNode *node;
 };
 
-#include "datatypes/rig_t.h"
-
 
 // some non-beam structs
 

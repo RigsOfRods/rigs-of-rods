@@ -370,6 +370,12 @@ Beam::~Beam()
         if (axles[i] != nullptr)
             delete (axles[i]);
     }
+
+    delete nodes;
+    delete beams;
+    delete shocks;
+    delete rotators;
+    delete wings;
 }
 
 // This method scales trucks. Stresses should *NOT* be scaled, they describe
@@ -5559,7 +5565,13 @@ Beam::Beam(
     bool preloaded_with_terrain, /* = false */
     int cache_entry_number /* = -1 */
 ) 
-    : GUIFeaturesChanged(false)
+    : nodes(nullptr), free_node(0)
+    , beams(nullptr), free_beam(0)
+    , shocks(nullptr), free_shock(0)
+    , has_active_shocks(false)
+    , rotators(nullptr), free_rotator(0)
+    , wings(nullptr), free_wing(0)
+    , GUIFeaturesChanged(false)
     , m_sim_controller(sim_controller)
     , aileron(0)
     , avichatter_timer(11.0f) // some pseudo random number,  doesn't matter

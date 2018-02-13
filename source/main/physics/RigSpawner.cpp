@@ -6552,21 +6552,6 @@ bool RigSpawner::CheckSoundScriptLimit(Beam *vehicle, unsigned int count)
     return true;
 }
 
-bool RigSpawner::CheckSoundScriptLimit(unsigned int count)
-{
-    SPAWNER_PROFILE_SCOPED();
-
-    //return CheckSoundScriptLimit(m_rig, count);
-    if ((m_rig->free_soundsource + count) > MAX_SOUNDSCRIPTS_PER_TRUCK)
-    {
-        std::stringstream msg;
-        msg << "SoundScript limit (" << MAX_SOUNDSCRIPTS_PER_TRUCK << ") exceeded";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return false;
-    }
-    return true;
-}
-
 bool RigSpawner::CheckCabLimit(unsigned int count)
 {
     SPAWNER_PROFILE_SCOPED();
@@ -6711,7 +6696,7 @@ void RigSpawner::SetBeamDamping(beam_t & beam, float damping)
     beam.d = damping;
 }
 
-void RigSpawner::RecalculateBoundingBoxes(rig_t *rig)
+void RigSpawner::RecalculateBoundingBoxes(Beam *rig)
 {
     SPAWNER_PROFILE_SCOPED();
 

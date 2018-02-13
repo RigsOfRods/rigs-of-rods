@@ -136,7 +136,7 @@
     SetCurrentKeyword(RigDef::File::KEYWORD_INVALID);                                      \
 }
 
-rig_t *RigSpawner::SpawnRig()
+Beam *RigSpawner::SpawnRig()
 {
     InitializeRig();
 
@@ -388,7 +388,7 @@ rig_t *RigSpawner::SpawnRig()
     FinalizeRig();
 
     // Pass ownership
-    rig_t *rig = m_rig;
+    Beam *rig = m_rig;
     m_rig = nullptr;
     return rig;
 }
