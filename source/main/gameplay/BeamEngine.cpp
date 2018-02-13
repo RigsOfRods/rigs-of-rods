@@ -61,7 +61,7 @@ BeamEngine::BeamEngine(float minRPM, float maxRPM, float torque, std::vector<flo
     , post_shift_time(0.2f)
     , postshiftclock(0.0f)
     , postshifting(0)
-    , prime(0)
+    , is_priming(false)
     , running(false)
     , shiftBehaviour(0.0f)
     , shift_time(0.5f)
@@ -939,9 +939,9 @@ void BeamEngine::setRPM(float rpm)
     curEngineRPM = rpm;
 }
 
-void BeamEngine::setPrime(int p)
+void BeamEngine::setPrime(bool p)
 {
-    prime = p;
+    is_priming = p;
 }
 
 void BeamEngine::setHydroPumpWork(float work)
@@ -1265,7 +1265,7 @@ float BeamEngine::getIdleMixture()
 
 float BeamEngine::getPrimeMixture()
 {
-    if (prime)
+    if (is_priming)
     {
         float crankfactor = getCrankFactor();
 

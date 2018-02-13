@@ -94,7 +94,7 @@ public:
     /**
     * Set current engine prime.
     */
-    void setPrime(int p);
+    void setPrime(bool p);
 
     /**
     * Set current hydro pump work.
@@ -249,7 +249,7 @@ protected:
     float maxRPM; //!< Engine attribute
     float minRPM; //!< Engine attribute
     float stallRPM; //!< Engine
-    int prime; //!< Engine
+    bool is_priming; //!< Engine
 
     // shifting
     float post_shift_time; //!< Shift attribute
