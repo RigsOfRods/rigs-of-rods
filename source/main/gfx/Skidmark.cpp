@@ -130,7 +130,7 @@ RoR::Skidmark::Skidmark(RoR::SkidmarkConfig* config, RoRFrameListener* sim_contr
     , m_bucket_count(m_bucket_count)
     , m_wheel(m_wheel)
     , m_min_distance(0.1f)
-    , m_max_distance(std::max(0.5f, m_wheel->width * 1.1f))
+    , m_max_distance(std::max(0.5f, m_wheel->wh_width * 1.1f))
     , m_min_distance_squared(m_min_distance * m_min_distance)
     , m_max_distance_squared(m_max_distance * m_max_distance)
     , m_config(config)
@@ -230,7 +230,9 @@ void RoR::Skidmark::SetPointInt(unsigned short index, const Ogre::Vector3& value
 void RoR::Skidmark::updatePoint()
 {
     Ogre::Vector3 thisPoint = m_wheel->lastContactType ? m_wheel->lastContactOuter : m_wheel->lastContactInner;
-    Ogre::Vector3 axis = m_wheel->lastContactType ? (m_wheel->refnode1->RelPosition - m_wheel->refnode0->RelPosition) : (m_wheel->refnode0->RelPosition - m_wheel->refnode1->RelPosition);
+    Ogre::Vector3 axis = m_wheel->lastContactType 
+                         ? (m_wheel->wh_axis_node_1->RelPosition - m_wheel->wh_axis_node_0->RelPosition)
+                         : (m_wheel->wh_axis_node_0->RelPosition - m_wheel->wh_axis_node_1->RelPosition);
     Ogre::Vector3 thisPointAV = thisPoint + axis * 0.5f;
     Ogre::Real distance = 0;
     Ogre::Real maxDist = m_max_distance;
@@ -241,8 +243,8 @@ void RoR::Skidmark::updatePoint()
     if (texture == "none")
         return;
 
-    if (m_wheel->speed > 1)
-        maxDist *= m_wheel->speed;
+    if (m_wheel->wh_speed > 1)
+        maxDist *= m_wheel->wh_speed;
 
     if (!m_objects.size())
     {

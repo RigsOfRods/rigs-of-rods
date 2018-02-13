@@ -605,7 +605,7 @@ void Beam::pushNetwork(char* data, int size)
         for (int i = 0; i < free_wheel; i++)
         {
             float wspeed = *(float*)(ptr);
-            wheels[i].rp3 = wspeed;
+            wheels[i].wh_net_rp3 = wspeed;
 
             ptr += sizeof(float);
         }
@@ -634,10 +634,10 @@ void Beam::pushNetwork(char* data, int size)
     for (int i = 0; i < free_wheel; i++)
     {
         float rp;
-        rp = wheels[i].rp1;
-        wheels[i].rp1 = wheels[i].rp2;
-        wheels[i].rp2 = wheels[i].rp3;
-        wheels[i].rp3 = rp;
+        rp = wheels[i].wh_net_rp1;
+        wheels[i].wh_net_rp1 = wheels[i].wh_net_rp2;
+        wheels[i].wh_net_rp2 = wheels[i].wh_net_rp3;
+        wheels[i].wh_net_rp3 = rp;
     }
     netcounter++;
 
@@ -724,25 +724,25 @@ void Beam::calcNetwork()
 
     for (int i = 0; i < free_wheel; i++)
     {
-        float rp = wheels[i].rp1 + tratio * (wheels[i].rp2 - wheels[i].rp1);
+        float rp = wheels[i].wh_net_rp1 + tratio * (wheels[i].wh_net_rp2 - wheels[i].wh_net_rp1);
         //compute ideal positions
-        Vector3 axis = wheels[i].refnode1->RelPosition - wheels[i].refnode0->RelPosition;
+        Vector3 axis = wheels[i].wh_axis_node_1->RelPosition - wheels[i].wh_axis_node_0->RelPosition;
         axis.normalise();
-        Plane pplan = Plane(axis, wheels[i].refnode0->AbsPosition);
-        Vector3 ortho = -pplan.projectVector(wheels[i].near_attach->AbsPosition) - wheels[i].refnode0->AbsPosition;
+        Plane pplan = Plane(axis, wheels[i].wh_axis_node_0->AbsPosition);
+        Vector3 ortho = -pplan.projectVector(wheels[i].wh_near_attach_node->AbsPosition) - wheels[i].wh_axis_node_0->AbsPosition;
         Vector3 ray = ortho.crossProduct(axis);
         ray.normalise();
-        ray *= wheels[i].radius;
-        float drp = Math::TWO_PI / (wheels[i].nbnodes / 2);
-        for (int j = 0; j < wheels[i].nbnodes / 2; j++)
+        ray *= wheels[i].wh_radius;
+        float drp = Math::TWO_PI / (wheels[i].wh_num_nodes / 2);
+        for (int j = 0; j < wheels[i].wh_num_nodes / 2; j++)
         {
             Vector3 uray = Quaternion(Radian(rp - drp * j), axis) * ray;
 
-            wheels[i].nodes[j * 2 + 0]->AbsPosition = wheels[i].refnode0->AbsPosition + uray;
-            wheels[i].nodes[j * 2 + 0]->RelPosition = wheels[i].nodes[j * 2]->AbsPosition - origin;
+            wheels[i].wh_nodes[j * 2 + 0]->AbsPosition = wheels[i].wh_axis_node_0->AbsPosition + uray;
+            wheels[i].wh_nodes[j * 2 + 0]->RelPosition = wheels[i].wh_nodes[j * 2]->AbsPosition - origin;
 
-            wheels[i].nodes[j * 2 + 1]->AbsPosition = wheels[i].refnode1->AbsPosition + uray;
-            wheels[i].nodes[j * 2 + 1]->RelPosition = wheels[i].nodes[j * 2 + 1]->AbsPosition - origin;
+            wheels[i].wh_nodes[j * 2 + 1]->AbsPosition = wheels[i].wh_axis_node_1->AbsPosition + uray;
+            wheels[i].wh_nodes[j * 2 + 1]->RelPosition = wheels[i].wh_nodes[j * 2 + 1]->AbsPosition - origin;
         }
     }
 
@@ -1711,8 +1711,8 @@ void Beam::SyncReset()
         wings[i].fa->broken = false;
     for (int i = 0; i < free_wheel; i++)
     {
-        wheels[i].speed = 0.0;
-        wheels[i].detached = false;
+        wheels[i].wh_speed = 0.0;
+        wheels[i].wh_is_detached = false;
     }
     if (buoyance)
         buoyance->setsink(0);
@@ -1984,7 +1984,7 @@ void Beam::sendStreamData()
         float* wfbuf = (float*)ptr;
         for (i = 0; i < free_wheel; i++)
         {
-            wfbuf[i] = wheels[i].rp;
+            wfbuf[i] = wheels[i].wh_net_rp;
         }
     }
 
