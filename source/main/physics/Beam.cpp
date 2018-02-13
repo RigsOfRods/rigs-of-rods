@@ -504,7 +504,7 @@ void Beam::updateSimpleSkeleton()
         simpleSkeletonManualObject->colour(color);
 
         // remove broken beams
-        if (beams[i].broken || beams[i].bm_disabled)
+        if (beams[i].bm_broken || beams[i].bm_disabled)
             simpleSkeletonManualObject->position(beams[i].p1->AbsPosition); // Start+End on same point -> beam will not be visible
         else
             simpleSkeletonManualObject->position(beams[i].p2->AbsPosition);
@@ -1664,7 +1664,7 @@ void Beam::SyncReset()
         beams[i].plastic_coef    = beams[i].default_beam_plastic_coef;
         beams[i].L               = beams[i].refL;
         beams[i].stress          = 0.0;
-        beams[i].broken          = false;
+        beams[i].bm_broken       = false;
         beams[i].bm_disabled     = false;
     }
 
@@ -1782,7 +1782,7 @@ bool Beam::replayStep()
         {
             for (int i = 0; i < free_beam; i++)
             {
-                beams[i].broken = bbuff[i].broken;
+                beams[i].bm_broken = bbuff[i].broken;
                 beams[i].bm_disabled = bbuff[i].disabled;
             }
         }
@@ -3715,7 +3715,7 @@ void Beam::updateVisual(float dt)
         if (!beams[i].mSceneNode)
             continue;
 
-        if (beams[i].bm_disabled || beams[i].broken)
+        if (beams[i].bm_disabled || beams[i].bm_broken)
         {
             beams[i].mSceneNode->detachAllObjects();
         }
@@ -4823,7 +4823,7 @@ void Beam::updateDebugOverlay()
         for (std::vector<debugtext_t>::iterator it = beams_debug.begin(); it != beams_debug.end(); it++)
         {
             it->node->setPosition(beams[it->id].p1->AbsPosition - (beams[it->id].p1->AbsPosition - beams[it->id].p2->AbsPosition) / 2);
-            if (beams[it->id].broken)
+            if (beams[it->id].bm_broken)
             {
                 it->node->setVisible(true);
                 it->txt->setCaption("BROKEN");

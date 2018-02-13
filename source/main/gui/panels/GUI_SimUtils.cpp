@@ -199,7 +199,7 @@ void CLASS::UpdateStats(float dt, Beam* truck)
 
         for (int i = 0; i < beamCount; i++ , beam++)
         {
-            if (beam->broken != 0)
+            if (beam->bm_broken != 0)
             {
                 beambroken++;
             }

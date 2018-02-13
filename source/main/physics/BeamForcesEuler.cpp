@@ -91,7 +91,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
         }
         for (int i = 0; i < free_hydro; i++)
         {
-            if ((beams[hydro[i]].hydroFlags & (HYDRO_FLAG_DIR | HYDRO_FLAG_SPEED)) && !beams[hydro[i]].broken)
+            if ((beams[hydro[i]].hydroFlags & (HYDRO_FLAG_DIR | HYDRO_FLAG_SPEED)) && !beams[hydro[i]].bm_broken)
                 affhydro += beams[hydro[i]].hydroRatio * beams[hydro[i]].refL * beams[hydro[i]].stress;
         }
     }
@@ -1262,7 +1262,7 @@ void Beam::calcForcesEulerCompute(int doUpdate, Real dt, int step, int maxsteps)
             {
                 for (int i = 0; i < free_beam; i++)
                 {
-                    bbuff[i].broken = beams[i].broken;
+                    bbuff[i].broken = beams[i].bm_broken;
                     bbuff[i].disabled = beams[i].bm_disabled;
                 }
             }
@@ -1395,7 +1395,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                     // If support beam is extended the originallength * break_limit, break and disable it
                     if (difftoBeamL > beams[i].L * break_limit)
                     {
-                        beams[i].broken = true;
+                        beams[i].bm_broken = true;
                         beams[i].bm_disabled = true;
                         if (beambreakdebug)
                         {
@@ -1502,7 +1502,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                     if (!((beams[i].p1->contacter && nodeBeamConnections(beams[i].p1->pos) < 3) || (beams[i].p2->contacter && nodeBeamConnections(beams[i].p2->pos) < 3)))
                     {
                         slen = 0.0f;
-                        beams[i].broken = true;
+                        beams[i].bm_broken = true;
                         beams[i].bm_disabled = true;
 
                         if (beambreakdebug)
@@ -1524,7 +1524,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                                 // do this with all master(positive id) and minor(negative id) beams of this detacher group
                                 if (abs(beams[j].detacher_group) == beams[i].detacher_group)
                                 {
-                                    beams[j].broken = true;
+                                    beams[j].bm_broken = true;
                                     beams[j].bm_disabled = true;
                                     if (beambreakdebug)
                                     {
@@ -1678,7 +1678,7 @@ void Beam::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxste
                     if (!((interTruckBeams[i]->p1->contacter && nodeBeamConnections(interTruckBeams[i]->p1->pos) < 3) || (interTruckBeams[i]->p2->contacter && nodeBeamConnections(interTruckBeams[i]->p2->pos) < 3)))
                     {
                         slen = 0.0f;
-                        interTruckBeams[i]->broken = true;
+                        interTruckBeams[i]->bm_broken = true;
                         interTruckBeams[i]->bm_disabled = true;
 
                         if (beambreakdebug)

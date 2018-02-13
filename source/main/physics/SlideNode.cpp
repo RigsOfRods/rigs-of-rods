@@ -212,7 +212,7 @@ SlideNode::~SlideNode()
 void SlideNode::UpdateForces(float dt)
 {
     // only do calcs if we have a beam to slide on
-    if (!mSlidingBeam || mSlidingBeam->broken || getFlag(MASK_SLIDE_BROKEN))
+    if (!mSlidingBeam || mSlidingBeam->bm_broken || getFlag(MASK_SLIDE_BROKEN))
     {
         return;
     }
@@ -286,7 +286,7 @@ Rail* SlideNode::getClosestRail(const Rail* rail, const Ogre::Vector3& point)
 void SlideNode::UpdatePosition()
 {
     // only do calcs if we have a beam to slide on
-    if (!mSlidingBeam || mSlidingBeam->broken)
+    if (!mSlidingBeam || mSlidingBeam->bm_broken)
     {
         mIdealPosition = mSlidingNode->AbsPosition;
         return;
