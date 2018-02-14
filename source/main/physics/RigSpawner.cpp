@@ -2133,27 +2133,24 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
     {
         flare.bbs->createBillboard(0,0,0);
         flare.bbs->setVisibilityFlags(DEPTHMAP_DISABLED);
-        
-        if (def.material_name.length() == 0 || def.material_name == "default")
+        std::string material_name = def.material_name;
+        using_default_material = (material_name.length() == 0 || material_name == "default");
+        if (using_default_material)
         {
             if (def.type == RigDef::Flare2::TYPE_b_BRAKELIGHT)
             {
-                flare.bbs->setMaterialName("tracks/brakeflare");
+                material_name = "tracks/brakeflare";
             }
             else if (def.type == RigDef::Flare2::TYPE_l_LEFT_BLINKER || (def.type == RigDef::Flare2::TYPE_r_RIGHT_BLINKER))
             {
-                flare.bbs->setMaterialName("tracks/blinkflare");
+                material_name = "tracks/blinkflare";
             }
             else
             {
-                flare.bbs->setMaterialName("tracks/flare");
+                material_name = "tracks/flare";
             }
         }
-        else
-        {
-            using_default_material = false;
-            flare.bbs->setMaterialName(def.material_name);
-        }
+        flare.bbs->setMaterial(this->FindOrCreateCustomizedMaterial(material_name));
         flare.snode->attachObject(flare.bbs);
     }
     flare.isVisible = true;
@@ -5623,17 +5620,14 @@ void ActorSpawner::CreateBeamVisuals(beam_t const & beam, int beam_index, bool v
 {
     SPAWNER_PROFILE_SCOPED();
 
-    const char* mat_name = nullptr;
+    //Set material
+    std::string material_name = beam_defaults->beam_material_name;
     if (beam.bm_type == BEAM_HYDRO)
     {
-        mat_name = "tracks/Chrome";
-    }
-    else
-    {
-        mat_name = beam_defaults->beam_material_name.c_str();
+        material_name = "tracks/Chrome";
     }
 
-    m_beam_visuals_queue.emplace_back(beam_index, beam_defaults->visual_beam_diameter, mat_name, visible);
+    m_beam_visuals_queue.emplace_back(beam_index, beam_defaults->visual_beam_diameter, material_name.c_str(), visible);
 }
 
 void ActorSpawner::CalculateBeamLength(beam_t & beam)
