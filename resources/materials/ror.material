@@ -2954,11 +2954,12 @@ material rigsofrods/managedmaterial-placeholder
     {
         pass
         {
-             // Awful bright pink to be easily visible
-             ambient 0.5 0.5 0.5
-             diffuse 1 0 0.7 1
-             specular 1 1 1 10
-             lighting off 
+            lighting off
+            texture_unit
+            {
+                // Awful bright pink to be easily visible, see http://wiki.ogre3d.org/Materials#Solid_colour
+                colour_op_ex source1 src_manual src_current 1 0 0.7
+            }
         }
     }
 }
