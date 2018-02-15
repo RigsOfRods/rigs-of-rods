@@ -67,6 +67,7 @@ material tracks/SparkMat
 	{
 		pass
 		{
+			emissive 1 1 1 1
 			lighting off
 			scene_blend add
 			depth_write off
