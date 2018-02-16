@@ -1548,7 +1548,7 @@ void Actor::ToggleAxleLock()
     {
         if (!m_axles[i])
             continue;
-        m_axles[i]->toggleDiff();
+        m_axles[i]->ToggleDifferentialMode();
     }
 }
 
@@ -1561,7 +1561,7 @@ String Actor::getAxleLockName()
 {
     if (!m_axles[0])
         return String();
-    return m_axles[0]->getDiffTypeName();
+    return m_axles[0]->GetDifferentialTypeName();
 }
 
 void Actor::RequestActorReset(bool keepPosition)

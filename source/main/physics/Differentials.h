@@ -20,17 +20,16 @@
 
 #pragma once
 
-#include <OgrePrerequisites.h>
+#include <OgreUTFString.h>
+#include <vector>
 
-#include "RoRPrerequisites.h"
-
-struct differential_data_t
+struct DifferentialData
 {
-    Ogre::Real speed[2];
-    Ogre::Real delta_rotation; // sign is first relative to the second
-    Ogre::Real out_torque[2];
-    Ogre::Real in_torque;
-    Ogre::Real dt;
+    float speed[2];
+    float delta_rotation; // sign is first relative to the second
+    float out_torque[2];
+    float in_torque;
+    float dt;
 };
 
 enum DiffType
@@ -40,37 +39,29 @@ enum DiffType
     LOCKED_DIFF
 };
 
-class Axle : public ZeroedMemoryAllocator
+class Axle
 {
 public:
     Axle();
 
-    int wheel_1; //! array location of wheel 1
-    int wheel_2; //! array location of wheel 2
-    //! difference of rotational position between two axles... a kludge at best
-    Ogre::Real delta_rotation;
-    //! torsion spring rate binding wheels together.
-    Ogre::Real torsion_rate;
-    Ogre::Real torsion_damp;
+    int       ax_wheel_1; //!< array location of wheel 1
+    int       ax_wheel_2; //!< array location of wheel 2
+    float     ax_delta_rotation; //!< difference of rotational position between two axles... a kludge at best
 
-    void addDiffType(DiffType diff);
-    void toggleDiff();
-    void calcTorque( differential_data_t& diff_data );
-    Ogre::UTFString getDiffTypeName();
-
-    //! a differential that always splits the torque evenly, this is the original method
-    static void calcSeperatedDiff( differential_data_t& diff_data);
-    //! more power goes to the faster spining wheel
-    static void calcOpenDiff( differential_data_t& diff_data );
-    //! ensures both wheels rotate at the the same speed
-    static void calcLockedDiff( differential_data_t& diff_data );
+    void             AddDifferentialType(DiffType diff);
+    void             ToggleDifferentialMode();
+    void             CalcAxleTorque(DifferentialData& diff_data );
+    Ogre::UTFString  GetDifferentialTypeName();
+    
+    static void      CalcSeparateDiff(DifferentialData& diff_data);  //!< a differential that always splits the torque evenly, this is the original method
+    static void      CalcOpenDiff(DifferentialData& diff_data );     //!< more power goes to the faster spining wheel
+    static void      CalcLockedDiff(DifferentialData& diff_data );   //!< ensures both wheels rotate at the the same speed
 
 private:
 
-    //! type of differential
-    int which_diff;
-
-    //! available diffs
-    std::vector<DiffType> available_diff_method;
+    float     m_torsion_rate; //! torsion spring rate binding wheels together.
+    float     m_torsion_damp;    
+    int       m_which_diff;
+    std::vector<DiffType> m_available_diffs;
 };
 
