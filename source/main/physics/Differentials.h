@@ -40,8 +40,6 @@ enum DiffType
     LOCKED_DIFF
 };
 
-typedef void (*diff_callback)( differential_data_t& diff_data);
-
 class Axle : public ZeroedMemoryAllocator
 {
 public:
@@ -70,12 +68,9 @@ public:
 private:
 
     //! type of differential
-    unsigned int which_diff;
-    diff_callback current_callback;
+    int which_diff;
 
     //! available diffs
     std::vector<DiffType> available_diff_method;
-
-    static diff_callback getDiffEquation(DiffType type);
 };
 

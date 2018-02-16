@@ -28,35 +28,46 @@ Axle::Axle() :
     delta_rotation(0.0f),
     torsion_rate(1000000.0f),
     torsion_damp(torsion_rate / 100),
-    which_diff(0),
-    current_callback(NULL)
+    which_diff(-1)
 {
 }
 
 void Axle::addDiffType(DiffType diff)
 {
     available_diff_method.push_back(diff);
-    if (!current_callback)
-        current_callback = getDiffEquation(diff);
+    if (which_diff == -1)
+    {
+        which_diff = 0;
+    }
 }
 
 void Axle::toggleDiff()
 {
     which_diff++;
     which_diff %= available_diff_method.size();
-    current_callback = getDiffEquation(available_diff_method[which_diff]);
 }
 
 void Axle::calcTorque(differential_data_t& diff_data)
 {
-    if (current_callback)
-        current_callback(diff_data);
+    if (which_diff == -1)
+    {
+        return;
+    }
+
+    switch (available_diff_method[which_diff])
+    {
+    case SPLIT_DIFF:   this->calcSeperatedDiff(diff_data);  return;
+    case OPEN_DIFF:    this->calcOpenDiff(diff_data);       return;
+    case LOCKED_DIFF:  this->calcLockedDiff(diff_data);     return;
+    }
 }
 
 Ogre::UTFString Axle::getDiffTypeName()
 {
-    if (available_diff_method.size() <= 0)
-        return "invalid";
+    if (which_diff == -1)
+    {
+        return _L("invalid");
+    }
 
     switch (available_diff_method[which_diff])
     {
@@ -64,18 +75,6 @@ Ogre::UTFString Axle::getDiffTypeName()
     case OPEN_DIFF: return _L("Open");
     case LOCKED_DIFF: return _L("Locked");
     }
-    return _L("invalid");
-}
-
-diff_callback Axle::getDiffEquation(DiffType type)
-{
-    switch (type)
-    {
-    case SPLIT_DIFF: return calcSeperatedDiff;
-    case OPEN_DIFF: return calcOpenDiff;
-    case LOCKED_DIFF: return calcLockedDiff;
-    }
-    return calcSeperatedDiff;
 }
 
 void Axle::calcSeperatedDiff(differential_data_t& diff_data)
