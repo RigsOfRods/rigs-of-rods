@@ -1099,13 +1099,6 @@ bool Settings::SetupAllPaths()
         return true;
     }
 
-    System::GetParentDirectory(buf.GetBuffer(), App::sys_process_dir.GetActive());
-    if (FolderExists(buf))
-    {
-        App::sys_resources_dir.SetActive(buf);
-        return true;
-    }
-
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
     buf = "/usr/share/rigsofrods/resources/";
     if (FolderExists(buf))
@@ -1114,6 +1107,14 @@ bool Settings::SetupAllPaths()
         return true;
     }
 #endif
+
+    System::GetParentDirectory(buf.GetBuffer(), App::sys_process_dir.GetActive());
+    if (FolderExists(buf))
+    {
+        App::sys_resources_dir.SetActive(buf);
+        return true;
+    }
+
     return false;
 }
 
