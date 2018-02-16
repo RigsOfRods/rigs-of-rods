@@ -23,66 +23,67 @@
 #include "Language.h"
 
 Axle::Axle() :
-    wheel_1(-1),
-    wheel_2(-1),
-    delta_rotation(0.0f),
-    torsion_rate(1000000.0f),
-    torsion_damp(torsion_rate / 100),
-    which_diff(-1)
+    ax_wheel_1(-1),
+    ax_wheel_2(-1),
+    ax_delta_rotation(0.0f),
+    m_torsion_rate(1000000.0f),
+    m_torsion_damp(m_torsion_rate / 100),
+    m_which_diff(-1)
 {
 }
 
-void Axle::addDiffType(DiffType diff)
+void Axle::AddDifferentialType(DiffType diff)
 {
-    available_diff_method.push_back(diff);
-    if (which_diff == -1)
+    m_available_diffs.push_back(diff);
+    if (m_which_diff == -1)
     {
-        which_diff = 0;
+        m_which_diff = 0;
     }
 }
 
-void Axle::toggleDiff()
+void Axle::ToggleDifferentialMode()
 {
-    which_diff++;
-    which_diff %= available_diff_method.size();
+    m_which_diff++;
+    m_which_diff %= m_available_diffs.size();
 }
 
-void Axle::calcTorque(differential_data_t& diff_data)
+void Axle::CalcAxleTorque(DifferentialData& diff_data)
 {
-    if (which_diff == -1)
+    if (m_which_diff == -1)
     {
         return;
     }
 
-    switch (available_diff_method[which_diff])
+    switch (m_available_diffs[m_which_diff])
     {
-    case SPLIT_DIFF:   this->calcSeperatedDiff(diff_data);  return;
-    case OPEN_DIFF:    this->calcOpenDiff(diff_data);       return;
-    case LOCKED_DIFF:  this->calcLockedDiff(diff_data);     return;
+    case SPLIT_DIFF:   this->CalcSeparateDiff(diff_data);  return;
+    case OPEN_DIFF:    this->CalcOpenDiff(diff_data);       return;
+    case LOCKED_DIFF:  this->CalcLockedDiff(diff_data);     return;
     }
 }
 
-Ogre::UTFString Axle::getDiffTypeName()
+Ogre::UTFString Axle::GetDifferentialTypeName()
 {
-    if (which_diff == -1)
+    if (m_which_diff == -1)
     {
         return _L("invalid");
     }
 
-    switch (available_diff_method[which_diff])
+    switch (m_available_diffs[m_which_diff])
     {
-    case SPLIT_DIFF: return _L("Split");
-    case OPEN_DIFF: return _L("Open");
-    case LOCKED_DIFF: return _L("Locked");
+    case SPLIT_DIFF:   return _L("Split");
+    case OPEN_DIFF:    return _L("Open");
+    case LOCKED_DIFF:  return _L("Locked");
+    default:           return _L("invalid");
     }
 }
 
-void Axle::calcSeperatedDiff(differential_data_t& diff_data)
+void Axle::CalcSeparateDiff(DifferentialData& diff_data)
 {
     diff_data.out_torque[0] = diff_data.out_torque[1] = diff_data.in_torque;
 }
 
-void Axle::calcOpenDiff(differential_data_t& diff_data)
+void Axle::CalcOpenDiff(DifferentialData& diff_data)
 {
     /* Open differential calculations *************************
      * These calculation are surprisingly tricky
@@ -127,7 +128,7 @@ void Axle::calcOpenDiff(differential_data_t& diff_data)
     diff_data.delta_rotation = 0.0f;
 }
 
-void Axle::calcLockedDiff(differential_data_t& diff_data)
+void Axle::CalcLockedDiff(DifferentialData& diff_data)
 {
     /* Locked axle calculation ********************************
      * This is straight forward, two wheels are joined together
@@ -138,8 +139,8 @@ void Axle::calcLockedDiff(differential_data_t& diff_data)
 
     // Torsion spring rate that holds axles together when locked
     // keep as variable for now since this value will be user configurable
-    const Ogre::Real torsion_rate = 1000000.0f;
-    const Ogre::Real torsion_damp = torsion_rate / 100.0f;
+    const Ogre::Real m_torsion_rate = 1000000.0f;
+    const Ogre::Real m_torsion_damp = m_torsion_rate / 100.0f;
     const Ogre::Real delta_speed = diff_data.speed[0] - diff_data.speed[1];
 
     diff_data.out_torque[0] = diff_data.out_torque[1] = diff_data.in_torque;
@@ -148,12 +149,12 @@ void Axle::calcLockedDiff(differential_data_t& diff_data)
     diff_data.delta_rotation += (delta_speed) * diff_data.dt;
 
     // torque cause by axle shafts
-    diff_data.out_torque[0] -= diff_data.delta_rotation * torsion_rate;
+    diff_data.out_torque[0] -= diff_data.delta_rotation * m_torsion_rate;
     // damping
-    diff_data.out_torque[0] -= (delta_speed) * torsion_damp;
+    diff_data.out_torque[0] -= (delta_speed) * m_torsion_damp;
 
     // torque cause by axle shafts
-    diff_data.out_torque[1] += diff_data.delta_rotation * torsion_rate;
+    diff_data.out_torque[1] += diff_data.delta_rotation * m_torsion_rate;
     // damping
-    diff_data.out_torque[1] -= -(delta_speed) * torsion_damp;
+    diff_data.out_torque[1] -= -(delta_speed) * m_torsion_damp;
 }

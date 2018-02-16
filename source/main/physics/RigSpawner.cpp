@@ -2565,7 +2565,7 @@ void ActorSpawner::ProcessAxle(RigDef::Axle & def)
     node_t *wheel_2_node_2 = GetNodePointerOrThrow(def.wheels[1][1]);
     Axle *axle = new Axle();
 
-    if (! AssignWheelToAxle(axle->wheel_1, wheel_1_node_1, wheel_1_node_2))
+    if (! AssignWheelToAxle(axle->ax_wheel_1, wheel_1_node_1, wheel_1_node_2))
     {
         std::stringstream msg;
         msg << "Couldn't find wheel with axis nodes '" << def.wheels[0][0].ToString()
@@ -2573,7 +2573,7 @@ void ActorSpawner::ProcessAxle(RigDef::Axle & def)
         AddMessage(Message::TYPE_WARNING, msg.str());
     }
 
-    if (! AssignWheelToAxle(axle->wheel_2, wheel_2_node_1, wheel_2_node_2))
+    if (! AssignWheelToAxle(axle->ax_wheel_2, wheel_2_node_1, wheel_2_node_2))
     {
         std::stringstream msg;
         msg << "Couldn't find wheel with axis nodes '" << def.wheels[1][0].ToString()
@@ -2584,8 +2584,8 @@ void ActorSpawner::ProcessAxle(RigDef::Axle & def)
     if (def.options.size() == 0)
     {
         AddMessage(Message::TYPE_INFO, "No differential defined, defaulting to Open & Locked");
-        axle->addDiffType(OPEN_DIFF);
-        axle->addDiffType(LOCKED_DIFF);
+        axle->AddDifferentialType(OPEN_DIFF);
+        axle->AddDifferentialType(LOCKED_DIFF);
     }
     else
     {
@@ -2595,13 +2595,13 @@ void ActorSpawner::ProcessAxle(RigDef::Axle & def)
             switch (*itor)
             {
             case RigDef::Axle::OPTION_l_LOCKED:
-                axle->addDiffType(LOCKED_DIFF);
+                axle->AddDifferentialType(LOCKED_DIFF);
                 break;
             case RigDef::Axle::OPTION_o_OPEN:
-                axle->addDiffType(OPEN_DIFF);
+                axle->AddDifferentialType(OPEN_DIFF);
                 break;
             case RigDef::Axle::OPTION_s_SPLIT:
-                axle->addDiffType(SPLIT_DIFF);
+                axle->AddDifferentialType(SPLIT_DIFF);
                 break;
             default:
                 AddMessage(Message::TYPE_WARNING, "Unknown differential type: " + *itor);
