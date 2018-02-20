@@ -122,7 +122,7 @@ void ContentManager::AddResourcePack(ResourcePack const& resource_pack)
     log_msg << "[RoR|ContentManager] Loading resource pack \"" << resource_pack.name << "\" from group \"" << resource_pack.resource_group_name << "\"";
     Ogre::String resources_dir = Ogre::String(App::sys_resources_dir.GetActive()) + PATH_SLASH;
     Ogre::String zip_path = resources_dir + resource_pack.name + Ogre::String(".zip");
-    if (PlatformUtils::FileExists(zip_path))
+    if (FileExists(zip_path))
     {
         log_msg << " (ZIP archive)";
         LOG(log_msg.str());
@@ -132,7 +132,7 @@ void ContentManager::AddResourcePack(ResourcePack const& resource_pack)
     else
     {
         Ogre::String dir_path = resources_dir + resource_pack.name;
-        if (PlatformUtils::FolderExists(dir_path))
+        if (FolderExists(dir_path))
         {
             log_msg << " (directory)";
             LOG(log_msg.str());

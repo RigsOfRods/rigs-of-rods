@@ -24,6 +24,7 @@
 #include "Application.h"
 #include "BeamFactory.h"
 #include "OgreSubsystem.h"
+#include "PlatformUtils.h" // PATH_SLASH
 #include "RoRFrameListener.h"
 #include "Settings.h"
 #include "TerrainManager.h"
@@ -58,7 +59,7 @@ Water::Water() :
         m_waterplane_mesh_scale = 1.5f;
 
     char line[1024] = {};
-    std::string filepath = std::string(RoR::App::sys_config_dir.GetActive()) + PATH_SLASH + "wavefield.cfg";
+    std::string filepath = std::string(RoR::App::sys_config_dir.GetActive()) + RoR::PATH_SLASH + "wavefield.cfg";
     FILE* fd = fopen(filepath.c_str(), "r");
     if (fd)
     {

@@ -29,6 +29,7 @@
 #include "FlexBody.h"
 #include "FlexMeshWheel.h"
 #include "GlobalEnvironment.h"
+#include "PlatformUtils.h"
 #include "RigDef_File.h"
 #include "RigSpawner.h"
 #include "Settings.h"
@@ -307,7 +308,7 @@ void FlexBodyFileIO::OpenFile(const char* fopen_mode)
         throw RESULT_CODE_ERR_CACHE_NUMBER_UNDEFINED;
     }
     char path[500];
-    sprintf(path, "%s%cflexbodies_mod_%00d.dat", std::string(App::sys_cache_dir.GetActive()).c_str(), PATH_SLASH, m_cache_entry_number);
+    sprintf(path, "%s%cflexbodies_mod_%00d.dat", std::string(App::sys_cache_dir.GetActive()).c_str(), RoR::PATH_SLASH, m_cache_entry_number);
     m_file = fopen(path, fopen_mode);
     if (m_file == nullptr)
     {

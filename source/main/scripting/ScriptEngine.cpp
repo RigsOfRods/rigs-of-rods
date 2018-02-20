@@ -51,7 +51,9 @@
 #include "OgreSubsystem.h"
 #include "GameScript.h"
 #include "OgreScriptBuilder.h"
+#include "PlatformUtils.h"
 #include "CBytecodeStream.h"
+#include "PlatformUtils.h"
 #include "ScriptEvents.h"
 
 #include "BeamFactory.h"
@@ -86,7 +88,7 @@ ScriptEngine::ScriptEngine(Collisions *coll) :
     setSingleton(this);
 
     // create our own log
-    scriptLog = LogManager::getSingleton().createLog(std::string(App::sys_logs_dir.GetActive()) + PATH_SLASH + "Angelscript.log", false);
+    scriptLog = LogManager::getSingleton().createLog(std::string(App::sys_logs_dir.GetActive()) + RoR::PATH_SLASH + "Angelscript.log", false);
 
     // init not earlier, otherwise crash
     this->init();
@@ -767,7 +769,7 @@ int ScriptEngine::loadScript(String _scriptName)
         // save the bytecode
         scriptHash = builder.getHash();
         {
-            String filepath = std::string(App::sys_cache_dir.GetActive()) + PATH_SLASH + "script" + scriptHash + "_" + scriptName + "c";
+            String filepath = std::string(App::sys_cache_dir.GetActive()) + RoR::PATH_SLASH + "script" + scriptHash + "_" + scriptName + "c";
             SLOG("saving script bytecode to file " + filepath);
             CBytecodeStream bstream(filepath);
             mod->SaveByteCode(&bstream);

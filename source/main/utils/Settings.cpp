@@ -120,38 +120,6 @@ void ShowVersion()
 using namespace Ogre;
 using namespace RoR;
 
-bool FileExists(const char *path)
-{
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-    DWORD attributes = GetFileAttributesA(path);
-    return (attributes != INVALID_FILE_ATTRIBUTES && ! (attributes & FILE_ATTRIBUTE_DIRECTORY));
-#else
-    struct stat st;
-    return (stat(path, &st) == 0);
-#endif
-}
-
-bool FolderExists(const char *path)
-{
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-    DWORD attributes = GetFileAttributesA(path);
-    return (attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_DIRECTORY));
-#else
-    struct stat st;
-    return (stat(path, &st) == 0);
-#endif
-}
-
-bool FileExists(Ogre::String const & path)
-{
-    return FileExists(path.c_str());
-}
-
-bool FolderExists(Ogre::String const & path)
-{
-    return FolderExists(path.c_str());
-}
-
 namespace RoR{
 namespace System {
 
@@ -229,12 +197,13 @@ int DetectBasePaths()
     }
 
     // User directory (system)
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 // NOTE: We use non-UNICODE interfaces for simplicity	
-    if (SHGetFolderPathA(nullptr, CSIDL_PERSONAL, nullptr, SHGFP_TYPE_CURRENT, buf) != S_OK)
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 // NOTE: We use non-UNICODE interfaces for simplicity
+    char buf_win[bufsize] = "";
+    if (SHGetFolderPathA(nullptr, CSIDL_PERSONAL, nullptr, SHGFP_TYPE_CURRENT, buf_win) != S_OK)
     {
         return -2;
     }
-    sprintf(buf, "%s\\Rigs of Rods %s", buf, ROR_VERSION_STRING_SHORT);
+    sprintf(buf, "%s\\Rigs of Rods %s", buf_win, ROR_VERSION_STRING_SHORT);
 
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
     snprintf(buf, bufsize, "%s/.rigsofrods", getenv("HOME"));

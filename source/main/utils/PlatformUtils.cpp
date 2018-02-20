@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2017 Petr Ohlidal & contributors
+    Copyright 2013-2018 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -19,13 +19,13 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
-    @file   PlatformUtils.cpp
-    @author Petr Ohlidal
-    @date   05/2014
-*/
+///    @file   PlatformUtils.cpp
+///    @author Petr Ohlidal
+///    @date   05/2014
+
 
 #include "PlatformUtils.h"
+#include "Application.h"
 
 #ifdef USE_CRASHRPT
 #   include "RoRVersion.h"
@@ -35,73 +35,100 @@
 #   include "rornet.h"
 #endif
 
-#include <Ogre.h>
+#ifdef _MSC_VER
+    #include <Windows.h>
+#else
+    #include <sys/types.h>
+    #include <sys/stat.h>
+#endif
+
+#include <string>
 
 namespace RoR {
 
-// ================================================================================
-// Static variables
-// ================================================================================
+#ifdef _MSC_VER
 
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-const Ogre::String PlatformUtils::DIRECTORY_SEPARATOR("\\");
-#else
-    const Ogre::String PlatformUtils::DIRECTORY_SEPARATOR("/");
-#endif
+// -------------------------- File/path utils for MS Windows --------------------------
 
-// ================================================================================
-// Functions
-// ================================================================================
+char PATH_SLASH = '\\';
 
-bool PlatformUtils::FileExists(const char* path)
+std::wstring MSW_Utf8ToWchar(const char* path) // from https://github.com/only-a-ptr/filepaths4rigs
 {
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-    DWORD attributes = GetFileAttributesA(path);
-    return (attributes != INVALID_FILE_ATTRIBUTES && ! (attributes & FILE_ATTRIBUTE_DIRECTORY));
-#else
-    struct stat st;
-    return (stat(path, &st) == 0);
-#endif
+    if( path == nullptr || path[0] == 0 )
+    {
+        RoR::Log("[RoR|Platform] Internal error: MSW_Utf8ToWchar() received empty input");
+        return std::wstring();
+    }
+
+    int size_needed = MultiByteToWideChar(CP_UTF8, 0, &path[0], -1, NULL, 0); // Doc: https://msdn.microsoft.com/en-us/library/windows/desktop/dd319072(v=vs.85).aspx
+    std::wstring out_wstr( size_needed, 0 );
+    int raw_result = MultiByteToWideChar(CP_UTF8, 0, &path[0], -1, &out_wstr[0], size_needed);
+    if (raw_result <= 0)
+    {
+        RoR::Log("[RoR|Platform] Internal error: MSW_Utf8ToWchar() could not convert UTF-8 to UTF-16");
+        return std::wstring();
+    }
+    return std::move(out_wstr);
 }
 
-bool PlatformUtils::FolderExists(const char* path)
+DWORD MSW_GetFileAttrs(const char* path) // From https://github.com/only-a-ptr/filepaths4rigs
 {
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-    DWORD attributes = GetFileAttributesA(path);
-    return (attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_DIRECTORY));
-#else
-    struct stat st;
-    return (stat(path, &st) == 0);
-#endif
+    if (path == nullptr || path[0] == 0)
+    {
+        return INVALID_FILE_ATTRIBUTES;
+    }
+
+    std::wstring wpath = MSW_Utf8ToWchar(path);
+    // Function reference: https://msdn.microsoft.com/en-us/library/windows/desktop/aa364944(v=vs.85).aspx
+    // File attribute constants: https://msdn.microsoft.com/en-us/library/windows/desktop/gg258117(v=vs.85).aspx
+    return GetFileAttributesW(wpath.c_str());
 }
 
-void PlatformUtils::CreateFolder(const char* path)
+bool FileExists(const char *path)
 {
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-    CreateDirectory(path, NULL);
+    DWORD file_attrs = MSW_GetFileAttrs(path);
+    return (file_attrs != INVALID_FILE_ATTRIBUTES && ! (file_attrs & FILE_ATTRIBUTE_DIRECTORY));
+}
+
+bool FolderExists(const char* path)
+{
+    DWORD file_attrs = MSW_GetFileAttrs(path);
+    return (file_attrs != INVALID_FILE_ATTRIBUTES && (file_attrs & FILE_ATTRIBUTE_DIRECTORY));
+}
+
+void CreateFolder(const char* path)
+{
+    std::wstring wpath = MSW_Utf8ToWchar(path);
+    CreateDirectoryW(wpath.c_str(), nullptr);
+}
+
 #else
+
+// -------------------------- File/path utils for Linux/*nix --------------------------
+
+char PATH_SLASH = '/';
+
+bool FileExists(const char *path)
+{
+    struct stat st;
+    return (stat(path, &st) == 0);
+}
+
+bool FolderExists(const char* path)
+{
+    struct stat st;
+    return (stat(path, &st) == 0);
+}
+
+void CreateFolder(const char* path)
+{
     mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-#endif
 }
 
-bool PlatformUtils::FileExists(Ogre::String const& path)
-{
-    return FileExists(path.c_str());
-}
+#endif // _MSC_VER
 
-bool PlatformUtils::FolderExists(Ogre::String const& path)
-{
-    return FolderExists(path.c_str());
-}
 
-void PlatformUtils::CreateFolder(Ogre::String const& path)
-{
-    CreateFolder(path.c_str());
-}
-
-// ================================================================================
-// CrashRpt integration
-// ================================================================================
+// -------------------------- CrashRpt integration --------------------------
 
 #ifdef USE_CRASHRPT
 

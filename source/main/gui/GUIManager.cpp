@@ -32,6 +32,7 @@
 #include "Language.h"
 #include "OgreImGui.h"
 #include "OgreSubsystem.h"
+#include "PlatformUtils.h"
 #include "RoRWindowEventUtilities.h"
 #include "RTTLayer.h"
 #include "Settings.h"
@@ -158,7 +159,7 @@ GUIManager::GUIManager() :
     RoRWindowEventUtilities::addWindowEventListener(RoR::App::GetOgreSubsystem()->GetRenderWindow(), this);
 
     Str<300> gui_logpath;
-    gui_logpath << App::sys_logs_dir.GetActive() << PATH_SLASH << "MyGUI.log";
+    gui_logpath << App::sys_logs_dir.GetActive() << RoR::PATH_SLASH << "MyGUI.log";
     auto mygui_platform = new MyGUI::OgrePlatform();
     mygui_platform->initialise(
         RoR::App::GetOgreSubsystem()->GetRenderWindow(), 

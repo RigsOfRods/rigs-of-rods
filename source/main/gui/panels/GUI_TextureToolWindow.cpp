@@ -26,6 +26,7 @@
 #include "Application.h"
 #include "GUI_GameConsole.h"
 #include "Language.h"
+#include "PlatformUtils.h"
 #include "Settings.h"
 #include "Utils.h"
 
@@ -123,7 +124,7 @@ void TextureToolWindow::saveTexture(String texName, bool usePNG)
         tex->convertToImage(img);
 
         // Save to disk!
-        String outname = std::string(App::sys_user_dir.GetActive()) + PATH_SLASH + texName;
+        String outname = std::string(App::sys_user_dir.GetActive()) + RoR::PATH_SLASH + texName;
         if (usePNG)
             outname += ".png";
 
