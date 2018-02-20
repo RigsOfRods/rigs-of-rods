@@ -6638,7 +6638,17 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
         RigDef::VideoCamera* videocam_def = this->FindVideoCameraByMaterial(mat_lookup_name);
         if (videocam_def != nullptr)
         {
-            Ogre::MaterialPtr video_mat_shared = RoR::OgreSubsystem::GetMaterialByName(mat_lookup_name);
+            Ogre::MaterialPtr video_mat_shared;
+            auto found_managedmat = m_managed_materials.find(mat_lookup_name);
+            if (found_managedmat != m_managed_materials.end())
+            {
+                video_mat_shared = found_managedmat->second;
+            }
+            else
+            {
+                video_mat_shared = RoR::OgreSubsystem::GetMaterialByName(mat_lookup_name);
+            }
+
             if (!video_mat_shared.isNull())
             {
                 lookup_entry.video_camera_def = videocam_def;
