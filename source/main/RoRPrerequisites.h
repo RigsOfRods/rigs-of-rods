@@ -66,12 +66,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #	define MYGUI_GET_SCANCODE(KEY) (KEY.toValue())
 #endif
 
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-#   define PATH_SLASH '\\'
-#else
-#   define PATH_SLASH '/'
-#endif
-
 // some config for angelscript, doesnt matter if we compile with angelscript or not as its just a definition
 #ifdef USE_ANGELSCRIPT
 #ifndef AS_USE_NAMESPACE

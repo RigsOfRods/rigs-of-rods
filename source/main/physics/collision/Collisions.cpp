@@ -28,6 +28,7 @@
 #include "Landusemap.h"
 #include "Language.h"
 #include "MovableText.h"
+#include "PlatformUtils.h"
 #include "RoRFrameListener.h"
 #include "Scripting.h"
 #include "Settings.h"
@@ -144,7 +145,7 @@ Collisions::~Collisions()
 
 int Collisions::loadDefaultModels()
 {
-    return loadGroundModelsConfigFile(std::string(RoR::App::sys_config_dir.GetActive()) + PATH_SLASH + "ground_models.cfg");
+    return loadGroundModelsConfigFile(std::string(RoR::App::sys_config_dir.GetActive()) + RoR::PATH_SLASH + "ground_models.cfg");
 }
 
 int Collisions::loadGroundModelsConfigFile(Ogre::String filename)

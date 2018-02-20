@@ -54,6 +54,7 @@
 #include "OgreSubsystem.h"
 #include "OutProtocol.h"
 #include "OverlayWrapper.h"
+#include "PlatformUtils.h"
 #include "Replay.h"
 #include "RoRVersion.h"
 #include "SceneMouse.h"
@@ -323,7 +324,7 @@ bool SimController::UpdateInputEvents(float dt)
         date << std::put_time(std::localtime(&t), "%Y-%m-%d_%H-%M-%S");
 #endif
 
-        String fn_prefix = std::string(App::sys_screenshot_dir.GetActive()) + PATH_SLASH + String("screenshot_");
+        String fn_prefix = std::string(App::sys_screenshot_dir.GetActive()) + RoR::PATH_SLASH + String("screenshot_");
         String fn_name = date.str() + String("_");
         String fn_suffix = String(".") + App::app_screenshot_format.GetActive();
 
@@ -609,7 +610,7 @@ bool SimController::UpdateInputEvents(float dt)
         }
         else
         {
-            std::string path = std::string(RoR::App::sys_config_dir.GetActive()) + PATH_SLASH + "editor_out.cfg";
+            std::string path = std::string(RoR::App::sys_config_dir.GetActive()) + RoR::PATH_SLASH + "editor_out.cfg";
             std::ofstream file(path);
             if (file.is_open())
             {

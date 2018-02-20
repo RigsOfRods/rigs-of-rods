@@ -41,6 +41,7 @@
 #include <MyGUI_FontManager.h>
 
 #include "Application.h"
+#include "PlatformUtils.h"
 #include "Settings.h"
 
 #include <Ogre.h>
@@ -81,14 +82,14 @@ void LanguageEngine::setup()
     reader = new moFileLib::moFileReader();
 
     Str<300> mo_path;
-    mo_path << App::sys_process_dir.GetActive() << PATH_SLASH << "languages" << PATH_SLASH;
+    mo_path << App::sys_process_dir.GetActive() << RoR::PATH_SLASH << "languages" << PATH_SLASH;
     mo_path << App::app_locale.GetActive()[0] << App::app_locale.GetActive()[1]; // Only first 2 chars are important
     mo_path << PATH_SLASH << "LC_MESSAGES";
 
     // Load a .mo-File.
     RoR::Log("[RoR|App] Loading language file...");
     Str<300> rormo_path;
-    rormo_path << mo_path << PATH_SLASH << "ror.mo";
+    rormo_path << mo_path << RoR::PATH_SLASH << "ror.mo";
     if (reader->ReadFile(rormo_path) != moFileLib::moFileReader::EC_SUCCESS)
     {
         RoR::LogFormat("[RoR|App] Error loading language file: '%s'", rormo_path.ToCStr());

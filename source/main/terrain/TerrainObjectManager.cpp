@@ -31,6 +31,7 @@
 #include "GUIManager.h"
 #include "GUI_LoadingWindow.h"
 #include "MeshObject.h"
+#include "PlatformUtils.h"
 #include "ProceduralManager.h"
 #include "Road2.h"
 #include "RoRFrameListener.h"
@@ -258,7 +259,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
             PaGeomInstance paged;
             paged.geom = new PagedGeometry();
             RoR::Str<300> temp_path;
-            temp_path << RoR::App::sys_cache_dir.GetActive() << PATH_SLASH;
+            temp_path << RoR::App::sys_cache_dir.GetActive() << RoR::PATH_SLASH;
             paged.geom->setTempDir(temp_path.GetBuffer());
             paged.geom->setCamera(gEnv->mainCamera);
             paged.geom->setPageSize(50);

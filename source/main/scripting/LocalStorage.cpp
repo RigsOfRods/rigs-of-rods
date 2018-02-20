@@ -22,6 +22,7 @@
 #include "LocalStorage.h"
 
 #include "Application.h"
+#include "PlatformUtils.h"
 #include "Settings.h"
 
 int LocalStorage::refCount = 0;
@@ -43,7 +44,7 @@ LocalStorage::LocalStorage(AngelScript::asIScriptEngine *engine_in, std::string 
 
     sectionName = sectionName_in.substr(0, sectionName_in.find(".", 0));
     
-    filename = std::string(RoR::App::sys_cache_dir.GetActive()) + PATH_SLASH + fileName_in + ".asdata";
+    filename = std::string(RoR::App::sys_cache_dir.GetActive()) + RoR::PATH_SLASH + fileName_in + ".asdata";
     separators = "=";
     loadDict();
     

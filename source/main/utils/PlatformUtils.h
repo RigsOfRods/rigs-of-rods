@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2014 Petr Ohlidal
+    Copyright 2013-2018 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -19,39 +19,34 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
-    @file   PlatformUtils.h
-    @author Petr Ohlidal
-    @date   05/2014
-    @brief  Platform-specific utilities
-*/
+///  @file   PlatformUtils.h
+///  @author Petr Ohlidal
+///  @date   05/2014
+///  @brief  Platform-specific utilities
+///
+///  For filesystem operations, we use narrow UTF-8 encoded strings as paths.
+///  Inspired by manifesto http://utf8everywhere.org/
+///  Code based on https://github.com/only-a-ptr/filepaths4rigs
 
 #pragma once
-
-#include <OgreString.h>
 
 #ifdef USE_CRASHRPT
 #   include "crashrpt.h" // see http://crashrpt.sourceforge.net/
 #endif
 
+#include <string>
+
 namespace RoR {
 
-struct PlatformUtils
-{
-    static const Ogre::String DIRECTORY_SEPARATOR;
+extern char PATH_SLASH;
 
-    static bool FileExists(const char* path);
+bool FileExists(const char* path);   //!< Path must be UTF-8 encoded.
+bool FolderExists(const char* path); //!< Path must be UTF-8 encoded.
+void CreateFolder(const char* path); //!< Path must be UTF-8 encoded.
 
-    static bool FileExists(Ogre::String const& path);
-
-    static bool FolderExists(const char* path);
-
-    static void CreateFolder(const char* path);
-
-    static bool FolderExists(Ogre::String const& path);
-
-    static void CreateFolder(Ogre::String const& path);
-};
+inline bool FileExists(std::string const& path)   { return FileExists(path.c_str()); }
+inline bool FolderExists(std::string const& path) { return FolderExists(path.c_str()); }
+inline void CreateFolder(std::string const& path) { CreateFolder(path.c_str()); }
 
 #ifdef USE_CRASHRPT
 int CALLBACK CrashRptCallback(CR_CRASH_CALLBACK_INFO* pInfo);

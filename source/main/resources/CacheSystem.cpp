@@ -938,7 +938,7 @@ int CacheSystem::incrementalCacheUpdate()
         else if (it->type == "FileSystem")
             fn = getRealPath(it->dirname + "/" + it->fname);
 
-        if ((it->type == "FileSystem" || it->type == "Zip") && ! RoR::PlatformUtils::FileExists(fn.c_str()))
+        if ((it->type == "FileSystem" || it->type == "Zip") && ! RoR::FileExists(fn.c_str()))
         {
             LOG("- "+fn+" is not existing");
             tmp = _L("incremental check: deleted and changed files\n") + ANSI_TO_UTF(it->fname) + _L(" not existing");

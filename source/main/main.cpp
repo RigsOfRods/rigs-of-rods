@@ -112,8 +112,10 @@ int main(int argc, char *argv[])
 
         Str<300> logs_dir;
         logs_dir << App::sys_user_dir.GetActive() << PATH_SLASH << "logs";
-        if (!PlatformUtils::FolderExists(App::sys_logs_dir.GetActive()))
-            PlatformUtils::CreateFolder(App::sys_logs_dir.GetActive());
+        if (!FolderExists(logs_dir.ToCStr()))
+        {
+            CreateFolder(logs_dir.ToCStr());
+        }
         App::sys_logs_dir.SetActive(logs_dir);
 
         auto ogre_log_manager = OGRE_NEW Ogre::LogManager();
@@ -132,8 +134,10 @@ int main(int argc, char *argv[])
 
         Settings::getSingleton().LoadRoRCfg(); // Main config file - path obtained from GVars
 
-        if (!PlatformUtils::FolderExists(App::sys_cache_dir.GetActive()))
-            PlatformUtils::CreateFolder(App::sys_cache_dir.GetActive());
+        if (!FolderExists(App::sys_cache_dir.GetActive()))
+        {
+            CreateFolder(App::sys_cache_dir.GetActive());
+        }
 
         // ### Process command-line arguments ###
 
