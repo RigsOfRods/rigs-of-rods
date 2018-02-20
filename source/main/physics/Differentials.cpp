@@ -28,11 +28,7 @@ Axle::Axle() :
     delta_rotation(0.0f),
     torsion_rate(1000000.0f),
     torsion_damp(torsion_rate / 100),
-    avg_speed(0.0f),
-    gear_ratio(1.0f),
-    axle_group(0),
     which_diff(0),
-    free_diff(0),
     current_callback(NULL)
 {
 }
@@ -42,11 +38,6 @@ void Axle::addDiffType(DiffType diff)
     available_diff_method.push_back(diff);
     if (!current_callback)
         current_callback = getDiffEquation(diff);
-}
-
-const std::vector<DiffType>& Axle::availableDiffs()
-{
-    return available_diff_method;
 }
 
 void Axle::toggleDiff()
@@ -70,15 +61,8 @@ Ogre::UTFString Axle::getDiffTypeName()
     switch (available_diff_method[which_diff])
     {
     case SPLIT_DIFF: return _L("Split");
-        break;
-    case VISCOUS_DIFF: return _L("Fluid");
-        break;
-    case TC_DIFF: return _L("Traction Control");
-        break;
     case OPEN_DIFF: return _L("Open");
-        break;
     case LOCKED_DIFF: return _L("Locked");
-        break;
     }
     return _L("invalid");
 }
@@ -88,8 +72,6 @@ diff_callback Axle::getDiffEquation(DiffType type)
     switch (type)
     {
     case SPLIT_DIFF: return calcSeperatedDiff;
-    case VISCOUS_DIFF: return calcViscousDiff;
-    case TC_DIFF: return calcViscousDiff;
     case OPEN_DIFF: return calcOpenDiff;
     case LOCKED_DIFF: return calcLockedDiff;
     }
@@ -99,19 +81,6 @@ diff_callback Axle::getDiffEquation(DiffType type)
 void Axle::calcSeperatedDiff(differential_data_t& diff_data)
 {
     diff_data.out_torque[0] = diff_data.out_torque[1] = diff_data.in_torque;
-}
-
-void Axle::calcViscousDiff(differential_data_t& diff_data)
-{
-    diff_data.out_torque[0] = diff_data.out_torque[1] = diff_data.in_torque;
-}
-
-static void calcTCDiff(differential_data_t& diff_data)
-{
-    calcTCDiff(diff_data);
-    Ogre::Real tmp = diff_data.out_torque[0];
-    diff_data.out_torque[0] = diff_data.out_torque[1];
-    diff_data.out_torque[1] = tmp;
 }
 
 void Axle::calcOpenDiff(differential_data_t& diff_data)
