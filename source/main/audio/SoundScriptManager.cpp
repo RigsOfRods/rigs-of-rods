@@ -348,7 +348,7 @@ void SoundScriptManager::clearNonBaseTemplates()
             it->second = 0;
             counter++;
 
-            STL_ERASE(templates, it);
+            it = templates.erase(it);
         }
         else
         {

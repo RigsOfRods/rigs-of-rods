@@ -91,13 +91,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 // debug asserts
 // #define FEAT_DEBUG_ASSERT
 
-// STL Erase fix for dinkumware STL x|
-#ifdef _MSC_VER
-#define STL_ERASE(x,y) y = x.erase(y)
-#else
-#define STL_ERASE(x,y) x.erase(y++)
-#endif // _MSC_VER
-
 #ifdef FEAT_DEBUG_ASSERT
 # ifdef _WIN32
 // __debugbreak will break into the debugger in visual studio
