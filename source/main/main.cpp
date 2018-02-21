@@ -27,7 +27,6 @@
 #include "Utils.h"
 #include "PlatformUtils.h"
 #include "Settings.h"
-
 #include "Application.h"
 #include "Beam.h"
 #include "BeamEngine.h"
@@ -52,12 +51,11 @@
 #include "InputEngine.h"
 #include "Language.h"
 #include "MumbleIntegration.h"
-
 #include "Network.h"
 #include "OgreSubsystem.h"
 #include "OverlayWrapper.h"
 #include "OutProtocol.h"
-
+#include "RoRVersion.h"
 #include "RoRFrameListener.h"
 #include "Scripting.h"
 #include "Settings.h"
@@ -70,6 +68,7 @@
 
 #include <OgreException.h>
 #include <OgreRoot.h>
+#include <string>
 
 #ifdef USE_CURL
 #   include <curl/curl.h>
@@ -102,11 +101,23 @@ int main(int argc, char *argv[])
             ErrorUtils::ShowError(_L("Startup error"), _L("Error while retrieving program directory path"));
             return -1;
         }
-        else if (res == -2)
+
+        // User's home directory
+        std::string user_home = RoR::GetUserHomeDirectory();
+        if (user_home.empty())
         {
             ErrorUtils::ShowError(_L("Startup error"), _L("Error while retrieving user directory path"));
             return -1;
         }
+        RoR::Str<500> ror_homedir;
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+        ror_homedir << user_home << PATH_SLASH << "Rigs of Rods " << ROR_VERSION_STRING_SHORT;
+#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+        ror_homedir << user_home << PATH_SLASH << ".rigsofrods";
+#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+        ror_homedir << user_home << PATH_SLASH << "RigsOfRods";
+#endif
+        App::sys_user_dir.SetActive(ror_homedir.ToCStr());
 
         // ### Create OGRE default logger early. ###
 

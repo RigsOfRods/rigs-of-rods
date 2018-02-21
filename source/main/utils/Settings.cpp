@@ -30,7 +30,6 @@
 #include <Ogre.h>
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-#include <shlobj.h> // for CoCreateGuid and SHGetFolderPathA
 #include <direct.h> // for _chdir
 #endif
 
@@ -42,7 +41,7 @@
 #include "ErrorUtils.h"
 #include "Language.h"
 #include "PlatformUtils.h"
-#include "RoRVersion.h"
+
 #include "Utils.h"
 
 // simpleopt by http://code.jellycan.com/simpleopt/
@@ -196,24 +195,6 @@ int DetectBasePaths()
         return 0; // Done!
     }
 
-    // User directory (system)
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 // NOTE: We use non-UNICODE interfaces for simplicity
-    char buf_win[bufsize] = "";
-    if (SHGetFolderPathA(nullptr, CSIDL_PERSONAL, nullptr, SHGFP_TYPE_CURRENT, buf_win) != S_OK)
-    {
-        return -2;
-    }
-    sprintf(buf, "%s\\Rigs of Rods %s", buf_win, ROR_VERSION_STRING_SHORT);
-
-#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-    snprintf(buf, bufsize, "%s/.rigsofrods", getenv("HOME"));
-
-#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-    snprintf(buf, bufsize, "%s/RigsOfRods", getenv("HOME"));
-
-#endif
-
-    App::sys_user_dir.SetActive(buf);
     return 0;
 }
 

@@ -37,6 +37,7 @@
 
 #ifdef _MSC_VER
     #include <Windows.h>
+    #include <shlobj.h> // SHGetFolderPathW()
 #else
     #include <sys/types.h>
     #include <sys/stat.h>
@@ -49,14 +50,15 @@ namespace RoR {
 #ifdef _MSC_VER
 
 // -------------------------- File/path utils for MS Windows --------------------------
+// Based on research in https://github.com/only-a-ptr/filepaths4rigs
 
 char PATH_SLASH = '\\';
 
-std::wstring MSW_Utf8ToWchar(const char* path) // from https://github.com/only-a-ptr/filepaths4rigs
+std::wstring MSW_Utf8ToWchar(const char* path) 
 {
     if( path == nullptr || path[0] == 0 )
     {
-        RoR::Log("[RoR|Platform] Internal error: MSW_Utf8ToWchar() received empty input");
+        RoR::Log("[RoR] Internal error: MSW_Utf8ToWchar() received empty input");
         return std::wstring();
     }
 
@@ -65,13 +67,13 @@ std::wstring MSW_Utf8ToWchar(const char* path) // from https://github.com/only-a
     int raw_result = MultiByteToWideChar(CP_UTF8, 0, &path[0], -1, &out_wstr[0], size_needed);
     if (raw_result <= 0)
     {
-        RoR::Log("[RoR|Platform] Internal error: MSW_Utf8ToWchar() could not convert UTF-8 to UTF-16");
+        RoR::LogFormat("[RoR] Internal error: MSW_Utf8ToWchar() could not convert UTF-8 to UTF-16; MultiByteToWideChar() returned %d", raw_result);
         return std::wstring();
     }
     return std::move(out_wstr);
 }
 
-DWORD MSW_GetFileAttrs(const char* path) // From https://github.com/only-a-ptr/filepaths4rigs
+DWORD MSW_GetFileAttrs(const char* path)
 {
     if (path == nullptr || path[0] == 0)
     {
@@ -82,6 +84,25 @@ DWORD MSW_GetFileAttrs(const char* path) // From https://github.com/only-a-ptr/f
     // Function reference: https://msdn.microsoft.com/en-us/library/windows/desktop/aa364944(v=vs.85).aspx
     // File attribute constants: https://msdn.microsoft.com/en-us/library/windows/desktop/gg258117(v=vs.85).aspx
     return GetFileAttributesW(wpath.c_str());
+}
+
+std::string MSW_WcharToUtf8(const wchar_t* wstr) // wstr _must_ be NUL-terminated!
+{
+    if( wstr == nullptr || wstr[0] == 0 )
+    {
+        RoR::Log("[RoR] Internal error: MSW_WcharToUtf8() received empty input");
+        return std::string();
+    }
+
+    const int dst_size = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], -1, nullptr, 0, nullptr, nullptr);
+    std::string dst(dst_size, 0); // Construct by length and initial value
+    int raw_result = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], -1, &dst[0], dst_size, nullptr, nullptr);
+    if (raw_result <= 0)
+    {
+        RoR::LogFormat("[RoR] Internal error: MSW_WcharToUtf8() could not convert UTF-16 to UTF-8; WideCharToMultiByte() returned %d", raw_result);
+        return std::string();
+    }
+    return std::move(dst);
 }
 
 bool FileExists(const char *path)
@@ -100,6 +121,19 @@ void CreateFolder(const char* path)
 {
     std::wstring wpath = MSW_Utf8ToWchar(path);
     CreateDirectoryW(wpath.c_str(), nullptr);
+}
+
+std::string GetUserHomeDirectory()
+{
+    std::wstring out_wstr(MAX_PATH, 0); // Length limit imposed by the function, see https://msdn.microsoft.com/en-us/library/windows/desktop/bb762181(v=vs.85).aspx
+    HRESULT hres = SHGetFolderPathW(nullptr, CSIDL_PERSONAL, nullptr, SHGFP_TYPE_CURRENT, &out_wstr[0]);
+    if (hres != S_OK)
+    {
+        RoR::LogFormat("[RoR] Internal error: GetUserHomeDirectory() failed; SHGetFolderPathW() returned %ld", static_cast<long>(hres));
+        return std::string();
+    }
+
+    return MSW_WcharToUtf8(out_wstr.c_str());
 }
 
 #else
@@ -123,6 +157,11 @@ bool FolderExists(const char* path)
 void CreateFolder(const char* path)
 {
     mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+}
+
+std::string GetUserHomeDirectory()
+{
+    return getenv("HOME");
 }
 
 #endif // _MSC_VER
