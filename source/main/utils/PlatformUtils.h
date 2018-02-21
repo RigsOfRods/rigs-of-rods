@@ -48,6 +48,8 @@ inline bool FileExists(std::string const& path)   { return FileExists(path.c_str
 inline bool FolderExists(std::string const& path) { return FolderExists(path.c_str()); }
 inline void CreateFolder(std::string const& path) { CreateFolder(path.c_str()); }
 
+std::string GetUserHomeDirectory(); //!< Returns UTF-8 path or empty string on error
+
 #ifdef USE_CRASHRPT
 int CALLBACK CrashRptCallback(CR_CRASH_CALLBACK_INFO* pInfo);
 void InstallCrashRpt();

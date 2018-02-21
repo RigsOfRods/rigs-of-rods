@@ -186,6 +186,7 @@ public:
     inline             operator const char*() const          { return this->ToCStr(); }
     inline Str&        operator=  (const char* src)          { return this->Assign(src); }
     inline Str&        operator<< (const char* src)          { return this->Append(src); }
+    inline Str&        operator<< (std::string const& str)   { return this->Append(str.c_str()); }
     inline Str&        operator<< (float f)                  { return this->Append(f); }
     inline Str&        operator<< (int i)                    { return this->Append(i); }
     inline Str&        operator<< (size_t z)                 { return this->Append(z); }
