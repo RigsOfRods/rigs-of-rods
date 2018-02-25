@@ -994,8 +994,7 @@ void OverlayWrapper::UpdateAerialHUD(Beam* vehicle)
         hsibugtexture->setTextureRotate(Radian(dirangle) - Degree(vehicle->autopilot->heading));
         float vdev = 0;
         float hdev = 0;
-        // TODO: FIXME
-        //vehicle->autopilot->getRadioFix(localizers, free_localizer, &vdev, &hdev);
+        vehicle->autopilot->getRadioFix(gEnv->terrainManager->getObjectManager()->GetLocalizers(), &vdev, &hdev);
         if (hdev > 15)
             hdev = 15;
         if (hdev < -15)
