@@ -70,6 +70,7 @@ public:
     } object_t;
 
     std::vector<object_t> getObjects() { return objects; };
+	std::vector<localizer_t> GetLocalizers() { return localizers; }
 
     bool update(float dt);
 
@@ -118,10 +119,9 @@ protected:
     Forests::TreeLoader2D* treeLoader;
 #endif //USE_PAGED
 
-    localizer_t localizers[64];
+    std::vector<localizer_t> localizers;
 
     int objcounter;
-    int free_localizer;
 
     std::vector<animated_object_t> animatedObjects;
     std::vector<MeshObject*> meshObjects;
