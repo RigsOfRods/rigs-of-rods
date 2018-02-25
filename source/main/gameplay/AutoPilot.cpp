@@ -352,7 +352,7 @@ void Autopilot::gpws_update(float spawnheight)
 #endif //OPENAL
 }
 
-void Autopilot::getRadioFix(TerrainObjectManager::localizer_t* localizers, int free_localizer, float* vdev, float* hdev)
+void Autopilot::getRadioFix(std::vector<TerrainObjectManager::localizer_t> localizers, float* vdev, float* hdev)
 {
     if (!ref_l || !ref_r)
         return;
@@ -362,7 +362,7 @@ void Autopilot::getRadioFix(TerrainObjectManager::localizer_t* localizers, int f
     float closest_vdist = -1;
     float closest_vangle = -90;
     lastradiorwh = 0;
-    for (int i = 0; i < free_localizer; i++)
+    for (std::vector<TerrainObjectManager::localizer_t>::size_type i = 0; i < localizers.size(); i++)
     {
         Plane hplane = Plane(Vector3::UNIT_Y, 0);
         Vector3 plocd = hplane.projectVector(localizers[i].rotation * Vector3::UNIT_Z);

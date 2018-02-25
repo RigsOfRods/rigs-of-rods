@@ -105,7 +105,6 @@ TerrainObjectManager::~TerrainObjectManager()
         delete proceduralManager;
     }
     gEnv->sceneManager->destroyAllEntities();
-
 }
 
 void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
