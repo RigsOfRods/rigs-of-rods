@@ -105,6 +105,7 @@ TerrainObjectManager::~TerrainObjectManager()
         delete proceduralManager;
     }
     gEnv->sceneManager->destroyAllEntities();
+
 }
 
 void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
@@ -115,7 +116,7 @@ void TerrainObjectManager::loadObjectConfigFile(Ogre::String odefname)
     }
 
     objcounter = 0;
-    free_localizer = 0;
+    localizers.clear();
 
     ProceduralObject po;
     po.loadingState = -1;
@@ -862,34 +863,38 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
         };
         if (!strcmp("localizer-h", ptline))
         {
-            localizers[free_localizer].position = Vector3(pos.x, pos.y, pos.z);
-            localizers[free_localizer].rotation = rotation;
-            localizers[free_localizer].type = Autopilot::LOCALIZER_HORIZONTAL;
-            free_localizer++;
+			localizer_t loc;
+			loc.position = Vector3(pos.x, pos.y, pos.z);
+			loc.rotation = rotation;
+			loc.type = Autopilot::LOCALIZER_HORIZONTAL;
+			localizers.push_back(loc);
             continue;
         }
         if (!strcmp("localizer-v", ptline))
         {
-            localizers[free_localizer].position = Vector3(pos.x, pos.y, pos.z);
-            localizers[free_localizer].rotation = rotation;
-            localizers[free_localizer].type = Autopilot::LOCALIZER_VERTICAL;
-            free_localizer++;
+			localizer_t loc;
+			loc.position = Vector3(pos.x, pos.y, pos.z);
+			loc.rotation = rotation;
+			loc.type = Autopilot::LOCALIZER_VERTICAL;
+			localizers.push_back(loc);
             continue;
         }
         if (!strcmp("localizer-ndb", ptline))
         {
-            localizers[free_localizer].position = Vector3(pos.x, pos.y, pos.z);
-            localizers[free_localizer].rotation = rotation;
-            localizers[free_localizer].type = Autopilot::LOCALIZER_NDB;
-            free_localizer++;
+			localizer_t loc;
+			loc.position = Vector3(pos.x, pos.y, pos.z);
+			loc.rotation = rotation;
+			loc.type = Autopilot::LOCALIZER_NDB;
+			localizers.push_back(loc);
             continue;
         }
         if (!strcmp("localizer-vor", ptline))
         {
-            localizers[free_localizer].position = Vector3(pos.x, pos.y, pos.z);
-            localizers[free_localizer].rotation = rotation;
-            localizers[free_localizer].type = Autopilot::LOCALIZER_VOR;
-            free_localizer++;
+			localizer_t loc;
+			loc.position = Vector3(pos.x, pos.y, pos.z);
+			loc.rotation = rotation;
+			loc.type = Autopilot::LOCALIZER_VOR;
+			localizers.push_back(loc);
             continue;
         }
         if (!strcmp("standard", ptline))
