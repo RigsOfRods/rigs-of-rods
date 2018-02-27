@@ -862,38 +862,38 @@ void TerrainObjectManager::loadObject(const Ogre::String& name, const Ogre::Vect
         };
         if (!strcmp("localizer-h", ptline))
         {
-			localizer_t loc;
-			loc.position = Vector3(pos.x, pos.y, pos.z);
-			loc.rotation = rotation;
-			loc.type = Autopilot::LOCALIZER_HORIZONTAL;
-			localizers.push_back(loc);
+            localizer_t loc;
+            loc.position = Vector3(pos.x, pos.y, pos.z);
+            loc.rotation = rotation;
+            loc.type = Autopilot::LOCALIZER_HORIZONTAL;
+            localizers.push_back(loc);
             continue;
         }
         if (!strcmp("localizer-v", ptline))
         {
-			localizer_t loc;
-			loc.position = Vector3(pos.x, pos.y, pos.z);
-			loc.rotation = rotation;
-			loc.type = Autopilot::LOCALIZER_VERTICAL;
-			localizers.push_back(loc);
+            localizer_t loc;
+            loc.position = Vector3(pos.x, pos.y, pos.z);
+            loc.rotation = rotation;
+            loc.type = Autopilot::LOCALIZER_VERTICAL;
+            localizers.push_back(loc);
             continue;
         }
         if (!strcmp("localizer-ndb", ptline))
         {
-			localizer_t loc;
-			loc.position = Vector3(pos.x, pos.y, pos.z);
-			loc.rotation = rotation;
-			loc.type = Autopilot::LOCALIZER_NDB;
-			localizers.push_back(loc);
+            localizer_t loc;
+            loc.position = Vector3(pos.x, pos.y, pos.z);
+            loc.rotation = rotation;
+            loc.type = Autopilot::LOCALIZER_NDB;
+            localizers.push_back(loc);
             continue;
         }
         if (!strcmp("localizer-vor", ptline))
         {
-			localizer_t loc;
-			loc.position = Vector3(pos.x, pos.y, pos.z);
-			loc.rotation = rotation;
-			loc.type = Autopilot::LOCALIZER_VOR;
-			localizers.push_back(loc);
+            localizer_t loc;
+            loc.position = Vector3(pos.x, pos.y, pos.z);
+            loc.rotation = rotation;
+            loc.type = Autopilot::LOCALIZER_VOR;
+            localizers.push_back(loc);
             continue;
         }
         if (!strcmp("standard", ptline))
