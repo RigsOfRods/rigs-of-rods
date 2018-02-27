@@ -73,7 +73,7 @@ public:
 
     void gpws_update(float spawnheight);
 
-	void getRadioFix(std::vector<TerrainObjectManager::localizer_t> localizers, float* vdev, float* hdev);
+    void getRadioFix(std::vector<TerrainObjectManager::localizer_t> localizers, float* vdev, float* hdev);
 
 private:
 

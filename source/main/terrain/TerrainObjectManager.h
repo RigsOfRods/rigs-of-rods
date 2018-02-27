@@ -70,7 +70,7 @@ public:
     } object_t;
 
     std::vector<object_t> getObjects() { return objects; };
-	std::vector<localizer_t> GetLocalizers() { return localizers; }
+    std::vector<localizer_t> GetLocalizers() { return localizers; }
 
     bool update(float dt);
 
