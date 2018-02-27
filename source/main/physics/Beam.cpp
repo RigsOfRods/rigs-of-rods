@@ -3636,6 +3636,7 @@ void Beam::updateVisual(float dt)
     float autoelevator = 0;
     if (autopilot)
     {
+        autopilot->UpdateIls(gEnv->terrainManager->getObjectManager()->GetLocalizers());
         autoaileron = autopilot->getAilerons();
         autorudder = autopilot->getRudder();
         autoelevator = autopilot->getElevator();

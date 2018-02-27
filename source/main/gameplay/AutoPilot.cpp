@@ -52,9 +52,9 @@ void Autopilot::reset()
     last_aileron = 0;
     last_gpws_height = 0;
     last_pullup_height = 0;
-    lastradiov = -90;
-    lastradioh = -90;
-    lastradiorwh = 0;
+    m_ils_angle_vdev = -90;
+    m_ils_angle_hdev = -90;
+    m_ils_runway_heading = 0;
     last_closest_hdist = 0;
     wantsdisconnect = false;
 }
@@ -122,15 +122,15 @@ float Autopilot::getAilerons()
         if (mode_heading == HEADING_NAV)
         {
             //compute intercept heading
-            float error_heading = lastradioh / 10.0;
+            float error_heading = m_ils_angle_hdev / 10.0;
             if (error_heading > 1.0)
                 error_heading = 1.0;
             if (error_heading < -1.0)
                 error_heading = -1.0;
-            float offcourse_tolerance = lastradiorwd / 30.0;
+            float offcourse_tolerance = m_ils_runway_distance / 30.0;
             if (offcourse_tolerance > 60.0)
                 offcourse_tolerance = 60.0;
-            float intercept_heading = lastradiorwh + error_heading * offcourse_tolerance;
+            float intercept_heading = m_ils_runway_heading + error_heading * offcourse_tolerance;
             Vector3 vel = (ref_l->Velocity + ref_r->Velocity) / 2.0;
             float curdir = atan2(vel.x, -vel.z) * 57.295779513082;
             float want_bank = curdir - intercept_heading;
@@ -165,8 +165,8 @@ float Autopilot::getElevator()
             if (mode_heading == HEADING_NAV)
             {
                 //this is cheating a bit
-                float ch = lastradiorwd * sin((lastradiov + 4.0) / 57.295779513082);
-                float oh = lastradiorwd * sin((4.0) / 57.295779513082);
+                float ch = m_ils_runway_distance * sin((m_ils_angle_vdev + 4.0) / 57.295779513082);
+                float oh = m_ils_runway_distance * sin((4.0) / 57.295779513082);
                 wanted_vs = 5000.0 / 196.87;
                 float wanted_vs2 = (-ch + oh) / 5.0;
                 if (wanted_vs2 < -wanted_vs)
@@ -352,7 +352,7 @@ void Autopilot::gpws_update(float spawnheight)
 #endif //OPENAL
 }
 
-void Autopilot::getRadioFix(std::vector<TerrainObjectManager::localizer_t> localizers, float* vdev, float* hdev)
+void Autopilot::UpdateIls(std::vector<TerrainObjectManager::localizer_t> localizers)
 {
     if (!ref_l || !ref_r)
         return;
@@ -361,7 +361,7 @@ void Autopilot::getRadioFix(std::vector<TerrainObjectManager::localizer_t> local
     float closest_hangle = -90;
     float closest_vdist = -1;
     float closest_vangle = -90;
-    lastradiorwh = 0;
+    m_ils_runway_heading = 0;
     for (std::vector<TerrainObjectManager::localizer_t>::size_type i = 0; i < localizers.size(); i++)
     {
         Plane hplane = Plane(Vector3::UNIT_Y, 0);
@@ -385,10 +385,10 @@ void Autopilot::getRadioFix(std::vector<TerrainObjectManager::localizer_t> local
                 {
                     closest_hdist = dist;
                     closest_hangle = diff;
-                    lastradiorwh = loc * 57.295779513082 - 90.0; //dont ask me why
-                    if (lastradiorwh < 0.0)
-                        lastradiorwh += 360.0;
-                    lastradiorwd = dist;
+                    m_ils_runway_heading = loc * 57.295779513082 - 90.0; //dont ask me why
+                    if (m_ils_runway_heading < 0.0)
+                        m_ils_runway_heading += 360.0;
+                    m_ils_runway_distance = dist;
                 }
             }
             //vertical
@@ -418,10 +418,8 @@ void Autopilot::getRadioFix(std::vector<TerrainObjectManager::localizer_t> local
             }
         }
     }
-    lastradioh = closest_hangle;
-    lastradiov = closest_vangle;
-    *hdev = closest_hangle;
-    *vdev = closest_vangle;
+    m_ils_angle_hdev = closest_hangle;
+    m_ils_angle_vdev = closest_vangle;
 
     if (mode_heading == HEADING_NAV && mode_gpws && closest_hdist > 10.0 && closest_hdist < 350.0 && last_closest_hdist > 10.0 && last_closest_hdist > 350.0)
     {
