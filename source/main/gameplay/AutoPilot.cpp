@@ -57,6 +57,9 @@ void Autopilot::reset()
     m_ils_runway_heading = 0;
     last_closest_hdist = 0;
     wantsdisconnect = false;
+
+    m_vertical_locator_available = false;
+    m_horizontal_locator_available = false;
 }
 
 void Autopilot::disconnect()
@@ -421,12 +424,22 @@ void Autopilot::UpdateIls(std::vector<TerrainObjectManager::localizer_t> localiz
     m_ils_angle_hdev = closest_hangle;
     m_ils_angle_vdev = closest_vangle;
 
+    m_horizontal_locator_available = (closest_hdist != -1);
+    m_vertical_locator_available = (closest_vdist != -1);
+
     if (mode_heading == HEADING_NAV && mode_gpws && closest_hdist > 10.0 && closest_hdist < 350.0 && last_closest_hdist > 10.0 && last_closest_hdist > 350.0)
     {
         SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_MINIMUMS);
     }
 
     last_closest_hdist = closest_hdist;
-    if (mode_heading == HEADING_NAV && (closest_hdist < 20.0 || closest_vdist < 20.0))
-        wantsdisconnect = true;
+    if (mode_heading == HEADING_NAV)
+    {
+        // disconnect if close to runway or no locators are available
+        if (closest_hdist < 20.0 || closest_vdist < 20.0)
+            wantsdisconnect = true;
+        if (!this->IsIlsAvailable())
+            wantsdisconnect = true;
+    }
+        
 }

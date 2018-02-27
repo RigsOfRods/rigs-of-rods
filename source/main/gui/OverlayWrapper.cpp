@@ -992,8 +992,14 @@ void OverlayWrapper::UpdateAerialHUD(Beam* vehicle)
     if (vehicle->autopilot)
     {
         hsibugtexture->setTextureRotate(Radian(dirangle) - Degree(vehicle->autopilot->heading));
-        float vdev = vehicle->autopilot->GetVerticalApproachDeviation();
-        float hdev = vehicle->autopilot->GetHorizontalApproachDeviation();
+
+        float vdev = 0;
+        float hdev = 0;
+        if (vehicle->autopilot->IsIlsAvailable())
+        {
+            vdev = vehicle->autopilot->GetVerticalApproachDeviation();
+            hdev = vehicle->autopilot->GetHorizontalApproachDeviation();
+        }
         if (hdev > 15)
             hdev = 15;
         if (hdev < -15)

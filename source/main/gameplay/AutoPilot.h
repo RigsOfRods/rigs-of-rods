@@ -76,7 +76,7 @@ public:
     void UpdateIls(std::vector<TerrainObjectManager::localizer_t> localizers);
     float GetVerticalApproachDeviation() { return m_ils_angle_vdev; }
     float GetHorizontalApproachDeviation() { return m_ils_angle_hdev; }
-
+    bool IsIlsAvailable() { return m_horizontal_locator_available && m_vertical_locator_available; }
 private:
 
     int mode_heading;
@@ -97,6 +97,8 @@ private:
     float last_gpws_height;
     float last_pullup_height;
 
+    bool m_vertical_locator_available;
+    bool m_horizontal_locator_available;
     float m_ils_angle_vdev;
     float m_ils_angle_hdev;
     float m_ils_runway_heading;
