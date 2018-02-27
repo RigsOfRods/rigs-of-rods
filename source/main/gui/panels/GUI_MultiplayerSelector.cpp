@@ -253,9 +253,9 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
         ImGui::PopItemWidth();
 
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
-        if (ImGui::Button("Join (dummy)"))
+        if (ImGui::Button("Join"))
         {
-            // TODO: perform the join.
+            App::mp_state.SetPending (MpState::CONNECTED);
         }
 
         ImGui::PopID();
