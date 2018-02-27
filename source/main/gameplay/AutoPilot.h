@@ -73,7 +73,9 @@ public:
 
     void gpws_update(float spawnheight);
 
-    void getRadioFix(std::vector<TerrainObjectManager::localizer_t> localizers, float* vdev, float* hdev);
+    void UpdateIls(std::vector<TerrainObjectManager::localizer_t> localizers);
+    float GetVerticalApproachDeviation() { return m_ils_angle_vdev; }
+    float GetHorizontalApproachDeviation() { return m_ils_angle_hdev; }
 
 private:
 
@@ -94,10 +96,11 @@ private:
     float last_rudder;
     float last_gpws_height;
     float last_pullup_height;
-    float lastradiov;
-    float lastradioh;
-    float lastradiorwh;
-    float lastradiorwd;
+
+    float m_ils_angle_vdev;
+    float m_ils_angle_hdev;
+    float m_ils_runway_heading;
+    float m_ils_runway_distance;
     float last_closest_hdist;
 
     int m_actor_id;
