@@ -402,7 +402,11 @@ loader(0)
 	//Set up materials
 	for (int o = 0; o < IMPOSTOR_YAW_ANGLES; ++o){
 	for (int i = 0; i < IMPOSTOR_PITCH_ANGLES; ++i){
-		material[i][o] = MaterialManager::getSingleton().create(getUniqueID("ImpostorMaterial"), "Impostors").staticCast<Ogre::Material>();
+#if OGRE_VERSION >= 0x010900
+        material[i][o] = MaterialManager::getSingleton ().create (getUniqueID ("ImpostorMaterial"), "Impostors").staticCast<Ogre::Material> ();
+#else
+        material[i][o] = MaterialManager::getSingleton ().create (getUniqueID ("ImpostorMaterial"), "Impostors");
+#endif
 
 		Material *m = material[i][o].getPointer();
 		Pass *p = m->getTechnique(0)->getPass(0);

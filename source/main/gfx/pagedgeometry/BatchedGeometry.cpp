@@ -479,7 +479,11 @@ m_pParentGeom           (parent)
    // that the user may be using somewhere else).
    {
       Ogre::String newName = parentMaterial->getName() + "_Batched";
-      m_ptrMaterial = MaterialManager::getSingleton().getByName(newName, parentMaterial->getGroup()).staticCast<Material>();
+#if OGRE_VERSION >= 0x010900
+      m_ptrMaterial = MaterialManager::getSingleton ().getByName (newName, parentMaterial->getGroup ()).staticCast<Material> ();
+#else
+      m_ptrMaterial = MaterialManager::getSingleton ().getByName (newName, parentMaterial->getGroup ());
+#endif
       if (m_ptrMaterial.isNull())
          m_ptrMaterial = parentMaterial->clone(newName);
    }

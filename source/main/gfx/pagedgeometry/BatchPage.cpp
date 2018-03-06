@@ -472,7 +472,11 @@ void BatchPage::_updateShaders()
 		}
 
 		//Search for the desired material
-		MaterialPtr generatedMaterial = MaterialManager::getSingleton().getByName(materialSignature.str()).staticCast<Ogre::Material>();
+#if OGRE_VERSION >= 0x010900
+        MaterialPtr generatedMaterial = MaterialManager::getSingleton ().getByName (materialSignature.str ()).staticCast<Ogre::Material> ();
+#else
+        MaterialPtr generatedMaterial = MaterialManager::getSingleton ().getByName (materialSignature.str ());
+#endif
 		if (generatedMaterial.isNull())
       {
 			//Clone the material

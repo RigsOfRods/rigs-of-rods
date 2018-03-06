@@ -467,7 +467,11 @@ void WindBatchPage::_updateShaders()
 		}
 
 		//Search for the desired material
-		MaterialPtr generatedMaterial = MaterialManager::getSingleton().getByName(materialSignature.str()).staticCast<Material>();
+#if OGRE_VERSION >= 0x010900
+        MaterialPtr generatedMaterial = MaterialManager::getSingleton ().getByName (materialSignature.str ()).staticCast<Material> ();
+#else
+        MaterialPtr generatedMaterial = MaterialManager::getSingleton ().getByName (materialSignature.str ());
+#endif
 		if (generatedMaterial.isNull())
       {
 			//Clone the material

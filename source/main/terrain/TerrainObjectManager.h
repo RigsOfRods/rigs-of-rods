@@ -116,9 +116,7 @@ private:
     bool                      m_background_loading;
     bool                      m_use_rtshadersystem;
 
-#ifdef USE_PAGED
     std::vector<PaGeomInstance> m_paged_geometry;
     Forests::TreeLoader2D*      m_tree_loader;
-#endif //USE_PAGED
 };
 

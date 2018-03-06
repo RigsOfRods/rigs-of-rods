@@ -148,8 +148,11 @@ mFadeInvisibleDist      (0.f)
                "	gl_FogFragCoord = gl_Position.z; \n"
                "}";
          }
-
-		 HighLevelGpuProgramPtr vertexShader = HighLevelGpuProgramManager::getSingleton().getByName("Sprite_vp").staticCast<HighLevelGpuProgram>();
+#if OGRE_VERSION >= 0x010900
+         HighLevelGpuProgramPtr vertexShader = HighLevelGpuProgramManager::getSingleton ().getByName ("Sprite_vp").staticCast<HighLevelGpuProgram> ();
+#else
+         HighLevelGpuProgramPtr vertexShader = HighLevelGpuProgramManager::getSingleton ().getByName ("Sprite_vp");
+#endif
          assert(vertexShader.isNull() && "Sprite_vp already exist");
 
          vertexShader = HighLevelGpuProgramManager::getSingleton().createProgram(
@@ -257,7 +260,11 @@ mFadeInvisibleDist      (0.f)
                "}";
          }
 
-		 HighLevelGpuProgramPtr vertexShader2 = HighLevelGpuProgramManager::getSingleton().getByName("SpriteFade_vp").staticCast<HighLevelGpuProgram>();
+#if OGRE_VERSION >= 0x010900
+         HighLevelGpuProgramPtr vertexShader2 = HighLevelGpuProgramManager::getSingleton ().getByName ("SpriteFade_vp").staticCast<HighLevelGpuProgram> ();
+#else
+         HighLevelGpuProgramPtr vertexShader2 = HighLevelGpuProgramManager::getSingleton ().getByName ("SpriteFade_vp");
+#endif
          assert(vertexShader2.isNull() && "SpriteFade_vp already exist");
          vertexShader2 = HighLevelGpuProgramManager::getSingleton().createProgram("SpriteFade_vp",
             ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, shaderLanguage, GPT_VERTEX_PROGRAM);
@@ -574,8 +581,11 @@ void StaticBillboardSet::setMaterial(const String &materialName, const Ogre::Str
       else if (!mPtrMaterial.isNull())
          SBMaterialRef::removeMaterialRef(mPtrMaterial);
 
-	  mPtrMaterial = MaterialManager::getSingleton().getByName(materialName, resourceGroup).staticCast<Material>();
-
+#if OGRE_VERSION >= 0x010900
+      mPtrMaterial = MaterialManager::getSingleton ().getByName (materialName, resourceGroup).staticCast<Material> ();
+#else
+      mPtrMaterial = MaterialManager::getSingleton ().getByName (materialName, resourceGroup);
+#endif
       if (mFadeEnabled)
       {
          mPtrFadeMaterial = getFadeMaterial(mPtrMaterial, mFadeVisibleDist, mFadeInvisibleDist);
@@ -590,7 +600,11 @@ void StaticBillboardSet::setMaterial(const String &materialName, const Ogre::Str
    }
    else  // old GPU compatibility
    {
-      mPtrMaterial = MaterialManager::getSingleton().getByName(materialName, resourceGroup).staticCast<Material>();
+#if OGRE_VERSION >= 0x010900
+       mPtrMaterial = MaterialManager::getSingleton ().getByName (materialName, resourceGroup).staticCast<Material> ();
+#else
+       mPtrMaterial = MaterialManager::getSingleton ().getByName (materialName, resourceGroup);
+#endif
       mpFallbackBillboardSet->setMaterialName(mPtrMaterial->getName(), mPtrMaterial->getGroup());
       // SVA. Since Ogre 1.7.3 Ogre::BillboardSet have setMaterial(const MaterialPtr&) method
    }
