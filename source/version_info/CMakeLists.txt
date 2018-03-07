@@ -10,7 +10,7 @@ set( VERSION_DEF_H ${CMAKE_CURRENT_BINARY_DIR}/version_def.h )
 find_package( Git )
 if( WIN32 AND NOT GIT_FOUND )
   message( "Searching for git.exe provided by Github Client" )
-  file( GLOB_RECURSE GIT_EXECUTABLE "$ENV{LOCALAPPDATA}/GitHub/GitPortable_*/cmd/git.exe" )
+  file( GLOB_RECURSE GIT_EXECUTABLE "$ENV{LOCALAPPDATA}/GitHubDesktop/app-*/resources/app/git/cmd/git.exe" )
   list( GET GIT_EXECUTABLE 0 GIT_EXECUTABLE )
 endif()
 
