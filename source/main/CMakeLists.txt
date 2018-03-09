@@ -561,7 +561,7 @@ if (WIN32)
 
     # Create list of commands for copying
     set(WXWIDGETS_VERSION 311u)
-    set(WXWIDGETS_COMPILER vc_custom)
+    set(WXWIDGETS_COMPILER vc_RoR)
     post_build_copy_commands(DEPENDENCY_COPY_COMMANDS ${BINNAME}
             # Angelscript
             angelscript.dll
@@ -614,8 +614,8 @@ if (WIN32)
 endif ()
 
 # Copy resources needed for execution to the build directory
-add_custom_command(
-        TARGET ${BINNAME} POST_BUILD
+add_custom_target(
+        zip_and_copy_resources
         COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/recursive_zipper.py ${CMAKE_SOURCE_DIR}/resources $<TARGET_FILE_DIR:${BINNAME}>/resources
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/resources/managed_materials $<TARGET_FILE_DIR:${BINNAME}>/resources/managed_materials
         COMMENT "Zip and copy resources to build directory"
