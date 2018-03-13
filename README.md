@@ -4,6 +4,7 @@
 ![release](https://img.shields.io/github/release/RigsOfRods/rigs-of-rods.svg?style=flat-square)
 ![contributors](https://img.shields.io/github/contributors/RigsOfRods/rigs-of-rods.svg?style=flat-square)
 ![issues-pr](https://img.shields.io/github/issues-pr/RigsOfRods/rigs-of-rods.svg?style=flat-square)
+![commits since latest release](https://img.shields.io/github/commits-since/RigsOfRods/rigs-of-rods/latest.svg?style=flat-square)
 
 
 
