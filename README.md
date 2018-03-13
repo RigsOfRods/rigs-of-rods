@@ -1,6 +1,6 @@
 # Rigs of Rods
 
-[![Join the chat at gitter.im](https://img.shields.io/gitter/room/RigsOfRods/rigs-of-rods.svg?style=flat-square)](https://gitter.im/RigsOfRods/rigs-of-rods) ![downloads](https://img.shields.io/github/downloads/RigsOfRods/rigs-of-rods/latest/total.svg?style=flat-square)
+[![Join Discord](https://img.shields.io/discord/136544456244461568.svg?style=flat-square)](https://discord.gg/rigsofrods) ![downloads](https://img.shields.io/github/downloads/RigsOfRods/rigs-of-rods/latest/total.svg?style=flat-square)
 ![release](https://img.shields.io/github/release/RigsOfRods/rigs-of-rods.svg?style=flat-square)
 ![contributors](https://img.shields.io/github/contributors/RigsOfRods/rigs-of-rods.svg?style=flat-square)
 ![issues-pr](https://img.shields.io/github/issues-pr/RigsOfRods/rigs-of-rods.svg?style=flat-square)
