@@ -1456,6 +1456,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                             msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
                                 << len << " / " << beams[i].strength << ". ";
                             LogBeamNodes(msg, beams[i]);
+                            RoR::Log(msg.ToCStr());
                         }
                     }
                     else if (slen < beams[i].maxnegstress && difftoBeamL > 0.0f) // expansion
@@ -1480,6 +1481,7 @@ void Beam::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                             msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
                                 << len << " / " << beams[i].strength << ". ";
                             LogBeamNodes(msg, beams[i]);
+                            RoR::Log(msg.ToCStr());
                         }
                     }
                 }
@@ -1633,6 +1635,7 @@ void Beam::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxste
                             msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
                                 << len << " / " << interTruckBeams[i]->strength << ". ";
                             LogBeamNodes(msg, (*interTruckBeams[i]));
+                            RoR::Log(msg.ToCStr());
                         }
                     }
                     else if (slen < interTruckBeams[i]->maxnegstress && difftoBeamL > 0.0f) // expansion
@@ -1656,6 +1659,7 @@ void Beam::calcBeamsInterTruck(int doUpdate, Ogre::Real dt, int step, int maxste
                             msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
                                 << len << " / " << interTruckBeams[i]->strength << ". ";
                             LogBeamNodes(msg, (*interTruckBeams[i]));
+                            RoR::Log(msg.ToCStr());
                         }
                     }
                 }
