@@ -35,7 +35,6 @@ class CameraBehaviorCharacter;
 class CameraBehaviorVehicle;
 class CameraBehaviorVehicleCineCam;
 class CameraBehaviorFree;
-class CameraBehaviorIsometric;
 
 class CameraManager
 {
@@ -150,7 +149,6 @@ protected:
     CameraBehaviorVehicleSpline* m_cam_behav_vehicle_spline;
     CameraBehaviorVehicleCineCam* m_cam_behav_vehicle_cinecam;
     CameraBehaviorFree*       m_cam_behav_free;
-    CameraBehaviorIsometric*  m_cam_behav_isometric;
 
     bool m_config_enter_vehicle_keep_fixedfreecam;
     bool m_config_exit_vehicle_keep_fixedfreecam;

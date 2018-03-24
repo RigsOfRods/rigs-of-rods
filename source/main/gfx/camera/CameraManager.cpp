@@ -39,7 +39,6 @@
 #include "CameraBehaviorVehicle.h"
 #include "CameraBehaviorVehicleCineCam.h"
 #include "CameraBehaviorVehicleSpline.h"
-#include "CameraBehaviorIsometric.h"
 
 #include <stack>
 
@@ -79,7 +78,6 @@ CameraManager::CameraManager() :
     m_cam_behav_vehicle_spline   = new CameraBehaviorVehicleSpline();
     m_cam_behav_vehicle_cinecam  = new CameraBehaviorVehicleCineCam(this);
     m_cam_behav_free             = new CameraBehaviorFree();
-    m_cam_behav_isometric        = new CameraBehaviorIsometric();
 
     ctx.cct_player_actor = nullptr;
     ctx.cct_dof_manager = nullptr;
@@ -98,7 +96,6 @@ CameraManager::~CameraManager()
     delete m_cam_behav_vehicle_spline;
     delete m_cam_behav_vehicle_cinecam;
     delete m_cam_behav_free;
-    delete m_cam_behav_isometric;
 
     delete ctx.cct_dof_manager;
 }
@@ -132,7 +129,7 @@ bool CameraManager::EvaluateSwitchBehavior()
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return m_cam_behav_vehicle_cinecam->switchBehavior(ctx);
     case CAMERA_BEHAVIOR_FREE:            return m_cam_behav_free           ->switchBehavior(ctx);
     case CAMERA_BEHAVIOR_FIXED:           return true;
-    case CAMERA_BEHAVIOR_ISOMETRIC:       return m_cam_behav_isometric      ->switchBehavior(ctx);
+    case CAMERA_BEHAVIOR_ISOMETRIC:       return true;
     case CAMERA_BEHAVIOR_INVALID:         return true;
     default:                              return false;
     }
@@ -151,7 +148,7 @@ void CameraManager::UpdateCurrentBehavior()
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: m_cam_behav_vehicle_cinecam->update(ctx);  return;
     case CAMERA_BEHAVIOR_FREE:            m_cam_behav_free           ->update(ctx);  return;
     case CAMERA_BEHAVIOR_FIXED:           return;
-    case CAMERA_BEHAVIOR_ISOMETRIC:       m_cam_behav_isometric      ->update(ctx);  return;
+    case CAMERA_BEHAVIOR_ISOMETRIC:       return;
     case CAMERA_BEHAVIOR_INVALID:         return;
     default:                              return;
     }
@@ -224,7 +221,7 @@ void CameraManager::ResetCurrentBehavior()
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: m_cam_behav_vehicle_cinecam->reset(ctx);  return;
     case CAMERA_BEHAVIOR_FREE:            m_cam_behav_free           ->reset(ctx);  return;
     case CAMERA_BEHAVIOR_FIXED:           return;
-    case CAMERA_BEHAVIOR_ISOMETRIC:       m_cam_behav_isometric      ->reset(ctx);  return;
+    case CAMERA_BEHAVIOR_ISOMETRIC:       return;
     case CAMERA_BEHAVIOR_INVALID:         return;
     default:                              return;
     }
@@ -335,7 +332,7 @@ void CameraManager::DeactivateCurrentBehavior()
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: m_cam_behav_vehicle_cinecam->deactivate(ctx);  return;
     case CAMERA_BEHAVIOR_FREE:            m_cam_behav_free           ->deactivate(ctx);  return;
     case CAMERA_BEHAVIOR_FIXED:           return;
-    case CAMERA_BEHAVIOR_ISOMETRIC:       m_cam_behav_isometric      ->deactivate(ctx);  return;
+    case CAMERA_BEHAVIOR_ISOMETRIC:       return;
     case CAMERA_BEHAVIOR_INVALID:         return;
     default:                              return;
     }    
@@ -408,7 +405,7 @@ bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return m_cam_behav_vehicle_cinecam->mouseMoved(ctx, _arg);
     case CAMERA_BEHAVIOR_FREE:            return m_cam_behav_free           ->mouseMoved(ctx, _arg);
     case CAMERA_BEHAVIOR_FIXED:           return false;
-    case CAMERA_BEHAVIOR_ISOMETRIC:       return m_cam_behav_isometric      ->mouseMoved(ctx, _arg);
+    case CAMERA_BEHAVIOR_ISOMETRIC:       return false;
     case CAMERA_BEHAVIOR_INVALID:         return false;
     default:                              return false;
     }
@@ -425,7 +422,7 @@ bool CameraManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return m_cam_behav_vehicle_cinecam->mousePressed(ctx, _arg, _id);
     case CAMERA_BEHAVIOR_FREE:            return m_cam_behav_free           ->mousePressed(ctx, _arg, _id);
     case CAMERA_BEHAVIOR_FIXED:           return false;
-    case CAMERA_BEHAVIOR_ISOMETRIC:       return m_cam_behav_isometric      ->mousePressed(ctx, _arg, _id);
+    case CAMERA_BEHAVIOR_ISOMETRIC:       return false;
     case CAMERA_BEHAVIOR_INVALID:         return false;
     default:                              return false;
     }
@@ -442,7 +439,7 @@ bool CameraManager::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonI
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return m_cam_behav_vehicle_cinecam->mouseReleased(ctx, _arg, _id);
     case CAMERA_BEHAVIOR_FREE:            return m_cam_behav_free           ->mouseReleased(ctx, _arg, _id);
     case CAMERA_BEHAVIOR_FIXED:           return false;
-    case CAMERA_BEHAVIOR_ISOMETRIC:       return m_cam_behav_isometric      ->mouseReleased(ctx, _arg, _id);
+    case CAMERA_BEHAVIOR_ISOMETRIC:       return false;
     case CAMERA_BEHAVIOR_INVALID:         return false;
     default:                              return false;
     }
@@ -471,7 +468,7 @@ void CameraManager::NotifyContextChange()
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: m_cam_behav_vehicle_cinecam->notifyContextChange(ctx);  return;
     case CAMERA_BEHAVIOR_FREE:            m_cam_behav_free           ->notifyContextChange(ctx);  return;
     case CAMERA_BEHAVIOR_FIXED:           return;
-    case CAMERA_BEHAVIOR_ISOMETRIC:       m_cam_behav_isometric      ->notifyContextChange(ctx);  return;
+    case CAMERA_BEHAVIOR_ISOMETRIC:       return;
     case CAMERA_BEHAVIOR_INVALID:         return;
     default:                              return;
     }
