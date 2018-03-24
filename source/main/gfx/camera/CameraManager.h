@@ -142,9 +142,6 @@ protected:
 
     CameraContext ctx;
 
-    float mTransScale, mTransSpeed;
-    float mRotScale, mRotateSpeed;
-
     CameraBehaviors m_current_behavior;
     CameraBehaviors m_cam_before_toggled; ///< Toggled modes (FREE, FREEFIX) remember original state.
     CameraBehaviors m_prev_toggled_cam; ///< Switching toggled modes (FREE, FREEFIX) keeps 1-slot history.

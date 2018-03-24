@@ -49,6 +49,8 @@ static const Ogre::Vector3 CHARACTERCAM_OFFSET_1ST_PERSON(0.0f, 1.82f, 0.0f);
 static const Ogre::Vector3 CHARACTERCAM_OFFSET_3RD_PERSON(0.0f, 1.1f, 0.0f);
 static const int           SPLINECAM_DRAW_RESOLUTION = 200;
 static const int           DEFAULT_INTERNAL_CAM_PITCH = -15;
+static const float         TRANS_SPEED = 50.f;
+static const float         ROTATE_SPEED = 100.f;
 
 bool intersectsTerrain(Vector3 a, Vector3 b) // internal helper
 {
@@ -70,13 +72,9 @@ CameraManager::CameraManager() :
       m_current_behavior(CAMERA_BEHAVIOR_INVALID)
     , m_cam_before_toggled(CAMERA_BEHAVIOR_INVALID)
     , m_prev_toggled_cam(CAMERA_BEHAVIOR_INVALID)
-    , mTransScale(1.0f)
-    , mTransSpeed(50.0f)
-    , mRotScale(0.1f)
     , m_config_enter_vehicle_keep_fixedfreecam(false)
     , m_config_exit_vehicle_keep_fixedfreecam(false)
     , m_charactercam_is_3rdperson(true)
-    , mRotateSpeed(100.0f)
     , m_splinecam_num_linked_beams(0)
     , m_splinecam_spline(new SimpleSpline())
     , m_splinecam_spline_closed(false)
@@ -217,14 +215,14 @@ void CameraManager::UpdateCurrentBehavior()
 bool CameraManager::Update(float dt, Actor* player_vehicle, float sim_speed) // Called every frame
 {
     if (RoR::App::sim_state.GetActive() == RoR::SimState::PAUSED) { return true; } // Do nothing when paused
-    mTransScale = mTransSpeed  * dt;
-    mRotScale   = mRotateSpeed * dt;
+    const float trans_scale = TRANS_SPEED  * dt;
+    const float rot_scale   = ROTATE_SPEED * dt;
 
     ctx.cct_player_actor  = player_vehicle;
     ctx.cct_sim_speed   = sim_speed;
     ctx.cct_dt         = dt;
-    ctx.cct_rot_scale   = Degree(mRotScale);
-    ctx.cct_trans_scale = mTransScale;
+    ctx.cct_rot_scale   = Degree(rot_scale);
+    ctx.cct_trans_scale = trans_scale;
     ctx.cct_fov_interior = Degree(App::gfx_fov_internal.GetActive()); // TODO: don't copy Gvar!
     ctx.cct_fov_exterior = Degree(App::gfx_fov_external.GetActive());
 
