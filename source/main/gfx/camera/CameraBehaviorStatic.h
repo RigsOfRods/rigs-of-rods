@@ -23,11 +23,11 @@
 #include "RoRPrerequisites.h"
 
 #include "CameraManager.h"
-#include "IBehavior.h"
+
 
 #include <Ogre.h>
 
-class CameraBehaviorStatic : public IBehavior<CameraManager::CameraContext>
+class CameraBehaviorStatic 
 {
 public:
 

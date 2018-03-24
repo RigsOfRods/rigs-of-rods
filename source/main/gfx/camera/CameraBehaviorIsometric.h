@@ -23,9 +23,9 @@
 #include "RoRPrerequisites.h"
 
 #include "CameraManager.h"
-#include "IBehavior.h"
 
-class CameraBehaviorIsometric : public IBehavior<CameraManager::CameraContext>
+
+class CameraBehaviorIsometric
 {
 public:
 

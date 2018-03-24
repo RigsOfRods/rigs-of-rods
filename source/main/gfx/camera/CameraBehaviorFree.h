@@ -23,9 +23,9 @@
 #include "RoRPrerequisites.h"
 
 #include "CameraManager.h"
-#include "IBehavior.h"
 
-class CameraBehaviorFree : public IBehavior<CameraManager::CameraContext>
+
+class CameraBehaviorFree 
 {
 public:
 
