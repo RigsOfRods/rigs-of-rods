@@ -22,10 +22,10 @@
 
 #include "RoRPrerequisites.h"
 
-#include "CameraBehaviorVehicle.h"
+
 #include "CameraManager.h"
 
-class CameraBehaviorVehicleCineCam : public CameraBehaviorVehicle
+class CameraBehaviorVehicleCineCam 
 {
 public:
 

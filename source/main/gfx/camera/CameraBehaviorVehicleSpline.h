@@ -22,9 +22,9 @@
 
 #include "RoRPrerequisites.h"
 
-#include "CameraBehaviorVehicle.h"
+#include "CameraManager.h"
 
-class CameraBehaviorVehicleSpline : public CameraBehaviorVehicle
+class CameraBehaviorVehicleSpline
 {
 public:
 

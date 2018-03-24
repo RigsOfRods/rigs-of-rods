@@ -34,8 +34,8 @@ using namespace Ogre;
 using namespace RoR;
 
 CameraBehaviorVehicleSpline::CameraBehaviorVehicleSpline() :
-    CameraBehaviorVehicle()
-    , numLinkedBeams(0)
+    
+     numLinkedBeams(0)
     , spline(new SimpleSpline())
     , splineClosed(false)
     , splineLength(1.0f)
