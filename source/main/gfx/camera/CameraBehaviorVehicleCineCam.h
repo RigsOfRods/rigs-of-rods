@@ -31,12 +31,12 @@ public:
 
     CameraBehaviorVehicleCineCam(CameraManager* camera_mgr);
 
-    void update(const CameraManager::CameraContext& ctx);
+    void update( CameraManager::CameraContext& ctx);
 
-    void deactivate(const CameraManager::CameraContext& ctx);
-    void reset(const CameraManager::CameraContext& ctx);
+    void deactivate( CameraManager::CameraContext& ctx);
+    void reset( CameraManager::CameraContext& ctx);
 
-    bool switchBehavior(const CameraManager::CameraContext& ctx);
+    bool switchBehavior( CameraManager::CameraContext& ctx);
 
 protected:
 

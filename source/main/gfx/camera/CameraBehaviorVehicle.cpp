@@ -34,36 +34,36 @@ CameraBehaviorVehicle::CameraBehaviorVehicle() :
 {
 }
 
-void CameraBehaviorVehicle::update(const CameraManager::CameraContext &ctx)
+void CameraBehaviorVehicle::update( CameraManager::CameraContext &ctx)
 {
 	Vector3 dir = ctx.cct_player_actor->getDirection();
 
-	targetDirection = -atan2(dir.dotProduct(Vector3::UNIT_X), dir.dotProduct(-Vector3::UNIT_Z));
-	targetPitch     = 0.0f;
+	ctx.targetDirection = -atan2(dir.dotProduct(Vector3::UNIT_X), dir.dotProduct(-Vector3::UNIT_Z));
+	ctx.targetPitch     = 0.0f;
 
 	if ( RoR::App::gfx_extcam_mode.GetActive() == RoR::GfxExtCamMode::PITCHING)
 	{
-		targetPitch = -asin(dir.dotProduct(Vector3::UNIT_Y));
+		ctx.targetPitch = -asin(dir.dotProduct(Vector3::UNIT_Y));
 	}
 
-	camRatio = 1.0f / (ctx.cct_dt * 4.0f);
+	ctx.camRatio = 1.0f / (ctx.cct_dt * 4.0f);
 
-	camDistMin = std::min(ctx.cct_player_actor->getMinimalCameraRadius() * 2.0f, 33.0f);
+	ctx.camDistMin = std::min(ctx.cct_player_actor->getMinimalCameraRadius() * 2.0f, 33.0f);
 
-	camLookAt = ctx.cct_player_actor->getPosition();
+	ctx.camLookAt = ctx.cct_player_actor->getPosition();
 
 	CameraBehaviorOrbit::update(ctx);
 }
 
-void CameraBehaviorVehicle::reset(const CameraManager::CameraContext &ctx)
+void CameraBehaviorVehicle::reset( CameraManager::CameraContext &ctx)
 {
 	CameraBehaviorOrbit::reset(ctx);
-	camRotY = 0.35f;
-	camDistMin = std::min(ctx.cct_player_actor->getMinimalCameraRadius() * 2.0f, 33.0f);
-	camDist = camDistMin * 1.5f + 2.0f;
+	ctx.camRotY = 0.35f;
+	ctx.camDistMin = std::min(ctx.cct_player_actor->getMinimalCameraRadius() * 2.0f, 33.0f);
+	ctx.camDist = ctx.camDistMin * 1.5f + 2.0f;
 }
 
-bool CameraBehaviorVehicle::mousePressed(const CameraManager::CameraContext &ctx, const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
+bool CameraBehaviorVehicle::mousePressed( CameraManager::CameraContext &ctx, const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
 {
 	const OIS::MouseState ms = _arg.state;
 
@@ -73,27 +73,27 @@ bool CameraBehaviorVehicle::mousePressed(const CameraManager::CameraContext &ctx
 		{
 			// Calculate new camera distance
 			Vector3 lookAt = ctx.cct_player_actor->ar_nodes[ctx.cct_player_actor->ar_custom_camera_node].AbsPosition;
-			camDist = 2.0f * gEnv->mainCamera->getPosition().distance(lookAt);
+			ctx.camDist = 2.0f * gEnv->mainCamera->getPosition().distance(lookAt);
 
 			// Calculate new camera pitch
 			Vector3 camDir = (gEnv->mainCamera->getPosition() - lookAt).normalisedCopy();
-			camRotY = asin(camDir.y);
+			ctx.camRotY = asin(camDir.y);
 
 			// Calculate new camera yaw
 			Vector3 dir = -ctx.cct_player_actor->getDirection();
 			Quaternion rotX = dir.getRotationTo(camDir, Vector3::UNIT_Y);
-			camRotX = rotX.getYaw();
+			ctx.camRotX = rotX.getYaw();
 
 			// Corner case handling
 			Radian angle = dir.angleBetween(camDir);
 			if ( angle > Radian(Math::HALF_PI) )
 			{
-				if ( std::abs(Radian(camRotX).valueRadians()) < Math::HALF_PI )
+				if ( std::abs(Radian(ctx.camRotX).valueRadians()) < Math::HALF_PI )
 				{
-					if ( camRotX < Radian(0.0f) )
-						camRotX -= Radian(Math::HALF_PI);
+					if ( ctx.camRotX < Radian(0.0f) )
+						ctx.camRotX -= Radian(Math::HALF_PI);
 					else
-						camRotX += Radian(Math::HALF_PI);
+						ctx.camRotX += Radian(Math::HALF_PI);
 				}
 			}
 		}

@@ -25,6 +25,8 @@
 
 
 #include <OIS.h>
+#include <OgreVector3.h>
+#include <OgreMath.h> // Degree, Radian
 
 // Forward decl.
 class CameraBehaviorStatic;
@@ -49,6 +51,24 @@ public:
     {
     public:
 
+        CameraContext() :
+            camDist(5.0f)
+            , camDistMax(0.0f)
+            , camDistMin(0.0f)
+            , camLookAt(Ogre::Vector3::ZERO)
+            , camLookAtLast(Ogre::Vector3::ZERO)
+            , camLookAtSmooth(Ogre::Vector3::ZERO)
+            , camLookAtSmoothLast(Ogre::Vector3::ZERO)
+            , camRatio(11.0f)
+            , camRotX(0.0f)
+            , camRotXSwivel(0.0f)
+            , camRotY(0.3f)
+            , camRotYSwivel(0.0f)
+            , limitCamMovement(true)
+            , targetDirection(0.0f)
+            , targetPitch(0.0f)
+        {}
+
         Actor*       cct_player_actor;
         DOFManager*  cct_dof_manager;
         Ogre::Degree cct_rot_scale;
@@ -58,6 +78,17 @@ public:
         Ogre::Radian cct_fov_exterior;
         bool         cct_debug;
         float        cct_sim_speed;
+
+        // CameraBehaviorOrbit context -- TODO: cleanup
+        Ogre::Radian camRotX, camRotY;
+        Ogre::Radian camRotXSwivel, camRotYSwivel;
+        Ogre::Radian targetDirection, targetPitch;
+        Ogre::Real camDist, camDistMin, camDistMax, camRatio;
+        Ogre::Vector3 camLookAt;
+        bool limitCamMovement;
+        Ogre::Vector3 camLookAtLast;
+        Ogre::Vector3 camLookAtSmooth;
+        Ogre::Vector3 camLookAtSmoothLast;
     };
 
     enum CameraBehaviors

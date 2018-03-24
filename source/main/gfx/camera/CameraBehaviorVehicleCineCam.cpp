@@ -36,7 +36,7 @@ CameraBehaviorVehicleCineCam::CameraBehaviorVehicleCineCam(CameraManager* camera
 {
 }
 
-void CameraBehaviorVehicleCineCam::update(const CameraManager::CameraContext &ctx)
+void CameraBehaviorVehicleCineCam::update( CameraManager::CameraContext &ctx)
 {
     CameraBehaviorOrbit::update(ctx);
 
@@ -55,13 +55,13 @@ void CameraBehaviorVehicleCineCam::update(const CameraManager::CameraContext &ct
 
     roll = up.crossProduct(dir);
 
-    Quaternion orientation = Quaternion(camRotX + camRotXSwivel, up) * Quaternion(Degree(180.0) + camRotY + camRotYSwivel, roll) * Quaternion(roll, up, dir);
+    Quaternion orientation = Quaternion(ctx.camRotX + ctx.camRotXSwivel, up) * Quaternion(Degree(180.0) + ctx.camRotY + ctx.camRotYSwivel, roll) * Quaternion(roll, up, dir);
 
     gEnv->mainCamera->setPosition(ctx.cct_player_actor->ar_nodes[ctx.cct_player_actor->ar_cinecam_node[ctx.cct_player_actor->ar_current_cinecam]].AbsPosition);
     gEnv->mainCamera->setOrientation(orientation);
 }
 
-void CameraBehaviorVehicleCineCam::deactivate(const CameraManager::CameraContext &ctx)
+void CameraBehaviorVehicleCineCam::deactivate( CameraManager::CameraContext &ctx)
 {
     Actor* current_vehicle = ctx.cct_player_actor;
     if ( current_vehicle == nullptr 
@@ -86,14 +86,14 @@ void CameraBehaviorVehicleCineCam::deactivate(const CameraManager::CameraContext
     current_vehicle->NotifyActorCameraChanged();
 }
 
-void CameraBehaviorVehicleCineCam::reset(const CameraManager::CameraContext &ctx)
+void CameraBehaviorVehicleCineCam::reset( CameraManager::CameraContext &ctx)
 {
     CameraBehaviorOrbit::reset(ctx);
-    camRotY = Degree(DEFAULT_INTERNAL_CAM_PITCH);
+    ctx.camRotY = Degree(DEFAULT_INTERNAL_CAM_PITCH);
     gEnv->mainCamera->setFOVy(ctx.cct_fov_interior);
 }
 
-bool CameraBehaviorVehicleCineCam::switchBehavior(const CameraManager::CameraContext &ctx)
+bool CameraBehaviorVehicleCineCam::switchBehavior( CameraManager::CameraContext &ctx)
 {
     Actor* vehicle = ctx.cct_player_actor;
     if ( (vehicle != nullptr) && (vehicle->ar_current_cinecam) < (vehicle->ar_num_cinecams-1) )

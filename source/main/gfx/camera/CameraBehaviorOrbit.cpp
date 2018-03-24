@@ -34,66 +34,49 @@
 using namespace Ogre;
 using namespace RoR;
 
-CameraBehaviorOrbit::CameraBehaviorOrbit() :
-    camDist(5.0f)
-    , camDistMax(0.0f)
-    , camDistMin(0.0f)
-    , camLookAt(Vector3::ZERO)
-    , camLookAtLast(Vector3::ZERO)
-    , camLookAtSmooth(Vector3::ZERO)
-    , camLookAtSmoothLast(Vector3::ZERO)
-    , camRatio(11.0f)
-    , camRotX(0.0f)
-    , camRotXSwivel(0.0f)
-    , camRotY(0.3f)
-    , camRotYSwivel(0.0f)
-    , limitCamMovement(true)
-    , targetDirection(0.0f)
-    , targetPitch(0.0f)
-{
-}
 
-void CameraBehaviorOrbit::update(const CameraManager::CameraContext& ctx)
+
+void CameraBehaviorOrbit::update( CameraManager::CameraContext& ctx)
 {
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_LOOKBACK))
     {
-        if (camRotX > Degree(0))
+        if (ctx.camRotX > Degree(0))
         {
-            camRotX = Degree(0);
+            ctx.camRotX = Degree(0);
         }
         else
         {
-            camRotX = Degree(180);
+            ctx.camRotX = Degree(180);
         }
     }
 
-    camRotX += (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_RIGHT) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_LEFT)) * ctx.cct_rot_scale;
-    camRotY += (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_UP) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_DOWN)) * ctx.cct_rot_scale;
+    ctx.camRotX += (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_RIGHT) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_LEFT)) * ctx.cct_rot_scale;
+    ctx.camRotY += (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_UP) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_DOWN)) * ctx.cct_rot_scale;
 
-    camRotY = std::max((Radian)Degree(-80), camRotY);
-    camRotY = std::min(camRotY, (Radian)Degree(88));
+    ctx.camRotY = std::max((Radian)Degree(-80), ctx.camRotY);
+    ctx.camRotY = std::min(ctx.camRotY, (Radian)Degree(88));
 
-    camRotXSwivel = (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_RIGHT) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_LEFT)) * Degree(90);
-    camRotYSwivel = (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_UP) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_DOWN)) * Degree(60);
+    ctx.camRotXSwivel = (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_RIGHT) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_LEFT)) * Degree(90);
+    ctx.camRotYSwivel = (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_UP) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_DOWN)) * Degree(60);
 
-    camRotYSwivel = std::max((Radian)Degree(-80) - camRotY, camRotYSwivel);
-    camRotYSwivel = std::min(camRotYSwivel, (Radian)Degree(88) - camRotY);
+    ctx.camRotYSwivel = std::max((Radian)Degree(-80) - ctx.camRotY, ctx.camRotYSwivel);
+    ctx.camRotYSwivel = std::min(ctx.camRotYSwivel, (Radian)Degree(88) - ctx.camRotY);
 
-    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_IN) && camDist > 1)
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_IN) && ctx.camDist > 1)
     {
-        camDist -= ctx.cct_trans_scale;
+        ctx.camDist -= ctx.cct_trans_scale;
     }
-    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_IN_FAST) && camDist > 1)
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_IN_FAST) && ctx.camDist > 1)
     {
-        camDist -= ctx.cct_trans_scale * 10;
+        ctx.camDist -= ctx.cct_trans_scale * 10;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_OUT))
     {
-        camDist += ctx.cct_trans_scale;
+        ctx.camDist += ctx.cct_trans_scale;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_OUT_FAST))
     {
-        camDist += ctx.cct_trans_scale * 10;
+        ctx.camDist += ctx.cct_trans_scale * 10;
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_RESET))
@@ -103,8 +86,8 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext& ctx)
 
     if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT) && RoR::App::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE))
     {
-        limitCamMovement = !limitCamMovement;
-        if (limitCamMovement)
+        ctx.limitCamMovement = !ctx.limitCamMovement;
+        if (ctx.limitCamMovement)
         {
             RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Limited camera movement enabled"), "camera_go.png", 3000);
             RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Limited camera movement enabled"));
@@ -116,48 +99,48 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext& ctx)
         }
     }
 
-    if (limitCamMovement && camDistMin > 0.0f)
+    if (ctx.limitCamMovement && ctx.camDistMin > 0.0f)
     {
-        camDist = std::max(camDistMin, camDist);
+        ctx.camDist = std::max(ctx.camDistMin, ctx.camDist);
     }
-    if (limitCamMovement && camDistMax > 0.0f)
+    if (ctx.limitCamMovement && ctx.camDistMax > 0.0f)
     {
-        camDist = std::min(camDist, camDistMax);
+        ctx.camDist = std::min(ctx.camDist, ctx.camDistMax);
     }
 
-    camDist = std::max(0.0f, camDist);
+    ctx.camDist = std::max(0.0f, ctx.camDist);
 
-    Vector3 desiredPosition = camLookAt + camDist * 0.5f * Vector3(
-        sin(targetDirection.valueRadians() + (camRotX - camRotXSwivel).valueRadians()) * cos(targetPitch.valueRadians() + (camRotY - camRotYSwivel).valueRadians())
-        , sin(targetPitch.valueRadians() + (camRotY - camRotYSwivel).valueRadians())
-        , cos(targetDirection.valueRadians() + (camRotX - camRotXSwivel).valueRadians()) * cos(targetPitch.valueRadians() + (camRotY - camRotYSwivel).valueRadians())
+    Vector3 desiredPosition = ctx.camLookAt + ctx.camDist * 0.5f * Vector3(
+        sin(ctx.targetDirection.valueRadians() + (ctx.camRotX - ctx.camRotXSwivel).valueRadians()) * cos(ctx.targetPitch.valueRadians() + (ctx.camRotY - ctx.camRotYSwivel).valueRadians())
+        , sin(ctx.targetPitch.valueRadians() + (ctx.camRotY - ctx.camRotYSwivel).valueRadians())
+        , cos(ctx.targetDirection.valueRadians() + (ctx.camRotX - ctx.camRotXSwivel).valueRadians()) * cos(ctx.targetPitch.valueRadians() + (ctx.camRotY - ctx.camRotYSwivel).valueRadians())
     );
 
-    if (limitCamMovement && App::GetSimTerrain())
+    if (ctx.limitCamMovement && App::GetSimTerrain())
     {
         float h = App::GetSimTerrain()->GetHeightAt(desiredPosition.x, desiredPosition.z) + 1.0f;
 
         desiredPosition.y = std::max(h, desiredPosition.y);
     }
 
-    if (camLookAtLast == Vector3::ZERO)
+    if (ctx.camLookAtLast == Vector3::ZERO)
     {
-        camLookAtLast = camLookAt;
+        ctx.camLookAtLast = ctx.camLookAt;
     }
-    if (camLookAtSmooth == Vector3::ZERO)
+    if (ctx.camLookAtSmooth == Vector3::ZERO)
     {
-        camLookAtSmooth = camLookAt;
+        ctx.camLookAtSmooth = ctx.camLookAt;
     }
-    if (camLookAtSmoothLast == Vector3::ZERO)
+    if (ctx.camLookAtSmoothLast == Vector3::ZERO)
     {
-        camLookAtSmoothLast = camLookAtSmooth;
+        ctx.camLookAtSmoothLast = ctx.camLookAtSmooth;
     }
 
-    Vector3 camDisplacement = camLookAt - camLookAtLast;
-    Vector3 precedingLookAt = camLookAtSmoothLast + camDisplacement;
+    Vector3 camDisplacement = ctx.camLookAt - ctx.camLookAtLast;
+    Vector3 precedingLookAt = ctx.camLookAtSmoothLast + camDisplacement;
     Vector3 precedingPosition = gEnv->mainCamera->getPosition() + camDisplacement;
 
-    Vector3 camPosition = (1.0f / (camRatio + 1.0f)) * desiredPosition + (camRatio / (camRatio + 1.0f)) * precedingPosition;
+    Vector3 camPosition = (1.0f / (ctx.camRatio + 1.0f)) * desiredPosition + (ctx.camRatio / (ctx.camRatio + 1.0f)) * precedingPosition;
 
     if (gEnv->collisions && gEnv->collisions->forcecam)
     {
@@ -172,42 +155,42 @@ void CameraBehaviorOrbit::update(const CameraManager::CameraContext& ctx)
             gEnv->mainCamera->setPosition(camPosition);
     }
 
-    camLookAtSmooth = (1.0f / (camRatio + 1.0f)) * camLookAt + (camRatio / (camRatio + 1.0f)) * precedingLookAt;
+    ctx.camLookAtSmooth = (1.0f / (ctx.camRatio + 1.0f)) * ctx.camLookAt + (ctx.camRatio / (ctx.camRatio + 1.0f)) * precedingLookAt;
 
-    camLookAtLast = camLookAt;
-    camLookAtSmoothLast = camLookAtSmooth;
-    gEnv->mainCamera->lookAt(camLookAtSmooth);
+    ctx.camLookAtLast = ctx.camLookAt;
+    ctx.camLookAtSmoothLast = ctx.camLookAtSmooth;
+    gEnv->mainCamera->lookAt(ctx.camLookAtSmooth);
 }
 
-bool CameraBehaviorOrbit::mouseMoved(const CameraManager::CameraContext& ctx, const OIS::MouseEvent& _arg)
+bool CameraBehaviorOrbit::mouseMoved( CameraManager::CameraContext& ctx, const OIS::MouseEvent& _arg)
 {
     const OIS::MouseState ms = _arg.state;
 
     if (ms.buttonDown(OIS::MB_Right))
     {
         float scale = RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU) ? 0.002f : 0.02f;
-        camRotX += Degree(ms.X.rel * 0.13f);
-        camRotY += Degree(-ms.Y.rel * 0.13f);
-        camDist += -ms.Z.rel * scale;
+        ctx.camRotX += Degree(ms.X.rel * 0.13f);
+        ctx.camRotY += Degree(-ms.Y.rel * 0.13f);
+        ctx.camDist += -ms.Z.rel * scale;
         return true;
     }
 
     return false;
 }
 
-void CameraBehaviorOrbit::reset(const CameraManager::CameraContext& ctx)
+void CameraBehaviorOrbit::reset( CameraManager::CameraContext& ctx)
 {
-    camRotX = 0.0f;
-    camRotXSwivel = 0.0f;
-    camRotY = 0.3f;
-    camRotYSwivel = 0.0f;
-    camLookAtLast = Vector3::ZERO;
-    camLookAtSmooth = Vector3::ZERO;
-    camLookAtSmoothLast = Vector3::ZERO;
+    ctx.camRotX = 0.0f;
+    ctx.camRotXSwivel = 0.0f;
+    ctx.camRotY = 0.3f;
+    ctx.camRotYSwivel = 0.0f;
+    ctx.camLookAtLast = Vector3::ZERO;
+    ctx.camLookAtSmooth = Vector3::ZERO;
+    ctx.camLookAtSmoothLast = Vector3::ZERO;
     gEnv->mainCamera->setFOVy(ctx.cct_fov_exterior);
 }
 
-void CameraBehaviorOrbit::notifyContextChange(const CameraManager::CameraContext& ctx)
+void CameraBehaviorOrbit::notifyContextChange( CameraManager::CameraContext& ctx)
 {
-    camLookAtLast = Vector3::ZERO;
+    ctx.camLookAtLast = Vector3::ZERO;
 }

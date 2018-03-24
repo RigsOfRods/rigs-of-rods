@@ -195,7 +195,11 @@ void CameraManager::ResetCurrentBehavior()
 {
     switch(m_current_behavior)
     {
-    case CAMERA_BEHAVIOR_CHARACTER:       m_cam_behav_character      ->reset(ctx);  return;
+    case CAMERA_BEHAVIOR_CHARACTER:
+        m_cam_behav_character->reset(ctx);
+        ctx.camDistMin = 0;
+        return;
+
     case CAMERA_BEHAVIOR_STATIC:          m_cam_behav_static         ->reset(ctx);  return;
     case CAMERA_BEHAVIOR_VEHICLE:         m_cam_behav_vehicle        ->reset(ctx);  return;
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  m_cam_behav_vehicle_spline ->reset(ctx);  return;

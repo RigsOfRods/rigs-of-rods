@@ -36,18 +36,18 @@ CameraBehaviorCharacter::CameraBehaviorCharacter() :
 {
 }
 
-void CameraBehaviorCharacter::update(const CameraManager::CameraContext& ctx)
+void CameraBehaviorCharacter::update( CameraManager::CameraContext& ctx)
 {
     if (!gEnv->player)
         return;
-    targetDirection = -gEnv->player->getRotation() - Radian(Math::HALF_PI);
+    ctx.targetDirection = -gEnv->player->getRotation() - Radian(Math::HALF_PI);
     Ogre::Vector3 offset = (!m_is_3rd_person) ? OFFSET_1ST_PERSON : OFFSET_3RD_PERSON;
-    camLookAt = gEnv->player->getPosition() + offset;
+    ctx.camLookAt = gEnv->player->getPosition() + offset;
 
     CameraBehaviorOrbit::update(ctx);
 }
 
-bool CameraBehaviorCharacter::mouseMoved(const CameraManager::CameraContext& ctx, const OIS::MouseEvent& _arg)
+bool CameraBehaviorCharacter::mouseMoved( CameraManager::CameraContext& ctx, const OIS::MouseEvent& _arg)
 {
     if (!gEnv->player)
         return false;
@@ -56,11 +56,11 @@ bool CameraBehaviorCharacter::mouseMoved(const CameraManager::CameraContext& ctx
         const OIS::MouseState ms = _arg.state;
         Radian angle = gEnv->player->getRotation();
 
-        camRotY += Degree(ms.Y.rel * 0.13f);
+        ctx.camRotY += Degree(ms.Y.rel * 0.13f);
         angle += Degree(ms.X.rel * 0.13f);
 
-        camRotY = Radian(std::min(+Math::HALF_PI * 0.65f, camRotY.valueRadians()));
-        camRotY = Radian(std::max(camRotY.valueRadians(), -Math::HALF_PI * 0.9f));
+        ctx.camRotY = Radian(std::min(+Math::HALF_PI * 0.65f, ctx.camRotY.valueRadians()));
+        ctx.camRotY = Radian(std::max(ctx.camRotY.valueRadians(), -Math::HALF_PI * 0.9f));
 
         gEnv->player->setRotation(angle);
 
@@ -72,26 +72,26 @@ bool CameraBehaviorCharacter::mouseMoved(const CameraManager::CameraContext& ctx
     return CameraBehaviorOrbit::mouseMoved(ctx, _arg);
 }
 
-void CameraBehaviorCharacter::reset(const CameraManager::CameraContext& ctx)
+void CameraBehaviorCharacter::reset( CameraManager::CameraContext& ctx)
 {
     CameraBehaviorOrbit::reset(ctx);
 
     // Vars from CameraBehaviorOrbit
     if (!m_is_3rd_person)
     {
-        camRotY = 0.1f;
-        camDist = 0.1f;
-        camRatio = 0.0f;
+        ctx.camRotY = 0.1f;
+        ctx.camDist = 0.1f;
+        ctx.camRatio = 0.0f;
     }
     else
     {
-        camRotY = 0.3f;
-        camDist = 5.0f;
-        camRatio = 11.0f;
+        ctx.camRotY = 0.3f;
+        ctx.camDist = 5.0f;
+        ctx.camRatio = 11.0f;
     }
 }
 
-bool CameraBehaviorCharacter::switchBehavior(const CameraManager::CameraContext& ctx)
+bool CameraBehaviorCharacter::switchBehavior( CameraManager::CameraContext& ctx)
 {
     if (m_is_3rd_person)
     {
