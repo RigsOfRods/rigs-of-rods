@@ -27,9 +27,9 @@
 #include <OIS.h>
 #include <OgreVector3.h>
 #include <OgreMath.h> // Degree, Radian
+#include <OgreTimer.h>
 
 // Forward decl.
-class CameraBehaviorStatic;
 class CameraBehaviorVehicleSpline;
 class CameraBehaviorCharacter;
 class CameraBehaviorVehicle;
@@ -131,6 +131,7 @@ protected:
     void UpdateCurrentBehavior();
     void ResetCurrentBehavior();
     void DeactivateCurrentBehavior();
+    void UpdateCameraBehaviorStatic(const CameraManager::CameraContext& ctx);
 
     CameraContext ctx;
 
@@ -140,9 +141,12 @@ protected:
     CameraBehaviors m_current_behavior;
     CameraBehaviors m_cam_before_toggled; ///< Toggled modes (FREE, FREEFIX) remember original state.
     CameraBehaviors m_prev_toggled_cam; ///< Switching toggled modes (FREE, FREEFIX) keeps 1-slot history.
+    // Static cam attributes
+    Ogre::Radian m_staticcam_previous_fov;
+    Ogre::Vector3 m_staticcam_position;
+    Ogre::Timer m_staticcam_update_timer;
     // Global behaviors
     CameraBehaviorCharacter*  m_cam_behav_character;
-    CameraBehaviorStatic*     m_cam_behav_static;
     CameraBehaviorVehicle*    m_cam_behav_vehicle;
     CameraBehaviorVehicleSpline* m_cam_behav_vehicle_spline;
     CameraBehaviorVehicleCineCam* m_cam_behav_vehicle_cinecam;

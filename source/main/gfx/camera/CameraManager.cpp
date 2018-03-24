@@ -22,12 +22,14 @@
 
 #include "Application.h"
 #include "BeamFactory.h"
+#include "Character.h"
 #include "DepthOfFieldEffect.h"
 #include "GUI_GameConsole.h"
 #include "InputEngine.h"
 #include "Language.h"
 #include "OverlayWrapper.h"
 #include "Settings.h"
+#include "TerrainManager.h"
 #include "GUIManager.h"
 #include "PerVehicleCameraContext.h"
 
@@ -35,7 +37,6 @@
 #include "CameraBehaviorCharacter.h"
 #include "CameraBehaviorFixed.h"
 #include "CameraBehaviorFree.h"
-#include "CameraBehaviorStatic.h"
 #include "CameraBehaviorVehicle.h"
 #include "CameraBehaviorVehicleCineCam.h"
 #include "CameraBehaviorVehicleSpline.h"
@@ -45,6 +46,22 @@
 
 using namespace Ogre;
 using namespace RoR;
+
+bool intersectsTerrain(Vector3 a, Vector3 b) // internal helper
+{
+    int steps = std::max(10.0f, a.distance(b));
+    for (int i = 0; i < steps; i++)
+    {
+        Vector3 pos = a + (b - a) * (float)i / steps;
+        float y = a.y + (b.y - a.y) * (float)i / steps;
+        float h = App::GetSimTerrain()->GetHeightAt(pos.x, pos.z);
+        if (h > y)
+        {
+            return true;
+        }
+    }
+    return false;
+}
 
 CameraManager::CameraManager() : 
       m_current_behavior(CAMERA_BEHAVIOR_INVALID)
@@ -59,7 +76,6 @@ CameraManager::CameraManager() :
 {
     // Create global behaviors
     m_cam_behav_character        = new CameraBehaviorCharacter();
-    m_cam_behav_static           = new CameraBehaviorStatic();
     m_cam_behav_vehicle          = new CameraBehaviorVehicle();
     m_cam_behav_vehicle_spline   = new CameraBehaviorVehicleSpline();
     m_cam_behav_vehicle_cinecam  = new CameraBehaviorVehicleCineCam(this);
@@ -73,12 +89,13 @@ CameraManager::CameraManager() :
 
     m_config_enter_vehicle_keep_fixedfreecam = BSETTING("Camera_EnterVehicle_KeepFixedFreeCam", true);
     m_config_exit_vehicle_keep_fixedfreecam  = BSETTING("Camera_ExitVehicle_KeepFixedFreeCam",  false);
+
+    m_staticcam_update_timer.reset();
 }
 
 CameraManager::~CameraManager()
 {
     delete m_cam_behav_character;
-    delete m_cam_behav_static;
     delete m_cam_behav_vehicle;
     delete m_cam_behav_vehicle_spline;
     delete m_cam_behav_vehicle_cinecam;
@@ -112,7 +129,7 @@ bool CameraManager::EvaluateSwitchBehavior()
     switch(m_current_behavior)
     {
     case CAMERA_BEHAVIOR_CHARACTER:       return m_cam_behav_character      ->switchBehavior(ctx);
-    case CAMERA_BEHAVIOR_STATIC:          return m_cam_behav_static         ->switchBehavior(ctx);
+    case CAMERA_BEHAVIOR_STATIC:          return true;
     case CAMERA_BEHAVIOR_VEHICLE:         return m_cam_behav_vehicle        ->switchBehavior(ctx);
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return m_cam_behav_vehicle_spline ->switchBehavior(ctx);
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return m_cam_behav_vehicle_cinecam->switchBehavior(ctx);
@@ -129,7 +146,9 @@ void CameraManager::UpdateCurrentBehavior()
     switch(m_current_behavior)
     {
     case CAMERA_BEHAVIOR_CHARACTER:       m_cam_behav_character      ->update(ctx);  return;
-    case CAMERA_BEHAVIOR_STATIC:          m_cam_behav_static         ->update(ctx);  return;
+    case CAMERA_BEHAVIOR_STATIC:
+        this->UpdateCameraBehaviorStatic(ctx);
+        return;
     case CAMERA_BEHAVIOR_VEHICLE:         m_cam_behav_vehicle        ->update(ctx);  return;
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  m_cam_behav_vehicle_spline ->update(ctx);  return;
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: m_cam_behav_vehicle_cinecam->update(ctx);  return;
@@ -200,7 +219,9 @@ void CameraManager::ResetCurrentBehavior()
         ctx.camDistMin = 0;
         return;
 
-    case CAMERA_BEHAVIOR_STATIC:          m_cam_behav_static         ->reset(ctx);  return;
+    case CAMERA_BEHAVIOR_STATIC:
+        return;
+
     case CAMERA_BEHAVIOR_VEHICLE:         m_cam_behav_vehicle        ->reset(ctx);  return;
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  m_cam_behav_vehicle_spline ->reset(ctx);  return;
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: m_cam_behav_vehicle_cinecam->reset(ctx);  return;
@@ -232,7 +253,7 @@ void CameraManager::ActivateNewBehavior(CameraBehaviors behav_id, bool reset)
         break;
 
     case CAMERA_BEHAVIOR_STATIC:
-        m_cam_behav_static->SetPreviousFov(gEnv->mainCamera->getFOVy());
+        m_staticcam_previous_fov = gEnv->mainCamera->getFOVy();
         break;
 
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:
@@ -309,7 +330,9 @@ void CameraManager::DeactivateCurrentBehavior()
     switch(m_current_behavior)
     {
     case CAMERA_BEHAVIOR_CHARACTER:       m_cam_behav_character      ->deactivate(ctx);  return;
-    case CAMERA_BEHAVIOR_STATIC:          m_cam_behav_static         ->deactivate(ctx);  return;
+    case CAMERA_BEHAVIOR_STATIC:
+        gEnv->mainCamera->setFOVy(m_staticcam_previous_fov);
+        return;
     case CAMERA_BEHAVIOR_VEHICLE:         m_cam_behav_vehicle        ->deactivate(ctx);  return;
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  m_cam_behav_vehicle_spline ->deactivate(ctx);  return;
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: m_cam_behav_vehicle_cinecam->deactivate(ctx);  return;
@@ -382,7 +405,7 @@ bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
     switch(m_current_behavior)
     {
     case CAMERA_BEHAVIOR_CHARACTER:       return m_cam_behav_character      ->mouseMoved(ctx, _arg);
-    case CAMERA_BEHAVIOR_STATIC:          return m_cam_behav_static         ->mouseMoved(ctx, _arg);
+    case CAMERA_BEHAVIOR_STATIC:          return false;
     case CAMERA_BEHAVIOR_VEHICLE:         return m_cam_behav_vehicle        ->mouseMoved(ctx, _arg);
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return m_cam_behav_vehicle_spline ->mouseMoved(ctx, _arg);
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return m_cam_behav_vehicle_cinecam->mouseMoved(ctx, _arg);
@@ -399,7 +422,7 @@ bool CameraManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID
     switch(m_current_behavior)
     {
     case CAMERA_BEHAVIOR_CHARACTER:       return m_cam_behav_character      ->mousePressed(ctx, _arg, _id);
-    case CAMERA_BEHAVIOR_STATIC:          return m_cam_behav_static         ->mousePressed(ctx, _arg, _id);
+    case CAMERA_BEHAVIOR_STATIC:          return false;
     case CAMERA_BEHAVIOR_VEHICLE:         return m_cam_behav_vehicle        ->mousePressed(ctx, _arg, _id);
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return m_cam_behav_vehicle_spline ->mousePressed(ctx, _arg, _id);
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return m_cam_behav_vehicle_cinecam->mousePressed(ctx, _arg, _id);
@@ -416,7 +439,7 @@ bool CameraManager::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonI
     switch(m_current_behavior)
     {
     case CAMERA_BEHAVIOR_CHARACTER:       return m_cam_behav_character      ->mouseReleased(ctx, _arg, _id);
-    case CAMERA_BEHAVIOR_STATIC:          return m_cam_behav_static         ->mouseReleased(ctx, _arg, _id);
+    case CAMERA_BEHAVIOR_STATIC:          return false;
     case CAMERA_BEHAVIOR_VEHICLE:         return m_cam_behav_vehicle        ->mouseReleased(ctx, _arg, _id);
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return m_cam_behav_vehicle_spline ->mouseReleased(ctx, _arg, _id);
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return m_cam_behav_vehicle_cinecam->mouseReleased(ctx, _arg, _id);
@@ -445,7 +468,7 @@ void CameraManager::NotifyContextChange()
     switch(m_current_behavior)
     {
     case CAMERA_BEHAVIOR_CHARACTER:       m_cam_behav_character      ->notifyContextChange(ctx);  return;
-    case CAMERA_BEHAVIOR_STATIC:          m_cam_behav_static         ->notifyContextChange(ctx);  return;
+    case CAMERA_BEHAVIOR_STATIC:          return;
     case CAMERA_BEHAVIOR_VEHICLE:         m_cam_behav_vehicle        ->notifyContextChange(ctx);  return;
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  m_cam_behav_vehicle_spline ->notifyContextChange(ctx);  return;
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: m_cam_behav_vehicle_cinecam->notifyContextChange(ctx);  return;
@@ -527,4 +550,86 @@ void CameraManager::ToggleCameraBehavior(CameraBehaviors behav) // Only accepts 
         }
         this->switchBehavior(behav);
     }
+}
+
+void CameraManager::UpdateCameraBehaviorStatic(const CameraManager::CameraContext& ctx)
+{
+    Vector3 lookAt = Vector3::ZERO;
+    Vector3 velocity = Vector3::ZERO;
+    Radian angle = Degree(90);
+    float rotation = 0.0f;
+    float speed = 0.0f;
+
+    if (ctx.cct_player_actor)
+    {
+        lookAt = ctx.cct_player_actor->getPosition();
+        rotation = ctx.cct_player_actor->getRotation();
+        velocity = ctx.cct_player_actor->ar_nodes[0].Velocity * ctx.cct_sim_speed;
+        angle = (lookAt - m_staticcam_position).angleBetween(velocity);
+        speed = velocity.length();
+        if (ctx.cct_player_actor->ar_replay_mode)
+        {
+            speed *= ctx.cct_player_actor->ar_replay_precision;
+        }
+    }
+    else
+    {
+        lookAt = gEnv->player->getPosition();
+        rotation = gEnv->player->getRotation().valueRadians();
+    }
+
+    bool forceUpdate = RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_RESET, 2.0f);
+    forceUpdate = forceUpdate || (m_staticcam_position.distance(lookAt) > 200.0f && speed < 1.0f);
+
+    if (forceUpdate || m_staticcam_update_timer.getMilliseconds() > 2000)
+    {
+        float distance = m_staticcam_position.distance(lookAt);
+        bool terrainIntersection = intersectsTerrain(m_staticcam_position, lookAt + Vector3::UNIT_Y) || intersectsTerrain(m_staticcam_position, lookAt + velocity + Vector3::UNIT_Y);
+
+        if (forceUpdate || terrainIntersection || distance > std::max(75.0f, speed * 3.5f) || (distance > 25.0f && angle < Degree(30)))
+        {
+            if (speed < 0.1f)
+            {
+                velocity = Vector3(cos(rotation), 0.0f, sin(rotation));
+            }
+            speed = std::max(5.0f, speed);
+            m_staticcam_position = lookAt + velocity.normalisedCopy() * speed * 3.0f;
+            Vector3 offset = (velocity.crossProduct(Vector3::UNIT_Y)).normalisedCopy() * speed;
+            float r = (float)std::rand() / RAND_MAX;
+            if (App::GetSimTerrain())
+            {
+                for (int i = 0; i < 100; i++)
+                {
+                    r = (float)std::rand() / RAND_MAX;
+                    Vector3 pos = m_staticcam_position + offset * (0.5f - r) * 2.0f;
+                    float h = App::GetSimTerrain()->GetHeightAt(pos.x, pos.z);
+                    pos.y = std::max(h, pos.y);
+                    if (!intersectsTerrain(pos, lookAt + Vector3::UNIT_Y))
+                    {
+                        m_staticcam_position = pos;
+                        break;
+                    }
+                }
+            }
+            m_staticcam_position += offset * (0.5f - r) * 2.0f;
+
+            if (App::GetSimTerrain())
+            {
+                float h = App::GetSimTerrain()->GetHeightAt(m_staticcam_position.x, m_staticcam_position.z);
+
+                m_staticcam_position.y = std::max(h, m_staticcam_position.y);
+            }
+
+            m_staticcam_position.y += 5.0f;
+
+            m_staticcam_update_timer.reset();
+        }
+    }
+
+    float camDist = m_staticcam_position.distance(lookAt);
+    float fov = atan2(20.0f, camDist);
+
+    gEnv->mainCamera->setPosition(m_staticcam_position);
+    gEnv->mainCamera->lookAt(lookAt);
+    gEnv->mainCamera->setFOVy(Radian(fov));
 }
