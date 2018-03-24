@@ -30,7 +30,6 @@
 #include <OgreTimer.h>
 
 // Forward decl.
-class CameraBehaviorVehicleSpline;
 class CameraBehaviorVehicleCineCam;
 
 class CameraManager
@@ -136,6 +135,12 @@ protected:
     void UpdateCameraBehaviorVehicle();
     void CameraBehaviorVehicleReset();
     bool CameraBehaviorVehicleMousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
+    void CameraBehaviorVehicleSplineUpdate();
+    bool CameraBehaviorVehicleSplineMouseMoved(const OIS::MouseEvent& _arg);
+    void CameraBehaviorVehicleSplineReset();
+    void CameraBehaviorVehicleSplineCreateSpline();
+    void CameraBehaviorVehicleSplineUpdateSpline();
+    void CameraBehaviorVehicleSplineUpdateSplineDisplay();
 
     CameraContext ctx;
 
@@ -151,8 +156,16 @@ protected:
     Ogre::Timer m_staticcam_update_timer;
     // Character cam attributes
     bool m_charactercam_is_3rdperson;
+    // Spline cam attributes
+    Ogre::ManualObject*  m_splinecam_mo;
+    Ogre::SimpleSpline*  m_splinecam_spline;
+    Ogre::Real           m_splinecam_spline_len;
+    Ogre::Real           m_splinecam_spline_pos;
+    bool                 m_splinecam_spline_closed;
+    bool                 m_splinecam_auto_tracking;
+    std::deque<node_t*>  m_splinecam_spline_nodes;
+    unsigned int         m_splinecam_num_linked_beams;
     // Global behaviors
-    CameraBehaviorVehicleSpline* m_cam_behav_vehicle_spline;
     CameraBehaviorVehicleCineCam* m_cam_behav_vehicle_cinecam;
 
     bool m_config_enter_vehicle_keep_fixedfreecam;
