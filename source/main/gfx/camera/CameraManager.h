@@ -65,7 +65,7 @@ public:
         CAMERA_BEHAVIOR_FREE,
         CAMERA_BEHAVIOR_FIXED,
         CAMERA_BEHAVIOR_ISOMETRIC,
-        CAMERA_BEHAVIOR_INVALID = 0xFFFFFFFF,
+        CAMERA_BEHAVIOR_INVALID = -1,
     };
 
     bool Update(float dt, Actor* player_vehicle, float sim_speed);
@@ -89,17 +89,18 @@ protected:
 
     void SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset, Actor* old_vehicle, Actor* new_vehicle);
     void ToggleCameraBehavior(CameraBehaviors behav); //!< Only accepts FREE and FREEFIX modes
-    void ActivateNewBehavior(CameraBehaviors behav_id, IBehavior<CameraContext>* behav_obj, bool reset);
-
-    IBehavior<CameraContext>* FindBehavior(int behaviorID); // TODO: eliminate the `int ID`
+    void ActivateNewBehavior(CameraBehaviors behav_id, bool reset);
+    bool EvaluateSwitchBehavior();
+    void UpdateCurrentBehavior();
+    void ResetCurrentBehavior();
+    void DeactivateCurrentBehavior();
 
     CameraContext ctx;
 
     float mTransScale, mTransSpeed;
     float mRotScale, mRotateSpeed;
 
-    int currentBehaviorID;
-    IBehavior<CameraContext>* currentBehavior;
+    CameraBehaviors m_current_behavior;
     CameraBehaviors m_cam_before_toggled; ///< Toggled modes (FREE, FREEFIX) remember original state.
     CameraBehaviors m_prev_toggled_cam; ///< Switching toggled modes (FREE, FREEFIX) keeps 1-slot history.
     // Global behaviors
