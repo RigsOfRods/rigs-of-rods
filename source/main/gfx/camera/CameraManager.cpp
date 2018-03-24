@@ -46,6 +46,7 @@ using namespace RoR;
 
 static const Ogre::Vector3 CHARACTERCAM_OFFSET_1ST_PERSON(0.0f, 1.82f, 0.0f);
 static const Ogre::Vector3 CHARACTERCAM_OFFSET_3RD_PERSON(0.0f, 1.1f, 0.0f);
+static const int           SPLINECAM_DRAW_RESOLUTION = 200;
 
 bool intersectsTerrain(Vector3 a, Vector3 b) // internal helper
 {
@@ -74,9 +75,14 @@ CameraManager::CameraManager() :
     , m_config_exit_vehicle_keep_fixedfreecam(false)
     , m_charactercam_is_3rdperson(true)
     , mRotateSpeed(100.0f)
+    , m_splinecam_num_linked_beams(0)
+    , m_splinecam_spline(new SimpleSpline())
+    , m_splinecam_spline_closed(false)
+    , m_splinecam_spline_len(1.0f)
+    , m_splinecam_mo(0)
+    , m_splinecam_spline_pos(0.5f)
 {
     // Create global behaviors
-    m_cam_behav_vehicle_spline   = new CameraBehaviorVehicleSpline();
     m_cam_behav_vehicle_cinecam  = new CameraBehaviorVehicleCineCam(this);
 
     ctx.cct_player_actor = nullptr;
@@ -91,7 +97,11 @@ CameraManager::CameraManager() :
 
 CameraManager::~CameraManager()
 {
-    delete m_cam_behav_vehicle_spline;
+    if (m_splinecam_spline)
+        delete m_splinecam_spline;
+    if (m_splinecam_mo)
+        delete m_splinecam_mo;
+
     delete m_cam_behav_vehicle_cinecam;
 
     delete ctx.cct_dof_manager;
@@ -164,7 +174,7 @@ void CameraManager::UpdateCurrentBehavior()
         return;
 
     case CAMERA_BEHAVIOR_VEHICLE:         this->UpdateCameraBehaviorVehicle();  return;
-    case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  m_cam_behav_vehicle_spline ->update(ctx);  return;
+    case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  this->CameraBehaviorVehicleSplineUpdate();  return;
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: m_cam_behav_vehicle_cinecam->update(ctx);  return;
     case CAMERA_BEHAVIOR_FREE:            this->UpdateCameraBehaviorFree(); return;
     case CAMERA_BEHAVIOR_FIXED:           return;
@@ -255,7 +265,7 @@ void CameraManager::ResetCurrentBehavior()
         this->CameraBehaviorVehicleReset();
         return;
 
-    case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  m_cam_behav_vehicle_spline ->reset(ctx);  return;
+    case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  this->CameraBehaviorVehicleSplineReset();  return;
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: m_cam_behav_vehicle_cinecam->reset(ctx);  return;
     case CAMERA_BEHAVIOR_FREE:            return;
     case CAMERA_BEHAVIOR_FIXED:           return;
@@ -296,8 +306,8 @@ void CameraManager::ActivateNewBehavior(CameraBehaviors behav_id, bool reset)
         }
         else if (reset)
         {
-            m_cam_behav_vehicle_spline->reset(ctx);
-            m_cam_behav_vehicle_spline->createSpline(ctx);
+            this->CameraBehaviorVehicleSplineReset();
+            this->CameraBehaviorVehicleSplineCreateSpline();
         }
         ctx.cct_player_actor->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_SPLINE;
         break;
@@ -463,7 +473,7 @@ bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
     }
     case CAMERA_BEHAVIOR_STATIC:          return false;
     case CAMERA_BEHAVIOR_VEHICLE:         return CameraBehaviorOrbitMouseMoved(ctx, _arg);
-    case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return m_cam_behav_vehicle_spline ->mouseMoved(ctx, _arg);
+    case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return this->CameraBehaviorVehicleSplineMouseMoved(_arg);
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return CameraBehaviorOrbitMouseMoved(ctx, _arg);
     case CAMERA_BEHAVIOR_FREE: {
         const OIS::MouseState ms = _arg.state;
@@ -999,4 +1009,248 @@ bool CameraManager::CameraBehaviorVehicleMousePressed(const OIS::MouseEvent& _ar
 	}
 
 	return false;
+}
+
+void CameraManager::CameraBehaviorVehicleSplineUpdate()
+{
+    if (ctx.cct_player_actor->ar_num_camera_rails <= 0)
+    {
+        gEnv->cameraManager->switchToNextBehavior();
+        return;
+    }
+
+    Vector3 dir = ctx.cct_player_actor->getDirection();
+
+    ctx.targetPitch = 0.0f;
+
+    if (App::gfx_extcam_mode.GetActive() == GfxExtCamMode::PITCHING)
+    {
+        ctx.targetPitch = -asin(dir.dotProduct(Vector3::UNIT_Y));
+    }
+
+    if (ctx.cct_player_actor->GetAllLinkedActors().size() != m_splinecam_num_linked_beams)
+    {
+        this->CameraBehaviorVehicleSplineCreateSpline();
+    }
+    this->CameraBehaviorVehicleSplineUpdateSpline();
+    this->CameraBehaviorVehicleSplineUpdateSplineDisplay();
+
+    ctx.camLookAt = m_splinecam_spline->interpolate(m_splinecam_spline_pos);
+
+    if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) && RoR::App::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE))
+    {
+        m_splinecam_auto_tracking = !m_splinecam_auto_tracking;
+        if (m_splinecam_auto_tracking)
+        {
+            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Auto tracking enabled"), "camera_go.png", 3000);
+            RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Auto tracking enabled"));
+        }
+        else
+        {
+            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Auto tracking disabled"), "camera_go.png", 3000);
+            RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Auto tracking disabled"));
+        }
+    }
+
+    if (m_splinecam_auto_tracking)
+    {
+        Vector3 centerDir = ctx.cct_player_actor->getPosition() - ctx.camLookAt;
+        if (centerDir.length() > 1.0f)
+        {
+            centerDir.normalise();
+            Radian oldTargetDirection = ctx.targetDirection;
+            ctx.targetDirection = -atan2(centerDir.dotProduct(Vector3::UNIT_X), centerDir.dotProduct(-Vector3::UNIT_Z));
+            if (ctx.targetDirection.valueRadians() * oldTargetDirection.valueRadians() < 0.0f && centerDir.length() < ctx.camDistMin)
+            {
+                ctx.camRotX = -ctx.camRotX;
+            }
+        }
+    }
+
+    CameraManager::CameraBehaviorOrbitUpdate(ctx);
+}
+
+bool CameraManager::CameraBehaviorVehicleSplineMouseMoved(  const OIS::MouseEvent& _arg)
+{
+    const OIS::MouseState ms = _arg.state;
+
+    ctx.camRatio = 1.0f / (ctx.cct_dt * 4.0f);
+
+    if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) && ms.buttonDown(OIS::MB_Right))
+    {
+        Real splinePosDiff = ms.X.rel * std::max(0.00005f, m_splinecam_spline_len * 0.0000001f);
+
+        if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) || RoR::App::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT))
+        {
+            splinePosDiff *= 3.0f;
+        }
+
+        if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU))
+        {
+            splinePosDiff *= 0.1f;
+        }
+
+        m_splinecam_spline_pos += splinePosDiff;
+
+        if (ms.X.rel > 0 && m_splinecam_spline_pos > 0.99f)
+        {
+            if (m_splinecam_spline_closed)
+            {
+                m_splinecam_spline_pos -= 1.0f;
+            }
+            else
+            {
+                // u - turn
+            }
+        }
+        else if (ms.X.rel < 0 && m_splinecam_spline_pos < 0.01f)
+        {
+            if (m_splinecam_spline_closed)
+            {
+                m_splinecam_spline_pos += 1.0f;
+            }
+            else
+            {
+                // u - turn
+            }
+        }
+
+        m_splinecam_spline_pos = std::max(0.0f, m_splinecam_spline_pos);
+        m_splinecam_spline_pos = std::min(m_splinecam_spline_pos, 1.0f);
+
+        return true;
+    }
+    else
+    {
+        return CameraManager::CameraBehaviorOrbitMouseMoved(ctx, _arg);
+    }
+}
+
+void CameraManager::CameraBehaviorVehicleSplineReset()
+{
+    CameraManager::CameraBehaviorOrbitReset(ctx);
+
+    ctx.camDist = std::min(ctx.cct_player_actor->getMinimalCameraRadius() * 2.0f, 33.0f);
+
+    m_splinecam_spline_pos = 0.5f;
+}
+
+void CameraManager::CameraBehaviorVehicleSplineCreateSpline()
+{
+    m_splinecam_spline_closed = false;
+    m_splinecam_spline_len = 1.0f;
+
+    m_splinecam_spline->clear();
+    m_splinecam_spline_nodes.clear();
+
+    for (int i = 0; i < ctx.cct_player_actor->ar_num_camera_rails; i++)
+    {
+        m_splinecam_spline_nodes.push_back(&ctx.cct_player_actor->ar_nodes[ctx.cct_player_actor->ar_camera_rail[i]]);
+    }
+
+    std::list<Actor*> linkedBeams = ctx.cct_player_actor->GetAllLinkedActors();
+
+    m_splinecam_num_linked_beams = linkedBeams.size();
+
+    if (m_splinecam_num_linked_beams > 0)
+    {
+        for (std::list<Actor*>::iterator it = linkedBeams.begin(); it != linkedBeams.end(); ++it)
+        {
+            if ((*it)->ar_num_camera_rails <= 0)
+                continue;
+
+            Vector3 curSplineFront = m_splinecam_spline_nodes.front()->AbsPosition;
+            Vector3 curSplineBack = m_splinecam_spline_nodes.back()->AbsPosition;
+
+            Vector3 linkedSplineFront = (*it)->ar_nodes[(*it)->ar_camera_rail[0]].AbsPosition;
+            Vector3 linkedSplineBack = (*it)->ar_nodes[(*it)->ar_camera_rail[(*it)->ar_num_camera_rails - 1]].AbsPosition;
+
+            if (curSplineBack.distance(linkedSplineFront) < 5.0f)
+            {
+                for (int i = 1; i < (*it)->ar_num_camera_rails; i++)
+                {
+                    m_splinecam_spline_nodes.push_back(&(*it)->ar_nodes[(*it)->ar_camera_rail[i]]);
+                }
+            }
+            else if (curSplineFront.distance(linkedSplineFront) < 5.0f)
+            {
+                for (int i = 1; i < (*it)->ar_num_camera_rails; i++)
+                {
+                    m_splinecam_spline_nodes.push_front(&(*it)->ar_nodes[(*it)->ar_camera_rail[i]]);
+                }
+            }
+            else if (curSplineBack.distance(linkedSplineBack) < 5.0f)
+            {
+                for (int i = (*it)->ar_num_camera_rails - 2; i >= 0; i--)
+                {
+                    m_splinecam_spline_nodes.push_back(&(*it)->ar_nodes[(*it)->ar_camera_rail[i]]);
+                }
+            }
+            else if (curSplineFront.distance(linkedSplineBack) < 5.0f)
+            {
+                for (int i = (*it)->ar_num_camera_rails - 2; i >= 0; i--)
+                {
+                    m_splinecam_spline_nodes.push_front(&(*it)->ar_nodes[(*it)->ar_camera_rail[i]]);
+                }
+            }
+        }
+    }
+
+    for (unsigned int i = 0; i < m_splinecam_spline_nodes.size(); i++)
+    {
+        m_splinecam_spline->addPoint(m_splinecam_spline_nodes[i]->AbsPosition);
+    }
+
+    Vector3 firstPoint = m_splinecam_spline->getPoint(0);
+    Vector3 lastPoint = m_splinecam_spline->getPoint(m_splinecam_spline->getNumPoints() - 1);
+
+    if (firstPoint.distance(lastPoint) < 1.0f)
+    {
+        m_splinecam_spline_closed = true;
+    }
+
+    for (int i = 1; i < m_splinecam_spline->getNumPoints(); i++)
+    {
+        m_splinecam_spline_len += m_splinecam_spline->getPoint(i - 1).distance(m_splinecam_spline->getPoint(i));
+    }
+
+    m_splinecam_spline_len /= 2.0f;
+
+    if (!m_splinecam_mo && ctx.cct_debug)
+    {
+        m_splinecam_mo = gEnv->sceneManager->createManualObject();
+        SceneNode* splineNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+
+        m_splinecam_mo->begin("tracks/transred", Ogre::RenderOperation::OT_LINE_STRIP);
+        for (int i = 0; i < SPLINECAM_DRAW_RESOLUTION; i++)
+        {
+            m_splinecam_mo->position(0, 0, 0);
+        }
+        m_splinecam_mo->end();
+
+        splineNode->attachObject(m_splinecam_mo);
+    }
+}
+
+void CameraManager::CameraBehaviorVehicleSplineUpdateSpline()
+{
+    for (int i = 0; i < m_splinecam_spline->getNumPoints(); i++)
+    {
+        m_splinecam_spline->updatePoint(i, m_splinecam_spline_nodes[i]->AbsPosition);
+    }
+}
+
+void CameraManager::CameraBehaviorVehicleSplineUpdateSplineDisplay()
+{
+    if (!m_splinecam_mo)
+        return;
+
+    m_splinecam_mo->beginUpdate(0);
+    for (int i = 0; i < SPLINECAM_DRAW_RESOLUTION; i++)
+    {
+        Real parametricDist = i / (float)SPLINECAM_DRAW_RESOLUTION;
+        Vector3 position = m_splinecam_spline->interpolate(parametricDist);
+        m_splinecam_mo->position(position);
+    }
+    m_splinecam_mo->end();
 }
