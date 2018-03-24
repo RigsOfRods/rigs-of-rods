@@ -46,6 +46,8 @@ using namespace RoR;
 CameraManager::CameraManager() : 
       currentBehavior(nullptr)
     , currentBehaviorID(-1)
+    , m_cam_before_toggled(CAMERA_BEHAVIOR_INVALID)
+    , m_prev_toggled_cam(CAMERA_BEHAVIOR_INVALID)
     , mTransScale(1.0f)
     , mTransSpeed(50.0f)
     , mRotScale(0.1f)
@@ -124,12 +126,12 @@ bool CameraManager::Update(float dt, Actor* player_vehicle, float sim_speed) // 
 
     if ( RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_FREE_MODE_FIX) )
     {
-        toggleBehavior(CAMERA_BEHAVIOR_FIXED);
+        this->ToggleCameraBehavior(CAMERA_BEHAVIOR_FIXED);
     }
 
     if ( RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_FREE_MODE) )
     {
-        toggleBehavior(CAMERA_BEHAVIOR_FREE);
+        this->ToggleCameraBehavior(CAMERA_BEHAVIOR_FREE);
     }
 
     if ( currentBehavior )
@@ -214,27 +216,6 @@ void CameraManager::SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset,
     // activate new
     ctx.cct_player_actor = new_vehicle;
     currentBehavior->activate(ctx, reset);
-}
-
-void CameraManager::toggleBehavior(int behavior)
-{
-    static std::stack<int> precedingBehaviors;
-
-    if ( behavior != currentBehaviorID && (precedingBehaviors.empty() || precedingBehaviors.top() != behavior))
-    {
-        if ( currentBehaviorID >= 0 )
-        {
-            precedingBehaviors.push(currentBehaviorID);
-        }
-        switchBehavior(behavior);
-    } else if ( !precedingBehaviors.empty() )
-    {
-        switchBehavior(precedingBehaviors.top(), false);
-        precedingBehaviors.pop();
-    } else
-    {
-        switchToNextBehavior();
-    }
 }
 
 bool CameraManager::hasActiveBehavior()
@@ -349,4 +330,35 @@ IBehavior<CameraManager::CameraContext>* CameraManager::FindBehavior(int behavio
     case CAMERA_BEHAVIOR_ISOMETRIC:       return m_cam_behav_isometric;
     default:                              return nullptr;
     };
+}
+
+void CameraManager::ToggleCameraBehavior(CameraBehaviors behav) // Only accepts FREE and FREEFIX modes
+{
+    assert(behav == CAMERA_BEHAVIOR_FIXED || behav == CAMERA_BEHAVIOR_FREE);
+
+    if (currentBehaviorID == behav) // Leaving toggled mode?
+    {
+        if (m_prev_toggled_cam != CAMERA_BEHAVIOR_INVALID)
+        {
+            this->switchBehavior(m_prev_toggled_cam);
+            m_prev_toggled_cam = CAMERA_BEHAVIOR_INVALID;
+        }
+        else if (m_cam_before_toggled != CAMERA_BEHAVIOR_INVALID)
+        {
+            this->switchBehavior(m_cam_before_toggled);
+            m_cam_before_toggled = CAMERA_BEHAVIOR_INVALID;
+        }
+    }
+    else // Entering toggled mode
+    {
+        if (m_cam_before_toggled == CAMERA_BEHAVIOR_INVALID)
+        {
+            m_cam_before_toggled = static_cast<CameraBehaviors>( currentBehaviorID );
+        }
+        else
+        {
+            m_prev_toggled_cam = static_cast<CameraBehaviors>( currentBehaviorID );
+        }
+        this->switchBehavior(behav);
+    }
 }
