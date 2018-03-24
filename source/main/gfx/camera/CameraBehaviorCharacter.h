@@ -34,7 +34,6 @@ public:
 
     bool mouseMoved(const CameraManager::CameraContext& ctx, const OIS::MouseEvent& _arg);
 
-    void activate(const CameraManager::CameraContext& ctx, bool reset = true);
     void reset(const CameraManager::CameraContext& ctx);
 
     bool switchBehavior(const CameraManager::CameraContext& ctx);

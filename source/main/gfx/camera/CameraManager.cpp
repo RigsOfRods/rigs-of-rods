@@ -23,7 +23,10 @@
 #include "Application.h"
 #include "BeamFactory.h"
 #include "DepthOfFieldEffect.h"
+#include "GUI_GameConsole.h"
 #include "InputEngine.h"
+#include "Language.h"
+#include "OverlayWrapper.h"
 #include "Settings.h"
 #include "GUIManager.h"
 #include "PerVehicleCameraContext.h"
@@ -154,17 +157,110 @@ void CameraManager::switchToNextBehavior()
     this->switchBehavior(i);
 }
 
+void CameraManager::ActivateNewBehavior(CameraBehaviors behav_id, IBehavior<CameraContext>* behav_obj, bool reset)
+{
+    // Assign new behavior
+    currentBehavior = behav_obj;
+    currentBehaviorID = behav_id;
+
+    // Resolve per-behavior constraints and actions
+    switch (behav_id)
+    {
+    case CAMERA_BEHAVIOR_FREE:
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Free camera"), "camera_go.png", 3000);
+        RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Free camera"));
+        break;
+
+    case CAMERA_BEHAVIOR_ISOMETRIC:
+    case CAMERA_BEHAVIOR_FIXED:
+        RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE, _L("Fixed camera"), "camera_link.png", 3000);
+        RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Fixed camera"));
+        break;
+
+    case CAMERA_BEHAVIOR_STATIC:
+        m_cam_behav_static->SetPreviousFov(gEnv->mainCamera->getFOVy());
+        break;
+
+    case CAMERA_BEHAVIOR_VEHICLE_SPLINE:
+        if ( (ctx.cct_player_actor == nullptr) || ctx.cct_player_actor->ar_num_camera_rails <= 0)
+        {
+            this->switchToNextBehavior();
+            return;
+        }
+        else if (reset)
+        {
+            m_cam_behav_vehicle_spline->reset(ctx);
+            m_cam_behav_vehicle_spline->createSpline(ctx);
+        }
+        ctx.cct_player_actor->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_SPLINE;
+        break;
+
+    case CAMERA_BEHAVIOR_VEHICLE_CINECAM:
+        if ((ctx.cct_player_actor == nullptr) || (ctx.cct_player_actor->ar_num_cinecams <= 0))
+        {
+            this->switchToNextBehavior();
+            return;
+        }
+        else if ( reset )
+        {
+            behav_obj->reset(ctx);
+        }
+
+        gEnv->mainCamera->setFOVy(ctx.cct_fov_interior);
+
+        ctx.cct_player_actor->prepareInside(true);
+
+        if ( RoR::App::GetOverlayWrapper() != nullptr )
+        {
+            RoR::App::GetOverlayWrapper()->showDashboardOverlays((ctx.cct_player_actor->ar_driveable == AIRPLANE), ctx.cct_player_actor);
+        }
+
+        ctx.cct_player_actor->ar_current_cinecam = ctx.cct_player_actor->GetCameraContext()->last_cinecam_index;
+        ctx.cct_player_actor->NotifyActorCameraChanged();
+
+        ctx.cct_player_actor->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_CINECAM;
+        break;
+
+    case CAMERA_BEHAVIOR_VEHICLE:
+        if ( ctx.cct_player_actor == nullptr )
+        {
+            this->switchToNextBehavior();
+            return;
+        }
+        else if ( reset )
+        {
+            behav_obj->reset(ctx);
+        }
+        ctx.cct_player_actor->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_3rdPERSON;
+        break;
+
+    case CAMERA_BEHAVIOR_CHARACTER:
+        if (ctx.cct_player_actor != nullptr)
+        {
+            this->switchToNextBehavior();
+            return;
+        }
+        else if (reset)
+        {
+            behav_obj->reset(ctx);
+        }
+        break;
+
+    default:;
+    }
+}
+
 void CameraManager::switchBehavior(int newBehaviorID, bool reset)
 {
     if (newBehaviorID == currentBehaviorID)
     {
-        return;
+        return; // Nothing to do
     }
 
-    auto* new_behav = this->FindBehavior(newBehaviorID);
+    IBehavior<CameraContext>* new_behav = this->FindBehavior(newBehaviorID);
     if ( new_behav == nullptr )
     {
-        return;
+        return; // Legacy logic - behavior is looked up before fully determined. TODO: Research and refactor.
     }
 
     // deactivate old
@@ -173,16 +269,12 @@ void CameraManager::switchBehavior(int newBehaviorID, bool reset)
         currentBehavior->deactivate(ctx);
     }
 
-    // set new
-    currentBehavior = new_behav;
-    currentBehaviorID = newBehaviorID;
-
-    // activate new
     if (ctx.cct_player_actor != nullptr)
     {
         ctx.cct_player_actor->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_EXTERNAL;
     }
-    currentBehavior->activate(ctx, reset);
+
+    this->ActivateNewBehavior(static_cast<CameraBehaviors>(newBehaviorID), new_behav, reset);
 }
 
 void CameraManager::SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset, Actor* old_vehicle, Actor* new_vehicle)
@@ -209,13 +301,9 @@ void CameraManager::SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset,
         currentBehavior->deactivate(ctx);
     }
 
-    // set new
-    currentBehavior = new_behav;
-    currentBehaviorID = newBehaviorID;
-
     // activate new
     ctx.cct_player_actor = new_vehicle;
-    currentBehavior->activate(ctx, reset);
+    this->ActivateNewBehavior(static_cast<CameraBehaviors>(newBehaviorID), new_behav, reset);
 }
 
 bool CameraManager::hasActiveBehavior()

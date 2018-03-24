@@ -26,6 +26,10 @@
 
 #include <OIS.h>
 
+// Forward decl.
+class CameraBehaviorStatic;
+class CameraBehaviorVehicleSpline;
+
 class CameraManager
 {
     friend class RoR::SceneMouse;
@@ -85,6 +89,7 @@ protected:
 
     void SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset, Actor* old_vehicle, Actor* new_vehicle);
     void ToggleCameraBehavior(CameraBehaviors behav); //!< Only accepts FREE and FREEFIX modes
+    void ActivateNewBehavior(CameraBehaviors behav_id, IBehavior<CameraContext>* behav_obj, bool reset);
 
     IBehavior<CameraContext>* FindBehavior(int behaviorID); // TODO: eliminate the `int ID`
 
@@ -99,9 +104,9 @@ protected:
     CameraBehaviors m_prev_toggled_cam; ///< Switching toggled modes (FREE, FREEFIX) keeps 1-slot history.
     // Global behaviors
     IBehavior<CameraContext>* m_cam_behav_character;
-    IBehavior<CameraContext>* m_cam_behav_static;
+    CameraBehaviorStatic*     m_cam_behav_static;
     IBehavior<CameraContext>* m_cam_behav_vehicle;
-    IBehavior<CameraContext>* m_cam_behav_vehicle_spline;
+    CameraBehaviorVehicleSpline* m_cam_behav_vehicle_spline;
     IBehavior<CameraContext>* m_cam_behav_vehicle_cinecam;
     IBehavior<CameraContext>* m_cam_behav_free;
     IBehavior<CameraContext>* m_cam_behav_fixed;
