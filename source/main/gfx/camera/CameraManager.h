@@ -31,7 +31,6 @@
 
 // Forward decl.
 class CameraBehaviorVehicleSpline;
-class CameraBehaviorCharacter;
 class CameraBehaviorVehicle;
 class CameraBehaviorVehicleCineCam;
 class CameraBehaviorFree;
@@ -148,8 +147,9 @@ protected:
     Ogre::Radian m_staticcam_previous_fov;
     Ogre::Vector3 m_staticcam_position;
     Ogre::Timer m_staticcam_update_timer;
+    // Character cam attributes
+    bool m_charactercam_is_3rdperson;
     // Global behaviors
-    CameraBehaviorCharacter*  m_cam_behav_character;
     CameraBehaviorVehicle*    m_cam_behav_vehicle;
     CameraBehaviorVehicleSpline* m_cam_behav_vehicle_spline;
     CameraBehaviorVehicleCineCam* m_cam_behav_vehicle_cinecam;
