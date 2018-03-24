@@ -34,7 +34,6 @@
 #include "GUIManager.h"
 #include "PerVehicleCameraContext.h"
 
-#include "CameraBehaviorCharacter.h"
 #include "CameraBehaviorFree.h"
 #include "CameraBehaviorVehicle.h"
 #include "CameraBehaviorVehicleCineCam.h"
@@ -44,6 +43,9 @@
 
 using namespace Ogre;
 using namespace RoR;
+
+static const Ogre::Vector3 CHARACTERCAM_OFFSET_1ST_PERSON(0.0f, 1.82f, 0.0f);
+static const Ogre::Vector3 CHARACTERCAM_OFFSET_3RD_PERSON(0.0f, 1.1f, 0.0f);
 
 bool intersectsTerrain(Vector3 a, Vector3 b) // internal helper
 {
@@ -70,10 +72,10 @@ CameraManager::CameraManager() :
     , mRotScale(0.1f)
     , m_config_enter_vehicle_keep_fixedfreecam(false)
     , m_config_exit_vehicle_keep_fixedfreecam(false)
+    , m_charactercam_is_3rdperson(true)
     , mRotateSpeed(100.0f)
 {
     // Create global behaviors
-    m_cam_behav_character        = new CameraBehaviorCharacter();
     m_cam_behav_vehicle          = new CameraBehaviorVehicle();
     m_cam_behav_vehicle_spline   = new CameraBehaviorVehicleSpline();
     m_cam_behav_vehicle_cinecam  = new CameraBehaviorVehicleCineCam(this);
@@ -91,7 +93,6 @@ CameraManager::CameraManager() :
 
 CameraManager::~CameraManager()
 {
-    delete m_cam_behav_character;
     delete m_cam_behav_vehicle;
     delete m_cam_behav_vehicle_spline;
     delete m_cam_behav_vehicle_cinecam;
@@ -122,7 +123,19 @@ bool CameraManager::EvaluateSwitchBehavior()
 {
     switch(m_current_behavior)
     {
-    case CAMERA_BEHAVIOR_CHARACTER:       return m_cam_behav_character      ->switchBehavior(ctx);
+    case CAMERA_BEHAVIOR_CHARACTER: {
+        if (m_charactercam_is_3rdperson)
+        {
+            m_charactercam_is_3rdperson = false;
+            this->ResetCurrentBehavior();
+            return false;
+        }
+        else // first person
+        {
+            m_charactercam_is_3rdperson = true;
+            return true;
+        }
+    }
     case CAMERA_BEHAVIOR_STATIC:          return true;
     case CAMERA_BEHAVIOR_VEHICLE:         return m_cam_behav_vehicle        ->switchBehavior(ctx);
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return m_cam_behav_vehicle_spline ->switchBehavior(ctx);
@@ -139,10 +152,21 @@ void CameraManager::UpdateCurrentBehavior()
 {
     switch(m_current_behavior)
     {
-    case CAMERA_BEHAVIOR_CHARACTER:       m_cam_behav_character      ->update(ctx);  return;
+    case CAMERA_BEHAVIOR_CHARACTER: {
+        if (!gEnv->player)
+            return;
+        ctx.targetDirection = -gEnv->player->getRotation() - Radian(Math::HALF_PI);
+        Ogre::Vector3 offset = (!m_charactercam_is_3rdperson) ? CHARACTERCAM_OFFSET_1ST_PERSON : CHARACTERCAM_OFFSET_3RD_PERSON;
+        ctx.camLookAt = gEnv->player->getPosition() + offset;
+
+        CameraManager::CameraBehaviorOrbitUpdate(ctx);
+        return;
+    }
+
     case CAMERA_BEHAVIOR_STATIC:
         this->UpdateCameraBehaviorStatic(ctx);
         return;
+
     case CAMERA_BEHAVIOR_VEHICLE:         m_cam_behav_vehicle        ->update(ctx);  return;
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  m_cam_behav_vehicle_spline ->update(ctx);  return;
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: m_cam_behav_vehicle_cinecam->update(ctx);  return;
@@ -208,10 +232,25 @@ void CameraManager::ResetCurrentBehavior()
 {
     switch(m_current_behavior)
     {
-    case CAMERA_BEHAVIOR_CHARACTER:
-        m_cam_behav_character->reset(ctx);
+    case CAMERA_BEHAVIOR_CHARACTER: {
+        CameraManager::CameraBehaviorOrbitReset(ctx);
+
+        // Vars from CameraBehaviorOrbit
+        if (!m_charactercam_is_3rdperson)
+        {
+            ctx.camRotY = 0.1f;
+            ctx.camDist = 0.1f;
+            ctx.camRatio = 0.0f;
+        }
+        else
+        {
+            ctx.camRotY = 0.3f;
+            ctx.camDist = 5.0f;
+            ctx.camRatio = 11.0f;
+        }
         ctx.camDistMin = 0;
         return;
+    }
 
     case CAMERA_BEHAVIOR_STATIC:
         return;
@@ -400,7 +439,29 @@ bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
 {
     switch(m_current_behavior)
     {
-    case CAMERA_BEHAVIOR_CHARACTER:       return m_cam_behav_character      ->mouseMoved(ctx, _arg);
+    case CAMERA_BEHAVIOR_CHARACTER: {
+        if (!gEnv->player)
+            return false;
+        if (!m_charactercam_is_3rdperson)
+        {
+            const OIS::MouseState ms = _arg.state;
+            Radian angle = gEnv->player->getRotation();
+
+            ctx.camRotY += Degree(ms.Y.rel * 0.13f);
+            angle += Degree(ms.X.rel * 0.13f);
+
+            ctx.camRotY = Radian(std::min(+Math::HALF_PI * 0.65f, ctx.camRotY.valueRadians()));
+            ctx.camRotY = Radian(std::max(ctx.camRotY.valueRadians(), -Math::HALF_PI * 0.9f));
+
+            gEnv->player->setRotation(angle);
+
+            RoR::App::GetGuiManager()->SetMouseCursorVisibility(RoR::GUIManager::MouseCursorVisibility::HIDDEN);
+
+            return true;
+        }
+
+        return CameraManager::CameraBehaviorOrbitMouseMoved(ctx, _arg);
+    }
     case CAMERA_BEHAVIOR_STATIC:          return false;
     case CAMERA_BEHAVIOR_VEHICLE:         return CameraBehaviorOrbitMouseMoved(ctx, _arg);
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return m_cam_behav_vehicle_spline ->mouseMoved(ctx, _arg);
