@@ -30,13 +30,13 @@ public:
 
     CameraBehaviorCharacter();
 
-    void update(const CameraManager::CameraContext& ctx);
+    void update( CameraManager::CameraContext& ctx);
 
-    bool mouseMoved(const CameraManager::CameraContext& ctx, const OIS::MouseEvent& _arg);
+    bool mouseMoved( CameraManager::CameraContext& ctx, const OIS::MouseEvent& _arg);
 
-    void reset(const CameraManager::CameraContext& ctx);
+    void reset( CameraManager::CameraContext& ctx);
 
-    bool switchBehavior(const CameraManager::CameraContext& ctx);
+    bool switchBehavior( CameraManager::CameraContext& ctx);
 
 protected:
 

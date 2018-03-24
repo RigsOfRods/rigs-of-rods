@@ -30,13 +30,13 @@ public:
 
     CameraBehaviorVehicle();
 
-    void update(const CameraManager::CameraContext& ctx);
+    void update( CameraManager::CameraContext& ctx);
 
-    void reset(const CameraManager::CameraContext& ctx);
+    void reset( CameraManager::CameraContext& ctx);
 
-    bool switchBehavior(const CameraManager::CameraContext& ctx) { return true; };
+    bool switchBehavior( CameraManager::CameraContext& ctx) { return true; };
 
-    bool mousePressed(const CameraManager::CameraContext& ctx, const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
+    bool mousePressed( CameraManager::CameraContext& ctx, const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
 
 };
 

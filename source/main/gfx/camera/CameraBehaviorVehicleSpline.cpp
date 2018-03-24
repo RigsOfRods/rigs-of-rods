@@ -52,7 +52,7 @@ CameraBehaviorVehicleSpline::~CameraBehaviorVehicleSpline()
         delete splineObject;
 }
 
-void CameraBehaviorVehicleSpline::update(const CameraManager::CameraContext& ctx)
+void CameraBehaviorVehicleSpline::update( CameraManager::CameraContext& ctx)
 {
     if (ctx.cct_player_actor->ar_num_camera_rails <= 0)
     {
@@ -62,11 +62,11 @@ void CameraBehaviorVehicleSpline::update(const CameraManager::CameraContext& ctx
 
     Vector3 dir = ctx.cct_player_actor->getDirection();
 
-    targetPitch = 0.0f;
+    ctx.targetPitch = 0.0f;
 
     if (App::gfx_extcam_mode.GetActive() == GfxExtCamMode::PITCHING)
     {
-        targetPitch = -asin(dir.dotProduct(Vector3::UNIT_Y));
+        ctx.targetPitch = -asin(dir.dotProduct(Vector3::UNIT_Y));
     }
 
     if (ctx.cct_player_actor->GetAllLinkedActors().size() != numLinkedBeams)
@@ -76,7 +76,7 @@ void CameraBehaviorVehicleSpline::update(const CameraManager::CameraContext& ctx
     updateSpline();
     updateSplineDisplay();
 
-    camLookAt = spline->interpolate(splinePos);
+    ctx.camLookAt = spline->interpolate(splinePos);
 
     if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) && RoR::App::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE))
     {
@@ -95,15 +95,15 @@ void CameraBehaviorVehicleSpline::update(const CameraManager::CameraContext& ctx
 
     if (autoTracking)
     {
-        Vector3 centerDir = ctx.cct_player_actor->getPosition() - camLookAt;
+        Vector3 centerDir = ctx.cct_player_actor->getPosition() - ctx.camLookAt;
         if (centerDir.length() > 1.0f)
         {
             centerDir.normalise();
-            Radian oldTargetDirection = targetDirection;
-            targetDirection = -atan2(centerDir.dotProduct(Vector3::UNIT_X), centerDir.dotProduct(-Vector3::UNIT_Z));
-            if (targetDirection.valueRadians() * oldTargetDirection.valueRadians() < 0.0f && centerDir.length() < camDistMin)
+            Radian oldTargetDirection = ctx.targetDirection;
+            ctx.targetDirection = -atan2(centerDir.dotProduct(Vector3::UNIT_X), centerDir.dotProduct(-Vector3::UNIT_Z));
+            if (ctx.targetDirection.valueRadians() * oldTargetDirection.valueRadians() < 0.0f && centerDir.length() < ctx.camDistMin)
             {
-                camRotX = -camRotX;
+                ctx.camRotX = -ctx.camRotX;
             }
         }
     }
@@ -111,11 +111,11 @@ void CameraBehaviorVehicleSpline::update(const CameraManager::CameraContext& ctx
     CameraBehaviorOrbit::update(ctx);
 }
 
-bool CameraBehaviorVehicleSpline::mouseMoved(const CameraManager::CameraContext& ctx, const OIS::MouseEvent& _arg)
+bool CameraBehaviorVehicleSpline::mouseMoved( CameraManager::CameraContext& ctx, const OIS::MouseEvent& _arg)
 {
     const OIS::MouseState ms = _arg.state;
 
-    camRatio = 1.0f / (ctx.cct_dt * 4.0f);
+    ctx.camRatio = 1.0f / (ctx.cct_dt * 4.0f);
 
     if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) && ms.buttonDown(OIS::MB_Right))
     {
@@ -167,16 +167,16 @@ bool CameraBehaviorVehicleSpline::mouseMoved(const CameraManager::CameraContext&
     }
 }
 
-void CameraBehaviorVehicleSpline::reset(const CameraManager::CameraContext& ctx)
+void CameraBehaviorVehicleSpline::reset( CameraManager::CameraContext& ctx)
 {
     CameraBehaviorOrbit::reset(ctx);
 
-    camDist = std::min(ctx.cct_player_actor->getMinimalCameraRadius() * 2.0f, 33.0f);
+    ctx.camDist = std::min(ctx.cct_player_actor->getMinimalCameraRadius() * 2.0f, 33.0f);
 
     splinePos = 0.5f;
 }
 
-void CameraBehaviorVehicleSpline::createSpline(const CameraManager::CameraContext& ctx)
+void CameraBehaviorVehicleSpline::createSpline( CameraManager::CameraContext& ctx)
 {
     splineClosed = false;
     splineLength = 1.0f;
