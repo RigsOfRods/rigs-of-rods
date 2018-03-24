@@ -31,8 +31,7 @@ static const Ogre::Vector3 OFFSET_1ST_PERSON(0.0f, 1.82f, 0.0f);
 static const Ogre::Vector3 OFFSET_3RD_PERSON(0.0f, 1.1f, 0.0f);
 
 CameraBehaviorCharacter::CameraBehaviorCharacter() :
-    CameraBehaviorOrbit()
-    , m_is_3rd_person(true)
+    m_is_3rd_person(true)
 {
 }
 
@@ -44,7 +43,7 @@ void CameraBehaviorCharacter::update( CameraManager::CameraContext& ctx)
     Ogre::Vector3 offset = (!m_is_3rd_person) ? OFFSET_1ST_PERSON : OFFSET_3RD_PERSON;
     ctx.camLookAt = gEnv->player->getPosition() + offset;
 
-    CameraBehaviorOrbit::update(ctx);
+    CameraManager::CameraBehaviorOrbitUpdate(ctx);
 }
 
 bool CameraBehaviorCharacter::mouseMoved( CameraManager::CameraContext& ctx, const OIS::MouseEvent& _arg)
@@ -69,12 +68,12 @@ bool CameraBehaviorCharacter::mouseMoved( CameraManager::CameraContext& ctx, con
         return true;
     }
 
-    return CameraBehaviorOrbit::mouseMoved(ctx, _arg);
+    return CameraManager::CameraBehaviorOrbitMouseMoved(ctx, _arg);
 }
 
 void CameraBehaviorCharacter::reset( CameraManager::CameraContext& ctx)
 {
-    CameraBehaviorOrbit::reset(ctx);
+    CameraManager::CameraBehaviorOrbitReset(ctx);
 
     // Vars from CameraBehaviorOrbit
     if (!m_is_3rd_person)

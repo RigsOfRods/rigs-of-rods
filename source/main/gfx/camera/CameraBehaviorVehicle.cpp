@@ -29,8 +29,7 @@
 
 using namespace Ogre;
 
-CameraBehaviorVehicle::CameraBehaviorVehicle() :
-	  CameraBehaviorOrbit()
+CameraBehaviorVehicle::CameraBehaviorVehicle() 
 {
 }
 
@@ -52,12 +51,12 @@ void CameraBehaviorVehicle::update( CameraManager::CameraContext &ctx)
 
 	ctx.camLookAt = ctx.cct_player_actor->getPosition();
 
-	CameraBehaviorOrbit::update(ctx);
+	CameraManager::CameraBehaviorOrbitUpdate(ctx);
 }
 
 void CameraBehaviorVehicle::reset( CameraManager::CameraContext &ctx)
 {
-	CameraBehaviorOrbit::reset(ctx);
+	CameraManager::CameraBehaviorOrbitReset(ctx);
 	ctx.camRotY = 0.35f;
 	ctx.camDistMin = std::min(ctx.cct_player_actor->getMinimalCameraRadius() * 2.0f, 33.0f);
 	ctx.camDist = ctx.camDistMin * 1.5f + 2.0f;

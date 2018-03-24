@@ -108,7 +108,7 @@ void CameraBehaviorVehicleSpline::update( CameraManager::CameraContext& ctx)
         }
     }
 
-    CameraBehaviorOrbit::update(ctx);
+    CameraManager::CameraBehaviorOrbitUpdate(ctx);
 }
 
 bool CameraBehaviorVehicleSpline::mouseMoved( CameraManager::CameraContext& ctx, const OIS::MouseEvent& _arg)
@@ -163,13 +163,13 @@ bool CameraBehaviorVehicleSpline::mouseMoved( CameraManager::CameraContext& ctx,
     }
     else
     {
-        return CameraBehaviorOrbit::mouseMoved(ctx, _arg);
+        return CameraManager::CameraBehaviorOrbitMouseMoved(ctx, _arg);
     }
 }
 
 void CameraBehaviorVehicleSpline::reset( CameraManager::CameraContext& ctx)
 {
-    CameraBehaviorOrbit::reset(ctx);
+    CameraManager::CameraBehaviorOrbitReset(ctx);
 
     ctx.camDist = std::min(ctx.cct_player_actor->getMinimalCameraRadius() * 2.0f, 33.0f);
 

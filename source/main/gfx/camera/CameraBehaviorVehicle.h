@@ -21,10 +21,9 @@
 #pragma once
 
 #include "RoRPrerequisites.h"
+#include "CameraManager.h"
 
-#include "CameraBehaviorOrbit.h"
-
-class CameraBehaviorVehicle : public CameraBehaviorOrbit
+class CameraBehaviorVehicle 
 {
 public:
 
