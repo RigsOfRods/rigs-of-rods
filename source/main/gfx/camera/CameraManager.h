@@ -31,7 +31,6 @@
 
 // Forward decl.
 class CameraBehaviorVehicleSpline;
-class CameraBehaviorVehicle;
 class CameraBehaviorVehicleCineCam;
 
 class CameraManager
@@ -134,6 +133,9 @@ protected:
     void DeactivateCurrentBehavior();
     void UpdateCameraBehaviorStatic(const CameraManager::CameraContext& ctx);
     void UpdateCameraBehaviorFree();
+    void UpdateCameraBehaviorVehicle();
+    void CameraBehaviorVehicleReset();
+    bool CameraBehaviorVehicleMousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
 
     CameraContext ctx;
 
@@ -150,7 +152,6 @@ protected:
     // Character cam attributes
     bool m_charactercam_is_3rdperson;
     // Global behaviors
-    CameraBehaviorVehicle*    m_cam_behav_vehicle;
     CameraBehaviorVehicleSpline* m_cam_behav_vehicle_spline;
     CameraBehaviorVehicleCineCam* m_cam_behav_vehicle_cinecam;
 

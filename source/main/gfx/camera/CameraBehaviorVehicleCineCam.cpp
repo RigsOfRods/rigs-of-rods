@@ -31,7 +31,7 @@
 using namespace Ogre;
 
 CameraBehaviorVehicleCineCam::CameraBehaviorVehicleCineCam(CameraManager* camera_mgr) :
-    CameraBehaviorVehicle(),
+    
     m_camera_manager(camera_mgr)
 {
 }
