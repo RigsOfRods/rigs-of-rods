@@ -23,9 +23,9 @@
 #include "RoRPrerequisites.h"
 
 #include "CameraManager.h"
-#include "IBehavior.h"
 
-class CameraBehaviorOrbit : public IBehavior<CameraManager::CameraContext>
+
+class CameraBehaviorOrbit 
 {
 public:
 

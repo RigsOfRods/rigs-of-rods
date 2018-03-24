@@ -22,13 +22,19 @@
 
 #include "RoRPrerequisites.h"
 
-#include "IBehavior.h"
+
 
 #include <OIS.h>
 
 // Forward decl.
 class CameraBehaviorStatic;
 class CameraBehaviorVehicleSpline;
+class CameraBehaviorCharacter;
+class CameraBehaviorVehicle;
+class CameraBehaviorVehicleCineCam;
+class CameraBehaviorFree;
+class CameraBehaviorFixed;
+class CameraBehaviorIsometric;
 
 class CameraManager
 {
@@ -104,14 +110,14 @@ protected:
     CameraBehaviors m_cam_before_toggled; ///< Toggled modes (FREE, FREEFIX) remember original state.
     CameraBehaviors m_prev_toggled_cam; ///< Switching toggled modes (FREE, FREEFIX) keeps 1-slot history.
     // Global behaviors
-    IBehavior<CameraContext>* m_cam_behav_character;
+    CameraBehaviorCharacter*  m_cam_behav_character;
     CameraBehaviorStatic*     m_cam_behav_static;
-    IBehavior<CameraContext>* m_cam_behav_vehicle;
+    CameraBehaviorVehicle*    m_cam_behav_vehicle;
     CameraBehaviorVehicleSpline* m_cam_behav_vehicle_spline;
-    IBehavior<CameraContext>* m_cam_behav_vehicle_cinecam;
-    IBehavior<CameraContext>* m_cam_behav_free;
-    IBehavior<CameraContext>* m_cam_behav_fixed;
-    IBehavior<CameraContext>* m_cam_behav_isometric;
+    CameraBehaviorVehicleCineCam* m_cam_behav_vehicle_cinecam;
+    CameraBehaviorFree*       m_cam_behav_free;
+    CameraBehaviorFixed*      m_cam_behav_fixed;
+    CameraBehaviorIsometric*  m_cam_behav_isometric;
 
     bool m_config_enter_vehicle_keep_fixedfreecam;
     bool m_config_exit_vehicle_keep_fixedfreecam;
