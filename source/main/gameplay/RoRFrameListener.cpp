@@ -1636,7 +1636,7 @@ bool SimController::frameStarted(const FrameEvent& evt)
 
     if (simRUNNING(s) || simPAUSED(s) || simEDITOR(s))
     {
-        if (gEnv->cameraManager != nullptr)
+        if ((gEnv->cameraManager != nullptr) && (!simPAUSED(s)) && (dt != 0.f))
         {
             gEnv->cameraManager->Update(dt, m_player_actor, m_actor_manager.GetSimulationSpeed());
         }
