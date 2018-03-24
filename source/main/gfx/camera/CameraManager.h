@@ -67,7 +67,7 @@ public:
     bool Update(float dt, Actor* player_vehicle, float sim_speed);
 
     void switchBehavior(int newBehavior, bool reset = true);
-    void switchToNextBehavior(bool force = true);
+    void switchToNextBehavior();
 
 
     bool gameControlsLocked();
