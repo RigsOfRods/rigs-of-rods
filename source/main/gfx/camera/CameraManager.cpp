@@ -96,9 +96,6 @@ void CameraManager::DisableDepthOfFieldEffect()
 bool CameraManager::Update(float dt, Actor* player_vehicle, float sim_speed) // Called every frame
 {
     if (RoR::App::sim_state.GetActive() == RoR::SimState::PAUSED) { return true; } // Do nothing when paused
-
-    if ( dt == 0 ) return false;
-
     mTransScale = mTransSpeed  * dt;
     mRotScale   = mRotateSpeed * dt;
 
