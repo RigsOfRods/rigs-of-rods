@@ -41,13 +41,5 @@ public:
 
 protected:
 
-    enum CameraModes
-    {
-        CHARACTER_THIRD_PERSON=0,
-        CHARACTER_FIRST_PERSON,
-        CHARACTER_END
-    };
-
-    int camMode;
-    Ogre::Vector3 camPositionOffset;
+    bool m_is_3rd_person;
 };
