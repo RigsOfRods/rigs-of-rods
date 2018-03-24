@@ -2,6 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
+    Copyright 2017-2018 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -47,6 +48,7 @@ using namespace RoR;
 static const Ogre::Vector3 CHARACTERCAM_OFFSET_1ST_PERSON(0.0f, 1.82f, 0.0f);
 static const Ogre::Vector3 CHARACTERCAM_OFFSET_3RD_PERSON(0.0f, 1.1f, 0.0f);
 static const int           SPLINECAM_DRAW_RESOLUTION = 200;
+static const int           DEFAULT_INTERNAL_CAM_PITCH = -15;
 
 bool intersectsTerrain(Vector3 a, Vector3 b) // internal helper
 {
@@ -82,9 +84,6 @@ CameraManager::CameraManager() :
     , m_splinecam_mo(0)
     , m_splinecam_spline_pos(0.5f)
 {
-    // Create global behaviors
-    m_cam_behav_vehicle_cinecam  = new CameraBehaviorVehicleCineCam(this);
-
     ctx.cct_player_actor = nullptr;
     ctx.cct_dof_manager = nullptr;
     ctx.cct_debug = BSETTING("Camera Debug", false);
@@ -101,8 +100,6 @@ CameraManager::~CameraManager()
         delete m_splinecam_spline;
     if (m_splinecam_mo)
         delete m_splinecam_mo;
-
-    delete m_cam_behav_vehicle_cinecam;
 
     delete ctx.cct_dof_manager;
 }
@@ -145,7 +142,17 @@ bool CameraManager::EvaluateSwitchBehavior()
     case CAMERA_BEHAVIOR_STATIC:          return true;
     case CAMERA_BEHAVIOR_VEHICLE:         return true;
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return true;
-    case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return m_cam_behav_vehicle_cinecam->switchBehavior(ctx);
+    case CAMERA_BEHAVIOR_VEHICLE_CINECAM: {
+        if ( (ctx.cct_player_actor != nullptr)
+            && (ctx.cct_player_actor->ar_current_cinecam) < (ctx.cct_player_actor->ar_num_cinecams-1) )
+        {
+            ctx.cct_player_actor->ar_current_cinecam++;
+            ctx.cct_player_actor->GetCameraContext()->last_cinecam_index = ctx.cct_player_actor->ar_current_cinecam;
+            ctx.cct_player_actor->NotifyActorCameraChanged();
+            return false;
+        }
+        return true;    
+    }
     case CAMERA_BEHAVIOR_FREE:            return true;
     case CAMERA_BEHAVIOR_FIXED:           return true;
     case CAMERA_BEHAVIOR_ISOMETRIC:       return true;
@@ -175,7 +182,30 @@ void CameraManager::UpdateCurrentBehavior()
 
     case CAMERA_BEHAVIOR_VEHICLE:         this->UpdateCameraBehaviorVehicle();  return;
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  this->CameraBehaviorVehicleSplineUpdate();  return;
-    case CAMERA_BEHAVIOR_VEHICLE_CINECAM: m_cam_behav_vehicle_cinecam->update(ctx);  return;
+    case CAMERA_BEHAVIOR_VEHICLE_CINECAM: {
+        CameraManager::CameraBehaviorOrbitUpdate(ctx);
+
+        Vector3 dir = (ctx.cct_player_actor->ar_nodes[ctx.cct_player_actor->ar_camera_node_pos[ctx.cct_player_actor->ar_current_cinecam]].AbsPosition
+                     - ctx.cct_player_actor->ar_nodes[ctx.cct_player_actor->ar_camera_node_dir[ctx.cct_player_actor->ar_current_cinecam]].AbsPosition).normalisedCopy();
+
+        Vector3 roll = (ctx.cct_player_actor->ar_nodes[ctx.cct_player_actor->ar_camera_node_pos[ctx.cct_player_actor->ar_current_cinecam]].AbsPosition
+                      - ctx.cct_player_actor->ar_nodes[ctx.cct_player_actor->ar_camera_node_roll[ctx.cct_player_actor->ar_current_cinecam]].AbsPosition).normalisedCopy();
+
+        if ( ctx.cct_player_actor->ar_camera_node_roll_inv[ctx.cct_player_actor->ar_current_cinecam] )
+        {
+            roll = -roll;
+        }
+
+        Vector3 up = dir.crossProduct(roll);
+
+        roll = up.crossProduct(dir);
+
+        Quaternion orientation = Quaternion(ctx.camRotX + ctx.camRotXSwivel, up) * Quaternion(Degree(180.0) + ctx.camRotY + ctx.camRotYSwivel, roll) * Quaternion(roll, up, dir);
+
+        gEnv->mainCamera->setPosition(ctx.cct_player_actor->ar_nodes[ctx.cct_player_actor->ar_cinecam_node[ctx.cct_player_actor->ar_current_cinecam]].AbsPosition);
+        gEnv->mainCamera->setOrientation(orientation);
+        return;
+    }
     case CAMERA_BEHAVIOR_FREE:            this->UpdateCameraBehaviorFree(); return;
     case CAMERA_BEHAVIOR_FIXED:           return;
     case CAMERA_BEHAVIOR_ISOMETRIC:       return;
@@ -266,7 +296,12 @@ void CameraManager::ResetCurrentBehavior()
         return;
 
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  this->CameraBehaviorVehicleSplineReset();  return;
-    case CAMERA_BEHAVIOR_VEHICLE_CINECAM: m_cam_behav_vehicle_cinecam->reset(ctx);  return;
+    case CAMERA_BEHAVIOR_VEHICLE_CINECAM:
+        CameraManager::CameraBehaviorOrbitReset(ctx);
+        ctx.camRotY = Degree(DEFAULT_INTERNAL_CAM_PITCH);
+        gEnv->mainCamera->setFOVy(ctx.cct_fov_interior);
+        return;
+
     case CAMERA_BEHAVIOR_FREE:            return;
     case CAMERA_BEHAVIOR_FIXED:           return;
     case CAMERA_BEHAVIOR_ISOMETRIC:       return;
@@ -379,7 +414,30 @@ void CameraManager::DeactivateCurrentBehavior()
 
     case CAMERA_BEHAVIOR_VEHICLE:         return;
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return;
-    case CAMERA_BEHAVIOR_VEHICLE_CINECAM: m_cam_behav_vehicle_cinecam->deactivate(ctx);  return;
+    case CAMERA_BEHAVIOR_VEHICLE_CINECAM: {
+            Actor* current_vehicle = ctx.cct_player_actor;
+        if ( current_vehicle == nullptr 
+            || current_vehicle->GetCameraContext()->behavior != RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_CINECAM )
+        {
+            return;
+        }
+
+        gEnv->mainCamera->setFOVy(ctx.cct_fov_exterior);
+    
+        current_vehicle->prepareInside(false);
+
+        if ( RoR::App::GetOverlayWrapper() != nullptr )
+        {
+            RoR::App::GetOverlayWrapper()->showDashboardOverlays(true, current_vehicle);
+        }
+
+        current_vehicle->GetCameraContext()->last_cinecam_index = current_vehicle->ar_current_cinecam;
+
+        current_vehicle->GetCameraContext()->last_cinecam_index = false;
+        current_vehicle->ar_current_cinecam = -1;
+        current_vehicle->NotifyActorCameraChanged();
+        return;
+    }
     case CAMERA_BEHAVIOR_FREE:            return;
     case CAMERA_BEHAVIOR_FIXED:           return;
     case CAMERA_BEHAVIOR_ISOMETRIC:       return;

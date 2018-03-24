@@ -2,6 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
+    Copyright 2017-2018 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -28,9 +29,6 @@
 #include <OgreVector3.h>
 #include <OgreMath.h> // Degree, Radian
 #include <OgreTimer.h>
-
-// Forward decl.
-class CameraBehaviorVehicleCineCam;
 
 class CameraManager
 {
@@ -165,8 +163,6 @@ protected:
     bool                 m_splinecam_auto_tracking;
     std::deque<node_t*>  m_splinecam_spline_nodes;
     unsigned int         m_splinecam_num_linked_beams;
-    // Global behaviors
-    CameraBehaviorVehicleCineCam* m_cam_behav_vehicle_cinecam;
 
     bool m_config_enter_vehicle_keep_fixedfreecam;
     bool m_config_exit_vehicle_keep_fixedfreecam;
