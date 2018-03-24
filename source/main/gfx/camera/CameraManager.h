@@ -120,6 +120,11 @@ public:
     void ActivateDepthOfFieldEffect();
     void DisableDepthOfFieldEffect();
 
+    static void CameraBehaviorOrbitNotifyContextChange( CameraManager::CameraContext& ctx);
+    static void CameraBehaviorOrbitReset( CameraManager::CameraContext& ctx);
+    static bool CameraBehaviorOrbitMouseMoved( CameraManager::CameraContext& ctx, const OIS::MouseEvent& _arg);
+    static void CameraBehaviorOrbitUpdate( CameraManager::CameraContext& ctx);
+
 protected:
 
     void SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset, Actor* old_vehicle, Actor* new_vehicle);

@@ -38,7 +38,7 @@ CameraBehaviorVehicleCineCam::CameraBehaviorVehicleCineCam(CameraManager* camera
 
 void CameraBehaviorVehicleCineCam::update( CameraManager::CameraContext &ctx)
 {
-    CameraBehaviorOrbit::update(ctx);
+    CameraManager::CameraBehaviorOrbitUpdate(ctx);
 
     Vector3 dir = (ctx.cct_player_actor->ar_nodes[ctx.cct_player_actor->ar_camera_node_pos[ctx.cct_player_actor->ar_current_cinecam]].AbsPosition
                  - ctx.cct_player_actor->ar_nodes[ctx.cct_player_actor->ar_camera_node_dir[ctx.cct_player_actor->ar_current_cinecam]].AbsPosition).normalisedCopy();
@@ -88,7 +88,7 @@ void CameraBehaviorVehicleCineCam::deactivate( CameraManager::CameraContext &ctx
 
 void CameraBehaviorVehicleCineCam::reset( CameraManager::CameraContext &ctx)
 {
-    CameraBehaviorOrbit::reset(ctx);
+    CameraManager::CameraBehaviorOrbitReset(ctx);
     ctx.camRotY = Degree(DEFAULT_INTERNAL_CAM_PITCH);
     gEnv->mainCamera->setFOVy(ctx.cct_fov_interior);
 }
