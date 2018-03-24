@@ -61,43 +61,6 @@ void CameraBehaviorVehicleCineCam::update(const CameraManager::CameraContext &ct
     gEnv->mainCamera->setOrientation(orientation);
 }
 
-void CameraBehaviorVehicleCineCam::activate(const CameraManager::CameraContext &ctx, bool reset /* = true */)
-{
-    Actor* current_vehicle = ctx.cct_player_actor;
-    if (current_vehicle == nullptr)
-    {
-        m_camera_manager->switchToNextBehavior();
-        return;
-    }
-    RoR::PerVehicleCameraContext* vehicle_cam_context = current_vehicle->GetCameraContext();
-    if ( current_vehicle->ar_num_cinecams <= 0 )
-    {
-        m_camera_manager->switchToNextBehavior();
-        return;
-    } 
-    else if ( reset )
-    {
-        this->reset(ctx);
-    }
-
-    gEnv->mainCamera->setFOVy(ctx.cct_fov_interior);
-
-    current_vehicle->prepareInside(true);
-
-    if ( RoR::App::GetOverlayWrapper() )
-    {
-        RoR::App::GetOverlayWrapper()->showDashboardOverlays(
-            (current_vehicle->ar_driveable == AIRPLANE), 
-            current_vehicle
-        );
-    }
-
-    current_vehicle->ar_current_cinecam = current_vehicle->GetCameraContext()->last_cinecam_index;
-    current_vehicle->NotifyActorCameraChanged();
-
-    vehicle_cam_context->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_CINECAM;
-}
-
 void CameraBehaviorVehicleCineCam::deactivate(const CameraManager::CameraContext &ctx)
 {
     Actor* current_vehicle = ctx.cct_player_actor;

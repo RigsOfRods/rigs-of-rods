@@ -55,20 +55,6 @@ void CameraBehaviorVehicle::update(const CameraManager::CameraContext &ctx)
 	CameraBehaviorOrbit::update(ctx);
 }
 
-void CameraBehaviorVehicle::activate(const CameraManager::CameraContext &ctx, bool reset /* = true */)
-{
-	if ( !ctx.cct_player_actor )
-	{
-		gEnv->cameraManager->switchToNextBehavior();
-		return;
-	} 
-	else if ( reset )
-	{
-		this->reset(ctx);
-	}
-	ctx.cct_player_actor->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_3rdPERSON;
-}
-
 void CameraBehaviorVehicle::reset(const CameraManager::CameraContext &ctx)
 {
 	CameraBehaviorOrbit::reset(ctx);
