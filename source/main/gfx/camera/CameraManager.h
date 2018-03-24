@@ -33,7 +33,6 @@
 class CameraBehaviorVehicleSpline;
 class CameraBehaviorVehicle;
 class CameraBehaviorVehicleCineCam;
-class CameraBehaviorFree;
 
 class CameraManager
 {
@@ -134,6 +133,7 @@ protected:
     void ResetCurrentBehavior();
     void DeactivateCurrentBehavior();
     void UpdateCameraBehaviorStatic(const CameraManager::CameraContext& ctx);
+    void UpdateCameraBehaviorFree();
 
     CameraContext ctx;
 
@@ -153,7 +153,6 @@ protected:
     CameraBehaviorVehicle*    m_cam_behav_vehicle;
     CameraBehaviorVehicleSpline* m_cam_behav_vehicle_spline;
     CameraBehaviorVehicleCineCam* m_cam_behav_vehicle_cinecam;
-    CameraBehaviorFree*       m_cam_behav_free;
 
     bool m_config_enter_vehicle_keep_fixedfreecam;
     bool m_config_exit_vehicle_keep_fixedfreecam;

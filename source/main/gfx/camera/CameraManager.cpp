@@ -79,7 +79,6 @@ CameraManager::CameraManager() :
     m_cam_behav_vehicle          = new CameraBehaviorVehicle();
     m_cam_behav_vehicle_spline   = new CameraBehaviorVehicleSpline();
     m_cam_behav_vehicle_cinecam  = new CameraBehaviorVehicleCineCam(this);
-    m_cam_behav_free             = new CameraBehaviorFree();
 
     ctx.cct_player_actor = nullptr;
     ctx.cct_dof_manager = nullptr;
@@ -96,7 +95,6 @@ CameraManager::~CameraManager()
     delete m_cam_behav_vehicle;
     delete m_cam_behav_vehicle_spline;
     delete m_cam_behav_vehicle_cinecam;
-    delete m_cam_behav_free;
 
     delete ctx.cct_dof_manager;
 }
@@ -140,7 +138,7 @@ bool CameraManager::EvaluateSwitchBehavior()
     case CAMERA_BEHAVIOR_VEHICLE:         return m_cam_behav_vehicle        ->switchBehavior(ctx);
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return m_cam_behav_vehicle_spline ->switchBehavior(ctx);
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return m_cam_behav_vehicle_cinecam->switchBehavior(ctx);
-    case CAMERA_BEHAVIOR_FREE:            return m_cam_behav_free           ->switchBehavior(ctx);
+    case CAMERA_BEHAVIOR_FREE:            return true;
     case CAMERA_BEHAVIOR_FIXED:           return true;
     case CAMERA_BEHAVIOR_ISOMETRIC:       return true;
     case CAMERA_BEHAVIOR_INVALID:         return true;
@@ -170,7 +168,7 @@ void CameraManager::UpdateCurrentBehavior()
     case CAMERA_BEHAVIOR_VEHICLE:         m_cam_behav_vehicle        ->update(ctx);  return;
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  m_cam_behav_vehicle_spline ->update(ctx);  return;
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: m_cam_behav_vehicle_cinecam->update(ctx);  return;
-    case CAMERA_BEHAVIOR_FREE:            m_cam_behav_free           ->update(ctx);  return;
+    case CAMERA_BEHAVIOR_FREE:            this->UpdateCameraBehaviorFree(); return;
     case CAMERA_BEHAVIOR_FIXED:           return;
     case CAMERA_BEHAVIOR_ISOMETRIC:       return;
     case CAMERA_BEHAVIOR_INVALID:         return;
@@ -258,7 +256,7 @@ void CameraManager::ResetCurrentBehavior()
     case CAMERA_BEHAVIOR_VEHICLE:         m_cam_behav_vehicle        ->reset(ctx);  return;
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  m_cam_behav_vehicle_spline ->reset(ctx);  return;
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: m_cam_behav_vehicle_cinecam->reset(ctx);  return;
-    case CAMERA_BEHAVIOR_FREE:            m_cam_behav_free           ->reset(ctx);  return;
+    case CAMERA_BEHAVIOR_FREE:            return;
     case CAMERA_BEHAVIOR_FIXED:           return;
     case CAMERA_BEHAVIOR_ISOMETRIC:       return;
     case CAMERA_BEHAVIOR_INVALID:         return;
@@ -371,7 +369,7 @@ void CameraManager::DeactivateCurrentBehavior()
     case CAMERA_BEHAVIOR_VEHICLE:         return;
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return;
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: m_cam_behav_vehicle_cinecam->deactivate(ctx);  return;
-    case CAMERA_BEHAVIOR_FREE:            m_cam_behav_free           ->deactivate(ctx);  return;
+    case CAMERA_BEHAVIOR_FREE:            return;
     case CAMERA_BEHAVIOR_FIXED:           return;
     case CAMERA_BEHAVIOR_ISOMETRIC:       return;
     case CAMERA_BEHAVIOR_INVALID:         return;
@@ -466,7 +464,17 @@ bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
     case CAMERA_BEHAVIOR_VEHICLE:         return CameraBehaviorOrbitMouseMoved(ctx, _arg);
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return m_cam_behav_vehicle_spline ->mouseMoved(ctx, _arg);
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return CameraBehaviorOrbitMouseMoved(ctx, _arg);
-    case CAMERA_BEHAVIOR_FREE:            return m_cam_behav_free           ->mouseMoved(ctx, _arg);
+    case CAMERA_BEHAVIOR_FREE: {
+        const OIS::MouseState ms = _arg.state;
+
+        gEnv->mainCamera->yaw(Degree(-ms.X.rel * 0.13f));
+        gEnv->mainCamera->pitch(Degree(-ms.Y.rel * 0.13f));
+
+        App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
+
+        return true;
+    }
+
     case CAMERA_BEHAVIOR_FIXED:           return false;
     case CAMERA_BEHAVIOR_ISOMETRIC:       return false;
     case CAMERA_BEHAVIOR_INVALID:         return false;
@@ -483,7 +491,7 @@ bool CameraManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID
     case CAMERA_BEHAVIOR_VEHICLE:         return m_cam_behav_vehicle        ->mousePressed(ctx, _arg, _id);
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return m_cam_behav_vehicle_spline ->mousePressed(ctx, _arg, _id);
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return m_cam_behav_vehicle_cinecam->mousePressed(ctx, _arg, _id);
-    case CAMERA_BEHAVIOR_FREE:            return m_cam_behav_free           ->mousePressed(ctx, _arg, _id);
+    case CAMERA_BEHAVIOR_FREE:            return false;
     case CAMERA_BEHAVIOR_FIXED:           return false;
     case CAMERA_BEHAVIOR_ISOMETRIC:       return false;
     case CAMERA_BEHAVIOR_INVALID:         return false;
@@ -500,7 +508,7 @@ bool CameraManager::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonI
     case CAMERA_BEHAVIOR_VEHICLE:         return false;
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return false;
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return false;
-    case CAMERA_BEHAVIOR_FREE:            return m_cam_behav_free           ->mouseReleased(ctx, _arg, _id);
+    case CAMERA_BEHAVIOR_FREE:            return false;
     case CAMERA_BEHAVIOR_FIXED:           return false;
     case CAMERA_BEHAVIOR_ISOMETRIC:       return false;
     case CAMERA_BEHAVIOR_INVALID:         return false;
@@ -529,7 +537,7 @@ void CameraManager::NotifyContextChange()
     case CAMERA_BEHAVIOR_VEHICLE:         CameraBehaviorOrbitNotifyContextChange(ctx);  return;
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  CameraBehaviorOrbitNotifyContextChange(ctx);  return;
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: CameraBehaviorOrbitNotifyContextChange(ctx);  return;
-    case CAMERA_BEHAVIOR_FREE:            m_cam_behav_free           ->notifyContextChange(ctx);  return;
+    case CAMERA_BEHAVIOR_FREE:            return;
     case CAMERA_BEHAVIOR_FIXED:           return;
     case CAMERA_BEHAVIOR_ISOMETRIC:       return;
     case CAMERA_BEHAVIOR_INVALID:         return;
@@ -848,4 +856,78 @@ void CameraManager::CameraBehaviorOrbitReset( CameraManager::CameraContext& ctx)
 void CameraManager::CameraBehaviorOrbitNotifyContextChange( CameraManager::CameraContext& ctx)
 {
     ctx.camLookAtLast = Vector3::ZERO;
+}
+
+void CameraManager::UpdateCameraBehaviorFree()
+{
+    Degree mRotX(0.0f);
+    Degree mRotY(0.0f);
+    Degree cct_rot_scale(ctx.cct_rot_scale * 10.0f * ctx.cct_dt);
+    Vector3 mTrans(Vector3::ZERO);
+    Real cct_trans_scale(ctx.cct_trans_scale * 10.0f * ctx.cct_dt);
+
+    if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) || RoR::App::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT))
+    {
+        cct_rot_scale *= 3.0f;
+        cct_trans_scale *= 3.0f;
+    }
+    if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL))
+    {
+        cct_rot_scale *= 6.0f;
+        cct_trans_scale *= 20.0f;
+    }
+    if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU))
+    {
+        cct_rot_scale *= 0.1f;
+        cct_trans_scale *= 0.1f;
+    }
+
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_SIDESTEP_LEFT))
+    {
+        mTrans.x -= cct_trans_scale;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_SIDESTEP_RIGHT))
+    {
+        mTrans.x += cct_trans_scale;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_FORWARD))
+    {
+        mTrans.z -= cct_trans_scale;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_BACKWARDS))
+    {
+        mTrans.z += cct_trans_scale;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_UP))
+    {
+        mTrans.y += cct_trans_scale;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_DOWN))
+    {
+        mTrans.y -= cct_trans_scale;
+    }
+
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_RIGHT))
+    {
+        mRotX -= cct_rot_scale;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_LEFT))
+    {
+        mRotX += cct_rot_scale;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_ROT_UP))
+    {
+        mRotY += cct_rot_scale;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_ROT_DOWN))
+    {
+        mRotY -= cct_rot_scale;
+    }
+
+    gEnv->mainCamera->yaw(mRotX);
+    gEnv->mainCamera->pitch(mRotY);
+
+    Vector3 camPosition = gEnv->mainCamera->getPosition() + gEnv->mainCamera->getOrientation() * mTrans.normalisedCopy() * cct_trans_scale;
+
+    gEnv->mainCamera->setPosition(camPosition);
 }
