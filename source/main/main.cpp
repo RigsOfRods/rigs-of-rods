@@ -95,29 +95,42 @@ int main(int argc, char *argv[])
 
         // ### Detect system paths ###
 
-        int res = RoR::System::DetectBasePaths(); // Updates globals
-        if (res == -1)
+        // Process directory
+        std::string exe_path = RoR::GetExecutablePath();
+        if (exe_path.empty())
         {
             ErrorUtils::ShowError(_L("Startup error"), _L("Error while retrieving program directory path"));
             return -1;
         }
+        App::sys_process_dir.SetActive(RoR::GetParentDirectory(exe_path.c_str()).c_str());
 
-        // User's home directory
-        std::string user_home = RoR::GetUserHomeDirectory();
-        if (user_home.empty())
+        // RoR's home directory
+        Str<600> local_userdir;
+        local_userdir << App::sys_process_dir.GetActive() << PATH_SLASH << "config"; // TODO: Think of a better name, this is ambiguious with ~/.rigsofrods/config which stores configfiles! ~ only_a_ptr, 02/2018
+        if (FolderExists(local_userdir))
         {
-            ErrorUtils::ShowError(_L("Startup error"), _L("Error while retrieving user directory path"));
-            return -1;
+            // It's a portable installation
+            App::sys_user_dir.SetActive(local_userdir);
         }
-        RoR::Str<500> ror_homedir;
+        else
+        {
+            // Default location - user's home directory
+            std::string user_home = RoR::GetUserHomeDirectory();
+            if (user_home.empty())
+            {
+                ErrorUtils::ShowError(_L("Startup error"), _L("Error while retrieving user directory path"));
+                return -1;
+            }
+            RoR::Str<500> ror_homedir;
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-        ror_homedir << user_home << PATH_SLASH << "Rigs of Rods " << ROR_VERSION_STRING_SHORT;
+            ror_homedir << user_home << PATH_SLASH << "Rigs of Rods " << ROR_VERSION_STRING_SHORT;
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-        ror_homedir << user_home << PATH_SLASH << ".rigsofrods";
+            ror_homedir << user_home << PATH_SLASH << ".rigsofrods";
 #elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-        ror_homedir << user_home << PATH_SLASH << "RigsOfRods";
+            ror_homedir << user_home << PATH_SLASH << "RigsOfRods";
 #endif
-        App::sys_user_dir.SetActive(ror_homedir.ToCStr());
+            App::sys_user_dir.SetActive(ror_homedir.ToCStr());
+        }
 
         // ### Create OGRE default logger early. ###
 
