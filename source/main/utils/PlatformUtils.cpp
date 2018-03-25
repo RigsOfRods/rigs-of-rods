@@ -41,8 +41,10 @@
 #else
     #include <sys/types.h>
     #include <sys/stat.h>
+    #include <unistd.h> // readlink()
 #endif
 
+#include <OgrePlatform.h>
 #include <string>
 
 namespace RoR {
@@ -136,6 +138,20 @@ std::string GetUserHomeDirectory()
     return MSW_WcharToUtf8(out_wstr.c_str());
 }
 
+std::string GetExecutablePath()
+{
+    const int BUF_SIZE = 500;
+    std::wstring out_wstr(BUF_SIZE, 0);
+    DWORD res = GetModuleFileNameW(nullptr, &out_wstr[0], BUF_SIZE);
+    if (res <= 0)
+    {
+        RoR::LogFormat("[RoR] Internal error: GetExecutablePath() failed; GetModuleFileNameW() returned %d", static_cast<int>(res));
+        return std::string();
+    }
+
+    return MSW_WcharToUtf8(out_wstr.c_str());
+}
+
 #else
 
 // -------------------------- File/path utils for Linux/*nix --------------------------
@@ -164,7 +180,52 @@ std::string GetUserHomeDirectory()
     return getenv("HOME");
 }
 
+std::string GetExecutablePath()
+{
+    const int BUF_SIZE = 500;
+    std::string buf_str(BUF_SIZE, 0);
+    // Linux or POSIX assumed; http://stackoverflow.com/a/625523
+    if (readlink("/proc/self/exe", &buf_str[0], BUF_SIZE-1) == -1)
+    {
+        RoR::LogFormat("[RoR] Internal error: GetExecutablePath() failed; readlink() sets errno to %d", static_cast<int>(errno));
+        return std::string();
+    }
+
+    return std::move(buf_str);
+}
+
 #endif // _MSC_VER
+
+// -------------------------- File/path common utils --------------------------
+
+std::string GetParentDirectory(const char* src_buff)
+{
+    const char* start = src_buff;
+    size_t count = strlen(src_buff);
+    // Trim trailing separator(s)
+    for (;;)
+    {
+        if (count == 0) { return std::string(); }
+        if (start[count - 1] != PATH_SLASH) { break; }
+        --count;
+    }
+    // Remove last path entry
+    for (;;)
+    {
+        if (count == 0) { return std::string(); }
+        if (start[count - 1] == PATH_SLASH) {break; }
+        --count;
+    }
+    // Trim rear separator(s)
+    for (;;)
+    {
+        if (count == 0) { return std::string(); }
+        if (start[count - 1] != PATH_SLASH) { break; }
+        --count;
+    }
+    
+    return std::move(std::string(start, count));
+}
 
 
 // -------------------------- CrashRpt integration --------------------------

@@ -33,10 +33,6 @@
 #include <direct.h> // for _chdir
 #endif
 
-#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-#include <mach-o/dyld.h>
-#endif
-
 #include "Application.h"
 #include "ErrorUtils.h"
 #include "Language.h"
@@ -118,90 +114,6 @@ void ShowVersion()
 
 using namespace Ogre;
 using namespace RoR;
-
-namespace RoR{
-namespace System {
-
-inline bool IsWhitespace(char c) { return (c == ' ' || c == '\n' || c == '\t'); }
-inline bool IsSeparator (char c) { return (c == '\\' || c == '/'); }
-
-void GetParentDirectory(char* dst_buf, const char* src_buff)
-{
-    const char* start = src_buff;
-    size_t count = strlen(src_buff);
-    // Trim trailing separator(s)
-    for (;;)
-    {
-        if (count == 0) { dst_buf[0] = '\0'; return; }
-        if (!IsSeparator(start[count - 1])) { break; }
-        --count;
-    }
-    // Remove last path entry
-    for (;;)
-    {
-        if (count == 0) { dst_buf[0] = '\0'; return; }
-        if (IsSeparator(start[count - 1])) {break; }
-        --count;
-    }
-    // Trim rear separator(s)
-    for (;;)
-    {
-        if (count == 0) { dst_buf[0] = '\0'; return; }
-        if (!IsSeparator(start[count - 1])) { break; }
-        --count;
-    }
-    strncpy(dst_buf, start, count);
-}
-
-int DetectBasePaths()
-{
-    constexpr int bufsize = 500;
-    char buf[bufsize] = "";
-
-    // Process dir (system)    
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 // NOTE: We use non-UNICODE interfaces for simplicity
-    // Process dir
-    if (!GetModuleFileNameA(nullptr, buf, bufsize))
-    {
-        return -1;
-    }
-
-#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX // http://stackoverflow.com/a/625523
-    memset(buf, 0, bufsize);
-    // Process dir
-    if (readlink("/proc/self/exe", buf, bufsize-1) == -1)
-    {
-        return -1;
-    }
-
-#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-    // Process dir
-    uint32_t length = bufsize;
-    if (_NSGetExecutablePath(procpath, &length) == -1) // Returns absolute path to binary
-    {
-        return -1;
-    }
-#endif
-    Str<bufsize> process_dir;
-    GetParentDirectory(process_dir.GetBuffer(), buf);
-    App::sys_process_dir.SetActive(process_dir);
-
-    // User directory (local override - portable installation)
-    Str<bufsize> local_userdir;
-    local_userdir << App::sys_process_dir.GetActive() << PATH_SLASH << "config";
-    if (FolderExists(local_userdir))
-    {
-        App::sys_user_dir.SetActive(local_userdir);
-        return 0; // Done!
-    }
-
-    return 0;
-}
-
-} // namespace System
-} // namespace RoR
-
-//RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED
 
 void Settings::ProcessCommandLine(int argc, char *argv[])
 {
@@ -1073,12 +985,7 @@ bool Settings::SetupAllPaths()
     }
 #endif
 
-    System::GetParentDirectory(buf.GetBuffer(), App::sys_process_dir.GetActive());
-    if (FolderExists(buf))
-    {
-        App::sys_resources_dir.SetActive(buf);
-        return true;
-    }
+    buf = RoR::GetParentDirectory(App::sys_process_dir.GetActive());
 
     return false;
 }

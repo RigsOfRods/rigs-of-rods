@@ -37,12 +37,6 @@
 #include "Singleton.h"
 
 namespace RoR {
-namespace System {
-
-void GetParentDirectory(char* dst_buf, const char* src_buff);
-int DetectBasePaths();
-
-} // namespace System
 
 void ShowCommandLineUsage();
 void ShowVersion();
