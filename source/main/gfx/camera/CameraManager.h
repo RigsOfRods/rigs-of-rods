@@ -70,7 +70,6 @@ public:
     void ActivateDepthOfFieldEffect();
     void DisableDepthOfFieldEffect();
 
-    void CameraBehaviorOrbitNotifyContextChange();
     void CameraBehaviorOrbitReset();
     bool CameraBehaviorOrbitMouseMoved(const OIS::MouseEvent& _arg);
     void CameraBehaviorOrbitUpdate();
@@ -146,5 +145,5 @@ protected:
 
     bool mouseMoved(const OIS::MouseEvent& _arg);
     bool mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
-    bool mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
+    bool mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id) { return false; }
 };
