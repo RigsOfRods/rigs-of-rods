@@ -581,23 +581,6 @@ bool CameraManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID
     }
 }
 
-bool CameraManager::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
-{
-    switch(m_current_behavior)
-    {
-    case CAMERA_BEHAVIOR_CHARACTER:       return false;
-    case CAMERA_BEHAVIOR_STATIC:          return false;
-    case CAMERA_BEHAVIOR_VEHICLE:         return false;
-    case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return false;
-    case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return false;
-    case CAMERA_BEHAVIOR_FREE:            return false;
-    case CAMERA_BEHAVIOR_FIXED:           return false;
-    case CAMERA_BEHAVIOR_ISOMETRIC:       return false;
-    case CAMERA_BEHAVIOR_INVALID:         return false;
-    default:                              return false;
-    }
-}
-
 bool CameraManager::gameControlsLocked()
 {
     // game controls are only disabled in free camera mode for now
@@ -614,16 +597,15 @@ void CameraManager::NotifyContextChange()
 {
     switch(m_current_behavior)
     {
-    case CAMERA_BEHAVIOR_CHARACTER:       CameraBehaviorOrbitNotifyContextChange();  return;
-    case CAMERA_BEHAVIOR_STATIC:          return;
-    case CAMERA_BEHAVIOR_VEHICLE:         CameraBehaviorOrbitNotifyContextChange();  return;
-    case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  CameraBehaviorOrbitNotifyContextChange();  return;
-    case CAMERA_BEHAVIOR_VEHICLE_CINECAM: CameraBehaviorOrbitNotifyContextChange();  return;
-    case CAMERA_BEHAVIOR_FREE:            return;
-    case CAMERA_BEHAVIOR_FIXED:           return;
-    case CAMERA_BEHAVIOR_ISOMETRIC:       return;
-    case CAMERA_BEHAVIOR_INVALID:         return;
-    default:                              return;
+    case CAMERA_BEHAVIOR_CHARACTER:
+    case CAMERA_BEHAVIOR_VEHICLE:
+    case CAMERA_BEHAVIOR_VEHICLE_SPLINE:
+    case CAMERA_BEHAVIOR_VEHICLE_CINECAM:
+        m_cam_look_at_last = Vector3::ZERO;
+        return;
+
+    default:
+        return;
     }
 }
 
@@ -933,11 +915,6 @@ void CameraManager::CameraBehaviorOrbitReset()
     m_cam_look_at_smooth = Vector3::ZERO;
     m_cam_look_at_smooth_last = Vector3::ZERO;
     gEnv->mainCamera->setFOVy(m_cct_fov_exterior);
-}
-
-void CameraManager::CameraBehaviorOrbitNotifyContextChange()
-{
-    m_cam_look_at_last = Vector3::ZERO;
 }
 
 void CameraManager::UpdateCameraBehaviorFree()
