@@ -81,6 +81,10 @@ CameraManager::CameraManager() :
     , m_splinecam_spline_len(1.0f)
     , m_splinecam_mo(0)
     , m_splinecam_spline_pos(0.5f)
+    , m_cam_rot_x(0.0f)
+    , m_cam_rot_swivel_x(0.0f)
+    , m_cam_rot_y(0.3f)
+    , m_cam_rot_swivel_y(0.0f)
 {
     m_cct_player_actor = nullptr;
     m_cct_dof_manager = nullptr;
@@ -198,7 +202,7 @@ void CameraManager::UpdateCurrentBehavior()
 
         roll = up.crossProduct(dir);
 
-        Quaternion orientation = Quaternion(ctx.camRotX + ctx.camRotXSwivel, up) * Quaternion(Degree(180.0) + ctx.camRotY + ctx.camRotYSwivel, roll) * Quaternion(roll, up, dir);
+        Quaternion orientation = Quaternion(m_cam_rot_x + m_cam_rot_swivel_x, up) * Quaternion(Degree(180.0) + m_cam_rot_y + m_cam_rot_swivel_y, roll) * Quaternion(roll, up, dir);
 
         gEnv->mainCamera->setPosition(m_cct_player_actor->ar_nodes[m_cct_player_actor->ar_cinecam_node[m_cct_player_actor->ar_current_cinecam]].AbsPosition);
         gEnv->mainCamera->setOrientation(orientation);
@@ -272,13 +276,13 @@ void CameraManager::ResetCurrentBehavior()
         // Vars from CameraBehaviorOrbit
         if (!m_charactercam_is_3rdperson)
         {
-            ctx.camRotY = 0.1f;
+            m_cam_rot_y = 0.1f;
             ctx.camDist = 0.1f;
             ctx.camRatio = 0.0f;
         }
         else
         {
-            ctx.camRotY = 0.3f;
+            m_cam_rot_y = 0.3f;
             ctx.camDist = 5.0f;
             ctx.camRatio = 11.0f;
         }
@@ -296,7 +300,7 @@ void CameraManager::ResetCurrentBehavior()
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  this->CameraBehaviorVehicleSplineReset();  return;
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM:
         CameraManager::CameraBehaviorOrbitReset(ctx);
-        ctx.camRotY = Degree(DEFAULT_INTERNAL_CAM_PITCH);
+        m_cam_rot_y = Degree(DEFAULT_INTERNAL_CAM_PITCH);
         gEnv->mainCamera->setFOVy(m_cct_fov_interior);
         return;
 
@@ -512,11 +516,11 @@ bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
             const OIS::MouseState ms = _arg.state;
             Radian angle = gEnv->player->getRotation();
 
-            ctx.camRotY += Degree(ms.Y.rel * 0.13f);
+            m_cam_rot_y += Degree(ms.Y.rel * 0.13f);
             angle += Degree(ms.X.rel * 0.13f);
 
-            ctx.camRotY = Radian(std::min(+Math::HALF_PI * 0.65f, ctx.camRotY.valueRadians()));
-            ctx.camRotY = Radian(std::max(ctx.camRotY.valueRadians(), -Math::HALF_PI * 0.9f));
+            m_cam_rot_y = Radian(std::min(+Math::HALF_PI * 0.65f, m_cam_rot_y.valueRadians()));
+            m_cam_rot_y = Radian(std::max(m_cam_rot_y.valueRadians(), -Math::HALF_PI * 0.9f));
 
             gEnv->player->setRotation(angle);
 
@@ -770,27 +774,27 @@ void CameraManager::CameraBehaviorOrbitUpdate( CameraManager::CameraContext& ctx
 {
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_LOOKBACK))
     {
-        if (ctx.camRotX > Degree(0))
+        if (m_cam_rot_x > Degree(0))
         {
-            ctx.camRotX = Degree(0);
+            m_cam_rot_x = Degree(0);
         }
         else
         {
-            ctx.camRotX = Degree(180);
+            m_cam_rot_x = Degree(180);
         }
     }
 
-    ctx.camRotX += (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_RIGHT) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_LEFT)) * m_cct_rot_scale;
-    ctx.camRotY += (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_UP) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_DOWN)) * m_cct_rot_scale;
+    m_cam_rot_x += (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_RIGHT) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_LEFT)) * m_cct_rot_scale;
+    m_cam_rot_y += (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_UP) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_DOWN)) * m_cct_rot_scale;
 
-    ctx.camRotY = std::max((Radian)Degree(-80), ctx.camRotY);
-    ctx.camRotY = std::min(ctx.camRotY, (Radian)Degree(88));
+    m_cam_rot_y = std::max((Radian)Degree(-80), m_cam_rot_y);
+    m_cam_rot_y = std::min(m_cam_rot_y, (Radian)Degree(88));
 
-    ctx.camRotXSwivel = (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_RIGHT) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_LEFT)) * Degree(90);
-    ctx.camRotYSwivel = (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_UP) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_DOWN)) * Degree(60);
+    m_cam_rot_swivel_x = (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_RIGHT) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_LEFT)) * Degree(90);
+    m_cam_rot_swivel_y = (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_UP) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_DOWN)) * Degree(60);
 
-    ctx.camRotYSwivel = std::max((Radian)Degree(-80) - ctx.camRotY, ctx.camRotYSwivel);
-    ctx.camRotYSwivel = std::min(ctx.camRotYSwivel, (Radian)Degree(88) - ctx.camRotY);
+    m_cam_rot_swivel_y = std::max((Radian)Degree(-80) - m_cam_rot_y, m_cam_rot_swivel_y);
+    m_cam_rot_swivel_y = std::min(m_cam_rot_swivel_y, (Radian)Degree(88) - m_cam_rot_y);
 
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_IN) && ctx.camDist > 1)
     {
@@ -841,9 +845,9 @@ void CameraManager::CameraBehaviorOrbitUpdate( CameraManager::CameraContext& ctx
     ctx.camDist = std::max(0.0f, ctx.camDist);
 
     Vector3 desiredPosition = ctx.camLookAt + ctx.camDist * 0.5f * Vector3(
-        sin(ctx.targetDirection.valueRadians() + (ctx.camRotX - ctx.camRotXSwivel).valueRadians()) * cos(ctx.targetPitch.valueRadians() + (ctx.camRotY - ctx.camRotYSwivel).valueRadians())
-        , sin(ctx.targetPitch.valueRadians() + (ctx.camRotY - ctx.camRotYSwivel).valueRadians())
-        , cos(ctx.targetDirection.valueRadians() + (ctx.camRotX - ctx.camRotXSwivel).valueRadians()) * cos(ctx.targetPitch.valueRadians() + (ctx.camRotY - ctx.camRotYSwivel).valueRadians())
+        sin(ctx.targetDirection.valueRadians() + (m_cam_rot_x - m_cam_rot_swivel_x).valueRadians()) * cos(ctx.targetPitch.valueRadians() + (m_cam_rot_y - m_cam_rot_swivel_y).valueRadians())
+        , sin(ctx.targetPitch.valueRadians() + (m_cam_rot_y - m_cam_rot_swivel_y).valueRadians())
+        , cos(ctx.targetDirection.valueRadians() + (m_cam_rot_x - m_cam_rot_swivel_x).valueRadians()) * cos(ctx.targetPitch.valueRadians() + (m_cam_rot_y - m_cam_rot_swivel_y).valueRadians())
     );
 
     if (ctx.limitCamMovement && App::GetSimTerrain())
@@ -899,8 +903,8 @@ bool CameraManager::CameraBehaviorOrbitMouseMoved( CameraManager::CameraContext&
     if (ms.buttonDown(OIS::MB_Right))
     {
         float scale = RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU) ? 0.002f : 0.02f;
-        ctx.camRotX += Degree(ms.X.rel * 0.13f);
-        ctx.camRotY += Degree(-ms.Y.rel * 0.13f);
+        m_cam_rot_x += Degree(ms.X.rel * 0.13f);
+        m_cam_rot_y += Degree(-ms.Y.rel * 0.13f);
         ctx.camDist += -ms.Z.rel * scale;
         return true;
     }
@@ -910,10 +914,10 @@ bool CameraManager::CameraBehaviorOrbitMouseMoved( CameraManager::CameraContext&
 
 void CameraManager::CameraBehaviorOrbitReset( CameraManager::CameraContext& ctx)
 {
-    ctx.camRotX = 0.0f;
-    ctx.camRotXSwivel = 0.0f;
-    ctx.camRotY = 0.3f;
-    ctx.camRotYSwivel = 0.0f;
+    m_cam_rot_x = 0.0f;
+    m_cam_rot_swivel_x = 0.0f;
+    m_cam_rot_y = 0.3f;
+    m_cam_rot_swivel_y = 0.0f;
     ctx.camLookAtLast = Vector3::ZERO;
     ctx.camLookAtSmooth = Vector3::ZERO;
     ctx.camLookAtSmoothLast = Vector3::ZERO;
@@ -1023,7 +1027,7 @@ void CameraManager::UpdateCameraBehaviorVehicle()
 void CameraManager::CameraBehaviorVehicleReset()
 {
 	CameraManager::CameraBehaviorOrbitReset(ctx);
-	ctx.camRotY = 0.35f;
+	m_cam_rot_y = 0.35f;
 	ctx.camDistMin = std::min(m_cct_player_actor->getMinimalCameraRadius() * 2.0f, 33.0f);
 	ctx.camDist = ctx.camDistMin * 1.5f + 2.0f;
 }
@@ -1042,23 +1046,23 @@ bool CameraManager::CameraBehaviorVehicleMousePressed(const OIS::MouseEvent& _ar
 
 			// Calculate new camera pitch
 			Vector3 camDir = (gEnv->mainCamera->getPosition() - lookAt).normalisedCopy();
-			ctx.camRotY = asin(camDir.y);
+			m_cam_rot_y = asin(camDir.y);
 
 			// Calculate new camera yaw
 			Vector3 dir = -m_cct_player_actor->getDirection();
 			Quaternion rotX = dir.getRotationTo(camDir, Vector3::UNIT_Y);
-			ctx.camRotX = rotX.getYaw();
+			m_cam_rot_x = rotX.getYaw();
 
 			// Corner case handling
 			Radian angle = dir.angleBetween(camDir);
 			if ( angle > Radian(Math::HALF_PI) )
 			{
-				if ( std::abs(Radian(ctx.camRotX).valueRadians()) < Math::HALF_PI )
+				if ( std::abs(Radian(m_cam_rot_x).valueRadians()) < Math::HALF_PI )
 				{
-					if ( ctx.camRotX < Radian(0.0f) )
-						ctx.camRotX -= Radian(Math::HALF_PI);
+					if ( m_cam_rot_x < Radian(0.0f) )
+						m_cam_rot_x -= Radian(Math::HALF_PI);
 					else
-						ctx.camRotX += Radian(Math::HALF_PI);
+						m_cam_rot_x += Radian(Math::HALF_PI);
 				}
 			}
 		}
@@ -1118,7 +1122,7 @@ void CameraManager::CameraBehaviorVehicleSplineUpdate()
             ctx.targetDirection = -atan2(centerDir.dotProduct(Vector3::UNIT_X), centerDir.dotProduct(-Vector3::UNIT_Z));
             if (ctx.targetDirection.valueRadians() * oldTargetDirection.valueRadians() < 0.0f && centerDir.length() < ctx.camDistMin)
             {
-                ctx.camRotX = -ctx.camRotX;
+                m_cam_rot_x = -m_cam_rot_x;
             }
         }
     }
