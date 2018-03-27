@@ -52,18 +52,12 @@ public:
             , camLookAtSmooth(Ogre::Vector3::ZERO)
             , camLookAtSmoothLast(Ogre::Vector3::ZERO)
             , camRatio(11.0f)
-            , camRotX(0.0f)
-            , camRotXSwivel(0.0f)
-            , camRotY(0.3f)
-            , camRotYSwivel(0.0f)
             , limitCamMovement(true)
             , targetDirection(0.0f)
             , targetPitch(0.0f)
         {}
 
         // CameraBehaviorOrbit context -- TODO: cleanup
-        Ogre::Radian camRotX, camRotY;
-        Ogre::Radian camRotXSwivel, camRotYSwivel;
         Ogre::Radian targetDirection, targetPitch;
         Ogre::Real camDist, camDistMin, camDistMax, camRatio;
         Ogre::Vector3 camLookAt;
@@ -104,10 +98,10 @@ public:
     void ActivateDepthOfFieldEffect();
     void DisableDepthOfFieldEffect();
 
-    static void CameraBehaviorOrbitNotifyContextChange( CameraManager::CameraContext& ctx);
-           void CameraBehaviorOrbitReset( CameraManager::CameraContext& ctx);
-    static bool CameraBehaviorOrbitMouseMoved( CameraManager::CameraContext& ctx, const OIS::MouseEvent& _arg);
-           void CameraBehaviorOrbitUpdate( CameraManager::CameraContext& ctx);
+    void CameraBehaviorOrbitNotifyContextChange( CameraManager::CameraContext& ctx);
+    void CameraBehaviorOrbitReset( CameraManager::CameraContext& ctx);
+    bool CameraBehaviorOrbitMouseMoved( CameraManager::CameraContext& ctx, const OIS::MouseEvent& _arg);
+    void CameraBehaviorOrbitUpdate( CameraManager::CameraContext& ctx);
 
 protected:
 
@@ -145,6 +139,11 @@ protected:
     Ogre::Radian         m_cct_fov_exterior; // TODO: Duplicates GVar
     bool                 m_cct_debug;
     float                m_cct_sim_speed; // TODO: duplicates `ActorManager::m_simulation_speed`
+    // CameraBehaviorOrbit context
+    Ogre::Radian         m_cam_rot_x;
+    Ogre::Radian         m_cam_rot_y;
+    Ogre::Radian         m_cam_rot_swivel_x;
+    Ogre::Radian         m_cam_rot_swivel_y;
     // Static cam attributes
     Ogre::Radian m_staticcam_previous_fov;
     Ogre::Vector3 m_staticcam_position;
