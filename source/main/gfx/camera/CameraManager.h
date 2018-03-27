@@ -39,30 +39,6 @@ public:
     CameraManager();
     ~CameraManager();
 
-    class CameraContext
-    {
-    public:
-
-        CameraContext() :
-
-              camLookAt(Ogre::Vector3::ZERO)
-            , camLookAtLast(Ogre::Vector3::ZERO)
-            , camLookAtSmooth(Ogre::Vector3::ZERO)
-            , camLookAtSmoothLast(Ogre::Vector3::ZERO)
-
-            , limitCamMovement(true)
-
-        {}
-
-        // CameraBehaviorOrbit context -- TODO: cleanup
-
-        Ogre::Vector3 camLookAt;
-        bool limitCamMovement;
-        Ogre::Vector3 camLookAtLast;
-        Ogre::Vector3 camLookAtSmooth;
-        Ogre::Vector3 camLookAtSmoothLast;
-    };
-
     enum CameraBehaviors
     {
         CAMERA_BEHAVIOR_CHARACTER=0,
@@ -94,10 +70,10 @@ public:
     void ActivateDepthOfFieldEffect();
     void DisableDepthOfFieldEffect();
 
-    void CameraBehaviorOrbitNotifyContextChange( CameraManager::CameraContext& ctx);
-    void CameraBehaviorOrbitReset( CameraManager::CameraContext& ctx);
-    bool CameraBehaviorOrbitMouseMoved( CameraManager::CameraContext& ctx, const OIS::MouseEvent& _arg);
-    void CameraBehaviorOrbitUpdate( CameraManager::CameraContext& ctx);
+    void CameraBehaviorOrbitNotifyContextChange();
+    void CameraBehaviorOrbitReset();
+    bool CameraBehaviorOrbitMouseMoved(const OIS::MouseEvent& _arg);
+    void CameraBehaviorOrbitUpdate();
 
 protected:
 
@@ -108,7 +84,7 @@ protected:
     void UpdateCurrentBehavior();
     void ResetCurrentBehavior();
     void DeactivateCurrentBehavior();
-    void UpdateCameraBehaviorStatic(const CameraManager::CameraContext& ctx);
+    void UpdateCameraBehaviorStatic();
     void UpdateCameraBehaviorFree();
     void UpdateCameraBehaviorVehicle();
     void CameraBehaviorVehicleReset();
@@ -120,11 +96,9 @@ protected:
     void CameraBehaviorVehicleSplineUpdateSpline();
     void CameraBehaviorVehicleSplineUpdateSplineDisplay();
 
-    CameraContext ctx;
-
-    CameraBehaviors m_current_behavior;
-    CameraBehaviors m_cam_before_toggled; ///< Toggled modes (FREE, FREEFIX) remember original state.
-    CameraBehaviors m_prev_toggled_cam; ///< Switching toggled modes (FREE, FREEFIX) keeps 1-slot history.
+    CameraBehaviors      m_current_behavior;
+    CameraBehaviors      m_cam_before_toggled; ///< Toggled modes (FREE, FREEFIX) remember original state.
+    CameraBehaviors      m_prev_toggled_cam; ///< Switching toggled modes (FREE, FREEFIX) keeps 1-slot history.
     // Old `CameraContext`
     Actor*               m_cct_player_actor; // TODO: duplicates `SimController::m_player_actor`
     DOFManager*          m_cct_dof_manager;
@@ -146,12 +120,17 @@ protected:
     float                m_cam_dist_min;
     float                m_cam_dist_max;
     float                m_cam_ratio;
+    Ogre::Vector3        m_cam_look_at;
+    bool                 m_cam_limit_movement;
+    Ogre::Vector3        m_cam_look_at_last;
+    Ogre::Vector3        m_cam_look_at_smooth;
+    Ogre::Vector3        m_cam_look_at_smooth_last;
     // Static cam attributes
-    Ogre::Radian m_staticcam_previous_fov;
-    Ogre::Vector3 m_staticcam_position;
-    Ogre::Timer m_staticcam_update_timer;
+    Ogre::Radian         m_staticcam_previous_fov;
+    Ogre::Vector3        m_staticcam_position;
+    Ogre::Timer          m_staticcam_update_timer;
     // Character cam attributes
-    bool m_charactercam_is_3rdperson;
+    bool                 m_charactercam_is_3rdperson;
     // Spline cam attributes
     Ogre::ManualObject*  m_splinecam_mo;
     Ogre::SimpleSpline*  m_splinecam_spline;
@@ -162,8 +141,8 @@ protected:
     std::deque<node_t*>  m_splinecam_spline_nodes;
     unsigned int         m_splinecam_num_linked_beams;
 
-    bool m_config_enter_vehicle_keep_fixedfreecam;
-    bool m_config_exit_vehicle_keep_fixedfreecam;
+    bool                 m_config_enter_vehicle_keep_fixedfreecam;
+    bool                 m_config_exit_vehicle_keep_fixedfreecam;
 
     bool mouseMoved(const OIS::MouseEvent& _arg);
     bool mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
