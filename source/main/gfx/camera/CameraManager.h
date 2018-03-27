@@ -61,16 +61,6 @@ public:
             , targetPitch(0.0f)
         {}
 
-        Actor*       cct_player_actor;
-        DOFManager*  cct_dof_manager;
-        Ogre::Degree cct_rot_scale;
-        Ogre::Real   cct_dt;
-        Ogre::Real   cct_trans_scale;
-        Ogre::Radian cct_fov_interior;
-        Ogre::Radian cct_fov_exterior;
-        bool         cct_debug;
-        float        cct_sim_speed;
-
         // CameraBehaviorOrbit context -- TODO: cleanup
         Ogre::Radian camRotX, camRotY;
         Ogre::Radian camRotXSwivel, camRotYSwivel;
@@ -115,9 +105,9 @@ public:
     void DisableDepthOfFieldEffect();
 
     static void CameraBehaviorOrbitNotifyContextChange( CameraManager::CameraContext& ctx);
-    static void CameraBehaviorOrbitReset( CameraManager::CameraContext& ctx);
+           void CameraBehaviorOrbitReset( CameraManager::CameraContext& ctx);
     static bool CameraBehaviorOrbitMouseMoved( CameraManager::CameraContext& ctx, const OIS::MouseEvent& _arg);
-    static void CameraBehaviorOrbitUpdate( CameraManager::CameraContext& ctx);
+           void CameraBehaviorOrbitUpdate( CameraManager::CameraContext& ctx);
 
 protected:
 
@@ -145,6 +135,16 @@ protected:
     CameraBehaviors m_current_behavior;
     CameraBehaviors m_cam_before_toggled; ///< Toggled modes (FREE, FREEFIX) remember original state.
     CameraBehaviors m_prev_toggled_cam; ///< Switching toggled modes (FREE, FREEFIX) keeps 1-slot history.
+    // Old `CameraContext`
+    Actor*               m_cct_player_actor; // TODO: duplicates `SimController::m_player_actor`
+    DOFManager*          m_cct_dof_manager;
+    Ogre::Degree         m_cct_rot_scale;
+    Ogre::Real           m_cct_dt;
+    Ogre::Real           m_cct_trans_scale;
+    Ogre::Radian         m_cct_fov_interior; // TODO: duplicates GVar
+    Ogre::Radian         m_cct_fov_exterior; // TODO: Duplicates GVar
+    bool                 m_cct_debug;
+    float                m_cct_sim_speed; // TODO: duplicates `ActorManager::m_simulation_speed`
     // Static cam attributes
     Ogre::Radian m_staticcam_previous_fov;
     Ogre::Vector3 m_staticcam_position;

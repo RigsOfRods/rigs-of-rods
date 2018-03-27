@@ -82,9 +82,9 @@ CameraManager::CameraManager() :
     , m_splinecam_mo(0)
     , m_splinecam_spline_pos(0.5f)
 {
-    ctx.cct_player_actor = nullptr;
-    ctx.cct_dof_manager = nullptr;
-    ctx.cct_debug = BSETTING("Camera Debug", false);
+    m_cct_player_actor = nullptr;
+    m_cct_dof_manager = nullptr;
+    m_cct_debug = BSETTING("Camera Debug", false);
 
     m_config_enter_vehicle_keep_fixedfreecam = BSETTING("Camera_EnterVehicle_KeepFixedFreeCam", true);
     m_config_exit_vehicle_keep_fixedfreecam  = BSETTING("Camera_ExitVehicle_KeepFixedFreeCam",  false);
@@ -99,24 +99,24 @@ CameraManager::~CameraManager()
     if (m_splinecam_mo)
         delete m_splinecam_mo;
 
-    delete ctx.cct_dof_manager;
+    delete m_cct_dof_manager;
 }
 
 void CameraManager::ActivateDepthOfFieldEffect()
 {
-    if (ctx.cct_dof_manager == nullptr)
+    if (m_cct_dof_manager == nullptr)
     {
-        ctx.cct_dof_manager = new DOFManager();
-        ctx.cct_dof_manager->setFocusMode(DOFManager::Auto);
+        m_cct_dof_manager = new DOFManager();
+        m_cct_dof_manager->setFocusMode(DOFManager::Auto);
     }
-    ctx.cct_dof_manager->setEnabled(true);
+    m_cct_dof_manager->setEnabled(true);
 }
 
 void CameraManager::DisableDepthOfFieldEffect()
 {
-    if (ctx.cct_dof_manager != nullptr)
+    if (m_cct_dof_manager != nullptr)
     {
-        ctx.cct_dof_manager->setEnabled(false);
+        m_cct_dof_manager->setEnabled(false);
     }
 }
 
@@ -141,12 +141,12 @@ bool CameraManager::EvaluateSwitchBehavior()
     case CAMERA_BEHAVIOR_VEHICLE:         return true;
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return true;
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: {
-        if ( (ctx.cct_player_actor != nullptr)
-            && (ctx.cct_player_actor->ar_current_cinecam) < (ctx.cct_player_actor->ar_num_cinecams-1) )
+        if ( (m_cct_player_actor != nullptr)
+            && (m_cct_player_actor->ar_current_cinecam) < (m_cct_player_actor->ar_num_cinecams-1) )
         {
-            ctx.cct_player_actor->ar_current_cinecam++;
-            ctx.cct_player_actor->GetCameraContext()->last_cinecam_index = ctx.cct_player_actor->ar_current_cinecam;
-            ctx.cct_player_actor->NotifyActorCameraChanged();
+            m_cct_player_actor->ar_current_cinecam++;
+            m_cct_player_actor->GetCameraContext()->last_cinecam_index = m_cct_player_actor->ar_current_cinecam;
+            m_cct_player_actor->NotifyActorCameraChanged();
             return false;
         }
         return true;    
@@ -183,13 +183,13 @@ void CameraManager::UpdateCurrentBehavior()
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: {
         CameraManager::CameraBehaviorOrbitUpdate(ctx);
 
-        Vector3 dir = (ctx.cct_player_actor->ar_nodes[ctx.cct_player_actor->ar_camera_node_pos[ctx.cct_player_actor->ar_current_cinecam]].AbsPosition
-                     - ctx.cct_player_actor->ar_nodes[ctx.cct_player_actor->ar_camera_node_dir[ctx.cct_player_actor->ar_current_cinecam]].AbsPosition).normalisedCopy();
+        Vector3 dir = (m_cct_player_actor->ar_nodes[m_cct_player_actor->ar_camera_node_pos[m_cct_player_actor->ar_current_cinecam]].AbsPosition
+                     - m_cct_player_actor->ar_nodes[m_cct_player_actor->ar_camera_node_dir[m_cct_player_actor->ar_current_cinecam]].AbsPosition).normalisedCopy();
 
-        Vector3 roll = (ctx.cct_player_actor->ar_nodes[ctx.cct_player_actor->ar_camera_node_pos[ctx.cct_player_actor->ar_current_cinecam]].AbsPosition
-                      - ctx.cct_player_actor->ar_nodes[ctx.cct_player_actor->ar_camera_node_roll[ctx.cct_player_actor->ar_current_cinecam]].AbsPosition).normalisedCopy();
+        Vector3 roll = (m_cct_player_actor->ar_nodes[m_cct_player_actor->ar_camera_node_pos[m_cct_player_actor->ar_current_cinecam]].AbsPosition
+                      - m_cct_player_actor->ar_nodes[m_cct_player_actor->ar_camera_node_roll[m_cct_player_actor->ar_current_cinecam]].AbsPosition).normalisedCopy();
 
-        if ( ctx.cct_player_actor->ar_camera_node_roll_inv[ctx.cct_player_actor->ar_current_cinecam] )
+        if ( m_cct_player_actor->ar_camera_node_roll_inv[m_cct_player_actor->ar_current_cinecam] )
         {
             roll = -roll;
         }
@@ -200,7 +200,7 @@ void CameraManager::UpdateCurrentBehavior()
 
         Quaternion orientation = Quaternion(ctx.camRotX + ctx.camRotXSwivel, up) * Quaternion(Degree(180.0) + ctx.camRotY + ctx.camRotYSwivel, roll) * Quaternion(roll, up, dir);
 
-        gEnv->mainCamera->setPosition(ctx.cct_player_actor->ar_nodes[ctx.cct_player_actor->ar_cinecam_node[ctx.cct_player_actor->ar_current_cinecam]].AbsPosition);
+        gEnv->mainCamera->setPosition(m_cct_player_actor->ar_nodes[m_cct_player_actor->ar_cinecam_node[m_cct_player_actor->ar_current_cinecam]].AbsPosition);
         gEnv->mainCamera->setOrientation(orientation);
         return;
     }
@@ -218,13 +218,13 @@ bool CameraManager::Update(float dt, Actor* player_vehicle, float sim_speed) // 
     const float trans_scale = TRANS_SPEED  * dt;
     const float rot_scale   = ROTATE_SPEED * dt;
 
-    ctx.cct_player_actor  = player_vehicle;
-    ctx.cct_sim_speed   = sim_speed;
-    ctx.cct_dt         = dt;
-    ctx.cct_rot_scale   = Degree(rot_scale);
-    ctx.cct_trans_scale = trans_scale;
-    ctx.cct_fov_interior = Degree(App::gfx_fov_internal.GetActive()); // TODO: don't copy Gvar!
-    ctx.cct_fov_exterior = Degree(App::gfx_fov_external.GetActive());
+    m_cct_player_actor  = player_vehicle;
+    m_cct_sim_speed   = sim_speed;
+    m_cct_dt         = dt;
+    m_cct_rot_scale   = Degree(rot_scale);
+    m_cct_trans_scale = trans_scale;
+    m_cct_fov_interior = Degree(App::gfx_fov_internal.GetActive()); // TODO: don't copy Gvar!
+    m_cct_fov_exterior = Degree(App::gfx_fov_external.GetActive());
 
     if ( m_current_behavior < CAMERA_BEHAVIOR_END && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_CHANGE) )
     {
@@ -297,7 +297,7 @@ void CameraManager::ResetCurrentBehavior()
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM:
         CameraManager::CameraBehaviorOrbitReset(ctx);
         ctx.camRotY = Degree(DEFAULT_INTERNAL_CAM_PITCH);
-        gEnv->mainCamera->setFOVy(ctx.cct_fov_interior);
+        gEnv->mainCamera->setFOVy(m_cct_fov_interior);
         return;
 
     case CAMERA_BEHAVIOR_FREE:            return;
@@ -332,7 +332,7 @@ void CameraManager::ActivateNewBehavior(CameraBehaviors behav_id, bool reset)
         break;
 
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:
-        if ( (ctx.cct_player_actor == nullptr) || ctx.cct_player_actor->ar_num_camera_rails <= 0)
+        if ( (m_cct_player_actor == nullptr) || m_cct_player_actor->ar_num_camera_rails <= 0)
         {
             this->switchToNextBehavior();
             return;
@@ -342,11 +342,11 @@ void CameraManager::ActivateNewBehavior(CameraBehaviors behav_id, bool reset)
             this->CameraBehaviorVehicleSplineReset();
             this->CameraBehaviorVehicleSplineCreateSpline();
         }
-        ctx.cct_player_actor->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_SPLINE;
+        m_cct_player_actor->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_SPLINE;
         break;
 
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM:
-        if ((ctx.cct_player_actor == nullptr) || (ctx.cct_player_actor->ar_num_cinecams <= 0))
+        if ((m_cct_player_actor == nullptr) || (m_cct_player_actor->ar_num_cinecams <= 0))
         {
             this->switchToNextBehavior();
             return;
@@ -356,23 +356,23 @@ void CameraManager::ActivateNewBehavior(CameraBehaviors behav_id, bool reset)
             this->ResetCurrentBehavior();
         }
 
-        gEnv->mainCamera->setFOVy(ctx.cct_fov_interior);
+        gEnv->mainCamera->setFOVy(m_cct_fov_interior);
 
-        ctx.cct_player_actor->prepareInside(true);
+        m_cct_player_actor->prepareInside(true);
 
         if ( RoR::App::GetOverlayWrapper() != nullptr )
         {
-            RoR::App::GetOverlayWrapper()->showDashboardOverlays((ctx.cct_player_actor->ar_driveable == AIRPLANE), ctx.cct_player_actor);
+            RoR::App::GetOverlayWrapper()->showDashboardOverlays((m_cct_player_actor->ar_driveable == AIRPLANE), m_cct_player_actor);
         }
 
-        ctx.cct_player_actor->ar_current_cinecam = ctx.cct_player_actor->GetCameraContext()->last_cinecam_index;
-        ctx.cct_player_actor->NotifyActorCameraChanged();
+        m_cct_player_actor->ar_current_cinecam = m_cct_player_actor->GetCameraContext()->last_cinecam_index;
+        m_cct_player_actor->NotifyActorCameraChanged();
 
-        ctx.cct_player_actor->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_CINECAM;
+        m_cct_player_actor->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_CINECAM;
         break;
 
     case CAMERA_BEHAVIOR_VEHICLE:
-        if ( ctx.cct_player_actor == nullptr )
+        if ( m_cct_player_actor == nullptr )
         {
             this->switchToNextBehavior();
             return;
@@ -381,11 +381,11 @@ void CameraManager::ActivateNewBehavior(CameraBehaviors behav_id, bool reset)
         {
             this->ResetCurrentBehavior();
         }
-        ctx.cct_player_actor->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_3rdPERSON;
+        m_cct_player_actor->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_3rdPERSON;
         break;
 
     case CAMERA_BEHAVIOR_CHARACTER:
-        if (ctx.cct_player_actor != nullptr)
+        if (m_cct_player_actor != nullptr)
         {
             this->switchToNextBehavior();
             return;
@@ -413,14 +413,14 @@ void CameraManager::DeactivateCurrentBehavior()
     case CAMERA_BEHAVIOR_VEHICLE:         return;
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return;
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: {
-            Actor* current_vehicle = ctx.cct_player_actor;
+            Actor* current_vehicle = m_cct_player_actor;
         if ( current_vehicle == nullptr 
             || current_vehicle->GetCameraContext()->behavior != RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_CINECAM )
         {
             return;
         }
 
-        gEnv->mainCamera->setFOVy(ctx.cct_fov_exterior);
+        gEnv->mainCamera->setFOVy(m_cct_fov_exterior);
     
         current_vehicle->prepareInside(false);
 
@@ -461,9 +461,9 @@ void CameraManager::switchBehavior(int newBehaviorID, bool reset)
     // deactivate old
     this->DeactivateCurrentBehavior();
 
-    if (ctx.cct_player_actor != nullptr)
+    if (m_cct_player_actor != nullptr)
     {
-        ctx.cct_player_actor->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_EXTERNAL;
+        m_cct_player_actor->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_EXTERNAL;
     }
 
     this->ActivateNewBehavior(new_behav, reset);
@@ -482,11 +482,11 @@ void CameraManager::SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset,
     }
 
     // deactivate old
-    ctx.cct_player_actor = old_vehicle;
+    m_cct_player_actor = old_vehicle;
     this->DeactivateCurrentBehavior();
 
     // activate new
-    ctx.cct_player_actor = new_vehicle;
+    m_cct_player_actor = new_vehicle;
     this->ActivateNewBehavior(static_cast<CameraBehaviors>(newBehaviorID), reset);
 }
 
@@ -591,7 +591,7 @@ bool CameraManager::gameControlsLocked()
 
 void CameraManager::OnReturnToMainMenu()
 {
-    ctx.cct_player_actor = nullptr;
+    m_cct_player_actor = nullptr;
     m_current_behavior = CAMERA_BEHAVIOR_INVALID;
 }
 
@@ -617,7 +617,7 @@ void CameraManager::NotifyVehicleChanged(Actor* old_vehicle, Actor* new_vehicle)
     // Getting out of vehicle
     if (new_vehicle == nullptr)
     {
-        ctx.cct_player_actor = nullptr;
+        m_cct_player_actor = nullptr;
         if ( !(this->m_current_behavior == CAMERA_BEHAVIOR_STATIC && m_config_exit_vehicle_keep_fixedfreecam) &&
              !(this->m_current_behavior == CAMERA_BEHAVIOR_FIXED  && m_config_exit_vehicle_keep_fixedfreecam) &&
              !(this->m_current_behavior == CAMERA_BEHAVIOR_FREE   && m_config_exit_vehicle_keep_fixedfreecam) )
@@ -692,16 +692,16 @@ void CameraManager::UpdateCameraBehaviorStatic(const CameraManager::CameraContex
     float rotation = 0.0f;
     float speed = 0.0f;
 
-    if (ctx.cct_player_actor)
+    if (m_cct_player_actor)
     {
-        lookAt = ctx.cct_player_actor->getPosition();
-        rotation = ctx.cct_player_actor->getRotation();
-        velocity = ctx.cct_player_actor->ar_nodes[0].Velocity * ctx.cct_sim_speed;
+        lookAt = m_cct_player_actor->getPosition();
+        rotation = m_cct_player_actor->getRotation();
+        velocity = m_cct_player_actor->ar_nodes[0].Velocity * m_cct_sim_speed;
         angle = (lookAt - m_staticcam_position).angleBetween(velocity);
         speed = velocity.length();
-        if (ctx.cct_player_actor->ar_replay_mode)
+        if (m_cct_player_actor->ar_replay_mode)
         {
-            speed *= ctx.cct_player_actor->ar_replay_precision;
+            speed *= m_cct_player_actor->ar_replay_precision;
         }
     }
     else
@@ -780,8 +780,8 @@ void CameraManager::CameraBehaviorOrbitUpdate( CameraManager::CameraContext& ctx
         }
     }
 
-    ctx.camRotX += (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_RIGHT) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_LEFT)) * ctx.cct_rot_scale;
-    ctx.camRotY += (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_UP) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_DOWN)) * ctx.cct_rot_scale;
+    ctx.camRotX += (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_RIGHT) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_LEFT)) * m_cct_rot_scale;
+    ctx.camRotY += (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_UP) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_DOWN)) * m_cct_rot_scale;
 
     ctx.camRotY = std::max((Radian)Degree(-80), ctx.camRotY);
     ctx.camRotY = std::min(ctx.camRotY, (Radian)Degree(88));
@@ -794,19 +794,19 @@ void CameraManager::CameraBehaviorOrbitUpdate( CameraManager::CameraContext& ctx
 
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_IN) && ctx.camDist > 1)
     {
-        ctx.camDist -= ctx.cct_trans_scale;
+        ctx.camDist -= m_cct_trans_scale;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_IN_FAST) && ctx.camDist > 1)
     {
-        ctx.camDist -= ctx.cct_trans_scale * 10;
+        ctx.camDist -= m_cct_trans_scale * 10;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_OUT))
     {
-        ctx.camDist += ctx.cct_trans_scale;
+        ctx.camDist += m_cct_trans_scale;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_OUT_FAST))
     {
-        ctx.camDist += ctx.cct_trans_scale * 10;
+        ctx.camDist += m_cct_trans_scale * 10;
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_RESET))
@@ -879,7 +879,7 @@ void CameraManager::CameraBehaviorOrbitUpdate( CameraManager::CameraContext& ctx
     }
     else
     {
-        if (ctx.cct_player_actor && ctx.cct_player_actor->ar_replay_mode && camDisplacement != Vector3::ZERO)
+        if (m_cct_player_actor && m_cct_player_actor->ar_replay_mode && camDisplacement != Vector3::ZERO)
             gEnv->mainCamera->setPosition(desiredPosition);
         else
             gEnv->mainCamera->setPosition(camPosition);
@@ -917,7 +917,7 @@ void CameraManager::CameraBehaviorOrbitReset( CameraManager::CameraContext& ctx)
     ctx.camLookAtLast = Vector3::ZERO;
     ctx.camLookAtSmooth = Vector3::ZERO;
     ctx.camLookAtSmoothLast = Vector3::ZERO;
-    gEnv->mainCamera->setFOVy(ctx.cct_fov_exterior);
+    gEnv->mainCamera->setFOVy(m_cct_fov_exterior);
 }
 
 void CameraManager::CameraBehaviorOrbitNotifyContextChange( CameraManager::CameraContext& ctx)
@@ -929,9 +929,9 @@ void CameraManager::UpdateCameraBehaviorFree()
 {
     Degree mRotX(0.0f);
     Degree mRotY(0.0f);
-    Degree cct_rot_scale(ctx.cct_rot_scale * 10.0f * ctx.cct_dt);
+    Degree cct_rot_scale(m_cct_rot_scale * 10.0f * m_cct_dt);
     Vector3 mTrans(Vector3::ZERO);
-    Real cct_trans_scale(ctx.cct_trans_scale * 10.0f * ctx.cct_dt);
+    Real cct_trans_scale(m_cct_trans_scale * 10.0f * m_cct_dt);
 
     if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) || RoR::App::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT))
     {
@@ -1001,7 +1001,7 @@ void CameraManager::UpdateCameraBehaviorFree()
 
 void CameraManager::UpdateCameraBehaviorVehicle()
 {
-	Vector3 dir = ctx.cct_player_actor->getDirection();
+	Vector3 dir = m_cct_player_actor->getDirection();
 
 	ctx.targetDirection = -atan2(dir.dotProduct(Vector3::UNIT_X), dir.dotProduct(-Vector3::UNIT_Z));
 	ctx.targetPitch     = 0.0f;
@@ -1011,11 +1011,11 @@ void CameraManager::UpdateCameraBehaviorVehicle()
 		ctx.targetPitch = -asin(dir.dotProduct(Vector3::UNIT_Y));
 	}
 
-	ctx.camRatio = 1.0f / (ctx.cct_dt * 4.0f);
+	ctx.camRatio = 1.0f / (m_cct_dt * 4.0f);
 
-	ctx.camDistMin = std::min(ctx.cct_player_actor->getMinimalCameraRadius() * 2.0f, 33.0f);
+	ctx.camDistMin = std::min(m_cct_player_actor->getMinimalCameraRadius() * 2.0f, 33.0f);
 
-	ctx.camLookAt = ctx.cct_player_actor->getPosition();
+	ctx.camLookAt = m_cct_player_actor->getPosition();
 
 	CameraManager::CameraBehaviorOrbitUpdate(ctx);
 }
@@ -1024,7 +1024,7 @@ void CameraManager::CameraBehaviorVehicleReset()
 {
 	CameraManager::CameraBehaviorOrbitReset(ctx);
 	ctx.camRotY = 0.35f;
-	ctx.camDistMin = std::min(ctx.cct_player_actor->getMinimalCameraRadius() * 2.0f, 33.0f);
+	ctx.camDistMin = std::min(m_cct_player_actor->getMinimalCameraRadius() * 2.0f, 33.0f);
 	ctx.camDist = ctx.camDistMin * 1.5f + 2.0f;
 }
 
@@ -1034,10 +1034,10 @@ bool CameraManager::CameraBehaviorVehicleMousePressed(const OIS::MouseEvent& _ar
 
 	if ( ms.buttonDown(OIS::MB_Middle) && RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) )
 	{
-		if ( ctx.cct_player_actor && ctx.cct_player_actor->ar_custom_camera_node >= 0 )
+		if ( m_cct_player_actor && m_cct_player_actor->ar_custom_camera_node >= 0 )
 		{
 			// Calculate new camera distance
-			Vector3 lookAt = ctx.cct_player_actor->ar_nodes[ctx.cct_player_actor->ar_custom_camera_node].AbsPosition;
+			Vector3 lookAt = m_cct_player_actor->ar_nodes[m_cct_player_actor->ar_custom_camera_node].AbsPosition;
 			ctx.camDist = 2.0f * gEnv->mainCamera->getPosition().distance(lookAt);
 
 			// Calculate new camera pitch
@@ -1045,7 +1045,7 @@ bool CameraManager::CameraBehaviorVehicleMousePressed(const OIS::MouseEvent& _ar
 			ctx.camRotY = asin(camDir.y);
 
 			// Calculate new camera yaw
-			Vector3 dir = -ctx.cct_player_actor->getDirection();
+			Vector3 dir = -m_cct_player_actor->getDirection();
 			Quaternion rotX = dir.getRotationTo(camDir, Vector3::UNIT_Y);
 			ctx.camRotX = rotX.getYaw();
 
@@ -1069,13 +1069,13 @@ bool CameraManager::CameraBehaviorVehicleMousePressed(const OIS::MouseEvent& _ar
 
 void CameraManager::CameraBehaviorVehicleSplineUpdate()
 {
-    if (ctx.cct_player_actor->ar_num_camera_rails <= 0)
+    if (m_cct_player_actor->ar_num_camera_rails <= 0)
     {
         gEnv->cameraManager->switchToNextBehavior();
         return;
     }
 
-    Vector3 dir = ctx.cct_player_actor->getDirection();
+    Vector3 dir = m_cct_player_actor->getDirection();
 
     ctx.targetPitch = 0.0f;
 
@@ -1084,7 +1084,7 @@ void CameraManager::CameraBehaviorVehicleSplineUpdate()
         ctx.targetPitch = -asin(dir.dotProduct(Vector3::UNIT_Y));
     }
 
-    if (ctx.cct_player_actor->GetAllLinkedActors().size() != m_splinecam_num_linked_beams)
+    if (m_cct_player_actor->GetAllLinkedActors().size() != m_splinecam_num_linked_beams)
     {
         this->CameraBehaviorVehicleSplineCreateSpline();
     }
@@ -1110,7 +1110,7 @@ void CameraManager::CameraBehaviorVehicleSplineUpdate()
 
     if (m_splinecam_auto_tracking)
     {
-        Vector3 centerDir = ctx.cct_player_actor->getPosition() - ctx.camLookAt;
+        Vector3 centerDir = m_cct_player_actor->getPosition() - ctx.camLookAt;
         if (centerDir.length() > 1.0f)
         {
             centerDir.normalise();
@@ -1130,7 +1130,7 @@ bool CameraManager::CameraBehaviorVehicleSplineMouseMoved(  const OIS::MouseEven
 {
     const OIS::MouseState ms = _arg.state;
 
-    ctx.camRatio = 1.0f / (ctx.cct_dt * 4.0f);
+    ctx.camRatio = 1.0f / (m_cct_dt * 4.0f);
 
     if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) && ms.buttonDown(OIS::MB_Right))
     {
@@ -1186,7 +1186,7 @@ void CameraManager::CameraBehaviorVehicleSplineReset()
 {
     CameraManager::CameraBehaviorOrbitReset(ctx);
 
-    ctx.camDist = std::min(ctx.cct_player_actor->getMinimalCameraRadius() * 2.0f, 33.0f);
+    ctx.camDist = std::min(m_cct_player_actor->getMinimalCameraRadius() * 2.0f, 33.0f);
 
     m_splinecam_spline_pos = 0.5f;
 }
@@ -1199,12 +1199,12 @@ void CameraManager::CameraBehaviorVehicleSplineCreateSpline()
     m_splinecam_spline->clear();
     m_splinecam_spline_nodes.clear();
 
-    for (int i = 0; i < ctx.cct_player_actor->ar_num_camera_rails; i++)
+    for (int i = 0; i < m_cct_player_actor->ar_num_camera_rails; i++)
     {
-        m_splinecam_spline_nodes.push_back(&ctx.cct_player_actor->ar_nodes[ctx.cct_player_actor->ar_camera_rail[i]]);
+        m_splinecam_spline_nodes.push_back(&m_cct_player_actor->ar_nodes[m_cct_player_actor->ar_camera_rail[i]]);
     }
 
-    std::list<Actor*> linkedBeams = ctx.cct_player_actor->GetAllLinkedActors();
+    std::list<Actor*> linkedBeams = m_cct_player_actor->GetAllLinkedActors();
 
     m_splinecam_num_linked_beams = linkedBeams.size();
 
@@ -1272,7 +1272,7 @@ void CameraManager::CameraBehaviorVehicleSplineCreateSpline()
 
     m_splinecam_spline_len /= 2.0f;
 
-    if (!m_splinecam_mo && ctx.cct_debug)
+    if (!m_splinecam_mo && m_cct_debug)
     {
         m_splinecam_mo = gEnv->sceneManager->createManualObject();
         SceneNode* splineNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
