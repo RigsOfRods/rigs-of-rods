@@ -85,6 +85,12 @@ CameraManager::CameraManager() :
     , m_cam_rot_swivel_x(0.0f)
     , m_cam_rot_y(0.3f)
     , m_cam_rot_swivel_y(0.0f)
+    , m_cam_dist(5.f)
+    , m_cam_dist_min(0.f)
+    , m_cam_dist_max(0.f)
+    , m_cam_target_direction(0.f)
+    , m_cam_target_pitch(0.f)
+    , m_cam_ratio (11.f)
 {
     m_cct_player_actor = nullptr;
     m_cct_dof_manager = nullptr;
@@ -170,7 +176,7 @@ void CameraManager::UpdateCurrentBehavior()
     case CAMERA_BEHAVIOR_CHARACTER: {
         if (!gEnv->player)
             return;
-        ctx.targetDirection = -gEnv->player->getRotation() - Radian(Math::HALF_PI);
+        m_cam_target_direction = -gEnv->player->getRotation() - Radian(Math::HALF_PI);
         Ogre::Vector3 offset = (!m_charactercam_is_3rdperson) ? CHARACTERCAM_OFFSET_1ST_PERSON : CHARACTERCAM_OFFSET_3RD_PERSON;
         ctx.camLookAt = gEnv->player->getPosition() + offset;
 
@@ -277,16 +283,16 @@ void CameraManager::ResetCurrentBehavior()
         if (!m_charactercam_is_3rdperson)
         {
             m_cam_rot_y = 0.1f;
-            ctx.camDist = 0.1f;
-            ctx.camRatio = 0.0f;
+            m_cam_dist = 0.1f;
+            m_cam_ratio = 0.0f;
         }
         else
         {
             m_cam_rot_y = 0.3f;
-            ctx.camDist = 5.0f;
-            ctx.camRatio = 11.0f;
+            m_cam_dist = 5.0f;
+            m_cam_ratio = 11.0f;
         }
-        ctx.camDistMin = 0;
+        m_cam_dist_min = 0;
         return;
     }
 
@@ -796,21 +802,21 @@ void CameraManager::CameraBehaviorOrbitUpdate( CameraManager::CameraContext& ctx
     m_cam_rot_swivel_y = std::max((Radian)Degree(-80) - m_cam_rot_y, m_cam_rot_swivel_y);
     m_cam_rot_swivel_y = std::min(m_cam_rot_swivel_y, (Radian)Degree(88) - m_cam_rot_y);
 
-    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_IN) && ctx.camDist > 1)
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_IN) && m_cam_dist > 1)
     {
-        ctx.camDist -= m_cct_trans_scale;
+        m_cam_dist -= m_cct_trans_scale;
     }
-    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_IN_FAST) && ctx.camDist > 1)
+    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_IN_FAST) && m_cam_dist > 1)
     {
-        ctx.camDist -= m_cct_trans_scale * 10;
+        m_cam_dist -= m_cct_trans_scale * 10;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_OUT))
     {
-        ctx.camDist += m_cct_trans_scale;
+        m_cam_dist += m_cct_trans_scale;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_OUT_FAST))
     {
-        ctx.camDist += m_cct_trans_scale * 10;
+        m_cam_dist += m_cct_trans_scale * 10;
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_RESET))
@@ -833,21 +839,21 @@ void CameraManager::CameraBehaviorOrbitUpdate( CameraManager::CameraContext& ctx
         }
     }
 
-    if (ctx.limitCamMovement && ctx.camDistMin > 0.0f)
+    if (ctx.limitCamMovement && m_cam_dist_min > 0.0f)
     {
-        ctx.camDist = std::max(ctx.camDistMin, ctx.camDist);
+        m_cam_dist = std::max(m_cam_dist_min, m_cam_dist);
     }
-    if (ctx.limitCamMovement && ctx.camDistMax > 0.0f)
+    if (ctx.limitCamMovement && m_cam_dist_max > 0.0f)
     {
-        ctx.camDist = std::min(ctx.camDist, ctx.camDistMax);
+        m_cam_dist = std::min(m_cam_dist, m_cam_dist_max);
     }
 
-    ctx.camDist = std::max(0.0f, ctx.camDist);
+    m_cam_dist = std::max(0.0f, m_cam_dist);
 
-    Vector3 desiredPosition = ctx.camLookAt + ctx.camDist * 0.5f * Vector3(
-        sin(ctx.targetDirection.valueRadians() + (m_cam_rot_x - m_cam_rot_swivel_x).valueRadians()) * cos(ctx.targetPitch.valueRadians() + (m_cam_rot_y - m_cam_rot_swivel_y).valueRadians())
-        , sin(ctx.targetPitch.valueRadians() + (m_cam_rot_y - m_cam_rot_swivel_y).valueRadians())
-        , cos(ctx.targetDirection.valueRadians() + (m_cam_rot_x - m_cam_rot_swivel_x).valueRadians()) * cos(ctx.targetPitch.valueRadians() + (m_cam_rot_y - m_cam_rot_swivel_y).valueRadians())
+    Vector3 desiredPosition = ctx.camLookAt + m_cam_dist * 0.5f * Vector3(
+        sin(m_cam_target_direction.valueRadians() + (m_cam_rot_x - m_cam_rot_swivel_x).valueRadians()) * cos(m_cam_target_pitch.valueRadians() + (m_cam_rot_y - m_cam_rot_swivel_y).valueRadians())
+        , sin(m_cam_target_pitch.valueRadians() + (m_cam_rot_y - m_cam_rot_swivel_y).valueRadians())
+        , cos(m_cam_target_direction.valueRadians() + (m_cam_rot_x - m_cam_rot_swivel_x).valueRadians()) * cos(m_cam_target_pitch.valueRadians() + (m_cam_rot_y - m_cam_rot_swivel_y).valueRadians())
     );
 
     if (ctx.limitCamMovement && App::GetSimTerrain())
@@ -874,7 +880,7 @@ void CameraManager::CameraBehaviorOrbitUpdate( CameraManager::CameraContext& ctx
     Vector3 precedingLookAt = ctx.camLookAtSmoothLast + camDisplacement;
     Vector3 precedingPosition = gEnv->mainCamera->getPosition() + camDisplacement;
 
-    Vector3 camPosition = (1.0f / (ctx.camRatio + 1.0f)) * desiredPosition + (ctx.camRatio / (ctx.camRatio + 1.0f)) * precedingPosition;
+    Vector3 camPosition = (1.0f / (m_cam_ratio + 1.0f)) * desiredPosition + (m_cam_ratio / (m_cam_ratio + 1.0f)) * precedingPosition;
 
     if (gEnv->collisions && gEnv->collisions->forcecam)
     {
@@ -889,7 +895,7 @@ void CameraManager::CameraBehaviorOrbitUpdate( CameraManager::CameraContext& ctx
             gEnv->mainCamera->setPosition(camPosition);
     }
 
-    ctx.camLookAtSmooth = (1.0f / (ctx.camRatio + 1.0f)) * ctx.camLookAt + (ctx.camRatio / (ctx.camRatio + 1.0f)) * precedingLookAt;
+    ctx.camLookAtSmooth = (1.0f / (m_cam_ratio + 1.0f)) * ctx.camLookAt + (m_cam_ratio / (m_cam_ratio + 1.0f)) * precedingLookAt;
 
     ctx.camLookAtLast = ctx.camLookAt;
     ctx.camLookAtSmoothLast = ctx.camLookAtSmooth;
@@ -905,7 +911,7 @@ bool CameraManager::CameraBehaviorOrbitMouseMoved( CameraManager::CameraContext&
         float scale = RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU) ? 0.002f : 0.02f;
         m_cam_rot_x += Degree(ms.X.rel * 0.13f);
         m_cam_rot_y += Degree(-ms.Y.rel * 0.13f);
-        ctx.camDist += -ms.Z.rel * scale;
+        m_cam_dist += -ms.Z.rel * scale;
         return true;
     }
 
@@ -1007,17 +1013,17 @@ void CameraManager::UpdateCameraBehaviorVehicle()
 {
 	Vector3 dir = m_cct_player_actor->getDirection();
 
-	ctx.targetDirection = -atan2(dir.dotProduct(Vector3::UNIT_X), dir.dotProduct(-Vector3::UNIT_Z));
-	ctx.targetPitch     = 0.0f;
+	m_cam_target_direction = -atan2(dir.dotProduct(Vector3::UNIT_X), dir.dotProduct(-Vector3::UNIT_Z));
+	m_cam_target_pitch     = 0.0f;
 
 	if ( RoR::App::gfx_extcam_mode.GetActive() == RoR::GfxExtCamMode::PITCHING)
 	{
-		ctx.targetPitch = -asin(dir.dotProduct(Vector3::UNIT_Y));
+		m_cam_target_pitch = -asin(dir.dotProduct(Vector3::UNIT_Y));
 	}
 
-	ctx.camRatio = 1.0f / (m_cct_dt * 4.0f);
+	m_cam_ratio = 1.0f / (m_cct_dt * 4.0f);
 
-	ctx.camDistMin = std::min(m_cct_player_actor->getMinimalCameraRadius() * 2.0f, 33.0f);
+	m_cam_dist_min = std::min(m_cct_player_actor->getMinimalCameraRadius() * 2.0f, 33.0f);
 
 	ctx.camLookAt = m_cct_player_actor->getPosition();
 
@@ -1028,8 +1034,8 @@ void CameraManager::CameraBehaviorVehicleReset()
 {
 	CameraManager::CameraBehaviorOrbitReset(ctx);
 	m_cam_rot_y = 0.35f;
-	ctx.camDistMin = std::min(m_cct_player_actor->getMinimalCameraRadius() * 2.0f, 33.0f);
-	ctx.camDist = ctx.camDistMin * 1.5f + 2.0f;
+	m_cam_dist_min = std::min(m_cct_player_actor->getMinimalCameraRadius() * 2.0f, 33.0f);
+	m_cam_dist = m_cam_dist_min * 1.5f + 2.0f;
 }
 
 bool CameraManager::CameraBehaviorVehicleMousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
@@ -1042,7 +1048,7 @@ bool CameraManager::CameraBehaviorVehicleMousePressed(const OIS::MouseEvent& _ar
 		{
 			// Calculate new camera distance
 			Vector3 lookAt = m_cct_player_actor->ar_nodes[m_cct_player_actor->ar_custom_camera_node].AbsPosition;
-			ctx.camDist = 2.0f * gEnv->mainCamera->getPosition().distance(lookAt);
+			m_cam_dist = 2.0f * gEnv->mainCamera->getPosition().distance(lookAt);
 
 			// Calculate new camera pitch
 			Vector3 camDir = (gEnv->mainCamera->getPosition() - lookAt).normalisedCopy();
@@ -1081,11 +1087,11 @@ void CameraManager::CameraBehaviorVehicleSplineUpdate()
 
     Vector3 dir = m_cct_player_actor->getDirection();
 
-    ctx.targetPitch = 0.0f;
+    m_cam_target_pitch = 0.0f;
 
     if (App::gfx_extcam_mode.GetActive() == GfxExtCamMode::PITCHING)
     {
-        ctx.targetPitch = -asin(dir.dotProduct(Vector3::UNIT_Y));
+        m_cam_target_pitch = -asin(dir.dotProduct(Vector3::UNIT_Y));
     }
 
     if (m_cct_player_actor->GetAllLinkedActors().size() != m_splinecam_num_linked_beams)
@@ -1118,9 +1124,9 @@ void CameraManager::CameraBehaviorVehicleSplineUpdate()
         if (centerDir.length() > 1.0f)
         {
             centerDir.normalise();
-            Radian oldTargetDirection = ctx.targetDirection;
-            ctx.targetDirection = -atan2(centerDir.dotProduct(Vector3::UNIT_X), centerDir.dotProduct(-Vector3::UNIT_Z));
-            if (ctx.targetDirection.valueRadians() * oldTargetDirection.valueRadians() < 0.0f && centerDir.length() < ctx.camDistMin)
+            Radian oldTargetDirection = m_cam_target_direction;
+            m_cam_target_direction = -atan2(centerDir.dotProduct(Vector3::UNIT_X), centerDir.dotProduct(-Vector3::UNIT_Z));
+            if (m_cam_target_direction.valueRadians() * oldTargetDirection.valueRadians() < 0.0f && centerDir.length() < m_cam_dist_min)
             {
                 m_cam_rot_x = -m_cam_rot_x;
             }
@@ -1134,7 +1140,7 @@ bool CameraManager::CameraBehaviorVehicleSplineMouseMoved(  const OIS::MouseEven
 {
     const OIS::MouseState ms = _arg.state;
 
-    ctx.camRatio = 1.0f / (m_cct_dt * 4.0f);
+    m_cam_ratio = 1.0f / (m_cct_dt * 4.0f);
 
     if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) && ms.buttonDown(OIS::MB_Right))
     {
@@ -1190,7 +1196,7 @@ void CameraManager::CameraBehaviorVehicleSplineReset()
 {
     CameraManager::CameraBehaviorOrbitReset(ctx);
 
-    ctx.camDist = std::min(m_cct_player_actor->getMinimalCameraRadius() * 2.0f, 33.0f);
+    m_cam_dist = std::min(m_cct_player_actor->getMinimalCameraRadius() * 2.0f, 33.0f);
 
     m_splinecam_spline_pos = 0.5f;
 }
