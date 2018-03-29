@@ -15,7 +15,7 @@
 
 
 Rigs of Rods is a free/libre soft-body physics simulator mainly targeted at simulating vehicle physics. The soft-body physics system is based on mass-spring-damper theory.  
-For a simple overview of the features Rigs of Rods provides please refer to [doc/Things you can do in Rigs of Rods.pdf](doc/Things you can do in Rigs of Rods.pdf)  
+For a simple overview of the features Rigs of Rods provides please refer to [doc/Things you can do in Rigs of Rods.pdf](doc/Things%20you%20can%20do%20in%20Rigs%20of%20Rods.pdf)  
 
 
 #### Trailer:
@@ -47,7 +47,7 @@ $user - user-created mods, configuration files, logs, screenshots
 Windows:  
 $bin   = source\bin  
 $res   = source\bin\resources  
-$user  = MyDocuments\Rigs of Rods  
+$user  = Documents\Rigs of Rods   
 
 Linux:  
 $bin    = source/bin  
@@ -62,7 +62,7 @@ $user   = ~/.rigsofrods
 
 ## Controls
 Available commands depend on the vehicle you are in. For a graphical overview refer to [doc/keysheet.pdf](doc/keysheet.pdf)  
-For an indepth view refer to ``` $user/.rigsofrods/config/input.map ```  
+For an indepth view refer to ``` $user/config/input.map ```  
 Please note that certain vehicles come with their own specific commands not represented in the above sources. In this case see the vehicle's documentation or go to Menu -> Simulation -> Show vehicle description.  
 Rigs is Rods can also be played with Gamepads, Joysticks, Wheels and other controllers, including support for Force Feedback.
 
@@ -83,7 +83,7 @@ Rigs is Rods can also be played with Gamepads, Joysticks, Wheels and other contr
 | CTRL+HOME                      | aircrafts: start engine                              |
 | Page Up/Down                   | aircrafts: increase/decrease throttle                |
 | F1/F2                          | helicopters: lift up/down                            |
-| Print Screen                   | create screenshot in $user/ folder                   |
+| Print Screen                   | create screenshot in $user/screenshots folder        |
 
 
 ## Content/Mods
@@ -102,7 +102,7 @@ If you want to get going quickly have a look at modpacks which can be found in t
 * -map \<mapname\>
     * loads map \<mapname\> on startup. Example:
         * ``` RoR.exe -map aspen ```
-    * note: do not add .terrn file format extension
+    * note: do not add .terrn2 file format extension
 * -truck \<truckfile\>
     * loads a truck on startup. Example:
         * ``` RoR.exe -map oahu -truck semi.truck ```
