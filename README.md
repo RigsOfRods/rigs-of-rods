@@ -15,7 +15,7 @@
 
 
 Rigs of Rods is a free/libre soft-body physics simulator mainly targeted at simulating vehicle physics. The soft-body physics system is based on mass-spring-damper theory.  
-For a simple overview of the features Rigs of Rods provides please refer to [doc/Things you can do in Rigs of Rods.pdf](doc/Things you can do in Rigs of Rods.pdf)  
+For a simple overview of the features Rigs of Rods provides please refer to [doc/Things you can do in Rigs of Rods.pdf](doc/Things%20you%20can%20do%20in%20Rigs%20of%20Rods.pdf).
 
 
 #### Trailer:
