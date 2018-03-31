@@ -89,10 +89,6 @@
 #include "MPlatformFD.h"
 #endif //USE_MPLATFORM
 
-#ifdef FEAT_TIMING
-#include "BeamStats.h"
-#endif //FEAT_TIMING
-
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #include <Windows.h>
 #else
@@ -1775,10 +1771,6 @@ bool SimController::frameStarted(const FrameEvent& evt)
 
             if (m_player_actor != nullptr)
             {
-#ifdef FEAT_TIMING
-				BES.updateGUI(dt);
-#endif // FEAT_TIMING
-
                 // update mouse picking lines, etc
                 RoR::App::GetSceneMouse()->update(dt);
 

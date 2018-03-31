@@ -372,13 +372,6 @@ void ActorSpawner::InitializeRig()
 
     m_actor->ar_dashboard = new DashBoardManager();
 
-
-#ifdef FEAT_TIMING
-    // this enables beam engine timing statistics
-    statistics = BES.getClient(tnum, BES_CORE);
-    statistics_gfx = BES.getClient(tnum, BES_GFX);
-#endif
-
     m_actor->m_skeletonview_scenenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
     m_actor->m_deletion_scene_nodes.emplace_back(m_actor->m_skeletonview_scenenode);
     

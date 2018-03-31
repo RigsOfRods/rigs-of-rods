@@ -63,9 +63,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
     //engine callback
     if (ar_engine)
     {
-        BES_START(BES_CORE_TruckEngine);
         ar_engine->UpdateEngineSim(dt, doUpdate);
-        BES_STOP(BES_CORE_TruckEngine);
     }
 
     calcBeams(doUpdate, dt, step, maxsteps);
@@ -114,12 +112,8 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
 
     // START Slidenode section /////////////////////////////////////////////////
     // these must be done before the integrator, or else the forces are not calculated properly
-    BES_START(BES_CORE_SlideNodes);
     updateSlideNodeForces(dt);
-    BES_STOP(BES_CORE_SlideNodes);
     // END Slidenode section   /////////////////////////////////////////////////
-
-    BES_START(BES_CORE_Nodes);
 
     m_water_contact = false;
 
@@ -181,33 +175,20 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
     ar_predicted_bounding_box.merge(ar_bounding_box.getMinimum() + ar_nodes[0].Velocity);
     ar_predicted_bounding_box.merge(ar_bounding_box.getMaximum() + ar_nodes[0].Velocity);
 
-    BES_STOP(BES_CORE_Nodes);
-
-    BES_START(BES_CORE_Turboprop);
-
     //turboprop forces
     for (int i = 0; i < ar_num_aeroengines; i++)
         if (ar_aeroengines[i])
             ar_aeroengines[i]->updateForces(dt, doUpdate);
-
-    BES_STOP(BES_CORE_Turboprop);
-    BES_START(BES_CORE_Screwprop);
 
     //screwprop forces
     for (int i = 0; i < ar_num_screwprops; i++)
         if (ar_screwprops[i])
             ar_screwprops[i]->updateForces(doUpdate);
 
-    BES_STOP(BES_CORE_Screwprop);
-    BES_START(BES_CORE_Wing);
-
     //wing forces
     for (int i = 0; i < ar_num_wings; i++)
         if (ar_wings[i].fa)
             ar_wings[i].fa->updateForces();
-
-    BES_STOP(BES_CORE_Wing);
-    BES_START(BES_CORE_FuseDrag);
 
     //compute fuse drag
     if (m_fusealge_airfoil)
@@ -239,17 +220,11 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
         ar_fusedrag = ((cx * s + m_fusealge_width * m_fusealge_width * 0.5) * 0.5 * airdensity * wspeed / ar_num_nodes) * wind; 
     }
 
-    BES_STOP(BES_CORE_FuseDrag);
-    BES_START(BES_CORE_Airbrakes);
-
     //airbrakes
     for (int i = 0; i < ar_num_airbrakes; i++)
     {
         ar_airbrakes[i]->applyForce();
     }
-
-    BES_STOP(BES_CORE_Airbrakes);
-    BES_START(BES_CORE_Buoyance);
 
     //water buoyance
     if (ar_num_buoycabs && water)
@@ -260,9 +235,6 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
             m_buoyance->computeNodeForce(&ar_nodes[ar_cabs[tmpv]], &ar_nodes[ar_cabs[tmpv + 1]], &ar_nodes[ar_cabs[tmpv + 2]], doUpdate == 1, ar_buoycab_types[i]);
         }
     }
-
-    BES_STOP(BES_CORE_Buoyance);
-    BES_START(BES_CORE_Axles);
 
     //wheel speed
     Real wspeed = 0.0;
@@ -393,9 +365,6 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
         intertorque[m_axles[i]->ax_wheel_1] = diff_data.out_torque[0];
         intertorque[m_axles[i]->ax_wheel_2] = diff_data.out_torque[1];
     }
-
-    BES_STOP(BES_CORE_Axles);
-    BES_START(BES_CORE_Wheels);
 
     // driving aids traction control & anti-lock brake pulse
     tc_timer += dt;
@@ -656,9 +625,6 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
     m_odometer_total += distance_driven;
     m_odometer_user += distance_driven;
 
-    BES_STOP(BES_CORE_Wheels);
-    BES_START(BES_CORE_Shocks);
-
     //variable shocks for stabilization
     if (this->ar_has_active_shocks && m_stabilizer_shock_request)
     {
@@ -712,9 +678,6 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
         else
             SOUND_STOP(ar_instance_id, SS_TRIG_AIR);
     }
-
-    BES_STOP(BES_CORE_Shocks);
-    BES_START(BES_CORE_Hydros);
 
     //direction
     if (ar_hydro_dir_state != 0 || ar_hydro_dir_command != 0)
@@ -896,9 +859,6 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
             ar_beams[ar_hydro[i]].L = ar_beams[ar_hydro[i]].Lhydro * factor;
         }
     }
-
-    BES_STOP(BES_CORE_Hydros);
-    BES_START(BES_CORE_Commands);
 
     // commands
     if (m_has_command_beams)
@@ -1217,8 +1177,6 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
         }
     }
 
-    BES_STOP(BES_CORE_Commands);
-
     // go through all ties and process them
     for (std::vector<tie_t>::iterator it = ar_ties.begin(); it != ar_ties.end(); it++)
     {
@@ -1245,8 +1203,6 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
         if (fabs(it->ti_beam->stress) > it->ti_beam->maxtiestress)
             it->ti_tying = false;
     }
-
-    BES_START(BES_CORE_Replay);
 
     // we also store a new replay frame
     if (m_replay_handler && m_replay_handler->isValid())
@@ -1281,8 +1237,6 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
             m_replay_timer = 0.0f;
         }
     }
-
-    BES_STOP(BES_CORE_Replay);
 }
 
 bool Actor::CalcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int maxsteps)
@@ -1294,8 +1248,6 @@ bool Actor::CalcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int ma
     if (ar_sim_state != Actor::SimState::LOCAL_SIMULATED)
         return false;
 
-    BES_START(BES_CORE_WholeTruckCalc);
-
     forwardCommands();
     CalcBeamsInterActor(doUpdate, dt, step, maxsteps);
 
@@ -1306,8 +1258,6 @@ void Actor::calcForcesEulerFinal(int doUpdate, Ogre::Real dt, int step, int maxs
 {
     calcHooks();
     calcRopes();
-
-    BES_STOP(BES_CORE_WholeTruckCalc);
 }
 
 template <size_t L>
@@ -1336,7 +1286,6 @@ void LogBeamNodes(RoR::Str<L>& msg, beam_t& beam) // Internal helper
 
 void Actor::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 {
-    BES_START(BES_CORE_Beams);
     // HOT DATA: 
     //  node_t:
     //     RelPosition, velocity, Forces
@@ -1595,7 +1544,6 @@ void Actor::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
             ar_beams[i].p2->Forces -= f;
         }
     }
-    BES_STOP(BES_CORE_Beams);
 }
 
 void Actor::CalcBeamsInterActor(int doUpdate, Ogre::Real dt, int step, int maxsteps)
@@ -1966,7 +1914,6 @@ void Actor::forwardCommands()
 
 void Actor::calcHooks()
 {
-    BES_START(BES_CORE_Hooks);
     //locks - this is not active in network mode
     for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
     {
@@ -2034,12 +1981,10 @@ void Actor::calcHooks()
             RemoveInterActorBeam(it->hk_beam);
         }
     }
-    BES_STOP(BES_CORE_Hooks);
 }
 
 void Actor::calcRopes()
 {
-    BES_START(BES_CORE_Ropes);
     if (ar_ropes.size())
     {
         for (std::vector<rope_t>::iterator it = ar_ropes.begin(); it != ar_ropes.end(); it++)
@@ -2054,5 +1999,4 @@ void Actor::calcRopes()
             }
         }
     }
-    BES_STOP(BES_CORE_Ropes);
 }
