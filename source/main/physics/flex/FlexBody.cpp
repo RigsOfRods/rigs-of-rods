@@ -61,7 +61,6 @@ FlexBody::FlexBody(
     , m_dst_pos(nullptr)
     , m_src_colors(nullptr)
 {
-    TIMER_CREATE();
     FLEXBODY_PROFILER_START("Compute pos + orientation");
 
     Ogre::Vector3* vertices = nullptr;
@@ -94,7 +93,6 @@ FlexBody::FlexBody(
         orientation = rot;
     }
 
-    TIMER_SNAPSHOT(stat_mesh_ready_time);
     FLEXBODY_PROFILER_ENTER("Check texcoord presence")
 
     Ogre::MeshPtr mesh=ent->getMesh();
@@ -144,8 +142,7 @@ FlexBody::FlexBody(
         m_has_texture_blend  = preloaded_from_cache->header.HasTextureBlend();
     }
     FLEXBODY_PROFILER_ENTER("Detect missing normals")
-    
-    TIMER_SNAPSHOT(stat_mesh_scanned_time);
+
     FLEXBODY_PROFILER_ENTER("Create vertex declaration")
 
     //create optimal VertexDeclaration
@@ -204,7 +201,6 @@ FlexBody::FlexBody(
         }
     }
     FLEXBODY_PROFILER_ENTER("Reorganise vertex buffers")
-    TIMER_SNAPSHOT(stat_vertexbuffers_created_time);
 
     //reorg
     //LOG("FLEXBODY reorganizing buffers");
@@ -225,7 +221,6 @@ FlexBody::FlexBody(
             sm->vertexData->closeGapsInBindings();
         }
     }
-    TIMER_SNAPSHOT(stat_buffers_reorganised_time);
     FLEXBODY_PROFILER_ENTER("Count vertices")
 
     //print mesh information
@@ -386,7 +381,6 @@ FlexBody::FlexBody(
             }
             cursubmesh++;
         }
-        TIMER_SNAPSHOT_REF(stat_manual_buffers_created_time);
 
         FLEXBODY_PROFILER_ENTER("Transform vertices")
         //transform
@@ -394,7 +388,6 @@ FlexBody::FlexBody(
         {
             vertices[i]=(orientation*vertices[i])+position;
         }
-        TIMER_SNAPSHOT_REF(stat_transformed_time);
 
         FLEXBODY_PROFILER_ENTER("Locate nodes")
         m_locators = new Locator_t[m_vertex_count];
@@ -491,7 +484,6 @@ FlexBody::FlexBody(
 
             // that's it!
         }
-        TIMER_SNAPSHOT_REF(stat_located_time);
 
     } // if (preloaded_from_cache == nullptr)
 
@@ -520,7 +512,6 @@ FlexBody::FlexBody(
     m_scene_node->attachObject(ent);
     m_scene_node->setPosition(position);
 
-    TIMER_SNAPSHOT(stat_showmesh_time);
     if (preloaded_from_cache == nullptr)
     {
         FLEXBODY_PROFILER_ENTER("Transform normals")
@@ -543,7 +534,6 @@ FlexBody::FlexBody(
 
     if (vertices != nullptr) { free(vertices); }
 
-    TIMER_SNAPSHOT(stat_euclidean2_time);
     FLEXBODY_PROFILER_ENTER("Printing time stats");
 
 #ifdef FLEXBODY_LOG_LOADING_TIMES
