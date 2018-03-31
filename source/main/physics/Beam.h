@@ -575,10 +575,6 @@ private:
     bool m_disable_smoke:1;             //!< Gfx state
     bool m_use_skidmarks:1;             //!< Gfx attr; filled at spawn from GVar
 
-#ifdef FEAT_TIMING
-    BeamThreadStats *statistics, *statistics_gfx;
-#endif
-
     struct VehicleForceSensors
     {
         inline void Reset()

@@ -389,8 +389,6 @@ Actor::~Actor()
 // the material type and they do not depend on length or scale.
 void Actor::ScaleActor(float value)
 {
-    BES_GFX_START(BES_GFX_ScaleTruck);
-
     if (value < 0)
         return;
     ar_scale *= value;
@@ -454,13 +452,7 @@ void Actor::ScaleActor(float value)
     {
         ar_flexbodies[i]->getSceneNode()->scale(value, value, value);
     }
-    // todo: fix meshwheels
-    //for (int i=0;i<ar_num_wheels;i++)
-    //{
-    //if (ar_wheel_visuals[i].cnode) ar_wheel_visuals[i].cnode->scale(value, value, value);
-    //if (ar_wheel_visuals[i].fm && ar_wheel_visuals[i].cnode) ar_wheel_visuals[i].cnode->scale(value, value, value);
-    //}
-    BES_GFX_STOP(BES_GFX_ScaleTruck);
+
 }
 
 void Actor::initSimpleSkeleton()
@@ -486,8 +478,6 @@ void Actor::initSimpleSkeleton()
 
 void Actor::updateSimpleSkeleton()
 {
-    BES_GFX_START(BES_GFX_UpdateSkeleton);
-
     ColourValue color;
 
     if (!m_skeletonview_mesh_initialized)
@@ -517,8 +507,6 @@ void Actor::updateSimpleSkeleton()
         m_skeletonview_manual_mesh->colour(color);
     }
     m_skeletonview_manual_mesh->end();
-
-    BES_GFX_STOP(BES_GFX_UpdateSkeleton);
 }
 
 void Actor::moveOrigin(Vector3 offset)
@@ -588,7 +576,6 @@ void Actor::CreateSimpleSkeletonMaterial()
 
 void Actor::PushNetwork(char* data, int size)
 {
-    BES_GFX_START(BES_GFX_pushNetwork);
     if (!oob3)
         return;
 
@@ -646,8 +633,6 @@ void Actor::PushNetwork(char* data, int size)
         ar_wheels[i].wh_net_rp3 = rp;
     }
     m_net_update_counter++;
-
-    BES_GFX_STOP(BES_GFX_pushNetwork);
 }
 
 void Actor::CalcNetwork()
@@ -661,8 +646,6 @@ void Actor::CalcNetwork()
     {
         memcpy((char*)oob1, oob2, sizeof(RoRnet::VehicleState));
     }
-
-    BES_GFX_START(BES_GFX_calcNetwork);
 
     // we must update Nodes positions from available network informations
     int tnow = ar_net_timer.getMilliseconds();
@@ -835,8 +818,6 @@ void Actor::CalcNetwork()
         SOUND_STOP(ar_instance_id, SS_TRIG_REVERSE_GEAR);
 
     updateDashBoards(tratio);
-
-    BES_GFX_STOP(BES_GFX_calcNetwork);
 }
 
 bool Actor::AddTyrePressure(float v)
@@ -866,8 +847,6 @@ float Actor::GetTyrePressure()
 
 void Actor::RecalculateNodeMasses(Real total, bool reCalc)
 {
-    BES_GFX_START(BES_GFX_calc_masses2);
-
     bool debugMass = App::diag_truck_mass.GetActive();
 
     //reset
@@ -961,8 +940,6 @@ void Actor::RecalculateNodeMasses(Real total, bool reCalc)
         m_total_mass += ar_nodes[i].mass;
     }
     LOG("TOTAL VEHICLE MASS: " + TOSTRING((int)m_total_mass) +" kg");
-
-    BES_GFX_STOP(BES_GFX_calc_masses2);
 }
 
 // this recalculates the masses (useful when the gravity was changed...)
@@ -1034,7 +1011,6 @@ int Actor::getWheelNodeCount()
 
 void Actor::calcNodeConnectivityGraph()
 {
-    BES_GFX_START(BES_GFX_calcNodeConnectivityGraph);
     int i;
 
     ar_node_to_node_connections.resize(ar_num_nodes, std::vector<int>());
@@ -1050,7 +1026,6 @@ void Actor::calcNodeConnectivityGraph()
             ar_node_to_beam_connections[ar_beams[i].p2->pos].push_back(i);
         }
     }
-    BES_GFX_STOP(BES_GFX_calcNodeConnectivityGraph);
 }
 
 Vector3 Actor::calculateCollisionOffset(Vector3 direction)
@@ -1485,8 +1460,6 @@ void Actor::calculateDriverPos(Vector3& out_pos, Quaternion& out_rot)
 {
     assert(this->ar_driverseat_prop != nullptr);
 
-    BES_GFX_START(BES_GFX_calculateDriverPos);
-
     Vector3 x_pos = ar_nodes[ar_driverseat_prop->nodex].AbsPosition;
     Vector3 y_pos = ar_nodes[ar_driverseat_prop->nodey].AbsPosition;
     Vector3 center_pos = ar_nodes[ar_driverseat_prop->noderef].AbsPosition;
@@ -1510,8 +1483,6 @@ void Actor::calculateDriverPos(Vector3& out_pos, Quaternion& out_rot)
     rot = rot * ar_driverseat_prop->rot;
     rot = rot * Quaternion(Degree(180), Vector3::UNIT_Y); // rotate towards the driving direction
     out_rot = rot;
-
-    BES_GFX_STOP(BES_GFX_calculateDriverPos);
 }
 
 void Actor::resetAutopilot()
@@ -1855,8 +1826,6 @@ void Actor::sendStreamSetup()
 void Actor::sendStreamData()
 {
     using namespace RoRnet;
-
-    BES_GFX_START(BES_GFX_sendStreamData);
 #ifdef USE_SOCKETW
     ar_net_last_update_time = ar_net_timer.getMilliseconds();
 
@@ -1994,7 +1963,6 @@ void Actor::sendStreamData()
 
     RoR::Networking::AddPacket(ar_net_stream_id, MSG2_STREAM_DATA, packet_len, send_buffer);
 #endif //SOCKETW
-    BES_GFX_STOP(BES_GFX_sendStreamData);
 }
 
 void Actor::receiveStreamData(unsigned int type, int source, unsigned int streamid, char* buffer, unsigned int len)
@@ -2002,17 +1970,14 @@ void Actor::receiveStreamData(unsigned int type, int source, unsigned int stream
     if (ar_sim_state != SimState::NETWORKED_OK)
         return;
 
-    BES_GFX_START(BES_GFX_receiveStreamData);
     if (type == RoRnet::MSG2_STREAM_DATA && source == ar_net_source_id && streamid == ar_net_stream_id)
     {
         PushNetwork(buffer, len);
     }
-    BES_GFX_STOP(BES_GFX_receiveStreamData);
 }
 
 void Actor::calcAnimators(const int flag_state, float& cstate, int& div, Real timer, const float lower_limit, const float upper_limit, const float option3)
 {
-    BES_GFX_START(BES_GFX_calcAnimators);
     Real dt = timer;
 
     //boat rudder
@@ -2435,8 +2400,6 @@ void Actor::calcAnimators(const int flag_state, float& cstate, int& div, Real ti
         cstate = flaps;
         div++;
     }
-
-    BES_GFX_STOP(BES_GFX_calcAnimators);
 }
 
 void Actor::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt, int update)
@@ -2838,8 +2801,6 @@ void Actor::updateSkidmarks()
     if (!m_use_skidmarks)
         return;
 
-    BES_START(BES_CORE_Skidmarks);
-
     for (int i = 0; i < ar_num_wheels; i++)
     {
         // ignore wheels without data
@@ -2855,8 +2816,6 @@ void Actor::updateSkidmarks()
             }
         }
     }
-
-    BES_STOP(BES_CORE_Skidmarks);
 }
 
 Quaternion Actor::specialGetRotationTo(const Vector3& src, const Vector3& dest) const
@@ -3039,8 +2998,6 @@ void Actor::updateFlares(float dt, bool isCurrent)
 
     bool enableAll = true;
     if ((m_flares_mode == GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY) && !isCurrent) { enableAll = false; }
-
-    BES_GFX_START(BES_GFX_updateFlares);
 
     //okay, this is just ugly, we have flares in props!
     //we have to update them here because they run
@@ -3347,7 +3304,6 @@ void Actor::updateFlares(float dt, bool isCurrent)
     }
     if (keysleep)
         m_custom_light_toggle_countdown = 0.2;
-    BES_GFX_STOP(BES_GFX_updateFlares);
 }
 
 void Actor::setBlinkType(blinktype blink)
@@ -3403,8 +3359,6 @@ void Actor::autoBlinkReset()
 
 void Actor::updateProps()
 {
-    BES_GFX_START(BES_GFX_updateProps);
-
     for (int i = 0; i < ar_num_props; i++)
     {
         if (!ar_props[i].scene_node)
@@ -3436,8 +3390,6 @@ void Actor::updateProps()
     {
         ar_airbrakes[i]->updatePosition((float)ar_airbrake_intensity / 5.0);
     }
-
-    BES_GFX_STOP(BES_GFX_updateProps);
 }
 
 void Actor::ToggleCustomParticles()
@@ -3458,7 +3410,6 @@ void Actor::ToggleCustomParticles()
 
 void Actor::UpdateSoundSources()
 {
-    BES_GFX_START(BES_GFX_updateSoundSources);
 #ifdef USE_OPENAL
     if (SoundScriptManager::getSingleton().isDisabled())
         return;
@@ -3470,7 +3421,6 @@ void Actor::UpdateSoundSources()
     SOUND_MODULATE(ar_instance_id, SS_MOD_AIRSPEED, ar_nodes[0].Velocity.length() * 1.9438);
     SOUND_MODULATE(ar_instance_id, SS_MOD_WHEELSPEED, ar_wheel_speed * 3.6);
 #endif //OPENAL
-    BES_GFX_STOP(BES_GFX_updateSoundSources);
 }
 
 void Actor::UpdateActorNetLabels(float dt)
@@ -3497,8 +3447,6 @@ void Actor::UpdateActorNetLabels(float dt)
 
 void Actor::UpdateFlexbodiesPrepare()
 {
-    BES_GFX_START(BES_GFX_updateFlexBodies);
-
     if (m_cab_scene_node && m_cab_mesh)
         m_cab_scene_node->setPosition(m_cab_mesh->UpdateFlexObj());
 
@@ -3565,8 +3513,6 @@ void Actor::UpdateFlexbodiesPrepare()
 
 void Actor::updateVisual(float dt)
 {
-    BES_GFX_START(BES_GFX_updateVisual);
-
     Vector3 ref(Vector3::UNIT_Y);
     autoBlinkReset();
     UpdateSoundSources();
@@ -3749,8 +3695,6 @@ void Actor::updateVisual(float dt)
 
     if (ar_skeletonview_is_active)
         updateSimpleSkeleton();
-
-    BES_GFX_STOP(BES_GFX_updateVisual);
 }
 
 void Actor::JoinFlexbodyTasks()
@@ -3784,8 +3728,6 @@ void Actor::UpdateFlexbodiesFinal()
             }
         }
     }
-
-    BES_GFX_STOP(BES_GFX_updateFlexBodies);
 }
 
 //v=0: full detail
@@ -4887,7 +4829,6 @@ void Actor::UpdateNetworkInfo()
         return;
 
 #ifdef USE_SOCKETW
-    BES_GFX_START(BES_GFX_updateNetworkInfo);
 
     RoRnet::UserInfo info;
 
@@ -4905,7 +4846,6 @@ void Actor::UpdateNetworkInfo()
 
     m_net_username = UTFString(info.username);
 
-    BES_GFX_STOP(BES_GFX_updateNetworkInfo);
 #endif //SOCKETW
 }
 
@@ -5820,8 +5760,6 @@ Vector3 Actor::getNodePosition(int nodeNumber)
 
 void Actor::UpdatePropAnimations(const float dt)
 {
-    BES_START(BES_CORE_AnimatedProps);
-
     for (int propi = 0; propi < ar_num_props; propi++)
     {
         int animnum = 0;
@@ -6060,6 +5998,4 @@ void Actor::UpdatePropAnimations(const float dt)
         rz += ar_props[propi].rotaZ;
         ar_props[propi].rot = Quaternion(Degree(rz), Vector3::UNIT_Z) * Quaternion(Degree(ry), Vector3::UNIT_Y) * Quaternion(Degree(rx), Vector3::UNIT_X);
     }
-
-    BES_STOP(BES_CORE_AnimatedProps);
 }

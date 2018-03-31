@@ -1360,13 +1360,7 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
     {
         if ((player_actor != nullptr) && (m_simulated_actor == player_actor->ar_instance_id))
         {
-
             m_actors[m_simulated_actor]->updateDashBoards(dt);
-
-#ifdef FEAT_TIMING
-            if (m_actors[m_simulated_actor]->statistics)     m_actors[m_simulated_actor]->statistics->frameStep(dt);
-            if (m_actors[m_simulated_actor]->statistics_gfx) m_actors[m_simulated_actor]->statistics_gfx->frameStep(dt);
-#endif // FEAT_TIMING
         }
         if (!m_actors[m_simulated_actor]->ReplayStep())
         {
@@ -1521,7 +1515,6 @@ void ActorManager::UpdatePhysicsSimulation()
 
             if (have_actors_to_simulate)
             {
-                BES_START(BES_CORE_Contacters);
                 for (int t = 0; t < m_free_actor_slot; t++)
                 {
                     if (m_actors[t] && m_actors[t]->ar_update_physics && !m_actors[t]->ar_disable_actor2actor_collision)
@@ -1542,7 +1535,6 @@ void ActorManager::UpdatePhysicsSimulation()
                         }
                     }
                 }
-                BES_STOP(BES_CORE_Contacters);
             }
         }
     }
