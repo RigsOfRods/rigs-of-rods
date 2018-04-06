@@ -299,6 +299,9 @@ struct command_t
         bool     cmb_is_force_restricted:1; //!< Attribute defined in truckfile
         bool     cmb_needs_engine:1;        //!< Attribute defined in truckfile
         bool     cmb_is_autocentering:1;    //!< Attribute defined in truckfile
+        bool     cmb_plays_sound:1;         //!< Attribute defined in truckfile
+        bool     cmb_is_1press:1;           //!< Attribute defined in truckfile
+        bool     cmb_is_1press_center:1;    //!< Attribute defined in truckfile
     };
 
     int commandValueState;

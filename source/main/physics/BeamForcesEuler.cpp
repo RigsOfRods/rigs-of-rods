@@ -986,7 +986,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
                     {
                         float dl = ar_beams[bbeam].L;
 
-                        if (ar_beams[bbeam].isOnePressMode == 2)
+                        if (cmd_beam.cmb_is_1press_center)
                         {
                             // one press + centering
                             if (bbeam_dir * cmd_beam.cmb_auto_moving_mode > 0 && bbeam_dir * clen > bbeam_dir * ar_beams[bbeam].centerLength && !cmd_beam.cmb_pressed_center_mode)
@@ -999,7 +999,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
                                 cmd_beam.cmb_pressed_center_mode = false;
                             }
                         }
-                        if (ar_beams[bbeam].isOnePressMode > 0)
+                        if (cmd_beam.cmb_is_1press || cmd_beam.cmb_is_1press_center)
                         {
                             bool key = (v > 0.5);
                             if (bbeam_dir * cmd_beam.cmb_auto_moving_mode <= 0 && key)
@@ -1033,7 +1033,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
                             requestpower = true;
 
 #ifdef USE_OPENAL
-                        if (ar_beams[bbeam].playsSound)
+                        if (cmd_beam.cmb_plays_sound)
                         {
                             // command sounds
                             if (vst == 1)
@@ -1073,7 +1073,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
                             work += fabs(ar_beams[bbeam].stress) * dl * ar_beams[bbeam].commandEngineCoupling;
                         }
                     }
-                    else if (ar_beams[bbeam].isOnePressMode > 0 && bbeam_dir * cmd_beam.cmb_auto_moving_mode > 0)
+                    else if ((cmd_beam.cmb_is_1press || cmd_beam.cmb_is_1press_center) && bbeam_dir * cmd_beam.cmb_auto_moving_mode > 0)
                     {
                         // beyond length
                         cmd_beam.cmb_auto_moving_mode = 0;

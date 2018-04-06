@@ -88,8 +88,6 @@ struct beam_t
     float animOption;
     int animFlags;
     int hydroFlags;
-    short isOnePressMode;
-    bool playsSound;
 
     Ogre::Real maxtiestress;
     Ogre::Real diameter;

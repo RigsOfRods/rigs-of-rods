@@ -3418,15 +3418,12 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
     /* Options */
     if (def.option_i_invisible)     { beam.bm_type = BEAM_INVISIBLE_HYDRO; }
     if (def.option_r_rope)          { beam.bounded = ROPE; }
-    if (def.option_p_1press)        { beam.isOnePressMode = 1; }
-    if (def.option_o_1press_center) { beam.isOnePressMode = 2; }
 
     beam.commandRatioShort     = def.shorten_rate;
     beam.commandRatioLong      = def.lengthen_rate;
     beam.commandShort          = def.max_contraction;
     beam.commandLong           = def.max_extension;
     beam.commandEngineCoupling = def.affect_engine;
-    beam.playsSound            = def.plays_sound;
 
     /* set the middle of the command, so its not required to recalculate this everytime ... */
     if (def.max_extension > def.max_contraction)
@@ -3448,6 +3445,9 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
     cmd_beam.cmb_is_force_restricted = def.option_f_not_faster;
     cmd_beam.cmb_is_autocentering = def.option_c_auto_center;
     cmd_beam.cmb_needs_engine = def.needs_engine;
+    cmd_beam.cmb_is_1press = def.option_p_1press;      
+    cmd_beam.cmb_is_1press_center = def.option_o_1press_center;
+    cmd_beam.cmb_plays_sound = def.plays_sound;
     contract_command->beams.push_back(cmd_beam);
     if (contract_command->description.empty())
     {
