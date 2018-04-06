@@ -91,8 +91,6 @@ struct beam_t
     short isOnePressMode;
     char autoMovingMode;
     bool playsSound;
-    bool pressedCenterMode;
-    bool isForceRestricted;
     bool commandNeedsEngine;
     bool isCentering;
 

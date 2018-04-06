@@ -886,7 +886,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
         {
             for (int j = 0; j < (int)ar_command_key[i].beams.size(); j++)
             {
-                int k = abs(ar_command_key[i].beams[j]);
+                int k = ar_command_key[i].beams[j].cmb_beam_index;
                 if (k >= 0 && k < ar_num_beams)
                 {
                     ar_beams[k].autoMoveLock = false;
@@ -917,7 +917,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
             {
                 if (ar_command_key[i].commandValue >= 0.5)
                 {
-                    int k = abs(ar_command_key[i].beams[j]);
+                    int k = ar_command_key[i].beams[j].cmb_beam_index;
                     if (k >= 0 && k < ar_num_beams)
                     {
                         ar_beams[k].autoMoveLock = true;
@@ -932,14 +932,15 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
             bool requestpower = false;
             for (int j = 0; j < (int)ar_command_key[i].beams.size(); j++)
             {
-                int bbeam_dir = (ar_command_key[i].beams[j] > 0) ? 1 : -1;
-                int bbeam = std::abs(ar_command_key[i].beams[j]);
+                command_t::CmdBeam& cmd_beam = ar_command_key[i].beams[j];
+                int bbeam_dir = (cmd_beam.cmb_is_contraction) ? -1 : 1;
+                int bbeam = cmd_beam.cmb_beam_index;
 
                 if (bbeam > ar_num_beams)
                     continue;
 
                 // restrict forces
-                if (ar_beams[bbeam].isForceRestricted)
+                if (cmd_beam.cmb_is_force_restricted)
                     crankfactor = std::min(crankfactor, 1.0f);
 
                 float v = ar_command_key[i].commandValue;
@@ -988,14 +989,14 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
                         if (ar_beams[bbeam].isOnePressMode == 2)
                         {
                             // one press + centering
-                            if (bbeam_dir * ar_beams[bbeam].autoMovingMode > 0 && bbeam_dir * clen > bbeam_dir * ar_beams[bbeam].centerLength && !ar_beams[bbeam].pressedCenterMode)
+                            if (bbeam_dir * ar_beams[bbeam].autoMovingMode > 0 && bbeam_dir * clen > bbeam_dir * ar_beams[bbeam].centerLength && !cmd_beam.cmb_pressed_center_mode)
                             {
-                                ar_beams[bbeam].pressedCenterMode = true;
+                                cmd_beam.cmb_pressed_center_mode = true;
                                 ar_beams[bbeam].autoMovingMode = 0;
                             }
-                            else if (bbeam_dir * ar_beams[bbeam].autoMovingMode < 0 && bbeam_dir * clen > bbeam_dir * ar_beams[bbeam].centerLength && ar_beams[bbeam].pressedCenterMode)
+                            else if (bbeam_dir * ar_beams[bbeam].autoMovingMode < 0 && bbeam_dir * clen > bbeam_dir * ar_beams[bbeam].centerLength && cmd_beam.cmb_pressed_center_mode)
                             {
-                                ar_beams[bbeam].pressedCenterMode = false;
+                                cmd_beam.cmb_pressed_center_mode = false;
                             }
                         }
                         if (ar_beams[bbeam].isOnePressMode > 0)

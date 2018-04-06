@@ -3420,7 +3420,6 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
     if (def.option_r_rope)          { beam.bounded = ROPE; }
     if (def.option_p_1press)        { beam.isOnePressMode = 1; }
     if (def.option_o_1press_center) { beam.isOnePressMode = 2; }
-    if (def.option_f_not_faster)    { beam.isForceRestricted = true; }
     if (def.option_c_auto_center)   { beam.isCentering = true; }
 
     beam.commandRatioShort     = def.shorten_rate;
@@ -3445,14 +3444,19 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
 
     /* Add keys */
     command_t* contract_command = &m_actor->ar_command_key[def.contract_key];
-    contract_command->beams.push_back(-beam_index);
+    command_t::CmdBeam cmd_beam;
+    cmd_beam.cmb_beam_index = static_cast<uint16_t>(beam_index);
+    cmd_beam.cmb_is_contraction = true;
+    cmd_beam.cmb_is_force_restricted = def.option_f_not_faster;
+    contract_command->beams.push_back(cmd_beam);
     if (contract_command->description.empty())
     {
         contract_command->description = def.description;
     }
 
     command_t* extend_command = &m_actor->ar_command_key[def.extend_key];
-    extend_command->beams.push_back(beam_index);
+    cmd_beam.cmb_is_contraction = false;
+    extend_command->beams.push_back(cmd_beam);
     if (extend_command->description.empty())
     {
         extend_command->description = def.description;
