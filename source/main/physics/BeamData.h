@@ -287,13 +287,15 @@ struct wing_t
 
 struct command_t
 {
-    struct CmdBeam //!< Per-beam 'command' (=user controller hydraulic) data
+    struct CmdBeam //!< Per-beam 'command' (=user controlled hydraulic) data
     {
         uint16_t cmb_beam_index;            //!< Index to Actor::ar_beams array
         // Bit flags
         bool     cmb_is_contraction:1;      //!< Attribute defined at spawn
         bool     cmb_pressed_center_mode:1; //!< State
         bool     cmb_is_force_restricted:1; //!< Attribute defined in truckfile
+        bool     cmb_needs_engine:1;        //!< Attribute defined in truckfile
+        bool     cmb_is_autocentering:1;    //!< Attribute defined in truckfile
     };
 
     int commandValueState;

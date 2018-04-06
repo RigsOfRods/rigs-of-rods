@@ -947,7 +947,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
                 int& vst = ar_command_key[i].commandValueState;
 
                 // self centering
-                if (ar_beams[bbeam].isCentering && !ar_beams[bbeam].autoMoveLock)
+                if (cmd_beam.cmb_is_autocentering && !ar_beams[bbeam].autoMoveLock)
                 {
                     // check for some error
                     if (ar_beams[bbeam].refL == 0 || ar_beams[bbeam].L == 0)
@@ -1026,7 +1026,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
                         if (bbeam_dir * ar_beams[bbeam].autoMovingMode > 0)
                             v = 1;
 
-                        if (ar_beams[bbeam].commandNeedsEngine && ((ar_engine && !ar_engine->IsRunning()) || !ar_engine_hydraulics_ready))
+                        if (cmd_beam.cmb_needs_engine && ((ar_engine && !ar_engine->IsRunning()) || !ar_engine_hydraulics_ready))
                             continue;
 
                         if (v > 0.0f && ar_beams[bbeam].commandEngineCoupling > 0.0f)

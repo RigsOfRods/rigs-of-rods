@@ -91,8 +91,6 @@ struct beam_t
     short isOnePressMode;
     char autoMovingMode;
     bool playsSound;
-    bool commandNeedsEngine;
-    bool isCentering;
 
     Ogre::Real maxtiestress;
     Ogre::Real diameter;
