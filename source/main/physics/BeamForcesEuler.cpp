@@ -93,12 +93,12 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
             m_force_sensors.accu_body_forces += ar_nodes[ar_camera_node_pos[ar_current_cinecam]].Forces;
         }
 
-        for (int i = 0; i < ar_num_hydros; i++)
+        for (hydrobeam_t& hydrobeam: ar_hydros)
         {
-            beam_t* hydrobeam = &ar_beams[ar_hydro[i]];
-            if ((hydrobeam->hydroFlags & (HYDRO_FLAG_DIR | HYDRO_FLAG_SPEED)) && !hydrobeam->bm_broken)
+            beam_t* beam = &ar_beams[hydrobeam.hb_beam_index];
+            if ((hydrobeam.hb_flags & (HYDRO_FLAG_DIR | HYDRO_FLAG_SPEED)) && !beam->bm_broken)
             {
-                m_force_sensors.accu_hydros_forces += hydrobeam->hydroRatio * hydrobeam->refL * hydrobeam->stress;
+                m_force_sensors.accu_hydros_forces += hydrobeam.hb_speed * beam->refL * beam->stress;
             }
         }
     }
@@ -775,63 +775,68 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
             ar_hydro_elevator_state = 0;
     }
     //update length, dirstate between -1.0 and 1.0
-    for (int i = 0; i < ar_num_hydros; i++)
+    const int num_hydros = static_cast<int>(ar_hydros.size());
+    for (int i = 0; i < num_hydros; ++i)
     {
+        hydrobeam_t& hydrobeam = ar_hydros[i];
+
         //compound hydro
         float cstate = 0.0f;
         int div = 0;
-        if (ar_beams[ar_hydro[i]].hydroFlags & HYDRO_FLAG_SPEED)
+        if (hydrobeam.hb_flags & HYDRO_FLAG_SPEED)
         {
             //special treatment for SPEED
             if (ar_wheel_speed < 12.0f)
                 cstate += ar_hydro_dir_state * (12.0f - ar_wheel_speed) / 12.0f;
             div++;
         }
-        if (ar_beams[ar_hydro[i]].hydroFlags & HYDRO_FLAG_DIR)
+        if (hydrobeam.hb_flags & HYDRO_FLAG_DIR)
         {
             cstate += ar_hydro_dir_state;
             div++;
         }
-        if (ar_beams[ar_hydro[i]].hydroFlags & HYDRO_FLAG_AILERON)
+        if (hydrobeam.hb_flags & HYDRO_FLAG_AILERON)
         {
             cstate += ar_hydro_aileron_state;
             div++;
         }
-        if (ar_beams[ar_hydro[i]].hydroFlags & HYDRO_FLAG_RUDDER)
+        if (hydrobeam.hb_flags & HYDRO_FLAG_RUDDER)
         {
             cstate += ar_hydro_rudder_state;
             div++;
         }
-        if (ar_beams[ar_hydro[i]].hydroFlags & HYDRO_FLAG_ELEVATOR)
+        if (hydrobeam.hb_flags & HYDRO_FLAG_ELEVATOR)
         {
             cstate += ar_hydro_elevator_state;
             div++;
         }
-        if (ar_beams[ar_hydro[i]].hydroFlags & HYDRO_FLAG_REV_AILERON)
+        if (hydrobeam.hb_flags & HYDRO_FLAG_REV_AILERON)
         {
             cstate -= ar_hydro_aileron_state;
             div++;
         }
-        if (ar_beams[ar_hydro[i]].hydroFlags & HYDRO_FLAG_REV_RUDDER)
+        if (hydrobeam.hb_flags & HYDRO_FLAG_REV_RUDDER)
         {
             cstate -= ar_hydro_rudder_state;
             div++;
         }
-        if (ar_beams[ar_hydro[i]].hydroFlags & HYDRO_FLAG_REV_ELEVATOR)
+        if (hydrobeam.hb_flags & HYDRO_FLAG_REV_ELEVATOR)
         {
             cstate -= ar_hydro_elevator_state;
             div++;
         }
+
+        const uint16_t beam_idx = hydrobeam.hb_beam_index;
 
         if (cstate > 1.0)
             cstate = 1.0;
         if (cstate < -1.0)
             cstate = -1.0;
         // Animators following, if no animator, skip all the tests...
-        int flagstate = ar_beams[ar_hydro[i]].animFlags;
+        int flagstate = ar_beams[beam_idx].animFlags;
         if (flagstate)
         {
-            float animoption = ar_beams[ar_hydro[i]].animOption;
+            float animoption = ar_beams[beam_idx].animOption;
             calcAnimators(flagstate, cstate, div, dt, 0.0f, 0.0f, animoption);
         }
 
@@ -842,21 +847,21 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
             if (m_hydro_inertia)
                 cstate = m_hydro_inertia->calcCmdKeyDelay(cstate, i, dt);
 
-            if (!(ar_beams[ar_hydro[i]].hydroFlags & HYDRO_FLAG_SPEED) && !flagstate)
+            if (!(hydrobeam.hb_flags & HYDRO_FLAG_SPEED) && !flagstate)
                 ar_hydro_dir_wheel_display = cstate;
 
-            float factor = 1.0 - cstate * ar_beams[ar_hydro[i]].hydroRatio;
+            float factor = 1.0 - cstate * hydrobeam.hb_speed;
 
             // check and apply animators limits if set
             if (flagstate)
             {
-                if (factor < 1.0f - ar_beams[ar_hydro[i]].shortbound)
-                    factor = 1.0f - ar_beams[ar_hydro[i]].shortbound;
-                if (factor > 1.0f + ar_beams[ar_hydro[i]].longbound)
-                    factor = 1.0f + ar_beams[ar_hydro[i]].longbound;
+                if (factor < 1.0f - ar_beams[beam_idx].shortbound)
+                    factor = 1.0f - ar_beams[beam_idx].shortbound;
+                if (factor > 1.0f + ar_beams[beam_idx].longbound)
+                    factor = 1.0f + ar_beams[beam_idx].longbound;
             }
 
-            ar_beams[ar_hydro[i]].L = ar_beams[ar_hydro[i]].Lhydro * factor;
+            ar_beams[beam_idx].L = hydrobeam.hb_ref_length * factor;
         }
     }
 

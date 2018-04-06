@@ -2718,7 +2718,6 @@ void ActorSpawner::ProcessTie(RigDef::Tie & def)
     beam.bm_type = (def.is_invisible) ? BEAM_INVISIBLE_HYDRO : BEAM_HYDRO;
     beam.L = def.max_reach_length;
     beam.refL = def.max_reach_length;
-    beam.Lhydro = def.max_reach_length;
     beam.bounded = ROPE;
     beam.bm_disabled = true;
     beam.commandRatioLong = def.auto_shorten_rate;
@@ -3474,17 +3473,12 @@ void ActorSpawner::ProcessAnimator(RigDef::Animator & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckHydroLimit(1)) // TODO: remove the limit! See `ActorSpawner::CalcMemoryRequirements()` ~ only_a_ptr, 06/2017
-    {
-        return;
-    }
-
     if (m_actor->m_hydro_inertia != nullptr)
     {
         if (def.inertia_defaults->start_delay_factor > 0 && def.inertia_defaults->stop_delay_factor > 0)
         {
             m_actor->m_hydro_inertia->setCmdKeyDelay(
-                m_actor->ar_num_hydros,
+                static_cast<int>(m_actor->ar_hydros.size()),
                 def.inertia_defaults->start_delay_factor,
                 def.inertia_defaults->stop_delay_factor,
                 def.inertia_defaults->start_function,
@@ -3613,7 +3607,6 @@ void ActorSpawner::ProcessAnimator(RigDef::Animator & def)
     beam.shortbound = 0.99999f;
     beam.longbound = 1000000.0f;
     beam.bm_type = hydro_type;
-    beam.hydroRatio = def.lenghtening_factor;
     beam.animFlags = anim_flags;
     beam.animOption = anim_option;
     CalculateBeamLength(beam);
@@ -3631,8 +3624,13 @@ void ActorSpawner::ProcessAnimator(RigDef::Animator & def)
         beam.longbound = def.long_limit;
     }
 
-    m_actor->ar_hydro[m_actor->ar_num_hydros] = beam_index;
-    m_actor->ar_num_hydros++;
+    hydrobeam_t hb;
+    hb.hb_beam_index = static_cast<uint16_t>(beam_index);
+    hb.hb_speed = def.lenghtening_factor;
+    hb.hb_ref_length = beam.L;
+    hb.hb_flags = 0;
+
+    m_actor->ar_hydros.push_back(hb);
 }
 
 beam_t & ActorSpawner::AddBeam(
@@ -3673,11 +3671,6 @@ void ActorSpawner::SetBeamStrength(beam_t & beam, float strength)
 void ActorSpawner::ProcessHydro(RigDef::Hydro & def)
 {
     SPAWNER_PROFILE_SCOPED();
-
-    if (! CheckHydroLimit(1)) // TODO: remove the limit! See `ActorSpawner::CalcMemoryRequirements()` ~ only_a_ptr, 06/2017
-    {
-        return;
-    }
 
     unsigned int hydro_type = BEAM_HYDRO;
     unsigned int hydro_flags = 0;
@@ -3749,7 +3742,8 @@ void ActorSpawner::ProcessHydro(RigDef::Hydro & def)
         }
     }
 
-    _ProcessKeyInertia(m_actor->m_hydro_inertia, def.inertia, *def.inertia_defaults, m_actor->ar_num_hydros, m_actor->ar_num_hydros);	
+    int key = static_cast<int>(m_actor->ar_hydros.size());
+    _ProcessKeyInertia(m_actor->m_hydro_inertia, def.inertia, *def.inertia_defaults, key, key);	
 
     node_t & node_1 = GetNode(def.nodes[0]);
     node_t & node_2 = GetNode(def.nodes[1]);
@@ -3761,13 +3755,16 @@ void ActorSpawner::ProcessHydro(RigDef::Hydro & def)
     beam.bm_type              = hydro_type;
     beam.k                    = def.beam_defaults->GetScaledSpringiness();
     beam.d                    = def.beam_defaults->GetScaledDamping();
-    beam.hydroFlags           = hydro_flags;
-    beam.hydroRatio           = def.lenghtening_factor;
 
     CreateBeamVisuals(beam, beam_index, def.beam_defaults);
 
-    m_actor->ar_hydro[m_actor->ar_num_hydros] = beam_index;
-    m_actor->ar_num_hydros++;
+    hydrobeam_t hb;
+    hb.hb_flags = hydro_flags;
+    hb.hb_speed = def.lenghtening_factor;
+    hb.hb_beam_index = static_cast<uint16_t>(beam_index);
+    hb.hb_ref_length = beam.L;
+
+    m_actor->ar_hydros.push_back(hb);
 }
 
 void ActorSpawner::ProcessShock2(RigDef::Shock2 & def)
@@ -3836,7 +3833,6 @@ void ActorSpawner::ProcessShock2(RigDef::Shock2 & def)
     CalculateBeamLength(beam);
     beam.L          *= def.precompression;
     beam.refL       *= def.precompression;
-    beam.Lhydro     *= def.precompression;
 
     CreateBeamVisuals(beam, beam_index, def.beam_defaults);
 
@@ -3906,7 +3902,6 @@ void ActorSpawner::ProcessShock(RigDef::Shock & def)
     CalculateBeamLength(beam);
     beam.L          *= def.precompression;
     beam.refL       *= def.precompression;
-    beam.Lhydro     *= def.precompression;
 
     shock_t & shock  = GetFreeShock();
     shock.flags      = shock_flags;
@@ -5843,7 +5838,6 @@ void ActorSpawner::CalculateBeamLength(beam_t & beam)
 
     float beam_length = (beam.p1->RelPosition - beam.p2->RelPosition).length();
     beam.L = beam_length;
-    beam.Lhydro = beam_length;
     beam.refL = beam_length;
 }
 
@@ -6085,7 +6079,6 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
         beam.bounded           = ROPE;
         beam.bm_disabled       = true;
         beam.L                 = HOOK_RANGE_DEFAULT;
-        beam.Lhydro            = HOOK_RANGE_DEFAULT;
         beam.refL              = HOOK_RANGE_DEFAULT;
         beam.commandRatioShort = HOOK_SPEED_DEFAULT;
         beam.commandRatioLong  = HOOK_SPEED_DEFAULT;
@@ -6299,20 +6292,6 @@ void ActorSpawner::ProcessGlobals(RigDef::Globals & def)
 /* -------------------------------------------------------------------------- */
 /* Limits.
 /* -------------------------------------------------------------------------- */
-
-bool ActorSpawner::CheckHydroLimit(unsigned int count)
-{
-    SPAWNER_PROFILE_SCOPED();
-
-    if ((m_actor->ar_num_shocks + count) > MAX_HYDROS)
-    {
-        std::stringstream msg;
-        msg << "Hydro limit (" << MAX_HYDROS << ") exceeded";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return false;
-    }
-    return true;
-}
 
 bool ActorSpawner::CheckParticleLimit(unsigned int count)
 {

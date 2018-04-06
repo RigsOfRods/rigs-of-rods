@@ -352,7 +352,6 @@ const float BEAM_HYDRO_THICKNESS     (1.4f);
 const ImU32 BEAM_STRENGTH_TEXT_COLOR (0xffcfd0cc);
 const ImU32 BEAM_STRESS_TEXT_COLOR   (0xff58bbfc);
 const ImU32 BEAM_COMPRESS_TEXT_COLOR (0xffccbf3c);
-const ImU32 BEAM_HYDRO_TEXT_COLOR    (0xffaa8844);
 // TODO: commands cannot be distinguished on runtime
 
 const ImU32 NODE_COLOR               (0xff44ddff);
@@ -548,12 +547,7 @@ void RoR::GfxActor::UpdateDebugView()
                 ImVec2 stress_text_pos(pos.x, pos.y + stren_text_size.y);
                 drawlist->AddText(stress_text_pos, BEAM_STRESS_TEXT_COLOR, buf);
 
-                if ((beams[i].bm_type == BEAM_HYDRO || (beams[i].bm_type == BEAM_INVISIBLE_HYDRO)))
-                {
-                    ImVec2 hydro_text_pos((pos.x + ImGui::CalcTextSize(buf).x), stress_text_pos.y);
-                    snprintf(buf, BUF_LEN, "%.1f", ((beams[i].L / beams[i].Lhydro) * 100));
-                    drawlist->AddText(hydro_text_pos, BEAM_HYDRO_TEXT_COLOR, buf);
-                }
+                // TODO: Hydro stress
             }
         }
     }

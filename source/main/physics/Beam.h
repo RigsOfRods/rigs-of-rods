@@ -268,8 +268,7 @@ public:
     int               ar_num_screwprops;
     int               ar_cabs[MAX_CABS*3];
     int               ar_num_cabs;
-    int               ar_hydro[MAX_HYDROS];
-    int               ar_num_hydros;
+    std::vector<hydrobeam_t> ar_hydros;
     int               ar_collcabs[MAX_CABS];
     collcab_rate_t    ar_inter_collcabrate[MAX_CABS];
     collcab_rate_t    ar_intra_collcabrate[MAX_CABS];

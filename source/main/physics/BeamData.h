@@ -317,6 +317,14 @@ struct command_t
     Ogre::String description;
 };
 
+struct hydrobeam_t
+{
+    uint16_t hb_beam_index; //!< Index to Actor::ar_beams array
+    float    hb_ref_length; //!< Idle length in meters
+    float    hb_speed;      //!< Rate of change
+    int      hb_flags;
+};
+
 struct rotator_t
 {
     int nodes1[4];

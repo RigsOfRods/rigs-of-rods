@@ -397,10 +397,14 @@ void Actor::ScaleActor(float value)
         ar_beams[i].d *= value;
         ar_beams[i].L *= value;
         ar_beams[i].refL *= value;
-        ar_beams[i].Lhydro *= value;
-        ar_beams[i].hydroRatio *= value;
 
         ar_beams[i].diameter *= value;
+    }
+    // scale hydros
+    for (hydrobeam_t& hbeam: ar_hydros)
+    {
+        hbeam.hb_ref_length *= value;
+        hbeam.hb_speed *= value;
     }
     // scale nodes
     Vector3 refpos = ar_nodes[0].AbsPosition;
@@ -1703,9 +1707,9 @@ bool Actor::ReplayStep()
 void Actor::ForceFeedbackStep(int steps)
 {
     m_force_sensors.out_body_forces = m_force_sensors.accu_body_forces / steps;
-    if (ar_num_hydros != 0) // Vehicle has hydros?
+    if (!ar_hydros.empty()) // Vehicle has hydros?
     {
-        m_force_sensors.out_hydros_forces = (m_force_sensors.accu_hydros_forces / steps) / ar_num_hydros;    
+        m_force_sensors.out_hydros_forces = (m_force_sensors.accu_hydros_forces / steps) / ar_hydros.size();    
     }
 }
 
@@ -5024,8 +5028,6 @@ Actor::Actor(
     , ar_airbrakes{} // Init array to nullptr
     , ar_cabs{} // Init array to 0
     , ar_num_cabs(0)
-    , ar_hydro{} // Init array to 0
-    , ar_num_hydros(0)
     , ar_screwprops{} // Init array to nullptr
     , ar_num_screwprops(0)
     , ar_num_camera_rails(0)
