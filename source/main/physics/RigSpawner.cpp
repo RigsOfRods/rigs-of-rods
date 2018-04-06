@@ -3423,16 +3423,16 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
     beam.commandRatioLong      = def.lengthen_rate;
     beam.commandShort          = def.max_contraction;
     beam.commandLong           = def.max_extension;
-    beam.commandEngineCoupling = def.affect_engine;
 
     /* set the middle of the command, so its not required to recalculate this everytime ... */
+    float center_length = 0.f;
     if (def.max_extension > def.max_contraction)
     {
-        beam.centerLength = (def.max_extension - def.max_contraction) / 2 + def.max_contraction;
+        center_length = (def.max_extension - def.max_contraction) / 2 + def.max_contraction;
     }
     else
     {
-        beam.centerLength = (def.max_contraction - def.max_extension) / 2 + def.max_extension;
+        center_length = (def.max_contraction - def.max_extension) / 2 + def.max_extension;
     }
 
     _ProcessKeyInertia(m_actor->m_command_inertia, def.inertia, *def.inertia_defaults, def.contract_key, def.extend_key);	
@@ -3448,6 +3448,8 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
     cmd_beam.cmb_is_1press = def.option_p_1press;      
     cmd_beam.cmb_is_1press_center = def.option_o_1press_center;
     cmd_beam.cmb_plays_sound = def.plays_sound;
+    cmd_beam.cmb_engine_coupling = def.affect_engine;
+    cmd_beam.cmb_center_length = center_length;
     contract_command->beams.push_back(cmd_beam);
     if (contract_command->description.empty())
     {

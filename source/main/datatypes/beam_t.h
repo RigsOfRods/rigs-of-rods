@@ -72,19 +72,15 @@ struct beam_t
     /// ## TODO: Separate physics/visual meaning, create sensible usage pattern ~ only_a_ptr, 12/2017
     bool bm_broken;
 
-    bool autoMoveLock;
-
     Ogre::Real shortbound;
     Ogre::Real longbound;
     Ogre::Real refL;       //!< reference length
     Ogre::Real Lhydro;     //!< hydro reference len
     Ogre::Real hydroRatio; //!< hydro rotation ratio
-    Ogre::Real commandRatioLong;
-    Ogre::Real commandRatioShort;
-    Ogre::Real commandShort; //<! Max. contraction; proportional to orig. length
-    Ogre::Real commandLong;  //<! Max. extension; proportional to orig. length
-    Ogre::Real commandEngineCoupling;
-    float centerLength;
+    Ogre::Real commandRatioLong; // Used by commands/hooks.
+    Ogre::Real commandRatioShort; // Used by commands/hooks
+    Ogre::Real commandShort; //<! Max. contraction; proportional to orig. length // Used by commands/hooks/ties
+    Ogre::Real commandLong;  //<! Max. extension; proportional to orig. length // Used by commands/hooks/ties
     float animOption;
     int animFlags;
     int hydroFlags;

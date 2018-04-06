@@ -886,11 +886,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
         {
             for (int j = 0; j < (int)ar_command_key[i].beams.size(); j++)
             {
-                int k = ar_command_key[i].beams[j].cmb_beam_index;
-                if (k >= 0 && k < ar_num_beams)
-                {
-                    ar_beams[k].autoMoveLock = false;
-                }
+                ar_command_key[i].beams[j].cmb_auto_move_lock = false;
             }
         }
 
@@ -917,11 +913,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
             {
                 if (ar_command_key[i].commandValue >= 0.5)
                 {
-                    int k = ar_command_key[i].beams[j].cmb_beam_index;
-                    if (k >= 0 && k < ar_num_beams)
-                    {
-                        ar_beams[k].autoMoveLock = true;
-                    }
+                    ar_command_key[i].beams[j].cmb_auto_move_lock = true;
                 }
             }
         }
@@ -947,7 +939,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
                 int& vst = ar_command_key[i].commandValueState;
 
                 // self centering
-                if (cmd_beam.cmb_is_autocentering && !ar_beams[bbeam].autoMoveLock)
+                if (cmd_beam.cmb_is_autocentering && !cmd_beam.cmb_auto_move_lock)
                 {
                     // check for some error
                     if (ar_beams[bbeam].refL == 0 || ar_beams[bbeam].L == 0)
@@ -955,7 +947,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
 
                     float current = (ar_beams[bbeam].L / ar_beams[bbeam].refL);
 
-                    if (fabs(current - ar_beams[bbeam].centerLength) < 0.0001)
+                    if (fabs(current - cmd_beam.cmb_center_length) < 0.0001)
                     {
                         // hold condition
                         cmd_beam.cmb_auto_moving_mode = 0;
@@ -965,7 +957,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
                         int mode = cmd_beam.cmb_auto_moving_mode;
 
                         // determine direction
-                        if (current > ar_beams[bbeam].centerLength)
+                        if (current > cmd_beam.cmb_center_length)
                             cmd_beam.cmb_auto_moving_mode = -1;
                         else
                             cmd_beam.cmb_auto_moving_mode = 1;
@@ -973,7 +965,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
                         // avoid overshooting
                         if (mode != 0 && mode != cmd_beam.cmb_auto_moving_mode)
                         {
-                            ar_beams[bbeam].L = ar_beams[bbeam].centerLength * ar_beams[bbeam].refL;
+                            ar_beams[bbeam].L = cmd_beam.cmb_center_length * ar_beams[bbeam].refL;
                             cmd_beam.cmb_auto_moving_mode = 0;
                         }
                     }
@@ -989,12 +981,12 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
                         if (cmd_beam.cmb_is_1press_center)
                         {
                             // one press + centering
-                            if (bbeam_dir * cmd_beam.cmb_auto_moving_mode > 0 && bbeam_dir * clen > bbeam_dir * ar_beams[bbeam].centerLength && !cmd_beam.cmb_pressed_center_mode)
+                            if (bbeam_dir * cmd_beam.cmb_auto_moving_mode > 0 && bbeam_dir * clen > bbeam_dir * cmd_beam.cmb_center_length && !cmd_beam.cmb_pressed_center_mode)
                             {
                                 cmd_beam.cmb_pressed_center_mode = true;
                                 cmd_beam.cmb_auto_moving_mode = 0;
                             }
-                            else if (bbeam_dir * cmd_beam.cmb_auto_moving_mode < 0 && bbeam_dir * clen > bbeam_dir * ar_beams[bbeam].centerLength && cmd_beam.cmb_pressed_center_mode)
+                            else if (bbeam_dir * cmd_beam.cmb_auto_moving_mode < 0 && bbeam_dir * clen > bbeam_dir * cmd_beam.cmb_center_length && cmd_beam.cmb_pressed_center_mode)
                             {
                                 cmd_beam.cmb_pressed_center_mode = false;
                             }
@@ -1029,7 +1021,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
                         if (cmd_beam.cmb_needs_engine && ((ar_engine && !ar_engine->IsRunning()) || !ar_engine_hydraulics_ready))
                             continue;
 
-                        if (v > 0.0f && ar_beams[bbeam].commandEngineCoupling > 0.0f)
+                        if (v > 0.0f && cmd_beam.cmb_engine_coupling > 0.0f)
                             requestpower = true;
 
 #ifdef USE_OPENAL
@@ -1058,7 +1050,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
 #endif //USE_OPENAL
                         float cf = 1.0f;
 
-                        if (ar_beams[bbeam].commandEngineCoupling > 0)
+                        if (cmd_beam.cmb_engine_coupling > 0)
                             cf = crankfactor;
 
                         if (bbeam_dir > 0)
@@ -1070,7 +1062,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
                         if (requestpower)
                         {
                             active++;
-                            work += fabs(ar_beams[bbeam].stress) * dl * ar_beams[bbeam].commandEngineCoupling;
+                            work += fabs(ar_beams[bbeam].stress) * dl * cmd_beam.cmb_engine_coupling;
                         }
                     }
                     else if ((cmd_beam.cmb_is_1press || cmd_beam.cmb_is_1press_center) && bbeam_dir * cmd_beam.cmb_auto_moving_mode > 0)

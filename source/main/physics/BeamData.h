@@ -292,10 +292,13 @@ struct command_t
         CmdBeam() { memset(this, 0, sizeof(CmdBeam)); }
 
         uint16_t cmb_beam_index;            //!< Index to Actor::ar_beams array
+        float    cmb_engine_coupling;       //!< Attr from truckfile
+        float    cmb_center_length;         //!< Attr computed at spawn
         int8_t   cmb_auto_moving_mode;      //!< State
         // Bit flags
         bool     cmb_is_contraction:1;      //!< Attribute defined at spawn
         bool     cmb_pressed_center_mode:1; //!< State
+        bool     cmb_auto_move_lock:1;      //!< State
         bool     cmb_is_force_restricted:1; //!< Attribute defined in truckfile
         bool     cmb_needs_engine:1;        //!< Attribute defined in truckfile
         bool     cmb_is_autocentering:1;    //!< Attribute defined in truckfile
