@@ -958,23 +958,23 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
                     if (fabs(current - ar_beams[bbeam].centerLength) < 0.0001)
                     {
                         // hold condition
-                        ar_beams[bbeam].autoMovingMode = 0;
+                        cmd_beam.cmb_auto_moving_mode = 0;
                     }
                     else
                     {
-                        int mode = ar_beams[bbeam].autoMovingMode;
+                        int mode = cmd_beam.cmb_auto_moving_mode;
 
                         // determine direction
                         if (current > ar_beams[bbeam].centerLength)
-                            ar_beams[bbeam].autoMovingMode = -1;
+                            cmd_beam.cmb_auto_moving_mode = -1;
                         else
-                            ar_beams[bbeam].autoMovingMode = 1;
+                            cmd_beam.cmb_auto_moving_mode = 1;
 
                         // avoid overshooting
-                        if (mode != 0 && mode != ar_beams[bbeam].autoMovingMode)
+                        if (mode != 0 && mode != cmd_beam.cmb_auto_moving_mode)
                         {
                             ar_beams[bbeam].L = ar_beams[bbeam].centerLength * ar_beams[bbeam].refL;
-                            ar_beams[bbeam].autoMovingMode = 0;
+                            cmd_beam.cmb_auto_moving_mode = 0;
                         }
                     }
                 }
@@ -989,12 +989,12 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
                         if (ar_beams[bbeam].isOnePressMode == 2)
                         {
                             // one press + centering
-                            if (bbeam_dir * ar_beams[bbeam].autoMovingMode > 0 && bbeam_dir * clen > bbeam_dir * ar_beams[bbeam].centerLength && !cmd_beam.cmb_pressed_center_mode)
+                            if (bbeam_dir * cmd_beam.cmb_auto_moving_mode > 0 && bbeam_dir * clen > bbeam_dir * ar_beams[bbeam].centerLength && !cmd_beam.cmb_pressed_center_mode)
                             {
                                 cmd_beam.cmb_pressed_center_mode = true;
-                                ar_beams[bbeam].autoMovingMode = 0;
+                                cmd_beam.cmb_auto_moving_mode = 0;
                             }
-                            else if (bbeam_dir * ar_beams[bbeam].autoMovingMode < 0 && bbeam_dir * clen > bbeam_dir * ar_beams[bbeam].centerLength && cmd_beam.cmb_pressed_center_mode)
+                            else if (bbeam_dir * cmd_beam.cmb_auto_moving_mode < 0 && bbeam_dir * clen > bbeam_dir * ar_beams[bbeam].centerLength && cmd_beam.cmb_pressed_center_mode)
                             {
                                 cmd_beam.cmb_pressed_center_mode = false;
                             }
@@ -1002,28 +1002,28 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
                         if (ar_beams[bbeam].isOnePressMode > 0)
                         {
                             bool key = (v > 0.5);
-                            if (bbeam_dir * ar_beams[bbeam].autoMovingMode <= 0 && key)
+                            if (bbeam_dir * cmd_beam.cmb_auto_moving_mode <= 0 && key)
                             {
-                                ar_beams[bbeam].autoMovingMode = bbeam_dir * 1;
+                                cmd_beam.cmb_auto_moving_mode = bbeam_dir * 1;
                             }
-                            else if (ar_beams[bbeam].autoMovingMode == bbeam_dir * 1 && !key)
+                            else if (cmd_beam.cmb_auto_moving_mode == bbeam_dir * 1 && !key)
                             {
-                                ar_beams[bbeam].autoMovingMode = bbeam_dir * 2;
+                                cmd_beam.cmb_auto_moving_mode = bbeam_dir * 2;
                             }
-                            else if (ar_beams[bbeam].autoMovingMode == bbeam_dir * 2 && key)
+                            else if (cmd_beam.cmb_auto_moving_mode == bbeam_dir * 2 && key)
                             {
-                                ar_beams[bbeam].autoMovingMode = bbeam_dir * 3;
+                                cmd_beam.cmb_auto_moving_mode = bbeam_dir * 3;
                             }
-                            else if (ar_beams[bbeam].autoMovingMode == bbeam_dir * 3 && !key)
+                            else if (cmd_beam.cmb_auto_moving_mode == bbeam_dir * 3 && !key)
                             {
-                                ar_beams[bbeam].autoMovingMode = 0;
+                                cmd_beam.cmb_auto_moving_mode = 0;
                             }
                         }
 
                         if (m_command_inertia)
                             v = m_command_inertia->calcCmdKeyDelay(v, i, dt);
 
-                        if (bbeam_dir * ar_beams[bbeam].autoMovingMode > 0)
+                        if (bbeam_dir * cmd_beam.cmb_auto_moving_mode > 0)
                             v = 1;
 
                         if (cmd_beam.cmb_needs_engine && ((ar_engine && !ar_engine->IsRunning()) || !ar_engine_hydraulics_ready))
@@ -1073,10 +1073,10 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
                             work += fabs(ar_beams[bbeam].stress) * dl * ar_beams[bbeam].commandEngineCoupling;
                         }
                     }
-                    else if (ar_beams[bbeam].isOnePressMode > 0 && bbeam_dir * ar_beams[bbeam].autoMovingMode > 0)
+                    else if (ar_beams[bbeam].isOnePressMode > 0 && bbeam_dir * cmd_beam.cmb_auto_moving_mode > 0)
                     {
                         // beyond length
-                        ar_beams[bbeam].autoMovingMode = 0;
+                        cmd_beam.cmb_auto_moving_mode = 0;
                     }
                 }
             }

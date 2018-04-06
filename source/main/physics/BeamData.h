@@ -289,7 +289,10 @@ struct command_t
 {
     struct CmdBeam //!< Per-beam 'command' (=user controlled hydraulic) data
     {
+        CmdBeam() { memset(this, 0, sizeof(CmdBeam)); }
+
         uint16_t cmb_beam_index;            //!< Index to Actor::ar_beams array
+        int8_t   cmb_auto_moving_mode;      //!< State
         // Bit flags
         bool     cmb_is_contraction:1;      //!< Attribute defined at spawn
         bool     cmb_pressed_center_mode:1; //!< State

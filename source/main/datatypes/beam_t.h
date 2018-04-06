@@ -89,7 +89,6 @@ struct beam_t
     int animFlags;
     int hydroFlags;
     short isOnePressMode;
-    char autoMovingMode;
     bool playsSound;
 
     Ogre::Real maxtiestress;
