@@ -2720,8 +2720,6 @@ void ActorSpawner::ProcessTie(RigDef::Tie & def)
     beam.refL = def.max_reach_length;
     beam.bounded = ROPE;
     beam.bm_disabled = true;
-    beam.commandRatioLong = def.auto_shorten_rate;
-    beam.commandRatioShort = def.auto_shorten_rate;
     beam.commandShort = def.min_length;
     beam.commandLong = def.max_length;
     beam.maxtiestress = def.max_stress;
@@ -2734,6 +2732,7 @@ void ActorSpawner::ProcessTie(RigDef::Tie & def)
     tie.ti_tied = false;
     tie.ti_beam = & beam;
     tie.ti_command_value = -1.f;
+    tie.ti_contract_speed = def.auto_shorten_rate;
     m_actor->ar_ties.push_back(tie);
 
     m_actor->m_has_command_beams = true;
@@ -3418,8 +3417,6 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
     if (def.option_i_invisible)     { beam.bm_type = BEAM_INVISIBLE_HYDRO; }
     if (def.option_r_rope)          { beam.bounded = ROPE; }
 
-    beam.commandRatioShort     = def.shorten_rate;
-    beam.commandRatioLong      = def.lengthen_rate;
     beam.commandShort          = def.max_contraction;
     beam.commandLong           = def.max_extension;
 
@@ -3441,6 +3438,7 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
     commandbeam_t cmd_beam;
     cmd_beam.cmb_beam_index = static_cast<uint16_t>(beam_index);
     cmd_beam.cmb_is_contraction = true;
+    cmd_beam.cmb_speed = def.shorten_rate;
     cmd_beam.cmb_is_force_restricted = def.option_f_not_faster;
     cmd_beam.cmb_is_autocentering = def.option_c_auto_center;
     cmd_beam.cmb_needs_engine = def.needs_engine;
@@ -3457,6 +3455,7 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
 
     command_t* extend_command = &m_actor->ar_command_key[def.extend_key];
     cmd_beam.cmb_is_contraction = false;
+    cmd_beam.cmb_speed = def.lengthen_rate;
     extend_command->beams.push_back(cmd_beam);
     if (extend_command->description.empty())
     {
@@ -6080,8 +6079,6 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
         beam.bm_disabled       = true;
         beam.L                 = HOOK_RANGE_DEFAULT;
         beam.refL              = HOOK_RANGE_DEFAULT;
-        beam.commandRatioShort = HOOK_SPEED_DEFAULT;
-        beam.commandRatioLong  = HOOK_SPEED_DEFAULT;
         beam.commandShort      = 0.0f;
         beam.commandLong       = 1.0f;
         beam.maxtiestress      = HOOK_FORCE_DEFAULT;

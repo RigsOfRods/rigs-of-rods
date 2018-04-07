@@ -1059,9 +1059,9 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
                             cf = crankfactor;
 
                         if (bbeam_dir > 0)
-                            ar_beams[bbeam].L *= (1.0 + ar_beams[bbeam].commandRatioLong * v * cf * dt / ar_beams[bbeam].L);
+                            ar_beams[bbeam].L *= (1.0 + cmd_beam.cmb_speed * v * cf * dt / ar_beams[bbeam].L);
                         else
-                            ar_beams[bbeam].L *= (1.0 - ar_beams[bbeam].commandRatioShort * v * cf * dt / ar_beams[bbeam].L);
+                            ar_beams[bbeam].L *= (1.0 - cmd_beam.cmb_speed * v * cf * dt / ar_beams[bbeam].L);
 
                         dl = fabs(dl - ar_beams[bbeam].L);
                         if (requestpower)
@@ -1189,7 +1189,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
         float clen = it->ti_beam->L / it->ti_beam->refL;
         if (clen > it->ti_beam->commandShort)
         {
-            it->ti_beam->L *= (1.0 - it->ti_beam->commandRatioShort * dt / it->ti_beam->L);
+            it->ti_beam->L *= (1.0 - it->ti_contract_speed * dt / it->ti_beam->L);
         }
         else
         {
