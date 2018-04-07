@@ -2720,8 +2720,6 @@ void ActorSpawner::ProcessTie(RigDef::Tie & def)
     beam.refL = def.max_reach_length;
     beam.bounded = ROPE;
     beam.bm_disabled = true;
-    beam.commandShort = def.min_length;
-    beam.commandLong = def.max_length;
     CreateBeamVisuals(beam, beam_index, def.beam_defaults);
 
     /* Register tie */
@@ -2733,6 +2731,7 @@ void ActorSpawner::ProcessTie(RigDef::Tie & def)
     tie.ti_command_value = -1.f;
     tie.ti_contract_speed = def.auto_shorten_rate;
     tie.ti_max_stress = def.max_stress;
+    tie.ti_min_length = def.min_length;
     m_actor->ar_ties.push_back(tie);
 
     m_actor->m_has_command_beams = true;
@@ -3051,7 +3050,7 @@ void ActorSpawner::ProcessHook(RigDef::Hook & def)
     hook->hk_lockgroup = def.option_lockgroup;
     hook->hk_timer     = 0.f; // Hardcoded in BTS_HOOKS
     hook->hk_timer_preset = def.option_timer;
-    hook->hk_beam->commandShort = def.option_min_range_meters;
+    hook->hk_min_length = def.option_min_range_meters;
     hook->hk_selflock = BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_SELF_LOCK);
     hook->hk_nodisable = BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_NO_DISABLE);
     if (BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_AUTO_LOCK))
@@ -3417,9 +3416,6 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
     if (def.option_i_invisible)     { beam.bm_type = BEAM_INVISIBLE_HYDRO; }
     if (def.option_r_rope)          { beam.bounded = ROPE; }
 
-    beam.commandShort          = def.max_contraction;
-    beam.commandLong           = def.max_extension;
-
     /* set the middle of the command, so its not required to recalculate this everytime ... */
     float center_length = 0.f;
     if (def.max_extension > def.max_contraction)
@@ -3439,6 +3435,7 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
     cmd_beam.cmb_beam_index = static_cast<uint16_t>(beam_index);
     cmd_beam.cmb_is_contraction = true;
     cmd_beam.cmb_speed = def.shorten_rate;
+    cmd_beam.cmb_boundary_length = def.max_contraction;
     cmd_beam.cmb_is_force_restricted = def.option_f_not_faster;
     cmd_beam.cmb_is_autocentering = def.option_c_auto_center;
     cmd_beam.cmb_needs_engine = def.needs_engine;
@@ -3456,6 +3453,7 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
     command_t* extend_command = &m_actor->ar_command_key[def.extend_key];
     cmd_beam.cmb_is_contraction = false;
     cmd_beam.cmb_speed = def.lengthen_rate;
+    cmd_beam.cmb_boundary_length = def.max_extension;
     extend_command->beams.push_back(cmd_beam);
     if (extend_command->description.empty())
     {
@@ -6079,8 +6077,6 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
         beam.bm_disabled       = true;
         beam.L                 = HOOK_RANGE_DEFAULT;
         beam.refL              = HOOK_RANGE_DEFAULT;
-        beam.commandShort      = 0.0f;
-        beam.commandLong       = 1.0f;
         SetBeamDeformationThreshold(beam, def.beam_defaults);
         CreateBeamVisuals(beam, beam_index, def.beam_defaults);
             
@@ -6102,6 +6098,7 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
         hook.hk_timer             = 0.0f;
         hook.hk_timer_preset      = HOOK_LOCK_TIMER_DEFAULT;
         hook.hk_autolock          = false;
+        hook.hk_min_length        = 0.f;
         m_actor->ar_hooks.push_back(hook);
     }
     AdjustNodeBuoyancy(node, def, def.node_defaults);

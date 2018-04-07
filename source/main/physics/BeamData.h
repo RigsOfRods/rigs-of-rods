@@ -242,6 +242,7 @@ struct hook_t
     float   hk_lockspeed;
     float   hk_timer;
     float   hk_timer_preset;
+    float   hk_min_length; //!< Absolute value in meters
     node_t* hk_hook_node;
     node_t* hk_lock_node;
     beam_t* hk_beam;
@@ -278,6 +279,7 @@ struct tie_t
     float      ti_command_value;
     float      ti_contract_speed;
     float      ti_max_stress;
+    float      ti_min_length; //!< Proportional to orig; length
 };
 
 
@@ -295,6 +297,7 @@ struct commandbeam_t
     float    cmb_engine_coupling;       //!< Attr from truckfile
     float    cmb_center_length;         //!< Attr computed at spawn
     float    cmb_speed;                 //!< Attr; Rate of contraction/extension
+    float    cmb_boundary_length;       //!< Attr; Maximum/minimum length proportional to orig. len.
     int8_t   cmb_auto_moving_mode;      //!< State
 
     // Bit flags

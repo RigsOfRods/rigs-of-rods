@@ -75,8 +75,6 @@ struct beam_t
     Ogre::Real shortbound;
     Ogre::Real longbound;
     Ogre::Real refL;       //!< reference length
-    Ogre::Real commandShort; //<! Max. contraction; proportional to orig. length // Used by commands/hooks/ties
-    Ogre::Real commandLong;  //<! Max. extension; proportional to orig. length // Used by commands/hooks/ties
     float animOption;
     int animFlags;
 

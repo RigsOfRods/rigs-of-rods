@@ -979,7 +979,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
                 if (ar_beams[bbeam].refL != 0 && ar_beams[bbeam].L != 0)
                 {
                     float clen = ar_beams[bbeam].L / ar_beams[bbeam].refL;
-                    if ((bbeam_dir > 0 && clen < ar_beams[bbeam].commandLong) || (bbeam_dir < 0 && clen > ar_beams[bbeam].commandShort))
+                    if ((bbeam_dir > 0 && clen < cmd_beam.cmb_boundary_length) || (bbeam_dir < 0 && clen > cmd_beam.cmb_boundary_length))
                     {
                         float dl = ar_beams[bbeam].L;
 
@@ -1187,7 +1187,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
             continue;
 
         float clen = it->ti_beam->L / it->ti_beam->refL;
-        if (clen > it->ti_beam->commandShort)
+        if (clen > it->ti_min_length)
         {
             it->ti_beam->L *= (1.0 - it->ti_contract_speed * dt / it->ti_beam->L);
         }
@@ -1930,7 +1930,7 @@ void Actor::calcHooks()
             }
             else
             {
-                if (it->hk_beam->L < it->hk_beam->commandShort)
+                if (it->hk_beam->L < it->hk_min_length)
                 {
                     //shortlimit reached -> status LOCKED
                     it->hk_locked = LOCKED;
