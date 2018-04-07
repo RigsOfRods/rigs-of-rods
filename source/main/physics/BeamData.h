@@ -277,6 +277,7 @@ struct tie_t
     bool       ti_tying;
     float      ti_command_value;
     float      ti_contract_speed;
+    float      ti_max_stress;
 };
 
 

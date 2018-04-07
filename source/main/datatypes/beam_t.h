@@ -80,7 +80,6 @@ struct beam_t
     float animOption;
     int animFlags;
 
-    Ogre::Real maxtiestress;
     Ogre::Real diameter;
 
     shock_t *shock;

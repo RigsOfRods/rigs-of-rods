@@ -2722,7 +2722,6 @@ void ActorSpawner::ProcessTie(RigDef::Tie & def)
     beam.bm_disabled = true;
     beam.commandShort = def.min_length;
     beam.commandLong = def.max_length;
-    beam.maxtiestress = def.max_stress;
     CreateBeamVisuals(beam, beam_index, def.beam_defaults);
 
     /* Register tie */
@@ -2733,6 +2732,7 @@ void ActorSpawner::ProcessTie(RigDef::Tie & def)
     tie.ti_beam = & beam;
     tie.ti_command_value = -1.f;
     tie.ti_contract_speed = def.auto_shorten_rate;
+    tie.ti_max_stress = def.max_stress;
     m_actor->ar_ties.push_back(tie);
 
     m_actor->m_has_command_beams = true;
@@ -6081,7 +6081,6 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
         beam.refL              = HOOK_RANGE_DEFAULT;
         beam.commandShort      = 0.0f;
         beam.commandLong       = 1.0f;
-        beam.maxtiestress      = HOOK_FORCE_DEFAULT;
         SetBeamDeformationThreshold(beam, def.beam_defaults);
         CreateBeamVisuals(beam, beam_index, def.beam_defaults);
             

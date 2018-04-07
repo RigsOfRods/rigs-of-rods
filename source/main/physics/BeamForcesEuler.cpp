@@ -1198,8 +1198,10 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
         }
 
         // check if we hit a certain force limit, then abort the tying process
-        if (fabs(it->ti_beam->stress) > it->ti_beam->maxtiestress)
+        if (fabs(it->ti_beam->stress) > it->ti_max_stress)
+        {
             it->ti_tying = false;
+        }
     }
 
     // we also store a new replay frame
