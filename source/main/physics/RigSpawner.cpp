@@ -6747,9 +6747,9 @@ void ActorSpawner::UpdateCollcabContacterNodes()
     for (int i=0; i<m_actor->ar_num_collcabs; i++)
     {
         int tmpv = m_actor->ar_collcabs[i] * 3;
-        m_actor->ar_nodes[m_actor->ar_cabs[tmpv]].contacter = true;
-        m_actor->ar_nodes[m_actor->ar_cabs[tmpv+1]].contacter = true;
-        m_actor->ar_nodes[m_actor->ar_cabs[tmpv+2]].contacter = true;
+        m_actor->ar_nodes[m_actor->ar_cabs[tmpv]].nd_contacter = true;
+        m_actor->ar_nodes[m_actor->ar_cabs[tmpv+1]].nd_contacter = true;
+        m_actor->ar_nodes[m_actor->ar_cabs[tmpv+2]].nd_contacter = true;
     }
 }
 

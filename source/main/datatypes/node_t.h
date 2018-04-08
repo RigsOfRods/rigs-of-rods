@@ -34,8 +34,6 @@ struct node_t
     bool disable_particles;
     bool disable_sparks;
 
-    // <-- 64 Bytes -->
-
     Ogre::Real buoyancy;
     Ogre::Real friction_coef;
     Ogre::Real surface_coef;
@@ -49,7 +47,7 @@ struct node_t
     char wetstate; //!< {DRY | DRIPPING | WET}
     char collisionBoundingBoxID;
 
-    bool contacter;
+    
     bool overrideMass;
     bool loadedMass;
     bool isHot;    //!< Makes this node emit vapour particles when in contact with water.
@@ -57,6 +55,7 @@ struct node_t
     Ogre::Vector3 initial_pos;
     
     // Bit flags
-    bool           nd_immovable: 1;
-    bool           nd_no_mouse_grab:1;
+    bool           nd_immovable: 1;     //!< Attr; User-defined
+    bool           nd_no_mouse_grab:1;  //!< Attr; User-defined
+    bool           nd_contacter:1;      //!< Attr; This node is part of collision triangle
 };
