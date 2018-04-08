@@ -4032,7 +4032,7 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
                     for (int i = 0; i < actor_slots[t]->ar_num_nodes; i++)
                     {
                         // skip all nodes with lockgroup 9999 (deny lock)
-                        if (actor_slots[t]->ar_nodes[i].lockgroup == 9999)
+                        if (actor_slots[t]->ar_nodes[i].nd_lockgroup == 9999)
                             continue;
 
                         // exclude this truck and its current hooknode from the locking search
@@ -4040,7 +4040,7 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
                             continue;
 
                         // a lockgroup for this hooknode is set -> skip all nodes that do not have the same lockgroup (-1 = default(all nodes))
-                        if (it->hk_lockgroup != -1 && it->hk_lockgroup != actor_slots[t]->ar_nodes[i].lockgroup)
+                        if (it->hk_lockgroup != -1 && it->hk_lockgroup != actor_slots[t]->ar_nodes[i].nd_lockgroup)
                             continue;
 
                         // measure distance

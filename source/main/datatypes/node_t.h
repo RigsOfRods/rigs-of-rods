@@ -44,7 +44,7 @@ struct node_t
 
     float wettime; //!< Cumulative time this node has been wet. When wet, dripping particles are produced.
     short wheelid; //!< Wheel index
-    short lockgroup;
+    short nd_lockgroup;
     short pos;     //!< This node's index in Actor::ar_nodes array.
     short id;      //!< Numeric identifier assigned in truckfile (if used), or -1 if the node was generated dynamically.
     char wetstate; //!< {DRY | DRIPPING | WET}

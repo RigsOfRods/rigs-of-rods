@@ -3079,7 +3079,7 @@ void ActorSpawner::ProcessLockgroup(RigDef::Lockgroup & lockgroup)
     auto end  = lockgroup.nodes.end();
     for (; itor != end; ++itor)
     {
-        GetNodeOrThrow(*itor).lockgroup = lockgroup.number;
+        GetNodeOrThrow(*itor).nd_lockgroup = lockgroup.number;
     }
 }
 
@@ -6044,7 +6044,7 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     }
 
     /* Lockgroup */
-    node.lockgroup = (m_file->lockgroup_default_nolock) ? RigDef::Lockgroup::LOCKGROUP_NOLOCK : RigDef::Lockgroup::LOCKGROUP_DEFAULT;
+    node.nd_lockgroup = (m_file->lockgroup_default_nolock) ? RigDef::Lockgroup::LOCKGROUP_NOLOCK : RigDef::Lockgroup::LOCKGROUP_DEFAULT;
 
     /* Options */
     unsigned int options = def.options | def.node_defaults->options; /* Merge bit flags */
