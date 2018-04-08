@@ -55,7 +55,8 @@ struct node_t
     bool isHot;    //!< Makes this node emit vapour particles when in contact with water.
 
     Ogre::Vector3 initial_pos;
-    bool          no_mouse_grab;
-
+    
+    // Bit flags
     bool           nd_immovable: 1;
+    bool           nd_no_mouse_grab:1;
 };

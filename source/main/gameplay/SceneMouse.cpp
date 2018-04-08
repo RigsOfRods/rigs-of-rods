@@ -140,7 +140,7 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
 
                 for (int j = 0; j < trucks[i]->ar_num_nodes; j++)
                 {
-                    if (trucks[i]->ar_nodes[j].no_mouse_grab)
+                    if (trucks[i]->ar_nodes[j].nd_no_mouse_grab)
                         continue;
 
                     // check if our ray intersects with the node
