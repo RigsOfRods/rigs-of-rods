@@ -358,15 +358,8 @@ const ImU32 NODE_COLOR               (0xff44ddff);
 const float NODE_RADIUS              (2.f);
 const ImU32 NODE_TEXT_COLOR          (0xffcccccf); // node ID text color
 const ImU32 NODE_MASS_TEXT_COLOR     (0xff77bb66);
-const ImU32 NODE_PRELOCK_COLOR       (0xffee9933); // PRELOCK/LOCKED states are indicated by extra circle around node
-const float NODE_PRELOCK_THICKNESS   (2.3f);
-const float NODE_PRELOCK_RADIUS      (4.f);
-const ImU32 NODE_LOCKED_COLOR        (0xffbb8844);
-const float NODE_LOCKED_THICKNESS    (1.4f);
-const float NODE_LOCKED_RADIUS       (2.6f);
-const ImU32 NODE_PREUNLOCK_COLOR     (0xffbb8899);
-const float NODE_PREUNLOCK_THICKNESS (1.9f);
-const float NODE_PREUNLOCK_RADIUS    (3.8f);
+const ImU32 NODE_IMMOVABLE_COLOR     (0xff0033ff);
+const float NODE_IMMOVABLE_RADIUS    (2.8f);
 
 void RoR::GfxActor::UpdateDebugView()
 {
@@ -469,14 +462,13 @@ void RoR::GfxActor::UpdateDebugView()
             if (pos_xyz.z < 0.f)
             {
                 ImVec2 pos(pos_xyz.x, pos_xyz.y);
-                drawlist->AddCircleFilled(pos, NODE_RADIUS, NODE_COLOR);
-
-                switch (nodes[i].locked)
+                if (nodes[i].nd_immovable)
                 {
-                case PRELOCK:   drawlist->AddCircle(pos, NODE_PRELOCK_RADIUS,   NODE_PRELOCK_COLOR,   12, NODE_PRELOCK_THICKNESS);
-                case LOCKED:    drawlist->AddCircle(pos, NODE_LOCKED_RADIUS,    NODE_LOCKED_COLOR,    12, NODE_LOCKED_THICKNESS);
-                case PREUNLOCK: drawlist->AddCircle(pos, NODE_PREUNLOCK_RADIUS, NODE_PREUNLOCK_COLOR, 12, NODE_PREUNLOCK_THICKNESS);
-                default:; // No marker displayed on state `UNLOCKED`
+                    drawlist->AddCircleFilled(pos, NODE_IMMOVABLE_RADIUS, NODE_IMMOVABLE_COLOR);
+                }
+                else
+                {
+                    drawlist->AddCircleFilled(pos, NODE_RADIUS, NODE_COLOR);
                 }
             }
         }

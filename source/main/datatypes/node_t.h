@@ -28,7 +28,6 @@ struct node_t
     Ogre::Real mass;
     float collTestTimer;
     short iswheel; //!< 0=no, 1, 2=wheel1  3,4=wheel2, etc...
-    short locked;  //!< {UNLOCKED | PRELOCK | LOCKED}
 
     bool contacted;
     bool contactless;
@@ -57,4 +56,6 @@ struct node_t
 
     Ogre::Vector3 initial_pos;
     bool          no_mouse_grab;
+
+    bool           nd_immovable: 1;
 };

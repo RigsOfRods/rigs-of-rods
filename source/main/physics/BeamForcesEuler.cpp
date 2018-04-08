@@ -1802,7 +1802,7 @@ void Actor::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
         }
 
         // integration
-        if (!ar_nodes[i].locked)
+        if (!ar_nodes[i].nd_immovable)
         {
             ar_nodes[i].Velocity += ar_nodes[i].Forces / ar_nodes[i].mass * dt;
             ar_nodes[i].RelPosition += ar_nodes[i].Velocity * dt;

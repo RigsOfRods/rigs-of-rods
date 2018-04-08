@@ -1344,7 +1344,7 @@ void ActorSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
 void ActorSpawner::ProcessFixedNode(RigDef::Node::Ref node_ref)
 {
     node_t & node = GetNodeOrThrow(node_ref);
-    node.locked = 1;
+    node.nd_immovable = true;
 }
 
 void ActorSpawner::ProcessExhaust(RigDef::Exhaust & def)
