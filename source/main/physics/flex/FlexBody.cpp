@@ -757,7 +757,7 @@ void FlexBody::updateBlend() //so easy!
     {
         node_t *nd = &m_nodes[m_locators[i].ref];
         ARGB col = m_src_colors[i];
-        if (nd->contacted && !(col&0xFF000000))
+        if (nd->nd_has_contact && !(col&0xFF000000))
         {
             m_src_colors[i]=col|0xFF000000;
             changed = true;

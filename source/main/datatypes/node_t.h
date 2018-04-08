@@ -29,7 +29,6 @@ struct node_t
     float collTestTimer;
     short iswheel; //!< 0=no, 1, 2=wheel1  3,4=wheel2, etc...
 
-    bool contacted;
     bool disable_particles;
     bool disable_sparks;
 
@@ -58,4 +57,5 @@ struct node_t
     bool           nd_no_mouse_grab:1;  //!< Attr; User-defined
     bool           nd_contacter:1;      //!< Attr; This node is part of collision triangle
     bool           nd_no_ground_contact:1;  //!< User-defined attr; node ignores contact with ground
+    bool           nd_has_contact:1;    //!< Physics state
 };
