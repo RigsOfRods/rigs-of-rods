@@ -1031,7 +1031,7 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
         // Test proximity of own nodes against others nodes
         for (int i = 0; i < ar_num_nodes; i++)
         {
-            if (ar_nodes[i].contactless)
+            if (ar_nodes[i].nd_no_ground_contact)
                 continue;
             if (collision_offset.length() >= max_distance)
                 break;
@@ -1044,7 +1044,7 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
 
                 for (int j = 0; j < actors[t]->ar_num_nodes; j++)
                 {
-                    if (actors[t]->ar_nodes[j].contactless)
+                    if (actors[t]->ar_nodes[j].nd_no_ground_contact)
                         continue;
                     if (query_position.squaredDistance(actors[t]->ar_nodes[j].AbsPosition) < proximity)
                     {
@@ -1295,7 +1295,7 @@ void Actor::ResetPosition(float px, float pz, bool setInitPosition, float miny)
     }
     for (int i = 1; i < ar_num_nodes; i++)
     {
-        if (ar_nodes[i].contactless)
+        if (ar_nodes[i].nd_no_ground_contact)
             continue;
         float terrainHeight = App::GetSimTerrain()->GetHeightAt(ar_nodes[i].AbsPosition.x, ar_nodes[i].AbsPosition.z);
         vertical_offset += std::max(0.0f, terrainHeight - (ar_nodes[i].AbsPosition.y + vertical_offset));
@@ -1312,7 +1312,7 @@ void Actor::ResetPosition(float px, float pz, bool setInitPosition, float miny)
     {
         if (mesh_offset >= 1.0f)
             break;
-        if (ar_nodes[i].contactless)
+        if (ar_nodes[i].nd_no_ground_contact)
             continue;
         float offset = mesh_offset;
         while (offset < 1.0f)

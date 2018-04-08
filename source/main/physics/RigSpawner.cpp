@@ -4608,7 +4608,7 @@ int ActorSpawner::FindLowestContactingNodeInRig()
 
     for (int i = 0; i < m_actor->ar_num_nodes; i++)
     {
-        if (m_actor->ar_nodes[i].contactless) continue;
+        if (m_actor->ar_nodes[i].nd_no_ground_contact) continue;
         float y = m_actor->ar_nodes[i].AbsPosition.y;
         if (y < lowest_y)
         {
@@ -6102,7 +6102,7 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
         m_actor->ar_hooks.push_back(hook);
     }
     AdjustNodeBuoyancy(node, def, def.node_defaults);
-    node.contactless       = BITMASK_IS_1(options, RigDef::Node::OPTION_c_NO_GROUND_CONTACT);
+    node.nd_no_ground_contact = BITMASK_IS_1(options, RigDef::Node::OPTION_c_NO_GROUND_CONTACT);
     node.disable_particles = BITMASK_IS_1(options, RigDef::Node::OPTION_p_NO_PARTICLES);
     node.disable_sparks    = BITMASK_IS_1(options, RigDef::Node::OPTION_f_NO_SPARKS);
     node.nd_no_mouse_grab  = BITMASK_IS_1(options, RigDef::Node::OPTION_m_NO_MOUSE_GRAB);
@@ -6204,7 +6204,7 @@ void ActorSpawner::ProcessCinecam(RigDef::Cinecam & def)
     // Node
     Ogre::Vector3 node_pos = m_spawn_position + def.position;
     node_t & camera_node = GetAndInitFreeNode(node_pos);
-    camera_node.contactless = true; // Orig: hardcoded in BTS_CINECAM
+    camera_node.nd_no_ground_contact = true; // Orig: hardcoded in BTS_CINECAM
     camera_node.wheelid = -1;
     camera_node.friction_coef = NODE_FRICTION_COEF_DEFAULT; // Node defaults are ignored here.
     camera_node.id = -1;

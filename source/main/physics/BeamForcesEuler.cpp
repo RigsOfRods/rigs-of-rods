@@ -1694,7 +1694,7 @@ void Actor::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
         // wetness
         if (doUpdate)
         {
-            if (ar_nodes[i].wetstate == DRIPPING && !ar_nodes[i].contactless && !ar_nodes[i].disable_particles)
+            if (ar_nodes[i].wetstate == DRIPPING && !ar_nodes[i].nd_no_ground_contact && !ar_nodes[i].disable_particles)
             {
                 ar_nodes[i].wettime += dt * maxsteps;
                 if (ar_nodes[i].wettime > 5.0)
@@ -1712,7 +1712,7 @@ void Actor::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
         }
 
         // COLLISION
-        if (!ar_nodes[i].contactless)
+        if (!ar_nodes[i].nd_no_ground_contact)
         {
             ar_nodes[i].collTestTimer += dt;
             if (ar_nodes[i].contacted || ar_nodes[i].collTestTimer > 0.005 || ((ar_nodes[i].iswheel || ar_nodes[i].wheelid != -1) && (m_high_res_wheelnode_collisions || ar_nodes[i].collTestTimer > 0.0025)) || m_increased_accuracy)

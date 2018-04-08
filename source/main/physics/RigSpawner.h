@@ -837,7 +837,7 @@ private:
     int FindLowestNodeInRig();
 
     /**
-    * Finds node (contactless == false) with lowest Y in spawned rig.
+    * Finds node (nd_no_ground_contact == false) with lowest Y in spawned rig.
     */
     int FindLowestContactingNodeInRig();
 

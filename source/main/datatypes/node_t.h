@@ -30,7 +30,6 @@ struct node_t
     short iswheel; //!< 0=no, 1, 2=wheel1  3,4=wheel2, etc...
 
     bool contacted;
-    bool contactless;
     bool disable_particles;
     bool disable_sparks;
 
@@ -58,4 +57,5 @@ struct node_t
     bool           nd_immovable: 1;     //!< Attr; User-defined
     bool           nd_no_mouse_grab:1;  //!< Attr; User-defined
     bool           nd_contacter:1;      //!< Attr; This node is part of collision triangle
+    bool           nd_no_ground_contact:1;  //!< User-defined attr; node ignores contact with ground
 };
