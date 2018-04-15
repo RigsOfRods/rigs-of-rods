@@ -137,7 +137,6 @@ private:
     int             m_num_cpu_cores;
     Actor*          m_actors[MAX_ACTORS];//!< All actors; slots are not reused
     int             m_free_actor_slot;   //!< Slots are not reused
-    int             m_simulated_actor;   //!< A player actor if present, or any other local actor if present.
     bool            m_forced_awake;      //!< disables sleep counters
     unsigned long   m_physics_frames;
     int             m_physics_steps;

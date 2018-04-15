@@ -158,7 +158,6 @@ ActorManager::ActorManager()
     , m_num_cpu_cores(0)
     , m_physics_frames(0)
     , m_physics_steps(2000)
-    , m_simulated_actor(0)
     , m_simulation_speed(1.0f)
     , m_actors() // Array
 {
@@ -999,11 +998,6 @@ void ActorManager::WakeUpAllActors()
         {
             m_actors[t]->ar_sim_state = Actor::SimState::LOCAL_SIMULATED;
             m_actors[t]->ar_sleep_counter = 0.0f;
-
-            if (m_actors[m_simulated_actor])
-            {
-                m_actors[t]->ar_disable_aerodyn_turbulent_drag = (m_actors[m_simulated_actor]->ar_driveable == AIRPLANE);
-            }
         }
     }
 }
@@ -1342,29 +1336,31 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
         }
     }
 
-    m_simulated_actor = (player_actor != nullptr) ? player_actor->ar_instance_id : 1;
+    // A player actor if present, or any other local actor if present.
+    // TODO: This mechanism is plain weird, research and eliminate ~ only_a_ptr, 04/2018
+    Actor* simulated_actor = player_actor;
 
-    if (m_simulated_actor == -1)
+    if (simulated_actor == nullptr)
     {
         for (int t = 0; t < m_free_actor_slot; t++)
         {
             if (m_actors[t] && m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
             {
-                m_simulated_actor = t;
+                simulated_actor = m_actors[t]; 
                 break;
             }
         }
     }
 
-    if (m_simulated_actor >= 0 && m_simulated_actor < m_free_actor_slot)
+    if (simulated_actor != nullptr)
     {
-        if ((player_actor != nullptr) && (m_simulated_actor == player_actor->ar_instance_id))
+        if ((player_actor != nullptr) && (simulated_actor == player_actor))
         {
-            m_actors[m_simulated_actor]->updateDashBoards(dt);
+            simulated_actor->updateDashBoards(dt);
         }
-        if (!m_actors[m_simulated_actor]->ReplayStep())
+        if (!simulated_actor->ReplayStep())
         {
-            m_actors[m_simulated_actor]->ForceFeedbackStep(m_physics_steps);
+            simulated_actor->ForceFeedbackStep(m_physics_steps);
             if (m_sim_thread_pool)
             {
                 auto func = std::function<void()>([this]()
