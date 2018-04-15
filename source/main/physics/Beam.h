@@ -500,8 +500,6 @@ private:
     DustPool*         m_particles_dust;
     DustPool*         m_particles_sparks;
     DustPool*         m_particles_clump;
-    DustPool*         m_particles_splash;
-    DustPool*         m_particles_ripple;
     int               m_net_first_wheel_node;  //!< Network attr; Determines data buffer layout
     int               m_net_node_buf_size;     //!< Network attr; buffer size
     int               m_net_buffer_size;       //!< Network attr; buffer size

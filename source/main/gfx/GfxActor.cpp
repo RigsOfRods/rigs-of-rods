@@ -25,6 +25,7 @@
 #include "beam_t.h"
 #include "DustPool.h" // General particle gfx
 #include "GlobalEnvironment.h" // TODO: Eliminate!
+#include "RoRFrameListener.h" // SimController
 #include "SkyManager.h"
 #include "TerrainManager.h"
 #include "imgui.h"
@@ -41,6 +42,21 @@
 #include <OgreTextureManager.h>
 #include <OgreSceneManager.h>
 #include <OgreRenderWindow.h>
+
+RoR::GfxActor::GfxActor(Actor* actor, std::string ogre_resource_group, std::vector<NodeGfx>& gfx_nodes):
+    m_actor(actor),
+    m_custom_resource_group(ogre_resource_group),
+    m_vidcam_state(VideoCamState::VCSTATE_ENABLED_ONLINE),
+    m_debug_view(DebugViewType::DEBUGVIEW_NONE),
+    m_gfx_nodes(gfx_nodes)
+{
+    // Setup particles
+    DustManager& dustman = RoR::App::GetSimController()->GetBeamFactory()->GetParticleManager();
+    m_particles_drip   = dustman.getDustPool("drip");
+    m_particles_misc   = dustman.getDustPool("dust"); // Dust, water vapour...
+    m_particles_splash = dustman.getDustPool("splash");
+    m_particles_ripple = dustman.getDustPool("ripple");
+}
 
 RoR::GfxActor::~GfxActor()
 {
@@ -225,8 +241,8 @@ RoR::GfxActor::VideoCamera::VideoCamera():
     vcam_prop_scenenode(nullptr)          // Ogre::SceneNode*
 {}
 
-RoR::GfxActor::NodeGfx::NodeGfx():
-    nx_node_idx(std::numeric_limits<uint16_t>::max()), // invalid index
+RoR::GfxActor::NodeGfx::NodeGfx(uint16_t node_idx):
+    nx_node_idx(node_idx),
     nx_wet_time_sec(-1.f), // node is dry
     nx_no_particles(false),
     nx_may_get_wet(false),
@@ -355,12 +371,19 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
 
 void RoR::GfxActor::UpdateParticles(float dt_sec)
 {
+    float water_height = 0.f; // Unused if terrain has no water
+    if (App::GetSimTerrain()->getWater() != nullptr)
+    {
+        water_height = App::GetSimTerrain()->getWater()->GetStaticWaterHeight();
+    }
+
     for (NodeGfx& nfx: m_gfx_nodes)
     {
         const node_t& n = m_actor->ar_nodes[nfx.nx_node_idx];
 
+        // 'Wet' effects - water dripping and vapour
         if (nfx.nx_may_get_wet && !nfx.nx_no_particles)
-        {       
+        {
             // Getting out of water?
             if (!n.nd_under_water && nfx.nx_under_water_prev)
             {
@@ -385,6 +408,22 @@ void RoR::GfxActor::UpdateParticles(float dt_sec)
                     {
                         m_particles_misc->allocVapour(n.AbsPosition, n.Velocity, nfx.nx_wet_time_sec); // Water vapour particles
                     }
+                }
+            }
+        }
+
+        // Water splash and ripple
+        if (n.nd_under_water && !nfx.nx_no_particles)
+        {
+            if ((water_height - n.AbsPosition.y < 0.2f) && (n.Velocity.squaredLength() > 4.f))
+            {
+                if (m_particles_splash)
+                {
+                    m_particles_splash->allocSplash(n.AbsPosition, n.Velocity);
+                }
+                if (m_particles_ripple)
+                {
+                    m_particles_ripple->allocRipple(n.AbsPosition, n.Velocity);     
                 }
             }
         }

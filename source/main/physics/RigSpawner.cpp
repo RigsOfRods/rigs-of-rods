@@ -392,8 +392,6 @@ void ActorSpawner::InitializeRig()
     m_actor->m_particles_dust   = dustman.getDustPool("dust");
     m_actor->m_particles_sparks = dustman.getDustPool("sparks");
     m_actor->m_particles_clump  = dustman.getDustPool("clump");
-    m_actor->m_particles_splash = dustman.getDustPool("splash");
-    m_actor->m_particles_ripple = dustman.getDustPool("ripple");
 
     m_actor->m_command_inertia   = new CmdKeyInertia();
     m_actor->m_hydro_inertia = new CmdKeyInertia();
@@ -3994,6 +3992,8 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         outer_node.friction_coef = def.node_defaults->friction;
         AdjustNodeBuoyancy(outer_node, def.node_defaults);
 
+        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(outer_node.pos)));
+
         // Inner ring
         ray_point = axis_node_2->RelPosition + rim_ray_vector;
         rim_ray_vector = rim_ray_rotator * rim_ray_vector;
@@ -4006,6 +4006,8 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         inner_node.wheelid       = m_actor->ar_num_wheels;
         inner_node.friction_coef = def.node_defaults->friction;
         AdjustNodeBuoyancy(inner_node, def.node_defaults);
+
+        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(inner_node.pos)));
 
         // Wheel object
         wheel.wh_nodes[i * 2]       = & outer_node;
@@ -4039,6 +4041,8 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         outer_contacter.nodeid        = outer_node.pos; /* Node index */
         m_actor->ar_num_contacters++;
 
+        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(outer_node.pos)));
+
         // Inner ring
         ray_point = axis_node_2->RelPosition + tyre_ray_vector;
         tyre_ray_vector = tyre_ray_rotator * tyre_ray_vector;
@@ -4057,6 +4061,8 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         contacter_t & inner_contacter = m_actor->ar_contacters[m_actor->ar_num_contacters];
         inner_contacter.nodeid        = inner_node.pos; // Node index
         m_actor->ar_num_contacters++;
+
+        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(inner_node.pos)));
 
         // Wheel object
         wheel.wh_nodes[i * 2] = & outer_node;
@@ -4527,6 +4533,8 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
         outer_contacter.nodeid        = outer_node.pos; /* Node index */
         m_actor->ar_num_contacters++;
 
+        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(outer_node.pos)));
+
         /* Inner ring */
         ray_point = axis_node_2->RelPosition + ray_vector;
         ray_vector = ray_rotator * ray_vector;
@@ -4542,6 +4550,8 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
         contacter_t & contacter = m_actor->ar_contacters[m_actor->ar_num_contacters];
         contacter.nodeid        = inner_node.pos; /* Node index */
         m_actor->ar_num_contacters++;
+
+        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(inner_node.pos)));
 
         /* Wheel object */
         wheel.wh_nodes[i * 2] = & outer_node;
@@ -4987,6 +4997,8 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         outer_node.id      = -1; // Orig: hardcoded (addWheel2)
         outer_node.wheelid = m_actor->ar_num_wheels;
 
+        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(outer_node.pos)));
+
         /* Inner ring */
         ray_point = axis_node_2->RelPosition + rim_ray_vector;
 
@@ -4996,6 +5008,8 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         inner_node.iswheel = WHEEL_2;
         inner_node.id      = -1; // Orig: hardcoded (addWheel2)
         inner_node.wheelid = m_actor->ar_num_wheels;
+
+        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(inner_node.pos)));
 
         /* Wheel object */
         wheel.wh_nodes[i * 2] = & outer_node;
@@ -5028,6 +5042,8 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         contacter.nodeid        = outer_node.pos; /* Node index */
         m_actor->ar_num_contacters++;
 
+        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(outer_node.pos)));
+
         /* Inner ring */
         ray_point = axis_node_2->RelPosition + tyre_ray_vector;
 
@@ -5044,6 +5060,8 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         contacter_t & inner_contacter = m_actor->ar_contacters[m_actor->ar_num_contacters];
         inner_contacter.nodeid        = inner_node.pos; /* Node index */
         m_actor->ar_num_contacters++;
+
+        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(inner_node.pos)));
 
         /* Wheel object */
         wheel.wh_nodes[i * 2] = & outer_node;
@@ -6122,8 +6140,7 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     if (def.position.y > m_fuse_y_max) { m_fuse_y_max = def.position.y; }
 
     // GFX
-    GfxActor::NodeGfx nfx;
-    nfx.nx_node_idx     = static_cast<uint16_t>(node.pos);
+    GfxActor::NodeGfx nfx(static_cast<uint16_t>(node.pos));
     nfx.nx_no_particles = BITMASK_IS_1(options, RigDef::Node::OPTION_p_NO_PARTICLES);
     nfx.nx_may_get_wet  = BITMASK_IS_0(options, RigDef::Node::OPTION_c_NO_GROUND_CONTACT);
     m_gfx_nodes.push_back(nfx);
@@ -7011,11 +7028,8 @@ void ActorSpawner::FinalizeGfxSetup()
     // TODO &*&*
 
     // Create the actor
-    DustManager& dustman = RoR::App::GetSimController()->GetBeamFactory()->GetParticleManager();
     m_actor->m_gfx_actor = std::unique_ptr<RoR::GfxActor>(
-        new RoR::GfxActor(
-            m_actor, m_custom_resource_group,
-            dustman.getDustPool("drip"), dustman.getDustPool("dust"), m_gfx_nodes));
+        new RoR::GfxActor(m_actor, m_custom_resource_group, m_gfx_nodes));
 
     // Process special materials
     for (auto& entry: m_material_substitutions)

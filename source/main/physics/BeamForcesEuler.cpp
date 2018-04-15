@@ -1820,14 +1820,6 @@ void Actor::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                     ar_nodes[i].Forces -= (DEFAULT_WATERDRAG * speed) * ar_nodes[i].Velocity;
                     // basic buoyance
                     ar_nodes[i].Forces += ar_nodes[i].buoyancy * Vector3::UNIT_Y;
-                    // basic splashing
-                    if (doUpdate && water->GetStaticWaterHeight() - ar_nodes[i].AbsPosition.y < 0.2 && ar_nodes[i].Velocity.squaredLength() > 4.0 && !ar_nodes[i].disable_particles)
-                    {
-                        if (m_particles_splash)
-                            m_particles_splash->allocSplash(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity);
-                        if (m_particles_ripple)
-                            m_particles_ripple->allocRipple(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity);
-                    }
                 }
                 // engine stall
                 if (i == ar_cinecam_node[0] && ar_engine)
