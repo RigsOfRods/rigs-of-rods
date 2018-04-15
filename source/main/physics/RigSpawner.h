@@ -33,6 +33,7 @@
 #include "BeamData.h"
 #include "FlexFactory.h"
 #include "FlexObj.h"
+#include "GfxActor.h"
 
 #include <OgreString.h>
 #include <string>
@@ -1072,7 +1073,7 @@ private:
     Ogre::SceneNode*   m_curr_mirror_prop_scenenode;
     std::vector<CabTexcoord>  m_oldstyle_cab_texcoords;
     std::vector<CabSubmesh>   m_oldstyle_cab_submeshes;
-
+    std::vector<RoR::GfxActor::NodeGfx> m_gfx_nodes;
     CustomMaterial::MirrorPropType         m_curr_mirror_prop_type;
     std::shared_ptr<RigDef::File>          m_file; //!< The parsed input file.
     std::map<Ogre::String, unsigned int>   m_named_nodes;

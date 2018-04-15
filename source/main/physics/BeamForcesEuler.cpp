@@ -1691,26 +1691,6 @@ void Actor::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 
     for (int i = 0; i < ar_num_nodes; i++)
     {
-        // wetness
-        if (doUpdate)
-        {
-            if (ar_nodes[i].wetstate == DRIPPING && !ar_nodes[i].nd_no_ground_contact && !ar_nodes[i].disable_particles)
-            {
-                ar_nodes[i].wettime += dt * maxsteps;
-                if (ar_nodes[i].wettime > 5.0)
-                {
-                    ar_nodes[i].wetstate = DRY;
-                }
-                else
-                {
-                    if (!ar_nodes[i].iswheel && m_particles_drip)
-                        m_particles_drip->allocDrip(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity, ar_nodes[i].wettime);
-                    if (ar_nodes[i].isHot && m_particles_dust)
-                        m_particles_dust->allocVapour(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity, ar_nodes[i].wettime);
-                }
-            }
-        }
-
         // COLLISION
         if (!ar_nodes[i].nd_no_ground_contact)
         {
@@ -1834,7 +1814,8 @@ void Actor::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 
         if (water)
         {
-            if (water->IsUnderWater(ar_nodes[i].AbsPosition))
+            const bool is_under_water = water->IsUnderWater(ar_nodes[i].AbsPosition);
+            if (is_under_water)
             {
                 m_water_contact = true;
                 if (ar_num_buoycabs == 0)
@@ -1858,13 +1839,8 @@ void Actor::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                 {
                     ar_engine->StopEngine();
                 }
-                ar_nodes[i].wetstate = WET;
             }
-            else if (ar_nodes[i].wetstate == WET)
-            {
-                ar_nodes[i].wetstate = DRIPPING;
-                ar_nodes[i].wettime = 0.0f;
-            }
+            ar_nodes[i].nd_under_water = is_under_water;
         }
     }
 }

@@ -102,11 +102,31 @@ public:
         Ogre::SceneNode*     vcam_prop_scenenode; // Only for type=MIRROR_PROP_*
     };
 
-    GfxActor(Actor* actor, std::string ogre_resource_group):
+    /// Gfx attributes/state of a softbody node
+    struct NodeGfx
+    {
+        NodeGfx();
+
+        float      nx_wet_time_sec; //!< 'Wet' means "already out of water, producing dripping particles". Set to -1 when not 'wet'.
+        uint16_t   nx_node_idx;
+
+        // Bit flags
+        bool       nx_no_particles:1;  //!< User-defined attr; disable all particles  // TODO: duplicate of `node_t::disable_particles` which will be removed.
+        bool       nx_may_get_wet:1;   //!< Attr; enables water drip and vapour // Equals (!ar_nodes[X].nd_no_ground_contact && ar_nodes[X].iswheel)
+        bool       nx_is_hot:1;        //!< User-defined attr; emits vapour particles when in contact with water.
+        bool       nx_under_water:1;   //!< State
+        
+    }; // more to come... ~only_a_ptr, 04/2018
+
+    GfxActor(Actor* actor, std::string ogre_resource_group,
+            DustPool* drip_fx, DustPool* misc_fx, std::vector<NodeGfx>& gfx_nodes):
         m_actor(actor),
         m_custom_resource_group(ogre_resource_group),
         m_vidcam_state(VideoCamState::VCSTATE_ENABLED_ONLINE),
-        m_debug_view(DebugViewType::DEBUGVIEW_NONE)
+        m_debug_view(DebugViewType::DEBUGVIEW_NONE),
+        m_particles_drip(drip_fx),
+        m_particles_misc(misc_fx),
+        m_gfx_nodes(gfx_nodes)
     {}
 
     ~GfxActor();
@@ -117,6 +137,7 @@ public:
     void                      SetCabLightsActive (bool state_on);
     void                      SetVideoCamState   (VideoCamState state);
     void                      UpdateVideoCameras (float dt_sec);
+    void                      UpdateParticles    (float dt_sec);
     void                      UpdateDebugView    ();
     void                      CycleDebugViews    ();
     inline void               SetDebugView       (DebugViewType dv)       { m_debug_view = dv; }
@@ -132,6 +153,9 @@ private:
     VideoCamState               m_vidcam_state;
     std::vector<VideoCamera>    m_videocameras;
     DebugViewType               m_debug_view;
+    std::vector<NodeGfx>        m_gfx_nodes;
+    DustPool*                   m_particles_drip;
+    DustPool*                   m_particles_misc; // TODO: Temporary weak pointer to `Actor::m_particles_dust`; refactor in progress ~only_a_ptr, 04/2018
 
     // Cab materials and their features
     Ogre::MaterialPtr           m_cab_mat_visual; ///< Updated in-place from templates

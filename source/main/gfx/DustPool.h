@@ -81,5 +81,6 @@ protected:
     int types[MAX_DUSTS];
 	bool m_is_discarded;
 
+    // TODO: Mutex only makes sense if particles are updated from physics code (legacy); remove when all moved to `GfxActor` ~only_a_ptr, 04/2018
     std::mutex m_allocation_mutex;
 };

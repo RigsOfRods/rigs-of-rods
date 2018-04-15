@@ -37,18 +37,14 @@ struct node_t
     Ogre::Real surface_coef;
     Ogre::Real volume_coef;
 
-    float wettime; //!< Cumulative time this node has been wet. When wet, dripping particles are produced.
     short wheelid; //!< Wheel index
     short nd_lockgroup;
     short pos;     //!< This node's index in Actor::ar_nodes array.
     short id;      //!< Numeric identifier assigned in truckfile (if used), or -1 if the node was generated dynamically.
-    char wetstate; //!< {DRY | DRIPPING | WET}
     char collisionBoundingBoxID;
 
-    
     bool overrideMass;
     bool loadedMass;
-    bool isHot;    //!< Makes this node emit vapour particles when in contact with water.
 
     Ogre::Vector3 initial_pos;
     
@@ -58,4 +54,5 @@ struct node_t
     bool           nd_contacter:1;      //!< Attr; This node is part of collision triangle
     bool           nd_no_ground_contact:1;  //!< User-defined attr; node ignores contact with ground
     bool           nd_has_contact:1;    //!< Physics state
+    bool           nd_under_water:1;    //!< State; GFX hint
 };

@@ -390,7 +390,6 @@ void ActorSpawner::InitializeRig()
 
     DustManager& dustman = RoR::App::GetSimController()->GetBeamFactory()->GetParticleManager();
     m_actor->m_particles_dust   = dustman.getDustPool("dust");
-    m_actor->m_particles_drip   = dustman.getDustPool("drip");
     m_actor->m_particles_sparks = dustman.getDustPool("sparks");
     m_actor->m_particles_clump  = dustman.getDustPool("clump");
     m_actor->m_particles_splash = dustman.getDustPool("splash");
@@ -1398,8 +1397,15 @@ void ActorSpawner::ProcessExhaust(RigDef::Exhaust & def)
     exhaust.smokeNode->attachObject(exhaust.smoker);
     exhaust.smokeNode->setPosition(m_actor->ar_nodes[exhaust.emitterNode].AbsPosition);
 
-    ref_node.isHot=true;
-    dir_node.isHot=true;
+    // Update GFX for nodes
+    for (GfxActor::NodeGfx& nfx : m_gfx_nodes)
+    {
+        if (nfx.nx_node_idx == ref_node.pos || nfx.nx_node_idx == dir_node.pos)
+        {
+            nfx.nx_is_hot = true;
+        }
+    }
+
     m_actor->exhausts.push_back(exhaust);
 }
 
@@ -6020,8 +6026,7 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     Ogre::Vector3 node_position = m_spawn_position + def.position;
     node.AbsPosition = node_position; 
     node.RelPosition = node_position - m_actor->ar_origin;
-        
-    node.wetstate = DRY; // orig = hardcoded (init_node)
+
     node.iswheel = NOWHEEL;
     node.wheelid = -1; // Hardcoded in orig (bts_nodes, call to init_node())
     node.friction_coef = def.node_defaults->friction;
@@ -6116,6 +6121,13 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     if (def.position.y < m_fuse_y_min) { m_fuse_y_min = def.position.y; }
     if (def.position.y > m_fuse_y_max) { m_fuse_y_max = def.position.y; }
 
+    // GFX
+    GfxActor::NodeGfx nfx;
+    nfx.nx_node_idx     = static_cast<uint16_t>(node.pos);
+    nfx.nx_no_particles = BITMASK_IS_1(options, RigDef::Node::OPTION_p_NO_PARTICLES);
+    nfx.nx_may_get_wet  = BITMASK_IS_0(options, RigDef::Node::OPTION_c_NO_GROUND_CONTACT);
+    m_gfx_nodes.push_back(nfx);
+
 #ifdef DEBUG_TRUCKPARSER2013
     // DEBUG
     std::stringstream msg;
@@ -6175,8 +6187,14 @@ void ActorSpawner::AddExhaust(
     exhaust.smokeNode->attachObject(exhaust.smoker);
     exhaust.smokeNode->setPosition(m_actor->ar_nodes[exhaust.emitterNode].AbsPosition);
 
-    m_actor->ar_nodes[emitter_node_idx].isHot = true;
-    m_actor->ar_nodes[emitter_node_idx].isHot = true;
+    // Update GFX for nodes
+    for (GfxActor::NodeGfx& nfx : m_gfx_nodes)
+    {
+        if (nfx.nx_node_idx == emitter_node_idx || nfx.nx_node_idx == direction_node_idx)
+        {
+            nfx.nx_is_hot = true;
+        }
+    }
 
     m_actor->exhausts.push_back(exhaust);
 }
@@ -6239,7 +6257,6 @@ void ActorSpawner::InitNode(node_t & node, Ogre::Vector3 const & position)
 
     /* Misc. */
     node.collisionBoundingBoxID = -1; // orig = hardcoded (init_node)
-    node.wetstate = DRY; // orig = hardcoded (init_node)
 }
 
 void ActorSpawner::InitNode(
@@ -6994,7 +7011,11 @@ void ActorSpawner::FinalizeGfxSetup()
     // TODO &*&*
 
     // Create the actor
-    m_actor->m_gfx_actor = std::unique_ptr<RoR::GfxActor>(new RoR::GfxActor(m_actor, m_custom_resource_group));
+    DustManager& dustman = RoR::App::GetSimController()->GetBeamFactory()->GetParticleManager();
+    m_actor->m_gfx_actor = std::unique_ptr<RoR::GfxActor>(
+        new RoR::GfxActor(
+            m_actor, m_custom_resource_group,
+            dustman.getDustPool("drip"), dustman.getDustPool("dust"), m_gfx_nodes));
 
     // Process special materials
     for (auto& entry: m_material_substitutions)

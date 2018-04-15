@@ -762,11 +762,12 @@ void FlexBody::updateBlend() //so easy!
             m_src_colors[i]=col|0xFF000000;
             changed = true;
         }
-        if ((nd->wetstate!=DRY) ^ ((col&0x000000FF)>0))
-        {
-            m_src_colors[i]=(col&0xFFFFFF00)+0x000000FF*(nd->wetstate!=DRY);
-            changed = true;
-        }
+        // Disabled while refactoring particles ~ only_a_ptr, 04/2018
+        //if ((nd->wetstate!=DRY) ^ ((col&0x000000FF)>0))
+        //{
+        //    m_src_colors[i]=(col&0xFFFFFF00)+0x000000FF*(nd->wetstate!=DRY);
+        //    changed = true;
+        //}
     }
     if (changed) writeBlend();
 }

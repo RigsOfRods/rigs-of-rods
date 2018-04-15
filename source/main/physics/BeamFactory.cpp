@@ -1268,6 +1268,7 @@ void ActorManager::UpdateActorVisuals(float dt,  Actor* player_actor)
             m_actors[t]->updateVisual(dt);
             m_actors[t]->updateSkidmarks();
             m_actors[t]->updateFlares(dt, (m_actors[t] == player_actor));
+            m_actors[t]->m_gfx_actor->UpdateParticles(dt); // friend access
         }
     }
 }

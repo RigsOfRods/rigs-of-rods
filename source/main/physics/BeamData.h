@@ -83,11 +83,7 @@ enum {
     MACHINE,        //!< its a machine
     AI,             //!< machine controlled by an Artificial Intelligence
 };
-enum {
-    DRY,            //!< node is dry
-    DRIPPING,       //!< node is dripping
-    WET             //!< node is wet
-};
+
 enum {
     NOSHOCK,        //!< not a shock
     SHOCK1,         //!< shock1

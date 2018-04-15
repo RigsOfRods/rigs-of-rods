@@ -23,6 +23,7 @@
 
 #include "Beam.h"
 #include "beam_t.h"
+#include "DustPool.h" // General particle gfx
 #include "GlobalEnvironment.h" // TODO: Eliminate!
 #include "SkyManager.h"
 #include "TerrainManager.h"
@@ -224,6 +225,15 @@ RoR::GfxActor::VideoCamera::VideoCamera():
     vcam_prop_scenenode(nullptr)          // Ogre::SceneNode*
 {}
 
+RoR::GfxActor::NodeGfx::NodeGfx():
+    nx_node_idx(std::numeric_limits<uint16_t>::max()), // invalid index
+    nx_wet_time_sec(-1.f), // node is dry
+    nx_no_particles(false),
+    nx_may_get_wet(false),
+    nx_is_hot(false),
+    nx_under_water(false)
+{}
+
 void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
 {
     if (m_vidcam_state != VideoCamState::VCSTATE_ENABLED_ONLINE)
@@ -340,6 +350,45 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
 
         // set the new position
         vidcam.vcam_ogre_camera->setPosition(pos);
+    }
+}
+
+void RoR::GfxActor::UpdateParticles(float dt_sec)
+{
+    for (NodeGfx& nfx: m_gfx_nodes)
+    {
+        const node_t& n = m_actor->ar_nodes[nfx.nx_node_idx];
+
+        if (nfx.nx_may_get_wet && !nfx.nx_no_particles)
+        {       
+            // Getting out of water?
+            if (!n.nd_under_water && nfx.nx_under_water)
+            {
+                nfx.nx_wet_time_sec = 0.f;
+            }
+            nfx.nx_under_water = n.nd_under_water;
+
+            // Dripping water?
+            if (nfx.nx_wet_time_sec != -1)
+            {
+                nfx.nx_wet_time_sec += dt_sec;
+                if (nfx.nx_wet_time_sec > 5.f) // Dries off in 5 sec
+                {
+                    nfx.nx_wet_time_sec = -1.f;
+                }
+                else if (nfx.nx_may_get_wet)
+                {
+                    if (m_particles_drip != nullptr)
+                    {
+                        m_particles_drip->allocDrip(n.AbsPosition, n.Velocity, nfx.nx_wet_time_sec); // Dripping water particles
+                    }
+                    if (nfx.nx_is_hot && m_particles_misc != nullptr)
+                    {
+                        m_particles_misc->allocVapour(n.AbsPosition, n.Velocity, nfx.nx_wet_time_sec); // Water vapour particles
+                    }
+                }
+            }
+        }
     }
 }
 

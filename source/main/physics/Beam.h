@@ -498,7 +498,6 @@ private:
     float             m_stabilizer_shock_ratio;   //!< Physics state
     int               m_stabilizer_shock_request; //!< Physics state; values: { -1, 0, 1 }
     DustPool*         m_particles_dust;
-    DustPool*         m_particles_drip;
     DustPool*         m_particles_sparks;
     DustPool*         m_particles_clump;
     DustPool*         m_particles_splash;
