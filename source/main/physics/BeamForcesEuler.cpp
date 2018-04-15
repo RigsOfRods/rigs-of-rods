@@ -1681,13 +1681,8 @@ void Actor::CalcBeamsInterActor(int doUpdate, Ogre::Real dt, int step, int maxst
 
 void Actor::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 {
-    IWater* water = 0;
-    float gravity = -9.81f;
-    if (App::GetSimTerrain())
-    {
-        water = App::GetSimTerrain()->getWater();
-        gravity = App::GetSimTerrain()->getGravity();
-    }
+    IWater* water = App::GetSimTerrain()->getWater();
+    const float gravity = App::GetSimTerrain()->getGravity();
 
     for (int i = 0; i < ar_num_nodes; i++)
     {
