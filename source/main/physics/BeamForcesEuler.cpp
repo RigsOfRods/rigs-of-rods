@@ -117,7 +117,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
 
     m_water_contact = false;
 
-    calcNodes(doUpdate, dt, step, maxsteps);
+    this->CalcNodes(dt, step, maxsteps);
 
     AxisAlignedBox tBoundingBox(ar_nodes[0].AbsPosition, ar_nodes[0].AbsPosition);
 
@@ -1679,7 +1679,7 @@ void Actor::CalcBeamsInterActor(int doUpdate, Ogre::Real dt, int step, int maxst
     }
 }
 
-void Actor::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
+void Actor::CalcNodes(float dt, int step, int maxsteps)
 {
     IWater* water = App::GetSimTerrain()->getWater();
     const float gravity = App::GetSimTerrain()->getGravity();
@@ -1693,77 +1693,19 @@ void Actor::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
             if (ar_nodes[i].nd_has_contact || ar_nodes[i].collTestTimer > 0.005 || ((ar_nodes[i].iswheel || ar_nodes[i].wheelid != -1) && (m_high_res_wheelnode_collisions || ar_nodes[i].collTestTimer > 0.0025)) || m_increased_accuracy)
             {
                 float ns = 0;
-                ground_model_t* gm = 0; // this is used as result storage, so we can use it later on
+                ground_model_t* gm = nullptr; // this is used as result storage, so we can use it later on
                 bool contacted = gEnv->collisions->groundCollision(&ar_nodes[i], ar_nodes[i].collTestTimer, &gm, &ns);
                 // reverted this construct to the old form, don't mess with it, the binary operator is intentionally!
                 if (contacted | gEnv->collisions->nodeCollision(&ar_nodes[i], contacted, ar_nodes[i].collTestTimer, &ns, &gm))
                 {
-                    // FX
-                    if (gm && doUpdate && !ar_nodes[i].disable_particles)
-                    {
-                        float thresold = 10.0f;
-
-                        switch (gm->fx_type)
-                        {
-                        case Collisions::FX_DUSTY:
-                            if (m_particles_dust)
-                                m_particles_dust->malloc(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity / 2.0, gm->fx_colour);
-                            break;
-
-                        case Collisions::FX_HARD:
-                            // smokey
-                            if (ar_nodes[i].iswheel && ns > thresold)
-                            {
-                                if (m_particles_dust)
-                                    m_particles_dust->allocSmoke(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity);
-
-                                SOUND_MODULATE(ar_instance_id, SS_MOD_SCREETCH, (ns - thresold) / thresold);
-                                SOUND_PLAY_ONCE(ar_instance_id, SS_TRIG_SCREETCH);
-
-                                //Shouldn't skidmarks be activated from here?
-                                if (m_use_skidmarks)
-                                {
-                                    ar_wheels[ar_nodes[i].wheelid].isSkiding = true;
-                                    if (!(ar_nodes[i].iswheel % 2))
-                                        ar_wheels[ar_nodes[i].wheelid].lastContactInner = ar_nodes[i].AbsPosition;
-                                    else
-                                        ar_wheels[ar_nodes[i].wheelid].lastContactOuter = ar_nodes[i].AbsPosition;
-
-                                    ar_wheels[ar_nodes[i].wheelid].lastContactType = (ar_nodes[i].iswheel % 2);
-                                    ar_wheels[ar_nodes[i].wheelid].lastSlip = ns;
-                                    ar_wheels[ar_nodes[i].wheelid].lastGroundModel = gm;
-                                }
-                            }
-                            // sparks
-                            if (!ar_nodes[i].iswheel && ns > 1.0 && !ar_nodes[i].disable_sparks)
-                            {
-                                // friction < 10 will remove the 'f' nodes from the spark generation nodes
-                                if (m_particles_sparks)
-                                    m_particles_sparks->allocSparks(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity);
-                            }
-                            if (ar_nodes[i].iswheel && ns < thresold)
-                            {
-                                if (m_use_skidmarks)
-                                {
-                                    ar_wheels[ar_nodes[i].wheelid].isSkiding = false;
-                                }
-                            }
-                            break;
-
-                        case Collisions::FX_CLUMPY:
-                            if (ar_nodes[i].Velocity.squaredLength() > 1.0)
-                            {
-                                if (m_particles_clump)
-                                    m_particles_clump->allocClump(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity / 2.0, gm->fx_colour);
-                            }
-                            break;
-                        default:
-                            //Useless for the moment
-                            break;
-                        }
-                    }
-
                     m_last_fuzzy_ground_model = gm;
+                    ar_nodes[i].nd_collision_gm = gm;
+                    ar_nodes[i].nd_collision_slip = ns;
+                }
+                else
+                {
+                    ar_nodes[i].nd_collision_gm = nullptr;
+                    ar_nodes[i].nd_collision_slip = 0.f;
                 }
                 ar_nodes[i].collTestTimer = 0.0;
             }

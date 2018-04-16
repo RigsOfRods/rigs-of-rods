@@ -29,9 +29,6 @@ struct node_t
     float collTestTimer;
     short iswheel; //!< 0=no, 1, 2=wheel1  3,4=wheel2, etc...
 
-    bool disable_particles;
-    bool disable_sparks;
-
     Ogre::Real buoyancy;
     Ogre::Real friction_coef;
     Ogre::Real surface_coef;
@@ -47,6 +44,9 @@ struct node_t
     bool loadedMass;
 
     Ogre::Vector3 initial_pos;
+
+    ground_model_t* nd_collision_gm;    //!< Physics state; last collision 'ground model' (surface definition)
+    float           nd_collision_slip;  //!< Physics state; last collision slip velocity
     
     // Bit flags
     bool           nd_immovable: 1;     //!< Attr; User-defined

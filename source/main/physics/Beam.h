@@ -213,6 +213,7 @@ public:
     int               GetNumNodes() const               { return ar_num_nodes; }
     Ogre::Vector3     getVelocity() const               { return m_avg_node_velocity; }; //!< average actor velocity, calculated using the actor positions of the last two frames
     int               GetDebugOverlayType() const       { return m_debug_visuals; } // for GUI
+    bool              GetUseSkidmarks() const           { return m_use_skidmarks; }
 #ifdef USE_ANGELSCRIPT
     // we have to add this to be able to use the class as reference inside scripts
     void              addRef()                          {};
@@ -409,7 +410,7 @@ private:
 
     void              calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps); // !< TIGHT LOOP; Physics & sound;
     void              CalcBeamsInterActor(int doUpdate, Ogre::Real dt, int step, int maxsteps); //!< TIGHT LOOP; Physics & sound - only beams between multiple actors (noshock or ropes)
-    void              calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps); //!< TIGHT LOOP; Physics;
+    void              CalcNodes(float dt, int step, int maxsteps); //!< TIGHT LOOP; Physics;
     void              calcHooks();                         //!< TIGHT LOOP; Physics;
     void              calcRopes();                         //!< TIGHT LOOP; Physics;
     void              calcShocks2(int beam_i, Ogre::Real difftoBeamL, Ogre::Real &k, Ogre::Real &d, Ogre::Real dt, int update);
@@ -497,9 +498,6 @@ private:
     float             m_ref_tyre_pressure;        //!< Physics state
     float             m_stabilizer_shock_ratio;   //!< Physics state
     int               m_stabilizer_shock_request; //!< Physics state; values: { -1, 0, 1 }
-    DustPool*         m_particles_dust;
-    DustPool*         m_particles_sparks;
-    DustPool*         m_particles_clump;
     int               m_net_first_wheel_node;  //!< Network attr; Determines data buffer layout
     int               m_net_node_buf_size;     //!< Network attr; buffer size
     int               m_net_buffer_size;       //!< Network attr; buffer size

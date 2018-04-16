@@ -388,11 +388,6 @@ void ActorSpawner::InitializeRig()
 
     m_actor->ar_submesh_ground_model = gEnv->collisions->defaultgm;
 
-    DustManager& dustman = RoR::App::GetSimController()->GetBeamFactory()->GetParticleManager();
-    m_actor->m_particles_dust   = dustman.getDustPool("dust");
-    m_actor->m_particles_sparks = dustman.getDustPool("sparks");
-    m_actor->m_particles_clump  = dustman.getDustPool("clump");
-
     m_actor->m_command_inertia   = new CmdKeyInertia();
     m_actor->m_hydro_inertia = new CmdKeyInertia();
     m_actor->m_rotator_inertia  = new CmdKeyInertia();
@@ -6126,8 +6121,6 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     }
     AdjustNodeBuoyancy(node, def, def.node_defaults);
     node.nd_no_ground_contact = BITMASK_IS_1(options, RigDef::Node::OPTION_c_NO_GROUND_CONTACT);
-    node.disable_particles = BITMASK_IS_1(options, RigDef::Node::OPTION_p_NO_PARTICLES);
-    node.disable_sparks    = BITMASK_IS_1(options, RigDef::Node::OPTION_f_NO_SPARKS);
     node.nd_no_mouse_grab  = BITMASK_IS_1(options, RigDef::Node::OPTION_m_NO_MOUSE_GRAB);
 
     m_actor->ar_exhaust_dir_node        = BITMASK_IS_1(options, RigDef::Node::OPTION_y_EXHAUST_DIRECTION) ? node.pos : 0;
@@ -6143,6 +6136,8 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     GfxActor::NodeGfx nfx(static_cast<uint16_t>(node.pos));
     nfx.nx_no_particles = BITMASK_IS_1(options, RigDef::Node::OPTION_p_NO_PARTICLES);
     nfx.nx_may_get_wet  = BITMASK_IS_0(options, RigDef::Node::OPTION_c_NO_GROUND_CONTACT);
+    nfx.nx_no_particles = BITMASK_IS_1(options, RigDef::Node::OPTION_p_NO_PARTICLES);
+    nfx.nx_no_sparks    = BITMASK_IS_1(options, RigDef::Node::OPTION_f_NO_SPARKS);
     m_gfx_nodes.push_back(nfx);
 
 #ifdef DEBUG_TRUCKPARSER2013

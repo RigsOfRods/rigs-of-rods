@@ -111,10 +111,11 @@ public:
         uint16_t   nx_node_idx;
 
         // Bit flags
-        bool       nx_no_particles:1;     //!< User-defined attr; disable all particles  // TODO: duplicate of `node_t::disable_particles` which will be removed.
+        bool       nx_no_particles:1;     //!< User-defined attr; disable all particles
         bool       nx_may_get_wet:1;      //!< Attr; enables water drip and vapour
         bool       nx_is_hot:1;           //!< User-defined attr; emits vapour particles when in contact with water.
         bool       nx_under_water_prev:1; //!< State
+        bool       nx_no_sparks:1;        //!< User-defined attr; 
         
     }; // more to come... ~only_a_ptr, 04/2018
 
@@ -146,9 +147,11 @@ private:
     DebugViewType               m_debug_view;
     std::vector<NodeGfx>        m_gfx_nodes;
     DustPool*                   m_particles_drip;
-    DustPool*                   m_particles_misc; // TODO: Temporary weak pointer to `Actor::m_particles_dust`; refactor in progress ~only_a_ptr, 04/2018
+    DustPool*                   m_particles_misc; // This is "dust" in DustManager; handles dust, vapour and tyre smoke
     DustPool*                   m_particles_splash;
     DustPool*                   m_particles_ripple;
+    DustPool*                   m_particles_sparks;
+    DustPool*                   m_particles_clump;
 
     // Cab materials and their features
     Ogre::MaterialPtr           m_cab_mat_visual; ///< Updated in-place from templates

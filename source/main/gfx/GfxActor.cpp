@@ -23,10 +23,12 @@
 
 #include "Beam.h"
 #include "beam_t.h"
+#include "Collisions.h"
 #include "DustPool.h" // General particle gfx
 #include "GlobalEnvironment.h" // TODO: Eliminate!
 #include "RoRFrameListener.h" // SimController
 #include "SkyManager.h"
+#include "SoundScriptManager.h"
 #include "TerrainManager.h"
 #include "imgui.h"
 #include "Utils.h"
@@ -53,9 +55,11 @@ RoR::GfxActor::GfxActor(Actor* actor, std::string ogre_resource_group, std::vect
     // Setup particles
     DustManager& dustman = RoR::App::GetSimController()->GetBeamFactory()->GetParticleManager();
     m_particles_drip   = dustman.getDustPool("drip");
-    m_particles_misc   = dustman.getDustPool("dust"); // Dust, water vapour...
+    m_particles_misc   = dustman.getDustPool("dust"); // Dust, water vapour, tyre smoke
     m_particles_splash = dustman.getDustPool("splash");
     m_particles_ripple = dustman.getDustPool("ripple");
+    m_particles_sparks = dustman.getDustPool("sparks");
+    m_particles_clump  = dustman.getDustPool("clump");
 }
 
 RoR::GfxActor::~GfxActor()
@@ -247,6 +251,7 @@ RoR::GfxActor::NodeGfx::NodeGfx(uint16_t node_idx):
     nx_no_particles(false),
     nx_may_get_wet(false),
     nx_is_hot(false),
+    nx_no_sparks(true),
     nx_under_water_prev(false)
 {}
 
@@ -371,6 +376,7 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
 
 void RoR::GfxActor::UpdateParticles(float dt_sec)
 {
+    const bool use_skidmarks = m_actor->GetUseSkidmarks();
     float water_height = 0.f; // Unused if terrain has no water
     if (App::GetSimTerrain()->getWater() != nullptr)
     {
@@ -425,6 +431,81 @@ void RoR::GfxActor::UpdateParticles(float dt_sec)
                 {
                     m_particles_ripple->allocRipple(n.AbsPosition, n.Velocity);     
                 }
+            }
+        }
+
+        // Ground collision (dust, sparks, tyre smoke, clumps...)
+        if (n.nd_collision_gm != nullptr && !nfx.nx_no_particles)
+        {
+            switch (n.nd_collision_gm->fx_type)
+            {
+            case Collisions::FX_DUSTY:
+                if (m_particles_misc != nullptr)
+                {
+                    m_particles_misc->malloc(n.AbsPosition, n.Velocity / 2.0, n.nd_collision_gm->fx_colour);
+                }
+                break;
+
+            case Collisions::FX_CLUMPY:
+                if (m_particles_clump != nullptr && n.Velocity.squaredLength() > 1.f)
+                {
+                    m_particles_clump->allocClump(n.AbsPosition, n.Velocity / 2.0, n.nd_collision_gm->fx_colour);
+                }
+                break;
+
+            case Collisions::FX_HARD:
+                if (n.iswheel != 0) // This is a wheel => skidmarks and tyre smoke
+                {
+                    const float SKID_THRESHOLD = 10.f;
+                    if (n.nd_collision_slip > SKID_THRESHOLD)
+                    {
+                        SOUND_MODULATE(m_actor, SS_MOD_SCREETCH, (n.nd_collision_slip - SKID_THRESHOLD) / SKID_THRESHOLD);
+                        SOUND_PLAY_ONCE(m_actor, SS_TRIG_SCREETCH);
+                        
+                        if (m_particles_misc != nullptr)
+                        {
+                            m_particles_misc->allocSmoke(n.AbsPosition, n.Velocity);
+                        }
+
+                        if (use_skidmarks)
+                        {
+                            // TODO: Ported as-is from 'calcNodes()', doesn't make sense here
+                            //       -> we can update the skidmark GFX directly. ~only_a_ptr, 04/2018
+                            m_actor->ar_wheels[n.wheelid].isSkiding = true;
+                            if (!(n.iswheel % 2))
+                            {
+                                m_actor->ar_wheels[n.wheelid].lastContactInner = n.AbsPosition;
+                            }
+                            else
+                            {
+                                m_actor->ar_wheels[n.wheelid].lastContactOuter = n.AbsPosition;
+                            }
+
+                            m_actor->ar_wheels[n.wheelid].lastContactType = (n.iswheel % 2);
+                            m_actor->ar_wheels[n.wheelid].lastSlip = n.nd_collision_slip;
+                            m_actor->ar_wheels[n.wheelid].lastGroundModel = n.nd_collision_gm;
+                        }
+                    }
+                    else
+                    {
+                        if (use_skidmarks)
+                        {
+                            // TODO: Ported as-is from 'calcNodes()', doesn't make sense here
+                            //       -> we can update the skidmark GFX directly. ~only_a_ptr, 04/2018
+                            m_actor->ar_wheels[n.wheelid].isSkiding = false;
+                        }
+                    }
+                }
+                else // Not a wheel => sparks
+                {
+                    if ((!nfx.nx_no_sparks) && (n.nd_collision_slip > 1.f) && (m_particles_sparks != nullptr))
+                    {
+                        m_particles_sparks->allocSparks(n.AbsPosition, n.Velocity);
+                    }
+                }
+                break;
+
+            default:;
             }
         }
 
