@@ -231,7 +231,7 @@ RoR::GfxActor::NodeGfx::NodeGfx():
     nx_no_particles(false),
     nx_may_get_wet(false),
     nx_is_hot(false),
-    nx_under_water(false)
+    nx_under_water_prev(false)
 {}
 
 void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
@@ -362,11 +362,10 @@ void RoR::GfxActor::UpdateParticles(float dt_sec)
         if (nfx.nx_may_get_wet && !nfx.nx_no_particles)
         {       
             // Getting out of water?
-            if (!n.nd_under_water && nfx.nx_under_water)
+            if (!n.nd_under_water && nfx.nx_under_water_prev)
             {
                 nfx.nx_wet_time_sec = 0.f;
             }
-            nfx.nx_under_water = n.nd_under_water;
 
             // Dripping water?
             if (nfx.nx_wet_time_sec != -1)
@@ -389,6 +388,8 @@ void RoR::GfxActor::UpdateParticles(float dt_sec)
                 }
             }
         }
+
+        nfx.nx_under_water_prev = n.nd_under_water;
     }
 }
 

@@ -111,10 +111,10 @@ public:
         uint16_t   nx_node_idx;
 
         // Bit flags
-        bool       nx_no_particles:1;  //!< User-defined attr; disable all particles  // TODO: duplicate of `node_t::disable_particles` which will be removed.
-        bool       nx_may_get_wet:1;   //!< Attr; enables water drip and vapour // Equals (!ar_nodes[X].nd_no_ground_contact && ar_nodes[X].iswheel)
-        bool       nx_is_hot:1;        //!< User-defined attr; emits vapour particles when in contact with water.
-        bool       nx_under_water:1;   //!< State
+        bool       nx_no_particles:1;     //!< User-defined attr; disable all particles  // TODO: duplicate of `node_t::disable_particles` which will be removed.
+        bool       nx_may_get_wet:1;      //!< Attr; enables water drip and vapour // Equals (!ar_nodes[X].nd_no_ground_contact && ar_nodes[X].iswheel)
+        bool       nx_is_hot:1;           //!< User-defined attr; emits vapour particles when in contact with water.
+        bool       nx_under_water_prev:1; //!< State
         
     }; // more to come... ~only_a_ptr, 04/2018
 
