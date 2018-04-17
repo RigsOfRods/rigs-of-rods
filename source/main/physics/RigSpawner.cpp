@@ -6052,7 +6052,7 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     {
         // orig = further override of hardcoded default.
         node.mass = def.node_defaults->load_weight; 
-        node.overrideMass = true;
+        node.nd_override_mass = true;
         node.loadedMass = true;
     }
     else
@@ -6071,7 +6071,7 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
         node.loadedMass = true;
         if (def._has_load_weight_override)
         {
-            node.overrideMass = true;
+            node.nd_override_mass = true;
             node.mass = def.load_weight_override;
         }
         else

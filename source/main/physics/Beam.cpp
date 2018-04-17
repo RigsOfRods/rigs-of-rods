@@ -790,7 +790,7 @@ void Actor::RecalculateNodeMasses(Real total, bool reCalc)
             {
                 ar_nodes[i].mass = 0;
             }
-            else if (!ar_nodes[i].overrideMass)
+            else if (!ar_nodes[i].nd_override_mass)
             {
                 ar_nodes[i].mass = m_load_mass / (float)m_masscount;
             }
@@ -862,7 +862,7 @@ void Actor::RecalculateNodeMasses(Real total, bool reCalc)
             String msg = "Node " + TOSTRING(i) + " : " + TOSTRING((int)ar_nodes[i].mass) + " kg";
             if (ar_nodes[i].loadedMass)
             {
-                if (ar_nodes[i].overrideMass)
+                if (ar_nodes[i].nd_override_mass)
                     msg += " (overriden by node mass)";
                 else
                     msg += " (normal load node: " + TOSTRING(m_load_mass) + " kg / " + TOSTRING(m_masscount) + " nodes)";

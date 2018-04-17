@@ -40,7 +40,6 @@ struct node_t
     short id;      //!< Numeric identifier assigned in truckfile (if used), or -1 if the node was generated dynamically.
     char collisionBoundingBoxID;
 
-    bool overrideMass;
     bool loadedMass;
 
     Ogre::Vector3 initial_pos;
@@ -49,6 +48,7 @@ struct node_t
     float           nd_collision_slip;  //!< Physics state; last collision slip velocity
     
     // Bit flags
+    bool           nd_override_mass:1;  //!< User defined attr; mass is user-defined rather than calculated (override the calculation)
     bool           nd_immovable: 1;     //!< Attr; User-defined
     bool           nd_no_mouse_grab:1;  //!< Attr; User-defined
     bool           nd_contacter:1;      //!< Attr; This node is part of collision triangle
