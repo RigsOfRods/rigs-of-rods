@@ -6053,12 +6053,12 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
         // orig = further override of hardcoded default.
         node.mass = def.node_defaults->load_weight; 
         node.nd_override_mass = true;
-        node.loadedMass = true;
+        node.nd_loaded_mass = true;
     }
     else
     {
         node.mass = 10; // Hardcoded in original (bts_nodes, call to init_node())
-        node.loadedMass = false;
+        node.nd_loaded_mass = false;
     }
 
     /* Lockgroup */
@@ -6068,7 +6068,7 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     unsigned int options = def.options | def.node_defaults->options; /* Merge bit flags */
     if (BITMASK_IS_1(options, RigDef::Node::OPTION_l_LOAD_WEIGHT))
     {
-        node.loadedMass = true;
+        node.nd_loaded_mass = true;
         if (def._has_load_weight_override)
         {
             node.nd_override_mass = true;

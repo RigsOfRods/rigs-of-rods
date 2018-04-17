@@ -786,7 +786,7 @@ void Actor::RecalculateNodeMasses(Real total, bool reCalc)
     {
         if (!ar_nodes[i].iswheel)
         {
-            if (!ar_nodes[i].loadedMass)
+            if (!ar_nodes[i].nd_loaded_mass)
             {
                 ar_nodes[i].mass = 0;
             }
@@ -860,7 +860,7 @@ void Actor::RecalculateNodeMasses(Real total, bool reCalc)
         if (App::diag_truck_mass.GetActive())
         {
             String msg = "Node " + TOSTRING(i) + " : " + TOSTRING((int)ar_nodes[i].mass) + " kg";
-            if (ar_nodes[i].loadedMass)
+            if (ar_nodes[i].nd_loaded_mass)
             {
                 if (ar_nodes[i].nd_override_mass)
                     msg += " (overriden by node mass)";
