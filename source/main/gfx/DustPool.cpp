@@ -112,7 +112,6 @@ void DustPool::allocClump(Vector3 pos, Vector3 vel, ColourValue col)
         velocities[allocated] = vel;
         colours[allocated] = col;
         types[allocated] = DUST_CLUMP;
-        //visible[allocated]=true;
         allocated++;
     }
 }
@@ -126,7 +125,6 @@ void DustPool::allocSmoke(Vector3 pos, Vector3 vel)
         positions[allocated] = pos;
         velocities[allocated] = vel;
         types[allocated] = DUST_RUBBER;
-        //visible[allocated]=true;
         allocated++;
     }
 }
@@ -142,7 +140,6 @@ void DustPool::allocSparks(Vector3 pos, Vector3 vel)
         positions[allocated] = pos;
         velocities[allocated] = vel;
         types[allocated] = DUST_SPARKS;
-        //visible[allocated]=true;
         allocated++;
     }
 }
@@ -157,7 +154,6 @@ void DustPool::allocVapour(Vector3 pos, Vector3 vel, float time)
         velocities[allocated] = vel;
         types[allocated] = DUST_VAPOUR;
         rates[allocated] = 5.0 - time;
-        //visible[allocated]=true;
         allocated++;
     }
 }
@@ -171,7 +167,6 @@ void DustPool::allocDrip(Vector3 pos, Vector3 vel, float time)
         velocities[allocated] = vel;
         types[allocated] = DUST_DRIP;
         rates[allocated] = 5.0 - time;
-        //visible[allocated]=true;
         allocated++;
     }
 }
@@ -184,7 +179,6 @@ void DustPool::allocSplash(Vector3 pos, Vector3 vel)
         positions[allocated] = pos;
         velocities[allocated] = vel;
         types[allocated] = DUST_SPLASH;
-        //visible[allocated]=true;
         allocated++;
     }
 }
@@ -197,7 +191,6 @@ void DustPool::allocRipple(Vector3 pos, Vector3 vel)
         positions[allocated] = pos;
         velocities[allocated] = vel;
         types[allocated] = DUST_RIPPLE;
-        //visible[allocated]=true;
         allocated++;
     }
 }
