@@ -86,8 +86,6 @@ struct beam_t
     Ogre::Real shortbound;
     Ogre::Real longbound;
     Ogre::Real refL;       //!< reference length
-    float animOption;
-    int animFlags;
 
     shock_t *shock;
 

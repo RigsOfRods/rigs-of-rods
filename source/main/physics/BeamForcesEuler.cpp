@@ -833,11 +833,10 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
         if (cstate < -1.0)
             cstate = -1.0;
         // Animators following, if no animator, skip all the tests...
-        int flagstate = ar_beams[beam_idx].animFlags;
+        int flagstate = hydrobeam.hb_anim_flags;
         if (flagstate)
         {
-            float animoption = ar_beams[beam_idx].animOption;
-            calcAnimators(flagstate, cstate, div, dt, 0.0f, 0.0f, animoption);
+            calcAnimators(flagstate, cstate, div, dt, 0.0f, 0.0f, hydrobeam.hb_anim_param);
         }
 
         if (div)

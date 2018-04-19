@@ -320,6 +320,8 @@ struct hydrobeam_t
     float    hb_ref_length; //!< Idle length in meters
     float    hb_speed;      //!< Rate of change
     int      hb_flags;
+    int      hb_anim_flags; //!< Animators (beams updating length based on simulation variables)
+    float    hb_anim_param; //!< Animators (beams updating length based on simulation variables)
 };
 
 struct rotator_t

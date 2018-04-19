@@ -3509,7 +3509,7 @@ void ActorSpawner::ProcessAnimator(RigDef::Animator & def)
         }
     }
 
-    unsigned int anim_flags = 0;
+    int anim_flags = 0;
     float anim_option = 0;
 
     /* Options. '{' intentionally misplaced. */
@@ -3622,8 +3622,6 @@ void ActorSpawner::ProcessAnimator(RigDef::Animator & def)
     beam.shortbound = 0.99999f;
     beam.longbound = 1000000.0f;
     beam.bm_type = BEAM_HYDRO;
-    beam.animFlags = anim_flags;
-    beam.animOption = anim_option;
     CalculateBeamLength(beam);
     SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
     SetBeamSpring(beam, def.beam_defaults->GetScaledSpringiness());
@@ -3648,6 +3646,8 @@ void ActorSpawner::ProcessAnimator(RigDef::Animator & def)
     hb.hb_speed = def.lenghtening_factor;
     hb.hb_ref_length = beam.L;
     hb.hb_flags = 0;
+    hb.hb_anim_flags = anim_flags;
+    hb.hb_anim_param = anim_option;
 
     m_actor->ar_hydros.push_back(hb);
 }
@@ -3784,6 +3784,8 @@ void ActorSpawner::ProcessHydro(RigDef::Hydro & def)
     hb.hb_speed = def.lenghtening_factor;
     hb.hb_beam_index = static_cast<uint16_t>(beam_index);
     hb.hb_ref_length = beam.L;
+    hb.hb_anim_flags = 0;
+    hb.hb_anim_param = 0.f;
 
     m_actor->ar_hydros.push_back(hb);
 }
