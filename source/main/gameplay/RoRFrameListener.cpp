@@ -1825,17 +1825,6 @@ bool SimController::frameRenderingQueued(const FrameEvent& evt)
     return true;
 }
 
-bool SimController::frameEnded(const FrameEvent& evt)
-{
-    // TODO: IMPROVE STATS
-    if (m_stats_on && RoR::App::GetOverlayWrapper())
-    {
-        RoR::App::GetOverlayWrapper()->updateStats();
-    }
-
-    return true;
-}
-
 void SimController::ShowLoaderGUI(int type, const Ogre::String& instance, const Ogre::String& box)
 {
     int num_actor_slots = m_actor_manager.GetNumUsedActorSlots();
@@ -2429,6 +2418,12 @@ void SimController::EnterGameplayLoop()
         }
 
         RoR::App::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
+
+        if (m_stats_on && RoR::App::GetOverlayWrapper())
+        {
+            RoR::App::GetOverlayWrapper()->updateStats();
+        }
+
 #ifdef USE_SOCKETW
         if ((App::mp_state.GetActive() == MpState::CONNECTED) && RoR::Networking::CheckError())
         {
