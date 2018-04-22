@@ -1565,10 +1565,8 @@ void SimController::FinalizeActorSpawning(Actor* local_actor, Actor* prev_actor)
     }
 }
 
-// Override frameStarted event to process that (don't care about frameEnded)
-bool SimController::frameStarted(const FrameEvent& evt)
+bool SimController::UpdateSimulation(float dt)
 {
-    float dt = evt.timeSinceLastFrame;
     if (dt == 0.0f)
         return true;
     dt = std::min(dt, 0.05f);
@@ -2391,6 +2389,10 @@ void SimController::EnterGameplayLoop()
     unsigned long minTimePerFrame = 0;
     unsigned long fpsLimit = App::gfx_fps_limit.GetActive();
 
+    // Timing - replacement of 'Ogre::FrameListener'
+    std::vector<unsigned int> framestarted_times;
+    Ogre::Timer* framestarted_timer = OGRE_NEW Timer();
+
     if (fpsLimit < 10 || fpsLimit >= 200)
     {
         fpsLimit = 0;
@@ -2416,6 +2418,40 @@ void SimController::EnterGameplayLoop()
             App::app_state.SetPending(AppState::SHUTDOWN);
             continue;
         }
+
+        // ===== Timing - exact reproduction of 'Ogre::FrameListener' internal process. =====
+        unsigned long framestarted_now = framestarted_timer->getMilliseconds();
+        framestarted_times.push_back(framestarted_now);
+        float framestarted_dt_sec = -1.f;
+
+        if(framestarted_times.size() == 1)
+        {
+            framestarted_dt_sec = 0.f;
+        }
+        else
+        {
+            const float FRAME_SMOOTHING_TIME = 0.f; // RoR didn't use the feature.
+            unsigned long discardThreshold = static_cast<unsigned long>(FRAME_SMOOTHING_TIME * 1000.0f);
+
+            // Find the oldest time to keep
+            auto it = framestarted_times.begin();
+            auto end = framestarted_times.end()-2; // We need at least two times
+            while(it != end)
+            {
+                if (framestarted_now - *it > discardThreshold)
+                    ++it;
+                else
+                    break;
+            }
+
+            // Remove old times
+            framestarted_times.erase(framestarted_times.begin(), it);
+
+            framestarted_dt_sec = static_cast<float>(framestarted_times.back() - framestarted_times.front()) / ((framestarted_times.size()-1) * 1000);
+        }
+        // ===== Timing - end =====
+
+        this->UpdateSimulation(framestarted_dt_sec); // previously 'frameStarted()'
 
         RoR::App::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
 
