@@ -154,7 +154,8 @@ bool ExtractZipFiles(const wxString& aZipFile, const wxString& aTargetDir)
         }
 
         // Skip dummy 'keep empty directory' files
-        if ((lastSepPos != -1) && (entryName.substr(lastSepPos+1) == wxString("empty")) && (entry->GetSize() == 0))
+        wxString empty("empty", wxConvUTF8);
+        if ((lastSepPos != -1) && (entryName.substr(lastSepPos+1) == empty) && (entry->GetSize() == 0))
         {
             continue;
         }
