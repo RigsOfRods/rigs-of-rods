@@ -1650,11 +1650,6 @@ bool SimController::UpdateSimulation(float dt)
     // update animated objects
     App::GetSimTerrain()->update(dt);
 
-    // env map update
-    if (m_player_actor)
-    {
-        m_gfx_envmap.UpdateEnvMap(m_player_actor->getPosition(), m_player_actor);
-    }
     // NOTE: Removed `else` branch which captured the middle of the map (height: ground+50m) - what was that for?? ~ only_a_ptr, 08/2017
 
     // water
@@ -1789,6 +1784,7 @@ bool SimController::UpdateSimulation(float dt)
             m_actor_manager.UpdateActorVisualsAsync(); // NEW; REFACTOR IN PROGRESS - Updates visuals from data buffered in GfxActor
             if (m_player_actor != nullptr)
             {
+                m_gfx_envmap.UpdateEnvMap(m_player_actor->GetGfxActor()->GetSimActorPos(), m_player_actor); // Safe to be called here, only modifies OGRE objects, doesn't read any physics state.
                 m_player_actor->GetGfxActor()->UpdateVideoCameras(dt);
             }
         }

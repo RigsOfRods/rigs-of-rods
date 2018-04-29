@@ -153,7 +153,8 @@ public:
     void                      SetRodsVisible     (bool visible);
     void                      ScaleActor         (float ratio);
     void                      UpdateSimDataBuffer(); //!< Copies sim. data from `Actor` to `GfxActor` for later update
-    NodeData*                 GetSimNodeBuffer   () { return m_node_data_buffer.get(); }
+    NodeData*                 GetSimNodeBuffer   () { return m_simbuf_nodes.get(); }
+    Ogre::Vector3             GetSimActorPos     () const { return m_simbuf_pos; }
     void                      UpdateDebugView    ();
     void                      CycleDebugViews    ();
     void                      UpdateCabMesh      ();
@@ -182,7 +183,10 @@ private:
     DustPool*                   m_particles_clump;
     std::vector<Rod>            m_rods;
     Ogre::SceneNode*            m_rods_parent_scenenode;
-    std::unique_ptr<NodeData>   m_node_data_buffer;
+
+    // Buffered simulation data
+    std::unique_ptr<NodeData>   m_simbuf_nodes;
+    Ogre::Vector3               m_simbuf_pos;
 
     // Cab materials and their features
     Ogre::MaterialPtr           m_cab_mat_visual; ///< Updated in-place from templates
