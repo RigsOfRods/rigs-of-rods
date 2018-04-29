@@ -28,6 +28,11 @@
 /// Physics: A vertex in the softbody structure
 struct node_t
 {
+    // REFACTOR IN PROGRESS: Currently nodes are adressed mostly by pointers or int32_t indices,
+    //     although there was always a hidden soft limit of 2^16 nodes (because of `short node_t::pos`).
+    //     Let's use `uint16_t` indices everywhere to be clear.      ~ only_a_ptr, 04/2018
+    static const uint16_t INVALID_IDX = std::numeric_limits<uint16_t>::max();
+
     node_t()               { memset(this, 0, sizeof(node_t)); }
     node_t(size_t _pos)    { memset(this, 0, sizeof(node_t)); pos = static_cast<short>(_pos); }
 

@@ -1645,11 +1645,6 @@ bool SimController::UpdateSimulation(float dt)
     }
 #endif // USE_OPENAL
 
-    if ((m_player_actor != nullptr) && (!simPAUSED(s)))
-    {
-        m_player_actor->GetGfxActor()->UpdateVideoCameras(dt);
-    }
-
     // --- terrain updates ---
 
     // update animated objects
@@ -1792,6 +1787,10 @@ bool SimController::UpdateSimulation(float dt)
 
             m_actor_manager.UpdateFlexbodiesFinal(); // Updates the harware buffers
             m_actor_manager.UpdateActorVisualsAsync(); // NEW; REFACTOR IN PROGRESS - Updates visuals from data buffered in GfxActor
+            if (m_player_actor != nullptr)
+            {
+                m_player_actor->GetGfxActor()->UpdateVideoCameras(dt);
+            }
         }
 
         if (simRUNNING(s) && (App::sim_state.GetPending() == SimState::PAUSED))

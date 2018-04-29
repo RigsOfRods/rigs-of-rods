@@ -7230,9 +7230,9 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
             return;
         }
 
-        vcam.vcam_node_center = &this->GetNodeOrThrow(def->reference_node);
-        vcam.vcam_node_dir_y  = &this->GetNodeOrThrow(def->bottom_node);
-        vcam.vcam_node_dir_z  = &this->GetNodeOrThrow(def->left_node);
+        vcam.vcam_node_center = static_cast<uint16_t>(this->GetNodeOrThrow(def->reference_node).pos);
+        vcam.vcam_node_dir_y  = static_cast<uint16_t>(this->GetNodeOrThrow(def->bottom_node).pos);
+        vcam.vcam_node_dir_z  = static_cast<uint16_t>(this->GetNodeOrThrow(def->left_node).pos);
         vcam.vcam_pos_offset  = def->offset;
 
         //rotate camera picture 180 degrees, skip for mirrors
@@ -7243,16 +7243,21 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
             * Ogre::Quaternion(Ogre::Degree(def->rotation.x), Ogre::Vector3::UNIT_X);
 
         // set alternative camposition (optional)
-        vcam.vcam_node_alt_pos = &this->GetNodeOrThrow(
-            def->alt_reference_node.IsValidAnyState() ? def->alt_reference_node : def->reference_node);
+        if (def->alt_reference_node.IsValidAnyState())
+        {
+            vcam.vcam_node_alt_pos = static_cast<uint16_t>(this->GetNodeOrThrow(def->alt_reference_node).pos);
+        }
+        else
+        {
+            vcam.vcam_node_alt_pos = vcam.vcam_node_center;
+        }
 
         // set alternative lookat position (optional)
-        vcam.vcam_node_lookat = nullptr;
         if (def->alt_orientation_node.IsValidAnyState())
         {
             // This is a tracker camera
             vcam.vcam_type = GfxActor::VideoCamType::VCTYPE_TRACKING_VIDEOCAM;
-            vcam.vcam_node_lookat = &this->GetNodeOrThrow(def->alt_orientation_node);
+            vcam.vcam_node_lookat = static_cast<uint16_t>(this->GetNodeOrThrow(def->alt_orientation_node).pos);
         }
 
         // TODO: Eliminate gEnv

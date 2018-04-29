@@ -85,11 +85,11 @@ public:
         VideoCamera();
 
         VideoCamType         vcam_type;          // old 'camRole'
-        node_t*              vcam_node_center;   // old 'nref'
-        node_t*              vcam_node_dir_y;    // old 'ny'
-        node_t*              vcam_node_dir_z;    // old 'nz'
-        node_t*              vcam_node_alt_pos;  // old 'camNode'
-        node_t*              vcam_node_lookat;   // old 'lookat' - only present for type=VCTYPE_TRACK_CAM
+        uint16_t             vcam_node_center;   // old 'nref'
+        uint16_t             vcam_node_dir_y;    // old 'ny'
+        uint16_t             vcam_node_dir_z;    // old 'nz'
+        uint16_t             vcam_node_alt_pos;  // old 'camNode'
+        uint16_t             vcam_node_lookat;   // old 'lookat' - only present for type=VCTYPE_TRACK_CAM
         Ogre::Quaternion     vcam_rotation;      // old 'rotation'
         Ogre::Vector3        vcam_pos_offset;    // old 'offset'
         Ogre::MaterialPtr    vcam_material;      // old 'mat' + 'materialName'

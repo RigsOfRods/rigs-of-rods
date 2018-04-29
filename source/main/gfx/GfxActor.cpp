@@ -254,11 +254,11 @@ void RoR::GfxActor::SetVideoCamState(VideoCamState state)
 
 RoR::GfxActor::VideoCamera::VideoCamera():
     vcam_type(VideoCamType::VCTYPE_INVALID), // VideoCamType
-    vcam_node_center(nullptr),            // node_t*
-    vcam_node_dir_y(nullptr),             // node_t*
-    vcam_node_dir_z(nullptr),             // node_t*
-    vcam_node_alt_pos(nullptr),           // node_t*
-    vcam_node_lookat(nullptr),            // node_t*
+    vcam_node_center(node_t::INVALID_IDX),
+    vcam_node_dir_y(node_t::INVALID_IDX),
+    vcam_node_dir_z(node_t::INVALID_IDX),
+    vcam_node_alt_pos(node_t::INVALID_IDX),
+    vcam_node_lookat(node_t::INVALID_IDX),
     vcam_pos_offset(Ogre::Vector3::ZERO), // Ogre::Vector3
     vcam_ogre_camera(nullptr),            // Ogre::Camera*
     vcam_render_target(nullptr),          // Ogre::RenderTexture*
@@ -335,14 +335,15 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
             vidcam.vcam_render_window->update();
 
         // get the normal of the camera plane now
-        const Ogre::Vector3 abs_pos_center = vidcam.vcam_node_center->AbsPosition;
-        const Ogre::Vector3 abs_pos_z = vidcam.vcam_node_dir_z->AbsPosition;
-        const Ogre::Vector3 abs_pos_y = vidcam.vcam_node_dir_y->AbsPosition;
+        GfxActor::NodeData* node_buf = m_node_data_buffer.get();
+        const Ogre::Vector3 abs_pos_center = node_buf[vidcam.vcam_node_center].AbsPosition;
+        const Ogre::Vector3 abs_pos_z = node_buf[vidcam.vcam_node_dir_z].AbsPosition;
+        const Ogre::Vector3 abs_pos_y = node_buf[vidcam.vcam_node_dir_y].AbsPosition;
         Ogre::Vector3 normal = (-(abs_pos_center - abs_pos_z)).crossProduct(-(abs_pos_center - abs_pos_y));
         normal.normalise();
 
         // add user set offset
-        Ogre::Vector3 pos = vidcam.vcam_node_alt_pos->AbsPosition +
+        Ogre::Vector3 pos = node_buf[vidcam.vcam_node_alt_pos].AbsPosition +
             (vidcam.vcam_pos_offset.x * normal) +
             (vidcam.vcam_pos_offset.y * (abs_pos_center - abs_pos_y)) +
             (vidcam.vcam_pos_offset.z * (abs_pos_center - abs_pos_z));
@@ -373,7 +374,7 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
         }
         else if (vidcam.vcam_type == GfxActor::VideoCamType::VCTYPE_TRACKING_VIDEOCAM)
         {
-            normal = vidcam.vcam_node_lookat->AbsPosition - pos;
+            normal = node_buf[vidcam.vcam_node_lookat].AbsPosition - pos;
             normal.normalise();
             Ogre::Vector3 refx = abs_pos_z - abs_pos_center;
             refx.normalise();
