@@ -3542,36 +3542,15 @@ void Actor::UpdateFlexbodiesFinal()
 //v=1: no beams
 void Actor::setDetailLevel(int v)
 {
-    // TODO: There are 2 separate detail control mechanisms in the Actor: 'detailLevel' and 'beamsVisible' - investigate and refactor! ~ only_a_ptr, 12/2017
-    //       'beamsVisible' previously worked by hiding all individual Entities, while 'detailLevel' detached 'beamsRoot' sceneNode
-
+    if (m_gfx_detail_level == 0 && v == 1)
     {
-        if (m_gfx_detail_level == 0 && v == 1)
-        {
-            m_gfx_actor->SetRodsVisible(false);
-        }
-        if (m_gfx_detail_level == 1 && v == 0)
-        {
-            if (ar_beams_visible) // Check if not hidden by the other method
-            {
-                m_gfx_actor->SetRodsVisible(true);
-            }
-        }
-        m_gfx_detail_level = v;
+        m_gfx_actor->SetRodsVisible(false);
     }
-}
-
-void Actor::setBeamVisibility(bool visible)
-{
-    // TODO: There are 2 separate detail control mechanisms in the Actor: 'm_gfx_detail_level' (old:'detailLevel') 
-     //       and 'ar_beams_visible' (old:'beamsVisible') - investigate and refactor! ~ only_a_ptr, 12/2017
-    //       'beamsVisible' previously worked by hiding all individual Entities, while 'detailLevel' detached 'beamsRoot' sceneNode
-
-    if (!visible || (visible && (m_gfx_detail_level != 1))) // Check if not hidden by the other method
+    if (m_gfx_detail_level == 1 && v == 0)
     {
-        m_gfx_actor->SetRodsVisible(visible);
+        m_gfx_actor->SetRodsVisible(true);
     }
-    ar_beams_visible = visible;
+    m_gfx_detail_level = v;
 }
 
 void Actor::setMeshVisibility(bool visible)
@@ -4846,7 +4825,6 @@ Actor::Actor(
     , ar_aileron(0)
     , m_avionic_chatter_timer(11.0f) // some pseudo random number,  doesn't matter
     , m_beacon_light_is_active(false)
-    , ar_beams_visible(true)
     , m_blink_type(BLINK_NONE)
     , m_blinker_autoreset(false)
     , ar_brake(0.0)

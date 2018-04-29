@@ -175,7 +175,6 @@ public:
     bool              getCustomParticleMode();
     int               getLowestNode();
     void              receiveStreamData(unsigned int type, int source, unsigned int streamid, char *buffer, unsigned int len);
-    void              setBeamVisibility(bool visible);     //!< Gfx only; Sets visibility of all beams on this vehicle
     void              setMeshVisibility(bool visible);     //!< Gfx only; Sets visibility of all meshes on this vehicle
     bool              inRange(float num, float min, float max);
     bool              getSlideNodesLockInstant();
@@ -214,6 +213,7 @@ public:
     Ogre::Vector3     getVelocity() const               { return m_avg_node_velocity; }; //!< average actor velocity, calculated using the actor positions of the last two frames
     int               GetDebugOverlayType() const       { return m_debug_visuals; } // for GUI
     bool              GetUseSkidmarks() const           { return m_use_skidmarks; }
+    int               GetGfxDetailLevel() const         { return m_gfx_detail_level; }
 #ifdef USE_ANGELSCRIPT
     // we have to add this to be able to use the class as reference inside scripts
     void              addRef()                          {};
@@ -379,7 +379,6 @@ public:
     bool ar_left_blink_on:1;  //!< Gfx state; turn signals
     bool ar_right_blink_on:1; //!< Gfx state; turn signals
     bool ar_warn_blink_on:1;  //!< Gfx state; turn signals
-    bool ar_beams_visible:1;  //!< Gfx state; Are beams visible? @see setBeamVisibility
     bool ar_meshes_visible:1; //!< Gfx state; Are meshes visible? @see setMeshVisibility
     bool ar_skeletonview_is_active:1; //!< Gfx state
     bool ar_update_physics:1; //!< Physics state; Should this actor be updated (locally) in the next physics step?

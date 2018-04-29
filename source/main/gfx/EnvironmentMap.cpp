@@ -246,17 +246,11 @@ void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, Actor* beam /* = 0 */)
     // but only if they are visible ...
     bool toggleMeshes = beam && beam->ar_meshes_visible;
 
-    // same for all beams
-    bool toggleBeams = beam && beam->ar_beams_visible;
-
     if (toggleMeshes)
     {
         beam->setMeshVisibility(false);
     }
-    if (toggleBeams)
-    {
-        beam->setBeamVisibility(false);
-    }
+    beam->GetGfxActor()->SetRodsVisible(false);
 
     const int update_rate = App::gfx_envmap_rate.GetActive();
     for (int i = 0; i < update_rate; i++)
@@ -284,9 +278,9 @@ void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, Actor* beam /* = 0 */)
     {
         beam->setMeshVisibility(true);
     }
-    if (toggleBeams)
+    if (beam->GetGfxDetailLevel() == 0) // Full detail? Show beams again
     {
-        beam->setBeamVisibility(true);
+        beam->GetGfxActor()->SetRodsVisible(true);
     }
 }
 
