@@ -503,101 +503,6 @@ void ActorSpawner::FinalizeRig()
         //wash calculator
         WashCalculator();
     }
-    //add the cab visual
-    if (!m_oldstyle_cab_texcoords.empty() && m_actor->ar_num_cabs>0)
-    {
-        //the cab materials are as follow:
-        //texname: base texture with emissive(2 pass) or without emissive if none available(1 pass), alpha cutting
-        //texname-trans: transparency texture (1 pass)
-        //texname-back: backface texture: black+alpha cutting (1 pass)
-        //texname-noem: base texture without emissive (1 pass), alpha cutting
-
-        //material passes must be:
-        //0: normal texture
-        //1: transparent (windows)
-        //2: emissive
-
-        Ogre::MaterialPtr mat = RoR::OgreSubsystem::GetMaterialByName(m_cab_material_name);
-        if (mat.isNull())
-        {
-            Ogre::String msg = "Material '"+m_cab_material_name+"' missing!";
-            AddMessage(Message::TYPE_ERROR, msg);
-            return;
-        }
-
-        //-trans
-        char transmatname[256];
-        sprintf(transmatname, "%s-trans", m_cab_material_name.c_str());
-        Ogre::MaterialPtr transmat=mat->clone(transmatname);
-        if (mat->getTechnique(0)->getNumPasses()>1) // If there's the "emissive pass", remove it from the 'transmat'
-        {
-            transmat->getTechnique(0)->removePass(1);
-        }
-        transmat->getTechnique(0)->getPass(0)->setAlphaRejectSettings(Ogre::CMPF_LESS_EQUAL, 128);
-        transmat->getTechnique(0)->getPass(0)->setDepthWriteEnabled(false);
-        if (transmat->getTechnique(0)->getPass(0)->getNumTextureUnitStates()>0)
-        {
-            transmat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_NONE);
-        }
-        transmat->compile();
-        m_cab_trans_material = transmat;
-
-        //-back
-        char backmatname[256];
-        sprintf(backmatname, "%s-back", m_cab_material_name.c_str());
-        Ogre::MaterialPtr backmat=mat->clone(backmatname);
-        if (mat->getTechnique(0)->getNumPasses()>1)// If there's the "emissive pass", remove it from the 'transmat'
-        {
-            backmat->getTechnique(0)->removePass(1);
-        }
-        if (transmat->getTechnique(0)->getPass(0)->getNumTextureUnitStates()>0)
-        {
-            backmat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setColourOperationEx(
-                Ogre::LBX_SOURCE1, 
-                Ogre::LBS_MANUAL, 
-                Ogre::LBS_MANUAL, 
-                Ogre::ColourValue(0,0,0),
-                Ogre::ColourValue(0,0,0)
-            );
-        }
-        if (m_actor->m_gfx_reduce_shadows)
-        {
-            backmat->setReceiveShadows(false);
-        }
-        backmat->compile();
-
-        char cab_material_name_cstr[1000] = {};
-        strncpy(cab_material_name_cstr, m_cab_material_name.c_str(), 999);
-        std::string mesh_name = this->ComposeName("VehicleCabMesh", 0);
-        m_actor->m_cab_mesh =new FlexObj( // Names in FlexObj ctor
-            m_actor->ar_nodes,            // node_t* nds
-            m_oldstyle_cab_texcoords,// std::vector<CabNodeTexcoords>& texcoords
-            m_actor->ar_num_cabs,         // int     numtriangles
-            m_actor->ar_cabs,             // int*    triangles
-            m_oldstyle_cab_submeshes,// std::vector<CabSubmesh>& submeshes
-            cab_material_name_cstr,          // char*   texname
-            mesh_name.c_str(),
-            backmatname,             // char*   backtexname
-            transmatname             // char*   transtexname
-        );
-
-        m_actor->m_cab_scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-        Ogre::Entity *ec = nullptr;
-        try
-        {
-            ec = gEnv->sceneManager->createEntity(this->ComposeName("VehicleCabEntity", 0), mesh_name);
-            this->SetupNewEntity(ec, Ogre::ColourValue(0.5, 1, 0.5));
-            if (ec)
-            {
-                m_actor->m_cab_scene_node->attachObject(ec);
-            }
-        }
-        catch (...)
-        {
-            this->AddMessage(Message::TYPE_ERROR, "error loading mesh: "+mesh_name);
-        }
-        m_actor->m_cab_entity = ec;
-    };
 
     m_actor->ar_lowest_node = FindLowestNodeInRig();
     m_actor->ar_lowest_contacting_node = FindLowestContactingNodeInRig();
@@ -7055,14 +6960,6 @@ void ActorSpawner::FinalizeGfxSetup()
         m_actor->m_gfx_actor->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_DISABLED);
     }
 
-    // Process "emissive cab" materials
-    if (m_actor->m_cab_entity != nullptr)
-    {
-        auto search_itor = m_material_substitutions.find(m_cab_material_name);
-        m_actor->m_gfx_actor->RegisterCabMaterial(search_itor->second.material, m_cab_trans_material);
-        m_actor->m_gfx_actor->SetCabLightsActive(false); // Reset emissive lights to "off" state
-    }
-
     // Load dashboard layouts
     for (auto& module: m_selected_modules)
     {
@@ -7160,6 +7057,110 @@ void ActorSpawner::FinalizeGfxSetup()
         int node2 = m_actor->ar_beams[bv.beam_index].p2->pos;
         m_actor->m_gfx_actor->AddRod(bv.beam_index, node1, node2, bv.material_name.c_str(), bv.visible, bv.diameter);
     }
+
+    //add the cab visual
+    // TODO: The 'cab mesh' functionality is a legacy quagmire, 
+    //        data are scattered across `Actor`, `GfxActor` and `FlexObj` - research and unify!! ~ only_a_ptr, 04/2018
+    if (!m_oldstyle_cab_texcoords.empty() && m_actor->ar_num_cabs>0)
+    {
+        //the cab materials are as follow:
+        //texname: base texture with emissive(2 pass) or without emissive if none available(1 pass), alpha cutting
+        //texname-trans: transparency texture (1 pass)
+        //texname-back: backface texture: black+alpha cutting (1 pass)
+        //texname-noem: base texture without emissive (1 pass), alpha cutting
+
+        //material passes must be:
+        //0: normal texture
+        //1: transparent (windows)
+        //2: emissive
+
+        Ogre::MaterialPtr mat = RoR::OgreSubsystem::GetMaterialByName(m_cab_material_name);
+        if (mat.isNull())
+        {
+            Ogre::String msg = "Material '"+m_cab_material_name+"' missing!";
+            AddMessage(Message::TYPE_ERROR, msg);
+            return;
+        }
+
+        //-trans
+        char transmatname[256];
+        sprintf(transmatname, "%s-trans", m_cab_material_name.c_str());
+        Ogre::MaterialPtr transmat=mat->clone(transmatname);
+        if (mat->getTechnique(0)->getNumPasses()>1) // If there's the "emissive pass", remove it from the 'transmat'
+        {
+            transmat->getTechnique(0)->removePass(1);
+        }
+        transmat->getTechnique(0)->getPass(0)->setAlphaRejectSettings(Ogre::CMPF_LESS_EQUAL, 128);
+        transmat->getTechnique(0)->getPass(0)->setDepthWriteEnabled(false);
+        if (transmat->getTechnique(0)->getPass(0)->getNumTextureUnitStates()>0)
+        {
+            transmat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_NONE);
+        }
+        transmat->compile();
+        m_cab_trans_material = transmat;
+
+        //-back
+        char backmatname[256];
+        sprintf(backmatname, "%s-back", m_cab_material_name.c_str());
+        Ogre::MaterialPtr backmat=mat->clone(backmatname);
+        if (mat->getTechnique(0)->getNumPasses()>1)// If there's the "emissive pass", remove it from the 'transmat'
+        {
+            backmat->getTechnique(0)->removePass(1);
+        }
+        if (transmat->getTechnique(0)->getPass(0)->getNumTextureUnitStates()>0)
+        {
+            backmat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setColourOperationEx(
+                Ogre::LBX_SOURCE1, 
+                Ogre::LBS_MANUAL, 
+                Ogre::LBS_MANUAL, 
+                Ogre::ColourValue(0,0,0),
+                Ogre::ColourValue(0,0,0)
+            );
+        }
+        if (m_actor->m_gfx_reduce_shadows)
+        {
+            backmat->setReceiveShadows(false);
+        }
+        backmat->compile();
+
+        char cab_material_name_cstr[1000] = {};
+        strncpy(cab_material_name_cstr, m_cab_material_name.c_str(), 999);
+        std::string mesh_name = this->ComposeName("VehicleCabMesh", 0);
+        m_actor->m_cab_mesh =new FlexObj(
+            m_actor->m_gfx_actor.get(),
+            m_actor->ar_nodes,
+            m_oldstyle_cab_texcoords,
+            m_actor->ar_num_cabs,
+            m_actor->ar_cabs,
+            m_oldstyle_cab_submeshes,
+            cab_material_name_cstr,
+            mesh_name.c_str(),
+            backmatname,
+            transmatname
+        );
+
+        m_actor->m_cab_scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+        Ogre::Entity *ec = nullptr;
+        try
+        {
+            ec = gEnv->sceneManager->createEntity(this->ComposeName("VehicleCabEntity", 0), mesh_name);
+            this->SetupNewEntity(ec, Ogre::ColourValue(0.5, 1, 0.5));
+            if (ec)
+            {
+                m_actor->m_cab_scene_node->attachObject(ec);
+            }
+            m_actor->m_cab_entity = ec;
+
+            // Process "emissive cab" materials
+            auto search_itor = m_material_substitutions.find(m_cab_material_name);
+            m_actor->m_gfx_actor->RegisterCabMaterial(search_itor->second.material, m_cab_trans_material);
+            m_actor->m_gfx_actor->SetCabLightsActive(false); // Reset emissive lights to "off" state
+        }
+        catch (...)
+        {
+            this->AddMessage(Message::TYPE_ERROR, "error loading mesh: "+mesh_name);
+        }
+    };
 }
 
 Ogre::ManualObject* CreateVideocameraDebugMesh()

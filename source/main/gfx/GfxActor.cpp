@@ -26,6 +26,7 @@
 #include "beam_t.h"
 #include "Collisions.h"
 #include "DustPool.h" // General particle gfx
+#include "FlexObj.h"
 #include "GlobalEnvironment.h" // TODO: Eliminate!
 #include "RoRFrameListener.h" // SimController
 #include "SkyManager.h"
@@ -63,6 +64,8 @@ RoR::GfxActor::GfxActor(Actor* actor, std::string ogre_resource_group, std::vect
     m_particles_ripple = dustman.getDustPool("ripple");
     m_particles_sparks = dustman.getDustPool("sparks");
     m_particles_clump  = dustman.getDustPool("clump");
+
+    m_node_data_buffer.reset(new NodeData[actor->ar_num_nodes]);
 }
 
 RoR::GfxActor::~GfxActor()
@@ -873,3 +876,22 @@ void RoR::GfxActor::SetRodsVisible(bool visible)
         gEnv->sceneManager->getRootSceneNode()->removeChild(m_rods_parent_scenenode);
     }
 }
+
+void RoR::GfxActor::UpdateSimDataBuffer()
+{
+    const int num_nodes = m_actor->ar_num_nodes;
+    for (int i = 0; i < num_nodes; ++i)
+    {
+        m_node_data_buffer.get()[i].AbsPosition = m_actor->ar_nodes[i].AbsPosition;
+    }
+}
+
+void RoR::GfxActor::UpdateCabMesh()
+{
+    // TODO: Hacky, requires 'friend' access to `Actor` -> move the visuals to GfxActor!
+    if ((m_actor->m_cab_entity != nullptr) && (m_actor->m_cab_mesh != nullptr))
+    {
+        m_actor->m_cab_scene_node->setPosition(m_actor->m_cab_mesh->UpdateFlexObj());
+    }
+}
+

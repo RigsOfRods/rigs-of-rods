@@ -458,14 +458,22 @@ void ActorManager::SetupActor(
     //
     actor->m_net_node_buf_size = sizeof(float) * 3 + (actor->m_net_first_wheel_node - 1) * sizeof(short int) * 3;
     actor->m_net_buffer_size = actor->m_net_node_buf_size + actor->ar_num_wheels * sizeof(float);
-    actor->UpdateFlexbodiesPrepare();
-    actor->UpdateFlexbodiesFinal();
-    actor->updateVisual();
-    // stop lights
-    actor->ToggleLights();
 
+    // Initialize visuals
+    actor->updateVisual();
+    actor->ToggleLights();
     actor->updateFlares(0);
     actor->updateProps();
+
+    if (actor->isPreloadedWithTerrain())
+    {
+        actor->UpdateFlexbodiesPrepare();
+        actor->UpdateFlexbodiesFinal();
+
+        actor->GetGfxActor()->UpdateSimDataBuffer(); // Initial fill of sim data buffers
+        actor->GetGfxActor()->UpdateCabMesh();
+    }
+
     if (actor->ar_engine)
     {
         actor->ar_engine->OffStart();
@@ -1273,6 +1281,17 @@ void ActorManager::UpdateActorVisuals(float dt,  Actor* player_actor)
     }
 }
 
+void ActorManager::PrepareAsyncGfxUpdate()
+{
+    for (int t = 0; t < m_free_actor_slot; t++)
+    {
+        if (m_actors[t] && m_actors[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
+        {
+            m_actors[t]->GetGfxActor()->UpdateSimDataBuffer(); // Copy sim data from Actor to GfxActor
+        }
+    }
+}
+
 void ActorManager::UpdateActors(Actor* player_actor, float dt)
 {
     m_physics_frames++;
@@ -1678,6 +1697,20 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(const char* filename, 
     {
         HandleErrorLoadingTruckfile(filename, "<Unknown exception occurred>");
         return nullptr;
+    }
+}
+
+void ActorManager::UpdateActorVisualsAsync()
+{
+    for (int t = 0; t < m_free_actor_slot; t++)
+    {
+        // Skip removed and broken actors
+        if ((m_actors[t] == nullptr) || (m_actors[t]->ar_sim_state >= Actor::SimState::LOCAL_SLEEPING))
+        {
+            continue;
+        }
+
+        m_actors[t]->GetGfxActor()->UpdateCabMesh();
     }
 }
 

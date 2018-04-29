@@ -1786,8 +1786,12 @@ bool SimController::UpdateSimulation(float dt)
         if (!simPAUSED(s))
         {
             m_actor_manager.JoinFlexbodyTasks(); // Waits until all flexbody tasks are finished
-            m_actor_manager.UpdateActors(m_player_actor, dt);
+            m_actor_manager.PrepareAsyncGfxUpdate(); // Copy N/B from Actor to GfxActor
+
+            m_actor_manager.UpdateActors(m_player_actor, dt); // *** Start new physics tasks. No reading from Actor N/B beyond this point.
+
             m_actor_manager.UpdateFlexbodiesFinal(); // Updates the harware buffers
+            m_actor_manager.UpdateActorVisualsAsync(); // NEW; REFACTOR IN PROGRESS - Updates visuals from data buffered in GfxActor
         }
 
         if (simRUNNING(s) && (App::sim_state.GetPending() == SimState::PAUSED))

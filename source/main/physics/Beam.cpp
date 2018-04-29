@@ -3316,9 +3316,6 @@ void Actor::UpdateActorNetLabels(float dt)
 
 void Actor::UpdateFlexbodiesPrepare()
 {
-    if (m_cab_scene_node && m_cab_mesh)
-        m_cab_scene_node->setPosition(m_cab_mesh->UpdateFlexObj());
-
     if (gEnv->threadPool)
     {
         m_flexmesh_prepare.reset();

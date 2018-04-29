@@ -22,18 +22,19 @@
 #include "FlexObj.h"
 
 #include "ApproxMath.h" // fast_normalise()
+#include "GfxActor.h"
 
 #include <Ogre.h>
 
 using namespace Ogre;
 
-FlexObj::FlexObj(node_t *nds, std::vector<CabTexcoord>& texcoords, int numtriangles, 
+FlexObj::FlexObj(RoR::GfxActor* gfx_actor, node_t* all_nodes, std::vector<CabTexcoord>& texcoords, int numtriangles, 
                  int* triangles, std::vector<CabSubmesh>& submesh_defs, 
-                 char* texname, const char* name, char* backtexname, char* transtexname)
+                 char* texname, const char* name, char* backtexname, char* transtexname):
+    m_gfx_actor(gfx_actor)
 {
     m_triangle_count = numtriangles;
 
-    m_all_nodes=nds;
     // Create the mesh via the MeshManager
     m_mesh = MeshManager::getSingleton().createManual(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
@@ -75,9 +76,9 @@ FlexObj::FlexObj(node_t *nds, std::vector<CabTexcoord>& texcoords, int numtriang
 
     for (size_t i=0; i<(unsigned int)numtriangles;i++)
     {
-        Ogre::Vector3 base_pos = m_all_nodes[m_vertex_nodes[m_indices[i*3]]].RelPosition;
-        Ogre::Vector3 v1       = m_all_nodes[m_vertex_nodes[m_indices[i*3+1]]].RelPosition - base_pos;
-        Ogre::Vector3 v2       = m_all_nodes[m_vertex_nodes[m_indices[i*3+2]]].RelPosition - base_pos;
+        Ogre::Vector3 base_pos = all_nodes[m_vertex_nodes[m_indices[i*3]]].RelPosition;
+        Ogre::Vector3 v1       = all_nodes[m_vertex_nodes[m_indices[i*3+1]]].RelPosition - base_pos;
+        Ogre::Vector3 v2       = all_nodes[m_vertex_nodes[m_indices[i*3+2]]].RelPosition - base_pos;
         m_s_ref[i]=v1.crossProduct(v2).length()*2.0;
     }
 
@@ -183,11 +184,12 @@ int FlexObj::ComputeVertexPos(int tidx, int v, std::vector<CabSubmesh>& submeshe
 
 Vector3 FlexObj::UpdateMesh()
 {
-    Ogre::Vector3 center=(m_all_nodes[m_vertex_nodes[0]].AbsPosition+m_all_nodes[m_vertex_nodes[1]].AbsPosition)/2.0;
+    RoR::GfxActor::NodeData* all_nodes = m_gfx_actor->GetSimNodeBuffer();
+    Ogre::Vector3 center=(all_nodes[m_vertex_nodes[0]].AbsPosition+all_nodes[m_vertex_nodes[1]].AbsPosition)/2.0;
     for (size_t i=0; i<m_vertex_count; i++)
     {
         //set position
-        m_vertices[i].position=m_all_nodes[m_vertex_nodes[i]].AbsPosition-center;
+        m_vertices[i].position=all_nodes[m_vertex_nodes[i]].AbsPosition-center;
         //reset normals
         m_vertices[i].normal=Vector3::ZERO;
     }
@@ -195,8 +197,8 @@ Vector3 FlexObj::UpdateMesh()
     for (size_t i=0; i<m_index_count/3; i++)
     {
         Vector3 v1, v2;
-        v1=m_all_nodes[m_vertex_nodes[m_indices[i*3+1]]].AbsPosition-m_all_nodes[m_vertex_nodes[m_indices[i*3]]].AbsPosition;
-        v2=m_all_nodes[m_vertex_nodes[m_indices[i*3+2]]].AbsPosition-m_all_nodes[m_vertex_nodes[m_indices[i*3]]].AbsPosition;
+        v1=all_nodes[m_vertex_nodes[m_indices[i*3+1]]].AbsPosition-all_nodes[m_vertex_nodes[m_indices[i*3]]].AbsPosition;
+        v2=all_nodes[m_vertex_nodes[m_indices[i*3+2]]].AbsPosition-all_nodes[m_vertex_nodes[m_indices[i*3]]].AbsPosition;
         v1=v1.crossProduct(v2);
         float s=v1.length();
 

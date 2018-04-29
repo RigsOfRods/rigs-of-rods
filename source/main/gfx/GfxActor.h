@@ -119,6 +119,13 @@ public:
 
     }; // more to come... ~only_a_ptr, 04/2018
 
+    /// Copy of node simulation state
+    struct NodeData
+    {
+        // Members intentionally have same names as in `node_t`
+        Ogre::Vector3 AbsPosition;
+    };
+
     /// Visuals of softbody beam (`beam_t` struct)
     struct Rod
     {
@@ -145,8 +152,11 @@ public:
     void                      UpdateRods         ();
     void                      SetRodsVisible     (bool visible);
     void                      ScaleActor         (float ratio);
+    void                      UpdateSimDataBuffer(); //!< Copies sim. data from `Actor` to `GfxActor` for later update
+    NodeData*                 GetSimNodeBuffer   () { return m_node_data_buffer.get(); }
     void                      UpdateDebugView    ();
     void                      CycleDebugViews    ();
+    void                      UpdateCabMesh      ();
     inline void               SetDebugView       (DebugViewType dv)       { m_debug_view = dv; }
     inline Ogre::MaterialPtr& GetCabTransMaterial()                       { return m_cab_mat_visual_trans; }
     inline VideoCamState      GetVideoCamState   () const                 { return m_vidcam_state; }
@@ -172,6 +182,7 @@ private:
     DustPool*                   m_particles_clump;
     std::vector<Rod>            m_rods;
     Ogre::SceneNode*            m_rods_parent_scenenode;
+    std::unique_ptr<NodeData>   m_node_data_buffer;
 
     // Cab materials and their features
     Ogre::MaterialPtr           m_cab_mat_visual; ///< Updated in-place from templates

@@ -42,6 +42,7 @@ class Actor : public ZeroedMemoryAllocator
 {
     friend class ActorSpawner;
     friend class RoR::ActorManager;
+    friend class RoR::GfxActor; // Temporary until all visuals are moved there. ~ only_a_ptr, 2018
 public:
 
     enum class SimState

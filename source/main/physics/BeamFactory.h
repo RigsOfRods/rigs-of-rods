@@ -64,7 +64,7 @@ public:
     void           UpdateActors(Actor* player_actor, float dt);
     void           SyncWithSimThread();
     void           UpdatePhysicsSimulation();
-    void           UpdateActorVisuals(float dt, Actor* player_actor); // TODO: This should be done by GfxActor
+    void           PrepareAsyncGfxUpdate(); ///!< Copies data necessary for updating visuals
     void           WakeUpAllActors();
     void           SendAllActorsSleeping();
     int            CheckNetworkStreamsOk(int sourceid);
@@ -95,6 +95,10 @@ public:
     Actor*         GetActorByIdInternal(int number); //!< DO NOT CALL DIRECTLY! Use `SimController` for public interface
     int            CountActorsInternal() const;
     int            CountPlayableActorsInternal() const; //!< For selector GUI
+
+    // Visual updates
+    void           UpdateActorVisuals(float dt, Actor* player_actor); // LEGACY; reads data directly from Actor, requires physics to be halted
+    void           UpdateActorVisualsAsync(); // NEW - REFACTOR IN PROGRESS; reads data from GfxActor buffers
 
 #ifdef USE_SOCKETW
     void           HandleActorStreamData(std::vector<RoR::Networking::recv_packet_t> packet);
