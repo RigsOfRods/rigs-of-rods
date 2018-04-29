@@ -100,7 +100,7 @@ private:
     void   windowResized           (Ogre::RenderWindow* rw);
 
     void   UpdateForceFeedback     (float dt);
-    bool   UpdateInputEvents       (float dt);
+    void   UpdateInputEvents       (float dt);
     void   UpdateRacingGui         ();
     void   FinalizeActorSpawning   (Actor* local_actor, Actor* previous_actor);
     void   HideGUI                 (bool hidden);

@@ -251,17 +251,17 @@ void SimController::UpdateRacingGui()
     ow->laptimemin->setCaption(UTFString(txt));
 }
 
-bool SimController::UpdateInputEvents(float dt)
+void SimController::UpdateInputEvents(float dt)
 {
     if (dt == 0.0f)
-        return true;
+        return;
 
     auto s = App::sim_state.GetActive();
     auto gui_man = App::GetGuiManager();
 
     RoR::App::GetInputEngine()->updateKeyBounces(dt);
     if (!RoR::App::GetInputEngine()->getInputsChanged())
-        return true;
+        return;
 
     // update overlays if enabled
     if (RoR::App::GetOverlayWrapper())
@@ -294,7 +294,7 @@ bool SimController::UpdateInputEvents(float dt)
     }
 
     if (App::sim_state.GetActive() == SimState::PAUSED)
-        return true; //Stop everything when pause menu is visible
+        return; //Stop everything when pause menu is visible
 
     if (gui_man->IsVisible_FrictionSettings() && m_player_actor)
     {
@@ -393,7 +393,7 @@ bool SimController::UpdateInputEvents(float dt)
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCKEDIT_RELOAD, 0.5f) && m_player_actor)
     {
         this->ReloadPlayerActor();
-        return true;
+        return;
     }
 
     // position storage
@@ -1505,9 +1505,6 @@ bool SimController::UpdateInputEvents(float dt)
         }
         LOG("Position: " + TOSTRING(position.x) + ", "+ TOSTRING(position.y) + ", " + TOSTRING(position.z) + ", 0, " + TOSTRING(rotation.valueDegrees()) + ", 0");
     }
-
-    // Return true to continue rendering
-    return true;
 }
 
 void SimController::TeleportPlayer(RoR::Terrn2Telepoint* telepoint)
@@ -1594,7 +1591,6 @@ bool SimController::UpdateSimulation(float dt)
 #endif //SOCKETW
 
     RoR::App::GetInputEngine()->Capture();
-    const bool is_altkey_pressed =  App::GetInputEngine()->isKeyDown(OIS::KeyCode::KC_LMENU) || App::GetInputEngine()->isKeyDown(OIS::KeyCode::KC_RMENU);
     auto s = App::sim_state.GetActive();
 
     //if (gEnv->collisions) 	printf("> ground model used: %s\n", gEnv->collisions->last_used_ground_model->name);
@@ -1713,11 +1709,8 @@ bool SimController::UpdateSimulation(float dt)
         m_actor_manager.UpdateActorVisuals(dt, m_player_actor); // update visual - antishaking
     }
 
-    if (! this->UpdateInputEvents(dt))
-    {
-        LOG("exiting...");
-        return false;
-    }
+    this->UpdateInputEvents(dt);
+
     // CAUTION: 'updateEvents' might have changed 'm_player_actor'
     //          TODO: This is a mess - actor updates from misc. inputs should be buffered, evaluated and executed at once, not ad-hoc ~ only_a_ptr, 07/2017
 
@@ -1738,7 +1731,7 @@ bool SimController::UpdateSimulation(float dt)
 
     // CAUTION: 'FrameStepGui()' might have changed 'm_player_actor'
     //           TODO: This is a mess - actor updates from misc. inputs should be buffered, evaluated and executed at once, not ad-hoc ~ only_a_ptr, 07/2017
-
+    const bool is_altkey_pressed =  App::GetInputEngine()->isKeyDown(OIS::KeyCode::KC_LMENU) || App::GetInputEngine()->isKeyDown(OIS::KeyCode::KC_RMENU);
     App::GetGuiManager()->GetTeleport()->TeleportWindowFrameStep(
         gEnv->player->getPosition().x, gEnv->player->getPosition().z, is_altkey_pressed);
 
