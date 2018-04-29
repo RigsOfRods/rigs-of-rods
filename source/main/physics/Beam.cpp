@@ -3589,8 +3589,6 @@ void Actor::setMeshVisibility(bool visible)
     {
         m_cab_scene_node->setVisible(visible);
     }
-
-    ar_meshes_visible = visible;
 }
 
 void Actor::AddInterActorBeam(beam_t* beam, Actor* a, Actor* b)
@@ -4869,7 +4867,6 @@ Actor::Actor(
     , m_spawn_rotation(0.0)
     , ar_net_stream_id(0)
     , m_custom_light_toggle_countdown(0)
-    , ar_meshes_visible(true)
     , m_min_camera_radius(-1.0f)
     , m_mouse_grab_move_force(0.0f)
     , m_mouse_grab_node(-1)

@@ -226,9 +226,9 @@ RoR::GfxEnvmap::~GfxEnvmap()
     Ogre::TextureManager::getSingleton().remove(m_rtt_texture->getName());
 }
 
-void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, Actor* beam /* = 0 */)
+void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, Actor* actor /* = 0 */)
 {
-    if (!App::gfx_envmap_enabled.GetActive() || !beam)
+    if (!App::gfx_envmap_enabled.GetActive() || !actor)
     {
         if (!m_is_initialized)
         {
@@ -242,15 +242,12 @@ void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, Actor* beam /* = 0 */)
         m_cameras[i]->setPosition(center);
     }
 
-    // try to hide all flexbodies and cabs prior render, and then show them again after done
-    // but only if they are visible ...
-    bool toggleMeshes = beam && beam->ar_meshes_visible;
-
-    if (toggleMeshes)
+    if (actor != nullptr)
     {
-        beam->setMeshVisibility(false);
+        // hide all flexbodies and cabs prior render, and then show them again after done but only if they are visible ...
+        actor->setMeshVisibility(false);
+        actor->GetGfxActor()->SetRodsVisible(false);
     }
-    beam->GetGfxActor()->SetRodsVisible(false);
 
     const int update_rate = App::gfx_envmap_rate.GetActive();
     for (int i = 0; i < update_rate; i++)
@@ -274,13 +271,13 @@ void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, Actor* beam /* = 0 */)
     }
 #endif // USE_CAELUM
 
-    if (toggleMeshes)
+    if (actor != nullptr)
     {
-        beam->setMeshVisibility(true);
-    }
-    if (beam->GetGfxDetailLevel() == 0) // Full detail? Show beams again
-    {
-        beam->GetGfxActor()->SetRodsVisible(true);
+        actor->setMeshVisibility(true);
+        if (actor->GetGfxDetailLevel() == 0) // Full detail? Show actors again
+        {
+            actor->GetGfxActor()->SetRodsVisible(true);
+        }
     }
 }
 
