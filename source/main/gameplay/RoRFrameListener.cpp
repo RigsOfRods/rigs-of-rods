@@ -1562,13 +1562,8 @@ void SimController::FinalizeActorSpawning(Actor* local_actor, Actor* prev_actor)
     }
 }
 
-bool SimController::UpdateSimulation(float dt)
+void SimController::UpdateSimulation(float dt)
 {
-    if (dt == 0.0f)
-        return true;
-    dt = std::min(dt, 0.05f);
-    m_time += dt;
-
     m_actor_manager.SyncWithSimThread();
 
     const bool mp_connected = (App::mp_state.GetActive() == MpState::CONNECTED);
@@ -1781,12 +1776,6 @@ bool SimController::UpdateSimulation(float dt)
             m_actor_manager.UpdateActors(m_player_actor, dt); // *** Start new physics tasks. No reading from Actor N/B beyond this point.
 
             m_actor_manager.UpdateFlexbodiesFinal(); // Updates the harware buffers
-            m_actor_manager.UpdateActorVisualsAsync(); // NEW; REFACTOR IN PROGRESS - Updates visuals from data buffered in GfxActor
-            if (m_player_actor != nullptr)
-            {
-                m_gfx_envmap.UpdateEnvMap(m_player_actor->GetGfxActor()->GetSimActorPos(), m_player_actor); // Safe to be called here, only modifies OGRE objects, doesn't read any physics state.
-                m_player_actor->GetGfxActor()->UpdateVideoCameras(dt);
-            }
         }
 
         if (simRUNNING(s) && (App::sim_state.GetPending() == SimState::PAUSED))
@@ -1802,10 +1791,8 @@ bool SimController::UpdateSimulation(float dt)
             App::sim_state.ApplyPending();
         }
     }
-
     App::GetGuiManager()->GetImGui().Render();
 
-    return true;
 }
 
 void SimController::ShowLoaderGUI(int type, const Ogre::String& instance, const Ogre::String& box)
@@ -2403,15 +2390,19 @@ void SimController::EnterGameplayLoop()
             continue;
         }
 
-        // ===== Timing - reproduction of 'Ogre::FrameListener' internal process (only logic RoR actively used). =====
         const unsigned long framestarted_now = framestarted_timer->getMilliseconds();
         const float framestarted_dt_sec = static_cast<float>(framestarted_now - framestarted_prev) / 1000;
         framestarted_prev = framestarted_now;
-        // ===== Timing - end =====
 
         App::GetGuiManager()->NewImGuiFrame(framestarted_dt_sec);
 
-        this->UpdateSimulation(framestarted_dt_sec); // previously 'frameStarted()'
+        if (framestarted_dt_sec != 0.f)
+        {
+            const float dt_sec = std::min(framestarted_dt_sec, 0.05f);
+            m_time += dt_sec;
+            this->UpdateSimulation(dt_sec);
+            this->UpdateGfxScene(dt_sec);
+        }
 
         // TODO: Ugly! Currently it seems drawing DearIMGUI only works when invoked from `Ogre::FrameListener::frameRenderingQueued`.
         //       We only want GUI on screen, not other targets (reflections etc...), so we can't have it attached permanently.
@@ -2471,6 +2462,22 @@ void SimController::SetPlayerActorById(int actor_id)
     if (actor != nullptr)
     {
         this->SetPlayerActor(actor);
+    }
+}
+
+void SimController::UpdateGfxScene(float dt_sec)
+{
+    // *** REFACTOR IN PROGRESS
+    // Scene updates are being moved here from `UpdateSimulation()`
+
+    if (RoR::App::sim_state.GetActive() != RoR::SimState::PAUSED)
+    {
+        m_actor_manager.UpdateActorVisualsAsync(); // NEW; REFACTOR IN PROGRESS - Updates visuals from data buffered in GfxActor
+        if (m_player_actor != nullptr)
+        {
+            m_gfx_envmap.UpdateEnvMap(m_player_actor->GetGfxActor()->GetSimActorPos(), m_player_actor); // Safe to be called here, only modifies OGRE objects, doesn't read any physics state.
+            m_player_actor->GetGfxActor()->UpdateVideoCameras(dt_sec);
+        }
     }
 }
 
