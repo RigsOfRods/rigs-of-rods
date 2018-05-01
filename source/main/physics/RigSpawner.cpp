@@ -4124,56 +4124,7 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     ++m_actor->ar_num_wheels;
 
     // Create visuals
-    BuildMeshWheelVisuals(
-        wheel_index,
-        base_node_index,
-        axis_node_1->pos,
-        axis_node_2->pos,
-        def.num_rays,
-        def.rim_mesh_name,
-        "tracks/trans", // Rim material name. Original parser: was hardcoded in BTS_FLEXBODYWHEELS
-        def.rim_radius,
-        def.side != RigDef::MeshWheel::SIDE_RIGHT
-        );
-
-    const std::string flexwheel_name = this->ComposeName("FlexBodyWheel", m_actor->ar_num_flexbodies);
-
-    int num_nodes = def.num_rays * 4;
-    std::vector<unsigned int> node_indices;
-    node_indices.reserve(num_nodes);
-    for (int i = 0; i < num_nodes; ++i)
-    {
-        node_indices.push_back( base_node_index + i );
-    }
-
-    RigDef::Flexbody flexbody_def;
-    flexbody_def.mesh_name = def.tyre_mesh_name;
-    flexbody_def.offset = Ogre::Vector3(0.5,0,0);
-
-    try
-    {
-        auto* flexbody = m_flex_factory.CreateFlexBody(
-            &flexbody_def,
-            axis_node_1->pos,
-            axis_node_2->pos,
-            static_cast<int>(base_node_index),
-            Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3::UNIT_Y),
-            node_indices
-            );
-
-        if (flexbody == nullptr)
-            return; // Error already logged
-
-        this->CreateWheelSkidmarks(static_cast<unsigned>(wheel_index));
-
-        m_actor->ar_flexbodies[m_actor->ar_num_flexbodies] = flexbody;
-        m_actor->ar_num_flexbodies++;
-    }
-    catch (Ogre::Exception& e)
-    {
-        this->AddMessage(Message::TYPE_ERROR, 
-            "Failed to create flexbodywheel '" + def.tyre_mesh_name + "', reason:" + e.getFullDescription());
-    }
+    m_wheel_visuals_queue.push_back(WheelVisualsTicket(wheel_index, base_node_index, &def, axis_node_1->pos, axis_node_2->pos));
 }
 
 wheel_t::BrakeCombo ActorSpawner::TranslateBrakingDef(RigDef::Wheels::Braking def)
@@ -4241,17 +4192,8 @@ void ActorSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
         meshwheel_def.rigidity_node
     );
 
-    BuildMeshWheelVisuals(
-        wheel_index, 
-        base_node_index, 
-        axis_node_1->pos,
-        axis_node_2->pos,
-        meshwheel_def.num_rays,
-        meshwheel_def.mesh_name,
-        meshwheel_def.material_name,
-        meshwheel_def.rim_radius,
-        meshwheel_def.side != RigDef::MeshWheel::SIDE_RIGHT
-        );
+    m_wheel_visuals_queue.push_back(
+        WheelVisualsTicket(wheel_index, base_node_index, &meshwheel_def, axis_node_1->pos, axis_node_2->pos));
 
     CreateWheelSkidmarks(wheel_index);
 }
@@ -4316,18 +4258,8 @@ void ActorSpawner::ProcessMeshWheel2(RigDef::MeshWheel & def)
         0.15 // max_extension
     );
 
-    /* --- Visuals --- */
-    BuildMeshWheelVisuals(
-        wheel_index, 
-        base_node_index, 
-        axis_node_1->pos,
-        axis_node_2->pos,
-        def.num_rays,
-        def.mesh_name,
-        def.material_name,
-        def.rim_radius,
-        def.side != RigDef::MeshWheel::SIDE_RIGHT
-        );
+    m_wheel_visuals_queue.push_back(WheelVisualsTicket(
+        wheel_index, base_node_index, &def, axis_node_1->pos, axis_node_2->pos));
 
     CreateWheelSkidmarks(wheel_index);
 }
@@ -4361,8 +4293,11 @@ void ActorSpawner::BuildMeshWheelVisuals(
         Ogre::SceneNode* scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
         scene_node->attachObject(flexmesh_wheel->GetTireEntity());
 
-        m_actor->ar_wheel_visuals[wheel_index].fm = flexmesh_wheel;
-        m_actor->ar_wheel_visuals[wheel_index].cnode = scene_node;
+        GfxActor::WheelGfx visual_wheel;
+        visual_wheel.wx_is_meshwheel = false;
+        visual_wheel.wx_flex_mesh = flexmesh_wheel;
+        visual_wheel.wx_scenenode = scene_node;
+        m_actor->m_gfx_actor->SetWheelVisuals(wheel_index, visual_wheel);
     }
     catch (Ogre::Exception& e)
     {
@@ -4708,7 +4643,7 @@ unsigned int ActorSpawner::AddWheel(RigDef::Wheel & wheel_def)
         wheel_def.rigidity_node
     );
 
-    CreateWheelVisuals(wheel_index, wheel_def, base_node_index);
+    m_wheel_visuals_queue.push_back(WheelVisualsTicket(wheel_index, base_node_index, &wheel_def));
 
     CreateWheelSkidmarks(wheel_index);
 
@@ -5091,35 +5026,6 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
     return wheel_index;
 }
 
-void ActorSpawner::CreateWheelVisuals(unsigned int wheel_index, RigDef::Wheel & wheel_def, unsigned int node_base_index)
-{
-    // Wrapper, not profiling
-
-    CreateWheelVisuals(
-        wheel_index, 
-        node_base_index, 
-        wheel_def.num_rays,
-        wheel_def.face_material_name,
-        wheel_def.band_material_name,
-        false
-        );
-}
-
-void ActorSpawner::CreateWheelVisuals(unsigned int wheel_index, RigDef::Wheel2 & wheel_2_def, unsigned int node_base_index)
-{
-    // Wrapper, not profiling
-
-    CreateWheelVisuals(
-        wheel_index, 
-        node_base_index, 
-        wheel_2_def.num_rays,
-        wheel_2_def.face_material_name,
-        wheel_2_def.band_material_name,
-        true,
-        wheel_2_def.rim_radius / wheel_2_def.tyre_radius
-        );
-}
-
 void ActorSpawner::CreateWheelVisuals(
     unsigned int wheel_index, 
     unsigned int node_base_index,
@@ -5133,15 +5039,16 @@ void ActorSpawner::CreateWheelVisuals(
     SPAWNER_PROFILE_SCOPED();
 
     wheel_t & wheel = m_actor->ar_wheels[wheel_index];
-    vwheel_t & visual_wheel = m_actor->ar_wheel_visuals[wheel_index];
 
     try
     {
+        GfxActor::WheelGfx visual_wheel;
+
         const std::string wheel_mesh_name = this->ComposeName("WheelMesh", wheel_index);
-        visual_wheel.meshwheel = false;
-        visual_wheel.fm = new FlexMesh(
+        visual_wheel.wx_is_meshwheel = false;
+        visual_wheel.wx_flex_mesh = new FlexMesh(
             wheel_mesh_name,
-            m_actor->ar_nodes,
+            m_actor->m_gfx_actor.get(),
             wheel.wh_axis_node_0->pos,
             wheel.wh_axis_node_1->pos,
             node_base_index,
@@ -5155,9 +5062,10 @@ void ActorSpawner::CreateWheelVisuals(
         const std::string instance_name = this->ComposeName("WheelEntity", wheel_index);
         Ogre::Entity *ec = gEnv->sceneManager->createEntity(instance_name, wheel_mesh_name);
         this->SetupNewEntity(ec, Ogre::ColourValue(0, 0.5, 0.5));
-        visual_wheel.cnode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+        visual_wheel.wx_scenenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
         m_actor->m_deletion_entities.emplace_back(ec);
-        visual_wheel.cnode->attachObject(ec);
+        visual_wheel.wx_scenenode->attachObject(ec);
+        m_actor->m_gfx_actor->SetWheelVisuals(wheel_index, visual_wheel);
     }
     catch (Ogre::Exception& e)
     {
@@ -5239,7 +5147,7 @@ void ActorSpawner::ProcessWheel2(RigDef::Wheel2 & def)
 
     unsigned int node_base_index = m_actor->ar_num_nodes;
     unsigned int wheel_index = AddWheel2(def);
-    CreateWheelVisuals(wheel_index, def, node_base_index);
+    m_wheel_visuals_queue.push_back(WheelVisualsTicket(wheel_index, node_base_index, &def));
 };
 
 void ActorSpawner::ProcessWheel(RigDef::Wheel & def)
@@ -7051,7 +6959,7 @@ void ActorSpawner::FinalizeGfxSetup()
     m_actor->ar_dashboard->setVisible(false);
 
     // Process rods (beam visuals)
-    for (BeamVisuals& bv: m_beam_visuals_queue)
+    for (BeamVisualsTicket& bv: m_beam_visuals_queue)
     {
         int node1 = m_actor->ar_beams[bv.beam_index].p1->pos;
         int node2 = m_actor->ar_beams[bv.beam_index].p2->pos;
@@ -7161,6 +7069,102 @@ void ActorSpawner::FinalizeGfxSetup()
             this->AddMessage(Message::TYPE_ERROR, "error loading mesh: "+mesh_name);
         }
     };
+
+    // Process wheel visuals
+    for (WheelVisualsTicket& ticket: m_wheel_visuals_queue)
+    {
+        if (ticket.wheel_def != nullptr)
+        {
+            this->CreateWheelVisuals(
+                ticket.wheel_index,
+                ticket.base_node_index,
+                ticket.wheel_def->num_rays,
+                ticket.wheel_def->face_material_name,
+                ticket.wheel_def->band_material_name,
+                false
+                );
+        }
+        else if (ticket.wheel2_def != nullptr)
+        {
+            this->CreateWheelVisuals(
+                ticket.wheel_index,
+                ticket.base_node_index,
+                ticket.wheel2_def->num_rays,
+                ticket.wheel2_def->face_material_name,
+                ticket.wheel2_def->band_material_name,
+                true,
+                ticket.wheel2_def->rim_radius / ticket.wheel2_def->tyre_radius
+                );
+        }
+        else if (ticket.meshwheel_def != nullptr)
+        {
+            this->BuildMeshWheelVisuals(
+                ticket.wheel_index,
+                ticket.base_node_index,
+                ticket.axis_node_1,
+                ticket.axis_node_2,
+                ticket.meshwheel_def->num_rays,
+                ticket.meshwheel_def->mesh_name,
+                ticket.meshwheel_def->material_name,
+                ticket.meshwheel_def->rim_radius,
+                ticket.meshwheel_def->side != RigDef::MeshWheel::SIDE_RIGHT
+                );
+        }
+        else if (ticket.flexbodywheel_def != nullptr)
+        {
+            RigDef::FlexBodyWheel& def = *ticket.flexbodywheel_def;
+            this->BuildMeshWheelVisuals(
+                ticket.wheel_index,
+                ticket.base_node_index,
+                ticket.axis_node_1,
+                ticket.axis_node_2,
+                def.num_rays,
+                def.rim_mesh_name,
+                "tracks/trans", // Rim material name. Original parser: was hardcoded in BTS_FLEXBODYWHEELS
+                def.rim_radius,
+                def.side != RigDef::MeshWheel::SIDE_RIGHT
+                );
+
+            const std::string flexwheel_name = this->ComposeName("FlexBodyWheel", m_actor->ar_num_flexbodies);
+
+            int num_nodes = def.num_rays * 4;
+            std::vector<unsigned int> node_indices;
+            node_indices.reserve(num_nodes);
+            for (int i = 0; i < num_nodes; ++i)
+            {
+                node_indices.push_back( ticket.base_node_index + i );
+            }
+
+            RigDef::Flexbody flexbody_def;
+            flexbody_def.mesh_name = def.tyre_mesh_name;
+            flexbody_def.offset = Ogre::Vector3(0.5,0,0);
+
+            try
+            {
+                auto* flexbody = m_flex_factory.CreateFlexBody(
+                    &flexbody_def,
+                    ticket.axis_node_1,
+                    ticket.axis_node_2,
+                    static_cast<int>(ticket.base_node_index),
+                    Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3::UNIT_Y),
+                    node_indices
+                    );
+
+                if (flexbody == nullptr)
+                    return; // Error already logged
+
+                this->CreateWheelSkidmarks(static_cast<unsigned>(ticket.wheel_index));
+
+                m_actor->ar_flexbodies[m_actor->ar_num_flexbodies] = flexbody;
+                m_actor->ar_num_flexbodies++;
+            }
+            catch (Ogre::Exception& e)
+            {
+                this->AddMessage(Message::TYPE_ERROR, 
+                    "Failed to create flexbodywheel visuals '" + def.tyre_mesh_name + "', reason:" + e.getFullDescription());
+            }
+        }
+    }
 }
 
 Ogre::ManualObject* CreateVideocameraDebugMesh()

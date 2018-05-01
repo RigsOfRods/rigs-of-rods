@@ -27,6 +27,7 @@
 #pragma once
 
 #include "ForwardDeclarations.h"
+#include "ThreadPool.h" // class Task
 
 #include <OgreColourValue.h>
 #include <OgreMaterial.h>
@@ -137,6 +138,15 @@ public:
         uint16_t         rod_node2;       //!< Node index - assumes the Actor has at most 65536 nodes (RoR doesn't have a soft limit now, but until v0.4.8 it was 1000 nodes).
     };
 
+    struct WheelGfx
+    {
+        WheelGfx(): wx_flex_mesh(nullptr), wx_scenenode(nullptr), wx_is_meshwheel(false) {}
+
+        Flexable*        wx_flex_mesh;
+        Ogre::SceneNode* wx_scenenode;
+        bool             wx_is_meshwheel;
+    };
+
     GfxActor(Actor* actor, std::string ogre_resource_group, std::vector<NodeGfx>& gfx_nodes);
 
     ~GfxActor();
@@ -155,6 +165,10 @@ public:
     void                      UpdateSimDataBuffer(); //!< Copies sim. data from `Actor` to `GfxActor` for later update
     NodeData*                 GetSimNodeBuffer   () { return m_simbuf_nodes.get(); }
     Ogre::Vector3             GetSimActorPos     () const { return m_simbuf_pos; }
+    void                      SetWheelVisuals    (uint16_t index, WheelGfx wheel_gfx);
+    void                      UpdateWheelVisuals ();
+    void                      FinishWheelUpdates ();
+    void                      SetWheelsVisible   (bool value);
     void                      UpdateDebugView    ();
     void                      CycleDebugViews    ();
     void                      UpdateCabMesh      ();
@@ -182,7 +196,9 @@ private:
     DustPool*                   m_particles_sparks;
     DustPool*                   m_particles_clump;
     std::vector<Rod>            m_rods;
+    std::vector<WheelGfx>       m_wheels;
     Ogre::SceneNode*            m_rods_parent_scenenode;
+    std::vector<std::shared_ptr<Task>> m_flexwheel_tasks;
 
     // Buffered simulation data
     std::unique_ptr<NodeData>   m_simbuf_nodes;

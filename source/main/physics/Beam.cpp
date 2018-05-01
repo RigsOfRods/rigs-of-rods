@@ -224,18 +224,6 @@ Actor::~Actor()
         }
     }
 
-    // delete meshwheels
-    for (int i = 0; i < ar_num_wheels; i++)
-    {
-        if (ar_wheel_visuals[i].fm)
-            delete ar_wheel_visuals[i].fm;
-        if (ar_wheel_visuals[i].cnode)
-        {
-            ar_wheel_visuals[i].cnode->removeAndDestroyAllChildren();
-            gEnv->sceneManager->destroySceneNode(ar_wheel_visuals[i].cnode);
-        }
-    }
-
     // delete skidmarks
     for (int i = 0; i < ar_num_wheels; ++i)
     {
@@ -2758,13 +2746,8 @@ void Actor::SetPropsCastShadows(bool do_cast_shadows)
             ar_props[i].wheel->getAttachedObject(0)->setCastShadows(do_cast_shadows);
         }
     }
-    for (i = 0; i < ar_num_wheels; i++)
-    {
-        if (ar_wheel_visuals[i].cnode && ar_wheel_visuals[i].cnode->numAttachedObjects())
-        {
-            ar_wheel_visuals[i].cnode->getAttachedObject(0)->setCastShadows(do_cast_shadows);
-        }
-    }
+    // TODO: Updating wheel visuals removed when implementing `GfxActor::WheelGfx` ~ only_a_ptr, 04/2018
+
     // TODO: updating beam visuals removed when implementing `GfxActor::Rod` concept
     //       Does it matter anyway? Does 'setCastShadows()' affect PSSM? ~ only_a_ptr, 12/2017
 }
@@ -3318,12 +3301,6 @@ void Actor::UpdateFlexbodiesPrepare()
 {
     if (gEnv->threadPool)
     {
-        m_flexmesh_prepare.reset();
-        for (int i = 0; i < ar_num_wheels; i++)
-        {
-            m_flexmesh_prepare.set(i, ar_wheel_visuals[i].cnode && ar_wheel_visuals[i].fm->flexitPrepare());
-        }
-
         m_flexbody_prepare.reset();
         for (int i = 0; i < ar_num_flexbodies; i++)
         {
@@ -3343,29 +3320,9 @@ void Actor::UpdateFlexbodiesPrepare()
                 m_flexbody_tasks.push_back(task_handle);
             }
         }
-        for (int i = 0; i < ar_num_wheels; i++)
-        {
-            if (m_flexmesh_prepare[i])
-            {
-                auto func = std::function<void()>([this, i]()
-                    {
-                        ar_wheel_visuals[i].fm->flexitCompute();
-                    });
-                auto task_handle = gEnv->threadPool->RunTask(func);
-                m_flexbody_tasks.push_back(task_handle);
-            }
-        }
     }
     else
     {
-        for (int i = 0; i < ar_num_wheels; i++)
-        {
-            if (ar_wheel_visuals[i].cnode && ar_wheel_visuals[i].fm->flexitPrepare())
-            {
-                ar_wheel_visuals[i].fm->flexitCompute();
-                ar_wheel_visuals[i].cnode->setPosition(ar_wheel_visuals[i].fm->flexitFinal());
-            }
-        }
         for (int i = 0; i < ar_num_flexbodies; i++)
         {
             if (ar_flexbodies[i]->flexitPrepare())
@@ -3523,11 +3480,6 @@ void Actor::UpdateFlexbodiesFinal()
     {
         JoinFlexbodyTasks();
 
-        for (int i = 0; i < ar_num_wheels; i++)
-        {
-            if (m_flexmesh_prepare[i])
-                ar_wheel_visuals[i].cnode->setPosition(ar_wheel_visuals[i].fm->flexitFinal());
-        }
         for (int i = 0; i < ar_num_flexbodies; i++)
         {
             if (m_flexbody_prepare[i])
@@ -3574,17 +3526,7 @@ void Actor::setMeshVisibility(bool visible)
     {
         ar_flexbodies[i]->setVisible(visible);
     }
-    for (int i = 0; i < ar_num_wheels; i++)
-    {
-        if (ar_wheel_visuals[i].cnode)
-        {
-            ar_wheel_visuals[i].cnode->setVisible(visible);
-        }
-        if (ar_wheel_visuals[i].fm)
-        {
-            ar_wheel_visuals[i].fm->setVisible(visible);
-        }
-    }
+    m_gfx_actor->SetWheelsVisible(visible);
     if (m_cab_scene_node)
     {
         m_cab_scene_node->setVisible(visible);
@@ -4936,7 +4878,6 @@ Actor::Actor(
     , ar_contacters() // memset() the array to zero
     , ar_num_contacters() // zero-init
     , ar_wheels() // array
-    , ar_wheel_visuals() // array
     , ar_num_wheels() // int
 {
     m_high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();

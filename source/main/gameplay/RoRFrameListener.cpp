@@ -2478,6 +2478,7 @@ void SimController::UpdateGfxScene(float dt_sec)
             m_gfx_envmap.UpdateEnvMap(m_player_actor->GetGfxActor()->GetSimActorPos(), m_player_actor); // Safe to be called here, only modifies OGRE objects, doesn't read any physics state.
             m_player_actor->GetGfxActor()->UpdateVideoCameras(dt_sec);
         }
+        m_actor_manager.FinalizeAsyncVisualUpdates();
     }
 }
 

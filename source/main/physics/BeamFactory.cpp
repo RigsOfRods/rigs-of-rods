@@ -472,6 +472,8 @@ void ActorManager::SetupActor(
 
         actor->GetGfxActor()->UpdateSimDataBuffer(); // Initial fill of sim data buffers
         actor->GetGfxActor()->UpdateCabMesh();
+        actor->GetGfxActor()->UpdateWheelVisuals(); // Push tasks to threadpool
+        actor->GetGfxActor()->FinishWheelUpdates(); // Sync tasks from threadpool
     }
 
     if (actor->ar_engine)
@@ -1711,6 +1713,9 @@ void ActorManager::UpdateActorVisualsAsync()
         }
 
         m_actors[t]->GetGfxActor()->UpdateCabMesh();
+
+        // Push flexwheel tasks to threadpool
+        m_actors[t]->GetGfxActor()->UpdateWheelVisuals();
     }
 }
 
@@ -1739,3 +1744,18 @@ int ActorManager::CountPlayableActorsInternal() const // for selector GUI
     }
     return count;
 }
+
+void ActorManager::FinalizeAsyncVisualUpdates()
+{
+    for (int t = 0; t < m_free_actor_slot; t++)
+    {
+        // Skip removed and broken actors
+        if ((m_actors[t] == nullptr) || (m_actors[t]->ar_sim_state >= Actor::SimState::LOCAL_SLEEPING))
+        {
+            continue;
+        }
+
+        m_actors[t]->GetGfxActor()->FinishWheelUpdates(); // Wait for flexwheel tasks to complete
+    }
+}
+

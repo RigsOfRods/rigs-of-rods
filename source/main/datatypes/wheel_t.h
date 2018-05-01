@@ -71,12 +71,3 @@ struct wheel_t
     bool isSkiding;
 };
 
-/**
-* SIM-CORE; Visual wheel.
-*/
-struct vwheel_t
-{
-    Flexable *fm;
-    Ogre::SceneNode *cnode;
-    bool meshwheel;
-};

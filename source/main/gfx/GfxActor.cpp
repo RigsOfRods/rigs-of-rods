@@ -27,14 +27,16 @@
 #include "Collisions.h"
 #include "DustPool.h" // General particle gfx
 #include "FlexObj.h"
+#include "Flexable.h"
+#include "FlexMeshWheel.h"
 #include "GlobalEnvironment.h" // TODO: Eliminate!
 #include "RoRFrameListener.h" // SimController
 #include "SkyManager.h"
 #include "SoundScriptManager.h"
 #include "Utils.h"
 #include "TerrainManager.h"
+#include "ThreadPool.h"
 #include "imgui.h"
-#include "Utils.h"
 
 #include <OgrePass.h>
 #include <OgreRenderWindow.h>
@@ -97,6 +99,20 @@ RoR::GfxActor::~GfxActor()
         m_rods_parent_scenenode->removeAndDestroyAllChildren();
         gEnv->sceneManager->destroySceneNode(m_rods_parent_scenenode);
         m_rods_parent_scenenode = nullptr;
+    }
+
+    // delete meshwheels
+    for (size_t i = 0; i < m_wheels.size(); i++)
+    {
+        if (m_wheels[i].wx_flex_mesh != nullptr)
+        {
+            delete m_wheels[i].wx_flex_mesh;
+        }
+        if (m_wheels[i].wx_scenenode != nullptr)
+        {
+            m_wheels[i].wx_scenenode->removeAndDestroyAllChildren();
+            gEnv->sceneManager->destroySceneNode(m_wheels[i].wx_scenenode);
+        }
     }
 
     Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(m_custom_resource_group);
@@ -894,6 +910,87 @@ void RoR::GfxActor::UpdateCabMesh()
     if ((m_actor->m_cab_entity != nullptr) && (m_actor->m_cab_mesh != nullptr))
     {
         m_actor->m_cab_scene_node->setPosition(m_actor->m_cab_mesh->UpdateFlexObj());
+    }
+}
+
+void RoR::GfxActor::SetWheelVisuals(uint16_t index, WheelGfx wheel_gfx)
+{
+    if (m_wheels.size() <= index)
+    {
+        m_wheels.resize(index + 1);
+    }
+    m_wheels[index] = wheel_gfx;
+}
+
+void RoR::GfxActor::UpdateWheelVisuals()
+{
+    m_flexwheel_tasks.clear();
+    if (gEnv->threadPool)
+    {
+        for (WheelGfx& w: m_wheels)
+        {
+            if ((w.wx_scenenode != nullptr) && w.wx_flex_mesh->flexitPrepare())
+            {
+                auto func = std::function<void()>([this, w]()
+                    {
+                        w.wx_flex_mesh->flexitCompute();
+                    });
+                auto task_handle = gEnv->threadPool->RunTask(func);
+                m_flexwheel_tasks.push_back(task_handle);
+            }
+        }
+    }
+    else
+    {
+        for (WheelGfx& w: m_wheels)
+        {
+            if ((w.wx_scenenode != nullptr) && w.wx_flex_mesh->flexitPrepare())
+            {
+                w.wx_flex_mesh->flexitCompute();
+                w.wx_scenenode->setPosition(w.wx_flex_mesh->flexitFinal());
+            }
+        }
+    }
+}
+
+void RoR::GfxActor::FinishWheelUpdates()
+{
+    if (gEnv->threadPool)
+    {
+        for (auto& task: m_flexwheel_tasks)
+        {
+            task->join();
+        }
+        for (WheelGfx& w: m_wheels)
+        {
+            if (w.wx_scenenode != nullptr)
+            {
+                w.wx_scenenode->setPosition(w.wx_flex_mesh->flexitFinal());
+            }
+        }
+    }
+}
+
+void RoR::GfxActor::SetWheelsVisible(bool value)
+{
+    for (WheelGfx& w: m_wheels)
+    {
+        if (w.wx_scenenode != nullptr)
+        {
+            w.wx_scenenode->setVisible(value);
+        }
+        if (w.wx_flex_mesh != nullptr)
+        {
+            w.wx_flex_mesh->setVisible(value);
+            if (w.wx_is_meshwheel)
+            {
+                Ogre::Entity* e = ((FlexMeshWheel*)(w.wx_flex_mesh))->getRimEntity();
+                if (e != nullptr)
+                {
+                    e->setVisible(false);
+                }
+            }
+        }
     }
 }
 

@@ -99,6 +99,7 @@ public:
     // Visual updates
     void           UpdateActorVisuals(float dt, Actor* player_actor); // LEGACY; reads data directly from Actor, requires physics to be halted
     void           UpdateActorVisualsAsync(); // NEW - REFACTOR IN PROGRESS; reads data from GfxActor buffers
+    void           FinalizeAsyncVisualUpdates(); //!< Waits for background tasks to complete
 
 #ifdef USE_SOCKETW
     void           HandleActorStreamData(std::vector<RoR::Networking::recv_packet_t> packet);

@@ -216,9 +216,9 @@ private:
         // ... more to come ...
     };
 
-    struct BeamVisuals //!< Visuals are queued for processing using this struct
+    struct BeamVisualsTicket //!< Visuals are queued for processing using this struct
     {
-        BeamVisuals(int idx, float diam, const char* mtr=nullptr, bool vis=true):
+        BeamVisualsTicket(int idx, float diam, const char* mtr=nullptr, bool vis=true):
             beam_index(idx), diameter(diam), material_name(mtr), visible(vis)
         {}
 
@@ -226,6 +226,41 @@ private:
         std::string material_name; // TODO: how does std::string behave when parent struct is re-allocated within std::vector?  ;)
         float diameter;
         bool visible; // Some beams are spawned as hidden (ties, hooks) and displayed only when activated
+    };
+
+    struct WheelVisualsTicket //!< Wheel visuals are queued for processing using this struct
+    {
+        WheelVisualsTicket(uint16_t wheel_idx, uint16_t node_idx, RigDef::Wheel* def):
+            wheel_index(wheel_idx), base_node_index(node_idx),
+            wheel_def(def), wheel2_def(nullptr), meshwheel_def(nullptr), flexbodywheel_def(nullptr)
+        {}
+
+        WheelVisualsTicket(uint16_t wheel_idx, uint16_t node_idx, RigDef::Wheel2* def):
+            wheel_index(wheel_idx), base_node_index(node_idx),
+            wheel_def(nullptr), wheel2_def(def), meshwheel_def(nullptr), flexbodywheel_def(nullptr)
+        {}
+
+        WheelVisualsTicket(uint16_t wheel_idx, uint16_t node_idx, RigDef::MeshWheel* def, uint16_t axis1, uint16_t axis2):
+            wheel_index(wheel_idx), base_node_index(node_idx),
+            wheel_def(nullptr), wheel2_def(nullptr), meshwheel_def(def), flexbodywheel_def(nullptr),
+            axis_node_1(axis1), axis_node_2(axis2)
+        {}
+
+        WheelVisualsTicket(uint16_t wheel_idx, uint16_t node_idx, RigDef::FlexBodyWheel* def, uint16_t axis1, uint16_t axis2):
+            wheel_index(wheel_idx), base_node_index(node_idx),
+            wheel_def(nullptr), wheel2_def(nullptr), meshwheel_def(nullptr), flexbodywheel_def(def),
+            axis_node_1(axis1), axis_node_2(axis2)
+        {}
+
+        RigDef::Wheel*         wheel_def;
+        RigDef::Wheel2*        wheel2_def;
+        RigDef::MeshWheel*     meshwheel_def;
+        RigDef::FlexBodyWheel* flexbodywheel_def;
+
+        uint16_t               wheel_index;
+        uint16_t               base_node_index;
+        uint16_t               axis_node_1;
+        uint16_t               axis_node_2;
     };
 
 /* -------------------------------------------------------------------------- */
@@ -548,15 +583,6 @@ private:
         node_t & node_2, 
         std::shared_ptr<RigDef::BeamDefaults> & defaults,
         int detacher_group
-    );
-
-    /**
-    * Adds visuals to wheel from section 'wheels'.
-    */
-    void CreateWheelVisuals(
-        unsigned int wheel_index, 
-        RigDef::Wheel & wheel_def, 
-        unsigned int node_base_index
     );
 
     /**
@@ -896,11 +922,6 @@ private:
     void CreateWheelSkidmarks(unsigned int wheel_index);
 
     /**
-    * Adds visuals to 'wheels2' wheel.
-    */
-    void CreateWheelVisuals(unsigned int wheel_index, RigDef::Wheel2 & wheel_2_def, unsigned int node_base_index);
-
-    /**
     * Performs full material setup for a new entity.
     * RULE: Each actor must have it's own material instances (a lookup table is kept for OrigName->CustomName)
     *
@@ -1066,7 +1087,6 @@ private:
     Ogre::Vector3      m_spawn_position;
     bool               m_enable_background_loading;
     bool               m_apply_simple_materials;
-    std::vector<BeamVisuals> m_beam_visuals_queue; //!< We want to spawn visuals asynchronously in the future
     std::string        m_cab_material_name; ///< Original name defined in truckfile/globals.
     std::string        m_custom_resource_group;
     float              m_wing_area;
@@ -1091,6 +1111,8 @@ private:
     std::shared_ptr<RigDef::File>          m_file; //!< The parsed input file.
     std::map<Ogre::String, unsigned int>   m_named_nodes;
     std::map<std::string, CustomMaterial>  m_material_substitutions; //!< Maps original material names (shared) to their actor-specific substitutes; There's 1 substitute per 1 material, regardless of user count.
+    std::vector<BeamVisualsTicket>         m_beam_visuals_queue; //!< We want to spawn visuals asynchronously in the future
+    std::vector<WheelVisualsTicket>        m_wheel_visuals_queue; //!< We want to spawn visuals asynchronously in the future
     std::map<std::string, Ogre::MaterialPtr>  m_managed_materials;
     std::list<std::shared_ptr<RigDef::File::Module>>  m_selected_modules;
 

@@ -251,7 +251,6 @@ public:
     contacter_t       ar_contacters[MAX_CONTACTERS];
     int               ar_num_contacters;
     wheel_t           ar_wheels[MAX_WHEELS];
-    vwheel_t          ar_wheel_visuals[MAX_WHEELS];
     int               ar_num_wheels;
     command_t         ar_command_key[MAX_COMMANDS + 10]; // 0 for safety
     prop_t            ar_props[MAX_PROPS];
@@ -439,7 +438,6 @@ private:
     std::shared_ptr<RigDef::File>      m_definition;
     std::unique_ptr<RoR::GfxActor>     m_gfx_actor;
     RoR::PerVehicleCameraContext       m_camera_context;
-    std::bitset<MAX_WHEELS>            m_flexmesh_prepare; //!< Gfx state
     std::bitset<MAX_FLEXBODIES>        m_flexbody_prepare; //!< Gfx state
     std::vector<Ogre::String>          m_actor_config;
     std::vector<SlideNode>             m_slidenodes;       //!< all the SlideNodes available on this actor
