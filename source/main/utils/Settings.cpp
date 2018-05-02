@@ -708,6 +708,21 @@ inline bool CheckSpeedoImperial(std::string const & key, std::string const & val
     }
     return CheckBool(App::gfx_speedo_imperial, key, value);
 }
+inline bool CheckFOV(GVarPod_APS<float>& gvar, std::string const & key, std::string const & value)
+{
+    if (key == gvar.conf_name)
+    {
+        float val = static_cast<float>(Ogre::StringConverter::parseReal (value));
+
+        // FOV shouldn't be below 10
+        if(val < 10) return false;
+
+        gvar.SetActive (val);
+        gvar.SetStored (val);
+        return true;
+    }
+    return false;
+}
 
 bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & v)
 {
@@ -760,8 +775,8 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckB2I  (App::gfx_skidmarks_mode,        k, v)) { return true; }
     if (CheckBool (App::gfx_envmap_enabled,        k, v)) { return true; }
     if (CheckFloat(App::gfx_sight_range,           k, v)) { return true; }
-    if (CheckFloat(App::gfx_fov_external,          k, v)) { return true; }
-    if (CheckFloat(App::gfx_fov_internal,          k, v)) { return true; }
+    if (CheckFOV  (App::gfx_fov_external,          k, v)) { return true; }
+    if (CheckFOV  (App::gfx_fov_internal,          k, v)) { return true; }
     if (CheckInt  (App::gfx_fps_limit,             k, v)) { return true; }
     if (CheckBool (App::gfx_minimap_disabled,      k, v)) { return true; }
     if (CheckBool (App::gfx_speedo_digital,        k, v)) { return true; }
