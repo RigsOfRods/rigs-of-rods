@@ -640,7 +640,7 @@ void ActorSpawner::ProcessScrewprop(RigDef::Screwprop & def)
     int top_node_idx = GetNodeIndexOrThrow(def.top_node);
 
     m_actor->ar_screwprops[m_actor->ar_num_screwprops] = new Screwprop(
-        &RoR::App::GetSimController()->GetBeamFactory()->GetParticleManager(),
+        &RoR::App::GetSimController()->GetParticleManager(),
         m_actor->ar_nodes,
         ref_node_idx,
         back_node_idx,
@@ -1449,7 +1449,7 @@ void ActorSpawner::ProcessSubmesh(RigDef::Submesh & def)
 
         if (mk_buoyance && (m_actor->m_buoyance == nullptr))
         {
-            auto& dustman = App::GetSimController()->GetBeamFactory()->GetParticleManager();
+            auto& dustman = App::GetSimController()->GetParticleManager();
             Buoyance* buoy = new Buoyance(dustman.getDustPool("splash"), dustman.getDustPool("ripple"));
             m_actor->m_buoyance.reset(buoy);
         }

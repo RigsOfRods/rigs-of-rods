@@ -1683,8 +1683,6 @@ void SimController::UpdateSimulation(float dt)
 
     if (simRUNNING(s) || simPAUSED(s) || simEDITOR(s))
     {
-        m_actor_manager.GetParticleManager().update();
-
         if (m_heathaze)
             m_heathaze->update();
     }
@@ -2191,6 +2189,8 @@ void SimController::CleanupAfterSimulation()
     App::GetGuiManager()->GetTeleport()->Reset();
 
     App::GetGuiManager()->SetVisible_LoadingWindow(false);
+
+    m_particle_manager.DustManDiscard(gEnv->sceneManager); // TODO: de-globalize SceneManager
 }
 
 bool SimController::SetupGameplayLoop()
@@ -2206,7 +2206,7 @@ bool SimController::SetupGameplayLoop()
     // Setup
     // ============================================================================
 
-    m_actor_manager.GetParticleManager().DustManCheckAndInit(gEnv->sceneManager); // TODO: de-globalize SceneManager
+    m_particle_manager.DustManCheckAndInit(gEnv->sceneManager); // TODO: de-globalize SceneManager
 
     int colourNum = -1;
 
@@ -2478,6 +2478,7 @@ void SimController::UpdateGfxScene(float dt_sec)
             m_gfx_envmap.UpdateEnvMap(m_player_actor->GetGfxActor()->GetSimActorPos(), m_player_actor); // Safe to be called here, only modifies OGRE objects, doesn't read any physics state.
             m_player_actor->GetGfxActor()->UpdateVideoCameras(dt_sec);
         }
+        m_particle_manager.update();
         m_actor_manager.FinalizeAsyncVisualUpdates();
     }
 }

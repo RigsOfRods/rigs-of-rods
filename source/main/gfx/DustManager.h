@@ -32,16 +32,8 @@ class DustManager : public ZeroedMemoryAllocator
 {
 public:
 
-    DustManager():
-        mEnabled(false),
-        m_is_initialised(false)
-    {
-    }
-
     void      DustManCheckAndInit    (Ogre::SceneManager* sm);
     void      DustManDiscard         (Ogre::SceneManager* sm);
-
-    DustPool* getGroundModelDustPool(ground_model_t* g);
 
     void update();
 
@@ -51,7 +43,5 @@ public:
 
 protected:
 
-    bool mEnabled;
-    bool m_is_initialised;
     std::map<Ogre::String, DustPool *> dustpools;
 };

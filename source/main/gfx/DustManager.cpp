@@ -32,13 +32,7 @@ using namespace Ogre;
 
 void DustManager::DustManCheckAndInit(Ogre::SceneManager* sm)
 {
-    if (m_is_initialised)
-    {
-        return;
-    }
-    mEnabled = RoR::App::gfx_particles_mode.GetActive() == 1;
 
-    if (mEnabled)
     {
         dustpools["dust"]   = new DustPool(sm, "tracks/Dust",   20);
         dustpools["clump"]  = new DustPool(sm, "tracks/Clump",  20);
@@ -47,7 +41,7 @@ void DustManager::DustManCheckAndInit(Ogre::SceneManager* sm)
         dustpools["splash"] = new DustPool(sm, "tracks/Splash", 20);
         dustpools["ripple"] = new DustPool(sm, "tracks/Ripple", 20);
     }
-    m_is_initialised = true;
+
 }
 
 void DustManager::DustManDiscard(Ogre::SceneManager* sm)
@@ -65,26 +59,20 @@ void DustManager::DustManDiscard(Ogre::SceneManager* sm)
     dustpools.clear();
 }
 
-DustPool* DustManager::getGroundModelDustPool(ground_model_t* g)
-{
-    return 0;
-}
-
 void DustManager::update()
 {
-    if (!mEnabled)
-        return;
+    if (RoR::App::gfx_particles_mode.GetActive() == 1)
+    {
     std::map<Ogre::String, DustPool *>::iterator it;
     for (it = dustpools.begin(); it != dustpools.end(); it++)
     {
         it->second->update();
     }
+    }
 }
 
 void DustManager::setVisible(bool visible)
 {
-    if (!mEnabled)
-        return;
     std::map<Ogre::String, DustPool *>::iterator it;
     for (it = dustpools.begin(); it != dustpools.end(); it++)
     {

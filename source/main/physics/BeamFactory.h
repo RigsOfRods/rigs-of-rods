@@ -76,7 +76,6 @@ public:
     void           JoinFlexbodyTasks(); /// Waits until all flexbody tasks are finished, but does not update the hardware buffers
     void           UpdateFlexbodiesPrepare();
     void           UpdateFlexbodiesFinal();
-    DustManager&   GetParticleManager()                    { return m_particle_manager; }
     void           SetTrucksForcedAwake(bool forced)       { m_forced_awake = forced; };
     bool           AreTrucksForcedAwake() const            { return m_forced_awake; }
     int            GetNumUsedActorSlots() const            { return m_free_actor_slot; }; // TODO: Tasks requiring search over all actors should be done internally. ~ only_a_ptr, 01/2018
@@ -150,7 +149,6 @@ private:
     int             m_physics_steps;
     float           m_dt_remainder;     ///< Keeps track of the rounding error in the time step calculation
     float           m_simulation_speed; ///< slow motion < 1.0 < fast motion
-    DustManager     m_particle_manager;
 };
 
 } // namespace RoR

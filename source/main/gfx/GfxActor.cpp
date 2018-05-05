@@ -59,7 +59,7 @@ RoR::GfxActor::GfxActor(Actor* actor, std::string ogre_resource_group, std::vect
     m_gfx_nodes(gfx_nodes)
 {
     // Setup particles
-    DustManager& dustman = RoR::App::GetSimController()->GetBeamFactory()->GetParticleManager();
+    DustManager& dustman = RoR::App::GetSimController()->GetParticleManager();
     m_particles_drip   = dustman.getDustPool("drip");
     m_particles_misc   = dustman.getDustPool("dust"); // Dust, water vapour, tyre smoke
     m_particles_splash = dustman.getDustPool("splash");

@@ -204,7 +204,6 @@ ActorManager::~ActorManager()
 {
     this->SyncWithSimThread(); // Wait for sim task to finish
     delete gEnv->threadPool;
-    m_particle_manager.DustManDiscard(gEnv->sceneManager); // TODO: de-globalize SceneManager
 }
 
 void ActorManager::SetupActor(
