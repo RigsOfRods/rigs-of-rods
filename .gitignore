@@ -29,3 +29,5 @@ libangelscript_addons*.a
 cmake-build-release
 cmake-build-debug
 /.vs
+
+build/
