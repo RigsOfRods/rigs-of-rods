@@ -59,13 +59,13 @@ RoR::GfxActor::GfxActor(Actor* actor, std::string ogre_resource_group, std::vect
     m_gfx_nodes(gfx_nodes)
 {
     // Setup particles
-    DustManager& dustman = RoR::App::GetSimController()->GetParticleManager();
-    m_particles_drip   = dustman.getDustPool("drip");
-    m_particles_misc   = dustman.getDustPool("dust"); // Dust, water vapour, tyre smoke
-    m_particles_splash = dustman.getDustPool("splash");
-    m_particles_ripple = dustman.getDustPool("ripple");
-    m_particles_sparks = dustman.getDustPool("sparks");
-    m_particles_clump  = dustman.getDustPool("clump");
+    RoR::GfxScene& dustman = RoR::App::GetSimController()->GetGfxScene();
+    m_particles_drip   = dustman.GetDustPool("drip");
+    m_particles_misc   = dustman.GetDustPool("dust"); // Dust, water vapour, tyre smoke
+    m_particles_splash = dustman.GetDustPool("splash");
+    m_particles_ripple = dustman.GetDustPool("ripple");
+    m_particles_sparks = dustman.GetDustPool("sparks");
+    m_particles_clump  = dustman.GetDustPool("clump");
 
     m_simbuf_nodes.reset(new NodeData[actor->ar_num_nodes]);
 }

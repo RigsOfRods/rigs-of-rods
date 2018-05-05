@@ -190,7 +190,7 @@ private:
     DebugViewType               m_debug_view;
     std::vector<NodeGfx>        m_gfx_nodes;
     DustPool*                   m_particles_drip;
-    DustPool*                   m_particles_misc; // This is "dust" in DustManager; handles dust, vapour and tyre smoke
+    DustPool*                   m_particles_misc; // This is "dust" in RoR::GfxScene; handles dust, vapour and tyre smoke
     DustPool*                   m_particles_splash;
     DustPool*                   m_particles_ripple;
     DustPool*                   m_particles_sparks;

@@ -2,6 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2018 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -18,10 +19,6 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// @file
-/// @author Thomas Fischer (thomas{AT}thomasfischer{DOT}biz)
-/// @date   12th of October 2009
-
 #include "DustManager.h"
 
 #include "Application.h"
@@ -30,59 +27,57 @@
 
 using namespace Ogre;
 
-void DustManager::DustManCheckAndInit(Ogre::SceneManager* sm)
+void RoR::GfxScene::InitScene(Ogre::SceneManager* sm)
 {
+    m_dustpools["dust"]   = new DustPool(sm, "tracks/Dust",   20);
+    m_dustpools["clump"]  = new DustPool(sm, "tracks/Clump",  20);
+    m_dustpools["sparks"] = new DustPool(sm, "tracks/Sparks", 10);
+    m_dustpools["drip"]   = new DustPool(sm, "tracks/Drip",   50);
+    m_dustpools["splash"] = new DustPool(sm, "tracks/Splash", 20);
+    m_dustpools["ripple"] = new DustPool(sm, "tracks/Ripple", 20);
 
-    {
-        dustpools["dust"]   = new DustPool(sm, "tracks/Dust",   20);
-        dustpools["clump"]  = new DustPool(sm, "tracks/Clump",  20);
-        dustpools["sparks"] = new DustPool(sm, "tracks/Sparks", 10);
-        dustpools["drip"]   = new DustPool(sm, "tracks/Drip",   50);
-        dustpools["splash"] = new DustPool(sm, "tracks/Splash", 20);
-        dustpools["ripple"] = new DustPool(sm, "tracks/Ripple", 20);
-    }
-
+    m_ogre_scene = sm;
 }
 
-void DustManager::DustManDiscard(Ogre::SceneManager* sm)
+void RoR::GfxScene::DiscardScene()
 {
-    // delete all created dustpools and remove them
-    std::map<Ogre::String, DustPool *>::iterator it;
-    for (it = dustpools.begin(); it != dustpools.end(); it++)
+    for (auto itor : m_dustpools)
     {
-        // delete the DustPool instance
-		it->second->Discard(sm);
-        delete(it->second);
-        it->second = 0;
+        itor.second->Discard(m_ogre_scene);
+        delete itor.second;
     }
-    // then clear the vector
-    dustpools.clear();
+    m_dustpools.clear();
 }
 
-void DustManager::update()
+void RoR::GfxScene::UpdateScene()
 {
+    // Particles
     if (RoR::App::gfx_particles_mode.GetActive() == 1)
     {
-    std::map<Ogre::String, DustPool *>::iterator it;
-    for (it = dustpools.begin(); it != dustpools.end(); it++)
-    {
-        it->second->update();
-    }
-    }
-}
-
-void DustManager::setVisible(bool visible)
-{
-    std::map<Ogre::String, DustPool *>::iterator it;
-    for (it = dustpools.begin(); it != dustpools.end(); it++)
-    {
-        it->second->setVisible(visible);
+        for (auto itor : m_dustpools)
+        {
+            itor.second->update();
+        }
     }
 }
 
-DustPool* DustManager::getDustPool(Ogre::String name)
+void RoR::GfxScene::SetParticlesVisible(bool visible)
 {
-    if (dustpools.find(name) == dustpools.end())
-        return 0;
-    return dustpools[name];
+    for (auto itor : m_dustpools)
+    {
+        itor.second->setVisible(visible);
+    }
+}
+
+DustPool* RoR::GfxScene::GetDustPool(const char* name)
+{
+    auto found = m_dustpools.find(name);
+    if (found != m_dustpools.end())
+    {
+        return found->second;
+    }
+    else
+    {
+        return nullptr;
+    }
 }

@@ -2190,7 +2190,7 @@ void SimController::CleanupAfterSimulation()
 
     App::GetGuiManager()->SetVisible_LoadingWindow(false);
 
-    m_particle_manager.DustManDiscard(gEnv->sceneManager); // TODO: de-globalize SceneManager
+    m_gfx_scene.DiscardScene();
 }
 
 bool SimController::SetupGameplayLoop()
@@ -2206,7 +2206,7 @@ bool SimController::SetupGameplayLoop()
     // Setup
     // ============================================================================
 
-    m_particle_manager.DustManCheckAndInit(gEnv->sceneManager); // TODO: de-globalize SceneManager
+    m_gfx_scene.InitScene(gEnv->sceneManager); // TODO: de-globalize SceneManager
 
     int colourNum = -1;
 
@@ -2467,18 +2467,15 @@ void SimController::SetPlayerActorById(int actor_id)
 
 void SimController::UpdateGfxScene(float dt_sec)
 {
-    // *** REFACTOR IN PROGRESS
-    // Scene updates are being moved here from `UpdateSimulation()`
-
     if (RoR::App::sim_state.GetActive() != RoR::SimState::PAUSED)
     {
-        m_actor_manager.UpdateActorVisualsAsync(); // NEW; REFACTOR IN PROGRESS - Updates visuals from data buffered in GfxActor
+        m_actor_manager.UpdateActorVisualsAsync(); // Updates visuals from data buffered in GfxActor
         if (m_player_actor != nullptr)
         {
             m_gfx_envmap.UpdateEnvMap(m_player_actor->GetGfxActor()->GetSimActorPos(), m_player_actor); // Safe to be called here, only modifies OGRE objects, doesn't read any physics state.
             m_player_actor->GetGfxActor()->UpdateVideoCameras(dt_sec);
         }
-        m_particle_manager.update();
+        m_gfx_scene.UpdateScene(); // NEW; REFACTOR IN PROGRESS - everything will be migrated here.
         m_actor_manager.FinalizeAsyncVisualUpdates();
     }
 }

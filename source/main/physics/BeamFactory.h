@@ -27,7 +27,6 @@
 #include "RoRPrerequisites.h"
 
 #include "Beam.h"
-#include "DustManager.h" // Particle systems manager
 #include "Network.h"
 #include "Singleton.h"
 

@@ -23,6 +23,7 @@
 
 #include "BeamFactory.h"
 #include "CharacterFactory.h"
+#include "DustManager.h" // GfxScene
 #include "EnvironmentMap.h"
 #include "ForceFeedback.h"
 #include "RoRPrerequisites.h"
@@ -89,8 +90,8 @@ public:
     void   EnterGameplayLoop     ();
 
     RoR::ActorManager*          GetBeamFactory  ()         { return &m_actor_manager; } // TODO: Eliminate this. All operations upon actors should be done through above methods. ~ only_a_ptr, 06/2017
-    RoR::SkidmarkConfig*        GetSkidmarkConf ()         { return m_skidmark_conf; }
-    DustManager&                GetParticleManager()       { return m_particle_manager; }
+    RoR::SkidmarkConfig*         GetSkidmarkConf ()         { return m_skidmark_conf; }
+    RoR::GfxScene&               GetGfxScene()              { return m_gfx_scene; }
 
 private:
 
@@ -115,7 +116,7 @@ private:
     RoR::ActorManager        m_actor_manager;
     RoR::CharacterFactory    m_character_factory;
     RoR::GfxEnvmap           m_gfx_envmap;
-    DustManager              m_particle_manager;
+    RoR::GfxScene            m_gfx_scene;
     HeatHaze*                m_heathaze;
     RoR::SkidmarkConfig*     m_skidmark_conf;
     Ogre::Real               m_time_until_next_toggle; //!< just to stop toggles flipping too fast

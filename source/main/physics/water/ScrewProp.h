@@ -28,7 +28,7 @@ class Screwprop : public ZeroedMemoryAllocator
 
 public:
 
-    Screwprop(DustManager* dustman, node_t *nd, int nr, int nb, int nu, float power, int trucknum);
+    Screwprop( node_t *nd, int nr, int nb, int nu, float power, int trucknum);
 
     void updateForces(int update);
     void setThrottle(float val);

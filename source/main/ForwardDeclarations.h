@@ -36,6 +36,7 @@ namespace RoR
     class  ContentManager;
     class  FlexFactory;
     class  GfxActor;
+    class  GfxScene;
     class  GUIManager;
     struct GuiManagerImpl;
     class  GuiManagerInterface;
@@ -148,7 +149,6 @@ class DashBoardManager;
 class DOFManager;
 class DotSceneLoader;
 class DustPool;
-class DustManager;
 class Editor;
 class Envmap;
 class Flexable;
