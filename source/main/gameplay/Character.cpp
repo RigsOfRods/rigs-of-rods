@@ -118,9 +118,10 @@ Character::~Character()
     {
         m_character_scenenode->detachAllObjects();
     }
-    if (gEnv->surveyMap && m_survey_map_entity)
+    auto* survey_map = App::GetSimController()->GetGfxScene().GetSurveyMap();
+    if ((survey_map != nullptr) && m_survey_map_entity)
     {
-        gEnv->surveyMap->deleteMapEntity(m_survey_map_entity);
+        survey_map->deleteMapEntity(m_survey_map_entity);
     }
     // try to unload some materials
     try
@@ -190,22 +191,24 @@ void Character::updateLabels()
 #endif //SOCKETW
 }
 
-void Character::setPosition(Vector3 position)
+void Character::setPosition(Vector3 position) // TODO: updates OGRE objects --> belongs to GfxScene ~ only_a_ptr, 05/2018
 {
     m_character_scenenode->setPosition(position);
     m_prev_positions.clear();
-    if (gEnv->surveyMap && gEnv->surveyMap->getMapEntityByName(m_instance_name))
+    auto* survey_map = App::GetSimController()->GetGfxScene().GetSurveyMap();
+    if (survey_map && survey_map->getMapEntityByName(m_instance_name))
     {
-        gEnv->surveyMap->getMapEntityByName(m_instance_name)->setPosition(position);
+        survey_map->getMapEntityByName(m_instance_name)->setPosition(position);
     }
 }
 
-void Character::setVisible(bool visible)
+void Character::setVisible(bool visible) // TODO: updates OGRE objects --> belongs to GfxScene ~ only_a_ptr, 05/2018
 {
     m_character_scenenode->setVisible(visible);
-    if (gEnv->surveyMap)
+    auto* survey_map = App::GetSimController()->GetGfxScene().GetSurveyMap();
+    if (survey_map)
     {
-        SurveyMapEntity* e = gEnv->surveyMap->getMapEntityByName(m_instance_name);
+        SurveyMapEntity* e = survey_map->getMapEntityByName(m_instance_name);
         if (e)
             e->setVisibility(visible);
     }
@@ -537,11 +540,12 @@ void Character::update(float dt)
 #endif // USE_SOCKETW
 }
 
-void Character::updateMapIcon()
+void Character::updateMapIcon() // TODO: updates OGRE objects --> belongs to GfxScene ~ only_a_ptr, 05/2018
 {
-    if (!gEnv->surveyMap)
+    auto* survey_map = App::GetSimController()->GetGfxScene().GetSurveyMap();
+    if (!survey_map)
         return;
-    SurveyMapEntity* e = gEnv->surveyMap->getMapEntityByName(m_instance_name);
+    SurveyMapEntity* e = survey_map->getMapEntityByName(m_instance_name);
     if (e)
     {
         e->setPosition(m_character_scenenode->getPosition());
@@ -764,11 +768,12 @@ void Character::SetActorCoupling(bool enabled, Actor* actor /* = nullptr */)
     }
 }
 
-void Character::AddPersonToSurveyMap()
+void Character::AddPersonToSurveyMap() // TODO: updates OGRE objects --> belongs to GfxScene ~ only_a_ptr, 05/2018
 {
-    if (gEnv->surveyMap)
+    auto* survey_map = App::GetSimController()->GetGfxScene().GetSurveyMap();
+    if (survey_map)
     {
-        m_survey_map_entity = gEnv->surveyMap->createNamedMapEntity(m_instance_name, "person");
+        m_survey_map_entity = survey_map->createNamedMapEntity(m_instance_name, "person");
         m_survey_map_entity->setState(0);
         m_survey_map_entity->setVisibility(true);
         m_survey_map_entity->setPosition(m_character_scenenode->getPosition());

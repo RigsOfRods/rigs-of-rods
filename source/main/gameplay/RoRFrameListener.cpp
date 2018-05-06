@@ -1539,11 +1539,6 @@ void SimController::FinalizeActorSpawning(Actor* local_actor, Actor* prev_actor)
             }
         }
 
-        if (gEnv->surveyMap)
-        {
-            gEnv->surveyMap->createNamedMapEntity("Truck" + TOSTRING(local_actor->ar_instance_id), SurveyMapManager::getTypeByDriveable(local_actor->ar_driveable));
-        }
-
         if (local_actor->ar_driveable != NOT_DRIVEABLE)
         {
             // We are supposed to be in this vehicle, if it is a vehicle
@@ -1620,10 +1615,6 @@ void SimController::UpdateSimulation(float dt)
         {
             gEnv->cameraManager->Update(dt, m_player_actor, m_actor_manager.GetSimulationSpeed());
         }
-        if (gEnv->surveyMap != nullptr)
-        {
-            gEnv->surveyMap->Update(dt, m_player_actor);
-        }
     }
 
 #ifdef USE_OPENAL
@@ -1673,15 +1664,6 @@ void SimController::UpdateSimulation(float dt)
 
         if (RoR::App::GetOverlayWrapper() != nullptr)
         {
-            // update survey map
-            if (gEnv->surveyMap != nullptr && gEnv->surveyMap->getVisibility())
-            {
-                Actor** vehicles = m_actor_manager.GetInternalActorSlots();
-                int num_vehicles = m_actor_manager.GetNumUsedActorSlots();
-
-                gEnv->surveyMap->UpdateVehicles(vehicles, num_vehicles);
-            }
-
 
             if (m_player_actor != nullptr)
             {
@@ -1766,8 +1748,8 @@ void SimController::ShowLoaderGUI(int type, const Ogre::String& instance, const 
     m_reload_dir = gEnv->collisions->getDirection(instance, box);
     m_reload_box = gEnv->collisions->getBox(instance, box);
     App::sim_state.SetActive(SimState::SELECTING); // TODO: use 'pending' mechanism
-    if (gEnv->surveyMap)
-        gEnv->surveyMap->setVisibility(false);
+    if (m_gfx_scene.GetSurveyMap())
+        m_gfx_scene.GetSurveyMap()->setVisibility(false); // TODO: we shouldn't update GfxScene-owned objects from simulation, we should queue the update ~ only_a_ptr, 05/2018
 
     App::GetGuiManager()->GetMainSelector()->Show(LoaderType(type));
 }
@@ -1798,8 +1780,9 @@ void SimController::windowResized(Ogre::RenderWindow* rw)
 
     if (RoR::App::GetOverlayWrapper())
         RoR::App::GetOverlayWrapper()->windowResized();
-    if (gEnv->surveyMap)
-        gEnv->surveyMap->windowResized();
+
+    if (m_gfx_scene.GetSurveyMap())
+        m_gfx_scene.GetSurveyMap()->windowResized(); // TODO: we shouldn't update GfxScene-owned objects from simulation, we should queue the update ~ only_a_ptr, 05/2018
 
     //update mouse area
     RoR::App::GetInputEngine()->windowResized(rw);
@@ -1843,8 +1826,9 @@ void SimController::HideGUI(bool hidden)
     {
         if (RoR::App::GetOverlayWrapper())
             RoR::App::GetOverlayWrapper()->showDashboardOverlays(false, m_player_actor);
-        if (gEnv->surveyMap)
-            gEnv->surveyMap->setVisibility(false);
+
+        if (m_gfx_scene.GetSurveyMap())
+            m_gfx_scene.GetSurveyMap()->setVisibility(false); // TODO: we shouldn't update GfxScene-owned objects from simulation, but this whole HideGUI() function will likely end up being invoked by GfxActor in the future, so it's OK for now ~ only_a_ptr, 05/2018
     }
     else
     {
@@ -2104,11 +2088,6 @@ bool SimController::LoadTerrain()
 
 void SimController::CleanupAfterSimulation()
 {
-    if (gEnv->surveyMap)
-    {
-        gEnv->surveyMap->setVisibility(false);
-    }
-
     App::GetGuiManager()->GetMainSelector()->Reset();
 
     this->StopRaceTimer();

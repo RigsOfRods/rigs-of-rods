@@ -28,7 +28,7 @@ class SurveyMapTextureCreator : public Ogre::RenderTargetListener, public Zeroed
 {
 public:
 
-    SurveyMapTextureCreator();
+    SurveyMapTextureCreator(Ogre::Vector3 terrain_size);
 
     Ogre::String getMaterialName();
     Ogre::String getCameraName();

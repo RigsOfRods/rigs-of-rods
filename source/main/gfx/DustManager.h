@@ -64,7 +64,9 @@ public:
     void           RegisterGfxActor(RoR::GfxActor* gfx_actor);
     void           RemoveGfxActor(RoR::GfxActor* gfx_actor);
     void           BufferSimulationData(); //!< Run this when simulation is halted
-    SimBuffer&     GetSimBuffer() { return m_simbuf; }
+    SimBuffer&     GetSimDataBuffer() { return m_simbuf; }
+    void           InitSurveyMap(Ogre::Vector3 terrain_size); //!< Must be called after terrain was loaded
+    SurveyMapManager* GetSurveyMap() { return m_survey_map; }
 
 private:
 
@@ -75,6 +77,7 @@ private:
     RoR::GfxEnvmap                    m_envmap;
     HeatHaze*                         m_heathaze;
     SimBuffer                         m_simbuf;
+    SurveyMapManager*                 m_survey_map; //!< Minimap; placed here rather than GUIManager because it's lifetime is tied to terrain.
 
 };
 

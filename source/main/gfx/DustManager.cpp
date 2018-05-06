@@ -28,6 +28,7 @@
 #include "RoRFrameListener.h" // SimController
 #include "Settings.h"
 #include "SkyManager.h"
+#include "SurveyMapManager.h"
 #include "TerrainGeometryManager.h"
 #include "TerrainManager.h"
 #include "TerrainObjectManager.h"
@@ -60,6 +61,14 @@ void RoR::GfxScene::InitScene(Ogre::SceneManager* sm)
     }
 }
 
+void RoR::GfxScene::InitSurveyMap(Ogre::Vector3 terrain_size)
+{
+    if (!RoR::App::gfx_minimap_disabled.GetActive())
+    {
+        m_survey_map = new SurveyMapManager(terrain_size);
+    }
+}
+
 void RoR::GfxScene::DiscardScene()
 {
     for (auto itor : m_dustpools)
@@ -73,6 +82,12 @@ void RoR::GfxScene::DiscardScene()
     {
         delete m_heathaze;
         m_heathaze = nullptr;
+    }
+
+    if (m_survey_map != nullptr)
+    {
+        delete m_survey_map;
+        m_survey_map = nullptr;
     }
 }
 
@@ -149,6 +164,18 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
             player_gfx_actor, m_simbuf.simbuf_dir_arrow_target, m_simbuf.simbuf_character_pos);
     }
 
+    // GUI - Survey map
+    if (m_survey_map != nullptr)
+    {
+        for (GfxActor* gfx_actor: m_all_gfx_actors)
+        {
+            auto& simbuf = gfx_actor->GetSimDataBuffer();
+            m_survey_map->UpdateActorMapEntry(
+                gfx_actor->GetActorId(), simbuf.simbuf_pos, simbuf.simbuf_heading_angle);
+        }
+        m_survey_map->Update(dt_sec, m_simbuf.simbuf_player_actor);
+    }
+
     // Actors - update misc visuals
     for (GfxActor* gfx_actor: m_live_gfx_actors)
     {
@@ -192,6 +219,13 @@ DustPool* RoR::GfxScene::GetDustPool(const char* name)
 void RoR::GfxScene::RegisterGfxActor(RoR::GfxActor* gfx_actor)
 {
     m_all_gfx_actors.push_back(gfx_actor);
+
+    if (m_survey_map != nullptr)
+    {
+        m_survey_map->createNamedMapEntity( // TODO: just use pointers! ~ 05/2018
+            "Truck" + TOSTRING(gfx_actor->GetActorId()),
+            SurveyMapManager::getTypeByDriveable(gfx_actor->GetActorDriveable()));
+    }
 }
 
 void RoR::GfxScene::BufferSimulationData()

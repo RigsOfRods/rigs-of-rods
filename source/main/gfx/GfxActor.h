@@ -153,6 +153,7 @@ public:
         Ogre::Vector3               simbuf_pos;
         Ogre::Vector3               simbuf_node0_velo;
         bool                        simbuf_live_local;
+        float                       simbuf_heading_angle;
     };
 
     GfxActor(Actor* actor, std::string ogre_resource_group, std::vector<NodeGfx>& gfx_nodes);
@@ -179,6 +180,8 @@ public:
     void                      UpdateDebugView    ();
     void                      CycleDebugViews    ();
     void                      UpdateCabMesh      ();
+    int                       GetActorId         () const;
+    int                       GetActorDriveable  () const;
     inline void               SetDebugView       (DebugViewType dv)       { m_debug_view = dv; }
     inline Ogre::MaterialPtr& GetCabTransMaterial()                       { return m_cab_mat_visual_trans; }
     inline VideoCamState      GetVideoCamState   () const                 { return m_vidcam_state; }

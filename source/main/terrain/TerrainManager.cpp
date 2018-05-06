@@ -61,7 +61,6 @@ TerrainManager::TerrainManager()
     , m_shadow_manager(0)
     , m_sky_manager(0)
     , SkyX_manager(0)
-    , m_survey_map(0)
     , m_water(0)
     , m_sight_range(1000)
     , m_main_light(0)
@@ -123,12 +122,6 @@ TerrainManager::~TerrainManager()
     {
         delete(m_shadow_manager);
         m_shadow_manager = nullptr;
-    }
-
-    if (m_survey_map != nullptr)
-    {
-        delete m_survey_map;
-        m_survey_map = nullptr;
     }
 }
 
@@ -193,11 +186,8 @@ void TerrainManager::loadTerrain(String filename)
     initTerrainCollisions();
 
     // init the survey map
-    if (!RoR::App::gfx_minimap_disabled.GetActive())
-    {
-        PROGRESS_WINDOW(45, _L("Initializing Overview Map Subsystem"));
-        m_survey_map = new SurveyMapManager();
-    }
+    PROGRESS_WINDOW(45, _L("Initializing Overview Map Subsystem"));
+    App::GetSimController()->GetGfxScene().InitSurveyMap(this->getMaxTerrainSize());
 
     PROGRESS_WINDOW(95, _L("Initializing terrain light properties"));
     m_geometry_manager->UpdateMainLightPosition(); // Initial update takes a while
@@ -703,8 +693,9 @@ bool TerrainManager::HasPredefinedActors()
 
 std::string TerrainManager::GetMinimapTextureName()
 {
-    if (m_survey_map != nullptr) // Can be disabled by user
-        return m_survey_map->GetMinimapTextureName();
+    auto* survey_map = App::GetSimController()->GetGfxScene().GetSurveyMap();
+    if (survey_map != nullptr) // Can be disabled by user
+        return survey_map->GetMinimapTextureName();
     else
         return "";
 }

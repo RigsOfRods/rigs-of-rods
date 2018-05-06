@@ -94,7 +94,6 @@ private:
 
     TerrainObjectManager*   m_object_manager;
     TerrainGeometryManager* m_geometry_manager;
-    SurveyMapManager*       m_survey_map;
     Collisions*    m_collisions;
     Dashboard*     m_dashboard;
     HDRListener*   m_hdr_listener;

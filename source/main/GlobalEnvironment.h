@@ -34,7 +34,6 @@ public:
         , player(0)
         , sceneManager(0)
         , SkyX(0)
-        , surveyMap(0)
         , threadPool(0)
         , mrTime(0.f)
     {}
@@ -46,7 +45,6 @@ public:
     Character*          player;
     Collisions*         collisions;
     SkyXManager*        SkyX;
-    SurveyMapManager*   surveyMap;
     ThreadPool*         threadPool;
     float               mrTime;
 };

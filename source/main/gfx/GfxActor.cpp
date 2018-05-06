@@ -899,6 +899,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
 {
     m_simbuf.simbuf_live_local = (m_actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED);
     m_simbuf.simbuf_pos = m_actor->getPosition();
+    m_simbuf.simbuf_heading_angle = m_actor->getHeadingDirectionAngle();
     const int num_nodes = m_actor->ar_num_nodes;
     for (int i = 0; i < num_nodes; ++i)
     {
@@ -1001,3 +1002,6 @@ void RoR::GfxActor::SetWheelsVisible(bool value)
     }
 }
 
+
+int RoR::GfxActor::GetActorId          () const { return m_actor->ar_instance_id; }
+int RoR::GfxActor::GetActorDriveable   () const { return m_actor->ar_driveable; }
