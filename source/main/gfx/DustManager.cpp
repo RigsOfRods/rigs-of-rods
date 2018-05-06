@@ -24,6 +24,7 @@
 #include "Application.h"
 #include "DustPool.h"
 #include "Heathaze.h"
+#include "OverlayWrapper.h"
 #include "RoRFrameListener.h" // SimController
 #include "Settings.h"
 #include "SkyManager.h"
@@ -37,6 +38,7 @@ RoR::GfxScene::GfxScene()
     : m_simbuf_player_actor(nullptr)
     , m_ogre_scene(nullptr)
     , m_heathaze(nullptr)
+    , m_simbuf_character_pos(Ogre::Vector3::ZERO)
 {}
 
 void RoR::GfxScene::InitScene(Ogre::SceneManager* sm)
@@ -136,6 +138,13 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
        skyx_man->update(dt_sec); // Light update
     }
 
+    // GUI - Direction arrow
+    if ((m_simbuf_player_actor != nullptr) && App::GetOverlayWrapper() && App::GetOverlayWrapper()->IsDirectionArrowVisible())
+    {
+        App::GetOverlayWrapper()->UpdateDirectionArrowHud(
+            m_simbuf_player_actor->GetGfxActor(), m_simbuf_dir_arrow_target, m_simbuf_character_pos);
+    }
+
     // Actors - update misc visuals
     for (GfxActor* gfx_actor: m_live_gfx_actors)
     {
@@ -184,6 +193,8 @@ void RoR::GfxScene::RegisterGfxActor(RoR::GfxActor* gfx_actor)
 void RoR::GfxScene::BufferSimulationData()
 {
     m_simbuf_player_actor = App::GetSimController()->GetPlayerActor();
+    m_simbuf_character_pos = gEnv->player->getPosition();
+    m_simbuf_dir_arrow_target = App::GetSimController()->GetDirArrowTarget();
 
     m_live_gfx_actors.clear();
     for (GfxActor* a: m_all_gfx_actors)

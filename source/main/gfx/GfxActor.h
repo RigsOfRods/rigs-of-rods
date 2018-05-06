@@ -173,6 +173,7 @@ public:
     void                      UpdateDebugView    ();
     void                      CycleDebugViews    ();
     void                      UpdateCabMesh      ();
+    bool                      IsLiveLocal        () const                 { return m_simbuf_live_local; }
     inline void               SetDebugView       (DebugViewType dv)       { m_debug_view = dv; }
     inline Ogre::MaterialPtr& GetCabTransMaterial()                       { return m_cab_mat_visual_trans; }
     inline VideoCamState      GetVideoCamState   () const                 { return m_vidcam_state; }
@@ -204,6 +205,7 @@ private:
     // Buffered simulation data
     std::unique_ptr<NodeData>   m_simbuf_nodes;
     Ogre::Vector3               m_simbuf_pos;
+    bool                        m_simbuf_live_local;
 
     // Cab materials and their features
     Ogre::MaterialPtr           m_cab_mat_visual; ///< Updated in-place from templates

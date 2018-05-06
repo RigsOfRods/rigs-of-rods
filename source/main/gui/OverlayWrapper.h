@@ -62,9 +62,10 @@ public:
     float mTimeUntilNextToggle;
 
     void SetupDirectionArrow();
-    void UpdateDirectionArrow(Actor* vehicle, Ogre::Vector3 const & point_to);
+    void UpdateDirectionArrowHud(RoR::GfxActor* player_vehicle, Ogre::Vector3 point_to, Ogre::Vector3 character_pos);
     void HideDirectionOverlay();
     void ShowDirectionOverlay(Ogre::String const & caption);
+    bool IsDirectionArrowVisible() const { return BITMASK_IS_1(m_visible_overlays, VisibleOverlays::DIRECTION_ARROW); }
 
     void UpdatePressureTexture(float pressure);
 

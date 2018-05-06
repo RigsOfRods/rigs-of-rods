@@ -764,17 +764,17 @@ void OverlayWrapper::SetupDirectionArrow()
     }
 }
 
-void OverlayWrapper::UpdateDirectionArrow(Actor* vehicle, Ogre::Vector3 const& point_to)
+void OverlayWrapper::UpdateDirectionArrowHud(RoR::GfxActor* player_vehicle, Ogre::Vector3 point_to, Ogre::Vector3 character_pos)
 {
     m_direction_arrow_node->lookAt(point_to, Node::TS_WORLD, Vector3::UNIT_Y);
     Real distance = 0.0f;
-    if (vehicle != nullptr && vehicle->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
+    if (player_vehicle != nullptr && player_vehicle->IsLiveLocal())
     {
-        distance = vehicle->getPosition().distance(point_to);
+        distance = player_vehicle->GetSimActorPos().distance(point_to);
     }
     else if (gEnv->player)
     {
-        distance = gEnv->player->getPosition().distance(point_to);
+        distance = character_pos.distance(point_to);
     }
     char tmp[256];
     sprintf(tmp, "%0.1f meter", distance);

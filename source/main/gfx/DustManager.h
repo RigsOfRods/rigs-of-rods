@@ -67,6 +67,8 @@ private:
 
     // Buffered simulation state
     Actor*         m_simbuf_player_actor;
+    Ogre::Vector3  m_simbuf_character_pos;
+    Ogre::Vector3  m_simbuf_dir_arrow_target;
 };
 
 } // namespace RoR

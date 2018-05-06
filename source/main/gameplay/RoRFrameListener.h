@@ -93,6 +93,7 @@ public:
     RoR::ActorManager*          GetBeamFactory  ()         { return &m_actor_manager; } // TODO: Eliminate this. All operations upon actors should be done through above methods. ~ only_a_ptr, 06/2017
     RoR::SkidmarkConfig*         GetSkidmarkConf ()         { return m_skidmark_conf; }
     RoR::GfxScene&               GetGfxScene()              { return m_gfx_scene; }
+    Ogre::Vector3                GetDirArrowTarget()        { return m_dir_arrow_pointed; }
 
 private:
 
@@ -135,7 +136,6 @@ private:
     RoR::SkinDef*            m_last_skin_selection;
     std::vector<std::string> m_last_vehicle_configs;
 
-    bool                     m_is_dir_arrow_visible;
     Ogre::Vector3            m_dir_arrow_pointed;
 
     int                      m_last_screenshot_id;

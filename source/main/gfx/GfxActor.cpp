@@ -897,6 +897,7 @@ void RoR::GfxActor::SetRodsVisible(bool visible)
 
 void RoR::GfxActor::UpdateSimDataBuffer()
 {
+    m_simbuf_live_local = (m_actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED);
     m_simbuf_pos = m_actor->getPosition();
     const int num_nodes = m_actor->ar_num_nodes;
     for (int i = 0; i < num_nodes; ++i)

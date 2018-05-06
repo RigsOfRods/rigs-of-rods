@@ -123,7 +123,6 @@ SimController::SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_c
     m_skidmark_conf(skid_conf),
     m_hide_gui(false),
     m_was_app_window_closed(false),
-    m_is_dir_arrow_visible(false),
     m_is_pace_reset_pressed(false),
     m_last_cache_selection(nullptr),
     m_last_screenshot_date(""),
@@ -1649,13 +1648,6 @@ void SimController::UpdateSimulation(float dt)
     // CAUTION: 'updateEvents' might have changed 'm_player_actor'
     //          TODO: This is a mess - actor updates from misc. inputs should be buffered, evaluated and executed at once, not ad-hoc ~ only_a_ptr, 07/2017
 
-    // update gui 3d arrow
-    // TODO: This is most definitely NOT necessary to do right here ~ only_a_ptr, 07/2017
-    if (RoR::App::GetOverlayWrapper() && m_is_dir_arrow_visible && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
-    {
-        RoR::App::GetOverlayWrapper()->UpdateDirectionArrow(m_player_actor, m_dir_arrow_pointed);
-    }
-
     // one of the input modes is immediate, so setup what is needed for immediate mouse/key movement
     if (m_time_until_next_toggle >= 0)
     {
@@ -1788,13 +1780,11 @@ void SimController::UpdateDirectionArrow(char* text, Vector3 position)
     if (text == nullptr)
     {
         RoR::App::GetOverlayWrapper()->HideDirectionOverlay();
-        m_is_dir_arrow_visible = false;
         m_dir_arrow_pointed = Vector3::ZERO;
     }
     else
     {
         RoR::App::GetOverlayWrapper()->ShowDirectionOverlay(text);
-        m_is_dir_arrow_visible = true;
         m_dir_arrow_pointed = position;
     }
 }
