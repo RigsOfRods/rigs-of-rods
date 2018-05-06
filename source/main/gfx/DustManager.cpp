@@ -78,6 +78,12 @@ void RoR::GfxScene::DiscardScene()
 
 void RoR::GfxScene::UpdateScene(float dt_sec)
 {
+    // Actors - start threaded tasks
+    for (GfxActor* gfx_actor: m_live_gfx_actors)
+    {
+        gfx_actor->UpdateWheelVisuals(); // Push flexwheel tasks to threadpool
+    }
+
     // Particles
     if (RoR::App::gfx_particles_mode.GetActive() == 1)
     {
@@ -97,12 +103,6 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
 
     // Terrain - lightmap; TODO: ported as-is from TerrainManager::update(), is it needed? ~ only_a_ptr, 05/2018
     App::GetSimTerrain()->getGeometryManager()->UpdateMainLightPosition(); // TODO: Is this necessary? I'm leaving it here just in case ~ only_a_ptr, 04/2017
-
-    // Actors - start threaded tasks
-    for (GfxActor* gfx_actor: m_live_gfx_actors)
-    {
-        gfx_actor->UpdateWheelVisuals(); // Push flexwheel tasks to threadpool
-    }
 
     // Terrain - water
     IWater* water = App::GetSimTerrain()->getWater();
