@@ -1642,11 +1642,6 @@ void SimController::UpdateSimulation(float dt)
 
     // --- terrain updates ---
 
-    // update animated objects
-    App::GetSimTerrain()->update(dt);
-
-    // NOTE: Removed `else` branch which captured the middle of the map (height: ground+50m) - what was that for?? ~ only_a_ptr, 08/2017
-
     // water
     if (simRUNNING(s) || simPAUSED(s) || simEDITOR(s))
     {

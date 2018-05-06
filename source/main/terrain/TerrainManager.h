@@ -38,7 +38,6 @@ public:
     ~TerrainManager();
 
     void               loadTerrain(Ogre::String filename);
-    bool               update(float dt);
     void               setGravity(float value);
     std::vector<authorinfo_t>& GetAuthors();
     TerrainGeometryManager* getGeometryManager()     { return m_geometry_manager; };

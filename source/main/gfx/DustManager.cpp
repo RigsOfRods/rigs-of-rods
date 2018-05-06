@@ -25,6 +25,9 @@
 #include "DustPool.h"
 #include "RoRFrameListener.h" // SimController
 #include "Settings.h"
+#include "TerrainGeometryManager.h"
+#include "TerrainManager.h"
+#include "TerrainObjectManager.h"
 
 using namespace Ogre;
 
@@ -67,6 +70,12 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
             itor.second->update();
         }
     }
+
+    // Terrain - animated meshes and paged geometry
+    App::GetSimTerrain()->getObjectManager()->UpdateTerrainObjects(dt_sec);
+
+    // Terrain - lightmap; TODO: ported as-is from TerrainManager::update(), is it needed? ~ only_a_ptr, 05/2018
+    App::GetSimTerrain()->getGeometryManager()->UpdateMainLightPosition(); // TODO: Is this necessary? I'm leaving it here just in case ~ only_a_ptr, 04/2017
 
     // Actors - start threaded tasks
     for (GfxActor* gfx_actor: m_live_gfx_actors)

@@ -630,17 +630,6 @@ void TerrainManager::initTerrainCollisions()
     }
 }
 
-bool TerrainManager::update(float dt)
-{
-    if (m_object_manager)
-        m_object_manager->UpdateTerrainObjects(dt);
-
-    if (m_geometry_manager)
-        m_geometry_manager->UpdateMainLightPosition(); // TODO: Is this necessary? I'm leaving it here just in case ~ only_a_ptr, 04/2017
-
-    return true;
-}
-
 void TerrainManager::initScripting()
 {
 #ifdef USE_ANGELSCRIPT
