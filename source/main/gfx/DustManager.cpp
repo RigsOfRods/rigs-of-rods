@@ -83,6 +83,23 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
         gfx_actor->UpdateWheelVisuals(); // Push flexwheel tasks to threadpool
     }
 
+    // Terrain - water
+    IWater* water = App::GetSimTerrain()->getWater();
+    if (water)
+    {
+        water->WaterSetCamera(gEnv->mainCamera);
+        if (m_simbuf_player_actor)
+        {
+            Ogre::Vector3 pos = m_simbuf_player_actor->GetGfxActor()->GetSimActorPos();
+            water->SetReflectionPlaneHeight(water->CalcWavesHeight(pos));
+        }
+        else
+        {
+            water->SetReflectionPlaneHeight(water->GetStaticWaterHeight());
+        }
+        water->FrameStepWater(dt_sec);
+    }
+
     // Actors - update misc visuals
     for (GfxActor* gfx_actor: m_live_gfx_actors)
     {

@@ -1642,25 +1642,6 @@ void SimController::UpdateSimulation(float dt)
 
     // --- terrain updates ---
 
-    // water
-    if (simRUNNING(s) || simPAUSED(s) || simEDITOR(s))
-    {
-        IWater* water = App::GetSimTerrain()->getWater();
-        if (water)
-        {
-            water->WaterSetCamera(gEnv->mainCamera);
-            if (m_player_actor)
-            {
-                water->SetReflectionPlaneHeight(water->CalcWavesHeight(m_player_actor->getPosition()));
-            }
-            else
-            {
-                water->SetReflectionPlaneHeight(water->GetStaticWaterHeight());
-            }
-            water->FrameStepWater(dt);
-        }
-    }
-
     // trigger updating of shadows etc
 #ifdef USE_CAELUM
     SkyManager* sky = App::GetSimTerrain()->getSkyManager();
