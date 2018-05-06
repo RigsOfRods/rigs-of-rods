@@ -1769,7 +1769,7 @@ void SimController::UpdateSimulation(float dt)
         if (!simPAUSED(s))
         {
             m_actor_manager.JoinFlexbodyTasks(); // Waits until all flexbody tasks are finished
-            m_actor_manager.PrepareAsyncGfxUpdate(); // Copy N/B from Actor to GfxActor
+            m_gfx_scene.BufferSimulationData();
 
             m_actor_manager.UpdateActors(m_player_actor, dt); // *** Start new physics tasks. No reading from Actor N/B beyond this point.
 
@@ -1920,14 +1920,16 @@ void SimController::HideGUI(bool hidden)
 
 void SimController::RemovePlayerActor()
 {
-    Actor* actor = m_player_actor;
-    this->SetPlayerActor(nullptr);
-    m_actor_manager.RemoveActorInternal(actor->ar_instance_id);
+    this->RemoveActor(m_player_actor);
 }
 
 void SimController::RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name)
 {
-    m_actor_manager.RemoveActorByCollisionBox(gEnv->collisions, ev_src_instance_name, box_name);
+    Actor* actor = m_actor_manager.FindActorInsideBox(gEnv->collisions, ev_src_instance_name, box_name);
+    if (actor != nullptr)
+    {
+        this->RemoveActor(actor);
+    }
 }
 
 void SimController::ReloadPlayerActor()
@@ -2238,8 +2240,6 @@ bool SimController::SetupGameplayLoop()
         gEnv->cameraManager = new CameraManager();
     }
 
-    m_gfx_envmap.SetupEnvMap();
-
     // ============================================================================
     // Loading map
     // ============================================================================
@@ -2401,7 +2401,10 @@ void SimController::EnterGameplayLoop()
             const float dt_sec = std::min(framestarted_dt_sec, 0.05f);
             m_time += dt_sec;
             this->UpdateSimulation(dt_sec);
-            this->UpdateGfxScene(dt_sec);
+            if (RoR::App::sim_state.GetActive() != RoR::SimState::PAUSED)
+            {
+                m_gfx_scene.UpdateScene(dt_sec);
+            }
         }
 
         // TODO: Ugly! Currently it seems drawing DearIMGUI only works when invoked from `Ogre::FrameListener::frameRenderingQueued`.
@@ -2465,19 +2468,14 @@ void SimController::SetPlayerActorById(int actor_id)
     }
 }
 
-void SimController::UpdateGfxScene(float dt_sec)
+void SimController::RemoveActor(Actor* actor)
 {
-    if (RoR::App::sim_state.GetActive() != RoR::SimState::PAUSED)
+    if (actor == m_player_actor)
     {
-        m_actor_manager.UpdateActorVisualsAsync(); // Updates visuals from data buffered in GfxActor
-        if (m_player_actor != nullptr)
-        {
-            m_gfx_envmap.UpdateEnvMap(m_player_actor->GetGfxActor()->GetSimActorPos(), m_player_actor); // Safe to be called here, only modifies OGRE objects, doesn't read any physics state.
-            m_player_actor->GetGfxActor()->UpdateVideoCameras(dt_sec);
-        }
-        m_gfx_scene.UpdateScene(); // NEW; REFACTOR IN PROGRESS - everything will be migrated here.
-        m_actor_manager.FinalizeAsyncVisualUpdates();
+        this->SetPlayerActor(nullptr);
     }
+    m_gfx_scene.RemoveGfxActor(actor->GetGfxActor());
+    m_actor_manager.RemoveActorInternal(actor->ar_instance_id);
 }
 
 int SimController::GetNumActors() const

@@ -162,6 +162,7 @@ public:
     void                      UpdateRods         ();
     void                      SetRodsVisible     (bool visible);
     void                      ScaleActor         (float ratio);
+    bool                      IsActorLive        () const; //!< Should the visuals be updated for this actor?
     void                      UpdateSimDataBuffer(); //!< Copies sim. data from `Actor` to `GfxActor` for later update
     NodeData*                 GetSimNodeBuffer   () { return m_simbuf_nodes.get(); }
     Ogre::Vector3             GetSimActorPos     () const { return m_simbuf_pos; }

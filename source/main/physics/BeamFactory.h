@@ -63,7 +63,6 @@ public:
     void           UpdateActors(Actor* player_actor, float dt);
     void           SyncWithSimThread();
     void           UpdatePhysicsSimulation();
-    void           PrepareAsyncGfxUpdate(); ///!< Copies data necessary for updating visuals
     void           WakeUpAllActors();
     void           SendAllActorsSleeping();
     int            CheckNetworkStreamsOk(int sourceid);
@@ -88,16 +87,14 @@ public:
     Actor*         GetActorByNetworkLinks(int source_id, int stream_id); // used by character
     void           RepairActor(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box, bool keepPosition = false);
     void           UpdateSleepingState(Actor* player_actor, float dt);
-    void           RemoveActorByCollisionBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box); //!< Only for scripting
-    void           RemoveActorInternal(int actor_id); //!< DO NOT CALL DIRECTLY! Use `SimController` for public interface
+    void           RemoveActorInternal(int actor_id); //!< DO NOT CALL DIRECTLY! Use `SimController::RemoveActor()`
     Actor*         GetActorByIdInternal(int number); //!< DO NOT CALL DIRECTLY! Use `SimController` for public interface
+    Actor*         FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
     int            CountActorsInternal() const;
     int            CountPlayableActorsInternal() const; //!< For selector GUI
 
     // Visual updates
     void           UpdateActorVisuals(float dt, Actor* player_actor); // LEGACY; reads data directly from Actor, requires physics to be halted
-    void           UpdateActorVisualsAsync(); // NEW - REFACTOR IN PROGRESS; reads data from GfxActor buffers
-    void           FinalizeAsyncVisualUpdates(); //!< Waits for background tasks to complete
 
 #ifdef USE_SOCKETW
     void           HandleActorStreamData(std::vector<RoR::Networking::recv_packet_t> packet);
@@ -132,7 +129,6 @@ private:
     void           LogSpawnerMessages();
     void           RecursiveActivation(int j, std::bitset<MAX_ACTORS>& visited);
     int            GetFreeActorSlot();
-    int            FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
     void           DeleteActorInternal(Actor* b);
     std::shared_ptr<RigDef::File>   FetchActorDef(const char* filename, bool predefined_on_terrain = false);
 

@@ -69,6 +69,7 @@ public:
     Actor* GetPlayerActor        ()                        { return m_player_actor; }
     void   ReloadPlayerActor     ();
     void   RemovePlayerActor     ();
+    void   RemoveActor           (Actor* actor);
     void   RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name); ///< Scripting utility. TODO: Does anybody use it? ~ only_a_ptr, 08/2017
     int    GetNumActors          () const; //!< All actors
     int    GetNumPlayableActors  () const;
@@ -109,13 +110,11 @@ private:
     void   CleanupAfterSimulation  (); /// Unloads all data
     void   OnPlayerActorChange     (Actor* previous_vehicle, Actor* current_vehicle);
     void   UpdateSimulation        (float dt_sec);
-    void   UpdateGfxScene          (float dt_sec);
 
     Actor*                   m_player_actor;           //!< Actor (vehicle or machine) mounted and controlled by player
     Actor*                   m_prev_player_actor;      //!< Previous actor (vehicle or machine) mounted and controlled by player
     RoR::ActorManager        m_actor_manager;
     RoR::CharacterFactory    m_character_factory;
-    RoR::GfxEnvmap           m_gfx_envmap;
     RoR::GfxScene            m_gfx_scene;
     HeatHaze*                m_heathaze;
     RoR::SkidmarkConfig*     m_skidmark_conf;

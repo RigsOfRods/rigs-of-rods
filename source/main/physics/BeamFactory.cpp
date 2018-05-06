@@ -475,6 +475,8 @@ void ActorManager::SetupActor(
         actor->GetGfxActor()->FinishWheelUpdates(); // Sync tasks from threadpool
     }
 
+    App::GetSimController()->GetGfxScene().RegisterGfxActor(actor->GetGfxActor());
+
     if (actor->ar_engine)
     {
         actor->ar_engine->OffStart();
@@ -1033,38 +1035,38 @@ void ActorManager::RecalcGravityMasses()
     }
 }
 
-int ActorManager::FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box)
+Actor* ActorManager::FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box)
 {
     // try to find the desired actor (the one in the box)
-    int id = -1;
+    Actor* ret = nullptr;
     for (int t = 0; t < m_free_actor_slot; t++)
     {
         if (!m_actors[t])
             continue;
         if (collisions->isInside(m_actors[t]->ar_nodes[0].AbsPosition, inst, box))
         {
-            if (id == -1)
+            if (ret == nullptr)
             // first actor found
-                id = t;
+                ret = m_actors[t];
             else
             // second actor found -> unclear which one was meant
-                return -1;
+                return nullptr;
         }
     }
-    return id;
+    return ret;
 }
 
 void ActorManager::RepairActor(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box, bool keepPosition)
 {
-    int actor_id = this->FindActorInsideBox(collisions, inst, box);
-    if (actor_id >= 0)
+    Actor* actor = this->FindActorInsideBox(collisions, inst, box);
+    if (actor >= 0)
     {
         // take a position reference
-        SOUND_PLAY_ONCE(actor_id, SS_TRIG_REPAIR);
-        Vector3 ipos = m_actors[actor_id]->ar_nodes[0].AbsPosition;
-        m_actors[actor_id]->RequestActorReset();
-        m_actors[actor_id]->ResetPosition(ipos.x, ipos.z, false, 0);
-        m_actors[actor_id]->updateVisual();
+        SOUND_PLAY_ONCE(actor, SS_TRIG_REPAIR);
+        Vector3 ipos = actor->ar_nodes[0].AbsPosition;
+        actor->RequestActorReset();
+        actor->ResetPosition(ipos.x, ipos.z, false, 0);
+        actor->updateVisual();
     }
 }
 
@@ -1088,11 +1090,6 @@ void ActorManager::UnmuteAllActors()
             m_actors[i]->UnmuteAllSounds();
         }
     }
-}
-
-void ActorManager::RemoveActorByCollisionBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box)
-{
-    RemoveActorInternal(this->FindActorInsideBox(collisions, inst, box));
 }
 
 void ActorManager::RemoveActorInternal(int actor_id)
@@ -1278,17 +1275,6 @@ void ActorManager::UpdateActorVisuals(float dt,  Actor* player_actor)
             m_actors[t]->updateSkidmarks();
             m_actors[t]->updateFlares(dt, (m_actors[t] == player_actor));
             m_actors[t]->m_gfx_actor->UpdateParticles(dt); // friend access
-        }
-    }
-}
-
-void ActorManager::PrepareAsyncGfxUpdate()
-{
-    for (int t = 0; t < m_free_actor_slot; t++)
-    {
-        if (m_actors[t] && m_actors[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
-        {
-            m_actors[t]->GetGfxActor()->UpdateSimDataBuffer(); // Copy sim data from Actor to GfxActor
         }
     }
 }
@@ -1583,9 +1569,6 @@ void HandleErrorLoadingTruckfile(const char* filename, const char* exception_msg
     }
 }
 
-#define FETCHACTORDEF_PROF_CHECKPOINT(_ENTRYNAME_) \
-    { if (prof != nullptr) { prof->Checkpoint(RoR::RigLoadingProfiler::_ENTRYNAME_); } }
-
 std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(const char* filename, bool predefined_on_terrain)
 {
     // First check the loaded defs
@@ -1701,23 +1684,6 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(const char* filename, 
     }
 }
 
-void ActorManager::UpdateActorVisualsAsync()
-{
-    for (int t = 0; t < m_free_actor_slot; t++)
-    {
-        // Skip removed and broken actors
-        if ((m_actors[t] == nullptr) || (m_actors[t]->ar_sim_state >= Actor::SimState::LOCAL_SLEEPING))
-        {
-            continue;
-        }
-
-        m_actors[t]->GetGfxActor()->UpdateCabMesh();
-
-        // Push flexwheel tasks to threadpool
-        m_actors[t]->GetGfxActor()->UpdateWheelVisuals();
-    }
-}
-
 int ActorManager::CountActorsInternal() const
 {
     int count = 0;
@@ -1743,18 +1709,3 @@ int ActorManager::CountPlayableActorsInternal() const // for selector GUI
     }
     return count;
 }
-
-void ActorManager::FinalizeAsyncVisualUpdates()
-{
-    for (int t = 0; t < m_free_actor_slot; t++)
-    {
-        // Skip removed and broken actors
-        if ((m_actors[t] == nullptr) || (m_actors[t]->ar_sim_state >= Actor::SimState::LOCAL_SLEEPING))
-        {
-            continue;
-        }
-
-        m_actors[t]->GetGfxActor()->FinishWheelUpdates(); // Wait for flexwheel tasks to complete
-    }
-}
-

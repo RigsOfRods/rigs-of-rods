@@ -26,6 +26,7 @@
 #pragma once
 
 #include "ForwardDeclarations.h"
+#include "EnvironmentMap.h" // RoR::GfxEnvmap
 
 #include <map>
 #include <string>
@@ -44,16 +45,27 @@ class GfxScene
 {
 public:
 
+    GfxScene();
+
     void           InitScene(Ogre::SceneManager* sm);
     DustPool*      GetDustPool(const char* name);
     void           SetParticlesVisible(bool visible);
-    void           UpdateScene();
+    void           UpdateScene(float dt_sec);
     void           DiscardScene(); //!< Final cleanup
+    void           RegisterGfxActor(RoR::GfxActor* gfx_actor);
+    void           RemoveGfxActor(RoR::GfxActor* gfx_actor);
+    void           BufferSimulationData(); //!< Run this when simulation is halted
 
 private:
 
     std::map<std::string, DustPool *> m_dustpools;
     Ogre::SceneManager*               m_ogre_scene;
+    std::vector<GfxActor*>            m_all_gfx_actors;
+    std::vector<GfxActor*>            m_live_gfx_actors;
+    RoR::GfxEnvmap                    m_envmap;
+
+    // Buffered simulation state
+    Actor*         m_simbuf_player_actor;
 };
 
 } // namespace RoR

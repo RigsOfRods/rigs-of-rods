@@ -29,6 +29,7 @@
 #include "FlexObj.h"
 #include "Flexable.h"
 #include "FlexMeshWheel.h"
+#include "FlexObj.h"
 #include "GlobalEnvironment.h" // TODO: Eliminate!
 #include "RoRFrameListener.h" // SimController
 #include "SkyManager.h"
@@ -902,6 +903,11 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     {
         m_simbuf_nodes.get()[i].AbsPosition = m_actor->ar_nodes[i].AbsPosition;
     }
+}
+
+bool RoR::GfxActor::IsActorLive() const
+{
+    return (m_actor->ar_sim_state < Actor::SimState::LOCAL_SLEEPING);
 }
 
 void RoR::GfxActor::UpdateCabMesh()

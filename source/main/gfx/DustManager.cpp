@@ -23,9 +23,15 @@
 
 #include "Application.h"
 #include "DustPool.h"
+#include "RoRFrameListener.h" // SimController
 #include "Settings.h"
 
 using namespace Ogre;
+
+RoR::GfxScene::GfxScene()
+    : m_simbuf_player_actor(nullptr)
+    , m_ogre_scene(nullptr)
+{}
 
 void RoR::GfxScene::InitScene(Ogre::SceneManager* sm)
 {
@@ -37,6 +43,8 @@ void RoR::GfxScene::InitScene(Ogre::SceneManager* sm)
     m_dustpools["ripple"] = new DustPool(sm, "tracks/Ripple", 20);
 
     m_ogre_scene = sm;
+
+    m_envmap.SetupEnvMap();
 }
 
 void RoR::GfxScene::DiscardScene()
@@ -49,7 +57,7 @@ void RoR::GfxScene::DiscardScene()
     m_dustpools.clear();
 }
 
-void RoR::GfxScene::UpdateScene()
+void RoR::GfxScene::UpdateScene(float dt_sec)
 {
     // Particles
     if (RoR::App::gfx_particles_mode.GetActive() == 1)
@@ -58,6 +66,30 @@ void RoR::GfxScene::UpdateScene()
         {
             itor.second->update();
         }
+    }
+
+    // Actors - start threaded tasks
+    for (GfxActor* gfx_actor: m_live_gfx_actors)
+    {
+        gfx_actor->UpdateWheelVisuals(); // Push flexwheel tasks to threadpool
+    }
+
+    // Actors - update misc visuals
+    for (GfxActor* gfx_actor: m_live_gfx_actors)
+    {
+        gfx_actor->UpdateCabMesh();
+    }
+    if (m_simbuf_player_actor != nullptr)
+    {
+        Ogre::Vector3 pos = m_simbuf_player_actor->GetGfxActor()->GetSimActorPos();
+        m_envmap.UpdateEnvMap(pos, m_simbuf_player_actor); // Safe to be called here, only modifies OGRE objects, doesn't read any physics state.
+        m_simbuf_player_actor->GetGfxActor()->UpdateVideoCameras(dt_sec);
+    }
+
+    // Actors - finalize threaded tasks
+    for (GfxActor* gfx_actor: m_live_gfx_actors)
+    {
+        gfx_actor->FinishWheelUpdates();
     }
 }
 
@@ -79,5 +111,39 @@ DustPool* RoR::GfxScene::GetDustPool(const char* name)
     else
     {
         return nullptr;
+    }
+}
+
+void RoR::GfxScene::RegisterGfxActor(RoR::GfxActor* gfx_actor)
+{
+    m_all_gfx_actors.push_back(gfx_actor);
+}
+
+void RoR::GfxScene::BufferSimulationData()
+{
+    m_simbuf_player_actor = App::GetSimController()->GetPlayerActor();
+
+    m_live_gfx_actors.clear();
+    for (GfxActor* a: m_all_gfx_actors)
+    {
+        if (a->IsActorLive())
+        {
+            a->UpdateSimDataBuffer();
+            m_live_gfx_actors.push_back(a);
+        }
+    }
+}
+
+void RoR::GfxScene::RemoveGfxActor(RoR::GfxActor* remove_me)
+{
+    auto itor = m_all_gfx_actors.begin();
+    auto endi = m_all_gfx_actors.end();
+    for (; itor != endi; ++itor)
+    {
+        if (*itor == remove_me)
+        {
+            m_all_gfx_actors.erase(itor);
+            return;
+        }
     }
 }
