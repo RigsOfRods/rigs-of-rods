@@ -116,7 +116,6 @@ private:
     RoR::ActorManager        m_actor_manager;
     RoR::CharacterFactory    m_character_factory;
     RoR::GfxScene            m_gfx_scene;
-    HeatHaze*                m_heathaze;
     RoR::SkidmarkConfig*     m_skidmark_conf;
     Ogre::Real               m_time_until_next_toggle; //!< just to stop toggles flipping too fast
     float                    m_last_simulation_speed;  //!< previously used time ratio between real time (evt.timeSinceLastFrame) and physics time ('dt' used in calcPhysics)

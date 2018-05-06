@@ -63,6 +63,7 @@ private:
     std::vector<GfxActor*>            m_all_gfx_actors;
     std::vector<GfxActor*>            m_live_gfx_actors;
     RoR::GfxEnvmap                    m_envmap;
+    HeatHaze*                         m_heathaze;
 
     // Buffered simulation state
     Actor*         m_simbuf_player_actor;

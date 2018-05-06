@@ -119,7 +119,6 @@ SimController::SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_c
     m_actor_manager(),
     m_character_factory(),
     m_dir_arrow_pointed(Vector3::ZERO),
-    m_heathaze(nullptr),
     m_force_feedback(ff),
     m_skidmark_conf(skid_conf),
     m_hide_gui(false),
@@ -1640,12 +1639,6 @@ void SimController::UpdateSimulation(float dt)
     }
 #endif // USE_OPENAL
 
-    if (simRUNNING(s) || simPAUSED(s) || simEDITOR(s))
-    {
-        if (m_heathaze)
-            m_heathaze->update();
-    }
-
     if ((simRUNNING(s) || simEDITOR(s)) && !simPAUSED(s))
     {
         m_actor_manager.UpdateActorVisuals(dt, m_player_actor); // update visual - antishaking
@@ -2185,13 +2178,6 @@ bool SimController::SetupGameplayLoop()
 #endif // USE_SOCKETW
 
     gEnv->player = m_character_factory.createLocal(colourNum);
-
-    // heathaze effect
-    if (App::gfx_enable_heathaze.GetActive())
-    {
-        m_heathaze = new HeatHaze();
-        m_heathaze->setEnable(true);
-    }
 
     if (gEnv->cameraManager == nullptr)
     {

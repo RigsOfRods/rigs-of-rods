@@ -23,6 +23,7 @@
 
 #include "Application.h"
 #include "DustPool.h"
+#include "Heathaze.h"
 #include "RoRFrameListener.h" // SimController
 #include "Settings.h"
 #include "SkyManager.h"
@@ -35,6 +36,7 @@ using namespace Ogre;
 RoR::GfxScene::GfxScene()
     : m_simbuf_player_actor(nullptr)
     , m_ogre_scene(nullptr)
+    , m_heathaze(nullptr)
 {}
 
 void RoR::GfxScene::InitScene(Ogre::SceneManager* sm)
@@ -49,6 +51,13 @@ void RoR::GfxScene::InitScene(Ogre::SceneManager* sm)
     m_ogre_scene = sm;
 
     m_envmap.SetupEnvMap();
+
+    // heathaze effect
+    if (App::gfx_enable_heathaze.GetActive())
+    {
+        m_heathaze = new HeatHaze();
+        m_heathaze->setEnable(true);
+    }
 }
 
 void RoR::GfxScene::DiscardScene()
@@ -59,6 +68,12 @@ void RoR::GfxScene::DiscardScene()
         delete itor.second;
     }
     m_dustpools.clear();
+
+    if (m_heathaze != nullptr)
+    {
+        delete m_heathaze;
+        m_heathaze = nullptr;
+    }
 }
 
 void RoR::GfxScene::UpdateScene(float dt_sec)
@@ -70,6 +85,11 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
         {
             itor.second->update();
         }
+    }
+
+    if (m_heathaze != nullptr)
+    {
+        m_heathaze->update(); // TODO: The effect seems quite badly broken at the moment ~ only_a_ptr, 05/2018
     }
 
     // Terrain - animated meshes and paged geometry
