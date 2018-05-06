@@ -25,6 +25,7 @@
 #include "DustPool.h"
 #include "RoRFrameListener.h" // SimController
 #include "Settings.h"
+#include "SkyManager.h"
 #include "TerrainGeometryManager.h"
 #include "TerrainManager.h"
 #include "TerrainObjectManager.h"
@@ -98,6 +99,21 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
             water->SetReflectionPlaneHeight(water->GetStaticWaterHeight());
         }
         water->FrameStepWater(dt_sec);
+    }
+
+    // Terrain - sky
+#ifdef USE_CAELUM
+    SkyManager* sky = App::GetSimTerrain()->getSkyManager();
+    if (sky != nullptr)
+    {
+        sky->DetectSkyUpdate();
+    }
+#endif
+
+    SkyXManager* skyx_man = App::GetSimTerrain()->getSkyXManager();
+    if (skyx_man != nullptr)
+    {
+       skyx_man->update(dt_sec); // Light update
     }
 
     // Actors - update misc visuals

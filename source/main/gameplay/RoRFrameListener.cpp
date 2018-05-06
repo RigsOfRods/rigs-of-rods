@@ -1640,23 +1640,6 @@ void SimController::UpdateSimulation(float dt)
     }
 #endif // USE_OPENAL
 
-    // --- terrain updates ---
-
-    // trigger updating of shadows etc
-#ifdef USE_CAELUM
-    SkyManager* sky = App::GetSimTerrain()->getSkyManager();
-    if ((sky != nullptr) && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
-    {
-        sky->DetectSkyUpdate();
-    }
-#endif
-
-    SkyXManager* skyx_man = App::GetSimTerrain()->getSkyXManager();
-    if ((skyx_man != nullptr) && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
-    {
-       skyx_man->update(dt); // Light update
-    }
-
     if (simRUNNING(s) || simPAUSED(s) || simEDITOR(s))
     {
         if (m_heathaze)
