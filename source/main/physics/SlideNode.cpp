@@ -52,15 +52,6 @@ SlideNode::SlideNode(node_t* slidingNode, RailGroup* slidingRail):
     MYASSERT( mSlidingNode );
 }
 
-SlideNode::~SlideNode()
-{
-    mSlidingNode = NULL;
-    mOrgRailGroup = NULL;
-    mCurRailGroup = NULL;
-    mSlidingBeam = NULL;
-    mSlidingRail = NULL;
-}
-
 void SlideNode::UpdateForces(float dt)
 {
     // only do calcs if we have a beam to slide on
@@ -76,7 +67,7 @@ void SlideNode::UpdateForces(float dt)
         mCurThreshold -= (mAttachRate * dt);
     }
 
-    Ogre::Vector3 perpForces = getCorrectiveForces();
+    Ogre::Vector3 perpForces = CalcCorrectiveForces();
     // perpendicular Forces are distributed according to the position along the Beam
     if (perpForces.length() > mBreakForce)
     {
@@ -88,17 +79,14 @@ void SlideNode::UpdateForces(float dt)
     mSlidingBeam->p2->Forces += perpForces * mRatio;
 }
 
-RailSegment* SlideNode::FindClosestRailSegment(RailGroup* rg, const Ogre::Vector3& point)
+RailSegment* RailGroup::FindClosestSegment(const Ogre::Vector3& point)
 {
-    if (!rg)
-        return nullptr;
-
-    float closest_dist_sq = getLenTo(&rg->rg_segments[0], point);
+    float closest_dist_sq = SlideNode::getLenTo(&this->rg_segments[0], point);
     size_t closest_seg = 0;
 
-    for (size_t i = 1; i < rg->rg_segments.size(); ++i)
+    for (size_t i = 1; i < this->rg_segments.size(); ++i)
     {
-        const float dist_sq = getLenTo(&rg->rg_segments[i], point);
+        const float dist_sq = SlideNode::getLenTo(&this->rg_segments[i], point);
         if (dist_sq < closest_dist_sq)
         {
             closest_dist_sq = dist_sq;
@@ -106,30 +94,30 @@ RailSegment* SlideNode::FindClosestRailSegment(RailGroup* rg, const Ogre::Vector
         }
     }
 
-    return &rg->rg_segments[closest_seg];
+    return &this->rg_segments[closest_seg];
 }
 
-RailSegment* SlideNode::FindClosestSurroundingSegment(RailSegment* seg, const Ogre::Vector3& point)
+RailSegment* RailSegment::CheckCurSlideSegment(const Ogre::Vector3& point)
 {
-    float closest_dist_sq = getLenTo(seg, point);
-    RailSegment* closest_seg = seg;
+    float closest_dist_sq = SlideNode::getLenTo(this, point);
+    RailSegment* closest_seg = this;
 
-    if (seg->rs_prev != nullptr)
+    if (this->rs_prev != nullptr)
     {
-        const float dist_sq = getLenTo(seg->rs_prev, point);
+        const float dist_sq = SlideNode::getLenTo(this->rs_prev, point);
         if (dist_sq < closest_dist_sq)
         {
-            closest_seg = seg->rs_prev;
+            closest_seg = this->rs_prev;
             closest_dist_sq = dist_sq;
         }
     }
 
-    if (seg->rs_next != nullptr)
+    if (this->rs_next != nullptr)
     {
-        const float dist_sq = getLenTo(seg->rs_next, point);
+        const float dist_sq = SlideNode::getLenTo(this->rs_next, point);
         if (dist_sq < closest_dist_sq)
         {
-            closest_seg = seg->rs_next;
+            closest_seg = this->rs_next;
         }
     }
 
@@ -146,7 +134,7 @@ void SlideNode::UpdatePosition()
     }
 
     // find which beam to use
-    mSlidingRail = FindClosestSurroundingSegment(mSlidingRail, mSlidingNode->AbsPosition);
+    mSlidingRail = mSlidingRail->CheckCurSlideSegment(mSlidingNode->AbsPosition);
     mSlidingBeam = mSlidingRail->rs_beam;
 
     // Get vector for beam
@@ -178,11 +166,6 @@ const Ogre::Vector3& SlideNode::getNodePosition() const
     return mSlidingNode->AbsPosition;
 }
 
-const Ogre::Vector3& SlideNode::getIdealPosition() const
-{
-    return mIdealPosition;
-}
-
 unsigned int SlideNode::getNodeID() const
 {
     return mSlidingNode->id;
@@ -190,9 +173,12 @@ unsigned int SlideNode::getNodeID() const
 
 void SlideNode::ResetPositions()
 {
-    mSlidingRail = FindClosestRailSegment(mCurRailGroup, mSlidingNode->AbsPosition);
-    mSlidingBeam = (mSlidingRail ? mSlidingRail->rs_beam : nullptr);
-    UpdatePosition();
+    if (mCurRailGroup != nullptr)
+    {
+        mSlidingRail = mCurRailGroup->FindClosestSegment(mSlidingNode->AbsPosition);
+        mSlidingBeam = (mSlidingRail ? mSlidingRail->rs_beam : nullptr);
+        this->UpdatePosition();
+    }
 }
 
 Ogre::Real SlideNode::getLenTo(const RailGroup* group, const Ogre::Vector3& point)
@@ -234,7 +220,7 @@ Ogre::Real SlideNode::getLenTo(const beam_t* beam) const
     return getLenTo(beam, mSlidingNode->AbsPosition);
 }
 
-Ogre::Vector3 SlideNode::getCorrectiveForces()
+Ogre::Vector3 SlideNode::CalcCorrectiveForces()
 {
     const Ogre::Vector3 force = (mIdealPosition - mSlidingNode->AbsPosition);
     const Ogre::Real beamLen = std::max(0.0f, force.length() - mCurThreshold);

@@ -2802,14 +2802,14 @@ void RigSpawner::ProcessSlidenode(RigDef::SlideNode & def)
 
     node_t & node = GetNodeOrThrow(def.slide_node);
     SlideNode slide_node(& node, nullptr);
-    slide_node.setThreshold(def.tolerance);
-    slide_node.setSpringRate(def.spring_rate);
-    slide_node.setAttachmentRate(def.attachment_rate);
+    slide_node.SetCorThreshold(def.tolerance);
+    slide_node.SetSpringRate(def.spring_rate);
+    slide_node.SetAttachmentRate(def.attachment_rate);
     if (def._break_force_set)
     {
-        slide_node.setBreakForce(def.break_force);
+        slide_node.SetBreakForce(def.break_force);
     }
-    slide_node.setAttachmentDistance(def.max_attachment_distance);
+    slide_node.SetAttachmentDistance(def.max_attachment_distance);
 
     // Constraints
     if (BITMASK_IS_1(def.constraint_flags, RigDef::SlideNode::CONSTRAINT_ATTACH_ALL))
@@ -2868,7 +2868,7 @@ void RigSpawner::ProcessSlidenode(RigDef::SlideNode & def)
         AddMessage(Message::TYPE_ERROR, "No RailGroup available for SlideNode, skipping...");
     }
 
-    slide_node.setDefaultRail(rail_group);
+    slide_node.SetDefaultRail(rail_group);
     m_rig->m_slidenodes.push_back(slide_node);
 }
 

@@ -85,10 +85,13 @@ std::pair<RailGroup*, Ogre::Real> Actor::GetClosestRailOnActor(Actor* actor, con
          itGroup++)
     {
         // find the rail closest to the Node
-        curRail = SlideNode::FindClosestRailSegment((*itGroup), node.getNodePosition());
+        if (*itGroup == nullptr)
+            continue;
+
+        curRail = (*itGroup)->FindClosestSegment(node.getNodePosition());
         lenToCurRail = node.getLenTo(curRail);
 
-        if (lenToCurRail < node.getAttachmentDistance() && lenToCurRail < closest.second)
+        if (lenToCurRail < node.GetAttachmentDistance() && lenToCurRail < closest.second)
         {
             closest.first = (*itGroup);
             closest.second = lenToCurRail;
@@ -123,7 +126,7 @@ void Actor::resetSlideNodes()
 {
     for (std::vector<SlideNode>::iterator it = m_slidenodes.begin(); it != m_slidenodes.end(); ++it)
     {
-        it->reset();
+        it->ResetSlideNode();
     }
 }
 
