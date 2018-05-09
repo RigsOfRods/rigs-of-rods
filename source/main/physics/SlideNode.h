@@ -80,6 +80,9 @@ struct RailSegment //!< A single beam in a chain
 {
     RailSegment(beam_t* beam): rs_prev(nullptr), rs_next(nullptr), rs_beam(beam) {}
 
+    //!< Check if the slidenode should skip to a neighbour rail segment
+    RailSegment* CheckCurSlideSegment(Ogre::Vector3 const& point );
+
     RailSegment*   rs_prev;
     RailSegment*   rs_next;
     beam_t*        rs_beam;
@@ -89,19 +92,60 @@ struct RailGroup //!< A series of RailSegment-s for SlideNode to slide along. Ca
 {
     RailGroup(): rg_id(-1) {}
 
+    //!< Search for closest rail segment (the one with closest node in it) in the entire RailGroup
+    RailSegment* FindClosestSegment(Ogre::Vector3 const& point );
+
     std::vector<RailSegment> rg_segments;
     int                      rg_id; //!< Spawn context - matching separately defined rails with slidenodes.
 };
 
-class SlideNode : public ZeroedMemoryAllocator
+class SlideNode
 {
 public:
+    /// @param sliding_node valid pointer to the node acting as a slide node
+    /// @param rail initial RailGroup to slide on, or NULL.
+    SlideNode(node_t* sliding_node, RailGroup* rail);
+
+    /// Updates the corrective forces and applies these forces to the beam
+    /// @param dt delta time in seconds
+    void UpdateForces(float dt);
+
+    /// Checks for current rail segment and updates ideal position of the node
+    void UpdatePosition();
+
+    /// Sets rail to initially use when spawned or reset
+    void SetDefaultRail(RailGroup* rail)
+    {
+        mOrgRailGroup = mCurRailGroup = rail;
+        this->ResetPositions();
+    }
+
+    /// Recalculates the closest position on current RailGroup
+    void ResetPositions();
+
+    /// Move back to initial rail, reset 'broken' flag and recalculate closest position
+    void ResetSlideNode()
+    {
+        mCurRailGroup = mOrgRailGroup;
+        sn_slide_broken = false;
+        this->ResetPositions();
+    }
+
+    void           SetCorThreshold( Ogre::Real threshold )   { mInitThreshold = mCurThreshold = fabs( threshold ); } //! distance from a beam before corrective forces take effect
+    void           SetSpringRate( Ogre::Real rate )          { mSpringRate = fabs( rate); }      //! spring force used to calculate corrective forces
+    void           SetBreakForce( Ogre::Real breakRate )     { mBreakForce = fabs( breakRate); } //! Force required to break the Node from the Rail
+    void           SetAttachmentRate( Ogre::Real rate )      { mAttachRate = fabs( rate); }      //! how long it will take for springs to fully attach to the Rail
+    void           SetAttachmentDistance( Ogre::Real dist )  { mAttachDist = fabs( dist); }      //! maximum distance this spring node is allowed to reach out for a Rail
+    Ogre::Real     GetAttachmentDistance() const             { return mAttachDist; }             //! maximum distance this spring node is allowed to reach out for a Rail
 
     bool sn_attach_self:1;      //!< attach/detach to rails on the current vehicle only
     bool sn_attach_foreign:1;   //!< attach/detach to rails only on other vehicles
     bool sn_slide_broken:1;     //!< The slidenode was pulled away from the rail
 
 private:
+    /// Calculate forces between the ideal and actual position of the sliding node.
+    Ogre::Vector3 CalcCorrectiveForces();
+
     node_t*     mSlidingNode; //!< pointer to node that is sliding
     beam_t*     mSlidingBeam; //!< pointer to current beam sliding on
     RailGroup* mOrgRailGroup; //!< initial Rail group on spawn
@@ -115,37 +159,15 @@ private:
     Ogre::Vector3 mIdealPosition; //!< Where the node SHOULD be. (m)
 
     Ogre::Real mInitThreshold; //!< distance from beam calculating corrective forces (m)
-    Ogre::Real  mCurThreshold; //!< currenth threshold, used for attaching a beam (m)
+    Ogre::Real  mCurThreshold; //! Distance away from beam before corrective forces begin to act on the node (m)
     Ogre::Real    mSpringRate; //!< Spring rate holding node to rail (N/m)
-    Ogre::Real    mBreakForce; //!< Force at which Slide Node breaks from rail (N)
+    Ogre::Real    mBreakForce; //!< Force at which Slide Node breaks away from the rail (N)
 
-    Ogre::Real    mAttachRate; //!< how fast the cur threshold changes (m/s)
+    Ogre::Real    mAttachRate; //!< how fast the cur threshold changes when attaching (i.e. how long it will take for springs to fully attach to the Rail) (m/s)
     Ogre::Real    mAttachDist; //!< maximum distance slide node will attach to a beam (m)
 
-// Methods /////////////////////////////////////////////////////////////////////
+// Methods //////////////////////////// TO BE SORTED /////////////////////////////////////////
 public:
-        /**
-         *
-         * @param slidingNode pointer to the node acting as a slide node
-         * @param slidingRail pointer to the rail group the node is initially
-         * sliding on. NULL is an acceptable value.
-         * @return New SlideNode instance
-         */
-    SlideNode(node_t* slidingNode, RailGroup* slidingRail);
-    virtual ~SlideNode();
-
-    /**
-     * Updates the corrective forces and applies these forces to the beam
-     * @param dt size of the current time
-     */
-    void UpdateForces(float dt);
-
-    /**
-     * updates the positional information, such as where the ideal location
-     * of the slide node is supposed to be. It also updated the positional cache
-     * that stores information about the beam being slid upon
-     */
-    void UpdatePosition();
 
     /**
      * @return The current position of the SlideNode
@@ -153,40 +175,9 @@ public:
     const Ogre::Vector3& getNodePosition() const;
 
     /**
-     * @return The position where the SlideNode should be location on the slide beam
-     */
-    const Ogre::Vector3& getIdealPosition() const;
-
-    /**
      * @return Id of the SlideNode
      */
     unsigned int getNodeID() const;
-
-    /**
-     * resets the slide Rail back to the initial rail, restores all broken rail
-     * connections and finds the position along the rail closest to the SlideNode
-     */
-    void reset()
-    {
-        mCurRailGroup = mOrgRailGroup;
-        sn_slide_broken = false;
-        ResetPositions();
-    }
-
-    /**
-     * Recalculates the closest position for this SlideNode
-     */
-    void ResetPositions();
-
-    /**
-     * @param toAttach Which Rail this SLideNode starts sliding on when reset
-     * or spawning
-     */
-    void setDefaultRail(RailGroup* toAttach)
-    {
-        mOrgRailGroup = mCurRailGroup = toAttach;
-        ResetPositions();
-    }
 
     /**
      * @param toAttach Which rail to attach to, Pass NULL to detach this
@@ -198,30 +189,6 @@ public:
         ResetPositions();
         mCurThreshold = (mSlidingBeam ? getLenTo(mSlidingBeam) : mInitThreshold);
     }
-
-
-
-    //! distance from a beam before corrective forces take effect
-    void setThreshold( Ogre::Real threshold ) { mInitThreshold = mCurThreshold = fabs( threshold ); }
-    //! spring force used to calculate corrective forces
-    void setSpringRate( Ogre::Real rate ){ mSpringRate = fabs( rate); }
-    //! Force required to break the Node from the Rail
-    void setBreakForce( Ogre::Real breakRate ) { mBreakForce = fabs( breakRate); }
-    //! how long it will take for springs to fully attach to the Rail
-    void setAttachmentRate( Ogre::Real rate ) { mAttachRate = fabs( rate); }
-    //! maximum distance this spring node is allowed to reach out for a Rail
-    void setAttachmentDistance( Ogre::Real dist ){ mAttachDist = fabs( dist); }
-    
-    //! Distance away from beam before corrective forces begin to act on the node
-    Ogre::Real getThreshold () const { return mCurThreshold; }
-    //! spring force used to calculate corrective forces
-    Ogre::Real getSpringRate() const { return mSpringRate; }
-    //! Force required to break the Node from the Rail
-    Ogre::Real getBreakForce() const { return mBreakForce; }
-    //! how long it will take for springs to fully attach to the Rail
-    Ogre::Real getAttachmentRate() const { return mAttachRate; }
-    //! maximum distance this spring node is allowed to reach out for a Rail
-    Ogre::Real getAttachmentDistance() const { return mAttachDist; }
 
     /**
      * @param group
@@ -263,19 +230,5 @@ public:
      * @return value is always positive, if beam is null return infinity
      */
     Ogre::Real getLenTo( const beam_t* beam) const;
-
-    /// Search for closest rail segment (the one with closest node in it) in the entire RailGroup
-    static RailSegment* FindClosestRailSegment(RailGroup* railGroup, const Ogre::Vector3& point );
-
-    /// Search for closest rail segment (the one with closest node in it) among the current segment and it's immediate neighbours
-    static RailSegment* FindClosestSurroundingSegment(RailSegment* rail, const Ogre::Vector3& point );
-
-private:
-    /**
-     * returns the forces used to keep the slide node in alignment with the
-     * slide beam.
-     * @return forces between the ideal position and the slide node
-     */
-    Ogre::Vector3 getCorrectiveForces();
 };
 
