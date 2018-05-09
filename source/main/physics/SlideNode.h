@@ -172,7 +172,7 @@ public:
     /**
      * @return The current position of the SlideNode
      */
-    const Ogre::Vector3& getNodePosition() const;
+    const Ogre::Vector3& GetSlideNodePosition() const;
 
     /**
      * @return Id of the SlideNode
@@ -183,7 +183,7 @@ public:
      * @param toAttach Which rail to attach to, Pass NULL to detach this
      * SlideNode from any rail.
      */
-    void attachToRail(RailGroup* toAttach)
+    void AttachToRail(RailGroup* toAttach)
     {
         mCurRailGroup = toAttach;
         ResetPositions();

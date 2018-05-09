@@ -3,6 +3,7 @@
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
     Copyright 2009 Christopher Ritchey
+    Copyright 2018 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -161,7 +162,7 @@ void SlideNode::UpdatePosition()
     mRatio = (bLen > 0.0f) ? len / bLen : 0.0f;
 }
 
-const Ogre::Vector3& SlideNode::getNodePosition() const
+const Ogre::Vector3& SlideNode::GetSlideNodePosition() const
 {
     return mSlidingNode->AbsPosition;
 }

@@ -51,7 +51,7 @@ void Actor::ToggleSlideNodeLock()
 
         if (m_slidenodes_locked)
         {
-            itNode->attachToRail(NULL);
+            itNode->AttachToRail(NULL);
             continue;
         }
 
@@ -68,7 +68,7 @@ void Actor::ToggleSlideNodeLock()
                 closest = current;
         } // this many
 
-        itNode->attachToRail(closest.first);
+        itNode->AttachToRail(closest.first);
     } // nests
 
     m_slidenodes_locked = !m_slidenodes_locked;
@@ -88,7 +88,7 @@ std::pair<RailGroup*, Ogre::Real> Actor::GetClosestRailOnActor(Actor* actor, con
         if (*itGroup == nullptr)
             continue;
 
-        curRail = (*itGroup)->FindClosestSegment(node.getNodePosition());
+        curRail = (*itGroup)->FindClosestSegment(node.GetSlideNodePosition());
         lenToCurRail = node.getLenTo(curRail);
 
         if (lenToCurRail < node.GetAttachmentDistance() && lenToCurRail < closest.second)
