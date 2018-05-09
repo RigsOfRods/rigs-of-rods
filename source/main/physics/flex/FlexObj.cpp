@@ -21,6 +21,8 @@
 
 #include "FlexObj.h"
 
+#include "ApproxMath.h" // fast_normalise()
+
 #include <Ogre.h>
 
 using namespace Ogre;
