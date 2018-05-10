@@ -3349,19 +3349,6 @@ void Actor::updateVisual(float dt)
     }
 #endif //openAL
 
-    //update custom particle systems
-    for (int i = 0; i < ar_num_custom_particles; i++)
-    {
-        Vector3 pos = ar_nodes[ar_custom_particles[i].emitterNode].AbsPosition;
-        Vector3 dir = pos - ar_nodes[ar_custom_particles[i].directionNode].AbsPosition;
-        //dir.normalise();
-        dir = fast_normalise(dir);
-        ar_custom_particles[i].snode->setPosition(pos);
-        for (int j = 0; j < ar_custom_particles[i].psys->getNumEmitters(); j++)
-        {
-            ar_custom_particles[i].psys->getEmitter(j)->setDirection(dir);
-        }
-    }
     // update exhausts
     if (!m_disable_smoke && ar_engine && exhausts.size() > 0)
     {

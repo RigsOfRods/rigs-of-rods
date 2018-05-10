@@ -1087,3 +1087,21 @@ void RoR::GfxActor::UpdateAirbrakes()
 
     }
 }
+
+// TODO: Also move the data structure + setup code to GfxActor ~ only_a_ptr, 05/2018
+void RoR::GfxActor::UpdateCParticles()
+{
+    //update custom particle systems
+    NodeData* nodes = m_simbuf.simbuf_nodes.get();
+    for (int i = 0; i < m_actor->ar_num_custom_particles; i++)
+    {
+        Ogre::Vector3 pos = nodes[m_actor->ar_custom_particles[i].emitterNode].AbsPosition;
+        Ogre::Vector3 dir = pos - nodes[m_actor->ar_custom_particles[i].directionNode].AbsPosition;
+        dir = fast_normalise(dir);
+        m_actor->ar_custom_particles[i].snode->setPosition(pos);
+        for (int j = 0; j < m_actor->ar_custom_particles[i].psys->getNumEmitters(); j++)
+        {
+            m_actor->ar_custom_particles[i].psys->getEmitter(j)->setDirection(dir);
+        }
+    }
+}
