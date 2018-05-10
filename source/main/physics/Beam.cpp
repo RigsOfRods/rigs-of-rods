@@ -3378,9 +3378,6 @@ void Actor::updateVisual(float dt)
 
     updateProps();
 
-    for (int i = 0; i < ar_num_aeroengines; i++)
-        ar_aeroengines[i]->updateVisuals();
-
     //wings
     float autoaileron = 0;
     float autorudder = 0;

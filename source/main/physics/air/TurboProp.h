@@ -56,7 +56,7 @@ public:
     );
     ~Turboprop();
 
-    void updateVisuals();
+    void updateVisuals(RoR::GfxActor* gfx_actor) override;
     void updateForces(float dt, int doUpdate);
 
     void setThrottle(float val);

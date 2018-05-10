@@ -22,6 +22,7 @@
 #include "GfxActor.h"
 
 #include "ApproxMath.h"
+#include "AeroEngine.h"
 #include "AirBrake.h"
 #include "Beam.h"
 #include "beam_t.h"
@@ -1103,5 +1104,13 @@ void RoR::GfxActor::UpdateCParticles()
         {
             m_actor->ar_custom_particles[i].psys->getEmitter(j)->setDirection(dir);
         }
+    }
+}
+
+void RoR::GfxActor::UpdateAeroEngines()
+{
+    for (int i = 0; i < m_actor->ar_num_aeroengines; i++)
+    {
+        m_actor->ar_aeroengines[i]->updateVisuals(this);
     }
 }

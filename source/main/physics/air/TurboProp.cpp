@@ -23,6 +23,7 @@
 #include <Ogre.h>
 
 #include "Airfoil.h"
+#include "GfxActor.h"
 #include "Scripting.h"
 #include "SoundScriptManager.h"
 #include "BeamData.h"
@@ -165,8 +166,10 @@ Turboprop::~Turboprop()
         delete airfoil;
 }
 
-void Turboprop::updateVisuals()
+void Turboprop::updateVisuals(RoR::GfxActor* gfx_actor)
 {
+    RoR::GfxActor::NodeData* node_buf = gfx_actor->GetSimNodeBuffer();
+
     //visuals
     if (rpm > 200)
     {
@@ -185,12 +188,12 @@ void Turboprop::updateVisuals()
     //smoke
     if (smokeNode)
     {
-        smokeNode->setPosition(nodes[nodeback].AbsPosition);
+        smokeNode->setPosition(node_buf[nodeback].AbsPosition);
         ParticleEmitter* emit = smokePS->getEmitter(0);
         ParticleEmitter* hemit = 0;
         if (heathazePS)
             hemit = heathazePS->getEmitter(0);
-        Vector3 dir = nodes[nodeback].RelPosition - nodes[noderef].RelPosition;
+        Vector3 dir = node_buf[nodeback].AbsPosition - node_buf[noderef].AbsPosition;
         emit->setDirection(dir);
         emit->setParticleVelocity(propwash - propwash / 10, propwash + propwash / 10);
         if (hemit)

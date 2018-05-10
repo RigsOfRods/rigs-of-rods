@@ -40,7 +40,7 @@ public:
     void setThrottle(float val);
     void toggleReverse();
     void updateForces(float dt, int doUpdate);
-    void updateVisuals();
+    void updateVisuals(RoR::GfxActor* gfx_actor) override;
 
     Ogre::Vector3 getAxis() { return axis; };
 

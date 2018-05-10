@@ -197,6 +197,7 @@ public:
     void                      RegisterAirbrakes  ();
     void                      UpdateAirbrakes    ();
     void                      UpdateCParticles   ();
+    void                      UpdateAeroEngines  ();
     inline void               SetDebugView       (DebugViewType dv)       { m_debug_view = dv; }
     inline Ogre::MaterialPtr& GetCabTransMaterial()                       { return m_cab_mat_visual_trans; }
     inline VideoCamState      GetVideoCamState   () const                 { return m_vidcam_state; }
