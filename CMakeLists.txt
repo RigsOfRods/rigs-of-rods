@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_SOURCE_DIR}/cmake/3rdparty)
-
-find_package( PythonInterp 3.0 REQUIRED )
-
 set(CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/dependencies" CACHE PATH "Path to the dependencies")
 
 # WIN32: remove MinSizeRel, Debug builds : unsupported
