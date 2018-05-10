@@ -406,13 +406,11 @@ target_link_libraries(${BINNAME} PRIVATE
 
 # --- Threading support (still needed for GCC even with C++11)
 set(CMAKE_THREAD_PREFER_PTHREAD YES)
-find_package(Threads REQUIRED)
 target_link_libraries(${BINNAME} PRIVATE
         Threads::Threads
         )
 
 # --- Ogre 3D graphics engine ---
-find_package(OGRE REQUIRED)
 target_link_libraries(${BINNAME} PRIVATE
         ${OGRE_LIBRARIES}
         ${OGRE_Paging_LIBRARIES}
@@ -432,14 +430,12 @@ endif ()
 
 
 # --- Object Oriented Input System ---
-find_package(OIS REQUIRED)
 target_link_libraries(${BINNAME} PRIVATE ${OIS_LIBRARIES})
 target_include_directories(${BINNAME} PRIVATE ${OIS_INCLUDE_DIRS})
 
 
 # --- MoFileReader ---
 if (WIN32)
-    find_package(MoFileReader REQUIRED)
     target_link_libraries(${BINNAME} PRIVATE MoFileReader::MoFileReader)
     target_compile_definitions(${BINNAME} PRIVATE USE_MOFILEREADER)
 endif ()
@@ -450,7 +446,6 @@ endif ()
 
 
 # --- MyGUI - graphical user inferface ---
-find_package(MyGUI)
 if ((TARGET MyGUI::MyGUI) AND (TARGET MyGUI::OgrePlatform))
     target_link_libraries(${BINNAME} PRIVATE
             MyGUI::MyGUI
@@ -466,7 +461,6 @@ endif ()
 
 
 # --- OpenAL - audio library ---
-find_package(OpenAL)
 if (OPENAL_FOUND)
     target_link_libraries(${BINNAME} PRIVATE ${OPENAL_LIBRARY})
     target_include_directories(${BINNAME} PRIVATE ${OPENAL_INCLUDE_DIR})
@@ -477,7 +471,6 @@ endif ()
 
 
 # --- SocketW - networking library ---
-find_package(SocketW)
 if (TARGET SocketW::SocketW)
     target_link_libraries(${BINNAME} PRIVATE SocketW::SocketW)
     target_compile_definitions(${BINNAME} PRIVATE USE_SOCKETW)
@@ -487,7 +480,6 @@ endif ()
 
 
 # --- AngelScript - scripting interface ---
-find_package(AngelScript)
 if (TARGET AngelScript::AngelScript)
     target_link_libraries(${BINNAME} PRIVATE
             AngelScript::AngelScript
@@ -504,7 +496,6 @@ endif ()
 
 
 # --- cURL ---
-find_package(CURL)
 if (CURL_FOUND)
     target_link_libraries(${BINNAME} PRIVATE ${CURL_LIBRARY})
     target_include_directories(${BINNAME} PRIVATE ${CURL_INCLUDE_DIR})
@@ -514,7 +505,6 @@ else ()
 endif ()
 
 # --- Caelum -- Ogre addon for realistic sky rendering ---
-find_package(Caelum)
 if (TARGET Caelum::Caelum)
     set(CAELUM_PLUGIN "Plugin=libCaelum.so")
     target_link_libraries(${BINNAME} PRIVATE Caelum::Caelum)
@@ -525,7 +515,6 @@ endif ()
 
 
 # --- PagedGeometry -- Ogre addon ---
-find_package(PagedGeometry)
 if (TARGET PagedGeometry::PagedGeometry)
     target_link_libraries(${BINNAME} PRIVATE PagedGeometry::PagedGeometry)
     target_compile_definitions(${BINNAME} PRIVATE USE_PAGED)
@@ -613,13 +602,40 @@ if (WIN32)
     )
 endif ()
 
+if(ROR_RESOURCES_ZIPS)
+  unset(ROR_RESOURCES_ZIPS)
+endif(ROR_RESOURCES_ZIPS)
+
+get_sub_dirs(ROR_RESOURCES_DIRS "${CMAKE_SOURCE_DIR}/resources")
+set(ROR_RESOURCES_ZIPS)
+set(TMP_RES_DIR ${TMP_FILE_DIR}/resources)
+
+foreach(RES_DIR ${ROR_RESOURCES_DIRS})
+
+  file(GLOB ZIP_FILES RELATIVE "${CMAKE_SOURCE_DIR}/resources/${RES_DIR}" "${CMAKE_SOURCE_DIR}/resources/${RES_DIR}/*" )
+  set(ZIP_FILES_TXT "")
+  foreach(ZIP_FILE ${ZIP_FILES})
+     set(ZIP_FILES_TXT "${ZIP_FILES_TXT}${ZIP_FILE}\n")
+  endforeach()
+  file(WRITE "${TMP_FILE_DIR}/${RES_DIR}-filelist.txt" ${ZIP_FILES_TXT})
+
+  set(ZIP_NAME "${TMP_RES_DIR}/${RES_DIR}.zip")
+  add_custom_command(
+    OUTPUT ${ZIP_NAME}
+    COMMAND ${CMAKE_COMMAND} -E tar "cfv" ${ZIP_NAME} --format=zip --files-from="${TMP_FILE_DIR}/${RES_DIR}-filelist.txt"
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/resources/${RES_DIR}"
+  )
+  list(APPEND ROR_RESOURCES_ZIPS ${ZIP_NAME})
+endforeach()
+
 # Copy resources needed for execution to the build directory
 add_custom_target(
-        zip_and_copy_resources
-        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/recursive_zipper.py ${CMAKE_SOURCE_DIR}/resources $<TARGET_FILE_DIR:${BINNAME}>/resources
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/resources/managed_materials $<TARGET_FILE_DIR:${BINNAME}>/resources/managed_materials
-        COMMENT "Zip and copy resources to build directory"
-        VERBATIM
+    zip_and_copy_resources
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${TMP_RES_DIR} $<TARGET_FILE_DIR:${BINNAME}>/resources
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/resources/managed_materials $<TARGET_FILE_DIR:${BINNAME}>/resources/managed_materials
+    COMMENT "Zip and copy resources to build directory"
+    DEPENDS ${ROR_RESOURCES_ZIPS}
+    VERBATIM
 )
 
 IF (UNIX)
@@ -627,7 +643,6 @@ IF (UNIX)
     add_custom_command(
             TARGET ${BINNAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy ${TMP_FILE_DIR}/plugins.cfg $<TARGET_FILE_DIR:${BINNAME}>/
-            COMMAND ${CMAKE_COMMAND} -E copy_directory $<TARGET_FILE_DIR:${BINNAME}>/resources ${TMP_FILE_DIR}/resources
     )
 
     INSTALL(
@@ -637,7 +652,7 @@ IF (UNIX)
             ARCHIVE DESTINATION games/RoR
     )
     INSTALL(
-            DIRECTORY ${TMP_FILE_DIR}/resources
+            DIRECTORY ${TMP_RES_DIR}
             DESTINATION games/RoR
             FILES_MATCHING PATTERN "*"
     )
