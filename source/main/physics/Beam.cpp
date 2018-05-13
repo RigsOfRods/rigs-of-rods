@@ -3270,28 +3270,6 @@ void Actor::UpdateSoundSources()
 #endif //OPENAL
 }
 
-void Actor::UpdateActorNetLabels(float dt)
-{
-    if (m_net_label_node && m_net_label_mt)
-    {
-        // this ensures that the nickname is always in a readable size
-        m_net_label_node->setPosition(m_avg_node_position + Vector3(0.0f, (ar_bounding_box.getMaximum().y - ar_bounding_box.getMinimum().y), 0.0f));
-        Vector3 vdir = m_avg_node_position - gEnv->mainCamera->getPosition();
-        float vlen = vdir.length();
-        float h = std::max(0.6, vlen / 30.0);
-
-        m_net_label_mt->setCharacterHeight(h);
-        if (vlen > 1000) // 1000 ... vlen
-            m_net_label_mt->setCaption(m_net_username + "  (" + TOSTRING((float)(ceil(vlen / 100) / 10.0) ) + " km)");
-        else if (vlen > 20) // 20 ... vlen ... 1000
-            m_net_label_mt->setCaption(m_net_username + "  (" + TOSTRING((int)vlen) + " m)");
-        else // 0 ... vlen ... 20
-            m_net_label_mt->setCaption(m_net_username);
-
-        //m_net_label_mt->setAdditionalHeight((boundingBox.getMaximum().y - boundingBox.getMinimum().y) + h + 0.1);
-    }
-}
-
 void Actor::UpdateFlexbodiesPrepare()
 {
     if (gEnv->threadPool)

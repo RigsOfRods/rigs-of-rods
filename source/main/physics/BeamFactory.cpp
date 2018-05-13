@@ -1291,9 +1291,6 @@ void ActorManager::UpdateActorVisuals(float dt,  Actor* player_actor)
         if (!m_actors[t])
             continue;
 
-        // always update the labels
-        m_actors[t]->UpdateActorNetLabels(dt);
-
         if (m_actors[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
         {
             m_actors[t]->updateVisual(dt);

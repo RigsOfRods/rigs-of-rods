@@ -53,6 +53,7 @@ public:
         Ogre::Vector3  simbuf_character_pos;
         Ogre::Vector3  simbuf_dir_arrow_target;
         bool           simbuf_tyrepressurize_active;
+        float          simbuf_sim_speed;
     };
 
     GfxScene();

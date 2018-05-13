@@ -33,6 +33,7 @@
 #include "FlexMeshWheel.h"
 #include "FlexObj.h"
 #include "GlobalEnvironment.h" // TODO: Eliminate!
+#include "MovableText.h"
 #include "RoRFrameListener.h" // SimController
 #include "SkyManager.h"
 #include "SoundScriptManager.h"
@@ -917,6 +918,11 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_pos = m_actor->getPosition();
     m_simbuf.simbuf_heading_angle = m_actor->getHeadingDirectionAngle();
     m_simbuf.simbuf_tyre_pressure = m_actor->GetTyrePressure();
+    m_simbuf.simbuf_aabb = m_actor->ar_bounding_box;
+    if (m_simbuf.simbuf_net_username != m_actor->m_net_username)
+    {
+        m_simbuf.simbuf_net_username = m_actor->m_net_username;
+    }
 
     // nodes
     const int num_nodes = m_actor->ar_num_nodes;
@@ -1113,5 +1119,36 @@ void RoR::GfxActor::UpdateAeroEngines()
     for (int i = 0; i < m_actor->ar_num_aeroengines; i++)
     {
         m_actor->ar_aeroengines[i]->updateVisuals(this);
+    }
+}
+
+void RoR::GfxActor::UpdateNetLabels(float dt)
+{
+    // TODO: Remake network player labels via GUI... they shouldn't be billboards inside the scene ~ only_a_ptr, 05/2018
+    if (m_actor->m_net_label_node && m_actor->m_net_label_mt)
+    {
+        // this ensures that the nickname is always in a readable size
+        Ogre::Vector3 label_pos = m_simbuf.simbuf_pos;
+        label_pos.y += (m_simbuf.simbuf_aabb.getMaximum().y - m_simbuf.simbuf_aabb.getMinimum().y);
+        m_actor->m_net_label_node->setPosition(label_pos);
+        Ogre::Vector3 vdir = m_simbuf.simbuf_pos - gEnv->mainCamera->getPosition();
+        float vlen = vdir.length();
+        float h = std::max(0.6, vlen / 30.0);
+
+        m_actor->m_net_label_mt->setCharacterHeight(h);
+        if (vlen > 1000) // 1000 ... vlen
+        {
+            m_actor->m_net_label_mt->setCaption(
+                m_simbuf.simbuf_net_username + "  (" + TOSTRING((float)(ceil(vlen / 100) / 10.0) ) + " km)");
+        }
+        else if (vlen > 20) // 20 ... vlen ... 1000
+        {
+            m_actor->m_net_label_mt->setCaption(
+                m_simbuf.simbuf_net_username + "  (" + TOSTRING((int)vlen) + " m)");
+        }
+        else // 0 ... vlen ... 20
+        {
+            m_actor->m_net_label_mt->setCaption(m_simbuf.simbuf_net_username);
+        }
     }
 }

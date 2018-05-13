@@ -176,10 +176,16 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
         m_survey_map->Update(dt_sec, m_simbuf.simbuf_player_actor);
     }
 
-    // GUI - vehicle HUD
+    // HUD - vehicle
     if (m_simbuf.simbuf_tyrepressurize_active)
     {
         RoR::App::GetOverlayWrapper()->UpdatePressureTexture(m_simbuf.simbuf_player_actor->GetGfxActor());
+    }
+
+    // HUD - network labels (always update)
+    for (GfxActor* gfx_actor: m_all_gfx_actors)
+    {
+        gfx_actor->UpdateNetLabels(m_simbuf.simbuf_sim_speed * dt_sec);
     }
 
     // Actors - update misc visuals
@@ -243,6 +249,7 @@ void RoR::GfxScene::BufferSimulationData()
     m_simbuf.simbuf_character_pos = gEnv->player->getPosition();
     m_simbuf.simbuf_dir_arrow_target = App::GetSimController()->GetDirArrowTarget();
     m_simbuf.simbuf_tyrepressurize_active = App::GetSimController()->IsPressurizingTyres();
+    m_simbuf.simbuf_sim_speed = App::GetSimController()->GetBeamFactory()->GetSimulationSpeed();
 
     m_live_gfx_actors.clear();
     for (GfxActor* a: m_all_gfx_actors)

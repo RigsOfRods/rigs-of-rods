@@ -167,6 +167,8 @@ public:
         bool                        simbuf_live_local;
         float                       simbuf_heading_angle;
         float                       simbuf_tyre_pressure;
+        Ogre::AxisAlignedBox        simbuf_aabb;
+        std::string                 simbuf_net_username;
     };
 
     GfxActor(Actor* actor, std::string ogre_resource_group, std::vector<NodeGfx>& gfx_nodes);
@@ -199,6 +201,7 @@ public:
     void                      UpdateAirbrakes    ();
     void                      UpdateCParticles   ();
     void                      UpdateAeroEngines  ();
+    void                      UpdateNetLabels    (float dt);
     inline void               SetDebugView       (DebugViewType dv)       { m_debug_view = dv; }
     inline Ogre::MaterialPtr& GetCabTransMaterial()                       { return m_cab_mat_visual_trans; }
     inline VideoCamState      GetVideoCamState   () const                 { return m_vidcam_state; }
