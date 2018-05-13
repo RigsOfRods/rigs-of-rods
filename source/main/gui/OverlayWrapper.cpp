@@ -46,10 +46,11 @@
 #include "BeamEngine.h"
 #include "ErrorUtils.h"
 #include "FlexAirfoil.h"
+#include "GfxActor.h"
 #include "GlobalEnvironment.h"
 #include "Language.h"
 #include "OgreSubsystem.h"
-#include "RoRFrameListener.h"
+#include "RoRFrameListener.h" // SimController
 #include "RoRVersion.h"
 #include "ScrewProp.h"
 #include "SoundScriptManager.h"
@@ -797,8 +798,9 @@ void OverlayWrapper::ShowDirectionOverlay(Ogre::String const& caption)
     BITMASK_SET_1(m_visible_overlays, VisibleOverlays::DIRECTION_ARROW);
 }
 
-void OverlayWrapper::UpdatePressureTexture(float pressure)
+void OverlayWrapper::UpdatePressureTexture(RoR::GfxActor* ga)
 {
+    const float pressure = ga->GetSimDataBuffer().simbuf_tyre_pressure;
     Real angle = 135.0 - pressure * 2.7;
     pressuretexture->setTextureRotate(Degree(angle));
 }

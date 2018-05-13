@@ -166,6 +166,7 @@ public:
         Ogre::Vector3               simbuf_node0_velo;
         bool                        simbuf_live_local;
         float                       simbuf_heading_angle;
+        float                       simbuf_tyre_pressure;
     };
 
     GfxActor(Actor* actor, std::string ogre_resource_group, std::vector<NodeGfx>& gfx_nodes);

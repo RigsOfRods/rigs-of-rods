@@ -1671,11 +1671,6 @@ void SimController::UpdateSimulation(float dt)
                 // update mouse picking lines, etc
                 RoR::App::GetSceneMouse()->update(dt);
 
-                if (m_pressure_pressed)
-                {
-                    RoR::App::GetOverlayWrapper()->UpdatePressureTexture(m_player_actor->GetTyrePressure());
-                }
-
                 if (m_race_in_progress && (App::sim_state.GetActive() != SimState::PAUSED))
                 {
                     this->UpdateRacingGui();

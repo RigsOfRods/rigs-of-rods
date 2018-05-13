@@ -52,6 +52,7 @@ public:
         Actor*         simbuf_player_actor;
         Ogre::Vector3  simbuf_character_pos;
         Ogre::Vector3  simbuf_dir_arrow_target;
+        bool           simbuf_tyrepressurize_active;
     };
 
     GfxScene();

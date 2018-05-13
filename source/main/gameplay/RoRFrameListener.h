@@ -94,6 +94,7 @@ public:
     RoR::SkidmarkConfig*         GetSkidmarkConf ()         { return m_skidmark_conf; }
     RoR::GfxScene&               GetGfxScene()              { return m_gfx_scene; }
     Ogre::Vector3                GetDirArrowTarget()        { return m_dir_arrow_pointed; }
+    bool                         IsPressurizingTyres() const { return m_pressure_pressed; }
 
 private:
 

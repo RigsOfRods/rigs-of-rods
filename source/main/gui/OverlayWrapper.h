@@ -67,7 +67,7 @@ public:
     void ShowDirectionOverlay(Ogre::String const & caption);
     bool IsDirectionArrowVisible() const { return BITMASK_IS_1(m_visible_overlays, VisibleOverlays::DIRECTION_ARROW); }
 
-    void UpdatePressureTexture(float pressure);
+    void UpdatePressureTexture(RoR::GfxActor* ga);
 
     void UpdateLandVehicleHUD(Actor * vehicle);
     void UpdateAerialHUD(Actor * vehicle);

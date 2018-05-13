@@ -916,6 +916,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_live_local = (m_actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED);
     m_simbuf.simbuf_pos = m_actor->getPosition();
     m_simbuf.simbuf_heading_angle = m_actor->getHeadingDirectionAngle();
+    m_simbuf.simbuf_tyre_pressure = m_actor->GetTyrePressure();
 
     // nodes
     const int num_nodes = m_actor->ar_num_nodes;
