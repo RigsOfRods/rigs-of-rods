@@ -14,123 +14,80 @@ using namespace std;
 // Usually where the variables are only used in debug mode.
 #define UNUSED_VAR(x) (void)(x)
 
-#if AS_USE_STRINGPOOL == 1
-
 #ifdef AS_CAN_USE_CPP11
-	// The string pool doesn't need to keep a specific order in the
-	// pool, so the unordered_map is faster than the ordinary map
-	#include <unordered_map>  // std::unordered_map
+// The string factory doesn't need to keep a specific order in the
+// cache, so the unordered_map is faster than the ordinary map
+#include <unordered_map>  // std::unordered_map
 BEGIN_AS_NAMESPACE
-	typedef unordered_map<const char *, string> map_t;
+typedef unordered_map<string, int> map_t;
 END_AS_NAMESPACE
 #else
-	#include <map>      // std::map
+#include <map>      // std::map
 BEGIN_AS_NAMESPACE
-	typedef map<const char *, string> map_t;
+typedef map<string, int> map_t;
 END_AS_NAMESPACE
 #endif
 
 BEGIN_AS_NAMESPACE
 
-// By keeping the literal strings in a pool the application
-// performance is improved as there are less string copies created.
-
-// The string pool will be kept as user data in the engine. We'll
-// need a specific type to identify the string pool user data.
-// We just define a number here that we assume nobody else is using for
-// object type user data. The add-ons have reserved the numbers 1000
-// through 1999 for this purpose, so we should be fine.
-const asPWORD STRING_POOL = 1001;
-
-// This global static variable is placed here rather than locally within the
-// StringFactory, due to memory leak detectors that don't see the deallocation
-// of global variables. By placing the variable globally it will be initialized
-// before the memory leak detector starts, thus it won't report the missing
-// deallocation. An example of this the Marmalade leak detector initialized with
-// IwGxInit() and finished with IwGxTerminate().
-static const string emptyString;
-
-static const string &StringFactory(asUINT length, const char *s)
+class CStdStringFactory : public asIStringFactory
 {
-	// Each engine instance has its own string pool
-	asIScriptContext *ctx = asGetActiveContext();
-	if( ctx == 0 )
+public:
+	CStdStringFactory() {}
+	~CStdStringFactory() 
 	{
-		// The string factory can only be called from a script
-		assert( ctx );
-		return emptyString;
-	}
-	asIScriptEngine *engine = ctx->GetEngine();
-
-	map_t *pool = reinterpret_cast< map_t* >(engine->GetUserData(STRING_POOL));
-	if( !pool )
-	{
-		// The string pool hasn't been created yet, so we'll create it now
-		asAcquireExclusiveLock();
-
-		// Make sure the string pool wasn't created while we were waiting for the lock
-		pool = reinterpret_cast< map_t* >(engine->GetUserData(STRING_POOL));
-		if( !pool )
-		{
-			#if defined(__S3E__)
-			pool = new map_t;
-			#else
-			pool = new (nothrow) map_t;
-			#endif
-			if( pool == 0 )
-			{
-				ctx->SetException("Out of memory");
-				asReleaseExclusiveLock();
-				return emptyString;
-			}
-			engine->SetUserData(pool, STRING_POOL);
-		}
-
-		asReleaseExclusiveLock();
+		// The script engine must release each string 
+		// constant that it has requested
+		assert(stringCache.size() == 0);
 	}
 
-	// We can't let other threads modify the pool while we query it
-	asAcquireSharedLock();
-
-	// First check if a string object hasn't been created already
-	map_t::iterator it;
-	it = pool->find(s);
-	if( it != pool->end() )
+	const void *GetStringConstant(const char *data, asUINT length)
 	{
-		asReleaseSharedLock();
-		return it->second;
+		string str(data, length);
+		map_t::iterator it = stringCache.find(str);
+		if (it != stringCache.end())
+			it->second++;
+		else
+			it = stringCache.insert(map_t::value_type(str, 1)).first;
+
+		return reinterpret_cast<const void*>(&it->first);
 	}
 
-	asReleaseSharedLock();
-
-	// Acquire an exclusive lock so we can add the new string to the pool
-	asAcquireExclusiveLock();
-
-	// Make sure the string wasn't created while we were waiting for the exclusive lock
-	it = pool->find(s);
-	if( it == pool->end() )
+	int  ReleaseStringConstant(const void *str)
 	{
-		// Create a new string object
-		it = pool->insert(map_t::value_type(s, string(s, length))).first;
+		if (str == 0)
+			return asERROR;
+
+		map_t::iterator it = stringCache.find(*reinterpret_cast<const string*>(str));
+		if (it == stringCache.end())
+			return asERROR;
+
+		it->second--;
+		if (it->second == 0)
+			stringCache.erase(it);
+		return asSUCCESS;
 	}
 
-	asReleaseExclusiveLock();
-	return it->second;
-}
+	int  GetRawStringData(const void *str, char *data, asUINT *length) const
+	{
+		if (str == 0)
+			return asERROR;
 
-static void CleanupEngineStringPool(asIScriptEngine *engine)
-{
-	map_t *pool = reinterpret_cast< map_t* >(engine->GetUserData(STRING_POOL));
-	if( pool )
-		delete pool;
-}
+		if (length)
+			*length = (asUINT)reinterpret_cast<const string*>(str)->length();
 
-#else
-static string StringFactory(asUINT length, const char *s)
-{
-	return string(s, length);
-}
-#endif
+		if (data)
+			memcpy(data, reinterpret_cast<const string*>(str)->c_str(), reinterpret_cast<const string*>(str)->length());
+
+		return asSUCCESS;
+	}
+
+	// TODO: Make sure the access to the string cache is thread safe
+	map_t stringCache;
+};
+
+static CStdStringFactory stringFactory;
+
 
 static void ConstructString(string *thisPointer)
 {
@@ -739,16 +696,7 @@ void RegisterStdString_Native(asIScriptEngine *engine)
 	r = engine->RegisterObjectType("string", sizeof(string), asOBJ_VALUE | asOBJ_APP_CLASS_CDAK); assert( r >= 0 );
 #endif
 
-#if AS_USE_STRINGPOOL == 1
-	// Register the string factory
-	r = engine->RegisterStringFactory("const string &", asFUNCTION(StringFactory), asCALL_CDECL); assert( r >= 0 );
-
-	// Register the cleanup callback for the string pool
-	engine->SetEngineUserDataCleanupCallback(CleanupEngineStringPool, STRING_POOL);
-#else
-	// Register the string factory
-	r = engine->RegisterStringFactory("string", asFUNCTION(StringFactory), asCALL_CDECL); assert( r >= 0 );
-#endif
+	r = engine->RegisterStringFactory("string", &stringFactory);
 
 	// Register the object operator overloads
 	r = engine->RegisterObjectBehaviour("string", asBEHAVE_CONSTRUCT,  "void f()",                    asFUNCTION(ConstructString), asCALL_CDECL_OBJLAST); assert( r >= 0 );
@@ -839,26 +787,6 @@ void RegisterStdString_Native(asIScriptEngine *engine)
 	// replaceRange - replaces a range of bytes in the string
 	// multiply/times/opMul/opMul_r - takes the string and multiplies it n times, e.g. "-".multiply(5) returns "-----"
 }
-
-#if AS_USE_STRINGPOOL == 1
-static void StringFactoryGeneric(asIScriptGeneric *gen)
-{
-	asUINT length = gen->GetArgDWord(0);
-	const char *s = (const char*)gen->GetArgAddress(1);
-
-	// Return a reference to a string
-	gen->SetReturnAddress(const_cast<string*>(&StringFactory(length, s)));
-}
-#else
-static void StringFactoryGeneric(asIScriptGeneric *gen)
-{
-	asUINT length = gen->GetArgDWord(0);
-	const char *s = (const char*)gen->GetArgAddress(1);
-
-	// Return a string value
-	new (gen->GetAddressOfReturnLocation()) string(StringFactory(length, s));
-}
-#endif
 
 static void ConstructStringGeneric(asIScriptGeneric * gen)
 {
@@ -1288,16 +1216,7 @@ void RegisterStdString_Generic(asIScriptEngine *engine)
 	// Register the string type
 	r = engine->RegisterObjectType("string", sizeof(string), asOBJ_VALUE | asOBJ_APP_CLASS_CDAK); assert( r >= 0 );
 
-#if AS_USE_STRINGPOOL == 1
-	// Register the string factory
-	r = engine->RegisterStringFactory("const string &", asFUNCTION(StringFactoryGeneric), asCALL_GENERIC); assert( r >= 0 );
-
-	// Register the cleanup callback for the string pool
-	engine->SetEngineUserDataCleanupCallback(CleanupEngineStringPool, STRING_POOL);
-#else
-	// Register the string factory
-	r = engine->RegisterStringFactory("string", asFUNCTION(StringFactoryGeneric), asCALL_GENERIC); assert( r >= 0 );
-#endif
+	r = engine->RegisterStringFactory("string", &stringFactory);
 
 	// Register the object operator overloads
 	r = engine->RegisterObjectBehaviour("string", asBEHAVE_CONSTRUCT,  "void f()",                    asFUNCTION(ConstructStringGeneric), asCALL_GENERIC); assert( r >= 0 );

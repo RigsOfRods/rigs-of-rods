@@ -1,6 +1,7 @@
 #ifndef SCRIPTBUILDER_H
 #define SCRIPTBUILDER_H
 
+
 // ###########################
 // Rigs of Rods - notes
 //
@@ -95,7 +96,7 @@ public:
 	std::string  GetSectionName(unsigned int idx) const;
 
 #if AS_PROCESS_METADATA == 1
-	// Get metadata declared for class types and interfaces
+	// Get metadata declared for classes, interfaces, and enums
 	const char *GetMetadataStringForType(int typeId);
 
 	// Get metadata declared for functions
@@ -107,7 +108,7 @@ public:
 	// Get metadata declared for class variables
 	const char *GetMetadataStringForTypeProperty(int typeId, int varIdx);
 
-	// Get metadata declared for class functions
+	// Get metadata declared for class methods
 	const char *GetMetadataStringForTypeMethod(int typeId, asIScriptFunction *method);
 #endif
 
@@ -115,7 +116,7 @@ protected:
 	void ClearAll();
 	int  Build();
 	int  ProcessScriptSection(const char *script, unsigned int length, const char *sectionname, int lineOffset);
-	virtual int  LoadScriptSection(const char *filename); // ## Rigs of Rods modification
+	virtual int  LoadScriptSection(const char *filename);
 	bool IncludeIfNotAlreadyIncluded(const char *filename);
 
 	int  SkipStatement(int pos);
@@ -132,13 +133,23 @@ protected:
 
 #if AS_PROCESS_METADATA == 1
 	int  ExtractMetadataString(int pos, std::string &outMetadata);
-	int  ExtractDeclaration(int pos, std::string &outDeclaration, int &outType);
+	int  ExtractDeclaration(int pos, std::string &outName, std::string &outDeclaration, int &outType);
+
+	enum METADATATYPE
+	{
+		MDT_TYPE = 1,
+		MDT_FUNC = 2,
+		MDT_VAR = 3,
+		MDT_VIRTPROP = 4,
+		MDT_FUNC_OR_VAR = 5
+	};
 
 	// Temporary structure for storing metadata and declaration
 	struct SMetadataDecl
 	{
-		SMetadataDecl(std::string m, std::string d, int t, std::string c, std::string ns) : metadata(m), declaration(d), type(t), parentClass(c), nameSpace(ns) {}
+		SMetadataDecl(std::string m, std::string n, std::string d, int t, std::string c, std::string ns) : metadata(m), name(n), declaration(d), type(t), parentClass(c), nameSpace(ns) {}
 		std::string metadata;
+		std::string name;
 		std::string declaration;
 		int         type;
 		std::string parentClass;
