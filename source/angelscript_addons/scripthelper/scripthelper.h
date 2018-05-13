@@ -1,7 +1,6 @@
 #ifndef SCRIPTHELPER_H
 #define SCRIPTHELPER_H
 
-
 // ##################################
 // RoR notes, last updated 2017-08-30
 //
@@ -39,13 +38,13 @@ int ExecuteString(asIScriptEngine *engine, const char *code, void *ret, int retT
 // The format is compatible with the offline compiler in /sdk/samples/asbuild/.
 int WriteConfigToFile(asIScriptEngine *engine, const char *filename);
 
-// Write the registered application interface to a text stream. 
-int WriteConfigToStream(asIScriptEngine *engine, std::ostream &strm); 
+// Write the registered application interface to a text stream.
+int WriteConfigToStream(asIScriptEngine *engine, std::ostream &strm);
 
-// Loads an interface from a text stream and configures the engine with it. This will not 
+// Loads an interface from a text stream and configures the engine with it. This will not
 // set the correct function pointers, so it is not possible to use this engine to execute
 // scripts, but it can be used to compile scripts and save the byte code.
-int ConfigEngineFromStream(asIScriptEngine *engine, std::istream &strm, const char *nameOfStream = "config");
+int ConfigEngineFromStream(asIScriptEngine *engine, std::istream &strm, const char *nameOfStream = "config", asIStringFactory *stringFactory = 0);
 
 // Format the details of the script exception into a human readable text
 std::string GetExceptionInfo(asIScriptContext *ctx, bool showStack = false);

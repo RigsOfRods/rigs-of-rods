@@ -34,8 +34,8 @@ class CBytecodeStream : public AngelScript::asIBinaryStream
 public:
     CBytecodeStream(std::string filename);
     ~CBytecodeStream();
-    void Read(void* ptr, AngelScript::asUINT size);
-    void Write(const void* ptr, AngelScript::asUINT size);
+    int Read(void* ptr, AngelScript::asUINT size);
+    int Write(const void* ptr, AngelScript::asUINT size);
     bool Existing();
 private:
     FILE* f;

@@ -695,7 +695,7 @@ bool CScriptDictValue::Get(asIScriptEngine *engine, void *value, int typeId) con
 		bool isCompatible = false;
 
 		// Allow a handle to be value assigned if the wanted type is not a handle
-		if( (m_typeId & ~asTYPEID_OBJHANDLE) == typeId && m_valueObj != 0 )
+		if( (m_typeId & ~(asTYPEID_OBJHANDLE | asTYPEID_HANDLETOCONST) ) == typeId && m_valueObj != 0 )
 			isCompatible = true;
 
 		// Copy the object into the given reference

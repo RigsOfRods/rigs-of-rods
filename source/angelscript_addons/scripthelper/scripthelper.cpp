@@ -245,7 +245,7 @@ int WriteConfigToStream(asIScriptEngine *engine, ostream &strm)
 
 	asDWORD currAccessMask = 0;
 	string currNamespace = "";
-	engine->SetDefaultNamespace(currNamespace.c_str());
+	engine->SetDefaultNamespace("");
 
 	// Export the engine version, just for info
 	strm << "// AngelScript " << asGetLibraryVersion() << "\n";
@@ -449,7 +449,13 @@ int WriteConfigToStream(asIScriptEngine *engine, ostream &strm)
 						strm << "access " << hex << (unsigned int)(accessMask) << dec << "\n";
 						currAccessMask = accessMask;
 					}
-					strm << "objprop \"" << typeDecl.c_str() << "\" \"" << type->GetPropertyDeclaration(m) << "\"\n";
+					strm << "objprop \"" << typeDecl.c_str() << "\" \"" << type->GetPropertyDeclaration(m) << "\"";
+
+					// Save information about composite properties
+					int compositeOffset;
+					bool isCompositeIndirect;
+					type->GetProperty(m, 0, 0, 0, 0, 0, 0, 0, &compositeOffset, &isCompositeIndirect);
+					strm << " " << compositeOffset << " " << (isCompositeIndirect ? "1" : "0") << "\n";
 				}
 			}
 		}
@@ -524,10 +530,17 @@ int WriteConfigToStream(asIScriptEngine *engine, ostream &strm)
 		strm << "prop \"" << (isConst ? "const " : "") << engine->GetTypeDeclaration(typeId) << " " << name << "\"\n";
 	}
 
-	engine->SetDefaultNamespace("");
-
 	// Write string factory
 	strm << "\n// String factory\n";
+
+	// Reset the namespace for the string factory and default array type
+	if ("" != currNamespace)
+	{
+		strm << "namespace \"\"\n";
+		currNamespace = "";
+		engine->SetDefaultNamespace("");
+	}
+
 	asDWORD flags = 0;
 	int typeId = engine->GetStringFactoryReturnTypeId(&flags);
 	if( typeId > 0 )
@@ -545,7 +558,7 @@ int WriteConfigToStream(asIScriptEngine *engine, ostream &strm)
 	return 0;
 }
 
-int ConfigEngineFromStream(asIScriptEngine *engine, istream &strm, const char *configFile)
+int ConfigEngineFromStream(asIScriptEngine *engine, istream &strm, const char *configFile, asIStringFactory *stringFactory)
 {
 	int r;
 
@@ -725,11 +738,13 @@ int ConfigEngineFromStream(asIScriptEngine *engine, istream &strm, const char *c
 		}
 		else if( token == "objprop" )
 		{
-			string name, decl;
+			string name, decl, compositeOffset, isCompositeIndirect;
 			in::GetToken(engine, name, config, pos);
 			name = name.substr(1, name.length() - 2);
 			in::GetToken(engine, decl, config, pos);
 			decl = decl.substr(1, decl.length() - 2);
+			in::GetToken(engine, compositeOffset, config, pos);
+			in::GetToken(engine, isCompositeIndirect, config, pos);
 
 			asITypeInfo *type = engine->GetTypeInfoById(engine->GetTypeIdByDecl(name.c_str()));
 			if( type == 0 )
@@ -740,7 +755,7 @@ int ConfigEngineFromStream(asIScriptEngine *engine, istream &strm, const char *c
 
 			// All properties must have different offsets in order to make them
 			// distinct, so we simply register them with an incremental offset
-			r = engine->RegisterObjectProperty(name.c_str(), decl.c_str(), type->GetPropertyCount());
+			r = engine->RegisterObjectProperty(name.c_str(), decl.c_str(), type->GetPropertyCount(), compositeOffset != "0" ? type->GetPropertyCount() : 0, isCompositeIndirect != "0");
 			if( r < 0 )
 			{
 				engine->WriteMessage(configFile, in::GetLineNumber(config, pos), 0, asMSGTYPE_ERROR, "Failed to register object property");
@@ -810,11 +825,19 @@ int ConfigEngineFromStream(asIScriptEngine *engine, istream &strm, const char *c
 			in::GetToken(engine, type, config, pos);
 			type = type.substr(1, type.length() - 2);
 
-			r = engine->RegisterStringFactory(type.c_str(), asFUNCTION(0), asCALL_GENERIC);
-			if( r < 0 )
+			if (stringFactory == 0)
 			{
-				engine->WriteMessage(configFile, in::GetLineNumber(config, pos), 0, asMSGTYPE_ERROR, "Failed to register string factory");
+				engine->WriteMessage(configFile, in::GetLineNumber(config, pos), 0, asMSGTYPE_WARNING, "Cannot register string factory without the actual implementation");
 				return -1;
+			}
+			else
+			{
+				r = engine->RegisterStringFactory(type.c_str(), stringFactory);
+				if (r < 0)
+				{
+					engine->WriteMessage(configFile, in::GetLineNumber(config, pos), 0, asMSGTYPE_ERROR, "Failed to register string factory");
+					return -1;
+				}
 			}
 		}
 		else if( token == "defarray" )
