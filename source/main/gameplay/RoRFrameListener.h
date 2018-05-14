@@ -80,6 +80,9 @@ public:
     void   ShowLoaderGUI         (int type, const Ogre::String& instance, const Ogre::String& box);
     void   StartRaceTimer        ();
     float  StopRaceTimer         ();
+    float  GetRaceTime           () const { return static_cast<float>(m_time - m_race_start_time); }
+    float  GetRaceBestTime       () const { return m_race_bestlap_time; }
+    bool   IsRaceInProgress      () const { return m_race_in_progress; }
     bool   LoadTerrain           (); ///< Reads GVar 'sim_terrain_pending'
 
     // GUI interface
@@ -106,7 +109,6 @@ private:
 
     void   UpdateForceFeedback     (float dt);
     void   UpdateInputEvents       (float dt);
-    void   UpdateRacingGui         ();
     void   FinalizeActorSpawning   (Actor* local_actor, Actor* previous_actor);
     void   HideGUI                 (bool hidden);
     void   CleanupAfterSimulation  (); /// Unloads all data

@@ -176,7 +176,24 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
         m_survey_map->Update(dt_sec, m_simbuf.simbuf_player_actor);
     }
 
-    // HUD - vehicle
+    // GUI - race
+    if (m_simbuf.simbuf_race_in_progress != m_simbuf.simbuf_race_in_progress_prev)
+    {
+        if (m_simbuf.simbuf_race_in_progress) // Started
+        {
+            RoR::App::GetOverlayWrapper()->ShowRacingOverlay();
+        }
+        else // Ended
+        {
+            RoR::App::GetOverlayWrapper()->RaceEnded(m_simbuf.simbuf_race_bestlap_time);
+        }
+    }
+    if (m_simbuf.simbuf_race_in_progress)
+    {
+        RoR::App::GetOverlayWrapper()->UpdateRacingGui(this);
+    }
+
+    // GUI - vehicle pressure
     if (m_simbuf.simbuf_tyrepressurize_active)
     {
         RoR::App::GetOverlayWrapper()->UpdatePressureTexture(m_simbuf.simbuf_player_actor->GetGfxActor());
@@ -250,6 +267,9 @@ void RoR::GfxScene::BufferSimulationData()
     m_simbuf.simbuf_dir_arrow_target = App::GetSimController()->GetDirArrowTarget();
     m_simbuf.simbuf_tyrepressurize_active = App::GetSimController()->IsPressurizingTyres();
     m_simbuf.simbuf_sim_speed = App::GetSimController()->GetBeamFactory()->GetSimulationSpeed();
+    m_simbuf.simbuf_race_time = App::GetSimController()->GetRaceTime();
+    m_simbuf.simbuf_race_in_progress = App::GetSimController()->IsRaceInProgress();
+    m_simbuf.simbuf_race_bestlap_time = App::GetSimController()->GetRaceBestTime();
 
     m_live_gfx_actors.clear();
     for (GfxActor* a: m_all_gfx_actors)
@@ -280,5 +300,8 @@ RoR::GfxScene::SimBuffer::SimBuffer():
     simbuf_player_actor(nullptr),
     simbuf_character_pos(Ogre::Vector3::ZERO),
     simbuf_tyrepressurize_active(false),
+    simbuf_race_in_progress(false),
+    simbuf_race_in_progress_prev(false),
+    simbuf_race_bestlap_time(0.f),
     simbuf_dir_arrow_target(Ogre::Vector3::ZERO)
 {}

@@ -75,6 +75,8 @@ public:
 
     void ShowRacingOverlay();
     void HideRacingOverlay();
+    void RaceEnded(float best_time);
+    void UpdateRacingGui(RoR::GfxScene* gs);
 
     /// Hides all overlays, but doesn't change visibility flags (for further restoring).
     void TemporarilyHideAllOverlays(Actor *current_vehicle);

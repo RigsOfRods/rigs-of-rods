@@ -1197,12 +1197,27 @@ void OverlayWrapper::ShowRacingOverlay()
 {
     m_racing_overlay->show();
     BITMASK_SET_1(m_visible_overlays, VisibleOverlays::RACING);
+    laptimes->show();
+    laptimems->show();
+    laptimemin->show();
 }
 
 void OverlayWrapper::HideRacingOverlay()
 {
     m_racing_overlay->hide();
     BITMASK_SET_0(m_visible_overlays, VisibleOverlays::RACING);
+}
+
+void OverlayWrapper::RaceEnded(float best_time)
+{
+    // Keep display active
+    wchar_t txt[256] = L"";
+    UTFString fmt = _L("Last lap: %.2i'%.2i.%.2i");
+    swprintf(txt, 256, fmt.asWStr_c_str(), ((int)(best_time)) / 60, ((int)(best_time)) % 60, ((int)(best_time * 100.0)) % 100);
+    lasttime->setCaption(UTFString(txt));
+    laptimes->hide();
+    laptimems->hide();
+    laptimemin->hide();
 }
 
 void OverlayWrapper::TemporarilyHideAllOverlays(Actor* current_vehicle)
@@ -1235,4 +1250,16 @@ void OverlayWrapper::RestoreOverlaysVisibility(Actor* current_vehicle)
     }
 
     showDashboardOverlays(true, current_vehicle);
+}
+
+void OverlayWrapper::UpdateRacingGui(RoR::GfxScene* gs)
+{
+    const float time = gs->GetSimDataBuffer().simbuf_race_time;
+    wchar_t txt[10];
+    swprintf(txt, 10, L"%.2i", ((int)(time * 100.0)) % 100);
+    this->laptimems->setCaption(txt);
+    swprintf(txt, 10, L"%.2i", ((int)(time)) % 60);
+    this->laptimes->setCaption(txt);
+    swprintf(txt, 10, L"%.2i'", ((int)(time)) / 60);
+    this->laptimemin->setCaption(UTFString(txt));
 }

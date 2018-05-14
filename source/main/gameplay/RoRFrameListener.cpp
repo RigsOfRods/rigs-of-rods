@@ -193,16 +193,8 @@ void SimController::UpdateForceFeedback(float dt)
 
 void SimController::StartRaceTimer()
 {
-    m_race_start_time = (int)m_time;
+    m_race_start_time = (int)m_time; // TODO: This adds of up to 0.9 sec to player's time! Fix it! ~ only_a_ptr, 05/2018
     m_race_in_progress = true;
-    OverlayWrapper* ow = RoR::App::GetOverlayWrapper();
-    if (ow)
-    {
-        ow->ShowRacingOverlay();
-        ow->laptimes->show();
-        ow->laptimems->show();
-        ow->laptimemin->show();
-    }
 }
 
 float SimController::StopRaceTimer()
@@ -215,38 +207,9 @@ float SimController::StopRaceTimer()
         m_race_bestlap_time = time;
     }
 
-    // let the display on
-    OverlayWrapper* ow = RoR::App::GetOverlayWrapper();
-    if (ow)
-    {
-        wchar_t txt[256] = L"";
-        UTFString fmt = _L("Last lap: %.2i'%.2i.%.2i");
-        swprintf(txt, 256, fmt.asWStr_c_str(), ((int)(m_race_bestlap_time)) / 60, ((int)(m_race_bestlap_time)) % 60, ((int)(m_race_bestlap_time * 100.0)) % 100);
-        ow->lasttime->setCaption(UTFString(txt));
-        //ow->m_racing_overlay->hide();
-        ow->laptimes->hide();
-        ow->laptimems->hide();
-        ow->laptimemin->hide();
-    }
     m_race_start_time = 0;
     m_race_in_progress = false;
     return m_race_bestlap_time;
-}
-
-void SimController::UpdateRacingGui()
-{
-    OverlayWrapper* ow = RoR::App::GetOverlayWrapper();
-    if (!ow)
-        return;
-    // update m_racing_overlay gui if required
-    float time = static_cast<float>(m_time - m_race_start_time);
-    wchar_t txt[10];
-    swprintf(txt, 10, L"%.2i", ((int)(time * 100.0)) % 100);
-    ow->laptimems->setCaption(txt);
-    swprintf(txt, 10, L"%.2i", ((int)(time)) % 60);
-    ow->laptimes->setCaption(txt);
-    swprintf(txt, 10, L"%.2i'", ((int)(time)) / 60);
-    ow->laptimemin->setCaption(UTFString(txt));
 }
 
 void SimController::UpdateInputEvents(float dt)
@@ -1671,11 +1634,6 @@ void SimController::UpdateSimulation(float dt)
                 // update mouse picking lines, etc
                 RoR::App::GetSceneMouse()->update(dt);
 
-                if (m_race_in_progress && (App::sim_state.GetActive() != SimState::PAUSED))
-                {
-                    this->UpdateRacingGui();
-                }
-
                 if (m_player_actor->ar_driveable == TRUCK && m_player_actor->ar_engine != nullptr)
                 {
                     RoR::App::GetOverlayWrapper()->UpdateLandVehicleHUD(m_player_actor);
@@ -1711,8 +1669,6 @@ void SimController::UpdateSimulation(float dt)
             App::sim_state.ApplyPending();
         }
     }
-    App::GetGuiManager()->GetImGui().Render();
-
 }
 
 void SimController::ShowLoaderGUI(int type, const Ogre::String& instance, const Ogre::String& box)
