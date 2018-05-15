@@ -169,6 +169,18 @@ public:
         float                       simbuf_tyre_pressure;
         Ogre::AxisAlignedBox        simbuf_aabb;
         std::string                 simbuf_net_username;
+        int                         simbuf_gear;
+        int                         simbuf_autoshift;
+        float                       simbuf_wheel_speed;
+        float                       simbuf_engine_rpm;
+    };
+
+    struct Attributes    //!< Actor visual attributes
+    {
+        float            xa_speedo_highest_kph;
+        bool             xa_speedo_use_engine_max_rpm;
+        int              xa_num_gears; //!< Transmission; for dashboard rendering
+        float            xa_engine_max_rpm;
     };
 
     GfxActor(Actor* actor, std::string ogre_resource_group, std::vector<NodeGfx>& gfx_nodes);
@@ -203,6 +215,7 @@ public:
     void                      UpdateAeroEngines  ();
     void                      UpdateNetLabels    (float dt);
     inline void               SetDebugView       (DebugViewType dv)       { m_debug_view = dv; }
+    Attributes&               GetAttributes      ()                       { return m_attr; }
     inline Ogre::MaterialPtr& GetCabTransMaterial()                       { return m_cab_mat_visual_trans; }
     inline VideoCamState      GetVideoCamState   () const                 { return m_vidcam_state; }
     inline DebugViewType      GetDebugView       () const                 { return m_debug_view; }
@@ -222,6 +235,7 @@ private:
     DebugViewType               m_debug_view;
     std::vector<NodeGfx>        m_gfx_nodes;
     std::vector<AirbrakeGfx>    m_gfx_airbrakes;
+    Attributes                  m_attr;
     DustPool*                   m_particles_drip;
     DustPool*                   m_particles_misc; // This is "dust" in RoR::GfxScene; handles dust, vapour and tyre smoke
     DustPool*                   m_particles_splash;

@@ -1634,11 +1634,7 @@ void SimController::UpdateSimulation(float dt)
                 // update mouse picking lines, etc
                 RoR::App::GetSceneMouse()->update(dt);
 
-                if (m_player_actor->ar_driveable == TRUCK && m_player_actor->ar_engine != nullptr)
-                {
-                    RoR::App::GetOverlayWrapper()->UpdateLandVehicleHUD(m_player_actor);
-                }
-                else if (m_player_actor->ar_driveable == AIRPLANE)
+                if (m_player_actor->ar_driveable == AIRPLANE)
                 {
                     RoR::App::GetOverlayWrapper()->UpdateAerialHUD(m_player_actor);
                 }

@@ -26,6 +26,7 @@
 #include "AirBrake.h"
 #include "Beam.h"
 #include "beam_t.h"
+#include "BeamEngine.h" // EngineSim
 #include "Collisions.h"
 #include "DustPool.h" // General particle gfx
 #include "FlexObj.h"
@@ -72,6 +73,15 @@ RoR::GfxActor::GfxActor(Actor* actor, std::string ogre_resource_group, std::vect
     m_particles_clump  = dustman.GetDustPool("clump");
 
     m_simbuf.simbuf_nodes.reset(new NodeData[actor->ar_num_nodes]);
+
+    // Attributes
+    m_attr.xa_speedo_highest_kph = actor->ar_speedo_max_kph; // TODO: Remove the attribute from Actor altogether ~ only_a_ptr, 05/2018
+    m_attr.xa_speedo_use_engine_max_rpm = actor->ar_gui_use_engine_max_rpm; // TODO: ditto
+    if (actor->ar_engine != nullptr)
+    {
+        m_attr.xa_num_gears = actor->ar_engine->getNumGears();
+        m_attr.xa_engine_max_rpm = actor->ar_engine->getMaxRPM();
+    }
 }
 
 RoR::GfxActor::~GfxActor()
@@ -919,6 +929,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_heading_angle = m_actor->getHeadingDirectionAngle();
     m_simbuf.simbuf_tyre_pressure = m_actor->GetTyrePressure();
     m_simbuf.simbuf_aabb = m_actor->ar_bounding_box;
+    m_simbuf.simbuf_wheel_speed = m_actor->ar_wheel_speed;
     if (m_simbuf.simbuf_net_username != m_actor->m_net_username)
     {
         m_simbuf.simbuf_net_username = m_actor->m_net_username;
@@ -937,6 +948,14 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     for (int i=0; i< num_airbrakes; ++i)
     {
         m_simbuf.simbuf_airbrakes.push_back(m_actor->ar_airbrakes[i]->ratio);
+    }
+
+    // Engine (+drivetrain)
+    if (m_actor->ar_engine != nullptr)
+    {
+        m_simbuf.simbuf_gear            = m_actor->ar_engine->GetGear();
+        m_simbuf.simbuf_autoshift       = m_actor->ar_engine->getAutoShift();
+        m_simbuf.simbuf_engine_rpm      = m_actor->ar_engine->GetEngineRpm();
     }
 }
 

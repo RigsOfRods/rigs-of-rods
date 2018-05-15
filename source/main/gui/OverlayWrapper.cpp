@@ -805,13 +805,13 @@ void OverlayWrapper::UpdatePressureTexture(RoR::GfxActor* ga)
     pressuretexture->setTextureRotate(Degree(angle));
 }
 
-void OverlayWrapper::UpdateLandVehicleHUD(Actor* vehicle)
+void OverlayWrapper::UpdateLandVehicleHUD(RoR::GfxActor* ga)
 {
     // gears
-    int vehicle_getgear = vehicle->ar_engine->GetGear();
+    int vehicle_getgear = ga->GetSimDataBuffer().simbuf_gear;
     if (vehicle_getgear > 0)
     {
-        size_t numgears = vehicle->ar_engine->getNumGears();
+        size_t numgears = ga->GetSimDataBuffer().simbuf_gear;
         String gearstr = TOSTRING(vehicle_getgear) + "/" + TOSTRING(numgears);
         guiGear->setCaption(gearstr);
         guiGear3D->setCaption(gearstr);
@@ -828,7 +828,7 @@ void OverlayWrapper::UpdateLandVehicleHUD(Actor* vehicle)
     }
 
     //autogears
-    int cg = vehicle->ar_engine->getAutoShift();
+    int cg = ga->GetSimDataBuffer().simbuf_autoshift;
     for (int i = 0; i < 5; i++)
     {
         if (i == cg)
@@ -868,18 +868,18 @@ void OverlayWrapper::UpdateLandVehicleHUD(Actor* vehicle)
     }
 
     // speedo / calculate speed
-    Real guiSpeedFactor = 7.0 * (140.0 / vehicle->ar_speedo_max_kph);
-    Real angle = 140 - fabs(vehicle->ar_wheel_speed * guiSpeedFactor);
+    Real guiSpeedFactor = 7.0 * (140.0 / ga->GetAttributes().xa_speedo_highest_kph);
+    Real angle = 140 - fabs(ga->GetSimDataBuffer().simbuf_wheel_speed * guiSpeedFactor);
     angle = std::max(-140.0f, angle);
     speedotexture->setTextureRotate(Degree(angle));
 
     // calculate tach stuff
     Real tachoFactor = 0.072;
-    if (vehicle->ar_gui_use_engine_max_rpm)
+    if (ga->GetAttributes().xa_speedo_use_engine_max_rpm)
     {
-        tachoFactor = 0.072 * (3500 / vehicle->ar_engine->getMaxRPM());
+        tachoFactor = 0.072 * (3500 / ga->GetAttributes().xa_engine_max_rpm);
     }
-    angle = 126.0 - fabs(vehicle->ar_engine->GetEngineRpm() * tachoFactor);
+    angle = 126.0 - fabs(ga->GetSimDataBuffer().simbuf_engine_rpm * tachoFactor);
     angle = std::max(-120.0f, angle);
     angle = std::min(angle, 121.0f);
     tachotexture->setTextureRotate(Degree(angle));

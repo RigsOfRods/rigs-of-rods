@@ -218,6 +218,12 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
         Ogre::Vector3 pos = player_gfx_actor->GetSimDataBuffer().simbuf_pos;
         m_envmap.UpdateEnvMap(pos, m_simbuf.simbuf_player_actor); // Safe to be called here, only modifies OGRE objects, doesn't read any physics state.
         player_gfx_actor->UpdateVideoCameras(dt_sec);
+
+        // The old-style render-to-texture dashboard (based on OGRE overlays)
+        if (m_simbuf.simbuf_player_actor->ar_driveable == TRUCK && m_simbuf.simbuf_player_actor->ar_engine != nullptr)
+        {
+            RoR::App::GetOverlayWrapper()->UpdateLandVehicleHUD(player_gfx_actor);
+        }
     }
 
     // Actors - finalize threaded tasks
