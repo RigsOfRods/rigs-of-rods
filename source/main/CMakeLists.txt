@@ -602,13 +602,10 @@ if (WIN32)
     )
 endif ()
 
-if(ROR_RESOURCES_ZIPS)
-  unset(ROR_RESOURCES_ZIPS)
-endif(ROR_RESOURCES_ZIPS)
-
 get_sub_dirs(ROR_RESOURCES_DIRS "${CMAKE_SOURCE_DIR}/resources")
 set(ROR_RESOURCES_ZIPS)
 set(TMP_RES_DIR ${TMP_FILE_DIR}/resources)
+file(MAKE_DIRECTORY ${TMP_RES_DIR})
 
 foreach(RES_DIR ${ROR_RESOURCES_DIRS})
 
