@@ -257,6 +257,8 @@ void CLASS::UpdateStats(float dt, Actor* actor)
 
             m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Current power: ") + WhiteColor + TOUTFSTRING(Round(currentKw *1.34102209)) + U(" hp / ") + TOUTFSTRING(Round(currentKw)) + U(" Kw") + "\n";
 
+            m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Current gear: ") + WhiteColor + TOUTFSTRING(Round(actor->ar_engine->GetGear())) + "\n";
+
             float velocityKMH = actor->ar_wheel_speed * 3.6f;
             float velocityMPH = actor->ar_wheel_speed * 2.23693629f;
             float carSpeedKPH = actor->ar_nodes[0].Velocity.length() * 3.6f;
