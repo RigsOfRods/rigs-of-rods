@@ -462,7 +462,6 @@ void ActorManager::SetupActor(
     // Initialize visuals
     actor->updateVisual();
     actor->ToggleLights();
-    actor->updateFlares(0);
 
     if (actor->isPreloadedWithTerrain())
     {
@@ -1262,8 +1261,8 @@ void ActorManager::UpdateActorVisuals(float dt,  Actor* player_actor)
         {
             m_actors[t]->updateVisual(dt);
             m_actors[t]->updateSkidmarks();
-            m_actors[t]->updateFlares(dt, (m_actors[t] == player_actor));
-            m_actors[t]->m_gfx_actor->UpdateParticles(dt); // friend access
+            m_actors[t]->UpdateFlareStates(dt); // Only state, visuals done by GfxActor
+            m_actors[t]->m_gfx_actor->UpdateParticles(dt); // friend access // TODO: updates visuals, move it to GfxActor ~ only_a_ptr, 06/2018
         }
     }
 }

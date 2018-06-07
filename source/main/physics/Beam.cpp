@@ -2723,15 +2723,12 @@ void Actor::ToggleLights()
     TRIGGER_EVENT(SE_TRUCK_LIGHT_TOGGLE, ar_instance_id);
 }
 
-void Actor::updateFlares(float dt, bool isCurrent)
+void Actor::UpdateFlareStates(float dt)
 {
     if (m_custom_light_toggle_countdown > -1)
         m_custom_light_toggle_countdown -= dt;
 
     if (m_flares_mode == GfxFlaresMode::NONE) { return; }
-
-    bool enableAll = true;
-    if ((m_flares_mode == GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY) && !isCurrent) { enableAll = false; }
 
     // NOTE: Beacon flares are now updated in GfxActor::UpdateBeaconFlares()
 
@@ -2756,9 +2753,10 @@ void Actor::updateFlares(float dt, bool isCurrent)
 
         // manage light states
         bool isvisible = true; //this must be true to be able to switch on the frontlight
+        // NOTE: headlight (type 'f') is updated
         if (ar_flares[i].type == 'f')
         {
-            m_gfx_actor->SetMaterialFlareOn(i, (ar_lights == 1));
+            // NOTE: Material flare is updated in GfxActor
             if (!ar_lights)
                 continue;
         }
@@ -2773,7 +2771,7 @@ void Actor::updateFlares(float dt, bool isCurrent)
             else
                 isvisible = false;
         }
-        else if (ar_flares[i].type == 'u' && ar_flares[i].controlnumber != -1)
+        else if (ar_flares[i].type == 'u' && ar_flares[i].controlnumber != -1) // controlnumber = read only attribute
         {
             if (ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this == App::GetSimController()->GetPlayerActor()) // no network!!
             {
@@ -2826,55 +2824,7 @@ void Actor::updateFlares(float dt, bool isCurrent)
             ar_dashboard->setBool(DD_SIGNAL_TURNLEFT, isvisible);
         }
 
-        // update material Bindings
-        m_gfx_actor->SetMaterialFlareOn(i, isvisible);
-
-        ar_flares[i].snode->setVisible(isvisible);
-        if (ar_flares[i].light)
-            ar_flares[i].light->setVisible(isvisible && enableAll);
-        ar_flares[i].isVisible = isvisible;
-
-        Vector3 normal = (ar_nodes[ar_flares[i].nodey].AbsPosition - ar_nodes[ar_flares[i].noderef].AbsPosition).crossProduct(ar_nodes[ar_flares[i].nodex].AbsPosition - ar_nodes[ar_flares[i].noderef].AbsPosition);
-        normal.normalise();
-        Vector3 mposition = ar_nodes[ar_flares[i].noderef].AbsPosition + ar_flares[i].offsetx * (ar_nodes[ar_flares[i].nodex].AbsPosition - ar_nodes[ar_flares[i].noderef].AbsPosition) + ar_flares[i].offsety * (ar_nodes[ar_flares[i].nodey].AbsPosition - ar_nodes[ar_flares[i].noderef].AbsPosition);
-        Vector3 vdir = mposition - gEnv->mainCamera->getPosition();
-        float vlen = vdir.length();
-        // not visible from 500m distance
-        if (vlen > 500.0)
-        {
-            ar_flares[i].snode->setVisible(false);
-            continue;
-        }
-        //normalize
-        vdir = vdir / vlen;
-        float amplitude = normal.dotProduct(vdir);
-        ar_flares[i].snode->setPosition(mposition - 0.1 * amplitude * normal * ar_flares[i].offsetz);
-        ar_flares[i].snode->setDirection(normal);
-        float fsize = ar_flares[i].size;
-        if (fsize < 0)
-        {
-            amplitude = 1;
-            fsize *= -1;
-        }
-        if (ar_flares[i].light)
-        {
-            ar_flares[i].light->setPosition(mposition - 0.2 * amplitude * normal);
-            // point the real light towards the ground a bit
-            ar_flares[i].light->setDirection(-normal - Vector3(0, 0.2, 0));
-        }
-        if (ar_flares[i].isVisible)
-        {
-            if (amplitude > 0)
-            {
-                ar_flares[i].bbs->setDefaultDimensions(amplitude * fsize, amplitude * fsize);
-                ar_flares[i].snode->setVisible(true);
-            }
-            else
-            {
-                ar_flares[i].snode->setVisible(false);
-            }
-        }
-        //ar_flares[i].bbs->_updateBounds();
+        ar_flares[i].isVisible = isvisible; // 3D engine objects are updated in GfxActor
     }
     if (keysleep)
         m_custom_light_toggle_countdown = 0.2;

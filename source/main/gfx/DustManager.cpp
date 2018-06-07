@@ -221,6 +221,7 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
         gfx_actor->UpdateAeroEngines();
         gfx_actor->UpdatePropAnimations(dt_sec);
         gfx_actor->UpdateProps(dt_sec, (gfx_actor == player_gfx_actor));
+        gfx_actor->UpdateFlares(dt_sec, (gfx_actor == player_gfx_actor));
     }
     if (player_gfx_actor != nullptr)
     {

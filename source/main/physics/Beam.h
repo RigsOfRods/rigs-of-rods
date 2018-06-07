@@ -129,7 +129,7 @@ public:
     ground_model_t*   getLastFuzzyGroundModel();
     void              updateSkidmarks();                   //!< Creates or updates skidmarks. No side effects.
     void              prepareInside(bool inside);          //!< Prepares vehicle for in-cabin camera use.
-    void              updateFlares(float dt, bool isCurrent=false);
+    void              UpdateFlareStates(float dt_sec);
     /// TIGHT-LOOP; Logic: display (+overlays +particles), sound
     /// Does a mixture of tasks:
     /// - Sound: updates sound sources; plays aircraft radio chatter;
@@ -338,7 +338,7 @@ public:
     float             ar_sleep_counter;               //!< Sim state; idle time counter
     ground_model_t*   ar_submesh_ground_model;
     int               ar_parking_brake;
-    int               ar_lights;
+    int               ar_lights;                      //!< boolean 1/0
     float             ar_left_mirror_angle;           //!< Sim state; rear view mirror angle
     float             ar_right_mirror_angle;          //!< Sim state; rear view mirror angle
     float             ar_elevator;                    //!< Sim state; aerial controller

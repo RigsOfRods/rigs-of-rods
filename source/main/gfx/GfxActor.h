@@ -221,6 +221,7 @@ public:
         int                         simbuf_aero_flap_state;
         int                         simbuf_airbrake_state;
         float                       simbuf_wing4_aoa;
+        bool                        simbuf_headlight_on;
     };
 
     struct Attributes    //!< Actor visual attributes
@@ -287,6 +288,7 @@ public:
     void                 CalcPropAnimation   (const int flag_state, float& cstate, int& div, float timer,
                                               const float lower_limit, const float upper_limit, const float option3);
     void                 UpdatePropAnimations(const float dt_sec);
+    void                 UpdateFlares        (float dt_sec, bool is_player);
 
 private:
 

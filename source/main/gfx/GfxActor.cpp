@@ -1024,6 +1024,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_hydro_aero_rudder_state = m_actor->ar_hydro_rudder_state;
     m_simbuf.simbuf_aero_flap_state = m_actor->ar_aerial_flap;
     m_simbuf.simbuf_airbrake_state = m_actor->ar_airbrake_intensity;
+    m_simbuf.simbuf_headlight_on = m_actor->ar_lights;
     if (m_simbuf.simbuf_net_username != m_actor->m_net_username)
     {
         m_simbuf.simbuf_net_username = m_actor->m_net_username;
@@ -2399,3 +2400,73 @@ void RoR::GfxActor::FinishFlexbodyTasks()
     }
 }
 
+void RoR::GfxActor::UpdateFlares(float dt_sec, bool is_player)
+{
+    // == Flare states are determined in simulation, this function only applies them to OGRE objects ==
+
+    bool enableAll = ((App::gfx_flares_mode.GetActive() == GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY) && !is_player);
+    NodeData* nodes = this->GetSimNodeBuffer();
+
+    int num_flares = static_cast<int>(m_actor->ar_flares.size());
+    for (int i=0; i<num_flares; ++i)
+    {
+        flare_t& flare = m_actor->ar_flares[i];
+        
+        //TODO: Following code is a quick+dirty port from `Actor::updateFlares()` - tidy it up! ~only_a_ptr, 06/2018
+
+        if (flare.type == 'f')
+        {
+            this->SetMaterialFlareOn(i, m_simbuf.simbuf_headlight_on);
+        }
+        else
+        {
+            this->SetMaterialFlareOn(i, flare.isVisible);
+            flare.snode->setVisible(flare.isVisible);
+            if (flare.light != nullptr)
+            {
+                flare.light->setVisible(flare.isVisible && enableAll);
+            }
+        }
+
+        Ogre::Vector3 normal = (nodes[flare.nodey].AbsPosition - nodes[flare.noderef].AbsPosition).crossProduct(nodes[flare.nodex].AbsPosition - nodes[flare.noderef].AbsPosition);
+        normal.normalise();
+        Ogre::Vector3 mposition = nodes[flare.noderef].AbsPosition + flare.offsetx * (nodes[flare.nodex].AbsPosition - nodes[flare.noderef].AbsPosition) + flare.offsety * (nodes[flare.nodey].AbsPosition - nodes[flare.noderef].AbsPosition);
+        Ogre::Vector3 vdir = mposition - gEnv->mainCamera->getPosition();
+        float vlen = vdir.length();
+        // not visible from 500m distance
+        if (vlen > 500.0)
+        {
+            flare.snode->setVisible(false);
+            continue;
+        }
+        //normalize
+        vdir = vdir / vlen;
+        float amplitude = normal.dotProduct(vdir);
+        flare.snode->setPosition(mposition - 0.1 * amplitude * normal * flare.offsetz);
+        flare.snode->setDirection(normal);
+        float fsize = flare.size;
+        if (fsize < 0)
+        {
+            amplitude = 1;
+            fsize *= -1;
+        }
+        if (flare.light)
+        {
+            flare.light->setPosition(mposition - 0.2 * amplitude * normal);
+            // point the real light towards the ground a bit
+            flare.light->setDirection(-normal - Ogre::Vector3(0, 0.2, 0));
+        }
+        if (flare.isVisible)
+        {
+            if (amplitude > 0)
+            {
+                flare.bbs->setDefaultDimensions(amplitude * fsize, amplitude * fsize);
+                flare.snode->setVisible(true);
+            }
+            else
+            {
+                flare.snode->setVisible(false);
+            }
+        }
+    }
+}
