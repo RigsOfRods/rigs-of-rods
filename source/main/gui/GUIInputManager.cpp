@@ -26,6 +26,7 @@
 #include "GUI_GameMainMenu.h" // TODO: remove this hack ~ only_a_ptr, 02/2017
 #include "GUI_GamePauseMenu.h" // TODO: remove this hack ~ only_a_ptr, 02/2017
 #include "OverlayWrapper.h"
+#include "RoRFrameListener.h" // SimController
 #include "SceneMouse.h"
 
 #include <MyGUI_KeyCode.h>
@@ -150,18 +151,15 @@ bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
 
     if (!handled)
     {
-        RoR::SceneMouse* sm = RoR::App::GetSceneMouse();
-        if (sm)
-        {
+
             // not handled by gui
-            bool fixed = sm->mouseMoved(_arg);
+            bool fixed = RoR::App::GetSimController()->GetSceneMouse().mouseMoved(_arg);
             if (fixed)
             {
                 // you would really need to "fix" the actual mouse position, see
                 // http://www.wreckedgames.com/forum/index.php?topic=1104.0
                 return true;
             }
-        }
     }
 
     mCursorX = _arg.state.X.abs;
@@ -201,9 +199,7 @@ bool GUIInputManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButton
 
     if (!handled)
     {
-        RoR::SceneMouse* sm = RoR::App::GetSceneMouse();
-        if (sm)
-            return sm->mousePressed(_arg, _id);
+        RoR::App::GetSimController()->GetSceneMouse().mousePressed(_arg, _id);
     }
     return handled;
 }
@@ -233,11 +229,9 @@ bool GUIInputManager::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButto
         handled = RoR::App::GetOverlayWrapper()->mouseReleased(_arg, _id);
     }
 
-    if (!handled)
+    if (!handled && (RoR::App::GetSimController() != nullptr))
     {
-        RoR::SceneMouse* sm = RoR::App::GetSceneMouse();
-        if (sm)
-            return sm->mouseReleased(_arg, _id);
+        RoR::App::GetSimController()->GetSceneMouse().mouseReleased(_arg, _id);
     }
     return handled;
 }
@@ -309,9 +303,7 @@ bool GUIInputManager::keyPressed(const OIS::KeyEvent& _arg)
 
     if (!handled)
     {
-        RoR::SceneMouse* sm = RoR::App::GetSceneMouse();
-        if (sm)
-            return sm->keyPressed(_arg);
+        RoR::App::GetSimController()->GetSceneMouse().keyPressed(_arg);
     }
 
     return handled;
@@ -334,9 +326,7 @@ bool GUIInputManager::keyReleased(const OIS::KeyEvent& _arg)
 
     if (!handled)
     {
-        RoR::SceneMouse* sm = RoR::App::GetSceneMouse();
-        if (sm)
-            return sm->keyReleased(_arg);
+        RoR::App::GetSimController()->GetSceneMouse().keyReleased(_arg);
     }
 
     return handled;

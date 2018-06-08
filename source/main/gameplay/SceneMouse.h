@@ -27,18 +27,16 @@
 #pragma once
 
 #include "RoRPrerequisites.h"
-#include "Singleton.h"
 
 #include <OIS.h>
 
 namespace RoR {
 
-class SceneMouse : public ZeroedMemoryAllocator
+class SceneMouse
 {
 public:
 
     SceneMouse();
-    ~SceneMouse();
 
     bool mouseMoved(const OIS::MouseEvent& _arg);
     bool mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
@@ -46,8 +44,10 @@ public:
     bool keyPressed(const OIS::KeyEvent& _arg);
     bool keyReleased(const OIS::KeyEvent& _arg);
 
-    void update(float dt);
-    bool isMouseGrabbed() { return mouseGrabState != 0; };
+    void InitializeVisuals();
+    void UpdateSimulation();
+    void UpdateVisuals();
+    void DiscardVisuals();
 
 protected:
 

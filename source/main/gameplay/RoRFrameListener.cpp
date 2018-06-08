@@ -1614,19 +1614,15 @@ void SimController::UpdateSimulation(float dt)
     {
         this->UpdateForceFeedback(dt);
 
-        if (RoR::App::GetOverlayWrapper() != nullptr)
-        {
-
-            if (m_player_actor != nullptr)
-            {
-                // update mouse picking lines, etc
-                RoR::App::GetSceneMouse()->update(dt);
-            }
-            RoR::App::GetGuiManager()->UpdateSimUtils(dt, m_player_actor);
-        }
+        RoR::App::GetGuiManager()->UpdateSimUtils(dt, m_player_actor);
 
         if (!simPAUSED(s))
         {
+            if (m_player_actor != nullptr)
+            {
+                m_scene_mouse.UpdateSimulation();
+            }
+
             m_gfx_scene.BufferSimulationData();
 
             m_actor_manager.UpdateActors(m_player_actor, dt); // *** Start new physics tasks. No reading from Actor N/B beyond this point.
@@ -2036,7 +2032,7 @@ void SimController::CleanupAfterSimulation()
         App::SetSimTerrain(nullptr);
     }
 
-    App::DeleteSceneMouse();
+    m_scene_mouse.DiscardVisuals(); // TODO: move this to GfxScene ~~ only_a_ptr, 06/2018
     App::GetGuiManager()->GetTeleport()->Reset();
 
     App::GetGuiManager()->SetVisible_LoadingWindow(false);
@@ -2181,7 +2177,7 @@ bool SimController::SetupGameplayLoop()
         SOUND_KILL(-1, SS_TRIG_MAIN_MENU);
     }
 
-    App::CreateSceneMouse();
+    m_scene_mouse.InitializeVisuals(); // TODO: Move to GfxScene ~ only_a_ptr, 06/2018
 
     gEnv->sceneManager->setAmbientLight(Ogre::ColourValue(0.3f, 0.3f, 0.3f));
 
@@ -2280,7 +2276,6 @@ void SimController::EnterGameplayLoop()
     App::GetGuiManager()->GetLoadingWindow()->setProgress(50, _L("Unloading Terrain"), !m_was_app_window_closed); // Renders a frame
     this->CleanupAfterSimulation();
     RoRWindowEventUtilities::removeWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
-    // DO NOT: App::GetSceneMouse()    ->SetSimController(nullptr); -- already deleted via App::DeleteSceneMouse();      // TODO: de-globalize that object!
     // DO NOT: App::GetOverlayWrapper()->SetSimController(nullptr); -- already deleted via App::DestroyOverlayWrapper(); // TODO: de-globalize that object!
 }
 

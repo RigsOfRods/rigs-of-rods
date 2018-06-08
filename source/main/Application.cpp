@@ -68,7 +68,6 @@ namespace App {
 static OgreSubsystem*   g_ogre_subsystem;
 static ContentManager*  g_content_manager;
 static OverlayWrapper*  g_overlay_wrapper;
-static SceneMouse*      g_scene_mouse;
 static GUIManager*      g_gui_manager;
 static Console*         g_console;
 static InputEngine*     g_input_engine;
@@ -192,7 +191,6 @@ void SetSimTerrain     (TerrainManager* obj)          { g_sim_terrain = obj;}
 OgreSubsystem*         GetOgreSubsystem      () { return g_ogre_subsystem; };
 ContentManager*        GetContentManager     () { return g_content_manager;}
 OverlayWrapper*        GetOverlayWrapper     () { return g_overlay_wrapper;}
-SceneMouse*            GetSceneMouse         () { return g_scene_mouse;}
 GUIManager*            GetGuiManager         () { return g_gui_manager;}
 Console*               GetConsole            () { return g_gui_manager->GetConsole();}
 InputEngine*           GetInputEngine        () { return g_input_engine;}
@@ -249,19 +247,6 @@ void DestroyOverlayWrapper()
     assert(g_overlay_wrapper != nullptr && "DestroyOverlayWrapper(): OverlayWrapper never created");
     delete g_overlay_wrapper;
     g_overlay_wrapper = nullptr;
-}
-
-void CreateSceneMouse()
-{
-    assert (g_scene_mouse == nullptr);
-    g_scene_mouse = new SceneMouse();
-}
-
-void DeleteSceneMouse()
-{
-    assert (g_scene_mouse != nullptr);
-    delete g_scene_mouse;
-    g_scene_mouse = nullptr;
 }
 
 void CreateGuiManagerIfNotExists()

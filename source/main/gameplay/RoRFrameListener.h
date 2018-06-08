@@ -27,7 +27,7 @@
 #include "EnvironmentMap.h"
 #include "ForceFeedback.h"
 #include "RoRPrerequisites.h"
-
+#include "SceneMouse.h"
 
 #include <Ogre.h>
 
@@ -96,6 +96,7 @@ public:
     RoR::ActorManager*          GetBeamFactory  ()         { return &m_actor_manager; } // TODO: Eliminate this. All operations upon actors should be done through above methods. ~ only_a_ptr, 06/2017
     RoR::SkidmarkConfig*         GetSkidmarkConf ()         { return m_skidmark_conf; }
     RoR::GfxScene&               GetGfxScene()              { return m_gfx_scene; }
+    RoR::SceneMouse&             GetSceneMouse()            { return m_scene_mouse; }
     Ogre::Vector3                GetDirArrowTarget()        { return m_dir_arrow_pointed; }
     bool                         IsPressurizingTyres() const { return m_pressure_pressed; }
 
@@ -121,6 +122,7 @@ private:
     RoR::CharacterFactory    m_character_factory;
     RoR::GfxScene            m_gfx_scene;
     RoR::SkidmarkConfig*     m_skidmark_conf;
+    RoR::SceneMouse          m_scene_mouse;
     Ogre::Real               m_time_until_next_toggle; //!< just to stop toggles flipping too fast
     float                    m_last_simulation_speed;  //!< previously used time ratio between real time (evt.timeSinceLastFrame) and physics time ('dt' used in calcPhysics)
     bool                     m_is_pace_reset_pressed;
