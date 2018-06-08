@@ -1397,7 +1397,7 @@ void ActorManager::UpdatePhysicsSimulation()
     {
         if (!m_actors[t])
             continue;
-        m_actors[t]->preUpdatePhysics(m_physics_steps * PHYSICS_DT);
+        m_actors[t]->checkAndMovePhysicsOrigin();
     }
     if (gEnv->threadPool)
     {
@@ -1409,12 +1409,12 @@ void ActorManager::UpdatePhysicsSimulation()
                 std::vector<std::function<void()>> tasks;
                 for (int t = 0; t < m_free_actor_slot; t++)
                 {
-                    if (m_actors[t] && (m_actors[t]->ar_update_physics = m_actors[t]->CalcForcesEulerPrepare(i == 0, PHYSICS_DT, i, m_physics_steps)))
+                    if (m_actors[t] && (m_actors[t]->ar_update_physics = m_actors[t]->CalcForcesEulerPrepare()))
                     {
                         have_actors_to_simulate = true;
                         auto func = std::function<void()>([this, i, t]()
                             {
-                                m_actors[t]->calcForcesEulerCompute(i == 0, PHYSICS_DT, i, m_physics_steps);
+                                m_actors[t]->calcForcesEulerCompute(i, m_physics_steps);
                                 if (!m_actors[t]->ar_disable_self_collision)
                                 {
                                     m_actors[t]->IntraPointCD()->UpdateIntraPoint(m_actors[t]);
@@ -1438,7 +1438,7 @@ void ActorManager::UpdatePhysicsSimulation()
             for (int t = 0; t < m_free_actor_slot; t++)
             {
                 if (m_actors[t] && m_actors[t]->ar_update_physics)
-                    m_actors[t]->calcForcesEulerFinal(i == 0, PHYSICS_DT, i, m_physics_steps);
+                    m_actors[t]->calcForcesEulerFinal();
             }
 
             if (have_actors_to_simulate)
@@ -1479,12 +1479,12 @@ void ActorManager::UpdatePhysicsSimulation()
 
             for (int t = 0; t < m_free_actor_slot; t++)
             {
-                if (m_actors[t] && (m_actors[t]->ar_update_physics = m_actors[t]->CalcForcesEulerPrepare(i == 0, PHYSICS_DT, i, m_physics_steps)))
+                if (m_actors[t] && (m_actors[t]->ar_update_physics = m_actors[t]->CalcForcesEulerPrepare()))
                 {
                     have_actors_to_simulate = true;
 
-                    m_actors[t]->calcForcesEulerCompute(i == 0, PHYSICS_DT, i, m_physics_steps);
-                    m_actors[t]->calcForcesEulerFinal(i == 0, PHYSICS_DT, i, m_physics_steps);
+                    m_actors[t]->calcForcesEulerCompute(i, m_physics_steps);
+                    m_actors[t]->calcForcesEulerFinal();
                     if (!m_actors[t]->ar_disable_self_collision)
                     {
                         m_actors[t]->IntraPointCD()->UpdateIntraPoint(m_actors[t]);

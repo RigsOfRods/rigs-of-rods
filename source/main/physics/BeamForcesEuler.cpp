@@ -48,10 +48,10 @@
 using namespace Ogre;
 using namespace RoR;
 
-// Param "doUpdate" means "also update things which should be updated only once per frame, not per every physics tick"
-//     In this case, doUpdate is TRUE on first tick after rendering, FALSE in all other ticks 
-void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps)
+void Actor::calcForcesEulerCompute(int step, int num_steps)
 {
+    const bool doUpdate = (step == 0);
+    const float dt = static_cast<float>(PHYSICS_DT);
     IWater* water = nullptr;
     const bool is_player_actor = (this == RoR::App::GetSimController()->GetPlayerActor());
 
@@ -66,7 +66,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
         ar_engine->UpdateEngineSim(dt, doUpdate);
     }
 
-    calcBeams(doUpdate, dt, step, maxsteps);
+    calcBeams(doUpdate);
 
     if (doUpdate)
     {
@@ -117,7 +117,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
 
     m_water_contact = false;
 
-    this->CalcNodes(dt, step, maxsteps);
+    this->CalcNodes();
 
     AxisAlignedBox tBoundingBox(ar_nodes[0].AbsPosition, ar_nodes[0].AbsPosition);
 
@@ -581,7 +581,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
     m_antilockbrake = std::max(m_antilockbrake, (int)alb_active);
     m_tractioncontrol = std::max(m_tractioncontrol, (int)tc_active);
 
-    if (step == maxsteps)
+    if (step == num_steps)
     {
         if (!m_antilockbrake)
         {
@@ -642,7 +642,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
     //auto shock adjust
     if (this->ar_has_active_shocks && doUpdate)
     {
-        m_stabilizer_shock_sleep -= dt * maxsteps;
+        m_stabilizer_shock_sleep -= dt * num_steps;
 
         Vector3 dir = ar_nodes[ar_camera_node_pos[0]].RelPosition - ar_nodes[ar_camera_node_roll[0]].RelPosition;
         dir.normalise();
@@ -1238,25 +1238,22 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
     }
 }
 
-bool Actor::CalcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int maxsteps)
+bool Actor::CalcForcesEulerPrepare()
 {
-    if (dt == 0.0)
-        return false;
     if (m_reset_request)
         return false;
     if (ar_sim_state != Actor::SimState::LOCAL_SIMULATED)
         return false;
 
-    forwardCommands();
-    CalcBeamsInterActor(doUpdate, dt, step, maxsteps);
-
+    this->forwardCommands();
+    this->CalcBeamsInterActor();
     return true;
 }
 
-void Actor::calcForcesEulerFinal(int doUpdate, Ogre::Real dt, int step, int maxsteps)
+void Actor::calcForcesEulerFinal()
 {
-    calcHooks();
-    calcRopes();
+    this->calcHooks();
+    this->calcRopes();
 }
 
 template <size_t L>
@@ -1283,23 +1280,9 @@ void LogBeamNodes(RoR::Str<L>& msg, beam_t& beam) // Internal helper
     msg << ".";
 }
 
-void Actor::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
+void Actor::calcBeams(bool trigger_hooks)
 {
-    // HOT DATA: 
-    //  node_t:
-    //     RelPosition, velocity, Forces
-    //  beam_t:
-    //     bm_disabled, bm_inter_actor
-    //     L, k, d
-    //     bounded, stress, minmaxposnegstress
-    //  <>beam-bounded-SHOCK1:
-    //     longbound, shortbound, bm_type, shock(ptr)
-    //  <>beam-bounded-SHOCK2
-    //     !! function-call !!
-    //  <>beam-bounded-SUPPORTBEAM:
-    //     longbound
-    //  <>beam ~ deformation:
-    //     bm_type, bounded, maxposstress, maxnegstress, strength, plastic_coef, detacher_group
+    const float dt = static_cast<float>(PHYSICS_DT);
 
     // Springs
     for (int i = 0; i < ar_num_beams; i++)
@@ -1351,7 +1334,7 @@ void Actor::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                 break;
 
             case SHOCK2:
-                calcShocks2(i, difftoBeamL, k, d, dt, doUpdate);
+                calcShocks2(i, difftoBeamL, k, d, trigger_hooks);
                 break;
 
             case SUPPORTBEAM:
@@ -1545,7 +1528,7 @@ void Actor::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
     }
 }
 
-void Actor::CalcBeamsInterActor(int doUpdate, Ogre::Real dt, int step, int maxsteps)
+void Actor::CalcBeamsInterActor()
 {
     for (int i = 0; i < static_cast<int>(ar_inter_beams.size()); i++)
     {
@@ -1678,8 +1661,9 @@ void Actor::CalcBeamsInterActor(int doUpdate, Ogre::Real dt, int step, int maxst
     }
 }
 
-void Actor::CalcNodes(float dt, int step, int maxsteps)
+void Actor::CalcNodes()
 {
+    const float dt = static_cast<float>(PHYSICS_DT);
     IWater* water = App::GetSimTerrain()->getWater();
     const float gravity = App::GetSimTerrain()->getGravity();
 

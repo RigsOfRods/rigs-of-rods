@@ -1129,7 +1129,7 @@ void Actor::updateBoundingBox()
     ar_bounding_box.setMaximum(ar_bounding_box.getMaximum() + Vector3(0.05f, 0.05f, 0.05f));
 }
 
-void Actor::preUpdatePhysics(float dt)
+void Actor::checkAndMovePhysicsOrigin()
 {
     m_avg_node_position_prev = m_avg_node_position;
 
@@ -2203,11 +2203,12 @@ void Actor::calcAnimators(const int flag_state, float& cstate, int& div, Real ti
     }
 }
 
-void Actor::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt, int update)
+void Actor::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, bool trigger_hooks)
 {
     if (!ar_beams[beam_i].shock)
         return;
 
+    const float dt = static_cast<float>(PHYSICS_DT);
     int i = beam_i;
     float beamsLep = ar_beams[i].L * 0.8f;
     float longboundprelimit = ar_beams[i].longbound * beamsLep;
@@ -2438,7 +2439,7 @@ void Actor::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt,
                     {
                         if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_UNLOCK)
                         {
-                            if (update)
+                            if (trigger_hooks)
                             {
                                 //autolock hooktoggle unlock
                                 ToggleHooks(ar_beams[i].shock->trigger_cmdlong, HOOK_UNLOCK, -1);
@@ -2446,7 +2447,7 @@ void Actor::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt,
                         }
                         else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_LOCK)
                         {
-                            if (update)
+                            if (trigger_hooks)
                             {
                                 //autolock hooktoggle lock
                                 ToggleHooks(ar_beams[i].shock->trigger_cmdlong, HOOK_LOCK, -1);
@@ -2477,7 +2478,7 @@ void Actor::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt,
                     {
                         if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_UNLOCK)
                         {
-                            if (update)
+                            if (trigger_hooks)
                             {
                                 //autolock hooktoggle unlock
                                 ToggleHooks(ar_beams[i].shock->trigger_cmdshort, HOOK_UNLOCK, -1);
@@ -2485,7 +2486,7 @@ void Actor::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt,
                         }
                         else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_LOCK)
                         {
-                            if (update)
+                            if (trigger_hooks)
                             {
                                 //autolock hooktoggle lock
                                 ToggleHooks(ar_beams[i].shock->trigger_cmdshort, HOOK_LOCK, -1);

@@ -136,7 +136,6 @@ public:
     /// - Particles: updates particles (dust, exhausts, custom)
     /// - Display: updates wings; updates props; updates rig-skeleton + cab fade effect; updates debug overlay
     void              updateVisual(float dt=0);
-    void              UpdateActorNetLabels(float dt=0);    //!< Gfx;
     void              setDetailLevel(int v);               //!< @param v 0 = full detail, 1 = no beams
     void              resetAutopilot();
     void              disconnectAutopilot();
@@ -176,11 +175,11 @@ public:
     void              updateDashBoards(float dt);
     void              updateBoundingBox(); 
     void              calculateAveragePosition();
-    void              preUpdatePhysics(float dt);          //!< TIGHT LOOP; Physics;
+    void              checkAndMovePhysicsOrigin();
     void              postUpdatePhysics(float dt);         //!< TIGHT LOOP; Physics;
-    bool              CalcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1); //!< TIGHT LOOP; Physics;
-    void              calcForcesEulerCompute(bool doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1); //!< TIGHT LOOP; Physics;
-    void              calcForcesEulerFinal(int doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1); //!< TIGHT LOOP; Physics;
+    bool              CalcForcesEulerPrepare();            //!< A single physics step (see PHYSICS_DT)
+    void              calcForcesEulerCompute(int step, int num_steps); //!< TIGHT LOOP; Physics;
+    void              calcForcesEulerFinal();              //!< A single physics step (see PHYSICS_DT)
     blinktype         getBlinkType();
     std::vector<authorinfo_t>     getAuthors();
     std::vector<std::string>      getDescription();
@@ -391,12 +390,12 @@ private:
         REQUEST_RESET_FINAL
     };
 
-    void              calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps); // !< TIGHT LOOP; Physics & sound;
-    void              CalcBeamsInterActor(int doUpdate, Ogre::Real dt, int step, int maxsteps); //!< TIGHT LOOP; Physics & sound - only beams between multiple actors (noshock or ropes)
-    void              CalcNodes(float dt, int step, int maxsteps); //!< TIGHT LOOP; Physics;
+    void              calcBeams(bool trigger_hooks);       //!< Single physics step (see PHYSICS_DT); Physics & sound;
+    void              CalcBeamsInterActor();               //!< Physics (1 step) & sound - only beams between multiple actors (noshock or ropes)
+    void              CalcNodes();                         //!< Single physics step (see PHYSICS_DT)
     void              calcHooks();                         //!< TIGHT LOOP; Physics;
     void              calcRopes();                         //!< TIGHT LOOP; Physics;
-    void              calcShocks2(int beam_i, Ogre::Real difftoBeamL, Ogre::Real &k, Ogre::Real &d, Ogre::Real dt, int update);
+    void              calcShocks2(int beam_i, Ogre::Real difftoBeamL, Ogre::Real &k, Ogre::Real &d, bool update_hooks);
     void              calcAnimators(const int flag_state, float &cstate, int &div, float timer, const float lower_limit, const float upper_limit, const float option3);
     void              SyncReset();                         //!< this one should be called only synchronously (without physics running in background)
     void              SetPropsCastShadows(bool do_cast_shadows);
