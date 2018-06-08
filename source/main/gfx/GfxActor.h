@@ -222,6 +222,11 @@ public:
         int                         simbuf_airbrake_state;
         float                       simbuf_wing4_aoa;
         bool                        simbuf_headlight_on;
+        Ogre::Vector3               simbuf_direction; //!< Output of `Actor::getDirection()`
+        int                         simbuf_autopilot_heading;
+        bool                        simbuf_autopilot_ils_available;
+        float                       simbuf_autopilot_ils_vdev;
+        float                       simbuf_autopilot_ils_hdev;
     };
 
     struct Attributes    //!< Actor visual attributes
@@ -231,6 +236,9 @@ public:
         int              xa_num_gears; //!< Gearbox
         float            xa_engine_max_rpm;
         float            xa_brake_force;
+        int              xa_camera0_pos_node;
+        int              xa_camera0_roll_node;
+        bool             xa_has_autopilot;
     };
 
     GfxActor(Actor* actor, std::string ogre_resource_group,

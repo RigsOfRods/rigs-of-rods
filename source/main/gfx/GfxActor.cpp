@@ -24,6 +24,7 @@
 #include "ApproxMath.h"
 #include "AeroEngine.h"
 #include "AirBrake.h"
+#include "AutoPilot.h"
 #include "Beam.h"
 #include "beam_t.h"
 #include "BeamEngine.h" // EngineSim
@@ -91,6 +92,14 @@ RoR::GfxActor::GfxActor(Actor* actor, std::string ogre_resource_group,
     m_attr.xa_speedo_highest_kph = actor->ar_speedo_max_kph; // TODO: Remove the attribute from Actor altogether ~ only_a_ptr, 05/2018
     m_attr.xa_speedo_use_engine_max_rpm = actor->ar_gui_use_engine_max_rpm; // TODO: ditto
     m_attr.xa_brake_force = actor->ar_brake_force;
+    m_attr.xa_camera0_pos_node  = 0;
+    m_attr.xa_camera0_roll_node = 0;
+    m_attr.xa_has_autopilot = (actor->ar_autopilot != nullptr);
+    if (actor->ar_num_cameras > 0)
+    {
+        m_attr.xa_camera0_pos_node  = actor->ar_camera_node_pos[0];
+        m_attr.xa_camera0_roll_node = actor->ar_camera_node_roll[0];
+    }
     if (actor->ar_engine != nullptr)
     {
         m_attr.xa_num_gears = actor->ar_engine->getNumGears();
@@ -1025,6 +1034,8 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_aero_flap_state = m_actor->ar_aerial_flap;
     m_simbuf.simbuf_airbrake_state = m_actor->ar_airbrake_intensity;
     m_simbuf.simbuf_headlight_on = m_actor->ar_lights;
+    m_simbuf.simbuf_direction = m_actor->getDirection();
+    m_simbuf.simbuf_node0_velo = m_actor->ar_nodes[0].Velocity;
     if (m_simbuf.simbuf_net_username != m_actor->m_net_username)
     {
         m_simbuf.simbuf_net_username = m_actor->m_net_username;
@@ -1094,6 +1105,15 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     else
     {
         m_simbuf.simbuf_wing4_aoa = 0.f;
+    }
+
+    // Autopilot
+    if (m_attr.xa_has_autopilot)
+    {
+        m_simbuf.simbuf_autopilot_heading = m_actor->ar_autopilot->heading;
+        m_simbuf.simbuf_autopilot_ils_available = m_actor->ar_autopilot->IsIlsAvailable();
+        m_simbuf.simbuf_autopilot_ils_vdev = m_actor->ar_autopilot->GetVerticalApproachDeviation();
+        m_simbuf.simbuf_autopilot_ils_hdev = m_actor->ar_autopilot->GetHorizontalApproachDeviation();
     }
 }
 

@@ -234,6 +234,10 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
         {
             RoR::App::GetOverlayWrapper()->UpdateLandVehicleHUD(player_gfx_actor);
         }
+        else if (m_simbuf.simbuf_player_actor->ar_driveable == AIRPLANE)
+        {
+            RoR::App::GetOverlayWrapper()->UpdateAerialHUD(player_gfx_actor);
+        }
     }
 
     // Actors - finalize threaded tasks

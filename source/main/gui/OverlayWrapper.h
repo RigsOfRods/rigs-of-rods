@@ -70,7 +70,7 @@ public:
     void UpdatePressureTexture(RoR::GfxActor* ga);
 
     void UpdateLandVehicleHUD(RoR::GfxActor* ga);
-    void UpdateAerialHUD(Actor * vehicle);
+    void UpdateAerialHUD(RoR::GfxActor* ga);
     void UpdateMarineHUD(Actor * vehicle);
 
     void ShowRacingOverlay();

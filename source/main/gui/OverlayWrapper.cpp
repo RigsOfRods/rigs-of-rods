@@ -885,43 +885,50 @@ void OverlayWrapper::UpdateLandVehicleHUD(RoR::GfxActor* ga)
     tachotexture->setTextureRotate(Degree(angle));
 }
 
-void OverlayWrapper::UpdateAerialHUD(Actor* vehicle)
+void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
 {
-    int ftp = vehicle->ar_num_aeroengines;
+    RoR::GfxActor::SimBuffer& simbuf = gfx_actor->GetSimDataBuffer();
+    RoR::GfxActor::NodeData* nodes = gfx_actor->GetSimNodeBuffer();
+    RoR::GfxActor::Attributes& attr = gfx_actor->GetAttributes();
+
+    int ftp = static_cast<int>( simbuf.simbuf_aeroengines.size() );
 
     //throttles
-    thro1->setTop(thrtop + thrheight * (1.0 - vehicle->ar_aeroengines[0]->getThrottle()) - 1.0);
+    thro1->setTop(thrtop + thrheight * (1.0 - simbuf.simbuf_aeroengines[0].simbuf_ae_throttle) - 1.0);
     if (ftp > 1)
-        thro2->setTop(thrtop + thrheight * (1.0 - vehicle->ar_aeroengines[1]->getThrottle()) - 1.0);
+        thro2->setTop(thrtop + thrheight * (1.0 - simbuf.simbuf_aeroengines[1].simbuf_ae_throttle) - 1.0);
     if (ftp > 2)
-        thro3->setTop(thrtop + thrheight * (1.0 - vehicle->ar_aeroengines[2]->getThrottle()) - 1.0);
+        thro3->setTop(thrtop + thrheight * (1.0 - simbuf.simbuf_aeroengines[2].simbuf_ae_throttle) - 1.0);
     if (ftp > 3)
-        thro4->setTop(thrtop + thrheight * (1.0 - vehicle->ar_aeroengines[3]->getThrottle()) - 1.0);
+        thro4->setTop(thrtop + thrheight * (1.0 - simbuf.simbuf_aeroengines[3].simbuf_ae_throttle) - 1.0);
 
     //fire
-    if (vehicle->ar_aeroengines[0]->isFailed())
+    if (simbuf.simbuf_aeroengines[0].simbuf_ae_failed)
         engfireo1->setMaterialName("tracks/engfire-on");
     else
         engfireo1->setMaterialName("tracks/engfire-off");
-    if (ftp > 1 && vehicle->ar_aeroengines[1]->isFailed())
+
+    if (ftp > 1 && simbuf.simbuf_aeroengines[1].simbuf_ae_failed)
         engfireo2->setMaterialName("tracks/engfire-on");
     else
         engfireo2->setMaterialName("tracks/engfire-off");
-    if (ftp > 2 && vehicle->ar_aeroengines[2]->isFailed())
+
+    if (ftp > 2 && simbuf.simbuf_aeroengines[2].simbuf_ae_failed)
         engfireo3->setMaterialName("tracks/engfire-on");
     else
         engfireo3->setMaterialName("tracks/engfire-off");
-    if (ftp > 3 && vehicle->ar_aeroengines[3]->isFailed())
+
+    if (ftp > 3 && simbuf.simbuf_aeroengines[3].simbuf_ae_failed)
         engfireo4->setMaterialName("tracks/engfire-on");
     else
         engfireo4->setMaterialName("tracks/engfire-off");
 
     //airspeed
     float angle = 0.0;
-    float ground_speed_kt = vehicle->ar_nodes[0].Velocity.length() * 1.9438; // 1.943 = m/s in knots/s
+    float ground_speed_kt = simbuf.simbuf_node0_velo.length() * 1.9438; // 1.943 = m/s in knots/s
 
     //tropospheric model valid up to 11.000m (33.000ft)
-    float altitude = vehicle->ar_nodes[0].AbsPosition.y;
+    float altitude = nodes[0].AbsPosition.y;
     //float sea_level_temperature=273.15+15.0; //in Kelvin
     float sea_level_pressure = 101325; //in Pa
     //float airtemperature=sea_level_temperature-altitude*0.0065; //in Kelvin
@@ -943,20 +950,19 @@ void OverlayWrapper::UpdateAerialHUD(Actor* vehicle)
     airspeedtexture->setTextureRotate(Degree(-angle));
 
     // AOA
-    angle = 0;
-    if (vehicle->ar_num_wings > 4)
-        angle = vehicle->ar_wings[4].fa->aoa;
+    angle = simbuf.simbuf_wing4_aoa;
     if (kt < 10.0)
         angle = 0;
     float absangle = angle;
     if (absangle < 0)
         absangle = -absangle;
 
-    SOUND_MODULATE(vehicle, SS_MOD_AOA, absangle);
+    const int actor_id = gfx_actor->GetActorId();
+    SOUND_MODULATE(actor_id, SS_MOD_AOA, absangle);
     if (absangle > 18.0) // TODO: magicccc
-        SOUND_START(vehicle, SS_TRIG_AOA);
+        SOUND_START(actor_id, SS_TRIG_AOA);
     else
-        SOUND_STOP(vehicle, SS_TRIG_AOA);
+        SOUND_STOP(actor_id, SS_TRIG_AOA);
 
     if (angle > 25.0)
         angle = 25.0;
@@ -965,20 +971,20 @@ void OverlayWrapper::UpdateAerialHUD(Actor* vehicle)
     aoatexture->setTextureRotate(Degree(-angle * 4.7 + 90.0));
 
     // altimeter
-    angle = vehicle->ar_nodes[0].AbsPosition.y * 1.1811;
+    angle = nodes[0].AbsPosition.y * 1.1811;
     altimetertexture->setTextureRotate(Degree(-angle));
     char altc[10];
-    sprintf(altc, "%03u", (int)(vehicle->ar_nodes[0].AbsPosition.y / 30.48));
+    sprintf(altc, "%03u", (int)(nodes[0].AbsPosition.y / 30.48));
     alt_value_taoe->setCaption(altc);
 
     //adi
     //roll
-    Vector3 rollv = vehicle->ar_nodes[vehicle->ar_camera_node_pos[0]].RelPosition - vehicle->ar_nodes[vehicle->ar_camera_node_roll[0]].RelPosition;
+    Vector3 rollv = nodes[attr.xa_camera0_pos_node].AbsPosition - nodes[attr.xa_camera0_roll_node].AbsPosition;
     rollv.normalise();
     float rollangle = asin(rollv.dotProduct(Vector3::UNIT_Y));
 
     //pitch
-    Vector3 dirv = vehicle->getDirection();
+    Vector3 dirv = simbuf.simbuf_direction;
     float pitchangle = asin(dirv.dotProduct(Vector3::UNIT_Y));
     Vector3 upv = dirv.crossProduct(-rollv);
     if (upv.y < 0)
@@ -990,16 +996,16 @@ void OverlayWrapper::UpdateAerialHUD(Actor* vehicle)
     //hsi
     float dirangle = atan2(dirv.dotProduct(Vector3::UNIT_X), dirv.dotProduct(-Vector3::UNIT_Z));
     hsirosetexture->setTextureRotate(Radian(dirangle));
-    if (vehicle->ar_autopilot)
+    if (attr.xa_has_autopilot)
     {
-        hsibugtexture->setTextureRotate(Radian(dirangle) - Degree(vehicle->ar_autopilot->heading));
+        hsibugtexture->setTextureRotate(Radian(dirangle) - Degree(simbuf.simbuf_autopilot_heading));
 
         float vdev = 0;
         float hdev = 0;
-        if (vehicle->ar_autopilot->IsIlsAvailable())
+        if (simbuf.simbuf_autopilot_ils_available)
         {
-            vdev = vehicle->ar_autopilot->GetVerticalApproachDeviation();
-            hdev = vehicle->ar_autopilot->GetHorizontalApproachDeviation();
+            vdev = simbuf.simbuf_autopilot_ils_vdev;
+            hdev = simbuf.simbuf_autopilot_ils_hdev;
         }
         if (hdev > 15)
             hdev = 15;
@@ -1014,7 +1020,7 @@ void OverlayWrapper::UpdateAerialHUD(Actor* vehicle)
     }
 
     //vvi
-    float vvi = vehicle->ar_nodes[0].Velocity.y * 196.85;
+    float vvi = simbuf.simbuf_node0_velo.y * 196.85;
     if (vvi < 1000.0 && vvi > -1000.0)
         angle = vvi * 0.047;
     if (vvi > 1000.0 && vvi < 6000.0)
@@ -1028,7 +1034,7 @@ void OverlayWrapper::UpdateAerialHUD(Actor* vehicle)
     vvitexture->setTextureRotate(Degree(-angle + 90.0));
 
     //rpm
-    float pcent = vehicle->ar_aeroengines[0]->getRPMpc();
+    float pcent = simbuf.simbuf_aeroengines[0].simbuf_ae_rpmpc;
     if (pcent < 60.0)
         angle = -5.0 + pcent * 1.9167;
     else if (pcent < 110.0)
@@ -1038,7 +1044,7 @@ void OverlayWrapper::UpdateAerialHUD(Actor* vehicle)
     airrpm1texture->setTextureRotate(Degree(-angle));
 
     if (ftp > 1)
-        pcent = vehicle->ar_aeroengines[1]->getRPMpc();
+        pcent = simbuf.simbuf_aeroengines[1].simbuf_ae_rpmpc;
     else
         pcent = 0;
     if (pcent < 60.0)
@@ -1050,7 +1056,7 @@ void OverlayWrapper::UpdateAerialHUD(Actor* vehicle)
     airrpm2texture->setTextureRotate(Degree(-angle));
 
     if (ftp > 2)
-        pcent = vehicle->ar_aeroengines[2]->getRPMpc();
+        pcent = simbuf.simbuf_aeroengines[2].simbuf_ae_rpmpc;
     else
         pcent = 0;
     if (pcent < 60.0)
@@ -1062,7 +1068,7 @@ void OverlayWrapper::UpdateAerialHUD(Actor* vehicle)
     airrpm3texture->setTextureRotate(Degree(-angle));
 
     if (ftp > 3)
-        pcent = vehicle->ar_aeroengines[3]->getRPMpc();
+        pcent = simbuf.simbuf_aeroengines[3].simbuf_ae_rpmpc;
     else
         pcent = 0;
     if (pcent < 60.0)
@@ -1073,13 +1079,12 @@ void OverlayWrapper::UpdateAerialHUD(Actor* vehicle)
         angle = 314.0;
     airrpm4texture->setTextureRotate(Degree(-angle));
 
-    if (vehicle->ar_aeroengines[0]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP)
+    if (simbuf.simbuf_aeroengines[0].simbuf_ae_turboprop)
     {
-        Turboprop* tp = (Turboprop*)vehicle->ar_aeroengines[0];
         //pitch
-        airpitch1texture->setTextureRotate(Degree(-tp->pitch * 2.0));
+        airpitch1texture->setTextureRotate(Degree(-simbuf.simbuf_aeroengines[0].simbuf_tp_aepitch * 2.0));
         //torque
-        pcent = 100.0 * tp->indicated_torque / tp->max_torque;
+        pcent = simbuf.simbuf_aeroengines[0].simbuf_tp_aetorque;
         if (pcent < 60.0)
             angle = -5.0 + pcent * 1.9167;
         else if (pcent < 110.0)
@@ -1089,13 +1094,12 @@ void OverlayWrapper::UpdateAerialHUD(Actor* vehicle)
         airtorque1texture->setTextureRotate(Degree(-angle));
     }
 
-    if (ftp > 1 && vehicle->ar_aeroengines[1]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP)
+    if (ftp > 1 && simbuf.simbuf_aeroengines[1].simbuf_ae_turboprop)
     {
-        Turboprop* tp = (Turboprop*)vehicle->ar_aeroengines[1];
         //pitch
-        airpitch2texture->setTextureRotate(Degree(-tp->pitch * 2.0));
+        airpitch2texture->setTextureRotate(Degree(-simbuf.simbuf_aeroengines[1].simbuf_tp_aepitch * 2.0));
         //torque
-        pcent = 100.0 * tp->indicated_torque / tp->max_torque;
+        pcent = simbuf.simbuf_aeroengines[1].simbuf_tp_aetorque;
         if (pcent < 60.0)
             angle = -5.0 + pcent * 1.9167;
         else if (pcent < 110.0)
@@ -1105,13 +1109,12 @@ void OverlayWrapper::UpdateAerialHUD(Actor* vehicle)
         airtorque2texture->setTextureRotate(Degree(-angle));
     }
 
-    if (ftp > 2 && vehicle->ar_aeroengines[2]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP)
+    if (ftp > 2 && simbuf.simbuf_aeroengines[2].simbuf_ae_turboprop)
     {
-        Turboprop* tp = (Turboprop*)vehicle->ar_aeroengines[2];
         //pitch
-        airpitch3texture->setTextureRotate(Degree(-tp->pitch * 2.0));
+        airpitch3texture->setTextureRotate(Degree(-simbuf.simbuf_aeroengines[2].simbuf_tp_aepitch * 2.0));
         //torque
-        pcent = 100.0 * tp->indicated_torque / tp->max_torque;
+        pcent = simbuf.simbuf_aeroengines[2].simbuf_tp_aetorque;
         if (pcent < 60.0)
             angle = -5.0 + pcent * 1.9167;
         else if (pcent < 110.0)
@@ -1121,13 +1124,12 @@ void OverlayWrapper::UpdateAerialHUD(Actor* vehicle)
         airtorque3texture->setTextureRotate(Degree(-angle));
     }
 
-    if (ftp > 3 && vehicle->ar_aeroengines[3]->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP)
+    if (ftp > 3 && simbuf.simbuf_aeroengines[3].simbuf_ae_turboprop)
     {
-        Turboprop* tp = (Turboprop*)vehicle->ar_aeroengines[3];
         //pitch
-        airpitch4texture->setTextureRotate(Degree(-tp->pitch * 2.0));
+        airpitch4texture->setTextureRotate(Degree(-simbuf.simbuf_aeroengines[3].simbuf_tp_aepitch * 2.0));
         //torque
-        pcent = 100.0 * tp->indicated_torque / tp->max_torque;
+        pcent = simbuf.simbuf_aeroengines[3].simbuf_tp_aetorque;
         if (pcent < 60.0)
             angle = -5.0 + pcent * 1.9167;
         else if (pcent < 110.0)
@@ -1138,19 +1140,22 @@ void OverlayWrapper::UpdateAerialHUD(Actor* vehicle)
     }
 
     //starters
-    if (vehicle->ar_aeroengines[0]->getIgnition())
+    if (simbuf.simbuf_aeroengines[0].simbuf_ae_ignition)
         engstarto1->setMaterialName("tracks/engstart-on");
     else
         engstarto1->setMaterialName("tracks/engstart-off");
-    if (ftp > 1 && vehicle->ar_aeroengines[1]->getIgnition())
+
+    if (ftp > 1 && simbuf.simbuf_aeroengines[1].simbuf_ae_ignition)
         engstarto2->setMaterialName("tracks/engstart-on");
     else
         engstarto2->setMaterialName("tracks/engstart-off");
-    if (ftp > 2 && vehicle->ar_aeroengines[2]->getIgnition())
+
+    if (ftp > 2 && simbuf.simbuf_aeroengines[2].simbuf_ae_ignition)
         engstarto3->setMaterialName("tracks/engstart-on");
     else
         engstarto3->setMaterialName("tracks/engstart-off");
-    if (ftp > 3 && vehicle->ar_aeroengines[3]->getIgnition())
+
+    if (ftp > 3 && simbuf.simbuf_aeroengines[3].simbuf_ae_ignition)
         engstarto4->setMaterialName("tracks/engstart-on");
     else
         engstarto4->setMaterialName("tracks/engstart-off");

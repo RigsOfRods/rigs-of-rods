@@ -1621,11 +1621,6 @@ void SimController::UpdateSimulation(float dt)
             {
                 // update mouse picking lines, etc
                 RoR::App::GetSceneMouse()->update(dt);
-
-                if (m_player_actor->ar_driveable == AIRPLANE)
-                {
-                    RoR::App::GetOverlayWrapper()->UpdateAerialHUD(m_player_actor);
-                }
             }
             RoR::App::GetGuiManager()->UpdateSimUtils(dt, m_player_actor);
         }
