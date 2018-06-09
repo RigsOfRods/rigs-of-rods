@@ -2673,7 +2673,10 @@ void ActorSpawner::ProcessParticle(RigDef::Particle & def)
     particle.directionNode = GetNodeIndexOrThrow(def.reference_node);
 
     /* Setup visuals */
-    particle.psys = gEnv->sceneManager->createParticleSystem(this->ComposeName("CustomParticles",0), def.particle_system_name);
+    std::stringstream name;
+    name << "cparticle-" << particle_index << "-" << m_actor->ar_design_name;
+    particle.snode = m_parent_scene_node->createChildSceneNode();
+    particle.psys = gEnv->sceneManager->createParticleSystem(name.str(), def.particle_system_name);
     if (particle.psys == nullptr)
     {
         std::stringstream msg;
