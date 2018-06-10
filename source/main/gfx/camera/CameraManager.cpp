@@ -42,6 +42,30 @@
 
 #include <stack>
 
+// ========== Project 'SimCam' (started June 2018) ==========
+// - Eliminate 'gEnv->mainCamera' (pointer to Ogre::Camera)
+//       because it shouldn't be updated and read from externally throughout the simulation cycle;
+//       instead, it should only be updated internally prior to actual rendering.
+// - Eliminate 'gEnv->cameraManager' (RoR object)
+//       because it serves ad-hoc camera updates throughout the simulation cycle
+//       instead, camera should be updated at the end of sim. cycle from the resulting state;
+//       locking controls based on camera mode (free camera) should be governed by SimController instead
+// - Put camera manager under SimController
+//       because camera state is part of sim. state,
+//       also it will help future refactors - current CameraManager does many things it shouldn't
+//       (it's own input processing, manipulating controls...)
+
+// ==== gEnv->mainCamera RESEARCH ====
+//   Character.cpp:                   getPosition()
+//   SceneMouse.cpp:                  getViewport()
+//   DepthOfFieldEffect.cpp:          getFOVy, setFOVy, getPosition, getViewport
+//   EnvironmentMap.cpp:              setFarClipDistance, getFarClipDistance, getBackgroundColour
+//   GfxActor.cpp:                    getPosition(), 
+//   Heathaze.cpp:                    get/addViewport()
+//   HydraxWater.cpp, skyxManager:    getDerivedPosition()
+//   Scripting:                        setPosition  setDirection  setOrientation yaw  pitch  roll  getPosition  getDirection  getOrientation  lookAt
+//   SimController:                   getUp()
+
 using namespace Ogre;
 using namespace RoR;
 
