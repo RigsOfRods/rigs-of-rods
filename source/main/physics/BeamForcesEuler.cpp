@@ -924,7 +924,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
             bool requestpower = false;
             for (int j = 0; j < (int)ar_command_key[i].beams.size(); j++)
             {
-                command_t::CmdBeam& cmd_beam = ar_command_key[i].beams[j];
+                commandbeam_t& cmd_beam = ar_command_key[i].beams[j];
                 int bbeam_dir = (cmd_beam.cmb_is_contraction) ? -1 : 1;
                 int bbeam = cmd_beam.cmb_beam_index;
 

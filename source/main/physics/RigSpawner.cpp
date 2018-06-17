@@ -3439,7 +3439,7 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
 
     /* Add keys */
     command_t* contract_command = &m_actor->ar_command_key[def.contract_key];
-    command_t::CmdBeam cmd_beam;
+    commandbeam_t cmd_beam;
     cmd_beam.cmb_beam_index = static_cast<uint16_t>(beam_index);
     cmd_beam.cmb_is_contraction = true;
     cmd_beam.cmb_is_force_restricted = def.option_f_not_faster;
