@@ -221,6 +221,13 @@ int main(int argc, char *argv[])
 
         App::CreateCacheSystem(); // Reads GVars
 
+        // Initialize "managed materials"
+        // These are base materials referenced by user content
+        // They must be initialized before any content is loaded, including mod-cache update.
+        // Otherwise material links are unresolved and loading ends with an exception
+        // TODO: Study Ogre::ResourceLoadingListener and implement smarter solution (not parsing materials on cache refresh!)
+        App::GetContentManager()->InitManagedMaterials();
+
         App::GetContentManager()->OnApplicationStartup();
 
         App::CreateGuiManagerIfNotExists();
@@ -246,13 +253,6 @@ int main(int argc, char *argv[])
 
         App::CreateInputEngine();
         App::GetInputEngine()->setupDefault(App::GetOgreSubsystem()->GetMainHWND());
-
-        // Initialize "managed materials"
-        // These are base materials referenced by user content
-        // They must be initialized before any content is loaded, including mod-cache update.
-        // Otherwise material links are unresolved and loading ends with an exception
-        // TODO: Study Ogre::ResourceLoadingListener and implement smarter solution (not parsing materials on cache refresh!)
-        App::GetContentManager()->InitManagedMaterials();
 
         if (BSETTING("regen-cache-only", false)) //Can be usefull so we will leave it here -max98
         {
