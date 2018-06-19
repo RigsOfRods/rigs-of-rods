@@ -4951,17 +4951,18 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         node_t *swap = axis_node_1;
         axis_node_1 = axis_node_2;
         axis_node_2 = swap;
-    }	
+    }
 
-    /* Rigidity node */
-    node_t *axis_node_closest_to_rigidity_node = nullptr;
+    /* Find out where to connect rigidity node */
+    bool rigidity_beam_side_1 = false;
     if (wheel_2_def.rigidity_node.IsValidAnyState())
     {
         node_t & rigidity_node = GetNode(wheel_2_def.rigidity_node);
         Ogre::Real distance_1 = (rigidity_node.RelPosition - axis_node_1->RelPosition).length();
         Ogre::Real distance_2 = (rigidity_node.RelPosition - axis_node_2->RelPosition).length();
-        axis_node_closest_to_rigidity_node = ((distance_1 < distance_2)) ? axis_node_1 : axis_node_2;
+        rigidity_beam_side_1 = distance_1 < distance_2;
     }
+
 
     /* Node&beam generation */
     Ogre::Vector3 axis_vector = axis_node_2->RelPosition - axis_node_1->RelPosition;
@@ -4993,7 +4994,7 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         node_t & inner_node = GetFreeNode();
         InitNode(inner_node, ray_point, wheel_2_def.node_defaults);
         inner_node.mass    = node_mass;
-        inner_node.iswheel = WHEEL_2; 
+        inner_node.iswheel = WHEEL_2;
         inner_node.id      = -1; // Orig: hardcoded (addWheel2)
         inner_node.wheelid = m_actor->ar_num_wheels;
 
@@ -5081,14 +5082,15 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         AddWheelRimBeam(wheel_2_def, rim_inner_node, rim_next_inner_node);
         AddWheelRimBeam(wheel_2_def, rim_outer_node, rim_next_inner_node);
         AddWheelRimBeam(wheel_2_def, rim_inner_node, rim_next_outer_node);
-        if (axis_node_closest_to_rigidity_node != nullptr)
+
+        /* -- Rigidity -- */
+        if (wheel_2_def.rigidity_node.IsValidAnyState())
         {
-            beam_t & beam = GetFreeBeam();
-            InitBeam(beam, GetNodePointer(wheel_2_def.rigidity_node), axis_node_closest_to_rigidity_node);
-            beam.bm_type = BEAM_VIRTUAL;
-            beam.k = wheel_2_def.rim_springiness;
-            beam.d = wheel_2_def.rim_damping;
-            SetBeamStrength(beam, wheel_2_def.beam_defaults->breaking_threshold);
+            unsigned int rig_beam_index = AddWheelRimBeam(wheel_2_def,
+                            GetNodePointer(wheel_2_def.rigidity_node),
+                            (rigidity_beam_side_1) ? rim_outer_node : rim_inner_node
+            );
+            m_actor->ar_beams[rig_beam_index].bm_type = BEAM_VIRTUAL;
         }
 
         /* --- Tyre --- */
