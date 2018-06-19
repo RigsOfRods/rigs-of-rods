@@ -6909,7 +6909,7 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
                 if (!skin_mat.isNull())
                 {
                     std::stringstream name_buf;
-                    name_buf << videocam_def->material_name << ACTOR_ID_TOKEN << m_actor->ar_instance_id;
+                    name_buf << skin_mat->getName() << ACTOR_ID_TOKEN << m_actor->ar_instance_id;
                     lookup_entry.material = skin_mat->clone(name_buf.str(), true, m_custom_resource_group);
                     m_material_substitutions.insert(std::make_pair(mat_lookup_name, lookup_entry));
                     return lookup_entry.material;
