@@ -68,7 +68,7 @@ bool intersectsTerrain(Vector3 a, Vector3 b) // internal helper
     return false;
 }
 
-CameraManager::CameraManager() : 
+CameraManager::CameraManager() :
       m_current_behavior(CAMERA_BEHAVIOR_INVALID)
     , m_cam_before_toggled(CAMERA_BEHAVIOR_INVALID)
     , m_prev_toggled_cam(CAMERA_BEHAVIOR_INVALID)
@@ -164,7 +164,7 @@ bool CameraManager::EvaluateSwitchBehavior()
             m_cct_player_actor->NotifyActorCameraChanged();
             return false;
         }
-        return true;    
+        return true;
     }
     case CAMERA_BEHAVIOR_FREE:            return true;
     case CAMERA_BEHAVIOR_FIXED:           return true;
@@ -262,7 +262,7 @@ bool CameraManager::Update(float dt, Actor* player_vehicle, float sim_speed) // 
     if (m_current_behavior != CAMERA_BEHAVIOR_INVALID)
     {
         this->UpdateCurrentBehavior();
-    } 
+    }
     else
     {
         switchBehavior(CAMERA_BEHAVIOR_CHARACTER);
@@ -429,14 +429,14 @@ void CameraManager::DeactivateCurrentBehavior()
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return;
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: {
             Actor* current_vehicle = m_cct_player_actor;
-        if ( current_vehicle == nullptr 
+        if ( current_vehicle == nullptr
             || current_vehicle->GetCameraContext()->behavior != RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_CINECAM )
         {
             return;
         }
 
         gEnv->mainCamera->setFOVy(m_cct_fov_exterior);
-    
+
         current_vehicle->prepareInside(false);
 
         if ( RoR::App::GetOverlayWrapper() != nullptr )
@@ -456,7 +456,7 @@ void CameraManager::DeactivateCurrentBehavior()
     case CAMERA_BEHAVIOR_ISOMETRIC:       return;
     case CAMERA_BEHAVIOR_INVALID:         return;
     default:                              return;
-    }    
+    }
 }
 
 void CameraManager::switchBehavior(int newBehaviorID, bool reset)
@@ -808,7 +808,7 @@ void CameraManager::CameraBehaviorOrbitUpdate()
 
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_RESET))
     {
-        CameraBehaviorOrbitReset();
+        ResetCurrentBehavior();
     }
 
     if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT) && RoR::App::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE))
