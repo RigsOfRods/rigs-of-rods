@@ -28,8 +28,8 @@ THE SOFTWARE.
 
 #pragma once
 
-#include <OgreTerrainPrerequisites.h>
-#include <OgreTerrainMaterialGenerator.h>
+#include <Terrain/OgreTerrainPrerequisites.h>
+#include <Terrain/OgreTerrainMaterialGenerator.h>
 #include <OgreGpuProgramParams.h>
 
 namespace Ogre {

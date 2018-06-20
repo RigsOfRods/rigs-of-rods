@@ -26,14 +26,9 @@
 
 #include "Language.h"
 
-#ifdef ROR_USE_OGRE_1_9
-#	include <Overlay/OgreOverlayManager.h>
-#	include <Overlay/OgreOverlay.h>
-#else
-#	include <OgreOverlayManager.h>
-#	include <OgreOverlayElement.h>
-#	include <OgreTextAreaOverlayElement.h>
-#endif
+#include <Overlay/OgreTextAreaOverlayElement.h>
+#include <Overlay/OgreOverlayManager.h>
+#include <Overlay/OgreOverlay.h>
 
 #include <MyGUI.h>
 #include <MyGUI_IFont.h>
@@ -45,6 +40,7 @@
 #include "Settings.h"
 
 #include <Ogre.h>
+
 
 using namespace Ogre;
 using namespace RoR;

@@ -26,7 +26,7 @@
 #include "EnvironmentMap.h"
 #include "ForceFeedback.h"
 #include "RoRPrerequisites.h"
-
+#include <OgreWindowEventUtilities.h>
 
 #include <Ogre.h>
 

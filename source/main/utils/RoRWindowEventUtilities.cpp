@@ -20,14 +20,16 @@
 
 #include "RoRWindowEventUtilities.h"
 #include <Ogre.h>
+#include <Bites/OgreWindowEventUtilities.h>
 
 // same as original but with user triggerable events
 void RoRWindowEventUtilities::triggerResize(Ogre::RenderWindow* win)
 {
+    /* No Idea...
     WindowEventListeners::iterator index,
         start = _msListeners.lower_bound(win),
         end = _msListeners.upper_bound(win);
     win->windowMovedOrResized();
     for (index = start; index != end; ++index)
-        (index->second)->windowResized(win);
+        (index->second)->windowResized(win);*/
 }

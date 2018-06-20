@@ -39,8 +39,11 @@
 #include <OgreRoot.h>
 #include <OgreConfigFile.h>
 #include <OgreMaterialManager.h>
+#include <OgreTextureManager.h>
+#include <OgreViewport.h>
 #include <OgreRenderWindow.h>
 #include <OgreTimer.h>
+#include <OgreCamera.h>
 
 namespace RoR
 {
@@ -67,7 +70,7 @@ bool OgreSubsystem::Configure()
     bool ok = false;
     if (use_ogre_config)
     {
-        ok = m_ogre_root->showConfigDialog();
+        ok = m_ogre_root->showConfigDialog(NULL);
     }
     else
     {

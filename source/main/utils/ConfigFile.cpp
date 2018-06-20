@@ -66,12 +66,12 @@ Ogre::String ConfigFile::GetStringEx(Ogre::String const& key, Ogre::String const
 
 void ConfigFile::SetString(Ogre::String key, Ogre::String value, Ogre::String section /* = Ogre::StringUtil::BLANK */)
 {
-    SettingsMultiMap* set = mSettings[section];
+    SettingsMultiMap* set = mSettingsPtr[section];
     if (!set)
     {
         // new section
         set = new SettingsMultiMap();
-        mSettings[section] = set;
+        mSettingsPtr[section] = set;
     }
     if (set->count(key))
     {

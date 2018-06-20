@@ -3,7 +3,7 @@
 This source file is part of Hydrax.
 Visit ---
 
-Copyright (C) 2008 Xavier Verguín González <xavierverguin@hotmail.com>
+Copyright (C) 2008 Xavier Verguï¿½n Gonzï¿½lez <xavierverguin@hotmail.com>
                                            <xavyiy@gmail.com>
 
 This program is free software; you can redistribute it and/or modify it under
@@ -25,6 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "Mesh.h"
 
 #include "Hydrax.h"
+#include <OgreMatrix4.h>
 
 namespace Hydrax
 {
@@ -36,8 +37,8 @@ namespace Hydrax
             , mEntity(0)
             , mNumFaces(0)
             , mNumVertices(0)
-            , mVertexBuffer(0)
-            , mIndexBuffer(0)
+            , mVertexBuffer()
+            , mIndexBuffer()
 			, mSceneNode(0)
             , mMaterialName("_NULL_")
     {
@@ -407,7 +408,7 @@ namespace Hydrax
 
 	const Ogre::Vector3 Mesh::getObjectSpacePosition(const Ogre::Vector3& WorldSpacePosition) const
 	{
-		Ogre::Matrix4 mWorldMatrix;
+		Ogre::Affine3 mWorldMatrix;
 
 		if (mCreated)
 		{
@@ -431,12 +432,12 @@ namespace Hydrax
 		    delete mTmpSN;
 		}
 
-		return mWorldMatrix.inverseAffine().transformAffine(WorldSpacePosition);
+		return mWorldMatrix.inverse()*(WorldSpacePosition);
 	}
 
 	const Ogre::Vector3 Mesh::getWorldSpacePosition(const Ogre::Vector3& ObjectSpacePosition) const
 	{
-		Ogre::Matrix4 mWorldMatrix;
+		Ogre::Affine3 mWorldMatrix;
 
 		if (mCreated)
 		{
@@ -460,6 +461,7 @@ namespace Hydrax
 		    delete mTmpSN;
 		}
 
-		return mWorldMatrix.transformAffine(ObjectSpacePosition);
+		//return mWorldMatrix.transformAffine(ObjectSpacePosition);
+		return mWorldMatrix*(ObjectSpacePosition);
 	}
 }

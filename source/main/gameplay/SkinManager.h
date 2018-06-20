@@ -62,17 +62,17 @@ public:
         return nullptr; // Not used
     }
     void parseScript(Ogre::DataStreamPtr& stream, const Ogre::String& groupName) override;
-    void reloadUnreferencedResources(bool reloadableOnly = true) override;
-    void unloadUnreferencedResources(bool reloadableOnly = true) override;
-    void unload     (const Ogre::String& name) override;
-    void unload     (Ogre::ResourceHandle handle) override;
-    void unloadAll  (bool reloadableOnly = true) override;
+    void reloadUnreferencedResources(bool reloadableOnly = true);
+    void unloadUnreferencedResources(bool reloadableOnly = true);
+    void unload     (const Ogre::String& name);
+    void unload     (Ogre::ResourceHandle handle);
+    void unloadAll  (bool reloadableOnly = true);
     
-    void remove     (Ogre::ResourcePtr& r) override;
-    void remove     (const Ogre::String& name) override;
-    void remove     (Ogre::ResourceHandle handle) override;
+    void remove     (Ogre::ResourcePtr& r);
+    void remove     (const Ogre::String& name);
+    void remove     (Ogre::ResourceHandle handle);
     void removeAll  () override;
-    void reloadAll  (bool reloadableOnly = true) override;
+    void reloadAll  (bool reloadableOnly = true);
 
     static void ReplaceMaterialTextures(SkinDef* skin_def, std::string materialName);
 

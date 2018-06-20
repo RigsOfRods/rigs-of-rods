@@ -147,7 +147,7 @@ void ShaderParticleRenderer::_updateRenderQueue(RenderQueue* queue, Ogre::list<P
             addParticle(pDataVB, *pParticle);
             pDataVB += 4 * mVertexSize;
 
-            float fDist = (mParentNode != NULL) ? mParentNode->getPosition().distance(pParticle->position) : pParticle->position.length();
+            float fDist = (mParentNode != NULL) ? mParentNode->getPosition().distance(pParticle->mPosition) : pParticle->mPosition.length();
             if (fDist > mRadius)
                 mRadius = fDist;
         }
@@ -436,9 +436,9 @@ void ShaderParticleRenderer::addParticle(uint8* pDataVB, const Particle& particl
     size_t ofs = 0;
     for (int k=0; k<4; ++k) {
         float* pPosition = reinterpret_cast<float*>(pDataVB + k*mVertexSize + ofs);
-        pPosition[0] = particle.position.x;
-        pPosition[1] = particle.position.y;
-        pPosition[2] = particle.position.z;
+        pPosition[0] = particle.mPosition.x;
+        pPosition[1] = particle.mPosition.y;
+        pPosition[2] = particle.mPosition.z;
         pPosition[3] = k;
     }
     ofs += sizeof(float) * 4;
@@ -447,10 +447,10 @@ void ShaderParticleRenderer::addParticle(uint8* pDataVB, const Particle& particl
     if (mVertexFormatColour) {
         for (int k=0; k<4; ++k) {
             float* pColour = reinterpret_cast<float*>(pDataVB + k*mVertexSize + ofs);
-            pColour[0] = particle.colour.r;
-            pColour[1] = particle.colour.g;
-            pColour[2] = particle.colour.b;
-            pColour[3] = particle.colour.a;
+            pColour[0] = particle.mColour.r;
+            pColour[1] = particle.mColour.g;
+            pColour[2] = particle.mColour.b;
+            pColour[3] = particle.mColour.a;
         }
         ofs += sizeof(float) * 4;
     }
@@ -486,7 +486,7 @@ void ShaderParticleRenderer::addParticle(uint8* pDataVB, const Particle& particl
     if (mVertexFormatRotation) {
         for (int k=0; k<4; ++k) {
             float* pRotation = reinterpret_cast<float*>(pDataVB + k*mVertexSize + ofs);
-            *pRotation = particle.rotation.valueRadians();
+            *pRotation = particle.mRotation.valueRadians();
         }
         ofs += sizeof(float);
     }
@@ -495,7 +495,7 @@ void ShaderParticleRenderer::addParticle(uint8* pDataVB, const Particle& particl
     if (mVertexFormatRotationSpeed) {
         for (int k=0; k<4; ++k) {
             float* pRotation = reinterpret_cast<float*>(pDataVB + k*mVertexSize + ofs);
-            *pRotation = particle.rotationSpeed.valueRadians();
+            *pRotation = particle.mRotationSpeed.valueRadians();
         }
         ofs += sizeof(float);
     }
@@ -504,9 +504,9 @@ void ShaderParticleRenderer::addParticle(uint8* pDataVB, const Particle& particl
     if (mVertexFormatDirection) {
         for (int k=0; k<4; ++k) {
             float* pDirection = reinterpret_cast<float*>(pDataVB + k*mVertexSize + ofs);
-            pDirection[0] = particle.direction.x;
-            pDirection[1] = particle.direction.y;
-            pDirection[2] = particle.direction.z;
+            pDirection[0] = particle.mDirection.x;
+            pDirection[1] = particle.mDirection.y;
+            pDirection[2] = particle.mDirection.z;
         }
         ofs += sizeof(float) * 3;
     }
@@ -515,7 +515,7 @@ void ShaderParticleRenderer::addParticle(uint8* pDataVB, const Particle& particl
     if (mVertexFormatTTL) {
         for (int k=0; k<4; ++k) {
             float* pTime = reinterpret_cast<float*>(pDataVB + k*mVertexSize + ofs);
-            *pTime = particle.timeToLive;
+            *pTime = particle.mTimeToLive;
         }
         ofs += sizeof(float);
     }
@@ -524,14 +524,14 @@ void ShaderParticleRenderer::addParticle(uint8* pDataVB, const Particle& particl
     if (mVertexFormatTTL) {
         for (int k=0; k<4; ++k) {
             float* pTime = reinterpret_cast<float*>(pDataVB + k*mVertexSize + ofs);
-            *pTime = particle.totalTimeToLive;
+            *pTime = particle.mTotalTimeToLive;
         }
         ofs += sizeof(float);
     }
         
     // time fragment
     if (mVertexFormatTimeFragment) {
-        float fFrag = particle.timeToLive / particle.totalTimeToLive;
+        float fFrag = particle.mTimeToLive / particle.mTotalTimeToLive;
         for (int k=0; k<4; ++k) {
             float* pTime = reinterpret_cast<float*>(pDataVB + k*mVertexSize + ofs);
             *pTime = fFrag;
@@ -541,7 +541,7 @@ void ShaderParticleRenderer::addParticle(uint8* pDataVB, const Particle& particl
         
     // inverse time fragment
     if (mVertexFormatTimeFragmentInv) {
-        float fFrag = 1.0f - particle.timeToLive / particle.totalTimeToLive;
+        float fFrag = 1.0f - particle.mTimeToLive / particle.mTotalTimeToLive;
         for (int k=0; k<4; ++k) {
             float* pTime = reinterpret_cast<float*>(pDataVB + k*mVertexSize + ofs);
             *pTime = fFrag;

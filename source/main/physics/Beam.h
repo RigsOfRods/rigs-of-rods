@@ -579,9 +579,9 @@ private:
     {
         inline void Reset()
         {
-            accu_body_forces    = 0;
+            accu_body_forces    = Ogre::Vector3::ZERO;
             accu_hydros_forces  = 0;
-            out_body_forces     = 0;
+            out_body_forces     = Ogre::Vector3::ZERO;
             out_hydros_forces   = 0;
         };
 

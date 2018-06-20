@@ -1,7 +1,7 @@
 # find packages
+find_package(OGRE 1.11 REQUIRED COMPONENTS Bites HLMS Overlay Paging RTShaderSystem MeshLodGenerator Terrain)
 find_package(wxWidgets REQUIRED COMPONENTS base core html net adv)
 find_package(Threads REQUIRED)
-find_package(OGRE REQUIRED)
 find_package(OIS REQUIRED)
 find_package(MyGUI REQUIRED)
 find_package(OpenAL)

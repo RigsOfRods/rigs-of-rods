@@ -23,8 +23,8 @@
 #include "RoRPrerequisites.h"
 
 #include <OgreString.h>
-#include <OgreOverlayElement.h>
-#include <OgreOverlayElementFactory.h>
+#include <Overlay/OgreOverlayElement.h>
+#include <Overlay/OgreOverlayElementFactory.h>
 #include "ColoredTextAreaOverlayElement.h"
 
 /** Factory for creating TextAreaOverlayElement instances. */

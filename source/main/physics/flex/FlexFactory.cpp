@@ -36,6 +36,7 @@
 
 #include <OgreMeshManager.h>
 #include <OgreSceneManager.h>
+#include <MeshLodGenerator/OgreMeshLodGenerator.h>
 
 //#define FLEXFACTORY_DEBUG_LOGGING
 
@@ -438,6 +439,7 @@ void FlexFactory::ResolveFlexbodyLOD(std::string meshname, Ogre::MeshPtr newmesh
         if (i == 1) distance = 20;
         if (i == 2) distance = 50;
         if (i == 3) distance = 200;
-        newmesh->createManualLodLevel(distance, fn);
+        //newmesh->createManualLodLevel(distance, fn);
+        Ogre::MeshLodGenerator::getSingleton().generateAutoconfiguredLodLevels(newmesh);
     }
 }

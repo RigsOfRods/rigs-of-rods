@@ -44,8 +44,8 @@
 #include "Utils.h"
 #include "WriteTextToTexture.h"
 
-#include <OgreRTShaderSystem.h>
-#include <OgreFontManager.h>
+#include <RTShaderSystem/OgreRTShaderSystem.h>
+#include <Overlay/OgreFontManager.h>
 
 #ifdef USE_ANGELSCRIPT
 #    include "ExtinguishableFireAffector.h"
@@ -1065,12 +1065,13 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         }
         if (!strncmp("generateMaterialShaders", ptline, 23))
         {
-            char mat[256] = "";
-            sscanf(ptline, "generateMaterialShaders %s", mat);
+            char matn[256] = "";
+            sscanf(ptline, "generateMaterialShaders %s", matn);
             if (m_use_rtshadersystem)
             {
-                Ogre::RTShader::ShaderGenerator::getSingleton().createShaderBasedTechnique(String(mat), Ogre::MaterialManager::DEFAULT_SCHEME_NAME, Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
-                Ogre::RTShader::ShaderGenerator::getSingleton().invalidateMaterial(RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME, String(mat));
+                MaterialPtr mat = MaterialManager::getSingleton().create(matn,"generatedMaterialShaders");
+                Ogre::RTShader::ShaderGenerator::getSingleton().createShaderBasedTechnique(*mat, Ogre::MaterialManager::DEFAULT_SCHEME_NAME, Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
+                Ogre::RTShader::ShaderGenerator::getSingleton().invalidateMaterial(RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME, matn);
             }
 
             continue;
@@ -1185,7 +1186,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
             w = background->getWidth() * w;
             h = background->getHeight() * h;
 
-            Image::Box box = Image::Box((size_t)x, (size_t)y, (size_t)(x + w), (size_t)(y + h));
+            Box box = Box((size_t)x, (size_t)y, (size_t)(x + w), (size_t)(y + h));
             WriteToTexture(String(text), texture, box, font, ColourValue(r, g, b, a), fs, fdpi, option);
 
             // we can save it to disc for debug purposes:

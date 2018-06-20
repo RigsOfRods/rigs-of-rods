@@ -185,9 +185,10 @@ int main(int argc, char *argv[])
 #endif //USE_CRASHRPT
 
         App::StartOgreSubsystem();
-    #ifdef ROR_USE_OGRE_1_9
         Ogre::OverlaySystem* overlay_system = new Ogre::OverlaySystem(); //Overlay init
-    #endif
+        Ogre::TextureManager::getSingleton().createManual ("EnvironmentTexture",
+            Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_CUBE_MAP, 256, 256, 0,
+            Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET);
 
         App::CreateContentManager();
 
@@ -200,12 +201,10 @@ int main(int argc, char *argv[])
         // Setup rendering (menu + simulation)
         Ogre::SceneManager* scene_manager = App::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "main_scene_manager");
         gEnv->sceneManager = scene_manager;
-    #ifdef ROR_USE_OGRE_1_9
         if (overlay_system)
         {
             scene_manager->addRenderQueueListener(overlay_system);
         }
-    #endif
 
         Ogre::Camera* camera = scene_manager->createCamera("PlayerCam");
         camera->setPosition(Ogre::Vector3(128, 25, 128)); // Position it at 500 in Z direction

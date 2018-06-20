@@ -31,6 +31,7 @@
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #include <direct.h> // for _chdir
+#include <Windows.h>
 #endif
 
 #include "Application.h"

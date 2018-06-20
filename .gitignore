@@ -24,6 +24,7 @@ ror-dependencies-*.zip
 dependencies-*.zip
 _build
 0_build
+build/
 libangelscript_addons*.a
 .idea
 cmake-build-release

@@ -21,7 +21,7 @@
 #pragma once
 
 #include <vector>
-#include <OgreTextAreaOverlayElement.h>
+#include <Overlay/OgreTextAreaOverlayElement.h>
 
 #include "RoRPrerequisites.h"
 

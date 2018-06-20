@@ -4,6 +4,8 @@
 PluginFolder=@OGRE_PLUGIN_DIR_REL@
 
 # Define plugins
+Plugin=Codec_FreeImage
+Plugin=Codec_STBI
 Plugin=RenderSystem_GL
 Plugin=RenderSystem_GL3Plus
 Plugin=Plugin_ParticleFX

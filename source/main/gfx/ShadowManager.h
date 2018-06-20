@@ -24,9 +24,9 @@
 
 #pragma once
 
-#include <OgreTerrain.h>
+#include <Terrain/OgreTerrain.h>
 #include <OgreShadowCameraSetupPSSM.h>
-#include <OgreTerrainMaterialGeneratorA.h>
+#include <Terrain/OgreTerrainMaterialGeneratorA.h>
 
 #include "Application.h"
 #include "RoRPrerequisites.h"

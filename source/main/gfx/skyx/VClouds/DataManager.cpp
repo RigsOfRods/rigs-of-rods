@@ -3,7 +3,7 @@
 This source file is part of SkyX.
 Visit http://www.paradise-studios.net/products/skyx/
 
-Copyright (C) 2009-2012 Xavier Verguín González <xavyiy@gmail.com>
+Copyright (C) 2009-2012 Xavier Verguï¿½n Gonzï¿½lez <xavyiy@gmail.com>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free Software
@@ -599,7 +599,7 @@ namespace SkyX { namespace VClouds
 		buffer->lock(Ogre::HardwareBuffer::HBL_DISCARD);
 		const Ogre::PixelBox &pb = buffer->getCurrentLock();
 
-		Ogre::uint32 *pbptr = static_cast<Ogre::uint32*>(pb.data);
+		Ogre::uint32 *pbptr = reinterpret_cast<Ogre::uint32*>(pb.data);
 		size_t x, y, z;
 
 		for (z=pb.front; z<pb.back; z++) 

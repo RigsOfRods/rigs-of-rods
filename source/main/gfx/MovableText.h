@@ -26,7 +26,7 @@
 #pragma once
 
 #include <Ogre.h>
-#include <OgreFontManager.h>
+#include <Overlay/OgreFontManager.h>
 
 #include "RoRPrerequisites.h"
 

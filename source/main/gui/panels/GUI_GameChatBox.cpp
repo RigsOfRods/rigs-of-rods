@@ -27,6 +27,7 @@
 
 #include <OgreRenderTarget.h>
 #include <OgreRenderWindow.h>
+#include <OgreViewport.h>
 #include <OgreRoot.h>
 
 #include "RoRPrerequisites.h"

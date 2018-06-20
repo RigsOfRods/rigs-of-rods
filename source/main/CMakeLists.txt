@@ -411,23 +411,7 @@ target_link_libraries(${BINNAME} PRIVATE
         )
 
 # --- Ogre 3D graphics engine ---
-target_link_libraries(${BINNAME} PRIVATE
-        ${OGRE_LIBRARIES}
-        ${OGRE_Paging_LIBRARIES}
-        ${OGRE_RTShaderSystem_LIBRARIES}
-        ${OGRE_Terrain_LIBRARIES}
-        )
-target_include_directories(${BINNAME} PRIVATE
-        ${OGRE_INCLUDE_DIRS}
-        ${OGRE_Paging_INCLUDE_DIRS}
-        ${OGRE_RTShaderSystem_INCLUDE_DIRS}
-        ${OGRE_Terrain_INCLUDE_DIRS}
-        )
-if (OGRE_VERSION VERSION_GREATER 1.8)
-    target_link_libraries(${BINNAME} PRIVATE ${OGRE_Overlay_LIBRARIES})
-    target_include_directories(${BINNAME} PRIVATE ${OGRE_Overlay_INCLUDE_DIRS})
-endif ()
-
+target_link_libraries(${BINNAME} PRIVATE OgreMain OgreBites OgreRTShaderSystem OgreOverlay OgreTerrain OgreMeshLodGenerator OgreHLMS)
 
 # --- Object Oriented Input System ---
 target_link_libraries(${BINNAME} PRIVATE ${OIS_LIBRARIES})
@@ -500,6 +484,11 @@ if (CURL_FOUND)
     target_link_libraries(${BINNAME} PRIVATE ${CURL_LIBRARY})
     target_include_directories(${BINNAME} PRIVATE ${CURL_INCLUDE_DIR})
     target_compile_definitions(${BINNAME} PRIVATE USE_CURL)
+
+	if (WIN32)
+		add_definitions(-DWIN32_LEAN_AND_MEAN)
+	endif ()
+	
 else ()
     message(WARNING "Building ${BINNAME} without cURL. Some functionality may be missing.")
 endif ()
@@ -559,12 +548,16 @@ if (WIN32)
             OgreOverlay.dll
             OgrePaging.dll
             OgreTerrain.dll
+            OgreBites.dll
+            OgreMeshLodGenerator.dll
             OgreRTShaderSystem.dll
             Plugin_CgProgramManager.dll
             Plugin_OctreeSceneManager.dll
             Plugin_ParticleFX.dll
             RenderSystem_GL.dll
             RenderSystem_Direct3D9.dll
+            Codec_FreeImage.dll
+            Codec_STBI.dll
             plugins.cfg
             OIS.dll
             cg.dll
@@ -636,10 +629,11 @@ add_custom_target(
 )
 
 IF (UNIX)
-    configure_file(plugins.cfg.in ${TMP_FILE_DIR}/plugins.cfg)
+    find_file (plugins_cfg plugins.cfg PATHS ${OGRE_CONFIG_DIR})
+
     add_custom_command(
             TARGET ${BINNAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy ${TMP_FILE_DIR}/plugins.cfg $<TARGET_FILE_DIR:${BINNAME}>/
+            COMMAND ${CMAKE_COMMAND} -E copy ${plugins_cfg} $<TARGET_FILE_DIR:${BINNAME}>/
     )
 
     INSTALL(
@@ -654,7 +648,7 @@ IF (UNIX)
             FILES_MATCHING PATTERN "*"
     )
     INSTALL(
-            FILES ${TMP_FILE_DIR}/plugins.cfg
+            FILES ${plugins_cfg}
             DESTINATION games/RoR
     )
 ELSEIF (WIN32)

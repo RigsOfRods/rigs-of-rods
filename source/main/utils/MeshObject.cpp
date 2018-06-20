@@ -28,6 +28,7 @@
 #include "Settings.h"
 #include "OgreSubsystem.h"
 #include "TerrainManager.h"
+#include "MeshLodGenerator/OgreMeshLodGenerator.h"
 
 using namespace Ogre;
 using namespace RoR;
@@ -149,7 +150,8 @@ void MeshObject::postProcess()
             }
 
             Ogre::MeshManager::getSingleton().load(iterFiles->filename, mesh->getGroup());
-            mesh->createManualLodLevel(distance, iterFiles->filename);
+            //mesh->createManualLodLevel(distance, iterFiles->filename);
+            MeshLodGenerator::getSingleton().generateAutoconfiguredLodLevels(mesh);
         }
 
         // the custom LODs
@@ -164,7 +166,8 @@ void MeshObject::postProcess()
                 continue;
 
             Ogre::MeshManager::getSingleton().load(iterFiles->filename, mesh->getGroup());
-            mesh->createManualLodLevel(i, iterFiles->filename);
+            //mesh->createManualLodLevel(i, iterFiles->filename);
+            MeshLodGenerator::getSingleton().generateAutoconfiguredLodLevels(mesh);
         }
     }
 

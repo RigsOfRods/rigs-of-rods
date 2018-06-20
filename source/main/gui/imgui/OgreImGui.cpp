@@ -430,7 +430,7 @@ void OgreImGui::createFontTexture()
     mFontTex = Ogre::TextureManager::getSingleton().createManual("ImguiFontTex",Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,Ogre::TEX_TYPE_2D,width,height,1,1,Ogre::PF_R8G8B8A8);
 
     // Lock texture for writing
-    const Ogre::PixelBox & lockBox = mFontTex->getBuffer()->lock(Ogre::Image::Box(0, 0, width, height), Ogre::HardwareBuffer::HBL_DISCARD);
+    const Ogre::PixelBox & lockBox = mFontTex->getBuffer()->lock(Ogre::Box(0, 0, width, height), Ogre::HardwareBuffer::HBL_DISCARD);
 
     // Copy texture to ImGui
     size_t texDepth = Ogre::PixelUtil::getNumElemBytes(lockBox.format);

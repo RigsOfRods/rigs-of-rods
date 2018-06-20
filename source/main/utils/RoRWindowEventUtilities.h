@@ -21,7 +21,7 @@
 #pragma once
 
 #include "RoRPrerequisites.h"
-#include <OgreWindowEventUtilities.h>
+#include <Bites/OgreWindowEventUtilities.h>
 
 // same as original but with user triggerable events
 class RoRWindowEventUtilities : public Ogre::WindowEventUtilities, public ZeroedMemoryAllocator

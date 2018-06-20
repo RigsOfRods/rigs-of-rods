@@ -25,6 +25,7 @@
 
 #include <OgreImage.h>
 #include <OgrePrerequisites.h>
+#include <Overlay/OgreFont.h>
 
 #include "RoRPrerequisites.h"
 
@@ -49,4 +50,4 @@ void SaveImage(Ogre::TexturePtr TextureToSave, Ogre::String filename);
  *  @param justify 'l' = left aligned, 'c' = centered, 'r' = right aligned.
  *  @param wordwrap if true the line will only be wrapped after a word.
  */
-void WriteToTexture(const Ogre::String& str, Ogre::TexturePtr destTexture, Ogre::Image::Box destRectangle, Ogre::Font* font, const Ogre::ColourValue& color, int fontSize = 15, int fontDPI = 400, char justify = 'l', bool wordwrap = true);
+void WriteToTexture(const Ogre::String& str, Ogre::TexturePtr destTexture, Ogre::Box destRectangle, Ogre::Font* font, const Ogre::ColourValue& color, int fontSize = 15, int fontDPI = 400, char justify = 'l', bool wordwrap = true);
