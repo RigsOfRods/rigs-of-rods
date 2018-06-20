@@ -26,6 +26,7 @@
 #include "CacheSystem.h"
 
 #include <OgreFileSystem.h>
+#include <OgreException.h>
 
 #include "Application.h"
 #include "BeamData.h"
@@ -1466,19 +1467,16 @@ void CacheSystem::addFile(String filename, String archiveType, String archiveDir
             // read in author and category
             entries.push_back(entry);
         }
+        catch (ItemIdentityException& e)
+        {
+            LOG(" *** error opening archive '"+filename+"': some files are duplicates of existing files. The file will be ignored.");
+            LOG("error while opening resource: " + e.getFullDescription());
+        }
         catch (Ogre::Exception& e)
         {
-            if (e.getNumber() == Ogre::Exception::ERR_DUPLICATE_ITEM)
-            {
-                LOG(" *** error opening archive '"+filename+"': some files are duplicates of existing files. The file will be ignored.");
-                LOG("error while opening resource: " + e.getFullDescription());
-            }
-            else
-            {
-                LOG("error while opening resource: " + e.getFullDescription());
-                LOG("error opening archive '"+String(filename)+"'. Is it corrupt?");
-                LOG("trying to continue ...");
-            }
+            LOG("error while opening resource: " + e.getFullDescription());
+            LOG("error opening archive '"+String(filename)+"'. Is it corrupt?");
+            LOG("trying to continue ...");
         }
     }
 }
@@ -2170,21 +2168,18 @@ bool CacheSystem::checkResourceLoaded(CacheEntry t)
             ResourceGroupManager::getSingleton().initialiseResourceGroup(name);
             return true;
         }
+        catch (ItemIdentityException& e)
+        {
+            LOG(" *** error opening '"+t.dirname+"': some files are duplicates of existing files. The archive/directory will be ignored.");
+            LOG("error while opening resource: " + e.getFullDescription());
+        }
         catch (Ogre::Exception& e)
         {
-            if (e.getNumber() == Ogre::Exception::ERR_DUPLICATE_ITEM)
-            {
-                LOG(" *** error opening '"+t.dirname+"': some files are duplicates of existing files. The archive/directory will be ignored.");
-                LOG("error while opening resource: " + e.getFullDescription());
-            }
-            else
-            {
-                LOG("error opening '"+t.dirname+"'.");
-                if (t.type == "Zip")
+            LOG("error opening '"+t.dirname+"'.");
+            if (t.type == "Zip")
                 LOG("Is the zip archive corrupt? Error: " + e.getFullDescription());
-                LOG("Error description : " + e.getFullDescription());
-                LOG("trying to continue ...");
-            }
+            LOG("Error description : " + e.getFullDescription());
+            LOG("trying to continue ...");
         }
     }
     return false;
@@ -2240,19 +2235,16 @@ void CacheSystem::loadSingleDirectory(String dirname, String group, bool already
             ResourceGroupManager::getSingleton().destroyResourceGroup(rgname);
         }
     }
+    catch (ItemIdentityException& e)
+    {
+        LOG(" *** error opening directory '" + dirname + "': some files are duplicates of existing files. The directory will be ignored.");
+        LOG("error while opening resource: " + e.getFullDescription());
+    }
     catch (Ogre::Exception& e)
     {
-        if (e.getNumber() == Ogre::Exception::ERR_DUPLICATE_ITEM)
-        {
-            LOG(" *** error opening directory '"+dirname+"': some files are duplicates of existing files. The directory will be ignored.");
-            LOG("error while opening resource: " + e.getFullDescription());
-        }
-        else
-        {
-            LOG("error while loading directory: " + e.getFullDescription());
-            LOG("error opening directory '"+dirname+"'");
-            LOG("trying to continue ...");
-        }
+        LOG("error while loading directory: " + e.getFullDescription());
+        LOG("error opening directory '"+dirname+"'");
+        LOG("trying to continue ...");
     }
 }
 
@@ -2317,19 +2309,16 @@ void CacheSystem::loadSingleZip(String zippath, int cfactor, bool unload, bool o
             rgm.destroyResourceGroup(rgname);
         }
     }
+    catch (ItemIdentityException& e)
+    {
+        LOG(" *** error opening archive '"+realzipPath+"': some files are duplicates of existing files. The archive will be ignored.");
+        LOG("error while opening resource: " + e.getFullDescription());
+    }
     catch (Ogre::Exception& e)
     {
-        if (e.getNumber() == Ogre::Exception::ERR_DUPLICATE_ITEM)
-        {
-            LOG(" *** error opening archive '"+realzipPath+"': some files are duplicates of existing files. The archive will be ignored.");
-            LOG("error while opening resource: " + e.getFullDescription());
-        }
-        else
-        {
-            LOG("error while loading single Zip: " + e.getFullDescription());
-            LOG("error opening archive '"+realzipPath+"'. Is it corrupt? Ignoring that archive ...");
-            LOG("trying to continue ...");
-        }
+        LOG("error while loading single Zip: " + e.getFullDescription());
+        LOG("error opening archive '"+realzipPath+"'. Is it corrupt? Ignoring that archive ...");
+        LOG("trying to continue ...");
     }
 }
 
@@ -2464,11 +2453,8 @@ void CacheSystem::checkForNewContent()
 std::time_t CacheSystem::fileTime(Ogre::String filename)
 {
     FileSystemArchiveFactory FSAF;
-#ifdef ROR_USE_OGRE_1_9
+
     Archive* fsa = FSAF.createInstance(filename, true);
-#else
-    Archive *fsa = FSAF.createInstance(filename);
-#endif
 
     std::time_t ft = fsa->getModifiedTime(filename);
 

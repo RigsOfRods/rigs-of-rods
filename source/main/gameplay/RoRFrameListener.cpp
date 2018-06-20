@@ -85,6 +85,8 @@
 #include <limits>
 #include <sstream>
 
+#include <OgreOverlayManager.h>
+
 #ifdef USE_MPLATFORM
 #include "MPlatformFD.h"
 #endif //USE_MPLATFORM
@@ -94,6 +96,9 @@
 #else
 #include <stdio.h>
 #include <wchar.h>
+
+#include <Overlay/OgreOverlayManager.h>
+
 #endif
 
 // some gcc fixes

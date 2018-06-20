@@ -32,8 +32,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <OgrePrerequisites.h>
 #if OGRE_VERSION < 0x010701
 #	error You need at least Ogre version 1.7.1, older versions are not supported
-#elif OGRE_VERSION >= 0x010900
-#	define ROR_USE_OGRE_1_9
 #endif
 
 // add some ogre headers
@@ -49,9 +47,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <OgreVector3.h>
 
 
-#ifdef ROR_USE_OGRE_1_9
-#	include <Overlay/OgreOverlaySystem.h>
-#endif
+
+#include <Overlay/OgreOverlaySystem.h>
+
 
 #include "ForwardDeclarations.h"
 #include "GlobalEnvironment.h"

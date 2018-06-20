@@ -18,6 +18,7 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <MyGUI_Platform.h>
 #if MYGUI_PLATFORM == MYGUI_PLATFORM_WIN32
 #include <Windows.h>
 #endif

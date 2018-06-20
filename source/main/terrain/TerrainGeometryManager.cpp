@@ -32,7 +32,7 @@
 #include "Utils.h"
 
 #include <OgreLight.h>
-#include <OgreTerrainGroup.h>
+#include <Terrain/OgreTerrainGroup.h>
 
 using namespace Ogre;
 using namespace RoR;

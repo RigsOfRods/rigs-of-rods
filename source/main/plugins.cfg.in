@@ -4,6 +4,8 @@
 PluginFolder=@PLUGINS_FOLDER@
 
 # Define plugins
+Plugin=Codec_FreeImage
+Plugin=Codec_STBI
 Plugin=RenderSystem_GL
 @CFG_OGRE_RENDERSYSTEM_D3D9@
 Plugin=Plugin_ParticleFX
