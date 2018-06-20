@@ -28,7 +28,7 @@
 #include "OgreImGui.h"
 #include "RoRPrerequisites.h"
 
-#include <OgreWindowEventUtilities.h>
+#include <Bites/OgreWindowEventUtilities.h>
 #include <OgreFrameListener.h>
 #include <MyGUI_UString.h>
 

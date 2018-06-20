@@ -454,23 +454,7 @@ target_link_libraries(${BINNAME} PRIVATE
         )
 
 # --- Ogre 3D graphics engine ---
-target_link_libraries(${BINNAME} PRIVATE
-        ${OGRE_LIBRARIES}
-        ${OGRE_Paging_LIBRARIES}
-        ${OGRE_RTShaderSystem_LIBRARIES}
-        ${OGRE_Terrain_LIBRARIES}
-        )
-target_include_directories(${BINNAME} PRIVATE
-        ${OGRE_INCLUDE_DIRS}
-        ${OGRE_Paging_INCLUDE_DIRS}
-        ${OGRE_RTShaderSystem_INCLUDE_DIRS}
-        ${OGRE_Terrain_INCLUDE_DIRS}
-        )
-if (OGRE_VERSION VERSION_GREATER 1.8)
-    target_link_libraries(${BINNAME} PRIVATE ${OGRE_Overlay_LIBRARIES})
-    target_include_directories(${BINNAME} PRIVATE ${OGRE_Overlay_INCLUDE_DIRS})
-endif ()
-
+target_link_libraries(${BINNAME} PRIVATE OgreMain OgreBites OgreRTShaderSystem OgreOverlay OgreTerrain OgreMeshLodGenerator OgreHLMS)
 
 # --- Object Oriented Input System ---
 target_link_libraries(${BINNAME} PRIVATE ${OIS_LIBRARIES})
@@ -551,6 +535,11 @@ if (CURL_FOUND)
     target_link_libraries(${BINNAME} PRIVATE ${CURL_LIBRARY})
     target_include_directories(${BINNAME} PRIVATE ${CURL_INCLUDE_DIR})
     target_compile_definitions(${BINNAME} PRIVATE USE_CURL)
+
+	if (WIN32)
+		add_definitions(-DWIN32_LEAN_AND_MEAN)
+	endif ()
+	
 else ()
     message(WARNING "Building ${BINNAME} without cURL. Some functionality may be missing.")
 endif ()

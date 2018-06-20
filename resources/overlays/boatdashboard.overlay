@@ -1,7 +1,7 @@
 overlay tracks/BoatDashboardOverlay
 {
 	zorder 20
-	
+
 	container Panel (tracks/boatsteer)
 		{
 			metrics_mode relative
@@ -13,7 +13,7 @@ overlay tracks/BoatDashboardOverlay
 			top -0.11
 			height 0.10
 			material tracks/boatsteer/bg_mat
-		}        
+		}
 
 	container Panel (tracks/boatdashbar)
 		{
@@ -59,7 +59,7 @@ overlay tracks/BoatDashboardOverlay
 			height 0.11
 			material tracks/boatspeed
 		}
-		
+
 	container Panel (tracks/boatdepthmeter)
 		{
 			metrics_mode relative
@@ -78,13 +78,13 @@ overlay tracks/BoatDashboardOverlay
 				width 0.05
 				top 0.02
 				height 0.05
-				font_name cent_black
+				//font_name cent_black
 				char_height 0.05
 				colour_top 1 1 1
 				colour_bottom 1 1 1
 				caption 25.1
 			}
-		}		
+		}
 
 	container Panel (tracks/boatthrusttrack1)
 		{

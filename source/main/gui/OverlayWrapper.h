@@ -29,7 +29,7 @@
 
 #include "RoRPrerequisites.h"
 
-#include <OgreTextAreaOverlayElement.h>
+#include <Overlay/OgreTextAreaOverlayElement.h>
 #include <OIS.h>
 
 class OverlayWrapper : public ZeroedMemoryAllocator

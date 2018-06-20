@@ -28,10 +28,12 @@
 #include <OgreParticle.h>
 #include <OgreStringConverter.h>
 #include <OgreParticleSystemManager.h>
+#include <OgreParticle.h>
 
 #include "RoRPrerequisites.h"
 
 #include "ExtinguishableFireAffectorFactory.h"
+
 
 namespace Ogre {
 
@@ -97,10 +99,10 @@ void FireExtinguisherAffector::_affectParticles(ParticleSystem* pSystem, Real ti
         {
             p = pi.getNext();
 
-            if ( middlePoint.squaredDistance(p->position) < squaredRadius )
+            if ( middlePoint.squaredDistance(p->mPosition) < squaredRadius )
             {
                 // This particle is inside the fire, dispose of it in the next update
-                p->timeToLive = 0;
+                p->mTimeToLive = 0;
                 ++fireHits;
             }
         }

@@ -26,6 +26,7 @@
 #pragma once
 
 #include <imgui.h>
+#include <OgreString.h>
 #include <OgreCommon.h>
 #include <OISMouse.h>
 #include <OISKeyboard.h>
@@ -110,4 +111,3 @@ private:
     Ogre::SceneManager*         mSceneMgr;
 
 };
-

@@ -22,13 +22,13 @@
 
 #include "Application.h"
 
-#include <OgreFont.h>
+#include <Overlay/OgreFont.h>
 #include <OgreHardwarePixelBuffer.h>
 #include <OgreMaterial.h>
 #include <OgreTechnique.h>
 #include <OgreTexture.h>
 #include <OgreTextureManager.h>
-#include <OgreFontManager.h>
+#include <Overlay/OgreFontManager.h>
 
 // source: ogre wiki: http://www.ogre3d.org/tikiwiki/tiki-index.php?page=HowTo%3A+Write+text+on+texture
 using namespace Ogre;
@@ -49,7 +49,7 @@ void SaveImage(TexturePtr TextureToSave, String filename)
     readbuffer->unlock();
 }
 
-void WriteToTexture(const String& str, TexturePtr destTexture, Image::Box destRectangle, Ogre::Font* Reffont, const ColourValue& color, int fontSize, int fontDPI, char justify, bool wordwrap)
+void WriteToTexture(const String& str, TexturePtr destTexture, Ogre::Box destRectangle, Ogre::Font* Reffont, const ColourValue& color, int fontSize, int fontDPI, char justify, bool wordwrap)
 {
     using namespace Ogre;
 

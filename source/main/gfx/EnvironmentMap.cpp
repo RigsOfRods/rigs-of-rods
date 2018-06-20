@@ -21,13 +21,8 @@
 #include "EnvironmentMap.h"
 
 #include <Ogre.h>
-#ifdef ROR_USE_OGRE_1_9
-#   include <Overlay/OgreOverlayManager.h>
-#   include <Overlay/OgreOverlay.h>
-#else
-#   include <OgreOverlayManager.h>
-#   include <OgreOverlayElement.h>
-#endif
+#include <Overlay/OgreOverlayManager.h>
+#include <Overlay/OgreOverlay.h>
 
 #include "Application.h"
 #include "Beam.h"
@@ -47,9 +42,7 @@ void RoR::GfxEnvmap::SetupEnvMap()
 {
     m_is_enabled = !BSETTING("Envmapdisable", false); // TODO: Use a GVar!! Postponed until the 'IMGUI' gVar refactor is merged to upstream ~ only_a_ptr, 08/2017
 
-    m_rtt_texture = Ogre::TextureManager::getSingleton().createManual("EnvironmentTexture",
-        Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_CUBE_MAP, 256, 256, 0,
-        Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET);
+    m_rtt_texture = Ogre::TextureManager::getSingleton().getByName("EnvironmentTexture");
 
     for (int face = 0; face < NUM_FACES; face++)
     {

@@ -94,7 +94,7 @@ public:
     void EnumReferences(AngelScript::asIScriptEngine* engine);
     void ReleaseAllReferences(AngelScript::asIScriptEngine* engine);
 
-    SettingsBySection getSettings() { return mSettings; }
+    SettingsBySection getSettings() { return mSettingsPtr; }
     std::string getFilename() { return filename; }
     std::string getSection() { return sectionName; }
 
