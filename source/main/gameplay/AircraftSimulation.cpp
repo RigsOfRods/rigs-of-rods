@@ -21,12 +21,8 @@
 
 #include "AircraftSimulation.h"
 
-#ifdef ROR_USE_OGRE_1_9
-#   include <Overlay/OgreOverlayManager.h>
-#else
-#   include <OgreOverlayManager.h>
-#   include <OgreOverlayElement.h>
-#endif
+#include <Overlay/OgreOverlayManager.h>
+#include <Overlay/OgreOverlayElement.h>
 
 #include "AeroEngine.h"
 #include "Application.h"
@@ -100,14 +96,8 @@ void AircraftSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_last_
         vehicle->ToggleParkingBrake();
         if (RoR::App::GetOverlayWrapper())
         {
-            if (vehicle->ar_parking_brake)
-            {
-                Ogre::OverlayManager::getSingleton().getOverlayElement("tracks/ap_brks_but")->setMaterialName("tracks/brks-on");
-            }
-            else
-            {
-                Ogre::OverlayManager::getSingleton().getOverlayElement("tracks/ap_brks_but")->setMaterialName("tracks/brks-off");
-            }
+            Ogre::OverlayManager::getSingleton().getOverlayElement("tracks/ap_brks_but")->setMaterialName(
+                    vehicle->ar_parking_brake ? "tracks/brks-on" : "tracks/brks-off");
         }
     }
     //reverse

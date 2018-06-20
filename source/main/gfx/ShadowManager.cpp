@@ -21,7 +21,11 @@
 #include "ShadowManager.h"
 
 #include <Ogre.h>
-#include <OgreTerrain.h>
+#include <Terrain/OgreTerrain.h>
+#include <Overlay/OgreOverlayManager.h>
+#include <Overlay/OgreOverlayContainer.h>
+#include <Overlay/OgreOverlay.h>
+#include <OgreMaterialManager.h>
 
 #include "Settings.h"
 
@@ -109,7 +113,8 @@ void ShadowManager::processPSSM()
     gEnv->sceneManager->setShadowCasterRenderBackFaces(true);
 
     //Caster is set via materials
-    gEnv->sceneManager->setShadowTextureCasterMaterial("Ogre/shadow/depth/caster");
+    MaterialPtr shadowMat = MaterialManager::getSingleton().getByName("Ogre/shadow/depth/caster");
+    gEnv->sceneManager->setShadowTextureCasterMaterial(shadowMat);
 
     if (PSSM_Shadows.Quality == 3)
     {

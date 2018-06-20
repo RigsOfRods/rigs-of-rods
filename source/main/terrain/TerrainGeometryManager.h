@@ -26,7 +26,7 @@
 #include "OTCFileformat.h"
 
 #include <OgreVector3.h>
-#include <OgreTerrain.h>
+#include <Terrain/OgreTerrain.h>
 
 // forward
 namespace Ogre { class Terrain; class TerrainGroup; class TerrainPaging; class PageManager; }

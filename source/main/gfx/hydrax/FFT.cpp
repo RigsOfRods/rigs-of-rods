@@ -3,7 +3,7 @@
 This currentWaves file is part of Hydrax.
 Visit ---
 
-Copyright (C) 2008 Xavier VerguÌn Gonz·lez <xavierverguin@hotmail.com>
+Copyright (C) 2008 Xavier Vergu√≠n Gonz√°lez <xavierverguin@hotmail.com>
                                            <xavyiy@gmail.com>
 
 This program is free software; you can redistribute it and/or modify it under
@@ -23,6 +23,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 
 #include "FFT.h"
+#include "OgrePixelFormat.h"
 
 #include <Hydrax.h>
 
@@ -369,7 +370,7 @@ namespace Hydrax{namespace Noise
 
 	void FFT::_updateGPUNormalMapResources()
 	{
-		unsigned short *Data;
+		Ogre::uchar *Data;
 		Ogre::HardwarePixelBufferSharedPtr PixelBuffer
 			= mGPUNormalMapManager->getTexture(0)->getBuffer();
 
@@ -377,11 +378,11 @@ namespace Hydrax{namespace Noise
 
 		const Ogre::PixelBox& PixelBox = PixelBuffer->getCurrentLock();
 
-		Data = static_cast<unsigned short*>(PixelBox.data);
+		Data = PixelBox.data;
 
 		for (int u = 0; u < resolution*resolution; u++)
 		{
-			Data[u] = static_cast<int>(re[u]*65535);
+			Data[u] = (re[u]*65535);
 		}
 
 		PixelBuffer->unlock();

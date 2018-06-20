@@ -33,7 +33,7 @@
 
 #include <map>
 #include <OgreFrameListener.h>
-#include <OgreWindowEventUtilities.h>
+#include <Bites/OgreWindowEventUtilities.h>
 
 class GameScript;
 

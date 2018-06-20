@@ -3,7 +3,7 @@
 This source file is part of Hydrax.
 Visit ---
 
-Copyright (C) 2008 Xavier Verguín González <xavierverguin@hotmail.com>
+Copyright (C) 2008 Xavier Verguï¿½n Gonzï¿½lez <xavierverguin@hotmail.com>
                                            <xavyiy@gmail.com>
 
 This program is free software; you can redistribute it and/or modify it under
@@ -377,7 +377,7 @@ namespace Hydrax{namespace Noise
 
 	void Perlin::_updateGPUNormalMapResources()
 	{
-		unsigned short *Data;
+        unsigned short *Data;
 		int Offset;
 		Ogre::HardwarePixelBufferSharedPtr PixelBuffer;
 
@@ -389,7 +389,7 @@ namespace Hydrax{namespace Noise
 			PixelBuffer->lock(Ogre::HardwareBuffer::HBL_DISCARD);
 			const Ogre::PixelBox& PixelBox = PixelBuffer->getCurrentLock();
 
-			Data = static_cast<unsigned short*>(PixelBox.data);
+            Data = reinterpret_cast<unsigned short*>(PixelBox.data);
 
 			for (int u = 0; u < np_size_sq; u++)
 			{

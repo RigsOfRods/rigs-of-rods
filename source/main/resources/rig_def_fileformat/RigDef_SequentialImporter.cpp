@@ -23,6 +23,7 @@
 /// @author Petr Ohlidal
 /// @date   04/2015
 
+#include <iomanip>
 #include "RigDef_SequentialImporter.h"
 
 #include "RigDef_Parser.h"

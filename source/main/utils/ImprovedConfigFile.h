@@ -66,7 +66,7 @@ public:
 
     bool hasSetting(Ogre::String key, Ogre::String section = "")
     {
-        return (mSettings.find(section) != mSettings.end() && mSettings[section]->find(key) != mSettings[section]->end());
+        return (mSettingsPtr.find(section) != mSettingsPtr.end() && mSettingsPtr[section]->find(key) != mSettingsPtr[section]->end());
     }
 
     bool save()
@@ -92,7 +92,7 @@ public:
         }
 
         SettingsBySection::iterator secIt;
-        for (secIt = mSettings.begin(); secIt != mSettings.end(); secIt++)
+        for (secIt = mSettingsPtr.begin(); secIt != mSettingsPtr.end(); secIt++)
         {
             if (secIt->first.size() > 0)
                 fprintf(f, "[%s]\n", secIt->first.c_str());
@@ -108,12 +108,12 @@ public:
 
     void setSetting(Ogre::String key, Ogre::String value, Ogre::String section = Ogre::StringUtil::BLANK)
     {
-        SettingsMultiMap* set = mSettings[section];
+        SettingsMultiMap* set = mSettingsPtr[section];
         if (!set)
         {
             // new section
             set = new SettingsMultiMap();
-            mSettings[section] = set;
+            mSettingsPtr[section] = set;
         }
         if (set->count(key))
         // known key, delete old first

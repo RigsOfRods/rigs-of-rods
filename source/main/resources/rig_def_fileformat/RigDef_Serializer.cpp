@@ -29,6 +29,7 @@
 
 #include <fstream>
 #include <OgreStringConverter.h>
+#include <iomanip>
 
 using namespace RigDef;
 using namespace std;

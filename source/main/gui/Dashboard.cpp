@@ -20,13 +20,9 @@
 
 #include "Dashboard.h"
 
-#ifdef ROR_USE_OGRE_1_9
-#	include <Overlay/OgreOverlayManager.h>
-#	include <Overlay/OgreOverlay.h>
-#else
-#	include <OgreOverlayManager.h>
-#	include <OgreOverlayElement.h>
-#endif
+#include <Overlay/OgreOverlayManager.h>
+#include <Overlay/OgreOverlay.h>
+
 
 using namespace Ogre;
 

@@ -21,14 +21,11 @@
 
 #include "ContentManager.h"
 
-#ifdef ROR_USE_OGRE_1_9
-#	include <Overlay/OgreOverlayManager.h>
-#	include <Overlay/OgreOverlay.h>
-#	include <Plugins/ParticleFX/OgreBoxEmitterFactory.h>
-#else
-#	include <OgreOverlayManager.h>
-#	include <OgreOverlayElement.h>
-#endif
+
+#include <Overlay/OgreOverlayManager.h>
+#include <Overlay/OgreOverlay.h>
+#include <Plugins/ParticleFX/OgreBoxEmitterFactory.h>
+
 
 #include "Application.h"
 #include "Settings.h"
