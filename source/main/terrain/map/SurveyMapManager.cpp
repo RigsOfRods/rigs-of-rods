@@ -344,12 +344,10 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
         }
 
         // TODO: Is camera state owned by GfxScene or simulation? Let's access it as GfxScene for the time being ~ only_a_ptr, 05/2018
-        if (curr_truck &&
-            gEnv->cameraManager &&
-            gEnv->cameraManager->hasActiveBehavior() &&
-            !gEnv->cameraManager->gameControlsLocked())
+        if (curr_truck && RoR::App::GetSimController()->AreControlsLocked())
         {
-            if (mVelocity > 5.0f || gEnv->cameraManager->getCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
+            CameraManager::CameraBehaviors cam_mode = RoR::App::GetSimController()->GetCameraBehavior();
+            if (mVelocity > 5.0f || cam_mode == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
             {
                 setWindowPosition(1, -1, 0.3f);
                 //setAlpha(mAlpha);
@@ -387,9 +385,7 @@ void SurveyMapManager::toggleMapView()
     mMapMode = (mMapMode + 1) % SURVEY_MAP_END;
 
     if (mMapMode == SURVEY_MAP_BIG && (mVelocity > 5.0f ||
-    (gEnv->cameraManager &&
-        gEnv->cameraManager->hasActiveBehavior() &&
-        gEnv->cameraManager->getCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)))
+        (RoR::App::GetSimController()->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)))
     {
         mMapMode = (mMapMode + 1) % SURVEY_MAP_END;
     }

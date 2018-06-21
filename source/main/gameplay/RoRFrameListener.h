@@ -22,6 +22,7 @@
 #pragma once
 
 #include "BeamFactory.h"
+#include "CameraManager.h" // enum CameraManager::CameraBehaviors
 #include "CharacterFactory.h"
 #include "DustManager.h" // GfxScene
 #include "EnvironmentMap.h"
@@ -99,6 +100,9 @@ public:
     RoR::SceneMouse&             GetSceneMouse()            { return m_scene_mouse; }
     Ogre::Vector3                GetDirArrowTarget()        { return m_dir_arrow_pointed; }
     bool                         IsPressurizingTyres() const { return m_pressure_pressed; }
+    bool                         AreControlsLocked() const;
+    void                         ResetCamera();
+    CameraManager::CameraBehaviors GetCameraBehavior();
 
 private:
 

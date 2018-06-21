@@ -325,7 +325,6 @@ void SimController::UpdateInputEvents(float dt)
             as->addData("MP_ServerName", App::mp_server_host.GetActive());
             as->addData("MP_ServerPort", TOSTRING(App::mp_server_port.GetActive()));
             as->addData("MP_NetworkEnabled", (App::mp_state.GetActive() == MpState::CONNECTED) ? "Yes" : "No");
-            as->addData("Camera_Mode", gEnv->cameraManager ? TOSTRING(gEnv->cameraManager->getCurrentBehavior()) : "None");
             as->addData("Camera_Position", TOSTRING(gEnv->mainCamera->getPosition()));
 
             const RenderTarget::FrameStats& stats = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getStatistics();
@@ -502,9 +501,7 @@ void SimController::UpdateInputEvents(float dt)
             RoR::App::GetGuiManager()->PushNotification("Notice:", _L("FOV: ") + TOSTRING(fov));
 
             // save the settings
-            if (gEnv->cameraManager &&
-                gEnv->cameraManager->hasActiveBehavior() &&
-                gEnv->cameraManager->getCurrentBehavior() == RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_CINECAM)
+            if (this->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
             {
                 App::gfx_fov_internal.SetActive(fov);
             }
@@ -598,7 +595,7 @@ void SimController::UpdateInputEvents(float dt)
             if (object_index == -1)
             {
                 // Select nearest object
-                Vector3 ref_pos = gEnv->cameraManager->gameControlsLocked() ? gEnv->mainCamera->getPosition() : gEnv->player->getPosition();
+                Vector3 ref_pos = this->AreControlsLocked() ? gEnv->mainCamera->getPosition() : gEnv->player->getPosition();
                 float min_dist = std::numeric_limits<float>::max();
                 for (int i = 0; i < (int)object_list.size(); i++)
                 {
@@ -663,7 +660,6 @@ void SimController::UpdateInputEvents(float dt)
             if (terrain_editing_track_object)
             {
                 gEnv->player->setPosition(object_list[object_index].node->getPosition());
-                //gEnv->cameraManager->NotifyContextChange();
             }
         }
         if (object_index != -1 && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESET_TRUCK))
@@ -678,7 +674,7 @@ void SimController::UpdateInputEvents(float dt)
             sn->setOrientation(Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z));
             sn->pitch(Degree(-90));
         }
-        if (object_index != -1 && gEnv->cameraManager && !gEnv->cameraManager->gameControlsLocked())
+        if (object_index != -1 && !this->AreControlsLocked())
         {
             SceneNode* sn = object_list[object_index].node;
 
@@ -746,7 +742,7 @@ void SimController::UpdateInputEvents(float dt)
     else if (simRUNNING(s) || simPAUSED(s))
     {
         m_character_factory.update(dt);
-        if (gEnv->cameraManager && !gEnv->cameraManager->gameControlsLocked())
+        if (!this->AreControlsLocked())
         {
             if (m_player_actor) // we are in a vehicle
             {
@@ -1756,10 +1752,7 @@ void SimController::HideGUI(bool hidden)
     }
     else
     {
-        if (m_player_actor
-            && gEnv->cameraManager
-            && gEnv->cameraManager->hasActiveBehavior()
-            && gEnv->cameraManager->getCurrentBehavior() != RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_CINECAM)
+        if (m_player_actor && (this->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM))
         {
             if (RoR::App::GetOverlayWrapper())
                 RoR::App::GetOverlayWrapper()->showDashboardOverlays(true, m_player_actor);
@@ -2316,3 +2309,30 @@ int SimController::GetNumPlayableActors() const
     return m_actor_manager.CountPlayableActorsInternal();
 }
 
+bool SimController::AreControlsLocked() const
+{
+    // TODO: remove camera manager from gEnv, see == SimCam == comment in CameraManager.cpp ~ only_a_ptr
+    return ((gEnv->cameraManager != nullptr)
+          && gEnv->cameraManager->gameControlsLocked());
+}
+
+void SimController::ResetCamera()
+{
+    // Temporary function, see == SimCam == comment in CameraManager.cpp ~ only_a_ptr
+
+    if (gEnv->cameraManager != nullptr) // TODO: remove camera manager from gEnv, see SimCam
+    {
+        // TODO: Detect camera changes from sim. state, don't rely on callback; see SimCam
+        gEnv->cameraManager->NotifyContextChange();
+    }
+}
+
+CameraManager::CameraBehaviors SimController::GetCameraBehavior()
+{
+    if (gEnv->cameraManager != nullptr)
+    {
+        return static_cast<CameraManager::CameraBehaviors>(
+            gEnv->cameraManager->getCurrentBehavior());
+    }
+    return CameraManager::CAMERA_BEHAVIOR_INVALID;
+}

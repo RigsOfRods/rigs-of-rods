@@ -193,8 +193,10 @@ void Character::update(float dt)
     {
         // disable character movement when using the free camera mode or when the menu is opened
         // TODO: check for menu being opened
-        if (gEnv->cameraManager && gEnv->cameraManager->gameControlsLocked())
+        if (App::GetSimController()->AreControlsLocked())
+        {
             return;
+        }
 
         Vector3 position = m_character_position; //ASYNCSCENE OLD m_character_scenenode->getPosition();
 
@@ -211,9 +213,9 @@ void Character::update(float dt)
             if (depth < 0.3f)
             {
                 position.y += depth;
-                if (depth > 0.01f && gEnv->cameraManager)
+                if (depth > 0.01f)
                 {
-                    gEnv->cameraManager->NotifyContextChange();
+                    App::GetSimController()->ResetCamera();
                 }
             }
         }
@@ -222,9 +224,9 @@ void Character::update(float dt)
         {
             Vector3 query = position;
             gEnv->collisions->collisionCorrect(&query);
-            if (std::abs(position.y - query.y) > 0.1f && gEnv->cameraManager)
+            if (std::abs(position.y - query.y) > 0.1f)
             {
-                gEnv->cameraManager->NotifyContextChange();
+                App::GetSimController()->ResetCamera();
             }
             position.y = query.y;
         }
