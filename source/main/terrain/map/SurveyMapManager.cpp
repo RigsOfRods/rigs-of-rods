@@ -276,6 +276,8 @@ Ogre::String SurveyMapManager::getTypeByDriveable(int driveable)
 
 void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
 {
+    using namespace RoR;
+
     if (dt == 0)
         return;
 
@@ -382,6 +384,7 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
 
 void SurveyMapManager::toggleMapView()
 {
+    using namespace RoR;
     mMapMode = (mMapMode + 1) % SURVEY_MAP_END;
 
     if (mMapMode == SURVEY_MAP_BIG && (mVelocity > 5.0f ||

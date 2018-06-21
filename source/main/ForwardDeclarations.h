@@ -31,6 +31,7 @@
 namespace RoR
 {
     class  ActorManager;
+    class  CameraManager;
     class  ConfigFile;
     class  Console;
     class  ContentManager;
@@ -140,7 +141,6 @@ class BeamThreadStats;
 class Buoyance;
 class CacheEntry;
 class CacheSystem;
-class CameraManager;
 class Character;
 class ChatSystem;
 class CmdKeyInertia;

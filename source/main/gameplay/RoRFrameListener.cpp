@@ -1558,9 +1558,9 @@ void SimController::UpdateSimulation(float dt)
 
     if (simRUNNING(s) || simPAUSED(s) || simEDITOR(s))
     {
-        if ((gEnv->cameraManager != nullptr) && (!simPAUSED(s)) && (dt != 0.f))
+        if ((!simPAUSED(s)) && (dt != 0.f))
         {
-            gEnv->cameraManager->Update(dt, m_player_actor, m_actor_manager.GetSimulationSpeed());
+            m_camera_manager.Update(dt, m_player_actor, m_actor_manager.GetSimulationSpeed());
         }
     }
 
@@ -1933,7 +1933,7 @@ void SimController::OnPlayerActorChange(Actor* previous_vehicle, Actor* current_
 
     if (previous_vehicle != nullptr || current_vehicle != nullptr)
     {
-        gEnv->cameraManager->NotifyVehicleChanged(previous_vehicle, current_vehicle);
+        m_camera_manager.NotifyVehicleChanged(previous_vehicle, current_vehicle);
     }
 }
 
@@ -2029,10 +2029,6 @@ void SimController::CleanupAfterSimulation()
     App::GetGuiManager()->GetTeleport()->Reset();
 
     App::GetGuiManager()->SetVisible_LoadingWindow(false);
-
-    gEnv->cameraManager->DisableDepthOfFieldEffect(); // TODO: de-globalize the CameraManager
-    delete gEnv->cameraManager; // TODO: De-globalize and reset in place instead of deleting and re-allocating ~ only_a_ptr, 07/2018
-    gEnv->cameraManager = nullptr;
 }
 
 bool SimController::SetupGameplayLoop()
@@ -2067,11 +2063,8 @@ bool SimController::SetupGameplayLoop()
 
     gEnv->player = m_character_factory.createLocal(colourNum);
 
-    if (gEnv->cameraManager == nullptr)
-    {
-        // init camera manager after mygui and after we have a character
-        gEnv->cameraManager = new CameraManager();
-    }
+    // init camera manager after mygui and after we have a character
+    m_camera_manager.SetCameraReady(); // TODO: get rid of this hack; see == SimCam == ~ only_a_ptr, 06/2018
 
     // ============================================================================
     // Loading map
@@ -2174,7 +2167,7 @@ bool SimController::SetupGameplayLoop()
 
     if (App::gfx_enable_dof.GetActive())
     {
-        gEnv->cameraManager->ActivateDepthOfFieldEffect();
+        m_camera_manager.ActivateDepthOfFieldEffect();
     }
 
     return true;
@@ -2268,6 +2261,7 @@ void SimController::EnterGameplayLoop()
     this->CleanupAfterSimulation();
     RoRWindowEventUtilities::removeWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
     // DO NOT: App::GetOverlayWrapper()->SetSimController(nullptr); -- already deleted via App::DestroyOverlayWrapper(); // TODO: de-globalize that object!
+    m_camera_manager.DisableDepthOfFieldEffect();
 }
 
 void SimController::SetPlayerActor(Actor* actor)
@@ -2310,27 +2304,47 @@ int SimController::GetNumPlayableActors() const
 bool SimController::AreControlsLocked() const
 {
     // TODO: remove camera manager from gEnv, see == SimCam == comment in CameraManager.cpp ~ only_a_ptr
-    return ((gEnv->cameraManager != nullptr)
-          && gEnv->cameraManager->gameControlsLocked());
+    return (m_camera_manager.IsCameraReady()
+          && m_camera_manager.gameControlsLocked());
 }
 
 void SimController::ResetCamera()
 {
     // Temporary function, see == SimCam == comment in CameraManager.cpp ~ only_a_ptr
 
-    if (gEnv->cameraManager != nullptr) // TODO: remove camera manager from gEnv, see SimCam
+    if (m_camera_manager.IsCameraReady()) // TODO: remove camera manager from gEnv, see SimCam
     {
         // TODO: Detect camera changes from sim. state, don't rely on callback; see SimCam
-        gEnv->cameraManager->NotifyContextChange();
+        m_camera_manager.NotifyContextChange();
     }
 }
 
 CameraManager::CameraBehaviors SimController::GetCameraBehavior()
 {
-    if (gEnv->cameraManager != nullptr)
+    if (m_camera_manager.IsCameraReady())
     {
         return static_cast<CameraManager::CameraBehaviors>(
-            gEnv->cameraManager->getCurrentBehavior());
+            m_camera_manager.getCurrentBehavior());
     }
     return CameraManager::CAMERA_BEHAVIOR_INVALID;
 }
+
+// Temporary interface until camera controls are refactored; see == SimCam == ~ only_a_ptr, 06/2018
+bool SimController::CameraManagerMouseMoved(const OIS::MouseEvent& _arg)
+{
+    if (!m_camera_manager.IsCameraReady())
+    {
+        return true; // This is what SceneMouse expects
+    }
+    return m_camera_manager.mouseMoved(_arg);
+}
+
+// Temporary interface until camera controls are refactored; see == SimCam == ~ only_a_ptr, 06/2018
+void SimController::CameraManagerMousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
+{
+    if (m_camera_manager.IsCameraReady())
+    {
+        m_camera_manager.mousePressed(_arg, _id);
+    }
+}
+

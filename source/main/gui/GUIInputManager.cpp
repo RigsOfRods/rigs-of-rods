@@ -151,7 +151,8 @@ bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
 
     if (!handled)
     {
-
+        if (RoR::App::GetSimController() != nullptr) // TODO: Fix this hack. Main menu should not use the same input handler as simulation ~ only_a_ptr, 08/2018
+        {
             // not handled by gui
             bool fixed = RoR::App::GetSimController()->GetSceneMouse().mouseMoved(_arg);
             if (fixed)
@@ -160,6 +161,7 @@ bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
                 // http://www.wreckedgames.com/forum/index.php?topic=1104.0
                 return true;
             }
+        }
     }
 
     mCursorX = _arg.state.X.abs;
@@ -197,7 +199,8 @@ bool GUIInputManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButton
         handled = RoR::App::GetOverlayWrapper()->mousePressed(_arg, _id);
     }
 
-    if (!handled)
+    // TODO: Fix this hack. Main menu should not use the same input handler as simulation ~ only_a_ptr, 08/2018
+    if (!handled && (RoR::App::GetSimController() != nullptr)) 
     {
         RoR::App::GetSimController()->GetSceneMouse().mousePressed(_arg, _id);
     }

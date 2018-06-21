@@ -405,9 +405,6 @@ int main(int argc, char *argv[])
         App::DestroyOverlayWrapper();
 
         App::DestroyContentManager();
-
-        delete gEnv->cameraManager;
-        gEnv->cameraManager = nullptr;
     }
     catch (Ogre::Exception& e)
     {

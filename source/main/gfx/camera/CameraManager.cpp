@@ -46,7 +46,7 @@
 // - Eliminate 'gEnv->mainCamera' (pointer to Ogre::Camera)
 //       because it shouldn't be updated and read from externally throughout the simulation cycle;
 //       instead, it should only be updated internally prior to actual rendering.
-// - Eliminate 'gEnv->cameraManager' (RoR object)
+// - [Done] Eliminate 'GlobalEnvironment::cameraManager' (RoR object)
 //       because it serves ad-hoc camera updates throughout the simulation cycle
 //       instead, camera should be updated at the end of sim. cycle from the resulting state;
 //       locking controls based on camera mode (free camera) should be governed by SimController instead
@@ -118,6 +118,7 @@ CameraManager::CameraManager() :
     , m_cam_look_at_smooth(Ogre::Vector3::ZERO)
     , m_cam_look_at_smooth_last(Ogre::Vector3::ZERO)
     , m_cam_limit_movement(true)
+    , m_camera_ready(false)
 {
     m_cct_player_actor = nullptr;
     m_cct_dof_manager = nullptr;
@@ -603,16 +604,10 @@ bool CameraManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID
     }
 }
 
-bool CameraManager::gameControlsLocked()
+bool CameraManager::gameControlsLocked() const
 {
     // game controls are only disabled in free camera mode for now
     return (m_current_behavior == CAMERA_BEHAVIOR_FREE);
-}
-
-void CameraManager::OnReturnToMainMenu()
-{
-    m_cct_player_actor = nullptr;
-    m_current_behavior = CAMERA_BEHAVIOR_INVALID;
 }
 
 void CameraManager::NotifyContextChange()
@@ -1077,7 +1072,7 @@ void CameraManager::CameraBehaviorVehicleSplineUpdate()
 {
     if (m_cct_player_actor->ar_num_camera_rails <= 0)
     {
-        gEnv->cameraManager->switchToNextBehavior();
+        this->switchToNextBehavior();
         return;
     }
 

@@ -94,6 +94,10 @@ public:
     bool   SetupGameplayLoop     ();
     void   EnterGameplayLoop     ();
 
+    // Temporary interface until camera controls are refactored; only for use by SceneMouse; see == SimCam == ~ only_a_ptr, 06/2018
+    void   CameraManagerMousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
+    bool   CameraManagerMouseMoved(const OIS::MouseEvent& _arg);
+
     RoR::ActorManager*          GetBeamFactory  ()         { return &m_actor_manager; } // TODO: Eliminate this. All operations upon actors should be done through above methods. ~ only_a_ptr, 06/2017
     RoR::SkidmarkConfig*         GetSkidmarkConf ()         { return m_skidmark_conf; }
     RoR::GfxScene&               GetGfxScene()              { return m_gfx_scene; }
@@ -102,7 +106,7 @@ public:
     bool                         IsPressurizingTyres() const { return m_pressure_pressed; }
     bool                         AreControlsLocked() const;
     void                         ResetCamera();
-    CameraManager::CameraBehaviors GetCameraBehavior();
+    RoR::CameraManager::CameraBehaviors GetCameraBehavior();
 
 private:
 
@@ -127,6 +131,7 @@ private:
     RoR::GfxScene            m_gfx_scene;
     RoR::SkidmarkConfig*     m_skidmark_conf;
     RoR::SceneMouse          m_scene_mouse;
+    RoR::CameraManager       m_camera_manager;
     Ogre::Real               m_time_until_next_toggle; //!< just to stop toggles flipping too fast
     float                    m_last_simulation_speed;  //!< previously used time ratio between real time (evt.timeSinceLastFrame) and physics time ('dt' used in calcPhysics)
     bool                     m_is_pace_reset_pressed;

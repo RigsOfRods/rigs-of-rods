@@ -112,8 +112,10 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
     const OIS::MouseState ms = _arg.state;
 
     // check if handled by the camera
-    if (!gEnv->cameraManager || gEnv->cameraManager->mouseMoved(_arg))
+    if (App::GetSimController()->CameraManagerMouseMoved(_arg))
+    {
         return true;
+    }
 
     // experimental mouse hack
     if (ms.buttonDown(OIS::MB_Left) && mouseGrabState == 0)
@@ -232,7 +234,7 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
 
     if (ms.buttonDown(OIS::MB_Middle))
     {
-        if (gEnv->cameraManager && gEnv->cameraManager->getCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE)
+        if (App::GetSimController()->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE)
         {
             Actor* truck = App::GetSimController()->GetPlayerActor();
 
@@ -264,16 +266,13 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
                 {
                     truck->ar_custom_camera_node = nearest_node_index;
                     truck->calculateAveragePosition();
-                    gEnv->cameraManager->NotifyContextChange();
+                    App::GetSimController()->ResetCamera();
                 }
             }
         }
     }
 
-    if (gEnv->cameraManager)
-    {
-        gEnv->cameraManager->mousePressed(_arg, _id);
-    }
+    App::GetSimController()->CameraManagerMousePressed(_arg, _id);
 
     return true;
 }
@@ -285,11 +284,6 @@ bool SceneMouse::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _
     if (mouseGrabState == 1)
     {
         releaseMousePick();
-    }
-
-    if (gEnv->cameraManager)
-    {
-        gEnv->cameraManager->mouseReleased(_arg, _id);
     }
 
     return true;
