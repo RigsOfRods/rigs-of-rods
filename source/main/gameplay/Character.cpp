@@ -59,6 +59,7 @@ Character::Character(int source, unsigned int streamid, int color_number, bool i
 {
     static int id_counter = 0;
     m_instance_name = "Character" + TOSTRING(id_counter);
+    ++id_counter;
 
     Entity* entity = gEnv->sceneManager->createEntity(m_instance_name + "_mesh", "character.mesh");
 #if OGRE_VERSION<0x010602
