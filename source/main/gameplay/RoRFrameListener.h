@@ -61,9 +61,6 @@ class SimController: public Ogre::FrameListener, public Ogre::WindowEventListene
 public:
     SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_conf);
 
-    // Ogre::FrameListener public interface
-    bool   frameRenderingQueued  (const Ogre::FrameEvent& evt) override;
-
     // Actor management interface
     Actor* GetActorById          (int actor_id)            { return m_actor_manager.GetActorByIdInternal(actor_id); }
     void   SetPlayerActorById    (int actor_id);                                                          // TODO: Eliminate, use pointers ~ only_a_ptr, 06/2017

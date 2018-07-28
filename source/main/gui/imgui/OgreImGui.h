@@ -30,6 +30,7 @@
 #include <OISMouse.h>
 #include <OISKeyboard.h>
 
+#include <OgreFrameListener.h>
 #include <OgreRenderQueueListener.h>
 #include <OgreTexture.h>
 #include "OgrePrerequisites.h"
@@ -53,8 +54,8 @@ static inline ImVec2& operator/=(ImVec2& lhs, const float rhs)                  
 ///  2. Call `NewFrame()` before each render, otherwise IMGUI will crash.
 ///  3. Use `Inject*()` functions to handle inputs.
 ///  4. Use any ImGui*() functions to create your GUI.
-///  5. Call `Render()` to render the GUI.
-class OgreImGui
+///  5. Call `Render()` to render the GUI; alternatively register the class as frame listener for automated rendering.
+class OgreImGui: public Ogre::FrameListener
 {
 public:
     OgreImGui(): mSceneMgr(nullptr) {}
@@ -69,6 +70,9 @@ public:
     void InjectMouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
     void InjectKeyPressed( const OIS::KeyEvent &arg );
     void InjectKeyReleased( const OIS::KeyEvent &arg );
+
+    // Ogre::FrameListener interface
+    virtual bool frameRenderingQueued(const Ogre::FrameEvent& evt) override;
 
 private:
 

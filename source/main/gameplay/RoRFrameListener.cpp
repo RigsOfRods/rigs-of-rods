@@ -1594,7 +1594,6 @@ bool SimController::UpdateSimulation(float dt)
 #endif //SOCKETW
 
     RoR::App::GetInputEngine()->Capture();
-    App::GetGuiManager()->NewImGuiFrame(dt);
     const bool is_altkey_pressed =  App::GetInputEngine()->isKeyDown(OIS::KeyCode::KC_LMENU) || App::GetInputEngine()->isKeyDown(OIS::KeyCode::KC_RMENU);
     auto s = App::sim_state.GetActive();
 
@@ -1814,12 +1813,6 @@ bool SimController::UpdateSimulation(float dt)
 
     App::GetGuiManager()->GetImGui().Render();
 
-    return true;
-}
-
-bool SimController::frameRenderingQueued(const FrameEvent& evt)
-{
-    App::GetGuiManager()->GetImGui().Render();
     return true;
 }
 
@@ -2451,9 +2444,16 @@ void SimController::EnterGameplayLoop()
         }
         // ===== Timing - end =====
 
+        App::GetGuiManager()->NewImGuiFrame(framestarted_dt_sec);
+
         this->UpdateSimulation(framestarted_dt_sec); // previously 'frameStarted()'
 
+        // TODO: Ugly! Currently it seems drawing DearIMGUI only works when invoked from `Ogre::FrameListener::frameRenderingQueued`.
+        //       We only want GUI on screen, not other targets (reflections etc...), so we can't have it attached permanently.
+        //       Research and find a more elegant solution.  ~ only_a_ptr, 07/2018
+        RoR::App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(&App::GetGuiManager()->GetImGui());
         RoR::App::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
+        RoR::App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(&App::GetGuiManager()->GetImGui());
 
         if (m_stats_on && RoR::App::GetOverlayWrapper())
         {
