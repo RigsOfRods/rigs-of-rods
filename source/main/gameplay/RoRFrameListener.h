@@ -56,7 +56,7 @@
 ///   2. Check time since last render; if necessary, copy sim. data and put an "update scene and render" task to threadpool.
 ///   2. Gather user inputs; send/receive network data
 ///   3. Update simulation
-class SimController: public Ogre::FrameListener, public Ogre::WindowEventListener, public ZeroedMemoryAllocator
+class SimController: public Ogre::WindowEventListener, public ZeroedMemoryAllocator
 {
 public:
     SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_conf);

@@ -2374,7 +2374,6 @@ void SimController::EnterGameplayLoop()
 {
     /* SETUP */
 
-    App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(this);
     RoRWindowEventUtilities::addWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
 
     unsigned long timeSinceLastFrame = 1;
@@ -2484,7 +2483,6 @@ void SimController::EnterGameplayLoop()
     }
 
     App::sim_state.SetActive(SimState::OFF);
-    App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(this); // IMPORTANT: Stop receiving render events during cleanups.
     App::GetGuiManager()->GetLoadingWindow()->setProgress(50, _L("Unloading Terrain"), !m_was_app_window_closed); // Renders a frame
     this->CleanupAfterSimulation();
     RoRWindowEventUtilities::removeWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
