@@ -82,9 +82,7 @@ CameraManager::CameraManager() :
     , m_splinecam_mo(0)
     , m_splinecam_spline_pos(0.5f)
     , m_cam_rot_x(0.0f)
-    , m_cam_rot_swivel_x(0.0f)
     , m_cam_rot_y(0.3f)
-    , m_cam_rot_swivel_y(0.0f)
     , m_cam_dist(5.f)
     , m_cam_dist_min(0.f)
     , m_cam_dist_max(0.f)
@@ -213,7 +211,7 @@ void CameraManager::UpdateCurrentBehavior()
 
         roll = up.crossProduct(dir);
 
-        Quaternion orientation = Quaternion(m_cam_rot_x + m_cam_rot_swivel_x, up) * Quaternion(Degree(180.0) + m_cam_rot_y + m_cam_rot_swivel_y, roll) * Quaternion(roll, up, dir);
+        Quaternion orientation = Quaternion(m_cam_rot_x, up) * Quaternion(Degree(180.0) + m_cam_rot_y, roll) * Quaternion(roll, up, dir);
 
         gEnv->mainCamera->setPosition(m_cct_player_actor->ar_nodes[m_cct_player_actor->ar_cinecam_node[m_cct_player_actor->ar_current_cinecam]].AbsPosition);
         gEnv->mainCamera->setOrientation(orientation);
@@ -783,12 +781,6 @@ void CameraManager::CameraBehaviorOrbitUpdate()
     m_cam_rot_y = std::max((Radian)Degree(-80), m_cam_rot_y);
     m_cam_rot_y = std::min(m_cam_rot_y, (Radian)Degree(88));
 
-    m_cam_rot_swivel_x = (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_RIGHT) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_LEFT)) * Degree(90);
-    m_cam_rot_swivel_y = (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_UP) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_DOWN)) * Degree(60);
-
-    m_cam_rot_swivel_y = std::max((Radian)Degree(-80) - m_cam_rot_y, m_cam_rot_swivel_y);
-    m_cam_rot_swivel_y = std::min(m_cam_rot_swivel_y, (Radian)Degree(88) - m_cam_rot_y);
-
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_IN) && m_cam_dist > 1)
     {
         m_cam_dist -= m_cct_trans_scale;
@@ -838,9 +830,9 @@ void CameraManager::CameraBehaviorOrbitUpdate()
     m_cam_dist = std::max(0.0f, m_cam_dist);
 
     Vector3 desiredPosition = m_cam_look_at + m_cam_dist * 0.5f * Vector3(
-        sin(m_cam_target_direction.valueRadians() + (m_cam_rot_x - m_cam_rot_swivel_x).valueRadians()) * cos(m_cam_target_pitch.valueRadians() + (m_cam_rot_y - m_cam_rot_swivel_y).valueRadians())
-        , sin(m_cam_target_pitch.valueRadians() + (m_cam_rot_y - m_cam_rot_swivel_y).valueRadians())
-        , cos(m_cam_target_direction.valueRadians() + (m_cam_rot_x - m_cam_rot_swivel_x).valueRadians()) * cos(m_cam_target_pitch.valueRadians() + (m_cam_rot_y - m_cam_rot_swivel_y).valueRadians())
+        sin(m_cam_target_direction.valueRadians() + m_cam_rot_x.valueRadians()) * cos(m_cam_target_pitch.valueRadians() + m_cam_rot_y.valueRadians())
+        , sin(m_cam_target_pitch.valueRadians() + m_cam_rot_y.valueRadians())
+        , cos(m_cam_target_direction.valueRadians() + m_cam_rot_x.valueRadians()) * cos(m_cam_target_pitch.valueRadians() + m_cam_rot_y.valueRadians())
     );
 
     if (m_cam_limit_movement && App::GetSimTerrain())
@@ -908,9 +900,7 @@ bool CameraManager::CameraBehaviorOrbitMouseMoved(const OIS::MouseEvent& _arg)
 void CameraManager::CameraBehaviorOrbitReset()
 {
     m_cam_rot_x = 0.0f;
-    m_cam_rot_swivel_x = 0.0f;
     m_cam_rot_y = 0.3f;
-    m_cam_rot_swivel_y = 0.0f;
     m_cam_look_at_last = Vector3::ZERO;
     m_cam_look_at_smooth = Vector3::ZERO;
     m_cam_look_at_smooth_last = Vector3::ZERO;

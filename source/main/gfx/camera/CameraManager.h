@@ -111,8 +111,6 @@ protected:
     // Old `CameraBehaviorOrbit` attributes
     Ogre::Radian         m_cam_rot_x;
     Ogre::Radian         m_cam_rot_y;
-    Ogre::Radian         m_cam_rot_swivel_x;
-    Ogre::Radian         m_cam_rot_swivel_y;
     Ogre::Radian         m_cam_target_direction;
     Ogre::Radian         m_cam_target_pitch;
     float                m_cam_dist;
