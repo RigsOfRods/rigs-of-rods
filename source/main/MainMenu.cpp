@@ -107,11 +107,12 @@ void MainMenu::EnterMainMenuLoop()
         minTimePerFrame = 1000 / fpsLimit;
     }
 
+    Ogre::Timer timer;
     App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(this);
-
+    
     while (App::app_state.GetPending() == AppState::MAIN_MENU)
     {
-        startTime = App::GetOgreSubsystem()->GetTimer()->getMilliseconds();
+        startTime = timer.getMilliseconds();
 
         this->MainMenuLoopUpdate(static_cast<float>(timeSinceLastFrame)/1000);
 
@@ -165,7 +166,7 @@ void MainMenu::EnterMainMenuLoop()
             std::this_thread::sleep_for(std::chrono::milliseconds(ms));
         }
 
-        timeSinceLastFrame = RoR::App::GetOgreSubsystem()->GetTimer()->getMilliseconds() - startTime;
+        timeSinceLastFrame = timer.getMilliseconds() - startTime;
     }
     RoRWindowEventUtilities::removeWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
     App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(this);

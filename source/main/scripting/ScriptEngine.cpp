@@ -794,9 +794,6 @@ int ScriptEngine::loadScript(String _scriptName)
     // Create our context, prepare it, and then execute
     context = engine->CreateContext();
 
-
-    unsigned long timeOut = 0;
-
     // Prepare the script context with the function we wish to execute. Prepare()
     // must be called on the context before each new script function that will be
     // executed. Note, that if you intend to execute the same function several
@@ -809,10 +806,6 @@ int ScriptEngine::loadScript(String _scriptName)
         context->Release();
         return -1;
     }
-
-    // Set the timeout before executing the function. Give the function 1 sec
-    // to return before we'll abort it.
-    timeOut = RoR::App::GetOgreSubsystem()->GetTimeSinceStartup() + 1000;
 
     SLOG("Executing main()");
     result = context->Execute();

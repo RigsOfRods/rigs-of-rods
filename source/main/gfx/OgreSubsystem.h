@@ -48,8 +48,6 @@ public:
         return m_main_hwnd; 
     }
 
-    unsigned long GetTimeSinceStartup();
-
     Ogre::Root* GetOgreRoot()
     {
         return m_ogre_root;
@@ -70,11 +68,6 @@ public:
         m_viewport = viewport;
     }
 
-    Ogre::Timer* GetTimer()
-    {
-        return m_timer;
-    }
-
     static Ogre::MaterialPtr GetMaterialByName(std::string const & name);
 
 private:
@@ -85,7 +78,6 @@ private:
     Ogre::Root*         m_ogre_root;
     Ogre::RenderWindow* m_render_window;
     Ogre::Viewport*     m_viewport;
-    Ogre::Timer*        m_timer;
 
     bool Configure();
     bool LoadOgrePlugins(Ogre::String const & pluginsfile);

@@ -2217,54 +2217,51 @@ bool SimController::SetupGameplayLoop()
 
 void SimController::EnterGameplayLoop()
 {
-    /* SETUP */
-
     RoRWindowEventUtilities::addWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
 
-    unsigned long timeSinceLastFrame = 1;
-    unsigned long startTime = 0;
-    unsigned long minTimePerFrame = 0;
-    unsigned long fpsLimit = App::gfx_fps_limit.GetActive();
-
-    // Timing - replacement of 'Ogre::FrameListener'
-    Ogre::Timer* framestarted_timer = OGRE_NEW Timer();
-    unsigned long framestarted_prev = 0;
-
-    if (fpsLimit < 10 || fpsLimit >= 200)
-    {
-        fpsLimit = 0;
-    }
-
-    if (fpsLimit)
-    {
-        minTimePerFrame = 1000 / fpsLimit;
-    }
-
-    /* LOOP */
+    Ogre::RenderWindow* rw = RoR::App::GetOgreSubsystem()->GetRenderWindow();
+    Ogre::Timer timer;
+    unsigned long start_time = 0; // milliseconds
+    unsigned long start_time_prev = 0;
 
     while (App::app_state.GetPending() == AppState::SIMULATION)
     {
-        startTime = RoR::App::GetOgreSubsystem()->GetTimer()->getMilliseconds();
-
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 || OGRE_PLATFORM == OGRE_PLATFORM_LINUX
         RoRWindowEventUtilities::messagePump();
-#endif
-        Ogre::RenderWindow* rw = RoR::App::GetOgreSubsystem()->GetRenderWindow();
         if (rw->isClosed())
         {
             App::app_state.SetPending(AppState::SHUTDOWN);
             continue;
         }
 
-        const unsigned long framestarted_now = framestarted_timer->getMilliseconds();
-        const float framestarted_dt_sec = static_cast<float>(framestarted_now - framestarted_prev) / 1000;
-        framestarted_prev = framestarted_now;
+        // Query timer
+        start_time_prev = start_time;
+        start_time = timer.getMilliseconds();
+        const unsigned long frame_time_ms = start_time - start_time_prev;
 
-        App::GetGuiManager()->NewImGuiFrame(framestarted_dt_sec);
-
-        if (framestarted_dt_sec != 0.f)
+        // Check FPS limit
+        if (App::gfx_fps_limit.GetActive() != 0)
         {
-            const float dt_sec = std::min(framestarted_dt_sec, 0.05f);
+            if (App::gfx_fps_limit.GetActive() < 5)
+            {
+                App::gfx_fps_limit.SetActive(5);
+            }
+
+            // NOTE: Calculation adjusted to get required FPS.
+            //       When using '1s = 1000ms' the FPS goes over the limit by cca. +75%, I'm not sure why ~ only_a_ptr, 07/2018
+            const unsigned long min_frame_time = 1580 / App::gfx_fps_limit.GetActive();
+            if (frame_time_ms < min_frame_time)
+            {
+                std::chrono::milliseconds sleep_time(min_frame_time - frame_time_ms);
+                std::this_thread::sleep_for(sleep_time);
+            }
+        }
+
+        // Update gameplay and 3D scene
+        const float dt_sec = static_cast<float>(frame_time_ms) * 0.001f;
+        App::GetGuiManager()->NewImGuiFrame(dt_sec);
+
+        if (dt_sec != 0.f)
+        {
             m_time += dt_sec;
             this->UpdateSimulation(dt_sec);
             if (RoR::App::sim_state.GetActive() != RoR::SimState::PAUSED)
@@ -2296,16 +2293,9 @@ void SimController::EnterGameplayLoop()
 #endif
 
         if (!rw->isActive() && rw->isVisible())
-            rw->update(); // update even when in background !
-
-        if (fpsLimit && timeSinceLastFrame < minTimePerFrame)
         {
-            // Sleep twice as long as we were too fast.
-            int ms = static_cast<int>((minTimePerFrame - timeSinceLastFrame) << 1);
-            std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+            rw->update(); // update even when in background !
         }
-
-        timeSinceLastFrame = RoR::App::GetOgreSubsystem()->GetTimer()->getMilliseconds() - startTime;
     }
 
     App::sim_state.SetActive(SimState::OFF);
