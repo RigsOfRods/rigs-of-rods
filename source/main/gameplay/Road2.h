@@ -20,9 +20,15 @@
 
 #pragma once
 
-#include <Ogre.h>
-
-#include "RoRPrerequisites.h"
+#include "OgrePrerequisites.h"      // for MeshPtr
+#include "OgreQuaternion.h"         // for Quaternion
+#include "OgreSharedPtr.h"          // for SharedPtr
+#include "OgreVector2.h"            // for Vector2
+#include "OgreVector3.h"            // for Vector3
+#include "BeamData.h"				// for ground_model_t
+#include "vector"                   // for vector
+#include "ZeroedMemoryAllocator.h"  // for ZeroedMemoryAllocator
+#include <memory>                   // for allocator
 
 // dynamic roads
 class Road2 : public ZeroedMemoryAllocator

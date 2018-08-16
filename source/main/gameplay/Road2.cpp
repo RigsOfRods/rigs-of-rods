@@ -23,6 +23,24 @@
 #include "Application.h"
 #include "Collisions.h"
 #include "TerrainManager.h"
+#include "GlobalEnvironment.h"          // for GlobalEnvironment
+#include "OgreAxisAlignedBox.h"         // for AxisAlignedBox
+#include "OgreEntity.h"                 // for Entity
+#include "OgreHardwareBuffer.h"         // for HardwareBuffer, HardwareBuffer::Usage::HBU_STATIC_WRITE_ONLY
+#include "OgreHardwareBufferManager.h"  // for HardwareBufferManager
+#include "OgreHardwareIndexBuffer.h"    // for HardwareIndexBuffer, HardwareIndexBufferSharedPtr, HardwareIndexBuffer::IndexType::IT_16BIT
+#include "OgreHardwareVertexBuffer.h"   // for HardwareVertexBuffer, VertexElementType::VET_FLOAT3, HardwareVertexBufferSharedPtr, VertexDeclaration, VertexElement, VertexElementType::VET_FLOAT2, VertexBufferBinding, VertexElementSemantic::VES_NORMAL, VertexElementSemantic::VES_POSITION, VertexElementSemantic::VES_TEXTURE_COORDINATES
+#include "OgreMatrix3.h"                // for Matrix3
+#include "OgreMesh.h"                   // for Mesh
+#include "OgreMeshManager.h"            // for MeshManager
+#include "OgreResourceGroupManager.h"   // for ResourceGroupManager, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
+#include "OgreSceneManager.h"           // for SceneManager
+#include "OgreSceneNode.h"              // for SceneNode
+#include "OgreStringConverter.h"        // for StringConverter
+#include "OgreSubMesh.h"                // for SubMesh
+#include "OgreVertexIndexData.h"        // for VertexData, IndexData
+#include "RoRPrerequisites.h"           // for gEnv
+#include <stdlib.h>                     // for free, malloc, size_t
 
 using namespace Ogre;
 

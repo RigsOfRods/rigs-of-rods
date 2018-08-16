@@ -20,7 +20,15 @@
 
 #include "Road.h"
 
-#include <Ogre.h>
+#include "GlobalEnvironment.h"  // for GlobalEnvironment
+#include "OgreEntity.h"         // for Entity
+#include "OgreMath.h"           // for Degree
+#include "OgrePrerequisites.h"  // for String
+#include "OgreQuaternion.h"     // for Quaternion
+#include "OgreSceneManager.h"   // for SceneManager
+#include "OgreSceneNode.h"      // for SceneNode
+#include "RoRPrerequisites.h"   // for gEnv
+#include <string.h>             // for strcpy
 
 using namespace Ogre;
 

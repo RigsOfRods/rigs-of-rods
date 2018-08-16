@@ -24,7 +24,8 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "OgrePrerequisites.h"      // for String, Real
+#include "ZeroedMemoryAllocator.h"  // for ZeroedMemoryAllocator
 
 class DecalSpline : public ZeroedMemoryAllocator
 {

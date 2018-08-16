@@ -22,16 +22,15 @@
 #pragma once
 
 #include "IWater.h"
-#include "RoRPrerequisites.h"
 
 #include <OgreHardwareVertexBuffer.h> // Ogre::HardwareVertexBufferSharedPtr
-#include <OgreMesh.h>
 #include <OgrePlane.h>
 #include <OgrePrerequisites.h> // Ogre::TexturePtr
 #include <OgreRenderTargetListener.h>
-#include <OgreTexture.h>
 #include <OgreVector3.h>
 #include <vector>
+#include "OgreSharedPtr.h"             // for SharedPtr
+#include "ZeroedMemoryAllocator.h"     // for ZeroedMemoryAllocator
 
 class Water : public IWater, public ZeroedMemoryAllocator
 {

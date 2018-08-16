@@ -23,8 +23,8 @@
 #include "Hydrax.h"
 #include "IWater.h"
 #include "ProjectedGrid.h"
-
-#include <Ogre.h>
+#include "OgrePrerequisites.h"  // for String
+#include "OgreVector3.h"        // for Vector3
 
 class HydraxWater : public IWater
 {
