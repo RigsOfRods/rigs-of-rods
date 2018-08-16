@@ -7,6 +7,8 @@ if (WIN32)
     set(CMAKE_CONFIGURATION_TYPES "RelWithDebInfo;Release" CACHE STRING "" FORCE)
 endif ()
 
+include(cotire)
+
 
 ################################################################################
 # Project definition
