@@ -297,6 +297,7 @@ add_executable(${BINNAME} ${SOURCE_FILES})
 
 if (WIN32)
     set_target_properties(${BINNAME} PROPERTIES WIN32_EXECUTABLE YES)
+		add_definitions(-DWIN32_LEAN_AND_MEAN)
 endif ()
 
 ####################################################################################################
@@ -521,6 +522,9 @@ if (TARGET PagedGeometry::PagedGeometry)
 else ()
     message(WARNING "Building ${BINNAME} without PagedGeometry. Some functionality may be missing.")
 endif ()
+
+set_target_properties(${BINNAME} PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
+cotire(${BINNAME})
 
 
 ####################################################################################################

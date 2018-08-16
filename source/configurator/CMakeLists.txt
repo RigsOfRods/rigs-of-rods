@@ -96,6 +96,9 @@ target_link_libraries(RoRConfig PRIVATE
         version_info
 )
 
+set_target_properties(RoRConfig PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
+cotire(RoRConfig)
+
 IF (UNIX)
   INSTALL(TARGETS RoRConfig
           RUNTIME DESTINATION games/RoR
