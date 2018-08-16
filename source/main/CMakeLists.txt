@@ -522,6 +522,9 @@ else ()
     message(WARNING "Building ${BINNAME} without PagedGeometry. Some functionality may be missing.")
 endif ()
 
+set_target_properties(${BINNAME} PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
+cotire(${BINNAME})
+
 
 ####################################################################################################
 #  POST-BUILD STEPS
