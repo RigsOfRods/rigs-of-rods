@@ -22,7 +22,18 @@
 #include "Application.h"
 #include "Utils.h"
 
-#include <Ogre.h>
+#include "algorithm"                   // for min
+#include "OgreDataStream.h"            // for DataStream, DataStreamPtr
+#include "OgrePrerequisites.h"         // for String, Real
+#include "OgreResourceGroupManager.h"  // for ResourceGroupManager
+#include "OgreSharedPtr.h"             // for SharedPtr
+#include "OgreString.h"                // for StringUtil
+#include "OgreStringConverter.h"       // for StringConverter
+#include "OgreStringVector.h"          // for StringVector
+#include "OgreVector3.h"               // for Vector3
+//#include "type_traits"                 // for move
+#include <utility>                     // for pair
+#include <string>                      // for char_traits, allocator
 
 using namespace Ogre;
 using namespace std;

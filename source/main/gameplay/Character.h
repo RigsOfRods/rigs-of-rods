@@ -27,7 +27,6 @@
 #include <OgreUTFString.h>
 
 #include <string>
-#include <string>
 
 class Character
 {

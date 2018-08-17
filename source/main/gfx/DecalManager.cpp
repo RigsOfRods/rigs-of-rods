@@ -22,7 +22,15 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DecalManager.h"
 
-#include <Ogre.h>
+#include "GlobalEnvironment.h"    // for GlobalEnvironment
+#include "OgreManualObject.h"     // for ManualObject
+#include "OgreRenderOperation.h"  // for RenderOperation, RenderOperation::OperationType::OT_LINE_STRIP
+#include "OgreSceneManager.h"     // for SceneManager
+#include "OgreSceneNode.h"        // for SceneNode
+#include "OgreSimpleSpline.h"     // for SimpleSpline
+#include "OgreVector2.h"          // for Vector2
+#include "OgreVector3.h"          // for Vector3
+#include "RoRPrerequisites.h"     // for gEnv
 
 using namespace std;
 using namespace Ogre;

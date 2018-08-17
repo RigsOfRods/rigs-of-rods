@@ -20,7 +20,8 @@
 
 #pragma once
 
-#include "RoRPrerequisites.h"
+#include "OgreVector3.h"            // for Vector3
+#include "ZeroedMemoryAllocator.h"  // for ZeroedMemoryAllocator
 
 struct RoadType_t
 {

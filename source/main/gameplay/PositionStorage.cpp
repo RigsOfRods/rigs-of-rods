@@ -20,7 +20,7 @@
 
 #include "PositionStorage.h"
 
-#include <Ogre.h>
+#include <OGRE/OgreVector3.h>
 
 using namespace Ogre;
 

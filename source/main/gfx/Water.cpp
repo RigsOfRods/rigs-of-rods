@@ -26,10 +26,53 @@
 #include "OgreSubsystem.h"
 #include "PlatformUtils.h" // PATH_SLASH
 #include "RoRFrameListener.h"
-#include "Settings.h"
 #include "TerrainManager.h"
 
-#include <Ogre.h>
+#include <algorithm>                         // for min, max
+#include <cmath>                             // for sin, cos, sqrt
+#include "DustManager.h"                     // for DustManager
+#include "GlobalEnvironment.h"               // for GlobalEnvironment
+#include "OgreCamera.h"                      // for Camera
+#include "OgreEntity.h"                      // for Entity
+#include "OgreException.h"                   // for Exception, Exception::ExceptionCodes::ERR_RENDERINGAPI_ERROR, OGRE_EXCEPT
+#include "OgreGpuProgramManager.h"           // for GpuProgramManager
+#include "OgreHardwareBuffer.h"              // for HardwareBuffer, HardwareBuffer::Usage::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE
+#include "OgreHardwarePixelBuffer.h"         // for HardwarePixelBuffer
+#include "OgreHardwareVertexBuffer.h"        // for HardwareVertexBuffer, HardwareVertexBufferSharedPtr, VertexBufferBinding
+#include "OgreMaterial.h"                    // for Material
+#include "OgreMaterialManager.h"             // for MaterialManager
+#include "OgreMath.h"                        // for Math, Math::TWO_PI
+#include "OgreMesh.h"                        // for Mesh
+#include "OgreMeshManager.h"                 // for MeshManager
+#include "OgrePass.h"                        // for Pass
+#include "OgrePixelFormat.h"                 // for PixelFormat::PF_R8G8B8
+#include "OgrePlane.h"                       // for Plane
+#include "OgrePrerequisites.h"               // for Real, TexturePtr, MaterialPtr, MeshPtr
+#include "OgreRay.h"                         // for Ray
+#include "OgreRenderQueue.h"                 // for RenderQueue, RenderQueueGroupID::RENDER_QUEUE_MAIN
+#include "OgreRenderQueueSortingGrouping.h"  // for RenderQueueGroup
+#include "OgreRenderSystem.h"                // for RenderSystem
+#include "OgreRenderSystemCapabilities.h"    // for RenderSystemCapabilities, Capabilities::RSC_FRAGMENT_PROGRAM, Capabilities::RSC_VERTEX_PROGRAM
+#include "OgreRenderTexture.h"               // for RenderTexture
+#include "OgreRenderWindow.h"                // for RenderWindow
+#include "OgreResourceGroupManager.h"        // for ResourceGroupManager, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
+#include "OgreRoot.h"                        // for Root
+#include "OgreSceneManager.h"                // for SceneManager
+#include "OgreSceneNode.h"                   // for SceneNode
+#include "OgreTechnique.h"                   // for Technique
+#include "OgreTexture.h"                     // for Texture, TextureType::TEX_TYPE_2D, TextureUsage::TU_RENDERTARGET
+#include "OgreTextureManager.h"              // for TextureManager
+#include "OgreTextureUnitState.h"            // for TextureUnitState
+#include "OgreVector3.h"                     // for Vector3, Vector3::UNIT_Y, Vector3::UNIT_Z, Vector3::ZERO
+#include "OgreVertexIndexData.h"             // for VertexData
+#include "OgreViewport.h"                    // for Viewport
+#include "RoRPrerequisites.h"                // for gEnv
+#include "type_traits"                       // for move
+#include <utility>                           // for pair
+#include <vector>                            // for vector
+#include <string>                            // for string
+#include <stdio.h>                           // for fclose, feof, fopen, fscanf, size_t, sscanf, FILE
+#include <stdlib.h>                          // for free, malloc
 
 using namespace Ogre;
 using namespace RoR;

@@ -23,7 +23,12 @@
 #include <OgrePrerequisites.h>
 #include <OgreStringVector.h>
 
-#include "RoRPrerequisites.h"
+
+#include "OgreSimpleSpline.h"       // for SimpleSpline
+//#include "xstddef"                  // for less
+#include "ZeroedMemoryAllocator.h"  // for ZeroedMemoryAllocator
+#include <map>                      // for map
+#include <memory>                   // for allocator
 
 /// @file
 /// @version 1
