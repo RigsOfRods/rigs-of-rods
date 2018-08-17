@@ -70,10 +70,9 @@
 #include "type_traits"                       // for move
 #include <utility>                           // for pair
 #include <vector>                            // for vector
-#include <string>                           // for operator+, string
+#include <string>                            // for string
 #include <stdio.h>                           // for fclose, feof, fopen, fscanf, size_t, sscanf, FILE
 #include <stdlib.h>                          // for free, malloc
-#include <string>                            // for char_traits
 
 using namespace Ogre;
 using namespace RoR;
