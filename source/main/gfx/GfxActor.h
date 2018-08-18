@@ -147,6 +147,14 @@ public:
         bool             wx_is_meshwheel;
     };
 
+    struct SimBuffer /// Buffered simulation data
+    {
+        std::unique_ptr<NodeData>   simbuf_nodes;
+        Ogre::Vector3               simbuf_pos;
+        Ogre::Vector3               simbuf_node0_velo;
+        bool                        simbuf_live_local;
+    };
+
     GfxActor(Actor* actor, std::string ogre_resource_group, std::vector<NodeGfx>& gfx_nodes);
 
     ~GfxActor();
@@ -164,8 +172,6 @@ public:
     void                      ScaleActor         (float ratio);
     bool                      IsActorLive        () const; //!< Should the visuals be updated for this actor?
     void                      UpdateSimDataBuffer(); //!< Copies sim. data from `Actor` to `GfxActor` for later update
-    NodeData*                 GetSimNodeBuffer   () { return m_simbuf_nodes.get(); }
-    Ogre::Vector3             GetSimActorPos     () const { return m_simbuf_pos; }
     void                      SetWheelVisuals    (uint16_t index, WheelGfx wheel_gfx);
     void                      UpdateWheelVisuals ();
     void                      FinishWheelUpdates ();
@@ -173,11 +179,12 @@ public:
     void                      UpdateDebugView    ();
     void                      CycleDebugViews    ();
     void                      UpdateCabMesh      ();
-    bool                      IsLiveLocal        () const                 { return m_simbuf_live_local; }
     inline void               SetDebugView       (DebugViewType dv)       { m_debug_view = dv; }
     inline Ogre::MaterialPtr& GetCabTransMaterial()                       { return m_cab_mat_visual_trans; }
     inline VideoCamState      GetVideoCamState   () const                 { return m_vidcam_state; }
     inline DebugViewType      GetDebugView       () const                 { return m_debug_view; }
+    SimBuffer &               GetSimDataBuffer   ()                       { return m_simbuf; }
+    NodeData*                 GetSimNodeBuffer   ()                       { return m_simbuf.simbuf_nodes.get(); }
 
 private:
 
@@ -202,10 +209,7 @@ private:
     Ogre::SceneNode*            m_rods_parent_scenenode;
     std::vector<std::shared_ptr<Task>> m_flexwheel_tasks;
 
-    // Buffered simulation data
-    std::unique_ptr<NodeData>   m_simbuf_nodes;
-    Ogre::Vector3               m_simbuf_pos;
-    bool                        m_simbuf_live_local;
+    SimBuffer                   m_simbuf;
 
     // Cab materials and their features
     Ogre::MaterialPtr           m_cab_mat_visual; ///< Updated in-place from templates

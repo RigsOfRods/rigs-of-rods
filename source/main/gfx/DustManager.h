@@ -45,6 +45,15 @@ class GfxScene
 {
 public:
 
+    struct SimBuffer /// Buffered simulation state
+    {
+        SimBuffer();
+
+        Actor*         simbuf_player_actor;
+        Ogre::Vector3  simbuf_character_pos;
+        Ogre::Vector3  simbuf_dir_arrow_target;
+    };
+
     GfxScene();
 
     void           InitScene(Ogre::SceneManager* sm);
@@ -55,6 +64,7 @@ public:
     void           RegisterGfxActor(RoR::GfxActor* gfx_actor);
     void           RemoveGfxActor(RoR::GfxActor* gfx_actor);
     void           BufferSimulationData(); //!< Run this when simulation is halted
+    SimBuffer&     GetSimBuffer() { return m_simbuf; }
 
 private:
 
@@ -64,11 +74,8 @@ private:
     std::vector<GfxActor*>            m_live_gfx_actors;
     RoR::GfxEnvmap                    m_envmap;
     HeatHaze*                         m_heathaze;
+    SimBuffer                         m_simbuf;
 
-    // Buffered simulation state
-    Actor*         m_simbuf_player_actor;
-    Ogre::Vector3  m_simbuf_character_pos;
-    Ogre::Vector3  m_simbuf_dir_arrow_target;
 };
 
 } // namespace RoR

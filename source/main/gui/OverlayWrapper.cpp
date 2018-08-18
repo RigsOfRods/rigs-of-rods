@@ -768,9 +768,9 @@ void OverlayWrapper::UpdateDirectionArrowHud(RoR::GfxActor* player_vehicle, Ogre
 {
     m_direction_arrow_node->lookAt(point_to, Node::TS_WORLD, Vector3::UNIT_Y);
     Real distance = 0.0f;
-    if (player_vehicle != nullptr && player_vehicle->IsLiveLocal())
+    if (player_vehicle != nullptr && player_vehicle->GetSimDataBuffer().simbuf_live_local)
     {
-        distance = player_vehicle->GetSimActorPos().distance(point_to);
+        distance = player_vehicle->GetSimDataBuffer().simbuf_pos.distance(point_to);
     }
     else if (gEnv->player)
     {

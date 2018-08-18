@@ -68,7 +68,7 @@ RoR::GfxActor::GfxActor(Actor* actor, std::string ogre_resource_group, std::vect
     m_particles_sparks = dustman.GetDustPool("sparks");
     m_particles_clump  = dustman.GetDustPool("clump");
 
-    m_simbuf_nodes.reset(new NodeData[actor->ar_num_nodes]);
+    m_simbuf.simbuf_nodes.reset(new NodeData[actor->ar_num_nodes]);
 }
 
 RoR::GfxActor::~GfxActor()
@@ -352,7 +352,7 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
             vidcam.vcam_render_window->update();
 
         // get the normal of the camera plane now
-        GfxActor::NodeData* node_buf = m_simbuf_nodes.get();
+        GfxActor::NodeData* node_buf = m_simbuf.simbuf_nodes.get();
         const Ogre::Vector3 abs_pos_center = node_buf[vidcam.vcam_node_center].AbsPosition;
         const Ogre::Vector3 abs_pos_z = node_buf[vidcam.vcam_node_dir_z].AbsPosition;
         const Ogre::Vector3 abs_pos_y = node_buf[vidcam.vcam_node_dir_y].AbsPosition;
@@ -897,12 +897,12 @@ void RoR::GfxActor::SetRodsVisible(bool visible)
 
 void RoR::GfxActor::UpdateSimDataBuffer()
 {
-    m_simbuf_live_local = (m_actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED);
-    m_simbuf_pos = m_actor->getPosition();
+    m_simbuf.simbuf_live_local = (m_actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED);
+    m_simbuf.simbuf_pos = m_actor->getPosition();
     const int num_nodes = m_actor->ar_num_nodes;
     for (int i = 0; i < num_nodes; ++i)
     {
-        m_simbuf_nodes.get()[i].AbsPosition = m_actor->ar_nodes[i].AbsPosition;
+        m_simbuf.simbuf_nodes.get()[i].AbsPosition = m_actor->ar_nodes[i].AbsPosition;
     }
 }
 

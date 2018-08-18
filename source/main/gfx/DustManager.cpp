@@ -35,10 +35,8 @@
 using namespace Ogre;
 
 RoR::GfxScene::GfxScene()
-    : m_simbuf_player_actor(nullptr)
-    , m_ogre_scene(nullptr)
+    : m_ogre_scene(nullptr)
     , m_heathaze(nullptr)
-    , m_simbuf_character_pos(Ogre::Vector3::ZERO)
 {}
 
 void RoR::GfxScene::InitScene(Ogre::SceneManager* sm)
@@ -86,6 +84,13 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
         gfx_actor->UpdateWheelVisuals(); // Push flexwheel tasks to threadpool
     }
 
+    // Var
+    GfxActor* player_gfx_actor = nullptr;
+    if (m_simbuf.simbuf_player_actor != nullptr)
+    {
+        player_gfx_actor = m_simbuf.simbuf_player_actor->GetGfxActor();
+    }
+
     // Particles
     if (RoR::App::gfx_particles_mode.GetActive() == 1)
     {
@@ -111,10 +116,9 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
     if (water)
     {
         water->WaterSetCamera(gEnv->mainCamera);
-        if (m_simbuf_player_actor)
+        if (player_gfx_actor != nullptr)
         {
-            Ogre::Vector3 pos = m_simbuf_player_actor->GetGfxActor()->GetSimActorPos();
-            water->SetReflectionPlaneHeight(water->CalcWavesHeight(pos));
+            water->SetReflectionPlaneHeight(water->CalcWavesHeight(player_gfx_actor->GetSimDataBuffer().simbuf_pos));
         }
         else
         {
@@ -139,10 +143,10 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
     }
 
     // GUI - Direction arrow
-    if ((m_simbuf_player_actor != nullptr) && App::GetOverlayWrapper() && App::GetOverlayWrapper()->IsDirectionArrowVisible())
+    if (App::GetOverlayWrapper() && App::GetOverlayWrapper()->IsDirectionArrowVisible())
     {
         App::GetOverlayWrapper()->UpdateDirectionArrowHud(
-            m_simbuf_player_actor->GetGfxActor(), m_simbuf_dir_arrow_target, m_simbuf_character_pos);
+            player_gfx_actor, m_simbuf.simbuf_dir_arrow_target, m_simbuf.simbuf_character_pos);
     }
 
     // Actors - update misc visuals
@@ -150,11 +154,11 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
     {
         gfx_actor->UpdateCabMesh();
     }
-    if (m_simbuf_player_actor != nullptr)
+    if (player_gfx_actor != nullptr)
     {
-        Ogre::Vector3 pos = m_simbuf_player_actor->GetGfxActor()->GetSimActorPos();
-        m_envmap.UpdateEnvMap(pos, m_simbuf_player_actor); // Safe to be called here, only modifies OGRE objects, doesn't read any physics state.
-        m_simbuf_player_actor->GetGfxActor()->UpdateVideoCameras(dt_sec);
+        Ogre::Vector3 pos = player_gfx_actor->GetSimDataBuffer().simbuf_pos;
+        m_envmap.UpdateEnvMap(pos, m_simbuf.simbuf_player_actor); // Safe to be called here, only modifies OGRE objects, doesn't read any physics state.
+        player_gfx_actor->UpdateVideoCameras(dt_sec);
     }
 
     // Actors - finalize threaded tasks
@@ -192,9 +196,9 @@ void RoR::GfxScene::RegisterGfxActor(RoR::GfxActor* gfx_actor)
 
 void RoR::GfxScene::BufferSimulationData()
 {
-    m_simbuf_player_actor = App::GetSimController()->GetPlayerActor();
-    m_simbuf_character_pos = gEnv->player->getPosition();
-    m_simbuf_dir_arrow_target = App::GetSimController()->GetDirArrowTarget();
+    m_simbuf.simbuf_player_actor = App::GetSimController()->GetPlayerActor();
+    m_simbuf.simbuf_character_pos = gEnv->player->getPosition();
+    m_simbuf.simbuf_dir_arrow_target = App::GetSimController()->GetDirArrowTarget();
 
     m_live_gfx_actors.clear();
     for (GfxActor* a: m_all_gfx_actors)
@@ -220,3 +224,9 @@ void RoR::GfxScene::RemoveGfxActor(RoR::GfxActor* remove_me)
         }
     }
 }
+
+RoR::GfxScene::SimBuffer::SimBuffer():
+    simbuf_player_actor(nullptr),
+    simbuf_character_pos(Ogre::Vector3::ZERO),
+    simbuf_dir_arrow_target(Ogre::Vector3::ZERO)
+{}
