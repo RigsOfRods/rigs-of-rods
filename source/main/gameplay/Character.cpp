@@ -54,7 +54,6 @@ Character::Character(int source, unsigned int streamid, int color_number, bool i
     , m_is_remote(is_remote)
     , m_source_id(source)
     , m_stream_id(streamid)
-    , m_have_coupling_seat(false)
     , m_gfx_character(nullptr)
     , m_driving_anim_length(0.f)
     , m_anim_name("Idle_sway")
@@ -427,7 +426,7 @@ void Character::update(float dt)
         m_character_position = position;
         updateMapIcon();
     }
-    else if (m_actor_coupling && m_actor_coupling->hasDriverSeat()) // The character occupies a vehicle or machine
+    else if (m_actor_coupling) // The character occupies a vehicle or machine
     {
         // Animation
         float angle = m_actor_coupling->ar_hydro_dir_wheel_display * -1.0f; // not getSteeringAngle(), but this, as its smoothed
@@ -620,12 +619,9 @@ void Character::SetActorCoupling(bool enabled, Actor* actor /* = nullptr */)
             RoR::Networking::AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA, sizeof(Networking::CharacterMsgAttach), (char*)&msg);
 #endif // USE_SOCKETW
         }
-
-        m_have_coupling_seat = m_actor_coupling->hasDriverSeat();
     }
     else
     {
-        m_have_coupling_seat = false;
         m_actor_coupling = nullptr;
         if ((App::mp_state.GetActive() == MpState::CONNECTED) && !m_is_remote)
         {
@@ -729,7 +725,6 @@ void RoR::GfxCharacter::BufferSimulationData()
     xc_simbuf.simbuf_color_number           = xc_character->GetColorNum();
     xc_simbuf.simbuf_net_username           = xc_character->GetNetUsername();
     xc_simbuf.simbuf_actor_coupling         = xc_character->GetActorCoupling();
-    xc_simbuf.simbuf_coupling_has_seat      = xc_character->IsCoupledWithActor(); // confusing method name
     xc_simbuf.simbuf_anim_name              = xc_character->GetAnimName();
     xc_simbuf.simbuf_anim_time              = xc_character->GetAnimTime();
 }
@@ -747,7 +742,7 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
                 xc_movable_text->setVisible(false);
             }
             xc_scenenode->getAttachedObject(0)->setCastShadows(false);
-            xc_scenenode->setVisible(xc_simbuf.simbuf_coupling_has_seat);
+        xc_scenenode->setVisible(xc_simbuf.simbuf_actor_coupling->GetGfxActor()->HasDriverSeatProp());
         }
         else if (xc_simbuf_prev.simbuf_actor_coupling != nullptr)
         {
@@ -765,7 +760,7 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
     // Position + Orientation
     if (xc_simbuf.simbuf_actor_coupling != nullptr)
     {
-        if (xc_simbuf.simbuf_coupling_has_seat)
+        if (xc_simbuf.simbuf_actor_coupling->GetGfxActor()->HasDriverSeatProp())
         {
             Ogre::Vector3 pos;
             Ogre::Quaternion rot;

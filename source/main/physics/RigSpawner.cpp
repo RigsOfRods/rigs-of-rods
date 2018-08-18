@@ -106,6 +106,7 @@ void ActorSpawner::Setup(
     m_fuse_y_min = 1000.0f;
     m_fuse_y_max = -1000.0f;
     m_first_wing_index = -1;
+    m_driverseat_prop_index = -1;
 
     m_generate_wing_position_lights = true;
     // TODO: Handle modules
@@ -249,8 +250,6 @@ void ActorSpawner::InitializeRig()
         m_actor->ar_command_key[i].description="";
     }
 
-    memset(m_actor->ar_props, 0, sizeof(prop_t) * MAX_PROPS);
-    m_actor->ar_num_props = 0;
     m_actor->exhausts.clear();
     memset(m_actor->ar_custom_particles, 0, sizeof(cparticle_t) * MAX_CPARTICLES);
     m_actor->ar_num_custom_particles = 0;
@@ -347,8 +346,6 @@ void ActorSpawner::InitializeRig()
     m_actor->ar_collision_relevant = false;
 
     m_actor->m_debug_visuals = 0;
-
-    m_actor->ar_driverseat_prop = nullptr;
 
     m_actor->ar_use_heathaze = !m_actor->m_disable_smoke && App::gfx_enable_heathaze.GetActive();
     m_actor->ar_hide_in_actor_list = false;
@@ -739,9 +736,8 @@ void ActorSpawner::BuildAerialEngine(
 
     /* Visuals */
     float scale = GetNode(ref_node_index).RelPosition.distance(GetNode(blade_1_node_index).RelPosition) / 2.25f;
-    for (unsigned int i = 0; i < static_cast<unsigned int>(m_actor->ar_num_props); i++)
+    for (prop_t& prop: m_props)
     {
-        prop_t & prop = m_actor->ar_props[i];
         if (prop.noderef == ref_node_index)
         {
             if (prop.pale == 1)
@@ -920,15 +916,9 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
             //we want also to add positional lights for first wing
             if (m_generate_wing_position_lights && (m_actor->m_flares_mode != GfxFlaresMode::NONE))
             {
-                if (! CheckPropLimit(4))
-                {
-                    return;
-                }
-
                 //Left green
                 m_airplane_left_light=previous_wing.fa->nfld;
-                prop_t & left_green_prop = m_actor->ar_props[m_actor->ar_num_props];
-                m_actor->ar_num_props++;
+                prop_t left_green_prop;
 
                 left_green_prop.noderef=previous_wing.fa->nfld;
                 left_green_prop.nodex=previous_wing.fa->nflu;
@@ -949,7 +939,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 left_green_prop.beacon_light[0]=nullptr; //no light
                 //the flare billboard
                 left_green_prop.beacon_flare_billboard_scene_node[0] = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-                left_green_prop.beacon_flares_billboard_system[0]=gEnv->sceneManager->createBillboardSet(this->ComposeName("Prop", m_actor->ar_num_props),1);
+                left_green_prop.beacon_flares_billboard_system[0]=gEnv->sceneManager->createBillboardSet(this->ComposeName("Prop", m_props.size()+1),1);
                 left_green_prop.beacon_flares_billboard_system[0]->createBillboard(0,0,0);
                 if (left_green_prop.beacon_flares_billboard_system[0])
                 {
@@ -961,10 +951,10 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 left_green_prop.beacon_flares_billboard_system[0]->setDefaultDimensions(0.5, 0.5);
                 left_green_prop.animFlags[0]=0;
                 left_green_prop.animMode[0]=0;
+                m_props.push_back(left_green_prop);
                 
                 //Left flash
-                prop_t & left_flash_prop = m_actor->ar_props[m_actor->ar_num_props];
-                m_actor->ar_num_props++;
+                prop_t left_flash_prop;
 
                 left_flash_prop.noderef=previous_wing.fa->nbld;
                 left_flash_prop.nodex=previous_wing.fa->nblu;
@@ -983,7 +973,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 left_flash_prop.beacon_light_rotation_rate[0]=1.0;
                 left_flash_prop.beacontype='w';
                 //light
-                std::string prop_name = this->ComposeName("Prop", m_actor->ar_num_props);
+                std::string prop_name = this->ComposeName("Prop", m_props.size()+1);
                 left_flash_prop.beacon_light[0]=gEnv->sceneManager->createLight(prop_name);
                 left_flash_prop.beacon_light[0]->setType(Ogre::Light::LT_POINT);
                 left_flash_prop.beacon_light[0]->setDiffuseColour( Ogre::ColourValue(1.0, 1.0, 1.0));
@@ -1003,11 +993,11 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 }
                 left_flash_prop.beacon_flare_billboard_scene_node[0]->setVisible(false);
                 left_flash_prop.beacon_flares_billboard_system[0]->setDefaultDimensions(1.0, 1.0);
+                m_props.push_back(left_flash_prop);
                 
                 //Right red
                 m_airplane_right_light=previous_wing.fa->nfrd;
-                prop_t & right_red_prop = m_actor->ar_props[m_actor->ar_num_props];
-                m_actor->ar_num_props++;
+                prop_t right_red_prop;
 
                 
                 right_red_prop.noderef=start_wing.fa->nfrd;
@@ -1029,7 +1019,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 right_red_prop.beacon_light[0]=nullptr; /* No light */
                 //the flare billboard
                 right_red_prop.beacon_flare_billboard_scene_node[0] = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-                right_red_prop.beacon_flares_billboard_system[0]=gEnv->sceneManager->createBillboardSet(this->ComposeName("Prop", m_actor->ar_num_props),1);
+                right_red_prop.beacon_flares_billboard_system[0]=gEnv->sceneManager->createBillboardSet(this->ComposeName("Prop", m_props.size()+1),1);
                 right_red_prop.beacon_flares_billboard_system[0]->createBillboard(0,0,0);
                 if (right_red_prop.beacon_flares_billboard_system[0])
                 {
@@ -1041,10 +1031,10 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 right_red_prop.beacon_flares_billboard_system[0]->setDefaultDimensions(0.5, 0.5);
                 right_red_prop.animFlags[0]=0;
                 right_red_prop.animMode[0]=0;
+                m_props.push_back(right_red_prop);
                 
                 //Right flash
-                prop_t & right_flash_prop = m_actor->ar_props[m_actor->ar_num_props];
-                m_actor->ar_num_props++;
+                prop_t right_flash_prop;
 
                 right_flash_prop.noderef=start_wing.fa->nbrd;
                 right_flash_prop.nodex=start_wing.fa->nbru;
@@ -1063,7 +1053,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 right_flash_prop.beacon_light_rotation_rate[0]=1.0;
                 right_flash_prop.beacontype='w';
                 //light
-                prop_name = this->ComposeName("Prop", m_actor->ar_num_props);
+                prop_name = this->ComposeName("Prop", m_props.size()+1);
                 right_flash_prop.beacon_light[0]=gEnv->sceneManager->createLight(prop_name);
                 right_flash_prop.beacon_light[0]->setType(Ogre::Light::LT_POINT);
                 right_flash_prop.beacon_light[0]->setDiffuseColour( Ogre::ColourValue(1.0, 1.0, 1.0));
@@ -1085,6 +1075,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 right_flash_prop.beacon_flares_billboard_system[0]->setDefaultDimensions(1.0, 1.0);
                 right_flash_prop.animFlags[0]=0;
                 right_flash_prop.animMode[0]=0;
+                m_props.push_back(right_flash_prop);
                 
                 m_generate_wing_position_lights = false; // Already done
             }
@@ -1592,13 +1583,8 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckPropLimit(1))
-    {
-        return;
-    }
-
-    prop_t & prop = m_actor->ar_props[m_actor->ar_num_props];
-    int prop_index = m_actor->ar_num_props;
+    prop_t prop;
+    int prop_index = m_props.size();
     memset(&prop, 0, sizeof(prop_t));
 
     prop.noderef         = GetNodeIndexOrThrow(def.reference_node);
@@ -1692,9 +1678,9 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
     else if(def.special == RigDef::Prop::SPECIAL_DRIVER_SEAT)
     {
         //driver seat, used to position the driver and make the seat translucent at times
-        if (m_actor->ar_driverseat_prop == nullptr)
+        if (m_driverseat_prop_index == -1)
         {
-            m_actor->ar_driverseat_prop = & prop;
+            m_driverseat_prop_index = prop_index;
             prop.mo->setMaterialName("driversseat");
         }
         else
@@ -1705,9 +1691,9 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
     else if(def.special == RigDef::Prop::SPECIAL_DRIVER_SEAT_2)
     {
         // Same as DRIVER_SEAT, except it doesn't force the "driversseat" material
-        if (m_actor->ar_driverseat_prop == nullptr)
+        if (m_driverseat_prop_index == -1)
         {
-            m_actor->ar_driverseat_prop = & prop;
+            m_driverseat_prop_index = prop_index;
         }
         else
         {
@@ -1835,7 +1821,6 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
         this->SetupNewEntity(prop.mo->getEntity(), Ogre::ColourValue(1.f, 1.f, 0.f));
     }
 
-    ++m_actor->ar_num_props;
     m_curr_mirror_prop_scenenode = nullptr;
     m_curr_mirror_prop_type = CustomMaterial::MirrorPropType::MPROP_NONE;
 
@@ -2097,6 +2082,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
         anim_itor++;
         anim_index++;
     }
+    m_props.push_back(prop);
 }
 
 void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
@@ -6158,20 +6144,6 @@ bool ActorSpawner::CheckAxleLimit(unsigned int count)
     return true;
 }
 
-bool ActorSpawner::CheckPropLimit(unsigned int count)
-{	
-    SPAWNER_PROFILE_SCOPED();
-
-    if ((m_actor->ar_num_props + count) > MAX_PROPS)
-    {
-        std::stringstream msg;
-        msg << "Prop limit (" << MAX_PROPS << ") exceeded";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return false;
-    }
-    return true;
-}
-
 bool ActorSpawner::CheckFlexbodyLimit(unsigned int count)
 {
     SPAWNER_PROFILE_SCOPED();
@@ -6839,7 +6811,7 @@ void ActorSpawner::FinalizeGfxSetup()
 
     // Create the actor
     m_actor->m_gfx_actor = std::unique_ptr<RoR::GfxActor>(
-        new RoR::GfxActor(m_actor, m_custom_resource_group, m_gfx_nodes));
+        new RoR::GfxActor(m_actor, m_custom_resource_group, m_gfx_nodes, m_props, m_driverseat_prop_index));
 
     // Process special materials
     for (auto& entry: m_material_substitutions)

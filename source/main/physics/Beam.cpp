@@ -231,43 +231,6 @@ Actor::~Actor()
         m_skid_trails[i] = nullptr;
     }
 
-    // delete props
-    for (int i = 0; i < ar_num_props; i++)
-    {
-        for (int k = 0; k < 4; ++k)
-        {
-            if (ar_props[i].beacon_flare_billboard_scene_node[k])
-            {
-                Ogre::SceneNode* scene_node = ar_props[i].beacon_flare_billboard_scene_node[k];
-                scene_node->removeAndDestroyAllChildren();
-                gEnv->sceneManager->destroySceneNode(scene_node);
-            }
-            if (ar_props[i].beacon_light[k])
-            {
-                gEnv->sceneManager->destroyLight(ar_props[i].beacon_light[k]);
-            }
-        }
-
-        if (ar_props[i].scene_node)
-        {
-            ar_props[i].scene_node->removeAndDestroyAllChildren();
-            gEnv->sceneManager->destroySceneNode(ar_props[i].scene_node);
-        }
-        if (ar_props[i].wheel)
-        {
-            ar_props[i].wheel->removeAndDestroyAllChildren();
-            gEnv->sceneManager->destroySceneNode(ar_props[i].wheel);
-        }
-        if (ar_props[i].mo)
-        {
-            delete ar_props[i].mo;
-        }
-        if (ar_props[i].wheelmo)
-        {
-            delete ar_props[i].wheelmo;
-        }
-    }
-
     // delete flares
     for (size_t i = 0; i < this->ar_flares.size(); i++)
     {
@@ -395,31 +358,6 @@ void Actor::ScaleActor(float value)
     }
     updateSlideNodePositions();
 
-    // props and stuff
-    // TOFIX: care about prop positions as well!
-    for (int i = 0; i < ar_num_props; i++)
-    {
-        if (ar_props[i].scene_node)
-            ar_props[i].scene_node->scale(value, value, value);
-
-        if (ar_props[i].wheel)
-            ar_props[i].wheel->scale(value, value, value);
-
-        if (ar_props[i].wheel)
-            ar_props[i].wheelpos = relpos + (ar_props[i].wheelpos - relpos) * value;
-
-        if (ar_props[i].beacon_flare_billboard_scene_node[0])
-            ar_props[i].beacon_flare_billboard_scene_node[0]->scale(value, value, value);
-
-        if (ar_props[i].beacon_flare_billboard_scene_node[1])
-            ar_props[i].beacon_flare_billboard_scene_node[1]->scale(value, value, value);
-
-        if (ar_props[i].beacon_flare_billboard_scene_node[2])
-            ar_props[i].beacon_flare_billboard_scene_node[2]->scale(value, value, value);
-
-        if (ar_props[i].beacon_flare_billboard_scene_node[3])
-            ar_props[i].beacon_flare_billboard_scene_node[3]->scale(value, value, value);
-    }
     // tell the cabmesh that resizing is ok, and they dont need to break ;)
     if (m_cab_mesh)
         m_cab_mesh->ScaleFlexObj(value);
@@ -431,7 +369,7 @@ void Actor::ScaleActor(float value)
     }
 
 
-    m_gfx_actor->ScaleActor(value);
+    m_gfx_actor->ScaleActor(relpos, value);
 
 }
 
@@ -1361,11 +1299,6 @@ void Actor::HandleMouseMove(int node, Vector3 pos, float force)
     m_mouse_grab_pos = pos;
 }
 
-bool Actor::hasDriverSeat()
-{
-    return ar_driverseat_prop != 0;
-}
-
 void Actor::resetAutopilot()
 {
     ar_autopilot->disconnect();
@@ -1859,9 +1792,17 @@ void Actor::receiveStreamData(unsigned int type, int source, unsigned int stream
 
 void Actor::calcAnimators(const int flag_state, float& cstate, int& div, Real timer, const float lower_limit, const float upper_limit, const float option3)
 {
+    // ## DEV NOTE:
+    // ## Until 06/2018, this function was used for both animator-beams (physics, part of softbody) and animated props (visual-only).
+    // ## Animated props are now done by `GfxActor::CalcPropAnimation()`   ~ only_a_ptr
+
+    // -- WRITES --
+    // ANIM_FLAG_TORQUE: ar_anim_previous_crank
+    // sequential shifting: m_previous_gear, ar_anim_shift_timer
+
     Real dt = timer;
 
-    //boat rudder
+    //boat rudder - read only
     if (flag_state & ANIM_FLAG_BRUDDER)
     {
         int spi;
@@ -1876,7 +1817,7 @@ void Actor::calcAnimators(const int flag_state, float& cstate, int& div, Real ti
         div++;
     }
 
-    //boat throttle
+    //boat throttle - read only
     if (flag_state & ANIM_FLAG_BTHROTTLE)
     {
         int spi;
@@ -1891,7 +1832,7 @@ void Actor::calcAnimators(const int flag_state, float& cstate, int& div, Real ti
         div++;
     }
 
-    //differential lock status
+    //differential lock status - read only
     if (flag_state & ANIM_FLAG_DIFFLOCK)
     {
         if (m_num_axles)
@@ -1909,7 +1850,7 @@ void Actor::calcAnimators(const int flag_state, float& cstate, int& div, Real ti
         div++;
     }
 
-    //heading
+    //heading - read only
     if (flag_state & ANIM_FLAG_HEADING)
     {
         float heading = getHeadingDirectionAngle();
@@ -1918,7 +1859,7 @@ void Actor::calcAnimators(const int flag_state, float& cstate, int& div, Real ti
         div++;
     }
 
-    //torque
+    //torque - WRITES 
     if (ar_engine && flag_state & ANIM_FLAG_TORQUE)
     {
         float torque = ar_engine->GetCrankFactor();
@@ -2705,18 +2646,9 @@ void Actor::SetPropsCastShadows(bool do_cast_shadows)
     {
         ((Entity*)(m_cab_scene_node->getAttachedObject(0)))->setCastShadows(do_cast_shadows);
     }
-    int i;
-    for (i = 0; i < ar_num_props; i++)
-    {
-        if (ar_props[i].scene_node && ar_props[i].scene_node->numAttachedObjects())
-        {
-            ar_props[i].scene_node->getAttachedObject(0)->setCastShadows(do_cast_shadows);
-        }
-        if (ar_props[i].wheel && ar_props[i].wheel->numAttachedObjects())
-        {
-            ar_props[i].wheel->getAttachedObject(0)->setCastShadows(do_cast_shadows);
-        }
-    }
+    
+    // TODO: Updating props removed when adding props to GfxActor -- it probably doesn't matter anyway ~ only_a_ptr, 06/2018
+
     // TODO: Updating wheel visuals removed when implementing `GfxActor::WheelGfx` ~ only_a_ptr, 04/2018
 
     // TODO: updating beam visuals removed when implementing `GfxActor::Rod` concept
@@ -2822,168 +2754,8 @@ void Actor::updateFlares(float dt, bool isCurrent)
     bool enableAll = true;
     if ((m_flares_mode == GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY) && !isCurrent) { enableAll = false; }
 
-    //okay, this is just ugly, we have flares in props!
-    //we have to update them here because they run
+    // NOTE: Beacon flares are now updated in GfxActor::UpdateBeaconFlares()
 
-    Ogre::Vector3 camera_position = gEnv->mainCamera->getPosition();
-
-    if (m_beacon_light_is_active)
-    {
-        for (int i = 0; i < ar_num_props; i++)
-        {
-            if (ar_props[i].beacontype == 'b')
-            {
-                // Get data
-                Ogre::SceneNode* beacon_scene_node = ar_props[i].scene_node;
-                Quaternion beacon_orientation = beacon_scene_node->getOrientation();
-                Ogre::Light* beacon_light = ar_props[i].beacon_light[0];
-                float beacon_rotation_rate = ar_props[i].beacon_light_rotation_rate[0];
-                float beacon_rotation_angle = ar_props[i].beacon_light_rotation_angle[0]; // Updated at end of block
-
-                // Transform
-                beacon_light->setPosition(beacon_scene_node->getPosition() + beacon_orientation * Vector3(0, 0, 0.12));
-                beacon_rotation_angle += dt * beacon_rotation_rate;//rotate baby!
-                beacon_light->setDirection(beacon_orientation * Vector3(cos(beacon_rotation_angle), sin(beacon_rotation_angle), 0));
-                //billboard
-                Vector3 vdir = beacon_light->getPosition() - camera_position; // Any reason to query light position instead of scene node position? Where is light position updated, anyway? ~ only_a_ptr, 2015/11
-                float vlen = vdir.length();
-                if (vlen > 100.0)
-                {
-                    ar_props[i].beacon_flare_billboard_scene_node[0]->setVisible(false);
-                    continue;
-                }
-                //normalize
-                vdir = vdir / vlen;
-                ar_props[i].beacon_flare_billboard_scene_node[0]->setPosition(beacon_light->getPosition() - vdir * 0.1);
-                float amplitude = beacon_light->getDirection().dotProduct(vdir);
-                if (amplitude > 0)
-                {
-                    ar_props[i].beacon_flare_billboard_scene_node[0]->setVisible(true);
-                    ar_props[i].beacon_flares_billboard_system[0]->setDefaultDimensions(amplitude * amplitude * amplitude, amplitude * amplitude * amplitude);
-                }
-                else
-                {
-                    ar_props[i].beacon_flare_billboard_scene_node[0]->setVisible(false);
-                }
-                beacon_light->setVisible(enableAll);
-
-                // Update
-                ar_props[i].beacon_light_rotation_angle[0] = beacon_rotation_angle;
-                // NOTE: Light position is not updated here!
-            }
-            else if (ar_props[i].beacontype == 'p')
-            {
-                for (int k = 0; k < 4; k++)
-                {
-                    //update light
-                    Quaternion orientation = ar_props[i].scene_node->getOrientation();
-                    switch (k)
-                    {
-                    case 0: ar_props[i].beacon_light[k]->setPosition(ar_props[i].scene_node->getPosition() + orientation * Vector3(-0.64, 0, 0.14));
-                        break;
-                    case 1: ar_props[i].beacon_light[k]->setPosition(ar_props[i].scene_node->getPosition() + orientation * Vector3(-0.32, 0, 0.14));
-                        break;
-                    case 2: ar_props[i].beacon_light[k]->setPosition(ar_props[i].scene_node->getPosition() + orientation * Vector3(+0.32, 0, 0.14));
-                        break;
-                    case 3: ar_props[i].beacon_light[k]->setPosition(ar_props[i].scene_node->getPosition() + orientation * Vector3(+0.64, 0, 0.14));
-                        break;
-                    }
-                    ar_props[i].beacon_light_rotation_angle[k] += dt * ar_props[i].beacon_light_rotation_rate[k];//rotate baby!
-                    ar_props[i].beacon_light[k]->setDirection(orientation * Vector3(cos(ar_props[i].beacon_light_rotation_angle[k]), sin(ar_props[i].beacon_light_rotation_angle[k]), 0));
-                    //billboard
-                    Vector3 vdir = ar_props[i].beacon_light[k]->getPosition() - gEnv->mainCamera->getPosition();
-                    float vlen = vdir.length();
-                    if (vlen > 100.0)
-                    {
-                        ar_props[i].beacon_flare_billboard_scene_node[k]->setVisible(false);
-                        continue;
-                    }
-                    //normalize
-                    vdir = vdir / vlen;
-                    ar_props[i].beacon_flare_billboard_scene_node[k]->setPosition(ar_props[i].beacon_light[k]->getPosition() - vdir * 0.2);
-                    float amplitude = ar_props[i].beacon_light[k]->getDirection().dotProduct(vdir);
-                    if (amplitude > 0)
-                    {
-                        ar_props[i].beacon_flare_billboard_scene_node[k]->setVisible(true);
-                        ar_props[i].beacon_flares_billboard_system[k]->setDefaultDimensions(amplitude * amplitude * amplitude, amplitude * amplitude * amplitude);
-                    }
-                    else
-                    {
-                        ar_props[i].beacon_flare_billboard_scene_node[k]->setVisible(false);
-                    }
-                    ar_props[i].beacon_light[k]->setVisible(enableAll);
-                }
-            }
-            else if (ar_props[i].beacontype == 'r')
-            {
-                //update light
-                Quaternion orientation = ar_props[i].scene_node->getOrientation();
-                ar_props[i].beacon_light[0]->setPosition(ar_props[i].scene_node->getPosition() + orientation * Vector3(0, 0, 0.06));
-                ar_props[i].beacon_light_rotation_angle[0] += dt * ar_props[i].beacon_light_rotation_rate[0];//rotate baby!
-                //billboard
-                Vector3 vdir = ar_props[i].beacon_light[0]->getPosition() - gEnv->mainCamera->getPosition();
-                float vlen = vdir.length();
-                if (vlen > 100.0)
-                {
-                    ar_props[i].beacon_flare_billboard_scene_node[0]->setVisible(false);
-                    continue;
-                }
-                //normalize
-                vdir = vdir / vlen;
-                ar_props[i].beacon_flare_billboard_scene_node[0]->setPosition(ar_props[i].beacon_light[0]->getPosition() - vdir * 0.1);
-                bool visible = false;
-                if (ar_props[i].beacon_light_rotation_angle[0] > 1.0)
-                {
-                    ar_props[i].beacon_light_rotation_angle[0] = 0.0;
-                    visible = true;
-                }
-                visible = visible && enableAll;
-                ar_props[i].beacon_light[0]->setVisible(visible);
-                ar_props[i].beacon_flare_billboard_scene_node[0]->setVisible(visible);
-            }
-            if (ar_props[i].beacontype == 'R' || ar_props[i].beacontype == 'L')
-            {
-                Vector3 mposition = ar_nodes[ar_props[i].noderef].AbsPosition + ar_props[i].offsetx * (ar_nodes[ar_props[i].nodex].AbsPosition - ar_nodes[ar_props[i].noderef].AbsPosition) + ar_props[i].offsety * (ar_nodes[ar_props[i].nodey].AbsPosition - ar_nodes[ar_props[i].noderef].AbsPosition);
-                //billboard
-                Vector3 vdir = mposition - gEnv->mainCamera->getPosition();
-                float vlen = vdir.length();
-                if (vlen > 100.0)
-                {
-                    ar_props[i].beacon_flare_billboard_scene_node[0]->setVisible(false);
-                    continue;
-                }
-                //normalize
-                vdir = vdir / vlen;
-                ar_props[i].beacon_flare_billboard_scene_node[0]->setPosition(mposition - vdir * 0.1);
-            }
-            if (ar_props[i].beacontype == 'w')
-            {
-                Vector3 mposition = ar_nodes[ar_props[i].noderef].AbsPosition + ar_props[i].offsetx * (ar_nodes[ar_props[i].nodex].AbsPosition - ar_nodes[ar_props[i].noderef].AbsPosition) + ar_props[i].offsety * (ar_nodes[ar_props[i].nodey].AbsPosition - ar_nodes[ar_props[i].noderef].AbsPosition);
-                ar_props[i].beacon_light[0]->setPosition(mposition);
-                ar_props[i].beacon_light_rotation_angle[0] += dt * ar_props[i].beacon_light_rotation_rate[0];//rotate baby!
-                //billboard
-                Vector3 vdir = mposition - gEnv->mainCamera->getPosition();
-                float vlen = vdir.length();
-                if (vlen > 100.0)
-                {
-                    ar_props[i].beacon_flare_billboard_scene_node[0]->setVisible(false);
-                    continue;
-                }
-                //normalize
-                vdir = vdir / vlen;
-                ar_props[i].beacon_flare_billboard_scene_node[0]->setPosition(mposition - vdir * 0.1);
-                bool visible = false;
-                if (ar_props[i].beacon_light_rotation_angle[0] > 1.0)
-                {
-                    ar_props[i].beacon_light_rotation_angle[0] = 0.0;
-                    visible = true;
-                }
-                visible = visible && enableAll;
-                ar_props[i].beacon_light[0]->setVisible(visible);
-                ar_props[i].beacon_flare_billboard_scene_node[0]->setVisible(visible);
-            }
-        }
-    }
     //the flares
     bool keysleep = false;
     for (size_t i = 0; i < this->ar_flares.size(); i++)
@@ -3180,36 +2952,6 @@ void Actor::autoBlinkReset()
     ar_dashboard->setBool(DD_SIGNAL_TURNRIGHT, stopblink);
 }
 
-void Actor::updateProps()
-{
-    for (int i = 0; i < ar_num_props; i++)
-    {
-        if (!ar_props[i].scene_node)
-            continue;
-
-        Vector3 diffX = ar_nodes[ar_props[i].nodex].AbsPosition - ar_nodes[ar_props[i].noderef].AbsPosition;
-        Vector3 diffY = ar_nodes[ar_props[i].nodey].AbsPosition - ar_nodes[ar_props[i].noderef].AbsPosition;
-
-        Vector3 normal = (diffY.crossProduct(diffX)).normalisedCopy();
-
-        Vector3 mposition = ar_nodes[ar_props[i].noderef].AbsPosition + ar_props[i].offsetx * diffX + ar_props[i].offsety * diffY;
-        ar_props[i].scene_node->setPosition(mposition + normal * ar_props[i].offsetz);
-
-        Vector3 refx = diffX.normalisedCopy();
-        Vector3 refy = refx.crossProduct(normal);
-        Quaternion orientation = Quaternion(refx, normal, refy) * ar_props[i].rot;
-        ar_props[i].scene_node->setOrientation(orientation);
-
-        if (ar_props[i].wheel)
-        {
-            Quaternion brot = Quaternion(Degree(-59.0), Vector3::UNIT_X);
-            brot = brot * Quaternion(Degree(ar_hydro_dir_wheel_display * ar_props[i].wheelrotdegree), Vector3::UNIT_Y);
-            ar_props[i].wheel->setPosition(mposition + normal * ar_props[i].offsetz + orientation * ar_props[i].wheelpos);
-            ar_props[i].wheel->setOrientation(orientation * brot);
-        }
-    }
-}
-
 void Actor::ToggleCustomParticles()
 {
     m_custom_particles_enabled = !m_custom_particles_enabled;
@@ -3326,8 +3068,6 @@ void Actor::updateVisual(float dt)
         }
     }
 
-    updateProps();
-
     //wings
     float autoaileron = 0;
     float autorudder = 0;
@@ -3436,26 +3176,13 @@ void Actor::setDetailLevel(int v)
 
 void Actor::setMeshVisibility(bool visible)
 {
-    for (int i = 0; i < ar_num_props; i++)
-    {
-        if (ar_props[i].mo)
-            ar_props[i].mo->setVisible(visible);
-        if (ar_props[i].wheel)
-            ar_props[i].wheel->setVisible(visible);
-        if (ar_props[i].beacon_flare_billboard_scene_node[0])
-            ar_props[i].beacon_flare_billboard_scene_node[0]->setVisible(visible);
-        if (ar_props[i].beacon_flare_billboard_scene_node[1])
-            ar_props[i].beacon_flare_billboard_scene_node[1]->setVisible(visible);
-        if (ar_props[i].beacon_flare_billboard_scene_node[2])
-            ar_props[i].beacon_flare_billboard_scene_node[2]->setVisible(visible);
-        if (ar_props[i].beacon_flare_billboard_scene_node[3])
-            ar_props[i].beacon_flare_billboard_scene_node[3]->setVisible(visible);
-    }
     for (int i = 0; i < ar_num_flexbodies; i++)
     {
         ar_flexbodies[i]->setVisible(visible);
     }
+    //  TODO: HACK! gfx actor shouldn't be called from here ~ only_a_ptr, 06/2018
     m_gfx_actor->SetWheelsVisible(visible);
+    m_gfx_actor->SetPropsVisible(visible);
     if (m_cab_scene_node)
     {
         m_cab_scene_node->setVisible(visible);
@@ -3944,74 +3671,12 @@ void Actor::ToggleCruiseControl()
 
 void Actor::ToggleBeacons()
 {
-    if (m_flares_mode == GfxFlaresMode::NONE) { return; }
-
-    const bool enableLight = (m_flares_mode != GfxFlaresMode::NO_LIGHTSOURCES);
-
-    bool beacon_light_is_active = !m_beacon_light_is_active;
-    for (int i = 0; i < ar_num_props; i++)
+    if (m_flares_mode == GfxFlaresMode::NONE)
     {
-        char beacon_type = ar_props[i].beacontype;
-        if (beacon_type == 'b')
-        {
-            ar_props[i].beacon_light[0]->setVisible(beacon_light_is_active && enableLight);
-            ar_props[i].beacon_flare_billboard_scene_node[0]->setVisible(beacon_light_is_active);
-            if (ar_props[i].beacon_flares_billboard_system[0] && beacon_light_is_active && !ar_props[i].beacon_flare_billboard_scene_node[0]->numAttachedObjects())
-            {
-                ar_props[i].beacon_flares_billboard_system[0]->setVisible(true);
-                ar_props[i].beacon_flare_billboard_scene_node[0]->attachObject(ar_props[i].beacon_flares_billboard_system[0]);
-            }
-            else if (ar_props[i].beacon_flares_billboard_system[0] && !beacon_light_is_active)
-            {
-                ar_props[i].beacon_flare_billboard_scene_node[0]->detachAllObjects();
-                ar_props[i].beacon_flares_billboard_system[0]->setVisible(false);
-            }
-        }
-        else if (beacon_type == 'R' || beacon_type == 'L')
-        {
-            ar_props[i].beacon_flare_billboard_scene_node[0]->setVisible(beacon_light_is_active);
-            if (ar_props[i].beacon_flares_billboard_system[0] && beacon_light_is_active && !ar_props[i].beacon_flare_billboard_scene_node[0]->numAttachedObjects())
-                ar_props[i].beacon_flare_billboard_scene_node[0]->attachObject(ar_props[i].beacon_flares_billboard_system[0]);
-            else if (ar_props[i].beacon_flares_billboard_system[0] && !beacon_light_is_active)
-                ar_props[i].beacon_flare_billboard_scene_node[0]->detachAllObjects();
-        }
-        else if (beacon_type == 'p')
-        {
-            for (int k = 0; k < 4; k++)
-            {
-                ar_props[i].beacon_light[k]->setVisible(beacon_light_is_active && enableLight);
-                ar_props[i].beacon_flare_billboard_scene_node[k]->setVisible(beacon_light_is_active);
-                if (ar_props[i].beacon_flares_billboard_system[k] && beacon_light_is_active && !ar_props[i].beacon_flare_billboard_scene_node[k]->numAttachedObjects())
-                    ar_props[i].beacon_flare_billboard_scene_node[k]->attachObject(ar_props[i].beacon_flares_billboard_system[k]);
-                else if (ar_props[i].beacon_flares_billboard_system[k] && !beacon_light_is_active)
-                    ar_props[i].beacon_flare_billboard_scene_node[k]->detachAllObjects();
-            }
-        }
-        else
-        {
-            for (int k = 0; k < 4; k++)
-            {
-                if (ar_props[i].beacon_light[k])
-                {
-                    ar_props[i].beacon_light[k]->setVisible(beacon_light_is_active && enableLight);
-                }
-                if (ar_props[i].beacon_flare_billboard_scene_node[k])
-                {
-                    ar_props[i].beacon_flare_billboard_scene_node[k]->setVisible(beacon_light_is_active);
-
-                    if (ar_props[i].beacon_flares_billboard_system[k] && beacon_light_is_active && !ar_props[i].beacon_flare_billboard_scene_node[k]->numAttachedObjects())
-                    {
-                        ar_props[i].beacon_flare_billboard_scene_node[k]->attachObject(ar_props[i].beacon_flares_billboard_system[k]);
-                    }
-                    else if (ar_props[i].beacon_flares_billboard_system[k] && !beacon_light_is_active)
-                    {
-                        ar_props[i].beacon_flare_billboard_scene_node[k]->detachAllObjects();
-                    }
-                }
-            }
-        }
+        return;
     }
-    m_beacon_light_is_active = beacon_light_is_active;
+
+    m_beacon_light_is_active = !m_beacon_light_is_active;
 
     //ScriptEvent - Beacon toggle
     TRIGGER_EVENT(SE_TRUCK_BEACONS_TOGGLE, ar_instance_id);
@@ -4113,13 +3778,7 @@ void Actor::NotifyActorCameraChanged()
     }
 #endif // USE_OPENAL
 
-    // look for props
-    for (int i = 0; i < ar_num_props; i++)
-    {
-        bool enabled = (ar_props[i].cameramode == -2 || ar_props[i].cameramode == ar_current_cinecam);
-        if (ar_props[i].mo)
-            ar_props[i].mo->setMeshEnabled(enabled);
-    }
+    // NOTE: Prop visibility now updated in GfxActor::UpdateProps() ~ only_a_ptr, 06/2018
 
     // look for flexbodies
     for (int i = 0; i < ar_num_flexbodies; i++)
@@ -4954,247 +4613,5 @@ Vector3 Actor::getNodePosition(int nodeNumber)
     else
     {
         return Ogre::Vector3();
-    }
-}
-
-void Actor::UpdatePropAnimations(const float dt)
-{
-    for (int propi = 0; propi < ar_num_props; propi++)
-    {
-        int animnum = 0;
-        float rx = 0.0f;
-        float ry = 0.0f;
-        float rz = 0.0f;
-
-        while (ar_props[propi].animFlags[animnum])
-        {
-            float cstate = 0.0f;
-            int div = 0.0f;
-            int flagstate = ar_props[propi].animFlags[animnum];
-            const float lower_limit = ar_props[propi].constraints[animnum].lower_limit;
-            const float upper_limit = ar_props[propi].constraints[animnum].upper_limit;
-            float animOpt3 = ar_props[propi].animOpt3[animnum];
-
-            calcAnimators(flagstate, cstate, div, dt, lower_limit, upper_limit, animOpt3);
-
-            // key triggered animations
-            if ((ar_props[propi].animFlags[animnum] & ANIM_FLAG_EVENT) && ar_props[propi].animKey[animnum] != -1)
-            {
-                if (RoR::App::GetInputEngine()->getEventValue(ar_props[propi].animKey[animnum]))
-                {
-                    // keystatelock is disabled then set cstate
-                    if (ar_props[propi].animKeyState[animnum] == -1.0f)
-                    {
-                        cstate += RoR::App::GetInputEngine()->getEventValue(ar_props[propi].animKey[animnum]);
-                    }
-                    else if (!ar_props[propi].animKeyState[animnum])
-                    {
-                        // a key was pressed and a toggle was done already, so bypass
-                        //toggle now
-                        if (!ar_props[propi].lastanimKS[animnum])
-                        {
-                            ar_props[propi].lastanimKS[animnum] = 1.0f;
-                            // use animkey as bool to determine keypress / release state of inputengine
-                            ar_props[propi].animKeyState[animnum] = 1.0f;
-                        }
-                        else
-                        {
-                            ar_props[propi].lastanimKS[animnum] = 0.0f;
-                            // use animkey as bool to determine keypress / release state of inputengine
-                            ar_props[propi].animKeyState[animnum] = 1.0f;
-                        }
-                    }
-                    else
-                    {
-                        // bypas mode, get the last set position and set it
-                        cstate += ar_props[propi].lastanimKS[animnum];
-                    }
-                }
-                else
-                {
-                    // keyevent exists and keylock is enabled but the key isnt pressed right now = get lastanimkeystatus for cstate and reset keypressed bool animkey
-                    if (ar_props[propi].animKeyState[animnum] != -1.0f)
-                    {
-                        cstate += ar_props[propi].lastanimKS[animnum];
-                        ar_props[propi].animKeyState[animnum] = 0.0f;
-                    }
-                }
-            }
-
-            //propanimation placed here to avoid interference with existing hydros(cstate) and permanent prop animation
-            //land vehicle steering
-            if (ar_props[propi].animFlags[animnum] & ANIM_FLAG_STEERING)
-                cstate += ar_hydro_dir_state;
-            //aileron
-            if (ar_props[propi].animFlags[animnum] & ANIM_FLAG_AILERONS)
-                cstate += ar_hydro_aileron_state;
-            //elevator
-            if (ar_props[propi].animFlags[animnum] & ANIM_FLAG_ELEVATORS)
-                cstate += ar_hydro_elevator_state;
-            //rudder
-            if (ar_props[propi].animFlags[animnum] & ANIM_FLAG_ARUDDER)
-                cstate += ar_hydro_rudder_state;
-            //permanent
-            if (ar_props[propi].animFlags[animnum] & ANIM_FLAG_PERMANENT)
-                cstate += 1.0f;
-
-            cstate *= ar_props[propi].animratio[animnum];
-
-            // autoanimate noflip_bouncer
-            if (ar_props[propi].animOpt5[animnum])
-                cstate *= (ar_props[propi].animOpt5[animnum]);
-
-            //rotate prop
-            if ((ar_props[propi].animMode[animnum] & ANIM_MODE_ROTA_X) || (ar_props[propi].animMode[animnum] & ANIM_MODE_ROTA_Y) || (ar_props[propi].animMode[animnum] & ANIM_MODE_ROTA_Z))
-            {
-                float limiter = 0.0f;
-                // This code was formerly executed within a fixed timestep of 0.5ms and finetuned accordingly.
-                // This is now taken into account by factoring in the respective fraction of the variable timestep.
-                float const dt_frac = dt * 2000.f;
-                if (ar_props[propi].animMode[animnum] & ANIM_MODE_AUTOANIMATE)
-                {
-                    if (ar_props[propi].animMode[animnum] & ANIM_MODE_ROTA_X)
-                    {
-                        ar_props[propi].rotaX += cstate * dt_frac;
-                        limiter = ar_props[propi].rotaX;
-                    }
-                    if (ar_props[propi].animMode[animnum] & ANIM_MODE_ROTA_Y)
-                    {
-                        ar_props[propi].rotaY += cstate * dt_frac;
-                        limiter = ar_props[propi].rotaY;
-                    }
-                    if (ar_props[propi].animMode[animnum] & ANIM_MODE_ROTA_Z)
-                    {
-                        ar_props[propi].rotaZ += cstate * dt_frac;
-                        limiter = ar_props[propi].rotaZ;
-                    }
-                }
-                else
-                {
-                    if (ar_props[propi].animMode[animnum] & ANIM_MODE_ROTA_X)
-                        rx += cstate;
-                    if (ar_props[propi].animMode[animnum] & ANIM_MODE_ROTA_Y)
-                        ry += cstate;
-                    if (ar_props[propi].animMode[animnum] & ANIM_MODE_ROTA_Z)
-                        rz += cstate;
-                }
-
-                bool limiterchanged = false;
-                // check if a positive custom limit is set to evaluate/calc flip back
-
-                if (limiter > upper_limit)
-                {
-                    if (ar_props[propi].animMode[animnum] & ANIM_MODE_NOFLIP)
-                    {
-                        limiter = upper_limit; // stop at limit
-                        ar_props[propi].animOpt5[animnum] *= -1.0f; // change cstate multiplier if bounce is set
-                    }
-                    else
-                    {
-                        limiter = lower_limit; // flip to other side at limit
-                    }
-                    limiterchanged = true;
-                }
-
-                if (limiter < lower_limit)
-                {
-                    if (ar_props[propi].animMode[animnum] & ANIM_MODE_NOFLIP)
-                    {
-                        limiter = lower_limit; // stop at limit
-                        ar_props[propi].animOpt5[animnum] *= -1.0f; // change cstate multiplier if active
-                    }
-                    else
-                    {
-                        limiter = upper_limit; // flip to other side at limit
-                    }
-                    limiterchanged = true;
-                }
-
-                if (limiterchanged)
-                {
-                    if (ar_props[propi].animMode[animnum] & ANIM_MODE_ROTA_X)
-                        ar_props[propi].rotaX = limiter;
-                    if (ar_props[propi].animMode[animnum] & ANIM_MODE_ROTA_Y)
-                        ar_props[propi].rotaY = limiter;
-                    if (ar_props[propi].animMode[animnum] & ANIM_MODE_ROTA_Z)
-                        ar_props[propi].rotaZ = limiter;
-                }
-            }
-
-            //offset prop
-
-            if ((ar_props[propi].animMode[animnum] & ANIM_MODE_OFFSET_X) || (ar_props[propi].animMode[animnum] & ANIM_MODE_OFFSET_Y) || (ar_props[propi].animMode[animnum] & ANIM_MODE_OFFSET_Z))
-            {
-                float offset = 0.0f;
-                float autooffset = 0.0f;
-
-                if (ar_props[propi].animMode[animnum] & ANIM_MODE_OFFSET_X)
-                    offset = ar_props[propi].orgoffsetX;
-                if (ar_props[propi].animMode[animnum] & ANIM_MODE_OFFSET_Y)
-                    offset = ar_props[propi].orgoffsetY;
-                if (ar_props[propi].animMode[animnum] & ANIM_MODE_OFFSET_Z)
-                    offset = ar_props[propi].orgoffsetZ;
-
-                if (ar_props[propi].animMode[animnum] & ANIM_MODE_AUTOANIMATE)
-                {
-                    // This code was formerly executed within a fixed timestep of 0.5ms and finetuned accordingly.
-                    // This is now taken into account by factoring in the respective fraction of the variable timestep.
-                    float const dt_frac = dt * 2000.f;
-                    autooffset = offset + cstate * dt_frac;
-
-                    if (autooffset > upper_limit)
-                    {
-                        if (ar_props[propi].animMode[animnum] & ANIM_MODE_NOFLIP)
-                        {
-                            autooffset = upper_limit; // stop at limit
-                            ar_props[propi].animOpt5[animnum] *= -1.0f; // change cstate multiplier if active
-                        }
-                        else
-                        {
-                            autooffset = lower_limit; // flip to other side at limit
-                        }
-                    }
-
-                    if (autooffset < lower_limit)
-                    {
-                        if (ar_props[propi].animMode[animnum] & ANIM_MODE_NOFLIP)
-                        {
-                            autooffset = lower_limit; // stop at limit
-                            ar_props[propi].animOpt5[animnum] *= -1.0f; // change cstate multiplier if active
-                        }
-                        else
-                        {
-                            autooffset = upper_limit; // flip to other side at limit
-                        }
-                    }
-                }
-                offset += cstate;
-
-                if (ar_props[propi].animMode[animnum] & ANIM_MODE_OFFSET_X)
-                {
-                    ar_props[propi].offsetx = offset;
-                    if (ar_props[propi].animMode[animnum] & ANIM_MODE_AUTOANIMATE)
-                        ar_props[propi].orgoffsetX = autooffset;
-                }
-                if (ar_props[propi].animMode[animnum] & ANIM_MODE_OFFSET_Y)
-                {
-                    ar_props[propi].offsety = offset;
-                    if (ar_props[propi].animMode[animnum] & ANIM_MODE_AUTOANIMATE)
-                        ar_props[propi].orgoffsetY = autooffset;
-                }
-                if (ar_props[propi].animMode[animnum] & ANIM_MODE_OFFSET_Z)
-                {
-                    ar_props[propi].offsetz = offset;
-                    if (ar_props[propi].animMode[animnum] & ANIM_MODE_AUTOANIMATE)
-                        ar_props[propi].orgoffsetZ = autooffset;
-                }
-            }
-            animnum++;
-        }
-        //recalc the quaternions with final stacked rotation values ( rx, ry, rz )
-        rx += ar_props[propi].rotaX;
-        ry += ar_props[propi].rotaY;
-        rz += ar_props[propi].rotaZ;
-        ar_props[propi].rot = Quaternion(Degree(rz), Vector3::UNIT_Z) * Quaternion(Degree(ry), Vector3::UNIT_Y) * Quaternion(Degree(rx), Vector3::UNIT_X);
     }
 }

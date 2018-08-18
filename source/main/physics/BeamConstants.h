@@ -24,7 +24,6 @@ static const int   MAX_WHEELS                 = 64;              //!< maximum nu
 static const int   MAX_SUBMESHES              = 500;             //!< maximum number of submeshes per actor
 static const int   MAX_TEXCOORDS              = 3000;            //!< maximum number of texture coordinates per actor
 static const int   MAX_CABS                   = 3000;            //!< maximum number of cabs per actor
-static const int   MAX_PROPS                  = 200;             //!< maximum number of props per actor
 static const int   MAX_COMMANDS               = 84;              //!< maximum number of commands per actor
 static const int   MAX_CAMERAS                = 10;              //!< maximum number of cameras per actor
 static const int   MAX_FLEXBODIES             = 64;              //!< maximum number of flexbodies per actor

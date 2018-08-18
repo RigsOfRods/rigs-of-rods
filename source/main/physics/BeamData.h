@@ -364,6 +364,8 @@ struct flare_t
 */
 struct prop_t
 {
+    prop_t() { memset(this, 0, sizeof(*this)); }
+
     int noderef;
     int nodex;
     int nodey;

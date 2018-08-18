@@ -463,7 +463,6 @@ void ActorManager::SetupActor(
     actor->updateVisual();
     actor->ToggleLights();
     actor->updateFlares(0);
-    actor->updateProps();
 
     if (actor->isPreloadedWithTerrain())
     {
@@ -472,6 +471,7 @@ void ActorManager::SetupActor(
 
         actor->GetGfxActor()->UpdateSimDataBuffer(); // Initial fill of sim data buffers
         actor->GetGfxActor()->UpdateCabMesh();
+        actor->GetGfxActor()->UpdateProps(0.f, false);
         actor->GetGfxActor()->UpdateWheelVisuals(); // Push tasks to threadpool
         actor->GetGfxActor()->FinishWheelUpdates(); // Sync tasks from threadpool
     }
@@ -1346,8 +1346,7 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
         default:
             if (m_actors[t]->ar_sim_state != Actor::SimState::LOCAL_SIMULATED && m_actors[t]->ar_engine)
                 m_actors[t]->ar_engine->UpdateEngineSim(dt, 1);
-            if (m_actors[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
-                m_actors[t]->UpdatePropAnimations(dt);
+
             if (m_actors[t]->ar_uses_networking)
             {
                 if (m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)

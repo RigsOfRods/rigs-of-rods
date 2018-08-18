@@ -130,9 +130,6 @@ public:
     void              updateSkidmarks();                   //!< Creates or updates skidmarks. No side effects.
     void              prepareInside(bool inside);          //!< Prepares vehicle for in-cabin camera use.
     void              updateFlares(float dt, bool isCurrent=false);
-    /// TIGHT-LOOP; Display; updates positions of props.
-    /// Each prop has scene node parented to root-node (only_a_ptr 11/2013).
-    void              updateProps();
     /// TIGHT-LOOP; Logic: display (+overlays +particles), sound
     /// Does a mixture of tasks:
     /// - Sound: updates sound sources; plays aircraft radio chatter;
@@ -151,8 +148,6 @@ public:
     Ogre::String      getAxleLockName();                   //!< get the name of the current differential model
     int               getAxleLockCount();
     Ogre::Vector3     getGForces();
-    bool              hasDriverSeat();
-    void              calculateDriverPos(Ogre::Vector3 &pos, Ogre::Quaternion &rot);
     float             getSteeringAngle();
     std::string       GetActorDesignName();
     std::string       GetActorFileName();
@@ -189,7 +184,6 @@ public:
     bool              CalcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1); //!< TIGHT LOOP; Physics;
     void              calcForcesEulerCompute(bool doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1); //!< TIGHT LOOP; Physics;
     void              calcForcesEulerFinal(int doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1); //!< TIGHT LOOP; Physics;
-    void              UpdatePropAnimations(const float dt);
     blinktype         getBlinkType();
     std::vector<authorinfo_t>     getAuthors();
     std::vector<std::string>      getDescription();
@@ -253,9 +247,6 @@ public:
     wheel_t           ar_wheels[MAX_WHEELS];
     int               ar_num_wheels;
     command_t         ar_command_key[MAX_COMMANDS + 10]; // 0 for safety
-    prop_t            ar_props[MAX_PROPS];
-    prop_t*           ar_driverseat_prop;
-    int               ar_num_props;
     cparticle_t       ar_custom_particles[MAX_CPARTICLES];
     int               ar_num_custom_particles;
     soundsource_t     ar_soundsources[MAX_SOUNDSCRIPTS_PER_TRUCK];

@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include "Differentials.h"
 #include "ForwardDeclarations.h"
 #include "ThreadPool.h" // class Task
 
@@ -161,8 +162,34 @@ public:
 
     struct SimBuffer /// Buffered simulation data
     {
+        struct ScrewPropSB
+        {
+            float simbuf_sp_rudder;
+            float simbuf_sp_throttle;
+        };
+
+        struct CommandKeySB
+        {
+            float simbuf_cmd_value;
+        };
+
+        struct AeroEngineSB
+        {
+            float simbuf_ae_rpmpc;
+            float simbuf_ae_throttle;
+            float simbuf_tp_aetorque; //!< Turboprop torque, used by animation "aetorque"
+            float simbuf_tp_aepitch;  //!< Turboprop pitch, used by animation "aepitch"
+            bool  simbuf_ae_turboprop:1; //!< This is a TurboProp/PistonProp
+            bool  simbuf_ae_ignition:1;
+            bool  simbuf_ae_failed:1;
+        };
+
+        struct AirbrakeSB
+        {
+            float simbuf_ab_ratio;
+        };
+
         std::unique_ptr<NodeData>   simbuf_nodes;
-        std::vector<float>          simbuf_airbrakes; //!< ratios
         Ogre::Vector3               simbuf_pos;
         Ogre::Vector3               simbuf_node0_velo;
         bool                        simbuf_live_local;
@@ -174,17 +201,39 @@ public:
         int                         simbuf_autoshift;
         float                       simbuf_wheel_speed;
         float                       simbuf_engine_rpm;
+        float                       simbuf_engine_crankfactor;
+        float                       simbuf_engine_turbo_psi;
+        float                       simbuf_engine_accel;
+        bool                        simbuf_beaconlight_active;
+        float                       simbuf_hydro_dir_state; // State of steering actuator ('hydro'), for steeringwheel display
+        float                       simbuf_hydro_aileron_state;
+        float                       simbuf_hydro_elevator_state;
+        float                       simbuf_hydro_aero_rudder_state;
+        int                         simbuf_cur_cinecam;
+        std::vector<ScrewPropSB>    simbuf_screwprops;
+        std::vector<CommandKeySB>   simbuf_commandkey;
+        std::vector<AeroEngineSB>   simbuf_aeroengines;
+        std::vector<AirbrakeSB>     simbuf_airbrakes;
+        DiffType                    simbuf_diff_type;
+        bool                        simbuf_parking_brake;
+        float                       simbuf_brake;
+        float                       simbuf_clutch;
+        int                         simbuf_aero_flap_state;
+        int                         simbuf_airbrake_state;
+        float                       simbuf_wing4_aoa;
     };
 
     struct Attributes    //!< Actor visual attributes
     {
         float            xa_speedo_highest_kph;
         bool             xa_speedo_use_engine_max_rpm;
-        int              xa_num_gears; //!< Transmission; for dashboard rendering
+        int              xa_num_gears; //!< Gearbox
         float            xa_engine_max_rpm;
+        float            xa_brake_force;
     };
 
-    GfxActor(Actor* actor, std::string ogre_resource_group, std::vector<NodeGfx>& gfx_nodes);
+    GfxActor(Actor* actor, std::string ogre_resource_group,
+        std::vector<NodeGfx>& gfx_nodes, std::vector<prop_t>& props, int driverseat_prop_idx);
 
     ~GfxActor();
 
@@ -198,7 +247,7 @@ public:
     void                      AddRod             (int beam_index, int node1_index, int node2_index, const char* material_name, bool visible, float diameter_meters);
     void                      UpdateRods         ();
     void                      SetRodsVisible     (bool visible);
-    void                      ScaleActor         (float ratio);
+    void                      ScaleActor         (Ogre::Vector3 relpos, float ratio);
     bool                      IsActorLive        () const; //!< Should the visuals be updated for this actor?
     void                      UpdateSimDataBuffer(); //!< Copies sim. data from `Actor` to `GfxActor` for later update
     void                      SetWheelVisuals    (uint16_t index, WheelGfx wheel_gfx);
@@ -223,6 +272,14 @@ public:
     inline DebugViewType      GetDebugView       () const                 { return m_debug_view; }
     SimBuffer &               GetSimDataBuffer   ()                       { return m_simbuf; }
     NodeData*                 GetSimNodeBuffer   ()                       { return m_simbuf.simbuf_nodes.get(); }
+    bool                 HasDriverSeatProp   () const { return m_driverseat_prop_index != -1; }
+    void                 UpdateBeaconFlare   (prop_t & prop, float dt, bool is_player_actor);
+    void                 UpdateProps         (float dt, bool is_player_actor);
+    void                 SetPropsVisible     (bool visible);
+    void                 SetBeaconsEnabled   (bool beacon_light_is_active);
+    void                 CalcPropAnimation   (const int flag_state, float& cstate, int& div, float timer,
+                                              const float lower_limit, const float upper_limit, const float option3);
+    void                 UpdatePropAnimations(const float dt_sec);
 
 private:
 
@@ -237,6 +294,8 @@ private:
     DebugViewType               m_debug_view;
     std::vector<NodeGfx>        m_gfx_nodes;
     std::vector<AirbrakeGfx>    m_gfx_airbrakes;
+    std::vector<prop_t>         m_props;
+    int                         m_driverseat_prop_index;
     Attributes                  m_attr;
     DustPool*                   m_particles_drip;
     DustPool*                   m_particles_misc; // This is "dust" in RoR::GfxScene; handles dust, vapour and tyre smoke
@@ -248,6 +307,10 @@ private:
     std::vector<WheelGfx>       m_wheels;
     Ogre::SceneNode*            m_rods_parent_scenenode;
     std::vector<std::shared_ptr<Task>> m_flexwheel_tasks;
+    bool                        m_beaconlight_active;
+    float                       m_prop_anim_crankfactor_prev;
+    float                       m_prop_anim_shift_timer;
+    int                         m_prop_anim_prev_gear;
 
     SimBuffer                   m_simbuf;
 

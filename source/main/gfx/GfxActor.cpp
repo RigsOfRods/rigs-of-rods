@@ -31,9 +31,12 @@
 #include "DustPool.h" // General particle gfx
 #include "FlexObj.h"
 #include "Flexable.h"
+#include "FlexAirfoil.h"
 #include "FlexMeshWheel.h"
 #include "FlexObj.h"
 #include "GlobalEnvironment.h" // TODO: Eliminate!
+#include "InputEngine.h" // TODO: Keys shouldn't be queried from here, but buffered in sim. loop ~ only_a_ptr, 06/2018
+#include "MeshObject.h"
 #include "MovableText.h"
 #include "RoRFrameListener.h" // SimController
 #include "SkyManager.h"
@@ -42,7 +45,7 @@
 #include "TerrainManager.h"
 #include "ThreadPool.h"
 #include "imgui.h"
-
+#include "TurboProp.h"
 #include <OgrePass.h>
 #include <OgreRenderWindow.h>
 #include <OgreResourceGroupManager.h>
@@ -55,13 +58,20 @@
 #include <OgreSceneManager.h>
 #include <OgreRenderWindow.h>
 
-RoR::GfxActor::GfxActor(Actor* actor, std::string ogre_resource_group, std::vector<NodeGfx>& gfx_nodes):
+RoR::GfxActor::GfxActor(Actor* actor, std::string ogre_resource_group,
+                        std::vector<NodeGfx>& gfx_nodes, std::vector<prop_t>& props,
+                        int driverseat_prop_idx):
     m_actor(actor),
     m_custom_resource_group(ogre_resource_group),
     m_vidcam_state(VideoCamState::VCSTATE_ENABLED_ONLINE),
     m_debug_view(DebugViewType::DEBUGVIEW_NONE),
     m_rods_parent_scenenode(nullptr),
-    m_gfx_nodes(gfx_nodes)
+    m_gfx_nodes(gfx_nodes),
+    m_props(props),
+    m_driverseat_prop_index(driverseat_prop_idx),
+    m_prop_anim_crankfactor_prev(0.f),
+    m_prop_anim_shift_timer(0.f),
+    m_beaconlight_active(false)
 {
     // Setup particles
     RoR::GfxScene& dustman = RoR::App::GetSimController()->GetGfxScene();
@@ -73,10 +83,14 @@ RoR::GfxActor::GfxActor(Actor* actor, std::string ogre_resource_group, std::vect
     m_particles_clump  = dustman.GetDustPool("clump");
 
     m_simbuf.simbuf_nodes.reset(new NodeData[actor->ar_num_nodes]);
+    m_simbuf.simbuf_aeroengines.resize(actor->ar_num_aeroengines);
+    m_simbuf.simbuf_commandkey.resize(MAX_COMMANDS + 10);
+    m_simbuf.simbuf_airbrakes.resize(actor->ar_num_airbrakes);
 
     // Attributes
     m_attr.xa_speedo_highest_kph = actor->ar_speedo_max_kph; // TODO: Remove the attribute from Actor altogether ~ only_a_ptr, 05/2018
     m_attr.xa_speedo_use_engine_max_rpm = actor->ar_gui_use_engine_max_rpm; // TODO: ditto
+    m_attr.xa_brake_force = actor->ar_brake_force;
     if (actor->ar_engine != nullptr)
     {
         m_attr.xa_num_gears = actor->ar_engine->getNumGears();
@@ -142,6 +156,44 @@ RoR::GfxActor::~GfxActor()
         abx.abx_mesh.setNull();
     }
     m_gfx_airbrakes.clear();
+
+    // Delete props
+    for (prop_t & prop: m_props)
+    {
+        for (int k = 0; k < 4; ++k)
+        {
+            if (prop.beacon_flare_billboard_scene_node[k])
+            {
+                Ogre::SceneNode* scene_node = prop.beacon_flare_billboard_scene_node[k];
+                scene_node->removeAndDestroyAllChildren();
+                gEnv->sceneManager->destroySceneNode(scene_node);
+            }
+            if (prop.beacon_light[k])
+            {
+                gEnv->sceneManager->destroyLight(prop.beacon_light[k]);
+            }
+        }
+
+        if (prop.scene_node)
+        {
+            prop.scene_node->removeAndDestroyAllChildren();
+            gEnv->sceneManager->destroySceneNode(prop.scene_node);
+        }
+        if (prop.wheel)
+        {
+            prop.wheel->removeAndDestroyAllChildren();
+            gEnv->sceneManager->destroySceneNode(prop.wheel);
+        }
+        if (prop.mo)
+        {
+            delete prop.mo;
+        }
+        if (prop.wheelmo)
+        {
+            delete prop.wheelmo;
+        }
+    }
+    m_props.clear();
 
     Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(m_custom_resource_group);
 }
@@ -892,12 +944,38 @@ Ogre::Quaternion RoR::GfxActor::SpecialGetRotationTo(const Ogre::Vector3& src, c
     return q;
 }
 
-void RoR::GfxActor::ScaleActor(float ratio)
+void RoR::GfxActor::ScaleActor(Ogre::Vector3 relpos, float ratio)
 {
     for (Rod& rod: m_rods)
     {
         float diameter2 = static_cast<float>(rod.rod_diameter_mm) * (ratio*1000.f);
         rod.rod_diameter_mm = static_cast<uint16_t>(diameter2);
+    }
+
+    // props and stuff
+    // TOFIX: care about prop positions as well!
+    for (prop_t& prop: m_props)
+    {
+        if (prop.scene_node)
+            prop.scene_node->scale(ratio, ratio, ratio);
+
+        if (prop.wheel)
+            prop.wheel->scale(ratio, ratio, ratio);
+
+        if (prop.wheel)
+            prop.wheelpos = relpos + (prop.wheelpos - relpos) * ratio;
+
+        if (prop.beacon_flare_billboard_scene_node[0])
+            prop.beacon_flare_billboard_scene_node[0]->scale(ratio, ratio, ratio);
+
+        if (prop.beacon_flare_billboard_scene_node[1])
+            prop.beacon_flare_billboard_scene_node[1]->scale(ratio, ratio, ratio);
+
+        if (prop.beacon_flare_billboard_scene_node[2])
+            prop.beacon_flare_billboard_scene_node[2]->scale(ratio, ratio, ratio);
+
+        if (prop.beacon_flare_billboard_scene_node[3])
+            prop.beacon_flare_billboard_scene_node[3]->scale(ratio, ratio, ratio);
     }
 }
 
@@ -930,6 +1008,16 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_tyre_pressure = m_actor->GetTyrePressure();
     m_simbuf.simbuf_aabb = m_actor->ar_bounding_box;
     m_simbuf.simbuf_wheel_speed = m_actor->ar_wheel_speed;
+    m_simbuf.simbuf_beaconlight_active = m_actor->m_beacon_light_is_active;
+    m_simbuf.simbuf_cur_cinecam = m_actor->ar_current_cinecam;
+    m_simbuf.simbuf_parking_brake = (m_actor->ar_parking_brake != 0);
+    m_simbuf.simbuf_brake = m_actor->ar_brake;
+    m_simbuf.simbuf_hydro_dir_state = m_actor->ar_hydro_dir_state;
+    m_simbuf.simbuf_hydro_aileron_state = m_actor->ar_hydro_aileron_state;
+    m_simbuf.simbuf_hydro_elevator_state = m_actor->ar_hydro_elevator_state;
+    m_simbuf.simbuf_hydro_aero_rudder_state = m_actor->ar_hydro_rudder_state;
+    m_simbuf.simbuf_aero_flap_state = m_actor->ar_aerial_flap;
+    m_simbuf.simbuf_airbrake_state = m_actor->ar_airbrake_intensity;
     if (m_simbuf.simbuf_net_username != m_actor->m_net_username)
     {
         m_simbuf.simbuf_net_username = m_actor->m_net_username;
@@ -944,10 +1032,9 @@ void RoR::GfxActor::UpdateSimDataBuffer()
 
     // airbrakes
     const int num_airbrakes = m_actor->ar_num_airbrakes;
-    m_simbuf.simbuf_airbrakes.clear();
     for (int i=0; i< num_airbrakes; ++i)
     {
-        m_simbuf.simbuf_airbrakes.push_back(m_actor->ar_airbrakes[i]->ratio);
+        m_simbuf.simbuf_airbrakes[i].simbuf_ab_ratio = m_actor->ar_airbrakes[i]->ratio;
     }
 
     // Engine (+drivetrain)
@@ -956,6 +1043,50 @@ void RoR::GfxActor::UpdateSimDataBuffer()
         m_simbuf.simbuf_gear            = m_actor->ar_engine->GetGear();
         m_simbuf.simbuf_autoshift       = m_actor->ar_engine->getAutoShift();
         m_simbuf.simbuf_engine_rpm      = m_actor->ar_engine->GetEngineRpm();
+        m_simbuf.simbuf_engine_turbo_psi= m_actor->ar_engine->GetTurboPsi(); 
+        m_simbuf.simbuf_engine_accel    = m_actor->ar_engine->GetAcceleration();
+        m_simbuf.simbuf_clutch          = m_actor->ar_engine->GetClutch();
+    }
+    if (m_actor->m_num_axles > 0)
+    {
+        m_simbuf.simbuf_diff_type = m_actor->m_axles[0]->GetActiveDiffType();
+    }
+
+    // Command keys
+    const int num_commandkeys = MAX_COMMANDS + 10;
+    for (int i = 0; i < num_commandkeys; ++i)
+    {
+        m_simbuf.simbuf_commandkey[i].simbuf_cmd_value = m_actor->ar_command_key[i].commandValue;
+    }
+
+    // Aeroengines
+    for (int i = 0; i < m_actor->ar_num_aeroengines; ++i)
+    {
+        AeroEngine* src = m_actor->ar_aeroengines[i];
+        SimBuffer::AeroEngineSB& dst = m_simbuf.simbuf_aeroengines[i];
+
+        dst.simbuf_ae_throttle   = src->getThrottle();
+        dst.simbuf_ae_rpmpc      = src->getRPMpc();
+        dst.simbuf_ae_turboprop  = (src->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP);
+        dst.simbuf_ae_ignition   = src->getIgnition();
+        dst.simbuf_ae_failed     = src->isFailed();
+
+        if (dst.simbuf_ae_turboprop)
+        {
+            Turboprop* tp = static_cast<Turboprop*>(src);
+            dst.simbuf_tp_aetorque = (100.0 * tp->indicated_torque / tp->max_torque); // TODO: Code ported as-is from calcAnimators(); what does it do? ~ only_a_ptr, 06/2018
+            dst.simbuf_tp_aepitch = tp->pitch;
+        }
+    }
+
+    // Wings
+    if (m_actor->ar_num_wings > 4)
+    {
+        m_simbuf.simbuf_wing4_aoa = m_actor->ar_wings[4].fa->aoa;
+    }
+    else
+    {
+        m_simbuf.simbuf_wing4_aoa = 0.f;
     }
 }
 
@@ -1093,7 +1224,7 @@ void RoR::GfxActor::UpdateAirbrakes()
     for (size_t i=0; i<num_airbrakes; ++i)
     {
         AirbrakeGfx abx = m_gfx_airbrakes[i];
-        const float ratio = m_simbuf.simbuf_airbrakes[i];
+        const float ratio = m_simbuf.simbuf_airbrakes[i].simbuf_ab_ratio;
         const float maxangle = m_actor->ar_airbrakes[i]->maxangle; // Friend access
         Ogre::Vector3 ref_node_pos = nodes[m_gfx_airbrakes[i].abx_ref_node].AbsPosition;
         Ogre::Vector3 x_node_pos   = nodes[m_gfx_airbrakes[i].abx_x_node].AbsPosition;
@@ -1174,8 +1305,8 @@ void RoR::GfxActor::UpdateNetLabels(float dt)
 
 void RoR::GfxActor::CalculateDriverPos(Ogre::Vector3& out_pos, Ogre::Quaternion& out_rot)
 {
-    prop_t* driverseat_prop = m_actor->ar_driverseat_prop;
-    assert(driverseat_prop != nullptr);
+    assert(m_driverseat_prop_index != -1);
+    prop_t* driverseat_prop = &m_props[m_driverseat_prop_index];
 
     NodeData* nodes = this->GetSimNodeBuffer();
 
@@ -1202,3 +1333,992 @@ void RoR::GfxActor::CalculateDriverPos(Ogre::Vector3& out_pos, Ogre::Quaternion&
     rot = rot * Ogre::Quaternion(Ogre::Degree(180), Ogre::Vector3::UNIT_Y); // rotate towards the driving direction
     out_rot = rot;
 }
+
+void RoR::GfxActor::UpdateBeaconFlare(prop_t & prop, float dt, bool is_player_actor)
+{
+    // TODO: Quick and dirty port from Beam::updateFlares(), clean it up ~ only_a_ptr, 06/2018
+    using namespace Ogre;
+
+    bool enableAll = !((App::gfx_flares_mode.GetActive() == GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY) && !is_player_actor);
+    NodeData* nodes = this->GetSimNodeBuffer();
+
+    if (prop.beacontype == 'b')
+    {
+        // Get data
+        Ogre::SceneNode* beacon_scene_node = prop.scene_node;
+        Ogre::Quaternion beacon_orientation = beacon_scene_node->getOrientation();
+        Ogre::Light* beacon_light = prop.beacon_light[0];
+        float beacon_rotation_rate = prop.beacon_light_rotation_rate[0];
+        float beacon_rotation_angle = prop.beacon_light_rotation_angle[0]; // Updated at end of block
+
+        // Transform
+        beacon_light->setPosition(beacon_scene_node->getPosition() + beacon_orientation * Ogre::Vector3(0, 0, 0.12));
+        beacon_rotation_angle += dt * beacon_rotation_rate;//rotate baby!
+        beacon_light->setDirection(beacon_orientation * Ogre::Vector3(cos(beacon_rotation_angle), sin(beacon_rotation_angle), 0));
+        //billboard
+        Ogre::Vector3 vdir = beacon_light->getPosition() - gEnv->mainCamera->getPosition(); // TODO: verify the position is already updated here ~ only_a_ptr, 06/2018
+        float vlen = vdir.length();
+        if (vlen > 100.0)
+        {
+            prop.beacon_flare_billboard_scene_node[0]->setVisible(false);
+            return;
+        }
+        //normalize
+        vdir = vdir / vlen;
+        prop.beacon_flare_billboard_scene_node[0]->setPosition(beacon_light->getPosition() - vdir * 0.1);
+        float amplitude = beacon_light->getDirection().dotProduct(vdir);
+        if (amplitude > 0)
+        {
+            prop.beacon_flare_billboard_scene_node[0]->setVisible(true);
+            prop.beacon_flares_billboard_system[0]->setDefaultDimensions(amplitude * amplitude * amplitude, amplitude * amplitude * amplitude);
+        }
+        else
+        {
+            prop.beacon_flare_billboard_scene_node[0]->setVisible(false);
+        }
+        beacon_light->setVisible(enableAll);
+
+        // Update
+        prop.beacon_light_rotation_angle[0] = beacon_rotation_angle;
+        // NOTE: Light position is not updated here!
+    }
+    else if (prop.beacontype == 'p')
+    {
+        for (int k = 0; k < 4; k++)
+        {
+            //update light
+            Quaternion orientation = prop.scene_node->getOrientation();
+            switch (k)
+            {
+            case 0: prop.beacon_light[k]->setPosition(prop.scene_node->getPosition() + orientation * Vector3(-0.64, 0, 0.14));
+                break;
+            case 1: prop.beacon_light[k]->setPosition(prop.scene_node->getPosition() + orientation * Vector3(-0.32, 0, 0.14));
+                break;
+            case 2: prop.beacon_light[k]->setPosition(prop.scene_node->getPosition() + orientation * Vector3(+0.32, 0, 0.14));
+                break;
+            case 3: prop.beacon_light[k]->setPosition(prop.scene_node->getPosition() + orientation * Vector3(+0.64, 0, 0.14));
+                break;
+            }
+            prop.beacon_light_rotation_angle[k] += dt * prop.beacon_light_rotation_rate[k];//rotate baby!
+            prop.beacon_light[k]->setDirection(orientation * Vector3(cos(prop.beacon_light_rotation_angle[k]), sin(prop.beacon_light_rotation_angle[k]), 0));
+            //billboard
+            Vector3 vdir = prop.beacon_light[k]->getPosition() - gEnv->mainCamera->getPosition();
+            float vlen = vdir.length();
+            if (vlen > 100.0)
+            {
+                prop.beacon_flare_billboard_scene_node[k]->setVisible(false);
+                continue;
+            }
+            //normalize
+            vdir = vdir / vlen;
+            prop.beacon_flare_billboard_scene_node[k]->setPosition(prop.beacon_light[k]->getPosition() - vdir * 0.2);
+            float amplitude = prop.beacon_light[k]->getDirection().dotProduct(vdir);
+            if (amplitude > 0)
+            {
+                prop.beacon_flare_billboard_scene_node[k]->setVisible(true);
+                prop.beacon_flares_billboard_system[k]->setDefaultDimensions(amplitude * amplitude * amplitude, amplitude * amplitude * amplitude);
+            }
+            else
+            {
+                prop.beacon_flare_billboard_scene_node[k]->setVisible(false);
+            }
+            prop.beacon_light[k]->setVisible(enableAll);
+        }
+    }
+    else if (prop.beacontype == 'r')
+    {
+        //update light
+        Quaternion orientation = prop.scene_node->getOrientation();
+        prop.beacon_light[0]->setPosition(prop.scene_node->getPosition() + orientation * Vector3(0, 0, 0.06));
+        prop.beacon_light_rotation_angle[0] += dt * prop.beacon_light_rotation_rate[0];//rotate baby!
+        //billboard
+        Vector3 vdir = prop.beacon_light[0]->getPosition() - gEnv->mainCamera->getPosition();
+        float vlen = vdir.length();
+        if (vlen > 100.0)
+        {
+            prop.beacon_flare_billboard_scene_node[0]->setVisible(false);
+            return;
+        }
+        //normalize
+        vdir = vdir / vlen;
+        prop.beacon_flare_billboard_scene_node[0]->setPosition(prop.beacon_light[0]->getPosition() - vdir * 0.1);
+        bool visible = false;
+        if (prop.beacon_light_rotation_angle[0] > 1.0)
+        {
+            prop.beacon_light_rotation_angle[0] = 0.0;
+            visible = true;
+        }
+        visible = visible && enableAll;
+        prop.beacon_light[0]->setVisible(visible);
+        prop.beacon_flare_billboard_scene_node[0]->setVisible(visible);
+    }
+    if (prop.beacontype == 'R' || prop.beacontype == 'L')
+    {
+        Vector3 mposition = nodes[prop.noderef].AbsPosition + prop.offsetx * (nodes[prop.nodex].AbsPosition - nodes[prop.noderef].AbsPosition) + prop.offsety * (nodes[prop.nodey].AbsPosition - nodes[prop.noderef].AbsPosition);
+        //billboard
+        Vector3 vdir = mposition - gEnv->mainCamera->getPosition();
+        float vlen = vdir.length();
+        if (vlen > 100.0)
+        {
+            prop.beacon_flare_billboard_scene_node[0]->setVisible(false);
+            return;
+        }
+        //normalize
+        vdir = vdir / vlen;
+        prop.beacon_flare_billboard_scene_node[0]->setPosition(mposition - vdir * 0.1);
+    }
+    if (prop.beacontype == 'w')
+    {
+        Vector3 mposition = nodes[prop.noderef].AbsPosition + prop.offsetx * (nodes[prop.nodex].AbsPosition - nodes[prop.noderef].AbsPosition) + prop.offsety * (nodes[prop.nodey].AbsPosition - nodes[prop.noderef].AbsPosition);
+        prop.beacon_light[0]->setPosition(mposition);
+        prop.beacon_light_rotation_angle[0] += dt * prop.beacon_light_rotation_rate[0];//rotate baby!
+        //billboard
+        Vector3 vdir = mposition - gEnv->mainCamera->getPosition();
+        float vlen = vdir.length();
+        if (vlen > 100.0)
+        {
+            prop.beacon_flare_billboard_scene_node[0]->setVisible(false);
+            return;
+        }
+        //normalize
+        vdir = vdir / vlen;
+        prop.beacon_flare_billboard_scene_node[0]->setPosition(mposition - vdir * 0.1);
+        bool visible = false;
+        if (prop.beacon_light_rotation_angle[0] > 1.0)
+        {
+            prop.beacon_light_rotation_angle[0] = 0.0;
+            visible = true;
+        }
+        visible = visible && enableAll;
+        prop.beacon_light[0]->setVisible(visible);
+        prop.beacon_flare_billboard_scene_node[0]->setVisible(visible);
+    }
+}
+
+void RoR::GfxActor::UpdateProps(float dt, bool is_player_actor)
+{
+    using namespace Ogre;
+
+    if (m_simbuf.simbuf_beaconlight_active != m_beaconlight_active)
+    {
+        m_beaconlight_active = m_simbuf.simbuf_beaconlight_active;
+        this->SetBeaconsEnabled(m_beaconlight_active);   
+    }
+
+    NodeData* nodes = this->GetSimNodeBuffer();
+
+    for (prop_t& prop: m_props)
+    {
+        if (!prop.scene_node)
+            continue;
+
+        // -- quick ugly port from `Actor::NotifyCameraChanged()`~ 06/2018
+        const bool mo_visible = (prop.cameramode == -2 || prop.cameramode == m_simbuf.simbuf_cur_cinecam);
+        if (prop.mo != nullptr)
+        {
+            prop.mo->setVisible(mo_visible);
+        }
+
+        // -- quick ugly port from `Actor::updateProps()` --- ~ 06/2018
+        Vector3 diffX = nodes[prop.nodex].AbsPosition - nodes[prop.noderef].AbsPosition;
+        Vector3 diffY = nodes[prop.nodey].AbsPosition - nodes[prop.noderef].AbsPosition;
+
+        Vector3 normal = (diffY.crossProduct(diffX)).normalisedCopy();
+
+        Vector3 mposition = nodes[prop.noderef].AbsPosition + prop.offsetx * diffX + prop.offsety * diffY;
+        prop.scene_node->setPosition(mposition + normal * prop.offsetz);
+
+        Vector3 refx = diffX.normalisedCopy();
+        Vector3 refy = refx.crossProduct(normal);
+        Quaternion orientation = Quaternion(refx, normal, refy) * prop.rot;
+        prop.scene_node->setOrientation(orientation);
+
+        if (prop.wheel) // special prop - steering wheel
+        {
+            Quaternion brot = Quaternion(Degree(-59.0), Vector3::UNIT_X);
+            brot = brot * Quaternion(Degree(m_simbuf.simbuf_hydro_dir_state * prop.wheelrotdegree), Vector3::UNIT_Y);
+            prop.wheel->setPosition(mposition + normal * prop.offsetz + orientation * prop.wheelpos);
+            prop.wheel->setOrientation(orientation * brot);
+        }
+
+        // --- quick ugly port from `Actor::updateFlares()` ~ 06/2018
+        if ((App::gfx_flares_mode.GetActive() != GfxFlaresMode::NONE)
+            && (prop.beacontype != 0)
+            && (m_beaconlight_active))
+        {
+            this->UpdateBeaconFlare(prop, dt, is_player_actor); 
+        }
+    }
+}
+
+void RoR::GfxActor::SetPropsVisible(bool visible)
+{
+    for (prop_t& prop: m_props)
+    {
+        if (prop.mo)
+            prop.mo->setVisible(visible);
+        if (prop.wheel)
+            prop.wheel->setVisible(visible);
+        if (prop.beacon_flare_billboard_scene_node[0])
+            prop.beacon_flare_billboard_scene_node[0]->setVisible(visible);
+        if (prop.beacon_flare_billboard_scene_node[1])
+            prop.beacon_flare_billboard_scene_node[1]->setVisible(visible);
+        if (prop.beacon_flare_billboard_scene_node[2])
+            prop.beacon_flare_billboard_scene_node[2]->setVisible(visible);
+        if (prop.beacon_flare_billboard_scene_node[3])
+            prop.beacon_flare_billboard_scene_node[3]->setVisible(visible);
+    }
+}
+
+void RoR::GfxActor::SetBeaconsEnabled(bool beacon_light_is_active)
+{
+    const bool enableLight = (App::gfx_flares_mode.GetActive() != GfxFlaresMode::NO_LIGHTSOURCES);
+
+    for (prop_t& prop: m_props)
+    {
+        char beacon_type = prop.beacontype;
+        if (beacon_type == 'b')
+        {
+            prop.beacon_light[0]->setVisible(beacon_light_is_active && enableLight);
+            prop.beacon_flare_billboard_scene_node[0]->setVisible(beacon_light_is_active);
+            if (prop.beacon_flares_billboard_system[0] && beacon_light_is_active && !prop.beacon_flare_billboard_scene_node[0]->numAttachedObjects())
+            {
+                prop.beacon_flares_billboard_system[0]->setVisible(true);
+                prop.beacon_flare_billboard_scene_node[0]->attachObject(prop.beacon_flares_billboard_system[0]);
+            }
+            else if (prop.beacon_flares_billboard_system[0] && !beacon_light_is_active)
+            {
+                prop.beacon_flare_billboard_scene_node[0]->detachAllObjects();
+                prop.beacon_flares_billboard_system[0]->setVisible(false);
+            }
+        }
+        else if (beacon_type == 'R' || beacon_type == 'L')
+        {
+            prop.beacon_flare_billboard_scene_node[0]->setVisible(beacon_light_is_active);
+            if (prop.beacon_flares_billboard_system[0] && beacon_light_is_active && !prop.beacon_flare_billboard_scene_node[0]->numAttachedObjects())
+                prop.beacon_flare_billboard_scene_node[0]->attachObject(prop.beacon_flares_billboard_system[0]);
+            else if (prop.beacon_flares_billboard_system[0] && !beacon_light_is_active)
+                prop.beacon_flare_billboard_scene_node[0]->detachAllObjects();
+        }
+        else if (beacon_type == 'p')
+        {
+            for (int k = 0; k < 4; k++)
+            {
+                prop.beacon_light[k]->setVisible(beacon_light_is_active && enableLight);
+                prop.beacon_flare_billboard_scene_node[k]->setVisible(beacon_light_is_active);
+                if (prop.beacon_flares_billboard_system[k] && beacon_light_is_active && !prop.beacon_flare_billboard_scene_node[k]->numAttachedObjects())
+                    prop.beacon_flare_billboard_scene_node[k]->attachObject(prop.beacon_flares_billboard_system[k]);
+                else if (prop.beacon_flares_billboard_system[k] && !beacon_light_is_active)
+                    prop.beacon_flare_billboard_scene_node[k]->detachAllObjects();
+            }
+        }
+        else
+        {
+            for (int k = 0; k < 4; k++)
+            {
+                if (prop.beacon_light[k])
+                {
+                    prop.beacon_light[k]->setVisible(beacon_light_is_active && enableLight);
+                }
+                if (prop.beacon_flare_billboard_scene_node[k])
+                {
+                    prop.beacon_flare_billboard_scene_node[k]->setVisible(beacon_light_is_active);
+
+                    if (prop.beacon_flares_billboard_system[k] && beacon_light_is_active && !prop.beacon_flare_billboard_scene_node[k]->numAttachedObjects())
+                    {
+                        prop.beacon_flare_billboard_scene_node[k]->attachObject(prop.beacon_flares_billboard_system[k]);
+                    }
+                    else if (prop.beacon_flares_billboard_system[k] && !beacon_light_is_active)
+                    {
+                        prop.beacon_flare_billboard_scene_node[k]->detachAllObjects();
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& div, float dt, const float lower_limit, const float upper_limit, const float option3)
+{
+    // ## DEV NOTE:
+    // ## This function is a modified copypaste of `Actor::calcAnimators()` which was used
+    // ## for both animator-beams (physics, part of softbody) and animated props (visual-only).
+    // ## ~ only_a_ptr, 06/2018
+
+    //boat rudder
+    if (flag_state & ANIM_FLAG_BRUDDER)
+    {
+        size_t spi;
+        float ctmp = 0.0f;
+        for (spi = 0; spi < m_simbuf.simbuf_screwprops.size(); spi++)
+        {
+            ctmp += m_simbuf.simbuf_screwprops[spi].simbuf_sp_rudder;
+        }
+
+        if (spi > 0)
+            ctmp = ctmp / spi;
+        cstate = ctmp;
+        div++;
+    }
+
+    //boat throttle
+    if (flag_state & ANIM_FLAG_BTHROTTLE)
+    {
+        size_t spi;
+        float ctmp = 0.0f;
+        for (spi = 0; spi < m_simbuf.simbuf_screwprops.size(); spi++)
+        {
+            ctmp += m_simbuf.simbuf_screwprops[spi].simbuf_sp_throttle;
+        }
+
+        if (spi > 0)
+            ctmp = ctmp / spi;
+        cstate = ctmp;
+        div++;
+    }
+
+    //differential lock status
+    if (flag_state & ANIM_FLAG_DIFFLOCK)
+    {
+        if (m_actor->m_num_axles > 0) // read-only attribute - safe to read from here
+        {
+            switch (m_simbuf.simbuf_diff_type)
+            {
+            case DiffType::OPEN_DIFF:
+                cstate = 0.0f;
+                break;
+            case DiffType::SPLIT_DIFF:
+                cstate = 0.5f;
+                break;
+            case DiffType::LOCKED_DIFF:
+                cstate = 1.0f;
+                break;
+            default:;
+            }
+        }
+        else // no axles/diffs avail, mode is split by default
+            cstate = 0.5f;
+
+        div++;
+    }
+
+    //heading
+    if (flag_state & ANIM_FLAG_HEADING)
+    {
+        // rad2deg limitedrange  -1 to +1
+        cstate = (m_simbuf.simbuf_heading_angle * 57.29578f) / 360.0f;
+        div++;
+    }
+
+    //torque - WRITES 
+    const bool has_engine = (m_actor->ar_engine!= nullptr);
+    if (has_engine && flag_state & ANIM_FLAG_TORQUE)
+    {
+        float torque = m_simbuf.simbuf_engine_crankfactor;
+        if (torque <= 0.0f)
+            torque = 0.0f;
+        if (torque >= m_prop_anim_crankfactor_prev)
+            cstate -= torque / 10.0f;
+        else
+            cstate = 0.0f;
+
+        if (cstate <= -1.0f)
+            cstate = -1.0f;
+        m_prop_anim_crankfactor_prev = torque;
+        div++;
+    }
+
+    //shifterseq, to amimate sequentiell shifting
+    if (has_engine && (flag_state & ANIM_FLAG_SHIFTER) && option3 == 3.0f)
+    {
+        // opt1 &opt2 = 0   this is a shifter
+        if (!lower_limit && !upper_limit)
+        {
+            int shifter = m_simbuf.simbuf_gear;
+            if (shifter > m_prop_anim_prev_gear)
+            {
+                cstate = 1.0f;
+                m_prop_anim_shift_timer = 0.2f;
+            }
+            if (shifter < m_prop_anim_prev_gear)
+            {
+                cstate = -1.0f;
+                m_prop_anim_shift_timer = -0.2f;
+            }
+            m_prop_anim_prev_gear = shifter;
+
+            if (m_prop_anim_shift_timer > 0.0f)
+            {
+                cstate = 1.0f;
+                m_prop_anim_shift_timer -= dt;
+                if (m_prop_anim_shift_timer < 0.0f)
+                    m_prop_anim_shift_timer = 0.0f;
+            }
+            if (m_prop_anim_shift_timer < 0.0f)
+            {
+                cstate = -1.0f;
+                m_prop_anim_shift_timer += dt;
+                if (m_prop_anim_shift_timer > 0.0f)
+                    m_prop_anim_shift_timer = 0.0f;
+            }
+        }
+        else
+        {
+            // check if lower_limit is a valid to get commandvalue, then get commandvalue
+            if (lower_limit >= 1.0f && lower_limit <= 48.0)
+                if (m_simbuf.simbuf_commandkey[int(lower_limit)].simbuf_cmd_value > 0)
+                    cstate += 1.0f;
+            // check if upper_limit is a valid to get commandvalue, then get commandvalue
+            if (upper_limit >= 1.0f && upper_limit <= 48.0)
+                if (m_simbuf.simbuf_commandkey[int(upper_limit)].simbuf_cmd_value > 0)
+                    cstate -= 1.0f;
+        }
+
+        div++;
+    }
+
+    //shifterman1, left/right
+    if (has_engine && (flag_state & ANIM_FLAG_SHIFTER) && option3 == 1.0f)
+    {
+        int shifter = m_simbuf.simbuf_gear;
+        if (!shifter)
+        {
+            cstate = -0.5f;
+        }
+        else if (shifter < 0)
+        {
+            cstate = 1.0f;
+        }
+        else
+        {
+            cstate -= int((shifter - 1.0) / 2.0);
+        }
+        div++;
+    }
+
+    //shifterman2, up/down
+    if (has_engine && (flag_state & ANIM_FLAG_SHIFTER) && option3 == 2.0f)
+    {
+        int shifter = m_simbuf.simbuf_gear;
+        cstate = 0.5f;
+        if (shifter < 0)
+        {
+            cstate = 1.0f;
+        }
+        if (shifter > 0)
+        {
+            cstate = shifter % 2;
+        }
+        div++;
+    }
+
+    //shifterlinear, to amimate cockpit gearselect gauge and autotransmission stick
+    if (has_engine && (flag_state & ANIM_FLAG_SHIFTER) && option3 == 4.0f)
+    {
+        int shifter = m_simbuf.simbuf_gear;
+        int numgears = m_attr.xa_num_gears;
+        cstate -= (shifter + 2.0) / (numgears + 2.0);
+        div++;
+    }
+
+    //parking brake
+    if (flag_state & ANIM_FLAG_PBRAKE)
+    {
+        float pbrake = static_cast<float>(m_simbuf.simbuf_parking_brake); // Bool --> float
+        cstate -= pbrake;
+        div++;
+    }
+
+    //speedo ( scales with speedomax )
+    if (flag_state & ANIM_FLAG_SPEEDO)
+    {
+        float speedo = m_simbuf.simbuf_wheel_speed / m_attr.xa_speedo_highest_kph;
+        cstate -= speedo * 3.0f;
+        div++;
+    }
+
+    //engine tacho ( scales with maxrpm, default is 3500 )
+    if (has_engine && flag_state & ANIM_FLAG_TACHO)
+    {
+        float tacho = m_simbuf.simbuf_engine_rpm / m_attr.xa_engine_max_rpm;
+        cstate -= tacho;
+        div++;
+    }
+
+    //turbo
+    if (has_engine && flag_state & ANIM_FLAG_TURBO)
+    {
+        float turbo = m_simbuf.simbuf_engine_turbo_psi * 3.34;
+        cstate -= turbo / 67.0f;
+        div++;
+    }
+
+    //brake
+    if (flag_state & ANIM_FLAG_BRAKE)
+    {
+        float brakes = m_simbuf.simbuf_brake / m_attr.xa_brake_force;
+        cstate -= brakes;
+        div++;
+    }
+
+    //accelerator
+    if (has_engine && flag_state & ANIM_FLAG_ACCEL)
+    {
+        float accel = m_simbuf.simbuf_engine_accel;
+        cstate -= accel + 0.06f;
+        //( small correction, get acc is nver smaller then 0.06.
+        div++;
+    }
+
+    //clutch
+    if (has_engine && flag_state & ANIM_FLAG_CLUTCH)
+    {
+        float clutch = m_simbuf.simbuf_clutch;
+        cstate -= fabs(1.0f - clutch);
+        div++;
+    }
+
+    //aeroengines rpm + throttle + torque ( turboprop ) + pitch ( turboprop ) + status +  fire
+    int ftp = m_simbuf.simbuf_aeroengines.size();
+
+    // TODO: Investigate the `(ftp > option3 - 1.0f)` condition copypasted from `Actor::calcAnimators()` [see ## dev note on top]
+    //       - produces bogus aeroengine index when no aeroengines are defined
+    //       I had to add the `(ftp!=0)` to bypass it ~ only_a_ptr, 2018
+    if ((ftp != 0) && (ftp > option3 - 1.0f))
+    {
+        int aenum = int(option3 - 1.0f);
+        if (flag_state & ANIM_FLAG_RPM)
+        {
+            float angle;
+            float pcent = m_simbuf.simbuf_aeroengines[aenum].simbuf_ae_rpmpc;
+            if (pcent < 60.0)
+                angle = -5.0 + pcent * 1.9167;
+            else if (pcent < 110.0)
+                angle = 110.0 + (pcent - 60.0) * 4.075;
+            else
+                angle = 314.0;
+            cstate -= angle / 314.0f;
+            div++;
+        }
+        if (flag_state & ANIM_FLAG_THROTTLE)
+        {
+            float throttle = m_simbuf.simbuf_aeroengines[aenum].simbuf_ae_throttle;
+            cstate -= throttle;
+            div++;
+        }
+
+        if (m_simbuf.simbuf_aeroengines[aenum].simbuf_ae_turboprop) // If it's a turboprop or pistonprop...
+        {
+            if (flag_state & ANIM_FLAG_AETORQUE)
+            {
+                cstate = m_simbuf.simbuf_aeroengines[aenum].simbuf_tp_aetorque / 120.0f;
+                div++;
+            }
+
+            if (flag_state & ANIM_FLAG_AEPITCH)
+            {
+                cstate = m_simbuf.simbuf_aeroengines[aenum].simbuf_tp_aepitch / 120.0f;
+                div++;
+            }
+        }
+
+        if (flag_state & ANIM_FLAG_AESTATUS)
+        {
+            if (!m_simbuf.simbuf_aeroengines[aenum].simbuf_ae_ignition)
+                cstate = 0.0f;
+            else
+                cstate = 0.5f;
+            if (m_simbuf.simbuf_aeroengines[aenum].simbuf_ae_failed)
+                cstate = 1.0f;
+            div++;
+        }
+    }
+
+    const Ogre::Vector3 node0_pos = this->GetSimNodeBuffer()[0].AbsPosition;
+    const Ogre::Vector3 node0_velo = m_simbuf.simbuf_node0_velo;
+
+    //airspeed indicator
+    if (flag_state & ANIM_FLAG_AIRSPEED)
+    {
+        float ground_speed_kt = node0_velo.length() * 1.9438;
+        float altitude = node0_pos.y;
+
+        float sea_level_pressure = 101325; //in Pa
+
+        float airpressure = sea_level_pressure * pow(1.0 - 0.0065 * altitude / 288.15, 5.24947); //in Pa
+        float airdensity = airpressure * 0.0000120896;//1.225 at sea level
+        float kt = ground_speed_kt * sqrt(airdensity / 1.225);
+        cstate -= kt / 100.0f;
+        div++;
+    }
+
+    //vvi indicator
+    if (flag_state & ANIM_FLAG_VVI)
+    {
+        float vvi = node0_velo.y * 196.85;
+        // limit vvi scale to +/- 6m/s
+        cstate -= vvi / 6000.0f;
+        if (cstate >= 1.0f)
+            cstate = 1.0f;
+        if (cstate <= -1.0f)
+            cstate = -1.0f;
+        div++;
+    }
+
+    //altimeter
+    if (flag_state & ANIM_FLAG_ALTIMETER)
+    {
+        //altimeter indicator 1k oscillating
+        if (option3 == 3.0f)
+        {
+            float altimeter = (node0_pos.y * 1.1811) / 360.0f;
+            int alti_int = int(altimeter);
+            float alti_mod = (altimeter - alti_int);
+            cstate -= alti_mod;
+        }
+
+        //altimeter indicator 10k oscillating
+        if (option3 == 2.0f)
+        {
+            float alti = node0_pos.y * 1.1811 / 3600.0f;
+            int alti_int = int(alti);
+            float alti_mod = (alti - alti_int);
+            cstate -= alti_mod;
+            if (cstate <= -1.0f)
+                cstate = -1.0f;
+        }
+
+        //altimeter indicator 100k limited
+        if (option3 == 1.0f)
+        {
+            float alti = node0_pos.y * 1.1811 / 36000.0f;
+            cstate -= alti;
+            if (cstate <= -1.0f)
+                cstate = -1.0f;
+        }
+        div++;
+    }
+
+    //AOA
+    if (flag_state & ANIM_FLAG_AOA)
+    {
+        float aoa = m_simbuf.simbuf_wing4_aoa / 25.f;
+        if ((node0_velo.length() * 1.9438) < 10.0f)
+            aoa = 0;
+        cstate -= aoa;
+        if (cstate <= -1.0f)
+            cstate = -1.0f;
+        if (cstate >= 1.0f)
+            cstate = 1.0f;
+        div++;
+    }
+
+    Ogre::Vector3 cam_pos  = node0_pos;
+    Ogre::Vector3 cam_roll = node0_pos;
+    Ogre::Vector3 cam_dir  = node0_pos;
+
+    // NOTE: "cameras" are constant attributes defined in Truckfile - safe to read from here
+    if (m_actor->IsNodeIdValid(m_actor->ar_camera_node_pos[0])) // TODO: why check this on each update when it cannot change after spawn?
+    {
+        cam_pos  = this->GetSimNodeBuffer()[m_actor->ar_camera_node_pos[0] ].AbsPosition;
+        cam_roll = this->GetSimNodeBuffer()[m_actor->ar_camera_node_roll[0]].AbsPosition;
+        cam_dir  = this->GetSimNodeBuffer()[m_actor->ar_camera_node_dir[0] ].AbsPosition;
+    }
+
+    // roll
+    if (flag_state & ANIM_FLAG_ROLL)
+    {
+        Ogre::Vector3 rollv = (cam_pos - cam_roll).normalisedCopy();
+        Ogre::Vector3 dirv = (cam_pos - cam_dir).normalisedCopy();
+        Ogre::Vector3 upv = dirv.crossProduct(-rollv);
+        float rollangle = asin(rollv.dotProduct(Ogre::Vector3::UNIT_Y));
+        // rad to deg
+        rollangle = Ogre::Math::RadiansToDegrees(rollangle);
+        // flip to other side when upside down
+        if (upv.y < 0)
+            rollangle = 180.0f - rollangle;
+        cstate = rollangle / 180.0f;
+        // data output is -0.5 to 1.5, normalize to -1 to +1 without changing the zero position.
+        // this is vital for the animator beams and does not effect the animated props
+        if (cstate >= 1.0f)
+            cstate = cstate - 2.0f;
+        div++;
+    }
+
+    // pitch
+    if (flag_state & ANIM_FLAG_PITCH)
+    {
+        Ogre::Vector3 dirv = (cam_pos - cam_dir).normalisedCopy();
+        float pitchangle = asin(dirv.dotProduct(Ogre::Vector3::UNIT_Y));
+        // radian to degrees with a max cstate of +/- 1.0
+        cstate = (Ogre::Math::RadiansToDegrees(pitchangle) / 90.0f);
+        div++;
+    }
+
+    // airbrake
+    if (flag_state & ANIM_FLAG_AIRBRAKE)
+    {
+        float airbrake = static_cast<float>(m_simbuf.simbuf_airbrake_state);
+        // cstate limited to -1.0f
+        cstate -= airbrake / 5.0f;
+        div++;
+    }
+
+    //flaps
+    if (flag_state & ANIM_FLAG_FLAP)
+    {
+        float flaps = flapangles[m_simbuf.simbuf_aero_flap_state];
+        // cstate limited to -1.0f
+        cstate = flaps;
+        div++;
+    }
+}
+
+void RoR::GfxActor::UpdatePropAnimations(const float dt)
+{
+    for (prop_t& prop: m_props)
+    {
+        int animnum = 0;
+        float rx = 0.0f;
+        float ry = 0.0f;
+        float rz = 0.0f;
+
+        while (prop.animFlags[animnum])
+        {
+            float cstate = 0.0f;
+            int div = 0.0f;
+            int flagstate = prop.animFlags[animnum];
+            const float lower_limit = prop.constraints[animnum].lower_limit;
+            const float upper_limit = prop.constraints[animnum].upper_limit;
+            float animOpt3 = prop.animOpt3[animnum];
+
+            this->CalcPropAnimation(flagstate, cstate, div, dt, lower_limit, upper_limit, animOpt3);
+
+            // key triggered animations
+            if ((prop.animFlags[animnum] & ANIM_FLAG_EVENT) && prop.animKey[animnum] != -1)
+            {
+                // TODO: Keys shouldn't be queried from here, but buffered in sim. loop ~ only_a_ptr, 06/2018
+                if (RoR::App::GetInputEngine()->getEventValue(prop.animKey[animnum]))
+                {
+                    // keystatelock is disabled then set cstate
+                    if (prop.animKeyState[animnum] == -1.0f)
+                    {
+                        // TODO: Keys shouldn't be queried from here, but buffered in sim. loop ~ only_a_ptr, 06/2018
+                        cstate += RoR::App::GetInputEngine()->getEventValue(prop.animKey[animnum]);
+                    }
+                    else if (!prop.animKeyState[animnum])
+                    {
+                        // a key was pressed and a toggle was done already, so bypass
+                        //toggle now
+                        if (!prop.lastanimKS[animnum])
+                        {
+                            prop.lastanimKS[animnum] = 1.0f;
+                            // use animkey as bool to determine keypress / release state of inputengine
+                            prop.animKeyState[animnum] = 1.0f;
+                        }
+                        else
+                        {
+                            prop.lastanimKS[animnum] = 0.0f;
+                            // use animkey as bool to determine keypress / release state of inputengine
+                            prop.animKeyState[animnum] = 1.0f;
+                        }
+                    }
+                    else
+                    {
+                        // bypas mode, get the last set position and set it
+                        cstate += prop.lastanimKS[animnum];
+                    }
+                }
+                else
+                {
+                    // keyevent exists and keylock is enabled but the key isnt pressed right now = get lastanimkeystatus for cstate and reset keypressed bool animkey
+                    if (prop.animKeyState[animnum] != -1.0f)
+                    {
+                        cstate += prop.lastanimKS[animnum];
+                        prop.animKeyState[animnum] = 0.0f;
+                    }
+                }
+            }
+
+            //propanimation placed here to avoid interference with existing hydros(cstate) and permanent prop animation
+            //land vehicle steering
+            if (prop.animFlags[animnum] & ANIM_FLAG_STEERING)
+                cstate += m_simbuf.simbuf_hydro_dir_state;
+            //aileron
+            if (prop.animFlags[animnum] & ANIM_FLAG_AILERONS)
+                cstate += m_simbuf.simbuf_hydro_aileron_state;
+            //elevator
+            if (prop.animFlags[animnum] & ANIM_FLAG_ELEVATORS)
+                cstate += m_simbuf.simbuf_hydro_elevator_state;
+            //rudder
+            if (prop.animFlags[animnum] & ANIM_FLAG_ARUDDER)
+                cstate += m_simbuf.simbuf_hydro_aero_rudder_state;
+            //permanent
+            if (prop.animFlags[animnum] & ANIM_FLAG_PERMANENT)
+                cstate += 1.0f;
+
+            cstate *= prop.animratio[animnum];
+
+            // autoanimate noflip_bouncer
+            if (prop.animOpt5[animnum])
+                cstate *= (prop.animOpt5[animnum]);
+
+            //rotate prop
+            if ((prop.animMode[animnum] & ANIM_MODE_ROTA_X) || (prop.animMode[animnum] & ANIM_MODE_ROTA_Y) || (prop.animMode[animnum] & ANIM_MODE_ROTA_Z))
+            {
+                float limiter = 0.0f;
+                // This code was formerly executed within a fixed timestep of 0.5ms and finetuned accordingly.
+                // This is now taken into account by factoring in the respective fraction of the variable timestep.
+                float const dt_frac = dt * 2000.f;
+                if (prop.animMode[animnum] & ANIM_MODE_AUTOANIMATE)
+                {
+                    if (prop.animMode[animnum] & ANIM_MODE_ROTA_X)
+                    {
+                        prop.rotaX += cstate * dt_frac;
+                        limiter = prop.rotaX;
+                    }
+                    if (prop.animMode[animnum] & ANIM_MODE_ROTA_Y)
+                    {
+                        prop.rotaY += cstate * dt_frac;
+                        limiter = prop.rotaY;
+                    }
+                    if (prop.animMode[animnum] & ANIM_MODE_ROTA_Z)
+                    {
+                        prop.rotaZ += cstate * dt_frac;
+                        limiter = prop.rotaZ;
+                    }
+                }
+                else
+                {
+                    if (prop.animMode[animnum] & ANIM_MODE_ROTA_X)
+                        rx += cstate;
+                    if (prop.animMode[animnum] & ANIM_MODE_ROTA_Y)
+                        ry += cstate;
+                    if (prop.animMode[animnum] & ANIM_MODE_ROTA_Z)
+                        rz += cstate;
+                }
+
+                bool limiterchanged = false;
+                // check if a positive custom limit is set to evaluate/calc flip back
+
+                if (limiter > upper_limit)
+                {
+                    if (prop.animMode[animnum] & ANIM_MODE_NOFLIP)
+                    {
+                        limiter = upper_limit; // stop at limit
+                        prop.animOpt5[animnum] *= -1.0f; // change cstate multiplier if bounce is set
+                    }
+                    else
+                    {
+                        limiter = lower_limit; // flip to other side at limit
+                    }
+                    limiterchanged = true;
+                }
+
+                if (limiter < lower_limit)
+                {
+                    if (prop.animMode[animnum] & ANIM_MODE_NOFLIP)
+                    {
+                        limiter = lower_limit; // stop at limit
+                        prop.animOpt5[animnum] *= -1.0f; // change cstate multiplier if active
+                    }
+                    else
+                    {
+                        limiter = upper_limit; // flip to other side at limit
+                    }
+                    limiterchanged = true;
+                }
+
+                if (limiterchanged)
+                {
+                    if (prop.animMode[animnum] & ANIM_MODE_ROTA_X)
+                        prop.rotaX = limiter;
+                    if (prop.animMode[animnum] & ANIM_MODE_ROTA_Y)
+                        prop.rotaY = limiter;
+                    if (prop.animMode[animnum] & ANIM_MODE_ROTA_Z)
+                        prop.rotaZ = limiter;
+                }
+            }
+
+            //offset prop
+
+            if ((prop.animMode[animnum] & ANIM_MODE_OFFSET_X) || (prop.animMode[animnum] & ANIM_MODE_OFFSET_Y) || (prop.animMode[animnum] & ANIM_MODE_OFFSET_Z))
+            {
+                float offset = 0.0f;
+                float autooffset = 0.0f;
+
+                if (prop.animMode[animnum] & ANIM_MODE_OFFSET_X)
+                    offset = prop.orgoffsetX;
+                if (prop.animMode[animnum] & ANIM_MODE_OFFSET_Y)
+                    offset = prop.orgoffsetY;
+                if (prop.animMode[animnum] & ANIM_MODE_OFFSET_Z)
+                    offset = prop.orgoffsetZ;
+
+                if (prop.animMode[animnum] & ANIM_MODE_AUTOANIMATE)
+                {
+                    // This code was formerly executed within a fixed timestep of 0.5ms and finetuned accordingly.
+                    // This is now taken into account by factoring in the respective fraction of the variable timestep.
+                    float const dt_frac = dt * 2000.f;
+                    autooffset = offset + cstate * dt_frac;
+
+                    if (autooffset > upper_limit)
+                    {
+                        if (prop.animMode[animnum] & ANIM_MODE_NOFLIP)
+                        {
+                            autooffset = upper_limit; // stop at limit
+                            prop.animOpt5[animnum] *= -1.0f; // change cstate multiplier if active
+                        }
+                        else
+                        {
+                            autooffset = lower_limit; // flip to other side at limit
+                        }
+                    }
+
+                    if (autooffset < lower_limit)
+                    {
+                        if (prop.animMode[animnum] & ANIM_MODE_NOFLIP)
+                        {
+                            autooffset = lower_limit; // stop at limit
+                            prop.animOpt5[animnum] *= -1.0f; // change cstate multiplier if active
+                        }
+                        else
+                        {
+                            autooffset = upper_limit; // flip to other side at limit
+                        }
+                    }
+                }
+                offset += cstate;
+
+                if (prop.animMode[animnum] & ANIM_MODE_OFFSET_X)
+                {
+                    prop.offsetx = offset;
+                    if (prop.animMode[animnum] & ANIM_MODE_AUTOANIMATE)
+                        prop.orgoffsetX = autooffset;
+                }
+                if (prop.animMode[animnum] & ANIM_MODE_OFFSET_Y)
+                {
+                    prop.offsety = offset;
+                    if (prop.animMode[animnum] & ANIM_MODE_AUTOANIMATE)
+                        prop.orgoffsetY = autooffset;
+                }
+                if (prop.animMode[animnum] & ANIM_MODE_OFFSET_Z)
+                {
+                    prop.offsetz = offset;
+                    if (prop.animMode[animnum] & ANIM_MODE_AUTOANIMATE)
+                        prop.orgoffsetZ = autooffset;
+                }
+            }
+            animnum++;
+        }
+        //recalc the quaternions with final stacked rotation values ( rx, ry, rz )
+        rx += prop.rotaX;
+        ry += prop.rotaY;
+        rz += prop.rotaZ;
+
+        prop.rot = Ogre::Quaternion(Ogre::Degree(rz), Ogre::Vector3::UNIT_Z) * 
+                   Ogre::Quaternion(Ogre::Degree(ry), Ogre::Vector3::UNIT_Y) *
+                   Ogre::Quaternion(Ogre::Degree(rx), Ogre::Vector3::UNIT_X);
+    }
+}
+

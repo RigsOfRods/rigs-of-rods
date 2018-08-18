@@ -624,13 +624,6 @@ private:
     bool CheckAxleLimit(unsigned int count);
 
     /**
-    * Checks there is still space left in rig_t::props array.
-    * @param count Required number of free slots.
-    * @return True if there is space left.
-    */
-    bool CheckPropLimit(unsigned int count);
-
-    /**
     * Checks there is still space left in rig_t::flexbodies array.
     * @param count Required number of free slots.
     * @return True if there is space left.
@@ -1104,6 +1097,8 @@ private:
     bool               m_generate_wing_position_lights;
     int                m_first_wing_index;
     Ogre::SceneNode*   m_curr_mirror_prop_scenenode;
+    std::vector<prop_t>       m_props;
+    int                       m_driverseat_prop_index;
     std::vector<CabTexcoord>  m_oldstyle_cab_texcoords;
     std::vector<CabSubmesh>   m_oldstyle_cab_submeshes;
     std::vector<RoR::GfxActor::NodeGfx> m_gfx_nodes;

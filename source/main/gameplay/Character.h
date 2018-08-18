@@ -43,7 +43,6 @@ public:
     std::string const &    GetAnimName() const          { return m_anim_name; }
     float          GetAnimTime() const                  { return m_anim_time; }
     Ogre::Radian   getRotation() const                  { return m_character_rotation; }
-    bool           IsCoupledWithActor() const           { return m_have_coupling_seat; }
     Actor*         GetActorCoupling()                   { return m_actor_coupling; }
     void           setColour(int color)                 { this->m_color_number = color; }
     Ogre::Vector3  getPosition();
@@ -82,7 +81,6 @@ private:
     bool             m_can_jump;
     bool             m_is_remote;
     bool             m_hide_own_net_label;
-    bool             m_have_coupling_seat;
     std::string      m_anim_name;
     float            m_anim_time;
     float            m_driving_anim_length;
@@ -103,7 +101,6 @@ struct GfxCharacter
         Ogre::UTFString    simbuf_net_username;
         int                simbuf_color_number;
         Actor*             simbuf_actor_coupling;
-        bool               simbuf_coupling_has_seat;
         std::string        simbuf_anim_name;
         float              simbuf_anim_time; // Intentionally left empty = forces initial update.
     };

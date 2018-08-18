@@ -218,6 +218,8 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
         gfx_actor->UpdateAirbrakes();
         gfx_actor->UpdateCParticles();
         gfx_actor->UpdateAeroEngines();
+        gfx_actor->UpdatePropAnimations(dt_sec);
+        gfx_actor->UpdateProps(dt_sec, (gfx_actor == player_gfx_actor));
     }
     if (player_gfx_actor != nullptr)
     {
