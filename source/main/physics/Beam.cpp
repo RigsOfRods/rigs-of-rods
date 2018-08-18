@@ -3237,11 +3237,6 @@ void Actor::updateProps()
             ar_props[i].wheel->setOrientation(orientation * brot);
         }
     }
-
-    for (int i = 0; i < ar_num_airbrakes; i++)
-    {
-        ar_airbrakes[i]->updatePosition((float)ar_airbrake_intensity / 5.0);
-    }
 }
 
 void Actor::ToggleCustomParticles()

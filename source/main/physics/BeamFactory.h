@@ -90,6 +90,7 @@ public:
     void           RemoveActorInternal(int actor_id); //!< DO NOT CALL DIRECTLY! Use `SimController::RemoveActor()`
     Actor*         GetActorByIdInternal(int number); //!< DO NOT CALL DIRECTLY! Use `SimController` for public interface
     Actor*         FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
+    void           UpdateAirbrakeInput(float dt);
     int            CountActorsInternal() const;
     int            CountPlayableActorsInternal() const; //!< For selector GUI
 

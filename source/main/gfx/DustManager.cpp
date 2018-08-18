@@ -180,6 +180,7 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
     for (GfxActor* gfx_actor: m_live_gfx_actors)
     {
         gfx_actor->UpdateCabMesh();
+        gfx_actor->UpdateAirbrakes();
     }
     if (player_gfx_actor != nullptr)
     {

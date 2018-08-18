@@ -1631,6 +1631,7 @@ void SimController::UpdateSimulation(float dt)
 
     if ((simRUNNING(s) || simEDITOR(s)) && !simPAUSED(s))
     {
+        m_actor_manager.UpdateAirbrakeInput(dt);
         m_actor_manager.UpdateActorVisuals(dt, m_player_actor); // update visual - antishaking
     }
 

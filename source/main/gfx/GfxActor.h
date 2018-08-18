@@ -147,9 +147,21 @@ public:
         bool             wx_is_meshwheel;
     };
 
+    struct AirbrakeGfx
+    {
+        Ogre::MeshPtr    abx_mesh;
+        Ogre::SceneNode* abx_scenenode;
+        Ogre::Entity*    abx_entity;
+        Ogre::Vector3    abx_offset;
+        uint16_t         abx_ref_node;
+        uint16_t         abx_x_node;
+        uint16_t         abx_y_node;
+    };
+
     struct SimBuffer /// Buffered simulation data
     {
         std::unique_ptr<NodeData>   simbuf_nodes;
+        std::vector<float>          simbuf_airbrakes; //!< ratios
         Ogre::Vector3               simbuf_pos;
         Ogre::Vector3               simbuf_node0_velo;
         bool                        simbuf_live_local;
@@ -182,6 +194,8 @@ public:
     void                      UpdateCabMesh      ();
     int                       GetActorId         () const;
     int                       GetActorDriveable  () const;
+    void                      RegisterAirbrakes  ();
+    void                      UpdateAirbrakes    ();
     inline void               SetDebugView       (DebugViewType dv)       { m_debug_view = dv; }
     inline Ogre::MaterialPtr& GetCabTransMaterial()                       { return m_cab_mat_visual_trans; }
     inline VideoCamState      GetVideoCamState   () const                 { return m_vidcam_state; }
@@ -201,6 +215,7 @@ private:
     std::vector<VideoCamera>    m_videocameras;
     DebugViewType               m_debug_view;
     std::vector<NodeGfx>        m_gfx_nodes;
+    std::vector<AirbrakeGfx>    m_gfx_airbrakes;
     DustPool*                   m_particles_drip;
     DustPool*                   m_particles_misc; // This is "dust" in RoR::GfxScene; handles dust, vapour and tyre smoke
     DustPool*                   m_particles_splash;

@@ -7164,6 +7164,8 @@ void ActorSpawner::FinalizeGfxSetup()
             }
         }
     }
+
+    m_actor->GetGfxActor()->RegisterAirbrakes();
 }
 
 Ogre::ManualObject* CreateVideocameraDebugMesh()

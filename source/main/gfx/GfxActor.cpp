@@ -22,6 +22,7 @@
 #include "GfxActor.h"
 
 #include "ApproxMath.h"
+#include "AirBrake.h"
 #include "Beam.h"
 #include "beam_t.h"
 #include "Collisions.h"
@@ -115,6 +116,20 @@ RoR::GfxActor::~GfxActor()
             gEnv->sceneManager->destroySceneNode(m_wheels[i].wx_scenenode);
         }
     }
+
+    // delete airbrakes
+    for (AirbrakeGfx& abx: m_gfx_airbrakes)
+    {
+        // scene node
+        abx.abx_scenenode->detachAllObjects();
+        gEnv->sceneManager->destroySceneNode(abx.abx_scenenode);
+        // entity
+        gEnv->sceneManager->destroyEntity(abx.abx_entity);
+        // mesh
+        abx.abx_mesh->unload();
+        abx.abx_mesh.setNull();
+    }
+    m_gfx_airbrakes.clear();
 
     Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(m_custom_resource_group);
 }
@@ -900,10 +915,20 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_live_local = (m_actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED);
     m_simbuf.simbuf_pos = m_actor->getPosition();
     m_simbuf.simbuf_heading_angle = m_actor->getHeadingDirectionAngle();
+
+    // nodes
     const int num_nodes = m_actor->ar_num_nodes;
     for (int i = 0; i < num_nodes; ++i)
     {
         m_simbuf.simbuf_nodes.get()[i].AbsPosition = m_actor->ar_nodes[i].AbsPosition;
+    }
+
+    // airbrakes
+    const int num_airbrakes = m_actor->ar_num_airbrakes;
+    m_simbuf.simbuf_airbrakes.clear();
+    for (int i=0; i< num_airbrakes; ++i)
+    {
+        m_simbuf.simbuf_airbrakes.push_back(m_actor->ar_airbrakes[i]->ratio);
     }
 }
 
@@ -1005,3 +1030,60 @@ void RoR::GfxActor::SetWheelsVisible(bool value)
 
 int RoR::GfxActor::GetActorId          () const { return m_actor->ar_instance_id; }
 int RoR::GfxActor::GetActorDriveable   () const { return m_actor->ar_driveable; }
+
+void RoR::GfxActor::RegisterAirbrakes()
+{
+    // TODO: Quick hacky setup with `friend` access - we rely on old init code in RigSpawner/Airbrake.
+    for (int i=0; i< m_actor->ar_num_airbrakes; ++i)
+    {
+        Airbrake* ab = m_actor->ar_airbrakes[i];
+        AirbrakeGfx abx;
+        // entity
+        abx.abx_entity = ab->ec;
+        ab->ec = nullptr;
+        // mesh
+        abx.abx_mesh = ab->msh;
+        ab->msh.setNull();
+        // scenenode
+        abx.abx_scenenode = ab->snode;
+        ab->snode = nullptr;
+        // offset
+        abx.abx_offset = ab->offset;
+        ab->offset = Ogre::Vector3::ZERO;
+        // Nodes - just copy
+        abx.abx_ref_node = ab->noderef->pos;
+        abx.abx_x_node = ab->nodex->pos;
+        abx.abx_y_node = ab->nodey->pos;
+
+        m_gfx_airbrakes.push_back(abx);
+    }
+}
+
+void RoR::GfxActor::UpdateAirbrakes()
+{
+    const size_t num_airbrakes = m_gfx_airbrakes.size();
+    NodeData* nodes = m_simbuf.simbuf_nodes.get();
+    for (size_t i=0; i<num_airbrakes; ++i)
+    {
+        AirbrakeGfx abx = m_gfx_airbrakes[i];
+        const float ratio = m_simbuf.simbuf_airbrakes[i];
+        const float maxangle = m_actor->ar_airbrakes[i]->maxangle; // Friend access
+        Ogre::Vector3 ref_node_pos = nodes[m_gfx_airbrakes[i].abx_ref_node].AbsPosition;
+        Ogre::Vector3 x_node_pos   = nodes[m_gfx_airbrakes[i].abx_x_node].AbsPosition;
+        Ogre::Vector3 y_node_pos   = nodes[m_gfx_airbrakes[i].abx_y_node].AbsPosition;
+
+        // -- Ported from `AirBrake::updatePosition()` --
+        Ogre::Vector3 normal = (y_node_pos - ref_node_pos).crossProduct(x_node_pos - ref_node_pos);
+        normal.normalise();
+        //position
+        Ogre::Vector3 mposition = ref_node_pos + abx.abx_offset.x * (x_node_pos - ref_node_pos) + abx.abx_offset.y * (y_node_pos - ref_node_pos);
+        abx.abx_scenenode->setPosition(mposition + normal * abx.abx_offset.z);
+        //orientation
+        Ogre::Vector3 refx = x_node_pos - ref_node_pos;
+        refx.normalise();
+        Ogre::Vector3 refy = refx.crossProduct(normal);
+        Ogre::Quaternion orientation = Ogre::Quaternion(Ogre::Degree(-ratio * maxangle), (x_node_pos - ref_node_pos).normalisedCopy()) * Ogre::Quaternion(refx, normal, refy);
+        abx.abx_scenenode->setOrientation(orientation);
+
+    }
+}

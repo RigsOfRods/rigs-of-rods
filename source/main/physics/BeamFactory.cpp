@@ -25,6 +25,7 @@
 
 #include "BeamFactory.h"
 
+#include "AirBrake.h"
 #include "Application.h"
 #include "BeamEngine.h"
 #include "BeamStats.h"
@@ -1253,6 +1254,30 @@ void ActorManager::UpdateFlexbodiesFinal()
         if (m_actors[t] && m_actors[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
         {
             m_actors[t]->UpdateFlexbodiesFinal();
+        }
+    }
+}
+
+void ActorManager::UpdateAirbrakeInput(float dt)
+{
+    dt *= m_simulation_speed;
+
+    for (int t = 0; t < m_free_actor_slot; t++)
+    {
+        if (!m_actors[t])
+            continue;
+
+        if (m_actors[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
+        {
+            // The following update was originally hidden in `Actor::updateProps()` invoked from `Actor::updateVisual()`
+            // I added this whole function just to update it separately
+            // that's definitely less elegant-looking but slightly more correct compared to previous state
+            // TODO: try putting it to `calcForcesEulerCOmpute()` where it really belongs.
+            // ~ only_a_ptr, 05/2018
+            for (int i = 0; i < m_actors[t]->ar_num_airbrakes; i++)
+            {
+                m_actors[t]->ar_airbrakes[i]->updatePosition((float)m_actors[t]->ar_airbrake_intensity / 5.0);
+            }
         }
     }
 }
