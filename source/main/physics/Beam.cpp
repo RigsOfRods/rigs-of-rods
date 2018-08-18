@@ -3328,6 +3328,7 @@ void Actor::updateVisual(float dt)
 #endif //openAL
 
     // update exhausts
+    // TODO: Move to GfxActor, don't forget dt*m_simulation_speed
     if (!m_disable_smoke && ar_engine && exhausts.size() > 0)
     {
         std::vector<exhaust_t>::iterator it;

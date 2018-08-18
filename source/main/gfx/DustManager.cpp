@@ -205,6 +205,12 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
         gfx_actor->UpdateNetLabels(m_simbuf.simbuf_sim_speed * dt_sec);
     }
 
+    // Player avatars
+    for (GfxCharacter* a: m_all_gfx_characters)
+    {
+        a->UpdateCharacterInScene();
+    }
+
     // Actors - update misc visuals
     for (GfxActor* gfx_actor: m_live_gfx_actors)
     {
@@ -286,6 +292,11 @@ void RoR::GfxScene::BufferSimulationData()
             m_live_gfx_actors.push_back(a);
         }
     }
+
+    for (GfxCharacter* a: m_all_gfx_characters)
+    {
+        a->BufferSimulationData();
+    }
 }
 
 void RoR::GfxScene::RemoveGfxActor(RoR::GfxActor* remove_me)
@@ -297,6 +308,25 @@ void RoR::GfxScene::RemoveGfxActor(RoR::GfxActor* remove_me)
         if (*itor == remove_me)
         {
             m_all_gfx_actors.erase(itor);
+            return;
+        }
+    }
+}
+
+void RoR::GfxScene::RegisterGfxCharacter(RoR::GfxCharacter* gfx_character)
+{
+    m_all_gfx_characters.push_back(gfx_character);
+}
+
+void RoR::GfxScene::RemoveGfxCharacter(RoR::GfxCharacter * const remove_me)
+{
+    auto itor = m_all_gfx_characters.begin();
+    auto endi = m_all_gfx_characters.end();
+    for (; itor != endi; ++itor)
+    {
+        if (*itor == remove_me)
+        {
+            m_all_gfx_characters.erase(itor);
             return;
         }
     }

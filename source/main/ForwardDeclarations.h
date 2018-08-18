@@ -36,6 +36,7 @@ namespace RoR
     class  ContentManager;
     class  FlexFactory;
     class  GfxActor;
+    struct GfxCharacter;
     class  GfxScene;
     class  GUIManager;
     struct GuiManagerImpl;

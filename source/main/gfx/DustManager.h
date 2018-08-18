@@ -69,6 +69,8 @@ public:
     void           DiscardScene(); //!< Final cleanup
     void           RegisterGfxActor(RoR::GfxActor* gfx_actor);
     void           RemoveGfxActor(RoR::GfxActor* gfx_actor);
+    void           RegisterGfxCharacter(RoR::GfxCharacter* gfx_character);
+    void           RemoveGfxCharacter(RoR::GfxCharacter* const gfx_character);
     void           BufferSimulationData(); //!< Run this when simulation is halted
     SimBuffer&     GetSimDataBuffer() { return m_simbuf; }
     void           InitSurveyMap(Ogre::Vector3 terrain_size); //!< Must be called after terrain was loaded
@@ -80,6 +82,7 @@ private:
     Ogre::SceneManager*               m_ogre_scene;
     std::vector<GfxActor*>            m_all_gfx_actors;
     std::vector<GfxActor*>            m_live_gfx_actors;
+    std::vector<GfxCharacter*>        m_all_gfx_characters;
     RoR::GfxEnvmap                    m_envmap;
     HeatHaze*                         m_heathaze;
     SimBuffer                         m_simbuf;
