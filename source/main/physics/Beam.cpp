@@ -1366,35 +1366,6 @@ bool Actor::hasDriverSeat()
     return ar_driverseat_prop != 0;
 }
 
-void Actor::calculateDriverPos(Vector3& out_pos, Quaternion& out_rot)
-{
-    assert(this->ar_driverseat_prop != nullptr);
-
-    Vector3 x_pos = ar_nodes[ar_driverseat_prop->nodex].AbsPosition;
-    Vector3 y_pos = ar_nodes[ar_driverseat_prop->nodey].AbsPosition;
-    Vector3 center_pos = ar_nodes[ar_driverseat_prop->noderef].AbsPosition;
-
-    Vector3 x_vec = x_pos - center_pos;
-    Vector3 y_vec = y_pos - center_pos;
-
-    Vector3 normal = (y_vec.crossProduct(x_vec)).normalisedCopy();
-
-    // Output position
-    Vector3 pos = center_pos;
-    pos += (this->ar_driverseat_prop->offsetx * x_vec);
-    pos += (this->ar_driverseat_prop->offsety * y_vec);
-    pos += (this->ar_driverseat_prop->offsetz * normal);
-    out_pos = pos;
-
-    // Output orientation
-    Vector3 x_vec_norm = x_vec.normalisedCopy();
-    Vector3 y_vec_norm = x_vec_norm.crossProduct(normal);
-    Quaternion rot(x_vec_norm, normal, y_vec_norm);
-    rot = rot * ar_driverseat_prop->rot;
-    rot = rot * Quaternion(Degree(180), Vector3::UNIT_Y); // rotate towards the driving direction
-    out_rot = rot;
-}
-
 void Actor::resetAutopilot()
 {
     ar_autopilot->disconnect();

@@ -40,7 +40,6 @@ public:
     bool           isRemote() const                     { return m_is_remote; }
     int            GetColorNum() const                  { return m_color_number; }
     Ogre::UTFString const& GetNetUsername()             { return m_net_username; }
-    Ogre::Quaternion const& GetOrientation() const      { return m_character_orientation; }
     Ogre::Radian   getRotation() const                  { return m_character_rotation; }
     bool           IsCoupledWithActor() const           { return m_have_coupling_seat; }
     Actor*         GetActorCoupling()                   { return m_actor_coupling; }
@@ -87,7 +86,6 @@ private:
     std::string      m_last_anim;
     std::string      m_instance_name;
     Ogre::UTFString  m_net_username;
-    Ogre::Quaternion m_character_orientation;
     RoR::GfxCharacter*        m_gfx_character;
     Ogre::AnimationStateSet*  m_anim_state;
     std::deque<Ogre::Vector3> m_prev_positions; 
@@ -101,7 +99,6 @@ struct GfxCharacter
     {
         Ogre::Vector3      simbuf_character_pos;
         Ogre::Radian       simbuf_character_rot; //!< When on foot
-        Ogre::Quaternion   simbuf_character_orientation; //!< When in vehicle
         Ogre::UTFString    simbuf_net_username;
         int                simbuf_color_number;
         Actor*             simbuf_actor_coupling;

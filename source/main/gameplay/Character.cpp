@@ -439,16 +439,12 @@ void Character::update(float dt)
     }
     else if (m_actor_coupling && m_actor_coupling->hasDriverSeat()) // The character occupies a vehicle or machine
     {
-        Vector3 pos;
-        Quaternion rot;
-        m_actor_coupling->calculateDriverPos(pos, rot); // TODO: Make this function read data from GfxScene/GfxActor, and put this entire code block to GfxCharacter! ~only_a_Gfx 05/2018 :D
-        float angle = m_actor_coupling->ar_hydro_dir_wheel_display * -1.0f; // not getSteeringAngle(), but this, as its smoothed
-        m_character_orientation = rot;
-        setPosition(pos + (rot * Vector3(0.f, -0.6f, 0.f))); // hack to position the character right perfect on the default seat
+
 
         // Animation
         this->SetAnimState("Driving");
         Real anim_length = m_anim_state->getAnimationState("Driving")->getLength();
+        float angle = m_actor_coupling->ar_hydro_dir_wheel_display * -1.0f; // not getSteeringAngle(), but this, as its smoothed
         float anim_time_pos = ((angle + 1.0f) * 0.5f) * anim_length;
         // prevent animation flickering on the borders:
         if (anim_time_pos < 0.01f)
@@ -479,7 +475,7 @@ void Character::updateMapIcon() // TODO: updates OGRE objects --> belongs to Gfx
     if (e)
     {
         e->setPosition(m_character_position);
-        e->setRotation(m_character_orientation);
+        //e->setRotation(m_character_orientation); // TODO: temporarily disabled when doing {AsyncScene} refactor
         e->setVisibility(!m_actor_coupling);
     }
     else
@@ -667,7 +663,7 @@ void Character::AddPersonToSurveyMap() // TODO: updates OGRE objects --> belongs
         m_survey_map_entity->setState(0);
         m_survey_map_entity->setVisibility(true);
         m_survey_map_entity->setPosition(m_character_position);
-        m_survey_map_entity->setRotation(m_character_orientation);
+        //m_survey_map_entity->setRotation(m_character_orientation); // TODO: ditto, see above.
     }
 }
 
@@ -747,7 +743,6 @@ void RoR::GfxCharacter::BufferSimulationData()
     xc_simbuf.simbuf_net_username           = xc_character->GetNetUsername();
     xc_simbuf.simbuf_actor_coupling         = xc_character->GetActorCoupling();
     xc_simbuf.simbuf_coupling_has_seat      = xc_character->IsCoupledWithActor(); // confusing method name
-    xc_simbuf.simbuf_character_orientation  = xc_character->GetOrientation();
 }
 
 void RoR::GfxCharacter::UpdateCharacterInScene()
@@ -778,18 +773,24 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
         }
     }
 
-    // Position
-    xc_scenenode->setPosition(xc_simbuf.simbuf_character_pos);
-
-    // Orientation
+    // Position + Orientation
     if (xc_simbuf.simbuf_actor_coupling != nullptr)
     {
-        xc_scenenode->setOrientation(xc_simbuf.simbuf_character_orientation);
+        if (xc_simbuf.simbuf_coupling_has_seat)
+        {
+            Ogre::Vector3 pos;
+            Ogre::Quaternion rot;
+            xc_simbuf.simbuf_actor_coupling->GetGfxActor()->CalculateDriverPos(pos, rot);
+            xc_scenenode->setOrientation(rot);
+            // hack to position the character right perfect on the default seat (because the mesh has decentered origin)
+            xc_scenenode->setPosition(pos + (rot * Vector3(0.f, -0.6f, 0.f)));
+        }
     }
     else
     {
         xc_scenenode->resetOrientation();
         xc_scenenode->yaw(-xc_simbuf.simbuf_character_rot);
+        xc_scenenode->setPosition(xc_simbuf.simbuf_character_pos);
     }
 
     // Multiplayer label

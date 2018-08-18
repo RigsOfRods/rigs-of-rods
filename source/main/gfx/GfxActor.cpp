@@ -1171,3 +1171,34 @@ void RoR::GfxActor::UpdateNetLabels(float dt)
         }
     }
 }
+
+void RoR::GfxActor::CalculateDriverPos(Ogre::Vector3& out_pos, Ogre::Quaternion& out_rot)
+{
+    prop_t* driverseat_prop = m_actor->ar_driverseat_prop;
+    assert(driverseat_prop != nullptr);
+
+    NodeData* nodes = this->GetSimNodeBuffer();
+
+    const Ogre::Vector3 x_pos = nodes[driverseat_prop->nodex].AbsPosition;
+    const Ogre::Vector3 y_pos = nodes[driverseat_prop->nodey].AbsPosition;
+    const Ogre::Vector3 center_pos = nodes[driverseat_prop->noderef].AbsPosition;
+
+    const Ogre::Vector3 x_vec = x_pos - center_pos;
+    const Ogre::Vector3 y_vec = y_pos - center_pos;
+    const Ogre::Vector3 normal = (y_vec.crossProduct(x_vec)).normalisedCopy();
+
+    // Output position
+    Ogre::Vector3 pos = center_pos;
+    pos += (driverseat_prop->offsetx * x_vec);
+    pos += (driverseat_prop->offsety * y_vec);
+    pos += (driverseat_prop->offsetz * normal);
+    out_pos = pos;
+
+    // Output orientation
+    const Ogre::Vector3 x_vec_norm = x_vec.normalisedCopy();
+    const Ogre::Vector3 y_vec_norm = x_vec_norm.crossProduct(normal);
+    Ogre::Quaternion rot(x_vec_norm, normal, y_vec_norm);
+    rot = rot * driverseat_prop->rot;
+    rot = rot * Ogre::Quaternion(Ogre::Degree(180), Ogre::Vector3::UNIT_Y); // rotate towards the driving direction
+    out_rot = rot;
+}

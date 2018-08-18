@@ -29,6 +29,7 @@
 #include "ForwardDeclarations.h"
 #include "ThreadPool.h" // class Task
 
+#include <OgreAxisAlignedBox.h>
 #include <OgreColourValue.h>
 #include <OgreMaterial.h>
 #include <OgreQuaternion.h>
@@ -201,6 +202,7 @@ public:
     bool                      IsActorLive        () const; //!< Should the visuals be updated for this actor?
     void                      UpdateSimDataBuffer(); //!< Copies sim. data from `Actor` to `GfxActor` for later update
     void                      SetWheelVisuals    (uint16_t index, WheelGfx wheel_gfx);
+    void                      CalculateDriverPos (Ogre::Vector3& out_pos, Ogre::Quaternion& out_rot);
     void                      UpdateWheelVisuals ();
     void                      FinishWheelUpdates ();
     void                      SetWheelsVisible   (bool value);
