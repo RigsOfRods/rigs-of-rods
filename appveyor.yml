@@ -1,0 +1,58 @@
+version:                          0.4.8.0-CIBuild-{build}
+pull_requests:
+  do_not_increment_build_number:  true
+branches:
+  only:
+  - master
+image:
+  - Ubuntu
+  - Visual Studio 2017
+configuration:                    Release
+shallow_clone:                    true
+clone_depth:                      2
+install:
+- cmd:                            >-
+    choco install ninja -y
+
+    appveyor DownloadFile http://prdownloads.sourceforge.net/rigs-of-rods/CI-build/dependencies.zip
+
+    7z x dependencies.zip -odependencies
+- sh:                             >-
+    sudo apt-get update
+
+    sudo apt-get install -y curl python python3
+
+    curl -sLf 'https://dl.cloudsmith.io/public/rigs-of-rods/rigs-of-rods/cfg/install/bash.deb.sh' | sudo bash
+
+    sudo apt-get install -y ninja-build wget cmake pkg-config rapidjson-dev libogre-1.9-dev libmygui-dev libmygui.ogreplatform0debian1v5 libopenal-dev libcurl4-openssl-dev libgtk2.0-dev libois-dev libssl-dev libwxgtk3.0-dev angelscript pagedgeometry socketw
+
+build_script:
+- cmd:                            >-
+    call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
+
+    cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_CUSTOM_VERSION=ON -DCUSTOM_VERSION=%APPVEYOR_BUILD_VERSION% -DBUILD_SHOW_WARNINGS=OFF -DCMAKE_PREFIX_PATH="C:\projects\rigs-of-rods\dependencies" .
+
+    ninja zip_and_copy_resources
+- sh:                             >-
+    cmake .
+
+    make -j8
+test:                             off
+artifacts:
+- path:                           bin
+  name:                           RoR-V%APPVEYOR_BUILD_VERSION%-%APPVEYOR_BUILD_WORKER_IMAGE%
+deploy:
+- provider:                       FTP
+  host:                           frs.sourceforge.net
+  protocol:                       sftp
+  username:                       anotherfoxguy
+  password:
+    secure:                       VSkWdJZ4thRTuJ9nez7ZEg==
+  folder:                         ../../../../../home/pfs/project/rigs-of-rods/CI-build/
+notifications:
+- provider:                       GitHubPullRequest
+  auth_token:
+    secure:                       Vk6SpCqQQTynMfUkQBcQ0gtQEQsNsZ5OGXhtYhEpZuewR9oyMHBCelot4F+u48A4
+  on_build_success:               false
+  on_build_failure:               true
+  on_build_status_changed:        false

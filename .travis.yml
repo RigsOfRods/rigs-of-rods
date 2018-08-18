@@ -1,8 +1,0 @@
-language: c
-sudo: required
-
-services:
-  - docker
-
-script:
-  - docker build -c=2 .
