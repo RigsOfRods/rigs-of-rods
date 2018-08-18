@@ -2062,6 +2062,10 @@ void SimController::CleanupAfterSimulation()
     App::GetGuiManager()->SetVisible_LoadingWindow(false);
 
     m_gfx_scene.DiscardScene();
+
+    gEnv->cameraManager->DisableDepthOfFieldEffect(); // TODO: de-globalize the CameraManager
+    delete gEnv->cameraManager; // TODO: De-globalize and reset in place instead of deleting and re-allocating ~ only_a_ptr, 07/2018
+    gEnv->cameraManager = nullptr;
 }
 
 bool SimController::SetupGameplayLoop()
@@ -2310,7 +2314,6 @@ void SimController::EnterGameplayLoop()
     RoRWindowEventUtilities::removeWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
     // DO NOT: App::GetSceneMouse()    ->SetSimController(nullptr); -- already deleted via App::DeleteSceneMouse();      // TODO: de-globalize that object!
     // DO NOT: App::GetOverlayWrapper()->SetSimController(nullptr); -- already deleted via App::DestroyOverlayWrapper(); // TODO: de-globalize that object!
-    gEnv->cameraManager->DisableDepthOfFieldEffect(); // TODO: de-globalize the CameraManager
 }
 
 void SimController::SetPlayerActor(Actor* actor)

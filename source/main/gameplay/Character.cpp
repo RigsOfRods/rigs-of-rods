@@ -48,7 +48,7 @@ Character::Character(int source, unsigned int streamid, int color_number, bool i
     , m_character_h_speed(2.0f)
     , m_character_v_speed(0.0f)
     , m_color_number(color_number)
-    , m_anim_state(0)
+    , m_anim_time(0.f)
     , m_hide_own_net_label(BSETTING("HideOwnNetLabel", false))
     , m_net_username("")
     , m_is_remote(is_remote)
@@ -56,6 +56,8 @@ Character::Character(int source, unsigned int streamid, int color_number, bool i
     , m_stream_id(streamid)
     , m_have_coupling_seat(false)
     , m_gfx_character(nullptr)
+    , m_driving_anim_length(0.f)
+    , m_anim_name("Idle_sway")
 {
     static int id_counter = 0;
     m_instance_name = "Character" + TOSTRING(id_counter);
@@ -163,31 +165,14 @@ void Character::setRotation(Radian rotation)
 
 void Character::SetAnimState(std::string mode, float time)
 {
-    if (!m_anim_state)
-        return;
-    if (m_last_anim != mode)
+    if (m_anim_name != mode)
     {
-        AnimationStateIterator it = m_anim_state->getAnimationStateIterator();
-        while (it.hasMoreElements())
-        {
-            AnimationState* as = it.getNext();
-            if (as->getAnimationName() == mode)
-            {
-                as->setEnabled(true);
-                as->setWeight(1);
-                as->addTime(time);
-            }
-            else
-            {
-                as->setEnabled(false);
-                as->setWeight(0);
-            }
-        }
-        m_last_anim = mode;
+        m_anim_name = mode;
+        m_anim_time = time;
     }
     else
     {
-        m_anim_state->getAnimationState(mode)->addTime(time);
+        m_anim_time += time;
     }
 }
 
@@ -315,13 +300,18 @@ void Character::update(float dt)
         }
 
         bool idleanim = true;
+        float tmpGoForward = RoR::App::GetInputEngine()->getEventValue(EV_CHARACTER_FORWARD)
+                             + RoR::App::GetInputEngine()->getEventValue(EV_CHARACTER_ROT_UP);
+        float tmpGoBackward = RoR::App::GetInputEngine()->getEventValue(EV_CHARACTER_BACKWARDS)
+                             + RoR::App::GetInputEngine()->getEventValue(EV_CHARACTER_ROT_DOWN);
+        bool not_walking = (tmpGoForward == 0.f && tmpGoBackward == 0.f);
 
         tmpJoy = RoR::App::GetInputEngine()->getEventValue(EV_CHARACTER_RIGHT);
         if (tmpJoy > 0.0f)
         {
             float scale = RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU) ? 0.1f : 1.0f;
             setRotation(m_character_rotation + dt * 2.0f * scale * Radian(tmpJoy));
-            if (!isswimming)
+            if (!isswimming && not_walking)
             {
                 this->SetAnimState("Turn", -dt);
                 idleanim = false;
@@ -333,7 +323,7 @@ void Character::update(float dt)
         {
             float scale = RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU) ? 0.1f : 1.0f;
             setRotation(m_character_rotation - dt * scale * 2.0f * Radian(tmpJoy));
-            if (!isswimming)
+            if (!isswimming && not_walking)
             {
                 this->SetAnimState("Turn", dt);
                 idleanim = false;
@@ -371,8 +361,8 @@ void Character::update(float dt)
             }
         }
 
-        tmpJoy = accel = RoR::App::GetInputEngine()->getEventValue(EV_CHARACTER_FORWARD) + RoR::App::GetInputEngine()->getEventValue(EV_CHARACTER_ROT_UP);
-        float tmpBack = RoR::App::GetInputEngine()->getEventValue(EV_CHARACTER_BACKWARDS) + RoR::App::GetInputEngine()->getEventValue(EV_CHARACTER_ROT_DOWN);
+        tmpJoy = accel = tmpGoForward;
+        float tmpBack = tmpGoBackward;
 
         tmpJoy = std::min(tmpJoy, 1.0f);
         tmpBack = std::min(tmpBack, 1.0f);
@@ -434,28 +424,25 @@ void Character::update(float dt)
             }
         }
 
-        m_character_position = position;// ASYNCSCENE OLD m_character_scenenode->setPosition(position);
+        m_character_position = position;
         updateMapIcon();
     }
     else if (m_actor_coupling && m_actor_coupling->hasDriverSeat()) // The character occupies a vehicle or machine
     {
-
-
         // Animation
-        this->SetAnimState("Driving");
-        Real anim_length = m_anim_state->getAnimationState("Driving")->getLength();
         float angle = m_actor_coupling->ar_hydro_dir_wheel_display * -1.0f; // not getSteeringAngle(), but this, as its smoothed
-        float anim_time_pos = ((angle + 1.0f) * 0.5f) * anim_length;
+        float anim_time_pos = ((angle + 1.0f) * 0.5f) * m_driving_anim_length;
         // prevent animation flickering on the borders:
         if (anim_time_pos < 0.01f)
         {
             anim_time_pos = 0.01f;
         }
-        if (anim_time_pos > anim_length - 0.01f)
+        if (anim_time_pos > m_driving_anim_length - 0.01f)
         {
-            anim_time_pos = anim_length - 0.01f;
+            anim_time_pos = m_driving_anim_length - 0.01f;
         }
-        m_anim_state->getAnimationState("Driving")->setTimePosition(anim_time_pos);
+        m_anim_name = "Driving";
+        m_anim_time = anim_time_pos;
     }
 
 #ifdef USE_SOCKETW
@@ -556,12 +543,12 @@ void Character::SendStreamData()
 
     Networking::CharacterMsgPos msg;
     msg.command = Networking::CHARACTER_CMD_POSITION;
-    msg.pos_x = m_character_position.x;  //ASYNCSCENE OLDm_character_scenenode->getPosition().x;
-    msg.pos_y = m_character_position.y;  //ASYNCSCENE OLDm_character_scenenode->getPosition().y;
-    msg.pos_z = m_character_position.z;   //ASYNCSCENE OLDm_character_scenenode->getPosition().z;
+    msg.pos_x = m_character_position.x;
+    msg.pos_y = m_character_position.y;
+    msg.pos_z = m_character_position.z;
     msg.rot_angle = m_character_rotation.valueRadians();
-    strncpy(msg.anim_name, m_last_anim.c_str(), CHARACTER_ANIM_NAME_LEN);
-    msg.anim_time = m_anim_state->getAnimationState(m_last_anim)->getTimePosition();
+    strncpy(msg.anim_name, m_anim_name.c_str(), CHARACTER_ANIM_NAME_LEN);
+    msg.anim_time = m_anim_time;
 
     RoR::Networking::AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA, sizeof(Networking::CharacterMsgPos), (char*)&msg);
 #endif // USE_SOCKETW
@@ -673,6 +660,7 @@ GfxCharacter* Character::SetupGfx()
 #if OGRE_VERSION<0x010602
     entity->setNormaliseNormals(true);
 #endif //OGRE_VERSION
+    m_driving_anim_length = entity->getAnimationState("Driving")->getLength();
 
     // fix disappearing mesh
     AxisAlignedBox aabb;
@@ -683,7 +671,6 @@ GfxCharacter* Character::SetupGfx()
     Ogre::SceneNode* scenenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
     scenenode->attachObject(entity);
     scenenode->setScale(0.02f, 0.02f, 0.02f);
-    m_anim_state = entity->getAllAnimationStates();
 
     // setup colour
     MaterialPtr mat1 = MaterialManager::getSingleton().getByName("tracks/character");
@@ -722,7 +709,7 @@ RoR::GfxCharacter::~GfxCharacter()
     gEnv->sceneManager->destroySceneNode(xc_scenenode);
     gEnv->sceneManager->destroyEntity(ent);
     delete xc_movable_text;
-	
+
     // try to unload some materials // TODO: ported as-is; do we need the try{}catch?~ only_a_ptr, 05/2018
     try
     {
@@ -730,7 +717,7 @@ RoR::GfxCharacter::~GfxCharacter()
     }
     catch (...)
     {
-    }	
+    }
 }
 
 void RoR::GfxCharacter::BufferSimulationData()
@@ -743,6 +730,8 @@ void RoR::GfxCharacter::BufferSimulationData()
     xc_simbuf.simbuf_net_username           = xc_character->GetNetUsername();
     xc_simbuf.simbuf_actor_coupling         = xc_character->GetActorCoupling();
     xc_simbuf.simbuf_coupling_has_seat      = xc_character->IsCoupledWithActor(); // confusing method name
+    xc_simbuf.simbuf_anim_name              = xc_character->GetAnimName();
+    xc_simbuf.simbuf_anim_time              = xc_character->GetAnimTime();
 }
 
 void RoR::GfxCharacter::UpdateCharacterInScene()
@@ -791,6 +780,36 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
         xc_scenenode->resetOrientation();
         xc_scenenode->yaw(-xc_simbuf.simbuf_character_rot);
         xc_scenenode->setPosition(xc_simbuf.simbuf_character_pos);
+    }
+
+    // Animation
+    Ogre::Entity* entity = static_cast<Ogre::Entity*>(xc_scenenode->getAttachedObject(0));
+    if (xc_simbuf.simbuf_anim_name != xc_simbuf_prev.simbuf_anim_name)
+    {
+        // 'Classic' method - enable one anim, exterminate the others ~ only_a_ptr, 06/2018
+        AnimationStateIterator it = entity->getAllAnimationStates()->getAnimationStateIterator();
+
+        while (it.hasMoreElements())
+        {
+            AnimationState* as = it.getNext();
+
+            if (as->getAnimationName() == xc_simbuf.simbuf_anim_name)
+            {
+                as->setEnabled(true);
+                as->setWeight(1);
+                as->addTime(xc_simbuf.simbuf_anim_time);
+            }
+            else
+            {
+                as->setEnabled(false);
+                as->setWeight(0);
+            }
+        }
+    }
+    else
+    {
+        auto* as_cur = entity->getAnimationState(xc_simbuf.simbuf_anim_name);
+        as_cur->setTimePosition(xc_simbuf.simbuf_anim_time);
     }
 
     // Multiplayer label
