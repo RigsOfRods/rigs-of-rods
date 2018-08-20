@@ -624,13 +624,6 @@ private:
     bool CheckAxleLimit(unsigned int count);
 
     /**
-    * Checks there is still space left in rig_t::flexbodies array.
-    * @param count Required number of free slots.
-    * @return True if there is space left.
-    */
-    bool CheckFlexbodyLimit(unsigned int count);
-
-    /**
     * Checks there is still space left in rig_t::subtexcoords, rig_t::subcabs and rig_t::subisback arrays.
     * @param count Required number of free slots.
     * @return True if there is space left.

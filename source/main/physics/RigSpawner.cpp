@@ -264,7 +264,6 @@ void ActorSpawner::InitializeRig()
     memset(m_actor->ar_buoycab_types, 0, sizeof(int) * MAX_CABS);
     m_actor->ar_num_airbrakes = 0;
     memset(m_actor->m_skid_trails, 0, sizeof(Skidmark *) * (MAX_WHEELS*2));
-    m_actor->ar_num_flexbodies = 0;
     m_actor->description.clear();
 
     m_actor->ar_extern_camera_mode=0;
@@ -505,10 +504,6 @@ void ActorSpawner::FinalizeRig()
     m_actor->ar_lowest_contacting_node = FindLowestContactingNodeInRig();
 
     this->UpdateCollcabContacterNodes();
-
-    m_flex_factory.SaveFlexbodiesToCache();
-
-    this->FinalizeGfxSetup(); // Creates the GfxActor
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1518,11 +1513,6 @@ void ActorSpawner::ProcessFlexbody(std::shared_ptr<RigDef::Flexbody> def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (!this->CheckFlexbodyLimit(1))
-    {
-        return;
-    }
-
     // Collect nodes
     std::vector<unsigned int> node_indices;
     bool nodes_found = true;
@@ -1569,8 +1559,7 @@ void ActorSpawner::ProcessFlexbody(std::shared_ptr<RigDef::Flexbody> def)
         else
             flexbody->setCameraMode(static_cast<int>(def->camera_settings.mode));
 
-        m_actor->ar_flexbodies[m_actor->ar_num_flexbodies] = flexbody;
-        m_actor->ar_num_flexbodies++;
+        m_actor->GetGfxActor()->AddFlexbody(flexbody);
     }
     catch (Ogre::Exception& e)
     {
@@ -3848,9 +3837,6 @@ void ActorSpawner::FetchAxisNodes(
 void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 {
     SPAWNER_PROFILE_SCOPED();
-
-    // Check capacities
-    CheckFlexbodyLimit(1); // TODO: remove the limit! See `ActorSpawner::CalcMemoryRequirements()` ~ only_a_ptr, 06/2017
 
     unsigned int base_node_index = m_actor->ar_num_nodes;
     wheel_t & wheel = m_actor->ar_wheels[m_actor->ar_num_wheels];
@@ -6144,20 +6130,6 @@ bool ActorSpawner::CheckAxleLimit(unsigned int count)
     return true;
 }
 
-bool ActorSpawner::CheckFlexbodyLimit(unsigned int count)
-{
-    SPAWNER_PROFILE_SCOPED();
-
-    if ((m_actor->ar_num_flexbodies + count) > MAX_FLEXBODIES)
-    {
-        std::stringstream msg;
-        msg << "Flexbody limit (" << MAX_FLEXBODIES << ") exceeded";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return false;
-    }
-    return true;
-}
-
 bool ActorSpawner::CheckSubmeshLimit(unsigned int count)
 {
     SPAWNER_PROFILE_SCOPED();
@@ -7096,8 +7068,6 @@ void ActorSpawner::FinalizeGfxSetup()
                 def.side != RigDef::MeshWheel::SIDE_RIGHT
                 );
 
-            const std::string flexwheel_name = this->ComposeName("FlexBodyWheel", m_actor->ar_num_flexbodies);
-
             int num_nodes = def.num_rays * 4;
             std::vector<unsigned int> node_indices;
             node_indices.reserve(num_nodes);
@@ -7126,8 +7096,7 @@ void ActorSpawner::FinalizeGfxSetup()
 
                 this->CreateWheelSkidmarks(static_cast<unsigned>(ticket.wheel_index));
 
-                m_actor->ar_flexbodies[m_actor->ar_num_flexbodies] = flexbody;
-                m_actor->ar_num_flexbodies++;
+                m_actor->GetGfxActor()->AddFlexbody(flexbody);
             }
             catch (Ogre::Exception& e)
             {

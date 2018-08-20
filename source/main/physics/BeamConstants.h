@@ -26,7 +26,6 @@ static const int   MAX_TEXCOORDS              = 3000;            //!< maximum nu
 static const int   MAX_CABS                   = 3000;            //!< maximum number of cabs per actor
 static const int   MAX_COMMANDS               = 84;              //!< maximum number of commands per actor
 static const int   MAX_CAMERAS                = 10;              //!< maximum number of cameras per actor
-static const int   MAX_FLEXBODIES             = 64;              //!< maximum number of flexbodies per actor
 static const int   MAX_AEROENGINES            = 8;               //!< maximum number of aero engines per actor
 static const int   MAX_SCREWPROPS             = 8;               //!< maximum number of boat screws per actor
 static const int   MAX_AIRBRAKES              = 20;              //!< maximum number of airbrakes per actor

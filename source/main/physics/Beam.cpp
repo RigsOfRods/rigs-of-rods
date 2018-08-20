@@ -214,16 +214,6 @@ Actor::~Actor()
         }
     }
 
-    // delete flexbodies
-    for (int i = 0; i < ar_num_flexbodies; i++)
-    {
-        if (ar_flexbodies[i])
-        {
-            delete ar_flexbodies[i];
-            ar_flexbodies[i] = nullptr;
-        }
-    }
-
     // delete skidmarks
     for (int i = 0; i < ar_num_wheels; ++i)
     {
@@ -362,11 +352,13 @@ void Actor::ScaleActor(float value)
     if (m_cab_mesh)
         m_cab_mesh->ScaleFlexObj(value);
 
-    // todo: scale flexbody
+   /* temporarily disabled ~ only_a_ptr, 08/2018
+   // todo: scale flexbody
     for (int i = 0; i < ar_num_flexbodies; i++)
     {
         ar_flexbodies[i]->getSceneNode()->scale(value, value, value);
     }
+    */
 
 
     m_gfx_actor->ScaleActor(relpos, value);
@@ -1511,11 +1503,6 @@ void Actor::SyncReset()
 
     if (ar_autopilot)
         this->resetAutopilot();
-
-    for (int i = 0; i < ar_num_flexbodies; i++)
-    {
-        ar_flexbodies[i]->reset();
-    }
 
     // reset on spot with backspace
     if (m_reset_request != REQUEST_RESET_ON_INIT_POS)
@@ -2983,43 +2970,6 @@ void Actor::UpdateSoundSources()
 #endif //OPENAL
 }
 
-void Actor::UpdateFlexbodiesPrepare(RoR::GfxActor*    gfx_actor)
-{
-    if (gEnv->threadPool)
-    {
-        m_flexbody_prepare.reset();
-        for (int i = 0; i < ar_num_flexbodies; i++)
-        {
-            m_flexbody_prepare.set(i, ar_flexbodies[i]->flexitPrepare(gfx_actor));
-        }
-
-        // Push tasks into thread pool
-        for (int i = 0; i < ar_num_flexbodies; i++)
-        {
-            if (m_flexbody_prepare[i])
-            {
-                auto func = std::function<void()>([this, i, gfx_actor]()
-                    {
-                        ar_flexbodies[i]->flexitCompute(gfx_actor);
-                    });
-                auto task_handle = gEnv->threadPool->RunTask(func);
-                m_flexbody_tasks.push_back(task_handle);
-            }
-        }
-    }
-    else
-    {
-        for (int i = 0; i < ar_num_flexbodies; i++)
-        {
-            if (ar_flexbodies[i]->flexitPrepare(gfx_actor))
-            {
-                ar_flexbodies[i]->flexitCompute(gfx_actor);
-                ar_flexbodies[i]->flexitFinal();
-            }
-        }
-    }
-}
-
 void Actor::updateVisual(float dt)
 {
     Vector3 ref(Vector3::UNIT_Y);
@@ -3131,34 +3081,6 @@ void Actor::updateVisual(float dt)
     m_gfx_actor->UpdateDebugView();
 }
 
-void Actor::JoinFlexbodyTasks()
-{
-    if (gEnv->threadPool)
-    {
-        for (const auto& t : m_flexbody_tasks)
-        {
-            t->join();
-        }
-        m_flexbody_tasks.clear();
-    }
-}
-
-void Actor::UpdateFlexbodiesFinal()
-{
-    if (gEnv->threadPool)
-    {
-        JoinFlexbodyTasks();
-
-        for (int i = 0; i < ar_num_flexbodies; i++)
-        {
-            if (m_flexbody_prepare[i])
-            {
-                ar_flexbodies[i]->flexitFinal();
-            }
-        }
-    }
-}
-
 //v=0: full detail
 //v=1: no beams
 void Actor::setDetailLevel(int v)
@@ -3176,13 +3098,10 @@ void Actor::setDetailLevel(int v)
 
 void Actor::setMeshVisibility(bool visible)
 {
-    for (int i = 0; i < ar_num_flexbodies; i++)
-    {
-        ar_flexbodies[i]->setVisible(visible);
-    }
     //  TODO: HACK! gfx actor shouldn't be called from here ~ only_a_ptr, 06/2018
     m_gfx_actor->SetWheelsVisible(visible);
     m_gfx_actor->SetPropsVisible(visible);
+    m_gfx_actor->SetFlexbodyVisible(visible);
     if (m_cab_scene_node)
     {
         m_cab_scene_node->setVisible(visible);
@@ -3780,12 +3699,7 @@ void Actor::NotifyActorCameraChanged()
 
     // NOTE: Prop visibility now updated in GfxActor::UpdateProps() ~ only_a_ptr, 06/2018
 
-    // look for flexbodies
-    for (int i = 0; i < ar_num_flexbodies; i++)
-    {
-        bool enabled = (ar_flexbodies[i]->getCameraMode() == -2 || ar_flexbodies[i]->getCameraMode() == ar_current_cinecam);
-        ar_flexbodies[i]->setEnabled(enabled);
-    }
+
 }
 
 //Returns the number of active (non bounded) beams connected to a node
@@ -4452,7 +4366,6 @@ Actor::Actor(
     , m_tractioncontrol(0)
     , ar_forward_commands(false)
     , ar_import_commands(false)
-    , ar_flexbodies{} // Init array to nullptr
     , ar_airbrakes{} // Init array to nullptr
     , ar_cabs{} // Init array to 0
     , ar_num_cabs(0)

@@ -80,13 +80,16 @@ FlexBody* FlexFactory::CreateFlexBody(
         return nullptr;
     }
     Ogre::MeshPtr common_mesh = Ogre::MeshManager::getSingleton().load(def->mesh_name, resource_group_name);
-    const std::string mesh_unique_name = m_rig_spawner->ComposeName("FlexbodyMesh", m_rig_spawner->GetActor()->ar_num_flexbodies);
+    static int counter = 0;
+    int unique_id = counter;
+    ++counter;
+    const std::string mesh_unique_name = m_rig_spawner->ComposeName("FlexbodyMesh", unique_id);
     Ogre::MeshPtr mesh = common_mesh->clone(mesh_unique_name);
     if (BSETTING("Flexbody_EnableLODs", false))
     {
         this->ResolveFlexbodyLOD(def->mesh_name, mesh);
     }
-    const std::string flexbody_name = m_rig_spawner->ComposeName("Flexbody", m_rig_spawner->GetActor()->ar_num_flexbodies);
+    const std::string flexbody_name = m_rig_spawner->ComposeName("Flexbody", unique_id);
     Ogre::Entity* entity = gEnv->sceneManager->createEntity(flexbody_name, mesh_unique_name);
     m_rig_spawner->SetupNewEntity(entity, Ogre::ColourValue(0.5, 0.5, 1));
 

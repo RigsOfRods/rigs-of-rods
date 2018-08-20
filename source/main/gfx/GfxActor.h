@@ -256,6 +256,7 @@ public:
     void                      FinishWheelUpdates ();
     void                      UpdateFlexbodies   ();
     void                      FinishFlexbodyTasks();
+    void                      SetFlexbodyVisible (bool visible);
     void                      SetWheelsVisible   (bool value);
     void                      UpdateDebugView    ();
     void                      CycleDebugViews    ();
@@ -267,6 +268,7 @@ public:
     void                      UpdateCParticles   ();
     void                      UpdateAeroEngines  ();
     void                      UpdateNetLabels    (float dt);
+    void                      AddFlexbody        (FlexBody* fb)           { m_flexbodies.push_back(fb); }
     inline void               SetDebugView       (DebugViewType dv)       { m_debug_view = dv; }
     Attributes&               GetAttributes      ()                       { return m_attr; }
     inline Ogre::MaterialPtr& GetCabTransMaterial()                       { return m_cab_mat_visual_trans; }
@@ -297,6 +299,7 @@ private:
     std::vector<NodeGfx>        m_gfx_nodes;
     std::vector<AirbrakeGfx>    m_gfx_airbrakes;
     std::vector<prop_t>         m_props;
+    std::vector<FlexBody*>      m_flexbodies;
     int                         m_driverseat_prop_index;
     Attributes                  m_attr;
     DustPool*                   m_particles_drip;
@@ -309,6 +312,7 @@ private:
     std::vector<WheelGfx>       m_wheels;
     Ogre::SceneNode*            m_rods_parent_scenenode;
     std::vector<std::shared_ptr<Task>> m_flexwheel_tasks;
+    std::vector<std::shared_ptr<Task>> m_flexbody_tasks;
     bool                        m_beaconlight_active;
     float                       m_prop_anim_crankfactor_prev;
     float                       m_prop_anim_shift_timer;

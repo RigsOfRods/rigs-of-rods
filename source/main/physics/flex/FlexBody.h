@@ -68,6 +68,7 @@ public:
     Ogre::SceneNode *getSceneNode() { return m_scene_node; };
 
     void setEnabled(bool e);
+    bool isEnabled() const { return m_is_enabled; } // TODO: horrid! temporary ~ only_a_ptr, 08/2018
 
     /**
     * Visibility control 

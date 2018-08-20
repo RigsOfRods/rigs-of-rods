@@ -29,9 +29,9 @@
 #include "BeamEngine.h" // EngineSim
 #include "Collisions.h"
 #include "DustPool.h" // General particle gfx
-#include "FlexObj.h"
 #include "Flexable.h"
 #include "FlexAirfoil.h"
+#include "FlexBody.h"
 #include "FlexMeshWheel.h"
 #include "FlexObj.h"
 #include "GlobalEnvironment.h" // TODO: Eliminate!
@@ -194,6 +194,12 @@ RoR::GfxActor::~GfxActor()
         }
     }
     m_props.clear();
+
+    // Delete flexbodies
+    for (FlexBody* fb: m_flexbodies)
+    {
+        delete fb;
+    }
 
     Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(m_custom_resource_group);
 }
@@ -2324,11 +2330,66 @@ void RoR::GfxActor::UpdatePropAnimations(const float dt)
 
 void RoR::GfxActor::UpdateFlexbodies()
 {
-    m_actor->UpdateFlexbodiesPrepare(this);
+    for (size_t i = 0; i < m_flexbodies.size(); i++)
+        {
+            // HORRID TEMPORARY HACK  ~ only_a_ptr, 08/2018
+            bool enabled = (m_flexbodies[i]->getCameraMode() == -2 || m_flexbodies[i]->getCameraMode() == m_simbuf.simbuf_cur_cinecam);
+        m_flexbodies[i]->setEnabled(enabled);
+    }
+
+    if (gEnv->threadPool) // TODO: this dual processing is obsolete ~ only_a_ptr, 08/2018
+    {
+        // Push tasks into thread pool
+        for (size_t i = 0; i < m_flexbodies.size(); i++)
+        {
+            if (m_flexbodies[i]->flexitPrepare(this))
+            {
+                auto func = std::function<void()>([this, i]()
+                    {
+                        m_flexbodies[i]->flexitCompute(this);
+                    });
+                auto task_handle = gEnv->threadPool->RunTask(func);
+                m_flexbody_tasks.push_back(task_handle);
+            }
+        }
+    }
+    else
+    {
+        for (size_t i = 0; i < m_flexbodies.size(); i++)
+        {
+            if (m_flexbodies[i]->flexitPrepare(this))
+            {
+                m_flexbodies[i]->flexitCompute(this);
+                m_flexbodies[i]->flexitFinal();
+            }
+        }
+    }
 }
 
 void RoR::GfxActor::FinishFlexbodyTasks()
 {
-    m_actor->UpdateFlexbodiesFinal();
+    if (gEnv->threadPool)
+    {
+        for (const auto& t : m_flexbody_tasks)
+        {
+            t->join();
+        }
+        for (FlexBody* fb: m_flexbodies)
+        {
+            if (fb->isEnabled()) //  // TODO: horrid! temporary ~ only_a_ptr, 08/2018
+            {
+                fb->flexitFinal(); // Update hardware vertex buffers
+            }
+        }
+        m_flexbody_tasks.clear();
+    }
+}
+
+void RoR::GfxActor::SetFlexbodyVisible(bool visible)
+{
+    for (size_t i = 0; i < m_flexbodies.size(); i++)
+    {
+        m_flexbodies[i]->setVisible(visible);
+    }
 }
 

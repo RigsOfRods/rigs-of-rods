@@ -136,9 +136,6 @@ public:
     /// - Particles: updates particles (dust, exhausts, custom)
     /// - Display: updates wings; updates props; updates rig-skeleton + cab fade effect; updates debug overlay
     void              updateVisual(float dt=0);
-    void              UpdateFlexbodiesPrepare(RoR::GfxActor*    gfx_actor);
-    void              UpdateFlexbodiesFinal();
-    void              JoinFlexbodyTasks();                 //!< Waits until all flexbody tasks are finished, but does not update the hardware buffers
     void              UpdateActorNetLabels(float dt=0);    //!< Gfx;
     void              setDetailLevel(int v);               //!< @param v 0 = full detail, 1 = no beams
     void              resetAutopilot();
@@ -269,8 +266,6 @@ public:
     int               ar_num_buoycabs;
     Airbrake*         ar_airbrakes[MAX_AIRBRAKES];
     int               ar_num_airbrakes;
-    FlexBody*         ar_flexbodies[MAX_FLEXBODIES];
-    int               ar_num_flexbodies;
     int               ar_camera_rail[MAX_CAMERARAIL]; //!< Nodes defining camera-movement spline
     int               ar_num_camera_rails;
     bool              ar_hide_in_actor_list;      //!< Hide in list of spawned actors (available in top menubar). Useful for fixed-place machinery, i.e. cranes.
@@ -429,7 +424,6 @@ private:
     std::shared_ptr<RigDef::File>      m_definition;
     std::unique_ptr<RoR::GfxActor>     m_gfx_actor;
     RoR::PerVehicleCameraContext       m_camera_context;
-    std::bitset<MAX_FLEXBODIES>        m_flexbody_prepare; //!< Gfx state
     std::vector<Ogre::String>          m_actor_config;
     std::vector<SlideNode>             m_slidenodes;       //!< all the SlideNodes available on this actor
     std::vector<RailGroup*>            m_railgroups;       //!< all the available RailGroups for this actor
