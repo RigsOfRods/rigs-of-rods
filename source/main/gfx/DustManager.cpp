@@ -97,6 +97,7 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
     for (GfxActor* gfx_actor: m_live_gfx_actors)
     {
         gfx_actor->UpdateWheelVisuals(); // Push flexwheel tasks to threadpool
+        gfx_actor->UpdateFlexbodies(); // Push flexbody tasks to threadpool
     }
 
     // Var
@@ -238,6 +239,7 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
     for (GfxActor* gfx_actor: m_live_gfx_actors)
     {
         gfx_actor->FinishWheelUpdates();
+        gfx_actor->FinishFlexbodyTasks();
     }
 }
 

@@ -136,7 +136,7 @@ public:
     /// - Particles: updates particles (dust, exhausts, custom)
     /// - Display: updates wings; updates props; updates rig-skeleton + cab fade effect; updates debug overlay
     void              updateVisual(float dt=0);
-    void              UpdateFlexbodiesPrepare();
+    void              UpdateFlexbodiesPrepare(RoR::GfxActor*    gfx_actor);
     void              UpdateFlexbodiesFinal();
     void              JoinFlexbodyTasks();                 //!< Waits until all flexbody tasks are finished, but does not update the hardware buffers
     void              UpdateActorNetLabels(float dt=0);    //!< Gfx;

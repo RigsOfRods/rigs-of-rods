@@ -71,9 +71,6 @@ public:
     void           RecalcGravityMasses();
     void           MuteAllActors();
     void           UnmuteAllActors();
-    void           JoinFlexbodyTasks(); /// Waits until all flexbody tasks are finished, but does not update the hardware buffers
-    void           UpdateFlexbodiesPrepare();
-    void           UpdateFlexbodiesFinal();
     void           SetTrucksForcedAwake(bool forced)       { m_forced_awake = forced; };
     bool           AreTrucksForcedAwake() const            { return m_forced_awake; }
     int            GetNumUsedActorSlots() const            { return m_free_actor_slot; }; // TODO: Tasks requiring search over all actors should be done internally. ~ only_a_ptr, 01/2018

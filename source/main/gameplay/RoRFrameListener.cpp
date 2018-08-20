@@ -302,8 +302,6 @@ void SimController::UpdateInputEvents(float dt)
         RoR::App::GetGuiManager()->HideNotification();
         RoR::App::GetGuiManager()->SetMouseCursorVisibility(RoR::GUIManager::MouseCursorVisibility::HIDDEN);
 
-        m_actor_manager.UpdateFlexbodiesFinal(); // Waits until all flexbody tasks are finished
-
         if (App::app_screenshot_format.GetActive() == "png")
         {
             // add some more data into the image
@@ -826,7 +824,6 @@ void SimController::UpdateInputEvents(float dt)
                         scale *= RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) ? 3.0f : 1.0f;
                         scale *= RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) ? 10.0f : 1.0f;
 
-                        m_player_actor->UpdateFlexbodiesFinal();
                         m_player_actor->displace(translation * scale, rotation * scale);
 
                         m_advanced_vehicle_repair_timer = 0.0f;
@@ -1512,8 +1509,6 @@ void SimController::FinalizeActorSpawning(Actor* local_actor, Actor* prev_actor)
             this->SetPlayerActor(local_actor);
         }
 
-        local_actor->UpdateFlexbodiesPrepare();
-        local_actor->UpdateFlexbodiesFinal();
         local_actor->updateVisual();
     }
 }
@@ -1543,13 +1538,6 @@ void SimController::UpdateSimulation(float dt)
 
     RoR::App::GetInputEngine()->Capture();
     auto s = App::sim_state.GetActive();
-
-    //if (gEnv->collisions) 	printf("> ground model used: %s\n", gEnv->collisions->last_used_ground_model->name);
-    //
-    if ((simRUNNING(s) || simEDITOR(s)) && !simPAUSED(s))
-    {
-        m_actor_manager.UpdateFlexbodiesPrepare(); // Pushes all flexbody tasks into the thread pool 
-    }
 
     if (OutProtocol::getSingletonPtr())
     {
@@ -1644,12 +1632,9 @@ void SimController::UpdateSimulation(float dt)
 
         if (!simPAUSED(s))
         {
-            m_actor_manager.JoinFlexbodyTasks(); // Waits until all flexbody tasks are finished
             m_gfx_scene.BufferSimulationData();
 
             m_actor_manager.UpdateActors(m_player_actor, dt); // *** Start new physics tasks. No reading from Actor N/B beyond this point.
-
-            m_actor_manager.UpdateFlexbodiesFinal(); // Updates the harware buffers
         }
 
         if (simRUNNING(s) && (App::sim_state.GetPending() == SimState::PAUSED))
@@ -2169,8 +2154,6 @@ bool SimController::SetupGameplayLoop()
             Vector3 translation = pos - actor->GetRotationCenter();
             actor->ResetPosition(actor->ar_nodes[0].AbsPosition + Vector3(translation.x, 0.0f, translation.z), true);
 
-            actor->UpdateFlexbodiesPrepare();
-            actor->UpdateFlexbodiesFinal();
             actor->updateVisual();
 
             if (App::diag_preset_veh_enter.GetActive() && actor->ar_num_nodes > 0)

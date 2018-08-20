@@ -254,6 +254,8 @@ public:
     void                      CalculateDriverPos (Ogre::Vector3& out_pos, Ogre::Quaternion& out_rot);
     void                      UpdateWheelVisuals ();
     void                      FinishWheelUpdates ();
+    void                      UpdateFlexbodies   ();
+    void                      FinishFlexbodyTasks();
     void                      SetWheelsVisible   (bool value);
     void                      UpdateDebugView    ();
     void                      CycleDebugViews    ();

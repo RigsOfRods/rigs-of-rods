@@ -2322,3 +2322,13 @@ void RoR::GfxActor::UpdatePropAnimations(const float dt)
     }
 }
 
+void RoR::GfxActor::UpdateFlexbodies()
+{
+    m_actor->UpdateFlexbodiesPrepare(this);
+}
+
+void RoR::GfxActor::FinishFlexbodyTasks()
+{
+    m_actor->UpdateFlexbodiesFinal();
+}
+

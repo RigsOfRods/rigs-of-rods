@@ -39,7 +39,7 @@ namespace RoR
     struct FlexBodyCacheData;
 }
 
-class FlexBody : public Flexable
+class FlexBody // OLD: public Flexable
 {
     friend class RoR::FlexFactory;
     friend class RoR::FlexBodyFileIO;
@@ -63,7 +63,7 @@ public:
 
     void printMeshInfo(Ogre::Mesh* mesh);
     void reset();
-    void updateBlend();
+    // // void updateBlend(); Disabled for {AsyncScene} refactor ~ only_a_ptr, 08/2018
     void writeBlend();
     Ogre::SceneNode *getSceneNode() { return m_scene_node; };
 
@@ -77,15 +77,14 @@ public:
     int getCameraMode() { return m_camera_mode; };
 
     // Flexable
-    bool flexitPrepare();
-    void flexitCompute();
+    bool flexitPrepare(RoR::GfxActor* gfx_actor);
+    void flexitCompute(RoR::GfxActor* gfx_actor);
     Ogre::Vector3 flexitFinal();
 
     void setVisible(bool visible);
 
 private:
 
-    node_t*           m_nodes;
     size_t            m_vertex_count;
     Ogre::Vector3     m_flexit_center; ///< Updated per frame
 

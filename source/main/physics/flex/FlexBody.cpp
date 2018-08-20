@@ -25,6 +25,7 @@
 #include "ApproxMath.h"
 #include "BeamData.h"
 #include "FlexFactory.h"
+#include "GfxActor.h"
 #include "RigDef_File.h"
 #include "RigLoadingProfilerControl.h"
 
@@ -51,7 +52,6 @@ FlexBody::FlexBody(
     , m_node_y(ny)
     , m_is_enabled(true)
     , m_has_texture_blend(true)
-    , m_nodes(all_nodes)
     , m_scene_node(nullptr)
     , m_scene_entity(ent)
     , m_has_texture(true)
@@ -68,6 +68,8 @@ FlexBody::FlexBody(
     Vector3 normal = Vector3::UNIT_Y;
     Vector3 position = Vector3::ZERO;
     Quaternion orientation = Quaternion::ZERO;
+
+    node_t* m_nodes = all_nodes;
 
     if (ref >= 0)
     {
@@ -636,45 +638,49 @@ void FlexBody::printMeshInfo(Mesh* mesh)
     }
 }
 
-bool FlexBody::flexitPrepare()
+bool FlexBody::flexitPrepare(RoR::GfxActor* gfx_actor)
 {
     if (!m_is_enabled) return false; // TODO: This is a horrid mechanism! Fix it! ~ only_a_ptr, 02/2017
-    if (m_has_texture_blend) updateBlend();
+    // // if (m_has_texture_blend) updateBlend(); Disabled for {AsyncScene} refactor ~ only_a_ptr, 08/2018
 
     // compute the local center
     Ogre::Vector3 flexit_normal;
 
+    RoR::GfxActor::NodeData* nodes = gfx_actor->GetSimNodeBuffer();
+
     if (m_node_center >= 0)
     {
-        Vector3 diffX = m_nodes[m_node_x].AbsPosition - m_nodes[m_node_center].AbsPosition;
-        Vector3 diffY = m_nodes[m_node_y].AbsPosition - m_nodes[m_node_center].AbsPosition;
+        Vector3 diffX = nodes[m_node_x].AbsPosition - nodes[m_node_center].AbsPosition;
+        Vector3 diffY = nodes[m_node_y].AbsPosition - nodes[m_node_center].AbsPosition;
         flexit_normal = fast_normalise(diffY.crossProduct(diffX));
 
-        m_flexit_center = m_nodes[m_node_center].AbsPosition + m_center_offset.x * diffX + m_center_offset.y * diffY;
+        m_flexit_center = nodes[m_node_center].AbsPosition + m_center_offset.x * diffX + m_center_offset.y * diffY;
         m_flexit_center += m_center_offset.z * flexit_normal;
     }
     else
     {
         flexit_normal = Vector3::UNIT_Y;
-        m_flexit_center = m_nodes[0].AbsPosition;
+        m_flexit_center = nodes[0].AbsPosition;
     }
 
     return true;
-}	
+}
 
-void FlexBody::flexitCompute()
+void FlexBody::flexitCompute(RoR::GfxActor* gfx_actor)
 {
+    RoR::GfxActor::NodeData* nodes = gfx_actor->GetSimNodeBuffer();
+
     for (int i=0; i<(int)m_vertex_count; i++)
     {
-        Vector3 diffX = m_nodes[m_locators[i].nx].AbsPosition - m_nodes[m_locators[i].ref].AbsPosition;
-        Vector3 diffY = m_nodes[m_locators[i].ny].AbsPosition - m_nodes[m_locators[i].ref].AbsPosition;
+        Vector3 diffX = nodes[m_locators[i].nx].AbsPosition - nodes[m_locators[i].ref].AbsPosition;
+        Vector3 diffY = nodes[m_locators[i].ny].AbsPosition - nodes[m_locators[i].ref].AbsPosition;
         Vector3 nCross = fast_normalise(diffX.crossProduct(diffY)); //nCross.normalise();
 
         m_dst_pos[i].x = diffX.x * m_locators[i].coords.x + diffY.x * m_locators[i].coords.y + nCross.x * m_locators[i].coords.z;
         m_dst_pos[i].y = diffX.y * m_locators[i].coords.x + diffY.y * m_locators[i].coords.y + nCross.y * m_locators[i].coords.z;
         m_dst_pos[i].z = diffX.z * m_locators[i].coords.x + diffY.z * m_locators[i].coords.y + nCross.z * m_locators[i].coords.z;
 
-        m_dst_pos[i] += m_nodes[m_locators[i].ref].AbsPosition - m_flexit_center;
+        m_dst_pos[i] += nodes[m_locators[i].ref].AbsPosition - m_flexit_center;
 
         m_dst_normals[i].x = diffX.x * m_src_normals[i].x + diffY.x * m_src_normals[i].y + nCross.x * m_src_normals[i].z;
         m_dst_normals[i].y = diffX.y * m_src_normals[i].x + diffY.y * m_src_normals[i].y + nCross.y * m_src_normals[i].z;
@@ -682,21 +688,6 @@ void FlexBody::flexitCompute()
 
         m_dst_normals[i] = fast_normalise(m_dst_normals[i]);
     }
-#if 0
-    for (int i=0; i<(int)m_vertex_count; i++)
-    {
-        Matrix3 mat;
-        Vector3 diffX = m_nodes[m_locators[i].nx].AbsPosition - m_nodes[m_locators[i].ref].AbsPosition;
-        Vector3 diffY = m_nodes[m_locators[i].ny].AbsPosition - m_nodes[m_locators[i].ref].AbsPosition;
-
-        mat.SetColumn(0, diffX);
-        mat.SetColumn(1, diffY);
-        mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, m_nodes[loc.nz].AbsPosition-m_nodes[loc.ref].AbsPosition);
-
-        m_dst_pos[i] = mat * m_locators[i].coords + m_nodes[m_locators[i].ref].AbsPosition - m_flexit_center;
-        m_dst_normals[i] = fast_normalise(mat * m_src_normals[i]);
-    }
-#endif
 }
 
 Vector3 FlexBody::flexitFinal()
@@ -749,6 +740,9 @@ void FlexBody::writeBlend()
     }
 }
 
+/* Disabled for {AsyncScene} refactor ~ only_a_ptr, 08/2018
+
+
 void FlexBody::updateBlend() //so easy!
 {
     if (!m_is_enabled) return;
@@ -771,3 +765,4 @@ void FlexBody::updateBlend() //so easy!
     }
     if (changed) writeBlend();
 }
+*/

@@ -2983,14 +2983,14 @@ void Actor::UpdateSoundSources()
 #endif //OPENAL
 }
 
-void Actor::UpdateFlexbodiesPrepare()
+void Actor::UpdateFlexbodiesPrepare(RoR::GfxActor*    gfx_actor)
 {
     if (gEnv->threadPool)
     {
         m_flexbody_prepare.reset();
         for (int i = 0; i < ar_num_flexbodies; i++)
         {
-            m_flexbody_prepare.set(i, ar_flexbodies[i]->flexitPrepare());
+            m_flexbody_prepare.set(i, ar_flexbodies[i]->flexitPrepare(gfx_actor));
         }
 
         // Push tasks into thread pool
@@ -2998,9 +2998,9 @@ void Actor::UpdateFlexbodiesPrepare()
         {
             if (m_flexbody_prepare[i])
             {
-                auto func = std::function<void()>([this, i]()
+                auto func = std::function<void()>([this, i, gfx_actor]()
                     {
-                        ar_flexbodies[i]->flexitCompute();
+                        ar_flexbodies[i]->flexitCompute(gfx_actor);
                     });
                 auto task_handle = gEnv->threadPool->RunTask(func);
                 m_flexbody_tasks.push_back(task_handle);
@@ -3011,9 +3011,9 @@ void Actor::UpdateFlexbodiesPrepare()
     {
         for (int i = 0; i < ar_num_flexbodies; i++)
         {
-            if (ar_flexbodies[i]->flexitPrepare())
+            if (ar_flexbodies[i]->flexitPrepare(gfx_actor))
             {
-                ar_flexbodies[i]->flexitCompute();
+                ar_flexbodies[i]->flexitCompute(gfx_actor);
                 ar_flexbodies[i]->flexitFinal();
             }
         }

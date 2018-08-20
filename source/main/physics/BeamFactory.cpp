@@ -466,14 +466,14 @@ void ActorManager::SetupActor(
 
     if (actor->isPreloadedWithTerrain())
     {
-        actor->UpdateFlexbodiesPrepare();
-        actor->UpdateFlexbodiesFinal();
-
         actor->GetGfxActor()->UpdateSimDataBuffer(); // Initial fill of sim data buffers
+
+        actor->GetGfxActor()->UpdateFlexbodies(); // Push tasks to threadpool
         actor->GetGfxActor()->UpdateCabMesh();
         actor->GetGfxActor()->UpdateProps(0.f, false);
         actor->GetGfxActor()->UpdateWheelVisuals(); // Push tasks to threadpool
         actor->GetGfxActor()->FinishWheelUpdates(); // Sync tasks from threadpool
+        actor->GetGfxActor()->FinishFlexbodyTasks(); // Sync tasks from threadpool
     }
 
     App::GetSimController()->GetGfxScene().RegisterGfxActor(actor->GetGfxActor());
@@ -1223,39 +1223,6 @@ Actor* ActorManager::FetchRescueVehicle()
         }
     }
     return nullptr;
-}
-
-void ActorManager::UpdateFlexbodiesPrepare()
-{
-    for (int t = 0; t < m_free_actor_slot; t++)
-    {
-        if (m_actors[t] && m_actors[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
-        {
-            m_actors[t]->UpdateFlexbodiesPrepare();
-        }
-    }
-}
-
-void ActorManager::JoinFlexbodyTasks()
-{
-    for (int t = 0; t < m_free_actor_slot; t++)
-    {
-        if (m_actors[t] && m_actors[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
-        {
-            m_actors[t]->JoinFlexbodyTasks();
-        }
-    }
-}
-
-void ActorManager::UpdateFlexbodiesFinal()
-{
-    for (int t = 0; t < m_free_actor_slot; t++)
-    {
-        if (m_actors[t] && m_actors[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
-        {
-            m_actors[t]->UpdateFlexbodiesFinal();
-        }
-    }
 }
 
 void ActorManager::UpdateAirbrakeInput(float dt)
