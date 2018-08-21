@@ -469,9 +469,9 @@ void ActorManager::SetupActor(
         actor->GetGfxActor()->UpdateSimDataBuffer(); // Initial fill of sim data buffers
 
         actor->GetGfxActor()->UpdateFlexbodies(); // Push tasks to threadpool
+        actor->GetGfxActor()->UpdateWheelVisuals(); // Push tasks to threadpool
         actor->GetGfxActor()->UpdateCabMesh();
         actor->GetGfxActor()->UpdateProps(0.f, false);
-        actor->GetGfxActor()->UpdateWheelVisuals(); // Push tasks to threadpool
         actor->GetGfxActor()->FinishWheelUpdates(); // Sync tasks from threadpool
         actor->GetGfxActor()->FinishFlexbodyTasks(); // Sync tasks from threadpool
     }

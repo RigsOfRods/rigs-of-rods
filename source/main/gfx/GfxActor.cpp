@@ -2330,39 +2330,57 @@ void RoR::GfxActor::UpdatePropAnimations(const float dt)
 
 void RoR::GfxActor::UpdateFlexbodies()
 {
-    for (size_t i = 0; i < m_flexbodies.size(); i++)
-        {
-            // HORRID TEMPORARY HACK  ~ only_a_ptr, 08/2018
-            bool enabled = (m_flexbodies[i]->getCameraMode() == -2 || m_flexbodies[i]->getCameraMode() == m_simbuf.simbuf_cur_cinecam);
-        m_flexbodies[i]->setEnabled(enabled);
-    }
-
-    if (gEnv->threadPool) // TODO: this dual processing is obsolete ~ only_a_ptr, 08/2018
+    m_flexbody_tasks.clear();
+    if (gEnv->threadPool) // TODO: This dual processing is obsolete. Configuring threadpool size to 1 should do the same thing ~ only_a_ptr, 05/2018
     {
-        // Push tasks into thread pool
-        for (size_t i = 0; i < m_flexbodies.size(); i++)
+        for (FlexBody* fb: m_flexbodies)
         {
-            if (m_flexbodies[i]->flexitPrepare(this))
+            const int camera_mode = fb->getCameraMode();
+            if ((camera_mode == -2) || (camera_mode == m_simbuf.simbuf_cur_cinecam))
             {
-                auto func = std::function<void()>([this, i]()
+                auto func = std::function<void()>([fb]()
                     {
-                        m_flexbodies[i]->flexitCompute(this);
+                        fb->ComputeFlexbody();
                     });
                 auto task_handle = gEnv->threadPool->RunTask(func);
                 m_flexbody_tasks.push_back(task_handle);
+            }
+            else
+            {
+                fb->setVisible(false);
             }
         }
     }
     else
     {
-        for (size_t i = 0; i < m_flexbodies.size(); i++)
+        for (FlexBody* fb: m_flexbodies)
         {
-            if (m_flexbodies[i]->flexitPrepare(this))
+            const int camera_mode = fb->getCameraMode();
+            if ((fb->getCameraMode() == -2) || (fb->getCameraMode() == m_simbuf.simbuf_cur_cinecam))
             {
-                m_flexbodies[i]->flexitCompute(this);
-                m_flexbodies[i]->flexitFinal();
+                fb->ComputeFlexbody();
+            }
+            else
+            {
+                fb->setVisible(false);
             }
         }
+    }
+}
+
+void RoR::GfxActor::ResetFlexbodies()
+{
+    for (FlexBody* fb: m_flexbodies)
+    {
+        fb->reset();
+    }
+}
+
+void RoR::GfxActor::SetFlexbodyVisible(bool visible)
+{
+    for (FlexBody* fb: m_flexbodies)
+    {
+        fb->setVisible(visible);
     }
 }
 
@@ -2370,26 +2388,14 @@ void RoR::GfxActor::FinishFlexbodyTasks()
 {
     if (gEnv->threadPool)
     {
-        for (const auto& t : m_flexbody_tasks)
+        for (auto& task: m_flexbody_tasks)
         {
-            t->join();
+            task->join();
         }
         for (FlexBody* fb: m_flexbodies)
         {
-            if (fb->isEnabled()) //  // TODO: horrid! temporary ~ only_a_ptr, 08/2018
-            {
-                fb->flexitFinal(); // Update hardware vertex buffers
-            }
+            fb->UpdateFlexbodyVertexBuffers();
         }
-        m_flexbody_tasks.clear();
-    }
-}
-
-void RoR::GfxActor::SetFlexbodyVisible(bool visible)
-{
-    for (size_t i = 0; i < m_flexbodies.size(); i++)
-    {
-        m_flexbodies[i]->setVisible(visible);
     }
 }
 

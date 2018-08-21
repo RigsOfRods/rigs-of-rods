@@ -6785,6 +6785,8 @@ void ActorSpawner::FinalizeGfxSetup()
     m_actor->m_gfx_actor = std::unique_ptr<RoR::GfxActor>(
         new RoR::GfxActor(m_actor, m_custom_resource_group, m_gfx_nodes, m_props, m_driverseat_prop_index));
 
+    m_actor->GetGfxActor()->UpdateSimDataBuffer(); // Initial fill (to setup flexbodies + flexbodywheels)
+
     // Process special materials
     for (auto& entry: m_material_substitutions)
     {

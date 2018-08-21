@@ -346,7 +346,7 @@ public:
     float             ar_aileron;                     //!< Sim state; aerial controller
     int               ar_aerial_flap;                 //!< Sim state; state of aircraft flaps (values: 0-5)
     Ogre::Vector3     ar_fusedrag;                    //!< Physics state
-    int               ar_current_cinecam;             //!< Sim state; index of current CineCam (-1 if using external camera)
+    int               ar_current_cinecam;             //!< Sim state; index of current CineCam (-1 if using 3rd-person camera)
     int               ar_custom_camera_node;          //!< Sim state; custom tracking node for 3rd-person camera
     std::string       ar_filename;                    //!< Attribute; filled at spawn
     int               ar_airbrake_intensity;          //!< Physics state; values 0-5

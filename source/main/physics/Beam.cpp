@@ -352,15 +352,6 @@ void Actor::ScaleActor(float value)
     if (m_cab_mesh)
         m_cab_mesh->ScaleFlexObj(value);
 
-   /* temporarily disabled ~ only_a_ptr, 08/2018
-   // todo: scale flexbody
-    for (int i = 0; i < ar_num_flexbodies; i++)
-    {
-        ar_flexbodies[i]->getSceneNode()->scale(value, value, value);
-    }
-    */
-
-
     m_gfx_actor->ScaleActor(relpos, value);
 
 }
@@ -1504,6 +1495,7 @@ void Actor::SyncReset()
     if (ar_autopilot)
         this->resetAutopilot();
 
+    this->GetGfxActor()->ResetFlexbodies();
     // reset on spot with backspace
     if (m_reset_request != REQUEST_RESET_ON_INIT_POS)
     {

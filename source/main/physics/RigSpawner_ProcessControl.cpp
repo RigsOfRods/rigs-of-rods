@@ -370,10 +370,10 @@ Actor *ActorSpawner::SpawnActor()
 
 #endif // USE_OPENAL
 
-    FinalizeRig();
+    this->FinalizeRig();
     this->FinalizeGfxSetup(); // Creates the GfxActor
 
-    // Section 'flexbodies' (Uses generated nodes)
+    // Section 'flexbodies' (Uses generated nodes; needs GfxActor to exist)
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLEXBODIES, flexbodies, ProcessFlexbody);
     m_flex_factory.SaveFlexbodiesToCache();
 

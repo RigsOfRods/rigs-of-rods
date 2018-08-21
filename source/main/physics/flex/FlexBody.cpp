@@ -36,8 +36,7 @@ using namespace Ogre;
 FlexBody::FlexBody(
     RigDef::Flexbody* def,
     RoR::FlexBodyCacheData* preloaded_from_cache,
-    node_t *all_nodes,
-    int numnodes,
+    RoR::GfxActor* gfx_actor,
     Ogre::Entity* ent,
     int ref,
     int nx,
@@ -50,7 +49,6 @@ FlexBody::FlexBody(
     , m_node_center(ref)
     , m_node_x(nx)
     , m_node_y(ny)
-    , m_is_enabled(true)
     , m_has_texture_blend(true)
     , m_scene_node(nullptr)
     , m_scene_entity(ent)
@@ -60,6 +58,7 @@ FlexBody::FlexBody(
     , m_dst_normals(nullptr)
     , m_dst_pos(nullptr)
     , m_src_colors(nullptr)
+    , m_gfx_actor(gfx_actor)
 {
     FLEXBODY_PROFILER_START("Compute pos + orientation");
 
@@ -69,17 +68,17 @@ FlexBody::FlexBody(
     Vector3 position = Vector3::ZERO;
     Quaternion orientation = Quaternion::ZERO;
 
-    node_t* m_nodes = all_nodes;
+    RoR::GfxActor::NodeData* nodes = m_gfx_actor->GetSimNodeBuffer();
 
     if (ref >= 0)
     {
-        Vector3 diffX = m_nodes[nx].AbsPosition-m_nodes[ref].AbsPosition;
-        Vector3 diffY = m_nodes[ny].AbsPosition-m_nodes[ref].AbsPosition;
+        Vector3 diffX = nodes[nx].AbsPosition-nodes[ref].AbsPosition;
+        Vector3 diffY = nodes[ny].AbsPosition-nodes[ref].AbsPosition;
 
         normal = fast_normalise(diffY.crossProduct(diffX));
 
         // position
-        position = m_nodes[ref].AbsPosition + def->offset.x * diffX + def->offset.y * diffY;
+        position = nodes[ref].AbsPosition + def->offset.x * diffX + def->offset.y * diffY;
         position = position + def->offset.z * normal;
 
         // orientation
@@ -91,7 +90,7 @@ FlexBody::FlexBody(
     {
         // special case!
         normal = Vector3::UNIT_Y;
-        position = m_nodes[0].AbsPosition + def->offset;
+        position = nodes[0].AbsPosition + def->offset;
         orientation = rot;
     }
 
@@ -402,7 +401,7 @@ FlexBody::FlexBody(
             auto itor = node_indices.begin();
             for (; itor != end; ++itor)
             {
-                float node_distance = vertices[i].squaredDistance(m_nodes[*itor].AbsPosition);
+                float node_distance = vertices[i].squaredDistance(nodes[*itor].AbsPosition);
                 if (node_distance < closest_node_distance)
                 {
                     closest_node_distance = node_distance;
@@ -426,7 +425,7 @@ FlexBody::FlexBody(
                 {
                     continue;
                 }
-                float node_distance = vertices[i].squaredDistance(m_nodes[*itor].AbsPosition);
+                float node_distance = vertices[i].squaredDistance(nodes[*itor].AbsPosition);
                 if (node_distance < closest_node_distance)
                 {
                     closest_node_distance = node_distance;
@@ -444,17 +443,17 @@ FlexBody::FlexBody(
             closest_node_distance=1000000.0;
             closest_node_index=-1;
             itor = node_indices.begin();
-            Vector3 vx = fast_normalise(m_nodes[m_locators[i].nx].AbsPosition - m_nodes[m_locators[i].ref].AbsPosition);
+            Vector3 vx = fast_normalise(nodes[m_locators[i].nx].AbsPosition - nodes[m_locators[i].ref].AbsPosition);
             for (; itor != end; ++itor)
             {
                 if (*itor == m_locators[i].ref || *itor == m_locators[i].nx)
                 {
                     continue;
                 }
-                float node_distance = vertices[i].squaredDistance(m_nodes[*itor].AbsPosition);
+                float node_distance = vertices[i].squaredDistance(nodes[*itor].AbsPosition);
                 if (node_distance < closest_node_distance)
                 {
-                    Vector3 vt = fast_normalise(m_nodes[*itor].AbsPosition - m_nodes[m_locators[i].ref].AbsPosition);
+                    Vector3 vt = fast_normalise(nodes[*itor].AbsPosition - nodes[m_locators[i].ref].AbsPosition);
                     float cost = vx.dotProduct(vt);
                     if (cost>0.707 || cost<-0.707)
                     {
@@ -472,17 +471,17 @@ FlexBody::FlexBody(
             m_locators[i].ny=closest_node_index;
 
             Matrix3 mat;
-            Vector3 diffX = m_nodes[m_locators[i].nx].AbsPosition-m_nodes[m_locators[i].ref].AbsPosition;
-            Vector3 diffY = m_nodes[m_locators[i].ny].AbsPosition-m_nodes[m_locators[i].ref].AbsPosition;
+            Vector3 diffX = nodes[m_locators[i].nx].AbsPosition-nodes[m_locators[i].ref].AbsPosition;
+            Vector3 diffY = nodes[m_locators[i].ny].AbsPosition-nodes[m_locators[i].ref].AbsPosition;
 
             mat.SetColumn(0, diffX);
             mat.SetColumn(1, diffY);
-            mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, m_nodes[loc.nz].AbsPosition-m_nodes[loc.ref].AbsPosition);
+            mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, nodes[loc.nz].AbsPosition-nodes[loc.ref].AbsPosition);
 
             mat = mat.Inverse();
 
             //compute coordinates in the newly formed Euclidean basis
-            m_locators[i].coords = mat * (vertices[i] - m_nodes[m_locators[i].ref].AbsPosition);
+            m_locators[i].coords = mat * (vertices[i] - nodes[m_locators[i].ref].AbsPosition);
 
             // that's it!
         }
@@ -520,12 +519,12 @@ FlexBody::FlexBody(
         for (int i=0; i<(int)m_vertex_count; i++)
         {
             Matrix3 mat;
-            Vector3 diffX = m_nodes[m_locators[i].nx].AbsPosition-m_nodes[m_locators[i].ref].AbsPosition;
-            Vector3 diffY = m_nodes[m_locators[i].ny].AbsPosition-m_nodes[m_locators[i].ref].AbsPosition;
+            Vector3 diffX = nodes[m_locators[i].nx].AbsPosition-nodes[m_locators[i].ref].AbsPosition;
+            Vector3 diffY = nodes[m_locators[i].ny].AbsPosition-nodes[m_locators[i].ref].AbsPosition;
 
             mat.SetColumn(0, diffX);
             mat.SetColumn(1, diffY);
-            mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, m_nodes[loc.nz].AbsPosition-m_nodes[loc.ref].AbsPosition);
+            mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, nodes[loc.nz].AbsPosition-nodes[loc.ref].AbsPosition);
 
             mat = mat.Inverse();
 
@@ -586,15 +585,8 @@ FlexBody::~FlexBody()
     Ogre::MeshManager::getSingleton().remove(mesh->getHandle());
 }
 
-void FlexBody::setEnabled(bool e)
-{
-    setVisible(e);
-    m_is_enabled = e;
-}
-
 void FlexBody::setVisible(bool visible)
 {
-    if (!m_is_enabled) return;
     if (m_scene_node)
         m_scene_node->setVisible(visible);
 }
@@ -638,15 +630,14 @@ void FlexBody::printMeshInfo(Mesh* mesh)
     }
 }
 
-bool FlexBody::flexitPrepare(RoR::GfxActor* gfx_actor)
+void FlexBody::ComputeFlexbody()
 {
-    if (!m_is_enabled) return false; // TODO: This is a horrid mechanism! Fix it! ~ only_a_ptr, 02/2017
     // // if (m_has_texture_blend) updateBlend(); Disabled for {AsyncScene} refactor ~ only_a_ptr, 08/2018
+
+    RoR::GfxActor::NodeData* nodes = m_gfx_actor->GetSimNodeBuffer();
 
     // compute the local center
     Ogre::Vector3 flexit_normal;
-
-    RoR::GfxActor::NodeData* nodes = gfx_actor->GetSimNodeBuffer();
 
     if (m_node_center >= 0)
     {
@@ -662,13 +653,6 @@ bool FlexBody::flexitPrepare(RoR::GfxActor* gfx_actor)
         flexit_normal = Vector3::UNIT_Y;
         m_flexit_center = nodes[0].AbsPosition;
     }
-
-    return true;
-}
-
-void FlexBody::flexitCompute(RoR::GfxActor* gfx_actor)
-{
-    RoR::GfxActor::NodeData* nodes = gfx_actor->GetSimNodeBuffer();
 
     for (int i=0; i<(int)m_vertex_count; i++)
     {
@@ -690,7 +674,7 @@ void FlexBody::flexitCompute(RoR::GfxActor* gfx_actor)
     }
 }
 
-Vector3 FlexBody::flexitFinal()
+void FlexBody::UpdateFlexbodyVertexBuffers()
 {
     Vector3 *ppt = m_dst_pos;
     Vector3 *npt = m_dst_normals;
@@ -710,8 +694,6 @@ Vector3 FlexBody::flexitFinal()
     }
 
     m_scene_node->setPosition(m_flexit_center);
-
-    return m_flexit_center;
 }
 
 void FlexBody::reset()
@@ -725,7 +707,6 @@ void FlexBody::reset()
 
 void FlexBody::writeBlend()
 {
-    if (!m_is_enabled) return;
     if (!m_has_texture_blend) return;
     ARGB *cpt = m_src_colors;
     if (m_uses_shared_vertex_data)
@@ -745,17 +726,19 @@ void FlexBody::writeBlend()
 
 void FlexBody::updateBlend() //so easy!
 {
-    if (!m_is_enabled) return;
     bool changed = false;
     for (int i=0; i<(int)m_vertex_count; i++)
     {
-        node_t *nd = &m_nodes[m_locators[i].ref];
+        // TODO: temporarily disabled during project "AsyncScene" - the GfxActor::NodeData doesn't carry the 'has_contact' flag ~ only_a_ptr, 06/2018
+        node_t *nd = &nodes[m_locators[i].ref];
         ARGB col = m_src_colors[i];
         if (nd->nd_has_contact && !(col&0xFF000000))
         {
             m_src_colors[i]=col|0xFF000000;
             changed = true;
         }
+        
+
         // Disabled while refactoring particles ~ only_a_ptr, 04/2018
         //if ((nd->wetstate!=DRY) ^ ((col&0x000000FF)>0))
         //{

@@ -57,11 +57,10 @@ struct FlexBodyRecordHeader
     int            num_submesh_vbufs;
     unsigned char  flags;
 
-    BITMASK_PROPERTY(flags, 1, IS_ENABLED,             IsEnabled           , SetIsEnabled            );
-    BITMASK_PROPERTY(flags, 2, IS_FAULTY,              IsFaulty            , SetIsFaulty             );
-    BITMASK_PROPERTY(flags, 3, USES_SHARED_VERTEX_DATA,UsesSharedVertexData, SetUsesSharedVertexData );
-    BITMASK_PROPERTY(flags, 4, HAS_TEXTURE,            HasTexture          , SetHasTexture           );
-    BITMASK_PROPERTY(flags, 5, HAS_TEXTURE_BLEND,      HasTextureBlend     , SetHasTextureBlend      );
+    BITMASK_PROPERTY(flags, 1, IS_FAULTY,              IsFaulty            , SetIsFaulty             );
+    BITMASK_PROPERTY(flags, 2, USES_SHARED_VERTEX_DATA,UsesSharedVertexData, SetUsesSharedVertexData );
+    BITMASK_PROPERTY(flags, 3, HAS_TEXTURE,            HasTexture          , SetHasTexture           );
+    BITMASK_PROPERTY(flags, 4, HAS_TEXTURE_BLEND,      HasTextureBlend     , SetHasTextureBlend      );
 };
 
 struct FlexBodyCacheData
