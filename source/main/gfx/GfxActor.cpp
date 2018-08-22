@@ -2490,3 +2490,36 @@ void RoR::GfxActor::UpdateFlares(float dt_sec, bool is_player)
         }
     }
 }
+
+void RoR::GfxActor::SetCastShadows(bool value)
+{
+    // Cab mesh
+    m_actor->SetPropsCastShadows(value); // TODO: move these objects to GfxActor! ~ 08/2018
+
+    // Props
+    for (prop_t& prop: m_props)
+    {
+        if (prop.mo != nullptr)
+            prop.mo->getEntity()->setCastShadows(value);
+        if (prop.wheelmo != nullptr)
+            prop.wheelmo->getEntity()->setCastShadows(value);
+    }
+
+    // Wheels
+    for (WheelGfx& wheel: m_wheels)
+    {
+        static_cast<Ogre::Entity*>(wheel.wx_scenenode->getAttachedObject(0))->setCastShadows(value);
+    }
+
+    // Softbody beams
+    for (Rod& rod: m_rods)
+    {
+        static_cast<Ogre::Entity*>(rod.rod_scenenode->getAttachedObject(0))->setCastShadows(value);
+    }
+
+    // Flexbody meshes
+    for (FlexBody* fb: m_flexbodies)
+    {
+        fb->SetFlexbodyCastShadow(value);
+    }
+}

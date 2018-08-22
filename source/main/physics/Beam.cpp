@@ -2622,21 +2622,16 @@ void Actor::updateSkidmarks()
 
 void Actor::SetPropsCastShadows(bool do_cast_shadows)
 {
+    // TODO: move these objects to GfxActor! ~ 08/2018
     if (m_cab_scene_node && m_cab_scene_node->numAttachedObjects() && m_cab_scene_node->getAttachedObject(0))
     {
         ((Entity*)(m_cab_scene_node->getAttachedObject(0)))->setCastShadows(do_cast_shadows);
     }
-    
-    // TODO: Updating props removed when adding props to GfxActor -- it probably doesn't matter anyway ~ only_a_ptr, 06/2018
-
-    // TODO: Updating wheel visuals removed when implementing `GfxActor::WheelGfx` ~ only_a_ptr, 04/2018
-
-    // TODO: updating beam visuals removed when implementing `GfxActor::Rod` concept
-    //       Does it matter anyway? Does 'setCastShadows()' affect PSSM? ~ only_a_ptr, 12/2017
 }
 
 void Actor::prepareInside(bool inside)
 {
+    // TODO: this whole function belongs to GfxActor ~ 08/2018
     if (inside)
     {
         gEnv->mainCamera->setNearClipDistance(0.1f);
@@ -2668,7 +2663,7 @@ void Actor::prepareInside(bool inside)
 
     if (m_gfx_reduce_shadows)
     {
-        SetPropsCastShadows(!inside);
+        m_gfx_actor->SetCastShadows(!inside);
     }
 }
 

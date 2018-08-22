@@ -267,6 +267,7 @@ public:
     void                      FinishFlexbodyTasks();
     void                      SetFlexbodyVisible (bool visible);
     void                      SetWheelsVisible   (bool value);
+    void                      SetCastShadows     (bool value);
     void                      UpdateDebugView    ();
     void                      CycleDebugViews    ();
     void                      UpdateCabMesh      ();

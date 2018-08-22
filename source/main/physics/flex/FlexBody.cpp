@@ -591,6 +591,11 @@ void FlexBody::setVisible(bool visible)
         m_scene_node->setVisible(visible);
 }
 
+void FlexBody::SetFlexbodyCastShadow(bool val)
+{
+    m_scene_entity->setCastShadows(val);
+}
+
 void FlexBody::printMeshInfo(Mesh* mesh)
 {
     if (mesh->sharedVertexData)

@@ -69,6 +69,8 @@ public:
 
     void setVisible(bool visible);
 
+    void SetFlexbodyCastShadow(bool val);
+
 private:
 
     RoR::GfxActor*    m_gfx_actor;
