@@ -37,8 +37,17 @@ using namespace Ogre;
 
 RoR::GfxScene::GfxScene()
     : m_ogre_scene(nullptr)
-    , m_heathaze(nullptr)
 {}
+
+RoR::GfxScene::~GfxScene()
+{
+    for (auto itor : m_dustpools)
+    {
+        itor.second->Discard(m_ogre_scene);
+        delete itor.second;
+    }
+    m_dustpools.clear();
+}
 
 void RoR::GfxScene::InitScene(Ogre::SceneManager* sm)
 {
@@ -56,7 +65,7 @@ void RoR::GfxScene::InitScene(Ogre::SceneManager* sm)
     // heathaze effect
     if (App::gfx_enable_heathaze.GetActive())
     {
-        m_heathaze = new HeatHaze();
+        m_heathaze = std::unique_ptr<HeatHaze>(new HeatHaze());
         m_heathaze->setEnable(true);
     }
 }
@@ -65,29 +74,7 @@ void RoR::GfxScene::InitSurveyMap(Ogre::Vector3 terrain_size)
 {
     if (!RoR::App::gfx_minimap_disabled.GetActive())
     {
-        m_survey_map = new SurveyMapManager(terrain_size);
-    }
-}
-
-void RoR::GfxScene::DiscardScene()
-{
-    for (auto itor : m_dustpools)
-    {
-        itor.second->Discard(m_ogre_scene);
-        delete itor.second;
-    }
-    m_dustpools.clear();
-
-    if (m_heathaze != nullptr)
-    {
-        delete m_heathaze;
-        m_heathaze = nullptr;
-    }
-
-    if (m_survey_map != nullptr)
-    {
-        delete m_survey_map;
-        m_survey_map = nullptr;
+        m_survey_map = std::unique_ptr<SurveyMapManager>(new SurveyMapManager(terrain_size));
     }
 }
 

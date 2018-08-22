@@ -2030,8 +2030,6 @@ void SimController::CleanupAfterSimulation()
 
     App::GetGuiManager()->SetVisible_LoadingWindow(false);
 
-    m_gfx_scene.DiscardScene();
-
     gEnv->cameraManager->DisableDepthOfFieldEffect(); // TODO: de-globalize the CameraManager
     delete gEnv->cameraManager; // TODO: De-globalize and reset in place instead of deleting and re-allocating ~ only_a_ptr, 07/2018
     gEnv->cameraManager = nullptr;
