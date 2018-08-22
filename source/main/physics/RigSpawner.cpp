@@ -312,8 +312,6 @@ void ActorSpawner::InitializeRig()
 
     m_actor->ar_speedo_max_kph=140;
     m_actor->ar_num_cameras=0;
-    m_actor->m_cab_mesh = nullptr;
-    m_actor->m_cab_scene_node = nullptr;
     m_actor->ar_camera_node_pos[0]=-1;
     m_actor->ar_camera_node_dir[0]=-1;
     m_actor->ar_camera_node_roll[0]=-1;
@@ -333,8 +331,6 @@ void ActorSpawner::InitializeRig()
     m_actor->alb_ratio = 0.0f;
     m_actor->alb_timer = 0.0f;
     m_actor->ar_anim_shift_timer = 0.0f;
-
-    m_actor->m_cab_mesh = nullptr;
 
     m_actor->cc_mode = false;
     m_actor->cc_can_brake = false;
@@ -6983,7 +6979,7 @@ void ActorSpawner::FinalizeGfxSetup()
         char cab_material_name_cstr[1000] = {};
         strncpy(cab_material_name_cstr, m_cab_material_name.c_str(), 999);
         std::string mesh_name = this->ComposeName("VehicleCabMesh", 0);
-        m_actor->m_cab_mesh =new FlexObj(
+        FlexObj* cab_mesh =new FlexObj(
             m_actor->m_gfx_actor.get(),
             m_actor->ar_nodes,
             m_oldstyle_cab_texcoords,
@@ -6996,7 +6992,7 @@ void ActorSpawner::FinalizeGfxSetup()
             transmatname
         );
 
-        m_actor->m_cab_scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+        Ogre::SceneNode* cab_scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
         Ogre::Entity *ec = nullptr;
         try
         {
@@ -7004,18 +7000,20 @@ void ActorSpawner::FinalizeGfxSetup()
             this->SetupNewEntity(ec, Ogre::ColourValue(0.5, 1, 0.5));
             if (ec)
             {
-                m_actor->m_cab_scene_node->attachObject(ec);
+                cab_scene_node->attachObject(ec);
             }
-            m_actor->m_cab_entity = ec;
 
             // Process "emissive cab" materials
             auto search_itor = m_material_substitutions.find(m_cab_material_name);
             m_actor->m_gfx_actor->RegisterCabMaterial(search_itor->second.material, m_cab_trans_material);
             m_actor->m_gfx_actor->SetCabLightsActive(false); // Reset emissive lights to "off" state
+
+            m_actor->GetGfxActor()->RegisterCabMesh(ec, cab_scene_node, cab_mesh);
         }
         catch (...)
         {
             this->AddMessage(Message::TYPE_ERROR, "error loading mesh: "+mesh_name);
+            // TODO: do not leak memory here! ~ 08/2018
         }
     };
 

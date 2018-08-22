@@ -69,6 +69,9 @@ RoR::GfxActor::GfxActor(Actor* actor, std::string ogre_resource_group,
     m_rods_parent_scenenode(nullptr),
     m_gfx_nodes(gfx_nodes),
     m_props(props),
+    m_cab_scene_node(nullptr),
+    m_cab_mesh(nullptr),
+    m_cab_entity(nullptr),
     m_driverseat_prop_index(driverseat_prop_idx),
     m_prop_anim_crankfactor_prev(0.f),
     m_prop_anim_shift_timer(0.f),
@@ -208,6 +211,20 @@ RoR::GfxActor::~GfxActor()
     for (FlexBody* fb: m_flexbodies)
     {
         delete fb;
+    }
+
+    // Delete old cab mesh
+    if (m_cab_mesh != nullptr)
+    {
+        m_cab_scene_node->detachAllObjects();
+        m_cab_scene_node->getParentSceneNode()->removeAndDestroyChild(m_cab_scene_node->getName());
+        m_cab_scene_node = nullptr;
+
+        m_cab_entity->_getManager()->destroyEntity(m_cab_entity);
+        m_cab_entity = nullptr;
+
+        delete m_cab_mesh; // Unloads the ManualMesh resource; do this last
+        m_cab_mesh = nullptr;
     }
 
     Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(m_custom_resource_group);
@@ -992,6 +1009,12 @@ void RoR::GfxActor::ScaleActor(Ogre::Vector3 relpos, float ratio)
         if (prop.beacon_flare_billboard_scene_node[3])
             prop.beacon_flare_billboard_scene_node[3]->scale(ratio, ratio, ratio);
     }
+
+    // Old cab mesh
+    if (m_cab_mesh)
+    {
+        m_cab_mesh->ScaleFlexObj(ratio);
+    }
 }
 
 void RoR::GfxActor::SetRodsVisible(bool visible)
@@ -1124,10 +1147,9 @@ bool RoR::GfxActor::IsActorLive() const
 
 void RoR::GfxActor::UpdateCabMesh()
 {
-    // TODO: Hacky, requires 'friend' access to `Actor` -> move the visuals to GfxActor!
-    if ((m_actor->m_cab_entity != nullptr) && (m_actor->m_cab_mesh != nullptr))
+    if ((m_cab_entity != nullptr) && (m_cab_mesh != nullptr))
     {
-        m_actor->m_cab_scene_node->setPosition(m_actor->m_cab_mesh->UpdateFlexObj());
+        m_cab_scene_node->setPosition(m_cab_mesh->UpdateFlexObj());
     }
 }
 
@@ -2494,7 +2516,10 @@ void RoR::GfxActor::UpdateFlares(float dt_sec, bool is_player)
 void RoR::GfxActor::SetCastShadows(bool value)
 {
     // Cab mesh
-    m_actor->SetPropsCastShadows(value); // TODO: move these objects to GfxActor! ~ 08/2018
+    if (m_cab_scene_node != nullptr)
+    {
+        static_cast<Ogre::Entity*>(m_cab_scene_node->getAttachedObject(0))->setCastShadows(value);
+    }
 
     // Props
     for (prop_t& prop: m_props)
@@ -2522,4 +2547,22 @@ void RoR::GfxActor::SetCastShadows(bool value)
     {
         fb->SetFlexbodyCastShadow(value);
     }
+}
+
+void RoR::GfxActor::RegisterCabMesh(Ogre::Entity* ent, Ogre::SceneNode* snode, FlexObj* flexobj)
+{
+    m_cab_mesh = flexobj;
+    m_cab_entity = ent;
+    m_cab_scene_node = snode;
+}
+
+void RoR::GfxActor::SetAllMeshesVisible(bool visible)
+{
+    if (m_cab_entity != nullptr)
+    {
+        m_cab_entity->setVisible(visible);
+    }
+    this->SetWheelsVisible(visible);
+    this->SetPropsVisible(visible);
+    this->SetFlexbodyVisible(visible);
 }

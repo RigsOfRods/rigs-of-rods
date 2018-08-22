@@ -160,7 +160,6 @@ public:
     bool              getCustomParticleMode();
     int               getLowestNode();
     void              receiveStreamData(unsigned int type, int source, unsigned int streamid, char *buffer, unsigned int len);
-    void              setMeshVisibility(bool visible);     //!< Gfx only; Sets visibility of all meshes on this vehicle
     bool              inRange(float num, float min, float max);
     bool              getSlideNodesLockInstant();
     void              sendStreamData();
@@ -390,7 +389,6 @@ private:
     void              calcShocks2(int beam_i, Ogre::Real difftoBeamL, Ogre::Real &k, Ogre::Real &d, bool update_hooks);
     void              calcAnimators(const int flag_state, float &cstate, int &div, float timer, const float lower_limit, const float upper_limit, const float option3);
     void              SyncReset();                         //!< this one should be called only synchronously (without physics running in background)
-    void              SetPropsCastShadows(bool do_cast_shadows);
     void              DetermineLinkedActors();
     void              RecalculateNodeMasses(Ogre::Real total, bool reCalc=false); //!< Previously 'calc_masses2()'
     void              calcNodeConnectivityGraph();
@@ -456,9 +454,6 @@ private:
     Ogre::SceneNode*  m_net_label_node;
     Ogre::String      m_net_username;
     float             m_custom_light_toggle_countdown; //!< Input system helper status
-    FlexObj*          m_cab_mesh;
-    Ogre::SceneNode*  m_cab_scene_node;
-    Ogre::Entity*     m_cab_entity;
     Ogre::Vector3     m_camera_gforces_accu;      //!< Accumulator for 'camera' G-forces
     int               m_camera_gforces_count;     //!< Counter for 'camera' G-forces
     float             m_ref_tyre_pressure;        //!< Physics state

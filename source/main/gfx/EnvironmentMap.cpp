@@ -245,7 +245,7 @@ void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, Actor* actor /* = 0 */)
     if (actor != nullptr)
     {
         // hide all flexbodies and cabs prior render, and then show them again after done but only if they are visible ...
-        actor->setMeshVisibility(false);
+        actor->GetGfxActor()->SetAllMeshesVisible(false);
         actor->GetGfxActor()->SetRodsVisible(false);
     }
 
@@ -273,7 +273,7 @@ void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, Actor* actor /* = 0 */)
 
     if (actor != nullptr)
     {
-        actor->setMeshVisibility(true);
+        actor->GetGfxActor()->SetAllMeshesVisible(true);
         if (actor->GetGfxDetailLevel() == 0) // Full detail? Show actors again
         {
             actor->GetGfxActor()->SetRodsVisible(true);

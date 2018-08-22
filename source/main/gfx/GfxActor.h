@@ -249,6 +249,7 @@ public:
     void                      AddMaterialFlare   (int flare_index, Ogre::MaterialPtr mat);
     void                      SetMaterialFlareOn (int flare_index, bool state_on);
     void                      RegisterCabMaterial(Ogre::MaterialPtr mat, Ogre::MaterialPtr mat_trans);
+    void                      RegisterCabMesh    (Ogre::Entity* ent, Ogre::SceneNode* snode, FlexObj* flexobj);
     void                      SetCabLightsActive (bool state_on);
     void                      SetVideoCamState   (VideoCamState state);
     void                      UpdateVideoCameras (float dt_sec);
@@ -267,6 +268,7 @@ public:
     void                      FinishFlexbodyTasks();
     void                      SetFlexbodyVisible (bool visible);
     void                      SetWheelsVisible   (bool value);
+    void                      SetAllMeshesVisible(bool value);
     void                      SetCastShadows     (bool value);
     void                      UpdateDebugView    ();
     void                      CycleDebugViews    ();
@@ -333,6 +335,11 @@ private:
     int                         m_prop_anim_prev_gear;
 
     SimBuffer                   m_simbuf;
+
+    // Old cab mesh
+    FlexObj*                    m_cab_mesh;
+    Ogre::SceneNode*            m_cab_scene_node;
+    Ogre::Entity*               m_cab_entity;
 
     // Cab materials and their features
     Ogre::MaterialPtr           m_cab_mat_visual; ///< Updated in-place from templates

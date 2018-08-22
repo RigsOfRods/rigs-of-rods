@@ -92,9 +92,6 @@ Actor::~Actor()
 
     this->DisjoinInterActorBeams();
 
-    // hide everything, prevents deleting stuff while drawing
-    this->setMeshVisibility(false);
-
     // delete all classes we might have constructed
     if (ar_dashboard != nullptr)
     {
@@ -126,19 +123,6 @@ Actor::~Actor()
     if (m_fusealge_airfoil)
         delete m_fusealge_airfoil;
     m_fusealge_airfoil = 0;
-
-    if (m_cab_mesh != nullptr)
-    {
-        m_cab_scene_node->detachAllObjects();
-        m_cab_scene_node->getParentSceneNode()->removeAndDestroyChild(m_cab_scene_node->getName());
-        m_cab_scene_node = nullptr;
-
-        m_cab_entity->_getManager()->destroyEntity(m_cab_entity);
-        m_cab_entity = nullptr;
-
-        delete m_cab_mesh; // Unloads the ManualMesh resource; do this last
-        m_cab_mesh = nullptr;
-    }
 
     if (m_replay_handler)
         delete m_replay_handler;
@@ -347,10 +331,6 @@ void Actor::ScaleActor(float value)
         ar_nodes[i].mass *= value;
     }
     updateSlideNodePositions();
-
-    // tell the cabmesh that resizing is ok, and they dont need to break ;)
-    if (m_cab_mesh)
-        m_cab_mesh->ScaleFlexObj(value);
 
     m_gfx_actor->ScaleActor(relpos, value);
 
@@ -2620,15 +2600,6 @@ void Actor::updateSkidmarks()
     }
 }
 
-void Actor::SetPropsCastShadows(bool do_cast_shadows)
-{
-    // TODO: move these objects to GfxActor! ~ 08/2018
-    if (m_cab_scene_node && m_cab_scene_node->numAttachedObjects() && m_cab_scene_node->getAttachedObject(0))
-    {
-        ((Entity*)(m_cab_scene_node->getAttachedObject(0)))->setCastShadows(do_cast_shadows);
-    }
-}
-
 void Actor::prepareInside(bool inside)
 {
     // TODO: this whole function belongs to GfxActor ~ 08/2018
@@ -2656,10 +2627,11 @@ void Actor::prepareInside(bool inside)
         seatmat->setSceneBlending(SBT_REPLACE);
     }
 
-    if (m_cab_scene_node != nullptr)
-    {
-        m_gfx_actor->GetCabTransMaterial()->setReceiveShadows(!inside);
-    }
+  // TEMPORARY - until this function is moved to GfxActor ~ 08/2018
+  //  if (m_cab_scene_node != nullptr)
+  //  {
+  //      m_gfx_actor->GetCabTransMaterial()->setReceiveShadows(!inside);
+  //  }
 
     if (m_gfx_reduce_shadows)
     {
@@ -3032,18 +3004,6 @@ void Actor::setDetailLevel(int v)
         m_gfx_actor->SetRodsVisible(true);
     }
     m_gfx_detail_level = v;
-}
-
-void Actor::setMeshVisibility(bool visible)
-{
-    //  TODO: HACK! gfx actor shouldn't be called from here ~ only_a_ptr, 06/2018
-    m_gfx_actor->SetWheelsVisible(visible);
-    m_gfx_actor->SetPropsVisible(visible);
-    m_gfx_actor->SetFlexbodyVisible(visible);
-    if (m_cab_scene_node)
-    {
-        m_cab_scene_node->setVisible(visible);
-    }
 }
 
 void Actor::AddInterActorBeam(beam_t* beam, Actor* a, Actor* b)
