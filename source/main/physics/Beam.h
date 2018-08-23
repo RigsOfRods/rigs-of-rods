@@ -130,17 +130,11 @@ public:
     void              updateSkidmarks();                   //!< Creates or updates skidmarks. No side effects.
     void              prepareInside(bool inside);          //!< Prepares vehicle for in-cabin camera use.
     void              UpdateFlareStates(float dt_sec);
-    /// TIGHT-LOOP; Logic: display (+overlays +particles), sound
-    /// Does a mixture of tasks:
-    /// - Sound: updates sound sources; plays aircraft radio chatter;
-    /// - Particles: updates particles (dust, exhausts, custom)
-    /// - Display: updates wings; updates props; updates rig-skeleton + cab fade effect; updates debug overlay
     void              updateVisual(float dt=0);
     void              setDetailLevel(int v);               //!< @param v 0 = full detail, 1 = no beams
     void              resetAutopilot();
     void              disconnectAutopilot();
     void              ScaleActor(float value);
-    void              UpdateDebugOverlay();
     Ogre::String      getAxleLockName();                   //!< get the name of the current differential model
     int               getAxleLockCount();
     Ogre::Vector3     getGForces();
@@ -188,7 +182,6 @@ public:
     Ogre::Vector3     GetFFbBodyForces() const          { return m_force_sensors.out_body_forces; }
     PointColDetector* IntraPointCD()                    { return m_intra_point_col_detector; }
     PointColDetector* InterPointCD()                    { return m_inter_point_col_detector; }
-    Ogre::SceneNode*  getSceneNode()                    { return m_beam_visuals_parent_scenenode; }
     RoR::GfxActor*    GetGfxActor()                     { return m_gfx_actor.get(); }
     void              RequestUpdateHudFeatures()        { m_hud_features_ok = false; }
     Ogre::Vector3     getNodePosition(int nodeNumber);     //!< Returns world position of node
@@ -355,7 +348,6 @@ public:
     Ogre::Timer       ar_net_timer;
     unsigned long     ar_net_last_update_time;
     DashBoardManager* ar_dashboard;
-    int               ar_request_skeletonview_change; //!< Gfx state; Request activation(1) / deactivation(-1) of skeletonview
     SimState          ar_sim_state;                   //!< Sim state
     float             ar_collision_range;             //!< Physics attr
 
@@ -428,7 +420,6 @@ private:
     std::vector<RailGroup*>            m_railgroups;       //!< all the available RailGroups for this actor
     std::vector<Ogre::Entity*>         m_deletion_entities;    //!< For unloading vehicle; filled at spawn.
     std::vector<Ogre::SceneNode*>      m_deletion_scene_nodes; //!< For unloading vehicle; filled at spawn.
-    Ogre::SceneNode*  m_beam_visuals_parent_scenenode;     //!< Gfx
     int               m_proped_wheel_pairs[MAX_WHEELS];    //!< Physics attr; For inter-differential locking
     int               m_num_braked_wheels;          //!< Physics attr, filled at spawn - Number of braked wheels.
     int               m_num_proped_wheels;          //!< Physics attr, filled at spawn - Number of propelled wheels.
@@ -465,14 +456,9 @@ private:
     Ogre::SceneNode*  m_net_label_node;
     Ogre::String      m_net_username;
     float             m_custom_light_toggle_countdown; //!< Input system helper status
-    float             m_cab_fade_timer;
-    float             m_cab_fade_time;
-    int               m_cab_fade_mode;            //<! Cab fading effect; values { -1, 0, 1, 2 }
     FlexObj*          m_cab_mesh;
     Ogre::SceneNode*  m_cab_scene_node;
     Ogre::Entity*     m_cab_entity;
-    Ogre::ManualObject* m_skeletonview_manual_mesh;
-    Ogre::SceneNode*  m_skeletonview_scenenode;
     Ogre::Vector3     m_camera_gforces_accu;      //!< Accumulator for 'camera' G-forces
     int               m_camera_gforces_count;     //!< Counter for 'camera' G-forces
     float             m_ref_tyre_pressure;        //!< Physics state
@@ -524,7 +510,6 @@ private:
     bool m_has_command_beams:1;    //!< Physics attr;
     bool m_beacon_light_is_active:1;        //!< Gfx state
     bool m_custom_particles_enabled:1;      //!< Gfx state
-    bool m_skeletonview_mesh_initialized:1; //!< Gfx state; Was the rig-skeleton mesh built?
     bool m_slidenodes_connect_on_spawn:1;   //<! spawn context: try to connect slide-nodes directly after spawning (TODO: remove!)
     bool m_cinecam_is_rotation_center:1;    //<! Attribute; filled at spawn
     bool m_preloaded_with_terrain:1;        //!< Spawn context (TODO: remove!)

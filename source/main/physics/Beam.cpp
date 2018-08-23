@@ -4277,8 +4277,6 @@ Actor::Actor(
     , m_reverse_light_active(false)
     , ar_right_mirror_angle(-0.52)
     , ar_rudder(0)
-    , m_skeletonview_mesh_initialized(false)
-    , m_skeletonview_manual_mesh(0)
     , ar_update_physics(false)
     , ar_sleep_counter(0.0f)
     , m_stabilizer_shock_request(0)
