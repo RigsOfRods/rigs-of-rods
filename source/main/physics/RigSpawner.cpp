@@ -304,7 +304,6 @@ void ActorSpawner::InitializeRig()
     m_actor->m_fusealge_width=0;
     m_actor->ar_brake_force=30000.0;
     m_actor->m_handbrake_force = 2 * m_actor->ar_brake_force;
-    m_actor->m_debug_visuals = SETTINGS.getBooleanSetting("DebugBeams", false);
     m_actor->m_gfx_reduce_shadows = SETTINGS.getBooleanSetting("Shadow optimizations", true);
 
     m_actor->m_num_proped_wheels=0;
@@ -339,8 +338,6 @@ void ActorSpawner::InitializeRig()
     m_actor->cc_target_speed_lower_limit = 0.0f;
 
     m_actor->ar_collision_relevant = false;
-
-    m_actor->m_debug_visuals = 0;
 
     m_actor->ar_use_heathaze = !m_actor->m_disable_smoke && App::gfx_enable_heathaze.GetActive();
     m_actor->ar_hide_in_actor_list = false;

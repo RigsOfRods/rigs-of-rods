@@ -193,7 +193,6 @@ public:
     float             getWheelSpeed() const             { return ar_wheel_speed; }
     int               GetNumNodes() const               { return ar_num_nodes; }
     Ogre::Vector3     getVelocity() const               { return m_avg_node_velocity; }; //!< average actor velocity, calculated using the actor positions of the last two frames
-    int               GetDebugOverlayType() const       { return m_debug_visuals; } // for GUI
     bool              GetUseSkidmarks() const           { return m_use_skidmarks; }
     int               GetGfxDetailLevel() const         { return m_gfx_detail_level; }
 #ifdef USE_ANGELSCRIPT
@@ -482,7 +481,6 @@ private:
     float             m_load_mass;             //!< Physics attr; predefined load mass in Kg
     int               m_masscount;             //!< Physics attr; Number of nodes loaded with l option
     float             m_dry_mass;              //!< Physics attr;
-    int               m_debug_visuals;         //!< GUI state; Dbg. overlay type { NODES: 1-Numbers, 4-Mass, 5-Locked | BEAMS: 2-Numbers, 6-Compression, 7-Broken, 8-Stress, 9-Strength, 10-Hydros, 11-Commands, OTHER: 3-N&B numbers, 12-14 unknown }
     unsigned int      m_net_custom_lights[4];  //!< Sim state
     unsigned char     m_net_custom_light_count;//!< Sim attr
     RoR::GfxFlaresMode m_flares_mode;          //!< Gfx attr, clone of GVar -- TODO: remove
