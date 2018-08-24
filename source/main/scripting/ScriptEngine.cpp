@@ -609,8 +609,12 @@ int ScriptEngine::functionExists(const String &arg)
 
 int ScriptEngine::deleteFunction(const String &arg)
 {
-    if (!engine) return 1;
-    if (!context) context = engine->CreateContext();
+    if (!engine)
+        return AngelScript::asERROR;
+
+    if (!context)
+        context = engine->CreateContext();
+
     AngelScript::asIScriptModule *mod = engine->GetModule(moduleName, AngelScript::asGM_ONLY_IF_EXISTS);
 
     if ( mod == 0 || mod->GetFunctionCount() == 0 )
@@ -649,6 +653,7 @@ int ScriptEngine::deleteFunction(const String &arg)
         char tmp[512] = "";
         sprintf(tmp, "An error occurred while trying to remove a function ('%s') from script module '%s'.", arg.c_str(), moduleName);
         SLOG(tmp);
+        return AngelScript::asERROR;
     }
 }
 
