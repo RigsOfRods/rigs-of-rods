@@ -20,7 +20,7 @@ elseif (UNIX)
     PKG_CHECK_MODULES(GTK gtk+-2.0 REQUIRED)
     include_directories(${GTK_INCLUDE_DIRS})
 
-    set(OS_LIBS "-lboost_system")
+    set(OS_LIBS)
 
 endif ()
 
