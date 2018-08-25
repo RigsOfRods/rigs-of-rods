@@ -61,7 +61,6 @@ TerrainManager::TerrainManager()
     , m_shadow_manager(0)
     , m_sky_manager(0)
     , SkyX_manager(0)
-    , m_water(0)
     , m_sight_range(1000)
     , m_main_light(0)
     , m_paged_detail_factor(0.0f)
@@ -100,11 +99,7 @@ TerrainManager::~TerrainManager()
         m_dashboard = nullptr;
     }
 
-    if (m_water != nullptr)
-    {
-        delete(m_water);
-        m_water = nullptr;
-    }
+    m_water.reset(); // TODO: Currently needed - research and get rid of this ~ only_a_ptr, 08/2018
 
     if (m_object_manager != nullptr)
     {
@@ -566,7 +561,7 @@ void TerrainManager::initWater()
             m_hydrax_water = new HydraxWater(m_def.water_height);
         }
 
-        m_water = m_hydrax_water;
+        m_water = std::unique_ptr<IWater>(m_hydrax_water);
 
         //Apply depth technique to the terrain
         TerrainGroup::TerrainIterator ti = m_geometry_manager->getTerrainGroup()->getTerrainIterator();
@@ -579,14 +574,7 @@ void TerrainManager::initWater()
     }
     else
     {
-        if (m_water == nullptr)
-           m_water = new Water();
-        else if (m_water != nullptr)
-        {
-            delete(m_water);
-            m_water = new Water();
-        }
-
+        m_water = std::unique_ptr<IWater>(new Water());
         m_water->SetStaticWaterHeight(m_def.water_height);
     }
 }
