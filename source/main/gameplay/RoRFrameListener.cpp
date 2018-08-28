@@ -1623,19 +1623,6 @@ void SimController::UpdateSimulation(float dt)
 
             m_actor_manager.UpdateActors(m_player_actor, dt); // *** Start new physics tasks. No reading from Actor N/B beyond this point.
         }
-
-        if (simRUNNING(s) && (App::sim_state.GetPending() == SimState::PAUSED))
-        {
-            m_actor_manager.MuteAllActors();
-
-            App::sim_state.ApplyPending();
-        }
-        else if (simPAUSED(s) && (App::sim_state.GetPending() == SimState::RUNNING))
-        {
-            m_actor_manager.UnmuteAllActors();
-
-            App::sim_state.ApplyPending();
-        }
     }
 }
 
@@ -2223,6 +2210,27 @@ void SimController::EnterGameplayLoop()
             {
                 std::chrono::milliseconds sleep_time(min_frame_time - frame_time_ms);
                 std::this_thread::sleep_for(sleep_time);
+            }
+        }
+
+        // Check simulation state change
+        if (App::sim_state.GetPending() != App::sim_state.GetActive())
+        {
+            if (App::sim_state.GetActive() == SimState::RUNNING)
+            {
+                if (App::sim_state.GetPending() == SimState::PAUSED)
+                {
+                    m_actor_manager.MuteAllActors();
+                    App::sim_state.ApplyPending();
+                }
+            }
+            else if (App::sim_state.GetActive() == SimState::PAUSED)
+            {
+                if (App::sim_state.GetPending() == SimState::RUNNING)
+                {
+                    m_actor_manager.UnmuteAllActors();
+                    App::sim_state.ApplyPending();
+                }                
             }
         }
 
