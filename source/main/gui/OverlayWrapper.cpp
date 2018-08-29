@@ -169,8 +169,6 @@ int OverlayWrapper::init()
     m_direction_arrow_overlay->hide();
 
     m_debug_fps_memory_overlay = loadOverlay("Core/DebugOverlay", false);
-    m_debug_beam_timing_overlay = loadOverlay("tracks/DebugBeamTiming", false);
-    m_debug_beam_timing_overlay->hide();
 
     OverlayElement* vere = loadOverlayElement("Core/RoRVersionString");
     if (vere)
@@ -370,32 +368,18 @@ void OverlayWrapper::update(float dt)
 
 void OverlayWrapper::showDebugOverlay(int mode)
 {
-    if (!m_debug_fps_memory_overlay || !m_debug_beam_timing_overlay)
+    if (!m_debug_fps_memory_overlay)
         return;
 
     if (mode > 0)
     {
         m_debug_fps_memory_overlay->show();
         BITMASK_SET_1(m_visible_overlays, VisibleOverlays::DEBUG_FPS_MEMORY);
-
-        if (mode > 1)
-        {
-            BITMASK_SET_1(m_visible_overlays, VisibleOverlays::DEBUG_BEAM_TIMING);
-            m_debug_beam_timing_overlay->show();
-        }
-        else
-        {
-            BITMASK_SET_0(m_visible_overlays, VisibleOverlays::DEBUG_BEAM_TIMING);
-            m_debug_beam_timing_overlay->hide();
-        }
     }
     else
     {
         m_debug_fps_memory_overlay->hide();
         BITMASK_SET_0(m_visible_overlays, VisibleOverlays::DEBUG_FPS_MEMORY);
-
-        m_debug_beam_timing_overlay->hide();
-        BITMASK_SET_0(m_visible_overlays, VisibleOverlays::DEBUG_BEAM_TIMING);
     }
 }
 
@@ -1230,7 +1214,6 @@ void OverlayWrapper::TemporarilyHideAllOverlays(Actor* current_vehicle)
     m_racing_overlay->hide();
     m_direction_arrow_overlay->hide();
     m_debug_fps_memory_overlay->hide();
-    m_debug_beam_timing_overlay->hide();
 
     showDashboardOverlays(false, current_vehicle);
 }
@@ -1248,10 +1231,6 @@ void OverlayWrapper::RestoreOverlaysVisibility(Actor* current_vehicle)
     else if (BITMASK_IS_1(m_visible_overlays, VisibleOverlays::DEBUG_FPS_MEMORY))
     {
         m_debug_fps_memory_overlay->show();
-    }
-    else if (BITMASK_IS_1(m_visible_overlays, VisibleOverlays::DEBUG_BEAM_TIMING))
-    {
-        m_debug_beam_timing_overlay->show();
     }
 
     showDashboardOverlays(true, current_vehicle);

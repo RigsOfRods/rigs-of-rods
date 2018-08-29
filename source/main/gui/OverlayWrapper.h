@@ -93,7 +93,6 @@ protected:
     {
         static const int DIRECTION_ARROW              = BITMASK(1);
         static const int DEBUG_FPS_MEMORY             = BITMASK(2);
-        static const int DEBUG_BEAM_TIMING            = BITMASK(3);
         static const int RACING                       = BITMASK(4);
         static const int TRUCK_TIRE_PRESSURE_OVERLAY  = BITMASK(5);
     };
@@ -130,7 +129,6 @@ protected:
     // Misc
     Ogre::Overlay *m_direction_arrow_overlay;
     Ogre::Overlay *m_debug_fps_memory_overlay;
-    Ogre::Overlay *m_debug_beam_timing_overlay;	
     Ogre::Overlay *m_racing_overlay;
 
     // -------------------------------------------------------------
