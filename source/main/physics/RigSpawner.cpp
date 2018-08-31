@@ -2739,6 +2739,7 @@ void ActorSpawner::ProcessTie(RigDef::Tie & def)
     tie.ti_tying = false;
     tie.ti_tied = false;
     tie.ti_beam = & beam;
+    tie.ti_locked_ropable = nullptr;
     tie.ti_command_value = -1.f;
     m_actor->ar_ties.push_back(tie);
 
