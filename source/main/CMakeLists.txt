@@ -658,6 +658,11 @@ IF (UNIX)
             FILES_MATCHING PATTERN "*"
     )
     INSTALL(
+            DIRECTORY ${CMAKE_SOURCE_DIR}/resources/managed_materials
+            DESTINATION games/RoR/resources/managed_materials
+            FILES_MATCHING PATTERN "*"
+    )
+    INSTALL(
             FILES ${TMP_FILE_DIR}/plugins.cfg
             DESTINATION games/RoR
     )
