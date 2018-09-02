@@ -55,10 +55,6 @@ public:
 
     bool Update(float dt, Actor* player_vehicle, float sim_speed);
 
-    void switchBehavior(int newBehavior, bool reset = true);
-    void switchToNextBehavior();
-
-
     bool gameControlsLocked();
     bool hasActiveBehavior();
 
@@ -76,9 +72,11 @@ public:
 
 protected:
 
-    void SwitchBehaviorOnVehicleChange(int newBehaviorID, bool reset, Actor* old_vehicle, Actor* new_vehicle);
-    void ToggleCameraBehavior(CameraBehaviors behav); //!< Only accepts FREE and FREEFIX modes
-    void ActivateNewBehavior(CameraBehaviors behav_id, bool reset);
+    void switchToNextBehavior();
+    void switchBehavior(CameraBehaviors new_behavior);
+    void SwitchBehaviorOnVehicleChange(CameraBehaviors new_behavior, Actor* new_vehicle);
+    void ToggleCameraBehavior(CameraBehaviors new_behavior); //!< Only accepts FREE and FREEFIX modes
+    void ActivateNewBehavior(CameraBehaviors new_behavior, bool reset);
     bool EvaluateSwitchBehavior();
     void UpdateCurrentBehavior();
     void ResetCurrentBehavior();
