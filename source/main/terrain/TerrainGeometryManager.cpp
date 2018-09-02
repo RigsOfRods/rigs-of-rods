@@ -278,9 +278,10 @@ Ogre::Vector3 TerrainGeometryManager::getNormalAt(float x, float y, float z, flo
 
 void TerrainGeometryManager::InitTerrain(std::string otc_filename)
 {
+    OTCParser otc_parser;
+
     try
     {
-        OTCParser otc_parser;
         DataStreamPtr ds_config = ResourceGroupManager::getSingleton().openResource(otc_filename);
         otc_parser.LoadMasterConfig(ds_config, otc_filename.c_str());
 
@@ -298,13 +299,12 @@ void TerrainGeometryManager::InitTerrain(std::string otc_filename)
 
             otc_parser.LoadPageConfig(ds_page, page, page.pageconf_filename.c_str());
         }
-
-        m_spec = otc_parser.GetDefinition();
     }
     catch(...) // Error already reported
     {
-        return;
     }
+
+    m_spec = otc_parser.GetDefinition();
 
     const std::string cache_filename_format = m_spec->cache_filename_base + "_OGRE_" + TOSTRING(OGRE_VERSION) + "_";
 
