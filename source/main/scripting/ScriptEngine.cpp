@@ -651,6 +651,7 @@ int ScriptEngine::deleteFunction(const String &arg)
         char tmp[512] = "";
         sprintf(tmp, "An error occurred while trying to remove a function ('%s') from script module '%s'.", arg.c_str(), moduleName);
         SLOG(tmp);
+        return 1;
     }
 }
 
