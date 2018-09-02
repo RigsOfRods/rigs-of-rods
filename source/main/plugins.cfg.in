@@ -5,8 +5,8 @@ PluginFolder=@OGRE_PLUGIN_DIR_REL@
 
 # Define plugins
 Plugin=RenderSystem_GL
-Plugin=RenderSystem_GL3Plus
+#Plugin=RenderSystem_GL3Plus
 Plugin=Plugin_ParticleFX
 Plugin=Plugin_OctreeSceneManager
-#Plugin=Plugin_CgProgramManager
+Plugin=Plugin_CgProgramManager
 @CAELUM_PLUGIN@

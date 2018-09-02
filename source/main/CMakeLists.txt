@@ -507,7 +507,7 @@ endif ()
 
 # --- Caelum -- Ogre addon for realistic sky rendering ---
 if (TARGET Caelum::Caelum)
-    set(CAELUM_PLUGIN "Plugin=libCaelum.so")
+    set(CAELUM_PLUGIN "Plugin=../libCaelum.so")
     target_link_libraries(${BINNAME} PRIVATE Caelum::Caelum)
     target_compile_definitions(${BINNAME} PRIVATE USE_CAELUM)
 else ()
