@@ -47,10 +47,17 @@ else (WIN32)
 ENDIF (WIN32)
 
 
-# find wxwidgets
-set(wxWidgets_USE_UNICODE ON)
-include(${wxWidgets_USE_FILE})
-target_link_libraries(RoRConfig PRIVATE ${wxWidgets_LIBRARIES})
+if(CONAN_WXWIDGETS_ROOT AND WIN32)
+  # wxwidgets from Conan
+  target_include_directories(RoRConfig PRIVATE CONAN_PKG::wxwidgets)
+  target_link_libraries(RoRConfig PRIVATE CONAN_PKG::wxwidgets)
+elseif(wxWidgets_FOUND)
+  set(wxWidgets_USE_UNICODE ON)
+  include(${wxWidgets_USE_FILE})
+  target_link_libraries(RoRConfig PRIVATE ${wxWidgets_LIBRARIES})
+else()
+  message(FATAL_ERROR "wxwidgets not found!")
+endif()
 
 target_link_libraries(RoRConfig PRIVATE
         ${OGRE_LIBRARIES}
@@ -82,12 +89,18 @@ target_compile_definitions(RoRConfig PRIVATE
         )
 
 # OpenAL - audio library
-if (OPENAL_FOUND)
-    target_link_libraries(RoRConfig PRIVATE ${OPENAL_LIBRARY})
-    target_include_directories(RoRConfig PRIVATE ${OPENAL_INCLUDE_DIR})
-    target_compile_definitions(RoRConfig PRIVATE USE_OPENAL)
+if(CONAN_WXWIDGETS_ROOT)
+  target_link_libraries(RoRConfig PRIVATE CONAN_PKG::openal)
+  target_include_directories(RoRConfig PRIVATE CONAN_PKG::openal)
+  target_compile_definitions(RoRConfig PRIVATE USE_OPENAL)
 else ()
-    message(WARNING "Building RoRConfig without OpenAL. Some functionality may be missing.")
+  if (OPENAL_FOUND)
+      target_link_libraries(RoRConfig PRIVATE ${OPENAL_LIBRARY})
+      target_include_directories(RoRConfig PRIVATE ${OPENAL_INCLUDE_DIR})
+      target_compile_definitions(RoRConfig PRIVATE USE_OPENAL)
+  else ()
+      message(WARNING "Building RoRConfig without OpenAL. Some functionality may be missing.")
+  endif ()
 endif ()
 
 target_link_libraries(RoRConfig PRIVATE
