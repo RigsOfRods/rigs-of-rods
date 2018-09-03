@@ -1,8 +1,36 @@
-language: c
+os: linux
 sudo: required
+language: c
 
-services:
-  - docker
+cache:
+  directories:
+    - $HOME/.conan/
+
+addons:
+  apt:
+    packages:
+    - pkg-config
+    - libfreetype6-dev
+    - libfreeimage-dev
+    - libzzip-dev
+    - libois-dev
+    - libgl1-mesa-dev
+    - libglu1-mesa-dev
+    - libx11-dev
+    - libxt-dev
+    - libxaw7-dev
+    - libxrandr-dev
+    - libgtk2.0-dev
+    - libwxgtk2.8-dev
+    
+install:
+  - wget https://dl.bintray.com/conan/installers/conan-ubuntu-64_1_7_2.deb
+  - sudo dpkg -i conan-ubuntu-64_1_7_2.deb
+  - conan user
+  - conan remote add ror-dependencies https://api.bintray.com/conan/anotherfoxguy/ror-dependencies || true
+  - conan remote add bincrafters-public-conan https://api.bintray.com/conan/bincrafters/public-conan || true
+  - conan install --build=missing -u .
 
 script:
-  - docker build -c=2 .
+  - cmake .
+  - make -j4
