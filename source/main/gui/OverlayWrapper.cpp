@@ -795,7 +795,7 @@ void OverlayWrapper::UpdateLandVehicleHUD(RoR::GfxActor* ga)
     int vehicle_getgear = ga->GetSimDataBuffer().simbuf_gear;
     if (vehicle_getgear > 0)
     {
-        size_t numgears = ga->GetSimDataBuffer().simbuf_gear;
+        size_t numgears = ga->GetAttributes().xa_num_gears;
         String gearstr = TOSTRING(vehicle_getgear) + "/" + TOSTRING(numgears);
         guiGear->setCaption(gearstr);
         guiGear3D->setCaption(gearstr);
