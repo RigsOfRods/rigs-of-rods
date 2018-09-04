@@ -67,29 +67,14 @@ void RoR::GfxEnvmap::SetupEnvMap()
         v->setClearEveryFrame(true);
         v->setBackgroundColour(gEnv->mainCamera->getViewport()->getBackgroundColour());
         m_render_targets[face]->setAutoUpdated(false);
-
-        switch (face)
-        {
-        case 0:
-            m_cameras[face]->setDirection(+Ogre::Vector3::UNIT_X);
-            break;
-        case 1:
-            m_cameras[face]->setDirection(-Ogre::Vector3::UNIT_X);
-            break;
-        case 2:
-            m_cameras[face]->setDirection(+Ogre::Vector3::UNIT_Y);
-            break;
-        case 3:
-            m_cameras[face]->setDirection(-Ogre::Vector3::UNIT_Y);
-            break;
-        case 4:
-            m_cameras[face]->setDirection(-Ogre::Vector3::UNIT_Z);
-            break;
-        case 5:
-            m_cameras[face]->setDirection(+Ogre::Vector3::UNIT_Z);
-            break;
-        }
     }
+
+    m_cameras[0]->setDirection(+Ogre::Vector3::UNIT_X);
+    m_cameras[1]->setDirection(-Ogre::Vector3::UNIT_X);
+    m_cameras[2]->setDirection(+Ogre::Vector3::UNIT_Y);
+    m_cameras[3]->setDirection(-Ogre::Vector3::UNIT_Y);
+    m_cameras[4]->setDirection(-Ogre::Vector3::UNIT_Z);
+    m_cameras[5]->setDirection(+Ogre::Vector3::UNIT_Z);
 
     if (App::diag_envmap.GetActive())
     {
