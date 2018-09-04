@@ -205,10 +205,16 @@ RoR::GfxEnvmap::~GfxEnvmap()
 {
     for (int face = 0; face < NUM_FACES; face++)
     {
-        gEnv->sceneManager->destroyCamera("EnvironmentCamera-" + TOSTRING(face));
+        if (m_cameras[face] != nullptr)
+        {
+            gEnv->sceneManager->destroyCamera(m_cameras[face]);
+        }
     }
 
-    Ogre::TextureManager::getSingleton().remove(m_rtt_texture->getName());
+    if (!m_rtt_texture.isNull())
+    {
+        Ogre::TextureManager::getSingleton().remove(m_rtt_texture->getName());
+    }
 }
 
 void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, Actor* beam /* = 0 */)
