@@ -40,7 +40,7 @@ void RoR::GUI::TopMenubar::Update()
 
     const char* sim_title = "Simulation"; // TODO: Localize all!
     Str<50> actors_title;
-    actors_title << "Actors (" << App::GetSimController()->GetNumPlayableActors() << ")";
+    actors_title << "Actors (" << App::GetSimController()->GetPlayableActors().size() << ")";
     const char* tools_title = "Tools";
 
     float panel_target_width = 
@@ -365,12 +365,11 @@ bool RoR::GUI::TopMenubar::ShouldDisplay(ImVec2 window_pos)
 void RoR::GUI::TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
 {
     // Count actors owned by the player
-    size_t num_actors_total = App::GetSimController()->GetNumActors();
+    size_t num_actors_total = App::GetSimController()->GetActors().size();
     size_t num_actors_player = 0;
-    for (size_t i = 0; i < num_actors_total; ++i)
+    for (Actor* actor : App::GetSimController()->GetActors())
     {
-        Actor* actor = App::GetSimController()->GetActorById(static_cast<int>(i));
-        if ((actor != nullptr) && (actor->ar_net_source_id == user.uniqueid))
+        if (actor->ar_net_source_id == user.uniqueid)
         {
             ++num_actors_player;
         }
@@ -396,10 +395,9 @@ void RoR::GUI::TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
     ImGui::PopStyleColor();
 
     // Display actor list
-    for (size_t i = 0; i < num_actors_total; ++i)
+    for (auto actor : App::GetSimController()->GetActors())
     {
-        Actor* actor = App::GetSimController()->GetActorById(static_cast<int>(i));
-        if ((actor != nullptr) && (!actor->ar_hide_in_actor_list) && (actor->ar_net_source_id == user.uniqueid))
+        if ((!actor->ar_hide_in_actor_list) && (actor->ar_net_source_id == user.uniqueid))
         {
             char actortext_buf[400];
             snprintf(actortext_buf, 400, "  + %s (%s)", actor->ar_design_name.c_str(), actor->ar_filename.c_str());
@@ -413,23 +411,22 @@ void RoR::GUI::TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
 
 void RoR::GUI::TopMenubar::DrawActorListSinglePlayer()
 {
-    if (App::GetSimController()->GetNumPlayableActors() == 0)
+    auto actor_list = App::GetSimController()->GetPlayableActors();
+
+    if (actor_list.empty())
     {
         ImGui::PushStyleColor(ImGuiCol_Text, GRAY_HINT_TEXT);
         ImGui::Text("None spawned yet");
         ImGui::Text("Use [Simulation] menu");
         ImGui::PopStyleColor();
-        return;
     }
-
-    size_t num_actors = App::GetSimController()->GetNumActors();
-    for (size_t i = 0; i < num_actors; ++i)
+    else
     {
-        Actor* actor = App::GetSimController()->GetActorById(i);
-        if ((actor != nullptr) && (!actor->ar_hide_in_actor_list))
+        int i = 0;
+        for (auto actor : actor_list)
         {
             char text_buf[200];
-            snprintf(text_buf, 200, "[%d] %s", i, actor->ar_design_name.c_str());
+            snprintf(text_buf, 200, "[%d] %s", i++, actor->ar_design_name.c_str());
             if (ImGui::Button(text_buf)) // Button clicked?
             {
                 App::GetSimController()->SetPlayerActor(actor);

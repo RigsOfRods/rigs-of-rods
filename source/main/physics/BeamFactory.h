@@ -88,8 +88,6 @@ public:
     Actor*         GetActorByIdInternal(int number); //!< DO NOT CALL DIRECTLY! Use `SimController` for public interface
     Actor*         FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
     void           UpdateAirbrakeInput(float dt);
-    int            CountActorsInternal() const;
-    int            CountPlayableActorsInternal() const; //!< For selector GUI
 
     // Visual updates
     void           UpdateActorVisuals(float dt, Actor* player_actor); // LEGACY; reads data directly from Actor, requires physics to be halted
@@ -102,6 +100,9 @@ public:
     void           AddRef() {};  // we have to add this to be able to use the class as reference inside scripts
     void           Release() {};
 #endif
+
+    std::vector<Actor*> GetActors() const;
+    std::vector<Actor*> GetPlayableActors() const;
 
     // A list of all beams interconnecting two actors
     std::map<beam_t*, std::pair<Actor*, Actor*>> inter_actor_links;

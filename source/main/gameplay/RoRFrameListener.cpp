@@ -2311,14 +2311,14 @@ void SimController::RemoveActor(Actor* actor)
     m_actor_manager.RemoveActorInternal(actor->ar_instance_id);
 }
 
-int SimController::GetNumActors() const
+std::vector<Actor*> SimController::GetActors() const
 {
-    return m_actor_manager.CountActorsInternal();
+    return m_actor_manager.GetActors();
 }
 
-int SimController::GetNumPlayableActors() const
+std::vector<Actor*> SimController::GetPlayableActors() const
 {
-    return m_actor_manager.CountPlayableActorsInternal();
+    return m_actor_manager.GetPlayableActors();
 }
 
 bool SimController::AreControlsLocked() const

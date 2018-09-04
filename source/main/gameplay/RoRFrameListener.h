@@ -72,8 +72,9 @@ public:
     void   RemovePlayerActor     ();
     void   RemoveActor           (Actor* actor);
     void   RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name); ///< Scripting utility. TODO: Does anybody use it? ~ only_a_ptr, 08/2017
-    int    GetNumActors          () const; //!< All actors
-    int    GetNumPlayableActors  () const;
+
+    std::vector<Actor*>          GetActors          () const; //!< All actors
+    std::vector<Actor*>          GetPlayableActors  () const;
 
     // Scripting interface
     double getTime               () { return m_time; }
