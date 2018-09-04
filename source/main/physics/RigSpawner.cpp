@@ -497,6 +497,8 @@ void ActorSpawner::FinalizeRig()
     m_actor->ar_lowest_contacting_node = FindLowestContactingNodeInRig();
 
     this->UpdateCollcabContacterNodes();
+
+    m_flex_factory.SaveFlexbodiesToCache();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2598,6 +2600,7 @@ void ActorSpawner::ProcessTie(RigDef::Tie & def)
     tie.ti_tying = false;
     tie.ti_tied = false;
     tie.ti_beam = & beam;
+    tie.ti_locked_ropable = nullptr;
     tie.ti_command_value = -1.f;
     tie.ti_contract_speed = def.auto_shorten_rate;
     tie.ti_max_stress = def.max_stress;
@@ -6773,16 +6776,19 @@ void ActorSpawner::SetupNewEntity(Ogre::Entity* ent, Ogre::ColourValue simple_co
     }
 }
 
-void ActorSpawner::FinalizeGfxSetup()
+void ActorSpawner::CreateGfxActor()
 {
-    // Check and warn if there are unclaimed managed materials
-    // TODO &*&*
-
     // Create the actor
     m_actor->m_gfx_actor = std::unique_ptr<RoR::GfxActor>(
         new RoR::GfxActor(m_actor, m_custom_resource_group, m_gfx_nodes, m_props, m_driverseat_prop_index));
 
     m_actor->GetGfxActor()->UpdateSimDataBuffer(); // Initial fill (to setup flexbodies + flexbodywheels)
+}
+
+void ActorSpawner::FinalizeGfxSetup()
+{
+    // Check and warn if there are unclaimed managed materials
+    // TODO &*&*
 
     // Process special materials
     for (auto& entry: m_material_substitutions)

@@ -927,6 +927,8 @@ private:
     */
     void SetupNewEntity(Ogre::Entity* e, Ogre::ColourValue simple_color);
 
+    void CreateGfxActor();
+
     /**
     * Factory of GfxActor; invoke after all gfx setup was done.
     */
