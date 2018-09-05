@@ -49,7 +49,7 @@ void SaveImage(TexturePtr TextureToSave, String filename)
     readbuffer->unlock();
 }
 
-void WriteToTexture(const String& str, TexturePtr destTexture, Image::Box destRectangle, Font* Reffont, const ColourValue& color, int fontSize, int fontDPI, char justify, bool wordwrap)
+void WriteToTexture(const String& str, TexturePtr destTexture, Image::Box destRectangle, Ogre::Font* Reffont, const ColourValue& color, int fontSize, int fontDPI, char justify, bool wordwrap)
 {
     using namespace Ogre;
 
@@ -104,7 +104,7 @@ void WriteToTexture(const String& str, TexturePtr destTexture, Image::Box destRe
     Box* GlyphTexCoords;
     GlyphTexCoords = new Box[str.size()];
 
-    Font::UVRect glypheTexRect;
+    Ogre::Font::UVRect glypheTexRect;
     size_t charheight = 0;
     size_t charwidth = 0;
 
