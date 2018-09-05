@@ -329,7 +329,8 @@ bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
         catch (...)
         {
             terrainManager->HandleException("Error reading page config *.otc file");
-            return false;
+            // If we stop parsing we might break some legacy maps
+            // return false;
         }
     }
 
