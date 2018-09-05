@@ -16,11 +16,9 @@ struct PerVehicleCameraContext
     };
 
     PerVehicleCameraContext():
-        last_cinecam_index(0),
         behavior(CAMCTX_BEHAVIOR_EXTERNAL)
     {}
 
-    int                last_cinecam_index;
     CameraCtxBehavior  behavior;
 };
 

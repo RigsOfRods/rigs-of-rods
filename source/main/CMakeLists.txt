@@ -297,6 +297,7 @@ add_executable(${BINNAME} ${SOURCE_FILES})
 
 if (WIN32)
     set_target_properties(${BINNAME} PROPERTIES WIN32_EXECUTABLE YES)
+		add_definitions(-DWIN32_LEAN_AND_MEAN)
 endif ()
 
 ####################################################################################################
@@ -506,7 +507,7 @@ endif ()
 
 # --- Caelum -- Ogre addon for realistic sky rendering ---
 if (TARGET Caelum::Caelum)
-    set(CAELUM_PLUGIN "Plugin=libCaelum.so")
+    set(CAELUM_PLUGIN "Plugin=../libCaelum.so")
     target_link_libraries(${BINNAME} PRIVATE Caelum::Caelum)
     target_compile_definitions(${BINNAME} PRIVATE USE_CAELUM)
 else ()
@@ -521,6 +522,9 @@ if (TARGET PagedGeometry::PagedGeometry)
 else ()
     message(WARNING "Building ${BINNAME} without PagedGeometry. Some functionality may be missing.")
 endif ()
+
+set_target_properties(${BINNAME} PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
+cotire(${BINNAME})
 
 
 ####################################################################################################
@@ -651,6 +655,11 @@ IF (UNIX)
     INSTALL(
             DIRECTORY ${TMP_RES_DIR}
             DESTINATION games/RoR
+            FILES_MATCHING PATTERN "*"
+    )
+    INSTALL(
+            DIRECTORY ${CMAKE_SOURCE_DIR}/resources/managed_materials
+            DESTINATION games/RoR/resources/managed_materials
             FILES_MATCHING PATTERN "*"
     )
     INSTALL(

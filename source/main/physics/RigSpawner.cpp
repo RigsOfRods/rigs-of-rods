@@ -2529,7 +2529,6 @@ void ActorSpawner::ProcessParticle(RigDef::Particle & def)
     }
 
     unsigned int particle_index = m_actor->ar_num_custom_particles;
-    m_actor->ar_num_custom_particles++;
     cparticle_t & particle = m_actor->ar_custom_particles[particle_index];
 
     particle.emitterNode = GetNodeIndexOrThrow(def.emitter_node);
@@ -2557,6 +2556,8 @@ void ActorSpawner::ProcessParticle(RigDef::Particle & def)
     {
         particle.psys->getEmitter(i)->setEnabled(false);
     }
+
+    ++m_actor->ar_num_custom_particles;
 }
 
 void ActorSpawner::ProcessRopable(RigDef::Ropable & def)

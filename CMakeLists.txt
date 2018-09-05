@@ -7,6 +7,15 @@ if (WIN32)
     set(CMAKE_CONFIGURATION_TYPES "RelWithDebInfo;Release" CACHE STRING "" FORCE)
 endif ()
 
+# Download cotire automatically
+if(NOT EXISTS "${CMAKE_BINARY_DIR}/cotire.cmake")
+   message(STATUS "Downloading cotire.cmake from https://github.com/sakra/cotire/")
+   file(DOWNLOAD "https://raw.githubusercontent.com/sakra/cotire/master/CMake/cotire.cmake"
+                 "${CMAKE_BINARY_DIR}/cotire.cmake")
+endif()
+
+include(${CMAKE_BINARY_DIR}/cotire.cmake)
+
 
 ################################################################################
 # Project definition

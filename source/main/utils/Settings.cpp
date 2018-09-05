@@ -31,6 +31,7 @@
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #include <direct.h> // for _chdir
+#include <Windows.h>
 #endif
 
 #include "Application.h"
@@ -91,7 +92,7 @@ namespace RoR {
 void ShowCommandLineUsage()
 {
     ErrorUtils::ShowInfo(
-        _L("Command Line Arguments"), 
+        _L("Command Line Arguments"),
         _L("--help (this)"                              "\n"
             "-map <map> (loads map on startup)"         "\n"
             "-truck <truck> (loads truck on startup)"   "\n"
@@ -989,4 +990,3 @@ bool Settings::SetupAllPaths()
 
     return false;
 }
-

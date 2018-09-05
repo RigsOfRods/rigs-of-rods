@@ -20,7 +20,7 @@ elseif (UNIX)
     PKG_CHECK_MODULES(GTK gtk+-2.0 REQUIRED)
     include_directories(${GTK_INCLUDE_DIRS})
 
-    set(OS_LIBS "-lboost_system")
+    set(OS_LIBS)
 
 endif ()
 
@@ -95,6 +95,9 @@ target_link_libraries(RoRConfig PRIVATE
         ${optional_libs}
         version_info
 )
+
+set_target_properties(RoRConfig PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
+cotire(RoRConfig)
 
 IF (UNIX)
   INSTALL(TARGETS RoRConfig
