@@ -1812,118 +1812,6 @@ void SimController::ReloadPlayerActor()
     this->SetPlayerActor(new_actor);
 }
 
-void SimController::OnPlayerActorChange(Actor* previous_vehicle, Actor* current_vehicle)
-{
-    // hide any old dashes
-    if (previous_vehicle && previous_vehicle->ar_dashboard)
-    {
-        previous_vehicle->ar_dashboard->setVisible3d(false);
-    }
-    // show new
-    if (current_vehicle && current_vehicle->ar_dashboard)
-    {
-        current_vehicle->ar_dashboard->setVisible3d(true);
-    }
-
-    if (previous_vehicle)
-    {
-        if (RoR::App::GetOverlayWrapper())
-        {
-            RoR::App::GetOverlayWrapper()->showDashboardOverlays(false, previous_vehicle);
-        }
-
-        SOUND_STOP(previous_vehicle, SS_TRIG_AIR);
-        SOUND_STOP(previous_vehicle, SS_TRIG_PUMP);
-    }
-
-    if (current_vehicle == nullptr)
-    {
-        // getting outside
-        if (previous_vehicle->GetGfxActor()->GetVideoCamState() == GfxActor::VideoCamState::VCSTATE_ENABLED_ONLINE)
-        {
-            previous_vehicle->GetGfxActor()->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_ENABLED_OFFLINE);
-        }
-
-        if (previous_vehicle && gEnv->player)
-        {
-            previous_vehicle->prepareInside(false);
-
-            // get player out of the vehicle
-            float rotation = previous_vehicle->getRotation() - Math::HALF_PI;
-            Vector3 position = previous_vehicle->ar_nodes[0].AbsPosition;
-            if (previous_vehicle->ar_cinecam_node[0] != -1 && previous_vehicle->ar_camera_node_pos[0] != -1 && previous_vehicle->ar_camera_node_roll[0] != -1)
-            {
-                // actor has a cinecam
-                position = previous_vehicle->ar_nodes[previous_vehicle->ar_cinecam_node[0]].AbsPosition;
-                position += -2.0 * ((previous_vehicle->ar_nodes[previous_vehicle->ar_camera_node_pos[0]].RelPosition - previous_vehicle->ar_nodes[previous_vehicle->ar_camera_node_roll[0]].RelPosition).normalisedCopy());
-                position += Vector3(0.0, -1.0, 0.0);
-            }
-            gEnv->player->SetActorCoupling(false);
-            gEnv->player->setRotation(Radian(rotation));
-            gEnv->player->setPosition(position);
-        }
-
-        m_force_feedback->SetEnabled(false);
-
-        TRIGGER_EVENT(SE_TRUCK_EXIT, previous_vehicle?previous_vehicle->ar_instance_id:-1);
-    }
-    else
-    {
-        // getting inside
-        if (RoR::App::GetOverlayWrapper() && ! m_hide_gui)
-        {
-            RoR::App::GetOverlayWrapper()->showDashboardOverlays(true, current_vehicle);
-        }
-
-        if (current_vehicle->GetGfxActor()->GetVideoCamState() == GfxActor::VideoCamState::VCSTATE_ENABLED_OFFLINE)
-        {
-            current_vehicle->GetGfxActor()->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_ENABLED_ONLINE);
-        }
-
-        // force feedback
-        m_force_feedback->SetEnabled(current_vehicle->ar_driveable == TRUCK); //only for trucks so far
-
-        // attach player to vehicle
-        if (gEnv->player)
-        {
-            gEnv->player->SetActorCoupling(true, current_vehicle);
-        }
-
-        if (RoR::App::GetOverlayWrapper())
-        {
-            try
-            {
-                if (!current_vehicle->ar_help_panel_material.empty())
-                {
-                    OverlayManager::getSingleton().getOverlayElement("tracks/machinehelppanel")->setMaterialName(current_vehicle->ar_help_panel_material);
-                }
-                else
-                {
-                    OverlayManager::getSingleton().getOverlayElement("tracks/machinehelppanel")->setMaterialName("tracks/black");
-                }
-            }
-            catch (Ogre::Exception& ex)
-            {
-                // Report the error
-                std::stringstream msg;
-                msg << "Error, help panel material (defined in 'help' or 'guisettings/helpMaterial') could not be loaded.\n"
-                    "Exception occured, file:" << __FILE__ << ", line:" << __LINE__ << ", message:" << ex.what();
-                LOG(msg.str());
-
-                // Do not retry
-                current_vehicle->ar_help_panel_material.clear();
-            }
-        }
-
-        TRIGGER_EVENT(SE_TRUCK_ENTER, current_vehicle?current_vehicle->ar_instance_id:-1);
-    }
-
-    if (previous_vehicle != nullptr || current_vehicle != nullptr)
-    {
-        m_camera_manager.NotifyVehicleChanged(previous_vehicle, current_vehicle);
-    }
-}
-
 bool SimController::LoadTerrain()
 {
     // check if the resource is loaded
@@ -2288,7 +2176,116 @@ void SimController::SetPlayerActor(Actor* actor)
 {
     m_prev_player_actor = m_player_actor;
     m_player_actor = actor;
-    this->OnPlayerActorChange(m_prev_player_actor, m_player_actor); // TODO: Eliminate the arguments or the whole `OnPlayerActorChange` method. It's a leftover callback from era where 'cur/prev player actor' state was kept in ActorManager ~ only_a_ptr, 02/2018
+
+    // hide any old dashes
+    if (m_prev_player_actor && m_prev_player_actor->ar_dashboard)
+    {
+        m_prev_player_actor->ar_dashboard->setVisible3d(false);
+    }
+    // show new
+    if (m_player_actor && m_player_actor->ar_dashboard)
+    {
+        m_player_actor->ar_dashboard->setVisible3d(true);
+    }
+
+    if (m_prev_player_actor)
+    {
+        if (RoR::App::GetOverlayWrapper())
+        {
+            RoR::App::GetOverlayWrapper()->showDashboardOverlays(false, m_prev_player_actor);
+        }
+
+        SOUND_STOP(m_prev_player_actor, SS_TRIG_AIR);
+        SOUND_STOP(m_prev_player_actor, SS_TRIG_PUMP);
+    }
+
+    if (m_player_actor == nullptr)
+    {
+        // getting outside
+        if (m_prev_player_actor->GetGfxActor()->GetVideoCamState() == GfxActor::VideoCamState::VCSTATE_ENABLED_ONLINE)
+        {
+            m_prev_player_actor->GetGfxActor()->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_ENABLED_OFFLINE);
+        }
+
+        if (m_prev_player_actor && gEnv->player)
+        {
+            m_prev_player_actor->prepareInside(false);
+
+            // get player out of the vehicle
+            float rotation = m_prev_player_actor->getRotation() - Math::HALF_PI;
+            Vector3 position = m_prev_player_actor->ar_nodes[0].AbsPosition;
+            if (m_prev_player_actor->ar_cinecam_node[0] != -1 && m_prev_player_actor->ar_camera_node_pos[0] != -1 && m_prev_player_actor->ar_camera_node_roll[0] != -1)
+            {
+                // actor has a cinecam
+                position = m_prev_player_actor->ar_nodes[m_prev_player_actor->ar_cinecam_node[0]].AbsPosition;
+                position += -2.0 * ((m_prev_player_actor->ar_nodes[m_prev_player_actor->ar_camera_node_pos[0]].RelPosition - m_prev_player_actor->ar_nodes[m_prev_player_actor->ar_camera_node_roll[0]].RelPosition).normalisedCopy());
+                position += Vector3(0.0, -1.0, 0.0);
+            }
+            gEnv->player->SetActorCoupling(false);
+            gEnv->player->setRotation(Radian(rotation));
+            gEnv->player->setPosition(position);
+        }
+
+        m_force_feedback->SetEnabled(false);
+
+        TRIGGER_EVENT(SE_TRUCK_EXIT, m_prev_player_actor?m_prev_player_actor->ar_instance_id:-1);
+    }
+    else
+    {
+        // getting inside
+        if (RoR::App::GetOverlayWrapper() && ! m_hide_gui)
+        {
+            RoR::App::GetOverlayWrapper()->showDashboardOverlays(true, m_player_actor);
+        }
+
+        if (m_player_actor->GetGfxActor()->GetVideoCamState() == GfxActor::VideoCamState::VCSTATE_ENABLED_OFFLINE)
+        {
+            m_player_actor->GetGfxActor()->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_ENABLED_ONLINE);
+        }
+
+        // force feedback
+        m_force_feedback->SetEnabled(m_player_actor->ar_driveable == TRUCK); //only for trucks so far
+
+        // attach player to vehicle
+        if (gEnv->player)
+        {
+            gEnv->player->SetActorCoupling(true, m_player_actor);
+        }
+
+        if (RoR::App::GetOverlayWrapper())
+        {
+            try
+            {
+                if (!m_player_actor->ar_help_panel_material.empty())
+                {
+                    OverlayManager::getSingleton().getOverlayElement("tracks/machinehelppanel")->setMaterialName(m_player_actor->ar_help_panel_material);
+                }
+                else
+                {
+                    OverlayManager::getSingleton().getOverlayElement("tracks/machinehelppanel")->setMaterialName("tracks/black");
+                }
+            }
+            catch (Ogre::Exception& ex)
+            {
+                // Report the error
+                std::stringstream msg;
+                msg << "Error, help panel material (defined in 'help' or 'guisettings/helpMaterial') could not be loaded.\n"
+                    "Exception occured, file:" << __FILE__ << ", line:" << __LINE__ << ", message:" << ex.what();
+                LOG(msg.str());
+
+                // Do not retry
+                m_player_actor->ar_help_panel_material.clear();
+            }
+        }
+
+        TRIGGER_EVENT(SE_TRUCK_ENTER, m_player_actor?m_player_actor->ar_instance_id:-1);
+    }
+
+    if (m_prev_player_actor != nullptr || m_player_actor != nullptr)
+    {
+        m_camera_manager.NotifyVehicleChanged(m_prev_player_actor, m_player_actor);
+    }
+
     m_actor_manager.UpdateSleepingState(m_player_actor, 0.f);
 }
 
