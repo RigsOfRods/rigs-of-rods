@@ -2101,7 +2101,7 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
     }
 
     flare_t flare;
-    flare.type                 = def.type;
+    flare.fl_type              = static_cast<FlareType>(def.type);
     flare.controlnumber        = def.control_number;
     flare.controltoggle_status = false;
     flare.blinkdelay           = (blink_delay == -1) ? 0.5f : blink_delay / 1000.f;

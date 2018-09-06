@@ -188,6 +188,17 @@ enum {
     WHEEL_FLEXBODY
 };
 
+enum class FlareType: char
+{
+    NONE           = 0,
+    HEADLIGHT      = 'f',
+    BRAKE_LIGHT    = 'b',
+    REVERSE_LIGHT  = 'R',
+    BLINKER_LEFT   = 'l',
+    BLINKER_RIGHT  = 'r',
+    USER           = 'u'
+};
+
 /* some info holding arrays */
 static const float flapangles[6] = {0.f, -0.07f, -0.17f, -0.33f, -0.67f, -1.f};
 
@@ -349,7 +360,7 @@ struct flare_t
     Ogre::SceneNode *snode;
     Ogre::BillboardSet *bbs;
     Ogre::Light *light;
-    char type;
+    FlareType fl_type;
     int controlnumber;
     bool controltoggle_status;
     float blinkdelay;

@@ -2466,7 +2466,7 @@ void RoR::GfxActor::UpdateFlares(float dt_sec, bool is_player)
         
         //TODO: Following code is a quick+dirty port from `Actor::updateFlares()` - tidy it up! ~only_a_ptr, 06/2018
 
-        if (flare.type == 'f')
+        if (flare.fl_type == FlareType::HEADLIGHT)
         {
             this->SetMaterialFlareOn(i, m_simbuf.simbuf_headlight_on);
         }

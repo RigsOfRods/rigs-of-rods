@@ -2660,7 +2660,7 @@ void Actor::ToggleLights()
     {
         for (size_t i = 0; i < ar_flares.size(); i++)
         {
-            if (ar_flares[i].type == 'f')
+            if (ar_flares[i].fl_type == FlareType::HEADLIGHT)
             {
                 ar_flares[i].snode->setVisible(false);
                 if (ar_flares[i].bbs)
@@ -2675,7 +2675,7 @@ void Actor::ToggleLights()
     {
         for (size_t i = 0; i < ar_flares.size(); i++)
         {
-            if (ar_flares[i].type == 'f')
+            if (ar_flares[i].fl_type == FlareType::HEADLIGHT)
             {
                 if (ar_flares[i].light)
                     ar_flares[i].light->setVisible(true);
@@ -2722,24 +2722,24 @@ void Actor::UpdateFlareStates(float dt)
         // manage light states
         bool isvisible = true; //this must be true to be able to switch on the frontlight
         // NOTE: headlight (type 'f') is updated
-        if (ar_flares[i].type == 'f')
+        if (ar_flares[i].fl_type == FlareType::HEADLIGHT)
         {
             // NOTE: Material flare is updated in GfxActor
             if (!ar_lights)
                 continue;
         }
-        else if (ar_flares[i].type == 'b')
+        else if (ar_flares[i].fl_type == FlareType::BRAKE_LIGHT)
         {
             isvisible = getBrakeLightVisible();
         }
-        else if (ar_flares[i].type == 'R')
+        else if (ar_flares[i].fl_type == FlareType::REVERSE_LIGHT)
         {
             if (ar_engine || m_reverse_light_active)
                 isvisible = getReverseLightVisible();
             else
                 isvisible = false;
         }
-        else if (ar_flares[i].type == 'u' && ar_flares[i].controlnumber != -1) // controlnumber = read only attribute
+        else if (ar_flares[i].fl_type == FlareType::USER && ar_flares[i].controlnumber != -1) // controlnumber = read only attribute
         {
             if (ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this == App::GetSimController()->GetPlayerActor()) // no network!!
             {
@@ -2752,18 +2752,18 @@ void Actor::UpdateFlareStates(float dt)
             }
             isvisible = ar_flares[i].controltoggle_status;
         }
-        else if (ar_flares[i].type == 'l')
+        else if (ar_flares[i].fl_type == FlareType::BLINKER_LEFT)
         {
             isvisible = (m_blink_type == BLINK_LEFT || m_blink_type == BLINK_WARN);
         }
-        else if (ar_flares[i].type == 'r')
+        else if (ar_flares[i].fl_type == FlareType::BLINKER_RIGHT)
         {
             isvisible = (m_blink_type == BLINK_RIGHT || m_blink_type == BLINK_WARN);
         }
         // apply blinking
         isvisible = isvisible && ar_flares[i].blinkdelay_state;
 
-        if (ar_flares[i].type == 'l' && m_blink_type == BLINK_LEFT)
+        if (ar_flares[i].fl_type == FlareType::BLINKER_LEFT && m_blink_type == BLINK_LEFT)
         {
             ar_left_blink_on = isvisible;
 
@@ -2772,7 +2772,7 @@ void Actor::UpdateFlareStates(float dt)
 
             ar_dashboard->setBool(DD_SIGNAL_TURNLEFT, isvisible);
         }
-        else if (ar_flares[i].type == 'r' && m_blink_type == BLINK_RIGHT)
+        else if (ar_flares[i].fl_type == FlareType::BLINKER_RIGHT && m_blink_type == BLINK_RIGHT)
         {
             ar_right_blink_on = isvisible;
 
@@ -2781,7 +2781,7 @@ void Actor::UpdateFlareStates(float dt)
 
             ar_dashboard->setBool(DD_SIGNAL_TURNRIGHT, isvisible);
         }
-        else if (ar_flares[i].type == 'l' && m_blink_type == BLINK_WARN)
+        else if (ar_flares[i].fl_type == FlareType::BLINKER_LEFT && m_blink_type == BLINK_WARN)
         {
             ar_warn_blink_on = isvisible;
 
