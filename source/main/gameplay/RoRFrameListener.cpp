@@ -2385,13 +2385,14 @@ void SimController::SetPlayerActor(Actor* actor)
     if (m_player_actor == nullptr)
     {
         // getting outside
-        if (m_prev_player_actor->GetGfxActor()->GetVideoCamState() == GfxActor::VideoCamState::VCSTATE_ENABLED_ONLINE)
-        {
-            m_prev_player_actor->GetGfxActor()->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_ENABLED_OFFLINE);
-        }
 
-        if (m_prev_player_actor && gEnv->player)
+        if (m_prev_player_actor)
         {
+            if (m_prev_player_actor->GetGfxActor()->GetVideoCamState() == GfxActor::VideoCamState::VCSTATE_ENABLED_ONLINE)
+            {
+                m_prev_player_actor->GetGfxActor()->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_ENABLED_OFFLINE);
+            }
+
             m_prev_player_actor->prepareInside(false);
 
             // get player out of the vehicle
@@ -2404,9 +2405,13 @@ void SimController::SetPlayerActor(Actor* actor)
                 position += -2.0 * ((m_prev_player_actor->ar_nodes[m_prev_player_actor->ar_camera_node_pos[0]].RelPosition - m_prev_player_actor->ar_nodes[m_prev_player_actor->ar_camera_node_roll[0]].RelPosition).normalisedCopy());
                 position += Vector3(0.0, -1.0, 0.0);
             }
-            gEnv->player->SetActorCoupling(false);
-            gEnv->player->setRotation(Radian(rotation));
-            gEnv->player->setPosition(position);
+
+            if (gEnv->player)
+            {
+                gEnv->player->SetActorCoupling(false);
+                gEnv->player->setRotation(Radian(rotation));
+                gEnv->player->setPosition(position);
+            }
         }
 
         m_force_feedback->SetEnabled(false);
