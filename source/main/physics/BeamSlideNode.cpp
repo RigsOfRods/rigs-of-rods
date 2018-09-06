@@ -64,9 +64,13 @@ void Actor::ToggleSlideNodeLock()
                 (player_actor_id == i && itNode->sn_attach_self)))
                 continue;
 
-            current = GetClosestRailOnActor(RoR::App::GetSimController()->GetActorById(i), (*itNode));
-            if (current.second < closest.second)
-                closest = current;
+            Actor* actor = RoR::App::GetSimController()->GetActorById(i);
+            if (actor)
+            {
+                current = GetClosestRailOnActor(actor, (*itNode));
+                if (current.second < closest.second)
+                    closest = current;
+            }
         } // this many
 
         itNode->AttachToRail(closest.first);
@@ -78,6 +82,7 @@ void Actor::ToggleSlideNodeLock()
 std::pair<RailGroup*, Ogre::Real> Actor::GetClosestRailOnActor(Actor* actor, const SlideNode& node)
 {
     std::pair<RailGroup*, Ogre::Real> closest((RailGroup*)NULL, std::numeric_limits<Ogre::Real>::infinity());
+
     RailSegment* curRail = NULL;
     Ogre::Real lenToCurRail = std::numeric_limits<Ogre::Real>::infinity();
 
