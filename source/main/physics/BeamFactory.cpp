@@ -155,12 +155,11 @@ using namespace RoR;
 ActorManager::ActorManager()
     : m_dt_remainder(0.0f)
     , m_forced_awake(false)
-    , m_free_actor_slot(0)
     , m_num_cpu_cores(0)
     , m_physics_frames(0)
     , m_physics_steps(2000)
     , m_simulation_speed(1.0f)
-    , m_actors() // Array
+    , m_actor_counter(0)
 {
 
     if (RoR::App::app_multithread.GetActive())
@@ -556,15 +555,9 @@ Actor* ActorManager::CreateLocalActor(
         return nullptr; // Error already reported
     }
 
-    int actor_id = this->GetFreeActorSlot();
-    if (actor_id == -1)
-    {
-        LOG("ERROR: Could not add beam to main list");
-        return 0;
-    }
-
     Actor* actor = new Actor(
-        actor_id,
+        m_actor_counter++,
+        m_actors.size(),
         def,
         pos,
         rot,
@@ -580,7 +573,7 @@ Actor* ActorManager::CreateLocalActor(
 
     this->SetupActor(actor, def, pos, rot, spawnbox, free_position, false, cache_entry_number);
 
-    m_actors[actor_id] = actor;
+    m_actors.push_back(actor);
 
     // lock slide nodes after spawning the actor?
     if (actor->getSlideNodesLockInstant())
@@ -644,15 +637,9 @@ int ActorManager::CreateRemoteInstance(RoRnet::ActorStreamRegister* reg)
     // the actor parsing will break flexbodies initialization when using huge numbers here
     Vector3 pos = Vector3::ZERO;
 
-    int actor_id = this->GetFreeActorSlot();
-    if (actor_id == -1)
-    {
-        LOG("ERROR: could not add beam to main list");
-        return -1;
-    }
-
     Actor* actor = new Actor(
-        actor_id,
+        m_actor_counter++,
+        m_actors.size(),
         def,
         pos,
         Quaternion::ZERO,
@@ -666,7 +653,7 @@ int ActorManager::CreateRemoteInstance(RoRnet::ActorStreamRegister* reg)
 
     this->SetupActor(actor, def, pos, Ogre::Quaternion::ZERO, nullptr, true, -1);
 
-    m_actors[actor_id] = actor;
+    m_actors.push_back(actor);
 
     actor->ar_net_source_id = reg->origin_sourceid;
     actor->ar_net_stream_id = reg->origin_streamid;
@@ -683,16 +670,14 @@ void ActorManager::RemoveStreamSource(int sourceid)
 {
     m_stream_mismatches.erase(sourceid);
 
-    for (int t = 0; t < m_free_actor_slot; t++)
+    for (auto actor : m_actors)
     {
-        if (!m_actors[t])
-            continue;
-        if (m_actors[t]->ar_sim_state != Actor::SimState::NETWORKED_OK)
+        if (actor->ar_sim_state != Actor::SimState::NETWORKED_OK)
             continue;
 
-        if (m_actors[t]->ar_net_source_id == sourceid)
+        if (actor->ar_net_source_id == sourceid)
         {
-            this->DeleteActorInternal(m_actors[t]);
+            this->DeleteActorInternal(actor);
         }
     }
 }
@@ -714,16 +699,14 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
         else if (packet.header.command == RoRnet::MSG2_STREAM_REGISTER_RESULT)
         {
             RoRnet::StreamRegister* reg = (RoRnet::StreamRegister *)packet.buffer;
-            for (int t = 0; t < m_free_actor_slot; t++)
+            for (auto actor : m_actors)
             {
-                if (!m_actors[t])
+                if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK)
                     continue;
-                if (m_actors[t]->ar_sim_state == Actor::SimState::NETWORKED_OK)
-                    continue;
-                if (m_actors[t]->ar_net_stream_id == reg->origin_streamid)
+                if (actor->ar_net_stream_id == reg->origin_streamid)
                 {
                     int sourceid = packet.header.source;
-                    m_actors[t]->ar_net_stream_results[sourceid] = reg->status;
+                    actor->ar_net_stream_results[sourceid] = reg->status;
 
                     if (reg->status == 1)
                     LOG("Client " + TOSTRING(sourceid) + " successfully loaded stream " + TOSTRING(reg->origin_streamid) + " with name '" + reg->name + "', result code: " + TOSTRING(reg->status));
@@ -756,14 +739,12 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
         }
         else
         {
-            for (int t = 0; t < m_free_actor_slot; t++)
+            for (auto actor : m_actors)
             {
-                if (!m_actors[t])
-                    continue;
-                if (m_actors[t]->ar_sim_state != Actor::SimState::NETWORKED_OK)
+                if (actor->ar_sim_state != Actor::SimState::NETWORKED_OK)
                     continue;
 
-                m_actors[t]->receiveStreamData(packet.header.command, packet.header.source, packet.header.streamid, packet.buffer, packet.header.size);
+                actor->receiveStreamData(packet.header.command, packet.header.source, packet.header.streamid, packet.buffer, packet.header.size);
             }
         }
     }
@@ -775,14 +756,12 @@ int ActorManager::CheckNetworkStreamsOk(int sourceid)
     if (m_stream_mismatches[sourceid].size() > 0)
         return 0;
 
-    for (int t = 0; t < m_free_actor_slot; t++)
+    for (auto actor : m_actors)
     {
-        if (!m_actors[t])
-            continue;
-        if (m_actors[t]->ar_sim_state != Actor::SimState::NETWORKED_OK)
+        if (actor->ar_sim_state != Actor::SimState::NETWORKED_OK)
             continue;
 
-        if (m_actors[t]->ar_net_source_id == sourceid)
+        if (actor->ar_net_source_id == sourceid)
         {
             return 1;
         }
@@ -795,14 +774,12 @@ int ActorManager::CheckNetRemoteStreamsOk(int sourceid)
 {
     int result = 2;
 
-    for (int t = 0; t < m_free_actor_slot; t++)
+    for (auto actor : m_actors)
     {
-        if (!m_actors[t])
-            continue;
-        if (m_actors[t]->ar_sim_state == Actor::SimState::NETWORKED_OK)
+        if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK)
             continue;
 
-        int stream_result = m_actors[t]->ar_net_stream_results[sourceid];
+        int stream_result = actor->ar_net_stream_results[sourceid];
         if (stream_result == -1)
             return 0;
         if (stream_result == 1)
@@ -814,16 +791,14 @@ int ActorManager::CheckNetRemoteStreamsOk(int sourceid)
 
 Actor* ActorManager::GetActorByNetworkLinks(int source_id, int stream_id)
 {
-    for (int t = 0; t < m_free_actor_slot; t++)
+    for (auto actor : m_actors)
     {
-        if (!m_actors[t])
-            continue;
-        if (m_actors[t]->ar_sim_state != Actor::SimState::NETWORKED_OK)
+        if (actor->ar_sim_state != Actor::SimState::NETWORKED_OK)
             continue;
 
-        if (m_actors[t]->ar_net_source_id == source_id && m_actors[t]->ar_net_stream_id == stream_id)
+        if (actor->ar_net_source_id == source_id && actor->ar_net_stream_id == stream_id)
         {
-            return m_actors[t];
+            return actor;
         }
     }
 
@@ -916,16 +891,16 @@ bool ActorManager::PredictActorCollAabbIntersect(int a, int b, float scale)
     return false;
 }
 
-void ActorManager::RecursiveActivation(int j, std::bitset<MAX_ACTORS>& visited)
+void ActorManager::RecursiveActivation(int j, std::vector<bool>& visited)
 {
-    if (visited[j] || !m_actors[j] || m_actors[j]->ar_sim_state != Actor::SimState::LOCAL_SIMULATED)
+    if (visited[j] || m_actors[j]->ar_sim_state != Actor::SimState::LOCAL_SIMULATED)
         return;
 
-    visited.set(j, true);
+    visited[j] = true;
 
-    for (int t = 0; t < m_free_actor_slot; t++)
+    for (unsigned int t = 0; t < m_actors.size(); t++)
     {
-        if (t == j || !m_actors[t] || visited[t])
+        if (t == j || visited[t])
             continue;
         if (m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && CheckActorCollAabbIntersect(t, j, 1.2f))
         {
@@ -945,20 +920,18 @@ void ActorManager::UpdateSleepingState(Actor* player_actor, float dt)
 {
     if (!m_forced_awake)
     {
-        for (int t = 0; t < m_free_actor_slot; t++)
+        for (auto actor : m_actors)
         {
-            if (!m_actors[t])
+            if (actor->ar_sim_state != Actor::SimState::LOCAL_SIMULATED)
                 continue;
-            if (m_actors[t]->ar_sim_state != Actor::SimState::LOCAL_SIMULATED)
-                continue;
-            if (m_actors[t]->getVelocity().squaredLength() > 0.01f)
+            if (actor->getVelocity().squaredLength() > 0.01f)
                 continue;
 
-            m_actors[t]->ar_sleep_counter += dt;
+            actor->ar_sleep_counter += dt;
 
-            if (m_actors[t]->ar_sleep_counter >= 10.0f)
+            if (actor->ar_sleep_counter >= 10.0f)
             {
-                m_actors[t]->ar_sim_state = Actor::SimState::LOCAL_SLEEPING;
+                actor->ar_sim_state = Actor::SimState::LOCAL_SLEEPING;
             }
         }
     }
@@ -968,45 +941,29 @@ void ActorManager::UpdateSleepingState(Actor* player_actor, float dt)
         player_actor->ar_sim_state = Actor::SimState::LOCAL_SIMULATED;
     }
 
-    std::bitset<MAX_ACTORS> visited;
+    std::vector<bool> visited(m_actors.size());
     // Recursivly activate all actors which can be reached from current actor
     if (player_actor && player_actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
     {
         player_actor->ar_sleep_counter = 0.0f;
-        this->RecursiveActivation(player_actor->ar_instance_id, visited);
+        this->RecursiveActivation(player_actor->ar_vector_index, visited);
     }
     // Snowball effect (activate all actors which might soon get hit by a moving actor)
-    for (int t = 0; t < m_free_actor_slot; t++)
+    for (unsigned int t = 0; t < m_actors.size(); t++)
     {
-        if (m_actors[t] && m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && m_actors[t]->ar_sleep_counter == 0.0f)
+        if (m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && m_actors[t]->ar_sleep_counter == 0.0f)
             this->RecursiveActivation(t, visited);
     }
 }
 
-int ActorManager::GetFreeActorSlot()
-{
-    // find a free slot for the actor
-    for (int t = 0; t < MAX_ACTORS; t++)
-    {
-        if (!m_actors[t] && t >= m_free_actor_slot) // XXX: TODO: remove this hack
-        {
-            // reuse slots
-            if (t >= m_free_actor_slot)
-                m_free_actor_slot = t + 1;
-            return t;
-        }
-    }
-    return -1;
-}
-
 void ActorManager::WakeUpAllActors()
 {
-    for (int t = 0; t < m_free_actor_slot; t++)
+    for (auto actor : m_actors)
     {
-        if (m_actors[t] && m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SLEEPING)
+        if (actor->ar_sim_state == Actor::SimState::LOCAL_SLEEPING)
         {
-            m_actors[t]->ar_sim_state = Actor::SimState::LOCAL_SIMULATED;
-            m_actors[t]->ar_sleep_counter = 0.0f;
+            actor->ar_sim_state = Actor::SimState::LOCAL_SIMULATED;
+            actor->ar_sleep_counter = 0.0f;
         }
     }
 }
@@ -1014,24 +971,20 @@ void ActorManager::WakeUpAllActors()
 void ActorManager::SendAllActorsSleeping()
 {
     m_forced_awake = false;
-    for (int t = 0; t < m_free_actor_slot; t++)
+    for (auto actor : m_actors)
     {
-        if (m_actors[t] && m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
+        if (actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
         {
-            m_actors[t]->ar_sim_state = Actor::SimState::LOCAL_SLEEPING;
+            actor->ar_sim_state = Actor::SimState::LOCAL_SLEEPING;
         }
     }
 }
 
 void ActorManager::RecalcGravityMasses()
 {
-    // update the mass of all actors
-    for (int t = 0; t < m_free_actor_slot; t++)
+    for (auto actor : m_actors)
     {
-        if (m_actors[t])
-        {
-            m_actors[t]->recalc_masses();
-        }
+        actor->recalc_masses();
     }
 }
 
@@ -1039,15 +992,13 @@ Actor* ActorManager::FindActorInsideBox(Collisions* collisions, const Ogre::Stri
 {
     // try to find the desired actor (the one in the box)
     Actor* ret = nullptr;
-    for (int t = 0; t < m_free_actor_slot; t++)
+    for (auto actor : m_actors)
     {
-        if (!m_actors[t])
-            continue;
-        if (collisions->isInside(m_actors[t]->ar_nodes[0].AbsPosition, inst, box))
+        if (collisions->isInside(actor->ar_nodes[0].AbsPosition, inst, box))
         {
             if (ret == nullptr)
             // first actor found
-                ret = m_actors[t];
+                ret = actor;
             else
             // second actor found -> unclear which one was meant
                 return nullptr;
@@ -1072,50 +1023,27 @@ void ActorManager::RepairActor(Collisions* collisions, const Ogre::String& inst,
 
 void ActorManager::MuteAllActors()
 {
-    for (int i = 0; i < m_free_actor_slot; i++)
+    for (auto actor : m_actors)
     {
-        if (m_actors[i])
-        {
-            m_actors[i]->StopAllSounds();
-        }
+        actor->StopAllSounds();
     }
 }
 
 void ActorManager::UnmuteAllActors()
 {
-    for (int i = 0; i < m_free_actor_slot; i++)
+    for (auto actor : m_actors)
     {
-        if (m_actors[i])
-        {
-            m_actors[i]->UnmuteAllSounds();
-        }
+        actor->UnmuteAllSounds();
     }
-}
-
-void ActorManager::RemoveActorInternal(int actor_id)
-{
-    if (actor_id < 0 || actor_id > m_free_actor_slot)
-        return;
-
-    if (!m_actors[actor_id])
-        return;
-
-    if (m_actors[actor_id]->ar_sim_state == Actor::SimState::NETWORKED_OK)
-        return;
-
-    this->DeleteActorInternal(m_actors[actor_id]);
 }
 
 void ActorManager::CleanUpAllActors() // Called after simulation finishes
 {
-    for (int i = 0; i < m_free_actor_slot; i++)
+    for (auto actor : m_actors)
     {
-        if (m_actors[i] == nullptr)
-            continue; // This is how things currently work (but not for long...) ~ only_a_ptr, 01/2017
-
-        delete m_actors[i];
-        m_actors[i] = nullptr;
+        delete actor;
     }
+    m_actors.clear();
 }
 
 void ActorManager::DeleteActorInternal(Actor* actor)
@@ -1132,37 +1060,32 @@ void ActorManager::DeleteActorInternal(Actor* actor)
     }
 #endif // USE_SOCKETW
 
-    m_actors[actor->ar_instance_id] = 0;
+    m_actors.erase(std::remove(m_actors.begin(), m_actors.end(), actor), m_actors.end());
     delete actor;
 
+    // Upate actor indices
+    for (unsigned int i = 0; i < m_actors.size(); i++)
+        m_actors[i]->ar_vector_index = i;
 
     RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
-
 }
 
 int FindPivotActorId(Actor* player, Actor* prev_player)
 {
     if (player != nullptr)
-    {
-        return player->ar_instance_id;
-    }
+        return player->ar_vector_index;
     else if (prev_player != nullptr)
-    {
-        return prev_player->ar_instance_id;
-    }
-    else
-    {
-        return -1;
-    }
+        return prev_player->ar_vector_index;
+    return -1;
 }
 
 Actor* ActorManager::FetchNextVehicleOnList(Actor* player, Actor* prev_player)
 {
     int pivot_index = FindPivotActorId(player, prev_player);
 
-    for (int i = pivot_index + 1; i < m_free_actor_slot; i++)
+    for (unsigned int i = pivot_index + 1; i < m_actors.size(); i++)
     {
-        if (m_actors[i] && m_actors[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
+        if (m_actors[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
             return m_actors[i];
         }
@@ -1170,13 +1093,13 @@ Actor* ActorManager::FetchNextVehicleOnList(Actor* player, Actor* prev_player)
 
     for (int i = 0; i < pivot_index; i++)
     {
-        if (m_actors[i] && m_actors[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
+        if (m_actors[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
             return m_actors[i];
         }
     }
 
-    if (pivot_index >= 0 && m_actors[pivot_index] && m_actors[pivot_index]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[pivot_index]->isPreloadedWithTerrain())
+    if (pivot_index >= 0 && m_actors[pivot_index]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[pivot_index]->isPreloadedWithTerrain())
     {
         return m_actors[pivot_index];
     }
@@ -1190,21 +1113,21 @@ Actor* ActorManager::FetchPreviousVehicleOnList(Actor* player, Actor* prev_playe
 
     for (int i = pivot_index - 1; i >= 0; i--)
     {
-        if (m_actors[i] && m_actors[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
+        if (m_actors[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
             return m_actors[i];
         }
     }
 
-    for (int i = m_free_actor_slot - 1; i > pivot_index; i--)
+    for (unsigned int i = m_actors.size() - 1; i > pivot_index; i--)
     {
-        if (m_actors[i] && m_actors[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
+        if (m_actors[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
             return m_actors[i];
         }
     }
 
-    if (pivot_index >= 0 && m_actors[pivot_index] && m_actors[pivot_index]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[pivot_index]->isPreloadedWithTerrain())
+    if (pivot_index >= 0 && m_actors[pivot_index]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[pivot_index]->isPreloadedWithTerrain())
     {
         return m_actors[pivot_index];
     }
@@ -1214,11 +1137,11 @@ Actor* ActorManager::FetchPreviousVehicleOnList(Actor* player, Actor* prev_playe
 
 Actor* ActorManager::FetchRescueVehicle()
 {
-    for (int t = 0; t < m_free_actor_slot; t++)
+    for (auto actor : m_actors)
     {
-        if (m_actors[t] && m_actors[t]->ar_rescuer_flag)
+        if (actor->ar_rescuer_flag)
         {
-            return m_actors[t];
+            return actor;
         }
     }
     return nullptr;
@@ -1228,21 +1151,18 @@ void ActorManager::UpdateAirbrakeInput(float dt)
 {
     dt *= m_simulation_speed;
 
-    for (int t = 0; t < m_free_actor_slot; t++)
+    for (auto actor : m_actors)
     {
-        if (!m_actors[t])
-            continue;
-
-        if (m_actors[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
+        if (actor->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
         {
             // The following update was originally hidden in `Actor::updateProps()` invoked from `Actor::updateVisual()`
             // I added this whole function just to update it separately
             // that's definitely less elegant-looking but slightly more correct compared to previous state
             // TODO: try putting it to `calcForcesEulerCOmpute()` where it really belongs.
             // ~ only_a_ptr, 05/2018
-            for (int i = 0; i < m_actors[t]->ar_num_airbrakes; i++)
+            for (int i = 0; i < actor->ar_num_airbrakes; i++)
             {
-                m_actors[t]->ar_airbrakes[i]->updatePosition((float)m_actors[t]->ar_airbrake_intensity / 5.0);
+                actor->ar_airbrakes[i]->updatePosition((float)actor->ar_airbrake_intensity / 5.0);
             }
         }
     }
@@ -1252,17 +1172,14 @@ void ActorManager::UpdateActorVisuals(float dt,  Actor* player_actor)
 {
     dt *= m_simulation_speed;
 
-    for (int t = 0; t < m_free_actor_slot; t++)
+    for (auto actor : m_actors)
     {
-        if (!m_actors[t])
-            continue;
-
-        if (m_actors[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
+        if (actor->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
         {
-            m_actors[t]->updateVisual(dt);
-            m_actors[t]->updateSkidmarks();
-            m_actors[t]->UpdateFlareStates(dt); // Only state, visuals done by GfxActor
-            m_actors[t]->m_gfx_actor->UpdateParticles(dt); // friend access // TODO: updates visuals, move it to GfxActor ~ only_a_ptr, 06/2018
+            actor->updateVisual(dt);
+            actor->updateSkidmarks();
+            actor->UpdateFlareStates(dt); // Only state, visuals done by GfxActor
+            actor->m_gfx_actor->UpdateParticles(dt); // friend access // TODO: updates visuals, move it to GfxActor ~ only_a_ptr, 06/2018
         }
     }
 }
@@ -1287,42 +1204,39 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
 
     this->UpdateSleepingState(player_actor, dt);
 
-    for (int t = 0; t < m_free_actor_slot; t++)
+    for (auto actor : m_actors)
     {
-        if (!m_actors[t])
-            continue;
-
-        m_actors[t]->HandleResetRequests(dt);
-        m_actors[t]->UpdateAngelScriptEvents(dt);
+        actor->HandleResetRequests(dt);
+        actor->UpdateAngelScriptEvents(dt);
 
 #ifdef USE_ANGELSCRIPT
-        if (m_actors[t]->ar_vehicle_ai && (m_actors[t]->ar_vehicle_ai->IsActive()))
-            m_actors[t]->ar_vehicle_ai->update(dt, 0);
+        if (actor->ar_vehicle_ai && (actor->ar_vehicle_ai->IsActive()))
+            actor->ar_vehicle_ai->update(dt, 0);
 #endif // USE_ANGELSCRIPT
 
-        switch (m_actors[t]->ar_sim_state)
+        switch (actor->ar_sim_state)
         {
         case Actor::SimState::NETWORKED_OK:
-            m_actors[t]->CalcNetwork();
+            actor->CalcNetwork();
             break;
 
         case Actor::SimState::INVALID:
             break;
 
         default:
-            if (m_actors[t]->ar_sim_state != Actor::SimState::LOCAL_SIMULATED && m_actors[t]->ar_engine)
-                m_actors[t]->ar_engine->UpdateEngineSim(dt, 1);
+            if (actor->ar_sim_state != Actor::SimState::LOCAL_SIMULATED && actor->ar_engine)
+                actor->ar_engine->UpdateEngineSim(dt, 1);
 
-            if (m_actors[t]->ar_uses_networking)
+            if (actor->ar_uses_networking)
             {
-                if (m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
-                    m_actors[t]->sendStreamData();
-                else if (m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SLEEPING && m_actors[t]->ar_net_timer.getMilliseconds() < 10000)
+                if (actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
+                    actor->sendStreamData();
+                else if (actor->ar_sim_state == Actor::SimState::LOCAL_SLEEPING && actor->ar_net_timer.getMilliseconds() < 10000)
                 // Also send update messages for 'Actor::SimState::LOCAL_SLEEPING' actors during the first 10 seconds of lifetime
-                    m_actors[t]->sendStreamData();
-                else if (m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SLEEPING && m_actors[t]->ar_net_timer.getMilliseconds() - m_actors[t]->ar_net_last_update_time > 5000)
+                    actor->sendStreamData();
+                else if (actor->ar_sim_state == Actor::SimState::LOCAL_SLEEPING && actor->ar_net_timer.getMilliseconds() - actor->ar_net_last_update_time > 5000)
                 // Also send update messages for 'Actor::SimState::LOCAL_SLEEPING' actors periodically every 5 seconds
-                    m_actors[t]->sendStreamData();
+                    actor->sendStreamData();
             }
             break;
         }
@@ -1334,11 +1248,11 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
 
     if (simulated_actor == nullptr)
     {
-        for (int t = 0; t < m_free_actor_slot; t++)
+        for (auto actor : m_actors)
         {
-            if (m_actors[t] && m_actors[t]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
+            if (actor && actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
             {
-                simulated_actor = m_actors[t]; 
+                simulated_actor = actor; 
                 break;
             }
         }
@@ -1371,33 +1285,29 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
 
 void ActorManager::NotifyActorsWindowResized()
 {
-
-    for (int t = 0; t < m_free_actor_slot; t++)
+    for (auto actor : m_actors)
     {
-        if (m_actors[t])
-        {
-            m_actors[t]->ar_dashboard->windowResized();
-        }
+        actor->ar_dashboard->windowResized();
     }
-
 }
 
-Actor* ActorManager::GetActorByIdInternal(int number)
+Actor* ActorManager::GetActorByIdInternal(int actor_id)
 {
-    if (number >= 0 && number < m_free_actor_slot)
+    for (auto actor : m_actors)
     {
-        return m_actors[number];
+        if (actor->ar_instance_id == actor_id)
+        {
+            return actor;
+        }
     }
     return 0;
 }
 
 void ActorManager::UpdatePhysicsSimulation()
 {
-    for (int t = 0; t < m_free_actor_slot; t++)
+    for (auto actor : m_actors)
     {
-        if (!m_actors[t])
-            continue;
-        m_actors[t]->checkAndMovePhysicsOrigin();
+        actor->checkAndMovePhysicsOrigin();
     }
     if (gEnv->threadPool)
     {
@@ -1407,26 +1317,26 @@ void ActorManager::UpdatePhysicsSimulation()
 
             {
                 std::vector<std::function<void()>> tasks;
-                for (int t = 0; t < m_free_actor_slot; t++)
+                for (auto actor : m_actors)
                 {
-                    if (m_actors[t] && (m_actors[t]->ar_update_physics = m_actors[t]->CalcForcesEulerPrepare()))
+                    if (actor->ar_update_physics = actor->CalcForcesEulerPrepare())
                     {
                         have_actors_to_simulate = true;
-                        auto func = std::function<void()>([this, i, t]()
+                        auto func = std::function<void()>([this, i, actor]()
                             {
-                                m_actors[t]->calcForcesEulerCompute(i, m_physics_steps);
-                                if (!m_actors[t]->ar_disable_self_collision)
+                                actor->calcForcesEulerCompute(i, m_physics_steps);
+                                if (!actor->ar_disable_self_collision)
                                 {
-                                    m_actors[t]->IntraPointCD()->UpdateIntraPoint(m_actors[t]);
+                                    actor->IntraPointCD()->UpdateIntraPoint(actor);
                                     ResolveIntraActorCollisions(PHYSICS_DT,
-                                        *(m_actors[t]->IntraPointCD()),
-                                        m_actors[t]->ar_num_collcabs,
-                                        m_actors[t]->ar_collcabs,
-                                        m_actors[t]->ar_cabs,
-                                        m_actors[t]->ar_intra_collcabrate,
-                                        m_actors[t]->ar_nodes,
-                                        m_actors[t]->ar_collision_range,
-                                        *(m_actors[t]->ar_submesh_ground_model));
+                                        *(actor->IntraPointCD()),
+                                        actor->ar_num_collcabs,
+                                        actor->ar_collcabs,
+                                        actor->ar_cabs,
+                                        actor->ar_intra_collcabrate,
+                                        actor->ar_nodes,
+                                        actor->ar_collision_range,
+                                        *(actor->ar_submesh_ground_model));
                                 }
                             });
                         tasks.push_back(func);
@@ -1435,33 +1345,33 @@ void ActorManager::UpdatePhysicsSimulation()
                 gEnv->threadPool->Parallelize(tasks);
             }
 
-            for (int t = 0; t < m_free_actor_slot; t++)
+            for (auto actor : m_actors)
             {
-                if (m_actors[t] && m_actors[t]->ar_update_physics)
-                    m_actors[t]->calcForcesEulerFinal();
+                if (actor->ar_update_physics)
+                    actor->calcForcesEulerFinal();
             }
 
             if (have_actors_to_simulate)
             {
                 std::vector<std::function<void()>> tasks;
-                for (int t = 0; t < m_free_actor_slot; t++)
+                for (auto actor : m_actors)
                 {
-                    if (m_actors[t] && m_actors[t]->ar_update_physics && !m_actors[t]->ar_disable_actor2actor_collision)
+                    if (actor->ar_update_physics && !actor->ar_disable_actor2actor_collision)
                     {
-                        auto func = std::function<void()>([this, t]()
+                        auto func = std::function<void()>([this, actor]()
                             {
-                                m_actors[t]->InterPointCD()->UpdateInterPoint(m_actors[t], m_actors, m_free_actor_slot);
-                                if (m_actors[t]->ar_collision_relevant)
+                                actor->InterPointCD()->UpdateInterPoint(actor);
+                                if (actor->ar_collision_relevant)
                                 {
                                     ResolveInterActorCollisions(PHYSICS_DT,
-                                        *(m_actors[t]->InterPointCD()),
-                                        m_actors[t]->ar_num_collcabs,
-                                        m_actors[t]->ar_collcabs,
-                                        m_actors[t]->ar_cabs,
-                                        m_actors[t]->ar_inter_collcabrate,
-                                        m_actors[t]->ar_nodes,
-                                        m_actors[t]->ar_collision_range,
-                                        *(m_actors[t]->ar_submesh_ground_model));
+                                        *(actor->InterPointCD()),
+                                        actor->ar_num_collcabs,
+                                        actor->ar_collcabs,
+                                        actor->ar_cabs,
+                                        actor->ar_inter_collcabrate,
+                                        actor->ar_nodes,
+                                        actor->ar_collision_range,
+                                        *(actor->ar_submesh_ground_model));
                                 }
                             });
                         tasks.push_back(func);
@@ -1477,62 +1387,60 @@ void ActorManager::UpdatePhysicsSimulation()
         {
             bool have_actors_to_simulate = false;
 
-            for (int t = 0; t < m_free_actor_slot; t++)
+            for (auto actor : m_actors)
             {
-                if (m_actors[t] && (m_actors[t]->ar_update_physics = m_actors[t]->CalcForcesEulerPrepare()))
+                if (actor->ar_update_physics = actor->CalcForcesEulerPrepare())
                 {
                     have_actors_to_simulate = true;
 
-                    m_actors[t]->calcForcesEulerCompute(i, m_physics_steps);
-                    m_actors[t]->calcForcesEulerFinal();
-                    if (!m_actors[t]->ar_disable_self_collision)
+                    actor->calcForcesEulerCompute(i, m_physics_steps);
+                    actor->calcForcesEulerFinal();
+                    if (!actor->ar_disable_self_collision)
                     {
-                        m_actors[t]->IntraPointCD()->UpdateIntraPoint(m_actors[t]);
+                        actor->IntraPointCD()->UpdateIntraPoint(actor);
                         ResolveIntraActorCollisions(PHYSICS_DT,
-                            *(m_actors[t]->IntraPointCD()),
-                            m_actors[t]->ar_num_collcabs,
-                            m_actors[t]->ar_collcabs,
-                            m_actors[t]->ar_cabs,
-                            m_actors[t]->ar_intra_collcabrate,
-                            m_actors[t]->ar_nodes,
-                            m_actors[t]->ar_collision_range,
-                            *(m_actors[t]->ar_submesh_ground_model));
+                            *(actor->IntraPointCD()),
+                            actor->ar_num_collcabs,
+                            actor->ar_collcabs,
+                            actor->ar_cabs,
+                            actor->ar_intra_collcabrate,
+                            actor->ar_nodes,
+                            actor->ar_collision_range,
+                            *(actor->ar_submesh_ground_model));
                     }
                 }
             }
 
             if (have_actors_to_simulate)
             {
-                for (int t = 0; t < m_free_actor_slot; t++)
+                for (auto actor : m_actors)
                 {
-                    if (m_actors[t] && m_actors[t]->ar_update_physics && !m_actors[t]->ar_disable_actor2actor_collision)
+                    if (actor->ar_update_physics && !actor->ar_disable_actor2actor_collision)
                     {
-                        m_actors[t]->InterPointCD()->UpdateInterPoint(m_actors[t], m_actors, m_free_actor_slot);
-                        if (m_actors[t]->ar_collision_relevant)
+                        actor->InterPointCD()->UpdateInterPoint(actor);
+                        if (actor->ar_collision_relevant)
                         {
                             ResolveInterActorCollisions(
                                 PHYSICS_DT,
-                                *(m_actors[t]->InterPointCD()),
-                                m_actors[t]->ar_num_collcabs,
-                                m_actors[t]->ar_collcabs,
-                                m_actors[t]->ar_cabs,
-                                m_actors[t]->ar_inter_collcabrate,
-                                m_actors[t]->ar_nodes,
-                                m_actors[t]->ar_collision_range,
-                                *(m_actors[t]->ar_submesh_ground_model));
+                                *(actor->InterPointCD()),
+                                actor->ar_num_collcabs,
+                                actor->ar_collcabs,
+                                actor->ar_cabs,
+                                actor->ar_inter_collcabrate,
+                                actor->ar_nodes,
+                                actor->ar_collision_range,
+                                *(actor->ar_submesh_ground_model));
                         }
                     }
                 }
             }
         }
     }
-    for (int t = 0; t < m_free_actor_slot; t++)
+    for (auto actor : m_actors)
     {
-        if (!m_actors[t])
+        if (!actor->ar_update_physics)
             continue;
-        if (!m_actors[t]->ar_update_physics)
-            continue;
-        m_actors[t]->postUpdatePhysics(m_physics_steps * PHYSICS_DT);
+        actor->postUpdatePhysics(m_physics_steps * PHYSICS_DT);
     }
 }
 
@@ -1669,30 +1577,4 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(const char* filename, 
         HandleErrorLoadingTruckfile(filename, "<Unknown exception occurred>");
         return nullptr;
     }
-}
-
-std::vector<Actor*> ActorManager::GetActors() const
-{
-    std::vector<Actor*> actors;
-    for (int t = 0; t < m_free_actor_slot; t++)
-    {
-        if (m_actors[t] != nullptr)
-        {
-            actors.emplace_back(m_actors[t]);
-        }
-    }
-    return actors;
-}
-
-std::vector<Actor*> ActorManager::GetPlayableActors() const
-{
-    std::vector<Actor*> actors;
-    for (int t = 0; t < m_free_actor_slot; t++)
-    {
-        if ((m_actors[t] != nullptr) && (!m_actors[t]->ar_hide_in_actor_list))
-        {
-            actors.emplace_back(m_actors[t]);
-        }
-    }
-    return actors;
 }

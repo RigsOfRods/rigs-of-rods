@@ -126,26 +126,24 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
         Ray mouseRay = getMouseRay();
 
         // walk all trucks
-        Actor** trucks = App::GetSimController()->GetBeamFactory()->GetInternalActorSlots();
-        int trucksnum  = App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots();
         minnode = -1;
         grab_truck = NULL;
-        for (int i = 0; i < trucksnum; i++)
+        for (auto actor : App::GetSimController()->GetActors())
         {
-            if (trucks[i] && trucks[i]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
+            if (actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
             {
                 // check if our ray intersects with the bounding box of the truck
-                std::pair<bool, Real> pair = mouseRay.intersects(trucks[i]->ar_bounding_box);
+                std::pair<bool, Real> pair = mouseRay.intersects(actor->ar_bounding_box);
                 if (!pair.first)
                     continue;
 
-                for (int j = 0; j < trucks[i]->ar_num_nodes; j++)
+                for (int j = 0; j < actor->ar_num_nodes; j++)
                 {
-                    if (trucks[i]->ar_nodes[j].nd_no_mouse_grab)
+                    if (actor->ar_nodes[j].nd_no_mouse_grab)
                         continue;
 
                     // check if our ray intersects with the node
-                    std::pair<bool, Real> pair = mouseRay.intersects(Sphere(trucks[i]->ar_nodes[j].AbsPosition, 0.1f));
+                    std::pair<bool, Real> pair = mouseRay.intersects(Sphere(actor->ar_nodes[j].AbsPosition, 0.1f));
                     if (pair.first)
                     {
                         // we hit it, check if its the nearest node
@@ -153,7 +151,7 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
                         {
                             mindist = pair.second;
                             minnode = j;
-                            grab_truck = trucks[i];
+                            grab_truck = actor;
                             break;
                         }
                     }

@@ -144,7 +144,7 @@ void ResolveInterActorCollisions(const float dt, PointColDetector &interPointCD,
         const float collrange,
         ground_model_t &submesh_ground_model)
 {
-    Actor** actor_slots = RoR::App::GetSimController()->GetBeamFactory()->GetInternalActorSlots();
+    std::vector<Actor*> all_actors = RoR::App::GetSimController()->GetActors();
 
     for (int i=0; i<free_collcab; i++)
     {
@@ -176,8 +176,8 @@ void ResolveInterActorCollisions(const float dt, PointColDetector &interPointCD,
             {
                 const auto hitnodeid = interPointCD.hit_list[h]->node_id;
                 const auto hit_actor_id = interPointCD.hit_list[h]->actor_id;
-                const auto hitnode = &actor_slots[hit_actor_id]->ar_nodes[hitnodeid];
-                const Actor* hit_actor = actor_slots[hit_actor_id];
+                const auto hit_actor = all_actors[hit_actor_id];
+                const auto hitnode = &hit_actor->ar_nodes[hitnodeid];
 
                 // transform point to triangle local coordinates
                 const auto local_point = transform(hitnode->AbsPosition);

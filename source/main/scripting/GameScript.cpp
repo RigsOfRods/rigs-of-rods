@@ -241,25 +241,21 @@ void GameScript::setGravity(float value)
 
 Actor* GameScript::getTruckByNum(int num)
 {
+    // TODO: Do we have to add a 'GetActorByIndex' method to keep this backwards compatible?
     return App::GetSimController()->GetActorById(num);
 }
 
 int GameScript::getNumTrucks()
 {
-    return App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots();
+    return App::GetSimController()->GetBeamFactory()->GetActors().size();
 }
 
 int GameScript::getNumTrucksByFlag(int flag)
 {
     int result = 0;
-    for (int i = 0; i < App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots(); i++)
+    for (auto actor : App::GetSimController()->GetActors())
     {
-        Actor* truck = App::GetSimController()->GetActorById(i);
-        if (!truck && !flag)
-            result++;
-        if (!truck)
-            continue;
-        if (static_cast<int>(truck->ar_sim_state) == flag)
+        if (!flag || static_cast<int>(actor->ar_sim_state) == flag)
             result++;
     }
     return result;

@@ -1761,22 +1761,18 @@ void Actor::forwardCommands()
 {
     Actor* current_truck = RoR::App::GetSimController()->GetPlayerActor();
     auto bf = RoR::App::GetSimController()->GetBeamFactory();
-    Actor** actor_slots = bf->GetInternalActorSlots();
-    int num_actor_slots = bf->GetNumUsedActorSlots();
 
     // forward things to trailers
-    if (num_actor_slots > 1 && this == current_truck && ar_forward_commands)
+    if (this == current_truck && ar_forward_commands)
     {
-        for (int i = 0; i < num_actor_slots; i++)
+        for (auto actor : RoR::App::GetSimController()->GetActors())
         {
-            if (!actor_slots[i])
-                continue;
-            if (actor_slots[i] != current_truck && actor_slots[i]->ar_import_commands)
+            if (actor != current_truck && actor->ar_import_commands)
             {
                 // forward commands
                 for (int j = 1; j <= MAX_COMMANDS; j++)
                 {
-                    actor_slots[i]->ar_command_key[j].playerInputValue = std::max(ar_command_key[j].playerInputValue, ar_command_key[j].commandValue);
+                    actor->ar_command_key[j].playerInputValue = std::max(ar_command_key[j].playerInputValue, ar_command_key[j].commandValue);
                 }
                 // just send brake and lights to the connected truck, and no one else :)
                 for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)

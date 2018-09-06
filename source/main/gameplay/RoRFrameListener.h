@@ -64,6 +64,7 @@ public:
     SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_conf);
 
     // Actor management interface
+    std::vector<Actor*> GetActors()                        { return m_actor_manager.GetActors(); }
     Actor* GetActorById          (int actor_id)            { return m_actor_manager.GetActorByIdInternal(actor_id); }
     void   SetPlayerActorById    (int actor_id);                                                          // TODO: Eliminate, use pointers ~ only_a_ptr, 06/2017
     void   SetPlayerActor        (Actor* actor);
@@ -73,8 +74,7 @@ public:
     void   RemoveActor           (Actor* actor);
     void   RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name); ///< Scripting utility. TODO: Does anybody use it? ~ only_a_ptr, 08/2017
 
-    std::vector<Actor*>          GetActors          () const; //!< All actors
-    std::vector<Actor*>          GetPlayableActors  () const;
+    std::vector<Actor*>          GetActors          () const;
 
     // Scripting interface
     double getTime               () { return m_time; }

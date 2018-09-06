@@ -851,42 +851,36 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
     Real max_distance = direction.length();
     direction.normalise();
 
-    //TODO: Refactor this - logic iterating over all actors should be in `ActorManager`! ~ only_a_ptr, 01/2018
-    Actor** actors = App::GetSimController()->GetBeamFactory()->GetInternalActorSlots();
-    int num_actor_slots = App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots();
-
     if (m_intra_point_col_detector)
         m_intra_point_col_detector->UpdateIntraPoint(this, true);
 
     if (m_inter_point_col_detector)
-        m_inter_point_col_detector->UpdateInterPoint(this, actors, num_actor_slots, true);
+        m_inter_point_col_detector->UpdateInterPoint(this, true);
 
     // collision displacement
     Vector3 collision_offset = Vector3::ZERO;
 
-    for (int t = 0; t < num_actor_slots; t++)
+    for (auto actor : App::GetSimController()->GetActors())
     {
-        if (!actors[t])
+        if (actor == this)
             continue;
-        if (t == ar_instance_id)
-            continue;
-        if (!bb.intersects(actors[t]->ar_bounding_box))
+        if (!bb.intersects(actor->ar_bounding_box))
             continue;
 
         // Test own contacters against others cabs
         if (m_intra_point_col_detector)
         {
-            for (int i = 0; i < actors[t]->ar_num_collcabs; i++)
+            for (int i = 0; i < actor->ar_num_collcabs; i++)
             {
                 if (collision_offset.length() >= max_distance)
                     break;
                 Vector3 offset = collision_offset;
                 while (offset.length() < max_distance)
                 {
-                    int tmpv = actors[t]->ar_collcabs[i] * 3;
-                    node_t* no = &actors[t]->ar_nodes[ar_cabs[tmpv]];
-                    node_t* na = &actors[t]->ar_nodes[ar_cabs[tmpv + 1]];
-                    node_t* nb = &actors[t]->ar_nodes[ar_cabs[tmpv + 2]];
+                    int tmpv = actor->ar_collcabs[i] * 3;
+                    node_t* no = &actor->ar_nodes[ar_cabs[tmpv]];
+                    node_t* na = &actor->ar_nodes[ar_cabs[tmpv + 1]];
+                    node_t* nb = &actor->ar_nodes[ar_cabs[tmpv + 2]];
 
                     m_intra_point_col_detector->query(no->AbsPosition + offset,
                         na->AbsPosition + offset,
@@ -905,7 +899,7 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
 
         float proximity = 0.05f;
         proximity = std::max(proximity, ar_bounding_box.getSize().length() / 50.0f);
-        proximity = std::max(proximity, actors[t]->ar_bounding_box.getSize().length() / 50.0f);
+        proximity = std::max(proximity, actor->ar_bounding_box.getSize().length() / 50.0f);
 
         // Test proximity of own nodes against others nodes
         for (int i = 0; i < ar_num_nodes; i++)
@@ -921,11 +915,11 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
 
                 bool node_proximity = false;
 
-                for (int j = 0; j < actors[t]->ar_num_nodes; j++)
+                for (int j = 0; j < actor->ar_num_nodes; j++)
                 {
-                    if (actors[t]->ar_nodes[j].nd_no_ground_contact)
+                    if (actor->ar_nodes[j].nd_no_ground_contact)
                         continue;
-                    if (query_position.squaredDistance(actors[t]->ar_nodes[j].AbsPosition) < proximity)
+                    if (query_position.squaredDistance(actor->ar_nodes[j].AbsPosition) < proximity)
                     {
                         node_proximity = true;
                         break;
@@ -2641,18 +2635,14 @@ void Actor::prepareInside(bool inside)
 
 void Actor::ToggleLights()
 {
-    // TODO: Refactor! The `ActorManager` class should do this! ~ only_a_ptr, 01/2018
-    Actor** actor_slots = App::GetSimController()->GetBeamFactory()->GetInternalActorSlots();
-    int num_actor_slots = App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots();
-
     // export light command
     Actor* player_actor = App::GetSimController()->GetPlayerActor();
     if (ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this == player_actor && ar_forward_commands)
     {
-        for (int i = 0; i < num_actor_slots; i++)
+        for (auto actor : App::GetSimController()->GetActors())
         {
-            if (actor_slots[i] && actor_slots[i]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this->ar_instance_id != i && actor_slots[i]->ar_import_commands)
-                actor_slots[i]->ToggleLights();
+            if (actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this != actor && actor->ar_import_commands)
+                actor->ToggleLights();
         }
     }
     ar_lights = !ar_lights;
@@ -3080,18 +3070,14 @@ void Actor::DisjoinInterActorBeams()
 
 void Actor::ToggleTies(int group)
 {
-    //TODO: Refactor this - logic iterating over all actors should be in `ActorManager`! ~ only_a_ptr, 01/2018
-    Actor** actor_slots = App::GetSimController()->GetBeamFactory()->GetInternalActorSlots();
-    int num_actor_slots = App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots();
-
     // export tie commands
     Actor* player_actor = App::GetSimController()->GetPlayerActor();
     if (ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this == player_actor && ar_forward_commands)
     {
-        for (int i = 0; i < num_actor_slots; i++)
+        for (auto actor : App::GetSimController()->GetActors())
         {
-            if (actor_slots[i] && actor_slots[i]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this->ar_instance_id != i && actor_slots[i]->ar_import_commands)
-                actor_slots[i]->ToggleTies(group);
+            if (actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this != actor && actor->ar_import_commands)
+                actor->ToggleTies(group);
         }
     }
 
@@ -3145,14 +3131,12 @@ void Actor::ToggleTies(int group)
                 Actor* nearest_actor = 0;
                 ropable_t* locktedto = 0;
                 // iterate over all actors
-                for (int t = 0; t < num_actor_slots; t++)
+                for (auto actor : App::GetSimController()->GetActors())
                 {
-                    if (!actor_slots[t])
-                        continue;
-                    if (actor_slots[t]->ar_sim_state == SimState::LOCAL_SLEEPING)
+                    if (actor->ar_sim_state == SimState::LOCAL_SLEEPING)
                         continue;
                     // and their ropables
-                    for (std::vector<ropable_t>::iterator itr = actor_slots[t]->ar_ropables.begin(); itr != actor_slots[t]->ar_ropables.end(); itr++)
+                    for (std::vector<ropable_t>::iterator itr = actor->ar_ropables.begin(); itr != actor->ar_ropables.end(); itr++)
                     {
                         // if the ropable is not multilock and used, then discard this ropable
                         if (!itr->multilock && itr->in_use)
@@ -3168,7 +3152,7 @@ void Actor::ToggleTies(int group)
                         {
                             mindist = dist;
                             nearest_node = itr->node;
-                            nearest_actor = actor_slots[t];
+                            nearest_actor = actor;
                             locktedto = &(*itr);
                         }
                     }
@@ -3205,9 +3189,6 @@ void Actor::ToggleTies(int group)
 
 void Actor::ToggleRopes(int group)
 {
-    Actor** actor_slots = App::GetSimController()->GetBeamFactory()->GetInternalActorSlots();
-    int num_actor_slots = App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots();
-
     // iterate over all ropes
     for (std::vector<rope_t>::iterator it = ar_ropes.begin(); it != ar_ropes.end(); it++)
     {
@@ -3234,14 +3215,12 @@ void Actor::ToggleRopes(int group)
             Actor* nearest_actor = nullptr;
             ropable_t* rop = 0;
             // iterate over all actor_slots
-            for (int t = 0; t < num_actor_slots; t++)
+            for (auto actor : App::GetSimController()->GetActors())
             {
-                if (!actor_slots[t])
-                    continue;
-                if (actor_slots[t]->ar_sim_state == SimState::LOCAL_SLEEPING)
+                if (actor->ar_sim_state == SimState::LOCAL_SLEEPING)
                     continue;
                 // and their ropables
-                for (std::vector<ropable_t>::iterator itr = actor_slots[t]->ar_ropables.begin(); itr != actor_slots[t]->ar_ropables.end(); itr++)
+                for (std::vector<ropable_t>::iterator itr = actor->ar_ropables.begin(); itr != actor->ar_ropables.end(); itr++)
                 {
                     // if the ropable is not multilock and used, then discard this ropable
                     if (!itr->multilock && itr->in_use)
@@ -3253,7 +3232,7 @@ void Actor::ToggleRopes(int group)
                     {
                         mindist = dist;
                         nearest_node = itr->node;
-                        nearest_actor = actor_slots[t];
+                        nearest_actor = actor;
                         rop = &(*itr);
                     }
                 }
@@ -3274,9 +3253,6 @@ void Actor::ToggleRopes(int group)
 
 void Actor::ToggleHooks(int group, hook_states mode, int node_number)
 {
-    Actor** actor_slots = App::GetSimController()->GetBeamFactory()->GetInternalActorSlots();
-    int num_actor_slots = App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots();
-
     // iterate over all hooks
     for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
     {
@@ -3329,13 +3305,11 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
             float mindist = it->hk_lockrange;
             float distance = 100000000.0f;
             // iterate over all actor_slots
-            for (int t = 0; t < num_actor_slots; t++)
+            for (auto actor : App::GetSimController()->GetActors())
             {
-                if (!actor_slots[t])
+                if (actor->ar_sim_state == SimState::LOCAL_SLEEPING || actor->ar_sim_state == SimState::INVALID)
                     continue;
-                if (actor_slots[t]->ar_sim_state == SimState::LOCAL_SLEEPING || actor_slots[t]->ar_sim_state == SimState::INVALID)
-                    continue;
-                if (t == this->ar_instance_id && !it->hk_selflock)
+                if (this == actor && !it->hk_selflock)
                     continue; // don't lock to self
 
                 // do we lock against all nodes or just against ropables?
@@ -3344,22 +3318,22 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
                 {
                     int last_node = 0; // node number storage
                     // all nodes, so walk them
-                    for (int i = 0; i < actor_slots[t]->ar_num_nodes; i++)
+                    for (int i = 0; i < actor->ar_num_nodes; i++)
                     {
                         // skip all nodes with lockgroup 9999 (deny lock)
-                        if (actor_slots[t]->ar_nodes[i].nd_lockgroup == 9999)
+                        if (actor->ar_nodes[i].nd_lockgroup == 9999)
                             continue;
 
                         // exclude this truck and its current hooknode from the locking search
-                        if (this == actor_slots[t] && i == it->hk_hook_node->id)
+                        if (this == actor && i == it->hk_hook_node->id)
                             continue;
 
                         // a lockgroup for this hooknode is set -> skip all nodes that do not have the same lockgroup (-1 = default(all nodes))
-                        if (it->hk_lockgroup != -1 && it->hk_lockgroup != actor_slots[t]->ar_nodes[i].nd_lockgroup)
+                        if (it->hk_lockgroup != -1 && it->hk_lockgroup != actor->ar_nodes[i].nd_lockgroup)
                             continue;
 
                         // measure distance
-                        float n2n_distance = (it->hk_hook_node->AbsPosition - actor_slots[t]->ar_nodes[i].AbsPosition).length();
+                        float n2n_distance = (it->hk_hook_node->AbsPosition - actor->ar_nodes[i].AbsPosition).length();
                         if (n2n_distance < mindist)
                         {
                             if (distance >= n2n_distance)
@@ -3374,8 +3348,8 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
                     if (found)
                     {
                         // we found a node, lock to it
-                        it->hk_lock_node = &(actor_slots[t]->ar_nodes[last_node]);
-                        it->hk_locked_actor = actor_slots[t];
+                        it->hk_lock_node = &(actor->ar_nodes[last_node]);
+                        it->hk_locked_actor = actor;
                         it->hk_locked = PRELOCK;
                     }
                 }
@@ -3387,7 +3361,7 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
                     Actor* nearest_actor = nullptr;
 
                     // and their ropables
-                    for (std::vector<ropable_t>::iterator itr = actor_slots[t]->ar_ropables.begin(); itr != actor_slots[t]->ar_ropables.end(); itr++)
+                    for (std::vector<ropable_t>::iterator itr = actor->ar_ropables.begin(); itr != actor->ar_ropables.end(); itr++)
                     {
                         // if the ropable is not multilock and used, then discard this ropable
                         if (!itr->multilock && itr->in_use)
@@ -3399,7 +3373,7 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
                         {
                             mindist = dist;
                             nearest_node = itr->node;
-                            nearest_actor = actor_slots[t];
+                            nearest_actor = actor;
                         }
                     }
 
@@ -4143,6 +4117,7 @@ void Actor::EngineTriggerHelper(int engineNumber, int type, float triggerValue)
 
 Actor::Actor(
     int actor_id,
+    unsigned int vector_index,
     std::shared_ptr<RigDef::File> def,
     Ogre::Vector3 pos,
     Ogre::Quaternion rot,
@@ -4257,6 +4232,7 @@ Actor::Actor(
     , m_skid_trails{} // Init array to nullptr
     , ar_collision_range(DEFAULT_COLLISION_RANGE)
     , ar_instance_id(actor_id)
+    , ar_vector_index(vector_index)
     , ar_rescuer_flag(false)
     , m_antilockbrake(0)
     , m_tractioncontrol(0)

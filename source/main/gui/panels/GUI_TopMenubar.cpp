@@ -33,6 +33,8 @@
 #include "RoRFrameListener.h"
 #include "Network.h"
 
+#include <algorithm>
+
 void RoR::GUI::TopMenubar::Update()
 {
     // ## ImGui's 'menubar' and 'menuitem' features won't quite cut it...
@@ -40,7 +42,9 @@ void RoR::GUI::TopMenubar::Update()
 
     const char* sim_title = "Simulation"; // TODO: Localize all!
     Str<50> actors_title;
-    actors_title << "Actors (" << App::GetSimController()->GetPlayableActors().size() << ")";
+    auto actors = App::GetSimController()->GetActors();
+    int num_playable_actors = std::count_if(actors.begin(), actors.end(), [](Actor* a) {return !a->ar_hide_in_actor_list;});
+    actors_title << "Actors (" << num_playable_actors << ")";
     const char* tools_title = "Tools";
 
     float panel_target_width = 
@@ -411,8 +415,14 @@ void RoR::GUI::TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
 
 void RoR::GUI::TopMenubar::DrawActorListSinglePlayer()
 {
-    auto actor_list = App::GetSimController()->GetPlayableActors();
-
+    std::vector<Actor*> actor_list;
+    for (auto actor : App::GetSimController()->GetActors())
+    {
+        if (!actor->ar_hide_in_actor_list)
+        {
+            actor_list.emplace_back(actor);
+        }
+    }
     if (actor_list.empty())
     {
         ImGui::PushStyleColor(ImGuiCol_Text, GRAY_HINT_TEXT);

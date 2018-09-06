@@ -1252,21 +1252,16 @@ void SimController::UpdateInputEvents(float dt)
         {
             m_time_until_next_toggle = 0.5; // Some delay before trying to re-enter(exit) actor
             // perso in/out
-            int num_actor_slots = m_actor_manager.GetNumUsedActorSlots();
-            Actor** actor_slots = m_actor_manager.GetInternalActorSlots();
-
             if (this->GetPlayerActor() == nullptr)
             {
                 // find the nearest vehicle
                 float mindist = 1000.0;
                 Actor* nearest_actor = nullptr;
-                for (int i = 0; i < num_actor_slots; i++)
+                for (auto actor : GetActors())
                 {
-                    if (!actor_slots[i])
+                    if (!actor->ar_driveable)
                         continue;
-                    if (!actor_slots[i]->ar_driveable)
-                        continue;
-                    if (actor_slots[i]->ar_cinecam_node[0] == -1)
+                    if (actor->ar_cinecam_node[0] == -1)
                     {
                         LOG("cinecam missing, cannot enter the actor!");
                         continue;
@@ -1274,12 +1269,12 @@ void SimController::UpdateInputEvents(float dt)
                     float len = 0.0f;
                     if (gEnv->player)
                     {
-                        len = actor_slots[i]->ar_nodes[actor_slots[i]->ar_cinecam_node[0]].AbsPosition.distance(gEnv->player->getPosition() + Vector3(0.0, 2.0, 0.0));
+                        len = actor->ar_nodes[actor->ar_cinecam_node[0]].AbsPosition.distance(gEnv->player->getPosition() + Vector3(0.0, 2.0, 0.0));
                     }
                     if (len < mindist)
                     {
                         mindist = len;
-                        nearest_actor = actor_slots[i];
+                        nearest_actor = actor;
                     }
                 }
                 if (mindist < 20.0)
@@ -1628,20 +1623,15 @@ void SimController::UpdateSimulation(float dt)
 
 void SimController::ShowLoaderGUI(int type, const Ogre::String& instance, const Ogre::String& box)
 {
-    int num_actor_slots = m_actor_manager.GetNumUsedActorSlots();
-    Actor** actor_slots = m_actor_manager.GetInternalActorSlots();
-
     // first, test if the place if clear, BUT NOT IN MULTIPLAYER
     if (!(App::mp_state.GetActive() == MpState::CONNECTED))
     {
         collision_box_t* spawnbox = gEnv->collisions->getBox(instance, box);
-        for (int t = 0; t < num_actor_slots; t++)
+        for (auto actor : GetActors())
         {
-            if (!actor_slots[t])
-                continue;
-            for (int i = 0; i < actor_slots[t]->ar_num_nodes; i++)
+            for (int i = 0; i < actor->ar_num_nodes; i++)
             {
-                if (gEnv->collisions->isInside(actor_slots[t]->ar_nodes[i].AbsPosition, spawnbox))
+                if (gEnv->collisions->isInside(actor->ar_nodes[i].AbsPosition, spawnbox))
                 {
                     RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Please clear the place first"), "error.png");
                     RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Please clear the place first"));
@@ -2305,17 +2295,12 @@ void SimController::RemoveActor(Actor* actor)
         this->SetPlayerActor(nullptr);
     }
     m_gfx_scene.RemoveGfxActor(actor->GetGfxActor());
-    m_actor_manager.RemoveActorInternal(actor->ar_instance_id);
+    m_actor_manager.DeleteActorInternal(actor);
 }
 
 std::vector<Actor*> SimController::GetActors() const
 {
     return m_actor_manager.GetActors();
-}
-
-std::vector<Actor*> SimController::GetPlayableActors() const
-{
-    return m_actor_manager.GetPlayableActors();
 }
 
 bool SimController::AreControlsLocked() const
