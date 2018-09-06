@@ -1056,7 +1056,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_hydro_aero_rudder_state = m_actor->ar_hydro_rudder_state;
     m_simbuf.simbuf_aero_flap_state = m_actor->ar_aerial_flap;
     m_simbuf.simbuf_airbrake_state = m_actor->ar_airbrake_intensity;
-    m_simbuf.simbuf_headlight_on = m_actor->ar_lights;
+    m_simbuf.simbuf_headlight_on = m_actor->ar_lights != 0;
     m_simbuf.simbuf_direction = m_actor->getDirection();
     m_simbuf.simbuf_node0_velo = m_actor->ar_nodes[0].Velocity;
     if (m_simbuf.simbuf_net_username != m_actor->m_net_username)
@@ -1501,7 +1501,7 @@ void RoR::GfxActor::UpdateBeaconFlare(prop_t & prop, float dt, bool is_player_ac
         prop.beacon_light[0]->setVisible(visible);
         prop.beacon_flare_billboard_scene_node[0]->setVisible(visible);
     }
-    if (prop.beacontype == 'R' || prop.beacontype == 'L')
+    else if (prop.beacontype == 'R' || prop.beacontype == 'L') // Avionic navigation lights (red/green)
     {
         Vector3 mposition = nodes[prop.noderef].AbsPosition + prop.offsetx * (nodes[prop.nodex].AbsPosition - nodes[prop.noderef].AbsPosition) + prop.offsety * (nodes[prop.nodey].AbsPosition - nodes[prop.noderef].AbsPosition);
         //billboard
@@ -1516,7 +1516,7 @@ void RoR::GfxActor::UpdateBeaconFlare(prop_t & prop, float dt, bool is_player_ac
         vdir = vdir / vlen;
         prop.beacon_flare_billboard_scene_node[0]->setPosition(mposition - vdir * 0.1);
     }
-    if (prop.beacontype == 'w')
+    else if (prop.beacontype == 'w') // Avionic navigation lights (white rotating beacon)
     {
         Vector3 mposition = nodes[prop.noderef].AbsPosition + prop.offsetx * (nodes[prop.nodex].AbsPosition - nodes[prop.noderef].AbsPosition) + prop.offsety * (nodes[prop.nodey].AbsPosition - nodes[prop.noderef].AbsPosition);
         prop.beacon_light[0]->setPosition(mposition);
@@ -1548,17 +1548,12 @@ void RoR::GfxActor::UpdateProps(float dt, bool is_player_actor)
 {
     using namespace Ogre;
 
-    if (m_simbuf.simbuf_beaconlight_active != m_beaconlight_active)
-    {
-        m_beaconlight_active = m_simbuf.simbuf_beaconlight_active;
-        this->SetBeaconsEnabled(m_beaconlight_active);   
-    }
-
     NodeData* nodes = this->GetSimNodeBuffer();
 
+    // Update prop meshes
     for (prop_t& prop: m_props)
     {
-        if (!prop.scene_node)
+        if (prop.scene_node == nullptr) // Wing beacons don't have scenenodes
             continue;
 
         // -- quick ugly port from `Actor::NotifyCameraChanged()`~ 06/2018
@@ -1566,6 +1561,10 @@ void RoR::GfxActor::UpdateProps(float dt, bool is_player_actor)
         if (prop.mo != nullptr)
         {
             prop.mo->setVisible(mo_visible);
+            if (!mo_visible)
+            {
+                continue; // No need to update hidden meshes
+            }
         }
 
         // -- quick ugly port from `Actor::updateProps()` --- ~ 06/2018
@@ -1589,13 +1588,24 @@ void RoR::GfxActor::UpdateProps(float dt, bool is_player_actor)
             prop.wheel->setPosition(mposition + normal * prop.offsetz + orientation * prop.wheelpos);
             prop.wheel->setOrientation(orientation * brot);
         }
+    }
 
-        // --- quick ugly port from `Actor::updateFlares()` ~ 06/2018
-        if ((App::gfx_flares_mode.GetActive() != GfxFlaresMode::NONE)
-            && (prop.beacontype != 0)
-            && (m_beaconlight_active))
+    // Update beacon flares
+    if (m_simbuf.simbuf_beaconlight_active != m_beaconlight_active)
+    {
+        m_beaconlight_active = m_simbuf.simbuf_beaconlight_active;
+        this->SetBeaconsEnabled(m_beaconlight_active);
+    }
+
+    if ((App::gfx_flares_mode.GetActive() != GfxFlaresMode::NONE)
+        && m_beaconlight_active)
+    {
+        for (prop_t& prop: m_props)
         {
-            this->UpdateBeaconFlare(prop, dt, is_player_actor); 
+            if (prop.beacontype != 0)
+            {
+                this->UpdateBeaconFlare(prop, dt, is_player_actor);
+            }
         }
     }
 }
