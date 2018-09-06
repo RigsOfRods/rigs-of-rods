@@ -122,7 +122,6 @@ private:
     void   FinalizeActorSpawning   (Actor* local_actor, Actor* previous_actor);
     void   HideGUI                 (bool hidden);
     void   CleanupAfterSimulation  (); /// Unloads all data
-    void   OnPlayerActorChange     (Actor* previous_vehicle, Actor* current_vehicle);
     void   UpdateSimulation        (float dt_sec);
 
     Actor*                   m_player_actor;           //!< Actor (vehicle or machine) mounted and controlled by player
