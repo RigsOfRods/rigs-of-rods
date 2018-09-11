@@ -1557,8 +1557,9 @@ void RoR::GfxActor::UpdateProps(float dt, bool is_player_actor)
             continue;
 
         // -- quick ugly port from `Actor::NotifyCameraChanged()`~ 06/2018
+        const bool is_aero_propeller = ((prop.pale != 0) || (prop.spinner != 0)); // Visibility updated in TurboProp::updateVisual()
         const bool mo_visible = (prop.cameramode == -2 || prop.cameramode == m_simbuf.simbuf_cur_cinecam);
-        if (prop.mo != nullptr)
+        if ((prop.mo != nullptr) && !is_aero_propeller)
         {
             prop.mo->setVisible(mo_visible);
             if (!mo_visible)

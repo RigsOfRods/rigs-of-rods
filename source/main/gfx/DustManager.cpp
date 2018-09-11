@@ -108,6 +108,16 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
         m_heathaze->update(); // TODO: The effect seems quite badly broken at the moment ~ only_a_ptr, 05/2018
     }
 
+    // Realtime reflections on player vehicle
+    // IMPORTANT: Toggles visibility of all meshes -> must be done before any other visibility control is evaluated (i.e. aero propellers)
+    if (player_gfx_actor != nullptr)
+    {
+        // Safe to be called here, only modifies OGRE objects, doesn't read any physics state.
+        m_envmap.UpdateEnvMap(
+            player_gfx_actor->GetSimDataBuffer().simbuf_pos,
+            m_simbuf.simbuf_player_actor);
+    }
+
     // Terrain - animated meshes and paged geometry
     App::GetSimTerrain()->getObjectManager()->UpdateTerrainObjects(dt_sec);
 
@@ -212,8 +222,6 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
     }
     if (player_gfx_actor != nullptr)
     {
-        Ogre::Vector3 pos = player_gfx_actor->GetSimDataBuffer().simbuf_pos;
-        m_envmap.UpdateEnvMap(pos, m_simbuf.simbuf_player_actor); // Safe to be called here, only modifies OGRE objects, doesn't read any physics state.
         player_gfx_actor->UpdateVideoCameras(dt_sec);
 
         // The old-style render-to-texture dashboard (based on OGRE overlays)
