@@ -105,8 +105,6 @@ Turboprop::Turboprop(
             nodep[3] = np4;
     }
     propwash = 0;
-    free_vpale = 0;
-    vspinner = 0;
     timer = 0;
     lastflip = 0;
     warmuptime = 14.0;
@@ -170,21 +168,6 @@ void Turboprop::updateVisuals(RoR::GfxActor* gfx_actor)
 {
     RoR::GfxActor::NodeData* node_buf = gfx_actor->GetSimNodeBuffer();
 
-    //visuals
-    if (rpm > 200)
-    {
-        for (int i = 0; i < free_vpale; i++)
-            vpales[i]->setVisible(false);
-        if (vspinner)
-            vspinner->setVisible(true);
-    }
-    else
-    {
-        for (int i = 0; i < free_vpale; i++)
-            vpales[i]->setVisible(true);
-        if (vspinner)
-            vspinner->setVisible(false);
-    }
     //smoke
     if (smokeNode)
     {
@@ -518,15 +501,4 @@ void Turboprop::flipStart()
         SOUND_STOP(trucknum, src_id);
     }
     lastflip = timer;
-}
-
-void Turboprop::addPale(SceneNode* sn)
-{
-    vpales[free_vpale] = sn;
-    free_vpale++;
-}
-
-void Turboprop::addSpinner(SceneNode* sn)
-{
-    vspinner = sn;
 }

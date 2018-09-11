@@ -69,10 +69,6 @@ public:
 
     void flipStart();
 
-    void addPale(Ogre::SceneNode* sn);
-
-    void addSpinner(Ogre::SceneNode* sn);
-
     float getRPM() { return rpm; };
     float getRPMpc() { return rpm / 10.0f; };
     void setRPM(float _rpm);
@@ -106,9 +102,6 @@ private:
     float pitchspeed;
     float maxrevpitch;
     float regspeed;
-    Ogre::SceneNode* vspinner;
-    Ogre::SceneNode* vpales[4];
-    int free_vpale;
     Ogre::ParticleSystem* smokePS;
     Ogre::ParticleSystem* heathazePS;
     Ogre::SceneNode* smokeNode;

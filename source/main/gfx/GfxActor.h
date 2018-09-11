@@ -175,6 +175,7 @@ public:
 
         struct AeroEngineSB
         {
+            float simbuf_ae_rpm;
             float simbuf_ae_rpmpc;
             float simbuf_ae_throttle;
             float simbuf_tp_aetorque; //!< Turboprop torque, used by animation "aetorque"

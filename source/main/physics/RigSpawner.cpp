@@ -695,8 +695,10 @@ void ActorSpawner::BuildAerialEngine(
 {
     SPAWNER_PROFILE_SCOPED();
 
+    int aeroengine_index = m_actor->ar_num_aeroengines;
+
     Turboprop *turbo_prop = new Turboprop(
-        this->ComposeName("Turboprop", m_actor->ar_num_aeroengines).c_str(),
+        this->ComposeName("Turboprop", aeroengine_index).c_str(),
         m_actor->ar_nodes, 
         ref_node_index,
         back_node_index,
@@ -714,7 +716,7 @@ void ActorSpawner::BuildAerialEngine(
         pitch,
         m_actor->ar_use_heathaze
     );
-    m_actor->ar_aeroengines[m_actor->ar_num_aeroengines] = turbo_prop;
+    m_actor->ar_aeroengines[aeroengine_index] = turbo_prop;
     m_actor->ar_num_aeroengines++;
     m_actor->ar_driveable = AIRPLANE;
 
@@ -728,18 +730,10 @@ void ActorSpawner::BuildAerialEngine(
     float scale = GetNode(ref_node_index).RelPosition.distance(GetNode(blade_1_node_index).RelPosition) / 2.25f;
     for (prop_t& prop: m_props)
     {
-        if (prop.noderef == ref_node_index)
+        if ((prop.noderef == ref_node_index) && (prop.pp_aero_propeller_blade || prop.pp_aero_propeller_spin))
         {
-            if (prop.pale == 1)
-            {
-                prop.scene_node->scale(scale, scale, scale);
-                turbo_prop->addPale(prop.scene_node);
-            }
-            if (prop.spinner == 1)
-            {
-                prop.scene_node->scale(scale, scale, scale);
-                turbo_prop->addSpinner(prop.scene_node);
-            }
+            prop.scene_node->scale(scale, scale, scale);
+            prop.pp_aero_engine_idx = aeroengine_index;
         }
     }
 }
@@ -920,8 +914,6 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 left_green_prop.wheel=nullptr;
                 left_green_prop.wheelrotdegree=0.0;
                 left_green_prop.mirror=0;
-                left_green_prop.pale=0;
-                left_green_prop.spinner=0;
                 left_green_prop.scene_node=nullptr; //no visible prop
                 left_green_prop.beacon_light_rotation_angle[0]=0.0;
                 left_green_prop.beacon_light_rotation_rate[0]=1.0;
@@ -956,8 +948,6 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 left_flash_prop.wheel=nullptr;
                 left_flash_prop.wheelrotdegree=0.0;
                 left_flash_prop.mirror=0;
-                left_flash_prop.pale=0;
-                left_flash_prop.spinner=0;
                 left_flash_prop.scene_node=nullptr; //no visible prop
                 left_flash_prop.beacon_light_rotation_angle[0]=0.5; //alt
                 left_flash_prop.beacon_light_rotation_rate[0]=1.0;
@@ -1000,8 +990,6 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 right_red_prop.wheel=nullptr;
                 right_red_prop.wheelrotdegree=0.0;
                 right_red_prop.mirror=0;
-                right_red_prop.pale=0;
-                right_red_prop.spinner=0;
                 right_red_prop.scene_node=nullptr; //no visible prop
                 right_red_prop.beacon_light_rotation_angle[0]=0.0;
                 right_red_prop.beacon_light_rotation_rate[0]=1.0;
@@ -1036,8 +1024,6 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 right_flash_prop.wheel=nullptr;
                 right_flash_prop.wheelrotdegree=0.0;
                 right_flash_prop.mirror=0;
-                right_flash_prop.pale=0;
-                right_flash_prop.spinner=0;
                 right_flash_prop.scene_node=nullptr; //no visible prop
                 right_flash_prop.beacon_light_rotation_angle[0]=0.5; //alt
                 right_flash_prop.beacon_light_rotation_rate[0]=1.0;
@@ -1649,15 +1635,15 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
     prop.mo->setCastShadows(true); // Orig code {{ prop.mo->setCastShadows(shadowmode != 0); }}, shadowmode has default value 1 and changes with undocumented directive 'set_shadows'
     prop.beacontype = 'n'; // Orig: hardcoded in BTS_PROPS
 
-    if (def.special == RigDef::Prop::SPECIAL_SPINPROP)
+    if (def.special == RigDef::Prop::SPECIAL_AERO_PROP_SPIN)
     {
-        prop.spinner = 1;
+        prop.pp_aero_propeller_spin = true;
         prop.mo->setCastShadows(false);
         prop.scene_node->setVisible(false);
     }
-    else if(def.special == RigDef::Prop::SPECIAL_PALE)
+    else if(def.special == RigDef::Prop::SPECIAL_AERO_PROP_BLADE)
     {
-        prop.pale = 1;
+        prop.pp_aero_propeller_blade = true;
     }
     else if(def.special == RigDef::Prop::SPECIAL_DRIVER_SEAT)
     {

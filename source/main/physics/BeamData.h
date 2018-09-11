@@ -411,9 +411,6 @@ struct prop_t
     // formerly named "bpos"
     float beacon_light_rotation_angle[4]; //<! Radians
     
-
-    int pale;               //!< Is this a pale? (Boolean {0/1})
-    int spinner;            //!< Is this a spinprop? (Boolean {0/1})
     float animratio[10]; //!< A coefficient for the animation, prop degree if used with mode: rotation and propoffset if used with mode: offset.
     int animFlags[10];
     int animMode[10];
@@ -431,6 +428,10 @@ struct prop_t
         float lower_limit;  //!< The lower limit for the animation
         float upper_limit;  //!< The upper limit for the animation
     } constraints[10];
+
+    int  pp_aero_engine_idx;          //!< Special - a turboprop/pistonprop reference
+    bool pp_aero_propeller_blade:1;   //!< Special - single blade mesh
+    bool pp_aero_propeller_spin:1;    //!< Special - blurred spinning propeller effect
 };
 
 struct exhaust_t

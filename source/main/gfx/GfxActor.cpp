@@ -1107,6 +1107,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
         SimBuffer::AeroEngineSB& dst = m_simbuf.simbuf_aeroengines[i];
 
         dst.simbuf_ae_throttle   = src->getThrottle();
+        dst.simbuf_ae_rpm        = src->getRPM();
         dst.simbuf_ae_rpmpc      = src->getRPMpc();
         dst.simbuf_ae_turboprop  = (src->getType() == AeroEngine::AEROENGINE_TYPE_TURBOPROP);
         dst.simbuf_ae_ignition   = src->getIgnition();
@@ -1556,11 +1557,19 @@ void RoR::GfxActor::UpdateProps(float dt, bool is_player_actor)
         if (prop.scene_node == nullptr) // Wing beacons don't have scenenodes
             continue;
 
-        // -- quick ugly port from `Actor::NotifyCameraChanged()`~ 06/2018
-        const bool is_aero_propeller = ((prop.pale != 0) || (prop.spinner != 0)); // Visibility updated in TurboProp::updateVisual()
-        const bool mo_visible = (prop.cameramode == -2 || prop.cameramode == m_simbuf.simbuf_cur_cinecam);
-        if ((prop.mo != nullptr) && !is_aero_propeller)
+        // Update visibility
+        if (prop.pp_aero_propeller_blade || prop.pp_aero_propeller_spin)
         {
+            const float SPINNER_THRESHOLD = 200.f; // TODO: magic! ~ only_a_ptr, 09/2018
+            const bool show_spinner = m_simbuf.simbuf_aeroengines[prop.pp_aero_engine_idx].simbuf_ae_rpm > SPINNER_THRESHOLD;
+            if (prop.pp_aero_propeller_blade)
+                prop.scene_node->setVisible(!show_spinner);
+            else if (prop.pp_aero_propeller_spin)
+                prop.scene_node->setVisible(show_spinner);
+        }
+        else
+        {
+            const bool mo_visible = (prop.cameramode == -2 || prop.cameramode == m_simbuf.simbuf_cur_cinecam);
             prop.mo->setVisible(mo_visible);
             if (!mo_visible)
             {
@@ -1568,6 +1577,7 @@ void RoR::GfxActor::UpdateProps(float dt, bool is_player_actor)
             }
         }
 
+        // Update position and orientation
         // -- quick ugly port from `Actor::updateProps()` --- ~ 06/2018
         Vector3 diffX = nodes[prop.nodex].AbsPosition - nodes[prop.noderef].AbsPosition;
         Vector3 diffY = nodes[prop.nodey].AbsPosition - nodes[prop.noderef].AbsPosition;
