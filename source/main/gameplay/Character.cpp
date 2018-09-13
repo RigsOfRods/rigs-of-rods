@@ -341,7 +341,7 @@ void Character::update(float dt)
                 accel = 3.0f * tmpRun;
             // animation missing for that
             position += dt * m_character_h_speed * 0.5f * accel * Vector3(cos(m_character_rotation.valueRadians() - Math::HALF_PI), 0.0f, sin(m_character_rotation.valueRadians() - Math::HALF_PI));
-            if (!isswimming)
+            if (!isswimming && not_walking)
             {
                 this->SetAnimState("Side_step", -dt);
                 idleanim = false;
@@ -355,7 +355,7 @@ void Character::update(float dt)
                 accel = 3.0f * tmpRun;
             // animation missing for that
             position += dt * m_character_h_speed * 0.5f * accel * Vector3(cos(m_character_rotation.valueRadians() + Math::HALF_PI), 0.0f, sin(m_character_rotation.valueRadians() + Math::HALF_PI));
-            if (!isswimming)
+            if (!isswimming && not_walking)
             {
                 this->SetAnimState("Side_step", dt);
                 idleanim = false;
