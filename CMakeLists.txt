@@ -57,15 +57,6 @@ SET(ARCHIVE_OUTPUT_DIRECTORY "${RoR_BINARY_DIR}/lib/")
 SET(EXECUTABLE_OUTPUT_PATH ${RUNTIME_OUTPUT_DIRECTORY})
 SET(LIBRARY_OUTPUT_PATH ${RUNTIME_OUTPUT_DIRECTORY})
 
-# set the tools binary directory accordingly to the used platform
-IF (WIN32)
-    SET(ROR_BINTOOL_DIR ${RoR_SOURCE_DIR}/tools/windows/binaries)
-ELSEIF (UNIX)
-    SET(ROR_BINTOOL_DIR ${RoR_SOURCE_DIR}/tools/linux/binaries)
-ELSEIF (APPLE)
-    SET(ROR_BINTOOL_DIR ${RoR_SOURCE_DIR}/tools/linux/binaries)
-ENDIF (WIN32)
-
 set(CMAKE_DEBUG_POSTFIX _d)
 
 # hide some settings

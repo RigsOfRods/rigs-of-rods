@@ -536,6 +536,10 @@ cotire(${BINNAME})
 #  POST-BUILD STEPS
 ####################################################################################################
 
+# configure plugins.cfg
+if (WIN32)
+  set(CFG_OGRE_RENDERSYSTEM_D3D9 "Plugin=RenderSystem_Direct3D9")
+endif ()
 configure_file(plugins.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg)
 
 get_sub_dirs(ROR_RESOURCES_DIRS "${CMAKE_SOURCE_DIR}/resources")

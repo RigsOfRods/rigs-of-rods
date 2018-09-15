@@ -5,8 +5,7 @@ PluginFolder=.
 
 # Define plugins
 Plugin=RenderSystem_GL
-#Plugin=RenderSystem_GL3Plus
+@CFG_OGRE_RENDERSYSTEM_D3D9@
 Plugin=Plugin_ParticleFX
 Plugin=Plugin_OctreeSceneManager
 Plugin=Plugin_CgProgramManager
-@CAELUM_PLUGIN@
