@@ -890,7 +890,7 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
         {
             for (int j = 0; j < (int)ar_command_key[i].beams.size(); j++)
             {
-                ar_command_key[i].beams[j].cmb_auto_move_lock = false;
+                ar_command_key[i].beams[j].cmb_state->auto_move_lock = false;
             }
         }
 
@@ -917,7 +917,7 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
             {
                 if (ar_command_key[i].commandValue >= 0.5)
                 {
-                    ar_command_key[i].beams[j].cmb_auto_move_lock = true;
+                    ar_command_key[i].beams[j].cmb_state->auto_move_lock = true;
                 }
             }
         }
@@ -943,7 +943,7 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
                 int& vst = ar_command_key[i].commandValueState;
 
                 // self centering
-                if (cmd_beam.cmb_is_autocentering && !cmd_beam.cmb_auto_move_lock)
+                if (cmd_beam.cmb_is_autocentering && !cmd_beam.cmb_state->auto_move_lock)
                 {
                     // check for some error
                     if (ar_beams[bbeam].refL == 0 || ar_beams[bbeam].L == 0)
@@ -954,23 +954,23 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
                     if (fabs(current - cmd_beam.cmb_center_length) < 0.0001)
                     {
                         // hold condition
-                        cmd_beam.cmb_auto_moving_mode = 0;
+                        cmd_beam.cmb_state->auto_moving_mode = 0;
                     }
                     else
                     {
-                        int mode = cmd_beam.cmb_auto_moving_mode;
+                        int mode = cmd_beam.cmb_state->auto_moving_mode;
 
                         // determine direction
                         if (current > cmd_beam.cmb_center_length)
-                            cmd_beam.cmb_auto_moving_mode = -1;
+                            cmd_beam.cmb_state->auto_moving_mode = -1;
                         else
-                            cmd_beam.cmb_auto_moving_mode = 1;
+                            cmd_beam.cmb_state->auto_moving_mode = 1;
 
                         // avoid overshooting
-                        if (mode != 0 && mode != cmd_beam.cmb_auto_moving_mode)
+                        if (mode != 0 && mode != cmd_beam.cmb_state->auto_moving_mode)
                         {
                             ar_beams[bbeam].L = cmd_beam.cmb_center_length * ar_beams[bbeam].refL;
-                            cmd_beam.cmb_auto_moving_mode = 0;
+                            cmd_beam.cmb_state->auto_moving_mode = 0;
                         }
                     }
                 }
@@ -985,41 +985,41 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
                         if (cmd_beam.cmb_is_1press_center)
                         {
                             // one press + centering
-                            if (bbeam_dir * cmd_beam.cmb_auto_moving_mode > 0 && bbeam_dir * clen > bbeam_dir * cmd_beam.cmb_center_length && !cmd_beam.cmb_pressed_center_mode)
+                            if (bbeam_dir * cmd_beam.cmb_state->auto_moving_mode > 0 && bbeam_dir * clen > bbeam_dir * cmd_beam.cmb_center_length && !cmd_beam.cmb_state->pressed_center_mode)
                             {
-                                cmd_beam.cmb_pressed_center_mode = true;
-                                cmd_beam.cmb_auto_moving_mode = 0;
+                                cmd_beam.cmb_state->pressed_center_mode = true;
+                                cmd_beam.cmb_state->auto_moving_mode = 0;
                             }
-                            else if (bbeam_dir * cmd_beam.cmb_auto_moving_mode < 0 && bbeam_dir * clen > bbeam_dir * cmd_beam.cmb_center_length && cmd_beam.cmb_pressed_center_mode)
+                            else if (bbeam_dir * cmd_beam.cmb_state->auto_moving_mode < 0 && bbeam_dir * clen > bbeam_dir * cmd_beam.cmb_center_length && cmd_beam.cmb_state->pressed_center_mode)
                             {
-                                cmd_beam.cmb_pressed_center_mode = false;
+                                cmd_beam.cmb_state->pressed_center_mode = false;
                             }
                         }
                         if (cmd_beam.cmb_is_1press || cmd_beam.cmb_is_1press_center)
                         {
                             bool key = (v > 0.5);
-                            if (bbeam_dir * cmd_beam.cmb_auto_moving_mode <= 0 && key)
+                            if (bbeam_dir * cmd_beam.cmb_state->auto_moving_mode <= 0 && key)
                             {
-                                cmd_beam.cmb_auto_moving_mode = bbeam_dir * 1;
+                                cmd_beam.cmb_state->auto_moving_mode = bbeam_dir * 1;
                             }
-                            else if (cmd_beam.cmb_auto_moving_mode == bbeam_dir * 1 && !key)
+                            else if (cmd_beam.cmb_state->auto_moving_mode == bbeam_dir * 1 && !key)
                             {
-                                cmd_beam.cmb_auto_moving_mode = bbeam_dir * 2;
+                                cmd_beam.cmb_state->auto_moving_mode = bbeam_dir * 2;
                             }
-                            else if (cmd_beam.cmb_auto_moving_mode == bbeam_dir * 2 && key)
+                            else if (cmd_beam.cmb_state->auto_moving_mode == bbeam_dir * 2 && key)
                             {
-                                cmd_beam.cmb_auto_moving_mode = bbeam_dir * 3;
+                                cmd_beam.cmb_state->auto_moving_mode = bbeam_dir * 3;
                             }
-                            else if (cmd_beam.cmb_auto_moving_mode == bbeam_dir * 3 && !key)
+                            else if (cmd_beam.cmb_state->auto_moving_mode == bbeam_dir * 3 && !key)
                             {
-                                cmd_beam.cmb_auto_moving_mode = 0;
+                                cmd_beam.cmb_state->auto_moving_mode = 0;
                             }
                         }
 
                         if (m_command_inertia)
                             v = m_command_inertia->calcCmdKeyDelay(v, i, dt);
 
-                        if (bbeam_dir * cmd_beam.cmb_auto_moving_mode > 0)
+                        if (bbeam_dir * cmd_beam.cmb_state->auto_moving_mode > 0)
                             v = 1;
 
                         if (cmd_beam.cmb_needs_engine && ((ar_engine && !ar_engine->IsRunning()) || !ar_engine_hydraulics_ready))
@@ -1069,10 +1069,10 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
                             work += fabs(ar_beams[bbeam].stress) * dl * cmd_beam.cmb_engine_coupling;
                         }
                     }
-                    else if ((cmd_beam.cmb_is_1press || cmd_beam.cmb_is_1press_center) && bbeam_dir * cmd_beam.cmb_auto_moving_mode > 0)
+                    else if ((cmd_beam.cmb_is_1press || cmd_beam.cmb_is_1press_center) && bbeam_dir * cmd_beam.cmb_state->auto_moving_mode > 0)
                     {
                         // beyond length
-                        cmd_beam.cmb_auto_moving_mode = 0;
+                        cmd_beam.cmb_state->auto_moving_mode = 0;
                     }
                 }
             }

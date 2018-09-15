@@ -3325,6 +3325,7 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
     cmd_beam.cmb_plays_sound = def.plays_sound;
     cmd_beam.cmb_engine_coupling = def.affect_engine;
     cmd_beam.cmb_center_length = center_length;
+    cmd_beam.cmb_state = std::shared_ptr<commandbeam_state_t>(new commandbeam_state_t);
     contract_command->beams.push_back(cmd_beam);
     if (contract_command->description.empty())
     {

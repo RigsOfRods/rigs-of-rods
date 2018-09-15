@@ -290,27 +290,35 @@ struct wing_t
     Ogre::SceneNode *cnode;
 };
 
+struct commandbeam_state_t
+{
+    commandbeam_state_t() { memset(this, 0, sizeof(commandbeam_state_t)); }
+
+    int8_t   auto_moving_mode;      //!< State
+
+    // Bit flags
+    bool     pressed_center_mode:1; //!< State
+    bool     auto_move_lock:1;      //!< State
+};
+
 struct commandbeam_t
 {
-    commandbeam_t() { memset(this, 0, sizeof(commandbeam_t)); }
-
     uint16_t cmb_beam_index;            //!< Index to Actor::ar_beams array
     float    cmb_engine_coupling;       //!< Attr from truckfile
     float    cmb_center_length;         //!< Attr computed at spawn
     float    cmb_speed;                 //!< Attr; Rate of contraction/extension
     float    cmb_boundary_length;       //!< Attr; Maximum/minimum length proportional to orig. len.
-    int8_t   cmb_auto_moving_mode;      //!< State
 
     // Bit flags
     bool     cmb_is_contraction:1;      //!< Attribute defined at spawn
-    bool     cmb_pressed_center_mode:1; //!< State
-    bool     cmb_auto_move_lock:1;      //!< State
     bool     cmb_is_force_restricted:1; //!< Attribute defined in truckfile
     bool     cmb_needs_engine:1;        //!< Attribute defined in truckfile
     bool     cmb_is_autocentering:1;    //!< Attribute defined in truckfile
     bool     cmb_plays_sound:1;         //!< Attribute defined in truckfile
     bool     cmb_is_1press:1;           //!< Attribute defined in truckfile
     bool     cmb_is_1press_center:1;    //!< Attribute defined in truckfile
+
+    std::shared_ptr<commandbeam_state_t> cmb_state;
 };
 
 struct command_t
