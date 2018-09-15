@@ -555,7 +555,7 @@ foreach(RES_DIR ${ROR_RESOURCES_DIRS})
   set(ZIP_NAME "${TMP_RES_DIR}/${RES_DIR}.zip")
   add_custom_command(
     OUTPUT ${ZIP_NAME}
-    COMMAND ${CMAKE_COMMAND} -E tar "cfv" ${ZIP_NAME} --format=zip --files-from="${TMP_FILE_DIR}/${RES_DIR}-filelist.txt"
+    COMMAND ${CMAKE_COMMAND} -E tar "cf" ${ZIP_NAME} --format=zip --files-from="${TMP_FILE_DIR}/${RES_DIR}-filelist.txt"
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/resources/${RES_DIR}"
   )
   list(APPEND ROR_RESOURCES_ZIPS ${ZIP_NAME})

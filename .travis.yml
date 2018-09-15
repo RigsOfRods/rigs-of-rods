@@ -10,6 +10,7 @@ addons:
   apt:
     packages:
     - pkg-config
+    - ninja-build
     - libfreetype6-dev
     - libfreeimage-dev
     - libzzip-dev
@@ -22,7 +23,7 @@ addons:
     - libxrandr-dev
     - libgtk2.0-dev
     - libwxgtk2.8-dev
-    
+
 install:
   - wget https://dl.bintray.com/conan/installers/conan-ubuntu-64_1_7_2.deb
   - sudo dpkg -i conan-ubuntu-64_1_7_2.deb
@@ -32,5 +33,5 @@ install:
   - conan install --build=missing -u .
 
 script:
-  - cmake .
-  - make -j4
+  - cmake -GNinja .
+  - ninja
