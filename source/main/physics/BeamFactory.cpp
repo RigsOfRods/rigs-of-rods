@@ -86,76 +86,12 @@ void cpuID(unsigned i, unsigned regs[4])
 #endif
 }
 
-static unsigned hardware_concurrency()
-{
-#if defined(_GNU_SOURCE)
-        return get_nprocs();
-#elif defined(__APPLE__) || defined(__FreeBSD__)
-        int count;
-        size_t size = sizeof(count);
-        return sysctlbyname("hw.ncpu", &count, &size, NULL, 0) ? 0 : count;
-#elif defined(BOOST_HAS_UNISTD_H) && defined(_SC_NPROCESSORS_ONLN)
-        int const count = sysconf(_SC_NPROCESSORS_ONLN);
-        return (count > 0) ? count : 0;
-#else
-    return std::thread::hardware_concurrency();
-#endif
-}
-
-unsigned int getNumberOfCPUCores()
-{
-#if defined(_WIN32) || defined(__x86_64__) || defined(__i386)
-    unsigned regs[4];
-
-    // Get CPU vendor
-    char vendor[12];
-    cpuID(0, regs);
-    memcpy((void *)vendor,     (void *)&regs[1], 4); // EBX
-    memcpy((void *)&vendor[4], (void *)&regs[3], 4); // EDX
-    memcpy((void *)&vendor[8], (void *)&regs[2], 4); // ECX
-    std::string cpuVendor = std::string(vendor, 12);
-
-    // Get CPU features
-    cpuID(1, regs);
-    unsigned cpuFeatures = regs[3]; // EDX
-
-    // Logical core count per CPU
-    cpuID(1, regs);
-    unsigned logical = (regs[1] >> 16) & 0xff; // EBX[23:16]
-    unsigned cores = logical;
-
-    if (cpuVendor == "GenuineIntel")
-    {
-        // Get DCP cache info
-        cpuID(4, regs);
-        cores = ((regs[0] >> 26) & 0x3f) + 1; // EAX[31:26] + 1
-    }
-    else if (cpuVendor == "AuthenticAMD")
-    {
-        // Get NC: Number of CPU cores - 1
-        cpuID(0x80000008, regs);
-        cores = ((unsigned)(regs[2] & 0xff)) + 1; // ECX[7:0] + 1
-    }
-
-    // Detect hyper-threads
-    bool hyperThreads = cpuFeatures & (1 << 28) && cores < logical;
-
-    LOG("BEAMFACTORY: " + TOSTRING(logical) + " logical CPU cores" + " found");
-    LOG("BEAMFACTORY: " + TOSTRING(cores) + " CPU cores" + " found");
-    LOG("BEAMFACTORY: Hyper-Threading " + TOSTRING(hyperThreads));
-#else
-    unsigned cores = hardware_concurrency();
-    LOG("BEAMFACTORY: " + TOSTRING(cores) + " CPU cores" + " found");
-#endif
-    return cores;
-}
-
 using namespace RoR;
 
 ActorManager::ActorManager()
     : m_dt_remainder(0.0f)
     , m_forced_awake(false)
-    , m_num_cpu_cores(0)
+    , m_thread_pool_workers(0)
     , m_physics_frames(0)
     , m_physics_steps(2000)
     , m_simulation_speed(1.0f)
@@ -164,39 +100,31 @@ ActorManager::ActorManager()
 
     if (RoR::App::app_multithread.GetActive())
     {
-        // Create thread pool
-        int numThreadsInPool = ISETTING("NumThreadsInThreadPool", 0);
-
-        if (numThreadsInPool > 1)
-        {
-            m_num_cpu_cores = numThreadsInPool;
-        }
-        else
-        {
-            int logical_cpus = hardware_concurrency();
-            int physical_cpus = getNumberOfCPUCores();
-
-            if (physical_cpus < 6 && logical_cpus > physical_cpus)
-                m_num_cpu_cores = logical_cpus - 1;
-            else
-                m_num_cpu_cores = physical_cpus - 1;
-        }
-
-        bool disableThreadPool = BSETTING("DisableThreadPool", false);
-
-        if (m_num_cpu_cores < 2)
-        {
-            disableThreadPool = true;
-            LOG("BEAMFACTORY: Not enough CPU cores to enable the thread pool");
-        }
-        else if (!disableThreadPool)
-        {
-            gEnv->threadPool = new ThreadPool(m_num_cpu_cores);
-            LOG("BEAMFACTORY: Creating " + TOSTRING(m_num_cpu_cores) + " threads");
-        }
-
         // Create worker thread (used for physics calculations)
         m_sim_thread_pool = std::unique_ptr<ThreadPool>(new ThreadPool(1));
+
+        // Create general-purpose thread pool
+        if (!BSETTING("DisableThreadPool", false))
+        {
+            int logical_cores = std::thread::hardware_concurrency();
+            LOG("BEAMFACTORY: " + TOSTRING(logical_cores) + " logical CPU cores" + " found");
+
+            int numThreadsInPool = ISETTING("NumThreadsInThreadPool", 0);
+            if (numThreadsInPool >= 2 && numThreadsInPool <= logical_cores)
+                m_thread_pool_workers = numThreadsInPool;
+            else
+                m_thread_pool_workers = logical_cores - 1;
+
+            if (m_thread_pool_workers > 1)
+            {
+                gEnv->threadPool = new ThreadPool(m_thread_pool_workers);
+                LOG("BEAMFACTORY: Creating " + TOSTRING(m_thread_pool_workers) + " worker threads");
+            }
+        }
+        if (!gEnv->threadPool)
+        {
+            LOG("BEAMFACTORY: ThreadPool disabled");
+        }
     }
 }
 
