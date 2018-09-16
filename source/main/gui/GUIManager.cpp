@@ -205,8 +205,6 @@ void GUIManager::UnfocusGui()
 
 void GUIManager::ShutdownMyGUI()
 {
-    delete m_impl;
-
     if (m_impl->mygui)
     {
         m_impl->mygui->shutdown();
@@ -220,6 +218,8 @@ void GUIManager::ShutdownMyGUI()
         delete m_impl->mygui_platform;
         m_impl->mygui_platform = nullptr;
     }
+
+    delete m_impl;
 }
 
 bool GUIManager::frameStarted(const Ogre::FrameEvent& evt)
