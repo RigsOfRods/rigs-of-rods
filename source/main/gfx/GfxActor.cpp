@@ -75,7 +75,8 @@ RoR::GfxActor::GfxActor(Actor* actor, std::string ogre_resource_group,
     m_driverseat_prop_index(driverseat_prop_idx),
     m_prop_anim_crankfactor_prev(0.f),
     m_prop_anim_shift_timer(0.f),
-    m_beaconlight_active(false)
+    m_beaconlight_active(false),
+    m_initialized(false)
 {
     // Setup particles
     RoR::GfxScene& dustman = RoR::App::GetSimController()->GetGfxScene();

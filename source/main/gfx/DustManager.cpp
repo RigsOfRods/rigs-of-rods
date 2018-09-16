@@ -292,10 +292,11 @@ void RoR::GfxScene::BufferSimulationData()
     m_live_gfx_actors.clear();
     for (GfxActor* a: m_all_gfx_actors)
     {
-        if (a->IsActorLive())
+        if (a->IsActorLive() || !a->IsActorInitialized())
         {
             a->UpdateSimDataBuffer();
             m_live_gfx_actors.push_back(a);
+            a->InitializeActor();
         }
     }
 

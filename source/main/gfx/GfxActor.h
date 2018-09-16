@@ -260,6 +260,8 @@ public:
     void                      SetRodsVisible     (bool visible);
     void                      ScaleActor         (Ogre::Vector3 relpos, float ratio);
     bool                      IsActorLive        () const; //!< Should the visuals be updated for this actor?
+    bool                      IsActorInitialized () const  { return m_initialized; } //!< Temporary TODO: Remove once the spawn routine is fixed
+    void                      InitializeActor    ()        { m_initialized = true; } //!< Temporary TODO: Remove once the spawn routine is fixed
     void                      UpdateSimDataBuffer(); //!< Copies sim. data from `Actor` to `GfxActor` for later update
     void                      SetWheelVisuals    (uint16_t index, WheelGfx wheel_gfx);
     void                      CalculateDriverPos (Ogre::Vector3& out_pos, Ogre::Quaternion& out_rot);
@@ -334,6 +336,8 @@ private:
     float                       m_prop_anim_crankfactor_prev;
     float                       m_prop_anim_shift_timer;
     int                         m_prop_anim_prev_gear;
+
+    bool                        m_initialized;
 
     SimBuffer                   m_simbuf;
 
