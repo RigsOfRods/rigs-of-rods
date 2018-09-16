@@ -593,7 +593,7 @@ IF (UNIX)
             FILES_MATCHING PATTERN "*"
     )
     INSTALL(
-            FILES ${TMP_FILE_DIR}/plugins.cfg
+            FILES ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg
             DESTINATION games/RoR
     )
 ELSEIF (WIN32)
