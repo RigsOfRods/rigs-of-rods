@@ -9,6 +9,7 @@ find_package(MyGUI REQUIRED)
 find_package(SocketW)
 find_package(AngelScript)
 find_package(CURL)
+find_package(Caelum)
 find_package(PagedGeometry)
 
 if (WIN32)
