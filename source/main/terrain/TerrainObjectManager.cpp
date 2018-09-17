@@ -53,10 +53,7 @@
 
 using namespace Ogre;
 using namespace RoR;
-
-#ifdef USE_PAGED
 using namespace Forests;
-#endif //USE_PAGED
 
 //workaround for pagedgeometry
 inline float getTerrainHeight(Real x, Real z, void* unused = 0)
@@ -80,7 +77,6 @@ TerrainObjectManager::~TerrainObjectManager()
         if (mo)
             delete mo;
     }
-#ifdef USE_PAGED
     for (std::vector<PaGeomInstance>::iterator it = m_paged_geometry.begin(); it != m_paged_geometry.end(); it++)
     {
         if (it->geom)
@@ -94,7 +90,6 @@ TerrainObjectManager::~TerrainObjectManager()
             it->loader = 0;
         }
     }
-#endif //USE_PAGED
     if (m_staticgeometry != nullptr)
     {
         gEnv->sceneManager->destroyStaticGeometry("bakeSG");
@@ -222,7 +217,6 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
             n->attachObject(mReferenceObject);
             n->setVisible(true);
         }
-#ifdef USE_PAGED
         //ugly stuff to parse trees :)
         if (!strncmp("trees", line, 5))
         {
@@ -440,7 +434,6 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
 
             continue;
         }
-#endif //USE_PAGED
 
         { // ugly stuff to parse procedural roads
             if (!strncmp("begin_procedural_roads", line, 22))
@@ -1379,15 +1372,12 @@ void TerrainObjectManager::LoadPredefinedActors()
 
 bool TerrainObjectManager::UpdateTerrainObjects(float dt)
 {
-#ifdef USE_PAGED
     // paged geometry
     for (auto it : m_paged_geometry)
     {
         if (it.geom)
             it.geom->update();
     }
-#endif //USE_PAGED
-
     this->UpdateAnimatedObjects(dt);
 
     return true;

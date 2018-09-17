@@ -22,15 +22,12 @@
 #pragma once
 
 #include "RoRPrerequisites.h"
-
-#ifdef USE_PAGED
 #include "BatchPage.h"
 #include "GrassLoader.h"
 #include "ImpostorPage.h"
 #include "PagedGeometry.h"
 #include "TreeLoader2D.h"
 #include "TreeLoader3D.h"
-#endif //USE_PAGED
 
 class TerrainObjectManager : public ZeroedMemoryAllocator
 {
@@ -97,13 +94,11 @@ private:
         std::vector<int> collTris;
     };
 
-#ifdef USE_PAGED
     struct PaGeomInstance
     {
         Forests::PagedGeometry* geom;
         void* loader;
     };
-#endif //USE_PAGED
 
     bool           UpdateAnimatedObjects(float dt);
     std::vector<localizer_t> localizers;
@@ -121,9 +116,7 @@ private:
     bool                      m_background_loading;
     bool                      m_use_rtshadersystem;
 
-#ifdef USE_PAGED
     std::vector<PaGeomInstance> m_paged_geometry;
     Forests::TreeLoader2D*      m_tree_loader;
-#endif //USE_PAGED
 };
 

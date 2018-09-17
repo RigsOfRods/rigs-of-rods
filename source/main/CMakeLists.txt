@@ -125,6 +125,20 @@ set(SOURCE_FILES
         gfx/skyx/VClouds/Lightning.{h,cpp}
         gfx/skyx/VClouds/LightningManager.{h,cpp}
         gfx/skyx/VClouds/VClouds.{h,cpp}
+        gfx/pagedgeometry/BatchedGeometry.{h,cpp}
+        gfx/pagedgeometry/BatchPage.{h,cpp}
+        gfx/pagedgeometry/GrassLoader.{h,cpp}
+        gfx/pagedgeometry/ImpostorPage.{h,cpp}
+        gfx/pagedgeometry/MersenneTwister.h
+        gfx/pagedgeometry/PagedGeometryConfig.h
+        gfx/pagedgeometry/PagedGeometry.{h,cpp}
+        gfx/pagedgeometry/PropertyMaps.{h,cpp}
+        gfx/pagedgeometry/RandomTable.h
+        gfx/pagedgeometry/StaticBillboardSet.{h,cpp}
+        gfx/pagedgeometry/TreeLoader2D.{h,cpp}
+        gfx/pagedgeometry/TreeLoader3D.{h,cpp}
+        gfx/pagedgeometry/WindBatchedGeometry.{h,cpp}
+        gfx/pagedgeometry/WindBatchPage.{h,cpp}
         gui/Dashboard.{h,cpp}
         gui/DashBoardManager.{h,cpp}
         gui/GUIInputManager.{h,cpp}
@@ -333,6 +347,7 @@ target_include_directories(${BINNAME} PRIVATE
         gfx/camera
         gfx/dof
         gfx/hydrax
+        gfx/pagedgeometry
         gfx/particle
         gfx/procedural
         gfx/skyx
@@ -517,15 +532,6 @@ endif ()
 # --- rapidjson ---
 if (CONAN_RAPIDJSON_ROOT)
     target_include_directories(${BINNAME} PRIVATE ${CONAN_INCLUDE_DIRS_RAPIDJSON})
-endif ()
-
-
-# --- PagedGeometry -- Ogre addon ---
-if (TARGET PagedGeometry::PagedGeometry)
-    target_link_libraries(${BINNAME} PRIVATE PagedGeometry::PagedGeometry)
-    target_compile_definitions(${BINNAME} PRIVATE USE_PAGED)
-else ()
-    message(WARNING "Building ${BINNAME} without PagedGeometry. Some functionality may be missing.")
 endif ()
 
 set_target_properties(${BINNAME} PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
