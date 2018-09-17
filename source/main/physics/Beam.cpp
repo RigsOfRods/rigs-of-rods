@@ -2571,6 +2571,15 @@ void Actor::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, bool tri
     ar_beams[i].shock->lastpos = difftoBeamL;
 }
 
+void Actor::setAirbrakeIntensity(float intensity)
+{
+    ar_airbrake_intensity = intensity;
+    for (int i = 0; i < ar_num_airbrakes; i++)
+    {
+        ar_airbrakes[i]->updatePosition((float)ar_airbrake_intensity / 5.0);
+    }
+}
+
 // call this once per frame in order to update the skidmarks
 void Actor::updateSkidmarks()
 {

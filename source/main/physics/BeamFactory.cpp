@@ -1147,27 +1147,6 @@ Actor* ActorManager::FetchRescueVehicle()
     return nullptr;
 }
 
-void ActorManager::UpdateAirbrakeInput(float dt)
-{
-    dt *= m_simulation_speed;
-
-    for (auto actor : m_actors)
-    {
-        if (actor->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
-        {
-            // The following update was originally hidden in `Actor::updateProps()` invoked from `Actor::updateVisual()`
-            // I added this whole function just to update it separately
-            // that's definitely less elegant-looking but slightly more correct compared to previous state
-            // TODO: try putting it to `calcForcesEulerCOmpute()` where it really belongs.
-            // ~ only_a_ptr, 05/2018
-            for (int i = 0; i < actor->ar_num_airbrakes; i++)
-            {
-                actor->ar_airbrakes[i]->updatePosition((float)actor->ar_airbrake_intensity / 5.0);
-            }
-        }
-    }
-}
-
 void ActorManager::UpdateActorVisuals(float dt,  Actor* player_actor)
 {
     dt *= m_simulation_speed;

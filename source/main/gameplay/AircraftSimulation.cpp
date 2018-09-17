@@ -163,28 +163,28 @@ void AircraftSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_last_
     {
         if (vehicle->ar_airbrake_intensity > 0)
         {
-            vehicle->ar_airbrake_intensity = 0;
+            vehicle->setAirbrakeIntensity(0);
         }
     }
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_AIRBRAKES_FULL))
     {
         if (vehicle->ar_airbrake_intensity < 5)
         {
-            vehicle->ar_airbrake_intensity = 5;
+            vehicle->setAirbrakeIntensity(5);
         }
     }
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_AIRBRAKES_LESS))
     {
         if (vehicle->ar_airbrake_intensity > 0)
         {
-            vehicle->ar_airbrake_intensity = (vehicle->ar_airbrake_intensity) - 1;
+            vehicle->setAirbrakeIntensity((vehicle->ar_airbrake_intensity) - 1);
         }
     }
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_AIRBRAKES_MORE))
     {
         if (vehicle->ar_airbrake_intensity < 5)
         {
-            vehicle->ar_airbrake_intensity = (vehicle->ar_airbrake_intensity) + 1;
+            vehicle->setAirbrakeIntensity((vehicle->ar_airbrake_intensity) + 1);
         }
     }
 

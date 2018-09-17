@@ -157,6 +157,7 @@ public:
     void              setCustomLightVisible(int number, bool visible);
     bool              getBeaconMode();
     void              setBlinkType(blinktype blink);    
+    void              setAirbrakeIntensity(float intensity);
     float             getHeadingDirectionAngle();
     bool              getCustomParticleMode();
     int               getLowestNode();
