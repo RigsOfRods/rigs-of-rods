@@ -513,6 +513,14 @@ else ()
     message(WARNING "Building ${BINNAME} without cURL. Some functionality may be missing.")
 endif ()
 
+# --- Caelum -- Ogre addon for realistic sky rendering ---
+if (TARGET Caelum::Caelum)
+    set(CAELUM_PLUGIN "Plugin=../libCaelum.so")
+    target_link_libraries(${BINNAME} PRIVATE Caelum::Caelum)
+    target_compile_definitions(${BINNAME} PRIVATE USE_CAELUM)
+else ()
+    message(WARNING "Building ${BINNAME} without Caelum. Some functionality may be missing.")
+endif ()
 
 # --- rapidjson ---
 if (CONAN_RAPIDJSON_ROOT)
@@ -576,6 +584,12 @@ add_custom_target(
 )
 
 IF (UNIX)
+    configure_file(plugins.cfg.in ${TMP_FILE_DIR}/plugins.cfg)
+    add_custom_command(
+            TARGET ${BINNAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy ${TMP_FILE_DIR}/plugins.cfg $<TARGET_FILE_DIR:${BINNAME}>/
+    )
+
     INSTALL(
             TARGETS ${BINNAME}
             RUNTIME DESTINATION games/RoR
