@@ -212,7 +212,7 @@ public:
     float             GetFFbHydroForces() const         { return m_force_sensors.out_hydros_forces; }
     bool              isPreloadedWithTerrain() const    { return m_preloaded_with_terrain; };
     VehicleAI*        getVehicleAI()                    { return ar_vehicle_ai; }
-    bool              IsNodeIdValid(int id) const       { return (id > 0) && (id < ar_num_nodes); }
+    bool              IsNodeIdValid(int id) const       { return (id >= 0) && (id < ar_num_nodes); }
     float             getWheelSpeed() const             { return ar_wheel_speed; }
     int               GetNumNodes() const               { return ar_num_nodes; }
     Ogre::Vector3     getVelocity() const               { return m_avg_node_velocity; }; //!< average actor velocity, calculated using the actor positions of the last two frames
