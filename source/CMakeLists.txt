@@ -10,6 +10,7 @@ find_package(SocketW)
 find_package(AngelScript)
 find_package(CURL)
 find_package(PagedGeometry)
+find_package(Caelum)
 
 if (WIN32)
     find_package(MoFileReader REQUIRED)

@@ -520,6 +520,14 @@ if (CONAN_RAPIDJSON_ROOT)
 endif ()
 
 
+# --- Caelum -- Ogre addon for realistic sky rendering ---
+if (TARGET Caelum::Caelum)
+    set(CAELUM_PLUGIN "Plugin=../libCaelum.so")
+    target_link_libraries(${BINNAME} PRIVATE Caelum::Caelum)
+    target_compile_definitions(${BINNAME} PRIVATE USE_CAELUM)
+endif ()
+
+
 # --- PagedGeometry -- Ogre addon ---
 if (TARGET PagedGeometry::PagedGeometry)
     target_link_libraries(${BINNAME} PRIVATE PagedGeometry::PagedGeometry)
@@ -540,7 +548,12 @@ cotire(${BINNAME})
 if (WIN32)
   set(CFG_OGRE_RENDERSYSTEM_D3D9 "Plugin=RenderSystem_Direct3D9")
 endif ()
-configure_file(plugins.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg)
+
+if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
+  configure_file(plugins.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg)
+else()
+  configure_file(plugins-WO-conan.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg)
+endif()
 
 get_sub_dirs(ROR_RESOURCES_DIRS "${CMAKE_SOURCE_DIR}/resources")
 set(ROR_RESOURCES_ZIPS)
