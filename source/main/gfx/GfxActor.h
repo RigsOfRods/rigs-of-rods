@@ -129,15 +129,18 @@ public:
         Ogre::Vector3 AbsPosition;
     };
 
-    /// Visuals of softbody beam (`beam_t` struct)
+    /// Visuals of softbody beam (`beam_t` struct); Partially updated along with SimBuffer
     struct Rod
     {
         // We don't keep pointer to the Ogre::Entity - we rely on the SceneNode keeping it attached all the time.
         Ogre::SceneNode* rod_scenenode;
         uint16_t         rod_beam_index;  //!< Index of the associated `beam_t` instance; assumes Actor has at most 65536 beams (RoR doesn't have a soft limit now, but until v0.4.8 it was 5000 beams).
         uint16_t         rod_diameter_mm; //!< Diameter in millimeters
-        uint16_t         rod_node1;       //!< Node index - assumes the Actor has at most 65536 nodes (RoR doesn't have a soft limit now, but until v0.4.8 it was 1000 nodes).
-        uint16_t         rod_node2;       //!< Node index - assumes the Actor has at most 65536 nodes (RoR doesn't have a soft limit now, but until v0.4.8 it was 1000 nodes).
+
+        // Assumption: Actor has at most 65536 nodes (RoR doesn't have a soft limit right now, but until v0.4.8 it was 1000 nodes).
+        uint16_t         rod_node1;         //!< Node index - may change during simulation!
+        uint16_t         rod_node2;         //!< Node index - may change during simulation!
+        bool             rod_is_visible:1;
     };
 
     struct WheelGfx

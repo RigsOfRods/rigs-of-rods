@@ -915,11 +915,12 @@ void RoR::GfxActor::AddRod(int beam_index,  int node1_index, int node2_index, co
 
 void RoR::GfxActor::UpdateRods()
 {
-    // TODO: Apply visibility updates from a queue (to be implemented!)
-    // fulltext-label: QUEUE_VIS_CHANGE
-
     for (Rod& rod: m_rods)
     {
+        rod.rod_scenenode->setVisible(rod.rod_is_visible);
+        if (!rod.rod_is_visible)
+            continue;
+
         Ogre::Vector3 pos1 = m_actor->ar_nodes[rod.rod_node1].AbsPosition;
         Ogre::Vector3 pos2 = m_actor->ar_nodes[rod.rod_node2].AbsPosition;
 
@@ -1070,6 +1071,15 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     for (int i = 0; i < num_nodes; ++i)
     {
         m_simbuf.simbuf_nodes.get()[i].AbsPosition = m_actor->ar_nodes[i].AbsPosition;
+    }
+
+    // beams
+    for (Rod& rod: m_rods)
+    {
+        const beam_t& beam = m_actor->ar_beams[rod.rod_beam_index];
+        rod.rod_node1 = static_cast<uint16_t>(beam.p1->pos);
+        rod.rod_node2 = static_cast<uint16_t>(beam.p2->pos);
+        rod.rod_is_visible = (beam.bm_disabled || beam.bm_broken);
     }
 
     // airbrakes

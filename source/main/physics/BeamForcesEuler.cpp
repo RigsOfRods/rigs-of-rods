@@ -1842,7 +1842,6 @@ void Actor::calcHooks()
                             else
                             {
                                 //force exceeded reset the hook node
-                                // TODO: request hiding of the visuals -- search: QUEUE_VIS_CHANGE
                                 it->hk_locked = UNLOCKED;
                                 it->hk_lock_node = 0;
                                 it->hk_locked_actor = 0;
