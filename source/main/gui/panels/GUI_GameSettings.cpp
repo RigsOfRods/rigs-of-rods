@@ -62,7 +62,7 @@ void RoR::GUI::GameSettings::Draw()
         int lang_selection = 0;
         ImGui::Combo("Language", &lang_selection, "English\0\0"); // Dummy; TODO: List available languages
 
-        int sshot_select = (std::strcmp(App::app_screenshot_format.GetActive(),"jpg") == 0) ? 1 : 0; // Hardcoded; TODO: list available formats.
+        int sshot_select =  (App::app_screenshot_format.GetActive() == "jpg") ? 1 : 0; // Hardcoded; TODO: list available formats.
         if (ImGui::Combo("Screenshot format", &sshot_select, "png\0jpg\0\0"))
         {
             App::app_screenshot_format.SetActive((sshot_select == 1) ? "jpg" : "png");

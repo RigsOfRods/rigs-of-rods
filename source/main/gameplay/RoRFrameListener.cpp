@@ -2178,13 +2178,13 @@ bool SimController::SetupGameplayLoop()
     // Loading map
     // ============================================================================
 
-    if (!App::diag_preset_terrain.IsActiveEmpty())
+    if (!App::diag_preset_terrain.GetActive().empty())
     {
         App::sim_terrain_name.SetPending(App::diag_preset_terrain.GetActive());
         App::diag_preset_terrain.SetActive("");
     }
 
-    if (App::sim_terrain_name.IsPendingEmpty())
+    if (App::sim_terrain_name.GetPending().empty())
     {
         CacheEntry* selected_map = RoR::App::GetGuiManager()->GetMainSelector()->GetSelectedEntry();
         if (selected_map != nullptr)
@@ -2216,10 +2216,10 @@ bool SimController::SetupGameplayLoop()
     // Loading vehicle
     // ========================================================================
 
-    if (!App::diag_preset_vehicle.IsActiveEmpty())
+    if (!App::diag_preset_vehicle.GetActive().empty())
     {
         RoR::LogFormat("[RoR|Diag] Preselected Truck: %s", App::diag_preset_vehicle.GetActive());
-        if (!App::diag_preset_veh_config.IsActiveEmpty())
+        if (!App::diag_preset_veh_config.GetActive().empty())
         {
             RoR::LogFormat("[RoR|Diag] Preselected Truck Config: %s", App::diag_preset_veh_config.GetActive());
         }

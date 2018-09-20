@@ -141,7 +141,7 @@ bool OgreSubsystem::StartOgre(Ogre::String const & hwnd, Ogre::String const & ma
     // load plugins manually
     Str<300> plugins_path;
     plugins_path << RoR::App::sys_process_dir.GetActive() << RoR::PATH_SLASH << "plugins.cfg";
-    this->LoadOgrePlugins(std::string(plugins_path));
+    this->LoadOgrePlugins(plugins_path.ToCStr());
 
     // configure RoR
     this->Configure();

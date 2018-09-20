@@ -92,7 +92,7 @@ void CLASS::Hide()
 void CLASS::eventMouseButtonClickSelectTerrainButton(MyGUI::WidgetPtr _sender)
 {
     this->Hide();
-    if (App::diag_preset_terrain.IsActiveEmpty())
+    if (App::diag_preset_terrain.GetActive().empty())
     {
         App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
     }

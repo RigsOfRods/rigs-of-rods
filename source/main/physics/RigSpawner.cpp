@@ -118,7 +118,7 @@ void ActorSpawner::Setup(
     {
         App::diag_extra_resource_dir.ApplyPending();
     }
-    if (! App::diag_extra_resource_dir.IsActiveEmpty())
+    if (! App::diag_extra_resource_dir.GetActive().empty())
     {
         Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
             App::diag_extra_resource_dir.GetActive(), "FileSystem", "customInclude");

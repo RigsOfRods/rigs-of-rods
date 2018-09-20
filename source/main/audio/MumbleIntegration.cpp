@@ -168,9 +168,9 @@ void MumbleIntegration::update(Ogre::Vector3 cameraPos, Ogre::Vector3 cameraDir,
     // so we should take that into account as well
 
     int teamID = 0; // RoR currently doesn't have any kind of team-based gameplay
+    const char* host = RoR::App::mp_server_host.GetActive().c_str();
     int port = RoR::App::mp_server_port.GetActive();
-    port = (port != 0) ? port : 1337;
-    sprintf((char *)lm->context, "%s:%s|%d", RoR::App::mp_server_host.GetActive(), TOSTRING(port).c_str(), teamID);
+    sprintf((char *)lm->context, "%s:%d|%d", host, port, teamID);
     lm->context_len = (int)strnlen((char *)lm->context, 256);
 }
 

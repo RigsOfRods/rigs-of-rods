@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
         if (FolderExists(local_userdir))
         {
             // It's a portable installation
-            App::sys_user_dir.SetActive(local_userdir);
+            App::sys_user_dir.SetActive(local_userdir.ToCStr());
         }
         else
         {
@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
         {
             CreateFolder(logs_dir.ToCStr());
         }
-        App::sys_logs_dir.SetActive(logs_dir);
+        App::sys_logs_dir.SetActive(logs_dir.ToCStr());
 
         auto ogre_log_manager = OGRE_NEW Ogre::LogManager();
         Str<300> rorlog_path;
@@ -296,7 +296,7 @@ int main(int argc, char *argv[])
         AppState prev_app_state = App::app_state.GetActive();
         App::app_state.SetPending(AppState::MAIN_MENU);
 
-        if (! App::diag_preset_terrain.IsActiveEmpty())
+        if (! App::diag_preset_terrain.GetActive().empty())
         {
             App::app_state.SetPending(AppState::SIMULATION);
         }
@@ -345,7 +345,7 @@ int main(int argc, char *argv[])
                 if (App::mp_state.GetPending() == MpState::CONNECTED || BSETTING("SkipMainMenu", false))
                 {
                     // Multiplayer started from configurator / MainMenu disabled -> go directly to map selector (traditional behavior)
-                    if (App::diag_preset_terrain.IsActiveEmpty())
+                    if (App::diag_preset_terrain.GetActive().empty())
                     {
                         App::GetGuiManager()->SetVisible_GameMainMenu(false);
                         App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
@@ -381,7 +381,7 @@ int main(int argc, char *argv[])
                 App::app_state.ApplyPending();
                 menu_wallpaper_widget->setVisible(true);
 
-                if (App::diag_preset_terrain.IsActiveEmpty())
+                if (App::diag_preset_terrain.GetActive().empty())
                 {
                     App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
                 }

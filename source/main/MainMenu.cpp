@@ -230,7 +230,7 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
             else
             {
                 // Connected -> go directly to map selector
-                if (App::diag_preset_terrain.IsActiveEmpty())
+                if (App::diag_preset_terrain.GetActive().empty())
                 {
                     gui->GetMainSelector()->Reset();
                     gui->GetMainSelector()->Show(LT_Terrain);

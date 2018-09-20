@@ -69,7 +69,7 @@ void RoR::DrawImGuiSpinner(float& counter, const ImVec2 size, const float spacin
     draw_list->AddTriangleFilled(ImVec2(mid_x-spacing, mid_y),   ImVec2(left, bottom - spacing),  ImVec2(left, top + spacing),      COLORS[(color_start+1)%4]);
 }
 
-void RoR::DrawGCheckbox(GVarPod_A<bool>& gvar, const char* label)
+void RoR::DrawGCheckbox(GVar_A<bool>& gvar, const char* label)
 {
     bool val = gvar.GetActive();
     if (ImGui::Checkbox(label, &val))
@@ -78,7 +78,7 @@ void RoR::DrawGCheckbox(GVarPod_A<bool>& gvar, const char* label)
     }
 }
 
-void RoR::DrawGCheckbox(GVarPod_APS<bool>& gvar, const char* label)
+void RoR::DrawGCheckbox(GVar_APS<bool>& gvar, const char* label)
 {
     bool val = gvar.GetStored();
     if (ImGui::Checkbox(label, &val))
@@ -88,7 +88,7 @@ void RoR::DrawGCheckbox(GVarPod_APS<bool>& gvar, const char* label)
     }
 }
 
-void RoR::DrawGIntCheck(GVarPod_A<int>& gvar, const char* label)
+void RoR::DrawGIntCheck(GVar_A<int>& gvar, const char* label)
 {
     bool val = (gvar.GetActive() != 0);
     if (ImGui::Checkbox(label, &val))
@@ -97,7 +97,7 @@ void RoR::DrawGIntCheck(GVarPod_A<int>& gvar, const char* label)
     }
 }
 
-void RoR::DrawGIntBox(GVarPod_A<int>& gvar, const char* label)
+void RoR::DrawGIntBox(GVar_A<int>& gvar, const char* label)
 {
     int val = gvar.GetActive();
     if (ImGui::InputInt(label, &val, 1, 100, ImGuiInputTextFlags_EnterReturnsTrue))
@@ -106,7 +106,7 @@ void RoR::DrawGIntBox(GVarPod_A<int>& gvar, const char* label)
     }
 }
 
-void RoR::DrawGFloatBox(GVarPod_A<float>& gvar, const char* label)
+void RoR::DrawGFloatBox(GVar_A<float>& gvar, const char* label)
 {
     float fval = gvar.GetActive();
     if (ImGui::InputFloat(label, &fval, 0.f, 0.f, -1, ImGuiInputTextFlags_EnterReturnsTrue))
@@ -115,7 +115,7 @@ void RoR::DrawGFloatBox(GVarPod_A<float>& gvar, const char* label)
     }
 }
 
-void RoR::DrawGFloatBox(GVarPod_APS<float>& gvar, const char* label)
+void RoR::DrawGFloatBox(GVar_APS<float>& gvar, const char* label)
 {
     float fval = gvar.GetStored();
     if (ImGui::InputFloat(label, &fval, 0.f, 0.f, -1, ImGuiInputTextFlags_EnterReturnsTrue))

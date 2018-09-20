@@ -29,24 +29,24 @@ void DrawImGuiSpinner(
     float& counter, const ImVec2 size = ImVec2(16.f, 16.f),
     const float spacing = 2.f, const float step_sec = 0.15f);
 
-void DrawGCheckbox(GVarPod_A<bool>& gvar, const char* label);
+void DrawGCheckbox(GVar_A<bool>& gvar, const char* label);
 
-void DrawGCheckbox(GVarPod_APS<bool>& gvar, const char* label);
+void DrawGCheckbox(GVar_APS<bool>& gvar, const char* label);
 
-void DrawGIntCheck(GVarPod_A<int>& gvar, const char* label);
+void DrawGIntCheck(GVar_A<int>& gvar, const char* label);
 
-void DrawGIntBox(GVarPod_A<int>& gvar, const char* label);
+void DrawGIntBox(GVar_A<int>& gvar, const char* label);
 
-void DrawGFloatBox(GVarPod_A<float>& gvar, const char* label);
+void DrawGFloatBox(GVar_A<float>& gvar, const char* label);
 
-void DrawGFloatBox(GVarPod_APS<float>& gvar, const char* label);
+void DrawGFloatBox(GVar_APS<float>& gvar, const char* label);
 
-template <size_t Len>
-void DrawGTextEdit(GVarStr_A<Len>& gvar, const char* label, Str<Len>& buf)
+template <typename GVar_T, size_t Len>
+void DrawGTextEdit(GVar_T& gvar, const char* label, Str<Len>& buf)
 {
     if (ImGui::InputText(label, buf.GetBuffer(), buf.GetCapacity(), ImGuiInputTextFlags_EnterReturnsTrue))
     {
-        gvar.SetActive(buf.GetBuffer());
+        gvar.SetActive(buf.ToCStr());
     }
     if (ImGui::IsItemActive())
     {
@@ -54,20 +54,20 @@ void DrawGTextEdit(GVarStr_A<Len>& gvar, const char* label, Str<Len>& buf)
     }
     else
     {
-        buf.Assign(gvar.GetActive());
+        buf.Assign(gvar.GetActive().c_str());
     }
 }
 
-template <size_t Len>
-void DrawGTextEdit(GVarStr_APS<Len>& gvar, const char* label, Str<Len>& buf, bool update_active)
+template <typename GVar_T, size_t Len>
+void DrawGTextEdit(GVar_T& gvar, const char* label, Str<Len>& buf, bool update_active)
 {
     if (ImGui::InputText(label, buf.GetBuffer(), buf.GetCapacity(), ImGuiInputTextFlags_EnterReturnsTrue))
     {
         if (update_active)
         {
-            gvar.SetActive(buf.GetBuffer());
+            gvar.SetActive(buf.ToCStr());
         }
-        gvar.SetStored(buf.GetBuffer());
+        gvar.SetStored(buf.ToCStr());
     }
     if (ImGui::IsItemActive())
     {
@@ -75,17 +75,17 @@ void DrawGTextEdit(GVarStr_APS<Len>& gvar, const char* label, Str<Len>& buf, boo
     }
     else
     {
-        buf.Assign(gvar.GetStored());
+        buf.Assign(gvar.GetStored().c_str());
     }
 }
 
-template <typename Enum>
-void DrawGCombo(GVarEnum_A<Enum>& gvar, const char* label, const char* values)
+template <typename GVar_T>
+void DrawGCombo(GVar_T& gvar, const char* label, const char* values)
 {
     int selection = static_cast<int>(gvar.GetActive());
     if (ImGui::Combo(label, &selection, values))
     {
-        gvar.SetActive(static_cast<Enum>(selection));
+        gvar.SetActive(static_cast<GVar_T::Value_t>(selection));
     }
 }
 

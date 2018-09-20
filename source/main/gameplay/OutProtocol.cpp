@@ -86,7 +86,7 @@ void OutProtocol::startup()
     }
 
     // get the IP of the remote side, this function is compatible with windows 2000
-    hostent* remoteHost = gethostbyname(App::io_outgauge_ip.GetActive());
+    hostent* remoteHost = gethostbyname(App::io_outgauge_ip.GetActive().c_str());
     char* ip = inet_ntoa(*(struct in_addr *)*remoteHost->h_addr_list);
 
     // init socket data

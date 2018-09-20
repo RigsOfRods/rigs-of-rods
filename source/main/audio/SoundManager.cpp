@@ -65,14 +65,14 @@ SoundManager::SoundManager() :
     , sound_context(NULL)
     , audio_device(NULL)
 {
-    if (App::audio_device_name.IsActiveEmpty())
+    if (App::audio_device_name.GetActive().empty())
     {
         LOGSTREAM << "No audio device configured, opening default.";
         audio_device = alcOpenDevice(nullptr);
     }
     else
     {
-        audio_device = alcOpenDevice(App::audio_device_name.GetActive());
+        audio_device = alcOpenDevice(App::audio_device_name.GetActive().c_str());
         if (!audio_device)
         {
             LOGSTREAM << "Failed to open configured audio device \"" << App::audio_device_name.GetActive() << "\", opening default.";

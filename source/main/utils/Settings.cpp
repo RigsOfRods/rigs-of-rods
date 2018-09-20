@@ -474,8 +474,8 @@ inline bool CheckStr(GVarStr_T& gvar, std::string const & key, std::string const
     return false;
 }
 
-template <typename GVarStr_T>
-inline bool CheckStrAS(GVarStr_T& gvar, std::string const & key, std::string const & value)
+template <typename GVar_T>
+inline bool CheckStrAS(GVar_T& gvar, std::string const & key, std::string const & value)
 {
     if (key == gvar.conf_name)
     {
@@ -486,7 +486,7 @@ inline bool CheckStrAS(GVarStr_T& gvar, std::string const & key, std::string con
     return false;
 }
 
-inline bool CheckInt(GVarPod_A<int>& gvar, std::string const & key, std::string const & value)
+inline bool CheckInt(GVar_A<int>& gvar, std::string const & key, std::string const & value)
 {
     if (key == gvar.conf_name)
     {
@@ -496,7 +496,7 @@ inline bool CheckInt(GVarPod_A<int>& gvar, std::string const & key, std::string 
     return false;
 }
 
-inline bool CheckInt(GVarPod_APS<int>& gvar, std::string const & key, std::string const & value)
+inline bool CheckInt(GVar_APS<int>& gvar, std::string const & key, std::string const & value)
 {
     if (key == gvar.conf_name)
     {
@@ -508,7 +508,7 @@ inline bool CheckInt(GVarPod_APS<int>& gvar, std::string const & key, std::strin
     return false;
 }
 
-inline bool CheckBool(GVarPod_A<bool>& gvar, std::string const & key, std::string const & value)
+inline bool CheckBool(GVar_A<bool>& gvar, std::string const & key, std::string const & value)
 {
     if (key == gvar.conf_name)
     {
@@ -518,7 +518,7 @@ inline bool CheckBool(GVarPod_A<bool>& gvar, std::string const & key, std::strin
     return false;
 }
 
-inline bool CheckBool(GVarPod_APS<bool>& gvar, std::string const & key, std::string const & value)
+inline bool CheckBool(GVar_APS<bool>& gvar, std::string const & key, std::string const & value)
 {
     if (key == gvar.conf_name)
     {
@@ -530,7 +530,8 @@ inline bool CheckBool(GVarPod_APS<bool>& gvar, std::string const & key, std::str
     return false;
 }
 
-inline bool CheckB2I(GVarPod_A<int>& gvar, std::string const & key, std::string const & value) // bool to int
+template <typename GVar_T>
+inline bool CheckB2I(GVar_T& gvar, std::string const & key, std::string const & value) // bool to int
 {
     if (key == gvar.conf_name)
     {
@@ -540,7 +541,7 @@ inline bool CheckB2I(GVarPod_A<int>& gvar, std::string const & key, std::string 
     return false;
 }
 
-inline bool CheckFloat(GVarPod_A<float>& gvar, std::string const & key, std::string const & value)
+inline bool CheckFloat(GVar_A<float>& gvar, std::string const & key, std::string const & value)
 {
     if (key == gvar.conf_name)
     {
@@ -550,7 +551,7 @@ inline bool CheckFloat(GVarPod_A<float>& gvar, std::string const & key, std::str
     return false;
 }
 
-inline bool CheckFloat(GVarPod_APS<float>& gvar, std::string const & key, std::string const & value)
+inline bool CheckFloat(GVar_APS<float>& gvar, std::string const & key, std::string const & value)
 {
     if (key == gvar.conf_name)
     {
@@ -571,7 +572,8 @@ inline bool CheckSpeedoImperial(std::string const & key, std::string const & val
     }
     return CheckBool(App::gfx_speedo_imperial, key, value);
 }
-inline bool CheckFOV(GVarPod_APS<float>& gvar, std::string const & key, std::string const & value)
+
+inline bool CheckFOV(GVar_APS<float>& gvar, std::string const & key, std::string const & value)
 {
     if (key == gvar.conf_name)
     {
@@ -819,20 +821,29 @@ inline const char* GfxSkyToStr(GfxSkyMode v)
     }
 }
 
-template <typename GVarStr_T>
-inline void WriteStr(std::ofstream& f, GVarStr_T& gvar)
+inline void WriteStr(std::ofstream& f, GVar_A<std::string>& gvar)
+{
+    f << gvar.conf_name << "=" << gvar.GetActive() << std::endl;
+}
+
+inline void WriteStr(std::ofstream& f, GVar_AP<std::string>& gvar)
+{
+    f << gvar.conf_name << "=" << gvar.GetActive() << std::endl;
+}
+
+inline void WriteStr(std::ofstream& f, GVar_APS<std::string>& gvar)
 {
     f << gvar.conf_name << "=" << gvar.GetStored() << std::endl;
 }
 
 template <typename T>
-inline void WritePod(std::ofstream& f, GVarPod_A<T>& gvar)
+inline void WritePod(std::ofstream& f, GVar_A<T>& gvar)
 {
     f << gvar.conf_name << "=" << gvar.GetActive() << std::endl;
 }
 
 template <typename T>
-inline void WritePod(std::ofstream& f, GVarPod_APS<T>& gvar)
+inline void WritePod(std::ofstream& f, GVar_APS<T>& gvar)
 {
     f << gvar.conf_name << "=" << gvar.GetStored() << std::endl;
 }
@@ -965,15 +976,15 @@ bool Settings::SetupAllPaths()
     Str<300> buf;
 
     // User directories
-    buf.Clear() << App::sys_user_dir.GetActive() << PATH_SLASH << "config";             App::sys_config_dir    .SetActive(buf);
-    buf.Clear() << App::sys_user_dir.GetActive() << PATH_SLASH << "cache";              App::sys_cache_dir     .SetActive(buf);
-    buf.Clear() << App::sys_user_dir.GetActive() << PATH_SLASH << "screenshots";        App::sys_screenshot_dir.SetActive(buf);
+    buf.Clear() << App::sys_user_dir.GetActive() << PATH_SLASH << "config";             App::sys_config_dir    .SetActive(buf.ToCStr());
+    buf.Clear() << App::sys_user_dir.GetActive() << PATH_SLASH << "cache";              App::sys_cache_dir     .SetActive(buf.ToCStr());
+    buf.Clear() << App::sys_user_dir.GetActive() << PATH_SLASH << "screenshots";        App::sys_screenshot_dir.SetActive(buf.ToCStr());
 
     // Resources dir
     buf.Clear() << App::sys_process_dir.GetActive() << PATH_SLASH << "resources";
     if (FolderExists(buf))
     {
-        App::sys_resources_dir.SetActive(buf);
+        App::sys_resources_dir.SetActive(buf.ToCStr());
         return true;
     }
 
@@ -986,7 +997,7 @@ bool Settings::SetupAllPaths()
     }
 #endif
 
-    buf = RoR::GetParentDirectory(App::sys_process_dir.GetActive());
+    buf = RoR::GetParentDirectory(App::sys_process_dir.GetActive().c_str());
 
     return false;
 }

@@ -89,7 +89,7 @@ void LanguageEngine::setup()
     // Load a .mo-File.
     RoR::Log("[RoR|App] Loading language file...");
     Str<300> rormo_path;
-    rormo_path << mo_path << RoR::PATH_SLASH << "ror.mo";
+    rormo_path << mo_path.ToCStr() << RoR::PATH_SLASH << "ror.mo";
     if (reader->ReadFile(rormo_path) != moFileLib::moFileReader::EC_SUCCESS)
     {
         RoR::LogFormat("[RoR|App] Error loading language file: '%s'", rormo_path.ToCStr());

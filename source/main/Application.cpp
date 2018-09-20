@@ -59,109 +59,109 @@ static MumbleIntegration* g_mumble;
 static TerrainManager*  g_sim_terrain;
 
 // App
- GVarEnum_AP<AppState>    app_state               ("app_state",               nullptr,                     AppState::BOOTSTRAP,     AppState::MAIN_MENU);
- GVarStr_A<100>           app_language            ("app_language",            "Language",                  "English");
- GVarStr_A<50>            app_locale              ("app_locale",              "Language Short",            "en");
- GVarPod_A<bool>          app_multithread         ("app_multithread",         "Multi-threading",           true);
- GVarStr_AP<50>           app_screenshot_format   ("app_screenshot_format",   "Screenshot Format",         "jpg",                   "jpg");
+ GVar_AP<AppState>      app_state               ("app_state",               nullptr,                     AppState::BOOTSTRAP,     AppState::MAIN_MENU);
+ GVar_A<std::string>    app_language            ("app_language",            "Language",                  "English");
+ GVar_A<std::string>    app_locale              ("app_locale",              "Language Short",            "en");
+ GVar_A<bool>           app_multithread         ("app_multithread",         "Multi-threading",           true);
+ GVar_AP<std::string>   app_screenshot_format   ("app_screenshot_format",   "Screenshot Format",         "jpg",                   "jpg");
 
 // Simulation
- GVarEnum_AP<SimState>    sim_state               ("sim_state",               nullptr,                     SimState::OFF,           SimState::OFF);
- GVarStr_AP<200>          sim_terrain_name        ("sim_terrain_name",        nullptr,                     "",                      "");
- GVarPod_A<bool>          sim_replay_enabled      ("sim_replay_enabled",      "Replay mode",               false);
- GVarPod_A<int>           sim_replay_length       ("sim_replay_length",       "Replay length",             200);
- GVarPod_A<int>           sim_replay_stepping     ("sim_replay_stepping",     "Replay Steps per second",   1000);
- GVarPod_A<bool>          sim_hires_wheel_col     ("sim_hires_wheel_col",     "HighResWheelNodeCollisions", true);
- GVarPod_A<bool>             sim_position_storage ("sim_position_storage",    "Position Storage",          false);
- GVarEnum_AP<SimGearboxMode> sim_gearbox_mode     ("sim_gearbox_mode",        "GearboxMode",               SimGearboxMode::AUTO,    SimGearboxMode::AUTO);
+ GVar_AP<SimState>      sim_state               ("sim_state",               nullptr,                     SimState::OFF,           SimState::OFF);
+ GVar_AP<std::string>   sim_terrain_name        ("sim_terrain_name",        nullptr,                     "",                      "");
+ GVar_A<bool>           sim_replay_enabled      ("sim_replay_enabled",      "Replay mode",               false);
+ GVar_A<int>            sim_replay_length       ("sim_replay_length",       "Replay length",             200);
+ GVar_A<int>            sim_replay_stepping     ("sim_replay_stepping",     "Replay Steps per second",   1000);
+ GVar_A<bool>           sim_hires_wheel_col     ("sim_hires_wheel_col",     "HighResWheelNodeCollisions", true);
+ GVar_A<bool>           sim_position_storage    ("sim_position_storage",    "Position Storage",          false);
+ GVar_AP<SimGearboxMode> sim_gearbox_mode       ("sim_gearbox_mode",        "GearboxMode",               SimGearboxMode::AUTO,    SimGearboxMode::AUTO);
 
 // Multiplayer
- GVarEnum_AP<MpState>     mp_state                ("mp_state",                nullptr,                     MpState::DISABLED,       MpState::DISABLED);
- GVarPod_A<bool>          mp_join_on_startup      ("mp_join_on_startup",      "Network enable",            false);
- GVarStr_AP<200>          mp_server_host          ("mp_server_host",          "Server name",               "",                      "");
- GVarPod_A<int>           mp_server_port          ("mp_server_port",          "Server port",               0);
- GVarStr_A<100>           mp_server_password      ("mp_server_password",      "Server password",           "");
- GVarStr_AP<100>          mp_player_name          ("mp_player_name",          "Nickname",                  "Player",                "Player");
- GVarStr_AP<250>          mp_player_token_hash    ("mp_player_token_hash",    "User Token Hash",           "",                      "");
- GVarStr_AP<400>          mp_portal_url           ("mp_portal_url",           "Multiplayer portal URL",    "http://multiplayer.rigsofrods.org", "http://multiplayer.rigsofrods.org");
+ GVar_AP<MpState>       mp_state                ("mp_state",                nullptr,                     MpState::DISABLED,       MpState::DISABLED);
+ GVar_A<bool>           mp_join_on_startup      ("mp_join_on_startup",      "Network enable",            false);
+ GVar_AP<std::string>   mp_server_host          ("mp_server_host",          "Server name",               "",                      "");
+ GVar_A<int>            mp_server_port          ("mp_server_port",          "Server port",               1337);
+ GVar_A<std::string>    mp_server_password      ("mp_server_password",      "Server password",           "");
+ GVar_AP<std::string>   mp_player_name          ("mp_player_name",          "Nickname",                  "Player",                "Player");
+ GVar_AP<std::string>   mp_player_token_hash    ("mp_player_token_hash",    "User Token Hash",           "",                      "");
+ GVar_AP<std::string>   mp_portal_url           ("mp_portal_url",           "Multiplayer portal URL",    "http://multiplayer.rigsofrods.org", "http://multiplayer.rigsofrods.org");
 
 // Diagnostic
- GVarPod_A<bool>          diag_trace_globals      ("diag_trace_globals",      nullptr,                     false); // Don't init to 'true', logger is not ready at startup
- GVarPod_A<bool>          diag_rig_log_node_import("diag_rig_log_node_import","RigImporter_Debug_TraverseAndLogAllNodes",  false);
- GVarPod_A<bool>          diag_rig_log_node_stats ("diag_rig_log_node_stats", "RigImporter_PrintNodeStatsToLog",           false);
- GVarPod_A<bool>          diag_rig_log_messages   ("diag_rig_log_messages",   "RigImporter_PrintMessagesToLog",            false);
- GVarPod_A<bool>          diag_collisions         ("diag_collisions",         "Debug Collisions",          false);
- GVarPod_A<bool>          diag_truck_mass         ("diag_truck_mass",         "Debug Truck Mass",          false);
- GVarPod_A<bool>          diag_envmap             ("diag_envmap",             "EnvMapDebug",               false);
- GVarPod_A<bool>          diag_videocameras       ("diag_videocameras",       "VideoCameraDebug",          false);
- GVarStr_APS<100>         diag_preset_terrain     ("diag_preset_terrain",     "Preselected Map",           "",                      "",        "");
- GVarStr_A<100>           diag_preset_vehicle     ("diag_preset_vehicle",     "Preselected Truck",         "");
- GVarStr_A<100>           diag_preset_veh_config  ("diag_preset_veh_config",  "Preselected TruckConfig",   "");
- GVarPod_A<bool>          diag_preset_veh_enter   ("diag_preset_veh_enter",   "Enter Preselected Truck",   false);
- GVarPod_A<bool>          diag_log_console_echo   ("diag_log_console_echo",   "Enable Ingame Console",     false);
- GVarPod_A<bool>          diag_log_beam_break     ("diag_log_beam_break",     "Beam Break Debug",          false);
- GVarPod_A<bool>          diag_log_beam_deform    ("diag_log_beam_deform",    "Beam Deform Debug",         false);
- GVarPod_A<bool>          diag_log_beam_trigger   ("diag_log_beam_trigger",   "Trigger Debug",             false);
- GVarPod_A<bool>          diag_dof_effect         ("diag_dof_effect",         "DOFDebug",                  false);
- GVarStr_AP<300>          diag_extra_resource_dir ("diag_extra_resource_dir", "resourceIncludePath",       "",                     "");
+ GVar_A<bool>           diag_trace_globals      ("diag_trace_globals",      nullptr,                     false); // Don't init to 'true', logger is not ready at startup
+ GVar_A<bool>           diag_rig_log_node_import("diag_rig_log_node_import","RigImporter_Debug_TraverseAndLogAllNodes",  false);
+ GVar_A<bool>           diag_rig_log_node_stats ("diag_rig_log_node_stats", "RigImporter_PrintNodeStatsToLog",           false);
+ GVar_A<bool>           diag_rig_log_messages   ("diag_rig_log_messages",   "RigImporter_PrintMessagesToLog",            false);
+ GVar_A<bool>           diag_collisions         ("diag_collisions",         "Debug Collisions",          false);
+ GVar_A<bool>           diag_truck_mass         ("diag_truck_mass",         "Debug Truck Mass",          false);
+ GVar_A<bool>           diag_envmap             ("diag_envmap",             "EnvMapDebug",               false);
+ GVar_A<bool>           diag_videocameras       ("diag_videocameras",       "VideoCameraDebug",          false);
+ GVar_APS<std::string>  diag_preset_terrain     ("diag_preset_terrain",     "Preselected Map",           "",                      "",        "");
+ GVar_A<std::string>    diag_preset_vehicle     ("diag_preset_vehicle",     "Preselected Truck",         "");
+ GVar_A<std::string>    diag_preset_veh_config  ("diag_preset_veh_config",  "Preselected TruckConfig",   "");
+ GVar_A<bool>           diag_preset_veh_enter   ("diag_preset_veh_enter",   "Enter Preselected Truck",   false);
+ GVar_A<bool>           diag_log_console_echo   ("diag_log_console_echo",   "Enable Ingame Console",     false);
+ GVar_A<bool>           diag_log_beam_break     ("diag_log_beam_break",     "Beam Break Debug",          false);
+ GVar_A<bool>           diag_log_beam_deform    ("diag_log_beam_deform",    "Beam Deform Debug",         false);
+ GVar_A<bool>           diag_log_beam_trigger   ("diag_log_beam_trigger",   "Trigger Debug",             false);
+ GVar_A<bool>           diag_dof_effect         ("diag_dof_effect",         "DOFDebug",                  false);
+ GVar_AP<std::string>   diag_extra_resource_dir ("diag_extra_resource_dir", "resourceIncludePath",       "",                     "");
 
 // System                                         (all paths are without ending slash!)
- GVarStr_A<300>           sys_process_dir         ("sys_process_dir",         nullptr,                     "");
- GVarStr_A<300>           sys_user_dir            ("sys_user_dir",            nullptr,                     "");
- GVarStr_A<300>           sys_config_dir          ("sys_config_dir",          "Config Root",               "");
- GVarStr_A<300>           sys_cache_dir           ("sys_cache_dir",           "Cache Path",                "");
- GVarStr_A<300>           sys_logs_dir            ("sys_logs_dir",            "Log Path",                  "");
- GVarStr_A<300>           sys_resources_dir       ("sys_resources_dir",       "Resources Path",            "");
- GVarStr_A<300>           sys_profiler_dir        ("sys_profiler_dir",        "Profiler output dir",       "");
- GVarStr_A<300>           sys_screenshot_dir      ("sys_screenshot_dir",      nullptr,                     "");
+ GVar_A<std::string>    sys_process_dir         ("sys_process_dir",         nullptr,                     "");
+ GVar_A<std::string>    sys_user_dir            ("sys_user_dir",            nullptr,                     "");
+ GVar_A<std::string>    sys_config_dir          ("sys_config_dir",          "Config Root",               "");
+ GVar_A<std::string>    sys_cache_dir           ("sys_cache_dir",           "Cache Path",                "");
+ GVar_A<std::string>    sys_logs_dir            ("sys_logs_dir",            "Log Path",                  "");
+ GVar_A<std::string>    sys_resources_dir       ("sys_resources_dir",       "Resources Path",            "");
+ GVar_A<std::string>    sys_profiler_dir        ("sys_profiler_dir",        "Profiler output dir",       "");
+ GVar_A<std::string>    sys_screenshot_dir      ("sys_screenshot_dir",      nullptr,                     "");
 
 // Input - Output
- GVarPod_A<bool>          io_ffb_enabled          ("io_ffb_enabled",          "Force Feedback",            false);
- GVarPod_A<float>         io_ffb_camera_gain      ("io_ffb_camera_gain",      "Force Feedback Camera",     0.f);
- GVarPod_A<float>         io_ffb_center_gain      ("io_ffb_center_gain",      "Force Feedback Centering",  0.f);
- GVarPod_A<float>         io_ffb_master_gain      ("io_ffb_master_gain",      "Force Feedback Gain",       0.f);
- GVarPod_A<float>             io_ffb_stress_gain  ("io_ffb_stress_gain",      "Force Feedback Stress",     0.f);
- GVarEnum_AP<IoInputGrabMode> io_input_grab_mode  ("io_input_grab_mode",      "Input Grab",                IoInputGrabMode::NONE,   IoInputGrabMode::NONE);
- GVarPod_A<bool>              io_arcade_controls  ("io_arcade_controls",      "ArcadeControls",            false);
- GVarPod_A<int>           io_outgauge_mode        ("io_outgauge_mode",        "OutGauge Mode",             0); // 0 = disabled, 1 = enabled
- GVarStr_A<50>            io_outgauge_ip          ("io_outgauge_ip",          "OutGauge IP",               "192.168.1.100");
- GVarPod_A<int>           io_outgauge_port        ("io_outgauge_port",        "OutGauge Port",             1337);
- GVarPod_A<float>         io_outgauge_delay       ("io_outgauge_delay",       "OutGauge Delay",            10.f);
- GVarPod_A<int>           io_outgauge_id          ("io_outgauge_id",          "OutGauge ID",               0);
+ GVar_A<bool>           io_ffb_enabled          ("io_ffb_enabled",          "Force Feedback",            false);
+ GVar_A<float>          io_ffb_camera_gain      ("io_ffb_camera_gain",      "Force Feedback Camera",     0.f);
+ GVar_A<float>          io_ffb_center_gain      ("io_ffb_center_gain",      "Force Feedback Centering",  0.f);
+ GVar_A<float>          io_ffb_master_gain      ("io_ffb_master_gain",      "Force Feedback Gain",       0.f);
+ GVar_A<float>          io_ffb_stress_gain      ("io_ffb_stress_gain",      "Force Feedback Stress",     0.f);
+ GVar_AP<IoInputGrabMode> io_input_grab_mode    ("io_input_grab_mode",      "Input Grab",                IoInputGrabMode::NONE,   IoInputGrabMode::NONE);
+ GVar_A<bool>           io_arcade_controls      ("io_arcade_controls",      "ArcadeControls",            false);
+ GVar_A<int>            io_outgauge_mode        ("io_outgauge_mode",        "OutGauge Mode",             0); // 0 = disabled, 1 = enabled
+ GVar_A<std::string>    io_outgauge_ip          ("io_outgauge_ip",          "OutGauge IP",               "192.168.1.100");
+ GVar_A<int>            io_outgauge_port        ("io_outgauge_port",        "OutGauge Port",             1337);
+ GVar_A<float>          io_outgauge_delay       ("io_outgauge_delay",       "OutGauge Delay",            10.f);
+ GVar_A<int>            io_outgauge_id          ("io_outgauge_id",          "OutGauge ID",               0);
 
 // Audio
- GVarPod_A<float>         audio_master_volume     ("audio_master_volume",     "Sound Volume",              0);
- GVarPod_A<bool>          audio_enable_creak      ("audio_enable_creak",      "Creak Sound",               false);
- GVarStr_AP<100>          audio_device_name       ("audio_device_name",       "AudioDevice",               "",                      "");
- GVarPod_A<bool>          audio_menu_music        ("audio_menu_music",        "MainMenuMusic",             false);
+ GVar_A<float>          audio_master_volume     ("audio_master_volume",     "Sound Volume",              0);
+ GVar_A<bool>           audio_enable_creak      ("audio_enable_creak",      "Creak Sound",               false);
+ GVar_AP<std::string>   audio_device_name       ("audio_device_name",       "AudioDevice",               "",                      "");
+ GVar_A<bool>           audio_menu_music        ("audio_menu_music",        "MainMenuMusic",             false);
 
 // Graphics
- GVarEnum_AP<GfxFlaresMode>  gfx_flares_mode      ("gfx_flares_mode",         "Lights",                    GfxFlaresMode::ALL_VEHICLES_HEAD_ONLY, GfxFlaresMode::ALL_VEHICLES_HEAD_ONLY);
- GVarEnum_AP<GfxShadowType>  gfx_shadow_type      ("gfx_shadow_type",         "Shadow technique",          GfxShadowType::NONE,     GfxShadowType::NONE);
- GVarEnum_AP<GfxExtCamMode>  gfx_extcam_mode      ("gfx_extcam_mode",         "External Camera Mode",      GfxExtCamMode::PITCHING, GfxExtCamMode::PITCHING);
- GVarEnum_AP<GfxSkyMode>     gfx_sky_mode         ("gfx_sky_mode",            "Sky effects",               GfxSkyMode::SANDSTORM,   GfxSkyMode::SANDSTORM);
- GVarEnum_AP<GfxTexFilter>   gfx_texture_filter   ("gfx_texture_filter",      "Texture Filtering",         GfxTexFilter::TRILINEAR, GfxTexFilter::TRILINEAR);
- GVarEnum_AP<GfxVegetation>  gfx_vegetation_mode  ("gfx_vegetation_mode",     "Vegetation",                GfxVegetation::NONE,     GfxVegetation::NONE);
- GVarEnum_AP<GfxWaterMode>   gfx_water_mode       ("gfx_water_mode",          "Water effects",             GfxWaterMode::BASIC,     GfxWaterMode::BASIC);
- GVarPod_A<bool>          gfx_enable_sunburn      ("gfx_enable_sunburn",      "Sunburn",                   false);
- GVarPod_A<bool>          gfx_water_waves         ("gfx_water_waves",         "Waves",                     false);
- GVarPod_A<bool>          gfx_minimap_disabled    ("gfx_minimap_disabled",    "disableOverViewMap",        false);
- GVarPod_A<int>           gfx_particles_mode      ("gfx_particles_mode",      "Particles",                 0);
- GVarPod_A<bool>          gfx_enable_glow         ("gfx_enable_glow",         "Glow",                      false);
- GVarPod_A<bool>          gfx_enable_hdr          ("gfx_enable_hdr",          "HDR",                       false);
- GVarPod_A<bool>          gfx_enable_dof          ("gfx_enable_dof",          "DOF",                       false);
- GVarPod_A<bool>          gfx_enable_heathaze     ("gfx_enable_heathaze",     "HeatHaze",                  false);
- GVarPod_A<bool>          gfx_enable_videocams    ("gfx_enable_videocams",    "gfx_enable_videocams",      false);
- GVarPod_A<bool>          gfx_envmap_enabled      ("gfx_envmap_enabled",      "Envmap",                    false);
- GVarPod_A<int>           gfx_envmap_rate         ("gfx_envmap_rate",         "EnvmapUpdateRate",          2);
- GVarPod_A<int>           gfx_skidmarks_mode      ("gfx_skidmarks_mode",      "Skidmarks",                 0);
- GVarPod_A<float>         gfx_sight_range         ("gfx_sight_range",         "SightRange",                3000.f); // Previously either 2000 or 4500 (inconsistent)
- GVarPod_APS<float>       gfx_fov_external        ("gfx_fov_external",        "FOV External",              60.f,                      60.f,     60.f);
- GVarPod_APS<float>       gfx_fov_internal        ("gfx_fov_internal",        "FOV Internal",              75.f,                      75.f,     75.f);
- GVarPod_A<int>           gfx_fps_limit           ("gfx_fps_limit",           "FPS-Limiter",               0); // 0 = unlimited
- GVarPod_A<bool>          gfx_speedo_digital      ("gfx_speedo_digital",      "DigitalSpeedo",             false);
- GVarPod_A<bool>          gfx_speedo_imperial     ("gfx_speedo_imperial",     "gfx_speedo_imperial",       false);
- GVarPod_A<bool>          gfx_motion_blur         ("gfx_motion_blur",         "Motion blur",               false);
+ GVar_AP<GfxFlaresMode>   gfx_flares_mode      ("gfx_flares_mode",         "Lights",                    GfxFlaresMode::ALL_VEHICLES_HEAD_ONLY, GfxFlaresMode::ALL_VEHICLES_HEAD_ONLY);
+ GVar_AP<GfxShadowType>   gfx_shadow_type      ("gfx_shadow_type",         "Shadow technique",          GfxShadowType::NONE,     GfxShadowType::NONE);
+ GVar_AP<GfxExtCamMode>   gfx_extcam_mode      ("gfx_extcam_mode",         "External Camera Mode",      GfxExtCamMode::PITCHING, GfxExtCamMode::PITCHING);
+ GVar_AP<GfxSkyMode>      gfx_sky_mode         ("gfx_sky_mode",            "Sky effects",               GfxSkyMode::SANDSTORM,   GfxSkyMode::SANDSTORM);
+ GVar_AP<GfxTexFilter>    gfx_texture_filter   ("gfx_texture_filter",      "Texture Filtering",         GfxTexFilter::TRILINEAR, GfxTexFilter::TRILINEAR);
+ GVar_AP<GfxVegetation>   gfx_vegetation_mode  ("gfx_vegetation_mode",     "Vegetation",                GfxVegetation::NONE,     GfxVegetation::NONE);
+ GVar_AP<GfxWaterMode>    gfx_water_mode       ("gfx_water_mode",          "Water effects",             GfxWaterMode::BASIC,     GfxWaterMode::BASIC);
+ GVar_A<bool>          gfx_enable_sunburn      ("gfx_enable_sunburn",      "Sunburn",                   false);
+ GVar_A<bool>          gfx_water_waves         ("gfx_water_waves",         "Waves",                     false);
+ GVar_A<bool>          gfx_minimap_disabled    ("gfx_minimap_disabled",    "disableOverViewMap",        false);
+ GVar_A<int>           gfx_particles_mode      ("gfx_particles_mode",      "Particles",                 0);
+ GVar_A<bool>          gfx_enable_glow         ("gfx_enable_glow",         "Glow",                      false);
+ GVar_A<bool>          gfx_enable_hdr          ("gfx_enable_hdr",          "HDR",                       false);
+ GVar_A<bool>          gfx_enable_dof          ("gfx_enable_dof",          "DOF",                       false);
+ GVar_A<bool>          gfx_enable_heathaze     ("gfx_enable_heathaze",     "HeatHaze",                  false);
+ GVar_A<bool>          gfx_enable_videocams    ("gfx_enable_videocams",    "gfx_enable_videocams",      false);
+ GVar_A<bool>          gfx_envmap_enabled      ("gfx_envmap_enabled",      "Envmap",                    false);
+ GVar_A<int>           gfx_envmap_rate         ("gfx_envmap_rate",         "EnvmapUpdateRate",          2);
+ GVar_A<int>           gfx_skidmarks_mode      ("gfx_skidmarks_mode",      "Skidmarks",                 0);
+ GVar_A<float>         gfx_sight_range         ("gfx_sight_range",         "SightRange",                3000.f); // Previously either 2000 or 4500 (inconsistent)
+ GVar_APS<float>       gfx_fov_external        ("gfx_fov_external",        "FOV External",              60.f,                      60.f,     60.f);
+ GVar_APS<float>       gfx_fov_internal        ("gfx_fov_internal",        "FOV Internal",              75.f,                      75.f,     75.f);
+ GVar_A<int>           gfx_fps_limit           ("gfx_fps_limit",           "FPS-Limiter",               0); // 0 = unlimited
+ GVar_A<bool>          gfx_speedo_digital      ("gfx_speedo_digital",      "DigitalSpeedo",             false);
+ GVar_A<bool>          gfx_speedo_imperial     ("gfx_speedo_imperial",     "gfx_speedo_imperial",       false);
+ GVar_A<bool>          gfx_motion_blur         ("gfx_motion_blur",         "Motion blur",               false);
 
 // Instance management
 void SetMainMenu       (MainMenu* obj)                { g_main_menu = obj; }
@@ -284,7 +284,7 @@ void CheckAndCreateMumble()
 
 } // namespace App
 
-const char* EnumToStr(AppState v)
+const char* ToStr(AppState v)
 {
     switch (v)
     {
@@ -299,7 +299,7 @@ const char* EnumToStr(AppState v)
     }
 }
 
-const char* EnumToStr(MpState v)
+const char* ToStr(MpState v)
 {
     switch (v)
     {
@@ -309,7 +309,7 @@ const char* EnumToStr(MpState v)
     }
 }
 
-const char* EnumToStr(SimState v)
+const char* ToStr(SimState v)
 {
     switch (v)
     {
@@ -322,7 +322,7 @@ const char* EnumToStr(SimState v)
     }
 }
 
-const char* EnumToStr(SimGearboxMode v)
+const char* ToStr(SimGearboxMode v)
 {
     switch (v)
     {
@@ -335,7 +335,7 @@ const char* EnumToStr(SimGearboxMode v)
     }
 }
 
-const char* EnumToStr(GfxFlaresMode v)
+const char* ToStr(GfxFlaresMode v)
 {
     switch (v)
     {
@@ -348,7 +348,7 @@ const char* EnumToStr(GfxFlaresMode v)
     }
 }
 
-const char* EnumToStr(GfxVegetation v)
+const char* ToStr(GfxVegetation v)
 {
     switch(v)
     {
@@ -360,7 +360,7 @@ const char* EnumToStr(GfxVegetation v)
     }
 }
 
-const char* EnumToStr(GfxWaterMode v)
+const char* ToStr(GfxWaterMode v)
 {
     switch(v)
     {
@@ -374,7 +374,7 @@ const char* EnumToStr(GfxWaterMode v)
     }
 }
 
-const char* EnumToStr(GfxSkyMode v)
+const char* ToStr(GfxSkyMode v)
 {
     switch(v)
     {
@@ -385,7 +385,7 @@ const char* EnumToStr(GfxSkyMode v)
     }
 }
 
-const char* EnumToStr(IoInputGrabMode v)
+const char* ToStr(IoInputGrabMode v)
 {
     switch (v)
     {
@@ -396,7 +396,7 @@ const char* EnumToStr(IoInputGrabMode v)
     }
 }
 
-const char* EnumToStr(GfxShadowType v)
+const char* ToStr(GfxShadowType v)
 {
     switch(v)
     {
@@ -407,7 +407,7 @@ const char* EnumToStr(GfxShadowType v)
     }
 }
 
-const char* EnumToStr(GfxTexFilter v)
+const char* ToStr(GfxTexFilter v)
 {
     switch (v)
     {
@@ -419,7 +419,7 @@ const char* EnumToStr(GfxTexFilter v)
     }
 }
 
-const char* EnumToStr(GfxExtCamMode v)
+const char* ToStr(GfxExtCamMode v)
 {
     switch (v)
     {
@@ -446,10 +446,6 @@ void LogFormat(const char* format, ...)
 
     RoR::Log(buffer);
 }
-
-const char* GVarBase::LOG_FMT_S = "[RoR|GVar]  %20s:  %s(), new: \"%s\", old: \"%s\"";
-const char* GVarBase::LOG_FMT_D = "[RoR|GVar]  %20s:  %s(), new: \"%d\", old: \"%d\"";
-const char* GVarBase::LOG_FMT_F = "[RoR|GVar]  %20s:  %s(), new: \"%f\", old: \"%f\"";
 
 void GVarBase::LogFormat(const char* format, ...) const
 {

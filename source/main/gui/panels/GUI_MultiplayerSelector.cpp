@@ -347,7 +347,7 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
             {
                 if (ImGui::Button("Join", ImVec2(200.f, 0.f)))
                 {
-                    App::mp_server_host.SetActive(m_serverlist_data->servers[m_selected_item].net_host);
+                    App::mp_server_host.SetActive(m_serverlist_data->servers[m_selected_item].net_host.ToCStr());
                     App::mp_server_port.SetActive(m_serverlist_data->servers[m_selected_item].net_port);
                     App::mp_state.SetPending(MpState::CONNECTED);
                 }
