@@ -202,7 +202,7 @@ void Water::PrepareWater()
 
         if (full_gfx)
         {
-            TexturePtr m_refract_rtt_targetPtr = TextureManager::getSingleton().createManual("Refraction", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 512, 512, 0, PF_R8G8B8, TU_RENDERTARGET);
+            TexturePtr m_refract_rtt_targetPtr = Ogre::TextureManager::getSingleton ().getByName ("Refraction");
             m_refract_rtt_texture = m_refract_rtt_targetPtr;
             m_refract_rtt_target = m_refract_rtt_targetPtr->getBuffer()->getRenderTarget();
             {
@@ -235,7 +235,7 @@ void Water::PrepareWater()
             }
         }
 
-        TexturePtr m_reflect_rtt_targetPtr = TextureManager::getSingleton().createManual("Reflection", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 512, 512, 0, PF_R8G8B8, TU_RENDERTARGET);
+        TexturePtr m_reflect_rtt_targetPtr = Ogre::TextureManager::getSingleton ().getByName ("Reflection");
         m_reflect_rtt_texture = m_reflect_rtt_targetPtr;
         m_reflect_rtt_target = m_reflect_rtt_targetPtr->getBuffer()->getRenderTarget();
         {

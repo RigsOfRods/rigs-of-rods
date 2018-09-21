@@ -188,6 +188,16 @@ int main(int argc, char *argv[])
         Ogre::TextureManager::getSingleton().createManual ("EnvironmentTexture",
             Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_CUBE_MAP, 256, 256, 0,
             Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET);
+        Ogre::TextureManager::getSingleton ().createManual ("MapRttMat",
+            Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, 2048, 2048, 
+            Ogre::TU_RENDERTARGET, Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET);
+        Ogre::TextureManager::getSingleton ().createManual ("Refraction",
+            Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, 512, 512, 0,
+            Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET);
+        Ogre::TextureManager::getSingleton ().createManual ("Reflection",
+            Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, 512, 512, 0,
+            Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET);
+
 
         App::CreateContentManager();
 
