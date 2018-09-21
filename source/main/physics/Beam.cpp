@@ -3015,6 +3015,8 @@ void Actor::setDetailLevel(int v)
 
 void Actor::AddInterActorBeam(beam_t* beam, Actor* a, Actor* b)
 {
+    beam->bm_locked_actor = b;
+
     auto pos = std::find(ar_inter_beams.begin(), ar_inter_beams.end(), beam);
     if (pos == ar_inter_beams.end())
     {
@@ -3066,6 +3068,7 @@ void Actor::DisjoinInterActorBeams()
         auto actor_pair = it->second;
         if (this == actor_pair.first || this == actor_pair.second)
         {
+            it->first->bm_locked_actor = nullptr;
             it->first->bm_inter_actor = false;
             it->first->bm_disabled = true;
             inter_actor_links->erase(it++);

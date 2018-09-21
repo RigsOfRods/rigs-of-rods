@@ -904,6 +904,8 @@ void RoR::GfxActor::AddRod(int beam_index,  int node1_index, int node2_index, co
         rod.rod_beam_index = static_cast<uint16_t>(beam_index);
         rod.rod_node1 = static_cast<uint16_t>(node1_index);
         rod.rod_node2 = static_cast<uint16_t>(node2_index);
+        rod.rod_target_actor = m_actor;
+        rod.rod_is_visible = false;
 
         m_rods.push_back(rod);
     }
@@ -921,8 +923,10 @@ void RoR::GfxActor::UpdateRods()
         if (!rod.rod_is_visible)
             continue;
 
-        Ogre::Vector3 pos1 = m_actor->ar_nodes[rod.rod_node1].AbsPosition;
-        Ogre::Vector3 pos2 = m_actor->ar_nodes[rod.rod_node2].AbsPosition;
+        NodeData* nodes1 = this->GetSimNodeBuffer();
+        Ogre::Vector3 pos1 = nodes1[rod.rod_node1].AbsPosition;
+        NodeData* nodes2 = rod.rod_target_actor->GetGfxActor()->GetSimNodeBuffer();
+        Ogre::Vector3 pos2 = nodes2[rod.rod_node2].AbsPosition;
 
         // Classic method
         float beam_diameter = static_cast<float>(rod.rod_diameter_mm) * 0.001;
@@ -1079,7 +1083,11 @@ void RoR::GfxActor::UpdateSimDataBuffer()
         const beam_t& beam = m_actor->ar_beams[rod.rod_beam_index];
         rod.rod_node1 = static_cast<uint16_t>(beam.p1->pos);
         rod.rod_node2 = static_cast<uint16_t>(beam.p2->pos);
-        rod.rod_is_visible = (beam.bm_disabled || beam.bm_broken);
+        if (beam.bm_inter_actor)
+        {
+            rod.rod_target_actor = beam.bm_locked_actor;
+        }
+        rod.rod_is_visible = !beam.bm_disabled && !beam.bm_broken;
     }
 
     // airbrakes

@@ -140,7 +140,8 @@ public:
         // Assumption: Actor has at most 65536 nodes (RoR doesn't have a soft limit right now, but until v0.4.8 it was 1000 nodes).
         uint16_t         rod_node1;         //!< Node index - may change during simulation!
         uint16_t         rod_node2;         //!< Node index - may change during simulation!
-        bool             rod_is_visible:1;
+        Actor*           rod_target_actor;
+        bool             rod_is_visible;
     };
 
     struct WheelGfx
