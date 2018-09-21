@@ -28,10 +28,8 @@
 #include "Dashboard.h"
 #include "EnvironmentMap.h"
 #include "ErrorUtils.h"
-#include "GlowMaterialListener.h"
 #include "GUIManager.h"
 #include "GUI_LoadingWindow.h"
-#include "HDRListener.h"
 #include "HydraxWater.h"
 #include "Language.h"
 #include "RoRFrameListener.h"
@@ -178,26 +176,9 @@ bool TerrainManager::LoadAndPrepareTerrain(std::string filename)
     PROGRESS_WINDOW(31, _L("Initializing Vegetation Subsystem"));
     initVegetation();
 
-    if (App::gfx_enable_hdr.GetActive())
-    {
-        PROGRESS_WINDOW(35, _L("Initializing HDR Subsystem"));
-        initHDR();
-    }
-    if (RoR::App::gfx_enable_glow.GetActive())
-    {
-        PROGRESS_WINDOW(37, _L("Initializing Glow Subsystem"));
-        initGlow();
-    }
-    if (App::gfx_motion_blur.GetActive())
-    {
-        PROGRESS_WINDOW(39, _L("Initializing Motion Blur Subsystem"));
-        initMotionBlur();
-    }
-    if (RoR::App::gfx_enable_sunburn.GetActive())
-    {
-        PROGRESS_WINDOW(41, _L("Initializing Sunburn Subsystem"));
-        initSunburn();
-    }
+    // water must be done later on
+    //PROGRESS_WINDOW(33, _L("Initializing Water Subsystem"));
+    //initWater();
 
     PROGRESS_WINDOW(47, _L("Initializing Dashboards Subsystem"));
     initDashboards();
@@ -368,112 +349,6 @@ void TerrainManager::initVegetation()
         m_paged_detail_factor = 0.0f;
         break;
     }
-}
-
-void TerrainManager::initHDR()
-{
-    Viewport* vp = gEnv->mainCamera->getViewport();
-    CompositorInstance* instance = CompositorManager::getSingleton().addCompositor(vp, "HDR", 0);
-    CompositorManager::getSingleton().setCompositorEnabled(vp, "HDR", true);
-
-    // HDR needs a special listener
-    m_hdr_listener = new HDRListener();
-    instance->addListener(m_hdr_listener);
-    m_hdr_listener->notifyViewportSize(vp->getActualWidth(), vp->getActualHeight());
-    m_hdr_listener->notifyCompositor(instance);
-}
-
-void TerrainManager::initGlow()
-{
-    CompositorManager::getSingleton().addCompositor(gEnv->mainCamera->getViewport(), "Glow");
-    CompositorManager::getSingleton().setCompositorEnabled(gEnv->mainCamera->getViewport(), "Glow", true);
-    GlowMaterialListener* gml = new GlowMaterialListener();
-    MaterialManager::getSingleton().addListener(gml);
-}
-
-void TerrainManager::initMotionBlur()
-{
-    // Motion blur effect taken from Ogre 1.8 Compositor demos
-    Ogre::CompositorPtr comp3 = Ogre::CompositorManager::getSingleton().create("MotionBlur", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-    {
-        Ogre::CompositionTechnique* t = comp3->createTechnique();
-        {
-            Ogre::CompositionTechnique::TextureDefinition* def = t->createTextureDefinition("scene");
-            def->width = 0;
-            def->height = 0;
-            def->formatList.push_back(Ogre::PF_R8G8B8);
-        }
-        {
-            Ogre::CompositionTechnique::TextureDefinition* def = t->createTextureDefinition("sum");
-            def->width = 0;
-            def->height = 0;
-            def->formatList.push_back(Ogre::PF_R8G8B8);
-        }
-        {
-            Ogre::CompositionTechnique::TextureDefinition* def = t->createTextureDefinition("temp");
-            def->width = 0;
-            def->height = 0;
-            def->formatList.push_back(Ogre::PF_R8G8B8);
-        }
-        /// Render scene
-        {
-            Ogre::CompositionTargetPass* tp = t->createTargetPass();
-            tp->setInputMode(Ogre::CompositionTargetPass::IM_PREVIOUS);
-            tp->setOutputName("scene");
-        }
-        /// Initialisation pass for sum texture
-        {
-            Ogre::CompositionTargetPass* tp = t->createTargetPass();
-            tp->setInputMode(Ogre::CompositionTargetPass::IM_PREVIOUS);
-            tp->setOutputName("sum");
-            tp->setOnlyInitial(true);
-        }
-        /// Do the motion blur
-        {
-            Ogre::CompositionTargetPass* tp = t->createTargetPass();
-            tp->setInputMode(Ogre::CompositionTargetPass::IM_NONE);
-            tp->setOutputName("temp");
-            {
-                Ogre::CompositionPass* pass = tp->createPass();
-                pass->setType(Ogre::CompositionPass::PT_RENDERQUAD);
-                pass->setMaterialName("Ogre/Compositor/Combine");
-                pass->setInput(0, "scene");
-                pass->setInput(1, "sum");
-            }
-        }
-        /// Copy back sum texture
-        {
-            Ogre::CompositionTargetPass* tp = t->createTargetPass();
-            tp->setInputMode(Ogre::CompositionTargetPass::IM_NONE);
-            tp->setOutputName("sum");
-            {
-                Ogre::CompositionPass* pass = tp->createPass();
-                pass->setType(Ogre::CompositionPass::PT_RENDERQUAD);
-                pass->setMaterialName("Ogre/Compositor/Copyback");
-                pass->setInput(0, "temp");
-            }
-        }
-        /// Display result
-        {
-            Ogre::CompositionTargetPass* tp = t->getOutputTargetPass();
-            tp->setInputMode(Ogre::CompositionTargetPass::IM_NONE);
-            {
-                Ogre::CompositionPass* pass = tp->createPass();
-                pass->setType(Ogre::CompositionPass::PT_RENDERQUAD);
-                pass->setMaterialName("Ogre/Compositor/MotionBlur");
-                pass->setInput(0, "sum");
-            }
-        }
-    }
-
-    Ogre::CompositorManager::getSingleton().addCompositor(gEnv->mainCamera->getViewport(), "MotionBlur");
-    Ogre::CompositorManager::getSingleton().setCompositorEnabled(gEnv->mainCamera->getViewport(), "MotionBlur", true);
-}
-
-void TerrainManager::initSunburn()
-{
-    CompositorManager::getSingleton().addCompositor(gEnv->mainCamera->getViewport(), "Sunburn");
-    CompositorManager::getSingleton().setCompositorEnabled(gEnv->mainCamera->getViewport(), "Sunburn", true);
 }
 
 void TerrainManager::fixCompositorClearColor()

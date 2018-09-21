@@ -145,13 +145,8 @@ void RoR::GUI::GameSettings::Draw()
             "Reflection + refraction (quality optimized)\0"
             "HydraX\0\0");
 
-        DrawGCheckbox(App::gfx_enable_sunburn,   "Sunburn effect");
         DrawGCheckbox(App::gfx_water_waves,      "Waves on water");
         DrawGCheckbox(App::gfx_minimap_disabled, "Minimap disabled");
-        DrawGCheckbox(App::gfx_enable_glow,      "Glow (bloom) effect");
-        DrawGCheckbox(App::gfx_enable_hdr,       "HDR (high dynamic range)");
-        DrawGCheckbox(App::gfx_enable_dof,       "DOF (depth of field)");
-        DrawGCheckbox(App::gfx_enable_heathaze,  "HeatHaze effect");
         DrawGCheckbox(App::gfx_enable_videocams, "Render VideoCameras");
         DrawGCheckbox(App::gfx_envmap_enabled,   "Realtime reflections");
         DrawGIntCheck(App::gfx_particles_mode,   "Enable particle gfx");
@@ -185,7 +180,6 @@ void RoR::GUI::GameSettings::Draw()
         DrawGCheckbox(App::diag_log_beam_break,      "Log beam breaking");
         DrawGCheckbox(App::diag_log_beam_deform,     "Log beam deforming");
         DrawGCheckbox(App::diag_log_beam_trigger,    "Log beam triggers");
-        DrawGCheckbox(App::diag_dof_effect,          "Debug DOF (depth of field)");
         DrawGTextEdit(App::diag_preset_terrain,      "Preselected terrain",         m_buf_diag_preset_terrain, false);
         DrawGTextEdit(App::diag_preset_vehicle,      "Preselected vehicle",         m_buf_diag_preset_vehicle);
         DrawGTextEdit(App::diag_preset_veh_config,   "Presel. veh. config",         m_buf_diag_preset_veh_config);

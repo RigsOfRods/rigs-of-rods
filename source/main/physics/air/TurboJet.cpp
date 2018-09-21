@@ -29,9 +29,8 @@
 
 using namespace Ogre;
 
-Turbojet::Turbojet(int tnumber, int trucknum, node_t* nd, int tnodefront, int tnodeback, int tnoderef, float tmaxdrythrust, bool treversable, float tafterburnthrust, float diskdiam, bool _heathaze)
+Turbojet::Turbojet(int tnumber, int trucknum, node_t* nd, int tnodefront, int tnodeback, int tnoderef, float tmaxdrythrust, bool treversable, float tafterburnthrust, float diskdiam)
 {
-    heathaze = _heathaze;
     nodes = nd;
     number = tnumber;
     this->trucknum = trucknum;
@@ -101,15 +100,6 @@ void Turbojet::SetupVisuals(std::string const& propname, Ogre::Entity* nozzle, f
             smokeNode->attachObject(smokePS);
             smokePS->setCastShadows(false);
         }
-
-        heathazePS = 0;
-        if (heathaze)
-        {
-            heathazePS = gEnv->sceneManager->createParticleSystem("SmokeHeat-"+propname, "tracks/JetHeatHaze");
-            smokeNode->attachObject(heathazePS);
-            heathazePS->setCastShadows(false);
-            heathazePS->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
-        }
     }
 }
 
@@ -164,16 +154,8 @@ void Turbojet::updateVisuals(RoR::GfxActor* gfx_actor)
     {
         smokeNode->setPosition(node_buf[nodeback].AbsPosition);
         ParticleEmitter* emit = smokePS->getEmitter(0);
-        ParticleEmitter* hemit = 0;
-        if (heathazePS)
-            hemit = heathazePS->getEmitter(0);
         emit->setDirection(-axis);
         emit->setParticleVelocity(exhaust_velocity);
-        if (hemit)
-        {
-            hemit->setDirection(-axis);
-            hemit->setParticleVelocity(exhaust_velocity);
-        }
         if (!failed)
         {
             if (ignition)
@@ -181,17 +163,10 @@ void Turbojet::updateVisuals(RoR::GfxActor* gfx_actor)
                 emit->setEnabled(true);
                 emit->setColour(ColourValue(0.0, 0.0, 0.0, 0.02 + throtle * 0.03));
                 emit->setTimeToLive((0.02 + throtle * 0.03) / 0.1);
-                if (hemit)
-                {
-                    hemit->setEnabled(true);
-                    hemit->setTimeToLive((0.02 + throtle * 0.03) / 0.1);
-                }
             }
             else
             {
                 emit->setEnabled(false);
-                if (hemit)
-                    hemit->setEnabled(false);
             }
         }
         else
@@ -200,15 +175,7 @@ void Turbojet::updateVisuals(RoR::GfxActor* gfx_actor)
             emit->setParticleVelocity(7.0);
             emit->setEnabled(true);
             emit->setColour(ColourValue(0.0, 0.0, 0.0, 0.1));
-            emit->setTimeToLive(0.1 / 0.1);
-
-            if (hemit)
-            {
-                hemit->setDirection(Vector3(0, 1, 0));
-                hemit->setParticleVelocity(7.0);
-                hemit->setEnabled(true);
-                hemit->setTimeToLive(0.1 / 0.1);
-            }
+            emit->setTimeToLive(0.1 / 0.1);           
         }
     }
 }

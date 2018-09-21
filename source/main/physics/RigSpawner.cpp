@@ -292,7 +292,6 @@ void ActorSpawner::InitializeRig()
     m_actor->m_net_custom_light_count = 0;
 
     m_actor->ar_sim_state = Actor::SimState::LOCAL_SLEEPING;
-    m_actor->ar_use_heathaze=false;
     m_actor->m_fusealge_airfoil = nullptr;
     m_actor->m_fusealge_front = nullptr;
     m_actor->m_fusealge_back = nullptr;
@@ -334,7 +333,10 @@ void ActorSpawner::InitializeRig()
 
     m_actor->ar_collision_relevant = false;
 
-    m_actor->ar_use_heathaze = !m_actor->m_disable_smoke && App::gfx_enable_heathaze.GetActive();
+    m_actor->m_debug_visuals = 0;
+
+    m_actor->ar_driverseat_prop = nullptr;
+
     m_actor->ar_hide_in_actor_list = false;
 
     m_actor->ar_anim_previous_crank = 0.f;
@@ -668,8 +670,7 @@ void ActorSpawner::ProcessTurbojet(RigDef::Turbojet & def)
         def.dry_thrust,
         def.is_reversable != 0,
         def.wet_thrust,
-        def.front_diameter, 
-        m_actor->ar_use_heathaze);
+        def.front_diameter);
     
     // Visuals
     std::string nozzle_name = this->ComposeName("TurbojetNozzle", m_actor->ar_num_aeroengines);
@@ -802,10 +803,10 @@ void ActorSpawner::BuildAerialEngine(
         m_actor->ar_instance_id,
         m_actor->m_disable_smoke,
         ! is_turboprops,
-        pitch,
-        m_actor->ar_use_heathaze
+        pitch
     );
-    m_actor->ar_aeroengines[aeroengine_index] = turbo_prop;
+
+    m_actor->ar_aeroengines[m_actor->ar_num_aeroengines] = turbo_prop;
     m_actor->ar_num_aeroengines++;
     m_actor->ar_driveable = AIRPLANE;
 

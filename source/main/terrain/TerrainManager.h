@@ -77,8 +77,6 @@ private:
     void initTerrainCollisions();
     void initDashboards();
     void initFog();
-    void initGlow();
-    void initHDR();
     void initLight();
     void initMotionBlur();
     void initObjects();

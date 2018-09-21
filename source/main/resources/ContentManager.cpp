@@ -67,16 +67,11 @@ DECLARE_RESOURCE_PACK( OGRE_CORE,             "OgreCore",             "OgreCoreR
 DECLARE_RESOURCE_PACK( WALLPAPERS,            "wallpapers",           "Wallpapers");
 DECLARE_RESOURCE_PACK( AIRFOILS,              "airfoils",             "AirfoilsRG");
 DECLARE_RESOURCE_PACK( BEAM_OBJECTS,          "beamobjects",          "BeamObjectsRG");
-DECLARE_RESOURCE_PACK( BLUR,                  "blur",                 "BlurRG");
 DECLARE_RESOURCE_PACK( CAELUM,                "caelum",               "CaelumRG");
 DECLARE_RESOURCE_PACK( CUBEMAPS,              "cubemaps",             "CubemapsRG");
 DECLARE_RESOURCE_PACK( DASHBOARDS,            "dashboards",           "DashboardsRG");
-DECLARE_RESOURCE_PACK( DEPTH_OF_FIELD,        "dof",                  "DepthOfFieldRG");
 DECLARE_RESOURCE_PACK( FAMICONS,              "famicons",             "FamiconsRG");
 DECLARE_RESOURCE_PACK( FLAGS,                 "flags",                "FlagsRG");
-DECLARE_RESOURCE_PACK( GLOW,                  "glow",                 "GlowRG");
-DECLARE_RESOURCE_PACK( HDR,                   "hdr",                  "HdrRG");
-DECLARE_RESOURCE_PACK( HEATHAZE,              "heathaze",             "HeatHazeRG");
 DECLARE_RESOURCE_PACK( HYDRAX,                "hydrax",               "HydraxRG");
 DECLARE_RESOURCE_PACK( ICONS,                 "icons",                "IconsRG");
 DECLARE_RESOURCE_PACK( MATERIALS,             "materials",            "MaterialsRG");
@@ -89,7 +84,6 @@ DECLARE_RESOURCE_PACK( PSSM,                  "pssm",                 "PssmRG");
 DECLARE_RESOURCE_PACK( RTSHADER,              "rtshader",             "RtShaderRG");
 DECLARE_RESOURCE_PACK( SCRIPTS,               "scripts",              "ScriptsRG");
 DECLARE_RESOURCE_PACK( SOUNDS,                "sounds",               "SoundsRG");
-DECLARE_RESOURCE_PACK( SUNBURN,               "sunburn",              "SunburnRG");
 DECLARE_RESOURCE_PACK( TEXTURES,              "textures",             "TexturesRG");
 DECLARE_RESOURCE_PACK( SKYX,                  "SkyX",                 "SkyXRG");
 
@@ -379,7 +373,6 @@ void ContentManager::LoadGameplayResources()
     {
         this->AddResourcePack(ContentManager::ResourcePack::AIRFOILS);
         this->AddResourcePack(ContentManager::ResourcePack::BEAM_OBJECTS);
-
         this->AddResourcePack(ContentManager::ResourcePack::TEXTURES);
         this->AddResourcePack(ContentManager::ResourcePack::ICONS);
         this->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
@@ -403,26 +396,7 @@ void ContentManager::LoadGameplayResources()
         this->AddResourcePack(ContentManager::ResourcePack::SKYX);
 
     if (App::gfx_vegetation_mode.GetActive() != RoR::GfxVegetation::NONE)
-        this->AddResourcePack(ContentManager::ResourcePack::PAGED);
-
-    if (App::gfx_enable_hdr.GetActive())
-        this->AddResourcePack(ContentManager::ResourcePack::HDR);
-
-    if (App::gfx_enable_dof.GetActive())
-        this->AddResourcePack(ContentManager::ResourcePack::DEPTH_OF_FIELD);
-
-    if (App::gfx_enable_glow.GetActive())
-        this->AddResourcePack(ContentManager::ResourcePack::GLOW);
-
-    if (App::gfx_motion_blur.GetActive())
-        this->AddResourcePack(ContentManager::ResourcePack::BLUR);
-
-    if (App::gfx_enable_heathaze.GetActive())
-        this->AddResourcePack(ContentManager::ResourcePack::HEATHAZE);
-
-    if (App::gfx_enable_sunburn.GetActive())
-        this->AddResourcePack(ContentManager::ResourcePack::SUNBURN);
-}
+        this->AddResourcePack(ContentManager::ResourcePack::PAGED);}
 
 void ContentManager::RegenCache()
 {
