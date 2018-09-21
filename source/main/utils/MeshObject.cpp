@@ -151,7 +151,7 @@ void MeshObject::postProcess()
 
             Ogre::MeshManager::getSingleton().load(iterFiles->filename, mesh->getGroup());
             //mesh->createManualLodLevel(distance, iterFiles->filename);
-            MeshLodGenerator::getSingleton().generateAutoconfiguredLodLevels(mesh);
+            //MeshLodGenerator::getSingleton().generateAutoconfiguredLodLevels(mesh);
         }
 
         // the custom LODs
@@ -167,7 +167,7 @@ void MeshObject::postProcess()
 
             Ogre::MeshManager::getSingleton().load(iterFiles->filename, mesh->getGroup());
             //mesh->createManualLodLevel(i, iterFiles->filename);
-            MeshLodGenerator::getSingleton().generateAutoconfiguredLodLevels(mesh);
+            //MeshLodGenerator::getSingleton().generateAutoconfiguredLodLevels(mesh);
         }
     }
 
@@ -192,6 +192,7 @@ void MeshObject::postProcess()
         sceneNode->getAttachedObject(0)->setCastShadows(castshadows);
 
     sceneNode->setVisible(visible);
+    
 }
 
 void MeshObject::loadMesh()
