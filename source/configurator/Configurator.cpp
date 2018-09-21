@@ -181,18 +181,12 @@ private:
     wxCheckBox *debug_triggers;
     wxCheckBox *debug_vidcam;
     wxCheckBox *dismap;
-    wxCheckBox *dof;
-    wxCheckBox *dofdebug;
     wxCheckBox *dtm;
     wxCheckBox *envmap;
     wxCheckBox *extcam;
     wxCheckBox *ffEnable;
-    wxCheckBox *glow;
-    wxCheckBox *hdr;
-    wxCheckBox *heathaze;
     wxCheckBox *ingame_console;
     wxCheckBox *dev_mode;
-    wxCheckBox *mblur;
     wxCheckBox *mirror;
     wxCheckBox *particles;
     wxCheckBox *posstor;
@@ -200,7 +194,6 @@ private:
     wxCheckBox *selfcollisions;
     wxCheckBox *shadowOptimizations;
     wxCheckBox *skidmarks;
-    wxCheckBox *sunburn;
     wxCheckBox *thread;
     wxCheckBox *waves;
     wxNotebook *nbook;
@@ -886,10 +879,6 @@ MyDialog::MyDialog(const wxString& title) : wxDialog(NULL, wxID_ANY, title,  wxP
     dcm->SetToolTip(_("Shows all Collision meshes in Red to be able to position them correctly. Only use for debugging!"));
     y+=15;
 
-    dofdebug=new wxCheckBox(debugPanel, -1, _("Enable Depth of Field Debug"), wxPoint(10, y));
-    dofdebug->SetToolTip(_("Shows the DOF debug display on the screen in order to identify DOF problems"));
-    y+=15;
-
     dText = new wxStaticText(debugPanel, -1, _("Input Grabbing:"), wxPoint(10,y+3));
     inputgrab=new wxValueChoice(debugPanel, -1, wxPoint(x_row1, y), wxSize(200, -1), 0);
     inputgrab->AppendValueItem(wxT("All"),         _("All"));
@@ -985,9 +974,6 @@ MyDialog::MyDialog(const wxString& title) : wxDialog(NULL, wxID_ANY, title,  wxP
     dText = new wxStaticText(graphicsPanel, -1, _("Particle systems:"), wxPoint(10, y));
     particles=new wxCheckBox(graphicsPanel, -1, _("Enable Particle Systems"), wxPoint(x_row1, y));
     particles->SetToolTip(_("This may hurt framerate a bit on old systems, but it looks pretty good."));
-    heathaze=new wxCheckBox(graphicsPanel, -1, _("HeatHaze"), wxPoint(x_row2, y));
-    heathaze->SetToolTip(_("Heat Haze from engines, major slowdown. (only activate with recent hardware)"));
-    heathaze->Disable();
     y+=25;
 
     dText = new wxStaticText(graphicsPanel, -1, _("Cockpit options:"), wxPoint(10, y));
@@ -996,16 +982,6 @@ MyDialog::MyDialog(const wxString& title) : wxDialog(NULL, wxID_ANY, title,  wxP
     y+=25;
 
     dText = new wxStaticText(graphicsPanel, -1, _("Visual effects:"), wxPoint(10, y));
-    sunburn=new wxCheckBox(graphicsPanel, -1, _("Sunburn"), wxPoint(x_row1, y));
-    sunburn->SetToolTip(_("Requires a recent video card. Adds a bluish blinding effect."));
-    sunburn->Disable();
-
-    hdr=new wxCheckBox(graphicsPanel, -1, _("HDR"), wxPoint(x_row2, y));
-    hdr->SetToolTip(_("Requires a recent video card. Add a lightning effect that simulates the light sensitivity of the human eye."));
-    y+=15;
-
-    mblur=new wxCheckBox(graphicsPanel, -1, _("Motion blur"), wxPoint(x_row1, y));
-    mblur->SetToolTip(_("Requires a recent video card. Adds a motion blur effect."));
 
     skidmarks=new wxCheckBox(graphicsPanel, -1, _("Skidmarks"), wxPoint(x_row2, y));
     skidmarks->SetToolTip(_("Adds tire tracks to the ground."));
@@ -1014,14 +990,6 @@ MyDialog::MyDialog(const wxString& title) : wxDialog(NULL, wxID_ANY, title,  wxP
     envmap=new wxCheckBox(graphicsPanel, -1, _("HQ reflections"), wxPoint(x_row1, y));
     envmap->SetToolTip(_("Enables high quality reflective effects. Causes a slowdown."));
     y+=15;
-
-    glow=new wxCheckBox(graphicsPanel, -1, _("Glow"), wxPoint(x_row1, y));
-    glow->SetToolTip(_("Adds a glow effect to lights"));
-    glow->Disable();
-
-    dof=new wxCheckBox(graphicsPanel, -1, _("DOF"), wxPoint(x_row2, y));
-    dof->SetToolTip(_("Adds a nice depth of field effect to the scene."));
-    y+=25;
 
     dText = new wxStaticText(graphicsPanel, -1, _("Screenshot Format:"), wxPoint(10, y));
     screenShotFormat=new wxValueChoice(graphicsPanel, -1, wxPoint(x_row1, y), wxSize(200, -1), 0);
@@ -1622,8 +1590,6 @@ void MyDialog::SetDefaults()
     debug_triggers->SetValue(false);
     debug_vidcam->SetValue(false);
     dismap->SetValue(false);
-    dof->SetValue(false);
-    dofdebug->SetValue(false);
     dtm->SetValue(false);
     envmap->SetValue(true);
     extcam->SetValue(false);
@@ -1637,13 +1603,9 @@ void MyDialog::SetDefaults()
     fovint->SetValue(wxT("75"));
     fpsLimiter->SetValue(0);           // 0 = unlimited
     gearBoxMode->SetSelection(0);
-    glow->SetValue(false);
-    hdr->SetValue(false);
-    heathaze->SetValue(false);
     ingame_console->SetValue(false);
     dev_mode->SetValue(false);
     inputgrab->SetSelection(0);          // All
-    mblur->SetValue(false);
     mirror->SetValue(true);
     particles->SetValue(true);
     posstor->SetValue(false);
@@ -1657,7 +1619,6 @@ void MyDialog::SetDefaults()
     sightRange->SetValue(5000);          // 5k = unlimited
     skidmarks->SetValue(true);
     sky->SetSelection(1);                // caelum
-    sunburn->SetValue(false);
     textfilt->SetSelection(3);           // anisotropic
     thread->SetValue(false);
     vegetationMode->SetSelection(3);     // Full
@@ -1680,8 +1641,6 @@ void MyDialog::getSettingsControls()
     settings["Beam Break Debug"] = (beam_break_debug->GetValue()) ? "Yes" : "No";
     settings["Beam Deform Debug"] = (beam_deform_debug->GetValue()) ? "Yes" : "No";
     settings["Configurator Size"] = TOSTRING(this->GetSize().x) + ", " + TOSTRING(this->GetSize().y);
-    settings["DOF"] = (dof->GetValue()) ? "Yes" : "No";
-    settings["DOFDebug"] = (dofdebug->GetValue()) ? "Yes" : "No";
     settings["Debug Collisions"] = (dcm->GetValue()) ? "Yes" : "No";
     settings["Debug Truck Mass"] = (dtm->GetValue()) ? "Yes" : "No";
     settings["DisableCollisions"] = (collisions->GetValue()) ? "Yes" : "No";
@@ -1701,12 +1660,10 @@ void MyDialog::getSettingsControls()
     settings["Force Feedback"] = (ffEnable->GetValue()) ? "Yes" : "No";
     settings["GearboxMode"]= gearBoxMode->getSelectedValueAsSTDString();
     settings["Glow"] = "No"; //(glow->GetValue()) ? "Yes" : "No";
-    settings["HDR"] = (hdr->GetValue()) ? "Yes" : "No";
     settings["HeatHaze"] = "No"; //(heathaze->GetValue()) ? "Yes" : "No";
     settings["Input Grab"] = inputgrab->getSelectedValueAsSTDString();
     settings["Lights"] = flaresMode->getSelectedValueAsSTDString();
     settings["Mirrors"] = (mirror->GetValue()) ? "Yes" : "No";
-    settings["Motion blur"] = (mblur->GetValue()) ? "Yes" : "No";
     settings["Multi-threading"] = (thread->GetValue()) ? "No" : "Yes";
     settings["Particles"] = (particles->GetValue()) ? "Yes" : "No";
     settings["Position Storage"] = (posstor->GetValue()) ? "Yes" : "No";
@@ -1799,8 +1756,6 @@ void MyDialog::updateSettingsControls()
     st = settings["ArcadeControls"]; if (st.length()>0) arcadeControls->SetValue(st=="Yes");
     st = settings["Beam Break Debug"]; if (st.length()>0) beam_break_debug->SetValue(st=="Yes");
     st = settings["Beam Deform Debug"]; if (st.length()>0) beam_deform_debug->SetValue(st=="Yes");
-    st = settings["DOF"]; if (st.length()>0) dof->SetValue(st=="Yes");
-    st = settings["DOFDebug"]; if (st.length()>0) dofdebug->SetValue(st=="Yes");
     st = settings["Debug Collisions"]; if (st.length()>0) dcm->SetValue(st=="Yes");
     st = settings["Debug Truck Mass"]; if (st.length()>0) dtm->SetValue(st=="Yes");
     st = settings["DisableCollisions"]; if (st.length()>0) collisions->SetValue(st=="Yes");
@@ -1810,10 +1765,7 @@ void MyDialog::updateSettingsControls()
     st = settings["EnvMapDebug"]; if (st.length()>0) debug_envmap->SetValue(st=="Yes");
     st = settings["Envmap"]; if (st.length()>0) envmap->SetValue(st=="Yes");
     st = settings["External Camera Mode"]; if (st.length()>0) extcam->SetValue(st=="Static");
-    st = settings["HDR"]; if (st.length()>0) hdr->SetValue(st=="Yes");
-    st = settings["HeatHaze"]; if (st.length()>0) heathaze->SetValue(st=="Yes");
     st = settings["Mirrors"]; if (st.length()>0) mirror->SetValue(st=="Yes");
-    st = settings["Motion blur"]; if (st.length()>0) mblur->SetValue(st=="Yes");
     st = settings["Multi-threading"]; if (st.length()>0) thread->SetValue(st=="No");
     st = settings["Particles"]; if (st.length()>0) particles->SetValue(st=="Yes");
     st = settings["Position Storage"]; if (st.length()>0) posstor->SetValue(st=="Yes");

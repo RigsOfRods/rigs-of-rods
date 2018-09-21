@@ -25,7 +25,6 @@
 #include "BeamFactory.h"
 #include "Character.h"
 #include "Collisions.h"
-#include "DepthOfFieldEffect.h"
 #include "GUI_GameConsole.h"
 #include "InputEngine.h"
 #include "Language.h"
@@ -134,24 +133,6 @@ CameraManager::~CameraManager()
         delete m_splinecam_mo;
 
     delete m_cct_dof_manager;
-}
-
-void CameraManager::ActivateDepthOfFieldEffect()
-{
-    if (m_cct_dof_manager == nullptr)
-    {
-        m_cct_dof_manager = new DOFManager();
-        m_cct_dof_manager->setFocusMode(DOFManager::Auto);
-    }
-    m_cct_dof_manager->setEnabled(true);
-}
-
-void CameraManager::DisableDepthOfFieldEffect()
-{
-    if (m_cct_dof_manager != nullptr)
-    {
-        m_cct_dof_manager->setEnabled(false);
-    }
 }
 
 bool CameraManager::EvaluateSwitchBehavior()

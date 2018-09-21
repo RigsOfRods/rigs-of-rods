@@ -46,13 +46,11 @@ Turboprop::Turboprop(
     int trucknum,
     bool disable_smoke,
     bool ispiston,
-    float fpitch,
-    bool _heathaze
+    float fpitch
 )
 {
     failed = false;
     failedold = false;
-    heathaze = _heathaze;
     number = mnumber;
     this->trucknum = trucknum;
 #ifdef USE_OPENAL
@@ -136,16 +134,6 @@ Turboprop::Turboprop(
             smokePS->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
             smokeNode->attachObject(smokePS);
             smokePS->setCastShadows(false);
-        }
-
-        heathazePS = 0;
-        if (heathaze)
-        {
-            sprintf(dename, "%s-smoke-heat", propname);
-            heathazePS = gEnv->sceneManager->createParticleSystem(dename, "tracks/TurbopropHeatHaze");
-            smokeNode->attachObject(heathazePS);
-            heathazePS->setCastShadows(false);
-            heathazePS->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
         }
     }
 

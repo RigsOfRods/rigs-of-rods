@@ -641,14 +641,9 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckGfxWaterMode                         (k, v)) { return true; }
     if (CheckGfxSkyMode                           (k, v)) { return true; }
     if (CheckSpeedoImperial                       (k, v)) { return true; }
-    if (CheckBool (App::gfx_enable_sunburn,        k, v)) { return true; }
     if (CheckBool (App::gfx_water_waves,           k, v)) { return true; }
     if (CheckBool (App::gfx_minimap_disabled,      k, v)) { return true; }
     if (CheckB2I  (App::gfx_particles_mode,        k, v)) { return true; }
-    if (CheckBool (App::gfx_enable_glow,           k, v)) { return true; }
-    if (CheckBool (App::gfx_enable_hdr,            k, v)) { return true; }
-    if (CheckBool (App::gfx_enable_dof,            k, v)) { return true; }
-    if (CheckBool (App::gfx_enable_heathaze,       k, v)) { return true; }
     if (CheckBool (App::gfx_enable_videocams,      k, v)) { return true; }
     if (CheckB2I  (App::gfx_skidmarks_mode,        k, v)) { return true; }
     if (CheckBool (App::gfx_envmap_enabled,        k, v)) { return true; }
@@ -658,7 +653,6 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckInt  (App::gfx_fps_limit,             k, v)) { return true; }
     if (CheckBool (App::gfx_minimap_disabled,      k, v)) { return true; }
     if (CheckBool (App::gfx_speedo_digital,        k, v)) { return true; }
-    if (CheckBool (App::gfx_motion_blur,           k, v)) { return true; }
     // Audio
     if (CheckFloat(App::audio_master_volume,       k, v)) { return true; }
     if (CheckBool (App::audio_enable_creak,        k, v)) { return true; }
@@ -676,7 +670,6 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckBool (App::diag_log_beam_break,       k, v)) { return true; }
     if (CheckBool (App::diag_log_beam_deform,      k, v)) { return true; }
     if (CheckBool (App::diag_log_beam_trigger,     k, v)) { return true; }
-    if (CheckBool (App::diag_dof_effect,           k, v)) { return true; }
     if (CheckStrAS(App::diag_preset_terrain,       k, v)) { return true; }
     if (CheckStrAS(App::diag_preset_vehicle,       k, v)) { return true; }
     if (CheckStr  (App::diag_preset_veh_config,    k, v)) { return true; }
@@ -919,19 +912,13 @@ void Settings::SaveSettings()
     WriteAny (f, App::gfx_flares_mode.conf_name    , GfxFlaresToStr    (App::gfx_flares_mode.GetActive     ()));
     WriteAny (f, App::gfx_water_mode.conf_name     , GfxWaterToStr     (App::gfx_water_mode.GetActive      ()));
     WriteAny (f, App::gfx_sky_mode.conf_name       , GfxSkyToStr       (App::gfx_sky_mode.GetActive        ()));
-    WriteYN  (f, App::gfx_enable_sunburn  );
     WriteYN  (f, App::gfx_enable_videocams);
     WriteYN  (f, App::gfx_water_waves     );
     WriteYN  (f, App::gfx_minimap_disabled);
     WriteYN  (f, App::gfx_particles_mode  );
-    WriteYN  (f, App::gfx_enable_glow     );
-    WriteYN  (f, App::gfx_enable_hdr      );
-    WriteYN  (f, App::gfx_enable_dof      );
-    WriteYN  (f, App::gfx_enable_heathaze );
     WriteYN  (f, App::gfx_skidmarks_mode  );
     WriteYN  (f, App::gfx_speedo_digital  );
     WriteYN  (f, App::gfx_speedo_imperial );
-    WriteYN  (f, App::gfx_motion_blur     );
     WriteYN  (f, App::gfx_envmap_enabled  );
     WritePod (f, App::gfx_envmap_rate     );
     WritePod (f, App::gfx_sight_range     );
@@ -956,7 +943,6 @@ void Settings::SaveSettings()
     WriteYN  (f, App::diag_log_beam_break     );
     WriteYN  (f, App::diag_log_beam_deform    );
     WriteYN  (f, App::diag_log_beam_trigger   );
-    WriteYN  (f, App::diag_dof_effect         );
     WriteYN  (f, App::diag_preset_veh_enter   );
     WriteStr (f, App::diag_preset_terrain     );
     WriteStr (f, App::diag_preset_vehicle     );

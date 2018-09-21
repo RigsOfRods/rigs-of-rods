@@ -51,9 +51,6 @@ set(SOURCE_FILES
         gfx/DustPool.{h,cpp}
         gfx/EnvironmentMap.{h,cpp}
         gfx/GfxActor.{h,cpp}
-        gfx/GlowMaterialListener.h
-        gfx/HDRListener.{h,cpp}
-        gfx/Heathaze.{h,cpp}
         gfx/HydraxWater.{h,cpp}
         gfx/IWater.h
         gfx/MovableText.{h,cpp}
@@ -74,8 +71,6 @@ set(SOURCE_FILES
         gfx/camera/CameraBehaviorVehicleSpline.{h,cpp}
         gfx/camera/CameraManager.{h,cpp}
         gfx/camera/PerVehicleCameraContext.h
-        gfx/dof/DepthOfFieldEffect.{h,cpp}
-        gfx/dof/Lens.{h,cpp}
         gfx/hydrax/CfgFileManager.{h,cpp}
         gfx/hydrax/DecalsManager.{h,cpp}
         gfx/hydrax/Enums.{h,cpp}
@@ -373,7 +368,6 @@ target_include_directories(${BINNAME} PRIVATE
         gameplay
         gfx
         gfx/camera
-        gfx/dof
         gfx/hydrax
         gfx/particle
         gfx/procedural
