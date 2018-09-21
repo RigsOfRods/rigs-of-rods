@@ -696,7 +696,6 @@ extern GVarPod_A<bool>         diag_log_console_echo;
 extern GVarPod_A<bool>         diag_log_beam_break;
 extern GVarPod_A<bool>         diag_log_beam_deform;
 extern GVarPod_A<bool>         diag_log_beam_trigger;
-extern GVarPod_A<bool>         diag_dof_effect;
 extern GVarStr_AP<300>         diag_extra_resource_dir;
 
 // System
@@ -737,14 +736,9 @@ extern GVarEnum_AP<GfxSkyMode>    gfx_sky_mode;
 extern GVarEnum_AP<GfxTexFilter>  gfx_texture_filter;
 extern GVarEnum_AP<GfxVegetation> gfx_vegetation_mode;
 extern GVarEnum_AP<GfxWaterMode>  gfx_water_mode;
-extern GVarPod_A<bool>            gfx_enable_sunburn;
 extern GVarPod_A<bool>         gfx_water_waves;
 extern GVarPod_A<bool>         gfx_minimap_disabled;
 extern GVarPod_A<int>          gfx_particles_mode;
-extern GVarPod_A<bool>         gfx_enable_glow;
-extern GVarPod_A<bool>         gfx_enable_hdr;
-extern GVarPod_A<bool>         gfx_enable_dof;
-extern GVarPod_A<bool>         gfx_enable_heathaze;
 extern GVarPod_A<bool>         gfx_enable_videocams;
 extern GVarPod_A<bool>         gfx_envmap_enabled;
 extern GVarPod_A<int>          gfx_envmap_rate;
@@ -755,7 +749,6 @@ extern GVarPod_APS<float>      gfx_fov_internal;
 extern GVarPod_A<int>          gfx_fps_limit;
 extern GVarPod_A<bool>         gfx_speedo_digital;
 extern GVarPod_A<bool>         gfx_speedo_imperial;
-extern GVarPod_A<bool>         gfx_motion_blur;
 
 // Getters
 OgreSubsystem*       GetOgreSubsystem();

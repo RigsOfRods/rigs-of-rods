@@ -47,7 +47,6 @@
 #include "GUI_MainSelector.h"
 #include "GUI_MultiplayerClientList.h"
 #include "GUI_MultiplayerSelector.h"
-#include "Heathaze.h"
 #include "InputEngine.h"
 #include "Language.h"
 #include "MumbleIntegration.h"

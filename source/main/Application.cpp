@@ -168,14 +168,9 @@ static TerrainManager*  g_sim_terrain;
  GVarEnum_AP<GfxTexFilter>   gfx_texture_filter   ("gfx_texture_filter",      "Texture Filtering",         GfxTexFilter::TRILINEAR, GfxTexFilter::TRILINEAR);
  GVarEnum_AP<GfxVegetation>  gfx_vegetation_mode  ("gfx_vegetation_mode",     "Vegetation",                GfxVegetation::NONE,     GfxVegetation::NONE);
  GVarEnum_AP<GfxWaterMode>   gfx_water_mode       ("gfx_water_mode",          "Water effects",             GfxWaterMode::BASIC,     GfxWaterMode::BASIC);
- GVarPod_A<bool>          gfx_enable_sunburn      ("gfx_enable_sunburn",      "Sunburn",                   false);
  GVarPod_A<bool>          gfx_water_waves         ("gfx_water_waves",         "Waves",                     false);
  GVarPod_A<bool>          gfx_minimap_disabled    ("gfx_minimap_disabled",    "disableOverViewMap",        false);
  GVarPod_A<int>           gfx_particles_mode      ("gfx_particles_mode",      "Particles",                 0);
- GVarPod_A<bool>          gfx_enable_glow         ("gfx_enable_glow",         "Glow",                      false);
- GVarPod_A<bool>          gfx_enable_hdr          ("gfx_enable_hdr",          "HDR",                       false);
- GVarPod_A<bool>          gfx_enable_dof          ("gfx_enable_dof",          "DOF",                       false);
- GVarPod_A<bool>          gfx_enable_heathaze     ("gfx_enable_heathaze",     "HeatHaze",                  false);
  GVarPod_A<bool>          gfx_enable_videocams    ("gfx_enable_videocams",    "gfx_enable_videocams",      false);
  GVarPod_A<bool>          gfx_envmap_enabled      ("gfx_envmap_enabled",      "Envmap",                    false);
  GVarPod_A<int>           gfx_envmap_rate         ("gfx_envmap_rate",         "EnvmapUpdateRate",          2);
@@ -186,7 +181,6 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_A<int>           gfx_fps_limit           ("gfx_fps_limit",           "FPS-Limiter",               0); // 0 = unlimited
  GVarPod_A<bool>          gfx_speedo_digital      ("gfx_speedo_digital",      "DigitalSpeedo",             false);
  GVarPod_A<bool>          gfx_speedo_imperial     ("gfx_speedo_imperial",     "gfx_speedo_imperial",       false);
- GVarPod_A<bool>          gfx_motion_blur         ("gfx_motion_blur",         "Motion blur",               false);
 
 // Instance management
 void SetMainMenu       (MainMenu* obj)                { g_main_menu = obj; }

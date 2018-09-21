@@ -35,7 +35,6 @@
 #include "Collisions.h"
 #include "ContentManager.h"
 #include "DashBoardManager.h"
-#include "DepthOfFieldEffect.h"
 #include "DustManager.h"
 #include "EnvironmentMap.h"
 #include "ForceFeedback.h"
@@ -43,7 +42,6 @@
 #include "GUI_TeleportWindow.h"
 #include "GUI_TopMenubar.h"
 #include "GUIManager.h"
-#include "Heathaze.h"
 #include "IWater.h"
 #include "InputEngine.h"
 #include "LandVehicleSimulation.h"
@@ -2118,11 +2116,6 @@ bool SimController::SetupGameplayLoop()
 
     gEnv->sceneManager->setAmbientLight(Ogre::ColourValue(0.3f, 0.3f, 0.3f));
 
-    if (App::gfx_enable_dof.GetActive())
-    {
-        m_camera_manager.ActivateDepthOfFieldEffect();
-    }
-
     return true;
 }
 
@@ -2230,7 +2223,6 @@ void SimController::EnterGameplayLoop()
     this->CleanupAfterSimulation();
     RoRWindowEventUtilities::removeWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
     // DO NOT: App::GetOverlayWrapper()->SetSimController(nullptr); -- already deleted via App::DestroyOverlayWrapper(); // TODO: de-globalize that object!
-    m_camera_manager.DisableDepthOfFieldEffect();
 }
 
 void SimController::ChangePlayerActor(Actor* actor)

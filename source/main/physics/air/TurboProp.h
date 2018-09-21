@@ -51,8 +51,7 @@ public:
         int trucknum,
         bool disable_smoke,
         bool ispiston,
-        float fpitch,
-        bool heathaze
+        float fpitch
     );
     ~Turboprop();
 
@@ -121,7 +120,6 @@ private:
     char debug[256];
     float propwash;
     Ogre::Vector3 axis;
-    bool heathaze;
     int trucknum;
     int mod_id;
     int src_id;

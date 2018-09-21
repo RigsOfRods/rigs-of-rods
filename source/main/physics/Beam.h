@@ -358,7 +358,6 @@ public:
     bool ar_collision_relevant:1;      //!< Physics state;
     bool ar_replay_mode:1;      //!< Sim state
     bool ar_is_police:1;        //!< Gfx/sfx attr
-    bool ar_use_heathaze:1;     //!< Spawner context; TODO:remove
     bool ar_uses_networking:1;  //!< Networking attr; This actor is either remote or has remote counterpart
     bool ar_rescuer_flag:1;     //!< Gameplay attr; defined in truckfile. TODO: Does anybody use this anymore?
     bool ar_forward_commands:1; //!< Sim state

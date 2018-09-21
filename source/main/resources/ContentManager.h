@@ -48,16 +48,11 @@ public:
         static const ResourcePack WALLPAPERS;
         static const ResourcePack AIRFOILS;
         static const ResourcePack BEAM_OBJECTS;
-        static const ResourcePack BLUR;
         static const ResourcePack CAELUM;
         static const ResourcePack CUBEMAPS;
         static const ResourcePack DASHBOARDS;
-        static const ResourcePack DEPTH_OF_FIELD;
         static const ResourcePack FAMICONS;
         static const ResourcePack FLAGS;
-        static const ResourcePack GLOW;
-        static const ResourcePack HDR;
-        static const ResourcePack HEATHAZE;
         static const ResourcePack HYDRAX;
         static const ResourcePack ICONS;
         static const ResourcePack MATERIALS;
@@ -71,7 +66,6 @@ public:
         static const ResourcePack RTSHADER;
         static const ResourcePack SCRIPTS;
         static const ResourcePack SOUNDS;
-        static const ResourcePack SUNBURN;
         static const ResourcePack TEXTURES;
 
         const char* name;
