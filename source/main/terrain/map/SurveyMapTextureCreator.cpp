@@ -46,7 +46,7 @@ SurveyMapTextureCreator::SurveyMapTextureCreator(Ogre::Vector2 terrain_size) :
 
 bool SurveyMapTextureCreator::init()
 {
-    TexturePtr texture = TextureManager::getSingleton().createManual(getTextureName(), ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 2048, 2048, TU_RENDERTARGET, PF_R8G8B8, TU_RENDERTARGET);
+    TexturePtr texture = Ogre::TextureManager::getSingleton ().getByName ("MapRttMat");
 
     if (texture.isNull())
         return false;;
@@ -115,17 +115,17 @@ void SurveyMapTextureCreator::update()
 
 String SurveyMapTextureCreator::getMaterialName()
 {
-    return "MapRttMat" + TOSTRING(mCounter);
+    return "MapRttMat";// +TOSTRING (mCounter); TODO: FIX IT
 }
 
 String SurveyMapTextureCreator::getCameraName()
 {
-    return "MapRttCam" + TOSTRING(mCounter);
+    return "MapRttCam"; //+ TOSTRING(mCounter); TODO: ME TOO 
 }
 
 String SurveyMapTextureCreator::getTextureName()
 {
-    return "MapRttTex" + TOSTRING(mCounter);
+    return "MapRttTex";// + TOSTRING(mCounter); TODO: ALSO ME 
 }
 
 void SurveyMapTextureCreator::preRenderTargetUpdate()
