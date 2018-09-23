@@ -328,7 +328,7 @@ bool CollisionTools::raycast(const Ogre::Ray& ray, Ogre::Vector3& result, Ogre::
         else if ((query_result[qr_idx].movable != NULL) && !query_result[qr_idx].movable->getMovableType().compare("StaticGeometry"))
         {
             // static geometry
-            Ogre::MovableObject* pentity = static_cast<Ogre::MovableObject*>(query_result[qr_idx].movable);
+            //Ogre::MovableObject* pentity = static_cast<Ogre::MovableObject*>(query_result[qr_idx].movable); // unused variable
             Ogre::StaticGeometry::Region* rg = static_cast<Ogre::StaticGeometry::Region*>(query_result[qr_idx].movable);
 
             // this is a quick hack to prevent that we allocate unlimited amount of memory

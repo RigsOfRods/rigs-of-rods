@@ -401,7 +401,7 @@ void Console::eventCommandAccept(MyGUI::Edit* _sender)
 
         String nmsg = RoR::Color::ScriptCommandColour + ">>> " + RoR::Color::NormalColour + command;
         putMessage(CONSOLE_MSGTYPE_SCRIPT, CONSOLE_LOCAL_SCRIPT, nmsg, "script_go.png");
-        int res = ScriptEngine::getSingleton().executeString(command);
+        ScriptEngine::getSingleton().executeString(command);
         return;
     }
 #endif //ANGELSCRIPT

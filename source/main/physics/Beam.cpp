@@ -847,7 +847,7 @@ float Actor::GetTyrePressure()
 
 void Actor::RecalculateNodeMasses(Real total, bool reCalc)
 {
-    bool debugMass = App::diag_truck_mass.GetActive();
+    //bool debugMass = App::diag_truck_mass.GetActive(); // unused variable
 
     //reset
     for (int i = 0; i < ar_num_nodes; i++)

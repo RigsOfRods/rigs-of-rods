@@ -168,7 +168,7 @@ void RoR::Skidmark::AddObject(Ogre::Vector3 start, Ogre::String texture)
     skid.material = Ogre::MaterialManager::getSingleton().create(bname, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
     Ogre::Pass* p = skid.material->getTechnique(0)->getPass(0);
 
-    Ogre::TextureUnitState* tus = p->createTextureUnitState(texture);
+    p->createTextureUnitState(texture);
     p->setSceneBlending(Ogre::SBT_TRANSPARENT_ALPHA);
     p->setLightingEnabled(false);
     p->setDepthWriteEnabled(false);

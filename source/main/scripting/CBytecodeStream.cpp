@@ -39,7 +39,7 @@ int CBytecodeStream::Write(const void* ptr, AngelScript::asUINT size)
 {
     if (!f)
         return -1;
-    size_t result = fwrite(ptr, size, 1, f);
+    fwrite(ptr, size, 1, f);
     return 0;
 }
 

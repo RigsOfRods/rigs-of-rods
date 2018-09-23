@@ -137,7 +137,6 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
 
     Vector3 r2lastpos = Vector3::ZERO;
     Quaternion r2lastrot = Quaternion::IDENTITY;
-    int r2counter = 0;
 
     //long line = 0;
     char line[4096] = "";
