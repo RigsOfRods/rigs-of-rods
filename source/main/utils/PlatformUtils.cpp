@@ -72,7 +72,7 @@ std::wstring MSW_Utf8ToWchar(const char* path)
         RoR::LogFormat("[RoR] Internal error: MSW_Utf8ToWchar() could not convert UTF-8 to UTF-16; MultiByteToWideChar() returned %d", raw_result);
         return std::wstring();
     }
-    return std::move(out_wstr);
+    return out_wstr;
 }
 
 DWORD MSW_GetFileAttrs(const char* path)
@@ -104,7 +104,7 @@ std::string MSW_WcharToUtf8(const wchar_t* wstr) // wstr _must_ be NUL-terminate
         RoR::LogFormat("[RoR] Internal error: MSW_WcharToUtf8() could not convert UTF-16 to UTF-8; WideCharToMultiByte() returned %d", raw_result);
         return std::string();
     }
-    return std::move(dst);
+    return dst;
 }
 
 bool FileExists(const char *path)
@@ -224,7 +224,7 @@ std::string GetParentDirectory(const char* src_buff)
         --count;
     }
     
-    return std::move(std::string(start, count));
+    return std::string(start, count);
 }
 
 
