@@ -2080,10 +2080,10 @@ void InputEngine::grabMouse(bool enable)
 
 void InputEngine::hideMouse(bool visible)
 {
-    static int mode = -1;
     if (!mMouse)
         return;
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+	static int mode = -1;
     if ((visible && mode == 0) || (!visible && mode == 1) || mode == -1)
     {
     //((LinuxMouse *)mMouse)->hide(visible);

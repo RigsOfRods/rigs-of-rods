@@ -252,7 +252,7 @@ void EngineSim::SetEngineOptions(float einertia, char etype, float eclutch, floa
 
 void EngineSim::UpdateEngineSim(float dt, int doUpdate)
 {
-    int actor_id = m_actor->ar_instance_id;
+	//int actor_id = m_actor->ar_instance_id; // unused variable
     float acc = m_cur_acc;
 
     acc = std::max(getIdleMixture(), acc);
