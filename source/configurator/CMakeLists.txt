@@ -36,11 +36,6 @@ include_directories(../main/utils/)
 
 add_definitions("-DNOOGRE -D_UNICODE")
 
-# TODO OpenCL
-
-# TODO GTK
-
-
 if (WIN32)
     add_executable(RoRConfig WIN32 ${sources} ${headers} ${OS_SOURCE} ../main/utils/SHA1.cpp ../main/utils/ErrorUtils.cpp)
     target_link_libraries(RoRConfig PRIVATE Version.lib)
@@ -50,38 +45,48 @@ else (WIN32)
 ENDIF (WIN32)
 
 
-if(CONAN_WXWIDGETS_ROOT AND WIN32)
+if(DEFINED CONAN_WXWIDGETS_ROOT)
   # wxwidgets from Conan
   target_include_directories(RoRConfig PRIVATE CONAN_PKG::wxwidgets)
   target_link_libraries(RoRConfig PRIVATE CONAN_PKG::wxwidgets)
-elseif(wxWidgets_FOUND)
+else()
   set(wxWidgets_USE_UNICODE ON)
   include(${wxWidgets_USE_FILE})
   target_link_libraries(RoRConfig PRIVATE ${wxWidgets_LIBRARIES})
-else()
-  message(FATAL_ERROR "wxwidgets not found!")
 endif()
 
-target_link_libraries(RoRConfig PRIVATE
-        ${OGRE_LIBRARIES}
-        ${OGRE_Paging_LIBRARIES}
-        ${OGRE_RTShaderSystem_LIBRARIES}
-        ${OGRE_Terrain_LIBRARIES}
-        )
-target_include_directories(RoRConfig PRIVATE
-        ${OGRE_INCLUDE_DIRS}
-        ${OGRE_Paging_INCLUDE_DIRS}
-        ${OGRE_RTShaderSystem_INCLUDE_DIRS}
-        ${OGRE_Terrain_INCLUDE_DIRS}
-        )
-if (OGRE_VERSION VERSION_GREATER 1.8)
-    target_link_libraries(RoRConfig PRIVATE ${OGRE_Overlay_LIBRARIES})
-    target_include_directories(RoRConfig PRIVATE ${OGRE_Overlay_INCLUDE_DIRS})
-endif ()
+if(DEFINED CONAN_OGRE_ROOT)
+  include_directories(${CONAN_INCLUDE_DIRS_OGRE}/OGRE)
+  target_link_libraries(RoRConfig PRIVATE CONAN_PKG::OGRE)
+else()
+  target_link_libraries(RoRConfig PRIVATE
+          ${OGRE_LIBRARIES}
+          ${OGRE_Paging_LIBRARIES}
+          ${OGRE_RTShaderSystem_LIBRARIES}
+          ${OGRE_Terrain_LIBRARIES}
+          ${OGRE_Overlay_LIBRARIES}
+          )
+  target_include_directories(RoRConfig PRIVATE
+          ${OGRE_INCLUDE_DIRS}
+          ${OGRE_Paging_INCLUDE_DIRS}
+          ${OGRE_RTShaderSystem_INCLUDE_DIRS}
+          ${OGRE_Terrain_INCLUDE_DIRS}
+          ${OGRE_Overlay_INCLUDE_DIRS}
+          )
+endif()
 
-target_link_libraries(RoRConfig PRIVATE ${OIS_LIBRARIES})
-target_include_directories(RoRConfig PRIVATE ${OIS_INCLUDE_DIRS})
+if(DEFINED CONAN_OGREDEPS_ROOT)
+  include_directories(${CONAN_INCLUDE_DIRS_OGREDEPS}/OIS)
+  target_link_libraries(RoRConfig PRIVATE CONAN_PKG::OGREdeps)
+else()
+  target_link_libraries(RoRConfig PRIVATE ${OIS_LIBRARIES})
+  target_include_directories(RoRConfig PRIVATE ${OIS_INCLUDE_DIRS})
+endif()
 
+if(DEFINED CONAN_MYGUI_ROOT)
+    include_directories(${CONAN_INCLUDE_DIRS_MYGUI}/MYGUI)
+    target_link_libraries(RoRConfig PRIVATE CONAN_PKG::MyGUI)
+else()
 target_link_libraries(RoRConfig PRIVATE
         MyGUI::MyGUI
         MyGUI::OgrePlatform
@@ -90,9 +95,10 @@ target_compile_definitions(RoRConfig PRIVATE
         USE_MYGUI
         $<$<PLATFORM_ID:WINDOWS>:MYGUI_STATIC>
         )
+endif()
 
 # OpenAL - audio library
-if(CONAN_WXWIDGETS_ROOT)
+if(DEFINED CONAN_OPENAL_ROOT)
   target_link_libraries(RoRConfig PRIVATE CONAN_PKG::openal)
   target_include_directories(RoRConfig PRIVATE CONAN_PKG::openal)
   target_compile_definitions(RoRConfig PRIVATE USE_OPENAL)
