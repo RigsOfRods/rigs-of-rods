@@ -614,9 +614,9 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
         m_abs_velocity = m_actor->ar_nodes[0].Velocity.length();
         float velocity = m_abs_velocity;
 
-        if (m_actor->ar_camera_node_pos[0] >= 0 && m_actor->ar_camera_node_dir[0] >= 0)
+        Vector3 hdir = m_actor->GetCameraDir();
+        if (hdir != Vector3::ZERO)
         {
-            Vector3 hdir = (m_actor->ar_nodes[m_actor->ar_camera_node_pos[0]].RelPosition - m_actor->ar_nodes[m_actor->ar_camera_node_dir[0]].RelPosition).normalisedCopy();
             velocity = hdir.dotProduct(m_actor->ar_nodes[0].Velocity);
         }
         m_rel_velocity = std::abs(velocity);

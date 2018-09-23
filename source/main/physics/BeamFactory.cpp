@@ -350,34 +350,7 @@ void ActorManager::SetupActor(
         actor->ar_beams[i].default_beam_plastic_coef   = actor->ar_beams[i].plastic_coef;
     }
 
-    // TODO: Check cam. nodes once on spawn! They never change --> no reason to repeat the check. ~only_a_ptr, 06/2017
-    if (actor->ar_camera_node_pos[0] != actor->ar_camera_node_dir[0] && actor->IsNodeIdValid(actor->ar_camera_node_pos[0]) && actor->IsNodeIdValid(actor->ar_camera_node_dir[0]))
-    {
-        Vector3 cur_dir = actor->ar_nodes[actor->ar_camera_node_pos[0]].RelPosition - actor->ar_nodes[actor->ar_camera_node_dir[0]].RelPosition;
-        actor->m_spawn_rotation = atan2(cur_dir.dotProduct(Vector3::UNIT_X), cur_dir.dotProduct(-Vector3::UNIT_Z));
-    }
-    else if (actor->ar_num_nodes > 1)
-    {
-        float max_dist = 0.0f;
-        int furthest_node = 1;
-        for (int i = 0; i < actor->ar_num_nodes; i++)
-        {
-            float dist = actor->ar_nodes[i].RelPosition.squaredDistance(actor->ar_nodes[0].RelPosition);
-            if (dist > max_dist)
-            {
-                max_dist = dist;
-                furthest_node = i;
-            }
-        }
-        Vector3 cur_dir = actor->ar_nodes[0].RelPosition - actor->ar_nodes[furthest_node].RelPosition;
-        actor->m_spawn_rotation = atan2(cur_dir.dotProduct(Vector3::UNIT_X), cur_dir.dotProduct(-Vector3::UNIT_Z));
-    }
-
-    Vector3 cinecam = actor->ar_nodes[0].AbsPosition;
-    if (actor->IsNodeIdValid(actor->ar_camera_node_pos[0]))
-    {
-        cinecam = actor->ar_nodes[actor->ar_camera_node_pos[0]].AbsPosition;
-    }
+    actor->m_spawn_rotation = actor->getRotation();
 
     // Calculate the approximate median
     std::vector<Real> mx(actor->ar_num_nodes, 0.0f);
@@ -403,6 +376,7 @@ void ActorManager::SetupActor(
     Vector3 average = sum / actor->ar_num_nodes;
 
     // Decide whether or not the cinecam node is an appropriate rotation center
+    Vector3 cinecam = actor->ar_nodes[actor->ar_main_camera_node_pos].AbsPosition;
     actor->m_cinecam_is_rotation_center = cinecam.squaredDistance(median) < average.squaredDistance(median);
 
     TRIGGER_EVENT(SE_GENERIC_NEW_TRUCK, actor->ar_instance_id);

@@ -446,6 +446,10 @@ void ActorSpawner::FinalizeRig()
         }
     }
 
+    m_actor->ar_main_camera_node_pos  = std::max(0, m_actor->ar_camera_node_pos[0]);
+    m_actor->ar_main_camera_node_dir  = std::max(0, m_actor->ar_camera_node_dir[0]);
+    m_actor->ar_main_camera_node_roll = std::max(0, m_actor->ar_camera_node_roll[0]);
+
     if (m_actor->ar_camera_node_pos[0] > 0)
     {
         // store the y-difference between the trucks lowest node and the campos-node for the gwps system

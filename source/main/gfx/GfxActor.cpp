@@ -1043,7 +1043,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
 {
     m_simbuf.simbuf_live_local = (m_actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED);
     m_simbuf.simbuf_pos = m_actor->getPosition();
-    m_simbuf.simbuf_heading_angle = m_actor->getHeadingDirectionAngle();
+    m_simbuf.simbuf_rotation = m_actor->getRotation();
     m_simbuf.simbuf_tyre_pressure = m_actor->GetTyrePressure();
     m_simbuf.simbuf_aabb = m_actor->ar_bounding_box;
     m_simbuf.simbuf_wheel_speed = m_actor->ar_wheel_speed;
@@ -1778,7 +1778,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     if (flag_state & ANIM_FLAG_HEADING)
     {
         // rad2deg limitedrange  -1 to +1
-        cstate = (m_simbuf.simbuf_heading_angle * 57.29578f) / 360.0f;
+        cstate = (m_simbuf.simbuf_rotation * 57.29578f) / 360.0f;
         div++;
     }
 
@@ -2085,17 +2085,9 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
         div++;
     }
 
-    Ogre::Vector3 cam_pos  = node0_pos;
-    Ogre::Vector3 cam_roll = node0_pos;
-    Ogre::Vector3 cam_dir  = node0_pos;
-
-    // NOTE: "cameras" are constant attributes defined in Truckfile - safe to read from here
-    if (m_actor->IsNodeIdValid(m_actor->ar_camera_node_pos[0])) // TODO: why check this on each update when it cannot change after spawn?
-    {
-        cam_pos  = this->GetSimNodeBuffer()[m_actor->ar_camera_node_pos[0] ].AbsPosition;
-        cam_roll = this->GetSimNodeBuffer()[m_actor->ar_camera_node_roll[0]].AbsPosition;
-        cam_dir  = this->GetSimNodeBuffer()[m_actor->ar_camera_node_dir[0] ].AbsPosition;
-    }
+    Ogre::Vector3 cam_pos  = this->GetSimNodeBuffer()[m_actor->ar_main_camera_node_pos ].AbsPosition;
+    Ogre::Vector3 cam_roll = this->GetSimNodeBuffer()[m_actor->ar_main_camera_node_roll].AbsPosition;
+    Ogre::Vector3 cam_dir  = this->GetSimNodeBuffer()[m_actor->ar_main_camera_node_dir ].AbsPosition;
 
     // roll
     if (flag_state & ANIM_FLAG_ROLL)

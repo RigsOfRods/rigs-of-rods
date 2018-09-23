@@ -160,31 +160,10 @@ void SimController::UpdateForceFeedback(float dt)
 
     if (m_player_actor && m_player_actor->ar_driveable == TRUCK)
     {
-        int ar_camera_node_pos = 0;
-        int ar_camera_node_dir = 0;
-        int ar_camera_node_roll = 0;
-
-        // TODO: <rant> Per-frame validity check? How about on-spawn check? </rant>
-        // If the camera node is invalid, the FF should be disabled right away, not try to fall back to node0
-        // TODO: Check cam. nodes once on spawn! They never change --> no reason to repeat the check. ~only_a_ptr, 06/2017
-                // ~only_a_ptr, 02/2017
-        if (m_player_actor->IsNodeIdValid(m_player_actor->ar_camera_node_pos[0]))
-            ar_camera_node_pos = m_player_actor->ar_camera_node_pos[0];
-        if (m_player_actor->IsNodeIdValid(m_player_actor->ar_camera_node_dir[0]))
-            ar_camera_node_dir = m_player_actor->ar_camera_node_dir[0];
-        if (m_player_actor->IsNodeIdValid(m_player_actor->ar_camera_node_roll[0]))
-            ar_camera_node_roll = m_player_actor->ar_camera_node_roll[0];
-
-        Vector3 udir = m_player_actor->ar_nodes[ar_camera_node_pos].RelPosition - m_player_actor->ar_nodes[ar_camera_node_dir].RelPosition;
-        Vector3 uroll = m_player_actor->ar_nodes[ar_camera_node_pos].RelPosition - m_player_actor->ar_nodes[ar_camera_node_roll].RelPosition;
-
-        udir.normalise();
-        uroll.normalise();
-
         Ogre::Vector3 ff_vehicle = m_player_actor->GetFFbBodyForces();
         m_force_feedback->SetForces(
-            -ff_vehicle.dotProduct(uroll) / 10000.0,
-             ff_vehicle.dotProduct(udir)  / 10000.0,
+            -ff_vehicle.dotProduct(m_player_actor->GetCameraRoll()) / 10000.0,
+             ff_vehicle.dotProduct(m_player_actor->GetCameraDir())  / 10000.0,
             m_player_actor->ar_wheel_speed,
             m_player_actor->ar_hydro_dir_command,
             m_player_actor->GetFFbHydroForces());
@@ -2203,11 +2182,11 @@ void SimController::SetPlayerActor(Actor* actor)
             // get player out of the vehicle
             float rotation = m_prev_player_actor->getRotation() - Math::HALF_PI;
             Vector3 position = m_prev_player_actor->ar_nodes[0].AbsPosition;
-            if (m_prev_player_actor->ar_cinecam_node[0] != -1 && m_prev_player_actor->ar_camera_node_pos[0] != -1 && m_prev_player_actor->ar_camera_node_roll[0] != -1)
+            if (m_prev_player_actor->ar_cinecam_node[0] != -1)
             {
                 // actor has a cinecam
                 position = m_prev_player_actor->ar_nodes[m_prev_player_actor->ar_cinecam_node[0]].AbsPosition;
-                position += -2.0 * ((m_prev_player_actor->ar_nodes[m_prev_player_actor->ar_camera_node_pos[0]].RelPosition - m_prev_player_actor->ar_nodes[m_prev_player_actor->ar_camera_node_roll[0]].RelPosition).normalisedCopy());
+                position += -2.0 * m_prev_player_actor->GetCameraRoll();
                 position += Vector3(0.0, -1.0, 0.0);
             }
             gEnv->player->SetActorCoupling(false);

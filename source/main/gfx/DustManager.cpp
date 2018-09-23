@@ -169,7 +169,7 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
         {
             auto& simbuf = gfx_actor->GetSimDataBuffer();
             m_survey_map->UpdateActorMapEntry(
-                gfx_actor->GetActorId(), simbuf.simbuf_pos, simbuf.simbuf_heading_angle);
+                gfx_actor->GetActorId(), simbuf.simbuf_pos, simbuf.simbuf_rotation);
         }
         m_survey_map->Update(dt_sec, m_simbuf.simbuf_player_actor);
     }

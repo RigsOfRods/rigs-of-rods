@@ -164,7 +164,7 @@ void VehicleAI::update(float dt, int doUpdate)
     Quaternion TargetOrientation = Quaternion::ZERO;
 
     mAgentPosition.y = 0; //Vector3 > Vector2
-    Quaternion mAgentOrientation = Quaternion(Radian(beam->getHeadingDirectionAngle()), Vector3::NEGATIVE_UNIT_Y);
+    Quaternion mAgentOrientation = Quaternion(Radian(beam->getRotation()), Vector3::NEGATIVE_UNIT_Y);
     mAgentOrientation.normalise();
 
     Vector3 mVectorToTarget = TargetPosition - mAgentPosition; // A-B = B->A

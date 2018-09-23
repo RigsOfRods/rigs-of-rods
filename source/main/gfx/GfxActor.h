@@ -194,7 +194,7 @@ public:
         Ogre::Vector3               simbuf_pos;
         Ogre::Vector3               simbuf_node0_velo;
         bool                        simbuf_live_local;
-        float                       simbuf_heading_angle;
+        float                       simbuf_rotation;
         float                       simbuf_tyre_pressure;
         Ogre::AxisAlignedBox        simbuf_aabb;
         std::string                 simbuf_net_username;

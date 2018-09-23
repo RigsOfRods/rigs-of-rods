@@ -644,9 +644,7 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
     {
         m_stabilizer_shock_sleep -= dt * num_steps;
 
-        Vector3 dir = ar_nodes[ar_camera_node_pos[0]].RelPosition - ar_nodes[ar_camera_node_roll[0]].RelPosition;
-        dir.normalise();
-        float roll = asin(dir.dotProduct(Vector3::UNIT_Y));
+        float roll = asin(GetCameraRoll().dotProduct(Vector3::UNIT_Y));
         //mWindow->setDebugText("Roll:"+ TOSTRING(roll));
         if (fabs(roll) > 0.2)
         {

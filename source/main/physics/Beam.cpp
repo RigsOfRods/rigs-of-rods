@@ -354,12 +354,9 @@ float Actor::getRotation()
 
 Vector3 Actor::getDirection()
 {
-    Vector3 cur_dir = ar_nodes[0].AbsPosition;
-    if (ar_camera_node_pos[0] != ar_camera_node_dir[0] && this->IsNodeIdValid(ar_camera_node_pos[0]) && this->IsNodeIdValid(ar_camera_node_dir[0]))
-    {
-        cur_dir = ar_nodes[ar_camera_node_pos[0]].RelPosition - ar_nodes[ar_camera_node_dir[0]].RelPosition;
-    }
-    else if (ar_num_nodes > 1)
+    Vector3 cur_dir = this->GetCameraDir();
+
+    if (cur_dir == Vector3::ZERO)
     {
         float max_dist = 0.0f;
         int furthest_node = 1;
@@ -373,9 +370,8 @@ Vector3 Actor::getDirection()
             }
         }
         cur_dir = ar_nodes[0].RelPosition - ar_nodes[furthest_node].RelPosition;
+        cur_dir.normalise();
     }
-
-    cur_dir.normalise();
 
     return cur_dir;
 }
@@ -383,6 +379,28 @@ Vector3 Actor::getDirection()
 Vector3 Actor::getPosition()
 {
     return m_avg_node_position; //the position is already in absolute position
+}
+
+Vector3 Actor::GetCameraDir(int camera_index)
+{
+    int pos_id = ar_camera_node_pos[camera_index];
+    int dir_node = ar_camera_node_dir[camera_index];
+    if (pos_id != dir_node && this->IsNodeIdValid(pos_id) && this->IsNodeIdValid(dir_node))
+    {
+        return (ar_nodes[pos_id].RelPosition - ar_nodes[dir_node].RelPosition).normalisedCopy();
+    }
+    return Vector3::ZERO;
+}
+
+Vector3 Actor::GetCameraRoll(int camera_index)
+{
+    int pos_id = ar_camera_node_pos[camera_index];
+    int roll_id = ar_camera_node_roll[camera_index];
+    if (pos_id != roll_id && this->IsNodeIdValid(pos_id) && this->IsNodeIdValid(roll_id))
+    {
+        return (ar_nodes[pos_id].RelPosition - ar_nodes[roll_id].RelPosition).normalisedCopy();
+    }
+    return Vector3::ZERO;
 }
 
 void Actor::PushNetwork(char* data, int size)
@@ -1124,12 +1142,7 @@ void Actor::postUpdatePhysics(float dt)
 void Actor::ResetAngle(float rot)
 {
     // Set origin of rotation to camera node
-    Vector3 origin = ar_nodes[0].AbsPosition;
-
-    if (this->IsNodeIdValid(ar_camera_node_pos[0]))
-    {
-        origin = ar_nodes[ar_camera_node_pos[0]].AbsPosition;
-    }
+    Vector3 origin = ar_nodes[ar_main_camera_node_pos].AbsPosition;
 
     // Set up matrix for yaw rotation
     Matrix3 matrix;
@@ -1352,12 +1365,7 @@ Ogre::Vector3 Actor::GetRotationCenter()
 
     if (m_cinecam_is_rotation_center)
     {
-        Vector3 cinecam = ar_nodes[0].AbsPosition;
-        if (this->IsNodeIdValid(ar_camera_node_pos[0])) // TODO: Check cam. nodes once on spawn! They never change --> no reason to repeat the check. ~only_a_ptr, 06/2017
-        {
-            cinecam = ar_nodes[ar_camera_node_pos[0]].AbsPosition;
-        }
-        rotation_center = cinecam;
+        rotation_center = ar_nodes[ar_main_camera_node_pos].AbsPosition;
     }
     else
     {
@@ -1806,7 +1814,7 @@ void Actor::calcAnimators(const int flag_state, float& cstate, int& div, Real ti
     //heading - read only
     if (flag_state & ANIM_FLAG_HEADING)
     {
-        float heading = getHeadingDirectionAngle();
+        float heading = getRotation();
         // rad2deg limitedrange  -1 to +1
         cstate = (heading * 57.29578f) / 360.0f;
         div++;
@@ -2117,22 +2125,11 @@ void Actor::calcAnimators(const int flag_state, float& cstate, int& div, Real ti
         div++;
     }
 
-    Vector3 cam_pos = ar_nodes[0].RelPosition;
-    Vector3 cam_roll = ar_nodes[0].RelPosition;
-    Vector3 cam_dir = ar_nodes[0].RelPosition;
-
-    if (this->IsNodeIdValid(ar_camera_node_pos[0])) // TODO: why check this on each update when it cannot change after spawn?
-    {
-        cam_pos = ar_nodes[ar_camera_node_pos[0]].RelPosition;
-        cam_roll = ar_nodes[ar_camera_node_roll[0]].RelPosition;
-        cam_dir = ar_nodes[ar_camera_node_dir[0]].RelPosition;
-    }
-
     // roll
     if (flag_state & ANIM_FLAG_ROLL)
     {
-        Vector3 rollv = (cam_pos - cam_roll).normalisedCopy();
-        Vector3 dirv = (cam_pos - cam_dir).normalisedCopy();
+        Vector3 rollv = this->GetCameraRoll();
+        Vector3 dirv = this->GetCameraDir();
         Vector3 upv = dirv.crossProduct(-rollv);
         float rollangle = asin(rollv.dotProduct(Vector3::UNIT_Y));
         // rad to deg
@@ -2151,7 +2148,7 @@ void Actor::calcAnimators(const int flag_state, float& cstate, int& div, Real ti
     // pitch
     if (flag_state & ANIM_FLAG_PITCH)
     {
-        Vector3 dirv = (cam_pos - cam_dir).normalisedCopy();
+        Vector3 dirv = this->GetCameraDir();
         float pitchangle = asin(dirv.dotProduct(Vector3::UNIT_Y));
         // radian to degrees with a max cstate of +/- 1.0
         cstate = (Math::RadiansToDegrees(pitchangle) / 90.0f);
@@ -3523,17 +3520,6 @@ void Actor::UpdateNetworkInfo()
 #endif //SOCKETW
 }
 
-float Actor::getHeadingDirectionAngle()
-{
-    if (ar_camera_node_pos[0] >= 0 && ar_camera_node_dir[0] >= 0)
-    {
-        Vector3 idir = ar_nodes[ar_camera_node_pos[0]].RelPosition - ar_nodes[ar_camera_node_dir[0]].RelPosition;
-        return atan2(idir.dotProduct(Vector3::UNIT_X), (idir).dotProduct(-Vector3::UNIT_Z));
-    }
-
-    return 0.0f;
-}
-
 bool Actor::getReverseLightVisible()
 {
     if (ar_sim_state == SimState::NETWORKED_OK)
@@ -3694,13 +3680,14 @@ void Actor::updateDashBoards(float dt)
     float dash_brake = ar_brake / ar_brake_force;
     ar_dashboard->setFloat(DD_BRAKE, dash_brake);
 
+    Vector3 cam_dir  = this->GetCameraDir();
+    Vector3 cam_roll = this->GetCameraRoll();
+
     // speedo
     float velocity = ar_nodes[0].Velocity.length();
-
-    if (ar_camera_node_pos[0] >= 0 && ar_camera_node_dir[0] >= 0)
+    if (cam_dir != Vector3::ZERO)
     {
-        Vector3 hdir = (ar_nodes[ar_camera_node_pos[0]].RelPosition - ar_nodes[ar_camera_node_dir[0]].RelPosition).normalisedCopy();
-        velocity = hdir.dotProduct(ar_nodes[0].Velocity);
+        velocity = cam_dir.dotProduct(ar_nodes[0].Velocity);
     }
     float speed_kph = velocity * 3.6f;
     ar_dashboard->setFloat(DD_ENGINE_SPEEDO_KPH, speed_kph);
@@ -3708,11 +3695,9 @@ void Actor::updateDashBoards(float dt)
     ar_dashboard->setFloat(DD_ENGINE_SPEEDO_MPH, speed_mph);
 
     // roll
-    if (this->IsNodeIdValid(ar_camera_node_pos[0])) // TODO: why check this on each update when it cannot change after spawn?
+    if (cam_roll != Vector3::ZERO)
     {
-        dir = ar_nodes[ar_camera_node_pos[0]].RelPosition - ar_nodes[ar_camera_node_roll[0]].RelPosition;
-        dir.normalise();
-        float angle = asin(dir.dotProduct(Vector3::UNIT_Y));
+        float angle = asin(cam_roll.dotProduct(Vector3::UNIT_Y));
         if (angle < -1)
             angle = -1;
         if (angle > 1)
@@ -3734,11 +3719,9 @@ void Actor::updateDashBoards(float dt)
     }
 
     // pitch
-    if (this->IsNodeIdValid(ar_camera_node_pos[0]))
+    if (cam_dir != Vector3::ZERO)
     {
-        dir = ar_nodes[ar_camera_node_pos[0]].RelPosition - ar_nodes[ar_camera_node_dir[0]].RelPosition;
-        dir.normalise();
-        float angle = asin(dir.dotProduct(Vector3::UNIT_Y));
+        float angle = asin(cam_dir.dotProduct(Vector3::UNIT_Y));
         if (angle < -1)
             angle = -1;
         if (angle > 1)
@@ -3817,29 +3800,18 @@ void Actor::updateDashBoards(float dt)
         }
 
         // water depth display, only if we have a screw prop at least
-        if (this->IsNodeIdValid(ar_camera_node_pos[0])) // TODO: Check cam. nodes once on spawn! They never change --> no reason to repeat the check. ~only_a_ptr, 06/2017
+        int low_node = getLowestNode();
+        if (low_node != -1)
         {
-            // position
-            Vector3 dir = ar_nodes[ar_camera_node_pos[0]].RelPosition - ar_nodes[ar_camera_node_dir[0]].RelPosition;
-            dir.normalise();
-
-            int low_node = getLowestNode();
-            if (low_node != -1)
-            {
-                Vector3 pos = ar_nodes[low_node].AbsPosition;
-                float depth = pos.y - App::GetSimTerrain()->GetHeightAt(pos.x, pos.z);
-                ar_dashboard->setFloat(DD_WATER_DEPTH, depth);
-            }
+            Vector3 pos = ar_nodes[low_node].AbsPosition;
+            float depth = pos.y - App::GetSimTerrain()->GetHeightAt(pos.x, pos.z);
+            ar_dashboard->setFloat(DD_WATER_DEPTH, depth);
         }
 
         // water speed
-        if (this->IsNodeIdValid(ar_camera_node_pos[0]))
-        {
-            Vector3 hdir = ar_nodes[ar_camera_node_pos[0]].RelPosition - ar_nodes[ar_camera_node_dir[0]].RelPosition;
-            hdir.normalise();
-            float knots = hdir.dotProduct(ar_nodes[ar_camera_node_pos[0]].Velocity) * 1.9438f; // 1.943 = m/s in knots/s
-            ar_dashboard->setFloat(DD_WATER_SPEED, knots);
-        }
+        Vector3 hdir = this->GetCameraDir();
+        float knots = hdir.dotProduct(ar_nodes[ar_main_camera_node_pos].Velocity) * 1.9438f; // 1.943 = m/s in knots/s
+        ar_dashboard->setFloat(DD_WATER_SPEED, knots);
     }
 
     // now airplane things, aeroengines, etc.
@@ -4050,11 +4022,9 @@ void Actor::updateDashBoards(float dt)
 
 Vector3 Actor::getGForces()
 {
-    // TODO: Check cam. nodes once on spawn! They never change --> no reason to repeat the check. ~only_a_ptr, 06/2017
-    if (this->IsNodeIdValid(ar_camera_node_pos[0]) && this->IsNodeIdValid(ar_camera_node_dir[0]) && this->IsNodeIdValid(ar_camera_node_roll[0]))
+    if (this->IsNodeIdValid(ar_camera_node_pos[0]))
     {
         static Vector3 result = Vector3::ZERO;
-
         if (m_camera_gforces_count == 0) // multiple calls in one single frame, avoid division by 0
         {
             return result;
@@ -4064,23 +4034,22 @@ Vector3 Actor::getGForces()
         m_camera_gforces_accu = Vector3::ZERO;
         m_camera_gforces_count = 0;
 
-        float longacc = acc.dotProduct((ar_nodes[ar_camera_node_pos[0]].RelPosition - ar_nodes[ar_camera_node_dir[0]].RelPosition).normalisedCopy());
-        float latacc = acc.dotProduct((ar_nodes[ar_camera_node_pos[0]].RelPosition - ar_nodes[ar_camera_node_roll[0]].RelPosition).normalisedCopy());
+        Vector3 cam_dir = this->GetCameraDir();
+        Vector3 cam_roll = this->GetCameraRoll();
 
-        Vector3 diffdir = ar_nodes[ar_camera_node_pos[0]].RelPosition - ar_nodes[ar_camera_node_dir[0]].RelPosition;
-        Vector3 diffroll = ar_nodes[ar_camera_node_pos[0]].RelPosition - ar_nodes[ar_camera_node_roll[0]].RelPosition;
-
-        Vector3 upv = diffdir.crossProduct(-diffroll);
+        Vector3 upv = cam_dir.crossProduct(-cam_roll);
         upv.normalise();
 
         float gravity = DEFAULT_GRAVITY;
-
         if (App::GetSimTerrain())
         {
             gravity = App::GetSimTerrain()->getGravity();
         }
 
         float vertacc = std::abs(gravity) - acc.dotProduct(-upv);
+        float longacc = acc.dotProduct(cam_dir);
+        float latacc = acc.dotProduct(cam_roll);
+
 
         result = Vector3(vertacc / std::abs(gravity), longacc / std::abs(gravity), latacc / std::abs(gravity));
 
@@ -4185,6 +4154,9 @@ Actor::Actor(
     , ar_lights(1)
     , m_avg_node_velocity(Ogre::Vector3::ZERO)
     , ar_custom_camera_node(-1)
+    , ar_main_camera_node_pos(0)
+    , ar_main_camera_node_dir(0)
+    , ar_main_camera_node_roll(0)
     , m_hide_own_net_label(BSETTING("HideOwnNetLabel", false))
     , m_cinecam_is_rotation_center(false)
     , m_preloaded_with_terrain(preloaded_with_terrain)

@@ -1147,17 +1147,14 @@ void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
 
 void OverlayWrapper::UpdateMarineHUD(Actor* vehicle)
 {
-    int fsp = vehicle->ar_num_screwprops;
-    //throttles
+    // throttles
     bthro1->setTop(thrtop + thrheight * (0.5 - vehicle->ar_screwprops[0]->getThrottle() / 2.0) - 1.0);
-    if (fsp > 1)
+    if (vehicle->ar_num_screwprops > 1)
     {
         bthro2->setTop(thrtop + thrheight * (0.5 - vehicle->ar_screwprops[1]->getThrottle() / 2.0) - 1.0);
     }
 
-    //position
-    Vector3 dir = vehicle->getDirection();
-
+    // depth
     char tmp[50] = "";
     if (vehicle->getLowestNode() != -1)
     {
@@ -1174,10 +1171,11 @@ void OverlayWrapper::UpdateMarineHUD(Actor* vehicle)
         }
     }
 
-    //waterspeed
-    float angle = 0.0;
-    float kt = dir.dotProduct(vehicle->ar_nodes[vehicle->ar_camera_node_pos[0]].Velocity) * 1.9438;
-    angle = kt * 4.2;
+    // water speed
+    Vector3 cam_dir = vehicle->getDirection();
+    Vector3 velocity = vehicle->ar_nodes[vehicle->ar_main_camera_node_pos].Velocity;
+    float kt = cam_dir.dotProduct(velocity) * 1.9438;
+    float angle = kt * 4.2;
     boatspeedtexture->setTextureRotate(Degree(-angle));
     boatsteertexture->setTextureRotate(Degree(vehicle->ar_screwprops[0]->getRudder() * 170));
 }

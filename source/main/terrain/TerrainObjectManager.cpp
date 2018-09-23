@@ -1372,7 +1372,7 @@ void TerrainObjectManager::LoadPredefinedActors()
                 e->setState(static_cast<int>(Actor::SimState::LOCAL_SIMULATED));
                 e->setVisibility(true);
                 e->setPosition(m_predefined_actors[i].px, m_predefined_actors[i].pz);
-                e->setRotation(-Radian(actor->getHeadingDirectionAngle()));
+                e->setRotation(-Radian(actor->getRotation()));
             }
         }
 
