@@ -426,8 +426,6 @@ target_include_directories(${BINNAME} PRIVATE ${pagedgeometry_SOURCE_DIR}/includ
 
 # TODO
 IF (WIN32)
-    set(OS_LIBS "dinput8.lib;dxguid.lib")
-
     # disable some annoying VS warnings:
     # warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
     # warning C4305: 'initializing' : truncation from 'double' to 'const float'
@@ -448,42 +446,63 @@ target_link_libraries(${BINNAME} PRIVATE
         )
 
 # --- Ogre 3D graphics engine ---
-target_link_libraries(${BINNAME} PRIVATE OgreMain OgreBites OgreRTShaderSystem OgreOverlay OgreTerrain OgreMeshLodGenerator OgreHLMS)
+if(DEFINED CONAN_OGRE_ROOT)
+  include_directories(${CONAN_INCLUDE_DIRS_OGRE}/OGRE)
+  include_directories(${CONAN_INCLUDE_DIRS_OGRE}/OGRE/Bites)
+  include_directories(${CONAN_INCLUDE_DIRS_OGRE}/OGRE/Overlay)
+  include_directories(${CONAN_INCLUDE_DIRS_OGRE}/OGRE/Terrain)
+  include_directories(${CONAN_INCLUDE_DIRS_OGRE}/OGRE/Paging)
+  target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::OGRE)
+else()
+  target_link_libraries(${BINNAME} PRIVATE OgreMain OgreBites OgreRTShaderSystem OgreOverlay OgreTerrain OgreMeshLodGenerator OgreHLMS)
+endif()
+
 
 # --- Object Oriented Input System ---
-target_link_libraries(${BINNAME} PRIVATE ${OIS_LIBRARIES})
-target_include_directories(${BINNAME} PRIVATE ${OIS_INCLUDE_DIRS})
-
+if(DEFINED CONAN_OGREDEPS_ROOT)
+  include_directories(${CONAN_INCLUDE_DIRS_OGREDEPS}/OIS)
+  target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::OGREdeps)
+else()
+  target_link_libraries(${BINNAME} PRIVATE ${OIS_LIBRARIES})
+  target_include_directories(${BINNAME} PRIVATE ${OIS_INCLUDE_DIRS})
+endif()
 
 # --- MoFileReader ---
 if (WIN32)
+  if(DEFINED CONAN_MOFILEREADER_ROOT)
+    target_include_directories(${BINNAME} PRIVATE CONAN_PKG::MofileReader)
+    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::MofileReader)
+    target_compile_definitions(${BINNAME} PRIVATE USE_MOFILEREADER)
+  else()
     target_link_libraries(${BINNAME} PRIVATE MoFileReader::MoFileReader)
     target_compile_definitions(${BINNAME} PRIVATE USE_MOFILEREADER)
+  endif()
 endif ()
 
+# --- MyGUI - graphical user inferface ---
+if(DEFINED CONAN_MYGUI_ROOT)
+  include_directories(${CONAN_INCLUDE_DIRS_MYGUI}/MYGUI)
+  target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::MyGUI)
+  target_compile_definitions(${BINNAME} PRIVATE USE_MYGUI $<$<PLATFORM_ID:WINDOWS>:MYGUI_STATIC>)
+else()
+  target_link_libraries(${BINNAME} PRIVATE
+          MyGUI::MyGUI
+          MyGUI::OgrePlatform
+          )
+  target_compile_definitions(${BINNAME} PRIVATE
+          USE_MYGUI
+          $<$<PLATFORM_ID:WINDOWS>:MYGUI_STATIC>
+          )
+endif ()
 
 #  OPTIONAL DEPENDENCIES
 # -----------------------
 
-# --- MyGUI - graphical user inferface ---
-if ((TARGET MyGUI::MyGUI) AND (TARGET MyGUI::OgrePlatform))
-    target_link_libraries(${BINNAME} PRIVATE
-            MyGUI::MyGUI
-            MyGUI::OgrePlatform
-            )
-    target_compile_definitions(${BINNAME} PRIVATE
-            USE_MYGUI
-            $<$<PLATFORM_ID:WINDOWS>:MYGUI_STATIC>
-            )
-else ()
-    message(WARNING "Building ${BINNAME} without MyGUI. Some functionality may be missing.")
-endif ()
-
 # --- OpenAL - audio library ---
-if (CONAN_OPENAL_ROOT)
-    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::openal)
-    target_include_directories(${BINNAME} PRIVATE CONAN_PKG::openal)
-    target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)
+if(DEFINED CONAN_OPENAL_ROOT)
+  target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::openal)
+  target_include_directories(${BINNAME} PRIVATE CONAN_PKG::openal)
+  target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)
 else ()
     if (OPENAL_FOUND)
         target_link_libraries(${BINNAME} PRIVATE ${OPENAL_LIBRARY})
@@ -496,20 +515,32 @@ endif ()
 
 
 # --- SocketW - networking library ---
-if (TARGET SocketW::SocketW)
+if(DEFINED CONAN_SOCKETW_ROOT)
+  target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::SocketW)
+  target_include_directories(${BINNAME} PRIVATE CONAN_PKG::SocketW)
+  target_compile_definitions(${BINNAME} PRIVATE USE_SOCKETW)
+elseif (TARGET SocketW::SocketW)
     target_link_libraries(${BINNAME} PRIVATE SocketW::SocketW)
     target_compile_definitions(${BINNAME} PRIVATE USE_SOCKETW)
 else ()
     message(WARNING "Building ${BINNAME} without SocketW. Some functionality may be missing.")
 endif ()
 # Add openssl
-if (CONAN_OPENSSL_ROOT)
-    target_include_directories(${BINNAME} PRIVATE ${CONAN_INCLUDE_DIRS_OPENSSL})
-endif ()
+if(DEFINED CONAN_OPENSSL_ROOT)
+	target_include_directories(${BINNAME} PRIVATE ${CONAN_INCLUDE_DIRS_OPENSSL})
+endif()
 
 
 # --- AngelScript - scripting interface ---
-if (TARGET AngelScript::AngelScript)
+if(DEFINED CONAN_ANGELSCRIPT_ROOT)
+  target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::AngelScript)
+  target_include_directories(${BINNAME} PRIVATE CONAN_PKG::AngelScript)
+  target_compile_definitions(${BINNAME} PRIVATE USE_ANGELSCRIPT)
+  target_compile_definitions(${BINNAME} PRIVATE AS_USE_NAMESPACE)
+
+  target_include_directories(${BINNAME} PRIVATE ../angelscript_addons)
+  target_link_libraries(${BINNAME} PRIVATE angelscript_addons)
+elseif (TARGET AngelScript::AngelScript)
     target_link_libraries(${BINNAME} PRIVATE
             AngelScript::AngelScript
             AngelScript::use_namespace
@@ -525,7 +556,11 @@ endif ()
 
 
 # --- cURL ---
-if (CURL_FOUND)
+if(DEFINED CONAN_CURL_ROOT)
+  target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::Curl)
+  target_include_directories(${BINNAME} PRIVATE CONAN_PKG::Curl)
+  target_compile_definitions(${BINNAME} PRIVATE USE_CURL)
+elseif (CURL_FOUND)
     target_link_libraries(${BINNAME} PRIVATE ${CURL_LIBRARY})
     target_include_directories(${BINNAME} PRIVATE ${CURL_INCLUDE_DIR})
     target_compile_definitions(${BINNAME} PRIVATE USE_CURL)
@@ -533,7 +568,7 @@ if (CURL_FOUND)
 	if (WIN32)
 		add_definitions(-DWIN32_LEAN_AND_MEAN)
 	endif ()
-	
+
 else ()
     message(WARNING "Building ${BINNAME} without cURL. Some functionality may be missing.")
 endif ()
