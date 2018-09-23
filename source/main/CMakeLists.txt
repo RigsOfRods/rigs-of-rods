@@ -283,7 +283,10 @@ generate_source_groups(${SOURCE_FILES})
 
 
 if (WIN32)
-    list(APPEND SOURCE_FILES "icon.rc")
+	# clang-cl doesn't support resource files
+	if (NOT (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
+		list(APPEND SOURCE_FILES "icon.rc")
+	endif()
 endif ()
 
 

@@ -9,7 +9,10 @@ project(RoR_Configurator)
 
 if (WIN32)
     set(OS_LIBS "${PThread_LIBRARIES};dinput8.lib;dxguid.lib")
-    set(OS_SOURCE "icon.rc")
+    # clang-cl doesn't support resource files
+	if (NOT (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
+		set(OS_SOURCE "icon.rc")
+	endif()
 
     # disable some annoying VS warnings:
     # warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
