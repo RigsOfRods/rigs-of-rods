@@ -425,7 +425,7 @@ int ScriptEngine::framestep(Real dt)
     }
 
     // framestep stuff below
-    if (frameStepFunctionPtr<=0) return 1;
+    if (frameStepFunctionPtr==0) return 1;
     if (!engine) return 0;
     if (!context) context = engine->CreateContext();
     context->Prepare(frameStepFunctionPtr);
@@ -703,7 +703,7 @@ int ScriptEngine::deleteVariable(const String &arg)
 void ScriptEngine::triggerEvent(int eventnum, int value)
 {
     if (!engine) return;
-    if (eventCallbackFunctionPtr<=0) return;
+    if (eventCallbackFunctionPtr==0) return;
     if (eventMask & eventnum)
     {
         // script registered for that event, so sent it
