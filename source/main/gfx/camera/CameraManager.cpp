@@ -215,12 +215,20 @@ void CameraManager::UpdateCurrentBehavior()
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: {
         CameraManager::CameraBehaviorOrbitUpdate();
 
-        Vector3 dir  = m_cct_player_actor->GetCameraDir (m_cct_player_actor->ar_current_cinecam);
-        Vector3 roll = m_cct_player_actor->GetCameraRoll(m_cct_player_actor->ar_current_cinecam);
+        int pos_node  = m_cct_player_actor->ar_camera_node_pos [m_cct_player_actor->ar_current_cinecam];
+        int dir_node  = m_cct_player_actor->ar_camera_node_dir [m_cct_player_actor->ar_current_cinecam];
+        int roll_node = m_cct_player_actor->ar_camera_node_roll[m_cct_player_actor->ar_current_cinecam];
+
+        Vector3 dir  = (m_cct_player_actor->ar_nodes[pos_node].AbsPosition
+                - m_cct_player_actor->ar_nodes[dir_node].AbsPosition).normalisedCopy();
+        Vector3 roll = (m_cct_player_actor->ar_nodes[pos_node].AbsPosition
+                - m_cct_player_actor->ar_nodes[roll_node].AbsPosition).normalisedCopy();
+
         if ( m_cct_player_actor->ar_camera_node_roll_inv[m_cct_player_actor->ar_current_cinecam] )
         {
             roll = -roll;
         }
+
         Vector3 up = dir.crossProduct(roll);
         roll = up.crossProduct(dir);
 

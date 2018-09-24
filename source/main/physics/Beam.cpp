@@ -381,28 +381,6 @@ Vector3 Actor::getPosition()
     return m_avg_node_position; //the position is already in absolute position
 }
 
-Vector3 Actor::GetCameraDir(int camera_index)
-{
-    int pos_id = ar_camera_node_pos[camera_index];
-    int dir_node = ar_camera_node_dir[camera_index];
-    if (pos_id != dir_node && this->IsNodeIdValid(pos_id) && this->IsNodeIdValid(dir_node))
-    {
-        return (ar_nodes[pos_id].RelPosition - ar_nodes[dir_node].RelPosition).normalisedCopy();
-    }
-    return Vector3::ZERO;
-}
-
-Vector3 Actor::GetCameraRoll(int camera_index)
-{
-    int pos_id = ar_camera_node_pos[camera_index];
-    int roll_id = ar_camera_node_roll[camera_index];
-    if (pos_id != roll_id && this->IsNodeIdValid(pos_id) && this->IsNodeIdValid(roll_id))
-    {
-        return (ar_nodes[pos_id].RelPosition - ar_nodes[roll_id].RelPosition).normalisedCopy();
-    }
-    return Vector3::ZERO;
-}
-
 void Actor::PushNetwork(char* data, int size)
 {
     if (!oob3)
@@ -4036,7 +4014,7 @@ void Actor::updateDashBoards(float dt)
 
 Vector3 Actor::getGForces()
 {
-    if (this->IsNodeIdValid(ar_camera_node_pos[0]))
+    if (ar_camera_node_pos[0] >= 0)
     {
         static Vector3 result = Vector3::ZERO;
         if (m_camera_gforces_count == 0) // multiple calls in one single frame, avoid division by 0

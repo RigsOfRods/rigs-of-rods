@@ -180,8 +180,6 @@ public:
     std::list<Actor*> GetAllLinkedActors()              { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
     Ogre::Vector3     GetCameraDir()                    { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_dir].RelPosition).normalisedCopy(); }
     Ogre::Vector3     GetCameraRoll()                   { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_roll].RelPosition).normalisedCopy(); }
-    Ogre::Vector3     GetCameraDir(int camera_index);
-    Ogre::Vector3     GetCameraRoll(int camera_index);
     Ogre::Vector3     GetFFbBodyForces() const          { return m_force_sensors.out_body_forces; }
     PointColDetector* IntraPointCD()                    { return m_intra_point_col_detector; }
     PointColDetector* InterPointCD()                    { return m_inter_point_col_detector; }
@@ -193,7 +191,6 @@ public:
     float             GetFFbHydroForces() const         { return m_force_sensors.out_hydros_forces; }
     bool              isPreloadedWithTerrain() const    { return m_preloaded_with_terrain; };
     VehicleAI*        getVehicleAI()                    { return ar_vehicle_ai; }
-    bool              IsNodeIdValid(int id) const       { return (id >= 0) && (id < ar_num_nodes); }
     float             getWheelSpeed() const             { return ar_wheel_speed; }
     int               GetNumNodes() const               { return ar_num_nodes; }
     Ogre::Vector3     getVelocity() const               { return m_avg_node_velocity; }; //!< average actor velocity, calculated using the actor positions of the last two frames
