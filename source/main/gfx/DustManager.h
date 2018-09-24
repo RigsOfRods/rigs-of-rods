@@ -71,7 +71,7 @@ public:
     void           RegisterGfxActor(RoR::GfxActor* gfx_actor);
     void           RemoveGfxActor(RoR::GfxActor* gfx_actor);
     void           RegisterGfxCharacter(RoR::GfxCharacter* gfx_character);
-    void           RemoveGfxCharacter(RoR::GfxCharacter* const gfx_character);
+    void           RemoveGfxCharacter(RoR::GfxCharacter* gfx_character);
     void           BufferSimulationData(); //!< Run this when simulation is halted
     SimBuffer&     GetSimDataBuffer() { return m_simbuf; }
     void           InitSurveyMap(Ogre::Vector3 terrain_size); //!< Must be called after terrain was loaded

@@ -308,16 +308,8 @@ void RoR::GfxScene::BufferSimulationData()
 
 void RoR::GfxScene::RemoveGfxActor(RoR::GfxActor* remove_me)
 {
-    auto itor = m_all_gfx_actors.begin();
-    auto endi = m_all_gfx_actors.end();
-    for (; itor != endi; ++itor)
-    {
-        if (*itor == remove_me)
-        {
-            m_all_gfx_actors.erase(itor);
-            return;
-        }
-    }
+    auto itor = std::remove(m_all_gfx_actors.begin(), m_all_gfx_actors.end(), remove_me);
+    m_all_gfx_actors.erase(itor, m_all_gfx_actors.end());
 }
 
 void RoR::GfxScene::RegisterGfxCharacter(RoR::GfxCharacter* gfx_character)
@@ -325,18 +317,10 @@ void RoR::GfxScene::RegisterGfxCharacter(RoR::GfxCharacter* gfx_character)
     m_all_gfx_characters.push_back(gfx_character);
 }
 
-void RoR::GfxScene::RemoveGfxCharacter(RoR::GfxCharacter * const remove_me)
+void RoR::GfxScene::RemoveGfxCharacter(RoR::GfxCharacter* remove_me)
 {
-    auto itor = m_all_gfx_characters.begin();
-    auto endi = m_all_gfx_characters.end();
-    for (; itor != endi; ++itor)
-    {
-        if (*itor == remove_me)
-        {
-            m_all_gfx_characters.erase(itor);
-            return;
-        }
-    }
+    auto itor = std::remove(m_all_gfx_characters.begin(), m_all_gfx_characters.end(), remove_me);
+    m_all_gfx_characters.erase(itor, m_all_gfx_characters.end());
 }
 
 RoR::GfxScene::SimBuffer::SimBuffer():
