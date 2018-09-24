@@ -1159,8 +1159,8 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
 
     for (auto actor : m_actors)
     {
-        actor->HandleResetRequests(dt);
-        actor->UpdateAngelScriptEvents(dt);
+        actor->HandleInputEvents(dt);
+        actor->HandleAngelScriptEvents(dt);
 
 #ifdef USE_ANGELSCRIPT
         if (actor->ar_vehicle_ai && (actor->ar_vehicle_ai->IsActive()))

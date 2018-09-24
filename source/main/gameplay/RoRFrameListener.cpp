@@ -799,7 +799,8 @@ void SimController::UpdateInputEvents(float dt)
                         scale *= RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) ? 3.0f : 1.0f;
                         scale *= RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) ? 10.0f : 1.0f;
 
-                        m_player_actor->displace(translation * scale, rotation * scale);
+                        m_player_actor->RequestRotation(rotation * scale);
+                        m_player_actor->RequestTranslation(translation * scale);
 
                         m_advanced_vehicle_repair_timer = 0.0f;
                     }

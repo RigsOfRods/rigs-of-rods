@@ -84,8 +84,6 @@ public:
     void              UpdateNetworkInfo();
     bool              AddTyrePressure(float v);
     float             GetTyrePressure();
-    void              ResetAngle(float rot);
-    void              ResetPosition(float px, float pz, bool setInitPosition, float miny);
     float             getRotation();
     Ogre::Vector3     getDirection();
     Ogre::Vector3     getPosition();
@@ -94,12 +92,13 @@ public:
     /// @param setInitPosition Set initial positions of nodes to current position?
     void              ResetPosition(Ogre::Vector3 translation, bool setInitPosition);
     void              RequestActorReset(bool keepPosition = false);    //!< reset the actor from any context
-    void              displace(Ogre::Vector3 translation, float rotation);
+    void              RequestRotation(float rotation);
+    void              RequestTranslation(Ogre::Vector3 translation);
     Ogre::Vector3     GetRotationCenter();                 //!< Return the rotation center of the actor
     bool              ReplayStep();
     void              ForceFeedbackStep(int steps);
-    void              UpdateAngelScriptEvents(float dt);
-    void              HandleResetRequests(float dt);
+    void              HandleInputEvents(float dt);
+    void              HandleAngelScriptEvents(float dt);
     void              UpdateSoundSources();
     void              HandleMouseMove(int node, Ogre::Vector3 pos, float force); //!< Event handler
     void              ToggleLights();                      //!< Event handler
@@ -410,6 +409,8 @@ private:
     void              resetSlideNodePositions();           //!< Recalculate SlideNode positions
     void              resetSlideNodes();                   //!< Reset all the SlideNodes
     void              updateSlideNodePositions();          //!< incrementally update the position of all SlideNodes
+    void              ResetAngle(float rot);
+    void              ResetPosition(float px, float pz, bool setInitPosition, float miny);
     /// @param actor which actor to retrieve the closest Rail from
     /// @param node which SlideNode is being checked against
     /// @return a pair containing the rail, and the distant to the SlideNode
@@ -462,6 +463,8 @@ private:
     Ogre::SceneNode*  m_net_label_node;
     Ogre::String      m_net_username;
     float             m_custom_light_toggle_countdown; //!< Input system helper status
+    float             m_rotation_request;         //!< Accumulator
+    Ogre::Vector3     m_translation_request;      //!< Accumulator
     Ogre::Vector3     m_camera_gforces_accu;      //!< Accumulator for 'camera' G-forces
     int               m_camera_gforces_count;     //!< Counter for 'camera' G-forces
     float             m_ref_tyre_pressure;        //!< Physics state

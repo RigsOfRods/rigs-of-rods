@@ -1327,36 +1327,14 @@ void Actor::RequestActorReset(bool keepPosition)
         m_reset_request = REQUEST_RESET_ON_INIT_POS;
 }
 
-void Actor::displace(Vector3 translation, float rotation)
+void Actor::RequestRotation(float rotation)
 {
-    if (rotation != 0.0f)
-    {
-        Vector3 rotation_center = GetRotationCenter();
-        Quaternion rot = Quaternion(Radian(rotation), Vector3::UNIT_Y);
+    m_rotation_request += rotation;
+}
 
-        for (int i = 0; i < ar_num_nodes; i++)
-        {
-            ar_nodes[i].AbsPosition -= rotation_center;
-            ar_nodes[i].AbsPosition = rot * ar_nodes[i].AbsPosition;
-            ar_nodes[i].AbsPosition += rotation_center;
-            ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - ar_origin;
-        }
-    }
-
-    if (translation != Vector3::ZERO)
-    {
-        for (int i = 0; i < ar_num_nodes; i++)
-        {
-            ar_nodes[i].AbsPosition += translation;
-            ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - ar_origin;
-        }
-    }
-
-    if (rotation != 0.0f || translation != Vector3::ZERO)
-    {
-        updateBoundingBox();
-        calculateAveragePosition();
-    }
+void Actor::RequestTranslation(Vector3 translation)
+{
+    m_translation_request += translation;
 }
 
 Ogre::Vector3 Actor::GetRotationCenter()
@@ -1556,7 +1534,7 @@ void Actor::ForceFeedbackStep(int steps)
     }
 }
 
-void Actor::UpdateAngelScriptEvents(float dt)
+void Actor::HandleAngelScriptEvents(float dt)
 {
 #ifdef USE_ANGELSCRIPT
 
@@ -1569,10 +1547,43 @@ void Actor::UpdateAngelScriptEvents(float dt)
 #endif // USE_ANGELSCRIPT
 }
 
-void Actor::HandleResetRequests(float dt)
+void Actor::HandleInputEvents(float dt)
 {
+    if (m_rotation_request != 0.0f)
+    {
+        Vector3 rotation_center = GetRotationCenter();
+        Quaternion rot = Quaternion(Radian(m_rotation_request), Vector3::UNIT_Y);
+
+        for (int i = 0; i < ar_num_nodes; i++)
+        {
+            ar_nodes[i].AbsPosition -= rotation_center;
+            ar_nodes[i].AbsPosition = rot * ar_nodes[i].AbsPosition;
+            ar_nodes[i].AbsPosition += rotation_center;
+            ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - ar_origin;
+        }
+
+        m_rotation_request = 0.0f;
+        updateBoundingBox();
+        calculateAveragePosition();
+    }
+
+    if (m_translation_request != Vector3::ZERO)
+    {
+        for (int i = 0; i < ar_num_nodes; i++)
+        {
+            ar_nodes[i].AbsPosition += m_translation_request;
+            ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - ar_origin;
+        }
+
+        m_translation_request = 0.0f;
+        updateBoundingBox();
+        calculateAveragePosition();
+    }
+
     if (m_reset_request)
+    {
         SyncReset();
+    }
 }
 
 void Actor::sendStreamSetup()
