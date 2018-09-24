@@ -91,7 +91,6 @@ using namespace RoR;
 ActorManager::ActorManager()
     : m_dt_remainder(0.0f)
     , m_forced_awake(false)
-    , m_thread_pool_workers(0)
     , m_physics_frames(0)
     , m_physics_steps(2000)
     , m_simulation_speed(1.0f)
@@ -109,16 +108,15 @@ ActorManager::ActorManager()
             int logical_cores = std::thread::hardware_concurrency();
             LOG("BEAMFACTORY: " + TOSTRING(logical_cores) + " logical CPU cores" + " found");
 
-            int numThreadsInPool = ISETTING("NumThreadsInThreadPool", 0);
-            if (numThreadsInPool >= 2 && numThreadsInPool <= logical_cores)
-                m_thread_pool_workers = numThreadsInPool;
-            else
-                m_thread_pool_workers = logical_cores - 1;
-
-            if (m_thread_pool_workers > 1)
+            int thread_pool_workers = ISETTING("NumThreadsInThreadPool", 0);
+            if (thread_pool_workers < 2 || thread_pool_workers > logical_cores)
             {
-                gEnv->threadPool = new ThreadPool(m_thread_pool_workers);
-                LOG("BEAMFACTORY: Creating " + TOSTRING(m_thread_pool_workers) + " worker threads");
+                thread_pool_workers = logical_cores - 1;
+            }
+            if (thread_pool_workers > 1)
+            {
+                gEnv->threadPool = new ThreadPool(thread_pool_workers);
+                LOG("BEAMFACTORY: Creating " + TOSTRING(thread_pool_workers) + " worker threads");
             }
         }
         if (!gEnv->threadPool)

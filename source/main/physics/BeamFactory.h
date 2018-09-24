@@ -131,7 +131,6 @@ private:
     std::unique_ptr<ThreadPool>     m_sim_thread_pool;
     std::shared_ptr<Task>           m_sim_task;
     std::vector<Actor*>             m_actors;
-    int             m_thread_pool_workers;
     bool            m_forced_awake;      //!< disables sleep counters
     unsigned long   m_physics_frames;
     int             m_physics_steps;
