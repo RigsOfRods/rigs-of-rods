@@ -32,7 +32,7 @@ public:
     ~Landusemap();
 
     ground_model_t* getGroundModelAt(int x, int z);
-    int loadConfig(Ogre::String filename);
+    int loadConfig(const Ogre::String& filename);
 
 protected:
 
