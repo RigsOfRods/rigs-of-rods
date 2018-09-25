@@ -514,7 +514,6 @@ public:
     bool updateConfigline(event_trigger_t* t);
 
     void grabMouse(bool enable);
-    void hideMouse(bool visible);
     void setMousePosition(int x, int y, bool padding = true);
 
     int getKeboardKeyForCommand(int eventID);
