@@ -115,10 +115,10 @@ target_link_libraries(RoRConfig PRIVATE
 set_target_properties(RoRConfig PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
 cotire(RoRConfig)
 
-IF (UNIX)
+IF (BUILD_APPIMAGE)
   INSTALL(TARGETS RoRConfig
-          RUNTIME DESTINATION games/RoR
-          LIBRARY DESTINATION games/RoR
-          ARCHIVE DESTINATION games/RoR
+          RUNTIME DESTINATION ${CMAKE_BINARY_DIR}/AppDir/usr/bin
+          LIBRARY DESTINATION ${CMAKE_BINARY_DIR}/AppDir/usr/lib
+          ARCHIVE DESTINATION ${CMAKE_BINARY_DIR}/AppDir/usr/lib
   )
-ENDIF (UNIX)
+ENDIF ()

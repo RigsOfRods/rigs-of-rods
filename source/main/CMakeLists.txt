@@ -1,7 +1,5 @@
 project(RoR_Main)
 
-set(TMP_FILE_DIR ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/tmp)
-
 ####################################################################################################
 #  SOURCE FILES
 ####################################################################################################
@@ -552,6 +550,8 @@ if (WIN32)
   set(CFG_OGRE_RENDERSYSTEM_D3D9 "Plugin=RenderSystem_Direct3D9")
 endif ()
 
+configure_file(plugins-AppImage.cfg.in ${TMP_FILE_DIR}/plugins.cfg)
+
 if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
   configure_file(plugins.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg)
 else()
@@ -591,31 +591,28 @@ add_custom_target(
     VERBATIM
 )
 
-IF (UNIX)
+IF (BUILD_APPIMAGE)
     INSTALL(
             TARGETS ${BINNAME}
-            RUNTIME DESTINATION games/RoR
-            LIBRARY DESTINATION games/RoR
-            ARCHIVE DESTINATION games/RoR
+            RUNTIME DESTINATION ${CMAKE_BINARY_DIR}/AppDir/usr/bin
+            LIBRARY DESTINATION ${CMAKE_BINARY_DIR}/AppDir/usr/lib
+            ARCHIVE DESTINATION ${CMAKE_BINARY_DIR}/AppDir/usr/lib
     )
     INSTALL(
-            DIRECTORY ${TMP_RES_DIR}
-            DESTINATION games/RoR
-            FILES_MATCHING PATTERN "*"
+            DIRECTORY ${TMP_RES_DIR}/
+            DESTINATION ${CMAKE_BINARY_DIR}/AppDir/usr/bin/resources/
     )
     INSTALL(
-            DIRECTORY ${CMAKE_SOURCE_DIR}/resources/managed_materials
-            DESTINATION games/RoR/resources/managed_materials
-            FILES_MATCHING PATTERN "*"
+            DIRECTORY ${CMAKE_SOURCE_DIR}/resources/managed_materials/
+            DESTINATION ${CMAKE_BINARY_DIR}/AppDir/usr/bin/resources/managed_materials/
     )
     INSTALL(
-            FILES ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg
-            DESTINATION games/RoR
+            FILES ${TMP_FILE_DIR}/plugins.cfg
+            DESTINATION ${CMAKE_BINARY_DIR}/AppDir/usr/bin
     )
-ELSEIF (WIN32)
     INSTALL(
-            DIRECTORY $<TARGET_FILE_DIR:${BINNAME}>/
-            DESTINATION ./
-            FILES_MATCHING PATTERN "*"
+            DIRECTORY ${CMAKE_SOURCE_DIR}/tools/linux/desktop-entry/
+            DESTINATION ${CMAKE_BINARY_DIR}/AppDir/
     )
-ENDIF (UNIX)
+
+ENDIF ()

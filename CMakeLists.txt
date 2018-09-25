@@ -31,6 +31,7 @@ option(BUILD_DEV_VERSION "Disable this for official releases" ON)
 option(BUILD_CUSTOM_VERSION "Specify a custom version" OFF)
 option(BUILD_DOC_DOXYGEN "Build documentation from sources with Doxygen" OFF)
 option(BUILD_SHOW_WARNINGS "Show build warnings" ON)
+option(BUILD_APPIMAGE "Build an AppDir for packaging with AppImage" OFF)
 
 if (BUILD_CUSTOM_VERSION)
     set(CUSTOM_VERSION "0.4.8.0-dev" CACHE STRING "Custom version")
@@ -125,11 +126,6 @@ include(DependenciesConfig)
 ################################################################################
 add_subdirectory(source)
 add_subdirectory(doc)
-
-################################################################################
-# Include install script and CPack configuration
-################################################################################
-include(Install)
 
 include(FeatureSummary)
 feature_summary(WHAT ALL)
