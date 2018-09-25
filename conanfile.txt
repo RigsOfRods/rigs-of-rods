@@ -15,6 +15,7 @@ wxwidgets/3.1.1@bincrafters/stable
 
 
 [imports]
-bin, *.dll -> ./bin @ keep_path=False # Copies all dll files from packages bin folder to my local "bin" folder
-lib, *.so* -> ./bin @ root_package=OGRE, keep_path=False, excludes=lib* # Copies all so files from packages lib folder to my local "bin" folder
-lib, *.dylib* -> ./bin @ keep_path=False # Copies all dylib files from packages lib folder to my local "bin" folder
+bin, *.dll -> ./bin @ keep_path=False
+lib, *.so* -> ./bin @ root_package=OGRE, keep_path=False, excludes=lib*
+lib, *.so* -> ./AppDir/usr/lib @ keep_path=False,
+lib, *.dylib* -> ./bin @ keep_path=False 
