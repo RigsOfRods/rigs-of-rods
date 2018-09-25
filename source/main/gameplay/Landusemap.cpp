@@ -58,20 +58,20 @@ Landusemap::~Landusemap()
 ground_model_t* Landusemap::getGroundModelAt(int x, int z)
 {
     if (!data)
-        return 0;
+        return nullptr;
 #ifdef USE_PAGED
-	const Vector3 mapsize = App::GetSimTerrain()->getMaxTerrainSize();
+    const Vector3 mapsize = App::GetSimTerrain()->getMaxTerrainSize();
     // we return the default ground model if we are not anymore in this map
     if (x < 0 || x >= mapsize.x || z < 0 || z >= mapsize.z)
         return default_ground_model;
 
     return data[x + z * (int)mapsize.x];
 #else
-	return 0;
+	return nullptr;
 #endif // USE_PAGED
 }
 
-int Landusemap::loadConfig(Ogre::String filename)
+int Landusemap::loadConfig(const Ogre::String& filename)
 {
     std::map<unsigned int, String> usemap;
     String textureFilename = "";
@@ -157,7 +157,7 @@ int Landusemap::loadConfig(Ogre::String filename)
 
         bool bgr = colourMap->getPixelBox().format == PF_A8B8G8R8;
 
-		const Vector3 mapsize = App::GetSimTerrain()->getMaxTerrainSize();
+        const Vector3 mapsize = App::GetSimTerrain()->getMaxTerrainSize();
         Ogre::TRect<Ogre::Real> bounds = Forests::TBounds(0, 0, mapsize.x, mapsize.z);
 
         // now allocate the data buffer to hold pointers to ground models

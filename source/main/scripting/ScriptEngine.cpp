@@ -703,7 +703,7 @@ int ScriptEngine::deleteVariable(const String &arg)
 void ScriptEngine::triggerEvent(int eventnum, int value)
 {
     if (!engine) return;
-    if (eventCallbackFunctionPtr==0) return;
+    if (eventCallbackFunctionPtr==nullptr) return;
     if (eventMask & eventnum)
     {
         // script registered for that event, so sent it
