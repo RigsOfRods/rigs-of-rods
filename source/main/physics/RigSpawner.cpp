@@ -768,7 +768,6 @@ void ActorSpawner::ProcessFusedrag(RigDef::Fusedrag & def)
 
     //parse fusedrag
     int front_node_idx = GetNodeIndexOrThrow(def.front_node);
-    //int back_node_idx = GetNodeIndexOrThrow(def.rear_node); // unused variable
     float width = 1.f;
     float factor = 1.f;
     char fusefoil[256];

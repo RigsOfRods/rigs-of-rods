@@ -410,7 +410,6 @@ namespace Hydrax
 		Ogre::Ray SunToCameraRay = Ogre::Ray(SunPosition, CameraPosition-SunPosition);
 
 		Ogre::Vector3 WaterProjectionPoint = SunToCameraRay.getPoint(SunToCameraRay.intersects(WaterPlane).second);
-		//Ogre::Vector3 WaterPosition = Ogre::Vector3(WaterProjectionPoint.x, mHydrax->getHeigth(WaterProjectionPoint), WaterProjectionPoint.z); // unused variable
 
 		mProjectorSN->setPosition(WaterProjectionPoint);
 		mProjectorCamera->setFarClipDistance((WaterProjectionPoint-CameraPosition).length());

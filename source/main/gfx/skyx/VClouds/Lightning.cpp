@@ -59,7 +59,6 @@ namespace SkyX { namespace VClouds
 	{
 		remove();
 
-		// Ogre::Vector3 end = mOrigin + mDirection*mLength; // unused variable
 		Ogre::Vector3 current, last = mOrigin;
 
 		// Create ray segments
