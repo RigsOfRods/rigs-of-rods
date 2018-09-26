@@ -50,7 +50,7 @@ public:
     ~TerrainObjectManager();
 
     std::vector<EditorObject> GetEditorObjects() const { return m_editor_objects; }
-    void           LoadTObjFile(Ogre::String filename);
+    void           LoadTObjFile(const Ogre::String& filename);
     void           LoadTerrainObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, Ogre::SceneNode* m_staticgeometry_bake_node, const Ogre::String& instancename, const Ogre::String& type, bool enable_collisions = true, int scripthandler = -1, bool uniquifyMaterial = false);
     void           MoveObjectVisuals(const Ogre::String& instancename, const Ogre::Vector3& pos);
     void           unloadObject(const Ogre::String& instancename);
@@ -105,7 +105,7 @@ private:
     };
 #endif //USE_PAGED
 
-    bool           UpdateAnimatedObjects(float dt);
+    void           UpdateAnimatedObjects(float dt);
     std::vector<localizer_t> localizers;
 
     std::map<std::string, StaticObject>   m_static_objects;

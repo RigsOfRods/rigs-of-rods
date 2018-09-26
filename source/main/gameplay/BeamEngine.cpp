@@ -71,7 +71,7 @@ EngineSim::EngineSim(float _min_rpm, float _max_rpm, float torque, std::vector<f
     , m_shift_val(0)
     , m_engine_stall_rpm(300.0f)
     , m_starter(0)
-    , m_torque_curve(new TorqueCurve())
+    , m_torque_curve(std::unique_ptr<TorqueCurve>(new TorqueCurve()))
     , m_actor(actor)
     , m_engine_turbo_mode(OLD)
     , m_engine_type('t')
@@ -114,8 +114,8 @@ EngineSim::EngineSim(float _min_rpm, float _max_rpm, float torque, std::vector<f
 EngineSim::~EngineSim()
 {
     // delete NULL is safe
-    delete m_torque_curve;
-    m_torque_curve = NULL;
+    //delete m_torque_curve;
+    //m_torque_curve = NULL;
 }
 
 void EngineSim::SetTurboOptions(int type, float tinertiaFactor, int nturbos, float param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8, float param9, float param10, float param11)

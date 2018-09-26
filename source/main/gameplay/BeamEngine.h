@@ -95,7 +95,7 @@ public:
     float          getMinRPM() const        { return m_engine_min_rpm; };
     int            getNumGears() const      { return m_gear_ratios.size() - 2; };
     int            getNumGearsRanges() const{ return getNumGears() / 6 + 1; };
-    TorqueCurve*   getTorqueCurve()         { return m_torque_curve; };
+    TorqueCurve*   getTorqueCurve()         { return m_torque_curve.get(); };
     float          GetEngineRpm() const     { return m_cur_engine_rpm; }
     float          getAccToHoldRPM(float rpm);
     float          getTurboPower();
@@ -183,7 +183,7 @@ private:
     float          m_engine_min_rpm;        //!< Engine attribute
     float          m_engine_stall_rpm;      //!< Engine
     bool           m_engine_is_priming;     //!< Engine
-    TorqueCurve*   m_torque_curve;
+    std::unique_ptr<TorqueCurve>   m_torque_curve;
     float          m_air_pressure;
 
     // Shifting
