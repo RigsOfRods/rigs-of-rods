@@ -37,7 +37,7 @@ public:
     TerrainManager();
     ~TerrainManager();
 
-    void               loadTerrain(Ogre::String filename);
+    void               loadTerrain(const Ogre::String& filename);
     bool               update(float dt);
     void               setGravity(float value);
     std::vector<authorinfo_t>& GetAuthors();

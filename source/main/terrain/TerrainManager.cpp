@@ -135,7 +135,7 @@ TerrainManager::~TerrainManager()
 // some shortcut to remove ugly code
 #   define PROGRESS_WINDOW(x, y) { LOG(Ogre::String("  ## ") + y); RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(x, y); }
 
-void TerrainManager::loadTerrain(String filename)
+void TerrainManager::loadTerrain(const String& filename)
 {
     DataStreamPtr ds;
 
@@ -614,7 +614,7 @@ void TerrainManager::initShadows()
 
 void TerrainManager::loadTerrainObjects()
 {
-    for (std::string tobj_filename : m_def.tobj_files)
+    for (const auto& tobj_filename : m_def.tobj_files)
     {
         m_object_manager->LoadTObjFile(tobj_filename);
     }

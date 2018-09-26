@@ -107,7 +107,7 @@ TerrainObjectManager::~TerrainObjectManager()
     gEnv->sceneManager->destroyAllEntities();
 }
 
-void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
+void TerrainObjectManager::LoadTObjFile(const Ogre::String& odefname)
 {
     if (m_procedural_mgr == nullptr)
     {
@@ -1315,22 +1315,19 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
 
 }
 
-bool TerrainObjectManager::UpdateAnimatedObjects(float dt)
+void TerrainObjectManager::UpdateAnimatedObjects(float dt)
 {
-    if (m_animated_objects.size() == 0)
-        return true;
+    if (m_animated_objects.empty())
+        return;
 
-    std::vector<AnimatedObject>::iterator it;
-
-    for (it = m_animated_objects.begin(); it != m_animated_objects.end(); it++)
+    for (auto& it : m_animated_objects)
     {
-        if (it->anim && it->speedfactor != 0)
+        if (it.anim && it.speedfactor != 0.0f)
         {
-            Real time = dt * it->speedfactor;
-            it->anim->addTime(time);
+            Real time = dt * it.speedfactor;
+            it.anim->addTime(time);
         }
     }
-    return true;
 }
 
 void TerrainObjectManager::LoadPredefinedActors()

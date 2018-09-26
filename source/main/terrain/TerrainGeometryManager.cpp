@@ -146,26 +146,28 @@ TerrainGeometryManager::~TerrainGeometryManager()
 }
 
 /// @author Ported from OGRE engine, www.ogre3d.org, file OgreTerrain.cpp
-void TerrainGeometryManager::getTerrainPositionAlign(Real x, Real y, Real z, Terrain::Alignment align, Vector3* outTSpos)
+Ogre::Vector3 TerrainGeometryManager::getTerrainPositionAlign(Real x, Real y, Real z, Terrain::Alignment align)
 {
+    Ogre::Vector3 terrain_position;
     switch (align)
     {
     case Terrain::ALIGN_X_Z:
-        outTSpos->x = (x - mBase - mPos.x) / ((mSize - 1) * mScale);
-        outTSpos->y = (z + mBase - mPos.z) / ((mSize - 1) * -mScale);
-        outTSpos->z = y;
+        terrain_position.x = (x - mBase - mPos.x) / ((mSize - 1) * mScale);
+        terrain_position.y = (z + mBase - mPos.z) / ((mSize - 1) * -mScale);
+        terrain_position.z = y;
         break;
     case Terrain::ALIGN_Y_Z:
-        outTSpos->x = (z - mBase - mPos.z) / ((mSize - 1) * -mScale);
-        outTSpos->y = (y + mBase - mPos.y) / ((mSize - 1) * mScale);
-        outTSpos->z = x;
+        terrain_position.x = (z - mBase - mPos.z) / ((mSize - 1) * -mScale);
+        terrain_position.y = (y + mBase - mPos.y) / ((mSize - 1) * mScale);
+        terrain_position.z = x;
         break;
     case Terrain::ALIGN_X_Y:
-        outTSpos->x = (x - mBase - mPos.x) / ((mSize - 1) * mScale);
-        outTSpos->y = (y - mBase - mPos.y) / ((mSize - 1) * mScale);
-        outTSpos->z = z;
+        terrain_position.x = (x - mBase - mPos.x) / ((mSize - 1) * mScale);
+        terrain_position.y = (y - mBase - mPos.y) / ((mSize - 1) * mScale);
+        terrain_position.z = z;
         break;
     };
+    return terrain_position;
 }
 
 /// @author Ported from OGRE engine, www.ogre3d.org, file OgreTerrain.cpp
@@ -181,7 +183,7 @@ float TerrainGeometryManager::getHeightAtPoint(long x, long y)
 }
 
 /// @author Ported from OGRE engine, www.ogre3d.org, file OgreTerrain.cpp
-float TerrainGeometryManager::getHeightAtTerrainPosition(Real x, Real y)
+Ogre::Real TerrainGeometryManager::getHeightAtTerrainPosition(Real x, Real y)
 {
     // get left / bottom points (rounded down)
     Real factor = (Real)mSize - 1.0f;
@@ -249,9 +251,7 @@ float TerrainGeometryManager::getHeightAtTerrainPosition(Real x, Real y)
 /// @author Ported from OGRE engine, www.ogre3d.org, file OgreTerrain.cpp
 float TerrainGeometryManager::getHeightAtWorldPosition(float x, float z)
 {
-    Vector3 terrPos;
-    getTerrainPositionAlign(x, 0.0f, z, mAlign, &terrPos);
-
+    auto terrPos = getTerrainPositionAlign(x, 0.0f, z, mAlign);
     if (terrPos.x <= 0.0f || terrPos.y <= 0.0f || terrPos.x >= 1.0f || terrPos.y >= 1.0f)
         return 0.0f;
 
@@ -264,7 +264,7 @@ float TerrainGeometryManager::getHeightAt(float x, float z)
         return 0.0f;
     else
     //return m_ogre_terrain_group->getHeightAtWorldPosition(x, 1000, z);
-        return getHeightAtWorldPosition(x, z);
+    return getHeightAtWorldPosition(x, z);
 }
 
 Ogre::Vector3 TerrainGeometryManager::getNormalAt(float x, float y, float z, float precision)

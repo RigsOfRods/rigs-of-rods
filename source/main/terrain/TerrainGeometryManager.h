@@ -44,9 +44,9 @@ public:
 
     float getHeightAt(float x, float z);
     float getHeightAtPoint(long x, long z);
-    float getHeightAtTerrainPosition(float x, float z);
+    Ogre::Real getHeightAtTerrainPosition(Ogre::Real x, Ogre::Real z);
     float getHeightAtWorldPosition(float x, float z);
-    void getTerrainPositionAlign(Ogre::Real x, Ogre::Real y, Ogre::Real z, Ogre::Terrain::Alignment align, Ogre::Vector3* outWSpos);
+    Ogre::Vector3 getTerrainPositionAlign(Ogre::Real x, Ogre::Real y, Ogre::Real z, Ogre::Terrain::Alignment align);
 
     Ogre::Vector3 getNormalAt(float x, float y, float z, float precision = 0.1f);
 
