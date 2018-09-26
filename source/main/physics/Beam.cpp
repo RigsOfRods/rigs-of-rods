@@ -2566,7 +2566,7 @@ void Actor::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt,
                     ar_beams[i].shock->trigger_switch_state = 0.0f;
                 if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_BLOCKER) // this is an enabled blocker and past boundary
                 {
-                    for (int scount = i + 1; scount <= i + ar_beams[i].shock->trigger_cmdshort; scount++) // (cycle blockerbeamID +1) to (blockerbeamID + beams to lock)
+                    for (int scount = i + 1; scount <= std::min(i + ar_beams[i].shock->trigger_cmdshort, ar_num_beams - 1); scount++) // (cycle blockerbeamID +1) to (blockerbeamID + beams to lock)
                     {
                         if (ar_beams[scount].shock && (ar_beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER)) // don't mess anything up if the user set the number too big
                         {
@@ -2581,7 +2581,7 @@ void Actor::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt,
                 }
                 else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_BLOCKER_A) // this is an enabled inverted blocker and inside boundary
                 {
-                    for (int scount = i + 1; scount <= i + ar_beams[i].shock->trigger_cmdlong; scount++) // (cycle blockerbeamID + 1) to (blockerbeamID + beams to release)
+                    for (int scount = i + 1; scount <= std::min(i + ar_beams[i].shock->trigger_cmdlong, ar_num_beams - 1); scount++) // (cycle blockerbeamID + 1) to (blockerbeamID + beams to release)
                     {
                         if (ar_beams[scount].shock && (ar_beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER)) // don't mess anything up if the user set the number too big
                         {
@@ -2740,7 +2740,7 @@ void Actor::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt,
                 }
                 else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_BLOCKER) // this is an enabled blocker and inside boundary
                 {
-                    for (int scount = i + 1; scount <= i + ar_beams[i].shock->trigger_cmdlong; scount++) // (cycle blockerbeamID + 1) to (blockerbeamID + beams to release)
+                    for (int scount = i + 1; scount <= std::min(i + ar_beams[i].shock->trigger_cmdlong, ar_num_beams - 1); scount++) // (cycle blockerbeamID + 1) to (blockerbeamID + beams to release)
                     {
                         if (ar_beams[scount].shock && (ar_beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER)) // don't mess anything up if the user set the number too big
                         {
@@ -2755,7 +2755,7 @@ void Actor::calcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, Real dt,
                 }
                 else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_BLOCKER_A) // this is an enabled reverse blocker and past boundary
                 {
-                    for (int scount = i + 1; scount <= i + ar_beams[i].shock->trigger_cmdshort; scount++) // (cylce blockerbeamID +1) to (blockerbeamID + beams tob lock)
+                    for (int scount = i + 1; scount <= std::min(i + ar_beams[i].shock->trigger_cmdshort, ar_num_beams - 1); scount++) // (cylce blockerbeamID +1) to (blockerbeamID + beams tob lock)
                     {
                         if (ar_beams[scount].shock && (ar_beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER)) // dont mess anything up if the user set the number too big
                         {
