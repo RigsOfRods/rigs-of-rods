@@ -201,12 +201,8 @@ RoR::GfxEnvmap::~GfxEnvmap()
         if (m_cameras[face] != nullptr)
         {
             gEnv->sceneManager->destroyCamera(m_cameras[face]);
+            m_render_targets[face]->removeAllViewports();
         }
-    }
-
-    if (!m_rtt_texture.isNull())
-    {
-        Ogre::TextureManager::getSingleton().remove(m_rtt_texture->getName());
     }
 }
 
