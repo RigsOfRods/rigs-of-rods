@@ -21,7 +21,7 @@
 /// @file   Application.h
 /// @author Petr Ohlidal
 /// @date   05/2014
-/// @brief  Central state/object manager and communications hub.
+/// @brief  Application-wide logic: global state variables, global objects, logging, string utils.
 
 #pragma once
 
@@ -30,6 +30,7 @@
 #include <cstdio>
 #include <cstring>
 #include <string>
+#include <sstream>
 
 namespace RoR {
 
@@ -151,7 +152,7 @@ const char* ToStr(IoInputGrabMode v);
 
 
 // ------------------------------------------------------------------------------------------------
-// Generic utilities
+// String utility
 // ------------------------------------------------------------------------------------------------
 
 
@@ -200,12 +201,22 @@ private:
     const size_t m_capacity = L;
 };
 
-
-void                   Log(const char* msg);                    ///< The ultimate, application-wide logging function. Adds a line (any length) in 'RoR.log' file.
-void                   LogFormat(const char* format, ...);      ///< Improved logging utility. Uses fixed 2Kb buffer.
 inline const char*     ToStr(bool b)                        { return (b) ? "true" : "false"; }
 inline const char*     ToStr(std::string const & s)         { return s.c_str(); }
 
+// ------------------------------------------------------------------------------------------------
+// Logging
+// ------------------------------------------------------------------------------------------------
+
+class LogStream
+{
+public:
+    LogStream(const char* title = nullptr); //!< We log to OGRE log and prefix our messages with [RoR|$TITLE] or at least [RoR] marker
+    ~LogStream();
+    template <typename T> LogStream& operator<<(T value) { m_sstream << value; }
+private:
+    std::stringstream m_sstream;
+};
 
 // ------------------------------------------------------------------------------------------------
 // Global variables
@@ -249,21 +260,9 @@ public:
 
 protected:
 
-    void LogFormat(const char* format, ...) const;
-
     template <typename T> void Log(const char* action, T arg, T cur) const
     {
-        this->LogFormat("[RoR|GVar]  %20s:  %s(), new: \"%s\", old: \"%s\"", name, action, ToStr(arg), ToStr(cur));
-    }
-
-    void Log(const char* action, int arg, int cur) const
-    {
-        this->LogFormat("[RoR|GVar]  %20s:  %s(), new: \"%d\", old: \"%d\"", name, action, arg, cur);
-    }
-    
-    void Log(const char* action, float arg, float cur) const
-    {
-        this->LogFormat("[RoR|GVar]  %20s:  %s(), new: \"%f\", old: \"%f\"", name, action, arg, cur);
+        LogStream("GVar") << std::setw(20) << name << ": " << action << ", new: \"" << arg << "\", old: \"" << cur << "\"";
     }
 };
 
@@ -588,7 +587,3 @@ void SetSimTerrain           (TerrainManager*    obj);
 
 } // namespace App
 } // namespace RoR
-
-inline void          LOG(const char* msg)           { RoR::Log(msg); }         ///< Legacy alias - formerly a macro
-inline void          LOG(std::string const & msg)   { RoR::Log(msg.c_str()); } ///< Legacy alias - formerly a macro
-

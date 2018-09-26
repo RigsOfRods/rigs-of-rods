@@ -430,38 +430,24 @@ const char* ToStr(GfxExtCamMode v)
     }
 }
 
-void Log(const char* msg)
+// ------------------------------------------------------------------------------------------------
+// Logging
+// ------------------------------------------------------------------------------------------------
+
+LogStream::LogStream(const char* title)
 {
-    Ogre::LogManager::getSingleton().logMessage(msg);
-}
-
-void LogFormat(const char* format, ...)
-{
-    char buffer[2000] = {};
-
-    va_list args;
-    va_start(args, format);
-        vsprintf(buffer, format, args);
-    va_end(args);
-
-    RoR::Log(buffer);
-}
-
-void GVarBase::LogFormat(const char* format, ...) const
-{
-    if (! App::diag_trace_globals.GetActive())
+    // We log to OGRE log and prefix our messages with [RoR|$TITLE] marker (or just [RoR])
+    m_sstream << "[RoR";
+    if (title != nullptr)
     {
-        return;
+        m_sstream << "|" << title;
     }
+    m_sstream << "]";
+}
 
-    char buffer[2000] = {};
-
-    va_list args;
-    va_start(args, format);
-        vsprintf(buffer, format, args);
-    va_end(args);
-
-    RoR::Log(buffer);
+LogStream::~LogStream()
+{
+    Ogre::LogManager::getSingleton().logMessage(m_sstream.str());
 }
 
 } // namespace RoR
