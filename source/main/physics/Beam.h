@@ -57,10 +57,8 @@ public:
     /// @param pos
     /// @param rot
     /// @param fname Rig file name.
-    /// @param ismachine (see BeamData.h)
     /// @param actor_config Networking related.
     /// @param preloaded_with_terrain Is this rig being pre-loaded along with terrain?
-    /// @param cache_entry_number Needed for flexbody caching. Pass -1 if unavailable (flexbody caching will be disabled)
     Actor(
           int actor_id
         , unsigned int vector_index
@@ -68,13 +66,10 @@ public:
         , Ogre::Vector3 pos
         , Ogre::Quaternion rot
         , const char* fname
-        , bool networked = false
         , bool networking = false
-        , collision_box_t *spawnbox = nullptr
         , const std::vector<Ogre::String> *actor_config = nullptr
         , RoR::SkinDef *skin = nullptr
         , bool preloaded_with_terrain = false
-        , int cache_entry_number = -1
         );
 
     ~Actor();
