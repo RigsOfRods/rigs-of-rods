@@ -1422,3 +1422,13 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(const char* filename, 
         return nullptr;
     }
 }
+
+ActorSpawnRequest::ActorSpawnRequest()
+    : asr_position(Ogre::Vector3::ZERO)
+    , asr_rotation(Ogre::Quaternion::ZERO)
+    , asr_cache_entry_num(-1) // flexbody cache disabled
+    , asr_spawnbox(nullptr)
+    , asr_skin(nullptr)
+    , asr_free_position(false)
+    , asr_loaded_with_terrn(false)
+{}

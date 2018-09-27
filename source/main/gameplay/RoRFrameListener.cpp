@@ -1295,11 +1295,6 @@ void SimController::UpdateInputEvents(float dt)
             if (m_last_cache_selection != nullptr)
             {
                 /* We load an extra actor */
-                std::vector<String>* config_ptr = nullptr;
-                if (m_last_vehicle_configs.size() > 0)
-                {
-                    config_ptr = & m_last_vehicle_configs;
-                }
 
                 if (m_player_actor != nullptr)
                 {
@@ -1315,9 +1310,14 @@ void SimController::UpdateInputEvents(float dt)
                     m_reload_pos = gEnv->player->getPosition();
                 }
 
-                Actor* local_actor = m_actor_manager.CreateLocalActor(m_reload_pos, m_reload_dir, m_last_cache_selection->fname, m_last_cache_selection->number, 0, config_ptr, m_last_skin_selection);
-
-                this->FinalizeActorSpawning(local_actor, m_player_actor);
+                ActorSpawnRequest rq;
+                rq.asr_position        = m_reload_pos;
+                rq.asr_rotation        = m_reload_dir;
+                rq.asr_filename        = m_last_cache_selection->fname;
+                rq.asr_cache_entry_num = m_last_cache_selection->number;
+                rq.asr_config          = m_last_vehicle_configs;
+                rq.asr_skin            = m_last_skin_selection;
+                m_actor_spawn_queue.push_back(rq);
             }
         }
     }
@@ -1521,6 +1521,17 @@ void SimController::UpdateSimulation(float dt)
         }
     }
 #endif //SOCKETW
+
+    // Handle actor change requests early (so that other logic can reflect it)
+    for (ActorSpawnRequest& rq: m_actor_spawn_queue)
+    {
+        Actor* fresh_actor = m_actor_manager.CreateLocalActor(
+            rq.asr_position, rq.asr_rotation, rq.asr_filename, rq.asr_cache_entry_num,
+            nullptr, &rq.asr_config, rq.asr_skin);
+
+        this->FinalizeActorSpawning(fresh_actor, m_player_actor);
+    }
+    m_actor_spawn_queue.clear();
 
     RoR::App::GetInputEngine()->Capture();
     auto s = App::sim_state.GetActive();

@@ -30,11 +30,29 @@
 #include "Network.h"
 #include "Singleton.h"
 
+#include <string>
+#include <vector>
+
 #define PHYSICS_DT 0.0005 // fixed dt of 0.5 ms
 
 class ThreadPool;
 
 namespace RoR {
+
+struct ActorSpawnRequest
+{
+    ActorSpawnRequest();
+
+    std::string       asr_filename;
+    std::vector<Ogre::String> asr_config;
+    Ogre::Vector3     asr_position;
+    Ogre::Quaternion  asr_rotation;
+    int               asr_cache_entry_num;
+    collision_box_t*  asr_spawnbox;
+    RoR::SkinDef*     asr_skin;
+    bool              asr_free_position;
+    bool              asr_loaded_with_terrn;
+};
 
 /// Builds and manages softbody actors. Manage physics and threading.
 /// TODO: Currently also manages gfx, which should be done by GfxActor
