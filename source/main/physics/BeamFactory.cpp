@@ -1110,44 +1110,25 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
 
     }
 
-    // A player actor if present, or any other local actor if present.
-    // TODO: This mechanism is plain weird, research and eliminate ~ only_a_ptr, 04/2018
-    Actor* simulated_actor = player_actor;
-
-    if (simulated_actor == nullptr)
+    if (player_actor != nullptr)
     {
-        for (auto actor : m_actors)
-        {
-            if (actor && actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
-            {
-                simulated_actor = actor; 
-                break;
-            }
-        }
+        player_actor->updateDashBoards(dt);
+        player_actor->ForceFeedbackStep(m_physics_steps);
+        if (player_actor->ReplayStep())
+            return; // Skip UpdatePhysicsSimulation()
     }
 
-    if (simulated_actor != nullptr)
+    if (m_sim_thread_pool)
     {
-        if ((player_actor != nullptr) && (simulated_actor == player_actor))
-        {
-            simulated_actor->updateDashBoards(dt);
-        }
-        if (!simulated_actor->ReplayStep())
-        {
-            simulated_actor->ForceFeedbackStep(m_physics_steps);
-            if (m_sim_thread_pool)
-            {
-                auto func = std::function<void()>([this]()
-                    {
-                        this->UpdatePhysicsSimulation();
-                    });
-                m_sim_task = m_sim_thread_pool->RunTask(func);
-            }
-            else
+        auto func = std::function<void()>([this]()
             {
                 this->UpdatePhysicsSimulation();
-            }
-        }
+            });
+        m_sim_task = m_sim_thread_pool->RunTask(func);
+    }
+    else
+    {
+        this->UpdatePhysicsSimulation();
     }
 }
 
