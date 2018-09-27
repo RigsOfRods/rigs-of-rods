@@ -459,6 +459,17 @@ void ActorSpawner::FinalizeRig()
         m_actor->ar_engine->SetAutoMode(App::sim_gearbox_mode.GetActive());
     }
     
+    // Sanitize trigger_cmdshort and trigger_cmdlong
+    for (int i=0; i<m_actor->ar_num_beams; i++)
+    {
+        shock_t* shock = m_actor->ar_beams[i].shock;
+        if (shock && ((shock->flags & SHOCK_FLAG_TRG_BLOCKER) || (shock->flags & SHOCK_FLAG_TRG_BLOCKER_A)))
+        {
+            shock->trigger_cmdshort = std::min(shock->trigger_cmdshort, m_actor->ar_num_beams - i - 1);
+            shock->trigger_cmdlong  = std::min(shock->trigger_cmdlong , m_actor->ar_num_beams - i - 1);
+        }
+    }
+
     //calculate gwps height offset
     //get a starting value
     m_actor->ar_posnode_spawn_height=m_actor->ar_nodes[0].RelPosition.y;
