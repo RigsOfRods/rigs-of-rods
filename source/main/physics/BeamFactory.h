@@ -86,9 +86,6 @@ public:
     Actor*         GetActorByIdInternal(int actor_id); //!< DO NOT CALL DIRECTLY! Use `SimController` for public interface
     Actor*         FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
 
-    // Visual updates
-    void           UpdateActorVisuals(float dt, Actor* player_actor); // LEGACY; reads data directly from Actor, requires physics to be halted
-
 #ifdef USE_SOCKETW
     void           HandleActorStreamData(std::vector<RoR::Networking::recv_packet_t> packet);
 #endif

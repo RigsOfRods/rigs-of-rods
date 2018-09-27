@@ -1047,22 +1047,6 @@ Actor* ActorManager::FetchRescueVehicle()
     return nullptr;
 }
 
-void ActorManager::UpdateActorVisuals(float dt,  Actor* player_actor)
-{
-    dt *= m_simulation_speed;
-
-    for (auto actor : m_actors)
-    {
-        if (actor->ar_sim_state < Actor::SimState::LOCAL_SLEEPING)
-        {
-            actor->updateVisual(dt);
-            actor->updateSkidmarks();
-            actor->UpdateFlareStates(dt); // Only state, visuals done by GfxActor
-            actor->m_gfx_actor->UpdateParticles(dt); // friend access // TODO: updates visuals, move it to GfxActor ~ only_a_ptr, 06/2018
-        }
-    }
-}
-
 void ActorManager::UpdateActors(Actor* player_actor, float dt)
 {
     m_physics_frames++;
@@ -1093,32 +1077,37 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
             actor->ar_vehicle_ai->update(dt, 0);
 #endif // USE_ANGELSCRIPT
 
-        switch (actor->ar_sim_state)
+        if (actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
         {
-        case Actor::SimState::NETWORKED_OK:
-            actor->CalcNetwork();
-            break;
-
-        case Actor::SimState::INVALID:
-            break;
-
-        default:
-            if (actor->ar_sim_state != Actor::SimState::LOCAL_SIMULATED && actor->ar_engine)
-                actor->ar_engine->UpdateEngineSim(dt, 1);
-
+            actor->updateVisual(dt);
+            actor->updateSkidmarks();
+            actor->UpdateFlareStates(dt); // Only state, visuals done by GfxActor
+            actor->m_gfx_actor->UpdateParticles(dt); // TODO: move it to GfxActor ~ only_a_ptr, 06/2018
             if (actor->ar_uses_networking)
             {
-                if (actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
-                    actor->sendStreamData();
-                else if (actor->ar_sim_state == Actor::SimState::LOCAL_SLEEPING && actor->ar_net_timer.getMilliseconds() < 10000)
-                // Also send update messages for 'Actor::SimState::LOCAL_SLEEPING' actors during the first 10 seconds of lifetime
-                    actor->sendStreamData();
-                else if (actor->ar_sim_state == Actor::SimState::LOCAL_SLEEPING && actor->ar_net_timer.getMilliseconds() - actor->ar_net_last_update_time > 5000)
-                // Also send update messages for 'Actor::SimState::LOCAL_SLEEPING' actors periodically every 5 seconds
-                    actor->sendStreamData();
+                actor->sendStreamData();
             }
-            break;
         }
+        else if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK)
+        {
+            actor->CalcNetwork();
+        }
+        else if (actor->ar_sim_state == Actor::SimState::LOCAL_SLEEPING)
+        {
+            if (actor->ar_engine)
+            {
+                actor->ar_engine->UpdateEngineSim(dt, 1);
+            }
+            if (actor->ar_uses_networking)
+            {
+                auto lifetime = actor->ar_net_timer.getMilliseconds();
+                if (lifetime < 10000 || lifetime - actor->ar_net_last_update_time > 5000)
+                {
+                    actor->sendStreamData();
+                }
+            }
+        }
+
     }
 
     // A player actor if present, or any other local actor if present.

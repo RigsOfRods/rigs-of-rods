@@ -1551,11 +1551,6 @@ void SimController::UpdateSimulation(float dt)
     }
 #endif // USE_OPENAL
 
-    if ((simRUNNING(s) || simEDITOR(s)) && !simPAUSED(s))
-    {
-        m_actor_manager.UpdateActorVisuals(dt, m_player_actor); // update visual - antishaking
-    }
-
     this->UpdateInputEvents(dt);
 
     // CAUTION: 'updateEvents' might have changed 'm_player_actor'
