@@ -4125,14 +4125,11 @@ Actor::Actor(
     std::shared_ptr<RigDef::File> def,
     Ogre::Vector3 pos,
     Ogre::Quaternion rot,
-    const char* fname,
-    bool _networked, /* = false  */
+    const char* filename,
     bool _networking, /* = false  */
-    collision_box_t* spawnbox, /* = nullptr */
     const std::vector<Ogre::String>* actor_config, /* = nullptr */
     RoR::SkinDef* skin, /* = nullptr */
-    bool preloaded_with_terrain, /* = false */
-    int cache_entry_number /* = -1 */
+    bool preloaded_with_terrain /* = false */
 ) 
     : ar_nodes(nullptr), ar_num_nodes(0)
     , ar_beams(nullptr), ar_num_beams(0)
@@ -4233,7 +4230,7 @@ Actor::Actor(
     , ar_autopilot(nullptr)
     , ar_is_police(false)
     , m_disable_default_sounds(false)
-    , ar_uses_networking(false)
+    , ar_uses_networking(_networking)
     , ar_engine(nullptr)
     , ar_driveable(NOT_DRIVEABLE)
     , m_skid_trails{} // Init array to nullptr
@@ -4259,14 +4256,12 @@ Actor::Actor(
     , ar_num_contacters() // zero-init
     , ar_wheels() // array
     , ar_num_wheels() // int
+    , m_used_skin(skin)
+    , ar_filename(filename)
 {
     m_high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();
     m_use_skidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;
-    LOG(" ===== LOADING VEHICLE: " + Ogre::String(fname));
-
-    m_used_skin = skin;
-    ar_uses_networking = _networking;
-    ar_filename = fname;
+    LOG(" ===== LOADING VEHICLE: " + Ogre::String(ar_filename));
 
     // copy config
     if (actor_config != nullptr && actor_config->size() > 0u)

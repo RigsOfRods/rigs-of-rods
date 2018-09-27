@@ -462,13 +462,10 @@ Actor* ActorManager::CreateLocalActor(
         pos,
         rot,
         fname.c_str(),
-        false, // networked
         (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED), // networking
-        spawnbox,
         actor_config,
         skin,
-        preloaded_with_terrain,
-        cache_entry_number
+        preloaded_with_terrain
     );
 
     this->SetupActor(actor, def, pos, rot, spawnbox, free_position, false, cache_entry_number);
@@ -544,9 +541,7 @@ int ActorManager::CreateRemoteInstance(RoRnet::ActorStreamRegister* reg)
         pos,
         Quaternion::ZERO,
         reg->name,
-        true, // networked
         (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED), // networking
-        nullptr, // spawnbox
         &actor_config,
         nullptr // skin
     );
