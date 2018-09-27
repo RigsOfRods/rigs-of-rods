@@ -1434,6 +1434,11 @@ void SimController::UpdateInputEvents(float dt)
         }
         LOG("Position: " + TOSTRING(position.x) + ", "+ TOSTRING(position.y) + ", " + TOSTRING(position.z) + ", 0, " + TOSTRING(rotation.valueDegrees()) + ", 0");
     }
+
+    if (m_time_until_next_toggle >= 0)
+    {
+        m_time_until_next_toggle -= dt;
+    }
 }
 
 void SimController::TeleportPlayer(RoR::Terrn2Telepoint* telepoint)
@@ -1556,12 +1561,6 @@ void SimController::UpdateSimulation(float dt)
     // CAUTION: 'updateEvents' might have changed 'm_player_actor'
     //          TODO: This is a mess - actor updates from misc. inputs should be buffered, evaluated and executed at once, not ad-hoc ~ only_a_ptr, 07/2017
 
-    // one of the input modes is immediate, so setup what is needed for immediate mouse/key movement
-    if (m_time_until_next_toggle >= 0)
-    {
-        m_time_until_next_toggle -= dt;
-    }
-
     RoR::App::GetGuiManager()->DrawSimulationGui(dt);
 
     // CAUTION: 'FrameStepGui()' might have changed 'm_player_actor'
@@ -1574,7 +1573,6 @@ void SimController::UpdateSimulation(float dt)
     ScriptEngine::getSingleton().framestep(dt);
 #endif
 
-    // one of the input modes is immediate, so update the movement vector
     if (simRUNNING(s) || simPAUSED(s) || simEDITOR(s))
     {
         this->UpdateForceFeedback(dt);
