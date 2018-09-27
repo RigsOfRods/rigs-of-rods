@@ -1431,4 +1431,5 @@ ActorSpawnRequest::ActorSpawnRequest()
     , asr_skin(nullptr)
     , asr_free_position(false)
     , asr_loaded_with_terrn(false)
+    , asr_cache_entry(nullptr)
 {}

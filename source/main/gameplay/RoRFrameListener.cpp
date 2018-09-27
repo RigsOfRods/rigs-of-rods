@@ -1325,59 +1325,6 @@ void SimController::UpdateInputEvents(float dt)
     {
         //no terrain or actor loaded
         terrain_editing_mode = false;
-
-        if (App::GetGuiManager()->GetMainSelector()->IsFinishedSelecting())
-        {
-            if (simSELECT(s))
-            {
-                CacheEntry* selection = App::GetGuiManager()->GetMainSelector()->GetSelectedEntry();
-                RoR::SkinDef* skin = App::GetGuiManager()->GetMainSelector()->GetSelectedSkin();
-                if (selection != nullptr)
-                {
-                    // We load an extra actor
-                    std::vector<String>* config_ptr = nullptr;
-                    std::vector<String> config = App::GetGuiManager()->GetMainSelector()->GetVehicleConfigs();
-                    if (config.size() > 0)
-                    {
-                        config_ptr = & config;
-                    }
-
-                    m_last_cache_selection = selection;
-                    m_last_skin_selection = skin;
-                    m_last_vehicle_configs = config;
-
-                    if (m_reload_box == nullptr)
-                    {
-                        if (m_player_actor != nullptr)
-                        {
-                            float rotation = m_player_actor->getRotation() - Math::HALF_PI;
-                            m_reload_dir = Quaternion(Degree(180) - Radian(rotation), Vector3::UNIT_Y);
-                            m_reload_pos = m_player_actor->GetRotationCenter();
-                            // TODO: Fix this by projecting m_reload_pos onto the terrain / mesh
-                            m_reload_pos.y = m_player_actor->ar_nodes[m_player_actor->ar_lowest_contacting_node].AbsPosition.y;
-                        }
-                        else
-                        {
-                            m_reload_dir = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
-                            m_reload_pos = gEnv->player->getPosition();
-                        }
-                    }
-
-                    Actor* local_actor = m_actor_manager.CreateLocalActor(m_reload_pos, m_reload_dir, selection->fname, selection->number, m_reload_box, config_ptr, skin);
-
-                    this->FinalizeActorSpawning(local_actor, m_player_actor);
-                }
-                else if (gEnv->player)
-                {
-                    gEnv->player->unwindMovement(0.1f);
-                }
-
-                m_reload_box = 0;
-            }
-            App::GetGuiManager()->GetMainSelector()->Hide();
-            RoR::App::GetGuiManager()->UnfocusGui();
-            App::sim_state.SetActive(SimState::RUNNING); // TODO: use pending mechanism
-        }
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_GET_NEW_VEHICLE))
@@ -1525,11 +1472,43 @@ void SimController::UpdateSimulation(float dt)
     // Handle actor change requests early (so that other logic can reflect it)
     for (ActorSpawnRequest& rq: m_actor_spawn_queue)
     {
-        Actor* fresh_actor = m_actor_manager.CreateLocalActor(
-            rq.asr_position, rq.asr_rotation, rq.asr_filename, rq.asr_cache_entry_num,
-            nullptr, &rq.asr_config, rq.asr_skin);
+        if (rq.asr_user_selected)
+        {
+            m_last_cache_selection = rq.asr_cache_entry;
+            m_last_skin_selection  = rq.asr_skin;
+            m_last_vehicle_configs = rq.asr_config;
 
-        this->FinalizeActorSpawning(fresh_actor, m_player_actor);
+            if (m_reload_box == nullptr)
+            {
+                if (m_player_actor != nullptr)
+                {
+                    float rotation = m_player_actor->getRotation() - Math::HALF_PI;
+                    m_reload_dir = Quaternion(Degree(180) - Radian(rotation), Vector3::UNIT_Y);
+                    m_reload_pos = m_player_actor->GetRotationCenter();
+                    // TODO: Fix this by projecting m_reload_pos onto the terrain / mesh
+                    m_reload_pos.y = m_player_actor->ar_nodes[m_player_actor->ar_lowest_contacting_node].AbsPosition.y;
+                }
+                else
+                {
+                    m_reload_dir = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
+                    m_reload_pos = gEnv->player->getPosition();
+                }
+            }
+
+            Actor* fresh_actor = m_actor_manager.CreateLocalActor(
+                m_reload_pos, m_reload_dir, rq.asr_cache_entry->fname,
+                rq.asr_cache_entry->number, m_reload_box, &rq.asr_config, rq.asr_skin);
+
+            this->FinalizeActorSpawning(fresh_actor, m_player_actor);
+        }
+        else
+        {
+            Actor* fresh_actor = m_actor_manager.CreateLocalActor(
+                rq.asr_position, rq.asr_rotation, rq.asr_filename, rq.asr_cache_entry_num,
+                nullptr, &rq.asr_config, rq.asr_skin);
+
+            this->FinalizeActorSpawning(fresh_actor, m_player_actor);
+        }
     }
     m_actor_spawn_queue.clear();
 

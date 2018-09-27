@@ -693,6 +693,8 @@ void CLASS::OnSelectionDone()
         return;
 
     m_selection_done = true;
+    
+    bool new_actor_selected = false;
 
     m_selected_entry->usagecounter++;
     // TODO: Save the modified value of the usagecounter
@@ -713,20 +715,33 @@ void CLASS::OnSelectionDone()
         }
         else
         {
-            m_selected_skin = 0;
-            this->Hide(false); // Hide without fade-out effect
+            m_selected_skin = nullptr;
+            this->Hide(false); // false = Hide without fade-out effect
+            new_actor_selected = (m_loader_type != LT_Terrain);
         }
     }
     else if ((m_loader_type == LT_Terrain) && (App::mp_state.GetActive() == MpState::CONNECTED))
     {
         App::app_state.SetPending(AppState::SIMULATION);
-        this->Hide(false);
+        this->Hide(false); // false = Hide without fade-out effect (otherwise fading selector window overlaps 'loading' box)
     }
     else
     {
-        // we show the skin loader, set final skin and exit!
-        // m_selected_skin should be set already!
-        Hide();
+        this->Hide();
+        new_actor_selected = (m_loader_type != LT_Terrain);
+    }
+
+    if (new_actor_selected)
+    {
+        ActorSpawnRequest rq;
+        rq.asr_skin           = m_selected_skin;
+        rq.asr_cache_entry    = m_selected_entry;
+        rq.asr_config         = m_vehicle_configs;
+        rq.asr_user_selected  = true;
+        App::GetSimController()->QueueActorSpawn(rq);
+        
+        RoR::App::GetGuiManager()->UnfocusGui();
+        App::sim_state.SetActive(SimState::RUNNING); // TODO: use 'Pending' mechanism!
     }
 }
 

@@ -73,6 +73,7 @@ public:
     void   RemovePlayerActor     ();
     void   RemoveActor           (Actor* actor);
     void   RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name); ///< Scripting utility. TODO: Does anybody use it? ~ only_a_ptr, 08/2017
+    void   QueueActorSpawn       (RoR::ActorSpawnRequest const & rq) { m_actor_spawn_queue.push_back(rq); }
 
     std::vector<Actor*>          GetActors          () const;
 

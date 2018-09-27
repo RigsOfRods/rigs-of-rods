@@ -43,6 +43,7 @@ struct ActorSpawnRequest
 {
     ActorSpawnRequest();
 
+    CacheEntry*       asr_cache_entry; //!< Optional, overrides 'asr_filename' and 'asr_cache_entry_num'
     std::string       asr_filename;
     std::vector<Ogre::String> asr_config;
     Ogre::Vector3     asr_position;
@@ -52,6 +53,7 @@ struct ActorSpawnRequest
     RoR::SkinDef*     asr_skin;
     bool              asr_free_position;
     bool              asr_loaded_with_terrn;
+    bool              asr_user_selected; //!< Selected by user via GUI; triggers special processing
 };
 
 /// Builds and manages softbody actors. Manage physics and threading.
