@@ -212,6 +212,7 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
     // Actors - update misc visuals
     for (GfxActor* gfx_actor: m_live_gfx_actors)
     {
+        gfx_actor->UpdateRods();
         gfx_actor->UpdateCabMesh();
         gfx_actor->UpdateAirbrakes();
         gfx_actor->UpdateCParticles();
