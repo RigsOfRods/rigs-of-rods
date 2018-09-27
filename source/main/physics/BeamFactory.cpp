@@ -1077,22 +1077,7 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
             actor->ar_vehicle_ai->update(dt, 0);
 #endif // USE_ANGELSCRIPT
 
-        if (actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
-        {
-            actor->updateVisual(dt);
-            actor->updateSkidmarks();
-            actor->UpdateFlareStates(dt); // Only state, visuals done by GfxActor
-            actor->m_gfx_actor->UpdateParticles(dt); // TODO: move it to GfxActor ~ only_a_ptr, 06/2018
-            if (actor->ar_uses_networking)
-            {
-                actor->sendStreamData();
-            }
-        }
-        else if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK)
-        {
-            actor->CalcNetwork();
-        }
-        else if (actor->ar_sim_state == Actor::SimState::LOCAL_SLEEPING)
+        if (actor->ar_sim_state == Actor::SimState::LOCAL_SLEEPING)
         {
             if (actor->ar_engine)
             {
@@ -1105,6 +1090,21 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
                 {
                     actor->sendStreamData();
                 }
+            }
+        }
+        else if (actor->ar_sim_state != Actor::SimState::INVALID)
+        {
+            actor->updateVisual(dt);
+            actor->updateSkidmarks();
+            actor->UpdateFlareStates(dt); // Only state, visuals done by GfxActor
+            actor->m_gfx_actor->UpdateParticles(dt); // TODO: move it to GfxActor ~ only_a_ptr, 06/2018
+            if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK)
+            {
+                actor->CalcNetwork();
+            }
+            else if (actor->ar_uses_networking)
+            {
+                actor->sendStreamData();
             }
         }
 
