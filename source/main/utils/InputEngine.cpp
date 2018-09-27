@@ -1029,9 +1029,9 @@ eventInfo_t eventInfo[] = {
     },
     {
         "COMMON_SHOW_SKELETON", // TODO: rename. Re-purposed to cycle debug view
-        EV_COMMON_CYCLE_DEBUG_VIEWS,
+        EV_COMMON_SHOW_SKELETON,
         "Keyboard K",
-        _L("Cycle debug views on current vehicle")
+        _L("toggle skeleton display mode")
     },
     {
         "COMMON_TOGGLE_TERRAIN_EDITOR",

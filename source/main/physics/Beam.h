@@ -358,7 +358,6 @@ public:
     bool ar_left_blink_on:1;  //!< Gfx state; turn signals
     bool ar_right_blink_on:1; //!< Gfx state; turn signals
     bool ar_warn_blink_on:1;  //!< Gfx state; turn signals
-    bool ar_skeletonview_is_active:1; //!< Gfx state
     bool ar_update_physics:1; //!< Physics state; Should this actor be updated (locally) in the next physics step?
     bool ar_disable_self_collision:1; //!< Physics attribute; clone of RoR.cfg entry "DisableSelfCollisions"
     bool ar_disable_actor2actor_collision:1; //!< Physics attribute; clone of RoR.cfg entry "DisableCollisions"

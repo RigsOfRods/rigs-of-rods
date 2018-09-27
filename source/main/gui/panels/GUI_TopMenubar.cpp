@@ -315,7 +315,7 @@ void RoR::GUI::TopMenubar::Update()
                 ImGui::Separator();
 
                 ImGui::TextColored(GRAY_HINT_TEXT, "Live diagnostic views:");
-                ImGui::TextColored(GRAY_HINT_TEXT, "(Use 'K' hotkey to cycle)"); // !!TODO!! - display actual configured hotkey (EV_COMMON_CYCLE_DEBUG_VIEWS)
+                ImGui::TextColored(GRAY_HINT_TEXT, "(Use 'K' hotkey to toggle)"); // !!TODO!! - display actual configured hotkey (EV_COMMON_SHOW_SKELETON)
 
                 int debug_view_type = static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_NONE);
                 if (current_actor != nullptr)

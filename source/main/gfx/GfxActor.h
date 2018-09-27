@@ -278,6 +278,7 @@ public:
     void                      SetAllMeshesVisible(bool value);
     void                      SetCastShadows     (bool value);
     void                      UpdateDebugView    ();
+    void                      ToggleSkeletonView ();
     void                      CycleDebugViews    ();
     void                      UpdateCabMesh      ();
     int                       GetActorId         () const;

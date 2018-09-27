@@ -867,6 +867,14 @@ void RoR::GfxActor::UpdateDebugView()
     }
 }
 
+void RoR::GfxActor::ToggleSkeletonView()
+{
+    if (m_debug_view == DebugViewType::DEBUGVIEW_NONE)
+        m_debug_view = DebugViewType::DEBUGVIEW_SKELETON;
+    else
+        m_debug_view = DebugViewType::DEBUGVIEW_NONE;
+}
+
 void RoR::GfxActor::CycleDebugViews()
 {
     switch (m_debug_view)

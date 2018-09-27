@@ -245,7 +245,7 @@ enum events
     EV_COMMON_SCREENSHOT_BIG, //!< take a BIG screenshot
     EV_COMMON_SECURE_LOAD, //!< tie a load to the truck
     EV_COMMON_SEND_CHAT, //!< send the chat text
-    EV_COMMON_CYCLE_DEBUG_VIEWS, //!< toggle skeleton display mode
+    EV_COMMON_SHOW_SKELETON, //!< toggle skeleton display mode
     EV_COMMON_TOGGLE_TERRAIN_EDITOR, //!< toggle terrain editor
     EV_COMMON_TOGGLE_CUSTOM_PARTICLES, //!< toggle particle cannon
     EV_COMMON_TOGGLE_MAT_DEBUG, //!< debug purpose - dont use
