@@ -445,7 +445,6 @@ endif ()
 #  OPTIONAL DEPENDENCIES
 # -----------------------
 
-
 # --- MyGUI - graphical user inferface ---
 if ((TARGET MyGUI::MyGUI) AND (TARGET MyGUI::OgrePlatform))
     target_link_libraries(${BINNAME} PRIVATE
@@ -460,14 +459,19 @@ else ()
     message(WARNING "Building ${BINNAME} without MyGUI. Some functionality may be missing.")
 endif ()
 
-
 # --- OpenAL - audio library ---
-if (OPENAL_FOUND)
-    target_link_libraries(${BINNAME} PRIVATE ${OPENAL_LIBRARY})
-    target_include_directories(${BINNAME} PRIVATE ${OPENAL_INCLUDE_DIR})
-    target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)
+if(CONAN_OPENAL_ROOT)
+  target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::openal)
+  target_include_directories(${BINNAME} PRIVATE CONAN_PKG::openal)
+  target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)
 else ()
-    message(WARNING "Building ${BINNAME} without OpenAL. Some functionality may be missing.")
+  if (OPENAL_FOUND)
+      target_link_libraries(${BINNAME} PRIVATE ${OPENAL_LIBRARY})
+      target_include_directories(${BINNAME} PRIVATE ${OPENAL_INCLUDE_DIR})
+      target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)
+  else ()
+      message(WARNING "Building ${BINNAME} without OpenAL. Some functionality may be missing.")
+  endif ()
 endif ()
 
 
@@ -478,6 +482,10 @@ if (TARGET SocketW::SocketW)
 else ()
     message(WARNING "Building ${BINNAME} without SocketW. Some functionality may be missing.")
 endif ()
+# Add openssl
+if(CONAN_OPENSSL_ROOT)
+	target_include_directories(${BINNAME} PRIVATE ${CONAN_INCLUDE_DIRS_OPENSSL})
+endif()
 
 
 # --- AngelScript - scripting interface ---
@@ -505,13 +513,18 @@ else ()
     message(WARNING "Building ${BINNAME} without cURL. Some functionality may be missing.")
 endif ()
 
+
+# --- rapidjson ---
+if (CONAN_RAPIDJSON_ROOT)
+    target_include_directories(${BINNAME} PRIVATE ${CONAN_INCLUDE_DIRS_RAPIDJSON})
+endif ()
+
+
 # --- Caelum -- Ogre addon for realistic sky rendering ---
 if (TARGET Caelum::Caelum)
     set(CAELUM_PLUGIN "Plugin=../libCaelum.so")
     target_link_libraries(${BINNAME} PRIVATE Caelum::Caelum)
     target_compile_definitions(${BINNAME} PRIVATE USE_CAELUM)
-else ()
-    message(WARNING "Building ${BINNAME} without Caelum. Some functionality may be missing.")
 endif ()
 
 
@@ -531,80 +544,16 @@ cotire(${BINNAME})
 #  POST-BUILD STEPS
 ####################################################################################################
 
-
+# configure plugins.cfg
 if (WIN32)
-    # Copy dynamic libraries from dependencies directory to output directory of the executable target
-
-    # This helper function searches for specified files by looking in several default locations
-    # (e.g. CMAKE_PREFIX_PATH). For each found file a command is generated which copies the file to
-    # the output directory of the target executable. All copy commands are collected in a list for
-    # later use within a custom_command statement.
-    function(post_build_copy_commands command_list target)
-        foreach (source_file IN LISTS ARGN)
-            find_file(PATH_TO_SOURCE ${source_file} PATH_SUFFIXES bin bin/release bin/vc_dll)
-            if (PATH_TO_SOURCE)
-                set(cmd_list ${cmd_list} COMMAND ${CMAKE_COMMAND} -E copy ${PATH_TO_SOURCE} $<TARGET_FILE_DIR:${target}>)
-            else ()
-                message(WARNING "Could not copy ${source_file} to output directory!")
-            endif ()
-            unset(PATH_TO_SOURCE CACHE)
-        endforeach (source_file)
-        set(${command_list} ${cmd_list} PARENT_SCOPE)
-    endfunction()
-
-    # Create list of commands for copying
-    set(WXWIDGETS_VERSION 311u)
-    set(WXWIDGETS_COMPILER vc_RoR)
-    post_build_copy_commands(DEPENDENCY_COPY_COMMANDS ${BINNAME}
-            # Angelscript
-            angelscript.dll
-            # OGRE
-            OgreMain.dll
-            OgreOverlay.dll
-            OgrePaging.dll
-            OgreTerrain.dll
-            OgreRTShaderSystem.dll
-            Plugin_CgProgramManager.dll
-            Plugin_OctreeSceneManager.dll
-            Plugin_ParticleFX.dll
-            RenderSystem_GL.dll
-            RenderSystem_Direct3D9.dll
-            plugins.cfg
-            OIS.dll
-            cg.dll
-            # MyGUI
-            MyGUIEngine.dll
-            # Caelum
-            Caelum.dll
-            # Curl
-            libcurl.dll
-            # OpenAL
-            OpenAL32.dll
-            # wxWidgets
-            wxbase${WXWIDGETS_VERSION}_${WXWIDGETS_COMPILER}.dll
-            wxbase${WXWIDGETS_VERSION}_net_${WXWIDGETS_COMPILER}.dll
-            wxbase${WXWIDGETS_VERSION}_xml_${WXWIDGETS_COMPILER}.dll
-            wxmsw${WXWIDGETS_VERSION}_adv_${WXWIDGETS_COMPILER}.dll
-            wxmsw${WXWIDGETS_VERSION}_aui_${WXWIDGETS_COMPILER}.dll
-            wxmsw${WXWIDGETS_VERSION}_core_${WXWIDGETS_COMPILER}.dll
-            wxmsw${WXWIDGETS_VERSION}_gl_${WXWIDGETS_COMPILER}.dll
-            wxmsw${WXWIDGETS_VERSION}_html_${WXWIDGETS_COMPILER}.dll
-            wxmsw${WXWIDGETS_VERSION}_media_${WXWIDGETS_COMPILER}.dll
-            wxmsw${WXWIDGETS_VERSION}_qa_${WXWIDGETS_COMPILER}.dll
-            wxmsw${WXWIDGETS_VERSION}_ribbon_${WXWIDGETS_COMPILER}.dll
-            wxmsw${WXWIDGETS_VERSION}_richtext_${WXWIDGETS_COMPILER}.dll
-            wxmsw${WXWIDGETS_VERSION}_stc_${WXWIDGETS_COMPILER}.dll
-            wxmsw${WXWIDGETS_VERSION}_webview_${WXWIDGETS_COMPILER}.dll
-            wxmsw${WXWIDGETS_VERSION}_xrc_${WXWIDGETS_COMPILER}.dll
-            )
-
-    # Execute the collected copy commands as a post-build step
-    add_custom_command(
-            TARGET ${BINNAME} POST_BUILD
-            ${DEPENDENCY_COPY_COMMANDS}
-            VERBATIM
-    )
+  set(CFG_OGRE_RENDERSYSTEM_D3D9 "Plugin=RenderSystem_Direct3D9")
 endif ()
+
+if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
+  configure_file(plugins.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg)
+else()
+  configure_file(plugins-WO-conan.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg)
+endif()
 
 get_sub_dirs(ROR_RESOURCES_DIRS "${CMAKE_SOURCE_DIR}/resources")
 set(ROR_RESOURCES_ZIPS)
@@ -623,7 +572,7 @@ foreach(RES_DIR ${ROR_RESOURCES_DIRS})
   set(ZIP_NAME "${TMP_RES_DIR}/${RES_DIR}.zip")
   add_custom_command(
     OUTPUT ${ZIP_NAME}
-    COMMAND ${CMAKE_COMMAND} -E tar "cfv" ${ZIP_NAME} --format=zip --files-from="${TMP_FILE_DIR}/${RES_DIR}-filelist.txt"
+    COMMAND ${CMAKE_COMMAND} -E tar "cf" ${ZIP_NAME} --format=zip --files-from="${TMP_FILE_DIR}/${RES_DIR}-filelist.txt"
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/resources/${RES_DIR}"
   )
   list(APPEND ROR_RESOURCES_ZIPS ${ZIP_NAME})
@@ -640,12 +589,6 @@ add_custom_target(
 )
 
 IF (UNIX)
-    configure_file(plugins.cfg.in ${TMP_FILE_DIR}/plugins.cfg)
-    add_custom_command(
-            TARGET ${BINNAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy ${TMP_FILE_DIR}/plugins.cfg $<TARGET_FILE_DIR:${BINNAME}>/
-    )
-
     INSTALL(
             TARGETS ${BINNAME}
             RUNTIME DESTINATION games/RoR
@@ -663,7 +606,7 @@ IF (UNIX)
             FILES_MATCHING PATTERN "*"
     )
     INSTALL(
-            FILES ${TMP_FILE_DIR}/plugins.cfg
+            FILES ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg
             DESTINATION games/RoR
     )
 ELSEIF (WIN32)

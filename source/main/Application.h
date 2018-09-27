@@ -155,12 +155,13 @@ const char* EnumToStr(IoInputGrabMode v);
 
 
 /// Wrapper for classic c-string (local buffer)
+/// Refresher: `strlen()` excludes '\0' terminator; `strncat()` Appends '\0' terminator
 /// @author Petr Ohlidal, 2017
 template<size_t L> class Str
 {
 public:
     // Constructors
-    inline             Str()                                 { std::memset(m_buffer, 0, L); }
+    inline             Str()                                 { this->Clear(); }
     inline             Str(Str<L> const & src)               { this->Assign(src); }
     inline             Str(const char* src)                  { this->Assign(src); }
 
@@ -173,9 +174,9 @@ public:
     inline size_t      GetLength() const                     { return std::strlen(m_buffer); }
 
     // Writing
-    inline Str&        Clear()                               { m_buffer[0] = '\0'; return *this; }
-    inline Str&        Assign(const char* src)               { std::strncpy(m_buffer, src, L); return *this; }
-    inline Str&        Append(const char* src)               { std::strncat(m_buffer, src, (L-(strlen(src)+1))); return *this; }
+    inline Str&        Clear()                               { std::memset(m_buffer, 0, L); return *this; }
+    inline Str&        Assign(const char* src)               { this->Clear(); this->Append(src); return *this; }
+    inline Str&        Append(const char* src)               { std::strncat(m_buffer, src, (L - (this->GetLength() + 1))); return *this; }
     inline Str&        Append(float f)                       { char buf[50]; std::snprintf(buf, 50, "%f", f); this->Append(buf); return *this; }
     inline Str&        Append(int i)                         { char buf[50]; std::snprintf(buf, 50, "%d", i); this->Append(buf); return *this; }
     inline Str&        Append(size_t z)                      { char buf[50]; std::snprintf(buf, 50, "%lu", static_cast<unsigned long>(z)); this->Append(buf); return *this; }

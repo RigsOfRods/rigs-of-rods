@@ -1,15 +1,16 @@
 # find packages
-find_package(wxWidgets REQUIRED COMPONENTS base core html net adv)
+
+find_package(wxWidgets COMPONENTS base core html net adv)
+find_package(OpenAL)
 find_package(Threads REQUIRED)
 find_package(OGRE REQUIRED)
 find_package(OIS REQUIRED)
 find_package(MyGUI REQUIRED)
-find_package(OpenAL)
 find_package(SocketW)
 find_package(AngelScript)
 find_package(CURL)
-find_package(Caelum)
 find_package(PagedGeometry)
+find_package(Caelum)
 
 if (WIN32)
     find_package(MoFileReader REQUIRED)
