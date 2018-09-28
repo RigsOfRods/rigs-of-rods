@@ -41,6 +41,14 @@ namespace RoR {
 
 struct ActorSpawnRequest
 {
+    enum class Origin //!< Enables special processing
+    {
+        UNKNOWN,
+        CONFIG_FILE, //!< 'Preselected vehicle' in RoR.cfg
+        TERRN_DEF,   //!< Preloaded with terrain 
+        USER         //!< Direct selection by user via GUI
+    };
+
     ActorSpawnRequest();
 
     CacheEntry*       asr_cache_entry; //!< Optional, overrides 'asr_filename' and 'asr_cache_entry_num'
@@ -51,9 +59,7 @@ struct ActorSpawnRequest
     int               asr_cache_entry_num;
     collision_box_t*  asr_spawnbox;
     RoR::SkinDef*     asr_skin;
-    bool              asr_free_position;
-    bool              asr_loaded_with_terrn;
-    bool              asr_user_selected; //!< Selected by user via GUI; triggers special processing
+    Origin            asr_origin;
 };
 
 /// Builds and manages softbody actors. Manage physics and threading.

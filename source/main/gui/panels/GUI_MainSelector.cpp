@@ -737,7 +737,7 @@ void CLASS::OnSelectionDone()
         rq.asr_skin           = m_selected_skin;
         rq.asr_cache_entry    = m_selected_entry;
         rq.asr_config         = m_vehicle_configs;
-        rq.asr_user_selected  = true;
+        rq.asr_origin         = ActorSpawnRequest::Origin::USER;
         App::GetSimController()->QueueActorSpawn(rq);
         
         RoR::App::GetGuiManager()->UnfocusGui();

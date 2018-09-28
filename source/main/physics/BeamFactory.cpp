@@ -1429,7 +1429,6 @@ ActorSpawnRequest::ActorSpawnRequest()
     , asr_cache_entry_num(-1) // flexbody cache disabled
     , asr_spawnbox(nullptr)
     , asr_skin(nullptr)
-    , asr_free_position(false)
-    , asr_loaded_with_terrn(false)
+    , asr_origin(Origin::UNKNOWN)
     , asr_cache_entry(nullptr)
 {}
