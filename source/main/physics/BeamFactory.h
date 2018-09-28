@@ -64,6 +64,18 @@ struct ActorSpawnRequest
     bool              asr_terrn_machine:1;   //!< This is a fixed machinery
 };
 
+struct ActorModifyRequest
+{
+    enum class Type
+    {
+        INVALID,
+        RELOAD //!< Full reload from filesystem, requested by user
+    };// to be extended
+
+    Actor* amr_actor;
+    Type   amr_type;
+};
+
 /// Builds and manages softbody actors. Manage physics and threading.
 /// TODO: Currently also manages gfx, which should be done by GfxActor
 /// HISTORICAL NOTE: Until 01/2018, this class was named `BeamFactory` (because `Actor` was `Beam`)
@@ -113,6 +125,7 @@ public:
     void           DeleteActorInternal(Actor* b);      //!< DO NOT CALL DIRECTLY! Use `SimController` for public interface
     Actor*         GetActorByIdInternal(int actor_id); //!< DO NOT CALL DIRECTLY! Use `SimController` for public interface
     Actor*         FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
+    void           UnloadTruckfileFromMemory(const char* filename);
 
 #ifdef USE_SOCKETW
     void           HandleActorStreamData(std::vector<RoR::Networking::recv_packet_t> packet);
@@ -145,11 +158,9 @@ private:
     bool           PredictActorCollAabbIntersect(int a, int b, float scale = 1.0f);  //!< Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the truck collision bounding boxes.
     int            CreateRemoteInstance(RoRnet::ActorStreamRegister* reg);
     void           RemoveStreamSource(int sourceid);
-    void           LogParserMessages();
-    void           LogSpawnerMessages();
-    int            GetActorIndex(Actor* actor);         //!< Returns the m_actors index of the actor (-1 if not found)
     void           RecursiveActivation(int j, std::vector<bool>& visited);
     std::shared_ptr<RigDef::File>   FetchActorDef(const char* filename, bool predefined_on_terrain = false);
+    
 
     std::map<std::string, std::shared_ptr<RigDef::File>>   m_actor_defs;
     std::map<int, std::vector<int>> m_stream_mismatches; //!< Networking: A list of streams without a corresponding actor in the actor-array for each stream source

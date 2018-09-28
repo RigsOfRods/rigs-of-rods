@@ -1423,6 +1423,15 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(const char* filename, 
     }
 }
 
+void ActorManager::UnloadTruckfileFromMemory(const char* filename)
+{
+    auto search_res = m_actor_defs.find(filename);
+    if (search_res != m_actor_defs.end())
+    {
+        m_actor_defs.erase(search_res);
+    }
+}
+
 ActorSpawnRequest::ActorSpawnRequest()
     : asr_position(Ogre::Vector3::ZERO)
     , asr_rotation(Ogre::Quaternion::ZERO)
