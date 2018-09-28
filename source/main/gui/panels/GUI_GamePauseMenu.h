@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013+     Petr Ohlidal & contributors
+    Copyright 2014-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -20,37 +20,38 @@
 */
 
 /// @file
-/// @author Moncef Ben Slimane
-/// @date   1/2015
+/// @author Petr Ohlidal
+/// @date   06/2017
 
 #pragma once
 
-#include "ForwardDeclarations.h"
-#include "GUI_GamePauseMenuLayout.h"
-
-#include "GUI_GameAbout.h"
+#include <imgui.h>
 
 namespace RoR {
 namespace GUI {
 
-class GamePauseMenu : public GamePauseMenuLayout
+class GamePauseMenu // TODO: Copypaste of 'GameMainMenu' -- cleanup and unify the logic! ~ only_a_ptr, 06/2017
 {
 public:
-    GamePauseMenu();
-    ~GamePauseMenu();
+    // This class implements hand-made keyboard focus - button count must be known for wrapping
+    const int     NUM_BUTTONS           = 3; // Buttons: Resumegame, BackToMenu, Quitgame
+    const float   WINDOW_WIDTH          = 200.f;
+    const ImVec4  WINDOW_BG_COLOR       = ImVec4(0.1f, 0.1f, 0.1f, 0.8f);
+    const ImVec4  BUTTON_BG_COLOR       = ImVec4(0.3f, 0.3f, 0.3f, 0.5f); // Drawn on top of a transparent panel; make it just a shade
+    const ImVec2  BUTTON_PADDING        = ImVec2(4.f, 6.f);
 
-    void Show();
-    void Hide();
-    void SetPosition(int pixels_left, int pixels_top);
-    int GetHeight();
-    void SetVisible(bool v);
-    bool IsVisible();
+    GamePauseMenu();
+
+    // Keyboard updates - move up/down and wrap on top/bottom. Initial index is '-1' which means "no focus"
+    inline void   KeyUpPressed()                   { m_kb_focus_index = (m_kb_focus_index <= 0) ? (NUM_BUTTONS-1) : (m_kb_focus_index - 1); }
+    inline void   KeyDownPressed()                 { m_kb_focus_index = (m_kb_focus_index < (NUM_BUTTONS - 1)) ? (m_kb_focus_index + 1) : 0; }
+    inline void   EnterKeyPressed()                { m_kb_enter_index = m_kb_focus_index; }
+
+    void          Draw();
 
 private:
-    void eventMouseButtonClickResumeButton(MyGUI::WidgetPtr _sender);
-    void eventMouseButtonClickChangeMapButton(MyGUI::WidgetPtr _sender);
-    void eventMouseButtonClickBackToMenuButton(MyGUI::WidgetPtr _sender);
-    void eventMouseButtonClickQuitButton(MyGUI::WidgetPtr _sender);
+    int    m_kb_focus_index; // -1 = no focus; 0+ = button index
+    int    m_kb_enter_index; // Index of focus confirmed by ENTER key
 };
 
 } // namespace GUI

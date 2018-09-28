@@ -80,13 +80,14 @@ FlexBody* FlexFactory::CreateFlexBody(
         return nullptr;
     }
     Ogre::MeshPtr common_mesh = Ogre::MeshManager::getSingleton().load(def->mesh_name, resource_group_name);
-    const std::string mesh_unique_name = m_rig_spawner->ComposeName("FlexbodyMesh", m_rig_spawner->GetActor()->ar_num_flexbodies);
+    int flexbody_id = m_rig_spawner->GetActor()->GetGfxActor()->GetNumFlexbodies();
+    const std::string mesh_unique_name = m_rig_spawner->ComposeName("FlexbodyMesh", flexbody_id);
     Ogre::MeshPtr mesh = common_mesh->clone(mesh_unique_name);
     if (BSETTING("Flexbody_EnableLODs", false))
     {
         this->ResolveFlexbodyLOD(def->mesh_name, mesh);
     }
-    const std::string flexbody_name = m_rig_spawner->ComposeName("Flexbody", m_rig_spawner->GetActor()->ar_num_flexbodies);
+    const std::string flexbody_name = m_rig_spawner->ComposeName("Flexbody", flexbody_id);
     Ogre::Entity* entity = gEnv->sceneManager->createEntity(flexbody_name, mesh_unique_name);
     m_rig_spawner->SetupNewEntity(entity, Ogre::ColourValue(0.5, 0.5, 1));
 
@@ -102,8 +103,7 @@ FlexBody* FlexFactory::CreateFlexBody(
     FlexBody* new_flexbody = new FlexBody(
         def,
         from_cache,
-        m_rig_spawner->GetActor()->ar_nodes,
-        m_rig_spawner->GetActor()->ar_num_nodes,
+        m_rig_spawner->GetActor()->GetGfxActor(),
         entity,
         ref_node,
         x_node,
@@ -137,7 +137,7 @@ FlexMeshWheel* FlexFactory::CreateFlexMeshWheel(
     // Create dynamic mesh for tire
     const std::string tire_mesh_name = m_rig_spawner->ComposeName("MWheelTireMesh", wheel_index);
     FlexMeshWheel* flex_mesh_wheel = new FlexMeshWheel(
-        rim_prop_entity, m_rig_spawner->GetActor()->ar_nodes, axis_node_1_index, axis_node_2_index, nstart, nrays,
+        rim_prop_entity, m_rig_spawner->GetActor()->GetGfxActor(), axis_node_1_index, axis_node_2_index, nstart, nrays,
         tire_mesh_name, tire_material_name, rim_radius, rim_reverse);
 
     // Instantiate the dynamic tire mesh
@@ -215,7 +215,6 @@ void FlexBodyFileIO::WriteFlexbodyHeader(FlexBody* flexbody)
     header.camera_mode             = flexbody->m_camera_mode            ;
     header.shared_buf_num_verts    = flexbody->m_shared_buf_num_verts   ;
     header.num_submesh_vbufs       = flexbody->m_num_submesh_vbufs      ;
-    header.SetIsEnabled             (flexbody->m_is_enabled             );
     header.SetUsesSharedVertexData  (flexbody->m_uses_shared_vertex_data); 
     header.SetHasTexture            (flexbody->m_has_texture            );
     header.SetHasTextureBlend       (flexbody->m_has_texture_blend      );
@@ -376,7 +375,7 @@ FlexBodyFileIO::ResultCode FlexBodyFileIO::LoadFile()
         {
             FlexBodyCacheData* data = & m_loaded_items[i];
             this->ReadFlexbodyHeader(data);
-            if (!data->header.IsFaulty() && data->header.IsEnabled())
+            if (!data->header.IsFaulty())
             {
                 this->ReadFlexbodyLocatorList    (data);
                 this->ReadFlexbodyPositionsBuffer(data);

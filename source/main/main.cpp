@@ -312,27 +312,6 @@ int main(int argc, char *argv[])
             {
                 App::app_state.ApplyPending();
 
-                if (prev_app_state == AppState::SIMULATION)
-                {
-#ifdef USE_SOCKETW
-                    if (App::mp_state.GetActive() == MpState::CONNECTED)
-                    {
-                        RoR::Networking::Disconnect();
-                        App::GetGuiManager()->SetVisible_MpClientList(false);
-                    }
-#endif
-                    gEnv->cameraManager->OnReturnToMainMenu();
-                    /* Hide top menu */
-                    App::GetGuiManager()->SetVisible_TopMenubar(false);
-                    /* Restore wallpaper */
-                    menu_wallpaper_widget->setVisible(true);
-
-#ifdef USE_MUMBLE
-                    if (App::GetMumble() != nullptr)
-                        App::GetMumble()->SetNonPositionalAudio();
-#endif // USE_MUMBLE
-                }
-
 #ifdef USE_OPENAL
                 if (App::audio_menu_music.GetActive())
                 {
@@ -356,41 +335,37 @@ int main(int argc, char *argv[])
             }
             else if (App::app_state.GetPending() == AppState::SIMULATION)
             {
-                {
+                { // Enclosing scope for SimController
                     SimController sim_controller(&force_feedback, &skidmark_conf);
                     App::SetSimController(&sim_controller);
                     if (sim_controller.SetupGameplayLoop())
                     {
                         App::app_state.ApplyPending();
                         App::GetGuiManager()->ReflectGameState();
+                        App::sim_state.SetActive(SimState::RUNNING);
                         sim_controller.EnterGameplayLoop();
                         App::SetSimController(nullptr);
+#ifdef USE_SOCKETW
+                        if (App::mp_state.GetActive() == MpState::CONNECTED)
+                        {
+                            RoR::Networking::Disconnect();
+                            App::GetGuiManager()->SetVisible_MpClientList(false);
+                        }
+#endif // USE_SOCKETW
+#ifdef USE_MUMBLE
+                        if (App::GetMumble() != nullptr)
+                        {
+                            App::GetMumble()->SetNonPositionalAudio();
+                        }
+#endif // USE_MUMBLE
+                        menu_wallpaper_widget->setVisible(true);
                     }
                     else
                     {
                         App::app_state.SetPending(AppState::MAIN_MENU);
                     }
-                }
-                gEnv->sceneManager->clearScene(); // Wipe the scene after SimController was destroyed (->cleanups invoked)
-            }
-            else if (App::app_state.GetPending() == AppState::CHANGE_MAP)
-            {
-                //Sim -> change map -> sim
-                //                  -> back to menu
-
-                App::app_state.ApplyPending();
-                menu_wallpaper_widget->setVisible(true);
-
-                if (App::diag_preset_terrain.IsActiveEmpty())
-                {
-                    App::GetGuiManager()->GetMainSelector()->Show(LT_Terrain);
-                }
-                else
-                {
-                    App::GetGuiManager()->SetVisible_GameMainMenu(true);
-                }
-                //It's the same thing so..
-                main_obj.EnterMainMenuLoop();
+                } // Enclosing scope for SimController
+                gEnv->sceneManager->clearScene(); // Wipe the scene after SimController was destroyed
             }
             prev_app_state = App::app_state.GetActive();
         } // End of app state loop
@@ -430,9 +405,6 @@ int main(int argc, char *argv[])
         App::DestroyOverlayWrapper();
 
         App::DestroyContentManager();
-
-        delete gEnv->cameraManager;
-        gEnv->cameraManager = nullptr;
     }
     catch (Ogre::Exception& e)
     {

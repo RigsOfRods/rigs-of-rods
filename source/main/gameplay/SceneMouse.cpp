@@ -47,6 +47,12 @@ SceneMouse::SceneMouse()
     mouseGrabForce = 30000.0f;
     grab_truck = NULL;
 
+    // init variables for mouse picking
+    releaseMousePick(); // TODO: Yuck! Rewrite in proper code!! ~ only_a_ptr, 06/2018
+}
+
+void SceneMouse::InitializeVisuals()
+{
     // load 3d line for mouse picking
     pickLine = gEnv->sceneManager->createManualObject("PickLineObject");
     pickLineNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode("PickLineNode");
@@ -64,12 +70,9 @@ SceneMouse::SceneMouse()
     pickLine->end();
     pickLineNode->attachObject(pickLine);
     pickLineNode->setVisible(false);
-
-    // init variables for mouse picking
-    releaseMousePick();
 }
 
-SceneMouse::~SceneMouse()
+void SceneMouse::DiscardVisuals()
 {
     if (pickLineNode != nullptr)
     {
@@ -87,10 +90,6 @@ SceneMouse::~SceneMouse()
 void SceneMouse::releaseMousePick()
 {
     if (App::sim_state.GetActive() == SimState::PAUSED) { return; } // Do nothing when paused
-
-    // hide mouse line
-    if (pickLineNode)
-        pickLineNode->setVisible(false);
 
     // remove forces
     if (grab_truck)
@@ -113,8 +112,10 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
     const OIS::MouseState ms = _arg.state;
 
     // check if handled by the camera
-    if (!gEnv->cameraManager || gEnv->cameraManager->mouseMoved(_arg))
+    if (App::GetSimController()->CameraManagerMouseMoved(_arg))
+    {
         return true;
+    }
 
     // experimental mouse hack
     if (ms.buttonDown(OIS::MB_Left) && mouseGrabState == 0)
@@ -125,26 +126,24 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
         Ray mouseRay = getMouseRay();
 
         // walk all trucks
-        Actor** trucks = App::GetSimController()->GetBeamFactory()->GetInternalActorSlots();
-        int trucksnum  = App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots();
         minnode = -1;
         grab_truck = NULL;
-        for (int i = 0; i < trucksnum; i++)
+        for (auto actor : App::GetSimController()->GetActors())
         {
-            if (trucks[i] && trucks[i]->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
+            if (actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
             {
                 // check if our ray intersects with the bounding box of the truck
-                std::pair<bool, Real> pair = mouseRay.intersects(trucks[i]->ar_bounding_box);
+                std::pair<bool, Real> pair = mouseRay.intersects(actor->ar_bounding_box);
                 if (!pair.first)
                     continue;
 
-                for (int j = 0; j < trucks[i]->ar_num_nodes; j++)
+                for (int j = 0; j < actor->ar_num_nodes; j++)
                 {
-                    if (trucks[i]->ar_nodes[j].no_mouse_grab)
+                    if (actor->ar_nodes[j].nd_no_mouse_grab)
                         continue;
 
                     // check if our ray intersects with the node
-                    std::pair<bool, Real> pair = mouseRay.intersects(Sphere(trucks[i]->ar_nodes[j].AbsPosition, 0.1f));
+                    std::pair<bool, Real> pair = mouseRay.intersects(Sphere(actor->ar_nodes[j].AbsPosition, 0.1f));
                     if (pair.first)
                     {
                         // we hit it, check if its the nearest node
@@ -152,7 +151,7 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
                         {
                             mindist = pair.second;
                             minnode = j;
-                            grab_truck = trucks[i];
+                            grab_truck = actor;
                             break;
                         }
                     }
@@ -167,7 +166,6 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
         if (grab_truck && minnode != -1)
         {
             mouseGrabState = 1;
-            pickLineNode->setVisible(true);
 
             for (std::vector<hook_t>::iterator it = grab_truck->ar_hooks.begin(); it != grab_truck->ar_hooks.end(); it++)
             {
@@ -196,24 +194,33 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
     return false;
 }
 
-void SceneMouse::update(float dt)
+void SceneMouse::UpdateSimulation()
 {
-    if (App::sim_state.GetActive() == SimState::PAUSED) { return; } // Do nothing when paused
-
     if (mouseGrabState == 1 && grab_truck)
     {
         // get values
-        Ray mouseRay = getMouseRay();
+        Ray mouseRay = getMouseRay(); // TODO: Touches OGRE Camera+Viewport which shouldn't happen here ~ only_a_ptr, 06/2018
         lastgrabpos = mouseRay.getPoint(mindist);
-
-        // update visual line
-        pickLine->beginUpdate(0);
-        pickLine->position(grab_truck->ar_nodes[minnode].AbsPosition);
-        pickLine->position(lastgrabpos);
-        pickLine->end();
 
         // add forces
         grab_truck->HandleMouseMove(minnode, lastgrabpos, mouseGrabForce);
+    }
+}
+
+void SceneMouse::UpdateVisuals()
+{
+    if (grab_truck == nullptr)
+    {
+        pickLineNode->setVisible(false);   // Hide the line     
+    }
+    else
+    {
+        pickLineNode->setVisible(true);   // Show the line
+        // update visual line
+        pickLine->beginUpdate(0);
+        pickLine->position(grab_truck->GetGfxActor()->GetSimNodeBuffer()[minnode].AbsPosition);
+        pickLine->position(lastgrabpos);
+        pickLine->end();
     }
 }
 
@@ -225,7 +232,7 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
 
     if (ms.buttonDown(OIS::MB_Middle))
     {
-        if (gEnv->cameraManager && gEnv->cameraManager->getCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE)
+        if (App::GetSimController()->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE)
         {
             Actor* truck = App::GetSimController()->GetPlayerActor();
 
@@ -257,16 +264,13 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
                 {
                     truck->ar_custom_camera_node = nearest_node_index;
                     truck->calculateAveragePosition();
-                    gEnv->cameraManager->NotifyContextChange();
+                    App::GetSimController()->ResetCamera();
                 }
             }
         }
     }
 
-    if (gEnv->cameraManager)
-    {
-        gEnv->cameraManager->mousePressed(_arg, _id);
-    }
+    App::GetSimController()->CameraManagerMousePressed(_arg, _id);
 
     return true;
 }
@@ -278,11 +282,6 @@ bool SceneMouse::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _
     if (mouseGrabState == 1)
     {
         releaseMousePick();
-    }
-
-    if (gEnv->cameraManager)
-    {
-        gEnv->cameraManager->mouseReleased(_arg, _id);
     }
 
     return true;

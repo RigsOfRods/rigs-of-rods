@@ -36,7 +36,8 @@ enum DiffType
 {
     SPLIT_DIFF = 0,
     OPEN_DIFF,
-    LOCKED_DIFF
+    LOCKED_DIFF,
+    INVALID_DIFF
 };
 
 class Axle
@@ -52,6 +53,7 @@ public:
     void             ToggleDifferentialMode();
     void             CalcAxleTorque(DifferentialData& diff_data );
     Ogre::UTFString  GetDifferentialTypeName();
+    DiffType         GetActiveDiffType() const { return m_available_diffs[m_which_diff]; }
     
     static void      CalcSeparateDiff(DifferentialData& diff_data);  //!< a differential that always splits the torque evenly, this is the original method
     static void      CalcOpenDiff(DifferentialData& diff_data );     //!< more power goes to the faster spining wheel

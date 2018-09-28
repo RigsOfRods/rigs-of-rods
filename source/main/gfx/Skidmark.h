@@ -61,8 +61,6 @@ public:
     Skidmark(SkidmarkConfig* config,  wheel_t* m_wheel, Ogre::SceneNode* snode, int m_length = 500, int m_bucket_count = 20);
     virtual ~Skidmark();
 
-    void updatePoint();
-
     void update();
 
 private:
@@ -84,6 +82,7 @@ private:
     void AddObject(Ogre::Vector3 start, Ogre::String texture);
     void SetPointInt(unsigned short index, const Ogre::Vector3& value, Ogre::Real fsize, Ogre::String texture);
     void AddPoint(const Ogre::Vector3& value, Ogre::Real fsize, Ogre::String texture);
+    void UpdatePoint();
 
     static int           m_instance_counter;
     bool                 m_is_dirty;

@@ -43,7 +43,6 @@ enum class AppState
 {
     BOOTSTRAP,          ///< Initial state
     MAIN_MENU,
-    CHANGE_MAP,         ///< Enter main menu & immediatelly launch singleplayer map selector.
     SIMULATION,
     SHUTDOWN,
     PRINT_HELP_EXIT,
@@ -760,7 +759,6 @@ extern GVarPod_A<bool>         gfx_motion_blur;
 OgreSubsystem*       GetOgreSubsystem();
 ContentManager*      GetContentManager();
 OverlayWrapper*      GetOverlayWrapper();
-SceneMouse*          GetSceneMouse();
 GUIManager*          GetGuiManager();
 Console*             GetConsole();
 InputEngine*         GetInputEngine();
@@ -777,8 +775,6 @@ void CreateContentManager();
 void DestroyContentManager();
 void CreateOverlayWrapper();
 void DestroyOverlayWrapper();
-void CreateSceneMouse();
-void DeleteSceneMouse();
 void CreateGuiManagerIfNotExists();
 void DeleteGuiManagerIfExists();
 void CreateInputEngine();

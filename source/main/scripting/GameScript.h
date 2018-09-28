@@ -379,7 +379,7 @@ public:
 
     Actor* spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot);
 
-    void showMessageBox(Ogre::String& mTitle, Ogre::String& mText, bool button1, Ogre::String& mButton1, bool AllowClose, bool button2, Ogre::String& mButton2);
+    void showMessageBox(Ogre::String& title, Ogre::String& text, bool use_btn1, Ogre::String& btn1_text, bool allow_close, bool use_btn2, Ogre::String& btn2_text);
     void backToMenu();
     void quitGame();
     float getFPS();

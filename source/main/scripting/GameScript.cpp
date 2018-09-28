@@ -241,25 +241,21 @@ void GameScript::setGravity(float value)
 
 Actor* GameScript::getTruckByNum(int num)
 {
+    // TODO: Do we have to add a 'GetActorByIndex' method to keep this backwards compatible?
     return App::GetSimController()->GetActorById(num);
 }
 
 int GameScript::getNumTrucks()
 {
-    return App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots();
+    return App::GetSimController()->GetBeamFactory()->GetActors().size();
 }
 
 int GameScript::getNumTrucksByFlag(int flag)
 {
     int result = 0;
-    for (int i = 0; i < App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots(); i++)
+    for (auto actor : App::GetSimController()->GetActors())
     {
-        Actor* truck = App::GetSimController()->GetActorById(i);
-        if (!truck && !flag)
-            result++;
-        if (!truck)
-            continue;
-        if (static_cast<int>(truck->ar_sim_state) == flag)
+        if (!flag || static_cast<int>(actor->ar_sim_state) == flag)
             result++;
     }
     return result;
@@ -1000,9 +996,22 @@ Actor* GameScript::spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre:
     return App::GetSimController()->GetBeamFactory()->CreateLocalActor(pos, rotation, truckName);
 }
 
-void GameScript::showMessageBox(Ogre::String& mTitle, Ogre::String& mText, bool button1, Ogre::String& mButton1, bool AllowClose, bool button2, Ogre::String& mButton2)
+void GameScript::showMessageBox(Ogre::String& title, Ogre::String& text, bool use_btn1, Ogre::String& btn1_text, bool allow_close, bool use_btn2, Ogre::String& btn2_text)
 {
-    RoR::App::GetGuiManager()->ShowMessageBox(mTitle, mText, button1, mButton1, AllowClose, button2, mButton2);
+    // Sanitize inputs
+    const char* btn1_cstr = nullptr; // = Button disabled
+    const char* btn2_cstr = nullptr;
+
+    if (use_btn1)
+    {
+        btn1_cstr = (btn1_text.empty() ? "~1~" : btn1_text.c_str());
+    }
+    if (use_btn2)
+    {
+        btn2_cstr = (btn2_text.empty() ? "~2~" : btn2_text.c_str());
+    }
+
+    RoR::App::GetGuiManager()->ShowMessageBox(title.c_str(), text.c_str(), allow_close, btn1_cstr, btn2_cstr);
 }
 
 void GameScript::backToMenu()

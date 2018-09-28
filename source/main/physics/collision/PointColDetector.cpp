@@ -21,6 +21,7 @@
 #include "PointColDetector.h"
 
 #include "Beam.h"
+#include "RoRFrameListener.h"
 
 // Microsoft Visual Studio 2010 doesn't have std::log2
 // Version macros: http://stackoverflow.com/a/70630
@@ -70,18 +71,19 @@ void PointColDetector::UpdateIntraPoint(Actor* actor, bool ignorestate)
     m_kdtree[0].end = -m_object_list_size;
 }
 
-void PointColDetector::UpdateInterPoint(Actor* truck, Actor** all_actors, const int numtrucks, bool ignorestate)
+void PointColDetector::UpdateInterPoint(Actor* truck, bool ignorestate)
 {
     bool update_required = false;
     int contacters_size = 0;
 
     if (truck && (ignorestate || truck->ar_sim_state < Actor::SimState::LOCAL_SLEEPING))
     {
+        auto all_actors = RoR::App::GetSimController()->GetActors();
         truck->ar_collision_relevant = false;
-        m_actors.resize(numtrucks);
-        for (int t = 0; t < numtrucks; t++)
+        m_actors.resize(all_actors.size());
+        for (int t = 0; t < all_actors.size(); t++)
         {
-            if (t != truck->ar_instance_id && all_actors[t] && (ignorestate || all_actors[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING) && truck->ar_bounding_box.intersects(all_actors[t]->ar_bounding_box))
+            if (all_actors[t] != truck && (ignorestate || all_actors[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING) && truck->ar_bounding_box.intersects(all_actors[t]->ar_bounding_box))
             {
                 update_required = update_required || (m_actors[t] != all_actors[t]);
                 m_actors[t] = all_actors[t];
@@ -138,16 +140,16 @@ void PointColDetector::update_structures_for_contacters()
     int refi = 0;
 
     //Insert all contacters, into the list of points to consider when building the kdtree
-    for (int t = 0; t < static_cast<int>(m_actors.size()); t++)
+    for (auto actor : m_actors)
     {
-        if (m_actors[t])
+        if (actor)
         {
-            for (int i = 0; i < m_actors[t]->ar_num_contacters; ++i)
+            for (int i = 0; i < actor->ar_num_contacters; ++i)
             {
                 m_ref_list[refi].pidref = &m_pointid_list[refi];
-                m_pointid_list[refi].actor_id = t;
-                m_pointid_list[refi].node_id = m_actors[t]->ar_contacters[i].nodeid;
-                m_ref_list[refi].point = &(m_actors[t]->ar_nodes[m_pointid_list[refi].node_id].AbsPosition.x);
+                m_pointid_list[refi].actor_id = actor->ar_vector_index;
+                m_pointid_list[refi].node_id = actor->ar_contacters[i].nodeid;
+                m_ref_list[refi].point = &(actor->ar_nodes[m_pointid_list[refi].node_id].AbsPosition.x);
                 refi++;
             }
         }

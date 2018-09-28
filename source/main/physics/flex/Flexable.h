@@ -22,6 +22,8 @@
 
 #include <OgreVector3.h>
 
+// NOTE: class FlexBody no longer uses this interface ~ only_a_ptr, 05/2018
+
 class Flexable
 {
 public:

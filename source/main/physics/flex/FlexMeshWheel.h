@@ -55,7 +55,7 @@ private:
 
     FlexMeshWheel( // Use FlexFactory
         Ogre::Entity* rim_prop_entity,
-        node_t* nds,
+        RoR::GfxActor* gfx_actor,
         int axis_node_1_index,
         int axis_node_2_index,
         int nstart,
@@ -76,7 +76,7 @@ private:
     // Wheel
     size_t           m_num_rays;
     float            m_rim_radius;
-    node_t*          m_all_nodes;
+    RoR::GfxActor*   m_gfx_actor;
     int              m_axis_node0_idx;
     int              m_axis_node1_idx;
     int              m_start_node_idx; ///< First node (lowest index) belonging to this wheel.

@@ -1,9 +1,23 @@
 /*
- * beam.h
- *
- *  Created on: Dec 29, 2012
- *      Author: chris
- */
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
+    Copyright 2016-2018 Petr Ohlidal & contributors
+
+    For more information, see http://www.rigsofrods.org/
+
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
+
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #pragma once
 
@@ -12,9 +26,6 @@
 #include "RoRPrerequisites.h"
 
 /// Simulation: An edge in the softbody structure
-///  ##TODO: This struct is a mess - it's blatantly fat (bad CPU cache use) and carries data which it shouldn't (gfx/special-cases)
-///          There were attempts to sort the data, but in current state, it's no use.
-///          PLAN: Until v0.5, this struct will be left mostly as-is for stability. ~ only_a_ptr, 12/2017
 struct beam_t
 {
     beam_t()                              { memset(this, 0, sizeof(beam_t)); }
@@ -32,8 +43,9 @@ struct beam_t
     Ogre::Real plastic_coef;
     int detacher_group;	//!< Attribute: detacher group number (integer)
     short bounded;      //!< { SHOCK1=1, SHOCK2=2, SUPPORTBEAM=3, ROPE=4 }
-    short bm_type;      //!< { BEAM_NORMAL, BEAM_HYDRO, BEAM_VIRTUAL, BEAM_INVISIBLE, BEAM_INVISIBLE_HYDRO }
+    short bm_type;      //!< { BEAM_NORMAL, BEAM_HYDRO, BEAM_VIRTUAL }
     bool bm_inter_actor;       //!< in case p2 is on another actor
+    Actor* bm_locked_actor;    //!< in case p2 is on another actor
 
     /// Multipurpose; excludes beam from physics, controls visibility (gfx) and indicates multiple other states (hooks/ties).
     /// Users:
@@ -72,36 +84,11 @@ struct beam_t
     /// ## TODO: Separate physics/visual meaning, create sensible usage pattern ~ only_a_ptr, 12/2017
     bool bm_broken;
 
-    bool autoMoveLock;
-
     Ogre::Real shortbound;
     Ogre::Real longbound;
     Ogre::Real refL;       //!< reference length
-    Ogre::Real Lhydro;     //!< hydro reference len
-    Ogre::Real hydroRatio; //!< hydro rotation ratio
-    Ogre::Real commandRatioLong;
-    Ogre::Real commandRatioShort;
-    Ogre::Real commandShort; //<! Max. contraction; proportional to orig. length
-    Ogre::Real commandLong;  //<! Max. extension; proportional to orig. length
-    Ogre::Real commandEngineCoupling;
-    float centerLength;
-    float animOption;
-    int animFlags;
-    int hydroFlags;
-    short isOnePressMode;
-    char autoMovingMode;
-    bool playsSound;
-    bool pressedCenterMode;
-    bool isForceRestricted;
-    bool commandNeedsEngine;
-    bool isCentering;
-
-    Ogre::Real maxtiestress;
-    Ogre::Real diameter;
 
     shock_t *shock;
-    Ogre::SceneNode *mSceneNode; //!< visual
-    Ogre::Entity *mEntity; //!< visual
 
     Ogre::Real initial_beam_strength; ///< for reset
     Ogre::Real default_beam_deform; ///< for reset

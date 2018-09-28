@@ -31,15 +31,8 @@
 #include <OgreHardwareVertexBuffer.h>
 #include <OgreMesh.h>
 
-// Forward decl
-namespace RoR
-{
-    class  FlexFactory;
-    class  FlexBodyFileIO;
-    struct FlexBodyCacheData;
-}
-
-class FlexBody : public Flexable
+/// Flexbody = A deformable mesh; updated on CPU every frame, then uploaded to video memory
+class FlexBody
 {
     friend class RoR::FlexFactory;
     friend class RoR::FlexBodyFileIO;
@@ -47,8 +40,7 @@ class FlexBody : public Flexable
     FlexBody( // Private, for FlexFactory
         RigDef::Flexbody* def,
         RoR::FlexBodyCacheData* preloaded_from_cache,
-        node_t *nds, 
-        int numnodes, 
+        RoR::GfxActor* gfx_actor,
         Ogre::Entity* entity,
         int ref, 
         int nx, 
@@ -63,29 +55,25 @@ public:
 
     void printMeshInfo(Ogre::Mesh* mesh);
     void reset();
-    void updateBlend();
+    // // void updateBlend(); Disabled for {AsyncScene} refactor ~ only_a_ptr, 08/2018
     void writeBlend();
     Ogre::SceneNode *getSceneNode() { return m_scene_node; };
 
-    void setEnabled(bool e);
-
-    /**
-    * Visibility control 
-    * @param mode {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
-    */
+    /// Visibility control 
+    /// @param mode {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
     void setCameraMode(int mode) { m_camera_mode = mode; };
     int getCameraMode() { return m_camera_mode; };
 
-    // Flexable
-    bool flexitPrepare();
-    void flexitCompute();
-    Ogre::Vector3 flexitFinal();
+    void ComputeFlexbody(); //!< Updates mesh deformation; works on CPU using local copy of vertex data.
+    void UpdateFlexbodyVertexBuffers();
 
     void setVisible(bool visible);
 
+    void SetFlexbodyCastShadow(bool val);
+
 private:
 
-    node_t*           m_nodes;
+    RoR::GfxActor*    m_gfx_actor;
     size_t            m_vertex_count;
     Ogre::Vector3     m_flexit_center; ///< Updated per frame
 
@@ -114,7 +102,6 @@ private:
     Ogre::HardwareVertexBufferSharedPtr m_submesh_vbufs_norm[16];  ///< normals
     Ogre::HardwareVertexBufferSharedPtr m_submesh_vbufs_color[16]; ///< colors
 
-    bool m_is_enabled;
     bool m_uses_shared_vertex_data;
     bool m_has_texture;
     bool m_has_texture_blend;

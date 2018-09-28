@@ -27,7 +27,10 @@
 #include "Application.h"
 #include "GUIManager.h"
 #include "GUI_TopMenubar.h"
+#include "GUI_GameMainMenu.h" // TODO: remove this hack ~ only_a_ptr, 02/2017
+#include "GUI_GamePauseMenu.h" // TODO: remove this hack ~ only_a_ptr, 02/2017
 #include "OverlayWrapper.h"
+#include "RoRFrameListener.h" // SimController
 #include "SceneMouse.h"
 
 #include <MyGUI_KeyCode.h>
@@ -121,6 +124,7 @@ bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
 
     RoR::App::GetGuiManager()->GetImGui().InjectMouseMoved(_arg);
 
+
     if (RoR::App::sim_state.GetActive() == RoR::SimState::PAUSED)
     {
         MyGUI::InputManager::getInstance().injectMouseMove(mCursorX, mCursorY, _arg.state.Z.abs);
@@ -151,11 +155,10 @@ bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
 
     if (!handled)
     {
-        RoR::SceneMouse* sm = RoR::App::GetSceneMouse();
-        if (sm)
+        if (RoR::App::GetSimController() != nullptr) // TODO: Fix this hack. Main menu should not use the same input handler as simulation ~ only_a_ptr, 08/2018
         {
             // not handled by gui
-            bool fixed = sm->mouseMoved(_arg);
+            bool fixed = RoR::App::GetSimController()->GetSceneMouse().mouseMoved(_arg);
             if (fixed)
             {
                 // you would really need to "fix" the actual mouse position, see
@@ -167,8 +170,6 @@ bool GUIInputManager::mouseMoved(const OIS::MouseEvent& _arg)
 
     mCursorX = _arg.state.X.abs;
     mCursorY = _arg.state.Y.abs;
-
-    RoR::App::GetGuiManager()->GetTopMenubar()->updatePositionUponMousePosition(mCursorX, mCursorY);
 
     checkPosition();
     return true;
@@ -182,8 +183,6 @@ bool GUIInputManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButton
 
     mCursorX = _arg.state.X.abs;
     mCursorY = _arg.state.Y.abs;
-
-    RoR::App::GetGuiManager()->GetTopMenubar()->updatePositionUponMousePosition(mCursorX, mCursorY);
 
     // fallback, handle by GUI, then by RoR::SceneMouse
     bool handled = MyGUI::InputManager::getInstance().injectMousePress(mCursorX, mCursorY, MyGUI::MouseButton::Enum(_id));
@@ -204,11 +203,10 @@ bool GUIInputManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButton
         handled = RoR::App::GetOverlayWrapper()->mousePressed(_arg, _id);
     }
 
-    if (!handled)
+    // TODO: Fix this hack. Main menu should not use the same input handler as simulation ~ only_a_ptr, 08/2018
+    if (!handled && (RoR::App::GetSimController() != nullptr)) 
     {
-        RoR::SceneMouse* sm = RoR::App::GetSceneMouse();
-        if (sm)
-            return sm->mousePressed(_arg, _id);
+        RoR::App::GetSimController()->GetSceneMouse().mousePressed(_arg, _id);
     }
     return handled;
 }
@@ -238,11 +236,9 @@ bool GUIInputManager::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButto
         handled = RoR::App::GetOverlayWrapper()->mouseReleased(_arg, _id);
     }
 
-    if (!handled)
+    if (!handled && (RoR::App::GetSimController() != nullptr))
     {
-        RoR::SceneMouse* sm = RoR::App::GetSceneMouse();
-        if (sm)
-            return sm->mouseReleased(_arg, _id);
+        RoR::App::GetSimController()->GetSceneMouse().mouseReleased(_arg, _id);
     }
     return handled;
 }
@@ -250,6 +246,36 @@ bool GUIInputManager::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButto
 bool GUIInputManager::keyPressed(const OIS::KeyEvent& _arg)
 {
     RoR::App::GetGuiManager()->GetImGui().InjectKeyPressed(_arg);
+    if (RoR::App::GetGuiManager()->IsVisible_GameMainMenu()) // Special hacky handling of main-menu key control. TODO: Remove this!~ only_a_ptr, 06/2017
+    {
+        if (_arg.key == OIS::KC_UP)
+        {
+            RoR::App::GetGuiManager()->GetMainMenu()->KeyUpPressed();
+        }
+        else if  (_arg.key == OIS::KC_DOWN)
+        {
+            RoR::App::GetGuiManager()->GetMainMenu()->KeyDownPressed();
+        }
+        else if (_arg.key == OIS::KC_RETURN)
+        {
+            RoR::App::GetGuiManager()->GetMainMenu()->EnterKeyPressed();
+        }
+    }
+    if (RoR::App::sim_state.GetActive() == RoR::SimState::PAUSED) // Special hacky handling of pause-menu key control. TODO: Remove this!~ only_a_ptr, 06/2017
+    {
+        if (_arg.key == OIS::KC_UP)
+        {
+            RoR::App::GetGuiManager()->GetPauseMenu()->KeyUpPressed();
+        }
+        else if  (_arg.key == OIS::KC_DOWN)
+        {
+            RoR::App::GetGuiManager()->GetPauseMenu()->KeyDownPressed();
+        }
+        else if (_arg.key == OIS::KC_RETURN)
+        {
+            RoR::App::GetGuiManager()->GetPauseMenu()->EnterKeyPressed();
+        }
+    }
 
     MyGUI::Char text = (MyGUI::Char)_arg.text;
     MyGUI::KeyCode key = MyGUI::KeyCode::Enum(_arg.key);
@@ -284,9 +310,7 @@ bool GUIInputManager::keyPressed(const OIS::KeyEvent& _arg)
 
     if (!handled)
     {
-        RoR::SceneMouse* sm = RoR::App::GetSceneMouse();
-        if (sm)
-            return sm->keyPressed(_arg);
+        RoR::App::GetSimController()->GetSceneMouse().keyPressed(_arg);
     }
 
     return handled;
@@ -309,9 +333,7 @@ bool GUIInputManager::keyReleased(const OIS::KeyEvent& _arg)
 
     if (!handled)
     {
-        RoR::SceneMouse* sm = RoR::App::GetSceneMouse();
-        if (sm)
-            return sm->keyReleased(_arg);
+        RoR::App::GetSimController()->GetSceneMouse().keyReleased(_arg);
     }
 
     return handled;
@@ -352,11 +374,6 @@ void GUIInputManager::WakeUpGUI()
     if (!m_is_cursor_supressed)
     {
         RoR::App::GetGuiManager()->SetMouseCursorVisibility(RoR::GUIManager::MouseCursorVisibility::VISIBLE);
-    }
-
-    if (RoR::App::app_state.GetActive() == RoR::AppState::SIMULATION)
-    {
-        RoR::App::GetGuiManager()->SetVisible_TopMenubar(true);
     }
 }
 

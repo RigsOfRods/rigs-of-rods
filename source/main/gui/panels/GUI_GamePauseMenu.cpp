@@ -20,114 +20,69 @@
 */
 
 /// @file
-/// @author Moncef Ben Slimane
-/// @date   11/2014
+/// @author Petr Ohlidal
+/// @date   06/2017
 
 #include "GUI_GamePauseMenu.h"
 
 #include "Application.h"
-#include "BeamFactory.h"
-#include "Character.h"
-#include "GlobalEnvironment.h"
-#include "Language.h"
-#include "OgreSubsystem.h"
 #include "RoRPrerequisites.h"
 
-#include <MyGUI.h>
-#include <OgreRenderWindow.h>
-#include <OgreViewport.h>
+RoR::GUI::GamePauseMenu::GamePauseMenu(): 
+    m_kb_focus_index(-1), m_kb_enter_index(-1)
+{}
 
-using namespace RoR;
-using namespace GUI;
-
-#define CLASS        GamePauseMenu
-#define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
-
-CLASS::CLASS()
+void RoR::GUI::GamePauseMenu::Draw() // TODO: Copypaste of 'GameMainMenu' -- cleanup and unify the logic! ~ only_a_ptr, 06/2017
 {
-    MyGUI::WindowPtr win = dynamic_cast<MyGUI::WindowPtr>(mMainWidget);
-    win->setMovable(false);
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, BUTTON_PADDING);
+    ImGui::PushStyleColor(ImGuiCol_TitleBg, ImGui::GetStyle().Colors[ImGuiCol_TitleBgActive]);
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, WINDOW_BG_COLOR);
+    ImGui::PushStyleColor(ImGuiCol_Button, BUTTON_BG_COLOR);
 
-    m_resume_game ->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickResumeButton);
-    m_change_map  ->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickChangeMapButton);
-    m_back_to_menu->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickBackToMenuButton);
-    m_quit_game   ->eventMouseButtonClick += MyGUI::newDelegate(this, &CLASS::eventMouseButtonClickQuitButton);
+    // Display in bottom left corner for single-screen setups and centered for multi-screen (typically 3-screen) setups.
+    ImVec2 display_size = ImGui::GetIO().DisplaySize;
+    if ((display_size.x > 2200.f) && (display_size.y < 1100.f)) // Silly approximate values
+    {
+        ImGui::SetNextWindowPosCenter();
+    }
+    else
+    {
+        const float btn_height = ImGui::GetTextLineHeight() + (BUTTON_PADDING.y * 2);
+        const float window_height = ((NUM_BUTTONS+1)*btn_height) + ((NUM_BUTTONS+1)*ImGui::GetStyle().ItemSpacing.y) 
+                                    + (2*ImGui::GetStyle().WindowPadding.y); // 5 buttons + titlebar; 2x spacing around separator
+        const float margin = display_size.y / 15.f;
+        const float top = display_size.y - window_height - margin;
+        ImGui::SetNextWindowPos(ImVec2(margin, top));
+    }
+    ImGui::SetNextWindowContentWidth(WINDOW_WIDTH);
+    int flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize;
+    if (ImGui::Begin("Pause", nullptr, static_cast<ImGuiWindowFlags_>(flags)))
+    {
+        ImVec2 btn_size(WINDOW_WIDTH - ImGui::GetStyle().WindowPadding.x, 0.f);
 
-    win->setCaption(_L("Pause"));
-    m_resume_game ->setCaption(_L("Resume Game"));
-    m_change_map  ->setCaption(_L("Change Map"));
-    m_back_to_menu->setCaption(_L("Back to menu"));
-    m_quit_game   ->setCaption(_L("Quit to Desktop"));
+        const char* resume_title = (m_kb_focus_index == 0) ? "--> Resume game <--" : "Resume game"; // TODO: Localize all!
+        if (ImGui::Button(resume_title, btn_size) || (m_kb_enter_index == 0))
+        {
+            App::sim_state.SetPending(SimState::RUNNING);
+        }
 
-    MAIN_WIDGET->setVisible(false);
+        const char* settings_title = (m_kb_focus_index == 1) ? "--> Return to menu <--" : "Return to menu";
+        if (ImGui::Button(settings_title, btn_size) || (m_kb_enter_index == 2))
+        {
+            App::app_state.SetPending(RoR::AppState::MAIN_MENU);
+        }
+
+        const char* exit_title = (m_kb_focus_index == 2) ? "--> Exit game <--" : "Exit game";
+        if (ImGui::Button(exit_title, btn_size) || (m_kb_enter_index == 3))
+        {
+            App::app_state.SetPending(RoR::AppState::SHUTDOWN);
+        }
+    }
+
+    ImGui::End();
+    ImGui::PopStyleVar();
+    ImGui::PopStyleColor(3);
+
+    m_kb_enter_index = -1;
 }
 
-CLASS::~CLASS()
-{
-}
-
-void CLASS::SetPosition(int pixels_left, int pixels_top)
-{
-    MAIN_WIDGET->setPosition(pixels_left, pixels_top);
-}
-
-int CLASS::GetHeight()
-{
-    return MAIN_WIDGET->getHeight();
-}
-
-void CLASS::Show()
-{
-    MAIN_WIDGET->setVisibleSmooth(true);
-
-    const bool online = RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED;
-    m_change_map->setEnabled(!online);
-
-    // Adjust screen position
-    Ogre::Viewport* viewport = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
-    int margin = (viewport->getActualHeight() / 15);
-    int top = viewport->getActualHeight() - this->GetHeight() - margin;
-    this->SetPosition(margin, top);
-}
-
-void CLASS::Hide()
-{
-    // The "fade out" effect causes a visual glitch.
-    // During the animation, camera doesn't follow the vehicle and position
-    // of the driver isn't updated (he "floats out" of the cabin)
-    // Quick workaroud: use simple hiding without animation.
-    //MAIN_WIDGET->setVisibleSmooth(false);
-    MAIN_WIDGET->setVisible(false);
-}
-
-void CLASS::eventMouseButtonClickResumeButton(MyGUI::WidgetPtr _sender)
-{
-    App::sim_state.SetPending(SimState::RUNNING);
-    Hide();
-}
-
-void CLASS::eventMouseButtonClickChangeMapButton(MyGUI::WidgetPtr _sender)
-{
-    Hide();
-    App::app_state.SetPending(RoR::AppState::CHANGE_MAP);
-}
-
-void CLASS::eventMouseButtonClickBackToMenuButton(MyGUI::WidgetPtr _sender)
-{
-    Hide();
-    App::app_state.SetPending(RoR::AppState::MAIN_MENU);
-}
-
-void CLASS::eventMouseButtonClickQuitButton(MyGUI::WidgetPtr _sender)
-{
-    Hide();
-    App::app_state.SetPending(RoR::AppState::SHUTDOWN);
-}
-
-void CLASS::SetVisible(bool v)
-{
-    if (v) { this->Show(); }
-    else { this->Hide(); }
-}
-
-bool CLASS::IsVisible() { return MAIN_WIDGET->getVisible(); }

@@ -62,11 +62,6 @@ enum {
     BEAM_NORMAL,
     BEAM_HYDRO,
     BEAM_VIRTUAL,         //!< Excluded from mass calculations, visuals permanently disabled
-    BEAM_INVISIBLE,       //!< Exactly the same as BEAM_NORMAL, only permanently disables visuals
-    BEAM_INVISIBLE_HYDRO  //!< Exactly the same as BEAM_HYDRO, only permanently disables visuals
-        // NOTE: The '_INVISIBLE' variants exist because RoR creates visuals for all beams, even those configured as invisible.
-        //       Likely reason: until circa v0.32 RoR used the same beam visuals for both regular display and diagnostic 'skeleton view'.
-        //       Since then, we've had simple LINE_LIST meshed skeletonview. TODO: Clean this up ~ only_a_ptr, 12/2017
 };
 
 enum {
@@ -83,11 +78,7 @@ enum {
     MACHINE,        //!< its a machine
     AI,             //!< machine controlled by an Artificial Intelligence
 };
-enum {
-    DRY,            //!< node is dry
-    DRIPPING,       //!< node is dripping
-    WET             //!< node is wet
-};
+
 enum {
     NOSHOCK,        //!< not a shock
     SHOCK1,         //!< shock1
@@ -162,7 +153,6 @@ enum {
 
 enum {
     SHOCK_FLAG_NORMAL			= BITMASK(1),
-    SHOCK_FLAG_INVISIBLE		= BITMASK(2),
     SHOCK_FLAG_LACTIVE			= BITMASK(3),
     SHOCK_FLAG_RACTIVE			= BITMASK(4),
     SHOCK_FLAG_ISSHOCK2			= BITMASK(5),
@@ -196,6 +186,17 @@ enum {
     WHEEL_DEFAULT,
     WHEEL_2,
     WHEEL_FLEXBODY
+};
+
+enum class FlareType: char
+{
+    NONE           = 0,
+    HEADLIGHT      = 'f',
+    BRAKE_LIGHT    = 'b',
+    REVERSE_LIGHT  = 'R',
+    BLINKER_LEFT   = 'l',
+    BLINKER_RIGHT  = 'r',
+    USER           = 'u'
 };
 
 /* some info holding arrays */
@@ -242,6 +243,7 @@ struct hook_t
     float   hk_lockspeed;
     float   hk_timer;
     float   hk_timer_preset;
+    float   hk_min_length; //!< Absolute value in meters
     node_t* hk_hook_node;
     node_t* hk_lock_node;
     beam_t* hk_beam;
@@ -276,6 +278,9 @@ struct tie_t
     bool       ti_tied;
     bool       ti_tying;
     float      ti_command_value;
+    float      ti_contract_speed;
+    float      ti_max_stress;
+    float      ti_min_length; //!< Proportional to orig; length
 };
 
 
@@ -285,6 +290,37 @@ struct wing_t
     Ogre::SceneNode *cnode;
 };
 
+struct commandbeam_state_t
+{
+    commandbeam_state_t() { memset(this, 0, sizeof(commandbeam_state_t)); }
+
+    int8_t   auto_moving_mode;      //!< State
+
+    // Bit flags
+    bool     pressed_center_mode:1; //!< State
+    bool     auto_move_lock:1;      //!< State
+};
+
+struct commandbeam_t
+{
+    uint16_t cmb_beam_index;            //!< Index to Actor::ar_beams array
+    float    cmb_engine_coupling;       //!< Attr from truckfile
+    float    cmb_center_length;         //!< Attr computed at spawn
+    float    cmb_speed;                 //!< Attr; Rate of contraction/extension
+    float    cmb_boundary_length;       //!< Attr; Maximum/minimum length proportional to orig. len.
+
+    // Bit flags
+    bool     cmb_is_contraction:1;      //!< Attribute defined at spawn
+    bool     cmb_is_force_restricted:1; //!< Attribute defined in truckfile
+    bool     cmb_needs_engine:1;        //!< Attribute defined in truckfile
+    bool     cmb_is_autocentering:1;    //!< Attribute defined in truckfile
+    bool     cmb_plays_sound:1;         //!< Attribute defined in truckfile
+    bool     cmb_is_1press:1;           //!< Attribute defined in truckfile
+    bool     cmb_is_1press_center:1;    //!< Attribute defined in truckfile
+
+    std::shared_ptr<commandbeam_state_t> cmb_state;
+};
+
 struct command_t
 {
     int commandValueState;
@@ -292,9 +328,19 @@ struct command_t
     float triggerInputValue;
     float playerInputValue;
     bool trigger_cmdkeyblock_state;  //!< identifies blocked F-commands for triggers
-    std::vector<int> beams;
+    std::vector<commandbeam_t> beams;
     std::vector<int> rotators;
     Ogre::String description;
+};
+
+struct hydrobeam_t
+{
+    uint16_t hb_beam_index; //!< Index to Actor::ar_beams array
+    float    hb_ref_length; //!< Idle length in meters
+    float    hb_speed;      //!< Rate of change
+    int      hb_flags;
+    int      hb_anim_flags; //!< Animators (beams updating length based on simulation variables)
+    float    hb_anim_param; //!< Animators (beams updating length based on simulation variables)
 };
 
 struct rotator_t
@@ -322,7 +368,7 @@ struct flare_t
     Ogre::SceneNode *snode;
     Ogre::BillboardSet *bbs;
     Ogre::Light *light;
-    char type;
+    FlareType fl_type;
     int controlnumber;
     bool controltoggle_status;
     float blinkdelay;
@@ -337,6 +383,8 @@ struct flare_t
 */
 struct prop_t
 {
+    prop_t() { memset(this, 0, sizeof(*this)); }
+
     int noderef;
     int nodex;
     int nodey;
@@ -371,9 +419,6 @@ struct prop_t
     // formerly named "bpos"
     float beacon_light_rotation_angle[4]; //<! Radians
     
-
-    int pale;               //!< Is this a pale? (Boolean {0/1})
-    int spinner;            //!< Is this a spinprop? (Boolean {0/1})
     float animratio[10]; //!< A coefficient for the animation, prop degree if used with mode: rotation and propoffset if used with mode: offset.
     int animFlags[10];
     int animMode[10];
@@ -391,6 +436,10 @@ struct prop_t
         float lower_limit;  //!< The lower limit for the animation
         float upper_limit;  //!< The upper limit for the animation
     } constraints[10];
+
+    int  pp_aero_engine_idx;          //!< Special - a turboprop/pistonprop reference
+    bool pp_aero_propeller_blade:1;   //!< Special - single blade mesh
+    bool pp_aero_propeller_spin:1;    //!< Special - blurred spinning propeller effect
 };
 
 struct exhaust_t
@@ -414,13 +463,6 @@ struct cparticle_t
     Ogre::ParticleSystem* psys;
 };
 
-
-struct debugtext_t
-{
-    int id;
-    Ogre::MovableText *txt;
-    Ogre::SceneNode *node;
-};
 
 
 // some non-beam structs

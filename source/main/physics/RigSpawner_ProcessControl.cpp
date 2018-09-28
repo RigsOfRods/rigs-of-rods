@@ -357,7 +357,9 @@ Actor *ActorSpawner::SpawnActor()
     // Section 'screwprops'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SCREWPROPS, screwprops, ProcessScrewprop);
 
-    // Section 'flexbodies' (Uses generated nodes)
+    this->CreateGfxActor(); // Required in the 'flexbodies' section
+
+    // Section 'flexbodies' (Uses generated nodes; needs GfxActor to exist)
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_FLEXBODIES, flexbodies, ProcessFlexbody);
 
     // Section 'fixes'
@@ -373,8 +375,8 @@ Actor *ActorSpawner::SpawnActor()
 
 #endif // USE_OPENAL
 
-    // POST-PROCESSING
-    FinalizeRig();
+    this->FinalizeRig();
+    this->FinalizeGfxSetup();
 
     // Pass ownership
     Actor *rig = m_actor;

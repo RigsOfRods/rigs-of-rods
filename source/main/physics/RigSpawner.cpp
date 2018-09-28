@@ -96,7 +96,7 @@ void ActorSpawner::Setup(
     m_actor = rig;
     m_file = file;
     m_cache_entry_number = cache_entry_number;
-    m_parent_scene_node = parent;
+    m_particles_parent_scenenode = parent;
     m_spawn_position = spawn_position;
     m_current_keyword = RigDef::File::KEYWORD_INVALID;
     m_enable_background_loading = BSETTING("Background Loading", false);
@@ -106,6 +106,7 @@ void ActorSpawner::Setup(
     m_fuse_y_min = 1000.0f;
     m_fuse_y_max = -1000.0f;
     m_first_wing_index = -1;
+    m_driverseat_prop_index = -1;
 
     m_generate_wing_position_lights = true;
     // TODO: Handle modules
@@ -249,13 +250,9 @@ void ActorSpawner::InitializeRig()
         m_actor->ar_command_key[i].description="";
     }
 
-    memset(m_actor->ar_props, 0, sizeof(prop_t) * MAX_PROPS);
-    m_actor->ar_num_props = 0;
     m_actor->exhausts.clear();
     memset(m_actor->ar_custom_particles, 0, sizeof(cparticle_t) * MAX_CPARTICLES);
     m_actor->ar_num_custom_particles = 0;
-    m_actor->m_nodes_debug_text.clear();
-    m_actor->m_beams_debug_text.clear();
     memset(m_actor->ar_soundsources, 0, sizeof(soundsource_t) * MAX_SOUNDSCRIPTS_PER_TRUCK);
     m_actor->ar_num_soundsources = 0;
     memset(m_actor->ar_collcabs, 0, sizeof(int) * MAX_CABS);
@@ -267,7 +264,6 @@ void ActorSpawner::InitializeRig()
     memset(m_actor->ar_buoycab_types, 0, sizeof(int) * MAX_CABS);
     m_actor->ar_num_airbrakes = 0;
     memset(m_actor->m_skid_trails, 0, sizeof(Skidmark *) * (MAX_WHEELS*2));
-    m_actor->ar_num_flexbodies = 0;
     m_actor->description.clear();
 
     m_actor->ar_extern_camera_mode=0;
@@ -308,7 +304,6 @@ void ActorSpawner::InitializeRig()
     m_actor->m_fusealge_width=0;
     m_actor->ar_brake_force=30000.0;
     m_actor->m_handbrake_force = 2 * m_actor->ar_brake_force;
-    m_actor->m_debug_visuals = SETTINGS.getBooleanSetting("DebugBeams", false);
     m_actor->m_gfx_reduce_shadows = SETTINGS.getBooleanSetting("Shadow optimizations", true);
 
     m_actor->m_num_proped_wheels=0;
@@ -316,8 +311,6 @@ void ActorSpawner::InitializeRig()
 
     m_actor->ar_speedo_max_kph=140;
     m_actor->ar_num_cameras=0;
-    m_actor->m_cab_mesh = nullptr;
-    m_actor->m_cab_scene_node = nullptr;
     m_actor->ar_camera_node_pos[0]=-1;
     m_actor->ar_camera_node_dir[0]=-1;
     m_actor->ar_camera_node_roll[0]=-1;
@@ -338,8 +331,6 @@ void ActorSpawner::InitializeRig()
     m_actor->alb_timer = 0.0f;
     m_actor->ar_anim_shift_timer = 0.0f;
 
-    m_actor->m_cab_mesh = nullptr;
-
     m_actor->cc_mode = false;
     m_actor->cc_can_brake = false;
     m_actor->cc_target_rpm = 0.0f;
@@ -347,10 +338,6 @@ void ActorSpawner::InitializeRig()
     m_actor->cc_target_speed_lower_limit = 0.0f;
 
     m_actor->ar_collision_relevant = false;
-
-    m_actor->m_debug_visuals = 0;
-
-    m_actor->ar_driverseat_prop = nullptr;
 
     m_actor->ar_use_heathaze = !m_actor->m_disable_smoke && App::gfx_enable_heathaze.GetActive();
     m_actor->ar_hide_in_actor_list = false;
@@ -372,11 +359,6 @@ void ActorSpawner::InitializeRig()
 
     m_actor->ar_dashboard = new DashBoardManager();
 
-    m_actor->m_skeletonview_scenenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-    m_actor->m_deletion_scene_nodes.emplace_back(m_actor->m_skeletonview_scenenode);
-    
-    m_actor->m_beam_visuals_parent_scenenode = m_parent_scene_node;
-
     /* Collisions */
 
     m_actor->ar_disable_actor2actor_collision = BSETTING("DisableCollisions", false);
@@ -392,14 +374,6 @@ void ActorSpawner::InitializeRig()
     }
 
     m_actor->ar_submesh_ground_model = gEnv->collisions->defaultgm;
-
-    DustManager& dustman = RoR::App::GetSimController()->GetBeamFactory()->GetParticleManager();
-    m_actor->m_particles_dust   = dustman.getDustPool("dust");
-    m_actor->m_particles_drip   = dustman.getDustPool("drip");
-    m_actor->m_particles_sparks = dustman.getDustPool("sparks");
-    m_actor->m_particles_clump  = dustman.getDustPool("clump");
-    m_actor->m_particles_splash = dustman.getDustPool("splash");
-    m_actor->m_particles_ripple = dustman.getDustPool("ripple");
 
     m_actor->m_command_inertia   = new CmdKeyInertia();
     m_actor->m_hydro_inertia = new CmdKeyInertia();
@@ -483,6 +457,10 @@ void ActorSpawner::FinalizeRig()
         }
     }
 
+    m_actor->ar_main_camera_node_pos  = std::max(0, m_actor->ar_camera_node_pos[0]);
+    m_actor->ar_main_camera_node_dir  = std::max(0, m_actor->ar_camera_node_dir[0]);
+    m_actor->ar_main_camera_node_roll = std::max(0, m_actor->ar_camera_node_roll[0]);
+
     if (m_actor->ar_camera_node_pos[0] > 0)
     {
         // store the y-difference between the trucks lowest node and the campos-node for the gwps system
@@ -529,101 +507,6 @@ void ActorSpawner::FinalizeRig()
         //wash calculator
         WashCalculator();
     }
-    //add the cab visual
-    if (!m_oldstyle_cab_texcoords.empty() && m_actor->ar_num_cabs>0)
-    {
-        //the cab materials are as follow:
-        //texname: base texture with emissive(2 pass) or without emissive if none available(1 pass), alpha cutting
-        //texname-trans: transparency texture (1 pass)
-        //texname-back: backface texture: black+alpha cutting (1 pass)
-        //texname-noem: base texture without emissive (1 pass), alpha cutting
-
-        //material passes must be:
-        //0: normal texture
-        //1: transparent (windows)
-        //2: emissive
-
-        Ogre::MaterialPtr mat = RoR::OgreSubsystem::GetMaterialByName(m_cab_material_name);
-        if (mat.isNull())
-        {
-            Ogre::String msg = "Material '"+m_cab_material_name+"' missing!";
-            AddMessage(Message::TYPE_ERROR, msg);
-            return;
-        }
-
-        //-trans
-        char transmatname[256];
-        sprintf(transmatname, "%s-trans", m_cab_material_name.c_str());
-        Ogre::MaterialPtr transmat=mat->clone(transmatname);
-        if (mat->getTechnique(0)->getNumPasses()>1) // If there's the "emissive pass", remove it from the 'transmat'
-        {
-            transmat->getTechnique(0)->removePass(1);
-        }
-        transmat->getTechnique(0)->getPass(0)->setAlphaRejectSettings(Ogre::CMPF_LESS_EQUAL, 128);
-        transmat->getTechnique(0)->getPass(0)->setDepthWriteEnabled(false);
-        if (transmat->getTechnique(0)->getPass(0)->getNumTextureUnitStates()>0)
-        {
-            transmat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_NONE);
-        }
-        transmat->compile();
-        m_cab_trans_material = transmat;
-
-        //-back
-        char backmatname[256];
-        sprintf(backmatname, "%s-back", m_cab_material_name.c_str());
-        Ogre::MaterialPtr backmat=mat->clone(backmatname);
-        if (mat->getTechnique(0)->getNumPasses()>1)// If there's the "emissive pass", remove it from the 'transmat'
-        {
-            backmat->getTechnique(0)->removePass(1);
-        }
-        if (transmat->getTechnique(0)->getPass(0)->getNumTextureUnitStates()>0)
-        {
-            backmat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setColourOperationEx(
-                Ogre::LBX_SOURCE1, 
-                Ogre::LBS_MANUAL, 
-                Ogre::LBS_MANUAL, 
-                Ogre::ColourValue(0,0,0),
-                Ogre::ColourValue(0,0,0)
-            );
-        }
-        if (m_actor->m_gfx_reduce_shadows)
-        {
-            backmat->setReceiveShadows(false);
-        }
-        backmat->compile();
-
-        char cab_material_name_cstr[1000] = {};
-        strncpy(cab_material_name_cstr, m_cab_material_name.c_str(), 999);
-        std::string mesh_name = this->ComposeName("VehicleCabMesh", 0);
-        m_actor->m_cab_mesh =new FlexObj( // Names in FlexObj ctor
-            m_actor->ar_nodes,            // node_t* nds
-            m_oldstyle_cab_texcoords,// std::vector<CabNodeTexcoords>& texcoords
-            m_actor->ar_num_cabs,         // int     numtriangles
-            m_actor->ar_cabs,             // int*    triangles
-            m_oldstyle_cab_submeshes,// std::vector<CabSubmesh>& submeshes
-            cab_material_name_cstr,          // char*   texname
-            mesh_name.c_str(),
-            backmatname,             // char*   backtexname
-            transmatname             // char*   transtexname
-        );
-
-        m_actor->m_cab_scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-        Ogre::Entity *ec = nullptr;
-        try
-        {
-            ec = gEnv->sceneManager->createEntity(this->ComposeName("VehicleCabEntity", 0), mesh_name);
-            this->SetupNewEntity(ec, Ogre::ColourValue(0.5, 1, 0.5));
-            if (ec)
-            {
-                m_actor->m_cab_scene_node->attachObject(ec);
-            }
-        }
-        catch (...)
-        {
-            this->AddMessage(Message::TYPE_ERROR, "error loading mesh: "+mesh_name);
-        }
-        m_actor->m_cab_entity = ec;
-    };
 
     m_actor->ar_lowest_node = FindLowestNodeInRig();
     m_actor->ar_lowest_contacting_node = FindLowestContactingNodeInRig();
@@ -631,8 +514,6 @@ void ActorSpawner::FinalizeRig()
     this->UpdateCollcabContacterNodes();
 
     m_flex_factory.SaveFlexbodiesToCache();
-
-    this->FinalizeGfxSetup(); // Creates the GfxActor
 }
 
 /* -------------------------------------------------------------------------- */
@@ -761,7 +642,6 @@ void ActorSpawner::ProcessScrewprop(RigDef::Screwprop & def)
     int top_node_idx = GetNodeIndexOrThrow(def.top_node);
 
     m_actor->ar_screwprops[m_actor->ar_num_screwprops] = new Screwprop(
-        &RoR::App::GetSimController()->GetBeamFactory()->GetParticleManager(),
         m_actor->ar_nodes,
         ref_node_idx,
         back_node_idx,
@@ -829,8 +709,10 @@ void ActorSpawner::BuildAerialEngine(
 {
     SPAWNER_PROFILE_SCOPED();
 
+    int aeroengine_index = m_actor->ar_num_aeroengines;
+
     Turboprop *turbo_prop = new Turboprop(
-        this->ComposeName("Turboprop", m_actor->ar_num_aeroengines).c_str(),
+        this->ComposeName("Turboprop", aeroengine_index).c_str(),
         m_actor->ar_nodes, 
         ref_node_index,
         back_node_index,
@@ -848,7 +730,7 @@ void ActorSpawner::BuildAerialEngine(
         pitch,
         m_actor->ar_use_heathaze
     );
-    m_actor->ar_aeroengines[m_actor->ar_num_aeroengines] = turbo_prop;
+    m_actor->ar_aeroengines[aeroengine_index] = turbo_prop;
     m_actor->ar_num_aeroengines++;
     m_actor->ar_driveable = AIRPLANE;
 
@@ -860,21 +742,12 @@ void ActorSpawner::BuildAerialEngine(
 
     /* Visuals */
     float scale = GetNode(ref_node_index).RelPosition.distance(GetNode(blade_1_node_index).RelPosition) / 2.25f;
-    for (unsigned int i = 0; i < static_cast<unsigned int>(m_actor->ar_num_props); i++)
+    for (prop_t& prop: m_props)
     {
-        prop_t & prop = m_actor->ar_props[i];
-        if (prop.noderef == ref_node_index)
+        if ((prop.noderef == ref_node_index) && (prop.pp_aero_propeller_blade || prop.pp_aero_propeller_spin))
         {
-            if (prop.pale == 1)
-            {
-                prop.scene_node->scale(scale, scale, scale);
-                turbo_prop->addPale(prop.scene_node);
-            }
-            if (prop.spinner == 1)
-            {
-                prop.scene_node->scale(scale, scale, scale);
-                turbo_prop->addSpinner(prop.scene_node);
-            }
+            prop.scene_node->scale(scale, scale, scale);
+            prop.pp_aero_engine_idx = aeroengine_index;
         }
     }
 }
@@ -1041,15 +914,9 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
             //we want also to add positional lights for first wing
             if (m_generate_wing_position_lights && (m_actor->m_flares_mode != GfxFlaresMode::NONE))
             {
-                if (! CheckPropLimit(4))
-                {
-                    return;
-                }
-
                 //Left green
                 m_airplane_left_light=previous_wing.fa->nfld;
-                prop_t & left_green_prop = m_actor->ar_props[m_actor->ar_num_props];
-                m_actor->ar_num_props++;
+                prop_t left_green_prop;
 
                 left_green_prop.noderef=previous_wing.fa->nfld;
                 left_green_prop.nodex=previous_wing.fa->nflu;
@@ -1061,8 +928,6 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 left_green_prop.wheel=nullptr;
                 left_green_prop.wheelrotdegree=0.0;
                 left_green_prop.mirror=0;
-                left_green_prop.pale=0;
-                left_green_prop.spinner=0;
                 left_green_prop.scene_node=nullptr; //no visible prop
                 left_green_prop.beacon_light_rotation_angle[0]=0.0;
                 left_green_prop.beacon_light_rotation_rate[0]=1.0;
@@ -1070,7 +935,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 left_green_prop.beacon_light[0]=nullptr; //no light
                 //the flare billboard
                 left_green_prop.beacon_flare_billboard_scene_node[0] = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-                left_green_prop.beacon_flares_billboard_system[0]=gEnv->sceneManager->createBillboardSet(this->ComposeName("Prop", m_actor->ar_num_props),1);
+                left_green_prop.beacon_flares_billboard_system[0]=gEnv->sceneManager->createBillboardSet(this->ComposeName("Prop", m_props.size()+1),1);
                 left_green_prop.beacon_flares_billboard_system[0]->createBillboard(0,0,0);
                 if (left_green_prop.beacon_flares_billboard_system[0])
                 {
@@ -1082,10 +947,10 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 left_green_prop.beacon_flares_billboard_system[0]->setDefaultDimensions(0.5, 0.5);
                 left_green_prop.animFlags[0]=0;
                 left_green_prop.animMode[0]=0;
+                m_props.push_back(left_green_prop);
                 
                 //Left flash
-                prop_t & left_flash_prop = m_actor->ar_props[m_actor->ar_num_props];
-                m_actor->ar_num_props++;
+                prop_t left_flash_prop;
 
                 left_flash_prop.noderef=previous_wing.fa->nbld;
                 left_flash_prop.nodex=previous_wing.fa->nblu;
@@ -1097,14 +962,12 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 left_flash_prop.wheel=nullptr;
                 left_flash_prop.wheelrotdegree=0.0;
                 left_flash_prop.mirror=0;
-                left_flash_prop.pale=0;
-                left_flash_prop.spinner=0;
                 left_flash_prop.scene_node=nullptr; //no visible prop
                 left_flash_prop.beacon_light_rotation_angle[0]=0.5; //alt
                 left_flash_prop.beacon_light_rotation_rate[0]=1.0;
                 left_flash_prop.beacontype='w';
                 //light
-                std::string prop_name = this->ComposeName("Prop", m_actor->ar_num_props);
+                std::string prop_name = this->ComposeName("Prop", m_props.size()+1);
                 left_flash_prop.beacon_light[0]=gEnv->sceneManager->createLight(prop_name);
                 left_flash_prop.beacon_light[0]->setType(Ogre::Light::LT_POINT);
                 left_flash_prop.beacon_light[0]->setDiffuseColour( Ogre::ColourValue(1.0, 1.0, 1.0));
@@ -1124,11 +987,11 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 }
                 left_flash_prop.beacon_flare_billboard_scene_node[0]->setVisible(false);
                 left_flash_prop.beacon_flares_billboard_system[0]->setDefaultDimensions(1.0, 1.0);
+                m_props.push_back(left_flash_prop);
                 
                 //Right red
                 m_airplane_right_light=previous_wing.fa->nfrd;
-                prop_t & right_red_prop = m_actor->ar_props[m_actor->ar_num_props];
-                m_actor->ar_num_props++;
+                prop_t right_red_prop;
 
                 
                 right_red_prop.noderef=start_wing.fa->nfrd;
@@ -1141,8 +1004,6 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 right_red_prop.wheel=nullptr;
                 right_red_prop.wheelrotdegree=0.0;
                 right_red_prop.mirror=0;
-                right_red_prop.pale=0;
-                right_red_prop.spinner=0;
                 right_red_prop.scene_node=nullptr; //no visible prop
                 right_red_prop.beacon_light_rotation_angle[0]=0.0;
                 right_red_prop.beacon_light_rotation_rate[0]=1.0;
@@ -1150,7 +1011,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 right_red_prop.beacon_light[0]=nullptr; /* No light */
                 //the flare billboard
                 right_red_prop.beacon_flare_billboard_scene_node[0] = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-                right_red_prop.beacon_flares_billboard_system[0]=gEnv->sceneManager->createBillboardSet(this->ComposeName("Prop", m_actor->ar_num_props),1);
+                right_red_prop.beacon_flares_billboard_system[0]=gEnv->sceneManager->createBillboardSet(this->ComposeName("Prop", m_props.size()+1),1);
                 right_red_prop.beacon_flares_billboard_system[0]->createBillboard(0,0,0);
                 if (right_red_prop.beacon_flares_billboard_system[0])
                 {
@@ -1162,10 +1023,10 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 right_red_prop.beacon_flares_billboard_system[0]->setDefaultDimensions(0.5, 0.5);
                 right_red_prop.animFlags[0]=0;
                 right_red_prop.animMode[0]=0;
+                m_props.push_back(right_red_prop);
                 
                 //Right flash
-                prop_t & right_flash_prop = m_actor->ar_props[m_actor->ar_num_props];
-                m_actor->ar_num_props++;
+                prop_t right_flash_prop;
 
                 right_flash_prop.noderef=start_wing.fa->nbrd;
                 right_flash_prop.nodex=start_wing.fa->nbru;
@@ -1177,14 +1038,12 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 right_flash_prop.wheel=nullptr;
                 right_flash_prop.wheelrotdegree=0.0;
                 right_flash_prop.mirror=0;
-                right_flash_prop.pale=0;
-                right_flash_prop.spinner=0;
                 right_flash_prop.scene_node=nullptr; //no visible prop
                 right_flash_prop.beacon_light_rotation_angle[0]=0.5; //alt
                 right_flash_prop.beacon_light_rotation_rate[0]=1.0;
                 right_flash_prop.beacontype='w';
                 //light
-                prop_name = this->ComposeName("Prop", m_actor->ar_num_props);
+                prop_name = this->ComposeName("Prop", m_props.size()+1);
                 right_flash_prop.beacon_light[0]=gEnv->sceneManager->createLight(prop_name);
                 right_flash_prop.beacon_light[0]->setType(Ogre::Light::LT_POINT);
                 right_flash_prop.beacon_light[0]->setDiffuseColour( Ogre::ColourValue(1.0, 1.0, 1.0));
@@ -1206,6 +1065,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 right_flash_prop.beacon_flares_billboard_system[0]->setDefaultDimensions(1.0, 1.0);
                 right_flash_prop.animFlags[0]=0;
                 right_flash_prop.animMode[0]=0;
+                m_props.push_back(right_flash_prop);
                 
                 m_generate_wing_position_lights = false; // Already done
             }
@@ -1359,7 +1219,7 @@ void ActorSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
 void ActorSpawner::ProcessFixedNode(RigDef::Node::Ref node_ref)
 {
     node_t & node = GetNodeOrThrow(node_ref);
-    node.locked = 1;
+    node.nd_immovable = true;
 }
 
 void ActorSpawner::ProcessExhaust(RigDef::Exhaust & def)
@@ -1409,12 +1269,19 @@ void ActorSpawner::ProcessExhaust(RigDef::Exhaust & def)
         return;
     }
     exhaust.smoker->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
-    exhaust.smokeNode = m_parent_scene_node->createChildSceneNode();
+    exhaust.smokeNode = m_particles_parent_scenenode->createChildSceneNode();
     exhaust.smokeNode->attachObject(exhaust.smoker);
     exhaust.smokeNode->setPosition(m_actor->ar_nodes[exhaust.emitterNode].AbsPosition);
 
-    ref_node.isHot=true;
-    dir_node.isHot=true;
+    // Update GFX for nodes
+    for (GfxActor::NodeGfx& nfx : m_gfx_nodes)
+    {
+        if (nfx.nx_node_idx == ref_node.pos || nfx.nx_node_idx == dir_node.pos)
+        {
+            nfx.nx_is_hot = true;
+        }
+    }
+
     m_actor->exhausts.push_back(exhaust);
 }
 
@@ -1562,8 +1429,8 @@ void ActorSpawner::ProcessSubmesh(RigDef::Submesh & def)
 
         if (mk_buoyance && (m_actor->m_buoyance == nullptr))
         {
-            auto& dustman = App::GetSimController()->GetBeamFactory()->GetParticleManager();
-            Buoyance* buoy = new Buoyance(dustman.getDustPool("splash"), dustman.getDustPool("ripple"));
+            auto& dustman = App::GetSimController()->GetGfxScene();
+            Buoyance* buoy = new Buoyance(dustman.GetDustPool("splash"), dustman.GetDustPool("ripple"));
             m_actor->m_buoyance.reset(buoy);
         }
         m_actor->ar_num_cabs++;
@@ -1641,11 +1508,6 @@ void ActorSpawner::ProcessFlexbody(std::shared_ptr<RigDef::Flexbody> def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (!this->CheckFlexbodyLimit(1))
-    {
-        return;
-    }
-
     // Collect nodes
     std::vector<unsigned int> node_indices;
     bool nodes_found = true;
@@ -1692,8 +1554,7 @@ void ActorSpawner::ProcessFlexbody(std::shared_ptr<RigDef::Flexbody> def)
         else
             flexbody->setCameraMode(static_cast<int>(def->camera_settings.mode));
 
-        m_actor->ar_flexbodies[m_actor->ar_num_flexbodies] = flexbody;
-        m_actor->ar_num_flexbodies++;
+        m_actor->GetGfxActor()->AddFlexbody(flexbody);
     }
     catch (Ogre::Exception& e)
     {
@@ -1706,13 +1567,8 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckPropLimit(1))
-    {
-        return;
-    }
-
-    prop_t & prop = m_actor->ar_props[m_actor->ar_num_props];
-    int prop_index = m_actor->ar_num_props;
+    prop_t prop;
+    int prop_index = m_props.size();
     memset(&prop, 0, sizeof(prop_t));
 
     prop.noderef         = GetNodeIndexOrThrow(def.reference_node);
@@ -1793,22 +1649,22 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
     prop.mo->setCastShadows(true); // Orig code {{ prop.mo->setCastShadows(shadowmode != 0); }}, shadowmode has default value 1 and changes with undocumented directive 'set_shadows'
     prop.beacontype = 'n'; // Orig: hardcoded in BTS_PROPS
 
-    if (def.special == RigDef::Prop::SPECIAL_SPINPROP)
+    if (def.special == RigDef::Prop::SPECIAL_AERO_PROP_SPIN)
     {
-        prop.spinner = 1;
+        prop.pp_aero_propeller_spin = true;
         prop.mo->setCastShadows(false);
         prop.scene_node->setVisible(false);
     }
-    else if(def.special == RigDef::Prop::SPECIAL_PALE)
+    else if(def.special == RigDef::Prop::SPECIAL_AERO_PROP_BLADE)
     {
-        prop.pale = 1;
+        prop.pp_aero_propeller_blade = true;
     }
     else if(def.special == RigDef::Prop::SPECIAL_DRIVER_SEAT)
     {
         //driver seat, used to position the driver and make the seat translucent at times
-        if (m_actor->ar_driverseat_prop == nullptr)
+        if (m_driverseat_prop_index == -1)
         {
-            m_actor->ar_driverseat_prop = & prop;
+            m_driverseat_prop_index = prop_index;
             prop.mo->setMaterialName("driversseat");
         }
         else
@@ -1819,9 +1675,9 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
     else if(def.special == RigDef::Prop::SPECIAL_DRIVER_SEAT_2)
     {
         // Same as DRIVER_SEAT, except it doesn't force the "driversseat" material
-        if (m_actor->ar_driverseat_prop == nullptr)
+        if (m_driverseat_prop_index == -1)
         {
-            m_actor->ar_driverseat_prop = & prop;
+            m_driverseat_prop_index = prop_index;
         }
         else
         {
@@ -1949,7 +1805,6 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
         this->SetupNewEntity(prop.mo->getEntity(), Ogre::ColourValue(1.f, 1.f, 0.f));
     }
 
-    ++m_actor->ar_num_props;
     m_curr_mirror_prop_scenenode = nullptr;
     m_curr_mirror_prop_type = CustomMaterial::MirrorPropType::MPROP_NONE;
 
@@ -2211,6 +2066,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
         anim_itor++;
         anim_index++;
     }
+    m_props.push_back(prop);
 }
 
 void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
@@ -2245,7 +2101,7 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
     }
 
     flare_t flare;
-    flare.type                 = def.type;
+    flare.fl_type              = static_cast<FlareType>(def.type);
     flare.controlnumber        = def.control_number;
     flare.controltoggle_status = false;
     flare.blinkdelay           = (blink_delay == -1) ? 0.5f : blink_delay / 1000.f;
@@ -2272,27 +2128,24 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
     {
         flare.bbs->createBillboard(0,0,0);
         flare.bbs->setVisibilityFlags(DEPTHMAP_DISABLED);
-        
-        if (def.material_name.length() == 0 || def.material_name == "default")
+        std::string material_name = def.material_name;
+        using_default_material = (material_name.length() == 0 || material_name == "default");
+        if (using_default_material)
         {
             if (def.type == RigDef::Flare2::TYPE_b_BRAKELIGHT)
             {
-                flare.bbs->setMaterialName("tracks/brakeflare");
+                material_name = "tracks/brakeflare";
             }
             else if (def.type == RigDef::Flare2::TYPE_l_LEFT_BLINKER || (def.type == RigDef::Flare2::TYPE_r_RIGHT_BLINKER))
             {
-                flare.bbs->setMaterialName("tracks/blinkflare");
+                material_name = "tracks/blinkflare";
             }
             else
             {
-                flare.bbs->setMaterialName("tracks/flare");
+                material_name = "tracks/flare";
             }
         }
-        else
-        {
-            using_default_material = false;
-            flare.bbs->setMaterialName(def.material_name);
-        }
+        flare.bbs->setMaterial(this->FindOrCreateCustomizedMaterial(material_name));
         flare.snode->attachObject(flare.bbs);
     }
     flare.isVisible = true;
@@ -2684,7 +2537,7 @@ void ActorSpawner::ProcessParticle(RigDef::Particle & def)
     /* Setup visuals */
     std::stringstream name;
     name << "cparticle-" << particle_index << "-" << m_actor->ar_design_name;
-    particle.snode = m_parent_scene_node->createChildSceneNode();
+    particle.snode = m_particles_parent_scenenode->createChildSceneNode();
     particle.psys = gEnv->sceneManager->createParticleSystem(name.str(), def.particle_system_name);
     if (particle.psys == nullptr)
     {
@@ -2731,18 +2584,16 @@ void ActorSpawner::ProcessTie(RigDef::Tie & def)
     SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
     beam.k = def.beam_defaults->GetScaledSpringiness();
     beam.d = def.beam_defaults->GetScaledDamping();
-    beam.bm_type = (def.is_invisible) ? BEAM_INVISIBLE_HYDRO : BEAM_HYDRO;
+    beam.bm_type = BEAM_HYDRO;
     beam.L = def.max_reach_length;
     beam.refL = def.max_reach_length;
-    beam.Lhydro = def.max_reach_length;
     beam.bounded = ROPE;
     beam.bm_disabled = true;
-    beam.commandRatioLong = def.auto_shorten_rate;
-    beam.commandRatioShort = def.auto_shorten_rate;
-    beam.commandShort = def.min_length;
-    beam.commandLong = def.max_length;
-    beam.maxtiestress = def.max_stress;
-    CreateBeamVisuals(beam, beam_index, def.beam_defaults);
+
+    if (!def.is_invisible)
+    {
+        this->CreateBeamVisuals(beam, beam_index, false, def.beam_defaults);
+    }
 
     /* Register tie */
     tie_t tie;
@@ -2752,6 +2603,9 @@ void ActorSpawner::ProcessTie(RigDef::Tie & def)
     tie.ti_beam = & beam;
     tie.ti_locked_ropable = nullptr;
     tie.ti_command_value = -1.f;
+    tie.ti_contract_speed = def.auto_shorten_rate;
+    tie.ti_max_stress = def.max_stress;
+    tie.ti_min_length = def.min_length;
     m_actor->ar_ties.push_back(tie);
 
     m_actor->m_has_command_beams = true;
@@ -2770,7 +2624,9 @@ void ActorSpawner::ProcessRope(RigDef::Rope & def)
     beam.k = def.beam_defaults->GetScaledSpringiness();
     beam.d = def.beam_defaults->GetScaledDamping();
     beam.bounded = ROPE;
-    beam.bm_type = (def.invisible) ? BEAM_INVISIBLE_HYDRO : BEAM_HYDRO;
+    beam.bm_type = BEAM_HYDRO;
+
+    // TODO: BUG?? Visuals are never created here.
 
     /* Register rope */
     rope_t rope;
@@ -3070,7 +2926,7 @@ void ActorSpawner::ProcessHook(RigDef::Hook & def)
     hook->hk_lockgroup = def.option_lockgroup;
     hook->hk_timer     = 0.f; // Hardcoded in BTS_HOOKS
     hook->hk_timer_preset = def.option_timer;
-    hook->hk_beam->commandShort = def.option_min_range_meters;
+    hook->hk_min_length = def.option_min_range_meters;
     hook->hk_selflock = BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_SELF_LOCK);
     hook->hk_nodisable = BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_NO_DISABLE);
     if (BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_AUTO_LOCK))
@@ -3085,9 +2941,31 @@ void ActorSpawner::ProcessHook(RigDef::Hook & def)
     {
         hook->hk_beam->bounded = NOSHOCK;
     }
-    if (!BITMASK_IS_1(def.flags, RigDef::Hook::FLAG_VISIBLE))
+    if (BITMASK_IS_0(def.flags, RigDef::Hook::FLAG_VISIBLE)) // NOTE: This flag can only hide a visible beam - it won't show a beam defined with 'invisible' flag.
     {
-        hook->hk_beam->bm_type = BEAM_INVISIBLE_HYDRO;
+        // Find beam index
+        int beam_index = -1;
+        for (int i = 0; i < m_actor->ar_num_beams; ++i)
+        {
+            if (hook->hk_beam == &m_actor->ar_beams[i])
+            {
+                beam_index = i;
+                break;
+            }
+        }
+
+        // Find beam visuals in the queue (only exist if defined without 'invisible' flag - we don't know at this point)
+        auto itor = m_beam_visuals_queue.begin();
+        auto endi = m_beam_visuals_queue.end();
+        while (itor != endi)
+        {
+            if (itor->beam_index == beam_index)
+            {
+                m_beam_visuals_queue.erase(itor);
+                break;
+            }
+            ++itor;
+        }
     }
 }
 
@@ -3099,7 +2977,7 @@ void ActorSpawner::ProcessLockgroup(RigDef::Lockgroup & lockgroup)
     auto end  = lockgroup.nodes.end();
     for (; itor != end; ++itor)
     {
-        GetNodeOrThrow(*itor).lockgroup = lockgroup.number;
+        GetNodeOrThrow(*itor).nd_lockgroup = lockgroup.number;
     }
 }
 
@@ -3123,11 +3001,6 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
     float short_limit = def.contraction_trigger_limit;
     float long_limit = def.expansion_trigger_limit;
 
-    if (def.HasFlag_i_Invisible())
-    {
-        hydro_type = BEAM_INVISIBLE_HYDRO;
-        BITMASK_SET_1(shock_flags, SHOCK_FLAG_INVISIBLE);
-    }
     if (def.HasFlag_B_TriggerBlocker())
     {
         BITMASK_SET_1(shock_flags, SHOCK_FLAG_TRG_BLOCKER);
@@ -3209,7 +3082,10 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
     beam.bounded = SHOCK2;
     beam.shock = &shock;
 
-    CreateBeamVisuals(beam, beam_index, def.beam_defaults);
+    if (! def.HasFlag_i_Invisible())
+    {
+        this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+    }
 
     if (m_actor->m_trigger_debug_enabled)
     {
@@ -3433,49 +3309,57 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
     beam.bm_type = BEAM_HYDRO;
 
     /* Options */
-    if (def.option_i_invisible)     { beam.bm_type = BEAM_INVISIBLE_HYDRO; }
     if (def.option_r_rope)          { beam.bounded = ROPE; }
-    if (def.option_p_1press)        { beam.isOnePressMode = 1; }
-    if (def.option_o_1press_center) { beam.isOnePressMode = 2; }
-    if (def.option_f_not_faster)    { beam.isForceRestricted = true; }
-    if (def.option_c_auto_center)   { beam.isCentering = true; }
-
-    beam.commandRatioShort     = def.shorten_rate;
-    beam.commandRatioLong      = def.lengthen_rate;
-    beam.commandShort          = def.max_contraction;
-    beam.commandLong           = def.max_extension;
-    beam.commandEngineCoupling = def.affect_engine;
-    beam.commandNeedsEngine    = def.needs_engine;
-    beam.playsSound            = def.plays_sound;
 
     /* set the middle of the command, so its not required to recalculate this everytime ... */
+    float center_length = 0.f;
     if (def.max_extension > def.max_contraction)
     {
-        beam.centerLength = (def.max_extension - def.max_contraction) / 2 + def.max_contraction;
+        center_length = (def.max_extension - def.max_contraction) / 2 + def.max_contraction;
     }
     else
     {
-        beam.centerLength = (def.max_contraction - def.max_extension) / 2 + def.max_extension;
+        center_length = (def.max_contraction - def.max_extension) / 2 + def.max_extension;
     }
 
     _ProcessKeyInertia(m_actor->m_command_inertia, def.inertia, *def.inertia_defaults, def.contract_key, def.extend_key);	
 
     /* Add keys */
     command_t* contract_command = &m_actor->ar_command_key[def.contract_key];
-    contract_command->beams.push_back(-beam_index);
+    commandbeam_t cmd_beam;
+    cmd_beam.cmb_beam_index = static_cast<uint16_t>(beam_index);
+    cmd_beam.cmb_is_contraction = true;
+    cmd_beam.cmb_speed = def.shorten_rate;
+    cmd_beam.cmb_boundary_length = def.max_contraction;
+    cmd_beam.cmb_is_force_restricted = def.option_f_not_faster;
+    cmd_beam.cmb_is_autocentering = def.option_c_auto_center;
+    cmd_beam.cmb_needs_engine = def.needs_engine;
+    cmd_beam.cmb_is_1press = def.option_p_1press;      
+    cmd_beam.cmb_is_1press_center = def.option_o_1press_center;
+    cmd_beam.cmb_plays_sound = def.plays_sound;
+    cmd_beam.cmb_engine_coupling = def.affect_engine;
+    cmd_beam.cmb_center_length = center_length;
+    cmd_beam.cmb_state = std::shared_ptr<commandbeam_state_t>(new commandbeam_state_t);
+    contract_command->beams.push_back(cmd_beam);
     if (contract_command->description.empty())
     {
         contract_command->description = def.description;
     }
 
     command_t* extend_command = &m_actor->ar_command_key[def.extend_key];
-    extend_command->beams.push_back(beam_index);
+    cmd_beam.cmb_is_contraction = false;
+    cmd_beam.cmb_speed = def.lengthen_rate;
+    cmd_beam.cmb_boundary_length = def.max_extension;
+    extend_command->beams.push_back(cmd_beam);
     if (extend_command->description.empty())
     {
         extend_command->description = def.description;
     }
 
-    CreateBeamVisuals(beam, beam_index, def.beam_defaults);
+    if (! def.option_i_invisible)
+    {
+        this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+    }
 
     m_actor->m_num_command_beams++;
     m_actor->m_has_command_beams = true;
@@ -3485,17 +3369,12 @@ void ActorSpawner::ProcessAnimator(RigDef::Animator & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckHydroLimit(1)) // TODO: remove the limit! See `ActorSpawner::CalcMemoryRequirements()` ~ only_a_ptr, 06/2017
-    {
-        return;
-    }
-
     if (m_actor->m_hydro_inertia != nullptr)
     {
         if (def.inertia_defaults->start_delay_factor > 0 && def.inertia_defaults->stop_delay_factor > 0)
         {
             m_actor->m_hydro_inertia->setCmdKeyDelay(
-                m_actor->ar_num_hydros,
+                static_cast<int>(m_actor->ar_hydros.size()),
                 def.inertia_defaults->start_delay_factor,
                 def.inertia_defaults->stop_delay_factor,
                 def.inertia_defaults->start_function,
@@ -3504,18 +3383,11 @@ void ActorSpawner::ProcessAnimator(RigDef::Animator & def)
         }
     }
 
-    unsigned int hydro_type = BEAM_HYDRO;
-    unsigned int anim_flags = 0;
+    int anim_flags = 0;
     float anim_option = 0;
 
     /* Options. '{' intentionally misplaced. */
 
-    if (BITMASK_IS_1(def.flags, RigDef::Animator::OPTION_VISIBLE)) {
-        hydro_type = BEAM_HYDRO;
-    }
-    if (BITMASK_IS_1(def.flags, RigDef::Animator::OPTION_INVISIBLE)) {
-        hydro_type = BEAM_INVISIBLE_HYDRO;
-    }
     if (BITMASK_IS_1(def.flags, RigDef::Animator::OPTION_AIRSPEED)) {
         BITMASK_SET_1(anim_flags, ANIM_FLAG_AIRSPEED);
     }
@@ -3623,15 +3495,16 @@ void ActorSpawner::ProcessAnimator(RigDef::Animator & def)
     /* set the limits to something with sense by default */
     beam.shortbound = 0.99999f;
     beam.longbound = 1000000.0f;
-    beam.bm_type = hydro_type;
-    beam.hydroRatio = def.lenghtening_factor;
-    beam.animFlags = anim_flags;
-    beam.animOption = anim_option;
+    beam.bm_type = BEAM_HYDRO;
     CalculateBeamLength(beam);
     SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
     SetBeamSpring(beam, def.beam_defaults->GetScaledSpringiness());
     SetBeamDamping(beam, def.beam_defaults->GetScaledDamping());
-    CreateBeamVisuals(beam, beam_index, def.beam_defaults);
+
+    if (BITMASK_IS_0(def.flags, RigDef::Animator::OPTION_INVISIBLE))
+    {
+        this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+    }
 
     if (BITMASK_IS_1(def.flags, RigDef::Animator::OPTION_SHORT_LIMIT)) 
     {
@@ -3642,8 +3515,15 @@ void ActorSpawner::ProcessAnimator(RigDef::Animator & def)
         beam.longbound = def.long_limit;
     }
 
-    m_actor->ar_hydro[m_actor->ar_num_hydros] = beam_index;
-    m_actor->ar_num_hydros++;
+    hydrobeam_t hb;
+    hb.hb_beam_index = static_cast<uint16_t>(beam_index);
+    hb.hb_speed = def.lenghtening_factor;
+    hb.hb_ref_length = beam.L;
+    hb.hb_flags = 0;
+    hb.hb_anim_flags = anim_flags;
+    hb.hb_anim_param = anim_option;
+
+    m_actor->ar_hydros.push_back(hb);
 }
 
 beam_t & ActorSpawner::AddBeam(
@@ -3658,7 +3538,6 @@ beam_t & ActorSpawner::AddBeam(
     /* Init */
     beam_t & beam = GetAndInitFreeBeam(node_1, node_2);
     beam.detacher_group = detacher_group;
-    beam.diameter = beam_defaults->visual_beam_diameter;
     beam.bm_disabled = false;
 
     /* Breaking threshold (strength) */
@@ -3685,18 +3564,13 @@ void ActorSpawner::ProcessHydro(RigDef::Hydro & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    if (! CheckHydroLimit(1)) // TODO: remove the limit! See `ActorSpawner::CalcMemoryRequirements()` ~ only_a_ptr, 06/2017
-    {
-        return;
-    }
-
-    unsigned int hydro_type = BEAM_HYDRO;
+    bool invisible = false;
     unsigned int hydro_flags = 0;
 
     // Parse options
     if (def.options.empty()) // Parse as if option 'n' (OPTION_n_NORMAL) was present
     {
-        hydro_type = BEAM_HYDRO;
+        invisible = false;
         hydro_flags |= HYDRO_FLAG_DIR;
     }
     else
@@ -3707,10 +3581,10 @@ void ActorSpawner::ProcessHydro(RigDef::Hydro & def)
             switch (c)
             {
                 case RigDef::Hydro::OPTION_i_INVISIBLE:  // i
-                    hydro_type = BEAM_INVISIBLE_HYDRO;
+                    invisible = true;
                     break;
                 case RigDef::Hydro::OPTION_n_NORMAL:  // n
-                    hydro_type = BEAM_HYDRO;
+                    invisible = false;
                     hydro_flags |= HYDRO_FLAG_DIR;
                     break;
                 case RigDef::Hydro::OPTION_s_DISABLE_ON_HIGH_SPEED:  // 's': // speed changing hydro
@@ -3753,14 +3627,15 @@ void ActorSpawner::ProcessHydro(RigDef::Hydro & def)
             //       However, since it's inside the loop, it only works correctly if the 'i' flag is last.
             //
             // ORIGINAL COMMENT: if you use the i flag on its own, add the direction to it
-            if (hydro_type == BEAM_INVISIBLE_HYDRO && !hydro_flags)
+            if (invisible && !hydro_flags)
             {
                 hydro_flags |= HYDRO_FLAG_DIR;
             }
         }
     }
 
-    _ProcessKeyInertia(m_actor->m_hydro_inertia, def.inertia, *def.inertia_defaults, m_actor->ar_num_hydros, m_actor->ar_num_hydros);	
+    int key = static_cast<int>(m_actor->ar_hydros.size());
+    _ProcessKeyInertia(m_actor->m_hydro_inertia, def.inertia, *def.inertia_defaults, key, key);	
 
     node_t & node_1 = GetNode(def.nodes[0]);
     node_t & node_2 = GetNode(def.nodes[1]);
@@ -3769,16 +3644,24 @@ void ActorSpawner::ProcessHydro(RigDef::Hydro & def)
     beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
     SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
     CalculateBeamLength(beam);
-    beam.bm_type              = hydro_type;
+    beam.bm_type              = BEAM_HYDRO;
     beam.k                    = def.beam_defaults->GetScaledSpringiness();
     beam.d                    = def.beam_defaults->GetScaledDamping();
-    beam.hydroFlags           = hydro_flags;
-    beam.hydroRatio           = def.lenghtening_factor;
 
-    CreateBeamVisuals(beam, beam_index, def.beam_defaults);
+    if (!invisible)
+    {
+        this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+    }
 
-    m_actor->ar_hydro[m_actor->ar_num_hydros] = beam_index;
-    m_actor->ar_num_hydros++;
+    hydrobeam_t hb;
+    hb.hb_flags = hydro_flags;
+    hb.hb_speed = def.lenghtening_factor;
+    hb.hb_beam_index = static_cast<uint16_t>(beam_index);
+    hb.hb_ref_length = beam.L;
+    hb.hb_anim_flags = 0;
+    hb.hb_anim_param = 0.f;
+
+    m_actor->ar_hydros.push_back(hb);
 }
 
 void ActorSpawner::ProcessShock2(RigDef::Shock2 & def)
@@ -3789,14 +3672,8 @@ void ActorSpawner::ProcessShock2(RigDef::Shock2 & def)
     node_t & node_2 = GetNode(def.nodes[1]);
     float short_bound = def.short_bound;
     float long_bound = def.long_bound;
-    unsigned int hydro_type = BEAM_HYDRO;
     unsigned int shock_flags = SHOCK_FLAG_NORMAL | SHOCK_FLAG_ISSHOCK2;
 
-    if (BITMASK_IS_1(def.options, RigDef::Shock2::OPTION_i_INVISIBLE))
-    {
-        BITMASK_SET_1(shock_flags, SHOCK_FLAG_INVISIBLE);
-        hydro_type = BEAM_INVISIBLE_HYDRO;
-    }
     if (BITMASK_IS_1(def.options, RigDef::Shock2::OPTION_s_SOFT_BUMP_BOUNDS))
     {
         BITMASK_SET_0(shock_flags, SHOCK_FLAG_NORMAL); /* Not normal anymore */
@@ -3836,7 +3713,7 @@ void ActorSpawner::ProcessShock2(RigDef::Shock2 & def)
     int beam_index = m_actor->ar_num_beams;
     beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
     SetBeamStrength(beam, def.beam_defaults->breaking_threshold * 4.f);
-    beam.bm_type              = hydro_type;
+    beam.bm_type              = BEAM_HYDRO;
     beam.bounded              = SHOCK2;
     beam.k                    = def.spring_in;
     beam.d                    = def.damp_in;
@@ -3847,9 +3724,11 @@ void ActorSpawner::ProcessShock2(RigDef::Shock2 & def)
     CalculateBeamLength(beam);
     beam.L          *= def.precompression;
     beam.refL       *= def.precompression;
-    beam.Lhydro     *= def.precompression;
 
-    CreateBeamVisuals(beam, beam_index, def.beam_defaults);
+    if (BITMASK_IS_0(def.options, RigDef::Shock2::OPTION_i_INVISIBLE))
+    {
+        this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+    }
 
     shock_t & shock  = GetFreeShock();
     shock.flags      = shock_flags;
@@ -3876,14 +3755,8 @@ void ActorSpawner::ProcessShock(RigDef::Shock & def)
     node_t & node_2 = GetNode(def.nodes[1]);
     float short_bound = def.short_bound;
     float long_bound = def.long_bound;
-    unsigned int hydro_type = BEAM_HYDRO;
     unsigned int shock_flags = SHOCK_FLAG_NORMAL;
 
-    if (BITMASK_IS_1(def.options, RigDef::Shock::OPTION_i_INVISIBLE))
-    {
-        BITMASK_SET_1(shock_flags, SHOCK_FLAG_INVISIBLE);
-        hydro_type = BEAM_INVISIBLE_HYDRO;
-    }
     if (BITMASK_IS_1(def.options, RigDef::Shock::OPTION_L_ACTIVE_LEFT))
     {
         BITMASK_SET_0(shock_flags, SHOCK_FLAG_NORMAL); /* Not normal anymore */
@@ -3908,7 +3781,7 @@ void ActorSpawner::ProcessShock(RigDef::Shock & def)
     beam.shortbound = short_bound;
     beam.longbound  = long_bound;
     beam.bounded    = SHOCK1;
-    beam.bm_type    = hydro_type;
+    beam.bm_type    = BEAM_HYDRO;
     beam.k          = def.spring_rate;
     beam.d          = def.damping;
     SetBeamStrength(beam, def.beam_defaults->breaking_threshold * 4.f);
@@ -3917,16 +3790,16 @@ void ActorSpawner::ProcessShock(RigDef::Shock & def)
     CalculateBeamLength(beam);
     beam.L          *= def.precompression;
     beam.refL       *= def.precompression;
-    beam.Lhydro     *= def.precompression;
 
     shock_t & shock  = GetFreeShock();
     shock.flags      = shock_flags;
     shock.sbd_spring = def.beam_defaults->springiness;
     shock.sbd_damp   = def.beam_defaults->damping_constant;
 
-    /* Create beam visuals, but don't attach them to scene graph */
-    /* Old parser did it like this, I don't know why ~ only_a_ptr 13-04-14 */
-    CreateBeamVisuals(beam, beam_index, def.beam_defaults);
+    if (BITMASK_IS_0(def.options, RigDef::Shock::OPTION_i_INVISIBLE))
+    {
+        this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+    }
 
     beam.shock = & shock;
     shock.beamid = beam_index;
@@ -3959,9 +3832,6 @@ void ActorSpawner::FetchAxisNodes(
 void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 {
     SPAWNER_PROFILE_SCOPED();
-
-    // Check capacities
-    CheckFlexbodyLimit(1); // TODO: remove the limit! See `ActorSpawner::CalcMemoryRequirements()` ~ only_a_ptr, 06/2017
 
     unsigned int base_node_index = m_actor->ar_num_nodes;
     wheel_t & wheel = m_actor->ar_wheels[m_actor->ar_num_wheels];
@@ -4007,6 +3877,8 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         outer_node.friction_coef = def.node_defaults->friction;
         AdjustNodeBuoyancy(outer_node, def.node_defaults);
 
+        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(outer_node.pos)));
+
         // Inner ring
         ray_point = axis_node_2->RelPosition + rim_ray_vector;
         rim_ray_vector = rim_ray_rotator * rim_ray_vector;
@@ -4019,6 +3891,8 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         inner_node.wheelid       = m_actor->ar_num_wheels;
         inner_node.friction_coef = def.node_defaults->friction;
         AdjustNodeBuoyancy(inner_node, def.node_defaults);
+
+        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(inner_node.pos)));
 
         // Wheel object
         wheel.wh_nodes[i * 2]       = & outer_node;
@@ -4052,6 +3926,8 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         outer_contacter.nodeid        = outer_node.pos; /* Node index */
         m_actor->ar_num_contacters++;
 
+        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(outer_node.pos)));
+
         // Inner ring
         ray_point = axis_node_2->RelPosition + tyre_ray_vector;
         tyre_ray_vector = tyre_ray_rotator * tyre_ray_vector;
@@ -4070,6 +3946,8 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         contacter_t & inner_contacter = m_actor->ar_contacters[m_actor->ar_num_contacters];
         inner_contacter.nodeid        = inner_node.pos; // Node index
         m_actor->ar_num_contacters++;
+
+        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(inner_node.pos)));
 
         // Wheel object
         wheel.wh_nodes[i * 2] = & outer_node;
@@ -4212,56 +4090,7 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     ++m_actor->ar_num_wheels;
 
     // Create visuals
-    BuildMeshWheelVisuals(
-        wheel_index,
-        base_node_index,
-        axis_node_1->pos,
-        axis_node_2->pos,
-        def.num_rays,
-        def.rim_mesh_name,
-        "tracks/trans", // Rim material name. Original parser: was hardcoded in BTS_FLEXBODYWHEELS
-        def.rim_radius,
-        def.side != RigDef::MeshWheel::SIDE_RIGHT
-        );
-
-    const std::string flexwheel_name = this->ComposeName("FlexBodyWheel", m_actor->ar_num_flexbodies);
-
-    int num_nodes = def.num_rays * 4;
-    std::vector<unsigned int> node_indices;
-    node_indices.reserve(num_nodes);
-    for (int i = 0; i < num_nodes; ++i)
-    {
-        node_indices.push_back( base_node_index + i );
-    }
-
-    RigDef::Flexbody flexbody_def;
-    flexbody_def.mesh_name = def.tyre_mesh_name;
-    flexbody_def.offset = Ogre::Vector3(0.5,0,0);
-
-    try
-    {
-        auto* flexbody = m_flex_factory.CreateFlexBody(
-            &flexbody_def,
-            axis_node_1->pos,
-            axis_node_2->pos,
-            static_cast<int>(base_node_index),
-            Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3::UNIT_Y),
-            node_indices
-            );
-
-        if (flexbody == nullptr)
-            return; // Error already logged
-
-        this->CreateWheelSkidmarks(static_cast<unsigned>(wheel_index));
-
-        m_actor->ar_flexbodies[m_actor->ar_num_flexbodies] = flexbody;
-        m_actor->ar_num_flexbodies++;
-    }
-    catch (Ogre::Exception& e)
-    {
-        this->AddMessage(Message::TYPE_ERROR, 
-            "Failed to create flexbodywheel '" + def.tyre_mesh_name + "', reason:" + e.getFullDescription());
-    }
+    m_wheel_visuals_queue.push_back(WheelVisualsTicket(wheel_index, base_node_index, &def, axis_node_1->pos, axis_node_2->pos));
 }
 
 wheel_t::BrakeCombo ActorSpawner::TranslateBrakingDef(RigDef::Wheels::Braking def)
@@ -4329,17 +4158,8 @@ void ActorSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
         meshwheel_def.rigidity_node
     );
 
-    BuildMeshWheelVisuals(
-        wheel_index, 
-        base_node_index, 
-        axis_node_1->pos,
-        axis_node_2->pos,
-        meshwheel_def.num_rays,
-        meshwheel_def.mesh_name,
-        meshwheel_def.material_name,
-        meshwheel_def.rim_radius,
-        meshwheel_def.side != RigDef::MeshWheel::SIDE_RIGHT
-        );
+    m_wheel_visuals_queue.push_back(
+        WheelVisualsTicket(wheel_index, base_node_index, &meshwheel_def, axis_node_1->pos, axis_node_2->pos));
 
     CreateWheelSkidmarks(wheel_index);
 }
@@ -4404,18 +4224,8 @@ void ActorSpawner::ProcessMeshWheel2(RigDef::MeshWheel & def)
         0.15 // max_extension
     );
 
-    /* --- Visuals --- */
-    BuildMeshWheelVisuals(
-        wheel_index, 
-        base_node_index, 
-        axis_node_1->pos,
-        axis_node_2->pos,
-        def.num_rays,
-        def.mesh_name,
-        def.material_name,
-        def.rim_radius,
-        def.side != RigDef::MeshWheel::SIDE_RIGHT
-        );
+    m_wheel_visuals_queue.push_back(WheelVisualsTicket(
+        wheel_index, base_node_index, &def, axis_node_1->pos, axis_node_2->pos));
 
     CreateWheelSkidmarks(wheel_index);
 }
@@ -4449,8 +4259,11 @@ void ActorSpawner::BuildMeshWheelVisuals(
         Ogre::SceneNode* scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
         scene_node->attachObject(flexmesh_wheel->GetTireEntity());
 
-        m_actor->ar_wheel_visuals[wheel_index].fm = flexmesh_wheel;
-        m_actor->ar_wheel_visuals[wheel_index].cnode = scene_node;
+        GfxActor::WheelGfx visual_wheel;
+        visual_wheel.wx_is_meshwheel = false;
+        visual_wheel.wx_flex_mesh = flexmesh_wheel;
+        visual_wheel.wx_scenenode = scene_node;
+        m_actor->m_gfx_actor->SetWheelVisuals(wheel_index, visual_wheel);
     }
     catch (Ogre::Exception& e)
     {
@@ -4540,6 +4353,8 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
         outer_contacter.nodeid        = outer_node.pos; /* Node index */
         m_actor->ar_num_contacters++;
 
+        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(outer_node.pos)));
+
         /* Inner ring */
         ray_point = axis_node_2->RelPosition + ray_vector;
         ray_vector = ray_rotator * ray_vector;
@@ -4555,6 +4370,8 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
         contacter_t & contacter = m_actor->ar_contacters[m_actor->ar_num_contacters];
         contacter.nodeid        = inner_node.pos; /* Node index */
         m_actor->ar_num_contacters++;
+
+        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(inner_node.pos)));
 
         /* Wheel object */
         wheel.wh_nodes[i * 2] = & outer_node;
@@ -4627,7 +4444,7 @@ int ActorSpawner::FindLowestContactingNodeInRig()
 
     for (int i = 0; i < m_actor->ar_num_nodes; i++)
     {
-        if (m_actor->ar_nodes[i].contactless) continue;
+        if (m_actor->ar_nodes[i].nd_no_ground_contact) continue;
         float y = m_actor->ar_nodes[i].AbsPosition.y;
         if (y < lowest_y)
         {
@@ -4792,7 +4609,7 @@ unsigned int ActorSpawner::AddWheel(RigDef::Wheel & wheel_def)
         wheel_def.rigidity_node
     );
 
-    CreateWheelVisuals(wheel_index, wheel_def, base_node_index);
+    m_wheel_visuals_queue.push_back(WheelVisualsTicket(wheel_index, base_node_index, &wheel_def));
 
     CreateWheelSkidmarks(wheel_index);
 
@@ -4803,7 +4620,7 @@ void ActorSpawner::CreateWheelSkidmarks(unsigned int wheel_index)
 {
     // Always create, even if disabled by config
     m_actor->m_skid_trails[wheel_index] = new RoR::Skidmark(
-        RoR::App::GetSimController()->GetSkidmarkConf(), &m_actor->ar_wheels[wheel_index], m_actor->m_beam_visuals_parent_scenenode, 300, 20);
+        RoR::App::GetSimController()->GetSkidmarkConf(), &m_actor->ar_wheels[wheel_index], m_particles_parent_scenenode, 300, 20);
 }
 
 #if 0 // refactored into pieces
@@ -5000,6 +4817,8 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         outer_node.id      = -1; // Orig: hardcoded (addWheel2)
         outer_node.wheelid = m_actor->ar_num_wheels;
 
+        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(outer_node.pos)));
+
         /* Inner ring */
         ray_point = axis_node_2->RelPosition + rim_ray_vector;
 
@@ -5009,6 +4828,8 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         inner_node.iswheel = WHEEL_2;
         inner_node.id      = -1; // Orig: hardcoded (addWheel2)
         inner_node.wheelid = m_actor->ar_num_wheels;
+
+        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(inner_node.pos)));
 
         /* Wheel object */
         wheel.wh_nodes[i * 2] = & outer_node;
@@ -5041,6 +4862,8 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         contacter.nodeid        = outer_node.pos; /* Node index */
         m_actor->ar_num_contacters++;
 
+        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(outer_node.pos)));
+
         /* Inner ring */
         ray_point = axis_node_2->RelPosition + tyre_ray_vector;
 
@@ -5057,6 +4880,8 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         contacter_t & inner_contacter = m_actor->ar_contacters[m_actor->ar_num_contacters];
         inner_contacter.nodeid        = inner_node.pos; /* Node index */
         m_actor->ar_num_contacters++;
+
+        m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(inner_node.pos)));
 
         /* Wheel object */
         wheel.wh_nodes[i * 2] = & outer_node;
@@ -5167,35 +4992,6 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
     return wheel_index;
 }
 
-void ActorSpawner::CreateWheelVisuals(unsigned int wheel_index, RigDef::Wheel & wheel_def, unsigned int node_base_index)
-{
-    // Wrapper, not profiling
-
-    CreateWheelVisuals(
-        wheel_index, 
-        node_base_index, 
-        wheel_def.num_rays,
-        wheel_def.face_material_name,
-        wheel_def.band_material_name,
-        false
-        );
-}
-
-void ActorSpawner::CreateWheelVisuals(unsigned int wheel_index, RigDef::Wheel2 & wheel_2_def, unsigned int node_base_index)
-{
-    // Wrapper, not profiling
-
-    CreateWheelVisuals(
-        wheel_index, 
-        node_base_index, 
-        wheel_2_def.num_rays,
-        wheel_2_def.face_material_name,
-        wheel_2_def.band_material_name,
-        true,
-        wheel_2_def.rim_radius / wheel_2_def.tyre_radius
-        );
-}
-
 void ActorSpawner::CreateWheelVisuals(
     unsigned int wheel_index, 
     unsigned int node_base_index,
@@ -5209,15 +5005,16 @@ void ActorSpawner::CreateWheelVisuals(
     SPAWNER_PROFILE_SCOPED();
 
     wheel_t & wheel = m_actor->ar_wheels[wheel_index];
-    vwheel_t & visual_wheel = m_actor->ar_wheel_visuals[wheel_index];
 
     try
     {
+        GfxActor::WheelGfx visual_wheel;
+
         const std::string wheel_mesh_name = this->ComposeName("WheelMesh", wheel_index);
-        visual_wheel.meshwheel = false;
-        visual_wheel.fm = new FlexMesh(
+        visual_wheel.wx_is_meshwheel = false;
+        visual_wheel.wx_flex_mesh = new FlexMesh(
             wheel_mesh_name,
-            m_actor->ar_nodes,
+            m_actor->m_gfx_actor.get(),
             wheel.wh_axis_node_0->pos,
             wheel.wh_axis_node_1->pos,
             node_base_index,
@@ -5231,9 +5028,10 @@ void ActorSpawner::CreateWheelVisuals(
         const std::string instance_name = this->ComposeName("WheelEntity", wheel_index);
         Ogre::Entity *ec = gEnv->sceneManager->createEntity(instance_name, wheel_mesh_name);
         this->SetupNewEntity(ec, Ogre::ColourValue(0, 0.5, 0.5));
-        visual_wheel.cnode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+        visual_wheel.wx_scenenode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
         m_actor->m_deletion_entities.emplace_back(ec);
-        visual_wheel.cnode->attachObject(ec);
+        visual_wheel.wx_scenenode->attachObject(ec);
+        m_actor->m_gfx_actor->SetWheelVisuals(wheel_index, visual_wheel);
     }
     catch (Ogre::Exception& e)
     {
@@ -5266,12 +5064,6 @@ unsigned int ActorSpawner::AddWheelBeam(
         beam.bounded = SHOCK1;
     }
     CalculateBeamLength(beam);
-
-    if (type != BEAM_VIRTUAL)
-    {
-        /* Create visuals, but don't attach to scene-graph (compatibility with show-skeleton function) */
-        CreateBeamVisuals(beam, index, beam_defaults);
-    }
 
     return index;
 }
@@ -5309,7 +5101,7 @@ unsigned int ActorSpawner::_SectionWheels2AddBeam(RigDef::Wheel2 & wheel_2_def, 
     unsigned int index = m_actor->ar_num_beams;
     beam_t & beam = GetFreeBeam();
     InitBeam(beam, node_1, node_2);
-    beam.bm_type = BEAM_INVISIBLE;
+    beam.bm_type = BEAM_NORMAL;
     SetBeamStrength(beam, wheel_2_def.beam_defaults->breaking_threshold);
     SetBeamDeformationThreshold(beam, wheel_2_def.beam_defaults);
     return index;
@@ -5321,7 +5113,7 @@ void ActorSpawner::ProcessWheel2(RigDef::Wheel2 & def)
 
     unsigned int node_base_index = m_actor->ar_num_nodes;
     unsigned int wheel_index = AddWheel2(def);
-    CreateWheelVisuals(wheel_index, def, node_base_index);
+    m_wheel_visuals_queue.push_back(WheelVisualsTicket(wheel_index, node_base_index, &def));
 };
 
 void ActorSpawner::ProcessWheel(RigDef::Wheel & def)
@@ -5678,10 +5470,6 @@ void ActorSpawner::ProcessBeam(RigDef::Beam & def)
     beam.strength  = beam_strength;
 
     /* Options */
-    if (BITMASK_IS_1(def.options, RigDef::Beam::OPTION_i_INVISIBLE))
-    {
-        beam.bm_type = BEAM_INVISIBLE;
-    }
     if (BITMASK_IS_1(def.options, RigDef::Beam::OPTION_r_ROPE))
     {
         beam.bounded = ROPE;
@@ -5692,7 +5480,10 @@ void ActorSpawner::ProcessBeam(RigDef::Beam & def)
         beam.longbound = def.extension_break_limit;
     }
 
-    CreateBeamVisuals(beam, beam_index, def.defaults);
+    if (BITMASK_IS_0(def.options, RigDef::Beam::OPTION_i_INVISIBLE))
+    {
+        this->CreateBeamVisuals(beam, beam_index, true, def.defaults);
+    }
 }
 
 void ActorSpawner::SetBeamDeformationThreshold(beam_t & beam, std::shared_ptr<RigDef::BeamDefaults> beam_defaults)
@@ -5823,29 +5614,18 @@ void ActorSpawner::SetBeamDeformationThreshold(beam_t & beam, std::shared_ptr<Ri
     beam.maxnegstress       = -(deformation_threshold);
 }
 
-void ActorSpawner::CreateBeamVisuals(beam_t & beam, int beam_index, std::shared_ptr<RigDef::BeamDefaults> beam_defaults)
+void ActorSpawner::CreateBeamVisuals(beam_t const & beam, int beam_index, bool visible, std::shared_ptr<RigDef::BeamDefaults> const& beam_defaults)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    try
-    {
-        beam.mEntity = gEnv->sceneManager->createEntity(this->ComposeName("Beam", beam_index), "beam.mesh");
-    }
-    catch (...)
-    {
-        throw Exception("Failed to load file 'beam.mesh' (should come with RoR installation)");
-    }
-    m_actor->m_deletion_entities.push_back(beam.mEntity);
-    beam.mSceneNode = m_actor->m_beam_visuals_parent_scenenode->createChildSceneNode();
-    beam.mSceneNode->setScale(beam.diameter, -1, beam.diameter);
+    //Set material
+    std::string material_name = beam_defaults->beam_material_name;
     if (beam.bm_type == BEAM_HYDRO)
     {
-        beam.mEntity->setMaterialName("tracks/Chrome");
+        material_name = "tracks/Chrome";
     }
-    else
-    {
-        beam.mEntity->setMaterialName(beam_defaults->beam_material_name);
-    }
+
+    m_beam_visuals_queue.emplace_back(beam_index, beam_defaults->visual_beam_diameter, material_name.c_str(), visible);
 }
 
 void ActorSpawner::CalculateBeamLength(beam_t & beam)
@@ -5854,7 +5634,6 @@ void ActorSpawner::CalculateBeamLength(beam_t & beam)
 
     float beam_length = (beam.p1->RelPosition - beam.p2->RelPosition).length();
     beam.L = beam_length;
-    beam.Lhydro = beam_length;
     beam.refL = beam_length;
 }
 
@@ -6040,8 +5819,7 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     Ogre::Vector3 node_position = m_spawn_position + def.position;
     node.AbsPosition = node_position; 
     node.RelPosition = node_position - m_actor->ar_origin;
-        
-    node.wetstate = DRY; // orig = hardcoded (init_node)
+
     node.iswheel = NOWHEEL;
     node.wheelid = -1; // Hardcoded in orig (bts_nodes, call to init_node())
     node.friction_coef = def.node_defaults->friction;
@@ -6054,26 +5832,26 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     {
         // orig = further override of hardcoded default.
         node.mass = def.node_defaults->load_weight; 
-        node.overrideMass = true;
-        node.loadedMass = true;
+        node.nd_override_mass = true;
+        node.nd_loaded_mass = true;
     }
     else
     {
         node.mass = 10; // Hardcoded in original (bts_nodes, call to init_node())
-        node.loadedMass = false;
+        node.nd_loaded_mass = false;
     }
 
     /* Lockgroup */
-    node.lockgroup = (m_file->lockgroup_default_nolock) ? RigDef::Lockgroup::LOCKGROUP_NOLOCK : RigDef::Lockgroup::LOCKGROUP_DEFAULT;
+    node.nd_lockgroup = (m_file->lockgroup_default_nolock) ? RigDef::Lockgroup::LOCKGROUP_NOLOCK : RigDef::Lockgroup::LOCKGROUP_DEFAULT;
 
     /* Options */
     unsigned int options = def.options | def.node_defaults->options; /* Merge bit flags */
     if (BITMASK_IS_1(options, RigDef::Node::OPTION_l_LOAD_WEIGHT))
     {
-        node.loadedMass = true;
+        node.nd_loaded_mass = true;
         if (def._has_load_weight_override)
         {
-            node.overrideMass = true;
+            node.nd_override_mass = true;
             node.mass = def.load_weight_override;
         }
         else
@@ -6096,15 +5874,9 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
         beam.bounded           = ROPE;
         beam.bm_disabled       = true;
         beam.L                 = HOOK_RANGE_DEFAULT;
-        beam.Lhydro            = HOOK_RANGE_DEFAULT;
         beam.refL              = HOOK_RANGE_DEFAULT;
-        beam.commandRatioShort = HOOK_SPEED_DEFAULT;
-        beam.commandRatioLong  = HOOK_SPEED_DEFAULT;
-        beam.commandShort      = 0.0f;
-        beam.commandLong       = 1.0f;
-        beam.maxtiestress      = HOOK_FORCE_DEFAULT;
         SetBeamDeformationThreshold(beam, def.beam_defaults);
-        CreateBeamVisuals(beam, beam_index, def.beam_defaults);
+        CreateBeamVisuals(beam, beam_index, false, def.beam_defaults);
             
         // Logic cloned from SerializedRig.cpp, section BTS_NODES
         hook_t hook;
@@ -6124,13 +5896,12 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
         hook.hk_timer             = 0.0f;
         hook.hk_timer_preset      = HOOK_LOCK_TIMER_DEFAULT;
         hook.hk_autolock          = false;
+        hook.hk_min_length        = 0.f;
         m_actor->ar_hooks.push_back(hook);
     }
     AdjustNodeBuoyancy(node, def, def.node_defaults);
-    node.contactless       = BITMASK_IS_1(options, RigDef::Node::OPTION_c_NO_GROUND_CONTACT);
-    node.disable_particles = BITMASK_IS_1(options, RigDef::Node::OPTION_p_NO_PARTICLES);
-    node.disable_sparks    = BITMASK_IS_1(options, RigDef::Node::OPTION_f_NO_SPARKS);
-    node.no_mouse_grab     = BITMASK_IS_1(options, RigDef::Node::OPTION_m_NO_MOUSE_GRAB);
+    node.nd_no_ground_contact = BITMASK_IS_1(options, RigDef::Node::OPTION_c_NO_GROUND_CONTACT);
+    node.nd_no_mouse_grab  = BITMASK_IS_1(options, RigDef::Node::OPTION_m_NO_MOUSE_GRAB);
 
     m_actor->ar_exhaust_dir_node        = BITMASK_IS_1(options, RigDef::Node::OPTION_y_EXHAUST_DIRECTION) ? node.pos : 0;
     m_actor->ar_exhaust_pos_node         = BITMASK_IS_1(options, RigDef::Node::OPTION_x_EXHAUST_POINT) ? node.pos : 0;
@@ -6140,6 +5911,14 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     if (def.position.z > m_fuse_z_max) { m_fuse_z_max = def.position.z; }
     if (def.position.y < m_fuse_y_min) { m_fuse_y_min = def.position.y; }
     if (def.position.y > m_fuse_y_max) { m_fuse_y_max = def.position.y; }
+
+    // GFX
+    GfxActor::NodeGfx nfx(static_cast<uint16_t>(node.pos));
+    nfx.nx_no_particles = BITMASK_IS_1(options, RigDef::Node::OPTION_p_NO_PARTICLES);
+    nfx.nx_may_get_wet  = BITMASK_IS_0(options, RigDef::Node::OPTION_c_NO_GROUND_CONTACT);
+    nfx.nx_no_particles = BITMASK_IS_1(options, RigDef::Node::OPTION_p_NO_PARTICLES);
+    nfx.nx_no_sparks    = BITMASK_IS_1(options, RigDef::Node::OPTION_f_NO_SPARKS);
+    m_gfx_nodes.push_back(nfx);
 
 #ifdef DEBUG_TRUCKPARSER2013
     // DEBUG
@@ -6196,12 +5975,18 @@ void ActorSpawner::AddExhaust(
     exhaust.smoker->setVisibilityFlags(DEPTHMAP_DISABLED); // Disable particles in depthmap
 
     
-    exhaust.smokeNode = m_parent_scene_node->createChildSceneNode();
+    exhaust.smokeNode = m_particles_parent_scenenode->createChildSceneNode();
     exhaust.smokeNode->attachObject(exhaust.smoker);
     exhaust.smokeNode->setPosition(m_actor->ar_nodes[exhaust.emitterNode].AbsPosition);
 
-    m_actor->ar_nodes[emitter_node_idx].isHot = true;
-    m_actor->ar_nodes[emitter_node_idx].isHot = true;
+    // Update GFX for nodes
+    for (GfxActor::NodeGfx& nfx : m_gfx_nodes)
+    {
+        if (nfx.nx_node_idx == emitter_node_idx || nfx.nx_node_idx == direction_node_idx)
+        {
+            nfx.nx_is_hot = true;
+        }
+    }
 
     m_actor->exhausts.push_back(exhaust);
 }
@@ -6229,7 +6014,7 @@ void ActorSpawner::ProcessCinecam(RigDef::Cinecam & def)
     // Node
     Ogre::Vector3 node_pos = m_spawn_position + def.position;
     node_t & camera_node = GetAndInitFreeNode(node_pos);
-    camera_node.contactless = true; // Orig: hardcoded in BTS_CINECAM
+    camera_node.nd_no_ground_contact = true; // Orig: hardcoded in BTS_CINECAM
     camera_node.wheelid = -1;
     camera_node.friction_coef = NODE_FRICTION_COEF_DEFAULT; // Node defaults are ignored here.
     camera_node.id = -1;
@@ -6246,11 +6031,10 @@ void ActorSpawner::ProcessCinecam(RigDef::Cinecam & def)
     {
         int beam_index = m_actor->ar_num_beams;
         beam_t & beam = AddBeam(camera_node, GetNode(def.nodes[i]), def.beam_defaults, DEFAULT_DETACHER_GROUP);
-        beam.bm_type = BEAM_INVISIBLE;
+        beam.bm_type = BEAM_NORMAL;
         CalculateBeamLength(beam);
         beam.k = def.spring;
         beam.d = def.damping;
-        CreateBeamVisuals(beam, beam_index, def.beam_defaults);
     }
 };
 
@@ -6264,7 +6048,6 @@ void ActorSpawner::InitNode(node_t & node, Ogre::Vector3 const & position)
 
     /* Misc. */
     node.collisionBoundingBoxID = -1; // orig = hardcoded (init_node)
-    node.wetstate = DRY; // orig = hardcoded (init_node)
 }
 
 void ActorSpawner::InitNode(
@@ -6311,20 +6094,6 @@ void ActorSpawner::ProcessGlobals(RigDef::Globals & def)
 /* Limits.
 /* -------------------------------------------------------------------------- */
 
-bool ActorSpawner::CheckHydroLimit(unsigned int count)
-{
-    SPAWNER_PROFILE_SCOPED();
-
-    if ((m_actor->ar_num_shocks + count) > MAX_HYDROS)
-    {
-        std::stringstream msg;
-        msg << "Hydro limit (" << MAX_HYDROS << ") exceeded";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return false;
-    }
-    return true;
-}
-
 bool ActorSpawner::CheckParticleLimit(unsigned int count)
 {
     SPAWNER_PROFILE_SCOPED();
@@ -6347,34 +6116,6 @@ bool ActorSpawner::CheckAxleLimit(unsigned int count)
     {
         std::stringstream msg;
         msg << "Axle limit (" << MAX_WHEELS/2 << ") exceeded";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return false;
-    }
-    return true;
-}
-
-bool ActorSpawner::CheckPropLimit(unsigned int count)
-{	
-    SPAWNER_PROFILE_SCOPED();
-
-    if ((m_actor->ar_num_props + count) > MAX_PROPS)
-    {
-        std::stringstream msg;
-        msg << "Prop limit (" << MAX_PROPS << ") exceeded";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return false;
-    }
-    return true;
-}
-
-bool ActorSpawner::CheckFlexbodyLimit(unsigned int count)
-{
-    SPAWNER_PROFILE_SCOPED();
-
-    if ((m_actor->ar_num_flexbodies + count) > MAX_FLEXBODIES)
-    {
-        std::stringstream msg;
-        msg << "Flexbody limit (" << MAX_FLEXBODIES << ") exceeded";
         AddMessage(Message::TYPE_ERROR, msg.str());
         return false;
     }
@@ -6786,9 +6527,9 @@ void ActorSpawner::UpdateCollcabContacterNodes()
     for (int i=0; i<m_actor->ar_num_collcabs; i++)
     {
         int tmpv = m_actor->ar_collcabs[i] * 3;
-        m_actor->ar_nodes[m_actor->ar_cabs[tmpv]].contacter = true;
-        m_actor->ar_nodes[m_actor->ar_cabs[tmpv+1]].contacter = true;
-        m_actor->ar_nodes[m_actor->ar_cabs[tmpv+2]].contacter = true;
+        m_actor->ar_nodes[m_actor->ar_cabs[tmpv]].nd_contacter = true;
+        m_actor->ar_nodes[m_actor->ar_cabs[tmpv+1]].nd_contacter = true;
+        m_actor->ar_nodes[m_actor->ar_cabs[tmpv+2]].nd_contacter = true;
     }
 }
 
@@ -6889,7 +6630,17 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
         RigDef::VideoCamera* videocam_def = this->FindVideoCameraByMaterial(mat_lookup_name);
         if (videocam_def != nullptr)
         {
-            Ogre::MaterialPtr video_mat_shared = RoR::OgreSubsystem::GetMaterialByName(mat_lookup_name);
+            Ogre::MaterialPtr video_mat_shared;
+            auto found_managedmat = m_managed_materials.find(mat_lookup_name);
+            if (found_managedmat != m_managed_materials.end())
+            {
+                video_mat_shared = found_managedmat->second;
+            }
+            else
+            {
+                video_mat_shared = RoR::OgreSubsystem::GetMaterialByName(mat_lookup_name);
+            }
+
             if (!video_mat_shared.isNull())
             {
                 lookup_entry.video_camera_def = videocam_def;
@@ -7027,13 +6778,19 @@ void ActorSpawner::SetupNewEntity(Ogre::Entity* ent, Ogre::ColourValue simple_co
     }
 }
 
+void ActorSpawner::CreateGfxActor()
+{
+    // Create the actor
+    m_actor->m_gfx_actor = std::unique_ptr<RoR::GfxActor>(
+        new RoR::GfxActor(m_actor, m_custom_resource_group, m_gfx_nodes, m_props, m_driverseat_prop_index));
+
+    m_actor->GetGfxActor()->UpdateSimDataBuffer(); // Initial fill (to setup flexbodies + flexbodywheels)
+}
+
 void ActorSpawner::FinalizeGfxSetup()
 {
     // Check and warn if there are unclaimed managed materials
     // TODO &*&*
-
-    // Create the actor
-    m_actor->m_gfx_actor = std::unique_ptr<RoR::GfxActor>(new RoR::GfxActor(m_actor, m_custom_resource_group));
 
     // Process special materials
     for (auto& entry: m_material_substitutions)
@@ -7059,14 +6816,6 @@ void ActorSpawner::FinalizeGfxSetup()
     if (!App::gfx_enable_videocams.GetActive())
     {
         m_actor->m_gfx_actor->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_DISABLED);
-    }
-
-    // Process "emissive cab" materials
-    if (m_actor->m_cab_entity != nullptr)
-    {
-        auto search_itor = m_material_substitutions.find(m_cab_material_name);
-        m_actor->m_gfx_actor->RegisterCabMaterial(search_itor->second.material, m_cab_trans_material);
-        m_actor->m_gfx_actor->SetCabLightsActive(false); // Reset emissive lights to "off" state
     }
 
     // Load dashboard layouts
@@ -7158,6 +6907,215 @@ void ActorSpawner::FinalizeGfxSetup()
     }
 
     m_actor->ar_dashboard->setVisible(false);
+
+    // Process rods (beam visuals)
+    for (BeamVisualsTicket& bv: m_beam_visuals_queue)
+    {
+        int node1 = m_actor->ar_beams[bv.beam_index].p1->pos;
+        int node2 = m_actor->ar_beams[bv.beam_index].p2->pos;
+        m_actor->m_gfx_actor->AddRod(bv.beam_index, node1, node2, bv.material_name.c_str(), bv.visible, bv.diameter);
+    }
+
+    //add the cab visual
+    // TODO: The 'cab mesh' functionality is a legacy quagmire, 
+    //        data are scattered across `Actor`, `GfxActor` and `FlexObj` - research and unify!! ~ only_a_ptr, 04/2018
+    if (!m_oldstyle_cab_texcoords.empty() && m_actor->ar_num_cabs>0)
+    {
+        //the cab materials are as follow:
+        //texname: base texture with emissive(2 pass) or without emissive if none available(1 pass), alpha cutting
+        //texname-trans: transparency texture (1 pass)
+        //texname-back: backface texture: black+alpha cutting (1 pass)
+        //texname-noem: base texture without emissive (1 pass), alpha cutting
+
+        //material passes must be:
+        //0: normal texture
+        //1: transparent (windows)
+        //2: emissive
+
+        Ogre::MaterialPtr mat = RoR::OgreSubsystem::GetMaterialByName(m_cab_material_name);
+        if (mat.isNull())
+        {
+            Ogre::String msg = "Material '"+m_cab_material_name+"' missing!";
+            AddMessage(Message::TYPE_ERROR, msg);
+            return;
+        }
+
+        //-trans
+        char transmatname[256];
+        sprintf(transmatname, "%s-trans", m_cab_material_name.c_str());
+        Ogre::MaterialPtr transmat=mat->clone(transmatname);
+        if (mat->getTechnique(0)->getNumPasses()>1) // If there's the "emissive pass", remove it from the 'transmat'
+        {
+            transmat->getTechnique(0)->removePass(1);
+        }
+        transmat->getTechnique(0)->getPass(0)->setAlphaRejectSettings(Ogre::CMPF_LESS_EQUAL, 128);
+        transmat->getTechnique(0)->getPass(0)->setDepthWriteEnabled(false);
+        if (transmat->getTechnique(0)->getPass(0)->getNumTextureUnitStates()>0)
+        {
+            transmat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_NONE);
+        }
+        transmat->compile();
+        m_cab_trans_material = transmat;
+
+        //-back
+        char backmatname[256];
+        sprintf(backmatname, "%s-back", m_cab_material_name.c_str());
+        Ogre::MaterialPtr backmat=mat->clone(backmatname);
+        if (mat->getTechnique(0)->getNumPasses()>1)// If there's the "emissive pass", remove it from the 'transmat'
+        {
+            backmat->getTechnique(0)->removePass(1);
+        }
+        if (transmat->getTechnique(0)->getPass(0)->getNumTextureUnitStates()>0)
+        {
+            backmat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setColourOperationEx(
+                Ogre::LBX_SOURCE1, 
+                Ogre::LBS_MANUAL, 
+                Ogre::LBS_MANUAL, 
+                Ogre::ColourValue(0,0,0),
+                Ogre::ColourValue(0,0,0)
+            );
+        }
+        if (m_actor->m_gfx_reduce_shadows)
+        {
+            backmat->setReceiveShadows(false);
+        }
+        backmat->compile();
+
+        char cab_material_name_cstr[1000] = {};
+        strncpy(cab_material_name_cstr, m_cab_material_name.c_str(), 999);
+        std::string mesh_name = this->ComposeName("VehicleCabMesh", 0);
+        FlexObj* cab_mesh =new FlexObj(
+            m_actor->m_gfx_actor.get(),
+            m_actor->ar_nodes,
+            m_oldstyle_cab_texcoords,
+            m_actor->ar_num_cabs,
+            m_actor->ar_cabs,
+            m_oldstyle_cab_submeshes,
+            cab_material_name_cstr,
+            mesh_name.c_str(),
+            backmatname,
+            transmatname
+        );
+
+        Ogre::SceneNode* cab_scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
+        Ogre::Entity *ec = nullptr;
+        try
+        {
+            ec = gEnv->sceneManager->createEntity(this->ComposeName("VehicleCabEntity", 0), mesh_name);
+            this->SetupNewEntity(ec, Ogre::ColourValue(0.5, 1, 0.5));
+            if (ec)
+            {
+                cab_scene_node->attachObject(ec);
+            }
+
+            // Process "emissive cab" materials
+            auto search_itor = m_material_substitutions.find(m_cab_material_name);
+            m_actor->m_gfx_actor->RegisterCabMaterial(search_itor->second.material, m_cab_trans_material);
+            m_actor->m_gfx_actor->SetCabLightsActive(false); // Reset emissive lights to "off" state
+
+            m_actor->GetGfxActor()->RegisterCabMesh(ec, cab_scene_node, cab_mesh);
+        }
+        catch (...)
+        {
+            this->AddMessage(Message::TYPE_ERROR, "error loading mesh: "+mesh_name);
+            // TODO: do not leak memory here! ~ 08/2018
+        }
+    };
+
+    // Process wheel visuals
+    for (WheelVisualsTicket& ticket: m_wheel_visuals_queue)
+    {
+        if (ticket.wheel_def != nullptr)
+        {
+            this->CreateWheelVisuals(
+                ticket.wheel_index,
+                ticket.base_node_index,
+                ticket.wheel_def->num_rays,
+                ticket.wheel_def->face_material_name,
+                ticket.wheel_def->band_material_name,
+                false
+                );
+        }
+        else if (ticket.wheel2_def != nullptr)
+        {
+            this->CreateWheelVisuals(
+                ticket.wheel_index,
+                ticket.base_node_index,
+                ticket.wheel2_def->num_rays,
+                ticket.wheel2_def->face_material_name,
+                ticket.wheel2_def->band_material_name,
+                true,
+                ticket.wheel2_def->rim_radius / ticket.wheel2_def->tyre_radius
+                );
+        }
+        else if (ticket.meshwheel_def != nullptr)
+        {
+            this->BuildMeshWheelVisuals(
+                ticket.wheel_index,
+                ticket.base_node_index,
+                ticket.axis_node_1,
+                ticket.axis_node_2,
+                ticket.meshwheel_def->num_rays,
+                ticket.meshwheel_def->mesh_name,
+                ticket.meshwheel_def->material_name,
+                ticket.meshwheel_def->rim_radius,
+                ticket.meshwheel_def->side != RigDef::MeshWheel::SIDE_RIGHT
+                );
+        }
+        else if (ticket.flexbodywheel_def != nullptr)
+        {
+            RigDef::FlexBodyWheel& def = *ticket.flexbodywheel_def;
+            this->BuildMeshWheelVisuals(
+                ticket.wheel_index,
+                ticket.base_node_index,
+                ticket.axis_node_1,
+                ticket.axis_node_2,
+                def.num_rays,
+                def.rim_mesh_name,
+                "tracks/trans", // Rim material name. Original parser: was hardcoded in BTS_FLEXBODYWHEELS
+                def.rim_radius,
+                def.side != RigDef::MeshWheel::SIDE_RIGHT
+                );
+
+            int num_nodes = def.num_rays * 4;
+            std::vector<unsigned int> node_indices;
+            node_indices.reserve(num_nodes);
+            for (int i = 0; i < num_nodes; ++i)
+            {
+                node_indices.push_back( ticket.base_node_index + i );
+            }
+
+            RigDef::Flexbody flexbody_def;
+            flexbody_def.mesh_name = def.tyre_mesh_name;
+            flexbody_def.offset = Ogre::Vector3(0.5,0,0);
+
+            try
+            {
+                auto* flexbody = m_flex_factory.CreateFlexBody(
+                    &flexbody_def,
+                    ticket.axis_node_1,
+                    ticket.axis_node_2,
+                    static_cast<int>(ticket.base_node_index),
+                    Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3::UNIT_Y),
+                    node_indices
+                    );
+
+                if (flexbody == nullptr)
+                    return; // Error already logged
+
+                this->CreateWheelSkidmarks(static_cast<unsigned>(ticket.wheel_index));
+
+                m_actor->GetGfxActor()->AddFlexbody(flexbody);
+            }
+            catch (Ogre::Exception& e)
+            {
+                this->AddMessage(Message::TYPE_ERROR, 
+                    "Failed to create flexbodywheel visuals '" + def.tyre_mesh_name + "', reason:" + e.getFullDescription());
+            }
+        }
+    }
+
+    m_actor->GetGfxActor()->RegisterAirbrakes();
 }
 
 Ogre::ManualObject* CreateVideocameraDebugMesh()
@@ -7227,9 +7185,9 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
             return;
         }
 
-        vcam.vcam_node_center = &this->GetNodeOrThrow(def->reference_node);
-        vcam.vcam_node_dir_y  = &this->GetNodeOrThrow(def->bottom_node);
-        vcam.vcam_node_dir_z  = &this->GetNodeOrThrow(def->left_node);
+        vcam.vcam_node_center = static_cast<uint16_t>(this->GetNodeOrThrow(def->reference_node).pos);
+        vcam.vcam_node_dir_y  = static_cast<uint16_t>(this->GetNodeOrThrow(def->bottom_node).pos);
+        vcam.vcam_node_dir_z  = static_cast<uint16_t>(this->GetNodeOrThrow(def->left_node).pos);
         vcam.vcam_pos_offset  = def->offset;
 
         //rotate camera picture 180 degrees, skip for mirrors
@@ -7240,16 +7198,21 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
             * Ogre::Quaternion(Ogre::Degree(def->rotation.x), Ogre::Vector3::UNIT_X);
 
         // set alternative camposition (optional)
-        vcam.vcam_node_alt_pos = &this->GetNodeOrThrow(
-            def->alt_reference_node.IsValidAnyState() ? def->alt_reference_node : def->reference_node);
+        if (def->alt_reference_node.IsValidAnyState())
+        {
+            vcam.vcam_node_alt_pos = static_cast<uint16_t>(this->GetNodeOrThrow(def->alt_reference_node).pos);
+        }
+        else
+        {
+            vcam.vcam_node_alt_pos = vcam.vcam_node_center;
+        }
 
         // set alternative lookat position (optional)
-        vcam.vcam_node_lookat = nullptr;
         if (def->alt_orientation_node.IsValidAnyState())
         {
             // This is a tracker camera
             vcam.vcam_type = GfxActor::VideoCamType::VCTYPE_TRACKING_VIDEOCAM;
-            vcam.vcam_node_lookat = &this->GetNodeOrThrow(def->alt_orientation_node);
+            vcam.vcam_node_lookat = static_cast<uint16_t>(this->GetNodeOrThrow(def->alt_orientation_node).pos);
         }
 
         // TODO: Eliminate gEnv

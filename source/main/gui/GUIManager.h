@@ -66,7 +66,6 @@ public:
     // GUI SetVisible*()
     void SetVisible_GameMainMenu        (bool visible);
     void SetVisible_GameAbout           (bool visible);
-    void SetVisible_GamePauseMenu       (bool visible);
     void SetVisible_GameSettings        (bool visible);
     void SetVisible_DebugOptions        (bool visible);
     void SetVisible_MultiplayerSelector (bool visible);
@@ -78,13 +77,11 @@ public:
     void SetVisible_TextureToolWindow   (bool visible);
     void SetVisible_TeleportWindow      (bool visible);
     void SetVisible_LoadingWindow       (bool visible);
-    void SetVisible_TopMenubar          (bool visible);
     void SetVisible_Console             (bool visible);
 
     // GUI IsVisible*()
     bool IsVisible_GameMainMenu         ();
     bool IsVisible_GameAbout            ();
-    bool IsVisible_GamePauseMenu        ();
     bool IsVisible_GameSettings         ();
     bool IsVisible_DebugOptions         ();
     bool IsVisible_MessageBox           ();
@@ -98,12 +95,13 @@ public:
     bool IsVisible_TextureToolWindow    ();
     bool IsVisible_TeleportWindow       ();
     bool IsVisible_LoadingWindow        ();
-    bool IsVisible_TopMenubar           ();
     bool IsVisible_Console              ();
 
     // GUI GetInstance*()
     Console* GetConsole();
     GUI::MainSelector* GetMainSelector();
+    GUI::GameMainMenu* GetMainMenu();
+    GUI::GamePauseMenu* GetPauseMenu();
     GUI::LoadingWindow* GetLoadingWindow();
     GUI::MpClientList* GetMpClientList();
     GUI::MultiplayerSelector* GetMpSelector();
@@ -114,27 +112,19 @@ public:
 
     // GUI manipulation
     void pushMessageChatBox(Ogre::String txt);
-    void ShowMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1, Ogre::String mButton1, bool AllowClose, bool button2, Ogre::String mButton2);
-    void UpdateMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1, Ogre::String mButton1, bool AllowClose, bool button2, Ogre::String mButton2, bool IsVisible);
+    void ShowMessageBox(const char* title, const char* text, bool allow_close = true, const char* btn1_text = "OK", const char* btn2_text = nullptr);
     void UnfocusGui();
     void PushNotification(Ogre::String Title, Ogre::UTFString text);
     void HideNotification();
     void CenterSpawnerReportWindow();
-    void AdjustPauseMenuPosition();
-    void AdjustMainMenuPosition();
 
     void UpdateSimUtils(float dt, Actor* truck);
-    void FrameStepGui(float dt);
     void NewImGuiFrame(float dt);
     void DrawMainMenuGui();
+    void DrawSimulationGui(float dt);
 
-    int getMessageBoxResult(); //TODO
     void DrawMpConnectingStatusBox();
-    void InitMainSelector(RoR::SkinManager* skin_manager);
-
     void hideGUI(bool visible);
-
-    void destroy();
 
     void windowResized(Ogre::RenderWindow* rw);
 

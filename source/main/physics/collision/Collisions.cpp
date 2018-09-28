@@ -1151,7 +1151,7 @@ bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, float* ns
     }
     // correct relative position too
     if (contacted) node->RelPosition=node->RelPosition+(node->AbsPosition-oripos);
-    node->contacted=contacted;
+    node->nd_has_contact=contacted;
     return smoky;
 }
 

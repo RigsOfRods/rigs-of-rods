@@ -33,6 +33,7 @@
 #include "BeamData.h"
 #include "FlexFactory.h"
 #include "FlexObj.h"
+#include "GfxActor.h"
 
 #include <OgreString.h>
 #include <string>
@@ -213,6 +214,53 @@ private:
         size_t num_rotators;
         size_t num_wings;
         // ... more to come ...
+    };
+
+    struct BeamVisualsTicket //!< Visuals are queued for processing using this struct
+    {
+        BeamVisualsTicket(int idx, float diam, const char* mtr=nullptr, bool vis=true):
+            beam_index(idx), diameter(diam), material_name(mtr), visible(vis)
+        {}
+
+        int beam_index;
+        std::string material_name; // TODO: how does std::string behave when parent struct is re-allocated within std::vector?  ;)
+        float diameter;
+        bool visible; // Some beams are spawned as hidden (ties, hooks) and displayed only when activated
+    };
+
+    struct WheelVisualsTicket //!< Wheel visuals are queued for processing using this struct
+    {
+        WheelVisualsTicket(uint16_t wheel_idx, uint16_t node_idx, RigDef::Wheel* def):
+            wheel_index(wheel_idx), base_node_index(node_idx),
+            wheel_def(def), wheel2_def(nullptr), meshwheel_def(nullptr), flexbodywheel_def(nullptr)
+        {}
+
+        WheelVisualsTicket(uint16_t wheel_idx, uint16_t node_idx, RigDef::Wheel2* def):
+            wheel_index(wheel_idx), base_node_index(node_idx),
+            wheel_def(nullptr), wheel2_def(def), meshwheel_def(nullptr), flexbodywheel_def(nullptr)
+        {}
+
+        WheelVisualsTicket(uint16_t wheel_idx, uint16_t node_idx, RigDef::MeshWheel* def, uint16_t axis1, uint16_t axis2):
+            wheel_index(wheel_idx), base_node_index(node_idx),
+            wheel_def(nullptr), wheel2_def(nullptr), meshwheel_def(def), flexbodywheel_def(nullptr),
+            axis_node_1(axis1), axis_node_2(axis2)
+        {}
+
+        WheelVisualsTicket(uint16_t wheel_idx, uint16_t node_idx, RigDef::FlexBodyWheel* def, uint16_t axis1, uint16_t axis2):
+            wheel_index(wheel_idx), base_node_index(node_idx),
+            wheel_def(nullptr), wheel2_def(nullptr), meshwheel_def(nullptr), flexbodywheel_def(def),
+            axis_node_1(axis1), axis_node_2(axis2)
+        {}
+
+        RigDef::Wheel*         wheel_def;
+        RigDef::Wheel2*        wheel2_def;
+        RigDef::MeshWheel*     meshwheel_def;
+        RigDef::FlexBodyWheel* flexbodywheel_def;
+
+        uint16_t               wheel_index;
+        uint16_t               base_node_index;
+        uint16_t               axis_node_1;
+        uint16_t               axis_node_2;
     };
 
 /* -------------------------------------------------------------------------- */
@@ -538,15 +586,6 @@ private:
     );
 
     /**
-    * Adds visuals to wheel from section 'wheels'.
-    */
-    void CreateWheelVisuals(
-        unsigned int wheel_index, 
-        RigDef::Wheel & wheel_def, 
-        unsigned int node_base_index
-    );
-
-    /**
     * Adds complete wheel (section 'wheels') to the rig.
     * @return wheel index in rig_t::wheels array.
     */
@@ -558,7 +597,7 @@ private:
     */
     unsigned int AddWheel2(RigDef::Wheel2 & wheel_2_def);
 
-    void CreateBeamVisuals(beam_t & beam, int beam_index, std::shared_ptr<RigDef::BeamDefaults> beam_defaults);
+    void CreateBeamVisuals(beam_t const& beam, int beam_index, bool visible, std::shared_ptr<RigDef::BeamDefaults> const& beam_defaults);
 
     RailGroup *CreateRail(std::vector<RigDef::Node::Range> & node_ranges);
 
@@ -569,13 +608,6 @@ private:
 /* -------------------------------------------------------------------------- */
 /* Limits.                                                                    */
 /* -------------------------------------------------------------------------- */
-
-    /**
-    * Checks there is still space left in rig_t::hydro array.
-    * @param count Required number of free slots.
-    * @return True if there is space left.
-    */
-    bool CheckHydroLimit(unsigned int count);
 
     /**
     * Checks there is still space left in rig_t::ar_custom_particles array.
@@ -590,20 +622,6 @@ private:
     * @return True if there is space left.
     */
     bool CheckAxleLimit(unsigned int count);
-
-    /**
-    * Checks there is still space left in rig_t::props array.
-    * @param count Required number of free slots.
-    * @return True if there is space left.
-    */
-    bool CheckPropLimit(unsigned int count);
-
-    /**
-    * Checks there is still space left in rig_t::flexbodies array.
-    * @param count Required number of free slots.
-    * @return True if there is space left.
-    */
-    bool CheckFlexbodyLimit(unsigned int count);
 
     /**
     * Checks there is still space left in rig_t::subtexcoords, rig_t::subcabs and rig_t::subisback arrays.
@@ -844,7 +862,7 @@ private:
     int FindLowestNodeInRig();
 
     /**
-    * Finds node (contactless == false) with lowest Y in spawned rig.
+    * Finds node (nd_no_ground_contact == false) with lowest Y in spawned rig.
     */
     int FindLowestContactingNodeInRig();
 
@@ -890,11 +908,6 @@ private:
     void CreateWheelSkidmarks(unsigned int wheel_index);
 
     /**
-    * Adds visuals to 'wheels2' wheel.
-    */
-    void CreateWheelVisuals(unsigned int wheel_index, RigDef::Wheel2 & wheel_2_def, unsigned int node_base_index);
-
-    /**
     * Performs full material setup for a new entity.
     * RULE: Each actor must have it's own material instances (a lookup table is kept for OrigName->CustomName)
     *
@@ -913,6 +926,8 @@ private:
     *   9. Material is added to lookup table, processing ends.
     */
     void SetupNewEntity(Ogre::Entity* e, Ogre::ColourValue simple_color);
+
+    void CreateGfxActor();
 
     /**
     * Factory of GfxActor; invoke after all gfx setup was done.
@@ -987,7 +1002,7 @@ private:
         std::shared_ptr<RigDef::BeamDefaults> beam_defaults,
         float max_contraction = -1.f,
         float max_extension = -1.f,
-        int type = BEAM_INVISIBLE /* Anonymous enum in BeamData.h */
+        int type = BEAM_NORMAL /* Anonymous enum in BeamData.h */
     );
 
     /**
@@ -1067,7 +1082,7 @@ private:
     int                m_airplane_right_light;
     RoR::FlexFactory   m_flex_factory;
     Ogre::MaterialPtr  m_placeholder_managedmat;
-    Ogre::SceneNode*   m_parent_scene_node;
+    Ogre::SceneNode*   m_particles_parent_scenenode;
     Ogre::MaterialPtr  m_cab_trans_material;
     Ogre::MaterialPtr  m_simple_material_base;
     float              m_fuse_z_min;
@@ -1077,13 +1092,17 @@ private:
     bool               m_generate_wing_position_lights;
     int                m_first_wing_index;
     Ogre::SceneNode*   m_curr_mirror_prop_scenenode;
+    std::vector<prop_t>       m_props;
+    int                       m_driverseat_prop_index;
     std::vector<CabTexcoord>  m_oldstyle_cab_texcoords;
     std::vector<CabSubmesh>   m_oldstyle_cab_submeshes;
-
+    std::vector<RoR::GfxActor::NodeGfx> m_gfx_nodes;
     CustomMaterial::MirrorPropType         m_curr_mirror_prop_type;
     std::shared_ptr<RigDef::File>          m_file; //!< The parsed input file.
     std::map<Ogre::String, unsigned int>   m_named_nodes;
     std::map<std::string, CustomMaterial>  m_material_substitutions; //!< Maps original material names (shared) to their actor-specific substitutes; There's 1 substitute per 1 material, regardless of user count.
+    std::vector<BeamVisualsTicket>         m_beam_visuals_queue; //!< We want to spawn visuals asynchronously in the future
+    std::vector<WheelVisualsTicket>        m_wheel_visuals_queue; //!< We want to spawn visuals asynchronously in the future
     std::map<std::string, Ogre::MaterialPtr>  m_managed_materials;
     std::list<std::shared_ptr<RigDef::File::Module>>  m_selected_modules;
 

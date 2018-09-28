@@ -35,7 +35,7 @@ class SurveyMapManager : public wraps::BaseLayout
 {
 public:
 
-    SurveyMapManager();
+    SurveyMapManager(Ogre::Vector3 terrain_size);
     ~SurveyMapManager();
 
     SurveyMapEntity* createMapEntity(Ogre::String type);
@@ -84,7 +84,7 @@ public:
         SURVEY_MAP_END
     };
 
-    void          UpdateVehicles(Actor** vehicles, int num_vehicles);
+    void          UpdateActorMapEntry(int actor_id, Ogre::Vector3 pos, float angle);
     std::string   GetMinimapTextureName();
 
 protected:

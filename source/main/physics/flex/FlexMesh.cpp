@@ -25,12 +25,13 @@
 
 #include "ApproxMath.h"
 #include "BeamData.h"
+#include "GfxActor.h"
 
 using namespace Ogre;
 
 FlexMesh::FlexMesh(
     Ogre::String const & name, 
-    node_t *nds, 
+    RoR::GfxActor* gfx_actor,
     int n1, 
     int n2, 
     int nstart, 
@@ -42,7 +43,7 @@ FlexMesh::FlexMesh(
 ) :
       m_is_rimmed(rimmed)
     , m_num_rays(nrays)
-    , m_all_nodes(nds)
+    , m_gfx_actor(gfx_actor)
 {
     // Create the mesh via the MeshManager
     m_mesh = MeshManager::getSingleton().createManual(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
@@ -243,36 +244,37 @@ FlexMesh::~FlexMesh()
 
 Vector3 FlexMesh::updateVertices()
 {
-    Vector3 center = (m_all_nodes[m_vertex_nodes[0]].AbsPosition + m_all_nodes[m_vertex_nodes[1]].AbsPosition) / 2.0;
+    RoR::GfxActor::NodeData* all_nodes = m_gfx_actor->GetSimNodeBuffer();
+    Vector3 center = (all_nodes[m_vertex_nodes[0]].AbsPosition + all_nodes[m_vertex_nodes[1]].AbsPosition) / 2.0;
 
     //optimization possible here : just copy bands on face
 
-    m_vertices[0].position=m_all_nodes[m_vertex_nodes[0]].AbsPosition-center;
+    m_vertices[0].position=all_nodes[m_vertex_nodes[0]].AbsPosition-center;
     //normals
-    m_vertices[0].normal=approx_normalise(m_all_nodes[m_vertex_nodes[0]].AbsPosition-m_all_nodes[m_vertex_nodes[1]].AbsPosition);
+    m_vertices[0].normal=approx_normalise(all_nodes[m_vertex_nodes[0]].AbsPosition-all_nodes[m_vertex_nodes[1]].AbsPosition);
 
-    m_vertices[1].position=m_all_nodes[m_vertex_nodes[1]].AbsPosition-center;
+    m_vertices[1].position=all_nodes[m_vertex_nodes[1]].AbsPosition-center;
     //normals
     m_vertices[1].normal=-m_vertices[0].normal;
 
     for (int i=0; i<m_num_rays*2; i++)
     {
-        m_vertices[2+i].position=m_all_nodes[m_vertex_nodes[2+i]].AbsPosition-center;
+        m_vertices[2+i].position=all_nodes[m_vertex_nodes[2+i]].AbsPosition-center;
         //normals
         if ((i%2)==0)
         {
-            m_vertices[2+i].normal=approx_normalise(m_all_nodes[m_vertex_nodes[0]].AbsPosition-m_all_nodes[m_vertex_nodes[1]].AbsPosition);
+            m_vertices[2+i].normal=approx_normalise(all_nodes[m_vertex_nodes[0]].AbsPosition-all_nodes[m_vertex_nodes[1]].AbsPosition);
         } else
         {
             m_vertices[2+i].normal=-m_vertices[2+i-1].normal;
         }
         if (m_is_rimmed)
         {
-            m_vertices[2+4*m_num_rays+i].position=m_all_nodes[m_vertex_nodes[2+4*m_num_rays+i]].AbsPosition-center;
+            m_vertices[2+4*m_num_rays+i].position=all_nodes[m_vertex_nodes[2+4*m_num_rays+i]].AbsPosition-center;
             //normals
             if ((i%2)==0)
             {
-                m_vertices[2+4*m_num_rays+i].normal=approx_normalise(m_all_nodes[m_vertex_nodes[2+4*m_num_rays+i]].AbsPosition-m_all_nodes[m_vertex_nodes[2+4*m_num_rays+i+1]].AbsPosition);
+                m_vertices[2+4*m_num_rays+i].normal=approx_normalise(all_nodes[m_vertex_nodes[2+4*m_num_rays+i]].AbsPosition-all_nodes[m_vertex_nodes[2+4*m_num_rays+i+1]].AbsPosition);
             } else
             {
                 m_vertices[2+4*m_num_rays+i].normal=-m_vertices[2+4*m_num_rays+i-1].normal;

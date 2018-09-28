@@ -584,3 +584,9 @@ const Ogre::LightList& OgreImGui::ImGUIRenderable::getLights(void) const
     static const Ogre::LightList light_list;
     return light_list;
 }
+
+bool OgreImGui::frameRenderingQueued(const Ogre::FrameEvent& evt)
+{
+    this->Render();
+    return true;
+}

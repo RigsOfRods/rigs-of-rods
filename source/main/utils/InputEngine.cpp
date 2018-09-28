@@ -290,30 +290,6 @@ eventInfo_t eventInfo[] = {
         _L("rotate camera up")
     },
     {
-        "CAMERA_SWIVEL_DOWN",
-        EV_CAMERA_SWIVEL_DOWN,
-        "Keyboard CTRL+NUMPAD2",
-        _L("swivel camera down")
-    },
-    {
-        "CAMERA_SWIVEL_LEFT",
-        EV_CAMERA_SWIVEL_LEFT,
-        "Keyboard CTRL+NUMPAD4",
-        _L("swivel camera left")
-    },
-    {
-        "CAMERA_SWIVEL_RIGHT",
-        EV_CAMERA_SWIVEL_RIGHT,
-        "Keyboard CTRL+NUMPAD6",
-        _L("swivel camera right")
-    },
-    {
-        "CAMERA_SWIVEL_UP",
-        EV_CAMERA_SWIVEL_UP,
-        "Keyboard CTRL+NUMPAD8",
-        _L("swivel camera up")
-    },
-    {
         "CAMERA_ZOOM_IN",
         EV_CAMERA_ZOOM_IN,
         "Keyboard EXPL+NUMPAD9",
@@ -1052,7 +1028,7 @@ eventInfo_t eventInfo[] = {
         _L("tie a load to the truck")
     },
     {
-        "COMMON_SHOW_SKELETON",
+        "COMMON_SHOW_SKELETON", // TODO: rename. Re-purposed to cycle debug view
         EV_COMMON_SHOW_SKELETON,
         "Keyboard K",
         _L("toggle skeleton display mode")

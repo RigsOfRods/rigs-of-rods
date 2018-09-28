@@ -27,7 +27,6 @@
 #include "RoRPrerequisites.h"
 
 #include "Beam.h"
-#include "DustManager.h" // Particle systems manager
 #include "Network.h"
 #include "Singleton.h"
 
@@ -64,7 +63,6 @@ public:
     void           UpdateActors(Actor* player_actor, float dt);
     void           SyncWithSimThread();
     void           UpdatePhysicsSimulation();
-    void           UpdateActorVisuals(float dt, Actor* player_actor); // TODO: This should be done by GfxActor
     void           WakeUpAllActors();
     void           SendAllActorsSleeping();
     int            CheckNetworkStreamsOk(int sourceid);
@@ -73,13 +71,8 @@ public:
     void           RecalcGravityMasses();
     void           MuteAllActors();
     void           UnmuteAllActors();
-    void           JoinFlexbodyTasks(); /// Waits until all flexbody tasks are finished, but does not update the hardware buffers
-    void           UpdateFlexbodiesPrepare();
-    void           UpdateFlexbodiesFinal();
-    DustManager&   GetParticleManager()                    { return m_particle_manager; }
     void           SetTrucksForcedAwake(bool forced)       { m_forced_awake = forced; };
-    int            GetNumUsedActorSlots() const            { return m_free_actor_slot; }; // TODO: Tasks requiring search over all actors should be done internally. ~ only_a_ptr, 01/2018
-    Actor**        GetInternalActorSlots()                 { return m_actors; }; // TODO: Tasks requiring search over all actors should be done internally. ~ only_a_ptr, 01/2018
+    bool           AreTrucksForcedAwake() const            { return m_forced_awake; }
     void           SetSimulationSpeed(float speed)         { m_simulation_speed = std::max(0.0f, speed); };
     float          GetSimulationSpeed() const              { return m_simulation_speed; };
     Actor*         FetchNextVehicleOnList(Actor* player, Actor* prev_player);
@@ -89,9 +82,9 @@ public:
     Actor*         GetActorByNetworkLinks(int source_id, int stream_id); // used by character
     void           RepairActor(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box, bool keepPosition = false);
     void           UpdateSleepingState(Actor* player_actor, float dt);
-    void           RemoveActorByCollisionBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box); //!< Only for scripting
-    void           RemoveActorInternal(int actor_id); //!< DO NOT CALL DIRECTLY! Use `SimController` for public interface
-    Actor*         GetActorByIdInternal(int number); //!< DO NOT CALL DIRECTLY! Use `SimController` for public interface
+    void           DeleteActorInternal(Actor* b);      //!< DO NOT CALL DIRECTLY! Use `SimController` for public interface
+    Actor*         GetActorByIdInternal(int actor_id); //!< DO NOT CALL DIRECTLY! Use `SimController` for public interface
+    Actor*         FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
 
 #ifdef USE_SOCKETW
     void           HandleActorStreamData(std::vector<RoR::Networking::recv_packet_t> packet);
@@ -101,6 +94,8 @@ public:
     void           AddRef() {};  // we have to add this to be able to use the class as reference inside scripts
     void           Release() {};
 #endif
+
+    std::vector<Actor*> GetActors() const                  { return m_actors; };
 
     // A list of all beams interconnecting two actors
     std::map<beam_t*, std::pair<Actor*, Actor*>> inter_actor_links;
@@ -124,25 +119,21 @@ private:
     void           RemoveStreamSource(int sourceid);
     void           LogParserMessages();
     void           LogSpawnerMessages();
-    void           RecursiveActivation(int j, std::bitset<MAX_ACTORS>& visited);
-    int            GetFreeActorSlot();
-    int            FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
-    void           DeleteActorInternal(Actor* b);
+    int            GetActorIndex(Actor* actor);         //!< Returns the m_actors index of the actor (-1 if not found)
+    void           RecursiveActivation(int j, std::vector<bool>& visited);
     std::shared_ptr<RigDef::File>   FetchActorDef(const char* filename, bool predefined_on_terrain = false);
 
     std::map<std::string, std::shared_ptr<RigDef::File>>   m_actor_defs;
     std::map<int, std::vector<int>> m_stream_mismatches; //!< Networking: A list of streams without a corresponding actor in the actor-array for each stream source
     std::unique_ptr<ThreadPool>     m_sim_thread_pool;
     std::shared_ptr<Task>           m_sim_task;
-    int             m_num_cpu_cores;
-    Actor*          m_actors[MAX_ACTORS];//!< All actors; slots are not reused
-    int             m_free_actor_slot;   //!< Slots are not reused
+    std::vector<Actor*>             m_actors;
     bool            m_forced_awake;      //!< disables sleep counters
     unsigned long   m_physics_frames;
     int             m_physics_steps;
     float           m_dt_remainder;     ///< Keeps track of the rounding error in the time step calculation
     float           m_simulation_speed; ///< slow motion < 1.0 < fast motion
-    DustManager     m_particle_manager;
+    int             m_actor_counter;    ///< Used to generate unique actor ids
 };
 
 } // namespace RoR

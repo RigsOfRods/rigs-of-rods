@@ -31,7 +31,7 @@ public:
     DustPool(Ogre::SceneManager* sm, const char* dname, int dsize);
     ~DustPool();
 
-	void Discard(Ogre::SceneManager* sm);
+    void Discard(Ogre::SceneManager* sm);
 
     void setVisible(bool s);
     //Dust
@@ -74,12 +74,9 @@ protected:
     Ogre::SceneNode* sns[MAX_DUSTS];
     Ogre::Vector3 positions[MAX_DUSTS];
     Ogre::Vector3 velocities[MAX_DUSTS];
-    bool visible[MAX_DUSTS];
     float rates[MAX_DUSTS];
     int allocated;
     int size;
     int types[MAX_DUSTS];
-	bool m_is_discarded;
-
-    std::mutex m_allocation_mutex;
+    bool m_is_discarded;
 };

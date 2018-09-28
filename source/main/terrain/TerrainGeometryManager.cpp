@@ -142,7 +142,10 @@ TerrainGeometryManager::TerrainGeometryManager(TerrainManager* terrainManager)
 
 TerrainGeometryManager::~TerrainGeometryManager()
 {
-    m_ogre_terrain_group->removeAllTerrains();
+    if (m_ogre_terrain_group != nullptr)
+    {
+        m_ogre_terrain_group->removeAllTerrains();
+    }
 }
 
 /// @author Ported from OGRE engine, www.ogre3d.org, file OgreTerrain.cpp
@@ -276,35 +279,62 @@ Ogre::Vector3 TerrainGeometryManager::getNormalAt(float x, float y, float z, flo
     return down;
 }
 
-void TerrainGeometryManager::InitTerrain(std::string otc_filename)
+bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
 {
+    OTCParser otc_parser;
+
+    // Load main *.otc file
     try
     {
-        OTCParser otc_parser;
         DataStreamPtr ds_config = ResourceGroupManager::getSingleton().openResource(otc_filename);
-        otc_parser.LoadMasterConfig(ds_config, otc_filename.c_str());
-
-        for (OTCPage& page : otc_parser.GetDefinition()->pages)
+        if (ds_config.isNull() || !ds_config->isReadable())
         {
-            if (page.pageconf_filename.empty())
-                continue;
+            RoR::LogFormat("[RoR|Terrain] Cannot read main *.otc file [%s].", otc_filename.c_str());
+            return false;
+        }
+        if (!otc_parser.LoadMasterConfig(ds_config, otc_filename.c_str()))
+        {
+            return false; // Error already reported
+        }
+    }
+    catch (...)
+    {
+        terrainManager->HandleException("Error reading main *.otc file");
+        return false;
+    }
 
+    // Load *.otc files for pages
+    for (OTCPage& page : otc_parser.GetDefinition()->pages)
+    {
+        if (page.pageconf_filename.empty())
+        {
+            continue; // For backwards compatibility.
+        }
+
+        try
+        {
             DataStreamPtr ds_page = ResourceGroupManager::getSingleton().openResource(page.pageconf_filename);
             if (ds_page.isNull() || !ds_page->isReadable())
             {
-                LOG("[RoR|Terrain] Cannot read file [" + page.pageconf_filename + "].");
-                continue;
+                RoR::LogFormat("[RoR|Terrain] Cannot read file [%s].", page.pageconf_filename.c_str());
+                return false;
             }
 
-            otc_parser.LoadPageConfig(ds_page, page, page.pageconf_filename.c_str());
+            // NOTE: Empty file is accepted (leaving all values to defaults) for backwards compatibility.
+            if (!otc_parser.LoadPageConfig(ds_page, page, page.pageconf_filename.c_str()))
+            {
+                return false; // Error already logged
+            }
         }
+        catch (...)
+        {
+            terrainManager->HandleException("Error reading page config *.otc file");
+            // If we stop parsing we might break some legacy maps
+            // return false;
+        }
+    }
 
-        m_spec = otc_parser.GetDefinition();
-    }
-    catch(...) // Error already reported
-    {
-        return;
-    }
+    m_spec = otc_parser.GetDefinition();
 
     const std::string cache_filename_format = m_spec->cache_filename_base + "_OGRE_" + TOSTRING(OGRE_VERSION) + "_";
 
@@ -367,6 +397,7 @@ void TerrainGeometryManager::InitTerrain(std::string otc_filename)
     }
 
     m_ogre_terrain_group->freeTemporaryResources();
+    return true;
 }
 
 void TerrainGeometryManager::updateLightMap()
@@ -389,7 +420,7 @@ void TerrainGeometryManager::updateLightMap()
 
 void TerrainGeometryManager::UpdateMainLightPosition()
 {
-    Light* light = App::GetSimTerrain()->getMainLight();
+    Light* light = terrainManager->getMainLight();
     TerrainGlobalOptions* terrainOptions = TerrainGlobalOptions::getSingletonPtr();
     if (light)
     {
@@ -421,7 +452,7 @@ void TerrainGeometryManager::configureTerrainDefaults()
     terrainOptions->setMaxPixelError(m_spec->max_pixel_error);
 
     // Important to set these so that the terrain knows what to use for derived (non-realtime) data
-    Light* light = App::GetSimTerrain()->getMainLight();
+    Light* light = terrainManager->getMainLight();
     if (light)
     {
         terrainOptions->setLightMapDirection(light->getDerivedDirection());

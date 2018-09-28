@@ -56,7 +56,7 @@ public:
     );
     ~Turboprop();
 
-    void updateVisuals();
+    void updateVisuals(RoR::GfxActor* gfx_actor) override;
     void updateForces(float dt, int doUpdate);
 
     void setThrottle(float val);
@@ -68,10 +68,6 @@ public:
     void toggleReverse();
 
     void flipStart();
-
-    void addPale(Ogre::SceneNode* sn);
-
-    void addSpinner(Ogre::SceneNode* sn);
 
     float getRPM() { return rpm; };
     float getRPMpc() { return rpm / 10.0f; };
@@ -106,9 +102,6 @@ private:
     float pitchspeed;
     float maxrevpitch;
     float regspeed;
-    Ogre::SceneNode* vspinner;
-    Ogre::SceneNode* vpales[4];
-    int free_vpale;
     Ogre::ParticleSystem* smokePS;
     Ogre::ParticleSystem* heathazePS;
     Ogre::SceneNode* smokeNode;

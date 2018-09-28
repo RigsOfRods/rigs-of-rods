@@ -24,6 +24,7 @@
 #include <Ogre.h>
 
 #include "BeamData.h"
+#include "GfxActor.h"
 #include "SoundScriptManager.h"
 
 using namespace Ogre;
@@ -132,14 +133,16 @@ Turbojet::~Turbojet()
     }
 }
 
-void Turbojet::updateVisuals()
+void Turbojet::updateVisuals(RoR::GfxActor* gfx_actor)
 {
+    RoR::GfxActor::NodeData* node_buf = gfx_actor->GetSimNodeBuffer();
+
     //nozzle
-    nzsnode->setPosition(nodes[nodeback].AbsPosition);
+    nzsnode->setPosition(node_buf[nodeback].AbsPosition);
     //build a local system
-    Vector3 laxis = nodes[nodefront].RelPosition - nodes[nodeback].RelPosition;
+    Vector3 laxis = node_buf[nodefront].AbsPosition - node_buf[nodeback].AbsPosition;
     laxis.normalise();
-    Vector3 paxis = Plane(laxis, 0).projectVector(nodes[noderef].RelPosition - nodes[nodeback].RelPosition);
+    Vector3 paxis = Plane(laxis, 0).projectVector(node_buf[noderef].AbsPosition - node_buf[nodeback].AbsPosition);
     paxis.normalise();
     Vector3 taxis = laxis.crossProduct(paxis);
     Quaternion dir = Quaternion(laxis, paxis, taxis);
@@ -151,7 +154,7 @@ void Turbojet::updateVisuals()
         float flamelength = (afterburnthrust / 15.0) * (rpm / 100.0);
         flamelength = flamelength * (1.0 + (((Real)rand() / (Real)RAND_MAX) - 0.5) / 10.0);
         absnode->setScale(flamelength, radius * 2.0, radius * 2.0);
-        absnode->setPosition(nodes[nodeback].AbsPosition + dir * Vector3(-0.2, 0.0, 0.0));
+        absnode->setPosition(node_buf[nodeback].AbsPosition + dir * Vector3(-0.2, 0.0, 0.0));
         absnode->setOrientation(dir);
     }
     else
@@ -159,7 +162,7 @@ void Turbojet::updateVisuals()
     //smoke
     if (smokeNode)
     {
-        smokeNode->setPosition(nodes[nodeback].AbsPosition);
+        smokeNode->setPosition(node_buf[nodeback].AbsPosition);
         ParticleEmitter* emit = smokePS->getEmitter(0);
         ParticleEmitter* hemit = 0;
         if (heathazePS)

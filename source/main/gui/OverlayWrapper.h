@@ -62,18 +62,21 @@ public:
     float mTimeUntilNextToggle;
 
     void SetupDirectionArrow();
-    void UpdateDirectionArrow(Actor* vehicle, Ogre::Vector3 const & point_to);
+    void UpdateDirectionArrowHud(RoR::GfxActor* player_vehicle, Ogre::Vector3 point_to, Ogre::Vector3 character_pos);
     void HideDirectionOverlay();
     void ShowDirectionOverlay(Ogre::String const & caption);
+    bool IsDirectionArrowVisible() const { return BITMASK_IS_1(m_visible_overlays, VisibleOverlays::DIRECTION_ARROW); }
 
-    void UpdatePressureTexture(float pressure);
+    void UpdatePressureTexture(RoR::GfxActor* ga);
 
-    void UpdateLandVehicleHUD(Actor * vehicle);
-    void UpdateAerialHUD(Actor * vehicle);
+    void UpdateLandVehicleHUD(RoR::GfxActor* ga);
+    void UpdateAerialHUD(RoR::GfxActor* ga);
     void UpdateMarineHUD(Actor * vehicle);
 
     void ShowRacingOverlay();
     void HideRacingOverlay();
+    void RaceEnded(float best_time);
+    void UpdateRacingGui(RoR::GfxScene* gs);
 
     /// Hides all overlays, but doesn't change visibility flags (for further restoring).
     void TemporarilyHideAllOverlays(Actor *current_vehicle);
@@ -90,7 +93,6 @@ protected:
     {
         static const int DIRECTION_ARROW              = BITMASK(1);
         static const int DEBUG_FPS_MEMORY             = BITMASK(2);
-        static const int DEBUG_BEAM_TIMING            = BITMASK(3);
         static const int RACING                       = BITMASK(4);
         static const int TRUCK_TIRE_PRESSURE_OVERLAY  = BITMASK(5);
     };
@@ -127,7 +129,6 @@ protected:
     // Misc
     Ogre::Overlay *m_direction_arrow_overlay;
     Ogre::Overlay *m_debug_fps_memory_overlay;
-    Ogre::Overlay *m_debug_beam_timing_overlay;	
     Ogre::Overlay *m_racing_overlay;
 
     // -------------------------------------------------------------

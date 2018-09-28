@@ -22,11 +22,13 @@
 #pragma once
 
 #include "BeamFactory.h"
+#include "CameraManager.h" // enum CameraManager::CameraBehaviors
 #include "CharacterFactory.h"
+#include "DustManager.h" // GfxScene
 #include "EnvironmentMap.h"
 #include "ForceFeedback.h"
 #include "RoRPrerequisites.h"
-
+#include "SceneMouse.h"
 
 #include <Ogre.h>
 
@@ -41,24 +43,38 @@
 ///  - characters:      player-controlled human figures with their own primitive physics, managed by `CharacterFactory`
 ///                     these only collide with static terrain, not actors.
 /// For convenience and to help manage interactions, this class provides methods to manipulate these elements.
-class SimController: public Ogre::FrameListener, public Ogre::WindowEventListener, public ZeroedMemoryAllocator
+///
+/// Architecture is currently undergoing a refactor.
+///  OLD: We use threadpool; rendering loop runs on main thread, simulation is updated in between frames via 'Ogre::FrameListener' interface which also provides timing.
+///   1. SimController::EnterGameplayLoop() invokes Ogre::Root::renderOneFrame() which invokes SimController::frameStarted()
+///   2. Wait for simulation task to finish.
+///   3. Gather user inputs; send/receive network data
+///   3. Update OGRE scene; Put flexbody tasks to threadpool and wait for them to finish.
+///   4. Run new sim. task: split time since last frame into constant size chunks and advance simulation
+///   5. While sim. task is running, let main thread do the rendering
+///
+///  FUTURE: Use threadpool, run simulation loop on main thread and render in background.
+///   1. Check time since last sim. update and sleep if we're up-to-date.
+///   2. Check time since last render; if necessary, copy sim. data and put an "update scene and render" task to threadpool.
+///   2. Gather user inputs; send/receive network data
+///   3. Update simulation
+class SimController: public Ogre::WindowEventListener, public ZeroedMemoryAllocator
 {
 public:
     SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_conf);
 
-    // Ogre::FrameListener public interface
-    bool   frameStarted          (const Ogre::FrameEvent& evt) override;
-    bool   frameRenderingQueued  (const Ogre::FrameEvent& evt) override;
-    bool   frameEnded            (const Ogre::FrameEvent& evt) override;
-
     // Actor management interface
+    std::vector<Actor*> GetActors()                        { return m_actor_manager.GetActors(); }
     Actor* GetActorById          (int actor_id)            { return m_actor_manager.GetActorByIdInternal(actor_id); }
     void   SetPlayerActorById    (int actor_id);                                                          // TODO: Eliminate, use pointers ~ only_a_ptr, 06/2017
     void   SetPlayerActor        (Actor* actor);
     Actor* GetPlayerActor        ()                        { return m_player_actor; }
     void   ReloadPlayerActor     ();
     void   RemovePlayerActor     ();
+    void   RemoveActor           (Actor* actor);
     void   RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name); ///< Scripting utility. TODO: Does anybody use it? ~ only_a_ptr, 08/2017
+
+    std::vector<Actor*>          GetActors          () const;
 
     // Scripting interface
     double getTime               () { return m_time; }
@@ -66,6 +82,9 @@ public:
     void   ShowLoaderGUI         (int type, const Ogre::String& instance, const Ogre::String& box);
     void   StartRaceTimer        ();
     float  StopRaceTimer         ();
+    float  GetRaceTime           () const { return static_cast<float>(m_time - m_race_start_time); }
+    float  GetRaceBestTime       () const { return m_race_bestlap_time; }
+    bool   IsRaceInProgress      () const { return m_race_in_progress; }
     bool   LoadTerrain           (); ///< Reads GVar 'sim_terrain_pending'
 
     // GUI interface
@@ -76,8 +95,19 @@ public:
     bool   SetupGameplayLoop     ();
     void   EnterGameplayLoop     ();
 
-    RoR::ActorManager*           GetBeamFactory  ()         { return &m_actor_manager; } // TODO: Eliminate this. All operations upon actors should be done through above methods. ~ only_a_ptr, 06/2017
-    RoR::SkidmarkConfig*        GetSkidmarkConf ()         { return m_skidmark_conf; }
+    // Temporary interface until camera controls are refactored; only for use by SceneMouse; see == SimCam == ~ only_a_ptr, 06/2018
+    void   CameraManagerMousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
+    bool   CameraManagerMouseMoved(const OIS::MouseEvent& _arg);
+
+    RoR::ActorManager*          GetBeamFactory  ()         { return &m_actor_manager; } // TODO: Eliminate this. All operations upon actors should be done through above methods. ~ only_a_ptr, 06/2017
+    RoR::SkidmarkConfig*         GetSkidmarkConf ()         { return m_skidmark_conf; }
+    RoR::GfxScene&               GetGfxScene()              { return m_gfx_scene; }
+    RoR::SceneMouse&             GetSceneMouse()            { return m_scene_mouse; }
+    Ogre::Vector3                GetDirArrowTarget()        { return m_dir_arrow_pointed; }
+    bool                         IsPressurizingTyres() const { return m_pressure_pressed; }
+    bool                         AreControlsLocked() const;
+    void                         ResetCamera();
+    RoR::CameraManager::CameraBehaviors GetCameraBehavior();
 
 private:
 
@@ -87,22 +117,21 @@ private:
     void   windowFocusChange       (Ogre::RenderWindow* rw);
     void   windowResized           (Ogre::RenderWindow* rw);
 
-    int PreDefineSkyXExemple; //For predefined skyx weathers
-
     void   UpdateForceFeedback     (float dt);
-    bool   UpdateInputEvents       (float dt);
-    void   UpdateRacingGui         ();
+    void   UpdateInputEvents       (float dt);
     void   FinalizeActorSpawning   (Actor* local_actor, Actor* previous_actor);
     void   HideGUI                 (bool hidden);
     void   CleanupAfterSimulation  (); /// Unloads all data
+    void   UpdateSimulation        (float dt_sec);
 
     Actor*                   m_player_actor;           //!< Actor (vehicle or machine) mounted and controlled by player
     Actor*                   m_prev_player_actor;      //!< Previous actor (vehicle or machine) mounted and controlled by player
     RoR::ActorManager        m_actor_manager;
     RoR::CharacterFactory    m_character_factory;
-    RoR::GfxEnvmap           m_gfx_envmap;
-    HeatHaze*                m_heathaze;
+    RoR::GfxScene            m_gfx_scene;
     RoR::SkidmarkConfig*     m_skidmark_conf;
+    RoR::SceneMouse          m_scene_mouse;
+    RoR::CameraManager       m_camera_manager;
     Ogre::Real               m_time_until_next_toggle; //!< just to stop toggles flipping too fast
     float                    m_last_simulation_speed;  //!< previously used time ratio between real time (evt.timeSinceLastFrame) and physics time ('dt' used in calcPhysics)
     bool                     m_is_pace_reset_pressed;
@@ -115,12 +144,12 @@ private:
     bool                     m_was_app_window_closed;
     bool                     m_actor_info_gui_visible;
     bool                     m_pressure_pressed;
+    int                      PreDefineSkyXExemple; //For predefined skyx weathers
 
     CacheEntry*              m_last_cache_selection;
     RoR::SkinDef*            m_last_skin_selection;
     std::vector<std::string> m_last_vehicle_configs;
 
-    bool                     m_is_dir_arrow_visible;
     Ogre::Vector3            m_dir_arrow_pointed;
 
     int                      m_last_screenshot_id;

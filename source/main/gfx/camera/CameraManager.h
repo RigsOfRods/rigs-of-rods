@@ -23,16 +23,16 @@
 
 #include "RoRPrerequisites.h"
 
-
-
 #include <OIS.h>
 #include <OgreVector3.h>
 #include <OgreMath.h> // Degree, Radian
 #include <OgreTimer.h>
 
+namespace RoR {
+
 class CameraManager
 {
-    friend class RoR::SceneMouse;
+    friend class SimController;
 
 public:
 
@@ -55,12 +55,11 @@ public:
 
     bool Update(float dt, Actor* player_vehicle, float sim_speed);
 
-    bool gameControlsLocked();
+    bool gameControlsLocked() const;
     bool hasActiveBehavior();
 
     int getCurrentBehavior();
 
-    void OnReturnToMainMenu();
     void NotifyContextChange();
     void NotifyVehicleChanged(Actor* old_vehicle, Actor* new_vehicle);
     void ActivateDepthOfFieldEffect();
@@ -69,6 +68,9 @@ public:
     void CameraBehaviorOrbitReset();
     bool CameraBehaviorOrbitMouseMoved(const OIS::MouseEvent& _arg);
     void CameraBehaviorOrbitUpdate();
+
+    bool IsCameraReady() const { return m_camera_ready; } // Temporary; replaces (gEnv->cameraManager != nullptr) checks; see == SimCam ==
+    void SetCameraReady() { m_camera_ready = true; }
 
 protected:
 
@@ -109,8 +111,6 @@ protected:
     // Old `CameraBehaviorOrbit` attributes
     Ogre::Radian         m_cam_rot_x;
     Ogre::Radian         m_cam_rot_y;
-    Ogre::Radian         m_cam_rot_swivel_x;
-    Ogre::Radian         m_cam_rot_swivel_y;
     Ogre::Radian         m_cam_target_direction;
     Ogre::Radian         m_cam_target_pitch;
     float                m_cam_dist;
@@ -141,7 +141,11 @@ protected:
     bool                 m_config_enter_vehicle_keep_fixedfreecam;
     bool                 m_config_exit_vehicle_keep_fixedfreecam;
 
+    bool                 m_camera_ready; // Temporary flag; replaces (gEnv->cameraManager != nullptr) checks; see == SimCam ==
+
+public: // Temporary; only for use by SimController (for some reason the friend decl. is not enough); see == SimCam ==
     bool mouseMoved(const OIS::MouseEvent& _arg);
     bool mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
-    bool mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id) { return false; }
 };
+
+} // namespace RoR

@@ -26,36 +26,29 @@
 #pragma once
 
 #include "ForwardDeclarations.h"
-#include "GUI_MessageBoxLayout.h"
+
+#include <string>
 
 namespace RoR {
 namespace GUI {
 
-class gMessageBox : public MessageBoxLayout //Used gMessageBox to not make interference with MessageBox function
+class MessageBoxDialog
 {
 public:
-    gMessageBox();
-    ~gMessageBox();
+    MessageBoxDialog();
+    ~MessageBoxDialog();
 
-    void ShowMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1, Ogre::String mButton1, bool AllowClose, bool button2, Ogre::String mButton2);
-    void UpdateMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1, Ogre::String mButton1, bool AllowClose, bool button2, Ogre::String mButton2, bool IsVisible);
-    // return 0: no button pressed, should not happen, use AllowClose to enable.
-    // return 1: button1 pressed.
-    // return 2: button2 pressed.
-    int getResult();
-
-    bool IsVisible();
+    void          Show(const char* title, const char* text, bool allow_close, const char* button1_text, const char* button2_text);
+    void          Draw();
+    inline bool   IsVisible() const { return m_is_visible; }
 
 private:
-    void notifyWindowButtonPressed(MyGUI::WidgetPtr _sender, const std::string& _name);
-    void eventMouseButton1ClickSaveButton(MyGUI::WidgetPtr _sender);
-    void eventMouseButton2ClickSaveButton(MyGUI::WidgetPtr _sender);
-
-    void Show();
-    void Hide();
-
-    bool b_AllowClose;
-    int i_Results;
+    std::string m_title;
+    std::string m_text;
+    std::string m_button1_text;
+    std::string m_button2_text;
+    bool*       m_close_handle; // If nullptr, close button is hidden. Otherwise visible.
+    bool        m_is_visible;
 };
 
 } // namespace GUI

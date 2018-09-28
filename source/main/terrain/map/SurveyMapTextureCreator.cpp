@@ -22,6 +22,7 @@
 
 #include "Application.h"
 #include "IWater.h"
+#include "RoRFrameListener.h"
 #include "SurveyMapManager.h"
 #include "TerrainManager.h"
 
@@ -30,14 +31,14 @@ using namespace RoR;
 
 int SurveyMapTextureCreator::mCounter = 0;
 
-SurveyMapTextureCreator::SurveyMapTextureCreator() :
+SurveyMapTextureCreator::SurveyMapTextureCreator(Ogre::Vector3 terrain_size) :
     mCamera(nullptr)
     , mRttTex(nullptr)
     , mStatics(nullptr)
     , mTextureUnitState(nullptr)
     , mViewport(nullptr)
     , mMapCenter(Vector2::ZERO)
-    , mMapSize(Vector3::ZERO)
+    , mMapSize(terrain_size)
     , mMapZoom(0.0f)
 {
     mCounter++;
@@ -92,17 +93,14 @@ void SurveyMapTextureCreator::update()
     if (!mRttTex)
         return;
 
-    mMapSize = Vector3::ZERO;
     mMapCenter = Vector2::ZERO;
     mMapZoom = 0.0f;
 
-    if (App::GetSimTerrain())
-        mMapSize = gEnv->surveyMap->getMapSize();
-
-    if (gEnv->surveyMap)
+    SurveyMapManager* survey_map = App::GetSimController()->GetGfxScene().GetSurveyMap();
+    if (survey_map)
     {
-        mMapCenter = gEnv->surveyMap->getMapCenter();
-        mMapZoom = gEnv->surveyMap->getMapZoom();
+        mMapCenter = survey_map->getMapCenter();
+        mMapZoom = survey_map->getMapZoom();
     }
 
     float orthoWindowWidth = mMapSize.x - (mMapSize.x - 20.0f) * mMapZoom;

@@ -203,8 +203,6 @@ void ScriptEngine::init()
     result = engine->RegisterObjectMethod("BeamClass", "int  getTruckType()", AngelScript::asMETHOD(Actor,GetActorType), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void reset(bool)", AngelScript::asMETHOD(Actor,RequestActorReset), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void setDetailLevel(int)", AngelScript::asMETHOD(Actor,setDetailLevel), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
-    result = engine->RegisterObjectMethod("BeamClass", "void showSkeleton(bool, bool)", AngelScript::asMETHOD(Actor,ShowSkeleton), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
-    result = engine->RegisterObjectMethod("BeamClass", "void hideSkeleton(bool)", AngelScript::asMETHOD(Actor,HideSkeleton), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void parkingbrakeToggle()", AngelScript::asMETHOD(Actor,ToggleParkingBrake), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void tractioncontrolToggle()", AngelScript::asMETHOD(Actor,ToggleTractionControl), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void antilockbrakeToggle()", AngelScript::asMETHOD(Actor,ToggleAntiLockBrake), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
@@ -225,9 +223,8 @@ void ScriptEngine::init()
     result = engine->RegisterObjectMethod("BeamClass", "int getBlinkType()", AngelScript::asMETHOD(Actor,getBlinkType), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "bool getCustomParticleMode()", AngelScript::asMETHOD(Actor,getCustomParticleMode), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "int getLowestNode()", AngelScript::asMETHOD(Actor,getLowestNode), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
-    result = engine->RegisterObjectMethod("BeamClass", "bool setMeshVisibility()", AngelScript::asMETHOD(Actor,setMeshVisibility), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "bool getReverseLightVisible()", AngelScript::asMETHOD(Actor,getCustomParticleMode), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
-    result = engine->RegisterObjectMethod("BeamClass", "float getHeadingDirectionAngle()", AngelScript::asMETHOD(Actor,getHeadingDirectionAngle), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "float getHeadingDirectionAngle()", AngelScript::asMETHOD(Actor,getRotation), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "bool isLocked()", AngelScript::asMETHOD(Actor,isLocked), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "float getWheelSpeed()", AngelScript::asMETHOD(Actor,getWheelSpeed), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "vector3 getGForces()", AngelScript::asMETHOD(Actor,getGForces), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
@@ -611,8 +608,12 @@ int ScriptEngine::functionExists(const String &arg)
 
 int ScriptEngine::deleteFunction(const String &arg)
 {
-    if (!engine) return 1;
-    if (!context) context = engine->CreateContext();
+    if (!engine)
+        return AngelScript::asERROR;
+
+    if (!context)
+        context = engine->CreateContext();
+
     AngelScript::asIScriptModule *mod = engine->GetModule(moduleName, AngelScript::asGM_ONLY_IF_EXISTS);
 
     if ( mod == 0 || mod->GetFunctionCount() == 0 )
@@ -651,6 +652,7 @@ int ScriptEngine::deleteFunction(const String &arg)
         char tmp[512] = "";
         sprintf(tmp, "An error occurred while trying to remove a function ('%s') from script module '%s'.", arg.c_str(), moduleName);
         SLOG(tmp);
+        return AngelScript::asERROR;
     }
 }
 
@@ -796,9 +798,6 @@ int ScriptEngine::loadScript(String _scriptName)
     // Create our context, prepare it, and then execute
     context = engine->CreateContext();
 
-
-    unsigned long timeOut = 0;
-
     // Prepare the script context with the function we wish to execute. Prepare()
     // must be called on the context before each new script function that will be
     // executed. Note, that if you intend to execute the same function several
@@ -811,10 +810,6 @@ int ScriptEngine::loadScript(String _scriptName)
         context->Release();
         return -1;
     }
-
-    // Set the timeout before executing the function. Give the function 1 sec
-    // to return before we'll abort it.
-    timeOut = RoR::App::GetOgreSubsystem()->GetTimeSinceStartup() + 1000;
 
     SLOG("Executing main()");
     result = context->Execute();

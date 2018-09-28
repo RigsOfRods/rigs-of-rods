@@ -157,33 +157,10 @@ Airbrake::Airbrake(const char* basename, int num, node_t* ndref, node_t* ndx, no
     free(faces);
 }
 
-Airbrake::~Airbrake()
-{
-    if (!msh.isNull())
-        msh->unload();
-
-    if (ec)
-        ec->setVisible(false);
-    if (snode)
-        snode->setVisible(false);
-}
-
 void Airbrake::updatePosition(float amount)
 {
     ratio = amount;
-    if (!snode)
-        return;
-    Vector3 normal = (nodey->AbsPosition - noderef->AbsPosition).crossProduct(nodex->AbsPosition - noderef->AbsPosition);
-    normal.normalise();
-    //position
-    Vector3 mposition = noderef->AbsPosition + offset.x * (nodex->AbsPosition - noderef->AbsPosition) + offset.y * (nodey->AbsPosition - noderef->AbsPosition);
-    snode->setPosition(mposition + normal * offset.z);
-    //orientation
-    Vector3 refx = nodex->AbsPosition - noderef->AbsPosition;
-    refx.normalise();
-    Vector3 refy = refx.crossProduct(normal);
-    Quaternion orientation = Quaternion(Degree(-ratio * maxangle), (nodex->AbsPosition - noderef->AbsPosition).normalisedCopy()) * Quaternion(refx, normal, refy);
-    snode->setOrientation(orientation);
+    // Visual update moved from here to `GfxActor::UpdateAirbrakes()`
 }
 
 void Airbrake::applyForce()

@@ -22,6 +22,7 @@
 #include "FlexMeshWheel.h"
 
 #include "BeamData.h"
+#include "GfxActor.h"
 
 #include <Ogre.h>
 
@@ -29,7 +30,7 @@ using namespace Ogre;
 
 FlexMeshWheel::FlexMeshWheel(
     Ogre::Entity* rim_prop_entity,
-    node_t *nds, 
+    RoR::GfxActor* gfx_actor,
     int axis_node_1_index, 
     int axis_node_2_index, 
     int nstart, 
@@ -43,7 +44,7 @@ FlexMeshWheel::FlexMeshWheel(
     , m_axis_node1_idx(axis_node_2_index)
     , m_start_node_idx(nstart)
     , m_num_rays(static_cast<size_t>(nrays))
-    , m_all_nodes(nds)
+    , m_gfx_actor(gfx_actor)
     , m_is_rim_reverse(rimreverse)
     , m_rim_radius(rimradius)
 {
@@ -181,30 +182,31 @@ FlexMeshWheel::~FlexMeshWheel()
 
 Vector3 FlexMeshWheel::updateVertices()
 {
-    Vector3 center = (m_all_nodes[m_axis_node0_idx].AbsPosition + m_all_nodes[m_axis_node1_idx].AbsPosition) / 2.0;
-    Vector3 ray = m_all_nodes[m_start_node_idx].AbsPosition - m_all_nodes[m_axis_node0_idx].AbsPosition;
-    Vector3 axis = m_all_nodes[m_axis_node0_idx].AbsPosition - m_all_nodes[m_axis_node1_idx].AbsPosition;
+    RoR::GfxActor::NodeData* all_nodes = m_gfx_actor->GetSimNodeBuffer();
+    Vector3 center = (all_nodes[m_axis_node0_idx].AbsPosition + all_nodes[m_axis_node1_idx].AbsPosition) / 2.0;
+    Vector3 ray = all_nodes[m_start_node_idx].AbsPosition - all_nodes[m_axis_node0_idx].AbsPosition;
+    Vector3 axis = all_nodes[m_axis_node0_idx].AbsPosition - all_nodes[m_axis_node1_idx].AbsPosition;
 
     axis.normalise();
     
     for (size_t i=0; i<m_num_rays; i++)
     {
-        Plane pl=Plane(axis, m_all_nodes[m_axis_node0_idx].AbsPosition);
-        ray=m_all_nodes[m_start_node_idx+i*2].AbsPosition-m_all_nodes[m_axis_node0_idx].AbsPosition;
+        Plane pl=Plane(axis, all_nodes[m_axis_node0_idx].AbsPosition);
+        ray=all_nodes[m_start_node_idx+i*2].AbsPosition-all_nodes[m_axis_node0_idx].AbsPosition;
         ray=pl.projectVector(ray);
         ray.normalise();
-        m_vertices[i*6  ].position=m_all_nodes[m_axis_node0_idx].AbsPosition+m_rim_radius*ray-center;
+        m_vertices[i*6  ].position=all_nodes[m_axis_node0_idx].AbsPosition+m_rim_radius*ray-center;
 
-        m_vertices[i*6+1].position=m_all_nodes[m_start_node_idx+i*2].AbsPosition-0.05  *(m_all_nodes[m_start_node_idx+i*2].AbsPosition-m_all_nodes[m_axis_node0_idx].AbsPosition)-center;
-        m_vertices[i*6+2].position=m_all_nodes[m_start_node_idx+i*2].AbsPosition-0.1   *(m_all_nodes[m_start_node_idx+i*2].AbsPosition-m_all_nodes[m_start_node_idx+i*2+1].AbsPosition)-center;
-        m_vertices[i*6+3].position=m_all_nodes[m_start_node_idx+i*2+1].AbsPosition-0.1 *(m_all_nodes[m_start_node_idx+i*2+1].AbsPosition-m_all_nodes[m_start_node_idx+i*2].AbsPosition)-center;
-        m_vertices[i*6+4].position=m_all_nodes[m_start_node_idx+i*2+1].AbsPosition-0.05*(m_all_nodes[m_start_node_idx+i*2+1].AbsPosition-m_all_nodes[m_axis_node1_idx].AbsPosition)-center;
+        m_vertices[i*6+1].position=all_nodes[m_start_node_idx+i*2].AbsPosition-0.05  *(all_nodes[m_start_node_idx+i*2].AbsPosition-all_nodes[m_axis_node0_idx].AbsPosition)-center;
+        m_vertices[i*6+2].position=all_nodes[m_start_node_idx+i*2].AbsPosition-0.1   *(all_nodes[m_start_node_idx+i*2].AbsPosition-all_nodes[m_start_node_idx+i*2+1].AbsPosition)-center;
+        m_vertices[i*6+3].position=all_nodes[m_start_node_idx+i*2+1].AbsPosition-0.1 *(all_nodes[m_start_node_idx+i*2+1].AbsPosition-all_nodes[m_start_node_idx+i*2].AbsPosition)-center;
+        m_vertices[i*6+4].position=all_nodes[m_start_node_idx+i*2+1].AbsPosition-0.05*(all_nodes[m_start_node_idx+i*2+1].AbsPosition-all_nodes[m_axis_node1_idx].AbsPosition)-center;
 
-        pl=Plane(-axis, m_all_nodes[m_axis_node1_idx].AbsPosition);
-        ray=m_all_nodes[m_start_node_idx+i*2+1].AbsPosition-m_all_nodes[m_axis_node1_idx].AbsPosition;
+        pl=Plane(-axis, all_nodes[m_axis_node1_idx].AbsPosition);
+        ray=all_nodes[m_start_node_idx+i*2+1].AbsPosition-all_nodes[m_axis_node1_idx].AbsPosition;
         ray=pl.projectVector(ray);
         ray.normalise();
-        m_vertices[i*6+5].position=m_all_nodes[m_axis_node1_idx].AbsPosition+m_rim_radius*ray-center;
+        m_vertices[i*6+5].position=all_nodes[m_axis_node1_idx].AbsPosition+m_rim_radius*ray-center;
 
         //normals
         m_vertices[i*6  ].normal=axis;
@@ -230,14 +232,15 @@ void FlexMeshWheel::setVisible(bool visible)
 
 bool FlexMeshWheel::flexitPrepare()
 {
-    Vector3 center = (m_all_nodes[m_axis_node0_idx].AbsPosition + m_all_nodes[m_axis_node1_idx].AbsPosition) / 2.0;
+    RoR::GfxActor::NodeData* all_nodes = m_gfx_actor->GetSimNodeBuffer();
+    Vector3 center = (all_nodes[m_axis_node0_idx].AbsPosition + all_nodes[m_axis_node1_idx].AbsPosition) / 2.0;
     m_rim_scene_node->setPosition(center);
 
-    Vector3 axis = m_all_nodes[m_axis_node0_idx].AbsPosition - m_all_nodes[m_axis_node1_idx].AbsPosition;
+    Vector3 axis = all_nodes[m_axis_node0_idx].AbsPosition - all_nodes[m_axis_node1_idx].AbsPosition;
     axis.normalise();
 
     if (m_is_rim_reverse) axis = -axis;
-    Vector3 ray = m_all_nodes[m_start_node_idx].AbsPosition - m_all_nodes[m_axis_node0_idx].AbsPosition;
+    Vector3 ray = all_nodes[m_start_node_idx].AbsPosition - all_nodes[m_axis_node0_idx].AbsPosition;
     Vector3 onormal = axis.crossProduct(ray);
     onormal.normalise();
     ray = axis.crossProduct(onormal);

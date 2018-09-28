@@ -23,12 +23,14 @@
 
 #include "Application.h"
 #include "Character.h"
+#include "RoRFrameListener.h" // SimController
 
 using namespace RoR;
 
 Character* CharacterFactory::createLocal(int playerColour)
 {
     Character* ch = new Character(-1, 0, playerColour, false);
+    App::GetSimController()->GetGfxScene().RegisterGfxCharacter(ch->SetupGfx());
     return ch;
 }
 
@@ -41,7 +43,9 @@ void CharacterFactory::createRemoteInstance(int sourceid, int streamid)
 
     LOG(" new character for " + TOSTRING(sourceid) + ":" + TOSTRING(streamid) + ", colour: " + TOSTRING(colour));
 
-    m_remote_characters.push_back(std::unique_ptr<Character>(new Character(sourceid, streamid, colour, true)));
+    Character* ch = new Character(sourceid, streamid, colour, true);
+    App::GetSimController()->GetGfxScene().RegisterGfxCharacter(ch->SetupGfx());
+    m_remote_characters.push_back(std::unique_ptr<Character>(ch));
 #endif // USE_SOCKETW
 }
 

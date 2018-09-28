@@ -79,7 +79,7 @@ struct GuiManagerImpl
     GUI::GameSettings           panel_GameSettings;
     GUI::DebugOptions           panel_DebugOptions;
     GUI::SimUtils               panel_SimUtils;
-    GUI::gMessageBox            panel_MessageBox;
+    GUI::MessageBoxDialog       panel_MessageBox;
     GUI::MultiplayerSelector    panel_MultiplayerSelector;
     GUI::MainSelector           panel_MainSelector;
     GUI::GameChatBox            panel_ChatBox;
@@ -106,7 +106,6 @@ GUIManager::GuiTheme::GuiTheme():
 
 void GUIManager::SetVisible_GameMainMenu        (bool v) { m_impl->panel_GameMainMenu       .SetVisible(v); }
 void GUIManager::SetVisible_GameAbout           (bool v) { m_impl->panel_GameAbout          .SetVisible(v); }
-void GUIManager::SetVisible_GamePauseMenu       (bool v) { m_impl->panel_GamePauseMenu      .SetVisible(v); }
 void GUIManager::SetVisible_DebugOptions        (bool v) { m_impl->panel_DebugOptions       .SetVisible(v); }
 void GUIManager::SetVisible_MultiplayerSelector (bool v) { m_impl->panel_MultiplayerSelector.SetVisible(v); }
 void GUIManager::SetVisible_ChatBox             (bool v) { m_impl->panel_ChatBox            .SetVisible(v); }
@@ -117,15 +116,12 @@ void GUIManager::SetVisible_FrictionSettings    (bool v) { m_impl->panel_Frictio
 void GUIManager::SetVisible_TextureToolWindow   (bool v) { m_impl->panel_TextureToolWindow  .SetVisible(v); }
 void GUIManager::SetVisible_TeleportWindow      (bool v) { m_impl->panel_TeleportWindow     .SetVisible(v); }
 void GUIManager::SetVisible_LoadingWindow       (bool v) { m_impl->panel_LoadingWindow      .SetVisible(v); }
-void GUIManager::SetVisible_TopMenubar          (bool v) { m_impl->panel_TopMenubar         .SetVisible(v); }
 void GUIManager::SetVisible_Console             (bool v) { m_impl->panel_GameConsole        .SetVisible(v); }
 void GUIManager::SetVisible_GameSettings        (bool v) { m_impl->panel_GameSettings       .SetVisible(v); }
 
 bool GUIManager::IsVisible_GameMainMenu         () { return m_impl->panel_GameMainMenu       .IsVisible(); }
 bool GUIManager::IsVisible_GameAbout            () { return m_impl->panel_GameAbout          .IsVisible(); }
-bool GUIManager::IsVisible_GamePauseMenu        () { return m_impl->panel_GamePauseMenu      .IsVisible(); }
 bool GUIManager::IsVisible_DebugOptions         () { return m_impl->panel_DebugOptions       .IsVisible(); }
-bool GUIManager::IsVisible_MessageBox           () { return m_impl->panel_MessageBox         .IsVisible(); }
 bool GUIManager::IsVisible_MultiplayerSelector  () { return m_impl->panel_MultiplayerSelector.IsVisible(); }
 bool GUIManager::IsVisible_MainSelector         () { return m_impl->panel_MainSelector       .IsVisible(); }
 bool GUIManager::IsVisible_ChatBox              () { return m_impl->panel_ChatBox            .IsVisible(); }
@@ -136,13 +132,14 @@ bool GUIManager::IsVisible_FrictionSettings     () { return m_impl->panel_Fricti
 bool GUIManager::IsVisible_TextureToolWindow    () { return m_impl->panel_TextureToolWindow  .IsVisible(); }
 bool GUIManager::IsVisible_TeleportWindow       () { return m_impl->panel_TeleportWindow     .IsVisible(); }
 bool GUIManager::IsVisible_LoadingWindow        () { return m_impl->panel_LoadingWindow      .IsVisible(); }
-bool GUIManager::IsVisible_TopMenubar           () { return m_impl->panel_TopMenubar         .IsVisible(); }
 bool GUIManager::IsVisible_Console              () { return m_impl->panel_GameConsole        .IsVisible(); }
 bool GUIManager::IsVisible_GameSettings         () { return m_impl->panel_GameSettings       .IsVisible(); }
 
 // GUI GetInstance*()
 Console*                    GUIManager::GetConsole()           { return &m_impl->panel_GameConsole         ; }
 GUI::MainSelector*          GUIManager::GetMainSelector()      { return &m_impl->panel_MainSelector        ; }
+GUI::GameMainMenu*          GUIManager::GetMainMenu()          { return &m_impl->panel_GameMainMenu        ; }
+GUI::GamePauseMenu*         GUIManager::GetPauseMenu()         { return &m_impl->panel_GamePauseMenu       ; }
 GUI::LoadingWindow*         GUIManager::GetLoadingWindow()     { return &m_impl->panel_LoadingWindow       ; }
 GUI::MpClientList*          GUIManager::GetMpClientList()      { return &m_impl->panel_MpClientList        ; }
 GUI::MultiplayerSelector*   GUIManager::GetMpSelector()        { return &m_impl->panel_MultiplayerSelector ; }
@@ -242,9 +239,23 @@ bool GUIManager::frameEnded(const Ogre::FrameEvent& evt)
     return true;
 };
 
-void GUIManager::FrameStepGui(float dt)
+void GUIManager::DrawSimulationGui(float dt)
 {
     m_impl->panel_SimUtils.FrameStepSimGui(dt);
+    if (App::app_state.GetActive() == AppState::SIMULATION)
+    {
+        m_impl->panel_TopMenubar.Update();
+
+        if (App::sim_state.GetActive() == SimState::PAUSED)
+        {
+            m_impl->panel_GamePauseMenu.Draw();
+        }
+    }
+
+    if (m_impl->panel_MessageBox.IsVisible())
+    {
+        m_impl->panel_MessageBox.Draw();
+    }
 };
 
 void GUIManager::PushNotification(Ogre::String Title, Ogre::UTFString text)
@@ -263,7 +274,6 @@ void GUIManager::windowResized(Ogre::RenderWindow* rw)
     int height = (int)rw->getHeight();
     setInputViewSize(width, height);
 
-    this->AdjustMainMenuPosition();
 }
 
 void GUIManager::windowClosed(Ogre::RenderWindow* rw)
@@ -300,50 +310,12 @@ void GUIManager::SetSceneManagerForGuiRendering(Ogre::SceneManager* scene_manage
     m_impl->mygui_platform->getRenderManagerPtr()->setSceneManager(scene_manager);
 }
 
-void GUIManager::AdjustMainMenuPosition()
-{
-    Ogre::Viewport* viewport = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
-    int margin = (viewport->getActualHeight() / 15);
-    int top = viewport->getActualHeight() - m_impl->panel_GameMainMenu.GetHeight() - margin;
-    m_impl->panel_GameMainMenu.SetPosition(margin, top);
-}
-
 void GUIManager::UpdateSimUtils(float dt, Actor *truck)
 {
     if (m_impl->panel_SimUtils.IsBaseVisible()) //Better to update only when it's visible.
     {
         m_impl->panel_SimUtils.UpdateStats(dt, truck);
     }
-}
-
-void GUIManager::ShowMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1, Ogre::String mButton1, bool AllowClose = false, bool button2 = false, Ogre::String mButton2 = "")
-{
-    m_impl->panel_MessageBox.ShowMessageBox(mTitle, mText, button1, mButton1, AllowClose, button2, mButton2);
-}
-
-void GUIManager::UpdateMessageBox(Ogre::String mTitle, Ogre::String mText, bool button1, Ogre::String mButton1, bool AllowClose = false, bool button2 = false, Ogre::String mButton2 = "", bool IsVisible = true)
-{
-    m_impl->panel_MessageBox.UpdateMessageBox(mTitle, mText, button1, mButton1, AllowClose, button2, mButton2, IsVisible);
-}
-
-int GUIManager::getMessageBoxResult()
-{
-    return m_impl->panel_MessageBox.getResult();
-}
-
-void GUIManager::InitMainSelector(RoR::SkinManager* skin_manager)
-{
-// todo remove
-}
-
-void GUIManager::AdjustPauseMenuPosition()
-{
-    Ogre::Viewport* viewport = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getViewport(0);
-    int margin = (viewport->getActualHeight() / 15);
-    m_impl->panel_GamePauseMenu.SetPosition(
-        margin, // left
-        viewport->getActualHeight() - m_impl->panel_GamePauseMenu.GetHeight() - margin // top
-        );
 }
 
 void GUIManager::AddRigLoadingReport(std::string const & vehicle_name, std::string const & text, int num_errors, int num_warnings, int num_other)
@@ -406,11 +378,9 @@ void GUIManager::ReflectGameState()
     {
         m_impl->panel_GameMainMenu       .SetVisible(!m_impl->panel_MainSelector.IsVisible());
 
-        m_impl->panel_TopMenubar         .SetVisible(false);
         m_impl->panel_ChatBox            .SetVisible(false);
         m_impl->panel_DebugOptions       .SetVisible(false);
         m_impl->panel_FrictionSettings   .SetVisible(false);
-        m_impl->panel_GamePauseMenu      .SetVisible(false);
         m_impl->panel_TextureToolWindow  .SetVisible(false);
         m_impl->panel_TeleportWindow     .SetVisible(false);
         m_impl->panel_VehicleDescription .SetVisible(false);
@@ -421,8 +391,6 @@ void GUIManager::ReflectGameState()
     }
     if (app_state == AppState::SIMULATION)
     {
-        m_impl->panel_TopMenubar         .SetVisible(true);
-        m_impl->panel_TopMenubar         .ReflectMultiplayerState();
         m_impl->panel_SimUtils           .SetBaseVisible(true);
         m_impl->panel_GameMainMenu       .SetVisible(false);
         return;
@@ -513,6 +481,11 @@ void GUIManager::DrawMainMenuGui()
         m_impl->panel_MultiplayerSelector.Draw();
     }
 
+    if (m_impl->panel_GameMainMenu.IsVisible())
+    {
+        m_impl->panel_GameMainMenu.Draw();
+    }
+
     if ((App::mp_state.GetActive() != MpState::CONNECTED) && (App::mp_state.GetPending() == MpState::CONNECTED))
     {
         this->DrawMpConnectingStatusBox();
@@ -521,6 +494,11 @@ void GUIManager::DrawMainMenuGui()
     if (m_impl->panel_GameSettings.IsVisible())
     {
         m_impl->panel_GameSettings.Draw();
+    }
+
+    if (m_impl->panel_MessageBox.IsVisible())
+    {
+        m_impl->panel_MessageBox.Draw();
     }
 }
 
@@ -548,6 +526,11 @@ void GUIManager::DrawMpConnectingStatusBox()
     ImGui::TextDisabled(Networking::GetStatusMessage().GetBuffer());
 #endif
     ImGui::End();
+}
+
+void GUIManager::ShowMessageBox(const char* title, const char* text, bool allow_close, const char* btn1_text, const char* btn2_text)
+{
+    m_impl->panel_MessageBox.Show(title, text, allow_close, btn1_text, btn2_text);
 }
 
 } // namespace RoR

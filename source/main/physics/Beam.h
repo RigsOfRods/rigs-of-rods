@@ -42,6 +42,7 @@ class Actor : public ZeroedMemoryAllocator
 {
     friend class ActorSpawner;
     friend class RoR::ActorManager;
+    friend class RoR::GfxActor; // Temporary until all visuals are moved there. ~ only_a_ptr, 2018
 public:
 
     enum class SimState
@@ -62,6 +63,7 @@ public:
     /// @param cache_entry_number Needed for flexbody caching. Pass -1 if unavailable (flexbody caching will be disabled)
     Actor(
           int actor_id
+        , unsigned int vector_index
         , std::shared_ptr<RigDef::File> def
         , Ogre::Vector3 pos
         , Ogre::Quaternion rot
@@ -82,8 +84,6 @@ public:
     void              UpdateNetworkInfo();
     bool              AddTyrePressure(float v);
     float             GetTyrePressure();
-    void              ResetAngle(float rot);
-    void              ResetPosition(float px, float pz, bool setInitPosition, float miny);
     float             getRotation();
     Ogre::Vector3     getDirection();
     Ogre::Vector3     getPosition();
@@ -92,12 +92,13 @@ public:
     /// @param setInitPosition Set initial positions of nodes to current position?
     void              ResetPosition(Ogre::Vector3 translation, bool setInitPosition);
     void              RequestActorReset(bool keepPosition = false);    //!< reset the actor from any context
-    void              displace(Ogre::Vector3 translation, float rotation);
+    void              RequestRotation(float rotation);
+    void              RequestTranslation(Ogre::Vector3 translation);
     Ogre::Vector3     GetRotationCenter();                 //!< Return the rotation center of the actor
     bool              ReplayStep();
     void              ForceFeedbackStep(int steps);
-    void              UpdateAngelScriptEvents(float dt);
-    void              HandleResetRequests(float dt);
+    void              HandleInputEvents(float dt);
+    void              HandleAngelScriptEvents(float dt);
     void              UpdateSoundSources();
     void              HandleMouseMove(int node, Ogre::Vector3 pos, float force); //!< Event handler
     void              ToggleLights();                      //!< Event handler
@@ -128,35 +129,15 @@ public:
     ground_model_t*   getLastFuzzyGroundModel();
     void              updateSkidmarks();                   //!< Creates or updates skidmarks. No side effects.
     void              prepareInside(bool inside);          //!< Prepares vehicle for in-cabin camera use.
-    void              updateFlares(float dt, bool isCurrent=false);
-    /// TIGHT-LOOP; Display; updates positions of props.
-    /// Each prop has scene node parented to root-node (only_a_ptr 11/2013).
-    void              updateProps();
-    /// TIGHT-LOOP; Logic: display (+overlays +particles), sound
-    /// Does a mixture of tasks:
-    /// - Sound: updates sound sources; plays aircraft radio chatter;
-    /// - Particles: updates particles (dust, exhausts, custom)
-    /// - Display: updates wings; updates props; updates rig-skeleton + cab fade effect; updates debug overlay
+    void              UpdateFlareStates(float dt_sec);
     void              updateVisual(float dt=0);
-    void              UpdateFlexbodiesPrepare();
-    void              UpdateFlexbodiesFinal();
-    void              JoinFlexbodyTasks();                 //!< Waits until all flexbody tasks are finished, but does not update the hardware buffers
-    void              UpdateActorNetLabels(float dt=0);    //!< Gfx;
     void              setDetailLevel(int v);               //!< @param v 0 = full detail, 1 = no beams
-    void              ShowSkeleton(bool meshes=true, bool linked=true); //!< Gfx; shows "skeletonview" (diagnostic view) mesh.
-    void              HideSkeleton(bool linked=true);      //!< Gfx; hides "skeletonview" (diagnostic view) mesh.
-    void              updateSimpleSkeleton();              //!< Gfx; updates the "skeletonview" (diagnostic view) mesh.
     void              resetAutopilot();
     void              disconnectAutopilot();
     void              ScaleActor(float value);
-    void              UpdateDebugOverlay();
-    void              setDebugOverlayState(int mode);
-    Ogre::Quaternion  specialGetRotationTo(const Ogre::Vector3& src, const Ogre::Vector3& dest) const;
     Ogre::String      getAxleLockName();                   //!< get the name of the current differential model
     int               getAxleLockCount();
     Ogre::Vector3     getGForces();
-    bool              hasDriverSeat();
-    void              calculateDriverPos(Ogre::Vector3 &pos, Ogre::Quaternion &rot);
     float             getSteeringAngle();
     std::string       GetActorDesignName();
     std::string       GetActorFileName();
@@ -175,12 +156,10 @@ public:
     void              setCustomLightVisible(int number, bool visible);
     bool              getBeaconMode();
     void              setBlinkType(blinktype blink);    
-    float             getHeadingDirectionAngle();
+    void              setAirbrakeIntensity(float intensity);
     bool              getCustomParticleMode();
     int               getLowestNode();
     void              receiveStreamData(unsigned int type, int source, unsigned int streamid, char *buffer, unsigned int len);
-    void              setBeamVisibility(bool visible);     //!< Gfx only; Sets visibility of all beams on this vehicle
-    void              setMeshVisibility(bool visible);     //!< Gfx only; Sets visibility of all meshes on this vehicle
     bool              inRange(float num, float min, float max);
     bool              getSlideNodesLockInstant();
     void              sendStreamData();
@@ -189,21 +168,21 @@ public:
     void              updateDashBoards(float dt);
     void              updateBoundingBox(); 
     void              calculateAveragePosition();
-    void              preUpdatePhysics(float dt);          //!< TIGHT LOOP; Physics;
+    void              checkAndMovePhysicsOrigin();
     void              postUpdatePhysics(float dt);         //!< TIGHT LOOP; Physics;
-    bool              CalcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1); //!< TIGHT LOOP; Physics;
-    void              calcForcesEulerCompute(bool doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1); //!< TIGHT LOOP; Physics;
-    void              calcForcesEulerFinal(int doUpdate, Ogre::Real dt, int step = 0, int maxsteps = 1); //!< TIGHT LOOP; Physics;
-    void              UpdatePropAnimations(const float dt);
+    bool              CalcForcesEulerPrepare();            //!< A single physics step (see PHYSICS_DT)
+    void              calcForcesEulerCompute(int step, int num_steps); //!< TIGHT LOOP; Physics;
+    void              calcForcesEulerFinal();              //!< A single physics step (see PHYSICS_DT)
     blinktype         getBlinkType();
     std::vector<authorinfo_t>     getAuthors();
     std::vector<std::string>      getDescription();
     RoR::PerVehicleCameraContext* GetCameraContext()    { return &m_camera_context; }
     std::list<Actor*> GetAllLinkedActors()              { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
+    Ogre::Vector3     GetCameraDir()                    { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_dir].RelPosition).normalisedCopy(); }
+    Ogre::Vector3     GetCameraRoll()                   { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_roll].RelPosition).normalisedCopy(); }
     Ogre::Vector3     GetFFbBodyForces() const          { return m_force_sensors.out_body_forces; }
     PointColDetector* IntraPointCD()                    { return m_intra_point_col_detector; }
     PointColDetector* InterPointCD()                    { return m_inter_point_col_detector; }
-    Ogre::SceneNode*  getSceneNode()                    { return m_beam_visuals_parent_scenenode; }
     RoR::GfxActor*    GetGfxActor()                     { return m_gfx_actor.get(); }
     void              RequestUpdateHudFeatures()        { m_hud_features_ok = false; }
     Ogre::Vector3     getNodePosition(int nodeNumber);     //!< Returns world position of node
@@ -212,10 +191,11 @@ public:
     float             GetFFbHydroForces() const         { return m_force_sensors.out_hydros_forces; }
     bool              isPreloadedWithTerrain() const    { return m_preloaded_with_terrain; };
     VehicleAI*        getVehicleAI()                    { return ar_vehicle_ai; }
-    bool              IsNodeIdValid(int id) const       { return (id >= 0) && (id < ar_num_nodes); }
     float             getWheelSpeed() const             { return ar_wheel_speed; }
     int               GetNumNodes() const               { return ar_num_nodes; }
     Ogre::Vector3     getVelocity() const               { return m_avg_node_velocity; }; //!< average actor velocity, calculated using the actor positions of the last two frames
+    bool              GetUseSkidmarks() const           { return m_use_skidmarks; }
+    int               GetGfxDetailLevel() const         { return m_gfx_detail_level; }
 #ifdef USE_ANGELSCRIPT
     // we have to add this to be able to use the class as reference inside scripts
     void              addRef()                          {};
@@ -253,12 +233,8 @@ public:
     contacter_t       ar_contacters[MAX_CONTACTERS];
     int               ar_num_contacters;
     wheel_t           ar_wheels[MAX_WHEELS];
-    vwheel_t          ar_wheel_visuals[MAX_WHEELS];
     int               ar_num_wheels;
     command_t         ar_command_key[MAX_COMMANDS + 10]; // 0 for safety
-    prop_t            ar_props[MAX_PROPS];
-    prop_t*           ar_driverseat_prop;
-    int               ar_num_props;
     cparticle_t       ar_custom_particles[MAX_CPARTICLES];
     int               ar_num_custom_particles;
     soundsource_t     ar_soundsources[MAX_SOUNDSCRIPTS_PER_TRUCK];
@@ -271,8 +247,7 @@ public:
     int               ar_num_screwprops;
     int               ar_cabs[MAX_CABS*3];
     int               ar_num_cabs;
-    int               ar_hydro[MAX_HYDROS];
-    int               ar_num_hydros;
+    std::vector<hydrobeam_t> ar_hydros;
     int               ar_collcabs[MAX_CABS];
     collcab_rate_t    ar_inter_collcabrate[MAX_CABS];
     collcab_rate_t    ar_intra_collcabrate[MAX_CABS];
@@ -282,8 +257,6 @@ public:
     int               ar_num_buoycabs;
     Airbrake*         ar_airbrakes[MAX_AIRBRAKES];
     int               ar_num_airbrakes;
-    FlexBody*         ar_flexbodies[MAX_FLEXBODIES];
-    int               ar_num_flexbodies;
     int               ar_camera_rail[MAX_CAMERARAIL]; //!< Nodes defining camera-movement spline
     int               ar_num_camera_rails;
     bool              ar_hide_in_actor_list;      //!< Hide in list of spawned actors (available in top menubar). Useful for fixed-place machinery, i.e. cranes.
@@ -320,8 +293,9 @@ public:
     int               ar_exhaust_pos_node; //!< Old-format exhaust (one per vehicle) emitter node
     int               ar_exhaust_dir_node; //!< Old-format exhaust (one per vehicle) backwards direction node
     int               ar_instance_id;              //!< Static attr; session-unique ID
+    unsigned int      ar_vector_index;             //!< Sim attr; actor element index in std::vector<m_actors>
     int               ar_driveable;                //!< Sim attr; marks vehicle type and features
-    EngineSim*       ar_engine;
+    EngineSim*        ar_engine;
     int               ar_cinecam_node[MAX_CAMERAS];//!< Sim attr; Cine-camera node indexes
     int               ar_num_cinecams;             //!< Sim attr;
     std::string       ar_help_panel_material;      //!< GUI attr, defined in truckfile
@@ -330,6 +304,9 @@ public:
     float             ar_speedo_max_kph;           //!< GUI attr
     Ogre::Vector3     ar_origin;                   //!< Physics state; base position for softbody nodes
     int               ar_num_cameras;
+    int               ar_main_camera_node_pos;     //!< Sim attr; ar_camera_node_pos[0]  >= 0 ? ar_camera_node_pos[0]  : 0
+    int               ar_main_camera_node_dir;     //!< Sim attr; ar_camera_node_dir[0]  >= 0 ? ar_camera_node_dir[0]  : 0
+    int               ar_main_camera_node_roll;    //!< Sim attr; ar_camera_node_roll[0] >= 0 ? ar_camera_node_roll[0] : 0
     int               ar_camera_node_pos[MAX_CAMERAS]; //!< Physics attr; 'camera' = frame of reference; origin node
     int               ar_camera_node_dir[MAX_CAMERAS]; //!< Physics attr; 'camera' = frame of reference; back node
     int               ar_camera_node_roll[MAX_CAMERAS]; //!< Physics attr; 'camera' = frame of reference; left node
@@ -356,7 +333,7 @@ public:
     float             ar_sleep_counter;               //!< Sim state; idle time counter
     ground_model_t*   ar_submesh_ground_model;
     int               ar_parking_brake;
-    int               ar_lights;
+    int               ar_lights;                      //!< boolean 1/0
     float             ar_left_mirror_angle;           //!< Sim state; rear view mirror angle
     float             ar_right_mirror_angle;          //!< Sim state; rear view mirror angle
     float             ar_elevator;                    //!< Sim state; aerial controller
@@ -364,7 +341,7 @@ public:
     float             ar_aileron;                     //!< Sim state; aerial controller
     int               ar_aerial_flap;                 //!< Sim state; state of aircraft flaps (values: 0-5)
     Ogre::Vector3     ar_fusedrag;                    //!< Physics state
-    int               ar_current_cinecam;             //!< Sim state; index of current CineCam (-1 if using external camera)
+    int               ar_current_cinecam;             //!< Sim state; index of current CineCam (-1 if using 3rd-person camera)
     int               ar_custom_camera_node;          //!< Sim state; custom tracking node for 3rd-person camera
     std::string       ar_filename;                    //!< Attribute; filled at spawn
     int               ar_airbrake_intensity;          //!< Physics state; values 0-5
@@ -374,7 +351,6 @@ public:
     Ogre::Timer       ar_net_timer;
     unsigned long     ar_net_last_update_time;
     DashBoardManager* ar_dashboard;
-    int               ar_request_skeletonview_change; //!< Gfx state; Request activation(1) / deactivation(-1) of skeletonview
     SimState          ar_sim_state;                   //!< Sim state
     float             ar_collision_range;             //!< Physics attr
 
@@ -382,9 +358,6 @@ public:
     bool ar_left_blink_on:1;  //!< Gfx state; turn signals
     bool ar_right_blink_on:1; //!< Gfx state; turn signals
     bool ar_warn_blink_on:1;  //!< Gfx state; turn signals
-    bool ar_beams_visible:1;  //!< Gfx state; Are beams visible? @see setBeamVisibility
-    bool ar_meshes_visible:1; //!< Gfx state; Are meshes visible? @see setMeshVisibility
-    bool ar_skeletonview_is_active:1; //!< Gfx state
     bool ar_update_physics:1; //!< Physics state; Should this actor be updated (locally) in the next physics step?
     bool ar_disable_self_collision:1; //!< Physics attribute; clone of RoR.cfg entry "DisableSelfCollisions"
     bool ar_disable_actor2actor_collision:1; //!< Physics attribute; clone of RoR.cfg entry "DisableCollisions"
@@ -411,15 +384,14 @@ private:
         REQUEST_RESET_FINAL
     };
 
-    void              calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps); // !< TIGHT LOOP; Physics & sound;
-    void              CalcBeamsInterActor(int doUpdate, Ogre::Real dt, int step, int maxsteps); //!< TIGHT LOOP; Physics & sound - only beams between multiple actors (noshock or ropes)
-    void              calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps); //!< TIGHT LOOP; Physics;
+    void              calcBeams(bool trigger_hooks);       //!< Single physics step (see PHYSICS_DT); Physics & sound;
+    void              CalcBeamsInterActor();               //!< Physics (1 step) & sound - only beams between multiple actors (noshock or ropes)
+    void              CalcNodes();                         //!< Single physics step (see PHYSICS_DT)
     void              calcHooks();                         //!< TIGHT LOOP; Physics;
     void              calcRopes();                         //!< TIGHT LOOP; Physics;
-    void              calcShocks2(int beam_i, Ogre::Real difftoBeamL, Ogre::Real &k, Ogre::Real &d, Ogre::Real dt, int update);
+    void              calcShocks2(int beam_i, Ogre::Real difftoBeamL, Ogre::Real &k, Ogre::Real &d, bool update_hooks);
     void              calcAnimators(const int flag_state, float &cstate, int &div, float timer, const float lower_limit, const float upper_limit, const float option3);
     void              SyncReset();                         //!< this one should be called only synchronously (without physics running in background)
-    void              SetPropsCastShadows(bool do_cast_shadows);
     void              DetermineLinkedActors();
     void              RecalculateNodeMasses(Ogre::Real total, bool reCalc=false); //!< Previously 'calc_masses2()'
     void              calcNodeConnectivityGraph();
@@ -427,19 +399,14 @@ private:
     void              AddInterActorBeam(beam_t* beam, Actor* a, Actor* b);
     void              RemoveInterActorBeam(beam_t* beam);
     void              DisjoinInterActorBeams();            //!< Destroys all inter-actor beams which are connected with this actor
-    void              CreateSimpleSkeletonMaterial();
-    void              cabFade(float amount);
-    void              setMeshWireframe(Ogre::SceneNode *node, bool value);
-    void              fadeMesh(Ogre::SceneNode *node, float amount);
-    float             getAlphaRejection(Ogre::SceneNode *node);
-    void              setAlphaRejection(Ogre::SceneNode *node, float amount);
-    void              initSimpleSkeleton();                //!< Builds the rig-skeleton mesh.
     void              autoBlinkReset();                    //!< Resets the turn signal when the steering wheel is turned back.
     void              sendStreamSetup();
     void              updateSlideNodeForces(const Ogre::Real delta_time_sec); //!< calculate and apply Corrective forces
     void              resetSlideNodePositions();           //!< Recalculate SlideNode positions
     void              resetSlideNodes();                   //!< Reset all the SlideNodes
     void              updateSlideNodePositions();          //!< incrementally update the position of all SlideNodes
+    void              ResetAngle(float rot);
+    void              ResetPosition(float px, float pz, bool setInitPosition, float miny);
     /// @param actor which actor to retrieve the closest Rail from
     /// @param node which SlideNode is being checked against
     /// @return a pair containing the rail, and the distant to the SlideNode
@@ -451,16 +418,11 @@ private:
     std::shared_ptr<RigDef::File>      m_definition;
     std::unique_ptr<RoR::GfxActor>     m_gfx_actor;
     RoR::PerVehicleCameraContext       m_camera_context;
-    std::bitset<MAX_WHEELS>            m_flexmesh_prepare; //!< Gfx state
-    std::bitset<MAX_FLEXBODIES>        m_flexbody_prepare; //!< Gfx state
     std::vector<Ogre::String>          m_actor_config;
     std::vector<SlideNode>             m_slidenodes;       //!< all the SlideNodes available on this actor
     std::vector<RailGroup*>            m_railgroups;       //!< all the available RailGroups for this actor
     std::vector<Ogre::Entity*>         m_deletion_entities;    //!< For unloading vehicle; filled at spawn.
     std::vector<Ogre::SceneNode*>      m_deletion_scene_nodes; //!< For unloading vehicle; filled at spawn.
-    std::vector<debugtext_t>           m_nodes_debug_text;     //!< Gfx state
-    std::vector<debugtext_t>           m_beams_debug_text;     //!< Gfx state
-    Ogre::SceneNode*  m_beam_visuals_parent_scenenode;     //!< Gfx
     int               m_proped_wheel_pairs[MAX_WHEELS];    //!< Physics attr; For inter-differential locking
     int               m_num_braked_wheels;          //!< Physics attr, filled at spawn - Number of braked wheels.
     int               m_num_proped_wheels;          //!< Physics attr, filled at spawn - Number of propelled wheels.
@@ -497,25 +459,13 @@ private:
     Ogre::SceneNode*  m_net_label_node;
     Ogre::String      m_net_username;
     float             m_custom_light_toggle_countdown; //!< Input system helper status
-    float             m_cab_fade_timer;
-    float             m_cab_fade_time;
-    int               m_cab_fade_mode;            //<! Cab fading effect; values { -1, 0, 1, 2 }
-    FlexObj*          m_cab_mesh;
-    Ogre::SceneNode*  m_cab_scene_node;
-    Ogre::Entity*     m_cab_entity;
-    Ogre::ManualObject* m_skeletonview_manual_mesh;
-    Ogre::SceneNode*  m_skeletonview_scenenode;
+    float             m_rotation_request;         //!< Accumulator
+    Ogre::Vector3     m_translation_request;      //!< Accumulator
     Ogre::Vector3     m_camera_gforces_accu;      //!< Accumulator for 'camera' G-forces
     int               m_camera_gforces_count;     //!< Counter for 'camera' G-forces
     float             m_ref_tyre_pressure;        //!< Physics state
     float             m_stabilizer_shock_ratio;   //!< Physics state
     int               m_stabilizer_shock_request; //!< Physics state; values: { -1, 0, 1 }
-    DustPool*         m_particles_dust;
-    DustPool*         m_particles_drip;
-    DustPool*         m_particles_sparks;
-    DustPool*         m_particles_clump;
-    DustPool*         m_particles_splash;
-    DustPool*         m_particles_ripple;
     int               m_net_first_wheel_node;  //!< Network attr; Determines data buffer layout
     int               m_net_node_buf_size;     //!< Network attr; buffer size
     int               m_net_buffer_size;       //!< Network attr; buffer size
@@ -539,7 +489,6 @@ private:
     float             m_load_mass;             //!< Physics attr; predefined load mass in Kg
     int               m_masscount;             //!< Physics attr; Number of nodes loaded with l option
     float             m_dry_mass;              //!< Physics attr;
-    int               m_debug_visuals;         //!< GUI state; Dbg. overlay type { NODES: 1-Numbers, 4-Mass, 5-Locked | BEAMS: 2-Numbers, 6-Compression, 7-Broken, 8-Stress, 9-Strength, 10-Hydros, 11-Commands, OTHER: 3-N&B numbers, 12-14 unknown }
     unsigned int      m_net_custom_lights[4];  //!< Sim state
     unsigned char     m_net_custom_light_count;//!< Sim attr
     RoR::GfxFlaresMode m_flares_mode;          //!< Gfx attr, clone of GVar -- TODO: remove
@@ -562,7 +511,6 @@ private:
     bool m_has_command_beams:1;    //!< Physics attr;
     bool m_beacon_light_is_active:1;        //!< Gfx state
     bool m_custom_particles_enabled:1;      //!< Gfx state
-    bool m_skeletonview_mesh_initialized:1; //!< Gfx state; Was the rig-skeleton mesh built?
     bool m_slidenodes_connect_on_spawn:1;   //<! spawn context: try to connect slide-nodes directly after spawning (TODO: remove!)
     bool m_cinecam_is_rotation_center:1;    //<! Attribute; filled at spawn
     bool m_preloaded_with_terrain:1;        //!< Spawn context (TODO: remove!)

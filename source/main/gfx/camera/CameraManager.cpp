@@ -35,6 +35,32 @@
 #include "GUIManager.h"
 #include "PerVehicleCameraContext.h"
 
+#include <stack>
+
+// ========== Project 'SimCam' (started June 2018) ==========
+// - Eliminate 'gEnv->mainCamera' (pointer to Ogre::Camera)
+//       because it shouldn't be updated and read from externally throughout the simulation cycle;
+//       instead, it should only be updated internally prior to actual rendering.
+// - [Done] Eliminate 'GlobalEnvironment::cameraManager' (RoR object)
+//       because it serves ad-hoc camera updates throughout the simulation cycle
+//       instead, camera should be updated at the end of sim. cycle from the resulting state;
+//       locking controls based on camera mode (free camera) should be governed by SimController instead
+// - Put camera manager under SimController
+//       because camera state is part of sim. state,
+//       also it will help future refactors - current CameraManager does many things it shouldn't
+//       (it's own input processing, manipulating controls...)
+
+// ==== gEnv->mainCamera RESEARCH ====
+//   Character.cpp:                   getPosition()
+//   SceneMouse.cpp:                  getViewport()
+//   DepthOfFieldEffect.cpp:          getFOVy, setFOVy, getPosition, getViewport
+//   EnvironmentMap.cpp:              setFarClipDistance, getFarClipDistance, getBackgroundColour
+//   GfxActor.cpp:                    getPosition(), 
+//   Heathaze.cpp:                    get/addViewport()
+//   HydraxWater.cpp, skyxManager:    getDerivedPosition()
+//   Scripting:                        setPosition  setDirection  setOrientation yaw  pitch  roll  getPosition  getDirection  getOrientation  lookAt
+//   SimController:                   getUp()
+
 using namespace Ogre;
 using namespace RoR;
 
@@ -75,9 +101,7 @@ CameraManager::CameraManager() :
     , m_splinecam_mo(0)
     , m_splinecam_spline_pos(0.5f)
     , m_cam_rot_x(0.0f)
-    , m_cam_rot_swivel_x(0.0f)
     , m_cam_rot_y(0.3f)
-    , m_cam_rot_swivel_y(0.0f)
     , m_cam_dist(5.f)
     , m_cam_dist_min(0.f)
     , m_cam_dist_max(0.f)
@@ -89,6 +113,7 @@ CameraManager::CameraManager() :
     , m_cam_look_at_smooth(Ogre::Vector3::ZERO)
     , m_cam_look_at_smooth_last(Ogre::Vector3::ZERO)
     , m_cam_limit_movement(true)
+    , m_camera_ready(false)
 {
     m_cct_player_actor = nullptr;
     m_cct_dof_manager = nullptr;
@@ -190,11 +215,14 @@ void CameraManager::UpdateCurrentBehavior()
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: {
         CameraManager::CameraBehaviorOrbitUpdate();
 
-        Vector3 dir = (m_cct_player_actor->ar_nodes[m_cct_player_actor->ar_camera_node_pos[m_cct_player_actor->ar_current_cinecam]].AbsPosition
-                     - m_cct_player_actor->ar_nodes[m_cct_player_actor->ar_camera_node_dir[m_cct_player_actor->ar_current_cinecam]].AbsPosition).normalisedCopy();
+        int pos_node  = m_cct_player_actor->ar_camera_node_pos [m_cct_player_actor->ar_current_cinecam];
+        int dir_node  = m_cct_player_actor->ar_camera_node_dir [m_cct_player_actor->ar_current_cinecam];
+        int roll_node = m_cct_player_actor->ar_camera_node_roll[m_cct_player_actor->ar_current_cinecam];
 
-        Vector3 roll = (m_cct_player_actor->ar_nodes[m_cct_player_actor->ar_camera_node_pos[m_cct_player_actor->ar_current_cinecam]].AbsPosition
-                      - m_cct_player_actor->ar_nodes[m_cct_player_actor->ar_camera_node_roll[m_cct_player_actor->ar_current_cinecam]].AbsPosition).normalisedCopy();
+        Vector3 dir  = (m_cct_player_actor->ar_nodes[pos_node].AbsPosition
+                - m_cct_player_actor->ar_nodes[dir_node].AbsPosition).normalisedCopy();
+        Vector3 roll = (m_cct_player_actor->ar_nodes[pos_node].AbsPosition
+                - m_cct_player_actor->ar_nodes[roll_node].AbsPosition).normalisedCopy();
 
         if ( m_cct_player_actor->ar_camera_node_roll_inv[m_cct_player_actor->ar_current_cinecam] )
         {
@@ -202,10 +230,9 @@ void CameraManager::UpdateCurrentBehavior()
         }
 
         Vector3 up = dir.crossProduct(roll);
-
         roll = up.crossProduct(dir);
 
-        Quaternion orientation = Quaternion(m_cam_rot_x + m_cam_rot_swivel_x, up) * Quaternion(Degree(180.0) + m_cam_rot_y + m_cam_rot_swivel_y, roll) * Quaternion(roll, up, dir);
+        Quaternion orientation = Quaternion(m_cam_rot_x, up) * Quaternion(Degree(180.0) + m_cam_rot_y, roll) * Quaternion(roll, up, dir);
 
         gEnv->mainCamera->setPosition(m_cct_player_actor->ar_nodes[m_cct_player_actor->ar_cinecam_node[m_cct_player_actor->ar_current_cinecam]].AbsPosition);
         gEnv->mainCamera->setOrientation(orientation);
@@ -539,16 +566,10 @@ bool CameraManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID
     }
 }
 
-bool CameraManager::gameControlsLocked()
+bool CameraManager::gameControlsLocked() const
 {
     // game controls are only disabled in free camera mode for now
     return (m_current_behavior == CAMERA_BEHAVIOR_FREE);
-}
-
-void CameraManager::OnReturnToMainMenu()
-{
-    m_cct_player_actor = nullptr;
-    m_current_behavior = CAMERA_BEHAVIOR_INVALID;
 }
 
 void CameraManager::NotifyContextChange()
@@ -741,12 +762,6 @@ void CameraManager::CameraBehaviorOrbitUpdate()
     m_cam_rot_y = std::max((Radian)Degree(-80), m_cam_rot_y);
     m_cam_rot_y = std::min(m_cam_rot_y, (Radian)Degree(88));
 
-    m_cam_rot_swivel_x = (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_RIGHT) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_LEFT)) * Degree(90);
-    m_cam_rot_swivel_y = (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_UP) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_SWIVEL_DOWN)) * Degree(60);
-
-    m_cam_rot_swivel_y = std::max((Radian)Degree(-80) - m_cam_rot_y, m_cam_rot_swivel_y);
-    m_cam_rot_swivel_y = std::min(m_cam_rot_swivel_y, (Radian)Degree(88) - m_cam_rot_y);
-
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CAMERA_ZOOM_IN) && m_cam_dist > 1)
     {
         m_cam_dist -= m_cct_trans_scale;
@@ -796,9 +811,9 @@ void CameraManager::CameraBehaviorOrbitUpdate()
     m_cam_dist = std::max(0.0f, m_cam_dist);
 
     Vector3 desiredPosition = m_cam_look_at + m_cam_dist * 0.5f * Vector3(
-        sin(m_cam_target_direction.valueRadians() + (m_cam_rot_x - m_cam_rot_swivel_x).valueRadians()) * cos(m_cam_target_pitch.valueRadians() + (m_cam_rot_y - m_cam_rot_swivel_y).valueRadians())
-        , sin(m_cam_target_pitch.valueRadians() + (m_cam_rot_y - m_cam_rot_swivel_y).valueRadians())
-        , cos(m_cam_target_direction.valueRadians() + (m_cam_rot_x - m_cam_rot_swivel_x).valueRadians()) * cos(m_cam_target_pitch.valueRadians() + (m_cam_rot_y - m_cam_rot_swivel_y).valueRadians())
+        sin(m_cam_target_direction.valueRadians() + m_cam_rot_x.valueRadians()) * cos(m_cam_target_pitch.valueRadians() + m_cam_rot_y.valueRadians())
+        , sin(m_cam_target_pitch.valueRadians() + m_cam_rot_y.valueRadians())
+        , cos(m_cam_target_direction.valueRadians() + m_cam_rot_x.valueRadians()) * cos(m_cam_target_pitch.valueRadians() + m_cam_rot_y.valueRadians())
     );
 
     if (m_cam_limit_movement && App::GetSimTerrain())
@@ -866,9 +881,7 @@ bool CameraManager::CameraBehaviorOrbitMouseMoved(const OIS::MouseEvent& _arg)
 void CameraManager::CameraBehaviorOrbitReset()
 {
     m_cam_rot_x = 0.0f;
-    m_cam_rot_swivel_x = 0.0f;
     m_cam_rot_y = 0.3f;
-    m_cam_rot_swivel_y = 0.0f;
     m_cam_look_at_last = Vector3::ZERO;
     m_cam_look_at_smooth = Vector3::ZERO;
     m_cam_look_at_smooth_last = Vector3::ZERO;
@@ -1021,7 +1034,7 @@ void CameraManager::CameraBehaviorVehicleSplineUpdate()
 {
     if (m_cct_player_actor->ar_num_camera_rails <= 0)
     {
-        gEnv->cameraManager->switchToNextBehavior();
+        this->switchToNextBehavior();
         return;
     }
 

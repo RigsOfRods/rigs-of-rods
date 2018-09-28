@@ -33,9 +33,7 @@
 // ug... BAD PERFORMNCE, BAD!!
 void Actor::ToggleSlideNodeLock()
 {
-    unsigned int num_slots = static_cast<unsigned int>(RoR::App::GetSimController()->GetBeamFactory()->GetNumUsedActorSlots());
     Actor* player_actor = RoR::App::GetSimController()->GetPlayerActor();
-    int player_actor_id = (player_actor != nullptr) ? player_actor->ar_instance_id : -1;
 
     // for every slide node on this truck
     for (std::vector<SlideNode>::iterator itNode = m_slidenodes.begin(); itNode != m_slidenodes.end(); itNode++)
@@ -57,14 +55,14 @@ void Actor::ToggleSlideNodeLock()
         }
 
         // check all the slide rail on all the other trucks :(
-        for (unsigned int i = 0; i < num_slots; ++i)
+        for (auto actor : RoR::App::GetSimController()->GetActors())
         {
             // make sure this truck is allowed
-            if (!((player_actor_id != i && itNode->sn_attach_foreign) ||
-                (player_actor_id == i && itNode->sn_attach_self)))
+            if (!((player_actor != actor && itNode->sn_attach_foreign) ||
+                (player_actor == actor && itNode->sn_attach_self)))
                 continue;
 
-            current = GetClosestRailOnActor(RoR::App::GetSimController()->GetActorById(i), (*itNode));
+            current = GetClosestRailOnActor(actor, (*itNode));
             if (current.second < closest.second)
                 closest = current;
         } // this many
@@ -78,6 +76,7 @@ void Actor::ToggleSlideNodeLock()
 std::pair<RailGroup*, Ogre::Real> Actor::GetClosestRailOnActor(Actor* actor, const SlideNode& node)
 {
     std::pair<RailGroup*, Ogre::Real> closest((RailGroup*)NULL, std::numeric_limits<Ogre::Real>::infinity());
+
     RailSegment* curRail = NULL;
     Ogre::Real lenToCurRail = std::numeric_limits<Ogre::Real>::infinity();
 

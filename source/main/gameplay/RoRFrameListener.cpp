@@ -119,12 +119,10 @@ SimController::SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_c
     m_actor_manager(),
     m_character_factory(),
     m_dir_arrow_pointed(Vector3::ZERO),
-    m_heathaze(nullptr),
     m_force_feedback(ff),
     m_skidmark_conf(skid_conf),
     m_hide_gui(false),
     m_was_app_window_closed(false),
-    m_is_dir_arrow_visible(false),
     m_is_pace_reset_pressed(false),
     m_last_cache_selection(nullptr),
     m_last_screenshot_date(""),
@@ -162,31 +160,10 @@ void SimController::UpdateForceFeedback(float dt)
 
     if (m_player_actor && m_player_actor->ar_driveable == TRUCK)
     {
-        int ar_camera_node_pos = 0;
-        int ar_camera_node_dir = 0;
-        int ar_camera_node_roll = 0;
-
-        // TODO: <rant> Per-frame validity check? How about on-spawn check? </rant>
-        // If the camera node is invalid, the FF should be disabled right away, not try to fall back to node0
-        // TODO: Check cam. nodes once on spawn! They never change --> no reason to repeat the check. ~only_a_ptr, 06/2017
-                // ~only_a_ptr, 02/2017
-        if (m_player_actor->IsNodeIdValid(m_player_actor->ar_camera_node_pos[0]))
-            ar_camera_node_pos = m_player_actor->ar_camera_node_pos[0];
-        if (m_player_actor->IsNodeIdValid(m_player_actor->ar_camera_node_dir[0]))
-            ar_camera_node_dir = m_player_actor->ar_camera_node_dir[0];
-        if (m_player_actor->IsNodeIdValid(m_player_actor->ar_camera_node_roll[0]))
-            ar_camera_node_roll = m_player_actor->ar_camera_node_roll[0];
-
-        Vector3 udir = m_player_actor->ar_nodes[ar_camera_node_pos].RelPosition - m_player_actor->ar_nodes[ar_camera_node_dir].RelPosition;
-        Vector3 uroll = m_player_actor->ar_nodes[ar_camera_node_pos].RelPosition - m_player_actor->ar_nodes[ar_camera_node_roll].RelPosition;
-
-        udir.normalise();
-        uroll.normalise();
-
         Ogre::Vector3 ff_vehicle = m_player_actor->GetFFbBodyForces();
         m_force_feedback->SetForces(
-            -ff_vehicle.dotProduct(uroll) / 10000.0,
-             ff_vehicle.dotProduct(udir)  / 10000.0,
+            -ff_vehicle.dotProduct(m_player_actor->GetCameraRoll()) / 10000.0,
+             ff_vehicle.dotProduct(m_player_actor->GetCameraDir())  / 10000.0,
             m_player_actor->ar_wheel_speed,
             m_player_actor->ar_hydro_dir_command,
             m_player_actor->GetFFbHydroForces());
@@ -195,16 +172,8 @@ void SimController::UpdateForceFeedback(float dt)
 
 void SimController::StartRaceTimer()
 {
-    m_race_start_time = (int)m_time;
+    m_race_start_time = (int)m_time; // TODO: This adds of up to 0.9 sec to player's time! Fix it! ~ only_a_ptr, 05/2018
     m_race_in_progress = true;
-    OverlayWrapper* ow = RoR::App::GetOverlayWrapper();
-    if (ow)
-    {
-        ow->ShowRacingOverlay();
-        ow->laptimes->show();
-        ow->laptimems->show();
-        ow->laptimemin->show();
-    }
 }
 
 float SimController::StopRaceTimer()
@@ -217,51 +186,22 @@ float SimController::StopRaceTimer()
         m_race_bestlap_time = time;
     }
 
-    // let the display on
-    OverlayWrapper* ow = RoR::App::GetOverlayWrapper();
-    if (ow)
-    {
-        wchar_t txt[256] = L"";
-        UTFString fmt = _L("Last lap: %.2i'%.2i.%.2i");
-        swprintf(txt, 256, fmt.asWStr_c_str(), ((int)(m_race_bestlap_time)) / 60, ((int)(m_race_bestlap_time)) % 60, ((int)(m_race_bestlap_time * 100.0)) % 100);
-        ow->lasttime->setCaption(UTFString(txt));
-        //ow->m_racing_overlay->hide();
-        ow->laptimes->hide();
-        ow->laptimems->hide();
-        ow->laptimemin->hide();
-    }
     m_race_start_time = 0;
     m_race_in_progress = false;
     return m_race_bestlap_time;
 }
 
-void SimController::UpdateRacingGui()
-{
-    OverlayWrapper* ow = RoR::App::GetOverlayWrapper();
-    if (!ow)
-        return;
-    // update m_racing_overlay gui if required
-    float time = static_cast<float>(m_time - m_race_start_time);
-    wchar_t txt[10];
-    swprintf(txt, 10, L"%.2i", ((int)(time * 100.0)) % 100);
-    ow->laptimems->setCaption(txt);
-    swprintf(txt, 10, L"%.2i", ((int)(time)) % 60);
-    ow->laptimes->setCaption(txt);
-    swprintf(txt, 10, L"%.2i'", ((int)(time)) / 60);
-    ow->laptimemin->setCaption(UTFString(txt));
-}
-
-bool SimController::UpdateInputEvents(float dt)
+void SimController::UpdateInputEvents(float dt)
 {
     if (dt == 0.0f)
-        return true;
+        return;
 
     auto s = App::sim_state.GetActive();
     auto gui_man = App::GetGuiManager();
 
     RoR::App::GetInputEngine()->updateKeyBounces(dt);
     if (!RoR::App::GetInputEngine()->getInputsChanged())
-        return true;
+        return;
 
     // update overlays if enabled
     if (RoR::App::GetOverlayWrapper())
@@ -294,7 +234,7 @@ bool SimController::UpdateInputEvents(float dt)
     }
 
     if (App::sim_state.GetActive() == SimState::PAUSED)
-        return true; //Stop everything when pause menu is visible
+        return; //Stop everything when pause menu is visible
 
     if (gui_man->IsVisible_FrictionSettings() && m_player_actor)
     {
@@ -341,8 +281,6 @@ bool SimController::UpdateInputEvents(float dt)
         RoR::App::GetGuiManager()->HideNotification();
         RoR::App::GetGuiManager()->SetMouseCursorVisibility(RoR::GUIManager::MouseCursorVisibility::HIDDEN);
 
-        m_actor_manager.UpdateFlexbodiesFinal(); // Waits until all flexbody tasks are finished
-
         if (App::app_screenshot_format.GetActive() == "png")
         {
             // add some more data into the image
@@ -366,7 +304,6 @@ bool SimController::UpdateInputEvents(float dt)
             as->addData("MP_ServerName", App::mp_server_host.GetActive());
             as->addData("MP_ServerPort", TOSTRING(App::mp_server_port.GetActive()));
             as->addData("MP_NetworkEnabled", (App::mp_state.GetActive() == MpState::CONNECTED) ? "Yes" : "No");
-            as->addData("Camera_Mode", gEnv->cameraManager ? TOSTRING(gEnv->cameraManager->getCurrentBehavior()) : "None");
             as->addData("Camera_Position", TOSTRING(gEnv->mainCamera->getPosition()));
 
             const RenderTarget::FrameStats& stats = RoR::App::GetOgreSubsystem()->GetRenderWindow()->getStatistics();
@@ -393,7 +330,7 @@ bool SimController::UpdateInputEvents(float dt)
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCKEDIT_RELOAD, 0.5f) && m_player_actor)
     {
         this->ReloadPlayerActor();
-        return true;
+        return;
     }
 
     // position storage
@@ -543,9 +480,7 @@ bool SimController::UpdateInputEvents(float dt)
             RoR::App::GetGuiManager()->PushNotification("Notice:", _L("FOV: ") + TOSTRING(fov));
 
             // save the settings
-            if (gEnv->cameraManager &&
-                gEnv->cameraManager->hasActiveBehavior() &&
-                gEnv->cameraManager->getCurrentBehavior() == RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_CINECAM)
+            if (this->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
             {
                 App::gfx_fov_internal.SetActive(fov);
             }
@@ -639,7 +574,7 @@ bool SimController::UpdateInputEvents(float dt)
             if (object_index == -1)
             {
                 // Select nearest object
-                Vector3 ref_pos = gEnv->cameraManager->gameControlsLocked() ? gEnv->mainCamera->getPosition() : gEnv->player->getPosition();
+                Vector3 ref_pos = this->AreControlsLocked() ? gEnv->mainCamera->getPosition() : gEnv->player->getPosition();
                 float min_dist = std::numeric_limits<float>::max();
                 for (int i = 0; i < (int)object_list.size(); i++)
                 {
@@ -704,7 +639,6 @@ bool SimController::UpdateInputEvents(float dt)
             if (terrain_editing_track_object)
             {
                 gEnv->player->setPosition(object_list[object_index].node->getPosition());
-                //gEnv->cameraManager->NotifyContextChange();
             }
         }
         if (object_index != -1 && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESET_TRUCK))
@@ -719,7 +653,7 @@ bool SimController::UpdateInputEvents(float dt)
             sn->setOrientation(Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z));
             sn->pitch(Degree(-90));
         }
-        if (object_index != -1 && gEnv->cameraManager && !gEnv->cameraManager->gameControlsLocked())
+        if (object_index != -1 && !this->AreControlsLocked())
         {
             SceneNode* sn = object_list[object_index].node;
 
@@ -787,7 +721,7 @@ bool SimController::UpdateInputEvents(float dt)
     else if (simRUNNING(s) || simPAUSED(s))
     {
         m_character_factory.update(dt);
-        if (gEnv->cameraManager && !gEnv->cameraManager->gameControlsLocked())
+        if (!this->AreControlsLocked())
         {
             if (m_player_actor) // we are in a vehicle
             {
@@ -865,8 +799,8 @@ bool SimController::UpdateInputEvents(float dt)
                         scale *= RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) ? 3.0f : 1.0f;
                         scale *= RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) ? 10.0f : 1.0f;
 
-                        m_player_actor->UpdateFlexbodiesFinal();
-                        m_player_actor->displace(translation * scale, rotation * scale);
+                        m_player_actor->RequestRotation(rotation * scale);
+                        m_player_actor->RequestTranslation(translation * scale);
 
                         m_advanced_vehicle_repair_timer = 0.0f;
                     }
@@ -1109,10 +1043,7 @@ bool SimController::UpdateInputEvents(float dt)
 
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SHOW_SKELETON))
                     {
-                        if (m_player_actor->ar_skeletonview_is_active)
-                            m_player_actor->HideSkeleton();
-                        else
-                            m_player_actor->ShowSkeleton(true);
+                        m_player_actor->GetGfxActor()->ToggleSkeletonView();
                     }
 
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_LIGHTS))
@@ -1301,21 +1232,16 @@ bool SimController::UpdateInputEvents(float dt)
         {
             m_time_until_next_toggle = 0.5; // Some delay before trying to re-enter(exit) actor
             // perso in/out
-            int num_actor_slots = m_actor_manager.GetNumUsedActorSlots();
-            Actor** actor_slots = m_actor_manager.GetInternalActorSlots();
-
             if (this->GetPlayerActor() == nullptr)
             {
                 // find the nearest vehicle
                 float mindist = 1000.0;
                 Actor* nearest_actor = nullptr;
-                for (int i = 0; i < num_actor_slots; i++)
+                for (auto actor : GetActors())
                 {
-                    if (!actor_slots[i])
+                    if (!actor->ar_driveable)
                         continue;
-                    if (!actor_slots[i]->ar_driveable)
-                        continue;
-                    if (actor_slots[i]->ar_cinecam_node[0] == -1)
+                    if (actor->ar_cinecam_node[0] == -1)
                     {
                         LOG("cinecam missing, cannot enter the actor!");
                         continue;
@@ -1323,12 +1249,12 @@ bool SimController::UpdateInputEvents(float dt)
                     float len = 0.0f;
                     if (gEnv->player)
                     {
-                        len = actor_slots[i]->ar_nodes[actor_slots[i]->ar_cinecam_node[0]].AbsPosition.distance(gEnv->player->getPosition() + Vector3(0.0, 2.0, 0.0));
+                        len = actor->ar_nodes[actor->ar_cinecam_node[0]].AbsPosition.distance(gEnv->player->getPosition() + Vector3(0.0, 2.0, 0.0));
                     }
                     if (len < mindist)
                     {
                         mindist = len;
-                        nearest_actor = actor_slots[i];
+                        nearest_actor = actor;
                     }
                 }
                 if (mindist < 20.0)
@@ -1509,8 +1435,10 @@ bool SimController::UpdateInputEvents(float dt)
         LOG("Position: " + TOSTRING(position.x) + ", "+ TOSTRING(position.y) + ", " + TOSTRING(position.z) + ", 0, " + TOSTRING(rotation.valueDegrees()) + ", 0");
     }
 
-    // Return true to continue rendering
-    return true;
+    if (m_time_until_next_toggle >= 0)
+    {
+        m_time_until_next_toggle -= dt;
+    }
 }
 
 void SimController::TeleportPlayer(RoR::Terrn2Telepoint* telepoint)
@@ -1547,11 +1475,6 @@ void SimController::FinalizeActorSpawning(Actor* local_actor, Actor* prev_actor)
             }
         }
 
-        if (gEnv->surveyMap)
-        {
-            gEnv->surveyMap->createNamedMapEntity("Truck" + TOSTRING(local_actor->ar_instance_id), SurveyMapManager::getTypeByDriveable(local_actor->ar_driveable));
-        }
-
         if (local_actor->ar_driveable != NOT_DRIVEABLE)
         {
             // We are supposed to be in this vehicle, if it is a vehicle
@@ -1562,21 +1485,12 @@ void SimController::FinalizeActorSpawning(Actor* local_actor, Actor* prev_actor)
             this->SetPlayerActor(local_actor);
         }
 
-        local_actor->UpdateFlexbodiesPrepare();
-        local_actor->UpdateFlexbodiesFinal();
         local_actor->updateVisual();
     }
 }
 
-// Override frameStarted event to process that (don't care about frameEnded)
-bool SimController::frameStarted(const FrameEvent& evt)
+void SimController::UpdateSimulation(float dt)
 {
-    float dt = evt.timeSinceLastFrame;
-    if (dt == 0.0f)
-        return true;
-    dt = std::min(dt, 0.05f);
-    m_time += dt;
-
     m_actor_manager.SyncWithSimThread();
 
     const bool mp_connected = (App::mp_state.GetActive() == MpState::CONNECTED);
@@ -1599,16 +1513,7 @@ bool SimController::frameStarted(const FrameEvent& evt)
 #endif //SOCKETW
 
     RoR::App::GetInputEngine()->Capture();
-    App::GetGuiManager()->NewImGuiFrame(dt);
-    const bool is_altkey_pressed =  App::GetInputEngine()->isKeyDown(OIS::KeyCode::KC_LMENU) || App::GetInputEngine()->isKeyDown(OIS::KeyCode::KC_RMENU);
     auto s = App::sim_state.GetActive();
-
-    //if (gEnv->collisions) 	printf("> ground model used: %s\n", gEnv->collisions->last_used_ground_model->name);
-    //
-    if ((simRUNNING(s) || simEDITOR(s)) && !simPAUSED(s))
-    {
-        m_actor_manager.UpdateFlexbodiesPrepare(); // Pushes all flexbody tasks into the thread pool 
-    }
 
     if (OutProtocol::getSingletonPtr())
     {
@@ -1633,13 +1538,9 @@ bool SimController::frameStarted(const FrameEvent& evt)
 
     if (simRUNNING(s) || simPAUSED(s) || simEDITOR(s))
     {
-        if ((gEnv->cameraManager != nullptr) && (!simPAUSED(s)) && (dt != 0.f))
+        if ((!simPAUSED(s)) && (dt != 0.f))
         {
-            gEnv->cameraManager->Update(dt, m_player_actor, m_actor_manager.GetSimulationSpeed());
-        }
-        if (gEnv->surveyMap != nullptr)
-        {
-            gEnv->surveyMap->Update(dt, m_player_actor);
+            m_camera_manager.Update(dt, m_player_actor, m_actor_manager.GetSimulationSpeed());
         }
     }
 
@@ -1655,96 +1556,16 @@ bool SimController::frameStarted(const FrameEvent& evt)
     }
 #endif // USE_OPENAL
 
-    if ((m_player_actor != nullptr) && (!simPAUSED(s)))
-    {
-        m_player_actor->GetGfxActor()->UpdateVideoCameras(dt);
-    }
+    this->UpdateInputEvents(dt);
 
-    // --- terrain updates ---
-
-    // update animated objects
-    App::GetSimTerrain()->update(dt);
-
-    // env map update
-    if (m_player_actor)
-    {
-        m_gfx_envmap.UpdateEnvMap(m_player_actor->getPosition(), m_player_actor);
-    }
-    // NOTE: Removed `else` branch which captured the middle of the map (height: ground+50m) - what was that for?? ~ only_a_ptr, 08/2017
-
-    // water
-    if (simRUNNING(s) || simPAUSED(s) || simEDITOR(s))
-    {
-        IWater* water = App::GetSimTerrain()->getWater();
-        if (water)
-        {
-            water->WaterSetCamera(gEnv->mainCamera);
-            if (m_player_actor)
-            {
-                water->SetReflectionPlaneHeight(water->CalcWavesHeight(m_player_actor->getPosition()));
-            }
-            else
-            {
-                water->SetReflectionPlaneHeight(water->GetStaticWaterHeight());
-            }
-            water->FrameStepWater(dt);
-        }
-    }
-
-    // trigger updating of shadows etc
-#ifdef USE_CAELUM
-    SkyManager* sky = App::GetSimTerrain()->getSkyManager();
-    if ((sky != nullptr) && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
-    {
-        sky->DetectSkyUpdate();
-    }
-#endif
-
-    SkyXManager* skyx_man = App::GetSimTerrain()->getSkyXManager();
-    if ((skyx_man != nullptr) && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
-    {
-       skyx_man->update(dt); // Light update
-    }
-
-    if (simRUNNING(s) || simPAUSED(s) || simEDITOR(s))
-    {
-        m_actor_manager.GetParticleManager().update();
-
-        if (m_heathaze)
-            m_heathaze->update();
-    }
-
-    if ((simRUNNING(s) || simEDITOR(s)) && !simPAUSED(s))
-    {
-        m_actor_manager.UpdateActorVisuals(dt, m_player_actor); // update visual - antishaking
-    }
-
-    if (! this->UpdateInputEvents(dt))
-    {
-        LOG("exiting...");
-        return false;
-    }
     // CAUTION: 'updateEvents' might have changed 'm_player_actor'
     //          TODO: This is a mess - actor updates from misc. inputs should be buffered, evaluated and executed at once, not ad-hoc ~ only_a_ptr, 07/2017
 
-    // update gui 3d arrow
-    // TODO: This is most definitely NOT necessary to do right here ~ only_a_ptr, 07/2017
-    if (RoR::App::GetOverlayWrapper() && m_is_dir_arrow_visible && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
-    {
-        RoR::App::GetOverlayWrapper()->UpdateDirectionArrow(m_player_actor, m_dir_arrow_pointed);
-    }
-
-    // one of the input modes is immediate, so setup what is needed for immediate mouse/key movement
-    if (m_time_until_next_toggle >= 0)
-    {
-        m_time_until_next_toggle -= dt;
-    }
-
-    RoR::App::GetGuiManager()->FrameStepGui(dt);
+    RoR::App::GetGuiManager()->DrawSimulationGui(dt);
 
     // CAUTION: 'FrameStepGui()' might have changed 'm_player_actor'
     //           TODO: This is a mess - actor updates from misc. inputs should be buffered, evaluated and executed at once, not ad-hoc ~ only_a_ptr, 07/2017
-
+    const bool is_altkey_pressed =  App::GetInputEngine()->isKeyDown(OIS::KeyCode::KC_LMENU) || App::GetInputEngine()->isKeyDown(OIS::KeyCode::KC_RMENU);
     App::GetGuiManager()->GetTeleport()->TeleportWindowFrameStep(
         gEnv->player->getPosition().x, gEnv->player->getPosition().z, is_altkey_pressed);
 
@@ -1752,111 +1573,37 @@ bool SimController::frameStarted(const FrameEvent& evt)
     ScriptEngine::getSingleton().framestep(dt);
 #endif
 
-    // one of the input modes is immediate, so update the movement vector
     if (simRUNNING(s) || simPAUSED(s) || simEDITOR(s))
     {
         this->UpdateForceFeedback(dt);
 
-        if (RoR::App::GetOverlayWrapper() != nullptr)
-        {
-            // update survey map
-            if (gEnv->surveyMap != nullptr && gEnv->surveyMap->getVisibility())
-            {
-                Actor** vehicles = m_actor_manager.GetInternalActorSlots();
-                int num_vehicles = m_actor_manager.GetNumUsedActorSlots();
-
-                gEnv->surveyMap->UpdateVehicles(vehicles, num_vehicles);
-            }
-
-
-            if (m_player_actor != nullptr)
-            {
-                // update mouse picking lines, etc
-                RoR::App::GetSceneMouse()->update(dt);
-
-                if (m_pressure_pressed)
-                {
-                    RoR::App::GetOverlayWrapper()->UpdatePressureTexture(m_player_actor->GetTyrePressure());
-                }
-
-                if (m_race_in_progress && (App::sim_state.GetActive() != SimState::PAUSED))
-                {
-                    UpdateRacingGui(); //I really think that this should stay here.
-                }
-
-                if (m_player_actor->ar_driveable == TRUCK && m_player_actor->ar_engine != nullptr)
-                {
-                    RoR::App::GetOverlayWrapper()->UpdateLandVehicleHUD(m_player_actor);
-                }
-                else if (m_player_actor->ar_driveable == AIRPLANE)
-                {
-                    RoR::App::GetOverlayWrapper()->UpdateAerialHUD(m_player_actor);
-                }
-            }
-            RoR::App::GetGuiManager()->UpdateSimUtils(dt, m_player_actor);
-        }
+        RoR::App::GetGuiManager()->UpdateSimUtils(dt, m_player_actor);
 
         if (!simPAUSED(s))
         {
-            m_actor_manager.JoinFlexbodyTasks(); // Waits until all flexbody tasks are finished
-            m_actor_manager.UpdateActors(m_player_actor, dt);
-            m_actor_manager.UpdateFlexbodiesFinal(); // Updates the harware buffers
-        }
+            if (m_player_actor != nullptr)
+            {
+                m_scene_mouse.UpdateSimulation();
+            }
 
-        if (simRUNNING(s) && (App::sim_state.GetPending() == SimState::PAUSED))
-        {
-            App::GetGuiManager()->SetVisible_GamePauseMenu(true);
-            m_actor_manager.MuteAllActors();
+            m_gfx_scene.BufferSimulationData();
 
-            App::sim_state.ApplyPending();
-        }
-        else if (simPAUSED(s) && (App::sim_state.GetPending() == SimState::RUNNING))
-        {
-            App::GetGuiManager()->SetVisible_GamePauseMenu(false);
-            m_actor_manager.UnmuteAllActors();
-
-            App::sim_state.ApplyPending();
+            m_actor_manager.UpdateActors(m_player_actor, dt); // *** Start new physics tasks. No reading from Actor N/B beyond this point.
         }
     }
-
-    App::GetGuiManager()->GetImGui().Render();
-
-    return true;
-}
-
-bool SimController::frameRenderingQueued(const FrameEvent& evt)
-{
-    App::GetGuiManager()->GetImGui().Render();
-    return true;
-}
-
-bool SimController::frameEnded(const FrameEvent& evt)
-{
-    // TODO: IMPROVE STATS
-    if (m_stats_on && RoR::App::GetOverlayWrapper())
-    {
-        RoR::App::GetOverlayWrapper()->updateStats();
-    }
-
-    return true;
 }
 
 void SimController::ShowLoaderGUI(int type, const Ogre::String& instance, const Ogre::String& box)
 {
-    int num_actor_slots = m_actor_manager.GetNumUsedActorSlots();
-    Actor** actor_slots = m_actor_manager.GetInternalActorSlots();
-
     // first, test if the place if clear, BUT NOT IN MULTIPLAYER
     if (!(App::mp_state.GetActive() == MpState::CONNECTED))
     {
         collision_box_t* spawnbox = gEnv->collisions->getBox(instance, box);
-        for (int t = 0; t < num_actor_slots; t++)
+        for (auto actor : GetActors())
         {
-            if (!actor_slots[t])
-                continue;
-            for (int i = 0; i < actor_slots[t]->ar_num_nodes; i++)
+            for (int i = 0; i < actor->ar_num_nodes; i++)
             {
-                if (gEnv->collisions->isInside(actor_slots[t]->ar_nodes[i].AbsPosition, spawnbox))
+                if (gEnv->collisions->isInside(actor->ar_nodes[i].AbsPosition, spawnbox))
                 {
                     RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Please clear the place first"), "error.png");
                     RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Please clear the place first"));
@@ -1870,8 +1617,8 @@ void SimController::ShowLoaderGUI(int type, const Ogre::String& instance, const 
     m_reload_dir = gEnv->collisions->getDirection(instance, box);
     m_reload_box = gEnv->collisions->getBox(instance, box);
     App::sim_state.SetActive(SimState::SELECTING); // TODO: use 'pending' mechanism
-    if (gEnv->surveyMap)
-        gEnv->surveyMap->setVisibility(false);
+    if (m_gfx_scene.GetSurveyMap())
+        m_gfx_scene.GetSurveyMap()->setVisibility(false); // TODO: we shouldn't update GfxScene-owned objects from simulation, we should queue the update ~ only_a_ptr, 05/2018
 
     App::GetGuiManager()->GetMainSelector()->Show(LoaderType(type));
 }
@@ -1884,13 +1631,11 @@ void SimController::UpdateDirectionArrow(char* text, Vector3 position)
     if (text == nullptr)
     {
         RoR::App::GetOverlayWrapper()->HideDirectionOverlay();
-        m_is_dir_arrow_visible = false;
         m_dir_arrow_pointed = Vector3::ZERO;
     }
     else
     {
         RoR::App::GetOverlayWrapper()->ShowDirectionOverlay(text);
-        m_is_dir_arrow_visible = true;
         m_dir_arrow_pointed = position;
     }
 }
@@ -1904,8 +1649,9 @@ void SimController::windowResized(Ogre::RenderWindow* rw)
 
     if (RoR::App::GetOverlayWrapper())
         RoR::App::GetOverlayWrapper()->windowResized();
-    if (gEnv->surveyMap)
-        gEnv->surveyMap->windowResized();
+
+    if (m_gfx_scene.GetSurveyMap())
+        m_gfx_scene.GetSurveyMap()->windowResized(); // TODO: we shouldn't update GfxScene-owned objects from simulation, we should queue the update ~ only_a_ptr, 05/2018
 
     //update mouse area
     RoR::App::GetInputEngine()->windowResized(rw);
@@ -1949,15 +1695,13 @@ void SimController::HideGUI(bool hidden)
     {
         if (RoR::App::GetOverlayWrapper())
             RoR::App::GetOverlayWrapper()->showDashboardOverlays(false, m_player_actor);
-        if (gEnv->surveyMap)
-            gEnv->surveyMap->setVisibility(false);
+
+        if (m_gfx_scene.GetSurveyMap())
+            m_gfx_scene.GetSurveyMap()->setVisibility(false); // TODO: we shouldn't update GfxScene-owned objects from simulation, but this whole HideGUI() function will likely end up being invoked by GfxActor in the future, so it's OK for now ~ only_a_ptr, 05/2018
     }
     else
     {
-        if (m_player_actor
-            && gEnv->cameraManager
-            && gEnv->cameraManager->hasActiveBehavior()
-            && gEnv->cameraManager->getCurrentBehavior() != RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_CINECAM)
+        if (m_player_actor && (this->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM))
         {
             if (RoR::App::GetOverlayWrapper())
                 RoR::App::GetOverlayWrapper()->showDashboardOverlays(true, m_player_actor);
@@ -1968,14 +1712,16 @@ void SimController::HideGUI(bool hidden)
 
 void SimController::RemovePlayerActor()
 {
-    Actor* actor = m_player_actor;
-    this->SetPlayerActor(nullptr);
-    m_actor_manager.RemoveActorInternal(actor->ar_instance_id);
+    this->RemoveActor(m_player_actor);
 }
 
 void SimController::RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name)
 {
-    m_actor_manager.RemoveActorByCollisionBox(gEnv->collisions, ev_src_instance_name, box_name);
+    Actor* actor = m_actor_manager.FindActorInsideBox(gEnv->collisions, ev_src_instance_name, box_name);
+    if (actor != nullptr)
+    {
+        this->RemoveActor(actor);
+    }
 }
 
 void SimController::ReloadPlayerActor()
@@ -2043,7 +1789,7 @@ bool SimController::LoadTerrain()
             LOG("Terrain not found: " + terrain_file);
             Ogre::UTFString title(_L("Terrain loading error"));
             Ogre::UTFString msg(_L("Terrain not found: ") + terrain_file);
-            App::GetGuiManager()->ShowMessageBox(title.asUTF8(), msg.asUTF8(), true, "OK", true, false, "");
+            App::GetGuiManager()->ShowMessageBox(title.asUTF8_c_str(), msg.asUTF8_c_str());
             return false;
         }
     }
@@ -2058,9 +1804,21 @@ bool SimController::LoadTerrain()
         delete(App::GetSimTerrain()); // TODO: do it when leaving simulation.
     }
 
-    App::SetSimTerrain(new TerrainManager());
-    App::GetSimTerrain()->loadTerrain(terrain_file);
+    TerrainManager* terrain = new TerrainManager();
+    App::SetSimTerrain(terrain); // The terrain preparation logic relies on it.
+    if (!terrain->LoadAndPrepareTerrain(terrain_file))
+    {
+        App::GetGuiManager()->ShowMessageBox("Failed to load terrain", "See 'RoR.log' for more info.", true, "OK", nullptr);
+        App::SetSimTerrain(nullptr);
+        delete terrain;
+        App::sim_terrain_name.ResetPending();
+        return false;
+    }
     App::sim_terrain_name.ApplyPending();
+
+    // Init minimap
+    RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(50, _L("Initializing Overview Map Subsystem"));
+    App::GetSimController()->GetGfxScene().InitSurveyMap(terrain->getMaxTerrainSize());
 
     App::GetGuiManager()->FrictionSettingsUpdateCollisions();
 
@@ -2096,11 +1854,6 @@ bool SimController::LoadTerrain()
 
 void SimController::CleanupAfterSimulation()
 {
-    if (gEnv->surveyMap)
-    {
-        gEnv->surveyMap->setVisibility(false);
-    }
-
     App::GetGuiManager()->GetMainSelector()->Reset();
 
     this->StopRaceTimer();
@@ -2121,7 +1874,7 @@ void SimController::CleanupAfterSimulation()
         App::SetSimTerrain(nullptr);
     }
 
-    App::DeleteSceneMouse();
+    m_scene_mouse.DiscardVisuals(); // TODO: move this to GfxScene ~~ only_a_ptr, 06/2018
     App::GetGuiManager()->GetTeleport()->Reset();
 
     App::GetGuiManager()->SetVisible_LoadingWindow(false);
@@ -2140,7 +1893,7 @@ bool SimController::SetupGameplayLoop()
     // Setup
     // ============================================================================
 
-    m_actor_manager.GetParticleManager().DustManCheckAndInit(gEnv->sceneManager); // TODO: de-globalize SceneManager
+    m_gfx_scene.InitScene(gEnv->sceneManager); // TODO: de-globalize SceneManager
 
     int colourNum = -1;
 
@@ -2159,20 +1912,8 @@ bool SimController::SetupGameplayLoop()
 
     gEnv->player = m_character_factory.createLocal(colourNum);
 
-    // heathaze effect
-    if (App::gfx_enable_heathaze.GetActive())
-    {
-        m_heathaze = new HeatHaze();
-        m_heathaze->setEnable(true);
-    }
-
-    if (gEnv->cameraManager == nullptr)
-    {
-        // init camera manager after mygui and after we have a character
-        gEnv->cameraManager = new CameraManager();
-    }
-
-    m_gfx_envmap.SetupEnvMap();
+    // init camera manager after mygui and after we have a character
+    m_camera_manager.SetCameraReady(); // TODO: get rid of this hack; see == SimCam == ~ only_a_ptr, 06/2018
 
     // ============================================================================
     // Loading map
@@ -2237,8 +1978,6 @@ bool SimController::SetupGameplayLoop()
             Vector3 translation = pos - actor->GetRotationCenter();
             actor->ResetPosition(actor->ar_nodes[0].AbsPosition + Vector3(translation.x, 0.0f, translation.z), true);
 
-            actor->UpdateFlexbodiesPrepare();
-            actor->UpdateFlexbodiesFinal();
             actor->updateVisual();
 
             if (App::diag_preset_veh_enter.GetActive() && actor->ar_num_nodes > 0)
@@ -2271,13 +2010,13 @@ bool SimController::SetupGameplayLoop()
         SOUND_KILL(-1, SS_TRIG_MAIN_MENU);
     }
 
-    App::CreateSceneMouse();
+    m_scene_mouse.InitializeVisuals(); // TODO: Move to GfxScene ~ only_a_ptr, 06/2018
 
     gEnv->sceneManager->setAmbientLight(Ogre::ColourValue(0.3f, 0.3f, 0.3f));
 
     if (App::gfx_enable_dof.GetActive())
     {
-        gEnv->cameraManager->ActivateDepthOfFieldEffect();
+        m_camera_manager.ActivateDepthOfFieldEffect();
     }
 
     return true;
@@ -2285,74 +2024,114 @@ bool SimController::SetupGameplayLoop()
 
 void SimController::EnterGameplayLoop()
 {
-    /* SETUP */
-
-    App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(this);
     RoRWindowEventUtilities::addWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
 
-    unsigned long timeSinceLastFrame = 1;
-    unsigned long startTime = 0;
-    unsigned long minTimePerFrame = 0;
-    unsigned long fpsLimit = App::gfx_fps_limit.GetActive();
-
-    if (fpsLimit < 10 || fpsLimit >= 200)
-    {
-        fpsLimit = 0;
-    }
-
-    if (fpsLimit)
-    {
-        minTimePerFrame = 1000 / fpsLimit;
-    }
-
-    /* LOOP */
+    Ogre::RenderWindow* rw = RoR::App::GetOgreSubsystem()->GetRenderWindow();
+    Ogre::Timer timer;
+    unsigned long start_time = 0; // milliseconds
+    unsigned long start_time_prev = 0;
 
     while (App::app_state.GetPending() == AppState::SIMULATION)
     {
-        startTime = RoR::App::GetOgreSubsystem()->GetTimer()->getMilliseconds();
-
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 || OGRE_PLATFORM == OGRE_PLATFORM_LINUX
         RoRWindowEventUtilities::messagePump();
-#endif
-        Ogre::RenderWindow* rw = RoR::App::GetOgreSubsystem()->GetRenderWindow();
         if (rw->isClosed())
         {
             App::app_state.SetPending(AppState::SHUTDOWN);
             continue;
         }
 
+        // Query timer
+        start_time_prev = start_time;
+        start_time = timer.getMilliseconds();
+        const unsigned long frame_time_ms = start_time - start_time_prev;
+
+        // Check FPS limit
+        if (App::gfx_fps_limit.GetActive() != 0)
+        {
+            if (App::gfx_fps_limit.GetActive() < 5)
+            {
+                App::gfx_fps_limit.SetActive(5);
+            }
+
+            // NOTE: Calculation adjusted to get required FPS.
+            //       When using '1s = 1000ms' the FPS goes over the limit by cca. +75%, I'm not sure why ~ only_a_ptr, 07/2018
+            const unsigned long min_frame_time = 1580 / App::gfx_fps_limit.GetActive();
+            if (frame_time_ms < min_frame_time)
+            {
+                std::chrono::milliseconds sleep_time(min_frame_time - frame_time_ms);
+                std::this_thread::sleep_for(sleep_time);
+            }
+        }
+
+        // Check simulation state change
+        if (App::sim_state.GetPending() != App::sim_state.GetActive())
+        {
+            if (App::sim_state.GetActive() == SimState::RUNNING)
+            {
+                if (App::sim_state.GetPending() == SimState::PAUSED)
+                {
+                    m_actor_manager.MuteAllActors();
+                    App::sim_state.ApplyPending();
+                }
+            }
+            else if (App::sim_state.GetActive() == SimState::PAUSED)
+            {
+                if (App::sim_state.GetPending() == SimState::RUNNING)
+                {
+                    m_actor_manager.UnmuteAllActors();
+                    App::sim_state.ApplyPending();
+                }                
+            }
+        }
+
+        // Update gameplay and 3D scene
+        const float dt_sec = static_cast<float>(frame_time_ms) * 0.001f;
+        App::GetGuiManager()->NewImGuiFrame(dt_sec);
+
+        if (dt_sec != 0.f)
+        {
+            m_time += dt_sec;
+            this->UpdateSimulation(dt_sec);
+            if (RoR::App::sim_state.GetActive() != RoR::SimState::PAUSED)
+            {
+                m_gfx_scene.UpdateScene(dt_sec);
+            }
+        }
+
+        // TODO: Ugly! Currently it seems drawing DearIMGUI only works when invoked from `Ogre::FrameListener::frameRenderingQueued`.
+        //       We only want GUI on screen, not other targets (reflections etc...), so we can't have it attached permanently.
+        //       Research and find a more elegant solution.  ~ only_a_ptr, 07/2018
+        RoR::App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(&App::GetGuiManager()->GetImGui());
         RoR::App::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
+        RoR::App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(&App::GetGuiManager()->GetImGui());
+
+        if (m_stats_on && RoR::App::GetOverlayWrapper())
+        {
+            RoR::App::GetOverlayWrapper()->updateStats();
+        }
+
 #ifdef USE_SOCKETW
         if ((App::mp_state.GetActive() == MpState::CONNECTED) && RoR::Networking::CheckError())
         {
-            Ogre::String title = Ogre::UTFString(_L("Network fatal error: ")).asUTF8();
-            Ogre::String msg = RoR::Networking::GetErrorMessage().asUTF8();
-            App::GetGuiManager()->ShowMessageBox(title, msg, true, "OK", true, false, "");
+            const char* title = LanguageEngine::getSingleton().lookUp("Network fatal error: ").asUTF8_c_str();
+            const char* text = RoR::Networking::GetErrorMessage().asUTF8_c_str();
+            App::GetGuiManager()->ShowMessageBox(title, text);
             App::app_state.SetPending(AppState::MAIN_MENU);
         }
 #endif
 
         if (!rw->isActive() && rw->isVisible())
-            rw->update(); // update even when in background !
-
-        if (fpsLimit && timeSinceLastFrame < minTimePerFrame)
         {
-            // Sleep twice as long as we were too fast.
-            int ms = static_cast<int>((minTimePerFrame - timeSinceLastFrame) << 1);
-            std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+            rw->update(); // update even when in background !
         }
-
-        timeSinceLastFrame = RoR::App::GetOgreSubsystem()->GetTimer()->getMilliseconds() - startTime;
     }
 
     App::sim_state.SetActive(SimState::OFF);
-    App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(this); // IMPORTANT: Stop receiving render events during cleanups.
     App::GetGuiManager()->GetLoadingWindow()->setProgress(50, _L("Unloading Terrain"), !m_was_app_window_closed); // Renders a frame
     this->CleanupAfterSimulation();
     RoRWindowEventUtilities::removeWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
-    // DO NOT: App::GetSceneMouse()    ->SetSimController(nullptr); -- already deleted via App::DeleteSceneMouse();      // TODO: de-globalize that object!
     // DO NOT: App::GetOverlayWrapper()->SetSimController(nullptr); -- already deleted via App::DestroyOverlayWrapper(); // TODO: de-globalize that object!
-    gEnv->cameraManager->DisableDepthOfFieldEffect(); // TODO: de-globalize the CameraManager
+    m_camera_manager.DisableDepthOfFieldEffect();
 }
 
 void SimController::SetPlayerActor(Actor* actor)
@@ -2398,11 +2177,11 @@ void SimController::SetPlayerActor(Actor* actor)
             // get player out of the vehicle
             float rotation = m_prev_player_actor->getRotation() - Math::HALF_PI;
             Vector3 position = m_prev_player_actor->ar_nodes[0].AbsPosition;
-            if (m_prev_player_actor->ar_cinecam_node[0] != -1 && m_prev_player_actor->ar_camera_node_pos[0] != -1 && m_prev_player_actor->ar_camera_node_roll[0] != -1)
+            if (m_prev_player_actor->ar_cinecam_node[0] != -1)
             {
                 // actor has a cinecam
                 position = m_prev_player_actor->ar_nodes[m_prev_player_actor->ar_cinecam_node[0]].AbsPosition;
-                position += -2.0 * ((m_prev_player_actor->ar_nodes[m_prev_player_actor->ar_camera_node_pos[0]].RelPosition - m_prev_player_actor->ar_nodes[m_prev_player_actor->ar_camera_node_roll[0]].RelPosition).normalisedCopy());
+                position += -2.0 * m_prev_player_actor->GetCameraRoll();
                 position += Vector3(0.0, -1.0, 0.0);
             }
 
@@ -2471,7 +2250,7 @@ void SimController::SetPlayerActor(Actor* actor)
 
     if (m_prev_player_actor != nullptr || m_player_actor != nullptr)
     {
-        gEnv->cameraManager->NotifyVehicleChanged(m_prev_player_actor, m_player_actor);
+        m_camera_manager.NotifyVehicleChanged(m_prev_player_actor, m_player_actor);
     }
 
     m_actor_manager.UpdateSleepingState(m_player_actor, 0.f);
@@ -2485,3 +2264,66 @@ void SimController::SetPlayerActorById(int actor_id)
         this->SetPlayerActor(actor);
     }
 }
+
+void SimController::RemoveActor(Actor* actor)
+{
+    if (actor == m_player_actor)
+    {
+        this->SetPlayerActor(nullptr);
+    }
+    m_gfx_scene.RemoveGfxActor(actor->GetGfxActor());
+    m_actor_manager.DeleteActorInternal(actor);
+}
+
+std::vector<Actor*> SimController::GetActors() const
+{
+    return m_actor_manager.GetActors();
+}
+
+bool SimController::AreControlsLocked() const
+{
+    // TODO: remove camera manager from gEnv, see == SimCam == comment in CameraManager.cpp ~ only_a_ptr
+    return (m_camera_manager.IsCameraReady()
+          && m_camera_manager.gameControlsLocked());
+}
+
+void SimController::ResetCamera()
+{
+    // Temporary function, see == SimCam == comment in CameraManager.cpp ~ only_a_ptr
+
+    if (m_camera_manager.IsCameraReady()) // TODO: remove camera manager from gEnv, see SimCam
+    {
+        // TODO: Detect camera changes from sim. state, don't rely on callback; see SimCam
+        m_camera_manager.NotifyContextChange();
+    }
+}
+
+CameraManager::CameraBehaviors SimController::GetCameraBehavior()
+{
+    if (m_camera_manager.IsCameraReady())
+    {
+        return static_cast<CameraManager::CameraBehaviors>(
+            m_camera_manager.getCurrentBehavior());
+    }
+    return CameraManager::CAMERA_BEHAVIOR_INVALID;
+}
+
+// Temporary interface until camera controls are refactored; see == SimCam == ~ only_a_ptr, 06/2018
+bool SimController::CameraManagerMouseMoved(const OIS::MouseEvent& _arg)
+{
+    if (!m_camera_manager.IsCameraReady())
+    {
+        return true; // This is what SceneMouse expects
+    }
+    return m_camera_manager.mouseMoved(_arg);
+}
+
+// Temporary interface until camera controls are refactored; see == SimCam == ~ only_a_ptr, 06/2018
+void SimController::CameraManagerMousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
+{
+    if (m_camera_manager.IsCameraReady())
+    {
+        m_camera_manager.mousePressed(_arg, _id);
+    }
+}
+

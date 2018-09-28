@@ -35,7 +35,7 @@ public:
 
     virtual ~AeroEngine() {}
 
-    virtual void updateVisuals() =0;
+    virtual void updateVisuals(RoR::GfxActor* gfx_actor) =0;
     virtual void updateForces(float dt, int doUpdate) =0;
 
     virtual void setThrottle(float val) =0;

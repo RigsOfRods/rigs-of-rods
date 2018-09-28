@@ -38,7 +38,7 @@ public:
 
     FlexMesh(
         Ogre::String const& name,
-        node_t* nds,
+        RoR::GfxActor* gfx_actor,
         int n1,
         int n2,
         int nstart,
@@ -71,7 +71,7 @@ private:
 
     // Wheel
     Ogre::Vector3     m_flexit_center;
-    node_t*           m_all_nodes;
+    RoR::GfxActor*    m_gfx_actor;
     int               m_num_rays;
     bool              m_is_rimmed;
 

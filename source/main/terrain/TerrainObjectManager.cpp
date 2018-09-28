@@ -1287,7 +1287,8 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
     //add icons if type is set
 
     String typestr = "";
-    if (!type.empty() && gEnv->surveyMap)
+    auto* survey_map = App::GetSimController()->GetGfxScene().GetSurveyMap();
+    if (!type.empty() && survey_map)
     {
         typestr = type;
         // hack for raceways
@@ -1300,7 +1301,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
 
         if (typestr != "" && typestr != "road" && typestr != "sign")
         {
-            SurveyMapEntity* e = gEnv->surveyMap->createMapEntity(typestr);
+            SurveyMapEntity* e = survey_map->createMapEntity(typestr);
             if (e)
             {
                 e->setVisibility(true);
@@ -1361,15 +1362,16 @@ void TerrainObjectManager::LoadPredefinedActors()
             actor->ar_driveable = MACHINE;
         }
 
-        if (actor && gEnv->surveyMap)
+        SurveyMapManager* survey_map = App::GetSimController()->GetGfxScene().GetSurveyMap();
+        if (actor && survey_map)
         {
-            SurveyMapEntity* e = gEnv->surveyMap->createNamedMapEntity("Truck" + TOSTRING(actor->ar_instance_id), SurveyMapManager::getTypeByDriveable(actor->ar_driveable));
+            SurveyMapEntity* e = survey_map->createNamedMapEntity("Truck" + TOSTRING(actor->ar_instance_id), SurveyMapManager::getTypeByDriveable(actor->ar_driveable));
             if (e)
             {
                 e->setState(static_cast<int>(Actor::SimState::LOCAL_SIMULATED));
                 e->setVisibility(true);
                 e->setPosition(m_predefined_actors[i].px, m_predefined_actors[i].pz);
-                e->setRotation(-Radian(actor->getHeadingDirectionAngle()));
+                e->setRotation(-Radian(actor->getRotation()));
             }
         }
 

@@ -2,6 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
+    Copyright 2016-2017 Petr Ohlidal & contributors
 
     For more information, see http://www.rigsofrods.org/
 
@@ -19,65 +20,43 @@
 */
 
 /// @file
-/// @author Thomas Fischer (thomas{AT}thomasfischer{DOT}biz)
-/// @date   13th of August 2009
-
+/// @author Petr Ohlidal
+/// @date   06/2017
 
 #pragma once
 
-#include "RoRPrerequisites.h"
-#include "Singleton.h"
+#include "RoRnet.h"
 
-#include <MyGUI.h>
-
-#include <atomic>
+#include <imgui.h>
 
 namespace RoR {
 namespace GUI {
 
-class TopMenubar : public ZeroedMemoryAllocator
+class TopMenubar
 {
 public:
+    const float   MENU_Y_OFFSET         = 40.f;
+    const float   PANEL_HOVERBOX_HEIGHT = 50.f;
+    const ImVec4  PANEL_BG_COLOR        = ImVec4(0.1f, 0.1f, 0.1f, 0.8f);
+    const ImVec4  TRANSPARENT_COLOR     = ImVec4(0,0,0,0);
+    const ImVec4  GRAY_HINT_TEXT        = ImVec4(0.62f, 0.62f, 0.61f, 1.f);
 
-    TopMenubar();
+    enum class TopMenu { TOPMENU_NONE, TOPMENU_SIM, TOPMENU_ACTORS, TOPMENU_TOOLS };
 
-    ~TopMenubar();
+    TopMenubar(): m_open_menu(TopMenu::TOPMENU_NONE), m_is_actorlist_dirty(false) {}
 
-    bool IsVisible();
+    void Update();
+    bool ShouldDisplay(ImVec2 window_pos);
+    void triggerUpdateVehicleList() { m_is_actorlist_dirty = true; }
 
-    void SetVisible(bool value);
+private:
+    void DrawActorListSinglePlayer();
+    void DrawMpUserToActorList(RoRnet::UserInfo &user); // Multiplayer
 
-    int getMenuHeight()
-    {
-        return m_menu_height;
-    };
-
-    void updatePositionUponMousePosition(int x, int y);
-
-    void triggerUpdateVehicleList();
-
-    void ReflectMultiplayerState();
-
-protected:
-
-    void onMenuBtn(MyGUI::MenuCtrlPtr _sender, MyGUI::MenuItemPtr _item);
-
-    void addUserToMenu(RoRnet::UserInfo &user);
-
-    void vehiclesListUpdate();
-
-    Ogre::UTFString getUserString(RoRnet::UserInfo &user, int num_vehicles);
-
-    std::vector<MyGUI::PopupMenuPtr> m_popup_menus;
-    MyGUI::PopupMenuPtr              m_vehicles_menu_widget;
-    MyGUI::MenuBarPtr                m_menubar_widget;
-    MyGUI::MenuItem*                 m_item_activate_all;
-    MyGUI::MenuItem*                 m_item_never_sleep;
-    MyGUI::MenuItem*                 m_item_sleep_all;
-    MyGUI::MenuItem*                 m_item_spawner_log;
-    int                              m_menu_width;
-    int                              m_menu_height;
-    std::atomic<bool>                m_vehicle_list_needs_update;
+    ImVec2  m_open_menu_hoverbox_min;
+    ImVec2  m_open_menu_hoverbox_max;
+    TopMenu m_open_menu;
+    bool    m_is_actorlist_dirty;
 };
 
 } // namespace GUI

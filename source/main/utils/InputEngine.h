@@ -110,10 +110,6 @@ enum events
     EV_CAMERA_ROTATE_LEFT, //!< rotate camera left
     EV_CAMERA_ROTATE_RIGHT, //!< rotate camera right
     EV_CAMERA_ROTATE_UP, //!< rotate camera up
-    EV_CAMERA_SWIVEL_DOWN, //!< swivel camera down
-    EV_CAMERA_SWIVEL_LEFT, //!< swivel camera left
-    EV_CAMERA_SWIVEL_RIGHT, //!< swivel camera right
-    EV_CAMERA_SWIVEL_UP, //!< swivel camera up
     EV_CAMERA_UP,
     EV_CAMERA_ZOOM_IN, //!< zoom camera in
     EV_CAMERA_ZOOM_IN_FAST, //!< zoom camera in faster

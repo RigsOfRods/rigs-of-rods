@@ -24,6 +24,8 @@
 #include "BeamData.h"
 #include "BeamFactory.h"
 #include "DustPool.h"
+#include "DustManager.h" // GfxScene
+#include "RoRFrameListener.h" // SimController
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
 #include "Water.h"
@@ -31,7 +33,7 @@
 using namespace Ogre;
 using namespace RoR;
 
-Screwprop::Screwprop(DustManager* dustman, node_t* nodes, int noderef, int nodeback, int nodeup, float fullpower, int trucknum) :
+Screwprop::Screwprop(node_t* nodes, int noderef, int nodeback, int nodeup, float fullpower, int trucknum) :
     nodes(nodes)
     , noderef(noderef)
     , nodeback(nodeback)
@@ -39,8 +41,8 @@ Screwprop::Screwprop(DustManager* dustman, node_t* nodes, int noderef, int nodeb
     , fullpower(fullpower)
     , trucknum(trucknum)
 {
-    splashp = dustman->getDustPool("splash");
-    ripplep = dustman->getDustPool("ripple");
+    splashp = RoR::App::GetSimController()->GetGfxScene().GetDustPool("splash");
+    ripplep = RoR::App::GetSimController()->GetGfxScene().GetDustPool("ripple");
     reset();
 }
 

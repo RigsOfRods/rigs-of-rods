@@ -48,10 +48,10 @@
 using namespace Ogre;
 using namespace RoR;
 
-// Param "doUpdate" means "also update things which should be updated only once per frame, not per every physics tick"
-//     In this case, doUpdate is TRUE on first tick after rendering, FALSE in all other ticks 
-void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxsteps)
+void Actor::calcForcesEulerCompute(int step, int num_steps)
 {
+    const bool doUpdate = (step == 0);
+    const float dt = static_cast<float>(PHYSICS_DT);
     IWater* water = nullptr;
     const bool is_player_actor = (this == RoR::App::GetSimController()->GetPlayerActor());
 
@@ -66,7 +66,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
         ar_engine->UpdateEngineSim(dt, doUpdate);
     }
 
-    calcBeams(doUpdate, dt, step, maxsteps);
+    calcBeams(doUpdate);
 
     if (doUpdate)
     {
@@ -93,12 +93,12 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
             m_force_sensors.accu_body_forces += ar_nodes[ar_camera_node_pos[ar_current_cinecam]].Forces;
         }
 
-        for (int i = 0; i < ar_num_hydros; i++)
+        for (hydrobeam_t& hydrobeam: ar_hydros)
         {
-            beam_t* hydrobeam = &ar_beams[ar_hydro[i]];
-            if ((hydrobeam->hydroFlags & (HYDRO_FLAG_DIR | HYDRO_FLAG_SPEED)) && !hydrobeam->bm_broken)
+            beam_t* beam = &ar_beams[hydrobeam.hb_beam_index];
+            if ((hydrobeam.hb_flags & (HYDRO_FLAG_DIR | HYDRO_FLAG_SPEED)) && !beam->bm_broken)
             {
-                m_force_sensors.accu_hydros_forces += hydrobeam->hydroRatio * hydrobeam->refL * hydrobeam->stress;
+                m_force_sensors.accu_hydros_forces += hydrobeam.hb_speed * beam->refL * beam->stress;
             }
         }
     }
@@ -117,7 +117,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
 
     m_water_contact = false;
 
-    calcNodes(doUpdate, dt, step, maxsteps);
+    this->CalcNodes();
 
     AxisAlignedBox tBoundingBox(ar_nodes[0].AbsPosition, ar_nodes[0].AbsPosition);
 
@@ -581,7 +581,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
     m_antilockbrake = std::max(m_antilockbrake, (int)alb_active);
     m_tractioncontrol = std::max(m_tractioncontrol, (int)tc_active);
 
-    if (step == maxsteps)
+    if (step == num_steps)
     {
         if (!m_antilockbrake)
         {
@@ -642,11 +642,9 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
     //auto shock adjust
     if (this->ar_has_active_shocks && doUpdate)
     {
-        m_stabilizer_shock_sleep -= dt * maxsteps;
+        m_stabilizer_shock_sleep -= dt * num_steps;
 
-        Vector3 dir = ar_nodes[ar_camera_node_pos[0]].RelPosition - ar_nodes[ar_camera_node_roll[0]].RelPosition;
-        dir.normalise();
-        float roll = asin(dir.dotProduct(Vector3::UNIT_Y));
+        float roll = asin(GetCameraRoll().dotProduct(Vector3::UNIT_Y));
         //mWindow->setDebugText("Roll:"+ TOSTRING(roll));
         if (fabs(roll) > 0.2)
         {
@@ -775,64 +773,68 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
             ar_hydro_elevator_state = 0;
     }
     //update length, dirstate between -1.0 and 1.0
-    for (int i = 0; i < ar_num_hydros; i++)
+    const int num_hydros = static_cast<int>(ar_hydros.size());
+    for (int i = 0; i < num_hydros; ++i)
     {
+        hydrobeam_t& hydrobeam = ar_hydros[i];
+
         //compound hydro
         float cstate = 0.0f;
         int div = 0;
-        if (ar_beams[ar_hydro[i]].hydroFlags & HYDRO_FLAG_SPEED)
+        if (hydrobeam.hb_flags & HYDRO_FLAG_SPEED)
         {
             //special treatment for SPEED
             if (ar_wheel_speed < 12.0f)
                 cstate += ar_hydro_dir_state * (12.0f - ar_wheel_speed) / 12.0f;
             div++;
         }
-        if (ar_beams[ar_hydro[i]].hydroFlags & HYDRO_FLAG_DIR)
+        if (hydrobeam.hb_flags & HYDRO_FLAG_DIR)
         {
             cstate += ar_hydro_dir_state;
             div++;
         }
-        if (ar_beams[ar_hydro[i]].hydroFlags & HYDRO_FLAG_AILERON)
+        if (hydrobeam.hb_flags & HYDRO_FLAG_AILERON)
         {
             cstate += ar_hydro_aileron_state;
             div++;
         }
-        if (ar_beams[ar_hydro[i]].hydroFlags & HYDRO_FLAG_RUDDER)
+        if (hydrobeam.hb_flags & HYDRO_FLAG_RUDDER)
         {
             cstate += ar_hydro_rudder_state;
             div++;
         }
-        if (ar_beams[ar_hydro[i]].hydroFlags & HYDRO_FLAG_ELEVATOR)
+        if (hydrobeam.hb_flags & HYDRO_FLAG_ELEVATOR)
         {
             cstate += ar_hydro_elevator_state;
             div++;
         }
-        if (ar_beams[ar_hydro[i]].hydroFlags & HYDRO_FLAG_REV_AILERON)
+        if (hydrobeam.hb_flags & HYDRO_FLAG_REV_AILERON)
         {
             cstate -= ar_hydro_aileron_state;
             div++;
         }
-        if (ar_beams[ar_hydro[i]].hydroFlags & HYDRO_FLAG_REV_RUDDER)
+        if (hydrobeam.hb_flags & HYDRO_FLAG_REV_RUDDER)
         {
             cstate -= ar_hydro_rudder_state;
             div++;
         }
-        if (ar_beams[ar_hydro[i]].hydroFlags & HYDRO_FLAG_REV_ELEVATOR)
+        if (hydrobeam.hb_flags & HYDRO_FLAG_REV_ELEVATOR)
         {
             cstate -= ar_hydro_elevator_state;
             div++;
         }
+
+        const uint16_t beam_idx = hydrobeam.hb_beam_index;
 
         if (cstate > 1.0)
             cstate = 1.0;
         if (cstate < -1.0)
             cstate = -1.0;
         // Animators following, if no animator, skip all the tests...
-        int flagstate = ar_beams[ar_hydro[i]].animFlags;
+        int flagstate = hydrobeam.hb_anim_flags;
         if (flagstate)
         {
-            float animoption = ar_beams[ar_hydro[i]].animOption;
-            calcAnimators(flagstate, cstate, div, dt, 0.0f, 0.0f, animoption);
+            calcAnimators(flagstate, cstate, div, dt, 0.0f, 0.0f, hydrobeam.hb_anim_param);
         }
 
         if (div)
@@ -842,21 +844,21 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
             if (m_hydro_inertia)
                 cstate = m_hydro_inertia->calcCmdKeyDelay(cstate, i, dt);
 
-            if (!(ar_beams[ar_hydro[i]].hydroFlags & HYDRO_FLAG_SPEED) && !flagstate)
+            if (!(hydrobeam.hb_flags & HYDRO_FLAG_SPEED) && !flagstate)
                 ar_hydro_dir_wheel_display = cstate;
 
-            float factor = 1.0 - cstate * ar_beams[ar_hydro[i]].hydroRatio;
+            float factor = 1.0 - cstate * hydrobeam.hb_speed;
 
             // check and apply animators limits if set
             if (flagstate)
             {
-                if (factor < 1.0f - ar_beams[ar_hydro[i]].shortbound)
-                    factor = 1.0f - ar_beams[ar_hydro[i]].shortbound;
-                if (factor > 1.0f + ar_beams[ar_hydro[i]].longbound)
-                    factor = 1.0f + ar_beams[ar_hydro[i]].longbound;
+                if (factor < 1.0f - ar_beams[beam_idx].shortbound)
+                    factor = 1.0f - ar_beams[beam_idx].shortbound;
+                if (factor > 1.0f + ar_beams[beam_idx].longbound)
+                    factor = 1.0f + ar_beams[beam_idx].longbound;
             }
 
-            ar_beams[ar_hydro[i]].L = ar_beams[ar_hydro[i]].Lhydro * factor;
+            ar_beams[beam_idx].L = hydrobeam.hb_ref_length * factor;
         }
     }
 
@@ -886,11 +888,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
         {
             for (int j = 0; j < (int)ar_command_key[i].beams.size(); j++)
             {
-                int k = abs(ar_command_key[i].beams[j]);
-                if (k >= 0 && k < ar_num_beams)
-                {
-                    ar_beams[k].autoMoveLock = false;
-                }
+                ar_command_key[i].beams[j].cmb_state->auto_move_lock = false;
             }
         }
 
@@ -917,11 +915,7 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
             {
                 if (ar_command_key[i].commandValue >= 0.5)
                 {
-                    int k = abs(ar_command_key[i].beams[j]);
-                    if (k >= 0 && k < ar_num_beams)
-                    {
-                        ar_beams[k].autoMoveLock = true;
-                    }
+                    ar_command_key[i].beams[j].cmb_state->auto_move_lock = true;
                 }
             }
         }
@@ -932,21 +926,22 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
             bool requestpower = false;
             for (int j = 0; j < (int)ar_command_key[i].beams.size(); j++)
             {
-                int bbeam_dir = (ar_command_key[i].beams[j] > 0) ? 1 : -1;
-                int bbeam = std::abs(ar_command_key[i].beams[j]);
+                commandbeam_t& cmd_beam = ar_command_key[i].beams[j];
+                int bbeam_dir = (cmd_beam.cmb_is_contraction) ? -1 : 1;
+                int bbeam = cmd_beam.cmb_beam_index;
 
                 if (bbeam > ar_num_beams)
                     continue;
 
                 // restrict forces
-                if (ar_beams[bbeam].isForceRestricted)
+                if (cmd_beam.cmb_is_force_restricted)
                     crankfactor = std::min(crankfactor, 1.0f);
 
                 float v = ar_command_key[i].commandValue;
                 int& vst = ar_command_key[i].commandValueState;
 
                 // self centering
-                if (ar_beams[bbeam].isCentering && !ar_beams[bbeam].autoMoveLock)
+                if (cmd_beam.cmb_is_autocentering && !cmd_beam.cmb_state->auto_move_lock)
                 {
                     // check for some error
                     if (ar_beams[bbeam].refL == 0 || ar_beams[bbeam].L == 0)
@@ -954,26 +949,26 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
 
                     float current = (ar_beams[bbeam].L / ar_beams[bbeam].refL);
 
-                    if (fabs(current - ar_beams[bbeam].centerLength) < 0.0001)
+                    if (fabs(current - cmd_beam.cmb_center_length) < 0.0001)
                     {
                         // hold condition
-                        ar_beams[bbeam].autoMovingMode = 0;
+                        cmd_beam.cmb_state->auto_moving_mode = 0;
                     }
                     else
                     {
-                        int mode = ar_beams[bbeam].autoMovingMode;
+                        int mode = cmd_beam.cmb_state->auto_moving_mode;
 
                         // determine direction
-                        if (current > ar_beams[bbeam].centerLength)
-                            ar_beams[bbeam].autoMovingMode = -1;
+                        if (current > cmd_beam.cmb_center_length)
+                            cmd_beam.cmb_state->auto_moving_mode = -1;
                         else
-                            ar_beams[bbeam].autoMovingMode = 1;
+                            cmd_beam.cmb_state->auto_moving_mode = 1;
 
                         // avoid overshooting
-                        if (mode != 0 && mode != ar_beams[bbeam].autoMovingMode)
+                        if (mode != 0 && mode != cmd_beam.cmb_state->auto_moving_mode)
                         {
-                            ar_beams[bbeam].L = ar_beams[bbeam].centerLength * ar_beams[bbeam].refL;
-                            ar_beams[bbeam].autoMovingMode = 0;
+                            ar_beams[bbeam].L = cmd_beam.cmb_center_length * ar_beams[bbeam].refL;
+                            cmd_beam.cmb_state->auto_moving_mode = 0;
                         }
                     }
                 }
@@ -981,58 +976,58 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
                 if (ar_beams[bbeam].refL != 0 && ar_beams[bbeam].L != 0)
                 {
                     float clen = ar_beams[bbeam].L / ar_beams[bbeam].refL;
-                    if ((bbeam_dir > 0 && clen < ar_beams[bbeam].commandLong) || (bbeam_dir < 0 && clen > ar_beams[bbeam].commandShort))
+                    if ((bbeam_dir > 0 && clen < cmd_beam.cmb_boundary_length) || (bbeam_dir < 0 && clen > cmd_beam.cmb_boundary_length))
                     {
                         float dl = ar_beams[bbeam].L;
 
-                        if (ar_beams[bbeam].isOnePressMode == 2)
+                        if (cmd_beam.cmb_is_1press_center)
                         {
                             // one press + centering
-                            if (bbeam_dir * ar_beams[bbeam].autoMovingMode > 0 && bbeam_dir * clen > bbeam_dir * ar_beams[bbeam].centerLength && !ar_beams[bbeam].pressedCenterMode)
+                            if (bbeam_dir * cmd_beam.cmb_state->auto_moving_mode > 0 && bbeam_dir * clen > bbeam_dir * cmd_beam.cmb_center_length && !cmd_beam.cmb_state->pressed_center_mode)
                             {
-                                ar_beams[bbeam].pressedCenterMode = true;
-                                ar_beams[bbeam].autoMovingMode = 0;
+                                cmd_beam.cmb_state->pressed_center_mode = true;
+                                cmd_beam.cmb_state->auto_moving_mode = 0;
                             }
-                            else if (bbeam_dir * ar_beams[bbeam].autoMovingMode < 0 && bbeam_dir * clen > bbeam_dir * ar_beams[bbeam].centerLength && ar_beams[bbeam].pressedCenterMode)
+                            else if (bbeam_dir * cmd_beam.cmb_state->auto_moving_mode < 0 && bbeam_dir * clen > bbeam_dir * cmd_beam.cmb_center_length && cmd_beam.cmb_state->pressed_center_mode)
                             {
-                                ar_beams[bbeam].pressedCenterMode = false;
+                                cmd_beam.cmb_state->pressed_center_mode = false;
                             }
                         }
-                        if (ar_beams[bbeam].isOnePressMode > 0)
+                        if (cmd_beam.cmb_is_1press || cmd_beam.cmb_is_1press_center)
                         {
                             bool key = (v > 0.5);
-                            if (bbeam_dir * ar_beams[bbeam].autoMovingMode <= 0 && key)
+                            if (bbeam_dir * cmd_beam.cmb_state->auto_moving_mode <= 0 && key)
                             {
-                                ar_beams[bbeam].autoMovingMode = bbeam_dir * 1;
+                                cmd_beam.cmb_state->auto_moving_mode = bbeam_dir * 1;
                             }
-                            else if (ar_beams[bbeam].autoMovingMode == bbeam_dir * 1 && !key)
+                            else if (cmd_beam.cmb_state->auto_moving_mode == bbeam_dir * 1 && !key)
                             {
-                                ar_beams[bbeam].autoMovingMode = bbeam_dir * 2;
+                                cmd_beam.cmb_state->auto_moving_mode = bbeam_dir * 2;
                             }
-                            else if (ar_beams[bbeam].autoMovingMode == bbeam_dir * 2 && key)
+                            else if (cmd_beam.cmb_state->auto_moving_mode == bbeam_dir * 2 && key)
                             {
-                                ar_beams[bbeam].autoMovingMode = bbeam_dir * 3;
+                                cmd_beam.cmb_state->auto_moving_mode = bbeam_dir * 3;
                             }
-                            else if (ar_beams[bbeam].autoMovingMode == bbeam_dir * 3 && !key)
+                            else if (cmd_beam.cmb_state->auto_moving_mode == bbeam_dir * 3 && !key)
                             {
-                                ar_beams[bbeam].autoMovingMode = 0;
+                                cmd_beam.cmb_state->auto_moving_mode = 0;
                             }
                         }
 
                         if (m_command_inertia)
                             v = m_command_inertia->calcCmdKeyDelay(v, i, dt);
 
-                        if (bbeam_dir * ar_beams[bbeam].autoMovingMode > 0)
+                        if (bbeam_dir * cmd_beam.cmb_state->auto_moving_mode > 0)
                             v = 1;
 
-                        if (ar_beams[bbeam].commandNeedsEngine && ((ar_engine && !ar_engine->IsRunning()) || !ar_engine_hydraulics_ready))
+                        if (cmd_beam.cmb_needs_engine && ((ar_engine && !ar_engine->IsRunning()) || !ar_engine_hydraulics_ready))
                             continue;
 
-                        if (v > 0.0f && ar_beams[bbeam].commandEngineCoupling > 0.0f)
+                        if (v > 0.0f && cmd_beam.cmb_engine_coupling > 0.0f)
                             requestpower = true;
 
 #ifdef USE_OPENAL
-                        if (ar_beams[bbeam].playsSound)
+                        if (cmd_beam.cmb_plays_sound)
                         {
                             // command sounds
                             if (vst == 1)
@@ -1057,25 +1052,25 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
 #endif //USE_OPENAL
                         float cf = 1.0f;
 
-                        if (ar_beams[bbeam].commandEngineCoupling > 0)
+                        if (cmd_beam.cmb_engine_coupling > 0)
                             cf = crankfactor;
 
                         if (bbeam_dir > 0)
-                            ar_beams[bbeam].L *= (1.0 + ar_beams[bbeam].commandRatioLong * v * cf * dt / ar_beams[bbeam].L);
+                            ar_beams[bbeam].L *= (1.0 + cmd_beam.cmb_speed * v * cf * dt / ar_beams[bbeam].L);
                         else
-                            ar_beams[bbeam].L *= (1.0 - ar_beams[bbeam].commandRatioShort * v * cf * dt / ar_beams[bbeam].L);
+                            ar_beams[bbeam].L *= (1.0 - cmd_beam.cmb_speed * v * cf * dt / ar_beams[bbeam].L);
 
                         dl = fabs(dl - ar_beams[bbeam].L);
                         if (requestpower)
                         {
                             active++;
-                            work += fabs(ar_beams[bbeam].stress) * dl * ar_beams[bbeam].commandEngineCoupling;
+                            work += fabs(ar_beams[bbeam].stress) * dl * cmd_beam.cmb_engine_coupling;
                         }
                     }
-                    else if (ar_beams[bbeam].isOnePressMode > 0 && bbeam_dir * ar_beams[bbeam].autoMovingMode > 0)
+                    else if ((cmd_beam.cmb_is_1press || cmd_beam.cmb_is_1press_center) && bbeam_dir * cmd_beam.cmb_state->auto_moving_mode > 0)
                     {
                         // beyond length
-                        ar_beams[bbeam].autoMovingMode = 0;
+                        cmd_beam.cmb_state->auto_moving_mode = 0;
                     }
                 }
             }
@@ -1189,9 +1184,9 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
             continue;
 
         float clen = it->ti_beam->L / it->ti_beam->refL;
-        if (clen > it->ti_beam->commandShort)
+        if (clen > it->ti_min_length)
         {
-            it->ti_beam->L *= (1.0 - it->ti_beam->commandRatioShort * dt / it->ti_beam->L);
+            it->ti_beam->L *= (1.0 - it->ti_contract_speed * dt / it->ti_beam->L);
         }
         else
         {
@@ -1200,8 +1195,10 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
         }
 
         // check if we hit a certain force limit, then abort the tying process
-        if (fabs(it->ti_beam->stress) > it->ti_beam->maxtiestress)
+        if (fabs(it->ti_beam->stress) > it->ti_max_stress)
+        {
             it->ti_tying = false;
+        }
     }
 
     // we also store a new replay frame
@@ -1239,25 +1236,22 @@ void Actor::calcForcesEulerCompute(bool doUpdate, Real dt, int step, int maxstep
     }
 }
 
-bool Actor::CalcForcesEulerPrepare(int doUpdate, Ogre::Real dt, int step, int maxsteps)
+bool Actor::CalcForcesEulerPrepare()
 {
-    if (dt == 0.0)
-        return false;
     if (m_reset_request)
         return false;
     if (ar_sim_state != Actor::SimState::LOCAL_SIMULATED)
         return false;
 
-    forwardCommands();
-    CalcBeamsInterActor(doUpdate, dt, step, maxsteps);
-
+    this->forwardCommands();
+    this->CalcBeamsInterActor();
     return true;
 }
 
-void Actor::calcForcesEulerFinal(int doUpdate, Ogre::Real dt, int step, int maxsteps)
+void Actor::calcForcesEulerFinal()
 {
-    calcHooks();
-    calcRopes();
+    this->calcHooks();
+    this->calcRopes();
 }
 
 template <size_t L>
@@ -1284,23 +1278,9 @@ void LogBeamNodes(RoR::Str<L>& msg, beam_t& beam) // Internal helper
     msg << ".";
 }
 
-void Actor::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
+void Actor::calcBeams(bool trigger_hooks)
 {
-    // HOT DATA: 
-    //  node_t:
-    //     RelPosition, velocity, Forces
-    //  beam_t:
-    //     bm_disabled, bm_inter_actor
-    //     L, k, d
-    //     bounded, stress, minmaxposnegstress
-    //  <>beam-bounded-SHOCK1:
-    //     longbound, shortbound, bm_type, shock(ptr)
-    //  <>beam-bounded-SHOCK2
-    //     !! function-call !!
-    //  <>beam-bounded-SUPPORTBEAM:
-    //     longbound
-    //  <>beam ~ deformation:
-    //     bm_type, bounded, maxposstress, maxnegstress, strength, plastic_coef, detacher_group
+    const float dt = static_cast<float>(PHYSICS_DT);
 
     // Springs
     for (int i = 0; i < ar_num_beams; i++)
@@ -1340,7 +1320,7 @@ void Actor::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                     float tdamp = DEFAULT_DAMP;
 
                     // Skip camera, wheels or any other shocks which are not generated in a shocks or shocks2 section
-                    if (ar_beams[i].bm_type == BEAM_HYDRO || ar_beams[i].bm_type == BEAM_INVISIBLE_HYDRO)
+                    if (ar_beams[i].bm_type == BEAM_HYDRO)
                     {
                         tspring = ar_beams[i].shock->sbd_spring;
                         tdamp = ar_beams[i].shock->sbd_damp;
@@ -1352,7 +1332,7 @@ void Actor::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                 break;
 
             case SHOCK2:
-                calcShocks2(i, difftoBeamL, k, d, dt, doUpdate);
+                calcShocks2(i, difftoBeamL, k, d, trigger_hooks);
                 break;
 
             case SUPPORTBEAM:
@@ -1403,7 +1383,7 @@ void Actor::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
             float len = std::abs(slen);
             if (len > ar_beams[i].minmaxposnegstress)
             {
-                if ((ar_beams[i].bm_type == BEAM_NORMAL || ar_beams[i].bm_type == BEAM_INVISIBLE) && ar_beams[i].bounded != SHOCK1 && k != 0.0f)
+                if (ar_beams[i].bm_type == BEAM_NORMAL && ar_beams[i].bounded != SHOCK1 && k != 0.0f)
                 {
                     // Actual deformation tests
                     if (slen > ar_beams[i].maxposstress && difftoBeamL < 0.0f) // compression
@@ -1474,7 +1454,7 @@ void Actor::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                     //Break the beam only when it is not connected to a node
                     //which is a part of a collision triangle and has 2 "live" beams or less
                     //connected to it.
-                    if (!((ar_beams[i].p1->contacter && GetNumActiveConnectedBeams(ar_beams[i].p1->pos) < 3) || (ar_beams[i].p2->contacter && GetNumActiveConnectedBeams(ar_beams[i].p2->pos) < 3)))
+                    if (!((ar_beams[i].p1->nd_contacter && GetNumActiveConnectedBeams(ar_beams[i].p1->pos) < 3) || (ar_beams[i].p2->nd_contacter && GetNumActiveConnectedBeams(ar_beams[i].p2->pos) < 3)))
                     {
                         slen = 0.0f;
                         ar_beams[i].bm_broken = true;
@@ -1546,7 +1526,7 @@ void Actor::calcBeams(int doUpdate, Ogre::Real dt, int step, int maxsteps)
     }
 }
 
-void Actor::CalcBeamsInterActor(int doUpdate, Ogre::Real dt, int step, int maxsteps)
+void Actor::CalcBeamsInterActor()
 {
     for (int i = 0; i < static_cast<int>(ar_inter_beams.size()); i++)
     {
@@ -1582,7 +1562,7 @@ void Actor::CalcBeamsInterActor(int doUpdate, Ogre::Real dt, int step, int maxst
             float len = std::abs(slen);
             if (len > ar_inter_beams[i]->minmaxposnegstress)
             {
-                if ((ar_inter_beams[i]->bm_type == BEAM_NORMAL || ar_inter_beams[i]->bm_type == BEAM_INVISIBLE) && ar_inter_beams[i]->bounded != SHOCK1 && k != 0.0f)
+                if (ar_inter_beams[i]->bm_type == BEAM_NORMAL && ar_inter_beams[i]->bounded != SHOCK1 && k != 0.0f)
                 {
                     // Actual deformation tests
                     if (slen > ar_inter_beams[i]->maxposstress && difftoBeamL < 0.0f) // compression
@@ -1649,7 +1629,7 @@ void Actor::CalcBeamsInterActor(int doUpdate, Ogre::Real dt, int step, int maxst
                     //Break the beam only when it is not connected to a node
                     //which is a part of a collision triangle and has 2 "live" beams or less
                     //connected to it.
-                    if (!((ar_inter_beams[i]->p1->contacter && GetNumActiveConnectedBeams(ar_inter_beams[i]->p1->pos) < 3) || (ar_inter_beams[i]->p2->contacter && GetNumActiveConnectedBeams(ar_inter_beams[i]->p2->pos) < 3)))
+                    if (!((ar_inter_beams[i]->p1->nd_contacter && GetNumActiveConnectedBeams(ar_inter_beams[i]->p1->pos) < 3) || (ar_inter_beams[i]->p2->nd_contacter && GetNumActiveConnectedBeams(ar_inter_beams[i]->p2->pos) < 3)))
                     {
                         slen = 0.0f;
                         ar_inter_beams[i]->bm_broken = true;
@@ -1679,116 +1659,34 @@ void Actor::CalcBeamsInterActor(int doUpdate, Ogre::Real dt, int step, int maxst
     }
 }
 
-void Actor::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
+void Actor::CalcNodes()
 {
-    IWater* water = 0;
-    float gravity = -9.81f;
-    if (App::GetSimTerrain())
-    {
-        water = App::GetSimTerrain()->getWater();
-        gravity = App::GetSimTerrain()->getGravity();
-    }
+    const float dt = static_cast<float>(PHYSICS_DT);
+    IWater* water = App::GetSimTerrain()->getWater();
+    const float gravity = App::GetSimTerrain()->getGravity();
 
     for (int i = 0; i < ar_num_nodes; i++)
     {
-        // wetness
-        if (doUpdate)
-        {
-            if (ar_nodes[i].wetstate == DRIPPING && !ar_nodes[i].contactless && !ar_nodes[i].disable_particles)
-            {
-                ar_nodes[i].wettime += dt * maxsteps;
-                if (ar_nodes[i].wettime > 5.0)
-                {
-                    ar_nodes[i].wetstate = DRY;
-                }
-                else
-                {
-                    if (!ar_nodes[i].iswheel && m_particles_drip)
-                        m_particles_drip->allocDrip(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity, ar_nodes[i].wettime);
-                    if (ar_nodes[i].isHot && m_particles_dust)
-                        m_particles_dust->allocVapour(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity, ar_nodes[i].wettime);
-                }
-            }
-        }
-
         // COLLISION
-        if (!ar_nodes[i].contactless)
+        if (!ar_nodes[i].nd_no_ground_contact)
         {
             ar_nodes[i].collTestTimer += dt;
-            if (ar_nodes[i].contacted || ar_nodes[i].collTestTimer > 0.005 || ((ar_nodes[i].iswheel || ar_nodes[i].wheelid != -1) && (m_high_res_wheelnode_collisions || ar_nodes[i].collTestTimer > 0.0025)) || m_increased_accuracy)
+            if (ar_nodes[i].nd_has_contact || ar_nodes[i].collTestTimer > 0.005 || ((ar_nodes[i].iswheel || ar_nodes[i].wheelid != -1) && (m_high_res_wheelnode_collisions || ar_nodes[i].collTestTimer > 0.0025)) || m_increased_accuracy)
             {
                 float ns = 0;
-                ground_model_t* gm = 0; // this is used as result storage, so we can use it later on
+                ground_model_t* gm = nullptr; // this is used as result storage, so we can use it later on
                 bool contacted = gEnv->collisions->groundCollision(&ar_nodes[i], ar_nodes[i].collTestTimer, &gm, &ns);
                 // reverted this construct to the old form, don't mess with it, the binary operator is intentionally!
                 if (contacted | gEnv->collisions->nodeCollision(&ar_nodes[i], contacted, ar_nodes[i].collTestTimer, &ns, &gm))
                 {
-                    // FX
-                    if (gm && doUpdate && !ar_nodes[i].disable_particles)
-                    {
-                        float thresold = 10.0f;
-
-                        switch (gm->fx_type)
-                        {
-                        case Collisions::FX_DUSTY:
-                            if (m_particles_dust)
-                                m_particles_dust->malloc(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity / 2.0, gm->fx_colour);
-                            break;
-
-                        case Collisions::FX_HARD:
-                            // smokey
-                            if (ar_nodes[i].iswheel && ns > thresold)
-                            {
-                                if (m_particles_dust)
-                                    m_particles_dust->allocSmoke(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity);
-
-                                SOUND_MODULATE(ar_instance_id, SS_MOD_SCREETCH, (ns - thresold) / thresold);
-                                SOUND_PLAY_ONCE(ar_instance_id, SS_TRIG_SCREETCH);
-
-                                //Shouldn't skidmarks be activated from here?
-                                if (m_use_skidmarks)
-                                {
-                                    ar_wheels[ar_nodes[i].wheelid].isSkiding = true;
-                                    if (!(ar_nodes[i].iswheel % 2))
-                                        ar_wheels[ar_nodes[i].wheelid].lastContactInner = ar_nodes[i].AbsPosition;
-                                    else
-                                        ar_wheels[ar_nodes[i].wheelid].lastContactOuter = ar_nodes[i].AbsPosition;
-
-                                    ar_wheels[ar_nodes[i].wheelid].lastContactType = (ar_nodes[i].iswheel % 2);
-                                    ar_wheels[ar_nodes[i].wheelid].lastSlip = ns;
-                                    ar_wheels[ar_nodes[i].wheelid].lastGroundModel = gm;
-                                }
-                            }
-                            // sparks
-                            if (!ar_nodes[i].iswheel && ns > 1.0 && !ar_nodes[i].disable_sparks)
-                            {
-                                // friction < 10 will remove the 'f' nodes from the spark generation nodes
-                                if (m_particles_sparks)
-                                    m_particles_sparks->allocSparks(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity);
-                            }
-                            if (ar_nodes[i].iswheel && ns < thresold)
-                            {
-                                if (m_use_skidmarks)
-                                {
-                                    ar_wheels[ar_nodes[i].wheelid].isSkiding = false;
-                                }
-                            }
-                            break;
-
-                        case Collisions::FX_CLUMPY:
-                            if (ar_nodes[i].Velocity.squaredLength() > 1.0)
-                            {
-                                if (m_particles_clump)
-                                    m_particles_clump->allocClump(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity / 2.0, gm->fx_colour);
-                            }
-                            break;
-                        default:
-                            //Useless for the moment
-                            break;
-                        }
-                    }
-
                     m_last_fuzzy_ground_model = gm;
+                    ar_nodes[i].nd_collision_gm = gm;
+                    ar_nodes[i].nd_collision_slip = ns;
+                }
+                else
+                {
+                    ar_nodes[i].nd_collision_gm = nullptr;
+                    ar_nodes[i].nd_collision_slip = 0.f;
                 }
                 ar_nodes[i].collTestTimer = 0.0;
             }
@@ -1802,7 +1700,7 @@ void Actor::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
         }
 
         // integration
-        if (!ar_nodes[i].locked)
+        if (!ar_nodes[i].nd_immovable)
         {
             ar_nodes[i].Velocity += ar_nodes[i].Forces / ar_nodes[i].mass * dt;
             ar_nodes[i].RelPosition += ar_nodes[i].Velocity * dt;
@@ -1834,7 +1732,8 @@ void Actor::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
 
         if (water)
         {
-            if (water->IsUnderWater(ar_nodes[i].AbsPosition))
+            const bool is_under_water = water->IsUnderWater(ar_nodes[i].AbsPosition);
+            if (is_under_water)
             {
                 m_water_contact = true;
                 if (ar_num_buoycabs == 0)
@@ -1844,27 +1743,14 @@ void Actor::calcNodes(int doUpdate, Ogre::Real dt, int step, int maxsteps)
                     ar_nodes[i].Forces -= (DEFAULT_WATERDRAG * speed) * ar_nodes[i].Velocity;
                     // basic buoyance
                     ar_nodes[i].Forces += ar_nodes[i].buoyancy * Vector3::UNIT_Y;
-                    // basic splashing
-                    if (doUpdate && water->GetStaticWaterHeight() - ar_nodes[i].AbsPosition.y < 0.2 && ar_nodes[i].Velocity.squaredLength() > 4.0 && !ar_nodes[i].disable_particles)
-                    {
-                        if (m_particles_splash)
-                            m_particles_splash->allocSplash(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity);
-                        if (m_particles_ripple)
-                            m_particles_ripple->allocRipple(ar_nodes[i].AbsPosition, ar_nodes[i].Velocity);
-                    }
                 }
                 // engine stall
                 if (i == ar_cinecam_node[0] && ar_engine)
                 {
                     ar_engine->StopEngine();
                 }
-                ar_nodes[i].wetstate = WET;
             }
-            else if (ar_nodes[i].wetstate == WET)
-            {
-                ar_nodes[i].wetstate = DRIPPING;
-                ar_nodes[i].wettime = 0.0f;
-            }
+            ar_nodes[i].nd_under_water = is_under_water;
         }
     }
 }
@@ -1873,22 +1759,18 @@ void Actor::forwardCommands()
 {
     Actor* current_truck = RoR::App::GetSimController()->GetPlayerActor();
     auto bf = RoR::App::GetSimController()->GetBeamFactory();
-    Actor** actor_slots = bf->GetInternalActorSlots();
-    int num_actor_slots = bf->GetNumUsedActorSlots();
 
     // forward things to trailers
-    if (num_actor_slots > 1 && this == current_truck && ar_forward_commands)
+    if (this == current_truck && ar_forward_commands)
     {
-        for (int i = 0; i < num_actor_slots; i++)
+        for (auto actor : RoR::App::GetSimController()->GetActors())
         {
-            if (!actor_slots[i])
-                continue;
-            if (actor_slots[i] != current_truck && actor_slots[i]->ar_import_commands)
+            if (actor != current_truck && actor->ar_import_commands)
             {
                 // forward commands
                 for (int j = 1; j <= MAX_COMMANDS; j++)
                 {
-                    actor_slots[i]->ar_command_key[j].playerInputValue = std::max(ar_command_key[j].playerInputValue, ar_command_key[j].commandValue);
+                    actor->ar_command_key[j].playerInputValue = std::max(ar_command_key[j].playerInputValue, ar_command_key[j].commandValue);
                 }
                 // just send brake and lights to the connected truck, and no one else :)
                 for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
@@ -1930,7 +1812,7 @@ void Actor::calcHooks()
             }
             else
             {
-                if (it->hk_beam->L < it->hk_beam->commandShort)
+                if (it->hk_beam->L < it->hk_min_length)
                 {
                     //shortlimit reached -> status LOCKED
                     it->hk_locked = LOCKED;
@@ -1960,7 +1842,6 @@ void Actor::calcHooks()
                             else
                             {
                                 //force exceeded reset the hook node
-                                it->hk_beam->mSceneNode->detachAllObjects();
                                 it->hk_locked = UNLOCKED;
                                 it->hk_lock_node = 0;
                                 it->hk_locked_actor = 0;

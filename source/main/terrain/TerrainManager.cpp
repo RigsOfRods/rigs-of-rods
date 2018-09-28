@@ -61,8 +61,6 @@ TerrainManager::TerrainManager()
     , m_shadow_manager(0)
     , m_sky_manager(0)
     , SkyX_manager(0)
-    , m_survey_map(0)
-    , m_water(0)
     , m_sight_range(1000)
     , m_main_light(0)
     , m_paged_detail_factor(0.0f)
@@ -101,11 +99,7 @@ TerrainManager::~TerrainManager()
         m_dashboard = nullptr;
     }
 
-    if (m_water != nullptr)
-    {
-        delete(m_water);
-        m_water = nullptr;
-    }
+    m_water.reset(); // TODO: Currently needed - research and get rid of this ~ only_a_ptr, 08/2018
 
     if (m_object_manager != nullptr)
     {
@@ -124,47 +118,34 @@ TerrainManager::~TerrainManager()
         delete(m_shadow_manager);
         m_shadow_manager = nullptr;
     }
-
-    if (m_survey_map != nullptr)
-    {
-        delete m_survey_map;
-        m_survey_map = nullptr;
-    }
 }
 
 // some shortcut to remove ugly code
 #   define PROGRESS_WINDOW(x, y) { LOG(Ogre::String("  ## ") + y); RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(x, y); }
 
-void TerrainManager::loadTerrain(String filename)
+bool TerrainManager::LoadAndPrepareTerrain(std::string filename)
 {
-    DataStreamPtr ds;
-
     try
     {
-        String group = ResourceGroupManager::getSingleton().findGroupContainingResource(filename);
-        ds = ResourceGroupManager::getSingleton().openResource(filename, group);
+        Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(filename);
+        LOG(" ===== LOADING TERRAIN " + filename);
+        Terrn2Parser parser;
+        if (! parser.LoadTerrn2(m_def, stream))
+        {
+            LOG("[RoR|Terrain] Failed to parse: " + filename);
+            for (std::string msg : parser.GetMessages())
+            {
+                LOG("[RoR|Terrain] \tMessage: " + msg);
+            }
+            return false;
+        }
     }
     catch (...)
     {
-        LOG("[RoR|Terrain] File not found: " + filename);
-        return;
+        this->HandleException("Error reading *.terrn2 file");
+        return false;
     }
 
-    PROGRESS_WINDOW(10, _L("Loading Terrain Configuration"));
-
-    LOG(" ===== LOADING TERRAIN " + filename);
-
-    Terrn2Parser parser;
-    if (! parser.LoadTerrn2(m_def, ds))
-    {
-        LOG("[RoR|Terrain] Failed to parse: " + filename);
-        for (std::string msg : parser.GetMessages())
-        {
-            LOG("[RoR|Terrain] \tMessage: " + msg);
-        }
-        return;
-    }
-    m_cur_gravity = m_def.gravity;
 
     // then, init the subsystems, order is important :)
     initSubSystems();
@@ -175,7 +156,10 @@ void TerrainManager::loadTerrain(String filename)
 
     // load the terrain geometry
     PROGRESS_WINDOW(80, _L("Loading Terrain Geometry"));
-    m_geometry_manager->InitTerrain(m_def.ogre_ter_conf_filename);
+    if (!m_geometry_manager->InitTerrain(m_def.ogre_ter_conf_filename))
+    {
+        return false; // Error already reported
+    }
 
     LOG(" ===== LOADING TERRAIN WATER " + filename);
     // must happen here
@@ -192,31 +176,12 @@ void TerrainManager::loadTerrain(String filename)
     // init things after loading the terrain
     initTerrainCollisions();
 
-    // init the survey map
-    if (!RoR::App::gfx_minimap_disabled.GetActive())
-    {
-        PROGRESS_WINDOW(45, _L("Initializing Overview Map Subsystem"));
-        m_survey_map = new SurveyMapManager();
-    }
-
     PROGRESS_WINDOW(95, _L("Initializing terrain light properties"));
     m_geometry_manager->UpdateMainLightPosition(); // Initial update takes a while
     m_collisions->finishLoadingTerrain();
     LOG(" ===== TERRAIN LOADING DONE " + filename);
 
-    // causing visual ground glitches
-/* if (App::gfx_sky_mode.GetActive() == GfxSkyMode::SKYX)
-    {
-        TerrainGroup::TerrainIterator ti = geometry_manager->getTerrainGroup()->getTerrainIterator();
-        while (ti.hasMoreElements())
-        {
-            Terrain* t = ti.getNext()->instance;
-            MaterialPtr ptr = t->getMaterial();
-            gEnv->SkyX->GetSkyX()->getGPUManager()->addGroundPass(
-                    static_cast<Ogre::MaterialPtr>(ptr)->getTechnique(0)->createPass(), 5000, Ogre::SBT_TRANSPARENT_COLOUR);
-        }
-    }*/
-
+    return true;
 }
 
 void TerrainManager::initSubSystems()
@@ -576,7 +541,7 @@ void TerrainManager::initWater()
             m_hydrax_water = new HydraxWater(m_def.water_height);
         }
 
-        m_water = m_hydrax_water;
+        m_water = std::unique_ptr<IWater>(m_hydrax_water);
 
         //Apply depth technique to the terrain
         TerrainGroup::TerrainIterator ti = m_geometry_manager->getTerrainGroup()->getTerrainIterator();
@@ -589,14 +554,7 @@ void TerrainManager::initWater()
     }
     else
     {
-        if (m_water == nullptr)
-           m_water = new Water();
-        else if (m_water != nullptr)
-        {
-            delete(m_water);
-            m_water = new Water();
-        }
-
+        m_water = std::unique_ptr<IWater>(new Water());
         m_water->SetStaticWaterHeight(m_def.water_height);
     }
 }
@@ -628,17 +586,6 @@ void TerrainManager::initTerrainCollisions()
     {
         m_collisions->setupLandUse(m_def.traction_map_file.c_str());
     }
-}
-
-bool TerrainManager::update(float dt)
-{
-    if (m_object_manager)
-        m_object_manager->UpdateTerrainObjects(dt);
-
-    if (m_geometry_manager)
-        m_geometry_manager->UpdateMainLightPosition(); // TODO: Is this necessary? I'm leaving it here just in case ~ only_a_ptr, 04/2017
-
-    return true;
 }
 
 void TerrainManager::initScripting()
@@ -714,9 +661,30 @@ bool TerrainManager::HasPredefinedActors()
 
 std::string TerrainManager::GetMinimapTextureName()
 {
-    if (m_survey_map != nullptr) // Can be disabled by user
-        return m_survey_map->GetMinimapTextureName();
+    auto* survey_map = App::GetSimController()->GetGfxScene().GetSurveyMap();
+    if (survey_map != nullptr) // Can be disabled by user
+        return survey_map->GetMinimapTextureName();
     else
         return "";
+}
+
+void TerrainManager::HandleException(const char* summary)
+{
+    try
+    {
+        throw; // rethrow
+    }
+    catch (Ogre::Exception& oex)
+    {
+        RoR::LogFormat("[RoR|Terrain] %s, message: '%s', type: <Ogre::Exception>.", summary, oex.getFullDescription().c_str());
+    }
+    catch (std::exception& stex)
+    {
+        RoR::LogFormat("[RoR|Terrain] %s, message: '%s', type: <std::exception>.", summary, stex.what());
+    }
+    catch (...)
+    {
+        RoR::LogFormat("[RoR|Terrain] %s, unknown error occurred.", summary);
+    }
 }
 

@@ -48,8 +48,7 @@ namespace RoR
 OgreSubsystem::OgreSubsystem() : 
     m_ogre_root(nullptr),
     m_render_window(nullptr),
-    m_viewport(nullptr),
-    m_timer(nullptr)
+    m_viewport(nullptr)
 {}
 
 OgreSubsystem::~OgreSubsystem()
@@ -155,9 +154,6 @@ bool OgreSubsystem::StartOgre(Ogre::String const & hwnd, Ogre::String const & ma
 
     Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
-    m_timer = new Ogre::Timer();
-    m_timer->reset();
-
     m_render_window->setActive(true);
 
     return true;
@@ -174,11 +170,6 @@ void OgreSubsystem::WindowResized(Ogre::Vector2 const & size)
     {
         m_viewport->getCamera()->setAspectRatio(Ogre::Real(size.x) / Ogre::Real(size.y));
     }
-}
-
-unsigned long OgreSubsystem::GetTimeSinceStartup() 
-{ 
-    return m_timer->getMilliseconds();
 }
 
 // static

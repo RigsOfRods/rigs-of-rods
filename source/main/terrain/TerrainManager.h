@@ -29,6 +29,7 @@
 
 #include <OgreVector3.h>
 #include <string>
+#include <memory>
 
 class TerrainManager : public ZeroedMemoryAllocator
 {
@@ -37,8 +38,6 @@ public:
     TerrainManager();
     ~TerrainManager();
 
-    void               loadTerrain(Ogre::String filename);
-    bool               update(float dt);
     void               setGravity(float value);
     std::vector<authorinfo_t>& GetAuthors();
     TerrainGeometryManager* getGeometryManager()     { return m_geometry_manager; };
@@ -53,7 +52,7 @@ public:
     float              getPagedDetailFactor() const  { return m_paged_detail_factor; };
     Ogre::Vector3      getMaxTerrainSize();
     Collisions*        getCollisions()               { return m_collisions; };
-    IWater*            getWater()                    { return m_water; };
+    IWater*            getWater()                    { return m_water.get(); };
     Ogre::Light*       getMainLight()                { return m_main_light; };
     Ogre::Vector3      getSpawnPos()                 { return m_def.start_position; };
     RoR::Terrn2Def&    GetDef()                      { return m_def; }
@@ -64,6 +63,8 @@ public:
     std::string        GetMinimapTextureName();
     void               LoadPredefinedActors();
     bool               HasPredefinedActors();
+    bool               LoadAndPrepareTerrain(std::string terrn2_filename);
+    void               HandleException(const char* summary);
     float              GetHeightAt(float x, float z);
     Ogre::Vector3      GetNormalAt(float x, float y, float z);
 
@@ -95,13 +96,12 @@ private:
 
     TerrainObjectManager*   m_object_manager;
     TerrainGeometryManager* m_geometry_manager;
-    SurveyMapManager*       m_survey_map;
+    std::unique_ptr<IWater> m_water;
     Collisions*    m_collisions;
     Dashboard*     m_dashboard;
     HDRListener*   m_hdr_listener;
     ShadowManager* m_shadow_manager;
     SkyManager*    m_sky_manager;
-    IWater*        m_water;
     HydraxWater*   m_hydrax_water;
     Ogre::Light*   m_main_light;
     RoR::Terrn2Def m_def;

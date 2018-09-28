@@ -27,8 +27,10 @@
 #include "BeamFactory.h"
 #include "CameraManager.h"
 #include "Character.h"
+#include "DustManager.h" // GfxScene
 #include "InputEngine.h"
 #include "OgreSubsystem.h"
+#include "RoRFrameListener.h"
 #include "Settings.h"
 #include "SurveyMapEntity.h"
 #include "SurveyMapTextureCreator.h"
@@ -38,13 +40,13 @@
 
 using namespace Ogre;
 
-SurveyMapManager::SurveyMapManager() :
+SurveyMapManager::SurveyMapManager(Ogre::Vector3 terrain_size) :
     mAlpha(1.0f)
     , mMapCenter(Vector2::ZERO)
     , mMapCenterThreshold(5.0f)
     , mMapEntitiesVisible(false)
     , mMapMode(SURVEY_MAP_NONE)
-    , mMapSize(Vector3::ZERO)
+    , mMapSize(terrain_size)
     , mMapTextureCreator(0)
     , mMapTextureNeedsUpdate(true)
     , mMapZoom(0.0f)
@@ -52,15 +54,11 @@ SurveyMapManager::SurveyMapManager() :
     initialiseByAttributes(this);
     setVisibility(false);
 
-    gEnv->surveyMap = this;
-
     init();
 }
 
 SurveyMapManager::~SurveyMapManager()
 {
-    gEnv->surveyMap = nullptr;
-
     for (SurveyMapEntity* e : mMapEntities)
     {
         if (e)
@@ -70,10 +68,9 @@ SurveyMapManager::~SurveyMapManager()
 
 void SurveyMapManager::init()
 {
-    mMapSize = RoR::App::GetSimTerrain()->getMaxTerrainSize();
     mMapCenter = Vector2(mMapSize.x / 2.0f, mMapSize.z / 2.0f);
 
-    mMapTextureCreator = new SurveyMapTextureCreator();
+    mMapTextureCreator = new SurveyMapTextureCreator(mMapSize);
     mMapTextureCreator->update();
     setMapTexture(mMapTextureCreator->getTextureName());
 
@@ -279,6 +276,8 @@ Ogre::String SurveyMapManager::getTypeByDriveable(int driveable)
 
 void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
 {
+    using namespace RoR;
+
     if (dt == 0)
         return;
 
@@ -286,7 +285,8 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
 
     if (curr_truck)
     {
-        mVelocity = curr_truck->ar_nodes[0].Velocity.length();
+        auto& simbuf = curr_truck->GetGfxActor()->GetSimDataBuffer();
+        mVelocity = simbuf.simbuf_node0_velo.length();
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE_VIEW))
@@ -321,11 +321,13 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
         {
             if (curr_truck)
             {
-                setMapCenter(curr_truck->getPosition(), mMapCenterThreshold * (1 - mMapZoom));
+                auto& simbuf = curr_truck->GetGfxActor()->GetSimDataBuffer();
+                setMapCenter(simbuf.simbuf_pos, mMapCenterThreshold * (1 - mMapZoom));
             }
             else
             {
-                setMapCenter(gEnv->player->getPosition(), mMapCenterThreshold * (1 - mMapZoom));
+                auto& simbuf = RoR::App::GetSimController()->GetGfxScene().GetSimDataBuffer();
+                setMapCenter(simbuf.simbuf_character_pos, mMapCenterThreshold * (1 - mMapZoom));
             }
         }
         else
@@ -343,12 +345,11 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
             mMapTextureNeedsUpdate = false;
         }
 
-        if (curr_truck &&
-            gEnv->cameraManager &&
-            gEnv->cameraManager->hasActiveBehavior() &&
-            !gEnv->cameraManager->gameControlsLocked())
+        // TODO: Is camera state owned by GfxScene or simulation? Let's access it as GfxScene for the time being ~ only_a_ptr, 05/2018
+        if (curr_truck && RoR::App::GetSimController()->AreControlsLocked())
         {
-            if (mVelocity > 5.0f || gEnv->cameraManager->getCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
+            CameraManager::CameraBehaviors cam_mode = RoR::App::GetSimController()->GetCameraBehavior();
+            if (mVelocity > 5.0f || cam_mode == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
             {
                 setWindowPosition(1, -1, 0.3f);
                 //setAlpha(mAlpha);
@@ -383,12 +384,11 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
 
 void SurveyMapManager::toggleMapView()
 {
+    using namespace RoR;
     mMapMode = (mMapMode + 1) % SURVEY_MAP_END;
 
     if (mMapMode == SURVEY_MAP_BIG && (mVelocity > 5.0f ||
-    (gEnv->cameraManager &&
-        gEnv->cameraManager->hasActiveBehavior() &&
-        gEnv->cameraManager->getCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)))
+        (RoR::App::GetSimController()->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)))
     {
         mMapMode = (mMapMode + 1) % SURVEY_MAP_END;
     }
@@ -428,20 +428,16 @@ void SurveyMapManager::toggleMapAlpha()
     }
 }
 
-void SurveyMapManager::UpdateVehicles(Actor** vehicles, int num_vehicles)
+void SurveyMapManager::UpdateActorMapEntry(int actor_id, Ogre::Vector3 pos, float angle)
 {
-    for (int t = 0; t < num_vehicles; t++)
+    // TODO: Just use pointers ~ only_a_ptr, 05/2018
+    SurveyMapEntity* e = getMapEntityByName("Truck" + TOSTRING(actor_id));
+    if (e)
     {
-        if (!vehicles[t])
-            continue;
-        SurveyMapEntity* e = getMapEntityByName("Truck" + TOSTRING(vehicles[t]->ar_instance_id));
-        if (e)
-        {
-            e->setState(static_cast<int>(Actor::SimState::LOCAL_SIMULATED));
-            e->setVisibility(true);
-            e->setPosition(vehicles[t]->getPosition().x, vehicles[t]->getPosition().z);
-            e->setRotation(Radian(vehicles[t]->getHeadingDirectionAngle()));
-        }
+        e->setState(static_cast<int>(Actor::SimState::LOCAL_SIMULATED));
+        e->setVisibility(true);
+        e->setPosition(pos.x, pos.z);
+        e->setRotation(Radian(angle)); // Source: Actor::getHeadingDirectionAngle()
     }
 }
 

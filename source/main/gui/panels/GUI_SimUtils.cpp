@@ -204,7 +204,7 @@ void CLASS::UpdateStats(float dt, Actor* actor)
             }
             beamstress += beam->stress;
             current_deformation = fabs(beam->L - beam->refL);
-            if (fabs(current_deformation) > 0.0001f && beam->bm_type != BEAM_HYDRO && beam->bm_type != BEAM_INVISIBLE_HYDRO)
+            if (fabs(current_deformation) > 0.0001f && beam->bm_type != BEAM_HYDRO)
             {
                 beamdeformed++;
             }

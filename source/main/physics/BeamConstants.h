@@ -20,15 +20,12 @@
 /* maximum limits */
 static const int   MAX_ACTORS                 = 5000;            //!< maximum number of actors per game session
 static const int   MAX_CONTACTERS             = 2000;            //!< maximum number of contacters per actor
-static const int   MAX_HYDROS                 = 1000;            //!< maximum number of hydros per actor
 static const int   MAX_WHEELS                 = 64;              //!< maximum number of wheels per actor
 static const int   MAX_SUBMESHES              = 500;             //!< maximum number of submeshes per actor
 static const int   MAX_TEXCOORDS              = 3000;            //!< maximum number of texture coordinates per actor
 static const int   MAX_CABS                   = 3000;            //!< maximum number of cabs per actor
-static const int   MAX_PROPS                  = 200;             //!< maximum number of props per actor
 static const int   MAX_COMMANDS               = 84;              //!< maximum number of commands per actor
 static const int   MAX_CAMERAS                = 10;              //!< maximum number of cameras per actor
-static const int   MAX_FLEXBODIES             = 64;              //!< maximum number of flexbodies per actor
 static const int   MAX_AEROENGINES            = 8;               //!< maximum number of aero engines per actor
 static const int   MAX_SCREWPROPS             = 8;               //!< maximum number of boat screws per actor
 static const int   MAX_AIRBRAKES              = 20;              //!< maximum number of airbrakes per actor

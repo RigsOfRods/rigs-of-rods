@@ -36,6 +36,26 @@
 #include "SceneMouse.h"
 #include "MumbleIntegration.h"
 
+/* -------------------- Research of debug options (only_a_ptr, 06/2017) ----------------------
+
+    ROR.CONF NAME            | GVar name ('+': added) --- Description
+
+["Debug Truck Mass"]         | GVar: diag_truck_mass  --- extra logging on runtime - mass recalculation.
+["Debug Collisions"]         | GVar: diag_collisions  --- visual debug of static map collisions. Only effective on map load.
+["EnvMapDebug"]              | GVar: diag_envmap      --- effective on terrain load (envmap init).
+["VideoCameraDebug"]         | GVar: diag_videocameras--- creates debug mesh showing videocamera direction. Effective on vehicle spawn.
+
+["Enable Ingame Console"]    |       +                --- Equivalent to "\log" console command, echoes all RoR.log output to console. Reported to cause massive slowdown on startup.
+["Beam Break Debug"]         |       +                --- Use before spawn, lasts entire vehicle lifetime.
+["Beam Deform Debug"]        |       +                --- Use before spawn, lasts entire vehicle lifetime.
+["Trigger Debug"]            |       +                --- Use before spawn, lasts entire vehicle lifetime.
+["DOFDebug"]                 |       +                --- Effective on CameraManager init (map loading)
+
+["Advanced Logging"]         | ~ no gvar ~            --- DEAD, used in removed 'ScopeLog' feature of old spawner.
+["DebugBeams"]                                        --- Pre configured debug overlay mode --- DEAD since debug overlay has been remade with different modes 
+
+*/
+
 namespace RoR {
 namespace App {
 
@@ -48,7 +68,6 @@ namespace App {
 static OgreSubsystem*   g_ogre_subsystem;
 static ContentManager*  g_content_manager;
 static OverlayWrapper*  g_overlay_wrapper;
-static SceneMouse*      g_scene_mouse;
 static GUIManager*      g_gui_manager;
 static Console*         g_console;
 static InputEngine*     g_input_engine;
@@ -172,7 +191,6 @@ void SetSimTerrain     (TerrainManager* obj)          { g_sim_terrain = obj;}
 OgreSubsystem*         GetOgreSubsystem      () { return g_ogre_subsystem; };
 ContentManager*        GetContentManager     () { return g_content_manager;}
 OverlayWrapper*        GetOverlayWrapper     () { return g_overlay_wrapper;}
-SceneMouse*            GetSceneMouse         () { return g_scene_mouse;}
 GUIManager*            GetGuiManager         () { return g_gui_manager;}
 Console*               GetConsole            () { return g_gui_manager->GetConsole();}
 InputEngine*           GetInputEngine        () { return g_input_engine;}
@@ -231,19 +249,6 @@ void DestroyOverlayWrapper()
     g_overlay_wrapper = nullptr;
 }
 
-void CreateSceneMouse()
-{
-    assert (g_scene_mouse == nullptr);
-    g_scene_mouse = new SceneMouse();
-}
-
-void DeleteSceneMouse()
-{
-    assert (g_scene_mouse != nullptr);
-    delete g_scene_mouse;
-    g_scene_mouse = nullptr;
-}
-
 void CreateGuiManagerIfNotExists()
 {
     if (g_gui_manager == nullptr)
@@ -289,7 +294,6 @@ const char* EnumToStr(AppState v)
     switch (v)
     {
     case AppState::BOOTSTRAP:           return "BOOTSTRAP";
-    case AppState::CHANGE_MAP:          return "CHANGE_MAP";
     case AppState::MAIN_MENU:           return "MAIN_MENU";
     case AppState::PRINT_HELP_EXIT:     return "PRINT_HELP_EXIT";
     case AppState::PRINT_VERSION_EXIT:  return "PRINT_VERSION_EXIT";
