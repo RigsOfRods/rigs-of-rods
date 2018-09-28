@@ -59,15 +59,12 @@ struct wheel_t
     int         wh_detacher_group;
     bool        wh_is_detached;
 
-    // for skidmarks
-    Ogre::Vector3 lastContactInner;
-    Ogre::Vector3 lastContactOuter;
-    bool firstLock;
+    // Skidmarks
+    Ogre::Vector3 lastContactPoint;
+    Ogre::String lastGroundModelName;
     float lastSlip;
-    int lastContactType;
-    ground_model_t *lastGroundModel;
 
-    //skidmarks v2
-    bool isSkiding;
+    // Slopebrake
+    bool firstLock;
 };
 

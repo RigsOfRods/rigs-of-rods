@@ -2574,16 +2574,22 @@ void Actor::updateSkidmarks()
 
     for (int i = 0; i < ar_num_wheels; i++)
     {
-        // ignore wheels without data
-        if (ar_wheels[i].lastContactInner == Vector3::ZERO && ar_wheels[i].lastContactOuter == Vector3::ZERO)
+        if (!m_skid_trails[i])
             continue;
 
-        if (m_skid_trails[i])
+        for (int j = 0; j < ar_wheels[i].wh_num_nodes; j++)
         {
-            m_skid_trails[i]->updatePoint();
-            if (ar_wheels[i].isSkiding)
+            const float SKID_THRESHOLD = 10.f;
+            auto n = ar_wheels[i].wh_nodes[j];
+            if (n && n->nd_collision_gm != nullptr &&
+                    n->nd_collision_gm->fx_type == Collisions::FX_HARD && n->nd_collision_slip > SKID_THRESHOLD)
             {
+                ar_wheels[i].lastSlip = n->nd_collision_slip;
+                ar_wheels[i].lastContactPoint= n->AbsPosition;
+                ar_wheels[i].lastGroundModelName = n->nd_collision_gm->name;
+
                 m_skid_trails[i]->update();
+                return;
             }
         }
     }

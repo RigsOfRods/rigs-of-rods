@@ -528,7 +528,6 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
 
 void RoR::GfxActor::UpdateParticles(float dt_sec)
 {
-    const bool use_skidmarks = m_actor->GetUseSkidmarks();
     float water_height = 0.f; // Unused if terrain has no water
     if (App::GetSimTerrain()->getWater() != nullptr)
     {
@@ -617,34 +616,6 @@ void RoR::GfxActor::UpdateParticles(float dt_sec)
                         if (m_particles_misc != nullptr)
                         {
                             m_particles_misc->allocSmoke(n.AbsPosition, n.Velocity);
-                        }
-
-                        if (use_skidmarks)
-                        {
-                            // TODO: Ported as-is from 'calcNodes()', doesn't make sense here
-                            //       -> we can update the skidmark GFX directly. ~only_a_ptr, 04/2018
-                            m_actor->ar_wheels[n.wheelid].isSkiding = true;
-                            if (!(n.iswheel % 2))
-                            {
-                                m_actor->ar_wheels[n.wheelid].lastContactInner = n.AbsPosition;
-                            }
-                            else
-                            {
-                                m_actor->ar_wheels[n.wheelid].lastContactOuter = n.AbsPosition;
-                            }
-
-                            m_actor->ar_wheels[n.wheelid].lastContactType = (n.iswheel % 2);
-                            m_actor->ar_wheels[n.wheelid].lastSlip = n.nd_collision_slip;
-                            m_actor->ar_wheels[n.wheelid].lastGroundModel = n.nd_collision_gm;
-                        }
-                    }
-                    else
-                    {
-                        if (use_skidmarks)
-                        {
-                            // TODO: Ported as-is from 'calcNodes()', doesn't make sense here
-                            //       -> we can update the skidmark GFX directly. ~only_a_ptr, 04/2018
-                            m_actor->ar_wheels[n.wheelid].isSkiding = false;
                         }
                     }
                 }
