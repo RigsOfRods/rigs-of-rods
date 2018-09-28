@@ -728,7 +728,10 @@ void SimController::UpdateInputEvents(float dt)
                 if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_TRUCK) && !m_player_actor->ar_replay_mode)
                 {
                     this->StopRaceTimer();
-                    m_player_actor->RequestActorReset();
+                    ActorModifyRequest rq;
+                    rq.amr_actor = m_player_actor;
+                    rq.amr_type  = ActorModifyRequest::Type::RESET_ON_INIT_POS;
+                    this->QueueActorModify(rq);
                 }
                 else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REMOVE_CURRENT_TRUCK) && !m_player_actor->ar_replay_mode)
                 {
@@ -809,7 +812,10 @@ void SimController::UpdateInputEvents(float dt)
                         m_advanced_vehicle_repair_timer += dt;
                     }
 
-                    m_player_actor->RequestActorReset(true);
+                    ActorModifyRequest rq;
+                    rq.amr_actor = m_player_actor;
+                    rq.amr_type  = ActorModifyRequest::Type::RESET_ON_SPOT;
+                    this->QueueActorModify(rq);
                 }
                 else
                 {
@@ -1562,6 +1568,11 @@ void SimController::UpdateSimulation(float dt)
 
     for (ActorModifyRequest& rq: m_actor_modify_queue)
     {
+        if ((rq.amr_type == ActorModifyRequest::Type::RESET_ON_SPOT) ||
+            (rq.amr_type == ActorModifyRequest::Type::RESET_ON_INIT_POS))
+        {
+            rq.amr_actor->SyncReset(rq.amr_type == ActorModifyRequest::Type::RESET_ON_INIT_POS);
+        }
         if (rq.amr_type == ActorModifyRequest::Type::RELOAD)
         {
             if (m_player_actor == rq.amr_actor) // Check if the request is up-to-date
@@ -1592,7 +1603,7 @@ void SimController::UpdateSimulation(float dt)
                 this->RemovePlayerActor();
 
                 // reset the new actor (starts engine, resets gui, ...)
-                new_actor->RequestActorReset();
+                new_actor->SyncReset(false); // false = Do not reset position
 
                 // enter the new actor
                 this->SetPlayerActor(new_actor);

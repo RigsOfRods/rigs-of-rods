@@ -86,7 +86,6 @@ public:
     /// @param translation Offset to move in world coordinates
     /// @param setInitPosition Set initial positions of nodes to current position?
     void              ResetPosition(Ogre::Vector3 translation, bool setInitPosition);
-    void              RequestActorReset(bool keepPosition = false);    //!< reset the actor from any context
     void              RequestRotation(float rotation);
     void              RequestTranslation(Ogre::Vector3 translation);
     Ogre::Vector3     GetRotationCenter();                 //!< Return the rotation center of the actor
@@ -168,6 +167,7 @@ public:
     bool              CalcForcesEulerPrepare();            //!< A single physics step (see PHYSICS_DT)
     void              calcForcesEulerCompute(int step, int num_steps); //!< TIGHT LOOP; Physics;
     void              calcForcesEulerFinal();              //!< A single physics step (see PHYSICS_DT)
+    void              SyncReset(bool reset_position);      //!< this one should be called only synchronously (without physics running in background)
     blinktype         getBlinkType();
     std::vector<authorinfo_t>     getAuthors();
     std::vector<std::string>      getDescription();
@@ -370,14 +370,6 @@ public:
 
 private:
 
-    enum ResetRequest
-    {
-        REQUEST_RESET_NONE,
-        REQUEST_RESET_ON_INIT_POS,
-        REQUEST_RESET_ON_SPOT,
-        REQUEST_RESET_FINAL
-    };
-
     void              calcBeams(bool trigger_hooks);       //!< Single physics step (see PHYSICS_DT); Physics & sound;
     void              CalcBeamsInterActor();               //!< Physics (1 step) & sound - only beams between multiple actors (noshock or ropes)
     void              CalcNodes();                         //!< Single physics step (see PHYSICS_DT)
@@ -385,7 +377,6 @@ private:
     void              calcRopes();                         //!< TIGHT LOOP; Physics;
     void              calcShocks2(int beam_i, Ogre::Real difftoBeamL, Ogre::Real &k, Ogre::Real &d, bool update_hooks);
     void              calcAnimators(const int flag_state, float &cstate, int &div, float timer, const float lower_limit, const float upper_limit, const float option3);
-    void              SyncReset();                         //!< this one should be called only synchronously (without physics running in background)
     void              DetermineLinkedActors();
     void              RecalculateNodeMasses(Ogre::Real total, bool reCalc=false); //!< Previously 'calc_masses2()'
     void              calcNodeConnectivityGraph();
@@ -440,7 +431,6 @@ private:
     Ogre::Vector3     m_mouse_grab_pos;
     float             m_mouse_grab_move_force;
     float             m_spawn_rotation;
-    ResetRequest      m_reset_request;
     RoRnet::VehicleState* oob1;                  //!< Network; Triple buffer for incoming data (actor properties)
     RoRnet::VehicleState* oob2;                  //!< Network; Triple buffer for incoming data (actor properties)
     RoRnet::VehicleState* oob3;                  //!< Network; Triple buffer for incoming data (actor properties)

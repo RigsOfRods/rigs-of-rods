@@ -55,6 +55,7 @@
 #include "CBytecodeStream.h"
 #include "PlatformUtils.h"
 #include "ScriptEvents.h"
+#include "RoRFrameListener.h" // SimController
 
 #include "BeamFactory.h"
 #include "VehicleAI.h"
@@ -113,6 +114,14 @@ void ScriptEngine::messageLogged( const String& message, LogMessageLevel lml, bo
     Console *c = RoR::App::GetConsole();
     if (c) c->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_LOGMESSAGE_SCRIPT, message, "page_white_code.png");
 
+}
+
+void AS_RequestActorReset(Actor* a, bool keep_position) // Substitute for removed `Actor` function
+{
+    ActorModifyRequest rq;
+    rq.amr_actor = a;
+    rq.amr_type  = (keep_position) ? ActorModifyRequest::Type::RESET_ON_SPOT : ActorModifyRequest::Type::RESET_ON_INIT_POS;
+    RoR::App::GetSimController()->QueueActorModify(rq);
 }
 
 // continue with initializing everything
@@ -201,7 +210,7 @@ void ScriptEngine::init()
     result = engine->RegisterObjectMethod("BeamClass", "string getTruckName()", AngelScript::asMETHOD(Actor,GetActorDesignName), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "string getTruckFileName()", AngelScript::asMETHOD(Actor,GetActorFileName), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "int  getTruckType()", AngelScript::asMETHOD(Actor,GetActorType), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
-    result = engine->RegisterObjectMethod("BeamClass", "void reset(bool)", AngelScript::asMETHOD(Actor,RequestActorReset), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "void reset(bool)", AngelScript::asFUNCTION(AS_RequestActorReset), AngelScript::asCALL_CDECL_OBJFIRST); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void setDetailLevel(int)", AngelScript::asMETHOD(Actor,setDetailLevel), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void parkingbrakeToggle()", AngelScript::asMETHOD(Actor,ToggleParkingBrake), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void tractioncontrolToggle()", AngelScript::asMETHOD(Actor,ToggleTractionControl), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
