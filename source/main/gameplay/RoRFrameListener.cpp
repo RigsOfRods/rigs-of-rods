@@ -1472,7 +1472,7 @@ void SimController::UpdateSimulation(float dt)
     // Handle actor change requests early (so that other logic can reflect it)
     for (ActorSpawnRequest& rq: m_actor_spawn_queue)
     {
-        if (rq.asr_user_selected)
+        if (rq.asr_origin == ActorSpawnRequest::Origin::USER)
         {
             m_last_cache_selection = rq.asr_cache_entry;
             m_last_skin_selection  = rq.asr_skin;
@@ -1500,6 +1500,25 @@ void SimController::UpdateSimulation(float dt)
                 rq.asr_cache_entry->number, m_reload_box, &rq.asr_config, rq.asr_skin);
 
             this->FinalizeActorSpawning(fresh_actor, m_player_actor);
+        }
+        else if (rq.asr_origin == ActorSpawnRequest::Origin::CONFIG_FILE)
+        {
+            Actor* fresh_actor = m_actor_manager.CreateLocalActor(
+                rq.asr_position, rq.asr_rotation, rq.asr_filename, rq.asr_cache_entry_num,
+                nullptr, &rq.asr_config, rq.asr_skin);
+
+            // Calculate translational offset for node[0] to align the actor's rotation center with m_reload_pos
+            Vector3 translation = rq.asr_position - fresh_actor->GetRotationCenter();
+            fresh_actor->ResetPosition(fresh_actor->ar_nodes[0].AbsPosition + Vector3(translation.x, 0.0f, translation.z), true);
+
+            if (App::diag_preset_veh_enter.GetActive() && fresh_actor->ar_num_nodes > 0)
+            {
+                this->SetPlayerActor(fresh_actor);
+            }
+            if (fresh_actor->ar_engine)
+            {
+                fresh_actor->ar_engine->StartEngine();
+            }
         }
         else
         {
@@ -1970,30 +1989,13 @@ bool SimController::SetupGameplayLoop()
             RoR::LogFormat("[RoR|Diag] Preselected Truck Config: %s", App::diag_preset_veh_config.GetActive());
         }
 
-        const std::vector<Ogre::String> actor_config = std::vector<Ogre::String>(1, App::diag_preset_veh_config.GetActive());
-
-        Vector3 pos = gEnv->player->getPosition();
-        Quaternion rot = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
-
-        Actor* actor = m_actor_manager.CreateLocalActor(pos, rot, App::diag_preset_vehicle.GetActive(), -1, nullptr, &actor_config);
-
-        if (actor != nullptr)
-        {
-            // Calculate translational offset for node[0] to align the actor's rotation center with m_reload_pos
-            Vector3 translation = pos - actor->GetRotationCenter();
-            actor->ResetPosition(actor->ar_nodes[0].AbsPosition + Vector3(translation.x, 0.0f, translation.z), true);
-
-            actor->updateVisual();
-
-            if (App::diag_preset_veh_enter.GetActive() && actor->ar_num_nodes > 0)
-            {
-                this->SetPlayerActor(actor);
-            }
-            if (actor->ar_engine)
-            {
-                actor->ar_engine->StartEngine();
-            }
-        }
+        ActorSpawnRequest rq;
+        rq.asr_filename   = App::diag_preset_vehicle.GetActive();
+        rq.asr_config     = std::vector<Ogre::String>(1, App::diag_preset_veh_config.GetActive());
+        rq.asr_position   = gEnv->player->getPosition();
+        rq.asr_rotation   = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
+        rq.asr_origin     = ActorSpawnRequest::Origin::CONFIG_FILE;
+        this->QueueActorSpawn(rq);
     }
 
     App::GetSimTerrain()->LoadPredefinedActors();
