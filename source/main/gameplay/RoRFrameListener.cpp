@@ -1520,6 +1520,31 @@ void SimController::UpdateSimulation(float dt)
                 fresh_actor->ar_engine->StartEngine();
             }
         }
+        else if (rq.asr_origin == ActorSpawnRequest::Origin::TERRN_DEF)
+        {
+            Actor* fresh_actor = m_actor_manager.CreateLocalActor(
+                rq.asr_position, rq.asr_rotation, rq.asr_filename, rq.asr_cache_entry_num,
+                nullptr, &rq.asr_config, rq.asr_skin, !rq.asr_terrn_adjust, true); // true = Preloaded with terrain
+
+            if (rq.asr_terrn_machine)
+            {
+                fresh_actor->ar_driveable = MACHINE;
+            }
+
+            if (App::GetSimController()->GetGfxScene().GetSurveyMap() != nullptr)
+            {
+                SurveyMapEntity* e = App::GetSimController()->GetGfxScene().GetSurveyMap()->createNamedMapEntity(
+                    "Truck" + std::to_string(fresh_actor->ar_instance_id),
+                    SurveyMapManager::getTypeByDriveable(fresh_actor->ar_driveable));
+                if (e != nullptr)
+                {
+                    e->setState(static_cast<int>(Actor::SimState::LOCAL_SIMULATED));
+                    e->setVisibility(true);
+                    e->setPosition(rq.asr_position.x, rq.asr_position.z);
+                    e->setRotation(-Radian(fresh_actor->getRotation()));
+                }
+            }
+        }
         else
         {
             Actor* fresh_actor = m_actor_manager.CreateLocalActor(
