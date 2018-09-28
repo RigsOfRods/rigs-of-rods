@@ -907,12 +907,12 @@ void ActorManager::RepairActor(Collisions* collisions, const Ogre::String& inst,
     Actor* actor = this->FindActorInsideBox(collisions, inst, box);
     if (actor >= 0)
     {
-        // take a position reference
         SOUND_PLAY_ONCE(actor, SS_TRIG_REPAIR);
-        Vector3 ipos = actor->ar_nodes[0].AbsPosition;
-        actor->RequestActorReset();
-        actor->ResetPosition(ipos.x, ipos.z, false, 0);
-        actor->updateVisual();
+
+        ActorModifyRequest rq;
+        rq.amr_actor = actor;
+        rq.amr_type = ActorModifyRequest::Type::RESET_ON_SPOT;
+        App::GetSimController()->QueueActorModify(rq);
     }
 }
 

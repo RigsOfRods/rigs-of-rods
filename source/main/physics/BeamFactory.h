@@ -69,8 +69,10 @@ struct ActorModifyRequest
     enum class Type
     {
         INVALID,
-        RELOAD //!< Full reload from filesystem, requested by user
-    };// to be extended
+        RELOAD,               //!< Full reload from filesystem, requested by user
+        RESET_ON_INIT_POS,
+        RESET_ON_SPOT
+    };
 
     Actor* amr_actor;
     Type   amr_type;
