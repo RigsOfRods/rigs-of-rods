@@ -1344,37 +1344,14 @@ void TerrainObjectManager::LoadPredefinedActors()
 
     for (unsigned int i = 0; i < m_predefined_actors.size(); i++)
     {
-        Vector3 pos = Vector3(m_predefined_actors[i].px, m_predefined_actors[i].py, m_predefined_actors[i].pz);
-        Actor* actor = App::GetSimController()->GetBeamFactory()->CreateLocalActor(
-            pos,
-            m_predefined_actors[i].rotation,
-            m_predefined_actors[i].name,
-            -1,
-            nullptr, /* spawnbox */
-            nullptr, /* config */
-            nullptr, /* skin */
-            m_predefined_actors[i].freePosition,
-            true /* preloaded_with_terrain */
-        );
-
-        if (m_predefined_actors[i].ismachine)
-        {
-            actor->ar_driveable = MACHINE;
-        }
-
-        SurveyMapManager* survey_map = App::GetSimController()->GetGfxScene().GetSurveyMap();
-        if (actor && survey_map)
-        {
-            SurveyMapEntity* e = survey_map->createNamedMapEntity("Truck" + TOSTRING(actor->ar_instance_id), SurveyMapManager::getTypeByDriveable(actor->ar_driveable));
-            if (e)
-            {
-                e->setState(static_cast<int>(Actor::SimState::LOCAL_SIMULATED));
-                e->setVisibility(true);
-                e->setPosition(m_predefined_actors[i].px, m_predefined_actors[i].pz);
-                e->setRotation(-Radian(actor->getRotation()));
-            }
-        }
-
+        ActorSpawnRequest rq;
+        rq.asr_position      = Vector3(m_predefined_actors[i].px, m_predefined_actors[i].py, m_predefined_actors[i].pz);
+        rq.asr_filename      = m_predefined_actors[i].name;
+        rq.asr_rotation      = m_predefined_actors[i].rotation;
+        rq.asr_origin        = ActorSpawnRequest::Origin::TERRN_DEF;
+        rq.asr_terrn_adjust  = !m_predefined_actors[i].freePosition;
+        rq.asr_terrn_machine = m_predefined_actors[i].ismachine;
+        App::GetSimController()->QueueActorSpawn(rq);
     }
 }
 

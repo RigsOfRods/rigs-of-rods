@@ -1431,4 +1431,6 @@ ActorSpawnRequest::ActorSpawnRequest()
     , asr_skin(nullptr)
     , asr_origin(Origin::UNKNOWN)
     , asr_cache_entry(nullptr)
+    , asr_terrn_adjust(false)
+    , asr_terrn_machine(false)
 {}

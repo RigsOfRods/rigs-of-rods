@@ -44,9 +44,9 @@ struct ActorSpawnRequest
     enum class Origin //!< Enables special processing
     {
         UNKNOWN,
-        CONFIG_FILE, //!< 'Preselected vehicle' in RoR.cfg
-        TERRN_DEF,   //!< Preloaded with terrain 
-        USER         //!< Direct selection by user via GUI
+        CONFIG_FILE,  //!< 'Preselected vehicle' in RoR.cfg
+        TERRN_DEF,    //!< Preloaded with terrain
+        USER          //!< Direct selection by user via GUI
     };
 
     ActorSpawnRequest();
@@ -60,6 +60,8 @@ struct ActorSpawnRequest
     collision_box_t*  asr_spawnbox;
     RoR::SkinDef*     asr_skin;
     Origin            asr_origin;
+    bool              asr_terrn_adjust:1;    //!< Fix position to match ground level
+    bool              asr_terrn_machine:1;   //!< This is a fixed machinery
 };
 
 /// Builds and manages softbody actors. Manage physics and threading.
