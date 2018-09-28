@@ -74,6 +74,7 @@ public:
     void   RemoveActor           (Actor* actor);
     void   RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name); ///< Scripting utility. TODO: Does anybody use it? ~ only_a_ptr, 08/2017
     void   QueueActorSpawn       (RoR::ActorSpawnRequest const & rq) { m_actor_spawn_queue.push_back(rq); }
+    void   QueueActorModify      (RoR::ActorModifyRequest const & rq) { m_actor_modify_queue.push_back(rq); }
 
     std::vector<Actor*>          GetActors          () const;
 
@@ -129,6 +130,7 @@ private:
     Actor*                   m_prev_player_actor;      //!< Previous actor (vehicle or machine) mounted and controlled by player
     RoR::ActorManager        m_actor_manager;
     std::vector<RoR::ActorSpawnRequest> m_actor_spawn_queue;
+    std::vector<RoR::ActorModifyRequest> m_actor_modify_queue;
     RoR::CharacterFactory    m_character_factory;
     RoR::GfxScene            m_gfx_scene;
     RoR::SkidmarkConfig*     m_skidmark_conf;

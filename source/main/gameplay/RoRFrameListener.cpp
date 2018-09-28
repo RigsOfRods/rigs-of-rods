@@ -1469,7 +1469,11 @@ void SimController::UpdateSimulation(float dt)
     }
 #endif //SOCKETW
 
-    // Handle actor change requests early (so that other logic can reflect it)
+    // ACTOR CHANGE REQUESTS - Handle early (so that other logic can reflect it)
+    //   1. Spawn requests - may outdate others by changing player seating
+    //   2. Modify requests - currently just reload, will be extended
+    //   3. Removal requests - TODO
+    //   4. Player seating change requests - TODO; currently done ad-hoc
     for (ActorSpawnRequest& rq: m_actor_spawn_queue)
     {
         if (rq.asr_origin == ActorSpawnRequest::Origin::USER)
@@ -1555,6 +1559,49 @@ void SimController::UpdateSimulation(float dt)
         }
     }
     m_actor_spawn_queue.clear();
+
+    for (ActorModifyRequest& rq: m_actor_modify_queue)
+    {
+        if (rq.amr_type == ActorModifyRequest::Type::RELOAD)
+        {
+            if (m_player_actor == rq.amr_actor) // Check if the request is up-to-date
+            {
+                m_actor_manager.UnloadTruckfileFromMemory(m_player_actor->ar_filename.c_str()); // Force reload from filesystem
+                Actor* new_actor = m_actor_manager.CreateLocalActor(m_reload_pos, m_reload_dir, m_player_actor->ar_filename, -1); // try to load the same actor again
+
+                // copy over the most basic info
+                if (m_player_actor->ar_num_nodes == new_actor->ar_num_nodes)
+                {
+                    for (int i = 0; i < m_player_actor->ar_num_nodes; i++)
+                    {
+                        // copy over nodes attributes if the amount of them didnt change
+                        new_actor->ar_nodes[i].AbsPosition = m_player_actor->ar_nodes[i].AbsPosition; // TODO: makes sense? the Reset below overwrites it. ~only_a_ptr, 09/2018
+                        new_actor->ar_nodes[i].RelPosition = m_player_actor->ar_nodes[i].RelPosition; // TODO: ditto
+                        new_actor->ar_nodes[i].Velocity    = m_player_actor->ar_nodes[i].Velocity;    // TODO: ditto
+                        new_actor->ar_nodes[i].Forces      = m_player_actor->ar_nodes[i].Forces;      // TODO: ditto
+                        new_actor->ar_nodes[i].initial_pos = m_player_actor->ar_nodes[i].initial_pos;
+                        new_actor->ar_origin               = m_player_actor->ar_origin;
+                    }
+                }
+
+                // TODO:
+                // * copy over the engine infomation
+                // * commands status
+                // * other minor stati
+
+                this->RemovePlayerActor();
+
+                // reset the new actor (starts engine, resets gui, ...)
+                new_actor->RequestActorReset();
+
+                // enter the new actor
+                this->SetPlayerActor(new_actor);
+            }
+        }
+    }
+    m_actor_modify_queue.clear();
+
+
 
     RoR::App::GetInputEngine()->Capture();
     auto s = App::sim_state.GetActive();
@@ -1780,47 +1827,10 @@ void SimController::ReloadPlayerActor()
     if (m_player_actor->ar_sim_state == Actor::SimState::NETWORKED_OK)
         return;
 
-    // try to load the same actor again
-    Actor* new_actor = m_actor_manager.CreateLocalActor(m_reload_pos, m_reload_dir, m_player_actor->ar_filename, -1);
-
-    if (!new_actor)
-    {
-        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, _L("unable to load new actor: limit reached. Please restart RoR"), "error.png");
-        return;
-    }
-
-    // copy over the most basic info
-    if (m_player_actor->ar_num_nodes == new_actor->ar_num_nodes)
-    {
-        for (int i = 0; i < m_player_actor->ar_num_nodes; i++)
-        {
-            // copy over nodes attributes if the amount of them didnt change
-            new_actor->ar_nodes[i].AbsPosition = m_player_actor->ar_nodes[i].AbsPosition;
-            new_actor->ar_nodes[i].RelPosition = m_player_actor->ar_nodes[i].RelPosition;
-            new_actor->ar_nodes[i].Velocity    = m_player_actor->ar_nodes[i].Velocity;
-            new_actor->ar_nodes[i].Forces      = m_player_actor->ar_nodes[i].Forces;
-            new_actor->ar_nodes[i].initial_pos = m_player_actor->ar_nodes[i].initial_pos;
-            new_actor->ar_origin               = m_player_actor->ar_origin;
-        }
-    }
-
-    // TODO:
-    // * copy over the engine infomation
-    // * commands status
-    // * other minor stati
-
-    // notice the user about the amount of possible reloads
-    String msg = TOSTRING(new_actor->ar_instance_id) + String(" of ") + TOSTRING(MAX_ACTORS) + String(" possible reloads.");
-    RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, msg, "information.png");
-    RoR::App::GetGuiManager()->PushNotification("Notice:", msg);
-
-    this->RemovePlayerActor();
-
-    // reset the new actor (starts engine, resets gui, ...)
-    new_actor->RequestActorReset();
-
-    // enter the new actor
-    this->SetPlayerActor(new_actor);
+    ActorModifyRequest rq;
+    rq.amr_type = ActorModifyRequest::Type::RELOAD;
+    rq.amr_actor = m_player_actor;
+    this->QueueActorModify(rq); // No more parameters needed
 }
 
 bool SimController::LoadTerrain()
