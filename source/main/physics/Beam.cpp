@@ -4101,13 +4101,7 @@ Actor::Actor(
     int actor_id,
     unsigned int vector_index,
     std::shared_ptr<RigDef::File> def,
-    Ogre::Vector3 pos,
-    Ogre::Quaternion rot,
-    const char* filename,
-    bool _networking, /* = false  */
-    const std::vector<Ogre::String>* actor_config, /* = nullptr */
-    RoR::SkinDef* skin, /* = nullptr */
-    bool preloaded_with_terrain /* = false */
+    RoR::ActorSpawnRequest rq
 ) 
     : ar_nodes(nullptr), ar_num_nodes(0)
     , ar_beams(nullptr), ar_num_beams(0)
@@ -4150,7 +4144,7 @@ Actor::Actor(
     , m_inter_point_col_detector(nullptr)
     , m_intra_point_col_detector(nullptr)
     , ar_net_last_update_time(0)
-    , m_avg_node_position_prev(pos)
+    , m_avg_node_position_prev(rq.asr_position)
     , ar_left_mirror_angle(0.52)
     , ar_lights(1)
     , m_avg_node_velocity(Ogre::Vector3::ZERO)
@@ -4160,7 +4154,7 @@ Actor::Actor(
     , ar_main_camera_node_roll(0)
     , m_hide_own_net_label(BSETTING("HideOwnNetLabel", false))
     , m_cinecam_is_rotation_center(false)
-    , m_preloaded_with_terrain(preloaded_with_terrain)
+    , m_preloaded_with_terrain(rq.asr_origin == RoR::ActorSpawnRequest::Origin::TERRN_DEF)
     , ar_net_source_id(0)
     , m_spawn_rotation(0.0)
     , ar_net_stream_id(0)
@@ -4176,7 +4170,7 @@ Actor::Actor(
     , m_replay_pos_prev(-1)
     , ar_parking_brake(0)
     , m_position_storage(0)
-    , m_avg_node_position(pos)
+    , m_avg_node_position(rq.asr_position)
     , m_previous_gear(0)
     , m_ref_tyre_pressure(50.0)
     , m_replay_handler(nullptr)
@@ -4207,7 +4201,7 @@ Actor::Actor(
     , ar_autopilot(nullptr)
     , ar_is_police(false)
     , m_disable_default_sounds(false)
-    , ar_uses_networking(_networking)
+    , ar_uses_networking(rq.asr_origin == RoR::ActorSpawnRequest::Origin::NETWORK)
     , ar_engine(nullptr)
     , ar_driveable(NOT_DRIVEABLE)
     , m_skid_trails{} // Init array to nullptr
@@ -4233,21 +4227,12 @@ Actor::Actor(
     , ar_num_contacters() // zero-init
     , ar_wheels() // array
     , ar_num_wheels() // int
-    , m_used_skin(skin)
-    , ar_filename(filename)
+    , m_used_skin(rq.asr_skin)
+    , ar_filename(rq.asr_filename)
+    , m_actor_config(rq.asr_config)
 {
     m_high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();
     m_use_skidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;
-    LOG(" ===== LOADING VEHICLE: " + Ogre::String(ar_filename));
-
-    // copy config
-    if (actor_config != nullptr && actor_config->size() > 0u)
-    {
-        for (std::vector<Ogre::String>::const_iterator it = actor_config->begin(); it != actor_config->end(); ++it)
-        {
-            m_actor_config.push_back(*it);
-        }
-    }
 }
 
 ground_model_t* Actor::getLastFuzzyGroundModel()

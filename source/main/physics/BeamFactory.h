@@ -39,45 +39,6 @@ class ThreadPool;
 
 namespace RoR {
 
-struct ActorSpawnRequest
-{
-    enum class Origin //!< Enables special processing
-    {
-        UNKNOWN,
-        CONFIG_FILE,  //!< 'Preselected vehicle' in RoR.cfg
-        TERRN_DEF,    //!< Preloaded with terrain
-        USER          //!< Direct selection by user via GUI
-    };
-
-    ActorSpawnRequest();
-
-    CacheEntry*       asr_cache_entry; //!< Optional, overrides 'asr_filename' and 'asr_cache_entry_num'
-    std::string       asr_filename;
-    std::vector<Ogre::String> asr_config;
-    Ogre::Vector3     asr_position;
-    Ogre::Quaternion  asr_rotation;
-    int               asr_cache_entry_num;
-    collision_box_t*  asr_spawnbox;
-    RoR::SkinDef*     asr_skin;
-    Origin            asr_origin;
-    bool              asr_terrn_adjust:1;    //!< Fix position to match ground level
-    bool              asr_terrn_machine:1;   //!< This is a fixed machinery
-};
-
-struct ActorModifyRequest
-{
-    enum class Type
-    {
-        INVALID,
-        RELOAD,               //!< Full reload from filesystem, requested by user
-        RESET_ON_INIT_POS,
-        RESET_ON_SPOT
-    };
-
-    Actor* amr_actor;
-    Type   amr_type;
-};
-
 /// Builds and manages softbody actors. Manage physics and threading.
 /// TODO: Currently also manages gfx, which should be done by GfxActor
 /// HISTORICAL NOTE: Until 01/2018, this class was named `BeamFactory` (because `Actor` was `Beam`)
@@ -89,19 +50,7 @@ public:
     ActorManager();
     ~ActorManager();
 
-    /// @param cache_entry_number Needed for flexbody caching. Pass -1 if unavailable (flexbody caching will be disabled)
-    Actor* CreateLocalActor(
-        Ogre::Vector3 pos,
-        Ogre::Quaternion rot,
-        Ogre::String fname,
-        int cache_entry_number = -1,
-        collision_box_t* spawnbox = NULL,
-        const std::vector<Ogre::String>* actorconfig = nullptr,
-        RoR::SkinDef* skin = nullptr,
-        bool freePosition = false,
-        bool preloaded_with_terrain = false
-    );
-
+    Actor*         CreateActorInstance(ActorSpawnRequest rq, std::shared_ptr<RigDef::File> def);
     void           UpdateActors(Actor* player_actor, float dt);
     void           SyncWithSimThread();
     void           UpdatePhysicsSimulation();
@@ -128,6 +77,7 @@ public:
     Actor*         GetActorByIdInternal(int actor_id); //!< DO NOT CALL DIRECTLY! Use `SimController` for public interface
     Actor*         FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
     void           UnloadTruckfileFromMemory(const char* filename);
+    std::shared_ptr<RigDef::File>   FetchActorDef(const char* filename, bool predefined_on_terrain = false);
 
 #ifdef USE_SOCKETW
     void           HandleActorStreamData(std::vector<RoR::Networking::recv_packet_t> packet);
@@ -158,10 +108,8 @@ private:
     bool           PredictActorAabbIntersection(int a, int b, float scale = 1.0f);   //!< Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the default truck bounding boxes.
     bool           CheckActorCollAabbIntersect(int a, int b, float scale = 1.0f);    //!< Returns whether or not the bounding boxes of truck a and truck b intersect. Based on the truck collision bounding boxes.
     bool           PredictActorCollAabbIntersect(int a, int b, float scale = 1.0f);  //!< Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the truck collision bounding boxes.
-    int            CreateRemoteInstance(RoRnet::ActorStreamRegister* reg);
     void           RemoveStreamSource(int sourceid);
     void           RecursiveActivation(int j, std::vector<bool>& visited);
-    std::shared_ptr<RigDef::File>   FetchActorDef(const char* filename, bool predefined_on_terrain = false);
     
 
     std::map<std::string, std::shared_ptr<RigDef::File>>   m_actor_defs;

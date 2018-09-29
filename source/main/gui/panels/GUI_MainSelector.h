@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "BeamFactory.h" // ActorSpawnRequest
+#include "BeamData.h" // ActorSpawnRequest
 #include "ForwardDeclarations.h"
 #include "GUI_MainSelectorLayout.h"
 

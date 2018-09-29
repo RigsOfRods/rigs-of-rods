@@ -63,13 +63,7 @@ public:
           int actor_id
         , unsigned int vector_index
         , std::shared_ptr<RigDef::File> def
-        , Ogre::Vector3 pos
-        , Ogre::Quaternion rot
-        , const char* fname
-        , bool networking = false
-        , const std::vector<Ogre::String> *actor_config = nullptr
-        , RoR::SkinDef *skin = nullptr
-        , bool preloaded_with_terrain = false
+        , RoR::ActorSpawnRequest rq
         );
 
     ~Actor();

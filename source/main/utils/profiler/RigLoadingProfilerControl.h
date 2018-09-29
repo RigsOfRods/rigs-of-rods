@@ -50,22 +50,12 @@
 // Prints simple, per-flexbody stats to RoR.log
 //#define FLEXBODY_LOG_LOADING_TIMES
 
-// HTML profiler
-// Profile entire class ActorSpawner, per-function
-//#define SPAWNER_USE_PROFILER
-
 // ============================================================================
 // END SETUP
 // ============================================================================
 
-#ifdef SPAWNER_USE_PROFILER
-#   define ROR_PROFILE_RIG_LOADING
-#   include "Profiler.h"
-// Use root namespace ::
-#   define SPAWNER_PROFILE_SCOPED() ::PROFILE_SCOPED()
-#else
-#   define SPAWNER_PROFILE_SCOPED()
-#endif
+// Removed
+#define SPAWNER_PROFILE_SCOPED()
 
 #ifdef FLEXBODY_USE_PROFILER
 #   define ROR_PROFILE_RIG_LOADING
