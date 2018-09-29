@@ -139,16 +139,23 @@ void RoR::GUI::TopMenubar::Update()
 
             if (ImGui::Button("Reload current vehicle")) // TODO: make button disabled (fake it!) when no active vehicle
             {
-                if (current_actor != nullptr)
+                if ((current_actor != nullptr) && (current_actor->ar_sim_state != Actor::SimState::NETWORKED_OK))
                 {
-                    App::GetSimController()->ReloadPlayerActor();
+                    ActorModifyRequest rq;
+                    rq.amr_type = ActorModifyRequest::Type::RELOAD;
+                    rq.amr_actor = current_actor;
+                    App::GetSimController()->QueueActorModify(rq);
+
                     App::GetGuiManager()->UnfocusGui();
                 }
             }
 
             if (ImGui::Button("Remove current vehicle")) // TODO: make button disabled (fake it!) when no active vehicle
             {
-                App::GetSimController()->RemovePlayerActor();
+                if ((current_actor != nullptr) && (current_actor->ar_sim_state != Actor::SimState::NETWORKED_OK))
+                {
+                    App::GetSimController()->QueueActorRemove(current_actor);
+                }
             }
 
             if (App::mp_state.GetActive() != MpState::CONNECTED) // Singleplayer only!

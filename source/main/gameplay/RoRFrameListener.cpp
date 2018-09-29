@@ -327,9 +327,15 @@ void SimController::UpdateInputEvents(float dt)
         RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
     }
 
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCKEDIT_RELOAD, 0.5f) && m_player_actor)
+    if ((m_player_actor != nullptr) &&
+        (m_player_actor->ar_sim_state == Actor::SimState::NETWORKED_OK) &&
+        RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCKEDIT_RELOAD, 0.5f))
     {
-        this->ReloadPlayerActor();
+        ActorModifyRequest rq;
+        rq.amr_type = ActorModifyRequest::Type::RELOAD;
+        rq.amr_actor = m_player_actor;
+        this->QueueActorModify(rq);
+
         return;
     }
 
@@ -737,7 +743,7 @@ void SimController::UpdateInputEvents(float dt)
                 {
                     this->StopRaceTimer();
                     Vector3 center = m_player_actor->GetRotationCenter();
-                    this->RemovePlayerActor();
+                    this->QueueActorRemove(m_player_actor);
                     gEnv->player->setPosition(center);
                 }
                 else if ((RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK) || m_advanced_vehicle_repair) && !m_player_actor->ar_replay_mode)
@@ -1012,7 +1018,7 @@ void SimController::UpdateInputEvents(float dt)
                     }
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_REMOVE))
                     {
-                        this->RemovePlayerActor();
+                        this->QueueActorRemove(m_player_actor);
                     }
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ROPELOCK))
                     {
@@ -1532,7 +1538,7 @@ void SimController::UpdateSimulation(float dt)
                 // * commands status
                 // * other minor stati
 
-                this->RemovePlayerActor();
+                this->QueueActorRemove(m_player_actor); // TODO: The 'reload' command is hybrid removal/modify, so doesn't fit the 1.2.3. scheme of things ~ only_a_ptr, 09/2018
 
                 // reset the new actor (starts engine, resets gui, ...)
                 new_actor->SyncReset(false); // false = Do not reset position
@@ -1835,34 +1841,13 @@ void SimController::HideGUI(bool hidden)
     App::GetGuiManager()->hideGUI(hidden);
 }
 
-void SimController::RemovePlayerActor()
-{
-    if (m_player_actor != nullptr)
-    {
-        this->RemoveActor(m_player_actor);
-    }
-}
-
 void SimController::RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name)
 {
     Actor* actor = m_actor_manager.FindActorInsideBox(gEnv->collisions, ev_src_instance_name, box_name);
     if (actor != nullptr)
     {
-        this->RemoveActor(actor);
+        this->QueueActorRemove(actor);
     }
-}
-
-void SimController::ReloadPlayerActor()
-{
-    if (!m_player_actor)
-        return;
-    if (m_player_actor->ar_sim_state == Actor::SimState::NETWORKED_OK)
-        return;
-
-    ActorModifyRequest rq;
-    rq.amr_type = ActorModifyRequest::Type::RELOAD;
-    rq.amr_actor = m_player_actor;
-    this->QueueActorModify(rq); // No more parameters needed
 }
 
 bool SimController::LoadTerrain()
@@ -2330,29 +2315,10 @@ void SimController::SetPlayerActor(Actor* actor)
     m_actor_manager.UpdateSleepingState(m_player_actor, 0.f);
 }
 
-void SimController::SetPlayerActorById(int actor_id)
-{
-    Actor* actor = m_actor_manager.GetActorByIdInternal(actor_id);
-    if (actor != nullptr)
-    {
-        this->SetPlayerActor(actor);
-    }
-}
-
-void SimController::RemoveActor(Actor* actor)
-{
-    m_actor_remove_queue.push_back(actor);
     }
     if (actor == m_prev_player_actor)
     {
         m_prev_player_actor = nullptr;
-}
-
-std::vector<Actor*> SimController::GetActors() const
-{
-    return m_actor_manager.GetActors();
-}
-
 bool SimController::AreControlsLocked() const
 {
     // TODO: remove camera manager from gEnv, see == SimCam == comment in CameraManager.cpp ~ only_a_ptr
