@@ -54,9 +54,6 @@
 // END SETUP
 // ============================================================================
 
-// Removed
-#define SPAWNER_PROFILE_SCOPED()
-
 #ifdef FLEXBODY_USE_PROFILER
 #   define ROR_PROFILE_RIG_LOADING
 #   include "Profiler.h"
