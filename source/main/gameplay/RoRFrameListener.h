@@ -64,19 +64,14 @@ public:
     SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_conf);
 
     // Actor management interface
-    std::vector<Actor*> GetActors()                        { return m_actor_manager.GetActors(); }
-    Actor* GetActorById          (int actor_id)            { return m_actor_manager.GetActorByIdInternal(actor_id); }
-    void   SetPlayerActorById    (int actor_id);                                                          // TODO: Eliminate, use pointers ~ only_a_ptr, 06/2017
-    void   SetPlayerActor        (Actor* actor);
-    Actor* GetPlayerActor        ()                        { return m_player_actor; }
-    void   ReloadPlayerActor     ();
-    void   RemovePlayerActor     ();
-    void   RemoveActor           (Actor* actor);
-    void   RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name); ///< Scripting utility. TODO: Does anybody use it? ~ only_a_ptr, 08/2017
-    void   QueueActorSpawn       (RoR::ActorSpawnRequest const & rq) { m_actor_spawn_queue.push_back(rq); }
+    std::vector<Actor*> GetActors() const                             { return m_actor_manager.GetActors(); }
+    Actor* GetActorById          (int actor_id)                       { return m_actor_manager.GetActorByIdInternal(actor_id); }
+    void   SetPlayerActor        (Actor* actor);                      
+    Actor* GetPlayerActor        ()                                   { return m_player_actor; }    
+    void   QueueActorSpawn       (RoR::ActorSpawnRequest const & rq)  { m_actor_spawn_queue.push_back(rq); }
     void   QueueActorModify      (RoR::ActorModifyRequest const & rq) { m_actor_modify_queue.push_back(rq); }
-
-    std::vector<Actor*>          GetActors          () const;
+    void   QueueActorRemove      (Actor* actor)                       { m_actor_remove_queue.push_back(actor); }
+    void   RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name); ///< Scripting utility. TODO: Does anybody use it? ~ only_a_ptr, 08/2017
 
     // Scripting interface
     double getTime               () { return m_time; }
