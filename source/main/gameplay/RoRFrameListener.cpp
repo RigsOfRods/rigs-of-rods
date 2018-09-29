@@ -134,7 +134,6 @@ SimController::SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_c
     m_race_bestlap_time(0),
     m_race_in_progress(false),
     m_race_start_time(0),
-    m_reload_box(0),
     m_reload_dir(Quaternion::IDENTITY),
     m_reload_pos(Vector3::ZERO),
     m_stats_on(0),
@@ -1427,14 +1426,14 @@ void SimController::TeleportPlayerXZ(float x, float z)
     gEnv->player->setPosition(Ogre::Vector3(x, y, z));
 }
 
-void SimController::FinalizeActorSpawning(Actor* local_actor, Actor* prev_actor)
+void SimController::FinalizeActorSpawning(Actor* local_actor, Actor* prev_actor, ActorSpawnRequest rq)
 {
     if (local_actor != nullptr)
     {
-        if (m_reload_box == nullptr)
+        if (rq.asr_spawnbox == nullptr)
         {
             // Calculate translational offset for node[0] to align the actor's rotation center with m_reload_pos
-            Vector3 translation = m_reload_pos - local_actor->GetRotationCenter();
+            Vector3 translation = rq.asr_position - local_actor->GetRotationCenter();
             local_actor->ResetPosition(local_actor->ar_nodes[0].AbsPosition + Vector3(translation.x, 0.0f, translation.z), true);
 
             if (local_actor->ar_driveable != NOT_DRIVEABLE || (prev_actor && prev_actor->ar_driveable != NOT_DRIVEABLE))
@@ -1558,28 +1557,28 @@ void SimController::UpdateSimulation(float dt)
             m_last_skin_selection  = rq.asr_skin;
             m_last_vehicle_configs = rq.asr_config;
 
-            if (m_reload_box == nullptr)
+            if (rq.asr_spawnbox == nullptr)
             {
                 if (m_player_actor != nullptr)
                 {
                     float rotation = m_player_actor->getRotation() - Math::HALF_PI;
-                    m_reload_dir = Quaternion(Degree(180) - Radian(rotation), Vector3::UNIT_Y);
-                    m_reload_pos = m_player_actor->GetRotationCenter();
+                    rq.asr_rotation = Quaternion(Degree(180) - Radian(rotation), Vector3::UNIT_Y);
+                    rq.asr_position = m_player_actor->GetRotationCenter();
                     // TODO: Fix this by projecting m_reload_pos onto the terrain / mesh
-                    m_reload_pos.y = m_player_actor->ar_nodes[m_player_actor->ar_lowest_contacting_node].AbsPosition.y;
+                    rq.asr_position.y = m_player_actor->ar_nodes[m_player_actor->ar_lowest_contacting_node].AbsPosition.y;
                 }
                 else
                 {
-                    m_reload_dir = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
-                    m_reload_pos = gEnv->player->getPosition();
+                    rq.asr_rotation = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
+                    rq.asr_position = gEnv->player->getPosition();
                 }
             }
 
             Actor* fresh_actor = m_actor_manager.CreateLocalActor(
-                m_reload_pos, m_reload_dir, rq.asr_cache_entry->fname,
-                rq.asr_cache_entry->number, m_reload_box, &rq.asr_config, rq.asr_skin);
+                rq.asr_position, rq.asr_rotation, rq.asr_cache_entry->fname,
+                rq.asr_cache_entry->number, rq.asr_spawnbox, &rq.asr_config, rq.asr_skin);
 
-            this->FinalizeActorSpawning(fresh_actor, m_player_actor);
+            this->FinalizeActorSpawning(fresh_actor, m_player_actor, rq);
         }
         else if (rq.asr_origin == ActorSpawnRequest::Origin::CONFIG_FILE)
         {
@@ -1631,7 +1630,7 @@ void SimController::UpdateSimulation(float dt)
                 rq.asr_position, rq.asr_rotation, rq.asr_filename, rq.asr_cache_entry_num,
                 nullptr, &rq.asr_config, rq.asr_skin);
 
-            this->FinalizeActorSpawning(fresh_actor, m_player_actor);
+            this->FinalizeActorSpawning(fresh_actor, m_player_actor, rq);
         }
     }
     m_actor_spawn_queue.clear();
@@ -1744,14 +1743,16 @@ void SimController::ShowLoaderGUI(int type, const Ogre::String& instance, const 
             }
         }
     }
-    m_reload_pos = gEnv->collisions->getPosition(instance, box);
-    m_reload_dir = gEnv->collisions->getDirection(instance, box);
-    m_reload_box = gEnv->collisions->getBox(instance, box);
+    
     App::sim_state.SetActive(SimState::SELECTING); // TODO: use 'pending' mechanism
     if (m_gfx_scene.GetSurveyMap())
         m_gfx_scene.GetSurveyMap()->setVisibility(false); // TODO: we shouldn't update GfxScene-owned objects from simulation, we should queue the update ~ only_a_ptr, 05/2018
 
-    App::GetGuiManager()->GetMainSelector()->Show(LoaderType(type));
+    ActorSpawnRequest rq;
+    rq.asr_position = gEnv->collisions->getPosition(instance, box);
+    rq.asr_rotation = gEnv->collisions->getDirection(instance, box);
+    rq.asr_spawnbox = gEnv->collisions->getBox(instance, box);
+    App::GetGuiManager()->GetMainSelector()->Show(LoaderType(type), rq);
 }
 
 void SimController::UpdateDirectionArrow(char* text, Vector3 position)

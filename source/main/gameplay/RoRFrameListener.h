@@ -116,7 +116,7 @@ private:
 
     void   UpdateForceFeedback     (float dt);
     void   UpdateInputEvents       (float dt);
-    void   FinalizeActorSpawning   (Actor* local_actor, Actor* previous_actor);
+    void   FinalizeActorSpawning   (Actor* local_actor, Actor* previous_actor, RoR::ActorSpawnRequest rq);
     void   HideGUI                 (bool hidden);
     void   CleanupAfterSimulation  (); /// Unloads all data
     void   UpdateSimulation        (float dt_sec);
@@ -137,7 +137,6 @@ private:
     bool                     m_is_pace_reset_pressed;
     int                      m_stats_on;
     float                    m_netcheck_gui_timer;
-    collision_box_t*         m_reload_box;
     double                   m_time;
     RoR::ForceFeedback*      m_force_feedback;
     bool                     m_hide_gui;

@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "BeamFactory.h" // ActorSpawnRequest
 #include "ForwardDeclarations.h"
 #include "GUI_MainSelectorLayout.h"
 
@@ -39,6 +40,7 @@ public:
 
     bool IsFinishedSelecting();
     void Show(LoaderType type);
+    void Show(LoaderType type, ActorSpawnRequest req);
     void Hide(bool smooth = true);
     bool IsVisible();
     void Reset();
@@ -87,6 +89,8 @@ private:
     std::vector<RoR::SkinDef *> m_current_skins;
     bool m_keys_bound;
     RoR::SkinManager* m_skin_manager;
+    ActorSpawnRequest m_actor_spawn_rq; //!< Pre-configured by on-terrain spawner scripts
+    bool m_actor_spawn_rq_valid;
 };
 
 } // namespace GUI
