@@ -66,7 +66,7 @@ public:
     // Actor management interface
     std::vector<Actor*> GetActors() const                             { return m_actor_manager.GetActors(); }
     Actor* GetActorById          (int actor_id)                       { return m_actor_manager.GetActorByIdInternal(actor_id); }
-    void   SetPlayerActor        (Actor* actor);                      
+    void   SetPendingPlayerActor (Actor* actor)                       { m_pending_player_actor = actor; }                      
     Actor* GetPlayerActor        ()                                   { return m_player_actor; }    
     void   QueueActorSpawn       (RoR::ActorSpawnRequest const & rq)  { m_actor_spawn_queue.push_back(rq); }
     void   QueueActorModify      (RoR::ActorModifyRequest const & rq) { m_actor_modify_queue.push_back(rq); }
@@ -120,9 +120,11 @@ private:
     void   HideGUI                 (bool hidden);
     void   CleanupAfterSimulation  (); /// Unloads all data
     void   UpdateSimulation        (float dt_sec);
+    void   ChangePlayerActor       (Actor* actor);
 
     Actor*                   m_player_actor;           //!< Actor (vehicle or machine) mounted and controlled by player
     Actor*                   m_prev_player_actor;      //!< Previous actor (vehicle or machine) mounted and controlled by player
+    Actor*                   m_pending_player_actor;   //!< Actor scheduled to be seated by player (when none scheduled, equals `player_actor`)
     RoR::ActorManager        m_actor_manager;
     std::vector<RoR::ActorSpawnRequest>  m_actor_spawn_queue;
     std::vector<RoR::ActorModifyRequest> m_actor_modify_queue;
