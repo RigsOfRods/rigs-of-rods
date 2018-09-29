@@ -47,6 +47,7 @@ CLASS::CLASS() :
     , m_selected_skin(nullptr)
     , m_selected_entry(nullptr)
     , m_selection_done(true)
+    , m_actor_spawn_rq_valid(false)
 {
     MAIN_WIDGET->setVisible(false);
     m_skin_manager = RoR::App::GetContentManager()->GetSkinManager();
@@ -734,12 +735,17 @@ void CLASS::OnSelectionDone()
     if (new_actor_selected)
     {
         ActorSpawnRequest rq;
+        if (m_actor_spawn_rq_valid)
+        {
+            rq = m_actor_spawn_rq;
+            m_actor_spawn_rq_valid = false;
+        }
         rq.asr_skin           = m_selected_skin;
         rq.asr_cache_entry    = m_selected_entry;
         rq.asr_config         = m_vehicle_configs;
         rq.asr_origin         = ActorSpawnRequest::Origin::USER;
         App::GetSimController()->QueueActorSpawn(rq);
-        
+
         RoR::App::GetGuiManager()->UnfocusGui();
         App::sim_state.SetActive(SimState::RUNNING); // TODO: use 'Pending' mechanism!
     }
@@ -987,6 +993,17 @@ void CLASS::ResizePreviewImage()
 bool CLASS::IsFinishedSelecting()
 {
     return m_selection_done;
+}
+
+void CLASS::Show(LoaderType type, RoR::ActorSpawnRequest req)
+{
+    if (!m_selection_done)
+    {
+        return;
+    }
+    m_actor_spawn_rq_valid = true;
+    m_actor_spawn_rq = req;
+    this->Show(type);
 }
 
 void CLASS::Show(LoaderType type)
