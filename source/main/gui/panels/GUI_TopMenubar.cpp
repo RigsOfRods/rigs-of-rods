@@ -175,7 +175,7 @@ void RoR::GUI::TopMenubar::Update()
                 {
                     if (current_actor != nullptr) // Get out first
                     {
-                        App::GetSimController()->SetPlayerActor(nullptr);
+                        App::GetSimController()->SetPendingPlayerActor(nullptr);
                     }
                     App::GetSimController()->GetBeamFactory()->SendAllActorsSleeping();
                 }
@@ -414,7 +414,7 @@ void RoR::GUI::TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
             snprintf(actortext_buf, 400, "  + %s (%s)", actor->ar_design_name.c_str(), actor->ar_filename.c_str());
             if (ImGui::Button(actortext_buf)) // Button clicked?
             {
-                App::GetSimController()->SetPlayerActor(actor);
+                App::GetSimController()->SetPendingPlayerActor(actor);
             }
         }
     }
@@ -446,7 +446,7 @@ void RoR::GUI::TopMenubar::DrawActorListSinglePlayer()
             snprintf(text_buf, 200, "[%d] %s", i++, actor->ar_design_name.c_str());
             if (ImGui::Button(text_buf)) // Button clicked?
             {
-                App::GetSimController()->SetPlayerActor(actor);
+                App::GetSimController()->SetPendingPlayerActor(actor);
             }
         }
     }

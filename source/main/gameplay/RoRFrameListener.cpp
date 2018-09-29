@@ -116,6 +116,7 @@ using namespace RoR;
 SimController::SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_conf) :
     m_player_actor(nullptr),
     m_prev_player_actor(nullptr),
+    m_pending_player_actor(nullptr),
     m_actor_manager(),
     m_character_factory(),
     m_dir_arrow_pointed(Vector3::ZERO),
@@ -1106,7 +1107,7 @@ void SimController::UpdateInputEvents(float dt)
                         }
                         else
                         {
-                            this->SetPlayerActor(rescuer);
+                            this->SetPendingPlayerActor(rescuer);
                         }
                     }
 
@@ -1270,12 +1271,12 @@ void SimController::UpdateInputEvents(float dt)
                 }
                 if (mindist < 20.0)
                 {
-                    this->SetPlayerActor(nearest_actor);
+                    this->SetPendingPlayerActor(nearest_actor);
                 }
             }
             else if (m_player_actor->ar_nodes[0].Velocity.length() < 1.0f)
             {
-                this->SetPlayerActor(nullptr);
+                this->SetPendingPlayerActor(nullptr);
             }
             else
             {
@@ -1285,20 +1286,16 @@ void SimController::UpdateInputEvents(float dt)
         }
         else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_NEXT_TRUCK, 0.25f))
         {
-            Actor* actor = m_actor_manager.FetchNextVehicleOnList(m_player_actor, m_prev_player_actor);
-
             if (actor != m_player_actor)
             {
-                this->SetPlayerActor(actor);
+                this->SetPendingPlayerActor(actor);
             }
         }
         else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_PREVIOUS_TRUCK, 0.25f))
         {
-            Actor* actor = m_actor_manager.FetchPreviousVehicleOnList(m_player_actor, m_prev_player_actor);
-
             if (actor != m_player_actor)
             {
-                this->SetPlayerActor(actor);
+                this->SetPendingPlayerActor(actor);
             }
         }
         else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESPAWN_LAST_TRUCK, 0.25f))
@@ -1450,7 +1447,7 @@ void SimController::FinalizeActorSpawning(Actor* local_actor, Actor* prev_actor,
             {
                 local_actor->ar_engine->StartEngine();
             }
-            this->SetPlayerActor(local_actor);
+            this->SetPendingPlayerActor(local_actor);
         }
 
         local_actor->updateVisual();
@@ -1489,8 +1486,14 @@ void SimController::UpdateSimulation(float dt)
     {
         if (actor == m_player_actor)
         {
-            this->SetPlayerActor(nullptr);
+            this->ChangePlayerActor(nullptr); // Get out of the vehicle
         }
+
+        if (actor == m_pending_player_actor)
+        {
+            m_pending_player_actor = m_player_actor; // Reset the requested change.
+        }
+
         m_gfx_scene.RemoveGfxActor(actor->GetGfxActor());
         m_actor_manager.DeleteActorInternal(actor);
         
@@ -1543,7 +1546,7 @@ void SimController::UpdateSimulation(float dt)
                 new_actor->SyncReset(false); // false = Do not reset position
 
                 // enter the new actor
-                this->SetPlayerActor(new_actor);
+                this->SetPendingPlayerActor(new_actor);
             }
         }
     }
@@ -1592,7 +1595,7 @@ void SimController::UpdateSimulation(float dt)
 
             if (App::diag_preset_veh_enter.GetActive() && fresh_actor->ar_num_nodes > 0)
             {
-                this->SetPlayerActor(fresh_actor);
+                this->SetPendingPlayerActor(fresh_actor);
             }
             if (fresh_actor->ar_engine)
             {
@@ -1635,7 +1638,10 @@ void SimController::UpdateSimulation(float dt)
     }
     m_actor_spawn_queue.clear();
 
-
+    if (m_pending_player_actor != m_player_actor)
+    {
+        this->ChangePlayerActor(m_pending_player_actor); // 'Pending' remains the same until next change is queued
+    }
 
     RoR::App::GetInputEngine()->Capture();
     auto s = App::sim_state.GetActive();
@@ -1683,13 +1689,8 @@ void SimController::UpdateSimulation(float dt)
 
     this->UpdateInputEvents(dt);
 
-    // CAUTION: 'updateEvents' might have changed 'm_player_actor'
-    //          TODO: This is a mess - actor updates from misc. inputs should be buffered, evaluated and executed at once, not ad-hoc ~ only_a_ptr, 07/2017
-
     RoR::App::GetGuiManager()->DrawSimulationGui(dt);
 
-    // CAUTION: 'FrameStepGui()' might have changed 'm_player_actor'
-    //           TODO: This is a mess - actor updates from misc. inputs should be buffered, evaluated and executed at once, not ad-hoc ~ only_a_ptr, 07/2017
     const bool is_altkey_pressed =  App::GetInputEngine()->isKeyDown(OIS::KeyCode::KC_LMENU) || App::GetInputEngine()->isKeyDown(OIS::KeyCode::KC_RMENU);
     App::GetGuiManager()->GetTeleport()->TeleportWindowFrameStep(
         gEnv->player->getPosition().x, gEnv->player->getPosition().z, is_altkey_pressed);
@@ -2194,7 +2195,7 @@ void SimController::EnterGameplayLoop()
     m_camera_manager.DisableDepthOfFieldEffect();
 }
 
-void SimController::SetPlayerActor(Actor* actor)
+void SimController::ChangePlayerActor(Actor* actor)
 {
     m_prev_player_actor = m_player_actor;
     m_player_actor = actor;
