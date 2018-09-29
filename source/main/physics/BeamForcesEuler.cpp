@@ -196,10 +196,6 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
         }
     }
 
-    //wheel speed
-    Real wspeed = 0.0;
-    //wheel stuff
-
     float engine_torque = 0.0;
 
     // calculate torque per wheel
@@ -505,10 +501,6 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
         }
         // wheel speed
         newspeeds[i] = speedacc / ar_wheels[i].wh_num_nodes;
-        if (ar_wheels[i].wh_propulsed == 1)
-        {
-            wspeed += newspeeds[i];
-        }
         // for network
         ar_wheels[i].wh_net_rp += (newspeeds[i] / ar_wheels[i].wh_radius) * dt;
         // reaction torque
@@ -562,26 +554,24 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
         }
     }
 
+    ar_wheel_speed = 0.0f;
     for (int i = 0; i < ar_num_wheels; i++)
     {
         ar_wheels[i].wh_last_speed = ar_wheels[i].wh_speed;
         ar_wheels[i].wh_speed = newspeeds[i];
+        if (ar_wheels[i].wh_propulsed == 1)
+        {
+            ar_wheel_speed += newspeeds[i] / (float)m_num_proped_wheels;
+        }
     }
-    if (m_num_proped_wheels)
-    {
-        wspeed /= (float)m_num_proped_wheels;
-    }
-
-    // wheel speed  in m/s !
-    ar_wheel_speed = wspeed;
 
     if (ar_engine && ar_num_wheels && ar_wheels[0].wh_radius > 0.0f)
     {
-        ar_engine->SetWheelSpin(wspeed / ar_wheels[0].wh_radius * RAD_PER_SEC_TO_RPM);
+        ar_engine->SetWheelSpin(ar_wheel_speed / ar_wheels[0].wh_radius * RAD_PER_SEC_TO_RPM);
     }
 
     // calculate driven distance
-    float distance_driven = fabs(wspeed * dt);
+    float distance_driven = fabs(ar_wheel_speed * dt);
     m_odometer_total += distance_driven;
     m_odometer_user += distance_driven;
 
@@ -644,7 +634,7 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
         if (ar_hydro_speed_coupling)
         {
             //new rate value (30 instead of 40) to deal with the changed cmdKeyInertia settings
-            rate = 30.0 / (10.0 + fabs(wspeed / 2.0));
+            rate = 30.0 / (10.0 + fabs(ar_wheel_speed / 2.0));
             // minimum rate: 20% --> enables to steer high velocity vehicles
             if (rate < 1.2)
                 rate = 1.2;
