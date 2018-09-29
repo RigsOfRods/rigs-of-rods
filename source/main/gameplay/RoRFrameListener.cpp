@@ -1476,10 +1476,74 @@ void SimController::UpdateSimulation(float dt)
 #endif //SOCKETW
 
     // ACTOR CHANGE REQUESTS - Handle early (so that other logic can reflect it)
-    //   1. Spawn requests - may outdate others by changing player seating
+    //   1. Removal requests - Done first; respective entries in 'modify' queue are erased.
     //   2. Modify requests - currently just reload, will be extended
-    //   3. Removal requests - TODO
+    //   3. Spawn requests - may outdate others by changing player seating
     //   4. Player seating change requests - TODO; currently done ad-hoc
+    for (Actor* actor: m_actor_remove_queue)
+    {
+        if (actor == m_player_actor)
+        {
+            this->SetPlayerActor(nullptr);
+        }
+        m_gfx_scene.RemoveGfxActor(actor->GetGfxActor());
+        m_actor_manager.DeleteActorInternal(actor);
+        
+        // Remove modify-requests for this actor
+        m_actor_modify_queue.erase(
+            std::remove_if(
+                m_actor_modify_queue.begin(), m_actor_modify_queue.end(),
+                [actor](ActorModifyRequest& rq) -> bool { return rq.amr_actor == actor; }),
+            m_actor_modify_queue.end());
+    }
+    m_actor_remove_queue.clear();
+
+    for (ActorModifyRequest& rq: m_actor_modify_queue)
+    {
+        if ((rq.amr_type == ActorModifyRequest::Type::RESET_ON_SPOT) ||
+            (rq.amr_type == ActorModifyRequest::Type::RESET_ON_INIT_POS))
+        {
+            rq.amr_actor->SyncReset(rq.amr_type == ActorModifyRequest::Type::RESET_ON_INIT_POS);
+        }
+        if (rq.amr_type == ActorModifyRequest::Type::RELOAD)
+        {
+            if (m_player_actor == rq.amr_actor) // Check if the request is up-to-date
+            {
+                m_actor_manager.UnloadTruckfileFromMemory(m_player_actor->ar_filename.c_str()); // Force reload from filesystem
+                Actor* new_actor = m_actor_manager.CreateLocalActor(m_reload_pos, m_reload_dir, m_player_actor->ar_filename, -1); // try to load the same actor again
+
+                // copy over the most basic info
+                if (m_player_actor->ar_num_nodes == new_actor->ar_num_nodes)
+                {
+                    for (int i = 0; i < m_player_actor->ar_num_nodes; i++)
+                    {
+                        // copy over nodes attributes if the amount of them didnt change
+                        new_actor->ar_nodes[i].AbsPosition = m_player_actor->ar_nodes[i].AbsPosition; // TODO: makes sense? the Reset below overwrites it. ~only_a_ptr, 09/2018
+                        new_actor->ar_nodes[i].RelPosition = m_player_actor->ar_nodes[i].RelPosition; // TODO: ditto
+                        new_actor->ar_nodes[i].Velocity    = m_player_actor->ar_nodes[i].Velocity;    // TODO: ditto
+                        new_actor->ar_nodes[i].Forces      = m_player_actor->ar_nodes[i].Forces;      // TODO: ditto
+                        new_actor->ar_nodes[i].initial_pos = m_player_actor->ar_nodes[i].initial_pos;
+                        new_actor->ar_origin               = m_player_actor->ar_origin;
+                    }
+                }
+
+                // TODO:
+                // * copy over the engine infomation
+                // * commands status
+                // * other minor stati
+
+                this->RemovePlayerActor();
+
+                // reset the new actor (starts engine, resets gui, ...)
+                new_actor->SyncReset(false); // false = Do not reset position
+
+                // enter the new actor
+                this->SetPlayerActor(new_actor);
+            }
+        }
+    }
+    m_actor_modify_queue.clear();
+
     for (ActorSpawnRequest& rq: m_actor_spawn_queue)
     {
         if (rq.asr_origin == ActorSpawnRequest::Origin::USER)
@@ -1565,52 +1629,6 @@ void SimController::UpdateSimulation(float dt)
         }
     }
     m_actor_spawn_queue.clear();
-
-    for (ActorModifyRequest& rq: m_actor_modify_queue)
-    {
-        if ((rq.amr_type == ActorModifyRequest::Type::RESET_ON_SPOT) ||
-            (rq.amr_type == ActorModifyRequest::Type::RESET_ON_INIT_POS))
-        {
-            rq.amr_actor->SyncReset(rq.amr_type == ActorModifyRequest::Type::RESET_ON_INIT_POS);
-        }
-        if (rq.amr_type == ActorModifyRequest::Type::RELOAD)
-        {
-            if (m_player_actor == rq.amr_actor) // Check if the request is up-to-date
-            {
-                m_actor_manager.UnloadTruckfileFromMemory(m_player_actor->ar_filename.c_str()); // Force reload from filesystem
-                Actor* new_actor = m_actor_manager.CreateLocalActor(m_reload_pos, m_reload_dir, m_player_actor->ar_filename, -1); // try to load the same actor again
-
-                // copy over the most basic info
-                if (m_player_actor->ar_num_nodes == new_actor->ar_num_nodes)
-                {
-                    for (int i = 0; i < m_player_actor->ar_num_nodes; i++)
-                    {
-                        // copy over nodes attributes if the amount of them didnt change
-                        new_actor->ar_nodes[i].AbsPosition = m_player_actor->ar_nodes[i].AbsPosition; // TODO: makes sense? the Reset below overwrites it. ~only_a_ptr, 09/2018
-                        new_actor->ar_nodes[i].RelPosition = m_player_actor->ar_nodes[i].RelPosition; // TODO: ditto
-                        new_actor->ar_nodes[i].Velocity    = m_player_actor->ar_nodes[i].Velocity;    // TODO: ditto
-                        new_actor->ar_nodes[i].Forces      = m_player_actor->ar_nodes[i].Forces;      // TODO: ditto
-                        new_actor->ar_nodes[i].initial_pos = m_player_actor->ar_nodes[i].initial_pos;
-                        new_actor->ar_origin               = m_player_actor->ar_origin;
-                    }
-                }
-
-                // TODO:
-                // * copy over the engine infomation
-                // * commands status
-                // * other minor stati
-
-                this->RemovePlayerActor();
-
-                // reset the new actor (starts engine, resets gui, ...)
-                new_actor->SyncReset(false); // false = Do not reset position
-
-                // enter the new actor
-                this->SetPlayerActor(new_actor);
-            }
-        }
-    }
-    m_actor_modify_queue.clear();
 
 
 
@@ -1819,7 +1837,10 @@ void SimController::HideGUI(bool hidden)
 
 void SimController::RemovePlayerActor()
 {
-    this->RemoveActor(m_player_actor);
+    if (m_player_actor != nullptr)
+    {
+        this->RemoveActor(m_player_actor);
+    }
 }
 
 void SimController::RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name)
@@ -2320,16 +2341,11 @@ void SimController::SetPlayerActorById(int actor_id)
 
 void SimController::RemoveActor(Actor* actor)
 {
-    if (actor == m_player_actor)
-    {
-        this->SetPlayerActor(nullptr);
+    m_actor_remove_queue.push_back(actor);
     }
     if (actor == m_prev_player_actor)
     {
         m_prev_player_actor = nullptr;
-    }
-    m_gfx_scene.RemoveGfxActor(actor->GetGfxActor());
-    m_actor_manager.DeleteActorInternal(actor);
 }
 
 std::vector<Actor*> SimController::GetActors() const

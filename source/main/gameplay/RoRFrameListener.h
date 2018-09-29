@@ -129,8 +129,9 @@ private:
     Actor*                   m_player_actor;           //!< Actor (vehicle or machine) mounted and controlled by player
     Actor*                   m_prev_player_actor;      //!< Previous actor (vehicle or machine) mounted and controlled by player
     RoR::ActorManager        m_actor_manager;
-    std::vector<RoR::ActorSpawnRequest> m_actor_spawn_queue;
+    std::vector<RoR::ActorSpawnRequest>  m_actor_spawn_queue;
     std::vector<RoR::ActorModifyRequest> m_actor_modify_queue;
+    std::vector<Actor*>                  m_actor_remove_queue;             
     RoR::CharacterFactory    m_character_factory;
     RoR::GfxScene            m_gfx_scene;
     RoR::SkidmarkConfig*     m_skidmark_conf;
