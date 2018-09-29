@@ -50,6 +50,8 @@ struct wheel_t
     Ogre::Real  wh_speed;
     Ogre::Real  wh_last_speed;
     Ogre::Real  wh_avg_speed;
+    Ogre::Real  wh_antilock_coef;
+    Ogre::Real  wh_tc_coef;
     Ogre::Real  wh_delta_rotation;    ///< Difference in wheel position
     float       wh_net_rp;
     float       wh_net_rp1;           //<! Networking; triple buffer
@@ -63,8 +65,5 @@ struct wheel_t
     Ogre::Vector3 lastContactPoint;
     Ogre::String lastGroundModelName;
     float lastSlip;
-
-    // Slopebrake
-    bool firstLock;
 };
 
