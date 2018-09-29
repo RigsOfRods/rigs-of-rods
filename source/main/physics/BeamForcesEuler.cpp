@@ -237,9 +237,7 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
     }
 
     float engine_torque = 0.0;
-
-    // calculate torque per wheel
-    if (ar_engine && m_num_proped_wheels != 0)
+    if (ar_engine && m_num_proped_wheels > 0)
         engine_torque = ar_engine->GetTorque() / m_num_proped_wheels;
 
     int propcounter = 0;
@@ -377,22 +375,12 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
         tc_pulse_state = !tc_pulse_state;
     }
 
-    bool tc_active = false;
-    bool alb_active = false;
-
-    // get current speed
-    float curspeed = ar_nodes[0].Velocity.length();
-
-    // fix for airplanes crashing when GetAcceleration() is used
-    float currentAcc = 0.0f;
-    if (ar_driveable == TRUCK && ar_engine)
-    {
-        currentAcc = ar_engine->GetAcceleration();
-    }
+    m_antilockbrake = false;
+    m_tractioncontrol = false;
 
     for (int i = 0; i < ar_num_wheels; i++)
     {
-        Real speedacc = 0.0;
+        ar_wheels[i].wh_avg_speed = ar_wheels[i].wh_avg_speed * 0.995 + ar_wheels[i].wh_speed * 0.005;
 
         // total torque estimation
         Real total_torque = 0.0;
@@ -400,6 +388,9 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
         {
             total_torque = (m_num_axles == 0) ? engine_torque : intertorque[i];
         }
+
+        float curspeed = ar_nodes[0].Velocity.length();
+        float wheel_slip = fabs(ar_wheels[i].wh_speed - curspeed) / std::max(1.0f, curspeed);
 
         if (ar_wheels[i].wh_braking != wheel_t::BrakeCombo::NONE)
         {
@@ -421,76 +412,58 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
                 dbrake = ar_brake_force * abs(ar_hydro_dir_state);
             }
 
-            if ((ar_brake != 0.0 || dbrake != 0.0 || hbrake != 0.0) && m_num_braked_wheels != 0 && fabs(ar_wheels[i].wh_speed) > 0.0f)
+            if ((ar_brake != 0.0 || dbrake != 0.0 || hbrake != 0.0) && m_num_braked_wheels != 0 )
             {
                 float brake_coef = 1.0f;
                 float antilock_coef = 1.0f;
+
                 // anti-lock braking
-                if (alb_mode && alb_pulse_state && (ar_brake > 0.0f || dbrake > 0.0f) && curspeed > fabs(ar_wheels[i].wh_speed) && curspeed > alb_minspeed)
+                if (alb_mode && curspeed > alb_minspeed && curspeed > fabs(ar_wheels[i].wh_speed) && (ar_brake + dbrake > 0.0f) && wheel_slip > 0.25f) 
                 {
-                    antilock_coef = fabs(ar_wheels[i].wh_speed) / curspeed;
-                    antilock_coef = pow(antilock_coef, alb_ratio);
-                    alb_active = (antilock_coef < 0.9);
-                }
-                if (fabs(ar_wheels[i].wh_speed) < 1.0f)
-                {
-                    if (ar_wheels[i].firstLock)
+                    if (alb_pulse_state)
                     {
-                        ar_wheels[i].wh_avg_speed = 0.0f;
-                        ar_wheels[i].firstLock = false;
+                        ar_wheels[i].wh_antilock_coef = fabs(ar_wheels[i].wh_speed) / curspeed;
+                        ar_wheels[i].wh_antilock_coef = pow(ar_wheels[i].wh_antilock_coef, alb_ratio);
                     }
-                    // anti-jitter
-                    if (fabs(ar_wheels[i].wh_avg_speed) < 2.0f)
-                    {
-                        brake_coef = pow(fabs(ar_wheels[i].wh_speed), 2.0f);
-                    }
-                    else
-                    {
-                        brake_coef = pow(fabs(ar_wheels[i].wh_speed), 0.5f);
-                    }
-                    // anti-skidding
-                    ar_wheels[i].wh_avg_speed += ar_wheels[i].wh_speed;
-                    ar_wheels[i].wh_avg_speed = std::max(-10.0f, std::min(ar_wheels[i].wh_avg_speed, 10.0f));
-                    float speed_diff = ar_wheels[i].wh_speed - ar_wheels[i].wh_last_speed;
-                    float speed_prediction = ar_wheels[i].wh_speed + 0.5f * speed_diff;
-                    if (speed_prediction * ar_wheels[i].wh_avg_speed < 0.0f)
-                    {
-                        brake_coef = 0.0f;
-                    }
-                }
-                else
-                {
-                    ar_wheels[i].firstLock = true;
+                    antilock_coef = ar_wheels[i].wh_antilock_coef;
+                    m_antilockbrake = std::max(m_antilockbrake, antilock_coef < 0.9);
                 }
 
-                if (ar_wheels[i].wh_speed > 0)
+                // anti-jitter / anti-skidding
+                if (fabs(ar_wheels[i].wh_avg_speed) < 0.2f)
+                {
+                    brake_coef *= pow(fabs(ar_wheels[i].wh_avg_speed) * 5.0f, 0.25f);
+                    float speed_diff = ar_wheels[i].wh_speed - ar_wheels[i].wh_last_speed;
+                    float speed_prediction = ar_wheels[i].wh_speed + speed_diff;
+                    if (speed_prediction * ar_wheels[i].wh_avg_speed < 0.0f)
+                        brake_coef = 0.0f;
+                }
+
+                if (ar_wheels[i].wh_avg_speed > 0)
                     total_torque -= ((ar_brake + dbrake) * antilock_coef + hbrake) * brake_coef;
                 else
                     total_torque += ((ar_brake + dbrake) * antilock_coef + hbrake) * brake_coef;
             }
-        }
-        else
-        {
-            ar_wheels[i].firstLock = true;
+            else
+            {
+                ar_wheels[i].wh_antilock_coef = 1.0f;
+            }
         }
 
         // traction control
-        if (tc_mode && tc_pulse_state && ar_wheels[i].wh_propulsed > 0 && currentAcc > 0.0f && fabs(ar_wheels[i].wh_speed) > curspeed)
+        if (tc_mode && ar_wheels[i].wh_propulsed && ar_engine && ar_engine->GetAcceleration() && fabs(ar_wheels[i].wh_speed) > curspeed && wheel_slip > 0.25f)
         {
-            curspeed = std::max(0.5f, curspeed);
-
-            // tc_wheelslip = allowed amount of slip in percent
-            float wheelslip = 1.0f + tc_wheelslip;
-            // wheelslip allowed doubles up to tc_fade, a tribute to RoRs wheelspeed calculation and friction
-            wheelslip += tc_wheelslip * (curspeed / tc_fade);
-
-            if (fabs(ar_wheels[i].wh_speed) > curspeed * wheelslip)
+            if (tc_pulse_state)
             {
-                float torque_coef = (curspeed * wheelslip) / fabs(ar_wheels[i].wh_speed);
-                torque_coef = pow(torque_coef, tc_ratio);
-                total_torque *= torque_coef;
-                tc_active = (torque_coef < 0.9f);
+                ar_wheels[i].wh_tc_coef = curspeed / fabs(ar_wheels[i].wh_speed);
+                ar_wheels[i].wh_tc_coef = pow(ar_wheels[i].wh_tc_coef, tc_ratio);
             }
+            total_torque *= pow(ar_wheels[i].wh_tc_coef, 1.0f / std::max(1.0f, wheel_slip));
+            m_tractioncontrol = std::max(m_tractioncontrol, ar_wheels[i].wh_tc_coef < 0.9);
+        }
+        else
+        {
+            ar_wheels[i].wh_tc_coef = 1.0f;
         }
 
         // old-style
@@ -515,6 +488,7 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
         float axis_precalc = total_torque / (Real)(ar_wheels[i].wh_num_nodes);
         axis = fast_normalise(axis);
 
+        Real speedacc = 0.0f;
         for (int j = 0; j < ar_wheels[i].wh_num_nodes; j++)
         {
             Vector3 radius(Vector3::ZERO);
@@ -562,16 +536,6 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
             ar_wheels[i].wh_near_attach_node->Forces += cforce;
         }
     }
-
-    // dashboard overlays for tc+alb
-    if (doUpdate)
-    {
-        m_antilockbrake = false;
-        m_tractioncontrol = false;
-    }
-
-    m_antilockbrake = std::max(m_antilockbrake, (int)alb_active);
-    m_tractioncontrol = std::max(m_tractioncontrol, (int)tc_active);
 
     if (step == num_steps)
     {

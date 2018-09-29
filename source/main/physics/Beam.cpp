@@ -4209,8 +4209,8 @@ Actor::Actor(
     , ar_instance_id(actor_id)
     , ar_vector_index(vector_index)
     , ar_rescuer_flag(false)
-    , m_antilockbrake(0)
-    , m_tractioncontrol(0)
+    , m_antilockbrake(false)
+    , m_tractioncontrol(false)
     , ar_forward_commands(false)
     , ar_import_commands(false)
     , ar_airbrakes{} // Init array to nullptr

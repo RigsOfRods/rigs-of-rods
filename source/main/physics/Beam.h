@@ -495,8 +495,8 @@ private:
     std::unique_ptr<Buoyance> m_buoyance;      //!< Physics
     RoR::SkinDef*     m_used_skin;             //!< Spawner context (TODO: remove!)
     RoR::Skidmark*    m_skid_trails[MAX_WHEELS*2];
-    int               m_antilockbrake;
-    int               m_tractioncontrol;
+    bool              m_antilockbrake;
+    bool              m_tractioncontrol;
 
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?
