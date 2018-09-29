@@ -4358,11 +4358,6 @@ Replay* Actor::getReplay()
     return m_replay_handler;
 }
 
-bool Actor::getSlideNodesLockInstant()
-{
-    return m_slidenodes_connect_on_spawn;
-}
-
 bool Actor::inRange(float num, float min, float max)
 {
     return (num <= max && num >= min);

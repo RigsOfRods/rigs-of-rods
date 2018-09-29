@@ -155,7 +155,6 @@ public:
     int               getLowestNode();
     void              receiveStreamData(unsigned int type, int source, unsigned int streamid, char *buffer, unsigned int len);
     bool              inRange(float num, float min, float max);
-    bool              getSlideNodesLockInstant();
     void              sendStreamData();
     bool              isTied();
     bool              isLocked(); 
@@ -495,7 +494,6 @@ private:
     bool m_has_command_beams:1;    //!< Physics attr;
     bool m_beacon_light_is_active:1;        //!< Gfx state
     bool m_custom_particles_enabled:1;      //!< Gfx state
-    bool m_slidenodes_connect_on_spawn:1;   //<! spawn context: try to connect slide-nodes directly after spawning (TODO: remove!)
     bool m_cinecam_is_rotation_center:1;    //<! Attribute; filled at spawn
     bool m_preloaded_with_terrain:1;        //!< Spawn context (TODO: remove!)
     bool m_high_res_wheelnode_collisions:1; //!< Physics attr; set at spawn

@@ -269,7 +269,6 @@ void ActorSpawner::InitializeRig()
     m_actor->ar_extern_camera_mode=0;
     m_actor->ar_extern_camera_node=-1;
     m_actor->authors.clear();
-    m_actor->m_slidenodes_connect_on_spawn=false;
 
     m_actor->m_odometer_total = 0;
     m_actor->m_odometer_user  = 0;

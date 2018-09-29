@@ -473,7 +473,7 @@ Actor* ActorManager::CreateLocalActor(
     m_actors.push_back(actor);
 
     // lock slide nodes after spawning the actor?
-    if (actor->getSlideNodesLockInstant())
+    if (def->slide_nodes_connect_instantly)
     {
         actor->ToggleSlideNodeLock();
     }
