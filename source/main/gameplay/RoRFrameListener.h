@@ -71,6 +71,7 @@ public:
     void   QueueActorSpawn       (RoR::ActorSpawnRequest const & rq)  { m_actor_spawn_queue.push_back(rq); }
     void   QueueActorModify      (RoR::ActorModifyRequest const & rq) { m_actor_modify_queue.push_back(rq); }
     void   QueueActorRemove      (Actor* actor)                       { m_actor_remove_queue.push_back(actor); }
+    Actor* SpawnActorDirectly    (RoR::ActorSpawnRequest rq);
     void   RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name); ///< Scripting utility. TODO: Does anybody use it? ~ only_a_ptr, 08/2017
 
     // Scripting interface

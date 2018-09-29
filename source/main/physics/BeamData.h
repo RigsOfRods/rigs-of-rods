@@ -35,7 +35,7 @@
 */
 
 // The RoR required includes (should be included already)
-#include "RoRPrerequisites.h"
+#include "ForwardDeclarations.h"
 #include "RoRnet.h"
 #include "SlideNode.h"
 #include "BeamConstants.h"
@@ -541,3 +541,47 @@ struct authorinfo_t
     Ogre::String name;
     Ogre::String email;
 };
+
+namespace RoR {
+
+struct ActorSpawnRequest
+{
+    enum class Origin //!< Enables special processing
+    {
+        UNKNOWN,
+        CONFIG_FILE,  //!< 'Preselected vehicle' in RoR.cfg
+        TERRN_DEF,    //!< Preloaded with terrain
+        USER,         //!< Direct selection by user via GUI
+        NETWORK       //!< Remote controlled
+    };
+
+    ActorSpawnRequest();
+
+    CacheEntry*       asr_cache_entry; //!< Optional, overrides 'asr_filename' and 'asr_cache_entry_num'
+    std::string       asr_filename;
+    std::vector<Ogre::String> asr_config;
+    Ogre::Vector3     asr_position;
+    Ogre::Quaternion  asr_rotation;
+    int               asr_cache_entry_num;
+    collision_box_t*  asr_spawnbox;
+    RoR::SkinDef*     asr_skin;
+    Origin            asr_origin;
+    bool              asr_terrn_adjust:1;    //!< Fix position to match ground level
+    bool              asr_terrn_machine:1;   //!< This is a fixed machinery
+};
+
+struct ActorModifyRequest
+{
+    enum class Type
+    {
+        INVALID,
+        RELOAD,               //!< Full reload from filesystem, requested by user
+        RESET_ON_INIT_POS,
+        RESET_ON_SPOT
+    };
+
+    Actor* amr_actor;
+    Type   amr_type;
+};
+
+} // namespace RoR

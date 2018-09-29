@@ -992,8 +992,11 @@ VehicleAI* GameScript::getTruckAIByNum(int num)
 
 Actor* GameScript::spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot)
 {
-    Ogre::Quaternion rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
-    return App::GetSimController()->GetBeamFactory()->CreateLocalActor(pos, rotation, truckName);
+    ActorSpawnRequest rq;
+    rq.asr_position = pos;
+    rq.asr_rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
+    rq.asr_filename = truckName;
+    return App::GetSimController()->SpawnActorDirectly(rq);
 }
 
 void GameScript::showMessageBox(Ogre::String& title, Ogre::String& text, bool use_btn1, Ogre::String& btn1_text, bool allow_close, bool use_btn2, Ogre::String& btn2_text)

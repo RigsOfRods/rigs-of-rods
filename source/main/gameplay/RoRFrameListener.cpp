@@ -49,13 +49,13 @@
 #include "LandVehicleSimulation.h"
 #include "Language.h"
 #include "MainMenu.h"
-
 #include "MumbleIntegration.h"
 #include "OgreSubsystem.h"
 #include "OutProtocol.h"
 #include "OverlayWrapper.h"
 #include "PlatformUtils.h"
 #include "Replay.h"
+#include "RigDef_File.h"
 #include "RoRVersion.h"
 #include "SceneMouse.h"
 #include "ScrewProp.h"
@@ -1518,7 +1518,11 @@ void SimController::UpdateSimulation(float dt)
             if (m_player_actor == rq.amr_actor) // Check if the request is up-to-date
             {
                 m_actor_manager.UnloadTruckfileFromMemory(m_player_actor->ar_filename.c_str()); // Force reload from filesystem
-                Actor* new_actor = m_actor_manager.CreateLocalActor(m_reload_pos, m_reload_dir, m_player_actor->ar_filename, -1); // try to load the same actor again
+                ActorSpawnRequest srq;
+                srq.asr_position = m_reload_pos;
+                srq.asr_rotation = m_reload_dir;
+                srq.asr_filename = m_player_actor->ar_filename;
+                Actor* new_actor = this->SpawnActorDirectly(srq); // try to load the same actor again
 
                 // copy over the most basic info
                 if (m_player_actor->ar_num_nodes == new_actor->ar_num_nodes)
@@ -1577,17 +1581,12 @@ void SimController::UpdateSimulation(float dt)
                 }
             }
 
-            Actor* fresh_actor = m_actor_manager.CreateLocalActor(
-                rq.asr_position, rq.asr_rotation, rq.asr_cache_entry->fname,
-                rq.asr_cache_entry->number, rq.asr_spawnbox, &rq.asr_config, rq.asr_skin);
-
+            Actor* fresh_actor = this->SpawnActorDirectly(rq);
             this->FinalizeActorSpawning(fresh_actor, m_player_actor, rq);
         }
         else if (rq.asr_origin == ActorSpawnRequest::Origin::CONFIG_FILE)
         {
-            Actor* fresh_actor = m_actor_manager.CreateLocalActor(
-                rq.asr_position, rq.asr_rotation, rq.asr_filename, rq.asr_cache_entry_num,
-                nullptr, &rq.asr_config, rq.asr_skin);
+            Actor* fresh_actor = this->SpawnActorDirectly(rq);
 
             // Calculate translational offset for node[0] to align the actor's rotation center with m_reload_pos
             Vector3 translation = rq.asr_position - fresh_actor->GetRotationCenter();
@@ -1604,9 +1603,7 @@ void SimController::UpdateSimulation(float dt)
         }
         else if (rq.asr_origin == ActorSpawnRequest::Origin::TERRN_DEF)
         {
-            Actor* fresh_actor = m_actor_manager.CreateLocalActor(
-                rq.asr_position, rq.asr_rotation, rq.asr_filename, rq.asr_cache_entry_num,
-                nullptr, &rq.asr_config, rq.asr_skin, !rq.asr_terrn_adjust, true); // true = Preloaded with terrain
+            Actor* fresh_actor = this->SpawnActorDirectly(rq);
 
             if (rq.asr_terrn_machine)
             {
@@ -1629,9 +1626,7 @@ void SimController::UpdateSimulation(float dt)
         }
         else
         {
-            Actor* fresh_actor = m_actor_manager.CreateLocalActor(
-                rq.asr_position, rq.asr_rotation, rq.asr_filename, rq.asr_cache_entry_num,
-                nullptr, &rq.asr_config, rq.asr_skin);
+            Actor* fresh_actor = this->SpawnActorDirectly(rq);
 
             this->FinalizeActorSpawning(fresh_actor, m_player_actor, rq);
         }
@@ -2366,5 +2361,43 @@ void SimController::CameraManagerMousePressed(const OIS::MouseEvent& _arg, OIS::
     {
         m_camera_manager.mousePressed(_arg, _id);
     }
+}
+
+Actor* SimController::SpawnActorDirectly(RoR::ActorSpawnRequest rq)
+{
+    if (rq.asr_cache_entry != nullptr)
+    {
+        rq.asr_cache_entry_num = rq.asr_cache_entry->number;
+        rq.asr_filename = rq.asr_cache_entry->fname;
+    }
+
+    std::shared_ptr<RigDef::File> def = m_actor_manager.FetchActorDef(
+        rq.asr_filename.c_str(), rq.asr_origin == ActorSpawnRequest::Origin::TERRN_DEF);
+    if (def == nullptr)
+    {
+        return nullptr; // Error already reported
+    }
+
+    LOG(" ===== LOADING VEHICLE: " + rq.asr_filename);
+    Actor* actor = m_actor_manager.CreateActorInstance(rq, def);
+
+    if (rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
+    {
+        // lock slide nodes after spawning the actor?
+        if (def->slide_nodes_connect_instantly)
+        {
+            actor->ToggleSlideNodeLock();
+        }
+
+        RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
+
+        // add own username to the actor
+        if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
+        {
+            actor->UpdateNetworkInfo();
+        }
+    }
+
+    return actor;
 }
 

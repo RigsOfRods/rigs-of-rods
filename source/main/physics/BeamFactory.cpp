@@ -433,132 +433,16 @@ void ActorManager::SetupActor(
     LOG(" ===== DONE LOADING VEHICLE");
 }
 
-Actor* ActorManager::CreateLocalActor(
-    Ogre::Vector3 pos,
-    Ogre::Quaternion rot,
-    Ogre::String fname,
-    int cache_entry_number, // = -1,
-    collision_box_t* spawnbox /* = nullptr */,
-    const std::vector<Ogre::String>* actor_config /* = nullptr */,
-    RoR::SkinDef* skin /* = nullptr */,
-    bool free_position, /* = false */
-    bool preloaded_with_terrain /* = false */
-)
+Actor* ActorManager::CreateActorInstance(ActorSpawnRequest rq, std::shared_ptr<RigDef::File> def)
 {
-#ifdef ROR_PROFILE_RIG_LOADING
-    ::Profiler::reset();
-#endif
+    Actor* actor = new Actor(m_actor_counter++, m_actors.size(), def, rq);
 
-    std::shared_ptr<RigDef::File> def = this->FetchActorDef(fname.c_str(), preloaded_with_terrain);
-    if (def == nullptr)
-    {
-        return nullptr; // Error already reported
-    }
-
-    Actor* actor = new Actor(
-        m_actor_counter++,
-        m_actors.size(),
-        def,
-        pos,
-        rot,
-        fname.c_str(),
-        (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED), // networking
-        actor_config,
-        skin,
-        preloaded_with_terrain
-    );
-
-    this->SetupActor(actor, def, pos, rot, spawnbox, free_position, false, cache_entry_number);
+    const bool networked = rq.asr_origin == ActorSpawnRequest::Origin::NETWORK;
+    this->SetupActor(actor, def, rq.asr_position, rq.asr_rotation, rq.asr_spawnbox, !rq.asr_terrn_adjust, networked, rq.asr_cache_entry_num);
 
     m_actors.push_back(actor);
 
-    // lock slide nodes after spawning the actor?
-    if (def->slide_nodes_connect_instantly)
-    {
-        actor->ToggleSlideNodeLock();
-    }
-
-    RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
-
-    // add own username to the actor
-    if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
-    {
-        actor->UpdateNetworkInfo();
-    }
-
-#ifdef ROR_PROFILE_RIG_LOADING
-    std::string out_path = std::string(App::sys_user_dir.GetActive()) + PATH_SLASH + "profiler" + PATH_SLASH + ROR_PROFILE_RIG_LOADING_OUTFILE;
-    ::Profiler::DumpHtml(out_path.c_str());
-#endif
     return actor;
-}
-
-int ActorManager::CreateRemoteInstance(RoRnet::ActorStreamRegister* reg)
-{
-    LOG("[RoR] Creating remote actor for " + TOSTRING(reg->origin_sourceid) + ":" + TOSTRING(reg->origin_streamid));
-
-#ifdef USE_SOCKETW
-    RoRnet::UserInfo info;
-    RoR::Networking::GetUserInfo(reg->origin_sourceid, info);
-
-    UTFString message = RoR::ChatSystem::GetColouredName(info.username, info.colournum) + RoR::Color::CommandColour + _L(" spawned a new vehicle: ") + RoR::Color::NormalColour + reg->name;
-    RoR::App::GetGuiManager()->pushMessageChatBox(message);
-#endif // USE_SOCKETW
-
-    // check if we got this actor installed
-    String filename = String(reg->name);
-    String group = "";
-    if (!RoR::App::GetCacheSystem()->checkResourceLoaded(filename, group))
-    {
-        LOG("[RoR] Cannot create remote actor (not installed), filename: '"+filename+"'");
-        return -1;
-    }
-
-    // fill config
-    std::vector<String> actor_config;
-    for (int t = 0; t < 10; t++)
-    {
-        if (!strnlen(reg->actorconfig[t], 60))
-            break;
-        actor_config.push_back(String(reg->actorconfig[t]));
-    }
-
-    std::shared_ptr<RigDef::File> def = this->FetchActorDef(filename.c_str(), false);
-    if (def == nullptr)
-    {
-        RoR::LogFormat("[RoR] Cannot create remote actor '%s', error parsing truckfile", filename.c_str());
-        return -1;
-    }
-
-    // DO NOT spawn the actor far off anywhere
-    // the actor parsing will break flexbodies initialization when using huge numbers here
-    Vector3 pos = Vector3::ZERO;
-
-    Actor* actor = new Actor(
-        m_actor_counter++,
-        m_actors.size(),
-        def,
-        pos,
-        Quaternion::ZERO,
-        reg->name,
-        (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED), // networking
-        &actor_config,
-        nullptr // skin
-    );
-
-    this->SetupActor(actor, def, pos, Ogre::Quaternion::ZERO, nullptr, true, -1);
-
-    m_actors.push_back(actor);
-
-    actor->ar_net_source_id = reg->origin_sourceid;
-    actor->ar_net_stream_id = reg->origin_streamid;
-    actor->UpdateNetworkInfo();
-
-
-    RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
-
-
-    return 1;
 }
 
 void ActorManager::RemoveStreamSource(int sourceid)
@@ -587,7 +471,41 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
             RoRnet::StreamRegister* reg = (RoRnet::StreamRegister *)packet.buffer;
             if (reg->type == 0)
             {
-                reg->status = this->CreateRemoteInstance((RoRnet::ActorStreamRegister *)packet.buffer);
+                LOG("[RoR] Creating remote actor for " + TOSTRING(reg->origin_sourceid) + ":" + TOSTRING(reg->origin_streamid));
+                Ogre::String filename(reg->name);
+                int net_result = -1; // failure
+                if (!RoR::App::GetCacheSystem()->checkResourceLoaded(filename))
+                {
+                    RoR::LogFormat("[RoR] Cannot create remote actor (not installed), filename: '%s'", reg->name);
+                }
+                else
+                {
+                    RoRnet::UserInfo info;
+                    RoR::Networking::GetUserInfo(reg->origin_sourceid, info);
+
+                    UTFString message = RoR::ChatSystem::GetColouredName(info.username, info.colournum) + RoR::Color::CommandColour + _L(" spawned a new vehicle: ") + RoR::Color::NormalColour + reg->name;
+                    RoR::App::GetGuiManager()->pushMessageChatBox(message);
+
+                    auto actor_reg = reinterpret_cast<RoRnet::ActorStreamRegister*>(reg);
+                    ActorSpawnRequest rq;
+                    rq.asr_origin = ActorSpawnRequest::Origin::NETWORK;
+                    rq.asr_filename = filename;
+                    for (int t = 0; t < 10; t++)
+                    {
+                        if (!strnlen(actor_reg->actorconfig[t], 60))
+                            break;
+                        rq.asr_config.push_back(String(actor_reg->actorconfig[t]));
+                    }
+
+                    Actor* actor = App::GetSimController()->SpawnActorDirectly(rq);
+                    actor->ar_net_source_id = reg->origin_sourceid;
+                    actor->ar_net_stream_id = reg->origin_streamid;
+                    actor->UpdateNetworkInfo();
+
+                    RoR::App::GetGuiManager()->GetTopMenubar()->triggerUpdateVehicleList();
+                    net_result = 1; // Success
+                }
+
                 RoR::Networking::AddPacket(0, RoRnet::MSG2_STREAM_REGISTER_RESULT, sizeof(RoRnet::StreamRegister), (char *)reg);
             }
         }
@@ -1322,7 +1240,11 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(const char* filename, 
     {
         Ogre::String resource_filename = filename;
         Ogre::String resource_groupname;
-        RoR::App::GetCacheSystem()->checkResourceLoaded(resource_filename, resource_groupname); // Validates the filename and finds resource group
+        if (!RoR::App::GetCacheSystem()->checkResourceLoaded(resource_filename, resource_groupname)) // Validates the filename and finds resource group
+        {
+            HandleErrorLoadingTruckfile(filename, "Truckfile not found");
+            return nullptr;
+        }
         Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(resource_filename, resource_groupname);
 
         if (stream.isNull() || !stream->isReadable())
