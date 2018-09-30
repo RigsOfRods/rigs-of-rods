@@ -118,40 +118,7 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
     m_water_contact = false;
 
     this->CalcNodes();
-
-    AxisAlignedBox tBoundingBox(ar_nodes[0].AbsPosition, ar_nodes[0].AbsPosition);
-
-    for (unsigned int i = 0; i < ar_collision_bounding_boxes.size(); i++)
-    {
-        ar_collision_bounding_boxes[i].scale(Ogre::Vector3(0.0));
-    }
-
-    for (int i = 0; i < ar_num_nodes; i++)
-    {
-        tBoundingBox.merge(ar_nodes[i].AbsPosition);
-        if (ar_nodes[i].collisionBoundingBoxID >= 0 && (unsigned int) ar_nodes[i].collisionBoundingBoxID < ar_collision_bounding_boxes.size())
-        {
-            AxisAlignedBox& bb = ar_collision_bounding_boxes[ar_nodes[i].collisionBoundingBoxID];
-            if (bb.getSize().length() == 0.0 && bb.getMinimum().length() == 0.0)
-            {
-                bb.setExtents(ar_nodes[i].AbsPosition, ar_nodes[i].AbsPosition);
-            }
-            else
-            {
-                bb.merge(ar_nodes[i].AbsPosition);
-            }
-        }
-    }
-
-    for (unsigned int i = 0; i < ar_collision_bounding_boxes.size(); i++)
-    {
-        ar_collision_bounding_boxes[i].setMinimum(ar_collision_bounding_boxes[i].getMinimum() - Vector3(0.05f, 0.05f, 0.05f));
-        ar_collision_bounding_boxes[i].setMaximum(ar_collision_bounding_boxes[i].getMaximum() + Vector3(0.05f, 0.05f, 0.05f));
-
-        ar_predicted_coll_bounding_boxes[i].setExtents(ar_collision_bounding_boxes[i].getMinimum(), ar_collision_bounding_boxes[i].getMaximum());
-        ar_predicted_coll_bounding_boxes[i].merge(ar_collision_bounding_boxes[i].getMinimum() + ar_nodes[0].Velocity);
-        ar_predicted_coll_bounding_boxes[i].merge(ar_collision_bounding_boxes[i].getMaximum() + ar_nodes[0].Velocity);
-    }
+    this->UpdateBoundingBoxes();
 
     // anti-explosion guard
     // rationale behind 1e9 number:
@@ -160,20 +127,13 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
     // - 1e9 may be reachable only by a vehicle that is 1000 times bigger than a typical RoR vehicle, and it will be a loooong trip
     // to be able to travel such long distances will require switching physics calculations to higher precision numbers
     // or taking a different approach to the simulation (actor-local coordinate system?)
-    if (!inRange(tBoundingBox.getMinimum().x + tBoundingBox.getMaximum().x +
-        tBoundingBox.getMinimum().y + tBoundingBox.getMaximum().y +
-        tBoundingBox.getMinimum().z + tBoundingBox.getMaximum().z, -1e9, 1e9))
+    if (!inRange(ar_bounding_box.getMinimum().x + ar_bounding_box.getMaximum().x +
+        ar_bounding_box.getMinimum().y + ar_bounding_box.getMaximum().y +
+        ar_bounding_box.getMinimum().z + ar_bounding_box.getMaximum().z, -1e9, 1e9))
     {
         m_reset_request = REQUEST_RESET_ON_INIT_POS; // actor exploded, schedule reset
         return; // return early to avoid propagating invalid values
     }
-
-    ar_bounding_box.setMinimum(tBoundingBox.getMinimum() - Vector3(0.05f, 0.05f, 0.05f));
-    ar_bounding_box.setMaximum(tBoundingBox.getMaximum() + Vector3(0.05f, 0.05f, 0.05f));
-
-    ar_predicted_bounding_box.setExtents(ar_bounding_box.getMinimum(), ar_bounding_box.getMaximum());
-    ar_predicted_bounding_box.merge(ar_bounding_box.getMinimum() + ar_nodes[0].Velocity);
-    ar_predicted_bounding_box.merge(ar_bounding_box.getMaximum() + ar_nodes[0].Velocity);
 
     //turboprop forces
     for (int i = 0; i < ar_num_aeroengines; i++)

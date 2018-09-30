@@ -32,9 +32,10 @@ struct node_t
     //     although there was always a hidden soft limit of 2^16 nodes (because of `short node_t::pos`).
     //     Let's use `uint16_t` indices everywhere to be clear.      ~ only_a_ptr, 04/2018
     static const uint16_t INVALID_IDX = std::numeric_limits<uint16_t>::max();
+    static const int8_t   INVALID_BBOX = -1;
 
-    node_t()               { memset(this, 0, sizeof(node_t)); }
-    node_t(size_t _pos)    { memset(this, 0, sizeof(node_t)); pos = static_cast<short>(_pos); }
+    node_t()               { memset(this, 0, sizeof(node_t)); nd_coll_bbox_id = INVALID_BBOX; }
+    node_t(size_t _pos)    { memset(this, 0, sizeof(node_t)); nd_coll_bbox_id = INVALID_BBOX; pos = static_cast<short>(_pos); }
 
     Ogre::Vector3 RelPosition; //!< relative to the local physics origin (one origin per actor) (shaky)
     Ogre::Vector3 AbsPosition; //!< absolute position in the world (shaky)
@@ -55,12 +56,12 @@ struct node_t
     short nd_lockgroup;
     short pos;     //!< This node's index in Actor::ar_nodes array.
     short id;      //!< Numeric identifier assigned in truckfile (if used), or -1 if the node was generated dynamically.
-    char collisionBoundingBoxID;
 
     Ogre::Vector3 initial_pos;
 
     ground_model_t* nd_collision_gm;         //!< Physics state; last collision 'ground model' (surface definition)
     float           nd_collision_slip;       //!< Physics state; last collision slip velocity
+    int8_t          nd_coll_bbox_id;         //!< Optional attribute (-1 = none) - multiple collision bounding boxes defined in truckfile
 
     // Bit flags
     bool            nd_loaded_mass:1;        //!< User defined attr; mass is calculated from 'globals/loaded-mass' rather than 'globals/dry-mass'

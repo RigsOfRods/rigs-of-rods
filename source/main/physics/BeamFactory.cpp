@@ -201,7 +201,7 @@ void ActorManager::SetupActor(
         Ogre::Vector3 vehicle_position = spawn_position;
 
         // check if over-sized
-        ActorSpawner::RecalculateBoundingBoxes(actor);
+        actor->UpdateBoundingBoxes();
         vehicle_position.x -= (actor->ar_bounding_box.getMaximum().x + actor->ar_bounding_box.getMinimum().x) / 2.0 - vehicle_position.x;
         vehicle_position.z -= (actor->ar_bounding_box.getMaximum().z + actor->ar_bounding_box.getMinimum().z) / 2.0 - vehicle_position.z;
 
@@ -255,7 +255,7 @@ void ActorManager::SetupActor(
     //compute node connectivity graph
     actor->calcNodeConnectivityGraph();
 
-    ActorSpawner::RecalculateBoundingBoxes(actor);
+    actor->UpdateBoundingBoxes();
 
     // fix up submesh collision model
     std::string subMeshGroundModelName = spawner.GetSubmeshGroundmodelName();
