@@ -84,6 +84,8 @@
 using namespace Ogre;
 using namespace RoR;
 
+static const Ogre::Vector3 BOUNDING_BOX_PADDING(0.05f, 0.05f, 0.05f);
+
 Actor::~Actor()
 {
     TRIGGER_EVENT(SE_GENERIC_DELETED_TRUCK, ar_instance_id);
@@ -1086,15 +1088,45 @@ void Actor::calculateAveragePosition()
     }
 }
 
-void Actor::updateBoundingBox()
+inline void PadBoundingBox(Ogre::AxisAlignedBox& box) // Internal helper
 {
-    ar_bounding_box = AxisAlignedBox(ar_nodes[0].AbsPosition, ar_nodes[0].AbsPosition);
+    box.setMinimum(box.getMinimum() - BOUNDING_BOX_PADDING);
+    box.setMaximum(box.getMaximum() + BOUNDING_BOX_PADDING);
+}
+
+void Actor::UpdateBoundingBoxes()
+{
+    // Reset
+    ar_bounding_box = AxisAlignedBox::BOX_NULL;
+    ar_predicted_bounding_box = AxisAlignedBox::BOX_NULL;
+    for (size_t i = 0; i < ar_collision_bounding_boxes.size(); ++i)
+    {
+        ar_collision_bounding_boxes[i] = AxisAlignedBox::BOX_NULL;
+        ar_predicted_coll_bounding_boxes[i] = AxisAlignedBox::BOX_NULL;
+    }
+
+    // Update
     for (int i = 0; i < ar_num_nodes; i++)
     {
-        ar_bounding_box.merge(ar_nodes[i].AbsPosition);
+        ar_bounding_box.merge(ar_nodes[i].AbsPosition);                                  // Current box
+        ar_predicted_bounding_box.merge(ar_nodes[i].AbsPosition);                        // Predicted box (current position)
+        ar_predicted_bounding_box.merge(ar_nodes[i].AbsPosition + ar_nodes[i].Velocity); // Predicted box (future position)
+        if (ar_nodes[i].nd_coll_bbox_id != node_t::INVALID_BBOX)
+        {
+            ar_collision_bounding_boxes[ar_nodes[i].nd_coll_bbox_id].merge(ar_nodes[i].AbsPosition);
+            ar_predicted_coll_bounding_boxes[ar_nodes[i].nd_coll_bbox_id].merge(ar_nodes[i].AbsPosition);
+            ar_predicted_coll_bounding_boxes[ar_nodes[i].nd_coll_bbox_id].merge(ar_nodes[i].AbsPosition + ar_nodes[i].Velocity);
+        }
     }
-    ar_bounding_box.setMinimum(ar_bounding_box.getMinimum() - Vector3(0.05f, 0.05f, 0.05f));
-    ar_bounding_box.setMaximum(ar_bounding_box.getMaximum() + Vector3(0.05f, 0.05f, 0.05f));
+
+    // Finalize - add padding
+    PadBoundingBox(ar_bounding_box);
+    PadBoundingBox(ar_predicted_bounding_box);
+    for (size_t i = 0; i < ar_collision_bounding_boxes.size(); ++i)
+    {
+        PadBoundingBox(ar_collision_bounding_boxes[i]);
+        PadBoundingBox(ar_predicted_coll_bounding_boxes[i]);
+    }
 }
 
 void Actor::checkAndMovePhysicsOrigin()
@@ -1135,7 +1167,7 @@ void Actor::ResetAngle(float rot)
 
     resetSlideNodePositions();
 
-    updateBoundingBox();
+    this->UpdateBoundingBoxes();
     calculateAveragePosition();
 }
 
@@ -1218,7 +1250,7 @@ void Actor::ResetPosition(Vector3 translation, bool setInitPosition)
         }
     }
 
-    updateBoundingBox();
+    this->UpdateBoundingBoxes();
     calculateAveragePosition();
 
     // calculate minimum camera radius
@@ -1482,7 +1514,7 @@ bool Actor::ReplayStep()
             }
 
             updateSlideNodePositions();
-            updateBoundingBox();
+            this->UpdateBoundingBoxes();
             calculateAveragePosition();
         }
 
@@ -1539,7 +1571,7 @@ void Actor::HandleInputEvents(float dt)
         }
 
         m_rotation_request = 0.0f;
-        updateBoundingBox();
+        this->UpdateBoundingBoxes();
         calculateAveragePosition();
     }
 
@@ -1552,7 +1584,7 @@ void Actor::HandleInputEvents(float dt)
         }
 
         m_translation_request = 0.0f;
-        updateBoundingBox();
+        this->UpdateBoundingBoxes();
         calculateAveragePosition();
     }
 

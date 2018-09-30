@@ -157,8 +157,6 @@ public:
     */
     unsigned int GetNodeIndexOrThrow(RigDef::Node::Ref const & id);
 
-    static void RecalculateBoundingBoxes(Actor *rig);
-
     static void SetupDefaultSoundSources(Actor *vehicle);
 
     static void ComposeName(RoR::Str<100>& str, const char* type, int number, int actor_id);

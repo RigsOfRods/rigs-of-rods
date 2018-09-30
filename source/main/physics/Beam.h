@@ -166,7 +166,7 @@ public:
     bool              isTied();
     bool              isLocked(); 
     void              updateDashBoards(float dt);
-    void              updateBoundingBox(); 
+    void              UpdateBoundingBoxes();
     void              calculateAveragePosition();
     void              checkAndMovePhysicsOrigin();
     void              postUpdatePhysics(float dt);         //!< TIGHT LOOP; Physics;

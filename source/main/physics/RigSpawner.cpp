@@ -2371,21 +2371,27 @@ void ActorSpawner::ProcessCollisionBox(RigDef::CollisionBox & def)
 {
     SPAWNER_PROFILE_SCOPED();
 
-    auto itor = def.nodes.begin();
-    auto end  = def.nodes.end();
-    for ( ; itor != end; ++itor)
+    int8_t bbox_id = static_cast<int8_t>(m_actor->ar_collision_bounding_boxes.size());
+    for (RigDef::Node::Ref& node_ref: def.nodes)
     {
-        std::pair<unsigned int, bool> node_result = GetNodeIndex(*itor);
+        std::pair<unsigned int, bool> node_result = this->GetNodeIndex(node_ref);
         if (! node_result.second)
         {
-            std::stringstream msg;
-            msg << "Invalid node '" << itor->ToString() << "'";
+            RoR::LogFormat("[RoR|Spawner] Collision box: skipping invalid node '%s'", node_ref.ToString().c_str());
             continue;
         }
-        m_actor->ar_nodes[node_result.first].collisionBoundingBoxID = static_cast<char>(m_actor->ar_collision_bounding_boxes.size());
+        if (m_actor->ar_nodes[node_result.first].nd_coll_bbox_id != node_t::INVALID_BBOX)
+        {
+            RoR::LogFormat("[RoR|Spawner] Collision box: re-assigning node '%s' from box ID '%d' to '%d'",
+                node_ref.ToString().c_str(),
+                m_actor->ar_nodes[node_result.first].nd_coll_bbox_id,
+                bbox_id);
+        }
+        m_actor->ar_nodes[node_result.first].nd_coll_bbox_id = bbox_id;
     }
 
-    m_actor->ar_collision_bounding_boxes.resize(m_actor->ar_collision_bounding_boxes.size() + 1);
+    m_actor->ar_collision_bounding_boxes.push_back(Ogre::AxisAlignedBox()); // Updated later
+    m_actor->ar_predicted_coll_bounding_boxes.push_back(Ogre::AxisAlignedBox());
 }
 
 bool ActorSpawner::AssignWheelToAxle(int & _out_axle_wheel, node_t *axis_node_1, node_t *axis_node_2)
@@ -5825,7 +5831,6 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     node.friction_coef = def.node_defaults->friction;
     node.volume_coef = def.node_defaults->volume;
     node.surface_coef = def.node_defaults->surface;
-    node.collisionBoundingBoxID = -1; // orig = hardcoded (init_node)
 
     /* Mass */
     if (def.node_defaults->load_weight >= 0.f) // The >= operator is in orig.
@@ -6045,9 +6050,6 @@ void ActorSpawner::InitNode(node_t & node, Ogre::Vector3 const & position)
     /* Position */
     node.AbsPosition = position;
     node.RelPosition = position - m_actor->ar_origin;
-
-    /* Misc. */
-    node.collisionBoundingBoxID = -1; // orig = hardcoded (init_node)
 }
 
 void ActorSpawner::InitNode(
@@ -6309,54 +6311,6 @@ void ActorSpawner::SetBeamDamping(beam_t & beam, float damping)
 {
     beam.d = damping;
 }
-
-void ActorSpawner::RecalculateBoundingBoxes(Actor *rig)
-{
-    SPAWNER_PROFILE_SCOPED();
-
-    Ogre::Vector3 node_0_pos = rig->ar_nodes[0].AbsPosition;
-    rig->ar_bounding_box.setExtents(
-        node_0_pos.x, node_0_pos.y, node_0_pos.z, 
-        node_0_pos.x, node_0_pos.y, node_0_pos.z
-    );
-    rig->ar_collision_bounding_boxes.clear();
-
-    for (int i=0; i < rig->ar_num_nodes; i++)
-    {
-        node_t & node = rig->ar_nodes[i];
-        Ogre::Vector3 node_position = node.AbsPosition;
-        rig->ar_bounding_box.merge(node_position);
-        if (node.collisionBoundingBoxID >= 0)
-        {
-            if ((unsigned int) node.collisionBoundingBoxID >= rig->ar_collision_bounding_boxes.size())
-            {
-                rig->ar_collision_bounding_boxes.push_back(
-                    Ogre::AxisAlignedBox(
-                        node_position.x, node_position.y, node_position.z, 
-                        node_position.x, node_position.y, node_position.z
-                    )
-                );
-            } 
-            else
-            {
-                rig->ar_collision_bounding_boxes[node.collisionBoundingBoxID].merge(node_position);
-            }
-        }
-    }
-
-    for (unsigned int i = 0; i < rig->ar_collision_bounding_boxes.size(); i++)
-    {
-        rig->ar_collision_bounding_boxes[i].setMinimum(rig->ar_collision_bounding_boxes[i].getMinimum() - Ogre::Vector3(0.05f, 0.05f, 0.05f));
-        rig->ar_collision_bounding_boxes[i].setMaximum(rig->ar_collision_bounding_boxes[i].getMaximum() + Ogre::Vector3(0.05f, 0.05f, 0.05f));
-    }
-
-    rig->ar_bounding_box.setMinimum(rig->ar_bounding_box.getMinimum() - Ogre::Vector3(0.05f, 0.05f, 0.05f));
-    rig->ar_bounding_box.setMaximum(rig->ar_bounding_box.getMaximum() + Ogre::Vector3(0.05f, 0.05f, 0.05f));
-
-    rig->ar_predicted_bounding_box = rig->ar_bounding_box;
-    rig->ar_predicted_coll_bounding_boxes = rig->ar_collision_bounding_boxes;
-}
-
 
 void ActorSpawner::SetupDefaultSoundSources(Actor *vehicle)
 {
