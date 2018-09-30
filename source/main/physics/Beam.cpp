@@ -1653,7 +1653,7 @@ void Actor::HandleInputEvents(float dt)
         }
 
         m_translation_request = Vector3::ZERO;
-        this->UpdateBoundingBoxes();
+        UpdateBoundingBoxes();
         calculateAveragePosition();
     }
 }
