@@ -85,7 +85,6 @@ private:
     std::vector<GfxActor*>            m_live_gfx_actors;
     std::vector<GfxCharacter*>        m_all_gfx_characters;
     RoR::GfxEnvmap                    m_envmap;
-    std::unique_ptr<HeatHaze>         m_heathaze;
     SimBuffer                         m_simbuf;
     std::unique_ptr<SurveyMapManager> m_survey_map; //!< Minimap; placed here rather than GUIManager because it's lifetime is tied to terrain.
 

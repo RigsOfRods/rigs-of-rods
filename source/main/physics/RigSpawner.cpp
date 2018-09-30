@@ -333,10 +333,6 @@ void ActorSpawner::InitializeRig()
 
     m_actor->ar_collision_relevant = false;
 
-    m_actor->m_debug_visuals = 0;
-
-    m_actor->ar_driverseat_prop = nullptr;
-
     m_actor->ar_hide_in_actor_list = false;
 
     m_actor->ar_anim_previous_crank = 0.f;
