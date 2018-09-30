@@ -1,4 +1,4 @@
-os: linux
+dist: xenial
 sudo: required
 language: c
 
@@ -22,7 +22,7 @@ addons:
     - libxaw7-dev
     - libxrandr-dev
     - libgtk2.0-dev
-    - libwxgtk2.8-dev
+    - libwxgtk3.0-dev
 
 install:
   - wget https://dl.bintray.com/conan/installers/conan-ubuntu-64_1_7_2.deb
