@@ -23,7 +23,6 @@
 
 #include "Application.h"
 #include "DustPool.h"
-#include "Heathaze.h"
 #include "OverlayWrapper.h"
 #include "RoRFrameListener.h" // SimController
 #include "Settings.h"
@@ -61,13 +60,6 @@ void RoR::GfxScene::InitScene(Ogre::SceneManager* sm)
     m_ogre_scene = sm;
 
     m_envmap.SetupEnvMap();
-
-    // heathaze effect
-    if (App::gfx_enable_heathaze.GetActive())
-    {
-        m_heathaze = std::unique_ptr<HeatHaze>(new HeatHaze());
-        m_heathaze->setEnable(true);
-    }
 }
 
 void RoR::GfxScene::InitSurveyMap(Ogre::Vector3 terrain_size)
@@ -101,11 +93,6 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
         {
             itor.second->update();
         }
-    }
-
-    if (m_heathaze != nullptr)
-    {
-        m_heathaze->update(); // TODO: The effect seems quite badly broken at the moment ~ only_a_ptr, 05/2018
     }
 
     // Realtime reflections on player vehicle
