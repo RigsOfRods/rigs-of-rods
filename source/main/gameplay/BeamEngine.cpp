@@ -561,7 +561,7 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
 
         // auto clutch
         float declutchRPM = (m_engine_min_rpm + m_engine_stall_rpm) / 2.0f;
-        if (m_cur_gear == 0 || m_cur_engine_rpm < declutchRPM || (fabs(m_cur_wheel_revolutions) < 1.0f && (m_cur_engine_rpm < m_engine_min_rpm * 1.01f || m_auto_cur_acc == 0.0f)) || (m_auto_cur_acc == 0.0f && m_actor->ar_brake > 0.0f && retorque >= 0.0f))
+        if (m_cur_gear == 0 || m_cur_engine_rpm < declutchRPM)
         {
             m_cur_clutch = 0.0f;
         }
