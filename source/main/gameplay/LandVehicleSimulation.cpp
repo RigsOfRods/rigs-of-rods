@@ -556,16 +556,12 @@ void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_la
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_ANTILOCK_BRAKE))
     {
-        if (vehicle->alb_present && !vehicle->alb_notoggle)
-        {
-            vehicle->ToggleAntiLockBrake();
-        }
+        vehicle->ToggleAntiLockBrake();
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TRACTION_CONTROL))
     {
-        if (!vehicle->tc_notoggle)
-            vehicle->ToggleTractionControl();
+        vehicle->ToggleTractionControl();
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_CRUISE_CONTROL))

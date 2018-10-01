@@ -264,21 +264,19 @@ public:
     float             ar_anim_previous_crank;     //!< For 'animator' with flag 'torque'
     float             alb_ratio;          //!< Anti-lock brake attribute: Regulating force
     float             alb_minspeed;       //!< Anti-lock brake attribute;
-    int               alb_mode;           //!< Anti-lock brake status; Enabled? {1/0}
+    bool              alb_mode;           //!< Anti-lock brake state; Enabled? {1/0}
     float             alb_pulse_time;     //!< Anti-lock brake attribute;
-    bool              alb_pulse_state;    //!< Anti-lock brake status;
-    bool              alb_present;        //!< Anti-lock brake attribute: Display the dashboard indicator?
+    bool              alb_pulse_state;    //!< Anti-lock brake state;
+    bool              alb_nodash;         //!< Anti-lock brake attribute: Hide the dashboard indicator?
     bool              alb_notoggle;       //!< Anti-lock brake attribute: Disable in-game toggle?
-    float             tc_ratio;           //!< Traction control
-    float             tc_wheelslip;       //!< Traction control
-    float             tc_fade;            //!< Traction control
-    int               tc_mode;            //!< Traction control status; Enabled? {1/0}
+    float             alb_timer;          //!< Anti-lock brake state;
+    float             tc_ratio;           //!< Traction control attribute: Regulating force
+    bool              tc_mode;            //!< Traction control state; Enabled? {1/0}
     float             tc_pulse_time;      //!< Traction control attribute;
-    bool              tc_pulse_state;     //!< Traction control
-    bool              tc_present;         //!< Traction control attribute; Display the dashboard indicator?
+    bool              tc_pulse_state;     //!< Traction control state;
+    bool              tc_nodash;          //!< Traction control attribute; Hide the dashboard indicator?
     bool              tc_notoggle;        //!< Traction control attribute; Disable in-game toggle?
-    float             tc_timer;           //!< Traction control
-    float             alb_timer;
+    float             tc_timer;           //!< Traction control state;
     float             ar_anim_shift_timer;//!< For 'animator' with flag 'shifter'
     bool              cc_mode;            //!< Cruise Control
     bool              cc_can_brake;       //!< Cruise Control
@@ -496,8 +494,8 @@ private:
     std::unique_ptr<Buoyance> m_buoyance;      //!< Physics
     RoR::SkinDef*     m_used_skin;             //!< Spawner context (TODO: remove!)
     RoR::Skidmark*    m_skid_trails[MAX_WHEELS*2];
-    bool              m_antilockbrake;
-    bool              m_tractioncontrol;
+    bool              m_antilockbrake;         //!< GUI state
+    bool              m_tractioncontrol;       //!< GUI state
 
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?
