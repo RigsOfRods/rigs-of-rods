@@ -1583,7 +1583,7 @@ void Actor::HandleInputEvents(float dt)
             ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - ar_origin;
         }
 
-        m_translation_request = 0.0f;
+        m_translation_request = Vector3::ZERO;
         this->UpdateBoundingBoxes();
         calculateAveragePosition();
     }
