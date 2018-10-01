@@ -3481,7 +3481,7 @@ void Actor::ToggleCruiseControl()
 
     if (cc_mode)
     {
-        cc_target_speed = ar_wheel_speed;
+        cc_target_speed = ar_avg_wheel_speed;
         cc_target_rpm = ar_engine->GetEngineRpm();
     }
     else
