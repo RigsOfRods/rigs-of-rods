@@ -2271,6 +2271,10 @@ void SimController::RemoveActor(Actor* actor)
     {
         this->SetPlayerActor(nullptr);
     }
+    if (actor == m_prev_player_actor)
+    {
+        m_prev_player_actor = nullptr;
+    }
     m_gfx_scene.RemoveGfxActor(actor->GetGfxActor());
     m_actor_manager.DeleteActorInternal(actor);
 }
