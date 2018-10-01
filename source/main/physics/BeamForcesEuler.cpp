@@ -411,15 +411,18 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
         }
 
         // traction control
-        if (tc_mode && ar_wheels[i].wh_propulsed && ar_engine && ar_engine->GetAcceleration() && fabs(ar_wheels[i].wh_speed) > curspeed && wheel_slip > 0.25f)
+        if (tc_mode && fabs(engine_torque) > 0.0f && ar_wheels[i].wh_propulsed && fabs(ar_wheels[i].wh_speed) > curspeed && wheel_slip > 0.25f)
         {
             if (tc_pulse_state)
             {
                 ar_wheels[i].wh_tc_coef = curspeed / fabs(ar_wheels[i].wh_speed);
                 ar_wheels[i].wh_tc_coef = pow(ar_wheels[i].wh_tc_coef, tc_ratio);
             }
-            total_torque *= pow(ar_wheels[i].wh_tc_coef, 1.0f / std::max(1.0f, wheel_slip));
-            m_tractioncontrol = std::max(m_tractioncontrol, ar_wheels[i].wh_tc_coef < 0.9);
+            if (!ar_engine || ar_engine->GetAcceleration() > ar_engine->getAccToHoldRPM(ar_engine->GetEngineRpm()))
+            {
+                total_torque *= pow(ar_wheels[i].wh_tc_coef, 1.0f / std::max(1.0f, std::min(wheel_slip, 10.0f)));
+                m_tractioncontrol = std::max(m_tractioncontrol, ar_wheels[i].wh_tc_coef < 0.9);
+            }
         }
         else
         {
