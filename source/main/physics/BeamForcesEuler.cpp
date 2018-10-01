@@ -568,6 +568,7 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
             ar_wheel_speed += newspeeds[i] / (float)m_num_proped_wheels;
         }
     }
+    ar_avg_wheel_speed = ar_avg_wheel_speed * 0.995 + ar_wheel_speed * 0.005;
 
     if (ar_engine && ar_num_wheels && ar_wheels[0].wh_radius > 0.0f)
     {

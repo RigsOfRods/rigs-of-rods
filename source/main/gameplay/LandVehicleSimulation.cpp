@@ -120,7 +120,7 @@ void LandVehicleSimulation::UpdateCruiseControl(Actor* vehicle, float dt)
     }
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_CRUISE_CONTROL_READJUST))
     {
-        vehicle->cc_target_speed = std::max(vehicle->ar_wheel_speed, vehicle->cc_target_speed);
+        vehicle->cc_target_speed = std::max(vehicle->ar_avg_wheel_speed, vehicle->cc_target_speed);
         if (vehicle->sl_enabled)
         {
             vehicle->cc_target_speed = std::min(vehicle->cc_target_speed, vehicle->sl_speed_limit);
@@ -130,9 +130,9 @@ void LandVehicleSimulation::UpdateCruiseControl(Actor* vehicle, float dt)
 
     if (vehicle->cc_can_brake)
     {
-        if (vehicle->ar_wheel_speed > vehicle->cc_target_speed + 0.5f && !RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE))
+        if (vehicle->ar_avg_wheel_speed > vehicle->cc_target_speed + 0.5f && !RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE))
         {
-            float brake = (vehicle->ar_wheel_speed - vehicle->cc_target_speed) * 0.5f;
+            float brake = (vehicle->ar_avg_wheel_speed - vehicle->cc_target_speed) * 0.5f;
             brake = std::min(brake, 1.0f);
             vehicle->ar_brake = vehicle->ar_brake_force * brake;
         }
@@ -145,7 +145,7 @@ void LandVehicleSimulation::CheckSpeedLimit(Actor* vehicle, float dt)
 
     if (vehicle->sl_enabled && engine->GetGear() != 0)
     {
-        float accl = (vehicle->sl_speed_limit - std::abs(vehicle->ar_wheel_speed)) * 2.0f;
+        float accl = (vehicle->sl_speed_limit - std::abs(vehicle->ar_avg_wheel_speed)) * 2.0f;
         accl = std::max(0.0f, accl);
         accl = std::min(accl, engine->GetAcceleration());
         engine->SetAcceleration(accl);
@@ -268,7 +268,7 @@ void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_la
                 }
 
                 // only when the truck really is not moving anymore
-                if (fabs(vehicle->ar_wheel_speed) <= 1.0f)
+                if (fabs(vehicle->ar_avg_wheel_speed) <= 1.0f)
                 {
                     Vector3 hdir = vehicle->getDirection();
                     float velocity = hdir.dotProduct(vehicle->ar_nodes[0].Velocity);
@@ -479,15 +479,15 @@ void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_la
             if (engine->HasStarterContact() &&
                 engine->GetAutoShiftMode() == SimGearboxMode::AUTO &&
                 engine->getAutoShift() != EngineSim::NEUTRAL &&
-                std::abs(vehicle->ar_wheel_speed) < 0.1f)
+                std::abs(vehicle->ar_avg_wheel_speed) < 1.0f)
             {
                 Vector3 dirDiff = vehicle->getDirection();
                 Degree pitchAngle = Radian(asin(dirDiff.dotProduct(Vector3::UNIT_Y)));
 
                 if (std::abs(pitchAngle.valueDegrees()) > 1.0f)
                 {
-                    if (engine->getAutoShift() > EngineSim::NEUTRAL && vehicle->ar_wheel_speed < +0.1f && pitchAngle.valueDegrees() > +1.0f ||
-                        engine->getAutoShift() < EngineSim::NEUTRAL && vehicle->ar_wheel_speed > -0.1f && pitchAngle.valueDegrees() < -1.0f)
+                    if (engine->getAutoShift() > EngineSim::NEUTRAL && vehicle->ar_avg_wheel_speed < +0.1f && pitchAngle.valueDegrees() > +1.0f ||
+                        engine->getAutoShift() < EngineSim::NEUTRAL && vehicle->ar_avg_wheel_speed > -0.1f && pitchAngle.valueDegrees() < -1.0f)
                     {
                         // anti roll back in SimGearboxMode::AUTO (DRIVE, TWO, ONE) mode
                         // anti roll forth in SimGearboxMode::AUTO (REAR) mode
@@ -499,7 +499,7 @@ void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_la
                 }
                 else if (brake == 0.0f && accl == 0.0f && vehicle->ar_parking_brake == 0)
                 {
-                    float ratio = std::max(0.0f, 0.1f - std::abs(vehicle->ar_wheel_speed)) * 5.0f;
+                    float ratio = std::max(0.0f, 0.1f - std::abs(vehicle->ar_avg_wheel_speed)) * 5.0f;
                     vehicle->ar_brake = vehicle->ar_brake_force * ratio;
                 }
             }
