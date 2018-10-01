@@ -1274,11 +1274,21 @@ void SimController::UpdateInputEvents(float dt)
         }
         else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_NEXT_TRUCK, 0.25f))
         {
-            this->SetPlayerActor(m_actor_manager.FetchNextVehicleOnList(m_player_actor, m_prev_player_actor));
+            Actor* actor = m_actor_manager.FetchNextVehicleOnList(m_player_actor, m_prev_player_actor);
+
+            if (actor != m_player_actor)
+            {
+                this->SetPlayerActor(actor);
+            }
         }
         else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_PREVIOUS_TRUCK, 0.25f))
         {
-            this->SetPlayerActor(m_actor_manager.FetchPreviousVehicleOnList(m_player_actor, m_prev_player_actor));
+            Actor* actor = m_actor_manager.FetchPreviousVehicleOnList(m_player_actor, m_prev_player_actor);
+
+            if (actor != m_player_actor)
+            {
+                this->SetPlayerActor(actor);
+            }
         }
         else if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESPAWN_LAST_TRUCK, 0.25f))
         {
