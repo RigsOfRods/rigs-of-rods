@@ -56,7 +56,8 @@ public:
     void setVisible(bool value);
     bool getVisible();
 
-    bool isValid() { return !outOfMemory; };
+    bool isValid() { return numFrames && !outOfMemory; };
+
 protected:
     Ogre::Timer* replayTimer;
     int numNodes;
