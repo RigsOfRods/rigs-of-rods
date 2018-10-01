@@ -1579,6 +1579,11 @@ void SimController::UpdateSimulation(float dt)
 
         RoR::App::GetGuiManager()->UpdateSimUtils(dt, m_player_actor);
 
+        for (auto actor : GetActors())
+        {
+            actor->GetGfxActor()->UpdateDebugView();
+        }
+
         if (!simPAUSED(s))
         {
             if (m_player_actor != nullptr)
