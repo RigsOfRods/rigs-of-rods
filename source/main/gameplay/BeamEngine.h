@@ -145,7 +145,6 @@ private:
     // Vehicle
     Actor*         m_actor;
     float          m_abs_velocity;          //!< Vehicle; current velocity of the vehicle
-    float          m_rel_velocity;          //!< Vehicle; current velocity of the vehicle along the long axis
 
     // Gearbox
     float          m_ref_wheel_revolutions; //!< Gears; estimated wheel revolutions based on current vehicle speed along the longi. axis
