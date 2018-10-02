@@ -2535,9 +2535,9 @@ void RoR::GfxActor::SetCastShadows(bool value)
     // Props
     for (prop_t& prop: m_props)
     {
-        if (prop.mo != nullptr)
+        if (prop.mo != nullptr && prop.mo->getEntity())
             prop.mo->getEntity()->setCastShadows(value);
-        if (prop.wheelmo != nullptr)
+        if (prop.wheelmo != nullptr && prop.wheelmo->getEntity())
             prop.wheelmo->getEntity()->setCastShadows(value);
     }
 

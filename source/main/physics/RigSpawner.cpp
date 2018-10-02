@@ -6696,6 +6696,9 @@ Ogre::MaterialPtr ActorSpawner::CreateSimpleMaterial(Ogre::ColourValue color)
 
 void ActorSpawner::SetupNewEntity(Ogre::Entity* ent, Ogre::ColourValue simple_color)
 {
+    if (ent == nullptr)
+        return;
+
     // Use simple materials if applicable
     if (m_apply_simple_materials)
     {
