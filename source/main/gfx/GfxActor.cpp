@@ -1164,48 +1164,32 @@ void RoR::GfxActor::SetWheelVisuals(uint16_t index, WheelGfx wheel_gfx)
 void RoR::GfxActor::UpdateWheelVisuals()
 {
     m_flexwheel_tasks.clear();
-    if (gEnv->threadPool)
+
+    for (WheelGfx& w: m_wheels)
     {
-        for (WheelGfx& w: m_wheels)
+        if ((w.wx_scenenode != nullptr) && w.wx_flex_mesh->flexitPrepare())
         {
-            if ((w.wx_scenenode != nullptr) && w.wx_flex_mesh->flexitPrepare())
-            {
-                auto func = std::function<void()>([this, w]()
-                    {
-                        w.wx_flex_mesh->flexitCompute();
-                    });
-                auto task_handle = gEnv->threadPool->RunTask(func);
-                m_flexwheel_tasks.push_back(task_handle);
-            }
-        }
-    }
-    else
-    {
-        for (WheelGfx& w: m_wheels)
-        {
-            if ((w.wx_scenenode != nullptr) && w.wx_flex_mesh->flexitPrepare())
-            {
-                w.wx_flex_mesh->flexitCompute();
-                w.wx_scenenode->setPosition(w.wx_flex_mesh->flexitFinal());
-            }
+            auto func = std::function<void()>([this, w]()
+                {
+                    w.wx_flex_mesh->flexitCompute();
+                });
+            auto task_handle = gEnv->threadPool->RunTask(func);
+            m_flexwheel_tasks.push_back(task_handle);
         }
     }
 }
 
 void RoR::GfxActor::FinishWheelUpdates()
 {
-    if (gEnv->threadPool)
+    for (auto& task: m_flexwheel_tasks)
     {
-        for (auto& task: m_flexwheel_tasks)
+        task->join();
+    }
+    for (WheelGfx& w: m_wheels)
+    {
+        if (w.wx_scenenode != nullptr)
         {
-            task->join();
-        }
-        for (WheelGfx& w: m_wheels)
-        {
-            if (w.wx_scenenode != nullptr)
-            {
-                w.wx_scenenode->setPosition(w.wx_flex_mesh->flexitFinal());
-            }
+            w.wx_scenenode->setPosition(w.wx_flex_mesh->flexitFinal());
         }
     }
 }
@@ -2385,39 +2369,22 @@ void RoR::GfxActor::UpdatePropAnimations(const float dt)
 void RoR::GfxActor::UpdateFlexbodies()
 {
     m_flexbody_tasks.clear();
-    if (gEnv->threadPool) // TODO: This dual processing is obsolete. Configuring threadpool size to 1 should do the same thing ~ only_a_ptr, 05/2018
+
+    for (FlexBody* fb: m_flexbodies)
     {
-        for (FlexBody* fb: m_flexbodies)
+        const int camera_mode = fb->getCameraMode();
+        if ((camera_mode == -2) || (camera_mode == m_simbuf.simbuf_cur_cinecam))
         {
-            const int camera_mode = fb->getCameraMode();
-            if ((camera_mode == -2) || (camera_mode == m_simbuf.simbuf_cur_cinecam))
-            {
-                auto func = std::function<void()>([fb]()
-                    {
-                        fb->ComputeFlexbody();
-                    });
-                auto task_handle = gEnv->threadPool->RunTask(func);
-                m_flexbody_tasks.push_back(task_handle);
-            }
-            else
-            {
-                fb->setVisible(false);
-            }
+            auto func = std::function<void()>([fb]()
+                {
+                    fb->ComputeFlexbody();
+                });
+            auto task_handle = gEnv->threadPool->RunTask(func);
+            m_flexbody_tasks.push_back(task_handle);
         }
-    }
-    else
-    {
-        for (FlexBody* fb: m_flexbodies)
+        else
         {
-            const int camera_mode = fb->getCameraMode();
-            if ((fb->getCameraMode() == -2) || (fb->getCameraMode() == m_simbuf.simbuf_cur_cinecam))
-            {
-                fb->ComputeFlexbody();
-            }
-            else
-            {
-                fb->setVisible(false);
-            }
+            fb->setVisible(false);
         }
     }
 }
@@ -2440,16 +2407,13 @@ void RoR::GfxActor::SetFlexbodyVisible(bool visible)
 
 void RoR::GfxActor::FinishFlexbodyTasks()
 {
-    if (gEnv->threadPool)
+    for (auto& task: m_flexbody_tasks)
     {
-        for (auto& task: m_flexbody_tasks)
-        {
-            task->join();
-        }
-        for (FlexBody* fb: m_flexbodies)
-        {
-            fb->UpdateFlexbodyVertexBuffers();
-        }
+        task->join();
+    }
+    for (FlexBody* fb: m_flexbodies)
+    {
+        fb->UpdateFlexbodyVertexBuffers();
     }
 }
 
