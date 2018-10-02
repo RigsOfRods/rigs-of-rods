@@ -95,14 +95,7 @@ public:
 
 private:
 
-    void           SetupActor(Actor* actor,
-                              std::shared_ptr<RigDef::File> def,
-                              Ogre::Vector3 const& spawn_position,
-                              Ogre::Quaternion const& spawn_rotation,
-                              collision_box_t* spawn_box,
-                              bool free_positioned,
-                              bool _networked,
-                              int cache_entry_number = -1);
+    void           SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_ptr<RigDef::File> def);
     bool           CheckAabbIntersection(Ogre::AxisAlignedBox a, Ogre::AxisAlignedBox b, float scale = 1.0f); //!< Returns whether or not the two (scaled) bounding boxes intersect.
     bool           CheckActorAabbIntersection(int a, int b, float scale = 1.0f);     //!< Returns whether or not the bounding boxes of truck a and truck b intersect. Based on the default truck bounding boxes.
     bool           PredictActorAabbIntersection(int a, int b, float scale = 1.0f);   //!< Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the default truck bounding boxes.

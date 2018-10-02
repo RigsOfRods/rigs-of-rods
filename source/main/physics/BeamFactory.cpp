@@ -132,17 +132,10 @@ ActorManager::~ActorManager()
     delete gEnv->threadPool;
 }
 
-void ActorManager::SetupActor(
-        Actor* actor,
-        std::shared_ptr<RigDef::File> def,
-        Ogre::Vector3 const& spawn_position,
-        Ogre::Quaternion const& spawn_rotation,
-        collision_box_t* spawn_box,
-        bool free_positioned,
-        bool _networked,
-        int cache_entry_number // = -1
-)
+void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_ptr<RigDef::File> def)
 {
+    const bool networked = rq.asr_origin == ActorSpawnRequest::Origin::NETWORK;
+
     // ~~~~ Code ported from Actor::Actor()
 
     Ogre::SceneNode* parent_scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
@@ -160,7 +153,7 @@ void ActorManager::SetupActor(
     LOG(" == Spawning vehicle: " + def->name);
 
     ActorSpawner spawner;
-    spawner.Setup(actor, def, parent_scene_node, spawn_position, cache_entry_number);
+    spawner.Setup(actor, def, parent_scene_node, rq.asr_position, rq.asr_cache_entry_num);
     /* Setup modules */
     spawner.AddModule(def->root_module);
     if (def->user_modules.size() > 0) /* The vehicle-selector may return selected modules even for vehicle with no modules defined! Hence this check. */
@@ -191,14 +184,14 @@ void ActorManager::SetupActor(
     // Apply spawn position & spawn rotation
     for (int i = 0; i < actor->ar_num_nodes; i++)
     {
-        actor->ar_nodes[i].AbsPosition = spawn_position + spawn_rotation * (actor->ar_nodes[i].AbsPosition - spawn_position);
+        actor->ar_nodes[i].AbsPosition = rq.asr_position + rq.asr_rotation * (actor->ar_nodes[i].AbsPosition - rq.asr_position);
         actor->ar_nodes[i].RelPosition = actor->ar_nodes[i].AbsPosition - actor->ar_origin;
     };
 
     /* Place correctly */
     if (! def->HasFixes())
     {
-        Ogre::Vector3 vehicle_position = spawn_position;
+        Ogre::Vector3 vehicle_position = rq.asr_position;
 
         // check if over-sized
         actor->UpdateBoundingBoxes();
@@ -212,28 +205,28 @@ void ActorManager::SetupActor(
             miny = vehicle_position.y;
         }
 
-        if (spawn_box != nullptr)
+        if (rq.asr_spawnbox != nullptr)
         {
-            miny = spawn_box->relo.y + spawn_box->center.y;
+            miny = rq.asr_spawnbox->relo.y + rq.asr_spawnbox->center.y;
         }
 
-        if (free_positioned)
+        if (!rq.asr_terrn_adjust)
             actor->ResetPosition(vehicle_position, true);
         else
             actor->ResetPosition(vehicle_position.x, vehicle_position.z, true, miny);
 
-        if (spawn_box != nullptr)
+        if (rq.asr_spawnbox != nullptr)
         {
             bool inside = true;
 
             for (int i = 0; i < actor->ar_num_nodes; i++)
-                inside = (inside && gEnv->collisions->isInside(actor->ar_nodes[i].AbsPosition, spawn_box, 0.2f));
+                inside = (inside && gEnv->collisions->isInside(actor->ar_nodes[i].AbsPosition, rq.asr_spawnbox, 0.2f));
 
             if (!inside)
             {
                 Vector3 gpos = Vector3(vehicle_position.x, 0.0f, vehicle_position.z);
 
-                gpos -= spawn_rotation * Vector3((spawn_box->hi.x - spawn_box->lo.x + actor->ar_bounding_box.getMaximum().x - actor->ar_bounding_box.getMinimum().x) * 0.6f, 0.0f, 0.0f);
+                gpos -= rq.asr_rotation * Vector3((rq.asr_spawnbox->hi.x - rq.asr_spawnbox->lo.x + actor->ar_bounding_box.getMaximum().x - actor->ar_bounding_box.getMinimum().x) * 0.6f, 0.0f, 0.0f);
 
                 actor->ResetPosition(gpos.x, gpos.z, true, miny);
             }
@@ -241,7 +234,7 @@ void ActorManager::SetupActor(
     }
     else
     {
-        actor->ResetPosition(spawn_position, true);
+        actor->ResetPosition(rq.asr_position, true);
     }
 
     //compute final mass
@@ -311,7 +304,7 @@ void ActorManager::SetupActor(
 
     actor->NotifyActorCameraChanged(); // setup sounds properly
 
-    if (App::sim_replay_enabled.GetActive() && !_networked && !actor->ar_uses_networking)     // setup replay mode
+    if (App::sim_replay_enabled.GetActive() && !networked && !actor->ar_uses_networking)     // setup replay mode
     {
         actor->ar_replay_length = App::sim_replay_length.GetActive();
         actor->m_replay_handler = new Replay(actor, actor->ar_replay_length);
@@ -386,7 +379,7 @@ void ActorManager::SetupActor(
     actor->ar_sim_state = Actor::SimState::LOCAL_SLEEPING;
 
     // start network stuff
-    if (_networked)
+    if (networked)
     {
         actor->ar_sim_state = Actor::SimState::NETWORKED_OK;
         // malloc memory
@@ -437,8 +430,7 @@ Actor* ActorManager::CreateActorInstance(ActorSpawnRequest rq, std::shared_ptr<R
 {
     Actor* actor = new Actor(m_actor_counter++, m_actors.size(), def, rq);
 
-    const bool networked = rq.asr_origin == ActorSpawnRequest::Origin::NETWORK;
-    this->SetupActor(actor, def, rq.asr_position, rq.asr_rotation, rq.asr_spawnbox, !rq.asr_terrn_adjust, networked, rq.asr_cache_entry_num);
+    this->SetupActor(actor, rq, def);
 
     m_actors.push_back(actor);
 
