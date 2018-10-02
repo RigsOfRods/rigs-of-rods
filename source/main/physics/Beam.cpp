@@ -3465,12 +3465,14 @@ void Actor::ToggleParkingBrake()
 
 void Actor::ToggleAntiLockBrake()
 {
-    alb_mode = !alb_mode;
+    if (!alb_notoggle)
+        alb_mode = !alb_mode;
 }
 
 void Actor::ToggleTractionControl()
 {
-    tc_mode = !tc_mode;
+    if (!tc_notoggle)
+        tc_mode = !tc_mode;
 }
 
 void Actor::ToggleCruiseControl()
@@ -3772,7 +3774,7 @@ void Actor::updateDashBoards(float dt)
     ar_dashboard->setBool(DD_LIGHTS, lightsOn);
 
     // Traction Control
-    if (tc_present)
+    if (!tc_nodash)
     {
         int dash_tc_mode = 1; // 0 = not present, 1 = off, 2 = on, 3 = active
         if (tc_mode)
@@ -3786,7 +3788,7 @@ void Actor::updateDashBoards(float dt)
     }
 
     // Anti Lock Brake
-    if (alb_present)
+    if (!alb_nodash)
     {
         int dash_alb_mode = 1; // 0 = not present, 1 = off, 2 = on, 3 = active
         if (alb_mode)
@@ -3922,8 +3924,8 @@ void Actor::updateDashBoards(float dt)
         ar_dashboard->setEnabled(DD_ENGINE_BATTERY, hasEngine);
         ar_dashboard->setEnabled(DD_ENGINE_CLUTCH_WARNING, hasEngine);
 
-        ar_dashboard->setEnabled(DD_TRACTIONCONTROL_MODE, tc_present);
-        ar_dashboard->setEnabled(DD_ANTILOCKBRAKE_MODE, alb_present);
+        ar_dashboard->setEnabled(DD_TRACTIONCONTROL_MODE, !tc_nodash);
+        ar_dashboard->setEnabled(DD_ANTILOCKBRAKE_MODE, !alb_nodash);
         ar_dashboard->setEnabled(DD_TIES_MODE, !ar_ties.empty());
         ar_dashboard->setEnabled(DD_LOCKED, !ar_hooks.empty());
 

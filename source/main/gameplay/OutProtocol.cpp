@@ -169,9 +169,9 @@ bool OutProtocol::Update(float dt, Actor* truck)
         gd.DashLights |= DL_SIGNAL_L;
         gd.DashLights |= DL_SIGNAL_R;
         gd.DashLights |= DL_SIGNAL_ANY;
-        if (truck->tc_present)
+        if (!truck->tc_nodash)
             gd.DashLights |= DL_TC;
-        if (truck->alb_present)
+        if (!truck->alb_nodash)
             gd.DashLights |= DL_ABS;
 
         gd.ShowLights = 0;
