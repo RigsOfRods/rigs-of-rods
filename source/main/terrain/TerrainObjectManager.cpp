@@ -1349,7 +1349,7 @@ void TerrainObjectManager::LoadPredefinedActors()
         rq.asr_filename      = m_predefined_actors[i].name;
         rq.asr_rotation      = m_predefined_actors[i].rotation;
         rq.asr_origin        = ActorSpawnRequest::Origin::TERRN_DEF;
-        rq.asr_terrn_adjust  = !m_predefined_actors[i].freePosition;
+        rq.asr_free_position = m_predefined_actors[i].freePosition;
         rq.asr_terrn_machine = m_predefined_actors[i].ismachine;
         App::GetSimController()->QueueActorSpawn(rq);
     }
