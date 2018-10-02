@@ -5171,7 +5171,7 @@ void ActorSpawner::ProcessTractionControl(RigDef::TractionControl & def)
 
     /* #4: mode */
     m_actor->tc_mode = static_cast<int>(def.attr_is_on);
-    m_actor->tc_present = def.attr_is_on;
+    m_actor->tc_present = !def.attr_no_dashboard;
     m_actor->tc_notoggle = def.attr_no_toggle;
     if (def.attr_no_dashboard) { m_actor->tc_present = false; } // Override
 };
@@ -5206,7 +5206,7 @@ void ActorSpawner::ProcessAntiLockBrakes(RigDef::AntiLockBrakes & def)
 
     /* #4: mode */
     m_actor->alb_mode = static_cast<int>(def.attr_is_on);
-    m_actor->alb_present = def.attr_is_on;
+    m_actor->alb_present = !def.attr_no_dashboard;
     m_actor->alb_notoggle = def.attr_no_toggle;
     if (def.attr_no_dashboard) { m_actor->alb_present = false; } // Override
 }
@@ -6374,12 +6374,12 @@ void ActorSpawner::SetupDefaultSoundSources(Actor *vehicle)
         AddSoundSourceInstance(vehicle, "tracks/default_pump", 0);
     }
     //antilock brake
-    if (vehicle->alb_present)
+    if (vehicle->alb_mode || !vehicle->alb_notoggle)
     {
         AddSoundSourceInstance(vehicle, "tracks/default_antilock", 0);
     }
     //tractioncontrol
-    if (vehicle->tc_present)
+    if (vehicle->tc_mode || !vehicle->tc_notoggle)
     {
         AddSoundSourceInstance(vehicle, "tracks/default_tractioncontrol", 0);
     }
