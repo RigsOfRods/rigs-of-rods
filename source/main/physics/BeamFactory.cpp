@@ -210,7 +210,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
             miny = rq.asr_spawnbox->relo.y + rq.asr_spawnbox->center.y;
         }
 
-        if (!rq.asr_terrn_adjust)
+        if (rq.asr_free_position)
             actor->ResetPosition(vehicle_position, true);
         else
             actor->ResetPosition(vehicle_position.x, vehicle_position.z, true, miny);
@@ -1354,6 +1354,6 @@ ActorSpawnRequest::ActorSpawnRequest()
     , asr_skin(nullptr)
     , asr_origin(Origin::UNKNOWN)
     , asr_cache_entry(nullptr)
-    , asr_terrn_adjust(false)
+    , asr_free_position(false)
     , asr_terrn_machine(false)
 {}

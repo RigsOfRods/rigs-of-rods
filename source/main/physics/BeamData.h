@@ -566,7 +566,7 @@ struct ActorSpawnRequest
     collision_box_t*  asr_spawnbox;
     RoR::SkinDef*     asr_skin;
     Origin            asr_origin;
-    bool              asr_terrn_adjust:1;    //!< Fix position to match ground level
+    bool              asr_free_position:1;   //!< Disables the automatic spawn position adjustment
     bool              asr_terrn_machine:1;   //!< This is a fixed machinery
 };
 
