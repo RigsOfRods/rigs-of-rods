@@ -96,34 +96,18 @@ ActorManager::ActorManager()
     , m_simulation_speed(1.0f)
     , m_actor_counter(0)
 {
+    // Create thread pool
+    int logical_cores = std::thread::hardware_concurrency();
+    LOG("BEAMFACTORY: " + TOSTRING(logical_cores) + " logical CPU cores" + " found");
 
-    if (RoR::App::app_multithread.GetActive())
+    int thread_pool_workers = ISETTING("NumThreadsInThreadPool", 0);
+    if (thread_pool_workers < 1 || thread_pool_workers > logical_cores)
     {
-        // Create worker thread (used for physics calculations)
-        m_sim_thread_pool = std::unique_ptr<ThreadPool>(new ThreadPool(1));
-
-        // Create general-purpose thread pool
-        if (!BSETTING("DisableThreadPool", false))
-        {
-            int logical_cores = std::thread::hardware_concurrency();
-            LOG("BEAMFACTORY: " + TOSTRING(logical_cores) + " logical CPU cores" + " found");
-
-            int thread_pool_workers = ISETTING("NumThreadsInThreadPool", 0);
-            if (thread_pool_workers < 2 || thread_pool_workers > logical_cores)
-            {
-                thread_pool_workers = logical_cores - 1;
-            }
-            if (thread_pool_workers > 1)
-            {
-                gEnv->threadPool = new ThreadPool(thread_pool_workers);
-                LOG("BEAMFACTORY: Creating " + TOSTRING(thread_pool_workers) + " worker threads");
-            }
-        }
-        if (!gEnv->threadPool)
-        {
-            LOG("BEAMFACTORY: ThreadPool disabled");
-        }
+        thread_pool_workers = logical_cores - 1;
     }
+
+    gEnv->threadPool = new ThreadPool(thread_pool_workers);
+    LOG("BEAMFACTORY: Creating " + TOSTRING(thread_pool_workers) + " worker threads");
 }
 
 ActorManager::~ActorManager()
@@ -1023,18 +1007,14 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
             return; // Skip UpdatePhysicsSimulation()
     }
 
-    if (m_sim_thread_pool)
-    {
-        auto func = std::function<void()>([this]()
-            {
-                this->UpdatePhysicsSimulation();
-            });
-        m_sim_task = m_sim_thread_pool->RunTask(func);
-    }
-    else
-    {
-        this->UpdatePhysicsSimulation();
-    }
+    auto func = std::function<void()>([this]()
+        {
+            this->UpdatePhysicsSimulation();
+        });
+    m_sim_task = gEnv->threadPool->RunTask(func);
+
+    if (!RoR::App::app_multithread.GetActive())
+        m_sim_task->join();
 }
 
 void ActorManager::NotifyActorsWindowResized()
@@ -1063,131 +1043,73 @@ void ActorManager::UpdatePhysicsSimulation()
     {
         actor->checkAndMovePhysicsOrigin();
     }
-    if (gEnv->threadPool)
+    for (int i = 0; i < m_physics_steps; i++)
     {
-        for (int i = 0; i < m_physics_steps; i++)
+        bool have_actors_to_simulate = false;
+
         {
-            bool have_actors_to_simulate = false;
-
-            {
-                std::vector<std::function<void()>> tasks;
-                for (auto actor : m_actors)
-                {
-                    if (actor->ar_update_physics = actor->CalcForcesEulerPrepare())
-                    {
-                        have_actors_to_simulate = true;
-                        auto func = std::function<void()>([this, i, actor]()
-                            {
-                                actor->calcForcesEulerCompute(i, m_physics_steps);
-                                if (!actor->ar_disable_self_collision)
-                                {
-                                    actor->IntraPointCD()->UpdateIntraPoint(actor);
-                                    ResolveIntraActorCollisions(PHYSICS_DT,
-                                        *(actor->IntraPointCD()),
-                                        actor->ar_num_collcabs,
-                                        actor->ar_collcabs,
-                                        actor->ar_cabs,
-                                        actor->ar_intra_collcabrate,
-                                        actor->ar_nodes,
-                                        actor->ar_collision_range,
-                                        *(actor->ar_submesh_ground_model));
-                                }
-                            });
-                        tasks.push_back(func);
-                    }
-                }
-                gEnv->threadPool->Parallelize(tasks);
-            }
-
-            for (auto actor : m_actors)
-            {
-                if (actor->ar_update_physics)
-                    actor->calcForcesEulerFinal();
-            }
-
-            if (have_actors_to_simulate)
-            {
-                std::vector<std::function<void()>> tasks;
-                for (auto actor : m_actors)
-                {
-                    if (actor->ar_update_physics && !actor->ar_disable_actor2actor_collision)
-                    {
-                        auto func = std::function<void()>([this, actor]()
-                            {
-                                actor->InterPointCD()->UpdateInterPoint(actor);
-                                if (actor->ar_collision_relevant)
-                                {
-                                    ResolveInterActorCollisions(PHYSICS_DT,
-                                        *(actor->InterPointCD()),
-                                        actor->ar_num_collcabs,
-                                        actor->ar_collcabs,
-                                        actor->ar_cabs,
-                                        actor->ar_inter_collcabrate,
-                                        actor->ar_nodes,
-                                        actor->ar_collision_range,
-                                        *(actor->ar_submesh_ground_model));
-                                }
-                            });
-                        tasks.push_back(func);
-                    }
-                }
-                gEnv->threadPool->Parallelize(tasks);
-            }
-        }
-    }
-    else
-    {
-        for (int i = 0; i < m_physics_steps; i++)
-        {
-            bool have_actors_to_simulate = false;
-
+            std::vector<std::function<void()>> tasks;
             for (auto actor : m_actors)
             {
                 if (actor->ar_update_physics = actor->CalcForcesEulerPrepare())
                 {
                     have_actors_to_simulate = true;
-
-                    actor->calcForcesEulerCompute(i, m_physics_steps);
-                    actor->calcForcesEulerFinal();
-                    if (!actor->ar_disable_self_collision)
-                    {
-                        actor->IntraPointCD()->UpdateIntraPoint(actor);
-                        ResolveIntraActorCollisions(PHYSICS_DT,
-                            *(actor->IntraPointCD()),
-                            actor->ar_num_collcabs,
-                            actor->ar_collcabs,
-                            actor->ar_cabs,
-                            actor->ar_intra_collcabrate,
-                            actor->ar_nodes,
-                            actor->ar_collision_range,
-                            *(actor->ar_submesh_ground_model));
-                    }
-                }
-            }
-
-            if (have_actors_to_simulate)
-            {
-                for (auto actor : m_actors)
-                {
-                    if (actor->ar_update_physics && !actor->ar_disable_actor2actor_collision)
-                    {
-                        actor->InterPointCD()->UpdateInterPoint(actor);
-                        if (actor->ar_collision_relevant)
+                    auto func = std::function<void()>([this, i, actor]()
                         {
-                            ResolveInterActorCollisions(
-                                PHYSICS_DT,
-                                *(actor->InterPointCD()),
-                                actor->ar_num_collcabs,
-                                actor->ar_collcabs,
-                                actor->ar_cabs,
-                                actor->ar_inter_collcabrate,
-                                actor->ar_nodes,
-                                actor->ar_collision_range,
-                                *(actor->ar_submesh_ground_model));
-                        }
-                    }
+                            actor->calcForcesEulerCompute(i, m_physics_steps);
+                            if (!actor->ar_disable_self_collision)
+                            {
+                                actor->IntraPointCD()->UpdateIntraPoint(actor);
+                                ResolveIntraActorCollisions(PHYSICS_DT,
+                                    *(actor->IntraPointCD()),
+                                    actor->ar_num_collcabs,
+                                    actor->ar_collcabs,
+                                    actor->ar_cabs,
+                                    actor->ar_intra_collcabrate,
+                                    actor->ar_nodes,
+                                    actor->ar_collision_range,
+                                    *(actor->ar_submesh_ground_model));
+                            }
+                        });
+                    tasks.push_back(func);
                 }
             }
+            gEnv->threadPool->Parallelize(tasks);
+        }
+
+        for (auto actor : m_actors)
+        {
+            if (actor->ar_update_physics)
+                actor->calcForcesEulerFinal();
+        }
+
+        if (have_actors_to_simulate)
+        {
+            std::vector<std::function<void()>> tasks;
+            for (auto actor : m_actors)
+            {
+                if (actor->ar_update_physics && !actor->ar_disable_actor2actor_collision)
+                {
+                    auto func = std::function<void()>([this, actor]()
+                        {
+                            actor->InterPointCD()->UpdateInterPoint(actor);
+                            if (actor->ar_collision_relevant)
+                            {
+                                ResolveInterActorCollisions(PHYSICS_DT,
+                                    *(actor->InterPointCD()),
+                                    actor->ar_num_collcabs,
+                                    actor->ar_collcabs,
+                                    actor->ar_cabs,
+                                    actor->ar_inter_collcabrate,
+                                    actor->ar_nodes,
+                                    actor->ar_collision_range,
+                                    *(actor->ar_submesh_ground_model));
+                            }
+                        });
+                    tasks.push_back(func);
+                }
+            }
+            gEnv->threadPool->Parallelize(tasks);
         }
     }
     for (auto actor : m_actors)
