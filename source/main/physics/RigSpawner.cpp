@@ -322,12 +322,12 @@ void ActorSpawner::InitializeRig()
 
     m_actor->ar_airbrake_intensity = 0;
     m_actor->alb_minspeed = 0.0f;
-    m_actor->alb_mode = 0;
+    m_actor->alb_mode = false;
     m_actor->alb_notoggle = false;
     m_actor->alb_present = false;
     m_actor->alb_pulse_time = 2000.0f;
     m_actor->alb_pulse_state = false;
-    m_actor->alb_ratio = 0.0f;
+    m_actor->alb_ratio = 1.0f;
     m_actor->alb_timer = 0.0f;
     m_actor->ar_anim_shift_timer = 0.0f;
 
@@ -347,14 +347,12 @@ void ActorSpawner::InitializeRig()
     m_actor->sl_enabled = false;
     m_actor->sl_speed_limit = 0.f;
 
-    m_actor->tc_fade = 0.f;
-    m_actor->tc_mode = 0;
+    m_actor->tc_mode = false;
     m_actor->tc_notoggle = false;
     m_actor->tc_present = false;
     m_actor->tc_pulse_time = 2000.0f;
     m_actor->tc_pulse_state = false;
-    m_actor->tc_ratio = 0.f;
-    m_actor->tc_wheelslip = 0.f;
+    m_actor->tc_ratio = 1.f;
     m_actor->tc_timer = 0.f;
 
     m_actor->ar_dashboard = new DashBoardManager();
@@ -5146,20 +5144,20 @@ void ActorSpawner::ProcessTractionControl(RigDef::TractionControl & def)
 
     /* #1: regulating_force */
     float force = def.regulation_force;
-    if (force < 0.f || force > 20.f)
+    if (force < 1.f || force > 20.f)
     {
         std::stringstream msg;
-        msg << "Clamping 'regulating_force' value '" << force << "' to allowed range <0 - 20>";
+        msg << "Clamping 'regulating_force' value '" << force << "' to allowed range <1 - 20>";
         AddMessage(Message::TYPE_INFO, msg.str());
-        force = (force < 0.f) ? 0.f : 20.f;
+        force = (force < 1.f) ? 1.f : 20.f;
     }
     m_actor->tc_ratio = force;
 
     /* #2: wheelslip */
-    m_actor->tc_wheelslip = (def.wheel_slip < 0.f) ? 0.f : def.wheel_slip;
+    // no longer needed
 
     /* #3: fade_speed */
-    m_actor->tc_fade = (def.fade_speed < 0.1f) ? 0.1f : def.fade_speed;
+    // no longer needed
 
     /* #4: pulse/sec */
     float pulse = def.pulse_per_sec;
@@ -5170,7 +5168,7 @@ void ActorSpawner::ProcessTractionControl(RigDef::TractionControl & def)
     m_actor->tc_pulse_time = 1 / pulse;
 
     /* #4: mode */
-    m_actor->tc_mode = static_cast<int>(def.attr_is_on);
+    m_actor->tc_mode = def.attr_is_on;
     m_actor->tc_present = def.attr_is_on;
     m_actor->tc_notoggle = def.attr_no_toggle;
     if (def.attr_no_dashboard) { m_actor->tc_present = false; } // Override
@@ -5182,12 +5180,12 @@ void ActorSpawner::ProcessAntiLockBrakes(RigDef::AntiLockBrakes & def)
 
     /* #1: regulating_force */
     float force = def.regulation_force;
-    if (force < 0.f || force > 20.f)
+    if (force < 1.f || force > 20.f)
     {
         std::stringstream msg;
-        msg << "Clamping 'regulating_force' value '" << force << "' to allowed range <0 - 20>";
+        msg << "Clamping 'regulating_force' value '" << force << "' to allowed range <1 - 20>";
         AddMessage(Message::TYPE_INFO, msg.str());
-        force = (force < 0.f) ? 0.f : 20.f;
+        force = (force < 1.f) ? 1.f : 20.f;
     }
     m_actor->alb_ratio = force;
 
@@ -5205,7 +5203,7 @@ void ActorSpawner::ProcessAntiLockBrakes(RigDef::AntiLockBrakes & def)
     m_actor->alb_pulse_time = 1 / pulse;
 
     /* #4: mode */
-    m_actor->alb_mode = static_cast<int>(def.attr_is_on);
+    m_actor->alb_mode = def.attr_is_on;
     m_actor->alb_present = def.attr_is_on;
     m_actor->alb_notoggle = def.attr_no_toggle;
     if (def.attr_no_dashboard) { m_actor->alb_present = false; } // Override

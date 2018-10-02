@@ -3465,12 +3465,14 @@ void Actor::ToggleParkingBrake()
 
 void Actor::ToggleAntiLockBrake()
 {
-    alb_mode = !alb_mode;
+    if (!alb_notoggle)
+        alb_mode = !alb_mode;
 }
 
 void Actor::ToggleTractionControl()
 {
-    tc_mode = !tc_mode;
+    if (!tc_notoggle)
+        tc_mode = !tc_mode;
 }
 
 void Actor::ToggleCruiseControl()
