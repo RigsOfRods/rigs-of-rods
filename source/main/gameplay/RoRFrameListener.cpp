@@ -2312,10 +2312,6 @@ void SimController::ChangePlayerActor(Actor* actor)
     m_actor_manager.UpdateSleepingState(m_player_actor, 0.f);
 }
 
-    }
-    if (actor == m_prev_player_actor)
-    {
-        m_prev_player_actor = nullptr;
 bool SimController::AreControlsLocked() const
 {
     // TODO: remove camera manager from gEnv, see == SimCam == comment in CameraManager.cpp ~ only_a_ptr
