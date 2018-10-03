@@ -447,11 +447,7 @@ target_link_libraries(${BINNAME} PRIVATE
 
 # --- Ogre 3D graphics engine ---
 if(DEFINED CONAN_OGRE_ROOT)
-  include_directories(${CONAN_INCLUDE_DIRS_OGRE}/OGRE)
-  include_directories(${CONAN_INCLUDE_DIRS_OGRE}/OGRE/Bites)
-  include_directories(${CONAN_INCLUDE_DIRS_OGRE}/OGRE/Overlay)
-  include_directories(${CONAN_INCLUDE_DIRS_OGRE}/OGRE/Terrain)
-  include_directories(${CONAN_INCLUDE_DIRS_OGRE}/OGRE/Paging)
+  target_include_directories(${BINNAME} PRIVATE CONAN_PKG::OGRE)
   target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::OGRE)
 else()
   target_link_libraries(${BINNAME} PRIVATE OgreMain OgreBites OgreRTShaderSystem OgreOverlay OgreTerrain OgreMeshLodGenerator OgreHLMS)
@@ -481,7 +477,7 @@ endif ()
 
 # --- MyGUI - graphical user inferface ---
 if(DEFINED CONAN_MYGUI_ROOT)
-  include_directories(${CONAN_INCLUDE_DIRS_MYGUI}/MYGUI)
+  target_include_directories(${BINNAME} PRIVATE CONAN_PKG::MyGUI)
   target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::MyGUI)
   target_compile_definitions(${BINNAME} PRIVATE USE_MYGUI $<$<PLATFORM_ID:WINDOWS>:MYGUI_STATIC>)
 else()
