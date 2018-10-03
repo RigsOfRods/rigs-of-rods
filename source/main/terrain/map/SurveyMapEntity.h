@@ -33,7 +33,7 @@ class SurveyMapEntity : public wraps::BaseLayout, public ZeroedMemoryAllocator
 {
 public:
 
-    SurveyMapEntity(SurveyMapManager* ctrl, Ogre::String type, MyGUI::StaticImagePtr parent);
+    SurveyMapEntity(SurveyMapManager* ctrl, Ogre::Vector2 terrain_size, Ogre::String type, MyGUI::StaticImagePtr parent);
 
     Ogre::String getDescription();
     bool getVisibility();
@@ -80,6 +80,7 @@ private:
     Ogre::Real mX, mZ;
     Ogre::String mDescription;
     Ogre::String mType;
+    Ogre::Vector2 mMapSize;
     bool mIsStatic;
 
     void init();

@@ -31,7 +31,7 @@ using namespace RoR;
 
 int SurveyMapTextureCreator::mCounter = 0;
 
-SurveyMapTextureCreator::SurveyMapTextureCreator(Ogre::Vector3 terrain_size) :
+SurveyMapTextureCreator::SurveyMapTextureCreator(Ogre::Vector2 terrain_size) :
     mCamera(nullptr)
     , mRttTex(nullptr)
     , mStatics(nullptr)
@@ -104,7 +104,7 @@ void SurveyMapTextureCreator::update()
     }
 
     float orthoWindowWidth = mMapSize.x - (mMapSize.x - 20.0f) * mMapZoom;
-    float orthoWindowHeight = mMapSize.z - (mMapSize.z - 20.0f) * mMapZoom;
+    float orthoWindowHeight = mMapSize.y - (mMapSize.y - 20.0f) * mMapZoom;
 
     mCamera->setFarClipDistance(mMapSize.y + 3.0f);
     mCamera->setOrthoWindow(orthoWindowWidth, orthoWindowHeight);

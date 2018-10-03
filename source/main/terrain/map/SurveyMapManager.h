@@ -35,7 +35,7 @@ class SurveyMapManager : public wraps::BaseLayout
 {
 public:
 
-    SurveyMapManager(Ogre::Vector3 terrain_size);
+    SurveyMapManager(Ogre::Vector2 terrain_size);
     ~SurveyMapManager();
 
     SurveyMapEntity* createMapEntity(Ogre::String type);
@@ -50,20 +50,15 @@ public:
     void setVisibility(bool value);
     bool getVisibility();
 
-    void setMapZoom(Ogre::Real zoomValue, bool update = true, bool permanent = true);
-    void setMapZoomRelative(Ogre::Real zoomDelta, bool update = true, bool permanent = true);
+    void setMapZoom(Ogre::Real zoomValue, bool permanent = true);
+    void setMapZoomRelative(Ogre::Real zoomDelta, bool permanent = true);
     Ogre::Real getMapZoom() { return mMapZoom; }
 
-    void setMapCenter(Ogre::Vector2 position, bool update = true);
-    void setMapCenter(Ogre::Vector3 position, bool update = true);
-    void setMapCenter(Ogre::Vector2 position, float maxOffset, bool update = true);
-    void setMapCenter(Ogre::Vector3 position, float maxOffset, bool update = true);
+    void setMapCenter(Ogre::Vector2 position);
+    void setMapCenter(Ogre::Vector3 position);
+    void setMapCenter(Ogre::Vector2 position, float maxOffset);
+    void setMapCenter(Ogre::Vector3 position, float maxOffset);
     Ogre::Vector2 getMapCenter() { return mMapCenter; };
-
-    void setMapTexture(Ogre::String name);
-
-    Ogre::Vector3 getMapSize() { return mMapSize; };
-    int getMapMode() { return mMapMode; };
 
     void windowResized();
     void setWindowPosition(int x, int y, float size);
@@ -89,19 +84,16 @@ public:
 
 protected:
 
-    void init();
-
     Ogre::Real mAlpha, mMapZoom;
 
     Ogre::Vector2 mMapCenter;
-    Ogre::Vector3 mMapSize;
+    Ogre::Vector2 mMapSize;
 
     ATTRIBUTE_FIELD_WIDGET_NAME(SurveyMapManager, mMapTexture, "mMapTexture");
 
     MyGUI::StaticImage* mMapTexture;
 
     SurveyMapTextureCreator* mMapTextureCreator;
-    bool mMapTextureNeedsUpdate;
 
     std::map<Ogre::String, SurveyMapEntity *> mNamedEntities;
     std::set<SurveyMapEntity *> mMapEntities;

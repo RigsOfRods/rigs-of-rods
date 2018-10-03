@@ -31,8 +31,9 @@ using namespace Ogre;
 
 String SurveyMapEntity::entityStates[MaxEntityStates] = {"activated", "deactivated", "sleeping", "networked"};
 
-SurveyMapEntity::SurveyMapEntity(SurveyMapManager* ctrl, String type, MyGUI::StaticImagePtr parent) :
-    mMapControl(ctrl)
+SurveyMapEntity::SurveyMapEntity(SurveyMapManager* ctrl, Vector2 terrain_size, String type, MyGUI::StaticImagePtr parent) :
+      mMapControl(ctrl)
+    , mMapSize(terrain_size)
     , mType(type)
     , mParent(parent)
     , mRotation(0)
@@ -163,23 +164,21 @@ void SurveyMapEntity::update()
     if (!mMainWidget->getVisible())
         return;
 
-    if (!mMapControl->getMapEntitiesVisible())
+    if (!mMapControl->getMapEntitiesVisible() || mMapControl->getMapZoom() > 0.0f)
     {
         mMainWidget->setVisible(false);
         mIcon->setVisible(false);
         return;
     }
 
-    Ogre::Vector3 max_size = RoR::App::GetSimTerrain()->getMaxTerrainSize();
-    Vector2 m_terrain_page_size = Vector2(max_size.x, max_size.z);
-    float wscale = mMapControl->getWindowSize().length() / m_terrain_page_size.length();
+    float wscale = mMapControl->getWindowSize().length() / mMapSize.length();
 
     // TODO: Fix the icon positions based on the overview map size and zoom value
     // TODO: Split visibility calculation and position update into two functions
 
     mMainWidget->setPosition(
-        mX / mMapControl->getMapSize().x * mParent->getWidth() - mMainWidget->getWidth() / 2,
-        mZ / mMapControl->getMapSize().z * mParent->getHeight() - mMainWidget->getHeight() / 2
+        mX / mMapSize.x * mParent->getWidth()  - mMainWidget->getWidth()  / 2,
+        mZ / mMapSize.y * mParent->getHeight() - mMainWidget->getHeight() / 2
     );
     mIcon->setCoord(
         mMainWidget->getWidth() / 2 - mIconSize.width * wscale / 2,

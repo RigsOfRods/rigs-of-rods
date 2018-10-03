@@ -40,21 +40,20 @@
 
 using namespace Ogre;
 
-SurveyMapManager::SurveyMapManager(Ogre::Vector3 terrain_size) :
-    mAlpha(1.0f)
-    , mMapCenter(Vector2::ZERO)
-    , mMapCenterThreshold(5.0f)
+SurveyMapManager::SurveyMapManager(Ogre::Vector2 terrain_size) :
+      mAlpha(1.0f)
+    , mMapCenter(terrain_size / 2)
+    , mMapCenterThreshold(FSETTING("SurveyMapCenterThreshold", 5.0f))
     , mMapEntitiesVisible(false)
     , mMapMode(SURVEY_MAP_NONE)
     , mMapSize(terrain_size)
-    , mMapTextureCreator(0)
-    , mMapTextureNeedsUpdate(true)
+    , mMapTextureCreator(new SurveyMapTextureCreator(terrain_size))
     , mMapZoom(0.0f)
 {
     initialiseByAttributes(this);
     setVisibility(false);
 
-    init();
+    mMapTexture->setImageTexture(mMapTextureCreator->getTextureName());
 }
 
 SurveyMapManager::~SurveyMapManager()
@@ -66,17 +65,6 @@ SurveyMapManager::~SurveyMapManager()
     }
 }
 
-void SurveyMapManager::init()
-{
-    mMapCenter = Vector2(mMapSize.x / 2.0f, mMapSize.z / 2.0f);
-
-    mMapTextureCreator = new SurveyMapTextureCreator(mMapSize);
-    mMapTextureCreator->update();
-    setMapTexture(mMapTextureCreator->getTextureName());
-
-    mMapCenterThreshold = FSETTING("SurveyMapCenterThreshold", 5.0f);
-}
-
 std::string SurveyMapManager::GetMinimapTextureName()
 {
     return mMapTextureCreator->getTextureName();
@@ -84,7 +72,7 @@ std::string SurveyMapManager::GetMinimapTextureName()
 
 SurveyMapEntity* SurveyMapManager::createMapEntity(String type)
 {
-    SurveyMapEntity* entity = new SurveyMapEntity(this, type, mMapTexture);
+    SurveyMapEntity* entity = new SurveyMapEntity(this, mMapSize, type, mMapTexture);
     mMapEntities.insert(entity);
     return entity;
 }
@@ -131,11 +119,6 @@ void SurveyMapManager::setMapEntitiesVisibility(bool value)
     }
 }
 
-void SurveyMapManager::setMapTexture(String name)
-{
-    mMapTexture->setImageTexture(name);
-}
-
 void SurveyMapManager::setVisibility(bool value)
 {
     mMainWidget->setVisible(value);
@@ -160,61 +143,50 @@ void SurveyMapManager::updateRenderMetrics()
         RoR::App::GetOgreSubsystem()->GetRenderWindow()->getMetrics(rWinWidth, rWinHeight, rWinDepth, rWinLeft, rWinTop);
 }
 
-void SurveyMapManager::setMapZoom(Real zoomValue, bool update /*= true*/, bool permanent /*= true*/)
+void SurveyMapManager::setMapZoom(Real zoomValue, bool permanent /*= true*/)
 {
+    zoomValue = Math::Clamp(zoomValue, 0.0f, 1.0f);
+
     if (mMapZoom == zoomValue)
         return;
 
     Real oldZoomValue = mMapZoom;
 
     mMapZoom = zoomValue;
-    mMapZoom = std::max(0.0f, mMapZoom);
-    mMapZoom = std::min(mMapZoom, 1.0f);
-
-    if (update)
-    {
-        mMapTextureCreator->update();
-        if (permanent)
-            mMapTextureNeedsUpdate = true;
-    }
+    mMapTextureCreator->update();
 
     if (!permanent)
         mMapZoom = oldZoomValue;
 }
 
-void SurveyMapManager::setMapZoomRelative(Real zoomDelta, bool update /*= true*/, bool permanent /*= true*/)
+void SurveyMapManager::setMapZoomRelative(Real zoomDelta, bool permanent /*= true*/)
 {
-    setMapZoom(mMapZoom + zoomDelta * std::max(0.1f, 1.0f - mMapZoom) / 100.0f, update, permanent);
+    setMapZoom(mMapZoom + zoomDelta * std::max(0.1f, 1.0f - mMapZoom) / 100.0f, permanent);
 }
 
-void SurveyMapManager::setMapCenter(Vector2 position, bool update /*= true*/)
+void SurveyMapManager::setMapCenter(Vector2 position)
 {
     if (mMapCenter == position)
         return;
 
     mMapCenter = position;
-
-    if (update)
-    {
-        mMapTextureCreator->update();
-        mMapTextureNeedsUpdate = true;
-    }
+    mMapTextureCreator->update();
 }
 
-void SurveyMapManager::setMapCenter(Ogre::Vector2 position, float maxOffset, bool update /*= true*/)
+void SurveyMapManager::setMapCenter(Ogre::Vector2 position, float maxOffset)
 {
     if (mMapCenter.distance(position) > std::abs(maxOffset))
-        setMapCenter(position, update);
+        setMapCenter(position);
 }
 
-void SurveyMapManager::setMapCenter(Vector3 position, bool update /*= true*/)
+void SurveyMapManager::setMapCenter(Vector3 position)
 {
-    setMapCenter(Vector2(position.x, position.z), update);
+    setMapCenter(Vector2(position.x, position.z));
 }
 
-void SurveyMapManager::setMapCenter(Ogre::Vector3 position, float maxOffset, bool update /*= true*/)
+void SurveyMapManager::setMapCenter(Ogre::Vector3 position, float maxOffset)
 {
-    setMapCenter(Vector2(position.x, position.z), maxOffset, update);
+    setMapCenter(Vector2(position.x, position.z), maxOffset);
 }
 
 void SurveyMapManager::setWindowPosition(int x, int y, float size)
@@ -332,17 +304,16 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
         }
         else
         {
-            setMapCenter(Vector3(mMapSize.x / 2.0f, 0.0f, mMapSize.z / 2.0f));
+            setMapCenter(mMapSize / 2);
         }
         break;
 
     case SURVEY_MAP_BIG:
-        setMapCenter(Vector3(mMapSize.x / 2.0f, 0.0f, mMapSize.z / 2.0f));
+        setMapCenter(mMapSize / 2);
 
         if (getMapZoom() > 0.0f)
         {
-            setMapZoom(0.0f, mMapTextureNeedsUpdate, false);
-            mMapTextureNeedsUpdate = false;
+            setMapZoom(0.0f, false);
         }
 
         // TODO: Is camera state owned by GfxScene or simulation? Let's access it as GfxScene for the time being ~ only_a_ptr, 05/2018
@@ -409,6 +380,7 @@ void SurveyMapManager::toggleMapView()
         }
         setAlpha(mAlpha);
         setVisibility(true);
+        mMapTextureCreator->update();
     }
 }
 
