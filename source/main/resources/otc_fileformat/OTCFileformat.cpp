@@ -149,9 +149,9 @@ bool RoR::OTCParser::LoadPageConfig(Ogre::DataStreamPtr &ds, RoR::OTCPage& page,
         }
 
         int actual_num_layers = static_cast<int>(page.layers.size());
-        if (page.num_layers > actual_num_layers)
+        if (page.num_layers != actual_num_layers)
         {
-            LogFormat("[RoR|Terrain] Warning: File \"%s\" declares %d layers but defines only %d. Correcting declared layer count to %d",
+            LogFormat("[RoR|Terrain] Warning: File \"%s\" declares %d layers but defines %d. Correcting declared layer count to %d",
                 filename, page.num_layers, actual_num_layers, actual_num_layers);
             page.num_layers = actual_num_layers;
         }
