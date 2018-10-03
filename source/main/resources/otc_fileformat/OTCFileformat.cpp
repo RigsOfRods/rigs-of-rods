@@ -117,16 +117,22 @@ bool RoR::OTCParser::LoadPageConfig(Ogre::DataStreamPtr &ds, RoR::OTCPage& page,
 
             std::string line_sane = RoR::Utils::SanitizeUtf8String(std::string(line_buf));
             Ogre::StringVector args = Ogre::StringUtil::split(line_sane, ",");
-            if (args.size() < 3)
+            if (args.size() < 1)
             {
                 LOG(std::string("[RoR|Terrain] Invalid OTC page config: [") + filename + "]");
                 return false;
             }
 
             OTCLayer layer;
-            layer.world_size               = PARSEREAL(args[0]);
-            layer.diffusespecular_filename = Utils::TrimStr(args[1]);
-            layer.normalheight_filename    = Utils::TrimStr(args[2]);
+            layer.world_size = PARSEREAL(args[0]);
+            if (args.size() > 2)
+            {
+                layer.diffusespecular_filename = Utils::TrimStr(args[1]);
+            }
+            if (args.size() > 1)
+            {
+                layer.normalheight_filename = Utils::TrimStr(args[2]);
+            }
             if (args.size() > 3)
             {
                 layer.blendmap_filename = Utils::TrimStr(args[3]);
