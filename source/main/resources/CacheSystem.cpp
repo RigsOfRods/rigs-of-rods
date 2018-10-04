@@ -25,13 +25,13 @@
 
 #include "CacheSystem.h"
 
-#include <OgreFileSystem.h>
 #include <OgreException.h>
-
 #include "Application.h"
 #include "BeamData.h"
 #include "BeamEngine.h"
+#include "ContentManager.h"
 #include "ErrorUtils.h"
+#include "GUI_LoadingWindow.h"
 #include "GUIManager.h"
 #include "ImprovedConfigFile.h"
 #include "Language.h"
@@ -43,7 +43,7 @@
 #include "Terrn2Fileformat.h"
 #include "Utils.h"
 
-#include "GUI_LoadingWindow.h"
+#include <OgreFileSystem.h>
 
 using namespace Ogre;
 using namespace RoR;
@@ -151,7 +151,7 @@ void CacheSystem::Startup(bool force_check)
     readCategoryTitles();
 
     // calculate sha1 over all the content
-    currentSHA1 = filenamesSHA1();
+    this->GenerateHashFromFilenames();
 
     CacheValidityState validity = CACHE_STATE_UNKNOWN;
     if (force_check)
@@ -242,10 +242,10 @@ CacheSystem::CacheValidityState CacheSystem::IsCacheValid()
     String group = ResourceGroupManager::getSingleton().findGroupContainingResource(cfgfilename);
     DataStreamPtr stream = ResourceGroupManager::getSingleton().openResource(cfgfilename, group);
     cfg.load(stream, "\t:=", false);
-    String shaone = cfg.GetString("shaone");
+    String global_hash = cfg.GetString("global_hash");
     String cacheformat = cfg.GetString("cacheformat");
 
-    if (shaone == "" || shaone != currentSHA1)
+    if (global_hash == "" || global_hash != m_filenames_hash)
     {
         LOG("* mod cache is invalid (not up to date), regenerating new one ...");
         return CACHE_NEEDS_UPDATE_INCREMENTAL;
@@ -815,7 +815,7 @@ bool CacheSystem::loadCache()
         }
 
         // Skip these
-        if (StringUtil::startsWith(line, "shaone=") || StringUtil::startsWith(line, "modcount=") || StringUtil::startsWith(line, "cacheformat="))
+        if (StringUtil::startsWith(line, "global_hash=") || StringUtil::startsWith(line, "modcount=") || StringUtil::startsWith(line, "cacheformat="))
         {
             continue;
         }
@@ -1266,7 +1266,7 @@ void CacheSystem::writeGeneratedCache()
         ErrorUtils::ShowError(_L("Fatal Error: Unable to write cache to disk"), _L("Unable to write file.\nPlease ensure the parent directories exists and that you have write access to this location:\n") + path);
         exit(1337);
     }
-    fprintf(f, "shaone=%s\n", const_cast<char*>(currentSHA1.c_str()));
+    fprintf(f, "global_hash=%s\n", const_cast<char*>(m_filenames_hash.c_str()));
     fprintf(f, "modcount=%d\n", (int)entries.size());
     fprintf(f, "cacheformat=%s\n", CACHE_FILE_FORMAT);
 
@@ -1874,63 +1874,10 @@ void CacheSystem::checkForNewFiles(Ogre::String ext)
     }
 }
 
-String CacheSystem::filenamesSHA1()
+void CacheSystem::GenerateHashFromFilenames()
 {
-    String filenames = "";
-
-    // get all Files
-    /*
-    StringVector sv = ResourceGroupManager::getSingleton().getResourceGroups();
-    StringVector::iterator it;
-    for (it = sv.begin(); it!=sv.end(); it++)
-    {
-        StringVectorPtr files = ResourceGroupManager::getSingleton().listResourceNames(*it);
-        for (StringVector::iterator i=files->begin(); i!=files->end(); i++)
-        {
-            // only use the important files :)
-            for (std::vector<Ogre::String>::iterator sit=known_extensions.begin();sit!=known_extensions.end();sit++)
-                if (i->find("."+*sit) != String::npos && i->find(".dds") == String::npos && i->find(".png") == String::npos)
-                    filenames += "General/" + *i + "\n";
-        }
-    }
-    */
-
-    // and we use all folders and files for the hash
-    String restype[3] = {"Packs", "TerrainFolders", "VehicleFolders"};
-    for (int i = 0; i < 3; i++)
-    {
-        for (int b = 0; b < 2; b++)
-        {
-            FileInfoListPtr list = ResourceGroupManager::getSingleton().listResourceFileInfo(restype[i], (b == 1));
-            for (FileInfoList::iterator iterFiles = list->begin(); iterFiles != list->end(); iterFiles++)
-            {
-                String name = restype[i] + "/";
-                if (iterFiles->archive)
-                    name += iterFiles->archive->getName() + "/";
-
-                if (b == 0)
-                {
-                    // special file handling, only add important files!
-                    bool vipfile = false;
-                    for (std::vector<Ogre::String>::iterator sit = known_extensions.begin(); sit != known_extensions.end(); sit++)
-                    {
-                        if ((iterFiles->filename.find("." + *sit) != String::npos && iterFiles->filename.find(".dds") == String::npos && iterFiles->filename.find(".png") == String::npos && iterFiles->filename.find(".jpg") == String::npos)
-                            || (iterFiles->filename.find(".zip") != String::npos))
-                        {
-                            vipfile = true;
-                            break;
-                        }
-                    }
-                    if (!vipfile)
-                        continue;
-                }
-                name += iterFiles->filename;
-                filenames += name + "\n";
-            }
-        }
-    }
-
-    return HashData(filenames.c_str(), static_cast<int>(filenames.size()));
+    std::string filenames = App::GetContentManager()->ListAllUserContent();
+    m_filenames_hash = HashData(filenames.c_str(), static_cast<int>(filenames.size()));
 }
 
 void CacheSystem::fillTerrainDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr ds, Ogre::String fname)
