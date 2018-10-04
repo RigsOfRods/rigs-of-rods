@@ -1309,28 +1309,12 @@ char* CacheSystem::restoreSpaces(char* str)
     return str;
 }
 
-bool CacheSystem::stringHasUID(Ogre::String uidstr)
-{
-    size_t pos = uidstr.find("-");
-    if (pos != String::npos && pos >= 3 && uidstr.substr(pos - 3, 3) == "UID")
-        return true;
-    return false;
-}
-
 Ogre::String CacheSystem::stripUIDfromString(Ogre::String uidstr)
 {
     size_t pos = uidstr.find("-");
     if (pos != String::npos && pos >= 3 && uidstr.substr(pos - 3, 3) == "UID")
         return uidstr.substr(pos + 1, uidstr.length() - pos);
     return uidstr;
-}
-
-Ogre::String CacheSystem::getUIDfromString(Ogre::String uidstr)
-{
-    size_t pos = uidstr.find("-");
-    if (pos != String::npos && pos >= 3 && uidstr.substr(pos - 3, 3) == "UID")
-        return uidstr.substr(0, pos);
-    return "";
 }
 
 void CacheSystem::addFile(Ogre::FileInfo f, String ext)
@@ -1948,16 +1932,6 @@ bool CacheSystem::checkResourceLoaded(Ogre::String& filename)
 {
     Ogre::String group = "";
     return checkResourceLoaded(filename, group);
-}
-
-CacheEntry CacheSystem::getResourceInfo(Ogre::String& filename)
-{
-    CacheEntry def;
-    std::vector<CacheEntry>::iterator it;
-    for (it = entries.begin(); it != entries.end(); it++)
-        if (it->fname == filename || it->fname_without_uid == filename)
-            return *it;
-    return def;
 }
 
 bool CacheSystem::checkResourceLoaded(Ogre::String& filename, Ogre::String& group)
