@@ -2032,8 +2032,7 @@ bool SimController::SetupGameplayLoop()
 
     App::GetGuiManager()->GetTeleport()->SetupMap(
         &App::GetSimTerrain()->GetDef(),
-        App::GetSimTerrain()->getMaxTerrainSize(),
-        App::GetSimTerrain()->GetMinimapTextureName());
+        App::GetSimTerrain()->getMaxTerrainSize());
 
     // ========================================================================
     // Loading vehicle
