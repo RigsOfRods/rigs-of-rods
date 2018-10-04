@@ -143,16 +143,10 @@ public:
     };
 
     void Startup(bool forcecheck=false);
-    void loadAllZips();
-    
-    static Ogre::String stripUIDfromString(Ogre::String uidstr);
-    static Ogre::String getUIDfromString(Ogre::String uidstr);
-    static bool stringHasUID(Ogre::String uidstr);
-    
-    void loadAllZipsInResourceGroup(Ogre::String group);
 
     bool checkResourceLoaded(const CacheEntry &t);
     bool checkResourceLoaded(Ogre::String &filename);
+    static bool resourceExistsInAllGroups(Ogre::String filename);
 
     /**
     * Finds given resource and returns it's name/group.
@@ -161,7 +155,7 @@ public:
     * @return True if resource was found.
     */
     bool checkResourceLoaded(Ogre::String &filename, Ogre::String &group);
-    CacheEntry getResourceInfo(Ogre::String &filename);
+
     std::map<int, Category_Entry> *getCategories();
     std::vector<CacheEntry> *getEntries();
 
@@ -172,20 +166,16 @@ public:
     // this is for stats only, maybe protect it by getter later
     int changedFiles, newFiles, deletedFiles;
 
-    void loadSingleZip(Ogre::String zippath, int cfactor, bool unload=true, bool ownGroup=true);
-    void loadSingleDirectory(Ogre::String dirname, Ogre::String group, bool alreadyLoaded=true);
-
-    static bool resourceExistsInAllGroups(Ogre::String filename);
-
-    // see: https://code.google.com/p/rigsofrods-streams/source/browse/trunk/0.39/win32-skeleton/config/categories.cfg
     enum CategoryID {CID_Max=9000, CID_Unsorted=9990, CID_All=9991, CID_Fresh=9992, CID_Hidden=9993, CID_SearchResults=9994};
 
-protected:
+private:
 
     // ================================================================================
     // Functions
     // ================================================================================
     
+    void loadAllZips(); // Called 1x from `generateCache()`
+    static Ogre::String stripUIDfromString(Ogre::String uidstr); // helper
     int addUniqueString(std::set<Ogre::String> &list, Ogre::String str);
 
     /** parses all files loaded with a certain extension */
@@ -218,6 +208,7 @@ protected:
     // adds a zip to the cache
     void loadSingleZip(Ogre::FileInfo f, bool unload=true, bool ownGroup=true);
     void loadSingleZip(const CacheEntry &e, bool unload=true, bool ownGroup=true);
+    void loadSingleZip(Ogre::String zippath, int cfactor, bool unload=true, bool ownGroup=true);
 
     Ogre::String detectFilesMiniType(Ogre::String filename);
     void removeFileFromFileCache(std::vector<CacheEntry>::iterator it);
@@ -226,6 +217,7 @@ protected:
     Ogre::String formatInnerEntry(int counter, CacheEntry t);
     void parseModAttribute(const Ogre::String& line, CacheEntry& t);
     void logBadTruckAttrib(const Ogre::String& line, CacheEntry& t);
+    void loadSingleDirectory(Ogre::String dirname, Ogre::String group, bool alreadyLoaded=true);
 
     void readCategoryTitles();
 
@@ -255,6 +247,8 @@ protected:
     bool isDirectoryUsedInEntries(Ogre::String directory);
 
     void loadAllDirectoriesInResourceGroup(Ogre::String group);
+    void loadAllZipsInResourceGroup(Ogre::String group);
+
 
     // ================================================================================
     // Variables
