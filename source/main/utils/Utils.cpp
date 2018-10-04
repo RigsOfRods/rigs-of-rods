@@ -59,7 +59,7 @@ String HashFile(const char *szFileName)
 
     if (ulFileSize != 0)
     {
-        ulBlocks = ulFileSize / uData.size();
+        ulBlocks = ulFileSize / static_cast<unsigned long>(uData.size());
         ulRest = ulFileSize % uData.size();
     }
     else
