@@ -731,6 +731,10 @@ void SimController::UpdateInputEvents(float dt)
         {
             if (m_player_actor) // we are in a vehicle
             {
+                if (!RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK))
+                {
+                    m_advanced_vehicle_repair_timer = 0.0f;
+                }
                 if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_TRUCK) && !m_player_actor->ar_replay_mode)
                 {
                     this->StopRaceTimer();
@@ -750,10 +754,6 @@ void SimController::UpdateInputEvents(float dt)
                     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK))
                     {
                         m_advanced_vehicle_repair = m_advanced_vehicle_repair_timer > 1.0f;
-                    }
-                    else
-                    {
-                        m_advanced_vehicle_repair_timer = 0.0f;
                     }
 
                     Vector3 translation = Vector3::ZERO;
