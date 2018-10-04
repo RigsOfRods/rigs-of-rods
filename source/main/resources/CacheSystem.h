@@ -31,7 +31,7 @@
 #include <Ogre.h>
 
 #define CACHE_FILE "mods.cache"
-#define CACHE_FILE_FORMAT "6"
+#define CACHE_FILE_FORMAT "7"
 
 // 60*60*24 = one day
 #define CACHE_FILE_FRESHNESS 86400
@@ -125,7 +125,6 @@ public:
     int numgears;
     char enginetype;
     std::vector<Ogre::String> sectionconfigs;
-    std::set<Ogre::String> materials;
 
 };
 
@@ -165,7 +164,6 @@ public:
     */
     bool checkResourceLoaded(Ogre::String &filename, Ogre::String &group);
     CacheEntry getResourceInfo(Ogre::String &filename);
-    Ogre::String addMeshMaterials(CacheEntry &entry, Ogre::Entity *e);
     std::map<int, Category_Entry> *getCategories();
     std::vector<CacheEntry> *getEntries();
 

@@ -83,7 +83,6 @@ CacheEntry::CacheEntry() :
     loadmass(0),
     managedmaterialscount(0),
     materialflarebindingscount(0),
-    materials(),
     maxrpm(0),
     minitype(""),
     minrpm(0),
@@ -798,23 +797,7 @@ void CacheSystem::parseModAttribute(const String& line, CacheEntry& t)
         }
         else
             t.enginetype = StringConverter::parseInt(params[1]);
-    else if (attrib == "materials")
-    {
-        if (params.size() < 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-        {
-            String mat = params[1];
-            Ogre::StringVector ar = StringUtil::split(mat, " ");
-            for (Ogre::StringVector::iterator it = ar.begin(); it != ar.end(); it++)
-            {
-                t.materials.insert(*it);
-            }
-        }
-    }
+
 }
 
 bool CacheSystem::loadCache()
@@ -1255,15 +1238,6 @@ Ogre::String CacheSystem::formatInnerEntry(int counter, CacheEntry t)
             result += "\tnumgears=" + TOSTRING(t.numgears) + "\n";
         if (t.enginetype != 0)
             result += "\tenginetype=" + TOSTRING(t.enginetype) + "\n";
-        if (t.materials.size())
-        {
-            String matStr = "";
-            for (std::set<Ogre::String>::iterator it = t.materials.begin(); it != t.materials.end(); it++)
-            {
-                matStr += *it + " ";
-            }
-            result += "\tmaterials=" + matStr + "\n";
-        }
 
         if (t.sectionconfigs.size() > 0)
         {
@@ -1654,27 +1628,6 @@ int CacheSystem::addUniqueString(std::set<Ogre::String>& list, Ogre::String str)
         return 1;
     }
     return 0;
-}
-
-Ogre::String CacheSystem::addMeshMaterials(CacheEntry& entry, Ogre::Entity* e)
-{
-    String materials = "";
-    MeshPtr m = e->getMesh();
-    if (!m.isNull())
-    {
-        for (int n = 0; n < (int)m->getNumSubMeshes(); n++)
-        {
-            SubMesh* sm = m->getSubMesh(n);
-            addUniqueString(entry.materials, sm->getMaterialName());
-        }
-    }
-
-    for (int n = 0; n < (int)e->getNumSubEntities(); n++)
-    {
-        SubEntity* subent = e->getSubEntity(n);
-        addUniqueString(entry.materials, subent->getMaterialName());
-    }
-    return materials;
 }
 
 int CacheSystem::getTimeStamp()
