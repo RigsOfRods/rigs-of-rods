@@ -81,8 +81,6 @@ CacheEntry::CacheEntry() :
     hydroscount(0),
     importcommands(false),
     loadmass(0),
-    managedmaterialscount(0),
-    materialflarebindingscount(0),
     maxrpm(0),
     minitype(""),
     minrpm(0),
@@ -669,14 +667,6 @@ void CacheSystem::parseModAttribute(const String& line, CacheEntry& t)
         }
         else
             t.flexbodiescount = StringConverter::parseInt(params[1]);
-    else if (attrib == "materialflarebindingscount")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.materialflarebindingscount = StringConverter::parseInt(params[1]);
     else if (attrib == "soundsourcescount")
         if (params.size() != 2)
         {
@@ -685,14 +675,6 @@ void CacheSystem::parseModAttribute(const String& line, CacheEntry& t)
         }
         else
             t.soundsourcescount = StringConverter::parseInt(params[1]);
-    else if (attrib == "managedmaterialscount")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.managedmaterialscount = StringConverter::parseInt(params[1]);
     else if (attrib == "truckmass")
         if (params.size() != 2)
         {
@@ -1204,12 +1186,8 @@ Ogre::String CacheSystem::formatInnerEntry(int counter, CacheEntry t)
             result += "\texhaustscount=" + TOSTRING(t.exhaustscount) + "\n";
         if (t.flexbodiescount != 0)
             result += "\tflexbodiescount=" + TOSTRING(t.flexbodiescount) + "\n";
-        if (t.materialflarebindingscount != 0)
-            result += "\tmaterialflarebindingscount=" + TOSTRING(t.materialflarebindingscount) + "\n";
         if (t.soundsourcescount != 0)
             result += "\tsoundsourcescount=" + TOSTRING(t.soundsourcescount) + "\n";
-        if (t.managedmaterialscount != 0)
-            result += "\tmanagedmaterialscount=" + TOSTRING(t.managedmaterialscount) + "\n";
         if (t.truckmass > 1)
             result += "\ttruckmass=" + TOSTRING(t.truckmass) + "\n";
         if (t.loadmass > 1)

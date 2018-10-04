@@ -105,9 +105,7 @@ public:
     int rotatorscount;
     int exhaustscount;
     int flexbodiescount;
-    int materialflarebindingscount;
     int soundsourcescount;
-    int managedmaterialscount;
 
     float truckmass;
     float loadmass;
