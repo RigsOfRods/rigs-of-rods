@@ -1155,11 +1155,18 @@ void HandleErrorLoadingTruckfile(const char* filename, const char* exception_msg
 
 std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(const char* filename, bool predefined_on_terrain)
 {
-    // First check the loaded defs
-    auto search_res = m_actor_defs.find(filename);
-    if (search_res != m_actor_defs.end())
+    // Find the user content
+    CacheEntry* cache_entry = App::GetCacheSystem()->FindEntryByFilename(filename);
+    if (cache_entry == nullptr)
     {
-        return search_res->second;
+        HandleErrorLoadingTruckfile(filename, "Truckfile not found in ModCache (probably not installed)");
+        return nullptr;
+    }
+
+    // If already parsed, re-use
+    if (cache_entry->actor_def != nullptr)
+    {
+        return cache_entry->actor_def;
     }
 
     // Load the 'truckfile'
@@ -1252,7 +1259,7 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(const char* filename, 
             }
         }
 
-        m_actor_defs.insert(std::make_pair(filename, def));
+        cache_entry->actor_def = def;
         return def;
     }
     catch (Ogre::Exception& oex)
@@ -1270,11 +1277,6 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(const char* filename, 
         HandleErrorLoadingTruckfile(filename, "<Unknown exception occurred>");
         return nullptr;
     }
-}
-
-void ActorManager::UnloadTruckfileFromMemory(const char* filename)
-{
-    m_actor_defs.erase(filename);
 }
 
 ActorSpawnRequest::ActorSpawnRequest()
