@@ -1192,6 +1192,7 @@ void ActorManager::UpdatePhysicsSimulation()
     }
     for (auto actor : m_actors)
     {
+        actor->m_ongoing_reset = false;
         if (!actor->ar_update_physics)
             continue;
         actor->postUpdatePhysics(m_physics_steps * PHYSICS_DT);

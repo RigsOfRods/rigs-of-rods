@@ -1158,6 +1158,8 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
 
 bool Actor::CalcForcesEulerPrepare()
 {
+    if (m_ongoing_reset)
+        return false;
     if (ar_sim_state != Actor::SimState::LOCAL_SIMULATED)
         return false;
 
