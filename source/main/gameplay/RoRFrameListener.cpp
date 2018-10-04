@@ -1543,7 +1543,7 @@ void SimController::UpdateSimulation(float dt)
         {
             if (m_player_actor == rq.amr_actor) // Check if the request is up-to-date
             {
-                m_actor_manager.UnloadTruckfileFromMemory(m_player_actor->ar_filename.c_str()); // Force reload from filesystem
+                App::GetCacheSystem()->UnloadActorDefFromMemory(m_player_actor->ar_filename.c_str()); // Force reload from filesystem
                 ActorSpawnRequest srq;
                 srq.asr_position = m_reload_pos;
                 srq.asr_rotation = m_reload_dir;

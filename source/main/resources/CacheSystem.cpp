@@ -44,6 +44,7 @@
 #include "Utils.h"
 
 #include <OgreFileSystem.h>
+#include <regex>
 
 using namespace Ogre;
 using namespace RoR;
@@ -196,6 +197,29 @@ void CacheSystem::Startup(bool force_check)
     }
 
     LOG("cache loaded!");
+}
+
+CacheEntry* CacheSystem::FindEntryByFilename(std::string const & filename)
+{
+    std::regex needle("^" + filename + "$", std::regex::icase); // Ignore case
+    for (CacheEntry& entry : entries)
+    {
+        if (std::regex_match(entry.fname, needle) || std::regex_match(entry.fname_without_uid, needle))
+        {
+            return &entry;
+        }
+    }
+
+    return nullptr;
+}
+
+void CacheSystem::UnloadActorDefFromMemory(std::string const & filename)
+{
+    CacheEntry* cache_entry = this->FindEntryByFilename(filename);
+    if (cache_entry != nullptr)
+    {
+        cache_entry->actor_def.reset();
+    }
 }
 
 std::map<int, Category_Entry>* CacheSystem::getCategories()

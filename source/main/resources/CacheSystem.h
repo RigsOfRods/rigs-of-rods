@@ -27,6 +27,7 @@
 #pragma once
 
 #include "RoRPrerequisites.h"
+#include "RigDef_File.h"
 
 #include <Ogre.h>
 
@@ -84,6 +85,8 @@ public:
     std::vector<AuthorInfo> authors;    //!< authors
     Ogre::String filecachename;         //!< preview image filename
 
+    std::shared_ptr<RigDef::File> actor_def; //!< Cached actor definition (aka truckfile) after first spawn
+
     // following all TRUCK detail information:
     Ogre::String description;
     Ogre::String tags;
@@ -123,7 +126,6 @@ public:
     int numgears;
     char enginetype;
     std::vector<Ogre::String> sectionconfigs;
-
 };
 
 class CacheSystem : public ZeroedMemoryAllocator
@@ -143,6 +145,8 @@ public:
     };
 
     void Startup(bool forcecheck=false);
+    CacheEntry* FindEntryByFilename(std::string const & filename); //<! Returns NULL if none found
+    void UnloadActorDefFromMemory(std::string const & filename);
 
     bool checkResourceLoaded(const CacheEntry &t);
     bool checkResourceLoaded(Ogre::String &filename);
