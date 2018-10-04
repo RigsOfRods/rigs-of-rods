@@ -1472,6 +1472,8 @@ void Actor::SyncReset(bool reset_position)
     }
 
     this->resetSlideNodes();
+
+    m_ongoing_reset = true;
 }
 
 bool Actor::ReplayStep()
@@ -4230,6 +4232,7 @@ Actor::Actor(
     , m_used_skin(rq.asr_skin)
     , ar_filename(rq.asr_filename)
     , m_actor_config(rq.asr_config)
+    , m_ongoing_reset(false)
 {
     m_high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();
     m_use_skidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;
