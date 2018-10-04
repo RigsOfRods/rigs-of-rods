@@ -207,7 +207,7 @@ protected:
 
     /// Checks if update is needed
     CacheValidityState IsCacheValid();
-    Ogre::String filenamesSHA1();             // generates the hash over the whole content
+    void GenerateHashFromFilenames();         //!< For quick detection of added/removed content
     bool loadCache();                         // loads cache config file, new format
     Ogre::String getCacheConfigFilename(bool full); // returns filename of the cache file
     int incrementalCacheUpdate();             // tries to update parts of the Cache only
@@ -264,7 +264,7 @@ protected:
     Ogre::String location;
     Ogre::String configlocation;
 
-    Ogre::String currentSHA1;   //!< stores sha1 over the content
+    std::string m_filenames_hash;   //!< stores SHA1 hash over the content, for quick update detection
     int rgcounter;              //!< resource group counter, used to track the resource groups created
     int modcounter;             //!< counter the number of mods
     
