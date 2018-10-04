@@ -60,7 +60,6 @@ public:
     SkyManager*        getSkyManager();
     SkyXManager*       getSkyXManager()              { return SkyX_manager; };
     ShadowManager*     getShadowManager()            { return m_shadow_manager; };
-    std::string        GetMinimapTextureName();
     void               LoadPredefinedActors();
     bool               HasPredefinedActors();
     bool               LoadAndPrepareTerrain(std::string terrn2_filename);

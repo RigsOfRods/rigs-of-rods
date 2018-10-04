@@ -22,6 +22,7 @@
 #include "Application.h"
 #include "GUIManager.h"
 #include "RoRFrameListener.h"
+#include "SurveyMapTextureCreator.h"
 #include "Terrn2Fileformat.h"
 
 #include <MyGUI_PointerManager.h>
@@ -163,13 +164,19 @@ void TeleportWindow::SetAltmodeCursorPos(int screen_left, int screen_top)
     m_mouse_icon->setPosition(screen_left - minimap_abs.left - half, screen_top - minimap_abs.top - half);
 }
 
-void TeleportWindow::SetupMap(Terrn2Def* def, Ogre::Vector3 map_size, std::string minimap_tex_name)
+void TeleportWindow::SetupMap(Terrn2Def* def, Ogre::Vector3 map_size)
 {
     m_map_size = map_size;
     if (!def->teleport_map_image.empty())
+    {
         m_minimap_image->setImageTexture(def->teleport_map_image);
+    }
     else
-        m_minimap_image->setImageTexture(minimap_tex_name);
+    {
+        std::unique_ptr<SurveyMapTextureCreator> tc(new SurveyMapTextureCreator(Ogre::Vector2(map_size.x, map_size.z)));
+        tc->update();
+        m_minimap_image->setImageTexture(tc->getTextureName());
+    }
     m_info_textbox->setCaption(HELPTEXT_USAGE);
     m_info_textbox->setTextColour(HELPTEXT_COLOR_USAGE);
 

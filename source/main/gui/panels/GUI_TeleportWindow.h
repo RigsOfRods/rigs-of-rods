@@ -31,7 +31,7 @@ class TeleportWindow : public TeleportWindowLayout, public GuiPanelBase
 public:
     TeleportWindow();
 
-    void SetupMap(Terrn2Def* def, Ogre::Vector3 map_size, std::string minimap_tex_name);
+    void SetupMap(Terrn2Def* def, Ogre::Vector3 map_size);
     void Reset();
     void SetVisible(bool v);
     bool IsVisible();

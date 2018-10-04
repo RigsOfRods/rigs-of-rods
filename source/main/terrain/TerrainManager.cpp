@@ -659,15 +659,6 @@ bool TerrainManager::HasPredefinedActors()
     return false;
 }
 
-std::string TerrainManager::GetMinimapTextureName()
-{
-    auto* survey_map = App::GetSimController()->GetGfxScene().GetSurveyMap();
-    if (survey_map != nullptr) // Can be disabled by user
-        return survey_map->GetMinimapTextureName();
-    else
-        return "";
-}
-
 void TerrainManager::HandleException(const char* summary)
 {
     try
