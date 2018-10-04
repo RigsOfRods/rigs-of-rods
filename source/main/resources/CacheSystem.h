@@ -165,7 +165,6 @@ public:
     std::map<int, Category_Entry> *getCategories();
     std::vector<CacheEntry> *getEntries();
 
-    int getCategoryUsage(int category);
     CacheEntry *getEntry(int modid);
 
     int getTimeStamp();
@@ -276,7 +275,6 @@ protected:
 
     // categories
     std::map<int, Category_Entry> categories;
-    std::map<int, int> category_usage;
     std::set<Ogre::String> zipCacheList;
 
 };

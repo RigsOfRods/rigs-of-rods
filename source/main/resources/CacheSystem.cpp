@@ -434,7 +434,6 @@ void CacheSystem::parseModAttribute(const String& line, CacheEntry& t)
         }
         // Set
         t.categoryid = StringConverter::parseInt(params[1]);
-        category_usage[t.categoryid] = category_usage[t.categoryid] + 1;
         if (categories.find(t.categoryid) != categories.end())
         {
             t.categoryname = categories[t.categoryid].title;
@@ -1899,11 +1898,6 @@ void CacheSystem::fillTerrainDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr d
     entry.categoryid = def.category_id;
     entry.uniqueid   = def.guid;
     entry.version    = def.version;
-}
-
-int CacheSystem::getCategoryUsage(int category)
-{
-    return category_usage[category];
 }
 
 void CacheSystem::readCategoryTitles()
