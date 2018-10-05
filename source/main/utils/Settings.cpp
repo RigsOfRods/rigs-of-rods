@@ -52,6 +52,8 @@
 enum {
     OPT_HELP,
     OPT_MAP,
+    OPT_POS,
+    OPT_ROT,
     OPT_TRUCK,
     OPT_SETUP,
     OPT_WDIR,
@@ -70,6 +72,8 @@ enum {
 CSimpleOpt::SOption cmdline_options[] = {
     { OPT_MAP,            ("-map"),         SO_REQ_SEP },
     { OPT_MAP,            ("-terrain"),     SO_REQ_SEP },
+    { OPT_POS,            ("-pos"),         SO_REQ_SEP },
+    { OPT_ROT,            ("-rot"),         SO_REQ_SEP },
     { OPT_TRUCK,          ("-truck"),       SO_REQ_SEP },
     { OPT_ENTERTRUCK,     ("-enter"),       SO_NONE    },
     { OPT_WDIR,           ("-wd"),          SO_REQ_SEP },
@@ -95,12 +99,14 @@ void ShowCommandLineUsage()
         _L("Command Line Arguments"),
         _L("--help (this)"                              "\n"
             "-map <map> (loads map on startup)"         "\n"
+            "-pos <Vect> (overrides spawn position)" "\n"
+            "-rot <float> (overrides spawn rotation)"   "\n"
             "-truck <truck> (loads truck on startup)"   "\n"
             "-setup shows the ogre configurator"        "\n"
             "-version shows the version information"    "\n"
             "-enter enters the selected truck"          "\n"
             "-userpath <path> sets the user directory"  "\n"
-            "For example: RoR.exe -map oahu -truck semi"));
+            "For example: RoR.exe -map simple2 -pos '518 0 518' -rot 45 -truck semi.truck -enter"));
 }
 
 void ShowVersion()
@@ -148,6 +154,14 @@ void Settings::ProcessCommandLine(int argc, char *argv[])
         else if (args.OptionId() == OPT_MAP)
         {
             App::diag_preset_terrain.SetActive(args.OptionArg());
+        }
+        else if (args.OptionId() == OPT_POS)
+        {
+            App::diag_preset_spawn_pos.SetActive(args.OptionArg());
+        }
+        else if (args.OptionId() == OPT_ROT)
+        {
+            App::diag_preset_spawn_rot.SetActive(args.OptionArg());
         }
         else if (args.OptionId() == OPT_USERPATH)
         {

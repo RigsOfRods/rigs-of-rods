@@ -687,6 +687,8 @@ extern GVarPod_A<bool>         diag_truck_mass;
 extern GVarPod_A<bool>         diag_envmap;
 extern GVarPod_A<bool>         diag_videocameras;
 extern GVarStr_APS<100>        diag_preset_terrain;
+extern GVarStr_A<100>          diag_preset_spawn_pos;
+extern GVarStr_A<100>          diag_preset_spawn_rot;
 extern GVarStr_A<100>          diag_preset_vehicle;
 extern GVarStr_A<100>          diag_preset_veh_config;
 extern GVarPod_A<bool>         diag_preset_veh_enter;
