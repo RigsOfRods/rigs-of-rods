@@ -1906,21 +1906,37 @@ bool SimController::LoadTerrain()
 
     if (gEnv->player != nullptr)
     {
-        gEnv->player->setVisible(true);
-        gEnv->player->setPosition(App::GetSimTerrain()->getSpawnPos());
+        Vector3 spawn_pos = App::GetSimTerrain()->getSpawnPos();
+        Real spawn_rot = 0.0f;
 
         // Classic behavior, retained for compatibility.
         // Required for maps like N-Labs or F1 Track.
         if (!App::GetSimTerrain()->HasPredefinedActors())
         {
-            gEnv->player->setRotation(Degree(180));
+            spawn_rot = 180.0f;
         }
+
+        if (!App::diag_preset_spawn_pos.IsActiveEmpty())
+        {
+            spawn_pos = StringConverter::parseVector3(String(App::diag_preset_spawn_pos.GetActive()), spawn_pos);
+            App::diag_preset_spawn_pos.SetActive("");
+        }
+        if (!App::diag_preset_spawn_rot.IsActiveEmpty())
+        {
+            spawn_rot = StringConverter::parseReal(App::diag_preset_spawn_rot.GetActive(), spawn_rot);
+            App::diag_preset_spawn_rot.SetActive("");
+        }
+
+        gEnv->player->setPosition(spawn_pos);
+        gEnv->player->setRotation(Degree(spawn_rot));
 
         // Small hack to prevent spawning the Character in mid-air
         for (int i = 0; i < 100; i++)
         {
             gEnv->player->update(0.05f);
         }
+
+        gEnv->player->setVisible(true);
     }
 
     // hide loading window
