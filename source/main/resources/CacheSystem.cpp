@@ -909,7 +909,7 @@ void CacheSystem::incrementalCacheUpdate()
         {
             // check file time, if that fails, fall back to sha1 (needed for platforms where filetime is not yet implemented!
             bool check = false;
-            std::time_t ft = fileTime(fn);
+            std::time_t ft = RoR::GetFileLastModifiedTime(fn);
             if (!ft)
             {
                 check = (it->hash != HashFile(fn.c_str()));
@@ -1337,7 +1337,7 @@ void CacheSystem::addFile(String filename, String archiveType, String archiveDir
             entry.fname = filename;
             entry.fname_without_uid = stripUIDfromString(filename);
             entry.fext = ext;
-            entry.filetime = fileTime(archiveDirectory);
+            entry.filetime = RoR::GetFileLastModifiedTime(archiveDirectory);
             entry.type = archiveType;
             entry.dirname = archiveDirectory;
             entry.number = modcounter++;
@@ -2245,15 +2245,3 @@ void CacheSystem::checkForNewContent()
     checkForNewDirectoriesInResourceGroup("TerrainFolders");
 }
 
-std::time_t CacheSystem::fileTime(Ogre::String filename)
-{
-    FileSystemArchiveFactory FSAF;
-
-    Archive* fsa = FSAF.createInstance(filename, true);
-
-    std::time_t ft = fsa->getModifiedTime(filename);
-
-    FSAF.destroyInstance(fsa);
-
-    return ft;
-}

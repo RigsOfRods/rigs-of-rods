@@ -50,4 +50,6 @@ std::string GetUserHomeDirectory(); //!< Returns UTF-8 path or empty string on e
 std::string GetExecutablePath(); //!< Returns UTF-8 path or empty string on error
 std::string GetParentDirectory(const char* path); //!< Returns UTF-8 path without trailing slash.
 
+std::time_t GetFileLastModifiedTime(std::string const & path);
+
 } // namespace RoR
