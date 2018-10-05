@@ -1239,19 +1239,8 @@ float EngineSim::getAccToHoldRPM(float rpm)
 float EngineSim::getIdleMixture()
 {
     if (m_cur_engine_rpm < m_idle_rpm)
-    {
         // determine the fuel injection needed to counter the engine braking force
-        float idleMix = getAccToHoldRPM(m_cur_engine_rpm);
-
-        idleMix = std::max(0.06f, idleMix);
-
-        idleMix = idleMix * (1.0f + (m_idle_rpm - m_cur_engine_rpm) / 100.0f);
-
-        idleMix = std::max(m_min_idle_mixture, idleMix);
-        idleMix = std::min(idleMix, m_max_idle_mixture);
-
-        return idleMix;
-    }
+        return Math::Clamp(getAccToHoldRPM(m_idle_rpm), m_min_idle_mixture, m_max_idle_mixture);
 
     return 0.0f;
 }
