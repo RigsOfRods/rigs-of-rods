@@ -132,7 +132,7 @@ CacheSystem::~CacheSystem()
 {
 }
 
-void CacheSystem::Startup(bool force_check)
+void CacheSystem::Startup()
 {
     if (BSETTING("NOCACHE", false))
     {
@@ -146,46 +146,34 @@ void CacheSystem::Startup(bool force_check)
     // calculate sha1 over all the content
     this->GenerateHashFromFilenames();
 
-    CacheValidityState validity = CACHE_STATE_UNKNOWN;
-    if (force_check)
+    CacheValidityState validity = IsCacheValid();
+
+    if (validity == CACHE_NEEDS_UPDATE_FULL)
     {
-        validity = CACHE_NEEDS_UPDATE_INCREMENTAL;
+        RoR::Log("[RoR|ModCache] Performing full rebuild");
+        this->modcounter = 0;
+        this->loadAllZips();
+        this->writeGeneratedCache();
+        this->LoadCacheFile();
+    }
+    else if (validity == CACHE_NEEDS_UPDATE_INCREMENTAL)
+    {
+        RoR::Log("[RoR|ModCache] Performing incremental update");
+        this->LoadCacheFile();
+        this->incrementalCacheUpdate(); // Writes modified cache file
+        this->LoadCacheFile(); // TODO: Without reloading cache file now, added terrain appears in selector but fails to load (and removed terrain remains in selector and also fails) -- find out why and fix ~ only_a_ptr, 10/2018
     }
     else
     {
-        validity = IsCacheValid();
+        RoR::Log("[RoR|ModCache] Cache valid");
+        this->LoadCacheFile();
     }
-
-    if (validity != CACHE_VALID)
-    {
-        LOG("cache invalid, updating ...");
-        // generate the cache
-        generateCache(validity == CACHE_NEEDS_UPDATE_FULL);
-
-        LOG("Cache updated, enumerating all resource groups...");
-        StringVector sv = ResourceGroupManager::getSingleton().getResourceGroups();
-        for (auto itor = sv.begin(); itor != sv.end(); ++itor)
-        {
-            LOG("\t\t" + *itor);
-        }
-    }
-
-    LOG("loading cache...");
-    // load the cache finally!
-    loadCache();
 
     // show error on zero content
     if (entries.empty())
     {
         ErrorUtils::ShowError(_L("No content installed"), _L("You have no content installed"));
         exit(1337);
-    }
-
-    LOG("Cache loaded, enumerating all resource groups...");
-    StringVector sv = ResourceGroupManager::getSingleton().getResourceGroups();
-    for (auto itor = sv.begin(); itor != sv.end(); ++itor)
-    {
-        LOG("\t\t" + *itor);
     }
 
     LOG("cache loaded!");
@@ -247,6 +235,11 @@ bool CacheSystem::resourceExistsInAllGroups(Ogre::String filename)
 
 CacheSystem::CacheValidityState CacheSystem::IsCacheValid()
 {
+    if (BSETTING("regen-cache-only", false))
+    {
+        return CACHE_NEEDS_UPDATE_INCREMENTAL;
+    }
+
     String cfgfilename = getCacheConfigFilename(false);
     ImprovedConfigFile cfg;
     if (!resourceExistsInAllGroups(cfgfilename))
@@ -797,24 +790,14 @@ void CacheSystem::parseModAttribute(const String& line, CacheEntry& t)
 
 }
 
-bool CacheSystem::loadCache()
+void CacheSystem::LoadCacheFile()
 {
     // Clear existing entries
     entries.clear();
 
+    // NOTE: At this point cachefile was already opened once, in `IsCacheValid()`, so we don't need to check error.
     String cfgfilename = getCacheConfigFilename(false);
-
-    if (!resourceExistsInAllGroups(cfgfilename))
-    {
-        LOG("unable to load config file: "+cfgfilename);
-        return false;
-    }
-
-    String group = ResourceGroupManager::getSingleton().findGroupContainingResource(String(cfgfilename));
-    DataStreamPtr stream = ResourceGroupManager::getSingleton().openResource(cfgfilename, group);
-
-    LOG("CacheSystem::loadCache");
-
+    DataStreamPtr stream = ResourceGroupManager::getSingleton().openResource(cfgfilename);
     CacheEntry t;
     String line = "";
     int mode = 0;
@@ -867,7 +850,6 @@ bool CacheSystem::loadCache()
             }
         }
     }
-    return true;
 }
 
 String CacheSystem::getRealPath(String path)
@@ -891,14 +873,8 @@ String CacheSystem::getVirtualPath(String path)
     return path;
 }
 
-int CacheSystem::incrementalCacheUpdate()
+void CacheSystem::incrementalCacheUpdate()
 {
-    entries.clear();
-
-    if (!loadCache())
-    //error loading cache!
-        return -1;
-
     LOG("* incremental check starting ...");
     LOG("* incremental check (1/5): deleted and changed files ...");
     auto* loading_win = RoR::App::GetGuiManager()->GetLoadingWindow();
@@ -1067,7 +1043,6 @@ int CacheSystem::incrementalCacheUpdate()
 
     RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
     LOG("* incremental check done.");
-    return 0;
 }
 
 CacheEntry* CacheSystem::getEntry(int modid)
@@ -1078,19 +1053,6 @@ CacheEntry* CacheSystem::getEntry(int modid)
             return &(*it);
     }
     return 0;
-}
-
-void CacheSystem::generateCache(bool forcefull)
-{
-    this->modcounter = 0;
-
-    // see if we can avoid a full regeneration
-    if (forcefull || incrementalCacheUpdate())
-    {
-        loadAllZips();
-
-        writeGeneratedCache();
-    }
 }
 
 Ogre::String CacheSystem::formatInnerEntry(int counter, CacheEntry t)

@@ -402,13 +402,6 @@ void ContentManager::LoadGameplayResources()
     if (App::gfx_vegetation_mode.GetActive() != RoR::GfxVegetation::NONE)
         this->AddResourcePack(ContentManager::ResourcePack::PAGED);}
 
-void ContentManager::RegenCache()
-{  
-    RoR::App::GetCacheSystem()->Startup(true); // true = force regeneration
-
-    ErrorUtils::ShowError(_L("Cache regeneration done"), "-----");
-}
-
 std::string ContentManager::ListAllUserContent()
 {
     // Define temporary OGRE resource group

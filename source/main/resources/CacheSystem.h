@@ -144,7 +144,7 @@ public:
         CACHE_STATE_UNKNOWN            = 0xFFFFFFFF
     };
 
-    void Startup(bool forcecheck=false);
+    void Startup();
     CacheEntry* FindEntryByFilename(std::string const & filename); //<! Returns NULL if none found
     void UnloadActorDefFromMemory(std::string const & filename);
 
@@ -175,7 +175,7 @@ private:
     // Functions
     // ================================================================================
     
-    void loadAllZips(); // Called 1x from `generateCache()`
+    void loadAllZips(); // Called 1x from `Startup()`
     static Ogre::String stripUIDfromString(Ogre::String uidstr); // helper
     int addUniqueString(std::set<Ogre::String> &list, Ogre::String str);
 
@@ -198,9 +198,9 @@ private:
     /// Checks if update is needed
     CacheValidityState IsCacheValid();
     void GenerateHashFromFilenames();         //!< For quick detection of added/removed content
-    bool loadCache();                         // loads cache config file, new format
+    void LoadCacheFile();                  //!< Loads all entries from cache file
     Ogre::String getCacheConfigFilename(bool full); // returns filename of the cache file
-    int incrementalCacheUpdate();             // tries to update parts of the Cache only
+    void incrementalCacheUpdate();             // tries to update parts of the Cache only
 
     void generateFileCache(CacheEntry &entry, Ogre::String directory=Ogre::String());	// generates a new cache
     void deleteFileCache(char *filename); // removed files from cache
@@ -213,7 +213,6 @@ private:
 
     Ogre::String detectFilesMiniType(Ogre::String filename);
     void removeFileFromFileCache(std::vector<CacheEntry>::iterator it);
-    void generateCache(bool forcefull=false);
     Ogre::String formatEntry(int counter, CacheEntry t);
     Ogre::String formatInnerEntry(int counter, CacheEntry t);
     void parseModAttribute(const Ogre::String& line, CacheEntry& t);
