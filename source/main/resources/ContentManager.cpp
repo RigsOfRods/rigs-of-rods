@@ -403,36 +403,10 @@ void ContentManager::LoadGameplayResources()
         this->AddResourcePack(ContentManager::ResourcePack::PAGED);}
 
 void ContentManager::RegenCache()
-{
-    
+{  
     RoR::App::GetCacheSystem()->Startup(true); // true = force regeneration
 
-    // Get stats
-    int num_new = RoR::App::GetCacheSystem()->newFiles;
-    int num_changed = RoR::App::GetCacheSystem()->changedFiles;
-    int num_deleted = RoR::App::GetCacheSystem()->deletedFiles;
-
-    // Report
-    Ogre::UTFString str = _L("Cache regeneration done.\n");
-    if (num_new > 0)
-    {
-        str = str + TOUTFSTRING(num_new) + _L(" new files\n");
-    }
-    if (num_changed > 0)
-    {
-        str = str + TOUTFSTRING(num_changed) + _L(" changed files\n");
-    }
-    if (num_deleted > 0)
-    {
-        str = str + TOUTFSTRING(num_deleted) + _L(" deleted files\n");
-    }
-    if (num_new + num_changed + num_deleted == 0)
-    {
-        str = str + _L("no changes");
-    }
-    str = str + _L("\n(These stats can be imprecise)");
-
-    ErrorUtils::ShowError(_L("Cache regeneration done"), str);
+    ErrorUtils::ShowError(_L("Cache regeneration done"), "-----");
 }
 
 std::string ContentManager::ListAllUserContent()

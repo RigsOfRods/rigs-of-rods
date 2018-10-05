@@ -167,9 +167,6 @@ public:
 
     int getTimeStamp();
 
-    // this is for stats only, maybe protect it by getter later
-    int changedFiles, newFiles, deletedFiles;
-
     enum CategoryID {CID_Max=9000, CID_Unsorted=9990, CID_All=9991, CID_Fresh=9992, CID_Hidden=9993, CID_SearchResults=9994};
 
 private:
@@ -257,9 +254,6 @@ private:
     // ================================================================================
     // Variables
     // ================================================================================
-
-    Ogre::String location;
-    Ogre::String configlocation;
 
     std::string m_filenames_hash;   //!< stores SHA1 hash over the content, for quick update detection
     int rgcounter;              //!< resource group counter, used to track the resource groups created
