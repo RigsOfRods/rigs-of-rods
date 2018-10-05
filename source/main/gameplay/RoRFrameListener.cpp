@@ -742,9 +742,7 @@ void SimController::UpdateInputEvents(float dt)
                 else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REMOVE_CURRENT_TRUCK) && !m_player_actor->ar_replay_mode)
                 {
                     this->StopRaceTimer();
-                    Vector3 center = m_player_actor->GetRotationCenter();
                     this->QueueActorRemove(m_player_actor);
-                    gEnv->player->setPosition(center);
                 }
                 else if ((RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK) || m_advanced_vehicle_repair) && !m_player_actor->ar_replay_mode)
                 {
@@ -1490,7 +1488,9 @@ void SimController::UpdateSimulation(float dt)
     {
         if (actor == m_player_actor)
         {
+            Vector3 center = m_player_actor->GetRotationCenter();
             this->ChangePlayerActor(nullptr); // Get out of the vehicle
+            gEnv->player->setPosition(center);
         }
 
         if (actor == m_pending_player_actor)
