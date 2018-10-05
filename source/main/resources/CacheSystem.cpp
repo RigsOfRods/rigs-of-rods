@@ -151,8 +151,15 @@ void CacheSystem::Startup()
     if (validity == CACHE_NEEDS_UPDATE_FULL)
     {
         RoR::Log("[RoR|ModCache] Performing full rebuild");
-        this->modcounter = 0;
-        this->loadAllZips();
+        m_mod_counter = 1; // Let's number mods from 1
+
+        this->loadAllZipsInResourceGroup("Packs");
+        this->loadAllZipsInResourceGroup("VehicleFolders");
+        this->loadAllZipsInResourceGroup("TerrainFolders");
+
+        this->loadAllDirectoriesInResourceGroup("VehicleFolders");
+        this->loadAllDirectoriesInResourceGroup("TerrainFolders");
+
         this->writeGeneratedCache();
         this->LoadCacheFile();
     }
@@ -1340,7 +1347,7 @@ void CacheSystem::addFile(String filename, String archiveType, String archiveDir
             entry.filetime = RoR::GetFileLastModifiedTime(archiveDirectory);
             entry.type = archiveType;
             entry.dirname = archiveDirectory;
-            entry.number = modcounter++;
+            entry.number = m_mod_counter++;
             entry.addtimestamp = getTimeStamp();
             entry.usagecounter = 0;
             entry.deleted = false;
@@ -1986,18 +1993,18 @@ bool CacheSystem::checkResourceLoaded(const CacheEntry& t)
     return false;
 }
 
-void CacheSystem::loadSingleZip(const CacheEntry& e, bool unload, bool ownGroup)
+void CacheSystem::loadSingleZip(CacheEntry& e)
 {
-    loadSingleZip(e.dirname, -1, unload, ownGroup);
+    loadSingleZipInternal(e.dirname, -1);
 }
 
-void CacheSystem::loadSingleZip(Ogre::FileInfo f, bool unload, bool ownGroup)
+void CacheSystem::loadSingleZip(Ogre::FileInfo f)
 {
     String zippath = f.archive->getName() + "/" + f.filename;
     int cfactor = -1;
     if (f.uncompressedSize > 0)
         cfactor = (f.compressedSize / f.uncompressedSize) * 100.0f;
-    loadSingleZip(zippath, cfactor, unload, ownGroup);
+    loadSingleZipInternal(zippath, cfactor);
 }
 
 void CacheSystem::loadSingleDirectory(String dirname, String group, bool alreadyLoaded)
@@ -2049,16 +2056,8 @@ void CacheSystem::loadSingleDirectory(String dirname, String group, bool already
     }
 }
 
-void CacheSystem::loadSingleZip(String zippath, int cfactor, bool unload, bool ownGroup)
+void CacheSystem::loadSingleZipInternal(String zippath, int cfactor)
 {
-#if 0
-    // good for debugging:
-    String outfn;
-    String outpath;
-    StringUtil::splitFilename(zippath, outfn, outpath);
-    ScopeLog log("cache_loadzip_"+outfn);
-#endif
-
     String realzipPath = getRealPath(zippath);
     String hash = HashFile(realzipPath.c_str());
     zipHashes[getVirtualPath(zippath)] = hash;
@@ -2073,12 +2072,6 @@ void CacheSystem::loadSingleZip(String zippath, int cfactor, bool unload, bool o
     rgcounter++;
     String rgname = "General-" + TOSTRING(rgcounter);
 
-    // use general group?
-    if (!ownGroup)
-    {
-        rgname = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME;
-    }
-
     try
     {
         ResourceGroupManager& rgm = ResourceGroupManager::getSingleton();
@@ -2092,18 +2085,12 @@ void CacheSystem::loadSingleZip(String zippath, int cfactor, bool unload, bool o
         parseKnownFilesOneRG(rgname);
 
         // unload it again
-        if (unload)
-        {
-            LOG("Unloading " + realzipPath);
+        LOG("Unloading " + realzipPath);
 #ifdef USE_OPENAL
-            SoundScriptManager::getSingleton().clearNonBaseTemplates();
+        SoundScriptManager::getSingleton().clearNonBaseTemplates();
 #endif //OPENAL
-            ParticleSystemManager::getSingleton().removeTemplatesByResourceGroup(rgname);
-            rgm.removeResourceLocation(realzipPath, rgname);
-            rgm.clearResourceGroup(rgname);
-            rgm.unloadResourceGroup(rgname);
-            rgm.destroyResourceGroup(rgname);
-        }
+        ParticleSystemManager::getSingleton().removeTemplatesByResourceGroup(rgname);
+        rgm.destroyResourceGroup(rgname);
     }
     catch (ItemIdentityException& e)
     {
@@ -2162,22 +2149,6 @@ void CacheSystem::loadAllDirectoriesInResourceGroup(String group)
     }
     // hide loader again
     RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
-}
-
-void CacheSystem::loadAllZips()
-{
-    static bool lodedalready = false;
-    if (lodedalready)
-        return;
-    lodedalready = true;
-    //setup zip packages
-    //search zip in packs group
-    loadAllZipsInResourceGroup("Packs");
-    loadAllZipsInResourceGroup("VehicleFolders");
-    loadAllZipsInResourceGroup("TerrainFolders");
-
-    loadAllDirectoriesInResourceGroup("VehicleFolders");
-    loadAllDirectoriesInResourceGroup("TerrainFolders");
 }
 
 void CacheSystem::checkForNewZipsInResourceGroup(String group)

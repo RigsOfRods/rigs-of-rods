@@ -171,11 +171,6 @@ public:
 
 private:
 
-    // ================================================================================
-    // Functions
-    // ================================================================================
-    
-    void loadAllZips(); // Called 1x from `Startup()`
     static Ogre::String stripUIDfromString(Ogre::String uidstr); // helper
     int addUniqueString(std::set<Ogre::String> &list, Ogre::String str);
 
@@ -207,9 +202,9 @@ private:
     void writeGeneratedCache();
     
     // adds a zip to the cache
-    void loadSingleZip(Ogre::FileInfo f, bool unload=true, bool ownGroup=true);
-    void loadSingleZip(const CacheEntry &e, bool unload=true, bool ownGroup=true);
-    void loadSingleZip(Ogre::String zippath, int cfactor, bool unload=true, bool ownGroup=true);
+    void loadSingleZip(Ogre::FileInfo f);
+    void loadSingleZip(CacheEntry& e);
+    void loadSingleZipInternal(Ogre::String zippath, int cfactor);
 
     Ogre::String detectFilesMiniType(Ogre::String filename);
     void removeFileFromFileCache(std::vector<CacheEntry>::iterator it);
@@ -248,13 +243,10 @@ private:
     void loadAllZipsInResourceGroup(Ogre::String group);
 
 
-    // ================================================================================
-    // Variables
-    // ================================================================================
 
     std::string m_filenames_hash;   //!< stores SHA1 hash over the content, for quick update detection
+    size_t      m_mod_counter;      //!< counts the mods (all types)
     int rgcounter;              //!< resource group counter, used to track the resource groups created
-    int modcounter;             //!< counter the number of mods
     
     std::vector<Ogre::String> known_extensions; //!< the extensions we track in the cache system
 
