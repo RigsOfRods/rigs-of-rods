@@ -1941,6 +1941,14 @@ bool SimController::LoadTerrain()
         }
 
         gEnv->player->setVisible(true);
+
+        gEnv->mainCamera->setPosition(gEnv->player->getPosition());
+
+        // Small hack to improve the spawn experience
+        for (int i = 0; i < 100; i++)
+        {
+            m_camera_manager.Update(0.02f, nullptr, 1.0f);
+        }
     }
 
     // hide loading window
