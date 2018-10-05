@@ -1493,6 +1493,11 @@ void SimController::UpdateSimulation(float dt)
             gEnv->player->setPosition(center);
         }
 
+        if (actor == m_prev_player_actor)
+        {
+            m_prev_player_actor = nullptr;
+        }
+
         if (actor == m_pending_player_actor)
         {
             m_pending_player_actor = m_player_actor; // Reset the requested change.
