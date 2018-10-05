@@ -37,6 +37,7 @@
 #endif
 
 #include <OgrePlatform.h>
+#include <OgreFileSystem.h>
 #include <string>
 
 namespace RoR {
@@ -219,4 +220,12 @@ std::string GetParentDirectory(const char* src_buff)
     return std::string(start, count);
 }
 
+std::time_t GetFileLastModifiedTime(std::string const & path)
+{
+    Ogre::FileSystemArchiveFactory factory;
+    Ogre::Archive* fs_archive = factory.createInstance(path, /*readOnly*/true);
+    std::time_t time = fs_archive->getModifiedTime(path);
+    factory.destroyInstance(fs_archive);
+    return time;
+}
 } // namespace RoR

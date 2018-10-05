@@ -224,8 +224,6 @@ private:
     // helpers
     char *replacesSpaces(char *str);
     char *restoreSpaces(char *str);
-    
-    std::time_t fileTime(Ogre::String filename);
 
     Ogre::String getRealPath(Ogre::String path);
     Ogre::String getVirtualPath(Ogre::String path);
