@@ -560,7 +560,7 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
         }
 
         // auto clutch
-        float declutchRPM = (m_engine_min_rpm + m_engine_stall_rpm) / 2.0f;
+        float declutchRPM = m_engine_min_rpm * 0.75f + m_engine_stall_rpm * 0.25f;
         if (m_cur_gear == 0 || m_cur_engine_rpm < declutchRPM)
         {
             m_cur_clutch = 0.0f;
@@ -572,36 +572,17 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
         }
         else if (!m_shift_val && m_cur_engine_rpm > m_engine_min_rpm && m_cur_clutch < 1.0f)
         {
-            float range = (m_engine_max_rpm - m_engine_min_rpm);
-            float tAcc = std::max(0.2f, acc);
-            if (abs(m_cur_gear) == 1)
-            {
-                range *= 0.8f * sqrt(tAcc);
-            }
-            else
-            {
-                range *= 0.4f * sqrt(tAcc);
-            }
-            float powerRatio = std::min((m_cur_engine_rpm - m_engine_min_rpm) / range, 1.0f);
-            float enginePower = getEnginePower(m_cur_engine_rpm) * tAcc * powerRatio;
-
             float gearboxspinner = m_cur_engine_rpm / m_gear_ratios[m_cur_gear + 1];
             float clutchTorque = (gearboxspinner - m_cur_wheel_revolutions) * m_clutch_force;
             float reTorque = clutchTorque / m_gear_ratios[m_cur_gear + 1];
 
-            float torqueDiff = std::abs(reTorque);
-            float newRPM = std::abs(m_cur_wheel_revolutions * m_gear_ratios[m_cur_gear + 1]);
-            if (getEnginePower(newRPM) >= getEnginePower(m_cur_engine_rpm))
-            {
-                torqueDiff = std::min(enginePower * 2.0f, torqueDiff);
-            }
-            else
-            {
-                torqueDiff = std::min(enginePower * 0.9f, torqueDiff);
-            }
-            float newClutch = torqueDiff * m_gear_ratios[m_cur_gear + 1] / ((gearboxspinner - m_cur_wheel_revolutions) * m_clutch_force);
+            float range = (m_engine_max_rpm - m_engine_min_rpm) * 0.4f * sqrt(std::max(0.2f, acc));
+            float powerRatio = std::min((m_cur_engine_rpm - m_engine_min_rpm) / range, 1.0f);
+            float engineTorque = getEnginePower(m_cur_engine_rpm) * std::min(m_cur_acc, 0.9f) * powerRatio;
 
-            m_cur_clutch = std::max(m_cur_clutch, newClutch);
+            float torqueDiff = std::min(engineTorque, std::abs(reTorque));
+            float clutch = torqueDiff / reTorque;
+            m_cur_clutch = std::max(m_cur_clutch, clutch);
         }
 
         m_cur_clutch = std::max(0.0f, m_cur_clutch);
