@@ -75,7 +75,6 @@ public:
     bool               OnApplicationStartup(void);
     void               InitManagedMaterials();
     void               LoadGameplayResources();  //!< Checks GVar settings and loads required resources.
-    void               RegenCache();
     std::string        ListAllUserContent(); //!< Used by ModCache for quick detection of added/removed content
     RoR::SkinManager*  GetSkinManager()  { return m_skin_manager; }
 
