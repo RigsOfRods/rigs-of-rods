@@ -113,10 +113,7 @@ CacheEntry::CacheEntry() :
 }
 
 CacheSystem::CacheSystem() :
-    changedFiles(0)
-    , deletedFiles(0)
-    , newFiles(0)
-    , rgcounter(0)
+    rgcounter(0)
 {
     // register the extensions
     known_extensions.push_back("machine");
@@ -129,11 +126,6 @@ CacheSystem::CacheSystem() :
     known_extensions.push_back("trailer");
     known_extensions.push_back("load");
     known_extensions.push_back("train");
-
-    // TODO: Use GVars directly, don't copy values
-    // this location MUST include a path separator at the end!
-    location       = Ogre::String(App::sys_cache_dir.GetActive())  + PATH_SLASH;
-    configlocation = Ogre::String(App::sys_config_dir.GetActive()) + PATH_SLASH;
 }
 
 CacheSystem::~CacheSystem()
@@ -235,7 +227,7 @@ std::vector<CacheEntry>* CacheSystem::getEntries()
 String CacheSystem::getCacheConfigFilename(bool full)
 {
     if (full)
-        return location + String(CACHE_FILE);
+        return Ogre::String(App::sys_cache_dir.GetActive())  + PATH_SLASH + String(CACHE_FILE);
     return String(CACHE_FILE);
 }
 
@@ -934,7 +926,6 @@ int CacheSystem::incrementalCacheUpdate()
             removeFileFromFileCache(it);
             it->deleted = true;
             // do not try: entries.erase(it)
-            deletedFiles++;
             continue;
         }
         // check whether it changed
@@ -955,7 +946,6 @@ int CacheSystem::incrementalCacheUpdate()
 
             if (check)
             {
-                changedFiles++;
                 LOG("- "+fn+" changed");
                 it->changedornew = true;
                 it->deleted = true; // see below
@@ -1646,7 +1636,7 @@ void CacheSystem::removeFileFromFileCache(std::vector<CacheEntry>::iterator iter
 {
     if (iter->minitype != "none")
     {
-        String fn = location + iter->filecachename;
+        String fn = Ogre::String(App::sys_cache_dir.GetActive())  + PATH_SLASH + iter->filecachename;
         deleteFileCache(const_cast<char*>(fn.c_str()));
     }
 }
@@ -1673,7 +1663,9 @@ void CacheSystem::generateFileCache(CacheEntry& entry, Ogre::String directory)
         StringUtil::splitFilename(entry.dirname, outBasename, outPath);
 
         if (directory.empty())
-            directory = location;
+        {
+            directory = Ogre::String(App::sys_cache_dir.GetActive())  + PATH_SLASH;
+        }
 
         String dst = directory + outBasename + "_" + entry.fname + ".mini." + entry.minitype;
 
@@ -1874,7 +1866,6 @@ void CacheSystem::checkForNewFiles(Ogre::String ext)
                 LOG("- " + fn + " is new (in zip)");
                 else
                 LOG("- " + fn + " is new");
-                newFiles++;
                 addFile(*iterFiles, ext);
             }
         }
@@ -1910,7 +1901,7 @@ void CacheSystem::fillTerrainDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr d
 
 void CacheSystem::readCategoryTitles()
 {
-    String filename = configlocation + String("categories.cfg");
+    String filename = Ogre::String(App::sys_config_dir.GetActive()) + PATH_SLASH + String("categories.cfg");
     LOG("Loading category titles from " + filename);
     FILE* fd = fopen(filename.c_str(), "r");
     if (!fd)
@@ -2254,7 +2245,6 @@ void CacheSystem::checkForNewZipsInResourceGroup(String group)
         {
             RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new zips in ") + group + "\n" + _L("loading new zip: ") + filename_utf8 + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount));
             LOG("- "+zippath+" is new");
-            newFiles++;
             loadSingleZip((Ogre::FileInfo)*iterFiles);
         }
     }
