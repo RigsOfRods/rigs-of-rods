@@ -655,6 +655,7 @@ extern GVarEnum_AP<AppState>   app_state;
 extern GVarStr_A<100>          app_language;
 extern GVarStr_A<50>           app_locale;
 extern GVarPod_A<bool>         app_multithread;
+extern GVarPod_APS<int>        app_num_workers;
 extern GVarStr_AP<50>          app_screenshot_format;
 
 // Simulation
