@@ -901,15 +901,15 @@ void CLASS::UpdateControls(CacheEntry* entry)
     //if (entry->enginetype == 't') descriptiontxt = descriptiontxt +_L("[TRUCK ENGINE]") + newline;
     if (entry->enginetype == 'c')
         descriptiontxt = descriptiontxt + _L("[car engine]") + newline;
-    if (entry->type == "Zip")
+    if (entry->resource_bundle_type == "Zip")
         descriptiontxt = descriptiontxt + _L("[zip archive]") + newline;
-    if (entry->type == "FileSystem")
+    if (entry->resource_bundle_type == "FileSystem")
         descriptiontxt = descriptiontxt + _L("[unpacked in directory]") + newline;
 
     descriptiontxt = descriptiontxt + "#66CCFF\n"; // now blue-ish color*
 
-    if (!entry->dirname.empty())
-        descriptiontxt = descriptiontxt + _L("Source: ") + entry->dirname + newline;
+    if (!entry->resource_bundle_path.empty())
+        descriptiontxt = descriptiontxt + _L("Source: ") + entry->resource_bundle_path + newline;
     if (!entry->fname.empty())
         descriptiontxt = descriptiontxt + _L("Filename: ") + entry->fname + newline;
     if (!entry->hash.empty() && entry->hash != "none")

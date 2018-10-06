@@ -73,10 +73,9 @@ public:
     Ogre::String guid;                  //!< global unique id
     int version;                        //!< file's version
     Ogre::String fext;                  //!< file's extension
-    Ogre::String type;                  //!< Resource Type, FileSystem or Zip
-    Ogre::String dirname;               //!< mostly, archive name
     Ogre::String hash;                  //!< file's hash
-    bool resourceLoaded;                //!< loaded?
+    std::string resource_bundle_type;   //!< Archive type recognized by OGRE resource system: 'FileSystem' or 'Zip'
+    std::string resource_bundle_path;   //!< Path of ZIP or directory which contains the media.
     int number;                         //!< mod number
     std::time_t filetime;               //!< filetime
     bool changedornew;                  //!< is it added or changed during this runtime?
@@ -128,6 +127,14 @@ public:
     std::vector<Ogre::String> sectionconfigs;
 };
 
+/// A content database
+/// MOTIVATION:
+///    RoR users usually have A LOT of content installed. Traversing it all on every game startup would be a pain.
+/// HOW IT WORKS:
+///    For each recognized resource type (vehicle, terrain, skin...) an instance of 'CacheEntry' is created.
+///       These entries are persisted in file CACHE_FILE (see above)
+///    Associated media live in a "resource bundle" (ZIP archive or subdirectory) in content directories (ROR_HOME/vehicles, ROR_HOME/terrains etc...)
+///       Bundles are shared among cache entries and loaded only once, when related CacheEntry is loaded.
 class CacheSystem : public ZeroedMemoryAllocator
 {
 public:
@@ -148,17 +155,11 @@ public:
     CacheEntry* FindEntryByFilename(std::string const & filename); //<! Returns NULL if none found
     void UnloadActorDefFromMemory(std::string const & filename);
 
-    bool checkResourceLoaded(const CacheEntry &t);
-    bool checkResourceLoaded(Ogre::String &filename);
-    static bool resourceExistsInAllGroups(Ogre::String filename);
+    bool checkResourceLoaded(CacheEntry& t); //!< Loads the associated resource bundle if not already done. Updates the bundle (resource group, loaded state)
+    bool checkResourceLoaded(Ogre::String &in_out_filename); //!< Finds + loads the associated resource bundle if not already done.
+    bool checkResourceLoaded(Ogre::String &in_out_filename, Ogre::String &out_group); //!< Finds given resource, outputs group name. Also loads the associated resource bundle if not already done.
 
-    /**
-    * Finds given resource and returns it's name/group.
-    * @param filename Input-output!
-    * @param group Input-output!
-    * @return True if resource was found.
-    */
-    bool checkResourceLoaded(Ogre::String &filename, Ogre::String &group);
+    static bool resourceExistsInAllGroups(Ogre::String filename);
 
     std::map<int, Category_Entry> *getCategories();
     std::vector<CacheEntry> *getEntries();
@@ -200,10 +201,10 @@ private:
     void generateFileCache(CacheEntry &entry, Ogre::String directory=Ogre::String());	// generates a new cache
     void deleteFileCache(char *filename); // removed files from cache
     void writeGeneratedCache();
-    
+
     // adds a zip to the cache
     void loadSingleZip(Ogre::FileInfo f);
-    void loadSingleZip(CacheEntry& e);
+    void loadSingleZip(CacheEntry const& e);
     void loadSingleZipInternal(Ogre::String zippath, int cfactor);
 
     Ogre::String detectFilesMiniType(Ogre::String filename);
@@ -244,8 +245,12 @@ private:
 
 
 
-    std::string m_filenames_hash;   //!< stores SHA1 hash over the content, for quick update detection
-    size_t      m_mod_counter;      //!< counts the mods (all types)
+    std::string                  m_filenames_hash;   //!< stores SHA1 hash over the content, for quick update detection
+    size_t                       m_mod_counter;      //!< counts the mods (all types)
+    std::set<Ogre::String>       m_all_resource_bundles;
+    std::map<Ogre::String, bool> m_loaded_resource_bundles;
+
+
     int rgcounter;              //!< resource group counter, used to track the resource groups created
     
     std::vector<Ogre::String> known_extensions; //!< the extensions we track in the cache system
@@ -256,6 +261,6 @@ private:
 
     // categories
     std::map<int, Category_Entry> categories;
-    std::set<Ogre::String> zipCacheList;
+    
 
 };
