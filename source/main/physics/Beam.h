@@ -135,6 +135,7 @@ public:
     void              StopAllSounds();
     void              UnmuteAllSounds();
     float             getTotalMass(bool withLocked=true);
+    float             getAvgPropedWheelRadius() { return m_avg_proped_wheel_radius; };
     void              recalc_masses();
     int               getWheelNodeCount();
     void              setMass(float m);
@@ -404,6 +405,7 @@ private:
     int               m_proped_wheel_pairs[MAX_WHEELS];    //!< Physics attr; For inter-differential locking
     int               m_num_braked_wheels;          //!< Physics attr, filled at spawn - Number of braked wheels.
     int               m_num_proped_wheels;          //!< Physics attr, filled at spawn - Number of propelled wheels.
+    float             m_avg_proped_wheel_radius;    //!< Physics attr, filled at spawn - Average proped wheel radius.
     float             m_avionic_chatter_timer;      //!< Sound fx state
     PointColDetector* m_inter_point_col_detector;   //!< Physics
     PointColDetector* m_intra_point_col_detector;   //!< Physics

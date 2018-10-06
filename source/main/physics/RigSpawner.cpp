@@ -451,6 +451,19 @@ void ActorSpawner::FinalizeRig()
     m_actor->ar_main_camera_node_pos  = std::max(0, m_actor->ar_camera_node_pos[0]);
     m_actor->ar_main_camera_node_dir  = std::max(0, m_actor->ar_camera_node_dir[0]);
     m_actor->ar_main_camera_node_roll = std::max(0, m_actor->ar_camera_node_roll[0]);
+    
+    if (m_actor->m_num_proped_wheels > 0)
+    {
+        float proped_wheels_radius_sum = 0.0f;
+        for (int i = 0; i < m_actor->ar_num_wheels; i++)
+        {
+            if (m_actor->ar_wheels[i].wh_propulsed > 0)
+            {
+                proped_wheels_radius_sum += m_actor->ar_wheels[i].wh_radius;
+            }
+        }
+        m_actor->m_avg_proped_wheel_radius = proped_wheels_radius_sum / m_actor->m_num_proped_wheels;
+    }
 
     if (m_actor->ar_camera_node_pos[0] > 0)
     {
