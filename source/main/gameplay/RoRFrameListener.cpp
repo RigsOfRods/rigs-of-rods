@@ -1601,9 +1601,13 @@ void SimController::UpdateSimulation(float dt)
             Vector3 translation = rq.asr_position - fresh_actor->GetRotationCenter();
             fresh_actor->ResetPosition(fresh_actor->ar_nodes[0].AbsPosition + Vector3(translation.x, 0.0f, translation.z), true);
 
-            if (App::diag_preset_veh_enter.GetActive() && fresh_actor->ar_num_nodes > 0)
+            if (App::diag_preset_veh_enter.GetActive())
             {
-                this->SetPendingPlayerActor(fresh_actor);
+                if (fresh_actor->ar_num_nodes > 0)
+                {
+                    this->SetPendingPlayerActor(fresh_actor);
+                }
+                App::diag_preset_veh_enter.SetActive(false);
             }
             if (fresh_actor->ar_engine)
             {
@@ -2069,6 +2073,9 @@ bool SimController::SetupGameplayLoop()
         rq.asr_rotation   = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
         rq.asr_origin     = ActorSpawnRequest::Origin::CONFIG_FILE;
         this->QueueActorSpawn(rq);
+
+        App::diag_preset_vehicle.SetActive("");
+        App::diag_preset_veh_config.SetActive("");
     }
 
     App::GetSimTerrain()->LoadPredefinedActors();
