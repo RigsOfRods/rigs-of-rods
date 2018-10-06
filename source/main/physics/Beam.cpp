@@ -4241,6 +4241,7 @@ Actor::Actor(
     , ar_num_contacters() // zero-init
     , ar_wheels() // array
     , ar_num_wheels() // int
+    , m_avg_proped_wheel_radius(0.2f)
     , m_used_skin(rq.asr_skin)
     , ar_filename(rq.asr_filename)
     , m_actor_config(rq.asr_config)

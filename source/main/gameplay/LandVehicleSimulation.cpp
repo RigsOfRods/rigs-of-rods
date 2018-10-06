@@ -28,6 +28,7 @@
 #include "InputEngine.h"
 #include "Language.h"
 #include "SoundScriptManager.h"
+#include "TerrainManager.h"
 #include "GUIManager.h"
 #include "VehicleAI.h"
 
@@ -478,28 +479,32 @@ void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_la
 
             if (engine->HasStarterContact() &&
                 engine->GetAutoShiftMode() == SimGearboxMode::AUTO &&
-                engine->getAutoShift() != EngineSim::NEUTRAL &&
-                std::abs(vehicle->ar_avg_wheel_speed) < 1.0f)
+                engine->getAutoShift() != EngineSim::NEUTRAL)
             {
                 Vector3 dirDiff = vehicle->getDirection();
                 Degree pitchAngle = Radian(asin(dirDiff.dotProduct(Vector3::UNIT_Y)));
 
-                if (std::abs(pitchAngle.valueDegrees()) > 1.0f)
+                if (std::abs(pitchAngle.valueDegrees()) > 2.0f)
                 {
-                    if (engine->getAutoShift() > EngineSim::NEUTRAL && vehicle->ar_avg_wheel_speed < +0.1f && pitchAngle.valueDegrees() > +1.0f ||
-                        engine->getAutoShift() < EngineSim::NEUTRAL && vehicle->ar_avg_wheel_speed > -0.1f && pitchAngle.valueDegrees() < -1.0f)
+                    if (engine->getAutoShift() > EngineSim::NEUTRAL && vehicle->ar_avg_wheel_speed < +0.02f && pitchAngle.valueDegrees() > 0.0f ||
+                        engine->getAutoShift() < EngineSim::NEUTRAL && vehicle->ar_avg_wheel_speed > -0.02f && pitchAngle.valueDegrees() < 0.0f)
                     {
                         // anti roll back in SimGearboxMode::AUTO (DRIVE, TWO, ONE) mode
                         // anti roll forth in SimGearboxMode::AUTO (REAR) mode
-                        float downhill_force = std::abs(sin(pitchAngle.valueRadians()) * vehicle->getTotalMass());
-                        float engine_force = std::abs(engine->GetTorque());
-                        float ratio = std::max(0.0f, 1.0f - (engine_force / downhill_force) / 2.0f);
+                        float g = std::abs(App::GetSimTerrain()->getGravity());
+                        float downhill_force = std::abs(sin(pitchAngle.valueRadians()) * vehicle->getTotalMass()) * g;
+                        float engine_force = std::abs(engine->GetTorque()) / vehicle->getAvgPropedWheelRadius();
+                        float ratio = std::max(0.0f, 1.0f - (engine_force / downhill_force));
+                        if (vehicle->ar_avg_wheel_speed * pitchAngle.valueDegrees() > 0.0f)
+                        {
+                            ratio *= sqrt((0.02f - vehicle->ar_avg_wheel_speed) / 0.02f);
+                        }
                         vehicle->ar_brake = vehicle->ar_brake_force * sqrt(ratio);
                     }
                 }
                 else if (brake == 0.0f && accl == 0.0f && vehicle->ar_parking_brake == 0)
                 {
-                    float ratio = std::max(0.0f, 0.1f - std::abs(vehicle->ar_avg_wheel_speed)) * 5.0f;
+                    float ratio = std::max(0.0f, 0.2f - std::abs(vehicle->ar_avg_wheel_speed)) / 0.2f;
                     vehicle->ar_brake = vehicle->ar_brake_force * ratio;
                 }
             }
