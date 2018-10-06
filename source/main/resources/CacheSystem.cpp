@@ -62,7 +62,6 @@ CacheEntry::CacheEntry() :
     customtach(false),
     deleted(false),
     description(""),
-    dirname(""),
     dname(""),
     driveable(0),
     enginetype('t'),
@@ -78,7 +77,6 @@ CacheEntry::CacheEntry() :
     fname_without_uid(""),
     forwardcommands(false),
     hasSubmeshs(false),
-    hash(""),
     hydroscount(0),
     importcommands(false),
     loadmass(0),
@@ -91,7 +89,6 @@ CacheEntry::CacheEntry() :
     propscount(0),
     propwheelcount(0),
     rescuer(false),
-    resourceLoaded(false),
     rollon(false),
     rotatorscount(0),
     shockcount(0),
@@ -101,7 +98,6 @@ CacheEntry::CacheEntry() :
     truckmass(0),
     turbojetcount(0),
     turbopropscount(0),
-    type(""),
     uniqueid(""),
     usagecounter(0),
     version(0),
@@ -341,7 +337,7 @@ void CacheSystem::parseModAttribute(const String& line, CacheEntry& t)
         // Set
         t.minitype = params[1];
     }
-    else if (attrib == "type")
+    else if (attrib == "resource_bundle_type")
     {
         // Check params
         if (params.size() != 2)
@@ -350,9 +346,9 @@ void CacheSystem::parseModAttribute(const String& line, CacheEntry& t)
             return;
         }
         // Set
-        t.type = params[1];
+        t.resource_bundle_type = params[1];
     }
-    else if (attrib == "dirname")
+    else if (attrib == "resource_bundle_path")
     {
         // Check params
         if (params.size() != 2)
@@ -361,7 +357,7 @@ void CacheSystem::parseModAttribute(const String& line, CacheEntry& t)
             return;
         }
         // Set
-        t.dirname = params[1];
+        t.resource_bundle_path = params[1];
     }
     else if (attrib == "filecachename")
     {
@@ -429,7 +425,7 @@ void CacheSystem::parseModAttribute(const String& line, CacheEntry& t)
         // Set
         t.dname = params[1];
     }
-    else if (attrib == "hash")
+    else if (attrib == "resource_bundle_hash")
     {
         // Check params
         if (params.size() != 2)
@@ -832,7 +828,6 @@ void CacheSystem::LoadCacheFile()
             {
                 mode = 1;
                 t = CacheEntry();
-                t.resourceLoaded = false;
                 t.deleted = false;
                 t.changedornew = false; // default upon loading
                 // Skip to and over next {
@@ -888,20 +883,25 @@ void CacheSystem::incrementalCacheUpdate()
     loading_win->setProgress(20, _L("incremental check: deleted and changed files"));
     std::vector<CacheEntry> changed_entries;
     UTFString tmp = "";
-    String fn = "";
+
     int counter = 0;
     for (std::vector<CacheEntry>::iterator it = entries.begin(); it != entries.end(); it++ , counter++)
     {
         int progress = ((float)counter / (float)(entries.size())) * 100;
-        tmp = _L("incremental check: deleted and changed files\n") + ANSI_TO_UTF(it->type) + _L(": ") + ANSI_TO_UTF(it->fname);
+        tmp = _L("incremental check: deleted and changed files\n") + ANSI_TO_UTF(it->resource_bundle_type) + _L(": ") + ANSI_TO_UTF(it->fname);
         loading_win->setProgress(progress, tmp);
-        // check whether the file exists
-        if (it->type == "Zip")
-            fn = getRealPath(it->dirname);
-        else if (it->type == "FileSystem")
-            fn = getRealPath(it->dirname + "/" + it->fname);
 
-        if ((it->type == "FileSystem" || it->type == "Zip") && ! RoR::FileExists(fn.c_str()))
+        std::string fn; // file path
+        if (it->resource_bundle_type == "Zip")
+        {
+             fn = this->getRealPath(it->resource_bundle_path);
+        }
+        else if (it->resource_bundle_type == "FileSystem")
+        {
+            fn = getRealPath(it->resource_bundle_path + "/" + it->fname);
+        }
+
+        if (! RoR::FileExists(fn.c_str()))
         {
             LOG("- "+fn+" is not existing");
             tmp = _L("incremental check: deleted and changed files\n") + ANSI_TO_UTF(it->fname) + _L(" not existing");
@@ -912,7 +912,7 @@ void CacheSystem::incrementalCacheUpdate()
             continue;
         }
         // check whether it changed
-        if (it->type == "Zip")
+        if (it->resource_bundle_type == "Zip")
         {
             // check file time, if that fails, fall back to sha1 (needed for platforms where filetime is not yet implemented!
             bool check = false;
@@ -946,7 +946,7 @@ void CacheSystem::incrementalCacheUpdate()
         bool found = false;
         for (std::vector<Ogre::String>::iterator it2 = reloaded_zips.begin(); it2 != reloaded_zips.end(); it2++)
         {
-            if (*it2 == it->dirname)
+            if (*it2 == it->resource_bundle_path)
             {
                 found = true;
                 break;
@@ -956,7 +956,7 @@ void CacheSystem::incrementalCacheUpdate()
         {
             loading_win->setProgress(40, _L("incremental check: processing changed zips\n") + Utils::SanitizeUtf8String(it->fname));
             loadSingleZip(*it);
-            reloaded_zips.push_back(it->dirname);
+            reloaded_zips.push_back(it->resource_bundle_path);
         }
     }
     LOG("* incremental check (3/5): new content ...");
@@ -980,13 +980,13 @@ void CacheSystem::incrementalCacheUpdate()
             // clean paths, important since we compare them ...
             String basename, basepath;
 
-            String dira = it->dirname;
+            String dira = it->resource_bundle_path;
             StringUtil::toLowerCase(dira);
             StringUtil::splitFilename(dira, basename, basepath);
             basepath = getVirtualPath(basepath);
             dira = basepath + basename;
 
-            String dirb = it2->dirname;
+            String dirb = it2->resource_bundle_path;
             StringUtil::toLowerCase(dirb);
             StringUtil::splitFilename(dira, basename, basepath);
             basepath = getVirtualPath(basepath);
@@ -1014,7 +1014,7 @@ void CacheSystem::incrementalCacheUpdate()
             {
                 if (it->number == it2->number)
                     continue; // do not delete self
-                LOG("- "+ it2->dirname+"/" + it->fname + " hard duplicate");
+                LOG("- "+ it2->resource_bundle_path+"/" + it->fname + " hard duplicate");
                 it2->deleted = true;
                 continue;
             }
@@ -1023,8 +1023,8 @@ void CacheSystem::incrementalCacheUpdate()
             {
                 if (it->number == it2->number)
                     continue; // do not delete self
-                LOG("- "+ it2->dirname+"/" + it->fname + " soft duplicate, resolving ...");
-                String hashstr = HashFile(it2->dirname.c_str());
+                LOG("- "+ it2->resource_bundle_path+"/" + it->fname + " soft duplicate, resolving ...");
+                String hashstr = HashFile(it2->resource_bundle_path.c_str());
                 if (hashstr == it->hash)
                 {
                     LOG("  - entry 2 removed");
@@ -1072,10 +1072,10 @@ Ogre::String CacheSystem::formatInnerEntry(int counter, CacheEntry t)
         // this ensures that we wont break the format with empty ("") values
         if (t.minitype.empty())
             t.minitype = "unknown";
-        if (t.type.empty())
-            t.type = "unknown";
-        if (t.dirname.empty())
-            t.dirname = "unknown";
+        if (t.resource_bundle_type.empty())
+            t.resource_bundle_type = "unknown";
+        if (t.resource_bundle_path.empty())
+            t.resource_bundle_path = "unknown";
         if (t.fname.empty())
             t.fname = "unknown";
         if (t.fext.empty())
@@ -1096,8 +1096,8 @@ Ogre::String CacheSystem::formatInnerEntry(int counter, CacheEntry t)
         result += "\tusagecounter=" + TOSTRING(t.usagecounter) + "\n";
         result += "\taddtimestamp=" + TOSTRING(t.addtimestamp) + "\n";
         result += "\tminitype=" + t.minitype + "\n";
-        result += "\ttype=" + t.type + "\n";
-        result += "\tdirname=" + t.dirname + "\n";
+        result += "\tresource_bundle_type=" + t.resource_bundle_type + "\n";
+        result += "\tresource_bundle_path=" + t.resource_bundle_path + "\n";
         result += "\tfname=" + t.fname + "\n";
         result += "\tfname_without_uid=" + t.fname_without_uid + "\n";
         result += "\tfext=" + t.fext + "\n";
@@ -1345,9 +1345,9 @@ void CacheSystem::addFile(String filename, String archiveType, String archiveDir
             entry.fname_without_uid = stripUIDfromString(filename);
             entry.fext = ext;
             entry.filetime = RoR::GetFileLastModifiedTime(archiveDirectory);
-            entry.type = archiveType;
-            entry.dirname = archiveDirectory;
-            entry.number = m_mod_counter++;
+            entry.resource_bundle_type = archiveType;
+            entry.resource_bundle_path = archiveDirectory;
+            entry.number = static_cast<int>(m_mod_counter++);
             entry.addtimestamp = getTimeStamp();
             entry.usagecounter = 0;
             entry.deleted = false;
@@ -1629,7 +1629,7 @@ void CacheSystem::generateFileCache(CacheEntry& entry, Ogre::String directory)
 
         String outBasename = "";
         String outPath = "";
-        StringUtil::splitFilename(entry.dirname, outBasename, outPath);
+        StringUtil::splitFilename(entry.resource_bundle_path, outBasename, outPath);
 
         if (directory.empty())
         {
@@ -1778,19 +1778,19 @@ bool CacheSystem::isFileInEntries(Ogre::String filename)
 
 void CacheSystem::generateZipList()
 {
-    zipCacheList.clear();
+    m_all_resource_bundles.clear();
     for (std::vector<CacheEntry>::iterator it = entries.begin(); it != entries.end(); it++)
     {
-        zipCacheList.insert(getVirtualPath(it->dirname));
+        m_all_resource_bundles.insert(getVirtualPath(it->resource_bundle_path));
     }
 }
 
 bool CacheSystem::isZipUsedInEntries(Ogre::String filename)
 {
-    if (zipCacheList.empty())
+    if (m_all_resource_bundles.empty())
         generateZipList();
 
-    return (zipCacheList.find(getVirtualPath(filename)) != zipCacheList.end());
+    return (m_all_resource_bundles.find(getVirtualPath(filename)) != m_all_resource_bundles.end());
 }
 
 bool CacheSystem::isDirectoryUsedInEntries(Ogre::String directory)
@@ -1800,9 +1800,9 @@ bool CacheSystem::isDirectoryUsedInEntries(Ogre::String directory)
 
     for (std::vector<CacheEntry>::iterator it = entries.begin(); it != entries.end(); it++)
     {
-        if (it->type != "FileSystem")
+        if (it->resource_bundle_type != "FileSystem")
             continue;
-        String dirb = getVirtualPath(it->dirname);
+        String dirb = getVirtualPath(it->resource_bundle_path);
         if (dira == dirb)
             return true;
         if (dira.substr(0, dirb.size()) == dirb) // check if it is a subdirectory
@@ -1912,13 +1912,13 @@ void CacheSystem::readCategoryTitles()
     fclose(fd);
 }
 
-bool CacheSystem::checkResourceLoaded(Ogre::String& filename)
+bool CacheSystem::checkResourceLoaded(Ogre::String & filename)
 {
     Ogre::String group = "";
     return checkResourceLoaded(filename, group);
 }
 
-bool CacheSystem::checkResourceLoaded(Ogre::String& filename, Ogre::String& group)
+bool CacheSystem::checkResourceLoaded(Ogre::String & filename, Ogre::String& group)
 {
     // check if we already loaded it via ogre ...
     if (ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(filename))
@@ -1953,49 +1953,46 @@ bool CacheSystem::checkResourceLoaded(Ogre::String& filename, Ogre::String& grou
     return false;
 }
 
-bool CacheSystem::checkResourceLoaded(const CacheEntry& t)
+bool CacheSystem::checkResourceLoaded(CacheEntry& t)
 {
-    static int rgcountera = 0;
-    static std::map<String, bool> loaded;
-    if (t.resourceLoaded || loaded[t.dirname])
-    // only load once
-        return true;
-    if (t.type == "Zip")
+    if (m_loaded_resource_bundles[t.resource_bundle_path])
+    {
+        return true; // Already loaded
+    }
+
+    if (t.resource_bundle_type == "Zip")
     {
         try
         {
+            static int rgcountera = 0;
             rgcountera++;
             String name = "General-Reloaded-" + TOSTRING(rgcountera);
-            ResourceGroupManager::getSingleton().addResourceLocation(t.dirname, t.type, name);
-            loaded[t.dirname] = true;
+            ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, name);
+            m_loaded_resource_bundles[t.resource_bundle_path] = true;
             ResourceGroupManager::getSingleton().initialiseResourceGroup(name);
             return true;
         }
         catch (ItemIdentityException& e)
         {
-            LOG("Error opening: '" + t.dirname + "': some files are duplicates of existing files. The archive/directory will be ignored.");
+            LOG("Error opening: '" + t.resource_bundle_path + "': some files are duplicates of existing files. The archive/directory will be ignored.");
             LOG("Error description: " + e.getFullDescription());
         }
         catch (Ogre::InvalidStateException& e) // the tokenizer choked..
         {
-            LOG("Error opening: '" + t.dirname + "'");
-            LOG("Error description: " + e.getFullDescription());
+            LOG(" *** error opening '"+t.resource_bundle_path+"': some files are duplicates of existing files. The archive/directory will be ignored. Message: "+ e.getFullDescription());
         }
         catch (Ogre::Exception& e)
         {
-            LOG("Error opening: '" + t.dirname + "'");
-            if (t.type == "Zip")
-                LOG("Is the zip archive corrupt?");
-            LOG("Error description: " + e.getFullDescription());
+            LOG("error opening '"+t.resource_bundle_path+"', skipping it, message:" + e.getFullDescription());
         }
         LOG("trying to continue ...");
     }
     return false;
 }
 
-void CacheSystem::loadSingleZip(CacheEntry& e)
+void CacheSystem::loadSingleZip(const CacheEntry& e)
 {
-    loadSingleZipInternal(e.dirname, -1);
+    loadSingleZipInternal(e.resource_bundle_path, -1);
 }
 
 void CacheSystem::loadSingleZip(Ogre::FileInfo f)
