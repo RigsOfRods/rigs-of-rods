@@ -100,10 +100,11 @@ ActorManager::ActorManager()
     int logical_cores = std::thread::hardware_concurrency();
     LOG("BEAMFACTORY: " + TOSTRING(logical_cores) + " logical CPU cores" + " found");
 
-    int thread_pool_workers = ISETTING("NumThreadsInThreadPool", 0);
+    int thread_pool_workers = RoR::App::app_num_workers.GetActive();
     if (thread_pool_workers < 1 || thread_pool_workers > logical_cores)
     {
         thread_pool_workers = logical_cores - 1;
+        RoR::App::app_num_workers.SetActive(thread_pool_workers);
     }
 
     gEnv->threadPool = new ThreadPool(thread_pool_workers);

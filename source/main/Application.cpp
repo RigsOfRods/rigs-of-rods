@@ -82,6 +82,8 @@ static TerrainManager*  g_sim_terrain;
  GVarStr_A<100>           app_language            ("app_language",            "Language",                  "English");
  GVarStr_A<50>            app_locale              ("app_locale",              "Language Short",            "en");
  GVarPod_A<bool>          app_multithread         ("app_multithread",         "Multi-threading",           true);
+ GVarPod_APS<int>         app_num_workers         ("app_num_workers",         "NumThreadsInThreadPool",    0,
+         0,         0);
  GVarStr_AP<50>           app_screenshot_format   ("app_screenshot_format",   "Screenshot Format",         "jpg",                   "jpg");
 
 // Simulation
