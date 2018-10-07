@@ -697,7 +697,7 @@ void RoR::GfxActor::UpdateDebugView()
     // Dummy fullscreen window to draw to
     int window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar| ImGuiWindowFlags_NoInputs 
                      | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus;
-    ImGui::Begin("RoR-SoftBodyView", NULL, screen_size, 0, window_flags);
+    ImGui::Begin(("RoR-SoftBodyView-" + TOSTRING(m_actor->ar_instance_id)).c_str(), NULL, screen_size, 0, window_flags);
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
     ImGui::End();
 
