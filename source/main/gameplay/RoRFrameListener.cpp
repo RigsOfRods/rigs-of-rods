@@ -1054,6 +1054,10 @@ void SimController::UpdateInputEvents(float dt)
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SHOW_SKELETON))
                     {
                         m_player_actor->GetGfxActor()->ToggleSkeletonView();
+                        for (auto actor : m_player_actor->GetAllLinkedActors())
+                        {
+                            actor->GetGfxActor()->SetDebugView(m_player_actor->GetGfxActor()->GetDebugView());
+                        }
                     }
 
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_LIGHTS))
