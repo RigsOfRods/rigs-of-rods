@@ -376,7 +376,6 @@ bool RoR::GUI::TopMenubar::ShouldDisplay(ImVec2 window_pos)
 void RoR::GUI::TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
 {
     // Count actors owned by the player
-    size_t num_actors_total = App::GetSimController()->GetActors().size();
     size_t num_actors_player = 0;
     for (Actor* actor : App::GetSimController()->GetActors())
     {
