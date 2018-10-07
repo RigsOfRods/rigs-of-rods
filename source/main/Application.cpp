@@ -116,9 +116,11 @@ static TerrainManager*  g_sim_terrain;
  GVarStr_APS<100>         diag_preset_terrain     ("diag_preset_terrain",     "Preselected Map",           "",                      "",        "");
  GVarStr_A<100>           diag_preset_spawn_pos   ("diag_spawn_position",     nullptr,                     "");
  GVarStr_A<100>           diag_preset_spawn_rot   ("diag_spawn_rotation",     nullptr,                     "");
- GVarStr_A<100>           diag_preset_vehicle     ("diag_preset_vehicle",     "Preselected Truck",         "");
+ GVarStr_APS<100>         diag_preset_vehicle     ("diag_preset_vehicle",     "Preselected Truck",         "",
+         "",        "");
  GVarStr_A<100>           diag_preset_veh_config  ("diag_preset_veh_config",  "Preselected TruckConfig",   "");
- GVarPod_A<bool>          diag_preset_veh_enter   ("diag_preset_veh_enter",   "Enter Preselected Truck",   false);
+ GVarPod_APS<bool>        diag_preset_veh_enter   ("diag_preset_veh_enter",   "Enter Preselected Truck",   false,
+         false,     false);
  GVarPod_A<bool>          diag_log_console_echo   ("diag_log_console_echo",   "Enable Ingame Console",     false);
  GVarPod_A<bool>          diag_log_beam_break     ("diag_log_beam_break",     "Beam Break Debug",          false);
  GVarPod_A<bool>          diag_log_beam_deform    ("diag_log_beam_deform",    "Beam Deform Debug",         false);

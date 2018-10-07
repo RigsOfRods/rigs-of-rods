@@ -677,7 +677,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckBool (App::diag_log_beam_trigger,     k, v)) { return true; }
     if (CheckBool (App::diag_dof_effect,           k, v)) { return true; }
     if (CheckStrAS(App::diag_preset_terrain,       k, v)) { return true; }
-    if (CheckStr  (App::diag_preset_vehicle,       k, v)) { return true; }
+    if (CheckStrAS(App::diag_preset_vehicle,       k, v)) { return true; }
     if (CheckStr  (App::diag_preset_veh_config,    k, v)) { return true; }
     if (CheckBool (App::diag_preset_veh_enter,     k, v)) { return true; }
     if (CheckStr  (App::diag_extra_resource_dir,   k, v)) { return true; }
@@ -855,6 +855,12 @@ template <typename GVarPod_T>
 inline void WriteYN(std::ofstream& f, GVarPod_T& gvar) ///< Writes "Yes/No" - handles `bool` and `int(1/0)`
 {
     f << gvar.conf_name << "=" << (static_cast<int>(gvar.GetActive()) == 0 ? "No" : "Yes") << std::endl;
+}
+
+template <typename T>
+inline void WriteYN(std::ofstream& f, GVarPod_APS<T>& gvar) ///< Writes "Yes/No" - handles `bool` and `int(1/0)`
+{
+    f << gvar.conf_name << "=" << (static_cast<int>(gvar.GetStored()) == 0 ? "No" : "Yes") << std::endl;
 }
 
 inline void WriteAny(std::ofstream& f, const char* name, const char* value)
