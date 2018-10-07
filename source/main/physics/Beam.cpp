@@ -3117,8 +3117,27 @@ void Actor::ToggleTies(int group)
             if (it->ti_locked_actor != this)
             {
                 this->RemoveInterActorBeam(it->ti_beam);
-                // update skeletonview on the untied actor
-                it->ti_locked_actor->GetGfxActor()->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
+                // update skeletonview on the untied actors
+                auto linked_actors = it->ti_locked_actor->GetAllLinkedActors();
+                if (!(std::find(linked_actors.begin(), linked_actors.end(), this) != linked_actors.end()))
+                {
+                    if (this == player_actor)
+                    {
+                        it->ti_locked_actor->GetGfxActor()->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
+                        for (auto actor : it->ti_locked_actor->GetAllLinkedActors())
+                        {
+                            actor->GetGfxActor()->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
+                        }
+                    }
+                    else if (it->ti_locked_actor == player_actor)
+                    {
+                        m_gfx_actor->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
+                        for (auto actor : this->GetAllLinkedActors())
+                        {
+                            actor->GetGfxActor()->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
+                        }
+                    }
+                }
             }
             it->ti_locked_actor = nullptr;
         }
@@ -3185,8 +3204,23 @@ void Actor::ToggleTies(int group)
                     if (it->ti_beam->bm_inter_actor)
                     {
                         AddInterActorBeam(it->ti_beam, this, nearest_actor);
-                        // update skeletonview on the tied actor
-                        nearest_actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
+                        // update skeletonview on the tied actors
+                        if (this == player_actor)
+                        {
+                            nearest_actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
+                            for (auto actor : nearest_actor->GetAllLinkedActors())
+                            {
+                                actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
+                            }
+                        }
+                        else if (nearest_actor == player_actor)
+                        {
+                            m_gfx_actor->SetDebugView(player_actor->GetGfxActor()->GetDebugView());
+                            for (auto actor : this->GetAllLinkedActors())
+                            {
+                                actor->GetGfxActor()->SetDebugView(player_actor->GetGfxActor()->GetDebugView());
+                            }
+                        }
                     }
                 }
             }
@@ -3421,10 +3455,18 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
             if (it->hk_locked_actor)
             {
                 it->hk_locked_actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
+                for (auto actor : it->hk_locked_actor->GetAllLinkedActors())
+                {
+                    actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
+                }
             }
             else if (prev_locked_actor != this)
             {
                 prev_locked_actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
+                for (auto actor : prev_locked_actor->GetAllLinkedActors())
+                {
+                    actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
+                }
             }
         }
     }
