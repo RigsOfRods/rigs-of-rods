@@ -44,7 +44,7 @@ void RoR::GUI::TopMenubar::Update()
     Str<50> actors_title;
     auto actors = App::GetSimController()->GetActors();
     int num_playable_actors = std::count_if(actors.begin(), actors.end(), [](Actor* a) {return !a->ar_hide_in_actor_list;});
-    actors_title << "Actors (" << num_playable_actors << ")";
+    actors_title << "Vehicles (" << num_playable_actors << ")";
     const char* tools_title = "Tools";
 
     float panel_target_width = 
