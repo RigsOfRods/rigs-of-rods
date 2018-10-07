@@ -1648,6 +1648,7 @@ void SimController::UpdateSimulation(float dt)
 
     if (m_pending_player_actor != m_player_actor)
     {
+        m_prev_player_actor = m_player_actor ? m_player_actor : m_prev_player_actor;
         this->ChangePlayerActor(m_pending_player_actor); // 'Pending' remains the same until next change is queued
     }
 
@@ -2231,13 +2232,13 @@ void SimController::EnterGameplayLoop()
 
 void SimController::ChangePlayerActor(Actor* actor)
 {
-    m_prev_player_actor = m_player_actor;
+    Actor* prev_player_actor = m_player_actor;
     m_player_actor = actor;
 
     // hide any old dashes
-    if (m_prev_player_actor && m_prev_player_actor->ar_dashboard)
+    if (prev_player_actor && prev_player_actor->ar_dashboard)
     {
-        m_prev_player_actor->ar_dashboard->setVisible3d(false);
+        prev_player_actor->ar_dashboard->setVisible3d(false);
     }
     // show new
     if (m_player_actor && m_player_actor->ar_dashboard)
@@ -2245,38 +2246,38 @@ void SimController::ChangePlayerActor(Actor* actor)
         m_player_actor->ar_dashboard->setVisible3d(true);
     }
 
-    if (m_prev_player_actor)
+    if (prev_player_actor)
     {
         if (RoR::App::GetOverlayWrapper())
         {
-            RoR::App::GetOverlayWrapper()->showDashboardOverlays(false, m_prev_player_actor);
+            RoR::App::GetOverlayWrapper()->showDashboardOverlays(false, prev_player_actor);
         }
 
-        SOUND_STOP(m_prev_player_actor, SS_TRIG_AIR);
-        SOUND_STOP(m_prev_player_actor, SS_TRIG_PUMP);
+        SOUND_STOP(prev_player_actor, SS_TRIG_AIR);
+        SOUND_STOP(prev_player_actor, SS_TRIG_PUMP);
     }
 
     if (m_player_actor == nullptr)
     {
         // getting outside
 
-        if (m_prev_player_actor)
+        if (prev_player_actor)
         {
-            if (m_prev_player_actor->GetGfxActor()->GetVideoCamState() == GfxActor::VideoCamState::VCSTATE_ENABLED_ONLINE)
+            if (prev_player_actor->GetGfxActor()->GetVideoCamState() == GfxActor::VideoCamState::VCSTATE_ENABLED_ONLINE)
             {
-                m_prev_player_actor->GetGfxActor()->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_ENABLED_OFFLINE);
+                prev_player_actor->GetGfxActor()->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_ENABLED_OFFLINE);
             }
 
-            m_prev_player_actor->prepareInside(false);
+            prev_player_actor->prepareInside(false);
 
             // get player out of the vehicle
-            float rotation = m_prev_player_actor->getRotation() - Math::HALF_PI;
-            Vector3 position = m_prev_player_actor->ar_nodes[0].AbsPosition;
-            if (m_prev_player_actor->ar_cinecam_node[0] != -1)
+            float rotation = prev_player_actor->getRotation() - Math::HALF_PI;
+            Vector3 position = prev_player_actor->ar_nodes[0].AbsPosition;
+            if (prev_player_actor->ar_cinecam_node[0] != -1)
             {
                 // actor has a cinecam
-                position = m_prev_player_actor->ar_nodes[m_prev_player_actor->ar_cinecam_node[0]].AbsPosition;
-                position += -2.0 * m_prev_player_actor->GetCameraRoll();
+                position = prev_player_actor->ar_nodes[prev_player_actor->ar_cinecam_node[0]].AbsPosition;
+                position += -2.0 * prev_player_actor->GetCameraRoll();
                 position += Vector3(0.0, -1.0, 0.0);
             }
 
@@ -2290,7 +2291,7 @@ void SimController::ChangePlayerActor(Actor* actor)
 
         m_force_feedback->SetEnabled(false);
 
-        TRIGGER_EVENT(SE_TRUCK_EXIT, m_prev_player_actor?m_prev_player_actor->ar_instance_id:-1);
+        TRIGGER_EVENT(SE_TRUCK_EXIT, prev_player_actor?prev_player_actor->ar_instance_id:-1);
     }
     else
     {
@@ -2343,9 +2344,9 @@ void SimController::ChangePlayerActor(Actor* actor)
         TRIGGER_EVENT(SE_TRUCK_ENTER, m_player_actor?m_player_actor->ar_instance_id:-1);
     }
 
-    if (m_prev_player_actor != nullptr || m_player_actor != nullptr)
+    if (prev_player_actor != nullptr || m_player_actor != nullptr)
     {
-        m_camera_manager.NotifyVehicleChanged(m_prev_player_actor, m_player_actor);
+        m_camera_manager.NotifyVehicleChanged(prev_player_actor, m_player_actor);
     }
 
     m_actor_manager.UpdateSleepingState(m_player_actor, 0.f);

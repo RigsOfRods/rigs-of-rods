@@ -880,7 +880,7 @@ int FindPivotActorId(Actor* player, Actor* prev_player)
     if (player != nullptr)
         return player->ar_vector_index;
     else if (prev_player != nullptr)
-        return prev_player->ar_vector_index;
+        return prev_player->ar_vector_index + 1;
     return -1;
 }
 
@@ -888,7 +888,7 @@ Actor* ActorManager::FetchNextVehicleOnList(Actor* player, Actor* prev_player)
 {
     int pivot_index = FindPivotActorId(player, prev_player);
 
-    for (unsigned int i = pivot_index + 1; i < m_actors.size(); i++)
+    for (int i = pivot_index + 1; i < m_actors.size(); i++)
     {
         if (m_actors[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
@@ -924,7 +924,7 @@ Actor* ActorManager::FetchPreviousVehicleOnList(Actor* player, Actor* prev_playe
         }
     }
 
-    for (unsigned int i = m_actors.size() - 1; i > pivot_index; i--)
+    for (int i = m_actors.size() - 1; i > pivot_index; i--)
     {
         if (m_actors[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
