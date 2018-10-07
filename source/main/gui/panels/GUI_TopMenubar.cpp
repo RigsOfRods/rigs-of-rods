@@ -438,15 +438,34 @@ void RoR::GUI::TopMenubar::DrawActorListSinglePlayer()
     }
     else
     {
+        Actor* player_actor = App::GetSimController()->GetPlayerActor();
         int i = 0;
         for (auto actor : actor_list)
         {
             char text_buf[200];
             snprintf(text_buf, 200, "[%d] %s", i++, actor->ar_design_name.c_str());
+            auto linked_actors = actor->GetAllLinkedActors();
+            if (actor == player_actor)
+            {
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.9f, 0.0f, 1.f));
+            }
+            else if (std::find(linked_actors.begin(), linked_actors.end(), player_actor) != linked_actors.end())
+            {
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.6f, 0.0f, 1.f));
+            }
+            else if (actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
+            {
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.9f, 0.9f, 1.f));
+            }
+            else
+            {
+                ImGui::PushStyleColor(ImGuiCol_Text, GRAY_HINT_TEXT);
+            }
             if (ImGui::Button(text_buf)) // Button clicked?
             {
                 App::GetSimController()->SetPendingPlayerActor(actor);
             }
+            ImGui::PopStyleColor();
         }
     }
 }
