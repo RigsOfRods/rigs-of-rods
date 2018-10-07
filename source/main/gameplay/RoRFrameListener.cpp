@@ -1607,7 +1607,6 @@ void SimController::UpdateSimulation(float dt)
                 {
                     this->SetPendingPlayerActor(fresh_actor);
                 }
-                App::diag_preset_veh_enter.SetActive(false);
             }
             if (fresh_actor->ar_engine)
             {
@@ -2082,9 +2081,6 @@ bool SimController::SetupGameplayLoop()
         rq.asr_rotation   = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
         rq.asr_origin     = ActorSpawnRequest::Origin::CONFIG_FILE;
         this->QueueActorSpawn(rq);
-
-        App::diag_preset_vehicle.SetActive("");
-        App::diag_preset_veh_config.SetActive("");
     }
 
     App::GetSimTerrain()->LoadPredefinedActors();
