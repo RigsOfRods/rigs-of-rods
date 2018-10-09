@@ -1288,8 +1288,6 @@ bool Collisions::groundCollision(node_t *node, float dt, ground_model_t** ogm, f
 
 void primitiveCollision(node_t *node, Vector3 &force, const Vector3 &velocity, const Vector3 &normal, float dt, ground_model_t* gm, float* nso, float penetration, float reaction)
 {
-    // normal velocity
-
     float Vnormal = velocity.dotProduct(normal);
 
     // if we are inside the fluid (solid ground is below us)
@@ -1336,26 +1334,14 @@ void primitiveCollision(node_t *node, Vector3 &force, const Vector3 &velocity, c
     if (penetration >= gm->solid_ground_level)
     {
         Vector3 slip = velocity - Vnormal*normal;
-        float slipv = slip.squaredLength();
-        if (fabs(slipv) > 1e-08f)
-        {
-            float invslipv = fast_invSqrt(slipv);
-            slip = slip*invslipv;
-            slipv = slipv*invslipv;
-        } else
-        {
-            slipv = sqrt(slipv);
-        }
+        float slipv = slip.normalise();
 
         if (nso && gm->solid_ground_level == 0.0f) *nso = slipv;
 
-        float Fnormal = 0.0f;
-        float Fdnormal = 0.0f;
         float Freaction;
-        float Greaction;
 
-        Fnormal = force.dotProduct(normal);
-        Fdnormal = Fnormal;
+        float Fnormal = force.dotProduct(normal);
+        float Fdnormal = Fnormal;
 
         // steady force
         if (reaction < 0)
@@ -1372,24 +1358,23 @@ void primitiveCollision(node_t *node, Vector3 &force, const Vector3 &velocity, c
             Freaction = reaction;
             Fnormal = 0.0f;
         }
-        float ff;
         // If the velocity that we slip is lower than adhesion velocity and
         // we have a downforce and the slip forces are lower than static friction
         // forces then it's time to go into static friction physics mode.
         // This code is a direct translation of textbook static friction physics
-        Greaction = (Freaction * gm->strength * node->friction_coef); //General moderated reaction, node property sets friction_coef as a pernodefriction setting
-        float msGreaction = (gm->ms) * Greaction;
-        if (slipv < (gm->va) && Greaction > 0.0f && (force - Fdnormal * normal).squaredLength() <= msGreaction * msGreaction)
+        float Greaction = Freaction * gm->strength * node->friction_coef; //General moderated reaction, node property sets friction_coef as a pernodefriction setting
+        float msGreaction = gm->ms * Greaction;
+        if (slipv < gm->va && Greaction > 0.0f && (force - Fdnormal * normal).squaredLength() <= msGreaction * msGreaction)
         {
             // Static friction model (with a little smoothing to help the integrator deal with it)
-            ff = -msGreaction * (1.0f - approx_exp(-slipv / gm->va));
-            force = (Fnormal + Freaction) * normal + ff*slip;
+            float ff = -msGreaction * (1.0f - approx_exp(-slipv / gm->va));
+            force = (Fnormal + Freaction) * normal + ff * slip;
         } else
         {
             // Stribek model. It also comes directly from textbooks.
-            float g = gm->mc + (gm->ms - gm->mc) * std::min(1.0f, approx_exp(-approx_pow(slipv / gm->vs, gm->alpha)));
-            ff = -(g + gm->t2 * slipv) * Greaction;
-            force += Freaction * normal + ff*slip;
+            float g = gm->mc + (gm->ms - gm->mc) * approx_exp(-approx_pow(slipv / gm->vs, gm->alpha));
+            float ff = -(g + gm->t2 * slipv) * Greaction;
+            force += Freaction * normal + ff * slip;
         }
     }
 }
