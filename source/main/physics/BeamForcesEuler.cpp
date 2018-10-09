@@ -66,7 +66,7 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
         ar_engine->UpdateEngineSim(dt, doUpdate);
     }
 
-    calcBeams(doUpdate);
+    this->CalcBeams(doUpdate);
 
     if (doUpdate)
     {
@@ -1198,7 +1198,7 @@ void LogBeamNodes(RoR::Str<L>& msg, beam_t& beam) // Internal helper
     msg << ".";
 }
 
-void Actor::calcBeams(bool trigger_hooks)
+void Actor::CalcBeams(bool trigger_hooks)
 {
     const float dt = static_cast<float>(PHYSICS_DT);
 

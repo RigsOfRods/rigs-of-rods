@@ -57,7 +57,7 @@ struct beam_t
     ///   Actor::GetNumActiveConnectedBeams()    -- READ: Counts beams connected to node; Excludes 'disabled' beams.
     ///   Actor::calcForcesEulerCompute() -- READ Saves value to replay buffer
     ///   Actor::ReplayStep()             -- WRITE: fills from replay buffer
-    ///   Actor::calcBeams()            -- READ excludes beam from physics
+    ///   Actor::CalcBeams()            -- READ excludes beam from physics
     ///                                -- WRITE: when SUPPORTBEAM breaks, it's set to 'disabled' + 'broken'
     ///                                -- WRITE: when regular beam breaks, 'true' is set to it and all beams in it's detacher group.
     ///   Actor::CalcBeamsInterActor()    -- READ: excludes beam from physics
@@ -75,7 +75,7 @@ struct beam_t
     ///   Actor::updateVisual()        -- READ: when 'disabled' or 'broken', hides all visuals - and vice versa.
     ///   Actor::calcForcesEulerCompute() -- READ Excludes broken hydros from ForceFeedback
     ///                                  -- READ Saves value to replay buffer
-    ///   Actor::calcBeams()         -- WRITE: when regular beam breaks, 'true' is set to it and all beams in it's detacher group.
+    ///   Actor::CalcBeams()         -- WRITE: when regular beam breaks, 'true' is set to it and all beams in it's detacher group.
     ///                             -- WRITE: when SUPPORTBEAM breaks, it's set to 'disabled' + 'broken'
     ///   Actor::CalcBeamsInterActor() -- WRITE: when beam breaks (special conditions), it's set to 'disabled' + 'broken'
     ///   SlideNode::UpdateForces() -- READ: Stops updates when sliding beam is broken.

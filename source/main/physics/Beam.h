@@ -363,7 +363,7 @@ public:
 
 private:
 
-    void              calcBeams(bool trigger_hooks);       //!< Single physics step (see PHYSICS_DT); Physics & sound;
+    void              CalcBeams(bool trigger_hooks);       //!< Single physics step (see PHYSICS_DT); Physics & sound;
     void              CalcBeamsInterActor();               //!< Physics (1 step) & sound - only beams between multiple actors (noshock or ropes)
     void              CalcNodes();                         //!< Single physics step (see PHYSICS_DT)
     void              calcHooks();                         //!< TIGHT LOOP; Physics;
