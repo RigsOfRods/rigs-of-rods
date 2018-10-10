@@ -616,7 +616,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     // App
     if (CheckScreenshotFormat                     (k, v)) { return true; }
     if (CheckStr  (App::app_locale,                k, v)) { return true; }
-    if (CheckBool (App::app_multithread,           k, v)) { return true; }
+    if (CheckBool (App::app_async_physics,         k, v)) { return true; }
     if (CheckInt  (App::app_num_workers,           k, v)) { return true; }
     // Input&Output
     if (CheckBool (App::io_ffb_enabled,            k, v)) { return true; }
@@ -968,7 +968,7 @@ void Settings::SaveSettings()
     f << std::endl << "; Application"<< std::endl;
     WriteStr (f, App::app_screenshot_format );
     WriteStr (f, App::app_locale            );
-    WriteYN  (f, App::app_multithread       );
+    WriteYN  (f, App::app_async_physics     );
     WritePod (f, App::app_num_workers       );
 
     // Append misc legacy entries

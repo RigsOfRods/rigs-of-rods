@@ -68,7 +68,7 @@ void RoR::GUI::GameSettings::Draw()
             App::app_screenshot_format.SetActive((sshot_select == 1) ? "jpg" : "png");
         }
 
-        DrawGCheckbox(App::app_multithread, "Multithreading");
+        DrawGCheckbox(App::app_async_physics, "Async physics");
 
         ImGui::Separator();
         ImGui::TextDisabled("Simulation settings");

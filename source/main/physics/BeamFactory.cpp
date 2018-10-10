@@ -1014,7 +1014,7 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
         });
     m_sim_task = gEnv->threadPool->RunTask(func);
 
-    if (!RoR::App::app_multithread.GetActive())
+    if (!RoR::App::app_async_physics.GetActive())
         m_sim_task->join();
 }
 
