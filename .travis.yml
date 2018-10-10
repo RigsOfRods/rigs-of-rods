@@ -25,8 +25,8 @@ addons:
     - libwxgtk3.0-dev
 
 install:
-  - wget https://dl.bintray.com/conan/installers/conan-ubuntu-64_1_7_2.deb
-  - sudo dpkg -i conan-ubuntu-64_1_7_2.deb
+  - wget https://dl.bintray.com/conan/installers/conan-ubuntu-64_1_8_0.deb
+  - sudo dpkg -i conan-ubuntu-64_1_8_0.deb
   - conan user
   - conan remote add ror-dependencies https://api.bintray.com/conan/anotherfoxguy/ror-dependencies || true
   - conan remote add bincrafters-public-conan https://api.bintray.com/conan/bincrafters/public-conan || true
