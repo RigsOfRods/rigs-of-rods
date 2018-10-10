@@ -146,6 +146,7 @@ bool TerrainManager::LoadAndPrepareTerrain(std::string filename)
         return false;
     }
 
+    this->setGravity(m_def.gravity);
 
     // then, init the subsystems, order is important :)
     initSubSystems();
