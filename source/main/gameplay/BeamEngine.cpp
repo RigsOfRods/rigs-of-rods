@@ -443,11 +443,14 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
             this->StopEngine();
         }
 
-        if (m_starter_has_contact && m_starter && !m_engine_is_running)
+        if (m_starter_has_contact && !m_engine_is_running)
         {
-            if (m_cur_engine_rpm < m_engine_stall_rpm)
+            if (m_cur_engine_rpm < m_engine_idle_rpm)
             {
-                totaltorque += -m_braking_torque;
+                if (m_starter)
+                {
+                    totaltorque += m_engine_torque * exp(-2.7f * m_cur_engine_rpm / m_engine_idle_rpm) - m_braking_torque;
+                }
             }
             else
             {
