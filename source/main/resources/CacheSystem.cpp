@@ -1776,41 +1776,6 @@ bool CacheSystem::isFileInEntries(Ogre::String filename)
     return false;
 }
 
-void CacheSystem::generateZipList()
-{
-    m_all_resource_bundles.clear();
-    for (std::vector<CacheEntry>::iterator it = entries.begin(); it != entries.end(); it++)
-    {
-        m_all_resource_bundles.insert(getVirtualPath(it->resource_bundle_path));
-    }
-}
-
-bool CacheSystem::isZipUsedInEntries(Ogre::String filename)
-{
-    if (m_all_resource_bundles.empty())
-        generateZipList();
-
-    return (m_all_resource_bundles.find(getVirtualPath(filename)) != m_all_resource_bundles.end());
-}
-
-bool CacheSystem::isDirectoryUsedInEntries(Ogre::String directory)
-{
-    String dira = directory;
-    dira = getVirtualPath(dira);
-
-    for (std::vector<CacheEntry>::iterator it = entries.begin(); it != entries.end(); it++)
-    {
-        if (it->resource_bundle_type != "FileSystem")
-            continue;
-        String dirb = getVirtualPath(it->resource_bundle_path);
-        if (dira == dirb)
-            return true;
-        if (dira.substr(0, dirb.size()) == dirb) // check if it is a subdirectory
-            return true;
-    }
-    return false;
-}
-
 void CacheSystem::checkForNewKnownFiles()
 {
     for (std::vector<Ogre::String>::iterator it = known_extensions.begin(); it != known_extensions.end(); ++it)
@@ -2148,7 +2113,7 @@ void CacheSystem::loadAllDirectoriesInResourceGroup(String group)
     RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
 }
 
-void CacheSystem::checkForNewZipsInResourceGroup(String group)
+void CacheSystem::checkForNewZipsInResourceGroup(std::set<std::string>const & resource_bundles, String group)
 {
     FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo(group, "*.zip");
     FileInfoList::iterator iterFiles = files->begin();
@@ -2171,7 +2136,8 @@ void CacheSystem::checkForNewZipsInResourceGroup(String group)
         int progress = ((float)i / (float)filecount) * 100;
         std::string filename_utf8 = Utils::SanitizeUtf8String(iterFiles->filename);
         RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new zips in ") + group + "\n" + filename_utf8 + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount));
-        if (!isZipUsedInEntries(zippath2))
+        const bool bundle_exists = resource_bundles.find(this->getVirtualPath(zippath2)) != resource_bundles.end();
+        if (!bundle_exists)
         {
             RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new zips in ") + group + "\n" + _L("loading new zip: ") + filename_utf8 + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount));
             LOG("- "+zippath+" is new");
@@ -2181,7 +2147,7 @@ void CacheSystem::checkForNewZipsInResourceGroup(String group)
     RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
 }
 
-void CacheSystem::checkForNewDirectoriesInResourceGroup(String group)
+void CacheSystem::checkForNewDirectoriesInResourceGroup(std::set<std::string>const & resource_bundles, String group)
 {
     FileInfoListPtr list = ResourceGroupManager::getSingleton().listResourceFileInfo(group, true);
     size_t i = 0, filecount = list->size();
@@ -2193,7 +2159,8 @@ void CacheSystem::checkForNewDirectoriesInResourceGroup(String group)
         int progress = ((float)i / (float)filecount) * 100;
         std::string filename_utf8 = Utils::SanitizeUtf8String(listitem->filename);
         RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new directories in ") + group + "\n" + filename_utf8 + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount));
-        if (!isDirectoryUsedInEntries(dirname))
+        const bool bundle_exists = resource_bundles.find(this->getVirtualPath(dirname)) != resource_bundles.end();
+        if (!bundle_exists)
         {
             RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new directories in ") + group + "\n" + _L("loading new directory: ") + filename_utf8 + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount));
             LOG("- "+dirname+" is new");
@@ -2203,13 +2170,19 @@ void CacheSystem::checkForNewDirectoriesInResourceGroup(String group)
     RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
 }
 
-void CacheSystem::checkForNewContent()
+void CacheSystem::checkForNewContent() // Only used when performing "incremental update"
 {
-    checkForNewZipsInResourceGroup("Packs");
-    checkForNewZipsInResourceGroup("VehicleFolders");
-    checkForNewZipsInResourceGroup("TerrainFolders");
+    std::set<std::string> resource_bundles; // List all existing bundles
+    for (std::vector<CacheEntry>::iterator it = entries.begin(); it != entries.end(); it++)
+    {
+        resource_bundles.insert(this->getVirtualPath(it->resource_bundle_path));
+    }
 
-    checkForNewDirectoriesInResourceGroup("VehicleFolders");
-    checkForNewDirectoriesInResourceGroup("TerrainFolders");
+    checkForNewZipsInResourceGroup(resource_bundles, "Packs");
+    checkForNewZipsInResourceGroup(resource_bundles, "VehicleFolders");
+    checkForNewZipsInResourceGroup(resource_bundles, "TerrainFolders");
+
+    checkForNewDirectoriesInResourceGroup(resource_bundles, "VehicleFolders");
+    checkForNewDirectoriesInResourceGroup(resource_bundles, "TerrainFolders");
 }
 
