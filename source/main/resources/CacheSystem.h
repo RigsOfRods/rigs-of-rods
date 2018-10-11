@@ -231,14 +231,10 @@ private:
 
     void checkForNewContent();
 
-    void checkForNewZipsInResourceGroup(Ogre::String group);
-    void checkForNewDirectoriesInResourceGroup(Ogre::String group);
+    void checkForNewZipsInResourceGroup(std::set<std::string> const& resource_bundles, Ogre::String group);
+    void checkForNewDirectoriesInResourceGroup(std::set<std::string>const & resource_bundles, Ogre::String group);
 
-    void generateZipList();
-    bool isZipUsedInEntries(Ogre::String filename);
     bool isFileInEntries(Ogre::String filename);
-
-    bool isDirectoryUsedInEntries(Ogre::String directory);
 
     void loadAllDirectoriesInResourceGroup(Ogre::String group);
     void loadAllZipsInResourceGroup(Ogre::String group);
@@ -247,7 +243,6 @@ private:
 
     std::string                  m_filenames_hash;   //!< stores SHA1 hash over the content, for quick update detection
     size_t                       m_mod_counter;      //!< counts the mods (all types)
-    std::set<Ogre::String>       m_all_resource_bundles;
     std::map<Ogre::String, bool> m_loaded_resource_bundles;
 
 
