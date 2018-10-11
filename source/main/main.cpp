@@ -199,13 +199,10 @@ int main(int argc, char *argv[])
             Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET);
 
 
-        App::CreateContentManager();
-
-        LanguageEngine::getSingleton().setup();
-
-        // Add startup resources
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OGRE_CORE);
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::WALLPAPERS);
+
+        LanguageEngine::getSingleton().setup();
 
         // Setup rendering (menu + simulation)
         Ogre::SceneManager* scene_manager = App::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "main_scene_manager");
@@ -227,16 +224,7 @@ int main(int argc, char *argv[])
 
         Ogre::String menu_wallpaper_texture_name = GUIManager::getRandomWallpaperImage();
 
-        App::CreateCacheSystem(); // Reads GVars
-
-        // Initialize "managed materials"
-        // These are base materials referenced by user content
-        // They must be initialized before any content is loaded, including mod-cache update.
-        // Otherwise material links are unresolved and loading ends with an exception
-        // TODO: Study Ogre::ResourceLoadingListener and implement smarter solution (not parsing materials on cache refresh!)
-        App::GetContentManager()->InitManagedMaterials();
-
-        App::GetContentManager()->OnApplicationStartup();
+        App::GetContentManager()->InitContentManager();
 
         App::CreateGuiManagerIfNotExists();
 
@@ -262,7 +250,7 @@ int main(int argc, char *argv[])
         App::CreateInputEngine();
         App::GetInputEngine()->setupDefault(App::GetOgreSubsystem()->GetMainHWND());
 
-        App::GetCacheSystem()->Startup();
+        App::GetContentManager()->InitModCache();
 
         RoR::ForceFeedback force_feedback;
 #ifdef _WIN32
@@ -407,8 +395,6 @@ int main(int argc, char *argv[])
         App::GetOgreSubsystem()->GetOgreRoot()->destroySceneManager(scene_manager);
 
         App::DestroyOverlayWrapper();
-
-        App::DestroyContentManager();
     }
     catch (Ogre::Exception& e)
     {

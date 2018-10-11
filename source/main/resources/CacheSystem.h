@@ -151,9 +151,11 @@ public:
         CACHE_STATE_UNKNOWN            = 0xFFFFFFFF
     };
 
-    void Startup();
-    CacheEntry* FindEntryByFilename(std::string const & filename); //<! Returns NULL if none found
-    void UnloadActorDefFromMemory(std::string const & filename);
+    void                  LoadModCache(CacheValidityState validity);
+    CacheEntry*           FindEntryByFilename(std::string const & filename); //<! Returns NULL if none found
+    void                  UnloadActorDefFromMemory(std::string const & filename);
+    void                  LoadCategoriesConfig();
+    CacheValidityState    EvaluateCacheValidity();
 
     bool checkResourceLoaded(CacheEntry& t); //!< Loads the associated resource bundle if not already done. Updates the bundle (resource group, loaded state)
     bool checkResourceLoaded(Ogre::String &in_out_filename); //!< Finds + loads the associated resource bundle if not already done.
@@ -189,8 +191,6 @@ private:
     void fillTerrainDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname);
     void fillTruckDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname);
 
-    /// Checks if update is needed
-    CacheValidityState IsCacheValid();
     void GenerateHashFromFilenames();         //!< For quick detection of added/removed content
     void LoadCacheFile();                  //!< Loads all entries from cache file
     Ogre::String getCacheConfigFilename(bool full); // returns filename of the cache file
@@ -212,8 +212,6 @@ private:
     void parseModAttribute(const Ogre::String& line, CacheEntry& t);
     void logBadTruckAttrib(const Ogre::String& line, CacheEntry& t);
     void loadSingleDirectory(Ogre::String dirname, Ogre::String group);
-
-    void readCategoryTitles();
 
     // helpers
     char *replacesSpaces(char *str);

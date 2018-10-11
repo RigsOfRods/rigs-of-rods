@@ -128,22 +128,8 @@ CacheSystem::~CacheSystem()
 {
 }
 
-void CacheSystem::Startup()
+void CacheSystem::LoadModCache(CacheValidityState validity)
 {
-    if (BSETTING("NOCACHE", false))
-    {
-        LOG("Cache disabled via command line switch");
-        return;
-    }
-
-    // read valid categories from file
-    readCategoryTitles();
-
-    // calculate sha1 over all the content
-    this->GenerateHashFromFilenames();
-
-    CacheValidityState validity = IsCacheValid();
-
     if (validity == CACHE_NEEDS_UPDATE_FULL)
     {
         RoR::Log("[RoR|ModCache] Performing full rebuild");
@@ -236,8 +222,10 @@ bool CacheSystem::resourceExistsInAllGroups(Ogre::String filename)
     }
 }
 
-CacheSystem::CacheValidityState CacheSystem::IsCacheValid()
+CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
 {
+    this->GenerateHashFromFilenames();
+
     if (BSETTING("regen-cache-only", false))
     {
         return CACHE_NEEDS_UPDATE_INCREMENTAL;
@@ -1817,7 +1805,7 @@ void CacheSystem::fillTerrainDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr d
     entry.version    = def.version;
 }
 
-void CacheSystem::readCategoryTitles()
+void CacheSystem::LoadCategoriesConfig()
 {
     String filename = Ogre::String(App::sys_config_dir.GetActive()) + PATH_SLASH + String("categories.cfg");
     LOG("Loading category titles from " + filename);
