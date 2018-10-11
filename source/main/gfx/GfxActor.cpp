@@ -586,7 +586,7 @@ void RoR::GfxActor::UpdateParticles(float dt_sec)
         }
 
         // Ground collision (dust, sparks, tyre smoke, clumps...)
-        if (n.nd_collision_gm != nullptr && !nfx.nx_no_particles)
+        if (!nfx.nx_no_particles && n.nd_has_contact && n.nd_collision_gm != nullptr)
         {
             switch (n.nd_collision_gm->fx_type)
             {

@@ -164,10 +164,10 @@ public:
     eventsource_t* isTruckInEventBox(Actor* truck);
 
     bool collisionCorrect(Ogre::Vector3* refpos, bool envokeScriptCallbacks = true);
-    bool groundCollision(node_t* node, float dt, ground_model_t** gm, float* nso = 0);
+    bool groundCollision(node_t* node, float dt);
     bool isInside(Ogre::Vector3 pos, const Ogre::String& inst, const Ogre::String& box, float border = 0);
     bool isInside(Ogre::Vector3 pos, collision_box_t* cbox, float border = 0);
-    bool nodeCollision(node_t* node, bool contacted, float dt, float* nso, ground_model_t** ogm);
+    bool nodeCollision(node_t* node, float dt);
 
     void clearEventCache();
     void finishLoadingTerrain();
@@ -186,7 +186,6 @@ public:
     std::map<Ogre::String, ground_model_t>* getGroundModels() { return &ground_models; };
     void setupLandUse(const char* configfile);
     ground_model_t* getGroundModelByString(const Ogre::String name);
-    ground_model_t* last_used_ground_model;
 
     void getMeshInformation(Ogre::Mesh* mesh, size_t& vertex_count, Ogre::Vector3* & vertices,
         size_t& index_count, unsigned* & indices,
@@ -194,4 +193,4 @@ public:
         const Ogre::Quaternion& orient = Ogre::Quaternion::IDENTITY, const Ogre::Vector3& scale = Ogre::Vector3::UNIT_SCALE);
 };
 
-void primitiveCollision(node_t* node, Ogre::Vector3& force, const Ogre::Vector3& velocity, const Ogre::Vector3& normal, float dt, ground_model_t* gm, float* nso, float penetration = 0, float reaction = -1.0f);
+void primitiveCollision(node_t* node, Ogre::Vector3& force, const Ogre::Vector3& velocity, const Ogre::Vector3& normal, float dt, ground_model_t* gm, float penetration = 0, float reaction = -1.0f);
