@@ -4959,6 +4959,11 @@ void ActorSpawner::ProcessEngoption(RigDef::Engoption & def)
         }
     }
 
+    if (engoption->idle_rpm > 0 && engoption->stall_rpm > 0 && engoption->stall_rpm > engoption->idle_rpm)
+    {
+        AddMessage(Message::TYPE_WARNING, "Stall RPM is set higher than Idle RPM.");
+    }
+
     /* Process it */
     m_actor->ar_engine->SetEngineOptions(
         engoption->inertia,
