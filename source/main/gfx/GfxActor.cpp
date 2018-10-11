@@ -586,21 +586,21 @@ void RoR::GfxActor::UpdateParticles(float dt_sec)
         }
 
         // Ground collision (dust, sparks, tyre smoke, clumps...)
-        if (n.nd_collision_gm != nullptr && !nfx.nx_no_particles)
+        if (!nfx.nx_no_particles && n.nd_has_ground_contact && n.nd_last_collision_gm != nullptr)
         {
-            switch (n.nd_collision_gm->fx_type)
+            switch (n.nd_last_collision_gm->fx_type)
             {
             case Collisions::FX_DUSTY:
                 if (m_particles_misc != nullptr)
                 {
-                    m_particles_misc->malloc(n.AbsPosition, n.Velocity / 2.0, n.nd_collision_gm->fx_colour);
+                    m_particles_misc->malloc(n.AbsPosition, n.Velocity / 2.0, n.nd_last_collision_gm->fx_colour);
                 }
                 break;
 
             case Collisions::FX_CLUMPY:
                 if (m_particles_clump != nullptr && n.Velocity.squaredLength() > 1.f)
                 {
-                    m_particles_clump->allocClump(n.AbsPosition, n.Velocity / 2.0, n.nd_collision_gm->fx_colour);
+                    m_particles_clump->allocClump(n.AbsPosition, n.Velocity / 2.0, n.nd_last_collision_gm->fx_colour);
                 }
                 break;
 
@@ -608,9 +608,9 @@ void RoR::GfxActor::UpdateParticles(float dt_sec)
                 if (n.iswheel != 0) // This is a wheel => skidmarks and tyre smoke
                 {
                     const float SKID_THRESHOLD = 10.f;
-                    if (n.nd_collision_slip > SKID_THRESHOLD)
+                    if (n.nd_last_collision_slip > SKID_THRESHOLD)
                     {
-                        SOUND_MODULATE(m_actor, SS_MOD_SCREETCH, (n.nd_collision_slip - SKID_THRESHOLD) / SKID_THRESHOLD);
+                        SOUND_MODULATE(m_actor, SS_MOD_SCREETCH, (n.nd_last_collision_slip - SKID_THRESHOLD) / SKID_THRESHOLD);
                         SOUND_PLAY_ONCE(m_actor, SS_TRIG_SCREETCH);
                         
                         if (m_particles_misc != nullptr)
@@ -621,7 +621,7 @@ void RoR::GfxActor::UpdateParticles(float dt_sec)
                 }
                 else // Not a wheel => sparks
                 {
-                    if ((!nfx.nx_no_sparks) && (n.nd_collision_slip > 1.f) && (m_particles_sparks != nullptr))
+                    if ((!nfx.nx_no_sparks) && (n.nd_last_collision_slip > 1.f) && (m_particles_sparks != nullptr))
                     {
                         m_particles_sparks->allocSparks(n.AbsPosition, n.Velocity);
                     }

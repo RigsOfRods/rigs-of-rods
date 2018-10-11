@@ -59,8 +59,8 @@ struct node_t
 
     Ogre::Vector3 initial_pos;
 
-    ground_model_t* nd_collision_gm;         //!< Physics state; last collision 'ground model' (surface definition)
-    float           nd_collision_slip;       //!< Physics state; last collision slip velocity
+    ground_model_t* nd_last_collision_gm;    //!< Physics state; last collision 'ground model' (surface definition)
+    float           nd_last_collision_slip;  //!< Physics state; last collision slip velocity
     int8_t          nd_coll_bbox_id;         //!< Optional attribute (-1 = none) - multiple collision bounding boxes defined in truckfile
 
     // Bit flags
@@ -70,6 +70,6 @@ struct node_t
     bool            nd_no_mouse_grab:1;      //!< Attr; User-defined
     bool            nd_contacter:1;          //!< Attr; This node is part of collision triangle
     bool            nd_no_ground_contact:1;  //!< User-defined attr; node ignores contact with ground
-    bool            nd_has_contact:1;        //!< Physics state
+    bool            nd_has_ground_contact:1; //!< Physics state
     bool            nd_under_water:1;        //!< State; GFX hint
 };
