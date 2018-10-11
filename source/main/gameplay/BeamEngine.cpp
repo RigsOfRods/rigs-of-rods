@@ -211,7 +211,7 @@ void EngineSim::SetEngineOptions(float einertia, char etype, float eclutch, floa
     m_post_shift_time = std::max(0.0f, m_post_shift_time);
     m_clutch_time = Math::Clamp(m_clutch_time, 0.0f, 0.9f * m_shift_time);
 
-    m_engine_stall_rpm = Math::Clamp(m_engine_stall_rpm, 0.0f, m_idle_rpm);
+    m_engine_stall_rpm = Math::Clamp(m_engine_stall_rpm, 0.0f, 0.9f * m_idle_rpm);
 
     if (etype == 'c')
     {
