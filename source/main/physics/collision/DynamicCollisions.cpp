@@ -125,10 +125,9 @@ void ResolveCollisionForces(const float penetration_depth,
     const float fl = (vi + trfnormal - pfnormal) * 0.5f;
 
     auto forcevec = Vector3::ZERO;
-    float nso;  // TODO unused
 
     //Calculate the collision forces
-    primitiveCollision(&hitnode, forcevec, vecrelVel, normal, ((float) dt), &submesh_ground_model, &nso, penetration_depth, fl);
+    primitiveCollision(&hitnode, forcevec, vecrelVel, normal, ((float) dt), &submesh_ground_model, penetration_depth, fl);
 
     // apply resulting collision force
     hitnode.Forces += forcevec;
