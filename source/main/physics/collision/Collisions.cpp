@@ -966,7 +966,6 @@ int Collisions::enableCollisionTri(int number, bool enable)
 
 bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, ground_model_t** ogm)
 {
-    bool smoky = false;
     // float corrf=1.0;
     Vector3 oripos = node->AbsPosition;
     // find the correct cell
@@ -1019,9 +1018,6 @@ bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, ground_mo
                             // collision, process as usual
                             // we have a collision
                             contacted=true;
-                            // setup smoke
-                            //float ns=node->Velocity.length();
-                            smoky=true;
                             // determine which side collided
                             float min=Pos.z-(cbox->relo).z;
                             Vector3 normal=Vector3(0,0,-1);
@@ -1061,9 +1057,6 @@ bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, ground_mo
                     {
                         // we have a collision
                         contacted=true;
-                        // setup smoke
-                        //float ns=node->Velocity.length();
-                        smoky=true;
                         // determine which side collided
                         float min=node->AbsPosition.z-cbox->lo.z;
                         Vector3 normal=Vector3(0,0,-1);
@@ -1113,9 +1106,6 @@ bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, ground_mo
     {
         // we have a contact
         contacted=true;
-        // setup smoke
-        //float ns=node->Velocity.length();
-        smoky=true;
 
         // we need the normal
         // resume repere for the normal
@@ -1149,7 +1139,7 @@ bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, ground_mo
     // correct relative position too
     if (contacted) node->RelPosition=node->RelPosition+(node->AbsPosition-oripos);
     node->nd_has_contact=contacted;
-    return smoky;
+    return contacted;
 }
 
 
