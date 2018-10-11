@@ -964,7 +964,7 @@ int Collisions::enableCollisionTri(int number, bool enable)
     return 0;
 }
 
-bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, float* nso, ground_model_t** ogm)
+bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, ground_model_t** ogm)
 {
     bool smoky = false;
     // float corrf=1.0;
@@ -1022,7 +1022,6 @@ bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, float* ns
                             // setup smoke
                             //float ns=node->Velocity.length();
                             smoky=true;
-                            //*nso=ns;
                             // determine which side collided
                             float min=Pos.z-(cbox->relo).z;
                             Vector3 normal=Vector3(0,0,-1);
@@ -1043,7 +1042,7 @@ bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, float* ns
                             if (cbox->refined) normal=cbox->rot*normal;
 
                             // collision boxes are always out of concrete as it seems
-                            primitiveCollision(node, node->Forces, node->Velocity, normal, dt, defaultgm, nso);
+                            primitiveCollision(node, node->Forces, node->Velocity, normal, dt, defaultgm);
                             if (ogm) *ogm=defaultgm;
                             }
                         }
@@ -1065,7 +1064,6 @@ bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, float* ns
                         // setup smoke
                         //float ns=node->Velocity.length();
                         smoky=true;
-                        //*nso=ns;
                         // determine which side collided
                         float min=node->AbsPosition.z-cbox->lo.z;
                         Vector3 normal=Vector3(0,0,-1);
@@ -1083,7 +1081,7 @@ bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, float* ns
                         // resume repere for the normal
                         if (cbox->selfrotated) normal=cbox->selfrot*normal;
                         if (cbox->refined) normal=cbox->rot*normal;
-                        primitiveCollision(node, node->Forces, node->Velocity, normal, dt, defaultgm, nso);
+                        primitiveCollision(node, node->Forces, node->Velocity, normal, dt, defaultgm);
                         if (ogm) *ogm=defaultgm;
                     }
                 }
@@ -1118,12 +1116,11 @@ bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, float* ns
         // setup smoke
         //float ns=node->Velocity.length();
         smoky=true;
-        //*nso=ns;
 
         // we need the normal
         // resume repere for the normal
         Vector3 normal=minctri->reverse*Vector3::UNIT_Z;
-        primitiveCollision(node, node->Forces, node->Velocity, normal, dt, minctri->gm, nso);
+        primitiveCollision(node, node->Forces, node->Velocity, normal, dt, minctri->gm);
         if (ogm) *ogm=minctri->gm;
 #if 0
         float depth=-minctripoint.z;
@@ -1267,7 +1264,7 @@ bool Collisions::isInside(Vector3 pos, collision_box_t *cbox, float border)
     return false;
 }
 
-bool Collisions::groundCollision(node_t *node, float dt, ground_model_t** ogm, float *nso)
+bool Collisions::groundCollision(node_t *node, float dt, ground_model_t** ogm)
 {
     if (landuse) *ogm = landuse->getGroundModelAt(node->AbsPosition.x, node->AbsPosition.z);
     // when landuse fails or we don't have it, use the default value
@@ -1280,21 +1277,19 @@ bool Collisions::groundCollision(node_t *node, float dt, ground_model_t** ogm, f
     {
         // collision!
         Ogre::Vector3 normal = App::GetSimTerrain()->GetNormalAt(node->AbsPosition.x, v, node->AbsPosition.z);
-        primitiveCollision(node, node->Forces, node->Velocity, normal, dt, *ogm, nso, v-node->AbsPosition.y);
+        primitiveCollision(node, node->Forces, node->Velocity, normal, dt, *ogm, v - node->AbsPosition.y);
         return true;
     }
     return false;
 }
 
-void primitiveCollision(node_t *node, Vector3 &force, const Vector3 &velocity, const Vector3 &normal, float dt, ground_model_t* gm, float* nso, float penetration, float reaction)
+void primitiveCollision(node_t *node, Vector3 &force, const Vector3 &velocity, const Vector3 &normal, float dt, ground_model_t* gm, float penetration, float reaction)
 {
     float Vnormal = velocity.dotProduct(normal);
 
     // if we are inside the fluid (solid ground is below us)
     if (gm->solid_ground_level != 0.0f && penetration >= 0)
     {
-        if (nso) *nso = 0.0f;
-
         float Vsquared = velocity.squaredLength();
         // First of all calculate power law fluid viscosity
         float m = gm->flow_consistency_index * approx_pow(Vsquared, (gm->flow_behavior_index - 1.0f)*0.5f);
@@ -1336,7 +1331,7 @@ void primitiveCollision(node_t *node, Vector3 &force, const Vector3 &velocity, c
         Vector3 slip = velocity - Vnormal*normal;
         float slipv = slip.normalise();
 
-        if (nso && gm->solid_ground_level == 0.0f) *nso = slipv;
+        node->nd_collision_slip = slipv;
 
         float Freaction;
 
