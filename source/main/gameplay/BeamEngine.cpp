@@ -51,7 +51,7 @@ EngineSim::EngineSim(float _min_rpm, float _max_rpm, float torque, std::vector<f
     , m_engine_has_air(true)
     , m_engine_has_turbo(true)
     , m_hydropump_state(0.0f)
-    , m_idle_rpm(std::min(_min_rpm, 800.0f))
+    , m_idle_rpm(std::min(std::abs(_min_rpm), 800.0f))
     , m_engine_inertia(10.0f)
     , m_kickdown_delay_counter(0)
     , m_max_idle_mixture(0.2f)
@@ -207,15 +207,11 @@ void EngineSim::SetEngineOptions(float einertia, char etype, float eclutch, floa
     if (minimix > 0)
         m_min_idle_mixture = minimix;
 
-    m_clutch_time = std::max(0.0f, m_clutch_time);
     m_shift_time = std::max(0.0f, m_shift_time);
     m_post_shift_time = std::max(0.0f, m_post_shift_time);
+    m_clutch_time = Math::Clamp(m_clutch_time, 0.0f, 0.9f * m_shift_time);
 
-    m_clutch_time = std::min(m_clutch_time, m_shift_time * 0.9f);
-
-    m_idle_rpm = std::max(0.0f, m_idle_rpm);
-    m_engine_stall_rpm = std::max(0.0f, m_engine_stall_rpm);
-    m_engine_stall_rpm = std::min(m_idle_rpm, m_engine_stall_rpm);
+    m_engine_stall_rpm = Math::Clamp(m_engine_stall_rpm, 0.0f, m_idle_rpm);
 
     if (etype == 'c')
     {
