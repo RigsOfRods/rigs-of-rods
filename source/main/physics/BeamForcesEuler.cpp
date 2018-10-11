@@ -1593,18 +1593,12 @@ void Actor::CalcNodes()
             ar_nodes[i].collTestTimer += dt;
             if (ar_nodes[i].nd_has_contact || ar_nodes[i].collTestTimer > 0.005 || ((ar_nodes[i].iswheel || ar_nodes[i].wheelid != -1) && (m_high_res_wheelnode_collisions || ar_nodes[i].collTestTimer > 0.0025)) || m_increased_accuracy)
             {
-                ar_nodes[i].nd_collision_slip = 0.0f;
-                ground_model_t* gm = nullptr; // this is used as result storage, so we can use it later on
-                bool contacted = gEnv->collisions->groundCollision(&ar_nodes[i], ar_nodes[i].collTestTimer, &gm);
-                // reverted this construct to the old form, don't mess with it, the binary operator is intentionally!
-                if (contacted | gEnv->collisions->nodeCollision(&ar_nodes[i], contacted, ar_nodes[i].collTestTimer, &gm))
+                bool contacted = gEnv->collisions->groundCollision(&ar_nodes[i], ar_nodes[i].collTestTimer);
+                contacted = contacted | gEnv->collisions->nodeCollision(&ar_nodes[i], ar_nodes[i].collTestTimer);
+                ar_nodes[i].nd_has_contact = contacted;
+                if (contacted)
                 {
-                    m_last_fuzzy_ground_model = gm;
-                    ar_nodes[i].nd_collision_gm = gm;
-                }
-                else
-                {
-                    ar_nodes[i].nd_collision_gm = nullptr;
+                    m_last_fuzzy_ground_model = ar_nodes[i].nd_collision_gm;
                 }
                 ar_nodes[i].collTestTimer = 0.0;
             }

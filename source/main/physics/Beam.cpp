@@ -2591,7 +2591,7 @@ void Actor::updateSkidmarks()
         {
             const float SKID_THRESHOLD = 10.f;
             auto n = ar_wheels[i].wh_nodes[j];
-            if (n && n->nd_collision_gm != nullptr &&
+            if (n && n->nd_has_contact && n->nd_collision_gm != nullptr &&
                     n->nd_collision_gm->fx_type == Collisions::FX_HARD && n->nd_collision_slip > SKID_THRESHOLD)
             {
                 ar_wheels[i].lastSlip = n->nd_collision_slip;

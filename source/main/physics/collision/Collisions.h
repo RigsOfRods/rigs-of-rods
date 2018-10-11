@@ -164,10 +164,10 @@ public:
     eventsource_t* isTruckInEventBox(Actor* truck);
 
     bool collisionCorrect(Ogre::Vector3* refpos, bool envokeScriptCallbacks = true);
-    bool groundCollision(node_t* node, float dt, ground_model_t** gm);
+    bool groundCollision(node_t* node, float dt);
     bool isInside(Ogre::Vector3 pos, const Ogre::String& inst, const Ogre::String& box, float border = 0);
     bool isInside(Ogre::Vector3 pos, collision_box_t* cbox, float border = 0);
-    bool nodeCollision(node_t* node, bool contacted, float dt, ground_model_t** ogm);
+    bool nodeCollision(node_t* node, float dt);
 
     void clearEventCache();
     void finishLoadingTerrain();
@@ -186,7 +186,6 @@ public:
     std::map<Ogre::String, ground_model_t>* getGroundModels() { return &ground_models; };
     void setupLandUse(const char* configfile);
     ground_model_t* getGroundModelByString(const Ogre::String name);
-    ground_model_t* last_used_ground_model;
 
     void getMeshInformation(Ogre::Mesh* mesh, size_t& vertex_count, Ogre::Vector3* & vertices,
         size_t& index_count, unsigned* & indices,

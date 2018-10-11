@@ -119,7 +119,6 @@ Collisions::Collisions():
     , hashmask(0)
     , landuse(0)
     , m_last_called_cbox(nullptr)
-    , last_used_ground_model(0)
 {
     debugMode = RoR::App::diag_collisions.GetActive(); // TODO: make interactive - do not copy the value, use GVar directly
     for (int i=0; i < HASH_POWER; i++)
@@ -964,8 +963,9 @@ int Collisions::enableCollisionTri(int number, bool enable)
     return 0;
 }
 
-bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, ground_model_t** ogm)
+bool Collisions::nodeCollision(node_t *node, float dt)
 {
+    bool contacted = false;
     // float corrf=1.0;
     Vector3 oripos = node->AbsPosition;
     // find the correct cell
@@ -1039,9 +1039,8 @@ bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, ground_mo
 
                             // collision boxes are always out of concrete as it seems
                             primitiveCollision(node, node->Forces, node->Velocity, normal, dt, defaultgm);
-                            if (ogm) *ogm=defaultgm;
-                            }
                         }
+                    }
                 } else
                 {
                     if (cbox->eventsourcenum!=-1 && permitEvent(cbox->event_filter))
@@ -1075,7 +1074,6 @@ bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, ground_mo
                         if (cbox->selfrotated) normal=cbox->selfrot*normal;
                         if (cbox->refined) normal=cbox->rot*normal;
                         primitiveCollision(node, node->Forces, node->Velocity, normal, dt, defaultgm);
-                        if (ogm) *ogm=defaultgm;
                     }
                 }
             }
@@ -1111,34 +1109,8 @@ bool Collisions::nodeCollision(node_t *node, bool contacted, float dt, ground_mo
         // resume repere for the normal
         Vector3 normal=minctri->reverse*Vector3::UNIT_Z;
         primitiveCollision(node, node->Forces, node->Velocity, normal, dt, minctri->gm);
-        if (ogm) *ogm=minctri->gm;
-#if 0
-        float depth=-minctripoint.z;
-        // compute slip velocity vector
-        Vector3 slip=node->Velocity-node->Velocity.dotProduct(normal)*normal;
-        // remove the normal speed component
-        node->Velocity=slip;
-        float slipl=slip.length();
-        if (slipl<0.5) node->Velocity=Vector3::ZERO;
-        else
-        {
-            float loadfactor=(1.0-fabs(depth/corrf)*120.0);
-            if (loadfactor<0) loadfactor=0;
-            float slipfactor=(slipl-0.5)/10.0;
-            if (slipfactor>1) slipfactor=1;
-            node->Velocity*=loadfactor*slipfactor;
-        }
-        // correct point
-        minctripoint.z=0;
-        // reverse transform
-        node->AbsPosition=(minctri->reverse*minctripoint)+minctri->a;
-        // grip
-        //node->Velocity=Vector3::ZERO;
-#endif
     }
-    // correct relative position too
-    if (contacted) node->RelPosition=node->RelPosition+(node->AbsPosition-oripos);
-    node->nd_has_contact=contacted;
+
     return contacted;
 }
 
@@ -1254,20 +1226,16 @@ bool Collisions::isInside(Vector3 pos, collision_box_t *cbox, float border)
     return false;
 }
 
-bool Collisions::groundCollision(node_t *node, float dt, ground_model_t** ogm)
+bool Collisions::groundCollision(node_t *node, float dt)
 {
-    if (landuse) *ogm = landuse->getGroundModelAt(node->AbsPosition.x, node->AbsPosition.z);
-    // when landuse fails or we don't have it, use the default value
-    if (!*ogm) *ogm = defaultgroundgm;
-    last_used_ground_model = *ogm;
-
-    // new ground collision code
     Real v = App::GetSimTerrain()->GetHeightAt(node->AbsPosition.x, node->AbsPosition.z);
     if (v > node->AbsPosition.y)
     {
-        // collision!
+        ground_model_t* ogm = landuse ? landuse->getGroundModelAt(node->AbsPosition.x, node->AbsPosition.z) : nullptr;
+        // when landuse fails or we don't have it, use the default value
+        if (!ogm) ogm = defaultgroundgm;
         Ogre::Vector3 normal = App::GetSimTerrain()->GetNormalAt(node->AbsPosition.x, v, node->AbsPosition.z);
-        primitiveCollision(node, node->Forces, node->Velocity, normal, dt, *ogm, v - node->AbsPosition.y);
+        primitiveCollision(node, node->Forces, node->Velocity, normal, dt, ogm, v - node->AbsPosition.y);
         return true;
     }
     return false;
@@ -1321,8 +1289,6 @@ void primitiveCollision(node_t *node, Vector3 &force, const Vector3 &velocity, c
         Vector3 slip = velocity - Vnormal*normal;
         float slipv = slip.normalise();
 
-        node->nd_collision_slip = slipv;
-
         float Freaction;
 
         float Fnormal = force.dotProduct(normal);
@@ -1338,6 +1304,9 @@ void primitiveCollision(node_t *node, Vector3 &force, const Vector3 &velocity, c
                 Freaction += -Vnormal * node->mass / dt; // Newton's second law
             }
             if (Freaction < 0) Freaction = 0.0f;
+            // We only update those if we handle ground collisions
+            node->nd_collision_gm = gm;
+            node->nd_collision_slip = slipv;
         } else
         {
             Freaction = reaction;
