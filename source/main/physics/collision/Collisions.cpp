@@ -1373,7 +1373,7 @@ void primitiveCollision(node_t *node, Vector3 &force, const Vector3 &velocity, c
         {
             // Stribek model. It also comes directly from textbooks.
             float g = gm->mc + (gm->ms - gm->mc) * approx_exp(-approx_pow(slipv / gm->vs, gm->alpha));
-            float ff = -(g + gm->t2 * slipv) * Greaction;
+            float ff = -(g + std::min(gm->t2 * slipv, 5.0f)) * Greaction;
             force += Freaction * normal + ff * slip;
         }
     }
