@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2015 Petr Ohlidal
+    Copyright 2013-2018 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -95,15 +95,6 @@ DECLARE_RESOURCE_PACK( SKYX,                  "SkyX",                 "SkyXRG");
 // Functions
 // ================================================================================
 
-ContentManager::ContentManager():
-    m_skin_manager(nullptr)
-{
-}
-
-ContentManager::~ContentManager()
-{
-}
-
 void ContentManager::AddResourcePack(ResourcePack const& resource_pack)
 {
     Ogre::ResourceGroupManager& rgm = Ogre::ResourceGroupManager::getSingleton();
@@ -142,8 +133,15 @@ void ContentManager::AddResourcePack(ResourcePack const& resource_pack)
     }
 }
 
-bool ContentManager::OnApplicationStartup(void)
+void ContentManager::InitContentManager()
 {
+    // Initialize "managed materials" first
+    //   These are base materials referenced by user content
+    //   They must be initialized before any content is loaded, including mod-cache update.
+    //   Otherwise material links are unresolved and loading ends with an exception
+    // TODO: Study Ogre::ResourceLoadingListener and implement smarter solution (not parsing materials on cache refresh!)
+    this->InitManagedMaterials();
+
     // set listener if none has already been set
     if (!Ogre::ResourceGroupManager::getSingleton().getLoadingListener())
         Ogre::ResourceGroupManager::getSingleton().setLoadingListener(this);
@@ -190,12 +188,6 @@ bool ContentManager::OnApplicationStartup(void)
 
     // streams path, to be processed later by the cache system
     LOG("RoR|ContentManager: Loading filesystems");
-
-#if OGRE_VERSION_MAJOR >= 1 && OGRE_VERSION_MINOR >= 9
-    ResourceGroupManager::getSingleton().addResourceLocation(App::sys_cache_dir.GetActive(), "FileSystem", "cache", false, false);
-#else
-    ResourceGroupManager::getSingleton().addResourceLocation(std::string(App::sys_cache_dir.GetActive()), "FileSystem", "cache");
-#endif
 
     // config, flat
     ResourceGroupManager::getSingleton().addResourceLocation(std::string(RoR::App::sys_config_dir.GetActive()), "FileSystem", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
@@ -244,7 +236,22 @@ bool ContentManager::OnApplicationStartup(void)
     SoundScriptManager::getSingleton().setLoadingBaseSounds(false);
 #endif // USE_OPENAL
 
-    // and the content
+    LanguageEngine::getSingleton().postSetup();
+}
+
+void ContentManager::InitModCache()
+{
+    if (BSETTING("NOCACHE", false)) // TODO: Can you even use RoR with this? ~ only_a_ptr, 10/2018
+    {
+        LOG("Cache disabled via command line switch");
+        return;
+    }
+
+    m_mod_cache.LoadCategoriesConfig();
+
+    ResourceGroupManager::getSingleton().addResourceLocation(App::sys_cache_dir.GetActive(), "FileSystem", "cache", false, false);
+
+    // and the content; TODO: Is this code necessary beyond modcache-generation/update? ~ only_a_ptr, 10/2018
     std::string user_content_base = std::string(App::sys_user_dir.GetActive())    + PATH_SLASH;
     std::string content_base      = std::string(App::sys_process_dir.GetActive()) + PATH_SLASH;
 
@@ -255,7 +262,7 @@ bool ContentManager::OnApplicationStartup(void)
     ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "vehicles", "FileSystem", "VehicleFolders");
     ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "terrains", "FileSystem", "TerrainFolders");
 
-    exploreFolders("VehicleFolders");
+    exploreFolders("VehicleFolders"); //TODO: These traversals of 'resource bundles' (see CacheSystem doc) are duplicate with traversals during cache-update. Unify it! ~ only_a_ptr, 10/2018
     exploreFolders("TerrainFolders");
     exploreZipFolders("Packs"); // this is required for skins to work
 
@@ -272,9 +279,9 @@ bool ContentManager::OnApplicationStartup(void)
         LOG("RoR|ContentManager: catched error while initializing Content Resource groups: " + e.getFullDescription());
     }
 
-    LanguageEngine::getSingleton().postSetup();
-
-    return true;
+    CacheSystem::CacheValidityState validity = m_mod_cache.EvaluateCacheValidity();
+    m_mod_cache.LoadModCache(validity);
+    App::SetCacheSystem(&m_mod_cache); // Temporary solution until Modcache+ContentManager are fully merged and `App::GetCacheSystem()` is removed ~ only_a_ptr, 10/2018
 }
 
 Ogre::DataStreamPtr ContentManager::resourceLoading(const Ogre::String& name, const Ogre::String& group, Ogre::Resource* resource)

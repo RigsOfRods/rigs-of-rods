@@ -62,7 +62,7 @@ namespace App {
 
 // Object instances
 static OgreSubsystem*   g_ogre_subsystem;
-static ContentManager*  g_content_manager;
+static ContentManager   g_content_manager;
 static OverlayWrapper*  g_overlay_wrapper;
 static GUIManager*      g_gui_manager;
 static Console*         g_console;
@@ -199,10 +199,11 @@ static TerrainManager*  g_sim_terrain;
 void SetMainMenu       (MainMenu* obj)                { g_main_menu = obj; }
 void SetSimController  (SimController* obj)           { g_sim_controller = obj;}
 void SetSimTerrain     (TerrainManager* obj)          { g_sim_terrain = obj;}
+void SetCacheSystem    (CacheSystem* obj)             { g_cache_system = obj; }
 
 // Instance access
 OgreSubsystem*         GetOgreSubsystem      () { return g_ogre_subsystem; };
-ContentManager*        GetContentManager     () { return g_content_manager;}
+ContentManager*        GetContentManager     () { return &g_content_manager;}
 OverlayWrapper*        GetOverlayWrapper     () { return g_overlay_wrapper;}
 GUIManager*            GetGuiManager         () { return g_gui_manager;}
 Console*               GetConsole            () { return g_gui_manager->GetConsole();}
@@ -232,18 +233,6 @@ void ShutdownOgreSubsystem()
     assert(g_ogre_subsystem != nullptr && "ShutdownOgreSubsystem(): Ogre subsystem was not started");
     delete g_ogre_subsystem;
     g_ogre_subsystem = nullptr;
-}
-
-void CreateContentManager()
-{
-    g_content_manager = new ContentManager();
-}
-
-void DestroyContentManager()
-{
-    assert(g_content_manager != nullptr && "DestroyContentManager(): ContentManager never created");
-    delete g_content_manager;
-    g_content_manager = nullptr;
 }
 
 void CreateOverlayWrapper()
@@ -282,12 +271,6 @@ void CreateInputEngine()
 {
     assert(g_input_engine == nullptr);
     g_input_engine = new InputEngine();
-}
-
-void CreateCacheSystem()
-{
-    assert(g_cache_system == nullptr);
-    g_cache_system = new CacheSystem();
 }
 
 

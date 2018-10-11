@@ -782,20 +782,18 @@ TerrainManager*      GetSimTerrain();
 // Factories
 void StartOgreSubsystem();
 void ShutdownOgreSubsystem();
-void CreateContentManager();
-void DestroyContentManager();
 void CreateOverlayWrapper();
 void DestroyOverlayWrapper();
 void CreateGuiManagerIfNotExists();
 void DeleteGuiManagerIfExists();
 void CreateInputEngine();
-void CreateCacheSystem();
 void CheckAndCreateMumble();
 
 // Setters
 void SetMainMenu             (MainMenu*          obj);
-void SetSimController        (SimController*  obj);
+void SetSimController        (SimController*     obj);
 void SetSimTerrain           (TerrainManager*    obj);
+void SetCacheSystem          (CacheSystem*       obj);
 
 
 } // namespace App

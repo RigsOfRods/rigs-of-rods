@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2015 Petr Ohlidal
+    Copyright 2013-2018 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -23,19 +23,18 @@
 
 #pragma once
 
-#include "BitFlags.h"
+#include "CacheSystem.h"
 #include "RoRPrerequisites.h"
 
 #include <OgreResourceGroupManager.h>
 
 namespace RoR {
 
-class ContentManager : public Ogre::ResourceLoadingListener, public ZeroedMemoryAllocator
+class ContentManager : public Ogre::ResourceLoadingListener
 {
 public:
 
-    ContentManager();
-    ~ContentManager();
+    ContentManager(): m_skin_manager(nullptr) {}
 
     struct ResourcePack
     {
@@ -72,16 +71,17 @@ public:
     };
 
     void               AddResourcePack(ResourcePack const& resource_pack); //!< Loads resources if not already loaded (currently resources never unload until shutdown)
-    bool               OnApplicationStartup(void);
-    void               InitManagedMaterials();
+    void               InitContentManager();
+    void               InitModCache();
     void               LoadGameplayResources();  //!< Checks GVar settings and loads required resources.
     std::string        ListAllUserContent(); //!< Used by ModCache for quick detection of added/removed content
     RoR::SkinManager*  GetSkinManager()  { return m_skin_manager; }
 
-protected:
+private:
 
     void exploreFolders(Ogre::String rg);
     void exploreZipFolders(Ogre::String rg);
+    void InitManagedMaterials();
 
     // implementation for resource loading listener
     Ogre::DataStreamPtr resourceLoading(const Ogre::String& name, const Ogre::String& group, Ogre::Resource* resource);
@@ -89,6 +89,7 @@ protected:
     bool resourceCollision(Ogre::Resource* resource, Ogre::ResourceManager* resourceManager);
 
     RoR::SkinManager* m_skin_manager;
+    CacheSystem       m_mod_cache; //!< Database of addon content
     bool              m_base_resource_loaded;
 };
 
