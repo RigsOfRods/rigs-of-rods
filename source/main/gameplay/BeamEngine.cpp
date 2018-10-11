@@ -51,7 +51,7 @@ EngineSim::EngineSim(float _min_rpm, float _max_rpm, float torque, std::vector<f
     , m_engine_has_air(true)
     , m_engine_has_turbo(true)
     , m_hydropump_state(0.0f)
-    , m_idle_rpm(std::min(std::abs(_min_rpm), 800.0f))
+    , m_engine_idle_rpm(std::min(std::abs(_min_rpm), 800.0f))
     , m_engine_inertia(10.0f)
     , m_kickdown_delay_counter(0)
     , m_max_idle_mixture(0.2f)
@@ -199,7 +199,7 @@ void EngineSim::SetEngineOptions(float einertia, char etype, float eclutch, floa
     if (pstime > 0)
         m_post_shift_time = pstime;
     if (irpm > 0)
-        m_idle_rpm = irpm;
+        m_engine_idle_rpm = irpm;
     if (srpm > 0)
         m_engine_stall_rpm = srpm;
     if (maximix > 0)
@@ -211,7 +211,7 @@ void EngineSim::SetEngineOptions(float einertia, char etype, float eclutch, floa
     m_post_shift_time = std::max(0.0f, m_post_shift_time);
     m_clutch_time = Math::Clamp(m_clutch_time, 0.0f, 0.9f * m_shift_time);
 
-    m_engine_stall_rpm = Math::Clamp(m_engine_stall_rpm, 0.0f, 0.9f * m_idle_rpm);
+    m_engine_stall_rpm = Math::Clamp(m_engine_stall_rpm, 0.0f, 0.9f * m_engine_idle_rpm);
 
     if (etype == 'c')
     {
@@ -927,7 +927,7 @@ void EngineSim::SetWheelSpin(float rpm)
 // for hydros acceleration
 float EngineSim::GetCrankFactor()
 {
-    float minWorkingRPM = m_idle_rpm * 1.1f; // minWorkingRPM > m_idle_rpm avoids commands deadlocking the engine
+    float minWorkingRPM = m_engine_idle_rpm * 1.1f; // minWorkingRPM > m_engine_idle_rpm avoids commands deadlocking the engine
 
     float rpmRatio = (m_cur_engine_rpm - minWorkingRPM) / (m_engine_max_rpm - minWorkingRPM);
     rpmRatio = std::max(0.0f, rpmRatio); // Avoids a negative rpmRatio when m_cur_engine_rpm < minWorkingRPM
@@ -970,7 +970,7 @@ void EngineSim::StartEngine()
 {
     this->OffStart();
     m_starter_has_contact = true;
-    m_cur_engine_rpm = m_idle_rpm;
+    m_cur_engine_rpm = m_engine_idle_rpm;
     m_engine_is_running = true;
     if (m_auto_mode <= SEMIAUTO)
     {
@@ -1215,9 +1215,9 @@ float EngineSim::getAccToHoldRPM(float rpm)
 
 float EngineSim::getIdleMixture()
 {
-    if (m_cur_engine_rpm < m_idle_rpm)
+    if (m_cur_engine_rpm < m_engine_idle_rpm)
         // determine the fuel injection needed to counter the engine braking force
-        return Math::Clamp(getAccToHoldRPM(m_idle_rpm), m_min_idle_mixture, m_max_idle_mixture);
+        return Math::Clamp(getAccToHoldRPM(m_engine_idle_rpm), m_min_idle_mixture, m_max_idle_mixture);
 
     return 0.0f;
 }

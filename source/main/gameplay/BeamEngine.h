@@ -90,7 +90,7 @@ public:
     char           GetEngineType() const    { return m_engine_type; };
     float          getEngineTorque() const  { return m_engine_torque; };
     float          getBrakingTorque() const { return m_braking_torque; };
-    float          getIdleRPM() const       { return m_idle_rpm; };
+    float          getIdleRPM() const       { return m_engine_idle_rpm; };
     float          getMaxRPM() const        { return m_engine_max_rpm; };
     float          getMinRPM() const        { return m_engine_min_rpm; };
     int            getNumGears() const      { return m_gear_ratios.size() - 2; };
@@ -161,26 +161,26 @@ private:
     float          m_cur_clutch_torque;
 
     // Engine
-    bool           m_engine_is_electric;    //!< attribute
+    bool           m_engine_is_electric;    //!< Engine attribute
     bool           m_starter_has_contact;   //!< Engine state
     bool           m_engine_has_air;        //!< Engine attribute
     bool           m_engine_has_turbo;      //!< Engine attribute
     int            m_engine_turbo_mode;     //!< Engine attribute
     bool           m_engine_is_running;     //!< Engine state
     char           m_engine_type;           //!< Engine attribute {'t' = truck (default), 'c' = car}
-    float          m_braking_torque;        //!< Engine
+    float          m_braking_torque;        //!< Engine attribute
     float          m_cur_acc;               //!< Engine
     float          m_cur_engine_rpm;        //!< Engine
     float          m_diff_ratio;            //!< Engine
-    float          m_engine_torque;         //!< Engine
+    float          m_engine_torque;         //!< Engine attribute
     float          m_hydropump_state;       //!< Engine
-    float          m_idle_rpm;              //!< Engine attribute
     float          m_min_idle_mixture;      //!< Engine attribute
     float          m_max_idle_mixture;      //!< Engine attribute
     float          m_engine_inertia;        //!< Engine attribute
     float          m_engine_max_rpm;        //!< Engine attribute
     float          m_engine_min_rpm;        //!< Engine attribute
-    float          m_engine_stall_rpm;      //!< Engine
+    float          m_engine_idle_rpm;       //!< Engine attribute
+    float          m_engine_stall_rpm;      //!< Engine attribute
     bool           m_engine_is_priming;     //!< Engine
     TorqueCurve*   m_torque_curve;
     float          m_air_pressure;
