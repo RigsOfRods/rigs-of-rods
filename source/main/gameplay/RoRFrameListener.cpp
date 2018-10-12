@@ -238,9 +238,7 @@ void SimController::UpdateInputEvents(float dt)
 
     if (gui_man->IsVisible_FrictionSettings() && m_player_actor)
     {
-        ground_model_t* gm = m_player_actor->getLastFuzzyGroundModel();
-
-        gui_man->GetFrictionSettings()->setActiveCol(gm);
+        gui_man->GetFrictionSettings()->setActiveCol(m_player_actor->ar_last_fuzzy_ground_model);
     }
 
     const bool mp_connected = (App::mp_state.GetActive() == MpState::CONNECTED);

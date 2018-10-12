@@ -114,7 +114,6 @@ public:
     /// Auto detects an ideal collision avoidance direction (front, back, left, right, up)
     /// Then moves the actor at most 'max_distance' meters towards that direction to resolve any collisions
     void              resolveCollisions(float max_distance, bool consider_up);
-    ground_model_t*   getLastFuzzyGroundModel();
     void              updateSkidmarks();                   //!< Creates or updates skidmarks. No side effects.
     void              prepareInside(bool inside);          //!< Prepares vehicle for in-cabin camera use.
     void              UpdateFlareStates(float dt_sec);
@@ -341,6 +340,7 @@ public:
     DashBoardManager* ar_dashboard;
     SimState          ar_sim_state;                   //!< Sim state
     float             ar_collision_range;             //!< Physics attr
+    ground_model_t*   ar_last_fuzzy_ground_model;     //!< GUI state
 
     // Bit flags
     bool ar_left_blink_on:1;  //!< Gfx state; turn signals
@@ -414,7 +414,6 @@ private:
     Ogre::Vector3     m_avg_node_position_prev;
     Ogre::Vector3     m_avg_node_velocity;          //!< average node velocity (compared to the previous frame step)
     Ogre::Real        m_replay_timer;               //!< Sim state
-    ground_model_t*   m_last_fuzzy_ground_model;    //!< GUI state
     blinktype         m_blink_type;                 //!< Sim state; Blinker = turn signal
     float             m_stabilizer_shock_sleep;     //!< Sim state
     Replay*           m_replay_handler;

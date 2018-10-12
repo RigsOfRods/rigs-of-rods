@@ -205,6 +205,8 @@ void ResolveInterActorCollisions(const float dt, PointColDetector &interPointCD,
 
                     ResolveCollisionForces(penetration_depth, *hitnode, *na, *nb, *no, coord.alpha,
                             coord.beta, coord.gamma, normal, dt, submesh_ground_model);
+
+                    hit_actor->ar_last_fuzzy_ground_model = &submesh_ground_model;
                 }
             }
         }
