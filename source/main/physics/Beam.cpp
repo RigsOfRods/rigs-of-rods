@@ -4257,14 +4257,10 @@ Actor::Actor(
     , ar_filename(rq.asr_filename)
     , m_actor_config(rq.asr_config)
     , m_ongoing_reset(false)
+    , ar_last_fuzzy_ground_model(nullptr)
 {
     m_high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();
     m_use_skidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;
-}
-
-ground_model_t* Actor::getLastFuzzyGroundModel()
-{
-    return m_last_fuzzy_ground_model;
 }
 
 float Actor::getSteeringAngle()

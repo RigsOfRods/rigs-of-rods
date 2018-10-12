@@ -1598,7 +1598,7 @@ void Actor::CalcNodes()
                 ar_nodes[i].nd_has_ground_contact = contacted;
                 if (contacted)
                 {
-                    m_last_fuzzy_ground_model = ar_nodes[i].nd_last_collision_gm;
+                    ar_last_fuzzy_ground_model = ar_nodes[i].nd_last_collision_gm;
                 }
                 ar_nodes[i].collTestTimer = 0.0;
             }
