@@ -349,33 +349,14 @@ void Actor::moveOrigin(Vector3 offset)
 
 float Actor::getRotation()
 {
-    Vector3 cur_dir = getDirection();
+    Vector3 dir = getDirection();
 
-    return atan2(cur_dir.dotProduct(Vector3::UNIT_X), cur_dir.dotProduct(-Vector3::UNIT_Z));
+    return atan2(dir.dotProduct(Vector3::UNIT_X), dir.dotProduct(-Vector3::UNIT_Z));
 }
 
 Vector3 Actor::getDirection()
 {
-    Vector3 cur_dir = this->GetCameraDir();
-
-    if (cur_dir == Vector3::ZERO)
-    {
-        float max_dist = 0.0f;
-        int furthest_node = 1;
-        for (int i = 0; i < ar_num_nodes; i++)
-        {
-            float dist = ar_nodes[i].RelPosition.squaredDistance(ar_nodes[0].RelPosition);
-            if (dist > max_dist)
-            {
-                max_dist = dist;
-                furthest_node = i;
-            }
-        }
-        cur_dir = ar_nodes[0].RelPosition - ar_nodes[furthest_node].RelPosition;
-        cur_dir.normalise();
-    }
-
-    return cur_dir;
+    return ar_main_camera_dir_corr * this->GetCameraDir();
 }
 
 Vector3 Actor::getPosition()
@@ -4193,6 +4174,7 @@ Actor::Actor(
     , ar_lights(1)
     , m_avg_node_velocity(Ogre::Vector3::ZERO)
     , ar_custom_camera_node(-1)
+    , ar_main_camera_dir_corr(Ogre::Quaternion::IDENTITY)
     , ar_main_camera_node_pos(0)
     , ar_main_camera_node_dir(0)
     , ar_main_camera_node_roll(0)
