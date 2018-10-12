@@ -452,6 +452,27 @@ void ActorSpawner::FinalizeRig()
     m_actor->ar_main_camera_node_dir  = std::max(0, m_actor->ar_camera_node_dir[0]);
     m_actor->ar_main_camera_node_roll = std::max(0, m_actor->ar_camera_node_roll[0]);
 
+    if (m_actor->ar_main_camera_node_dir == 0)
+    {
+        // Step 1: Find a suitable camera node dir
+        float max_dist = 0.0f;
+        int furthest_node = 0;
+        for (int i = 0; i < m_actor->ar_num_nodes; i++)
+        {
+            float dist = m_actor->ar_nodes[i].RelPosition.squaredDistance(m_actor->ar_nodes[0].RelPosition);
+            if (dist > max_dist)
+            {
+                max_dist = dist;
+                furthest_node = i;
+            }
+        }
+        m_actor->ar_main_camera_node_dir = furthest_node;
+        // Step 2: Correct the misalignment
+        Ogre::Vector3 dir = m_actor->ar_nodes[furthest_node].RelPosition - m_actor->ar_nodes[0].RelPosition;
+        float offset = atan2(dir.dotProduct(Ogre::Vector3::UNIT_Z), dir.dotProduct(Ogre::Vector3::UNIT_X));
+        m_actor->ar_main_camera_dir_corr = Ogre::Quaternion(Ogre::Radian(offset), Ogre::Vector3::UNIT_Y);
+    }
+
     if (m_actor->ar_camera_node_pos[0] > 0)
     {
         // store the y-difference between the trucks lowest node and the campos-node for the gwps system

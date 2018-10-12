@@ -290,6 +290,7 @@ public:
     float             ar_speedo_max_kph;           //!< GUI attr
     Ogre::Vector3     ar_origin;                   //!< Physics state; base position for softbody nodes
     int               ar_num_cameras;
+    Ogre::Quaternion  ar_main_camera_dir_corr;     //!< Sim attr;
     int               ar_main_camera_node_pos;     //!< Sim attr; ar_camera_node_pos[0]  >= 0 ? ar_camera_node_pos[0]  : 0
     int               ar_main_camera_node_dir;     //!< Sim attr; ar_camera_node_dir[0]  >= 0 ? ar_camera_node_dir[0]  : 0
     int               ar_main_camera_node_roll;    //!< Sim attr; ar_camera_node_roll[0] >= 0 ? ar_camera_node_roll[0] : 0
