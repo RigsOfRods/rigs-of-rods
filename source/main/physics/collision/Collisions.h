@@ -88,6 +88,7 @@ private:
         Ogre::Vector3 a;
         Ogre::Vector3 b;
         Ogre::Vector3 c;
+        Ogre::AxisAlignedBox aab;
         Ogre::Matrix3 forward;
         Ogre::Matrix3 reverse;
         ground_model_t* gm;
