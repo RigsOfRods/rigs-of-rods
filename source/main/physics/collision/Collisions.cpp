@@ -366,16 +366,7 @@ int Collisions::removeCollisionTri(int number)
         return -1;
     }
 
-    Vector3 p1 = m_collision_tris[number].a;
-    Vector3 p2 = m_collision_tris[number].b;
-    Vector3 p3 = m_collision_tris[number].c;
-
-    // compute tri AAB
-    AxisAlignedBox aab;
-    aab.merge(p1);
-    aab.merge(p2);
-    aab.merge(p3);
-    // register this collision tri in the index
+    AxisAlignedBox aab = m_collision_tris[number].aab;
     int ilox, ihix, iloz, ihiz;
     ilox=(int)(aab.getMinimum().x/(float)CELL_SIZE);
     if (ilox<0) ilox=0; if (ilox>MAXIMUM_CELL) ilox=MAXIMUM_CELL;
@@ -739,14 +730,15 @@ int Collisions::addCollisionTri(Vector3 p1, Vector3 p2, Vector3 p3, ground_model
     new_tri.forward=new_tri.reverse.Inverse();
 
     // compute tri AAB
-    AxisAlignedBox aab;
-    aab.merge(p1);
-    aab.merge(p2);
-    aab.merge(p3);
+    new_tri.aab.merge(p1);
+    new_tri.aab.merge(p2);
+    new_tri.aab.merge(p3);
+    new_tri.aab.setMinimum(new_tri.aab.getMinimum() - 0.1f);
+    new_tri.aab.setMaximum(new_tri.aab.getMaximum() + 0.1f);
     
     // register this collision tri in the index
-    Ogre::Vector3 ilo(aab.getMinimum() / Ogre::Real(CELL_SIZE));
-    Ogre::Vector3 ihi(aab.getMaximum() / Ogre::Real(CELL_SIZE));
+    Ogre::Vector3 ilo(new_tri.aab.getMinimum() / Ogre::Real(CELL_SIZE));
+    Ogre::Vector3 ihi(new_tri.aab.getMaximum() / Ogre::Real(CELL_SIZE));
     
     // clamp between 0 and MAXIMUM_CELL;
     ilo.makeCeil(Ogre::Vector3(0.0f));
@@ -897,6 +889,8 @@ bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
             const int ctri_index = hashtable[hash][k].element_index - hash_coll_element_t::ELEMENT_TRI_BASE_INDEX;
             collision_tri_t *ctri=&m_collision_tris[ctri_index];
             if (!ctri->enabled)
+                continue;
+            if (!ctri->aab.contains(*refpos))
                 continue;
             // check if this tri is minimal
             // transform
@@ -1085,6 +1079,10 @@ bool Collisions::nodeCollision(node_t *node, float dt)
             // tri collision
             const int ctri_index = hashtable[hash][k].element_index - hash_coll_element_t::ELEMENT_TRI_BASE_INDEX;
             collision_tri_t *ctri=&m_collision_tris[ctri_index];
+            if (node->AbsPosition.y > ctri->aab.getMaximum().y || node->AbsPosition.y < ctri->aab.getMinimum().y ||
+                node->AbsPosition.x > ctri->aab.getMaximum().x || node->AbsPosition.x < ctri->aab.getMinimum().x ||
+                node->AbsPosition.z > ctri->aab.getMaximum().z || node->AbsPosition.z < ctri->aab.getMinimum().z)
+                continue;
             // check if this tri is minimal
             // transform
             Vector3 point=ctri->forward*(node->AbsPosition-ctri->a);
