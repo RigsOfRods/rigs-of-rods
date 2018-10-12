@@ -76,14 +76,14 @@ void PointColDetector::UpdateInterPoint(Actor* truck, bool ignorestate)
     bool update_required = false;
     int contacters_size = 0;
 
-    if (truck && (ignorestate || truck->ar_sim_state < Actor::SimState::LOCAL_SLEEPING))
+    if (truck && (ignorestate || truck->ar_update_physics))
     {
         auto all_actors = RoR::App::GetSimController()->GetActors();
         truck->ar_collision_relevant = false;
         m_actors.resize(all_actors.size());
         for (int t = 0; t < all_actors.size(); t++)
         {
-            if (all_actors[t] != truck && (ignorestate || all_actors[t]->ar_sim_state < Actor::SimState::LOCAL_SLEEPING) && truck->ar_bounding_box.intersects(all_actors[t]->ar_bounding_box))
+            if (all_actors[t] != truck && (ignorestate || all_actors[t]->ar_update_physics) && truck->ar_bounding_box.intersects(all_actors[t]->ar_bounding_box))
             {
                 update_required = update_required || (m_actors[t] != all_actors[t]);
                 m_actors[t] = all_actors[t];
