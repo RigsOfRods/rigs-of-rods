@@ -85,7 +85,6 @@ private:
     void initScripting();
     void initShadows();
     void initSkySubSystem();
-    void initSubSystems();
     void initSunburn();
     void initVegetation();
     void initWater();
