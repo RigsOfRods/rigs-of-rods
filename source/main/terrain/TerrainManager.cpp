@@ -148,46 +148,6 @@ bool TerrainManager::LoadAndPrepareTerrain(std::string filename)
 
     this->setGravity(m_def.gravity);
 
-    // then, init the subsystems, order is important :)
-    initSubSystems();
-
-    fixCompositorClearColor();
-
-    LOG(" ===== LOADING TERRAIN GEOMETRY " + filename);
-
-    // load the terrain geometry
-    PROGRESS_WINDOW(80, _L("Loading Terrain Geometry"));
-    if (!m_geometry_manager->InitTerrain(m_def.ogre_ter_conf_filename))
-    {
-        return false; // Error already reported
-    }
-
-    LOG(" ===== LOADING TERRAIN WATER " + filename);
-    // must happen here
-    initWater();
-
-    LOG(" ===== LOADING TERRAIN OBJECTS " + filename);
-
-    PROGRESS_WINDOW(90, _L("Loading Terrain Objects"));
-    loadTerrainObjects();
-
-    // bake the decals
-    //finishTerrainDecal();
-
-    // init things after loading the terrain
-    initTerrainCollisions();
-
-    PROGRESS_WINDOW(95, _L("Initializing terrain light properties"));
-    m_geometry_manager->UpdateMainLightPosition(); // Initial update takes a while
-    m_collisions->finishLoadingTerrain();
-    LOG(" ===== TERRAIN LOADING DONE " + filename);
-
-    return true;
-}
-
-void TerrainManager::initSubSystems()
-{
-    // geometry - ogre terrain things
     initShadows();
 
     PROGRESS_WINDOW(15, _L("Initializing Geometry Subsystem"));
@@ -197,20 +157,13 @@ void TerrainManager::initSubSystems()
     PROGRESS_WINDOW(17, _L("Initializing Object Subsystem"));
     initObjects();
 
-    PROGRESS_WINDOW(19, _L("Initializing Collision Subsystem"));
-    m_collisions = new Collisions();
-    gEnv->collisions = m_collisions;
+    PROGRESS_WINDOW(19, _L("Initializing Shadow Subsystem"));
 
-    PROGRESS_WINDOW(19, _L("Initializing Script Subsystem"));
-    initScripting();
-
-    PROGRESS_WINDOW(21, _L("Initializing Shadow Subsystem"));
-
-    PROGRESS_WINDOW(25, _L("Initializing Camera Subsystem"));
+    PROGRESS_WINDOW(23, _L("Initializing Camera Subsystem"));
     initCamera();
 
     // sky, must come after camera due to m_sight_range
-    PROGRESS_WINDOW(23, _L("Initializing Sky Subsystem"));
+    PROGRESS_WINDOW(25, _L("Initializing Sky Subsystem"));
     initSkySubSystem();
 
     PROGRESS_WINDOW(27, _L("Initializing Light Subsystem"));
@@ -224,10 +177,6 @@ void TerrainManager::initSubSystems()
 
     PROGRESS_WINDOW(31, _L("Initializing Vegetation Subsystem"));
     initVegetation();
-
-    // water must be done later on
-    //PROGRESS_WINDOW(33, _L("Initializing Water Subsystem"));
-    //initWater();
 
     if (App::gfx_enable_hdr.GetActive())
     {
@@ -252,6 +201,42 @@ void TerrainManager::initSubSystems()
 
     PROGRESS_WINDOW(47, _L("Initializing Dashboards Subsystem"));
     initDashboards();
+
+    fixCompositorClearColor();
+
+    LOG(" ===== LOADING TERRAIN GEOMETRY " + filename);
+    PROGRESS_WINDOW(80, _L("Loading Terrain Geometry"));
+    if (!m_geometry_manager->InitTerrain(m_def.ogre_ter_conf_filename))
+    {
+        return false; // Error already reported
+    }
+
+    PROGRESS_WINDOW(86, _L("Initializing Collision Subsystem"));
+    m_collisions = new Collisions();
+    gEnv->collisions = m_collisions;
+
+    PROGRESS_WINDOW(88, _L("Initializing Script Subsystem"));
+    initScripting();
+
+    LOG(" ===== LOADING TERRAIN WATER " + filename);
+    initWater();
+
+    LOG(" ===== LOADING TERRAIN OBJECTS " + filename);
+    PROGRESS_WINDOW(90, _L("Loading Terrain Objects"));
+    loadTerrainObjects();
+
+    // bake the decals
+    //finishTerrainDecal();
+
+    // init things after loading the terrain
+    initTerrainCollisions();
+
+    PROGRESS_WINDOW(95, _L("Initializing terrain light properties"));
+    m_geometry_manager->UpdateMainLightPosition(); // Initial update takes a while
+    m_collisions->finishLoadingTerrain();
+    LOG(" ===== TERRAIN LOADING DONE " + filename);
+
+    return true;
 }
 
 void TerrainManager::initCamera()
