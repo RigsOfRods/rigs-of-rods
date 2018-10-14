@@ -119,6 +119,7 @@ Collisions::Collisions():
     , hashmask(0)
     , landuse(0)
     , m_last_called_cbox(nullptr)
+    , m_terrain_size(App::GetSimTerrain()->getMaxTerrainSize())
 {
     debugMode = RoR::App::diag_collisions.GetActive(); // TODO: make interactive - do not copy the value, use GVar directly
     for (int i=0; i < HASH_POWER; i++)
@@ -357,60 +358,6 @@ unsigned int Collisions::hashfunc(unsigned int cellid)
         hash *= 3;
     }
     return hash&hashmask;
-}
-
-int Collisions::removeCollisionTri(int number)
-{
-    if (number > this->GetNumCollisionTris()) // NOTE: probably should have been '>=', left as-is for compatibility ~ only_a_ptr, 10/2017
-    {
-        return -1;
-    }
-
-    AxisAlignedBox aab = m_collision_tris[number].aab;
-    int ilox, ihix, iloz, ihiz;
-    ilox=(int)(aab.getMinimum().x/(float)CELL_SIZE);
-    if (ilox<0) ilox=0; if (ilox>MAXIMUM_CELL) ilox=MAXIMUM_CELL;
-    ihix=(int)(aab.getMaximum().x/(float)CELL_SIZE);
-    if (ihix<0) ihix=0; if (ihix>MAXIMUM_CELL) ihix=MAXIMUM_CELL;
-    iloz=(int)(aab.getMinimum().z/(float)CELL_SIZE);
-    if (iloz<0) iloz=0; if (iloz>MAXIMUM_CELL) iloz=MAXIMUM_CELL;
-    ihiz=(int)(aab.getMaximum().z/(float)CELL_SIZE);
-    if (ihiz<0) ihiz=0; if (ihiz>MAXIMUM_CELL) ihiz=MAXIMUM_CELL;
-    for (int i=ilox; i <= ihix; i++)
-    {
-        for (int j=iloz; j <= ihiz; j++)
-        {
-            hash_free(i,j,number+hash_coll_element_t::ELEMENT_TRI_BASE_INDEX);
-        }
-    }
-    return 0;
-}
-
-void Collisions::hash_free(int cell_x, int cell_z, int value)
-{
-    unsigned int cell_id = (cell_x << 16) + cell_z;
-    unsigned int pos    = hashfunc(cell_id);
-
-    hashtable[pos].erase(
-            std::remove_if(hashtable[pos].begin(), hashtable[pos].end(), [&](hash_coll_element_t const &c) {
-                    return c.cell_id == cell_id && c.element_index == value;
-            }), hashtable[pos].end());
-
-    // Recalculate the cell height
-    hashtable_height[pos] = 0;
-    for (auto c : hashtable[pos])
-    {
-        if (c.IsCollisionBox())
-        {
-            collision_box_t* cbox = &m_collision_boxes[c.element_index];
-            hashtable_height[pos] = std::max(hashtable_height[pos], cbox->hi.y);
-        }
-        else
-        {
-            collision_tri_t* ctri = &m_collision_tris[c.element_index - hash_coll_element_t::ELEMENT_TRI_BASE_INDEX];
-            hashtable_height[pos] = std::max(hashtable_height[pos], ctri->aab.getMaximum().y);
-        }
-    }
 }
 
 void Collisions::hash_add(int cell_x, int cell_z, int value, float h)
@@ -687,38 +634,6 @@ int Collisions::addCollisionBox(SceneNode *tenode, bool rotating, bool virt, Vec
     return coll_box_index;
 }
 
-int Collisions::removeCollisionBox(int num)
-{
-    if (num < 0 || num > this->GetNumCollisionBoxes()) // NOTE: Should probably have been '>=', keeping for compatibility ~ only_a_ptr, 10/2017
-        return 1;
-    
-    collision_box_t& coll_box = m_collision_boxes[num];
-    
-    if (!coll_box.enabled)
-        return 2;
-
-    // disable the box
-    coll_box.enabled = false;
-
-    // disable the event
-    if (coll_box.eventsourcenum != -1 && coll_box.eventsourcenum >= 0 && coll_box.eventsourcenum < free_eventsource)
-    {
-        eventsource_t& es = eventsources[coll_box.eventsourcenum];
-        es.enabled = false;
-    }
-
-    // then remove it from the hashtable
-    for (int i = coll_box.ilo.x; i <= coll_box.ihi.x; i++)
-    {
-        for (int j = coll_box.ilo.z; j <= coll_box.ihi.z; j++)
-        {
-            hash_free(i,j,num);
-        }
-    }
-
-    return 0;
-}
-
 int Collisions::addCollisionTri(Vector3 p1, Vector3 p2, Vector3 p3, ground_model_t* gm)
 {
     int new_tri_index = this->GetNumCollisionTris();
@@ -806,27 +721,25 @@ void Collisions::clearEventCache()
 bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
 {
     // find the correct cell
-    bool contacted=false;
-    int refx, refz;
+    if (!(refpos->x > 0 && refpos->x < m_terrain_size.x && refpos->z > 0 && refpos->z < m_terrain_size.z))
+        return false;
 
-    Vector3 mapSize = App::GetSimTerrain()->getMaxTerrainSize();
-    if (!(refpos->x>0 && refpos->x<mapSize.x && refpos->z>0 && refpos->z<mapSize.z)) return false;
-
-    refx=(int)(refpos->x/(float)CELL_SIZE);
-    refz=(int)(refpos->z/(float)CELL_SIZE);
+    int refx = (int)(refpos->x / (float)CELL_SIZE);
+    int refz = (int)(refpos->z / (float)CELL_SIZE);
     int hash = hash_find(refx, refz);
 
     if (refpos->y > hashtable_height[hash])
         return false;
 
-    collision_tri_t *minctri=0;
-    float minctridist=100.0;
+    collision_tri_t *minctri = 0;
+    float minctridist = 100.0f;
     Vector3 minctripoint;
 
+    bool contacted = false;
     bool isScriptCallbackEnvoked = false;
 
     size_t num_elements = hashtable[hash].size();
-    for (size_t k=0; k < num_elements; k++)
+    for (size_t k = 0; k < num_elements; k++)
     {
         if (hashtable[hash][k].IsCollisionBox())
         {
@@ -836,13 +749,16 @@ bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
             if (cbox->refined || cbox->selfrotated)
             {
                 // we may have a collision, do a change of repere
-                Vector3 Pos=*refpos-cbox->center;
-                if (cbox->refined) Pos=cbox->unrot*Pos;
+                Vector3 Pos = *refpos - cbox->center;
+                if (cbox->refined)
+                {
+                    Pos = cbox->unrot * Pos;
+                }
                 if (cbox->selfrotated)
                 {
-                    Pos=Pos-cbox->selfcenter;
-                    Pos=cbox->selfunrot*Pos;
-                    Pos=Pos+cbox->selfcenter;
+                    Pos = Pos - cbox->selfcenter;
+                    Pos = cbox->selfunrot * Pos;
+                    Pos = Pos + cbox->selfcenter;
                 }
                 // now test with the inner box
                 if (Pos > cbox->relo && Pos < cbox->rehi)
@@ -854,8 +770,8 @@ bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
                     }
                     if (cbox->camforced && !forcecam)
                     {
-                        forcecam=true;
-                        forcecampos=cbox->campos;
+                        forcecam = true;
+                        forcecampos = cbox->campos;
                     }
                     if (!cbox->virt)
                     {
@@ -868,12 +784,15 @@ bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
                         // resume repere
                         if (cbox->selfrotated)
                         {
-                            Pos=Pos-cbox->selfcenter;
-                            Pos=cbox->selfrot*Pos;
-                            Pos=Pos+cbox->selfcenter;
+                            Pos = Pos - cbox->selfcenter;
+                            Pos = cbox->selfrot * Pos;
+                            Pos = Pos + cbox->selfcenter;
                         }
-                        if (cbox->refined) Pos=cbox->rot*Pos;
-                        *refpos=Pos+cbox->center;
+                        if (cbox->refined)
+                        {
+                            Pos = cbox->rot * Pos;
+                        }
+                        *refpos = Pos + cbox->center;
                     }
                 }
 
@@ -886,13 +805,13 @@ bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
                 }
                 if (cbox->camforced && !forcecam)
                 {
-                    forcecam=true;
-                    forcecampos=cbox->campos;
+                    forcecam = true;
+                    forcecampos = cbox->campos;
                 }
                 if (!cbox->virt)
                 {
                     // we have a collision
-                    contacted=true;
+                    contacted = true;
                     // determine which side collided
                     (*refpos) = calcCollidedSide((*refpos), cbox->lo, cbox->hi);
                 }
@@ -908,15 +827,15 @@ bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
                 continue;
             // check if this tri is minimal
             // transform
-            Vector3 point=ctri->forward*(*refpos-ctri->a);
+            Vector3 point = ctri->forward * (*refpos-ctri->a);
             // test if within tri collision volume (potential cause of bug!)
-            if (point.x>=0 && point.y>=0 && (point.x+point.y)<=1.0 && point.z<0 && point.z>-0.1)
+            if (point.x >= 0 && point.y >= 0 && (point.x + point.y) <= 1.0 && point.z < 0 && point.z > -0.1)
             {
-                if (-point.z<minctridist)
+                if (-point.z < minctridist)
                 {
-                    minctridist=-point.z;
-                    minctri=ctri;
-                    minctripoint=point;
+                    minctri = ctri;
+                    minctridist = -point.z;
+                    minctripoint = point;
                 }
             }
         }
@@ -929,11 +848,11 @@ bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
     if (minctri)
     {
         // we have a contact
-        contacted=true;
+        contacted = true;
         // correct point
-        minctripoint.z=0;
+        minctripoint.z = 0;
         // reverse transform
-        *refpos=(minctri->reverse*minctripoint)+minctri->a;
+        *refpos = (minctri->reverse * minctripoint) + minctri->a;
     }
     return contacted;
 }
@@ -961,24 +880,11 @@ bool Collisions::permitEvent(int filter)
     }
 }
 
-int Collisions::enableCollisionTri(int number, bool enable)
-{
-    if (number >= this->GetNumCollisionTris())
-        return -1;
-
-    m_collision_tris[number].enabled = enable;
-
-    return 0;
-}
-
 bool Collisions::nodeCollision(node_t *node, float dt)
 {
-    bool contacted = false;
-    // float corrf=1.0;
-    Vector3 oripos = node->AbsPosition;
     // find the correct cell
-    int refx = (int)(node->AbsPosition.x/CELL_SIZE);
-    int refz = (int)(node->AbsPosition.z/CELL_SIZE);
+    int refx = (int)(node->AbsPosition.x / CELL_SIZE);
+    int refz = (int)(node->AbsPosition.z / CELL_SIZE);
     int hash = hash_find(refx, refz);
     unsigned int cell_id = (refx << 16) + refz;
 
@@ -988,6 +894,8 @@ bool Collisions::nodeCollision(node_t *node, float dt)
     collision_tri_t *minctri = 0;
     float minctridist = 100.0;
     Vector3 minctripoint;
+
+    bool contacted = false;
 
     size_t num_elements = hashtable[hash].size();
     for (size_t k=0; k < num_elements; k++)
@@ -1005,12 +913,15 @@ bool Collisions::nodeCollision(node_t *node, float dt)
                 {
                     // we may have a collision, do a change of repere
                     Vector3 Pos = node->AbsPosition-cbox->center;
-                    if (cbox->refined) Pos = cbox->unrot*Pos;
+                    if (cbox->refined)
+                    {
+                        Pos = cbox->unrot * Pos;
+                    }
                     if (cbox->selfrotated)
                     {
-                        Pos=Pos-cbox->selfcenter;
-                        Pos=cbox->selfunrot*Pos;
-                        Pos=Pos+cbox->selfcenter;
+                        Pos = Pos - cbox->selfcenter;
+                        Pos = cbox->selfunrot * Pos;
+                        Pos = Pos + cbox->selfcenter;
                     }
                     // now test with the inner box
                     if (Pos > cbox->relo && Pos < cbox->rehi)
@@ -1021,32 +932,31 @@ bool Collisions::nodeCollision(node_t *node, float dt)
                         }
                         if (cbox->camforced && !forcecam)
                         {
-                            forcecam=true;
-                            forcecampos=cbox->campos;
+                            forcecam = true;
+                            forcecampos = cbox->campos;
                         }
                         if (!cbox->virt)
                         {
                             // collision, process as usual
                             // we have a collision
-                            contacted=true;
+                            contacted = true;
                             // determine which side collided
-                            float min=Pos.z-(cbox->relo).z;
-                            Vector3 normal=Vector3(0,0,-1);
-                            float t=(cbox->rehi).z-Pos.z;
-                            if (t<min){min=t; normal=Vector3(0,0,1);}; //north
-                            t=Pos.x-(cbox->relo).x;
-                            if (t<min) {min=t; normal=Vector3(-1,0,0);}; //west
-                            t=(cbox->rehi).x-Pos.x;
-                            if (t<min) {min=t; normal=Vector3(1,0,0);}; //east
-                            t=Pos.y-(cbox->relo).y;
-                            if (t<min) {min=t; normal=Vector3(0,-1,0);}; //down
-                            t=(cbox->rehi).y-Pos.y;
-                            if (t<min) {min=t; normal=Vector3(0,1,0);}; //up
+                            float t = cbox->rehi.z - Pos.z;
+                            float min = Pos.z - cbox->relo.z;
+                            Vector3 normal = Vector3(0, 0, -1);
+                            if (t < min) { min = t; normal = Vector3(0,0,1);}; //north
+                            t = Pos.x - cbox->relo.x;
+                            if (t < min) { min = t; normal = Vector3(-1,0,0);}; //west
+                            t = cbox->rehi.x - Pos.x;
+                            if (t < min) { min = t; normal = Vector3(1,0,0);}; //east
+                            t = Pos.y - cbox->relo.y;
+                            if (t < min) { min = t; normal = Vector3(0,-1,0);}; //down
+                            t = cbox->rehi.y - Pos.y;
+                            if (t < min) { min = t; normal = Vector3(0,1,0);}; //up
 
-                            // we need the normal, and the depth
                             // resume repere for the normal
-                            if (cbox->selfrotated) normal=cbox->selfrot*normal;
-                            if (cbox->refined) normal=cbox->rot*normal;
+                            if (cbox->selfrotated) normal = cbox->selfrot * normal;
+                            if (cbox->refined) normal = cbox->rot * normal;
 
                             // collision boxes are always out of concrete as it seems
                             primitiveCollision(node, node->Forces, node->Velocity, normal, dt, defaultgm);
@@ -1061,30 +971,32 @@ bool Collisions::nodeCollision(node_t *node, float dt)
                     }
                     if (cbox->camforced && !forcecam)
                     {
-                        forcecam=true;
-                        forcecampos=cbox->campos;
+                        forcecam = true;
+                        forcecampos = cbox->campos;
                     }
                     if (!cbox->virt)
                     {
                         // we have a collision
                         contacted=true;
                         // determine which side collided
-                        float min=node->AbsPosition.z-cbox->lo.z;
-                        Vector3 normal=Vector3(0,0,-1);
-                        float t=cbox->hi.z-node->AbsPosition.z;
-                        if (t<min) {min=t; normal=Vector3(0,0,1);}; //north
-                        t=node->AbsPosition.x-cbox->lo.x;
-                        if (t<min) {min=t; normal=Vector3(-1,0,0);}; //west
-                        t=cbox->hi.x-node->AbsPosition.x;
-                        if (t<min) {min=t; normal=Vector3(1,0,0);}; //east
-                        t=node->AbsPosition.y-cbox->lo.y;
-                        if (t<min) {min=t; normal=Vector3(0,-1,0);}; //down
-                        t=cbox->hi.y-node->AbsPosition.y;
-                        if (t<min) {min=t; normal=Vector3(0,1,0);}; //up
-                        // we need the normal
+                        float t = cbox->hi.z - node->AbsPosition.z;
+                        float min = node->AbsPosition.z - cbox->lo.z;
+                        Vector3 normal = Vector3(0, 0, -1);
+                        if (t < min) {min = t; normal = Vector3(0,0,1);}; //north
+                        t = node->AbsPosition.x - cbox->lo.x;
+                        if (t < min) {min = t; normal = Vector3(-1,0,0);}; //west
+                        t = cbox->hi.x - node->AbsPosition.x;
+                        if (t < min) {min = t; normal = Vector3(1,0,0);}; //east
+                        t = node->AbsPosition.y - cbox->lo.y;
+                        if (t < min) {min = t; normal = Vector3(0,-1,0);}; //down
+                        t = cbox->hi.y - node->AbsPosition.y;
+                        if (t < min) {min = t; normal = Vector3(0,1,0);}; //up
+
                         // resume repere for the normal
-                        if (cbox->selfrotated) normal=cbox->selfrot*normal;
-                        if (cbox->refined) normal=cbox->rot*normal;
+                        if (cbox->selfrotated) normal = cbox->selfrot * normal;
+                        if (cbox->refined) normal = cbox->rot * normal;
+
+                        // collision boxes are always out of concrete as it seems
                         primitiveCollision(node, node->Forces, node->Velocity, normal, dt, defaultgm);
                         node->nd_last_collision_gm = defaultgm;
                     }
@@ -1102,15 +1014,15 @@ bool Collisions::nodeCollision(node_t *node, float dt)
                 continue;
             // check if this tri is minimal
             // transform
-            Vector3 point=ctri->forward*(node->AbsPosition-ctri->a);
+            Vector3 point = ctri->forward * (node->AbsPosition - ctri->a);
             // test if within tri collision volume (potential cause of bug!)
-            if (point.x>=0 && point.y>=0 && (point.x+point.y)<=1.0 && point.z<0 && point.z>-0.1)
+            if (point.x >= 0 && point.y >= 0 && (point.x + point.y) <= 1.0 && point.z < 0 && point.z > -0.1)
             {
-                if (-point.z<minctridist)
+                if (-point.z < minctridist)
                 {
-                    minctridist=-point.z;
-                    minctri=ctri;
-                    minctripoint=point;
+                    minctri = ctri;
+                    minctridist = -point.z;
+                    minctripoint = point;
                 }
             }
         }
@@ -1121,10 +1033,9 @@ bool Collisions::nodeCollision(node_t *node, float dt)
     {
         // we have a contact
         contacted=true;
-
         // we need the normal
         // resume repere for the normal
-        Vector3 normal=minctri->reverse*Vector3::UNIT_Z;
+        Vector3 normal = minctri->reverse * Vector3::UNIT_Z;
         primitiveCollision(node, node->Forces, node->Velocity, normal, dt, minctri->gm);
         node->nd_last_collision_gm = minctri->gm;
     }
@@ -1391,10 +1302,9 @@ int Collisions::createCollisionDebugVisualization()
         mat->setReceiveShadows(false);
     }
 
-    Vector3 mapSize = App::GetSimTerrain()->getMaxTerrainSize();
-    for (int x=0; x<(int)(mapSize.x); x+=(int)CELL_SIZE)
+    for (int x=0; x<(int)(m_terrain_size.x); x+=(int)CELL_SIZE)
     {
-        for (int z=0; z<(int)(mapSize.z); z+=(int)CELL_SIZE)
+        for (int z=0; z<(int)(m_terrain_size.z); z+=(int)CELL_SIZE)
         {
             int cellx = (int)(x/(float)CELL_SIZE);
             int cellz = (int)(z/(float)CELL_SIZE);
@@ -1411,20 +1321,11 @@ int Collisions::createCollisionDebugVisualization()
                 float z2 = z+CELL_SIZE;
 
                 // find a good ground height for all corners of the cell ...
-                Real h1= App::GetSimTerrain()->GetHeightAt(x, z);
-                Real h2= App::GetSimTerrain()->GetHeightAt(x2, z);
-                Real h3= App::GetSimTerrain()->GetHeightAt(x, z2);
-                Real h4= App::GetSimTerrain()->GetHeightAt(x2, z2);
-                if (h1>groundheight)
-                    groundheight = h1;
-                if (h2>groundheight)
-                    groundheight = h2;
-                if (h3>groundheight)
-                    groundheight = h3;
-                if (h4>groundheight)
-                    groundheight = h4;
-                groundheight+=0.1; // 10 cm hover
-                // ground height should fit
+                groundheight = std::max(groundheight, App::GetSimTerrain()->GetHeightAt(x, z));
+                groundheight = std::max(groundheight, App::GetSimTerrain()->GetHeightAt(x2, z));
+                groundheight = std::max(groundheight, App::GetSimTerrain()->GetHeightAt(x, z2));
+                groundheight = std::max(groundheight, App::GetSimTerrain()->GetHeightAt(x2, z2));
+                groundheight += 0.1; // 10 cm hover
 
                 float percentd = static_cast<float>(hashtable[hash].size()) / static_cast<float>(CELL_BLOCKSIZE);
 

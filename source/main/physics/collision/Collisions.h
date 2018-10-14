@@ -138,8 +138,9 @@ private:
     inline int GetNumCollisionBoxes() const { return static_cast<int>(m_collision_boxes.size()); }
     unsigned int hashmask;
 
+    const Ogre::Vector3 m_terrain_size;
+
     void hash_add(int cell_x, int cell_z, int value, float h);
-    void hash_free(int cell_x, int cell_z, int value);
     int hash_find(int cell_x, int cell_z); /// Returns index to 'hashtable'
     unsigned int hashfunc(unsigned int cellid);
     void parseGroundConfig(Ogre::ConfigFile* cfg, Ogre::String groundModel = "");
@@ -178,9 +179,6 @@ public:
     int addCollisionMesh(Ogre::String meshname, Ogre::Vector3 pos, Ogre::Quaternion q, Ogre::Vector3 scale, ground_model_t* gm = 0, std::vector<int>* collTris = 0);
     int addCollisionTri(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, ground_model_t* gm);
     int createCollisionDebugVisualization();
-    int enableCollisionTri(int number, bool enable);
-    int removeCollisionBox(int number);
-    int removeCollisionTri(int number);
 
     // ground models things
     int loadDefaultModels();

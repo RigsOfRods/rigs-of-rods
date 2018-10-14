@@ -664,18 +664,6 @@ void TerrainObjectManager::PostLoadTerrain()
     }
 }
 
-void removeCollisionTri(int number)
-{
-    if (gEnv->collisions)
-        gEnv->collisions->removeCollisionTri(number);
-}
-
-void removeCollisionBox(int number)
-{
-    if (gEnv->collisions)
-        gEnv->collisions->removeCollisionBox(number);
-}
-
 void TerrainObjectManager::MoveObjectVisuals(const String& instancename, const Ogre::Vector3& pos)
 {
     if (m_static_objects.find(instancename) == m_static_objects.end())
@@ -705,11 +693,6 @@ void TerrainObjectManager::unloadObject(const String& instancename)
     // check if it was already deleted
     if (!obj.enabled)
         return;
-
-    // unload any collision tris
-    std::for_each(obj.collTris.begin(), obj.collTris.end(), removeCollisionTri);
-    // and any collision boxes
-    std::for_each(obj.collBoxes.begin(), obj.collBoxes.end(), removeCollisionBox);
 
     obj.sceneNode->detachAllObjects();
     obj.sceneNode->setVisible(false);
