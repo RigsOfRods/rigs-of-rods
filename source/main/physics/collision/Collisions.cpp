@@ -400,24 +400,35 @@ void Collisions::hash_free(int cell_x, int cell_z, int value)
     unsigned int cell_id = (cell_x << 16) + cell_z;
     unsigned int pos    = hashfunc(cell_id);
 
-    auto itor = hashtable[pos].begin();
-    auto endi = hashtable[pos].end();
-    for (; itor != endi; ++itor)
+    hashtable[pos].erase(
+            std::remove_if(hashtable[pos].begin(), hashtable[pos].end(), [&](hash_coll_element_t const &c) {
+                    return c.cell_id == cell_id && c.element_index == value;
+            }), hashtable[pos].end());
+
+    // Recalculate the cell height
+    hashtable_height[pos] = 0;
+    for (auto c : hashtable[pos])
     {
-        if ((itor->cell_id == cell_id) && (itor->element_index == value))
+        if (c.IsCollisionBox())
         {
-            hashtable[pos].erase(itor);
-            return;
+            collision_box_t* cbox = &m_collision_boxes[c.element_index];
+            hashtable_height[pos] = std::max(hashtable_height[pos], cbox->hi.y);
+        }
+        else
+        {
+            collision_tri_t* ctri = &m_collision_tris[c.element_index - hash_coll_element_t::ELEMENT_TRI_BASE_INDEX];
+            hashtable_height[pos] = std::max(hashtable_height[pos], ctri->aab.getMaximum().y);
         }
     }
 }
 
-void Collisions::hash_add(int cell_x, int cell_z, int value)
+void Collisions::hash_add(int cell_x, int cell_z, int value, float h)
 {
     unsigned int cell_id = (cell_x << 16) + cell_z;
     unsigned int pos    = hashfunc(cell_id);
 
     hashtable[pos].emplace_back(cell_id, value);
+    hashtable_height[pos] = std::max(hashtable_height[pos], h);
 }
 
 int Collisions::hash_find(int cell_x, int cell_z)
@@ -677,7 +688,7 @@ int Collisions::addCollisionBox(SceneNode *tenode, bool rotating, bool virt, Vec
         for (int j=coll_box.ilo.z; j <= coll_box.ihi.z; j++)
         {
             //LOG("Adding a reference to cell "+TOSTRING(i)+" "+TOSTRING(j)+" at index "+TOSTRING(collision_index_free[i*NUM_COLLISON_CELLS+j]));
-            hash_add(i,j,coll_box_index);
+            hash_add(i,j,coll_box_index,coll_box.hi.y);
         }
     }
 
@@ -758,7 +769,7 @@ int Collisions::addCollisionTri(Vector3 p1, Vector3 p2, Vector3 p3, ground_model
     {
         for (int j=ilo.z; j<=ihi.z; j++)
         {
-            hash_add(i,j,new_tri_index+hash_coll_element_t::ELEMENT_TRI_BASE_INDEX);
+            hash_add(i,j,new_tri_index+hash_coll_element_t::ELEMENT_TRI_BASE_INDEX,new_tri.aab.getMaximum().y);
         }
     }
     
@@ -812,6 +823,9 @@ bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
     refx=(int)(refpos->x/(float)CELL_SIZE);
     refz=(int)(refpos->z/(float)CELL_SIZE);
     int hash = hash_find(refx, refz);
+
+    if (refpos->y > hashtable_height[hash])
+        return false;
 
     collision_tri_t *minctri=0;
     float minctridist=100.0;
@@ -973,6 +987,9 @@ bool Collisions::nodeCollision(node_t *node, float dt)
     int refz = (int)(node->AbsPosition.z/CELL_SIZE);
     int hash = hash_find(refx, refz);
     unsigned int cell_id = (refx << 16) + refz;
+
+    if (node->AbsPosition.y > hashtable_height[hash])
+        return false;
 
     collision_tri_t *minctri = 0;
     float minctridist = 100.0;
