@@ -56,6 +56,7 @@ void RoR::GUI::TopMenubar::Update()
     if (!this->ShouldDisplay(window_target_pos))
     {
         m_open_menu = TopMenu::TOPMENU_NONE;
+        m_confirm_remove_all = false;
         return;
     }
 
@@ -156,6 +157,28 @@ void RoR::GUI::TopMenubar::Update()
                 {
                     App::GetSimController()->QueueActorRemove(current_actor);
                 }
+            }
+
+            if (ImGui::Button("Remove all vehicles")) // TODO: make button disabled (fake it!) when no active vehicle
+            {
+                m_confirm_remove_all = true;
+            }
+            if (m_confirm_remove_all)
+            {
+                ImGui::PushStyleColor(ImGuiCol_Text, ORANGE_TEXT);
+                if (ImGui::Button(" [!] Confirm removal"))
+                {
+                    for (auto actor : App::GetSimController()->GetActors())
+                    {
+                        if (!actor->ar_hide_in_actor_list && !actor->isPreloadedWithTerrain() && 
+                                actor->ar_sim_state != Actor::SimState::NETWORKED_OK)
+                        {
+                            App::GetSimController()->QueueActorRemove(actor);
+                        }
+                    }
+                    m_confirm_remove_all = false;
+                }
+                ImGui::PopStyleColor();
             }
 
             if (App::mp_state.GetActive() != MpState::CONNECTED) // Singleplayer only!
@@ -447,15 +470,15 @@ void RoR::GUI::TopMenubar::DrawActorListSinglePlayer()
             auto linked_actors = actor->GetAllLinkedActors();
             if (actor == player_actor)
             {
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.9f, 0.0f, 1.f));
+                ImGui::PushStyleColor(ImGuiCol_Text, GREEN_TEXT);
             }
             else if (std::find(linked_actors.begin(), linked_actors.end(), player_actor) != linked_actors.end())
             {
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.6f, 0.0f, 1.f));
+                ImGui::PushStyleColor(ImGuiCol_Text, ORANGE_TEXT);
             }
             else if (actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED)
             {
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.9f, 0.9f, 1.f));
+                ImGui::PushStyleColor(ImGuiCol_Text, WHITE_TEXT);
             }
             else
             {
