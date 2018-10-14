@@ -118,7 +118,6 @@ Collisions::Collisions():
     , free_eventsource(0)
     , hashmask(0)
     , landuse(0)
-    , m_last_called_cbox(nullptr)
     , m_terrain_size(App::GetSimTerrain()->getMaxTerrainSize())
 {
     debugMode = RoR::App::diag_collisions.GetActive(); // TODO: make interactive - do not copy the value, use GVar directly
@@ -702,11 +701,11 @@ bool Collisions::envokeScriptCallback(collision_box_t *cbox, node_t *node)
     
     std::lock_guard<std::mutex> lock(m_scriptcallback_mutex);
     // this prevents that the same callback gets called at 2k FPS all the time, serious hit on FPS ...
-    if (m_last_called_cbox != cbox)
+    if (std::find(std::begin(m_last_called_cboxes), std::end(m_last_called_cboxes), cbox) == m_last_called_cboxes.end())
     {
         if (!ScriptEngine::getSingleton().envokeCallback(eventsources[cbox->eventsourcenum].scripthandler, &eventsources[cbox->eventsourcenum], node))
             handled = true;
-        m_last_called_cbox = cbox;
+        m_last_called_cboxes.push_back(cbox);
     }
 #endif //USE_ANGELSCRIPT
 
@@ -715,7 +714,7 @@ bool Collisions::envokeScriptCallback(collision_box_t *cbox, node_t *node)
 
 void Collisions::clearEventCache()
 {
-    m_last_called_cbox = nullptr;
+    m_last_called_cboxes.clear();
 }
 
 bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
