@@ -40,10 +40,13 @@ public:
     const ImVec4  PANEL_BG_COLOR        = ImVec4(0.1f, 0.1f, 0.1f, 0.8f);
     const ImVec4  TRANSPARENT_COLOR     = ImVec4(0,0,0,0);
     const ImVec4  GRAY_HINT_TEXT        = ImVec4(0.62f, 0.62f, 0.61f, 1.f);
+    const ImVec4  WHITE_TEXT            = ImVec4(0.9f, 0.9f, 0.9f, 1.f);
+    const ImVec4  GREEN_TEXT            = ImVec4(0.0f, 0.9f, 0.0f, 1.f);
+    const ImVec4  ORANGE_TEXT           = ImVec4(0.9f, 0.6f, 0.0f, 1.f);
 
     enum class TopMenu { TOPMENU_NONE, TOPMENU_SIM, TOPMENU_ACTORS, TOPMENU_TOOLS };
 
-    TopMenubar(): m_open_menu(TopMenu::TOPMENU_NONE), m_is_actorlist_dirty(false) {}
+    TopMenubar(): m_open_menu(TopMenu::TOPMENU_NONE), m_is_actorlist_dirty(false), m_confirm_remove_all(false) {}
 
     void Update();
     bool ShouldDisplay(ImVec2 window_pos);
@@ -57,6 +60,7 @@ private:
     ImVec2  m_open_menu_hoverbox_max;
     TopMenu m_open_menu;
     bool    m_is_actorlist_dirty;
+    bool    m_confirm_remove_all;
 };
 
 } // namespace GUI
