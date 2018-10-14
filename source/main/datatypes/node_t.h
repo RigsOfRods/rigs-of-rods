@@ -44,14 +44,13 @@ struct node_t
     Ogre::Vector3 Forces;
 
     Ogre::Real mass;
-    float collTestTimer;
-    short iswheel; //!< 0=no, 1, 2=wheel1  3,4=wheel2, etc...
 
     Ogre::Real buoyancy;
     Ogre::Real friction_coef;
     Ogre::Real surface_coef;
     Ogre::Real volume_coef;
 
+    short iswheel; //!< 0=no, 1, 2=wheel1  3,4=wheel2, etc...
     short wheelid; //!< Wheel index
     short nd_lockgroup;
     short pos;     //!< This node's index in Actor::ar_nodes array.

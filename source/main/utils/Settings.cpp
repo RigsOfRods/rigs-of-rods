@@ -688,7 +688,6 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckInt  (App::sim_replay_length,         k, v)) { return true; }
     if (CheckInt  (App::sim_replay_stepping,       k, v)) { return true; }
     if (CheckBool (App::sim_position_storage,      k, v)) { return true; }
-    if (CheckBool (App::sim_hires_wheel_col,       k, v)) { return true; }
 
     return false;
 }
@@ -897,7 +896,6 @@ void Settings::SaveSettings()
     WritePod (f, App::sim_replay_length     );
     WritePod (f, App::sim_replay_stepping   );
     WriteYN  (f, App::sim_position_storage  );
-    WriteYN  (f, App::sim_hires_wheel_col   );
 
     f << std::endl << "; Input/Output" << std::endl;
     WriteAny (f, App::io_input_grab_mode.conf_name, IoInputGrabToStr(App::io_input_grab_mode.GetActive()));

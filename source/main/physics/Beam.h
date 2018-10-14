@@ -485,13 +485,11 @@ private:
     bool m_reverse_light_active:1; //!< Gfx state
     bool m_water_contact:1;        //!< Scripting state
     bool m_water_contact_old:1;    //!< Scripting state
-    bool m_increased_accuracy:1;   //!< Physics state; temporarily bypass collision test cooldown timers
     bool m_has_command_beams:1;    //!< Physics attr;
     bool m_beacon_light_is_active:1;        //!< Gfx state
     bool m_custom_particles_enabled:1;      //!< Gfx state
     bool m_cinecam_is_rotation_center:1;    //<! Attribute; filled at spawn
     bool m_preloaded_with_terrain:1;        //!< Spawn context (TODO: remove!)
-    bool m_high_res_wheelnode_collisions:1; //!< Physics attr; set at spawn
     bool m_gfx_reduce_shadows:1;        //!< Gfx switch; alias of RoR.cfg entry "Shadow optimizations"
     bool m_beam_break_debug_enabled:1;  //!< Logging state
     bool m_beam_deform_debug_enabled:1; //!< Logging state

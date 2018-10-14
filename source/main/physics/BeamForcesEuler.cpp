@@ -58,8 +58,6 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
     if (App::GetSimTerrain())
         water = App::GetSimTerrain()->getWater();
 
-    m_increased_accuracy = false;
-
     //engine callback
     if (ar_engine)
     {
@@ -1308,7 +1306,6 @@ void Actor::CalcBeams(bool trigger_hooks)
                     // Actual deformation tests
                     if (slen > ar_beams[i].maxposstress && difftoBeamL < 0.0f) // compression
                     {
-                        m_increased_accuracy = true;
                         Real yield_length = ar_beams[i].maxposstress / k;
                         Real deform = difftoBeamL + yield_length * (1.0f - ar_beams[i].plastic_coef);
                         Real Lold = ar_beams[i].L;
@@ -1336,7 +1333,6 @@ void Actor::CalcBeams(bool trigger_hooks)
                     }
                     else if (slen < ar_beams[i].maxnegstress && difftoBeamL > 0.0f) // expansion
                     {
-                        m_increased_accuracy = true;
                         Real yield_length = ar_beams[i].maxnegstress / k;
                         Real deform = difftoBeamL + yield_length * (1.0f - ar_beams[i].plastic_coef);
                         Real Lold = ar_beams[i].L;
@@ -1368,8 +1364,6 @@ void Actor::CalcBeams(bool trigger_hooks)
                     // Sound volume depends on springs stored energy
                     SOUND_MODULATE(ar_instance_id, SS_MOD_BREAK, 0.5 * k * difftoBeamL * difftoBeamL);
                     SOUND_PLAY_ONCE(ar_instance_id, SS_TRIG_BREAK);
-
-                    m_increased_accuracy = true;
 
                     //Break the beam only when it is not connected to a node
                     //which is a part of a collision triangle and has 2 "live" beams or less
@@ -1590,17 +1584,12 @@ void Actor::CalcNodes()
         // COLLISION
         if (!ar_nodes[i].nd_no_ground_contact)
         {
-            ar_nodes[i].collTestTimer += dt;
-            if (ar_nodes[i].nd_has_ground_contact || ar_nodes[i].collTestTimer > 0.005 || ((ar_nodes[i].iswheel || ar_nodes[i].wheelid != -1) && (m_high_res_wheelnode_collisions || ar_nodes[i].collTestTimer > 0.0025)) || m_increased_accuracy)
+            bool contacted = gEnv->collisions->groundCollision(&ar_nodes[i], dt);
+            contacted = contacted | gEnv->collisions->nodeCollision(&ar_nodes[i], dt);
+            ar_nodes[i].nd_has_ground_contact = contacted;
+            if (contacted)
             {
-                bool contacted = gEnv->collisions->groundCollision(&ar_nodes[i], ar_nodes[i].collTestTimer);
-                contacted = contacted | gEnv->collisions->nodeCollision(&ar_nodes[i], ar_nodes[i].collTestTimer);
-                ar_nodes[i].nd_has_ground_contact = contacted;
-                if (contacted)
-                {
-                    ar_last_fuzzy_ground_model = ar_nodes[i].nd_last_collision_gm;
-                }
-                ar_nodes[i].collTestTimer = 0.0;
+                ar_last_fuzzy_ground_model = ar_nodes[i].nd_last_collision_gm;
             }
         }
 
