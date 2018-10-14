@@ -111,7 +111,7 @@ private:
 
     // collision boxes pool
     std::vector<collision_box_t> m_collision_boxes; // Formerly MAX_COLLISION_BOXES = 5000
-    collision_box_t* m_last_called_cbox;
+    std::vector<collision_box_t*> m_last_called_cboxes;
 
     // collision tris pool;
     std::vector<collision_tri_t> m_collision_tris; // Formerly MAX_COLLISION_TRIS = 100000
