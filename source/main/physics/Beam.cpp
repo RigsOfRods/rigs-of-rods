@@ -4155,7 +4155,6 @@ Actor::Actor(
     , ar_elevator(0)
     , ar_aerial_flap(0)
     , ar_fusedrag(Ogre::Vector3::ZERO)
-    , m_high_res_wheelnode_collisions(false)
     , ar_hydro_aileron_command(0)
     , ar_hydro_aileron_state(0)
     , ar_hydro_dir_command(0)
@@ -4165,7 +4164,6 @@ Actor::Actor(
     , ar_hydro_elevator_state(0)
     , ar_hydro_rudder_command(0)
     , ar_hydro_rudder_state(0)
-    , m_increased_accuracy(false)
     , m_inter_point_col_detector(nullptr)
     , m_intra_point_col_detector(nullptr)
     , ar_net_last_update_time(0)
@@ -4259,7 +4257,6 @@ Actor::Actor(
     , m_ongoing_reset(false)
     , ar_last_fuzzy_ground_model(nullptr)
 {
-    m_high_res_wheelnode_collisions = App::sim_hires_wheel_col.GetActive();
     m_use_skidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;
 }
 

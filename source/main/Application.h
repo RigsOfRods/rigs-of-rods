@@ -664,7 +664,6 @@ extern GVarStr_AP<200>         sim_terrain_name;
 extern GVarPod_A<bool>         sim_replay_enabled;
 extern GVarPod_A<int>          sim_replay_length;
 extern GVarPod_A<int>          sim_replay_stepping;
-extern GVarPod_A<bool>         sim_hires_wheel_col;
 extern GVarPod_A<bool>             sim_position_storage;
 extern GVarEnum_AP<SimGearboxMode> sim_gearbox_mode;
 
