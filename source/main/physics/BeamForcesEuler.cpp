@@ -52,11 +52,8 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
 {
     const bool doUpdate = (step == 0);
     const float dt = static_cast<float>(PHYSICS_DT);
-    IWater* water = nullptr;
+    IWater* water = App::GetSimTerrain()->getWater();
     const bool is_player_actor = (this == RoR::App::GetSimController()->GetPlayerActor());
-
-    if (App::GetSimTerrain())
-        water = App::GetSimTerrain()->getWater();
 
     //engine callback
     if (ar_engine)
@@ -112,8 +109,6 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
     // these must be done before the integrator, or else the forces are not calculated properly
     updateSlideNodeForces(dt);
     // END Slidenode section   /////////////////////////////////////////////////
-
-    m_water_contact = false;
 
     this->CalcNodes();
     this->UpdateBoundingBoxes();
@@ -1166,12 +1161,6 @@ bool Actor::CalcForcesEulerPrepare()
     return true;
 }
 
-void Actor::calcForcesEulerFinal()
-{
-    this->calcHooks();
-    this->calcRopes();
-}
-
 template <size_t L>
 void LogNodeId(RoR::Str<L>& msg, node_t* node) // Internal helper
 {
@@ -1578,6 +1567,8 @@ void Actor::CalcNodes()
     const float dt = static_cast<float>(PHYSICS_DT);
     IWater* water = App::GetSimTerrain()->getWater();
     const float gravity = App::GetSimTerrain()->getGravity();
+
+    m_water_contact = false;
 
     for (int i = 0; i < ar_num_nodes; i++)
     {

@@ -1055,6 +1055,8 @@ void ActorManager::UpdatePhysicsSimulation()
                 if (actor->ar_update_physics = actor->CalcForcesEulerPrepare())
                 {
                     have_actors_to_simulate = true;
+                    actor->calcHooks();
+                    actor->calcRopes();
                     auto func = std::function<void()>([this, i, actor]()
                         {
                             actor->calcForcesEulerCompute(i, m_physics_steps);
@@ -1076,12 +1078,6 @@ void ActorManager::UpdatePhysicsSimulation()
                 }
             }
             gEnv->threadPool->Parallelize(tasks);
-        }
-
-        for (auto actor : m_actors)
-        {
-            if (actor->ar_update_physics)
-                actor->calcForcesEulerFinal();
         }
 
         if (have_actors_to_simulate)
@@ -1116,9 +1112,13 @@ void ActorManager::UpdatePhysicsSimulation()
     for (auto actor : m_actors)
     {
         actor->m_ongoing_reset = false;
-        if (!actor->ar_update_physics)
-            continue;
-        actor->postUpdatePhysics(m_physics_steps * PHYSICS_DT);
+        if (actor->ar_update_physics)
+        {
+            actor->calculateAveragePosition();
+            actor->m_avg_node_velocity  = actor->m_avg_node_position - actor->m_avg_node_position_prev;
+            actor->m_avg_node_velocity /= (m_physics_steps * PHYSICS_DT);
+            actor->m_avg_node_position_prev = actor->m_avg_node_position;
+        }
     }
 }
 
