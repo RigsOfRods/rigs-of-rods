@@ -117,6 +117,7 @@ private:
     std::vector<collision_tri_t> m_collision_tris; // Formerly MAX_COLLISION_TRIS = 100000
 
     // collision hashtable
+    Ogre::Real hashtable_height[HASH_SIZE];
     std::vector<hash_coll_element_t> hashtable[HASH_SIZE];
 
     // ground models
@@ -137,7 +138,7 @@ private:
     inline int GetNumCollisionBoxes() const { return static_cast<int>(m_collision_boxes.size()); }
     unsigned int hashmask;
 
-    void hash_add(int cell_x, int cell_z, int value);
+    void hash_add(int cell_x, int cell_z, int value, float h);
     void hash_free(int cell_x, int cell_z, int value);
     int hash_find(int cell_x, int cell_z); /// Returns index to 'hashtable'
     unsigned int hashfunc(unsigned int cellid);
