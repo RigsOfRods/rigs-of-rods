@@ -1384,7 +1384,12 @@ int Collisions::createCollisionDebugVisualization()
             int cellx = (int)(x/(float)CELL_SIZE);
             int cellz = (int)(z/(float)CELL_SIZE);
             const int hash = hash_find(cellx, cellz);
-            if (hashtable[hash].size() > 0)
+
+            bool used = std::find_if(hashtable[hash].begin(), hashtable[hash].end(), [&](hash_coll_element_t const &c) {
+                    return c.cell_id == (cellx << 16) + cellz;
+            }) != hashtable[hash].end();
+
+            if (used)
             {
                 float groundheight = -9999;
                 float x2 = x+CELL_SIZE;
