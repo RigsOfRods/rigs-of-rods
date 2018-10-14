@@ -155,10 +155,8 @@ public:
     void              UpdateBoundingBoxes();
     void              calculateAveragePosition();
     void              checkAndMovePhysicsOrigin();
-    void              postUpdatePhysics(float dt);         //!< TIGHT LOOP; Physics;
     bool              CalcForcesEulerPrepare();            //!< A single physics step (see PHYSICS_DT)
     void              calcForcesEulerCompute(int step, int num_steps); //!< TIGHT LOOP; Physics;
-    void              calcForcesEulerFinal();              //!< A single physics step (see PHYSICS_DT)
     void              SyncReset(bool reset_position);      //!< this one should be called only synchronously (without physics running in background)
     blinktype         getBlinkType();
     std::vector<authorinfo_t>     getAuthors();

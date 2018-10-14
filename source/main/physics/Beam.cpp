@@ -1112,20 +1112,10 @@ void Actor::UpdateBoundingBoxes()
 
 void Actor::checkAndMovePhysicsOrigin()
 {
-    m_avg_node_position_prev = m_avg_node_position;
-
     if (ar_nodes[0].RelPosition.squaredLength() > 10000.0)
     {
         moveOrigin(ar_nodes[0].RelPosition);
     }
-}
-
-void Actor::postUpdatePhysics(float dt)
-{
-    calculateAveragePosition();
-
-    // Calculate average velocity
-    m_avg_node_velocity = (m_avg_node_position - m_avg_node_position_prev) / dt;
 }
 
 void Actor::ResetAngle(float rot)
