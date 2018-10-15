@@ -155,7 +155,7 @@ public:
     void              updateDashBoards(float dt);
     void              UpdateBoundingBoxes();
     void              calculateAveragePosition();
-    void              checkAndMovePhysicsOrigin();
+    void              UpdatePhysicsOrigin();
     bool              CalcForcesEulerPrepare();            //!< A single physics step (see PHYSICS_DT)
     void              calcForcesEulerCompute(int step, int num_steps); //!< TIGHT LOOP; Physics;
     void              SyncReset(bool reset_position);      //!< this one should be called only synchronously (without physics running in background)
@@ -373,7 +373,6 @@ private:
     void              DetermineLinkedActors();
     void              RecalculateNodeMasses(Ogre::Real total, bool reCalc=false); //!< Previously 'calc_masses2()'
     void              calcNodeConnectivityGraph();
-    void              moveOrigin(Ogre::Vector3 offset);    //!< move physics origin
     void              AddInterActorBeam(beam_t* beam, Actor* a, Actor* b);
     void              RemoveInterActorBeam(beam_t* beam);
     void              DisjoinInterActorBeams();            //!< Destroys all inter-actor beams which are connected with this actor

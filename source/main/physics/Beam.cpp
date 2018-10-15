@@ -338,15 +338,6 @@ void Actor::ScaleActor(float value)
 
 }
 
-void Actor::moveOrigin(Vector3 offset)
-{
-    ar_origin += offset;
-    for (int i = 0; i < ar_num_nodes; i++)
-    {
-        ar_nodes[i].RelPosition -= offset;
-    }
-}
-
 float Actor::getRotation()
 {
     Vector3 dir = getDirection();
@@ -1110,11 +1101,16 @@ void Actor::UpdateBoundingBoxes()
     }
 }
 
-void Actor::checkAndMovePhysicsOrigin()
+void Actor::UpdatePhysicsOrigin()
 {
     if (ar_nodes[0].RelPosition.squaredLength() > 10000.0)
     {
-        moveOrigin(ar_nodes[0].RelPosition);
+        Vector3 offset = ar_nodes[0].RelPosition;
+        ar_origin += offset;
+        for (int i = 0; i < ar_num_nodes; i++)
+        {
+            ar_nodes[i].RelPosition -= offset;
+        }
     }
 }
 

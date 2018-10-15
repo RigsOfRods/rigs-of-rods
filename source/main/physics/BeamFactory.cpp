@@ -1042,7 +1042,7 @@ void ActorManager::UpdatePhysicsSimulation()
 {
     for (auto actor : m_actors)
     {
-        actor->checkAndMovePhysicsOrigin();
+        actor->UpdatePhysicsOrigin();
     }
     for (int i = 0; i < m_physics_steps; i++)
     {
