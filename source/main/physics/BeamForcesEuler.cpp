@@ -1578,12 +1578,17 @@ void Actor::CalcNodes()
         // COLLISION
         if (!ar_nodes[i].nd_no_ground_contact)
         {
+            Vector3 oripos = ar_nodes[i].AbsPosition;
             bool contacted = gEnv->collisions->groundCollision(&ar_nodes[i], dt);
             contacted = contacted | gEnv->collisions->nodeCollision(&ar_nodes[i], dt);
             ar_nodes[i].nd_has_ground_contact = contacted;
             if (contacted)
             {
                 ar_last_fuzzy_ground_model = ar_nodes[i].nd_last_collision_gm;
+                // Reverts: commit/d11a88142f737528638bd357c38d717c85cebba6#diff-4003254e55aec2c60d21228f375f2a2dL1153
+                // Fixes: Gavril Omega Six sliding on ground on the simple2 spawn
+                // ar_nodes[i].AbsPosition - oripos is always zero ... dark floating point magic
+                ar_nodes[i].RelPosition += ar_nodes[i].AbsPosition - oripos;
             }
         }
 
