@@ -29,7 +29,6 @@
 #include "PointColDetector.h"
 #include "RoRFrameListener.h"
 #include "Triangle.h"
-#include "node_t.h"
 
 using namespace Ogre;
 
@@ -101,39 +100,16 @@ void ResolveCollisionForces(const float penetration_depth,
         const float dt,
         ground_model_t &submesh_ground_model)
 {
+    const auto velocity = hitnode.Velocity - (na.Velocity * alpha + nb.Velocity * beta + no.Velocity * gamma);
+    const float tr_mass = na.mass * alpha + nb.mass * beta + no.mass * gamma;
+    const float    mass = /*2.0f * */(hitnode.mass * tr_mass) / (hitnode.mass + tr_mass);
 
-    //Find the point's velocity relative to the triangle
-    const auto vecrelVel = (hitnode.Velocity - (na.Velocity * alpha + nb.Velocity * beta + no.Velocity * gamma));
+    auto forcevec = primitiveCollision(&hitnode, velocity, mass, normal, dt, &submesh_ground_model, penetration_depth);
 
-    //Find the velocity perpendicular to the triangle
-    //if it points away from the triangle the ignore it (set it to 0)
-    const float velForce = std::max(0.0f, -vecrelVel.dotProduct(normal));
-
-    //Velocity impulse
-    const auto inv_dt = 1.0 / dt;
-    const float vi = hitnode.mass * inv_dt * (velForce + inv_dt * penetration_depth) * 0.5f;
-
-    //The force that the triangle puts on the point
-    //(applied only when it is towards the point)
-    const auto triangle_force = na.Forces * alpha + nb.Forces * beta + no.Forces * gamma;
-    const float trfnormal = std::max(0.0f, triangle_force.dotProduct(normal));
-
-    //The force that the point puts on the triangle
-    //(applied only when it is towards the triangle)
-    const float pfnormal = std::min(0.0f, hitnode.Forces.dotProduct(normal));
-
-    const float fl = (vi + trfnormal - pfnormal) * 0.5f;
-
-    auto forcevec = Vector3::ZERO;
-
-    //Calculate the collision forces
-    primitiveCollision(&hitnode, forcevec, vecrelVel, normal, ((float) dt), &submesh_ground_model, penetration_depth, fl);
-
-    // apply resulting collision force
     hitnode.Forces += forcevec;
-    na.Forces -= alpha * forcevec;
-    nb.Forces -= beta * forcevec;
-    no.Forces -= gamma * forcevec;
+    na.Forces      -= forcevec * alpha;
+    nb.Forces      -= forcevec * beta;
+    no.Forces      -= forcevec * gamma;
 }
 
 

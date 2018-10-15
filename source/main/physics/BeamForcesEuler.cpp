@@ -57,9 +57,9 @@ void Actor::CalcForcesEulerCompute(bool doUpdate, int num_steps)
     MICROPROFILE_SCOPEI ("Actor", "calc Forces Euler Compute", MP_BLUE);
 
     if (doUpdate) this->ToggleHooks(-2, HOOK_LOCK, -1);
-    this->CalcBeams(doUpdate);
     this->UpdateSlideNodeForces(dt); // must be done before the integrator, or else the forces are not calculated properly
     this->CalcNodes();
+    this->CalcBeams(doUpdate);
     this->CalcAircraftForces(doUpdate);
     this->CalcFuseDrag();
     this->CalcBuoyance(doUpdate);

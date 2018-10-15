@@ -958,7 +958,7 @@ bool Collisions::nodeCollision(node_t *node, float dt)
                             if (cbox->refined) normal = cbox->rot * normal;
 
                             // collision boxes are always out of concrete as it seems
-                            primitiveCollision(node, node->Forces, node->Velocity, normal, dt, defaultgm);
+                            node->Forces += primitiveCollision(node, node->Velocity, node->mass, normal, dt, defaultgm);
                             node->nd_last_collision_gm = defaultgm;
                         }
                     }
@@ -996,7 +996,7 @@ bool Collisions::nodeCollision(node_t *node, float dt)
                         if (cbox->refined) normal = cbox->rot * normal;
 
                         // collision boxes are always out of concrete as it seems
-                        primitiveCollision(node, node->Forces, node->Velocity, normal, dt, defaultgm);
+                        node->Forces += primitiveCollision(node, node->Velocity, node->mass, normal, dt, defaultgm);
                         node->nd_last_collision_gm = defaultgm;
                     }
                 }
@@ -1035,7 +1035,7 @@ bool Collisions::nodeCollision(node_t *node, float dt)
         // we need the normal
         // resume repere for the normal
         Vector3 normal = minctri->reverse * Vector3::UNIT_Z;
-        primitiveCollision(node, node->Forces, node->Velocity, normal, dt, minctri->gm);
+        node->Forces += primitiveCollision(node, node->Velocity, node->mass, normal, dt, minctri->gm);
         node->nd_last_collision_gm = minctri->gm;
     }
 
@@ -1163,23 +1163,25 @@ bool Collisions::groundCollision(node_t *node, float dt)
         // when landuse fails or we don't have it, use the default value
         if (!ogm) ogm = defaultgroundgm;
         Ogre::Vector3 normal = App::GetSimTerrain()->GetNormalAt(node->AbsPosition.x, v, node->AbsPosition.z);
-        primitiveCollision(node, node->Forces, node->Velocity, normal, dt, ogm, v - node->AbsPosition.y);
+        node->Forces += primitiveCollision(node, node->Velocity, node->mass, normal, dt, ogm, v - node->AbsPosition.y);
         node->nd_last_collision_gm = ogm;
         return true;
     }
     return false;
 }
 
-void primitiveCollision(node_t *node, Vector3 &force, const Vector3 &velocity, const Vector3 &normal, float dt, ground_model_t* gm, float penetration, float reaction)
+Vector3 primitiveCollision(node_t *node, Vector3 velocity, float mass, Vector3 normal, float dt, ground_model_t* gm, float penetration)
 {
+    Vector3 force = Vector3::ZERO;
     float Vnormal = velocity.dotProduct(normal);
+    float Fnormal = node->Forces.dotProduct(normal);
 
     // if we are inside the fluid (solid ground is below us)
     if (gm->solid_ground_level != 0.0f && penetration >= 0)
     {
         float Vsquared = velocity.squaredLength();
         // First of all calculate power law fluid viscosity
-        float m = gm->flow_consistency_index * approx_pow(Vsquared, (gm->flow_behavior_index - 1.0f)*0.5f);
+        float m = gm->flow_consistency_index * approx_pow(Vsquared, (gm->flow_behavior_index - 1.0f) * 0.5f);
 
         // Then calculate drag based on above. We'are using a simplified Stokes' drag.
         // Per node fluid drag surface coefficient set by node property applies here
@@ -1203,63 +1205,53 @@ void primitiveCollision(node_t *node, Vector3 &force, const Vector3 &velocity, c
         float Fboyancy = gm->fluid_density * penetration * (-DEFAULT_GRAVITY) * node->volume_coef;
         if (gm->flow_behavior_index < 1.0f && Vnormal >= 0.0f)
         {
-            float Fnormal = force.dotProduct(normal);
             if (Fnormal < 0 && Fboyancy>-Fnormal)
             {
                 Fboyancy = -Fnormal;
             }
         }
-        force += Fboyancy*normal;
+        force += Fboyancy * normal;
     }
 
     // if we are inside or touching the solid ground
     if (penetration >= gm->solid_ground_level)
     {
-        Vector3 slip = velocity - Vnormal*normal;
-        float slipv = slip.normalise();
-
-        float Freaction;
-
-        float Fnormal = force.dotProduct(normal);
-        float Fdnormal = Fnormal;
-
         // steady force
-        if (reaction < 0)
+        float Freaction = -Fnormal;
+        // impact force
+        if (Vnormal < 0)
         {
-            Freaction = -Fnormal;
-            // impact force
-            if (Vnormal < 0)
+            Freaction -= Vnormal * mass / dt; // Newton's second law
+        }
+        if (Freaction > 0)
+        {
+            Vector3 slipf = node->Forces - Fnormal * normal;
+            Vector3 slip = velocity - Vnormal * normal;
+            float slipv = slip.normalise();
+            // If the velocity that we slip is lower than adhesion velocity and
+            // we have a downforce and the slip forces are lower than static friction
+            // forces then it's time to go into static friction physics mode.
+            // This code is a direct translation of textbook static friction physics
+            float Greaction = Freaction * gm->strength * node->friction_coef; //General moderated reaction
+            float msGreaction = gm->ms * Greaction;
+            if (slipv < gm->va && Greaction > 0.0f && slipf.squaredLength() <= msGreaction * msGreaction)
             {
-                Freaction += -Vnormal * node->mass / dt; // Newton's second law
+                // Static friction model (with a little smoothing to help the integrator deal with it)
+                float ff = -msGreaction * (1.0f - approx_exp(-slipv / gm->va));
+                force += Freaction * normal + ff * slip - slipf;
+            } else
+            {
+                // Stribek model. It also comes directly from textbooks.
+                float g = gm->mc + (gm->ms - gm->mc) * approx_exp(-approx_pow(slipv / gm->vs, gm->alpha));
+                float ff = -(g + std::min(gm->t2 * slipv, 5.0f)) * Greaction;
+                force += Freaction * normal + ff * slip;
             }
-            if (Freaction < 0) Freaction = 0.0f;
-            // We only update this if we handle ground collisions
             node->nd_last_collision_slip = slipv * slip;
             node->nd_last_collision_force = std::min(-Freaction, 0.0f) * normal;
-        } else
-        {
-            Freaction = reaction;
-            Fnormal = 0.0f;
-        }
-        // If the velocity that we slip is lower than adhesion velocity and
-        // we have a downforce and the slip forces are lower than static friction
-        // forces then it's time to go into static friction physics mode.
-        // This code is a direct translation of textbook static friction physics
-        float Greaction = Freaction * gm->strength * node->friction_coef; //General moderated reaction, node property sets friction_coef as a pernodefriction setting
-        float msGreaction = gm->ms * Greaction;
-        if (slipv < gm->va && Greaction > 0.0f && (force - Fdnormal * normal).squaredLength() <= msGreaction * msGreaction)
-        {
-            // Static friction model (with a little smoothing to help the integrator deal with it)
-            float ff = -msGreaction * (1.0f - approx_exp(-slipv / gm->va));
-            force = (Fnormal + Freaction) * normal + ff * slip;
-        } else
-        {
-            // Stribek model. It also comes directly from textbooks.
-            float g = gm->mc + (gm->ms - gm->mc) * approx_exp(-approx_pow(slipv / gm->vs, gm->alpha));
-            float ff = -(g + std::min(gm->t2 * slipv, 5.0f)) * Greaction;
-            force += Freaction * normal + ff * slip;
         }
     }
+
+    return force;
 }
 
 int Collisions::createCollisionDebugVisualization()

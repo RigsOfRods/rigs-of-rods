@@ -418,7 +418,7 @@ void Turboprop::updateForces(float dt, int doUpdate)
                 correctfactor = -1000.0;
             nodes[nodep[i]].Forces += totaltipforce + correctfactor * tipf;
         }
-        else
+        else if (!nodes[noderef].Velocity.isZeroLength())
         {
             //failed case
             //add drag

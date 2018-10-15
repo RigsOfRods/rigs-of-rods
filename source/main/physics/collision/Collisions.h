@@ -193,4 +193,4 @@ public:
         const Ogre::Quaternion& orient = Ogre::Quaternion::IDENTITY, const Ogre::Vector3& scale = Ogre::Vector3::UNIT_SCALE);
 };
 
-void primitiveCollision(node_t* node, Ogre::Vector3& force, const Ogre::Vector3& velocity, const Ogre::Vector3& normal, float dt, ground_model_t* gm, float penetration = 0, float reaction = -1.0f);
+Ogre::Vector3 primitiveCollision(node_t* node, Ogre::Vector3 velocity, float mass, Ogre::Vector3 normal, float dt, ground_model_t* gm, float penetration = 0);
