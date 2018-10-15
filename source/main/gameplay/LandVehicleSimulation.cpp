@@ -40,9 +40,9 @@ void LandVehicleSimulation::UpdateCruiseControl(Actor* vehicle, float dt)
 
     if ((engine->GetGear() > 0 && RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE) > 0.05f) ||
         (engine->GetGear() > 0 && RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH) > 0.05f) ||
+        (engine->GetGear() > 0 && vehicle->cc_target_speed < vehicle->cc_target_speed_lower_limit) ||
         (engine->GetGear() > 0 && vehicle->ar_parking_brake) ||
         (engine->GetGear() < 0) ||
-        (vehicle->cc_target_speed < vehicle->cc_target_speed_lower_limit) ||
         !engine->IsRunning() ||
         !engine->HasStarterContact())
     {
