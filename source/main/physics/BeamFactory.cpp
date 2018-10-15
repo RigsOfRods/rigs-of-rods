@@ -1046,15 +1046,12 @@ void ActorManager::UpdatePhysicsSimulation()
     }
     for (int i = 0; i < m_physics_steps; i++)
     {
-        bool have_actors_to_simulate = false;
-
         {
             std::vector<std::function<void()>> tasks;
             for (auto actor : m_actors)
             {
                 if (actor->ar_update_physics = actor->CalcForcesEulerPrepare())
                 {
-                    have_actors_to_simulate = true;
                     actor->calcHooks();
                     actor->calcRopes();
                     auto func = std::function<void()>([this, i, actor]()
@@ -1079,8 +1076,6 @@ void ActorManager::UpdatePhysicsSimulation()
             }
             gEnv->threadPool->Parallelize(tasks);
         }
-
-        if (have_actors_to_simulate)
         {
             std::vector<std::function<void()>> tasks;
             for (auto actor : m_actors)
