@@ -1052,8 +1052,6 @@ void ActorManager::UpdatePhysicsSimulation()
             {
                 if (actor->ar_update_physics = actor->CalcForcesEulerPrepare())
                 {
-                    actor->calcHooks();
-                    actor->calcRopes();
                     auto func = std::function<void()>([this, i, actor]()
                         {
                             actor->calcForcesEulerCompute(i, m_physics_steps);

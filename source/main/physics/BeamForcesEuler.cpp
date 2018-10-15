@@ -1156,8 +1156,11 @@ bool Actor::CalcForcesEulerPrepare()
     if (ar_sim_state != Actor::SimState::LOCAL_SIMULATED)
         return false;
 
+    this->calcHooks();
+    this->calcRopes();
     this->forwardCommands();
     this->CalcBeamsInterActor();
+
     return true;
 }
 
