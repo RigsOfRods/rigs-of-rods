@@ -22,6 +22,7 @@
 #include "DynamicCollisions.h"
 
 #include "Application.h"
+#include "ApproxMath.h"
 #include "Beam.h"
 #include "BeamData.h"
 #include "CartesianToTriangleTransform.h"
@@ -92,9 +93,8 @@ static bool InsideTriangleTest(const CartesianToTriangleTransform::TriangleCoord
     return (coord.alpha >= 0) && (coord.beta >= 0) && (coord.gamma >= 0) && (std::abs(distance) <= margin);
 }
 
-
 /// Calculate collision forces and apply them to the collision node and the three vertex nodes of the collision triangle.
-void ResolveCollisionForces(const float penetration_depth,
+void ResolveIntraCollisionForces(const float penetration_depth,
         node_t &hitnode, node_t &na, node_t &nb, node_t &no,
         const float alpha, const float beta, const float gamma,
         const Vector3 &normal,
@@ -136,6 +136,47 @@ void ResolveCollisionForces(const float penetration_depth,
     no.Forces -= gamma * forcevec;
 }
 
+/// Calculate collision forces and apply them to the collision node and the three vertex nodes of the collision triangle.
+void ResolveInterCollisionForces(const float penetration_depth,
+        node_t &hitnode, node_t &na, node_t &nb, node_t &no,
+        const float alpha, const float beta, const float gamma,
+        const Vector3 &normal,
+        const float dt,
+        ground_model_t &submesh_ground_model)
+{
+    auto forcevec = Vector3::ZERO;
+    auto velocity = (hitnode.Velocity - (na.Velocity * alpha + nb.Velocity * beta + no.Velocity * gamma));
+    auto force    = hitnode.Forces;
+    auto gm       = &submesh_ground_model;
+
+    float Fnormal = force.dotProduct(normal);
+    float Vnormal = velocity.dotProduct(normal);
+    float Freaction = std::max(0.0f, -(Fnormal + Vnormal * hitnode.mass / dt));
+
+    float Greaction = Freaction * gm->strength * hitnode.friction_coef;
+    float msGreaction = gm->ms * Greaction;
+
+    Vector3 slip = velocity - Vnormal * normal;
+    float slipv = slip.normalise();
+
+    if (slipv < gm->va && Greaction > 0.0f && (force - Fnormal * normal).squaredLength() <= msGreaction * msGreaction)
+    {
+        // Static friction model (with a little smoothing to help the integrator deal with it)
+        float ff = -msGreaction * (1.0f - approx_exp(-slipv / gm->va));
+        forcevec = -hitnode.Forces + (Fnormal + Freaction) * normal + ff * slip;
+    } else
+    {
+        // Stribek model. It also comes directly from textbooks.
+        float g = gm->mc + (gm->ms - gm->mc) * std::min(1.0f, approx_exp(-approx_pow(slipv / gm->vs, gm->alpha)));
+        float ff = -(g + gm->t2 * slipv) * Greaction;
+        forcevec = Freaction * normal + ff * slip;
+    }
+
+    hitnode.Forces += forcevec;
+    na.Forces -= alpha * forcevec;
+    nb.Forces -= beta * forcevec;
+    no.Forces -= gamma * forcevec;
+}
 
 void ResolveInterActorCollisions(const float dt, PointColDetector &interPointCD,
         const int free_collcab, int collcabs[], int cabs[],
@@ -203,7 +244,7 @@ void ResolveInterActorCollisions(const float dt, PointColDetector &interPointCD,
 
                     const auto penetration_depth = collrange - distance;
 
-                    ResolveCollisionForces(penetration_depth, *hitnode, *na, *nb, *no, coord.alpha,
+                    ResolveInterCollisionForces(penetration_depth, *hitnode, *na, *nb, *no, coord.alpha,
                             coord.beta, coord.gamma, normal, dt, submesh_ground_model);
 
                     hit_actor->ar_last_fuzzy_ground_model = &submesh_ground_model;
@@ -287,7 +328,7 @@ void ResolveIntraActorCollisions(const float dt, PointColDetector &intraPointCD,
 
                     const auto penetration_depth = collrange - distance;
 
-                    ResolveCollisionForces(penetration_depth, *hitnode, *na, *nb, *no, coord.alpha,
+                    ResolveIntraCollisionForces(penetration_depth, *hitnode, *na, *nb, *no, coord.alpha,
                             coord.beta, coord.gamma, normal, dt, submesh_ground_model);
                 }
             }

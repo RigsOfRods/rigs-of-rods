@@ -34,9 +34,11 @@
 #include "CmdKeyInertia.h"
 #include "Collisions.h"
 #include "Differentials.h"
+#include "DynamicCollisions.h"
 #include "DustPool.h"
 #include "FlexAirfoil.h"
 #include "InputEngine.h"
+#include "PointColDetector.h"
 #include "Replay.h"
 #include "RoRFrameListener.h"
 #include "ScrewProp.h"
@@ -54,6 +56,26 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
     const float dt = static_cast<float>(PHYSICS_DT);
     IWater* water = App::GetSimTerrain()->getWater();
     const bool is_player_actor = (this == RoR::App::GetSimController()->GetPlayerActor());
+
+    if (!m_first_physics_step)
+    {
+        this->CalcNodes();
+        this->UpdateBoundingBoxes();
+        if (!this->ar_disable_self_collision && !this->m_ongoing_reset)
+        {
+            this->IntraPointCD()->UpdateIntraPoint(this);
+            ResolveIntraActorCollisions(PHYSICS_DT,
+                *(this->IntraPointCD()),
+                this->ar_num_collcabs,
+                this->ar_collcabs,
+                this->ar_cabs,
+                this->ar_intra_collcabrate,
+                this->ar_nodes,
+                this->ar_collision_range,
+                *(this->ar_submesh_ground_model));
+        }
+    }
+    m_first_physics_step = false;
 
     this->CalcBeams(doUpdate);
 
@@ -103,28 +125,6 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
     // these must be done before the integrator, or else the forces are not calculated properly
     updateSlideNodeForces(dt);
     // END Slidenode section   /////////////////////////////////////////////////
-
-    this->CalcNodes();
-    this->UpdateBoundingBoxes();
-
-    // anti-explosion guard
-    // rationale behind 1e9 number:
-    // - while 1e6 is reachable by a fast vehicle, it will be badly deformed and shaking due to loss of precision in calculations
-    // - at 1e7 any typical RoR vehicle falls apart and stops functioning
-    // - 1e9 may be reachable only by a vehicle that is 1000 times bigger than a typical RoR vehicle, and it will be a loooong trip
-    // to be able to travel such long distances will require switching physics calculations to higher precision numbers
-    // or taking a different approach to the simulation (actor-local coordinate system?)
-    if (!inRange(ar_bounding_box.getMinimum().x + ar_bounding_box.getMaximum().x +
-        ar_bounding_box.getMinimum().y + ar_bounding_box.getMaximum().y +
-        ar_bounding_box.getMinimum().z + ar_bounding_box.getMaximum().z, -1e9, 1e9))
-    {
-        ActorModifyRequest rq; // actor exploded, schedule reset
-        rq.amr_actor = this;
-        rq.amr_type = ActorModifyRequest::Type::RESET_ON_INIT_POS;
-        App::GetSimController()->QueueActorModify(rq);
-
-        return; // return early to avoid propagating invalid values
-    }
 
     //turboprop forces
     for (int i = 0; i < ar_num_aeroengines; i++)

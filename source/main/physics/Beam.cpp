@@ -1441,6 +1441,7 @@ void Actor::SyncReset(bool reset_position)
     this->resetSlideNodes();
 
     m_ongoing_reset = true;
+    m_first_physics_step = true;
 }
 
 bool Actor::ReplayStep()
@@ -4242,6 +4243,7 @@ Actor::Actor(
     , ar_filename(rq.asr_filename)
     , m_actor_config(rq.asr_config)
     , m_ongoing_reset(false)
+    , m_first_physics_step(true)
     , ar_last_fuzzy_ground_model(nullptr)
 {
     m_use_skidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;

@@ -1058,19 +1058,6 @@ void ActorManager::UpdatePhysicsSimulation()
                     auto func = std::function<void()>([this, i, actor]()
                         {
                             actor->calcForcesEulerCompute(i, m_physics_steps);
-                            if (!actor->ar_disable_self_collision)
-                            {
-                                actor->IntraPointCD()->UpdateIntraPoint(actor);
-                                ResolveIntraActorCollisions(PHYSICS_DT,
-                                    *(actor->IntraPointCD()),
-                                    actor->ar_num_collcabs,
-                                    actor->ar_collcabs,
-                                    actor->ar_cabs,
-                                    actor->ar_intra_collcabrate,
-                                    actor->ar_nodes,
-                                    actor->ar_collision_range,
-                                    *(actor->ar_submesh_ground_model));
-                            }
                         });
                     tasks.push_back(func);
                 }
@@ -1081,7 +1068,7 @@ void ActorManager::UpdatePhysicsSimulation()
             std::vector<std::function<void()>> tasks;
             for (auto actor : m_actors)
             {
-                if (actor->ar_update_physics && !actor->ar_disable_actor2actor_collision)
+                if (actor->ar_update_physics && !actor->ar_disable_actor2actor_collision && !actor->m_ongoing_reset)
                 {
                     auto func = std::function<void()>([this, actor]()
                         {
