@@ -1834,22 +1834,15 @@ void SimController::HideGUI(bool hidden)
     }
 #endif // USE_SOCKETW
 
+    if (RoR::App::GetOverlayWrapper())
+        RoR::App::GetOverlayWrapper()->showDashboardOverlays(!hidden, m_player_actor);
+
     if (hidden)
     {
-        if (RoR::App::GetOverlayWrapper())
-            RoR::App::GetOverlayWrapper()->showDashboardOverlays(false, m_player_actor);
-
         if (m_gfx_scene.GetSurveyMap())
             m_gfx_scene.GetSurveyMap()->setVisibility(false); // TODO: we shouldn't update GfxScene-owned objects from simulation, but this whole HideGUI() function will likely end up being invoked by GfxActor in the future, so it's OK for now ~ only_a_ptr, 05/2018
     }
-    else
-    {
-        if (m_player_actor && (this->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM))
-        {
-            if (RoR::App::GetOverlayWrapper())
-                RoR::App::GetOverlayWrapper()->showDashboardOverlays(true, m_player_actor);
-        }
-    }
+
     App::GetGuiManager()->hideGUI(hidden);
 }
 
@@ -2294,9 +2287,9 @@ void SimController::ChangePlayerActor(Actor* actor)
     else
     {
         // getting inside
-        if (RoR::App::GetOverlayWrapper() && ! m_hide_gui)
+        if (RoR::App::GetOverlayWrapper() != nullptr)
         {
-            RoR::App::GetOverlayWrapper()->showDashboardOverlays(true, m_player_actor);
+            RoR::App::GetOverlayWrapper()->showDashboardOverlays(!m_hide_gui, m_player_actor);
         }
 
         if (m_player_actor->GetGfxActor()->GetVideoCamState() == GfxActor::VideoCamState::VCSTATE_ENABLED_OFFLINE)
