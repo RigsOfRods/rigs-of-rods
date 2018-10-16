@@ -1,5 +1,3 @@
-set(TMP_FILE_DIR ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/tmp)
-
 # find packages
 
 find_package(wxWidgets COMPONENTS base core html net adv)
@@ -31,17 +29,20 @@ IF(ROR_BUILD_CONFIGURATOR)
   add_subdirectory(configurator)
 ENDIF()
 
-IF (BUILD_APPIMAGE)
-
-  # Download && install AppRun
-  if(NOT EXISTS "${CMAKE_BINARY_DIR}/AppRun")
-    file(DOWNLOAD "https://github.com/AppImage/AppImageKit/releases/download/continuous/AppRun-x86_64"
-                  "${CMAKE_BINARY_DIR}/AppRun")
+if (BUILD_REDIST_FOLDER)
+  if (WIN32)
+    INSTALL(FILES ${CMAKE_SOURCE_DIR}/tools/windows/.itch.toml
+            DESTINATION ${CMAKE_BINARY_DIR}/redist
+    )
+  else()
+    INSTALL(PROGRAMS ${CMAKE_SOURCE_DIR}/tools/linux/RunRoR
+            DESTINATION ${CMAKE_BINARY_DIR}/redist
+    )
+    INSTALL(PROGRAMS ${CMAKE_SOURCE_DIR}/tools/linux/RunRoRConfig
+            DESTINATION ${CMAKE_BINARY_DIR}/redist
+    )
+    INSTALL(FILES ${CMAKE_SOURCE_DIR}/tools/linux/.itch.toml
+            DESTINATION ${CMAKE_BINARY_DIR}/redist
+    )
   endif()
-
-  INSTALL(PROGRAMS ${CMAKE_BINARY_DIR}/AppRun
-          DESTINATION ${CMAKE_BINARY_DIR}/AppDir/
-  )
-
-  message(WARNING "Run >make install< && >./appimagetool-x86_64.AppImage AppDir< for creating the AppImage")
-ENDIF ()
+endif()

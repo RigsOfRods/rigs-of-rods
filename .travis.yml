@@ -9,6 +9,7 @@ cache:
 addons:
   apt:
     packages:
+    - p7zip-full
     - pkg-config
     - ninja-build
     - libfreetype6-dev
@@ -33,9 +34,9 @@ install:
   - conan install --build=missing -u .
 
 script:
-  - cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_APPIMAGE=ON .
+  - cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_REDIST_FOLDER=ON .
   - ninja RoRConfig
   - ninja zip_and_copy_resources
 
 after_success:
-  - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then sh ./.travis/build-and-upload-appimage.sh; fi
+  - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then sh ./tools/CI/upload-CI-build.sh; fi

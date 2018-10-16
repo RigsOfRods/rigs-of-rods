@@ -523,7 +523,7 @@ endif ()
 
 # --- Caelum -- Ogre addon for realistic sky rendering ---
 if (TARGET Caelum::Caelum)
-    set(CAELUM_PLUGIN "Plugin=../libCaelum.so")
+    set(CFG_OGRE_PLUGIN_CAELUM "Plugin=../libCaelum.so")
     target_link_libraries(${BINNAME} PRIVATE Caelum::Caelum)
     target_compile_definitions(${BINNAME} PRIVATE USE_CAELUM)
 endif ()
@@ -550,14 +550,18 @@ if (WIN32)
   set(CFG_OGRE_RENDERSYSTEM_D3D9 "Plugin=RenderSystem_Direct3D9")
 endif ()
 
-configure_file(plugins-AppImage.cfg.in ${TMP_FILE_DIR}/plugins.cfg)
-
-if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-  configure_file(plugins.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg)
+if(BUILD_REDIST_FOLDER AND UNIX)
+  set(PLUGINS_FOLDER "lib")
+elseif(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
+  set(PLUGINS_FOLDER ".")
 else()
-  configure_file(plugins-WO-conan.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg)
+  set(PLUGINS_FOLDER ${OGRE_PLUGIN_DIR_REL})
 endif()
 
+configure_file(plugins.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg)
+
+
+set(TMP_FILE_DIR ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/tmp)
 get_sub_dirs(ROR_RESOURCES_DIRS "${CMAKE_SOURCE_DIR}/resources")
 set(ROR_RESOURCES_ZIPS)
 set(TMP_RES_DIR ${TMP_FILE_DIR}/resources)
@@ -591,28 +595,23 @@ add_custom_target(
     VERBATIM
 )
 
-IF (BUILD_APPIMAGE)
+IF (BUILD_REDIST_FOLDER)
     INSTALL(
             TARGETS ${BINNAME}
-            RUNTIME DESTINATION ${CMAKE_BINARY_DIR}/AppDir/usr/bin
-            LIBRARY DESTINATION ${CMAKE_BINARY_DIR}/AppDir/usr/lib
-            ARCHIVE DESTINATION ${CMAKE_BINARY_DIR}/AppDir/usr/lib
+            RUNTIME DESTINATION ${REDIST_FOLDER}
+            LIBRARY DESTINATION ${REDIST_FOLDER}
+            ARCHIVE DESTINATION ${REDIST_FOLDER}
     )
     INSTALL(
             DIRECTORY ${TMP_RES_DIR}/
-            DESTINATION ${CMAKE_BINARY_DIR}/AppDir/usr/bin/resources/
+            DESTINATION ${REDIST_FOLDER}/resources/
     )
     INSTALL(
             DIRECTORY ${CMAKE_SOURCE_DIR}/resources/managed_materials/
-            DESTINATION ${CMAKE_BINARY_DIR}/AppDir/usr/bin/resources/managed_materials/
+            DESTINATION ${REDIST_FOLDER}/resources/managed_materials/
     )
     INSTALL(
-            FILES ${TMP_FILE_DIR}/plugins.cfg
-            DESTINATION ${CMAKE_BINARY_DIR}/AppDir/usr/bin
+            FILES ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg
+            DESTINATION ${REDIST_FOLDER}
     )
-    INSTALL(
-            DIRECTORY ${CMAKE_SOURCE_DIR}/tools/linux/desktop-entry/
-            DESTINATION ${CMAKE_BINARY_DIR}/AppDir/
-    )
-
 ENDIF ()
