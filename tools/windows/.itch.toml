@@ -1,0 +1,17 @@
+[[actions]]
+name = "play"
+path = "RoR.exe"
+
+[[actions]]
+name = "Rigs of Rods Configurator"
+path = "RoRConfig.exe"
+
+[[actions]]
+name = "manual"
+path = "http://docs.rigsofrods.org/gameplay/beginners-guide/"
+
+[[prereqs]]
+name = "vcredist-2017-x64"
+
+[[prereqs]]
+name = "dx-june-2010"

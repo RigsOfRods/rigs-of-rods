@@ -16,6 +16,7 @@ wxwidgets/3.1.1@bincrafters/stable
 
 [imports]
 bin, *.dll -> ./bin @ keep_path=False
+bin, *.dll -> ./redist @ keep_path=False
 lib, *.so* -> ./bin @ root_package=OGRE, keep_path=False, excludes=lib*
-lib, *.so* -> ./AppDir/usr/lib @ keep_path=False,
-lib, *.dylib* -> ./bin @ keep_path=False 
+lib, *.so* -> ./redist/lib @ keep_path=False
+lib, *.dylib* -> ./bin @ keep_path=False
