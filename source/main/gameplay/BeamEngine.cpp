@@ -1205,11 +1205,7 @@ float EngineSim::getEnginePower(float rpm)
 
 float EngineSim::getAccToHoldRPM(float rpm)
 {
-    float rpmRatio = rpm / (m_engine_max_rpm * 1.25f);
-
-    rpmRatio = std::min(rpmRatio, 1.0f);
-
-    return (-m_braking_torque * rpmRatio) / getEnginePower(m_cur_engine_rpm);
+    return (-m_braking_torque * rpm / m_engine_max_rpm) / getEnginePower(m_cur_engine_rpm);
 }
 
 float EngineSim::getIdleMixture()

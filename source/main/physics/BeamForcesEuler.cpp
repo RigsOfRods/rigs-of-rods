@@ -55,12 +55,6 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
     IWater* water = App::GetSimTerrain()->getWater();
     const bool is_player_actor = (this == RoR::App::GetSimController()->GetPlayerActor());
 
-    //engine callback
-    if (ar_engine)
-    {
-        ar_engine->UpdateEngineSim(dt, doUpdate);
-    }
-
     this->CalcBeams(doUpdate);
 
     if (doUpdate)
@@ -1112,6 +1106,12 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
         {
             it->ti_tying = false;
         }
+    }
+
+    // Should happen after the shocks / commands / engine triggers are updated
+    if (ar_engine)
+    {
+        ar_engine->UpdateEngineSim(dt, doUpdate);
     }
 
     // we also store a new replay frame
