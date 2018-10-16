@@ -461,14 +461,10 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
     }
 
     // clutch
-    float retorque = 0.0f;
-
     if (m_cur_gear)
     {
-        retorque = m_cur_clutch_torque / m_gear_ratios[m_cur_gear + 1];
+        totaltorque -= m_cur_clutch_torque / m_gear_ratios[m_cur_gear + 1];
     }
-
-    totaltorque -= retorque;
 
     // integration
     m_cur_engine_rpm += dt * totaltorque / m_engine_inertia;
