@@ -715,7 +715,10 @@ void ActorManager::UpdateSleepingState(Actor* player_actor, float dt)
             if (actor->ar_sim_state != Actor::SimState::LOCAL_SIMULATED)
                 continue;
             if (actor->getVelocity().squaredLength() > 0.01f)
+            {
+                actor->ar_sleep_counter = 0.0f;
                 continue;
+            }
 
             actor->ar_sleep_counter += dt;
 
