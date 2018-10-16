@@ -104,6 +104,7 @@ public:
     Ogre::Vector3                GetDirArrowTarget()        { return m_dir_arrow_pointed; }
     bool                         IsPressurizingTyres() const { return m_pressure_pressed; }
     bool                         AreControlsLocked() const;
+    bool                         IsGUIHidden()              { return m_hide_gui; }
     void                         ResetCamera();
     RoR::CameraManager::CameraBehaviors GetCameraBehavior();
 

@@ -432,7 +432,6 @@ void OverlayWrapper::showDashboardOverlays(bool show, Actor* actor)
     }
     else
     {
-
         m_aerial_dashboard_needles_overlay->hide();
         m_aerial_dashboard_overlay->hide();
 
@@ -1231,7 +1230,7 @@ void OverlayWrapper::RestoreOverlaysVisibility(Actor* current_vehicle)
         m_debug_fps_memory_overlay->show();
     }
 
-    showDashboardOverlays(true, current_vehicle);
+    showDashboardOverlays(!RoR::App::GetSimController()->IsGUIHidden(), current_vehicle);
 }
 
 void OverlayWrapper::UpdateRacingGui(RoR::GfxScene* gs)

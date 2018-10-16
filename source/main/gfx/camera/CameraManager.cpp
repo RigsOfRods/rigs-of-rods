@@ -30,6 +30,7 @@
 #include "InputEngine.h"
 #include "Language.h"
 #include "OverlayWrapper.h"
+#include "RoRFrameListener.h"
 #include "Settings.h"
 #include "TerrainManager.h"
 #include "GUIManager.h"
@@ -397,7 +398,8 @@ void CameraManager::ActivateNewBehavior(CameraBehaviors new_behavior, bool reset
 
         if ( RoR::App::GetOverlayWrapper() != nullptr )
         {
-            RoR::App::GetOverlayWrapper()->showDashboardOverlays((m_cct_player_actor->ar_driveable == AIRPLANE), m_cct_player_actor);
+            bool visible = m_cct_player_actor->ar_driveable == AIRPLANE && !RoR::App::GetSimController()->IsGUIHidden();
+            RoR::App::GetOverlayWrapper()->showDashboardOverlays(visible, m_cct_player_actor);
         }
 
         m_cct_player_actor->ar_current_cinecam = std::max(0, m_cct_player_actor->ar_current_cinecam);
@@ -464,7 +466,7 @@ void CameraManager::switchBehavior(CameraBehaviors new_behavior)
     if (m_cct_player_actor != nullptr)
     {
         m_cct_player_actor->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_EXTERNAL;
-        if ( RoR::App::GetOverlayWrapper() != nullptr)
+        if ( RoR::App::GetOverlayWrapper() != nullptr && !RoR::App::GetSimController()->IsGUIHidden() )
         {
             RoR::App::GetOverlayWrapper()->showDashboardOverlays(true, m_cct_player_actor);
         }
