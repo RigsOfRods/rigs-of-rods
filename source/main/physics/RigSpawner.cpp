@@ -1357,19 +1357,12 @@ void ActorSpawner::ProcessSubmesh(RigDef::Submesh & def)
         m_actor->ar_cabs[m_actor->ar_num_cabs*3+1]=GetNodeIndexOrThrow(cab_itor->nodes[1]);
         m_actor->ar_cabs[m_actor->ar_num_cabs*3+2]=GetNodeIndexOrThrow(cab_itor->nodes[2]);
 
-        if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_c_CONTACT))
+        // TODO: Clean this up properly ~ ulteq 10/2018
+        if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_c_CONTACT) ||
+            BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_p_10xTOUGHER) ||
+            BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_u_INVULNERABLE))
         {
             m_actor->ar_collcabs[m_actor->ar_num_collcabs]=m_actor->ar_num_cabs;
-            m_actor->ar_num_collcabs++;
-        }
-        if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_p_10xTOUGHER))
-        {
-            m_actor->ar_collcabs[m_actor->ar_num_collcabs]=m_actor->ar_num_cabs; 
-            m_actor->ar_num_collcabs++;
-        }
-        if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_u_INVULNERABLE))
-        {
-            m_actor->ar_collcabs[m_actor->ar_num_collcabs]=m_actor->ar_num_cabs; 
             m_actor->ar_num_collcabs++;
         }
         if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_b_BUOYANT))
