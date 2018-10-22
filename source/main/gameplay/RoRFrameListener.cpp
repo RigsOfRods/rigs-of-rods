@@ -1682,20 +1682,16 @@ void SimController::UpdateSimulation(float dt)
         if ((!simPAUSED(s)) && (dt != 0.f))
         {
             m_camera_manager.Update(dt, m_player_actor, m_actor_manager.GetSimulationSpeed());
+#ifdef USE_OPENAL
+            // update audio listener position
+            static Vector3 lastCameraPosition;
+            Vector3 cameraSpeed = (gEnv->mainCamera->getPosition() - lastCameraPosition) / dt;
+            lastCameraPosition = gEnv->mainCamera->getPosition();
+
+            SoundScriptManager::getSingleton().setCamera(gEnv->mainCamera->getPosition(), gEnv->mainCamera->getDirection(), gEnv->mainCamera->getUp(), cameraSpeed);
+#endif // USE_OPENAL
         }
     }
-
-#ifdef USE_OPENAL
-    // update audio listener position
-    static Vector3 lastCameraPosition;
-    Vector3 cameraSpeed = (gEnv->mainCamera->getPosition() - lastCameraPosition) / dt;
-    lastCameraPosition = gEnv->mainCamera->getPosition();
-
-    if (simRUNNING(s) || simPAUSED(s) || simEDITOR(s))
-    {
-        SoundScriptManager::getSingleton().setCamera(gEnv->mainCamera->getPosition(), gEnv->mainCamera->getDirection(), gEnv->mainCamera->getUp(), cameraSpeed);
-    }
-#endif // USE_OPENAL
 
     this->UpdateInputEvents(dt);
 
