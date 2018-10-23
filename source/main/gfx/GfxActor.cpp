@@ -66,6 +66,7 @@ RoR::GfxActor::GfxActor(Actor* actor, std::string ogre_resource_group,
     m_custom_resource_group(ogre_resource_group),
     m_vidcam_state(VideoCamState::VCSTATE_ENABLED_ONLINE),
     m_debug_view(DebugViewType::DEBUGVIEW_NONE),
+    m_last_debug_view(DebugViewType::DEBUGVIEW_SKELETON),
     m_rods_parent_scenenode(nullptr),
     m_gfx_nodes(gfx_nodes),
     m_props(props),
@@ -1058,23 +1059,32 @@ void RoR::GfxActor::UpdateDebugView()
     }
 }
 
-void RoR::GfxActor::ToggleSkeletonView()
+void RoR::GfxActor::ToggleDebugView()
 {
     if (m_debug_view == DebugViewType::DEBUGVIEW_NONE)
-        m_debug_view = DebugViewType::DEBUGVIEW_SKELETON;
+        m_debug_view = m_last_debug_view;
     else
         m_debug_view = DebugViewType::DEBUGVIEW_NONE;
+}
+
+void RoR::GfxActor::SetDebugView(DebugViewType dv)
+{
+    m_debug_view = dv;
+    if (dv != DebugViewType::DEBUGVIEW_NONE)
+    {
+        m_last_debug_view = dv;
+    }
 }
 
 void RoR::GfxActor::CycleDebugViews()
 {
     switch (m_debug_view)
     {
-    case DebugViewType::DEBUGVIEW_NONE:     m_debug_view = DebugViewType::DEBUGVIEW_SKELETON; break;
-    case DebugViewType::DEBUGVIEW_SKELETON: m_debug_view = DebugViewType::DEBUGVIEW_NODES;    break;
-    case DebugViewType::DEBUGVIEW_NODES:    m_debug_view = DebugViewType::DEBUGVIEW_BEAMS;    break;
-    case DebugViewType::DEBUGVIEW_BEAMS:    m_debug_view = DebugViewType::DEBUGVIEW_WHEELS;   break;
-    case DebugViewType::DEBUGVIEW_WHEELS:   m_debug_view = DebugViewType::DEBUGVIEW_NONE;     break;
+    case DebugViewType::DEBUGVIEW_NONE:     SetDebugView(DebugViewType::DEBUGVIEW_SKELETON); break;
+    case DebugViewType::DEBUGVIEW_SKELETON: SetDebugView(DebugViewType::DEBUGVIEW_NODES);    break;
+    case DebugViewType::DEBUGVIEW_NODES:    SetDebugView(DebugViewType::DEBUGVIEW_BEAMS);    break;
+    case DebugViewType::DEBUGVIEW_BEAMS:    SetDebugView(DebugViewType::DEBUGVIEW_WHEELS);   break;
+    case DebugViewType::DEBUGVIEW_WHEELS:   SetDebugView(DebugViewType::DEBUGVIEW_SKELETON); break;
     default:;
     }
 }

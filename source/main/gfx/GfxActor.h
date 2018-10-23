@@ -279,7 +279,7 @@ public:
     void                      SetAllMeshesVisible(bool value);
     void                      SetCastShadows     (bool value);
     void                      UpdateDebugView    ();
-    void                      ToggleSkeletonView ();
+    void                      ToggleDebugView    ();
     void                      CycleDebugViews    ();
     void                      UpdateCabMesh      ();
     int                       GetActorId         () const;
@@ -292,8 +292,8 @@ public:
     void                      UpdateCParticles   ();
     void                      UpdateAeroEngines  ();
     void                      UpdateNetLabels    (float dt);
+    void                      SetDebugView       (DebugViewType dv);
     void                      AddFlexbody        (FlexBody* fb)           { m_flexbodies.push_back(fb); }
-    inline void               SetDebugView       (DebugViewType dv)       { m_debug_view = dv; }
     Attributes&               GetAttributes      ()                       { return m_attr; }
     inline Ogre::MaterialPtr& GetCabTransMaterial()                       { return m_cab_mat_visual_trans; }
     inline VideoCamState      GetVideoCamState   () const                 { return m_vidcam_state; }
@@ -321,6 +321,7 @@ private:
     VideoCamState               m_vidcam_state;
     std::vector<VideoCamera>    m_videocameras;
     DebugViewType               m_debug_view;
+    DebugViewType               m_last_debug_view;
     std::vector<NodeGfx>        m_gfx_nodes;
     std::vector<AirbrakeGfx>    m_gfx_airbrakes;
     std::vector<prop_t>         m_props;

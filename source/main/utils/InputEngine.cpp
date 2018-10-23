@@ -1028,10 +1028,16 @@ eventInfo_t eventInfo[] = {
         _L("tie a load to the truck")
     },
     {
-        "COMMON_SHOW_SKELETON", // TODO: rename. Re-purposed to cycle debug view
-        EV_COMMON_SHOW_SKELETON,
-        "Keyboard K",
-        _L("toggle skeleton display mode")
+        "COMMON_TOGGLE_DEBUG_VIEW",
+        EV_COMMON_TOGGLE_DEBUG_VIEW,
+        "Keyboard EXPL+K",
+        _L("toggle debug view")
+    },
+    {
+        "COMMON_CYCLE_DEBUG_VIEWS",
+        EV_COMMON_CYCLE_DEBUG_VIEWS,
+        "Keyboard EXPL+CTRL+K",
+        _L("cycle debug views")
     },
     {
         "COMMON_TOGGLE_TERRAIN_EDITOR",
