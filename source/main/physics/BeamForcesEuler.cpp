@@ -108,20 +108,14 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
     this->UpdateBoundingBoxes();
 
     // anti-explosion guard
-    // rationale behind 1e9 number:
-    // - while 1e6 is reachable by a fast vehicle, it will be badly deformed and shaking due to loss of precision in calculations
-    // - at 1e7 any typical RoR vehicle falls apart and stops functioning
-    // - 1e9 may be reachable only by a vehicle that is 1000 times bigger than a typical RoR vehicle, and it will be a loooong trip
-    // to be able to travel such long distances will require switching physics calculations to higher precision numbers
-    // or taking a different approach to the simulation (actor-local coordinate system?)
-    if (!inRange(ar_bounding_box.getMinimum().x + ar_bounding_box.getMaximum().x +
-        ar_bounding_box.getMinimum().y + ar_bounding_box.getMaximum().y +
-        ar_bounding_box.getMinimum().z + ar_bounding_box.getMaximum().z, -1e9, 1e9))
+    if (ar_bounding_box.getSize().length() > 200.0f * m_min_camera_radius)
     {
         ActorModifyRequest rq; // actor exploded, schedule reset
         rq.amr_actor = this;
-        rq.amr_type = ActorModifyRequest::Type::RESET_ON_INIT_POS;
+        rq.amr_type = ActorModifyRequest::Type::RESET_ON_SPOT;
         App::GetSimController()->QueueActorModify(rq);
+
+        m_ongoing_reset = true;
 
         return; // return early to avoid propagating invalid values
     }
