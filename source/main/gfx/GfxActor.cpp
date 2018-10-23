@@ -1033,7 +1033,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_wheel_speed = m_actor->ar_wheel_speed;
     m_simbuf.simbuf_beaconlight_active = m_actor->m_beacon_light_is_active;
     m_simbuf.simbuf_cur_cinecam = m_actor->ar_current_cinecam;
-    m_simbuf.simbuf_parking_brake = (m_actor->ar_parking_brake != 0);
+    m_simbuf.simbuf_parking_brake = m_actor->ar_parking_brake;
     m_simbuf.simbuf_brake = m_actor->ar_brake;
     m_simbuf.simbuf_hydro_dir_state = m_actor->ar_hydro_dir_state;
     m_simbuf.simbuf_hydro_aileron_state = m_actor->ar_hydro_aileron_state;

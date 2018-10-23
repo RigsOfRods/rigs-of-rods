@@ -502,7 +502,7 @@ void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_la
                         vehicle->ar_brake = vehicle->ar_brake_force * sqrt(ratio);
                     }
                 }
-                else if (brake == 0.0f && vehicle->ar_parking_brake == 0 && engine->GetTorque() == 0.0f)
+                else if (brake == 0.0f && !vehicle->ar_parking_brake && engine->GetTorque() == 0.0f)
                 {
                     float ratio = std::max(0.0f, 0.2f - std::abs(vehicle->ar_avg_wheel_speed)) / 0.2f;
                     vehicle->ar_brake = vehicle->ar_brake_force * ratio;
