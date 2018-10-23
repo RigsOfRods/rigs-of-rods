@@ -4350,11 +4350,6 @@ Replay* Actor::getReplay()
     return m_replay_handler;
 }
 
-bool Actor::inRange(float num, float min, float max)
-{
-    return (num <= max && num >= min);
-}
-
 Vector3 Actor::getNodePosition(int nodeNumber)
 {
     if (nodeNumber >= 0 && nodeNumber < ar_num_nodes)

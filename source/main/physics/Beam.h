@@ -148,7 +148,6 @@ public:
     bool              getCustomParticleMode();
     int               getLowestNode();
     void              receiveStreamData(unsigned int type, int source, unsigned int streamid, char *buffer, unsigned int len);
-    bool              inRange(float num, float min, float max);
     void              sendStreamData();
     bool              isTied();
     bool              isLocked(); 
