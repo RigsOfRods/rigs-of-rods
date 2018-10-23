@@ -1334,7 +1334,7 @@ void Actor::SyncReset(bool reset_position)
     ar_hydro_dir_wheel_display = 0.0;
     if (m_hydro_inertia)
         m_hydro_inertia->resetCmdKeyDelay();
-    ar_parking_brake = 0;
+    ar_parking_brake = false;
     cc_mode = false;
     ar_fusedrag = Vector3::ZERO;
     ar_origin = Vector3::ZERO;
@@ -3747,8 +3747,7 @@ void Actor::updateDashBoards(float dt)
     }
 
     // parking brake
-    bool pbrake = (ar_parking_brake > 0);
-    ar_dashboard->setBool(DD_PARKINGBRAKE, pbrake);
+    ar_dashboard->setBool(DD_PARKINGBRAKE, ar_parking_brake);
 
     // locked lamp
     bool locked = isLocked();
@@ -4178,7 +4177,7 @@ Actor::Actor(
     , m_net_label_mt(0)
     , m_net_reverse_light(false)
     , m_replay_pos_prev(-1)
-    , ar_parking_brake(0)
+    , ar_parking_brake(false)
     , m_position_storage(0)
     , m_avg_node_position(rq.asr_position)
     , m_previous_gear(0)
