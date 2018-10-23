@@ -60,10 +60,5 @@ struct wheel_t
     float       wh_width;
     int         wh_detacher_group;
     bool        wh_is_detached;
-
-    // Skidmarks
-    Ogre::Vector3 lastContactPoint;
-    Ogre::String lastGroundModelName;
-    float lastSlip;
 };
 

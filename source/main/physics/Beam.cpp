@@ -2561,11 +2561,7 @@ void Actor::updateSkidmarks()
             if (n && n->nd_has_ground_contact && n->nd_last_collision_gm != nullptr &&
                     n->nd_last_collision_gm->fx_type == Collisions::FX_HARD && n->nd_last_collision_slip > SKID_THRESHOLD)
             {
-                ar_wheels[i].lastSlip = n->nd_last_collision_slip;
-                ar_wheels[i].lastContactPoint= n->AbsPosition;
-                ar_wheels[i].lastGroundModelName = n->nd_last_collision_gm->name;
-
-                m_skid_trails[i]->update();
+                m_skid_trails[i]->update(n->AbsPosition, n->nd_last_collision_slip, n->nd_last_collision_gm->name);
                 return;
             }
         }
