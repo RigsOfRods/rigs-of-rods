@@ -79,6 +79,7 @@ public:
         DEBUGVIEW_SKELETON,
         DEBUGVIEW_NODES,
         DEBUGVIEW_BEAMS,
+        DEBUGVIEW_WHEELS,
     };
 
     /// An Ogre::Camera mounted on the actor and rendering into

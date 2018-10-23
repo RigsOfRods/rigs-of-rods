@@ -2556,12 +2556,13 @@ void Actor::updateSkidmarks()
 
         for (int j = 0; j < ar_wheels[i].wh_num_nodes; j++)
         {
-            const float SKID_THRESHOLD = 10.f;
             auto n = ar_wheels[i].wh_nodes[j];
+            const float SKID_THRESHOLD = 10.f;
+            const float slipv = n->nd_last_collision_slip.length();
             if (n && n->nd_has_ground_contact && n->nd_last_collision_gm != nullptr &&
-                    n->nd_last_collision_gm->fx_type == Collisions::FX_HARD && n->nd_last_collision_slip > SKID_THRESHOLD)
+                    n->nd_last_collision_gm->fx_type == Collisions::FX_HARD && slipv > SKID_THRESHOLD)
             {
-                m_skid_trails[i]->update(n->AbsPosition, n->nd_last_collision_slip, n->nd_last_collision_gm->name);
+                m_skid_trails[i]->update(n->AbsPosition, slipv, n->nd_last_collision_gm->name);
                 return;
             }
         }

@@ -325,6 +325,16 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
 
     for (int i = 0; i < ar_num_wheels; i++)
     {
+        if (doUpdate)
+        {
+            ar_wheels[i].debug_rpm = 0.0f;
+            ar_wheels[i].debug_torque = 0.0f;
+            ar_wheels[i].debug_vel = Vector3::ZERO;
+            ar_wheels[i].debug_slip = Vector3::ZERO;
+            ar_wheels[i].debug_force = Vector3::ZERO;
+            ar_wheels[i].debug_scaled_cforce = Vector3::ZERO;
+        }
+
         ar_wheels[i].wh_avg_speed = ar_wheels[i].wh_avg_speed * 0.995 + ar_wheels[i].wh_speed * 0.005;
 
         // total torque estimation
@@ -429,12 +439,17 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
         if (ar_wheels[i].wh_is_detached)
             continue;
 
+        ar_wheels[i].debug_torque += total_torque / (float)num_steps;
+
         // application to wheel
         Vector3 axis = ar_wheels[i].wh_axis_node_1->RelPosition - ar_wheels[i].wh_axis_node_0->RelPosition;
         float axis_precalc = total_torque / (Real)(ar_wheels[i].wh_num_nodes);
         axis = fast_normalise(axis);
 
         Real speedacc = 0.0f;
+        Real contact_counter = 0.0f;
+        Vector3 slip = Vector3::ZERO;
+        Vector3 force = Vector3::ZERO;
         for (int j = 0; j < ar_wheels[i].wh_num_nodes; j++)
         {
             Vector3 radius(Vector3::ZERO);
@@ -458,9 +473,30 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
                 speedacc += (ar_wheels[i].wh_nodes[j]->Velocity - ar_wheels[i].wh_axis_node_1->Velocity).dotProduct(dir) * inverted_rlen;
             else
                 speedacc += (ar_wheels[i].wh_nodes[j]->Velocity - ar_wheels[i].wh_axis_node_0->Velocity).dotProduct(dir) * inverted_rlen;
+
+            if (ar_wheels[i].wh_nodes[j]->nd_has_ground_contact)
+            {
+                contact_counter += 1.0f;
+                float force_ratio = ar_wheels[i].wh_nodes[j]->nd_last_collision_force.length();
+                slip  += ar_wheels[i].wh_nodes[j]->nd_last_collision_slip * force_ratio;
+                force += ar_wheels[i].wh_nodes[j]->nd_last_collision_force;
+            }
+        }
+        if (contact_counter > 0.0f && !force.isZeroLength())
+        {
+            slip /= force.length(); // slip vector weighted by down force
+            slip /= contact_counter; // average slip vector
+            force /= contact_counter; // average force vector
+            Vector3 normal = force.normalisedCopy(); // contact plane normal
+            Vector3 v = ar_wheels[i].wh_axis_node_0->Velocity.midPoint(ar_wheels[i].wh_axis_node_1->Velocity);
+            Vector3 vel = v - v.dotProduct(normal) * normal;
+            ar_wheels[i].debug_vel   += vel / (float)num_steps;
+            ar_wheels[i].debug_slip  += slip / (float)num_steps;
+            ar_wheels[i].debug_force += force / (float)num_steps;
         }
         // wheel speed
         newspeeds[i] = speedacc / ar_wheels[i].wh_num_nodes;
+        ar_wheels[i].debug_rpm += RAD_PER_SEC_TO_RPM * newspeeds[i] / ar_wheels[i].wh_radius / (float)num_steps;
         // for network
         ar_wheels[i].wh_net_rp += (newspeeds[i] / ar_wheels[i].wh_radius) * dt;
         // reaction torque
@@ -480,6 +516,7 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
                 cforce *= (1.0f - ((offset * 2.0f) / rlen)); // linear modulation
             ar_wheels[i].wh_arm_node->Forces -= cforce;
             ar_wheels[i].wh_near_attach_node->Forces += cforce;
+            ar_wheels[i].debug_scaled_cforce += cforce / m_total_mass / (float)num_steps;
         }
     }
 
