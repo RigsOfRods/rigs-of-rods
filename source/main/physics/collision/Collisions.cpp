@@ -1234,7 +1234,8 @@ void primitiveCollision(node_t *node, Vector3 &force, const Vector3 &velocity, c
             }
             if (Freaction < 0) Freaction = 0.0f;
             // We only update this if we handle ground collisions
-            node->nd_last_collision_slip = slipv;
+            node->nd_last_collision_slip = slipv * slip;
+            node->nd_last_collision_force = std::min(Fnormal, 0.0f) * normal;
         } else
         {
             Freaction = reaction;

@@ -608,9 +608,10 @@ void RoR::GfxActor::UpdateParticles(float dt_sec)
                 if (n.iswheel != 0) // This is a wheel => skidmarks and tyre smoke
                 {
                     const float SKID_THRESHOLD = 10.f;
-                    if (n.nd_last_collision_slip > SKID_THRESHOLD)
+                    const float slipv = n.nd_last_collision_slip.length();
+                    if (slipv > SKID_THRESHOLD)
                     {
-                        SOUND_MODULATE(m_actor, SS_MOD_SCREETCH, (n.nd_last_collision_slip - SKID_THRESHOLD) / SKID_THRESHOLD);
+                        SOUND_MODULATE(m_actor, SS_MOD_SCREETCH, (slipv - SKID_THRESHOLD) / SKID_THRESHOLD);
                         SOUND_PLAY_ONCE(m_actor, SS_TRIG_SCREETCH);
                         
                         if (m_particles_misc != nullptr)
@@ -621,7 +622,7 @@ void RoR::GfxActor::UpdateParticles(float dt_sec)
                 }
                 else // Not a wheel => sparks
                 {
-                    if ((!nfx.nx_no_sparks) && (n.nd_last_collision_slip > 1.f) && (m_particles_sparks != nullptr))
+                    if (!nfx.nx_no_sparks && m_particles_sparks != nullptr && n.nd_last_collision_slip.length() > 1.f)
                     {
                         m_particles_sparks->allocSparks(n.AbsPosition, n.Velocity);
                     }
@@ -835,6 +836,225 @@ void RoR::GfxActor::UpdateDebugView()
                 // TODO: Hydro stress
             }
         }
+    } else if (m_debug_view == DebugViewType::DEBUGVIEW_WHEELS)
+    {
+        const wheel_t* wheels = m_actor->ar_wheels;
+        const size_t num_wheels = static_cast<size_t>(m_actor->ar_num_wheels);
+        for (int i = 0; i < num_wheels; i++)
+        {
+            Ogre::Vector3 axis = wheels[i].wh_axis_node_1->RelPosition - wheels[i].wh_axis_node_0->RelPosition;
+            axis.normalise();
+
+            // Wheel axle
+            {
+                Ogre::Vector3 pos1_xyz = world2screen.Convert(wheels[i].wh_axis_node_1->AbsPosition);
+                if (pos1_xyz.z < 0.f)
+                {
+                    ImVec2 pos(pos1_xyz.x, pos1_xyz.y);
+                    drawlist->AddCircleFilled(pos, NODE_IMMOVABLE_RADIUS, NODE_COLOR);
+                }
+                Ogre::Vector3 pos2_xyz = world2screen.Convert(wheels[i].wh_axis_node_0->AbsPosition);
+                if (pos2_xyz.z < 0.f)
+                {
+                    ImVec2 pos(pos2_xyz.x, pos2_xyz.y);
+                    drawlist->AddCircleFilled(pos, NODE_IMMOVABLE_RADIUS, NODE_COLOR);
+                }
+                if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
+                {
+                    ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
+                    ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
+                    drawlist->AddLine(pos1xy, pos2xy, BEAM_COLOR, BEAM_BROKEN_THICKNESS);
+                }
+
+                // Torque
+                Ogre::Vector3 pos_xyz = pos1_xyz.midPoint(pos2_xyz);
+                if (pos_xyz.z < 0.f)
+                {
+                    float v = ImGui::GetTextLineHeightWithSpacing();
+                    ImVec2 pos(pos_xyz.x, pos_xyz.y);
+                    Str<25> rpm_buf;
+                    rpm_buf << "Speed: " << static_cast<int>(Round(wheels[i].debug_rpm)) << " rpm  ";
+                    float h1 = ImGui::CalcTextSize(rpm_buf.ToCStr()).x / 2.0f;
+                    drawlist->AddText(ImVec2(pos.x - h1, pos.y), NODE_TEXT_COLOR, rpm_buf.ToCStr());
+                    Str<25> torque_buf;
+                    torque_buf << "Torque: " << static_cast<int>(Round(wheels[i].debug_torque)) << " Nm       ";
+                    float h2 = ImGui::CalcTextSize(torque_buf.ToCStr()).x / 2.0f;
+                    drawlist->AddText(ImVec2(pos.x - h2, pos.y + v), NODE_TEXT_COLOR, torque_buf.ToCStr());
+                }
+            }
+
+            Ogre::Vector3 rradius = wheels[i].wh_arm_node->RelPosition - wheels[i].wh_near_attach_node->RelPosition;
+
+            // Reference arm
+            {
+                Ogre::Vector3 pos1_xyz = world2screen.Convert(wheels[i].wh_arm_node->AbsPosition);
+                if (pos1_xyz.z < 0.f)
+                {
+                    ImVec2 pos(pos1_xyz.x, pos1_xyz.y);
+                    drawlist->AddCircleFilled(pos, NODE_IMMOVABLE_RADIUS, NODE_IMMOVABLE_COLOR);
+                }
+                Ogre::Vector3 pos2_xyz = world2screen.Convert(wheels[i].wh_near_attach_node->AbsPosition);
+                if (pos2_xyz.z < 0.f)
+                {
+                    ImVec2 pos(pos2_xyz.x, pos2_xyz.y);
+                    drawlist->AddCircleFilled(pos, NODE_IMMOVABLE_RADIUS, NODE_COLOR);
+                }
+                if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
+                {
+                    ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
+                    ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
+                    drawlist->AddLine(pos1xy, pos2xy, BEAM_BROKEN_COLOR, BEAM_BROKEN_THICKNESS);
+                }
+            }
+
+            Ogre::Vector3 radius = Ogre::Plane(axis, wheels[i].wh_near_attach_node->RelPosition).projectVector(rradius);
+
+            // Projection plane
+#if 0
+            {
+                Ogre::Vector3 up       = axis.crossProduct(radius);
+                Ogre::Vector3 pos1_xyz = world2screen.Convert(wheels[i].wh_near_attach_node->AbsPosition + radius - up);
+                Ogre::Vector3 pos2_xyz = world2screen.Convert(wheels[i].wh_near_attach_node->AbsPosition + radius + up);
+                Ogre::Vector3 pos3_xyz = world2screen.Convert(wheels[i].wh_near_attach_node->AbsPosition - radius + up);
+                Ogre::Vector3 pos4_xyz = world2screen.Convert(wheels[i].wh_near_attach_node->AbsPosition - radius - up);
+                if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f) && (pos3_xyz.z < 0.f) && (pos4_xyz.z < 0.f))
+                {
+                    ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
+                    ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
+                    ImVec2 pos3xy(pos3_xyz.x, pos3_xyz.y);
+                    ImVec2 pos4xy(pos4_xyz.x, pos4_xyz.y);
+                    drawlist->AddQuadFilled(pos1xy, pos2xy, pos3xy, pos4xy, 0x22888888);
+                }
+            }
+#endif
+            // Projected reference arm & error arm
+            {
+                Ogre::Vector3 pos1_xyz = world2screen.Convert(wheels[i].wh_near_attach_node->AbsPosition);
+                Ogre::Vector3 pos2_xyz = world2screen.Convert(wheels[i].wh_near_attach_node->AbsPosition + radius);
+                Ogre::Vector3 pos3_xyz = world2screen.Convert(wheels[i].wh_arm_node->AbsPosition);
+                if (pos2_xyz.z < 0.f)
+                {
+                    ImVec2 pos(pos2_xyz.x, pos2_xyz.y);
+                    drawlist->AddCircleFilled(pos, NODE_IMMOVABLE_RADIUS, 0x660033ff);
+                }
+                if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
+                {
+                    ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
+                    ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
+                    drawlist->AddLine(pos1xy, pos2xy, 0x664466dd, BEAM_BROKEN_THICKNESS);
+                }
+                if ((pos2_xyz.z < 0.f) && (pos3_xyz.z < 0.f))
+                {
+                    ImVec2 pos1xy(pos2_xyz.x, pos2_xyz.y);
+                    ImVec2 pos2xy(pos3_xyz.x, pos3_xyz.y);
+                    drawlist->AddLine(pos1xy, pos2xy, 0x99555555, BEAM_BROKEN_THICKNESS);
+                }
+            }
+            // Reaction torque
+            {
+                Ogre::Vector3 cforce = wheels[i].debug_scaled_cforce;
+                {
+                    Ogre::Vector3 pos1_xyz = world2screen.Convert(wheels[i].wh_arm_node->AbsPosition);
+                    Ogre::Vector3 pos2_xyz = world2screen.Convert(wheels[i].wh_arm_node->AbsPosition - cforce);
+                    if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
+                    {
+                        ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
+                        ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
+                        drawlist->AddLine(pos1xy, pos2xy, 0xffcc4444, BEAM_BROKEN_THICKNESS);
+                    }
+                }
+                {
+                    Ogre::Vector3 pos1_xyz = world2screen.Convert(wheels[i].wh_near_attach_node->AbsPosition);
+                    Ogre::Vector3 pos2_xyz = world2screen.Convert(wheels[i].wh_near_attach_node->AbsPosition + cforce);
+                    if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
+                    {
+                        ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
+                        ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
+                        drawlist->AddLine(pos1xy, pos2xy, 0xffcc4444, BEAM_BROKEN_THICKNESS);
+                    }
+                }
+            }
+
+            // Wheel slip
+            {
+                Ogre::Vector3 m = wheels[i].wh_axis_node_0->AbsPosition.midPoint(wheels[i].wh_axis_node_1->AbsPosition);
+                Ogre::Real    w = wheels[i].wh_axis_node_0->AbsPosition.distance(m);
+                Ogre::Vector3 u = - axis.crossProduct(m_simbuf.simbuf_direction);
+                if (!wheels[i].debug_force.isZeroLength())
+                {
+                    u = - wheels[i].debug_force.normalisedCopy();
+                }
+                Ogre::Vector3 f = axis.crossProduct(u);
+                Ogre::Vector3 a = - axis * w + f * std::max(w, wheels[i].wh_radius * 0.5f);
+                Ogre::Vector3 b = + axis * w + f * std::max(w, wheels[i].wh_radius * 0.5f);
+                Ogre::Vector3 c = + axis * w - f * std::max(w, wheels[i].wh_radius * 0.5f);
+                Ogre::Vector3 d = - axis * w - f * std::max(w, wheels[i].wh_radius * 0.5f);
+                Ogre::Quaternion r = Ogre::Quaternion::IDENTITY;
+                if (wheels[i].debug_vel.length() > 1.0f)
+                {
+                    r = Ogre::Quaternion(f.angleBetween(wheels[i].debug_vel), u);
+                }
+                Ogre::Vector3 pos1_xyz = world2screen.Convert(m - u * wheels[i].wh_radius + r * a);
+                Ogre::Vector3 pos2_xyz = world2screen.Convert(m - u * wheels[i].wh_radius + r * b);
+                Ogre::Vector3 pos3_xyz = world2screen.Convert(m - u * wheels[i].wh_radius + r * c);
+                Ogre::Vector3 pos4_xyz = world2screen.Convert(m - u * wheels[i].wh_radius + r * d);
+                if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f) && (pos3_xyz.z < 0.f) && (pos4_xyz.z < 0.f))
+                {
+                    ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
+                    ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
+                    ImVec2 pos3xy(pos3_xyz.x, pos3_xyz.y);
+                    ImVec2 pos4xy(pos4_xyz.x, pos4_xyz.y);
+                    if (!wheels[i].debug_force.isZeroLength())
+                    {
+                        float slipv = wheels[i].debug_slip.length();
+                        float wheelv = wheels[i].debug_vel.length();
+                        float slip_ratio = std::min(slipv, wheelv) / std::max(1.0f, wheelv);
+                        float scale = pow(slip_ratio, 2);
+                        ImU32 col = Ogre::ColourValue(scale, 1.0f - scale, 0.0f, 0.2f).getAsABGR();
+                        drawlist->AddQuadFilled(pos1xy, pos2xy, pos3xy, pos4xy, col);
+                    }
+                    else
+                    {
+                        drawlist->AddQuadFilled(pos1xy, pos2xy, pos3xy, pos4xy, 0x55555555);
+                    }
+                }
+            }
+
+            // Slip vector
+            if (!wheels[i].debug_vel.isZeroLength());
+            {
+                Ogre::Vector3 m = wheels[i].wh_axis_node_0->AbsPosition.midPoint(wheels[i].wh_axis_node_1->AbsPosition);
+                Ogre::Real    w = wheels[i].wh_axis_node_0->AbsPosition.distance(m);
+                Ogre::Vector3 d = axis.crossProduct(m_simbuf.simbuf_direction) * wheels[i].wh_radius;
+                Ogre::Real slipv  = wheels[i].debug_slip.length();
+                Ogre::Real wheelv = wheels[i].debug_vel.length();
+                Ogre::Vector3 s = wheels[i].debug_slip * (std::min(slipv, wheelv) / std::max(1.0f, wheelv)) / slipv;
+                Ogre::Vector3 pos1_xyz = world2screen.Convert(m + d);
+                Ogre::Vector3 pos2_xyz = world2screen.Convert(m + d + s * std::max(w, wheels[i].wh_radius * 0.5f));
+                if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
+                {
+                    ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
+                    ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
+                    drawlist->AddLine(pos1xy, pos2xy, 0xbb4466dd, BEAM_BROKEN_THICKNESS);
+                }
+            }
+
+            // Down force
+            {
+                Ogre::Real f = wheels[i].debug_force.length();
+                Ogre::Real mass = m_actor->getTotalMass(false);
+                Ogre::Vector3 normalised_force = wheels[i].debug_force.normalisedCopy() * std::min(f / mass, 1.0f);
+                Ogre::Vector3 m = wheels[i].wh_axis_node_0->AbsPosition.midPoint(wheels[i].wh_axis_node_1->AbsPosition);
+                Ogre::Vector3 pos5_xyz = world2screen.Convert(m);
+                Ogre::Vector3 pos6_xyz = world2screen.Convert(m + normalised_force * wheels[i].wh_radius);
+                if ((pos5_xyz.z < 0.f) && (pos6_xyz.z < 0.f))
+                {
+                    ImVec2 pos1xy(pos5_xyz.x, pos5_xyz.y);
+                    ImVec2 pos2xy(pos6_xyz.x, pos6_xyz.y);
+                    drawlist->AddLine(pos1xy, pos2xy, 0x88888888, BEAM_BROKEN_THICKNESS);
+                }
+            }
+        }
     }
 }
 
@@ -853,7 +1073,8 @@ void RoR::GfxActor::CycleDebugViews()
     case DebugViewType::DEBUGVIEW_NONE:     m_debug_view = DebugViewType::DEBUGVIEW_SKELETON; break;
     case DebugViewType::DEBUGVIEW_SKELETON: m_debug_view = DebugViewType::DEBUGVIEW_NODES;    break;
     case DebugViewType::DEBUGVIEW_NODES:    m_debug_view = DebugViewType::DEBUGVIEW_BEAMS;    break;
-    case DebugViewType::DEBUGVIEW_BEAMS:    m_debug_view = DebugViewType::DEBUGVIEW_NONE;     break;
+    case DebugViewType::DEBUGVIEW_BEAMS:    m_debug_view = DebugViewType::DEBUGVIEW_WHEELS;   break;
+    case DebugViewType::DEBUGVIEW_WHEELS:   m_debug_view = DebugViewType::DEBUGVIEW_NONE;     break;
     default:;
     }
 }

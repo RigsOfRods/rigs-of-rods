@@ -356,6 +356,7 @@ void RoR::GUI::TopMenubar::Update()
                 ImGui::RadioButton("Skeleton view", &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_SKELETON));
                 ImGui::RadioButton("Node details",  &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_NODES));
                 ImGui::RadioButton("Beam details",  &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_BEAMS));
+                ImGui::RadioButton("Wheel details",  &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_WHEELS));
 
                 if ((current_actor != nullptr) && (debug_view_type != static_cast<int>(current_actor->GetGfxActor()->GetDebugView())))
                 {

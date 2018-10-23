@@ -60,5 +60,13 @@ struct wheel_t
     float       wh_width;
     int         wh_detacher_group;
     bool        wh_is_detached;
+
+    // Debug
+    float debug_rpm;
+    float debug_torque;
+    Ogre::Vector3 debug_vel;
+    Ogre::Vector3 debug_slip;
+    Ogre::Vector3 debug_force;
+    Ogre::Vector3 debug_scaled_cforce;
 };
 
