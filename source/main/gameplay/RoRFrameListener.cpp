@@ -1049,9 +1049,18 @@ void SimController::UpdateInputEvents(float dt)
                         m_player_actor->ToggleCustomParticles();
                     }
 
-                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SHOW_SKELETON))
+                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_DEBUG_VIEW))
                     {
-                        m_player_actor->GetGfxActor()->ToggleSkeletonView();
+                        m_player_actor->GetGfxActor()->ToggleDebugView();
+                        for (auto actor : m_player_actor->GetAllLinkedActors())
+                        {
+                            actor->GetGfxActor()->SetDebugView(m_player_actor->GetGfxActor()->GetDebugView());
+                        }
+                    }
+
+                    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CYCLE_DEBUG_VIEWS))
+                    {
+                        m_player_actor->GetGfxActor()->CycleDebugViews();
                         for (auto actor : m_player_actor->GetAllLinkedActors())
                         {
                             actor->GetGfxActor()->SetDebugView(m_player_actor->GetGfxActor()->GetDebugView());
