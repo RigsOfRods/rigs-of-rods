@@ -226,15 +226,15 @@ void RoR::Skidmark::SetPointInt(unsigned short index, const Ogre::Vector3& value
     m_is_dirty = true;
 }
 
-void RoR::Skidmark::UpdatePoint()
+void RoR::Skidmark::UpdatePoint(Ogre::Vector3 contact_point, float slip, Ogre::String ground_model_name)
 {
-    Ogre::Vector3 thisPoint = m_wheel->lastContactPoint;
+    Ogre::Vector3 thisPoint = contact_point;
     Ogre::Vector3 axis = m_wheel->wh_axis_node_1->RelPosition - m_wheel->wh_axis_node_0->RelPosition;
     Ogre::Vector3 thisPointAV = thisPoint + axis * 0.5f;
     Ogre::Real distance = 0;
     Ogre::Real maxDist = m_max_distance;
     Ogre::String texture = "none";
-    m_config->getTexture("default", m_wheel->lastGroundModelName, m_wheel->lastSlip, texture);
+    m_config->getTexture("default", ground_model_name, slip, texture);
 
     // dont add points with no texture
     if (texture == "none")
@@ -312,8 +312,8 @@ void RoR::Skidmark::UpdatePoint()
 
     const float overaxis = 0.2f;
 
-    this->AddPoint(m_wheel->lastContactPoint - (axis * overaxis), distance, texture);
-    this->AddPoint(m_wheel->lastContactPoint + axis + (axis * overaxis), distance, texture);
+    this->AddPoint(contact_point - (axis * overaxis), distance, texture);
+    this->AddPoint(contact_point + axis + (axis * overaxis), distance, texture);
 
     // save as last point (in the middle of the m_wheel)
     m_objects.back().lastPointAv = thisPointAV;
@@ -329,9 +329,9 @@ void RoR::Skidmark::AddPoint(const Ogre::Vector3& value, Ogre::Real fsize, Ogre:
     m_objects.back().pos++;
 }
 
-void RoR::Skidmark::update()
+void RoR::Skidmark::update(Ogre::Vector3 contact_point, float slip, Ogre::String ground_model_name)
 {
-    this->UpdatePoint();
+    this->UpdatePoint(contact_point, slip, ground_model_name);
     if (!m_is_dirty)
         return;
     if (!m_objects.size())
