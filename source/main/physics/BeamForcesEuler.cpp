@@ -181,12 +181,13 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
         }
     }
 
-    float engine_torque = 0.0;
+    ar_wheel_spin = 0.0f;
+    ar_wheel_speed = 0.0f;
+    float engine_torque = 0.0f;
     if (ar_engine && m_num_proped_wheels > 0)
         engine_torque = ar_engine->GetTorque() / m_num_proped_wheels;
 
     int propcounter = 0;
-    float newspeeds[MAX_WHEELS] = {};
     float intertorque[MAX_WHEELS] = {};
     //old-style viscous code
     if (m_num_axles == 0)
@@ -360,7 +361,7 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
             // directional braking
             float dbrake = 0.0f;
 
-            if ((ar_wheel_speed < 20.0f)
+            if ((ar_wheels[i].wh_speed < 20.0f)
                 && (((ar_wheels[i].wh_braking == wheel_t::BrakeCombo::FOOT_HAND_SKID_LEFT)  && (ar_hydro_dir_state > 0.0f))
                  || ((ar_wheels[i].wh_braking == wheel_t::BrakeCombo::FOOT_HAND_SKID_RIGHT) && (ar_hydro_dir_state < 0.0f))))
             {
@@ -445,7 +446,9 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
         Vector3 axis = (ar_wheels[i].wh_axis_node_1->RelPosition - ar_wheels[i].wh_axis_node_0->RelPosition).normalisedCopy();
         float axis_precalc = total_torque / (Real)(ar_wheels[i].wh_num_nodes);
 
-        Real speedacc = 0.0f;
+        ar_wheels[i].wh_last_speed = ar_wheels[i].wh_speed;
+        ar_wheels[i].wh_speed = 0.0f;
+
         Real contact_counter = 0.0f;
         Vector3 slip = Vector3::ZERO;
         Vector3 force = Vector3::ZERO;
@@ -464,7 +467,7 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
 
             Vector3 dir = axis.crossProduct(radius) * inverted_rlen;
             ar_wheels[i].wh_nodes[j]->Forces += dir * axis_precalc * inverted_rlen;
-            speedacc += (outer_node->Velocity - inner_node->Velocity).dotProduct(dir);
+            ar_wheels[i].wh_speed += (outer_node->Velocity - inner_node->Velocity).dotProduct(dir);
 
             if (ar_wheels[i].wh_nodes[j]->nd_has_ground_contact)
             {
@@ -486,11 +489,17 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
             ar_wheels[i].debug_slip  += slip / (float)num_steps;
             ar_wheels[i].debug_force += force / (float)num_steps;
         }
-        // wheel speed
-        newspeeds[i] = speedacc / ar_wheels[i].wh_num_nodes;
-        ar_wheels[i].debug_rpm += RAD_PER_SEC_TO_RPM * newspeeds[i] / ar_wheels[i].wh_radius / (float)num_steps;
-        // for network
-        ar_wheels[i].wh_net_rp += (newspeeds[i] / ar_wheels[i].wh_radius) * dt;
+
+        ar_wheels[i].wh_speed /= (Real)ar_wheels[i].wh_num_nodes;
+        ar_wheels[i].wh_net_rp += (ar_wheels[i].wh_speed / ar_wheels[i].wh_radius) * dt;
+        ar_wheels[i].wh_avg_speed = ar_wheels[i].wh_avg_speed * 0.995 + ar_wheels[i].wh_speed * 0.005;
+        ar_wheels[i].debug_rpm += RAD_PER_SEC_TO_RPM * ar_wheels[i].wh_speed / ar_wheels[i].wh_radius / (float)num_steps;
+        if (ar_wheels[i].wh_propulsed == 1)
+        {
+            float speedacc = ar_wheels[i].wh_speed / (float)m_num_proped_wheels;
+            ar_wheel_speed += speedacc;                          // Accumulate the average wheel speed (m/s)
+            ar_wheel_spin  += speedacc / ar_wheels[i].wh_radius; // Accumulate the average wheel spin  (radians)
+        }
 
         // reaction torque
         Vector3 rradius = ar_wheels[i].wh_arm_node->RelPosition - ar_wheels[i].wh_near_attach_node->RelPosition;
@@ -507,6 +516,13 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
             ar_wheels[i].wh_near_attach_node->Forces += cforce;
             ar_wheels[i].debug_scaled_cforce += cforce / m_total_mass / (float)num_steps;
         }
+    }
+
+    ar_avg_wheel_speed = ar_avg_wheel_speed * 0.995 + ar_wheel_speed * 0.005;
+
+    if (ar_engine)
+    {
+        ar_engine->SetWheelSpin(ar_wheel_spin * RAD_PER_SEC_TO_RPM); // Update the driveshaft speed
     }
 
     if (step == num_steps)
@@ -528,23 +544,6 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
         {
             SOUND_START(ar_instance_id, SS_TRIG_TC_ACTIVE);
         }
-    }
-
-    ar_wheel_speed = 0.0f;
-    for (int i = 0; i < ar_num_wheels; i++)
-    {
-        ar_wheels[i].wh_last_speed = ar_wheels[i].wh_speed;
-        ar_wheels[i].wh_speed = newspeeds[i];
-        if (ar_wheels[i].wh_propulsed == 1)
-        {
-            ar_wheel_speed += newspeeds[i] / (float)m_num_proped_wheels;
-        }
-    }
-    ar_avg_wheel_speed = ar_avg_wheel_speed * 0.995 + ar_wheel_speed * 0.005;
-
-    if (ar_engine && ar_num_wheels && ar_wheels[0].wh_radius > 0.0f)
-    {
-        ar_engine->SetWheelSpin(ar_wheel_speed / ar_wheels[0].wh_radius * RAD_PER_SEC_TO_RPM);
     }
 
     // calculate driven distance
