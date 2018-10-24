@@ -474,6 +474,7 @@ private:
     bool              m_antilockbrake;         //!< GUI state
     bool              m_tractioncontrol;       //!< GUI state
     bool              m_ongoing_reset;         //!< Hack to prevent position/rotation creep during interactive truck reset
+    bool              m_has_axles_section;     //!< Temporary (legacy parsing helper) until central diffs are implemented
 
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?

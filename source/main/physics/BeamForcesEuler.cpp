@@ -181,48 +181,10 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
         }
     }
 
-    ar_wheel_spin = 0.0f;
-    ar_wheel_speed = 0.0f;
-    float engine_torque = 0.0f;
-    if (ar_engine && m_num_proped_wheels > 0)
-        engine_torque = ar_engine->GetTorque() / m_num_proped_wheels;
-
-    int propcounter = 0;
-    float intertorque[MAX_WHEELS] = {};
-    //old-style viscous code
-    if (m_num_axles == 0)
-    {
-        //first, evaluate torque from inter-differential locking
-        for (int i = 0; i < m_num_proped_wheels / 2 - 1; i++)
-        {
-            if (ar_wheels[m_proped_wheel_pairs[i * 2 + 0]].wh_is_detached)
-                ar_wheels[m_proped_wheel_pairs[i * 2 + 0]].wh_speed = ar_wheels[m_proped_wheel_pairs[i * 2 + 1]].wh_speed;
-            if (ar_wheels[m_proped_wheel_pairs[i * 2 + 1]].wh_is_detached)
-                ar_wheels[m_proped_wheel_pairs[i * 2 + 1]].wh_speed = ar_wheels[m_proped_wheel_pairs[i * 2 + 0]].wh_speed;
-            if (ar_wheels[m_proped_wheel_pairs[i * 2 + 2]].wh_is_detached)
-                ar_wheels[m_proped_wheel_pairs[i * 2 + 2]].wh_speed = ar_wheels[m_proped_wheel_pairs[i * 2 + 3]].wh_speed;
-            if (ar_wheels[m_proped_wheel_pairs[i * 2 + 3]].wh_is_detached)
-                ar_wheels[m_proped_wheel_pairs[i * 2 + 3]].wh_speed = ar_wheels[m_proped_wheel_pairs[i * 2 + 2]].wh_speed;
-
-            float speed1 = (ar_wheels[m_proped_wheel_pairs[i * 2 + 0]].wh_speed + ar_wheels[m_proped_wheel_pairs[i * 2 + 1]].wh_speed) * 0.5f;
-            float speed2 = (ar_wheels[m_proped_wheel_pairs[i * 2 + 2]].wh_speed + ar_wheels[m_proped_wheel_pairs[i * 2 + 3]].wh_speed) * 0.5f;
-            float torque = (speed1 - speed2) * 10000.0f;
-
-            intertorque[i * 2 + 0] -= torque * 0.5f;
-            intertorque[i * 2 + 1] -= torque * 0.5f;
-            intertorque[i * 2 + 2] += torque * 0.5f;
-            intertorque[i * 2 + 3] += torque * 0.5f;
-        }
-    }
-
-    // new-style Axles
     // loop through all axles for inter axle torque, this is the torsion to keep
     // the axles aligned with each other as if they connected by a shaft
     for (int i = 1; i < m_num_axles; i++)
     {
-        if (!m_axles[i])
-            continue;
-
         if (ar_wheels[m_axles[i - 1]->ax_wheel_1].wh_is_detached)
             ar_wheels[m_axles[i - 1]->ax_wheel_1].wh_speed = ar_wheels[m_axles[i - 1]->ax_wheel_2].wh_speed;
         if (ar_wheels[m_axles[i - 0]->ax_wheel_1].wh_is_detached)
@@ -248,7 +210,7 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
         {
             {
                 (ar_wheels[m_axles[i - 1]->ax_wheel_1].wh_speed + ar_wheels[m_axles[i - 1]->ax_wheel_2].wh_speed) * 0.5f,
-                (ar_wheels[m_axles[i]->ax_wheel_1].wh_speed + ar_wheels[m_axles[i]->ax_wheel_2].wh_speed) * 0.5f
+                (ar_wheels[m_axles[i - 0]->ax_wheel_1].wh_speed + ar_wheels[m_axles[i - 0]->ax_wheel_2].wh_speed) * 0.5f
             },
             m_axles[i - 1]->ax_delta_rotation,
             {axle_torques[0], axle_torques[1]},
@@ -256,28 +218,24 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
             dt
         };
 
-#if 0
-        // use an open diff just for fun :)
-		Axle::CalcOpenDiff( diff_data );
-#else
-        // use the locked diff, most vehicles are setup this way...
-        Axle::CalcLockedDiff(diff_data);
-#endif
+        if (!m_has_axles_section)
+            Axle::CalcViscousDiff(diff_data);
+        else
+            Axle::CalcLockedDiff(diff_data);
 
-        m_axles[i - 1]->ax_delta_rotation = diff_data.delta_rotation;
-        m_axles[i]->ax_delta_rotation = -diff_data.delta_rotation;
+        m_axles[i - 1]->ax_delta_rotation =  diff_data.delta_rotation;
+        m_axles[i - 0]->ax_delta_rotation = -diff_data.delta_rotation;
 
-        intertorque[m_axles[i - 1]->ax_wheel_1] = diff_data.out_torque[0];
-        intertorque[m_axles[i - 1]->ax_wheel_2] = diff_data.out_torque[0];
-        intertorque[m_axles[i]->ax_wheel_1] = diff_data.out_torque[1];
-        intertorque[m_axles[i]->ax_wheel_2] = diff_data.out_torque[1];
+        ar_wheels[m_axles[i - 1]->ax_wheel_1].wh_torque += diff_data.out_torque[0];
+        ar_wheels[m_axles[i - 1]->ax_wheel_2].wh_torque += diff_data.out_torque[0];
+        ar_wheels[m_axles[i - 0]->ax_wheel_1].wh_torque += diff_data.out_torque[1];
+        ar_wheels[m_axles[i - 0]->ax_wheel_2].wh_torque += diff_data.out_torque[1];
     }
 
-    // loop through all the wheels (new style again)
+    // loop through all axles for intra axle torque, this is the torsion to keep
+    // the wheels aligned with each other as if they connected by a shaft
     for (int i = 0; i < m_num_axles; i++)
     {
-        if (!m_axles[i])
-            continue;
         Ogre::Real axle_torques[2] = {0.0f, 0.0f};
         wheel_t* axle_wheels[2] = {&ar_wheels[m_axles[i]->ax_wheel_1], &ar_wheels[m_axles[i]->ax_wheel_2]};
 
@@ -291,19 +249,26 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
             {axle_wheels[0]->wh_speed, axle_wheels[1]->wh_speed},
             axle_wheels[0]->wh_delta_rotation,
             {axle_torques[0], axle_torques[1]},
-            // twice the torque since this is for two wheels, plus extra torque from
-            // inter-axle torsion
-            2.0f * engine_torque + intertorque[m_axles[i]->ax_wheel_1],
+            0, // no input torque, just calculate forces from different wheel positions
             dt
         };
 
         m_axles[i]->CalcAxleTorque(diff_data);
 
-        axle_wheels[0]->wh_delta_rotation = diff_data.delta_rotation;
+        axle_wheels[0]->wh_delta_rotation =  diff_data.delta_rotation;
         axle_wheels[1]->wh_delta_rotation = -diff_data.delta_rotation;
 
-        intertorque[m_axles[i]->ax_wheel_1] = diff_data.out_torque[0];
-        intertorque[m_axles[i]->ax_wheel_2] = diff_data.out_torque[1];
+        ar_wheels[m_axles[i]->ax_wheel_1].wh_torque += diff_data.out_torque[0];
+        ar_wheels[m_axles[i]->ax_wheel_2].wh_torque += diff_data.out_torque[1];
+    }
+
+    for (int i = 0; i < ar_num_wheels; i++)
+    {
+        if (ar_engine && ar_wheels[i].wh_propulsed)
+        {
+            // The torque scaling is required for backwards compatibility
+            ar_wheels[i].wh_torque += (m_has_axles_section ? 2.0f : 1.0f) * ar_engine->GetTorque() / m_num_proped_wheels;
+        }
     }
 
     // driving aids traction control & anti-lock brake pulse
@@ -324,6 +289,9 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
     m_antilockbrake = false;
     m_tractioncontrol = false;
 
+    ar_wheel_spin = 0.0f;
+    ar_wheel_speed = 0.0f;
+
     for (int i = 0; i < ar_num_wheels; i++)
     {
         if (doUpdate)
@@ -338,15 +306,25 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
 
         ar_wheels[i].wh_avg_speed = ar_wheels[i].wh_avg_speed * 0.995 + ar_wheels[i].wh_speed * 0.005;
 
-        // total torque estimation
-        Real total_torque = 0.0;
-        if (ar_wheels[i].wh_propulsed > 0)
-        {
-            total_torque = (m_num_axles == 0) ? engine_torque : intertorque[i];
-        }
-
         float curspeed = ar_nodes[0].Velocity.length();
         float wheel_slip = fabs(ar_wheels[i].wh_speed - curspeed) / std::max(1.0f, curspeed);
+
+        // traction control
+        if (tc_mode && fabs(ar_wheels[i].wh_torque) > 0.0f && fabs(ar_wheels[i].wh_speed) > curspeed && wheel_slip > 0.25f)
+        {
+            if (tc_pulse_state)
+            {
+                ar_wheels[i].wh_tc_coef = curspeed / fabs(ar_wheels[i].wh_speed);
+                ar_wheels[i].wh_tc_coef = pow(ar_wheels[i].wh_tc_coef, tc_ratio);
+            }
+            float tc_coef = pow(ar_wheels[i].wh_tc_coef, std::min(std::max(0.2f, curspeed), 1.0f));
+            ar_wheels[i].wh_torque *= pow(tc_coef, 1.0f / std::max(1.0f, std::min(wheel_slip, 10.0f)));
+            m_tractioncontrol = std::max(m_tractioncontrol, ar_wheels[i].wh_tc_coef < 0.9);
+        }
+        else
+        {
+            ar_wheels[i].wh_tc_coef = 1.0f;
+        }
 
         if (ar_wheels[i].wh_braking != wheel_t::BrakeCombo::NONE)
         {
@@ -396,9 +374,9 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
                 }
 
                 if (ar_wheels[i].wh_avg_speed > 0)
-                    total_torque -= ((ar_brake + dbrake) * antilock_coef + hbrake) * brake_coef;
+                    ar_wheels[i].wh_torque -= ((ar_brake + dbrake) * antilock_coef + hbrake) * brake_coef;
                 else
-                    total_torque += ((ar_brake + dbrake) * antilock_coef + hbrake) * brake_coef;
+                    ar_wheels[i].wh_torque += ((ar_brake + dbrake) * antilock_coef + hbrake) * brake_coef;
             }
             else
             {
@@ -406,46 +384,14 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
             }
         }
 
-        // traction control
-        if (tc_mode && fabs(engine_torque) > 0.0f && ar_wheels[i].wh_propulsed && fabs(ar_wheels[i].wh_speed) > curspeed && wheel_slip > 0.25f)
-        {
-            if (tc_pulse_state)
-            {
-                ar_wheels[i].wh_tc_coef = curspeed / fabs(ar_wheels[i].wh_speed);
-                ar_wheels[i].wh_tc_coef = pow(ar_wheels[i].wh_tc_coef, tc_ratio);
-            }
-            float tc_coef = pow(ar_wheels[i].wh_tc_coef, std::min(std::max(0.2f, curspeed), 1.0f));
-            total_torque *= pow(tc_coef, 1.0f / std::max(1.0f, std::min(wheel_slip, 10.0f)));
-            m_tractioncontrol = std::max(m_tractioncontrol, ar_wheels[i].wh_tc_coef < 0.9);
-        }
-        else
-        {
-            ar_wheels[i].wh_tc_coef = 1.0f;
-        }
-
-        // old-style
-        if (m_num_axles == 0 && ar_wheels[i].wh_propulsed > 0)
-        {
-            // differential locking
-            if (i % 2)
-                if (!ar_wheels[i].wh_is_detached && !ar_wheels[i - 1].wh_is_detached)
-                    total_torque -= (ar_wheels[i].wh_speed - ar_wheels[i - 1].wh_speed) * 10000.0;
-            else
-                if (!ar_wheels[i].wh_is_detached && !ar_wheels[i + 1].wh_is_detached)
-                    total_torque -= (ar_wheels[i].wh_speed - ar_wheels[i + 1].wh_speed) * 10000.0;
-            // inter differential locking
-            total_torque += intertorque[propcounter];
-            propcounter++;
-        }
-
         if (ar_wheels[i].wh_is_detached)
             continue;
 
-        ar_wheels[i].debug_torque += total_torque / (float)num_steps;
+        ar_wheels[i].debug_torque += ar_wheels[i].wh_torque / (float)num_steps;
 
         // application to wheel
         Vector3 axis = (ar_wheels[i].wh_axis_node_1->RelPosition - ar_wheels[i].wh_axis_node_0->RelPosition).normalisedCopy();
-        float axis_precalc = total_torque / (Real)(ar_wheels[i].wh_num_nodes);
+        float axis_precalc = ar_wheels[i].wh_torque / (Real)(ar_wheels[i].wh_num_nodes);
 
         ar_wheels[i].wh_last_speed = ar_wheels[i].wh_speed;
         ar_wheels[i].wh_speed = 0.0f;
@@ -508,15 +454,17 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
         Real rlen = radius.normalise(); // length of the projected arm
         float offset = (rradius - radius).length(); // length of the error arm
         // TODO: Investigate the offset length abort condition ~ ulteq 10/2018
-        if (rlen > 0.01 && offset * 2.0f < rlen && fabs(total_torque) > 0.01f)
+        if (rlen > 0.01 && offset * 2.0f < rlen && fabs(ar_wheels[i].wh_torque) > 0.01f)
         {
             Vector3 cforce = axis.crossProduct(radius);
             // modulate the force according to induced torque error
-            cforce *= (0.5f * total_torque / rlen) * (1.0f - ((offset * 2.0f) / rlen)); // linear modulation
+            cforce *= (0.5f * ar_wheels[i].wh_torque / rlen) * (1.0f - ((offset * 2.0f) / rlen)); // linear modulation
             ar_wheels[i].wh_arm_node->Forces -= cforce;
             ar_wheels[i].wh_near_attach_node->Forces += cforce;
             ar_wheels[i].debug_scaled_cforce += cforce / m_total_mass / (float)num_steps;
         }
+
+        ar_wheels[i].wh_torque = 0.0f;
     }
 
     ar_avg_wheel_speed = ar_avg_wheel_speed * 0.995 + ar_wheel_speed * 0.005;

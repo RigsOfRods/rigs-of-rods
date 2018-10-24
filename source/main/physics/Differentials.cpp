@@ -18,8 +18,8 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "Application.h"
 #include "Differentials.h"
-#include <OgreLogManager.h>
 #include "Language.h"
 
 Axle::Axle() :
@@ -57,8 +57,9 @@ void Axle::CalcAxleTorque(DifferentialData& diff_data)
     switch (m_available_diffs[m_which_diff])
     {
     case SPLIT_DIFF:   this->CalcSeparateDiff(diff_data);  return;
-    case OPEN_DIFF:    this->CalcOpenDiff(diff_data);       return;
-    case LOCKED_DIFF:  this->CalcLockedDiff(diff_data);     return;
+    case OPEN_DIFF:    this->CalcOpenDiff(diff_data);      return;
+    case VISCOUS_DIFF: this->CalcViscousDiff(diff_data);   return;
+    case LOCKED_DIFF:  this->CalcLockedDiff(diff_data);    return;
     }
 }
 
@@ -73,6 +74,7 @@ Ogre::UTFString Axle::GetDifferentialTypeName()
     {
     case SPLIT_DIFF:   return _L("Split");
     case OPEN_DIFF:    return _L("Open");
+    case VISCOUS_DIFF: return _L("Viscous");
     case LOCKED_DIFF:  return _L("Locked");
     default:           return _L("invalid");
     }
@@ -80,7 +82,7 @@ Ogre::UTFString Axle::GetDifferentialTypeName()
 
 void Axle::CalcSeparateDiff(DifferentialData& diff_data)
 {
-    diff_data.out_torque[0] = diff_data.out_torque[1] = diff_data.in_torque;
+    diff_data.out_torque[0] = diff_data.out_torque[1] = diff_data.in_torque / 2.0f;
 }
 
 void Axle::CalcOpenDiff(DifferentialData& diff_data)
@@ -114,7 +116,7 @@ void Axle::CalcOpenDiff(DifferentialData& diff_data)
     const Ogre::Real power_ratio = (fabs(sum_of_vel) > 0.0) ?
                                        fabs(diff_data.speed[0]) / sum_of_vel : 0.5;
 
-    diff_data.out_torque[0] = diff_data.out_torque[1] = diff_data.in_torque;
+    diff_data.out_torque[0] = diff_data.out_torque[1] = diff_data.in_torque / 2.0f;
 
     // Diff model taken from Torcs, ror needs to model reaction torque for this to work.
     //const Ogre::Real spider_acc = (diff_data.speed[0] - diff_data.speed[1])/diff_data.dt;
@@ -126,6 +128,29 @@ void Axle::CalcOpenDiff(DifferentialData& diff_data)
     diff_data.out_torque[1] *= 2 * (transition_ratio * (1 - power_ratio) + (1 - transition_ratio) * 0.5f);
 
     diff_data.delta_rotation = 0.0f;
+}
+
+void Axle::CalcViscousDiff(DifferentialData& diff_data)
+{
+    /* Viscous axle calculation ********************************
+     * Two wheels are joined together by a rotary viscous coupling.
+     * The viscous liquid counteracts speed differences in the
+     * coupling.
+     */
+
+    const Ogre::Real m_torsion_damp = 10000.0f;
+    const Ogre::Real delta_speed = diff_data.speed[0] - diff_data.speed[1];
+
+    diff_data.out_torque[0] = diff_data.out_torque[1] = diff_data.in_torque / 2.0f;
+
+    // derive how far wheels traveled relative to each during the last time step
+    diff_data.delta_rotation += delta_speed * diff_data.dt;
+
+    // damping
+    diff_data.out_torque[0] -= delta_speed * m_torsion_damp;
+
+    // damping
+    diff_data.out_torque[1] += delta_speed * m_torsion_damp;
 }
 
 void Axle::CalcLockedDiff(DifferentialData& diff_data)
@@ -143,18 +168,18 @@ void Axle::CalcLockedDiff(DifferentialData& diff_data)
     const Ogre::Real m_torsion_damp = m_torsion_rate / 100.0f;
     const Ogre::Real delta_speed = diff_data.speed[0] - diff_data.speed[1];
 
-    diff_data.out_torque[0] = diff_data.out_torque[1] = diff_data.in_torque;
+    diff_data.out_torque[0] = diff_data.out_torque[1] = diff_data.in_torque / 2.0f;
 
     // derive how far wheels traveled relative to each during the last time step
-    diff_data.delta_rotation += (delta_speed) * diff_data.dt;
+    diff_data.delta_rotation += delta_speed * diff_data.dt;
 
     // torque cause by axle shafts
     diff_data.out_torque[0] -= diff_data.delta_rotation * m_torsion_rate;
     // damping
-    diff_data.out_torque[0] -= (delta_speed) * m_torsion_damp;
+    diff_data.out_torque[0] -= delta_speed * m_torsion_damp;
 
     // torque cause by axle shafts
     diff_data.out_torque[1] += diff_data.delta_rotation * m_torsion_rate;
     // damping
-    diff_data.out_torque[1] -= -(delta_speed) * m_torsion_damp;
+    diff_data.out_torque[1] += delta_speed * m_torsion_damp;
 }

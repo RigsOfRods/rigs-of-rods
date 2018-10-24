@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include <OgreUTFString.h>
 #include <vector>
 
 struct DifferentialData
@@ -36,6 +35,7 @@ enum DiffType
 {
     SPLIT_DIFF = 0,
     OPEN_DIFF,
+    VISCOUS_DIFF,
     LOCKED_DIFF,
     INVALID_DIFF
 };
@@ -57,6 +57,7 @@ public:
     
     static void      CalcSeparateDiff(DifferentialData& diff_data);  //!< a differential that always splits the torque evenly, this is the original method
     static void      CalcOpenDiff(DifferentialData& diff_data );     //!< more power goes to the faster spining wheel
+    static void      CalcViscousDiff(DifferentialData& diff_data );  //!< more power goes to the slower spining wheel
     static void      CalcLockedDiff(DifferentialData& diff_data );   //!< ensures both wheels rotate at the the same speed
 
 private:
