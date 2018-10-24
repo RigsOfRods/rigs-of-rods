@@ -491,21 +491,18 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
         ar_wheels[i].debug_rpm += RAD_PER_SEC_TO_RPM * newspeeds[i] / ar_wheels[i].wh_radius / (float)num_steps;
         // for network
         ar_wheels[i].wh_net_rp += (newspeeds[i] / ar_wheels[i].wh_radius) * dt;
+
         // reaction torque
         Vector3 rradius = ar_wheels[i].wh_arm_node->RelPosition - ar_wheels[i].wh_near_attach_node->RelPosition;
         Vector3 radius = Plane(axis, ar_wheels[i].wh_near_attach_node->RelPosition).projectVector(rradius);
-        Real rlen = radius.length(); // length of the projected arm
+        Real rlen = radius.normalise(); // length of the projected arm
         float offset = (rradius - radius).length(); // length of the error arm
-        axis *= total_torque;
-        if (rlen > 0.01)
+        // TODO: Investigate the offset length abort condition ~ ulteq 10/2018
+        if (rlen > 0.01 && offset * 2.0f < rlen && fabs(total_torque) > 0.01f)
         {
-            radius /= (2.0f * rlen * rlen);
             Vector3 cforce = axis.crossProduct(radius);
             // modulate the force according to induced torque error
-            if (offset * 2.0f > rlen)
-                cforce = Vector3::ZERO; // too much error!
-            else
-                cforce *= (1.0f - ((offset * 2.0f) / rlen)); // linear modulation
+            cforce *= (0.5f * total_torque / rlen) * (1.0f - ((offset * 2.0f) / rlen)); // linear modulation
             ar_wheels[i].wh_arm_node->Forces -= cforce;
             ar_wheels[i].wh_near_attach_node->Forces += cforce;
             ar_wheels[i].debug_scaled_cforce += cforce / m_total_mass / (float)num_steps;
