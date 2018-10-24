@@ -442,9 +442,8 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
         ar_wheels[i].debug_torque += total_torque / (float)num_steps;
 
         // application to wheel
-        Vector3 axis = ar_wheels[i].wh_axis_node_1->RelPosition - ar_wheels[i].wh_axis_node_0->RelPosition;
+        Vector3 axis = (ar_wheels[i].wh_axis_node_1->RelPosition - ar_wheels[i].wh_axis_node_0->RelPosition).normalisedCopy();
         float axis_precalc = total_torque / (Real)(ar_wheels[i].wh_num_nodes);
-        axis = fast_normalise(axis);
 
         Real speedacc = 0.0f;
         Real contact_counter = 0.0f;
@@ -452,27 +451,20 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
         Vector3 force = Vector3::ZERO;
         for (int j = 0; j < ar_wheels[i].wh_num_nodes; j++)
         {
-            Vector3 radius(Vector3::ZERO);
+            node_t* outer_node = ar_wheels[i].wh_nodes[j];
+            node_t* inner_node = (j % 2) ? ar_wheels[i].wh_axis_node_1 : ar_wheels[i].wh_axis_node_0;
 
-            if (j % 2)
-                radius = ar_wheels[i].wh_nodes[j]->RelPosition - ar_wheels[i].wh_axis_node_1->RelPosition;
-            else
-                radius = ar_wheels[i].wh_nodes[j]->RelPosition - ar_wheels[i].wh_axis_node_0->RelPosition;
-
-            float inverted_rlen = fast_invSqrt(radius.squaredLength());
+            Vector3 radius = outer_node->RelPosition - inner_node->RelPosition;
+            float inverted_rlen = 1.0f / radius.length();
 
             if (ar_wheels[i].wh_propulsed == 2)
             {
                 radius = -radius;
             }
 
-            Vector3 dir = axis.crossProduct(radius);
-            ar_wheels[i].wh_nodes[j]->Forces += dir * (axis_precalc * inverted_rlen * inverted_rlen);
-            //wheel speed
-            if (j % 2)
-                speedacc += (ar_wheels[i].wh_nodes[j]->Velocity - ar_wheels[i].wh_axis_node_1->Velocity).dotProduct(dir) * inverted_rlen;
-            else
-                speedacc += (ar_wheels[i].wh_nodes[j]->Velocity - ar_wheels[i].wh_axis_node_0->Velocity).dotProduct(dir) * inverted_rlen;
+            Vector3 dir = axis.crossProduct(radius) * inverted_rlen;
+            ar_wheels[i].wh_nodes[j]->Forces += dir * axis_precalc * inverted_rlen;
+            speedacc += (outer_node->Velocity - inner_node->Velocity).dotProduct(dir);
 
             if (ar_wheels[i].wh_nodes[j]->nd_has_ground_contact)
             {
