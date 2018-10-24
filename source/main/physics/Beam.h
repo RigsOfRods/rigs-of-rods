@@ -302,6 +302,7 @@ public:
     float             ar_scale;               //!< Physics state; scale of the actor (nominal = 1.0)
     Ogre::Real        ar_brake;               //!< Physics state; braking intensity
     float             ar_wheel_speed;         //!< Physics state; wheel speed in m/s
+    float             ar_wheel_spin;          //!< Physics state; wheel speed in radians/s
     float             ar_avg_wheel_speed;     //!< Physics state; avg wheel speed in m/s
     float             ar_hydro_dir_command;
     float             ar_hydro_dir_state;
