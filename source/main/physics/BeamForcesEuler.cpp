@@ -430,7 +430,8 @@ void Actor::calcForcesEulerCompute(int step, int num_steps)
             if (i % 2)
                 if (!ar_wheels[i].wh_is_detached && !ar_wheels[i - 1].wh_is_detached)
                     total_torque -= (ar_wheels[i].wh_speed - ar_wheels[i - 1].wh_speed) * 10000.0;
-                else if (!ar_wheels[i].wh_is_detached && !ar_wheels[i + 1].wh_is_detached)
+            else
+                if (!ar_wheels[i].wh_is_detached && !ar_wheels[i + 1].wh_is_detached)
                     total_torque -= (ar_wheels[i].wh_speed - ar_wheels[i + 1].wh_speed) * 10000.0;
             // inter differential locking
             total_torque += intertorque[propcounter];
