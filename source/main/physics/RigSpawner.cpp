@@ -3992,8 +3992,8 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     if (def.propulsion != RigDef::Wheels::PROPULSION_NONE)
     {
         // for inter-differential locking
-        m_actor->m_num_proped_wheels++;
         m_actor->m_proped_wheel_pairs[m_actor->m_num_proped_wheels] = m_actor->ar_num_wheels;
+        m_actor->m_num_proped_wheels++;
     }
     if (def.braking != RigDef::Wheels::BRAKING_NO)
     {
@@ -4227,8 +4227,8 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
     if (propulsion != RigDef::Wheels::PROPULSION_NONE)
     {
         /* for inter-differential locking */
-        m_actor->m_num_proped_wheels++;
         m_actor->m_proped_wheel_pairs[m_actor->m_num_proped_wheels] = m_actor->ar_num_wheels;
+        m_actor->m_num_proped_wheels++;
     }
     if (braking != RigDef::Wheels::BRAKING_NO)
     {
@@ -4704,8 +4704,8 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
     if (wheel_2_def.propulsion != RigDef::Wheels::PROPULSION_NONE)
     {
         /* for inter-differential locking */
-        m_actor->m_num_proped_wheels++;
         m_actor->m_proped_wheel_pairs[m_actor->m_num_proped_wheels] = m_actor->ar_num_wheels;
+        m_actor->m_num_proped_wheels++;
     }
     if (wheel_2_def.braking != RigDef::Wheels::BRAKING_NO)
     {
