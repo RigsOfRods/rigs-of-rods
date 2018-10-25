@@ -646,7 +646,6 @@ const ImU32 BEAM_HYDRO_COLOR         (0xff55a3e0);
 const float BEAM_HYDRO_THICKNESS     (1.4f);
 const ImU32 BEAM_STRENGTH_TEXT_COLOR (0xffcfd0cc);
 const ImU32 BEAM_STRESS_TEXT_COLOR   (0xff58bbfc);
-const ImU32 BEAM_COMPRESS_TEXT_COLOR (0xffccbf3c);
 // TODO: commands cannot be distinguished on runtime
 
 const ImU32 NODE_COLOR               (0xff44ddff);
@@ -716,17 +715,6 @@ void RoR::GfxActor::UpdateDebugView()
             Ogre::Vector3 pos1 = world2screen.Convert(beams[i].p1->AbsPosition);
             Ogre::Vector3 pos2 = world2screen.Convert(beams[i].p2->AbsPosition);
 
-            // Original coloring logic for "skeletonview":
-            // -------------------------------------------
-            // // float stress_ratio = beams[i].stress / beams[i].minmaxposnegstress;
-            // // float color_scale = std::abs(stress_ratio);
-            // // color_scale = std::min(color_scale, 1.0f);
-            // // 
-            // // if (stress_ratio <= 0)
-            // //     color = ColourValue(0.2f, 1.0f - color_scale, color_scale, 0.8f);
-            // // else
-            // //     color = ColourValue(color_scale, 1.0f - color_scale, 0.2f, 0.8f);
-
             if ((pos1.z < 0.f) && (pos2.z < 0.f))
             {
                 ImVec2 pos1xy(pos1.x, pos1.y);
@@ -742,7 +730,23 @@ void RoR::GfxActor::UpdateDebugView()
                 }
                 else
                 {
-                    drawlist->AddLine(pos1xy, pos2xy, BEAM_COLOR, BEAM_THICKNESS);
+                    ImU32 color = BEAM_COLOR;
+                    if (m_debug_view == DebugViewType::DEBUGVIEW_BEAMS)
+                    {
+                        if (beams[i].stress > 0)
+                        {
+                            float stress_ratio = pow(beams[i].stress / beams[i].maxposstress, 2.0f);
+                            float s = std::min(stress_ratio, 1.0f);
+                            color = Ogre::ColourValue(0.2f * (1 + 2.0f * s), 0.4f * (1.0f - s), 0.33f, 1.0f).getAsABGR();
+                        }
+                        else if (beams[i].stress < 0)
+                        {
+                            float stress_ratio = pow(beams[i].stress / beams[i].maxnegstress, 2.0f);
+                            float s = std::min(stress_ratio, 1.0f);
+                            color = Ogre::ColourValue(0.2f, 0.4f * (1.0f - s), 0.33f * (1 + 1.0f * s), 1.0f).getAsABGR();
+                        }
+                    }
+                    drawlist->AddLine(pos1xy, pos2xy, color, BEAM_THICKNESS);
                 }
             }
         }
@@ -825,16 +829,9 @@ void RoR::GfxActor::UpdateDebugView()
                 drawlist->AddText(pos, BEAM_STRENGTH_TEXT_COLOR, buf);
                 const ImVec2 stren_text_size = ImGui::CalcTextSize(buf);
 
-                // Compression
-                snprintf(buf, BUF_LEN, "|%.2f",  std::abs(beams[i].stress / beams[i].minmaxposnegstress)); // NOTE: New formula (simplified); the old one didn't make sense to me ~ only_a_ptr, 06/2017
-                drawlist->AddText(ImVec2(pos.x + stren_text_size.x, pos.y), BEAM_COMPRESS_TEXT_COLOR, buf);
-
                 // Stress
-                snprintf(buf, BUF_LEN, "%.1f", beams[i].stress);
-                ImVec2 stress_text_pos(pos.x, pos.y + stren_text_size.y);
-                drawlist->AddText(stress_text_pos, BEAM_STRESS_TEXT_COLOR, buf);
-
-                // TODO: Hydro stress
+                snprintf(buf, BUF_LEN, "|%.2f",  beams[i].stress);
+                drawlist->AddText(ImVec2(pos.x + stren_text_size.x, pos.y), BEAM_STRESS_TEXT_COLOR, buf);
             }
         }
     } else if (m_debug_view == DebugViewType::DEBUGVIEW_WHEELS)
