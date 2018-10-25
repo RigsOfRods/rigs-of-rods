@@ -873,14 +873,18 @@ void RoR::GfxActor::UpdateDebugView()
                 {
                     float v = ImGui::GetTextLineHeightWithSpacing();
                     ImVec2 pos(pos_xyz.x, pos_xyz.y);
+                    Str<25> wheel_id_buf;
+                    wheel_id_buf << "Id: " << (i + 1);
+                    float h1 = ImGui::CalcTextSize(wheel_id_buf.ToCStr()).x / 2.0f;
+                    drawlist->AddText(ImVec2(pos.x - h1, pos.y), NODE_TEXT_COLOR, wheel_id_buf.ToCStr());
                     Str<25> rpm_buf;
-                    rpm_buf << "Speed: " << static_cast<int>(Round(wheels[i].debug_rpm)) << " rpm  ";
-                    float h1 = ImGui::CalcTextSize(rpm_buf.ToCStr()).x / 2.0f;
-                    drawlist->AddText(ImVec2(pos.x - h1, pos.y), NODE_TEXT_COLOR, rpm_buf.ToCStr());
+                    rpm_buf << "Speed: " << static_cast<int>(Round(wheels[i].debug_rpm)) << " rpm";
+                    float h2 = ImGui::CalcTextSize(rpm_buf.ToCStr()).x / 2.0f;
+                    drawlist->AddText(ImVec2(pos.x - h2, pos.y + v), NODE_TEXT_COLOR, rpm_buf.ToCStr());
                     Str<25> torque_buf;
-                    torque_buf << "Torque: " << static_cast<int>(Round(wheels[i].debug_torque)) << " Nm       ";
-                    float h2 = ImGui::CalcTextSize(torque_buf.ToCStr()).x / 2.0f;
-                    drawlist->AddText(ImVec2(pos.x - h2, pos.y + v), NODE_TEXT_COLOR, torque_buf.ToCStr());
+                    torque_buf << "Torque: " << static_cast<int>(Round(wheels[i].debug_torque)) << " Nm";
+                    float h3 = ImGui::CalcTextSize(torque_buf.ToCStr()).x / 2.0f;
+                    drawlist->AddText(ImVec2(pos.x - h3, pos.y + v + v), NODE_TEXT_COLOR, torque_buf.ToCStr());
                 }
             }
 
