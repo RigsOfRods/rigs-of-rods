@@ -177,6 +177,15 @@ void Actor::CalcBuoyance(bool doUpdate)
 
 void Actor::CalcAxles()
 {
+    for (int i = 0; i < ar_num_wheels; i++)
+    {
+        if (ar_engine && ar_wheels[i].wh_propulsed)
+        {
+            // The torque scaling is required for backwards compatibility
+            ar_wheels[i].wh_torque += (m_has_axles_section ? 2.0f : 1.0f) * ar_engine->GetTorque() / m_num_proped_wheels;
+        }
+    }
+
     // loop through all axles for inter axle torque, this is the torsion to keep
     // the axles aligned with each other as if they connected by a shaft
     for (int i = 1; i < m_num_axles; i++)
@@ -245,7 +254,7 @@ void Actor::CalcAxles()
             {axle_wheels[0]->wh_speed, axle_wheels[1]->wh_speed},
             axle_wheels[0]->wh_delta_rotation,
             {axle_torques[0], axle_torques[1]},
-            0, // no input torque, just calculate forces from different wheel positions
+            axle_wheels[0]->wh_torque + axle_wheels[1]->wh_torque,
             dt
         };
 
@@ -254,8 +263,8 @@ void Actor::CalcAxles()
         axle_wheels[0]->wh_delta_rotation =  diff_data.delta_rotation;
         axle_wheels[1]->wh_delta_rotation = -diff_data.delta_rotation;
 
-        ar_wheels[m_axles[i]->ax_wheel_1].wh_torque += diff_data.out_torque[0];
-        ar_wheels[m_axles[i]->ax_wheel_2].wh_torque += diff_data.out_torque[1];
+        ar_wheels[m_axles[i]->ax_wheel_1].wh_torque = diff_data.out_torque[0];
+        ar_wheels[m_axles[i]->ax_wheel_2].wh_torque = diff_data.out_torque[1];
     }
 }
 
@@ -292,12 +301,6 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
             ar_wheels[i].debug_slip = Vector3::ZERO;
             ar_wheels[i].debug_force = Vector3::ZERO;
             ar_wheels[i].debug_scaled_cforce = Vector3::ZERO;
-        }
-
-        if (ar_engine && ar_wheels[i].wh_propulsed)
-        {
-            // The torque scaling is required for backwards compatibility
-            ar_wheels[i].wh_torque += (m_has_axles_section ? 2.0f : 1.0f) * ar_engine->GetTorque() / m_num_proped_wheels;
         }
 
         ar_wheels[i].wh_avg_speed = ar_wheels[i].wh_avg_speed * 0.995 + ar_wheels[i].wh_speed * 0.005;

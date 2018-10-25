@@ -94,29 +94,13 @@ void Axle::CalcOpenDiff(DifferentialData& diff_data)
      * one. more detail provided below
      */
 
-    // velocity at which open diff calculations are used 100%
-    // this value is twice the speed of the actual threshold
-    // the factor of 2 comes from finding the average speed and
-    // is done so to remove unessecary calculations
-    const Ogre::Real threshold_vel = 10.0f;
+    diff_data.out_torque[0] = diff_data.out_torque[1] = diff_data.in_torque;
 
     // combined total velocity
-    const Ogre::Real sum_of_vel =
-        fabs(diff_data.speed[0]) + fabs(diff_data.speed[1]);
-
-    // normalizing the wheel speeds the wheels to sputter at near 0
-    // speeds, to over come this we gradually transition from even
-    // power distribution to splitting power based on speed. The
-    // Transition ratio defines how much of each formula we take from,
-    // Until a threshold has been reached
-    const Ogre::Real transition_ratio = (sum_of_vel / threshold_vel < 1) ?
-                                            sum_of_vel / threshold_vel : 1;
+    const Ogre::Real sum_of_vel = fabs(diff_data.speed[0]) + fabs(diff_data.speed[1]);
 
     // normalize the wheel speed, at a speed of 0 power is split evenly
-    const Ogre::Real power_ratio = (fabs(sum_of_vel) > 0.0) ?
-                                       fabs(diff_data.speed[0]) / sum_of_vel : 0.5;
-
-    diff_data.out_torque[0] = diff_data.out_torque[1] = diff_data.in_torque / 2.0f;
+    const Ogre::Real power_ratio = (sum_of_vel > 0.0f) ? fabs(diff_data.speed[0]) / sum_of_vel : 0.5f;
 
     // Diff model taken from Torcs, ror needs to model reaction torque for this to work.
     //const Ogre::Real spider_acc = (diff_data.speed[0] - diff_data.speed[1])/diff_data.dt;
@@ -124,8 +108,8 @@ void Axle::CalcOpenDiff(DifferentialData& diff_data)
     //DrTq1 = DrTq*0.5f - spiderTq;
 
     // get the final ratio based on the speed of the wheels
-    diff_data.out_torque[0] *= 2 * (transition_ratio * power_ratio + (1 - transition_ratio) * 0.5f);
-    diff_data.out_torque[1] *= 2 * (transition_ratio * (1 - power_ratio) + (1 - transition_ratio) * 0.5f);
+    diff_data.out_torque[0] *= Ogre::Math::Clamp(0.0f + power_ratio, 0.1f, 0.9f);
+    diff_data.out_torque[1] *= Ogre::Math::Clamp(1.0f - power_ratio, 0.1f, 0.9f);
 
     diff_data.delta_rotation = 0.0f;
 }
