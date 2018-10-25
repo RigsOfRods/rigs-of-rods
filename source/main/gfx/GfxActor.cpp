@@ -809,7 +809,7 @@ void RoR::GfxActor::UpdateDebugView()
 
                 // Strength is usually in thousands or millions - we shorten it.
                 const size_t BUF_LEN = 50;
-                char buf[BUF_LEN];
+                char buf[BUF_LEN];m_has_axles_section
                 if (beams[i].strength >= 1000000.f)
                 {
                     snprintf(buf, BUF_LEN, "%.2fM", (beams[i].strength / 1000000.f));
@@ -867,7 +867,7 @@ void RoR::GfxActor::UpdateDebugView()
                     drawlist->AddLine(pos1xy, pos2xy, BEAM_COLOR, BEAM_BROKEN_THICKNESS);
                 }
 
-                // Torque
+                // Id, Speed, Torque
                 Ogre::Vector3 pos_xyz = pos1_xyz.midPoint(pos2_xyz);
                 if (pos_xyz.z < 0.f)
                 {
