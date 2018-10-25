@@ -809,7 +809,7 @@ void RoR::GfxActor::UpdateDebugView()
 
                 // Strength is usually in thousands or millions - we shorten it.
                 const size_t BUF_LEN = 50;
-                char buf[BUF_LEN];m_has_axles_section
+                char buf[BUF_LEN];
                 if (beams[i].strength >= 1000000.f)
                 {
                     snprintf(buf, BUF_LEN, "%.2fM", (beams[i].strength / 1000000.f));
