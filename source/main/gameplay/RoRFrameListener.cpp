@@ -1449,11 +1449,8 @@ void SimController::FinalizeActorSpawning(Actor* local_actor, Actor* prev_actor,
             Vector3 translation = rq.asr_position - local_actor->GetRotationCenter();
             local_actor->ResetPosition(local_actor->ar_nodes[0].AbsPosition + Vector3(translation.x, 0.0f, translation.z), true);
 
-            if (local_actor->ar_driveable != NOT_DRIVEABLE || (prev_actor && prev_actor->ar_driveable != NOT_DRIVEABLE))
-            {
-                // Try to resolve collisions with other actors
-                local_actor->resolveCollisions(50.0f, prev_actor == nullptr);
-            }
+            // Try to resolve collisions with other actors
+            local_actor->resolveCollisions(50.0f, prev_actor == nullptr);
         }
 
         if (local_actor->ar_driveable != NOT_DRIVEABLE)
