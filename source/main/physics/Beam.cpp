@@ -961,7 +961,7 @@ void Actor::resolveCollisions(float max_distance, bool consider_up)
     if (consider_up)
     {
         Vector3 up = calculateCollisionOffset(+u);
-        if (up.length() < offset.length() * 1.2f)
+        if (up.length() < offset.length())
             offset = up;
     }
 
