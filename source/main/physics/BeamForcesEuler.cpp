@@ -59,7 +59,7 @@ void Actor::CalcForcesEulerCompute(bool doUpdate, int num_steps)
     if (doUpdate) this->ToggleHooks(-2, HOOK_LOCK, -1);
     this->UpdateSlideNodeForces(dt); // must be done before the integrator, or else the forces are not calculated properly
     this->CalcNodes();
-    this->CalcBeams(doUpdate);
+    this->CalcReplay();
     this->CalcAircraftForces(doUpdate);
     this->CalcFuseDrag();
     this->CalcBuoyance(doUpdate);
@@ -72,7 +72,7 @@ void Actor::CalcForcesEulerCompute(bool doUpdate, int num_steps)
     this->CalcTruckEngine(doUpdate); // must be done after the commands / engine triggers are updated
     this->CalcMouse();
     this->CalcForceFeedback(doUpdate);
-    this->CalcReplay();
+    this->CalcBeams(doUpdate);
 }
 
 void Actor::CalcForceFeedback(bool doUpdate)
@@ -1139,7 +1139,6 @@ bool Actor::CalcForcesEulerPrepare()
 
     this->CalcHooks();
     this->CalcRopes();
-    this->CalcBeamsInterActor();
 
     return true;
 }
