@@ -1117,6 +1117,13 @@ void ActorManager::UpdatePhysicsSimulation()
                 }
             }
             gEnv->threadPool->Parallelize(tasks);
+            for (auto actor : m_actors)
+            {
+                if (actor->ar_update_physics)
+                {
+                    actor->CalcBeamsInterActor();
+                }
+            }
         }
         {
             std::vector<std::function<void()>> tasks;
