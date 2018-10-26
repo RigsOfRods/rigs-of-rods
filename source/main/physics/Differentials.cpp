@@ -22,17 +22,17 @@
 #include "Differentials.h"
 #include "Language.h"
 
-Axle::Axle() :
-    ax_wheel_1(-1),
-    ax_wheel_2(-1),
-    ax_delta_rotation(0.0f),
+Differential::Differential() :
+    di_idx_1(-1),
+    di_idx_2(-1),
+    di_delta_rotation(0.0f),
     m_torsion_rate(1000000.0f),
     m_torsion_damp(m_torsion_rate / 100),
     m_which_diff(-1)
 {
 }
 
-void Axle::AddDifferentialType(DiffType diff)
+void Differential::AddDifferentialType(DiffType diff)
 {
     m_available_diffs.push_back(diff);
     if (m_which_diff == -1)
@@ -41,13 +41,13 @@ void Axle::AddDifferentialType(DiffType diff)
     }
 }
 
-void Axle::ToggleDifferentialMode()
+void Differential::ToggleDifferentialMode()
 {
     m_which_diff++;
     m_which_diff %= m_available_diffs.size();
 }
 
-void Axle::CalcAxleTorque(DifferentialData& diff_data)
+void Differential::CalcAxleTorque(DifferentialData& diff_data)
 {
     if (m_which_diff == -1)
     {
@@ -63,7 +63,7 @@ void Axle::CalcAxleTorque(DifferentialData& diff_data)
     }
 }
 
-Ogre::UTFString Axle::GetDifferentialTypeName()
+Ogre::UTFString Differential::GetDifferentialTypeName()
 {
     if (m_which_diff == -1)
     {
@@ -80,12 +80,12 @@ Ogre::UTFString Axle::GetDifferentialTypeName()
     }
 }
 
-void Axle::CalcSeparateDiff(DifferentialData& diff_data)
+void Differential::CalcSeparateDiff(DifferentialData& diff_data)
 {
     diff_data.out_torque[0] = diff_data.out_torque[1] = diff_data.in_torque / 2.0f;
 }
 
-void Axle::CalcOpenDiff(DifferentialData& diff_data)
+void Differential::CalcOpenDiff(DifferentialData& diff_data)
 {
     /* Open differential calculations *************************
      * These calculation are surprisingly tricky
@@ -117,7 +117,7 @@ void Axle::CalcOpenDiff(DifferentialData& diff_data)
     diff_data.delta_rotation = 0.0f;
 }
 
-void Axle::CalcViscousDiff(DifferentialData& diff_data)
+void Differential::CalcViscousDiff(DifferentialData& diff_data)
 {
     /* Viscous axle calculation ********************************
      * Two wheels are joined together by a rotary viscous coupling.
@@ -140,7 +140,7 @@ void Axle::CalcViscousDiff(DifferentialData& diff_data)
     diff_data.out_torque[1] += delta_speed * m_torsion_damp;
 }
 
-void Axle::CalcLockedDiff(DifferentialData& diff_data)
+void Differential::CalcLockedDiff(DifferentialData& diff_data)
 {
     /* Locked axle calculation ********************************
      * This is straight forward, two wheels are joined together

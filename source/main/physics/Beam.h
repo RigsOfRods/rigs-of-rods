@@ -366,11 +366,11 @@ private:
     void              CalcAnimatedProps(bool doUpdate);    //!< TIGHT LOOP; Physics;
     void              CalcForcesEulerCompute(bool doUpdate, int num_steps); //!< TIGHT LOOP; Physics;
     void              CalcAnimators(const int flag_state, float &cstate, int &div, float timer, const float lower_limit, const float upper_limit, const float option3); //!< TIGHT LOOP; Physics;
-    void              CalcAxles(bool doUpdate);            //!< TIGHT LOOP; Physics;
     void              CalcBeams(bool trigger_hooks);       //!< TIGHT LOOP; Physics;
     void              CalcBeamsInterActor();               //!< TIGHT LOOP; Physics;
     void              CalcBuoyance(bool doUpdate);         //!< TIGHT LOOP; Physics;
     void              CalcCommands(bool doUpdate);         //!< TIGHT LOOP; Physics;
+    void              CalcDifferentials();                 //!< TIGHT LOOP; Physics;
     void              CalcForceFeedback(bool doUpdate);    //!< TIGHT LOOP; Physics;
     void              CalcFuseDrag();                      //!< TIGHT LOOP; Physics;
     void              CalcHooks();                         //!< TIGHT LOOP; Physics;
@@ -476,7 +476,7 @@ private:
     float             m_fusealge_width;        //!< Physics attr; defined in truckfile
     float             m_odometer_total;        //!< GUI state
     float             m_odometer_user;         //!< GUI state
-    Axle*             m_axles[MAX_WHEELS/2];   //!< Physics
+    Differential*     m_axles[MAX_WHEELS/2];   //!< Physics
     int               m_num_axles;             //!< Physics attr
     int               m_num_command_beams;     //!< TODO: Remove! Spawner context only; likely unused feature
     float             m_minimass;              //!< Physics attr; minimum node mass in Kg

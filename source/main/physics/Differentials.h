@@ -40,14 +40,14 @@ enum DiffType
     INVALID_DIFF
 };
 
-class Axle
+class Differential
 {
 public:
-    Axle();
+    Differential();
 
-    int       ax_wheel_1; //!< array location of wheel 1
-    int       ax_wheel_2; //!< array location of wheel 2
-    float     ax_delta_rotation; //!< difference of rotational position between two axles... a kludge at best
+    int       di_idx_1; //!< array location of wheel / axle 1
+    int       di_idx_2; //!< array location of wheel / axle 2
+    float     di_delta_rotation; //!< difference of rotational position between two wheels/axles... a kludge at best
 
     void             AddDifferentialType(DiffType diff);
     void             ToggleDifferentialMode();

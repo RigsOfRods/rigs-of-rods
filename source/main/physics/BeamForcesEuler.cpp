@@ -63,7 +63,7 @@ void Actor::CalcForcesEulerCompute(bool doUpdate, int num_steps)
     this->CalcAircraftForces(doUpdate);
     this->CalcFuseDrag();
     this->CalcBuoyance(doUpdate);
-    this->CalcAxles();
+    this->CalcDifferentials();
     this->CalcWheels(doUpdate, num_steps);
     this->CalcShocks(doUpdate, num_steps);
     this->CalcHydros();
@@ -175,7 +175,7 @@ void Actor::CalcBuoyance(bool doUpdate)
     }
 }
 
-void Actor::CalcAxles()
+void Actor::CalcDifferentials()
 {
     for (int i = 0; i < ar_num_wheels; i++)
     {
@@ -190,51 +190,51 @@ void Actor::CalcAxles()
     // the axles aligned with each other as if they connected by a shaft
     for (int i = 1; i < m_num_axles; i++)
     {
-        if (ar_wheels[m_axles[i - 1]->ax_wheel_1].wh_is_detached)
-            ar_wheels[m_axles[i - 1]->ax_wheel_1].wh_speed = ar_wheels[m_axles[i - 1]->ax_wheel_2].wh_speed;
-        if (ar_wheels[m_axles[i - 0]->ax_wheel_1].wh_is_detached)
-            ar_wheels[m_axles[i - 0]->ax_wheel_1].wh_speed = ar_wheels[m_axles[i - 0]->ax_wheel_2].wh_speed;
-        if (ar_wheels[m_axles[i - 1]->ax_wheel_2].wh_is_detached)
-            ar_wheels[m_axles[i - 1]->ax_wheel_2].wh_speed = ar_wheels[m_axles[i - 1]->ax_wheel_1].wh_speed;
-        if (ar_wheels[m_axles[i - 0]->ax_wheel_2].wh_is_detached)
-            ar_wheels[m_axles[i - 0]->ax_wheel_2].wh_speed = ar_wheels[m_axles[i - 0]->ax_wheel_1].wh_speed;
+        if (ar_wheels[m_axles[i - 1]->di_idx_1].wh_is_detached)
+            ar_wheels[m_axles[i - 1]->di_idx_1].wh_speed = ar_wheels[m_axles[i - 1]->di_idx_2].wh_speed;
+        if (ar_wheels[m_axles[i - 0]->di_idx_1].wh_is_detached)
+            ar_wheels[m_axles[i - 0]->di_idx_1].wh_speed = ar_wheels[m_axles[i - 0]->di_idx_2].wh_speed;
+        if (ar_wheels[m_axles[i - 1]->di_idx_2].wh_is_detached)
+            ar_wheels[m_axles[i - 1]->di_idx_2].wh_speed = ar_wheels[m_axles[i - 1]->di_idx_1].wh_speed;
+        if (ar_wheels[m_axles[i - 0]->di_idx_2].wh_is_detached)
+            ar_wheels[m_axles[i - 0]->di_idx_2].wh_speed = ar_wheels[m_axles[i - 0]->di_idx_1].wh_speed;
 
-        if (ar_wheels[m_axles[i - 1]->ax_wheel_1].wh_is_detached && ar_wheels[m_axles[i - 1]->ax_wheel_2].wh_is_detached)
+        if (ar_wheels[m_axles[i - 1]->di_idx_1].wh_is_detached && ar_wheels[m_axles[i - 1]->di_idx_2].wh_is_detached)
         {
-            ar_wheels[m_axles[i - 1]->ax_wheel_1].wh_speed = ar_wheels[m_axles[i - 0]->ax_wheel_1].wh_speed;
-            ar_wheels[m_axles[i - 1]->ax_wheel_2].wh_speed = ar_wheels[m_axles[i - 0]->ax_wheel_2].wh_speed;
+            ar_wheels[m_axles[i - 1]->di_idx_1].wh_speed = ar_wheels[m_axles[i - 0]->di_idx_1].wh_speed;
+            ar_wheels[m_axles[i - 1]->di_idx_2].wh_speed = ar_wheels[m_axles[i - 0]->di_idx_2].wh_speed;
         }
-        if (ar_wheels[m_axles[i - 0]->ax_wheel_1].wh_is_detached && ar_wheels[m_axles[i - 0]->ax_wheel_2].wh_is_detached)
+        if (ar_wheels[m_axles[i - 0]->di_idx_1].wh_is_detached && ar_wheels[m_axles[i - 0]->di_idx_2].wh_is_detached)
         {
-            ar_wheels[m_axles[i - 0]->ax_wheel_1].wh_speed = ar_wheels[m_axles[i - 1]->ax_wheel_1].wh_speed;
-            ar_wheels[m_axles[i - 0]->ax_wheel_2].wh_speed = ar_wheels[m_axles[i - 1]->ax_wheel_2].wh_speed;
+            ar_wheels[m_axles[i - 0]->di_idx_1].wh_speed = ar_wheels[m_axles[i - 1]->di_idx_1].wh_speed;
+            ar_wheels[m_axles[i - 0]->di_idx_2].wh_speed = ar_wheels[m_axles[i - 1]->di_idx_2].wh_speed;
         }
 
         Ogre::Real axle_torques[2] = {0.0f, 0.0f};
         DifferentialData diff_data =
         {
             {
-                (ar_wheels[m_axles[i - 1]->ax_wheel_1].wh_speed + ar_wheels[m_axles[i - 1]->ax_wheel_2].wh_speed) * 0.5f,
-                (ar_wheels[m_axles[i - 0]->ax_wheel_1].wh_speed + ar_wheels[m_axles[i - 0]->ax_wheel_2].wh_speed) * 0.5f
+                (ar_wheels[m_axles[i - 1]->di_idx_1].wh_speed + ar_wheels[m_axles[i - 1]->di_idx_2].wh_speed) * 0.5f,
+                (ar_wheels[m_axles[i - 0]->di_idx_1].wh_speed + ar_wheels[m_axles[i - 0]->di_idx_2].wh_speed) * 0.5f
             },
-            m_axles[i - 1]->ax_delta_rotation,
+            m_axles[i - 1]->di_delta_rotation,
             {axle_torques[0], axle_torques[1]},
             0, // no input torque, just calculate forces from different axle positions
             dt
         };
 
         if (!m_has_axles_section)
-            Axle::CalcViscousDiff(diff_data);
+            Differential::CalcViscousDiff(diff_data);
         else
-            Axle::CalcLockedDiff(diff_data);
+            Differential::CalcLockedDiff(diff_data);
 
-        m_axles[i - 1]->ax_delta_rotation =  diff_data.delta_rotation;
-        m_axles[i - 0]->ax_delta_rotation = -diff_data.delta_rotation;
+        m_axles[i - 1]->di_delta_rotation =  diff_data.delta_rotation;
+        m_axles[i - 0]->di_delta_rotation = -diff_data.delta_rotation;
 
-        ar_wheels[m_axles[i - 1]->ax_wheel_1].wh_torque += diff_data.out_torque[0];
-        ar_wheels[m_axles[i - 1]->ax_wheel_2].wh_torque += diff_data.out_torque[0];
-        ar_wheels[m_axles[i - 0]->ax_wheel_1].wh_torque += diff_data.out_torque[1];
-        ar_wheels[m_axles[i - 0]->ax_wheel_2].wh_torque += diff_data.out_torque[1];
+        ar_wheels[m_axles[i - 1]->di_idx_1].wh_torque += diff_data.out_torque[0];
+        ar_wheels[m_axles[i - 1]->di_idx_2].wh_torque += diff_data.out_torque[0];
+        ar_wheels[m_axles[i - 0]->di_idx_1].wh_torque += diff_data.out_torque[1];
+        ar_wheels[m_axles[i - 0]->di_idx_2].wh_torque += diff_data.out_torque[1];
     }
 
     // loop through all axles for intra axle torque, this is the torsion to keep
@@ -242,7 +242,7 @@ void Actor::CalcAxles()
     for (int i = 0; i < m_num_axles; i++)
     {
         Ogre::Real axle_torques[2] = {0.0f, 0.0f};
-        wheel_t* axle_wheels[2] = {&ar_wheels[m_axles[i]->ax_wheel_1], &ar_wheels[m_axles[i]->ax_wheel_2]};
+        wheel_t* axle_wheels[2] = {&ar_wheels[m_axles[i]->di_idx_1], &ar_wheels[m_axles[i]->di_idx_2]};
 
         if (axle_wheels[0]->wh_is_detached)
             axle_wheels[0]->wh_speed = axle_wheels[1]->wh_speed;
@@ -263,8 +263,8 @@ void Actor::CalcAxles()
         axle_wheels[0]->wh_delta_rotation =  diff_data.delta_rotation;
         axle_wheels[1]->wh_delta_rotation = -diff_data.delta_rotation;
 
-        ar_wheels[m_axles[i]->ax_wheel_1].wh_torque = diff_data.out_torque[0];
-        ar_wheels[m_axles[i]->ax_wheel_2].wh_torque = diff_data.out_torque[1];
+        ar_wheels[m_axles[i]->di_idx_1].wh_torque = diff_data.out_torque[0];
+        ar_wheels[m_axles[i]->di_idx_2].wh_torque = diff_data.out_torque[1];
     }
 }
 
