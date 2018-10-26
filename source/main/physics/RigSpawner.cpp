@@ -472,10 +472,10 @@ void ActorSpawner::FinalizeRig()
             {
                 if (i % 2)
                 {
-                    Axle *axle = new Axle();
+                    Differential *axle = new Differential();
 
-                    axle->ax_wheel_1 = m_actor->m_proped_wheel_pairs[i - 1];
-                    axle->ax_wheel_2 = m_actor->m_proped_wheel_pairs[i - 0];
+                    axle->di_idx_1 = m_actor->m_proped_wheel_pairs[i - 1];
+                    axle->di_idx_2 = m_actor->m_proped_wheel_pairs[i - 0];
                     axle->AddDifferentialType(VISCOUS_DIFF);
 
                     m_actor->m_axles[m_actor->m_num_axles] = axle;
@@ -2410,9 +2410,9 @@ void ActorSpawner::ProcessAxle(RigDef::Axle & def)
     node_t *wheel_1_node_2 = GetNodePointerOrThrow(def.wheels[0][1]);
     node_t *wheel_2_node_1 = GetNodePointerOrThrow(def.wheels[1][0]);
     node_t *wheel_2_node_2 = GetNodePointerOrThrow(def.wheels[1][1]);
-    Axle *axle = new Axle();
+    Differential *axle = new Differential();
 
-    if (! AssignWheelToAxle(axle->ax_wheel_1, wheel_1_node_1, wheel_1_node_2))
+    if (! AssignWheelToAxle(axle->di_idx_1, wheel_1_node_1, wheel_1_node_2))
     {
         std::stringstream msg;
         msg << "Couldn't find wheel with axis nodes '" << def.wheels[0][0].ToString()
@@ -2420,7 +2420,7 @@ void ActorSpawner::ProcessAxle(RigDef::Axle & def)
         AddMessage(Message::TYPE_WARNING, msg.str());
     }
 
-    if (! AssignWheelToAxle(axle->ax_wheel_2, wheel_2_node_1, wheel_2_node_2))
+    if (! AssignWheelToAxle(axle->di_idx_2, wheel_2_node_1, wheel_2_node_2))
     {
         std::stringstream msg;
         msg << "Couldn't find wheel with axis nodes '" << def.wheels[1][0].ToString()
