@@ -1139,7 +1139,6 @@ bool Actor::CalcForcesEulerPrepare()
 
     this->CalcHooks();
     this->CalcRopes();
-    this->ForwardCommands();
     this->CalcBeamsInterActor();
 
     return true;
@@ -1644,45 +1643,6 @@ void Actor::CalcNodes()
         rq.amr_type = ActorModifyRequest::Type::RESET_ON_SPOT;
         App::GetSimController()->QueueActorModify(rq);
         m_ongoing_reset = true;
-    }
-}
-
-void Actor::ForwardCommands()
-{
-    Actor* current_truck = RoR::App::GetSimController()->GetPlayerActor();
-    auto bf = RoR::App::GetSimController()->GetBeamFactory();
-
-    // forward things to trailers
-    if (this == current_truck && ar_forward_commands)
-    {
-        for (auto actor : RoR::App::GetSimController()->GetActors())
-        {
-            if (actor != current_truck && actor->ar_import_commands)
-            {
-                // forward commands
-                for (int j = 1; j <= MAX_COMMANDS; j++)
-                {
-                    actor->ar_command_key[j].playerInputValue = std::max(ar_command_key[j].playerInputValue, ar_command_key[j].commandValue);
-                }
-                // just send brake and lights to the connected truck, and no one else :)
-                for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
-                {
-                    if (!it->hk_locked_actor)
-                        continue;
-                    // forward brake
-                    it->hk_locked_actor->ar_brake = ar_brake;
-                    it->hk_locked_actor->ar_parking_brake = ar_parking_brake;
-
-                    // forward lights
-                    it->hk_locked_actor->ar_lights = ar_lights;
-                    it->hk_locked_actor->m_blink_type = m_blink_type;
-                    //for (int k=0; k<4; k++)
-                    //	hk_locked_actor->setCustomLight(k, getCustomLight(k));
-                    //forward reverse light e.g. for trailers
-                    it->hk_locked_actor->m_reverse_light_active = getReverseLightVisible();
-                }
-            }
-        }
     }
 }
 
