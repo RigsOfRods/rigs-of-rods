@@ -706,6 +706,42 @@ void ActorManager::RecursiveActivation(int j, std::vector<bool>& visited)
     }
 }
 
+void ActorManager::ForwardCommands(Actor* source_actor)
+{
+    if (source_actor->ar_forward_commands)
+    {
+        for (auto actor : RoR::App::GetSimController()->GetActors())
+        {
+            if (actor != source_actor && actor->ar_import_commands &&
+                    (actor->getPosition().distance(source_actor->getPosition()) < 
+                     actor->m_min_camera_radius + source_actor->m_min_camera_radius))
+            {
+                // forward commands
+                for (int j = 1; j <= MAX_COMMANDS; j++)
+                {
+                    actor->ar_command_key[j].playerInputValue = std::max(source_actor->ar_command_key[j].playerInputValue,
+                                                                         source_actor->ar_command_key[j].commandValue);
+                }
+            }
+        }
+        // just send brake and lights to the connected trucks, and no one else :)
+        for (auto hook : source_actor->ar_hooks)
+        {
+            if (!hook.hk_locked_actor)
+                continue;
+
+            // forward brakes
+            hook.hk_locked_actor->ar_brake = source_actor->ar_brake;
+            hook.hk_locked_actor->ar_parking_brake = source_actor->ar_parking_brake;
+
+            // forward lights
+            hook.hk_locked_actor->ar_lights = source_actor->ar_lights;
+            hook.hk_locked_actor->m_blink_type = source_actor->m_blink_type;
+            hook.hk_locked_actor->m_reverse_light_active = source_actor->getReverseLightVisible();
+        }
+    }
+}
+
 void ActorManager::UpdateSleepingState(Actor* player_actor, float dt)
 {
     if (!m_forced_awake)
@@ -1007,6 +1043,7 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
 
     if (player_actor != nullptr)
     {
+        this->ForwardCommands(player_actor);
         player_actor->updateDashBoards(dt);
         player_actor->ForceFeedbackStep(m_physics_steps);
         if (player_actor->ReplayStep())

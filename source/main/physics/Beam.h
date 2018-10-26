@@ -102,7 +102,6 @@ public:
     void              ToggleTractionControl();             //!< Event handler
     void              ToggleCruiseControl();               //!< Event handler
     void              ToggleBeacons();                     //!< Event handler
-    void              ForwardCommands();
     void              setReplayMode(bool rm);              //!< Event handler; toggle replay mode.
     int               savePosition(int position);
     int               loadPosition(int position);
