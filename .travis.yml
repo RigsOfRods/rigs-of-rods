@@ -12,6 +12,7 @@ addons:
     - p7zip-full
     - pkg-config
     - ninja-build
+    - nvidia-cg-toolkit
     - libfreetype6-dev
     - libfreeimage-dev
     - libzzip-dev
