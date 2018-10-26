@@ -232,40 +232,62 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
 
     if (ms.buttonDown(OIS::MB_Middle))
     {
-        if (App::GetSimController()->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE)
+        lastMouseY = ms.Y.abs;
+        lastMouseX = ms.X.abs;
+        Ray mouseRay = getMouseRay();
+
+        Actor* player_actor = App::GetSimController()->GetPlayerActor();
+
+        // Reselect the player actor
         {
-            Actor* truck = App::GetSimController()->GetPlayerActor();
+            Real nearest_ray_distance = std::numeric_limits<float>::max();
 
-            if (truck)
+            for (auto actor : App::GetSimController()->GetActors())
             {
-                lastMouseY = ms.Y.abs;
-                lastMouseX = ms.X.abs;
-                Ray mouseRay = getMouseRay();
-
-                Real nearest_camera_distance = std::numeric_limits<float>::max();
-                Real nearest_ray_distance = std::numeric_limits<float>::max();
-                int nearest_node_index = -1;
-
-                for (int i = 0; i < truck->ar_num_nodes; i++)
+                if (actor != player_actor)
                 {
-                    std::pair<bool, Real> pair = mouseRay.intersects(Sphere(truck->ar_nodes[i].AbsPosition, 0.25f));
+                    Vector3 pos = actor->getPosition();
+                    std::pair<bool, Real> pair = mouseRay.intersects(Sphere(pos, actor->getMinCameraRadius()));
                     if (pair.first)
                     {
-                        Real ray_distance = mouseRay.getDirection().crossProduct(truck->ar_nodes[i].AbsPosition - mouseRay.getOrigin()).length();
-                        if (ray_distance < nearest_ray_distance || (ray_distance == nearest_ray_distance && pair.second < nearest_camera_distance))
+                        Real ray_distance = mouseRay.getDirection().crossProduct(pos - mouseRay.getOrigin()).length();
+                        if (ray_distance < nearest_ray_distance)
                         {
-                            nearest_camera_distance = pair.second;
                             nearest_ray_distance = ray_distance;
-                            nearest_node_index = i;
+                            App::GetSimController()->SetPendingPlayerActor(actor);
                         }
                     }
                 }
-                if (truck->ar_custom_camera_node != nearest_node_index)
+            }
+        }
+
+        // Reselect the vehicle orbit camera center
+        if (player_actor && App::GetSimController()->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE)
+        {
+            Real nearest_camera_distance = std::numeric_limits<float>::max();
+            Real nearest_ray_distance = std::numeric_limits<float>::max();
+            int nearest_node_index = -1;
+
+            for (int i = 0; i < player_actor->ar_num_nodes; i++)
+            {
+                Vector3 pos = player_actor->ar_nodes[i].AbsPosition;
+                std::pair<bool, Real> pair = mouseRay.intersects(Sphere(pos, 0.25f));
+                if (pair.first)
                 {
-                    truck->ar_custom_camera_node = nearest_node_index;
-                    truck->calculateAveragePosition();
-                    App::GetSimController()->ResetCamera();
+                    Real ray_distance = mouseRay.getDirection().crossProduct(pos - mouseRay.getOrigin()).length();
+                    if (ray_distance < nearest_ray_distance || (ray_distance == nearest_ray_distance && pair.second < nearest_camera_distance))
+                    {
+                        nearest_camera_distance = pair.second;
+                        nearest_ray_distance = ray_distance;
+                        nearest_node_index = i;
+                    }
                 }
+            }
+            if (player_actor->ar_custom_camera_node != nearest_node_index)
+            {
+                player_actor->ar_custom_camera_node = nearest_node_index;
+                player_actor->calculateAveragePosition();
+                App::GetSimController()->ResetCamera();
             }
         }
     }
