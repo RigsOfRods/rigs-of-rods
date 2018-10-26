@@ -125,6 +125,7 @@ public:
     int               getAxleLockCount();
     Ogre::Vector3     getGForces();
     float             getSteeringAngle();
+    float             getMinCameraRadius() { return m_min_camera_radius; }; 
     std::string       GetActorDesignName();
     std::string       GetActorFileName();
     int               GetActorType();
