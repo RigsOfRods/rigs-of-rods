@@ -813,10 +813,6 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
     if (direction == Vector3::ZERO)
         return Vector3::ZERO;
 
-    AxisAlignedBox bb = ar_bounding_box;
-    bb.merge(ar_bounding_box.getMinimum() + direction);
-    bb.merge(ar_bounding_box.getMaximum() + direction);
-
     Real max_distance = direction.length();
     direction.normalise();
 
@@ -829,60 +825,56 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
     // collision displacement
     Vector3 collision_offset = Vector3::ZERO;
 
-    for (auto actor : App::GetSimController()->GetActors())
+    while (collision_offset.length() < max_distance)
     {
-        if (actor == this)
-            continue;
-        if (!bb.intersects(actor->ar_bounding_box))
-            continue;
+        Vector3 bb_min = ar_bounding_box.getMinimum() + collision_offset;
+        Vector3 bb_max = ar_bounding_box.getMaximum() + collision_offset;
+        AxisAlignedBox bb = AxisAlignedBox(bb_min, bb_max);
 
-        // Test own contacters against others cabs
-        if (m_intra_point_col_detector)
+        bool collision = false;
+
+        for (auto actor : App::GetSimController()->GetActors())
         {
-            for (int i = 0; i < actor->ar_num_collcabs; i++)
+            if (actor == this)
+                continue;
+            if (!bb.intersects(actor->ar_bounding_box))
+                continue;
+
+            // Test own contacters against others cabs
+            if (m_intra_point_col_detector)
             {
-                if (collision_offset.length() >= max_distance)
-                    break;
-                Vector3 offset = collision_offset;
-                while (offset.length() < max_distance)
+                for (int i = 0; i < actor->ar_num_collcabs; i++)
                 {
                     int tmpv = actor->ar_collcabs[i] * 3;
                     node_t* no = &actor->ar_nodes[ar_cabs[tmpv]];
                     node_t* na = &actor->ar_nodes[ar_cabs[tmpv + 1]];
                     node_t* nb = &actor->ar_nodes[ar_cabs[tmpv + 2]];
 
-                    m_intra_point_col_detector->query(no->AbsPosition + offset,
-                        na->AbsPosition + offset,
-                        nb->AbsPosition + offset,
-                        ar_collision_range);
+                    m_intra_point_col_detector->query(no->AbsPosition - collision_offset,
+                        na->AbsPosition - collision_offset,
+                        nb->AbsPosition - collision_offset,
+                        actor->ar_collision_range);
 
-                    if (m_intra_point_col_detector->hit_count == 0)
+                    if (m_intra_point_col_detector->hit_count > 0)
                     {
-                        collision_offset = offset;
+                        collision = true;
                         break;
                     }
-                    offset += direction * 0.01f;
                 }
+
+                if (collision)
+                    break;
             }
-        }
 
-        float proximity = 0.05f;
-        proximity = std::max(proximity, ar_bounding_box.getSize().length() / 50.0f);
-        proximity = std::max(proximity, actor->ar_bounding_box.getSize().length() / 50.0f);
+            float proximity = std::max(0.05f, std::max(m_min_camera_radius, actor->m_min_camera_radius) / 25.0f);
 
-        // Test proximity of own nodes against others nodes
-        for (int i = 0; i < ar_num_nodes; i++)
-        {
-            if (ar_nodes[i].nd_no_ground_contact)
-                continue;
-            if (collision_offset.length() >= max_distance)
-                break;
-            Vector3 offset = collision_offset;
-            while (offset.length() < max_distance)
+            // Test proximity of own nodes against others nodes
+            for (int i = 0; i < ar_num_nodes; i++)
             {
-                Vector3 query_position = ar_nodes[i].AbsPosition + offset;
+                if (ar_nodes[i].nd_no_ground_contact)
+                    continue;
 
-                bool node_proximity = false;
+                Vector3 query_position = ar_nodes[i].AbsPosition + collision_offset;
 
                 for (int j = 0; j < actor->ar_num_nodes; j++)
                 {
@@ -890,49 +882,43 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
                         continue;
                     if (query_position.squaredDistance(actor->ar_nodes[j].AbsPosition) < proximity)
                     {
-                        node_proximity = true;
+                        collision = true;
                         break;
                     }
                 }
 
-                if (!node_proximity)
-                {
-                    collision_offset = offset;
+                if (collision)
                     break;
-                }
-                offset += direction * 0.01f;
             }
         }
-    }
 
-    // Test own cabs against others contacters
-    if (m_inter_point_col_detector)
-    {
-        for (int i = 0; i < ar_num_collcabs; i++)
+        // Test own cabs against others contacters
+        if (!collision && m_inter_point_col_detector)
         {
-            if (collision_offset.length() >= max_distance)
-                break;
-            Vector3 offset = collision_offset;
-            while (offset.length() < max_distance)
+            for (int i = 0; i < ar_num_collcabs; i++)
             {
                 int tmpv = ar_collcabs[i] * 3;
                 node_t* no = &ar_nodes[ar_cabs[tmpv]];
                 node_t* na = &ar_nodes[ar_cabs[tmpv + 1]];
                 node_t* nb = &ar_nodes[ar_cabs[tmpv + 2]];
 
-                m_inter_point_col_detector->query(no->AbsPosition + offset,
-                    na->AbsPosition + offset,
-                    nb->AbsPosition + offset,
+                m_inter_point_col_detector->query(no->AbsPosition + collision_offset,
+                    na->AbsPosition + collision_offset,
+                    nb->AbsPosition + collision_offset,
                     ar_collision_range);
 
-                if (m_inter_point_col_detector->hit_count == 0)
+                if (m_inter_point_col_detector->hit_count > 0)
                 {
-                    collision_offset = offset;
+                    collision = true;
                     break;
                 }
-                offset += direction * 0.01f;
             }
         }
+
+        if (!collision)
+            break;
+
+        collision_offset += direction * 0.02f;
     }
 
     return collision_offset;
@@ -946,8 +932,7 @@ void Actor::resolveCollisions(Vector3 direction)
         return;
 
     // Additional 20 cm safe-guard (horizontally)
-    Vector3 dir = Vector3(offset.x, 0.0f, offset.z).normalisedCopy();
-    offset += 0.2f * dir;
+    offset += 0.2f * Vector3(offset.x, 0.0f, offset.z).normalisedCopy();
 
     ResetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, true, ar_nodes[ar_lowest_contacting_node].AbsPosition.y + offset.y);
 }
@@ -956,7 +941,7 @@ void Actor::resolveCollisions(float max_distance, bool consider_up)
 {
     Vector3 offset = Vector3::ZERO;
 
-    Vector3 f = max_distance * getDirection();
+    Vector3 f = max_distance * Vector3(getDirection().x, 0.0f, getDirection().z).normalisedCopy();
     Vector3 l = max_distance * Vector3(-sin(getRotation() + Math::HALF_PI), 0.0f, cos(getRotation() + Math::HALF_PI));
     Vector3 u = max_distance * Vector3::UNIT_Y;
 
@@ -976,7 +961,7 @@ void Actor::resolveCollisions(float max_distance, bool consider_up)
     if (consider_up)
     {
         Vector3 up = calculateCollisionOffset(+u);
-        if (up.length() < offset.length())
+        if (up.length() < offset.length() * 1.2f)
             offset = up;
     }
 
@@ -984,8 +969,7 @@ void Actor::resolveCollisions(float max_distance, bool consider_up)
         return;
 
     // Additional 20 cm safe-guard (horizontally)
-    Vector3 dir = Vector3(offset.x, 0.0f, offset.z).normalisedCopy();
-    offset += 0.2f * dir;
+    offset += 0.2f * Vector3(offset.x, 0.0f, offset.z).normalisedCopy();
 
     ResetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, true, ar_nodes[ar_lowest_contacting_node].AbsPosition.y + offset.y);
 }
