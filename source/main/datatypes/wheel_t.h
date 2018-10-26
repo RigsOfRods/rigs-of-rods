@@ -52,7 +52,6 @@ struct wheel_t
     Ogre::Real  wh_avg_speed;
     Ogre::Real  wh_antilock_coef;
     Ogre::Real  wh_tc_coef;
-    Ogre::Real  wh_delta_rotation;    ///< Difference in wheel position
     Ogre::Real  wh_torque;
     float       wh_net_rp;
     float       wh_net_rp1;           //<! Networking; triple buffer

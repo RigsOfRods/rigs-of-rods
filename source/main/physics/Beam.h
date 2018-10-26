@@ -460,6 +460,10 @@ private:
     float             m_ref_tyre_pressure;        //!< Physics state
     float             m_stabilizer_shock_ratio;   //!< Physics state
     int               m_stabilizer_shock_request; //!< Physics state; values: { -1, 0, 1 }
+    Differential*     m_axle_diffs[MAX_WHEELS/2]; //!< Physics
+    int               m_num_axle_diffs;           //!< Physics attr
+    Differential*     m_wheel_diffs[MAX_WHEELS/2];//!< Physics
+    int               m_num_wheel_diffs;          //!< Physics attr
     int               m_net_first_wheel_node;  //!< Network attr; Determines data buffer layout
     int               m_net_node_buf_size;     //!< Network attr; buffer size
     int               m_net_buffer_size;       //!< Network attr; buffer size
@@ -476,8 +480,6 @@ private:
     float             m_fusealge_width;        //!< Physics attr; defined in truckfile
     float             m_odometer_total;        //!< GUI state
     float             m_odometer_user;         //!< GUI state
-    Differential*     m_axles[MAX_WHEELS/2];   //!< Physics
-    int               m_num_axles;             //!< Physics attr
     int               m_num_command_beams;     //!< TODO: Remove! Spawner context only; likely unused feature
     float             m_minimass;              //!< Physics attr; minimum node mass in Kg
     float             m_load_mass;             //!< Physics attr; predefined load mass in Kg
