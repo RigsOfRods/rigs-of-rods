@@ -287,10 +287,10 @@ Actor::~Actor()
     if (m_rotator_inertia)
         delete m_rotator_inertia;
 
-    for (int i = 0; i < m_num_axles; ++i)
+    for (int i = 0; i < m_num_wheel_diffs; ++i)
     {
-        if (m_axles[i] != nullptr)
-            delete (m_axles[i]);
+        if (m_wheel_diffs[i] != nullptr)
+            delete (m_wheel_diffs[i]);
     }
 
     delete ar_nodes;
@@ -1259,24 +1259,24 @@ void Actor::disconnectAutopilot()
 
 void Actor::ToggleAxleLock()
 {
-    for (int i = 0; i < m_num_axles; ++i)
+    for (int i = 0; i < m_num_wheel_diffs; ++i)
     {
-        if (!m_axles[i])
+        if (!m_wheel_diffs[i])
             continue;
-        m_axles[i]->ToggleDifferentialMode();
+        m_wheel_diffs[i]->ToggleDifferentialMode();
     }
 }
 
 int Actor::getAxleLockCount()
 {
-    return m_num_axles;
+    return m_num_wheel_diffs;
 }
 
 String Actor::getAxleLockName()
 {
-    if (!m_axles[0])
+    if (!m_wheel_diffs[0])
         return String();
-    return m_axles[0]->GetDifferentialTypeName();
+    return m_wheel_diffs[0]->GetDifferentialTypeName();
 }
 
 void Actor::RequestRotation(float rotation)
@@ -1747,7 +1747,7 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
     //differential lock status - read only
     if (flag_state & ANIM_FLAG_DIFFLOCK)
     {
-        if (m_num_axles)
+        if (m_num_wheel_diffs)
         {
             if (getAxleLockName() == "Open")
                 cstate = 0.0f;
@@ -4160,8 +4160,10 @@ Actor::Actor(
     , m_total_mass(0)
     , m_water_contact(false)
     , m_water_contact_old(false)
-    , m_num_axles(0)
-    , m_axles{} // Init array to nullptr
+    , m_num_axle_diffs(0)
+    , m_axle_diffs{} // Init array to nullptr
+    , m_num_wheel_diffs(0)
+    , m_wheel_diffs{} // Init array to nullptr
     , m_has_command_beams(false)
     , m_num_command_beams(0)
     , m_minimass(50.f)

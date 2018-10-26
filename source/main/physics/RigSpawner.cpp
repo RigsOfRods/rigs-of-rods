@@ -451,7 +451,7 @@ void ActorSpawner::FinalizeRig()
     m_actor->ar_main_camera_node_dir  = std::max(0, m_actor->ar_camera_node_dir[0]);
     m_actor->ar_main_camera_node_roll = std::max(0, m_actor->ar_camera_node_roll[0]);
     
-    m_actor->m_has_axles_section = m_actor->m_num_axles > 0;
+    m_actor->m_has_axles_section = m_actor->m_num_wheel_diffs > 0;
 
     if (m_actor->m_num_proped_wheels > 0)
     {
@@ -465,24 +465,42 @@ void ActorSpawner::FinalizeRig()
         }
         m_actor->m_avg_proped_wheel_radius = proped_wheels_radius_sum / m_actor->m_num_proped_wheels;
 
-        // Automatically build axles from proped wheel pairs
-        if (m_actor->m_num_axles == 0)
+        // Automatically build interwheel differentials from proped wheel pairs
+        if (m_actor->m_num_wheel_diffs == 0)
         {
             for (int i = 1; i < m_actor->m_num_proped_wheels; i++)
             {
                 if (i % 2)
                 {
-                    Differential *axle = new Differential();
+                    Differential *diff = new Differential();
 
-                    axle->di_idx_1 = m_actor->m_proped_wheel_pairs[i - 1];
-                    axle->di_idx_2 = m_actor->m_proped_wheel_pairs[i - 0];
-                    axle->AddDifferentialType(VISCOUS_DIFF);
+                    diff->di_idx_1 = m_actor->m_proped_wheel_pairs[i - 1];
+                    diff->di_idx_2 = m_actor->m_proped_wheel_pairs[i - 0];
 
-                    m_actor->m_axles[m_actor->m_num_axles] = axle;
-                    m_actor->m_num_axles++;
+                    diff->AddDifferentialType(VISCOUS_DIFF);
+
+                    m_actor->m_wheel_diffs[m_actor->m_num_wheel_diffs] = diff;
+                    m_actor->m_num_wheel_diffs++;
                 }
             }
         }
+    }
+
+    // Automatically build interaxle differentials from interwheel differentials pairs
+    for (int i = 1; i < m_actor->m_num_wheel_diffs; i++)
+    {
+        Differential *diff = new Differential();
+
+        diff->di_idx_1 = i - 1;
+        diff->di_idx_2 = i - 0;
+
+        if (m_actor->m_has_axles_section)
+            diff->AddDifferentialType(LOCKED_DIFF);
+        else
+            diff->AddDifferentialType(VISCOUS_DIFF);
+
+        m_actor->m_axle_diffs[m_actor->m_num_axle_diffs] = diff;
+        m_actor->m_num_axle_diffs++;
     }
 
     if (m_actor->ar_main_camera_node_dir == 0)
@@ -2410,9 +2428,9 @@ void ActorSpawner::ProcessAxle(RigDef::Axle & def)
     node_t *wheel_1_node_2 = GetNodePointerOrThrow(def.wheels[0][1]);
     node_t *wheel_2_node_1 = GetNodePointerOrThrow(def.wheels[1][0]);
     node_t *wheel_2_node_2 = GetNodePointerOrThrow(def.wheels[1][1]);
-    Differential *axle = new Differential();
+    Differential *diff = new Differential();
 
-    if (! AssignWheelToAxle(axle->di_idx_1, wheel_1_node_1, wheel_1_node_2))
+    if (! AssignWheelToAxle(diff->di_idx_1, wheel_1_node_1, wheel_1_node_2))
     {
         std::stringstream msg;
         msg << "Couldn't find wheel with axis nodes '" << def.wheels[0][0].ToString()
@@ -2420,7 +2438,7 @@ void ActorSpawner::ProcessAxle(RigDef::Axle & def)
         AddMessage(Message::TYPE_WARNING, msg.str());
     }
 
-    if (! AssignWheelToAxle(axle->di_idx_2, wheel_2_node_1, wheel_2_node_2))
+    if (! AssignWheelToAxle(diff->di_idx_2, wheel_2_node_1, wheel_2_node_2))
     {
         std::stringstream msg;
         msg << "Couldn't find wheel with axis nodes '" << def.wheels[1][0].ToString()
@@ -2431,8 +2449,8 @@ void ActorSpawner::ProcessAxle(RigDef::Axle & def)
     if (def.options.size() == 0)
     {
         AddMessage(Message::TYPE_INFO, "No differential defined, defaulting to Open & Locked");
-        axle->AddDifferentialType(OPEN_DIFF);
-        axle->AddDifferentialType(LOCKED_DIFF);
+        diff->AddDifferentialType(OPEN_DIFF);
+        diff->AddDifferentialType(LOCKED_DIFF);
     }
     else
     {
@@ -2442,13 +2460,13 @@ void ActorSpawner::ProcessAxle(RigDef::Axle & def)
             switch (*itor)
             {
             case RigDef::Axle::OPTION_l_LOCKED:
-                axle->AddDifferentialType(LOCKED_DIFF);
+                diff->AddDifferentialType(LOCKED_DIFF);
                 break;
             case RigDef::Axle::OPTION_o_OPEN:
-                axle->AddDifferentialType(OPEN_DIFF);
+                diff->AddDifferentialType(OPEN_DIFF);
                 break;
             case RigDef::Axle::OPTION_s_SPLIT:
-                axle->AddDifferentialType(SPLIT_DIFF);
+                diff->AddDifferentialType(SPLIT_DIFF);
                 break;
             default:
                 AddMessage(Message::TYPE_WARNING, "Unknown differential type: " + *itor);
@@ -2457,8 +2475,8 @@ void ActorSpawner::ProcessAxle(RigDef::Axle & def)
         }
     }
 
-    m_actor->m_axles[m_actor->m_num_axles] = axle;
-    m_actor->m_num_axles++;
+    m_actor->m_wheel_diffs[m_actor->m_num_wheel_diffs] = diff;
+    m_actor->m_num_wheel_diffs++;
 }
 
 void ActorSpawner::ProcessSpeedLimiter(RigDef::SpeedLimiter & def)
@@ -5775,7 +5793,7 @@ bool ActorSpawner::CheckParticleLimit(unsigned int count)
 
 bool ActorSpawner::CheckAxleLimit(unsigned int count)
 {
-    if ((m_actor->m_num_axles + count) > MAX_WHEELS/2)
+    if ((m_actor->m_num_wheel_diffs + count) > MAX_WHEELS/2)
     {
         std::stringstream msg;
         msg << "Axle limit (" << MAX_WHEELS/2 << ") exceeded";

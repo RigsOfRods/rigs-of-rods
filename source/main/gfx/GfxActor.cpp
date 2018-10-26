@@ -1318,9 +1318,9 @@ void RoR::GfxActor::UpdateSimDataBuffer()
         m_simbuf.simbuf_engine_accel    = m_actor->ar_engine->GetAcceleration();
         m_simbuf.simbuf_clutch          = m_actor->ar_engine->GetClutch();
     }
-    if (m_actor->m_num_axles > 0)
+    if (m_actor->m_num_wheel_diffs > 0)
     {
-        m_simbuf.simbuf_diff_type = m_actor->m_axles[0]->GetActiveDiffType();
+        m_simbuf.simbuf_diff_type = m_actor->m_wheel_diffs[0]->GetActiveDiffType();
     }
 
     // Command keys
@@ -1965,7 +1965,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     //differential lock status
     if (flag_state & ANIM_FLAG_DIFFLOCK)
     {
-        if (m_actor->m_num_axles > 0) // read-only attribute - safe to read from here
+        if (m_actor->m_num_wheel_diffs > 0) // read-only attribute - safe to read from here
         {
             switch (m_simbuf.simbuf_diff_type)
             {

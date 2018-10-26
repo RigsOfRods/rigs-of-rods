@@ -45,8 +45,8 @@ class Differential
 public:
     Differential();
 
-    int       di_idx_1; //!< array location of wheel / axle 1
-    int       di_idx_2; //!< array location of wheel / axle 2
+    int       di_idx_1;          //!< array location of wheel / axle 1
+    int       di_idx_2;          //!< array location of wheel / axle 2
     float     di_delta_rotation; //!< difference of rotational position between two wheels/axles... a kludge at best
 
     void             AddDifferentialType(DiffType diff);
