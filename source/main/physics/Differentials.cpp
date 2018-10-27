@@ -99,8 +99,11 @@ void Axle::CalcOpenDiff(DifferentialData& diff_data)
     // combined total velocity
     const Ogre::Real sum_of_vel = fabs(diff_data.speed[0]) + fabs(diff_data.speed[1]);
 
+    // minimum velocity
+    const Ogre::Real min_of_vel = std::min(fabs(diff_data.speed[0]), fabs(diff_data.speed[1]));
+
     // normalize the wheel speed, at a speed of 0 power is split evenly
-    const Ogre::Real power_ratio = (sum_of_vel > 0.0f) ? fabs(diff_data.speed[0]) / sum_of_vel : 0.5f;
+    const Ogre::Real power_ratio = min_of_vel > 1.0f ? fabs(diff_data.speed[0]) / sum_of_vel : 0.5f;
 
     // Diff model taken from Torcs, ror needs to model reaction torque for this to work.
     //const Ogre::Real spider_acc = (diff_data.speed[0] - diff_data.speed[1])/diff_data.dt;
