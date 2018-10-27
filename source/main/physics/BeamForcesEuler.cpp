@@ -317,9 +317,9 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
                 ar_wheels[i].wh_tc_coef = curspeed / fabs(ar_wheels[i].wh_speed);
                 ar_wheels[i].wh_tc_coef = pow(ar_wheels[i].wh_tc_coef, tc_ratio);
             }
-            float tc_coef = pow(ar_wheels[i].wh_tc_coef, std::min(std::max(0.2f, curspeed), 1.0f));
-            ar_wheels[i].wh_torque *= pow(tc_coef, 1.0f / std::max(1.0f, std::min(wheel_slip, 10.0f)));
-            m_tractioncontrol = std::max(m_tractioncontrol, ar_wheels[i].wh_tc_coef < 0.9);
+            float tc_coef = pow(ar_wheels[i].wh_tc_coef, std::min(std::abs(ar_wheels[i].wh_speed) / 5.0f, 1.0f));
+            ar_wheels[i].wh_torque *= tc_coef;
+            m_tractioncontrol = true;
         }
         else
         {
