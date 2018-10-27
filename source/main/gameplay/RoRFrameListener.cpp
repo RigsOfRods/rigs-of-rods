@@ -329,7 +329,7 @@ void SimController::UpdateInputEvents(float dt)
     }
 
     if ((m_player_actor != nullptr) &&
-        (m_player_actor->ar_sim_state == Actor::SimState::NETWORKED_OK) &&
+        (m_player_actor->ar_sim_state != Actor::SimState::NETWORKED_OK) &&
         RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCKEDIT_RELOAD, 0.5f))
     {
         ActorModifyRequest rq;
