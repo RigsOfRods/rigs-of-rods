@@ -63,8 +63,8 @@ if (BUILD_REDIST_FOLDER)
             DESTINATION ${REDIST_FOLDER}/resources/
     )
     INSTALL(
-            DIRECTORY ${RUNTIME_OUTPUT_DIRECTORY}/content
-            DESTINATION ${REDIST_FOLDER}/content
+            DIRECTORY ${RUNTIME_OUTPUT_DIRECTORY}/content/
+            DESTINATION ${REDIST_FOLDER}/content/
     )
     INSTALL(
             DIRECTORY ${CMAKE_SOURCE_DIR}/resources/managed_materials/
