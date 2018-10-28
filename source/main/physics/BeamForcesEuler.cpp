@@ -360,7 +360,7 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
                         ar_wheels[i].wh_antilock_coef = pow(ar_wheels[i].wh_antilock_coef, alb_ratio);
                     }
                     antilock_coef = ar_wheels[i].wh_antilock_coef;
-                    m_antilockbrake = std::max(m_antilockbrake, antilock_coef < 0.9);
+                    m_antilockbrake = true;
                 }
 
                 // anti-jitter / anti-skidding
