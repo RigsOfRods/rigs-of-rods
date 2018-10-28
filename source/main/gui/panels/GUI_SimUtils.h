@@ -64,16 +64,6 @@ public:
 
 private:
 
-    // taken from truckHUD.h (now removed). TODO: Cleanup
-    std::map<int, float> maxNegLatG;
-    std::map<int, float> maxNegSagG;
-    std::map<int, float> maxNegVerG;
-    std::map<int, float> maxPosLatG;
-    std::map<int, float> maxPosSagG;
-    std::map<int, float> maxPosVerG;
-    std::map<int, float> maxVelos;
-    std::map<int, float> minVelos;
-
     //Colors
     Ogre::UTFString MainThemeColor; // colour key shortcut
     Ogre::UTFString WhiteColor; // colour key shortcut
