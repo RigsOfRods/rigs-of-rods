@@ -240,8 +240,7 @@ void CLASS::UpdateStats(float dt, Actor* actor)
         m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Node count: ") + WhiteColor + Ogre::UTFString(nodecountstr) + "\n";
 
         wchar_t truckmassstr[256];
-        Ogre::UTFString massstr;
-        swprintf(truckmassstr, 256, L"%ls %8.2f kg (%.2f tons)", massstr.asWStr_c_str(), mass, mass / 1000.0f);
+        swprintf(truckmassstr, 256, L"%8.2f kg (%.2f tons)", mass, mass / 1000.0f);
         m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Total mass: ") + WhiteColor + Ogre::UTFString(truckmassstr) + "\n";
 
         m_actor_stats_str = m_actor_stats_str + "\n"; //Some space
@@ -253,11 +252,19 @@ void CLASS::UpdateStats(float dt, Actor* actor)
             else
                 m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Engine RPM: ") + WhiteColor + TOUTFSTRING(Round(actor->ar_engine->GetEngineRpm())) + U(" / ") + TOUTFSTRING(Round(actor->ar_engine->getMaxRPM())) + "\n";
 
-            float currentKw = (((actor->ar_engine->GetEngineRpm() * (actor->ar_engine->getEngineTorque() + ((actor->ar_engine->GetTurboPsi() * 6.8) * actor->ar_engine->getEngineTorque()) / 100) * (3.14159265358979323846 /* pi.. */ / 30)) / 1000));
+            m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Gearbox RPM: ") + WhiteColor + TOUTFSTRING(Round(std::max(0.0f, actor->ar_engine->GetGearboxRpm()))) + "\n\n";
 
-            m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Current power: ") + WhiteColor + TOUTFSTRING(Round(currentKw *1.34102209)) + U(" hp / ") + TOUTFSTRING(Round(currentKw)) + U(" Kw") + "\n";
+            float currentTorque = actor->ar_engine->getEnginePower(actor->ar_engine->GetEngineRpm()) * actor->ar_engine->GetAcceleration();
+
+            m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Current torque: ") + WhiteColor + TOUTFSTRING(Round(currentTorque)) + U(" Nm") + "\n";
+
+            float currentKw = actor->ar_engine->GetEngineRpm() * (actor->ar_engine->getEngineTorque() + actor->ar_engine->getTurboPower()) * (Ogre::Math::PI / 30) / 1000;
+
+            m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Current power: ") + WhiteColor + TOUTFSTRING(Round(currentKw *1.34102209)) + U(" hp / ") + TOUTFSTRING(Round(currentKw)) + U(" Kw") + "\n\n";
 
             m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Current gear: ") + WhiteColor + TOUTFSTRING(Round(actor->ar_engine->GetGear())) + "\n";
+
+            m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Gear ratio: ") + WhiteColor + TOUTFSTRING(Round(actor->ar_engine->GetGearRatio())) + ":1\n\n";
 
             float velocityKMH = actor->ar_wheel_speed * 3.6f;
             float velocityMPH = actor->ar_wheel_speed * 2.23693629f;
@@ -265,11 +272,11 @@ void CLASS::UpdateStats(float dt, Actor* actor)
             float carSpeedMPH = actor->ar_nodes[0].Velocity.length() * 2.23693629f;
 
             // apply a deadzone ==> no flickering +/-
-            if (fabs(actor->ar_wheel_speed) < 1.0f)
+            if (fabs(velocityMPH) < 0.5f)
             {
                 velocityKMH = velocityMPH = 0.0f;
             }
-            if (fabs(actor->ar_nodes[0].Velocity.length()) < 1.0f)
+            if (fabs(carSpeedMPH) < 0.5f)
             {
                 carSpeedKPH = carSpeedMPH = 0.0f;
             }
@@ -318,43 +325,9 @@ void CLASS::UpdateStats(float dt, Actor* actor)
 
         wchar_t geesstr[256];
         Ogre::Vector3 gees = actor->getGForces();
-        // apply deadzones ==> no flickering +/-
-        if (fabs(gees.y) < 0.01)
-            gees.y = 0.0f;
-        if (fabs(gees.z) < 0.01)
-            gees.z = 0.0f;
         Ogre::UTFString tmp = _L("Vertical: % 1.2fg\nSagittal: % 1.2fg\nLateral:  % 1.2fg");
         swprintf(geesstr, 256, tmp.asWStr_c_str(), gees.x, gees.y, gees.z);
         m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("G-Forces:\n") + WhiteColor + Ogre::UTFString(geesstr) + "\n";
-
-        if (actor->ar_driveable == TRUCK || actor->ar_driveable == AIRPLANE || actor->ar_driveable == BOAT)
-        {
-            if (gees.x > maxPosVerG[actor->ar_driveable])
-                maxPosVerG[actor->ar_driveable] = gees.x;
-            if (gees.x < maxNegVerG[actor->ar_driveable])
-                maxNegVerG[actor->ar_driveable] = gees.x;
-
-            if (gees.y > maxPosSagG[actor->ar_driveable])
-                maxPosSagG[actor->ar_driveable] = gees.y;
-            if (gees.y < maxNegSagG[actor->ar_driveable])
-                maxNegSagG[actor->ar_driveable] = gees.y;
-
-            if (gees.z > maxPosLatG[actor->ar_driveable])
-                maxPosLatG[actor->ar_driveable] = gees.z;
-            if (gees.z < maxNegLatG[actor->ar_driveable])
-                maxNegLatG[actor->ar_driveable] = gees.z;
-
-            tmp = _L("Vertical: % 1.2fg % 1.2fg\nSagittal: % 1.2fg % 1.2fg\nLateral:  % 1.2fg % 1.2fg");
-            swprintf(geesstr, 256, tmp.asWStr_c_str(),
-                maxPosVerG[actor->ar_driveable],
-                maxNegVerG[actor->ar_driveable],
-                maxPosSagG[actor->ar_driveable],
-                maxNegSagG[actor->ar_driveable],
-                maxPosLatG[actor->ar_driveable],
-                maxNegLatG[actor->ar_driveable]
-            );
-            m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("G-Forces: Maximum - Minimum:\n") + WhiteColor + Ogre::UTFString(geesstr) + "\n";
-        }
 
         m_truck_stats->setCaptionWithReplacing(m_actor_stats_str);
     }
