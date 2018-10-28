@@ -258,9 +258,9 @@ void CLASS::UpdateStats(float dt, Actor* actor)
 
             m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Current torque: ") + WhiteColor + TOUTFSTRING(Round(currentTorque)) + U(" Nm") + "\n";
 
-            float currentKw = actor->ar_engine->GetEngineRpm() * (actor->ar_engine->getEngineTorque() + actor->ar_engine->getTurboPower()) * (Ogre::Math::PI / 30) / 1000;
+            float currentKw = currentTorque * Ogre::Math::TWO_PI * (actor->ar_engine->GetEngineRpm() / 60.0f) / 1000.0f;
 
-            m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Current power: ") + WhiteColor + TOUTFSTRING(Round(currentKw *1.34102209)) + U(" hp / ") + TOUTFSTRING(Round(currentKw)) + U(" Kw") + "\n\n";
+            m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Current power: ") + WhiteColor + TOUTFSTRING(Round(currentKw / 0.73549875f)) + U(" hp / ") + TOUTFSTRING(Round(currentKw)) + U(" Kw") + "\n\n";
 
             m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Current gear: ") + WhiteColor + TOUTFSTRING(Round(actor->ar_engine->GetGear())) + "\n";
 
