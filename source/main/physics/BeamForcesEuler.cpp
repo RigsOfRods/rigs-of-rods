@@ -1572,10 +1572,9 @@ void Actor::CalcNodes()
         }
 
         // record g forces on cameras
-        if (i == ar_camera_node_pos[0])
+        if (i == ar_main_camera_node_pos)
         {
             m_camera_gforces_accu += ar_nodes[i].Forces / ar_nodes[i].mass;
-            m_camera_gforces_count++;
         }
 
         // integration

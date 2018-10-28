@@ -4021,41 +4021,17 @@ void Actor::updateDashBoards(float dt)
 
 Vector3 Actor::getGForces()
 {
-    if (ar_camera_node_pos[0] >= 0)
-    {
-        static Vector3 result = Vector3::ZERO;
-        if (m_camera_gforces_count == 0) // multiple calls in one single frame, avoid division by 0
-        {
-            return result;
-        }
+    Vector3 cam_dir  = this->GetCameraDir();
+    Vector3 cam_roll = this->GetCameraRoll();
+    Vector3 cam_up   = cam_dir.crossProduct(cam_roll);
 
-        Vector3 acc = m_camera_gforces_accu / m_camera_gforces_count;
-        m_camera_gforces_accu = Vector3::ZERO;
-        m_camera_gforces_count = 0;
+    float gravity = App::GetSimTerrain()->getGravity();
 
-        Vector3 cam_dir = this->GetCameraDir();
-        Vector3 cam_roll = this->GetCameraRoll();
+    float vertacc = m_camera_gforces.dotProduct(cam_up) + gravity;
+    float longacc = m_camera_gforces.dotProduct(cam_dir);
+    float latacc  = m_camera_gforces.dotProduct(cam_roll);
 
-        Vector3 upv = cam_dir.crossProduct(-cam_roll);
-        upv.normalise();
-
-        float gravity = DEFAULT_GRAVITY;
-        if (App::GetSimTerrain())
-        {
-            gravity = App::GetSimTerrain()->getGravity();
-        }
-
-        float vertacc = std::abs(gravity) - acc.dotProduct(-upv);
-        float longacc = acc.dotProduct(cam_dir);
-        float latacc = acc.dotProduct(cam_roll);
-
-
-        result = Vector3(vertacc / std::abs(gravity), longacc / std::abs(gravity), latacc / std::abs(gravity));
-
-        return result;
-    }
-
-    return Vector3::ZERO;
+    return Vector3(vertacc, longacc, latacc) / gravity;
 }
 
 void Actor::EngineTriggerHelper(int engineNumber, int type, float triggerValue)
@@ -4112,7 +4088,7 @@ Actor::Actor(
     , m_blinker_autoreset(false)
     , ar_brake(0.0)
     , m_camera_gforces_accu(Ogre::Vector3::ZERO)
-    , m_camera_gforces_count(0)
+    , m_camera_gforces(Ogre::Vector3::ZERO)
     , ar_engine_hydraulics_ready(true)
     , m_custom_particles_enabled(false)
     , ar_scale(1)
