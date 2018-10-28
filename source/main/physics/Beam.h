@@ -456,7 +456,7 @@ private:
     float             m_rotation_request;         //!< Accumulator
     Ogre::Vector3     m_translation_request;      //!< Accumulator
     Ogre::Vector3     m_camera_gforces_accu;      //!< Accumulator for 'camera' G-forces
-    int               m_camera_gforces_count;     //!< Counter for 'camera' G-forces
+    Ogre::Vector3     m_camera_gforces;           //!< Physics state
     float             m_ref_tyre_pressure;        //!< Physics state
     float             m_stabilizer_shock_ratio;   //!< Physics state
     int               m_stabilizer_shock_request; //!< Physics state; values: { -1, 0, 1 }
