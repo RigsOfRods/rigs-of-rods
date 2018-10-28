@@ -27,8 +27,9 @@ addons:
     - libwxgtk3.0-dev
 
 install:
-  - wget https://dl.bintray.com/conan/installers/conan-ubuntu-64_1_8_4.deb
-  - sudo dpkg -i conan-ubuntu-64_1_8_4.deb
+  - sudo rm -rf /usr/local/cmake-3.9.2/
+  - sudo rm -f /usr/local/cmake
+  - sudo pip install cmake conan --ignore-installed
   - conan user
   - conan remote add ror-dependencies https://api.bintray.com/conan/anotherfoxguy/ror-dependencies || true
   - conan remote add bincrafters-public-conan https://api.bintray.com/conan/bincrafters/public-conan || true
@@ -36,8 +37,7 @@ install:
 
 script:
   - cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_REDIST_FOLDER=ON .
-  - ninja RoRConfig
-  - ninja zip_and_copy_resources
+  - ninja
 
 after_success:
   - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then sh ./tools/CI/upload-CI-build.sh; fi

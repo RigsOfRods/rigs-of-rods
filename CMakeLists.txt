@@ -7,11 +7,11 @@ if (WIN32)
 endif ()
 
 # Download cotire automatically
-if(NOT EXISTS "${CMAKE_BINARY_DIR}/cotire.cmake")
-   message(STATUS "Downloading cotire.cmake from https://github.com/sakra/cotire/")
-   file(DOWNLOAD "https://raw.githubusercontent.com/sakra/cotire/master/CMake/cotire.cmake"
-                 "${CMAKE_BINARY_DIR}/cotire.cmake")
-endif()
+if (NOT EXISTS "${CMAKE_BINARY_DIR}/cotire.cmake")
+    message(STATUS "Downloading cotire.cmake from https://github.com/sakra/cotire/")
+    file(DOWNLOAD "https://raw.githubusercontent.com/sakra/cotire/master/CMake/cotire.cmake"
+            "${CMAKE_BINARY_DIR}/cotire.cmake")
+endif ()
 
 include(${CMAKE_BINARY_DIR}/cotire.cmake)
 
@@ -39,12 +39,12 @@ endif ()
 
 include(Macros)
 
-if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-  include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-  conan_basic_setup(TARGETS)
-  conan_set_find_paths()
-  conan_set_vs_runtime()
-endif()
+if (EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
+    include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+    conan_basic_setup(TARGETS)
+    conan_set_find_paths()
+    conan_set_vs_runtime()
+endif ()
 
 # global cmake options
 SET(BUILD_SHARED_LIBS ON)
@@ -58,11 +58,11 @@ SET(ARCHIVE_OUTPUT_DIRECTORY "${RoR_BINARY_DIR}/lib/")
 SET(EXECUTABLE_OUTPUT_PATH ${RUNTIME_OUTPUT_DIRECTORY})
 SET(LIBRARY_OUTPUT_PATH ${RUNTIME_OUTPUT_DIRECTORY})
 IF (BUILD_REDIST_FOLDER)
-  if (WIN32)
-    set(REDIST_FOLDER ${CMAKE_BINARY_DIR}/redist)
-  else ()
-    set(REDIST_FOLDER ${CMAKE_BINARY_DIR}/redist/bin)
-  endif()
+    if (WIN32)
+        set(REDIST_FOLDER ${CMAKE_BINARY_DIR}/redist)
+    else ()
+        set(REDIST_FOLDER ${CMAKE_BINARY_DIR}/redist/bin)
+    endif ()
 ENDIF ()
 
 set(CMAKE_DEBUG_POSTFIX _d)
@@ -76,34 +76,34 @@ mark_as_advanced(
 )
 
 if (WIN32)
-      if (BUILD_SHOW_WARNINGS)
-          set(warnings /W3 /D_CRT_SECURE_NO_WARNINGS /wd4005 /wd4996 /wd4251 /wd4275 /wd4099 /nologo)
-      else ()
-          set(warnings /w)
-      endif ()
-      add_definitions(${warnings})
+    if (BUILD_SHOW_WARNINGS)
+        set(warnings /W3 /D_CRT_SECURE_NO_WARNINGS /wd4005 /wd4996 /wd4251 /wd4275 /wd4099 /nologo)
+    else ()
+        set(warnings /w)
+    endif ()
+    add_definitions(${warnings})
 
-      set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}        /MP /GL /Ox /Ob2 /Oi /Ot /Oy /fp:fast /GS- /MP /Zi")
-      set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL}     /MP /Zi")
-      set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MP /Od /Zi /Gy /fp:except /GF- /GS /Ob0")
-      #if(ROR_USING_VISUAL_STUDIO_PROFESSIONAL)
-      #  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /analyze") # /analyze only available when using VS professional
-      #endif(ROR_USING_VISUAL_STUDIO_PROFESSIONAL)
-      set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}          /MP /Od /Zi /RTC1 /Gy /fp:except /GF- /RTCc /GS /Ob0")
-      # some general flags
-      add_definitions("-D_CRT_SECURE_NO_WARNINGS")
-      include_directories(${DirectX_INCLUDE_DIR})
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}        /MP /GL /Ox /Ob2 /Oi /Ot /Oy /fp:fast /GS- /MP /Zi")
+    set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL}     /MP /Zi")
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MP /Od /Zi /Gy /fp:except /GF- /GS /Ob0")
+    #if(ROR_USING_VISUAL_STUDIO_PROFESSIONAL)
+    #  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /analyze") # /analyze only available when using VS professional
+    #endif(ROR_USING_VISUAL_STUDIO_PROFESSIONAL)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}          /MP /Od /Zi /RTC1 /Gy /fp:except /GF- /RTCc /GS /Ob0")
+    # some general flags
+    add_definitions("-D_CRT_SECURE_NO_WARNINGS")
+    include_directories(${DirectX_INCLUDE_DIR})
 
-      set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG}          /DEBUG /LARGEADDRESSAWARE ")
-      set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE}        /DEBUG /LARGEADDRESSAWARE /OPT:REF /LTCG /RELEASE")
-      set(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL}     /DEBUG /LARGEADDRESSAWARE /OPT:REF /LTCG ")
-      set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} /DEBUG /LARGEADDRESSAWARE /OPT:NOREF /MAP /DYNAMICBASE:NO /FIXED /NXCOMPAT:NO")
+    set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG}          /DEBUG /LARGEADDRESSAWARE ")
+    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE}        /DEBUG /LARGEADDRESSAWARE /OPT:REF /LTCG /RELEASE")
+    set(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL}     /DEBUG /LARGEADDRESSAWARE /OPT:REF /LTCG ")
+    set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} /DEBUG /LARGEADDRESSAWARE /OPT:NOREF /MAP /DYNAMICBASE:NO /FIXED /NXCOMPAT:NO")
 
-      # fix executable paths for windows
-      SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${RUNTIME_OUTPUT_DIRECTORY})
-      SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${RUNTIME_OUTPUT_DIRECTORY})
-      SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${RUNTIME_OUTPUT_DIRECTORY})
-      SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${RUNTIME_OUTPUT_DIRECTORY})
+    # fix executable paths for windows
+    SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${RUNTIME_OUTPUT_DIRECTORY})
+    SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${RUNTIME_OUTPUT_DIRECTORY})
+    SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${RUNTIME_OUTPUT_DIRECTORY})
+    SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${RUNTIME_OUTPUT_DIRECTORY})
 
 ELSEIF (UNIX)
     set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")

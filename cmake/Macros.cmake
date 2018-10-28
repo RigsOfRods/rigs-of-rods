@@ -86,3 +86,32 @@ macro(get_sub_dirs result curdir)
   ENDFOREACH()
   SET(${result} ${dirlist})
 endmacro(get_sub_dirs)
+
+macro(recursive_zip_folder name in_dir out_dir result)
+    set(TMP_FILE_DIR ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/tmp/${name})
+    get_sub_dirs(SUB_DIRS "${in_dir}")
+    file(MAKE_DIRECTORY ${out_dir})
+
+    foreach (ZIP_DIR ${SUB_DIRS})
+
+        string(COMPARE EQUAL "${ZIP_DIR}" ".git" _cmp)
+        if (_cmp)
+            continue()
+        endif ()
+
+        file(GLOB ZIP_FILES RELATIVE "${in_dir}/${ZIP_DIR}" "${in_dir}/${ZIP_DIR}/*")
+        set(ZIP_FILES_TXT "")
+        foreach (ZIP_FILE ${ZIP_FILES})
+            set(ZIP_FILES_TXT "${ZIP_FILES_TXT}${ZIP_FILE}\n")
+        endforeach ()
+        file(WRITE "${TMP_FILE_DIR}/${ZIP_DIR}-filelist.txt" ${ZIP_FILES_TXT})
+
+        set(ZIP_NAME "${out_dir}/${ZIP_DIR}.zip")
+        add_custom_command(
+                OUTPUT ${ZIP_NAME}
+                COMMAND ${CMAKE_COMMAND} -E tar "cf" ${ZIP_NAME} --format=zip --files-from="${TMP_FILE_DIR}/${ZIP_DIR}-filelist.txt"
+                WORKING_DIRECTORY "${in_dir}/${ZIP_DIR}"
+        )
+        list(APPEND ${result} ${ZIP_NAME})
+    endforeach ()
+endmacro(recursive_zip_folder)

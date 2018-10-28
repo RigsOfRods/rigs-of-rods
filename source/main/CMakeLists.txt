@@ -1,9 +1,9 @@
 project(RoR_Main)
 
 option(MICROPROFILE_ENABLED "Enable microprofile" OFF)
-    configure_file(${CMAKE_SOURCE_DIR}/source/main/utils/microprofile.config.h.in
-                   ${CMAKE_SOURCE_DIR}/source/main/utils/microprofile.config.h
-)
+configure_file(${CMAKE_SOURCE_DIR}/source/main/utils/microprofile.config.h.in
+        ${CMAKE_SOURCE_DIR}/source/main/utils/microprofile.config.h
+        )
 
 
 ####################################################################################################
@@ -315,7 +315,7 @@ if (WIN32)
     # clang-cl doesn't support resource files
     if (NOT (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
         list(APPEND SOURCE_FILES "icon.rc")
-    endif()
+    endif ()
 endif ()
 
 
@@ -495,18 +495,18 @@ else ()
 endif ()
 
 # --- OpenAL - audio library ---
-if(CONAN_OPENAL_ROOT)
-  target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::openal)
-  target_include_directories(${BINNAME} PRIVATE CONAN_PKG::openal)
-  target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)
+if (CONAN_OPENAL_ROOT)
+    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::openal)
+    target_include_directories(${BINNAME} PRIVATE CONAN_PKG::openal)
+    target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)
 else ()
-  if (OPENAL_FOUND)
-      target_link_libraries(${BINNAME} PRIVATE ${OPENAL_LIBRARY})
-      target_include_directories(${BINNAME} PRIVATE ${OPENAL_INCLUDE_DIR})
-      target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)
-  else ()
-      message(WARNING "Building ${BINNAME} without OpenAL. Some functionality may be missing.")
-  endif ()
+    if (OPENAL_FOUND)
+        target_link_libraries(${BINNAME} PRIVATE ${OPENAL_LIBRARY})
+        target_include_directories(${BINNAME} PRIVATE ${OPENAL_INCLUDE_DIR})
+        target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)
+    else ()
+        message(WARNING "Building ${BINNAME} without OpenAL. Some functionality may be missing.")
+    endif ()
 endif ()
 
 
@@ -518,9 +518,9 @@ else ()
     message(WARNING "Building ${BINNAME} without SocketW. Some functionality may be missing.")
 endif ()
 # Add openssl
-if(CONAN_OPENSSL_ROOT)
+if (CONAN_OPENSSL_ROOT)
     target_include_directories(${BINNAME} PRIVATE ${CONAN_INCLUDE_DIRS_OPENSSL})
-endif()
+endif ()
 
 
 # --- AngelScript - scripting interface ---
@@ -572,53 +572,19 @@ cotire(${BINNAME})
 
 # configure plugins.cfg
 if (WIN32)
-  set(CFG_OGRE_RENDERSYSTEM_D3D9 "Plugin=RenderSystem_Direct3D9")
+    set(CFG_OGRE_RENDERSYSTEM_D3D9 "Plugin=RenderSystem_Direct3D9")
 endif ()
 
-if(BUILD_REDIST_FOLDER AND UNIX)
-  set(PLUGINS_FOLDER "lib")
-elseif(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-  set(PLUGINS_FOLDER ".")
-else()
-  set(PLUGINS_FOLDER ${OGRE_PLUGIN_DIR_REL})
-endif()
+if (BUILD_REDIST_FOLDER AND UNIX)
+    set(PLUGINS_FOLDER "lib")
+elseif (EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
+    set(PLUGINS_FOLDER ".")
+else ()
+    set(PLUGINS_FOLDER ${OGRE_PLUGIN_DIR_REL})
+endif ()
 
 configure_file(plugins.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg)
 
-
-set(TMP_FILE_DIR ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/tmp)
-get_sub_dirs(ROR_RESOURCES_DIRS "${CMAKE_SOURCE_DIR}/resources")
-set(ROR_RESOURCES_ZIPS)
-set(TMP_RES_DIR ${TMP_FILE_DIR}/resources)
-file(MAKE_DIRECTORY ${TMP_RES_DIR})
-
-foreach(RES_DIR ${ROR_RESOURCES_DIRS})
-
-  file(GLOB ZIP_FILES RELATIVE "${CMAKE_SOURCE_DIR}/resources/${RES_DIR}" "${CMAKE_SOURCE_DIR}/resources/${RES_DIR}/*" )
-  set(ZIP_FILES_TXT "")
-  foreach(ZIP_FILE ${ZIP_FILES})
-     set(ZIP_FILES_TXT "${ZIP_FILES_TXT}${ZIP_FILE}\n")
-  endforeach()
-  file(WRITE "${TMP_FILE_DIR}/${RES_DIR}-filelist.txt" ${ZIP_FILES_TXT})
-
-  set(ZIP_NAME "${TMP_RES_DIR}/${RES_DIR}.zip")
-  add_custom_command(
-    OUTPUT ${ZIP_NAME}
-    COMMAND ${CMAKE_COMMAND} -E tar "cf" ${ZIP_NAME} --format=zip --files-from="${TMP_FILE_DIR}/${RES_DIR}-filelist.txt"
-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/resources/${RES_DIR}"
-  )
-  list(APPEND ROR_RESOURCES_ZIPS ${ZIP_NAME})
-endforeach()
-
-# Copy resources needed for execution to the build directory
-add_custom_target(
-    zip_and_copy_resources
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${TMP_RES_DIR} $<TARGET_FILE_DIR:${BINNAME}>/resources
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/resources/managed_materials $<TARGET_FILE_DIR:${BINNAME}>/resources/managed_materials
-    COMMENT "Zip and copy resources to build directory"
-    DEPENDS ${ROR_RESOURCES_ZIPS}
-    VERBATIM
-)
 
 IF (BUILD_REDIST_FOLDER)
     INSTALL(
@@ -626,14 +592,6 @@ IF (BUILD_REDIST_FOLDER)
             RUNTIME DESTINATION ${REDIST_FOLDER}
             LIBRARY DESTINATION ${REDIST_FOLDER}
             ARCHIVE DESTINATION ${REDIST_FOLDER}
-    )
-    INSTALL(
-            DIRECTORY ${TMP_RES_DIR}/
-            DESTINATION ${REDIST_FOLDER}/resources/
-    )
-    INSTALL(
-            DIRECTORY ${CMAKE_SOURCE_DIR}/resources/managed_materials/
-            DESTINATION ${REDIST_FOLDER}/resources/managed_materials/
     )
     INSTALL(
             FILES ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg
