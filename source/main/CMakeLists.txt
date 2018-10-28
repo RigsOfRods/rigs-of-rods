@@ -1,8 +1,8 @@
 project(RoR_Main)
 
 option(MICROPROFILE_ENABLED "Enable microprofile" OFF)
-configure_file(${CMAKE_SOURCE_DIR}/source/main/utils/microprofile.config.h.in
-			   ${CMAKE_SOURCE_DIR}/source/main/utils/microprofile.config.h
+    configure_file(${CMAKE_SOURCE_DIR}/source/main/utils/microprofile.config.h.in
+                   ${CMAKE_SOURCE_DIR}/source/main/utils/microprofile.config.h
 )
 
 
@@ -218,6 +218,31 @@ set(SOURCE_FILES
         physics/utils/RigLoadingProfiler.h
         physics/water/Buoyance.{h,cpp}
         physics/water/ScrewProp.{h,cpp}
+        plugins/PagedGeometryConfig.h
+        plugins/pagedgeometry/include/BatchPage.h
+        plugins/pagedgeometry/source/BatchPage.cpp
+        plugins/pagedgeometry/include/BatchedGeometry.h
+        plugins/pagedgeometry/source/BatchedGeometry.cpp
+        plugins/pagedgeometry/include/GrassLoader.h
+        plugins/pagedgeometry/source/GrassLoader.cpp
+        plugins/pagedgeometry/include/ImpostorPage.h
+        plugins/pagedgeometry/source/ImpostorPage.cpp
+        plugins/pagedgeometry/include/MersenneTwister.h
+        plugins/pagedgeometry/include/PagedGeometry.h
+        plugins/pagedgeometry/source/PagedGeometry.cpp
+        plugins/pagedgeometry/include/PropertyMaps.h
+        plugins/pagedgeometry/source/PropertyMaps.cpp
+        plugins/pagedgeometry/include/RandomTable.h
+        plugins/pagedgeometry/include/StaticBillboardSet.h
+        plugins/pagedgeometry/source/StaticBillboardSet.cpp
+        plugins/pagedgeometry/include/TreeLoader2D.h
+        plugins/pagedgeometry/source/TreeLoader2D.cpp
+        plugins/pagedgeometry/include/TreeLoader3D.h
+        plugins/pagedgeometry/source/TreeLoader3D.cpp
+        plugins/pagedgeometry/include/WindBatchPage.h
+        plugins/pagedgeometry/source/WindBatchPage.cpp
+        plugins/pagedgeometry/include/WindBatchedGeometry.h
+        plugins/pagedgeometry/source/WindBatchedGeometry.cpp
         resources/CacheSystem.{h,cpp}
         resources/ContentManager.{h,cpp}
         resources/otc_fileformat/OTCFileformat.{h,cpp}
@@ -304,7 +329,7 @@ add_executable(${BINNAME} ${SOURCE_FILES})
 
 if (WIN32)
     set_target_properties(${BINNAME} PROPERTIES WIN32_EXECUTABLE YES)
-		add_definitions(-DWIN32_LEAN_AND_MEAN)
+    add_definitions(-DWIN32_LEAN_AND_MEAN)
 endif ()
 
 ####################################################################################################
@@ -357,6 +382,8 @@ target_include_directories(${BINNAME} PRIVATE
         physics/threading
         physics/utils
         physics/water
+        plugins
+        plugins/pagedgeometry/include
         resources
         resources/otc_fileformat/
         resources/rig_def_fileformat
@@ -492,7 +519,7 @@ else ()
 endif ()
 # Add openssl
 if(CONAN_OPENSSL_ROOT)
-	target_include_directories(${BINNAME} PRIVATE ${CONAN_INCLUDE_DIRS_OPENSSL})
+    target_include_directories(${BINNAME} PRIVATE ${CONAN_INCLUDE_DIRS_OPENSSL})
 endif()
 
 
@@ -533,15 +560,6 @@ if (TARGET Caelum::Caelum)
     set(CFG_OGRE_PLUGIN_CAELUM "Plugin=../libCaelum.so")
     target_link_libraries(${BINNAME} PRIVATE Caelum::Caelum)
     target_compile_definitions(${BINNAME} PRIVATE USE_CAELUM)
-endif ()
-
-
-# --- PagedGeometry -- Ogre addon ---
-if (TARGET PagedGeometry::PagedGeometry)
-    target_link_libraries(${BINNAME} PRIVATE PagedGeometry::PagedGeometry)
-    target_compile_definitions(${BINNAME} PRIVATE USE_PAGED)
-else ()
-    message(WARNING "Building ${BINNAME} without PagedGeometry. Some functionality may be missing.")
 endif ()
 
 set_target_properties(${BINNAME} PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
