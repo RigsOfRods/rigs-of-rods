@@ -1561,6 +1561,8 @@ void SimController::UpdateSimulation(float dt)
                     }
                 }
 
+                new_actor->GetGfxActor()->SetDebugView(m_player_actor->GetGfxActor()->GetDebugView());
+
                 // TODO:
                 // * copy over the engine infomation
                 // * commands status
