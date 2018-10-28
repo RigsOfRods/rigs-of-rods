@@ -177,9 +177,9 @@ void CLASS::initMisc()
     AuthorsText = AuthorsText + color1 + "mofilereader:" + white + " Used for Internationalization" + newline;
 #endif
     AuthorsText = AuthorsText + color1 + "OIS:" + white + " Used as Input System" + newline;
-#ifdef USE_PAGED
-    AuthorsText = AuthorsText + color1 + "m_paged_geometry:" + white + " Used for foliage (grass, trees, etc)" + newline;
-#endif
+
+    AuthorsText = AuthorsText + color1 + "pagedgeometry:" + white + " Used for foliage (grass, trees, etc)" + newline;
+
 #ifdef USE_CURL
     AuthorsText = AuthorsText + color1 + "curl:" + white + " Used for www-server communication" + newline;
 #endif
