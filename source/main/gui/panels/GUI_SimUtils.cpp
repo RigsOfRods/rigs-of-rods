@@ -264,7 +264,7 @@ void CLASS::UpdateStats(float dt, Actor* actor)
 
             m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Current gear: ") + WhiteColor + TOUTFSTRING(Round(actor->ar_engine->GetGear())) + "\n";
 
-            m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Gear ratio: ") + WhiteColor + TOUTFSTRING(Round(actor->ar_engine->GetGearRatio())) + ":1\n\n";
+            m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Drive ratio: ") + WhiteColor + TOUTFSTRING(Round(actor->ar_engine->GetGearRatio())) + ":1\n\n";
 
             float velocityKMH = actor->ar_wheel_speed * 3.6f;
             float velocityMPH = actor->ar_wheel_speed * 2.23693629f;
@@ -283,9 +283,9 @@ void CLASS::UpdateStats(float dt, Actor* actor)
 
             Ogre::UTFString wsmsg = _L("Wheel speed: ");
             //Some kind of wheel skidding detection? lol
-            if (Round(velocityKMH, 0.1) > Round(carSpeedKPH, 0.1) + 2)
+            if (velocityKMH > carSpeedKPH * 1.25f)
                 m_actor_stats_str = m_actor_stats_str + MainThemeColor + wsmsg + RedColor + TOUTFSTRING(Round(velocityKMH)) + U(" km/h (") + TOUTFSTRING(Round(velocityMPH)) + U(" mph)") + "\n";
-            else if (Round(velocityKMH, 0.1) < Round(carSpeedKPH, 0.1) - 2)
+            else if (velocityKMH < carSpeedKPH / 1.25f)
                 m_actor_stats_str = m_actor_stats_str + MainThemeColor + wsmsg + BlueColor + TOUTFSTRING(Round(velocityKMH)) + U(" km/h (") + TOUTFSTRING(Round(velocityMPH)) + U(" mph)") + "\n";
             else
                 m_actor_stats_str = m_actor_stats_str + MainThemeColor + wsmsg + WhiteColor + TOUTFSTRING(Round(velocityKMH)) + U(" km/h (") + TOUTFSTRING(Round(velocityMPH)) + U(" mph)") + "\n";
