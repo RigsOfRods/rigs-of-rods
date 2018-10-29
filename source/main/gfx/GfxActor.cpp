@@ -1044,7 +1044,7 @@ void RoR::GfxActor::UpdateDebugView()
             // Down force
             {
                 Ogre::Real f = wheels[i].debug_force.length();
-                Ogre::Real mass = m_actor->getTotalMass(false);
+                Ogre::Real mass = m_actor->getTotalMass(false) * num_wheels;
                 Ogre::Vector3 normalised_force = wheels[i].debug_force.normalisedCopy() * std::min(f / mass, 1.0f);
                 Ogre::Vector3 m = wheels[i].wh_axis_node_0->AbsPosition.midPoint(wheels[i].wh_axis_node_1->AbsPosition);
                 Ogre::Vector3 pos5_xyz = world2screen.Convert(m);
