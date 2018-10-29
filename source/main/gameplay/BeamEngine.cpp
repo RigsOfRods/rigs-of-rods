@@ -472,8 +472,11 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
     // update clutch torque
     if (m_cur_gear)
     {
+        float force_threshold = 1.5f * getEnginePower(m_cur_engine_rpm) * std::abs(m_gear_ratios[2]);
         float gearboxspinner = m_cur_engine_rpm / m_gear_ratios[m_cur_gear + 1];
         m_cur_clutch_torque = (gearboxspinner - m_cur_wheel_revolutions) * m_cur_clutch * m_clutch_force;
+        m_cur_clutch_torque = Math::Clamp(m_cur_clutch_torque, -force_threshold, +force_threshold);
+        m_cur_clutch_torque *= 1.0f - approx_exp(-std::abs(gearboxspinner - m_cur_wheel_revolutions));
     }
     else
     {
@@ -896,10 +899,6 @@ float EngineSim::GetSmoke()
 
 float EngineSim::GetTorque()
 {
-    if (m_cur_clutch_torque > 1000000.0)
-        return 1000000.0;
-    if (m_cur_clutch_torque < -1000000.0)
-        return -1000000.0;
     return m_cur_clutch_torque;
 }
 
