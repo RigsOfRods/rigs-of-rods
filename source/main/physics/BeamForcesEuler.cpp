@@ -451,8 +451,8 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
         // reaction torque
         Vector3 rradius = ar_wheels[i].wh_arm_node->RelPosition - ar_wheels[i].wh_near_attach_node->RelPosition;
         Vector3 radius = Plane(axis, ar_wheels[i].wh_near_attach_node->RelPosition).projectVector(rradius);
-        Real rlen = radius.normalise(); // length of the projected arm
         float offset = (rradius - radius).length(); // length of the error arm
+        Real rlen = radius.normalise(); // length of the projected arm
         // TODO: Investigate the offset length abort condition ~ ulteq 10/2018
         if (rlen > 0.01 && offset * 2.0f < rlen && fabs(ar_wheels[i].wh_torque) > 0.01f)
         {
