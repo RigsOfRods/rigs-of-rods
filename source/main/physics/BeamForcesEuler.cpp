@@ -177,17 +177,24 @@ void Actor::CalcBuoyance(bool doUpdate)
 
 void Actor::CalcDifferentials()
 {
-    for (int i = 0; i < ar_num_wheels; i++)
+    if (ar_engine && m_num_proped_wheels > 0)
     {
-        if (ar_engine && ar_wheels[i].wh_propulsed && !ar_wheels[i].wh_is_detached)
+        float torque = ar_engine->GetTorque() / m_num_proped_wheels;
+        if (m_has_axles_section)
         {
-            // The torque scaling is required for backwards compatibility
-            ar_wheels[i].wh_torque += (m_has_axles_section ? 2.0f : 1.0f) * ar_engine->GetTorque() / m_num_proped_wheels;
+            torque *= 2.0f; // Required to stay backwards compatible
+        }
+        for (int i = 0; i < ar_num_wheels; i++)
+        {
+            if (ar_wheels[i].wh_propulsed && !ar_wheels[i].wh_is_detached)
+                ar_wheels[i].wh_torque += torque;
         }
     }
 
+    int num_axle_diffs = (m_transfer_case && m_transfer_case->tr_4wd_mode) ? m_num_axle_diffs + 1 : m_num_axle_diffs;
+
     // Handle detached wheels
-    for (int i = 0; i < m_num_axle_diffs; i++)
+    for (int i = 0; i < num_axle_diffs; i++)
     {
         int a_1 = m_axle_diffs[i]->di_idx_1;
         int a_2 = m_axle_diffs[i]->di_idx_2;
@@ -213,7 +220,7 @@ void Actor::CalcDifferentials()
 
     // loop through all interaxle differentials, this is the torsion to keep
     // the axles aligned with each other as if they connected by a shaft
-    for (int i = 0; i < m_num_axle_diffs; i++)
+    for (int i = 0; i < num_axle_diffs; i++)
     {
         int a_1 = m_axle_diffs[i]->di_idx_1;
         int a_2 = m_axle_diffs[i]->di_idx_2;

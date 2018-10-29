@@ -464,43 +464,66 @@ void ActorSpawner::FinalizeRig()
             }
         }
         m_actor->m_avg_proped_wheel_radius = proped_wheels_radius_sum / m_actor->m_num_proped_wheels;
+    }
 
-        // Automatically build interwheel differentials from proped wheel pairs
-        if (m_actor->m_num_wheel_diffs == 0)
+    // Automatically build interwheel differentials from proped wheel pairs
+    if (m_actor->m_num_wheel_diffs == 0)
+    {
+        for (int i = 1; i < m_actor->m_num_proped_wheels; i++)
         {
-            for (int i = 1; i < m_actor->m_num_proped_wheels; i++)
+            if (i % 2)
             {
-                if (i % 2)
-                {
-                    Differential *diff = new Differential();
+                Differential *diff = new Differential();
 
-                    diff->di_idx_1 = m_actor->m_proped_wheel_pairs[i - 1];
-                    diff->di_idx_2 = m_actor->m_proped_wheel_pairs[i - 0];
+                diff->di_idx_1 = m_actor->m_proped_wheel_pairs[i - 1];
+                diff->di_idx_2 = m_actor->m_proped_wheel_pairs[i - 0];
 
-                    diff->AddDifferentialType(VISCOUS_DIFF);
+                diff->AddDifferentialType(VISCOUS_DIFF);
 
-                    m_actor->m_wheel_diffs[m_actor->m_num_wheel_diffs] = diff;
-                    m_actor->m_num_wheel_diffs++;
-                }
+                m_actor->m_wheel_diffs[m_actor->m_num_wheel_diffs] = diff;
+                m_actor->m_num_wheel_diffs++;
             }
         }
     }
 
     // Automatically build interaxle differentials from interwheel differentials pairs
-    for (int i = 1; i < m_actor->m_num_wheel_diffs; i++)
+    if (m_actor->m_num_axle_diffs == 0)
+    {
+        for (int i = 1; i < m_actor->m_num_wheel_diffs; i++)
+        {
+            if (m_actor->m_transfer_case)
+            {
+                int a1 = std::min(m_actor->m_transfer_case->tr_ax_1, m_actor->m_transfer_case->tr_ax_2);
+                int a2 = std::max(m_actor->m_transfer_case->tr_ax_1, m_actor->m_transfer_case->tr_ax_2);
+                if ((a1 == i - 1) && (a2 == i - 0))
+                    continue;
+            }
+
+            Differential *diff = new Differential();
+
+            diff->di_idx_1 = i - 1;
+            diff->di_idx_2 = i - 0;
+
+            if (m_actor->m_has_axles_section)
+                diff->AddDifferentialType(LOCKED_DIFF);
+            else
+                diff->AddDifferentialType(VISCOUS_DIFF);
+
+            diff->AddDifferentialType(OPEN_DIFF);
+
+            m_actor->m_axle_diffs[m_actor->m_num_axle_diffs] = diff;
+            m_actor->m_num_axle_diffs++;
+        }
+    }
+
+    // Automatically build an additional interaxle differential for the transfer case
+    if (m_actor->m_transfer_case && m_actor->m_transfer_case->tr_ax_2 >= 0)
     {
         Differential *diff = new Differential();
-
-        diff->di_idx_1 = i - 1;
-        diff->di_idx_2 = i - 0;
-
-        if (m_actor->m_has_axles_section)
-            diff->AddDifferentialType(LOCKED_DIFF);
-        else
-            diff->AddDifferentialType(VISCOUS_DIFF);
-
+        diff->di_idx_1 = m_actor->m_transfer_case->tr_ax_1;
+        diff->di_idx_2 = m_actor->m_transfer_case->tr_ax_2;
+        diff->AddDifferentialType(LOCKED_DIFF);
         m_actor->m_axle_diffs[m_actor->m_num_axle_diffs] = diff;
-        m_actor->m_num_axle_diffs++;
     }
 
     if (m_actor->ar_main_camera_node_dir == 0)
@@ -2428,6 +2451,7 @@ void ActorSpawner::ProcessAxle(RigDef::Axle & def)
     node_t *wheel_1_node_2 = GetNodePointerOrThrow(def.wheels[0][1]);
     node_t *wheel_2_node_1 = GetNodePointerOrThrow(def.wheels[1][0]);
     node_t *wheel_2_node_2 = GetNodePointerOrThrow(def.wheels[1][1]);
+
     Differential *diff = new Differential();
 
     if (! AssignWheelToAxle(diff->di_idx_1, wheel_1_node_1, wheel_1_node_2))

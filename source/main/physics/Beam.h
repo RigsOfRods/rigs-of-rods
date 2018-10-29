@@ -96,7 +96,14 @@ public:
     void              EngineTriggerHelper(int engineNumber, int type, float triggerValue);
     void              ToggleSlideNodeLock();
     void              ToggleCustomParticles();
-    void              ToggleAxleLock();                    //! diff lock on or off
+    void              ToggleAxleDiffMode();                //! Cycles through the available inter axle diff modes
+    void              DisplayAxleDiffMode();               //! Displays the current inter axle diff mode
+    void              ToggleWheelDiffMode();               //! Cycles through the available inter wheel diff modes
+    void              DisplayWheelDiffMode();              //! Displays the current inter wheel diff mode
+    void              ToggleTransferCaseMode();            //! Toggles between 2WD and 4WD mode
+    void              ToggleTransferCaseGearRatio();       //! Toggles between Hi and Lo mode
+    Ogre::String      GetTransferCaseName();               //! Gets the current transfer case mode name (4WD Hi, ...)
+    void              DisplayTransferCaseMode();           //! Displays the current transfer case mode
     void              ToggleParkingBrake();                //!< Event handler
     void              ToggleAntiLockBrake();               //!< Event handler
     void              ToggleTractionControl();             //!< Event handler
@@ -121,8 +128,6 @@ public:
     void              resetAutopilot();
     void              disconnectAutopilot();
     void              ScaleActor(float value);
-    Ogre::String      getAxleLockName();                   //!< get the name of the current differential model
-    int               getAxleLockCount();
     Ogre::Vector3     getGForces();
     float             getSteeringAngle();
     float             getMinCameraRadius() { return m_min_camera_radius; }; 
@@ -460,10 +465,11 @@ private:
     float             m_ref_tyre_pressure;        //!< Physics state
     float             m_stabilizer_shock_ratio;   //!< Physics state
     int               m_stabilizer_shock_request; //!< Physics state; values: { -1, 0, 1 }
-    Differential*     m_axle_diffs[MAX_WHEELS/2]; //!< Physics
+    Differential*     m_axle_diffs[1+MAX_WHEELS/2];//!< Physics
     int               m_num_axle_diffs;           //!< Physics attr
     Differential*     m_wheel_diffs[MAX_WHEELS/2];//!< Physics
     int               m_num_wheel_diffs;          //!< Physics attr
+    TransferCase*     m_transfer_case;            //!< Physics
     int               m_net_first_wheel_node;  //!< Network attr; Determines data buffer layout
     int               m_net_node_buf_size;     //!< Network attr; buffer size
     int               m_net_buffer_size;       //!< Network attr; buffer size

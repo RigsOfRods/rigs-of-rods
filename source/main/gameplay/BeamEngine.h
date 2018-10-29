@@ -74,6 +74,7 @@ public:
     void           SetEnginePriming(bool p);     //!< Set current engine prime.
     void           SetHydroPumpWork(float work); //!< Set current hydro pump work.
     void           SetWheelSpin(float rpm);      //!< Set current wheel spinning speed.
+    void           SetTCaseRatio(float ratio);   //!< Set current transfer case gear (reduction) ratio
     void           ToggleAutoShiftMode();
     void           ToggleStarterContact();
     void           OffStart();                   //!< Quick start of vehicle engine.
@@ -174,6 +175,7 @@ private:
     float          m_cur_acc;               //!< Engine
     float          m_cur_engine_rpm;        //!< Engine
     float          m_diff_ratio;            //!< Engine
+    float          m_tcase_ratio;           //!< Engine
     float          m_engine_torque;         //!< Engine attribute
     float          m_hydropump_state;       //!< Engine
     float          m_min_idle_mixture;      //!< Engine attribute

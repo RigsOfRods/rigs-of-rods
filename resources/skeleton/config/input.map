@@ -256,9 +256,12 @@ TRUCK_STARTER                  Keyboard             S
 TRUCK_STEER_LEFT               Keyboard             LEFT 
 TRUCK_STEER_RIGHT              Keyboard             RIGHT 
 TRUCK_SWITCH_SHIFT_MODES       Keyboard             Q 
-TRUCK_TOGGLE_AXLE_LOCK         Keyboard             W 
 TRUCK_TOGGLE_CONTACT           Keyboard             X 
 TRUCK_TOGGLE_FORWARDCOMMANDS   Keyboard             EXPL+CTRL+SHIFT+F 
 TRUCK_TOGGLE_IMPORTCOMMANDS    Keyboard             EXPL+CTRL+SHIFT+I 
+TRUCK_TOGGLE_INTER_AXLE_DIFF   Keyboard             EXPL+CTRL+W 
+TRUCK_TOGGLE_INTER_WHEEL_DIFF  Keyboard             EXPL+W 
+TRUCK_TOGGLE_TCASE_4WD_MODE    Keyboard             EXPL+SHIFT+W 
+TRUCK_TOGGLE_TCASE_GEAR_RATIO  Keyboard             EXPL+ALT+W 
 TRUCK_TOGGLE_VIDEOCAMERA       Keyboard             EXPL+CTRL+V 
 TRUCK_TRACTION_CONTROL         Keyboard             EXPL+SHIFT+V 

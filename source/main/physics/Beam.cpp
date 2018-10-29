@@ -287,10 +287,19 @@ Actor::~Actor()
     if (m_rotator_inertia)
         delete m_rotator_inertia;
 
+    if (m_transfer_case)
+        delete m_transfer_case;
+
+    for (int i = 0; i < m_num_axle_diffs; ++i)
+    {
+        if (m_axle_diffs[i] != nullptr)
+            delete m_axle_diffs[i];
+    }
+
     for (int i = 0; i < m_num_wheel_diffs; ++i)
     {
         if (m_wheel_diffs[i] != nullptr)
-            delete (m_wheel_diffs[i]);
+            delete m_wheel_diffs[i];
     }
 
     delete ar_nodes;
@@ -1257,26 +1266,148 @@ void Actor::disconnectAutopilot()
     OverlayManager::getSingleton().getOverlayElement("tracks/ap_ias_but")->setMaterialName("tracks/athr-off");
 }
 
-void Actor::ToggleAxleLock()
+void Actor::ToggleWheelDiffMode()
 {
     for (int i = 0; i < m_num_wheel_diffs; ++i)
     {
-        if (!m_wheel_diffs[i])
-            continue;
-        m_wheel_diffs[i]->ToggleDifferentialMode();
+        if (m_wheel_diffs[i])
+            m_wheel_diffs[i]->ToggleDifferentialMode();
     }
 }
 
-int Actor::getAxleLockCount()
+void Actor::ToggleAxleDiffMode()
 {
-    return m_num_wheel_diffs;
+    for (int i = 0; i < m_num_axle_diffs; ++i)
+    {
+        if (m_axle_diffs[i])
+            m_axle_diffs[i]->ToggleDifferentialMode();
+    }
 }
 
-String Actor::getAxleLockName()
+void Actor::DisplayAxleDiffMode()
 {
-    if (!m_wheel_diffs[0])
-        return String();
-    return m_wheel_diffs[0]->GetDifferentialTypeName();
+    if (m_num_axle_diffs == 0)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                _L("No inter-axle differential installed on current vehicle!"), "warning.png", 3000);
+        App::GetGuiManager()->PushNotification("Inter-axle differentials:",
+                _L("No inter-axle differential installed on current vehicle!"));
+    }
+    else
+    {
+        String message = "";
+        for (int i = 0; i < m_num_axle_diffs; ++i)
+        {
+            if (m_axle_diffs[i])
+            {
+                int a1 = m_axle_diffs[i]->di_idx_1 + 1;
+                int a2 = m_axle_diffs[i]->di_idx_2 + 1;
+                message += _L("Axle ") + TOSTRING(a1) + " <--> " + _L("Axle ") + TOSTRING(a2) + ": ";
+                message += m_axle_diffs[i]->GetDifferentialTypeName();
+                message += "\n";
+            }
+        }
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                "Inter-axle differentials:\n" + message, "cog.png", 3000);
+        App::GetGuiManager()->PushNotification("Inter-axle differentials:", message);
+    }
+}
+
+void Actor::DisplayWheelDiffMode()
+{
+    if (m_num_wheel_diffs == 0)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                _L("No inter-wheel differential installed on current vehicle!"), "warning.png", 3000);
+        App::GetGuiManager()->PushNotification("Inter-wheel differentials:",
+                _L("No inter-wheel differential installed on current vehicle!"));
+    }
+    else
+    {
+        String message = "";
+        for (int i = 0; i < m_num_wheel_diffs; ++i)
+        {
+            if (m_wheel_diffs[i])
+            {
+                message += _L("Axle ") + TOSTRING(i + 1) + ": ";
+                message += m_wheel_diffs[i]->GetDifferentialTypeName();
+                message += "\n";
+            }
+        }
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                "Inter-wheel differentials:\n" + message, "cog.png", 3000);
+        App::GetGuiManager()->PushNotification("Inter-wheel differentials:", message);
+    }
+}
+
+void Actor::DisplayTransferCaseMode()
+{
+    if (m_transfer_case)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                _L("Transfer case switched to: ") + this->GetTransferCaseName(), "cog.png", 3000);
+        App::GetGuiManager()->PushNotification("Transfer case:", "Switched to: " + this->GetTransferCaseName());
+    }
+    else
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                _L("No transfer case installed on current vehicle!"), "warning.png", 3000);
+        App::GetGuiManager()->PushNotification("Transfer case:", "No transfer case installed on current vehicle!");
+    }
+}
+
+void Actor::ToggleTransferCaseMode()
+{
+    if (!ar_engine || !m_transfer_case || m_transfer_case->tr_ax_2 < 0)
+        return;
+
+    m_transfer_case->tr_4wd_mode = !m_transfer_case->tr_4wd_mode;
+
+    if (!m_transfer_case->tr_4wd_mode && !m_transfer_case->tr_2wd_lo)
+    {
+        m_transfer_case->tr_lo_mode = false;
+        ar_engine->SetTCaseRatio(1.0f);
+    }
+
+    if (m_transfer_case->tr_4wd_mode)
+    {
+        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_1].wh_propulsed = true;
+        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_2].wh_propulsed = true;
+        m_num_proped_wheels += 2;
+    }
+    else
+    {
+        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_1].wh_propulsed = false;
+        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_2].wh_propulsed = false;
+        m_num_proped_wheels -= 2;
+    }
+}
+
+void Actor::ToggleTransferCaseGearRatio()
+{
+    if (!ar_engine || !m_transfer_case || m_transfer_case->tr_gear_ratio == 1.0f)
+        return;
+
+    if (m_transfer_case->tr_4wd_mode || m_transfer_case->tr_2wd_lo)
+    {
+        m_transfer_case->tr_lo_mode = !m_transfer_case->tr_lo_mode;
+
+        if (m_transfer_case->tr_lo_mode)
+            ar_engine->SetTCaseRatio(m_transfer_case->tr_gear_ratio);
+        else
+            ar_engine->SetTCaseRatio(1.0f);
+    }
+}
+
+String Actor::GetTransferCaseName()
+{
+    String name = "";
+    if (m_transfer_case)
+    {
+        name += m_transfer_case->tr_4wd_mode ? "4WD " : "2WD ";
+        name += m_transfer_case->tr_lo_mode  ? "Lo" : "Hi";
+    }
+    return name;
 }
 
 void Actor::RequestRotation(float rotation)
@@ -1747,13 +1878,14 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
     //differential lock status - read only
     if (flag_state & ANIM_FLAG_DIFFLOCK)
     {
-        if (m_num_wheel_diffs)
+        if (m_num_wheel_diffs && m_wheel_diffs[0])
         {
-            if (getAxleLockName() == "Open")
+            String name = m_wheel_diffs[0]->GetDifferentialTypeName();
+            if (name == "Open")
                 cstate = 0.0f;
-            if (getAxleLockName() == "Split")
+            if (name == "Split")
                 cstate = 0.5f;
-            if (getAxleLockName() == "Locked")
+            if (name == "Locked")
                 cstate = 1.0f;
         }
         else // no axles/diffs avail, mode is split by default
@@ -4205,6 +4337,7 @@ Actor::Actor(
     , m_actor_config(rq.asr_config)
     , m_ongoing_reset(false)
     , ar_last_fuzzy_ground_model(nullptr)
+    , m_transfer_case(nullptr)
 {
     m_use_skidmarks = RoR::App::gfx_skidmarks_mode.GetActive() == 1;
 }

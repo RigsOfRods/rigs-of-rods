@@ -46,6 +46,7 @@ EngineSim::EngineSim(float _min_rpm, float _max_rpm, float torque, std::vector<f
     , m_cur_gear_range(0)
     , m_cur_wheel_revolutions(0.0f)
     , m_diff_ratio(dratio)
+    , m_tcase_ratio(1.0f)
     , m_engine_torque(torque - m_braking_torque)
     , m_gear_ratios(gears)
     , m_engine_has_air(true)
@@ -920,6 +921,24 @@ void EngineSim::SetHydroPumpWork(float work)
 void EngineSim::SetWheelSpin(float rpm)
 {
     m_cur_wheel_revolutions = rpm;
+}
+
+void EngineSim::SetTCaseRatio(float ratio)
+{
+    if (ratio < 1.0f)
+        return;
+
+    for (std::vector<float>::iterator it = m_gear_ratios.begin(); it != m_gear_ratios.end(); ++it)
+    {
+        (*it) /= m_tcase_ratio;
+    }
+
+    m_tcase_ratio = ratio;
+
+    for (std::vector<float>::iterator it = m_gear_ratios.begin(); it != m_gear_ratios.end(); ++it)
+    {
+        (*it) *= m_tcase_ratio;
+    }
 }
 
 // for hydros acceleration

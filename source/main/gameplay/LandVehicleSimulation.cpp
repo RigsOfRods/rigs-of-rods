@@ -519,20 +519,28 @@ void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_la
         }
     } // end of ->ar_replay_mode
 
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_AXLE_LOCK))
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_INTER_AXLE_DIFF))
     {
-        // toggle auto shift
-        if (!vehicle->getAxleLockCount())
-        {
-            RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE, _L("No differential installed on current vehicle!"), "warning.png", 3000);
-            RoR::App::GetGuiManager()->PushNotification("Differential:", "No differential installed on current vehicle!");
-        }
-        else
-        {
-            vehicle->ToggleAxleLock();
-            RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE, _L("Differentials switched to: ") + vehicle->getAxleLockName(), "cog.png", 3000);
-            RoR::App::GetGuiManager()->PushNotification("Differential:", "Differentials switched to: " + vehicle->getAxleLockName());
-        }
+        vehicle->ToggleAxleDiffMode();
+        vehicle->DisplayAxleDiffMode();
+    }
+
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_INTER_WHEEL_DIFF))
+    {
+        vehicle->ToggleWheelDiffMode();
+        vehicle->DisplayWheelDiffMode();
+    }
+
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_TCASE_4WD_MODE))
+    {
+        vehicle->ToggleTransferCaseMode();
+        vehicle->DisplayTransferCaseMode();
+    }
+
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_TCASE_GEAR_RATIO))
+    {
+        vehicle->ToggleTransferCaseGearRatio();
+        vehicle->DisplayTransferCaseMode();
     }
 
     if (vehicle->ar_is_police)
