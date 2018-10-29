@@ -83,6 +83,8 @@ Ogre::UTFString Differential::GetDifferentialTypeName()
 void Differential::CalcSeparateDiff(DifferentialData& diff_data)
 {
     diff_data.out_torque[0] = diff_data.out_torque[1] = diff_data.in_torque / 2.0f;
+
+    diff_data.delta_rotation = 0.0f;
 }
 
 void Differential::CalcOpenDiff(DifferentialData& diff_data)
@@ -130,14 +132,13 @@ void Differential::CalcViscousDiff(DifferentialData& diff_data)
 
     diff_data.out_torque[0] = diff_data.out_torque[1] = diff_data.in_torque / 2.0f;
 
-    // derive how far wheels traveled relative to each during the last time step
-    diff_data.delta_rotation += delta_speed * diff_data.dt;
-
     // damping
     diff_data.out_torque[0] -= delta_speed * m_torsion_damp;
 
     // damping
     diff_data.out_torque[1] += delta_speed * m_torsion_damp;
+
+    diff_data.delta_rotation = 0.0f;
 }
 
 void Differential::CalcLockedDiff(DifferentialData& diff_data)
