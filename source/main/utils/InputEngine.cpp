@@ -1563,10 +1563,28 @@ eventInfo_t eventInfo[] = {
         _L("toggle between transmission modes")
     },
     {
-        "TRUCK_TOGGLE_AXLE_LOCK",
-        EV_TRUCK_TOGGLE_AXLE_LOCK,
-        "Keyboard W",
-        _L("Cycle between available differental models")
+        "TRUCK_TOGGLE_INTER_AXLE_DIFF",
+        EV_TRUCK_TOGGLE_INTER_AXLE_DIFF,
+        "Keyboard EXPL+ALT+W",
+        _L("cycle between available inter axle differential modes")
+    },
+    {
+        "TRUCK_TOGGLE_INTER_WHEEL_DIFF",
+        EV_TRUCK_TOGGLE_INTER_WHEEL_DIFF,
+        "Keyboard EXPL+W",
+        _L("cycle between available inter wheel differential modes")
+    },
+    {
+        "TRUCK_TOGGLE_TCASE_4WD_MODE",
+        EV_TRUCK_TOGGLE_TCASE_4WD_MODE,
+        "Keyboard EXPL+CTRL+W",
+        _L("toggle transfer case mode")
+    },
+    {
+        "TRUCK_TOGGLE_TCASE_GEAR_RATIO",
+        EV_TRUCK_TOGGLE_TCASE_GEAR_RATIO,
+        "Keyboard EXPL+SHIFT+W",
+        _L("toggle transfer case gear ratio")
     },
     {
         "TRUCK_TOGGLE_CONTACT",

@@ -337,10 +337,13 @@ enum events
     EV_TRUCK_STEER_LEFT, //!< steer left
     EV_TRUCK_STEER_RIGHT, //!< steer right
     EV_TRUCK_SWITCH_SHIFT_MODES, //!< toggle between transmission modes
-    EV_TRUCK_TOGGLE_AXLE_LOCK,
     EV_TRUCK_TOGGLE_CONTACT, //!< toggle ignition
     EV_TRUCK_TOGGLE_FORWARDCOMMANDS, //!< toggle forwardcommands
     EV_TRUCK_TOGGLE_IMPORTCOMMANDS, //!< toggle importcommands
+    EV_TRUCK_TOGGLE_INTER_AXLE_DIFF, //!< toggle the inter axle differential mode
+    EV_TRUCK_TOGGLE_INTER_WHEEL_DIFF, //!< toggle the inter wheel differential mode
+    EV_TRUCK_TOGGLE_TCASE_4WD_MODE, //!< toggle the transfer case 4wd mode
+    EV_TRUCK_TOGGLE_TCASE_GEAR_RATIO, //!< toggle the transfer case gear ratio
     EV_TRUCK_TOGGLE_VIDEOCAMERA, //!< toggle videocamera update
     EV_TRUCK_TRACTION_CONTROL, //!< toggle antilockbrake system
 
