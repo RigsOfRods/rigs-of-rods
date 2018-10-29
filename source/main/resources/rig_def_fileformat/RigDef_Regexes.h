@@ -239,6 +239,7 @@ namespace Regexes
     E_KEYWORD_BLOCK("hooks")                                      \
     E_KEYWORD_BLOCK("hydros")                                     \
     E_KEYWORD_BLOCK("importcommands")                             \
+    E_KEYWORD_BLOCK("interaxles")                                 \
     E_KEYWORD_BLOCK("lockgroups")                                 \
     E_KEYWORD_BLOCK("lockgroup_default_nolock")                   \
     E_KEYWORD_BLOCK("managedmaterials")                           \
@@ -287,6 +288,7 @@ namespace Regexes
     E_KEYWORD_BLOCK("ties")                                       \
     E_KEYWORD_BLOCK("torquecurve")                                \
     E_KEYWORD_INLINE("TractionControl")                           \
+    E_KEYWORD_INLINE("TransferCase")                              \
     E_KEYWORD_BLOCK("triggers")                                   \
     E_KEYWORD_BLOCK("turbojets")                                  \
     E_KEYWORD_BLOCK("turboprops")                                 \
@@ -356,7 +358,7 @@ DEFINE_REGEX( SECTION_AXLES_PROPERTY,
     E_CAPTURE_OPTIONAL( // #5
         E_OPTIONAL_SPACE
         "d\\("
-            E_CAPTURE( "[ols]*" ) // #6 Differential modes
+            E_CAPTURE( "[olsv]*" ) // #6 Differential modes
         "\\)"
         E_OPTIONAL_SPACE
     )

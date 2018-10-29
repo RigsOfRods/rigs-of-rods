@@ -406,6 +406,11 @@ private:
     void ProcessHydro(RigDef::Hydro & def);
 
     /**
+    * Section 'interaxles'.
+    */
+    void ProcessInterAxle(RigDef::InterAxle & def);
+
+    /**
     * Depends on section 'nodes'
     */
     void ProcessLockgroup(RigDef::Lockgroup & lockgroup);
@@ -522,6 +527,11 @@ private:
     * Section 'TractionControl' in any module.
     */
     void ProcessTractionControl(RigDef::TractionControl & def);
+
+    /**
+    * Section 'transfercase'.
+    */
+    void ProcessTransferCase(RigDef::TransferCase & def);
 
     void ProcessTrigger(RigDef::Trigger & def);
 

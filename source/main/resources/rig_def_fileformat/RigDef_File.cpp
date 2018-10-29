@@ -36,6 +36,7 @@ const char* ROOT_MODULE_NAME = "_Root_"; // Static
     const char Axle::OPTION_o_OPEN;
     const char Axle::OPTION_l_LOCKED;
     const char Axle::OPTION_s_SPLIT;
+    const char Axle::OPTION_s_VISCOUS;
 #endif // !_WIN32
 
 /* -------------------------------------------------------------------------- */
@@ -316,6 +317,8 @@ const char * File::SectionToString(File::Section section)
             return "help";
         case (File::SECTION_HOOKS):
             return "hooks";
+        case (File::SECTION_INTERAXLES):
+            return "interaxles";
         case (File::SECTION_LOCKGROUPS):
             return "lockgroups";
         case (File::SECTION_MANAGED_MATERIALS):
@@ -370,6 +373,8 @@ const char * File::SectionToString(File::Section section)
             return "torquecurve";
         case (File::SECTION_TRACTION_CONTROL):
             return "TractionControl";
+        case (File::SECTION_TRANSFER_CASE):
+            return "TransferCase";
         case (File::SECTION_TRIGGERS):
             return "triggers";
         case (File::SECTION_TRUCK_NAME):
@@ -489,6 +494,8 @@ const char * File::KeywordToString(File::Keyword keyword)
             return "hooks";
         case (File::KEYWORD_HYDROS):
             return "hydros";
+        case (File::KEYWORD_INTERAXLES):
+            return "interaxles";
         case (File::KEYWORD_MANAGEDMATERIALS):
             return "managedmaterials";
         case (File::KEYWORD_MATERIALFLAREBINDINGS):
@@ -543,6 +550,8 @@ const char * File::KeywordToString(File::Keyword keyword)
             return "torquecurve";
         case (File::KEYWORD_TRACTION_CONTROL):
             return "TractionControl";
+        case (File::KEYWORD_TRANSFER_CASE):
+            return "transfercase";
         case (File::KEYWORD_TRIGGERS):
             return "triggers";
         case (File::KEYWORD_TURBOJETS):

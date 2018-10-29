@@ -2492,6 +2492,9 @@ void ActorSpawner::ProcessAxle(RigDef::Axle & def)
             case RigDef::Axle::OPTION_s_SPLIT:
                 diff->AddDifferentialType(SPLIT_DIFF);
                 break;
+            case RigDef::Axle::OPTION_s_VISCOUS:
+                diff->AddDifferentialType(VISCOUS_DIFF);
+                break;
             default:
                 AddMessage(Message::TYPE_WARNING, "Unknown differential type: " + *itor);
                 break;
@@ -2501,6 +2504,78 @@ void ActorSpawner::ProcessAxle(RigDef::Axle & def)
 
     m_actor->m_wheel_diffs[m_actor->m_num_wheel_diffs] = diff;
     m_actor->m_num_wheel_diffs++;
+}
+
+void ActorSpawner::ProcessInterAxle(RigDef::InterAxle & def)
+{
+    if (def.a1 == def.a2 || std::min(def.a1, def.a2) < 0 || std::max(def.a1 , def.a2) >= m_actor->m_num_wheel_diffs)
+    {
+        AddMessage(Message::TYPE_ERROR, "Invalid 'interaxle' axle ids, skipping...");
+        return;
+    }
+
+    Differential *diff = new Differential();
+
+    diff->di_idx_1 = def.a1;
+    diff->di_idx_2 = def.a2;
+
+    if (def.options.size() == 0)
+    {
+        AddMessage(Message::TYPE_INFO, "No differential defined, defaulting to Locked");
+        diff->AddDifferentialType(LOCKED_DIFF);
+    }
+    else
+    {
+        auto end = def.options.end();
+        for (auto itor = def.options.begin(); itor != end; ++itor)
+        {
+            switch (*itor)
+            {
+            case RigDef::Axle::OPTION_l_LOCKED:
+                diff->AddDifferentialType(LOCKED_DIFF);
+                break;
+            case RigDef::Axle::OPTION_o_OPEN:
+                diff->AddDifferentialType(OPEN_DIFF);
+                break;
+            case RigDef::Axle::OPTION_s_SPLIT:
+                diff->AddDifferentialType(SPLIT_DIFF);
+                break;
+            case RigDef::Axle::OPTION_s_VISCOUS:
+                diff->AddDifferentialType(VISCOUS_DIFF);
+                break;
+            default:
+                AddMessage(Message::TYPE_WARNING, "Unknown differential type: " + *itor);
+                break;
+            }
+        }
+    }
+
+    m_actor->m_axle_diffs[m_actor->m_num_axle_diffs] = diff;
+    m_actor->m_num_axle_diffs++;
+}
+
+void ActorSpawner::ProcessTransferCase(RigDef::TransferCase & def)
+{
+    if (def.a1 == def.a2 || def.a1 < 0 || std::max(def.a1 , def.a2) >= m_actor->m_num_wheel_diffs)
+    {
+        AddMessage(Message::TYPE_ERROR, "Invalid 'transfercase' axle ids, skipping...");
+        return;
+    }
+    if (def.a2 < 0)
+    {
+        AddMessage(Message::TYPE_INFO, "No alternate axle defined, defaulting to 2WD only");
+    }
+
+    m_actor->m_transfer_case = new TransferCase(def.a1, def.a2, def.gear_ratio, def.has_2wd_lo);
+
+    for (int i = 0; i < m_actor->ar_num_wheels; i++)
+    {
+        m_actor->ar_wheels[i].wh_propulsed = false;
+    }
+    m_actor->ar_wheels[m_actor->m_wheel_diffs[def.a1]->di_idx_1].wh_propulsed = true;
+    m_actor->ar_wheels[m_actor->m_wheel_diffs[def.a1]->di_idx_2].wh_propulsed = true;
+
+    m_actor->m_num_proped_wheels = 2;
 }
 
 void ActorSpawner::ProcessSpeedLimiter(RigDef::SpeedLimiter & def)
