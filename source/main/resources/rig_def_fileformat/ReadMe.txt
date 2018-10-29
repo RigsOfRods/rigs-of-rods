@@ -205,6 +205,7 @@ the lettercase in this list corresponds to original documentation.
     hooks                        BLOCK      
     hydros                       BLOCK      
     importcommands               DIRECTIVE  
+    interaxles                   BLOCK      CSV + custom processing
     lockgroups                   BLOCK      
     lockgroup_default_nolock     DIRECTIVE  
     managedmaterials             BLOCK      
@@ -252,6 +253,7 @@ the lettercase in this list corresponds to original documentation.
     ties                         BLOCK      
     torquecurve                  BLOCK      CSV
     TractionControl              DIRECTIVE  Keyword-Space-CSV      
+    TransferCase                 DIRECTIVE  Keyword-Space-CSV      
     triggers                     BLOCK      
     turbojets                    BLOCK      
     turboprops                   BLOCK      

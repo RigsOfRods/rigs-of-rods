@@ -167,6 +167,7 @@ private:
     void ParseHelp();
     void ParseHook();
     void ParseHydros();
+    void ParseInterAxles();
     void ParseLockgroups();
     void ParseManagedMaterials();
     void ParseMaterialFlareBindings();
@@ -197,6 +198,7 @@ private:
     void ParseTies();
     void ParseTorqueCurve();
     void ParseTractionControl();
+    void ParseTransferCase();
     void ParseTriggers();
     void ParseTurbojets();
     void ParseTurbopropsUnified();

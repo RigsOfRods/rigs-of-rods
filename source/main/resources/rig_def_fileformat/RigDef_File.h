@@ -388,12 +388,54 @@ struct Axle
         options(0)
     {}
 
-    static const char OPTION_o_OPEN   = 'o';
-    static const char OPTION_l_LOCKED = 'l';
-    static const char OPTION_s_SPLIT  = 's';
+    static const char OPTION_o_OPEN    = 'o';
+    static const char OPTION_l_LOCKED  = 'l';
+    static const char OPTION_s_SPLIT   = 's';
+    static const char OPTION_s_VISCOUS = 'v';
 
     Node::Ref wheels[2][2];
     std::vector<char> options; //!< Order matters!
+};
+
+/* -------------------------------------------------------------------------- */
+/* Section INTERAXLES                                                         */
+/* -------------------------------------------------------------------------- */
+
+struct InterAxle
+{
+    InterAxle():
+        a1(0),
+        a2(0),
+        options(0)
+    {}
+
+    static const char OPTION_o_OPEN    = 'o';
+    static const char OPTION_l_LOCKED  = 'l';
+    static const char OPTION_s_SPLIT   = 's';
+    static const char OPTION_s_VISCOUS = 'v';
+
+    int a1;
+    int a2;
+    std::vector<char> options; //!< Order matters!
+};
+
+/* -------------------------------------------------------------------------- */
+/* Section TRANSFER_CASE                                                      */
+/* -------------------------------------------------------------------------- */
+
+struct TransferCase
+{
+    TransferCase():
+        a1(0),
+        a2(-1),
+        gear_ratio(1.0f),
+        has_2wd_lo(false)
+    {}
+
+    int a1;
+    int a2;
+    float gear_ratio;
+    bool has_2wd_lo;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -1975,6 +2017,7 @@ struct File
         std::shared_ptr<GuiSettings>       gui_settings;
         std::vector<Hook>                  hooks;
         std::vector<Hydro>                 hydros;
+        std::vector<InterAxle>             interaxles;
         std::vector<Lockgroup>             lockgroups;
         std::vector<ManagedMaterial>       managed_materials;
         std::vector<MaterialFlareBinding>  material_flare_bindings;
@@ -2003,6 +2046,7 @@ struct File
         std::vector<Tie>                   ties;
         std::shared_ptr<TorqueCurve>       torque_curve;
         std::shared_ptr<TractionControl>   traction_control;
+        std::shared_ptr<TransferCase>      transfer_case;
         std::vector<Trigger>               triggers;
         std::vector<Turbojet>              turbojets;
         std::vector<Turboprop2>            turboprops_2;
@@ -2068,6 +2112,7 @@ struct File
         KEYWORD_HOOKS,
         KEYWORD_HYDROS,
         KEYWORD_IMPORTCOMMANDS,
+        KEYWORD_INTERAXLES,
         KEYWORD_LOCKGROUPS,
         KEYWORD_LOCKGROUP_DEFAULT_NOLOCK,
         KEYWORD_MANAGEDMATERIALS,
@@ -2116,6 +2161,7 @@ struct File
         KEYWORD_TIES,
         KEYWORD_TORQUECURVE,
         KEYWORD_TRACTION_CONTROL,
+        KEYWORD_TRANSFER_CASE,
         KEYWORD_TRIGGERS,
         KEYWORD_TURBOJETS,
         KEYWORD_TURBOPROPS,
@@ -2160,6 +2206,7 @@ struct File
         SECTION_HELP,
         SECTION_HOOKS,
         SECTION_HYDROS,
+        SECTION_INTERAXLES,
         SECTION_LOCKGROUPS,
         SECTION_MANAGED_MATERIALS,
         SECTION_MAT_FLARE_BINDINGS,
@@ -2188,6 +2235,7 @@ struct File
         SECTION_TIES,
         SECTION_TORQUE_CURVE,
         SECTION_TRACTION_CONTROL,
+        SECTION_TRANSFER_CASE,
         SECTION_TRIGGERS,
         SECTION_TRUCK_NAME, ///< The very start of file	
         SECTION_TURBOJETS,

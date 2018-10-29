@@ -164,6 +164,7 @@ void Parser::ProcessCurrentLine()
         case File::KEYWORD_HOOKS:                    this->ChangeSection(File::SECTION_HOOKS);            return;
         case File::KEYWORD_HYDROS:                   this->ChangeSection(File::SECTION_HYDROS);           return;
         case File::KEYWORD_IMPORTCOMMANDS:           m_definition->import_commands = true;                return;
+        case File::KEYWORD_INTERAXLES:               this->ChangeSection(File::SECTION_INTERAXLES);       return;
         case File::KEYWORD_LOCKGROUPS:               this->ChangeSection(File::SECTION_LOCKGROUPS);       return;
         case File::KEYWORD_LOCKGROUP_DEFAULT_NOLOCK: this->ProcessGlobalDirective(keyword);               return;
         case File::KEYWORD_MANAGEDMATERIALS:         this->ChangeSection(File::SECTION_MANAGED_MATERIALS); return;
@@ -210,6 +211,7 @@ void Parser::ProcessCurrentLine()
         case File::KEYWORD_TIES:                     this->ChangeSection(File::SECTION_TIES);             return;
         case File::KEYWORD_TORQUECURVE:              this->ChangeSection(File::SECTION_TORQUE_CURVE);     return;
         case File::KEYWORD_TRACTION_CONTROL:         this->ParseTractionControl();                        return;
+        case File::KEYWORD_TRANSFER_CASE:            this->ParseTransferCase();                           return;
         case File::KEYWORD_TRIGGERS:                 this->ChangeSection(File::SECTION_TRIGGERS);         return;
         case File::KEYWORD_TURBOJETS:                this->ChangeSection(File::SECTION_TURBOJETS);        return;
         case File::KEYWORD_TURBOPROPS:               this->ChangeSection(File::SECTION_TURBOPROPS);       return;
@@ -252,6 +254,7 @@ void Parser::ProcessCurrentLine()
         case (File::SECTION_HELP):                 this->ParseHelp();                    return;
         case (File::SECTION_HOOKS):                this->ParseHook();                    return;
         case (File::SECTION_HYDROS):               this->ParseHydros();                  return;
+        case (File::SECTION_INTERAXLES):           this->ParseInterAxles();              return;
         case (File::SECTION_LOCKGROUPS):           this->ParseLockgroups();              return;
         case (File::SECTION_MANAGED_MATERIALS):    this->ParseManagedMaterials();        return;
         case (File::SECTION_MAT_FLARE_BINDINGS):   this->ParseMaterialFlareBindings();   return;
@@ -472,6 +475,30 @@ void Parser::ParseTractionControl()
     }
 
     m_current_module->traction_control = std::shared_ptr<TractionControl>( new TractionControl(tc) );
+}
+
+void Parser::ParseTransferCase()
+{
+    Ogre::StringVector tokens = Ogre::StringUtil::split(m_current_line + 12, ","); // "TransferCase" = 12 characters
+    if (tokens.size() < 4)
+    {
+        this->AddMessage(Message::TYPE_ERROR, "Too few arguments");
+        return;
+    }
+
+    TransferCase tc;
+
+    tc.a1         = this->ParseArgInt  (tokens[0].c_str()) - 1;
+    tc.a2         = this->ParseArgInt  (tokens[1].c_str()) - 1;
+    tc.gear_ratio = this->ParseArgFloat(tokens[2].c_str());
+    tc.has_2wd_lo = this->ParseArgInt  (tokens[3].c_str());
+
+    if (m_current_module->transfer_case != nullptr)
+    {
+        this->AddMessage(Message::TYPE_WARNING, "Multiple inline-sections 'TransferCase' in a module, using last one ...");
+    }
+
+    m_current_module->transfer_case = std::shared_ptr<TransferCase>( new TransferCase(tc) );
 }
 
 void Parser::ParseSubmeshGroundModel()
@@ -1769,6 +1796,9 @@ void Parser::ParseAxles()
                     case 's':
                         axle.options.push_back(Axle::OPTION_s_SPLIT);
                         break;
+                    case 'v':
+                        axle.options.push_back(Axle::OPTION_s_VISCOUS);
+                        break;
 
                     default: // No check needed, regex takes care of that 
                         break;
@@ -1778,6 +1808,53 @@ void Parser::ParseAxles()
     }
 
     m_current_module->axles.push_back(axle);	
+}
+
+void Parser::ParseInterAxles()
+{
+    auto args = Ogre::StringUtil::split(m_current_line, ",");
+    if (args.size() < 2) { return; }
+
+    InterAxle interaxle;
+
+    interaxle.a1 = this->ParseArgInt(args[0].c_str()) - 1;
+    interaxle.a2 = this->ParseArgInt(args[1].c_str()) - 1;
+
+    std::smatch results;
+    if (! std::regex_search(args[2], results, Regexes::SECTION_AXLES_PROPERTY))
+    {
+        this->AddMessage(Message::TYPE_ERROR, "Invalid property, ignoring whole line...");
+        return;
+    }
+    // NOTE: Positions in 'results' array match E_CAPTURE*() positions (starting with 1) in the respective regex. 
+
+    if (results[5].matched)
+    {
+        std::string options_str = results[6].str();
+        for (unsigned int i = 0; i < options_str.length(); i++)
+        {
+            switch(options_str.at(i))
+            {
+                case 'o':
+                    interaxle.options.push_back(Axle::OPTION_o_OPEN);
+                    break;
+                case 'l':
+                    interaxle.options.push_back(Axle::OPTION_l_LOCKED);
+                    break;
+                case 's':
+                    interaxle.options.push_back(Axle::OPTION_s_SPLIT);
+                    break;
+                case 'v':
+                    interaxle.options.push_back(Axle::OPTION_s_VISCOUS);
+                    break;
+
+                default: // No check needed, regex takes care of that 
+                    break;
+            }
+        }
+    }
+
+    m_current_module->interaxles.push_back(interaxle);	
 }
 
 void Parser::ParseAirbrakes()

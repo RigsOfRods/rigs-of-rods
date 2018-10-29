@@ -113,6 +113,8 @@ void Serializer::Serialize()
     ProcessCruiseControl(source_module);
     ProcessSpeedLimiter(source_module);
     ProcessAxles(source_module);
+    ProcessInterAxles(source_module);
+    ProcessTransferCase(source_module);
 
     // Features
     ProcessCinecam(source_module);
@@ -887,6 +889,49 @@ void Serializer::ProcessAxles(File::Module* module)
         }
     }
     m_stream << endl << endl; // Empty line
+}
+
+void Serializer::ProcessInterAxles(File::Module* module)
+{
+    if (module->interaxles.empty())
+    {
+        return;
+    }
+    m_stream << "interaxles" << endl;
+    auto end_itor = module->interaxles.end();
+    for (auto itor = module->interaxles.begin(); itor != end_itor; ++itor)
+    {
+        RigDef::InterAxle & def = *itor;
+
+        m_stream << "\n\t"
+            << def.a1 << ", "
+            << def.a2;
+        if (! def.options.empty())
+        {
+            m_stream << ", d(";
+            auto end = def.options.end();
+            for (auto itor = def.options.begin(); itor != end; ++itor)
+            {
+                m_stream << *itor;
+            }
+            m_stream << ")";
+        }
+    }
+    m_stream << endl << endl; // Empty line
+}
+
+void Serializer::ProcessTransferCase(File::Module* module)
+{
+    if (! module->transfer_case)
+    {
+        return;
+    }
+    m_stream << "TransferCase " 
+        << module->transfer_case->a1 << ", "
+        << module->transfer_case->a2 << ", "
+        << module->transfer_case->gear_ratio << ", "
+        << module->transfer_case->has_2wd_lo
+        << endl << endl;
 }
 
 void Serializer::ProcessCruiseControl(File::Module* module)
