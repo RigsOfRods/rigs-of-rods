@@ -149,6 +149,7 @@ Actor *ActorSpawner::SpawnActor()
     m_actor->ar_rescuer_flag             = m_file->rescuer;
     m_actor->m_disable_default_sounds    = m_file->disable_default_sounds;
     m_actor->ar_hide_in_actor_list       = m_file->hide_in_chooser;
+    m_actor->ar_collision_range          = m_file->collision_range;
 
     // Section 'authors' in root module
     ProcessAuthors();
