@@ -144,20 +144,16 @@ void LandVehicleSimulation::CheckSpeedLimit(Actor* vehicle, float dt)
 {
     EngineSim* engine = vehicle->ar_engine;
 
-    if (vehicle->sl_enabled && engine->GetGear() != 0)
+    if (engine && engine->GetGear() != 0)
     {
-        float accl = (vehicle->sl_speed_limit - std::abs(vehicle->ar_avg_wheel_speed)) * 2.0f;
-        accl = std::max(0.0f, accl);
-        accl = std::min(accl, engine->GetAcceleration());
-        engine->SetAcceleration(accl);
+        float accl = (vehicle->sl_speed_limit - std::abs(vehicle->ar_wheel_speed / 1.02f)) * 2.0f;
+        engine->SetAcceleration(Ogre::Math::Clamp(accl, 0.0f, engine->GetAcceleration()));
     }
 }
 
 void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_last_frame)
 {
     using namespace Ogre;
-
-    EngineSim* engine = vehicle->ar_engine;
 
     if (!vehicle->ar_replay_mode)
     {
@@ -203,6 +199,8 @@ void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_la
         {
             vehicle->ar_hydro_speed_coupling = true;
         }
+
+        EngineSim* engine = vehicle->ar_engine;
 
         if (engine)
         {
@@ -585,5 +583,8 @@ void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_la
     {
         LandVehicleSimulation::UpdateCruiseControl(vehicle, seconds_since_last_frame);
     }
-    LandVehicleSimulation::CheckSpeedLimit(vehicle, seconds_since_last_frame);
+    if (vehicle->sl_enabled)
+    {
+        LandVehicleSimulation::CheckSpeedLimit(vehicle, seconds_since_last_frame);
+    }
 }
