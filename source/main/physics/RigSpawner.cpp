@@ -509,8 +509,6 @@ void ActorSpawner::FinalizeRig()
             else
                 diff->AddDifferentialType(VISCOUS_DIFF);
 
-            diff->AddDifferentialType(OPEN_DIFF);
-
             m_actor->m_axle_diffs[m_actor->m_num_axle_diffs] = diff;
             m_actor->m_num_axle_diffs++;
         }
