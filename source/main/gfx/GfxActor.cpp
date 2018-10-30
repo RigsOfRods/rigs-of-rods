@@ -621,9 +621,9 @@ void RoR::GfxActor::UpdateParticles(float dt_sec)
                         }
                     }
                 }
-                else // Not a wheel => sparks
+                else if (!nfx.nx_no_sparks) // Not a wheel => sparks
                 {
-                    if (!nfx.nx_no_sparks && m_particles_sparks != nullptr && n.nd_last_collision_slip.length() > 1.f)
+                    if (m_particles_sparks != nullptr && n.nd_last_collision_slip.length() > 5.f)
                     {
                         m_particles_sparks->allocSparks(n.AbsPosition, n.Velocity);
                     }
