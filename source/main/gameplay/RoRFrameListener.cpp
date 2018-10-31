@@ -1718,27 +1718,24 @@ void SimController::UpdateSimulation(float dt)
     ScriptEngine::getSingleton().framestep(dt);
 #endif
 
-    if (simRUNNING(s) || simPAUSED(s) || simEDITOR(s))
+    for (auto actor : GetActors())
+    {
+        actor->GetGfxActor()->UpdateDebugView();
+    }
+
+    if (simRUNNING(s) || simEDITOR(s))
     {
         this->UpdateForceFeedback(dt);
 
         RoR::App::GetGuiManager()->UpdateSimUtils(dt, m_player_actor);
 
-        for (auto actor : GetActors())
+        m_scene_mouse.UpdateSimulation();
+
+        m_gfx_scene.BufferSimulationData();
+
+        if (App::sim_state.GetPending() != SimState::PAUSED)
         {
-            actor->GetGfxActor()->UpdateDebugView();
-        }
-
-        if (!simPAUSED(s))
-        {
-            m_scene_mouse.UpdateSimulation();
-
-            m_gfx_scene.BufferSimulationData();
-
-            if (App::sim_state.GetPending() != SimState::PAUSED)
-            {
-                m_actor_manager.UpdateActors(m_player_actor, dt); // *** Start new physics tasks. No reading from Actor N/B beyond this point.
-            }
+            m_actor_manager.UpdateActors(m_player_actor, dt); // *** Start new physics tasks. No reading from Actor N/B beyond this point.
         }
     }
     MicroProfileFlip (nullptr);
