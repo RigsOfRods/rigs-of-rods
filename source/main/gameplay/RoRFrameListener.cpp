@@ -132,6 +132,8 @@ SimController::SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_c
     m_last_simulation_speed(0.1f),
     m_last_skin_selection(nullptr),
     m_netcheck_gui_timer(0.0f),
+    m_physics_simulation_paused(false),
+    m_physics_simulation_time(0.0f),
     m_pressure_pressed(false),
     m_race_bestlap_time(0),
     m_race_in_progress(false),
@@ -147,7 +149,7 @@ SimController::SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_c
 {
 }
 
-void SimController::UpdateForceFeedback(float dt)
+void SimController::UpdateForceFeedback()
 {
     if (!App::io_ffb_enabled.GetActive()) { return; }
 
@@ -903,6 +905,13 @@ void SimController::UpdateInputEvents(float dt)
                                 }
                             }
                         }
+                    } else if (m_physics_simulation_paused && m_actor_manager.GetSimulationSpeed() > 0.0f)
+                    {
+                        if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPLAY_FAST_FORWARD) ||
+                            RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FORWARD, 0.25f))
+                        {
+                            m_physics_simulation_time = PHYSICS_DT / m_actor_manager.GetSimulationSpeed();
+                        }
                     }
 
                     if (m_player_actor->ar_driveable == TRUCK)
@@ -1043,8 +1052,14 @@ void SimController::UpdateInputEvents(float dt)
                     //replay mode
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_REPLAY_MODE))
                     {
-                        this->StopRaceTimer();
-                        m_player_actor->setReplayMode(!m_player_actor->ar_replay_mode);
+                        if (m_player_actor->getReplay() != nullptr)
+                        {
+                            this->StopRaceTimer();
+                            m_player_actor->setReplayMode(!m_player_actor->ar_replay_mode);
+                        } else
+                        {
+                            m_physics_simulation_paused = !m_physics_simulation_paused;
+                        }
                     }
 
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_CUSTOM_PARTICLES))
@@ -1706,6 +1721,8 @@ void SimController::UpdateSimulation(float dt)
         }
     }
 
+    m_physics_simulation_time = m_physics_simulation_paused ? 0.0f : dt;
+
     this->UpdateInputEvents(dt);
 
     RoR::App::GetGuiManager()->DrawSimulationGui(dt);
@@ -1725,7 +1742,7 @@ void SimController::UpdateSimulation(float dt)
 
     if (simRUNNING(s) || simEDITOR(s))
     {
-        this->UpdateForceFeedback(dt);
+        this->UpdateForceFeedback();
 
         RoR::App::GetGuiManager()->UpdateSimUtils(dt, m_player_actor);
 
@@ -1735,7 +1752,7 @@ void SimController::UpdateSimulation(float dt)
 
         if (App::sim_state.GetPending() != SimState::PAUSED)
         {
-            m_actor_manager.UpdateActors(m_player_actor, dt); // *** Start new physics tasks. No reading from Actor N/B beyond this point.
+            m_actor_manager.UpdateActors(m_player_actor, m_physics_simulation_time); // *** Start new physics tasks. No reading from Actor N/B beyond this point.
         }
     }
     MicroProfileFlip (nullptr);
