@@ -116,12 +116,12 @@ private:
     void   windowFocusChange       (Ogre::RenderWindow* rw);
     void   windowResized           (Ogre::RenderWindow* rw);
 
-    void   UpdateForceFeedback     (float dt);
+    void   UpdateForceFeedback     ();
     void   UpdateInputEvents       (float dt);
     void   FinalizeActorSpawning   (Actor* local_actor, Actor* previous_actor, RoR::ActorSpawnRequest rq);
     void   HideGUI                 (bool hidden);
     void   CleanupAfterSimulation  (); /// Unloads all data
-    void   UpdateSimulation        (float dt_sec);
+    void   UpdateSimulation        (float dt);
     void   ChangePlayerActor       (Actor* actor);
 
     Actor*                   m_player_actor;           //!< Actor (vehicle or machine) mounted and controlled by player
@@ -139,6 +139,8 @@ private:
     Ogre::Real               m_time_until_next_toggle; //!< just to stop toggles flipping too fast
     float                    m_last_simulation_speed;  //!< previously used time ratio between real time (evt.timeSinceLastFrame) and physics time ('dt' used in calcPhysics)
     bool                     m_is_pace_reset_pressed;
+    float                    m_physics_simulation_time; //!< Amount of time the physics simulation is going to be advanced
+    bool                     m_physics_simulation_paused;
     int                      m_stats_on;
     float                    m_netcheck_gui_timer;
     double                   m_time;
