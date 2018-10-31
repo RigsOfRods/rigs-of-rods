@@ -100,6 +100,7 @@ public:
     float          GetEngineRpm() const     { return m_cur_engine_rpm; }
     float          GetGearboxRpm()          { return m_cur_wheel_revolutions * m_gear_ratios[m_cur_gear + 1]; };
     float          GetGearRatio()           { return m_gear_ratios[m_cur_gear + 1]; };
+    float          GetEngineInertia()       { return m_engine_inertia; };
     float          getAccToHoldRPM(float rpm);
     float          getTurboPower();
     float          getEnginePower(float rpm);

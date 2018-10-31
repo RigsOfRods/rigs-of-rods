@@ -55,45 +55,36 @@ void LandVehicleSimulation::UpdateCruiseControl(Actor* vehicle, float dt)
     if (engine->GetGear() > 0)
     {
         // Try to maintain the target speed
-        float torque = (engine->getEngineTorque() + engine->getBrakingTorque()) * 0.8f;
-        float forceRatio = vehicle->getTotalMass(true) / torque;
-        acc += (vehicle->cc_target_speed - vehicle->ar_wheel_speed) * forceRatio * 0.25;
-        acc = std::max(-2.0f, acc);
-        acc = std::min(acc, +2.0f);
+        float power_weight_ratio = vehicle->getTotalMass(true) / engine->getEnginePower(engine->GetEngineRpm());
+        acc += (vehicle->cc_target_speed - vehicle->ar_wheel_speed) * power_weight_ratio * 0.25;
     }
     else if (engine->GetGear() == 0) // out of gear
     {
         // Try to maintain the target rpm
-        float rpmRatio = 1.0f / (engine->getMaxRPM() - engine->getMinRPM());
-        acc += (vehicle->cc_target_rpm - engine->GetEngineRpm()) * rpmRatio * 2.0f;
+        float speed_range = (engine->getMaxRPM() - engine->getMinRPM()) / 20.0f;
+        acc += engine->GetEngineInertia() * (vehicle->cc_target_rpm - engine->GetEngineRpm()) / speed_range;
     }
 
-    vehicle->cc_accs.push_front(acc);
-
-    float avgAcc = 0.0f;
-
-    for (unsigned int i = 0; i < vehicle->cc_accs.size(); i++)
-    {
-        avgAcc += vehicle->cc_accs[i];
-    }
-
-    if (vehicle->cc_accs.size() > 10)
+    vehicle->cc_accs.push_front(Ogre::Math::Clamp(acc, -1.0f, +1.0f));
+    if (vehicle->cc_accs.size() > 30)
     {
         vehicle->cc_accs.pop_back();
     }
 
-    avgAcc /= vehicle->cc_accs.size();
+    float avg_acc = 0.0f;
+    for (unsigned int i = 0; i < vehicle->cc_accs.size(); i++)
+    {
+        avg_acc += vehicle->cc_accs[i];
+    }
+    avg_acc /= vehicle->cc_accs.size();
 
-    float accl = avgAcc;
-    accl = std::max(engine->GetAcceleration(), accl);
-    accl = std::min(accl, 1.0f);
-    engine->autoSetAcc(accl);
+    engine->autoSetAcc(Ogre::Math::Clamp(avg_acc, engine->GetAcceleration(), 1.0f));
 
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_CRUISE_CONTROL_ACCL))
     {
         if (engine->GetGear() > 0)
         {
-            vehicle->cc_target_speed += 2.5f * dt;
+            vehicle->cc_target_speed *= pow(2.0f, dt / 5.0f);
             vehicle->cc_target_speed = std::max(vehicle->cc_target_speed_lower_limit, vehicle->cc_target_speed);
             if (vehicle->sl_enabled)
             {
@@ -102,7 +93,7 @@ void LandVehicleSimulation::UpdateCruiseControl(Actor* vehicle, float dt)
         }
         else if (engine->GetGear() == 0) // out of gear
         {
-            vehicle->cc_target_rpm += 1000.0f * dt;
+            vehicle->cc_target_rpm *= pow(2.0f, dt / 5.0f);
             vehicle->cc_target_rpm = std::min(vehicle->cc_target_rpm, engine->getMaxRPM());
         }
     }
@@ -110,12 +101,12 @@ void LandVehicleSimulation::UpdateCruiseControl(Actor* vehicle, float dt)
     {
         if (engine->GetGear() > 0)
         {
-            vehicle->cc_target_speed -= 2.5f * dt;
+            vehicle->cc_target_speed *= pow(0.5f, dt / 5.0f);
             vehicle->cc_target_speed = std::max(vehicle->cc_target_speed_lower_limit, vehicle->cc_target_speed);
         }
         else if (engine->GetGear() == 0) // out of gear
         {
-            vehicle->cc_target_rpm -= 1000.0f * dt;
+            vehicle->cc_target_rpm *= pow(0.5f, dt / 5.0f);
             vehicle->cc_target_rpm = std::max(engine->getMinRPM(), vehicle->cc_target_rpm);
         }
     }
