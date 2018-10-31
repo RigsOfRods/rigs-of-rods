@@ -211,7 +211,7 @@ void Parser::ProcessCurrentLine()
         case File::KEYWORD_TIES:                     this->ChangeSection(File::SECTION_TIES);             return;
         case File::KEYWORD_TORQUECURVE:              this->ChangeSection(File::SECTION_TORQUE_CURVE);     return;
         case File::KEYWORD_TRACTION_CONTROL:         this->ParseTractionControl();                        return;
-        case File::KEYWORD_TRANSFER_CASE:            this->ParseTransferCase();                           return;
+        case File::KEYWORD_TRANSFER_CASE:            this->ChangeSection(File::SECTION_TRANSFER_CASE);    return;
         case File::KEYWORD_TRIGGERS:                 this->ChangeSection(File::SECTION_TRIGGERS);         return;
         case File::KEYWORD_TURBOJETS:                this->ChangeSection(File::SECTION_TURBOJETS);        return;
         case File::KEYWORD_TURBOPROPS:               this->ChangeSection(File::SECTION_TURBOPROPS);       return;
@@ -281,6 +281,7 @@ void Parser::ProcessCurrentLine()
         case (File::SECTION_SUBMESH):              this->ParseSubmesh();                 return;
         case (File::SECTION_TIES):                 this->ParseTies();                    return;
         case (File::SECTION_TORQUE_CURVE):         this->ParseTorqueCurve();             return;
+        case (File::SECTION_TRANSFER_CASE):        this->ParseTransferCase();            return;
         case (File::SECTION_TRIGGERS):             this->ParseTriggers();                return;
         case (File::SECTION_TURBOJETS):            this->ParseTurbojets();               return;
         case (File::SECTION_TURBOPROPS):           
@@ -479,19 +480,14 @@ void Parser::ParseTractionControl()
 
 void Parser::ParseTransferCase()
 {
-    Ogre::StringVector tokens = Ogre::StringUtil::split(m_current_line + 12, ","); // "TransferCase" = 12 characters
-    if (tokens.size() < 4)
-    {
-        this->AddMessage(Message::TYPE_ERROR, "Too few arguments");
-        return;
-    }
+    if (! this->CheckNumArguments(4)) { return; }
 
     TransferCase tc;
 
-    tc.a1         = this->ParseArgInt  (tokens[0].c_str()) - 1;
-    tc.a2         = this->ParseArgInt  (tokens[1].c_str()) - 1;
-    tc.gear_ratio = this->ParseArgFloat(tokens[2].c_str());
-    tc.has_2wd_lo = this->ParseArgInt  (tokens[3].c_str());
+    tc.a1         = this->GetArgInt  (0) - 1;
+    tc.a2         = this->GetArgInt  (1) - 1;
+    tc.gear_ratio = this->GetArgFloat(2);
+    tc.has_2wd_lo = this->GetArgInt  (3);
 
     if (m_current_module->transfer_case != nullptr)
     {

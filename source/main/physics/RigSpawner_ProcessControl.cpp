@@ -276,7 +276,7 @@ Actor *ActorSpawner::SpawnActor()
     // Section 'interaxles'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_INTERAXLES, interaxles, ProcessInterAxle);
 
-    // Section 'TransferCase'
+    // Section 'transfercase'
     PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_TRANSFER_CASE, transfer_case, ProcessTransferCase);
 
     // Section 'submeshes'

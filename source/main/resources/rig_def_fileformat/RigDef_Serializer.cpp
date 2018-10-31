@@ -926,7 +926,7 @@ void Serializer::ProcessTransferCase(File::Module* module)
     {
         return;
     }
-    m_stream << "TransferCase " 
+    m_stream << "transfercase\t" 
         << module->transfer_case->a1 << ", "
         << module->transfer_case->a2 << ", "
         << module->transfer_case->gear_ratio << ", "

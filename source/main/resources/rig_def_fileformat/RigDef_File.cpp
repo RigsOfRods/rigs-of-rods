@@ -374,7 +374,7 @@ const char * File::SectionToString(File::Section section)
         case (File::SECTION_TRACTION_CONTROL):
             return "TractionControl";
         case (File::SECTION_TRANSFER_CASE):
-            return "TransferCase";
+            return "transfercase";
         case (File::SECTION_TRIGGERS):
             return "triggers";
         case (File::SECTION_TRUCK_NAME):
