@@ -2150,9 +2150,8 @@ void SimController::EnterGameplayLoop()
     RoRWindowEventUtilities::addWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
 
     Ogre::RenderWindow* rw = RoR::App::GetOgreSubsystem()->GetRenderWindow();
-    Ogre::Timer timer;
-    unsigned long start_time = 0; // milliseconds
-    unsigned long start_time_prev = 0;
+
+    auto start_time = std::chrono::high_resolution_clock::now();
 
     while (App::app_state.GetPending() == AppState::SIMULATION)
     {
@@ -2163,11 +2162,6 @@ void SimController::EnterGameplayLoop()
             continue;
         }
 
-        // Query timer
-        start_time_prev = start_time;
-        start_time = timer.getMilliseconds();
-        const unsigned long frame_time_ms = start_time - start_time_prev;
-
         // Check FPS limit
         if (App::gfx_fps_limit.GetActive() != 0)
         {
@@ -2176,15 +2170,17 @@ void SimController::EnterGameplayLoop()
                 App::gfx_fps_limit.SetActive(5);
             }
 
-            // NOTE: Calculation adjusted to get required FPS.
-            //       When using '1s = 1000ms' the FPS goes over the limit by cca. +75%, I'm not sure why ~ only_a_ptr, 07/2018
-            const unsigned long min_frame_time = 1580 / App::gfx_fps_limit.GetActive();
-            if (frame_time_ms < min_frame_time)
+            const float min_frame_time = 1.0f / App::gfx_fps_limit.GetActive();
+            float dt = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start_time).count();
+            while (dt < min_frame_time)
             {
-                std::chrono::milliseconds sleep_time(min_frame_time - frame_time_ms);
-                std::this_thread::sleep_for(sleep_time);
+                dt = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start_time).count();
             }
         }
+
+        const auto now = std::chrono::high_resolution_clock::now();
+        const float dt_sec = std::chrono::duration<float>(now - start_time).count();
+        start_time = now;
 
         // Check simulation state change
         if (App::sim_state.GetPending() != App::sim_state.GetActive())
@@ -2208,7 +2204,6 @@ void SimController::EnterGameplayLoop()
         }
 
         // Update gameplay and 3D scene
-        const float dt_sec = static_cast<float>(frame_time_ms) * 0.001f;
         App::GetGuiManager()->NewImGuiFrame(dt_sec);
 
         if (dt_sec != 0.f)
