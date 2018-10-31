@@ -224,6 +224,7 @@ enum events
     EV_COMMON_FOV_MORE, //!<increases the current FOV value
     EV_COMMON_FULLSCREEN_TOGGLE,
     EV_COMMON_HIDE_GUI, //!< hide all GUI elements
+    EV_COMMON_TOGGLE_DASHBOARD, //!< display or hide the dashboard overlay
     EV_COMMON_LOCK, //!< connect hook node to a node in close proximity
     EV_COMMON_NETCHATDISPLAY,
     EV_COMMON_NETCHATMODE,

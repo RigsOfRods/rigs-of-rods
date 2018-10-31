@@ -1378,6 +1378,14 @@ void SimController::UpdateInputEvents(float dt)
         this->HideGUI(m_hide_gui);
     }
 
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_DASHBOARD))
+    {
+        if (RoR::App::GetOverlayWrapper())
+        {
+            RoR::App::GetOverlayWrapper()->ToggleDashboardOverlays(m_player_actor);
+        }
+    }
+
     if ((simRUNNING(s) || simPAUSED(s) || simEDITOR(s)) && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_STATS))
     {
         gui_man->GetSimUtils()->SetFPSBoxVisible(! gui_man->GetSimUtils()->IsFPSBoxVisible());
