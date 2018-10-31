@@ -65,6 +65,7 @@ bool g_is_scaled = false;
 OverlayWrapper::OverlayWrapper():
     m_direction_arrow_node(nullptr),
     mTimeUntilNextToggle(0),
+    m_dashboard_visible(false),
     m_visible_overlays(0)
 {
     win = RoR::App::GetOgreSubsystem()->GetRenderWindow();
@@ -402,8 +403,15 @@ void OverlayWrapper::showPressureOverlay(bool show)
     }
 }
 
+void OverlayWrapper::ToggleDashboardOverlays(Actor* actor)
+{
+    showDashboardOverlays(!m_dashboard_visible, actor);
+}
+
 void OverlayWrapper::showDashboardOverlays(bool show, Actor* actor)
 {
+    m_dashboard_visible = show;
+
     // check if we use the new style dashboards
     if (actor && actor->ar_dashboard && actor->ar_dashboard->WasDashboardLoaded())
     {

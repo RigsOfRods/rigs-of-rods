@@ -938,6 +938,12 @@ eventInfo_t eventInfo[] = {
         _L("hide all GUI elements")
     },
     {
+        "COMMON_TOGGLE_DASHBOARD",
+        EV_COMMON_TOGGLE_DASHBOARD,
+        "Keyboard EXPL+CTRL+U",
+        _L("display or hide the dashboard overlay")
+    },
+    {
         "COMMON_LOCK",
         EV_COMMON_LOCK,
         "Keyboard EXPL+L",

@@ -166,7 +166,8 @@ COMMON_ENTER_PREVIOUS_TRUCK    Keyboard             EXPL+CTRL+LBRACKET
 COMMON_REMOVE_CURRENT_TRUCK    Keyboard             EXPL+CTRL+DELETE 
 COMMON_RESPAWN_LAST_TRUCK      Keyboard             EXPL+CTRL+PERIOD 
 COMMON_FULLSCREEN_TOGGLE       Keyboard             EXPL+ALT+RETURN 
-COMMON_HIDE_GUI                Keyboard             U 
+COMMON_HIDE_GUI                Keyboard             EXPL+U 
+COMMON_TOGGLE_DASHBOARD        Keyboard             EXPL+CTRL+U 
 COMMON_LOCK                    Keyboard             EXPL+L 
 COMMON_AUTOLOCK                Keyboard             EXPL+ALT+L 
 COMMON_ROPELOCK                Keyboard             EXPL+CTRL+L 

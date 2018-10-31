@@ -49,6 +49,8 @@ public:
         Ogre::Overlay *o;
     };
 
+    void ToggleDashboardOverlays(Actor *actor);
+
     void showDashboardOverlays(bool show, Actor *actor);
     void showDebugOverlay(int mode);
     void showPressureOverlay(bool show);
@@ -108,6 +110,8 @@ protected:
     Ogre::OverlayElement *loadOverlayElement(Ogre::String name);
 
     Ogre::RenderWindow* win;
+
+    bool m_dashboard_visible;
 
     // -------------------------------------------------------------
     // Overlays
