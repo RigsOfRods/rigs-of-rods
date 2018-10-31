@@ -253,7 +253,7 @@ the lettercase in this list corresponds to original documentation.
     ties                         BLOCK      
     torquecurve                  BLOCK      CSV
     TractionControl              DIRECTIVE  Keyword-Space-CSV      
-    TransferCase                 DIRECTIVE  Keyword-Space-CSV      
+    transfercase                 BLOCK      Default      
     triggers                     BLOCK      
     turbojets                    BLOCK      
     turboprops                   BLOCK      

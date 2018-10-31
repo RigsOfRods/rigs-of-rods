@@ -288,7 +288,7 @@ namespace Regexes
     E_KEYWORD_BLOCK("ties")                                       \
     E_KEYWORD_BLOCK("torquecurve")                                \
     E_KEYWORD_INLINE("TractionControl")                           \
-    E_KEYWORD_INLINE("TransferCase")                              \
+    E_KEYWORD_BLOCK("transfercase")                               \
     E_KEYWORD_BLOCK("triggers")                                   \
     E_KEYWORD_BLOCK("turbojets")                                  \
     E_KEYWORD_BLOCK("turboprops")                                 \
