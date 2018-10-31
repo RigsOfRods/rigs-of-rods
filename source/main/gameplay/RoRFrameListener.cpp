@@ -1731,10 +1731,7 @@ void SimController::UpdateSimulation(float dt)
 
         if (!simPAUSED(s))
         {
-            if (m_player_actor != nullptr)
-            {
-                m_scene_mouse.UpdateSimulation();
-            }
+            m_scene_mouse.UpdateSimulation();
 
             m_gfx_scene.BufferSimulationData();
 
