@@ -1738,7 +1738,10 @@ void SimController::UpdateSimulation(float dt)
 
             m_gfx_scene.BufferSimulationData();
 
-            m_actor_manager.UpdateActors(m_player_actor, dt); // *** Start new physics tasks. No reading from Actor N/B beyond this point.
+            if (App::sim_state.GetPending() != SimState::PAUSED)
+            {
+                m_actor_manager.UpdateActors(m_player_actor, dt); // *** Start new physics tasks. No reading from Actor N/B beyond this point.
+            }
         }
     }
     MicroProfileFlip (nullptr);
