@@ -929,9 +929,13 @@ void Serializer::ProcessTransferCase(File::Module* module)
     m_stream << "transfercase\t" 
         << module->transfer_case->a1 << ", "
         << module->transfer_case->a2 << ", "
-        << module->transfer_case->gear_ratio << ", "
-        << module->transfer_case->has_2wd_lo
-        << endl << endl;
+        << module->transfer_case->has_2wd << ", "
+        << module->transfer_case->has_2wd_lo;
+        for (float gear_ratio : module->transfer_case->gear_ratios)
+        {
+            m_stream << ", " << gear_ratio;
+        }
+        m_stream << endl << endl;
 }
 
 void Serializer::ProcessCruiseControl(File::Module* module)

@@ -34,15 +34,15 @@ struct DifferentialData
 class TransferCase
 {
 public:
-    TransferCase(int a1, int a2, float gr, bool has_2wd_lo):
-        tr_ax_1(a1), tr_ax_2(a2), tr_4wd_mode(false), tr_lo_mode(false), tr_2wd_lo(has_2wd_lo), tr_gear_ratio(gr) {};
+    TransferCase(int a1, int a2, bool has_2wd, bool has_2wd_lo, std::vector<float> grs):
+        tr_ax_1(a1), tr_ax_2(a2), tr_2wd(has_2wd), tr_2wd_lo(has_2wd_lo), tr_4wd_mode(false), tr_gear_ratios(grs) {};
 
-    int   tr_ax_1;           //!< This axle is always driven
-    int   tr_ax_2;           //!< This axle is only driven in 4WD mode
-    bool  tr_4wd_mode;       //!< Enables 4WD mode
-    bool  tr_lo_mode;        //!< Enables gear reduction
-    bool  tr_2wd_lo;         //!< Does it support 2WD Lo mode?
-    float tr_gear_ratio;     //!< Gear reduction ratio (applied in lo mode)
+    int   tr_ax_1;                      //!< This axle is always driven
+    int   tr_ax_2;                      //!< This axle is only driven in 4WD mode
+    bool  tr_2wd;                       //!< Does it support 2WD mode?
+    bool  tr_2wd_lo;                    //!< Does it support 2WD Lo mode?
+    bool  tr_4wd_mode;                  //!< Enables 4WD mode
+    std::vector<float> tr_gear_ratios;  //!< Gear reduction ratios
 };
 
 enum DiffType
