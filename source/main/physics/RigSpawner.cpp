@@ -2559,12 +2559,20 @@ void ActorSpawner::ProcessTransferCase(RigDef::TransferCase & def)
         AddMessage(Message::TYPE_ERROR, "Invalid 'transfercase' axle ids, skipping...");
         return;
     }
-    if (def.a2 < 0)
+    if (def.a2 < 0) // No 4WD mode
     {
-        AddMessage(Message::TYPE_INFO, "No alternate axle defined, defaulting to 2WD only");
+        if (!def.has_2wd) // No 2WD mode
+        {
+            AddMessage(Message::TYPE_ERROR, "Invalid 'transfercase': Define alternate axle or allow 2WD, skipping...");
+            return;
+        }
+        else // Only 2WD
+        {
+            AddMessage(Message::TYPE_INFO, "No alternate axle defined, defaulting to 2WD only");
+        }
     }
 
-    m_actor->m_transfer_case = new TransferCase(def.a1, def.a2, def.gear_ratio, def.has_2wd_lo);
+    m_actor->m_transfer_case = new TransferCase(def.a1, def.a2, def.has_2wd, def.has_2wd_lo, def.gear_ratios);
 
     for (int i = 0; i < m_actor->ar_num_wheels; i++)
     {
@@ -2572,8 +2580,14 @@ void ActorSpawner::ProcessTransferCase(RigDef::TransferCase & def)
     }
     m_actor->ar_wheels[m_actor->m_wheel_diffs[def.a1]->di_idx_1].wh_propulsed = true;
     m_actor->ar_wheels[m_actor->m_wheel_diffs[def.a1]->di_idx_2].wh_propulsed = true;
-
     m_actor->m_num_proped_wheels = 2;
+    if (!def.has_2wd)
+    {
+        m_actor->ar_wheels[m_actor->m_wheel_diffs[def.a2]->di_idx_1].wh_propulsed = true;
+        m_actor->ar_wheels[m_actor->m_wheel_diffs[def.a2]->di_idx_2].wh_propulsed = true;
+        m_actor->m_num_proped_wheels = 4;
+        m_actor->m_transfer_case->tr_4wd_mode = true;
+    }
 }
 
 void ActorSpawner::ProcessSpeedLimiter(RigDef::SpeedLimiter & def)

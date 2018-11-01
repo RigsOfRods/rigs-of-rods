@@ -1345,29 +1345,33 @@ void Actor::DisplayTransferCaseMode()
     if (m_transfer_case)
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                _L("Transfer case switched to: ") + this->GetTransferCaseName(), "cog.png", 3000);
-        App::GetGuiManager()->PushNotification("Transfer case:", "Switched to: " + this->GetTransferCaseName());
+                _L("Transfercase switched to: ") + this->GetTransferCaseName(), "cog.png", 3000);
+        App::GetGuiManager()->PushNotification("Transfercase:", "Switched to: " + this->GetTransferCaseName());
     }
     else
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                _L("No transfer case installed on current vehicle!"), "warning.png", 3000);
-        App::GetGuiManager()->PushNotification("Transfer case:", "No transfer case installed on current vehicle!");
+                _L("No transfercase installed on current vehicle!"), "warning.png", 3000);
+        App::GetGuiManager()->PushNotification("Transfercase:", "No transfercase installed on current vehicle!");
     }
 }
 
 void Actor::ToggleTransferCaseMode()
 {
-    if (!ar_engine || !m_transfer_case || m_transfer_case->tr_ax_2 < 0)
+    if (!ar_engine || !m_transfer_case || m_transfer_case->tr_ax_2 < 0 || !m_transfer_case->tr_2wd)
         return;
 
-    m_transfer_case->tr_4wd_mode = !m_transfer_case->tr_4wd_mode;
-
-    if (!m_transfer_case->tr_4wd_mode && !m_transfer_case->tr_2wd_lo)
+    if (m_transfer_case->tr_4wd_mode && !m_transfer_case->tr_2wd_lo)
     {
-        m_transfer_case->tr_lo_mode = false;
-        ar_engine->SetTCaseRatio(1.0f);
+        for (int i = 0; i < m_transfer_case->tr_gear_ratios.size(); i++)
+        {
+            this->ToggleTransferCaseGearRatio();
+            if (m_transfer_case->tr_gear_ratios[0] == 1.0f)
+                break;
+        }
     }
+
+    m_transfer_case->tr_4wd_mode = !m_transfer_case->tr_4wd_mode;
 
     if (m_transfer_case->tr_4wd_mode)
     {
@@ -1385,17 +1389,15 @@ void Actor::ToggleTransferCaseMode()
 
 void Actor::ToggleTransferCaseGearRatio()
 {
-    if (!ar_engine || !m_transfer_case || m_transfer_case->tr_gear_ratio == 1.0f)
+    if (!ar_engine || !m_transfer_case || m_transfer_case->tr_gear_ratios.size() < 2)
         return;
 
     if (m_transfer_case->tr_4wd_mode || m_transfer_case->tr_2wd_lo)
     {
-        m_transfer_case->tr_lo_mode = !m_transfer_case->tr_lo_mode;
+        auto gear_ratios = &m_transfer_case->tr_gear_ratios;
+        std::rotate(gear_ratios->begin(), gear_ratios->begin() + 1, gear_ratios->end());
 
-        if (m_transfer_case->tr_lo_mode)
-            ar_engine->SetTCaseRatio(m_transfer_case->tr_gear_ratio);
-        else
-            ar_engine->SetTCaseRatio(1.0f);
+        ar_engine->SetTCaseRatio(m_transfer_case->tr_gear_ratios[0]);
     }
 }
 
@@ -1405,7 +1407,10 @@ String Actor::GetTransferCaseName()
     if (m_transfer_case)
     {
         name += m_transfer_case->tr_4wd_mode ? "4WD " : "2WD ";
-        name += m_transfer_case->tr_lo_mode  ? "Lo" : "Hi";
+        if (m_transfer_case->tr_gear_ratios[0] > 1.0f)
+            name += "Lo (" + TOSTRING(m_transfer_case->tr_gear_ratios[0]) + ":1)";
+        else
+            name += "Hi";
     }
     return name;
 }

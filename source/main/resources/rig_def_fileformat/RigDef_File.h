@@ -428,14 +428,16 @@ struct TransferCase
     TransferCase():
         a1(0),
         a2(-1),
-        gear_ratio(1.0f),
-        has_2wd_lo(false)
+        has_2wd(true),
+        has_2wd_lo(false),
+        gear_ratios({1.0f})
     {}
 
     int a1;
     int a2;
-    float gear_ratio;
+    bool has_2wd;
     bool has_2wd_lo;
+    std::vector<float> gear_ratios;
 };
 
 /* -------------------------------------------------------------------------- */

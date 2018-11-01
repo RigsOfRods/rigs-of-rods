@@ -480,18 +480,19 @@ void Parser::ParseTractionControl()
 
 void Parser::ParseTransferCase()
 {
-    if (! this->CheckNumArguments(4)) { return; }
+    if (! this->CheckNumArguments(2)) { return; }
 
     TransferCase tc;
 
-    tc.a1         = this->GetArgInt  (0) - 1;
-    tc.a2         = this->GetArgInt  (1) - 1;
-    tc.gear_ratio = this->GetArgFloat(2);
-    tc.has_2wd_lo = this->GetArgInt  (3);
+    tc.a1 = this->GetArgInt(0) - 1;
+    tc.a2 = this->GetArgInt(1) - 1;
+    if (m_num_args > 2) { tc.has_2wd    = this->GetArgInt(2); }
+    if (m_num_args > 3) { tc.has_2wd_lo = this->GetArgInt(3); }
+    for (int i = 4; i < m_num_args; i++) { tc.gear_ratios.push_back(this->GetArgFloat(i)); }
 
     if (m_current_module->transfer_case != nullptr)
     {
-        this->AddMessage(Message::TYPE_WARNING, "Multiple inline-sections 'TransferCase' in a module, using last one ...");
+        this->AddMessage(Message::TYPE_WARNING, "Multiple inline-sections 'transfercase' in a module, using last one ...");
     }
 
     m_current_module->transfer_case = std::shared_ptr<TransferCase>( new TransferCase(tc) );
