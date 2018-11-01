@@ -836,6 +836,7 @@ void RoR::GfxActor::UpdateDebugView()
         }
     } else if (m_debug_view == DebugViewType::DEBUGVIEW_WHEELS)
     {
+        // Wheels
         const wheel_t* wheels = m_actor->ar_wheels;
         const size_t num_wheels = static_cast<size_t>(m_actor->ar_num_wheels);
         for (int i = 0; i < num_wheels; i++)
@@ -1057,6 +1058,68 @@ void RoR::GfxActor::UpdateDebugView()
                 }
             }
         }
+    } else if (m_debug_view == DebugViewType::DEBUGVIEW_SHOCKS)
+    {
+        // Shocks
+        const beam_t* beams = m_actor->ar_beams;
+        const size_t num_beams = static_cast<size_t>(m_actor->ar_num_beams);
+        for (size_t i = 0; i < num_beams; ++i)
+        {
+            if (beams[i].bm_type != BEAM_HYDRO || !(beams[i].bounded == SHOCK1 || beams[i].bounded == SHOCK2))
+                continue;
+
+            Ogre::Vector3 pos1_xyz = world2screen.Convert(beams[i].p1->AbsPosition);
+            Ogre::Vector3 pos2_xyz = world2screen.Convert(beams[i].p2->AbsPosition);
+
+            if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
+            {
+                ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
+                ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
+
+                ImU32 beam_color = (beams[i].bounded == SHOCK1) ? BEAM_HYDRO_COLOR : BEAM_BROKEN_COLOR;
+
+                drawlist->AddCircleFilled(pos1xy, 1.25f * NODE_RADIUS, NODE_COLOR);
+                drawlist->AddCircleFilled(pos2xy, 1.25f * NODE_RADIUS, NODE_COLOR);
+                drawlist->AddLine(pos1xy, pos2xy, beam_color, 1.25f * BEAM_BROKEN_THICKNESS);
+
+                // Node info
+                Str<25> id1_buf;
+                id1_buf << beams[i].p1->id;
+                drawlist->AddText(pos1xy, NODE_TEXT_COLOR, id1_buf.ToCStr());
+                Str<25> id2_buf;
+                id2_buf << beams[i].p2->id;
+                drawlist->AddText(pos2xy, NODE_TEXT_COLOR, id2_buf.ToCStr());
+
+                // Shock info
+                Ogre::Vector3 pos_xyz = pos1_xyz.midPoint(pos2_xyz);
+                if (pos_xyz.z < 0.f)
+                {
+                    float diff = beams[i].p1->AbsPosition.distance(beams[i].p2->AbsPosition) - beams[i].L;
+                    ImU32 text_color = (diff < 0.0f) ? 0xff66ee66 : 0xff8888ff;
+                    float bound = (diff < 0.0f) ? beams[i].shortbound : beams[i].longbound;
+                    float ratio = Ogre::Math::Clamp(diff / (bound * beams[i].L), -2.0f, +2.0f);
+
+                    float v = ImGui::GetTextLineHeightWithSpacing();
+                    ImVec2 pos(pos_xyz.x, pos_xyz.y);
+                    Str<25> len_buf;
+                    len_buf << "L: " << static_cast<int>(Round(std::abs(ratio) * 100.0f)) << " %";
+                    float h1 = ImGui::CalcTextSize(len_buf.ToCStr()).x / 2.0f;
+                    drawlist->AddText(ImVec2(pos.x - h1, pos.y), text_color, len_buf.ToCStr());
+                    Str<25> spring_buf;
+                    spring_buf << "S: " << static_cast<int>(Round(beams[i].debug_k));
+                    float h2 = ImGui::CalcTextSize(spring_buf.ToCStr()).x / 2.0f;
+                    drawlist->AddText(ImVec2(pos.x - h2, pos.y + v), text_color, spring_buf.ToCStr());
+                    Str<25> damp_buf;
+                    damp_buf << "D: " << static_cast<int>(Round(beams[i].debug_d));
+                    float h3 = ImGui::CalcTextSize(damp_buf.ToCStr()).x / 2.0f;
+                    drawlist->AddText(ImVec2(pos.x - h3, pos.y + v + v), text_color, damp_buf.ToCStr());
+                    char vel_buf[25];
+                    snprintf(vel_buf, 25, "V: %.1f m/s", beams[i].debug_v);
+                    float h4 = ImGui::CalcTextSize(vel_buf).x / 2.0f;
+                    drawlist->AddText(ImVec2(pos.x - h4, pos.y + v + v + v), text_color, vel_buf);
+                }
+            }
+        }
     }
 }
 
@@ -1085,7 +1148,8 @@ void RoR::GfxActor::CycleDebugViews()
     case DebugViewType::DEBUGVIEW_SKELETON: SetDebugView(DebugViewType::DEBUGVIEW_NODES);    break;
     case DebugViewType::DEBUGVIEW_NODES:    SetDebugView(DebugViewType::DEBUGVIEW_BEAMS);    break;
     case DebugViewType::DEBUGVIEW_BEAMS:    SetDebugView(DebugViewType::DEBUGVIEW_WHEELS);   break;
-    case DebugViewType::DEBUGVIEW_WHEELS:   SetDebugView(DebugViewType::DEBUGVIEW_SKELETON); break;
+    case DebugViewType::DEBUGVIEW_WHEELS:   SetDebugView(DebugViewType::DEBUGVIEW_SHOCKS);   break;
+    case DebugViewType::DEBUGVIEW_SHOCKS:   SetDebugView(DebugViewType::DEBUGVIEW_SKELETON); break;
     default:;
     }
 }

@@ -1271,6 +1271,13 @@ void Actor::CalcBeams(bool trigger_hooks)
             // Calculate beam's rate of change
             Vector3 v = ar_beams[i].p1->Velocity - ar_beams[i].p2->Velocity;
 
+            if (trigger_hooks && ar_beams[i].bounded)
+            {
+                ar_beams[i].debug_k = k;
+                ar_beams[i].debug_d = d;
+                ar_beams[i].debug_v = v.length();
+            }
+
             float slen = -k * (difftoBeamL) - d * v.dotProduct(dis) * inverted_dislen;
             ar_beams[i].stress = slen;
 
