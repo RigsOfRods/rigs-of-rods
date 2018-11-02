@@ -552,18 +552,18 @@ endif ()
 
 
 # --- cURL ---
-if(DEFINED CONAN_CURL_ROOT)
-  target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::Curl)
-  target_include_directories(${BINNAME} PRIVATE CONAN_PKG::Curl)
-  target_compile_definitions(${BINNAME} PRIVATE USE_CURL)
+if(DEFINED CONAN_LIBCURL_ROOT)
+    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::libcurl)
+    target_include_directories(${BINNAME} PRIVATE CONAN_PKG::libcurl)
+    target_compile_definitions(${BINNAME} PRIVATE USE_CURL)
 elseif (CURL_FOUND)
     target_link_libraries(${BINNAME} PRIVATE ${CURL_LIBRARY})
     target_include_directories(${BINNAME} PRIVATE ${CURL_INCLUDE_DIR})
     target_compile_definitions(${BINNAME} PRIVATE USE_CURL)
 
-	if (WIN32)
-		add_definitions(-DWIN32_LEAN_AND_MEAN)
-	endif ()
+    if (WIN32)
+        add_definitions(-DWIN32_LEAN_AND_MEAN)
+    endif ()
 
 else ()
     message(WARNING "Building ${BINNAME} without cURL. Some functionality may be missing.")

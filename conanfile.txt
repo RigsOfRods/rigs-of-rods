@@ -3,7 +3,8 @@ cmake
 
 [requires]
 AngelScript/2.32@anotherfoxguy/stable
-Curl/7.61.0@anotherfoxguy/stable
+libcurl/7.61.1@bincrafters/stable
+OpenSSL/1.0.2n@conan/stable
 MofileReader/0.1.2@anotherfoxguy/stable
 MyGUI/3.2.3-OGRE-1.11.2@anotherfoxguy/stable
 OGRE/1.11.2@anotherfoxguy/stable
