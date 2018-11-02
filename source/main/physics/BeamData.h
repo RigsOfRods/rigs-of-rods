@@ -222,11 +222,6 @@ struct soundsource_t
     int type;
 };
 
-struct contacter_t
-{
-    int nodeid;
-};
-
 #include "datatypes/wheel_t.h"
 
 struct hook_t

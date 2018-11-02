@@ -1426,22 +1426,9 @@ void ActorSpawner::ProcessSubmesh(RigDef::Submesh & def)
             mk_buoyance = true;
         }
 
-        int collcabs_type = -1;
-        if (cab_itor->GetOption_D_ContactBuoyant())
-        {
-            collcabs_type = 0;
-        }
-        if (cab_itor->GetOption_F_10xTougherBuoyant())
-        {
-            collcabs_type = 1;
-        }
-        if (cab_itor->GetOption_S_UnpenetrableBuoyant())
-        {
-            collcabs_type = 2;
-        }
-
-        //if (type=='D' || type == 'F' || type == 'S')
-        if (collcabs_type != -1)
+        if (cab_itor->GetOption_D_ContactBuoyant() ||
+            cab_itor->GetOption_F_10xTougherBuoyant() ||
+            cab_itor->GetOption_S_UnpenetrableBuoyant())
         {
 
             if (m_actor->ar_num_collcabs >= MAX_CABS)
@@ -3246,7 +3233,7 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
 void ActorSpawner::ProcessContacter(RigDef::Node::Ref & node_ref)
 {
     unsigned int node_index = GetNodeIndexOrThrow(node_ref);
-    m_actor->ar_contacters[m_actor->ar_num_contacters].nodeid = node_index;
+    m_actor->ar_contacters[m_actor->ar_num_contacters] = node_index;
     m_actor->ar_num_contacters++;
 };
 
@@ -3994,8 +3981,7 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         outer_node.iswheel       = WHEEL_FLEXBODY;
         AdjustNodeBuoyancy(outer_node, def.node_defaults);
 
-        contacter_t & outer_contacter = m_actor->ar_contacters[m_actor->ar_num_contacters];
-        outer_contacter.nodeid        = outer_node.pos; /* Node index */
+        m_actor->ar_contacters[m_actor->ar_num_contacters] = outer_node.pos;
         m_actor->ar_num_contacters++;
 
         m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(outer_node.pos)));
@@ -4015,8 +4001,7 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         inner_node.iswheel       = WHEEL_FLEXBODY;
         AdjustNodeBuoyancy(inner_node, def.node_defaults);
 
-        contacter_t & inner_contacter = m_actor->ar_contacters[m_actor->ar_num_contacters];
-        inner_contacter.nodeid        = inner_node.pos; // Node index
+        m_actor->ar_contacters[m_actor->ar_num_contacters] = inner_node.pos;
         m_actor->ar_num_contacters++;
 
         m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(inner_node.pos)));
@@ -4413,8 +4398,7 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
         outer_node.wheelid = m_actor->ar_num_wheels;
         AdjustNodeBuoyancy(outer_node, node_defaults);
 
-        contacter_t & outer_contacter = m_actor->ar_contacters[m_actor->ar_num_contacters];
-        outer_contacter.nodeid        = outer_node.pos; /* Node index */
+        m_actor->ar_contacters[m_actor->ar_num_contacters] = outer_node.pos;
         m_actor->ar_num_contacters++;
 
         m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(outer_node.pos)));
@@ -4431,8 +4415,7 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
         inner_node.wheelid = m_actor->ar_num_wheels; 
         AdjustNodeBuoyancy(inner_node, node_defaults);
 
-        contacter_t & contacter = m_actor->ar_contacters[m_actor->ar_num_contacters];
-        contacter.nodeid        = inner_node.pos; /* Node index */
+        m_actor->ar_contacters[m_actor->ar_num_contacters] = inner_node.pos;
         m_actor->ar_num_contacters++;
 
         m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(inner_node.pos)));
@@ -4743,8 +4726,7 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         outer_node.volume_coef   = wheel_2_def.node_defaults->volume;
         outer_node.surface_coef  = wheel_2_def.node_defaults->surface;
 
-        contacter_t & contacter = m_actor->ar_contacters[m_actor->ar_num_contacters];
-        contacter.nodeid        = outer_node.pos; /* Node index */
+        m_actor->ar_contacters[m_actor->ar_num_contacters] = outer_node.pos;
         m_actor->ar_num_contacters++;
 
         m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(outer_node.pos)));
@@ -4762,8 +4744,7 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         inner_node.volume_coef   = wheel_2_def.node_defaults->volume;
         inner_node.surface_coef  = wheel_2_def.node_defaults->surface;
 
-        contacter_t & inner_contacter = m_actor->ar_contacters[m_actor->ar_num_contacters];
-        inner_contacter.nodeid        = inner_node.pos; /* Node index */
+        m_actor->ar_contacters[m_actor->ar_num_contacters] = inner_node.pos;
         m_actor->ar_num_contacters++;
 
         m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(inner_node.pos)));
