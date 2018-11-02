@@ -1024,7 +1024,7 @@ void RoR::GfxActor::UpdateDebugView()
             }
 
             // Slip vector
-            if (!wheels[i].debug_vel.isZeroLength());
+            if (!wheels[i].debug_vel.isZeroLength())
             {
                 Ogre::Vector3 m = wheels[i].wh_axis_node_0->AbsPosition.midPoint(wheels[i].wh_axis_node_1->AbsPosition);
                 Ogre::Real    w = wheels[i].wh_axis_node_0->AbsPosition.distance(m);
