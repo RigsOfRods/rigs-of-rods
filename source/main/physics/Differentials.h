@@ -57,17 +57,17 @@ enum DiffType
 class Differential
 {
 public:
-    Differential();
+    Differential(): di_idx_1(0), di_idx_2(0), di_delta_rotation(0.0f) {};
 
     int       di_idx_1;          //!< array location of wheel / axle 1
     int       di_idx_2;          //!< array location of wheel / axle 2
     float     di_delta_rotation; //!< difference of rotational position between two wheels/axles... a kludge at best
 
-    void             AddDifferentialType(DiffType diff);
+    void             AddDifferentialType(DiffType diff) { m_available_diffs.push_back(diff); }
     void             ToggleDifferentialMode();
-    void             CalcAxleTorque(DifferentialData& diff_data );
+    void             CalcAxleTorque(DifferentialData& diff_data);
     Ogre::UTFString  GetDifferentialTypeName();
-    DiffType         GetActiveDiffType() const { return m_available_diffs[m_which_diff]; }
+    DiffType         GetActiveDiffType() const { return m_available_diffs[0]; }
     
     static void      CalcSeparateDiff(DifferentialData& diff_data);  //!< a differential that always splits the torque evenly, this is the original method
     static void      CalcOpenDiff(DifferentialData& diff_data );     //!< more power goes to the faster spining wheel
@@ -75,10 +75,6 @@ public:
     static void      CalcLockedDiff(DifferentialData& diff_data );   //!< ensures both wheels rotate at the the same speed
 
 private:
-
-    float     m_torsion_rate; //! torsion spring rate binding wheels together.
-    float     m_torsion_damp;    
-    int       m_which_diff;
     std::vector<DiffType> m_available_diffs;
 };
 
