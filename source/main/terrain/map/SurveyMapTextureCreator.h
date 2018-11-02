@@ -43,15 +43,5 @@ protected:
     void preRenderTargetUpdate();
     void postRenderTargetUpdate();
 
-    Ogre::Camera* mCamera;
-    Ogre::MaterialPtr mMaterial;
-    Ogre::RenderTarget* mRttTex;
-    Ogre::TextureUnitState* mTextureUnitState;
-    Ogre::Viewport* mViewport;
-
-    Ogre::Real mMapZoom;
-    Ogre::Vector2 mMapCenter;
     Ogre::Vector2 mMapSize;
-
-    static int mCounter;
 };

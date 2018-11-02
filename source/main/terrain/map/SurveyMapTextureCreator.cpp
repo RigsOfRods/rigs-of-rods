@@ -29,18 +29,15 @@
 using namespace Ogre;
 using namespace RoR;
 
-int SurveyMapTextureCreator::mCounter = 0;
+static Ogre::Camera* mCamera = nullptr;
+static Ogre::MaterialPtr mMaterial;
+static Ogre::RenderTarget* mRttTex = nullptr;
+static Ogre::TextureUnitState* mTextureUnitState = nullptr;
+static Ogre::Viewport* mViewport = nullptr;
 
 SurveyMapTextureCreator::SurveyMapTextureCreator(Ogre::Vector2 terrain_size) :
-    mCamera(nullptr)
-    , mRttTex(nullptr)
-    , mTextureUnitState(nullptr)
-    , mViewport(nullptr)
-    , mMapCenter(Vector2::ZERO)
-    , mMapSize(terrain_size)
-    , mMapZoom(0.0f)
+    mMapSize(terrain_size)
 {
-    mCounter++;
     init();
 }
 
@@ -58,9 +55,17 @@ bool SurveyMapTextureCreator::init()
 
     mRttTex->setAutoUpdated(false);
 
-    mCamera = gEnv->sceneManager->createCamera(getCameraName());
+    try
+    {
+        mCamera = gEnv->sceneManager->getCamera(getCameraName());
+    }
+    catch (ItemIdentityException& e)
+    {
+        mCamera = gEnv->sceneManager->createCamera(getCameraName());
+    }
 
-    mViewport = mRttTex->addViewport(mCamera);
+    if (!(mViewport = mRttTex->getViewport(0)))
+        mViewport = mRttTex->addViewport(mCamera);
     mViewport->setBackgroundColour(ColourValue::Black);
     mViewport->setOverlaysEnabled(false);
     mViewport->setShadowsEnabled(false);
@@ -87,8 +92,8 @@ void SurveyMapTextureCreator::update()
     if (!mRttTex)
         return;
 
-    mMapCenter = Vector2::ZERO;
-    mMapZoom = 0.0f;
+    Vector2 mMapCenter = Vector2::ZERO;
+    float mMapZoom = 0.0f;
 
     SurveyMapManager* survey_map = App::GetSimController()->GetGfxScene().GetSurveyMap();
     if (survey_map)
@@ -115,17 +120,17 @@ void SurveyMapTextureCreator::update()
 
 String SurveyMapTextureCreator::getMaterialName()
 {
-    return "MapRttMat";// +TOSTRING (mCounter); TODO: FIX IT
+    return "MapRttMat";
 }
 
 String SurveyMapTextureCreator::getCameraName()
 {
-    return "MapRttCam"; //+ TOSTRING(mCounter); TODO: ME TOO 
+    return "MapRttCam";
 }
 
 String SurveyMapTextureCreator::getTextureName()
 {
-    return "MapRttTex";// + TOSTRING(mCounter); TODO: ALSO ME 
+    return "MapRttTex";
 }
 
 void SurveyMapTextureCreator::preRenderTargetUpdate()
