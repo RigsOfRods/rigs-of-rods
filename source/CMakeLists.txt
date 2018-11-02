@@ -1,5 +1,7 @@
+include(FetchContent)
+
 find_package(Threads REQUIRED)
-  
+
 if(NOT EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
   # find packages
 
@@ -11,7 +13,6 @@ if(NOT EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
   find_package(SocketW)
   find_package(AngelScript)
   find_package(CURL)
-  find_package(PagedGeometry)
   find_package(Caelum)
 
   if (WIN32)
