@@ -2512,6 +2512,16 @@ void ActorSpawner::ProcessInterAxle(RigDef::InterAxle & def)
         return;
     }
 
+    if (m_actor->m_transfer_case)
+    {
+        if ((m_actor->m_transfer_case->tr_ax_1 == def.a1 && m_actor->m_transfer_case->tr_ax_2 == def.a2) ||
+            (m_actor->m_transfer_case->tr_ax_1 == def.a2 && m_actor->m_transfer_case->tr_ax_2 == def.a1))
+        {
+            AddMessage(Message::TYPE_ERROR, "You cannot have both an inter-axle differential and a transfercase between the same two axles, skipping...");
+            return;
+        }
+    }
+
     Differential *diff = new Differential();
 
     diff->di_idx_1 = def.a1;

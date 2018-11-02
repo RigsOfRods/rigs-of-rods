@@ -273,11 +273,11 @@ Actor *ActorSpawner::SpawnActor()
     // Section 'axles'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_AXLES, axles, ProcessAxle);
 
-    // Section 'interaxles'
-    PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_INTERAXLES, interaxles, ProcessInterAxle);
-
     // Section 'transfercase'
     PROCESS_SECTION_IN_ANY_MODULE(RigDef::File::KEYWORD_TRANSFER_CASE, transfer_case, ProcessTransferCase);
+
+    // Section 'interaxles'
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_INTERAXLES, interaxles, ProcessInterAxle);
 
     // Section 'submeshes'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SUBMESH, submeshes, ProcessSubmesh);
