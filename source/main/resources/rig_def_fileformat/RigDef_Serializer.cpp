@@ -113,8 +113,8 @@ void Serializer::Serialize()
     ProcessCruiseControl(source_module);
     ProcessSpeedLimiter(source_module);
     ProcessAxles(source_module);
-    ProcessInterAxles(source_module);
     ProcessTransferCase(source_module);
+    ProcessInterAxles(source_module);
 
     // Features
     ProcessCinecam(source_module);

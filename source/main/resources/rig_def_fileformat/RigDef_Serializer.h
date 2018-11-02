@@ -98,8 +98,8 @@ protected:
     void ProcessCruiseControl(File::Module* module);
     void ProcessSpeedLimiter(File::Module* module);
     void ProcessAxles(File::Module* module);
-    void ProcessInterAxles(File::Module* module);
     void ProcessTransferCase(File::Module* module);
+    void ProcessInterAxles(File::Module* module);
 
     // Wheels
     void ProcessMeshWheels(File::Module* module); // And meshwheels2
