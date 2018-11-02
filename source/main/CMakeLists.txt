@@ -601,7 +601,7 @@ if (BUILD_REDIST_FOLDER AND UNIX)
 elseif (EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
     set(PLUGINS_FOLDER ".")
 else ()
-    set(PLUGINS_FOLDER ${OGRE_PLUGIN_DIR_REL})
+    set(PLUGINS_FOLDER ${OGRE_PLUGIN_DIR})
 endif ()
 
 configure_file(plugins.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg)
