@@ -18,43 +18,20 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Application.h"
 #include "Differentials.h"
 #include "Language.h"
 
-Differential::Differential() :
-    di_idx_1(-1),
-    di_idx_2(-1),
-    di_delta_rotation(0.0f),
-    m_torsion_rate(1000000.0f),
-    m_torsion_damp(m_torsion_rate / 100),
-    m_which_diff(-1)
-{
-}
-
-void Differential::AddDifferentialType(DiffType diff)
-{
-    m_available_diffs.push_back(diff);
-    if (m_which_diff == -1)
-    {
-        m_which_diff = 0;
-    }
-}
-
 void Differential::ToggleDifferentialMode()
 {
-    m_which_diff++;
-    m_which_diff %= m_available_diffs.size();
+    std::rotate(m_available_diffs.begin(), m_available_diffs.begin() + 1, m_available_diffs.end());
 }
 
 void Differential::CalcAxleTorque(DifferentialData& diff_data)
 {
-    if (m_which_diff == -1)
-    {
+    if (m_available_diffs.empty())
         return;
-    }
 
-    switch (m_available_diffs[m_which_diff])
+    switch (m_available_diffs[0])
     {
     case SPLIT_DIFF:   this->CalcSeparateDiff(diff_data);  return;
     case OPEN_DIFF:    this->CalcOpenDiff(diff_data);      return;
@@ -65,12 +42,10 @@ void Differential::CalcAxleTorque(DifferentialData& diff_data)
 
 Ogre::UTFString Differential::GetDifferentialTypeName()
 {
-    if (m_which_diff == -1)
-    {
+    if (m_available_diffs.empty())
         return _L("invalid");
-    }
 
-    switch (m_available_diffs[m_which_diff])
+    switch (m_available_diffs[0])
     {
     case SPLIT_DIFF:   return _L("Split");
     case OPEN_DIFF:    return _L("Open");
@@ -83,8 +58,6 @@ Ogre::UTFString Differential::GetDifferentialTypeName()
 void Differential::CalcSeparateDiff(DifferentialData& diff_data)
 {
     diff_data.out_torque[0] = diff_data.out_torque[1] = diff_data.in_torque / 2.0f;
-
-    diff_data.delta_rotation = 0.0f;
 }
 
 void Differential::CalcOpenDiff(DifferentialData& diff_data)
@@ -108,15 +81,12 @@ void Differential::CalcOpenDiff(DifferentialData& diff_data)
     const Ogre::Real power_ratio = min_of_vel > 1.0f ? fabs(diff_data.speed[0]) / sum_of_vel : 0.5f;
 
     // Diff model taken from Torcs, ror needs to model reaction torque for this to work.
-    //const Ogre::Real spider_acc = (diff_data.speed[0] - diff_data.speed[1])/diff_data.dt;
     //DrTq0 = DrTq*0.5f + spiderTq;
     //DrTq1 = DrTq*0.5f - spiderTq;
 
     // get the final ratio based on the speed of the wheels
     diff_data.out_torque[0] *= Ogre::Math::Clamp(0.0f + power_ratio, 0.1f, 0.9f);
     diff_data.out_torque[1] *= Ogre::Math::Clamp(1.0f - power_ratio, 0.1f, 0.9f);
-
-    diff_data.delta_rotation = 0.0f;
 }
 
 void Differential::CalcViscousDiff(DifferentialData& diff_data)
@@ -137,8 +107,6 @@ void Differential::CalcViscousDiff(DifferentialData& diff_data)
 
     // damping
     diff_data.out_torque[1] += delta_speed * m_torsion_damp;
-
-    diff_data.delta_rotation = 0.0f;
 }
 
 void Differential::CalcLockedDiff(DifferentialData& diff_data)
