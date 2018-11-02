@@ -149,7 +149,7 @@ void PointColDetector::update_structures_for_contacters()
             {
                 m_ref_list[refi].pidref = &m_pointid_list[refi];
                 m_pointid_list[refi].actor_id = actor->ar_vector_index;
-                m_pointid_list[refi].node_id = actor->ar_contacters[i].nodeid;
+                m_pointid_list[refi].node_id = actor->ar_contacters[i];
                 m_ref_list[refi].point = &(actor->ar_nodes[m_pointid_list[refi].node_id].AbsPosition.x);
                 refi++;
             }
