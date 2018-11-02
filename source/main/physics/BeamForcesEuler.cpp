@@ -58,8 +58,6 @@ void Actor::CalcForcesEulerCompute(bool doUpdate, int num_steps)
 
     if (doUpdate) this->ToggleHooks(-2, HOOK_LOCK, -1);
     this->UpdateSlideNodeForces(dt); // must be done before the integrator, or else the forces are not calculated properly
-    this->CalcNodes();
-    this->CalcReplay();
     this->CalcAircraftForces(doUpdate);
     this->CalcFuseDrag();
     this->CalcBuoyance(doUpdate);
@@ -72,6 +70,8 @@ void Actor::CalcForcesEulerCompute(bool doUpdate, int num_steps)
     this->CalcTruckEngine(doUpdate); // must be done after the commands / engine triggers are updated
     this->CalcMouse();
     this->CalcForceFeedback(doUpdate);
+    this->CalcNodes();
+    this->CalcReplay();
     this->CalcBeams(doUpdate);
 }
 
@@ -422,7 +422,7 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
             ar_wheels[i].wh_nodes[j]->Forces += dir * axis_precalc * inverted_rlen;
             ar_wheels[i].wh_speed += (outer_node->Velocity - inner_node->Velocity).dotProduct(dir);
 
-            if (ar_wheels[i].wh_nodes[j]->nd_has_ground_contact)
+            if (ar_wheels[i].wh_nodes[j]->nd_has_ground_contact || ar_wheels[i].wh_nodes[j]->nd_has_mesh_contact)
             {
                 contact_counter += 1.0f;
                 float force_ratio = ar_wheels[i].wh_nodes[j]->nd_last_collision_force.length();
@@ -1574,7 +1574,7 @@ void Actor::CalcNodes()
             bool contacted = gEnv->collisions->groundCollision(&ar_nodes[i], dt);
             contacted = contacted | gEnv->collisions->nodeCollision(&ar_nodes[i], dt);
             ar_nodes[i].nd_has_ground_contact = contacted;
-            if (contacted)
+            if (ar_nodes[i].nd_has_ground_contact || ar_nodes[i].nd_has_mesh_contact)
             {
                 ar_last_fuzzy_ground_model = ar_nodes[i].nd_last_collision_gm;
                 // Reverts: commit/d11a88142f737528638bd357c38d717c85cebba6#diff-4003254e55aec2c60d21228f375f2a2dL1153
@@ -1583,6 +1583,7 @@ void Actor::CalcNodes()
                 ar_nodes[i].RelPosition += ar_nodes[i].AbsPosition - oripos;
             }
         }
+        ar_nodes[i].nd_has_mesh_contact = false;
 
         // record g forces on cameras
         if (i == ar_main_camera_node_pos)

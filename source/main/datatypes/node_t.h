@@ -71,5 +71,6 @@ struct node_t
     bool            nd_contacter:1;          //!< Attr; This node is part of collision triangle
     bool            nd_no_ground_contact:1;  //!< User-defined attr; node ignores contact with ground
     bool            nd_has_ground_contact:1; //!< Physics state
+    bool            nd_has_mesh_contact:1;   //!< Physics state
     bool            nd_under_water:1;        //!< State; GFX hint
 };
