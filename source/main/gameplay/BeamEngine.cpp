@@ -1209,14 +1209,10 @@ float EngineSim::getEnginePower(float rpm)
     // engine power with limiter
     float tqValue = 1.0f; // ratio (0-1)
 
-    float rpmRatio = rpm / (m_engine_max_rpm * 1.25f);
-
-    rpmRatio = std::max(0.0f, rpmRatio);
-    rpmRatio = std::min(rpmRatio, 1.0f);
-
     if (m_torque_curve)
     {
-        tqValue = m_torque_curve->getEngineTorque(rpmRatio);
+        float ratio = Math::Clamp(rpm / (m_engine_max_rpm * 1.25f), 0.0f, 1.0f);
+        tqValue = m_torque_curve->getEngineTorque(ratio);
     }
 
     return (m_engine_torque * tqValue) + getTurboPower();
