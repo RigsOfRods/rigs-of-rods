@@ -77,7 +77,7 @@ namespace SkyX { namespace VClouds
 		}
 
 		mSceneNode->detachAllObjects();
-		mSceneNode->getParentSceneNode()->removeAndDestroyChild(mSceneNode->getName());
+		mSceneNode->getParentSceneNode()->removeAndDestroyChild(mSceneNode);
 		mSceneNode = 0;
 
 		for (int k = 0; k < mNumberOfBlocks; k++)
