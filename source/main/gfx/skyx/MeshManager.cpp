@@ -61,7 +61,7 @@ namespace SkyX
 		}
 
 		mSceneNode->detachAllObjects();
-		mSceneNode->getParentSceneNode()->removeAndDestroyChild(mSceneNode->getName());
+		mSceneNode->getParentSceneNode()->removeAndDestroyChild(mSceneNode);
 		mSceneNode = 0;
 
 		Ogre::MeshManager::getSingleton().remove("SkyXMesh");

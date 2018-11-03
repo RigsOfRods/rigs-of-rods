@@ -56,7 +56,7 @@ namespace Hydrax
 	{
 		unregister();
 
-		mSceneNode->getParentSceneNode()->removeAndDestroyChild(mSceneNode->getName());
+		mSceneNode->getParentSceneNode()->removeAndDestroyChild(mSceneNode);
 
 		delete mProjector;
 	}

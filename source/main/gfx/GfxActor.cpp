@@ -219,7 +219,7 @@ RoR::GfxActor::~GfxActor()
     if (m_cab_mesh != nullptr)
     {
         m_cab_scene_node->detachAllObjects();
-        m_cab_scene_node->getParentSceneNode()->removeAndDestroyChild(m_cab_scene_node->getName());
+        m_cab_scene_node->getParentSceneNode()->removeAndDestroyChild(m_cab_scene_node);
         m_cab_scene_node = nullptr;
 
         m_cab_entity->_getManager()->destroyEntity(m_cab_entity);

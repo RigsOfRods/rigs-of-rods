@@ -160,7 +160,7 @@ namespace Hydrax
 	    if (mPlanesSceneNode)
 		{
 			mPlanesSceneNode->detachAllObjects();
-            mPlanesSceneNode->getParentSceneNode()->removeAndDestroyChild(mPlanesSceneNode->getName());
+            mPlanesSceneNode->getParentSceneNode()->removeAndDestroyChild(mPlanesSceneNode);
 			mPlanesSceneNode = 0;
 		}
 	}
