@@ -57,7 +57,11 @@ void SceneMouse::InitializeVisuals()
     pickLine = gEnv->sceneManager->createManualObject("PickLineObject");
     pickLineNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode("PickLineNode");
 
-    MaterialPtr pickLineMaterial = MaterialManager::getSingleton().create("PickLineMaterial", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+    MaterialPtr pickLineMaterial = MaterialManager::getSingleton().getByName("PickLineMaterial", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+    if (pickLineMaterial.isNull())
+    {
+        pickLineMaterial = MaterialManager::getSingleton().create("PickLineMaterial", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+    }
     pickLineMaterial->setReceiveShadows(false);
     pickLineMaterial->getTechnique(0)->setLightingEnabled(true);
     pickLineMaterial->getTechnique(0)->getPass(0)->setDiffuse(0, 0, 1, 0);
