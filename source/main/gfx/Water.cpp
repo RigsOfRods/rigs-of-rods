@@ -429,7 +429,6 @@ void Water::UpdateWater()
         {
             m_waterplane_node->setPosition(Vector3(waterPos.x, m_water_height, waterPos.z));
             m_bottomplane_node->setPosition(bottomPos);
-            m_waterplane_force_update_pos = false; //Happens only once
         }
         if (RoR::App::gfx_water_waves.GetActive() && RoR::App::mp_state.GetActive() == RoR::MpState::DISABLED)
             this->ShowWave(m_waterplane_node->getPosition());
@@ -438,14 +437,14 @@ void Water::UpdateWater()
     m_frame_counter++;
     if (App::gfx_water_mode.GetActive() == GfxWaterMode::FULL_FAST)
     {
-        if (m_frame_counter % 2)
+        if (m_frame_counter % 2 == 1 || m_waterplane_force_update_pos)
         {
             m_reflect_cam->setOrientation(m_render_cam->getOrientation());
             m_reflect_cam->setPosition(m_render_cam->getPosition());
             m_reflect_cam->setFOVy(m_render_cam->getFOVy());
             m_reflect_rtt_target->update();
         }
-        else
+        if (m_frame_counter % 2 == 0 || m_waterplane_force_update_pos)
         {
             m_refract_cam->setOrientation(m_render_cam->getOrientation());
             m_refract_cam->setPosition(m_render_cam->getPosition());
@@ -471,6 +470,8 @@ void Water::UpdateWater()
         m_reflect_cam->setFOVy(m_render_cam->getFOVy());
         m_reflect_rtt_target->update();
     }
+
+    m_waterplane_force_update_pos = false;
 }
 
 void Water::WaterPrepareShutdown()

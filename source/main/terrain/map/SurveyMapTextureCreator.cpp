@@ -34,7 +34,6 @@ int SurveyMapTextureCreator::mCounter = 0;
 SurveyMapTextureCreator::SurveyMapTextureCreator(Ogre::Vector2 terrain_size) :
     mCamera(nullptr)
     , mRttTex(nullptr)
-    , mStatics(nullptr)
     , mTextureUnitState(nullptr)
     , mViewport(nullptr)
     , mMapCenter(Vector2::ZERO)
@@ -83,11 +82,6 @@ bool SurveyMapTextureCreator::init()
     return true;
 }
 
-void SurveyMapTextureCreator::setStaticGeometry(StaticGeometry* staticGeometry)
-{
-    mStatics = staticGeometry;
-}
-
 void SurveyMapTextureCreator::update()
 {
     if (!mRttTex)
@@ -103,12 +97,13 @@ void SurveyMapTextureCreator::update()
         mMapZoom = survey_map->getMapZoom();
     }
 
+    float farclip = gEnv->mainCamera->getFarClipDistance();
     float orthoWindowWidth = mMapSize.x - (mMapSize.x - 20.0f) * mMapZoom;
     float orthoWindowHeight = mMapSize.y - (mMapSize.y - 20.0f) * mMapZoom;
 
-    mCamera->setFarClipDistance(mMapSize.y + 3.0f);
+    mCamera->setFarClipDistance(farclip);
     mCamera->setOrthoWindow(orthoWindowWidth, orthoWindowHeight);
-    mCamera->setPosition(Vector3(mMapCenter.x, mMapSize.y + 2.0f, mMapCenter.y));
+    mCamera->setPosition(Vector3(mMapCenter.x, farclip * 0.1f, mMapCenter.y));
     mCamera->lookAt(Vector3(mMapCenter.x, 0.0f, mMapCenter.y));
 
     preRenderTargetUpdate();
@@ -135,28 +130,21 @@ String SurveyMapTextureCreator::getTextureName()
 
 void SurveyMapTextureCreator::preRenderTargetUpdate()
 {
-    if (mStatics)
-        mStatics->setRenderingDistance(0);
-
-    IWater* water = App::GetSimTerrain()->getWater();
+    auto water = App::GetSimTerrain()->getWater();
     if (water)
     {
         water->WaterSetCamera(mCamera);
-        water->SetReflectionPlaneHeight(water->GetStaticWaterHeight());
+        water->SetStaticWaterHeight(water->GetStaticWaterHeight());
         water->UpdateWater();
     }
 }
 
 void SurveyMapTextureCreator::postRenderTargetUpdate()
 {
-    if (mStatics)
-        mStatics->setRenderingDistance(1000);
-
-    IWater* water = App::GetSimTerrain()->getWater();
+    auto water = App::GetSimTerrain()->getWater();
     if (water)
     {
         water->WaterSetCamera(gEnv->mainCamera);
-        water->SetReflectionPlaneHeight(water->GetStaticWaterHeight());
         water->UpdateWater();
     }
 }
