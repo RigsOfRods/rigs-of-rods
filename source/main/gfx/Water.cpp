@@ -133,34 +133,50 @@ Water::~Water()
     if (m_refract_rtt_target)
     {
         m_refract_rtt_target->removeAllListeners();
+        m_refract_rtt_target->removeAllViewports();
         m_refract_rtt_target = nullptr;
     }
 
+#if 0 // Doesn't cut it with Ogre 1.11
     if (!m_refract_rtt_texture.isNull())
     {
         m_refract_rtt_texture->unload();
         Ogre::TextureManager::getSingleton().remove(m_refract_rtt_texture->getHandle());
         m_refract_rtt_texture.setNull();
     }
+#endif
 
     if (m_reflect_rtt_target)
     {
         m_reflect_rtt_target->removeAllListeners();
+        m_reflect_rtt_target->removeAllViewports();
         m_reflect_rtt_target = nullptr;
     }
 
+#if 0 // Doesn't cut it with Ogre 1.11
     if (!m_reflect_rtt_texture.isNull())
     {
         m_reflect_rtt_texture->unload();
         Ogre::TextureManager::getSingleton().remove(m_reflect_rtt_texture->getHandle());
         m_reflect_rtt_texture.setNull();
     }
+#endif
 
     if (m_waterplane_vert_buf_local)
     {
         free(m_waterplane_vert_buf_local);
         m_waterplane_vert_buf_local = nullptr;
     }
+
+    if (m_waterplane_entity != nullptr)
+    {
+        gEnv->sceneManager->destroyEntity("plane");
+        m_waterplane_entity = nullptr;
+    }
+
+    Ogre::MeshManager::getSingleton().remove("ReflectPlane");
+    Ogre::MeshManager::getSingleton().remove("BottomPlane");
+    Ogre::MeshManager::getSingleton().remove("WaterPlane");
 }
 
 void Water::PrepareWater()
