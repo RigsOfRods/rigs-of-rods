@@ -571,9 +571,10 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
         }
         else if (!m_shift_val && m_cur_engine_rpm > m_engine_min_rpm && m_cur_clutch < 1.0f)
         {
+            float threshold = 1.5f * getEnginePower(m_cur_engine_rpm) * std::abs(m_gear_ratios[2]);
             float gearboxspinner = m_cur_engine_rpm / m_gear_ratios[m_cur_gear + 1];
             float clutchTorque = (gearboxspinner - m_cur_wheel_revolutions) * m_clutch_force;
-            float reTorque = clutchTorque / m_gear_ratios[m_cur_gear + 1];
+            float reTorque = Math::Clamp(clutchTorque, -threshold, +threshold) / m_gear_ratios[m_cur_gear + 1];
 
             float range = (m_engine_max_rpm - m_engine_min_rpm) * 0.4f * sqrt(std::max(0.2f, acc));
             float powerRatio = std::min((m_cur_engine_rpm - m_engine_min_rpm) / range, 1.0f);
