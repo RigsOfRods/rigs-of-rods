@@ -200,7 +200,7 @@ namespace Hydrax
 		mProjectorCamera = static_cast<Ogre::Camera*>(NULL);
 
 		mProjectorSN->detachAllObjects();
-		mProjectorSN->getParentSceneNode()->removeAndDestroyChild(mProjectorSN->getName());
+		mProjectorSN->getParentSceneNode()->removeAndDestroyChild(mProjectorSN);
 		mProjectorSN = static_cast<Ogre::SceneNode*>(NULL);
 
 		mCreated = false;

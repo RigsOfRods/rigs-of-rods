@@ -82,7 +82,7 @@ namespace SkyX
 		}
 
 		mMoonSceneNode->detachAllObjects();
-		mMoonSceneNode->getParentSceneNode()->removeAndDestroyChild(mMoonSceneNode->getName());
+		mMoonSceneNode->getParentSceneNode()->removeAndDestroyChild(mMoonSceneNode);
 		mMoonSceneNode = 0;
 
 		mSkyX->getSceneManager()->destroyBillboardSet(mMoonBillboard);
