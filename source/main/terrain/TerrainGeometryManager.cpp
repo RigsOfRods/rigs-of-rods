@@ -434,7 +434,10 @@ void TerrainGeometryManager::UpdateMainLightPosition()
 
 void TerrainGeometryManager::configureTerrainDefaults()
 {
-    OGRE_NEW TerrainGlobalOptions();
+    if (!TerrainGlobalOptions::getSingletonPtr())
+    {
+        OGRE_NEW TerrainGlobalOptions();
+    }
 
     TerrainGlobalOptions* terrainOptions = TerrainGlobalOptions::getSingletonPtr();
     std::string const & custom_mat = terrainManager->GetDef().custom_material_name;
