@@ -187,7 +187,7 @@ void EngineSim::SetTurboOptions(int type, float tinertiaFactor, int nturbos, flo
     }
 }
 
-void EngineSim::SetEngineOptions(float einertia, char etype, float eclutch, float ctime, float stime, float pstime, float irpm, float srpm, float maximix, float minimix)
+void EngineSim::SetEngineOptions(float einertia, char etype, float eclutch, float ctime, float stime, float pstime, float irpm, float srpm, float maximix, float minimix, float ebraking)
 {
     m_engine_inertia = einertia;
     m_engine_type = etype;
@@ -207,6 +207,8 @@ void EngineSim::SetEngineOptions(float einertia, char etype, float eclutch, floa
         m_max_idle_mixture = maximix;
     if (minimix > 0)
         m_min_idle_mixture = minimix;
+    if (ebraking > 0)
+        m_braking_torque = -ebraking;
 
     m_shift_time = std::max(0.0f, m_shift_time);
     m_post_shift_time = std::max(0.0f, m_post_shift_time);

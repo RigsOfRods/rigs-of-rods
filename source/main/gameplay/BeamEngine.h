@@ -51,7 +51,7 @@ public:
     /// @param srpm Stall RPM
     /// @param maximix Max. idle mixture
     /// @param minimix Min. idle mixture
-    void SetEngineOptions(float einertia, char etype, float eclutch, float ctime, float stime, float pstime, float irpm, float srpm, float maximix, float minimix);
+    void SetEngineOptions(float einertia, char etype, float eclutch, float ctime, float stime, float pstime, float irpm, float srpm, float maximix, float minimix, float ebraking);
 
     /// Sets turbo options.
     /// @param tinertiatinertiaFactor Turbo inertia factor

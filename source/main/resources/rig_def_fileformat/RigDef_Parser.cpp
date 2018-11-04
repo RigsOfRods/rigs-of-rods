@@ -1505,6 +1505,7 @@ void Parser::ParseEngoption()
     if (m_num_args > 7) { engoption.idle_rpm         = this->GetArgFloat(7); }
     if (m_num_args > 8) { engoption.max_idle_mixture = this->GetArgFloat(8); }
     if (m_num_args > 9) { engoption.min_idle_mixture = this->GetArgFloat(9); }
+    if (m_num_args > 10){ engoption.braking_torque   = this->GetArgFloat(10);}
 
     m_current_module->engoption = std::shared_ptr<Engoption>( new Engoption(engoption) );
 }
