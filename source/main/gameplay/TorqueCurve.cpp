@@ -25,7 +25,6 @@
 #include <Ogre.h>
 
 using namespace Ogre;
-using namespace std;
 
 const String TorqueCurve::customModel = "CustomModel";
 
@@ -40,11 +39,18 @@ TorqueCurve::~TorqueCurve()
     splines.clear();
 }
 
-Real TorqueCurve::getEngineTorque(Real rpmRatio)
+Real TorqueCurve::getEngineTorque(Real rpm)
 {
     if (!usedSpline)
-        return 1.0f; //return a good value upon error?
-    return usedSpline->interpolate(rpmRatio).y;
+        return 0.0f;
+    if (usedSpline->getNumPoints() == 1)
+        return usedSpline->getPoint(0).y;
+    float minRPM = usedSpline->getPoint(0).x;
+    float maxRPM = usedSpline->getPoint(usedSpline->getNumPoints() - 1).x;
+    if (minRPM == maxRPM)
+        return usedSpline->getPoint(0).y;
+    float t = Math::Clamp((rpm - minRPM) / (maxRPM - minRPM), 0.0f, 1.0f);
+    return usedSpline->interpolate(t).y;
 }
 
 int TorqueCurve::loadDefaultTorqueModels()
