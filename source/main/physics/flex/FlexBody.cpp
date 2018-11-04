@@ -73,14 +73,14 @@ FlexBody::FlexBody(
         Vector3 diffX = nodes[nx].AbsPosition-nodes[ref].AbsPosition;
         Vector3 diffY = nodes[ny].AbsPosition-nodes[ref].AbsPosition;
 
-        normal = fast_normalise(diffY.crossProduct(diffX));
+        normal = (diffY.crossProduct(diffX)).normalisedCopy();
 
         // position
         position = nodes[ref].AbsPosition + def->offset.x * diffX + def->offset.y * diffY;
         position = position + def->offset.z * normal;
 
         // orientation
-        Vector3 refX = fast_normalise(diffX);
+        Vector3 refX = diffX.normalisedCopy();
         Vector3 refY = refX.crossProduct(normal);
         orientation  = Quaternion(refX, normal, refY) * rot;
     }
@@ -370,24 +370,23 @@ FlexBody::FlexBody(
         {
             vertices[i]=(orientation*vertices[i])+position;
         }
+
         m_locators = new Locator_t[m_vertex_count];
         for (int i=0; i<(int)m_vertex_count; i++)
         {
             //search nearest node as the local origin
-            float closest_node_distance = 1000000.0;
+            float closest_node_distance = std::numeric_limits<float>::max();
             int closest_node_index = -1;
-            auto end  = node_indices.end();
-            auto itor = node_indices.begin();
-            for (; itor != end; ++itor)
+            for (auto node_index : node_indices)
             {
-                float node_distance = vertices[i].squaredDistance(nodes[*itor].AbsPosition);
+                float node_distance = vertices[i].squaredDistance(nodes[node_index].AbsPosition);
                 if (node_distance < closest_node_distance)
                 {
                     closest_node_distance = node_distance;
-                    closest_node_index = *itor;
+                    closest_node_index = node_index;
                 }
             }
-            if (closest_node_index==-1)
+            if (closest_node_index == -1)
             {
                 LOG("FLEXBODY ERROR on mesh "+def->mesh_name+": REF node not found");
                 closest_node_index = 0;
@@ -395,23 +394,22 @@ FlexBody::FlexBody(
             m_locators[i].ref=closest_node_index;            
 
             //search the second nearest node as the X vector
-            closest_node_distance=1000000.0;
-            closest_node_index=-1;
-            itor = node_indices.begin();
-            for (; itor != end; ++itor)
+            closest_node_distance = std::numeric_limits<float>::max();
+            closest_node_index = -1;
+            for (auto node_index : node_indices)
             {
-                if (*itor == m_locators[i].ref)
+                if (node_index == m_locators[i].ref)
                 {
                     continue;
                 }
-                float node_distance = vertices[i].squaredDistance(nodes[*itor].AbsPosition);
+                float node_distance = vertices[i].squaredDistance(nodes[node_index].AbsPosition);
                 if (node_distance < closest_node_distance)
                 {
                     closest_node_distance = node_distance;
-                    closest_node_index = *itor;
+                    closest_node_index = node_index;
                 }
             }
-            if (closest_node_index==-1)
+            if (closest_node_index == -1)
             {
                 LOG("FLEXBODY ERROR on mesh "+def->mesh_name+": VX node not found");
                 closest_node_index = 0;
@@ -419,30 +417,29 @@ FlexBody::FlexBody(
             m_locators[i].nx=closest_node_index;
 
             //search another close, orthogonal node as the Y vector
-            closest_node_distance=1000000.0;
-            closest_node_index=-1;
-            itor = node_indices.begin();
-            Vector3 vx = fast_normalise(nodes[m_locators[i].nx].AbsPosition - nodes[m_locators[i].ref].AbsPosition);
-            for (; itor != end; ++itor)
+            closest_node_distance = std::numeric_limits<float>::max();
+            closest_node_index = -1;
+            Vector3 vx = (nodes[m_locators[i].nx].AbsPosition - nodes[m_locators[i].ref].AbsPosition).normalisedCopy();
+            for (auto node_index : node_indices)
             {
-                if (*itor == m_locators[i].ref || *itor == m_locators[i].nx)
+                if (node_index == m_locators[i].ref || node_index == m_locators[i].nx)
                 {
                     continue;
                 }
-                float node_distance = vertices[i].squaredDistance(nodes[*itor].AbsPosition);
+                float node_distance = vertices[i].squaredDistance(nodes[node_index].AbsPosition);
                 if (node_distance < closest_node_distance)
                 {
-                    Vector3 vt = fast_normalise(nodes[*itor].AbsPosition - nodes[m_locators[i].ref].AbsPosition);
+                    Vector3 vt = (nodes[node_index].AbsPosition - nodes[m_locators[i].ref].AbsPosition).normalisedCopy();
                     float cost = vx.dotProduct(vt);
-                    if (cost>0.707 || cost<-0.707)
+                    if (std::abs(cost) > std::sqrt(2.0f) / 2.0f)
                     {
                         continue; //rejection, fails the orthogonality criterion (+-45 degree)
                     }
                     closest_node_distance = node_distance;
-                    closest_node_index = *itor;
+                    closest_node_index = node_index;
                 }
             }
-            if (closest_node_index==-1)
+            if (closest_node_index == -1)
             {
                 LOG("FLEXBODY ERROR on mesh "+def->mesh_name+": VY node not found");
                 closest_node_index = 0;
@@ -455,7 +452,7 @@ FlexBody::FlexBody(
 
             mat.SetColumn(0, diffX);
             mat.SetColumn(1, diffY);
-            mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, nodes[loc.nz].AbsPosition-nodes[loc.ref].AbsPosition);
+            mat.SetColumn(2, (diffX.crossProduct(diffY)).normalisedCopy()); // Old version: mat.SetColumn(2, nodes[loc.nz].AbsPosition-nodes[loc.ref].AbsPosition);
 
             mat = mat.Inverse();
 
@@ -500,7 +497,7 @@ FlexBody::FlexBody(
 
             mat.SetColumn(0, diffX);
             mat.SetColumn(1, diffY);
-            mat.SetColumn(2, fast_normalise(diffX.crossProduct(diffY))); // Old version: mat.SetColumn(2, nodes[loc.nz].AbsPosition-nodes[loc.ref].AbsPosition);
+            mat.SetColumn(2, diffX.crossProduct(diffY).normalisedCopy()); // Old version: mat.SetColumn(2, nodes[loc.nz].AbsPosition-nodes[loc.ref].AbsPosition);
 
             mat = mat.Inverse();
 
