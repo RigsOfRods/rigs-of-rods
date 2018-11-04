@@ -50,12 +50,12 @@ void LandVehicleSimulation::UpdateCruiseControl(Actor* vehicle, float dt)
         return;
     }
 
-    float acc = engine->getAccToHoldRPM(engine->GetEngineRpm());
+    float acc = 0.0f;
 
     if (engine->GetGear() > 0)
     {
         // Try to maintain the target speed
-        float power_weight_ratio = vehicle->getTotalMass(true) / engine->getEnginePower(engine->GetEngineRpm());
+        float power_weight_ratio = vehicle->getTotalMass(true) / engine->getEnginePower();
         acc += (vehicle->cc_target_speed - vehicle->ar_wheel_speed) * power_weight_ratio * 0.25;
     }
     else if (engine->GetGear() == 0) // out of gear
