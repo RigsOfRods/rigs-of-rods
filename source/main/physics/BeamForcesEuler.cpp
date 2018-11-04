@@ -45,7 +45,6 @@
 #include "TerrainManager.h"
 #include "VehicleAI.h"
 
-#include "microprofile.h"
 
 using namespace Ogre;
 using namespace RoR;
@@ -54,8 +53,6 @@ const float dt = static_cast<float>(PHYSICS_DT);
 
 void Actor::CalcForcesEulerCompute(bool doUpdate, int num_steps)
 {
-    MICROPROFILE_SCOPEI ("Actor", "calc Forces Euler Compute", MP_BLUE);
-
     if (doUpdate) this->ToggleHooks(-2, HOOK_LOCK, -1);
     this->UpdateSlideNodeForces(dt); // must be done before the integrator, or else the forces are not calculated properly
     this->CalcAircraftForces(doUpdate);
@@ -1176,8 +1173,6 @@ void LogBeamNodes(RoR::Str<L>& msg, beam_t& beam) // Internal helper
 
 void Actor::CalcBeams(bool trigger_hooks)
 {
-    MICROPROFILE_SCOPEI ("Actor", "Calc Beams", MP_BLUE);
-
     for (int i = 0; i < ar_num_beams; i++)
     {
         if (!ar_beams[i].bm_disabled && !ar_beams[i].bm_inter_actor)
@@ -1559,8 +1554,6 @@ void Actor::CalcBeamsInterActor()
 
 void Actor::CalcNodes()
 {
-    MICROPROFILE_SCOPEI ("Actor", "Calc Nodes", MP_BLUE1);
-
     const auto water = App::GetSimTerrain()->getWater();
     const float gravity = App::GetSimTerrain()->getGravity();
     m_water_contact = false;

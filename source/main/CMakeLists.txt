@@ -1,10 +1,5 @@
 project(RoR_Main)
 
-option(MICROPROFILE_ENABLED "Enable microprofile" OFF)
-configure_file(${CMAKE_SOURCE_DIR}/source/main/utils/microprofile.config.h.in
-        ${CMAKE_SOURCE_DIR}/source/main/utils/microprofile.config.h
-        )
-
 
 ####################################################################################################
 #  SOURCE FILES
@@ -275,9 +270,6 @@ set(SOURCE_FILES
         utils/InterThreadStoreVector.h
         utils/Language.{h,cpp}
         utils/MeshObject.{h,cpp}
-        utils/microprofile.config.h
-        utils/microprofile/microprofile.{h,cpp}
-        utils/microprofile/microprofile_html.h
         utils/PlatformUtils.{h,cpp}
         utils/RoRWindowEventUtilities.{h,cpp}
         utils/Settings.{h,cpp}

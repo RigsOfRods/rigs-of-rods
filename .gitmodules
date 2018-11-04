@@ -1,6 +1,3 @@
-[submodule "microprofile"]
-	path = source/main/utils/microprofile
-	url = https://github.com/jonasmr/microprofile.git
 [submodule "pagedgeometry"]
 	path = source/main/plugins/pagedgeometry
 	url = https://github.com/RigsOfRods/ogre-pagedgeometry.git

@@ -27,7 +27,6 @@
 #include "FlexFactory.h"
 #include "GfxActor.h"
 #include "RigDef_File.h"
-#include "microprofile.h"
 
 #include <Ogre.h>
 
@@ -611,8 +610,6 @@ void FlexBody::printMeshInfo(Mesh* mesh)
 
 void FlexBody::ComputeFlexbody()
 {
-    MICROPROFILE_SCOPEI ("Flexbody", "Compute Flexbody", MP_RED1);
-
     // // if (m_has_texture_blend) updateBlend(); Disabled for {AsyncScene} refactor ~ only_a_ptr, 08/2018
 
     RoR::GfxActor::NodeData* nodes = m_gfx_actor->GetSimNodeBuffer();
@@ -657,7 +654,6 @@ void FlexBody::ComputeFlexbody()
 
 void FlexBody::UpdateFlexbodyVertexBuffers()
 {
-    MICROPROFILE_SCOPEI ("Flexbody", "Update Vertex Buffers", MP_RED);
     Vector3 *ppt = m_dst_pos;
     Vector3 *npt = m_dst_normals;
     if (m_uses_shared_vertex_data)
