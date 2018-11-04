@@ -130,7 +130,7 @@ void Actor::CalcAircraftForces(bool doUpdate)
 
 void Actor::CalcFuseDrag()
 {
-    if (m_fusealge_airfoil)
+    if (m_fusealge_airfoil && m_fusealge_width > 0.0f)
     {
         Vector3 wind = -m_fusealge_front->Velocity;
         float wspeed = wind.length();
@@ -145,13 +145,7 @@ void Actor::CalcFuseDrag()
 
         //tropospheric model valid up to 11.000m (33.000ft)
         float altitude = m_fusealge_front->AbsPosition.y;
-
-        // TODO Unused Varaible
-        //float sea_level_temperature=273.15f+15.0f; //in Kelvin
         float sea_level_pressure = 101325; //in Pa
-
-        // TODO Unused Varaible
-        //float airtemperature=sea_level_temperature-altitude*0.0065f; //in Kelvin
         float airpressure = sea_level_pressure * approx_pow(1.0 - 0.0065 * altitude / 288.1, 5.24947); //in Pa
         float airdensity = airpressure * 0.0000120896f;//1.225 at sea level
 
