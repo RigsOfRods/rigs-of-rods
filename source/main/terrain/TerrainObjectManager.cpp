@@ -260,15 +260,12 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
             Ogre::TRect<Ogre::Real> bounds = TBounds(0, 0, m_terrain_size_x, m_map_size_z);
             paged.geom->setBounds(bounds);
 
-            //Set up LODs
-            float min = minDist * terrainManager->getPagedDetailFactor();
-            if (min < 10)
-                min = 10;
-            paged.geom->addDetailLevel<BatchPage>(min, min / 2);
-            float max = maxDist * terrainManager->getPagedDetailFactor();
-            if (max < 10)
-                max = 10;
-            paged.geom->addDetailLevel<ImpostorPage>(max, max / 10);
+            // Set up LODs
+            float batchRange = std::max(50.0f, minDist * terrainManager->getPagedDetailFactor());
+            float imposterRange = std::max(1.5f * minDist, maxDist * terrainManager->getPagedDetailFactor());
+            paged.geom->addDetailLevel<BatchPage>(batchRange, batchRange / 2.0f);
+            paged.geom->addDetailLevel<ImpostorPage>(imposterRange, imposterRange / 10.0f);
+
             TreeLoader2D* m_tree_loader = new TreeLoader2D(paged.geom, TBounds(0, 0, m_terrain_size_x, m_map_size_z));
             paged.geom->setPageLoader(m_tree_loader);
             m_tree_loader->setHeightFunction(&getTerrainHeight);
@@ -320,7 +317,11 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
                         if (highdens < 0)
                             hd = Math::RangeRandom(0, -highdens);
                         float density = densityMap->_getDensityAt_Unfiltered(x, z, bounds);
-                        int numTreesToPlace = (int)((float)(hd) * density * terrainManager->getPagedDetailFactor());
+                        float numTreesToPlace = hd * density * terrainManager->getPagedDetailFactor();
+                        if (numTreesToPlace > 1.0f || Math::RangeRandom(0, 1.0f) > numTreesToPlace)
+                        {
+                            numTreesToPlace = Math::Floor(numTreesToPlace);
+                        }
                         float nx = 0, nz = 0;
                         while (numTreesToPlace-- > 0)
                         {
