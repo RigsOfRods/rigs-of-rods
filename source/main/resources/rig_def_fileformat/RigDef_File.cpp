@@ -88,16 +88,16 @@ Command2::Command2():
 
 Engoption::Engoption():
     inertia(10.f),
-    clutch_force(-1.f), /* Default = 10000 for trucks, 5000 for cars */
-    shift_time(0.2f),
-    clutch_time(0.5f),
+    clutch_force(-1.f),
+    shift_time(-1.f),
+    clutch_time(-1.f),
     type(ENGINE_TYPE_t_TRUCK),
-    post_shift_time(0.2f),
+    post_shift_time(-1.f),
     idle_rpm(-1.f),
     stall_rpm(-1.f),
-    max_idle_mixture(0.2f),
-    min_idle_mixture(0.f), /* This is a default */
-    braking_torque(-1.f) /* Default = 1/5 of engine_torque */
+    max_idle_mixture(-1.f),
+    min_idle_mixture(-1.f),
+    braking_torque(-1.f)
 {}
 
 Engturbo::Engturbo() :
