@@ -152,14 +152,6 @@ void SimController::UpdateForceFeedback()
 {
     if (!App::io_ffb_enabled.GetActive()) { return; }
 
-    if (!RoR::App::GetInputEngine()->getForceFeedbackDevice())
-    {
-         // TODO: <rant> Per-frame check? How about on-session-start check? </rant> ~only_a_ptr, 02/2017
-        LOG("No force feedback device detected, disabling force feedback");
-        App::io_ffb_enabled.SetActive(false);
-        return;
-    }
-
     if (m_player_actor && m_player_actor->ar_driveable == TRUCK)
     {
         Ogre::Vector3 ff_vehicle = m_player_actor->GetFFbBodyForces();
