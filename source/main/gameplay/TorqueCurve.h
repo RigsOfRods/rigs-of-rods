@@ -43,11 +43,11 @@ public:
     ~TorqueCurve(); //!< Destructor
 
     /**
-     * Returns the calculated engine torque based on the given rpmRatio, interpolating the torque curve spline.
-     * @param rpmRatio Ratio of current engine RPM to maximum RPM (value between 0 and 1).
+     * Returns the calculated engine torque based on the given RPM, interpolating the torque curve spline.
+     * @param The current engine RPM.
      * @return Calculated engine torque.
      */
-    Ogre::Real getEngineTorque(Ogre::Real rpmRatio);
+    Ogre::Real getEngineTorque(Ogre::Real rpm);
 
     /**
      * Sets the torque model which is used for the vehicle.

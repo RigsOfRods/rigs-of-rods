@@ -1213,8 +1213,7 @@ float EngineSim::getEnginePower(float rpm)
 
     if (m_torque_curve)
     {
-        float ratio = Math::Clamp(rpm / (m_engine_max_rpm * 1.25f), 0.0f, 1.0f);
-        tqValue = m_torque_curve->getEngineTorque(ratio);
+        tqValue = m_torque_curve->getEngineTorque(rpm);
     }
 
     return (m_engine_torque * tqValue) + getTurboPower();
