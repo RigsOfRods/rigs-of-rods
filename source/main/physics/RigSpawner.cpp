@@ -5121,7 +5121,8 @@ void ActorSpawner::ProcessEngoption(RigDef::Engoption & def)
         engoption->idle_rpm,
         engoption->stall_rpm,
         engoption->max_idle_mixture,
-        engoption->min_idle_mixture
+        engoption->min_idle_mixture,
+        engoption->braking_torque
     );
 };
 

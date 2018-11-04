@@ -1586,6 +1586,7 @@ void Serializer::ProcessEngoption(File::Module* module)
         " IdleRPM,"
         " MaxIdleMixture,"
         " MinIdleMixture"
+        " BrakingForce"
         "\n\t" 
         << setw(10)   << module->engoption->inertia           << ", "
         << setw(10)   << (char)module->engoption->type        << ", "
@@ -1596,7 +1597,8 @@ void Serializer::ProcessEngoption(File::Module* module)
         << setw( 8)   << module->engoption->stall_rpm         << ", "
         << setw( 7)   << module->engoption->idle_rpm          << ", "
         << setw(14)   << module->engoption->max_idle_mixture  << ", "
-        << setw(14)   << module->engoption->min_idle_mixture;
+        << setw(14)   << module->engoption->min_idle_mixture  << ", "
+        << setw(15)   << module->engoption->braking_torque;
     
     m_stream << endl << endl;
 }

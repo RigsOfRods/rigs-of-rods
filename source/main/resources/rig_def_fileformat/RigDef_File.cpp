@@ -96,7 +96,8 @@ Engoption::Engoption():
     idle_rpm(-1.f),
     stall_rpm(-1.f),
     max_idle_mixture(0.2f),
-    min_idle_mixture(0.f) /* This is a default */
+    min_idle_mixture(0.f), /* This is a default */
+    braking_torque(-1.f) /* Default = 1/5 of engine_torque */
 {}
 
 Engturbo::Engturbo() :

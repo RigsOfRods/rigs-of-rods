@@ -628,6 +628,7 @@ struct Engoption
     float stall_rpm;
     float max_idle_mixture;
     float min_idle_mixture;
+    float braking_torque;
 };
 
 /* -------------------------------------------------------------------------- */
