@@ -424,7 +424,10 @@ void RoR::GUI::TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
         user.username, num_actors_player, user_type_str, user.clientversion, user.language);
 
     // Display user in list
-    Ogre::ColourValue player_color = RoR::Networking::GetPlayerColor(user.colournum);
+    Ogre::ColourValue player_color;
+#ifdef USE_SOCKETW
+    player_color = RoR::Networking::GetPlayerColor(user.colournum);
+#endif
     ImVec4 player_gui_color(player_color.r, player_color.g, player_color.b, 1.f);
     ImGui::PushStyleColor(ImGuiCol_Text, player_gui_color);
     ImGui::Text(usertext_buf);

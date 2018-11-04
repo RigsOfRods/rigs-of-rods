@@ -675,8 +675,8 @@ GfxCharacter* Character::SetupGfx()
     MaterialPtr mat2 = mat1->clone("tracks/" + m_instance_name);
     entity->setMaterialName("tracks/" + m_instance_name);
 
-#ifdef USE_SOCKETW
     Ogre::MovableText* movable_text = nullptr;
+#ifdef USE_SOCKETW
     if ((App::mp_state.GetActive() == MpState::CONNECTED) && (m_is_remote || !m_hide_own_net_label))
     {
         movable_text = new MovableText("netlabel-" + m_instance_name, "");
