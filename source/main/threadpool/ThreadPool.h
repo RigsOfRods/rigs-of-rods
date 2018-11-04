@@ -29,8 +29,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdexcept>
 #include <vector>
 
-#include "microprofile.h"
-
 
 /** /brief Handle for a task executed by ThreadPool
  *
@@ -116,7 +114,6 @@ public:
         // instance itself is destructed) which constantly checks the task queue, grabbing
         // and executing the frontmost task while the queue is not empty.
         auto thread_body = [this]{ 
-            MicroProfileOnThreadCreate ("ThreadPool");
             while (true) {
                 // Get next task from queue (synchronized access via taskqueue_mutex).
                 // If the queue is empty wait until either
@@ -140,7 +137,6 @@ public:
                 }
                 current_task->m_finish_cv.notify_all();
             }
-            MicroProfileOnThreadExit ();
         };
 
         // Launch the specified number of threads
