@@ -285,7 +285,7 @@ endif ()
 FetchContent_Declare(
         pagedgeometry
         GIT_REPOSITORY https://github.com/RigsOfRods/ogre-pagedgeometry.git
-        GIT_TAG OGRE-1.9
+        GIT_TAG upgrade-to-ogre-1.11
         GIT_SHALLOW TRUE
 )
 
