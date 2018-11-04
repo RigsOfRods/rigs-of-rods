@@ -236,7 +236,6 @@ void CLASS::EventKeyButtonPressed_Main(MyGUI::WidgetPtr _sender, MyGUI::KeyCode 
 void CLASS::Cancel()
 {
     m_selected_entry = nullptr;
-    m_selection_done = true;
     Hide();
 
     if (App::app_state.GetActive() == AppState::MAIN_MENU)
@@ -244,6 +243,7 @@ void CLASS::Cancel()
         RoR::App::GetMainMenu()->LeaveMultiplayerServer();
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
     }
+    App::sim_state.SetActive(SimState::RUNNING); // TODO: use 'Pending' mechanism!
 }
 
 void CLASS::EventMouseButtonClickOkButton(MyGUI::WidgetPtr _sender)
@@ -747,8 +747,8 @@ void CLASS::OnSelectionDone()
         App::GetSimController()->QueueActorSpawn(rq);
 
         RoR::App::GetGuiManager()->UnfocusGui();
-        App::sim_state.SetActive(SimState::RUNNING); // TODO: use 'Pending' mechanism!
     }
+    App::sim_state.SetActive(SimState::RUNNING); // TODO: use 'Pending' mechanism!
 }
 
 void CLASS::UpdateControls(CacheEntry* entry)
