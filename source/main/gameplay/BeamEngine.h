@@ -89,8 +89,6 @@ public:
     bool           HasTurbo() const         { return m_engine_has_turbo; };
     bool           IsRunning() const        { return m_engine_is_running; };
     char           GetEngineType() const    { return m_engine_type; };
-    float          getEngineTorque() const  { return m_engine_torque; };
-    float          getBrakingTorque() const { return m_braking_torque; };
     float          getIdleRPM() const       { return m_engine_idle_rpm; };
     float          getMaxRPM() const        { return m_engine_max_rpm; };
     float          getMinRPM() const        { return m_engine_min_rpm; };
@@ -101,9 +99,9 @@ public:
     float          GetInputShaftRpm()       { return m_cur_wheel_revolutions * m_gear_ratios[m_cur_gear + 1]; };
     float          GetDriveRatio()          { return m_gear_ratios[m_cur_gear + 1]; };
     float          GetEngineInertia()       { return m_engine_inertia; };
-    float          getAccToHoldRPM(float rpm);
-    float          getTurboPower();
+    float          getEnginePower()         { return getEnginePower(m_cur_engine_rpm); };
     float          getEnginePower(float rpm);
+    float          getTurboPower();
     float          getIdleMixture();
     float          getPrimeMixture();
     int            getAutoShift();

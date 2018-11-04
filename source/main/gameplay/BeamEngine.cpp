@@ -47,7 +47,7 @@ EngineSim::EngineSim(float _min_rpm, float _max_rpm, float torque, std::vector<f
     , m_cur_wheel_revolutions(0.0f)
     , m_diff_ratio(dratio)
     , m_tcase_ratio(1.0f)
-    , m_engine_torque(torque - m_braking_torque)
+    , m_engine_torque(torque)
     , m_gear_ratios(gears)
     , m_engine_has_air(true)
     , m_engine_has_turbo(true)
@@ -417,11 +417,11 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
     float totaltorque = 0.0f;
 
     // engine braking
-    if (m_starter_has_contact)
+    if (m_engine_is_running && m_starter_has_contact)
     {
-        totaltorque += m_braking_torque * m_cur_engine_rpm / m_engine_max_rpm;
+        totaltorque += m_braking_torque * m_cur_engine_rpm / m_engine_max_rpm * (1.0f - m_cur_acc);
     }
-    else
+    else if (!m_starter_has_contact || !m_starter)
     {
         totaltorque += m_braking_torque;
     }
@@ -434,7 +434,7 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
 
     if (m_engine_is_running && m_starter_has_contact && m_cur_engine_rpm < (m_engine_max_rpm * 1.25f))
     {
-        totaltorque += getEnginePower(m_cur_engine_rpm) * acc;
+        totaltorque += getEnginePower() * acc;
     }
 
     if (!m_engine_is_electric)
@@ -473,7 +473,7 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
     // update clutch torque
     if (m_cur_gear)
     {
-        float force_threshold = 1.5f * getEnginePower(m_cur_engine_rpm) * std::abs(m_gear_ratios[2]);
+        float force_threshold = 1.5f * getEnginePower() * std::abs(m_gear_ratios[2]);
         float gearboxspinner = m_cur_engine_rpm / m_gear_ratios[m_cur_gear + 1];
         m_cur_clutch_torque = (gearboxspinner - m_cur_wheel_revolutions) * m_cur_clutch * m_clutch_force;
         m_cur_clutch_torque = Math::Clamp(m_cur_clutch_torque, -force_threshold, +force_threshold);
@@ -578,7 +578,7 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
 
             float range = (m_engine_max_rpm - m_engine_min_rpm) * 0.4f * sqrt(std::max(0.2f, acc));
             float powerRatio = std::min((m_cur_engine_rpm - m_engine_min_rpm) / range, 1.0f);
-            float engineTorque = getEnginePower(m_cur_engine_rpm) * std::min(m_cur_acc, 0.9f) * powerRatio;
+            float engineTorque = getEnginePower() * std::min(m_cur_acc, 0.9f) * powerRatio;
 
             float torqueDiff = std::min(engineTorque, std::abs(reTorque));
             float clutch = torqueDiff / reTorque;
@@ -1218,18 +1218,11 @@ float EngineSim::getEnginePower(float rpm)
     return (m_engine_torque * tqValue) + getTurboPower();
 }
 
-float EngineSim::getAccToHoldRPM(float rpm)
-{
-    return (-m_braking_torque * rpm / m_engine_max_rpm) / getEnginePower(m_cur_engine_rpm);
-}
-
 float EngineSim::getIdleMixture()
 {
-    if (m_cur_engine_rpm < m_engine_idle_rpm)
-        // determine the fuel injection needed to counter the engine braking force
-        return Math::Clamp(getAccToHoldRPM(m_engine_idle_rpm), m_min_idle_mixture, m_max_idle_mixture);
-
-    return 0.0f;
+    if (m_cur_engine_rpm <= m_engine_idle_rpm)
+        return m_max_idle_mixture;
+    return m_min_idle_mixture;
 }
 
 float EngineSim::getPrimeMixture()

@@ -254,7 +254,7 @@ void CLASS::UpdateStats(float dt, Actor* actor)
 
             m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Input shaft RPM: ") + WhiteColor + TOUTFSTRING(Round(std::max(0.0f, actor->ar_engine->GetInputShaftRpm()))) + "\n\n";
 
-            float currentTorque = actor->ar_engine->getEnginePower(actor->ar_engine->GetEngineRpm()) * actor->ar_engine->GetAcceleration();
+            float currentTorque = actor->ar_engine->getEnginePower() * actor->ar_engine->GetAcceleration();
 
             m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Current torque: ") + WhiteColor + TOUTFSTRING(Round(currentTorque)) + U(" Nm") + "\n";
 
