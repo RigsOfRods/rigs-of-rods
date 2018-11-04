@@ -252,7 +252,7 @@ void CLASS::UpdateStats(float dt, Actor* actor)
             else
                 m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Engine RPM: ") + WhiteColor + TOUTFSTRING(Round(actor->ar_engine->GetEngineRpm())) + U(" / ") + TOUTFSTRING(Round(actor->ar_engine->getMaxRPM())) + "\n";
 
-            m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Input shaft RPM: ") + WhiteColor + TOUTFSTRING(Round(std::max(0.0f, actor->ar_engine->GetGearboxRpm()))) + "\n\n";
+            m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Input shaft RPM: ") + WhiteColor + TOUTFSTRING(Round(std::max(0.0f, actor->ar_engine->GetInputShaftRpm()))) + "\n\n";
 
             float currentTorque = actor->ar_engine->getEnginePower(actor->ar_engine->GetEngineRpm()) * actor->ar_engine->GetAcceleration();
 
@@ -264,7 +264,7 @@ void CLASS::UpdateStats(float dt, Actor* actor)
 
             m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Current gear: ") + WhiteColor + TOUTFSTRING(Round(actor->ar_engine->GetGear())) + "\n";
 
-            m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Drive ratio: ") + WhiteColor + TOUTFSTRING(Round(actor->ar_engine->GetGearRatio())) + ":1\n\n";
+            m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Drive ratio: ") + WhiteColor + TOUTFSTRING(Round(actor->ar_engine->GetDriveRatio())) + ":1\n\n";
 
             float velocityKMH = actor->ar_wheel_speed * 3.6f;
             float velocityMPH = actor->ar_wheel_speed * 2.23693629f;
