@@ -55,7 +55,7 @@ void ForceFeedback::Setup()
 
 void ForceFeedback::SetForces(float roll, float pitch, float wspeed, float dircommand, float stress)
 {
-    assert(m_device);
+    if (!m_device) { return; }
 
     //LOG(String("ForceFeedback: R=")+TOSTRING(roll)+" D="+TOSTRING(dir)+" S="+TOSTRING(wspeed)+" H="+TOSTRING(stress));
     if (!m_hydro_effect)
