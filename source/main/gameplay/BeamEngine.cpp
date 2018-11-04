@@ -55,7 +55,7 @@ EngineSim::EngineSim(float _min_rpm, float _max_rpm, float torque, std::vector<f
     , m_engine_idle_rpm(std::min(std::abs(_min_rpm), 800.0f))
     , m_engine_inertia(10.0f)
     , m_kickdown_delay_counter(0)
-    , m_max_idle_mixture(0.2f)
+    , m_max_idle_mixture(0.1f)
     , m_engine_max_rpm(std::abs(_max_rpm))
     , m_min_idle_mixture(0.0f)
     , m_engine_min_rpm(std::abs(_min_rpm))
