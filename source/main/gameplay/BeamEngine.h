@@ -85,6 +85,7 @@ public:
     void           SetGear(int v);               //!< low level gear changing
     void           SetGearRange(int v);          //!< low level gear changing
     void           StopEngine();                 //!< stall engine
+    float          GetAccToHoldRPM();            //!< estimate required throttle input to hold the current rpm
     bool           HasStarterContact() const{ return m_starter_has_contact; };
     bool           HasTurbo() const         { return m_engine_has_turbo; };
     bool           IsRunning() const        { return m_engine_is_running; };
