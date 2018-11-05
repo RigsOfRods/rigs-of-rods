@@ -1566,7 +1566,6 @@ void Actor::CalcNodes()
                 ar_nodes[i].RelPosition += ar_nodes[i].AbsPosition - oripos;
             }
         }
-        ar_nodes[i].nd_has_mesh_contact = false;
 
         // record g forces on cameras
         if (i == ar_main_camera_node_pos)

@@ -2263,6 +2263,10 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
 
 void Actor::CalcContacters()
 {
+    for (int i = 0; i < ar_num_contacters; i++)
+    {
+        ar_nodes[ar_contacters[i]].nd_has_mesh_contact = false;
+    }
     if (!ar_disable_self_collision)
     {
         IntraPointCD()->UpdateIntraPoint(this);
