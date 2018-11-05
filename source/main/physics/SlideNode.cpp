@@ -54,26 +54,8 @@ Ogre::Vector3 NearestPointOnLine(const Ogre::Vector3& pt1, const Ogre::Vector3& 
 
     b = fast_normalise(b);
     len = std::max(0.0f, std::min(a.dotProduct(b), len));
-    b *= len;
 
-    a = pt1;
-    a += b;
-    return a;
-}
-
-float SquaredDistanceToRailSeg(RailSegment const& seg, const Ogre::Vector3& point) // internal helper
-{
-    const float dist1 = seg.rs_beam->p1->AbsPosition.squaredDistance(point);
-    const float dist2 = seg.rs_beam->p2->AbsPosition.squaredDistance(point);
-    return std::min(dist1, dist2);
-}
-
-float CalcBeamToPointDistance(const beam_t* beam, const Ogre::Vector3& point) // internal helper
-{
-    if (!beam)
-        return std::numeric_limits<Ogre::Real>::infinity();
-
-    return fast_length(NearestPointOnLine(beam->p1->AbsPosition, beam->p2->AbsPosition, point) - point);
+    return pt1 + b * len;
 }
 
 // SLIDE NODES IMPLEMENTATION //////////////////////////////////////////////////
@@ -187,23 +169,17 @@ void SlideNode::UpdatePosition()
     m_sliding_beam = m_cur_rail_seg->rs_beam;
 
     // Get vector for beam
-    Ogre::Vector3 b = m_sliding_beam->p2->AbsPosition;
-    b -= m_sliding_beam->p1->AbsPosition;
+    Ogre::Vector3 b = m_sliding_beam->p2->AbsPosition - m_sliding_beam->p1->AbsPosition;
 
     // pre-compute normal
-    const Ogre::Real bLen = b.length();
-
-    // normalize b instead of using another variable
-    b.normalise();
+    const Ogre::Real bLen = b.normalise();
 
     // Get dot product along the b beam
     const Ogre::Real aDotBUnit = (m_sliding_node->AbsPosition - m_sliding_beam->p1->AbsPosition).dotProduct(b);
 
     // constrain Value between the two end points
     const Ogre::Real len = std::max(0.0f, std::min(aDotBUnit, bLen));
-    m_ideal_position = b;
-    m_ideal_position *= len;
-    m_ideal_position += m_sliding_beam->p1->AbsPosition;
+    m_ideal_position = m_sliding_beam->p1->AbsPosition + b * len;
 
     // calculate(cache) the ratio between the the two end points,
     // if bLen = 0.0f it means the beam is zero length so pick an end point
@@ -266,8 +242,8 @@ Ogre::Real SlideNode::getLenTo(const beam_t* beam) const
 
 Ogre::Vector3 SlideNode::CalcCorrectiveForces()
 {
-    const Ogre::Vector3 force = (m_ideal_position - m_sliding_node->AbsPosition);
-    const Ogre::Real beamLen = std::max(0.0f, force.length() - m_cur_threshold);
+    Ogre::Vector3 force = (m_ideal_position - m_sliding_node->AbsPosition);
+    const Ogre::Real beamLen = std::max(0.0f, force.normalise() - m_cur_threshold);
     const Ogre::Real forceLen = -m_spring_rate * beamLen;
-    return (force.normalisedCopy() * forceLen);
+    return (force * forceLen);
 }
