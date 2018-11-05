@@ -2261,6 +2261,23 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
     }
 }
 
+void Actor::CalcContacters()
+{
+    if (!ar_disable_self_collision)
+    {
+        IntraPointCD()->UpdateIntraPoint(this);
+        ResolveIntraActorCollisions(PHYSICS_DT,
+            *IntraPointCD(),
+            ar_num_collcabs,
+            ar_collcabs,
+            ar_cabs,
+            ar_intra_collcabrate,
+            ar_nodes,
+            ar_collision_range,
+            *ar_submesh_ground_model);
+    }
+}
+
 void Actor::CalcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, bool trigger_hooks)
 {
     if (!ar_beams[beam_i].shock)
