@@ -1010,9 +1010,7 @@ void Actor::CalcCommands(bool doUpdate)
         for (int i = 0; i < ar_num_rotators; i++)
         {
             // compute rotation axis
-            Vector3 axis = ar_nodes[ar_rotators[i].axis1].RelPosition - ar_nodes[ar_rotators[i].axis2].RelPosition;
-            //axis.normalise();
-            axis = fast_normalise(axis);
+            Vector3 axis = (ar_nodes[ar_rotators[i].axis1].RelPosition - ar_nodes[ar_rotators[i].axis2].RelPosition).normalisedCopy();
             // find the reference plane
             Plane pl = Plane(axis, 0);
             // for each pairar
@@ -1021,21 +1019,16 @@ void Actor::CalcCommands(bool doUpdate)
                 // find the reference vectors
                 Vector3 ref1 = pl.projectVector(ar_nodes[ar_rotators[i].axis2].RelPosition - ar_nodes[ar_rotators[i].nodes1[k]].RelPosition);
                 Vector3 ref2 = pl.projectVector(ar_nodes[ar_rotators[i].axis2].RelPosition - ar_nodes[ar_rotators[i].nodes2[k]].RelPosition);
+                float ref1len = ref1.normalise();
+                float ref2len = ref2.normalise();
                 // theory vector
-                Vector3 th1 = Quaternion(Radian(ar_rotators[i].angle + 3.14159 / 2.0), axis) * ref1;
+                Vector3 th1 = Quaternion(Radian(ar_rotators[i].angle + Math::HALF_PI), axis) * ref1;
                 // find the angle error
-                float aerror = asin((th1.normalisedCopy()).dotProduct(ref2.normalisedCopy()));
-                //mWindow->setDebugText("Error:"+ TOSTRING(aerror));
+                float aerror = asin(th1.dotProduct(ref2));
                 // exert forces
                 float rigidity = ar_rotators[i].force;
                 Vector3 dir1 = ref1.crossProduct(axis);
-                //dir1.normalise();
-                dir1 = fast_normalise(dir1);
                 Vector3 dir2 = ref2.crossProduct(axis);
-                //dir2.normalise();
-                dir2 = fast_normalise(dir2);
-                float ref1len = ref1.length();
-                float ref2len = ref2.length();
 
                 // simple jitter fix
                 if (ref1len <= ar_rotators[i].tolerance)
