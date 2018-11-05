@@ -57,7 +57,7 @@
 //   EnvironmentMap.cpp:              setFarClipDistance, getFarClipDistance, getBackgroundColour
 //   GfxActor.cpp:                    getPosition(), 
 //   Heathaze.cpp:                    get/addViewport()
-//   HydraxWater.cpp, skyxManager:    getDerivedPosition()
+//   HydraxWater.cpp:    getDerivedPosition()
 //   Scripting:                        setPosition  setDirection  setOrientation yaw  pitch  roll  getPosition  getDirection  getOrientation  lookAt
 //   SimController:                   getUp()
 

@@ -136,12 +136,6 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
     }
 #endif
 
-    SkyXManager* skyx_man = App::GetSimTerrain()->getSkyXManager();
-    if (skyx_man != nullptr)
-    {
-       skyx_man->update(dt_sec); // Light update
-    }
-
     // GUI - Direction arrow
     if (App::GetOverlayWrapper() && App::GetOverlayWrapper()->IsDirectionArrowVisible())
     {

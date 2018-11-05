@@ -85,7 +85,6 @@ DECLARE_RESOURCE_PACK( RTSHADER,              "rtshader",             "RtShaderR
 DECLARE_RESOURCE_PACK( SCRIPTS,               "scripts",              "ScriptsRG");
 DECLARE_RESOURCE_PACK( SOUNDS,                "sounds",               "SoundsRG");
 DECLARE_RESOURCE_PACK( TEXTURES,              "textures",             "TexturesRG");
-DECLARE_RESOURCE_PACK( SKYX,                  "SkyX",                 "SkyXRG");
 
 // ================================================================================
 // Functions
@@ -391,9 +390,6 @@ void ContentManager::LoadGameplayResources()
 
     if (App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM)
         this->AddResourcePack(ContentManager::ResourcePack::CAELUM);
-
-    if (App::gfx_sky_mode.GetActive() == GfxSkyMode::SKYX)
-        this->AddResourcePack(ContentManager::ResourcePack::SKYX);
 
     if (App::gfx_vegetation_mode.GetActive() != RoR::GfxVegetation::NONE)
         this->AddResourcePack(ContentManager::ResourcePack::PAGED);}

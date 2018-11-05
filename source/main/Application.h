@@ -136,7 +136,6 @@ enum class GfxSkyMode
 {
     SANDSTORM,  ///< Sandstorm (fastest)
     CAELUM,     ///< Caelum (best looking, slower)
-    SKYX,       ///< SkyX (best looking, slower)
 };
 const char* EnumToStr(GfxSkyMode v);
 

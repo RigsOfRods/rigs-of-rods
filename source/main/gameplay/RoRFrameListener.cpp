@@ -1213,34 +1213,6 @@ void SimController::UpdateInputEvents(float dt)
 
 #endif // USE_CAELUM
 
-
-        const bool skyx_enabled = App::gfx_sky_mode.GetActive() == GfxSkyMode::SKYX;
-        SkyXManager* skyx_mgr = App::GetSimTerrain()->getSkyXManager();
-        if (skyx_enabled && (skyx_mgr != nullptr) && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
-        {
-
-            if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME))
-            {
-                skyx_mgr->GetSkyX()->setTimeMultiplier(1.0f);
-            }
-            else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME_FAST))
-            {
-                skyx_mgr->GetSkyX()->setTimeMultiplier(2.0f);
-            }
-            else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME))
-            {
-                skyx_mgr->GetSkyX()->setTimeMultiplier(-1.0f);
-            }
-            else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME_FAST))
-            {
-                skyx_mgr->GetSkyX()->setTimeMultiplier(-2.0f);
-            }
-            else
-            {
-                skyx_mgr->GetSkyX()->setTimeMultiplier(0.01f);
-            }
-        }
-
         if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_RENDER_MODE, 0.5f))
         {
             static int mSceneDetailIndex;

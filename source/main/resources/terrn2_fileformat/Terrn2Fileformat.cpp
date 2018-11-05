@@ -64,7 +64,6 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
     def.caelum_fog_end       = file.GetInt        ("CaelumFogEnd",     "General", -1);
     def.has_water            = file.GetBool       ("Water",            "General", false);
     def.hydrax_conf_file     = file.GetStringEx   ("HydraxConfigFile", "General");
-    def.skyx_config          = file.GetStringEx   ("SkyXConfigFile",   "General");
     def.traction_map_file    = file.GetStringEx   ("TractionMap",      "General");
     def.water_height         = file.GetFloat      ("WaterLine",        "General");
     def.water_bottom_height  = file.GetFloat      ("WaterBottomLine",  "General");

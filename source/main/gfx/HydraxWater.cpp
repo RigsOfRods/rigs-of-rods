@@ -94,7 +94,6 @@ bool HydraxWater::IsUnderWater(Ogre::Vector3 pos)
 
 void HydraxWater::UpdateWater()
 {
-    //This has to change in the next versions when SkyX will be added.
 #ifdef USE_CAELUM
     SkyManager* sky = RoR::App::GetSimTerrain()->getSkyManager();
     if (sky != nullptr) //Caelum way of doing things
@@ -104,7 +103,7 @@ void HydraxWater::UpdateWater()
         mHydrax->setSunPosition(sunPosition);
         mHydrax->setSunColor(Ogre::Vector3(sky->GetCaelumSys()->getSun()->getBodyColour().r, sky->GetCaelumSys()->getSun()->getBodyColour().g, sky->GetCaelumSys()->getSun()->getBodyColour().b));
     }
-    else if (!gEnv->SkyX)
+    else
 #endif // USE_CAELUM
     {
         mHydrax->setSunPosition(gEnv->sceneManager->getLight("MainLight")->getPosition());

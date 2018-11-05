@@ -342,7 +342,6 @@ const char* CONF_WATER_FULL_HQ      = "Reflection + refraction (quality optimize
 const char* CONF_WATER_HYDRAX       = "Hydrax";
 
 const char* CONF_SKY_CAELUM         = "Caelum (best looking, slower)";
-const char* CONF_SKY_SKYX           = "SkyX (best looking, slower)";
 const char* CONF_SKY_SANDSTORM      = "Sandstorm (fastest)";
 
 const char* CONF_INPUT_GRAB_DYNAMIC = "Dynamically";
@@ -452,7 +451,6 @@ inline bool CheckGfxSkyMode(std::string const & key, std::string const & s)
 
     if (s == CONF_SKY_SANDSTORM)      { App::gfx_sky_mode.SetActive(GfxSkyMode::SANDSTORM); return true; }
     if (s == CONF_SKY_CAELUM   )      { App::gfx_sky_mode.SetActive(GfxSkyMode::CAELUM);    return true; }
-    if (s == CONF_SKY_SKYX     )      { App::gfx_sky_mode.SetActive(GfxSkyMode::SKYX);      return true; }
     return true;
 }
 
@@ -820,7 +818,6 @@ inline const char* GfxSkyToStr(GfxSkyMode v)
     switch(v)
     {
     case GfxSkyMode::CAELUM   : return CONF_SKY_CAELUM;
-    case GfxSkyMode::SKYX     : return CONF_SKY_SKYX;
     case GfxSkyMode::SANDSTORM: return CONF_SKY_SANDSTORM;
     default                   : return "";
     }

@@ -150,7 +150,6 @@ private:
     bool                     m_was_app_window_closed;
     bool                     m_actor_info_gui_visible;
     bool                     m_pressure_pressed;
-    int                      PreDefineSkyXExemple; //For predefined skyx weathers
 
     CacheEntry*              m_last_cache_selection;
     RoR::SkinDef*            m_last_skin_selection;

@@ -190,7 +190,6 @@ class SimController;
 class ScopeLog;
 class Screwprop;
 class SkyManager;
-class SkyXManager;
 class SlideNode;
 class ShadowManager;
 class Sound;

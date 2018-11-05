@@ -920,8 +920,7 @@ MyDialog::MyDialog(const wxString& title) : wxDialog(NULL, wxID_ANY, title,  wxP
     sky=new wxValueChoice(graphicsPanel, -1, wxPoint(x_row1, y), wxSize(200, -1), 0);
     sky->AppendValueItem(wxT("Sandstorm (fastest)"), _("Sandstorm (fastest)"));
     sky->AppendValueItem(wxT("Caelum (best looking, slower)"), _("Caelum (best looking, slower)"));
-    sky->AppendValueItem(wxT("SkyX (best looking, slower)"), _("SkyX (best looking, slower)"));
-    sky->SetToolTip(_("Caelum / SkyX sky is nice but quite slow unless you have a high-powered GPU."));
+    sky->SetToolTip(_("Caelum sky is nice but quite slow unless you have a high-powered GPU."));
     sky->SetSelection(1); //Caelum
     y+=25;
 

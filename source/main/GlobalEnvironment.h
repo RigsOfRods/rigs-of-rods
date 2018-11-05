@@ -32,7 +32,6 @@ public:
         , mainCamera(0)
         , player(0)
         , sceneManager(0)
-        , SkyX(0)
         , threadPool(0)
         , mrTime(0.f)
     {}
@@ -41,7 +40,6 @@ public:
     Ogre::SceneManager* sceneManager;
     Character*          player;
     Collisions*         collisions;
-    SkyXManager*        SkyX;
     ThreadPool*         threadPool;
     float               mrTime;
 };

@@ -23,10 +23,7 @@
 
 #include "RoRPrerequisites.h"
 #include "Terrn2Fileformat.h"
-
-#include "SkyXManager.h"
 #include "HydraxWater.h"
-
 #include <OgreVector3.h>
 #include <string>
 #include <memory>
@@ -58,7 +55,6 @@ public:
     RoR::Terrn2Def&    GetDef()                      { return m_def; }
     HydraxWater*       getHydraxManager()            { return m_hydrax_water; }
     SkyManager*        getSkyManager();
-    SkyXManager*       getSkyXManager()              { return SkyX_manager; };
     ShadowManager*     getShadowManager()            { return m_shadow_manager; };
     void               LoadPredefinedActors();
     bool               HasPredefinedActors();
@@ -71,7 +67,6 @@ public:
 
 private:
 
-    SkyXManager *SkyX_manager;
     // internal methods
     void initCamera();
     void initTerrainCollisions();

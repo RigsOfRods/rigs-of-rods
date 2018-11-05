@@ -90,7 +90,6 @@ extern const char* CONF_WATER_FULL_HQ;
 extern const char* CONF_WATER_HYDRAX;
 
 extern const char* CONF_SKY_CAELUM;
-extern const char* CONF_SKY_SKYX;
 extern const char* CONF_SKY_SANDSTORM;
 
 extern const char* CONF_INPUT_GRAB_DYNAMIC;

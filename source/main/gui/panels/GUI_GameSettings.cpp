@@ -122,8 +122,7 @@ void RoR::GUI::GameSettings::Draw()
 
         DrawGCombo(App::gfx_sky_mode, "Sky gfx",
             "Sandstorm (fastest)\0"
-            "Caelum (best looking, slower)\0"
-            "SkyX (best looking, slower)\0\0");
+            "Caelum (best looking, slower)\0");
 
         DrawGCombo(App::gfx_texture_filter , "Texture filtering",
             "None\0"

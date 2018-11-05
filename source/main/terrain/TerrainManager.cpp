@@ -58,7 +58,6 @@ TerrainManager::TerrainManager()
     , m_object_manager(0)
     , m_shadow_manager(0)
     , m_sky_manager(0)
-    , SkyX_manager(0)
     , m_sight_range(1000)
     , m_main_light(0)
     , m_paged_detail_factor(0.0f)
@@ -76,13 +75,6 @@ TerrainManager::~TerrainManager()
     {
         delete(m_sky_manager);
         m_sky_manager = nullptr;
-    }
-
-    if (SkyX_manager != nullptr)
-    {
-        delete(SkyX_manager);
-        gEnv->SkyX = nullptr;
-        SkyX_manager = nullptr;
     }
 
     if (m_main_light != nullptr)
@@ -261,18 +253,6 @@ void TerrainManager::initSkySubSystem()
     }
     else
 #endif //USE_CAELUM
-    // SkyX skies
-    if (App::gfx_sky_mode.GetActive() == GfxSkyMode::SKYX)
-    {
-         // try to load SkyX config
-         if (!m_def.skyx_config.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def.skyx_config))
-            SkyX_manager = new SkyXManager(m_def.skyx_config);
-         else
-            SkyX_manager = new SkyXManager("SkyXDefault.skx");
-
-         gEnv->SkyX = SkyX_manager;
-    }
-    else
     {
 
         if (!m_def.cubemap_config.empty())
@@ -295,10 +275,6 @@ void TerrainManager::initLight()
 #ifdef USE_CAELUM
         m_main_light = m_sky_manager->GetSkyMainLight();
 #endif
-    }
-    else if (App::gfx_sky_mode.GetActive() == GfxSkyMode::SKYX)
-    {
-        m_main_light = SkyX_manager->getMainLight();
     }
     else
     {

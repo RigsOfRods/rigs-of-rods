@@ -384,7 +384,6 @@ const char* EnumToStr(GfxSkyMode v)
     {
     case GfxSkyMode::SANDSTORM: return "SANDSTORM";
     case GfxSkyMode::CAELUM   : return "CAELUM";
-    case GfxSkyMode::SKYX     : return "SKYX";
     default                   : return "~invalid~";
     }
 }
