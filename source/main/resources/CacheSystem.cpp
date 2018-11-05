@@ -2158,7 +2158,6 @@ bool CacheSystem::checkResourceLoaded(CacheEntry t)
         return true;
     if (t.type == "Zip")
     {
-        //ScopeLog log("cache_"+t.fname);
         try
         {
             rgcountera++;
@@ -2170,17 +2169,22 @@ bool CacheSystem::checkResourceLoaded(CacheEntry t)
         }
         catch (ItemIdentityException& e)
         {
-            LOG(" *** error opening '"+t.dirname+"': some files are duplicates of existing files. The archive/directory will be ignored.");
-            LOG("error while opening resource: " + e.getFullDescription());
+            LOG("Error opening: '" + t.dirname + "': some files are duplicates of existing files. The archive/directory will be ignored.");
+            LOG("Error description: " + e.getFullDescription());
+        }
+        catch (Ogre::InvalidStateException& e) // the tokenizer choked..
+        {
+            LOG("Error opening: '" + t.dirname + "'");
+            LOG("Error description: " + e.getFullDescription());
         }
         catch (Ogre::Exception& e)
         {
-            LOG("error opening '"+t.dirname+"'.");
+            LOG("Error opening: '" + t.dirname + "'");
             if (t.type == "Zip")
-                LOG("Is the zip archive corrupt? Error: " + e.getFullDescription());
-            LOG("Error description : " + e.getFullDescription());
-            LOG("trying to continue ...");
+                LOG("Is the zip archive corrupt?");
+            LOG("Error description: " + e.getFullDescription());
         }
+        LOG("trying to continue ...");
     }
     return false;
 }
