@@ -427,7 +427,7 @@ void OgreImGui::createFontTexture()
     int width, height;
     io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
-    mFontTex = Ogre::TextureManager::getSingleton().createManual("ImguiFontTex",Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,Ogre::TEX_TYPE_2D,width,height,1,1,Ogre::PF_R8G8B8A8);
+    mFontTex = Ogre::TextureManager::getSingleton().createManual("ImguiFontTex",Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,Ogre::TEX_TYPE_2D,width,height,1,1,Ogre::PF_BYTE_RGBA);
 
     // Lock texture for writing
     const Ogre::PixelBox & lockBox = mFontTex->getBuffer()->lock(Ogre::Box(0, 0, width, height), Ogre::HardwareBuffer::HBL_DISCARD);
