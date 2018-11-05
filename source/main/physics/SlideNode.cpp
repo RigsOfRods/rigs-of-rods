@@ -26,7 +26,6 @@
 
 #include "SlideNode.h"
 
-#include "ApproxMath.h"
 #include "BeamData.h"
 #include "RoRPrerequisites.h"
 
@@ -50,9 +49,8 @@ Ogre::Vector3 NearestPointOnLine(const Ogre::Vector3& pt1, const Ogre::Vector3& 
 {
     Ogre::Vector3 a = tp - pt1;
     Ogre::Vector3 b = pt2 - pt1;
-    Ogre::Real len = fast_length(b);
+    Ogre::Real len = b.normalise();
 
-    b = fast_normalise(b);
     len = std::max(0.0f, std::min(a.dotProduct(b), len));
 
     return pt1 + b * len;
@@ -222,7 +220,7 @@ Ogre::Real SlideNode::getLenTo(const beam_t* beam, const Ogre::Vector3& point)
     if (!beam)
         return std::numeric_limits<Ogre::Real>::infinity();
 
-    return fast_length(NearestPointOnLine(beam->p1->AbsPosition, beam->p2->AbsPosition, point) - point);
+    return (NearestPointOnLine(beam->p1->AbsPosition, beam->p2->AbsPosition, point) - point).length();
 }
 
 Ogre::Real SlideNode::getLenTo(const RailGroup* group) const
