@@ -366,7 +366,7 @@ public:
 
 private:
 
-    bool              CalcForcesEulerPrepare();            //!< TIGHT LOOP; Physics;
+    bool              CalcForcesEulerPrepare(bool doUpdate); //!< TIGHT LOOP; Physics;
     void              CalcAircraftForces(bool doUpdate);   //!< TIGHT LOOP; Physics;
     void              CalcAnimatedProps(bool doUpdate);    //!< TIGHT LOOP; Physics;
     void              CalcForcesEulerCompute(bool doUpdate, int num_steps); //!< TIGHT LOOP; Physics;
@@ -375,6 +375,7 @@ private:
     void              CalcBeamsInterActor();               //!< TIGHT LOOP; Physics;
     void              CalcBuoyance(bool doUpdate);         //!< TIGHT LOOP; Physics;
     void              CalcCommands(bool doUpdate);         //!< TIGHT LOOP; Physics;
+    void              CalcContacters();                    //!< TIGHT LOOP; Physics;
     void              CalcDifferentials();                 //!< TIGHT LOOP; Physics;
     void              CalcForceFeedback(bool doUpdate);    //!< TIGHT LOOP; Physics;
     void              CalcFuseDrag();                      //!< TIGHT LOOP; Physics;

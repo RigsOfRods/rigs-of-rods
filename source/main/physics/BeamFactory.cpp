@@ -1089,24 +1089,11 @@ void ActorManager::UpdatePhysicsSimulation()
             std::vector<std::function<void()>> tasks;
             for (auto actor : m_actors)
             {
-                if (actor->ar_update_physics = actor->CalcForcesEulerPrepare())
+                if (actor->ar_update_physics = actor->CalcForcesEulerPrepare(i == 0))
                 {
                     auto func = std::function<void()>([this, i, actor]()
                         {
                             actor->CalcForcesEulerCompute(i == 0, m_physics_steps);
-                            if (!actor->ar_disable_self_collision)
-                            {
-                                actor->IntraPointCD()->UpdateIntraPoint(actor);
-                                ResolveIntraActorCollisions(PHYSICS_DT,
-                                    *(actor->IntraPointCD()),
-                                    actor->ar_num_collcabs,
-                                    actor->ar_collcabs,
-                                    actor->ar_cabs,
-                                    actor->ar_intra_collcabrate,
-                                    actor->ar_nodes,
-                                    actor->ar_collision_range,
-                                    *(actor->ar_submesh_ground_model));
-                            }
                         });
                     tasks.push_back(func);
                 }

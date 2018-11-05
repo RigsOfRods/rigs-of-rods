@@ -53,8 +53,8 @@ const float dt = static_cast<float>(PHYSICS_DT);
 
 void Actor::CalcForcesEulerCompute(bool doUpdate, int num_steps)
 {
-    if (doUpdate) this->ToggleHooks(-2, HOOK_LOCK, -1);
-    this->UpdateSlideNodeForces(dt); // must be done before the integrator, or else the forces are not calculated properly
+    this->CalcNodes(); // must be done directly after the inter truck collisions are handled
+    this->CalcReplay();
     this->CalcAircraftForces(doUpdate);
     this->CalcFuseDrag();
     this->CalcBuoyance(doUpdate);
@@ -66,10 +66,10 @@ void Actor::CalcForcesEulerCompute(bool doUpdate, int num_steps)
     this->CalcTies();
     this->CalcTruckEngine(doUpdate); // must be done after the commands / engine triggers are updated
     this->CalcMouse();
-    this->CalcForceFeedback(doUpdate);
-    this->CalcNodes();
-    this->CalcReplay();
     this->CalcBeams(doUpdate);
+    this->CalcContacters();
+    this->UpdateSlideNodeForces(dt); // must be done after the contacters are updated
+    this->CalcForceFeedback(doUpdate);
 }
 
 void Actor::CalcForceFeedback(bool doUpdate)
@@ -1121,12 +1121,15 @@ void Actor::CalcReplay()
     }
 }
 
-bool Actor::CalcForcesEulerPrepare()
+bool Actor::CalcForcesEulerPrepare(bool doUpdate)
 {
     if (m_ongoing_reset)
         return false;
     if (ar_sim_state != Actor::SimState::LOCAL_SIMULATED)
         return false;
+
+    if (doUpdate)
+        this->ToggleHooks(-2, HOOK_LOCK, -1);
 
     this->CalcHooks();
     this->CalcRopes();
