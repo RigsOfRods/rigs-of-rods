@@ -1065,6 +1065,11 @@ void EngineSim::StopEngine()
     SOUND_STOP(m_actor, SS_TRIG_ENGINE);
 }
 
+float EngineSim::GetAccToHoldRPM()
+{
+    return (-m_braking_torque * std::pow(m_cur_engine_rpm / m_engine_max_rpm, 2.0f)) / getEnginePower();
+}
+
 // high level controls
 void EngineSim::autoSetAcc(float val)
 {

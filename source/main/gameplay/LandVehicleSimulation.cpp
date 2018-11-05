@@ -50,7 +50,7 @@ void LandVehicleSimulation::UpdateCruiseControl(Actor* vehicle, float dt)
         return;
     }
 
-    float acc = 0.0f;
+    float acc = engine->GetAccToHoldRPM();
 
     if (engine->GetGear() > 0)
     {
@@ -61,7 +61,7 @@ void LandVehicleSimulation::UpdateCruiseControl(Actor* vehicle, float dt)
     else if (engine->GetGear() == 0) // out of gear
     {
         // Try to maintain the target rpm
-        float speed_range = (engine->getMaxRPM() - engine->getMinRPM()) / 20.0f;
+        float speed_range = (engine->getMaxRPM() - engine->getMinRPM()) / 50.0f;
         acc += engine->GetEngineInertia() * (vehicle->cc_target_rpm - engine->GetEngineRpm()) / speed_range;
     }
 
