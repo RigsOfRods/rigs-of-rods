@@ -67,7 +67,7 @@ void Actor::CalcForcesEulerCompute(bool doUpdate, int num_steps)
     this->CalcTruckEngine(doUpdate); // must be done after the commands / engine triggers are updated
     this->CalcMouse();
     this->CalcBeams(doUpdate);
-    this->CalcContacters();
+    this->CalcCabCollisions();
     this->UpdateSlideNodeForces(dt); // must be done after the contacters are updated
     this->CalcForceFeedback(doUpdate);
 }
