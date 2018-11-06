@@ -2261,7 +2261,7 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
     }
 }
 
-void Actor::CalcContacters()
+void Actor::CalcCabCollisions()
 {
     for (int i = 0; i < ar_num_contacters; i++)
     {
