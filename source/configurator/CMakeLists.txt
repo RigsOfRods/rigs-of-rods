@@ -12,7 +12,7 @@ if (WIN32)
     # clang-cl doesn't support resource files
     if (NOT (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
         set(OS_SOURCE "icon.rc")
-    endif()
+    endif ()
 
     # disable some annoying VS warnings:
     # warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
@@ -42,89 +42,86 @@ if (WIN32)
 else (WIN32)
     add_definitions("-fPIC")
     add_executable(RoRConfig ${sources} ${headers} ${OS_SOURCE}../main/utils/SHA1.cpp ../main/utils/ErrorUtils.cpp)
-ENDIF (WIN32)
+endif (WIN32)
 
 
-if(DEFINED CONAN_WXWIDGETS_ROOT)
-  # wxwidgets from Conan
-  target_include_directories(RoRConfig PRIVATE CONAN_PKG::wxwidgets)
-  target_link_libraries(RoRConfig PRIVATE CONAN_PKG::wxwidgets)
-else()
-  set(wxWidgets_USE_UNICODE ON)
-  include(${wxWidgets_USE_FILE})
-  target_link_libraries(RoRConfig PRIVATE ${wxWidgets_LIBRARIES})
-endif()
+if (DEFINED CONAN_WXWIDGETS_ROOT AND WIN32)
+    # wxwidgets from Conan
+    target_include_directories(RoRConfig PRIVATE CONAN_PKG::wxwidgets)
+    target_link_libraries(RoRConfig PRIVATE CONAN_PKG::wxwidgets)
+else ()
+    set(wxWidgets_USE_UNICODE ON)
+    include(${wxWidgets_USE_FILE})
+    target_link_libraries(RoRConfig PRIVATE ${wxWidgets_LIBRARIES})
+endif ()
 
-if(DEFINED CONAN_OGRE_ROOT)
-  include_directories(${CONAN_INCLUDE_DIRS_OGRE}/OGRE)
-  target_link_libraries(RoRConfig PRIVATE CONAN_PKG::OGRE)
-else()
-  target_link_libraries(RoRConfig PRIVATE
-          ${OGRE_LIBRARIES}
-          ${OGRE_Paging_LIBRARIES}
-          ${OGRE_RTShaderSystem_LIBRARIES}
-          ${OGRE_Terrain_LIBRARIES}
-          ${OGRE_Overlay_LIBRARIES}
-          )
-  target_include_directories(RoRConfig PRIVATE
-          ${OGRE_INCLUDE_DIRS}
-          ${OGRE_Paging_INCLUDE_DIRS}
-          ${OGRE_RTShaderSystem_INCLUDE_DIRS}
-          ${OGRE_Terrain_INCLUDE_DIRS}
-          ${OGRE_Overlay_INCLUDE_DIRS}
-          )
-endif()
+if (DEFINED CONAN_OGRE_ROOT)
+    include_directories(${CONAN_INCLUDE_DIRS_OGRE}/OGRE)
+    target_link_libraries(RoRConfig PRIVATE CONAN_PKG::OGRE)
+else ()
+    target_link_libraries(RoRConfig PRIVATE
+            ${OGRE_LIBRARIES}
+            ${OGRE_Paging_LIBRARIES}
+            ${OGRE_RTShaderSystem_LIBRARIES}
+            ${OGRE_Terrain_LIBRARIES}
+            ${OGRE_Overlay_LIBRARIES}
+            )
+    target_include_directories(RoRConfig PRIVATE
+            ${OGRE_INCLUDE_DIRS}
+            ${OGRE_Paging_INCLUDE_DIRS}
+            ${OGRE_RTShaderSystem_INCLUDE_DIRS}
+            ${OGRE_Terrain_INCLUDE_DIRS}
+            ${OGRE_Overlay_INCLUDE_DIRS}
+            )
+endif ()
 
-if(DEFINED CONAN_OGREDEPS_ROOT)
-  include_directories(${CONAN_INCLUDE_DIRS_OGREDEPS}/OIS)
-  target_link_libraries(RoRConfig PRIVATE CONAN_PKG::OGREdeps)
-else()
-  target_link_libraries(RoRConfig PRIVATE ${OIS_LIBRARIES})
-  target_include_directories(RoRConfig PRIVATE ${OIS_INCLUDE_DIRS})
-endif()
+if (DEFINED CONAN_OGREDEPS_ROOT)
+    include_directories(${CONAN_INCLUDE_DIRS_OGREDEPS}/OIS)
+    target_link_libraries(RoRConfig PRIVATE CONAN_PKG::OGREdeps)
+else ()
+    target_link_libraries(RoRConfig PRIVATE ${OIS_LIBRARIES})
+    target_include_directories(RoRConfig PRIVATE ${OIS_INCLUDE_DIRS})
+endif ()
 
-if(DEFINED CONAN_MYGUI_ROOT)
+if (DEFINED CONAN_MYGUI_ROOT)
     include_directories(${CONAN_INCLUDE_DIRS_MYGUI}/MYGUI)
     target_link_libraries(RoRConfig PRIVATE CONAN_PKG::MyGUI)
-else()
-target_link_libraries(RoRConfig PRIVATE
-        MyGUI::MyGUI
-        MyGUI::OgrePlatform
-        )
-target_compile_definitions(RoRConfig PRIVATE
-        USE_MYGUI
-        $<$<PLATFORM_ID:WINDOWS>:MYGUI_STATIC>
-        )
-endif()
+else ()
+    target_link_libraries(RoRConfig PRIVATE
+            MyGUI::MyGUI
+            MyGUI::OgrePlatform
+            )
+    target_compile_definitions(RoRConfig PRIVATE
+            USE_MYGUI
+            $<$<PLATFORM_ID:WINDOWS>:MYGUI_STATIC>
+            )
+endif ()
 
 # OpenAL - audio library
-if(DEFINED CONAN_OPENAL_ROOT)
-  target_link_libraries(RoRConfig PRIVATE CONAN_PKG::openal)
-  target_include_directories(RoRConfig PRIVATE CONAN_PKG::openal)
-  target_compile_definitions(RoRConfig PRIVATE USE_OPENAL)
+if (DEFINED CONAN_OPENAL_ROOT)
+    target_link_libraries(RoRConfig PRIVATE CONAN_PKG::openal)
+    target_include_directories(RoRConfig PRIVATE CONAN_PKG::openal)
+    target_compile_definitions(RoRConfig PRIVATE USE_OPENAL)
 else ()
-  if (OPENAL_FOUND)
-      target_link_libraries(RoRConfig PRIVATE ${OPENAL_LIBRARY})
-      target_include_directories(RoRConfig PRIVATE ${OPENAL_INCLUDE_DIR})
-      target_compile_definitions(RoRConfig PRIVATE USE_OPENAL)
-  else ()
-      message(WARNING "Building RoRConfig without OpenAL. Some functionality may be missing.")
-  endif ()
+    if (OPENAL_FOUND)
+        target_link_libraries(RoRConfig PRIVATE ${OPENAL_LIBRARY})
+        target_include_directories(RoRConfig PRIVATE ${OPENAL_INCLUDE_DIR})
+        target_compile_definitions(RoRConfig PRIVATE USE_OPENAL)
+    else ()
+        message(WARNING "Building RoRConfig without OpenAL. Some functionality may be missing.")
+    endif ()
 endif ()
 
 target_link_libraries(RoRConfig PRIVATE
         ${OS_LIBS}
         ${optional_libs}
         version_info
-)
-
-set_target_properties(RoRConfig PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
-cotire(RoRConfig)
+        )
 
 IF (BUILD_REDIST_FOLDER)
-  INSTALL(TARGETS RoRConfig
-          RUNTIME DESTINATION ${REDIST_FOLDER}
-          LIBRARY DESTINATION ${REDIST_FOLDER}
-          ARCHIVE DESTINATION ${REDIST_FOLDER}
-  )
+    INSTALL(TARGETS RoRConfig
+            RUNTIME DESTINATION ${REDIST_FOLDER}
+            LIBRARY DESTINATION ${REDIST_FOLDER}
+            ARCHIVE DESTINATION ${REDIST_FOLDER}
+            )
 ENDIF ()

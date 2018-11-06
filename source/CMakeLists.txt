@@ -2,36 +2,39 @@ include(FetchContent)
 
 find_package(Threads REQUIRED)
 
-if(NOT EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-  # find packages
+if (NOT WIN32)
+    find_package(wxWidgets COMPONENTS base core html net adv)
+endif ()
 
-  find_package(OGRE 1.11 REQUIRED COMPONENTS Bites HLMS Overlay Paging RTShaderSystem MeshLodGenerator Terrain)
-  find_package(wxWidgets COMPONENTS base core html net adv)
-  find_package(OpenAL)
-  find_package(OIS REQUIRED)
-  find_package(MyGUI REQUIRED)
-  find_package(SocketW)
-  find_package(AngelScript)
-  find_package(CURL)
-  find_package(Caelum)
+if (NOT EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
+    # find packages
 
-  if (WIN32)
-      find_package(MoFileReader REQUIRED)
-  endif ()
-endif()
+    find_package(OGRE 1.11 REQUIRED COMPONENTS Bites HLMS Overlay Paging RTShaderSystem MeshLodGenerator Terrain)
+    find_package(OpenAL)
+    find_package(OIS REQUIRED)
+    find_package(MyGUI REQUIRED)
+    find_package(SocketW)
+    find_package(AngelScript)
+    find_package(CURL)
+    find_package(Caelum)
+
+    if (WIN32)
+        find_package(MoFileReader REQUIRED)
+    endif ()
+endif ()
 
 add_subdirectory(version_info)
 add_subdirectory(main)
 
-if(ROR_USE_ANGELSCRIPT)
+if (ROR_USE_ANGELSCRIPT)
     add_subdirectory(angelscript_addons)
-endif()
+endif ()
 
 set(ROR_BUILD_CONFIGURATOR "TRUE" CACHE BOOL "build the configurator")
 
-IF(ROR_BUILD_CONFIGURATOR)
+IF (ROR_BUILD_CONFIGURATOR)
     add_subdirectory(configurator)
-ENDIF()
+ENDIF ()
 
 ####################################################################################################
 #  Setup content and resources for Rigs of Rods
@@ -44,9 +47,9 @@ FetchContent_Declare(
 )
 
 FetchContent_GetProperties(RoR_Content)
-if(NOT ror_content_POPULATED)
+if (NOT ror_content_POPULATED)
     FetchContent_Populate(RoR_Content)
-endif()
+endif ()
 
 recursive_zip_folder(resources "${CMAKE_SOURCE_DIR}/resources" "${RUNTIME_OUTPUT_DIRECTORY}/resources/" ROR_RESOURCES_ZIPS)
 recursive_zip_folder(content "${ror_content_SOURCE_DIR}" "${RUNTIME_OUTPUT_DIRECTORY}/content" ROR_CONTENT_ZIPS)
@@ -88,4 +91,4 @@ if (BUILD_REDIST_FOLDER)
                 DESTINATION ${CMAKE_BINARY_DIR}/redist
                 )
     endif ()
-endif()
+endif ()
