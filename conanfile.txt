@@ -6,8 +6,8 @@ AngelScript/2.32@anotherfoxguy/stable
 libcurl/7.61.1@bincrafters/stable
 OpenSSL/1.0.2n@conan/stable
 MofileReader/0.1.2@anotherfoxguy/stable
-MyGUI/3.2.3-OGRE-1.11.2@anotherfoxguy/stable
-OGRE/1.11.2@anotherfoxguy/stable
+MyGUI/3.2.3-OGRE-1.11.3@anotherfoxguy/stable
+OGRE/1.11.3@anotherfoxguy/stable
 OGREdeps/2018-07@anotherfoxguy/stable
 SocketW/3.10.36@anotherfoxguy/stable
 openal/1.18.2@bincrafters/stable
