@@ -3164,7 +3164,7 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
     CalculateBeamLength(beam);
     beam.shortbound = short_limit;
     beam.longbound = long_limit;
-    beam.bounded = SHOCK2;
+    beam.bounded = TRIGGER;
     beam.shock = &shock;
 
     if (! def.HasFlag_i_Invisible())

@@ -2282,21 +2282,12 @@ void Actor::CalcCabCollisions()
     }
 }
 
-void Actor::CalcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, bool trigger_hooks)
+void Actor::CalcShocks2(int i, Real difftoBeamL, Real& k, Real& d)
 {
-    if (!ar_beams[beam_i].shock)
-        return;
-
-    const float dt = static_cast<float>(PHYSICS_DT);
-    int i = beam_i;
-    float beamsLep = ar_beams[i].L * 0.8f;
-    float longboundprelimit = ar_beams[i].longbound * beamsLep;
-    float shortboundprelimit = -ar_beams[i].shortbound * beamsLep;
-    // this is a shock2
-    float logafactor;
-    //shock extending since last cycle
+    float logafactor = 1.0f;
     if (ar_beams[i].shock->lastpos < difftoBeamL)
     {
+        //shock extending since last cycle
         //get outbound values
         k = ar_beams[i].shock->springout;
         d = ar_beams[i].shock->dampout;
@@ -2339,6 +2330,9 @@ void Actor::CalcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, bool tri
     if (ar_beams[i].shock->flags & SHOCK_FLAG_SOFTBUMP)
     {
         // soft bump shocks
+        float beamsLep = ar_beams[i].L * 0.8f;
+        float longboundprelimit = ar_beams[i].longbound * beamsLep;
+        float shortboundprelimit = -ar_beams[i].shortbound * beamsLep;
         if (difftoBeamL > longboundprelimit)
         {
             //reset to longbound progressive values (oscillating beam workaround)
@@ -2427,253 +2421,255 @@ void Actor::CalcShocks2(int beam_i, Real difftoBeamL, Real& k, Real& d, bool tri
                 d = ar_beams[i].shock->sbd_damp;
         }
     }
-
-    if (ar_beams[i].shock->flags & SHOCK_FLAG_NORMAL)
+    else if (ar_beams[i].shock->flags & SHOCK_FLAG_NORMAL)
     {
         if (difftoBeamL > ar_beams[i].longbound * ar_beams[i].L || difftoBeamL < -ar_beams[i].shortbound * ar_beams[i].L)
         {
-            if (ar_beams[i].shock && !(ar_beams[i].shock->flags & SHOCK_FLAG_ISTRIGGER)) // this is NOT a trigger beam
+            // hard (normal) shock bump
+            k = ar_beams[i].shock->sbd_spring;
+            d = ar_beams[i].shock->sbd_damp;
+        }
+    }
+
+    // save beam position for next simulation cycle
+    ar_beams[i].shock->lastpos = difftoBeamL;
+}
+
+void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
+{
+    if ((ar_beams[i].shock->flags & SHOCK_FLAG_ISTRIGGER) && ar_beams[i].shock->trigger_enabled) // this is a trigger and its enabled
+    {
+        const float dt = static_cast<float>(PHYSICS_DT);
+
+        if (difftoBeamL > ar_beams[i].longbound * ar_beams[i].L || difftoBeamL < -ar_beams[i].shortbound * ar_beams[i].L) // that has hit boundary
+        {
+            ar_beams[i].shock->trigger_switch_state -= dt;
+            if (ar_beams[i].shock->trigger_switch_state <= 0.0f) // emergency release for dead-switched trigger
+                ar_beams[i].shock->trigger_switch_state = 0.0f;
+            if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_BLOCKER) // this is an enabled blocker and past boundary
             {
-                // hard (normal) shock bump
-                k = ar_beams[i].shock->sbd_spring;
-                d = ar_beams[i].shock->sbd_damp;
+                for (int scount = i + 1; scount <= i + ar_beams[i].shock->trigger_cmdshort; scount++) // (cycle blockerbeamID +1) to (blockerbeamID + beams to lock)
+                {
+                    if (ar_beams[scount].shock && (ar_beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER)) // don't mess anything up if the user set the number too big
+                    {
+                        if (m_trigger_debug_enabled && !ar_beams[scount].shock->trigger_enabled && ar_beams[i].shock->last_debug_state != 1)
+                        {
+                            LOG(" Trigger disabled. Blocker BeamID " + TOSTRING(i) + " enabled trigger " + TOSTRING(scount));
+                            ar_beams[i].shock->last_debug_state = 1;
+                        }
+                        ar_beams[scount].shock->trigger_enabled = false; // disable the trigger
+                    }
+                }
+            }
+            else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_BLOCKER_A) // this is an enabled inverted blocker and inside boundary
+            {
+                for (int scount = i + 1; scount <= i + ar_beams[i].shock->trigger_cmdlong; scount++) // (cycle blockerbeamID + 1) to (blockerbeamID + beams to release)
+                {
+                    if (ar_beams[scount].shock && (ar_beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER)) // don't mess anything up if the user set the number too big
+                    {
+                        if (m_trigger_debug_enabled && ar_beams[scount].shock->trigger_enabled && ar_beams[i].shock->last_debug_state != 9)
+                        {
+                            LOG(" Trigger enabled. Inverted Blocker BeamID " + TOSTRING(i) + " disabled trigger " + TOSTRING(scount));
+                            ar_beams[i].shock->last_debug_state = 9;
+                        }
+                        ar_beams[scount].shock->trigger_enabled = true; // enable the triggers
+                    }
+                }
+            }
+            else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CMD_BLOCKER) // this an enabled cmd-key-blocker and past a boundary
+            {
+                ar_command_key[ar_beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state = false; // Release the cmdKey
+                if (m_trigger_debug_enabled && ar_beams[i].shock->last_debug_state != 2)
+                {
+                    LOG(" F-key trigger block released. Blocker BeamID " + TOSTRING(i) + " Released F" + TOSTRING(ar_beams[i].shock->trigger_cmdshort));
+                    ar_beams[i].shock->last_debug_state = 2;
+                }
+            }
+            else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CMD_SWITCH) // this is an enabled cmdkey switch and past a boundary
+            {
+                if (!ar_beams[i].shock->trigger_switch_state)// this switch is triggered first time in this boundary
+                {
+                    for (int scount = 0; scount < ar_num_shocks; scount++)
+                    {
+                        int short1 = ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdshort; // cmdshort of checked trigger beam
+                        int short2 = ar_beams[i].shock->trigger_cmdshort; // cmdshort of switch beam
+                        int long1 = ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdlong; // cmdlong of checked trigger beam
+                        int long2 = ar_beams[i].shock->trigger_cmdlong; // cmdlong of switch beam
+                        int tmpi = ar_beams[ar_shocks[scount].beamid].shock->beamid; // beamID global of checked trigger beam
+                        if (((short1 == short2 && long1 == long2) || (short1 == long2 && long1 == short2)) && i != tmpi) // found both command triggers then swap if its not the switching trigger
+                        {
+                            int tmpcmdkey = ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdlong;
+                            ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdlong = ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdshort;
+                            ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdshort = tmpcmdkey;
+                            ar_beams[i].shock->trigger_switch_state = ar_beams[i].shock->trigger_boundary_t; //prevent trigger switching again before leaving boundaries or timeout
+                            if (m_trigger_debug_enabled && ar_beams[i].shock->last_debug_state != 3)
+                            {
+                                LOG(" Trigger F-key commands switched. Switch BeamID " + TOSTRING(i)+ " switched commands of Trigger BeamID " + TOSTRING(ar_beams[ar_shocks[scount].beamid].shock->beamid) + " to cmdShort: F" + TOSTRING(ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdshort) + ", cmdlong: F" + TOSTRING(ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdlong));
+                                ar_beams[i].shock->last_debug_state = 3;
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            { // just a trigger, check high/low boundary and set action
+                if (difftoBeamL > ar_beams[i].longbound * ar_beams[i].L) // trigger past longbound
+                {
+                    if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_UNLOCK)
+                    {
+                        if (trigger_hooks)
+                        {
+                            //autolock hooktoggle unlock
+                            ToggleHooks(ar_beams[i].shock->trigger_cmdlong, HOOK_UNLOCK, -1);
+                        }
+                    }
+                    else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_LOCK)
+                    {
+                        if (trigger_hooks)
+                        {
+                            //autolock hooktoggle lock
+                            ToggleHooks(ar_beams[i].shock->trigger_cmdlong, HOOK_LOCK, -1);
+                        }
+                    }
+                    else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE)
+                    {
+                        EngineTriggerHelper(ar_beams[i].shock->trigger_cmdshort, ar_beams[i].shock->trigger_cmdlong, 1.0f);
+                    }
+                    else
+                    {
+                        //just a trigger
+                        if (!ar_command_key[ar_beams[i].shock->trigger_cmdlong].trigger_cmdkeyblock_state) // related cmdkey is not blocked
+                        {
+                            if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CONTINUOUS)
+                                ar_command_key[ar_beams[i].shock->trigger_cmdshort].triggerInputValue = 1; // continuous trigger only operates on trigger_cmdshort
+                            else
+                                ar_command_key[ar_beams[i].shock->trigger_cmdlong].triggerInputValue = 1;
+                            if (m_trigger_debug_enabled && ar_beams[i].shock->last_debug_state != 4)
+                            {
+                                LOG(" Trigger Longbound activated. Trigger BeamID " + TOSTRING(i) + " Triggered F" + TOSTRING(ar_beams[i].shock->trigger_cmdlong));
+                                ar_beams[i].shock->last_debug_state = 4;
+                            }
+                        }
+                    }
+                }
+                else // trigger past short bound
+                {
+                    if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_UNLOCK)
+                    {
+                        if (trigger_hooks)
+                        {
+                            //autolock hooktoggle unlock
+                            ToggleHooks(ar_beams[i].shock->trigger_cmdshort, HOOK_UNLOCK, -1);
+                        }
+                    }
+                    else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_LOCK)
+                    {
+                        if (trigger_hooks)
+                        {
+                            //autolock hooktoggle lock
+                            ToggleHooks(ar_beams[i].shock->trigger_cmdshort, HOOK_LOCK, -1);
+                        }
+                    }
+                    else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE)
+                    {
+                        bool triggerValue = !(ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CONTINUOUS); // 0 if trigger is continuous, 1 otherwise
+
+                        EngineTriggerHelper(ar_beams[i].shock->trigger_cmdshort, ar_beams[i].shock->trigger_cmdlong, triggerValue);
+                    }
+                    else
+                    {
+                        //just a trigger
+                        if (!ar_command_key[ar_beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state) // related cmdkey is not blocked
+                        {
+                            if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CONTINUOUS)
+                                ar_command_key[ar_beams[i].shock->trigger_cmdshort].triggerInputValue = 0; // continuous trigger only operates on trigger_cmdshort
+                            else
+                                ar_command_key[ar_beams[i].shock->trigger_cmdshort].triggerInputValue = 1;
+
+                            if (m_trigger_debug_enabled && ar_beams[i].shock->last_debug_state != 5)
+                            {
+                                LOG(" Trigger Shortbound activated. Trigger BeamID " + TOSTRING(i) + " Triggered F" + TOSTRING(ar_beams[i].shock->trigger_cmdshort));
+                                ar_beams[i].shock->last_debug_state = 5;
+                            }
+                        }
+                    }
+                }
             }
         }
-
-        if (ar_beams[i].shock && (ar_beams[i].shock->flags & SHOCK_FLAG_ISTRIGGER) && ar_beams[i].shock->trigger_enabled) // this is a trigger and its enabled
+        else // this is a trigger inside boundaries and its enabled
         {
-            if (difftoBeamL > ar_beams[i].longbound * ar_beams[i].L || difftoBeamL < -ar_beams[i].shortbound * ar_beams[i].L) // that has hit boundary
+            if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CONTINUOUS) // this is an enabled continuous trigger
             {
-                ar_beams[i].shock->trigger_switch_state -= dt;
-                if (ar_beams[i].shock->trigger_switch_state <= 0.0f) // emergency release for dead-switched trigger
-                    ar_beams[i].shock->trigger_switch_state = 0.0f;
-                if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_BLOCKER) // this is an enabled blocker and past boundary
+                if (ar_beams[i].longbound - ar_beams[i].shortbound > 0.0f)
                 {
-                    for (int scount = i + 1; scount <= i + ar_beams[i].shock->trigger_cmdshort; scount++) // (cycle blockerbeamID +1) to (blockerbeamID + beams to lock)
-                    {
-                        if (ar_beams[scount].shock && (ar_beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER)) // don't mess anything up if the user set the number too big
-                        {
-                            if (m_trigger_debug_enabled && !ar_beams[scount].shock->trigger_enabled && ar_beams[i].shock->last_debug_state != 1)
-                            {
-                                LOG(" Trigger disabled. Blocker BeamID " + TOSTRING(i) + " enabled trigger " + TOSTRING(scount));
-                                ar_beams[i].shock->last_debug_state = 1;
-                            }
-                            ar_beams[scount].shock->trigger_enabled = false; // disable the trigger
-                        }
-                    }
-                }
-                else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_BLOCKER_A) // this is an enabled inverted blocker and inside boundary
-                {
-                    for (int scount = i + 1; scount <= i + ar_beams[i].shock->trigger_cmdlong; scount++) // (cycle blockerbeamID + 1) to (blockerbeamID + beams to release)
-                    {
-                        if (ar_beams[scount].shock && (ar_beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER)) // don't mess anything up if the user set the number too big
-                        {
-                            if (m_trigger_debug_enabled && ar_beams[scount].shock->trigger_enabled && ar_beams[i].shock->last_debug_state != 9)
-                            {
-                                LOG(" Trigger enabled. Inverted Blocker BeamID " + TOSTRING(i) + " disabled trigger " + TOSTRING(scount));
-                                ar_beams[i].shock->last_debug_state = 9;
-                            }
-                            ar_beams[scount].shock->trigger_enabled = true; // enable the triggers
-                        }
-                    }
-                }
-                else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CMD_BLOCKER) // this an enabled cmd-key-blocker and past a boundary
-                {
-                    ar_command_key[ar_beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state = false; // Release the cmdKey
-                    if (m_trigger_debug_enabled && ar_beams[i].shock->last_debug_state != 2)
-                    {
-                        LOG(" F-key trigger block released. Blocker BeamID " + TOSTRING(i) + " Released F" + TOSTRING(ar_beams[i].shock->trigger_cmdshort));
-                        ar_beams[i].shock->last_debug_state = 2;
-                    }
-                }
-                else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CMD_SWITCH) // this is an enabled cmdkey switch and past a boundary
-                {
-                    if (!ar_beams[i].shock->trigger_switch_state)// this switch is triggered first time in this boundary
-                    {
-                        for (int scount = 0; scount < ar_num_shocks; scount++)
-                        {
-                            int short1 = ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdshort; // cmdshort of checked trigger beam
-                            int short2 = ar_beams[i].shock->trigger_cmdshort; // cmdshort of switch beam
-                            int long1 = ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdlong; // cmdlong of checked trigger beam
-                            int long2 = ar_beams[i].shock->trigger_cmdlong; // cmdlong of switch beam
-                            int tmpi = ar_beams[ar_shocks[scount].beamid].shock->beamid; // beamID global of checked trigger beam
-                            if (((short1 == short2 && long1 == long2) || (short1 == long2 && long1 == short2)) && i != tmpi) // found both command triggers then swap if its not the switching trigger
-                            {
-                                int tmpcmdkey = ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdlong;
-                                ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdlong = ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdshort;
-                                ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdshort = tmpcmdkey;
-                                ar_beams[i].shock->trigger_switch_state = ar_beams[i].shock->trigger_boundary_t; //prevent trigger switching again before leaving boundaries or timeout
-                                if (m_trigger_debug_enabled && ar_beams[i].shock->last_debug_state != 3)
-                                {
-                                    LOG(" Trigger F-key commands switched. Switch BeamID " + TOSTRING(i)+ " switched commands of Trigger BeamID " + TOSTRING(ar_beams[ar_shocks[scount].beamid].shock->beamid) + " to cmdShort: F" + TOSTRING(ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdshort) + ", cmdlong: F" + TOSTRING(ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdlong));
-                                    ar_beams[i].shock->last_debug_state = 3;
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                { // just a trigger, check high/low boundary and set action
-                    if (difftoBeamL > ar_beams[i].longbound * ar_beams[i].L) // trigger past longbound
-                    {
-                        if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_UNLOCK)
-                        {
-                            if (trigger_hooks)
-                            {
-                                //autolock hooktoggle unlock
-                                ToggleHooks(ar_beams[i].shock->trigger_cmdlong, HOOK_UNLOCK, -1);
-                            }
-                        }
-                        else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_LOCK)
-                        {
-                            if (trigger_hooks)
-                            {
-                                //autolock hooktoggle lock
-                                ToggleHooks(ar_beams[i].shock->trigger_cmdlong, HOOK_LOCK, -1);
-                            }
-                        }
-                        else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE)
-                        {
-                            EngineTriggerHelper(ar_beams[i].shock->trigger_cmdshort, ar_beams[i].shock->trigger_cmdlong, 1.0f);
-                        }
-                        else
-                        {
-                            //just a trigger
-                            if (!ar_command_key[ar_beams[i].shock->trigger_cmdlong].trigger_cmdkeyblock_state) // related cmdkey is not blocked
-                            {
-                                if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CONTINUOUS)
-                                    ar_command_key[ar_beams[i].shock->trigger_cmdshort].triggerInputValue = 1; // continuous trigger only operates on trigger_cmdshort
-                                else
-                                    ar_command_key[ar_beams[i].shock->trigger_cmdlong].triggerInputValue = 1;
-                                if (m_trigger_debug_enabled && ar_beams[i].shock->last_debug_state != 4)
-                                {
-                                    LOG(" Trigger Longbound activated. Trigger BeamID " + TOSTRING(i) + " Triggered F" + TOSTRING(ar_beams[i].shock->trigger_cmdlong));
-                                    ar_beams[i].shock->last_debug_state = 4;
-                                }
-                            }
-                        }
-                    }
-                    else // trigger past short bound
-                    {
-                        if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_UNLOCK)
-                        {
-                            if (trigger_hooks)
-                            {
-                                //autolock hooktoggle unlock
-                                ToggleHooks(ar_beams[i].shock->trigger_cmdshort, HOOK_UNLOCK, -1);
-                            }
-                        }
-                        else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_LOCK)
-                        {
-                            if (trigger_hooks)
-                            {
-                                //autolock hooktoggle lock
-                                ToggleHooks(ar_beams[i].shock->trigger_cmdshort, HOOK_LOCK, -1);
-                            }
-                        }
-                        else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE)
-                        {
-                            bool triggerValue = !(ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CONTINUOUS); // 0 if trigger is continuous, 1 otherwise
+                    float diffPercentage = difftoBeamL / ar_beams[i].L;
+                    float triggerValue = (diffPercentage - ar_beams[i].shortbound) / (ar_beams[i].longbound - ar_beams[i].shortbound);
 
-                            EngineTriggerHelper(ar_beams[i].shock->trigger_cmdshort, ar_beams[i].shock->trigger_cmdlong, triggerValue);
-                        }
-                        else
-                        {
-                            //just a trigger
-                            if (!ar_command_key[ar_beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state) // related cmdkey is not blocked
-                            {
-                                if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CONTINUOUS)
-                                    ar_command_key[ar_beams[i].shock->trigger_cmdshort].triggerInputValue = 0; // continuous trigger only operates on trigger_cmdshort
-                                else
-                                    ar_command_key[ar_beams[i].shock->trigger_cmdshort].triggerInputValue = 1;
+                    triggerValue = std::max(0.0f, triggerValue);
+                    triggerValue = std::min(triggerValue, 1.0f);
 
-                                if (m_trigger_debug_enabled && ar_beams[i].shock->last_debug_state != 5)
-                                {
-                                    LOG(" Trigger Shortbound activated. Trigger BeamID " + TOSTRING(i) + " Triggered F" + TOSTRING(ar_beams[i].shock->trigger_cmdshort));
-                                    ar_beams[i].shock->last_debug_state = 5;
-                                }
-                            }
-                        }
+                    if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE) // this trigger controls an engine
+                    {
+                        EngineTriggerHelper(ar_beams[i].shock->trigger_cmdshort, ar_beams[i].shock->trigger_cmdlong, triggerValue);
+                    }
+                    else
+                    {
+                        // normal trigger
+                        ar_command_key[ar_beams[i].shock->trigger_cmdshort].triggerInputValue = triggerValue;
+                        ar_command_key[ar_beams[i].shock->trigger_cmdlong].triggerInputValue = triggerValue;
                     }
                 }
             }
-            else // this is a trigger inside boundaries and its enabled
+            else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_BLOCKER) // this is an enabled blocker and inside boundary
             {
-                if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CONTINUOUS) // this is an enabled continuous trigger
+                for (int scount = i + 1; scount <= i + ar_beams[i].shock->trigger_cmdlong; scount++) // (cycle blockerbeamID + 1) to (blockerbeamID + beams to release)
                 {
-                    if (ar_beams[i].longbound - ar_beams[i].shortbound > 0.0f)
+                    if (ar_beams[scount].shock && (ar_beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER)) // don't mess anything up if the user set the number too big
                     {
-                        float diffPercentage = difftoBeamL / ar_beams[i].L;
-                        float triggerValue = (diffPercentage - ar_beams[i].shortbound) / (ar_beams[i].longbound - ar_beams[i].shortbound);
-
-                        triggerValue = std::max(0.0f, triggerValue);
-                        triggerValue = std::min(triggerValue, 1.0f);
-
-                        if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE) // this trigger controls an engine
+                        if (m_trigger_debug_enabled && ar_beams[scount].shock->trigger_enabled && ar_beams[i].shock->last_debug_state != 6)
                         {
-                            EngineTriggerHelper(ar_beams[i].shock->trigger_cmdshort, ar_beams[i].shock->trigger_cmdlong, triggerValue);
+                            LOG(" Trigger enabled. Blocker BeamID " + TOSTRING(i) + " disabled trigger " + TOSTRING(scount));
+                            ar_beams[i].shock->last_debug_state = 6;
                         }
-                        else
-                        {
-                            // normal trigger
-                            ar_command_key[ar_beams[i].shock->trigger_cmdshort].triggerInputValue = triggerValue;
-                            ar_command_key[ar_beams[i].shock->trigger_cmdlong].triggerInputValue = triggerValue;
-                        }
+                        ar_beams[scount].shock->trigger_enabled = true; // enable the triggers
                     }
                 }
-                else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_BLOCKER) // this is an enabled blocker and inside boundary
+            }
+            else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_BLOCKER_A) // this is an enabled reverse blocker and past boundary
+            {
+                for (int scount = i + 1; scount <= i + ar_beams[i].shock->trigger_cmdshort; scount++) // (cylce blockerbeamID +1) to (blockerbeamID + beams tob lock)
                 {
-                    for (int scount = i + 1; scount <= i + ar_beams[i].shock->trigger_cmdlong; scount++) // (cycle blockerbeamID + 1) to (blockerbeamID + beams to release)
+                    if (ar_beams[scount].shock && (ar_beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER)) // dont mess anything up if the user set the number too big
                     {
-                        if (ar_beams[scount].shock && (ar_beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER)) // don't mess anything up if the user set the number too big
+                        if (m_trigger_debug_enabled && !ar_beams[scount].shock->trigger_enabled && ar_beams[i].shock->last_debug_state != 10)
                         {
-                            if (m_trigger_debug_enabled && ar_beams[scount].shock->trigger_enabled && ar_beams[i].shock->last_debug_state != 6)
-                            {
-                                LOG(" Trigger enabled. Blocker BeamID " + TOSTRING(i) + " disabled trigger " + TOSTRING(scount));
-                                ar_beams[i].shock->last_debug_state = 6;
-                            }
-                            ar_beams[scount].shock->trigger_enabled = true; // enable the triggers
+                            LOG(" Trigger disabled. Inverted Blocker BeamID " + TOSTRING(i) + " enabled trigger " + TOSTRING(scount));
+                            ar_beams[i].shock->last_debug_state = 10;
                         }
+                        ar_beams[scount].shock->trigger_enabled = false; // disable the trigger
                     }
                 }
-                else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_BLOCKER_A) // this is an enabled reverse blocker and past boundary
+            }
+            else if ((ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CMD_SWITCH) && ar_beams[i].shock->trigger_switch_state) // this is a switch that was activated and is back inside boundaries again
+            {
+                ar_beams[i].shock->trigger_switch_state = 0.0f; //trigger_switch reset
+                if (m_trigger_debug_enabled && ar_beams[i].shock->last_debug_state != 7)
                 {
-                    for (int scount = i + 1; scount <= i + ar_beams[i].shock->trigger_cmdshort; scount++) // (cylce blockerbeamID +1) to (blockerbeamID + beams tob lock)
-                    {
-                        if (ar_beams[scount].shock && (ar_beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER)) // dont mess anything up if the user set the number too big
-                        {
-                            if (m_trigger_debug_enabled && !ar_beams[scount].shock->trigger_enabled && ar_beams[i].shock->last_debug_state != 10)
-                            {
-                                LOG(" Trigger disabled. Inverted Blocker BeamID " + TOSTRING(i) + " enabled trigger " + TOSTRING(scount));
-                                ar_beams[i].shock->last_debug_state = 10;
-                            }
-                            ar_beams[scount].shock->trigger_enabled = false; // disable the trigger
-                        }
-                    }
+                    LOG(" Trigger switch reset. Switch BeamID " + TOSTRING(i));
+                    ar_beams[i].shock->last_debug_state = 7;
                 }
-                else if ((ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CMD_SWITCH) && ar_beams[i].shock->trigger_switch_state) // this is a switch that was activated and is back inside boundaries again
+            }
+            else if ((ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CMD_BLOCKER) && !ar_command_key[ar_beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state) // this cmdkeyblocker is inside boundaries and cmdkeystate is diabled
+            {
+                ar_command_key[ar_beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state = true; // activate trigger blocking
+                if (m_trigger_debug_enabled && ar_beams[i].shock->last_debug_state != 8)
                 {
-                    ar_beams[i].shock->trigger_switch_state = 0.0f; //trigger_switch reset
-                    if (m_trigger_debug_enabled && ar_beams[i].shock->last_debug_state != 7)
-                    {
-                        LOG(" Trigger switch reset. Switch BeamID " + TOSTRING(i));
-                        ar_beams[i].shock->last_debug_state = 7;
-                    }
-                }
-                else if ((ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CMD_BLOCKER) && !ar_command_key[ar_beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state) // this cmdkeyblocker is inside boundaries and cmdkeystate is diabled
-                {
-                    ar_command_key[ar_beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state = true; // activate trigger blocking
-                    if (m_trigger_debug_enabled && ar_beams[i].shock->last_debug_state != 8)
-                    {
-                        LOG(" F-key trigger blocked. Blocker BeamID " + TOSTRING(i) + " Blocked F" + TOSTRING(ar_beams[i].shock->trigger_cmdshort));
-                        ar_beams[i].shock->last_debug_state = 8;
-                    }
+                    LOG(" F-key trigger blocked. Blocker BeamID " + TOSTRING(i) + " Blocked F" + TOSTRING(ar_beams[i].shock->trigger_cmdshort));
+                    ar_beams[i].shock->last_debug_state = 8;
                 }
             }
         }
     }
-    // save beam position for next simulation cycle
-    ar_beams[i].shock->lastpos = difftoBeamL;
 }
 
 void Actor::setAirbrakeIntensity(float intensity)

@@ -1181,20 +1181,18 @@ void Actor::CalcBeams(bool trigger_hooks)
             Real k = ar_beams[i].k;
             Real d = ar_beams[i].d;
 
-            switch (ar_beams[i].bounded)
+            if (ar_beams[i].bounded == SHOCK1)
             {
-            case SHOCK1:
+                float interp_ratio = 0.0f;
+
+                // Following code interpolates between defined beam parameters and default beam parameters
+                if (difftoBeamL > ar_beams[i].longbound * ar_beams[i].L)
+                    interp_ratio = difftoBeamL - ar_beams[i].longbound * ar_beams[i].L;
+                else if (difftoBeamL < -ar_beams[i].shortbound * ar_beams[i].L)
+                    interp_ratio = -difftoBeamL - ar_beams[i].shortbound * ar_beams[i].L;
+
+                if (interp_ratio != 0.0f)
                 {
-                    float interp_ratio;
-
-                    // Following code interpolates between defined beam parameters and default beam parameters
-                    if (difftoBeamL > ar_beams[i].longbound * ar_beams[i].L)
-                        interp_ratio = difftoBeamL - ar_beams[i].longbound * ar_beams[i].L;
-                    else if (difftoBeamL < -ar_beams[i].shortbound * ar_beams[i].L)
-                        interp_ratio = -difftoBeamL - ar_beams[i].shortbound * ar_beams[i].L;
-                    else
-                        break;
-
                     // Hard (normal) shock bump
                     float tspring = DEFAULT_SPRING;
                     float tdamp = DEFAULT_DAMP;
@@ -1209,13 +1207,17 @@ void Actor::CalcBeams(bool trigger_hooks)
                     k += (tspring - k) * interp_ratio;
                     d += (tdamp - d) * interp_ratio;
                 }
-                break;
-
-            case SHOCK2:
-                this->CalcShocks2(i, difftoBeamL, k, d, trigger_hooks);
-                break;
-
-            case SUPPORTBEAM:
+            }
+            else if (ar_beams[i].bounded == TRIGGER)
+            {
+                this->CalcTriggers(i, difftoBeamL, trigger_hooks);
+            }
+            else if (ar_beams[i].bounded == SHOCK2)
+            {
+                this->CalcShocks2(i, difftoBeamL, k, d);
+            }
+            else if (ar_beams[i].bounded == SUPPORTBEAM)
+            {
                 if (difftoBeamL > 0.0f)
                 {
                     k = 0.0f;
@@ -1242,15 +1244,14 @@ void Actor::CalcBeams(bool trigger_hooks)
                         }
                     }
                 }
-                break;
-
-            case ROPE:
+            }
+            else if (ar_beams[i].bounded == ROPE)
+            {
                 if (difftoBeamL < 0.0f)
                 {
                     k = 0.0f;
                     d *= 0.1f;
                 }
-                break;
             }
 
             // Calculate beam's rate of change
