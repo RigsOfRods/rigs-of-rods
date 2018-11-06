@@ -83,6 +83,7 @@ enum {
     NOSHOCK,        //!< not a shock
     SHOCK1,         //!< shock1
     SHOCK2,         //!< shock2
+    TRIGGER,        //!< trigger
     SUPPORTBEAM,    //!<
     ROPE            //!<
 };
