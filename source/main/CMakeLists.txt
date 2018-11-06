@@ -290,38 +290,38 @@ FetchContent_Declare(
 )
 
 FetchContent_GetProperties(pagedgeometry)
-if(NOT pagedgeometry_POPULATED)
+if (NOT pagedgeometry_POPULATED)
     FetchContent_Populate(pagedgeometry)
     set(pagedgeometry_SOURCE_FILES
-        ${pagedgeometry_SOURCE_DIR}/include/BatchPage.h
-        ${pagedgeometry_SOURCE_DIR}/source/BatchPage.cpp
-        ${pagedgeometry_SOURCE_DIR}/include/BatchedGeometry.h
-        ${pagedgeometry_SOURCE_DIR}/source/BatchedGeometry.cpp
-        ${pagedgeometry_SOURCE_DIR}/include/GrassLoader.h
-        ${pagedgeometry_SOURCE_DIR}/source/GrassLoader.cpp
-        ${pagedgeometry_SOURCE_DIR}/include/ImpostorPage.h
-        ${pagedgeometry_SOURCE_DIR}/source/ImpostorPage.cpp
-        ${pagedgeometry_SOURCE_DIR}/include/MersenneTwister.h
-        ${pagedgeometry_SOURCE_DIR}/include/PagedGeometry.h
-        ${pagedgeometry_SOURCE_DIR}/source/PagedGeometry.cpp
-        ${pagedgeometry_SOURCE_DIR}/include/PropertyMaps.h
-        ${pagedgeometry_SOURCE_DIR}/source/PropertyMaps.cpp
-        ${pagedgeometry_SOURCE_DIR}/include/RandomTable.h
-        ${pagedgeometry_SOURCE_DIR}/include/StaticBillboardSet.h
-        ${pagedgeometry_SOURCE_DIR}/source/StaticBillboardSet.cpp
-        ${pagedgeometry_SOURCE_DIR}/include/TreeLoader2D.h
-        ${pagedgeometry_SOURCE_DIR}/source/TreeLoader2D.cpp
-        ${pagedgeometry_SOURCE_DIR}/include/TreeLoader3D.h
-        ${pagedgeometry_SOURCE_DIR}/source/TreeLoader3D.cpp
-        ${pagedgeometry_SOURCE_DIR}/include/WindBatchPage.h
-        ${pagedgeometry_SOURCE_DIR}/source/WindBatchPage.cpp
-        ${pagedgeometry_SOURCE_DIR}/include/WindBatchedGeometry.h
-        ${pagedgeometry_SOURCE_DIR}/source/WindBatchedGeometry.cpp
-    )
+            ${pagedgeometry_SOURCE_DIR}/include/BatchPage.h
+            ${pagedgeometry_SOURCE_DIR}/source/BatchPage.cpp
+            ${pagedgeometry_SOURCE_DIR}/include/BatchedGeometry.h
+            ${pagedgeometry_SOURCE_DIR}/source/BatchedGeometry.cpp
+            ${pagedgeometry_SOURCE_DIR}/include/GrassLoader.h
+            ${pagedgeometry_SOURCE_DIR}/source/GrassLoader.cpp
+            ${pagedgeometry_SOURCE_DIR}/include/ImpostorPage.h
+            ${pagedgeometry_SOURCE_DIR}/source/ImpostorPage.cpp
+            ${pagedgeometry_SOURCE_DIR}/include/MersenneTwister.h
+            ${pagedgeometry_SOURCE_DIR}/include/PagedGeometry.h
+            ${pagedgeometry_SOURCE_DIR}/source/PagedGeometry.cpp
+            ${pagedgeometry_SOURCE_DIR}/include/PropertyMaps.h
+            ${pagedgeometry_SOURCE_DIR}/source/PropertyMaps.cpp
+            ${pagedgeometry_SOURCE_DIR}/include/RandomTable.h
+            ${pagedgeometry_SOURCE_DIR}/include/StaticBillboardSet.h
+            ${pagedgeometry_SOURCE_DIR}/source/StaticBillboardSet.cpp
+            ${pagedgeometry_SOURCE_DIR}/include/TreeLoader2D.h
+            ${pagedgeometry_SOURCE_DIR}/source/TreeLoader2D.cpp
+            ${pagedgeometry_SOURCE_DIR}/include/TreeLoader3D.h
+            ${pagedgeometry_SOURCE_DIR}/source/TreeLoader3D.cpp
+            ${pagedgeometry_SOURCE_DIR}/include/WindBatchPage.h
+            ${pagedgeometry_SOURCE_DIR}/source/WindBatchPage.cpp
+            ${pagedgeometry_SOURCE_DIR}/include/WindBatchedGeometry.h
+            ${pagedgeometry_SOURCE_DIR}/source/WindBatchedGeometry.cpp
+            )
 
     source_group(pagedgeometry FILES ${pagedgeometry_SOURCE_FILES})
 
-endif()
+endif ()
 
 
 ####################################################################################################
@@ -446,59 +446,59 @@ target_link_libraries(${BINNAME} PRIVATE
         )
 
 # --- Ogre 3D graphics engine ---
-if(DEFINED CONAN_OGRE_ROOT)
-  target_include_directories(${BINNAME} PRIVATE CONAN_PKG::OGRE)
-  target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::OGRE)
-else()
-  target_link_libraries(${BINNAME} PRIVATE OgreMain OgreBites OgreRTShaderSystem OgreOverlay OgreTerrain OgreMeshLodGenerator OgreHLMS)
-endif()
+if (DEFINED CONAN_OGRE_ROOT)
+    target_include_directories(${BINNAME} PRIVATE CONAN_PKG::OGRE)
+    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::OGRE)
+else ()
+    target_link_libraries(${BINNAME} PRIVATE OgreMain OgreBites OgreRTShaderSystem OgreOverlay OgreTerrain OgreMeshLodGenerator OgreHLMS)
+endif ()
 
 
 # --- Object Oriented Input System ---
-if(DEFINED CONAN_OGREDEPS_ROOT)
-  include_directories(${CONAN_INCLUDE_DIRS_OGREDEPS}/OIS)
-  target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::OGREdeps)
-else()
-  target_link_libraries(${BINNAME} PRIVATE ${OIS_LIBRARIES})
-  target_include_directories(${BINNAME} PRIVATE ${OIS_INCLUDE_DIRS})
-endif()
+if (DEFINED CONAN_OGREDEPS_ROOT)
+    include_directories(${CONAN_INCLUDE_DIRS_OGREDEPS}/OIS)
+    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::OGREdeps)
+else ()
+    target_link_libraries(${BINNAME} PRIVATE ${OIS_LIBRARIES})
+    target_include_directories(${BINNAME} PRIVATE ${OIS_INCLUDE_DIRS})
+endif ()
 
 # --- MoFileReader ---
 if (WIN32)
-  if(DEFINED CONAN_MOFILEREADER_ROOT)
-    target_include_directories(${BINNAME} PRIVATE CONAN_PKG::MofileReader)
-    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::MofileReader)
-    target_compile_definitions(${BINNAME} PRIVATE USE_MOFILEREADER)
-  else()
-    target_link_libraries(${BINNAME} PRIVATE MoFileReader::MoFileReader)
-    target_compile_definitions(${BINNAME} PRIVATE USE_MOFILEREADER)
-  endif()
+    if (DEFINED CONAN_MOFILEREADER_ROOT)
+        target_include_directories(${BINNAME} PRIVATE CONAN_PKG::MofileReader)
+        target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::MofileReader)
+        target_compile_definitions(${BINNAME} PRIVATE USE_MOFILEREADER)
+    else ()
+        target_link_libraries(${BINNAME} PRIVATE MoFileReader::MoFileReader)
+        target_compile_definitions(${BINNAME} PRIVATE USE_MOFILEREADER)
+    endif ()
 endif ()
 
 # --- MyGUI - graphical user inferface ---
-if(DEFINED CONAN_MYGUI_ROOT)
-  target_include_directories(${BINNAME} PRIVATE CONAN_PKG::MyGUI)
-  target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::MyGUI)
-  target_compile_definitions(${BINNAME} PRIVATE USE_MYGUI $<$<PLATFORM_ID:WINDOWS>:MYGUI_STATIC>)
-else()
-  target_link_libraries(${BINNAME} PRIVATE
-          MyGUI::MyGUI
-          MyGUI::OgrePlatform
-          )
-  target_compile_definitions(${BINNAME} PRIVATE
-          USE_MYGUI
-          $<$<PLATFORM_ID:WINDOWS>:MYGUI_STATIC>
-          )
+if (DEFINED CONAN_MYGUI_ROOT)
+    target_include_directories(${BINNAME} PRIVATE CONAN_PKG::MyGUI)
+    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::MyGUI)
+    target_compile_definitions(${BINNAME} PRIVATE USE_MYGUI $<$<PLATFORM_ID:WINDOWS>:MYGUI_STATIC>)
+else ()
+    target_link_libraries(${BINNAME} PRIVATE
+            MyGUI::MyGUI
+            MyGUI::OgrePlatform
+            )
+    target_compile_definitions(${BINNAME} PRIVATE
+            USE_MYGUI
+            $<$<PLATFORM_ID:WINDOWS>:MYGUI_STATIC>
+            )
 endif ()
 
 #  OPTIONAL DEPENDENCIES
 # -----------------------
 
 # --- OpenAL - audio library ---
-if(DEFINED CONAN_OPENAL_ROOT)
-  target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::openal)
-  target_include_directories(${BINNAME} PRIVATE CONAN_PKG::openal)
-  target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)
+if (DEFINED CONAN_OPENAL_ROOT)
+    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::openal)
+    target_include_directories(${BINNAME} PRIVATE CONAN_PKG::openal)
+    target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)
 else ()
     if (OPENAL_FOUND)
         target_link_libraries(${BINNAME} PRIVATE ${OPENAL_LIBRARY})
@@ -511,10 +511,10 @@ endif ()
 
 
 # --- SocketW - networking library ---
-if(DEFINED CONAN_SOCKETW_ROOT)
-  target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::SocketW)
-  target_include_directories(${BINNAME} PRIVATE CONAN_PKG::SocketW)
-  target_compile_definitions(${BINNAME} PRIVATE USE_SOCKETW)
+if (DEFINED CONAN_SOCKETW_ROOT)
+    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::SocketW)
+    target_include_directories(${BINNAME} PRIVATE CONAN_PKG::SocketW)
+    target_compile_definitions(${BINNAME} PRIVATE USE_SOCKETW)
 elseif (TARGET SocketW::SocketW)
     target_link_libraries(${BINNAME} PRIVATE SocketW::SocketW)
     target_compile_definitions(${BINNAME} PRIVATE USE_SOCKETW)
@@ -522,20 +522,20 @@ else ()
     message(WARNING "Building ${BINNAME} without SocketW. Some functionality may be missing.")
 endif ()
 # Add openssl
-if(DEFINED CONAN_OPENSSL_ROOT)
-	target_include_directories(${BINNAME} PRIVATE ${CONAN_INCLUDE_DIRS_OPENSSL})
-endif()
+if (DEFINED CONAN_OPENSSL_ROOT)
+    target_include_directories(${BINNAME} PRIVATE ${CONAN_INCLUDE_DIRS_OPENSSL})
+endif ()
 
 
 # --- AngelScript - scripting interface ---
-if(DEFINED CONAN_ANGELSCRIPT_ROOT)
-  target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::AngelScript)
-  target_include_directories(${BINNAME} PRIVATE CONAN_PKG::AngelScript)
-  target_compile_definitions(${BINNAME} PRIVATE USE_ANGELSCRIPT)
-  target_compile_definitions(${BINNAME} PRIVATE AS_USE_NAMESPACE)
+if (DEFINED CONAN_ANGELSCRIPT_ROOT)
+    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::AngelScript)
+    target_include_directories(${BINNAME} PRIVATE CONAN_PKG::AngelScript)
+    target_compile_definitions(${BINNAME} PRIVATE USE_ANGELSCRIPT)
+    target_compile_definitions(${BINNAME} PRIVATE AS_USE_NAMESPACE)
 
-  target_include_directories(${BINNAME} PRIVATE ../angelscript_addons)
-  target_link_libraries(${BINNAME} PRIVATE angelscript_addons)
+    target_include_directories(${BINNAME} PRIVATE ../angelscript_addons)
+    target_link_libraries(${BINNAME} PRIVATE angelscript_addons)
 elseif (TARGET AngelScript::AngelScript)
     target_link_libraries(${BINNAME} PRIVATE
             AngelScript::AngelScript
@@ -552,7 +552,7 @@ endif ()
 
 
 # --- cURL ---
-if(DEFINED CONAN_LIBCURL_ROOT)
+if (DEFINED CONAN_LIBCURL_ROOT)
     target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::libcurl)
     target_include_directories(${BINNAME} PRIVATE CONAN_PKG::libcurl)
     target_compile_definitions(${BINNAME} PRIVATE USE_CURL)
