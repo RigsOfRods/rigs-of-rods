@@ -140,6 +140,7 @@ Collisions::Collisions():
 
 Collisions::~Collisions()
 {
+    if (landuse) delete landuse;
 }
 
 int Collisions::loadDefaultModels()
