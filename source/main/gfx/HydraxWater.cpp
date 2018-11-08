@@ -99,9 +99,9 @@ void HydraxWater::UpdateWater()
         mHydrax->setSunPosition (gEnv->SkyX->getMainLight()->getPosition ());
     }
 #ifdef USE_CAELUM
-    SkyManager* sky = RoR::App::GetSimTerrain()->getSkyManager();
-    else if (sky != nullptr) //Caelum way of doing things
+    else if (RoR::App::GetSimTerrain()->getSkyManager() != nullptr)
     {
+        SkyManager* sky = RoR::App::GetSimTerrain()->getSkyManager();
         Ogre::Vector3 sunPosition = gEnv->mainCamera->getDerivedPosition();
         sunPosition -= sky->GetCaelumSys()->getSun()->getLightDirection() * 80000;
         mHydrax->setSunPosition(sunPosition);
