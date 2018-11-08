@@ -94,20 +94,23 @@ bool HydraxWater::IsUnderWater(Ogre::Vector3 pos)
 
 void HydraxWater::UpdateWater()
 {
-    //This has to change in the next versions when SkyX will be added.
+    if (gEnv->SkyX)
+    {
+        mHydrax->setSunPosition (gEnv->SkyX->getMainLight()->getPosition ());
+    }
 #ifdef USE_CAELUM
     SkyManager* sky = RoR::App::GetSimTerrain()->getSkyManager();
-    if (sky != nullptr) //Caelum way of doing things
+    else if (sky != nullptr) //Caelum way of doing things
     {
         Ogre::Vector3 sunPosition = gEnv->mainCamera->getDerivedPosition();
         sunPosition -= sky->GetCaelumSys()->getSun()->getLightDirection() * 80000;
         mHydrax->setSunPosition(sunPosition);
         mHydrax->setSunColor(Ogre::Vector3(sky->GetCaelumSys()->getSun()->getBodyColour().r, sky->GetCaelumSys()->getSun()->getBodyColour().g, sky->GetCaelumSys()->getSun()->getBodyColour().b));
     }
-    else if (!gEnv->SkyX)
 #endif // USE_CAELUM
+    else
     {
-        mHydrax->setSunPosition(gEnv->sceneManager->getLight("MainLight")->getPosition());
+        mHydrax->setSunPosition (gEnv->sceneManager->getLight ("MainLight")->getPosition ());
     }
 }
 
