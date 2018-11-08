@@ -99,7 +99,10 @@ TerrainManager::~TerrainManager()
         m_dashboard = nullptr;
     }
 
-    m_water.reset(); // TODO: Currently needed - research and get rid of this ~ only_a_ptr, 08/2018
+    if (m_hydrax_water != nullptr)
+    {
+        m_water.reset(); // TODO: Currently needed - research and get rid of this ~ only_a_ptr, 08/2018
+    }
 
     if (m_object_manager != nullptr)
     {
