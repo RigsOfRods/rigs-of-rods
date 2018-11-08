@@ -96,13 +96,6 @@ private:
         std::vector<int> collTris;
     };
 
-    struct PaGeomInstance
-    {
-        Forests::PagedGeometry* geom;
-        void* loader;
-    };
-
-
     bool           UpdateAnimatedObjects(float dt);
     std::vector<localizer_t> localizers;
 
@@ -119,8 +112,6 @@ private:
     bool                      m_background_loading;
     bool                      m_use_rtshadersystem;
 
-    std::vector<PaGeomInstance> m_paged_geometry;
-    Forests::TreeLoader2D*      m_tree_loader;
-
+    std::vector<Forests::PagedGeometry*> m_paged_geometry;
 };
 
