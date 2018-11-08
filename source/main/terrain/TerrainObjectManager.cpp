@@ -80,7 +80,7 @@ TerrainObjectManager::~TerrainObjectManager()
     for (auto geom : m_paged_geometry)
     {
         delete geom->getPageLoader();
-        delete geom;
+        //delete geom; // results in a segfault once a new terrain is created
     }
     if (m_staticgeometry != nullptr)
     {
