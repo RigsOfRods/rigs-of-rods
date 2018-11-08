@@ -121,6 +121,12 @@ TerrainManager::~TerrainManager()
         delete(m_shadow_manager);
         m_shadow_manager = nullptr;
     }
+
+    if (gEnv->collisions != nullptr)
+    {
+        delete(gEnv->collisions);
+        gEnv->collisions = nullptr;
+    }
 }
 
 // some shortcut to remove ugly code
