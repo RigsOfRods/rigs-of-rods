@@ -1,17 +1,17 @@
 # Rigs of Rods
 
-[![Join Discord](https://img.shields.io/discord/136544456244461568.svg?style=flat-square)](https://discord.gg/rigsofrods) ![downloads](https://img.shields.io/github/downloads/RigsOfRods/rigs-of-rods/latest/total.svg?style=flat-square)
-![release](https://img.shields.io/github/release/RigsOfRods/rigs-of-rods.svg?style=flat-square)
-![contributors](https://img.shields.io/github/contributors/RigsOfRods/rigs-of-rods.svg?style=flat-square)
-![issues-pr](https://img.shields.io/github/issues-pr/RigsOfRods/rigs-of-rods.svg?style=flat-square)
-![commits since latest release](https://img.shields.io/github/commits-since/RigsOfRods/rigs-of-rods/latest.svg?style=flat-square)
+[![Join Discord](https://img.shields.io/discord/136544456244461568.svg?style=flat-square)](https://discord.gg/rigsofrods) ![downloads](https://flat.badgen.net/github/assets-dl/RigsOfRods/rigs-of-rods)
+![release](https://flat.badgen.net/github/release/RigsOfRods/rigs-of-rods)
+![contributors](https://flat.badgen.net/github/contributors/RigsOfRods/rigs-of-rods)
+![issues-pr](https://flat.badgen.net/github/open-prs/RigsOfRods/rigs-of-rods)
+![last commit](https://flat.badgen.net/github/last-commit/RigsOfRods/rigs-of-rods)
 
 
 
 |  Build status 	|                                                                                                                                                                             	|
 |---------------	|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
-| Linux:        	| [![travis build Status](https://img.shields.io/travis/RigsOfRods/rigs-of-rods.svg?style=flat-square)](https://travis-ci.org/RigsOfRods/rigs-of-rods)                                    	|
-| Windows:      	| [![appveyor build Status](https://img.shields.io/appveyor/ci/AnotherFoxGuy/rigs-of-rods/master.svg?style=flat-square)](https://ci.appveyor.com/project/AnotherFoxGuy/rigs-of-rods) 	|
+| Linux:        	| [![travis build Status](https://flat.badgen.net/travis/RigsOfRods/rigs-of-rods/master?icon=travis)](https://travis-ci.org/RigsOfRods/rigs-of-rods)                                    	|
+| Windows:      	| [![appveyor build Status](https://flat.badgen.net/appveyor/ci/AnotherFoxGuy/rigs-of-rods/master?icon=appveyor)](https://ci.appveyor.com/project/AnotherFoxGuy/rigs-of-rods) 	|
 
 
 Rigs of Rods is a free/libre soft-body physics simulator mainly targeted at simulating vehicle physics. The soft-body physics system is based on mass-spring-damper theory.  
