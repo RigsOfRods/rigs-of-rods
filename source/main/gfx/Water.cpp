@@ -110,7 +110,7 @@ Water::~Water()
 
     if (m_waterplane_entity != nullptr)
     {
-        gEnv->sceneManager->destroyEntity(m_waterplane_entity);
+        gEnv->sceneManager->destroyEntity("plane");
         m_waterplane_entity = nullptr;
     }
 
