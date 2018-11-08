@@ -77,18 +77,10 @@ TerrainObjectManager::~TerrainObjectManager()
         if (mo)
             delete mo;
     }
-    for (std::vector<PaGeomInstance>::iterator it = m_paged_geometry.begin(); it != m_paged_geometry.end(); it++)
+    for (auto geom : m_paged_geometry)
     {
-        if (it->geom)
-        {
-            delete(it->geom);
-            it->geom = 0;
-        }
-        if (it->loader)
-        {
-            delete((TreeLoader2D *)it->loader);
-            it->loader = 0;
-        }
+        delete geom->getPageLoader();
+        delete geom;
     }
     if (m_staticgeometry != nullptr)
     {
@@ -249,29 +241,28 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
             }
             densityMap->setFilter(Forests::MAPFILTER_BILINEAR);
 
-            PaGeomInstance paged;
-            paged.geom = new PagedGeometry();
+            auto geom = new PagedGeometry();
             RoR::Str<300> temp_path;
             temp_path << RoR::App::sys_cache_dir.GetActive() << RoR::PATH_SLASH;
-            paged.geom->setTempDir(temp_path.GetBuffer());
-            paged.geom->setCamera(gEnv->mainCamera);
-            paged.geom->setPageSize(50);
-            paged.geom->setInfinite();
+            geom->setTempDir(temp_path.GetBuffer());
+            geom->setCamera(gEnv->mainCamera);
+            geom->setPageSize(50);
+            geom->setInfinite();
             Ogre::TRect<Ogre::Real> bounds = TBounds(0, 0, m_terrain_size_x, m_map_size_z);
-            paged.geom->setBounds(bounds);
+            geom->setBounds(bounds);
 
             // Set up LODs
             float batchRange = std::max(50.0f, minDist * terrainManager->getPagedDetailFactor());
             float imposterRange = std::max(1.5f * minDist, maxDist * terrainManager->getPagedDetailFactor());
-            paged.geom->addDetailLevel<BatchPage>(batchRange, batchRange / 2.0f);
-            paged.geom->addDetailLevel<ImpostorPage>(imposterRange, imposterRange / 10.0f);
+            geom->addDetailLevel<BatchPage>(batchRange, batchRange / 2.0f);
+            geom->addDetailLevel<ImpostorPage>(imposterRange, imposterRange / 10.0f);
 
-            TreeLoader2D* m_tree_loader = new TreeLoader2D(paged.geom, TBounds(0, 0, m_terrain_size_x, m_map_size_z));
-            paged.geom->setPageLoader(m_tree_loader);
-            m_tree_loader->setHeightFunction(&getTerrainHeight);
+            TreeLoader2D* tree_loader = new TreeLoader2D(geom, TBounds(0, 0, m_terrain_size_x, m_map_size_z));
+            geom->setPageLoader(tree_loader);
+            tree_loader->setHeightFunction(&getTerrainHeight);
             if (String(ColorMap) != "none")
             {
-                m_tree_loader->setColorMap(ColorMap);
+                tree_loader->setColorMap(ColorMap);
             }
 
             Entity* curTree = gEnv->sceneManager->createEntity(String("paged_") + treemesh + TOSTRING(m_paged_geometry.size()), treemesh);
@@ -291,7 +282,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
                         float yaw = Math::RangeRandom(yawfrom, yawto);
                         float scale = Math::RangeRandom(scalefrom, scaleto);
                         Vector3 pos = Vector3(nx, 0, nz);
-                        m_tree_loader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
+                        tree_loader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
                         if (strlen(treeCollmesh))
                         {
                             pos.y = App::GetSimTerrain()->GetHeightAt(pos.x, pos.z);
@@ -330,7 +321,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
                             float yaw = Math::RangeRandom(yawfrom, yawto);
                             float scale = Math::RangeRandom(scalefrom, scaleto);
                             Vector3 pos = Vector3(nx, 0, nz);
-                            m_tree_loader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
+                            tree_loader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
                             if (strlen(treeCollmesh))
                             {
                                 pos.y = App::GetSimTerrain()->GetHeightAt(pos.x, pos.z);
@@ -340,8 +331,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
                     }
                 }
             }
-            paged.loader = (void*)m_tree_loader;
-            m_paged_geometry.push_back(paged);
+            m_paged_geometry.push_back(geom);
         }
 
         //ugly stuff to parse grass :)
@@ -365,7 +355,6 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
             //Initialize the PagedGeometry engine
             try
             {
-                PaGeomInstance paged;
                 PagedGeometry* grass = new PagedGeometry(gEnv->mainCamera, 30);
                 //Set up LODs
 
@@ -423,9 +412,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
                     grassLayer->setFadeTechnique(FADETECH_ALPHAGROW);
                 else if (growtechnique == 2)
                     grassLayer->setFadeTechnique(FADETECH_ALPHA);
-                paged.geom = grass;
-                paged.loader = (void*)grassLoader;
-                m_paged_geometry.push_back(paged);
+                m_paged_geometry.push_back(grass);
             }
             catch (...)
             {
@@ -1335,11 +1322,9 @@ void TerrainObjectManager::LoadPredefinedActors()
 
 bool TerrainObjectManager::UpdateTerrainObjects(float dt)
 {
-    // paged geometry
-    for (auto it : m_paged_geometry)
+    for (auto geom : m_paged_geometry)
     {
-        if (it.geom)
-            it.geom->update();
+        geom->update();
     }
 
     this->UpdateAnimatedObjects(dt);
