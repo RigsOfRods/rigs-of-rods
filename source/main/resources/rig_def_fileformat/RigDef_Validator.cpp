@@ -93,6 +93,8 @@ bool Validator::Validate()
 
     CHECK_SECTION_IN_ALL_MODULES(Shock2, shocks_2, CheckShock2);
 
+    CHECK_SECTION_IN_ALL_MODULES(Shock3, shocks_3, CheckShock3);
+
     CHECK_SECTION_IN_ALL_MODULES(Command2, commands_2, CheckCommand);
 
     CHECK_SECTION_IN_ALL_MODULES(Trigger, triggers, CheckTrigger);
@@ -340,6 +342,83 @@ bool Validator::CheckShock2(RigDef::Shock2 & shock2)
     {
         std::stringstream msg;
         msg << "Invalid values in section 'shocks2', fields: ";
+        std::list<Ogre::String>::iterator itor = bad_fields.begin();
+        bool first = true;
+        for( ; itor != bad_fields.end(); itor++)
+        {
+            msg << (first ? "" : ", ") << *itor;
+            first = false;
+        }
+
+        AddMessage(Message::TYPE_ERROR, msg.str());
+        return false;
+    }
+    return true;
+}
+
+bool Validator::CheckShock3(RigDef::Shock3 & shock3)
+{
+    std::list<Ogre::String> bad_fields;
+
+    /* Keep these in sync with wiki doc: http://www.rigsofrods.org/wiki/pages/Truck_Description_File#Shocks3 */
+    /* We safely check for value -1.f */
+    if (shock3.spring_in < -0.8f)
+    {
+        bad_fields.push_back("spring_in_rate");
+    }
+    if (shock3.damp_in < -0.8f)
+    {
+        bad_fields.push_back("damping_in_rate");
+    }
+    if (shock3.spring_out < -0.8f)
+    {
+        bad_fields.push_back("spring_out_rate");
+    }
+    if (shock3.damp_out < -0.8f)
+    {
+        bad_fields.push_back("damping_out_rate");
+    }
+    if (shock3.damp_in_slow < -0.8f)
+    {
+        bad_fields.push_back("damp_in_slow");
+    }
+    if (shock3.split_vel_in < -0.8f)
+    {
+        bad_fields.push_back("split_in");
+    }
+    if (shock3.damp_in_fast < -0.8f)
+    {
+        bad_fields.push_back("damp_in_fast");
+    }
+    if (shock3.damp_out_slow < -0.8f)
+    {
+        bad_fields.push_back("damp_out_slow");
+    }
+    if (shock3.split_vel_out < -0.8f)
+    {
+        bad_fields.push_back("split_out");
+    }
+    if (shock3.damp_out_fast < -0.8f)
+    {
+        bad_fields.push_back("damp_out_fast");
+    }
+    if (shock3.short_bound < -0.8f)
+    {
+        bad_fields.push_back("max_contraction");
+    }
+    if (shock3.long_bound < -0.8f)
+    {
+        bad_fields.push_back("max_extension");
+    }
+    if (shock3.precompression < -0.8f)
+    {
+        bad_fields.push_back("precompression");
+    }
+
+    if (bad_fields.size() > 0)
+    {
+        std::stringstream msg;
+        msg << "Invalid values in section 'shocks3', fields: ";
         std::list<Ogre::String>::iterator itor = bad_fields.begin();
         bool first = true;
         for( ; itor != bad_fields.end(); itor++)

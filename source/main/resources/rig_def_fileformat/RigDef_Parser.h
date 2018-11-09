@@ -187,6 +187,7 @@ private:
     void ParseSetSkeletonSettings();
     void ParseShock();
     void ParseShock2();
+    void ParseShock3();
     void ParseSlidenodes();
     void ParseSlopeBrake();
     void ParseSoundsources();

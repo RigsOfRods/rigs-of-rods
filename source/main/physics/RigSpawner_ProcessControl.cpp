@@ -248,6 +248,9 @@ Actor *ActorSpawner::SpawnActor()
     // Section 'shocks2'
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SHOCKS2, shocks_2, ProcessShock2);
 
+    // Section 'shocks3'
+    PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_SHOCKS3, shocks_3, ProcessShock3);
+
     // Section 'commands' and 'commands2' (Use generated nodes)
     PROCESS_SECTION_IN_ALL_MODULES(RigDef::File::KEYWORD_COMMANDS2, commands_2, ProcessCommand);
 

@@ -199,6 +199,7 @@ void Parser::ProcessCurrentLine()
         case File::KEYWORD_SET_SKELETON_SETTINGS:    this->ParseSetSkeletonSettings();                    return;
         case File::KEYWORD_SHOCKS:                   this->ChangeSection(File::SECTION_SHOCKS);           return;
         case File::KEYWORD_SHOCKS2:                  this->ChangeSection(File::SECTION_SHOCKS_2);         return;
+        case File::KEYWORD_SHOCKS3:                  this->ChangeSection(File::SECTION_SHOCKS_3);         return;
         case File::KEYWORD_SLIDENODE_CONNECT_INSTANT:this->ProcessGlobalDirective(keyword);               return;
         case File::KEYWORD_SLIDENODES:               this->ChangeSection(File::SECTION_SLIDENODES);       return;
         case File::KEYWORD_SLOPE_BRAKE:              this->ParseSlopeBrake();                             return;
@@ -275,6 +276,7 @@ void Parser::ProcessCurrentLine()
         case (File::SECTION_SCREWPROPS):           this->ParseScrewprops();              return;
         case (File::SECTION_SHOCKS):               this->ParseShock();                   return;
         case (File::SECTION_SHOCKS_2):             this->ParseShock2();                  return;
+        case (File::SECTION_SHOCKS_3):             this->ParseShock3();                  return;
         case (File::SECTION_SLIDENODES):           this->ParseSlidenodes();              return;
         case (File::SECTION_SOUNDSOURCES):         this->ParseSoundsources();            return;
         case (File::SECTION_SOUNDSOURCES2):        this->ParseSoundsources2();           return;
@@ -2201,6 +2203,62 @@ void Parser::ParseSlidenodes()
     }
     
     m_current_module->slidenodes.push_back(slidenode);
+}
+
+void Parser::ParseShock3()
+{
+    if (! this->CheckNumArguments(15)) { return; }
+
+    Shock3 shock_3;
+    shock_3.beam_defaults  = m_user_beam_defaults;
+    shock_3.detacher_group = m_current_detacher_group;
+
+    shock_3.nodes[0]       = this->GetArgNodeRef( 0);
+    shock_3.nodes[1]       = this->GetArgNodeRef( 1);
+    shock_3.spring_in      = this->GetArgFloat  ( 2);
+    shock_3.damp_in        = this->GetArgFloat  ( 3);
+    shock_3.damp_in_slow   = this->GetArgFloat  ( 4);
+    shock_3.split_vel_in   = this->GetArgFloat  ( 5);
+    shock_3.damp_in_fast   = this->GetArgFloat  ( 6);
+    shock_3.spring_out     = this->GetArgFloat  ( 7);
+    shock_3.damp_out       = this->GetArgFloat  ( 8);
+    shock_3.damp_out_slow  = this->GetArgFloat  ( 9);
+    shock_3.split_vel_out  = this->GetArgFloat  (10);
+    shock_3.damp_out_fast  = this->GetArgFloat  (11);
+    shock_3.short_bound    = this->GetArgFloat  (12);
+    shock_3.long_bound     = this->GetArgFloat  (13);
+    shock_3.precompression = this->GetArgFloat  (14);
+
+    shock_3.options = 0u;
+    if (m_num_args > 15)
+    {
+        std::string options_str = this->GetArgStr(15);
+        auto itor = options_str.begin();
+        auto endi = options_str.end();
+        while (itor != endi)
+        {
+            char c = *itor++; // ++
+            switch (c)
+            {
+                case 'n': 
+                    break; // Placeholder, does nothing.
+                case 'i': BITMASK_SET_1(shock_3.options, Shock3::OPTION_i_INVISIBLE);
+                    break;
+                case 'm': BITMASK_SET_1(shock_3.options, Shock3::OPTION_m_METRIC);
+                    break;
+                case 'M': BITMASK_SET_1(shock_3.options, Shock3::OPTION_M_ABSOLUTE_METRIC);
+                    break;
+                default: {
+                        char msg[100] = "";
+                        snprintf(msg, 100, "Invalid option: '%c', ignoring...", c);
+                        AddMessage(Message::TYPE_WARNING, msg);
+                    }
+                    break;
+            }
+        }
+    }
+
+    m_current_module->shocks_3.push_back(shock_3);
 }
 
 void Parser::ParseShock2()

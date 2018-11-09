@@ -484,6 +484,11 @@ private:
     void ProcessShock2(RigDef::Shock2 & def);
 
     /**
+    * Add a shock absorber (section 'shocks3') to the rig.
+    */
+    void ProcessShock3(RigDef::Shock3 & def);
+
+    /**
     * Section 'slidenodes'. Depends on 'railgroups'
     */
     void ProcessSlidenode(RigDef::SlideNode & def);

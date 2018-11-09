@@ -2435,6 +2435,25 @@ void Actor::CalcShocks2(int i, Real difftoBeamL, Real& k, Real& d)
     ar_beams[i].shock->lastpos = difftoBeamL;
 }
 
+void Actor::CalcShocks3(int i, Real difftoBeamL, Real &k, Real& d, Real v)
+{
+    if (ar_beams[i].shock->lastpos < difftoBeamL) // Extension
+    {
+        k = ar_beams[i].shock->springout;
+        d = ar_beams[i].shock->dampout * ar_beams[i].shock->dslowout * std::min(v,        ar_beams[i].shock->splitout) +
+            ar_beams[i].shock->dampout * ar_beams[i].shock->dfastout * std::max(0.0f, v - ar_beams[i].shock->splitout);
+    }
+    else // Compression
+    {
+        k = ar_beams[i].shock->springin;
+        d = ar_beams[i].shock->dampin  * ar_beams[i].shock->dslowin  * std::min(v,        ar_beams[i].shock->splitin ) +
+            ar_beams[i].shock->dampin  * ar_beams[i].shock->dfastin  * std::max(0.0f, v - ar_beams[i].shock->splitin );
+    }
+
+    // save beam position for next simulation cycle
+    ar_beams[i].shock->lastpos = difftoBeamL;
+}
+
 void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
 {
     if ((ar_beams[i].shock->flags & SHOCK_FLAG_ISTRIGGER) && ar_beams[i].shock->trigger_enabled) // this is a trigger and its enabled

@@ -1181,6 +1181,9 @@ void Actor::CalcBeams(bool trigger_hooks)
             Real k = ar_beams[i].k;
             Real d = ar_beams[i].d;
 
+            // Calculate beam's rate of change
+            Vector3 v = ar_beams[i].p1->Velocity - ar_beams[i].p2->Velocity;
+
             if (ar_beams[i].bounded == SHOCK1)
             {
                 float interp_ratio = 0.0f;
@@ -1215,6 +1218,10 @@ void Actor::CalcBeams(bool trigger_hooks)
             else if (ar_beams[i].bounded == SHOCK2)
             {
                 this->CalcShocks2(i, difftoBeamL, k, d);
+            }
+            else if (ar_beams[i].bounded == SHOCK3)
+            {
+                this->CalcShocks3(i, difftoBeamL, k, d, v.length());
             }
             else if (ar_beams[i].bounded == SUPPORTBEAM)
             {
@@ -1253,9 +1260,6 @@ void Actor::CalcBeams(bool trigger_hooks)
                     d *= 0.1f;
                 }
             }
-
-            // Calculate beam's rate of change
-            Vector3 v = ar_beams[i].p1->Velocity - ar_beams[i].p2->Velocity;
 
             if (trigger_hooks && ar_beams[i].bounded)
             {

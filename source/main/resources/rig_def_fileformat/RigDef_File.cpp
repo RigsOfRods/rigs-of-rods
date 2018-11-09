@@ -168,6 +168,24 @@ Shock2::Shock2():
     detacher_group(0)
 {}
 
+Shock3::Shock3():
+    spring_in(0),
+    damp_in(0),
+    damp_in_slow(0),
+    split_vel_in(0),
+    damp_in_fast(0),
+    spring_out(0),
+    damp_out(0),
+    damp_out_slow(0),
+    split_vel_out(0),
+    damp_out_fast(0),
+    short_bound(0),
+    long_bound(0),
+    precompression(0),
+    options(0),
+    detacher_group(0)
+{}
+
 SlideNode::SlideNode():
     spring_rate(9000000),
     break_force(0),
@@ -358,6 +376,8 @@ const char * File::SectionToString(File::Section section)
             return "shocks";
         case (File::SECTION_SHOCKS_2):
             return "shocks2";
+        case (File::SECTION_SHOCKS_3):
+            return "shocks3";
         case (File::SECTION_SLIDENODES):
             return "slidenodes";
         case (File::SECTION_SOUNDSOURCES):
@@ -533,6 +553,8 @@ const char * File::KeywordToString(File::Keyword keyword)
             return "shocks";
         case (File::KEYWORD_SHOCKS2):
             return "shocks2";
+        case (File::KEYWORD_SHOCKS3):
+            return "shocks3";
         case (File::KEYWORD_SLIDENODES):
             return "slidenodes";
         case (File::KEYWORD_SLOPE_BRAKE):

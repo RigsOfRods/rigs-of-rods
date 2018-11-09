@@ -1910,6 +1910,61 @@ void Serializer::ProcessShocks2(File::Module* module)
     m_stream << endl;
 }
 
+void Serializer::ProcessShocks3(File::Module* module)
+{
+    if (module->shocks_3.empty())
+    {
+        return;
+    }
+
+    // Group beams by presets
+    std::map< BeamDefaults*, std::vector<Shock3*> > shocks_by_preset;
+    auto itor_end = module->shocks_3.end(); 
+    for (auto itor = module->shocks_3.begin(); itor != itor_end; ++itor)
+    {
+        Shock3 & shock = *itor;
+        BeamDefaults* preset = shock.beam_defaults.get();
+
+        // Ensure preset is in map
+        auto found_itor = shocks_by_preset.find(preset);
+        if (found_itor == shocks_by_preset.end())
+        {
+            // Preset not in map, insert it and add shock.
+            std::vector<Shock3*> list;
+            list.reserve(100);
+            list.push_back(&shock);
+            shocks_by_preset.insert(std::make_pair(preset, list));
+        }
+        else
+        {
+            // Preset in map, just add shock.
+            found_itor->second.push_back(&shock);
+        }
+    }
+
+    // Write shocks to file
+    m_stream << "shocks3" << endl << endl;
+    auto preset_itor_end = shocks_by_preset.end();
+    for (auto preset_itor = shocks_by_preset.begin(); preset_itor != preset_itor_end; ++preset_itor)
+    {
+        // Write preset
+        BeamDefaults* preset = preset_itor->first;
+        ProcessBeamDefaults(preset);
+
+        // Write shocks
+        auto shock_list = preset_itor->second;
+        auto shock_itor_end = shock_list.end();
+        for (auto shock_itor = shock_list.begin(); shock_itor != shock_itor_end; ++shock_itor)
+        {
+            Shock3 & shock = *(*shock_itor);
+            ProcessShock3(shock);
+        }
+    }
+
+    // Empty line
+    m_stream << endl;
+}
+
 void Serializer::ProcessHydros(File::Module* module)
 {
     if (module->hydros.empty())
@@ -2172,6 +2227,53 @@ void Serializer::ProcessShock2(Shock2 & def)
         if (BITMASK_IS_1(def.options, Shock2::OPTION_s_SOFT_BUMP_BOUNDS))
         {
             m_stream << "s";
+        }
+    }
+
+    // Empty line
+    m_stream << endl;
+}
+
+void Serializer::ProcessShock3(Shock3 & def)
+{
+    m_stream << "\t"
+        << std::setw(m_node_id_width) << def.nodes[0].ToString() << ", "
+        << std::setw(m_node_id_width) << def.nodes[1].ToString() << ", ";
+
+    m_stream << std::setw(m_float_width) << def.spring_in                  << ", ";
+    m_stream << std::setw(m_float_width) << def.damp_in                    << ", ";
+    m_stream << std::setw(m_float_width) << def.damp_in_slow               << ", ";
+    m_stream << std::setw(m_float_width) << def.split_vel_in               << ", ";
+    m_stream << std::setw(m_float_width) << def.damp_in_fast               << ", ";
+
+    m_stream << std::setw(m_float_width) << def.spring_out                 << ", ";
+    m_stream << std::setw(m_float_width) << def.damp_out                   << ", ";
+    m_stream << std::setw(m_float_width) << def.damp_out_slow              << ", ";
+    m_stream << std::setw(m_float_width) << def.split_vel_out              << ", ";
+    m_stream << std::setw(m_float_width) << def.damp_out_fast              << ", ";
+
+    m_stream << std::setw(m_float_width) << def.short_bound                << ", ";
+    m_stream << std::setw(m_float_width) << def.long_bound                 << ", ";
+    m_stream << std::setw(m_float_width) << def.precompression             << ", ";
+
+    // Options
+    if (def.options != 0)
+    {
+        m_stream << "n"; // Placeholder
+    }
+    else
+    {
+        if (BITMASK_IS_1(def.options, Shock3::OPTION_i_INVISIBLE))
+        {
+            m_stream << "i";
+        }
+        if (BITMASK_IS_1(def.options, Shock3::OPTION_m_METRIC))
+        {
+            m_stream << "m";
+        }
+        if (BITMASK_IS_1(def.options, Shock3::OPTION_M_ABSOLUTE_METRIC))
+        {
+            m_stream << "M";
         }
     }
 
