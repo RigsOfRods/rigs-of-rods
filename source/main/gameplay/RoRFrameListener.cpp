@@ -1169,42 +1169,33 @@ void SimController::UpdateInputEvents(float dt)
 #ifdef USE_CAELUM
 
         const bool caelum_enabled = App::gfx_sky_mode.GetActive() == GfxSkyMode::CAELUM;
-        if (caelum_enabled && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
+        SkyManager* sky_mgr = App::GetSimTerrain()->getSkyManager();
+        if (caelum_enabled && (sky_mgr != nullptr) && (simRUNNING(s) || simPAUSED(s) || simEDITOR(s)))
         {
-            Real time_factor = 1000.0f;
-            Real multiplier = 10;
-            bool update_time = false;
+            Real time_factor = 1.0f;
 
-            if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME) && App::GetSimTerrain()->getSkyManager())
+            if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME))
             {
-                update_time = true;
+                time_factor = 1000.0f;
             }
-            else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME_FAST) && App::GetSimTerrain()->getSkyManager())
+            else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME_FAST))
             {
-                time_factor *= multiplier;
-                update_time = true;
+                time_factor = 10000.0f;
             }
-            else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME) && App::GetSimTerrain()->getSkyManager())
+            else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME))
             {
-                time_factor = -time_factor;
-                update_time = true;
+                time_factor = -1000.0f;
             }
-            else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME_FAST) && App::GetSimTerrain()->getSkyManager())
+            else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME_FAST))
             {
-                time_factor *= -multiplier;
-                update_time = true;
-            }
-            else
-            {
-                time_factor = 1.0f;
-                update_time = App::GetSimTerrain()->getSkyManager()->GetSkyTimeFactor() != 1.0f;
+                time_factor = -10000.0f;
             }
 
-            if (update_time)
+            if (sky_mgr->GetSkyTimeFactor() != time_factor)
             {
-                App::GetSimTerrain()->getSkyManager()->SetSkyTimeFactor(time_factor);
-                RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Time set to ") + App::GetSimTerrain()->getSkyManager()->GetPrettyTime());
-                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Time set to ") + App::GetSimTerrain()->getSkyManager()->GetPrettyTime(), "weather_sun.png", 1000);
+                sky_mgr->SetSkyTimeFactor(time_factor);
+                RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Time set to ") + sky_mgr->GetPrettyTime());
+                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Time set to ") + sky_mgr->GetPrettyTime(), "weather_sun.png", 1000);
             }
         }
 
