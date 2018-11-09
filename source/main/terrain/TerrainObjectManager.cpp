@@ -304,25 +304,28 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
                     {
                         if (highdens < 0)
                             hd = Math::RangeRandom(0, -highdens);
-                        float density = densityMap->_getDensityAt_Unfiltered(x, z, bounds);
-                        float numTreesToPlace = hd * density * terrainManager->getPagedDetailFactor();
-                        if (numTreesToPlace > 1.0f || Math::RangeRandom(0, 1.0f) > numTreesToPlace)
+                        float numTreesToPlace = hd * densityMap->_getDensityAt_Unfiltered(x, z, bounds);
+                        if (numTreesToPlace >= 1.0f)
                         {
-                            numTreesToPlace = Math::Floor(numTreesToPlace);
-                        }
-                        float nx = 0, nz = 0;
-                        while (numTreesToPlace-- > 0)
-                        {
-                            nx = Math::RangeRandom(x, x + gridsize);
-                            nz = Math::RangeRandom(z, z + gridsize);
-                            float yaw = Math::RangeRandom(yawfrom, yawto);
-                            float scale = Math::RangeRandom(scalefrom, scaleto);
-                            Vector3 pos = Vector3(nx, 0, nz);
-                            tree_loader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
-                            if (strlen(treeCollmesh))
+                            numTreesToPlace *= terrainManager->getPagedDetailFactor();
+                            if (numTreesToPlace > 1.0f || Math::RangeRandom(0, 1.0f) > numTreesToPlace)
                             {
-                                pos.y = App::GetSimTerrain()->GetHeightAt(pos.x, pos.z);
-                                gEnv->collisions->addCollisionMesh(String(treeCollmesh), pos, Quaternion(Degree(yaw), Vector3::UNIT_Y), Vector3(scale, scale, scale));
+                                numTreesToPlace = Math::Floor(numTreesToPlace);
+                            }
+                            float nx = 0, nz = 0;
+                            while (numTreesToPlace-- > 0)
+                            {
+                                nx = Math::RangeRandom(x, x + gridsize);
+                                nz = Math::RangeRandom(z, z + gridsize);
+                                float yaw = Math::RangeRandom(yawfrom, yawto);
+                                float scale = Math::RangeRandom(scalefrom, scaleto);
+                                Vector3 pos = Vector3(nx, 0, nz);
+                                tree_loader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
+                                if (strlen(treeCollmesh))
+                                {
+                                    pos.y = App::GetSimTerrain()->GetHeightAt(pos.x, pos.z);
+                                    gEnv->collisions->addCollisionMesh(String(treeCollmesh), pos, Quaternion(Degree(yaw), Vector3::UNIT_Y), Vector3(scale, scale, scale));
+                                }
                             }
                         }
                     }
