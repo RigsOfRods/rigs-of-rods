@@ -241,13 +241,10 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
             }
             densityMap->setFilter(Forests::MAPFILTER_BILINEAR);
 
-            auto geom = new PagedGeometry();
+            auto geom = new PagedGeometry(gEnv->mainCamera, 50);
             RoR::Str<300> temp_path;
             temp_path << RoR::App::sys_cache_dir.GetActive() << RoR::PATH_SLASH;
             geom->setTempDir(temp_path.GetBuffer());
-            geom->setCamera(gEnv->mainCamera);
-            geom->setPageSize(50);
-            geom->setInfinite();
             Ogre::TRect<Ogre::Real> bounds = TBounds(0, 0, m_terrain_size_x, m_map_size_z);
             geom->setBounds(bounds);
 
