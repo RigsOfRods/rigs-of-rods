@@ -45,8 +45,6 @@ Landusemap::~Landusemap()
 {
     if (data != nullptr)
         delete[] data;
-    if (default_ground_model != nullptr)
-        delete default_ground_model;
 }
 
 ground_model_t* Landusemap::getGroundModelAt(int x, int z)
