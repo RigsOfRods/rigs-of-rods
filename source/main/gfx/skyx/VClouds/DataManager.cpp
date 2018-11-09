@@ -598,22 +598,43 @@ namespace SkyX { namespace VClouds
 		
 		buffer->lock(Ogre::HardwareBuffer::HBL_DISCARD);
 		const Ogre::PixelBox &pb = buffer->getCurrentLock();
+        size_t x, y, z;
 
-		Ogre::uint32 *pbptr = reinterpret_cast<Ogre::uint32*>(pb.data);
-		size_t x, y, z;
-
-		for (z=pb.front; z<pb.back; z++) 
+        if (Ogre::Root::getSingleton ().getRenderSystem ()->getName () == "OpenGL Rendering Subsystem")
         {
-            for (y=pb.top; y<pb.bottom; y++)
+            auto *pbptr = pb.data;
+
+            for (z = pb.front; z < pb.back; z++)
             {
-                for (x=pb.left; x<pb.right; x++)
-				{
-					Ogre::PixelUtil::packColour(c[x][y][z].dens/* TODO!!!! */, c[x][y][z].light, 0, 0, pb.format, &pbptr[x]);
-                } 
-                pbptr += pb.rowPitch;
+                for (y = pb.top; y < pb.bottom; y++)
+                {
+                    for (x = pb.left; x < pb.right; x++)
+                    {
+                        Ogre::PixelUtil::packColour (c[x][y][z].dens/* TODO!!!! */, c[x][y][z].light, 0, 0, pb.format, &pbptr[x]);
+                    }
+                    pbptr += pb.rowPitch;
+                }
+                pbptr += pb.getSliceSkip ();
             }
-            pbptr += pb.getSliceSkip();
         }
+        else
+        {
+            Ogre::uint32 *pbptr = reinterpret_cast<Ogre::uint32*>(pb.data);
+
+            for (z = pb.front; z < pb.back; z++)
+            {
+                for (y = pb.top; y < pb.bottom; y++)
+                {
+                    for (x = pb.left; x < pb.right; x++)
+                    {
+                        Ogre::PixelUtil::packColour (c[x][y][z].dens/* TODO!!!! */, c[x][y][z].light, 0, 0, pb.format, &pbptr[x]);
+                    }
+                    pbptr += pb.rowPitch;
+                }
+                pbptr += pb.getSliceSkip ();
+            }
+        }
+		
 
 		buffer->unlock();
 	}
