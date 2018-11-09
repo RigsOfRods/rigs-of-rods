@@ -64,22 +64,15 @@ Dashboard::Dashboard() :
 
 Dashboard::~Dashboard()
 {
+    if (rttTex) rttTex->removeListener(mDashboardListener);
+    if (mDashboardListener) delete mDashboardListener;
     gEnv->sceneManager->destroyCamera("DashCam");
     Ogre::TextureManager::getSingleton().remove("dashtexture");
-    //if (mDashboardListener) delete mDashboardListener; // segfaults when going back to menu after spawning any vehicle
 }
 
 void Dashboard::setEnable(bool en)
 {
     rttTex->setActive(en);
-}
-
-void Dashboard::prepareShutdown()
-{
-    if (rttTex)
-    {
-        rttTex->removeListener(mDashboardListener);
-    }
 }
 
 DashboardListener::DashboardListener() :

@@ -38,7 +38,6 @@ public:
     ~Dashboard();
 
     void setEnable(bool en);
-    void prepareShutdown();
 
 private:
 
