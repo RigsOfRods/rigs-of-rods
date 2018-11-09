@@ -1106,6 +1106,39 @@ struct Shock2
 };
 
 /* -------------------------------------------------------------------------- */
+/* Section SHOCKS_2                                                           */
+/* -------------------------------------------------------------------------- */
+
+struct Shock3
+{
+    Shock3();
+
+    BITMASK_PROPERTY(options, 1, OPTION_i_INVISIBLE       , HasOption_i_Invisible,      SetOption_i_Invisible) 
+    // metric values for shortbound/longbound applying to the length of the beam.
+    BITMASK_PROPERTY(options, 2, OPTION_m_METRIC          , HasOption_m_Metric,         SetOption_m_Metric)
+    // Absolute metric values for shortbound/longbound, settings apply without regarding to the original length of the beam.(Use with caution, check ror.log for errors)
+    BITMASK_PROPERTY(options, 3, OPTION_M_ABSOLUTE_METRIC , HasOption_M_AbsoluteMetric, SetOption_M_AbsoluteMetric)  
+
+    Node::Ref nodes[2];
+    float spring_in;                  ///< Spring value applied when the shock is compressing.
+    float damp_in;                    ///< Damping value applied when the shock is compressing. 
+    float spring_out;                 ///< Spring value applied when shock extending
+    float damp_out;                   ///< Damping value applied when shock extending
+    float damp_in_slow;               ///< Damping value applied when shock is commpressing slower than split in velocity
+    float split_vel_in;               ///< Split velocity in (m/s) - threshold for slow / fast damping during compression
+    float damp_in_fast;               ///< Damping value applied when shock is commpressing faster than split in velocity
+    float damp_out_slow;              ///< Damping value applied when shock is commpressing slower than split out velocity
+    float split_vel_out;              ///< Split velocity in (m/s) - threshold for slow / fast damping during extension
+    float damp_out_fast;              ///< Damping value applied when shock is commpressing faster than split out velocity
+    float short_bound;                ///< Maximum contraction limit, in percentage ( 1.00 = 100% )
+    float long_bound;                 ///< Maximum extension limit, in percentage ( 1.00 = 100% )
+    float precompression;             ///< Changes compression or extension of the suspension when the truck spawns. This can be used to "level" the suspension of a truck if it sags in game. The default value is 1.0.  
+    unsigned int options;             ///< Bit flags.
+    std::shared_ptr<BeamDefaults> beam_defaults;
+    int detacher_group;
+};
+
+/* -------------------------------------------------------------------------- */
 /* Inline-section SET_SKELETON_DISPLAY                                        */
 /* -------------------------------------------------------------------------- */
 
@@ -2038,6 +2071,7 @@ struct File
         std::vector<Screwprop>             screwprops;
         std::vector<Shock>                 shocks;
         std::vector<Shock2>                shocks_2;
+        std::vector<Shock3>                shocks_3;
         SkeletonSettings                   skeleton_settings;
         std::vector<SlideNode>             slidenodes;
         std::shared_ptr<SlopeBrake>        slope_brake;
@@ -2151,6 +2185,7 @@ struct File
         KEYWORD_SET_SKELETON_SETTINGS,
         KEYWORD_SHOCKS,
         KEYWORD_SHOCKS2,
+        KEYWORD_SHOCKS3,
         KEYWORD_SLIDENODE_CONNECT_INSTANT,
         KEYWORD_SLIDENODES,
         KEYWORD_SLOPE_BRAKE,
@@ -2230,6 +2265,7 @@ struct File
         SECTION_SCREWPROPS,
         SECTION_SHOCKS,
         SECTION_SHOCKS_2,
+        SECTION_SHOCKS_3,
         SECTION_SLIDENODES,
         SECTION_SOUNDSOURCES,
         SECTION_SOUNDSOURCES2,

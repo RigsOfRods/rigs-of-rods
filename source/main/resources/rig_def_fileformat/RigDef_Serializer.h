@@ -72,8 +72,10 @@ protected:
 
     void ProcessShocks(File::Module*);
     void ProcessShocks2(File::Module*);
+    void ProcessShocks3(File::Module*);
     void ProcessShock(Shock & def);
     void ProcessShock2(Shock2 & def);
+    void ProcessShock3(Shock3 & def);
 
     void ProcessHydros(File::Module*);
     void ProcessHydro(Hydro & def);

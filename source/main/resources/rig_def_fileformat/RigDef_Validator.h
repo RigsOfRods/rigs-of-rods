@@ -131,6 +131,8 @@ private:
 
     bool CheckShock2(RigDef::Shock2 & shock2);
 
+    bool CheckShock3(RigDef::Shock3 & shock3);
+
     bool CheckAnimator(RigDef::Animator & def);
 
     bool CheckCommand(RigDef::Command2 & def);

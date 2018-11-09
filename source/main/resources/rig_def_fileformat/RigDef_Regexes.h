@@ -275,6 +275,7 @@ namespace Regexes
     E_KEYWORD_INLINE("set_skeleton_settings")                     \
     E_KEYWORD_BLOCK("shocks")                                     \
     E_KEYWORD_BLOCK("shocks2")                                    \
+    E_KEYWORD_BLOCK("shocks3")                                    \
     E_KEYWORD_BLOCK("slidenode_connect_instantly")                \
     E_KEYWORD_BLOCK("slidenodes")                                 \
     E_KEYWORD_INLINE("SlopeBrake")                                \

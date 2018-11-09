@@ -168,6 +168,8 @@ void ActorSpawner::CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::
     req.num_shocks += module_def->shocks.size();
     req.num_beams  += module_def->shocks_2.size();
     req.num_shocks += module_def->shocks_2.size();
+    req.num_beams  += module_def->shocks_3.size();
+    req.num_shocks += module_def->shocks_3.size();
 
     // 'commands' and 'commands2' (unified)
     req.num_beams += module_def->commands_2.size();
@@ -3729,6 +3731,84 @@ void ActorSpawner::ProcessHydro(RigDef::Hydro & def)
     hb.hb_anim_param = 0.f;
 
     m_actor->ar_hydros.push_back(hb);
+}
+
+void ActorSpawner::ProcessShock3(RigDef::Shock3 & def)
+{
+    node_t & node_1 = GetNode(def.nodes[0]);
+    node_t & node_2 = GetNode(def.nodes[1]);
+    float short_bound = def.short_bound;
+    float long_bound = def.long_bound;
+    unsigned int shock_flags = SHOCK_FLAG_NORMAL | SHOCK_FLAG_ISSHOCK3;
+
+    if (BITMASK_IS_1(def.options, RigDef::Shock3::OPTION_m_METRIC))
+    {
+        float beam_length = node_1.AbsPosition.distance(node_2.AbsPosition);
+        short_bound /= beam_length;
+        long_bound /= beam_length;
+    }
+    if (BITMASK_IS_1(def.options, RigDef::Shock3::OPTION_M_ABSOLUTE_METRIC))
+    {
+        float beam_length = node_1.AbsPosition.distance(node_2.AbsPosition);
+        short_bound = (beam_length - short_bound) / beam_length;
+        long_bound = (long_bound - beam_length) / beam_length;
+
+        if (long_bound < 0.f)
+        {
+            AddMessage(
+                Message::TYPE_WARNING, 
+                "Metric shock length calculation failed, 'short_bound' less than beams spawn length. Resetting to beam's spawn length (short_bound = 0)"
+            );
+            long_bound = 0.f;
+        }
+
+        if (short_bound > 1.f)
+        {
+            AddMessage(
+                Message::TYPE_WARNING, 
+                "Metric shock length calculation failed, 'short_bound' less than 0 meters. Resetting to 0 meters (short_bound = 1)"
+            );
+            short_bound = 1.f;
+        }
+    }
+    
+    int beam_index = m_actor->ar_num_beams;
+    beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
+    SetBeamStrength(beam, def.beam_defaults->breaking_threshold * 4.f);
+    beam.bm_type              = BEAM_HYDRO;
+    beam.bounded              = SHOCK3;
+    beam.k                    = def.spring_in;
+    beam.d                    = def.damp_in;
+    beam.shortbound           = short_bound;
+    beam.longbound            = long_bound;
+
+    /* Length + pre-compression */
+    CalculateBeamLength(beam);
+    beam.L          *= def.precompression;
+    beam.refL       *= def.precompression;
+
+    if (BITMASK_IS_0(def.options, RigDef::Shock3::OPTION_i_INVISIBLE))
+    {
+        this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+    }
+
+    shock_t & shock  = GetFreeShock();
+    shock.flags      = shock_flags;
+    shock.sbd_spring = def.beam_defaults->springiness;
+    shock.sbd_damp   = def.beam_defaults->damping_constant;
+    shock.springin   = def.spring_in;
+    shock.dampin     = def.damp_in;
+    shock.springout  = def.spring_out;
+    shock.dampout    = def.damp_out;
+    shock.splitin    = def.split_vel_in;
+    shock.dslowin    = def.damp_in_slow;
+    shock.dfastin    = def.damp_in_fast;
+    shock.splitout   = def.split_vel_out;
+    shock.dslowout   = def.damp_out_slow;
+    shock.dfastout   = def.damp_out_fast;
+
+    beam.shock = & shock;
+    shock.beamid = beam_index;
 }
 
 void ActorSpawner::ProcessShock2(RigDef::Shock2 & def)

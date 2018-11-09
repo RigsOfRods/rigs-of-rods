@@ -388,6 +388,7 @@ private:
     void              CalcRopes();                         //!< TIGHT LOOP; Physics;
     void              CalcShocks(bool doUpdate, int num_steps); //!< TIGHT LOOP; Physics;
     void              CalcShocks2(int i, Ogre::Real difftoBeamL, Ogre::Real &k, Ogre::Real &d);
+    void              CalcShocks3(int i, Ogre::Real difftoBeamL, Ogre::Real &k, Ogre::Real &d, Ogre::Real v);
     void              CalcTriggers(int i, Ogre::Real difftoBeamL, bool update_hooks);
     void              CalcSlideNodes();                    //!< TIGHT LOOP; Physics;
     void              CalcTies();                          //!< TIGHT LOOP; Physics;

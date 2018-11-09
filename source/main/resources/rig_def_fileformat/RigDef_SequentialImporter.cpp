@@ -584,6 +584,12 @@ void SequentialImporter::ProcessModule(std::shared_ptr<RigDef::File::Module> mod
         RESOLVE(shock2.nodes[1]);
     });
 
+    FOR_EACH (File::KEYWORD_SHOCKS3, module->shocks_3, shock3,
+    {
+        RESOLVE(shock3.nodes[0]);
+        RESOLVE(shock3.nodes[1]);
+    });
+
     FOR_EACH (File::KEYWORD_SLIDENODES, module->slidenodes, slidenode,
     {
         RESOLVE(slidenode.slide_node);

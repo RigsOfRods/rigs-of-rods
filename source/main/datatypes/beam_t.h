@@ -42,7 +42,7 @@ struct beam_t
     Ogre::Real stress;
     Ogre::Real plastic_coef;
     int detacher_group;	//!< Attribute: detacher group number (integer)
-    short bounded;      //!< { SHOCK1=1, SHOCK2=2, SUPPORTBEAM=3, ROPE=4 }
+    short bounded;      //!< { SHOCK1=1, SHOCK2=2, SHOCK3=3, TRIGGER=4, SUPPORTBEAM=5, ROPE=6 }
     short bm_type;      //!< { BEAM_NORMAL, BEAM_HYDRO, BEAM_VIRTUAL }
     bool bm_inter_actor;       //!< in case p2 is on another actor
     Actor* bm_locked_actor;    //!< in case p2 is on another actor

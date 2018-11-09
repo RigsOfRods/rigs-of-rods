@@ -1065,7 +1065,9 @@ void RoR::GfxActor::UpdateDebugView()
         const size_t num_beams = static_cast<size_t>(m_actor->ar_num_beams);
         for (size_t i = 0; i < num_beams; ++i)
         {
-            if (beams[i].bm_type != BEAM_HYDRO || !(beams[i].bounded == SHOCK1 || beams[i].bounded == SHOCK2))
+            if (beams[i].bm_type != BEAM_HYDRO)
+                continue;
+            if (!(beams[i].bounded == SHOCK1 || beams[i].bounded == SHOCK2 || beams[i].bounded == SHOCK3))
                 continue;
 
             Ogre::Vector3 pos1_xyz = world2screen.Convert(beams[i].p1->AbsPosition);

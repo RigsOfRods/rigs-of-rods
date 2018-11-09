@@ -241,6 +241,7 @@ the lettercase in this list corresponds to original documentation.
     set_skeleton_settings        DIRECTIVE  Default
     shocks                       BLOCK      
     shocks2                      BLOCK      
+    shocks3                      BLOCK      
     slidenode_connect_instantly  DIRECTIVE  
     slidenodes                   BLOCK      CommaSpaceSV
     SlopeBrake                   BLOCK      
