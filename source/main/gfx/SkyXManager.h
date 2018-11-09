@@ -60,4 +60,6 @@ protected:
 						mAmbientGradient;
 
 	SkyX::CfgFileManager* mCfgFileManager;
+
+    int mLastHour = 0;
 };

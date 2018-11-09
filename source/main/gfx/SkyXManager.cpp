@@ -85,8 +85,12 @@ bool SkyXManager::UpdateSkyLight()
 	// Calculate current color gradients point
 	float point = (-lightDir.y + 1.0f) / 2.0f;
 
-	if (App::GetSimTerrain()->getHydraxManager())
-		App::GetSimTerrain()->getHydraxManager()->GetHydrax()->setWaterColor(mWaterGradient.getColor(point));
+    if (App::GetSimTerrain ()->getHydraxManager ()) 
+    {
+        App::GetSimTerrain ()->getHydraxManager ()->GetHydrax ()->setWaterColor (mWaterGradient.getColor (point));
+        App::GetSimTerrain ()->getHydraxManager ()->GetHydrax ()->setSunPosition (sunPos*0.1);
+    }
+		
 
 	mLight0 = gEnv->sceneManager->getLight("Light0");
 	mLight1 = gEnv->sceneManager->getLight("Light1");
@@ -113,12 +117,23 @@ bool SkyXManager::UpdateSkyLight()
 			mLight0->setVisible(false);
 		else
 			mLight0->setVisible(true);
-	} else
-	if (mBasicController->getTime().x < mBasicController->getTime().z)
-		mLight0->setVisible(false);
-	else
-		mLight0->setVisible(true);
+	} 
+    else
+    {
+        if (mBasicController->getTime ().x < mBasicController->getTime ().z)
+            mLight0->setVisible (false);
+        else
+            mLight0->setVisible (true);
+    }
+	
+    if (round (mBasicController->getTime ().x) != mLastHour)
+    {
+        TerrainGeometryManager* gm = App::GetSimTerrain ()->getGeometryManager ();
+        if (gm)
+            gm->updateLightMap ();
 
+        mLastHour = round (mBasicController->getTime ().x);
+    }
 
 	return true;
 }
