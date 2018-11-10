@@ -242,7 +242,6 @@ set(SOURCE_FILES
         utils/Language.{h,cpp}
         utils/MeshObject.{h,cpp}
         utils/PlatformUtils.{h,cpp}
-        utils/RoRWindowEventUtilities.{h,cpp}
         utils/Settings.{h,cpp}
         utils/SHA1.{h,cpp}
         utils/SimpleGlob.h
@@ -285,7 +284,6 @@ endif ()
 FetchContent_Declare(
         pagedgeometry
         GIT_REPOSITORY https://github.com/RigsOfRods/ogre-pagedgeometry.git
-        GIT_TAG upgrade-to-ogre-1.11
         GIT_SHALLOW TRUE
 )
 
