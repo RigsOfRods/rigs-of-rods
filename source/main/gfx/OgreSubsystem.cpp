@@ -78,7 +78,29 @@ bool OgreSubsystem::Configure()
     {
         // If returned true, user clicked OK so initialise
         // Here we choose to let the system create a default rendering window by passing 'true'
-        m_render_window = m_ogre_root->initialise(true, "Rigs of Rods version " + Ogre::String(ROR_VERSION_STRING));
+        m_render_window = m_ogre_root->initialise(false);
+
+        Ogre::ConfigOptionMap ropts = m_ogre_root->getRenderSystem ()->getConfigOptions ();
+        Ogre::uint32 width, height;
+        Ogre::NameValuePairList miscParams;
+
+        std::istringstream mode (ropts["Video Mode"].currentValue);
+        Ogre::String token;
+        mode >> width; 
+        mode >> token; // 'x' as seperator between width and height
+        mode >> height;
+
+        miscParams["FSAA"] = ropts["FSAA"].currentValue;
+        miscParams["vsync"] = ropts["VSync"].currentValue;
+        miscParams["gamma"] = ropts["sRGB Gamma Conversion"].currentValue;
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+        miscParams["windowProc"] = Ogre::StringConverter::toString ((size_t)OgreBites::WindowEventUtilities::_WndProc);
+#endif
+
+        m_render_window = Ogre::Root::getSingleton ().createRenderWindow (
+            "Rigs of Rods version " + Ogre::String (ROR_VERSION_STRING),
+            width, height, ropts["Full Screen"].currentValue == "Yes", &miscParams);
+        OgreBites::WindowEventUtilities::_addRenderWindow (m_render_window);
 
         // set window icon correctly
         fixRenderWindowIcon(m_render_window);
