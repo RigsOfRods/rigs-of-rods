@@ -2121,7 +2121,7 @@ bool SimController::SetupGameplayLoop()
 
 void SimController::EnterGameplayLoop()
 {
-    RoRWindowEventUtilities::addWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
+    OgreBites::WindowEventUtilities::addWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
 
     Ogre::RenderWindow* rw = RoR::App::GetOgreSubsystem()->GetRenderWindow();
 
@@ -2129,7 +2129,7 @@ void SimController::EnterGameplayLoop()
 
     while (App::app_state.GetPending() == AppState::SIMULATION)
     {
-        RoRWindowEventUtilities::messagePump();
+        OgreBites::WindowEventUtilities::messagePump();
         if (rw->isClosed())
         {
             App::app_state.SetPending(AppState::SHUTDOWN);
@@ -2221,7 +2221,7 @@ void SimController::EnterGameplayLoop()
     App::sim_state.SetActive(SimState::OFF);
     App::GetGuiManager()->GetLoadingWindow()->setProgress(50, _L("Unloading Terrain"), !m_was_app_window_closed); // Renders a frame
     this->CleanupAfterSimulation();
-    RoRWindowEventUtilities::removeWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
+    OgreBites::WindowEventUtilities::removeWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
     // DO NOT: App::GetOverlayWrapper()->SetSimController(nullptr); -- already deleted via App::DestroyOverlayWrapper(); // TODO: de-globalize that object!
 }
 

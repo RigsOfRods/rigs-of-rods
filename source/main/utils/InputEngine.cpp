@@ -29,7 +29,6 @@
 #include "Application.h"
 #include "ErrorUtils.h"
 #include "OgreSubsystem.h"
-#include "RoRWindowEventUtilities.h"
 #include "Settings.h"
 
 #include <Ogre.h>
