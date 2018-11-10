@@ -1614,8 +1614,11 @@ void SimController::UpdateSimulation(float dt)
             Actor* fresh_actor = this->SpawnActorDirectly(rq);
 
             // Calculate translational offset for node[0] to align the actor's rotation center with m_reload_pos
-            Vector3 translation = rq.asr_position - fresh_actor->GetRotationCenter();
-            fresh_actor->ResetPosition(fresh_actor->ar_nodes[0].AbsPosition + Vector3(translation.x, 0.0f, translation.z), true);
+            Vector3 target = fresh_actor->GetRotationCenter();
+            // and to avoid ground collisions
+            target.y = std::min(fresh_actor->ar_nodes[fresh_actor->ar_lowest_contacting_node].AbsPosition.y, target.y);
+            Vector3 translation = rq.asr_position - target;
+            fresh_actor->ResetPosition(fresh_actor->ar_nodes[0].AbsPosition + translation, true);
 
             if (App::diag_preset_veh_enter.GetActive())
             {
