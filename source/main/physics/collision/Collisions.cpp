@@ -1218,7 +1218,8 @@ Vector3 primitiveCollision(node_t *node, Vector3 velocity, float mass, Vector3 n
         // impact force
         if (Vnormal < 0)
         {
-            Freaction -= Vnormal * mass / dt; // Newton's second law
+            float penetration_depth = gm->solid_ground_level - penetration;
+            Freaction -= (0.8f * Vnormal + 0.2f * penetration_depth / dt) * mass / dt; // Newton's second law
         }
         if (Freaction > 0)
         {
