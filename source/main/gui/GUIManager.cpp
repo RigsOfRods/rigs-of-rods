@@ -33,7 +33,6 @@
 #include "OgreImGui.h"
 #include "OgreSubsystem.h"
 #include "PlatformUtils.h"
-#include "RoRWindowEventUtilities.h"
 #include "RTTLayer.h"
 #include "Settings.h"
 #include "TerrainManager.h"
@@ -153,7 +152,7 @@ GUIManager::GUIManager() :
     m_impl(nullptr)
 {
     RoR::App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(this);
-    RoRWindowEventUtilities::addWindowEventListener(RoR::App::GetOgreSubsystem()->GetRenderWindow(), this);
+    OgreBites::WindowEventUtilities::addWindowEventListener(RoR::App::GetOgreSubsystem()->GetRenderWindow(), this);
 
     Str<300> gui_logpath;
     gui_logpath << App::sys_logs_dir.GetActive() << RoR::PATH_SLASH << "MyGUI.log";

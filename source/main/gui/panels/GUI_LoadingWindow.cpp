@@ -24,7 +24,6 @@
 #include "Application.h"
 #include "GUIManager.h"
 #include "Language.h"
-#include "RoRWindowEventUtilities.h"
 #include "Settings.h"
 #include "Utils.h"
 
@@ -80,7 +79,7 @@ void LoadingWindow::renderOneFrame(bool force)
     if (t->getMilliseconds() > 200 || force)
     {
         // we must pump the window messages, otherwise the window will get white on Vista ...
-        RoRWindowEventUtilities::messagePump();
+        OgreBites::WindowEventUtilities::messagePump();
         Ogre::Root::getSingleton().renderOneFrame();
         t->reset();
     }

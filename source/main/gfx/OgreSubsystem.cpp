@@ -33,7 +33,6 @@
 #include "Language.h"
 #include "PlatformUtils.h"
 #include "RoRVersion.h"
-#include "RoRWindowEventUtilities.h"
 #include "Utils.h"
 
 #include <OgreRoot.h>
@@ -165,9 +164,6 @@ bool OgreSubsystem::StartOgre(Ogre::String const & hwnd, Ogre::String const & ma
 
 void OgreSubsystem::WindowResized(Ogre::Vector2 const & size)
 {
-    // trigger resizing of all sub-components
-    RoRWindowEventUtilities::triggerResize(m_render_window);
-
     // Set the aspect ratio for the new size
     if (m_viewport->getCamera())
     {

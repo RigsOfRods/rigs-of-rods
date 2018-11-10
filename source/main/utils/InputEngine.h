@@ -27,7 +27,6 @@
 #pragma once
 
 #include "RoRPrerequisites.h"
-#include "RoRWindowEventUtilities.h"
 
 #include <OgreUTFString.h>
 #include "OISEvents.h"

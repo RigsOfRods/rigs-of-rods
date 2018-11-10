@@ -86,7 +86,7 @@ MainMenu::MainMenu()
 
 void MainMenu::EnterMainMenuLoop()
 {
-    RoRWindowEventUtilities::addWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
+    OgreBites::WindowEventUtilities::addWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
 
     // ==== FPS-limiter ====
     // TODO: Is this necessary in menu?
@@ -127,7 +127,7 @@ void MainMenu::EnterMainMenuLoop()
         }
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 || OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-        RoRWindowEventUtilities::messagePump();
+        OgreBites::WindowEventUtilities::messagePump();
 #endif
         Ogre::RenderWindow* rw = RoR::App::GetOgreSubsystem()->GetRenderWindow();
         if (rw->isClosed())
@@ -167,7 +167,7 @@ void MainMenu::EnterMainMenuLoop()
 
         timeSinceLastFrame = timer.getMilliseconds() - startTime;
     }
-    RoRWindowEventUtilities::removeWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
+    OgreBites::WindowEventUtilities::removeWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
     App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(this);
 }
 
