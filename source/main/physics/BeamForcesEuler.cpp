@@ -328,9 +328,11 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
 
         if (ar_wheels[i].wh_braking != wheel_t::BrakeCombo::NONE)
         {
+            // footbrake
+            float abrake = ar_brake_force * ar_brake;
+
             // handbrake
             float hbrake = 0.0f;
-
             if (ar_parking_brake && (ar_wheels[i].wh_braking != wheel_t::BrakeCombo::FOOT_ONLY))
             {
                 hbrake = m_handbrake_force;
@@ -338,7 +340,6 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
 
             // directional braking
             float dbrake = 0.0f;
-
             if ((ar_wheels[i].wh_speed < 20.0f)
                 && (((ar_wheels[i].wh_braking == wheel_t::BrakeCombo::FOOT_HAND_SKID_LEFT)  && (ar_hydro_dir_state > 0.0f))
                  || ((ar_wheels[i].wh_braking == wheel_t::BrakeCombo::FOOT_HAND_SKID_RIGHT) && (ar_hydro_dir_state < 0.0f))))
@@ -346,13 +347,13 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
                 dbrake = ar_brake_force * abs(ar_hydro_dir_state);
             }
 
-            if ((ar_brake != 0.0 || dbrake != 0.0 || hbrake != 0.0) && m_num_braked_wheels != 0 )
+            if ((abrake != 0.0 || dbrake != 0.0 || hbrake != 0.0) && m_num_braked_wheels != 0 )
             {
                 float brake_coef = 1.0f;
                 float antilock_coef = 1.0f;
 
                 // anti-lock braking
-                if (alb_mode && curspeed > alb_minspeed && curspeed > fabs(ar_wheels[i].wh_speed) && (ar_brake + dbrake > 0.0f) && wheel_slip > 0.25f) 
+                if (alb_mode && curspeed > alb_minspeed && curspeed > fabs(ar_wheels[i].wh_speed) && (abrake + dbrake > 0.0f) && wheel_slip > 0.25f) 
                 {
                     if (alb_pulse_state)
                     {
@@ -374,9 +375,9 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
                 }
 
                 if (ar_wheels[i].wh_avg_speed > 0)
-                    ar_wheels[i].wh_torque -= ((ar_brake + dbrake) * antilock_coef + hbrake) * brake_coef;
+                    ar_wheels[i].wh_torque -= ((abrake + dbrake) * antilock_coef + hbrake) * brake_coef;
                 else
-                    ar_wheels[i].wh_torque += ((ar_brake + dbrake) * antilock_coef + hbrake) * brake_coef;
+                    ar_wheels[i].wh_torque += ((abrake + dbrake) * antilock_coef + hbrake) * brake_coef;
             }
             else
             {

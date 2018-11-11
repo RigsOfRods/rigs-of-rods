@@ -91,9 +91,7 @@ void AircraftSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_last_
     //brake
     if (!vehicle->ar_replay_mode && !vehicle->ar_parking_brake)
     {
-        vehicle->ar_brake = 0.0;
-        float brakevalue = RoR::App::GetInputEngine()->getEventValue(EV_AIRPLANE_BRAKE);
-        vehicle->ar_brake = vehicle->ar_brake_force * 0.66 * brakevalue;
+        vehicle->ar_brake = RoR::App::GetInputEngine()->getEventValue(EV_AIRPLANE_BRAKE) * 0.66f;
     }
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_AIRPLANE_PARKING_BRAKE))
     {

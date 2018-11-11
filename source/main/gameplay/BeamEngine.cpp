@@ -626,16 +626,9 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
 
             int newGear = m_cur_gear;
 
-            float brake = 0.0f;
-
-            if (m_actor->ar_brake_force > 0.0f)
-            {
-                brake = m_actor->ar_brake / m_actor->ar_brake_force;
-            }
-
             m_rpms.push_front(m_cur_engine_rpm);
             m_accs.push_front(acc);
-            m_brakes.push_front(brake);
+            m_brakes.push_front(m_actor->ar_brake);
 
             float avgRPM50 = 0.0f;
             float avgRPM200 = 0.0f;
@@ -670,7 +663,7 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
             {
                 m_shift_behaviour = std::min(m_shift_behaviour + 0.01f, 1.0f);
             }
-            else if (acc < 0.5f && avgAcc50 < 0.5f && avgAcc200 < 0.5f && brake < 0.5f && avgBrake50 < 0.5f && avgBrake200 < 0.5)
+            else if (acc < 0.5f && avgAcc50 < 0.5f && avgAcc200 < 0.5f && m_actor->ar_brake < 0.5f && avgBrake50 < 0.5f && avgBrake200 < 0.5)
             {
                 m_shift_behaviour /= 1.01;
             }

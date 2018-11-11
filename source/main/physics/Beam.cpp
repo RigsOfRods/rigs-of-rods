@@ -2052,8 +2052,7 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
     //brake
     if (flag_state & ANIM_FLAG_BRAKE)
     {
-        float brakes = ar_brake / ar_brake_force;
-        cstate -= brakes;
+        cstate -= ar_brake;
         div++;
     }
 
@@ -3850,8 +3849,7 @@ void Actor::updateDashBoards(float dt)
     }
 
     // brake
-    float dash_brake = ar_brake / ar_brake_force;
-    ar_dashboard->setFloat(DD_BRAKE, dash_brake);
+    ar_dashboard->setFloat(DD_BRAKE, ar_brake);
 
     Vector3 cam_dir  = this->GetCameraDir();
     Vector3 cam_roll = this->GetCameraRoll();
@@ -4219,7 +4217,7 @@ void Actor::EngineTriggerHelper(int engineNumber, int type, float triggerValue)
             e->SetClutch(triggerValue);
         break;
     case TRG_ENGINE_BRAKE:
-        ar_brake = triggerValue * ar_brake_force;
+        ar_brake = triggerValue;
         break;
     case TRG_ENGINE_ACC:
         if (e)
@@ -4423,8 +4421,7 @@ bool Actor::getBrakeLightVisible()
     if (ar_sim_state == SimState::NETWORKED_OK)
         return m_net_brake_light;
 
-    //		return (brake > 0.15 && !parkingbrake);
-    return (ar_brake > 0.15);
+    return (ar_brake > 0.01f && !ar_parking_brake);
 }
 
 bool Actor::getCustomLightVisible(int number)
