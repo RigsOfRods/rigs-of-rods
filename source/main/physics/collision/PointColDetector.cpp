@@ -25,130 +25,90 @@
 
 using namespace Ogre;
 
-PointColDetector::PointColDetector()
-    : m_object_list_size(-1)
+void PointColDetector::UpdateIntraPoint(Actor* actor)
 {
-}
+    if (!actor)
+        return;
 
-PointColDetector::~PointColDetector()
-{
-}
-
-void PointColDetector::UpdateIntraPoint(Actor* actor, bool ignorestate)
-{
-    int contacters_size = 0;
-
-    if (actor && (ignorestate || actor->ar_sim_state < Actor::SimState::LOCAL_SLEEPING))
+    if (m_kdtree.empty())
     {
-        m_actors.resize(1, actor);
-        contacters_size += actor->ar_num_contacters;
-    }
-    else
-    {
-        m_actors.clear();
-    }
+        hit_list.resize(actor->ar_num_contacters);
+        m_ref_list.resize(actor->ar_num_contacters);
+        m_pointid_list.resize(actor->ar_num_contacters);
 
-    if (contacters_size != m_object_list_size)
-    {
-        m_object_list_size = contacters_size;
-        update_structures_for_contacters();
-    }
-
-    m_kdtree[0].ref = NULL;
-    m_kdtree[0].begin = 0;
-    m_kdtree[0].end = -m_object_list_size;
-}
-
-void PointColDetector::UpdateInterPoint(Actor* truck, bool ignorestate)
-{
-    bool update_required = false;
-    int contacters_size = 0;
-
-    if (truck && (ignorestate || truck->ar_update_physics))
-    {
-        auto all_actors = RoR::App::GetSimController()->GetActors();
-        truck->ar_collision_relevant = false;
-        m_actors.resize(all_actors.size());
-        for (int t = 0; t < all_actors.size(); t++)
+        // Insert all contacters into the list of points to consider when building the kdtree
+        for (int i = 0; i < actor->ar_num_contacters; i++)
         {
-            if (all_actors[t] != truck && (ignorestate || all_actors[t]->ar_update_physics) && truck->ar_bounding_box.intersects(all_actors[t]->ar_bounding_box))
-            {
-                update_required = update_required || (m_actors[t] != all_actors[t]);
-                m_actors[t] = all_actors[t];
-                truck->ar_collision_relevant = true;
-                contacters_size += all_actors[t]->ar_num_contacters;
-                if (truck->ar_nodes[0].Velocity.squaredDistance(all_actors[t]->ar_nodes[0].Velocity) > 25)
-                {
-                    for (int i=0; i<truck->ar_num_collcabs; i++)
-                    {
-                        truck->ar_intra_collcabrate[i].rate = 0;
-                        truck->ar_inter_collcabrate[i].rate = 0;
-                    }
-                    for (int i=0; i<all_actors[t]->ar_num_collcabs; i++)
-                    {
-                        all_actors[t]->ar_intra_collcabrate[i].rate = 0;
-                        all_actors[t]->ar_inter_collcabrate[i].rate = 0;
-                    }
-                }
-            }
-            else
-            {
-                m_actors[t] = 0;
-            }
+            short node_id = actor->ar_contacters[i];
+            short actor_id = actor->ar_vector_index;
+            m_pointid_list[i] = {node_id, actor_id};
+            m_ref_list[i] = {&m_pointid_list[i], &(actor->ar_nodes[node_id].AbsPosition.x)};
         }
-    }
-    else
-    {
-        m_actors.clear();
-    }
 
-    if (update_required || contacters_size != m_object_list_size)
-    {
-        m_object_list_size = contacters_size;
-        update_structures_for_contacters();
+        int tree_size = std::max(1.0, std::pow(2, std::ceil(std::log2(actor->ar_num_contacters)) + 1));
+        m_kdtree.resize(tree_size, {0.0f, 0, 0.0f, NULL, 0.0f, 0});
     }
 
     m_kdtree[0].ref = NULL;
     m_kdtree[0].begin = 0;
-    m_kdtree[0].end = -m_object_list_size;
+    m_kdtree[0].end = -actor->ar_num_contacters;
 }
 
-void PointColDetector::update_structures_for_contacters()
+void PointColDetector::UpdateInterPoint(Actor* actor, bool ignorestate)
 {
-    kdnode_t kdelem = {0.0f, 0, 0.0f, NULL, 0.0f, 0};
-    hit_list.resize(m_object_list_size, NULL);
-    int tree_size = std::max(1.0, std::pow(2, std::ceil(std::log2(m_object_list_size)) + 1));
+    if (!actor)
+        return;
 
     m_ref_list.clear();
     m_pointid_list.clear();
 
-    m_ref_list.resize(m_object_list_size);
-    m_pointid_list.resize(m_object_list_size);
-
-    int refi = 0;
-
-    //Insert all contacters, into the list of points to consider when building the kdtree
-    for (auto actor : m_actors)
+    for (auto t : RoR::App::GetSimController()->GetActors())
     {
-        if (actor)
+        if (t != actor && (ignorestate || t->ar_update_physics) && actor->ar_bounding_box.intersects(t->ar_bounding_box))
         {
-            for (int i = 0; i < actor->ar_num_contacters; ++i)
+            // Insert all contacters into the list of points to consider when building the kdtree
+            m_ref_list.reserve(m_ref_list.size() + t->ar_num_contacters);
+            m_pointid_list.reserve(m_pointid_list.size() + t->ar_num_contacters);
+            for (int i = 0; i < t->ar_num_contacters; ++i)
             {
-                m_ref_list[refi].pidref = &m_pointid_list[refi];
-                m_pointid_list[refi].actor_id = actor->ar_vector_index;
-                m_pointid_list[refi].node_id = actor->ar_contacters[i];
-                m_ref_list[refi].point = &(actor->ar_nodes[m_pointid_list[refi].node_id].AbsPosition.x);
-                refi++;
+                short node_id = t->ar_contacters[i];
+                short actor_id = t->ar_vector_index;
+                m_pointid_list.push_back({node_id, actor_id});
+                m_ref_list.push_back({&m_pointid_list.back(), &(t->ar_nodes[node_id].AbsPosition.x)});
+            }
+            if (actor->ar_nodes[0].Velocity.squaredDistance(t->ar_nodes[0].Velocity) > 16)
+            {
+                for (int i=0; i<actor->ar_num_collcabs; i++)
+                {
+                    actor->ar_intra_collcabrate[i].rate = 0;
+                    actor->ar_inter_collcabrate[i].rate = 0;
+                }
+                for (int i=0; i<t->ar_num_collcabs; i++)
+                {
+                    t->ar_intra_collcabrate[i].rate = 0;
+                    t->ar_inter_collcabrate[i].rate = 0;
+                }
             }
         }
     }
 
-    m_kdtree.resize(tree_size, kdelem);
+    hit_list.resize(m_ref_list.size());
+    actor->ar_collision_relevant = !hit_list.empty();
+
+    int tree_size = std::max(1.0, std::pow(2, std::ceil(std::log2(m_ref_list.size())) + 1));
+    m_kdtree.resize(tree_size, {0.0f, 0, 0.0f, NULL, 0.0f, 0});
+
+    m_kdtree[0].ref = NULL;
+    m_kdtree[0].begin = 0;
+    m_kdtree[0].end = -m_ref_list.size();
 }
 
 void PointColDetector::query(const Vector3 &vec1, const Vector3 &vec2, const Vector3 &vec3, float enlargeBB)
 {
-    Vector3 enlarge = Vector3(enlargeBB, enlargeBB, enlargeBB);
+    hit_count = 0;
+
+    if (hit_list.empty())
+        return;
 
     m_bbmin = vec1;
 
@@ -161,7 +121,7 @@ void PointColDetector::query(const Vector3 &vec1, const Vector3 &vec2, const Vec
     m_bbmin.z = std::min(vec2.z, m_bbmin.z);
     m_bbmin.z = std::min(vec3.z, m_bbmin.z);
 
-    m_bbmin -= enlarge;
+    m_bbmin -= enlargeBB;
 
     m_bbmax = vec1;
 
@@ -174,9 +134,8 @@ void PointColDetector::query(const Vector3 &vec1, const Vector3 &vec2, const Vec
     m_bbmax.z = std::max(m_bbmax.z, vec2.z);
     m_bbmax.z = std::max(m_bbmax.z, vec3.z);
 
-    m_bbmax += enlarge;
+    m_bbmax += enlargeBB;
 
-    hit_count = 0;
     queryrec(0, 0);
 }
 

@@ -825,7 +825,7 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
     direction.normalise();
 
     if (m_intra_point_col_detector)
-        m_intra_point_col_detector->UpdateIntraPoint(this, true);
+        m_intra_point_col_detector->UpdateIntraPoint(this);
 
     if (m_inter_point_col_detector)
         m_inter_point_col_detector->UpdateInterPoint(this, true);

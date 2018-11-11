@@ -27,19 +27,15 @@ public:
 
     struct pointid_t
     {
-        int node_id;
-        int actor_id;
+        short node_id;
+        short actor_id;
     };
 
-    std::vector<Ogre::Vector3>* object_list;
     std::vector<pointid_t*> hit_list;
     int hit_count;
 
-    PointColDetector();
-    ~PointColDetector();
-
-    void UpdateIntraPoint(Actor* player_actor, bool ignorestate = false);
-    void UpdateInterPoint(Actor* player_actor, bool ignorestate = false);
+    void UpdateIntraPoint(Actor* actor);
+    void UpdateInterPoint(Actor* actor, bool ignorestate = false);
     void query(const Ogre::Vector3& vec1, const Ogre::Vector3& vec2, const Ogre::Vector3& vec3, const float enlargeBB = 0.0f);
 
 private:
@@ -60,16 +56,13 @@ private:
         int begin;
     };
 
-    std::vector<Actor*>    m_actors;
     std::vector<refelem_t> m_ref_list;
     std::vector<pointid_t> m_pointid_list;
     std::vector<kdnode_t>  m_kdtree;
     Ogre::Vector3          m_bbmin;
     Ogre::Vector3          m_bbmax;
-    int                    m_object_list_size;
 
     void queryrec(int kdindex, int axis);
     void build_kdtree_incr(int axis, int index);
     void partintwo(const int start, const int median, const int end, const int axis, float& minex, float& maxex);
-    void update_structures_for_contacters();
 };
