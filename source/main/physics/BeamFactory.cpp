@@ -100,9 +100,9 @@ ActorManager::ActorManager()
     LOG("BEAMFACTORY: " + TOSTRING(logical_cores) + " logical CPU cores" + " found");
 
     int thread_pool_workers = RoR::App::app_num_workers.GetActive();
-    if (thread_pool_workers < 1 || thread_pool_workers > logical_cores)
+    if (thread_pool_workers < 2 || thread_pool_workers > logical_cores)
     {
-        thread_pool_workers = logical_cores - 1;
+        thread_pool_workers = std::max(2, logical_cores - 1);
         RoR::App::app_num_workers.SetActive(thread_pool_workers);
     }
 
