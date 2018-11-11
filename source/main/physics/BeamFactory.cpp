@@ -95,14 +95,17 @@ ActorManager::ActorManager()
     , m_simulation_speed(1.0f)
     , m_actor_counter(0)
 {
-    // Create thread pool
+    // Create worker thread (used for physics calculations)
+    m_sim_thread_pool = std::unique_ptr<ThreadPool>(new ThreadPool(1));
+
+    // Create general-purpose thread pool
     int logical_cores = std::thread::hardware_concurrency();
     LOG("BEAMFACTORY: " + TOSTRING(logical_cores) + " logical CPU cores" + " found");
 
     int thread_pool_workers = RoR::App::app_num_workers.GetActive();
-    if (thread_pool_workers < 2 || thread_pool_workers > logical_cores)
+    if (thread_pool_workers < 1 || thread_pool_workers > logical_cores)
     {
-        thread_pool_workers = std::max(2, logical_cores - 1);
+        thread_pool_workers = logical_cores - 1;
         RoR::App::app_num_workers.SetActive(thread_pool_workers);
     }
 
@@ -1051,7 +1054,7 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
         {
             this->UpdatePhysicsSimulation();
         });
-    m_sim_task = gEnv->threadPool->RunTask(func);
+    m_sim_task = m_sim_thread_pool->RunTask(func);
 
     if (!RoR::App::app_async_physics.GetActive())
         m_sim_task->join();

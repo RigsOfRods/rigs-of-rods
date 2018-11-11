@@ -108,6 +108,7 @@ private:
 
     std::map<std::string, std::shared_ptr<RigDef::File>>   m_actor_defs;
     std::map<int, std::vector<int>> m_stream_mismatches; //!< Networking: A list of streams without a corresponding actor in the actor-array for each stream source
+    std::unique_ptr<ThreadPool>     m_sim_thread_pool;
     std::shared_ptr<Task>           m_sim_task;
     std::vector<Actor*>             m_actors;
     bool            m_forced_awake;      //!< disables sleep counters
