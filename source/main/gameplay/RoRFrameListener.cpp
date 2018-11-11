@@ -1287,7 +1287,7 @@ void SimController::UpdateInputEvents(float dt)
             }
             else
             {
-                m_player_actor->ar_brake = m_player_actor->ar_brake_force * 0.66;
+                m_player_actor->ar_brake = 0.66f;
                 m_time_until_next_toggle = 0.0; // No delay in this case: the vehicle must brake like braking normally
             }
         }

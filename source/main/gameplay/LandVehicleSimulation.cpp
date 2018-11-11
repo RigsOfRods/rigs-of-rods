@@ -125,8 +125,7 @@ void LandVehicleSimulation::UpdateCruiseControl(Actor* vehicle, float dt)
         if (vehicle->ar_avg_wheel_speed > vehicle->cc_target_speed + 0.5f && !RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_ACCELERATE))
         {
             float brake = (vehicle->ar_avg_wheel_speed - vehicle->cc_target_speed) * 0.5f;
-            brake = std::min(brake, 1.0f);
-            vehicle->ar_brake = vehicle->ar_brake_force * brake;
+            vehicle->ar_brake = std::min(brake, 1.0f);
         }
     }
 }
@@ -233,7 +232,7 @@ void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_la
             {
                 // classic mode, realistic
                 engine->autoSetAcc(accl);
-                vehicle->ar_brake = brake * vehicle->ar_brake_force;
+                vehicle->ar_brake = brake;
             }
             else
             {
@@ -248,13 +247,13 @@ void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_la
                 {
                     // neutral or drive forward, everything is as its used to be: brake is brake and accel. is accel.
                     engine->autoSetAcc(accl);
-                    vehicle->ar_brake = brake * vehicle->ar_brake_force;
+                    vehicle->ar_brake = brake;
                 }
                 else
                 {
                     // reverse gear, reverse controls: brake is accel. and accel. is brake.
                     engine->autoSetAcc(brake);
-                    vehicle->ar_brake = accl * vehicle->ar_brake_force;
+                    vehicle->ar_brake = accl;
                 }
 
                 // only when the truck really is not moving anymore
@@ -488,17 +487,17 @@ void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_la
                         {
                             ratio *= sqrt((0.02f - vehicle->ar_avg_wheel_speed) / 0.02f);
                         }
-                        vehicle->ar_brake = vehicle->ar_brake_force * sqrt(ratio);
+                        vehicle->ar_brake = sqrt(ratio);
                     }
                 }
                 else if (vehicle->ar_brake == 0.0f && !vehicle->ar_parking_brake && engine->GetTorque() == 0.0f)
                 {
                     float ratio = std::max(0.0f, 0.2f - std::abs(vehicle->ar_avg_wheel_speed)) / 0.2f;
-                    vehicle->ar_brake = vehicle->ar_brake_force * ratio;
+                    vehicle->ar_brake = ratio;
                 }
             }
         } // end of ->engine
-        if (vehicle->ar_brake > vehicle->ar_brake_force / 6.0f)
+        if (vehicle->ar_brake > 1.0f / 6.0f)
         {
             SOUND_START(vehicle, SS_TRIG_BRAKE);
         }
