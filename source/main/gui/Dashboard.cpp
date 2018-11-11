@@ -70,7 +70,7 @@ Dashboard::~Dashboard()
 {
     gEnv->sceneManager->destroyCamera("DashCam");
     Ogre::TextureManager::getSingleton().remove("dashtexture");
-    if (mDashboardListener) delete mDashboardListener;
+    //if (mDashboardListener) delete mDashboardListener; // segfaults when going back to menu after spawning any vehicle
 }
 
 void Dashboard::setEnable(bool en)
