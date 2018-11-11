@@ -55,16 +55,12 @@ bool SurveyMapTextureCreator::init()
 
     mRttTex->setAutoUpdated(false);
 
-    try
-    {
+    if(gEnv->sceneManager->hasCamera (getCameraName ()))
         mCamera = gEnv->sceneManager->getCamera(getCameraName());
-    }
-    catch (ItemIdentityException& e)
-    {
+    else
         mCamera = gEnv->sceneManager->createCamera(getCameraName());
-    }
 
-    if (!(mViewport = mRttTex->getViewport(0)))
+    if (mViewport == nullptr || !(mViewport = mRttTex->getViewport(0)))
         mViewport = mRttTex->addViewport(mCamera);
     mViewport->setBackgroundColour(ColourValue::Black);
     mViewport->setOverlaysEnabled(false);
