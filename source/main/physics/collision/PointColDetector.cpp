@@ -23,18 +23,6 @@
 #include "Beam.h"
 #include "RoRFrameListener.h"
 
-// Microsoft Visual Studio 2010 doesn't have std::log2
-// Version macros: http://stackoverflow.com/a/70630
-#if defined(WIN32) && defined(_MSC_VER) && _MSC_VER >= 1600
-    double mini_log2(double n)
-    {
-        return log(n) / log(2.f);
-    }
-#   define LOG2(n) (mini_log2(n))
-#else
-#   define LOG2(n) (std::log2(n))
-#endif
-
 using namespace Ogre;
 
 PointColDetector::PointColDetector()
@@ -129,7 +117,7 @@ void PointColDetector::update_structures_for_contacters()
 {
     kdnode_t kdelem = {0.0f, 0, 0.0f, NULL, 0.0f, 0};
     hit_list.resize(m_object_list_size, NULL);
-    int exp_factor = std::max(0, (int) ceil(LOG2(m_object_list_size)) + 1);
+    int tree_size = std::max(1.0, std::pow(2, std::ceil(std::log2(m_object_list_size)) + 1));
 
     m_ref_list.clear();
     m_pointid_list.clear();
@@ -155,7 +143,7 @@ void PointColDetector::update_structures_for_contacters()
         }
     }
 
-    m_kdtree.resize(pow(2.f, exp_factor), kdelem);
+    m_kdtree.resize(tree_size, kdelem);
 }
 
 void PointColDetector::query(const Vector3 &vec1, const Vector3 &vec2, const Vector3 &vec3, float enlargeBB)
