@@ -27,18 +27,17 @@ public:
 
     struct pointid_t
     {
+        Actor* actor;
         short node_id;
-        short actor_id;
     };
 
     std::vector<pointid_t*> hit_list;
 
-    PointColDetector();
-    ~PointColDetector();
+    PointColDetector(): m_object_list_size(-1) {};
 
-    void UpdateIntraPoint(Actor* player_actor, bool ignorestate = false);
-    void UpdateInterPoint(Actor* player_actor, bool ignorestate = false);
-    void query(const Ogre::Vector3& vec1, const Ogre::Vector3& vec2, const Ogre::Vector3& vec3, const float enlargeBB = 0.0f);
+    void UpdateIntraPoint(Actor* actor);
+    void UpdateInterPoint(Actor* actor, bool ignorestate = false);
+    void query(const Ogre::Vector3& vec1, const Ogre::Vector3& vec2, const Ogre::Vector3& vec3, const float enlargeBB);
 
 private:
 
