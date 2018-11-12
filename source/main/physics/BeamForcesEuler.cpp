@@ -1185,7 +1185,7 @@ void Actor::CalcBeams(bool trigger_hooks)
             Real d = ar_beams[i].d;
 
             // Calculate beam's rate of change
-            Vector3 v = ar_beams[i].p1->Velocity - ar_beams[i].p2->Velocity;
+            float v = (ar_beams[i].p1->Velocity - ar_beams[i].p2->Velocity).dotProduct(dis) * inverted_dislen;
 
             if (ar_beams[i].bounded == SHOCK1)
             {
@@ -1224,7 +1224,7 @@ void Actor::CalcBeams(bool trigger_hooks)
             }
             else if (ar_beams[i].bounded == SHOCK3)
             {
-                this->CalcShocks3(i, difftoBeamL, k, d, v.length());
+                this->CalcShocks3(i, difftoBeamL, k, d, v);
             }
             else if (ar_beams[i].bounded == SUPPORTBEAM)
             {
@@ -1264,14 +1264,14 @@ void Actor::CalcBeams(bool trigger_hooks)
                 }
             }
 
-            if (trigger_hooks && ar_beams[i].bounded)
+            if (trigger_hooks && ar_beams[i].bounded && ar_beams[i].bm_type == BEAM_HYDRO)
             {
-                ar_beams[i].debug_k = k;
-                ar_beams[i].debug_d = d;
-                ar_beams[i].debug_v = v.length();
+                ar_beams[i].debug_k = k * std::abs(difftoBeamL);
+                ar_beams[i].debug_d = d * std::abs(v);
+                ar_beams[i].debug_v = std::abs(v);
             }
 
-            float slen = -k * (difftoBeamL) - d * v.dotProduct(dis) * inverted_dislen;
+            float slen = -k * difftoBeamL - d * v;
             ar_beams[i].stress = slen;
 
             // Fast test for deformation
