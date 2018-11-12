@@ -1111,15 +1111,15 @@ void RoR::GfxActor::UpdateDebugView()
                     float h1 = ImGui::CalcTextSize(len_buf.ToCStr()).x / 2.0f;
                     drawlist->AddText(ImVec2(pos.x - h1, pos.y), text_color, len_buf.ToCStr());
                     Str<25> spring_buf;
-                    spring_buf << "S: " << static_cast<int>(Round(beams[i].debug_k));
+                    spring_buf << "S: " << static_cast<int>(Round(beams[i].debug_k)) << " N";
                     float h2 = ImGui::CalcTextSize(spring_buf.ToCStr()).x / 2.0f;
                     drawlist->AddText(ImVec2(pos.x - h2, pos.y + v), text_color, spring_buf.ToCStr());
                     Str<25> damp_buf;
-                    damp_buf << "D: " << static_cast<int>(Round(beams[i].debug_d));
+                    damp_buf << "D: " << static_cast<int>(Round(beams[i].debug_d)) << " N";
                     float h3 = ImGui::CalcTextSize(damp_buf.ToCStr()).x / 2.0f;
                     drawlist->AddText(ImVec2(pos.x - h3, pos.y + v + v), text_color, damp_buf.ToCStr());
                     char vel_buf[25];
-                    snprintf(vel_buf, 25, "V: %.1f m/s", beams[i].debug_v);
+                    snprintf(vel_buf, 25, "V: %.2f m/s", beams[i].debug_v);
                     float h4 = ImGui::CalcTextSize(vel_buf).x / 2.0f;
                     drawlist->AddText(ImVec2(pos.x - h4, pos.y + v + v + v), text_color, vel_buf);
                 }
