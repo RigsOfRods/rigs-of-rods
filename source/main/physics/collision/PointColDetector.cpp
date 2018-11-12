@@ -25,32 +25,15 @@
 
 using namespace Ogre;
 
-PointColDetector::PointColDetector()
-    : m_object_list_size(-1)
+void PointColDetector::UpdateIntraPoint(Actor* actor)
 {
-}
+    if (!actor)
+        return;
 
-PointColDetector::~PointColDetector()
-{
-}
-
-void PointColDetector::UpdateIntraPoint(Actor* actor, bool ignorestate)
-{
-    int contacters_size = 0;
-
-    if (actor && (ignorestate || actor->ar_sim_state < Actor::SimState::LOCAL_SLEEPING))
+    if (actor->ar_num_contacters != m_object_list_size)
     {
-        m_actors.resize(1, actor);
-        contacters_size += actor->ar_num_contacters;
-    }
-    else
-    {
-        m_actors.clear();
-    }
-
-    if (contacters_size != m_object_list_size)
-    {
-        m_object_list_size = contacters_size;
+        m_actors = {actor};
+        m_object_list_size = actor->ar_num_contacters;
         update_structures_for_contacters();
     }
 
@@ -59,51 +42,40 @@ void PointColDetector::UpdateIntraPoint(Actor* actor, bool ignorestate)
     m_kdtree[0].end = -m_object_list_size;
 }
 
-void PointColDetector::UpdateInterPoint(Actor* truck, bool ignorestate)
+void PointColDetector::UpdateInterPoint(Actor* actor, bool ignorestate)
 {
-    bool update_required = false;
-    int contacters_size = 0;
+    if (!actor)
+        return;
 
-    if (truck && (ignorestate || truck->ar_update_physics))
+    std::vector<Actor*> actors;
+    int contacters_size = 0;
+    for (auto t : RoR::App::GetSimController()->GetActors())
     {
-        auto all_actors = RoR::App::GetSimController()->GetActors();
-        truck->ar_collision_relevant = false;
-        m_actors.resize(all_actors.size());
-        for (int t = 0; t < all_actors.size(); t++)
+        if (t != actor && (ignorestate || t->ar_update_physics) && actor->ar_bounding_box.intersects(t->ar_bounding_box))
         {
-            if (all_actors[t] != truck && (ignorestate || all_actors[t]->ar_update_physics) && truck->ar_bounding_box.intersects(all_actors[t]->ar_bounding_box))
+            actors.push_back(t);
+            contacters_size += t->ar_num_contacters;
+            if (actor->ar_nodes[0].Velocity.squaredDistance(t->ar_nodes[0].Velocity) > 16)
             {
-                update_required = update_required || (m_actors[t] != all_actors[t]);
-                m_actors[t] = all_actors[t];
-                truck->ar_collision_relevant = true;
-                contacters_size += all_actors[t]->ar_num_contacters;
-                if (truck->ar_nodes[0].Velocity.squaredDistance(all_actors[t]->ar_nodes[0].Velocity) > 25)
+                for (int i = 0; i < actor->ar_num_collcabs; i++)
                 {
-                    for (int i=0; i<truck->ar_num_collcabs; i++)
-                    {
-                        truck->ar_intra_collcabrate[i].rate = 0;
-                        truck->ar_inter_collcabrate[i].rate = 0;
-                    }
-                    for (int i=0; i<all_actors[t]->ar_num_collcabs; i++)
-                    {
-                        all_actors[t]->ar_intra_collcabrate[i].rate = 0;
-                        all_actors[t]->ar_inter_collcabrate[i].rate = 0;
-                    }
+                    actor->ar_intra_collcabrate[i].rate = 0;
+                    actor->ar_inter_collcabrate[i].rate = 0;
                 }
-            }
-            else
-            {
-                m_actors[t] = 0;
+                for (int i = 0; i < t->ar_num_collcabs; i++)
+                {
+                    t->ar_intra_collcabrate[i].rate = 0;
+                    t->ar_inter_collcabrate[i].rate = 0;
+                }
             }
         }
     }
-    else
-    {
-        m_actors.clear();
-    }
 
-    if (update_required || contacters_size != m_object_list_size)
+    actor->ar_collision_relevant = (contacters_size > 0);
+
+    if (actors != m_actors || contacters_size != m_object_list_size)
     {
+        m_actors = actors;
         m_object_list_size = contacters_size;
         update_structures_for_contacters();
     }
@@ -115,40 +87,28 @@ void PointColDetector::UpdateInterPoint(Actor* truck, bool ignorestate)
 
 void PointColDetector::update_structures_for_contacters()
 {
-    kdnode_t kdelem = {0.0f, 0, 0.0f, NULL, 0.0f, 0};
-    int tree_size = std::max(1.0, std::pow(2, std::ceil(std::log2(m_object_list_size)) + 1));
-
-    m_ref_list.clear();
-    m_pointid_list.clear();
-
     m_ref_list.resize(m_object_list_size);
     m_pointid_list.resize(m_object_list_size);
 
+    // Insert all contacters into the list of points to consider when building the kdtree
     int refi = 0;
-
-    //Insert all contacters, into the list of points to consider when building the kdtree
     for (auto actor : m_actors)
     {
-        if (actor)
+        for (int i = 0; i < actor->ar_num_contacters; i++)
         {
-            for (int i = 0; i < actor->ar_num_contacters; ++i)
-            {
-                m_ref_list[refi].pidref = &m_pointid_list[refi];
-                m_pointid_list[refi].actor_id = actor->ar_vector_index;
-                m_pointid_list[refi].node_id = actor->ar_contacters[i];
-                m_ref_list[refi].point = actor->ar_nodes[actor->ar_contacters[i]].AbsPosition.ptr();
-                refi++;
-            }
+            m_pointid_list[refi].actor = actor;
+            m_pointid_list[refi].node_id = actor->ar_contacters[i];
+            m_ref_list[refi].pidref = &m_pointid_list[refi];
+            m_ref_list[refi].point = actor->ar_nodes[actor->ar_contacters[i]].AbsPosition.ptr();
+            refi++;
         }
     }
 
-    m_kdtree.resize(tree_size, kdelem);
+    m_kdtree.resize(std::max(1.0, std::pow(2, std::ceil(std::log2(m_object_list_size)) + 1)));
 }
 
 void PointColDetector::query(const Vector3 &vec1, const Vector3 &vec2, const Vector3 &vec3, float enlargeBB)
 {
-    Vector3 enlarge = Vector3(enlargeBB, enlargeBB, enlargeBB);
-
     m_bbmin = vec1;
 
     m_bbmin.x = std::min(vec2.x, m_bbmin.x);
@@ -160,7 +120,7 @@ void PointColDetector::query(const Vector3 &vec1, const Vector3 &vec2, const Vec
     m_bbmin.z = std::min(vec2.z, m_bbmin.z);
     m_bbmin.z = std::min(vec3.z, m_bbmin.z);
 
-    m_bbmin -= enlarge;
+    m_bbmin -= enlargeBB;
 
     m_bbmax = vec1;
 
@@ -173,7 +133,7 @@ void PointColDetector::query(const Vector3 &vec1, const Vector3 &vec2, const Vec
     m_bbmax.z = std::max(m_bbmax.z, vec2.z);
     m_bbmax.z = std::max(m_bbmax.z, vec3.z);
 
-    m_bbmax += enlarge;
+    m_bbmax += enlargeBB;
 
     hit_list.clear();
     queryrec(0, 0);

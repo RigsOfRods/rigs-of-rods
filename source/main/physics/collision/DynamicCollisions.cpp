@@ -27,7 +27,6 @@
 #include "CartesianToTriangleTransform.h"
 #include "Collisions.h"
 #include "PointColDetector.h"
-#include "RoRFrameListener.h"
 #include "Triangle.h"
 
 using namespace Ogre;
@@ -119,8 +118,6 @@ void ResolveInterActorCollisions(const float dt, PointColDetector &interPointCD,
         const float collrange,
         ground_model_t &submesh_ground_model)
 {
-    std::vector<Actor*> all_actors = RoR::App::GetSimController()->GetActors();
-
     for (int i=0; i<free_collcab; i++)
     {
         if (inter_collcabrate[i].rate > 0)
@@ -149,7 +146,7 @@ void ResolveInterActorCollisions(const float dt, PointColDetector &interPointCD,
 
             for (auto h : interPointCD.hit_list)
             {
-                const auto hit_actor = all_actors[h->actor_id];
+                const auto hit_actor = h->actor;
                 const auto hitnode = &hit_actor->ar_nodes[h->node_id];
 
                 // transform point to triangle local coordinates
