@@ -32,7 +32,6 @@ void PointColDetector::UpdateIntraPoint(Actor* actor)
 
     if (m_kdtree.empty())
     {
-        hit_list.resize(actor->ar_num_contacters);
         m_ref_list.resize(actor->ar_num_contacters);
         m_pointid_list.resize(actor->ar_num_contacters);
 
@@ -92,8 +91,8 @@ void PointColDetector::UpdateInterPoint(Actor* actor, bool ignorestate)
         }
     }
 
-    hit_list.resize(m_ref_list.size());
-    actor->ar_collision_relevant = !hit_list.empty();
+    hit_list.reserve(10);
+    actor->ar_collision_relevant = !m_ref_list.empty();
 
     int tree_size = std::max(1.0, std::pow(2, std::ceil(std::log2(m_ref_list.size())) + 1));
     m_kdtree.resize(tree_size, {0.0f, 0, 0.0f, NULL, 0.0f, 0});
@@ -105,9 +104,9 @@ void PointColDetector::UpdateInterPoint(Actor* actor, bool ignorestate)
 
 void PointColDetector::query(const Vector3 &vec1, const Vector3 &vec2, const Vector3 &vec3, float enlargeBB)
 {
-    hit_count = 0;
+    hit_list.clear();
 
-    if (hit_list.empty())
+    if (m_ref_list.empty())
         return;
 
     m_bbmin = vec1;
@@ -153,8 +152,7 @@ void PointColDetector::queryrec(int kdindex, int axis)
             float *point = m_kdtree[kdindex].ref->point;
             if (point[0] >= m_bbmin.x && point[0] <= m_bbmax.x && point[1] >= m_bbmin.y && point[1] <= m_bbmax.y && point[2] >= m_bbmin.z && point[2] <= m_bbmax.z )
             {
-                hit_list[hit_count] = m_kdtree[kdindex].ref->pidref;
-                hit_count++;
+                hit_list.push_back(m_kdtree[kdindex].ref->pidref);
             }
             return;
         }
