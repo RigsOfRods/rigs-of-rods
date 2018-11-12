@@ -141,18 +141,16 @@ void ResolveInterActorCollisions(const float dt, PointColDetector &interPointCD,
                 , na->AbsPosition
                 , nb->AbsPosition, collrange);
 
-        if (interPointCD.hit_count > 0)
+        if (!interPointCD.hit_list.empty())
         {
             // setup transformation of points to triangle local coordinates
             const Triangle triangle(na->AbsPosition, nb->AbsPosition, no->AbsPosition);
             const CartesianToTriangleTransform transform(triangle);
 
-            for (int h=0; h<interPointCD.hit_count; h++)
+            for (auto h : interPointCD.hit_list)
             {
-                const auto hitnodeid = interPointCD.hit_list[h]->node_id;
-                const auto hit_actor_id = interPointCD.hit_list[h]->actor_id;
-                const auto hit_actor = all_actors[hit_actor_id];
-                const auto hitnode = &hit_actor->ar_nodes[hitnodeid];
+                const auto hit_actor = all_actors[h->actor_id];
+                const auto hitnode = &hit_actor->ar_nodes[h->node_id];
 
                 // transform point to triangle local coordinates
                 const auto local_point = transform(hitnode->AbsPosition);
@@ -168,7 +166,7 @@ void ResolveInterActorCollisions(const float dt, PointColDetector &interPointCD,
                     auto normal     = triangle.normal();
 
                     // adapt in case the collision is occuring on the backface of the triangle
-                    const auto neighbour_node_ids = hit_actor->ar_node_to_node_connections[hitnodeid];
+                    const auto neighbour_node_ids = hit_actor->ar_node_to_node_connections[h->node_id];
                     const bool is_backface = BackfaceCollisionTest(distance, normal, *no, neighbour_node_ids, hit_actor->ar_nodes);
                     if (is_backface)
                     {
@@ -226,16 +224,15 @@ void ResolveIntraActorCollisions(const float dt, PointColDetector &intraPointCD,
 
         bool collision = false;
 
-        if (intraPointCD.hit_count > 0)
+        if (!intraPointCD.hit_list.empty())
         {
             // setup transformation of points to triangle local coordinates
             const Triangle triangle(na->AbsPosition, nb->AbsPosition, no->AbsPosition);
             const CartesianToTriangleTransform transform(triangle);
 
-            for (int h=0; h<intraPointCD.hit_count; h++)
+            for (auto h : intraPointCD.hit_list)
             {
-                const auto hitnodeid = intraPointCD.hit_list[h]->node_id;
-                const auto hitnode = &nodes[hitnodeid];
+                const auto hitnode = &nodes[h->node_id];
 
                 //ignore wheel/chassis self contact
                 if (hitnode->iswheel) continue;

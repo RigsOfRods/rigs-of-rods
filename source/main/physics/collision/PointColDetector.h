@@ -32,7 +32,6 @@ public:
     };
 
     std::vector<pointid_t*> hit_list;
-    int hit_count;
 
     void UpdateIntraPoint(Actor* actor);
     void UpdateInterPoint(Actor* actor, bool ignorestate = false);

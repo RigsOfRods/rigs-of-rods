@@ -863,7 +863,7 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
                         nb->AbsPosition - collision_offset,
                         actor->ar_collision_range);
 
-                    if (m_intra_point_col_detector->hit_count > 0)
+                    if (!m_intra_point_col_detector->hit_list.empty())
                     {
                         collision = true;
                         break;
@@ -915,7 +915,7 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
                     nb->AbsPosition + collision_offset,
                     ar_collision_range);
 
-                if (m_inter_point_col_detector->hit_count > 0)
+                if (!m_inter_point_col_detector->hit_list.empty())
                 {
                     collision = true;
                     break;
