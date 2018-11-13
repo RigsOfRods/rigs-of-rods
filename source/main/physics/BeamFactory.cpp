@@ -718,6 +718,12 @@ void ActorManager::ForwardCommands(Actor* source_actor)
                     (actor->getPosition().distance(source_actor->getPosition()) < 
                      actor->m_min_camera_radius + source_actor->m_min_camera_radius))
             {
+                // activate the truck
+                if (actor->ar_sim_state == Actor::SimState::LOCAL_SLEEPING)
+                {
+                    actor->ar_sleep_counter = 0.0f;
+                    actor->ar_sim_state = Actor::SimState::LOCAL_SIMULATED;
+                }
                 // forward commands
                 for (int j = 1; j <= MAX_COMMANDS; j++)
                 {
