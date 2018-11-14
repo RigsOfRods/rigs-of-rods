@@ -2447,7 +2447,7 @@ void Actor::CalcShocks3(int i, Real difftoBeamL, Real &k, Real& d, Real v)
     }
     else if (v > 0) // Extension
     {
-        v = Math::Clamp(std::abs(v), +0.1f, +20.0f);
+        v = Math::Clamp(std::abs(v), +0.15f, +20.0f);
         k = ar_beams[i].shock->springout;
         d = ar_beams[i].shock->dampout * ar_beams[i].shock->dslowout * std::min(v,        ar_beams[i].shock->splitout) +
             ar_beams[i].shock->dampout * ar_beams[i].shock->dfastout * std::max(0.0f, v - ar_beams[i].shock->splitout);
@@ -2455,7 +2455,7 @@ void Actor::CalcShocks3(int i, Real difftoBeamL, Real &k, Real& d, Real v)
     }
     else if (v < 0) // Compression
     {
-        v = Math::Clamp(std::abs(v), +0.1f, +20.0f);
+        v = Math::Clamp(std::abs(v), +0.15f, +20.0f);
         k = ar_beams[i].shock->springin;
         d = ar_beams[i].shock->dampin  * ar_beams[i].shock->dslowin  * std::min(v,        ar_beams[i].shock->splitin ) +
             ar_beams[i].shock->dampin  * ar_beams[i].shock->dfastin  * std::max(0.0f, v - ar_beams[i].shock->splitin );
