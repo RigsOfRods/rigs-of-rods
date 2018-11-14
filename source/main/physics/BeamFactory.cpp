@@ -25,19 +25,17 @@
 
 #include "BeamFactory.h"
 
-#include "AirBrake.h"
 #include "Application.h"
 #include "BeamEngine.h"
-#include "BeamStats.h"
 #include "CacheSystem.h"
 #include "ChatSystem.h"
 #include "Collisions.h"
+#include "DashBoardManager.h"
 #include "DynamicCollisions.h"
 #include "GUIManager.h"
 #include "GUI_GameConsole.h"
 #include "GUI_TopMenubar.h"
 #include "Language.h"
-#include "MainMenu.h"
 #include "MovableText.h"
 #include "Network.h"
 #include "PointColDetector.h"
@@ -54,37 +52,7 @@
 #include "Utils.h"
 #include "VehicleAI.h"
 
-#ifdef _GNU_SOURCE
-#include <sys/sysinfo.h>
-#endif
-
-#if defined(__APPLE__) || defined (__FreeBSD__)
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#endif // __APPLE__ || __FREEBSD__
-
-#include "DashBoardManager.h"
-
-#include <algorithm>
-#include <cstring>
-
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-  #include <intrin.h>
-#endif
-
 using namespace Ogre;
-
-void cpuID(unsigned i, unsigned regs[4])
-{
-#ifdef _WIN32
-    __cpuid((int *)regs, (int)i);
-#elif defined(__x86_64__) || defined(__i386)
-    asm volatile
-        ("cpuid" : "=a" (regs[0]), "=b" (regs[1]), "=c" (regs[2]), "=d" (regs[3])
-         : "a" (i), "c" (0));
-#endif
-}
-
 using namespace RoR;
 
 ActorManager::ActorManager()
