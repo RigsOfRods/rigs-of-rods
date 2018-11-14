@@ -42,6 +42,7 @@
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
 #include "Terrn2Fileformat.h"
+#include "ThreadPool.h"
 #include "Utils.h"
 
 #include "GUI_LoadingWindow.h"
@@ -2205,9 +2206,6 @@ void CacheSystem::loadSingleZip(Ogre::FileInfo f, bool unload, bool ownGroup)
 
 void CacheSystem::loadSingleDirectory(String dirname, String group, bool alreadyLoaded)
 {
-    char hash[256];
-    memset(hash, 0, 255);
-
     LOG("Adding directory " + dirname);
 
     rgcounter++;
@@ -2263,20 +2261,25 @@ void CacheSystem::loadSingleZip(String zippath, int cfactor, bool unload, bool o
 #endif
 
     String realzipPath = getRealPath(zippath);
-    char hash[256] = {};
 
-    RoR::CSHA1 sha1;
-    sha1.HashFile(const_cast<char*>(realzipPath.c_str()));
-    sha1.Final();
-    sha1.ReportHash(hash, RoR::CSHA1::REPORT_HEX_SHORT);
-    zipHashes[getVirtualPath(zippath)] = hash;
+    String zipHash = zipHashes[getVirtualPath(zippath)];
+    if (zipHash == "")
+    {
+        char hash[256] = {};
+        RoR::CSHA1 sha1;
+        sha1.HashFile(const_cast<char*>(realzipPath.c_str()));
+        sha1.Final();
+        sha1.ReportHash(hash, RoR::CSHA1::REPORT_HEX_SHORT);
+        zipHashes[getVirtualPath(zippath)] = hash;
+        zipHash = hash;
+    }
 
     String compr = "";
     if (cfactor > 99)
         compr = "(No Compression)";
     else if (cfactor > 0)
         compr = "(Compression: " + TOSTRING(cfactor) + ")";
-    LOG("Adding archive " + realzipPath + " (hash: "+String(hash)+") " + compr);
+    LOG("Adding archive " + realzipPath + " (hash: "+String(zipHash)+") " + compr);
 
     rgcounter++;
     String rgname = "General-" + TOSTRING(rgcounter);
@@ -2331,6 +2334,36 @@ void CacheSystem::loadAllZipsInResourceGroup(String group)
     std::map<String, bool> loadedZips;
     ResourceGroupManager& rgm = ResourceGroupManager::getSingleton();
     FileInfoListPtr files = rgm.findResourceFileInfo(group, "*.zip");
+    int logical_cores = std::thread::hardware_concurrency();
+    if (logical_cores > 2)
+    {
+        auto thread_pool = new ThreadPool(logical_cores);
+        std::vector<std::shared_ptr<Task>> tasks;
+        for (auto it=files->begin(); it!=files->end(); ++it)
+        {
+            auto func = std::function<void()>([this, it](){
+                FileInfo f = (FileInfo)*it;
+                String zippath = f.archive->getName() + "/" + f.filename;
+                String realzipPath = getRealPath(zippath);
+                String virtualPath = getVirtualPath(zippath);
+                char hash[256] = {};
+                RoR::CSHA1 sha1;
+                sha1.HashFile(const_cast<char*>(realzipPath.c_str()));
+                sha1.Final();
+                sha1.ReportHash(hash, RoR::CSHA1::REPORT_HEX_SHORT);
+                std::lock_guard<std::mutex> task_lock(m_zip_hashes_mutex);
+                zipHashes[virtualPath] = hash;
+            });
+            tasks.push_back(thread_pool->RunTask(func));
+        }
+        for (int i = 0; i < tasks.size(); i++)
+        {
+            tasks[i]->join();
+            // update loader
+            int progress = ((float)i / (float)tasks.size()) * 100.0f;
+            RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("Generating checksums"));
+        }
+    }
     FileInfoList::iterator iterFiles = files->begin();
     size_t i = 0, filecount = files->size();
     for (; iterFiles != files->end(); ++iterFiles , i++)

@@ -277,6 +277,7 @@ protected:
 
     std::vector<CacheEntry> entries; //!< this holds all files
 
+    std::mutex m_zip_hashes_mutex;
     std::map<Ogre::String, Ogre::String> zipHashes;
 
     // categories
