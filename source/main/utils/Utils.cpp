@@ -24,7 +24,6 @@
 #include "ErrorUtils.h"
 #include "RoRnet.h"
 #include "RoRVersion.h"
-#include "SHA1.h"
 
 #include <Ogre.h>
 
@@ -265,45 +264,6 @@ Real Round(Real value, int valueN, unsigned short ndigits /* = 0 */)
     value /= f;
 
     return value;
-}
-
-void generateHashFromDataStream(DataStreamPtr& ds, Ogre::String& hash)
-{
-    size_t location = ds->tell();
-    // copy whole file into a buffer
-    uint8_t* buf = 0;
-    ds->seek(0); // from start
-    // alloc buffer
-    uint32_t bufSize = ds->size();
-    buf = (uint8_t *)malloc(bufSize + 1);
-    // read into buffer
-    ds->read(buf, bufSize);
-
-    // and build the hash over it
-    char hash_result[250];
-    memset(hash_result, 0, 249);
-
-    {
-        RoR::CSHA1 sha1;
-        sha1.UpdateHash(buf, bufSize);
-        sha1.Final();
-        sha1.ReportHash(hash_result, RoR::CSHA1::REPORT_HEX_SHORT);
-    }
-
-    // revert DS to previous position
-    ds->seek(location);
-    // release memory
-    free(buf);
-    buf = 0;
-
-    hash = String(hash_result);
-}
-
-void generateHashFromFile(String filename, Ogre::String& hash)
-{
-    // no exception handling in here
-    DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource(filename, ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
-    generateHashFromDataStream(ds, hash);
 }
 
 namespace RoR {
