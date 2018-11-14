@@ -472,7 +472,6 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
         ar_engine->SetWheelSpin(ar_wheel_spin * RAD_PER_SEC_TO_RPM); // Update the driveshaft speed
     }
 
-#if 0
     if (doUpdate)
     {
         if (!m_antilockbrake)
@@ -493,7 +492,6 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
             SOUND_START(ar_instance_id, SS_TRIG_TC_ACTIVE);
         }
     }
-#endif
 
     // calculate driven distance
     float distance_driven = fabs(ar_wheel_speed * dt);
