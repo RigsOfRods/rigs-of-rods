@@ -114,9 +114,6 @@ RoR::GfxActor::GfxActor(Actor* actor, std::string ogre_resource_group,
 
 RoR::GfxActor::~GfxActor()
 {
-    this->FinishWheelUpdates();
-    this->FinishFlexbodyTasks();
-
     // Dispose videocameras
     this->SetVideoCamState(VideoCamState::VCSTATE_DISABLED);
     while (!m_videocameras.empty())
