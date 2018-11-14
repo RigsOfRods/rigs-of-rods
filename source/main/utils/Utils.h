@@ -97,10 +97,6 @@ inline void replaceString(std::string& str, std::string searchString, std::strin
 
 Ogre::Real Round(Ogre::Real value, unsigned short ndigits = 0);
 
-// generates a hash from a DataStream, beware, its loading the whole thing into a buffer, so its not suited for big files
-void generateHashFromDataStream(Ogre::DataStreamPtr& ds, Ogre::String& hash);
-void generateHashFromFile(Ogre::String filename, Ogre::String& hash);
-
 namespace RoR {
 namespace Utils {
 std::string TrimBlanksAndLinebreaks(std::string const& input);
