@@ -2664,6 +2664,11 @@ void RoR::GfxActor::UpdatePropAnimations(const float dt)
     }
 }
 
+void RoR::GfxActor::SortFlexbodies()
+{
+    std::sort(m_flexbodies.begin(), m_flexbodies.end(), [](FlexBody* a, FlexBody* b) { return a->size() > b->size(); });
+}
+
 void RoR::GfxActor::UpdateFlexbodies()
 {
     m_flexbody_tasks.clear();

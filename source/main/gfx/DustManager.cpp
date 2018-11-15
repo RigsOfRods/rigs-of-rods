@@ -75,8 +75,8 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
     // Actors - start threaded tasks
     for (GfxActor* gfx_actor: m_live_gfx_actors)
     {
-        gfx_actor->UpdateWheelVisuals(); // Push flexwheel tasks to threadpool
         gfx_actor->UpdateFlexbodies(); // Push flexbody tasks to threadpool
+        gfx_actor->UpdateWheelVisuals(); // Push flexwheel tasks to threadpool
     }
 
     // Var

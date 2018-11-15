@@ -599,6 +599,8 @@ void ActorSpawner::FinalizeRig()
     this->UpdateCollcabContacterNodes();
 
     m_flex_factory.SaveFlexbodiesToCache();
+
+    m_actor->GetGfxActor()->SortFlexbodies();
 }
 
 /* -------------------------------------------------------------------------- */
