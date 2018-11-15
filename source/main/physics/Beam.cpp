@@ -4313,7 +4313,6 @@ Actor::Actor(
     , ar_autopilot(nullptr)
     , ar_is_police(false)
     , m_disable_default_sounds(false)
-    , ar_uses_networking(rq.asr_origin == RoR::ActorSpawnRequest::Origin::NETWORK)
     , ar_engine(nullptr)
     , ar_driveable(NOT_DRIVEABLE)
     , m_skid_trails{} // Init array to nullptr
