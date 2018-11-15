@@ -71,6 +71,8 @@ public:
 
     void SetFlexbodyCastShadow(bool val);
 
+    int size() { return m_vertex_count; };
+
 private:
 
     RoR::GfxActor*    m_gfx_actor;

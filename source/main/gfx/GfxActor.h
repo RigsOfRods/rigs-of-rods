@@ -294,6 +294,7 @@ public:
     void                      UpdateAeroEngines  ();
     void                      UpdateNetLabels    (float dt);
     void                      SetDebugView       (DebugViewType dv);
+    void                      SortFlexbodies     ();
     void                      AddFlexbody        (FlexBody* fb)           { m_flexbodies.push_back(fb); }
     Attributes&               GetAttributes      ()                       { return m_attr; }
     inline Ogre::MaterialPtr& GetCabTransMaterial()                       { return m_cab_mat_visual_trans; }
