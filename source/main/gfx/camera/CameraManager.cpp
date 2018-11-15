@@ -116,7 +116,6 @@ CameraManager::CameraManager() :
     , m_camera_ready(false)
 {
     m_cct_player_actor = nullptr;
-    m_cct_dof_manager = nullptr;
     m_cct_debug = BSETTING("Camera Debug", false);
 
     m_config_enter_vehicle_keep_fixedfreecam = BSETTING("Camera_EnterVehicle_KeepFixedFreeCam", true);
@@ -131,8 +130,6 @@ CameraManager::~CameraManager()
         delete m_splinecam_spline;
     if (m_splinecam_mo)
         delete m_splinecam_mo;
-
-    delete m_cct_dof_manager;
 }
 
 bool CameraManager::EvaluateSwitchBehavior()

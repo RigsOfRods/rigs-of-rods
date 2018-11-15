@@ -98,7 +98,6 @@ protected:
     CameraBehaviors      m_prev_toggled_cam; ///< Switching toggled modes (FREE, FREEFIX) keeps 1-slot history.
     // Old `CameraContext`
     Actor*               m_cct_player_actor; // TODO: duplicates `SimController::m_player_actor`
-    DOFManager*          m_cct_dof_manager;
     Ogre::Degree         m_cct_rot_scale;
     Ogre::Real           m_cct_dt;
     Ogre::Real           m_cct_trans_scale;
