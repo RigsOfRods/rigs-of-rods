@@ -89,8 +89,6 @@ ActorManager::~ActorManager()
 
 void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_ptr<RigDef::File> def)
 {
-    const bool networked = rq.asr_origin == ActorSpawnRequest::Origin::NETWORK;
-
     // ~~~~ Code ported from Actor::Actor()
 
     Ogre::SceneNode* parent_scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
@@ -259,19 +257,6 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
 
     actor->NotifyActorCameraChanged(); // setup sounds properly
 
-    if (App::sim_replay_enabled.GetActive() && !networked && !actor->ar_uses_networking)     // setup replay mode
-    {
-        actor->ar_replay_length = App::sim_replay_length.GetActive();
-        actor->m_replay_handler = new Replay(actor, actor->ar_replay_length);
-
-        int steps = App::sim_replay_stepping.GetActive();
-
-        if (steps <= 0)
-            actor->ar_replay_precision = 0.0f;
-        else
-            actor->ar_replay_precision = 1.0f / ((float)steps);
-    }
-
     // add storage
     if (App::sim_position_storage.GetActive())
     {
@@ -296,15 +281,6 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
             break;
         }
     }
-
-    // network buffer layout (without RoRnet::VehicleState):
-    //
-    //  - 3 floats (x,y,z) for the reference node 0
-    //  - ar_num_nodes - 1 times 3 short ints (compressed position info)
-    //  - ar_num_wheels times a float for the wheel rotation
-    //
-    actor->m_net_node_buf_size = sizeof(float) * 3 + (actor->m_net_first_wheel_node - 1) * sizeof(short int) * 3;
-    actor->m_net_buffer_size = actor->m_net_node_buf_size + actor->ar_num_wheels * sizeof(float);
 
     // Initialize visuals
     actor->updateVisual();
@@ -333,29 +309,37 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
 
     actor->ar_sim_state = Actor::SimState::LOCAL_SLEEPING;
 
-    // start network stuff
-    if (networked)
+    if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
     {
-        actor->ar_sim_state = Actor::SimState::NETWORKED_OK;
-        // malloc memory
-        actor->oob1 = (RoRnet::VehicleState*)malloc(sizeof(RoRnet::VehicleState));
-        actor->oob2 = (RoRnet::VehicleState*)malloc(sizeof(RoRnet::VehicleState));
-        actor->oob3 = (RoRnet::VehicleState*)malloc(sizeof(RoRnet::VehicleState));
-        actor->netb1 = (char*)malloc(actor->m_net_buffer_size);
-        actor->netb2 = (char*)malloc(actor->m_net_buffer_size);
-        actor->netb3 = (char*)malloc(actor->m_net_buffer_size);
-        actor->m_net_time_offset = 0;
-        actor->m_net_update_counter = 0;
-        if (actor->ar_engine)
-        {
-            actor->ar_engine->StartEngine();
-        }
-    }
+        // network buffer layout (without RoRnet::VehicleState):
+        //
+        //  - 3 floats (x,y,z) for the reference node 0
+        //  - ar_num_nodes - 1 times 3 short ints (compressed position info)
+        //  - ar_num_wheels times a float for the wheel rotation
+        //
+        actor->m_net_node_buf_size = sizeof(float) * 3 + (actor->m_net_first_wheel_node - 1) * sizeof(short int) * 3;
+        actor->m_net_buffer_size = actor->m_net_node_buf_size + actor->ar_num_wheels * sizeof(float);
 
-    if (actor->ar_uses_networking)
-    {
-        if (actor->ar_sim_state != Actor::SimState::NETWORKED_OK)
+        if (rq.asr_origin == ActorSpawnRequest::Origin::NETWORK)
         {
+            // remote truck
+            actor->ar_sim_state = Actor::SimState::NETWORKED_OK;
+            actor->oob1 = (RoRnet::VehicleState*)malloc(sizeof(RoRnet::VehicleState));
+            actor->oob2 = (RoRnet::VehicleState*)malloc(sizeof(RoRnet::VehicleState));
+            actor->oob3 = (RoRnet::VehicleState*)malloc(sizeof(RoRnet::VehicleState));
+            actor->netb1 = (char*)malloc(actor->m_net_buffer_size);
+            actor->netb2 = (char*)malloc(actor->m_net_buffer_size);
+            actor->netb3 = (char*)malloc(actor->m_net_buffer_size);
+            actor->m_net_time_offset = 0;
+            actor->m_net_update_counter = 0;
+            if (actor->ar_engine)
+            {
+                actor->ar_engine->StartEngine();
+            }
+        }
+        else
+        {
+            // local truck
             actor->sendStreamSetup();
         }
 
@@ -376,6 +360,18 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
             actor->m_net_label_node->setVisible(true);
             actor->m_deletion_scene_nodes.emplace_back(actor->m_net_label_node);
         }
+    }
+    else if (App::sim_replay_enabled.GetActive())
+    {
+        actor->ar_replay_length = App::sim_replay_length.GetActive();
+        actor->m_replay_handler = new Replay(actor, actor->ar_replay_length);
+
+        int steps = App::sim_replay_stepping.GetActive();
+
+        if (steps <= 0)
+            actor->ar_replay_precision = 0.0f;
+        else
+            actor->ar_replay_precision = 1.0f / ((float)steps);
     }
 
     LOG(" ===== DONE LOADING VEHICLE");
@@ -859,9 +855,12 @@ void ActorManager::DeleteActorInternal(Actor* actor)
     this->SyncWithSimThread();
 
 #ifdef USE_SOCKETW
-    if (actor->ar_uses_networking && actor->ar_sim_state != Actor::SimState::NETWORKED_OK && actor->ar_sim_state != Actor::SimState::INVALID)
+    if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
     {
-        RoR::Networking::AddPacket(actor->ar_net_stream_id, RoRnet::MSG2_STREAM_UNREGISTER, 0, 0);
+        if (actor->ar_sim_state != Actor::SimState::NETWORKED_OK && actor->ar_sim_state != Actor::SimState::INVALID)
+        {
+            RoR::Networking::AddPacket(actor->ar_net_stream_id, RoRnet::MSG2_STREAM_UNREGISTER, 0, 0);
+        }
     }
 #endif // USE_SOCKETW
 
@@ -988,7 +987,7 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
             {
                 actor->ar_engine->UpdateEngineSim(dt, 1);
             }
-            if (actor->ar_uses_networking)
+            if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
             {
                 auto lifetime = actor->ar_net_timer.getMilliseconds();
                 if (lifetime < 10000 || lifetime - actor->ar_net_last_update_time > 5000)
@@ -1007,7 +1006,7 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
             {
                 actor->CalcNetwork();
             }
-            else if (actor->ar_uses_networking)
+            else if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
             {
                 actor->sendStreamData();
             }
