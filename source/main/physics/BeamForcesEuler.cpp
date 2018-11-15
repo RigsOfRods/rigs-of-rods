@@ -1218,7 +1218,7 @@ void Actor::CalcBeams(bool trigger_hooks)
             }
             else if (ar_beams[i].bounded == SHOCK2)
             {
-                this->CalcShocks2(i, difftoBeamL, k, d);
+                this->CalcShocks2(i, difftoBeamL, k, d, v);
             }
             else if (ar_beams[i].bounded == SHOCK3)
             {
