@@ -2278,50 +2278,35 @@ void Actor::CalcCabCollisions()
     }
 }
 
-void Actor::CalcShocks2(int i, Real difftoBeamL, Real& k, Real& d)
+void Actor::CalcShocks2(int i, Real difftoBeamL, Real& k, Real& d, Real v)
 {
-    float logafactor = 1.0f;
-    if (ar_beams[i].shock->lastpos < difftoBeamL)
+    if (v > 0) // Extension
     {
-        //shock extending since last cycle
-        //get outbound values
         k = ar_beams[i].shock->springout;
         d = ar_beams[i].shock->dampout;
         // add progression
+        float logafactor = 1.0f;
         if (ar_beams[i].longbound != 0.0f)
         {
             logafactor = difftoBeamL / (ar_beams[i].longbound * ar_beams[i].L);
-            logafactor = logafactor * logafactor;
+            logafactor = std::min(logafactor * logafactor, 1.0f);
         }
-        else
-        {
-            logafactor = 1.0f;
-        }
-        if (logafactor > 1.0f)
-            logafactor = 1.0f;
-        k = k + (ar_beams[i].shock->sprogout * k * logafactor);
-        d = d + (ar_beams[i].shock->dprogout * d * logafactor);
+        k += ar_beams[i].shock->sprogout * k * logafactor;
+        d += ar_beams[i].shock->dprogout * d * logafactor;
     }
-    else
+    else // Compression
     {
-        //shock compresssing since last cycle
-        //get inbound values
         k = ar_beams[i].shock->springin;
         d = ar_beams[i].shock->dampin;
         // add progression
+        float logafactor = 1.0f;
         if (ar_beams[i].shortbound != 0.0f)
         {
             logafactor = difftoBeamL / (ar_beams[i].shortbound * ar_beams[i].L);
-            logafactor = logafactor * logafactor;
+            logafactor = std::min(logafactor * logafactor, 1.0f);
         }
-        else
-        {
-            logafactor = 1.0f;
-        }
-        if (logafactor > 1.0f)
-            logafactor = 1.0f;
-        k = k + (ar_beams[i].shock->sprogin * k * logafactor);
-        d = d + (ar_beams[i].shock->dprogin * d * logafactor);
+        k += ar_beams[i].shock->sprogin * k * logafactor;
+        d += ar_beams[i].shock->dprogin * d * logafactor;
     }
     if (ar_beams[i].shock->flags & SHOCK_FLAG_SOFTBUMP)
     {
@@ -2331,38 +2316,28 @@ void Actor::CalcShocks2(int i, Real difftoBeamL, Real& k, Real& d)
         float shortboundprelimit = -ar_beams[i].shortbound * beamsLep;
         if (difftoBeamL > longboundprelimit)
         {
-            //reset to longbound progressive values (oscillating beam workaround)
+            // reset to longbound progressive values (oscillating beam workaround)
             k = ar_beams[i].shock->springout;
             d = ar_beams[i].shock->dampout;
             // add progression
+            float logafactor = 1.0f;
             if (ar_beams[i].longbound != 0.0f)
             {
                 logafactor = difftoBeamL / (ar_beams[i].longbound * ar_beams[i].L);
-                logafactor = logafactor * logafactor;
+                logafactor = std::min(logafactor * logafactor, 1.0f);
             }
-            else
-            {
-                logafactor = 1.0f;
-            }
-            if (logafactor > 1.0f)
-                logafactor = 1.0f;
-            k = k + (ar_beams[i].shock->sprogout * k * logafactor);
-            d = d + (ar_beams[i].shock->dprogout * d * logafactor);
-            //add shortbump progression
+            k += ar_beams[i].shock->sprogout * k * logafactor;
+            d += ar_beams[i].shock->dprogout * d * logafactor;
+            // add shortbump progression
+            logafactor = 1.0f;
             if (ar_beams[i].longbound != 0.0f)
             {
                 logafactor = ((difftoBeamL - longboundprelimit) * 5.0f) / (ar_beams[i].longbound * ar_beams[i].L);
-                logafactor = logafactor * logafactor;
+                logafactor = std::min(logafactor * logafactor, 1.0f);
             }
-            else
-            {
-                logafactor = 1.0f;
-            }
-            if (logafactor > 1.0f)
-                logafactor = 1.0f;
-            k = k + (k + 100.0f) * ar_beams[i].shock->sprogout * logafactor;
-            d = d + (d + 100.0f) * ar_beams[i].shock->dprogout * logafactor;
-            if (ar_beams[i].shock->lastpos > difftoBeamL)
+            k += (k + 100.0f) * ar_beams[i].shock->sprogout * logafactor;
+            d += (d + 100.0f) * ar_beams[i].shock->dprogout * logafactor;
+            if (v < 0)
             // rebound mode..get new values
             {
                 k = ar_beams[i].shock->springin;
@@ -2371,37 +2346,28 @@ void Actor::CalcShocks2(int i, Real difftoBeamL, Real& k, Real& d)
         }
         else if (difftoBeamL < shortboundprelimit)
         {
-            //reset to shortbound progressive values (oscillating beam workaround)
+            // reset to shortbound progressive values (oscillating beam workaround)
             k = ar_beams[i].shock->springin;
             d = ar_beams[i].shock->dampin;
+            // add progression
+            float logafactor = 1.0f;
             if (ar_beams[i].shortbound != 0.0f)
             {
                 logafactor = difftoBeamL / (ar_beams[i].shortbound * ar_beams[i].L);
-                logafactor = logafactor * logafactor;
+                logafactor = std::min(logafactor * logafactor, 1.0f);
             }
-            else
-            {
-                logafactor = 1.0f;
-            }
-            if (logafactor > 1.0f)
-                logafactor = 1.0f;
-            k = k + (ar_beams[i].shock->sprogin * k * logafactor);
-            d = d + (ar_beams[i].shock->dprogin * d * logafactor);
-            //add shortbump progression
+            k += ar_beams[i].shock->sprogin * k * logafactor;
+            d += ar_beams[i].shock->dprogin * d * logafactor;
+            // add shortbump progression
+            logafactor = 1.0f;
             if (ar_beams[i].shortbound != 0.0f)
             {
                 logafactor = ((difftoBeamL - shortboundprelimit) * 5.0f) / (ar_beams[i].shortbound * ar_beams[i].L);
-                logafactor = logafactor * logafactor;
+                logafactor = std::min(logafactor * logafactor, 1.0f);
             }
-            else
-            {
-                logafactor = 1.0f;
-            }
-            if (logafactor > 1.0f)
-                logafactor = 1.0f;
-            k = k + (k + 100.0f) * ar_beams[i].shock->sprogout * logafactor;
-            d = d + (d + 100.0f) * ar_beams[i].shock->dprogout * logafactor;
-            if (ar_beams[i].shock->lastpos < difftoBeamL)
+            k += (k + 100.0f) * ar_beams[i].shock->sprogout * logafactor;
+            d += (d + 100.0f) * ar_beams[i].shock->dprogout * logafactor;
+            if (v > 0)
             // rebound mode..get new values
             {
                 k = ar_beams[i].shock->springout;
@@ -2411,24 +2377,16 @@ void Actor::CalcShocks2(int i, Real difftoBeamL, Real& k, Real& d)
         if (difftoBeamL > ar_beams[i].longbound * ar_beams[i].L || difftoBeamL < -ar_beams[i].shortbound * ar_beams[i].L)
         {
             // block reached...hard bump in soft mode with 4x default damping
-            if (k < ar_beams[i].shock->sbd_spring)
-                k = ar_beams[i].shock->sbd_spring;
-            if (d < ar_beams[i].shock->sbd_damp)
-                d = ar_beams[i].shock->sbd_damp;
+            k = std::max(k, ar_beams[i].shock->sbd_spring);
+            d = std::max(d, ar_beams[i].shock->sbd_damp);
         }
     }
-    else if (ar_beams[i].shock->flags & SHOCK_FLAG_NORMAL)
+    else if (difftoBeamL > ar_beams[i].longbound * ar_beams[i].L || difftoBeamL < -ar_beams[i].shortbound * ar_beams[i].L)
     {
-        if (difftoBeamL > ar_beams[i].longbound * ar_beams[i].L || difftoBeamL < -ar_beams[i].shortbound * ar_beams[i].L)
-        {
-            // hard (normal) shock bump
-            k = ar_beams[i].shock->sbd_spring;
-            d = ar_beams[i].shock->sbd_damp;
-        }
+        // hard (normal) shock bump
+        k = ar_beams[i].shock->sbd_spring;
+        d = ar_beams[i].shock->sbd_damp;
     }
-
-    // save beam position for next simulation cycle
-    ar_beams[i].shock->lastpos = difftoBeamL;
 }
 
 void Actor::CalcShocks3(int i, Real difftoBeamL, Real &k, Real& d, Real v)

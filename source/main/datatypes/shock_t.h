@@ -47,7 +47,6 @@ struct shock_t
     float dprogin;   //!< shocks2
     float sprogout;  //!< shocks2
     float dprogout;  //!< shocks2
-    float lastpos;   //!< shocks2
 
     float splitin;   //!< shocks3
     float dslowin;   //!< shocks3
