@@ -304,14 +304,13 @@ int main(int argc, char *argv[])
         AppState prev_app_state = App::app_state.GetActive();
         App::app_state.SetPending(AppState::MAIN_MENU);
 
-        if (! App::diag_preset_terrain.IsActiveEmpty())
-        {
-            App::app_state.SetPending(AppState::SIMULATION);
-        }
-
         if (App::mp_join_on_startup.GetActive() == true)
         {
             App::mp_state.SetPending(RoR::MpState::CONNECTED);
+        }
+        else if (!App::diag_preset_terrain.IsActiveEmpty())
+        {
+            App::app_state.SetPending(AppState::SIMULATION);
         }
 
         while (App::app_state.GetPending() != AppState::SHUTDOWN)
@@ -330,9 +329,9 @@ int main(int argc, char *argv[])
 #endif // USE_OPENAL
 
                 App::GetGuiManager()->ReflectGameState();
-                if (App::mp_state.GetPending() == MpState::CONNECTED || BSETTING("SkipMainMenu", false))
+                if (!App::mp_join_on_startup.GetActive() && BSETTING("SkipMainMenu", false))
                 {
-                    // Multiplayer started from configurator / MainMenu disabled -> go directly to map selector (traditional behavior)
+                    // MainMenu disabled (singleplayer mode) -> go directly to map selector (traditional behavior)
                     if (App::diag_preset_terrain.IsActiveEmpty())
                     {
                         App::GetGuiManager()->SetVisible_GameMainMenu(false);
