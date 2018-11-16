@@ -135,8 +135,8 @@ struct ActorStreamRegister
     int32_t status;                //!< initial stream status
     int32_t origin_sourceid;       //!< origin sourceid
     int32_t origin_streamid;       //!< origin streamid
-    int32_t bufferSize;            //!< initial stream status
     char    name[128];             //!< filename
+    int32_t bufferSize;            //!< initial stream status
     char    actorconfig[10][60];   //!< section configuration
 };
 
