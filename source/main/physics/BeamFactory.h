@@ -112,7 +112,6 @@ private:
     std::shared_ptr<Task>           m_sim_task;
     std::vector<Actor*>             m_actors;
     bool            m_forced_awake;      //!< disables sleep counters
-    unsigned long   m_physics_frames;
     int             m_physics_steps;
     float           m_dt_remainder;     ///< Keeps track of the rounding error in the time step calculation
     float           m_simulation_speed; ///< slow motion < 1.0 < fast motion
