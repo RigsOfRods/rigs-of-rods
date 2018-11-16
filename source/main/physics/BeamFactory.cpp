@@ -399,7 +399,7 @@ void ActorManager::RemoveStreamSource(int sourceid)
 
         if (actor->ar_net_source_id == sourceid)
         {
-            this->DeleteActorInternal(actor);
+            App::GetSimController()->QueueActorRemove(actor);
         }
     }
 }
@@ -478,7 +478,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::Networking::recv_packe
             Actor* b = this->GetActorByNetworkLinks(packet.header.source, packet.header.streamid);
             if (b && b->ar_sim_state == Actor::SimState::NETWORKED_OK)
             {
-                this->DeleteActorInternal(b);
+                App::GetSimController()->QueueActorRemove(b);
             }
             auto search = m_stream_mismatches.find(packet.header.source);
             if (search != m_stream_mismatches.end())
