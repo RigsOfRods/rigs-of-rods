@@ -58,7 +58,6 @@ using namespace RoR;
 ActorManager::ActorManager()
     : m_dt_remainder(0.0f)
     , m_forced_awake(false)
-    , m_physics_frames(0)
     , m_physics_steps(2000)
     , m_simulation_speed(1.0f)
     , m_actor_counter(0)
@@ -953,8 +952,6 @@ Actor* ActorManager::FetchRescueVehicle()
 
 void ActorManager::UpdateActors(Actor* player_actor, float dt)
 {
-    m_physics_frames++;
-
     // do not allow dt > 1/20
     dt = std::min(dt, 1.0f / 20.0f);
 
