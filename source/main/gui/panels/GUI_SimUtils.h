@@ -27,7 +27,6 @@
 
 #include "ForwardDeclarations.h"
 #include "GUI_SimUtilsLayout.h"
-#include "InterThreadStoreVector.h"
 
 namespace RoR {
 

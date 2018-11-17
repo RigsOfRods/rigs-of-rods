@@ -125,31 +125,27 @@ void Console::putMessage(int type, int sender_uid, UTFString txt, String icon, u
 
 void Console::messageUpdate(float dt)
 {
-    std::vector<ConsoleMessage> tmpWaitingMessages;
-    int results = pull(tmpWaitingMessages);
+    std::vector<ConsoleMessage> tmpMessages;
+    pull(tmpMessages);
 
-    int r = 0;
-    if (results > 0)
+    for (auto message : tmpMessages)
     {
-        for (int i = 0; i < results; i++ , r++)
-        {
-            TextCol = "#FFFFFF";
-            if (tmpWaitingMessages[i].sender_uid == CONSOLE_TITLE)
-                TextCol = "#FF8100"; //Orange
-            else if (tmpWaitingMessages[i].sender_uid == CONSOLE_SYSTEM_ERROR)
-                TextCol = "#FF0000"; //Red
-            else if (tmpWaitingMessages[i].sender_uid == CONSOLE_SYSTEM_REPLY)
-                TextCol = "#00FF00"; //Green
-            else if (tmpWaitingMessages[i].sender_uid == CONSOLE_HELP)
-                TextCol = "#72C0E0"; //Light blue
+        TextCol = "#FFFFFF";
+        if (message.sender_uid == CONSOLE_TITLE)
+            TextCol = "#FF8100"; //Orange
+        else if (message.sender_uid == CONSOLE_SYSTEM_ERROR)
+            TextCol = "#FF0000"; //Red
+        else if (message.sender_uid == CONSOLE_SYSTEM_REPLY)
+            TextCol = "#00FF00"; //Green
+        else if (message.sender_uid == CONSOLE_HELP)
+            TextCol = "#72C0E0"; //Light blue
 
-            ConsoleText += TextCol + tmpWaitingMessages[i].txt + "\n";
+        ConsoleText += TextCol + message.txt + "\n";
 
-            m_Console_MainBox->setMaxTextLength(ConsoleText.length() + 1);
+        m_Console_MainBox->setMaxTextLength(ConsoleText.length() + 1);
 
-            //if (getVisible())
-            m_Console_MainBox->setCaptionWithReplacing(ConsoleText);
-        }
+        //if (getVisible())
+        m_Console_MainBox->setCaptionWithReplacing(ConsoleText);
     }
 }
 

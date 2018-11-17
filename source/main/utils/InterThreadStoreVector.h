@@ -36,20 +36,11 @@ public:
         store.push_back(v);
     }
 
-    size_t size()
+    void pull(std::vector<T>& res)
     {
         std::lock_guard<std::mutex> lock(m_vector_mutex);
-        return store.size();
-    }
-
-    int pull(std::vector<T>& res)
-    {
-        std::lock_guard<std::mutex> lock(m_vector_mutex);
-        int results = 0;
         res = store;
-        results = (int)res.size();
         store.clear();
-        return results;
     }
 
 protected:
