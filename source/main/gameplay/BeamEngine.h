@@ -147,7 +147,6 @@ private:
 
     // Vehicle
     Actor*         m_actor;
-    float          m_abs_velocity;          //!< Vehicle; current velocity of the vehicle
 
     // Gearbox
     float          m_ref_wheel_revolutions; //!< Gears; estimated wheel revolutions based on current vehicle speed along the longi. axis
@@ -222,7 +221,6 @@ private:
     int            m_max_turbo_rpm;
     float          m_engine_addi_torque[MAXTURBO];
     float          m_turbo_engine_rpm_operation;
-    float          m_turbo_max_psi;
     bool           m_turbo_has_bov;
     float          m_turbo_bov_rpm[MAXTURBO];
     int            m_min_bov_psi;

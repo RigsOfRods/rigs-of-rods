@@ -31,6 +31,7 @@
 #include "TerrainManager.h"
 
 RoR::GfxEnvmap::GfxEnvmap():
+    m_is_enabled(false),
     m_is_initialized(false),
     m_update_round(0)
 {

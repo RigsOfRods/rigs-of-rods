@@ -114,6 +114,7 @@ using namespace RoR;
 
 Collisions::Collisions():
       debugMode(false)
+    , debugmo(nullptr)
     , forcecam(false)
     , free_eventsource(0)
     , hashmask(0)
@@ -182,7 +183,7 @@ int Collisions::loadGroundModelsConfigFile(Ogre::String filename)
     std::map<Ogre::String, ground_model_t>::iterator it;
     for (it=ground_models.begin(); it!=ground_models.end(); it++)
     {
-        if (!it->second.basename) continue; // no base, normal material
+        if (!strlen(it->second.basename)) continue; // no base, normal material
         String bname = String(it->second.basename);
         if (ground_models.find(bname) == ground_models.end()) continue; // base not found!
         // copy the values from the base if not set otherwise

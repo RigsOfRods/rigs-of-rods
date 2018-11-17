@@ -34,7 +34,9 @@
 
 using namespace Ogre;
 
-VehicleAI::VehicleAI(Actor* b)
+VehicleAI::VehicleAI(Actor* b) :
+    is_waiting(false),
+    wait_time(0.0f)
 {
     beam = b;
 }

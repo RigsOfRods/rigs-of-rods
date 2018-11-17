@@ -28,8 +28,6 @@
 
 #include "RoRPrerequisites.h"
 
-#include <OIS.h>
-
 namespace RoR {
 
 class SceneMouse
@@ -53,7 +51,6 @@ protected:
 
     Ogre::ManualObject* pickLine;
     Ogre::SceneNode* pickLineNode;
-    float mouseGrabForce;
     int mouseGrabState;
 
     int minnode;

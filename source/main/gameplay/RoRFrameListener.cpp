@@ -31,18 +31,12 @@
 #include "Character.h"
 #include "CharacterFactory.h"
 #include "ChatSystem.h"
-#include "CollisionTools.h"
 #include "Collisions.h"
 #include "ContentManager.h"
 #include "DashBoardManager.h"
 #include "DustManager.h"
 #include "EnvironmentMap.h"
 #include "ForceFeedback.h"
-#include "GUI_LoadingWindow.h"
-#include "GUI_TeleportWindow.h"
-#include "GUI_TopMenubar.h"
-#include "GUIManager.h"
-#include "IWater.h"
 #include "InputEngine.h"
 #include "LandVehicleSimulation.h"
 #include "Language.h"
@@ -67,11 +61,14 @@
 #include "Water.h"
 
 #include "GUIManager.h"
-#include "GUI_GameConsole.h"
 #include "GUI_FrictionSettings.h"
-#include "GUI_MultiplayerClientList.h"
+#include "GUI_GameConsole.h"
+#include "GUI_LoadingWindow.h"
 #include "GUI_MainSelector.h"
+#include "GUI_MultiplayerClientList.h"
 #include "GUI_SimUtils.h"
+#include "GUI_TeleportWindow.h"
+#include "GUI_TopMenubar.h"
 
 #include "SurveyMapManager.h"
 #include "SurveyMapEntity.h"
@@ -83,8 +80,6 @@
 #include <limits>
 #include <sstream>
 
-#include <OgreOverlayManager.h>
-
 #ifdef USE_MPLATFORM
 #include "MPlatformFD.h"
 #endif //USE_MPLATFORM
@@ -94,18 +89,6 @@
 #else
 #include <stdio.h>
 #include <wchar.h>
-
-#include <Overlay/OgreOverlayManager.h>
-
-#endif
-
-// some gcc fixes
-#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#endif //OGRE_PLATFORM_LINUX
-
-#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-//#include <CFUserNotification.h>
 #endif
 
 using namespace Ogre;
@@ -276,16 +259,16 @@ void SimController::UpdateInputEvents(float dt)
         RoR::App::GetGuiManager()->HideNotification();
         RoR::App::GetGuiManager()->SetMouseCursorVisibility(RoR::GUIManager::MouseCursorVisibility::HIDDEN);
 
-        if (App::app_screenshot_format.GetActive() == "png")
+        if (std::strcmp(App::app_screenshot_format.GetActive(), "png") == 0)
         {
             // add some more data into the image
             AdvancedScreen* as = new AdvancedScreen(RoR::App::GetOgreSubsystem()->GetRenderWindow(), tmpfn);
             //as->addData("terrain_Name", loadedTerrain);
             //as->addData("terrain_ModHash", terrainModHash);
             //as->addData("terrain_FileHash", terrainFileHash);
-            as->addData("Truck_Num", TOSTRING(m_player_actor->ar_instance_id));
             if (m_player_actor)
             {
+                as->addData("Truck_Num", TOSTRING(m_player_actor->ar_instance_id));
                 as->addData("Truck_fname", m_player_actor->ar_filename);
                 as->addData("Truck_name", m_player_actor->GetActorDesignName());
                 as->addData("Truck_beams", TOSTRING(m_player_actor->ar_num_beams));
@@ -1521,7 +1504,6 @@ void SimController::UpdateSimulation(float dt)
         }
 
         m_gfx_scene.RemoveGfxActor(actor->GetGfxActor());
-        m_actor_manager.DeleteActorInternal(actor);
         
         // Remove modify-requests for this actor
         m_actor_modify_queue.erase(
@@ -1529,6 +1511,8 @@ void SimController::UpdateSimulation(float dt)
                 m_actor_modify_queue.begin(), m_actor_modify_queue.end(),
                 [actor](ActorModifyRequest& rq) -> bool { return rq.amr_actor == actor; }),
             m_actor_modify_queue.end());
+
+        m_actor_manager.DeleteActorInternal(actor);
     }
     m_actor_remove_queue.clear();
 
@@ -2101,7 +2085,7 @@ bool SimController::SetupGameplayLoop()
 
     if (ISETTING("OutGauge Mode", 0) > 0)
     {
-        new OutProtocol();
+        m_out_protocol = std::unique_ptr<OutProtocol>(new OutProtocol());
     }
 
     App::CreateOverlayWrapper();

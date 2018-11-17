@@ -89,12 +89,16 @@ bool intersectsTerrain(Vector3 a, Vector3 b) // internal helper
 
 CameraManager::CameraManager() :
       m_current_behavior(CAMERA_BEHAVIOR_INVALID)
+    , m_cct_dt(0.0f)
+    , m_cct_trans_scale(1.0f)
+    , m_cct_sim_speed(1.0f)
     , m_cam_before_toggled(CAMERA_BEHAVIOR_INVALID)
     , m_prev_toggled_cam(CAMERA_BEHAVIOR_INVALID)
     , m_config_enter_vehicle_keep_fixedfreecam(false)
     , m_config_exit_vehicle_keep_fixedfreecam(false)
     , m_charactercam_is_3rdperson(true)
     , m_splinecam_num_linked_beams(0)
+    , m_splinecam_auto_tracking(false)
     , m_splinecam_spline(new SimpleSpline())
     , m_splinecam_spline_closed(false)
     , m_splinecam_spline_len(1.0f)
@@ -231,11 +235,11 @@ bool CameraManager::Update(float dt, Actor* player_vehicle, float sim_speed) // 
     const float trans_scale = TRANS_SPEED  * dt;
     const float rot_scale   = ROTATE_SPEED * dt;
 
-    m_cct_player_actor  = player_vehicle;
-    m_cct_sim_speed   = sim_speed;
-    m_cct_dt         = dt;
-    m_cct_rot_scale   = Degree(rot_scale);
-    m_cct_trans_scale = trans_scale;
+    m_cct_player_actor = player_vehicle;
+    m_cct_sim_speed    = sim_speed;
+    m_cct_dt           = dt;
+    m_cct_rot_scale    = Degree(rot_scale);
+    m_cct_trans_scale  = trans_scale;
     m_cct_fov_interior = Degree(App::gfx_fov_internal.GetActive()); // TODO: don't copy Gvar!
     m_cct_fov_exterior = Degree(App::gfx_fov_external.GetActive());
 

@@ -122,7 +122,6 @@ private:
 
     bool is_waiting;//!< 
     float wait_time;//!<(seconds) The amount of time the AI has to wait on this waypoint.
-    int task_after_waiting;//!< The task to do after it has waited.
 
     float maxspeed = 50;//!<(KM/H) The max speed the AI is allowed to drive.
     Actor* beam;//!< The verhicle the AI is driving.

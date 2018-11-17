@@ -65,7 +65,7 @@ typedef struct dashData_t
     bool enabled;
     const char* name; // char string of name
 
-    dashData_t() : type(DC_INVALID)
+    dashData_t() : type(DC_INVALID), name("")
     {
         memset(&data, 0, sizeof(data));
         enabled = false;

@@ -51,6 +51,7 @@ FlexBody::FlexBody(
     , m_has_texture_blend(true)
     , m_scene_node(nullptr)
     , m_scene_entity(ent)
+    , m_shared_buf_num_verts(0)
     , m_has_texture(true)
     , m_locators(nullptr)
     , m_src_normals(nullptr)

@@ -62,6 +62,5 @@ private:
     Ogre::Overlay* dashOverlay;
     Ogre::Overlay* fpsOverlay;
     Ogre::Overlay* needlesOverlay;
-    bool consolevisible;
     bool fpsDisplayed;
 };

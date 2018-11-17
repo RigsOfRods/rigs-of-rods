@@ -35,6 +35,7 @@ using namespace RoR;
 
 Landusemap::Landusemap(String configFilename) :
     data(0)
+    , default_ground_model(nullptr)
     , mapsize(Vector3::ZERO)
 {
     mapsize = App::GetSimTerrain()->getMaxTerrainSize();

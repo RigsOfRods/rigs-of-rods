@@ -69,24 +69,29 @@ void ForceFeedback::SetForces(float roll, float pitch, float wspeed, float dirco
         m_hydro_effect->replay_delay = 0;
         m_hydro_effect->setNumAxes(1);
         OIS::ConstantEffect* hydroConstForce = dynamic_cast<OIS::ConstantEffect*>(m_hydro_effect->getForceEffect());
-        hydroConstForce->level = 0; //-10K to +10k
-        hydroConstForce->envelope.attackLength = 0;
-        hydroConstForce->envelope.attackLevel = (unsigned short)hydroConstForce->level;
-        hydroConstForce->envelope.fadeLength = 0;
-        hydroConstForce->envelope.fadeLevel = (unsigned short)hydroConstForce->level;
-
+        if (hydroConstForce != nullptr)
+        {
+            hydroConstForce->level = 0; //-10K to +10k
+            hydroConstForce->envelope.attackLength = 0;
+            hydroConstForce->envelope.attackLevel = (unsigned short)hydroConstForce->level;
+            hydroConstForce->envelope.fadeLength = 0;
+            hydroConstForce->envelope.fadeLevel = (unsigned short)hydroConstForce->level;
+        }
         m_device->upload(m_hydro_effect);
     }
 
     OIS::ConstantEffect* hydroConstForce = dynamic_cast<OIS::ConstantEffect*>(m_hydro_effect->getForceEffect());
-    float stress_gain = App::io_ffb_stress_gain.GetActive();
-    float centering_gain = App::io_ffb_center_gain.GetActive();
-    float ff = -stress * stress_gain + dircommand * 100.0 * centering_gain * wspeed * wspeed;
-    if (ff > 10000)
-        ff = 10000;
-    if (ff < -10000)
-        ff = -10000;
-    hydroConstForce->level = ff; //-10K to +10k
+    if (hydroConstForce != nullptr)
+    {
+        float stress_gain = App::io_ffb_stress_gain.GetActive();
+        float centering_gain = App::io_ffb_center_gain.GetActive();
+        float ff = -stress * stress_gain + dircommand * 100.0 * centering_gain * wspeed * wspeed;
+        if (ff > 10000)
+            ff = 10000;
+        if (ff < -10000)
+            ff = -10000;
+        hydroConstForce->level = ff; //-10K to +10k
+    }
     m_device->modify(m_hydro_effect);
 }
 

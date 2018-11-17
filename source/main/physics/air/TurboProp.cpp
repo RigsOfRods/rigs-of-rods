@@ -105,10 +105,13 @@ Turboprop::Turboprop(
     propwash = 0;
     timer = 0;
     lastflip = 0;
+    warmupstart = 0.0;
     warmuptime = 14.0;
+    warmup = false;
     airfoil = new Airfoil(propfoilname);
     fullpower = power;
     max_torque = 9549.3 * fullpower / 1000.0;
+    indicated_torque = 0.0;
     radius = (nodes[noderef].RelPosition - nodes[nodep[0]].RelPosition).length();
     //bladewidth=radius/5.75;
     bladewidth = 0.4;

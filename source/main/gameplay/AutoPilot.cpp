@@ -30,11 +30,14 @@ using namespace Ogre;
 using namespace RoR;
 
 Autopilot::Autopilot(int actor_id):
-    m_actor_id(actor_id)
+    m_actor_id(actor_id),
+    m_ils_runway_distance(0.0f)
 {
     ref_l = nullptr;
     ref_r = nullptr;
     ref_b = nullptr;
+    ref_c = nullptr;
+    ref_span = 1.0f;
     reset();
 }
 
