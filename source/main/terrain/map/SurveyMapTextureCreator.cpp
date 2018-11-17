@@ -99,12 +99,13 @@ void SurveyMapTextureCreator::update()
     }
 
     float farclip = gEnv->mainCamera->getFarClipDistance();
+    float cameraHeight = std::max(mMapCenter.x, farclip) * 0.1f;
     float orthoWindowWidth = mMapSize.x - (mMapSize.x - 20.0f) * mMapZoom;
     float orthoWindowHeight = mMapSize.y - (mMapSize.y - 20.0f) * mMapZoom;
 
     mCamera->setFarClipDistance(farclip);
     mCamera->setOrthoWindow(orthoWindowWidth, orthoWindowHeight);
-    mCamera->setPosition(Vector3(mMapCenter.x, farclip * 0.1f, mMapCenter.y));
+    mCamera->setPosition(Vector3(mMapCenter.x, cameraHeight, mMapCenter.y));
     mCamera->lookAt(Vector3(mMapCenter.x, 0.0f, mMapCenter.y));
 
     preRenderTargetUpdate();
