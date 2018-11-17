@@ -7085,16 +7085,7 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
         const float aspect_ratio = static_cast<float>(def->texture_width) / static_cast<float>(def->texture_height);
         vcam.vcam_ogre_camera->setAspectRatio(aspect_ratio);
         vcam.vcam_material->getTechnique(0)->getPass(0)->setLightingEnabled(false);
-
-        if (vcam.vcam_type == GfxActor::VideoCamType::VCTYPE_MIRROR)
-        {
-            vcam.vcam_off_tex_name = "Chrome.dds"; // Built-in gray texture
-        }
-        else
-        {
-            // The default "NO SIGNAL" noisy blue screen texture
-            vcam.vcam_off_tex_name = vcam.vcam_material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->getTextureName();
-        }
+        vcam.vcam_off_tex_name = "Chrome.dds"; // Built-in gray texture
 
         if (vcam.vcam_render_target)
         {
