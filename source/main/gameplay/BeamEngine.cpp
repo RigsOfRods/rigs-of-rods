@@ -45,6 +45,7 @@ EngineSim::EngineSim(float _min_rpm, float _max_rpm, float torque, std::vector<f
     , m_cur_gear(0)
     , m_cur_gear_range(0)
     , m_cur_wheel_revolutions(0.0f)
+    , m_ref_wheel_revolutions(0.0f)
     , m_diff_ratio(dratio)
     , m_tcase_ratio(1.0f)
     , m_engine_torque(torque)
@@ -145,8 +146,8 @@ void EngineSim::SetTurboOptions(int type, float tinertiaFactor, int nturbos, flo
     }
     else
     {
-        m_turbo_max_psi = param1; //maxPSI
-        m_max_turbo_rpm = m_turbo_max_psi * 10000;
+        float turbo_max_psi = param1; //maxPSI
+        m_max_turbo_rpm = turbo_max_psi * 10000;
 
         //Duh
         if (param3 == 1)
@@ -594,8 +595,7 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
     if (doUpdate && !m_shifting && !m_post_shifting)
     {
         // gear hack
-        m_abs_velocity = m_actor->ar_nodes[0].Velocity.length();
-        float velocity = m_abs_velocity;
+        float velocity = m_actor->ar_nodes[0].Velocity.length();
 
         Vector3 hdir = m_actor->GetCameraDir();
         if (hdir != Vector3::ZERO)

@@ -4394,7 +4394,7 @@ bool Actor::getBrakeLightVisible()
 
 bool Actor::getCustomLightVisible(int number)
 {
-    if (number < 0 || number > 4)
+    if (number < 0 || number > 3)
     {
         LOG("AngelScript: Invalid Light ID (" + TOSTRING(number) + "), allowed range is (0 - 4)");
         return false;
@@ -4407,9 +4407,9 @@ bool Actor::getCustomLightVisible(int number)
 
 void Actor::setCustomLightVisible(int number, bool visible)
 {
-    if (number < 0 || number > 4)
+    if (number < 0 || number > 3)
     {
-        LOG("AngelScript: Invalid Light ID (" + TOSTRING(number) + "), allowed range is (0 - 4)");
+        LOG("AngelScript: Invalid Light ID (" + TOSTRING(number) + "), allowed range is (0 - 3)");
         return;
     }
 

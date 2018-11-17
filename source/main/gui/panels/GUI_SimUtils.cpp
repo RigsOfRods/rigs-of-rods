@@ -73,6 +73,7 @@ CLASS::CLASS()
     m_fps_box_visible = false;
     m_actor_info_visible = false;
 
+    m_last_notifi_push_time = 0.0f;
     m_notifi_box_alpha = 1.0f;
 
     m_notifications_disabled = false;

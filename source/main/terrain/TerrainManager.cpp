@@ -64,6 +64,7 @@ TerrainManager::TerrainManager()
     , m_paged_detail_factor(0.0f)
     , m_paged_mode(0)
     , m_cur_gravity(DEFAULT_GRAVITY)
+    , m_hydrax_water(nullptr)
 {
 }
 

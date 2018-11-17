@@ -42,6 +42,8 @@ MumbleIntegration::MumbleIntegration() : lm(NULL)
 
 MumbleIntegration::~MumbleIntegration()
 {
+    if (lm != nullptr)
+        delete lm;
 }
 
 void MumbleIntegration::initMumble()

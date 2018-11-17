@@ -810,7 +810,7 @@ Actor* ActorManager::FindActorInsideBox(Collisions* collisions, const Ogre::Stri
 void ActorManager::RepairActor(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box, bool keepPosition)
 {
     Actor* actor = this->FindActorInsideBox(collisions, inst, box);
-    if (actor >= 0)
+    if (actor != nullptr)
     {
         SOUND_PLAY_ONCE(actor, SS_TRIG_REPAIR);
 

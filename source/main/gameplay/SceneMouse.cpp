@@ -26,13 +26,8 @@
 #include "SceneMouse.h"
 
 #include "Application.h"
-#include "CameraManager.h"
-#include "Beam.h"
-#include "BeamFactory.h"
-#include "GUIManager.h"
 #include "RoRFrameListener.h"
 
-# include <MyGUI.h>
 #include <OgreSceneManager.h>
 #include <OgreMaterialManager.h>
 #include <OgreResourceGroupManager.h>
@@ -42,12 +37,14 @@
 using namespace Ogre;
 using namespace RoR;
 
-SceneMouse::SceneMouse()
-{
-    mouseGrabForce = 30000.0f;
-    grab_truck = NULL;
+#define MOUSE_GRAB_FORCE 30000.0f
 
-    // init variables for mouse picking
+SceneMouse::SceneMouse() :
+    mouseGrabState(0),
+    grab_truck(nullptr),
+    pickLine(nullptr),
+    pickLineNode(nullptr)
+{
     releaseMousePick(); // TODO: Yuck! Rewrite in proper code!! ~ only_a_ptr, 06/2018
 }
 
@@ -207,7 +204,7 @@ void SceneMouse::UpdateSimulation()
         lastgrabpos = mouseRay.getPoint(mindist);
 
         // add forces
-        grab_truck->HandleMouseMove(minnode, lastgrabpos, mouseGrabForce);
+        grab_truck->HandleMouseMove(minnode, lastgrabpos, MOUSE_GRAB_FORCE);
     }
 }
 

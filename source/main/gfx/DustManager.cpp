@@ -318,5 +318,7 @@ RoR::GfxScene::SimBuffer::SimBuffer():
     simbuf_race_in_progress(false),
     simbuf_race_in_progress_prev(false),
     simbuf_race_bestlap_time(0.f),
+    simbuf_sim_speed(1.0f),
+    simbuf_race_time(0.0f),
     simbuf_dir_arrow_target(Ogre::Vector3::ZERO)
 {}

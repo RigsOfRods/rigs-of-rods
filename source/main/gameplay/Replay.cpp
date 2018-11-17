@@ -32,6 +32,9 @@ Replay::Replay(Actor* actor, int _numFrames)
     numBeams = actor->ar_num_beams;
     numFrames = _numFrames;
 
+    curFrameTime = 0;
+    curOffset = 0;
+
     replayTimer = new Timer();
 
     // DO NOT get memory here, get memory when we use it first time!

@@ -21,17 +21,14 @@
 
 #pragma once
 
+#include "RoRPrerequisites.h"
+
 #include "BeamFactory.h"
 #include "CameraManager.h" // enum CameraManager::CameraBehaviors
 #include "CharacterFactory.h"
 #include "DustManager.h" // GfxScene
-#include "EnvironmentMap.h"
 #include "ForceFeedback.h"
-#include "RoRPrerequisites.h"
 #include "SceneMouse.h"
-#include <OgreWindowEventUtilities.h>
-
-#include <Ogre.h>
 
 /// The simulation controller object
 /// It's lifetime is tied to single gameplay session. When user returns to main menu, it's destroyed.
@@ -150,7 +147,6 @@ private:
     bool                     m_was_app_window_closed;
     bool                     m_actor_info_gui_visible;
     bool                     m_pressure_pressed;
-    int                      PreDefineSkyXExemple; //For predefined skyx weathers
 
     CacheEntry*              m_last_cache_selection;
     RoR::SkinDef*            m_last_skin_selection;
@@ -170,4 +166,6 @@ private:
 
     Ogre::Vector3            m_reload_pos;
     Ogre::Quaternion         m_reload_dir;
+
+    std::unique_ptr<OutProtocol> m_out_protocol;
 };

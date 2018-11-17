@@ -32,6 +32,7 @@
 #include "AirBrake.h"
 #include "Airfoil.h"
 #include "Application.h"
+#include "ApproxMath.h"
 #include "AutoPilot.h"
 #include "VehicleAI.h"
 #include "Beam.h"
@@ -1714,8 +1715,8 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
         if(def.special == RigDef::Prop::SPECIAL_BEACON)
         {
             prop.beacontype = 'b';
-            prop.beacon_light_rotation_angle[0] = 2.0 * 3.14 * (std::rand() / RAND_MAX);
-            prop.beacon_light_rotation_rate[0] = 4.0 * 3.14 + (std::rand() / RAND_MAX) - 0.5;
+            prop.beacon_light_rotation_angle[0] = 2.0 * 3.14 * frand();
+            prop.beacon_light_rotation_rate[0] = 4.0 * 3.14 + frand() - 0.5;
             /* the light */
             auto beacon_light = gEnv->sceneManager->createLight();
             beacon_light->setType(Ogre::Light::LT_SPOTLIGHT);
@@ -1726,18 +1727,16 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             beacon_light->setCastShadows(false);
             beacon_light->setVisible(false);
             /* the flare billboard */
-
             auto flare_scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
             auto flare_billboard_sys = gEnv->sceneManager->createBillboardSet(1); //(propname,1);
-            flare_scene_node->attachObject(flare_billboard_sys);
-            flare_billboard_sys->createBillboard(0,0,0);
             if (flare_billboard_sys)
             {
+                flare_billboard_sys->createBillboard(0,0,0);
                 flare_billboard_sys->setMaterialName(def.special_prop_beacon.flare_material_name);
                 flare_billboard_sys->setVisibilityFlags(DEPTHMAP_DISABLED);
+                flare_scene_node->attachObject(flare_billboard_sys);
             }
             flare_scene_node->setVisible(false);
-            flare_billboard_sys->setVisible(false);
 
             // Complete
             prop.beacon_flare_billboard_scene_node[0] = flare_scene_node;
@@ -1759,13 +1758,16 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             beacon_light->setVisible(false);
             //the flare billboard
             auto flare_scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-            auto flare_billboard_sys =gEnv->sceneManager->createBillboardSet(1); //propname,1);
-            flare_billboard_sys->createBillboard(0,0,0);
-            flare_billboard_sys->setMaterialName("tracks/redbeaconflare");
-            flare_billboard_sys->setVisibilityFlags(DEPTHMAP_DISABLED);
-            flare_scene_node->attachObject(flare_billboard_sys);
+            auto flare_billboard_sys = gEnv->sceneManager->createBillboardSet(1); //propname,1);
+            if (flare_billboard_sys)
+            {
+                flare_billboard_sys->createBillboard(0,0,0);
+                flare_billboard_sys->setMaterialName("tracks/redbeaconflare");
+                flare_billboard_sys->setVisibilityFlags(DEPTHMAP_DISABLED);
+                flare_billboard_sys->setDefaultDimensions(1.0, 1.0);
+                flare_scene_node->attachObject(flare_billboard_sys);
+            }
             flare_scene_node->setVisible(false);
-            flare_billboard_sys->setDefaultDimensions(1.0, 1.0);
 
             // Finalize
             prop.beacon_light[0] = beacon_light;
@@ -1779,11 +1781,9 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             prop.beacontype='p';
             for (int k=0; k<4; k++)
             {
-                // Randomize rotation speed and timing, 
-                // IMPORTANT: Do not remove the (Ogre::Real) casts, they affect result!
-                prop.beacon_light_rotation_angle[k]=2.0*3.14*((Ogre::Real)std::rand()/(Ogre::Real)RAND_MAX);
-                prop.beacon_light_rotation_rate[k]=4.0*3.14+((Ogre::Real)std::rand()/(Ogre::Real)RAND_MAX)-0.5;
-                prop.beacon_flares_billboard_system[k]=nullptr;
+                prop.beacon_light_rotation_angle[k] = 2.0 * 3.14 * frand();
+                prop.beacon_light_rotation_rate[k] = 4.0 * 3.14 + frand() - 0.5;
+                prop.beacon_flares_billboard_system[k] = nullptr;
                 //the light
                 prop.beacon_light[k]=gEnv->sceneManager->createLight();
                 prop.beacon_light[k]->setType(Ogre::Light::LT_SPOTLIGHT);

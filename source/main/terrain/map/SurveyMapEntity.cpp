@@ -43,10 +43,7 @@ SurveyMapEntity::SurveyMapEntity(SurveyMapManager* ctrl, Vector2 terrain_size, S
 {
     initialiseByAttributes(this, parent);
 
-    if (mIcon)
-        mIconRotating = mIcon->getSubWidgetMain()->castType<MyGUI::RotatingSkin>(false);
-    else
-        mIconRotating = nullptr;
+    mIconRotating = mIcon->getSubWidgetMain()->castType<MyGUI::RotatingSkin>(false);
 
     init();
 }
@@ -141,6 +138,7 @@ void SurveyMapEntity::setState(int truckstate)
         break;
     case static_cast<int>(Actor::SimState::NETWORKED_OK):
         mapstate = Networked;
+        break;
     default:
         mapstate = Sleeping;
         break;

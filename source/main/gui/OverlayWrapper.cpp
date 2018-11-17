@@ -180,6 +180,8 @@ int OverlayWrapper::init()
     MaterialPtr m = MaterialManager::getSingleton().getByName("tracks/pressureneedle_mat");
     if (!m.isNull())
         pressuretexture = m->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+    else
+        pressuretexture = nullptr;
 
     resizePanel(loadOverlayElement("tracks/machineinstructions"));
     resizePanel(loadOverlayElement("tracks/machinehelppanel"));
@@ -532,8 +534,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
         if (element)
         {
             res = true;
-            char name[256];
-            strcpy(name, element->getName().c_str());
+            auto name = element->getName().c_str();
             if (!strncmp(name, "tracks/thrust1", 14))
                 player_actor->ar_aeroengines[0]->setThrottle(1.0f - ((mouseY - thrtop - throffset) / thrheight));
             if (!strncmp(name, "tracks/thrust2", 14) && player_actor->ar_num_aeroengines > 1)
@@ -548,8 +549,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
         if (element2)
         {
             res = true;
-            char name[256];
-            strcpy(name, element2->getName().c_str());
+            auto name = element->getName().c_str();
             //LogManager::getSingleton().logMessage("element "+element2->getName());
             if (!strncmp(name, "tracks/engstart1", 16))
                 player_actor->ar_aeroengines[0]->flipStart();

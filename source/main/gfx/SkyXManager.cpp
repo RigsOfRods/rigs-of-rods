@@ -50,10 +50,12 @@ SkyXManager::SkyXManager(Ogre::String configFile)
 
 SkyXManager::~SkyXManager()
 {
-    RoR::App::GetOgreSubsystem ()->GetRenderWindow ()->removeListener (mSkyX);
+    RoR::App::GetOgreSubsystem()->GetRenderWindow()->removeListener(mSkyX);
     mSkyX->remove();
 
     mSkyX = nullptr;
+
+    delete mBasicController;
     mBasicController = nullptr;
 }
 

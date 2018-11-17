@@ -56,8 +56,6 @@ public:
 
     void updateTerrainMaterial(Ogre::TerrainPSSMMaterialGenerator::SM2Profile* matProfile);
 
-    int getShadowsType() { return ShadowsType; }
-
 protected:
 
     void processTextureShadows();
@@ -66,8 +64,6 @@ protected:
     void setManagedMaterialSplitPoints(Ogre::PSSMShadowCameraSetup::SplitPointList splitPointList);
 
     int updateShadowTechnique();
-
-    int ShadowsType;
 
     PSSM_Shadows_Data PSSM_Shadows;
 };

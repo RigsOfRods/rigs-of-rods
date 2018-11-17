@@ -76,9 +76,11 @@ void Dashboard::setEnable(bool en)
 }
 
 DashboardListener::DashboardListener() :
-    consolevisible(false)
-    , fpsDisplayed(false)
-    , fpsOverlay(0)
+    blendOverlay(nullptr),
+    dashOverlay(nullptr),
+    fpsOverlay(nullptr),
+    needlesOverlay(nullptr),
+    fpsDisplayed(false)
 {
 }
 

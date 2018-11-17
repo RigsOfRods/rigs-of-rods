@@ -49,6 +49,7 @@ using namespace GUI;
 CLASS::CLASS() :
     alpha(1.0f)
     , newMsg(false)
+    , pushTime(0)
 {
     MyGUI::Gui::getInstance().eventFrameStart += MyGUI::newDelegate(this, &CLASS::Update);
 
