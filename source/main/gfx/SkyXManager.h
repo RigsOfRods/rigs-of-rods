@@ -34,21 +34,32 @@ public:
 
 	Ogre::Light* getMainLight();
 
+    /** Get time
+            @return Current time, where x = time in [0, 24]h range, y = sunrise hour in [0, 24]h range, z = sunset hour in [0, 24] range
+         */
+    Ogre::Vector3 GetTime () { return mBasicController->getTime (); };
+
+    /** Set time
+            @param t Time, where x = time in [0, 24]h range, y = sunrise hour in [0, 24]h range, z = sunset hour in [0, 24] range
+         */
+    void SetTime (Ogre::Vector3 time) { mBasicController->setTime (time); };
+
 	bool update( float dt );
 
-	bool InitLight();
+    bool InitLight();
 
 	size_t getMemoryUsage();
 
 	void freeResources();
 
-	bool UpdateSkyLight();
+	bool UpdateSkyLight(bool DayTime);
 
 	SkyX::SkyX* GetSkyX() { return mSkyX; }
 
 protected:
-	Ogre::Light *mLight0;
-	Ogre::Light *mLight1;
+
+    Ogre::Light *mLightSun;
+	Ogre::Light *mLightMoon;
 	
 	SkyX::SkyX* mSkyX;
 	SkyX::BasicController* mBasicController;
@@ -58,6 +69,8 @@ protected:
 						mAmbientGradient;
 
 	SkyX::CfgFileManager* mCfgFileManager;
+
+    float ColorGradientPoint = 0;
 
     int mLastHour = 0;
 };

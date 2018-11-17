@@ -35,6 +35,7 @@
 #include "PlatformUtils.h"
 #include "RoRFrameListener.h"
 #include "SkyManager.h"
+#include "SkyXManager.h"
 #include "TerrainManager.h"
 
 #include <algorithm>
@@ -425,7 +426,17 @@ void RoR::GUI::TopMenubar::Update()
                 {
                     App::GetSimTerrain()->getSkyManager()->SetTime(time);
                 }
-            }       
+            }   
+            else if (App::gfx_sky_mode.GetActive () == GfxSkyMode::SKYX)
+            {
+                ImGui::Separator();
+                ImGui::TextColored(GRAY_HINT_TEXT, "Time of day:");
+                auto time = App::GetSimTerrain()->getSkyXManager()->GetTime();
+                if (ImGui::SliderFloat ("", &time.x, 0, 24, ""))
+                {
+                    App::GetSimTerrain ()->getSkyXManager ()->SetTime (time);
+                }
+            }
 #endif // USE_CAELUM
             if (App::mp_state.GetActive() == MpState::CONNECTED)
             {

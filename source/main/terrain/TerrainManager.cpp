@@ -311,7 +311,7 @@ void TerrainManager::initLight()
     }
     else
     {
-        // screw caelum, we will roll our own light
+        // screw caelum and SkyX, we will roll our own light
 
         // Create a light
         m_main_light = gEnv->sceneManager->createLight("MainLight");
