@@ -22,9 +22,7 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RoRPrerequisites.h"
 
-//#include "CaelumPrerequisites.h"
 #include "gfx/skyx/SkyX.h"
-#include "gfx/skyx/SCfgFileManager.h"
 
 class SkyXManager : public ZeroedMemoryAllocator
 {

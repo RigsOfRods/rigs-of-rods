@@ -21,27 +21,19 @@
 
 #include "TerrainManager.h"
 
-#include "Application.h"
-#include "BeamData.h"
-#include "BeamFactory.h"
 #include "Collisions.h"
 #include "Dashboard.h"
-#include "EnvironmentMap.h"
-#include "ErrorUtils.h"
 #include "GUIManager.h"
 #include "GUI_LoadingWindow.h"
 #include "HydraxWater.h"
 #include "Language.h"
 #include "RoRFrameListener.h"
 #include "Scripting.h"
-#include "Settings.h"
 #include "ShadowManager.h"
 #include "SkyManager.h"
-#include "SoundScriptManager.h"
-#include "SurveyMapManager.h"
+#include "SkyXManager.h"
 #include "TerrainGeometryManager.h"
 #include "TerrainObjectManager.h"
-#include "Utils.h"
 #include "Water.h"
 
 #include <Terrain/OgreTerrainPaging.h>

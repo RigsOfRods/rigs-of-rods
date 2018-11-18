@@ -27,7 +27,6 @@
 #include <OgreHardwareVertexBuffer.h> // Ogre::HardwareVertexBufferSharedPtr
 #include <OgreMesh.h>
 #include <OgrePlane.h>
-#include <OgrePrerequisites.h> // Ogre::TexturePtr
 #include <OgreRenderTargetListener.h>
 #include <OgreTexture.h>
 #include <OgreVector3.h>

@@ -21,10 +21,6 @@
 
 #pragma once
 
-#include <OgrePrerequisites.h>
-
-#include "RoRPrerequisites.h"
-
 /// Simulation: An edge in the softbody structure
 struct beam_t
 {

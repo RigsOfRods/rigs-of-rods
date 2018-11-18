@@ -19,54 +19,27 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Application.h"
 #include "RoRPrerequisites.h"
-#include "MainMenu.h"
-#include "Language.h"
-#include "ErrorUtils.h"
-#include "Utils.h"
-#include "PlatformUtils.h"
-#include "Settings.h"
-#include "Application.h"
-#include "Beam.h"
-#include "BeamEngine.h"
-#include "BeamFactory.h"
+
 #include "CacheSystem.h"
-#include "CameraManager.h"
-#include "Character.h"
-#include "CharacterFactory.h"
-#include "ChatSystem.h"
 #include "ContentManager.h"
-#include "DashBoardManager.h"
-#include "DustManager.h"
 #include "ErrorUtils.h"
-#include "ForceFeedback.h"
-#include "GlobalEnvironment.h"
 #include "GUIManager.h"
-#include "GUI_LoadingWindow.h"
 #include "GUI_MainSelector.h"
-#include "GUI_MultiplayerClientList.h"
-#include "GUI_MultiplayerSelector.h"
 #include "InputEngine.h"
 #include "Language.h"
+#include "MainMenu.h"
 #include "MumbleIntegration.h"
-#include "Network.h"
 #include "OgreSubsystem.h"
-#include "OverlayWrapper.h"
-#include "OutProtocol.h"
-#include "RoRVersion.h"
+#include "PlatformUtils.h"
 #include "RoRFrameListener.h"
+#include "RoRVersion.h"
 #include "Scripting.h"
 #include "Settings.h"
 #include "Skidmark.h"
 #include "SoundScriptManager.h"
-#include "SurveyMapManager.h"
-#include "TerrainManager.h"
-#include "Utils.h"
-#include "SkyManager.h"
 
-#include <OgreException.h>
-#include <OgreRoot.h>
+#include <Overlay/OgreOverlaySystem.h>
 #include <string>
 
 #ifdef USE_CURL

@@ -6515,7 +6515,7 @@ Ogre::MaterialPtr ActorSpawner::CreateSimpleMaterial(Ogre::ColourValue color)
 {
     assert(!m_simple_material_base.isNull());
 
-    static size_t simple_mat_counter = 0;
+    static unsigned int simple_mat_counter = 0;
     char name_buf[300];
     snprintf(name_buf, 300, "SimpleMaterial-%u%s%d", simple_mat_counter, ACTOR_ID_TOKEN, m_actor->ar_instance_id);
     Ogre::MaterialPtr newmat = m_simple_material_base->clone(name_buf);

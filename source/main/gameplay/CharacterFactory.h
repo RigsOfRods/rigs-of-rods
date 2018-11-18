@@ -26,9 +26,6 @@
 #include "Character.h"
 #include "Network.h"
 
-#include <memory>
-#include <vector>
-
 namespace RoR {
 
 class CharacterFactory

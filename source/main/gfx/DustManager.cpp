@@ -23,10 +23,11 @@
 
 #include "Application.h"
 #include "DustPool.h"
+#include "HydraxWater.h"
 #include "OverlayWrapper.h"
 #include "RoRFrameListener.h" // SimController
-#include "Settings.h"
 #include "SkyManager.h"
+#include "SkyXManager.h"
 #include "SurveyMapManager.h"
 #include "TerrainGeometryManager.h"
 #include "TerrainManager.h"

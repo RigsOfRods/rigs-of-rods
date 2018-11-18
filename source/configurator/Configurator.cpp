@@ -21,6 +21,7 @@
 
 #include "RoRConfig.h"
 
+#include <OgreLogManager.h>
 #include <OgreConfigFile.h>
 #include <OgreRoot.h>
 
@@ -37,13 +38,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-
-mode_t getumask(void)
-{
-    mode_t mask = umask(0);
-    umask(mask);
-    return mask;
-}
 #endif
 
 #include "statpict.h"
@@ -109,10 +103,6 @@ std::map<std::string, std::string> settings;
     #include <AL/alext.h>
   #endif // __APPLE__
 #endif // USE_OPENAL
-
-#ifdef USE_OPENCL
-#include <delayimp.h>
-#endif // USE_OPENCL
 
 #ifdef __WXGTK__
 #include <gtk/gtk.h>

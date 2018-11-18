@@ -20,7 +20,6 @@
 #pragma once
 
 #include "BitFlags.h"
-#include <stdint.h>
 
 namespace RoRnet {
 

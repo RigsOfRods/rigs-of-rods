@@ -29,6 +29,8 @@
 
 #include "RoRPrerequisites.h"
 
+#include <OgreUTFString.h>
+
 struct ErrorUtils
 {
     /**

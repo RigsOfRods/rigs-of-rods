@@ -20,10 +20,8 @@
 
 #include "ChatSystem.h"
 
-#include "Application.h"
 #include "GUIManager.h"
 #include "Language.h"
-
 #include "Utils.h"
 
 namespace RoR {

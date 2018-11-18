@@ -54,6 +54,7 @@
 #include "Scripting.h"
 #include "Settings.h"
 #include "SkyManager.h"
+#include "SkyXManager.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
 #include "TerrainObjectManager.h"

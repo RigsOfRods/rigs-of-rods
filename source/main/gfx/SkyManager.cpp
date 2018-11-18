@@ -25,7 +25,6 @@
 
 #include "Application.h"
 #include "OgreSubsystem.h"
-#include "Settings.h"
 #include "TerrainManager.h"
 #include "TerrainGeometryManager.h"
 

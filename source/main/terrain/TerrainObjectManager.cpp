@@ -23,7 +23,6 @@
 
 #include "Application.h"
 #include "AutoPilot.h"
-#include "BeamFactory.h"
 #include "CacheSystem.h"
 #include "Collisions.h"
 #include "ErrorUtils.h"
@@ -1177,9 +1176,9 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
                 continue;
             }
 
-            static size_t counter = 0;
+            static unsigned int counter = 0;
             char name[50];
-            snprintf(name, 50, "terrn2/spotlight-%x", counter);
+            snprintf(name, 50, "terrn2/spotlight-%u", counter);
             ++counter;
             Light* spotLight = gEnv->sceneManager->createLight(name);
 
@@ -1219,7 +1218,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
                 continue;
             }
 
-            static size_t counter = 0;
+            static unsigned int counter = 0;
             char name[50];
             snprintf(name, 50, "terrn2/pointlight-%x", counter);
             ++counter;

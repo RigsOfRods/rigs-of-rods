@@ -20,9 +20,6 @@
 
 #pragma once
 
-#include <OgrePrerequisites.h>
-#include <OgreStringVector.h>
-
 #include "RoRPrerequisites.h"
 
 /// @file

@@ -22,20 +22,16 @@
 #include "GfxActor.h"
 
 #include "ApproxMath.h"
-#include "AeroEngine.h"
 #include "AirBrake.h"
 #include "AutoPilot.h"
-#include "Beam.h"
-#include "beam_t.h"
 #include "BeamEngine.h" // EngineSim
 #include "Collisions.h"
 #include "DustPool.h" // General particle gfx
-#include "Flexable.h"
+#include "HydraxWater.h"
 #include "FlexAirfoil.h"
 #include "FlexBody.h"
 #include "FlexMeshWheel.h"
 #include "FlexObj.h"
-#include "GlobalEnvironment.h" // TODO: Eliminate!
 #include "InputEngine.h" // TODO: Keys shouldn't be queried from here, but buffered in sim. loop ~ only_a_ptr, 06/2018
 #include "MeshObject.h"
 #include "MovableText.h"
@@ -44,7 +40,6 @@
 #include "SoundScriptManager.h"
 #include "Utils.h"
 #include "TerrainManager.h"
-#include "ThreadPool.h"
 #include "imgui.h"
 #include "TurboProp.h"
 #include <OgrePass.h>

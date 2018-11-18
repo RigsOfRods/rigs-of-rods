@@ -26,21 +26,8 @@
 
 #include "Language.h"
 
-#include <Overlay/OgreTextAreaOverlayElement.h>
-#include <Overlay/OgreOverlayManager.h>
-#include <Overlay/OgreOverlay.h>
-
-#include <MyGUI.h>
-#include <MyGUI_IFont.h>
-#include <MyGUI_FontData.h>
-#include <MyGUI_FontManager.h>
-
 #include "Application.h"
 #include "PlatformUtils.h"
-#include "Settings.h"
-
-#include <Ogre.h>
-
 
 using namespace Ogre;
 using namespace RoR;

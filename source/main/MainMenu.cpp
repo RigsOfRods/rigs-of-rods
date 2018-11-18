@@ -27,21 +27,8 @@
 
 #include "MainMenu.h"
 
-#include "Application.h"
-#include "Beam.h"
-#include "BeamEngine.h"
-#include "BeamFactory.h"
 #include "CacheSystem.h"
-#include "CameraManager.h"
-#include "Character.h"
-#include "CharacterFactory.h"
 #include "ChatSystem.h"
-#include "ContentManager.h"
-#include "DashBoardManager.h"
-#include "DustManager.h"
-#include "ErrorUtils.h"
-#include "ForceFeedback.h"
-#include "GlobalEnvironment.h"
 #include "GUIManager.h"
 #include "GUI_LoadingWindow.h"
 #include "GUI_MainSelector.h"
@@ -49,33 +36,15 @@
 #include "GUI_MultiplayerSelector.h"
 #include "InputEngine.h"
 #include "Language.h"
-#include "MumbleIntegration.h"
 
-#include "Network.h"
 #include "OgreSubsystem.h"
 #include "OverlayWrapper.h"
-#include "OutProtocol.h"
-
-#include "RoRFrameListener.h"
-#include "Scripting.h"
-#include "Settings.h"
-#include "SoundScriptManager.h"
-#include "SurveyMapManager.h"
-#include "TerrainManager.h"
-#include "Utils.h"
-#include "SkyManager.h"
-
-#include <OgreRoot.h>
-#include <OgreString.h>
 
 #ifdef USE_ANGELSCRIPT
 #    include "ScriptEngine.h"
 #endif
 
 #include <chrono>
-#include <thread>
-
-using namespace Ogre; // The _L() macro won't compile without.
 
 namespace RoR {
 
@@ -221,7 +190,7 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
             gui->SetVisible_MpClientList(true);
             ChatSystem::SendStreamSetup();
             App::CheckAndCreateMumble();
-            String terrain_name = Networking::GetTerrainName();
+            Ogre::String terrain_name = Networking::GetTerrainName();
             if (terrain_name != "any")
             {
                 App::sim_terrain_name.SetPending(terrain_name.c_str());

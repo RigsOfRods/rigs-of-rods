@@ -27,16 +27,13 @@
 
 #include "ErrorUtils.h"
 
-#include "Application.h"
-
-#include <OgrePrerequisites.h>
-
-#define _L
-
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #include <windows.h>
 #include <shlobj.h>
 #include <shellapi.h> // for ShellExecuteW
+#define _L
+#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+#include "Language.h"
 #endif
 
 #ifndef NOOGRE

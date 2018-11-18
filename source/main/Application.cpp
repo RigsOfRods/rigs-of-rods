@@ -25,15 +25,12 @@
 
 #include "Application.h"
 
-#include <OgreException.h>
-
 #include "CacheSystem.h"
 #include "ContentManager.h"
 #include "GUIManager.h"
 #include "InputEngine.h"
 #include "OgreSubsystem.h"
 #include "OverlayWrapper.h"
-#include "SceneMouse.h"
 #include "MumbleIntegration.h"
 
 /* -------------------- Research of debug options (only_a_ptr, 06/2017) ----------------------

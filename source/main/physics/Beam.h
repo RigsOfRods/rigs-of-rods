@@ -21,16 +21,15 @@
 
 #pragma once
 
+#include "RoRPrerequisites.h"
+
 #include "Application.h"
 #include "BeamData.h"
 #include "GfxActor.h"
 #include "PerVehicleCameraContext.h"
 #include "RigDef_Prerequisites.h"
-#include "RoRPrerequisites.h"
 
-#include <OgrePrerequisites.h>
 #include <OgreTimer.h>
-#include <memory>
 
 /// Softbody object; can be anything from soda can to a space shuttle
 /// Monsterclass; contains logic related to physics, network, sound, threading, rendering.

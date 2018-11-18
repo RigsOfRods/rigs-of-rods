@@ -180,7 +180,7 @@ void TeleportWindow::SetupMap(Terrn2Def* def, Ogre::Vector3 map_size)
     m_info_textbox->setCaption(HELPTEXT_USAGE);
     m_info_textbox->setTextColour(HELPTEXT_COLOR_USAGE);
 
-    size_t counter = 0;
+    unsigned int counter = 0;
     for (Terrn2Telepoint& telepoint: def->telepoints)
     {
         char name[50];

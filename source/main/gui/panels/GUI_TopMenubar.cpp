@@ -402,7 +402,7 @@ bool RoR::GUI::TopMenubar::ShouldDisplay(ImVec2 window_pos)
 void RoR::GUI::TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
 {
     // Count actors owned by the player
-    size_t num_actors_player = 0;
+    unsigned int num_actors_player = 0;
     for (Actor* actor : App::GetSimController()->GetActors())
     {
         if (actor->ar_net_source_id == user.uniqueid)
@@ -430,7 +430,7 @@ void RoR::GUI::TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
 #endif
     ImVec4 player_gui_color(player_color.r, player_color.g, player_color.b, 1.f);
     ImGui::PushStyleColor(ImGuiCol_Text, player_gui_color);
-    ImGui::Text(usertext_buf);
+    ImGui::Text("%s", usertext_buf);
     ImGui::PopStyleColor();
 
     // Display actor list

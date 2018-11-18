@@ -23,11 +23,11 @@
 
 #pragma once
 
-#include "ForwardDeclarations.h"
+#include "RoRPrerequisites.h"
 
 #include "CaelumPrerequisites.h"
 
-class SkyManager
+class SkyManager : public ZeroedMemoryAllocator
 {
 public:
 

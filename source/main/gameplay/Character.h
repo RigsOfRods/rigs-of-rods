@@ -23,10 +23,7 @@
 
 #include "ForwardDeclarations.h"
 
-#include <OgreVector3.h>
-#include <OgreMath.h> // Ogre::Radian
 #include <OgreUTFString.h>
-
 #include <string>
 
 class Character

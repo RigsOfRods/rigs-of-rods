@@ -45,7 +45,7 @@ void RoR::GUI::MessageBoxDialog::Draw()
     ImGui::SetNextWindowContentWidth(300.f); // Initial size only
     ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing); // Initial pos. only
     ImGui::Begin(m_title.c_str(), m_close_handle);
-    ImGui::TextWrapped(m_text.c_str());
+    ImGui::TextWrapped("%s", m_text.c_str());
 
     // Draw buttons
     if (!m_button1_text.empty())

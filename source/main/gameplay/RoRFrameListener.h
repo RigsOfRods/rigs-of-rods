@@ -28,6 +28,7 @@
 #include "CharacterFactory.h"
 #include "DustManager.h" // GfxScene
 #include "ForceFeedback.h"
+#include "OutProtocol.h"
 #include "SceneMouse.h"
 
 /// The simulation controller object
