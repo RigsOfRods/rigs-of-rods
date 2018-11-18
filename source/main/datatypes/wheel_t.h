@@ -22,7 +22,6 @@
 #pragma once
 
 #include "RoRPrerequisites.h"
-#include <OgrePrerequisites.h>
 
 /**
 * SIM-CORE; Wheel.

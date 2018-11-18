@@ -28,6 +28,8 @@
 #include "RoRPrerequisites.h"
 #include "Singleton.h"
 
+#include <OgreUTFString.h>
+
 // three configurations currently supported:
 // #define NOLANG            = no language translations at all, removes any special parsing tags
 // #define USE_MOFILEREADER  = windows gettext replacement

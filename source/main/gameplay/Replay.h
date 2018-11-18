@@ -20,11 +20,8 @@
 
 #pragma once
 
-#include <OgrePrerequisites.h>
-
-#include <MyGUI.h>
-
 #include "RoRPrerequisites.h"
+
 #include "Beam.h"
 
 struct node_simple_t

@@ -21,48 +21,23 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-// Defines whether Checked Iterators are enabled. If defined as 1, unsafe iterator use causes a runtime error. If defined as 0, checked iterators are disabled.
-// TBD - tdev
-// needs to be consistent across _ALL_ libs and code, thus disabled
-//#ifdef _WIN32
-//#define _SECURE_SCL 0
-//#endif // _WIN32
-
-// OGRE version
 #include <OgrePrerequisites.h>
 #if OGRE_VERSION < 0x010701
 #	error You need at least Ogre version 1.7.1, older versions are not supported
 #endif
-
-// add some ogre headers
-#include <OgreAxisAlignedBox.h>
-#include <OgreColourValue.h>
-#include <OgreHeaderPrefix.h>
-#include <OgreLogManager.h>
-#include <OgreQuaternion.h>
-#include <OgreString.h>
 #include <OgreStringConverter.h>
-#include <OgreUTFString.h>
-#include <OgreVector2.h>
-#include <OgreVector3.h>
-
-
-
-#include <Overlay/OgreOverlaySystem.h>
-
-
-#include "ForwardDeclarations.h"
-#include "GlobalEnvironment.h"
-#include "ZeroedMemoryAllocator.h" // this is used quite a lot, so we include it here already
-#include "BitFlags.h"
 
 #include <MyGUI_Prerequest.h> // Forward declarations
-
 #if MYGUI_VERSION >= 0x030201
 #	define MYGUI_GET_SCANCODE(KEY) (KEY.getValue())
 #else
 #	define MYGUI_GET_SCANCODE(KEY) (KEY.toValue())
 #endif
+
+#include "ForwardDeclarations.h"
+#include "GlobalEnvironment.h"
+#include "ZeroedMemoryAllocator.h" // this is used quite a lot, so we include it here already
+#include "BitFlags.h"
 
 // some config for angelscript, doesnt matter if we compile with angelscript or not as its just a definition
 #ifdef USE_ANGELSCRIPT
@@ -91,14 +66,6 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 #else //!FEAT_DEBUG_ASSERT
 # define MYASSERT(x)         assert(x)
 #endif //FEAT_DEBUG_ASSERT
-
-
-// replace standard allocations with nedmalloc
-//#define REPLACE_SYSTEM_ALLOCATOR
-//#include "nedmalloc.h"
-//CAUTION, do not try to use normal free on nedmalloc'ed memory and the other way round
-// if you are not sure that this replacement is consistent, better leave it out.
-
 
 // some platform fixes
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE

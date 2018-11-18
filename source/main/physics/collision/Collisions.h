@@ -26,13 +26,6 @@
 
 #include "BeamData.h" // for collision_box_t
 
-#include <OgrePrerequisites.h>
-#include <OgreString.h>
-#include <OgreEntity.h>
-#include <OgreVector3.h>
-#include <OgreSceneNode.h>
-#include <OgreQuaternion.h>
-
 #include <mutex>
 
 struct eventsource_t

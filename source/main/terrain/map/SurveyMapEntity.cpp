@@ -18,14 +18,11 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
-#include <Ogre.h>
-
-#include "Beam.h"
 #include "SurveyMapEntity.h"
+
+#include "Application.h"
+#include "Beam.h"
 #include "SurveyMapManager.h"
-#include "TerrainManager.h"
 
 using namespace Ogre;
 

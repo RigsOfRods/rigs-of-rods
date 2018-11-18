@@ -28,14 +28,9 @@
 
 #pragma once
 
-#include "Application.h"
 #include "RoRPrerequisites.h"
 
-#include <map>
 #include <OgreFrameListener.h>
-#include <Bites/OgreWindowEventUtilities.h>
-
-class GameScript;
 
 namespace RoR {
 

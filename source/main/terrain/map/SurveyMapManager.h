@@ -21,8 +21,6 @@
 
 #pragma once
 
-
-
 #include "RoRPrerequisites.h"
 
 #include "mygui/BaseLayout.h"

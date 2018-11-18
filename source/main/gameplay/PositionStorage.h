@@ -24,8 +24,6 @@
 
 #pragma once
 
-#include <OgrePrerequisites.h>
-
 #include "RoRPrerequisites.h"
 
 class PositionStorage : public ZeroedMemoryAllocator

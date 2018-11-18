@@ -522,7 +522,7 @@ void GUIManager::DrawMpConnectingStatusBox()
     // HACK: The trailing space is a workaround for a scissoring issue in OGRE/DearIMGUI integration. ~ only_a_ptr, 10/2017
     ImGui::Text("Joining [%s:%d] ", App::mp_server_host.GetActive(), App::mp_server_port.GetActive());
 #ifdef USE_SOCKETW
-    ImGui::TextDisabled(Networking::GetStatusMessage().GetBuffer());
+    ImGui::TextDisabled("%s", Networking::GetStatusMessage().GetBuffer());
 #endif
     ImGui::End();
 }

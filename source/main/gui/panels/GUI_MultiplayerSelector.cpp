@@ -148,7 +148,7 @@ inline void DrawTableHeader(const char* title) // Internal helper
 {
     float table_padding_y = 4.f;
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + table_padding_y);
-    ImGui::Text(title);
+    ImGui::Text("%s", title);
     ImGui::NextColumn();
 }
 
@@ -331,11 +331,11 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
                 ImGui::NextColumn();
 
                 // Other collumns
-                ImGui::Text(server.display_name);           ImGui::NextColumn();
-                ImGui::Text(server.display_terrn);          ImGui::NextColumn();
-                ImGui::Text(server.display_users);          ImGui::NextColumn();
-                ImGui::Text("~");                           ImGui::NextColumn(); // TODO: ping
-                ImGui::Text(server.display_host);           ImGui::NextColumn();
+                ImGui::Text("%s", server.display_name.ToCStr());   ImGui::NextColumn();
+                ImGui::Text("%s", server.display_terrn.ToCStr());  ImGui::NextColumn();
+                ImGui::Text("%s", server.display_users.ToCStr());  ImGui::NextColumn();
+                ImGui::Text("~");                                  ImGui::NextColumn(); // TODO: ping
+                ImGui::Text("%s", server.display_host.ToCStr());   ImGui::NextColumn();
 
                 ImGui::PopID();
             }
@@ -360,7 +360,7 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
             const ImVec2 label_size = ImGui::CalcTextSize(draw_label_text);
             ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - (label_size.x / 2.f));
             ImGui::SetCursorPosY((ImGui::GetWindowSize().y / 2.f) - (label_size.y / 2.f));
-            ImGui::TextColored(draw_label_color, draw_label_text);
+            ImGui::TextColored(draw_label_color, "%s", draw_label_text);
         }
     }
 

@@ -29,7 +29,6 @@
 #include "ShadowManager.h"
 #include "OgreTerrainPSSMMaterialGenerator.h"
 #include "OTCFileformat.h"
-#include "Utils.h"
 
 #include <OgreLight.h>
 #include <Terrain/OgreTerrainGroup.h>

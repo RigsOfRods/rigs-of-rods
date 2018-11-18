@@ -24,12 +24,8 @@
 #include "RoRPrerequisites.h"
 #include "Terrn2Fileformat.h"
 
-#include "SkyXManager.h"
-#include "HydraxWater.h"
-
 #include <OgreVector3.h>
 #include <string>
-#include <memory>
 
 class TerrainManager : public ZeroedMemoryAllocator
 {

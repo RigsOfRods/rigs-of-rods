@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include <Ogre.h>
-
 #include "RoRPrerequisites.h"
 
 class SurveyMapTextureCreator : public Ogre::RenderTargetListener, public ZeroedMemoryAllocator

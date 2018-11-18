@@ -21,10 +21,6 @@
 
 #pragma once
 
-#include <OgrePrerequisites.h>
-
-#include "RoRPrerequisites.h"
-
 /// Physics: A vertex in the softbody structure
 struct node_t
 {

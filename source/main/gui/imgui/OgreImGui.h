@@ -34,7 +34,6 @@
 #include <OgreFrameListener.h>
 #include <OgreRenderQueueListener.h>
 #include <OgreTexture.h>
-#include "OgrePrerequisites.h"
 #include "OgreRenderable.h"
 #include <OgreRenderOperation.h>
 

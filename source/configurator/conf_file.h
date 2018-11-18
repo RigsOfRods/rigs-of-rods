@@ -31,6 +31,8 @@
 
 #include "Singleton.h"
 
+#include <OgreUTFString.h>
+
 // some shortcuts to improve code readability
 #define SETTINGS          Settings::getSingleton()
 #define SSETTING(x, y)    Settings::getSingleton().getSetting(x, y)            //<! get string setting

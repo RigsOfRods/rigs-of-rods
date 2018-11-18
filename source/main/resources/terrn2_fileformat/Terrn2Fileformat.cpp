@@ -128,14 +128,14 @@ void Terrn2Parser::ProcessTeleport(Terrn2Def& def, RoR::ConfigFile* file)
 {
     def.teleport_map_image = file->GetStringEx("NavigationMapImage", "Teleport");
 
-    size_t telepoint_number = 1;
+    unsigned int telepoint_number = 1;
     for (;;)
     {
         char key_position [50];
         char key_name     [50];
 
-        snprintf(key_position,  50, "Telepoint%d/Position" , telepoint_number);
-        snprintf(key_name,      50, "Telepoint%d/Name" ,     telepoint_number);
+        snprintf(key_position,  50, "Telepoint%u/Position" , telepoint_number);
+        snprintf(key_name,      50, "Telepoint%u/Name" ,     telepoint_number);
 
         std::string pos_str = file->GetStringEx(key_position, "Teleport", VALUE_NOT_FOUND);
         if (pos_str == VALUE_NOT_FOUND)
@@ -147,7 +147,7 @@ void Terrn2Parser::ProcessTeleport(Terrn2Def& def, RoR::ConfigFile* file)
         {
             char msg_buf[500];
             snprintf(msg_buf, 500,
-                "ERROR: Field '[Teleport]/%s' ('%s') is not valid XYZ position. Skipping telepoint %d.",
+                "ERROR: Field '[Teleport]/%s' ('%s') is not valid XYZ position. Skipping telepoint %u.",
                 key_position, pos_str.c_str(), telepoint_number);
             this->AddMessage(msg_buf);
         }

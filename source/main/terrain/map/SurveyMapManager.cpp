@@ -23,10 +23,8 @@
 #include "SurveyMapManager.h"
 
 #include "Application.h"
-#include "BeamData.h"
-#include "BeamFactory.h"
+#include "Beam.h"
 #include "CameraManager.h"
-#include "Character.h"
 #include "DustManager.h" // GfxScene
 #include "InputEngine.h"
 #include "OgreSubsystem.h"
@@ -34,9 +32,6 @@
 #include "Settings.h"
 #include "SurveyMapEntity.h"
 #include "SurveyMapTextureCreator.h"
-#include "TerrainManager.h"
-
-#include <Ogre.h>
 
 using namespace Ogre;
 

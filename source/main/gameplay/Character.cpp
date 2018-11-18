@@ -22,8 +22,7 @@
 #include "Character.h"
 
 #include "Application.h"
-#include "BeamFactory.h"
-#include "CameraManager.h"
+#include "Beam.h"
 #include "Collisions.h"
 #include "InputEngine.h"
 #include "MovableText.h"

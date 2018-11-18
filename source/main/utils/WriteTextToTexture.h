@@ -23,10 +23,6 @@
 
 #pragma once
 
-#include <OgreImage.h>
-#include <OgrePrerequisites.h>
-#include <Overlay/OgreFont.h>
-
 #include "RoRPrerequisites.h"
 
 /**

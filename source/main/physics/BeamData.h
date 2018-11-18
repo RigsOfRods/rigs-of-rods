@@ -36,9 +36,8 @@
 
 // The RoR required includes (should be included already)
 #include "ForwardDeclarations.h"
-#include "RoRnet.h"
-#include "SlideNode.h"
 #include "BeamConstants.h"
+#include "BitFlags.h"
 
 enum event_types {
     EVENT_NONE=0,
