@@ -22,7 +22,6 @@
 #pragma once
 
 #include "RoRPrerequisites.h"
-#include "Singleton.h"
 #include "mygui/BaseLayout.h"
 #include <Ogre.h>
 
@@ -35,8 +34,6 @@ class LoadingWindow :
     public wraps::BaseLayout,
     public ZeroedMemoryAllocator
 {
-    friend class RoRSingleton<LoadingWindow>;
-
 public:
 
     LoadingWindow();

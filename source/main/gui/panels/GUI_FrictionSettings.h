@@ -26,7 +26,6 @@
 
 
 #include "RoRPrerequisites.h"
-#include "Singleton.h"
 
 #include <MyGUI.h>
 

@@ -22,7 +22,6 @@
 #pragma once
 
 #include "RoRPrerequisites.h"
-#include "Singleton.h"
 #include "mygui/BaseLayout.h"
 
 namespace RoR {
@@ -32,8 +31,6 @@ ATTRIBUTE_CLASS_LAYOUT(TextureToolWindow, "TextureTool.layout");
 
 class TextureToolWindow : public wraps::BaseLayout, public ZeroedMemoryAllocator
 {
-    friend class RoRSingleton<TextureToolWindow>;
-
 public:
 
     TextureToolWindow();
