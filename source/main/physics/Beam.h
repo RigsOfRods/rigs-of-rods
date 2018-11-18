@@ -32,9 +32,6 @@
 #include <OgreTimer.h>
 #include <memory>
 
-class Task;
-
-
 /// Softbody object; can be anything from soda can to a space shuttle
 /// Monsterclass; contains logic related to physics, network, sound, threading, rendering.
 /// NOTE: Until 01/2018, this class was named `Beam` (and was derived from `rig_t`), you may find references to this.
