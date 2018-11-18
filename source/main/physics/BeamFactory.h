@@ -28,7 +28,6 @@
 
 #include "Beam.h"
 #include "Network.h"
-#include "Singleton.h"
 
 #include <string>
 #include <vector>

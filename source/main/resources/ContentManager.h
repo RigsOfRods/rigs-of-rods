@@ -25,7 +25,6 @@
 
 #include "BitFlags.h"
 #include "RoRPrerequisites.h"
-#include "Singleton.h"
 
 #include <OgreResourceGroupManager.h>
 

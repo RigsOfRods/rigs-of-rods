@@ -28,7 +28,6 @@
 #include "RoRPrerequisites.h"
 
 #include "RoRnet.h"
-#include "Singleton.h"
 
 #include <MyGUI.h>
 
