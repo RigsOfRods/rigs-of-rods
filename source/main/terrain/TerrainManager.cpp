@@ -62,14 +62,15 @@ TerrainManager::TerrainManager()
 
 TerrainManager::~TerrainManager()
 {
-
     //I think that the order is important
 
+#ifdef USE_CAELUM
     if (m_sky_manager != nullptr)
     {
         delete(m_sky_manager);
         m_sky_manager = nullptr;
     }
+#endif // USE_CAELUM
 
     if (SkyX_manager != nullptr)
     {
