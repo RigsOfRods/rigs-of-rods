@@ -297,8 +297,6 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
         if (ar_wheels[i].wh_is_detached)
             continue;
 
-        ar_wheels[i].wh_avg_speed = ar_wheels[i].wh_avg_speed * 0.995 + ar_wheels[i].wh_speed * 0.005;
-
         float relspeed = ar_nodes[0].Velocity.dotProduct(getDirection());
         float curspeed = fabs(relspeed);
         float wheel_slip = fabs(ar_wheels[i].wh_speed - relspeed) / std::max(1.0f, curspeed);
@@ -341,41 +339,33 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
                 dbrake = ar_brake_force * abs(ar_hydro_dir_state);
             }
 
-            if ((abrake != 0.0 || dbrake != 0.0 || hbrake != 0.0) && m_num_braked_wheels != 0 )
+            if (abrake != 0.0 || dbrake != 0.0 || hbrake != 0.0)
             {
-                float brake_coef = 1.0f;
-                float antilock_coef = 1.0f;
+                float adbrake = abrake + dbrake; 
 
                 // anti-lock braking
-                if (alb_mode && curspeed > alb_minspeed && curspeed > fabs(ar_wheels[i].wh_speed) && (abrake + dbrake > 0.0f) && wheel_slip > 0.25f) 
+                if (alb_mode && curspeed > alb_minspeed && curspeed > fabs(ar_wheels[i].wh_speed) && (adbrake > 0.0f) && wheel_slip > 0.25f) 
                 {
                     if (alb_pulse_state)
                     {
-                        ar_wheels[i].wh_antilock_coef = fabs(ar_wheels[i].wh_speed) / curspeed;
-                        ar_wheels[i].wh_antilock_coef = pow(ar_wheels[i].wh_antilock_coef, alb_ratio);
+                        ar_wheels[i].wh_alb_coef = fabs(ar_wheels[i].wh_speed) / curspeed;
+                        ar_wheels[i].wh_alb_coef = pow(ar_wheels[i].wh_alb_coef, alb_ratio);
                     }
-                    antilock_coef = ar_wheels[i].wh_antilock_coef;
+                    adbrake *= ar_wheels[i].wh_alb_coef;
                     m_antilockbrake = true;
                 }
 
-                // anti-jitter / anti-skidding
-                if (fabs(ar_wheels[i].wh_avg_speed) < 0.2f)
-                {
-                    brake_coef *= pow(fabs(ar_wheels[i].wh_avg_speed) * 5.0f, 0.25f);
-                    float speed_diff = ar_wheels[i].wh_speed - ar_wheels[i].wh_last_speed;
-                    float speed_prediction = ar_wheels[i].wh_speed + speed_diff;
-                    if (speed_prediction * ar_wheels[i].wh_avg_speed < 0.0f)
-                        brake_coef = 0.0f;
-                }
+                float acc = (-ar_wheels[i].wh_avg_speed) / dt;
+                float force = acc * ar_wheels[i].wh_radius * ar_wheels[i].wh_mass - 0.99f * ar_wheels[i].wh_last_retorque;
 
-                if (ar_wheels[i].wh_avg_speed > 0)
-                    ar_wheels[i].wh_torque -= ((abrake + dbrake) * antilock_coef + hbrake) * brake_coef;
+                if (ar_wheels[i].wh_speed > 0)
+                    ar_wheels[i].wh_torque += Math::Clamp(force, -(adbrake + hbrake), 0.0f);
                 else
-                    ar_wheels[i].wh_torque += ((abrake + dbrake) * antilock_coef + hbrake) * brake_coef;
+                    ar_wheels[i].wh_torque += Math::Clamp(force, 0.0f, +(adbrake + hbrake));
             }
             else
             {
-                ar_wheels[i].wh_antilock_coef = 1.0f;
+                ar_wheels[i].wh_alb_coef = 1.0f;
             }
         }
 
@@ -385,7 +375,7 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
         Vector3 axis = (ar_wheels[i].wh_axis_node_1->RelPosition - ar_wheels[i].wh_axis_node_0->RelPosition).normalisedCopy();
         float axis_precalc = ar_wheels[i].wh_torque / (Real)(ar_wheels[i].wh_num_nodes);
 
-        ar_wheels[i].wh_last_speed = ar_wheels[i].wh_speed;
+        float expected_wheel_speed = ar_wheels[i].wh_speed;
         ar_wheels[i].wh_speed = 0.0f;
 
         Real contact_counter = 0.0f;
@@ -431,7 +421,7 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
 
         ar_wheels[i].wh_speed /= (Real)ar_wheels[i].wh_num_nodes;
         ar_wheels[i].wh_net_rp += (ar_wheels[i].wh_speed / ar_wheels[i].wh_radius) * dt;
-        ar_wheels[i].wh_avg_speed = ar_wheels[i].wh_avg_speed * 0.995 + ar_wheels[i].wh_speed * 0.005;
+        ar_wheels[i].wh_avg_speed = ar_wheels[i].wh_avg_speed * 0.99 + ar_wheels[i].wh_speed * 0.01;
         ar_wheels[i].debug_rpm += RAD_PER_SEC_TO_RPM * ar_wheels[i].wh_speed / ar_wheels[i].wh_radius / (float)num_steps;
         if (ar_wheels[i].wh_propulsed == 1)
         {
@@ -439,6 +429,9 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
             ar_wheel_speed += speedacc;                          // Accumulate the average wheel speed (m/s)
             ar_wheel_spin  += speedacc / ar_wheels[i].wh_radius; // Accumulate the average wheel spin  (radians)
         }
+
+        expected_wheel_speed += ((ar_wheels[i].wh_last_torque / ar_wheels[i].wh_radius) / ar_wheels[i].wh_mass) * dt;
+        ar_wheels[i].wh_last_retorque = ar_wheels[i].wh_mass * (ar_wheels[i].wh_speed - expected_wheel_speed) / dt;
 
         // reaction torque
         Vector3 rradius = ar_wheels[i].wh_arm_node->RelPosition - ar_wheels[i].wh_near_attach_node->RelPosition;
@@ -456,6 +449,7 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
             ar_wheels[i].debug_scaled_cforce += cforce / m_total_mass / (float)num_steps;
         }
 
+        ar_wheels[i].wh_last_torque = ar_wheels[i].wh_torque;
         ar_wheels[i].wh_torque = 0.0f;
     }
 
