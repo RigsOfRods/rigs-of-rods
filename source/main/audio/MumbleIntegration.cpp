@@ -27,7 +27,6 @@
 
 #include "MumbleIntegration.h"
 
-#include "Settings.h"
 #include "Application.h"
 
 #include <Ogre.h>

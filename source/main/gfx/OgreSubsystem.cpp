@@ -28,21 +28,21 @@
 #include "OgreSubsystem.h"
 
 #include "Application.h"
-#include "Settings.h"
 #include "ErrorUtils.h"
 #include "Language.h"
 #include "PlatformUtils.h"
 #include "RoRVersion.h"
+#include "Settings.h"
 #include "Utils.h"
 
-#include <OgreRoot.h>
+#include <OgreCamera.h>
 #include <OgreConfigFile.h>
 #include <OgreMaterialManager.h>
-#include <OgreTextureManager.h>
-#include <OgreViewport.h>
 #include <OgreRenderWindow.h>
+#include <OgreRoot.h>
+#include <OgreTextureManager.h>
 #include <OgreTimer.h>
-#include <OgreCamera.h>
+#include <OgreViewport.h>
 
 namespace RoR
 {

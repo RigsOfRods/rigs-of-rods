@@ -22,20 +22,13 @@
 
 #include "SoundScriptManager.h"
 
-#include "Application.h"
 #include "Beam.h"
-#include "MumbleIntegration.h"
 #include "Settings.h"
 #include "Sound.h"
 #include "SoundManager.h"
 #include "Utils.h"
 
 #include <OgreResourceGroupManager.h>
-
-// some gcc fixes
-#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#endif //OGRE_PLATFORM_LINUX
 
 using namespace Ogre;
 using namespace RoR;

@@ -24,6 +24,7 @@
 
 #include "Application.h"
 #include "Beam.h"
+#include "BeamFactory.h"
 #include "CameraManager.h"
 #include "DustManager.h" // GfxScene
 #include "InputEngine.h"

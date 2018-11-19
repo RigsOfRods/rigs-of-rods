@@ -25,9 +25,7 @@
 
 #include "SlideNode.h"
 
-#include "Application.h"
 #include "Beam.h"
-#include "BeamFactory.h"
 #include "RoRFrameListener.h"
 
 // ug... BAD PERFORMNCE, BAD!!

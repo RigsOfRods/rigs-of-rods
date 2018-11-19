@@ -27,7 +27,6 @@
 #include "GUI_GameConsole.h"
 #include "Language.h"
 #include "PlatformUtils.h"
-#include "Settings.h"
 #include "Utils.h"
 
 namespace RoR {

@@ -34,7 +34,6 @@
 #include "OgreSubsystem.h"
 #include "PlatformUtils.h"
 #include "RTTLayer.h"
-#include "Settings.h"
 #include "TerrainManager.h"
 
 //Managed GUI panels

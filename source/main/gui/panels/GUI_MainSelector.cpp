@@ -21,18 +21,19 @@
 
 #include "GUI_MainSelector.h"
 
-#include "RoRPrerequisites.h"
-#include "Utils.h"
-#include "Language.h"
+#include "Application.h"
+#include "BeamFactory.h"
+#include "CacheSystem.h"
+#include "ContentManager.h"
 #include "GUIManager.h"
 #include "GUI_LoadingWindow.h"
 #include "InputEngine.h"
-#include "Application.h"
-#include "CacheSystem.h"
-#include "ContentManager.h"
-#include "SkinManager.h"
-#include "RoRFrameListener.h"
+#include "Language.h"
 #include "MainMenu.h"
+#include "RoRFrameListener.h"
+#include "RoRPrerequisites.h"
+#include "SkinManager.h"
+#include "Utils.h"
 
 #include <MyGUI.h>
 

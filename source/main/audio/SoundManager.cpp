@@ -25,14 +25,8 @@
 
 #include "Application.h"
 #include "Sound.h"
-#include "Settings.h"
 
 #include <OgreResourceGroupManager.h>
-
-// some gcc fixes
-#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#endif // OGRE_PLATFORM_LINUX
 
 #define LOGSTREAM Ogre::LogManager::getSingleton().stream() << "[RoR|Audio] "
 

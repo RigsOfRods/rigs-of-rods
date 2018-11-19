@@ -23,6 +23,7 @@
 
 #include "Application.h"
 #include "ApproxMath.h"
+#include "Beam.h"
 #include "BeamFactory.h"
 #include "ErrorUtils.h"
 #include "Landusemap.h"
@@ -31,7 +32,6 @@
 #include "PlatformUtils.h"
 #include "RoRFrameListener.h"
 #include "Scripting.h"
-#include "Settings.h"
 #include "TerrainManager.h"
 
 // some gcc fixes

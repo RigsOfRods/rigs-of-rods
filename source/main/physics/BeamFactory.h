@@ -26,8 +26,9 @@
 
 #include "RoRPrerequisites.h"
 
-#include "Beam.h"
+#include "BeamData.h"
 #include "Network.h"
+#include "RigDef_Prerequisites.h"
 
 #include <string>
 #include <vector>

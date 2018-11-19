@@ -19,10 +19,12 @@
 */
 
 #include "Replay.h"
-#include <Ogre.h>
-#include "Utils.h"
+
+#include "Application.h"
+#include "Beam.h"
 #include "GUIManager.h"
 #include "Language.h"
+#include "Utils.h"
 
 using namespace Ogre;
 

@@ -20,7 +20,6 @@
 
 #include "RoRPrerequisites.h"
 
-#include "Application.h"
 #include "AeroEngine.h"
 #include "AirBrake.h"
 #include "Airfoil.h"
@@ -29,22 +28,17 @@
 #include "Beam.h"
 #include "BeamEngine.h"
 #include "BeamFactory.h"
-#include "BeamStats.h"
 #include "Buoyance.h"
 #include "CmdKeyInertia.h"
 #include "Collisions.h"
 #include "Differentials.h"
-#include "DustPool.h"
 #include "FlexAirfoil.h"
-#include "InputEngine.h"
 #include "Replay.h"
 #include "RoRFrameListener.h"
 #include "ScrewProp.h"
 #include "SoundScriptManager.h"
-#include "Water.h"
 #include "TerrainManager.h"
-#include "VehicleAI.h"
-
+#include "Water.h"
 
 using namespace Ogre;
 using namespace RoR;

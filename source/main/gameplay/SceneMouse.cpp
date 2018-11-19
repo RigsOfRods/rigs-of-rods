@@ -26,6 +26,7 @@
 #include "SceneMouse.h"
 
 #include "Application.h"
+#include "Beam.h"
 #include "RoRFrameListener.h"
 
 #include <OgreSceneManager.h>

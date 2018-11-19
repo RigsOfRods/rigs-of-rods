@@ -41,23 +41,20 @@
 #endif //USE_CURL
 
 #include "Application.h"
-#include "OgreAngelscript.h"
 #include "Beam.h"
+#include "BeamFactory.h"
+#include "CBytecodeStream.h"
 #include "Collisions.h"
 #include "GUI_GameConsole.h"
-#include "LocalStorage.h"
-#include "Settings.h"
-#include "Application.h"
-#include "OgreSubsystem.h"
 #include "GameScript.h"
+#include "LocalStorage.h"
+#include "OgreAngelscript.h"
 #include "OgreScriptBuilder.h"
+#include "OgreSubsystem.h"
 #include "PlatformUtils.h"
-#include "CBytecodeStream.h"
-#include "PlatformUtils.h"
-#include "ScriptEvents.h"
 #include "RoRFrameListener.h" // SimController
-
-#include "BeamFactory.h"
+#include "ScriptEvents.h"
+#include "Settings.h"
 #include "VehicleAI.h"
 
 const char *ScriptEngine::moduleName = "RoRScript";

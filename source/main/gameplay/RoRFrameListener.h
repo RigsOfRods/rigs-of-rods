@@ -23,8 +23,9 @@
 
 #include "RoRPrerequisites.h"
 
+#include "BeamData.h" // RoR::ActorSpawnRequest
 #include "BeamFactory.h"
-#include "CameraManager.h" // enum CameraManager::CameraBehaviors
+#include "CameraManager.h" // CameraManager::CameraBehaviors
 #include "CharacterFactory.h"
 #include "DustManager.h" // GfxScene
 #include "ForceFeedback.h"

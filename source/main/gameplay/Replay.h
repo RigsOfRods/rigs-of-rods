@@ -22,8 +22,6 @@
 
 #include "RoRPrerequisites.h"
 
-#include "Beam.h"
-
 struct node_simple_t
 {
     Ogre::Vector3 position;

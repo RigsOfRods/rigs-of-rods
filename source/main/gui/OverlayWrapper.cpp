@@ -32,6 +32,7 @@
 #include "AeroEngine.h"
 #include "Application.h"
 #include "AutoPilot.h"
+#include "Beam.h"
 #include "BeamFactory.h"
 #include "Character.h"
 #include "DashBoardManager.h"

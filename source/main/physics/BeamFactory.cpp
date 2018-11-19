@@ -26,6 +26,7 @@
 #include "BeamFactory.h"
 
 #include "Application.h"
+#include "Beam.h"
 #include "BeamEngine.h"
 #include "CacheSystem.h"
 #include "ChatSystem.h"
@@ -41,7 +42,6 @@
 #include "PointColDetector.h"
 #include "PositionStorage.h"
 #include "Replay.h"
-#include "RigDef_Parser.h"
 #include "RigDef_Validator.h"
 #include "RigSpawner.h"
 #include "RoRFrameListener.h"

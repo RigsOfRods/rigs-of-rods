@@ -27,7 +27,6 @@
 
 #include "Application.h"
 #include "BeamData.h"
-#include "Settings.h"
 #include "Collisions.h"
 #include "GUIManager.h"
 #include "Language.h"

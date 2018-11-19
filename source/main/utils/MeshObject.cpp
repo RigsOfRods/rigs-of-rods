@@ -25,7 +25,6 @@
 #include "MeshObject.h"
 
 #include "Application.h"
-#include "Settings.h"
 #include "OgreSubsystem.h"
 #include "TerrainManager.h"
 #include "MeshLodGenerator/OgreMeshLodGenerator.h"

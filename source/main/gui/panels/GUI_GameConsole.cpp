@@ -35,7 +35,6 @@
 #include "RoRFrameListener.h"
 #include "RoRVersion.h"
 #include "Scripting.h"
-#include "Settings.h"
 #include "TerrainManager.h"
 #include "TerrainObjectManager.h"
 #include "Utils.h"

@@ -20,6 +20,7 @@
 */
 
 #include "SkinManager.h"
+
 #include "OgreSubsystem.h"
 #include "Utils.h"
 
