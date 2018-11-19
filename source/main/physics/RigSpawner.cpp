@@ -301,7 +301,6 @@ void ActorSpawner::InitializeRig()
     m_actor->m_gfx_reduce_shadows = SETTINGS.getBooleanSetting("Shadow optimizations", true);
 
     m_actor->m_num_proped_wheels=0;
-    m_actor->m_num_braked_wheels=0;
 
     m_actor->ar_speedo_max_kph=140;
     m_actor->ar_num_cameras=0;
@@ -451,6 +450,16 @@ void ActorSpawner::FinalizeRig()
     m_actor->ar_main_camera_node_roll = std::max(0, m_actor->ar_camera_node_roll[0]);
     
     m_actor->m_has_axles_section = m_actor->m_num_wheel_diffs > 0;
+
+    // Calculate mass of each wheels
+    for (int i = 0; i < m_actor->ar_num_wheels; i++)
+    {
+        m_actor->ar_wheels[i].wh_mass = 0.0f;
+        for (int j = 0; j < m_actor->ar_wheels[i].wh_num_nodes; j++)
+        {
+            m_actor->ar_wheels[i].wh_mass += m_actor->ar_wheels[i].wh_nodes[j]->mass;
+        }
+    }
 
     if (m_actor->m_num_proped_wheels > 0)
     {
@@ -4209,10 +4218,6 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         m_actor->m_proped_wheel_pairs[m_actor->m_num_proped_wheels] = m_actor->ar_num_wheels;
         m_actor->m_num_proped_wheels++;
     }
-    if (def.braking != RigDef::Wheels::BRAKING_NO)
-    {
-        m_actor->m_num_braked_wheels++;
-    }
 
     // Find near attach
     Ogre::Real length_1 = (axis_node_1->RelPosition - wheel.wh_arm_node->RelPosition).length();
@@ -4443,10 +4448,6 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
         /* for inter-differential locking */
         m_actor->m_proped_wheel_pairs[m_actor->m_num_proped_wheels] = m_actor->ar_num_wheels;
         m_actor->m_num_proped_wheels++;
-    }
-    if (braking != RigDef::Wheels::BRAKING_NO)
-    {
-        m_actor->m_num_braked_wheels++;
     }
     
     /* Nodes */
@@ -4916,10 +4917,6 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         /* for inter-differential locking */
         m_actor->m_proped_wheel_pairs[m_actor->m_num_proped_wheels] = m_actor->ar_num_wheels;
         m_actor->m_num_proped_wheels++;
-    }
-    if (wheel_2_def.braking != RigDef::Wheels::BRAKING_NO)
-    {
-        m_actor->m_num_braked_wheels++;
     }
 
     /* Find near attach */

@@ -46,12 +46,14 @@ struct wheel_t
     node_t*     wh_axis_node_1;
     int         wh_propulsed;             // TODO: add enum ~ only_a_ptr, 08/2017
     Ogre::Real  wh_radius;
-    Ogre::Real  wh_speed;
-    Ogre::Real  wh_last_speed;
+    Ogre::Real  wh_speed;             //<! Current wheel speed in m/s
     Ogre::Real  wh_avg_speed;
-    Ogre::Real  wh_antilock_coef;
-    Ogre::Real  wh_tc_coef;
-    Ogre::Real  wh_torque;
+    Ogre::Real  wh_alb_coef;          //<! Sim state; Current anti-lock  brake modulation ratio
+    Ogre::Real  wh_tc_coef;           //<! Sim state; Current traction control modulation ratio
+    Ogre::Real  wh_mass;              //<! Total mass of the wheel
+    Ogre::Real  wh_torque;            //<! Sim state; Do not read from this
+    Ogre::Real  wh_last_torque;       //<! Last internal forces (engine / brakes / diffs)
+    Ogre::Real  wh_last_retorque;     //<! Last external forces (friction, ...)
     float       wh_net_rp;
     float       wh_net_rp1;           //<! Networking; triple buffer
     float       wh_net_rp2;           //<! Networking; triple buffer

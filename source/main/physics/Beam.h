@@ -422,7 +422,6 @@ private:
     std::vector<Ogre::Entity*>         m_deletion_entities;    //!< For unloading vehicle; filled at spawn.
     std::vector<Ogre::SceneNode*>      m_deletion_scene_nodes; //!< For unloading vehicle; filled at spawn.
     int               m_proped_wheel_pairs[MAX_WHEELS];    //!< Physics attr; For inter-differential locking
-    int               m_num_braked_wheels;          //!< Physics attr, filled at spawn - Number of braked wheels.
     int               m_num_proped_wheels;          //!< Physics attr, filled at spawn - Number of propelled wheels.
     float             m_avg_proped_wheel_radius;    //!< Physics attr, filled at spawn - Average proped wheel radius.
     float             m_avionic_chatter_timer;      //!< Sound fx state
