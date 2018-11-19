@@ -1436,20 +1436,16 @@ void Actor::SyncReset(bool reset_position)
     ar_hydro_rudder_state = 0.0;
     ar_hydro_elevator_state = 0.0;
     ar_hydro_dir_wheel_display = 0.0;
-    if (m_hydro_inertia)
-        m_hydro_inertia->resetCmdKeyDelay();
+
+    ar_fusedrag = Vector3::ZERO;
+    m_blink_type = BLINK_NONE;
     ar_parking_brake = false;
     cc_mode = false;
-    ar_fusedrag = Vector3::ZERO;
+
     ar_origin = Vector3::ZERO;
     float yPos = ar_nodes[ar_lowest_contacting_node].AbsPosition.y;
-
-    Vector3 cur_position = ar_nodes[0].AbsPosition;
     float cur_rot = getRotation();
-    if (ar_engine)
-    {
-        ar_engine->StartEngine();
-    }
+    Vector3 cur_position = ar_nodes[0].AbsPosition;
 
     for (int i = 0; i < ar_num_nodes; i++)
     {
@@ -1474,37 +1470,57 @@ void Actor::SyncReset(bool reset_position)
 
     this->DisjoinInterActorBeams();
 
-    for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
+    for (auto h : ar_hooks)
     {
-        it->hk_beam->bm_disabled = true;
-        it->hk_locked = UNLOCKED;
-        it->hk_lock_node = nullptr;
-        it->hk_locked_actor = nullptr;
-        it->hk_beam->p2 = &ar_nodes[0];
-        it->hk_beam->bm_inter_actor = false;
-        it->hk_beam->L = (ar_nodes[0].AbsPosition - it->hk_hook_node->AbsPosition).length();
-        this->RemoveInterActorBeam(it->hk_beam);
-    }
-    for (std::vector<rope_t>::iterator it = ar_ropes.begin(); it != ar_ropes.end(); it++)
-    {
-        it->rp_locked = UNLOCKED;
-        if (it->rp_locked_ropable)
-            it->rp_locked_ropable->in_use = false;
-        it->rp_locked_node = &ar_nodes[0];
-        it->rp_locked_actor = 0;
-    }
-    for (std::vector<tie_t>::iterator it = ar_ties.begin(); it != ar_ties.end(); it++)
-    {
-        it->ti_tied = false;
-        it->ti_tying = false;
-        if (it->ti_locked_ropable)
-            it->ti_locked_ropable->in_use = false;
-        it->ti_beam->p2 = &ar_nodes[0];
-        it->ti_beam->bm_inter_actor = false;
-        it->ti_beam->bm_disabled = true;
-        this->RemoveInterActorBeam(it->ti_beam);
+        h.hk_beam->bm_disabled = true;
+        h.hk_locked = UNLOCKED;
+        h.hk_lock_node = nullptr;
+        h.hk_locked_actor = nullptr;
+        h.hk_beam->p2 = &ar_nodes[0];
+        h.hk_beam->bm_inter_actor = false;
+        h.hk_beam->L = (ar_nodes[0].AbsPosition - h.hk_hook_node->AbsPosition).length();
+        this->RemoveInterActorBeam(h.hk_beam);
     }
 
+    for (auto r : ar_ropes)
+    {
+        r.rp_locked = UNLOCKED;
+        if (r.rp_locked_ropable)
+            r.rp_locked_ropable->in_use = false;
+        r.rp_locked_node = &ar_nodes[0];
+        r.rp_locked_actor = 0;
+    }
+
+    for (auto t : ar_ties)
+    {
+        t.ti_tied = false;
+        t.ti_tying = false;
+        if (t.ti_locked_ropable)
+            t.ti_locked_ropable->in_use = false;
+        t.ti_beam->p2 = &ar_nodes[0];
+        t.ti_beam->bm_inter_actor = false;
+        t.ti_beam->bm_disabled = true;
+        this->RemoveInterActorBeam(t.ti_beam);
+    }
+
+    for (int i = 0; i < ar_num_wheels; i++)
+    {
+        ar_wheels[i].wh_speed = 0.0;
+        ar_wheels[i].wh_torque = 0.0;
+        ar_wheels[i].wh_is_detached = false;
+    }
+
+    if (ar_engine)
+    {
+        ar_engine->StartEngine();
+        ar_engine->SetWheelSpin(0.0f);
+    }
+
+    int num_axle_diffs = (m_transfer_case && m_transfer_case->tr_4wd_mode) ? m_num_axle_diffs + 1 : m_num_axle_diffs;
+    for (int i = 0; i < num_axle_diffs; i++)
+        m_axle_diffs[i]->di_delta_rotation = 0.0f;
+    for (int i = 0; i < m_num_wheel_diffs; i++)
+        m_wheel_diffs[i]->di_delta_rotation = 0.0f;
     for (int i = 0; i < ar_num_aeroengines; i++)
         ar_aeroengines[i]->reset();
     for (int i = 0; i < ar_num_screwprops; i++)
@@ -1513,20 +1529,18 @@ void Actor::SyncReset(bool reset_position)
         ar_rotators[i].angle = 0.0;
     for (int i = 0; i < ar_num_wings; i++)
         ar_wings[i].fa->broken = false;
-    for (int i = 0; i < ar_num_wheels; i++)
-    {
-        ar_wheels[i].wh_speed = 0.0;
-        ar_wheels[i].wh_is_detached = false;
-    }
+    if (ar_autopilot)
+        this->resetAutopilot();
     if (m_buoyance)
         m_buoyance->setsink(0);
+    if (m_hydro_inertia)
+        m_hydro_inertia->resetCmdKeyDelay();
+
     m_ref_tyre_pressure = 50.0;
     this->AddTyrePressure(0.0);
 
-    if (ar_autopilot)
-        this->resetAutopilot();
-
     this->GetGfxActor()->ResetFlexbodies();
+
     // reset on spot with backspace
     if (!reset_position)
     {
