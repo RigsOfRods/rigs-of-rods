@@ -1398,16 +1398,6 @@ String Actor::GetTransferCaseName()
     return name;
 }
 
-void Actor::RequestRotation(float rotation)
-{
-    m_rotation_request += rotation;
-}
-
-void Actor::RequestTranslation(Vector3 translation)
-{
-    m_translation_request += translation;
-}
-
 Ogre::Vector3 Actor::GetRotationCenter()
 {
     Vector3 rotation_center = Vector3::ZERO;
@@ -1627,6 +1617,14 @@ void Actor::HandleAngelScriptEvents(float dt)
 
 void Actor::HandleInputEvents(float dt)
 {
+    if (m_anglesnap_request > 0)
+    {
+        float rotation = Radian(getRotation()).valueDegrees();
+        float target_rotation = std::round(rotation / m_anglesnap_request) * m_anglesnap_request;
+        m_rotation_request = -Degree(target_rotation - rotation).valueRadians();
+        m_anglesnap_request = 0;
+    }
+
     if (m_rotation_request != 0.0f)
     {
         Vector3 rotation_center = GetRotationCenter();

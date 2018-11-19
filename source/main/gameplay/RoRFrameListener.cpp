@@ -790,6 +790,10 @@ void SimController::UpdateInputEvents(float dt)
 
                         m_advanced_vehicle_repair_timer = 0.0f;
                     }
+                    else if (RoR::App::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE))
+                    {
+                        m_player_actor->RequestAngleSnap(45);
+                    }
                     else
                     {
                         m_advanced_vehicle_repair_timer += dt;

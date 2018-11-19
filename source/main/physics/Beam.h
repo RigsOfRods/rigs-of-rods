@@ -76,8 +76,9 @@ public:
     /// @param translation Offset to move in world coordinates
     /// @param setInitPosition Set initial positions of nodes to current position?
     void              ResetPosition(Ogre::Vector3 translation, bool setInitPosition);
-    void              RequestRotation(float rotation);
-    void              RequestTranslation(Ogre::Vector3 translation);
+    void              RequestRotation(float rotation) { m_rotation_request += rotation; };
+    void              RequestAngleSnap(int division) { m_anglesnap_request = division; };
+    void              RequestTranslation(Ogre::Vector3 translation) { m_translation_request += translation; };
     Ogre::Vector3     GetRotationCenter();                 //!< Return the rotation center of the actor
     bool              ReplayStep();
     void              ForceFeedbackStep(int steps);
@@ -456,6 +457,7 @@ private:
     Ogre::String      m_net_username;
     float             m_custom_light_toggle_countdown; //!< Input system helper status
     float             m_rotation_request;         //!< Accumulator
+    int               m_anglesnap_request;        //!< Accumulator
     Ogre::Vector3     m_translation_request;      //!< Accumulator
     Ogre::Vector3     m_camera_gforces_accu;      //!< Accumulator for 'camera' G-forces
     Ogre::Vector3     m_camera_gforces;           //!< Physics state
