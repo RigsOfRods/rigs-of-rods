@@ -22,6 +22,7 @@
 #include "BeamEngine.h"
 
 #include "ApproxMath.h" // frand()
+#include "Beam.h"
 #include "BeamFactory.h"
 #include "Scripting.h"
 #include "SoundScriptManager.h"

@@ -24,6 +24,7 @@
 #include "ApproxMath.h"
 #include "AirBrake.h"
 #include "AutoPilot.h"
+#include "Beam.h"
 #include "BeamEngine.h" // EngineSim
 #include "Collisions.h"
 #include "DustPool.h" // General particle gfx
@@ -42,17 +43,17 @@
 #include "TerrainManager.h"
 #include "imgui.h"
 #include "TurboProp.h"
+
 #include <OgrePass.h>
+#include <OgreRenderWindow.h>
 #include <OgreRenderWindow.h>
 #include <OgreResourceGroupManager.h>
 #include <OgreSceneManager.h>
-#include <OgreTechnique.h>
-#include <OgreTextureUnitState.h>
-#include <OgreTextureManager.h>
-
-#include <OgreTextureManager.h>
 #include <OgreSceneManager.h>
-#include <OgreRenderWindow.h>
+#include <OgreTechnique.h>
+#include <OgreTextureManager.h>
+#include <OgreTextureManager.h>
+#include <OgreTextureUnitState.h>
 
 RoR::GfxActor::GfxActor(Actor* actor, std::string ogre_resource_group,
                         std::vector<NodeGfx>& gfx_nodes, std::vector<prop_t>& props,

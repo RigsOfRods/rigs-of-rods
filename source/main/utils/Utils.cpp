@@ -21,7 +21,6 @@
 
 #include "Utils.h"
 
-#include "ErrorUtils.h"
 #include "RoRnet.h"
 #include "RoRVersion.h"
 

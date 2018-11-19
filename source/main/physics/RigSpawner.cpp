@@ -34,7 +34,6 @@
 #include "Application.h"
 #include "ApproxMath.h"
 #include "AutoPilot.h"
-#include "VehicleAI.h"
 #include "Beam.h"
 #include "BeamEngine.h"
 #include "BeamFactory.h"
@@ -50,7 +49,6 @@
 #include "FlexMeshWheel.h"
 #include "FlexObj.h"
 #include "GfxActor.h"
-#include "GUI_GameConsole.h"
 #include "InputEngine.h"
 #include "MeshObject.h"
 #include "OgreSubsystem.h"
@@ -62,12 +60,11 @@
 #include "SkinManager.h"
 #include "SlideNode.h"
 #include "SoundScriptManager.h"
-#include "TerrainManager.h"
 #include "TorqueCurve.h"
 #include "TurboJet.h"
 #include "TurboProp.h"
-#include "GUIManager.h"
 #include "Utils.h"
+#include "VehicleAI.h"
 
 #include <OgreMaterialManager.h>
 #include <OgreSceneManager.h>

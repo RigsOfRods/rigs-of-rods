@@ -51,11 +51,9 @@
 #include "Network.h"
 #include "RoRFrameListener.h"
 #include "RoRVersion.h"
-#include "Settings.h"
 #include "SkyManager.h"
 #include "TerrainManager.h"
 #include "TerrainObjectManager.h"
-#include "Utils.h"
 #include "Water.h"
 
 #include <thread>

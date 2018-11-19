@@ -21,12 +21,9 @@
 
 #include "Water.h"
 
-#include "Application.h"
-#include "BeamFactory.h"
 #include "OgreSubsystem.h"
 #include "PlatformUtils.h" // PATH_SLASH
 #include "RoRFrameListener.h"
-#include "Settings.h"
 #include "TerrainManager.h"
 
 #include <Ogre.h>

@@ -23,6 +23,7 @@
 
 #include "Application.h"
 #include "Beam.h"
+#include "BeamFactory.h"
 #include "Collisions.h"
 #include "InputEngine.h"
 #include "MovableText.h"

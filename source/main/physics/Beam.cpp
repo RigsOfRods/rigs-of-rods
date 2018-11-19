@@ -21,29 +21,16 @@
 
 #include "Beam.h"
 
-#include <Ogre.h>
-#include <Overlay/OgreOverlayManager.h>
-#include <Overlay/OgreOverlayElement.h>
-#include <Overlay/OgreOverlay.h>
-
-
 #include "AirBrake.h"
 #include "Airfoil.h"
 #include "Application.h"
-#include "ApproxMath.h"
 #include "AutoPilot.h"
 #include "BeamData.h"
 #include "BeamEngine.h"
 #include "BeamFactory.h"
-#include "BeamStats.h"
 #include "Buoyance.h"
-#include "CacheSystem.h"
-#include "CameraManager.h"
-#include "CartesianToTriangleTransform.h"
 #include "CmdKeyInertia.h"
 #include "Collisions.h"
-#include "GfxActor.h"
-#include "GUI_GameConsole.h"
 #include "DashBoardManager.h"
 #include "Differentials.h"
 #include "DynamicCollisions.h"
@@ -53,6 +40,9 @@
 #include "FlexMesh.h"
 #include "FlexMeshWheel.h"
 #include "FlexObj.h"
+#include "GUIManager.h"
+#include "GUI_GameConsole.h"
+#include "GfxActor.h"
 #include "InputEngine.h"
 #include "Language.h"
 #include "MeshObject.h"
@@ -70,13 +60,10 @@
 #include "SlideNode.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
-#include "ThreadPool.h"
-#include "Triangle.h"
 #include "TurboJet.h"
 #include "TurboProp.h"
 #include "VehicleAI.h"
 #include "Water.h"
-#include "GUIManager.h"
 
 using namespace Ogre;
 using namespace RoR;

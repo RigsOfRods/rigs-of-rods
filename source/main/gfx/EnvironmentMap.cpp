@@ -24,7 +24,6 @@
 #include <Overlay/OgreOverlayManager.h>
 #include <Overlay/OgreOverlay.h>
 
-#include "Application.h"
 #include "Beam.h"
 #include "Settings.h"
 #include "SkyManager.h"

@@ -25,11 +25,7 @@
 
 #include "DashBoardManager.h"
 
-#include <Ogre.h>
-
 #include "Application.h"
-#include "Settings.h"
-#include "Language.h"
 #include "Utils.h"
 
 using namespace Ogre;

@@ -23,7 +23,6 @@
 
 #include "Application.h"
 #include "PlatformUtils.h"
-#include "Settings.h"
 
 int LocalStorage::refCount = 0;
 

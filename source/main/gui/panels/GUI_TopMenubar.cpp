@@ -26,6 +26,7 @@
 #include "GUI_TopMenubar.h"
 
 #include "Application.h"
+#include "Beam.h"
 #include "BeamFactory.h"
 #include "GUIManager.h"
 #include "GUI_MainSelector.h"

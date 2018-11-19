@@ -21,6 +21,7 @@
 #include "PointColDetector.h"
 
 #include "Beam.h"
+#include "BeamFactory.h"
 #include "RoRFrameListener.h"
 
 using namespace Ogre;

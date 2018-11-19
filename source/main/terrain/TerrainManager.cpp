@@ -21,6 +21,7 @@
 
 #include "TerrainManager.h"
 
+#include "BeamFactory.h"
 #include "Collisions.h"
 #include "Dashboard.h"
 #include "GUIManager.h"

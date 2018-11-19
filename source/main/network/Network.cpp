@@ -24,8 +24,6 @@
 #include "Network.h"
 
 #include "Application.h"
-#include "BeamFactory.h"
-#include "CharacterFactory.h"
 #include "ChatSystem.h"
 #include "ErrorUtils.h"
 #include "GUIManager.h"
@@ -34,7 +32,6 @@
 #include "RoRVersion.h"
 #include "SHA1.h"
 #include "ScriptEngine.h"
-#include "Settings.h"
 #include "Utils.h"
 
 #include <Ogre.h>

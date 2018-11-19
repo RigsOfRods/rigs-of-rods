@@ -22,6 +22,8 @@
 #include "DustManager.h"
 
 #include "Application.h"
+#include "Beam.h"
+#include "BeamFactory.h"
 #include "DustPool.h"
 #include "HydraxWater.h"
 #include "OverlayWrapper.h"

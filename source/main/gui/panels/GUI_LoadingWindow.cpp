@@ -24,7 +24,6 @@
 #include "Application.h"
 #include "GUIManager.h"
 #include "Language.h"
-#include "Settings.h"
 #include "Utils.h"
 
 namespace RoR {
