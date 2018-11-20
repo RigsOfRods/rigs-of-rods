@@ -60,15 +60,6 @@ set(SOURCE_FILES
         gfx/SkyManager.{h,cpp}
         gfx/SkyXManager.{h,cpp}
         gfx/Water.{h,cpp}
-        gfx/camera/CameraBehaviorCharacter.{h,cpp}
-        gfx/camera/CameraBehaviorFixed.{h,cpp}
-        gfx/camera/CameraBehaviorFree.{h,cpp}
-        gfx/camera/CameraBehaviorIsometric.{h,cpp}
-        gfx/camera/CameraBehaviorOrbit.{h,cpp}
-        gfx/camera/CameraBehaviorStatic.{h,cpp}
-        gfx/camera/CameraBehaviorVehicle.{h,cpp}
-        gfx/camera/CameraBehaviorVehicleCineCam.{h,cpp}
-        gfx/camera/CameraBehaviorVehicleSpline.{h,cpp}
         gfx/camera/CameraManager.{h,cpp}
         gfx/camera/PerVehicleCameraContext.h
         gfx/hydrax/CfgFileManager.{h,cpp}
@@ -205,8 +196,6 @@ set(SOURCE_FILES
         physics/flex/Locator_t.h
         physics/mplatform/MPlatformBase.{h,cpp}
         physics/mplatform/MPlatformFD.{h,cpp}
-        physics/utils/BeamStats.{h,cpp}
-        physics/utils/RigLoadingProfiler.h
         physics/water/Buoyance.{h,cpp}
         physics/water/ScrewProp.{h,cpp}
         resources/CacheSystem.{h,cpp}
@@ -235,7 +224,6 @@ set(SOURCE_FILES
         utils/ErrorUtils.{h,cpp}
         utils/FileSystemInfo.h
         utils/ForceFeedback.{h,cpp}
-        utils/IBehavior.h
         utils/ImprovedConfigFile.h
         utils/InputEngine.{h,cpp}
         utils/InterThreadStoreVector.h
@@ -247,7 +235,6 @@ set(SOURCE_FILES
         utils/SimpleGlob.h
         utils/SimpleOpt.h
         utils/Singleton.h
-        utils/Timer.h
         utils/Utils.{h,cpp}
         utils/WriteTextToTexture.{h,cpp}
         utils/ZeroedMemoryAllocator.h
