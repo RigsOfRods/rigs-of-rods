@@ -800,10 +800,11 @@ void Disconnect()
 
 void AddPacket(int streamid, int type, int len, char *content)
 {
-    if (len > RORNET_MAX_MESSAGE_LENGTH)
+    const auto max_len = RORNET_MAX_MESSAGE_LENGTH - sizeof(RoRnet::Header);
+    if (len > max_len)
     {
         LOGSTREAM << "[RoR|Networking] Discarding network packet (StreamID: "
-            <<streamid<<", Type: "<<type<<"), length is " << len << ", max is " << RORNET_MAX_MESSAGE_LENGTH;
+            <<streamid<<", Type: "<<type<<"), length is " << len << ", max is " << max_len;
         return;
     }
 
