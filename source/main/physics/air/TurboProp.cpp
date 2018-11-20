@@ -165,8 +165,6 @@ void Turboprop::updateVisuals(RoR::GfxActor* gfx_actor)
         smokeNode->setPosition(node_buf[nodeback].AbsPosition);
         ParticleEmitter* emit = smokePS->getEmitter(0);
         ParticleEmitter* hemit = 0;
-        if (heathazePS)
-            hemit = heathazePS->getEmitter(0);
         Vector3 dir = node_buf[nodeback].AbsPosition - node_buf[noderef].AbsPosition;
         emit->setDirection(dir);
         emit->setParticleVelocity(propwash - propwash / 10, propwash + propwash / 10);
