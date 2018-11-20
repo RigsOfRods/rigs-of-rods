@@ -102,7 +102,6 @@ private:
     float maxrevpitch;
     float regspeed;
     Ogre::ParticleSystem* smokePS;
-    Ogre::ParticleSystem* heathazePS;
     Ogre::SceneNode* smokeNode;
     float twistmap[5];
     double rotenergy;
