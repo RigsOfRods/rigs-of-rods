@@ -34,9 +34,6 @@
 
 #include <MyGUI.h>
 
-// from http://stahlforce.com/dev/index.php?tool=csc01
-Ogre::String hexdump(void* pAddressIn, long lSize);
-
 Ogre::UTFString tryConvertUTF(const char* buffer);
 
 Ogre::UTFString formatBytes(double bytes);
@@ -44,12 +41,6 @@ Ogre::UTFString formatBytes(double bytes);
 int getTimeStamp();
 
 Ogre::String getVersionString(bool multiline = true);
-
-int isPowerOfTwo(unsigned int x);
-
-Ogre::String stripNonASCII(Ogre::String s);
-
-Ogre::AxisAlignedBox getWorldAABB(Ogre::SceneNode* node);
 
 void fixRenderWindowIcon(Ogre::RenderWindow* rw);
 
@@ -97,8 +88,6 @@ Ogre::Real Round(Ogre::Real value, unsigned short ndigits = 0);
 
 namespace RoR {
 namespace Utils {
-std::string TrimBlanksAndLinebreaks(std::string const& input);
-
 std::string SanitizeUtf8String(std::string const& str_in);
 std::string SanitizeUtf8CString(const char* start, const char* end = nullptr);
 
