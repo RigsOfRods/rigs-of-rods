@@ -36,71 +36,6 @@
 
 using namespace Ogre;
 
-String hexdump(void* pAddressIn, long lSize)
-{
-    char szBuf[100];
-    long lIndent = 1;
-    long lOutLen, lIndex, lIndex2, lOutLen2;
-    long lRelPos;
-    struct
-    {
-        char* pData;
-        unsigned long lSize;
-    } buf;
-    unsigned char *pTmp, ucTmp;
-    unsigned char* pAddress = (unsigned char *)pAddressIn;
-
-    buf.pData = (char *)pAddress;
-    buf.lSize = lSize;
-
-    String result = "";
-
-    while (buf.lSize > 0)
-    {
-        pTmp = (unsigned char *)buf.pData;
-        lOutLen = (int)buf.lSize;
-        if (lOutLen > 16)
-            lOutLen = 16;
-
-        // create a 64-character formatted output line:
-        sprintf(szBuf, " >                            "
-            "                      "
-            "    %08lX", (long unsigned int)(pTmp - pAddress));
-        lOutLen2 = lOutLen;
-
-        for (lIndex = 1 + lIndent , lIndex2 = 53 - 15 + lIndent , lRelPos = 0;
-             lOutLen2;
-             lOutLen2-- , lIndex += 2 , lIndex2++
-        )
-        {
-            ucTmp = *pTmp++;
-
-            sprintf(szBuf + lIndex, "%02X ", (unsigned short)ucTmp);
-            if (!isprint(ucTmp))
-                ucTmp = '.'; // nonprintable char
-            szBuf[lIndex2] = ucTmp;
-
-            if (!(++lRelPos & 3)) // extra blank after 4 bytes
-            {
-                lIndex++;
-                szBuf[lIndex + 2] = ' ';
-            }
-        }
-
-        if (!(lRelPos & 3))
-            lIndex--;
-
-        szBuf[lIndex] = '<';
-        szBuf[lIndex + 1] = ' ';
-
-        result += String(szBuf) + "\n";
-
-        buf.pData += lOutLen;
-        buf.lSize -= lOutLen;
-    }
-    return result;
-}
-
 UTFString tryConvertUTF(const char* buffer)
 {
     std::string str_in(buffer);
@@ -139,54 +74,6 @@ String getVersionString(bool multiline)
     }
 
     return String(tmp);
-}
-
-int isPowerOfTwo(unsigned int x)
-{
-    return ((x != 0) && ((x & (~x + 1)) == x));
-}
-
-// same as: return preg_replace("/[^A-Za-z0-9-_.]/", "_", $s);
-String stripNonASCII(String s)
-{
-    char filename[9046] = "";
-    sprintf(filename, "%s", s.c_str());
-    for (size_t i = 0; i < s.size(); i++)
-    {
-        bool replace = true;
-        if (filename[i] >= 48 && filename[i] <= 57)
-            replace = false; // 0-9
-        else if (filename[i] >= 65 && filename[i] <= 90)
-            replace = false; // A-Z
-        else if (filename[i] >= 97 && filename[i] <= 122)
-            replace = false; // a-z
-        else if (filename[i] == 45 || filename[i] == 95 || filename[i] == 46)
-            replace = false; // -_.
-        if (replace)
-            filename[i] = '_';
-    }
-    return String(filename);
-}
-
-AxisAlignedBox getWorldAABB(SceneNode* node)
-{
-    AxisAlignedBox aabb;
-
-    // merge with attached objects
-    for (int i = 0; i < node->numAttachedObjects(); ++i)
-    {
-        MovableObject* o = node->getAttachedObject(i);
-        aabb.merge(o->getWorldBoundingBox(true));
-    }
-
-    // merge with child nodes
-    for (int i = 0; i < node->numChildren(); ++i)
-    {
-        SceneNode* child = static_cast<SceneNode*>(node->getChild(i));
-        aabb.merge(getWorldAABB(child));
-    }
-
-    return aabb;
 }
 
 void fixRenderWindowIcon(RenderWindow* rw)
@@ -267,38 +154,6 @@ Real Round(Real value, int valueN, unsigned short ndigits /* = 0 */)
 
 namespace RoR {
 namespace Utils {
-
-std::string TrimBlanksAndLinebreaks(std::string const& input)
-{
-    int substr_start = 0;
-    int substr_count = input.length();
-    while (substr_start < substr_count)
-    {
-        char c = input.at(substr_start);
-        if (c == ' ' || c == '\t' || c == '\n' || c == '\r')
-        {
-            ++substr_start;
-            --substr_count;
-        }
-        else
-        {
-            break;
-        }
-    }
-    while (substr_count > 0)
-    {
-        char c = input.at(substr_count - 1);
-        if (c == ' ' || c == '\t' || c == '\n' || c == '\r')
-        {
-            --substr_count;
-        }
-        else
-        {
-            break;
-        }
-    }
-    return input.substr(substr_start, substr_count);
-}
 
 std::string SanitizeUtf8String(std::string const& str_in)
 {
