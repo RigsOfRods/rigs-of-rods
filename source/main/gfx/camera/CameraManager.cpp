@@ -22,6 +22,7 @@
 #include "CameraManager.h"
 
 #include "Application.h"
+#include "ApproxMath.h"
 #include "Beam.h"
 #include "BeamFactory.h"
 #include "Character.h"
@@ -35,8 +36,6 @@
 #include "TerrainManager.h"
 #include "GUIManager.h"
 #include "PerVehicleCameraContext.h"
-
-#include <stack>
 
 // ========== Project 'SimCam' (started June 2018) ==========
 // - Eliminate 'gEnv->mainCamera' (pointer to Ogre::Camera)
@@ -689,32 +688,21 @@ void CameraManager::UpdateCameraBehaviorStatic()
             speed = std::max(5.0f, speed);
             m_staticcam_position = lookAt + velocity.normalisedCopy() * speed * 3.0f;
             Vector3 offset = (velocity.crossProduct(Vector3::UNIT_Y)).normalisedCopy() * speed;
-            float r = (float)std::rand() / RAND_MAX;
-            if (App::GetSimTerrain())
+            for (int i = 0; i < 100; i++)
             {
-                for (int i = 0; i < 100; i++)
+                Vector3 pos = m_staticcam_position + offset * frand_11();
+                float h = App::GetSimTerrain()->GetHeightAt(pos.x, pos.z);
+                pos.y = std::max(h, pos.y);
+                if (!intersectsTerrain(pos, lookAt + Vector3::UNIT_Y))
                 {
-                    r = (float)std::rand() / RAND_MAX;
-                    Vector3 pos = m_staticcam_position + offset * (0.5f - r) * 2.0f;
-                    float h = App::GetSimTerrain()->GetHeightAt(pos.x, pos.z);
-                    pos.y = std::max(h, pos.y);
-                    if (!intersectsTerrain(pos, lookAt + Vector3::UNIT_Y))
-                    {
-                        m_staticcam_position = pos;
-                        break;
-                    }
+                    m_staticcam_position = pos;
+                    break;
                 }
             }
-            m_staticcam_position += offset * (0.5f - r) * 2.0f;
+            m_staticcam_position += offset * frand_11();
 
-            if (App::GetSimTerrain())
-            {
-                float h = App::GetSimTerrain()->GetHeightAt(m_staticcam_position.x, m_staticcam_position.z);
-
-                m_staticcam_position.y = std::max(h, m_staticcam_position.y);
-            }
-
-            m_staticcam_position.y += 5.0f;
+            float h = App::GetSimTerrain()->GetHeightAt(m_staticcam_position.x, m_staticcam_position.z);
+            m_staticcam_position.y = std::max(h, m_staticcam_position.y) + 5.0f;
 
             m_staticcam_update_timer.reset();
         }
@@ -802,7 +790,7 @@ void CameraManager::CameraBehaviorOrbitUpdate()
         , cos(m_cam_target_direction.valueRadians() + m_cam_rot_x.valueRadians()) * cos(m_cam_target_pitch.valueRadians() + m_cam_rot_y.valueRadians())
     );
 
-    if (m_cam_limit_movement && App::GetSimTerrain())
+    if (m_cam_limit_movement)
     {
         float h = App::GetSimTerrain()->GetHeightAt(desiredPosition.x, desiredPosition.z) + 1.0f;
 
