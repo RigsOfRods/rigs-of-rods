@@ -92,6 +92,12 @@ SoundScriptManager::SoundScriptManager() :
     ResourceGroupManager::getSingleton()._registerScriptLoader(this);
 }
 
+SoundScriptManager::~SoundScriptManager()
+{
+    if (sound_manager != nullptr)
+        delete sound_manager;
+}
+
 void SoundScriptManager::trigOnce(Actor* actor, int trig, int linkType, int linkItemID)
 {
     if (disabled)
