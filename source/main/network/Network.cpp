@@ -519,6 +519,8 @@ void RecvThread()
 
     m_recv_stopped = true;
 
+    free (buffer);
+
     LOG_THREAD("[RoR|Networking] RecvThread stopped");
 }
 

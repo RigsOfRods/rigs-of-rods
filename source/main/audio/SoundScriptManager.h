@@ -257,6 +257,7 @@ class SoundScriptManager : public Ogre::ScriptLoader, public RoRSingleton<SoundS
 public:
 
     SoundScriptManager();
+    ~SoundScriptManager();
 
     // ScriptLoader interface
     const Ogre::StringVector& getScriptPatterns(void) const;
