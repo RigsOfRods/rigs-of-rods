@@ -98,6 +98,8 @@ void RoR::SkinManager::parseScript(Ogre::DataStreamPtr& stream, const Ogre::Stri
     }
     catch (Ogre::ItemIdentityException)
     {
+        if (skin_def != nullptr)
+            delete skin_def;
         // this catches duplicates -> to be ignored
         // this happens since we load the full skin data off the cache, so we don't need
         // to re-add it to the SkinManager
