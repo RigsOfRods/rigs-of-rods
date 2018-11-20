@@ -92,7 +92,6 @@ RoR::GfxActor::GfxActor(Actor* actor, std::string ogre_resource_group,
     // Attributes
     m_attr.xa_speedo_highest_kph = actor->ar_speedo_max_kph; // TODO: Remove the attribute from Actor altogether ~ only_a_ptr, 05/2018
     m_attr.xa_speedo_use_engine_max_rpm = actor->ar_gui_use_engine_max_rpm; // TODO: ditto
-    m_attr.xa_brake_force = actor->ar_brake_force;
     m_attr.xa_camera0_pos_node  = 0;
     m_attr.xa_camera0_roll_node = 0;
     m_attr.xa_has_autopilot = (actor->ar_autopilot != nullptr);
@@ -2203,7 +2202,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     //brake
     if (flag_state & ANIM_FLAG_BRAKE)
     {
-        float brakes = m_simbuf.simbuf_brake / m_attr.xa_brake_force;
+        float brakes = m_simbuf.simbuf_brake;
         cstate -= brakes;
         div++;
     }
