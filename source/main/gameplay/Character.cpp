@@ -128,9 +128,11 @@ void Character::setPosition(Vector3 position) // TODO: updates OGRE objects --> 
     m_character_position = position;
     m_prev_positions.clear();
     auto* survey_map = App::GetSimController()->GetGfxScene().GetSurveyMap();
-    if (survey_map && survey_map->getMapEntityByName(m_instance_name))
+    if (survey_map)
     {
-        survey_map->getMapEntityByName(m_instance_name)->setPosition(position);
+        SurveyMapEntity* e = survey_map->getMapEntityByName(m_instance_name);
+        if (e)
+            e->setPosition(position);
     }
 }
 
