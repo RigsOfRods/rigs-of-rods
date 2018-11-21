@@ -411,14 +411,7 @@ void LandVehicleSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_la
                 }
                 else if (curgear > 0 && curgear < 19)
                 {
-                    if (shiftmode == SimGearboxMode::MANUAL)
-                    {
-                        gear_changed = !RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_GEAR01 + curgear - 1);
-                    }
-                    else
-                    {
-                        gear_changed = !RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_GEAR01 + gearoffset - 1); // range mode
-                    }
+                    gear_changed = !RoR::App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_GEAR01 + gearoffset - 1); // range mode
                 }
 
                 if (gear_changed || curgear == 0)
