@@ -44,6 +44,7 @@
 #include "imgui.h"
 #include "TurboProp.h"
 
+#include <OgreMesh.h>
 #include <OgrePass.h>
 #include <OgreRenderWindow.h>
 #include <OgreRenderWindow.h>
@@ -161,8 +162,7 @@ RoR::GfxActor::~GfxActor()
         // entity
         gEnv->sceneManager->destroyEntity(abx.abx_entity);
         // mesh
-        abx.abx_mesh->unload();
-        abx.abx_mesh.setNull();
+        Ogre::MeshManager::getSingleton().remove(abx.abx_mesh);
     }
     m_gfx_airbrakes.clear();
 
