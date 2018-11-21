@@ -400,7 +400,7 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
         const String type = "";
         App::GetSimTerrain()->getObjectManager()->LoadTerrainObject(objectName, pos, rot, bakeNode, instanceName, type, true, handler_func_id, uniquifyMaterials);
     }
-    catch (std::exception e)
+    catch (std::exception& e)
     {
         this->logFormat("spawnObject(): An exception occurred, message: %s", e.what());
         return;
@@ -421,7 +421,7 @@ int GameScript::setMaterialAmbient(const String& materialName, float red, float 
             return 0;
         m->setAmbient(red, green, blue);
     }
-    catch (Exception e)
+    catch (Exception& e)
     {
         this->log("Exception in setMaterialAmbient(): " + e.getFullDescription());
         return 0;
@@ -438,7 +438,7 @@ int GameScript::setMaterialDiffuse(const String& materialName, float red, float 
             return 0;
         m->setDiffuse(red, green, blue, alpha);
     }
-    catch (Exception e)
+    catch (Exception& e)
     {
         this->log("Exception in setMaterialDiffuse(): " + e.getFullDescription());
         return 0;
@@ -455,7 +455,7 @@ int GameScript::setMaterialSpecular(const String& materialName, float red, float
             return 0;
         m->setSpecular(red, green, blue, alpha);
     }
-    catch (Exception e)
+    catch (Exception& e)
     {
         this->log("Exception in setMaterialSpecular(): " + e.getFullDescription());
         return 0;
@@ -472,7 +472,7 @@ int GameScript::setMaterialEmissive(const String& materialName, float red, float
             return 0;
         m->setSelfIllumination(red, green, blue);
     }
-    catch (Exception e)
+    catch (Exception& e)
     {
         this->log("Exception in setMaterialEmissive(): " + e.getFullDescription());
         return 0;
@@ -512,7 +512,7 @@ int GameScript::getSafeTextureUnitState(TextureUnitState** tu, const String mate
         *tu = tut;
         return 0;
     }
-    catch (Exception e)
+    catch (Exception& e)
     {
         this->log("Exception in getSafeTextureUnitState(): " + e.getFullDescription());
     }

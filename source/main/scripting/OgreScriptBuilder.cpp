@@ -59,7 +59,7 @@ int OgreScriptBuilder::LoadScriptSection(const char* full_path_cstr)
                  //TODO: do not use `AUTODETECT_RESOURCE_GROUP_NAME`, use specific group, lookups are slow!
                  //see also https://github.com/OGRECave/ogre/blob/master/Docs/1.10-Notes.md#resourcemanager-strict-mode ~ only_a_ptr, 08/2017
     }
-    catch (Ogre::Exception e)
+    catch (Ogre::Exception& e)
     {
         LOG("[RoR|Scripting] exception upon loading script file '"+filename+"', message: " + e.getFullDescription());
         return -1;

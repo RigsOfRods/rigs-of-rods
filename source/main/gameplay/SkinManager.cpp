@@ -96,7 +96,7 @@ void RoR::SkinManager::parseScript(Ogre::DataStreamPtr& stream, const Ogre::Stri
             }
         }
     }
-    catch (Ogre::ItemIdentityException)
+    catch (Ogre::ItemIdentityException& e)
     {
         if (skin_def != nullptr)
             delete skin_def;

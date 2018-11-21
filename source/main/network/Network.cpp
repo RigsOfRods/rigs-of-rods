@@ -445,7 +445,7 @@ void RecvThread()
 
             { // Lock scope
                 std::lock_guard<std::mutex> lock(m_users_mutex);
-                auto user = std::find_if(m_users.begin(), m_users.end(), [header](const RoRnet::UserInfo u) { return static_cast<int>(u.uniqueid) == header.source; });
+                auto user = std::find_if(m_users.begin(), m_users.end(), [header](const RoRnet::UserInfo& u) { return static_cast<int>(u.uniqueid) == header.source; });
                 if (user != m_users.end())
                 {
                     Ogre::UTFString msg = RoR::ChatSystem::GetColouredName(user->username, user->colournum) + RoR::Color::CommandColour + _L(" left the game");

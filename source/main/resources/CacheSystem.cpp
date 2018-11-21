@@ -1348,11 +1348,6 @@ void CacheSystem::writeGeneratedCache()
     LOG("...done!");
 }
 
-void CacheSystem::updateSingleTruckEntryCache(int number, CacheEntry t)
-{
-    // todo: to be implemented
-}
-
 char* CacheSystem::replacesSpaces(char* str)
 {
     char* ptr = str;
@@ -2149,7 +2144,7 @@ bool CacheSystem::checkResourceLoaded(Ogre::String& filename, Ogre::String& grou
     return false;
 }
 
-bool CacheSystem::checkResourceLoaded(CacheEntry t)
+bool CacheSystem::checkResourceLoaded(const CacheEntry& t)
 {
     static int rgcountera = 0;
     static std::map<String, bool> loaded;
@@ -2189,7 +2184,7 @@ bool CacheSystem::checkResourceLoaded(CacheEntry t)
     return false;
 }
 
-void CacheSystem::loadSingleZip(CacheEntry e, bool unload, bool ownGroup)
+void CacheSystem::loadSingleZip(const CacheEntry& e, bool unload, bool ownGroup)
 {
     loadSingleZip(e.dirname, -1, unload, ownGroup);
 }
