@@ -91,7 +91,7 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
             itor.moveNext();
         }
     }
-    catch (Ogre::Exception) {} // Thrown if section 'Authors' doesn't exist
+    catch (Ogre::Exception& e) {} // Thrown if section 'Authors' doesn't exist
 
     try
     {
@@ -104,7 +104,7 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
             itor.moveNext();
         }
     }
-    catch (Ogre::Exception) {} // Thrown if section 'Objects' doesn't exist
+    catch (Ogre::Exception& e) {} // Thrown if section 'Objects' doesn't exist
 
     try
     {
@@ -117,7 +117,7 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
             itor.moveNext();
         }
     }
-    catch (Ogre::Exception) {} // Thrown if section 'Scripts' doesn't exist
+    catch (Ogre::Exception& e) {} // Thrown if section 'Scripts' doesn't exist
 
     this->ProcessTeleport(def, &file);
 

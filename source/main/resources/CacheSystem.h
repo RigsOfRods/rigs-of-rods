@@ -154,7 +154,7 @@ public:
     
     void loadAllZipsInResourceGroup(Ogre::String group);
 
-    bool checkResourceLoaded(CacheEntry t);
+    bool checkResourceLoaded(const CacheEntry &t);
     bool checkResourceLoaded(Ogre::String &filename);
 
     /**
@@ -222,14 +222,13 @@ protected:
     
     // adds a zip to the cache
     void loadSingleZip(Ogre::FileInfo f, bool unload=true, bool ownGroup=true);
-    void loadSingleZip(CacheEntry e, bool unload=true, bool ownGroup=true);
+    void loadSingleZip(const CacheEntry &e, bool unload=true, bool ownGroup=true);
 
     Ogre::String detectFilesMiniType(Ogre::String filename);
     void removeFileFromFileCache(std::vector<CacheEntry>::iterator it);
     void generateCache(bool forcefull=false);
     Ogre::String formatEntry(int counter, CacheEntry t);
     Ogre::String formatInnerEntry(int counter, CacheEntry t);
-    void updateSingleTruckEntryCache(int number, CacheEntry t);
     void parseModAttribute(const Ogre::String& line, CacheEntry& t);
     void logBadTruckAttrib(const Ogre::String& line, CacheEntry& t);
 

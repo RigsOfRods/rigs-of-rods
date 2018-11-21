@@ -123,7 +123,7 @@ bool OgreSubsystem::LoadOgrePlugins(Ogre::String const & pluginsfile)
     {
         cfg.load( pluginsfile );
     }
-    catch (Ogre::Exception e)
+    catch (Ogre::Exception& e)
     {
         Ogre::LogManager::getSingleton().logMessage(pluginsfile + " not found, automatic plugin loading disabled. Message: " + e.getFullDescription());
         return false;
@@ -144,7 +144,7 @@ bool OgreSubsystem::LoadOgrePlugins(Ogre::String const & pluginsfile)
         {
             m_ogre_root->loadPlugin(pluginFilename);
         }
-        catch (Ogre::Exception &e)
+        catch (Ogre::Exception& e)
         {
             LOG("failed to load plugin: " + pluginFilename + ": " + e.getFullDescription());
         }

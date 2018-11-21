@@ -1221,7 +1221,7 @@ bool MyDialog::loadOgrePlugins(Ogre::String pluginsfile)
     {
         cfg.load( pluginsfile );
     }
-    catch (Ogre::Exception)
+    catch (Ogre::Exception& e)
     {
         Ogre::LogManager::getSingleton().logMessage(pluginsfile + " not found, automatic plugin loading disabled.");
         return false;

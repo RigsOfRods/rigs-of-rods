@@ -501,8 +501,8 @@ public:
     void setupDefault(Ogre::String inputhwnd = "");
 
     bool isEventDefined(int eventID);
-    void addEvent(int eventID, event_trigger_t t);
-    void updateEvent(int eventID, event_trigger_t t);
+    void addEvent(int eventID, event_trigger_t& t);
+    void updateEvent(int eventID, const event_trigger_t& t);
     bool deleteEventBySUID(int suid);
     bool getInputsChanged() { return inputsChanged; };
     void prepareShutdown();

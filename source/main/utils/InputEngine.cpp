@@ -2794,7 +2794,7 @@ String InputEngine::getEventTypeName(int type)
     return "unknown";
 }
 
-void InputEngine::addEvent(int eventID, event_trigger_t t)
+void InputEngine::addEvent(int eventID, event_trigger_t& t)
 {
     uniqueCounter++;
     t.suid = uniqueCounter;
@@ -2810,7 +2810,7 @@ void InputEngine::addEvent(int eventID, event_trigger_t t)
     events[eventID].push_back(t);
 }
 
-void InputEngine::updateEvent(int eventID, event_trigger_t t)
+void InputEngine::updateEvent(int eventID, const event_trigger_t& t)
 {
     if (eventID == -1)
     //unknown event, discard
