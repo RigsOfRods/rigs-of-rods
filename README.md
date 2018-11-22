@@ -1,4 +1,4 @@
-# Rigs of Rods
+![Rigs of Rods](doc/images/RoR_Logo_full.png?raw=true)
 
 [![Join Discord](https://img.shields.io/discord/136544456244461568.svg?style=flat-square)](https://discord.gg/rigsofrods) ![downloads](https://flat.badgen.net/github/assets-dl/RigsOfRods/rigs-of-rods)
 ![release](https://flat.badgen.net/github/release/RigsOfRods/rigs-of-rods)
@@ -8,8 +8,8 @@
 
 
 
-|  Build status 	|                                                                                                                                                                             	|
-|---------------	|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
+|  Build status 	|  [![Coverity Scan Status](https://img.shields.io/coverity/scan/16646.svg?style=flat-square)](https://scan.coverity.com/projects/rigsofrods-rigs-of-rods)	|
+|---------------	|------------------	|
 | Linux:        	| [![travis build Status](https://flat.badgen.net/travis/RigsOfRods/rigs-of-rods/master?icon=travis)](https://travis-ci.org/RigsOfRods/rigs-of-rods)                                    	|
 | Windows:      	| [![appveyor build Status](https://flat.badgen.net/appveyor/ci/AnotherFoxGuy/rigs-of-rods/master?icon=appveyor)](https://ci.appveyor.com/project/AnotherFoxGuy/rigs-of-rods) 	|
 
