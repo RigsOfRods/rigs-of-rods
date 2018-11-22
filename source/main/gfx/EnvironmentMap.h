@@ -49,7 +49,6 @@ private:
     Ogre::TexturePtr     m_rtt_texture;
     bool                 m_is_initialized;
     int                  m_update_round; /// Render targets are updated one-by-one; this is the index of next target to update.
-    bool                 m_is_enabled; // TODO: Use a GVar!! ~ only_a_ptr, 08/2017
 };
 
 } // namespace RoR
