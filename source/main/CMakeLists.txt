@@ -484,14 +484,10 @@ if (DEFINED CONAN_OPENAL_ROOT)
     target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::openal)
     target_include_directories(${BINNAME} PRIVATE CONAN_PKG::openal)
     target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)
-else ()
-    if (OPENAL_FOUND)
-        target_link_libraries(${BINNAME} PRIVATE ${OPENAL_LIBRARY})
-        target_include_directories(${BINNAME} PRIVATE ${OPENAL_INCLUDE_DIR})
-        target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)
-    else ()
-        message(WARNING "Building ${BINNAME} without OpenAL. Some functionality may be missing.")
-    endif ()
+elseif (OPENAL_FOUND)
+    target_link_libraries(${BINNAME} PRIVATE ${OPENAL_LIBRARY})
+    target_include_directories(${BINNAME} PRIVATE ${OPENAL_INCLUDE_DIR})
+    target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)  
 endif ()
 
 
@@ -503,9 +499,8 @@ if (DEFINED CONAN_SOCKETW_ROOT)
 elseif (TARGET SocketW::SocketW)
     target_link_libraries(${BINNAME} PRIVATE SocketW::SocketW)
     target_compile_definitions(${BINNAME} PRIVATE USE_SOCKETW)
-else ()
-    message(WARNING "Building ${BINNAME} without SocketW. Some functionality may be missing.")
 endif ()
+
 # Add openssl
 if (DEFINED CONAN_OPENSSL_ROOT)
     target_include_directories(${BINNAME} PRIVATE ${CONAN_INCLUDE_DIRS_OPENSSL})
@@ -531,8 +526,6 @@ elseif (TARGET AngelScript::AngelScript)
     # TODO angelscript_addons
     target_include_directories(${BINNAME} PRIVATE ../angelscript_addons)
     target_link_libraries(${BINNAME} PRIVATE angelscript_addons)
-else ()
-    message(WARNING "Building ${BINNAME} without AngelScript. Some functionality may be missing.")
 endif ()
 
 
@@ -549,9 +542,6 @@ elseif (CURL_FOUND)
     if (WIN32)
         add_definitions(-DWIN32_LEAN_AND_MEAN)
     endif ()
-
-else ()
-    message(WARNING "Building ${BINNAME} without cURL. Some functionality may be missing.")
 endif ()
 
 
@@ -562,7 +552,12 @@ endif ()
 
 
 # --- Caelum -- Ogre addon for realistic sky rendering ---
-if (TARGET Caelum::Caelum)
+if(DEFINED CONAN_CAELUM_ROOT AND WIN32)
+    set(CFG_OGRE_PLUGIN_CAELUM "Plugin=Caelum")
+    target_include_directories(${BINNAME} PRIVATE CONAN_PKG::Caelum)
+    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::Caelum)
+    target_compile_definitions(${BINNAME} PRIVATE USE_CAELUM)
+elseif (TARGET Caelum::Caelum)
     set(CFG_OGRE_PLUGIN_CAELUM "Plugin=../libCaelum.so")
     target_link_libraries(${BINNAME} PRIVATE Caelum::Caelum)
     target_compile_definitions(${BINNAME} PRIVATE USE_CAELUM)
