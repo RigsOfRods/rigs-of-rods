@@ -36,7 +36,7 @@ public:
     ~GfxEnvmap();
 
     void SetupEnvMap();
-    void UpdateEnvMap(Ogre::Vector3 center, Actor* beam = 0);
+    void UpdateEnvMap(Ogre::Vector3 center, Actor* actor);
 
 private:
 
