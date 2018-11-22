@@ -164,15 +164,9 @@ void Turboprop::updateVisuals(RoR::GfxActor* gfx_actor)
     {
         smokeNode->setPosition(node_buf[nodeback].AbsPosition);
         ParticleEmitter* emit = smokePS->getEmitter(0);
-        ParticleEmitter* hemit = 0;
         Vector3 dir = node_buf[nodeback].AbsPosition - node_buf[noderef].AbsPosition;
         emit->setDirection(dir);
         emit->setParticleVelocity(propwash - propwash / 10, propwash + propwash / 10);
-        if (hemit)
-        {
-            hemit->setDirection(dir);
-            hemit->setParticleVelocity(propwash - propwash / 10, propwash + propwash / 10);
-        }
         if (!failed)
         {
             if (ignition)
@@ -180,17 +174,10 @@ void Turboprop::updateVisuals(RoR::GfxActor* gfx_actor)
                 emit->setEnabled(true);
                 emit->setColour(ColourValue(0.0, 0.0, 0.0, 0.03 + throtle * 0.05));
                 emit->setTimeToLive((0.03 + throtle * 0.05) / 0.1);
-                if (hemit)
-                {
-                    hemit->setEnabled(true);
-                    hemit->setTimeToLive((0.03 + throtle * 0.05) / 0.1);
-                }
             }
             else
             {
                 emit->setEnabled(false);
-                if (hemit)
-                    hemit->setEnabled(false);
             }
         }
         else
@@ -200,13 +187,6 @@ void Turboprop::updateVisuals(RoR::GfxActor* gfx_actor)
             emit->setEnabled(true);
             emit->setColour(ColourValue(0.0, 0.0, 0.0, 0.1));
             emit->setTimeToLive(0.1 / 0.1);
-            if (hemit)
-            {
-                hemit->setDirection(Vector3(0, 1, 0));
-                hemit->setParticleVelocity(5, 9);
-                hemit->setEnabled(true);
-                hemit->setTimeToLive(0.1 / 0.1);
-            }
         }
     }
 
