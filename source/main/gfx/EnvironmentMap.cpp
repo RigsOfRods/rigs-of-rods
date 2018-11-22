@@ -183,9 +183,6 @@ void RoR::GfxEnvmap::SetupEnvMap()
             mDebugSceneNode->_updateBounds();
             overlay->add3D(mDebugSceneNode);
             overlay->show();
-
-            // example update
-            this->InitEnvMap(Ogre::Vector3::ZERO);
         }
     }
 }
@@ -202,14 +199,11 @@ RoR::GfxEnvmap::~GfxEnvmap()
     }
 }
 
-void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, Actor* actor /* = 0 */)
+void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, Actor* actor)
 {
-    if (!App::gfx_envmap_enabled.GetActive() || !actor)
+    const int update_rate = m_is_initialized ? App::gfx_envmap_rate.GetActive() : NUM_FACES;
+    if (!App::gfx_envmap_enabled.GetActive() || !actor || update_rate == 0)
     {
-        if (!m_is_initialized)
-        {
-            this->InitEnvMap(center);
-        }
         return;
     }
 
@@ -218,19 +212,14 @@ void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, Actor* actor /* = 0 */)
         m_cameras[i]->setPosition(center);
     }
 
-    if (actor != nullptr)
-    {
-        // hide all flexbodies and cabs prior render, and then show them again after done but only if they are visible ...
-        actor->GetGfxActor()->SetAllMeshesVisible(false);
-        actor->GetGfxActor()->SetRodsVisible(false);
-    }
+    // hide all flexbodies and cabs prior render, and then show them again after done but only if they are visible ...
+    actor->GetGfxActor()->SetAllMeshesVisible(false);
+    actor->GetGfxActor()->SetRodsVisible(false);
 
-    const int update_rate = App::gfx_envmap_rate.GetActive();
     for (int i = 0; i < update_rate; i++)
     {
-        // caelum needs to know that we changed the cameras
 #ifdef USE_CAELUM
-
+        // caelum needs to know that we changed the cameras
         if (App::GetSimTerrain()->getSkyManager())
         {
             App::GetSimTerrain()->getSkyManager()->NotifySkyCameraChanged(m_cameras[m_update_round]);
@@ -240,30 +229,16 @@ void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, Actor* actor /* = 0 */)
         m_update_round = (m_update_round + 1) % NUM_FACES;
     }
 #ifdef USE_CAELUM
-
     if (App::GetSimTerrain()->getSkyManager())
     {
         App::GetSimTerrain()->getSkyManager()->NotifySkyCameraChanged(gEnv->mainCamera);
     }
 #endif // USE_CAELUM
 
-    if (actor != nullptr)
+    actor->GetGfxActor()->SetAllMeshesVisible(true);
+    if (actor->GetGfxDetailLevel() == 0) // Full detail? Show actors again
     {
-        actor->GetGfxActor()->SetAllMeshesVisible(true);
-        if (actor->GetGfxDetailLevel() == 0) // Full detail? Show actors again
-        {
-            actor->GetGfxActor()->SetRodsVisible(true);
-        }
-    }
-}
-
-void RoR::GfxEnvmap::InitEnvMap(Ogre::Vector3 center)
-{
-    // capture all images at once
-    for (int i = 0; i < NUM_FACES; i++)
-    {
-        m_cameras[i]->setPosition(center);
-        m_render_targets[i]->update();
+        actor->GetGfxActor()->SetRodsVisible(true);
     }
 
     m_is_initialized = true;
