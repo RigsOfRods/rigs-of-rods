@@ -25,12 +25,10 @@
 #include <Overlay/OgreOverlay.h>
 
 #include "Beam.h"
-#include "Settings.h"
 #include "SkyManager.h"
 #include "TerrainManager.h"
 
 RoR::GfxEnvmap::GfxEnvmap():
-    m_is_enabled(false),
     m_is_initialized(false),
     m_update_round(0)
 {
@@ -40,8 +38,6 @@ RoR::GfxEnvmap::GfxEnvmap():
 
 void RoR::GfxEnvmap::SetupEnvMap()
 {
-    m_is_enabled = !BSETTING("Envmapdisable", false); // TODO: Use a GVar!! Postponed until the 'IMGUI' gVar refactor is merged to upstream ~ only_a_ptr, 08/2017
-
     m_rtt_texture = Ogre::TextureManager::getSingleton().getByName("EnvironmentTexture");
 
     for (int face = 0; face < NUM_FACES; face++)
