@@ -1245,6 +1245,7 @@ Vector3 primitiveCollision(node_t *node, Vector3 velocity, float mass, Vector3 n
                 float ff = -(g + std::min(gm->t2 * slipv, 5.0f)) * Greaction;
                 force += Freaction * normal + ff * slip;
             }
+            node->nd_avg_collision_slip = node->nd_avg_collision_slip * 0.995 + slipv * 0.005f;
             node->nd_last_collision_slip = slipv * slip;
             node->nd_last_collision_force = std::min(-Freaction, 0.0f) * normal;
         }
