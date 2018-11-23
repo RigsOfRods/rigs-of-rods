@@ -27,8 +27,11 @@
 
 #include "Application.h"
 #include "Actor.h"
+#include "ActorEditor.h"
 #include "ActorManager.h"
+#include "CacheSystem.h"
 #include "CameraManager.h"
+#include "ContentManager.h"
 #include "GameContext.h"
 #include "GUIManager.h"
 #include "GUIUtils.h"
@@ -62,7 +65,8 @@ void TopMenubar::Update()
     std::string savegames_title =   _LC("TopMenubar", "Saves");
     std::string settings_title =    _LC("TopMenubar", "Settings");
     std::string tools_title =       _LC("TopMenubar", "Tools");
-    const int NUM_BUTTONS = 5;
+    std::string projects_title =    _LC("TopMenubar", "Projects");
+    const int NUM_BUTTONS = 6;
 
     float menubar_content_width =
         (ImGui::GetStyle().ItemSpacing.x * (NUM_BUTTONS - 1)) +
@@ -70,6 +74,7 @@ void TopMenubar::Update()
         ImGui::CalcTextSize(sim_title.c_str()).x +
         ImGui::CalcTextSize(actors_title.c_str()).x +
         ImGui::CalcTextSize(savegames_title.c_str()).x +
+        ImGui::CalcTextSize(projects_title.c_str()).x +
         ImGui::CalcTextSize(settings_title.c_str()).x +
         ImGui::CalcTextSize(tools_title.c_str()).x;
 
@@ -109,6 +114,16 @@ void TopMenubar::Update()
     if ((m_open_menu != TopMenu::TOPMENU_ACTORS) && ImGui::IsItemHovered())
     {
         m_open_menu = TopMenu::TOPMENU_ACTORS;
+    }
+
+    ImGui::SameLine();
+
+    // The 'projects' button
+    ImVec2 projects_cursor = ImGui::GetCursorPos();
+    ImGui::Button(projects_title.c_str());
+    if ((m_open_menu != TopMenu::TOPMENU_PROJECTS) && ImGui::IsItemHovered())
+    {
+        m_open_menu = TopMenu::TOPMENU_PROJECTS;
     }
 
     ImGui::SameLine();
@@ -295,6 +310,81 @@ void TopMenubar::Update()
                 }
 #endif // USE_SOCKETW
             }
+            m_open_menu_hoverbox_min = menu_pos;
+            m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth();
+            m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight();
+            ImGui::End();
+        }
+        break;
+
+    case TopMenu::TOPMENU_PROJECTS:
+        menu_pos.y = window_pos.y + projects_cursor.y + MENU_Y_OFFSET;
+        menu_pos.x = projects_cursor.x + window_pos.x - ImGui::GetStyle().WindowPadding.x;
+        ImGui::SetNextWindowPos(menu_pos);
+        if (ImGui::Begin("Projects menu", nullptr, static_cast<ImGuiWindowFlags_>(flags)))
+        {
+            CacheSystem::ProjectEntryVec& projects = App::GetCacheSystem()->GetProjectEntries();
+            int id_counter = 0; // Project names may not be unique
+            for (std::unique_ptr<ProjectEntry>& project: projects)
+            {
+                ImGui::PushID(id_counter++);
+                if (ImGui::TreeNode(project->prj_name.c_str())) // TODO: EDIT button
+                {
+                    for (ProjectSnapshot& snap: project->prj_snapshots)
+                    {
+                        if (ImGui::Button(snap.prs_name.c_str()))
+                        {
+                            // Spawn the actor from project snapshot
+                            ActorSpawnRequest* rq = new ActorSpawnRequest;
+                            rq->asr_origin = ActorSpawnRequest::Origin::USER;
+                            rq->asr_project = project.get(); // Load from project
+                            rq->asr_filename = snap.prs_filename;
+                            App::GetGameContext()->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
+                        }
+                    }
+                    ImGui::TreePop();
+                }
+                ImGui::PopID();
+            }
+
+            if (projects.size() == 0)
+            {
+                ImGui::TextColored(GRAY_HINT_TEXT, "There are no projects");
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::Button("Refresh"))
+            {
+                App::GetContentManager()->ReScanProjects(); // TODO: Make it happen asynchronously!
+            }
+
+            if (App::GetGameContext()->GetPlayerActor() == nullptr)
+            {
+                ImGui::TextColored(GRAY_HINT_TEXT, "Enter vehicle to import");
+            }
+            else
+            {
+                Actor* src_actor = App::GetGameContext()->GetPlayerActor();
+                Str<200> btn_title;
+                btn_title << "Import '" << src_actor->GetActorDesignName() << "'";
+                if (ImGui::Button(btn_title.ToCStr()))
+                {
+                    // TODO: Make it happen asynchronously!
+                    std::string filename = src_actor->GetActorFileName();
+                    Str<200> prj_name;
+                    prj_name << "(Imported) " << src_actor->GetActorDesignName();
+                    ProjectEntry* proj = App::GetContentManager()->CreateNewProject(filename, prj_name.ToCStr());
+                    if (proj != nullptr) // Error already logged + displayed
+                    {
+                        ActorEditor e;
+                        e.SetProject(proj);
+                        e.ImportSnapshotToProject(filename, src_actor->GetDefinition()); // Logs+displays errors
+                    }
+                }
+            }
+
+            // Finalize menu panel
             m_open_menu_hoverbox_min = menu_pos;
             m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth();
             m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight();

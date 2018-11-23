@@ -94,6 +94,7 @@ int main(int argc, char *argv[])
         App::sys_cache_dir     ->SetStr(PathCombine(App::sys_user_dir->GetStr(), "cache"));
         App::sys_savegames_dir ->SetStr(PathCombine(App::sys_user_dir->GetStr(), "savegames"));
         App::sys_screenshot_dir->SetStr(PathCombine(App::sys_user_dir->GetStr(), "screenshots"));
+        App::sys_projects_dir  ->SetStr(PathCombine(App::sys_user_dir->GetStr(), "projects"));
 
         // Load RoR.cfg - updates cvars
         App::GetConsole()->LoadConfig();
@@ -120,6 +121,9 @@ int main(int argc, char *argv[])
 
         // Make sure config directory exists - to save 'ogre.cfg'
         CreateFolder(App::sys_config_dir->GetStr());
+
+        // Make sure projects directory exists
+        CreateFolder(App::sys_projects_dir->GetStr());
 
         // Load and start OGRE renderer, uses config directory
         if (!App::GetAppContext()->SetUpRendering())

@@ -162,8 +162,7 @@ Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
         rq.asr_filename = rq.asr_cache_entry->fname;
     }
 
-    std::shared_ptr<RigDef::File> def = m_actor_manager.FetchActorDef(
-        rq.asr_filename, rq.asr_origin == ActorSpawnRequest::Origin::TERRN_DEF);
+    std::shared_ptr<RigDef::File> def = m_actor_manager.FetchActorDef(rq);
     if (def == nullptr)
     {
         return nullptr; // Error already reported
@@ -271,34 +270,37 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
     }
     if (rq.amr_type == ActorModifyRequest::Type::RELOAD)
     {
-        CacheEntry* entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial=*/false, rq.amr_actor->ar_filename);
-        if (!entry)
-        {
-            Str<500> msg; msg <<"Cannot reload vehicle; file '" << rq.amr_actor->ar_filename << "' not found in ModCache.";
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
-            return;
-        }
-
         auto reload_pos = rq.amr_actor->getPosition();
         auto reload_dir = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(m_player_actor->getRotation()), Ogre::Vector3::UNIT_Y);
         auto debug_view = rq.amr_actor->GetGfxActor()->GetDebugView();
         auto asr_config = rq.amr_actor->GetSectionConfig();
         auto used_skin  = rq.amr_actor->GetUsedSkin();
+        // Actor originates either from ModCache or Project registry
+        auto cache_entry= rq.amr_actor->GetCacheEntry();
+        auto project    = rq.amr_actor->GetProjectEntry();
 
         reload_pos.y = m_player_actor->GetMinHeight();
 
         m_prev_player_actor = nullptr;
         this->DeleteActor(rq.amr_actor);
-        App::GetCacheSystem()->ReLoadResource(*entry);
 
         ActorSpawnRequest* srq = new ActorSpawnRequest;
         srq->asr_position   = reload_pos;
         srq->asr_rotation   = reload_dir;
         srq->asr_config     = asr_config;
         srq->asr_skin_entry = used_skin;
-        srq->asr_cache_entry= entry;
         srq->asr_debugview  = (int)debug_view;
         srq->asr_origin     = ActorSpawnRequest::Origin::USER;
+        if (project)
+        {
+            srq->asr_project = project; // Always reloaded from filesystem
+            srq->asr_filename = rq.amr_actor->ar_filename; // Required for project
+        }
+        else
+        {
+            App::GetCacheSystem()->ReLoadResource(*cache_entry);
+            srq->asr_cache_entry = cache_entry;
+        }
         this->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)srq));
     }
 }

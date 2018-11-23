@@ -25,6 +25,7 @@
 
 #include "CacheSystem.h"
 #include "Application.h"
+#include "RigDef_File.h"
 
 #include <OgreResourceGroupManager.h>
 #include <OgreScriptCompiler.h>
@@ -34,6 +35,7 @@
 #define RGN_CACHE "Cache"
 #define RGN_CONFIG "Config"
 #define RGN_CONTENT "Content"
+#define RGN_PROJECTS "Projects"
 #define RGN_SAVEGAMES "Savegames"
 #define RGN_MANAGED_MATS "ManagedMaterials"
 
@@ -88,6 +90,10 @@ public:
     void               InitModCache(CacheSystem::CacheValidityState validity);
     void               LoadGameplayResources();  //!< Checks GVar settings and loads required resources.
     std::string        ListAllUserContent(); //!< Used by ModCache for quick detection of added/removed content
+    void               ReScanProjects();
+    bool               ImportProjectSnapshot(ProjectEntry* dest_proj, const char* filename, std::shared_ptr<RigDef::File> def); //!< "Project snapshot" is an equivalent of Truckfile
+    ProjectEntry*      CreateNewProject(std::string const& dir_name, const char* prj_name);
+
     bool               DeleteDiskFile(std::string const& filename, std::string const& rg_name);
 
     // JSON:
@@ -103,6 +109,9 @@ private:
 
     // Ogre::ScriptCompilerListener
     bool handleEvent(Ogre::ScriptCompiler *compiler, Ogre::ScriptCompilerEvent *evt, void *retval) override;
+    
+    void ImportProjectActorModule(std::shared_ptr<RigDef::File::Module> dst, std::shared_ptr<RigDef::File::Module> src);
+
 
     CacheSystem       m_mod_cache; //!< Database of addon content
     bool              m_base_resource_loaded;

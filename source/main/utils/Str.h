@@ -39,6 +39,7 @@ public:
     inline             Str()                                 { this->Clear(); }
     inline             Str(Str<L> const & src)               { this->Assign(src); }
     inline             Str(const char* src)                  { this->Assign(src); }
+    inline             Str(std::string const& src)           { this->Assign(src.c_str()); }
     inline             Str(std::string::const_iterator& itor,
                            std::string::const_iterator& endi){ this->Assign(itor, endi); }
 

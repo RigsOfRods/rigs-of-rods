@@ -80,7 +80,7 @@ public:
     Actor*         GetActorById(int actor_id);
     Actor*         FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
     void           UpdateInputEvents(float dt);
-    std::shared_ptr<RigDef::File>   FetchActorDef(std::string filename, bool predefined_on_terrain = false);
+    std::shared_ptr<RigDef::File>   FetchActorDef(RoR::ActorSpawnRequest& rq);
 
 #ifdef USE_SOCKETW
     void           HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet);
@@ -114,6 +114,7 @@ private:
     void           RecursiveActivation(int j, std::vector<bool>& visited);
     void           ForwardCommands(Actor* source_actor); //!< Fowards things to trailers
     void           UpdateTruckFeatures(Actor* vehicle, float dt);
+    std::shared_ptr<RigDef::File>  LoadActorDef(std::string const& filename, std::string const& rg_name);
 
     // Networking
     std::map<int, std::set<int>> m_stream_mismatches; //!< Networking: A set of streams without a corresponding actor in the actor-array for each stream source

@@ -562,16 +562,10 @@ struct CruiseControl
 
 struct Author
 {
-    Author():
-        forum_account_id(0),
-        _has_forum_account(false)
-    {}
-
     Ogre::String type;
-    unsigned int forum_account_id;
+    int forum_account_id = -1; // -1 = invalid
     Ogre::String name;
     Ogre::String email;
-    bool _has_forum_account;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -953,7 +947,7 @@ struct Flare2
         size(-1)
     {}
 
-    enum Type
+    enum Type: char
     {
         TYPE_f_HEADLIGHT     = 'f',
         TYPE_b_BRAKELIGHT    = 'b',
@@ -962,7 +956,7 @@ struct Flare2
         TYPE_R_REVERSE_LIGHT = 'R',
         TYPE_u_USER          = 'u',
 
-        TYPE_INVALID         = 0xFFFFFFFF
+        TYPE_INVALID         = 'n'
     };
 
     Node::Ref reference_node;
@@ -1631,7 +1625,7 @@ struct Prop
     Prop():
         offset(Ogre::Vector3::ZERO),
         rotation(Ogre::Vector3::ZERO),
-        special(SPECIAL_INVALID)
+        special(SPECIAL_NONE)
     {}
 
     /* IMPORTANT! Values must match results from Regexes::SPECIAL_PROPS */
@@ -1649,7 +1643,7 @@ struct Prop
         SPECIAL_REDBEACON,
         SPECIAL_LIGHTBAR,
 
-        SPECIAL_INVALID = 0xFFFFFFFF
+        SPECIAL_NONE = 0xFFFFFFFF
     };
 
     Node::Ref reference_node;

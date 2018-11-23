@@ -327,6 +327,7 @@ extern CVar* sys_resources_dir;
 extern CVar* sys_profiler_dir;
 extern CVar* sys_savegames_dir;
 extern CVar* sys_screenshot_dir;
+extern CVar* sys_projects_dir;
 
 // OS command line
 extern CVar* cli_server_host;

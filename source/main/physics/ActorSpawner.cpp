@@ -5162,12 +5162,9 @@ void ActorSpawner::ProcessAuthors()
         author.type = author_itor->type;
         author.name = author_itor->name;
         author.email = author_itor->email;
-        if (author_itor->_has_forum_account)
-        {
-            author.id = author_itor->forum_account_id;
-        }
+        author.id = author_itor->forum_account_id;
         m_actor->authors.push_back(author);
-    }	
+    }
 
     SetCurrentKeyword(RigDef::File::KEYWORD_INVALID);
 };
@@ -6712,8 +6709,11 @@ void ActorSpawner::FinalizeGfxSetup()
             }
 
             // Process "emissive cab" materials
-            auto search_itor = m_material_substitutions.find(m_cab_material_name);
-            m_actor->m_gfx_actor->RegisterCabMaterial(search_itor->second.material, m_cab_trans_material);
+            Ogre::MaterialPtr cab_material = this->FindOrCreateCustomizedMaterial(m_cab_material_name);
+            if (cab_material)
+            {
+                m_actor->m_gfx_actor->RegisterCabMaterial(cab_material, m_cab_trans_material);
+            }
             m_actor->m_gfx_actor->SetCabLightsActive(false); // Reset emissive lights to "off" state
 
             m_actor->GetGfxActor()->RegisterCabMesh(ec, cab_scene_node, cab_mesh);

@@ -149,12 +149,13 @@ set(SOURCE_FILES
         network/Network.{h,cpp}
         network/OutGauge.{h,cpp}
         physics/Actor.{h,cpp}
-        physics/ApproxMath.h
+        physics/ActorEditor.{h,cpp}
         physics/ActorForcesEuler.cpp
         physics/ActorManager.{h,cpp}
         physics/ActorSlideNode.cpp
         physics/ActorSpawner.{h,cpp}
         physics/ActorSpawnerFlow.cpp
+        physics/ApproxMath.h
         physics/CmdKeyInertia.{h,cpp}
         physics/Differentials.{h,cpp}
         physics/Savegame.cpp

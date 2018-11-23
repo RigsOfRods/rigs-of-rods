@@ -83,6 +83,7 @@ namespace RoR
     class  OgreSubsystem;
     struct PlatformUtils;
     class  PointColDetector;
+    struct ProjectEntry;
     struct Prop;
     struct PropAnim;
     class  RailGroup;

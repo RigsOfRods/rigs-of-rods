@@ -106,6 +106,7 @@ void Console::CVarSetupBuiltins()
     App::sys_profiler_dir        = this->CVarCreate("sys_profiler_dir",        "Profiler output dir",        0);
     App::sys_savegames_dir       = this->CVarCreate("sys_savegames_dir",       "",                           0);
     App::sys_screenshot_dir      = this->CVarCreate("sys_screenshot_dir",      "",                           0);
+    App::sys_projects_dir        = this->CVarCreate("sys_projects_dir",        "",                           0);
 
     App::cli_server_host         = this->CVarCreate("cli_server_host",         "",                           0);
     App::cli_server_port         = this->CVarCreate("cli_server_port",         "",                                          CVAR_TYPE_INT,     "0");

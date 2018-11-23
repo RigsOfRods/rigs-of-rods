@@ -1182,33 +1182,62 @@ void HandleErrorLoadingTruckfile(std::string filename, std::string exception_msg
     HandleErrorLoadingFile("actor", filename, exception_msg);
 }
 
-std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(std::string filename, bool predefined_on_terrain)
+std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(RoR::ActorSpawnRequest& rq)
 {
-    // Find the user content
-    CacheEntry* cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial=*/false, filename);
-    if (cache_entry == nullptr)
+    if (rq.asr_project) // Always load from disk
     {
-        HandleErrorLoadingTruckfile(filename, "Truckfile not found in ModCache (probably not installed)");
-        return nullptr;
+        return this->LoadActorDef(rq.asr_filename, rq.asr_project->prj_rg_name);
+    }
+    
+    // Make sure we have ModCache entry
+    if (!rq.asr_cache_entry)
+    {
+        rq.asr_cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, false, rq.asr_filename);
+        if (rq.asr_cache_entry == nullptr)
+        {
+            HandleErrorLoadingTruckfile(rq.asr_filename, "Truckfile not found in ModCache (probably not installed)");
+            return nullptr;
+        }
     }
 
     // If already parsed, re-use
-    if (cache_entry->actor_def != nullptr)
+    if (rq.asr_cache_entry->actor_def != nullptr)
     {
-        return cache_entry->actor_def;
+        return rq.asr_cache_entry->actor_def;
     }
 
     // Load the 'truckfile'
+    App::GetCacheSystem()->LoadResource(*rq.asr_cache_entry);
+    std::shared_ptr<RigDef::File> def = this->LoadActorDef(rq.asr_cache_entry->fname, rq.asr_cache_entry->resource_group);
+    if (!def)
+    {
+        return nullptr; // Error already reported
+    }
+
+    RigDef::Validator validator;
+    validator.Setup(def);
+
+    if (rq.asr_origin == ActorSpawnRequest::Origin::TERRN_DEF)
+    {
+        // Workaround: Some terrains pre-load truckfiles with special purpose:
+        //     "soundloads" = play sound effect at certain spot
+        //     "fixes"      = structures of N/B fixed to the ground
+        // These files can have no beams. Possible extensions: .load or .fixed
+        if ((rq.asr_cache_entry->fext == ".load") | (rq.asr_cache_entry->fext == ".fixed"))
+        {
+            validator.SetCheckBeams(false);
+        }
+    }
+
+    validator.Validate(); // Sends messages to console
+    return def;
+}
+
+std::shared_ptr<RigDef::File> ActorManager::LoadActorDef(std::string const& filename, std::string const& rg_name)
+{
     try
     {
-        Ogre::String resource_filename = filename;
-        Ogre::String resource_groupname;
-        if (!App::GetCacheSystem()->CheckResourceLoaded(resource_filename, resource_groupname)) // Validates the filename and finds resource group
-        {
-            HandleErrorLoadingTruckfile(filename, "Truckfile not found");
-            return nullptr;
-        }
-        Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(resource_filename, resource_groupname);
+        Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(filename, rg_name);
 
         if (stream.isNull() || !stream->isReadable())
         {
@@ -1216,40 +1245,15 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(std::string filename, 
             return nullptr;
         }
 
-        RoR::LogFormat("[RoR] Parsing truckfile '%s'", resource_filename.c_str());
+        RoR::LogFormat("[RoR] Parsing truckfile '%s'", filename.c_str());
         RigDef::Parser parser;
         parser.Prepare();
-        parser.ProcessOgreStream(stream.getPointer(), resource_groupname);
+        parser.ProcessOgreStream(stream.getPointer(), rg_name);
         parser.Finalize();
 
-        auto def = parser.GetFile();
+        parser.GetFile()->hash = Utils::Sha1Hash(stream->getAsString());
 
-        // VALIDATING
-        LOG(" == Validating vehicle: " + def->name);
-
-        RigDef::Validator validator;
-        validator.Setup(def);
-
-        if (predefined_on_terrain)
-        {
-            // Workaround: Some terrains pre-load truckfiles with special purpose:
-            //     "soundloads" = play sound effect at certain spot
-            //     "fixes"      = structures of N/B fixed to the ground
-            // These files can have no beams. Possible extensions: .load or .fixed
-            std::string file_extension = filename.substr(filename.find_last_of('.'));
-            Ogre::StringUtil::toLowerCase(file_extension);
-            if ((file_extension == ".load") | (file_extension == ".fixed"))
-            {
-                validator.SetCheckBeams(false);
-            }
-        }
-
-        validator.Validate(); // Sends messages to console
-
-        def->hash = Utils::Sha1Hash(stream->getAsString());
-
-        cache_entry->actor_def = def;
-        return def;
+        return parser.GetFile();
     }
     catch (Ogre::Exception& oex)
     {
