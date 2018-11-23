@@ -1711,18 +1711,15 @@ void Actor::CalcHooks()
 
 void Actor::CalcRopes()
 {
-    if (ar_ropes.size())
+    for (auto r : ar_ropes)
     {
-        for (std::vector<rope_t>::iterator it = ar_ropes.begin(); it != ar_ropes.end(); it++)
+        if (r.rp_locked_node)
         {
-            if (it->rp_locked_node)
-            {
-                it->rp_beam->p2->AbsPosition = it->rp_locked_node->AbsPosition;
-                it->rp_beam->p2->RelPosition = it->rp_locked_node->AbsPosition - ar_origin; //ropes[i].rp_locked_actor->origin; //we have a problem here
-                it->rp_beam->p2->Velocity = it->rp_locked_node->Velocity;
-                it->rp_locked_node->Forces = it->rp_locked_node->Forces + it->rp_beam->p2->Forces;
-                it->rp_beam->p2->Forces = Vector3::ZERO;
-            }
+            r.rp_beam->p2->AbsPosition = r.rp_locked_node->AbsPosition;
+            r.rp_beam->p2->RelPosition = r.rp_locked_node->AbsPosition - ar_origin;
+            r.rp_beam->p2->Velocity    = r.rp_locked_node->Velocity;
+            r.rp_locked_node->Forces  += r.rp_beam->p2->Forces;
+            r.rp_beam->p2->Forces      = Vector3::ZERO;
         }
     }
 }
