@@ -756,9 +756,9 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     {
         AuthorInfo author;
         author.email = author_itor->email;
-        author.id = (author_itor->_has_forum_account) ? static_cast<int>(author_itor->forum_account_id) : -1;
-        author.name = author_itor->name;
-        author.type = author_itor->type;
+        author.id    = author_itor->forum_account_id;
+        author.name  = author_itor->name;
+        author.type  = author_itor->type;
 
         entry.authors.push_back(author);
     }
@@ -1344,3 +1344,21 @@ bool CacheQueryResult::operator<(CacheQueryResult const& other)
     return cqr_score < other.cqr_score;
 }
 
+
+void CacheSystem::PruneInvalidProjects()
+{
+    auto itor = m_projects.begin();
+    while (itor != m_projects.end())
+    {
+        ProjectEntry* proj = itor->get();
+        if (!proj->prj_valid)
+        {
+            Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(proj->prj_rg_name);
+            itor = m_projects.erase(itor);
+        }
+        else
+        {
+            ++itor;
+        }
+    }
+}

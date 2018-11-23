@@ -122,8 +122,8 @@ public:
     Ogre::Vector3     GetGForcesMax() { return m_camera_local_gforces_max; };
     float             getSteeringAngle();
     float             getMinCameraRadius() { return m_min_camera_radius; };
-    std::string       GetActorDesignName() { return ar_design_name; };
-    std::string       GetActorFileName() { return ar_filename; };
+    std::string       GetActorDesignName() { return ar_design_name; }; // Used by scripting ~ must copy
+    std::string       GetActorFileName() { return ar_filename; }; // Used by scripting ~ must copy
     std::string       GetActorFileHash() { return ar_filehash; };
     int               GetActorType() { return ar_driveable; };
     int               GetNumActiveConnectedBeams(int nodeid);     //!< Returns the number of active (non bounded) beams connected to a node
@@ -159,6 +159,7 @@ public:
     Ogre::String     GetSectionConfig()                 { return m_section_config; }
     RoR::PerVehicleCameraContext* GetCameraContext()    { return &m_camera_context; }
     std::vector<Actor*> GetAllLinkedActors()            { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
+    std::shared_ptr<RigDef::File> GetDefinition()       { return m_definition; }
     Ogre::Vector3     GetCameraDir()                    { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_dir].RelPosition).normalisedCopy(); }
     Ogre::Vector3     GetCameraRoll()                   { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_roll].RelPosition).normalisedCopy(); }
     Ogre::Vector3     GetFFbBodyForces() const          { return m_force_sensors.out_body_forces; }
@@ -175,6 +176,8 @@ public:
     int               GetNumNodes() const               { return ar_num_nodes; }
     CacheEntry*       GetUsedSkin() const               { return m_used_skin_entry; }
     void              SetUsedSkin(CacheEntry* skin)     { m_used_skin_entry = skin; }
+    CacheEntry*       GetCacheEntry() const             { return m_cache_entry; }
+    RoR::ProjectEntry* GetProjectEntry() const          { return m_project_entry; }
     float             getSpeed()                        { return m_avg_node_velocity.length(); };
     Ogre::Vector3     getVelocity() const               { return m_avg_node_velocity; }; //!< average actor velocity, calculated using the actor positions of the last two frames
 #ifdef USE_ANGELSCRIPT
@@ -508,6 +511,8 @@ private:
     RoR::GfxFlaresMode m_flares_mode;          //!< Gfx attr, clone of GVar -- TODO: remove
     std::unique_ptr<Buoyance> m_buoyance;      //!< Physics
     CacheEntry*       m_used_skin_entry;       //!< Graphics
+    CacheEntry*       m_cache_entry;           //!< Content database info (if used on spawn)
+    RoR::ProjectEntry* m_project_entry;        //!< Project database info (if used on spawn)
     RoR::Skidmark*    m_skid_trails[MAX_WHEELS*2];
     bool              m_antilockbrake;         //!< GUI state
     bool              m_tractioncontrol;       //!< GUI state

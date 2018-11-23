@@ -386,6 +386,7 @@ bool Settings::SetupAllPaths()
     App::sys_cache_dir     ->SetActiveStr(PathCombine(App::sys_user_dir->GetActiveStr(), "cache").c_str());
     App::sys_savegames_dir ->SetActiveStr(PathCombine(App::sys_user_dir->GetActiveStr(), "savegames").c_str());
     App::sys_screenshot_dir->SetActiveStr(PathCombine(App::sys_user_dir->GetActiveStr(), "screenshots").c_str());
+    App::sys_projects_dir  ->SetActiveStr(PathCombine(App::sys_user_dir->GetActiveStr(), "projects").c_str());
 
     // Resources dir
     std::string process_dir = PathCombine(App::sys_process_dir->GetActiveStr(), "resources");

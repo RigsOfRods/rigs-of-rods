@@ -142,6 +142,11 @@ int main(int argc, char *argv[])
         }
 
         Settings::getSingleton().LoadRoRCfg(); // Main config file - path obtained from GVars
+        if (!FolderExists(App::sys_projects_dir->GetActiveStr()))
+        {
+            CreateFolder(App::sys_projects_dir->GetActiveStr());
+        }
+
         Settings::getSingleton().ProcessCommandLine(argc, argv);
 
         if (App::app_state->GetPendingEnum<AppState>() == AppState::PRINT_HELP_EXIT)

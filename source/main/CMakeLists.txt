@@ -162,6 +162,7 @@ set(SOURCE_FILES
         physics/BeamSlideNode.cpp
         physics/CmdKeyInertia.{h,cpp}
         physics/Differentials.{h,cpp}
+        physics/RigEditor.{h,cpp}
         physics/RigSpawner.{h,cpp}
         physics/RigSpawner_ProcessControl.cpp
         physics/Savegame.cpp

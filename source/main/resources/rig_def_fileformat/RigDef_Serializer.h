@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2017 Petr Ohlidal & contributors
+    Copyright 2013-2020 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -27,27 +27,21 @@
 
 #include "RigDef_File.h"
 
-namespace RigDef
-{
+namespace RigDef{
 
-/**
-    @class  Serializer
-    @author Petr Ohlidal
-
-    @brief Serializes the RigDef::File data structure to file.
-*/
+/// @class  Serializer
+/// @author Petr Ohlidal
+///
+/// @brief Serializes the `RigDef::File` data structure to string.
 class Serializer
 {
-
 public:
-
-    Serializer(std::shared_ptr<RigDef::File> rig_def, Ogre::String const & file_path);
-
-    virtual ~Serializer();
-
+    Serializer(std::shared_ptr<RigDef::File> rig_def);
     void Serialize();
+    std::string GetOutput() const { return m_stream.str(); }
 
-protected:
+private:
+    void SerializeModule(std::shared_ptr<RigDef::File::Module> m);
 
     void ProcessAuthors();
     void ProcessGlobals(File::Module* module);
@@ -67,7 +61,7 @@ protected:
     void ProcessNodeOptions(unsigned int options);
     
     void ProcessBeams(File::Module*);
-    void ProcessBeamDefaults(BeamDefaults* beam_defaults, const char* prefix = "");
+    void ProcessBeamDefaults(BeamDefaults* beam_defaults);
     void ProcessBeam(Beam & beam);
 
     void ProcessShocks(File::Module*);
@@ -155,9 +149,8 @@ protected:
 
 protected:
 
-    std::ofstream                     m_stream;
-    Ogre::String                      m_file_path;
-    std::shared_ptr<RigDef::File>   m_rig_def;
+    std::stringstream                 m_stream;
+    std::shared_ptr<RigDef::File>     m_rig_def;
     int                               m_float_precision;
     int                               m_float_width;
     int                               m_bool_width;

@@ -3023,6 +3023,7 @@ void Parser::ParseBeams()
         for (auto itor = options_str.begin(); itor != options_str.end(); ++itor)
         {
                  if (*itor == 'v') { continue; } // Dummy flag
+            else if (*itor == 'n') { continue; } // Dummy flag
             else if (*itor == 'i') { beam.options |= Beam::OPTION_i_INVISIBLE; }
             else if (*itor == 'r') { beam.options |= Beam::OPTION_r_ROPE; }
             else if (*itor == 's') { beam.options |= Beam::OPTION_s_SUPPORT; }
@@ -3151,7 +3152,7 @@ void Parser::ParseAuthor()
 
     Author author;
     if (m_num_args > 1) { author.type             = this->GetArgStr(1); }
-    if (m_num_args > 2) { author.forum_account_id = this->GetArgInt(2); author._has_forum_account = true; }
+    if (m_num_args > 2) { author.forum_account_id = this->GetArgInt(2); }
     if (m_num_args > 3) { author.name             = this->GetArgStr(3); }
     if (m_num_args > 4) { author.email            = this->GetArgStr(4); }
     m_definition->authors.push_back(author);

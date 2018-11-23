@@ -141,6 +141,7 @@ CVar* sys_resources_dir;
 CVar* sys_profiler_dir;
 CVar* sys_savegames_dir;
 CVar* sys_screenshot_dir;
+CVar* sys_projects_dir;
 
 // Input - Output
 CVar* io_analog_smoothing;

@@ -242,6 +242,7 @@ extern CVar* sys_resources_dir;
 extern CVar* sys_profiler_dir;
 extern CVar* sys_savegames_dir;
 extern CVar* sys_screenshot_dir;
+extern CVar* sys_projects_dir;
 
 // Input - Output
 extern CVar* io_analog_smoothing;

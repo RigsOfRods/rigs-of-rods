@@ -81,7 +81,7 @@ public:
     void           DeleteActorInternal(Actor* b);      //!< DO NOT CALL DIRECTLY! Use `SimController` for public interface
     Actor*         GetActorByIdInternal(int actor_id); //!< DO NOT CALL DIRECTLY! Use `SimController` for public interface
     Actor*         FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
-    std::shared_ptr<RigDef::File>   FetchActorDef(std::string filename, bool predefined_on_terrain = false);
+    std::shared_ptr<RigDef::File>   FetchActorDef(RoR::ActorSpawnRequest& rq);
 
 #ifdef USE_SOCKETW
     void           HandleActorStreamData(std::vector<RoR::Networking::recv_packet_t> packet);
@@ -113,6 +113,7 @@ private:
     void           RemoveStreamSource(int sourceid);
     void           RecursiveActivation(int j, std::vector<bool>& visited);
     void           ForwardCommands(Actor* source_actor); //< Fowards things to trailers
+    std::shared_ptr<RigDef::File>  LoadActorDef(std::string const& filename, std::string const& rg_name);
 
     std::map<int, std::set<int>> m_stream_mismatches; //!< Networking: A set of streams without a corresponding actor in the actor-array for each stream source
     std::map<int, int> m_stream_time_offsets; //!< Networking: A network time offset for each stream source
