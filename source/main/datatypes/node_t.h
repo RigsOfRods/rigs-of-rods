@@ -57,6 +57,7 @@ struct node_t
     Ogre::Vector3   nd_last_collision_slip;  //!< Physics state; last collision slip vector
     Ogre::Vector3   nd_last_collision_force; //!< Physics state; last collision force
     ground_model_t* nd_last_collision_gm;    //!< Physics state; last collision 'ground model' (surface definition)
+    float           nd_avg_collision_slip;   //!< Physics state; average slip velocity across the last few physics frames
     int8_t          nd_coll_bbox_id;         //!< Optional attribute (-1 = none) - multiple collision bounding boxes defined in truckfile
 
     // Bit flags

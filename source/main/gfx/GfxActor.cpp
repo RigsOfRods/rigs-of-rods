@@ -603,22 +603,23 @@ void RoR::GfxActor::UpdateParticles(float dt_sec)
             case Collisions::FX_HARD:
                 if (n.iswheel != 0) // This is a wheel => skidmarks and tyre smoke
                 {
-                    const float SKID_THRESHOLD = 10.f;
+                    const float SMOKE_THRESHOLD = 10.f;
+                    const float SCREECH_THRESHOLD = 5.f;
                     const float slipv = n.nd_last_collision_slip.length();
-                    if (slipv > SKID_THRESHOLD)
+                    const float screech = std::min(slipv, n.nd_avg_collision_slip) - SCREECH_THRESHOLD;
+                    if (screech > 0.0f)
                     {
-                        SOUND_MODULATE(m_actor, SS_MOD_SCREETCH, (slipv - SKID_THRESHOLD) / SKID_THRESHOLD);
+                        SOUND_MODULATE(m_actor, SS_MOD_SCREETCH, screech / SCREECH_THRESHOLD);
                         SOUND_PLAY_ONCE(m_actor, SS_TRIG_SCREETCH);
-                        
-                        if (m_particles_misc != nullptr)
-                        {
-                            m_particles_misc->allocSmoke(n.AbsPosition, n.Velocity);
-                        }
+                    }
+                    if (m_particles_misc != nullptr && n.nd_avg_collision_slip > SMOKE_THRESHOLD)
+                    {
+                        m_particles_misc->allocSmoke(n.AbsPosition, n.Velocity);
                     }
                 }
                 else if (!nfx.nx_no_sparks) // Not a wheel => sparks
                 {
-                    if (m_particles_sparks != nullptr && n.nd_last_collision_slip.length() > 5.f)
+                    if (m_particles_sparks != nullptr && n.nd_avg_collision_slip > 5.f)
                     {
                         m_particles_sparks->allocSparks(n.AbsPosition, n.Velocity);
                     }
