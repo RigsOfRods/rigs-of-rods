@@ -355,8 +355,8 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
                     m_antilockbrake = true;
                 }
 
-                float acc = (-ar_wheels[i].wh_avg_speed) / dt;
-                float force = acc * ar_wheels[i].wh_radius * ar_wheels[i].wh_mass - 0.99f * ar_wheels[i].wh_last_retorque;
+                float force = -ar_wheels[i].wh_avg_speed * ar_wheels[i].wh_radius * ar_wheels[i].wh_mass / dt;
+                force -= ar_wheels[i].wh_last_retorque;
 
                 if (ar_wheels[i].wh_speed > 0)
                     ar_wheels[i].wh_torque += Math::Clamp(force, -(adbrake + hbrake), 0.0f);
@@ -421,7 +421,8 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
 
         ar_wheels[i].wh_speed /= (Real)ar_wheels[i].wh_num_nodes;
         ar_wheels[i].wh_net_rp += (ar_wheels[i].wh_speed / ar_wheels[i].wh_radius) * dt;
-        ar_wheels[i].wh_avg_speed = ar_wheels[i].wh_avg_speed * 0.99 + ar_wheels[i].wh_speed * 0.01;
+        // We overestimate the average speed on purpose in order to improve the quality of the braking force estimate
+        ar_wheels[i].wh_avg_speed = ar_wheels[i].wh_avg_speed * 0.99 + ar_wheels[i].wh_speed * 0.1;
         ar_wheels[i].debug_rpm += RAD_PER_SEC_TO_RPM * ar_wheels[i].wh_speed / ar_wheels[i].wh_radius / (float)num_steps;
         if (ar_wheels[i].wh_propulsed == 1)
         {
