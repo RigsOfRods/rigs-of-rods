@@ -978,12 +978,17 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
             actor->ar_vehicle_ai->update(dt, 0);
 #endif // USE_ANGELSCRIPT
 
-        if (actor->ar_sim_state == Actor::SimState::LOCAL_SLEEPING)
+        if (actor->ar_engine)
         {
-            if (actor->ar_engine)
+            if (actor->ar_sim_state == Actor::SimState::LOCAL_SLEEPING)
             {
                 actor->ar_engine->UpdateEngineSim(dt, 1);
             }
+            actor->ar_engine->UpdateEngineAudio();
+        }
+
+        if (actor->ar_sim_state == Actor::SimState::LOCAL_SLEEPING)
+        {
             if (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED)
             {
                 auto lifetime = actor->ar_net_timer.getMilliseconds();
@@ -1008,7 +1013,6 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
                 actor->sendStreamData();
             }
         }
-
     }
 
     if (player_actor != nullptr)

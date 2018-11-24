@@ -769,12 +769,9 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
             }
         }
     }
-
-    // audio stuff
-    this->UpdateEngineAudio(doUpdate);
 }
 
-void EngineSim::UpdateEngineAudio(int doUpdate)
+void EngineSim::UpdateEngineAudio()
 {
 #ifdef USE_OPENAL
     if (m_engine_has_turbo)
@@ -785,12 +782,10 @@ void EngineSim::UpdateEngineAudio(int doUpdate)
         }
     }
 
-    if (doUpdate)
-    {
-        SOUND_MODULATE(m_actor, SS_MOD_ENGINE, m_cur_engine_rpm);
-        SOUND_MODULATE(m_actor, SS_MOD_TORQUE, m_cur_clutch_torque);
-        SOUND_MODULATE(m_actor, SS_MOD_GEARBOX, m_cur_wheel_revolutions);
-    }
+    SOUND_MODULATE(m_actor, SS_MOD_ENGINE, m_cur_engine_rpm);
+    SOUND_MODULATE(m_actor, SS_MOD_TORQUE, m_cur_clutch_torque);
+    SOUND_MODULATE(m_actor, SS_MOD_GEARBOX, m_cur_wheel_revolutions);
+
     // reverse gear beep
     if (m_cur_gear == -1 && m_engine_is_running)
     {
