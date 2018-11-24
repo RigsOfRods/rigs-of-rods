@@ -46,26 +46,25 @@ struct node_t
     Ogre::Real surface_coef;
     Ogre::Real volume_coef;
 
-    short iswheel; //!< 0=no, 1, 2=wheel1  3,4=wheel2, etc...
-    short wheelid; //!< Wheel index
+    char iswheel; //!< 0=NOWHEEL, 1=WHEEL_DEFAULT, 2=WHEEL_2  3=WHEEL_FLEXBODY
+    char nd_coll_bbox_id; //!< Optional attribute (-1 = none) - multiple collision bounding boxes defined in truckfile
     short nd_lockgroup;
     short pos;     //!< This node's index in Actor::ar_nodes array.
     short id;      //!< Numeric identifier assigned in truckfile (if used), or -1 if the node was generated dynamically.
 
+    Ogre::Real      nd_avg_collision_slip;   //!< Physics state; average slip velocity across the last few physics frames
     Ogre::Vector3   nd_last_collision_slip;  //!< Physics state; last collision slip vector
     Ogre::Vector3   nd_last_collision_force; //!< Physics state; last collision force
     ground_model_t* nd_last_collision_gm;    //!< Physics state; last collision 'ground model' (surface definition)
-    float           nd_avg_collision_slip;   //!< Physics state; average slip velocity across the last few physics frames
-    int8_t          nd_coll_bbox_id;         //!< Optional attribute (-1 = none) - multiple collision bounding boxes defined in truckfile
 
     // Bit flags
-    bool            nd_loaded_mass:1;        //!< User defined attr; mass is calculated from 'globals/loaded-mass' rather than 'globals/dry-mass'
-    bool            nd_override_mass:1;      //!< User defined attr; mass is user-specified rather than calculated (override the calculation)
-    bool            nd_immovable: 1;         //!< Attr; User-defined
-    bool            nd_no_mouse_grab:1;      //!< Attr; User-defined
     bool            nd_contacter:1;          //!< Attr; This node is part of collision triangle
-    bool            nd_no_ground_contact:1;  //!< User-defined attr; node ignores contact with ground
     bool            nd_has_ground_contact:1; //!< Physics state
     bool            nd_has_mesh_contact:1;   //!< Physics state
+    bool            nd_immovable:1;          //!< Attr; User-defined
+    bool            nd_loaded_mass:1;        //!< User defined attr; mass is calculated from 'globals/loaded-mass' rather than 'globals/dry-mass'
+    bool            nd_no_ground_contact:1;  //!< User-defined attr; node ignores contact with ground
+    bool            nd_override_mass:1;      //!< User defined attr; mass is user-specified rather than calculated (override the calculation)
     bool            nd_under_water:1;        //!< State; GFX hint
+    bool            nd_no_mouse_grab:1;      //!< Attr; User-defined
 };
