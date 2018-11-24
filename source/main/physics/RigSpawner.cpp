@@ -4018,7 +4018,6 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 
         outer_node.mass          = node_mass;
         outer_node.id            = -1; // Orig: hardcoded (addWheel2)
-        outer_node.wheelid       = m_actor->ar_num_wheels;
         outer_node.friction_coef = def.node_defaults->friction;
         AdjustNodeBuoyancy(outer_node, def.node_defaults);
 
@@ -4033,7 +4032,6 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 
         inner_node.mass          = node_mass;
         inner_node.id            = -1; // Orig: hardcoded (addWheel2)
-        inner_node.wheelid       = m_actor->ar_num_wheels;
         inner_node.friction_coef = def.node_defaults->friction;
         AdjustNodeBuoyancy(inner_node, def.node_defaults);
 
@@ -4060,7 +4058,6 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         InitNode(outer_node, ray_point);
         outer_node.mass          = node_mass;
         outer_node.id            = -1; // Orig: hardcoded (addWheel3)
-        outer_node.wheelid       = m_actor->ar_num_wheels;
         outer_node.friction_coef = def.node_defaults->friction;
         outer_node.volume_coef   = def.node_defaults->volume;
         outer_node.surface_coef  = def.node_defaults->surface;
@@ -4080,7 +4077,6 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         InitNode(inner_node, ray_point);
         inner_node.mass          = node_mass;
         inner_node.id            = -1; // Orig: hardcoded (addWheel3)
-        inner_node.wheelid       = m_actor->ar_num_wheels;
         inner_node.friction_coef = def.node_defaults->friction;
         inner_node.volume_coef   = def.node_defaults->volume;
         inner_node.surface_coef  = def.node_defaults->surface;
@@ -4473,7 +4469,6 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
         outer_node.mass    = wheel_mass / (2.f * num_rays);
         outer_node.iswheel = (set_param_iswheel) ? WHEEL_DEFAULT : NOWHEEL;
         outer_node.id      = -1; // Orig: hardcoded (BTS_WHEELS)
-        outer_node.wheelid = m_actor->ar_num_wheels;
         AdjustNodeBuoyancy(outer_node, node_defaults);
 
         m_actor->ar_contacters[m_actor->ar_num_contacters] = outer_node.pos;
@@ -4490,7 +4485,6 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
         inner_node.mass    = wheel_mass / (2.f * num_rays);
         inner_node.iswheel = (set_param_iswheel) ? WHEEL_DEFAULT : NOWHEEL;
         inner_node.id      = -1; // Orig: hardcoded (BTS_WHEELS)
-        inner_node.wheelid = m_actor->ar_num_wheels; 
         AdjustNodeBuoyancy(inner_node, node_defaults);
 
         m_actor->ar_contacters[m_actor->ar_num_contacters] = inner_node.pos;
@@ -4505,9 +4499,9 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
 #ifdef DEBUG_TRUCKPARSER2013
         // TRUCK PARSER 2013 DEBUG
         int modifier = 0;
-        msg << "\nDBG\tN1: index=" << outer_node.pos + modifier <<", wheelid=" << outer_node.wheelid << ", iswheel=" << outer_node.iswheel 
+        msg << "\nDBG\tN1: index=" << outer_node.pos + modifier << ", iswheel=" << outer_node.iswheel 
             <<", X=" << outer_node.AbsPosition.x <<", Y=" << outer_node.AbsPosition.y <<", Z=" << outer_node.AbsPosition.z << std::endl
-            << "DBG\tN2: index=" << inner_node.pos + modifier <<", wheelid=" << inner_node.wheelid << ", iswheel=" << inner_node.iswheel 
+            << "DBG\tN2: index=" << inner_node.pos + modifier << ", iswheel=" << inner_node.iswheel 
             <<", X=" << inner_node.AbsPosition.x <<", Y=" << inner_node.AbsPosition.y <<", Z=" << inner_node.AbsPosition.z;
         // END
 #endif
@@ -4761,7 +4755,6 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         outer_node.mass    = node_mass;
         outer_node.iswheel = WHEEL_2;
         outer_node.id      = -1; // Orig: hardcoded (addWheel2)
-        outer_node.wheelid = m_actor->ar_num_wheels;
 
         m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(outer_node.pos)));
 
@@ -4773,7 +4766,6 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         inner_node.mass    = node_mass;
         inner_node.iswheel = WHEEL_2;
         inner_node.id      = -1; // Orig: hardcoded (addWheel2)
-        inner_node.wheelid = m_actor->ar_num_wheels;
 
         m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(inner_node.pos)));
 
@@ -4799,7 +4791,6 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         outer_node.mass          = (0.67f * wheel_2_def.mass) / (2.f * wheel_2_def.num_rays);
         outer_node.iswheel       = WHEEL_2;
         outer_node.id            = -1; // Orig: hardcoded (addWheel2)
-        outer_node.wheelid       = m_actor->ar_num_wheels;
         outer_node.friction_coef = wheel.wh_width * WHEEL_FRICTION_COEF;
         outer_node.volume_coef   = wheel_2_def.node_defaults->volume;
         outer_node.surface_coef  = wheel_2_def.node_defaults->surface;
@@ -4817,7 +4808,6 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         inner_node.mass          = (0.33f * wheel_2_def.mass) / (2.f * wheel_2_def.num_rays);
         inner_node.iswheel       = WHEEL_2;
         inner_node.id            = -1; // Orig: hardcoded (addWheel2)
-        inner_node.wheelid       = m_actor->ar_num_wheels;
         inner_node.friction_coef = wheel.wh_width * WHEEL_FRICTION_COEF;
         inner_node.volume_coef   = wheel_2_def.node_defaults->volume;
         inner_node.surface_coef  = wheel_2_def.node_defaults->surface;
@@ -5707,7 +5697,6 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     node.RelPosition = node_position - m_actor->ar_origin;
 
     node.iswheel = NOWHEEL;
-    node.wheelid = -1; // Hardcoded in orig (bts_nodes, call to init_node())
     node.friction_coef = def.node_defaults->friction;
     node.volume_coef = def.node_defaults->volume;
     node.surface_coef = def.node_defaults->surface;
@@ -5886,7 +5875,6 @@ void ActorSpawner::ProcessCinecam(RigDef::Cinecam & def)
     Ogre::Vector3 node_pos = m_spawn_position + def.position;
     node_t & camera_node = GetAndInitFreeNode(node_pos);
     camera_node.nd_no_ground_contact = true; // Orig: hardcoded in BTS_CINECAM
-    camera_node.wheelid = -1;
     camera_node.friction_coef = NODE_FRICTION_COEF_DEFAULT; // Node defaults are ignored here.
     camera_node.id = -1;
     AdjustNodeBuoyancy(camera_node, def.node_defaults);
