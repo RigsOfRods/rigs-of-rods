@@ -318,7 +318,7 @@ void Actor::ScaleActor(float value)
     Vector3 relpos = ar_nodes[0].RelPosition;
     for (int i = 1; i < ar_num_nodes; i++)
     {
-        ar_nodes[i].initial_pos = refpos + (ar_nodes[i].initial_pos - refpos) * value;
+        ar_initial_node_positions[i] = refpos + (ar_initial_node_positions[i] - refpos) * value;
         ar_nodes[i].AbsPosition = refpos + (ar_nodes[i].AbsPosition - refpos) * value;
         ar_nodes[i].RelPosition = relpos + (ar_nodes[i].RelPosition - relpos) * value;
         ar_nodes[i].Velocity *= value;
@@ -1190,7 +1190,7 @@ void Actor::ResetPosition(Vector3 translation, bool setInitPosition)
     {
         for (int i = 0; i < ar_num_nodes; i++)
         {
-            ar_nodes[i].initial_pos = ar_nodes[i].AbsPosition;
+            ar_initial_node_positions[i] = ar_nodes[i].AbsPosition;
         }
     }
 
@@ -1439,8 +1439,8 @@ void Actor::SyncReset(bool reset_position)
 
     for (int i = 0; i < ar_num_nodes; i++)
     {
-        ar_nodes[i].AbsPosition = ar_nodes[i].initial_pos;
-        ar_nodes[i].RelPosition = ar_nodes[i].initial_pos - ar_origin;
+        ar_nodes[i].AbsPosition = ar_initial_node_positions[i];
+        ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - ar_origin;
         ar_nodes[i].Velocity = Vector3::ZERO;
         ar_nodes[i].Forces = Vector3::ZERO;
     }
