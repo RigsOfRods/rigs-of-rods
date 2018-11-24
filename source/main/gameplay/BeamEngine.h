@@ -115,6 +115,7 @@ public:
     void           shiftTo(int val);           //!< Changes gear to given value. Plays sounds.
     void           updateShifts();             //!< Changes gears. Plays sounds.
     void           UpdateEngineSim(float dt, int doUpdate);
+    void           UpdateEngineAudio();
 
     enum autoswitch
     {
@@ -142,8 +143,6 @@ private:
         MANUAL_STICK,
         MANUAL_RANGES
     };
-
-    void           UpdateEngineAudio(int doUpdate);  //!< Updates sound effects (engine/turbo/clutch/etc...)
 
     // Vehicle
     Actor*         m_actor;
