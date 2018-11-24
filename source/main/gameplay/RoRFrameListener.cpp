@@ -1549,9 +1549,9 @@ void SimController::UpdateSimulation(float dt)
                         new_actor->ar_nodes[i].RelPosition = m_player_actor->ar_nodes[i].RelPosition; // TODO: ditto
                         new_actor->ar_nodes[i].Velocity    = m_player_actor->ar_nodes[i].Velocity;    // TODO: ditto
                         new_actor->ar_nodes[i].Forces      = m_player_actor->ar_nodes[i].Forces;      // TODO: ditto
-                        new_actor->ar_nodes[i].initial_pos = m_player_actor->ar_nodes[i].initial_pos;
                         new_actor->ar_origin               = m_player_actor->ar_origin;
                     }
+                    new_actor->ar_initial_node_positions   = m_player_actor->ar_initial_node_positions;
                 }
 
                 new_actor->GetGfxActor()->SetDebugView(m_player_actor->GetGfxActor()->GetDebugView());

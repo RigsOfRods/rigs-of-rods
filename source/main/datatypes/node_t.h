@@ -52,8 +52,6 @@ struct node_t
     short pos;     //!< This node's index in Actor::ar_nodes array.
     short id;      //!< Numeric identifier assigned in truckfile (if used), or -1 if the node was generated dynamically.
 
-    Ogre::Vector3 initial_pos;
-
     Ogre::Vector3   nd_last_collision_slip;  //!< Physics state; last collision slip vector
     Ogre::Vector3   nd_last_collision_force; //!< Physics state; last collision force
     ground_model_t* nd_last_collision_gm;    //!< Physics state; last collision 'ground model' (surface definition)

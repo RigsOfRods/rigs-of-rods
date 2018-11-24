@@ -133,6 +133,8 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     }
     /* POST-PROCESSING (Old-spawn code from Actor::loadTruck2) */
 
+    actor->ar_initial_node_positions.resize(actor->ar_num_nodes);
+
     // Apply spawn position & spawn rotation
     for (int i = 0; i < actor->ar_num_nodes; i++)
     {
