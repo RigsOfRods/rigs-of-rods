@@ -344,7 +344,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
             actor->sendStreamSetup();
         }
 
-        if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK || !actor->m_hide_own_net_label)
+        if (!actor->m_hide_net_labels && (rq.asr_origin == ActorSpawnRequest::Origin::NETWORK || !actor->m_hide_own_net_label))
         {
             RoR::Str<100> element_name;
             ActorSpawner::ComposeName(element_name, "NetLabel", 0, actor->ar_instance_id);

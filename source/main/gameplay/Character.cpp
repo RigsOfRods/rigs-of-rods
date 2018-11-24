@@ -51,6 +51,7 @@ Character::Character(int source, unsigned int streamid, int color_number, bool i
     , m_color_number(color_number)
     , m_anim_time(0.f)
     , m_hide_own_net_label(BSETTING("HideOwnNetLabel", false))
+    , m_hide_net_labels(BSETTING("HideNetLabels", false))
     , m_net_username("")
     , m_is_remote(is_remote)
     , m_source_id(source)
@@ -679,28 +680,28 @@ GfxCharacter* Character::SetupGfx()
     MaterialPtr mat2 = mat1->clone("tracks/" + m_instance_name);
     entity->setMaterialName("tracks/" + m_instance_name);
 
-    Ogre::MovableText* movable_text = nullptr;
+    m_gfx_character = new GfxCharacter();
+    m_gfx_character->xc_scenenode = scenenode;
+    m_gfx_character->xc_movable_text = nullptr;
+    m_gfx_character->xc_character = this;
+    m_gfx_character->xc_instance_name = m_instance_name;
+
 #ifdef USE_SOCKETW
-    if ((App::mp_state.GetActive() == MpState::CONNECTED) && (m_is_remote || !m_hide_own_net_label))
+    if ((App::mp_state.GetActive() == MpState::CONNECTED) && !m_hide_net_labels && (m_is_remote || !m_hide_own_net_label))
     {
-        movable_text = new MovableText("netlabel-" + m_instance_name, "");
-        scenenode->attachObject(movable_text);
-        movable_text->setFontName("CyberbitEnglish");
-        movable_text->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
-        movable_text->setAdditionalHeight(2);
-        movable_text->showOnTop(false);
-        movable_text->setCharacterHeight(8);
-        movable_text->setColor(ColourValue::Black);
+        m_gfx_character->xc_movable_text = new MovableText("netlabel-" + m_instance_name, "");
+        scenenode->attachObject(m_gfx_character->xc_movable_text);
+        m_gfx_character->xc_movable_text->setFontName("CyberbitEnglish");
+        m_gfx_character->xc_movable_text->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
+        m_gfx_character->xc_movable_text->setAdditionalHeight(2);
+        m_gfx_character->xc_movable_text->showOnTop(false);
+        m_gfx_character->xc_movable_text->setCharacterHeight(8);
+        m_gfx_character->xc_movable_text->setColor(ColourValue::Black);
 
         updateLabels();
     }
 #endif //SOCKETW
 
-    m_gfx_character = new GfxCharacter();
-    m_gfx_character->xc_scenenode = scenenode;
-    m_gfx_character->xc_movable_text = movable_text;
-    m_gfx_character->xc_character = this;
-    m_gfx_character->xc_instance_name = m_instance_name;
     return m_gfx_character;
 }
 
@@ -710,16 +711,12 @@ RoR::GfxCharacter::~GfxCharacter()
     xc_scenenode->detachAllObjects();
     gEnv->sceneManager->destroySceneNode(xc_scenenode);
     gEnv->sceneManager->destroyEntity(ent);
-    delete xc_movable_text;
+    if (xc_movable_text != nullptr)
+    {
+        delete xc_movable_text;
+    }
 
-    // try to unload some materials // TODO: ported as-is; do we need the try{}catch?~ only_a_ptr, 05/2018
-    try
-    {
-        MaterialManager::getSingleton().unload("tracks/" + xc_instance_name);
-    }
-    catch (...)
-    {
-    }
+    MaterialManager::getSingleton().unload("tracks/" + xc_instance_name);
 }
 
 void RoR::GfxCharacter::BufferSimulationData()
@@ -817,9 +814,6 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
 #ifdef USE_SOCKETW
     if (App::mp_state.GetActive() == MpState::CONNECTED)
     {
-        // From 'updateLabel()'
-        xc_movable_text->setCaption(xc_simbuf.simbuf_net_username);
-
         // From 'updateCharacterNetworkColor()'
         const String materialName = "tracks/" + xc_instance_name;
         const int textureUnitStateNum = 2;
@@ -833,18 +827,21 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
             state->setColourOperationEx(LBX_BLEND_CURRENT_ALPHA, LBS_MANUAL, LBS_CURRENT, color, color, 1);
         }
 
-        // From 'ResizePersonNetLabel()'
-        float camDist = (xc_scenenode->getPosition() - gEnv->mainCamera->getPosition()).length();
-        float h = std::max(9.0f, camDist * 1.2f);
+        if (xc_movable_text != nullptr)
+        {
+            float camDist = (xc_scenenode->getPosition() - gEnv->mainCamera->getPosition()).length();
 
-        xc_movable_text->setCharacterHeight(h);
-
-        if (camDist > 1000.0f)
-            xc_movable_text->setCaption(xc_simbuf.simbuf_net_username + "  (" + TOSTRING((float)(ceil(camDist / 100) / 10.0f)) + " km)");
-        else if (camDist > 20.0f && camDist <= 1000.0f)
-            xc_movable_text->setCaption(xc_simbuf.simbuf_net_username + "  (" + TOSTRING((int)camDist) + " m)");
-        else
             xc_movable_text->setCaption(xc_simbuf.simbuf_net_username);
+            if (camDist > 1000.0f)
+                xc_movable_text->setCaption(xc_simbuf.simbuf_net_username + "  (" + TOSTRING((float)(ceil(camDist / 100) / 10.0f)) + " km)");
+            else if (camDist > 20.0f && camDist <= 1000.0f)
+                xc_movable_text->setCaption(xc_simbuf.simbuf_net_username + "  (" + TOSTRING((int)camDist) + " m)");
+            else
+                xc_movable_text->setCaption(xc_simbuf.simbuf_net_username);
+
+            float h = std::max(9.0f, camDist * 1.2f);
+            xc_movable_text->setCharacterHeight(h);
+        }
     }
 #endif // USE_SOCKETW
 }

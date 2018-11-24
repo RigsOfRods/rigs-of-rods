@@ -507,6 +507,7 @@ private:
     bool m_net_brake_light:1;
     bool m_net_reverse_light:1;
     bool m_hide_own_net_label:1;
+    bool m_hide_net_labels:1;
     bool m_reverse_light_active:1; //!< Gfx state
     bool m_water_contact:1;        //!< Scripting state
     bool m_water_contact_old:1;    //!< Scripting state
