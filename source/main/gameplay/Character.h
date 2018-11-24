@@ -78,6 +78,7 @@ private:
     bool             m_can_jump;
     bool             m_is_remote;
     bool             m_hide_own_net_label;
+    bool             m_hide_net_labels;
     std::string      m_anim_name;
     float            m_anim_time;
     float            m_driving_anim_length;
