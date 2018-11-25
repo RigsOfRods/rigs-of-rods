@@ -550,7 +550,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
         if (element2)
         {
             res = true;
-            auto name = element->getName().c_str();
+            auto name = element2->getName().c_str();
             //LogManager::getSingleton().logMessage("element "+element2->getName());
             if (!strncmp(name, "tracks/engstart1", 16))
                 player_actor->ar_aeroengines[0]->flipStart();
