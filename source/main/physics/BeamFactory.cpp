@@ -36,6 +36,7 @@
 #include "GUIManager.h"
 #include "GUI_GameConsole.h"
 #include "GUI_TopMenubar.h"
+#include "LandVehicleSimulation.h"
 #include "Language.h"
 #include "MovableText.h"
 #include "Network.h"
@@ -976,12 +977,16 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
         actor->HandleAngelScriptEvents(dt);
 
 #ifdef USE_ANGELSCRIPT
-        if (actor->ar_vehicle_ai && (actor->ar_vehicle_ai->IsActive()))
+        if (actor->ar_vehicle_ai && actor->ar_vehicle_ai->IsActive())
             actor->ar_vehicle_ai->update(dt, 0);
 #endif // USE_ANGELSCRIPT
 
         if (actor->ar_engine)
         {
+            if (actor->ar_driveable == TRUCK)
+            {
+                LandVehicleSimulation::UpdateVehicle(actor, dt);
+            }
             if (actor->ar_sim_state == Actor::SimState::LOCAL_SLEEPING)
             {
                 actor->ar_engine->UpdateEngineSim(dt, 1);

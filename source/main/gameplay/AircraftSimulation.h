@@ -36,7 +36,7 @@ struct AircraftSimulation
     /**
     * SIM-CORE: 1x per frame. Logic: input, GUI, vehicle state.
     */
-    static void UpdateVehicle(Actor* vehicle, float seconds_since_last_frame);
+    static void UpdateInputEvents(Actor* vehicle, float seconds_since_last_frame);
 };
 
 } // namespace RoR
