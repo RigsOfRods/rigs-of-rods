@@ -487,7 +487,7 @@ if (DEFINED CONAN_OPENAL_ROOT)
 elseif (OPENAL_FOUND)
     target_link_libraries(${BINNAME} PRIVATE ${OPENAL_LIBRARY})
     target_include_directories(${BINNAME} PRIVATE ${OPENAL_INCLUDE_DIR})
-    target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)  
+    target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)
 endif ()
 
 
@@ -552,10 +552,10 @@ endif ()
 
 
 # --- Caelum -- Ogre addon for realistic sky rendering ---
-if(DEFINED CONAN_CAELUM_ROOT AND WIN32)
+if(DEFINED CONAN_OGRE-CAELUM_ROOT AND WIN32)
     set(CFG_OGRE_PLUGIN_CAELUM "Plugin=Caelum")
-    target_include_directories(${BINNAME} PRIVATE CONAN_PKG::Caelum)
-    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::Caelum)
+    target_include_directories(${BINNAME} PRIVATE CONAN_PKG::ogre-caelum)
+    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::ogre-caelum)
     target_compile_definitions(${BINNAME} PRIVATE USE_CAELUM)
 elseif (TARGET Caelum::Caelum)
     set(CFG_OGRE_PLUGIN_CAELUM "Plugin=../libCaelum.so")
