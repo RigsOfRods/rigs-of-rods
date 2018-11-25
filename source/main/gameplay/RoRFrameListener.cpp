@@ -896,11 +896,11 @@ void SimController::UpdateInputEvents(float dt)
 
                     if (m_player_actor->ar_driveable == TRUCK)
                     {
-                        LandVehicleSimulation::UpdateVehicle(m_player_actor, dt);
+                        LandVehicleSimulation::UpdateInputEvents(m_player_actor, dt);
                     }
                     if (m_player_actor->ar_driveable == AIRPLANE)
                     {
-                        AircraftSimulation::UpdateVehicle(m_player_actor, dt);
+                        AircraftSimulation::UpdateInputEvents(m_player_actor, dt);
                     }
                     if (m_player_actor->ar_driveable == BOAT)
                     {

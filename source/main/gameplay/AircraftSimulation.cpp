@@ -33,8 +33,10 @@
 
 using namespace RoR;
 
-void AircraftSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_last_frame)
+void AircraftSimulation::UpdateInputEvents(Actor* vehicle, float seconds_since_last_frame)
 {
+    if (vehicle->ar_replay_mode)
+        return;
     //autopilot
     if (vehicle->ar_autopilot && vehicle->ar_autopilot->wantsdisconnect)
     {
@@ -42,35 +44,12 @@ void AircraftSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_last_
     }
     //AIRPLANE KEYS
     float commandrate = 4.0;
-    //turning
-    if (vehicle->ar_replay_mode)
-    {
-        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FORWARD, 0.1f) && vehicle->ar_replay_pos <= 0)
-        {
-            vehicle->ar_replay_pos++;
-        }
-        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_BACKWARD, 0.1f) && vehicle->ar_replay_pos > -vehicle->ar_replay_length)
-        {
-            vehicle->ar_replay_pos--;
-        }
-        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FAST_FORWARD, 0.1f) && vehicle->ar_replay_pos + 10 <= 0)
-        {
-            vehicle->ar_replay_pos += 10;
-        }
-        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FAST_BACKWARD, 0.1f) && vehicle->ar_replay_pos - 10 > -vehicle->ar_replay_length)
-        {
-            vehicle->ar_replay_pos -= 10;
-        }
-    }
-    else
-    {
-        float tmp_left = RoR::App::GetInputEngine()->getEventValue(EV_AIRPLANE_STEER_LEFT);
-        float tmp_right = RoR::App::GetInputEngine()->getEventValue(EV_AIRPLANE_STEER_RIGHT);
-        float sum_steer = -tmp_left + tmp_right;
-        RoR::App::GetInputEngine()->smoothValue(vehicle->ar_aileron, sum_steer, seconds_since_last_frame * commandrate);
-        vehicle->ar_hydro_dir_command = vehicle->ar_aileron;
-        vehicle->ar_hydro_speed_coupling = !(RoR::App::GetInputEngine()->isEventAnalog(EV_AIRPLANE_STEER_LEFT) && RoR::App::GetInputEngine()->isEventAnalog(EV_AIRPLANE_STEER_RIGHT));
-    }
+    float tmp_left = RoR::App::GetInputEngine()->getEventValue(EV_AIRPLANE_STEER_LEFT);
+    float tmp_right = RoR::App::GetInputEngine()->getEventValue(EV_AIRPLANE_STEER_RIGHT);
+    float sum_steer = -tmp_left + tmp_right;
+    RoR::App::GetInputEngine()->smoothValue(vehicle->ar_aileron, sum_steer, seconds_since_last_frame * commandrate);
+    vehicle->ar_hydro_dir_command = vehicle->ar_aileron;
+    vehicle->ar_hydro_speed_coupling = !(RoR::App::GetInputEngine()->isEventAnalog(EV_AIRPLANE_STEER_LEFT) && RoR::App::GetInputEngine()->isEventAnalog(EV_AIRPLANE_STEER_RIGHT));
 
     //pitch
     float tmp_pitch_up = RoR::App::GetInputEngine()->getEventValue(EV_AIRPLANE_ELEVATOR_UP);
@@ -85,7 +64,7 @@ void AircraftSimulation::UpdateVehicle(Actor* vehicle, float seconds_since_last_
     RoR::App::GetInputEngine()->smoothValue(vehicle->ar_rudder, sum_rudder, seconds_since_last_frame * commandrate);
 
     //brake
-    if (!vehicle->ar_replay_mode && !vehicle->ar_parking_brake)
+    if (!vehicle->ar_parking_brake)
     {
         vehicle->ar_brake = RoR::App::GetInputEngine()->getEventValue(EV_AIRPLANE_BRAKE) * 0.66f;
     }
