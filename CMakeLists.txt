@@ -28,14 +28,8 @@ project(${PROJECT_NAME_SHORT} VERSION 0.4.8.0)
 # Available build options
 ################################################################################
 option(BUILD_DEV_VERSION "Disable this for official releases" ON)
-option(BUILD_CUSTOM_VERSION "Specify a custom version" OFF)
 option(BUILD_DOC_DOXYGEN "Build documentation from sources with Doxygen" OFF)
-option(BUILD_SHOW_WARNINGS "Show build warnings" ON)
 option(BUILD_REDIST_FOLDER "Build a folder for redistributing the game" OFF)
-
-if (BUILD_CUSTOM_VERSION)
-    set(CUSTOM_VERSION "0.4.8.0-dev" CACHE STRING "Custom version")
-endif ()
 
 include(Macros)
 
@@ -76,12 +70,7 @@ mark_as_advanced(
 )
 
 if (WIN32)
-    if (BUILD_SHOW_WARNINGS)
-        set(warnings /W3 /D_CRT_SECURE_NO_WARNINGS /wd4005 /wd4996 /wd4251 /wd4275 /wd4099 /nologo)
-    else ()
-        set(warnings /w)
-    endif ()
-    add_definitions(${warnings})
+    add_definitions("/D_CRT_SECURE_NO_WARNINGS /wd4005 /wd4996 /wd4251 /wd4275 /wd4099 /nologo")
 
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}        /MP /GL /Ox /Ob2 /Oi /Ot /Oy /fp:fast /GS- /MP /Zi")
     set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL}     /MP /Zi")
