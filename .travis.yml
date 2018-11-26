@@ -33,7 +33,7 @@ install:
   - conan user
   - conan remote add ror-dependencies https://api.bintray.com/conan/anotherfoxguy/ror-dependencies || true
   - conan remote add bincrafters-public-conan https://api.bintray.com/conan/bincrafters/public-conan || true
-  - conan install --build=missing -u .
+  - conan install --build=missing -u -s compiler.libcxx=libstdc++11 .
 
 script:
   - cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_REDIST_FOLDER=ON .
