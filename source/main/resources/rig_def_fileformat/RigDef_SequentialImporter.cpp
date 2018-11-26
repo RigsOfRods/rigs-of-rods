@@ -767,7 +767,7 @@ bool SequentialImporter::AddNamedNode(std::string const & name)
 
 void SequentialImporter::AddGeneratedNode(File::Keyword generated_from, NodeMapEntry::OriginDetail detail /* = NodeMapEntry::DETAIL_UNDEFINED*/ )
 {
-    unsigned int new_number = m_all_nodes.size();
+    unsigned int new_number = static_cast<int>(m_all_nodes.size());
     unsigned int node_sub_index = 0;
     switch (generated_from)
     {

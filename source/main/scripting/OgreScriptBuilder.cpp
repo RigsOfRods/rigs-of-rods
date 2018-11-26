@@ -73,5 +73,5 @@ int OgreScriptBuilder::LoadScriptSection(const char* full_path_cstr)
     code.resize(ds->size());
     ds->read(&code[0], ds->size());
 
-    return ProcessScriptSection(code.c_str(), code.length(), filename.c_str(), 0);
+    return ProcessScriptSection(code.c_str(), static_cast<unsigned int>(code.length()), filename.c_str(), 0);
 }

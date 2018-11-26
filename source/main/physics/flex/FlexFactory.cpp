@@ -192,7 +192,7 @@ void FlexBodyFileIO::WriteMetadata()
     FLEX_DEBUG_LOG(__FUNCTION__);
     FlexBodyFileMetadata meta;
     meta.file_format_version = FILE_FORMAT_VERSION;    
-    meta.num_flexbodies      = m_items_to_save.size();
+    meta.num_flexbodies      = static_cast<int>(m_items_to_save.size());
 
     this->WriteToFile((void*)&meta, sizeof(FlexBodyFileMetadata));
 }
@@ -208,7 +208,7 @@ void FlexBodyFileIO::WriteFlexbodyHeader(FlexBody* flexbody)
 {
     FLEX_DEBUG_LOG(__FUNCTION__);
     FlexBodyRecordHeader header;
-    header.vertex_count            = flexbody->m_vertex_count           ;
+    header.vertex_count            = static_cast<int>(flexbody->m_vertex_count);
     header.node_center             = flexbody->m_node_center            ;
     header.node_x                  = flexbody->m_node_x                 ;
     header.node_y                  = flexbody->m_node_y                 ;

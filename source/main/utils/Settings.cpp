@@ -201,7 +201,7 @@ void Settings::ProcessCommandLine(int argc, char *argv[])
         else if (args.OptionId() == OPT_JOINMPSERVER)
         {
             std::string server_args = args.OptionArg();
-            const int colon = server_args.rfind(":");
+            const int colon = static_cast<int>(server_args.rfind(":"));
             if (colon != std::string::npos)
             {
                 App::mp_state.SetPending(RoR::MpState::CONNECTED);

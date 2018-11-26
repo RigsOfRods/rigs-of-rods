@@ -86,13 +86,13 @@ void Real::remove()
 int Real::addWave(Ogre::Vector2 dir, float A, float T, float p)
 {
     mWaves.push_back(Wave(dir,A,T,p));
-    return mWaves.size();
+    return static_cast<int>(mWaves.size());
 }
 
 int Real::addPressurePoint(Ogre::Vector2 Orig, float p, float T, float L)
 {
     mPressurePoints.push_back(PressurePoint(Orig,p,T,L));
-    return mPressurePoints.size();
+    return static_cast<int>(mPressurePoints.size());
 }
 
 Wave Real::getWave(int id) const

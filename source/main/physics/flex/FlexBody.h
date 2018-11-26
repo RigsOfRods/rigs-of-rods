@@ -71,7 +71,7 @@ public:
 
     void SetFlexbodyCastShadow(bool val);
 
-    int size() { return m_vertex_count; };
+    int size() { return static_cast<int>(m_vertex_count); };
 
 private:
 

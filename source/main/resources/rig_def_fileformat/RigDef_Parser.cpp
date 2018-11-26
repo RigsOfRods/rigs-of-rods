@@ -2650,14 +2650,14 @@ void Parser::_TrimTrailingComments(std::string const & line_in, std::string & li
 {
     // Trim trailing comment
     // We need to handle a case of lines as [keyword 1, 2, 3 ;;///// Comment!]
-    int comment_start = line_in.find_first_of(";");
+    int comment_start = static_cast<int>(line_in.find_first_of(";"));
     if (comment_start != Ogre::String::npos)
     {
         line_out = line_in.substr(0, comment_start);
         return;
     }
     // The [//Comment] is harder - the '/' character may also be present in DESCRIPTION arguments!
-    comment_start = line_in.find_last_of("/");
+    comment_start = static_cast<int>(line_in.find_last_of("/"));
     if (comment_start != Ogre::String::npos)
     {
         while (comment_start >= 0)
