@@ -599,16 +599,18 @@ bool Actor::AddTyrePressure(float v)
     if (!ar_free_pressure_beam)
         return false;
 
-    float newpressure = std::max(0.0f, std::min(m_ref_tyre_pressure + v, 100.0f));
+    float newpressure = Math::Clamp(m_ref_tyre_pressure + v, 0.0f, 100.0f);
+
+    for (int i = 0; i < ar_free_pressure_beam; i++)
+    {
+        ar_beams[ar_pressure_beams[i]].k = 10000 + newpressure * 10000;
+    }
 
     if (newpressure == m_ref_tyre_pressure)
         return false;
 
     m_ref_tyre_pressure = newpressure;
-    for (int i = 0; i < ar_free_pressure_beam; i++)
-    {
-        ar_beams[ar_pressure_beams[i]].k = 10000 + m_ref_tyre_pressure * 10000;
-    }
+
     return true;
 }
 
@@ -1525,9 +1527,6 @@ void Actor::SyncReset(bool reset_position)
         m_buoyance->setsink(0);
     if (m_hydro_inertia)
         m_hydro_inertia->resetCmdKeyDelay();
-
-    m_ref_tyre_pressure = 50.0;
-    this->AddTyrePressure(0.0);
 
     this->GetGfxActor()->ResetFlexbodies();
 

@@ -166,6 +166,8 @@ private:
     bool                     m_advanced_vehicle_repair;
     float                    m_advanced_vehicle_repair_timer;
 
+    float                    m_pressure_pressed_timer;
+
     Ogre::Vector3            m_reload_pos;
     Ogre::Quaternion         m_reload_dir;
 

@@ -121,6 +121,7 @@ SimController::SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_c
     m_physics_simulation_paused(false),
     m_physics_simulation_time(0.0f),
     m_pressure_pressed(false),
+    m_pressure_pressed_timer(0.0f),
     m_race_bestlap_time(0),
     m_race_in_progress(false),
     m_race_start_time(0),
@@ -1078,7 +1079,9 @@ void SimController::UpdateInputEvents(float dt)
                     //camera mode
                     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_PRESSURE_LESS))
                     {
-                        if (m_pressure_pressed = m_player_actor->AddTyrePressure(dt * -10.0))
+                        float change = m_player_actor->GetTyrePressure() * (1.0f - pow(2.0f, dt / 2.0f));
+                        change = Math::Clamp(change, -dt * 10.0f, -dt * 1.0f);
+                        if (m_pressure_pressed = m_player_actor->AddTyrePressure(change))
                         {
                             if (RoR::App::GetOverlayWrapper())
                                 RoR::App::GetOverlayWrapper()->showPressureOverlay(true);
@@ -1088,7 +1091,9 @@ void SimController::UpdateInputEvents(float dt)
                     }
                     else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_PRESSURE_MORE))
                     {
-                        if (m_pressure_pressed = m_player_actor->AddTyrePressure(dt * 10.0))
+                        float change = m_player_actor->GetTyrePressure() * (pow(2.0f, dt / 2.0f) - 1.0f);
+                        change = Math::Clamp(change, +dt * 1.0f, +dt * 10.0f);
+                        if (m_pressure_pressed = m_player_actor->AddTyrePressure(change))
                         {
                             if (RoR::App::GetOverlayWrapper())
                                 RoR::App::GetOverlayWrapper()->showPressureOverlay(true);
@@ -1100,6 +1105,14 @@ void SimController::UpdateInputEvents(float dt)
                     {
                         SOUND_STOP(m_player_actor, SS_TRIG_AIR);
                         m_pressure_pressed = false;
+                        m_pressure_pressed_timer = 1.5f;
+                    }
+                    else if (m_pressure_pressed_timer > 0.0f)
+                    {
+                        m_pressure_pressed_timer -= dt;
+                    }
+                    else
+                    {
                         if (RoR::App::GetOverlayWrapper())
                             RoR::App::GetOverlayWrapper()->showPressureOverlay(false);
                     }
