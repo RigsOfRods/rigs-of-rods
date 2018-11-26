@@ -34,6 +34,10 @@
 
 #include <MyGUI.h>
 
+Ogre::String HashData(const void *key, int len);
+
+Ogre::String HashFile(const char* szFileName);
+
 Ogre::UTFString tryConvertUTF(const char* buffer);
 
 Ogre::UTFString formatBytes(double bytes);

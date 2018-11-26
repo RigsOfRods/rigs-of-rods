@@ -21,6 +21,7 @@
 
 #include "Utils.h"
 
+#include "PMurHash.h"
 #include "RoRnet.h"
 #include "RoRVersion.h"
 
@@ -34,7 +35,62 @@
 #   include <windows.h> // Sleep()
 #endif
 
+#define MMH3_MAX_FILE_BUFFER 8196
+
 using namespace Ogre;
+
+String HashData(const void *key, int len)
+{
+    std::stringstream hash;
+    hash << std::hex << PMurHash32(0, key, len);
+    return hash.str();
+}
+
+String HashFile(const char *szFileName)
+{
+    unsigned long ulFileSize, ulRest, ulBlocks;
+    uint8_t uData[MMH3_MAX_FILE_BUFFER];
+
+    if (szFileName == NULL) return "";
+
+    FILE *fIn = fopen(szFileName, "rb");
+    if (fIn == NULL) return "";
+
+    fseek(fIn, 0, SEEK_END);
+    ulFileSize = (unsigned long)ftell(fIn);
+    fseek(fIn, 0, SEEK_SET);
+
+    if (ulFileSize != 0)
+    {
+        ulBlocks = ulFileSize / MMH3_MAX_FILE_BUFFER;
+        ulRest = ulFileSize % MMH3_MAX_FILE_BUFFER;
+    }
+    else
+    {
+        ulBlocks = 0;
+        ulRest = 0;
+    }
+
+    MH_UINT32 ph1 = 0;
+    MH_UINT32 pcarry = 0;
+    for (unsigned long i = 0; i < ulBlocks; i++)
+    {
+        size_t result = fread(uData, 1, MMH3_MAX_FILE_BUFFER, fIn);
+        PMurHash32_Process(&ph1, &pcarry, (uint8_t *)uData, MMH3_MAX_FILE_BUFFER);
+    }
+
+    if (ulRest != 0)
+    {
+        size_t result = fread(uData, 1, ulRest, fIn);
+        PMurHash32_Process(&ph1, &pcarry, (uint8_t *)uData, ulRest);
+    }
+
+    fclose(fIn); fIn = NULL;
+
+    std::stringstream hash;
+    hash << std::hex << PMurHash32_Result(ph1, pcarry, ulFileSize);
+    return hash.str();
+}
 
 UTFString tryConvertUTF(const char* buffer)
 {

@@ -230,6 +230,7 @@ set(SOURCE_FILES
         utils/Language.{h,cpp}
         utils/MeshObject.{h,cpp}
         utils/PlatformUtils.{h,cpp}
+        utils/PMurHash.{h,cpp}
         utils/Settings.{h,cpp}
         utils/SHA1.{h,cpp}
         utils/SimpleGlob.h
