@@ -38,7 +38,6 @@
 #include "PlatformUtils.h"
 #include "RigDef_Parser.h"
 #include "Settings.h"
-#include "SHA1.h"
 #include "SoundScriptManager.h"
 #include "TerrainManager.h"
 #include "Terrn2Fileformat.h"
@@ -958,14 +957,7 @@ int CacheSystem::incrementalCacheUpdate()
             std::time_t ft = fileTime(fn);
             if (!ft)
             {
-                // slow sha1 check
-                char hash[256] = {};
-
-                RoR::CSHA1 sha1;
-                sha1.HashFile(const_cast<char*>(fn.c_str()));
-                sha1.Final();
-                sha1.ReportHash(hash, RoR::CSHA1::REPORT_HEX_SHORT);
-                check = (it->hash != String(hash));
+                check = (it->hash != HashFile(fn.c_str()));
             }
             else
             {
@@ -1071,13 +1063,7 @@ int CacheSystem::incrementalCacheUpdate()
                 if (it->number == it2->number)
                     continue; // do not delete self
                 LOG("- "+ it2->dirname+"/" + it->fname + " soft duplicate, resolving ...");
-                // create sha1 and see whats the correct entry :)
-                RoR::CSHA1 sha1;
-                sha1.HashFile(const_cast<char*>(it2->dirname.c_str()));
-                sha1.Final();
-                char hashres[256] = "";
-                sha1.ReportHash(hashres, RoR::CSHA1::REPORT_HEX_SHORT);
-                String hashstr = String(hashres);
+                String hashstr = HashFile(it2->dirname.c_str());
                 if (hashstr == it->hash)
                 {
                     LOG("  - entry 2 removed");
@@ -2013,14 +1999,7 @@ String CacheSystem::filenamesSHA1()
         }
     }
 
-    char result[256] = {};
-
-    RoR::CSHA1 sha1;
-    char* data = const_cast<char*>(filenames.c_str());
-    sha1.UpdateHash((uint8_t *)data, (uint32_t)strlen(data));
-    sha1.Final();
-    sha1.ReportHash(result, RoR::CSHA1::REPORT_HEX_SHORT);
-    return result;
+    return HashData(filenames.c_str(), filenames.size());
 }
 
 void CacheSystem::fillTerrainDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr ds, Ogre::String fname)
@@ -2258,12 +2237,7 @@ void CacheSystem::loadSingleZip(String zippath, int cfactor, bool unload, bool o
 #endif
 
     String realzipPath = getRealPath(zippath);
-    char hash[256] = {};
-
-    RoR::CSHA1 sha1;
-    sha1.HashFile(const_cast<char*>(realzipPath.c_str()));
-    sha1.Final();
-    sha1.ReportHash(hash, RoR::CSHA1::REPORT_HEX_SHORT);
+    String hash = HashFile(realzipPath.c_str());
     zipHashes[getVirtualPath(zippath)] = hash;
 
     String compr = "";
