@@ -45,7 +45,7 @@ String HashData(const char *key, int len)
 
 String HashFile(const char *szFileName)
 {
-    const int MAX_FILE_BUFFER = 8196;
+    const int MAX_FILE_BUFFER = 1048576;
     unsigned long ulFileSize, ulRest, ulBlocks;
     char uData[MAX_FILE_BUFFER];
 
