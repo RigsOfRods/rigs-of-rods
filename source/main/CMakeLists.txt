@@ -552,8 +552,12 @@ endif ()
 
 
 # --- Caelum -- Ogre addon for realistic sky rendering ---
-if(DEFINED CONAN_OGRE-CAELUM_ROOT)
-    set(CFG_OGRE_PLUGIN_CAELUM "Plugin=Caelum")
+if(DEFINED CONAN_OGRE-CAELUM_ROOT AND ROR_USE_CAELUM)
+    if(UNIX)
+        set(CFG_OGRE_PLUGIN_CAELUM "Plugin=libCaelum.so")
+    else()
+        set(CFG_OGRE_PLUGIN_CAELUM "Plugin=Caelum")
+    endif ()
     target_include_directories(${BINNAME} PRIVATE CONAN_PKG::ogre-caelum)
     target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::ogre-caelum)
     target_compile_definitions(${BINNAME} PRIVATE USE_CAELUM)
@@ -573,7 +577,9 @@ cotire(${BINNAME})
 
 # configure plugins.cfg
 if (WIN32)
-    set(CFG_OGRE_RENDERSYSTEM_D3D9 "Plugin=RenderSystem_Direct3D9")
+    set(CFG_OGRE_RENDERSYSTEM "Plugin=RenderSystem_Direct3D9")
+else()
+    set(CFG_OGRE_RENDERSYSTEM "Plugin=RenderSystem_GL")
 endif ()
 
 if (BUILD_REDIST_FOLDER AND UNIX)
