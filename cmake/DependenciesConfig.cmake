@@ -1,9 +1,9 @@
 # components
 set(ROR_USE_OPENAL "TRUE" CACHE BOOL "use OPENAL")
 set(ROR_USE_SOCKETW "TRUE" CACHE BOOL "use SOCKETW")
-set(ROR_USE_PAGED "TRUE" CACHE BOOL "use paged geometry")
+set(ROR_USE_PAGED "TRUE" CACHE BOOL "use paged-geometry")
 set(ROR_USE_CAELUM "TRUE" CACHE BOOL "use caelum sky")
-set(ROR_USE_ANGELSCRIPT "TRUE" CACHE BOOL "use angel script")
+set(ROR_USE_ANGELSCRIPT "TRUE" CACHE BOOL "use angelscript")
 set(ROR_USE_CURL "TRUE" CACHE BOOL "use curl, required for communication with online services")
 set(ROR_USE_CRASHRPT "FALSE" CACHE BOOL "use crash report tool")
 
@@ -14,6 +14,25 @@ set(ROR_USE_CRASHRPT "FALSE" CACHE BOOL "use crash report tool")
 set(ROR_BUILD_UPDATER OFF)
 set(ROR_FEAT_TIMING OFF)
 set(ROR_BUILD_SIM ON)
+
+find_package(Threads REQUIRED)
+
+if (NOT EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
+    # find packages
+
+    find_package(OGRE 1.11 REQUIRED COMPONENTS Bites HLMS Overlay Paging RTShaderSystem MeshLodGenerator Terrain)
+    find_package(OpenAL)
+    find_package(OIS REQUIRED)
+    find_package(MyGUI REQUIRED)
+    find_package(SocketW)
+    find_package(AngelScript)
+    find_package(CURL)
+    find_package(Caelum)
+
+    if (WIN32)
+        find_package(MoFileReader REQUIRED)
+    endif ()
+endif ()
 
 IF (WIN32)
     set(ROR_USE_MOFILEREADER "TRUE" CACHE BOOL "use mofilereader")
@@ -30,4 +49,6 @@ ELSEIF (UNIX)
     PKG_CHECK_MODULES(GTK_PIXBUF gdk-pixbuf-2.0 REQUIRED)
     include_directories(${GTK_INCLUDE_DIRS})
     include_directories(${GTK_PIXBUF_INCLUDE_DIRS})
+
+    find_package(wxWidgets COMPONENTS base core html net adv)
 ENDIF (WIN32)
