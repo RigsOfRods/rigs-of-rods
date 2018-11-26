@@ -119,7 +119,7 @@ RoR::GUI::MpServerlistData* FetchServerlist(std::string portal_url)
     res->servers.resize(num_rows);
     for (size_t i = 0; i < num_rows; ++i)
     {
-        rapidjson::Value& j_row = j_data_doc[i];
+        rapidjson::Value& j_row = j_data_doc[static_cast<rapidjson::SizeType>(i)];
 
         res->servers[i].display_name  = j_row["name"].GetString();
         res->servers[i].display_terrn = j_row["terrain-name"].GetString();

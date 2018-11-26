@@ -175,7 +175,7 @@ std::string SkyManager::GetPrettyTime()
         , ignore, ignore, ignore, hour, minute, second);
 
     char buf[100];
-    snprintf(buf, 100, "%02d:%02d:%02d", hour, minute, static_cast<size_t>(second));
+    snprintf(buf, 100, "%02d:%02d:%02d", hour, minute, static_cast<int>(second));
     return buf;
 }
 

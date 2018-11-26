@@ -1541,7 +1541,7 @@ void CacheSystem::fillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     if (def->root_module->engine != nullptr)
     {
         std::shared_ptr<RigDef::Engine> engine = def->root_module->engine;
-        entry.numgears = engine->gear_ratios.size();
+        entry.numgears = static_cast<int>(engine->gear_ratios.size());
         entry.minrpm = engine->shift_down_rpm;
         entry.maxrpm = engine->shift_up_rpm;
         entry.torque = engine->torque;
@@ -1999,7 +1999,7 @@ String CacheSystem::filenamesSHA1()
         }
     }
 
-    return HashData(filenames.c_str(), filenames.size());
+    return HashData(filenames.c_str(), static_cast<int>(filenames.size()));
 }
 
 void CacheSystem::fillTerrainDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr ds, Ogre::String fname)

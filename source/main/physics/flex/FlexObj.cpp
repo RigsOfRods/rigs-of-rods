@@ -69,7 +69,7 @@ FlexObj::FlexObj(RoR::GfxActor* gfx_actor, node_t* all_nodes, std::vector<CabTex
     m_indices=(unsigned short*)malloc(m_index_count*sizeof(unsigned short));
     for (size_t i=0; i<m_index_count; i++)
     {
-        m_indices[i]=ComputeVertexPos(i/3, triangles[i], submesh_defs);
+        m_indices[i]=ComputeVertexPos(static_cast<int>(i/3), triangles[i], submesh_defs);
     }
 
     m_s_ref=(float*)malloc(numtriangles*sizeof(float));
@@ -171,8 +171,8 @@ int FlexObj::ComputeVertexPos(int tidx, int v, std::vector<CabSubmesh>& submeshe
     }
 
     // Find the vertex itself
-    int i_min = (context < 0) ? 0 : submeshes[context].texcoords_pos; // Fix for single-submesh case... It seems to have worked with a negative index until now ~ only_a_ptr, 08/2017
-    int i_max = submeshes[context + 1].texcoords_pos;
+    int i_min = (context < 0) ? 0 : static_cast<int>(submeshes[context].texcoords_pos); // Fix for single-submesh case... It seems to have worked with a negative index until now ~ only_a_ptr, 08/2017
+    int i_max = static_cast<int>(submeshes[context + 1].texcoords_pos);
     for (int i = i_min; i < i_max; ++i)
     {
         if (m_vertex_nodes[i] == v)

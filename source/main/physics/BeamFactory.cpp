@@ -381,7 +381,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
 
 Actor* ActorManager::CreateActorInstance(ActorSpawnRequest rq, std::shared_ptr<RigDef::File> def)
 {
-    Actor* actor = new Actor(m_actor_counter++, m_actors.size(), def, rq);
+    Actor* actor = new Actor(m_actor_counter++, static_cast<int>(m_actors.size()), def, rq);
 
     this->SetupActor(actor, rq, def);
 
@@ -925,7 +925,7 @@ Actor* ActorManager::FetchPreviousVehicleOnList(Actor* player, Actor* prev_playe
         }
     }
 
-    for (int i = m_actors.size() - 1; i > pivot_index; i--)
+    for (int i = static_cast<int>(m_actors.size()) - 1; i > pivot_index; i--)
     {
         if (m_actors[i]->ar_sim_state != Actor::SimState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {

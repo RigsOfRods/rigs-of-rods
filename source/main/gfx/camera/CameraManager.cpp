@@ -1143,7 +1143,7 @@ void CameraManager::CameraBehaviorVehicleSplineCreateSpline()
 
     std::list<Actor*> linkedBeams = m_cct_player_actor->GetAllLinkedActors();
 
-    m_splinecam_num_linked_beams = linkedBeams.size();
+    m_splinecam_num_linked_beams = static_cast<int>(linkedBeams.size());
 
     if (m_splinecam_num_linked_beams > 0)
     {

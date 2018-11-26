@@ -94,7 +94,7 @@ FlexBody::FlexBody(
     }
 
     Ogre::MeshPtr mesh=ent->getMesh();
-    int num_submeshes = mesh->getNumSubMeshes();
+    int num_submeshes = static_cast<int>(mesh->getNumSubMeshes());
     if (preloaded_from_cache == nullptr)
     {
         //determine if we have texture coordinates everywhere

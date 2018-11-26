@@ -1010,7 +1010,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 left_green_prop.beacon_light[0]=nullptr; //no light
                 //the flare billboard
                 left_green_prop.beacon_flare_billboard_scene_node[0] = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-                left_green_prop.beacon_flares_billboard_system[0]=gEnv->sceneManager->createBillboardSet(this->ComposeName("Prop", m_props.size()+1),1);
+                left_green_prop.beacon_flares_billboard_system[0]=gEnv->sceneManager->createBillboardSet(this->ComposeName("Prop", static_cast<int>(m_props.size())+1),1);
                 left_green_prop.beacon_flares_billboard_system[0]->createBillboard(0,0,0);
                 if (left_green_prop.beacon_flares_billboard_system[0])
                 {
@@ -1042,7 +1042,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 left_flash_prop.beacon_light_rotation_rate[0]=1.0;
                 left_flash_prop.beacontype='w';
                 //light
-                std::string prop_name = this->ComposeName("Prop", m_props.size()+1);
+                std::string prop_name = this->ComposeName("Prop", static_cast<int>(m_props.size())+1);
                 left_flash_prop.beacon_light[0]=gEnv->sceneManager->createLight(prop_name);
                 left_flash_prop.beacon_light[0]->setType(Ogre::Light::LT_POINT);
                 left_flash_prop.beacon_light[0]->setDiffuseColour( Ogre::ColourValue(1.0, 1.0, 1.0));
@@ -1086,7 +1086,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 right_red_prop.beacon_light[0]=nullptr; /* No light */
                 //the flare billboard
                 right_red_prop.beacon_flare_billboard_scene_node[0] = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
-                right_red_prop.beacon_flares_billboard_system[0]=gEnv->sceneManager->createBillboardSet(this->ComposeName("Prop", m_props.size()+1),1);
+                right_red_prop.beacon_flares_billboard_system[0]=gEnv->sceneManager->createBillboardSet(this->ComposeName("Prop", static_cast<int>(m_props.size())+1),1);
                 right_red_prop.beacon_flares_billboard_system[0]->createBillboard(0,0,0);
                 if (right_red_prop.beacon_flares_billboard_system[0])
                 {
@@ -1118,7 +1118,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 right_flash_prop.beacon_light_rotation_rate[0]=1.0;
                 right_flash_prop.beacontype='w';
                 //light
-                prop_name = this->ComposeName("Prop", m_props.size()+1);
+                prop_name = this->ComposeName("Prop", static_cast<int>(m_props.size())+1);
                 right_flash_prop.beacon_light[0]=gEnv->sceneManager->createLight(prop_name);
                 right_flash_prop.beacon_light[0]->setType(Ogre::Light::LT_POINT);
                 right_flash_prop.beacon_light[0]->setDiffuseColour( Ogre::ColourValue(1.0, 1.0, 1.0));
@@ -1492,13 +1492,13 @@ void ActorSpawner::ProcessSubmesh(RigDef::Submesh & def)
 
         // === add an extra front mesh ===
         //texcoords
-        int uv_start = (m_oldstyle_cab_submeshes.size()==1) ? 0 : (m_oldstyle_cab_submeshes.rbegin()+1)->texcoords_pos;
+        int uv_start = (m_oldstyle_cab_submeshes.size()==1) ? 0 : static_cast<int>((m_oldstyle_cab_submeshes.rbegin()+1)->texcoords_pos);
         for (size_t i=uv_start; i<m_oldstyle_cab_submeshes.back().texcoords_pos; i++)
         {
             m_oldstyle_cab_texcoords.push_back(m_oldstyle_cab_texcoords[i]);
         }
         //cab
-        int cab_start =  (m_oldstyle_cab_submeshes.size()==1) ? 0 : (m_oldstyle_cab_submeshes.rbegin()+1)->cabs_pos;
+        int cab_start =  (m_oldstyle_cab_submeshes.size()==1) ? 0 : static_cast<int>((m_oldstyle_cab_submeshes.rbegin()+1)->cabs_pos);
         for (size_t i=cab_start; i<m_oldstyle_cab_submeshes.back().cabs_pos; i++)
         {
             m_actor->ar_cabs[m_actor->ar_num_cabs*3]=m_actor->ar_cabs[i*3];
@@ -1515,14 +1515,14 @@ void ActorSpawner::ProcessSubmesh(RigDef::Submesh & def)
 
         // === add an extra back mesh ===
         //texcoords
-        uv_start = (m_oldstyle_cab_submeshes.size()==1) ? 0 : (m_oldstyle_cab_submeshes.rbegin()+1)->texcoords_pos;
+        uv_start = (m_oldstyle_cab_submeshes.size()==1) ? 0 : static_cast<int>((m_oldstyle_cab_submeshes.rbegin()+1)->texcoords_pos);
         for (size_t i=uv_start; i<m_oldstyle_cab_submeshes.back().texcoords_pos; i++)
         {
             m_oldstyle_cab_texcoords.push_back(m_oldstyle_cab_texcoords[i]);
         }
 
         //cab
-        cab_start =  (m_oldstyle_cab_submeshes.size()==1) ? 0 : (m_oldstyle_cab_submeshes.rbegin()+1)->cabs_pos;
+        cab_start =  (m_oldstyle_cab_submeshes.size()==1) ? 0 : static_cast<int>((m_oldstyle_cab_submeshes.rbegin()+1)->cabs_pos);
         for (size_t i=cab_start; i<m_oldstyle_cab_submeshes.back().cabs_pos; i++)
         {
             m_actor->ar_cabs[m_actor->ar_num_cabs*3]=m_actor->ar_cabs[i*3+1];
@@ -1600,7 +1600,7 @@ void ActorSpawner::ProcessFlexbody(std::shared_ptr<RigDef::Flexbody> def)
 void ActorSpawner::ProcessProp(RigDef::Prop & def)
 {
     prop_t prop;
-    int prop_index = m_props.size();
+    int prop_index = static_cast<int>(m_props.size());
     memset(&prop, 0, sizeof(prop_t));
 
     prop.noderef         = GetNodeIndexOrThrow(def.reference_node);
@@ -2237,7 +2237,7 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
 
             if (m_actor->m_net_custom_light_count < 4)
             {
-                m_actor->m_net_custom_lights[m_actor->m_net_custom_light_count] = m_actor->ar_flares.size();
+                m_actor->m_net_custom_lights[m_actor->m_net_custom_light_count] = static_cast<int>(m_actor->ar_flares.size());
                 m_actor->m_net_custom_light_count++;
             }
         }
@@ -6521,8 +6521,8 @@ void ActorSpawner::SetupNewEntity(Ogre::Entity* ent, Ogre::ColourValue simple_co
     {
         Ogre::MaterialPtr mat = this->CreateSimpleMaterial(simple_color);
 
-        const unsigned short num_sub_entities = ent->getNumSubEntities();
-        for (unsigned short i = 0; i < num_sub_entities; i++)
+        size_t num_sub_entities = ent->getNumSubEntities();
+        for (size_t i = 0; i < num_sub_entities; i++)
         {
             Ogre::SubEntity* subent = ent->getSubEntity(i);
             subent->setMaterial(mat);
@@ -6532,8 +6532,8 @@ void ActorSpawner::SetupNewEntity(Ogre::Entity* ent, Ogre::ColourValue simple_co
     }
 
     // Create unique sub-entity (=instance of submesh) materials
-    unsigned short subent_max = ent->getNumSubEntities();
-    for (unsigned short i = 0; i < subent_max; ++i)
+    size_t subent_max = ent->getNumSubEntities();
+    for (size_t i = 0; i < subent_max; ++i)
     {
         Ogre::SubEntity* subent = ent->getSubEntity(i);
 
@@ -7141,7 +7141,7 @@ void ActorSpawner::CreateMirrorPropVideoCam(
         }
 
         // Create rendering texture
-        const std::string mirror_tex_name = this->ComposeName("MirrorPropTexture-", mprop_counter);
+        const std::string mirror_tex_name = this->ComposeName("MirrorPropTexture-", static_cast<int>(mprop_counter));
         vcam.vcam_render_tex = Ogre::TextureManager::getSingleton().createManual(mirror_tex_name
             , m_custom_resource_group
             , Ogre::TEX_TYPE_2D
@@ -7152,7 +7152,7 @@ void ActorSpawner::CreateMirrorPropVideoCam(
             , Ogre::TU_RENDERTARGET);
 
         // Create OGRE camera
-        vcam.vcam_ogre_camera = gEnv->sceneManager->createCamera(this->ComposeName("MirrorPropCamera-", mprop_counter));
+        vcam.vcam_ogre_camera = gEnv->sceneManager->createCamera(this->ComposeName("MirrorPropCamera-", static_cast<int>(mprop_counter)));
         vcam.vcam_ogre_camera->setNearClipDistance(0.2f);
         vcam.vcam_ogre_camera->setFarClipDistance(gEnv->mainCamera->getFarClipDistance());
         vcam.vcam_ogre_camera->setFOVy(Ogre::Degree(50));

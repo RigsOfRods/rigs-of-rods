@@ -245,7 +245,7 @@ Actor* GameScript::getTruckByNum(int num)
 
 int GameScript::getNumTrucks()
 {
-    return App::GetSimController()->GetBeamFactory()->GetActors().size();
+    return static_cast<int>(App::GetSimController()->GetBeamFactory()->GetActors().size());
 }
 
 int GameScript::getNumTrucksByFlag(int flag)

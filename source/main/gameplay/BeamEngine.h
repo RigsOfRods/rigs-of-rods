@@ -93,7 +93,7 @@ public:
     float          getIdleRPM() const       { return m_engine_idle_rpm; };
     float          getMaxRPM() const        { return m_engine_max_rpm; };
     float          getMinRPM() const        { return m_engine_min_rpm; };
-    int            getNumGears() const      { return m_gear_ratios.size() - 2; };
+    int            getNumGears() const      { return static_cast<int>(m_gear_ratios.size() - 2); };
     int            getNumGearsRanges() const{ return getNumGears() / 6 + 1; };
     TorqueCurve*   getTorqueCurve()         { return m_torque_curve; };
     float          GetEngineRpm() const     { return m_cur_engine_rpm; }
