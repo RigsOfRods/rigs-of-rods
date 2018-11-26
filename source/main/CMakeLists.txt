@@ -552,7 +552,7 @@ endif ()
 
 
 # --- Caelum -- Ogre addon for realistic sky rendering ---
-if(DEFINED CONAN_OGRE-CAELUM_ROOT AND WIN32)
+if(DEFINED CONAN_OGRE-CAELUM_ROOT)
     set(CFG_OGRE_PLUGIN_CAELUM "Plugin=Caelum")
     target_include_directories(${BINNAME} PRIVATE CONAN_PKG::ogre-caelum)
     target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::ogre-caelum)
