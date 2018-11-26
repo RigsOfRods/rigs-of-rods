@@ -36,6 +36,59 @@
 
 using namespace Ogre;
 
+String HashData(const char *key, int len)
+{
+    std::stringstream result;
+    result << std::hex << FastHash(key, len);
+    return result.str();
+}
+
+String HashFile(const char *szFileName)
+{
+    const int MAX_FILE_BUFFER = 8196;
+    unsigned long ulFileSize, ulRest, ulBlocks;
+    char uData[MAX_FILE_BUFFER];
+
+    if (szFileName == NULL) return "";
+
+    FILE *fIn = fopen(szFileName, "rb");
+    if (fIn == NULL) return "";
+
+    fseek(fIn, 0, SEEK_END);
+    ulFileSize = (unsigned long)ftell(fIn);
+    fseek(fIn, 0, SEEK_SET);
+
+    if (ulFileSize != 0)
+    {
+        ulBlocks = ulFileSize / MAX_FILE_BUFFER;
+        ulRest = ulFileSize % MAX_FILE_BUFFER;
+    }
+    else
+    {
+        ulBlocks = 0;
+        ulRest = 0;
+    }
+
+    uint32_t hash = 0;
+    for (unsigned long i = 0; i < ulBlocks; i++)
+    {
+        size_t result = fread(uData, 1, MAX_FILE_BUFFER, fIn);
+        hash = FastHash(uData, MAX_FILE_BUFFER, hash);
+    }
+
+    if (ulRest != 0)
+    {
+        size_t result = fread(uData, 1, ulRest, fIn);
+        hash = FastHash(uData, ulRest, hash);
+    }
+
+    fclose(fIn); fIn = NULL;
+
+    std::stringstream result;
+    result << std::hex << hash;
+    return result.str();
+}
+
 UTFString tryConvertUTF(const char* buffer)
 {
     std::string str_in(buffer);
