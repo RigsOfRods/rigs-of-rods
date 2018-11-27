@@ -740,8 +740,6 @@ int GameScript::useOnlineAPIDirectly(OnlineAPIParams_t params)
         server_port_str = TOSTRING(port);
     }
     const bool mp_connected = (RoR::App::mp_state.GetActive() == RoR::MpState::CONNECTED);
-    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_ScriptName", CURLFORM_COPYCONTENTS, mse->getScriptName().c_str(), CURLFORM_END);
-    curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "terrain_ScriptHash", CURLFORM_COPYCONTENTS, mse->getScriptHash().c_str(), CURLFORM_END);
     curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_NickName", CURLFORM_COPYCONTENTS, App::mp_player_name.GetActive().c_str(), CURLFORM_END);
     curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_Language", CURLFORM_COPYCONTENTS, App::app_language.GetActive().c_str(), CURLFORM_END);
     curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "User_Token", CURLFORM_COPYCONTENTS, SSETTING("User Token Hash", "-").c_str(), CURLFORM_END);

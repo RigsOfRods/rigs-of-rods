@@ -732,10 +732,8 @@ void ScriptEngine::triggerEvent(int eventnum, int value)
     }
 }
 
-int ScriptEngine::loadScript(String _scriptName)
+int ScriptEngine::loadScript(String scriptName)
 {
-    scriptName = _scriptName;
-
     // Load the entire script file into the buffer
     int result=0;
 
@@ -745,43 +743,28 @@ int ScriptEngine::loadScript(String _scriptName)
     OgreScriptBuilder builder;
 
     AngelScript::asIScriptModule *mod = 0;
-    // try to load bytecode
-    bool cached = false;
 
-    if (!cached)
+    result = builder.StartNewModule(engine, moduleName);
+    if ( result < 0 )
     {
-        // not cached so dynamically load and compile it
-        result = builder.StartNewModule(engine, moduleName);
-        if ( result < 0 )
-        {
-            SLOG("Failed to start new module");
-            return result;
-        }
+        SLOG("Failed to start new module");
+        return result;
+    }
 
-        mod = engine->GetModule(moduleName, AngelScript::asGM_ONLY_IF_EXISTS);
+    mod = engine->GetModule(moduleName, AngelScript::asGM_ONLY_IF_EXISTS);
 
-        result = builder.AddSectionFromFile(scriptName.c_str());
-        if ( result < 0 )
-        {
-            SLOG("Unkown error while loading script file: "+scriptName);
-            SLOG("Failed to add script file");
-            return result;
-        }
-        result = builder.BuildModule();
-        if ( result < 0 )
-        {
-            SLOG("Failed to build the module");
-            return result;
-        }
-
-        // save the bytecode
-        scriptHash = builder.getHash();
-        {
-            String filepath = std::string(App::sys_cache_dir.GetActive()) + RoR::PATH_SLASH + "script" + scriptHash + "_" + scriptName + "c";
-            SLOG("saving script bytecode to file " + filepath);
-            CBytecodeStream bstream(filepath);
-            mod->SaveByteCode(&bstream);
-        }
+    result = builder.AddSectionFromFile(scriptName.c_str());
+    if ( result < 0 )
+    {
+        SLOG("Unkown error while loading script file: "+scriptName);
+        SLOG("Failed to add script file");
+        return result;
+    }
+    result = builder.BuildModule();
+    if ( result < 0 )
+    {
+        SLOG("Failed to build the module");
+        return result;
     }
 
     // get some other optional functions
