@@ -2206,7 +2206,7 @@ void CacheSystem::loadSingleDirectory(String dirname, String group, bool already
 #ifdef USE_OPENAL
             SoundScriptManager::getSingleton().clearNonBaseTemplates();
 #endif //OPENAL
-            //ParticleSystemManager::getSingleton().removeTemplatesByResourceGroup(rgname);
+            ParticleSystemManager::getSingleton().removeTemplatesByResourceGroup(rgname);
             ResourceGroupManager::getSingleton().clearResourceGroup(rgname);
             ResourceGroupManager::getSingleton().unloadResourceGroup(rgname);
             ResourceGroupManager::getSingleton().removeResourceLocation(dirname, rgname);
@@ -2275,7 +2275,7 @@ void CacheSystem::loadSingleZip(String zippath, int cfactor, bool unload, bool o
 #ifdef USE_OPENAL
             SoundScriptManager::getSingleton().clearNonBaseTemplates();
 #endif //OPENAL
-            //ParticleSystemManager::getSingleton().removeTemplatesByResourceGroup(rgname);
+            ParticleSystemManager::getSingleton().removeTemplatesByResourceGroup(rgname);
             rgm.removeResourceLocation(realzipPath, rgname);
             rgm.clearResourceGroup(rgname);
             rgm.unloadResourceGroup(rgname);
