@@ -2175,7 +2175,7 @@ void SimController::EnterGameplayLoop()
                 {
                     m_actor_manager.UnmuteAllActors();
                     App::sim_state.ApplyPending();
-                }                
+                }
             }
         }
 
@@ -2220,11 +2220,11 @@ void SimController::EnterGameplayLoop()
         }
     }
 
+    m_actor_manager.SyncWithSimThread(); // Wait for background tasks to finish
     App::sim_state.SetActive(SimState::OFF);
     App::GetGuiManager()->GetLoadingWindow()->setProgress(50, _L("Unloading Terrain"), !m_was_app_window_closed); // Renders a frame
     this->CleanupAfterSimulation();
     OgreBites::WindowEventUtilities::removeWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
-    // DO NOT: App::GetOverlayWrapper()->SetSimController(nullptr); -- already deleted via App::DestroyOverlayWrapper(); // TODO: de-globalize that object!
 }
 
 void SimController::ChangePlayerActor(Actor* actor)
