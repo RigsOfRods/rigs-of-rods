@@ -26,12 +26,9 @@
 #include "OgreScriptBuilder.h"
 
 #include "Application.h"
-#include "SHA1.h"
 
 #include <string>
-#include <Ogre.h>
 
-// OgreScriptBuilder
 int OgreScriptBuilder::LoadScriptSection(const char* full_path_cstr)
 {
     // Get filename - required to retrieve file from OGRe's resource system.
@@ -75,17 +72,6 @@ int OgreScriptBuilder::LoadScriptSection(const char* full_path_cstr)
     std::string code;
     code.resize(ds->size());
     ds->read(&code[0], ds->size());
-
-    // hash it
-    {
-        char hash_result[250];
-        memset(hash_result, 0, 249);
-        RoR::CSHA1 sha1;
-        sha1.UpdateHash((uint8_t *)code.c_str(), (uint32_t)code.size());
-        sha1.Final();
-        sha1.ReportHash(hash_result, RoR::CSHA1::REPORT_HEX_SHORT);
-        hash = Ogre::String(hash_result);
-    }
 
     return ProcessScriptSection(code.c_str(), code.length(), filename.c_str(), 0);
 }
