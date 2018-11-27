@@ -2275,12 +2275,12 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
         return;
     }
 
-    // Create global placeholder
+    // Create temporary placeholder
     // This is necessary to load meshes with original material names (= unchanged managed mat names)
     // - if not found, OGRE substitutes them with 'BaseWhite' which breaks subsequent processing.
     if (RoR::OgreSubsystem::GetMaterialByName(def.name).isNull())
     {
-        m_placeholder_managedmat->clone(def.name);
+        m_placeholder_managedmat->clone(def.name, /*changeGroup=*/true, m_custom_resource_group);
     }
 
     std::string custom_name = def.name + ACTOR_ID_TOKEN + TOSTRING(m_actor->ar_instance_id);
