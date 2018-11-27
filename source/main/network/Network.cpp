@@ -187,17 +187,10 @@ bool CheckError()
 
 void DebugPacket(const char *name, RoRnet::Header *header, char *buffer)
 {
-    char sha1result[250] = {0};
-    if (buffer)
-    {
-        RoR::CSHA1 sha1;
-        sha1.UpdateHash((uint8_t *)buffer, header->size);
-        sha1.Final();
-        sha1.ReportHash(sha1result, RoR::CSHA1::REPORT_HEX_SHORT);
-    }
-    char tmp[256] = {0};
-    sprintf(tmp, "++ %s: %d:%d, %d, %d, hash: %s", name, header->source, header->streamid, header->command, header->size, sha1result);
-    LOG(tmp);
+    std::stringstream msg;
+    msg << "++ " << name << ": " << header->source << ", " << header->streamid
+        << ", "<< header->command << ", " << header->size << ", hash: " << HashData(buffer, header->size);
+    LOG(msg.str());
 }
 
 void NetFatalError(Ogre::UTFString errormsg)
@@ -512,7 +505,7 @@ void RecvThread()
 #endif // USE_ANGELSCRIPT
             continue;
         }
-        //DebugPacket("receive-1", &header, buffer);
+        //DebugPacket("recv", &header, buffer);
 
         QueueStreamData(header, buffer, RORNET_MAX_MESSAGE_LENGTH);
     }
@@ -843,6 +836,7 @@ void AddPacket(int streamid, int type, int len, char *content)
                 return;
             }
         }
+        //DebugPacket("send", head, buffer);
         m_send_packet_buffer.push_back(packet);
     }
 
