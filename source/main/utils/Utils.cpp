@@ -45,9 +45,8 @@ String HashData(const char *key, int len)
 
 String HashFile(const char *szFileName)
 {
-    const int MAX_FILE_BUFFER = 1048576;
     unsigned long ulFileSize, ulRest, ulBlocks;
-    char uData[MAX_FILE_BUFFER];
+    std::vector<char> uData(2097152);
 
     if (szFileName == NULL) return "";
 
@@ -60,8 +59,8 @@ String HashFile(const char *szFileName)
 
     if (ulFileSize != 0)
     {
-        ulBlocks = ulFileSize / MAX_FILE_BUFFER;
-        ulRest = ulFileSize % MAX_FILE_BUFFER;
+        ulBlocks = ulFileSize / uData.size();
+        ulRest = ulFileSize % uData.size();
     }
     else
     {
@@ -72,14 +71,14 @@ String HashFile(const char *szFileName)
     uint32_t hash = 0;
     for (unsigned long i = 0; i < ulBlocks; i++)
     {
-        size_t result = fread(uData, 1, MAX_FILE_BUFFER, fIn);
-        hash = FastHash(uData, MAX_FILE_BUFFER, hash);
+        size_t result = fread(uData.data(), 1, uData.size(), fIn);
+        hash = FastHash(uData.data(), uData.size(), hash);
     }
 
     if (ulRest != 0)
     {
-        size_t result = fread(uData, 1, ulRest, fIn);
-        hash = FastHash(uData, ulRest, hash);
+        size_t result = fread(uData.data(), 1, ulRest, fIn);
+        hash = FastHash(uData.data(), ulRest, hash);
     }
 
     fclose(fIn); fIn = NULL;
