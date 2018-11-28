@@ -29,11 +29,8 @@ addons:
 install:
   - sudo rm -rf /usr/local/cmake-3.9.2/
   - sudo rm -f /usr/local/cmake
-  - sudo pip install cmake conan --ignore-installed
-  - conan user
-  - conan remote add ror-dependencies https://api.bintray.com/conan/anotherfoxguy/ror-dependencies || true
-  - conan remote add bincrafters-public-conan https://api.bintray.com/conan/bincrafters/public-conan || true
-  - conan install --build=missing -u -s compiler.libcxx=libstdc++11 .
+  - sudo curl https://cmake.org/files/v3.13/cmake-3.13.1-Linux-x86_64.sh -o /tmp/cmake.sh
+  - sudo sh /tmp/cmake.sh --exclude-subdir --prefix=/usr/local
 
 script:
   - cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_REDIST_FOLDER=ON .

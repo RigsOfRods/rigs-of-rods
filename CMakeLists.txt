@@ -23,17 +23,19 @@ project(${PROJECT_NAME_SHORT} VERSION 0.4.8.0)
 ################################################################################
 # Available build options
 ################################################################################
+option(BUILD_USE_PMM "Use PMM for managing Conan" ON)
 option(BUILD_DEV_VERSION "Disable this for official releases" ON)
 option(BUILD_DOC_DOXYGEN "Build documentation from sources with Doxygen" OFF)
 option(BUILD_REDIST_FOLDER "Build a folder for redistributing the game" OFF)
 
 include(Macros)
 
-if (EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-    include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-    conan_basic_setup(TARGETS)
-    conan_set_find_paths()
-    conan_set_vs_runtime()
+if (BUILD_USE_PMM)
+    include(${CMAKE_SOURCE_DIR}/cmake/3rdparty/pmm.cmake)
+    pmm(CONAN
+        REMOTES ror-dependencies https://api.bintray.com/conan/anotherfoxguy/ror-dependencies
+        bincrafters-public-conan https://api.bintray.com/conan/bincrafters/public-conan
+    )
 endif ()
 
 # global cmake options

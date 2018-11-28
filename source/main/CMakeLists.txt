@@ -431,7 +431,7 @@ target_link_libraries(${BINNAME} PRIVATE
         )
 
 # --- Ogre 3D graphics engine ---
-if (DEFINED CONAN_OGRE_ROOT)
+if (BUILD_USE_PMM)
     target_include_directories(${BINNAME} PRIVATE CONAN_PKG::OGRE)
     target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::OGRE)
 else ()
@@ -440,8 +440,8 @@ endif ()
 
 
 # --- Object Oriented Input System ---
-if (DEFINED CONAN_OGREDEPS_ROOT)
-    include_directories(${CONAN_INCLUDE_DIRS_OGREDEPS}/OIS)
+if (BUILD_USE_PMM)
+    target_include_directories(${BINNAME} PRIVATE CONAN_PKG::OGREdeps)
     target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::OGREdeps)
 else ()
     target_link_libraries(${BINNAME} PRIVATE ${OIS_LIBRARIES})
@@ -449,8 +449,7 @@ else ()
 endif ()
 
 # --- MoFileReader ---
-
-if (DEFINED CONAN_MOFILEREADER_ROOT)
+if (BUILD_USE_PMM)
     target_include_directories(${BINNAME} PRIVATE CONAN_PKG::MofileReader)
     target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::MofileReader)
     target_compile_definitions(${BINNAME} PRIVATE USE_MOFILEREADER)
@@ -463,7 +462,7 @@ endif ()
 
 
 # --- MyGUI - graphical user inferface ---
-if (DEFINED CONAN_MYGUI_ROOT)
+if (BUILD_USE_PMM)
     target_include_directories(${BINNAME} PRIVATE CONAN_PKG::MyGUI)
     target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::MyGUI)
     target_compile_definitions(${BINNAME} PRIVATE USE_MYGUI $<$<PLATFORM_ID:WINDOWS>:MYGUI_STATIC>)
@@ -482,9 +481,9 @@ endif ()
 # -----------------------
 
 # --- OpenAL - audio library ---
-if (DEFINED CONAN_OPENAL_ROOT)
-    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::openal)
+if (BUILD_USE_PMM)
     target_include_directories(${BINNAME} PRIVATE CONAN_PKG::openal)
+    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::openal)
     target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)
 elseif (OPENAL_FOUND)
     target_link_libraries(${BINNAME} PRIVATE ${OPENAL_LIBRARY})
@@ -494,7 +493,8 @@ endif ()
 
 
 # --- SocketW - networking library ---
-if (DEFINED CONAN_SOCKETW_ROOT)
+if (BUILD_USE_PMM)
+    target_include_directories(${BINNAME} PRIVATE CONAN_PKG::SocketW)
     target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::SocketW)
     target_include_directories(${BINNAME} PRIVATE CONAN_PKG::SocketW)
     target_compile_definitions(${BINNAME} PRIVATE USE_SOCKETW)
@@ -504,15 +504,15 @@ elseif (TARGET SocketW::SocketW)
 endif ()
 
 # Add openssl
-if (DEFINED CONAN_OPENSSL_ROOT)
-    target_include_directories(${BINNAME} PRIVATE ${CONAN_INCLUDE_DIRS_OPENSSL})
+if (BUILD_USE_PMM)
+    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::OpenSSL)
 endif ()
 
 
 # --- AngelScript - scripting interface ---
-if (DEFINED CONAN_ANGELSCRIPT_ROOT)
-    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::AngelScript)
+if (BUILD_USE_PMM)
     target_include_directories(${BINNAME} PRIVATE CONAN_PKG::AngelScript)
+    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::AngelScript)
     target_compile_definitions(${BINNAME} PRIVATE USE_ANGELSCRIPT)
     target_compile_definitions(${BINNAME} PRIVATE AS_USE_NAMESPACE)
 
@@ -532,9 +532,9 @@ endif ()
 
 
 # --- cURL ---
-if (DEFINED CONAN_LIBCURL_ROOT)
-    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::libcurl)
+if (BUILD_USE_PMM)
     target_include_directories(${BINNAME} PRIVATE CONAN_PKG::libcurl)
+    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::libcurl)
     target_compile_definitions(${BINNAME} PRIVATE USE_CURL)
 elseif (CURL_FOUND)
     target_link_libraries(${BINNAME} PRIVATE ${CURL_LIBRARY})
@@ -548,13 +548,13 @@ endif ()
 
 
 # --- rapidjson ---
-if (CONAN_RAPIDJSON_ROOT)
-    target_include_directories(${BINNAME} PRIVATE ${CONAN_INCLUDE_DIRS_RAPIDJSON})
+if (BUILD_USE_PMM)
+    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::rapidjson)
 endif ()
 
 
 # --- Caelum -- Ogre addon for realistic sky rendering ---
-if(DEFINED CONAN_OGRE-CAELUM_ROOT AND ROR_USE_CAELUM)
+if(BUILD_USE_PMM AND ROR_USE_CAELUM)
     if(UNIX)
         set(CFG_OGRE_PLUGIN_CAELUM "Plugin=libCaelum.so")
     else()
@@ -586,7 +586,7 @@ endif ()
 
 if (BUILD_REDIST_FOLDER AND UNIX)
     set(PLUGINS_FOLDER "lib")
-elseif (EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
+elseif (BUILD_USE_PMM)
     set(PLUGINS_FOLDER ".")
 else ()
     set(PLUGINS_FOLDER ${OGRE_PLUGIN_DIR})

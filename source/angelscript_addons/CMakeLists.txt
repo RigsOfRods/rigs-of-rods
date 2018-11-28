@@ -6,7 +6,7 @@ FILE(GLOB_RECURSE headers *.h)
 
 add_library(angelscript_addons STATIC ${headers} ${sources})
 
-if(DEFINED CONAN_ANGELSCRIPT_ROOT)
+if(BUILD_USE_PMM)
   target_link_libraries(angelscript_addons PRIVATE CONAN_PKG::AngelScript)
   target_include_directories(angelscript_addons PRIVATE CONAN_PKG::AngelScript)
   target_compile_definitions(angelscript_addons PRIVATE USE_ANGELSCRIPT)

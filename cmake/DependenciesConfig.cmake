@@ -16,7 +16,7 @@ set(ROR_BUILD_SIM ON)
 
 find_package(Threads REQUIRED)
 
-if (NOT EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
+if (NOT BUILD_USE_PMM)
     # find packages
 
     find_package(OGRE 1.11 REQUIRED COMPONENTS Bites HLMS Overlay Paging RTShaderSystem MeshLodGenerator Terrain)
