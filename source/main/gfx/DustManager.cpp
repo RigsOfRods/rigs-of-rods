@@ -158,8 +158,8 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
         for (GfxActor* gfx_actor: m_all_gfx_actors)
         {
             auto& simbuf = gfx_actor->GetSimDataBuffer();
-            m_survey_map->UpdateActorMapEntry(
-                gfx_actor->GetActorId(), simbuf.simbuf_pos, simbuf.simbuf_rotation);
+            m_survey_map->UpdateMapEntity(gfx_actor->GetSurveyMapEntity(), "",
+                simbuf.simbuf_pos, simbuf.simbuf_rotation, gfx_actor->GetActorState(), true);
         }
         m_survey_map->Update(dt_sec, m_simbuf.simbuf_player_actor);
     }
@@ -263,9 +263,8 @@ void RoR::GfxScene::RegisterGfxActor(RoR::GfxActor* gfx_actor)
 
     if (m_survey_map != nullptr)
     {
-        m_survey_map->createNamedMapEntity( // TODO: just use pointers! ~ 05/2018
-            "Truck" + TOSTRING(gfx_actor->GetActorId()),
-            SurveyMapManager::getTypeByDriveable(gfx_actor->GetActorDriveable()));
+        auto entity = m_survey_map->createMapEntity(SurveyMapManager::getTypeByDriveable(gfx_actor->GetActorDriveable()));
+        gfx_actor->SetSurveyMapEntity(entity);
     }
 }
 
@@ -301,6 +300,11 @@ void RoR::GfxScene::RemoveGfxActor(RoR::GfxActor* remove_me)
 {
     auto itor = std::remove(m_all_gfx_actors.begin(), m_all_gfx_actors.end(), remove_me);
     m_all_gfx_actors.erase(itor, m_all_gfx_actors.end());
+
+    if (m_survey_map != nullptr)
+    {
+        m_survey_map->deleteMapEntity(remove_me->GetSurveyMapEntity());
+    }
 }
 
 void RoR::GfxScene::RegisterGfxCharacter(RoR::GfxCharacter* gfx_character)

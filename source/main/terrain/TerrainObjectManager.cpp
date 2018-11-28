@@ -36,7 +36,6 @@
 #include "RoRFrameListener.h"
 #include "Settings.h"
 #include "SoundScriptManager.h"
-#include "SurveyMapEntity.h"
 #include "SurveyMapManager.h"
 #include "TerrainGeometryManager.h"
 #include "TerrainManager.h"
@@ -496,8 +495,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
             }
         } //end of the ugly (somewhat)
 
-        strcpy(name, "generic");
-        memset(oname, 0, 255);
+        memset(oname, 0, 1023);
         memset(type, 0, 255);
         memset(name, 0, 255);
         int r = sscanf(line, "%f, %f, %f, %f, %f, %f, %s %s %s", &pos.x, &pos.y, &pos.z, &rot.x, &rot.y, &rot.z, oname, type, name);
@@ -1248,36 +1246,20 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         LOG("ODEF: unknown command in "+odefname+" : "+String(ptline));
     }
 
-    //add icons if type is set
-
-    String typestr = "";
-    auto* survey_map = App::GetSimController()->GetGfxScene().GetSurveyMap();
-    if (!type.empty() && survey_map)
+    // add icons if type is set
+    auto survey_map = App::GetSimController()->GetGfxScene().GetSurveyMap();
+    if ((survey_map != nullptr) && !type.empty() && type != "road" && type != "sign")
     {
-        typestr = type;
+        String typestr = type;
+
         // hack for raceways
         if (name == "chp-checkpoint")
             typestr = "checkpoint";
         if (name == "chp-start")
             typestr = "racestart";
-        if (name == "road" , 4)
-            typestr = "road";
 
-        if (typestr != "" && typestr != "road" && typestr != "sign")
-        {
-            SurveyMapEntity* e = survey_map->createMapEntity(typestr);
-            if (e)
-            {
-                e->setVisibility(true);
-                e->setPosition(pos);
-                e->setRotation(Radian(rot.y));
-
-                if (!name.empty())
-                    e->setDescription(instancename);
-            }
-        }
+        survey_map->UpdateMapEntity(survey_map->createMapEntity(typestr), name, pos, rot.y, 0, true);
     }
-
 }
 
 bool TerrainObjectManager::UpdateAnimatedObjects(float dt)

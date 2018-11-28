@@ -30,7 +30,6 @@
 #include "Network.h"
 #include "RoRFrameListener.h"
 #include "Settings.h"
-#include "SurveyMapEntity.h"
 #include "SurveyMapManager.h"
 #include "TerrainManager.h"
 #include "Utils.h"
@@ -42,7 +41,7 @@ using namespace RoR;
 #define LOGSTREAM Ogre::LogManager::getSingleton().stream()
 
 Character::Character(int source, unsigned int streamid, int color_number, bool is_remote) :
-    m_actor_coupling(nullptr)
+      m_actor_coupling(nullptr)
     , m_can_jump(false)
     , m_character_rotation(0.0f)
     , m_character_h_speed(2.0f)
@@ -55,7 +54,6 @@ Character::Character(int source, unsigned int streamid, int color_number, bool i
     , m_net_username("")
     , m_is_remote(is_remote)
     , m_source_id(source)
-    , m_survey_map_entity(nullptr)
     , m_stream_id(streamid)
     , m_gfx_character(nullptr)
     , m_driving_anim_length(0.f)
@@ -73,18 +71,11 @@ Character::Character(int source, unsigned int streamid, int color_number, bool i
     {
         setVisible(true);
     }
-
 }
 
 Character::~Character()
 {
     setVisible(false);
-
-    auto* survey_map = App::GetSimController()->GetGfxScene().GetSurveyMap();
-    if ((survey_map != nullptr) && m_survey_map_entity)
-    {
-        survey_map->deleteMapEntity(m_survey_map_entity);
-    }
 
     App::GetSimController()->GetGfxScene().RemoveGfxCharacter(m_gfx_character);
     delete m_gfx_character;
@@ -128,26 +119,12 @@ void Character::setPosition(Vector3 position) // TODO: updates OGRE objects --> 
     //ASYNCSCENE OLD m_character_scenenode->setPosition(position);
     m_character_position = position;
     m_prev_positions.clear();
-    auto* survey_map = App::GetSimController()->GetGfxScene().GetSurveyMap();
-    if (survey_map)
-    {
-        SurveyMapEntity* e = survey_map->getMapEntityByName(m_instance_name);
-        if (e)
-            e->setPosition(position);
-    }
 }
 
 void Character::setVisible(bool visible) // TODO: updates OGRE objects --> belongs to GfxScene ~ only_a_ptr, 05/2018
 {
     //ASYNCSCENE OLD m_character_scenenode->setVisible(visible);
     m_character_visible = visible;
-    auto* survey_map = App::GetSimController()->GetGfxScene().GetSurveyMap();
-    if (survey_map)
-    {
-        SurveyMapEntity* e = survey_map->getMapEntityByName(m_instance_name);
-        if (e)
-            e->setVisibility(visible);
-    }
 }
 
 Vector3 Character::getPosition()
@@ -431,7 +408,6 @@ void Character::update(float dt)
         }
 
         m_character_position = position;
-        updateMapIcon();
     }
     else if (m_actor_coupling) // The character occupies a vehicle or machine
     {
@@ -457,24 +433,6 @@ void Character::update(float dt)
         this->SendStreamData();
     }
 #endif // USE_SOCKETW
-}
-
-void Character::updateMapIcon() // TODO: updates OGRE objects --> belongs to GfxScene ~ only_a_ptr, 05/2018
-{
-    auto* survey_map = App::GetSimController()->GetGfxScene().GetSurveyMap();
-    if (!survey_map)
-        return;
-    SurveyMapEntity* e = survey_map->getMapEntityByName(m_instance_name);
-    if (e)
-    {
-        e->setPosition(m_character_position);
-        //e->setRotation(m_character_orientation); // TODO: temporarily disabled when doing {AsyncScene} refactor
-        e->setVisibility(!m_actor_coupling);
-    }
-    else
-    {
-        this->AddPersonToSurveyMap();
-    }
 }
 
 void Character::unwindMovement(float distance)
@@ -644,19 +602,6 @@ void Character::SetActorCoupling(bool enabled, Actor* actor /* = nullptr */)
     }
 }
 
-void Character::AddPersonToSurveyMap() // TODO: updates OGRE objects --> belongs to GfxScene ~ only_a_ptr, 05/2018
-{
-    auto* survey_map = App::GetSimController()->GetGfxScene().GetSurveyMap();
-    if (survey_map)
-    {
-        m_survey_map_entity = survey_map->createNamedMapEntity(m_instance_name, "person");
-        m_survey_map_entity->setState(0);
-        m_survey_map_entity->setVisibility(true);
-        m_survey_map_entity->setPosition(m_character_position);
-        //m_survey_map_entity->setRotation(m_character_orientation); // TODO: ditto, see above.
-    }
-}
-
 GfxCharacter* Character::SetupGfx()
 {
     Entity* entity = gEnv->sceneManager->createEntity(m_instance_name + "_mesh", "character.mesh");
@@ -707,6 +652,10 @@ GfxCharacter* Character::SetupGfx()
 
 RoR::GfxCharacter::~GfxCharacter()
 {
+    if (App::GetSimController()->GetGfxScene().GetSurveyMap())
+    {
+        App::GetSimController()->GetGfxScene().GetSurveyMap()->deleteMapEntity(xc_survey_map_entity);
+    }
     Entity* ent = static_cast<Ogre::Entity*>(xc_scenenode->getAttachedObject(0));
     xc_scenenode->detachAllObjects();
     gEnv->sceneManager->destroySceneNode(xc_scenenode);
@@ -715,7 +664,6 @@ RoR::GfxCharacter::~GfxCharacter()
     {
         delete xc_movable_text;
     }
-
     MaterialManager::getSingleton().unload("tracks/" + xc_instance_name);
 }
 
@@ -727,6 +675,7 @@ void RoR::GfxCharacter::BufferSimulationData()
     xc_simbuf.simbuf_character_rot          = xc_character->getRotation();
     xc_simbuf.simbuf_color_number           = xc_character->GetColorNum();
     xc_simbuf.simbuf_net_username           = xc_character->GetNetUsername();
+    xc_simbuf.simbuf_is_remote              = xc_character->GetIsRemote();
     xc_simbuf.simbuf_actor_coupling         = xc_character->GetActorCoupling();
     xc_simbuf.simbuf_anim_name              = xc_character->GetAnimName();
     xc_simbuf.simbuf_anim_time              = xc_character->GetAnimTime();
@@ -808,6 +757,18 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
     {
         auto* as_cur = entity->getAnimationState(xc_simbuf.simbuf_anim_name);
         as_cur->setTimePosition(xc_simbuf.simbuf_anim_time);
+    }
+
+    // SurveyMapEntity
+    auto survey_map = App::GetSimController()->GetGfxScene().GetSurveyMap();
+    if (survey_map)
+    {
+        if (xc_survey_map_entity == nullptr)
+            xc_survey_map_entity = survey_map->createMapEntity("person");
+        String caption = (App::mp_state.GetActive() == MpState::CONNECTED) ? xc_simbuf.simbuf_net_username : "";
+        survey_map->UpdateMapEntity(xc_survey_map_entity, caption,
+                xc_simbuf.simbuf_character_pos, xc_simbuf.simbuf_character_rot.valueRadians(),
+                -static_cast<int>(xc_simbuf.simbuf_is_remote), !xc_simbuf.simbuf_actor_coupling);
     }
 
     // Multiplayer label

@@ -72,7 +72,6 @@
 #include "GUI_TopMenubar.h"
 
 #include "SurveyMapManager.h"
-#include "SurveyMapEntity.h"
 
 #include <ctime>
 #include <fstream>
@@ -1648,16 +1647,8 @@ void SimController::UpdateSimulation(float dt)
 
             if (App::GetSimController()->GetGfxScene().GetSurveyMap() != nullptr)
             {
-                SurveyMapEntity* e = App::GetSimController()->GetGfxScene().GetSurveyMap()->createNamedMapEntity(
-                    "Truck" + std::to_string(fresh_actor->ar_instance_id),
+                App::GetSimController()->GetGfxScene().GetSurveyMap()->createMapEntity(
                     SurveyMapManager::getTypeByDriveable(fresh_actor->ar_driveable));
-                if (e != nullptr)
-                {
-                    e->setState(static_cast<int>(Actor::SimState::LOCAL_SIMULATED));
-                    e->setVisibility(true);
-                    e->setPosition(rq.asr_position.x, rq.asr_position.z);
-                    e->setRotation(-Radian(fresh_actor->getRotation()));
-                }
             }
         }
         else

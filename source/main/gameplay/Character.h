@@ -36,6 +36,7 @@ public:
     int            getSourceID() const                  { return m_source_id; }
     bool           isRemote() const                     { return m_is_remote; }
     int            GetColorNum() const                  { return m_color_number; }
+    bool           GetIsRemote() const                  { return m_is_remote; }
     Ogre::UTFString const& GetNetUsername()             { return m_net_username; }
     std::string const &    GetAnimName() const          { return m_anim_name; }
     float          GetAnimTime() const                  { return m_anim_time; }
@@ -51,7 +52,6 @@ public:
     void           unwindMovement(float distance);
     void           update(float dt);
     void           updateCharacterRotation();
-    void           updateMapIcon();
     void           updateLabels();
     void           receiveStreamData(unsigned int& type, int& source, unsigned int& streamid, char* buffer);
     void           SetActorCoupling(bool enabled, Actor* actor = nullptr);
@@ -59,14 +59,12 @@ public:
 
 private:
 
-    void           AddPersonToSurveyMap();
     void           ReportError(const char* detail);
     void           SendStreamData();
     void           SendStreamSetup();
     void           SetAnimState(std::string mode, float time = 0);
 
     Actor*           m_actor_coupling; //!< The vehicle or machine which the character occupies
-    SurveyMapEntity* m_survey_map_entity;
     Ogre::Radian     m_character_rotation;
     float            m_character_h_speed;
     float            m_character_v_speed;
@@ -97,6 +95,7 @@ struct GfxCharacter
         Ogre::Vector3      simbuf_character_pos;
         Ogre::Radian       simbuf_character_rot; //!< When on foot
         Ogre::UTFString    simbuf_net_username;
+        bool               simbuf_is_remote;
         int                simbuf_color_number;
         Actor*             simbuf_actor_coupling;
         std::string        simbuf_anim_name;
@@ -108,6 +107,7 @@ struct GfxCharacter
     void            BufferSimulationData();
     void            UpdateCharacterInScene();
     
+    SurveyMapEntity*          xc_survey_map_entity;
     Ogre::SceneNode*          xc_scenenode;
     Ogre::MovableText*        xc_movable_text; // TODO: Remake using GUI; the network labels shouldn't be part of scene. ~only_a_ptr, 05/2018
     SimBuffer                 xc_simbuf;
