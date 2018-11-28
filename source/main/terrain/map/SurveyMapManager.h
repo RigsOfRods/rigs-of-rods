@@ -50,9 +50,7 @@ public:
     Ogre::Real getMapZoom() { return mMapZoom; }
 
     void setMapCenter(Ogre::Vector2 position);
-    void setMapCenter(Ogre::Vector3 position);
     void setMapCenter(Ogre::Vector2 position, float maxOffset);
-    void setMapCenter(Ogre::Vector3 position, float maxOffset);
     Ogre::Vector2 getMapCenter() { return mMapCenter; };
 
     void windowResized();
@@ -93,8 +91,6 @@ protected:
     bool mMapEntitiesVisible;
 
     int mMapMode;
-
-    float mMapCenterThreshold;
 
     int realw, realh;
     int rWinLeft, rWinTop;

@@ -166,7 +166,7 @@ static TerrainManager*  g_sim_terrain;
  GVarEnum_AP<GfxVegetation>  gfx_vegetation_mode  ("gfx_vegetation_mode",     "Vegetation",                GfxVegetation::NONE,     GfxVegetation::NONE);
  GVarEnum_AP<GfxWaterMode>   gfx_water_mode       ("gfx_water_mode",          "Water effects",             GfxWaterMode::BASIC,     GfxWaterMode::BASIC);
  GVarPod_A<bool>          gfx_water_waves         ("gfx_water_waves",         "Waves",                     false);
- GVarPod_A<bool>          gfx_minimap_disabled    ("gfx_minimap_disabled",    "disableOverViewMap",        false);
+ GVarPod_A<bool>          gfx_minimap_enabled     ("gfx_minimap_enabled",     "OverviewMap",               true);
  GVarPod_A<int>           gfx_particles_mode      ("gfx_particles_mode",      "Particles",                 0);
  GVarPod_A<bool>          gfx_enable_videocams    ("gfx_enable_videocams",    "gfx_enable_videocams",      false);
  GVarPod_A<bool>          gfx_envmap_enabled      ("gfx_envmap_enabled",      "Envmap",                    true);

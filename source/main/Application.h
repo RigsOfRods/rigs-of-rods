@@ -737,7 +737,7 @@ extern GVarEnum_AP<GfxTexFilter>  gfx_texture_filter;
 extern GVarEnum_AP<GfxVegetation> gfx_vegetation_mode;
 extern GVarEnum_AP<GfxWaterMode>  gfx_water_mode;
 extern GVarPod_A<bool>         gfx_water_waves;
-extern GVarPod_A<bool>         gfx_minimap_disabled;
+extern GVarPod_A<bool>         gfx_minimap_enabled;
 extern GVarPod_A<int>          gfx_particles_mode;
 extern GVarPod_A<bool>         gfx_enable_videocams;
 extern GVarPod_A<bool>         gfx_envmap_enabled;
