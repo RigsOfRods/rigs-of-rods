@@ -54,6 +54,7 @@ public:
     Ogre::Vector2 getMapCenter() { return mMapCenter; };
 
     void windowResized();
+    void updateWindowPosition();
     void setWindowPosition(int x, int y, float size);
     Ogre::Vector2 getWindowSize() { return Ogre::Vector2(realw, realh); };
 
