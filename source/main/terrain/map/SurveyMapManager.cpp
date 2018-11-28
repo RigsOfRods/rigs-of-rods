@@ -40,7 +40,7 @@ SurveyMapManager::SurveyMapManager(Ogre::Vector2 terrain_size) :
       mAlpha(1.0f)
     , mMapCenter(terrain_size / 2)
     , mMapCenterThreshold(FSETTING("SurveyMapCenterThreshold", 5.0f))
-    , mMapEntitiesVisible(false)
+    , mMapEntitiesVisible(true)
     , mMapMode(SURVEY_MAP_NONE)
     , mMapSize(terrain_size)
     , mMapTextureCreator(new SurveyMapTextureCreator(terrain_size))
@@ -54,44 +54,29 @@ SurveyMapManager::SurveyMapManager(Ogre::Vector2 terrain_size) :
 
 SurveyMapManager::~SurveyMapManager()
 {
-    for (SurveyMapEntity* e : mMapEntities)
+    for (auto entity : mMapEntities)
     {
-        if (e)
-            delete e;
+        if (entity)
+        {
+            delete entity;
+        }
     }
-}
-
-std::string SurveyMapManager::GetMinimapTextureName()
-{
-    return mMapTextureCreator->getTextureName();
 }
 
 SurveyMapEntity* SurveyMapManager::createMapEntity(String type)
 {
-    SurveyMapEntity* entity = new SurveyMapEntity(this, mMapSize, type, mMapTexture);
+    auto entity = new SurveyMapEntity(this, mMapSize, type, mMapTexture);
     mMapEntities.insert(entity);
-    return entity;
-}
-
-SurveyMapEntity* SurveyMapManager::createNamedMapEntity(String name, String type)
-{
-    SurveyMapEntity* entity = createMapEntity(type);
-    mNamedEntities[name] = entity;
     return entity;
 }
 
 void SurveyMapManager::deleteMapEntity(SurveyMapEntity* entity)
 {
-    mMapEntities.erase(entity);
-}
-
-SurveyMapEntity* SurveyMapManager::getMapEntityByName(String name)
-{
-    if (mNamedEntities.find(name) != mNamedEntities.end())
+    if (entity)
     {
-        return mNamedEntities[name];
+        mMapEntities.erase(entity);
+        delete entity;
     }
-    return nullptr;
 }
 
 bool SurveyMapManager::getVisibility()
@@ -107,14 +92,6 @@ void SurveyMapManager::setAlpha(float alpha, bool permanent /*= true*/)
         mAlpha = alpha;
 }
 
-void SurveyMapManager::setMapEntitiesVisibility(bool value)
-{
-    for (std::set<SurveyMapEntity *>::iterator it = mMapEntities.begin(); it != mMapEntities.end(); it++)
-    {
-        (*it)->setVisibility(value);
-    }
-}
-
 void SurveyMapManager::setVisibility(bool value)
 {
     mMainWidget->setVisible(value);
@@ -123,14 +100,6 @@ void SurveyMapManager::setVisibility(bool value)
 void SurveyMapManager::windowResized()
 {
     // TODO
-}
-
-void SurveyMapManager::updateMapEntityPositions()
-{
-    for (std::set<SurveyMapEntity *>::iterator it = mMapEntities.begin(); it != mMapEntities.end(); it++)
-    {
-        (*it)->update();
-    }
 }
 
 void SurveyMapManager::updateRenderMetrics()
@@ -244,8 +213,6 @@ Ogre::String SurveyMapManager::getTypeByDriveable(int driveable)
 
 void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
 {
-    using namespace RoR;
-
     if (dt == 0)
         return;
 
@@ -262,13 +229,13 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
         toggleMapView();
     }
 
+    if (mMapMode == SURVEY_MAP_NONE)
+        return;
+
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE_ICONS))
     {
         mMapEntitiesVisible = !mMapEntitiesVisible;
     }
-
-    if (mMapMode == SURVEY_MAP_NONE)
-        return;
 
     switch (mMapMode)
     {
@@ -285,7 +252,7 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
         {
             setMapZoomRelative(-1.0f);
         }
-        if (getMapZoom() > 0.0f)
+        if (mMapZoom > 0.0f)
         {
             if (curr_truck)
             {
@@ -307,7 +274,7 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
     case SURVEY_MAP_BIG:
         setMapCenter(mMapSize / 2);
 
-        if (getMapZoom() > 0.0f)
+        if (mMapZoom > 0.0f)
         {
             setMapZoom(0.0f, false);
         }
@@ -315,8 +282,8 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
         // TODO: Is camera state owned by GfxScene or simulation? Let's access it as GfxScene for the time being ~ only_a_ptr, 05/2018
         if (curr_truck && RoR::App::GetSimController()->AreControlsLocked())
         {
-            CameraManager::CameraBehaviors cam_mode = RoR::App::GetSimController()->GetCameraBehavior();
-            if (mVelocity > 5.0f || cam_mode == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
+            RoR::CameraManager::CameraBehaviors cam_mode = RoR::App::GetSimController()->GetCameraBehavior();
+            if (mVelocity > 5.0f || cam_mode == RoR::CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
             {
                 setWindowPosition(1, -1, 0.3f);
                 //setAlpha(mAlpha);
@@ -345,8 +312,6 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
     default:
         break;
     }
-
-    updateMapEntityPositions();
 }
 
 void SurveyMapManager::toggleMapView()
@@ -396,17 +361,14 @@ void SurveyMapManager::toggleMapAlpha()
     }
 }
 
-void SurveyMapManager::UpdateActorMapEntry(int actor_id, Ogre::Vector3 pos, float angle)
+void SurveyMapManager::UpdateMapEntity(SurveyMapEntity* e, String caption, Vector3 pos, float rot, int state, bool visible)
 {
-    // TODO: Just use pointers ~ only_a_ptr, 05/2018
-    SurveyMapEntity* e = getMapEntityByName("Truck" + TOSTRING(actor_id));
     if (e)
     {
-        e->setState(static_cast<int>(Actor::SimState::LOCAL_SIMULATED));
-        e->setVisibility(true);
+        e->setState(state);
+        e->setRotation(rot);
+        e->setCaption(caption);
         e->setPosition(pos.x, pos.z);
-        e->setRotation(Radian(angle)); // Source: Actor::getHeadingDirectionAngle()
+        e->setVisibility(visible && mMapEntitiesVisible && !mMapZoom);
     }
 }
-
-

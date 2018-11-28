@@ -37,10 +37,7 @@ public:
     ~SurveyMapManager();
 
     SurveyMapEntity* createMapEntity(Ogre::String type);
-    SurveyMapEntity* createNamedMapEntity(Ogre::String name, Ogre::String type);
-    SurveyMapEntity* getMapEntityByName(Ogre::String name);
     void deleteMapEntity(SurveyMapEntity* entity);
-    bool getMapEntitiesVisible() { return mMapEntitiesVisible; };
 
     void setAlpha(float alpha, bool permanent = true);
     float getAlpha() { return mMainWidget->getAlpha(); }
@@ -77,8 +74,7 @@ public:
         SURVEY_MAP_END
     };
 
-    void          UpdateActorMapEntry(int actor_id, Ogre::Vector3 pos, float angle);
-    std::string   GetMinimapTextureName();
+    void UpdateMapEntity(SurveyMapEntity* e, Ogre::String caption, Ogre::Vector3 pos, float rot, int state, bool visible);
 
 protected:
 
@@ -93,12 +89,8 @@ protected:
 
     SurveyMapTextureCreator* mMapTextureCreator;
 
-    std::map<Ogre::String, SurveyMapEntity *> mNamedEntities;
-    std::set<SurveyMapEntity *> mMapEntities;
+    std::set<SurveyMapEntity*> mMapEntities;
     bool mMapEntitiesVisible;
-
-    void updateMapEntityPositions();
-    void setMapEntitiesVisibility(bool visibility);
 
     int mMapMode;
     float mVelocity;

@@ -33,23 +33,14 @@ public:
 
     SurveyMapEntity(SurveyMapManager* ctrl, Ogre::Vector2 terrain_size, Ogre::String type, MyGUI::StaticImagePtr parent);
 
-    Ogre::String getDescription();
-    bool getVisibility();
-    int getState();
-
-    void setDescription(Ogre::String s);
+    void setCaption(Ogre::String s);
     void setPosition(Ogre::Vector3 pos);
     void setPosition(float x, float z);
-    void setRotation(Ogre::Quaternion q);
-    void setRotation(Ogre::Radian r);
+    void setRotation(float r);
     void setState(int state);
     void setVisibility(bool value);
 
-    void update();
-
 private:
-
-    void setRotation(Ogre::Real);
 
     MyGUI::StaticImagePtr mParent;
 
@@ -62,29 +53,15 @@ private:
     MyGUI::StaticImage* mIcon;
     MyGUI::RotatingSkin* mIconRotating;
 
-    enum EntityStates
-    {
-        Activated,
-        Deactivated,
-        Sleeping,
-        Networked,
-        MaxEntityStates
-    };
-
-    EntityStates mState;
     SurveyMapManager* mMapControl;
     MyGUI::IntSize mIconSize;
     Ogre::Real mRotation;
-    Ogre::Real mX, mZ;
-    Ogre::String mDescription;
     Ogre::String mType;
+    Ogre::String mFileName;
     Ogre::Vector2 mMapSize;
     bool mIsStatic;
 
-    void init();
     void updateIcon();
-
-    static Ogre::String entityStates[MaxEntityStates];
 };
 
 

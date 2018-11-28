@@ -283,6 +283,7 @@ public:
     void                      CycleDebugViews    ();
     void                      UpdateCabMesh      ();
     int                       GetActorId         () const;
+    int                       GetActorState      () const;
     int                       GetNumFlexbodies   () const { return static_cast<int>(m_flexbodies.size()); }
     void                      ResetFlexbodies    ();
     void                      SetFlexbodiesVisible(bool visible);
@@ -301,6 +302,8 @@ public:
     inline DebugViewType      GetDebugView       () const                 { return m_debug_view; }
     SimBuffer &               GetSimDataBuffer   ()                       { return m_simbuf; }
     NodeData*                 GetSimNodeBuffer   ()                       { return m_simbuf.simbuf_nodes.get(); }
+    void                      SetSurveyMapEntity (SurveyMapEntity* e)     { m_survey_map_entity = e; }
+    SurveyMapEntity*          GetSurveyMapEntity ()                       { return m_survey_map_entity; }
     bool                 HasDriverSeatProp   () const { return m_driverseat_prop_index != -1; }
     void                 UpdateBeaconFlare   (prop_t & prop, float dt, bool is_player_actor);
     void                 UpdateProps         (float dt, bool is_player_actor);
@@ -348,6 +351,8 @@ private:
     bool                        m_initialized;
 
     SimBuffer                   m_simbuf;
+
+    SurveyMapEntity*            m_survey_map_entity;
 
     // Old cab mesh
     FlexObj*                    m_cab_mesh;
