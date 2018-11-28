@@ -93,7 +93,6 @@ protected:
     bool mMapEntitiesVisible;
 
     int mMapMode;
-    float mVelocity;
 
     float mMapCenterThreshold;
 
