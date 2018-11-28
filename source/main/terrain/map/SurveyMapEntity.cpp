@@ -22,13 +22,11 @@
 
 #include "Application.h"
 #include "Beam.h"
-#include "SurveyMapManager.h"
 
 using namespace Ogre;
 
-SurveyMapEntity::SurveyMapEntity(SurveyMapManager* ctrl, Vector2 terrain_size, String type, MyGUI::StaticImagePtr parent) :
+SurveyMapEntity::SurveyMapEntity(Vector2 terrain_size, String type, MyGUI::StaticImagePtr parent) :
       mFileName("icon_" + type + ".dds")
-    , mMapControl(ctrl)
     , mMapSize(terrain_size)
     , mParent(parent)
     , mRotation(0)
@@ -52,16 +50,15 @@ void SurveyMapEntity::setPosition(Vector3 pos)
 
 void SurveyMapEntity::setPosition(float x, float z)
 {
-    float wscale = mMapControl->getWindowSize().length() / mMapSize.length();
     mMainWidget->setPosition(
         x / mMapSize.x * mParent->getWidth()  - mMainWidget->getWidth()  / 2,
         z / mMapSize.y * mParent->getHeight() - mMainWidget->getHeight() / 2
     );
     mIcon->setCoord(
-        mMainWidget->getWidth() / 2 - mIconSize.width * wscale / 2,
-        mMainWidget->getHeight() / 2 - mIconSize.height * wscale / 2,
-        mIconSize.width * wscale,
-        mIconSize.height * wscale
+        mMainWidget->getWidth() / 2 - mIconSize.width / 2,
+        mMainWidget->getHeight() / 2 - mIconSize.height / 2,
+        mIconSize.width,
+        mIconSize.height
     );
 }
 
