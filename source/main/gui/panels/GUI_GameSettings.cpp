@@ -146,7 +146,7 @@ void RoR::GUI::GameSettings::Draw()
             "HydraX\0\0");
 
         DrawGCheckbox(App::gfx_water_waves,      "Waves on water");
-        DrawGCheckbox(App::gfx_minimap_disabled, "Minimap disabled");
+        DrawGCheckbox(App::gfx_minimap_enabled,  "Minimap enabled");
         DrawGCheckbox(App::gfx_enable_videocams, "Render VideoCameras");
         DrawGCheckbox(App::gfx_envmap_enabled,   "Realtime reflections");
         DrawGIntCheck(App::gfx_particles_mode,   "Enable particle gfx");

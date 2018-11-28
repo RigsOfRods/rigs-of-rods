@@ -26,11 +26,9 @@
 #include "Beam.h"
 #include "BeamFactory.h"
 #include "CameraManager.h"
-#include "DustManager.h" // GfxScene
 #include "InputEngine.h"
 #include "OgreSubsystem.h"
 #include "RoRFrameListener.h"
-#include "Settings.h"
 #include "SurveyMapEntity.h"
 #include "SurveyMapTextureCreator.h"
 
@@ -39,7 +37,6 @@ using namespace Ogre;
 SurveyMapManager::SurveyMapManager(Ogre::Vector2 terrain_size) :
       mAlpha(1.0f)
     , mMapCenter(terrain_size / 2)
-    , mMapCenterThreshold(FSETTING("SurveyMapCenterThreshold", 5.0f))
     , mMapEntitiesVisible(true)
     , mMapMode(SURVEY_MAP_NONE)
     , mMapSize(terrain_size)
@@ -144,16 +141,6 @@ void SurveyMapManager::setMapCenter(Ogre::Vector2 position, float maxOffset)
         setMapCenter(position);
 }
 
-void SurveyMapManager::setMapCenter(Vector3 position)
-{
-    setMapCenter(Vector2(position.x, position.z));
-}
-
-void SurveyMapManager::setMapCenter(Ogre::Vector3 position, float maxOffset)
-{
-    setMapCenter(Vector2(position.x, position.z), maxOffset);
-}
-
 void SurveyMapManager::setWindowPosition(int x, int y, float size)
 {
     int realx = 0;
@@ -249,12 +236,12 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
             if (curr_truck)
             {
                 auto& simbuf = curr_truck->GetGfxActor()->GetSimDataBuffer();
-                setMapCenter(simbuf.simbuf_pos, mMapCenterThreshold * (1 - mMapZoom));
+                setMapCenter(Vector2(simbuf.simbuf_pos.x, simbuf.simbuf_pos.z), (1 - mMapZoom));
             }
             else
             {
                 auto& simbuf = RoR::App::GetSimController()->GetGfxScene().GetSimDataBuffer();
-                setMapCenter(simbuf.simbuf_character_pos, mMapCenterThreshold * (1 - mMapZoom));
+                setMapCenter(Vector2(simbuf.simbuf_character_pos.x, simbuf.simbuf_character_pos.z), (1 - mMapZoom));
             }
         }
         else
