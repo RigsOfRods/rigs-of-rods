@@ -216,14 +216,6 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
     if (dt == 0)
         return;
 
-    mVelocity = 0.0f;
-
-    if (curr_truck)
-    {
-        auto& simbuf = curr_truck->GetGfxActor()->GetSimDataBuffer();
-        mVelocity = simbuf.simbuf_node0_velo.length();
-    }
-
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE_VIEW))
     {
         toggleMapView();
@@ -280,20 +272,11 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
         }
 
         // TODO: Is camera state owned by GfxScene or simulation? Let's access it as GfxScene for the time being ~ only_a_ptr, 05/2018
-        if (curr_truck && RoR::App::GetSimController()->AreControlsLocked())
+        if (RoR::App::GetSimController()->AreControlsLocked() ||
+            RoR::App::GetSimController()->GetCameraBehavior() == RoR::CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
         {
-            RoR::CameraManager::CameraBehaviors cam_mode = RoR::App::GetSimController()->GetCameraBehavior();
-            if (mVelocity > 5.0f || cam_mode == RoR::CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
-            {
-                setWindowPosition(1, -1, 0.3f);
-                //setAlpha(mAlpha);
-                mMapMode = SURVEY_MAP_SMALL;
-            }
-            else
-            {
-                // Soft cross-fade into small map
-                //setAlpha(1.0f / sqrt(std::max(1.0f, mVelocity - 1.0f)), false);
-            }
+            setWindowPosition(1, -1, 0.3f);
+            mMapMode = SURVEY_MAP_SMALL;
         }
         else
         {
@@ -316,11 +299,10 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
 
 void SurveyMapManager::toggleMapView()
 {
-    using namespace RoR;
     mMapMode = (mMapMode + 1) % SURVEY_MAP_END;
 
-    if (mMapMode == SURVEY_MAP_BIG && (mVelocity > 5.0f ||
-        (RoR::App::GetSimController()->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)))
+    if (mMapMode == SURVEY_MAP_BIG &&
+        (RoR::App::GetSimController()->GetCameraBehavior() == RoR::CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM))
     {
         mMapMode = (mMapMode + 1) % SURVEY_MAP_END;
     }
