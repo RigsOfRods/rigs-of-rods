@@ -211,6 +211,11 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
     if (mMapMode == SURVEY_MAP_NONE)
         return;
 
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_ALPHA))
+    {
+        toggleMapAlpha();
+    }
+
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE_ICONS))
     {
         mMapEntitiesVisible = !mMapEntitiesVisible;
@@ -219,10 +224,6 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
     switch (mMapMode)
     {
     case SURVEY_MAP_SMALL:
-        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_ALPHA))
-        {
-            toggleMapAlpha();
-        }
         if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SURVEY_MAP_ZOOM_IN))
         {
             setMapZoomRelative(1.0f);
@@ -264,18 +265,6 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
         {
             setWindowPosition(1, -1, 0.3f);
             mMapMode = SURVEY_MAP_SMALL;
-        }
-        else
-        {
-            if (getAlpha() != mAlpha)
-            {
-                setAlpha(mAlpha);
-            }
-
-            if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_ALPHA))
-            {
-                toggleMapAlpha();
-            }
         }
         break;
 
