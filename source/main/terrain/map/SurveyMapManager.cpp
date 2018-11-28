@@ -94,9 +94,21 @@ void SurveyMapManager::setVisibility(bool value)
     mMainWidget->setVisible(value);
 }
 
+void SurveyMapManager::updateWindowPosition()
+{
+    if (mMapMode == SURVEY_MAP_SMALL)
+    {
+        setWindowPosition(1, -1, 0.3f);
+    }
+    else if (mMapMode == SURVEY_MAP_BIG)
+    {
+        setWindowPosition(0, 0, 0.98f);
+    }
+}
+
 void SurveyMapManager::windowResized()
 {
-    // TODO
+    this->updateWindowPosition();
 }
 
 void SurveyMapManager::updateRenderMetrics()
@@ -300,17 +312,9 @@ void SurveyMapManager::toggleMapView()
     }
     else
     {
-        if (mMapMode == SURVEY_MAP_SMALL)
-        {
-            setWindowPosition(1, -1, 0.3f);
-        }
-        else if (mMapMode == SURVEY_MAP_BIG)
-        {
-            setWindowPosition(0, 0, 0.98f);
-        }
+        updateWindowPosition();
         setAlpha(mAlpha);
         setVisibility(true);
-        mMapTextureCreator->update();
     }
 }
 
