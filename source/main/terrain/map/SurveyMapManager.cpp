@@ -62,7 +62,7 @@ SurveyMapManager::~SurveyMapManager()
 
 SurveyMapEntity* SurveyMapManager::createMapEntity(String type)
 {
-    auto entity = new SurveyMapEntity(this, mMapSize, type, mMapTexture);
+    auto entity = new SurveyMapEntity(mMapSize, type, mMapTexture);
     mMapEntities.insert(entity);
     return entity;
 }
