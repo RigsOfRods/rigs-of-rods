@@ -1130,14 +1130,6 @@ bool Actor::CalcForcesEulerPrepare(bool doUpdate)
 template <size_t L>
 void LogNodeId(RoR::Str<L>& msg, node_t* node) // Internal helper
 {
-    if (node->id <= 0) // Named nodes have '0', generated have '-1'
-    {
-        msg << "\"?unknown?\"";
-    }
-    else
-    {
-        msg << "\"" << node->id << "\"";
-    }
     msg << " (index: " << node->pos << ")";
 }
 

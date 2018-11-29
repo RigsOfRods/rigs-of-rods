@@ -46,11 +46,10 @@ struct node_t
     Ogre::Real surface_coef;
     Ogre::Real volume_coef;
 
-    char iswheel; //!< 0=NOWHEEL, 1=WHEEL_DEFAULT, 2=WHEEL_2  3=WHEEL_FLEXBODY
-    char nd_coll_bbox_id; //!< Optional attribute (-1 = none) - multiple collision bounding boxes defined in truckfile
-    short nd_lockgroup;
-    short pos;     //!< This node's index in Actor::ar_nodes array.
-    short id;      //!< Numeric identifier assigned in truckfile (if used), or -1 if the node was generated dynamically.
+    int16_t iswheel;          //!< 0=NOWHEEL, 1=WHEEL_DEFAULT, 2=WHEEL_2  3=WHEEL_FLEXBODY
+    int16_t pos;              //!< This node's index in Actor::ar_nodes array.
+    int16_t nd_coll_bbox_id;  //!< Optional attribute (-1 = none) - multiple collision bounding boxes defined in truckfile
+    int16_t nd_lockgroup;     //!< Optional attribute (-1 = default, 9999 = deny lock) - used in the hook lock logic
 
     Ogre::Real      nd_avg_collision_slip;   //!< Physics state; average slip velocity across the last few physics frames
     Ogre::Vector3   nd_last_collision_slip;  //!< Physics state; last collision slip vector

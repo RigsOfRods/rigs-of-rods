@@ -3261,8 +3261,8 @@ void Actor::ToggleTies(int group)
                         if (!itr->multilock && itr->in_use)
                             continue;
 
-                        //skip if tienode is ropable too (no hk_selflock)
-                        if (itr->node->id == it->ti_beam->p1->id)
+                        // skip if tienode is ropable too (no selflock)
+                        if (this == actor && itr->node->pos == it->ti_beam->p1->pos)
                             continue;
 
                         // calculate the distance and record the nearest ropable
@@ -3390,7 +3390,7 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
     // iterate over all hooks
     for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
     {
-        if (mode == MOUSE_HOOK_TOGGLE && it->hk_hook_node->id != node_number)
+        if (mode == MOUSE_HOOK_TOGGLE && it->hk_hook_node->pos != node_number)
         {
             //skip all other nodes except the one manually toggled by mouse
             continue;
@@ -3459,7 +3459,7 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
                             continue;
 
                         // exclude this truck and its current hooknode from the locking search
-                        if (this == actor && i == it->hk_hook_node->id)
+                        if (this == actor && i == it->hk_hook_node->pos)
                             continue;
 
                         // a lockgroup for this hooknode is set -> skip all nodes that do not have the same lockgroup (-1 = default(all nodes))
