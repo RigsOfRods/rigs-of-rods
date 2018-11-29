@@ -503,7 +503,7 @@ int ScriptEngine::envokeCallback(int functionId, eventsource_t *source, node_t *
     context->SetArgObject(1, instance_name);
     context->SetArgObject(2, boxname);
     if (node)
-        context->SetArgDWord (3, node->id);
+        context->SetArgDWord (3, node->pos);
     else
         context->SetArgDWord (3, -1); // conversion from 'int' to 'AngelScript::asDWORD', signed/unsigned mismatch!
 

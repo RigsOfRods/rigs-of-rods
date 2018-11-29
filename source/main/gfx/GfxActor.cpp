@@ -779,7 +779,7 @@ void RoR::GfxActor::UpdateDebugView()
                 {
                     ImVec2 pos_xy(pos.x, pos.y);
                     Str<25> id_buf;
-                    id_buf << nodes[i].id;
+                    id_buf << nodes[i].pos;
                     drawlist->AddText(pos_xy, NODE_TEXT_COLOR, id_buf.ToCStr());
 
                     if (m_debug_view != DebugViewType::DEBUGVIEW_BEAMS)
@@ -1082,10 +1082,10 @@ void RoR::GfxActor::UpdateDebugView()
 
                 // Node info
                 Str<25> id1_buf;
-                id1_buf << beams[i].p1->id;
+                id1_buf << beams[i].p1->pos;
                 drawlist->AddText(pos1xy, NODE_TEXT_COLOR, id1_buf.ToCStr());
                 Str<25> id2_buf;
-                id2_buf << beams[i].p2->id;
+                id2_buf << beams[i].p2->pos;
                 drawlist->AddText(pos2xy, NODE_TEXT_COLOR, id2_buf.ToCStr());
 
                 // Shock info
