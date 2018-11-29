@@ -103,6 +103,9 @@ void SurveyMapTextureCreator::update()
     float orthoWindowWidth = mMapSize.x - (mMapSize.x - 20.0f) * mMapZoom;
     float orthoWindowHeight = mMapSize.y - (mMapSize.y - 20.0f) * mMapZoom;
 
+    mMapCenter.x = Math::Clamp(mMapCenter.x, orthoWindowWidth  / 2, mMapSize.x - orthoWindowWidth  / 2);
+    mMapCenter.y = Math::Clamp(mMapCenter.y, orthoWindowHeight / 2, mMapSize.y - orthoWindowHeight / 2);
+
     mCamera->setFarClipDistance(farclip);
     mCamera->setOrthoWindow(orthoWindowWidth, orthoWindowHeight);
     mCamera->setPosition(Vector3(mMapCenter.x, cameraHeight, mMapCenter.y));
