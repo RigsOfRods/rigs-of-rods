@@ -209,7 +209,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
         //ugly stuff to parse trees :)
         if (!strncmp("trees", line, 5))
         {
-            if (terrainManager->getPagedMode() == 0)
+            if (terrainManager->getPagedDetailFactor() == 0.0f)
                 continue;
             char ColorMap[256] = {};
             char DensityMap[256] = {};
@@ -336,7 +336,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
         if (!strncmp("grass", line, 5) || !strncmp("grass2", line, 6))
         {
             // is paged geometry disabled by configuration?
-            if (terrainManager->getPagedMode() == 0)
+            if (terrainManager->getPagedDetailFactor() == 0.0f)
                 continue;
             int range = 80;
             float SwaySpeed = 0.5, SwayLength = 0.05, SwayDistribution = 10.0, minx = 0.2, miny = 0.2, maxx = 1, maxy = 0.6, Density = 0.6, minH = -9999, maxH = 9999;
