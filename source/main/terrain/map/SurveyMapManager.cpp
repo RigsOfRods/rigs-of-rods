@@ -35,8 +35,7 @@
 using namespace Ogre;
 
 SurveyMapManager::SurveyMapManager(Ogre::Vector2 terrain_size) :
-      mAlpha(1.0f)
-    , mMapCenter(terrain_size / 2)
+      mMapCenter(terrain_size / 2)
     , mMapEntitiesVisible(true)
     , mMapMode(SURVEY_MAP_NONE)
     , mMapSize(terrain_size)
@@ -79,14 +78,6 @@ void SurveyMapManager::deleteMapEntity(SurveyMapEntity* entity)
 bool SurveyMapManager::getVisibility()
 {
     return mMainWidget->getVisible();
-}
-
-void SurveyMapManager::setAlpha(float alpha, bool permanent /*= true*/)
-{
-    mMainWidget->setAlpha(alpha);
-
-    if (permanent)
-        mAlpha = alpha;
 }
 
 void SurveyMapManager::setVisibility(bool value)
@@ -302,24 +293,24 @@ void SurveyMapManager::toggleMapView()
     else
     {
         updateWindowPosition();
-        setAlpha(mAlpha);
         setVisibility(true);
     }
 }
 
 void SurveyMapManager::toggleMapAlpha()
 {
-    if (getAlpha() > 0.61f)
+    float alpha = mMainWidget->getAlpha();
+    if (alpha > 0.61f)
     {
-        setAlpha(0.6f);
+        mMainWidget->setAlpha(0.6f);
     }
-    else if (getAlpha() >= 0.31f && getAlpha() <= 0.61f)
+    else if (alpha >= 0.31f && alpha <= 0.61f)
     {
-        setAlpha(0.3f);
+        mMainWidget->setAlpha(0.3f);
     }
-    else if (getAlpha() < 0.31f)
+    else if (alpha < 0.31f)
     {
-        setAlpha(1.0f);
+        mMainWidget->setAlpha(1.0f);
     }
 }
 
