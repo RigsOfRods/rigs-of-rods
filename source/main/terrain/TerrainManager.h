@@ -44,7 +44,6 @@ public:
     int                getCategoryID() const         { return m_def.category_id; };
     int                getVersion() const            { return m_def.version; };
     int                getFarClip() const            { return m_sight_range; }
-    int                getPagedMode() const          { return m_paged_mode; };
     float              getPagedDetailFactor() const  { return m_paged_detail_factor; };
     Ogre::Vector3      getMaxTerrainSize();
     Collisions*        getCollisions()               { return m_collisions; };
@@ -100,5 +99,4 @@ private:
     float          m_cur_gravity;
     float          m_paged_detail_factor;
     int            m_sight_range;
-    int            m_paged_mode;
 };

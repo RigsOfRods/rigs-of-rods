@@ -55,7 +55,6 @@ TerrainManager::TerrainManager()
     , m_sight_range(1000)
     , m_main_light(0)
     , m_paged_detail_factor(0.0f)
-    , m_paged_mode(0)
     , m_cur_gravity(DEFAULT_GRAVITY)
     , m_hydrax_water(nullptr)
 {
@@ -332,24 +331,18 @@ void TerrainManager::initFog()
 
 void TerrainManager::initVegetation()
 {
-    m_paged_mode = static_cast<int>(App::gfx_vegetation_mode.GetActive()); // TODO: don't cast enum to int!
-
-    switch (m_paged_mode)
+    switch (App::gfx_vegetation_mode.GetActive())
     {
-    case 0:
-        m_paged_detail_factor = 0.001f;
-        break;
-    case 1:
+    case GfxVegetation::x20PERC:
         m_paged_detail_factor = 0.2f;
         break;
-    case 2:
+    case GfxVegetation::x50PERC:
         m_paged_detail_factor = 0.5f;
         break;
-    case 3:
+    case GfxVegetation::FULL:
         m_paged_detail_factor = 1.0f;
         break;
     default:
-        m_paged_mode = 0;
         m_paged_detail_factor = 0.0f;
         break;
     }
