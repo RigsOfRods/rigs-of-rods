@@ -307,11 +307,11 @@ public:
     bool                 HasDriverSeatProp   () const { return m_driverseat_prop_index != -1; }
     void                 UpdateBeaconFlare   (prop_t & prop, float dt, bool is_player_actor);
     void                 UpdateProps         (float dt, bool is_player_actor);
+    void                 UpdatePropAnimations(float dt, bool is_player_actor);
     void                 SetPropsVisible     (bool visible);
     void                 SetBeaconsEnabled   (bool beacon_light_is_active);
     void                 CalcPropAnimation   (const int flag_state, float& cstate, int& div, float timer,
                                               const float lower_limit, const float upper_limit, const float option3);
-    void                 UpdatePropAnimations(const float dt_sec);
     void                 UpdateFlares        (float dt_sec, bool is_player);
 
 private:
