@@ -73,7 +73,7 @@ ActorManager::ActorManager()
     int thread_pool_workers = RoR::App::app_num_workers.GetActive();
     if (thread_pool_workers < 1 || thread_pool_workers > logical_cores)
     {
-        thread_pool_workers = logical_cores - 1;
+        thread_pool_workers = Math::Clamp(logical_cores - 1, 1, 8);
         RoR::App::app_num_workers.SetActive(thread_pool_workers);
     }
 
