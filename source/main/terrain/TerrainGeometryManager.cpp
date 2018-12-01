@@ -170,6 +170,14 @@ void TerrainGeometryManager::getTerrainPositionAlign(Real x, Real y, Real z, Ter
     };
 }
 
+float TerrainGeometryManager::getMaxHeight()
+{
+    Terrain* terrain = m_ogre_terrain_group->getTerrain(0, 0);
+    if (terrain)
+        return terrain->getMaxHeight();
+    return 0.0f;
+}
+
 /// @author Ported from OGRE engine, www.ogre3d.org, file OgreTerrain.cpp
 float TerrainGeometryManager::getHeightAtPoint(long x, long y)
 {
