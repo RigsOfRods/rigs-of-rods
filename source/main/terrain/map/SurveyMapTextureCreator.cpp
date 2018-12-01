@@ -29,8 +29,7 @@ using namespace RoR;
 
 static int counter = 0;
 
-SurveyMapTextureCreator::SurveyMapTextureCreator(Ogre::Vector2 terrain_size) :
-    mMapSize(terrain_size)
+SurveyMapTextureCreator::SurveyMapTextureCreator(Ogre::Vector2 terrain_size)
 {
     counter++;
     mTextureName = "MapRttTex-" + TOSTRING(counter);
@@ -47,8 +46,8 @@ SurveyMapTextureCreator::~SurveyMapTextureCreator()
 bool SurveyMapTextureCreator::init()
 {
     mTexture = Ogre::TextureManager::getSingleton().createManual(mTextureName,
-        Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, 2048, 2048, 
-        Ogre::TU_RENDERTARGET, Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET);
+        Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, 2048, 2048,
+        Ogre::TU_RENDERTARGET, Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET, 0, false, 8);
 
     if (mTexture.isNull())
         return false;;
@@ -63,8 +62,10 @@ bool SurveyMapTextureCreator::init()
 
     mCamera = gEnv->sceneManager->createCamera("MapRttCam-" + TOSTRING(counter));
     mCamera->setFixedYawAxis(false);
+    mCamera->setDirection(-Vector3::UNIT_Y);
     mCamera->setProjectionType(PT_ORTHOGRAPHIC);
     mCamera->setNearClipDistance(1.0f);
+    mCamera->setFarClipDistance(0);
 
     auto mViewport = mRttTex->addViewport(mCamera);
     mViewport->setBackgroundColour(ColourValue::Black);
@@ -75,23 +76,13 @@ bool SurveyMapTextureCreator::init()
     return true;
 }
 
-void SurveyMapTextureCreator::update(Vector2 center, float zoom)
+void SurveyMapTextureCreator::update(Vector2 center, Vector2 size)
 {
     if (!mRttTex)
         return;
-
-    float farclip = gEnv->mainCamera->getFarClipDistance();
-    float cameraHeight = std::max(center.x, farclip) * 0.1f;
-    float orthoWindowWidth = mMapSize.x - (mMapSize.x - 20.0f) * zoom;
-    float orthoWindowHeight = mMapSize.y - (mMapSize.y - 20.0f) * zoom;
-
-    center.x = Math::Clamp(center.x, orthoWindowWidth  / 2, mMapSize.x - orthoWindowWidth  / 2);
-    center.y = Math::Clamp(center.y, orthoWindowHeight / 2, mMapSize.y - orthoWindowHeight / 2);
-
-    mCamera->setFarClipDistance(farclip);
-    mCamera->setOrthoWindow(orthoWindowWidth, orthoWindowHeight);
-    mCamera->setPosition(Vector3(center.x, cameraHeight, center.y));
-    mCamera->lookAt(Vector3(center.x, 0.0f, center.y));
+ 
+    mCamera->setOrthoWindow(size.x, size.y);
+    mCamera->setPosition(Vector3(center.x, 420.0f, center.y));
 
     mRttTex->update();
 }

@@ -25,9 +25,8 @@
 
 using namespace Ogre;
 
-SurveyMapEntity::SurveyMapEntity(Vector2 terrain_size, String type, MyGUI::StaticImagePtr parent) :
+SurveyMapEntity::SurveyMapEntity(String type, MyGUI::StaticImagePtr parent) :
       mFileName("icon_" + type + ".dds")
-    , mMapSize(terrain_size)
     , mParent(parent)
     , mRotation(0)
     , mType(type)
@@ -43,16 +42,11 @@ SurveyMapEntity::SurveyMapEntity(Vector2 terrain_size, String type, MyGUI::Stati
     updateIcon();
 }
 
-void SurveyMapEntity::setPosition(Vector3 pos)
-{
-    setPosition(pos.x, pos.z);
-}
-
 void SurveyMapEntity::setPosition(float x, float z)
 {
     mMainWidget->setPosition(
-        x / mMapSize.x * mParent->getWidth()  - mMainWidget->getWidth()  / 2,
-        z / mMapSize.y * mParent->getHeight() - mMainWidget->getHeight() / 2
+        x * mParent->getWidth()  - mMainWidget->getWidth()  / 2,
+        z * mParent->getHeight() - mMainWidget->getHeight() / 2
     );
     mIcon->setCoord(
         mMainWidget->getWidth() / 2 - mIconSize.width / 2,
