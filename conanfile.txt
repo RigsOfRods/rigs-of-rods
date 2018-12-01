@@ -10,7 +10,7 @@ MyGUI/3.2.3-OGRE-1.11.4@anotherfoxguy/stable
 OGRE/1.11.4@anotherfoxguy/stable
 OGREdeps/2018-07@anotherfoxguy/stable
 SocketW/3.10.36@anotherfoxguy/stable
-openal/1.18.2@bincrafters/stable
+openal/1.19.0@bincrafters/stable
 rapidjson/1.1.0@bincrafters/stable
 wxwidgets/3.1.1@bincrafters/stable
 ogre-caelum/0.6.3@anotherfoxguy/stable
