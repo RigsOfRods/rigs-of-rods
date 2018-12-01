@@ -45,14 +45,7 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
         return false;
     }
 
-    def.ogre_ter_conf_filename = file.GetStringEx("GeometryConfig", "General");
-    // otc = ogre terrain config
-    if (def.ogre_ter_conf_filename.find(".otc") == String::npos)
-    {
-        this->AddMessage("FATAL: Invalid geometry config file; only '.otc' is supported");
-        return false;
-    }
-
+    def.ogre_ter_conf_filename = file.GetStringEx("GeometryConfig", "General", "NULL");
     def.ambient_color        = file.GetColourValue("AmbientColor",     "General", ColourValue::White);
     def.category_id          = file.GetInt        ("CategoryID",       "General", 129);
     def.guid                 = file.GetStringEx   ("GUID",             "General");

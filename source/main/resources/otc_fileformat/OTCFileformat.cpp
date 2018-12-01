@@ -30,6 +30,11 @@
 #include <algorithm>
 #include <OgreException.h>
 
+RoR::OTCParser::OTCParser()
+{
+    m_def = std::make_shared<RoR::OTCFile>();
+}
+
 bool RoR::OTCParser::LoadMasterConfig(Ogre::DataStreamPtr &ds, const char* filename)
 {
     std::string file_basename, file_ext;
@@ -184,12 +189,12 @@ void RoR::OTCParser::HandleException(const char* filename)
 }
 
 RoR::OTCFile::OTCFile():
-    world_size_x(0), world_size_y(0), world_size_z(0), world_size(0),
-    page_size(0), pages_max_x(0), pages_max_z(0),
+    world_size_x(1024), world_size_y(50), world_size_z(1024), world_size(1024),
+    page_size(1025), pages_max_x(1024), pages_max_z(1024),
     origin_pos(Ogre::Vector3::ZERO),
-    batch_size_min(0), batch_size_max(0),
-    layer_blendmap_size(0), max_pixel_error(0), composite_map_size(0), composite_map_distance(0),
-    skirt_size(0), lightmap_size(0),
+    batch_size_min(33), batch_size_max(65),
+    layer_blendmap_size(0), max_pixel_error(5), composite_map_size(1024), composite_map_distance(4000),
+    skirt_size(30), lightmap_size(1024),
     lightmap_enabled(false), norm_map_enabled(false), spec_map_enabled(false), parallax_enabled(false),
     global_colormap_enabled(false), recv_dyn_shadows_depth(false), disable_cache(false), is_flat(true)
 {

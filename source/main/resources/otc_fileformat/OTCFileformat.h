@@ -93,6 +93,8 @@ struct OTCFile
 class OTCParser
 {
 public:
+    OTCParser();
+
     bool                      LoadMasterConfig(Ogre::DataStreamPtr &ds, const char* filename);
     bool                      LoadPageConfig(Ogre::DataStreamPtr &ds, OTCPage& page, const char* filename);
     std::shared_ptr<OTCFile>  GetDefinition() { return m_def; };

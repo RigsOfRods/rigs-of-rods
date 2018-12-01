@@ -137,6 +137,12 @@ TerrainGeometryManager::TerrainGeometryManager(TerrainManager* terrainManager)
     , m_was_new_geometry_generated(false)
     , terrainManager(terrainManager)
 {
+    m_spec = std::make_shared<RoR::OTCFile>();
+
+    if (TerrainGlobalOptions::getSingletonPtr() == nullptr)
+    {
+        OGRE_NEW TerrainGlobalOptions();
+    }
 }
 
 TerrainGeometryManager::~TerrainGeometryManager()
@@ -278,7 +284,7 @@ Ogre::Vector3 TerrainGeometryManager::getNormalAt(float x, float y, float z, flo
     return down;
 }
 
-bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
+void TerrainGeometryManager::InitTerrain(std::string otc_filename)
 {
     OTCParser otc_parser;
 
@@ -289,17 +295,14 @@ bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
         if (ds_config.isNull() || !ds_config->isReadable())
         {
             RoR::LogFormat("[RoR|Terrain] Cannot read main *.otc file [%s].", otc_filename.c_str());
-            return false;
+            return;
         }
-        if (!otc_parser.LoadMasterConfig(ds_config, otc_filename.c_str()))
-        {
-            return false; // Error already reported
-        }
+        otc_parser.LoadMasterConfig(ds_config, otc_filename.c_str());
     }
     catch (...)
     {
         terrainManager->HandleException("Error reading main *.otc file");
-        return false;
+        return;
     }
 
     // Load *.otc files for pages
@@ -316,20 +319,15 @@ bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
             if (ds_page.isNull() || !ds_page->isReadable())
             {
                 RoR::LogFormat("[RoR|Terrain] Cannot read file [%s].", page.pageconf_filename.c_str());
-                return false;
+                return;
             }
 
-            // NOTE: Empty file is accepted (leaving all values to defaults) for backwards compatibility.
-            if (!otc_parser.LoadPageConfig(ds_page, page, page.pageconf_filename.c_str()))
-            {
-                return false; // Error already logged
-            }
+            otc_parser.LoadPageConfig(ds_page, page, page.pageconf_filename.c_str());
         }
         catch (...)
         {
             terrainManager->HandleException("Error reading page config *.otc file");
-            // If we stop parsing we might break some legacy maps
-            // return false;
+            return;
         }
     }
 
@@ -356,6 +354,7 @@ bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
     m_ogre_terrain_group->loadAllTerrains(true);
 
     Terrain* terrain = m_ogre_terrain_group->getTerrain(0, 0);
+
     mHeightData = terrain->getHeightData();
     mAlign = terrain->getAlignment();
     mSize = terrain->getSize();
@@ -396,11 +395,13 @@ bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
     }
 
     m_ogre_terrain_group->freeTemporaryResources();
-    return true;
 }
 
 void TerrainGeometryManager::updateLightMap()
 {
+    if(m_ogre_terrain_group == NULL)
+        return;
+
     TerrainGroup::TerrainIterator ti = m_ogre_terrain_group->getTerrainIterator();
 
     while (ti.hasMoreElements())
@@ -428,16 +429,12 @@ void TerrainGeometryManager::UpdateMainLightPosition()
     }
     terrainOptions->setCompositeMapAmbient(gEnv->sceneManager->getAmbientLight());
 
-    m_ogre_terrain_group->update();
+    if(m_ogre_terrain_group != NULL)
+        m_ogre_terrain_group->update();
 }
 
 void TerrainGeometryManager::configureTerrainDefaults()
 {
-    if (!TerrainGlobalOptions::getSingletonPtr())
-    {
-        OGRE_NEW TerrainGlobalOptions();
-    }
-
     TerrainGlobalOptions* terrainOptions = TerrainGlobalOptions::getSingletonPtr();
     std::string const & custom_mat = terrainManager->GetDef().custom_material_name;
     if (!custom_mat.empty())
