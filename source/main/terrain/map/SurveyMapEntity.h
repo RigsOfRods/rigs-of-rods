@@ -31,10 +31,9 @@ class SurveyMapEntity : public wraps::BaseLayout, public ZeroedMemoryAllocator
 {
 public:
 
-    SurveyMapEntity(Ogre::Vector2 terrain_size, Ogre::String type, MyGUI::StaticImagePtr parent);
+    SurveyMapEntity(Ogre::String type, MyGUI::StaticImagePtr parent);
 
     void setCaption(Ogre::String s);
-    void setPosition(Ogre::Vector3 pos);
     void setPosition(float x, float z);
     void setRotation(float r);
     void setState(int state);
@@ -55,9 +54,8 @@ private:
 
     MyGUI::IntSize mIconSize;
     Ogre::Real mRotation;
-    Ogre::String mType;
     Ogre::String mFileName;
-    Ogre::Vector2 mMapSize;
+    Ogre::String mType;
     bool mIsStatic;
 
     void updateIcon();

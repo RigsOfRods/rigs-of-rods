@@ -39,28 +39,17 @@ public:
     SurveyMapEntity* createMapEntity(Ogre::String type);
     void deleteMapEntity(SurveyMapEntity* entity);
 
-    void setVisibility(bool value);
-    bool getVisibility();
-
-    void setMapZoom(Ogre::Real zoomValue, bool permanent = true);
-    void setMapZoomRelative(Ogre::Real zoomDelta, bool permanent = true);
-    Ogre::Real getMapZoom() { return mMapZoom; }
-
-    void setMapCenter(Ogre::Vector2 position);
-    void setMapCenter(Ogre::Vector2 position, float maxOffset);
-    Ogre::Vector2 getMapCenter() { return mMapCenter; };
-
     void windowResized();
-    void updateWindowPosition();
-    void setWindowPosition(int x, int y, float size);
-    Ogre::Vector2 getWindowSize() { return Ogre::Vector2(realw, realh); };
 
-    void toggleMapView();
-    void toggleMapAlpha();
+    void setVisibility(bool visible) { mMainWidget->setVisible(visible); };
+    bool getVisibility() { return mMainWidget->getVisible(); };
 
     void Update(Ogre::Real dt, Actor* curr_truck);
+    void UpdateMapEntity(SurveyMapEntity* e, Ogre::String caption, Ogre::Vector3 pos, float rot, int state, bool visible);
 
     static Ogre::String getTypeByDriveable(int driveable);
+
+protected:
 
     enum SurveyMapTypes
     {
@@ -70,14 +59,12 @@ public:
         SURVEY_MAP_END
     };
 
-    void UpdateMapEntity(SurveyMapEntity* e, Ogre::String caption, Ogre::Vector3 pos, float rot, int state, bool visible);
-
-protected:
+    Ogre::Vector2 mTerrainSize;
+    Ogre::Vector2 mPlayerPosition;
 
     Ogre::Real mMapZoom;
-
-    Ogre::Vector2 mMapCenter;
     Ogre::Vector2 mMapSize;
+    Ogre::Vector2 mMapCenter;
 
     ATTRIBUTE_FIELD_WIDGET_NAME(SurveyMapManager, mMapTexture, "mMapTexture");
 
@@ -87,14 +74,15 @@ protected:
 
     std::set<SurveyMapEntity*> mMapEntities;
     bool mMapEntitiesVisible;
-
     int mMapMode;
 
-    int realw, realh;
-    int rWinLeft, rWinTop;
-    unsigned int rWinWidth, rWinHeight, rWinDepth;
-
-    void updateRenderMetrics();
+    void updateMap();
+    void updateWindowPosition();
+    void toggleMapView();
+    void setMapZoom(Ogre::Real zoom);
+    void setMapZoomRelative(Ogre::Real delta);
+    void setPlayerPosition(Ogre::Vector2 position);
+    void setWindowPosition(int x, int y, float size);
 };
 
 

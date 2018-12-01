@@ -1189,10 +1189,10 @@ eventInfo_t eventInfo[] = {
         _L("toggle map modes")
     },
     {
-        "SURVEY_MAP_TOGGLE_ALPHA",
-        EV_SURVEY_MAP_ALPHA,
+        "SURVEY_MAP_HIDE",
+        EV_SURVEY_MAP_HIDE,
         "Keyboard EXPL+CTRL+SHIFT+TAB",
-        _L("toggle translucency of overview-map")
+        _L("hide overview-map window")
     },
     {
         "SURVEY_MAP_ZOOM_IN",

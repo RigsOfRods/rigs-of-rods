@@ -30,7 +30,7 @@ public:
     ~SurveyMapTextureCreator();
 
     bool init();
-    void update(Ogre::Vector2 center, float zoom);
+    void update(Ogre::Vector2 center, Ogre::Vector2 size);
 
     Ogre::String getTextureName();
 
@@ -39,7 +39,6 @@ protected:
     void preRenderTargetUpdate(const Ogre::RenderTargetEvent &evt);
     void postRenderTargetUpdate(const Ogre::RenderTargetEvent &evt);
 
-    Ogre::Vector2 mMapSize;
     Ogre::String mTextureName;
 
     Ogre::Camera* mCamera;
