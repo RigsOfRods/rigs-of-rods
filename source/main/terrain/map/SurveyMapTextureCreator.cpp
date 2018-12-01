@@ -22,118 +22,86 @@
 
 #include "Application.h"
 #include "IWater.h"
-#include "RoRFrameListener.h"
-#include "SurveyMapManager.h"
 #include "TerrainManager.h"
 
 using namespace Ogre;
 using namespace RoR;
 
-static Ogre::Camera* mCamera = nullptr;
-static Ogre::MaterialPtr mMaterial;
-static Ogre::RenderTarget* mRttTex = nullptr;
-static Ogre::TextureUnitState* mTextureUnitState = nullptr;
-static Ogre::Viewport* mViewport = nullptr;
+static int counter = 0;
 
 SurveyMapTextureCreator::SurveyMapTextureCreator(Ogre::Vector2 terrain_size) :
     mMapSize(terrain_size)
 {
-    init();
+    counter++;
+    mTextureName = "MapRttTex-" + TOSTRING(counter);
+}
+
+SurveyMapTextureCreator::~SurveyMapTextureCreator()
+{
+    if (mCamera)
+        gEnv->sceneManager->destroyCamera(mCamera);
+    if (mTexture)
+        Ogre::TextureManager::getSingleton().remove(mTexture);
 }
 
 bool SurveyMapTextureCreator::init()
 {
-    TexturePtr texture = Ogre::TextureManager::getSingleton().getByName("MapRttTex");
+    mTexture = Ogre::TextureManager::getSingleton().createManual(mTextureName,
+        Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, 2048, 2048, 
+        Ogre::TU_RENDERTARGET, Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET);
 
-    if (texture.isNull())
+    if (mTexture.isNull())
         return false;;
 
-    mRttTex = texture->getBuffer()->getRenderTarget();
+    mRttTex = mTexture->getBuffer()->getRenderTarget();
 
     if (!mRttTex)
         return false;
 
+    mRttTex->addListener(this);
     mRttTex->setAutoUpdated(false);
 
-    if(gEnv->sceneManager->hasCamera (getCameraName ()))
-        mCamera = gEnv->sceneManager->getCamera(getCameraName());
-    else
-        mCamera = gEnv->sceneManager->createCamera(getCameraName());
+    mCamera = gEnv->sceneManager->createCamera("MapRttCam-" + TOSTRING(counter));
+    mCamera->setFixedYawAxis(false);
+    mCamera->setProjectionType(PT_ORTHOGRAPHIC);
+    mCamera->setNearClipDistance(1.0f);
 
-    if (mViewport == nullptr || !(mViewport = mRttTex->getViewport(0)))
-        mViewport = mRttTex->addViewport(mCamera);
+    auto mViewport = mRttTex->addViewport(mCamera);
     mViewport->setBackgroundColour(ColourValue::Black);
     mViewport->setOverlaysEnabled(false);
     mViewport->setShadowsEnabled(false);
     mViewport->setSkiesEnabled(false);
 
-    mMaterial = MaterialManager::getSingleton().create(getMaterialName(), ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-
-    if (mMaterial.isNull())
-        return false;
-
-    mTextureUnitState = mMaterial->getTechnique(0)->getPass(0)->createTextureUnitState(getTextureName());
-
-    mRttTex->addListener(this);
-
-    mCamera->setFixedYawAxis(false);
-    mCamera->setProjectionType(PT_ORTHOGRAPHIC);
-    mCamera->setNearClipDistance(1.0f);
-
     return true;
 }
 
-void SurveyMapTextureCreator::update()
+void SurveyMapTextureCreator::update(Vector2 center, float zoom)
 {
     if (!mRttTex)
         return;
 
-    Vector2 mMapCenter = Vector2::ZERO;
-    float mMapZoom = 0.0f;
-
-    SurveyMapManager* survey_map = App::GetSimController()->GetGfxScene().GetSurveyMap();
-    if (survey_map)
-    {
-        mMapCenter = survey_map->getMapCenter();
-        mMapZoom = survey_map->getMapZoom();
-    }
-
     float farclip = gEnv->mainCamera->getFarClipDistance();
-    float cameraHeight = std::max(mMapCenter.x, farclip) * 0.1f;
-    float orthoWindowWidth = mMapSize.x - (mMapSize.x - 20.0f) * mMapZoom;
-    float orthoWindowHeight = mMapSize.y - (mMapSize.y - 20.0f) * mMapZoom;
+    float cameraHeight = std::max(center.x, farclip) * 0.1f;
+    float orthoWindowWidth = mMapSize.x - (mMapSize.x - 20.0f) * zoom;
+    float orthoWindowHeight = mMapSize.y - (mMapSize.y - 20.0f) * zoom;
 
-    mMapCenter.x = Math::Clamp(mMapCenter.x, orthoWindowWidth  / 2, mMapSize.x - orthoWindowWidth  / 2);
-    mMapCenter.y = Math::Clamp(mMapCenter.y, orthoWindowHeight / 2, mMapSize.y - orthoWindowHeight / 2);
+    center.x = Math::Clamp(center.x, orthoWindowWidth  / 2, mMapSize.x - orthoWindowWidth  / 2);
+    center.y = Math::Clamp(center.y, orthoWindowHeight / 2, mMapSize.y - orthoWindowHeight / 2);
 
     mCamera->setFarClipDistance(farclip);
     mCamera->setOrthoWindow(orthoWindowWidth, orthoWindowHeight);
-    mCamera->setPosition(Vector3(mMapCenter.x, cameraHeight, mMapCenter.y));
-    mCamera->lookAt(Vector3(mMapCenter.x, 0.0f, mMapCenter.y));
-
-    preRenderTargetUpdate();
+    mCamera->setPosition(Vector3(center.x, cameraHeight, center.y));
+    mCamera->lookAt(Vector3(center.x, 0.0f, center.y));
 
     mRttTex->update();
-
-    postRenderTargetUpdate();
-}
-
-String SurveyMapTextureCreator::getMaterialName()
-{
-    return "MapRttMat";
-}
-
-String SurveyMapTextureCreator::getCameraName()
-{
-    return "MapRttCam";
 }
 
 String SurveyMapTextureCreator::getTextureName()
 {
-    return "MapRttTex";
+    return mTextureName;
 }
 
-void SurveyMapTextureCreator::preRenderTargetUpdate()
+void SurveyMapTextureCreator::preRenderTargetUpdate(const RenderTargetEvent &evt)
 {
     auto water = App::GetSimTerrain()->getWater();
     if (water)
@@ -144,7 +112,7 @@ void SurveyMapTextureCreator::preRenderTargetUpdate()
     }
 }
 
-void SurveyMapTextureCreator::postRenderTargetUpdate()
+void SurveyMapTextureCreator::postRenderTargetUpdate(const RenderTargetEvent &evt)
 {
     auto water = App::GetSimTerrain()->getWater();
     if (water)

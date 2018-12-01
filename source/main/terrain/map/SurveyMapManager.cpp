@@ -45,6 +45,8 @@ SurveyMapManager::SurveyMapManager(Ogre::Vector2 terrain_size) :
     initialiseByAttributes(this);
     setVisibility(false);
 
+    mMapTextureCreator->init();
+    mMapTextureCreator->update(mMapCenter, mMapZoom);
     mMapTexture->setImageTexture(mMapTextureCreator->getTextureName());
 }
 
@@ -118,7 +120,7 @@ void SurveyMapManager::setMapZoom(Real zoomValue, bool permanent /*= true*/)
     Real oldZoomValue = mMapZoom;
 
     mMapZoom = zoomValue;
-    mMapTextureCreator->update();
+    mMapTextureCreator->update(mMapCenter, mMapZoom);
 
     if (!permanent)
         mMapZoom = oldZoomValue;
@@ -135,7 +137,7 @@ void SurveyMapManager::setMapCenter(Vector2 position)
         return;
 
     mMapCenter = position;
-    mMapTextureCreator->update();
+    mMapTextureCreator->update(mMapCenter, mMapZoom);
 }
 
 void SurveyMapManager::setMapCenter(Ogre::Vector2 position, float maxOffset)
