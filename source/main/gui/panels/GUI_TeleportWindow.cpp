@@ -173,8 +173,10 @@ void TeleportWindow::SetupMap(Terrn2Def* def, Ogre::Vector3 map_size)
     }
     else
     {
-        std::unique_ptr<SurveyMapTextureCreator> tc(new SurveyMapTextureCreator(Ogre::Vector2(map_size.x, map_size.z)));
-        tc->update();
+        Ogre::Vector2 terrain_size(map_size.x, map_size.z);
+        std::unique_ptr<SurveyMapTextureCreator> tc(new SurveyMapTextureCreator(terrain_size));
+        tc->init();
+        tc->update(terrain_size / 2, 0.0f);
         m_minimap_image->setImageTexture(tc->getTextureName());
     }
     m_info_textbox->setCaption(HELPTEXT_USAGE);

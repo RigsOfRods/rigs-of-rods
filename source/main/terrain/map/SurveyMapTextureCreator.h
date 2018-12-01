@@ -27,19 +27,22 @@ class SurveyMapTextureCreator : public Ogre::RenderTargetListener, public Zeroed
 public:
 
     SurveyMapTextureCreator(Ogre::Vector2 terrain_size);
+    ~SurveyMapTextureCreator();
 
-    Ogre::String getMaterialName();
-    Ogre::String getCameraName();
+    bool init();
+    void update(Ogre::Vector2 center, float zoom);
+
     Ogre::String getTextureName();
-
-    void update();
 
 protected:
 
-    bool init();
-
-    void preRenderTargetUpdate();
-    void postRenderTargetUpdate();
+    void preRenderTargetUpdate(const Ogre::RenderTargetEvent &evt);
+    void postRenderTargetUpdate(const Ogre::RenderTargetEvent &evt);
 
     Ogre::Vector2 mMapSize;
+    Ogre::String mTextureName;
+
+    Ogre::Camera* mCamera;
+    Ogre::TexturePtr mTexture;
+    Ogre::RenderTarget* mRttTex;
 };
