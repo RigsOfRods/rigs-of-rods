@@ -42,6 +42,7 @@ public:
 
     Ogre::TerrainGroup* getTerrainGroup() { return m_ogre_terrain_group; };
 
+    float getMaxHeight();
     float getHeightAt(float x, float z);
     float getHeightAtPoint(long x, long z);
     float getHeightAtTerrainPosition(float x, float z);

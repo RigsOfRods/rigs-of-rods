@@ -489,6 +489,11 @@ Ogre::Vector3 TerrainManager::getMaxTerrainSize()
     return m_geometry_manager->getMaxTerrainSize();
 }
 
+float TerrainManager::GetMaxHeight()
+{
+    return m_geometry_manager->getMaxHeight();
+}
+
 float TerrainManager::GetHeightAt(float x, float z)
 {
     return m_geometry_manager->getHeightAt(x, z);
