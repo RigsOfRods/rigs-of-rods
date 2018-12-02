@@ -1764,8 +1764,6 @@ void SimController::ShowLoaderGUI(int type, const Ogre::String& instance, const 
     }
     
     App::sim_state.SetActive(SimState::SELECTING); // TODO: use 'pending' mechanism
-    if (m_gfx_scene.GetSurveyMap())
-        m_gfx_scene.GetSurveyMap()->setVisibility(false); // TODO: we shouldn't update GfxScene-owned objects from simulation, we should queue the update ~ only_a_ptr, 05/2018
 
     ActorSpawnRequest rq;
     rq.asr_position = gEnv->collisions->getPosition(instance, box);
@@ -1837,19 +1835,14 @@ void SimController::HideGUI(bool hidden)
 
 #ifdef USE_SOCKETW
     if (App::mp_state.GetActive() == MpState::CONNECTED)
-    {
         App::GetGuiManager()->SetVisible_MpClientList(!hidden);
-    }
 #endif // USE_SOCKETW
 
     if (RoR::App::GetOverlayWrapper())
         RoR::App::GetOverlayWrapper()->showDashboardOverlays(!hidden, m_player_actor);
 
-    if (hidden)
-    {
-        if (m_gfx_scene.GetSurveyMap())
-            m_gfx_scene.GetSurveyMap()->setVisibility(false); // TODO: we shouldn't update GfxScene-owned objects from simulation, but this whole HideGUI() function will likely end up being invoked by GfxActor in the future, so it's OK for now ~ only_a_ptr, 05/2018
-    }
+    if (m_gfx_scene.GetSurveyMap() && m_gfx_scene.GetSurveyMap()->hidden() != hidden)
+        m_gfx_scene.GetSurveyMap()->toggleMode(); // TODO: we shouldn't update GfxScene-owned objects from simulation, but this whole HideGUI() function will likely end up being invoked by GfxActor in the future, so it's OK for now ~ only_a_ptr, 05/2018
 
     App::GetGuiManager()->hideGUI(hidden);
 }

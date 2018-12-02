@@ -207,11 +207,10 @@ GRASS_NONE                     Keyboard             5
 GRASS_SAVE                     Keyboard             9 
 
 ; MAP
-SURVEY_MAP_TOGGLE_VIEW         Keyboard             EXPL+TAB 
+SURVEY_MAP_CYCLE               Keyboard             EXPL+TAB 
+SURVEY_MAP_TOGGLE              Keyboard             EXPL+CTRL+SHIFT+TAB 
 SURVEY_MAP_ZOOM_IN             Keyboard             EXPL+CTRL+TAB 
 SURVEY_MAP_ZOOM_OUT            Keyboard             EXPL+SHIFT+TAB 
-SURVEY_MAP_HIDE                Keyboard             EXPL+CTRL+SHIFT+TAB 
-SURVEY_MAP_TOGGLE_ICONS        Keyboard             EXPL+CTRL+SHIFT+ALT+TAB
 
 ; MENU
 MENU_DOWN                      Keyboard             DOWN 
