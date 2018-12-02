@@ -30,6 +30,11 @@
 #include <algorithm>
 #include <OgreException.h>
 
+RoR::OTCParser::OTCParser() :
+    m_def(std::make_shared<RoR::OTCFile>())
+{
+}
+
 bool RoR::OTCParser::LoadMasterConfig(Ogre::DataStreamPtr &ds, const char* filename)
 {
     std::string file_basename, file_ext;
@@ -38,7 +43,6 @@ bool RoR::OTCParser::LoadMasterConfig(Ogre::DataStreamPtr &ds, const char* filen
     try
     {
         cfg.load(ds, "\t:=", false);
-        m_def = std::make_shared<RoR::OTCFile>();
 
         m_def->disable_cache           = cfg.GetBool  ("disableCaching",  false);
         m_def->world_size_x            = cfg.GetInt   ("WorldSizeX",      1024);

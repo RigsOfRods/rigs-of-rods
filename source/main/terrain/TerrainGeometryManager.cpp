@@ -299,7 +299,8 @@ bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
     catch (...)
     {
         terrainManager->HandleException("Error reading main *.otc file");
-        return false;
+        // If we stop parsing we might break some legacy maps
+        //return false;
     }
 
     // Load *.otc files for pages
@@ -356,6 +357,10 @@ bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
     m_ogre_terrain_group->loadAllTerrains(true);
 
     Terrain* terrain = m_ogre_terrain_group->getTerrain(0, 0);
+
+    if (terrain == nullptr)
+        return true;
+
     mHeightData = terrain->getHeightData();
     mAlign = terrain->getAlignment();
     mSize = terrain->getSize();
@@ -521,7 +526,10 @@ void TerrainGeometryManager::configureTerrainDefaults()
 
     // HACK: Load the single page config now
     // This is how it "worked before" ~ only_a_ptr, 04/2017
-    this->SetupLayers(*m_spec->pages.begin(), nullptr);
+    if (!m_spec->pages.empty())
+    {
+        this->SetupLayers(*m_spec->pages.begin(), nullptr);
+    }
 }
 
 // if terrain is set, we operate on the already loaded terrain
