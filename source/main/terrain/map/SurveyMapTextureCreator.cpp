@@ -22,6 +22,7 @@
 
 #include "Application.h"
 #include "IWater.h"
+#include "OgreSubsystem.h"
 #include "TerrainManager.h"
 
 using namespace Ogre;
@@ -45,9 +46,14 @@ SurveyMapTextureCreator::~SurveyMapTextureCreator()
 
 bool SurveyMapTextureCreator::init()
 {
+    ConfigOptionMap ropts = App::GetOgreSubsystem()->GetOgreRoot()->getRenderSystem()->getConfigOptions();
+    int resolution = StringConverter::parseInt(StringUtil::split(ropts["Video Mode"].currentValue, " x ")[0], 1024);
+    int fsaa = StringConverter::parseInt(ropts["FSAA"].currentValue, 0);
+    int res = std::pow(2, std::floor(std::log2(resolution)));
+
     mTexture = Ogre::TextureManager::getSingleton().createManual(mTextureName,
-        Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, 2048, 2048,
-        Ogre::TU_RENDERTARGET, Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET, 0, false, 8);
+        Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, res, res,
+        Ogre::TU_RENDERTARGET, Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET, 0, false, fsaa);
 
     if (mTexture.isNull())
         return false;;
