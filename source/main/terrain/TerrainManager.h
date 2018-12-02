@@ -59,7 +59,6 @@ public:
     bool               HasPredefinedActors();
     bool               LoadAndPrepareTerrain(std::string terrn2_filename);
     void               HandleException(const char* summary);
-    float              GetMaxHeight();
     float              GetHeightAt(float x, float z);
     Ogre::Vector3      GetNormalAt(float x, float y, float z);
 
