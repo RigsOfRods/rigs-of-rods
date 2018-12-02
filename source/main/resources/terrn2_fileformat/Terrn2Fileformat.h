@@ -50,7 +50,7 @@ struct Terrn2Def
     Terrn2Def();
 
     std::string              name;
-    std::string              ogre_ter_conf_filename;
+    std::string              ter_conf_filename;
     Ogre::ColourValue        ambient_color;
     int                      category_id;
     Ogre::Vector3            start_position;

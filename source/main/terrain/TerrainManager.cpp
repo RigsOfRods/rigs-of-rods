@@ -188,11 +188,18 @@ bool TerrainManager::LoadAndPrepareTerrain(std::string filename)
 
     fixCompositorClearColor();
 
-    LOG(" ===== LOADING TERRAIN GEOMETRY " + filename);
-    PROGRESS_WINDOW(80, _L("Loading Terrain Geometry"));
-    if (!m_geometry_manager->InitTerrain(m_def.ogre_ter_conf_filename))
+    if (!m_def.ter_conf_filename.empty())
     {
-        return false; // Error already reported
+        LOG(" ===== LOADING TERRAIN GEOMETRY " + filename);
+        PROGRESS_WINDOW(80, _L("Loading Terrain Geometry"));
+        if (!m_geometry_manager->InitTerrain(m_def.ter_conf_filename))
+        {
+            return false; // Error already reported
+        }
+    }
+    else
+    {
+        LOG(" ===== SKIPPING TERRAIN GEOMETRY ===== ");
     }
 
     PROGRESS_WINDOW(86, _L("Initializing Collision Subsystem"));
@@ -401,13 +408,15 @@ void TerrainManager::initWater()
 
         m_water = std::unique_ptr<IWater>(m_hydrax_water);
 
-        //Apply depth technique to the terrain
-        TerrainGroup::TerrainIterator ti = m_geometry_manager->getTerrainGroup()->getTerrainIterator();
-        while (ti.hasMoreElements())
+        if (m_geometry_manager->getTerrainGroup())
         {
-            Terrain* t = ti.getNext()->instance;
-            MaterialPtr ptr = t->getMaterial();
-            m_hydrax_water->GetHydrax()->getMaterialManager()->addDepthTechnique(ptr->createTechnique());
+            TerrainGroup::TerrainIterator ti = m_geometry_manager->getTerrainGroup()->getTerrainIterator();
+            while (ti.hasMoreElements())
+            {
+                Terrain* t = ti.getNext()->instance;
+                MaterialPtr ptr = t->getMaterial();
+                m_hydrax_water->GetHydrax()->getMaterialManager()->addDepthTechnique(ptr->createTechnique());
+            }
         }
     }
     else

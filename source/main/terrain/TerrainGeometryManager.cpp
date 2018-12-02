@@ -137,6 +137,7 @@ TerrainGeometryManager::TerrainGeometryManager(TerrainManager* terrainManager)
     , m_was_new_geometry_generated(false)
     , terrainManager(terrainManager)
 {
+    m_spec = std::make_shared<RoR::OTCFile>();
 }
 
 TerrainGeometryManager::~TerrainGeometryManager()
@@ -401,6 +402,9 @@ bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
 
 void TerrainGeometryManager::updateLightMap()
 {
+    if (m_ogre_terrain_group == nullptr)
+        return;
+
     TerrainGroup::TerrainIterator ti = m_ogre_terrain_group->getTerrainIterator();
 
     while (ti.hasMoreElements())
@@ -419,6 +423,9 @@ void TerrainGeometryManager::updateLightMap()
 
 void TerrainGeometryManager::UpdateMainLightPosition()
 {
+    if (m_ogre_terrain_group == nullptr || TerrainGlobalOptions::getSingletonPtr() == nullptr)
+        return;
+
     Light* light = terrainManager->getMainLight();
     TerrainGlobalOptions* terrainOptions = TerrainGlobalOptions::getSingletonPtr();
     if (light)
