@@ -155,13 +155,13 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
     // GUI - Survey map
     if (m_survey_map != nullptr)
     {
+        m_survey_map->Update(dt_sec, m_simbuf.simbuf_player_actor);
         for (GfxActor* gfx_actor: m_all_gfx_actors)
         {
             auto& simbuf = gfx_actor->GetSimDataBuffer();
             m_survey_map->UpdateMapEntity(gfx_actor->GetSurveyMapEntity(), "",
                 simbuf.simbuf_pos, simbuf.simbuf_rotation, gfx_actor->GetActorState(), true);
         }
-        m_survey_map->Update(dt_sec, m_simbuf.simbuf_player_actor);
     }
 
     // GUI - race

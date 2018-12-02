@@ -24,19 +24,21 @@
 
 #include "Application.h"
 #include "Beam.h"
-#include "BeamFactory.h"
+#include "GUIManager.h"
+#include "GUI_MainSelector.h"
 #include "InputEngine.h"
 #include "OgreSubsystem.h"
 #include "RoRFrameListener.h"
 #include "SurveyMapEntity.h"
 #include "SurveyMapTextureCreator.h"
 
+using namespace RoR;
 using namespace Ogre;
 
 SurveyMapManager::SurveyMapManager(Ogre::Vector2 terrain_size) :
       mMapCenter(terrain_size / 2)
-    , mMapEntitiesVisible(true)
-    , mMapMode(SURVEY_MAP_NONE)
+    , mLastMapMode(SurveyMapMode::SMALL)
+    , mMapMode(SurveyMapMode::NONE)
     , mMapSize(terrain_size)
     , mMapTextureCreator(new SurveyMapTextureCreator(terrain_size))
     , mMapZoom(0.0f)
@@ -44,7 +46,7 @@ SurveyMapManager::SurveyMapManager(Ogre::Vector2 terrain_size) :
     , mTerrainSize(terrain_size)
 {
     initialiseByAttributes(this);
-    setVisibility(false);
+    mMainWidget->setVisible(false);
 
     mMapTextureCreator->init();
     mMapTextureCreator->update(mMapCenter, mMapSize);
@@ -78,21 +80,20 @@ void SurveyMapManager::deleteMapEntity(SurveyMapEntity* entity)
     }
 }
 
-void SurveyMapManager::updateWindowPosition()
+void SurveyMapManager::updateWindow()
 {
-    if (mMapMode == SURVEY_MAP_SMALL)
+    switch (mMapMode)
     {
-        setWindowPosition(1, -1, 0.3f);
+    case SurveyMapMode::SMALL: setWindowPosition(1, -1, 0.30f); break;
+    case SurveyMapMode::BIG:   setWindowPosition(0,  0, 0.98f); break;
+    default:;
     }
-    else if (mMapMode == SURVEY_MAP_BIG)
-    {
-        setWindowPosition(0, 0, 0.98f);
-    }
+    mMainWidget->setVisible(mMapMode != SurveyMapMode::NONE);
 }
 
 void SurveyMapManager::windowResized()
 {
-    this->updateWindowPosition();
+    this->updateWindow();
 }
 
 void SurveyMapManager::setMapZoom(Real zoom)
@@ -108,7 +109,7 @@ void SurveyMapManager::setMapZoom(Real zoom)
 
 void SurveyMapManager::setMapZoomRelative(Real delta)
 {
-    setMapZoom(mMapZoom + delta * std::max(0.1f, 1.0f - mMapZoom) / 100.0f);
+    setMapZoom(mMapZoom + 0.5f * delta * std::max(0.1f, 1.0f - mMapZoom));
 }
 
 void SurveyMapManager::updateMap()
@@ -134,7 +135,7 @@ void SurveyMapManager::setWindowPosition(int x, int y, float size)
 {
     int rWinLeft, rWinTop;
     unsigned int rWinWidth, rWinHeight, rWinDepth;
-    RoR::App::GetOgreSubsystem()->GetRenderWindow()->getMetrics(rWinWidth, rWinHeight, rWinDepth, rWinLeft, rWinTop);
+    App::GetOgreSubsystem()->GetRenderWindow()->getMetrics(rWinWidth, rWinHeight, rWinDepth, rWinLeft, rWinTop);
 
     int realx = 0;
     int realy = 0;
@@ -194,35 +195,25 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
     if (dt == 0)
         return;
 
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE_VIEW))
-    {
-        toggleMapView();
-    }
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_CYCLE))
+        cycleMode();
 
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_HIDE))
-    {
-        mMapMode = SURVEY_MAP_NONE;
-        setVisibility(false);
-    }
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE))
+        toggleMode();
 
-    if (mMapMode == SURVEY_MAP_NONE)
+    if (mMapMode == SurveyMapMode::NONE)
         return;
-
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE_ICONS))
-    {
-        mMapEntitiesVisible = !mMapEntitiesVisible;
-    }
 
     switch (mMapMode)
     {
-    case SURVEY_MAP_SMALL:
-        if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SURVEY_MAP_ZOOM_IN))
+    case SurveyMapMode::SMALL:
+        if (App::GetInputEngine()->getEventBoolValue(EV_SURVEY_MAP_ZOOM_IN))
         {
-            setMapZoomRelative(1.0f);
+            setMapZoomRelative(+dt);
         }
-        if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SURVEY_MAP_ZOOM_OUT))
+        if (App::GetInputEngine()->getEventBoolValue(EV_SURVEY_MAP_ZOOM_OUT))
         {
-            setMapZoomRelative(-1.0f);
+            setMapZoomRelative(-dt);
         }
         if (mMapZoom > 0.0f)
         {
@@ -233,7 +224,7 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
             }
             else
             {
-                auto& simbuf = RoR::App::GetSimController()->GetGfxScene().GetSimDataBuffer();
+                auto& simbuf = App::GetSimController()->GetGfxScene().GetSimDataBuffer();
                 setPlayerPosition(Vector2(simbuf.simbuf_character_pos.x, simbuf.simbuf_character_pos.z));
             }
         }
@@ -243,13 +234,12 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
         }
         break;
 
-    case SURVEY_MAP_BIG:
+    case SurveyMapMode::BIG:
         setMapZoom(0.0f);
         setPlayerPosition(mTerrainSize / 2);
-        if (RoR::App::GetSimController()->AreControlsLocked())
+        if (App::GetSimController()->AreControlsLocked() || App::GetGuiManager()->GetMainSelector()->IsVisible())
         {
-            mMapMode = SURVEY_MAP_SMALL;
-            updateWindowPosition();
+            toggleMode();
         }
         break;
 
@@ -258,13 +248,22 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
     }
 }
 
-void SurveyMapManager::toggleMapView()
+void SurveyMapManager::cycleMode()
 {
-    mMapMode = (mMapMode + 1) % SURVEY_MAP_END;
+    switch (mMapMode)
+    {
+    case SurveyMapMode::NONE:  mLastMapMode = mMapMode = SurveyMapMode::SMALL; break;
+    case SurveyMapMode::SMALL: mLastMapMode = mMapMode = SurveyMapMode::BIG;   break;
+    case SurveyMapMode::BIG:                  mMapMode = SurveyMapMode::NONE;  break;
+    default:;
+    }
+    updateWindow();
+}
 
-    setVisibility(mMapMode != SURVEY_MAP_NONE);
-
-    updateWindowPosition();
+void SurveyMapManager::toggleMode()
+{
+    mMapMode = (mMapMode == SurveyMapMode::NONE) ? mLastMapMode : SurveyMapMode::NONE;
+    updateWindow();
 }
 
 void SurveyMapManager::UpdateMapEntity(SurveyMapEntity* e, String caption, Vector3 pos, float rot, int state, bool visible)
@@ -273,11 +272,11 @@ void SurveyMapManager::UpdateMapEntity(SurveyMapEntity* e, String caption, Vecto
     {
         Vector2 origin = mMapCenter - mMapSize / 2;
         Vector2 relPos = Vector2(pos.x, pos.z) - origin;
-        bool culled = !(Vector2(0) < relPos) || !(relPos < mMapSize);
+        bool culled = !(Vector2(0) < relPos && relPos < mMapSize);
         e->setState(state);
         e->setRotation(rot);
         e->setCaption(caption);
         e->setPosition(relPos.x / mMapSize.x, relPos.y / mMapSize.y);
-        e->setVisibility(visible && !culled && mMapEntitiesVisible);
+        e->setVisibility(visible && !culled);
     }
 }

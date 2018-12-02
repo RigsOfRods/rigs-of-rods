@@ -39,10 +39,9 @@ public:
     SurveyMapEntity* createMapEntity(Ogre::String type);
     void deleteMapEntity(SurveyMapEntity* entity);
 
+    bool hidden() { return mMapMode == SurveyMapMode::NONE; };
+    void toggleMode();
     void windowResized();
-
-    void setVisibility(bool visible) { mMainWidget->setVisible(visible); };
-    bool getVisibility() { return mMainWidget->getVisible(); };
 
     void Update(Ogre::Real dt, Actor* curr_truck);
     void UpdateMapEntity(SurveyMapEntity* e, Ogre::String caption, Ogre::Vector3 pos, float rot, int state, bool visible);
@@ -51,12 +50,11 @@ public:
 
 protected:
 
-    enum SurveyMapTypes
+    enum class SurveyMapMode
     {
-        SURVEY_MAP_NONE,
-        SURVEY_MAP_SMALL,
-        SURVEY_MAP_BIG,
-        SURVEY_MAP_END
+        NONE,
+        SMALL,
+        BIG
     };
 
     Ogre::Vector2 mTerrainSize;
@@ -73,16 +71,17 @@ protected:
     SurveyMapTextureCreator* mMapTextureCreator;
 
     std::set<SurveyMapEntity*> mMapEntities;
-    bool mMapEntitiesVisible;
-    int mMapMode;
+    SurveyMapMode mLastMapMode;
+    SurveyMapMode mMapMode;
+
+    void cycleMode();
 
     void updateMap();
-    void updateWindowPosition();
-    void toggleMapView();
+    void updateWindow();
+
     void setMapZoom(Ogre::Real zoom);
     void setMapZoomRelative(Ogre::Real delta);
     void setPlayerPosition(Ogre::Vector2 position);
     void setWindowPosition(int x, int y, float size);
 };
-
 
