@@ -109,7 +109,7 @@ void SurveyMapManager::setMapZoom(Real zoom)
 
 void SurveyMapManager::setMapZoomRelative(Real delta)
 {
-    setMapZoom(mMapZoom + 0.5f * delta * std::max(0.1f, 1.0f - mMapZoom));
+    setMapZoom(mMapZoom + 0.5f * delta * (1.0f - mMapZoom));
 }
 
 void SurveyMapManager::updateMap()
@@ -124,7 +124,7 @@ void SurveyMapManager::updateMap()
 
 void SurveyMapManager::setPlayerPosition(Ogre::Vector2 position)
 {
-    if (mPlayerPosition.distance(position) < (1.0f - mMapZoom))
+    if ((mPlayerPosition - position).isZeroLength())
         return;
 
     mPlayerPosition = position;
