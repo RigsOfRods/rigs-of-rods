@@ -27,18 +27,30 @@ project(${PROJECT_NAME_SHORT} VERSION 0.4.8.0)
 ################################################################################
 # Available build options
 ################################################################################
+option(BUILD_USE_CONAN "Use conan for managing dependencies" ON)
 option(BUILD_DEV_VERSION "Disable this for official releases" ON)
 option(BUILD_DOC_DOXYGEN "Build documentation from sources with Doxygen" OFF)
 option(BUILD_REDIST_FOLDER "Build a folder for redistributing the game" OFF)
 
 include(Macros)
 
-if (EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-    include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-    conan_basic_setup(TARGETS)
-    conan_set_find_paths()
-    conan_set_vs_runtime()
-endif ()
+if (BUILD_USE_CONAN)
+    # Download automatically
+    if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
+       message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
+       file(DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/master/conan.cmake"
+                     "${CMAKE_BINARY_DIR}/conan.cmake")
+    endif()
+
+    include(conan.cmake)
+
+    conan_add_remote(NAME ror-dependencies URL https://api.bintray.com/conan/anotherfoxguy/ror-dependencies)
+    conan_add_remote(NAME bincrafters-public-conan URL https://api.bintray.com/conan/bincrafters/public-conan)
+
+    conan_cmake_run(CONANFILE conanfile.txt
+                    BASIC_SETUP CMAKE_TARGETS
+                    BUILD missing)
+endif()
 
 # global cmake options
 SET(BUILD_SHARED_LIBS ON)
