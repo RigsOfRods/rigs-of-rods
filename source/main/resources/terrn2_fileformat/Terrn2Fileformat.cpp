@@ -47,7 +47,7 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
 
     def.ogre_ter_conf_filename = file.GetStringEx("GeometryConfig", "General");
     // otc = ogre terrain config
-    if (def.ogre_ter_conf_filename.find(".otc") == String::npos)
+    if (!def.ogre_ter_conf_filename.empty() && def.ogre_ter_conf_filename.find(".otc") == String::npos)
     {
         this->AddMessage("FATAL: Invalid geometry config file; only '.otc' is supported");
         return false;
