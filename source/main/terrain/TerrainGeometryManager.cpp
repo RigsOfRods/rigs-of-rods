@@ -148,29 +148,6 @@ TerrainGeometryManager::~TerrainGeometryManager()
 }
 
 /// @author Ported from OGRE engine, www.ogre3d.org, file OgreTerrain.cpp
-void TerrainGeometryManager::getTerrainPositionAlign(Real x, Real y, Real z, Terrain::Alignment align, Vector3* outTSpos)
-{
-    switch (align)
-    {
-    case Terrain::ALIGN_X_Z:
-        outTSpos->x = (x - mBase - mPos.x) / ((mSize - 1) * mScale);
-        outTSpos->y = (z + mBase - mPos.z) / ((mSize - 1) * -mScale);
-        outTSpos->z = y;
-        break;
-    case Terrain::ALIGN_Y_Z:
-        outTSpos->x = (z - mBase - mPos.z) / ((mSize - 1) * -mScale);
-        outTSpos->y = (y + mBase - mPos.y) / ((mSize - 1) * mScale);
-        outTSpos->z = x;
-        break;
-    case Terrain::ALIGN_X_Y:
-        outTSpos->x = (x - mBase - mPos.x) / ((mSize - 1) * mScale);
-        outTSpos->y = (y - mBase - mPos.y) / ((mSize - 1) * mScale);
-        outTSpos->z = z;
-        break;
-    };
-}
-
-/// @author Ported from OGRE engine, www.ogre3d.org, file OgreTerrain.cpp
 float TerrainGeometryManager::getHeightAtPoint(long x, long y)
 {
     // clamp
@@ -248,25 +225,19 @@ float TerrainGeometryManager::getHeightAtTerrainPosition(Real x, Real y)
             - plane.d) / plane.normal.z;
 }
 
-/// @author Ported from OGRE engine, www.ogre3d.org, file OgreTerrain.cpp
-float TerrainGeometryManager::getHeightAtWorldPosition(float x, float z)
-{
-    Vector3 terrPos;
-    getTerrainPositionAlign(x, 0.0f, z, mAlign, &terrPos);
-
-    if (terrPos.x <= 0.0f || terrPos.y <= 0.0f || terrPos.x >= 1.0f || terrPos.y >= 1.0f)
-        return 0.0f;
-
-    return getHeightAtTerrainPosition(terrPos.x, terrPos.y);
-}
-
 float TerrainGeometryManager::getHeightAt(float x, float z)
 {
     if (m_spec->is_flat)
         return 0.0f;
-    else
+
     //return m_ogre_terrain_group->getHeightAtWorldPosition(x, 1000, z);
-        return getHeightAtWorldPosition(x, z);
+    float tx = (x - mBase - mPos.x) / ((mSize - 1) *  mScale);
+    float ty = (z + mBase - mPos.z) / ((mSize - 1) * -mScale);
+
+    if (tx <= 0.0f || ty <= 0.0f || tx >= 1.0f || ty >= 1.0f)
+        return 0.0f;
+
+    return getHeightAtTerrainPosition(tx, ty);
 }
 
 Ogre::Vector3 TerrainGeometryManager::getNormalAt(float x, float y, float z, float precision)
@@ -362,7 +333,6 @@ bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
         return true;
 
     mHeightData = terrain->getHeightData();
-    mAlign = terrain->getAlignment();
     mSize = terrain->getSize();
     const float world_size = terrain->getWorldSize();
     mBase = -world_size * 0.5f;
