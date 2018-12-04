@@ -43,7 +43,7 @@ public:
     float getHeightAtPoint(long x, long z);
     float getHeightAtTerrainPosition(float x, float z);
 
-    Ogre::Vector3 getNormalAt(float x, float y, float z, float precision = 0.1f);
+    Ogre::Vector3 getNormalAt(float x, float y, float z);
 
     Ogre::Vector3 getMaxTerrainSize();
 
