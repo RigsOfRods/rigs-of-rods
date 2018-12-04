@@ -28,9 +28,6 @@
 #include <OgreVector3.h>
 #include <Terrain/OgreTerrain.h>
 
-// forward
-namespace Ogre { class Terrain; class TerrainGroup; class TerrainPaging; class PageManager; }
-
 /// this class handles all interactions with the Ogre Terrain system
 class TerrainGeometryManager : public ZeroedMemoryAllocator
 {
@@ -45,8 +42,6 @@ public:
     float getHeightAt(float x, float z);
     float getHeightAtPoint(long x, long z);
     float getHeightAtTerrainPosition(float x, float z);
-    float getHeightAtWorldPosition(float x, float z);
-    void getTerrainPositionAlign(Ogre::Real x, Ogre::Real y, Ogre::Real z, Ogre::Terrain::Alignment align, Ogre::Vector3* outWSpos);
 
     Ogre::Vector3 getNormalAt(float x, float y, float z, float precision = 0.1f);
 
@@ -72,7 +67,6 @@ private:
     bool                 m_was_new_geometry_generated;
 
     // Terrn position lookup - ported from OGRE engine.
-    Ogre::Terrain::Alignment mAlign;
     Ogre::Vector3 mPos;
     Ogre::Real mBase;
     Ogre::Real mScale;
