@@ -240,13 +240,12 @@ float TerrainGeometryManager::getHeightAt(float x, float z)
     return getHeightAtTerrainPosition(tx, ty);
 }
 
-Ogre::Vector3 TerrainGeometryManager::getNormalAt(float x, float y, float z, float precision)
+Ogre::Vector3 TerrainGeometryManager::getNormalAt(float x, float y, float z)
 {
-    Ogre::Vector3 left(-precision, getHeightAt(x - precision, z) - y, 0.0f);
-    Ogre::Vector3 down(0.0f, getHeightAt(x, z + precision) - y, precision);
-    down = left.crossProduct(down);
-    down.normalise();
-    return down;
+    const float precision = 0.1f;
+    Vector3 normal(getHeightAt(x - precision, z) - y, precision, y - getHeightAt(x, z + precision));
+    normal.normalise();
+    return normal;
 }
 
 bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
