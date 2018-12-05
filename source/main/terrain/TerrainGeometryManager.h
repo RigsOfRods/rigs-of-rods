@@ -40,8 +40,6 @@ public:
     Ogre::TerrainGroup* getTerrainGroup() { return m_ogre_terrain_group; };
 
     float getHeightAt(float x, float z);
-    float getHeightAtPoint(long x, long z);
-    float getHeightAtTerrainPosition(float x, float z);
 
     Ogre::Vector3 getNormalAt(float x, float y, float z);
 
@@ -51,6 +49,8 @@ public:
     void updateLightMap();
 
 private:
+
+    float getHeightAtTerrainPosition(float x, float z);
 
     bool getTerrainImage(int x, int y, Ogre::Image& img);
     bool loadTerrainConfig(Ogre::String filename);
