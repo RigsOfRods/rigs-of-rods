@@ -148,18 +148,6 @@ TerrainGeometryManager::~TerrainGeometryManager()
 }
 
 /// @author Ported from OGRE engine, www.ogre3d.org, file OgreTerrain.cpp
-float TerrainGeometryManager::getHeightAtPoint(long x, long y)
-{
-    // clamp
-    x = std::min(x, (long)mSize - 1L);
-    x = std::max(x, 0L);
-    y = std::min(y, (long)mSize - 1L);
-    y = std::max(y, 0L);
-
-    return mHeightData[y * mSize + x];
-}
-
-/// @author Ported from OGRE engine, www.ogre3d.org, file OgreTerrain.cpp
 float TerrainGeometryManager::getHeightAtTerrainPosition(Real x, Real y)
 {
     // get left / bottom points (rounded down)
@@ -178,13 +166,9 @@ float TerrainGeometryManager::getHeightAtTerrainPosition(Real x, Real y)
     Real endXTS = endX * invFactor;
     Real endYTS = endY * invFactor;
 
-    // now clamp
-    endX = std::min(endX, (long)mSize - 1);
-    endY = std::min(endY, (long)mSize - 1);
-
     // get parametric from start coord to next point
-    Real xParam = (x - startXTS) / invFactor;
-    Real yParam = (y - startYTS) / invFactor;
+    Real xParam = (x * factor - startX);
+    Real yParam = (y * factor - startY);
 
     /* For even / odd tri strip rows, triangles are this shape:
     even     odd
@@ -194,10 +178,10 @@ float TerrainGeometryManager::getHeightAtTerrainPosition(Real x, Real y)
     */
 
     // Build all 4 positions in terrain space, using point-sampled height
-    Vector3 v0(startXTS, startYTS, getHeightAtPoint(startX, startY));
-    Vector3 v1(endXTS, startYTS, getHeightAtPoint(endX, startY));
-    Vector3 v2(endXTS, endYTS, getHeightAtPoint(endX, endY));
-    Vector3 v3(startXTS, endYTS, getHeightAtPoint(startX, endY));
+    Vector3 v0(startXTS, startYTS, mHeightData[startY * mSize + startX]);
+    Vector3 v1(endXTS  , startYTS, mHeightData[startY * mSize + endX]);
+    Vector3 v2(endXTS  , endYTS  , mHeightData[endY   * mSize + endX]);
+    Vector3 v3(startXTS, endYTS  , mHeightData[endY   * mSize + startX]);
     // define this plane in terrain space
     Plane plane;
     if (startY % 2)
