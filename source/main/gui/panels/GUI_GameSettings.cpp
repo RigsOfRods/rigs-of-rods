@@ -153,7 +153,7 @@ void RoR::GUI::GameSettings::Draw()
         DrawGIntCheck(App::gfx_skidmarks_mode,   "Enable skidmarks");
 
         ImGui::PushItemWidth(100.f); // Width includes [+/-] buttons
-        DrawGIntBox(App::gfx_envmap_rate,    "Realtime refl. update rate");
+        DrawGIntSlider(App::gfx_envmap_rate, "Realtime refl. update rate", 0, 6);
         DrawGIntBox(App::gfx_fps_limit,      "FPS limit");
         ImGui::PopItemWidth();
 
