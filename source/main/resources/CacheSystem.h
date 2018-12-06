@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2014 Petr Ohlidal
+    Copyright 2013-2018 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -19,10 +19,10 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// @file
-/// @author Thomas Fischer
-/// @date   21th of May 2008
-/// @brief  Caches information about installed mods (vehicles, terrains...)
+/// @file   CacheSystem.h
+/// @author Thomas Fischer, 21th of May 2008
+/// @author Petr Ohlidal, 2018
+/// @brief  A database of user-installed content alias 'mods' (vehicles, terrains...)
 
 #pragma once
 
@@ -32,7 +32,7 @@
 #include <Ogre.h>
 
 #define CACHE_FILE "mods.cache"
-#define CACHE_FILE_FORMAT "7"
+#define CACHE_FILE_FORMAT 7
 
 // 60*60*24 = one day
 #define CACHE_FILE_FRESHNESS 86400
@@ -76,7 +76,7 @@ public:
     Ogre::String hash;                  //!< file's hash
     std::string resource_bundle_type;   //!< Archive type recognized by OGRE resource system: 'FileSystem' or 'Zip'
     std::string resource_bundle_path;   //!< Path of ZIP or directory which contains the media.
-    int number;                         //!< mod number
+    int number;                         //!< Sequential number, generated on startup, used by Selector-GUI
     std::time_t filetime;               //!< filetime
     bool changedornew;                  //!< is it added or changed during this runtime?
     bool deleted;                       //!< is this mod deleted?
@@ -140,7 +140,6 @@ class CacheSystem : public ZeroedMemoryAllocator
 public:
 
     CacheSystem();
-    ~CacheSystem();
 
     enum CacheValidityState
     {
@@ -174,6 +173,11 @@ public:
 
 private:
 
+    void WriteCacheFileJson();
+    void ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Document& j_doc, CacheEntry const & entry);
+    void LoadCacheFileJson();
+    void ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & out_entry);
+
     static Ogre::String stripUIDfromString(Ogre::String uidstr); // helper
     int addUniqueString(std::set<Ogre::String> &list, Ogre::String str);
 
@@ -192,13 +196,12 @@ private:
     void fillTruckDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname);
 
     void GenerateHashFromFilenames();         //!< For quick detection of added/removed content
-    void LoadCacheFile();                  //!< Loads all entries from cache file
     Ogre::String getCacheConfigFilename(bool full); // returns filename of the cache file
     void incrementalCacheUpdate();             // tries to update parts of the Cache only
 
     void generateFileCache(CacheEntry &entry, Ogre::String directory=Ogre::String());	// generates a new cache
-    void deleteFileCache(char *filename); // removed files from cache
-    void writeGeneratedCache();
+    void deleteFileCache(char *filename); // removed files from cache               //!< Loads all entries from cache file
+    
 
     // adds a zip to the cache
     void loadSingleZip(Ogre::FileInfo f);
@@ -207,21 +210,10 @@ private:
 
     Ogre::String detectFilesMiniType(Ogre::String filename);
     void removeFileFromFileCache(std::vector<CacheEntry>::iterator it);
-    Ogre::String formatEntry(int counter, CacheEntry t);
-    Ogre::String formatInnerEntry(int counter, CacheEntry t);
-    void parseModAttribute(const Ogre::String& line, CacheEntry& t);
-    void logBadTruckAttrib(const Ogre::String& line, CacheEntry& t);
     void loadSingleDirectory(Ogre::String dirname, Ogre::String group);
-
-    // helpers
-    char *replacesSpaces(char *str);
-    char *restoreSpaces(char *str);
 
     Ogre::String getRealPath(Ogre::String path);
     Ogre::String getVirtualPath(Ogre::String path);
-
-    Ogre::String normalizeText(Ogre::String text);
-    Ogre::String deNormalizeText(Ogre::String text);
     
     void checkForNewFiles(Ogre::String ext);
 

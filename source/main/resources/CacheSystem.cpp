@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2014 Petr Ohlidal
+    Copyright 2013-2018 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -20,8 +20,8 @@
 */
 
 /// @file   CacheSystem.h
-/// @author Thomas Fischer
-/// @date   21th of May 2008
+/// @author Thomas Fischer, 21th of May 2008
+/// @author Petr Ohlidal, 2018
 
 #include "CacheSystem.h"
 
@@ -44,6 +44,11 @@
 #include "Utils.h"
 
 #include <OgreFileSystem.h>
+#include <rapidjson/document.h>
+#include <rapidjson/istreamwrapper.h>
+#include <rapidjson/ostreamwrapper.h>
+#include <rapidjson/prettywriter.h>
+#include <fstream>
 #include <regex>
 
 using namespace Ogre;
@@ -124,10 +129,6 @@ CacheSystem::CacheSystem() :
     known_extensions.push_back("train");
 }
 
-CacheSystem::~CacheSystem()
-{
-}
-
 void CacheSystem::LoadModCache(CacheValidityState validity)
 {
     if (validity == CACHE_NEEDS_UPDATE_FULL)
@@ -142,20 +143,20 @@ void CacheSystem::LoadModCache(CacheValidityState validity)
         this->loadAllDirectoriesInResourceGroup("VehicleFolders");
         this->loadAllDirectoriesInResourceGroup("TerrainFolders");
 
-        this->writeGeneratedCache();
-        this->LoadCacheFile();
+        this->WriteCacheFileJson();
+        this->LoadCacheFileJson();
     }
     else if (validity == CACHE_NEEDS_UPDATE_INCREMENTAL)
     {
         RoR::Log("[RoR|ModCache] Performing incremental update");
-        this->LoadCacheFile();
+        this->LoadCacheFileJson();
         this->incrementalCacheUpdate(); // Writes modified cache file
-        this->LoadCacheFile(); // TODO: Without reloading cache file now, added terrain appears in selector but fails to load (and removed terrain remains in selector and also fails) -- find out why and fix ~ only_a_ptr, 10/2018
+        this->LoadCacheFileJson(); // TODO: Without reloading cache file now, added terrain appears in selector but fails to load (and removed terrain remains in selector and also fails) -- find out why and fix ~ only_a_ptr, 10/2018
     }
     else
     {
         RoR::Log("[RoR|ModCache] Cache valid");
-        this->LoadCacheFile();
+        this->LoadCacheFileJson();
     }
 
     // show error on zero content
@@ -224,621 +225,156 @@ bool CacheSystem::resourceExistsInAllGroups(Ogre::String filename)
 
 CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
 {
-    this->GenerateHashFromFilenames();
-
     if (BSETTING("regen-cache-only", false))
     {
         return CACHE_NEEDS_UPDATE_INCREMENTAL;
     }
 
-    String cfgfilename = getCacheConfigFilename(false);
-    ImprovedConfigFile cfg;
-    if (!resourceExistsInAllGroups(cfgfilename))
+    // First, open cache file and get SHA1 hash for quick update check
+    std::ifstream ifs(this->getCacheConfigFilename(true)); // TODO: Load using OGRE resource system ~ only_a_ptr, 10/2018
+    rapidjson::IStreamWrapper isw(ifs);
+    rapidjson::Document j_doc;
+    j_doc.ParseStream(isw);
+    if (!j_doc.IsObject() ||
+        !j_doc.HasMember("global_hash") || !j_doc["global_hash"].IsString() || 
+        !j_doc.HasMember("format_version") ||!j_doc["format_version"].IsNumber() ||
+        !j_doc.HasMember("entries") || !j_doc["entries"].IsArray())
     {
-        LOG("unable to load config file: "+cfgfilename);
+        RoR::Log("[RoR|ModCache] Invalid or missing cache file, performing full rebuild.");
+        return CACHE_NEEDS_UPDATE_FULL; 
+    }
+
+    if (j_doc["format_version"].GetInt() != CACHE_FILE_FORMAT)
+    {
+        entries.clear();
+        RoR::Log("[RoR|ModCache] invalid cachefile format, performing full rebuild.");
         return CACHE_NEEDS_UPDATE_FULL;
     }
 
-    String group = ResourceGroupManager::getSingleton().findGroupContainingResource(cfgfilename);
-    DataStreamPtr stream = ResourceGroupManager::getSingleton().openResource(cfgfilename, group);
-    cfg.load(stream, "\t:=", false);
-    String global_hash = cfg.GetString("global_hash");
-    String cacheformat = cfg.GetString("cacheformat");
+    this->GenerateHashFromFilenames();
 
-    if (global_hash == "" || global_hash != m_filenames_hash)
+    if (j_doc["global_hash"].GetString() != m_filenames_hash)
     {
-        LOG("* mod cache is invalid (not up to date), regenerating new one ...");
+        RoR::Log("[RoR|ModCache] Cachefile out of date, regenerating new one ...");
         return CACHE_NEEDS_UPDATE_INCREMENTAL;
     }
-    if (cacheformat != String(CACHE_FILE_FORMAT))
-    {
-        entries.clear();
-        LOG("* mod cache has invalid format, trying to regenerate");
-        return CACHE_NEEDS_UPDATE_INCREMENTAL;
-    }
-    LOG("* mod cache is valid, using it.");
+
+    RoR::Log("[RoR|ModCache] valid, using it.");
     return CACHE_VALID;
 }
 
-void CacheSystem::logBadTruckAttrib(const String& line, CacheEntry& t)
+void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & out_entry)
 {
-    LOG("Bad Mod attribute line: " + line + " in mod " + t.dname);
+    // Common details
+    out_entry.usagecounter =           j_entry["usagecounter"].GetInt();
+    out_entry.addtimestamp =           j_entry["addtimestamp"].GetInt();
+    out_entry.minitype =               j_entry["minitype"].GetString();
+    out_entry.resource_bundle_type =   j_entry["resource_bundle_type"].GetString();
+    out_entry.resource_bundle_path =   j_entry["resource_bundle_path"].GetString();
+    out_entry.fname =                  j_entry["fname"].GetString();
+    out_entry.fname_without_uid =      j_entry["fname_without_uid"].GetString();
+    out_entry.fext =                   j_entry["fext"].GetString();
+    out_entry.filetime =               j_entry["filetime"].GetUint();
+    out_entry.dname =                  j_entry["dname"].GetString();
+    out_entry.hash =                   j_entry["hash"].GetString();
+    out_entry.uniqueid =               j_entry["uniqueid"].GetString();
+    out_entry.version =                j_entry["version"].GetInt();
+    out_entry.filecachename =          j_entry["filecachename"].GetString();
+
+    out_entry.guid = j_entry["guid"].GetString();
+    Ogre::StringUtil::trim(out_entry.guid);
+
+    int category_id = j_entry["categoryid"].GetInt();
+    if (categories.find(category_id) != categories.end())
+    {
+        out_entry.categoryname = categories[category_id].title;
+        out_entry.categoryid = category_id;
+    }
+    else
+    {
+        out_entry.categoryid = -1;
+        out_entry.categoryname = "Unsorted";
+    }
+    
+     // Common - Authors
+    for (rapidjson::Value& j_author: j_entry["authors"].GetArray())
+    {
+        AuthorInfo author;
+
+        author.type  =  j_author["type"].GetString();
+        author.name  =  j_author["name"].GetString();
+        author.email =  j_author["email"].GetString();
+        author.id    =  j_author["id"].GetInt();
+
+        out_entry.authors.push_back(author);
+    }
+
+    // Vehicle details
+    out_entry.description =       j_entry["description"].GetString();
+    out_entry.tags =              j_entry["tags"].GetString();
+    out_entry.fileformatversion = j_entry["fileformatversion"].GetInt();
+    out_entry.hasSubmeshs =       j_entry["hasSubmeshs"].GetBool();
+    out_entry.nodecount =         j_entry["nodecount"].GetInt();
+    out_entry.beamcount =         j_entry["beamcount"].GetInt();
+    out_entry.shockcount =        j_entry["shockcount"].GetInt();
+    out_entry.fixescount =        j_entry["fixescount"].GetInt();
+    out_entry.hydroscount =       j_entry["hydroscount"].GetInt();
+    out_entry.wheelcount =        j_entry["wheelcount"].GetInt();
+    out_entry.propwheelcount =    j_entry["propwheelcount"].GetInt();
+    out_entry.commandscount =     j_entry["commandscount"].GetInt();
+    out_entry.flarescount =       j_entry["flarescount"].GetInt();
+    out_entry.propscount =        j_entry["propscount"].GetInt();
+    out_entry.wingscount =        j_entry["wingscount"].GetInt();
+    out_entry.turbopropscount =   j_entry["turbopropscount"].GetInt();
+    out_entry.turbojetcount =     j_entry["turbojetcount"].GetInt();
+    out_entry.rotatorscount =     j_entry["rotatorscount"].GetInt();
+    out_entry.exhaustscount =     j_entry["exhaustscount"].GetInt();
+    out_entry.flexbodiescount =   j_entry["flexbodiescount"].GetInt();
+    out_entry.soundsourcescount = j_entry["soundsourcescount"].GetInt();
+    out_entry.truckmass =         j_entry["truckmass"].GetFloat();
+    out_entry.loadmass =          j_entry["loadmass"].GetFloat();
+    out_entry.minrpm =            j_entry["minrpm"].GetFloat();
+    out_entry.maxrpm =            j_entry["maxrpm"].GetFloat();
+    out_entry.torque =            j_entry["torque"].GetFloat();
+    out_entry.customtach =        j_entry["customtach"].GetBool();
+    out_entry.custom_particles =  j_entry["custom_particles"].GetBool();
+    out_entry.forwardcommands =   j_entry["forwardcommands"].GetBool();
+    out_entry.importcommands =    j_entry["importcommands"].GetBool();
+    out_entry.rollon =            j_entry["rollon"].GetBool();
+    out_entry.rescuer =           j_entry["rescuer"].GetBool();
+    out_entry.driveable =         j_entry["driveable"].GetInt();
+    out_entry.numgears =          j_entry["numgears"].GetInt();
+    out_entry.enginetype =        static_cast<char>(j_entry["enginetype"].GetInt());
+
+    // Vehicle 'section-configs' (aka Modules in RigDef namespace)
+    for (rapidjson::Value& j_module_name: j_entry["sectionconfigs"].GetArray())
+    {
+        out_entry.sectionconfigs.push_back(j_module_name.GetString());
+    }
 }
 
-void CacheSystem::parseModAttribute(const String& line, CacheEntry& t)
-{
-    Ogre::StringVector params = StringUtil::split(line, "\x09\x0a=,");
-    String& attrib = params[0];
-    StringUtil::toLowerCase(attrib);
-    if (attrib == "number")
-    {
-        // Check params
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        // Set
-        t.number = StringConverter::parseInt(params[1]);
-    }
-    else if (attrib == "deleted")
-    {
-        // Check params
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        // Set
-        t.deleted = StringConverter::parseBool(params[1]);
-    }
-    else if (attrib == "usagecounter")
-    {
-        // Check params
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        // Set
-        t.usagecounter = StringConverter::parseInt(params[1]);
-    }
-    else if (attrib == "addtimestamp")
-    {
-        // Check params
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        // Set
-        t.addtimestamp = StringConverter::parseInt(params[1]);
-    }
-    else if (attrib == "minitype")
-    {
-        // Check params
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        // Set
-        t.minitype = params[1];
-    }
-    else if (attrib == "resource_bundle_type")
-    {
-        // Check params
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        // Set
-        t.resource_bundle_type = params[1];
-    }
-    else if (attrib == "resource_bundle_path")
-    {
-        // Check params
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        // Set
-        t.resource_bundle_path = params[1];
-    }
-    else if (attrib == "filecachename")
-    {
-        // Check params
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        // Set
-        t.filecachename = params[1];
-    }
-    else if (attrib == "fname")
-    {
-        // Check params
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        // Set
-        t.fname = params[1];
-    }
-    else if (attrib == "fname_without_uid")
-    {
-        // Check params
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        // Set
-        t.fname_without_uid = params[1];
-    }
-    else if (attrib == "fext")
-    {
-        // Check params
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        // Set
-        t.fext = params[1];
-    }
-    else if (attrib == "filetime")
-    {
-        // Check params
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        // Set
-        t.filetime = Ogre::StringConverter::parseLong(params[1]);
-    }
-    else if (attrib == "dname")
-    {
-        // Check params
-        if (params.size() < 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        // Set
-        t.dname = params[1];
-    }
-    else if (attrib == "resource_bundle_hash")
-    {
-        // Check params
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        // Set
-        t.hash = params[1];
-    }
-    else if (attrib == "categoryid")
-    {
-        // Check params
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        // Set
-        t.categoryid = StringConverter::parseInt(params[1]);
-        if (categories.find(t.categoryid) != categories.end())
-        {
-            t.categoryname = categories[t.categoryid].title;
-        }
-        else
-        {
-            t.categoryid = -1;
-            t.categoryname = "Unsorted";
-        }
-    }
-    else if (attrib == "uniqueid")
-    {
-        // Check params
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        // Set
-        t.uniqueid = params[1];
-    }
-    else if (attrib == "guid")
-    {
-        // Check params
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        // Set
-        t.guid = params[1];
-        StringUtil::trim(t.guid);
-    }
-    else if (attrib == "version")
-    {
-        // Check params
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        // Set
-        t.version = StringConverter::parseInt(params[1]);
-    }
-    else if (attrib == "author")
-    {
-        // Check params
-        if (params.size() < 5)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        // Set
-        AuthorInfo ai;
-        ai.id = StringConverter::parseInt(params[2]);
-        ai.type = params[1];
-        ai.name = params[3];
-        ai.email = params[4];
-        t.authors.push_back(ai);
-    }
-    else if (attrib == "sectionconfig")
-    {
-        // Check params
-        if (params.size() < 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        t.sectionconfigs.push_back(params[1]);
-    }
-
-    // TRUCK detail parameters below
-    else if (attrib == "description")
-        if (params.size() < 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.description = deNormalizeText(params[1]);
-    else if (attrib == "tags")
-        if (params.size() < 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.tags = params[1];
-    else if (attrib == "fileformatversion")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.fileformatversion = StringConverter::parseInt(params[1]);
-    else if (attrib == "hasSubmeshs")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.hasSubmeshs = StringConverter::parseBool(params[1]);
-    else if (attrib == "nodecount")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.nodecount = StringConverter::parseInt(params[1]);
-    else if (attrib == "beamcount")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.beamcount = StringConverter::parseInt(params[1]);
-    else if (attrib == "shockcount")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.shockcount = StringConverter::parseInt(params[1]);
-    else if (attrib == "fixescount")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.fixescount = StringConverter::parseInt(params[1]);
-    else if (attrib == "hydroscount")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.hydroscount = StringConverter::parseInt(params[1]);
-    else if (attrib == "wheelcount")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.wheelcount = StringConverter::parseInt(params[1]);
-    else if (attrib == "propwheelcount")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.propwheelcount = StringConverter::parseInt(params[1]);
-    else if (attrib == "commandscount")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.commandscount = StringConverter::parseInt(params[1]);
-    else if (attrib == "flarescount")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.flarescount = StringConverter::parseInt(params[1]);
-    else if (attrib == "propscount")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.propscount = StringConverter::parseInt(params[1]);
-    else if (attrib == "wingscount")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.wingscount = StringConverter::parseInt(params[1]);
-    else if (attrib == "turbopropscount")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.turbopropscount = StringConverter::parseInt(params[1]);
-    else if (attrib == "turbojetcount")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.turbojetcount = StringConverter::parseInt(params[1]);
-    else if (attrib == "rotatorscount")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.rotatorscount = StringConverter::parseInt(params[1]);
-    else if (attrib == "exhaustscount")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.exhaustscount = StringConverter::parseInt(params[1]);
-    else if (attrib == "flexbodiescount")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.flexbodiescount = StringConverter::parseInt(params[1]);
-    else if (attrib == "soundsourcescount")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.soundsourcescount = StringConverter::parseInt(params[1]);
-    else if (attrib == "truckmass")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.truckmass = StringConverter::parseReal(params[1]);
-    else if (attrib == "loadmass")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.loadmass = StringConverter::parseReal(params[1]);
-    else if (attrib == "minrpm")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.minrpm = StringConverter::parseReal(params[1]);
-    else if (attrib == "maxrpm")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.maxrpm = StringConverter::parseReal(params[1]);
-    else if (attrib == "torque")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.torque = StringConverter::parseReal(params[1]);
-    else if (attrib == "customtach")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.customtach = StringConverter::parseBool(params[1]);
-    else if (attrib == "custom_particles")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.custom_particles = StringConverter::parseBool(params[1]);
-    else if (attrib == "forwardcommands")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.forwardcommands = StringConverter::parseBool(params[1]);
-    else if (attrib == "rollon")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.rollon = StringConverter::parseBool(params[1]);
-    else if (attrib == "rescuer")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.rescuer = StringConverter::parseBool(params[1]);
-    else if (attrib == "driveable")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.driveable = StringConverter::parseInt(params[1]);
-    else if (attrib == "numgears")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.numgears = StringConverter::parseInt(params[1]);
-    else if (attrib == "enginetype")
-        if (params.size() != 2)
-        {
-            logBadTruckAttrib(line, t);
-            return;
-        }
-        else
-            t.enginetype = StringConverter::parseInt(params[1]);
-
-}
-
-void CacheSystem::LoadCacheFile()
+void CacheSystem::LoadCacheFileJson()
 {
     // Clear existing entries
     entries.clear();
 
-    // NOTE: At this point cachefile was already opened once, in `IsCacheValid()`, so we don't need to check error.
-    String cfgfilename = getCacheConfigFilename(false);
-    DataStreamPtr stream = ResourceGroupManager::getSingleton().openResource(cfgfilename);
-    CacheEntry t;
-    String line = "";
-    int mode = 0;
+    std::ifstream ifs(this->getCacheConfigFilename(true)); // TODO: Load using OGRE resource system ~ only_a_ptr, 10/2018
+    rapidjson::IStreamWrapper isw(ifs);
+    rapidjson::Document j_doc;
+    j_doc.ParseStream(isw);
 
-    while (!stream->eof())
+    if (!j_doc.IsObject() || !j_doc.HasMember("entries") || !j_doc["entries"].IsArray())
     {
-        line = stream->getLine();
+        RoR::Log("[RoR|ModCache] Error, cache file still invalid after check/update, content selector will be empty.");
+        return;
+    }
 
-        // Ignore blanks & comments
-        if (line.empty() || line.substr(0, 2) == "//")
-        {
-            continue;
-        }
-
-        // Skip these
-        if (StringUtil::startsWith(line, "global_hash=") || StringUtil::startsWith(line, "modcount=") || StringUtil::startsWith(line, "cacheformat="))
-        {
-            continue;
-        }
-
-        if (mode == 0)
-        {
-            // No current entry
-            if (line == "mod")
-            {
-                mode = 1;
-                t = CacheEntry();
-                t.deleted = false;
-                t.changedornew = false; // default upon loading
-                // Skip to and over next {
-                stream->skipLine("{");
-            }
-        }
-        else if (mode == 1)
-        {
-            // Already in mod
-            if (line == "}")
-            {
-                // Finished
-                if (!t.deleted)
-                {
-                    entries.push_back(t);
-                }
-                mode = 0;
-            }
-            else
-            {
-                parseModAttribute(line, t);
-            }
-        }
+    for (rapidjson::Value& j_entry: j_doc["entries"].GetArray())
+    {
+        CacheEntry entry;
+        this->ImportEntryFromJson(j_entry, entry);
+        entry.number = static_cast<int>(entries.size()); // Assign sequential number, used by Selector-GUI
+        entries.push_back(entry);
     }
 }
 
@@ -1034,7 +570,7 @@ void CacheSystem::incrementalCacheUpdate()
     }
     loading_win->setAutotrack(_L("loading...\n"));
 
-    this->writeGeneratedCache();
+    this->WriteCacheFileJson();
 
     RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
     LOG("* incremental check done.");
@@ -1050,234 +586,127 @@ CacheEntry* CacheSystem::getEntry(int modid)
     return 0;
 }
 
-Ogre::String CacheSystem::formatInnerEntry(int counter, CacheEntry t)
+void CacheSystem::ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Document& j_doc, CacheEntry const & entry)
 {
-    String result = "";
-    result += "\tnumber=" + TOSTRING(counter) + "\n"; // always count linear!
-    result += "\tdeleted=" + TOSTRING(t.deleted) + "\n";
-    if (!t.deleted)
+    rapidjson::Value j_entry(rapidjson::kObjectType);
+
+    // Common details
+    j_entry.AddMember("usagecounter",         entry.usagecounter,                                          j_doc.GetAllocator());
+    j_entry.AddMember("addtimestamp",         entry.addtimestamp,                                          j_doc.GetAllocator());
+    j_entry.AddMember("minitype",             rapidjson::StringRef(entry.minitype.c_str()),                j_doc.GetAllocator());
+    j_entry.AddMember("resource_bundle_type", rapidjson::StringRef(entry.resource_bundle_type.c_str()),    j_doc.GetAllocator());
+    j_entry.AddMember("resource_bundle_path", rapidjson::StringRef(entry.resource_bundle_path.c_str()),    j_doc.GetAllocator());
+    j_entry.AddMember("fname",                rapidjson::StringRef(entry.fname.c_str()),                   j_doc.GetAllocator());
+    j_entry.AddMember("fname_without_uid",    rapidjson::StringRef(entry.fname_without_uid.c_str()),       j_doc.GetAllocator());
+    j_entry.AddMember("fext",                 rapidjson::StringRef(entry.fext.c_str()),                    j_doc.GetAllocator());
+    j_entry.AddMember("filetime",             (long)entry.filetime,                                        j_doc.GetAllocator()); 
+    j_entry.AddMember("dname",                rapidjson::StringRef(entry.dname.c_str()),                   j_doc.GetAllocator());
+    j_entry.AddMember("hash",                 rapidjson::StringRef(entry.hash.c_str()),                    j_doc.GetAllocator());
+    j_entry.AddMember("categoryid",           entry.categoryid,                                            j_doc.GetAllocator());
+    j_entry.AddMember("uniqueid",             rapidjson::StringRef(entry.uniqueid.c_str()),                j_doc.GetAllocator());
+    j_entry.AddMember("guid",                 rapidjson::StringRef(entry.guid.c_str()),                    j_doc.GetAllocator());
+    j_entry.AddMember("version",              entry.version,                                               j_doc.GetAllocator());
+    j_entry.AddMember("filecachename",        rapidjson::StringRef(entry.filecachename.c_str()),           j_doc.GetAllocator());
+
+    // Common - Authors
+    rapidjson::Value j_authors(rapidjson::kArrayType);
+    for (AuthorInfo const& author: entry.authors)
     {
-        // this ensures that we wont break the format with empty ("") values
-        if (t.minitype.empty())
-            t.minitype = "unknown";
-        if (t.resource_bundle_type.empty())
-            t.resource_bundle_type = "unknown";
-        if (t.resource_bundle_path.empty())
-            t.resource_bundle_path = "unknown";
-        if (t.fname.empty())
-            t.fname = "unknown";
-        if (t.fext.empty())
-            t.fext = "unknown";
-        if (t.dname.empty())
-            t.dname = "unknown";
-        if (t.hash.empty())
-            t.hash = "none";
-        if (t.uniqueid.empty())
-            t.uniqueid = "no-uid";
-        if (t.guid.empty())
-            t.guid = "no-guid";
-        if (t.fname_without_uid.empty())
-            t.fname_without_uid = "unknown";
-        if (t.filecachename.empty())
-            t.filecachename = "none";
+        rapidjson::Value j_author(rapidjson::kObjectType);
 
-        result += "\tusagecounter=" + TOSTRING(t.usagecounter) + "\n";
-        result += "\taddtimestamp=" + TOSTRING(t.addtimestamp) + "\n";
-        result += "\tminitype=" + t.minitype + "\n";
-        result += "\tresource_bundle_type=" + t.resource_bundle_type + "\n";
-        result += "\tresource_bundle_path=" + t.resource_bundle_path + "\n";
-        result += "\tfname=" + t.fname + "\n";
-        result += "\tfname_without_uid=" + t.fname_without_uid + "\n";
-        result += "\tfext=" + t.fext + "\n";
-        result += "\tfiletime=" + TOSTRING((long)t.filetime) + "\n";
-        result += "\tdname=" + t.dname + "\n";
-        result += "\thash=" + t.hash + "\n";
-        result += "\tcategoryid=" + TOSTRING(t.categoryid) + "\n";
-        result += "\tuniqueid=" + t.uniqueid + "\n";
-        result += "\tguid=" + t.guid + "\n";
-        result += "\tversion=" + TOSTRING(t.version) + "\n";
-        result += "\tfilecachename=" + t.filecachename + "\n";
-        //result += "\tnumauthors="+TOSTRING(t.authors.size())+"\n";
+        j_author.AddMember("type",   rapidjson::StringRef(author.type.c_str()),   j_doc.GetAllocator());
+        j_author.AddMember("name",   rapidjson::StringRef(author.name.c_str()),   j_doc.GetAllocator());
+        j_author.AddMember("email",  rapidjson::StringRef(author.email.c_str()),  j_doc.GetAllocator());
+        j_author.AddMember("id",     author.id,                                   j_doc.GetAllocator());
 
-        if (t.authors.size() > 0)
+        j_authors.PushBack(j_author, j_doc.GetAllocator());
+    }
+    j_entry.AddMember("authors", j_authors, j_doc.GetAllocator());
+
+    // Vehicle details
+    j_entry.AddMember("description",         rapidjson::StringRef(entry.description.c_str()),       j_doc.GetAllocator());
+    j_entry.AddMember("tags",                rapidjson::StringRef(entry.tags.c_str()),              j_doc.GetAllocator());
+    j_entry.AddMember("fileformatversion",   entry.fileformatversion, j_doc.GetAllocator());
+    j_entry.AddMember("hasSubmeshs",         entry.hasSubmeshs,       j_doc.GetAllocator());
+    j_entry.AddMember("nodecount",           entry.nodecount,         j_doc.GetAllocator());
+    j_entry.AddMember("beamcount",           entry.beamcount,         j_doc.GetAllocator());
+    j_entry.AddMember("shockcount",          entry.shockcount,        j_doc.GetAllocator());
+    j_entry.AddMember("fixescount",          entry.fixescount,        j_doc.GetAllocator());
+    j_entry.AddMember("hydroscount",         entry.hydroscount,       j_doc.GetAllocator());
+    j_entry.AddMember("wheelcount",          entry.wheelcount,        j_doc.GetAllocator());
+    j_entry.AddMember("propwheelcount",      entry.propwheelcount,    j_doc.GetAllocator());
+    j_entry.AddMember("commandscount",       entry.commandscount,     j_doc.GetAllocator());
+    j_entry.AddMember("flarescount",         entry.flarescount,       j_doc.GetAllocator());
+    j_entry.AddMember("propscount",          entry.propscount,        j_doc.GetAllocator());
+    j_entry.AddMember("wingscount",          entry.wingscount,        j_doc.GetAllocator());
+    j_entry.AddMember("turbopropscount",     entry.turbopropscount,   j_doc.GetAllocator());
+    j_entry.AddMember("turbojetcount",       entry.turbojetcount,     j_doc.GetAllocator());
+    j_entry.AddMember("rotatorscount",       entry.rotatorscount,     j_doc.GetAllocator());
+    j_entry.AddMember("exhaustscount",       entry.exhaustscount,     j_doc.GetAllocator());
+    j_entry.AddMember("flexbodiescount",     entry.flexbodiescount,   j_doc.GetAllocator());
+    j_entry.AddMember("soundsourcescount",   entry.soundsourcescount, j_doc.GetAllocator());
+    j_entry.AddMember("truckmass",           entry.truckmass,         j_doc.GetAllocator());
+    j_entry.AddMember("loadmass",            entry.loadmass,          j_doc.GetAllocator());
+    j_entry.AddMember("minrpm",              entry.minrpm,            j_doc.GetAllocator());
+    j_entry.AddMember("maxrpm",              entry.maxrpm,            j_doc.GetAllocator());
+    j_entry.AddMember("torque",              entry.torque,            j_doc.GetAllocator());
+    j_entry.AddMember("customtach",          entry.customtach,        j_doc.GetAllocator());
+    j_entry.AddMember("custom_particles",    entry.custom_particles,  j_doc.GetAllocator());
+    j_entry.AddMember("forwardcommands",     entry.forwardcommands,   j_doc.GetAllocator());
+    j_entry.AddMember("importcommands",      entry.importcommands,    j_doc.GetAllocator());
+    j_entry.AddMember("rollon",              entry.rollon,            j_doc.GetAllocator());
+    j_entry.AddMember("rescuer",             entry.rescuer,           j_doc.GetAllocator());
+    j_entry.AddMember("driveable",           entry.driveable,         j_doc.GetAllocator());
+    j_entry.AddMember("numgears",            entry.numgears,          j_doc.GetAllocator());
+    j_entry.AddMember("enginetype",          entry.enginetype,        j_doc.GetAllocator());
+
+    // Vehicle 'section-configs' (aka Modules in RigDef namespace)
+    rapidjson::Value j_sectionconfigs(rapidjson::kArrayType);
+    for (std::string const & module_name: entry.sectionconfigs)
+    {
+        j_sectionconfigs.PushBack(rapidjson::StringRef(module_name.c_str()), j_doc.GetAllocator());
+    }
+    j_entry.AddMember("sectionconfigs", j_sectionconfigs, j_doc.GetAllocator());
+
+    // Add entry to list
+    j_entries.PushBack(j_entry, j_doc.GetAllocator());
+}
+
+void CacheSystem::WriteCacheFileJson()
+{
+    // Basic file structure
+    rapidjson::Document j_doc;
+    j_doc.SetObject();
+    j_doc.AddMember("format_version", CACHE_FILE_FORMAT, j_doc.GetAllocator());
+    j_doc.AddMember("global_hash", rapidjson::StringRef(m_filenames_hash.c_str()), j_doc.GetAllocator());
+
+    // Entries
+    rapidjson::Value j_entries(rapidjson::kArrayType);
+    for (CacheEntry const& entry : entries)
+    {
+        if (!entry.deleted)
         {
-            for (int i = 0; i < (int)t.authors.size(); i++)
-            {
-                if (t.authors[i].type.empty())
-                    t.authors[i].type = "unknown";
-                if (t.authors[i].name.empty())
-                    t.authors[i].name = "unknown";
-                if (t.authors[i].email.empty())
-                    t.authors[i].email = "unknown";
-                result += "\tauthor=" + (t.authors[i].type) +
-                    "," + TOSTRING(t.authors[i].id) +
-                    "," + (t.authors[i].name) + "," + (t.authors[i].email) + "\n";
-            }
-        }
-
-        // now add the truck details if existing
-        if (t.description != "")
-            result += "\tdescription=" + normalizeText(t.description) + "\n";
-        if (t.tags != "")
-            result += "\ttags=" + t.tags + "\n";
-        if (t.fileformatversion != 0)
-            result += "\tfileformatversion=" + TOSTRING(t.fileformatversion) + "\n";
-        if (t.hasSubmeshs)
-            result += "\thasSubmeshs=1\n";
-        if (t.nodecount != 0)
-            result += "\tnodecount=" + TOSTRING(t.nodecount) + "\n";
-        if (t.beamcount != 0)
-            result += "\tbeamcount=" + TOSTRING(t.beamcount) + "\n";
-        if (t.shockcount != 0)
-            result += "\tshockcount=" + TOSTRING(t.shockcount) + "\n";
-        if (t.fixescount != 0)
-            result += "\tfixescount=" + TOSTRING(t.fixescount) + "\n";
-        if (t.hydroscount != 0)
-            result += "\thydroscount=" + TOSTRING(t.hydroscount) + "\n";
-        if (t.wheelcount != 0)
-            result += "\twheelcount=" + TOSTRING(t.wheelcount) + "\n";
-        if (t.propwheelcount != 0)
-            result += "\tpropwheelcount=" + TOSTRING(t.propwheelcount) + "\n";
-        if (t.commandscount != 0)
-            result += "\tcommandscount=" + TOSTRING(t.commandscount) + "\n";
-        if (t.flarescount != 0)
-            result += "\tflarescount=" + TOSTRING(t.flarescount) + "\n";
-        if (t.propscount != 0)
-            result += "\tpropscount=" + TOSTRING(t.propscount) + "\n";
-        if (t.wingscount != 0)
-            result += "\twingscount=" + TOSTRING(t.wingscount) + "\n";
-        if (t.turbopropscount != 0)
-            result += "\tturbopropscount=" + TOSTRING(t.turbopropscount) + "\n";
-        if (t.turbojetcount != 0)
-            result += "\tturbojetcount=" + TOSTRING(t.turbojetcount) + "\n";
-        if (t.rotatorscount != 0)
-            result += "\trotatorscount=" + TOSTRING(t.rotatorscount) + "\n";
-        if (t.exhaustscount != 0)
-            result += "\texhaustscount=" + TOSTRING(t.exhaustscount) + "\n";
-        if (t.flexbodiescount != 0)
-            result += "\tflexbodiescount=" + TOSTRING(t.flexbodiescount) + "\n";
-        if (t.soundsourcescount != 0)
-            result += "\tsoundsourcescount=" + TOSTRING(t.soundsourcescount) + "\n";
-        if (t.truckmass > 1)
-            result += "\ttruckmass=" + TOSTRING(t.truckmass) + "\n";
-        if (t.loadmass > 1)
-            result += "\tloadmass=" + TOSTRING(t.loadmass) + "\n";
-        if (t.minrpm > 1)
-            result += "\tminrpm=" + TOSTRING(t.minrpm) + "\n";
-        if (t.maxrpm > 1)
-            result += "\tmaxrpm=" + TOSTRING(t.maxrpm) + "\n";
-        if (t.torque > 1)
-            result += "\ttorque=" + TOSTRING(t.torque) + "\n";
-        if (t.customtach)
-            result += "\tcustomtach=1\n";
-        if (t.custom_particles)
-            result += "\tcustom_particles=1\n";
-        if (t.forwardcommands)
-            result += "\tforwardcommands=1\n";
-        if (t.importcommands)
-            result += "\timportcommands=1\n";
-        if (t.rollon)
-            result += "\trollon=1\n";
-        if (t.rescuer)
-            result += "\trescuer=1\n";
-        if (t.driveable != 0)
-            result += "\tdriveable=" + TOSTRING(t.driveable) + "\n";
-        if (t.numgears != 0)
-            result += "\tnumgears=" + TOSTRING(t.numgears) + "\n";
-        if (t.enginetype != 0)
-            result += "\tenginetype=" + TOSTRING(t.enginetype) + "\n";
-
-        if (t.sectionconfigs.size() > 0)
-        {
-            for (int i = 0; i < (int)t.sectionconfigs.size(); i++)
-                result += "\tsectionconfig=" + t.sectionconfigs[i] + "\n";
+            this->ExportEntryToJson(j_entries, j_doc, entry);
         }
     }
+    j_doc.AddMember("entries", j_entries, j_doc.GetAllocator());
 
-    return result;
-}
-
-Ogre::String CacheSystem::normalizeText(Ogre::String text)
-{
-    String result = "";
-    Ogre::StringVector str = Ogre::StringUtil::split(text, "\n");
-    for (Ogre::StringVector::iterator it = str.begin(); it != str.end(); it++)
-        result += *it + "$";
-    return result;
-}
-
-Ogre::String CacheSystem::deNormalizeText(Ogre::String text)
-{
-    String result = "";
-    Ogre::StringVector str = Ogre::StringUtil::split(text, "$");
-    for (Ogre::StringVector::iterator it = str.begin(); it != str.end(); it++)
-        result += *it + "\n";
-    return result;
-}
-
-Ogre::String CacheSystem::formatEntry(int counter, CacheEntry t)
-{
-    String result = "mod\n";
-    result += "{\n";
-    result += formatInnerEntry(counter, t);
-    result += "}\n\n";
-
-    return result;
-}
-
-void CacheSystem::writeGeneratedCache()
-{
+    // Write to file
     String path = getCacheConfigFilename(true);
     LOG("writing cache to file ("+path+")...");
 
-    FILE* f = fopen(path.c_str(), "w");
-    if (!f)
+    std::ofstream ofs(path);
+    rapidjson::OStreamWrapper j_ofs(ofs);
+    rapidjson::PrettyWriter<rapidjson::OStreamWrapper> j_writer(j_ofs);
+    const bool written_ok = j_doc.Accept(j_writer);
+    if (written_ok)
     {
-        ErrorUtils::ShowError(_L("Fatal Error: Unable to write cache to disk"), _L("Unable to write file.\nPlease ensure the parent directories exists and that you have write access to this location:\n") + path);
-        exit(1337);
+        RoR::LogFormat("[RoR|ModCache] File '%s' written OK", path.c_str());
     }
-    fprintf(f, "global_hash=%s\n", const_cast<char*>(m_filenames_hash.c_str()));
-    fprintf(f, "modcount=%d\n", (int)entries.size());
-    fprintf(f, "cacheformat=%s\n", CACHE_FILE_FORMAT);
-
-    // mods
-    std::vector<CacheEntry>::iterator it;
-    int counter = 0;
-    for (it = entries.begin(); it != entries.end(); it++)
+    else
     {
-        if (it->deleted)
-            continue;
-        fprintf(f, "%s", formatEntry(counter, *it).c_str());
-        counter++;
+        RoR::LogFormat("[RoR|ModCache] Error writing '%s'", path.c_str());
     }
-
-    // close
-    fclose(f);
-    LOG("...done!");
-}
-
-char* CacheSystem::replacesSpaces(char* str)
-{
-    char* ptr = str;
-    while (*ptr != 0)
-    {
-        if (*ptr == ' ')
-            *ptr = '_';
-        ptr++;
-    };
-    return str;
-}
-
-char* CacheSystem::restoreSpaces(char* str)
-{
-    char* ptr = str;
-    while (*ptr != 0)
-    {
-        if (*ptr == '_')
-            *ptr = ' ';
-        ptr++;
-    };
-    return str;
 }
 
 Ogre::String CacheSystem::stripUIDfromString(Ogre::String uidstr)
@@ -1343,15 +772,10 @@ void CacheSystem::addFile(String filename, String archiveType, String archiveDir
             String fnextension;
             StringUtil::splitBaseFilename(entry.fname, basen, fnextension);
             entry.minitype = detectFilesMiniType(basen + "-mini");
-            entry.hash = "none";
             entry.changedornew = true;
             generateFileCache(entry);
             if (archiveType == "Zip")
                 entry.hash = zipHashes[getVirtualPath(archiveDirectory)];
-            if (entry.hash == "")
-            // fallback if no hash was found
-                entry.hash = "none";
-            // read in author and category
             entries.push_back(entry);
         }
         catch (ItemIdentityException& e)
