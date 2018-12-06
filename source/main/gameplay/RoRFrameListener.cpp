@@ -2123,14 +2123,9 @@ void SimController::EnterGameplayLoop()
         }
 
         // Check FPS limit
-        if (App::gfx_fps_limit.GetActive() != 0)
+        if (App::gfx_fps_limit.GetActive() > 0)
         {
-            if (App::gfx_fps_limit.GetActive() < 5)
-            {
-                App::gfx_fps_limit.SetActive(5);
-            }
-
-            const float min_frame_time = 1.0f / App::gfx_fps_limit.GetActive();
+            const float min_frame_time = 1.0f / Ogre::Math::Clamp(App::gfx_fps_limit.GetActive(), 5, 240);
             float dt = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start_time).count();
             while (dt < min_frame_time)
             {
