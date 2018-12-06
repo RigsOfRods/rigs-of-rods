@@ -76,7 +76,7 @@ public:
     Ogre::String hash;                  //!< file's hash
     std::string resource_bundle_type;   //!< Archive type recognized by OGRE resource system: 'FileSystem' or 'Zip'
     std::string resource_bundle_path;   //!< Path of ZIP or directory which contains the media.
-    int number;                         //!< Sequential number, generated on startup, used by Selector-GUI
+    int number;                         //!< Sequential number, assigned internally, used by Selector-GUI
     std::time_t filetime;               //!< filetime
     bool changedornew;                  //!< is it added or changed during this runtime?
     bool deleted;                       //!< is this mod deleted?
@@ -230,7 +230,6 @@ private:
 
 
     std::string                  m_filenames_hash;   //!< stores SHA1 hash over the content, for quick update detection
-    size_t                       m_mod_counter;      //!< counts the mods (all types)
     std::map<Ogre::String, bool> m_loaded_resource_bundles;
 
 

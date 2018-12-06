@@ -134,7 +134,6 @@ void CacheSystem::LoadModCache(CacheValidityState validity)
     if (validity == CACHE_NEEDS_UPDATE_FULL)
     {
         RoR::Log("[RoR|ModCache] Performing full rebuild");
-        m_mod_counter = 1; // Let's number mods from 1
 
         this->loadAllZipsInResourceGroup("Packs");
         this->loadAllZipsInResourceGroup("VehicleFolders");
@@ -373,7 +372,7 @@ void CacheSystem::LoadCacheFileJson()
     {
         CacheEntry entry;
         this->ImportEntryFromJson(j_entry, entry);
-        entry.number = static_cast<int>(entries.size()); // Assign sequential number, used by Selector-GUI
+        entry.number = static_cast<int>(entries.size() + 1); // Let's number mods from 1
         entries.push_back(entry);
     }
 }
@@ -764,7 +763,7 @@ void CacheSystem::addFile(String filename, String archiveType, String archiveDir
             entry.filetime = RoR::GetFileLastModifiedTime(archiveDirectory);
             entry.resource_bundle_type = archiveType;
             entry.resource_bundle_path = archiveDirectory;
-            entry.number = static_cast<int>(m_mod_counter++);
+            entry.number = static_cast<int>(entries.size() + 1); // Let's number mods from 1
             entry.addtimestamp = getTimeStamp();
             entry.usagecounter = 0;
             entry.deleted = false;
