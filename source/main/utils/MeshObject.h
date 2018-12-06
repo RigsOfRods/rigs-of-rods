@@ -29,10 +29,10 @@
 
 #include "RoRPrerequisites.h"
 
-class MeshObject : public Ogre::ResourceBackgroundQueue::Listener, public Ogre::Resource::Listener, public ZeroedMemoryAllocator
+class MeshObject : public Ogre::Resource::Listener, public ZeroedMemoryAllocator
 {
 public:
-    MeshObject(Ogre::String meshName, Ogre::String entityName, Ogre::SceneNode* sceneNode = 0, bool backgroundLoading = false);
+    MeshObject(Ogre::String meshName, Ogre::String entityName, Ogre::SceneNode* sceneNode = 0);
     ~MeshObject();
 
     void setMaterialName(Ogre::String m);
@@ -49,8 +49,6 @@ protected:
     Ogre::SceneNode* sceneNode;
     Ogre::Entity* ent;
     Ogre::MeshPtr mesh;
-    Ogre::BackgroundProcessTicket ticket;
-    bool backgroundLoading;
     bool loaded;
 
     Ogre::String materialName;
@@ -60,10 +58,4 @@ protected:
 
     void postProcess();
     void loadMesh();
-
-    void operationCompleted(Ogre::BackgroundProcessTicket ticket, const Ogre::BackgroundProcessResult& result);
-    void loadingComplete(Ogre::Resource* r);
-    void preparingComplete(Ogre::Resource* r);
-    void unloadingComplete(Ogre::Resource* r);
 };
-

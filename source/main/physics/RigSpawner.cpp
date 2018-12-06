@@ -95,7 +95,6 @@ void ActorSpawner::Setup(
     m_particles_parent_scenenode = parent;
     m_spawn_position = spawn_position;
     m_current_keyword = RigDef::File::KEYWORD_INVALID;
-    m_enable_background_loading = BSETTING("Background Loading", false);
     m_wing_area = 0.f;
     m_fuse_z_min = 1000.0f;
     m_fuse_z_max = -1000.0f;
@@ -1667,8 +1666,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
         prop.wheelmo = new MeshObject(
             def.special_prop_dashboard.mesh_name,
             instance_name,
-            prop.wheel,
-            m_enable_background_loading
+            prop.wheel
             );
         this->SetupNewEntity(prop.wheelmo->getEntity(), Ogre::ColourValue(0, 0.5, 0.5));
     }
@@ -1677,7 +1675,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
 
     prop.scene_node = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
     const std::string instance_name = this->ComposeName("PropEntity", prop_index);
-    prop.mo = new MeshObject(def.mesh_name, instance_name, prop.scene_node, m_enable_background_loading);
+    prop.mo = new MeshObject(def.mesh_name, instance_name, prop.scene_node);
     prop.mo->setCastShadows(true); // Orig code {{ prop.mo->setCastShadows(shadowmode != 0); }}, shadowmode has default value 1 and changes with undocumented directive 'set_shadows'
     prop.beacontype = 'n'; // Orig: hardcoded in BTS_PROPS
 
