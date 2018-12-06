@@ -200,8 +200,8 @@ private:
     void incrementalCacheUpdate();             // tries to update parts of the Cache only
 
     void generateFileCache(CacheEntry &entry, Ogre::String directory=Ogre::String());	// generates a new cache
-    void deleteFileCache(char *filename); // removed files from cache               //!< Loads all entries from cache file
-    
+    void deleteFileCache(const char *full_path); //!< Delete single file from cache
+    void deleteFileCache(std::string const& full_path) { this->deleteFileCache(full_path.c_str()); }
 
     // adds a zip to the cache
     void loadSingleZip(Ogre::FileInfo f);
