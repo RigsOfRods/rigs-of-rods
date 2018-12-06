@@ -176,10 +176,8 @@ private:
     int addUniqueString(std::set<Ogre::String> &list, Ogre::String str);
 
     /** parses all files loaded with a certain extension */
-    void parseFilesAllRG(Ogre::String ext);
     void parseFilesOneRG(Ogre::String ext, Ogre::String rg);
     void parseKnownFilesOneRG(Ogre::String rg);
-    void parseKnownFilesAllRG();
     void parseKnownFilesOneRGDirectory(Ogre::String rg, Ogre::String dir);
 
     void checkForNewKnownFiles();
@@ -213,7 +211,7 @@ private:
     Ogre::String formatInnerEntry(int counter, CacheEntry t);
     void parseModAttribute(const Ogre::String& line, CacheEntry& t);
     void logBadTruckAttrib(const Ogre::String& line, CacheEntry& t);
-    void loadSingleDirectory(Ogre::String dirname, Ogre::String group, bool alreadyLoaded=true);
+    void loadSingleDirectory(Ogre::String dirname, Ogre::String group);
 
     void readCategoryTitles();
 
