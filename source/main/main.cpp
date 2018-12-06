@@ -299,7 +299,7 @@ int main(int argc, char *argv[])
 #endif // USE_OPENAL
 
                 App::GetGuiManager()->ReflectGameState();
-                if (!App::mp_join_on_startup.GetActive() && BSETTING("SkipMainMenu", false))
+                if (!App::mp_join_on_startup.GetActive() && App::app_skip_main_menu.GetActive())
                 {
                     // MainMenu disabled (singleplayer mode) -> go directly to map selector (traditional behavior)
                     if (App::diag_preset_terrain.IsActiveEmpty())

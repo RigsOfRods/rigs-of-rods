@@ -27,8 +27,6 @@
 #include <Overlay/OgreOverlay.h>
 #include <OgreMaterialManager.h>
 
-#include "Settings.h"
-
 using namespace Ogre;
 
 ShadowManager::ShadowManager()
@@ -36,7 +34,7 @@ ShadowManager::ShadowManager()
     PSSM_Shadows.mPSSMSetup.setNull();
     PSSM_Shadows.mDepthShadows = false;
     PSSM_Shadows.ShadowsTextureNum = 3;
-    PSSM_Shadows.Quality = ISETTING("Shadows Quality", 2); //0 = Low quality, 1 = mid, 2 = hq, 3 = ultra
+    PSSM_Shadows.Quality = RoR::App::gfx_shadow_quality.GetActive(); //0 = Low quality, 1 = mid, 2 = hq, 3 = ultra
 }
 
 ShadowManager::~ShadowManager()

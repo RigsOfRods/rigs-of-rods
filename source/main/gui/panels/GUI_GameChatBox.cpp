@@ -38,7 +38,6 @@
 #include "GUIManager.h"
 #include "Application.h"
 #include "OgreSubsystem.h"
-#include "Settings.h"
 
 using namespace RoR;
 using namespace GUI;
@@ -47,7 +46,7 @@ using namespace GUI;
 #define MAIN_WIDGET  ((MyGUI::Window*)mMainWidget)
 
 CLASS::CLASS() :
-    alpha(1.0f)
+      alpha(1.0f)
     , newMsg(false)
     , pushTime(0)
 {
@@ -62,8 +61,7 @@ CLASS::CLASS() :
     );
 
     m_Chatbox_TextBox->eventEditSelectAccept += MyGUI::newDelegate(this, &CLASS::eventCommandAccept);
-    autoHide = BSETTING("ChatAutoHide", true);
-    MAIN_WIDGET->setVisible(!autoHide);
+    MAIN_WIDGET->setVisible(!App::mp_chat_auto_hide.GetActive());
 }
 
 CLASS::~CLASS()
@@ -99,7 +97,7 @@ void CLASS::eventCommandAccept(MyGUI::Edit* _sender)
     Ogre::UTFString msg = convertFromMyGUIString(_sender->getCaption());
     _sender->setCaption("");
 
-    if (autoHide)
+    if (App::mp_chat_auto_hide.GetActive())
         _sender->setEnabled(false);
 
     if (msg.empty())
@@ -143,7 +141,7 @@ void CLASS::Update(float dt)
         MAIN_WIDGET->setVisible(false);
         return;
     }
-    else if (!autoHide)
+    else if (!App::mp_chat_auto_hide.GetActive())
     {
         MAIN_WIDGET->setVisible(true);
         return;

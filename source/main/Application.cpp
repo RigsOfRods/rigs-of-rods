@@ -78,6 +78,7 @@ static TerrainManager*  g_sim_terrain;
  GVarEnum_AP<AppState>    app_state               ("app_state",               nullptr,                     AppState::BOOTSTRAP,     AppState::MAIN_MENU);
  GVarStr_A<100>           app_language            ("app_language",            "Language",                  "English");
  GVarStr_A<50>            app_locale              ("app_locale",              "Language Short",            "en");
+ GVarPod_A<bool>          app_skip_main_menu      ("app_skip_main_menu",      "SkipMainMenu",              false);
  GVarPod_APS<bool>        app_async_physics       ("app_async_physics",       "AsyncPhysics",              true,
          true,      true);
  GVarPod_APS<int>         app_num_workers         ("app_num_workers",         "NumWorkerThreads",          0,
@@ -96,6 +97,9 @@ static TerrainManager*  g_sim_terrain;
 // Multiplayer
  GVarEnum_AP<MpState>     mp_state                ("mp_state",                nullptr,                     MpState::DISABLED,       MpState::DISABLED);
  GVarPod_A<bool>          mp_join_on_startup      ("mp_join_on_startup",      "Network enable",            false);
+ GVarPod_A<bool>          mp_chat_auto_hide       ("mp_chat_auto_hide",       "ChatAutoHide",              true);
+ GVarPod_A<bool>          mp_hide_net_labels      ("mp_hide_net_labels",      "HideNetLabels",             false);
+ GVarPod_A<bool>          mp_hide_own_net_label   ("mp_hide_own_net_label",   "HideOwnNetLabel",           true);
  GVarStr_AP<200>          mp_server_host          ("mp_server_host",          "Server name",               "",                      "");
  GVarPod_A<int>           mp_server_port          ("mp_server_port",          "Server port",               0);
  GVarStr_A<100>           mp_server_password      ("mp_server_password",      "Server password",           "");
@@ -104,6 +108,8 @@ static TerrainManager*  g_sim_terrain;
  GVarStr_AP<400>          mp_portal_url           ("mp_portal_url",           "Multiplayer portal URL",    "http://multiplayer.rigsofrods.org", "http://multiplayer.rigsofrods.org");
 
 // Diagnostic
+ GVarPod_A<bool>          diag_auto_spawner_report("diag_auto_spawner_report","AutoActorSpawnerReport",    false);
+ GVarPod_A<bool>          diag_camera             ("diag_camera",            "Camera Debug",               false);
  GVarPod_A<bool>          diag_trace_globals      ("diag_trace_globals",      nullptr,                     false); // Don't init to 'true', logger is not ready at startup
  GVarPod_A<bool>          diag_rig_log_node_import("diag_rig_log_node_import","RigImporter_Debug_TraverseAndLogAllNodes",  false);
  GVarPod_A<bool>          diag_rig_log_node_stats ("diag_rig_log_node_stats", "RigImporter_PrintNodeStatsToLog",           false);
@@ -171,6 +177,7 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_A<bool>          gfx_enable_videocams    ("gfx_enable_videocams",    "gfx_enable_videocams",      false);
  GVarPod_A<bool>          gfx_envmap_enabled      ("gfx_envmap_enabled",      "Envmap",                    true);
  GVarPod_A<int>           gfx_envmap_rate         ("gfx_envmap_rate",         "EnvmapUpdateRate",          0);
+ GVarPod_A<int>           gfx_shadow_quality      ("gfx_shadow_quality",      "Shadows Quality",           2);
  GVarPod_A<int>           gfx_skidmarks_mode      ("gfx_skidmarks_mode",      "Skidmarks",                 0);
  GVarPod_A<float>         gfx_sight_range         ("gfx_sight_range",         "SightRange",                3000.f); // Previously either 2000 or 4500 (inconsistent)
  GVarPod_APS<float>       gfx_fov_external        ("gfx_fov_external",        "FOV External",              60.f,                      60.f,     60.f);
@@ -178,6 +185,7 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_A<int>           gfx_fps_limit           ("gfx_fps_limit",           "FPS-Limiter",               0); // 0 = unlimited
  GVarPod_A<bool>          gfx_speedo_digital      ("gfx_speedo_digital",      "DigitalSpeedo",             false);
  GVarPod_A<bool>          gfx_speedo_imperial     ("gfx_speedo_imperial",     "gfx_speedo_imperial",       false);
+ GVarPod_A<bool>          gfx_flexbody_lods       ("gfx_flexbody_lods",       "Flexbody_EnableLODs",       false);
 
 // Instance management
 void SetMainMenu       (MainMenu* obj)                { g_main_menu = obj; }

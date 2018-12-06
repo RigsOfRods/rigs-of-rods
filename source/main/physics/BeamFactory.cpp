@@ -47,7 +47,6 @@
 #include "RigSpawner.h"
 #include "RoRFrameListener.h"
 #include "Scripting.h"
-#include "Settings.h"
 #include "SoundScriptManager.h"
 #include "ThreadPool.h"
 #include "Utils.h"
@@ -127,7 +126,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     RoR::App::GetGuiManager()->AddRigLoadingReport(def->name, def->loading_report, def->report_num_errors, def->report_num_warnings, def->report_num_other);
     if (def->report_num_errors != 0)
     {
-        if (BSETTING("AutoActorSpawnerReport", false))
+        if (App::diag_auto_spawner_report.GetActive())
         {
             RoR::App::GetGuiManager()->SetVisible_SpawnerReport(true);
         }
@@ -345,7 +344,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
             actor->sendStreamSetup();
         }
 
-        if (!actor->m_hide_net_labels && (rq.asr_origin == ActorSpawnRequest::Origin::NETWORK || !actor->m_hide_own_net_label))
+        if (!App::mp_hide_net_labels.GetActive() && (rq.asr_origin == ActorSpawnRequest::Origin::NETWORK || !App::mp_hide_own_net_label.GetActive()))
         {
             RoR::Str<100> element_name;
             ActorSpawner::ComposeName(element_name, "NetLabel", 0, actor->ar_instance_id);
