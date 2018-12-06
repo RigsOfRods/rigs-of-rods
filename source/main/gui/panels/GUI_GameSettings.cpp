@@ -68,6 +68,7 @@ void RoR::GUI::GameSettings::Draw()
             App::app_screenshot_format.SetActive((sshot_select == 1) ? "jpg" : "png");
         }
 
+        DrawGCheckbox(App::app_skip_main_menu, "Skip main menu");
         DrawGCheckbox(App::app_async_physics, "Async physics");
 
         ImGui::Separator();
@@ -154,6 +155,7 @@ void RoR::GUI::GameSettings::Draw()
 
         ImGui::PushItemWidth(100.f); // Width includes [+/-] buttons
         DrawGIntSlider(App::gfx_envmap_rate, "Realtime refl. update rate", 0, 6);
+        DrawGIntSlider(App::gfx_shadow_quality, "Shadow quality", 0, 3);
         DrawGIntBox(App::gfx_fps_limit,      "FPS limit");
         ImGui::PopItemWidth();
 
@@ -168,9 +170,11 @@ void RoR::GUI::GameSettings::Draw()
     {
         ImGui::TextDisabled("Diagnostic options");
 
+        DrawGCheckbox(App::diag_auto_spawner_report, "Auto actor spawner report");
         DrawGCheckbox(App::diag_rig_log_node_import, "Log node import (spawn)");
         DrawGCheckbox(App::diag_rig_log_node_stats,  "Log node stats (spawn)");
         DrawGCheckbox(App::diag_rig_log_messages,    "Log messages (spawn)");
+        DrawGCheckbox(App::diag_camera,              "Debug camera (rails)");
         DrawGCheckbox(App::diag_collisions,          "Debug collisions");
         DrawGCheckbox(App::diag_truck_mass,          "Debug actor mass");
         DrawGCheckbox(App::diag_envmap,              "Debug realtime reflections");

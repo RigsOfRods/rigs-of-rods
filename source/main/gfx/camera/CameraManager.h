@@ -103,7 +103,6 @@ protected:
     Ogre::Real           m_cct_trans_scale;
     Ogre::Radian         m_cct_fov_interior; // TODO: duplicates GVar
     Ogre::Radian         m_cct_fov_exterior; // TODO: Duplicates GVar
-    bool                 m_cct_debug;
     float                m_cct_sim_speed; // TODO: duplicates `ActorManager::m_simulation_speed`
     // Old `CameraBehaviorOrbit` attributes
     Ogre::Radian         m_cam_rot_x;
@@ -134,9 +133,6 @@ protected:
     bool                 m_splinecam_auto_tracking;
     std::deque<node_t*>  m_splinecam_spline_nodes;
     unsigned int         m_splinecam_num_linked_beams;
-
-    bool                 m_config_enter_vehicle_keep_fixedfreecam;
-    bool                 m_config_exit_vehicle_keep_fixedfreecam;
 
     bool                 m_camera_ready; // Temporary flag; replaces (gEnv->cameraManager != nullptr) checks; see == SimCam ==
 

@@ -53,7 +53,6 @@ private:
     bool newMsg;
 
     // logic
-    bool autoHide;
     float alpha;
     long pushTime;
 };

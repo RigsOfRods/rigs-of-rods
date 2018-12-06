@@ -22,7 +22,6 @@
 
 #include "Application.h"
 #include "BeamData.h"
-#include "Settings.h"
 #include "Utils.h"
 
 #include <Ogre.h>
@@ -138,14 +137,6 @@ RoR::Skidmark::Skidmark(RoR::SkidmarkConfig* config, wheel_t* m_wheel,
     if (m_length % 2)
     {
         m_length--;
-    }
-
-    //Configurable limits of skidmarks
-    int c_BucketCount = ISETTING("SkidmarksBuckets", 0);
-
-    if (c_BucketCount > 0)
-    {
-        m_bucket_count = c_BucketCount;
     }
 }
 

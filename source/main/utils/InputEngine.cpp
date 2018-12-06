@@ -29,7 +29,6 @@
 #include "Application.h"
 #include "ErrorUtils.h"
 #include "OgreSubsystem.h"
-#include "Settings.h"
 
 #include <Ogre.h>
 #include <OgreStringConverter.h>
@@ -2089,34 +2088,10 @@ void InputEngine::setMousePosition(int x, int y, bool padding)
 
 OIS::MouseState InputEngine::getMouseState()
 {
-    static float mX = 999999, mY = 999999;
-    static int mode = -1;
-    if (mode == -1)
-    {
-#ifndef NOOGRE
-        // try to find the correct location!
-        mX = FSETTING("MouseSensX", 1);
-        mY = FSETTING("MouseSensY", 1);
-        LOG("Mouse X sens: " + TOSTRING((Real)mX));
-        LOG("Mouse Y sens: " + TOSTRING((Real)mY));
-        mode = 1;
-        if (mX == 0 || mY == 0)
-            mode = 2;
-#else
-        // no scaling without ogre
-        mode = 2;
-#endif
-    }
-
     OIS::MouseState m;
     if (mMouse)
     {
         m = mMouse->getMouseState();
-        if (mode == 1)
-        {
-            m.X.rel = (int)((float)m.X.rel * mX);
-            m.Y.rel = (int)((float)m.X.rel * mY);
-        }
     }
     return m;
 }

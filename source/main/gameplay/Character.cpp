@@ -29,7 +29,6 @@
 #include "MovableText.h"
 #include "Network.h"
 #include "RoRFrameListener.h"
-#include "Settings.h"
 #include "SurveyMapManager.h"
 #include "TerrainManager.h"
 #include "Utils.h"
@@ -49,8 +48,6 @@ Character::Character(int source, unsigned int streamid, int color_number, bool i
     , m_character_visible(false)
     , m_color_number(color_number)
     , m_anim_time(0.f)
-    , m_hide_own_net_label(BSETTING("HideOwnNetLabel", false))
-    , m_hide_net_labels(BSETTING("HideNetLabels", false))
     , m_net_username("")
     , m_is_remote(is_remote)
     , m_source_id(source)
@@ -632,7 +629,7 @@ GfxCharacter* Character::SetupGfx()
     m_gfx_character->xc_instance_name = m_instance_name;
 
 #ifdef USE_SOCKETW
-    if ((App::mp_state.GetActive() == MpState::CONNECTED) && !m_hide_net_labels && (m_is_remote || !m_hide_own_net_label))
+    if ((App::mp_state.GetActive() == MpState::CONNECTED) && !App::mp_hide_net_labels.GetActive() && (m_is_remote || !App::mp_hide_own_net_label.GetActive()))
     {
         m_gfx_character->xc_movable_text = new MovableText("netlabel-" + m_instance_name, "");
         scenenode->attachObject(m_gfx_character->xc_movable_text);

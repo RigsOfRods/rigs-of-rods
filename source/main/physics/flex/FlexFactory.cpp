@@ -32,7 +32,6 @@
 #include "PlatformUtils.h"
 #include "RigDef_File.h"
 #include "RigSpawner.h"
-#include "Settings.h"
 
 #include <OgreMeshManager.h>
 #include <OgreSceneManager.h>
@@ -84,7 +83,7 @@ FlexBody* FlexFactory::CreateFlexBody(
     int flexbody_id = m_rig_spawner->GetActor()->GetGfxActor()->GetNumFlexbodies();
     const std::string mesh_unique_name = m_rig_spawner->ComposeName("FlexbodyMesh", flexbody_id);
     Ogre::MeshPtr mesh = common_mesh->clone(mesh_unique_name);
-    if (BSETTING("Flexbody_EnableLODs", false))
+    if (App::gfx_flexbody_lods.GetActive())
     {
         this->ResolveFlexbodyLOD(def->mesh_name, mesh);
     }

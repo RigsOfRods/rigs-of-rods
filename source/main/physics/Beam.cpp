@@ -55,7 +55,6 @@
 #include "RoRFrameListener.h"
 #include "ScrewProp.h"
 #include "Scripting.h"
-#include "Settings.h"
 #include "Skidmark.h"
 #include "SlideNode.h"
 #include "SoundScriptManager.h"
@@ -4259,8 +4258,6 @@ Actor::Actor(
     , ar_main_camera_node_pos(0)
     , ar_main_camera_node_dir(0)
     , ar_main_camera_node_roll(0)
-    , m_hide_own_net_label(BSETTING("HideOwnNetLabel", false))
-    , m_hide_net_labels(BSETTING("HideNetLabels", false))
     , m_cinecam_is_rotation_center(false)
     , m_preloaded_with_terrain(rq.asr_origin == RoR::ActorSpawnRequest::Origin::TERRN_DEF)
     , ar_net_source_id(0)

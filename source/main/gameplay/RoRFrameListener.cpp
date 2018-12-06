@@ -52,7 +52,6 @@
 #include "SceneMouse.h"
 #include "ScrewProp.h"
 #include "Scripting.h"
-#include "Settings.h"
 #include "SkyManager.h"
 #include "SkyXManager.h"
 #include "SoundScriptManager.h"
@@ -2085,7 +2084,7 @@ bool SimController::SetupGameplayLoop()
     // Extra setup
     // ========================================================================
 
-    if (ISETTING("OutGauge Mode", 0) > 0)
+    if (App::io_outgauge_mode.GetActive() > 0)
     {
         m_out_protocol = std::unique_ptr<OutProtocol>(new OutProtocol());
     }

@@ -32,7 +32,6 @@
 #include "Language.h"
 #include "OverlayWrapper.h"
 #include "RoRFrameListener.h"
-#include "Settings.h"
 #include "TerrainManager.h"
 #include "GUIManager.h"
 #include "PerVehicleCameraContext.h"
@@ -94,8 +93,6 @@ CameraManager::CameraManager() :
     , m_cct_sim_speed(1.0f)
     , m_cam_before_toggled(CAMERA_BEHAVIOR_INVALID)
     , m_prev_toggled_cam(CAMERA_BEHAVIOR_INVALID)
-    , m_config_enter_vehicle_keep_fixedfreecam(false)
-    , m_config_exit_vehicle_keep_fixedfreecam(false)
     , m_charactercam_is_3rdperson(true)
     , m_splinecam_num_linked_beams(0)
     , m_splinecam_auto_tracking(false)
@@ -120,10 +117,6 @@ CameraManager::CameraManager() :
     , m_camera_ready(false)
 {
     m_cct_player_actor = nullptr;
-    m_cct_debug = BSETTING("Camera Debug", false);
-
-    m_config_enter_vehicle_keep_fixedfreecam = BSETTING("Camera_EnterVehicle_KeepFixedFreeCam", true);
-    m_config_exit_vehicle_keep_fixedfreecam  = BSETTING("Camera_ExitVehicle_KeepFixedFreeCam",  false);
 
     m_staticcam_update_timer.reset();
 }
@@ -579,9 +572,7 @@ void CameraManager::NotifyVehicleChanged(Actor* old_vehicle, Actor* new_vehicle)
     if (new_vehicle == nullptr)
     {
         m_cct_player_actor = nullptr;
-        if ( !(this->m_current_behavior == CAMERA_BEHAVIOR_STATIC && m_config_exit_vehicle_keep_fixedfreecam) &&
-             !(this->m_current_behavior == CAMERA_BEHAVIOR_FIXED  && m_config_exit_vehicle_keep_fixedfreecam) &&
-             !(this->m_current_behavior == CAMERA_BEHAVIOR_FREE   && m_config_exit_vehicle_keep_fixedfreecam) )
+        if (this->m_current_behavior != CAMERA_BEHAVIOR_FIXED)
         {
             this->switchBehavior(CAMERA_BEHAVIOR_CHARACTER);
         }
@@ -589,9 +580,7 @@ void CameraManager::NotifyVehicleChanged(Actor* old_vehicle, Actor* new_vehicle)
     }
 
     // Getting in vehicle
-    if ( !(this->m_current_behavior == CAMERA_BEHAVIOR_STATIC && m_config_enter_vehicle_keep_fixedfreecam) &&
-         !(this->m_current_behavior == CAMERA_BEHAVIOR_FIXED  && m_config_enter_vehicle_keep_fixedfreecam) &&
-         !(this->m_current_behavior == CAMERA_BEHAVIOR_FREE   && m_config_enter_vehicle_keep_fixedfreecam) )
+    if (this->m_current_behavior != CAMERA_BEHAVIOR_FIXED)
     {
         // Change camera
         switch (new_vehicle->GetCameraContext()->behavior)
@@ -1209,7 +1198,7 @@ void CameraManager::CameraBehaviorVehicleSplineCreateSpline()
 
     m_splinecam_spline_len /= 2.0f;
 
-    if (!m_splinecam_mo && m_cct_debug)
+    if (!m_splinecam_mo && RoR::App::diag_camera.GetActive())
     {
         m_splinecam_mo = gEnv->sceneManager->createManualObject();
         SceneNode* splineNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();

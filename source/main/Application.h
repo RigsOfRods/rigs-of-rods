@@ -654,6 +654,7 @@ namespace App {
 extern GVarEnum_AP<AppState>   app_state;
 extern GVarStr_A<100>          app_language;
 extern GVarStr_A<50>           app_locale;
+extern GVarPod_A<bool>         app_skip_main_menu;
 extern GVarPod_APS<bool>       app_async_physics;
 extern GVarPod_APS<int>        app_num_workers;
 extern GVarStr_AP<50>          app_screenshot_format;
@@ -670,6 +671,9 @@ extern GVarEnum_AP<SimGearboxMode> sim_gearbox_mode;
 // Multiplayer
 extern GVarEnum_AP<MpState>    mp_state;
 extern GVarPod_A<bool>         mp_join_on_startup;
+extern GVarPod_A<bool>         mp_chat_auto_hide;
+extern GVarPod_A<bool>         mp_hide_net_labels;
+extern GVarPod_A<bool>         mp_hide_own_net_label;
 extern GVarStr_AP<200>         mp_server_host;
 extern GVarPod_A<int>          mp_server_port;
 extern GVarStr_A<100>          mp_server_password;
@@ -678,6 +682,8 @@ extern GVarStr_AP<250>         mp_player_token_hash;
 extern GVarStr_AP<400>         mp_portal_url;
 
 // Diagnostic
+extern GVarPod_A<bool>         diag_auto_spawner_report;
+extern GVarPod_A<bool>         diag_camera;
 extern GVarPod_A<bool>         diag_trace_globals;
 extern GVarPod_A<bool>         diag_rig_log_node_import;
 extern GVarPod_A<bool>         diag_rig_log_node_stats;
@@ -742,6 +748,7 @@ extern GVarPod_A<int>          gfx_particles_mode;
 extern GVarPod_A<bool>         gfx_enable_videocams;
 extern GVarPod_A<bool>         gfx_envmap_enabled;
 extern GVarPod_A<int>          gfx_envmap_rate;
+extern GVarPod_A<int>          gfx_shadow_quality;
 extern GVarPod_A<int>          gfx_skidmarks_mode;
 extern GVarPod_A<float>        gfx_sight_range;
 extern GVarPod_APS<float>      gfx_fov_external;
@@ -749,6 +756,7 @@ extern GVarPod_APS<float>      gfx_fov_internal;
 extern GVarPod_A<int>          gfx_fps_limit;
 extern GVarPod_A<bool>         gfx_speedo_digital;
 extern GVarPod_A<bool>         gfx_speedo_imperial;
+extern GVarPod_A<bool>         gfx_flexbody_lods;
 
 // Getters
 OgreSubsystem*       GetOgreSubsystem();

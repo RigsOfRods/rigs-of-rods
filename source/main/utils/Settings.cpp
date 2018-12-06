@@ -470,6 +470,18 @@ inline bool CheckEnvmapRate(std::string const & key, std::string const & s)
     return true;
 }
 
+inline bool CheckShadowQuality(std::string const & key, std::string const & s)
+{
+    if (key != App::gfx_envmap_rate.conf_name)
+        return false;
+
+    int quality = Ogre::StringConverter::parseInt(s);
+    if (quality < 0) { quality = 0; }
+    if (quality > 3) { quality = 3; }
+    App::gfx_shadow_quality.SetActive(quality);
+    return true;
+}
+
 template <typename GVarStr_T>
 inline bool CheckStr(GVarStr_T& gvar, std::string const & key, std::string const & value)
 {
@@ -600,6 +612,9 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
 
     // Multiplayer
     if (CheckBool (App::mp_join_on_startup,        k, v)) { return true; }
+    if (CheckBool (App::mp_chat_auto_hide,         k, v)) { return true; }
+    if (CheckBool (App::mp_hide_net_labels,        k, v)) { return true; }
+    if (CheckBool (App::mp_hide_own_net_label,     k, v)) { return true; }
     if (CheckStr  (App::mp_player_name,            k, v)) { return true; }
     if (CheckStr  (App::mp_server_host,            k, v)) { return true; }
     if (CheckInt  (App::mp_server_port,            k, v)) { return true; }
@@ -609,6 +624,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     // App
     if (CheckScreenshotFormat                     (k, v)) { return true; }
     if (CheckStr  (App::app_locale,                k, v)) { return true; }
+    if (CheckBool (App::app_skip_main_menu,        k, v)) { return true; }
     if (CheckBool (App::app_async_physics,         k, v)) { return true; }
     if (CheckInt  (App::app_num_workers,           k, v)) { return true; }
     // Input&Output
@@ -626,6 +642,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckIoInputGrabMode                      (k, v)) { return true; }
     // Gfx
     if (CheckEnvmapRate                           (k, v)) { return true; }
+    if (CheckShadowQuality                        (k, v)) { return true; }
     if (CheckShadowTech                           (k, v)) { return true; }
     if (CheckExtcamMode                           (k, v)) { return true; }
     if (CheckTexFiltering                         (k, v)) { return true; }
@@ -645,12 +662,15 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckFOV  (App::gfx_fov_internal,          k, v)) { return true; }
     if (CheckInt  (App::gfx_fps_limit,             k, v)) { return true; }
     if (CheckBool (App::gfx_speedo_digital,        k, v)) { return true; }
+    if (CheckBool (App::gfx_flexbody_lods,         k, v)) { return true; }
     // Audio
     if (CheckFloat(App::audio_master_volume,       k, v)) { return true; }
     if (CheckBool (App::audio_enable_creak,        k, v)) { return true; }
     if (CheckBool (App::audio_menu_music,          k, v)) { return true; }
     if (CheckStr  (App::audio_device_name,         k, v)) { return true; }
     // Diag
+    if (CheckBool (App::diag_auto_spawner_report,  k, v)) { return true; }
+    if (CheckBool (App::diag_camera,               k, v)) { return true; }
     if (CheckBool (App::diag_rig_log_node_import,  k, v)) { return true; }
     if (CheckBool (App::diag_rig_log_node_stats,   k, v)) { return true; }
     if (CheckBool (App::diag_rig_log_messages,     k, v)) { return true; }
@@ -869,6 +889,9 @@ void Settings::SaveSettings()
 
     f << std::endl << "; Multiplayer" << std::endl;
     WriteYN  (f, App::mp_join_on_startup);
+    WriteYN  (f, App::mp_chat_auto_hide);
+    WriteYN  (f, App::mp_hide_net_labels);
+    WriteYN  (f, App::mp_hide_own_net_label);
     WriteStr (f, App::mp_player_name);
     WriteStr (f, App::mp_server_host);
     WritePod (f, App::mp_server_port);
@@ -913,10 +936,12 @@ void Settings::SaveSettings()
     WriteYN  (f, App::gfx_speedo_imperial );
     WriteYN  (f, App::gfx_envmap_enabled  );
     WritePod (f, App::gfx_envmap_rate     );
+    WritePod (f, App::gfx_shadow_quality  );
     WritePod (f, App::gfx_sight_range     );
     WritePod (f, App::gfx_fps_limit       );
     WritePod (f, App::gfx_fov_external    );
     WritePod (f, App::gfx_fov_internal    );
+    WriteYN  (f, App::gfx_flexbody_lods   );
 
     f << std::endl << "; Audio" << std::endl;
     WritePod (f, App::audio_master_volume);
@@ -925,6 +950,8 @@ void Settings::SaveSettings()
     WriteStr (f, App::audio_device_name  );
 
     f << std::endl << "; Diagnostics" << std::endl;
+    WriteYN  (f, App::diag_auto_spawner_report);
+    WriteYN  (f, App::diag_camera             );
     WriteYN  (f, App::diag_rig_log_node_import);
     WriteYN  (f, App::diag_rig_log_node_stats );
     WriteYN  (f, App::diag_rig_log_messages   );
@@ -944,6 +971,7 @@ void Settings::SaveSettings()
     f << std::endl << "; Application"<< std::endl;
     WriteStr (f, App::app_screenshot_format );
     WriteStr (f, App::app_locale            );
+    WriteYN  (f, App::app_skip_main_menu    );
     WriteYN  (f, App::app_async_physics     );
     WritePod (f, App::app_num_workers       );
 
