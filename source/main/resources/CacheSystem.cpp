@@ -1715,22 +1715,6 @@ void CacheSystem::generateFileCache(CacheEntry& entry, Ogre::String directory)
     LOG("done generating file cache!");
 }
 
-void CacheSystem::parseKnownFilesAllRG()
-{
-    for (std::vector<Ogre::String>::iterator sit = known_extensions.begin(); sit != known_extensions.end(); sit++)
-        parseFilesAllRG(*sit);
-}
-
-void CacheSystem::parseFilesAllRG(Ogre::String ext)
-{
-    StringVector sv = ResourceGroupManager::getSingleton().getResourceGroups();
-    StringVector::iterator it;
-    for (it = sv.begin(); it != sv.end(); it++)
-        parseFilesOneRG(ext, *it);
-
-    LOG("* parsing files of all Resource Groups (" + ext + ") finished!");
-}
-
 void CacheSystem::parseKnownFilesOneRG(Ogre::String rg)
 {
     for (std::vector<Ogre::String>::iterator sit = known_extensions.begin(); sit != known_extensions.end(); sit++)
@@ -1969,41 +1953,11 @@ void CacheSystem::loadSingleZip(Ogre::FileInfo f)
     loadSingleZipInternal(zippath, cfactor);
 }
 
-void CacheSystem::loadSingleDirectory(String dirname, String group, bool alreadyLoaded)
+void CacheSystem::loadSingleDirectory(String dirname, String group)
 {
-    char hash[256];
-    memset(hash, 0, 255);
-
-    LOG("Adding directory " + dirname);
-
-    rgcounter++;
-    String rgname = "General-" + TOSTRING(rgcounter);
-
     try
     {
-        if (alreadyLoaded)
-        {
-            parseKnownFilesOneRGDirectory(group, dirname);
-        }
-        else
-        {
-            LOG("Loading " + dirname);
-            ResourceGroupManager::getSingleton().addResourceLocation(dirname, "FileSystem", rgname);
-            ResourceGroupManager::getSingleton().initialiseResourceGroup(rgname);
-            // parse everything
-            parseKnownFilesOneRG(rgname);
-            // unload it again
-            LOG("UnLoading " + dirname);
-
-#ifdef USE_OPENAL
-            SoundScriptManager::getSingleton().clearNonBaseTemplates();
-#endif //OPENAL
-            ParticleSystemManager::getSingleton().removeTemplatesByResourceGroup(rgname);
-            ResourceGroupManager::getSingleton().clearResourceGroup(rgname);
-            ResourceGroupManager::getSingleton().unloadResourceGroup(rgname);
-            ResourceGroupManager::getSingleton().removeResourceLocation(dirname, rgname);
-            ResourceGroupManager::getSingleton().destroyResourceGroup(rgname);
-        }
+        parseKnownFilesOneRGDirectory(group, dirname);
     }
     catch (ItemIdentityException& e)
     {
@@ -2107,7 +2061,7 @@ void CacheSystem::loadAllDirectoriesInResourceGroup(String group)
         // update loader
         int progress = ((float)i / (float)filecount) * 100;
         RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("Loading directory\n") + Utils::SanitizeUtf8String(listitem->filename));
-        loadSingleDirectory(dirname, group, true);
+        loadSingleDirectory(dirname, group);
     }
     // hide loader again
     RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
@@ -2164,7 +2118,7 @@ void CacheSystem::checkForNewDirectoriesInResourceGroup(std::set<std::string>con
         {
             RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("checking for new directories in ") + group + "\n" + _L("loading new directory: ") + filename_utf8 + "\n" + TOSTRING(i) + "/" + TOSTRING(filecount));
             LOG("- "+dirname+" is new");
-            loadSingleDirectory(dirname, group, true);
+            loadSingleDirectory(dirname, group);
         }
     }
     RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
