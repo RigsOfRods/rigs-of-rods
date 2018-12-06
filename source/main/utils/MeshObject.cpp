@@ -32,12 +32,11 @@
 using namespace Ogre;
 using namespace RoR;
 
-MeshObject::MeshObject(Ogre::String meshName, Ogre::String entityName, Ogre::SceneNode* sceneNode, bool backgroundLoading)
+MeshObject::MeshObject(Ogre::String meshName, Ogre::String entityName, Ogre::SceneNode* sceneNode)
     : meshName(meshName)
     , entityName(entityName)
     , sceneNode(sceneNode)
     , ent(0)
-    , backgroundLoading(backgroundLoading)
     , loaded(false)
     , materialName()
     , castshadows(true)
@@ -53,7 +52,7 @@ MeshObject::MeshObject(Ogre::String meshName, Ogre::String entityName, Ogre::Sce
 
 MeshObject::~MeshObject()
 {
-    if (backgroundLoading && !mesh.isNull())
+    if (!mesh.isNull())
         mesh->unload();
 }
 
@@ -191,7 +190,6 @@ void MeshObject::postProcess()
         sceneNode->getAttachedObject(0)->setCastShadows(castshadows);
 
     sceneNode->setVisible(visible);
-    
 }
 
 void MeshObject::loadMesh()
@@ -200,78 +198,10 @@ void MeshObject::loadMesh()
     {
         Ogre::String resourceGroup = Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME;
         mesh = static_cast<Ogre::MeshPtr>(Ogre::MeshManager::getSingleton().create(meshName, resourceGroup));
-        if (backgroundLoading)
-        {
-            mesh->setBackgroundLoaded(true);
-            mesh->addListener(this);
-            ticket = Ogre::ResourceBackgroundQueue::getSingleton().load(
-                Ogre::MeshManager::getSingletonPtr()->getResourceType(),
-                mesh->getName(),
-                resourceGroup,
-                false, 0, 0, 0);
-
-            // try to load its textures in the background
-            for (int i = 0; i < mesh->getNumSubMeshes(); i++)
-            {
-                SubMesh* sm = mesh->getSubMesh(i);
-                String materialName = sm->getMaterialName();
-                Ogre::MaterialPtr mat = RoR::OgreSubsystem::GetMaterialByName(materialName);
-                if (mat.isNull())
-                    continue;
-                for (int tn = 0; tn < mat->getNumTechniques(); tn++)
-                {
-                    Technique* t = mat->getTechnique(tn);
-                    for (int pn = 0; pn < t->getNumPasses(); pn++)
-                    {
-                        Pass* p = t->getPass(pn);
-                        for (int tun = 0; tun < p->getNumTextureUnitStates(); tun++)
-                        {
-                            TextureUnitState* tu = p->getTextureUnitState(tun);
-                            String textureName = tu->getTextureName();
-                            // now add this texture to the background loading queue
-                            Ogre::TexturePtr tex = static_cast<Ogre::TexturePtr>(Ogre::TextureManager::getSingleton().create(textureName, resourceGroup));
-                            tex->setBackgroundLoaded(true);
-                            tex->addListener(this);
-                            ticket = Ogre::ResourceBackgroundQueue::getSingleton().load(
-                                Ogre::TextureManager::getSingletonPtr()->getResourceType(),
-                                tex->getName(),
-                                resourceGroup,
-                                false, 0, 0, 0);
-                        }
-                    }
-                }
-            }
-        }
-
-        if (!backgroundLoading)
-            postProcess();
+        postProcess();
     }
     catch (Ogre::Exception* e)
     {
         LOG("exception while loading mesh: " + e->getFullDescription());
     }
-}
-
-void MeshObject::operationCompleted(BackgroundProcessTicket ticket, const BackgroundProcessResult& result)
-{
-    // NOT USED ATM
-    LOG("operationCompleted: " + meshName);
-    if (ticket == this->ticket)
-        postProcess();
-}
-
-void MeshObject::loadingComplete(Resource* r)
-{
-    LOG("loadingComplete: " + r->getName());
-    postProcess();
-}
-
-void MeshObject::preparingComplete(Resource* r)
-{
-    LOG("preparingComplete: " + r->getName());
-}
-
-void MeshObject::unloadingComplete(Resource* r)
-{
-    LOG("unloadingComplete: " + r->getName());
 }

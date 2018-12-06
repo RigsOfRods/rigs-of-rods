@@ -60,7 +60,6 @@ inline float getTerrainHeight(Real x, Real z, void* unused = 0)
 }
 
 TerrainObjectManager::TerrainObjectManager(TerrainManager* terrainManager) :
-    m_background_loading(BSETTING("Background Loading", false)),
     m_use_rtshadersystem(BSETTING("Use RTShader System", false)),
     terrainManager(terrainManager)
 {
@@ -754,7 +753,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
     MeshObject* mo = nullptr;
     if (String(mesh) != "none")
     {
-        mo = new MeshObject(mesh, entity_name, tenode, m_background_loading);
+        mo = new MeshObject(mesh, entity_name, tenode);
         m_mesh_objects.push_back(mo);
     }
 

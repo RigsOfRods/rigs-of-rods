@@ -1086,7 +1086,6 @@ private:
     Actor*             m_actor; //!< The output actor.
     int                m_cache_entry_number;
     Ogre::Vector3      m_spawn_position;
-    bool               m_enable_background_loading;
     bool               m_apply_simple_materials;
     std::string        m_cab_material_name; ///< Original name defined in truckfile/globals.
     std::string        m_custom_resource_group;
