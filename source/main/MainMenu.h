@@ -44,14 +44,14 @@ public:
 
     void EnterMainMenuLoop();
 
+private:
+
     void MainMenuLoopUpdate(float seconds_since_last_frame);
 
     void MainMenuLoopUpdateEvents(float seconds_since_last_frame);
 
     // From Ogre::FrameListener
     bool frameRenderingQueued(const Ogre::FrameEvent & evt) override;
-
-private:
 
     // Ogre::WindowEventListener
     void windowResized    (Ogre::RenderWindow* rw) override;

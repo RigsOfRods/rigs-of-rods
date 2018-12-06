@@ -57,32 +57,30 @@ void MainMenu::EnterMainMenuLoop()
 {
     OgreBites::WindowEventUtilities::addWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
 
-    // ==== FPS-limiter ====
-    // TODO: Is this necessary in menu?
-
-    unsigned long timeSinceLastFrame = 1;
-    unsigned long startTime = 0;
-    unsigned long minTimePerFrame = 0;
-    unsigned long fpsLimit = App::gfx_fps_limit.GetActive(); // TOD: use GVar directly without copying
-
-    if (fpsLimit < 10 || fpsLimit >= 200)
-    {
-        fpsLimit = 0;
-    }
-
-    if (fpsLimit)
-    {
-        minTimePerFrame = 1000 / fpsLimit;
-    }
-
-    Ogre::Timer timer;
     App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(this);
     
+    auto start_time = std::chrono::high_resolution_clock::now();
+
     while (App::app_state.GetPending() == AppState::MAIN_MENU)
     {
-        startTime = timer.getMilliseconds();
+        // Check FPS limit
+        if (App::gfx_fps_limit.GetActive() > 0)
+        {
+            const float min_frame_time = 1.0f / Ogre::Math::Clamp(App::gfx_fps_limit.GetActive(), 5, 240);
+            float dt = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start_time).count();
+            while (dt < min_frame_time)
+            {
+                int ms = static_cast<int>((min_frame_time - dt) * 1000.0f);
+                std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+                dt = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start_time).count();
+            }
+        }
 
-        this->MainMenuLoopUpdate(static_cast<float>(timeSinceLastFrame)/1000);
+        const auto now = std::chrono::high_resolution_clock::now();
+        const float dt_sec = std::chrono::duration<float>(now - start_time).count();
+        start_time = now;
+
+        this->MainMenuLoopUpdate(dt_sec);
 
         if (RoR::App::GetGuiManager()->GetMainSelector()->IsFinishedSelecting())
         {
@@ -105,7 +103,7 @@ void MainMenu::EnterMainMenuLoop()
             continue;
         }
 
-        App::GetGuiManager()->NewImGuiFrame(static_cast<float>(timeSinceLastFrame)/1000);
+        App::GetGuiManager()->NewImGuiFrame(dt_sec);
         App::GetGuiManager()->DrawMainMenuGui();
 
         App::GetOgreSubsystem()->GetOgreRoot()->renderOneFrame();
@@ -125,16 +123,6 @@ void MainMenu::EnterMainMenuLoop()
 
         if (!rw->isActive() && rw->isVisible())
             rw->update(); // update even when in background !
-
-        // FPS-limiter. TODO: Is this necessary in menu?
-        if (fpsLimit && timeSinceLastFrame < minTimePerFrame)
-        {
-            // Sleep twice as long as we were too fast.
-            int ms = static_cast<int>((minTimePerFrame - timeSinceLastFrame) << 1);
-            std::this_thread::sleep_for(std::chrono::milliseconds(ms));
-        }
-
-        timeSinceLastFrame = timer.getMilliseconds() - startTime;
     }
     OgreBites::WindowEventUtilities::removeWindowEventListener(App::GetOgreSubsystem()->GetRenderWindow(), this);
     App::GetOgreSubsystem()->GetOgreRoot()->removeFrameListener(this);
@@ -145,10 +133,6 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
     if (seconds_since_last_frame == 0)
     {
         return;
-    }
-    if (seconds_since_last_frame > 1.0 / 20.0) // TODO: Does this have any sense for menu?
-    {
-        seconds_since_last_frame = 1.0 / 20.0;
     }
 
     if (RoR::App::GetOgreSubsystem()->GetRenderWindow()->isClosed())
