@@ -991,11 +991,12 @@ int CacheSystem::getTimeStamp()
     return (int)time(NULL); //this will overflow in 2038
 }
 
-void CacheSystem::deleteFileCache(char* filename)
+void CacheSystem::deleteFileCache(const char* full_path)
 {
-    if (remove(filename))
+    int result = std::remove(full_path);
+    if (result != 0)
     {
-        LOG("error deleting file '"+String(filename)+"'");
+        RoR::LogFormat("[RoR] Error deleting file '%s' from ModCache, result code: %d", full_path, result);
     }
 }
 
@@ -1018,7 +1019,7 @@ void CacheSystem::removeFileFromFileCache(std::vector<CacheEntry>::iterator iter
     if (iter->minitype != "none")
     {
         String fn = Ogre::String(App::sys_cache_dir.GetActive())  + PATH_SLASH + iter->filecachename;
-        deleteFileCache(const_cast<char*>(fn.c_str()));
+        this->deleteFileCache(fn);
     }
 }
 
@@ -1084,7 +1085,7 @@ void CacheSystem::generateFileCache(CacheEntry& entry, Ogre::String directory)
         FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo(group, minifn);
         if (files->empty())
         {
-            deleteFileCache(const_cast<char*>(dst.c_str()));
+            this->deleteFileCache(dst);
         }
 
         size_t fsize = 0;
@@ -1116,7 +1117,7 @@ void CacheSystem::generateFileCache(CacheEntry& entry, Ogre::String directory)
         }
         if (!written)
         {
-            deleteFileCache(const_cast<char*>(dst.c_str()));
+            this->deleteFileCache(dst);
         }
     }
     catch (Ogre::Exception& e)
