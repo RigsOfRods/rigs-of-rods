@@ -58,7 +58,6 @@ enum {
     OPT_SETUP,
     OPT_WDIR,
     OPT_VER,
-    OPT_CHECKCACHE,
     OPT_TRUCKCONFIG,
     OPT_ENTERTRUCK,
     OPT_USERPATH,
@@ -81,7 +80,6 @@ CSimpleOpt::SOption cmdline_options[] = {
     { OPT_TRUCKCONFIG,    ("-actorconfig"), SO_REQ_SEP },
     { OPT_HELP,           ("--help"),       SO_NONE    },
     { OPT_HELP,           ("-help"),        SO_NONE    },
-    { OPT_CHECKCACHE,     ("-checkcache"),  SO_NONE    },
     { OPT_VER,            ("-version"),     SO_NONE    },
     { OPT_USERPATH,       ("-userpath"),    SO_REQ_SEP },
     { OPT_STATE,          ("-state"),       SO_REQ_SEP },
@@ -184,11 +182,6 @@ void Settings::ProcessCommandLine(int argc, char *argv[])
         else if (args.OptionId() == OPT_INCLUDEPATH)
         {
             App::diag_extra_resource_dir.SetActive(args.OptionArg());
-        }
-        else if (args.OptionId() == OPT_CHECKCACHE)
-        {
-            // just regen cache and exit
-            SETTINGS.setSetting("regen-cache-only", "Yes");
         }
         else if (args.OptionId() == OPT_ENTERTRUCK)
         {

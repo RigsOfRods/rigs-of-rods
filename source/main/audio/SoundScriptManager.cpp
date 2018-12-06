@@ -23,7 +23,6 @@
 #include "SoundScriptManager.h"
 
 #include "Beam.h"
-#include "Settings.h"
 #include "Sound.h"
 #include "SoundManager.h"
 #include "Utils.h"
@@ -79,7 +78,7 @@ SoundScriptManager::SoundScriptManager() :
         return;
     }
 
-    disabled = sound_manager->isDisabled() || BSETTING("regen-cache-only", false);
+    disabled = sound_manager->isDisabled();
 
     if (disabled)
     {

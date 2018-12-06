@@ -232,12 +232,6 @@ int main(int argc, char *argv[])
         App::CreateInputEngine();
         App::GetInputEngine()->setupDefault(App::GetOgreSubsystem()->GetMainHWND());
 
-        if (BSETTING("regen-cache-only", false)) //Can be usefull so we will leave it here -max98
-        {
-            App::GetContentManager()->RegenCache();
-            App::app_state.SetPending(AppState::SHUTDOWN);
-        }
-
         App::GetCacheSystem()->Startup();
 
         RoR::ForceFeedback force_feedback;
