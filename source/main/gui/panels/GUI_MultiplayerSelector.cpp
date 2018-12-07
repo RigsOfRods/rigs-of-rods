@@ -211,9 +211,18 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
     {
         ImGui::PushID("setup");
 
+        DrawGCheckbox(App::mp_join_on_startup,    "Auto connect");
+        DrawGCheckbox(App::mp_chat_auto_hide,     "Auto hide chat");
+        DrawGCheckbox(App::mp_hide_net_labels,    "Hide net labels");
+        DrawGCheckbox(App::mp_hide_own_net_label, "Hide own net label");
+
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
+        ImGui::Separator();
+
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + CONTENT_TOP_PADDING);
         ImGui::PushItemWidth(250.f);
-        DrawGTextEdit(App::mp_player_name, "Player nickname", m_player_name_buf);
-        DrawGTextEdit(App::mp_server_password, "Default server password", m_password_buf);
+        DrawGTextEdit(App::mp_player_name,        "Player nickname", m_player_name_buf);
+        DrawGTextEdit(App::mp_server_password,    "Default server password", m_password_buf);
         ImGui::PopItemWidth();
 
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
