@@ -79,17 +79,8 @@ void RoR::GUI::GameSettings::Draw()
 
         if (App::sim_replay_enabled.GetActive())
         {
-            int replay_len = App::sim_replay_length.GetActive();
-            if (ImGui::InputInt("Replay length", &replay_len))
-            {
-                App::sim_replay_length.SetActive(replay_len);
-            }
-
-            int replay_step = App::sim_replay_stepping.GetActive();
-            if (ImGui::InputInt("Replay stepping", &replay_step))
-            {
-                App::sim_replay_stepping.SetActive(replay_step);
-            }
+            DrawGIntBox(App::sim_replay_length, "Replay length");
+            DrawGIntBox(App::sim_replay_stepping, "Replay stepping");
         }
 
         DrawGCombo(App::sim_gearbox_mode, "Gearbox mode",
