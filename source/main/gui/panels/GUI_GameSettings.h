@@ -28,7 +28,7 @@ namespace GUI {
 class GameSettings
 {
 public:
-    enum SettingsTab { GENERAL, CONTROL, VIDEO, DIAG };
+    enum SettingsTab { GENERAL, CONTROL, AUDIO, VIDEO, DIAG };
 
     GameSettings(): m_is_visible(false), m_tab(SettingsTab::GENERAL) {}
 

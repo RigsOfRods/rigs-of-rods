@@ -115,6 +115,15 @@ void RoR::DrawGIntSlider(GVarPod_A<int>& gvar, const char* label, int v_min, int
     }
 }
 
+void RoR::DrawGFloatSlider(GVarPod_A<float>& gvar, const char* label, float v_min, float v_max)
+{
+    float val = gvar.GetActive();
+    if (ImGui::SliderFloat(label, &val, v_min, v_max))
+    {
+        gvar.SetActive(val);
+    }
+}
+
 void RoR::DrawGFloatBox(GVarPod_A<float>& gvar, const char* label)
 {
     float fval = gvar.GetActive();
