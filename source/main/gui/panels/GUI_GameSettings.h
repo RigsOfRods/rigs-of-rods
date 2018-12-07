@@ -28,9 +28,9 @@ namespace GUI {
 class GameSettings
 {
 public:
-    enum SettingsTab { GENERAL, CONTROL, AUDIO, VIDEO, DIAG };
+    enum SettingsTab { RENDER_SYSTEM, GENERAL, GRAPHICS, AUDIO, CONTROL, DIAG };
 
-    GameSettings(): m_is_visible(false), m_tab(SettingsTab::GENERAL) {}
+    GameSettings(): m_is_visible(false), m_tab(SettingsTab::RENDER_SYSTEM) {}
 
     void Draw();
 
@@ -39,7 +39,7 @@ public:
     {
         if (!v)
         {
-            m_tab = SettingsTab::GENERAL;
+            m_tab = SettingsTab::RENDER_SYSTEM;
         }
         m_is_visible = v;
     }

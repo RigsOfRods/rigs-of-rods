@@ -18,8 +18,10 @@
 */
 
 #include "GUI_GameSettings.h"
+
 #include "GUIManager.h"
 #include "GUIUtils.h"
+#include "OgreSubsystem.h"
 
 void RoR::GUI::GameSettings::Draw()
 {
@@ -42,24 +44,70 @@ void RoR::GUI::GameSettings::Draw()
     // 'Tabs' buttons
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.f, 8.f));
 
-    if (ImGui::Button("General"))    { m_tab = SettingsTab::GENERAL; }
+    if (ImGui::Button("Render System")) { m_tab = SettingsTab::RENDER_SYSTEM; }
     ImGui::SameLine();
-    if (ImGui::Button("Controls"))   { m_tab = SettingsTab::CONTROL; }
+    if (ImGui::Button("General"))       { m_tab = SettingsTab::GENERAL;       }
+    ImGui::SameLine();
+    if (ImGui::Button("Graphics"))      { m_tab = SettingsTab::GRAPHICS;      }
     ImGui::SameLine();
 #ifdef USE_OPENAL
-    if (ImGui::Button("Audio"))      { m_tab = SettingsTab::AUDIO; }
+    if (ImGui::Button("Audio"))         { m_tab = SettingsTab::AUDIO;         }
     ImGui::SameLine();
 #endif // USE_OPENAL
-    if (ImGui::Button("Video"))      { m_tab = SettingsTab::VIDEO;   }
+    if (ImGui::Button("Controls"))      { m_tab = SettingsTab::CONTROL;       }
     ImGui::SameLine();
-    if (ImGui::Button("Diagnostic")) { m_tab = SettingsTab::DIAG;    }
+    if (ImGui::Button("Diagnostic"))    { m_tab = SettingsTab::DIAG;          }
 
     ImGui::PopStyleVar(1);
 
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4.f);
     ImGui::Separator();
 
-    if (m_tab == SettingsTab::GENERAL)
+    if (m_tab == SettingsTab::RENDER_SYSTEM)
+    {
+        ImGui::TextDisabled("Render system");
+
+        const Ogre::RenderSystemList render_systems = App::GetOgreSubsystem()->GetOgreRoot()->getAvailableRenderers();
+        std::string render_system_names;
+        for (auto rs : render_systems)
+        {
+            render_system_names += rs->getName() + '\0';
+        }
+        const auto rs = App::GetOgreSubsystem()->GetOgreRoot()->getRenderSystem();
+        const auto it = std::find(render_systems.begin(), render_systems.end(), rs);
+        int render_id = it != render_systems.end() ? std::distance(render_systems.begin(), it) : 0;
+        if (ImGui::Combo("Render System", &render_id, render_system_names.c_str()))
+        {
+            App::GetOgreSubsystem()->GetOgreRoot()->setRenderSystem(render_systems[render_id]); // Can we do that here?
+        }
+
+        const Ogre::ConfigOptionMap config_options = rs->getConfigOptions();
+        for (auto opt : config_options)
+        {
+            auto co = opt.second;
+            if (co.immutable)
+                continue;
+            if (co.possibleValues.empty())
+                continue;
+            std::sort(co.possibleValues.rbegin(), co.possibleValues.rend());
+            std::string option_values;
+            for (auto value : co.possibleValues)
+            {
+                option_values += value + '\0';
+            }
+            const auto it = std::find(co.possibleValues.begin(), co.possibleValues.end(), opt.second.currentValue);
+            int option_id = it != co.possibleValues.end() ? std::distance(co.possibleValues.begin(), it) : 0;
+            if (ImGui::Combo(co.name.c_str(), &option_id, option_values.c_str()))
+            {
+                rs->setConfigOption(co.name, co.possibleValues[option_id]);
+                if (rs->validateConfigOptions().empty())
+                {
+                    App::GetOgreSubsystem()->GetOgreRoot()->saveConfig();
+                }
+            }
+        }
+    }
+    else if (m_tab == SettingsTab::GENERAL)
     {
         ImGui::TextDisabled("Application settings");
 
@@ -124,7 +172,7 @@ void RoR::GUI::GameSettings::Draw()
         DrawGFloatSlider(App::audio_master_volume, "Master volume", 0, 1);
     }
 #endif // USE_OPENAL
-    else if (m_tab == SettingsTab::VIDEO)
+    else if (m_tab == SettingsTab::GRAPHICS)
     {
         ImGui::TextDisabled("Video settings");
 
