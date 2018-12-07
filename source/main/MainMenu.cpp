@@ -66,7 +66,7 @@ void MainMenu::EnterMainMenuLoop()
         // Check FPS limit
         if (App::gfx_fps_limit.GetActive() > 0)
         {
-            const float min_frame_time = 1.0f / Ogre::Math::Clamp(App::gfx_fps_limit.GetActive(), 5, 240);
+            const float min_frame_time = 1.0f / Ogre::Math::Clamp(App::gfx_fps_limit.GetActive(), 60, 240);
             float dt = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start_time).count();
             while (dt < min_frame_time)
             {
