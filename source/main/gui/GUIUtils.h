@@ -39,6 +39,8 @@ void DrawGIntBox(GVarPod_A<int>& gvar, const char* label);
 
 void DrawGIntSlider(GVarPod_A<int>& gvar, const char* label, int v_min, int v_max);
 
+void DrawGFloatSlider(GVarPod_A<float>& gvar, const char* label, float v_min, float v_max);
+
 void DrawGFloatBox(GVarPod_A<float>& gvar, const char* label);
 
 void DrawGFloatBox(GVarPod_APS<float>& gvar, const char* label);

@@ -46,6 +46,10 @@ void RoR::GUI::GameSettings::Draw()
     ImGui::SameLine();
     if (ImGui::Button("Controls"))   { m_tab = SettingsTab::CONTROL; }
     ImGui::SameLine();
+#ifdef USE_OPENAL
+    if (ImGui::Button("Audio"))      { m_tab = SettingsTab::AUDIO; }
+    ImGui::SameLine();
+#endif // USE_OPENAL
     if (ImGui::Button("Video"))      { m_tab = SettingsTab::VIDEO;   }
     ImGui::SameLine();
     if (ImGui::Button("Diagnostic")) { m_tab = SettingsTab::DIAG;    }
@@ -100,6 +104,35 @@ void RoR::GUI::GameSettings::Draw()
             "Fully Manual: stick shift with ranges\00");
 
     }
+#ifdef USE_OPENAL
+    else if (m_tab == SettingsTab::AUDIO)
+    {
+        ImGui::TextDisabled("Audio settings");
+
+        static const ALCchar *devices = alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
+        const ALCchar *device = devices, *next = devices + 1;
+        std::vector<std::string> audio_devices;
+
+        while (device && *device != '\0' && next && *next != '\0')
+        {
+                audio_devices.push_back(device);
+                size_t len = strlen(device);
+                device += (len + 1);
+                next += (len + 2);
+        }
+
+        const auto it = std::find(audio_devices.begin(), audio_devices.end(), App::audio_device_name.GetActive());
+        int device_id = it != audio_devices.end() ? std::distance(audio_devices.begin(), it) : 0;
+        if (ImGui::Combo("Audio device", &device_id, devices))
+        {
+            App::audio_device_name.SetActive(audio_devices[device_id].c_str());
+        }
+
+        DrawGCheckbox(App::audio_enable_creak,     "Creak sound");
+        DrawGCheckbox(App::audio_menu_music,       "Main menu music");
+        DrawGFloatSlider(App::audio_master_volume, "Master volume", 0, 1);
+    }
+#endif // USE_OPENAL
     else if (m_tab == SettingsTab::VIDEO)
     {
         ImGui::TextDisabled("Video settings");
