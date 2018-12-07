@@ -182,31 +182,43 @@ float TerrainGeometryManager::getHeightAtTerrainPosition(Real x, Real y)
     Vector3 v1(endXTS  , startYTS, mHeightData[startY * mSize + endX]);
     Vector3 v2(endXTS  , endYTS  , mHeightData[endY   * mSize + endX]);
     Vector3 v3(startXTS, endYTS  , mHeightData[endY   * mSize + startX]);
+
     // define this plane in terrain space
-    Plane plane;
+    Vector3 normal;
+    Real d;
     if (startY % 2)
     {
         // odd row
         bool secondTri = ((1.0 - yParam) > xParam);
         if (secondTri)
-            plane.redefine(v0, v1, v3);
+        {
+            normal = (v1 - v0).crossProduct(v3 - v0);
+            d = -normal.dotProduct(v0);
+        }
         else
-            plane.redefine(v1, v2, v3);
+        {
+            normal = (v2 - v1).crossProduct(v3 - v1);
+            d = -normal.dotProduct(v1);
+        }
     }
     else
     {
         // even row
         bool secondTri = (yParam > xParam);
         if (secondTri)
-            plane.redefine(v0, v2, v3);
+        {
+            normal = (v2 - v0).crossProduct(v3 - v0);
+            d = -normal.dotProduct(v0);
+        }
         else
-            plane.redefine(v0, v1, v2);
+        {
+            normal = (v1 - v0).crossProduct(v2 - v0);
+            d = -normal.dotProduct(v0);
+        }
     }
 
     // Solve plane equation for z
-    return (-plane.normal.x * x
-            - plane.normal.y * y
-            - plane.d) / plane.normal.z;
+    return (-normal.x * x - normal.y * y - d) / normal.z;
 }
 
 float TerrainGeometryManager::getHeightAt(float x, float z)
