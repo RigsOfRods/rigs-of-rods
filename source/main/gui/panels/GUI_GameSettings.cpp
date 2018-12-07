@@ -88,7 +88,7 @@ void RoR::GUI::GameSettings::Draw()
             int replay_step = App::sim_replay_stepping.GetActive();
             if (ImGui::InputInt("Replay stepping", &replay_step))
             {
-                App::sim_replay_stepping.SetActive(replay_len);
+                App::sim_replay_stepping.SetActive(replay_step);
             }
         }
 
