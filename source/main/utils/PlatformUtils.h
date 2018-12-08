@@ -40,13 +40,15 @@ namespace RoR {
 
 extern char PATH_SLASH;
 
-bool FileExists(const char* path);   //!< Path must be UTF-8 encoded.
+bool FileExists(const char *path);   //!< Path must be UTF-8 encoded.
 bool FolderExists(const char* path); //!< Path must be UTF-8 encoded.
 void CreateFolder(const char* path); //!< Path must be UTF-8 encoded.
+void CreateFolderIfNotExists(const char* path);
 
 inline bool FileExists(std::string const& path)   { return FileExists(path.c_str()); }
 inline bool FolderExists(std::string const& path) { return FolderExists(path.c_str()); }
 inline void CreateFolder(std::string const& path) { CreateFolder(path.c_str()); }
+inline void CreateFolderIfNotExists(std::string const& path) { CreateFolderIfNotExists(path.c_str()); }
 
 std::string GetUserHomeDirectory(); //!< Returns UTF-8 path or empty string on error
 std::string GetExecutablePath(); //!< Returns UTF-8 path or empty string on error

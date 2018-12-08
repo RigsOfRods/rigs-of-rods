@@ -43,6 +43,7 @@
 #include <OgreTextureManager.h>
 #include <OgreTimer.h>
 #include <OgreViewport.h>
+#include <OgreBitesConfigDialog.h>
 
 namespace RoR
 {
@@ -60,59 +61,40 @@ OgreSubsystem::~OgreSubsystem()
 
 bool OgreSubsystem::Configure()
 {
-    // Show the configuration dialog and initialise the system
-    // You can skip this and use root.restoreConfig() to load configuration
-    // settings if you were sure there are valid ones saved in ogre.cfg
-    bool use_ogre_config = BSETTING("USE_OGRE_CONFIG", false);
-
-    bool ok = false;
-    if (use_ogre_config)
+    if (!m_ogre_root->restoreConfig ())
     {
-        ok = m_ogre_root->showConfigDialog(NULL);
+        m_ogre_root->showConfigDialog (OgreBites::getNativeConfigDialog ());
     }
-    else
-    {
-        ok = m_ogre_root->restoreConfig();
-    }
-    if (ok)
-    {
-        // If returned true, user clicked OK so initialise
-        // Here we choose to let the system create a default rendering window by passing 'true'
-        m_render_window = m_ogre_root->initialise(false);
 
-        Ogre::ConfigOptionMap ropts = m_ogre_root->getRenderSystem ()->getConfigOptions ();
-        Ogre::uint32 width, height;
-        Ogre::NameValuePairList miscParams;
+    m_render_window = m_ogre_root->initialise(false);
 
-        std::istringstream mode (ropts["Video Mode"].currentValue);
-        Ogre::String token;
-        mode >> width; 
-        mode >> token; // 'x' as seperator between width and height
-        mode >> height;
+    Ogre::ConfigOptionMap ropts = m_ogre_root->getRenderSystem ()->getConfigOptions ();
+    Ogre::uint32 width, height;
+    Ogre::NameValuePairList miscParams;
 
-        miscParams["FSAA"] = ropts["FSAA"].currentValue;
-        miscParams["vsync"] = ropts["VSync"].currentValue;
-        miscParams["gamma"] = ropts["sRGB Gamma Conversion"].currentValue;
+    std::istringstream mode (ropts["Video Mode"].currentValue);
+    Ogre::String token;
+    mode >> width;
+    mode >> token; // 'x' as seperator between width and height
+    mode >> height;
+
+    miscParams["FSAA"] = ropts["FSAA"].currentValue;
+    miscParams["vsync"] = ropts["VSync"].currentValue;
+    miscParams["gamma"] = ropts["sRGB Gamma Conversion"].currentValue;
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-        miscParams["windowProc"] = Ogre::StringConverter::toString ((size_t)OgreBites::WindowEventUtilities::_WndProc);
+    miscParams["windowProc"] = Ogre::StringConverter::toString ((size_t)OgreBites::WindowEventUtilities::_WndProc);
 #endif
 
-        m_render_window = Ogre::Root::getSingleton ().createRenderWindow (
-            "Rigs of Rods version " + Ogre::String (ROR_VERSION_STRING),
-            width, height, ropts["Full Screen"].currentValue == "Yes", &miscParams);
-        OgreBites::WindowEventUtilities::_addRenderWindow (m_render_window);
+    m_render_window = Ogre::Root::getSingleton ().createRenderWindow (
+        "Rigs of Rods version " + Ogre::String (ROR_VERSION_STRING),
+        width, height, ropts["Full Screen"].currentValue == "Yes", &miscParams);
+    OgreBites::WindowEventUtilities::_addRenderWindow (m_render_window);
 
-        // set window icon correctly
-        fixRenderWindowIcon(m_render_window);
+    // set window icon correctly
+    fixRenderWindowIcon(m_render_window);
 
-        return true;
-    }
-    else
-    {
-        ErrorUtils::ShowError(_L("Configuration error"), _L("Run the RoRconfig program first."));
-        exit(1);
-    }
     return true;
+
 }
 
 bool OgreSubsystem::LoadOgrePlugins(Ogre::String const & pluginsfile)

@@ -49,6 +49,14 @@
 
 namespace RoR {
 
+
+void CreateFolderIfNotExists(const char* path)
+{
+    if (!FolderExists(path))
+        CreateFolder(path);
+}
+
+
 #ifdef _MSC_VER
 
 // -------------------------- File/path utils for MS Windows --------------------------
