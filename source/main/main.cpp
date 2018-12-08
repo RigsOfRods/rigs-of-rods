@@ -101,6 +101,7 @@ int main(int argc, char *argv[])
 #elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
             ror_homedir << user_home << PATH_SLASH << "RigsOfRods";
 #endif
+            CreateFolder(ror_homedir.ToCStr());  
             App::sys_user_dir.SetActive(ror_homedir.ToCStr());
         }
 
@@ -108,10 +109,7 @@ int main(int argc, char *argv[])
 
         Str<300> logs_dir;
         logs_dir << App::sys_user_dir.GetActive() << PATH_SLASH << "logs";
-        if (!FolderExists(logs_dir.ToCStr()))
-        {
-            CreateFolder(logs_dir.ToCStr());
-        }
+        CreateFolder(logs_dir.ToCStr());
         App::sys_logs_dir.SetActive(logs_dir);
 
         auto ogre_log_manager = OGRE_NEW Ogre::LogManager();
@@ -128,12 +126,11 @@ int main(int argc, char *argv[])
             return -1;
         }
 
-        Settings::getSingleton().LoadRoRCfg(); // Main config file - path obtained from GVars
+        CreateFolder(App::sys_cache_dir.GetActive());
+        CreateFolder(App::sys_config_dir.GetActive());
+        CreateFolder(App::sys_screenshot_dir.GetActive());
 
-        if (!FolderExists(App::sys_cache_dir.GetActive()))
-        {
-            CreateFolder(App::sys_cache_dir.GetActive());
-        }
+        Settings::getSingleton().LoadRoRCfg(); // Main config file - path obtained from GVars
 
         // ### Process command-line arguments ###
 
