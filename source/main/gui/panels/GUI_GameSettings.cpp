@@ -156,6 +156,16 @@ void RoR::GUI::GameSettings::Draw()
             "Trilinear\0"
             "Anisotropic\0\0");
 
+        if (App::gfx_texture_filter.GetActive() == GfxTexFilter::ANISOTROPIC)
+        {
+            int anisotropy = Ogre::Math::Clamp(App::gfx_anisotropy.GetActive(), 1, 16);
+            int  selection = std::log2(anisotropy);
+            if (ImGui::Combo("Anisotropy", &selection, "1\0""2\0""4\0""8\0""16\0\0"))
+            {
+                App::gfx_anisotropy.SetActive(std::pow(2, selection));
+            }
+        }
+
         DrawGCombo(App::gfx_vegetation_mode, "Vegetation density",
             "None\0"
             "20%\0"

@@ -171,6 +171,7 @@ static TerrainManager*  g_sim_terrain;
  GVarEnum_AP<GfxTexFilter>   gfx_texture_filter   ("gfx_texture_filter",      "Texture Filtering",         GfxTexFilter::TRILINEAR, GfxTexFilter::TRILINEAR);
  GVarEnum_AP<GfxVegetation>  gfx_vegetation_mode  ("gfx_vegetation_mode",     "Vegetation",                GfxVegetation::NONE,     GfxVegetation::NONE);
  GVarEnum_AP<GfxWaterMode>   gfx_water_mode       ("gfx_water_mode",          "Water effects",             GfxWaterMode::BASIC,     GfxWaterMode::BASIC);
+ GVarPod_A<int>           gfx_anisotropy          ("gfx_anisotropy",          "Anisotropy",                4);
  GVarPod_A<bool>          gfx_water_waves         ("gfx_water_waves",         "Waves",                     false);
  GVarPod_A<bool>          gfx_minimap_enabled     ("gfx_minimap_enabled",     "OverviewMap",               true);
  GVarPod_A<int>           gfx_particles_mode      ("gfx_particles_mode",      "Particles",                 0);
