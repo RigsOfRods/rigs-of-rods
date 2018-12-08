@@ -105,6 +105,7 @@ bool OgreSubsystem::Configure()
     fixRenderWindowIcon(m_render_window);
 
     return true;
+
 }
 
 bool OgreSubsystem::LoadOgrePlugins(Ogre::String const & pluginsfile)

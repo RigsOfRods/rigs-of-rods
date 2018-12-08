@@ -101,14 +101,14 @@ int main(int argc, char *argv[])
 #elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
             ror_homedir << user_home << PATH_SLASH << "RigsOfRods";
 #endif
-            CreateFolder(ror_homedir.ToCStr ());
-            App::sys_user_dir.SetActive(ror_homedir.ToCStr ());
+            CreateFolder(ror_homedir.ToCStr());
+            App::sys_user_dir.SetActive(ror_homedir.ToCStr());
         }
 
         // ### Create OGRE default logger early. ###
 
         std::string logs_dir = PathCombine(App::sys_user_dir.GetActive(), "logs");
-        CreateFolder(logs_dir);
+        CreateFolder(logs_dir.c_str());
         App::sys_logs_dir.SetActive(logs_dir.c_str());
 
         auto ogre_log_manager = OGRE_NEW Ogre::LogManager();
@@ -176,6 +176,12 @@ int main(int argc, char *argv[])
             Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup("SrcRG");
             Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup("DstRG");
         }
+
+        CreateFolder(App::sys_cache_dir.GetActive());
+        CreateFolder(App::sys_screenshot_dir.GetActive());
+
+
+        // ### Process command-line arguments ###
 
         if (App::app_state.GetPending() == AppState::PRINT_HELP_EXIT)
         {

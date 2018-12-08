@@ -114,8 +114,12 @@ bool FolderExists(const char* path)
 
 void CreateFolder(const char* path)
 {
-    std::wstring wpath = MSW_Utf8ToWchar(path);
-    CreateDirectoryW(wpath.c_str(), nullptr);
+    if (!FolderExists(path))
+    {
+        std::wstring wpath = MSW_Utf8ToWchar(path);
+        CreateDirectoryW(wpath.c_str(), nullptr);
+    }
+    
 }
 
 std::string GetUserHomeDirectory()
@@ -165,7 +169,8 @@ bool FolderExists(const char* path)
 
 void CreateFolder(const char* path)
 {
-    mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    if(!FolderExists(path))
+        mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 }
 
 std::string GetUserHomeDirectory()

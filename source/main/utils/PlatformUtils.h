@@ -36,7 +36,7 @@ namespace RoR {
 
 extern char PATH_SLASH;
 
-bool FileExists(const char* path);   //!< Path must be UTF-8 encoded.
+bool FileExists(const char *path);   //!< Path must be UTF-8 encoded.
 bool FolderExists(const char* path); //!< Path must be UTF-8 encoded.
 void CreateFolder(const char* path); //!< Path must be UTF-8 encoded.
 
