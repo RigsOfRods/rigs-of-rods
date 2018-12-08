@@ -651,6 +651,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckGfxWaterMode                         (k, v)) { return true; }
     if (CheckGfxSkyMode                           (k, v)) { return true; }
     if (CheckSpeedoImperial                       (k, v)) { return true; }
+    if (CheckInt  (App::gfx_anisotropy,            k, v)) { return true; }
     if (CheckBool (App::gfx_water_waves,           k, v)) { return true; }
     if (CheckBool (App::gfx_minimap_enabled,       k, v)) { return true; }
     if (CheckB2I  (App::gfx_particles_mode,        k, v)) { return true; }
@@ -927,6 +928,7 @@ void Settings::SaveSettings()
     WriteAny (f, App::gfx_flares_mode.conf_name    , GfxFlaresToStr    (App::gfx_flares_mode.GetActive     ()));
     WriteAny (f, App::gfx_water_mode.conf_name     , GfxWaterToStr     (App::gfx_water_mode.GetActive      ()));
     WriteAny (f, App::gfx_sky_mode.conf_name       , GfxSkyToStr       (App::gfx_sky_mode.GetActive        ()));
+    WritePod (f, App::gfx_anisotropy      );
     WriteYN  (f, App::gfx_enable_videocams);
     WriteYN  (f, App::gfx_water_waves     );
     WriteYN  (f, App::gfx_minimap_enabled );

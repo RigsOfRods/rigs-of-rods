@@ -220,7 +220,7 @@ bool ContentManager::OnApplicationStartup(void)
     case GfxTexFilter::BILINEAR:    tfo = TFO_BILINEAR;           break;
     case GfxTexFilter::NONE:        tfo = TFO_NONE;               break;
     }
-    MaterialManager::getSingleton().setDefaultAnisotropy(8);
+    MaterialManager::getSingleton().setDefaultAnisotropy(Math::Clamp(App::gfx_anisotropy.GetActive(), 1, 16));
     MaterialManager::getSingleton().setDefaultTextureFiltering(tfo);
 
     // load all resources now, so the zip files are also initiated
