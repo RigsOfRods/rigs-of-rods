@@ -134,6 +134,9 @@ void RoR::GUI::GameSettings::Draw()
             DrawGIntBox(App::sim_replay_length, "Replay length");
             DrawGIntBox(App::sim_replay_stepping, "Replay stepping");
         }
+        
+        DrawGCheckbox(App::gfx_speedo_digital, "Digital speedometer");
+        DrawGCheckbox(App::gfx_speedo_imperial, "Imperial speedometer");
 
         DrawGCombo(App::sim_gearbox_mode, "Gearbox mode",
             "Automatic shift\0"
