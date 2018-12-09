@@ -214,7 +214,7 @@ private:
 
     Ogre::String getRealPath(Ogre::String path);
     Ogre::String getVirtualPath(Ogre::String path);
-    
+
     void checkForNewFiles(Ogre::String ext);
 
     void checkForNewContent();
@@ -227,22 +227,10 @@ private:
     void loadAllDirectoriesInResourceGroup(Ogre::String group);
     void loadAllZipsInResourceGroup(Ogre::String group);
 
-
-
-    std::string                  m_filenames_hash;   //!< stores SHA1 hash over the content, for quick update detection
-    std::map<Ogre::String, bool> m_loaded_resource_bundles;
-
-
-    int rgcounter;              //!< resource group counter, used to track the resource groups created
-    
-    std::vector<Ogre::String> known_extensions; //!< the extensions we track in the cache system
-
-    std::vector<CacheEntry> entries; //!< this holds all files
-
-    std::map<Ogre::String, Ogre::String> zipHashes;
-
-    // categories
-    std::map<int, Category_Entry> categories;
-    
-
+    std::string                          m_filenames_hash;   //!< stores SHA1 hash over the content, for quick update detection
+    std::map<Ogre::String, bool>         m_loaded_resource_bundles;
+    std::vector<CacheEntry>              m_entries;
+    std::vector<Ogre::String>            m_known_extensions; //!< the extensions we track in the cache system
+    std::map<int, Category_Entry>        m_categories;
+    std::map<Ogre::String, Ogre::String> m_temp_zip_hashes;  //!< Only used during cache update
 };
