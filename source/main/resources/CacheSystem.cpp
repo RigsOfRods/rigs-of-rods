@@ -54,39 +54,29 @@
 using namespace Ogre;
 using namespace RoR;
 
-// default constructor resets the data.
 CacheEntry::CacheEntry() :
-    //authors
     addtimestamp(0),
     beamcount(0),
     categoryid(0),
-    categoryname(""),
     changedornew(false),
     commandscount(0),
     custom_particles(false),
     customtach(false),
     deleted(false),
-    description(""),
-    dname(""),
-    driveable(0),
-    enginetype('t'),
+    driveable(0), // driveable = 0 = NOT_DRIVEABLE
+    enginetype('t'), // enginetype = t = truck is default
     exhaustscount(0),
-    fext(""),
-    filecachename(""),
     fileformatversion(0),
     filetime(0),
     fixescount(0),
     flarescount(0),
     flexbodiescount(0),
-    fname(""),
-    fname_without_uid(""),
     forwardcommands(false),
     hasSubmeshs(false),
     hydroscount(0),
     importcommands(false),
     loadmass(0),
     maxrpm(0),
-    minitype(""),
     minrpm(0),
     nodecount(0),
     number(0),
@@ -98,35 +88,30 @@ CacheEntry::CacheEntry() :
     rotatorscount(0),
     shockcount(0),
     soundsourcescount(0),
-    tags(""),
     torque(0),
     truckmass(0),
     turbojetcount(0),
     turbopropscount(0),
-    uniqueid(""),
     usagecounter(0),
     version(0),
     wheelcount(0),
     wingscount(0)
 {
-    // driveable = 0 = NOT_DRIVEABLE
-    // enginetype = t = truck is default
 }
 
-CacheSystem::CacheSystem() :
-    rgcounter(0)
+CacheSystem::CacheSystem()
 {
     // register the extensions
-    known_extensions.push_back("machine");
-    known_extensions.push_back("fixed");
-    known_extensions.push_back("terrn2");
-    known_extensions.push_back("truck");
-    known_extensions.push_back("car");
-    known_extensions.push_back("boat");
-    known_extensions.push_back("airplane");
-    known_extensions.push_back("trailer");
-    known_extensions.push_back("load");
-    known_extensions.push_back("train");
+    m_known_extensions.push_back("machine");
+    m_known_extensions.push_back("fixed");
+    m_known_extensions.push_back("terrn2");
+    m_known_extensions.push_back("truck");
+    m_known_extensions.push_back("car");
+    m_known_extensions.push_back("boat");
+    m_known_extensions.push_back("airplane");
+    m_known_extensions.push_back("trailer");
+    m_known_extensions.push_back("load");
+    m_known_extensions.push_back("train");
 }
 
 void CacheSystem::LoadModCache(CacheValidityState validity)
@@ -159,7 +144,7 @@ void CacheSystem::LoadModCache(CacheValidityState validity)
     }
 
     // show error on zero content
-    if (entries.empty())
+    if (m_entries.empty())
     {
         ErrorUtils::ShowError(_L("No content installed"), _L("You have no content installed"));
         exit(1337);
@@ -171,7 +156,7 @@ void CacheSystem::LoadModCache(CacheValidityState validity)
 CacheEntry* CacheSystem::FindEntryByFilename(std::string const & filename)
 {
     std::regex needle("^" + filename + "$", std::regex::icase); // Ignore case
-    for (CacheEntry& entry : entries)
+    for (CacheEntry& entry : m_entries)
     {
         if (std::regex_match(entry.fname, needle) || std::regex_match(entry.fname_without_uid, needle))
         {
@@ -193,12 +178,12 @@ void CacheSystem::UnloadActorDefFromMemory(std::string const & filename)
 
 std::map<int, Category_Entry>* CacheSystem::getCategories()
 {
-    return &categories;
+    return &m_categories;
 }
 
 std::vector<CacheEntry>* CacheSystem::getEntries()
 {
-    return &entries;
+    return &m_entries;
 }
 
 String CacheSystem::getCacheConfigFilename(bool full)
@@ -245,7 +230,7 @@ CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
 
     if (j_doc["format_version"].GetInt() != CACHE_FILE_FORMAT)
     {
-        entries.clear();
+        m_entries.clear();
         RoR::Log("[RoR|ModCache] invalid cachefile format, performing full rebuild.");
         return CACHE_NEEDS_UPDATE_FULL;
     }
@@ -284,9 +269,9 @@ void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & ou
     Ogre::StringUtil::trim(out_entry.guid);
 
     int category_id = j_entry["categoryid"].GetInt();
-    if (categories.find(category_id) != categories.end())
+    if (m_categories.find(category_id) != m_categories.end())
     {
-        out_entry.categoryname = categories[category_id].title;
+        out_entry.categoryname = m_categories[category_id].title;
         out_entry.categoryid = category_id;
     }
     else
@@ -355,7 +340,7 @@ void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & ou
 void CacheSystem::LoadCacheFileJson()
 {
     // Clear existing entries
-    entries.clear();
+    m_entries.clear();
 
     std::ifstream ifs(this->getCacheConfigFilename(true)); // TODO: Load using OGRE resource system ~ only_a_ptr, 10/2018
     rapidjson::IStreamWrapper isw(ifs);
@@ -372,8 +357,8 @@ void CacheSystem::LoadCacheFileJson()
     {
         CacheEntry entry;
         this->ImportEntryFromJson(j_entry, entry);
-        entry.number = static_cast<int>(entries.size() + 1); // Let's number mods from 1
-        entries.push_back(entry);
+        entry.number = static_cast<int>(m_entries.size() + 1); // Let's number mods from 1
+        m_entries.push_back(entry);
     }
 }
 
@@ -408,9 +393,9 @@ void CacheSystem::incrementalCacheUpdate()
     UTFString tmp = "";
 
     int counter = 0;
-    for (std::vector<CacheEntry>::iterator it = entries.begin(); it != entries.end(); it++ , counter++)
+    for (auto it = m_entries.begin(); it != m_entries.end(); it++ , counter++)
     {
-        int progress = ((float)counter / (float)(entries.size())) * 100;
+        int progress = ((float)counter / (float)(m_entries.size())) * 100;
         tmp = _L("incremental check: deleted and changed files\n") + ANSI_TO_UTF(it->resource_bundle_type) + _L(": ") + ANSI_TO_UTF(it->fname);
         loading_win->setProgress(progress, tmp);
 
@@ -492,11 +477,11 @@ void CacheSystem::incrementalCacheUpdate()
 
     LOG("* incremental check (5/5): duplicates ...");
     loading_win->setProgress(90, _L("incremental check: duplicates\n"));
-    for (std::vector<CacheEntry>::iterator it = entries.begin(); it != entries.end(); it++)
+    for (auto it = m_entries.begin(); it != m_entries.end(); it++)
     {
         if (it->deleted)
             continue;
-        for (std::vector<CacheEntry>::iterator it2 = entries.begin(); it2 != entries.end(); it2++)
+        for (std::vector<CacheEntry>::iterator it2 = m_entries.begin(); it2 != m_entries.end(); it2++)
         {
             if (it2->deleted)
                 continue;
@@ -577,7 +562,7 @@ void CacheSystem::incrementalCacheUpdate()
 
 CacheEntry* CacheSystem::getEntry(int modid)
 {
-    for (std::vector<CacheEntry>::iterator it = entries.begin(); it != entries.end(); it++)
+    for (std::vector<CacheEntry>::iterator it = m_entries.begin(); it != m_entries.end(); it++)
     {
         if (modid == it->number)
             return &(*it);
@@ -681,7 +666,7 @@ void CacheSystem::WriteCacheFileJson()
 
     // Entries
     rapidjson::Value j_entries(rapidjson::kArrayType);
-    for (CacheEntry const& entry : entries)
+    for (CacheEntry const& entry : m_entries)
     {
         if (!entry.deleted)
         {
@@ -763,7 +748,7 @@ void CacheSystem::addFile(String filename, String archiveType, String archiveDir
             entry.filetime = RoR::GetFileLastModifiedTime(archiveDirectory);
             entry.resource_bundle_type = archiveType;
             entry.resource_bundle_path = archiveDirectory;
-            entry.number = static_cast<int>(entries.size() + 1); // Let's number mods from 1
+            entry.number = static_cast<int>(m_entries.size() + 1); // Let's number mods from 1
             entry.addtimestamp = getTimeStamp();
             entry.usagecounter = 0;
             entry.deleted = false;
@@ -774,8 +759,8 @@ void CacheSystem::addFile(String filename, String archiveType, String archiveDir
             entry.changedornew = true;
             generateFileCache(entry);
             if (archiveType == "Zip")
-                entry.hash = zipHashes[getVirtualPath(archiveDirectory)];
-            entries.push_back(entry);
+                entry.hash = m_temp_zip_hashes[getVirtualPath(archiveDirectory)];
+            m_entries.push_back(entry);
         }
         catch (ItemIdentityException& e)
         {
@@ -1129,7 +1114,7 @@ void CacheSystem::generateFileCache(CacheEntry& entry, Ogre::String directory)
 
 void CacheSystem::parseKnownFilesOneRG(Ogre::String rg)
 {
-    for (std::vector<Ogre::String>::iterator sit = known_extensions.begin(); sit != known_extensions.end(); sit++)
+    for (std::vector<Ogre::String>::iterator sit = m_known_extensions.begin(); sit != m_known_extensions.end(); sit++)
         parseFilesOneRG(*sit, rg);
 }
 
@@ -1137,7 +1122,7 @@ void CacheSystem::parseKnownFilesOneRGDirectory(Ogre::String rg, Ogre::String di
 {
     String dirb = getVirtualPath(dir);
 
-    for (std::vector<Ogre::String>::iterator it = known_extensions.begin(); it != known_extensions.end(); ++it)
+    for (std::vector<Ogre::String>::iterator it = m_known_extensions.begin(); it != m_known_extensions.end(); ++it)
     {
         FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo(rg, "*." + *it);
         for (FileInfoList::iterator iterFiles = files->begin(); iterFiles != files->end(); ++iterFiles)
@@ -1164,7 +1149,7 @@ void CacheSystem::parseFilesOneRG(Ogre::String ext, Ogre::String rg)
 
 bool CacheSystem::isFileInEntries(Ogre::String filename)
 {
-    for (std::vector<CacheEntry>::iterator it = entries.begin(); it != entries.end(); ++it)
+    for (std::vector<CacheEntry>::iterator it = m_entries.begin(); it != m_entries.end(); ++it)
     {
         if (it->fname == filename)
             return true;
@@ -1174,7 +1159,7 @@ bool CacheSystem::isFileInEntries(Ogre::String filename)
 
 void CacheSystem::checkForNewKnownFiles()
 {
-    for (std::vector<Ogre::String>::iterator it = known_extensions.begin(); it != known_extensions.end(); ++it)
+    for (std::vector<Ogre::String>::iterator it = m_known_extensions.begin(); it != m_known_extensions.end(); ++it)
         checkForNewFiles(*it);
 }
 
@@ -1268,7 +1253,7 @@ void CacheSystem::LoadCategoriesConfig()
         ce.title = Ogre::String(title);
         ce.number = number;
         if (!ce.title.empty())
-            categories[number] = ce;
+            m_categories[number] = ce;
     }
     fclose(fd);
 }
@@ -1290,7 +1275,7 @@ bool CacheSystem::checkResourceLoaded(Ogre::String & filename, Ogre::String& gro
 
     std::vector<CacheEntry>::iterator it;
 
-    for (it = entries.begin(); it != entries.end(); it++)
+    for (it = m_entries.begin(); it != m_entries.end(); it++)
     {
         // case insensitive comparison
         String fname = it->fname;
@@ -1388,7 +1373,7 @@ void CacheSystem::loadSingleZipInternal(String zippath, int cfactor)
 {
     String realzipPath = getRealPath(zippath);
     String hash = HashFile(realzipPath.c_str());
-    zipHashes[getVirtualPath(zippath)] = hash;
+    m_temp_zip_hashes[getVirtualPath(zippath)] = hash;
 
     String compr = "";
     if (cfactor > 99)
@@ -1397,8 +1382,8 @@ void CacheSystem::loadSingleZipInternal(String zippath, int cfactor)
         compr = "(Compression: " + TOSTRING(cfactor) + ")";
     LOG("Adding archive " + realzipPath + " (hash: "+String(hash)+") " + compr);
 
-    rgcounter++;
-    String rgname = "General-" + TOSTRING(rgcounter);
+    static int rg_counter = 0;
+    String rgname = "General-" + std::to_string(rg_counter++);
 
     try
     {
@@ -1539,7 +1524,7 @@ void CacheSystem::checkForNewDirectoriesInResourceGroup(std::set<std::string>con
 void CacheSystem::checkForNewContent() // Only used when performing "incremental update"
 {
     std::set<std::string> resource_bundles; // List all existing bundles
-    for (std::vector<CacheEntry>::iterator it = entries.begin(); it != entries.end(); it++)
+    for (auto it = m_entries.begin(); it != m_entries.end(); it++)
     {
         resource_bundles.insert(this->getVirtualPath(it->resource_bundle_path));
     }
