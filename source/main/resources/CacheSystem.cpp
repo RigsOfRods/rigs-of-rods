@@ -209,11 +209,6 @@ bool CacheSystem::resourceExistsInAllGroups(Ogre::String filename)
 
 CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
 {
-    if (BSETTING("regen-cache-only", false))
-    {
-        return CACHE_NEEDS_UPDATE_INCREMENTAL;
-    }
-
     // First, open cache file and get SHA1 hash for quick update check
     std::ifstream ifs(this->getCacheConfigFilename(true)); // TODO: Load using OGRE resource system ~ only_a_ptr, 10/2018
     rapidjson::IStreamWrapper isw(ifs);
