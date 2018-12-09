@@ -2260,11 +2260,11 @@ void Actor::CalcCabCollisions()
     {
         ar_nodes[ar_contacters[i]].nd_has_mesh_contact = false;
     }
-    if (!ar_disable_self_collision)
+    if (m_intra_point_col_detector != nullptr)
     {
-        IntraPointCD()->UpdateIntraPoint(this);
+        m_intra_point_col_detector->UpdateIntraPoint(this);
         ResolveIntraActorCollisions(PHYSICS_DT,
-            *IntraPointCD(),
+            *m_intra_point_col_detector,
             ar_num_collcabs,
             ar_collcabs,
             ar_cabs,
@@ -2726,7 +2726,7 @@ void Actor::prepareInside(bool inside)
   //      m_gfx_actor->GetCabTransMaterial()->setReceiveShadows(!inside);
   //  }
 
-    if (m_gfx_reduce_shadows)
+    if (App::gfx_reduce_shadows.GetActive())
     {
         m_gfx_actor->SetCastShadows(!inside);
     }
@@ -4232,8 +4232,6 @@ Actor::Actor(
     , ar_dashboard(nullptr)
     , m_gfx_detail_level(0)
     , ar_disable_aerodyn_turbulent_drag(false)
-    , ar_disable_actor2actor_collision(false)
-    , ar_disable_self_collision(false)
     , ar_elevator(0)
     , ar_aerial_flap(0)
     , ar_fusedrag(Ogre::Vector3::ZERO)

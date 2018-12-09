@@ -665,7 +665,9 @@ extern GVarStr_AP<200>         sim_terrain_name;
 extern GVarPod_A<bool>         sim_replay_enabled;
 extern GVarPod_A<int>          sim_replay_length;
 extern GVarPod_A<int>          sim_replay_stepping;
-extern GVarPod_A<bool>             sim_position_storage;
+extern GVarPod_A<bool>         sim_position_storage;
+extern GVarPod_A<bool>         sim_no_collisions;
+extern GVarPod_A<bool>         sim_no_self_collisions;
 extern GVarEnum_AP<SimGearboxMode> sim_gearbox_mode;
 
 // Multiplayer
@@ -758,6 +760,10 @@ extern GVarPod_A<int>          gfx_fps_limit;
 extern GVarPod_A<bool>         gfx_speedo_digital;
 extern GVarPod_A<bool>         gfx_speedo_imperial;
 extern GVarPod_A<bool>         gfx_flexbody_lods;
+extern GVarPod_A<bool>         gfx_flexbody_cache;
+extern GVarPod_A<bool>         gfx_reduce_shadows;
+extern GVarPod_A<bool>         gfx_simple_materials;
+extern GVarPod_A<bool>         gfx_enable_rtshaders;
 
 // Getters
 OgreSubsystem*       GetOgreSubsystem();

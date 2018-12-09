@@ -109,7 +109,6 @@ private:
     ProceduralManager*        m_procedural_mgr;
     Road*                     m_road;
     Ogre::SceneNode*          m_staticgeometry_bake_node;
-    bool                      m_use_rtshadersystem;
 
     std::vector<Forests::PagedGeometry*> m_paged_geometry;
 };

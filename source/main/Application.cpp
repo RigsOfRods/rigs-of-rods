@@ -90,7 +90,9 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_A<bool>          sim_replay_enabled      ("sim_replay_enabled",      "Replay mode",               false);
  GVarPod_A<int>           sim_replay_length       ("sim_replay_length",       "Replay length",             200);
  GVarPod_A<int>           sim_replay_stepping     ("sim_replay_stepping",     "Replay Steps per second",   1000);
- GVarPod_A<bool>             sim_position_storage ("sim_position_storage",    "Position Storage",          false);
+ GVarPod_A<bool>          sim_position_storage    ("sim_position_storage",    "Position Storage",          false);
+ GVarPod_A<bool>          sim_no_collisions       ("sim_no_collisions",       "DisableCollisions",         false);
+ GVarPod_A<bool>          sim_no_self_collisions  ("sim_no_self_collisions",  "DisableSelfCollisions",     false);
  GVarEnum_AP<SimGearboxMode> sim_gearbox_mode     ("sim_gearbox_mode",        "GearboxMode",               SimGearboxMode::AUTO,    SimGearboxMode::AUTO);
 
 // Multiplayer
@@ -186,6 +188,10 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_A<bool>          gfx_speedo_digital      ("gfx_speedo_digital",      "DigitalSpeedo",             false);
  GVarPod_A<bool>          gfx_speedo_imperial     ("gfx_speedo_imperial",     "gfx_speedo_imperial",       false);
  GVarPod_A<bool>          gfx_flexbody_lods       ("gfx_flexbody_lods",       "Flexbody_EnableLODs",       false);
+ GVarPod_A<bool>          gfx_flexbody_cache      ("gfx_flexbody_cache",      "Flexbody_UseCache",         false);
+ GVarPod_A<bool>          gfx_reduce_shadows      ("gfx_reduce_shadows",      "Shadow optimizations",      true);
+ GVarPod_A<bool>          gfx_simple_materials    ("gfx_simple_materials",    "SimpleMaterials",           false);
+ GVarPod_A<bool>          gfx_enable_rtshaders    ("gfx_enable_rtshaders",    "Use RTShader System",       false);
 
 // Instance management
 void SetMainMenu       (MainMenu* obj)                { g_main_menu = obj; }

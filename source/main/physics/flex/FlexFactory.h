@@ -168,7 +168,6 @@ public:
 
     FlexFactory(
         ActorSpawner*               spawner,
-        bool                      is_flexbody_cache_enabled,
         int                       cache_entry_number = -1
         );
 

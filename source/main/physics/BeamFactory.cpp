@@ -1094,22 +1094,22 @@ void ActorManager::UpdatePhysicsSimulation()
             std::vector<std::function<void()>> tasks;
             for (auto actor : m_actors)
             {
-                if (actor->ar_update_physics && !actor->ar_disable_actor2actor_collision)
+                if (actor->ar_update_physics && actor->m_inter_point_col_detector != nullptr)
                 {
                     auto func = std::function<void()>([this, actor]()
                         {
-                            actor->InterPointCD()->UpdateInterPoint(actor);
+                            actor->m_inter_point_col_detector->UpdateInterPoint(actor);
                             if (actor->ar_collision_relevant)
                             {
                                 ResolveInterActorCollisions(PHYSICS_DT,
-                                    *(actor->InterPointCD()),
+                                    *actor->m_inter_point_col_detector,
                                     actor->ar_num_collcabs,
                                     actor->ar_collcabs,
                                     actor->ar_cabs,
                                     actor->ar_inter_collcabrate,
                                     actor->ar_nodes,
                                     actor->ar_collision_range,
-                                    *(actor->ar_submesh_ground_model));
+                                    *actor->ar_submesh_ground_model);
                             }
                         });
                     tasks.push_back(func);

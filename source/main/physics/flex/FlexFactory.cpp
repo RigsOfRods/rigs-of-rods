@@ -53,12 +53,11 @@ const char * FlexBodyFileIO::SIGNATURE = "RoR FlexBody";
 
 FlexFactory::FlexFactory(
         ActorSpawner*               rig_spawner,
-        bool                      is_flexbody_cache_enabled,
         int                       cache_entry_number
         ):
     m_rig_spawner(rig_spawner),
     m_is_flexbody_cache_loaded(false),
-    m_is_flexbody_cache_enabled(is_flexbody_cache_enabled),
+    m_is_flexbody_cache_enabled(App::gfx_flexbody_cache.GetActive()),
     m_flexbody_cache_next_index(0)
 {
     m_flexbody_cache.SetCacheEntryNumber(cache_entry_number);

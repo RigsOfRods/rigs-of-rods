@@ -166,8 +166,6 @@ public:
     Ogre::Vector3     GetCameraDir()                    { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_dir].RelPosition).normalisedCopy(); }
     Ogre::Vector3     GetCameraRoll()                   { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_roll].RelPosition).normalisedCopy(); }
     Ogre::Vector3     GetFFbBodyForces() const          { return m_force_sensors.out_body_forces; }
-    PointColDetector* IntraPointCD()                    { return m_intra_point_col_detector; }
-    PointColDetector* InterPointCD()                    { return m_inter_point_col_detector; }
     RoR::GfxActor*    GetGfxActor()                     { return m_gfx_actor.get(); }
     void              RequestUpdateHudFeatures()        { m_hud_features_ok = false; }
     Ogre::Vector3     getNodePosition(int nodeNumber);     //!< Returns world position of node
@@ -347,8 +345,6 @@ public:
     bool ar_right_blink_on:1; //!< Gfx state; turn signals
     bool ar_warn_blink_on:1;  //!< Gfx state; turn signals
     bool ar_update_physics:1; //!< Physics state; Should this actor be updated (locally) in the next physics step?
-    bool ar_disable_self_collision:1; //!< Physics attribute; clone of RoR.cfg entry "DisableSelfCollisions"
-    bool ar_disable_actor2actor_collision:1; //!< Physics attribute; clone of RoR.cfg entry "DisableCollisions"
     bool ar_disable_aerodyn_turbulent_drag:1; //!< Physics state
     bool ar_engine_hydraulics_ready:1; //!< Sim state; does engine have enough RPM to power hydraulics?
     bool ar_gui_use_engine_max_rpm:1;  //!< Gfx attr
@@ -514,7 +510,6 @@ private:
     bool m_custom_particles_enabled:1;      //!< Gfx state
     bool m_cinecam_is_rotation_center:1;    //<! Attribute; filled at spawn
     bool m_preloaded_with_terrain:1;        //!< Spawn context (TODO: remove!)
-    bool m_gfx_reduce_shadows:1;        //!< Gfx switch; alias of RoR.cfg entry "Shadow optimizations"
     bool m_beam_break_debug_enabled:1;  //!< Logging state
     bool m_beam_deform_debug_enabled:1; //!< Logging state
     bool m_trigger_debug_enabled:1;     //!< Logging state
