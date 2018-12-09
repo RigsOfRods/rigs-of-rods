@@ -1638,16 +1638,18 @@ void SimController::UpdateSimulation(float dt)
         else if (rq.asr_origin == ActorSpawnRequest::Origin::TERRN_DEF)
         {
             Actor* fresh_actor = this->SpawnActorDirectly(rq);
-
-            if (rq.asr_terrn_machine)
+            if (fresh_actor != nullptr) // Error already logged
             {
-                fresh_actor->ar_driveable = MACHINE;
-            }
+                if (rq.asr_terrn_machine)
+                {
+                    fresh_actor->ar_driveable = MACHINE;
+                }
 
-            if (App::GetSimController()->GetGfxScene().GetSurveyMap() != nullptr)
-            {
-                App::GetSimController()->GetGfxScene().GetSurveyMap()->createMapEntity(
-                    SurveyMapManager::getTypeByDriveable(fresh_actor->ar_driveable));
+                if (App::GetSimController()->GetGfxScene().GetSurveyMap() != nullptr)
+                {
+                    App::GetSimController()->GetGfxScene().GetSurveyMap()->createMapEntity(
+                        SurveyMapManager::getTypeByDriveable(fresh_actor->ar_driveable));
+                }
             }
         }
         else
