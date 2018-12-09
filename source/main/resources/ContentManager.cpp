@@ -70,7 +70,6 @@ using namespace RoR;
 DECLARE_RESOURCE_PACK( OGRE_CORE,             "OgreCore",             "OgreCoreRG");
 DECLARE_RESOURCE_PACK( WALLPAPERS,            "wallpapers",           "Wallpapers");
 DECLARE_RESOURCE_PACK( AIRFOILS,              "airfoils",             "AirfoilsRG");
-DECLARE_RESOURCE_PACK( BEAM_OBJECTS,          "beamobjects",          "BeamObjectsRG");
 DECLARE_RESOURCE_PACK( CAELUM,                "caelum",               "CaelumRG");
 DECLARE_RESOURCE_PACK( CUBEMAPS,              "cubemaps",             "CubemapsRG");
 DECLARE_RESOURCE_PACK( DASHBOARDS,            "dashboards",           "DashboardsRG");
@@ -266,6 +265,10 @@ void ContentManager::InitModCache()
     exploreFolders("TerrainFolders");
     exploreZipFolders("Packs"); // this is required for skins to work
 
+    ResourceGroupManager::getSingleton().addResourceLocation(
+        content_base + "resources" + PATH_SLASH + "beamobjects.zip", "Zip", "RoR_BeamObjects", true);
+    exploreZipFolders("RoR_BeamObjects");
+
     LOG("RoR|ContentManager: Calling initialiseAllResourceGroups() - Content");
     try
     {
@@ -383,7 +386,6 @@ void ContentManager::LoadGameplayResources()
     if (!m_base_resource_loaded)
     {
         this->AddResourcePack(ContentManager::ResourcePack::AIRFOILS);
-        this->AddResourcePack(ContentManager::ResourcePack::BEAM_OBJECTS);
         this->AddResourcePack(ContentManager::ResourcePack::TEXTURES);
         this->AddResourcePack(ContentManager::ResourcePack::ICONS);
         this->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
