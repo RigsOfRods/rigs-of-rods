@@ -229,11 +229,6 @@ String Settings::getSetting(String key, String defaultValue)
     return it->second;
 }
 
-UTFString Settings::getUTFSetting(UTFString key, UTFString defaultValue)
-{
-    return getSetting(key, defaultValue);
-}
-
 int Settings::getIntegerSetting(String key, int defaultValue )
 {
     settings_map_t::iterator it = settings.find(key);
@@ -288,11 +283,6 @@ void Settings::setSettingScriptSafe(const String &key, const String &value)
 }
 
 void Settings::setSetting(String key, String value)
-{
-    settings[key] = value;
-}
-
-void Settings::setUTFSetting(UTFString key, UTFString value)
 {
     settings[key] = value;
 }
@@ -664,6 +654,10 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckInt  (App::gfx_fps_limit,             k, v)) { return true; }
     if (CheckBool (App::gfx_speedo_digital,        k, v)) { return true; }
     if (CheckBool (App::gfx_flexbody_lods,         k, v)) { return true; }
+    if (CheckBool (App::gfx_flexbody_cache,        k, v)) { return true; }
+    if (CheckBool (App::gfx_reduce_shadows,        k, v)) { return true; }
+    if (CheckBool (App::gfx_simple_materials,      k, v)) { return true; }
+    if (CheckBool (App::gfx_enable_rtshaders,      k, v)) { return true; }
     // Audio
     if (CheckFloat(App::audio_master_volume,       k, v)) { return true; }
     if (CheckBool (App::audio_enable_creak,        k, v)) { return true; }
@@ -694,6 +688,8 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckInt  (App::sim_replay_length,         k, v)) { return true; }
     if (CheckInt  (App::sim_replay_stepping,       k, v)) { return true; }
     if (CheckBool (App::sim_position_storage,      k, v)) { return true; }
+    if (CheckBool (App::sim_no_collisions,         k, v)) { return true; }
+    if (CheckBool (App::sim_no_self_collisions,    k, v)) { return true; }
 
     return false;
 }
@@ -905,6 +901,8 @@ void Settings::SaveSettings()
     WritePod (f, App::sim_replay_length     );
     WritePod (f, App::sim_replay_stepping   );
     WriteYN  (f, App::sim_position_storage  );
+    WriteYN  (f, App::sim_no_collisions     );
+    WriteYN  (f, App::sim_no_self_collisions);
 
     f << std::endl << "; Input/Output" << std::endl;
     WriteAny (f, App::io_input_grab_mode.conf_name, IoInputGrabToStr(App::io_input_grab_mode.GetActive()));
@@ -944,6 +942,10 @@ void Settings::SaveSettings()
     WritePod (f, App::gfx_fov_external    );
     WritePod (f, App::gfx_fov_internal    );
     WriteYN  (f, App::gfx_flexbody_lods   );
+    WriteYN  (f, App::gfx_flexbody_cache  );
+    WriteYN  (f, App::gfx_reduce_shadows  );
+    WriteYN  (f, App::gfx_simple_materials);
+    WriteYN  (f, App::gfx_enable_rtshaders);
 
     f << std::endl << "; Audio" << std::endl;
     WritePod (f, App::audio_master_volume);

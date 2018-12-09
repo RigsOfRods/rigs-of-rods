@@ -46,7 +46,6 @@ void ShowVersion();
 // some shortcuts to improve code readability
 #define SETTINGS          Settings::getSingleton()
 #define SSETTING(x, y)    Settings::getSingleton().getSetting(x, y)            //<! get string setting
-#define UTFSSETTING(x, y) Settings::getSingleton().getUTFSetting(x, y)         //<! get UTF string setting
 #define BSETTING(x, y)    Settings::getSingleton().getBooleanSetting(x, y)     //<! get boolean setting
 #define ISETTING(x, y)    Settings::getSingleton().getIntegerSetting(x, y)     //<! get int setting
 #define FSETTING(x, y)    Settings::getSingleton().getFloatSetting(x, y)       //<! get float setting
@@ -117,7 +116,6 @@ class Settings : public RoRSingleton<Settings>, public ZeroedMemoryAllocator
 public:
 
     Ogre::String getSetting(Ogre::String key, Ogre::String defaultValue);
-    Ogre::UTFString getUTFSetting(Ogre::UTFString key, Ogre::UTFString defaultValue);
     bool getBooleanSetting(Ogre::String key, bool defaultValue);
     float getFloatSetting(Ogre::String key, float defaultValue);
     int getIntegerSetting(Ogre::String key, int defaultValue);
@@ -126,7 +124,6 @@ public:
     void setSettingScriptSafe(const Ogre::String& key, const Ogre::String& value);
 
     void setSetting(Ogre::String key, Ogre::String value);
-    void setUTFSetting(Ogre::UTFString key, Ogre::UTFString value);
 
     void LoadRoRCfg(); // Reads GVars
 
@@ -151,11 +148,6 @@ public:
     {
     };
 #endif
-
-    std::map<Ogre::String, Ogre::String> GetSettingMap()
-    {
-        return settings;
-    }
 
 protected:
 

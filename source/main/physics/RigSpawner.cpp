@@ -297,7 +297,6 @@ void ActorSpawner::InitializeRig()
     m_actor->m_fusealge_width=0;
     m_actor->ar_brake_force=30000.0;
     m_actor->m_handbrake_force = 2 * m_actor->ar_brake_force;
-    m_actor->m_gfx_reduce_shadows = SETTINGS.getBooleanSetting("Shadow optimizations", true);
 
     m_actor->m_num_proped_wheels=0;
 
@@ -350,14 +349,12 @@ void ActorSpawner::InitializeRig()
 
     /* Collisions */
 
-    m_actor->ar_disable_actor2actor_collision = BSETTING("DisableCollisions", false);
-    if (! m_actor->ar_disable_actor2actor_collision)
+    if (!App::sim_no_collisions.GetActive())
     {
         m_actor->m_inter_point_col_detector = new PointColDetector();
     }
 
-    m_actor->ar_disable_self_collision = BSETTING("DisableSelfCollisions", false);
-    if (! m_actor->ar_disable_self_collision)
+    if (!App::sim_no_self_collisions.GetActive())
     {
         m_actor->m_intra_point_col_detector = new PointColDetector();
     }
@@ -375,7 +372,6 @@ void ActorSpawner::InitializeRig()
 
     m_flex_factory = RoR::FlexFactory(
         this,
-        BSETTING("Flexbody_UseCache", false),
         m_cache_entry_number
         );
 
@@ -386,7 +382,7 @@ void ActorSpawner::InitializeRig()
 
     m_placeholder_managedmat = RoR::OgreSubsystem::GetMaterialByName("rigsofrods/managedmaterial-placeholder"); // Built-in
 
-    m_apply_simple_materials = BSETTING("SimpleMaterials", false);
+    m_apply_simple_materials = App::gfx_simple_materials.GetActive();
     if (m_apply_simple_materials)
     {
         m_simple_material_base = RoR::OgreSubsystem::GetMaterialByName("tracks/simple"); // Built-in material
@@ -6733,7 +6729,7 @@ void ActorSpawner::FinalizeGfxSetup()
                 Ogre::ColourValue(0,0,0)
             );
         }
-        if (m_actor->m_gfx_reduce_shadows)
+        if (App::gfx_reduce_shadows.GetActive())
         {
             backmat->setReceiveShadows(false);
         }
@@ -7006,13 +7002,9 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
         else
         {
             Ogre::NameValuePairList misc;
-            if (!SSETTING("VideoCameraFSAA", "").empty())
-                misc["FSAA"] = SSETTING("VideoCameraFSAA", "");
 
-            if (!SSETTING("VideoCameraColourDepth", "").empty())
-                misc["colourDepth"] = SSETTING("VideoCameraColourDepth", "");
-            else
-                misc["colourDepth"] = "32";
+            Ogre::ConfigOptionMap ropts = App::GetOgreSubsystem()->GetOgreRoot()->getRenderSystem()->getConfigOptions();
+            misc["FSAA"] = Ogre::StringConverter::parseInt(ropts["FSAA"].currentValue, 0);
 
             if (ISETTING("VideoCameraLeft_" + TOSTRING(counter), 0) > 0)
                 misc["left"] = SSETTING("VideoCameraLeft_" + TOSTRING(counter), "");

@@ -34,7 +34,6 @@
 #include "ProceduralManager.h"
 #include "Road2.h"
 #include "RoRFrameListener.h"
-#include "Settings.h"
 #include "SoundScriptManager.h"
 #include "SurveyMapManager.h"
 #include "TerrainGeometryManager.h"
@@ -60,7 +59,6 @@ inline float getTerrainHeight(Real x, Real z, void* unused = 0)
 }
 
 TerrainObjectManager::TerrainObjectManager(TerrainManager* terrainManager) :
-    m_use_rtshadersystem(BSETTING("Use RTShader System", false)),
     terrainManager(terrainManager)
 {
     //prepare for baking
@@ -1026,7 +1024,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         {
             char matn[256] = "";
             sscanf(ptline, "generateMaterialShaders %s", matn);
-            if (m_use_rtshadersystem)
+            if (RoR::App::gfx_enable_rtshaders.GetActive())
             {
                 MaterialPtr mat = MaterialManager::getSingleton().create(matn,"generatedMaterialShaders");
                 Ogre::RTShader::ShaderGenerator::getSingleton().createShaderBasedTechnique(*mat, Ogre::MaterialManager::DEFAULT_SCHEME_NAME, Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);

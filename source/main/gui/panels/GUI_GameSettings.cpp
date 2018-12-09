@@ -121,22 +121,10 @@ void RoR::GUI::GameSettings::Draw()
         }
 
         DrawGCheckbox(App::app_skip_main_menu, "Skip main menu");
-        DrawGCheckbox(App::app_async_physics, "Async physics");
+        DrawGCheckbox(App::app_async_physics,  "Async physics");
 
         ImGui::Separator();
         ImGui::TextDisabled("Simulation settings");
-
-        DrawGCheckbox(App::sim_position_storage, "Use position storage");
-        DrawGCheckbox(App::sim_replay_enabled, "Replay mode");
-
-        if (App::sim_replay_enabled.GetActive())
-        {
-            DrawGIntBox(App::sim_replay_length, "Replay length");
-            DrawGIntBox(App::sim_replay_stepping, "Replay stepping");
-        }
-        
-        DrawGCheckbox(App::gfx_speedo_digital, "Digital speedometer");
-        DrawGCheckbox(App::gfx_speedo_imperial, "Imperial speedometer");
 
         DrawGCombo(App::sim_gearbox_mode, "Gearbox mode",
             "Automatic shift\0"
@@ -145,6 +133,23 @@ void RoR::GUI::GameSettings::Draw()
             "Fully manual: stick shift\0"
             "Fully Manual: stick shift with ranges\00");
 
+        DrawGCheckbox(App::gfx_speedo_digital,     "Digital speedometer");
+        DrawGCheckbox(App::gfx_speedo_imperial,    "Imperial speedometer");
+
+        //DrawGCheckbox(App::gfx_flexbody_lods,      "Enable flexbody LODs");
+        //DrawGCheckbox(App::gfx_flexbody_cache,     "Enable flexbody cache");
+
+        DrawGCheckbox(App::sim_replay_enabled,     "Replay mode");
+        if (App::sim_replay_enabled.GetActive())
+        {
+            DrawGIntBox(App::sim_replay_length,    "Replay length");
+            DrawGIntBox(App::sim_replay_stepping,  "Replay stepping");
+        }
+
+        DrawGCheckbox(App::sim_position_storage,   "Use position storage");
+
+        DrawGCheckbox(App::sim_no_self_collisions, "No intra truck collisions");
+        DrawGCheckbox(App::sim_no_collisions,      "No inter truck collisions");
     }
 #ifdef USE_OPENAL
     else if (m_tab == SettingsTab::AUDIO)
@@ -191,6 +196,15 @@ void RoR::GUI::GameSettings::Draw()
             "Texture\0"
             "PSSM\0\0");
 
+        if (App::gfx_shadow_type.GetActive() != GfxShadowType::NONE)
+        {
+            DrawGCheckbox(App::gfx_reduce_shadows, "Shadow optimizations");
+            if (App::gfx_shadow_type.GetActive() == GfxShadowType::PSSM)
+            {
+                DrawGIntSlider(App::gfx_shadow_quality, "Shadow quality", 0, 3);
+            }
+        }
+
         DrawGCombo(App::gfx_extcam_mode, "Exterior camera mode",
             "None\0"
             "Static\0"
@@ -231,20 +245,23 @@ void RoR::GUI::GameSettings::Draw()
             "Reflection + refraction (quality optimized)\0"
             "HydraX\0\0");
 
-        DrawGCheckbox(App::gfx_water_waves,      "Waves on water");
-        DrawGCheckbox(App::gfx_minimap_enabled,  "Minimap enabled");
-        DrawGCheckbox(App::gfx_enable_videocams, "Render VideoCameras");
-        DrawGCheckbox(App::gfx_envmap_enabled,   "Realtime reflections");
         DrawGIntCheck(App::gfx_particles_mode,   "Enable particle gfx");
         DrawGIntCheck(App::gfx_skidmarks_mode,   "Enable skidmarks");
 
-        ImGui::PushItemWidth(100.f); // Width includes [+/-] buttons
-        DrawGIntSlider(App::gfx_envmap_rate, "Realtime refl. update rate", 0, 6);
-        DrawGIntSlider(App::gfx_shadow_quality, "Shadow quality", 0, 3);
-        DrawGIntBox(App::gfx_fps_limit,      "FPS limit");
-        ImGui::PopItemWidth();
+        DrawGCheckbox(App::gfx_envmap_enabled,   "Realtime reflections");
+        if (App::gfx_envmap_enabled.GetActive())
+        {
+            ImGui::PushItemWidth(125.f); // Width includes [+/-] buttons
+            DrawGIntSlider(App::gfx_envmap_rate,     "Realtime refl. update rate", 0, 6);
+            ImGui::PopItemWidth();
+        }
+
+        DrawGCheckbox(App::gfx_minimap_enabled,  "Minimap enabled");
+        DrawGCheckbox(App::gfx_enable_videocams, "Render video cameras");
+        DrawGCheckbox(App::gfx_water_waves,      "Waves on water");
 
         ImGui::PushItemWidth(125.f);
+        DrawGIntBox(App::gfx_fps_limit,      "FPS limit");
         DrawGFloatBox(App::gfx_sight_range,  "Sight range (meters)");
         DrawGFloatBox(App::gfx_fov_external, "Exterior FOV (field of view)");
         DrawGFloatBox(App::gfx_fov_internal, "Interior FOV (field of view)");
