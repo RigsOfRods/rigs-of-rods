@@ -46,7 +46,6 @@
 ["Beam Break Debug"]         |       +                --- Use before spawn, lasts entire vehicle lifetime.
 ["Beam Deform Debug"]        |       +                --- Use before spawn, lasts entire vehicle lifetime.
 ["Trigger Debug"]            |       +                --- Use before spawn, lasts entire vehicle lifetime.
-["DOFDebug"]                 |       +                --- Effective on CameraManager init (map loading)
 
 ["Advanced Logging"]         | ~ no gvar ~            --- DEAD, used in removed 'ScopeLog' feature of old spawner.
 ["DebugBeams"]                                        --- Pre configured debug overlay mode --- DEAD since debug overlay has been remade with different modes 
