@@ -62,7 +62,11 @@ bool OgreSubsystem::Configure()
 {
     if (!m_ogre_root->restoreConfig())
     {
-        m_ogre_root->showConfigDialog(OgreBites::getNativeConfigDialog());
+        const auto render_systems = App::GetOgreSubsystem()->GetOgreRoot()->getAvailableRenderers();
+        if (!render_systems.empty())
+            m_ogre_root->setRenderSystem(render_systems.front());
+        else
+            m_ogre_root->showConfigDialog(OgreBites::getNativeConfigDialog());
     }
 
     m_render_window = m_ogre_root->initialise(false);
