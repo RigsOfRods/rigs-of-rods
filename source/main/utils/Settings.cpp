@@ -656,7 +656,6 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckBool (App::gfx_flexbody_lods,         k, v)) { return true; }
     if (CheckBool (App::gfx_flexbody_cache,        k, v)) { return true; }
     if (CheckBool (App::gfx_reduce_shadows,        k, v)) { return true; }
-    if (CheckBool (App::gfx_simple_materials,      k, v)) { return true; }
     if (CheckBool (App::gfx_enable_rtshaders,      k, v)) { return true; }
     // Audio
     if (CheckFloat(App::audio_master_volume,       k, v)) { return true; }
@@ -682,6 +681,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckStr  (App::diag_preset_veh_config,    k, v)) { return true; }
     if (CheckBool (App::diag_preset_veh_enter,     k, v)) { return true; }
     if (CheckStr  (App::diag_extra_resource_dir,   k, v)) { return true; }
+    if (CheckBool (App::diag_simple_materials,     k, v)) { return true; }
     // Sim
     if (CheckSimGearboxMode                       (k, v)) { return true; }
     if (CheckBool (App::sim_replay_enabled,        k, v)) { return true; }
@@ -944,7 +944,6 @@ void Settings::SaveSettings()
     WriteYN  (f, App::gfx_flexbody_lods   );
     WriteYN  (f, App::gfx_flexbody_cache  );
     WriteYN  (f, App::gfx_reduce_shadows  );
-    WriteYN  (f, App::gfx_simple_materials);
     WriteYN  (f, App::gfx_enable_rtshaders);
 
     f << std::endl << "; Audio" << std::endl;
@@ -971,6 +970,7 @@ void Settings::SaveSettings()
     WriteStr (f, App::diag_preset_vehicle     );
     WriteStr (f, App::diag_preset_veh_config  );
     WriteYN  (f, App::diag_videocameras       );
+    WriteYN  (f, App::diag_simple_materials   );
 
     f << std::endl << "; Application"<< std::endl;
     WriteStr (f, App::app_screenshot_format );

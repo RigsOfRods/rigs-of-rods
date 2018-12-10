@@ -382,7 +382,7 @@ void ActorSpawner::InitializeRig()
 
     m_placeholder_managedmat = RoR::OgreSubsystem::GetMaterialByName("rigsofrods/managedmaterial-placeholder"); // Built-in
 
-    m_apply_simple_materials = App::gfx_simple_materials.GetActive();
+    m_apply_simple_materials = App::diag_simple_materials.GetActive();
     if (m_apply_simple_materials)
     {
         m_simple_material_base = RoR::OgreSubsystem::GetMaterialByName("tracks/simple"); // Built-in material

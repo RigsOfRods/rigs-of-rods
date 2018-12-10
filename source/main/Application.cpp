@@ -133,6 +133,7 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_A<bool>          diag_log_beam_trigger   ("diag_log_beam_trigger",   "Trigger Debug",             false);
  GVarPod_A<bool>          diag_dof_effect         ("diag_dof_effect",         "DOFDebug",                  false);
  GVarStr_AP<300>          diag_extra_resource_dir ("diag_extra_resource_dir", "resourceIncludePath",       "",                     "");
+ GVarPod_A<bool>          diag_simple_materials   ("diag_simple_materials",    "SimpleMaterials",          false);
 
 // System                                         (all paths are without ending slash!)
  GVarStr_A<300>           sys_process_dir         ("sys_process_dir",         nullptr,                     "");
@@ -190,7 +191,6 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_A<bool>          gfx_flexbody_lods       ("gfx_flexbody_lods",       "Flexbody_EnableLODs",       false);
  GVarPod_A<bool>          gfx_flexbody_cache      ("gfx_flexbody_cache",      "Flexbody_UseCache",         false);
  GVarPod_A<bool>          gfx_reduce_shadows      ("gfx_reduce_shadows",      "Shadow optimizations",      true);
- GVarPod_A<bool>          gfx_simple_materials    ("gfx_simple_materials",    "SimpleMaterials",           false);
  GVarPod_A<bool>          gfx_enable_rtshaders    ("gfx_enable_rtshaders",    "Use RTShader System",       false);
 
 // Instance management
