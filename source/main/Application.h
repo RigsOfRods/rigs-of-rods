@@ -658,6 +658,7 @@ extern GVarPod_A<bool>         app_skip_main_menu;
 extern GVarPod_APS<bool>       app_async_physics;
 extern GVarPod_APS<int>        app_num_workers;
 extern GVarStr_AP<50>          app_screenshot_format;
+extern GVarStr_A<100>          app_desired_render_sys;
 
 // Simulation
 extern GVarEnum_AP<SimState>   sim_state;

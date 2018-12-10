@@ -67,21 +67,22 @@ void RoR::GUI::GameSettings::Draw()
     {
         ImGui::TextDisabled("Render system");
 
-        const Ogre::RenderSystemList render_systems = App::GetOgreSubsystem()->GetOgreRoot()->getAvailableRenderers();
+        const auto ogre_root = App::GetOgreSubsystem()->GetOgreRoot();
+        const auto render_systems = ogre_root->getAvailableRenderers();
         std::string render_system_names;
         for (auto rs : render_systems)
         {
             render_system_names += rs->getName() + '\0';
         }
-        const auto rs = App::GetOgreSubsystem()->GetOgreRoot()->getRenderSystem();
+        const auto rs = ogre_root->getRenderSystemByName(App::app_desired_render_sys.GetActive());
         const auto it = std::find(render_systems.begin(), render_systems.end(), rs);
         int render_id = it != render_systems.end() ? std::distance(render_systems.begin(), it) : 0;
         if (ImGui::Combo("Render System", &render_id, render_system_names.c_str()))
         {
-            App::GetOgreSubsystem()->GetOgreRoot()->setRenderSystem(render_systems[render_id]); // Can we do that here?
+            App::app_desired_render_sys.SetActive(render_systems[render_id]->getName().c_str());
         }
 
-        const Ogre::ConfigOptionMap config_options = rs->getConfigOptions();
+        const auto config_options = ogre_root->getRenderSystem()->getConfigOptions();
         for (auto opt : config_options)
         {
             auto co = opt.second;
@@ -102,7 +103,7 @@ void RoR::GUI::GameSettings::Draw()
                 rs->setConfigOption(co.name, co.possibleValues[option_id]);
                 if (rs->validateConfigOptions().empty())
                 {
-                    App::GetOgreSubsystem()->GetOgreRoot()->saveConfig();
+                    ogre_root->saveConfig();
                 }
             }
         }
