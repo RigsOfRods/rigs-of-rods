@@ -30,10 +30,6 @@
 
 #pragma once
 
-#ifdef USE_CRASHRPT
-#   include "crashrpt.h" // see http://crashrpt.sourceforge.net/
-#endif
-
 #include <string>
 
 namespace RoR {
@@ -51,11 +47,5 @@ inline void CreateFolder(std::string const& path) { CreateFolder(path.c_str()); 
 std::string GetUserHomeDirectory(); //!< Returns UTF-8 path or empty string on error
 std::string GetExecutablePath(); //!< Returns UTF-8 path or empty string on error
 std::string GetParentDirectory(const char* path); //!< Returns UTF-8 path without trailing slash.
-
-#ifdef USE_CRASHRPT
-int CALLBACK CrashRptCallback(CR_CRASH_CALLBACK_INFO* pInfo);
-void InstallCrashRpt();
-void UninstallCrashRpt();
-#endif
 
 } // namespace RoR
