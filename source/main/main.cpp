@@ -195,10 +195,6 @@ int main(int argc, char *argv[])
             return 0;
         }
 
-#ifdef USE_CRASHRPT
-        InstallCrashRpt();
-#endif //USE_CRASHRPT
-
         Ogre::OverlaySystem* overlay_system = new Ogre::OverlaySystem(); //Overlay init
         Ogre::TextureManager::getSingleton().createManual ("EnvironmentTexture",
             Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_CUBE_MAP, 256, 256, 0,
@@ -430,10 +426,6 @@ int main(int argc, char *argv[])
     {
         ErrorUtils::ShowError(_L("An exception (std::runtime_error) has occured!"), e.what());
     }
-
-#ifdef USE_CRASHRPT
-    UninstallCrashRpt();
-#endif //USE_CRASHRPT
 
     return 0;
 }
