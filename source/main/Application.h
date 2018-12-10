@@ -705,6 +705,7 @@ extern GVarPod_A<bool>         diag_log_beam_break;
 extern GVarPod_A<bool>         diag_log_beam_deform;
 extern GVarPod_A<bool>         diag_log_beam_trigger;
 extern GVarStr_AP<300>         diag_extra_resource_dir;
+extern GVarPod_A<bool>         diag_simple_materials;
 
 // System
 extern GVarStr_A<300>          sys_process_dir;
@@ -762,7 +763,6 @@ extern GVarPod_A<bool>         gfx_speedo_imperial;
 extern GVarPod_A<bool>         gfx_flexbody_lods;
 extern GVarPod_A<bool>         gfx_flexbody_cache;
 extern GVarPod_A<bool>         gfx_reduce_shadows;
-extern GVarPod_A<bool>         gfx_simple_materials;
 extern GVarPod_A<bool>         gfx_enable_rtshaders;
 
 // Getters
