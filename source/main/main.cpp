@@ -123,6 +123,11 @@ int main(int argc, char *argv[])
             return -1;
         }
 
+        Settings::getSingleton().LoadRoRCfg(); // Main config file - path obtained from GVars
+#if OGRE_PLATFORM != OGRE_PLATFORM_APPLE //MacOSX adds an extra argument in the form of -psn_0_XXXXXX when the app is double clicked
+        Settings::getSingleton().ProcessCommandLine(argc, argv);
+#endif
+
         bool extract_skeleton = false;
         if (!FolderExists(App::sys_config_dir.GetActive()))
         {
@@ -172,14 +177,6 @@ int main(int argc, char *argv[])
             Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup("SrcRG");
             Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup("DstRG");
         }
-
-        Settings::getSingleton().LoadRoRCfg(); // Main config file - path obtained from GVars
-
-        // ### Process command-line arguments ###
-
-#if OGRE_PLATFORM != OGRE_PLATFORM_APPLE //MacOSX adds an extra argument in the form of -psn_0_XXXXXX when the app is double clicked
-        Settings::getSingleton().ProcessCommandLine(argc, argv);
-#endif
 
         if (App::app_state.GetPending() == AppState::PRINT_HELP_EXIT)
         {
