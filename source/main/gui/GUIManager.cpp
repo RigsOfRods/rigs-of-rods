@@ -153,14 +153,13 @@ GUIManager::GUIManager() :
     RoR::App::GetOgreSubsystem()->GetOgreRoot()->addFrameListener(this);
     OgreBites::WindowEventUtilities::addWindowEventListener(RoR::App::GetOgreSubsystem()->GetRenderWindow(), this);
 
-    Str<300> gui_logpath;
-    gui_logpath << App::sys_logs_dir.GetActive() << RoR::PATH_SLASH << "MyGUI.log";
+    std::string gui_logpath = PathCombine(App::sys_logs_dir.GetActive(), "MyGUI.log");
     auto mygui_platform = new MyGUI::OgrePlatform();
     mygui_platform->initialise(
         RoR::App::GetOgreSubsystem()->GetRenderWindow(), 
         gEnv->sceneManager,
         Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME,
-        gui_logpath.GetBuffer()); // use cache resource group so preview images are working
+        gui_logpath); // use cache resource group so preview images are working
     auto mygui = new MyGUI::Gui();
 
     // empty init

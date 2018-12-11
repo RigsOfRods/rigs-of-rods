@@ -71,11 +71,10 @@ void LanguageEngine::setup()
 
     // Load a .mo-File.
     RoR::Log("[RoR|App] Loading language file...");
-    Str<300> rormo_path;
-    rormo_path << mo_path << RoR::PATH_SLASH << "ror.mo";
-    if (reader->ReadFile(rormo_path) != moFileLib::moFileReader::EC_SUCCESS)
+    std::string rormo_path = PathCombine(mo_path.ToCStr(), "ror.mo");
+    if (reader->ReadFile(rormo_path.c_str()) != moFileLib::moFileReader::EC_SUCCESS)
     {
-        RoR::LogFormat("[RoR|App] Error loading language file: '%s'", rormo_path.ToCStr());
+        RoR::LogFormat("[RoR|App] Error loading language file: '%s'", rormo_path.c_str());
         return;
     }
     working = true;

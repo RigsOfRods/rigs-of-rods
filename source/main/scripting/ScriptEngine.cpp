@@ -86,7 +86,7 @@ ScriptEngine::ScriptEngine(Collisions *coll) :
     setSingleton(this);
 
     // create our own log
-    scriptLog = LogManager::getSingleton().createLog(std::string(App::sys_logs_dir.GetActive()) + RoR::PATH_SLASH + "Angelscript.log", false);
+    scriptLog = LogManager::getSingleton().createLog(PathCombine(App::sys_logs_dir.GetActive(), "Angelscript.log"), false);
 
     // init not earlier, otherwise crash
     this->init();
