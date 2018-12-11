@@ -245,6 +245,8 @@ void RoR::GUI::GameSettings::Draw()
             "Reflection + refraction (speed optimized)\0"
             "Reflection + refraction (quality optimized)\0"
             "HydraX\0\0");
+        
+        DrawGIntSlider(App::gfx_fps_limit, "FPS limit", 0, 240);
 
         DrawGIntCheck(App::gfx_particles_mode,   "Enable particle gfx");
         DrawGIntCheck(App::gfx_skidmarks_mode,   "Enable skidmarks");
@@ -262,7 +264,6 @@ void RoR::GUI::GameSettings::Draw()
         DrawGCheckbox(App::gfx_water_waves,      "Waves on water");
 
         ImGui::PushItemWidth(125.f);
-        DrawGIntBox(App::gfx_fps_limit,      "FPS limit");
         DrawGFloatBox(App::gfx_sight_range,  "Sight range (meters)");
         DrawGFloatBox(App::gfx_fov_external, "Exterior FOV (field of view)");
         DrawGFloatBox(App::gfx_fov_internal, "Interior FOV (field of view)");
