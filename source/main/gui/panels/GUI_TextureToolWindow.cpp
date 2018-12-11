@@ -119,7 +119,7 @@ void TextureToolWindow::saveTexture(String texName, bool usePNG)
         tex->convertToImage(img);
 
         // Save to disk!
-        String outname = std::string(App::sys_user_dir.GetActive()) + RoR::PATH_SLASH + texName;
+        String outname = PathCombine(App::sys_user_dir.GetActive(), texName);
         if (usePNG)
             outname += ".png";
 

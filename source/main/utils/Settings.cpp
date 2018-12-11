@@ -700,8 +700,7 @@ void Settings::LoadRoRCfg()
     Ogre::ConfigFile cfg;
     try
     {
-        Str<300> path;
-        path << App::sys_config_dir.GetActive() << PATH_SLASH << "RoR.cfg";
+        std::string path = PathCombine(App::sys_config_dir.GetActive(), "RoR.cfg");
         cfg.load(Ogre::String(path), "=:\t", false);
 
         // load all settings into a map!
@@ -873,8 +872,7 @@ inline void WriteAny(std::ofstream& f, const char* name, const char* value)
 
 void Settings::SaveSettings()
 {
-    Str<300> rorcfg_path;
-    rorcfg_path << App::sys_config_dir.GetActive() << PATH_SLASH << "RoR.cfg";
+    std::string rorcfg_path = PathCombine(App::sys_config_dir.GetActive(), "RoR.cfg");
     std::ofstream f(rorcfg_path);
     if (!f.is_open())
     {
@@ -994,31 +992,28 @@ void Settings::SaveSettings()
 bool Settings::SetupAllPaths()
 {
     using namespace RoR;
-    Str<300> buf;
 
     // User directories
-    buf.Clear() << App::sys_user_dir.GetActive() << PATH_SLASH << "config";      App::sys_config_dir    .SetActive(buf);
-    buf.Clear() << App::sys_user_dir.GetActive() << PATH_SLASH << "cache";       App::sys_cache_dir     .SetActive(buf);
-    buf.Clear() << App::sys_user_dir.GetActive() << PATH_SLASH << "screenshots"; App::sys_screenshot_dir.SetActive(buf);
+    App::sys_config_dir    .SetActive(PathCombine(App::sys_user_dir.GetActive(), "config").c_str());
+    App::sys_cache_dir     .SetActive(PathCombine(App::sys_user_dir.GetActive(), "cache").c_str());
+    App::sys_screenshot_dir.SetActive(PathCombine(App::sys_user_dir.GetActive(), "screenshots").c_str());
 
     // Resources dir
-    buf.Clear() << App::sys_process_dir.GetActive() << PATH_SLASH << "resources";
-    if (FolderExists(buf))
+    std::string process_dir = PathCombine(App::sys_process_dir.GetActive(), "resources");
+    if (FolderExists(process_dir))
     {
-        App::sys_resources_dir.SetActive(buf);
+        App::sys_resources_dir.SetActive(process_dir.c_str());
         return true;
     }
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-    buf = "/usr/share/rigsofrods/resources/";
-    if (FolderExists(buf))
+    process_dir = "/usr/share/rigsofrods/resources/";
+    if (FolderExists(process_dir))
     {
-        App::sys_resources_dir.SetActive(buf);
+        App::sys_resources_dir.SetActive(process_dir.c_str());
         return true;
     }
 #endif
-
-    buf = RoR::GetParentDirectory(App::sys_process_dir.GetActive());
 
     return false;
 }

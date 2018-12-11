@@ -77,12 +77,11 @@ int main(int argc, char *argv[])
         App::sys_process_dir.SetActive(RoR::GetParentDirectory(exe_path.c_str()).c_str());
 
         // RoR's home directory
-        Str<600> local_userdir;
-        local_userdir << App::sys_process_dir.GetActive() << PATH_SLASH << "config"; // TODO: Think of a better name, this is ambiguious with ~/.rigsofrods/config which stores configfiles! ~ only_a_ptr, 02/2018
+        std::string local_userdir = PathCombine(App::sys_process_dir.GetActive(), "config"); // TODO: Think of a better name, this is ambiguious with ~/.rigsofrods/config which stores configfiles! ~ only_a_ptr, 02/2018
         if (FolderExists(local_userdir))
         {
             // It's a portable installation
-            App::sys_user_dir.SetActive(local_userdir);
+            App::sys_user_dir.SetActive(local_userdir.c_str());
         }
         else
         {
@@ -93,29 +92,27 @@ int main(int argc, char *argv[])
                 ErrorUtils::ShowError(_L("Startup error"), _L("Error while retrieving user directory path"));
                 return -1;
             }
-            RoR::Str<500> ror_homedir;
+            std::string ror_homedir;
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-            ror_homedir << user_home << PATH_SLASH << "Rigs of Rods " << ROR_VERSION_STRING_SHORT;
+            ror_homedir = PathCombine(user_home, "Rigs of Rods " + std::string(ROR_VERSION_STRING_SHORT));
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-            ror_homedir << user_home << PATH_SLASH << ".rigsofrods";
+            ror_homedir = PathCombine(user_home, ".rigsofrods");
 #elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-            ror_homedir << user_home << PATH_SLASH << "RigsOfRods";
+            ror_homedir = PathCombine(user_home, "RigsOfRods");
 #endif
-            CreateFolder(ror_homedir.ToCStr());  
-            App::sys_user_dir.SetActive(ror_homedir.ToCStr());
+            CreateFolder(ror_homedir);  
+            App::sys_user_dir.SetActive(ror_homedir.c_str());
         }
 
         // ### Create OGRE default logger early. ###
 
-        Str<300> logs_dir;
-        logs_dir << App::sys_user_dir.GetActive() << PATH_SLASH << "logs";
-        CreateFolder(logs_dir.ToCStr());
-        App::sys_logs_dir.SetActive(logs_dir);
+        std::string logs_dir = PathCombine(App::sys_user_dir.GetActive(), "logs");
+        CreateFolder(logs_dir);
+        App::sys_logs_dir.SetActive(logs_dir.c_str());
 
         auto ogre_log_manager = OGRE_NEW Ogre::LogManager();
-        Str<300> rorlog_path;
-        rorlog_path << logs_dir << PATH_SLASH << "RoR.log";
-        ogre_log_manager->createLog(Ogre::String(rorlog_path), true, true);
+        std::string rorlog_path = PathCombine(logs_dir, "RoR.log");
+        ogre_log_manager->createLog(rorlog_path, true, true);
         App::diag_trace_globals.SetActive(true); // We have logger -> we can trace.
 
         // ### Setup program paths ###
@@ -136,7 +133,7 @@ int main(int argc, char *argv[])
 
         if (extract_skeleton)
         {
-            Ogre::String src_path = Ogre::String(App::sys_resources_dir.GetActive()) + PATH_SLASH + "skeleton.zip";
+            Ogre::String src_path = PathCombine(App::sys_resources_dir.GetActive(), "skeleton.zip");
             Ogre::ResourceGroupManager::getSingleton().addResourceLocation(src_path, "Zip", "SrcRG");
             Ogre::FileInfoListPtr fl = Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo("SrcRG", "*", true);
             if (fl->empty())
@@ -144,7 +141,7 @@ int main(int argc, char *argv[])
                 ErrorUtils::ShowError(_L("Startup error"), _L("Faulty resource folder. Check if correctly installed."));
                 return -1;
             }
-            Ogre::String dst_path = Ogre::String(App::sys_user_dir.GetActive()) + PATH_SLASH;
+            Ogre::String dst_path = PathCombine(App::sys_user_dir.GetActive(), "");
             for (auto file : *fl)
             {
                 CreateFolder(dst_path + file.filename);

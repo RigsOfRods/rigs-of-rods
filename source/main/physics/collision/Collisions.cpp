@@ -146,7 +146,7 @@ Collisions::~Collisions()
 
 int Collisions::loadDefaultModels()
 {
-    return loadGroundModelsConfigFile(std::string(RoR::App::sys_config_dir.GetActive()) + RoR::PATH_SLASH + "ground_models.cfg");
+    return loadGroundModelsConfigFile(PathCombine(RoR::App::sys_config_dir.GetActive(), "ground_models.cfg"));
 }
 
 int Collisions::loadGroundModelsConfigFile(Ogre::String filename)
