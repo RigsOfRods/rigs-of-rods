@@ -103,23 +103,21 @@ bool RoR::OTCParser::LoadMasterConfig(Ogre::DataStreamPtr &ds, const char* filen
 
 bool RoR::OTCParser::LoadPageConfig(Ogre::DataStreamPtr &ds, RoR::OTCPage& page, const char* filename)
 {
-    const int LINE_BUF_LEN = 4000;
-    char line_buf[LINE_BUF_LEN];
     try
     {
-        ds->readLine(line_buf, LINE_BUF_LEN);
-        page.heightmap_filename = RoR::Utils::SanitizeUtf8CString(line_buf);
-        RoR::Utils::TrimStr(page.heightmap_filename);
+        // NOTE: ds->getLine() trims the string on both sides.
+        page.heightmap_filename = RoR::Utils::SanitizeUtf8String(ds->getLine());
 
-        ds->readLine(line_buf, LINE_BUF_LEN);
-        page.num_layers = PARSEINT(line_buf);
+        page.num_layers = PARSEINT(ds->getLine());
 
         while (!ds->eof())
         {
-            size_t len = ds->readLine(line_buf, LINE_BUF_LEN);
-            if (len == 0 || line_buf[0] == ';' || line_buf[0] == '/') { continue; }
+            std::string line_sane = RoR::Utils::SanitizeUtf8String(ds->getLine());
+            if (line_sane.empty() || line_sane[0] == ';' || line_sane[0] == '/')
+            {
+                continue;
+            }
 
-            std::string line_sane = RoR::Utils::SanitizeUtf8String(std::string(line_buf));
             Ogre::StringVector args = Ogre::StringUtil::split(line_sane, ",");
             if (args.size() < 1)
             {
