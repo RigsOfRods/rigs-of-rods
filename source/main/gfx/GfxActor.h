@@ -211,6 +211,7 @@ public:
         float                       simbuf_engine_crankfactor;
         float                       simbuf_engine_turbo_psi;
         float                       simbuf_engine_accel;
+        bool                        simbuf_engine_starter_contact;
         bool                        simbuf_beaconlight_active;
         float                       simbuf_hydro_dir_state; // State of steering actuator ('hydro'), for steeringwheel display
         float                       simbuf_hydro_aileron_state;
@@ -317,6 +318,7 @@ public:
 private:
 
     static Ogre::Quaternion SpecialGetRotationTo(const Ogre::Vector3& src, const Ogre::Vector3& dest);
+    float                   FetchPropAnimEventValue(int ev_type) const; //!< Resolve state of animated props with `source:event`
 
     Actor*                      m_actor;
 

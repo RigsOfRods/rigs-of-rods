@@ -1377,7 +1377,8 @@ void RoR::GfxActor::UpdateSimDataBuffer()
         m_simbuf.simbuf_gear            = m_actor->ar_engine->GetGear();
         m_simbuf.simbuf_autoshift       = m_actor->ar_engine->getAutoShift();
         m_simbuf.simbuf_engine_rpm      = m_actor->ar_engine->GetEngineRpm();
-        m_simbuf.simbuf_engine_turbo_psi= m_actor->ar_engine->GetTurboPsi(); 
+        m_simbuf.simbuf_engine_turbo_psi= m_actor->ar_engine->GetTurboPsi();
+        m_simbuf.simbuf_engine_starter_contact = m_actor->ar_engine->HasStarterContact();
         m_simbuf.simbuf_engine_accel    = m_actor->ar_engine->GetAcceleration();
         m_simbuf.simbuf_clutch          = m_actor->ar_engine->GetClutch();
     }
@@ -2438,14 +2439,13 @@ void RoR::GfxActor::UpdatePropAnimations(float dt, bool is_player_actor)
             // key triggered animations
             if ((prop.animFlags[animnum] & ANIM_FLAG_EVENT) && prop.animKey[animnum] != -1 && is_player_actor)
             {
-                // TODO: Keys shouldn't be queried from here, but buffered in sim. loop ~ only_a_ptr, 06/2018
-                if (RoR::App::GetInputEngine()->getEventValue(prop.animKey[animnum]))
+                const float ev_value = this->FetchPropAnimEventValue(prop.animKey[animnum]);
+                if (ev_value != 0.f)
                 {
                     // keystatelock is disabled then set cstate
                     if (prop.animKeyState[animnum] == -1.0f)
                     {
-                        // TODO: Keys shouldn't be queried from here, but buffered in sim. loop ~ only_a_ptr, 06/2018
-                        cstate += RoR::App::GetInputEngine()->getEventValue(prop.animKey[animnum]);
+                        cstate += ev_value;
                     }
                     else if (!prop.animKeyState[animnum])
                     {
@@ -2841,4 +2841,20 @@ void RoR::GfxActor::SetAllMeshesVisible(bool visible)
     this->SetWheelsVisible(visible);
     this->SetPropsVisible(visible);
     this->SetFlexbodyVisible(visible);
+}
+
+float RoR::GfxActor::FetchPropAnimEventValue(int ev_type) const
+{
+    // Historically, animated props retrieved values only from InputEngine (player's controller input),
+    // but this approach has gaps - what if the respective vehicle states are changed internally?
+    switch (ev_type)
+    {
+    case EV_TRUCK_TOGGLE_CONTACT:
+        // Needed to handle vehicles spawned with running engine; see https://github.com/RigsOfRods/rigs-of-rods/issues/1448
+        return static_cast<float>(m_simbuf.simbuf_engine_starter_contact);
+
+    default:
+        // TODO: Keys shouldn't be queried from here, but buffered in sim. loop ~ only_a_ptr, 06/2018
+        return RoR::App::GetInputEngine()->getEventValue(ev_type);
+    }
 }
