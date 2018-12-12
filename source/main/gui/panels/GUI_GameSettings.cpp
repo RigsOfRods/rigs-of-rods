@@ -206,15 +206,12 @@ void RoR::GUI::GameSettings::Draw()
             }
         }
 
-        DrawGCombo(App::gfx_extcam_mode, "Exterior camera mode",
-            "None\0"
-            "Static\0"
-            "Pitching\0\0");
-
         DrawGCombo(App::gfx_sky_mode, "Sky gfx",
             "Sandstorm (fastest)\0"
             "Caelum (best looking, slower)\0"
             "SkyX (best looking, slower)\0\0");
+
+        DrawGIntSlider(App::gfx_sight_range, "Sight range (meters)", 100, 5000);
 
         DrawGCombo(App::gfx_texture_filter , "Texture filtering",
             "None\0"
@@ -246,7 +243,7 @@ void RoR::GUI::GameSettings::Draw()
             "Reflection + refraction (quality optimized)\0"
             "HydraX\0\0");
         
-        DrawGIntSlider(App::gfx_fps_limit, "FPS limit", 0, 240);
+        DrawGIntSlider(App::gfx_fps_limit,       "FPS limit", 0, 240);
 
         DrawGIntCheck(App::gfx_particles_mode,   "Enable particle gfx");
         DrawGIntCheck(App::gfx_skidmarks_mode,   "Enable skidmarks");
@@ -255,7 +252,7 @@ void RoR::GUI::GameSettings::Draw()
         if (App::gfx_envmap_enabled.GetActive())
         {
             ImGui::PushItemWidth(125.f); // Width includes [+/-] buttons
-            DrawGIntSlider(App::gfx_envmap_rate,     "Realtime refl. update rate", 0, 6);
+            DrawGIntSlider(App::gfx_envmap_rate, "Realtime refl. update rate", 0, 6);
             ImGui::PopItemWidth();
         }
 
@@ -263,12 +260,13 @@ void RoR::GUI::GameSettings::Draw()
         DrawGCheckbox(App::gfx_enable_videocams, "Render video cameras");
         DrawGCheckbox(App::gfx_water_waves,      "Waves on water");
 
-        ImGui::PushItemWidth(125.f);
-        DrawGFloatBox(App::gfx_sight_range,  "Sight range (meters)");
-        DrawGFloatBox(App::gfx_fov_external, "Exterior FOV (field of view)");
-        DrawGFloatBox(App::gfx_fov_internal, "Interior FOV (field of view)");
-        ImGui::PopItemWidth();
+        DrawGCombo(App::gfx_extcam_mode, "Exterior camera mode",
+            "None\0"
+            "Static\0"
+            "Pitching\0\0");
 
+        DrawGIntSlider(App::gfx_fov_external, "Exterior field of view", 10, 120);
+        DrawGIntSlider(App::gfx_fov_internal, "Interior field of view", 10, 120);
     }
     else if (m_tab == SettingsTab::DIAG)
     {

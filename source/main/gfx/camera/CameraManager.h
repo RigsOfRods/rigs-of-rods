@@ -101,8 +101,6 @@ protected:
     Ogre::Degree         m_cct_rot_scale;
     Ogre::Real           m_cct_dt;
     Ogre::Real           m_cct_trans_scale;
-    Ogre::Radian         m_cct_fov_interior; // TODO: duplicates GVar
-    Ogre::Radian         m_cct_fov_exterior; // TODO: Duplicates GVar
     float                m_cct_sim_speed; // TODO: duplicates `ActorManager::m_simulation_speed`
     // Old `CameraBehaviorOrbit` attributes
     Ogre::Radian         m_cam_rot_x;
