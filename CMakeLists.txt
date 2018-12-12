@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_SOURCE_DIR}/cmake/3rdparty)
 
-# WIN32: remove MinSizeRel, Debug builds : unsupported
-if (WIN32)
-    set(CMAKE_CONFIGURATION_TYPES "RelWithDebInfo;Release" CACHE STRING "" FORCE)
-endif ()
 
 # Download cotire automatically
 if (NOT EXISTS "${CMAKE_BINARY_DIR}/cotire.cmake")
@@ -78,7 +74,7 @@ if (WIN32)
     #if(ROR_USING_VISUAL_STUDIO_PROFESSIONAL)
     #  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /analyze") # /analyze only available when using VS professional
     #endif(ROR_USING_VISUAL_STUDIO_PROFESSIONAL)
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}          /MP /Od /Zi /RTC1 /Gy /fp:except /GF- /RTCc /GS /Ob0")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}          /MP /Od /Zi /RTC1 /Gy /fp:except /GF- /GS /Ob0")
     # some general flags
     add_definitions("-D_CRT_SECURE_NO_WARNINGS")
     include_directories(${DirectX_INCLUDE_DIR})
