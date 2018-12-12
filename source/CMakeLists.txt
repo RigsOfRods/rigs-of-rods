@@ -7,12 +7,6 @@ if (ROR_USE_ANGELSCRIPT)
     add_subdirectory(angelscript_addons)
 endif ()
 
-set(ROR_BUILD_CONFIGURATOR "TRUE" CACHE BOOL "build the configurator")
-
-IF (ROR_BUILD_CONFIGURATOR)
-    add_subdirectory(configurator)
-ENDIF ()
-
 ####################################################################################################
 #  Setup content and resources for Rigs of Rods
 ####################################################################################################
@@ -64,9 +58,6 @@ if (BUILD_REDIST_FOLDER)
                 )
     else ()
         INSTALL(PROGRAMS ${CMAKE_SOURCE_DIR}/tools/linux/RunRoR
-                DESTINATION ${CMAKE_BINARY_DIR}/redist
-                )
-        INSTALL(PROGRAMS ${CMAKE_SOURCE_DIR}/tools/linux/RunRoRConfig
                 DESTINATION ${CMAKE_BINARY_DIR}/redist
                 )
         INSTALL(FILES ${CMAKE_SOURCE_DIR}/tools/linux/.itch.toml
