@@ -6,6 +6,6 @@ set -eu
 mkdir tx
 cd tx
 
-tx init --host=www.transifex.com
+tx init --host=www.transifex.com --no-interactive
 tx set --auto-remote https://www.transifex.com/projects/p/rigs-of-rods
 tx pull -a

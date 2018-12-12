@@ -136,7 +136,7 @@ void LanguageEngine::postSetup()
     }
 }
 
-Ogre::UTFString LanguageEngine::lookUp(Ogre::String name)
+std::string LanguageEngine::lookUp(std::string name)
 {
 #ifdef USE_MOFILEREADER
     if (working)

@@ -1,4 +1,3 @@
-
 CMakeFiles
 Solution/
 cmake_install.cmake
@@ -30,7 +29,6 @@ libangelscript_addons*.a
 cmake-build-release
 cmake-build-debug
 /.vs
-
 build/
-
-source/main/utils/microprofile\.config\.h
+tools/linux/l10n/tx/
+tools/linux/l10n/languages/

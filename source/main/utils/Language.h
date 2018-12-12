@@ -70,7 +70,7 @@ class LanguageEngine : public RoRSingleton<LanguageEngine>, public ZeroedMemoryA
 public:
     void setup();
     void postSetup();
-    Ogre::UTFString lookUp(Ogre::String name);
+    std::string lookUp(std::string name);
 
     Ogre::String getMyGUIFontConfigFilename();
 
