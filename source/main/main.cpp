@@ -92,16 +92,16 @@ int main(int argc, char *argv[])
                 ErrorUtils::ShowError(_L("Startup error"), _L("Error while retrieving user directory path"));
                 return -1;
             }
-            std::string ror_homedir;
+            RoR::Str<500> ror_homedir;
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-            ror_homedir = PathCombine(user_home, std::string("Rigs of Rods ") + std::string(ROR_VERSION_STRING_SHORT));
+            ror_homedir << user_home << PATH_SLASH << "Rigs of Rods " << ROR_VERSION_STRING_SHORT;
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-            ror_homedir = PathCombine(user_home, ".rigsofrods");
+            ror_homedir << user_home << PATH_SLASH << ".rigsofrods";
 #elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-            ror_homedir = PathCombine(user_home, "RigsOfRods");
+            ror_homedir << user_home << PATH_SLASH << "RigsOfRods";
 #endif
-            CreateFolder(ror_homedir);  
-            App::sys_user_dir.SetActive(ror_homedir.c_str());
+            CreateFolder(ror_homedir.ToCStr ());
+            App::sys_user_dir.SetActive(ror_homedir.ToCStr ());
         }
 
         // ### Create OGRE default logger early. ###
