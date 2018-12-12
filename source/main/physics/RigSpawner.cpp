@@ -55,7 +55,6 @@
 #include "PointColDetector.h"
 #include "RoRFrameListener.h"
 #include "ScrewProp.h"
-#include "Settings.h"
 #include "Skidmark.h"
 #include "SkinManager.h"
 #include "SlideNode.h"
@@ -6972,20 +6971,7 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
         // TODO: Eliminate gEnv
         vcam.vcam_ogre_camera = gEnv->sceneManager->createCamera(vcam.vcam_material->getName() + "_camera");
 
-        bool useExternalMirrorWindow = BSETTING("UseVideocameraWindows", false);
-        bool fullscreenRW = BSETTING("VideoCameraFullscreen", false);
-
-        // check if this vidcamera is also affected
-        static int counter = 0;
-        if (useExternalMirrorWindow && fullscreenRW)
-        {
-            int monitor = ISETTING("VideoCameraMonitor_" + TOSTRING(counter), 0);
-            if (monitor < 0)
-                useExternalMirrorWindow = false;
-            // < 0 = fallback to texture
-        }
-
-        if (!useExternalMirrorWindow)
+        if (!App::gfx_window_videocams.GetActive())
         {
             vcam.vcam_render_tex = Ogre::TextureManager::getSingleton().createManual(
                 vcam.vcam_material->getName() + "_texture",
@@ -7006,32 +6992,9 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
             Ogre::ConfigOptionMap ropts = App::GetOgreSubsystem()->GetOgreRoot()->getRenderSystem()->getConfigOptions();
             misc["FSAA"] = Ogre::StringConverter::parseInt(ropts["FSAA"].currentValue, 0);
 
-            if (ISETTING("VideoCameraLeft_" + TOSTRING(counter), 0) > 0)
-                misc["left"] = SSETTING("VideoCameraLeft_" + TOSTRING(counter), "");
-
-            if (ISETTING("VideoCameraTop_" + TOSTRING(counter), 0) > 0)
-                misc["top"] = SSETTING("VideoCameraTop_" + TOSTRING(counter), "");
-            if (!SSETTING("VideoCameraWindowBorder", "").empty())
-                misc["border"] = SSETTING("VideoCameraWindowBorder", ""); // fixes for windowed mode
-
-            misc["outerDimensions"] = "true"; // fixes for windowed mode
-
-            bool fullscreen = BSETTING("VideoCameraFullscreen", false);
-            if (fullscreen)
-            {
-                int monitor = ISETTING("VideoCameraMonitor_" + TOSTRING(counter), 0);
-                misc["monitorIndex"] = TOSTRING(monitor);
-            }
-
             const std::string window_name = (!def->camera_name.empty()) ? def->camera_name : def->material_name;
             vcam.vcam_render_window = Ogre::Root::getSingleton().createRenderWindow(
-                window_name, def->texture_width, def->texture_height, fullscreen, &misc);
-
-            if (ISETTING("VideoCameraLeft_" + TOSTRING(counter), 0) > 0)
-                vcam.vcam_render_window->reposition(ISETTING("VideoCameraLeft_" + TOSTRING(counter), 0), ISETTING("VideoCameraTop_" + TOSTRING(counter), 0));
-
-            if (ISETTING("VideoCameraWidth_" + TOSTRING(counter), 0) > 0)
-                vcam.vcam_render_window->resize(ISETTING("VideoCameraWidth_" + TOSTRING(counter), 0), ISETTING("VideoCameraHeight_" + TOSTRING(counter), 0));
+                window_name, def->texture_width, def->texture_height, false, &misc);
 
             vcam.vcam_render_window->setAutoUpdated(false);
             fixRenderWindowIcon(vcam.vcam_render_window); // Function from 'Utils.h'

@@ -180,6 +180,7 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_A<bool>          gfx_minimap_enabled     ("gfx_minimap_enabled",     "OverviewMap",               true);
  GVarPod_A<int>           gfx_particles_mode      ("gfx_particles_mode",      "Particles",                 0);
  GVarPod_A<bool>          gfx_enable_videocams    ("gfx_enable_videocams",    "gfx_enable_videocams",      false);
+ GVarPod_A<bool>          gfx_window_videocams    ("gfx_window_videocams",    "UseVideocameraWindows",     false);
  GVarPod_A<bool>          gfx_envmap_enabled      ("gfx_envmap_enabled",      "Envmap",                    true);
  GVarPod_A<int>           gfx_envmap_rate         ("gfx_envmap_rate",         "EnvmapUpdateRate",          0);
  GVarPod_A<int>           gfx_shadow_quality      ("gfx_shadow_quality",      "Shadows Quality",           2);
