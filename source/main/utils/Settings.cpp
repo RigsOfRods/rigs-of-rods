@@ -580,14 +580,14 @@ inline bool CheckSpeedoImperial(std::string const & key, std::string const & val
     }
     return CheckBool(App::gfx_speedo_imperial, key, value);
 }
-inline bool CheckFOV(GVarPod_APS<float>& gvar, std::string const & key, std::string const & value)
+inline bool CheckFOV(GVarPod_APS<int>& gvar, std::string const & key, std::string const & value)
 {
     if (key == gvar.conf_name)
     {
-        float val = static_cast<float>(Ogre::StringConverter::parseReal (value));
+        int val = Ogre::StringConverter::parseInt(value);
 
         // FOV shouldn't be below 10
-        if(val < 10) return false;
+        if (val < 10) return false;
 
         gvar.SetActive (val);
         gvar.SetStored (val);
@@ -650,7 +650,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckBool (App::gfx_window_videocams,      k, v)) { return true; }
     if (CheckB2I  (App::gfx_skidmarks_mode,        k, v)) { return true; }
     if (CheckBool (App::gfx_envmap_enabled,        k, v)) { return true; }
-    if (CheckFloat(App::gfx_sight_range,           k, v)) { return true; }
+    if (CheckInt  (App::gfx_sight_range,           k, v)) { return true; }
     if (CheckFOV  (App::gfx_fov_external,          k, v)) { return true; }
     if (CheckFOV  (App::gfx_fov_internal,          k, v)) { return true; }
     if (CheckInt  (App::gfx_fps_limit,             k, v)) { return true; }

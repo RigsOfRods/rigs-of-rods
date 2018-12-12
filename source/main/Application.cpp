@@ -185,9 +185,9 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_A<int>           gfx_envmap_rate         ("gfx_envmap_rate",         "EnvmapUpdateRate",          0);
  GVarPod_A<int>           gfx_shadow_quality      ("gfx_shadow_quality",      "Shadows Quality",           2);
  GVarPod_A<int>           gfx_skidmarks_mode      ("gfx_skidmarks_mode",      "Skidmarks",                 0);
- GVarPod_A<float>         gfx_sight_range         ("gfx_sight_range",         "SightRange",                3000.f); // Previously either 2000 or 4500 (inconsistent)
- GVarPod_APS<float>       gfx_fov_external        ("gfx_fov_external",        "FOV External",              60.f,                      60.f,     60.f);
- GVarPod_APS<float>       gfx_fov_internal        ("gfx_fov_internal",        "FOV Internal",              75.f,                      75.f,     75.f);
+ GVarPod_A<int>           gfx_sight_range         ("gfx_sight_range",         "SightRange",                3000); // Previously either 2000 or 4500 (inconsistent)
+ GVarPod_APS<int>         gfx_fov_external        ("gfx_fov_external",        "FOV External",              60,                      60,     60);
+ GVarPod_APS<int>         gfx_fov_internal        ("gfx_fov_internal",        "FOV Internal",              75,                      75,     75);
  GVarPod_A<int>           gfx_fps_limit           ("gfx_fps_limit",           "FPS-Limiter",               0); // 0 = unlimited
  GVarPod_A<bool>          gfx_speedo_digital      ("gfx_speedo_digital",      "DigitalSpeedo",             false);
  GVarPod_A<bool>          gfx_speedo_imperial     ("gfx_speedo_imperial",     "gfx_speedo_imperial",       false);

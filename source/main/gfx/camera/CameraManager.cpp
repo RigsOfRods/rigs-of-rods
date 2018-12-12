@@ -233,8 +233,6 @@ bool CameraManager::Update(float dt, Actor* player_vehicle, float sim_speed) // 
     m_cct_dt           = dt;
     m_cct_rot_scale    = Degree(rot_scale);
     m_cct_trans_scale  = trans_scale;
-    m_cct_fov_interior = Degree(App::gfx_fov_internal.GetActive()); // TODO: don't copy Gvar!
-    m_cct_fov_exterior = Degree(App::gfx_fov_external.GetActive());
 
     if ( m_current_behavior < CAMERA_BEHAVIOR_END && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_CHANGE) )
     {
@@ -308,7 +306,7 @@ void CameraManager::ResetCurrentBehavior()
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM:
         CameraManager::CameraBehaviorOrbitReset();
         m_cam_rot_y = Degree(DEFAULT_INTERNAL_CAM_PITCH);
-        gEnv->mainCamera->setFOVy(m_cct_fov_interior);
+        gEnv->mainCamera->setFOVy(Degree(App::gfx_fov_internal.GetActive()));
         return;
 
     case CAMERA_BEHAVIOR_FREE:            return;
@@ -367,7 +365,7 @@ void CameraManager::ActivateNewBehavior(CameraBehaviors new_behavior, bool reset
             this->ResetCurrentBehavior();
         }
 
-        gEnv->mainCamera->setFOVy(m_cct_fov_interior);
+        gEnv->mainCamera->setFOVy(Degree(App::gfx_fov_internal.GetActive()));
 
         m_cct_player_actor->prepareInside(true);
 
@@ -422,7 +420,7 @@ void CameraManager::DeactivateCurrentBehavior()
     {
         if ( m_cct_player_actor != nullptr )
         {
-            gEnv->mainCamera->setFOVy(m_cct_fov_exterior);
+            gEnv->mainCamera->setFOVy(Degree(App::gfx_fov_internal.GetActive()));
             m_cct_player_actor->prepareInside(false);
             m_cct_player_actor->NotifyActorCameraChanged();
         }
@@ -848,7 +846,7 @@ void CameraManager::CameraBehaviorOrbitReset()
     m_cam_look_at_last = Vector3::ZERO;
     m_cam_look_at_smooth = Vector3::ZERO;
     m_cam_look_at_smooth_last = Vector3::ZERO;
-    gEnv->mainCamera->setFOVy(m_cct_fov_exterior);
+    gEnv->mainCamera->setFOVy(Degree(App::gfx_fov_internal.GetActive()));
 }
 
 void CameraManager::UpdateCameraBehaviorFree()

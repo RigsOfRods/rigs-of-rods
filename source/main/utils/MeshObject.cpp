@@ -93,8 +93,6 @@ void MeshObject::setVisible(bool b)
 
 void MeshObject::postProcess()
 {
-    static const float sightrange = App::gfx_sight_range.GetActive();
-
     loaded = true;
     if (!sceneNode)
         return;
@@ -122,7 +120,7 @@ void MeshObject::postProcess()
             float distance = 3;
 
             // we need to tune this according to our sightrange
-            if (sightrange > App::GetSimTerrain()->UNLIMITED_SIGHTRANGE)
+            if (App::gfx_sight_range.GetActive() > App::GetSimTerrain()->UNLIMITED_SIGHTRANGE)
             {
                 // unlimited
                 if (i == 1)
@@ -137,6 +135,7 @@ void MeshObject::postProcess()
             else
             {
                 // limited
+                int sightrange = App::gfx_sight_range.GetActive();
                 if (i == 1)
                     distance = std::max(20.0f, sightrange * 0.1f);
                 else if (i == 2)

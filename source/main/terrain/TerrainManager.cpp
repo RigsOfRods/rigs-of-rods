@@ -230,8 +230,10 @@ void TerrainManager::initCamera()
 
     m_sight_range = App::gfx_sight_range.GetActive();
 
-    if (m_sight_range < UNLIMITED_SIGHTRANGE)
+    if (m_sight_range < UNLIMITED_SIGHTRANGE && App::gfx_sky_mode.GetActive() != GfxSkyMode::SKYX)
+    {
         gEnv->mainCamera->setFarClipDistance(m_sight_range);
+    }
     else
     {
         // disabled in global config
