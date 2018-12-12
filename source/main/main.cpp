@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
             }
             std::string ror_homedir;
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-            ror_homedir = PathCombine(user_home, "Rigs of Rods " + std::string(ROR_VERSION_STRING_SHORT));
+            ror_homedir = PathCombine(user_home, std::string("Rigs of Rods ") + std::string(ROR_VERSION_STRING_SHORT));
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
             ror_homedir = PathCombine(user_home, ".rigsofrods");
 #elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
