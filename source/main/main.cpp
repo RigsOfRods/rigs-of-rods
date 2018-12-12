@@ -124,9 +124,7 @@ int main(int argc, char *argv[])
         }
 
         Settings::getSingleton().LoadRoRCfg(); // Main config file - path obtained from GVars
-#if OGRE_PLATFORM != OGRE_PLATFORM_APPLE //MacOSX adds an extra argument in the form of -psn_0_XXXXXX when the app is double clicked
         Settings::getSingleton().ProcessCommandLine(argc, argv);
-#endif
 
         bool extract_skeleton = false;
         if (!FolderExists(App::sys_config_dir.GetActive()))
