@@ -907,6 +907,12 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
         return;
     }
 
+    if (def.airfoil == "") // May happen for malformed `wings` entry in truckfile
+    {
+        this->AddMessage(Message::TYPE_ERROR, "Unable to process wing, no Airfoil defined");
+        return;
+    }
+
     // Create airfoil
     int node_indices[8];
     for (unsigned int i = 0; i < 8; i++)
