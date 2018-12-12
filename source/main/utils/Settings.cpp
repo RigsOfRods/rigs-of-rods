@@ -647,6 +647,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckBool (App::gfx_minimap_enabled,       k, v)) { return true; }
     if (CheckB2I  (App::gfx_particles_mode,        k, v)) { return true; }
     if (CheckBool (App::gfx_enable_videocams,      k, v)) { return true; }
+    if (CheckBool (App::gfx_window_videocams,      k, v)) { return true; }
     if (CheckB2I  (App::gfx_skidmarks_mode,        k, v)) { return true; }
     if (CheckBool (App::gfx_envmap_enabled,        k, v)) { return true; }
     if (CheckFloat(App::gfx_sight_range,           k, v)) { return true; }
@@ -927,6 +928,7 @@ void Settings::SaveSettings()
     WriteAny (f, App::gfx_sky_mode.conf_name       , GfxSkyToStr       (App::gfx_sky_mode.GetActive        ()));
     WritePod (f, App::gfx_anisotropy      );
     WriteYN  (f, App::gfx_enable_videocams);
+    WriteYN  (f, App::gfx_window_videocams);
     WriteYN  (f, App::gfx_water_waves     );
     WriteYN  (f, App::gfx_minimap_enabled );
     WriteYN  (f, App::gfx_particles_mode  );
