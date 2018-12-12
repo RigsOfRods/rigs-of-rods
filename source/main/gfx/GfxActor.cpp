@@ -2228,14 +2228,10 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //aeroengines rpm + throttle + torque ( turboprop ) + pitch ( turboprop ) + status +  fire
-    int ftp = static_cast<int>(m_simbuf.simbuf_aeroengines.size());
-
-    // TODO: Investigate the `(ftp > option3 - 1.0f)` condition copypasted from `Actor::calcAnimators()` [see ## dev note on top]
-    //       - produces bogus aeroengine index when no aeroengines are defined
-    //       I had to add the `(ftp!=0)` to bypass it ~ only_a_ptr, 2018
-    if ((ftp != 0) && (ftp > option3 - 1.0f))
+    // `option3` is aeroengine number (starting from 1)
+    if (option3 > 0.f && option3 <= float(m_simbuf.simbuf_aeroengines.size()))
     {
-        int aenum = int(option3 - 1.0f);
+        const int aenum = int(option3 - 1.f);
         if (flag_state & ANIM_FLAG_RPM)
         {
             float angle;
