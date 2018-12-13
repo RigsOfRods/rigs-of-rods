@@ -30,5 +30,6 @@ cmake-build-release
 cmake-build-debug
 /.vs
 build/
-tools/linux/l10n/tx/
-tools/linux/l10n/languages/
+tools/l10n/tx/
+tools/l10n/languages/
+tools/l10n/ror\.pot

@@ -3,6 +3,10 @@ set -eu
 
 # Set's up local repo for Transifex
 
+if [ -d tx ]; then
+	rm -r tx
+fi
+
 mkdir tx
 cd tx
 

@@ -5,7 +5,7 @@ set(ROR_USE_PAGED "TRUE" CACHE BOOL "use paged-geometry")
 set(ROR_USE_CAELUM "TRUE" CACHE BOOL "use caelum sky")
 set(ROR_USE_ANGELSCRIPT "TRUE" CACHE BOOL "use angelscript")
 set(ROR_USE_CURL "TRUE" CACHE BOOL "use curl, required for communication with online services")
-
+set(ROR_USE_MOFILEREADER "TRUE" CACHE BOOL "use mofilereader")
 
 # some obsolete options:
 # disabled some options for now
@@ -27,14 +27,11 @@ if (NOT EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
     find_package(AngelScript)
     find_package(CURL)
     find_package(Caelum)
+    find_package(MoFileReader)
 
-    if (WIN32)
-        find_package(MoFileReader REQUIRED)
-    endif ()
 endif ()
 
 IF (WIN32)
-    set(ROR_USE_MOFILEREADER "TRUE" CACHE BOOL "use mofilereader")
 
     # directX
     set(DirectX_INCLUDE_DIRS "$ENV{DXSDK_DIR}/Include" CACHE PATH "The DirectX include path to use")

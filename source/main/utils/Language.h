@@ -43,22 +43,11 @@
 
 #else // NOLANG
 
-//#include "Ogre.h"
-#ifdef USE_MOFILEREADER
 // using mofilereader as gettext replacement
-# include "moFileReader.h"
-# define _L(str) LanguageEngine::getSingleton().lookUp(str).c_str()
-#else
-// gettext
+#include <moFileReader.h>
 
-#ifdef _WIN32
-#error please use MOFILEREADER (enable in cmake) when compiling for windows
-#endif // _WIN32
-
-# include <libintl.h>
-# include <locale.h>
-# define _L(str) gettext(str)
-#endif //MOFILEREADER
+#define _L(str) moFileLib::moFileReaderSingleton::GetInstance().Lookup(str).c_str()
+#define _LC(ctx,str) moFileLib::moFileReaderSingleton::GetInstance().LookupWithContext(ctx,str).c_str()
 
 #define MOFILENAME "ror"
 
@@ -69,7 +58,6 @@ class LanguageEngine : public RoRSingleton<LanguageEngine>, public ZeroedMemoryA
 public:
     void setup();
     void postSetup();
-    std::string lookUp(std::string name);
 
     Ogre::String getMyGUIFontConfigFilename();
 
@@ -80,12 +68,7 @@ protected:
     LanguageEngine& operator=(const LanguageEngine&);
     Ogre::String myguiConfigFilename;
     static LanguageEngine* myInstance;
-    bool working;
-#ifdef USE_MOFILEREADER
-    moFileLib::moFileReader* reader;
-#endif // MOFILEREADER
     void setupCodeRanges(Ogre::String codeRangesFilename, Ogre::String codeRangesGroupname);
 };
 
 #endif // NOLANG
-
