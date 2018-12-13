@@ -97,6 +97,17 @@ else ()
             )
 endif ()
 
+if (DEFINED CONAN_MOFILEREADER_ROOT)
+    target_include_directories(RoRConfig PRIVATE CONAN_PKG::MofileReader)
+    target_link_libraries(RoRConfig PRIVATE CONAN_PKG::MofileReader)
+    target_compile_definitions(RoRConfig PRIVATE USE_MOFILEREADER)
+elseif (MoFileReader_FOUND)
+    target_link_libraries(RoRConfig PRIVATE MoFileReader::MoFileReader)
+    target_compile_definitions(RoRConfig PRIVATE USE_MOFILEREADER)
+else()
+    target_compile_definitions(RoRConfig PRIVATE NOLANG)
+endif ()
+
 # OpenAL - audio library
 if (DEFINED CONAN_OPENAL_ROOT)
     target_link_libraries(RoRConfig PRIVATE CONAN_PKG::openal)

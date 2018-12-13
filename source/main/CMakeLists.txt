@@ -449,16 +449,18 @@ else ()
 endif ()
 
 # --- MoFileReader ---
-if (WIN32)
-    if (DEFINED CONAN_MOFILEREADER_ROOT)
-        target_include_directories(${BINNAME} PRIVATE CONAN_PKG::MofileReader)
-        target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::MofileReader)
-        target_compile_definitions(${BINNAME} PRIVATE USE_MOFILEREADER)
-    else ()
-        target_link_libraries(${BINNAME} PRIVATE MoFileReader::MoFileReader)
-        target_compile_definitions(${BINNAME} PRIVATE USE_MOFILEREADER)
-    endif ()
+
+if (DEFINED CONAN_MOFILEREADER_ROOT)
+    target_include_directories(${BINNAME} PRIVATE CONAN_PKG::MofileReader)
+    target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::MofileReader)
+    target_compile_definitions(${BINNAME} PRIVATE USE_MOFILEREADER)
+elseif (MoFileReader_FOUND)
+    target_link_libraries(${BINNAME} PRIVATE MoFileReader::MoFileReader)
+    target_compile_definitions(${BINNAME} PRIVATE USE_MOFILEREADER)
+else()
+    target_compile_definitions(${BINNAME} PRIVATE NOLANG)
 endif ()
+
 
 # --- MyGUI - graphical user inferface ---
 if (DEFINED CONAN_MYGUI_ROOT)

@@ -32,7 +32,7 @@
 using namespace Ogre;
 using namespace RoR;
 
-LanguageEngine::LanguageEngine() : working(false), myguiConfigFilename("MyGUI_FontsEnglish.xml")
+LanguageEngine::LanguageEngine() : myguiConfigFilename("MyGUI_FontsEnglish.xml")
 {
 }
 
@@ -59,25 +59,25 @@ Ogre::String LanguageEngine::getMyGUIFontConfigFilename()
 
 void LanguageEngine::setup()
 {
-#ifdef USE_MOFILEREADER
     // load language, must happen after initializing Settings class and Ogre Root!
     // also it must happen after loading all basic resources!
-    reader = new moFileLib::moFileReader();
 
-    Str<300> mo_path;
-    mo_path << App::sys_process_dir.GetActive() << RoR::PATH_SLASH << "languages" << PATH_SLASH;
+    Str<500> mo_path;
+    mo_path << App::sys_process_dir.GetActive() << PATH_SLASH << "languages" << PATH_SLASH;
     mo_path << App::app_locale.GetActive()[0] << App::app_locale.GetActive()[1]; // Only first 2 chars are important
     mo_path << PATH_SLASH << "LC_MESSAGES";
 
     // Load a .mo-File.
-    RoR::Log("[RoR|App] Loading language file...");
     std::string rormo_path = PathCombine(mo_path.ToCStr(), "ror.mo");
-    if (reader->ReadFile(rormo_path.c_str()) != moFileLib::moFileReader::EC_SUCCESS)
+    if (moFileLib::moFileReaderSingleton::GetInstance ().ReadFile(rormo_path.c_str ()) == moFileLib::moFileReader::EC_SUCCESS)
     {
-        RoR::LogFormat("[RoR|App] Error loading language file: '%s'", rormo_path.c_str());
+        RoR::LogFormat ("[RoR|App] Loading language file '%s'", rormo_path.c_str ());
+    }
+    else
+    {
+        RoR::LogFormat ("[RoR|App] Error loading language file: '%s'", rormo_path.c_str ());
         return;
     }
-    working = true;
 
     // add resource path
     ResourceGroupManager::getSingleton().addResourceLocation(mo_path.GetBuffer(), "FileSystem", "LanguageFolder");
@@ -87,33 +87,6 @@ void LanguageEngine::setup()
     // now load the code ranges
     // be aware, that this approach only works if we load just one language, and not multiple
     setupCodeRanges("code_range.txt", "LanguageFolder");
-#else
-    // init gettext
-    bindtextdomain("ror","languages");
-    textdomain("ror");
-
-    char *curr_locale = setlocale(LC_ALL, NULL);
-    if (curr_locale)
-        RoR::LogFormat("[RoR|App] System locale is '%s'", curr_locale);
-    else
-        RoR::Log("[RoR|App] Warning: Unable to detect system locale!");
-
-    String language_short = Ogre::String(App::app_locale.GetActive()).substr(0, 2); // only first two characters are important
-    if (!language_short.empty())
-    {
-        RoR::LogFormat("[RoR|App] Setting locale to '%s'", language_short.c_str());
-        char *newlocale = setlocale(LC_ALL, language_short.c_str());
-        if (newlocale)
-            RoR::LogFormat("[RoR|App] New locale is '%s'", newlocale);
-        else
-            RoR::Log("[RoR|App] Error setting system locale");
-    }
-    else
-    {
-        RoR::Log("[RoR|App] Using system locale without change");
-    }
-
-#endif // USE_MOFILEREADER
     RoR::Log("[RoR|App] Language successfully loaded");
 }
 
@@ -134,17 +107,6 @@ void LanguageEngine::postSetup()
         {
         }
     }
-}
-
-std::string LanguageEngine::lookUp(std::string name)
-{
-#ifdef USE_MOFILEREADER
-    if (working)
-        return reader->Lookup(name.c_str());
-    return name;
-#else
-    return UTFString(gettext(name.c_str()));
-#endif //MOFILEREADER
 }
 
 void LanguageEngine::setupCodeRanges(String codeRangesFilename, String codeRangesGroupname)
