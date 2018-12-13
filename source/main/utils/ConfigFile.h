@@ -75,6 +75,8 @@ public:
 
     void SetString(Ogre::String key, Ogre::String value, Ogre::String section = Ogre::StringUtil::BLANK);
 
+    bool HasSection(std::string const & name);
+
 private:
     //Block access to Ogre::ConfigFile::getSetting() - not UTF8 safe!
     Ogre::String getSetting(Ogre::String, Ogre::String);

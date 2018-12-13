@@ -72,13 +72,12 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
 
     def.start_position       = StringConverter::parseVector3(file.GetStringEx("StartPosition", "General"), Vector3(512.0f, 0.0f, 512.0f));
 
-    try
+    if (file.HasSection("Authors"))
     {
-        auto itor = file.getSettingsIterator("Authors");
-        while (itor.hasMoreElements())
+        for (auto& author: file.getSettings("Authors"))
         {
-            String type = RoR::Utils::SanitizeUtf8String(itor.peekNextKey());   // e.g. terrain
-            String name = RoR::Utils::SanitizeUtf8String(itor.peekNextValue()); // e.g. john doe
+            String type = RoR::Utils::SanitizeUtf8String(author.first);  // e.g. terrain
+            String name = RoR::Utils::SanitizeUtf8String(author.second); // e.g. john doe
 
             if (!name.empty())
             {
@@ -87,37 +86,26 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
                 author.name = name;
                 def.authors.push_back(author);
             }
-
-            itor.moveNext();
         }
     }
-    catch (Ogre::Exception& e) {} // Thrown if section 'Authors' doesn't exist
 
-    try
+    if (file.HasSection("Objects"))
     {
-        auto itor = file.getSettingsIterator("Objects");
-        while (itor.hasMoreElements())
+        for (auto& tobj: file.getSettings("Objects"))
         {
-            Ogre::String tobj_filename = itor.peekNextKey();
-            Ogre::StringUtil::trim(tobj_filename);
-            def.tobj_files.push_back(tobj_filename);
-            itor.moveNext();
+            Ogre::String tobj_filename = RoR::Utils::SanitizeUtf8String(tobj.first);
+            def.tobj_files.push_back(RoR::Utils::TrimStr(tobj_filename));
         }
     }
-    catch (Ogre::Exception& e) {} // Thrown if section 'Objects' doesn't exist
 
-    try
+    if (file.HasSection("Scripts"))
     {
-        auto itor = file.getSettingsIterator("Scripts");
-        while (itor.hasMoreElements())
+        for (auto& script: file.getSettings("Scripts"))
         {
-            Ogre::String as_filename = itor.peekNextKey();
-            Ogre::StringUtil::trim(as_filename);
-            def.as_files.push_back(as_filename);
-            itor.moveNext();
+            Ogre::String as_filename = RoR::Utils::SanitizeUtf8String(script.first);
+            def.as_files.push_back(RoR::Utils::TrimStr(as_filename));
         }
     }
-    catch (Ogre::Exception& e) {} // Thrown if section 'Scripts' doesn't exist
 
     this->ProcessTeleport(def, &file);
 
