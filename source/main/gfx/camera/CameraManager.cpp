@@ -420,7 +420,7 @@ void CameraManager::DeactivateCurrentBehavior()
     {
         if ( m_cct_player_actor != nullptr )
         {
-            gEnv->mainCamera->setFOVy(Degree(App::gfx_fov_internal.GetActive()));
+            gEnv->mainCamera->setFOVy(Degree(App::gfx_fov_external.GetActive()));
             m_cct_player_actor->prepareInside(false);
             m_cct_player_actor->NotifyActorCameraChanged();
         }
@@ -846,7 +846,7 @@ void CameraManager::CameraBehaviorOrbitReset()
     m_cam_look_at_last = Vector3::ZERO;
     m_cam_look_at_smooth = Vector3::ZERO;
     m_cam_look_at_smooth_last = Vector3::ZERO;
-    gEnv->mainCamera->setFOVy(Degree(App::gfx_fov_internal.GetActive()));
+    gEnv->mainCamera->setFOVy(Degree(App::gfx_fov_external.GetActive()));
 }
 
 void CameraManager::UpdateCameraBehaviorFree()
