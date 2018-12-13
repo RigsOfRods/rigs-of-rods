@@ -258,8 +258,7 @@ void CreateOverlayWrapper()
 
 void DestroyOverlayWrapper()
 {
-    assert(g_overlay_wrapper != nullptr && "DestroyOverlayWrapper(): OverlayWrapper never created");
-    delete g_overlay_wrapper;
+    delete g_overlay_wrapper; // deleting nullptr does nothing
     g_overlay_wrapper = nullptr;
 }
 
