@@ -1858,12 +1858,17 @@ struct Tie
 {
     Tie();
 
+    static const char OPTION_n_FILLER = 'n';
+    static const char OPTION_i_INVISIBLE = 'i';
+    static const char OPTION_s_NO_SELF_LOCK = 's';
+
     Node::Ref root_node;
     float max_reach_length;
     float auto_shorten_rate;
     float min_length;
     float max_length;
     bool is_invisible;
+    bool disable_self_lock;
     float max_stress;
     std::shared_ptr<BeamDefaults> beam_defaults;
     int detacher_group;
