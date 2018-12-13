@@ -257,7 +257,6 @@ void RoR::GUI::GameSettings::Draw()
             ImGui::PopItemWidth();
         }
 
-        DrawGCheckbox(App::gfx_minimap_enabled,  _L("Minimap enabled"));
         DrawGCheckbox(App::gfx_enable_videocams, _L("Render video cameras"));
         DrawGCheckbox(App::gfx_water_waves,      _L("Waves on water"));
 

@@ -67,10 +67,7 @@ void RoR::GfxScene::InitScene(Ogre::SceneManager* sm)
 
 void RoR::GfxScene::InitSurveyMap(Ogre::Vector3 terrain_size)
 {
-    if (RoR::App::gfx_minimap_enabled.GetActive())
-    {
-        m_survey_map = std::unique_ptr<SurveyMapManager>(new SurveyMapManager(Vector2(terrain_size.x, terrain_size.z)));
-    }
+    m_survey_map = std::unique_ptr<SurveyMapManager>(new SurveyMapManager(Vector2(terrain_size.x, terrain_size.z)));
 }
 
 void RoR::GfxScene::UpdateScene(float dt_sec)
