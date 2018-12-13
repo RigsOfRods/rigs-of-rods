@@ -206,8 +206,9 @@ Tie::Tie():
     min_length(0),
     max_length(0),
     is_invisible(false),
+    disable_self_lock(false),
     max_stress(100000.0f), // default, hardcoded in legacy SerializedRig.cpp, BTS_TIES
-    detacher_group(0), /* Global detacher group */
+    detacher_group(0), // Global detacher group
     group(-1) // = group not set
 {}
 

@@ -2712,6 +2712,7 @@ void ActorSpawner::ProcessTie(RigDef::Tie & def)
     tie.ti_contract_speed = def.auto_shorten_rate;
     tie.ti_max_stress = def.max_stress;
     tie.ti_min_length = def.min_length;
+    tie.ti_no_self_lock = def.disable_self_lock;
     m_actor->ar_ties.push_back(tie);
 
     m_actor->m_has_command_beams = true;

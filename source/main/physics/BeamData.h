@@ -265,21 +265,21 @@ struct rope_t
     Actor*     rp_locked_actor;
 };
 
-
 struct tie_t
 {
     Actor*     ti_locked_actor;
     beam_t*    ti_beam;
     ropable_t* ti_locked_ropable;
     int        ti_group;
-    bool       ti_tied;
-    bool       ti_tying;
     float      ti_command_value;
     float      ti_contract_speed;
     float      ti_max_stress;
-    float      ti_min_length; //!< Proportional to orig; length
-};
+    float      ti_min_length;       //!< Proportional to orig; length
 
+    bool       ti_no_self_lock:1;   //!< Attribute
+    bool       ti_tied:1;           //!< State
+    bool       ti_tying:1;          //!< State
+};
 
 struct wing_t
 {

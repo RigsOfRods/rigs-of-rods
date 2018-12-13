@@ -3251,8 +3251,12 @@ void Actor::ToggleTies(int group)
                 // iterate over all actors
                 for (auto actor : App::GetSimController()->GetActors())
                 {
-                    if (actor->ar_sim_state == SimState::LOCAL_SLEEPING)
+                    if (actor->ar_sim_state == SimState::LOCAL_SLEEPING ||
+                        (actor == this && it->ti_no_self_lock))
+                    {
                         continue;
+                    }
+
                     // and their ropables
                     for (std::vector<ropable_t>::iterator itr = actor->ar_ropables.begin(); itr != actor->ar_ropables.end(); itr++)
                     {

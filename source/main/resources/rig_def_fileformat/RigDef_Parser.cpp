@@ -2083,8 +2083,31 @@ void Parser::ParseTies()
     tie.auto_shorten_rate = this->GetArgFloat  (2);
     tie.min_length        = this->GetArgFloat  (3);
     tie.max_length        = this->GetArgFloat  (4);
-    
-    if (m_num_args > 5) { tie.is_invisible = (this->GetArgChar  (5) == 'i'); }
+
+    if (m_num_args > 5)
+    {
+        for (char c: this->GetArgStr(5))
+        {
+            switch (c)
+            {
+            case Tie::OPTION_n_FILLER:
+                break;
+
+            case Tie::OPTION_i_INVISIBLE:
+                tie.is_invisible = true;
+                break;
+
+            case Tie::OPTION_s_NO_SELF_LOCK:
+                tie.disable_self_lock = true;
+                break;
+
+            default:
+                this->AddMessage(Message::TYPE_WARNING, std::string("Invalid option: ") + c + ", ignoring...");
+                break;
+            }
+        }
+    }
+
     if (m_num_args > 6) { tie.max_stress   =  this->GetArgFloat (6); }
     if (m_num_args > 7) { tie.group        =  this->GetArgInt   (7); }
 
