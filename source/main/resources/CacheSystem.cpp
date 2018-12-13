@@ -127,6 +127,8 @@ void CacheSystem::LoadModCache(CacheValidityState validity)
         this->loadAllDirectoriesInResourceGroup("VehicleFolders");
         this->loadAllDirectoriesInResourceGroup("TerrainFolders");
 
+        this->checkForNewKnownFiles(); // TODO: does some duplicate work, but needed to pick up flat files in 'HOME/vehicles' dir
+
         this->WriteCacheFileJson();
         this->LoadCacheFileJson();
     }
@@ -209,6 +211,8 @@ bool CacheSystem::resourceExistsInAllGroups(Ogre::String filename)
 
 CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
 {
+    this->GenerateHashFromFilenames();
+
     // First, open cache file and get SHA1 hash for quick update check
     std::ifstream ifs(this->getCacheConfigFilename(true)); // TODO: Load using OGRE resource system ~ only_a_ptr, 10/2018
     rapidjson::IStreamWrapper isw(ifs);
@@ -229,8 +233,6 @@ CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
         RoR::Log("[RoR|ModCache] invalid cachefile format, performing full rebuild.");
         return CACHE_NEEDS_UPDATE_FULL;
     }
-
-    this->GenerateHashFromFilenames();
 
     if (j_doc["global_hash"].GetString() != m_filenames_hash)
     {
