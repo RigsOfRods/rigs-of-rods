@@ -81,3 +81,10 @@ void ConfigFile::SetString(Ogre::String key, Ogre::String value, Ogre::String se
     // add key
     set->insert(std::multimap<Ogre::String, Ogre::String>::value_type(key, value));
 }
+
+bool ConfigFile::HasSection(std::string const & name)
+{
+    // This is the only way to check existence of section
+    //  without either an OGRE exception being logged or using deprecated API.
+    return this->getSettingsBySection().find(name) != this->getSettingsBySection().end();
+}
