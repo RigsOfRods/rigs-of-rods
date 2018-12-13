@@ -644,7 +644,6 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckSpeedoImperial                       (k, v)) { return true; }
     if (CheckInt  (App::gfx_anisotropy,            k, v)) { return true; }
     if (CheckBool (App::gfx_water_waves,           k, v)) { return true; }
-    if (CheckBool (App::gfx_minimap_enabled,       k, v)) { return true; }
     if (CheckB2I  (App::gfx_particles_mode,        k, v)) { return true; }
     if (CheckBool (App::gfx_enable_videocams,      k, v)) { return true; }
     if (CheckBool (App::gfx_window_videocams,      k, v)) { return true; }
@@ -930,7 +929,6 @@ void Settings::SaveSettings()
     WriteYN  (f, App::gfx_enable_videocams);
     WriteYN  (f, App::gfx_window_videocams);
     WriteYN  (f, App::gfx_water_waves     );
-    WriteYN  (f, App::gfx_minimap_enabled );
     WriteYN  (f, App::gfx_particles_mode  );
     WriteYN  (f, App::gfx_skidmarks_mode  );
     WriteYN  (f, App::gfx_speedo_digital  );
