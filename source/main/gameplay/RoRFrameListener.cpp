@@ -1429,19 +1429,24 @@ void SimController::UpdateInputEvents(float dt)
 
 void SimController::TeleportPlayer(RoR::Terrn2Telepoint* telepoint)
 {
-    if (m_player_actor != nullptr)
-        return; // Player could enter an actor while Teleport-GUI is visible
+    Vector3 target = telepoint->position;
 
-    gEnv->player->setPosition(telepoint->position);
+    if (m_player_actor)
+        m_player_actor->ResetPosition(target.x, target.z, false, target.y);
+    else
+        gEnv->player->setPosition(target);
 }
 
 void SimController::TeleportPlayerXZ(float x, float z)
 {
-    if (m_player_actor)
-        return; // Player could enter an actor while Teleport-GUI is visible
+    Vector3 pos = m_player_actor ? m_player_actor->getPosition() : gEnv->player->getPosition();
+    Real agl = gEnv->collisions->getSurfaceHeight(pos.x, pos.z) - pos.y;
+    Real y = gEnv->collisions->getSurfaceHeight(x, z) + agl;
 
-    float y = App::GetSimTerrain()->GetHeightAt(x, z);
-    gEnv->player->setPosition(Ogre::Vector3(x, y, z));
+    if (m_player_actor)
+        m_player_actor->ResetPosition(x, z, false, y);
+    else
+        gEnv->player->setPosition(Vector3(x, y ,z));
 }
 
 void SimController::FinalizeActorSpawning(Actor* local_actor, Actor* prev_actor, ActorSpawnRequest rq)

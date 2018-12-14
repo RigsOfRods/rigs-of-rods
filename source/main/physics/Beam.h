@@ -76,6 +76,7 @@ public:
     /// @param translation Offset to move in world coordinates
     /// @param setInitPosition Set initial positions of nodes to current position?
     void              ResetPosition(Ogre::Vector3 translation, bool setInitPosition);
+    void              ResetPosition(float px, float pz, bool setInitPosition, float miny);
     void              RequestRotation(float rotation) { m_rotation_request += rotation; };
     void              RequestAngleSnap(int division) { m_anglesnap_request = division; };
     void              RequestTranslation(Ogre::Vector3 translation) { m_translation_request += translation; };
@@ -401,7 +402,6 @@ private:
     void              resetSlideNodes();                   //!< Reset all the SlideNodes
     void              updateSlideNodePositions();          //!< incrementally update the position of all SlideNodes
     void              ResetAngle(float rot);
-    void              ResetPosition(float px, float pz, bool setInitPosition, float miny);
     /// @param actor which actor to retrieve the closest Rail from
     /// @param node which SlideNode is being checked against
     /// @return a pair containing the rail, and the distant to the SlideNode
