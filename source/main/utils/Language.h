@@ -39,8 +39,7 @@
 
 #ifdef NOLANG
 // no language mode
-// used when building with wxwidgets for example (as they ship their own i18n)
-# define _L(str) ANSI_TO_UTF(str)
+# define _L
 
 #else // NOLANG
 

@@ -202,7 +202,9 @@ int main(int argc, char *argv[])
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OGRE_CORE);
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::WALLPAPERS);
 
+#ifndef NOLANG
         LanguageEngine::getSingleton().setup();
+#endif // NOLANG
 
         // Setup rendering (menu + simulation)
         Ogre::SceneManager* scene_manager = App::GetOgreSubsystem()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "main_scene_manager");
