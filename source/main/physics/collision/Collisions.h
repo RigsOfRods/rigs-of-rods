@@ -159,6 +159,7 @@ public:
 
     eventsource_t* isTruckInEventBox(Actor* truck);
 
+    float getSurfaceHeight(float x, float z);
     bool collisionCorrect(Ogre::Vector3* refpos, bool envokeScriptCallbacks = true);
     bool groundCollision(node_t* node, float dt);
     bool isInside(Ogre::Vector3 pos, const Ogre::String& inst, const Ogre::String& box, float border = 0);

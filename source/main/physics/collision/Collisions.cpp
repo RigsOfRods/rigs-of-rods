@@ -715,6 +715,34 @@ void Collisions::clearEventCache()
     m_last_called_cboxes.clear();
 }
 
+float Collisions::getSurfaceHeight(float x, float z)
+{
+    float terrain_height = App::GetSimTerrain()->GetHeightAt(x, z);
+
+    // find the correct cell
+    if (!(x > 0 && x < m_terrain_size.x && z > 0 && z < m_terrain_size.z))
+        return terrain_height;
+
+    int refx = (int)(x / (float)CELL_SIZE);
+    int refz = (int)(z / (float)CELL_SIZE);
+    int hash = hash_find(refx, refz);
+
+    // upper boundary for the mesh height in this cell
+    float mesh_height = hashtable_height[hash];
+
+    // Try to find the correct surface height
+    for (int i=0; i<5000; i++)
+    {
+        const float offset = 0.01f;
+        Vector3 query = Vector3(x, mesh_height - offset, z);
+        if (gEnv->collisions->collisionCorrect(&query, false))
+            break;
+        mesh_height -= offset;
+    }
+
+    return std::max(terrain_height, mesh_height);
+}
+
 bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
 {
     // find the correct cell
