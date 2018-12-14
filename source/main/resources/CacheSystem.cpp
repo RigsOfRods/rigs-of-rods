@@ -422,20 +422,8 @@ void CacheSystem::incrementalCacheUpdate()
         // check whether it changed
         if (it->resource_bundle_type == "Zip")
         {
-            // check file time, if that fails, fall back to sha1 (needed for platforms where filetime is not yet implemented!
-            bool check = false;
             std::time_t ft = RoR::GetFileLastModifiedTime(fn);
-            if (!ft)
-            {
-                check = (it->hash != HashFile(fn.c_str()));
-            }
-            else
-            {
-                // faster file time check
-                check = (it->filetime != ft);
-            }
-
-            if (check)
+            if ((!ft || it->filetime != ft) && (it->hash != HashFile(fn.c_str())))
             {
                 LOG("- "+fn+" changed");
                 it->changedornew = true;
