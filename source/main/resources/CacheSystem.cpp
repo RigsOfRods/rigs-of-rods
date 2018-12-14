@@ -728,7 +728,6 @@ void CacheSystem::addFile(String filename, String archiveType, String archiveDir
     {
         try
         {
-            //LOG("Read to add "+String(entry.dname)+" filename "+String(filename));
             DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource(filename, group);
 
             if (ext == "terrn2")
@@ -737,7 +736,6 @@ void CacheSystem::addFile(String filename, String archiveType, String archiveDir
             }
             else
             {
-                entry.dname = ds->getLine();
                 fillTruckDetailInfo(entry, ds, filename);
             }
 
@@ -822,6 +820,16 @@ void CacheSystem::fillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     /* RETRIEVE DATA */
 
     std::shared_ptr<RigDef::File> def = parser.GetFile();
+
+    /* Name */
+    if (!def->name.empty())
+    {
+        entry.dname = def->name; // Use retrieved name
+    }
+    else
+    {
+        entry.dname = "@" + file_name; // Fallback
+    }
 
     /* Description */
     std::vector<Ogre::String>::iterator desc_itor = def->description.begin();
