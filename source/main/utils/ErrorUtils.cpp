@@ -36,9 +36,6 @@
 #include "Language.h"
 #endif
 
-#ifndef NOOGRE
-#endif //NOOGRE
-
 using namespace Ogre;
 
 int ErrorUtils::ShowError(Ogre::UTFString title, Ogre::UTFString err)

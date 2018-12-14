@@ -21,26 +21,10 @@
 
 #include "InputEngine.h"
 
-// some gcc fixes
-#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#endif //OGRE_PLATFORM_LINUX
-
 #include "Application.h"
-#include "ErrorUtils.h"
-#include "OgreSubsystem.h"
-
-#include <Ogre.h>
-#include <OgreStringConverter.h>
-#include <OgreException.h>
-
-#ifndef NOOGRE
-
 #include "GUIManager.h"
 #include "Language.h"
-#else
-#define _L(x) x
-#endif
+#include "OgreSubsystem.h"
 
 const char* mOISDeviceType[6] = {"Unknown Device", "Keyboard", "Mouse", "JoyStick", "Tablet", "Other Device"};
 
