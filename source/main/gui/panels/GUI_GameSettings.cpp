@@ -75,12 +75,12 @@ void RoR::GUI::GameSettings::Draw()
         {
             render_system_names += rs->getName() + '\0';
         }
-        const auto rs = ogre_root->getRenderSystemByName(App::app_desired_render_sys.GetActive());
+        const auto rs = ogre_root->getRenderSystemByName(App::app_rendersys_override.GetActive());
         const auto it = std::find(render_systems.begin(), render_systems.end(), rs);
         int render_id = it != render_systems.end() ? std::distance(render_systems.begin(), it) : 0;
         if (ImGui::Combo("Render System", &render_id, render_system_names.c_str()))
         {
-            App::app_desired_render_sys.SetActive(render_systems[render_id]->getName().c_str());
+            App::app_rendersys_override.SetActive(render_systems[render_id]->getName().c_str());
         }
 
         const auto config_options = ogre_root->getRenderSystem()->getConfigOptions();

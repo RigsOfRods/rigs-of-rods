@@ -83,7 +83,7 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_APS<int>         app_num_workers         ("app_num_workers",         "NumWorkerThreads",          0,
          0,         0);
  GVarStr_AP<50>           app_screenshot_format   ("app_screenshot_format",   "Screenshot Format",         "jpg",                   "jpg");
- GVarStr_A<100>           app_desired_render_sys  ("app_desired_render_sys",  "Render system",             "");
+ GVarStr_A<100>           app_rendersys_override  ("app_rendersys_override",  "Render system",             "");
 
 
 // Simulation

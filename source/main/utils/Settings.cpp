@@ -614,7 +614,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     // App
     if (CheckScreenshotFormat                     (k, v)) { return true; }
     if (CheckStr  (App::app_locale,                k, v)) { return true; }
-    if (CheckStr  (App::app_desired_render_sys,    k, v)) { return true; }
+    if (CheckStr  (App::app_rendersys_override,    k, v)) { return true; }
     if (CheckBool (App::app_skip_main_menu,        k, v)) { return true; }
     if (CheckBool (App::app_async_physics,         k, v)) { return true; }
     if (CheckInt  (App::app_num_workers,           k, v)) { return true; }
@@ -974,7 +974,7 @@ void Settings::SaveSettings()
     f << std::endl << "; Application"<< std::endl;
     WriteStr (f, App::app_screenshot_format );
     WriteStr (f, App::app_locale            );
-    WriteStr (f, App::app_desired_render_sys);
+    WriteStr (f, App::app_rendersys_override);
     WriteYN  (f, App::app_skip_main_menu    );
     WriteYN  (f, App::app_async_physics     );
     WritePod (f, App::app_num_workers       );
