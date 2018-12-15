@@ -27,6 +27,7 @@
 #include "GUIManager.h"
 #include "GUI_MainSelector.h"
 #include "InputEngine.h"
+#include "Language.h"
 #include "OgreSubsystem.h"
 #include "RoRFrameListener.h"
 #include "SurveyMapEntity.h"
@@ -51,6 +52,15 @@ SurveyMapManager::SurveyMapManager(Ogre::Vector2 terrain_size) :
     mMapTextureCreator->init();
     mMapTextureCreator->update(mMapCenter, mMapSize);
     mMapTexture->setImageTexture(mMapTextureCreator->getTextureName());
+
+    mMapTexture->eventMouseSetFocus      += MyGUI::newDelegate(this, &SurveyMapManager::setFocus);
+    mMapTexture->eventMouseLostFocus     += MyGUI::newDelegate(this, &SurveyMapManager::lostFocus);
+    mMapTexture->eventMouseMove          += MyGUI::newDelegate(this, &SurveyMapManager::mouseMove);
+    mMapTexture->eventMouseButtonPressed += MyGUI::newDelegate(this, &SurveyMapManager::mousePressed);
+
+    mCursorEntity = createMapEntity("other");
+    mCursorEntity->setVisibility(false);
+    mCursorEntity->setCaption(_L("Teleport"));
 }
 
 SurveyMapManager::~SurveyMapManager()
@@ -279,4 +289,35 @@ void SurveyMapManager::UpdateMapEntity(SurveyMapEntity* e, String caption, Vecto
         e->setPosition(relPos.x / mMapSize.x, relPos.y / mMapSize.y);
         e->setVisibility(visible && !culled);
     }
+}
+
+void SurveyMapManager::setFocus(MyGUI::Widget* _sender, MyGUI::Widget* _new)
+{
+    mCursorEntity->setVisibility(true);
+}
+
+void SurveyMapManager::lostFocus(MyGUI::Widget* _sender, MyGUI::Widget* _old)
+{
+    mCursorEntity->setVisibility(false);
+}
+
+void SurveyMapManager::mouseMove(MyGUI::Widget* _sender, int _left, int _top)
+{
+    float left = (float)(_left - mMapTexture->getAbsoluteLeft()) / (float)mMapTexture->getWidth();
+    float top  = (float)(_top  - mMapTexture->getAbsoluteTop())  / (float)mMapTexture->getHeight();
+
+    mCursorEntity->setPosition(left, top);
+
+    RoR::App::GetGuiManager()->SetMouseCursorVisibility(RoR::GUIManager::MouseCursorVisibility::HIDDEN);
+}
+
+void SurveyMapManager::mousePressed(MyGUI::Widget* _sender, int _left, int _top, MyGUI::MouseButton _id)
+{
+    float left = (float)(_left - mMapTexture->getAbsoluteLeft()) / (float)mMapTexture->getWidth();
+    float top  = (float)(_top  - mMapTexture->getAbsoluteTop())  / (float)mMapTexture->getHeight();
+    
+    Vector2 origin = mMapCenter - mMapSize / 2;
+    Vector2 pos = origin + Vector2(left, top) * mMapSize;
+
+    App::GetSimController()->TeleportPlayerXZ(pos.x, pos.y);
 }

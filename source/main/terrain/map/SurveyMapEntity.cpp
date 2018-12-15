@@ -33,6 +33,8 @@ SurveyMapEntity::SurveyMapEntity(String type, MyGUI::StaticImagePtr parent) :
 {
     initialiseByAttributes(this, parent);
 
+    mMainWidget->setNeedMouseFocus(false);
+
     mIconRotating = mIcon->getSubWidgetMain()->castType<MyGUI::RotatingSkin>(false);
 
     // check if static only icon
