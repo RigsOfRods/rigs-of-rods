@@ -74,6 +74,12 @@ protected:
     SurveyMapMode mLastMapMode;
     SurveyMapMode mMapMode;
 
+    SurveyMapEntity* mCursorEntity;
+    void setFocus(MyGUI::Widget* _sender, MyGUI::Widget* _new);
+    void lostFocus(MyGUI::Widget* _sender, MyGUI::Widget* _old);
+    void mouseMove(MyGUI::Widget* _sender, int _left, int _top);
+    void mousePressed(MyGUI::Widget* _sender, int _left, int _top, MyGUI::MouseButton _id);
+
     void cycleMode();
 
     void updateMap();
