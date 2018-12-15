@@ -1439,8 +1439,12 @@ void SimController::TeleportPlayer(RoR::Terrn2Telepoint* telepoint)
 
 void SimController::TeleportPlayerXZ(float x, float z)
 {
-    Vector3 pos = m_player_actor ? m_player_actor->getPosition() : gEnv->player->getPosition();
-    Real agl = gEnv->collisions->getSurfaceHeight(pos.x, pos.z) - pos.y;
+    Vector3 pos = gEnv->player->getPosition();
+    if (m_player_actor)
+    {
+        pos = m_player_actor->ar_nodes[m_player_actor->ar_lowest_contacting_node].AbsPosition;
+    }
+    Real agl = pos.y - gEnv->collisions->getSurfaceHeight(pos.x, pos.z);
     Real y = gEnv->collisions->getSurfaceHeight(x, z) + agl;
 
     if (m_player_actor)
