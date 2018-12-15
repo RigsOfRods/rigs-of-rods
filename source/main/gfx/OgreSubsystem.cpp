@@ -68,14 +68,14 @@ bool OgreSubsystem::Configure()
         else
             m_ogre_root->showConfigDialog(OgreBites::getNativeConfigDialog());
     }
-    const auto rs = m_ogre_root->getRenderSystemByName(App::app_desired_render_sys.GetActive());
+    const auto rs = m_ogre_root->getRenderSystemByName(App::app_rendersys_override.GetActive());
     if (rs != nullptr && rs != m_ogre_root->getRenderSystem())
     {
         // The user has selected a different render system during the previous session.
         m_ogre_root->setRenderSystem(rs);
         m_ogre_root->saveConfig();
     }
-    App::app_desired_render_sys.SetActive(m_ogre_root->getRenderSystem()->getName().c_str());
+    App::app_rendersys_override.SetActive("");
 
     m_render_window = m_ogre_root->initialise(false);
 
