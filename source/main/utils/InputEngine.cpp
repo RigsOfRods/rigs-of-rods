@@ -1871,7 +1871,7 @@ bool InputEngine::setup(String hwnd, bool capture, bool capturemouse, bool captu
         if (RoR::App::io_input_grab_mode.GetActive() != RoR::IoInputGrabMode::ALL)
         {
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-            pl.insert(OIS::ParamList::value_type("x11_mouse_hide", "false"));
+            pl.insert(OIS::ParamList::value_type("x11_mouse_hide", "true"));
             pl.insert(OIS::ParamList::value_type("XAutoRepeatOn", "false"));
             pl.insert(OIS::ParamList::value_type("x11_mouse_grab", "false"));
             pl.insert(OIS::ParamList::value_type("x11_keyboard_grab", "false"));
