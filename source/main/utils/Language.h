@@ -40,6 +40,7 @@
 #ifdef NOLANG
 // no language mode
 # define _L
+# define _LC
 
 #else // NOLANG
 
