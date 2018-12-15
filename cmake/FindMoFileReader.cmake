@@ -35,9 +35,9 @@
 # * MoFileReader::MoFileReader
 #
 
-find_path(MoFileReader_INCLUDE_DIR MoFileReader.h)
+find_path(MoFileReader_INCLUDE_DIR moFileReader.h)
 find_library(MoFileReader_LIBRARY
-        NAMES MoFileReader.static MoFileReader
+        NAMES MoFileReader.static moFileReader
         PATH_SUFFIXES Debug Release RelWithDebInfo
         )
 
