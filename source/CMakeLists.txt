@@ -35,6 +35,7 @@ recursive_zip_folder(content "${ror_content_SOURCE_DIR}" "${RUNTIME_OUTPUT_DIREC
 add_custom_target(
         zip_and_copy_resources
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/resources/managed_materials ${RUNTIME_OUTPUT_DIRECTORY}/resources/managed_materials
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/resources/fonts/Roboto-Medium.ttf ${RUNTIME_OUTPUT_DIRECTORY}/languages/Roboto-Medium.ttf
         COMMENT "Zip and copy resources to build directory"
         DEPENDS ${ROR_RESOURCES_ZIPS} ${ROR_CONTENT_ZIPS}
         VERBATIM

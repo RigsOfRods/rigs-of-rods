@@ -50,6 +50,8 @@ public:
         ImVec4 no_entries_text_color;
         ImVec4 error_text_color;
         ImVec4 selected_entry_text_color;
+
+        ImFont* default_font;
     };
 
     // NOTE: RoR's mouse cursor management is a mess - cursor is hidden/revealed ad-hoc in the code (originally by calling `MyGUI::PointerManager::setVisible()`); this enum+API cleans it up a bit ~ only_a_ptr, 09/2017
