@@ -70,7 +70,6 @@ namespace RoR
         class  MultiplayerSelector;
         class  OpenSaveFileDialog;
         class  SimUtils;
-        class  TeleportWindow;
         class  TopMenubar;
     }
 } // namespace RoR

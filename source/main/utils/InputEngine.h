@@ -258,7 +258,6 @@ enum events
     EV_COMMON_TRUCK_INFO, //!< toggle truck HUD
     EV_COMMON_TRUCK_DESCRIPTION, //!< toggle truck description
     EV_COMMON_TRUCK_REMOVE,
-    EV_COMMON_TELEPORT_TOGGLE, //!< Enter/exit teleport mode
     EV_GRASS_LESS, //!< EXPERIMENTAL: remove some grass
     EV_GRASS_MORE, //!< EXPERIMENTAL: add some grass
     EV_GRASS_MOST, //!< EXPERIMENTAL: set maximum amount of grass

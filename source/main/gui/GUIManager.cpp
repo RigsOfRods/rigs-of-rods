@@ -53,7 +53,6 @@
 #include "GUI_RigSpawnerReportWindow.h"
 #include "GUI_SimUtils.h"
 #include "GUI_TextureToolWindow.h"
-#include "GUI_TeleportWindow.h"
 #include "GUI_TopMenubar.h"
 #include "GUI_VehicleDescription.h"
 
@@ -86,7 +85,6 @@ struct GuiManagerImpl
     GUI::MpClientList           panel_MpClientList;
     GUI::FrictionSettings       panel_FrictionSettings;
     GUI::TextureToolWindow      panel_TextureToolWindow;
-    GUI::TeleportWindow         panel_TeleportWindow;
     GUI::LoadingWindow          panel_LoadingWindow;
     GUI::TopMenubar             panel_TopMenubar;
     RoR::Console                panel_GameConsole;
@@ -112,7 +110,6 @@ void GUIManager::SetVisible_VehicleDescription  (bool v) { m_impl->panel_Vehicle
 void GUIManager::SetVisible_MpClientList        (bool v) { m_impl->panel_MpClientList       .SetVisible(v); }
 void GUIManager::SetVisible_FrictionSettings    (bool v) { m_impl->panel_FrictionSettings   .SetVisible(v); }
 void GUIManager::SetVisible_TextureToolWindow   (bool v) { m_impl->panel_TextureToolWindow  .SetVisible(v); }
-void GUIManager::SetVisible_TeleportWindow      (bool v) { m_impl->panel_TeleportWindow     .SetVisible(v); }
 void GUIManager::SetVisible_LoadingWindow       (bool v) { m_impl->panel_LoadingWindow      .SetVisible(v); }
 void GUIManager::SetVisible_Console             (bool v) { m_impl->panel_GameConsole        .SetVisible(v); }
 void GUIManager::SetVisible_GameSettings        (bool v) { m_impl->panel_GameSettings       .SetVisible(v); }
@@ -128,7 +125,6 @@ bool GUIManager::IsVisible_VehicleDescription   () { return m_impl->panel_Vehicl
 bool GUIManager::IsVisible_MpClientList         () { return m_impl->panel_MpClientList       .IsVisible(); }
 bool GUIManager::IsVisible_FrictionSettings     () { return m_impl->panel_FrictionSettings   .IsVisible(); }
 bool GUIManager::IsVisible_TextureToolWindow    () { return m_impl->panel_TextureToolWindow  .IsVisible(); }
-bool GUIManager::IsVisible_TeleportWindow       () { return m_impl->panel_TeleportWindow     .IsVisible(); }
 bool GUIManager::IsVisible_LoadingWindow        () { return m_impl->panel_LoadingWindow      .IsVisible(); }
 bool GUIManager::IsVisible_Console              () { return m_impl->panel_GameConsole        .IsVisible(); }
 bool GUIManager::IsVisible_GameSettings         () { return m_impl->panel_GameSettings       .IsVisible(); }
@@ -144,7 +140,6 @@ GUI::MultiplayerSelector*   GUIManager::GetMpSelector()        { return &m_impl-
 GUI::FrictionSettings*      GUIManager::GetFrictionSettings()  { return &m_impl->panel_FrictionSettings    ; }
 GUI::SimUtils*              GUIManager::GetSimUtils()          { return &m_impl->panel_SimUtils            ; }
 GUI::TopMenubar*            GUIManager::GetTopMenubar()        { return &m_impl->panel_TopMenubar          ; }
-GUI::TeleportWindow*        GUIManager::GetTeleport()          { return &m_impl->panel_TeleportWindow      ; }
 
 GUIManager::GUIManager() :
     m_renderwindow_closed(false),
@@ -383,7 +378,6 @@ void GUIManager::ReflectGameState()
         m_impl->panel_DebugOptions       .SetVisible(false);
         m_impl->panel_FrictionSettings   .SetVisible(false);
         m_impl->panel_TextureToolWindow  .SetVisible(false);
-        m_impl->panel_TeleportWindow     .SetVisible(false);
         m_impl->panel_VehicleDescription .SetVisible(false);
         m_impl->panel_SpawnerReport      .SetVisible(false);
         m_impl->panel_SimUtils           .SetBaseVisible(false);

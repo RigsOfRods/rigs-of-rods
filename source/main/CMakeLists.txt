@@ -160,8 +160,6 @@ set(SOURCE_FILES
         gui/panels/GUI_RigSpawnerReportWindowLayout.{h,cpp}
         gui/panels/GUI_SimUtils.{h,cpp}
         gui/panels/GUI_SimUtilsLayout.{h,cpp}
-        gui/panels/GUI_TeleportWindow.{h,cpp}
-        gui/panels/GUI_TeleportWindowLayout.{h,cpp}
         gui/panels/GUI_VehicleDescription.{h,cpp}
         gui/panels/GUI_VehicleDescriptionLayout.{h,cpp}
         network/Network.{h,cpp}

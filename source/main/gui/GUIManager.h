@@ -75,7 +75,6 @@ public:
     void SetVisible_MpClientList        (bool visible);
     void SetVisible_FrictionSettings    (bool visible);
     void SetVisible_TextureToolWindow   (bool visible);
-    void SetVisible_TeleportWindow      (bool visible);
     void SetVisible_LoadingWindow       (bool visible);
     void SetVisible_Console             (bool visible);
 
@@ -93,7 +92,6 @@ public:
     bool IsVisible_VehicleDescription   ();
     bool IsVisible_FrictionSettings     ();
     bool IsVisible_TextureToolWindow    ();
-    bool IsVisible_TeleportWindow       ();
     bool IsVisible_LoadingWindow        ();
     bool IsVisible_Console              ();
 
@@ -108,7 +106,6 @@ public:
     GUI::FrictionSettings* GetFrictionSettings();
     GUI::SimUtils* GetSimUtils();
     GUI::TopMenubar* GetTopMenubar();
-    GUI::TeleportWindow* GetTeleport();
 
     // GUI manipulation
     void pushMessageChatBox(Ogre::String txt);
