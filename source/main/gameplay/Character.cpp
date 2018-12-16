@@ -649,10 +649,7 @@ GfxCharacter* Character::SetupGfx()
 
 RoR::GfxCharacter::~GfxCharacter()
 {
-    if (App::GetSimController()->GetGfxScene().GetSurveyMap())
-    {
-        App::GetSimController()->GetGfxScene().GetSurveyMap()->deleteMapEntity(xc_survey_map_entity);
-    }
+    App::GetSimController()->GetGfxScene().GetSurveyMap()->deleteMapEntity(xc_survey_map_entity);
     Entity* ent = static_cast<Ogre::Entity*>(xc_scenenode->getAttachedObject(0));
     xc_scenenode->detachAllObjects();
     gEnv->sceneManager->destroySceneNode(xc_scenenode);
@@ -757,16 +754,12 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
     }
 
     // SurveyMapEntity
-    auto survey_map = App::GetSimController()->GetGfxScene().GetSurveyMap();
-    if (survey_map)
-    {
-        if (xc_survey_map_entity == nullptr)
-            xc_survey_map_entity = survey_map->createMapEntity("person");
-        String caption = (App::mp_state.GetActive() == MpState::CONNECTED) ? xc_simbuf.simbuf_net_username : "";
-        survey_map->UpdateMapEntity(xc_survey_map_entity, caption,
-                xc_simbuf.simbuf_character_pos, xc_simbuf.simbuf_character_rot.valueRadians(),
-                -static_cast<int>(xc_simbuf.simbuf_is_remote), !xc_simbuf.simbuf_actor_coupling);
-    }
+    if (xc_survey_map_entity == nullptr)
+        xc_survey_map_entity = App::GetSimController()->GetGfxScene().GetSurveyMap()->createMapEntity("person");
+    String caption = (App::mp_state.GetActive() == MpState::CONNECTED) ? xc_simbuf.simbuf_net_username : "";
+    App::GetSimController()->GetGfxScene().GetSurveyMap()->UpdateMapEntity(xc_survey_map_entity, caption,
+            xc_simbuf.simbuf_character_pos, xc_simbuf.simbuf_character_rot.valueRadians(),
+            -static_cast<int>(xc_simbuf.simbuf_is_remote), !xc_simbuf.simbuf_actor_coupling);
 
     // Multiplayer label
 #ifdef USE_SOCKETW

@@ -183,30 +183,30 @@ bool TerrainManager::LoadAndPrepareTerrain(std::string filename)
     //PROGRESS_WINDOW(33, _L("Initializing Water Subsystem"));
     //initWater();
 
-    PROGRESS_WINDOW(47, _L("Initializing Dashboards Subsystem"));
+    PROGRESS_WINDOW(35, _L("Initializing Dashboards Subsystem"));
     initDashboards();
 
     fixCompositorClearColor();
 
     LOG(" ===== LOADING TERRAIN GEOMETRY " + filename);
-    PROGRESS_WINDOW(80, _L("Loading Terrain Geometry"));
+    PROGRESS_WINDOW(40, _L("Loading Terrain Geometry"));
     if (!m_geometry_manager->InitTerrain(m_def.ogre_ter_conf_filename))
     {
         return false; // Error already reported
     }
 
-    PROGRESS_WINDOW(86, _L("Initializing Collision Subsystem"));
+    PROGRESS_WINDOW(60, _L("Initializing Collision Subsystem"));
     m_collisions = new Collisions();
     gEnv->collisions = m_collisions;
 
-    PROGRESS_WINDOW(88, _L("Initializing Script Subsystem"));
+    PROGRESS_WINDOW(75, _L("Initializing Script Subsystem"));
     initScripting();
 
     LOG(" ===== LOADING TERRAIN WATER " + filename);
     initWater();
 
     LOG(" ===== LOADING TERRAIN OBJECTS " + filename);
-    PROGRESS_WINDOW(90, _L("Loading Terrain Objects"));
+    PROGRESS_WINDOW(80, _L("Loading Terrain Objects"));
     loadTerrainObjects();
 
     // bake the decals
@@ -215,10 +215,15 @@ bool TerrainManager::LoadAndPrepareTerrain(std::string filename)
     // init things after loading the terrain
     initTerrainCollisions();
 
-    PROGRESS_WINDOW(95, _L("Initializing terrain light properties"));
+    PROGRESS_WINDOW(90, _L("Initializing terrain light properties"));
     m_geometry_manager->UpdateMainLightPosition(); // Initial update takes a while
     m_collisions->finishLoadingTerrain();
     LOG(" ===== TERRAIN LOADING DONE " + filename);
+
+    RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(95, _L("Initializing Overview Map Subsystem"));
+    LoadTelepoints();
+    LoadPredefinedActors();
+    App::GetSimController()->GetGfxScene().InitSurveyMap();
 
     return true;
 }
@@ -504,6 +509,12 @@ Ogre::Vector3 TerrainManager::GetNormalAt(float x, float y, float z)
 SkyManager* TerrainManager::getSkyManager()
 {
     return m_sky_manager;
+}
+
+void TerrainManager::LoadTelepoints()
+{
+    if (m_object_manager)
+        m_object_manager->LoadTelepoints();
 }
 
 void TerrainManager::LoadPredefinedActors()

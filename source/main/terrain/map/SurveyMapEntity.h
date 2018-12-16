@@ -56,7 +56,6 @@ private:
     Ogre::Real mRotation;
     Ogre::String mFileName;
     Ogre::String mType;
-    bool mIsStatic;
 
     void updateIcon();
 };

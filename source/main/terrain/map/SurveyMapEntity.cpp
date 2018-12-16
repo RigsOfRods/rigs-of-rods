@@ -37,10 +37,6 @@ SurveyMapEntity::SurveyMapEntity(String type, MyGUI::StaticImagePtr parent) :
 
     mIconRotating = mIcon->getSubWidgetMain()->castType<MyGUI::RotatingSkin>(false);
 
-    // check if static only icon
-    String group = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME;
-    mIsStatic = ResourceGroupManager::getSingleton().resourceExists(group, mFileName);
-
     updateIcon();
 }
 
@@ -77,23 +73,12 @@ void SurveyMapEntity::setVisibility(bool v)
 
 void SurveyMapEntity::setState(int truckstate)
 {
-    if (mIsStatic)
-        return;
+    String fileName = mFileName;
 
-    String fileName = "icon_" + mType + "_sleeping" + ".dds";  // orange icon | "_deactivated" -> yellow icon
-
-    switch (truckstate)
-    {
-    case static_cast<int>(Actor::SimState::LOCAL_SIMULATED):
+    if (truckstate == static_cast<int>(Actor::SimState::LOCAL_SIMULATED))
         fileName = "icon_" + mType + "_activated" + ".dds"; // green icon
-        break;
-    case static_cast<int>(Actor::SimState::NETWORKED_OK):
+    else if (truckstate == static_cast<int>(Actor::SimState::NETWORKED_OK))
         fileName = "icon_" + mType + "_networked" + ".dds"; // blue icon
-        break;
-    default:
-        fileName = "icon_" + mType + ".dds"; // grey icon
-        break;
-    }
 
     if (mFileName != fileName)
     {
@@ -112,11 +97,11 @@ void SurveyMapEntity::updateIcon()
     // set image texture to load it into memory, so TextureManager::getByName will have it loaded if files exist
     mIcon->setImageTexture(mFileName);
 
-    TexturePtr texture = (TexturePtr)(TextureManager::getSingleton().getByName(mFileName));
+    TexturePtr texture = TextureManager::getSingleton().getByName(mFileName);
     if (texture.isNull())
     {
         mFileName = "icon_missing.dds";
-        texture = (TexturePtr)(TextureManager::getSingleton().getByName(mFileName));
+        texture = TextureManager::getSingleton().getByName(mFileName);
     }
 
     if (!texture.isNull())

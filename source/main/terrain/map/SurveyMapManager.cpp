@@ -32,35 +32,25 @@
 #include "RoRFrameListener.h"
 #include "SurveyMapEntity.h"
 #include "SurveyMapTextureCreator.h"
+#include "TerrainManager.h"
 
 using namespace RoR;
 using namespace Ogre;
 
-SurveyMapManager::SurveyMapManager(Ogre::Vector2 terrain_size) :
-      mMapCenter(terrain_size / 2)
-    , mLastMapMode(SurveyMapMode::SMALL)
+SurveyMapManager::SurveyMapManager() :
+      mMapCenter(Vector2::ZERO)
+    , mMapLastMode(SurveyMapMode::SMALL)
     , mMapMode(SurveyMapMode::NONE)
-    , mMapSize(terrain_size)
-    , mMapTextureCreator(new SurveyMapTextureCreator(terrain_size))
+    , mMapSize(Vector2::ZERO)
+    , mMapTextureCreatorStatic(nullptr)
+    , mMapTextureCreatorDynamic(nullptr)
     , mMapZoom(0.0f)
-    , mPlayerPosition(terrain_size / 2)
-    , mTerrainSize(terrain_size)
+    , mMapLastZoom(0.0f)
+    , mPlayerPosition(Vector2::ZERO)
+    , mTerrainSize(Vector2::ZERO)
 {
     initialiseByAttributes(this);
     mMainWidget->setVisible(false);
-
-    mMapTextureCreator->init();
-    mMapTextureCreator->update(mMapCenter, mMapSize);
-    mMapTexture->setImageTexture(mMapTextureCreator->getTextureName());
-
-    mMapTexture->eventMouseSetFocus      += MyGUI::newDelegate(this, &SurveyMapManager::setFocus);
-    mMapTexture->eventMouseLostFocus     += MyGUI::newDelegate(this, &SurveyMapManager::lostFocus);
-    mMapTexture->eventMouseMove          += MyGUI::newDelegate(this, &SurveyMapManager::mouseMove);
-    mMapTexture->eventMouseButtonPressed += MyGUI::newDelegate(this, &SurveyMapManager::mousePressed);
-
-    mCursorEntity = createMapEntity("other");
-    mCursorEntity->setVisibility(false);
-    mCursorEntity->setCaption(_L("Teleport"));
 }
 
 SurveyMapManager::~SurveyMapManager()
@@ -72,6 +62,39 @@ SurveyMapManager::~SurveyMapManager()
             delete entity;
         }
     }
+}
+
+void SurveyMapManager::init()
+{
+    Vector3 terrain_size = App::GetSimTerrain()->getMaxTerrainSize();
+
+    mTerrainSize = Vector2(terrain_size.x, terrain_size.z);
+    mPlayerPosition = mTerrainSize / 2;
+    mMapCenter = mTerrainSize / 2;
+    mMapSize = mTerrainSize;
+
+    ConfigOptionMap ropts = App::GetOgreSubsystem()->GetOgreRoot()->getRenderSystem()->getConfigOptions();
+    int resolution = StringConverter::parseInt(StringUtil::split(ropts["Video Mode"].currentValue, " x ")[0], 1024);
+    int fsaa = StringConverter::parseInt(ropts["FSAA"].currentValue, 0);
+    int res = std::pow(2, std::floor(std::log2(resolution)));
+
+    mMapTextureCreatorStatic = std::unique_ptr<SurveyMapTextureCreator>(new SurveyMapTextureCreator(mTerrainSize));
+    mMapTextureCreatorStatic->init(res, fsaa);
+    mMapTextureCreatorStatic->update(mMapCenter, mMapSize);
+
+    // TODO: Find out how to zoom into the static texture instead
+    mMapTextureCreatorDynamic = std::unique_ptr<SurveyMapTextureCreator>(new SurveyMapTextureCreator(mTerrainSize));
+    mMapTextureCreatorDynamic->init(res / 4, fsaa);
+    mMapTextureCreatorDynamic->update(mMapCenter, mMapSize);
+
+    mMapTexture->eventMouseSetFocus      += MyGUI::newDelegate(this, &SurveyMapManager::setFocus);
+    mMapTexture->eventMouseLostFocus     += MyGUI::newDelegate(this, &SurveyMapManager::lostFocus);
+    mMapTexture->eventMouseMove          += MyGUI::newDelegate(this, &SurveyMapManager::mouseMove);
+    mMapTexture->eventMouseButtonPressed += MyGUI::newDelegate(this, &SurveyMapManager::mousePressed);
+
+    mCursorEntity = createMapEntity("other");
+    mCursorEntity->setVisibility(false);
+    mCursorEntity->setCaption(_L("Teleport"));
 }
 
 SurveyMapEntity* SurveyMapManager::createMapEntity(String type)
@@ -129,7 +152,10 @@ void SurveyMapManager::updateMap()
     mMapCenter.x = Math::Clamp(mPlayerPosition.x, mMapSize.x / 2, mTerrainSize.x - mMapSize.x / 2);
     mMapCenter.y = Math::Clamp(mPlayerPosition.y, mMapSize.y / 2, mTerrainSize.y - mMapSize.y / 2);
 
-    mMapTextureCreator->update(mMapCenter, mMapSize);
+    if (mMapMode == SurveyMapMode::SMALL)
+    {
+        mMapTextureCreatorDynamic->update(mMapCenter, mMapSize);
+    }
 }
 
 void SurveyMapManager::setPlayerPosition(Ogre::Vector2 position)
@@ -217,6 +243,11 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
     switch (mMapMode)
     {
     case SurveyMapMode::SMALL:
+        if (mMapLastZoom > 0.0f)
+        {
+            setMapZoom(mMapLastZoom);
+            mMapLastZoom = 0.0f;
+        }
         if (App::GetInputEngine()->getEventBoolValue(EV_SURVEY_MAP_ZOOM_IN))
         {
             setMapZoomRelative(+dt);
@@ -227,6 +258,7 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
         }
         if (mMapZoom > 0.0f)
         {
+            mMapTexture->setImageTexture(mMapTextureCreatorDynamic->getTextureName());
             if (curr_truck)
             {
                 auto& simbuf = curr_truck->GetGfxActor()->GetSimDataBuffer();
@@ -237,19 +269,25 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
                 auto& simbuf = App::GetSimController()->GetGfxScene().GetSimDataBuffer();
                 setPlayerPosition(Vector2(simbuf.simbuf_character_pos.x, simbuf.simbuf_character_pos.z));
             }
+            mMapLastZoom = mMapZoom;
         }
         else
         {
+            mMapTexture->setImageTexture(mMapTextureCreatorStatic->getTextureName());
             setPlayerPosition(mTerrainSize / 2);
         }
         break;
 
     case SurveyMapMode::BIG:
-        setMapZoom(0.0f);
-        setPlayerPosition(mTerrainSize / 2);
         if (App::GetSimController()->AreControlsLocked() || App::GetGuiManager()->GetMainSelector()->IsVisible())
         {
             toggleMode();
+        }
+        else
+        {
+            mMapTexture->setImageTexture(mMapTextureCreatorStatic->getTextureName());
+            setPlayerPosition(mTerrainSize / 2);
+            setMapZoom(0.0f);
         }
         break;
 
@@ -262,8 +300,8 @@ void SurveyMapManager::cycleMode()
 {
     switch (mMapMode)
     {
-    case SurveyMapMode::NONE:  mLastMapMode = mMapMode = SurveyMapMode::SMALL; break;
-    case SurveyMapMode::SMALL: mLastMapMode = mMapMode = SurveyMapMode::BIG;   break;
+    case SurveyMapMode::NONE:  mMapLastMode = mMapMode = SurveyMapMode::SMALL; break;
+    case SurveyMapMode::SMALL: mMapLastMode = mMapMode = SurveyMapMode::BIG;   break;
     case SurveyMapMode::BIG:                  mMapMode = SurveyMapMode::NONE;  break;
     default:;
     }
@@ -272,7 +310,7 @@ void SurveyMapManager::cycleMode()
 
 void SurveyMapManager::toggleMode()
 {
-    mMapMode = (mMapMode == SurveyMapMode::NONE) ? mLastMapMode : SurveyMapMode::NONE;
+    mMapMode = (mMapMode == SurveyMapMode::NONE) ? mMapLastMode : SurveyMapMode::NONE;
     updateWindow();
 }
 
@@ -308,7 +346,10 @@ void SurveyMapManager::mouseMove(MyGUI::Widget* _sender, int _left, int _top)
 
     mCursorEntity->setPosition(left, top);
 
-    RoR::App::GetGuiManager()->SetMouseCursorVisibility(RoR::GUIManager::MouseCursorVisibility::HIDDEN);
+    if (App::sim_state.GetActive() == SimState::RUNNING)
+    {
+        RoR::App::GetGuiManager()->SetMouseCursorVisibility(RoR::GUIManager::MouseCursorVisibility::HIDDEN);
+    }
 }
 
 void SurveyMapManager::mousePressed(MyGUI::Widget* _sender, int _left, int _top, MyGUI::MouseButton _id)
