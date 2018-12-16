@@ -25,6 +25,7 @@
 
 #include "GUI_MultiplayerClientList.h"
 
+#include "Application.h"
 #include "BeamFactory.h"
 #include "GUIManager.h"
 #include "Language.h"
