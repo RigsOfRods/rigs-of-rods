@@ -67,7 +67,6 @@
 #include "GUI_MainSelector.h"
 #include "GUI_MultiplayerClientList.h"
 #include "GUI_SimUtils.h"
-#include "GUI_TeleportWindow.h"
 #include "GUI_TopMenubar.h"
 
 #include "SurveyMapManager.h"
@@ -203,11 +202,6 @@ void SimController::UpdateInputEvents(float dt)
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CONSOLE_TOGGLE))
     {
         gui_man->SetVisible_Console(! gui_man->IsVisible_Console());
-    }
-
-    if ((m_player_actor == nullptr) && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TELEPORT_TOGGLE))
-    {
-        gui_man->SetVisible_TeleportWindow(! gui_man->IsVisible_TeleportWindow());
     }
 
     if (App::sim_state.GetActive() == SimState::PAUSED)
@@ -1424,16 +1418,6 @@ void SimController::UpdateInputEvents(float dt)
     }
 }
 
-void SimController::TeleportPlayer(RoR::Terrn2Telepoint* telepoint)
-{
-    Vector3 target = telepoint->position;
-
-    if (m_player_actor)
-        m_player_actor->ResetPosition(target.x, target.z, false, target.y);
-    else
-        gEnv->player->setPosition(target);
-}
-
 void SimController::TeleportPlayerXZ(float x, float z)
 {
     Vector3 pos = gEnv->player->getPosition();
@@ -1716,10 +1700,6 @@ void SimController::UpdateSimulation(float dt)
 
     RoR::App::GetGuiManager()->DrawSimulationGui(dt);
 
-    const bool is_altkey_pressed =  App::GetInputEngine()->isKeyDown(OIS::KeyCode::KC_LMENU) || App::GetInputEngine()->isKeyDown(OIS::KeyCode::KC_RMENU);
-    App::GetGuiManager()->GetTeleport()->TeleportWindowFrameStep(
-        gEnv->player->getPosition().x, gEnv->player->getPosition().z, is_altkey_pressed);
-
 #ifdef USE_ANGELSCRIPT
     ScriptEngine::getSingleton().framestep(dt);
 #endif
@@ -1980,7 +1960,6 @@ void SimController::CleanupAfterSimulation()
     }
 
     m_scene_mouse.DiscardVisuals(); // TODO: move this to GfxScene ~~ only_a_ptr, 06/2018
-    App::GetGuiManager()->GetTeleport()->Reset();
 
     App::GetGuiManager()->SetVisible_LoadingWindow(false);
 }
@@ -2050,10 +2029,6 @@ bool SimController::SetupGameplayLoop()
         App::GetGuiManager()->SetVisible_LoadingWindow(false);
         return false;
     }
-
-    App::GetGuiManager()->GetTeleport()->SetupMap(
-        &App::GetSimTerrain()->GetDef(),
-        App::GetSimTerrain()->getMaxTerrainSize());
 
     // ========================================================================
     // Loading vehicle

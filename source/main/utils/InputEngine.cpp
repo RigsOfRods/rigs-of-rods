@@ -1595,12 +1595,6 @@ eventInfo_t eventInfo[] = {
         _L("toggle between windowed and fullscreen mode")
     },
     {
-        "COMMON_TELEPORT_TOGGLE",
-        EV_COMMON_TELEPORT_TOGGLE,
-        "Keyboard EXPL+F2", // Only in character mode
-        _L("enter/exit teleport mode")
-    },
-    {
         "CAMERA_FREE_MODE_FIX",
         EV_CAMERA_FREE_MODE_FIX,
         "Keyboard EXPL+ALT+C",

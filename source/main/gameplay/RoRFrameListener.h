@@ -86,7 +86,6 @@ public:
     bool   LoadTerrain           (); ///< Reads GVar 'sim_terrain_pending'
 
     // GUI interface
-    void   TeleportPlayer        (RoR::Terrn2Telepoint* telepoint); // Teleport UI
     void   TeleportPlayerXZ      (float x, float y); // Teleport UI
 
     /// @return True if everything was prepared OK and simulation may start.
