@@ -21,6 +21,7 @@
 
 #include "RoRPrerequisites.h"
 
+#include "Application.h"
 #include "CacheSystem.h"
 #include "ContentManager.h"
 #include "ErrorUtils.h"
