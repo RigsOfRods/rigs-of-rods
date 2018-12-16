@@ -152,22 +152,19 @@ void SimController::UpdateForceFeedback()
 
 void SimController::StartRaceTimer()
 {
-    m_race_start_time = (int)m_time; // TODO: This adds of up to 0.9 sec to player's time! Fix it! ~ only_a_ptr, 05/2018
+    m_race_start_time = m_time;
     m_race_in_progress = true;
 }
 
 float SimController::StopRaceTimer()
 {
-    float time;
-
     if (m_race_in_progress)
     {
-        time = static_cast<float>(m_time - m_race_start_time);
-        m_race_bestlap_time = time;
+        m_race_bestlap_time = m_time - m_race_start_time;
+        m_race_start_time = 0;
+        m_race_in_progress = false;
     }
 
-    m_race_start_time = 0;
-    m_race_in_progress = false;
     return m_race_bestlap_time;
 }
 

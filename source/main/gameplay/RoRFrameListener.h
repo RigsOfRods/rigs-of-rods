@@ -159,7 +159,7 @@ private:
     int                      m_last_screenshot_id;
     Ogre::String             m_last_screenshot_date;
 
-    unsigned long            m_race_start_time;
+    float                    m_race_start_time;
     bool                     m_race_in_progress;
     float                    m_race_bestlap_time;
 
