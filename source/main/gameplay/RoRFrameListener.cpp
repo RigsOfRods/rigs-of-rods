@@ -1420,18 +1420,37 @@ void SimController::UpdateInputEvents(float dt)
 
 void SimController::TeleportPlayerXZ(float x, float z)
 {
-    Vector3 pos = gEnv->player->getPosition();
-    if (m_player_actor)
+    Real y = gEnv->collisions->getSurfaceHeight(x, z);
+    if (!m_player_actor)
     {
-        pos = m_player_actor->ar_nodes[m_player_actor->ar_lowest_contacting_node].AbsPosition;
+        gEnv->player->setPosition(Vector3(x, y, z));
+        return;
     }
-    Real agl = pos.y - gEnv->collisions->getSurfaceHeight(pos.x, pos.z);
-    Real y = gEnv->collisions->getSurfaceHeight(x, z) + agl;
 
-    if (m_player_actor)
-        m_player_actor->ResetPosition(x, z, false, y);
-    else
-        gEnv->player->setPosition(Vector3(x, y ,z));
+    Vector3 translation = Vector3(x, y, z) - m_player_actor->ar_nodes[0].AbsPosition;
+
+    std::list<Actor*> actors = m_player_actor->GetAllLinkedActors();
+    actors.push_back(m_player_actor);
+
+    float src_agl = std::numeric_limits<float>::max(); 
+    float dst_agl = std::numeric_limits<float>::max(); 
+    for (auto actor : actors)
+    {
+        for (int i = 0; i < actor->ar_num_nodes; i++)
+        {
+            Vector3 pos = actor->ar_nodes[i].AbsPosition;
+            src_agl = std::min(pos.y - gEnv->collisions->getSurfaceHeight(pos.x, pos.z), src_agl);
+            pos += translation;
+            dst_agl = std::min(pos.y - gEnv->collisions->getSurfaceHeight(pos.x, pos.z), dst_agl);
+        }
+    }
+
+    translation += Vector3::UNIT_Y * (std::max(0.0f, src_agl) - dst_agl);
+
+    for (auto actor : actors)
+    {
+        actor->ResetPosition(actor->ar_nodes[0].AbsPosition + translation, false);
+    }
 }
 
 void SimController::FinalizeActorSpawning(Actor* local_actor, Actor* prev_actor, ActorSpawnRequest rq)
