@@ -29,7 +29,7 @@ public:
     SurveyMapTextureCreator(Ogre::Vector2 terrain_size);
     ~SurveyMapTextureCreator();
 
-    bool init();
+    bool init(int res, int fsaa);
     void update(Ogre::Vector2 center, Ogre::Vector2 size);
 
     Ogre::String getTextureName();

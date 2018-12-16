@@ -63,11 +63,13 @@ void RoR::GfxScene::InitScene(Ogre::SceneManager* sm)
     m_ogre_scene = sm;
 
     m_envmap.SetupEnvMap();
+
+    m_survey_map = std::unique_ptr<SurveyMapManager>(new SurveyMapManager());
 }
 
-void RoR::GfxScene::InitSurveyMap(Ogre::Vector3 terrain_size)
+void RoR::GfxScene::InitSurveyMap()
 {
-    m_survey_map = std::unique_ptr<SurveyMapManager>(new SurveyMapManager(Vector2(terrain_size.x, terrain_size.z)));
+    m_survey_map->init();
 }
 
 void RoR::GfxScene::UpdateScene(float dt_sec)

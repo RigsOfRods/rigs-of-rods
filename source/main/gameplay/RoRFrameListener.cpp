@@ -1651,11 +1651,8 @@ void SimController::UpdateSimulation(float dt)
                     fresh_actor->ar_driveable = MACHINE;
                 }
 
-                if (App::GetSimController()->GetGfxScene().GetSurveyMap() != nullptr)
-                {
-                    App::GetSimController()->GetGfxScene().GetSurveyMap()->createMapEntity(
-                        SurveyMapManager::getTypeByDriveable(fresh_actor->ar_driveable));
-                }
+                String type = SurveyMapManager::getTypeByDriveable(fresh_actor->ar_driveable);
+                App::GetSimController()->GetGfxScene().GetSurveyMap()->createMapEntity(type);
             }
         }
         else
@@ -1806,8 +1803,7 @@ void SimController::windowResized(Ogre::RenderWindow* rw)
     if (RoR::App::GetOverlayWrapper())
         RoR::App::GetOverlayWrapper()->windowResized();
 
-    if (m_gfx_scene.GetSurveyMap())
-        m_gfx_scene.GetSurveyMap()->windowResized(); // TODO: we shouldn't update GfxScene-owned objects from simulation, we should queue the update ~ only_a_ptr, 05/2018
+    m_gfx_scene.GetSurveyMap()->windowResized(); // TODO: we shouldn't update GfxScene-owned objects from simulation, we should queue the update ~ only_a_ptr, 05/2018
 
     //update mouse area
     RoR::App::GetInputEngine()->windowResized(rw);
@@ -1848,7 +1844,7 @@ void SimController::HideGUI(bool hidden)
     if (RoR::App::GetOverlayWrapper())
         RoR::App::GetOverlayWrapper()->showDashboardOverlays(!hidden, m_player_actor);
 
-    if (m_gfx_scene.GetSurveyMap() && m_gfx_scene.GetSurveyMap()->hidden() != hidden)
+    if (m_gfx_scene.GetSurveyMap()->hidden() != hidden)
         m_gfx_scene.GetSurveyMap()->toggleMode(); // TODO: we shouldn't update GfxScene-owned objects from simulation, but this whole HideGUI() function will likely end up being invoked by GfxActor in the future, so it's OK for now ~ only_a_ptr, 05/2018
 
     App::GetGuiManager()->hideGUI(hidden);
@@ -1904,10 +1900,6 @@ bool SimController::LoadTerrain()
         return false;
     }
     App::sim_terrain_name.ApplyPending();
-
-    // Init minimap
-    RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(50, _L("Initializing Overview Map Subsystem"));
-    App::GetSimController()->GetGfxScene().InitSurveyMap(terrain->getMaxTerrainSize());
 
     App::GetGuiManager()->FrictionSettingsUpdateCollisions();
 
@@ -1995,11 +1987,9 @@ void SimController::CleanupAfterSimulation()
 
 bool SimController::SetupGameplayLoop()
 {
-    auto* loading_window = App::GetGuiManager()->GetLoadingWindow();
-
     RoR::Log("[RoR] Loading resources...");
 
-    loading_window->setProgress(0, _L("Loading resources"));
+    App::GetGuiManager()->GetLoadingWindow()->setProgress(0, _L("Loading resources"));
     App::GetContentManager()->LoadGameplayResources();
 
     // ============================================================================
@@ -2085,8 +2075,6 @@ bool SimController::SetupGameplayLoop()
         rq.asr_origin     = ActorSpawnRequest::Origin::CONFIG_FILE;
         this->QueueActorSpawn(rq);
     }
-
-    App::GetSimTerrain()->LoadPredefinedActors();
 
     // ========================================================================
     // Extra setup

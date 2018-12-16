@@ -33,8 +33,10 @@ class SurveyMapManager : public wraps::BaseLayout
 {
 public:
 
-    SurveyMapManager(Ogre::Vector2 terrain_size);
+    SurveyMapManager();
     ~SurveyMapManager();
+
+    void init();
 
     SurveyMapEntity* createMapEntity(Ogre::String type);
     void deleteMapEntity(SurveyMapEntity* entity);
@@ -61,6 +63,7 @@ protected:
     Ogre::Vector2 mPlayerPosition;
 
     Ogre::Real mMapZoom;
+    Ogre::Real mMapLastZoom;
     Ogre::Vector2 mMapSize;
     Ogre::Vector2 mMapCenter;
 
@@ -68,10 +71,11 @@ protected:
 
     MyGUI::StaticImage* mMapTexture;
 
-    SurveyMapTextureCreator* mMapTextureCreator;
+    std::unique_ptr<SurveyMapTextureCreator> mMapTextureCreatorStatic;
+    std::unique_ptr<SurveyMapTextureCreator> mMapTextureCreatorDynamic;
 
     std::set<SurveyMapEntity*> mMapEntities;
-    SurveyMapMode mLastMapMode;
+    SurveyMapMode mMapLastMode;
     SurveyMapMode mMapMode;
 
     SurveyMapEntity* mCursorEntity;

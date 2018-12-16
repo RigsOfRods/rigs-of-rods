@@ -955,11 +955,29 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         }
         if (!strcmp("endbox", ptline))
         {
-            if (enable_collisions)
+            bool race_event = !instancename.compare(0, 10, "checkpoint") || !instancename.compare(0, 4, "race");
+            if (enable_collisions && (App::sim_races_enabled.GetActive() || !race_event))
             {
-                const String eventnameStr = eventname;
-                int boxnum = gEnv->collisions->addCollisionBox(tenode, rotating, virt, pos, rot, l, h, sr, eventnameStr, instancename, forcecam, fc, sc, dr, event_filter, scripthandler);
+                int boxnum = gEnv->collisions->addCollisionBox(tenode, rotating, virt, pos, rot, l, h, sr, eventname, instancename, forcecam, fc, sc, dr, event_filter, scripthandler);
                 obj->collBoxes.push_back((boxnum));
+
+                if (race_event)
+                {
+                    String type = "checkpoint";
+                    auto res = StringUtil::split(instancename, "|");
+                    if ((res.size() == 4 && res[2] == "0") || !instancename.compare(0, 4, "race"))
+                    {
+                        type = "racestart";
+                    }
+                    // TODO: Group checkpoint icons by race id (res[1])
+                    auto ent = App::GetSimController()->GetGfxScene().GetSurveyMap()->createMapEntity(type);
+                    m_map_entities.push_back({ent, type, "", pos, rot.y});
+                }
+                else if (!type.empty())
+                {
+                    auto ent = App::GetSimController()->GetGfxScene().GetSurveyMap()->createMapEntity(type);
+                    m_map_entities.push_back({ent, type, "", pos, rot.y});
+                }
             }
             continue;
         }
@@ -1241,21 +1259,6 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
 
         LOG("ODEF: unknown command in "+odefname+" : "+String(ptline));
     }
-
-    // add icons if type is set
-    auto survey_map = App::GetSimController()->GetGfxScene().GetSurveyMap();
-    if ((survey_map != nullptr) && !type.empty() && type != "road" && type != "sign")
-    {
-        String typestr = type;
-
-        // hack for raceways
-        if (name == "chp-checkpoint")
-            typestr = "checkpoint";
-        if (name == "chp-start")
-            typestr = "racestart";
-
-        survey_map->UpdateMapEntity(survey_map->createMapEntity(typestr), name, pos, rot.y, 0, true);
-    }
 }
 
 bool TerrainObjectManager::UpdateAnimatedObjects(float dt)
@@ -1274,6 +1277,15 @@ bool TerrainObjectManager::UpdateAnimatedObjects(float dt)
         }
     }
     return true;
+}
+
+void TerrainObjectManager::LoadTelepoints()
+{
+    for (Terrn2Telepoint& telepoint: terrainManager->GetDef().telepoints)
+    {
+        auto ent = App::GetSimController()->GetGfxScene().GetSurveyMap()->createMapEntity("telepoint");
+        m_map_entities.push_back({ent, "telepoint", telepoint.name, telepoint.position, 0});
+    }
 }
 
 void TerrainObjectManager::LoadPredefinedActors()
@@ -1305,6 +1317,13 @@ bool TerrainObjectManager::UpdateTerrainObjects(float dt)
     }
 
     this->UpdateAnimatedObjects(dt);
+
+    for (auto e : m_map_entities)
+    {
+        // TODO: Only show the checkpoints of the current race
+        bool visible = (e.type != "checkpoint") || App::GetSimController()->IsRaceInProgress();
+        App::GetSimController()->GetGfxScene().GetSurveyMap()->UpdateMapEntity(e.ent, e.name, e.pos, e.rot, -1, visible);
+    }
 
     return true;
 }

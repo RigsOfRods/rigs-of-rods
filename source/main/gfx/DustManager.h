@@ -74,7 +74,7 @@ public:
     void           RemoveGfxCharacter(RoR::GfxCharacter* gfx_character);
     void           BufferSimulationData(); //!< Run this when simulation is halted
     SimBuffer&     GetSimDataBuffer() { return m_simbuf; }
-    void           InitSurveyMap(Ogre::Vector3 terrain_size); //!< Must be called after terrain was loaded
+    void           InitSurveyMap(); //!< Must be called after terrain was loaded
     SurveyMapManager* GetSurveyMap() { return m_survey_map.get(); }
 
 private:
