@@ -98,7 +98,21 @@ GUIManager::GuiTheme::GuiTheme():
     no_entries_text_color(0.7f, 0.7f, 0.7f, 1.f),
     error_text_color(1.f, 0.175439f, 0.175439f, 1.f),
     selected_entry_text_color(.9f, 0.7f, 0.05f, 1.f)
-{}
+{
+    try
+    {
+        //Setup custom font
+        Str<500> font_path;
+        font_path << App::sys_process_dir.GetActive() << PATH_SLASH << "languages" << PATH_SLASH << "Roboto-Medium.ttf";
+        default_font = ImGui::GetIO().Fonts->AddFontFromFileTTF(font_path, 16);
+        assert(default_font);
+    }
+    catch (...)
+    {
+        LOG("Failed to load font: Roboto-Medium.ttf");
+    }
+
+}
 
 void GUIManager::SetVisible_GameMainMenu        (bool v) { m_impl->panel_GameMainMenu       .SetVisible(v); }
 void GUIManager::SetVisible_GameAbout           (bool v) { m_impl->panel_GameAbout          .SetVisible(v); }
