@@ -21,6 +21,7 @@
 
 #include "Water.h"
 
+#include "Application.h"
 #include "OgreSubsystem.h"
 #include "PlatformUtils.h" // PathCombine
 #include "RoRFrameListener.h"
