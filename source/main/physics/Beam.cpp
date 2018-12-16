@@ -53,6 +53,7 @@
 #include "Replay.h"
 #include "RigSpawner.h"
 #include "RoRFrameListener.h"
+#include "RoRnet.h"
 #include "ScrewProp.h"
 #include "Scripting.h"
 #include "Skidmark.h"

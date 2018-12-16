@@ -33,6 +33,7 @@
 #include "Network.h"
 #include "OverlayWrapper.h"
 #include "RoRFrameListener.h"
+#include "RoRnet.h"
 #include "RoRVersion.h"
 #include "Scripting.h"
 #include "TerrainManager.h"
