@@ -49,7 +49,6 @@ public:
     void           setRotation(Ogre::Radian rotation);
     void           setVisible(bool visible);
     void           move(Ogre::Vector3 offset);
-    void           unwindMovement(float distance);
     void           update(float dt);
     void           updateCharacterRotation();
     void           updateLabels();
@@ -69,6 +68,7 @@ private:
     float            m_character_h_speed;
     float            m_character_v_speed;
     Ogre::Vector3    m_character_position;
+    Ogre::Vector3    m_prev_position;
     bool             m_character_visible;
     int              m_color_number;
     int              m_stream_id;
@@ -81,7 +81,6 @@ private:
     std::string      m_instance_name;
     Ogre::UTFString  m_net_username;
     RoR::GfxCharacter*        m_gfx_character;
-    std::deque<Ogre::Vector3> m_prev_positions; 
 };
 
 namespace RoR {
