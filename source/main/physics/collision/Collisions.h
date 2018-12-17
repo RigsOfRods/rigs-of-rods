@@ -148,16 +148,12 @@ public:
     Ogre::Vector3 forcecampos;
     ground_model_t *defaultgm, *defaultgroundgm;
 
-    eventsource_t* getEvent(int eventID) { return &eventsources[eventID]; };
-
     Collisions();
     ~Collisions();
 
     Ogre::Vector3 getPosition(const Ogre::String& inst, const Ogre::String& box);
     Ogre::Quaternion getDirection(const Ogre::String& inst, const Ogre::String& box);
     collision_box_t* getBox(const Ogre::String& inst, const Ogre::String& box);
-
-    eventsource_t* isTruckInEventBox(Actor* truck);
 
     float getSurfaceHeight(float x, float z);
     bool collisionCorrect(Ogre::Vector3* refpos, bool envokeScriptCallbacks = true);

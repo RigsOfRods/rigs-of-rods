@@ -1105,38 +1105,6 @@ collision_box_t *Collisions::getBox(const Ogre::String &inst, const Ogre::String
     return NULL;
 }
 
-eventsource_t *Collisions::isTruckInEventBox(Actor *truck)
-{
-    if (!truck) return 0;
-    // check all boxes
-    for (int i=0; i<free_eventsource; i++)
-    {
-        collision_box_t *cb = &m_collision_boxes[eventsources[i].cbox];
-
-        if (!cb->enabled)
-            continue;
-
-        // check all nodes
-
-        bool allInside = true;
-        for (int n=0; n < truck->ar_num_nodes; n++)
-        {
-            if (!isInside(truck->ar_nodes[n].AbsPosition, cb))
-            {
-                // node not in box, no need to check the rest
-                allInside=false;
-                break;
-            }
-        }
-        if (allInside && cb->eventsourcenum != -1)
-        {
-            return &eventsources[cb->eventsourcenum];
-        }
-
-    }
-    return 0;
-}
-
 bool Collisions::isInside(Vector3 pos, const Ogre::String &inst, const Ogre::String &box, float border)
 {
     collision_box_t *cbox = getBox(inst, box);
