@@ -187,6 +187,35 @@ void Character::update(float dt)
             }
         }
 
+        // Submesh "collision"
+        {
+            float depth = 0.0f;
+            for (auto actor : App::GetSimController()->GetActors())
+            {
+                if (actor->ar_bounding_box.contains(position))
+                {
+                    for (int i = 0; i < actor->ar_num_collcabs; i++)
+                    {
+                        int tmpv = actor->ar_collcabs[i] * 3;
+                        Vector3 a = actor->ar_nodes[actor->ar_cabs[tmpv + 0]].AbsPosition;
+                        Vector3 b = actor->ar_nodes[actor->ar_cabs[tmpv + 1]].AbsPosition;
+                        Vector3 c = actor->ar_nodes[actor->ar_cabs[tmpv + 2]].AbsPosition;
+                        auto result = Math::intersects(Ray(position, Vector3::UNIT_Y), a, b, c);
+                        if (result.first && result.second < 1.8f)
+                        {
+                            depth = std::max(depth, result.second);
+                        }
+                    }
+                }
+            }
+            if (depth > 0.0f)
+            {
+                m_can_jump = true;
+                m_character_v_speed = std::max(0.0f, m_character_v_speed);
+                position.y += std::min(depth, 0.05f);
+            }
+        }
+
         // Obstacle detection
         if (position != m_prev_position)
         {
