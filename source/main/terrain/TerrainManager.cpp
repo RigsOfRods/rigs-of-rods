@@ -220,7 +220,7 @@ bool TerrainManager::LoadAndPrepareTerrain(std::string filename)
     m_collisions->finishLoadingTerrain();
     LOG(" ===== TERRAIN LOADING DONE " + filename);
 
-    RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(95, _L("Initializing Overview Map Subsystem"));
+    PROGRESS_WINDOW(95, _L("Initializing Overview Map Subsystem"));
     LoadTelepoints();
     LoadPredefinedActors();
     App::GetSimController()->GetGfxScene().InitSurveyMap();

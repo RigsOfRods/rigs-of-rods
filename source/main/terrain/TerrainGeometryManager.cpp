@@ -314,12 +314,12 @@ bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
     auto* loading_win = RoR::App::GetGuiManager()->GetLoadingWindow();
     for (OTCPage& page : m_spec->pages)
     {
-        loading_win->setProgress(23, _L("preparing terrain page ") + XZSTR(page.pos_x, page.pos_z));
+        loading_win->setProgress(43, _L("preparing terrain page ") + XZSTR(page.pos_x, page.pos_z));
         this->SetupGeometry(page, m_spec->is_flat);
     }
 
     // sync load since we want everything in place when we start
-    loading_win->setProgress(23, _L("loading terrain pages"));
+    loading_win->setProgress(44, _L("loading terrain pages"));
     m_ogre_terrain_group->loadAllTerrains(true);
 
     Terrain* terrain = m_ogre_terrain_group->getTerrain(0, 0);
@@ -345,9 +345,9 @@ bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
 
                 if (terrain != nullptr)
                 {
-                    loading_win->setProgress(23, _L("loading terrain page layers ") + XZSTR(page.pos_x, page.pos_z));
+                    loading_win->setProgress(45, _L("loading terrain page layers ") + XZSTR(page.pos_x, page.pos_z));
                     this->SetupLayers(page, terrain);
-                    loading_win->setProgress(23, _L("loading terrain page blend maps ") + XZSTR(page.pos_x, page.pos_z));
+                    loading_win->setProgress(45, _L("loading terrain page blend maps ") + XZSTR(page.pos_x, page.pos_z));
                     this->SetupBlendMaps(page, terrain);
                 }
             }
@@ -356,7 +356,7 @@ bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
         // always save the results when it was imported
         if (!m_spec->disable_cache)
         {
-            loading_win->setProgress(23, _L("saving all terrain pages ..."));
+            loading_win->setProgress(50, _L("saving all terrain pages ..."));
             m_ogre_terrain_group->saveAllTerrains(false);
         }
     }
