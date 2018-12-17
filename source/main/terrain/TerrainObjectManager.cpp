@@ -100,7 +100,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
     ProceduralObject po;
     po.loadingState = -1;
     int r2oldmode = 0;
-    int lastprogress = -1;
+    int lastprogress = 0;
     bool proroad = false;
 
     DataStreamPtr ds;
@@ -126,11 +126,9 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
     while (!ds->eof())
     {
         int progress = ((float)(ds->tell()) / (float)(ds->size())) * 100.0f;
-        if (progress - lastprogress > 20)
+        if (progress > lastprogress)
         {
-
             RoR::App::GetGuiManager()->GetLoadingWindow()->setProgress(progress, _L("Loading Terrain Objects"));
-
             lastprogress = progress;
         }
 
