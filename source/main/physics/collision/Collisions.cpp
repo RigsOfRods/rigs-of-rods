@@ -717,30 +717,76 @@ void Collisions::clearEventCache()
 
 float Collisions::getSurfaceHeight(float x, float z)
 {
-    float terrain_height = App::GetSimTerrain()->GetHeightAt(x, z);
+    float surface_height = App::GetSimTerrain()->GetHeightAt(x, z);
 
     // find the correct cell
     if (!(x > 0 && x < m_terrain_size.x && z > 0 && z < m_terrain_size.z))
-        return terrain_height;
+        return surface_height;
 
     int refx = (int)(x / (float)CELL_SIZE);
     int refz = (int)(z / (float)CELL_SIZE);
     int hash = hash_find(refx, refz);
 
-    // upper boundary for the mesh height in this cell
-    float mesh_height = hashtable_height[hash];
+    Vector3 origin = Vector3(x, hashtable_height[hash], z);
+    Ray ray(origin, -Vector3::UNIT_Y);
 
-    // Try to find the correct surface height
-    for (int i=0; i<5000; i++)
+    size_t num_elements = hashtable[hash].size();
+    for (size_t k = 0; k < num_elements; k++)
     {
-        const float offset = 0.01f;
-        Vector3 query = Vector3(x, mesh_height - offset, z);
-        if (gEnv->collisions->collisionCorrect(&query, false))
-            break;
-        mesh_height -= offset;
+        if (hashtable[hash][k].IsCollisionBox())
+        {
+            collision_box_t* cbox = &m_collision_boxes[hashtable[hash][k].element_index];
+
+            if (!cbox->virt)
+            {
+                if (x > cbox->lo.x && z > cbox->lo.z && x < cbox->hi.x && z < cbox->hi.z)
+                {
+                    Vector3 pos = origin - cbox->center;
+                    Vector3 dir = -Vector3::UNIT_Y;
+                    if (cbox->refined)
+                    {
+                        pos = cbox->unrot * pos;
+                        dir = cbox->unrot * dir;
+                    }
+                    if (cbox->selfrotated)
+                    {
+                        pos = pos - cbox->selfcenter;
+                        pos = cbox->selfunrot * pos;
+                        pos = pos + cbox->selfcenter;
+                        dir = cbox->selfunrot * dir;
+                    }
+                    auto result = Ogre::Math::intersects(Ray(pos, dir), AxisAlignedBox(cbox->relo, cbox->rehi));
+                    if (result.first)
+                    {
+                        Vector3 hit = pos + dir * result.second;
+                        if (cbox->selfrotated)
+                        {
+                            hit = cbox->selfrot * hit;
+                        }
+                        if (cbox->refined)
+                        {
+                            hit = cbox->rot * hit;
+                        }
+                        hit += cbox->center;
+                        surface_height = std::max(surface_height, hit.y);
+                    }
+                }
+            }
+        }
+        else // The element is a triangle
+        {
+            const int ctri_index = hashtable[hash][k].element_index - hash_coll_element_t::ELEMENT_TRI_BASE_INDEX;
+            collision_tri_t *ctri = &m_collision_tris[ctri_index];
+
+            auto result = Ogre::Math::intersects(ray, ctri->a, ctri->b, ctri->c);
+            if (result.first)
+            {
+                surface_height = std::max(surface_height, origin.y - result.second);
+            }
+        }
     }
 
-    return std::max(terrain_height, mesh_height);
+    return surface_height;
 }
 
 bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
