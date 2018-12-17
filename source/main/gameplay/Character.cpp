@@ -115,7 +115,7 @@ void Character::setPosition(Vector3 position) // TODO: updates OGRE objects --> 
 {
     //ASYNCSCENE OLD m_character_scenenode->setPosition(position);
     m_character_position = position;
-    m_prev_positions.clear();
+    m_prev_position = position;
 }
 
 void Character::setVisible(bool visible) // TODO: updates OGRE objects --> belongs to GfxScene ~ only_a_ptr, 05/2018
@@ -154,18 +154,6 @@ void Character::SetAnimState(std::string mode, float time)
     }
 }
 
-float calculate_collision_depth(Vector3 pos)
-{
-    Vector3 query = pos + Vector3::UNIT_Y;
-    while (query.y > pos.y)
-    {
-        if (gEnv->collisions->collisionCorrect(&query, false))
-            break;
-        query.y -= 0.01f;
-    }
-    return query.y - pos.y;
-}
-
 void Character::update(float dt)
 {
     if (!m_is_remote && (m_actor_coupling == nullptr) && (App::sim_state.GetActive() != SimState::PAUSED))
@@ -183,61 +171,42 @@ void Character::update(float dt)
         position.y += m_character_v_speed * dt;
         m_character_v_speed += dt * -9.8f;
 
+        // Trigger script events and handle mesh (ground) collision
+        Vector3 query = position;
+        bool collision = gEnv->collisions->collisionCorrect(&query);
+
         // Auto compensate minor height differences
-        float depth = calculate_collision_depth(position);
-        if (depth > 0.0f)
+        float depth = gEnv->collisions->getSurfaceHeight(position.x, position.z) - position.y;
+        if (depth > 0.0f && (depth < 0.3f || collision))
         {
-            m_character_v_speed = std::max(0.0f, m_character_v_speed);
             m_can_jump = true;
+            m_character_v_speed = std::max(0.0f, m_character_v_speed);
             if (depth < 0.3f)
             {
-                position.y += depth;
-                if (depth > 0.01f)
-                {
-                    App::GetSimController()->ResetCamera();
-                }
+                position.y += std::min(depth, 0.025f);
             }
-        }
-
-        // Trigger script events and handle mesh (ground) collision
-        {
-            Vector3 query = position;
-            gEnv->collisions->collisionCorrect(&query);
-            if (std::abs(position.y - query.y) > 0.1f)
-            {
-                App::GetSimController()->ResetCamera();
-            }
-            position.y = query.y;
         }
 
         // Obstacle detection
-        if (m_prev_positions.size() > 0)
+        if (position != m_prev_position)
         {
-            Vector3 lastPosition = m_prev_positions.front();
-            Vector3 diff = /*ASYNCSCENE OLDm_character_scenenode->getPosition()*/ m_character_position - lastPosition;
-            Vector3 h_diff = Vector3(diff.x, 0.0f, diff.z);
-            if (depth <= 0.0f || h_diff.squaredLength() > 0.0f)
+            Vector3 diff = position - m_prev_position;
+            const int numstep = 100;
+            Vector3 base = m_prev_position + Vector3::UNIT_Y * 0.25f;
+            for (int i = 1; i < numstep; i++)
             {
-                const int numstep = 100;
-                Vector3 base = lastPosition + Vector3::UNIT_Y * 0.5f;
-                for (int i = 1; i < numstep; i++)
+                Vector3 query = base + diff * ((float)i / numstep);
+                if (gEnv->collisions->collisionCorrect(&query, false))
                 {
-                    Vector3 query = base + diff * ((float)i / numstep);
-                    if (gEnv->collisions->collisionCorrect(&query, false))
-                    {
-                        position = lastPosition + diff * ((float)(i - 1) / numstep);;
-                        break;
-                    }
+                    m_character_v_speed = std::max(0.0f, m_character_v_speed);
+                    position = m_prev_position + diff * ((float)(i - 1) / numstep);
+                    position.y += 0.025f;
+                    break;
                 }
             }
         }
 
-        m_prev_positions.push_front(position);
-
-        if (m_prev_positions.size() > 10)
-        {
-            m_prev_positions.pop_back();
-        }
+        m_prev_position = position;
 
         // ground contact
         float pheight = App::GetSimTerrain()->GetHeightAt(position.x, position.z);
@@ -372,8 +341,7 @@ void Character::update(float dt)
                     idleanim = false;
                 }
             }
-            // 0.005f fixes character getting stuck on meshes
-            position += dt * m_character_h_speed * 1.5f * accel * Vector3(cos(m_character_rotation.valueRadians()), 0.01f, sin(m_character_rotation.valueRadians()));
+            position += dt * m_character_h_speed * 1.5f * accel * Vector3(cos(m_character_rotation.valueRadians()), 0.0f, sin(m_character_rotation.valueRadians()));
         }
         else if (tmpBack > 0.0f)
         {
@@ -388,8 +356,7 @@ void Character::update(float dt)
                 this->SetAnimState("Walk", time);
                 idleanim = false;
             }
-            // 0.005f fixes character getting stuck on meshes
-            position -= dt * m_character_h_speed * tmpBack * Vector3(cos(m_character_rotation.valueRadians()), 0.01f, sin(m_character_rotation.valueRadians()));
+            position -= dt * m_character_h_speed * tmpBack * Vector3(cos(m_character_rotation.valueRadians()), 0.0f, sin(m_character_rotation.valueRadians()));
         }
 
         if (idleanim)
@@ -430,24 +397,6 @@ void Character::update(float dt)
         this->SendStreamData();
     }
 #endif // USE_SOCKETW
-}
-
-void Character::unwindMovement(float distance)
-{
-    if (m_prev_positions.size() == 0)
-        return;
-
-    Vector3 curPos = getPosition();
-    Vector3 oldPos = curPos;
-
-    for (Vector3 pos : m_prev_positions)
-    {
-        oldPos = pos;
-        if (oldPos.distance(curPos) > distance)
-            break;
-    }
-
-    setPosition(oldPos);
 }
 
 void Character::move(Vector3 offset)
