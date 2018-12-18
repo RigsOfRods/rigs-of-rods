@@ -33,7 +33,6 @@
 // three configurations currently supported:
 // #define NOLANG            = no language translations at all, removes any special parsing tags
 // #define USE_MOFILEREADER  = windows gettext replacement
-// #define !USE_MOFILEREADER = using linux gettext
 
 # define U(str) Ogre::UTFString(L##str)
 
@@ -50,26 +49,12 @@
 #define _L(str) moFileLib::moFileReaderSingleton::GetInstance().Lookup(str).c_str()
 #define _LC(ctx,str) moFileLib::moFileReaderSingleton::GetInstance().LookupWithContext(ctx,str).c_str()
 
-#define MOFILENAME "ror"
-
 class LanguageEngine : public RoRSingleton<LanguageEngine>, public ZeroedMemoryAllocator
 {
     friend class RoRSingleton<LanguageEngine>;
 
 public:
     void setup();
-    void postSetup();
-
-    Ogre::String getMyGUIFontConfigFilename();
-
-protected:
-    LanguageEngine();
-    ~LanguageEngine();
-    LanguageEngine(const LanguageEngine&);
-    LanguageEngine& operator=(const LanguageEngine&);
-    Ogre::String myguiConfigFilename;
-    static LanguageEngine* myInstance;
-    void setupCodeRanges(Ogre::String codeRangesFilename, Ogre::String codeRangesGroupname);
 };
 
 #endif // NOLANG

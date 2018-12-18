@@ -184,11 +184,7 @@ GUIManager::GUIManager() :
     // then load the actual config
     MyGUI::ResourceManager::getInstance().load(RESOURCE_FILENAME);
 
-#ifdef NOLANG
     MyGUI::ResourceManager::getInstance().load("MyGUI_FontsEnglish.xml");
-#else
-    MyGUI::ResourceManager::getInstance().load(LanguageEngine::getSingleton().getMyGUIFontConfigFilename());
-#endif // NOLANG
 
     m_impl = new GuiManagerImpl();
     m_impl->mygui_platform = mygui_platform;

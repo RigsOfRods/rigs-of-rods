@@ -33,7 +33,7 @@
                 <Property key="FontName" value="DefaultSmall"/>
             </Widget>
         </Widget>
-        <Widget type="ImageBox" skin="ImageBox" position="5 220 340 400" align="Left Bottom" name="truckinfo_box">
+        <Widget type="ImageBox" skin="ImageBox" position="5 200 340 420" align="Left Bottom" name="truckinfo_box">
             <Property key="ImageTexture" value="truckinfobox.png"/>
             <Property key="Visible" value="false"/>
             <Widget type="EditBox" skin="WordWrapEmpty" position="10 10 320 20" name="truck_name">

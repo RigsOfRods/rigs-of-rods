@@ -234,10 +234,6 @@ void ContentManager::InitContentManager()
 #ifdef USE_OPENAL
     SoundScriptManager::getSingleton().setLoadingBaseSounds(false);
 #endif // USE_OPENAL
-
-#ifndef NOLANG
-    LanguageEngine::getSingleton().postSetup();
-#endif // NOLANG
 }
 
 void ContentManager::InitModCache()

@@ -32,31 +32,6 @@
 using namespace Ogre;
 using namespace RoR;
 
-LanguageEngine::LanguageEngine() : myguiConfigFilename("MyGUI_FontsEnglish.xml")
-{
-}
-
-LanguageEngine::~LanguageEngine()
-{
-}
-
-Ogre::String LanguageEngine::getMyGUIFontConfigFilename()
-{
-    // this is a fallback to the default English Resource if the language specific file was not found
-    String group = "";
-    try
-    {
-        group = ResourceGroupManager::getSingleton().findGroupContainingResource(myguiConfigFilename);
-    }
-    catch (...)
-    {
-    }
-    if (group == "")
-        return String("MyGUI_FontsEnglish.xml");
-
-    return myguiConfigFilename;
-}
-
 void LanguageEngine::setup()
 {
     // load language, must happen after initializing Settings class and Ogre Root!
@@ -79,39 +54,6 @@ void LanguageEngine::setup()
         return;
     }
 
-    // add resource path
-    ResourceGroupManager::getSingleton().addResourceLocation(mo_path.GetBuffer(), "FileSystem", "LanguageFolder");
-
-    ResourceGroupManager::getSingleton().initialiseResourceGroup("LanguageFolder");
-
-    // now load the code ranges
-    // be aware, that this approach only works if we load just one language, and not multiple
-    setupCodeRanges("code_range.txt", "LanguageFolder");
     RoR::Log("[RoR|App] Language successfully loaded");
-}
-
-void LanguageEngine::postSetup()
-{
-    // set some overlay used fonts to the new font config
-    String newfont = "CyberbitEnglish";
-    const char* overlays[] = {"Core/CurrFps", "Core/AverageFps", "Core/WorstFps", "Core/BestFps", "Core/NumTris", "Core/DebugText", "Core/CurrMemory", "Core/MemoryText", "Core/LoadPanel/Description", "Core/LoadPanel/Comment", 0};
-    for (int i = 0; overlays[i] != 0; i++)
-    {
-        try
-        {
-            Ogre::TextAreaOverlayElement* ot = (Ogre::TextAreaOverlayElement *)OverlayManager::getSingleton().getOverlayElement(overlays[i]);
-            if (ot)
-                ot->setFontName(newfont);
-        }
-        catch (...)
-        {
-        }
-    }
-}
-
-void LanguageEngine::setupCodeRanges(String codeRangesFilename, String codeRangesGroupname)
-{
-    // not using the default mygui font config
-    myguiConfigFilename = "MyGUI_FontConfig.xml";
 }
 #endif //NOLANG
