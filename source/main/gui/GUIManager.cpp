@@ -104,7 +104,11 @@ GUIManager::GuiTheme::GuiTheme():
         //Setup custom font
         Str<500> font_path;
         font_path << App::sys_process_dir.GetActive() << PATH_SLASH << "languages" << PATH_SLASH << "Roboto-Medium.ttf";
-        default_font = ImGui::GetIO().Fonts->AddFontFromFileTTF(font_path, 16);
+        ImFontConfig font_config;
+        font_config.OversampleH = 1;
+        font_config.OversampleV = 1;
+        font_config.PixelSnapH = true;
+        default_font = ImGui::GetIO().Fonts->AddFontFromFileTTF(font_path, 16, &font_config);
         assert(default_font);
     }
     catch (...)
