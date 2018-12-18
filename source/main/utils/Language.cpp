@@ -32,25 +32,63 @@
 using namespace Ogre;
 using namespace RoR;
 
+std::pair<std::string, std::string> extractLang(std::string info)
+{
+    String lang_long  = "";
+    String lang_short = "";
+    for (auto line : StringUtil::split(info, "\n"))
+    {
+        auto token = StringUtil::split(line);
+        if (token[0] == "Language-Team:")
+            lang_long = token[1];
+        else if (token[0] == "Language:")
+            lang_short = token[1];
+    }
+    return {lang_long, lang_short};
+}
+
 void LanguageEngine::setup()
 {
     // load language, must happen after initializing Settings class and Ogre Root!
-    // also it must happen after loading all basic resources!
 
-    Str<500> mo_path;
-    mo_path << App::sys_process_dir.GetActive() << PATH_SLASH << "languages" << PATH_SLASH;
-    mo_path << App::app_locale.GetActive()[0] << App::app_locale.GetActive()[1]; // Only first 2 chars are important
-    mo_path << PATH_SLASH << "LC_MESSAGES";
+    languages = { {"English", "en_US"} };
+    auto& moFileReader = moFileLib::moFileReaderSingleton::GetInstance();
 
-    // Load a .mo-File.
-    std::string rormo_path = PathCombine(mo_path.ToCStr(), "ror.mo");
-    if (moFileLib::moFileReaderSingleton::GetInstance ().ReadFile(rormo_path.c_str ()) == moFileLib::moFileReader::EC_SUCCESS)
+    String base_path = PathCombine(App::sys_process_dir.GetActive(), "languages");
+    ResourceGroupManager::getSingleton().addResourceLocation(base_path, "FileSystem", "LngRG");
+    FileInfoListPtr fl = ResourceGroupManager::getSingleton().findResourceFileInfo("LngRG", "*", true);
+    if (!fl->empty())
     {
-        RoR::LogFormat ("[RoR|App] Loading language file '%s'", rormo_path.c_str ());
+        for (auto file : *fl)
+        {
+            String locale_path = PathCombine(base_path, file.filename);
+            String lang_path = PathCombine(locale_path, "LC_MESSAGES");
+            String mo_path = PathCombine(lang_path, "ror.mo");
+            if (moFileReader.ReadFile(mo_path.c_str()) == moFileLib::moFileReader::EC_SUCCESS)
+            {
+                String info = moFileLib::moFileReaderSingleton::GetInstance().Lookup("");
+                languages.push_back(extractLang(info));
+            }
+        }
+        std::sort(languages.begin() + 1, languages.end());
+        moFileReader.ClearTable();
+    }
+    ResourceGroupManager::getSingleton().destroyResourceGroup("LngRG");
+
+    String language_short = App::app_locale.GetActive();
+    String locale_path = PathCombine(base_path, language_short.substr(0, 2));
+    String lang_path = PathCombine(locale_path, "LC_MESSAGES");
+    String mo_path = PathCombine(lang_path, "ror.mo");
+
+    if (moFileReader.ReadFile(mo_path.c_str()) == moFileLib::moFileReader::EC_SUCCESS)
+    {
+        String info = moFileLib::moFileReaderSingleton::GetInstance().Lookup("");
+        App::app_language.SetActive(extractLang(info).first.c_str());
+        RoR::LogFormat("[RoR|App] Loading language file '%s'", mo_path.c_str());
     }
     else
     {
-        RoR::LogFormat ("[RoR|App] Error loading language file: '%s'", rormo_path.c_str ());
+        RoR::LogFormat("[RoR|App] Error loading language file: '%s'", mo_path.c_str());
         return;
     }
 

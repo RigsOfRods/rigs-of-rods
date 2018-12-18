@@ -55,6 +55,11 @@ class LanguageEngine : public RoRSingleton<LanguageEngine>, public ZeroedMemoryA
 
 public:
     void setup();
+
+    std::vector<std::pair<std::string, std::string>> getLanguages() { return languages; };
+
+private:
+    std::vector<std::pair<std::string, std::string>> languages;
 };
 
 #endif // NOLANG

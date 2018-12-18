@@ -114,8 +114,22 @@ void RoR::GUI::GameSettings::Draw()
     {
         ImGui::TextDisabled(_LC("GameSettings", "Application settings"));
 
-        int lang_selection = 0;
-        ImGui::Combo(_LC("GameSettings", "Language"), &lang_selection, "English\0\0"); // Dummy; TODO: List available languages
+#ifndef NOLANG
+        std::vector<std::pair<std::string, std::string>> languages = LanguageEngine::getSingleton().getLanguages();
+        std::string lang_values;
+        for (auto value : languages)
+        {
+            lang_values += value.first + '\0';
+        }
+        const auto it = std::find_if(languages.begin(), languages.end(),
+                [](const std::pair<std::string, std::string>& l) { return l.second == App::app_locale.GetActive(); });
+        int lang_selection = it != languages.end() ? std::distance(languages.begin(), it) : 0;
+        if (ImGui::Combo(_LC("GameSettings", "Language"), &lang_selection, lang_values.c_str()))
+        {
+            App::app_locale.SetActive(languages[lang_selection].second.c_str());
+            LanguageEngine::getSingleton().setup();
+        }
+#endif
 
         int sshot_select = (std::strcmp(App::app_screenshot_format.GetActive(),"jpg") == 0) ? 1 : 0; // Hardcoded; TODO: list available formats.
 
