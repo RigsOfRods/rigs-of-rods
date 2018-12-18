@@ -2237,14 +2237,17 @@ void SimController::ChangePlayerActor(Actor* actor)
 
             // get player out of the vehicle
             float rotation = prev_player_actor->getRotation() - Math::HALF_PI;
-            Vector3 position = prev_player_actor->ar_nodes[0].AbsPosition;
+            Vector3 position = prev_player_actor->getPosition();
             if (prev_player_actor->ar_cinecam_node[0] != -1)
             {
-                // actor has a cinecam
-                position = prev_player_actor->ar_nodes[prev_player_actor->ar_cinecam_node[0]].AbsPosition;
-                position += -2.0 * prev_player_actor->GetCameraRoll();
-                position += Vector3(0.0, -1.0, 0.0);
+                // actor has a cinecam (find optimal exit position)
+                Vector3 l = position - 2.0f * prev_player_actor->GetCameraRoll();
+                Vector3 r = position + 2.0f * prev_player_actor->GetCameraRoll();
+                float l_h = gEnv->collisions->getSurfaceHeight(l.x, l.z);
+                float r_h = gEnv->collisions->getSurfaceHeight(r.x, r.z);
+                position  = std::abs(r.y - r_h) * 1.2f < std::abs(l.y - l_h) ? r : l;
             }
+            position.y = gEnv->collisions->getSurfaceHeight(position.x, position.z);
 
             if (gEnv->player)
             {
