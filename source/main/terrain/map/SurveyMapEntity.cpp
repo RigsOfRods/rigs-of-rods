@@ -79,6 +79,8 @@ void SurveyMapEntity::setState(int truckstate)
         fileName = "icon_" + mType + "_activated" + ".dds"; // green icon
     else if (truckstate == static_cast<int>(Actor::SimState::NETWORKED_OK))
         fileName = "icon_" + mType + "_networked" + ".dds"; // blue icon
+    else
+        fileName = "icon_" + mType + ".dds"; // gray icon
 
     if (mFileName != fileName)
     {
