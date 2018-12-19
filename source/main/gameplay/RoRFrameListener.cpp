@@ -1925,15 +1925,10 @@ bool SimController::LoadTerrain()
             App::diag_preset_spawn_rot.SetActive("");
         }
 
+        spawn_pos.y = gEnv->collisions->getSurfaceHeightBelow(spawn_pos.x, spawn_pos.z, spawn_pos.y + 1.8f);
+
         gEnv->player->setPosition(spawn_pos);
         gEnv->player->setRotation(Degree(spawn_rot));
-
-        // Small hack to prevent spawning the Character in mid-air
-        for (int i = 0; i < 100; i++)
-        {
-            gEnv->player->update(0.05f);
-        }
-
         gEnv->player->setVisible(true);
 
         gEnv->mainCamera->setPosition(gEnv->player->getPosition());
@@ -2236,6 +2231,7 @@ void SimController::ChangePlayerActor(Actor* actor)
             prev_player_actor->prepareInside(false);
 
             // get player out of the vehicle
+            float h = prev_player_actor->getMinCameraRadius();
             float rotation = prev_player_actor->getRotation() - Math::HALF_PI;
             Vector3 position = prev_player_actor->getPosition();
             if (prev_player_actor->ar_cinecam_node[0] != -1)
@@ -2243,11 +2239,11 @@ void SimController::ChangePlayerActor(Actor* actor)
                 // actor has a cinecam (find optimal exit position)
                 Vector3 l = position - 2.0f * prev_player_actor->GetCameraRoll();
                 Vector3 r = position + 2.0f * prev_player_actor->GetCameraRoll();
-                float l_h = gEnv->collisions->getSurfaceHeight(l.x, l.z);
-                float r_h = gEnv->collisions->getSurfaceHeight(r.x, r.z);
+                float l_h = gEnv->collisions->getSurfaceHeightBelow(l.x, l.z, l.y + h);
+                float r_h = gEnv->collisions->getSurfaceHeightBelow(r.x, r.z, r.y + h);
                 position  = std::abs(r.y - r_h) * 1.2f < std::abs(l.y - l_h) ? r : l;
             }
-            position.y = gEnv->collisions->getSurfaceHeight(position.x, position.z);
+            position.y = gEnv->collisions->getSurfaceHeightBelow(position.x, position.z, position.y + h);
 
             if (gEnv->player)
             {

@@ -173,18 +173,15 @@ void Character::update(float dt)
 
         // Trigger script events and handle mesh (ground) collision
         Vector3 query = position;
-        bool collision = gEnv->collisions->collisionCorrect(&query);
+        gEnv->collisions->collisionCorrect(&query);
 
         // Auto compensate minor height differences
-        float depth = gEnv->collisions->getSurfaceHeight(position.x, position.z) - position.y;
-        if (depth > 0.0f && (depth < 0.3f || collision))
+        float depth = gEnv->collisions->getSurfaceHeightBelow(position.x, position.z, position.y + 0.3f) - position.y;
+        if (depth > 0.0f)
         {
             m_can_jump = true;
             m_character_v_speed = std::max(0.0f, m_character_v_speed);
-            if (depth < 0.3f)
-            {
-                position.y += std::min(depth, 0.025f);
-            }
+            position.y += std::min(depth, 0.025f);
         }
 
         // Submesh "collision"
@@ -219,8 +216,8 @@ void Character::update(float dt)
         // Obstacle detection
         if (position != m_prev_position)
         {
-            Vector3 diff = position - m_prev_position;
             const int numstep = 100;
+            Vector3 diff = position - m_prev_position;
             Vector3 base = m_prev_position + Vector3::UNIT_Y * 0.25f;
             for (int i = 1; i < numstep; i++)
             {
