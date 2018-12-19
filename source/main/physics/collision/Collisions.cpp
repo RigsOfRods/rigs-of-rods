@@ -717,11 +717,16 @@ void Collisions::clearEventCache()
 
 float Collisions::getSurfaceHeight(float x, float z)
 {
+    return getSurfaceHeightBelow(x, z, std::numeric_limits<float>::max());
+}
+
+float Collisions::getSurfaceHeightBelow(float x, float z, float height)
+{
     float surface_height = App::GetSimTerrain()->GetHeightAt(x, z);
 
     // find the correct cell
     if (!(x > 0 && x < m_terrain_size.x && z > 0 && z < m_terrain_size.z))
-        return surface_height;
+        return std::min(surface_height, height);
 
     int refx = (int)(x / (float)CELL_SIZE);
     int refz = (int)(z / (float)CELL_SIZE);
@@ -768,7 +773,10 @@ float Collisions::getSurfaceHeight(float x, float z)
                             hit = cbox->rot * hit;
                         }
                         hit += cbox->center;
-                        surface_height = std::max(surface_height, hit.y);
+                        if (hit.y < height)
+                        {
+                            surface_height = std::max(surface_height, hit.y);
+                        }
                     }
                 }
             }
@@ -781,12 +789,15 @@ float Collisions::getSurfaceHeight(float x, float z)
             auto result = Ogre::Math::intersects(ray, ctri->a, ctri->b, ctri->c);
             if (result.first)
             {
-                surface_height = std::max(surface_height, origin.y - result.second);
+                if (origin.y - result.second < height)
+                {
+                    surface_height = std::max(surface_height, origin.y - result.second);
+                }
             }
         }
     }
 
-    return surface_height;
+    return std::min(surface_height, height);
 }
 
 bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
