@@ -43,6 +43,10 @@ add_custom_target(
 
 if (BUILD_REDIST_FOLDER)
     INSTALL(
+            DIRECTORY ${CMAKE_SOURCE_DIR}/resources/fonts/
+            DESTINATION ${REDIST_FOLDER}/languages/
+    )
+    INSTALL(
             DIRECTORY ${RUNTIME_OUTPUT_DIRECTORY}/resources/
             DESTINATION ${REDIST_FOLDER}/resources/
     )
