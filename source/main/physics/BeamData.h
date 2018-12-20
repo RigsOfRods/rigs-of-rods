@@ -467,30 +467,24 @@ struct cparticle_t
 
 struct collision_box_t
 {
-    //absolute collision box
-    Ogre::Vector3 lo; //!< absolute collision box
-    Ogre::Vector3 hi; //!< absolute collision box
-    bool refined;
-    //rotation
-    Ogre::Quaternion rot; //!< rotation
-    Ogre::Quaternion unrot; //!< rotation
-    //center of rotation
-    Ogre::Vector3 center; //!< center of rotation
-    //relative collision box
-    Ogre::Vector3 relo; //!< relative collision box
-    Ogre::Vector3 rehi; //!< relative collision box
-    //self rotation
-    bool selfrotated;
-    Ogre::Vector3 selfcenter;
-    Ogre::Quaternion selfrot;
-    Ogre::Quaternion selfunrot;
-    int eventsourcenum;
     bool virt;
+    bool refined;
+    bool selfrotated;
     bool camforced;
-    Ogre::Vector3 campos;
-    int event_filter;
     bool enabled;
-    Ogre::Vector3 ilo, ihi;
+    short event_filter;
+    short eventsourcenum;
+    Ogre::Vector3 lo;           //!< absolute collision box
+    Ogre::Vector3 hi;           //!< absolute collision box
+    Ogre::Vector3 center;       //!< center of rotation
+    Ogre::Quaternion rot;       //!< rotation
+    Ogre::Quaternion unrot;     //!< rotation
+    Ogre::Vector3 selfcenter;   //!< center of self rotation
+    Ogre::Quaternion selfrot;   //!< self rotation
+    Ogre::Quaternion selfunrot; //!< self rotation
+    Ogre::Vector3 relo;         //!< relative collision box
+    Ogre::Vector3 rehi;         //!< relative collision box
+    Ogre::Vector3 campos;       //!< camera position
 };
 
 struct ground_model_t
