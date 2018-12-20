@@ -75,7 +75,8 @@ void RoR::GUI::GameSettings::Draw()
         {
             render_system_names += rs->getName() + '\0';
         }
-        const auto rs = ogre_root->getRenderSystemByName(App::app_rendersys_override.GetActive());
+        const auto ro = ogre_root->getRenderSystemByName(App::app_rendersys_override.GetActive());
+        const auto rs = ro ? ro : ogre_root->getRenderSystem();
         const auto it = std::find(render_systems.begin(), render_systems.end(), rs);
         int render_id = it != render_systems.end() ? std::distance(render_systems.begin(), it) : 0;
         /* Combobox for selecting the Render System*/
