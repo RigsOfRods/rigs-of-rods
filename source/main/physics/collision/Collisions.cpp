@@ -609,21 +609,20 @@ int Collisions::addCollisionBox(SceneNode *tenode, bool rotating, bool virt, Vec
     }
 
     // register this collision box in the index
-    coll_box.ilo = Ogre::Vector3(coll_box.lo / Ogre::Real(CELL_SIZE));
-    coll_box.ihi = Ogre::Vector3(coll_box.hi / Ogre::Real(CELL_SIZE));
+    Vector3 ilo = Ogre::Vector3(coll_box.lo / Ogre::Real(CELL_SIZE));
+    Vector3 ihi = Ogre::Vector3(coll_box.hi / Ogre::Real(CELL_SIZE));
     
     // clamp between 0 and MAXIMUM_CELL;
-    coll_box.ilo.makeCeil(Ogre::Vector3(0.0f));
-    coll_box.ilo.makeFloor(Ogre::Vector3(MAXIMUM_CELL));
-    coll_box.ihi.makeCeil(Ogre::Vector3(0.0f));
-    coll_box.ihi.makeFloor(Ogre::Vector3(MAXIMUM_CELL));
+    ilo.makeCeil(Ogre::Vector3(0.0f));
+    ilo.makeFloor(Ogre::Vector3(MAXIMUM_CELL));
+    ihi.makeCeil(Ogre::Vector3(0.0f));
+    ihi.makeFloor(Ogre::Vector3(MAXIMUM_CELL));
 
-    for (int i=coll_box.ilo.x; i <= coll_box.ihi.x; i++)
+    for (int i = ilo.x; i <= ihi.x; i++)
     {
-        for (int j=coll_box.ilo.z; j <= coll_box.ihi.z; j++)
+        for (int j = ilo.z; j <= ihi.z; j++)
         {
-            //LOG("Adding a reference to cell "+TOSTRING(i)+" "+TOSTRING(j)+" at index "+TOSTRING(collision_index_free[i*NUM_COLLISON_CELLS+j]));
-            hash_add(i,j,coll_box_index,coll_box.hi.y);
+            hash_add(i, j, coll_box_index,coll_box.hi.y);
         }
     }
 
@@ -671,9 +670,9 @@ int Collisions::addCollisionTri(Vector3 p1, Vector3 p2, Vector3 p3, ground_model
     
     for (int i = ilo.x; i <= ihi.x; i++)
     {
-        for (int j=ilo.z; j<=ihi.z; j++)
+        for (int j = ilo.z; j<=ihi.z; j++)
         {
-            hash_add(i,j,new_tri_index+hash_coll_element_t::ELEMENT_TRI_BASE_INDEX,new_tri.aab.getMaximum().y);
+            hash_add(i, j, new_tri_index + hash_coll_element_t::ELEMENT_TRI_BASE_INDEX, new_tri.aab.getMaximum().y);
         }
     }
     
