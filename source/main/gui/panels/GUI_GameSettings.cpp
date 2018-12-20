@@ -85,12 +85,16 @@ void RoR::GUI::GameSettings::Draw()
         }
 
         const auto config_options = ogre_root->getRenderSystem()->getConfigOptions();
+        std::set<std::string> filter = {"Allow NVPerfHUD", "Colour Depth", "Fixed Pipeline Enabled",
+            "Floating-point mode", "Resource Creation Policy", "VSync Interval", "sRGB Gamma Conversion"};
         for (auto opt : config_options)
         {
             auto co = opt.second;
             if (co.immutable)
                 continue;
             if (co.possibleValues.empty())
+                continue;
+            if (filter.find(co.name) != filter.end())
                 continue;
             std::sort(co.possibleValues.rbegin(), co.possibleValues.rend());
             std::string option_values;
