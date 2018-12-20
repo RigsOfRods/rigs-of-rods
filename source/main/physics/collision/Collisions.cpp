@@ -787,7 +787,7 @@ float Collisions::getSurfaceHeightBelow(float x, float z, float height)
 
             auto lo = ctri->aab.getMinimum();
             auto hi = ctri->aab.getMaximum();
-            if (x < lo.x || z < lo.z || x > hi.x || z > hi.x)
+            if (x < lo.x || z < lo.z || x > hi.x || z > hi.z)
                 continue;
 
             auto result = Ogre::Math::intersects(ray, ctri->a, ctri->b, ctri->c);
