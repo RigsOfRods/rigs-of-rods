@@ -23,6 +23,7 @@ then
 	cp /lib/x86_64-linux-gnu/libpng12.so.0                  ./redist/lib/
 	cp /usr/lib/x86_64-linux-gnu/libIlmThread-2_2.so.12     ./redist/lib/
 	cp /usr/lib/x86_64-linux-gnu/libCg.so                   ./redist/lib/
+	cp /usr/lib/x86_64-linux-gnu/libjpeg.so.8               ./redist/lib/
 
 	# Get butler
 	wget https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default -O butler.zip
