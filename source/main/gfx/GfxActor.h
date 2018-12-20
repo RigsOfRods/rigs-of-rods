@@ -304,10 +304,11 @@ public:
     NodeData*                 GetSimNodeBuffer   ()                       { return m_simbuf.simbuf_nodes.get(); }
     void                      SetSurveyMapEntity (SurveyMapEntity* e)     { m_survey_map_entity = e; }
     SurveyMapEntity*          GetSurveyMapEntity ()                       { return m_survey_map_entity; }
+    std::set<GfxActor*>       GetLinkedGfxActors ()                       { return m_linked_gfx_actors; }
     bool                 HasDriverSeatProp   () const { return m_driverseat_prop_index != -1; }
     void                 UpdateBeaconFlare   (prop_t & prop, float dt, bool is_player_actor);
     void                 UpdateProps         (float dt, bool is_player_actor);
-    void                 UpdatePropAnimations(float dt, bool is_player_actor);
+    void                 UpdatePropAnimations(float dt, bool is_player_connected);
     void                 SetPropsVisible     (bool visible);
     void                 SetBeaconsEnabled   (bool beacon_light_is_active);
     void                 CalcPropAnimation   (const int flag_state, float& cstate, int& div, float timer,
@@ -347,6 +348,7 @@ private:
     float                       m_prop_anim_crankfactor_prev;
     float                       m_prop_anim_shift_timer;
     int                         m_prop_anim_prev_gear;
+    std::set<GfxActor*>         m_linked_gfx_actors;
 
     bool                        m_initialized;
 

@@ -1432,6 +1432,13 @@ void RoR::GfxActor::UpdateSimDataBuffer()
         m_simbuf.simbuf_autopilot_ils_vdev = m_actor->ar_autopilot->GetVerticalApproachDeviation();
         m_simbuf.simbuf_autopilot_ils_hdev = m_actor->ar_autopilot->GetHorizontalApproachDeviation();
     }
+
+    // Linked Actors
+    m_linked_gfx_actors.clear();
+    for (auto actor : m_actor->GetAllLinkedActors())
+    {
+        m_linked_gfx_actors.insert(actor->GetGfxActor());
+    }
 }
 
 bool RoR::GfxActor::IsActorLive() const
@@ -2411,7 +2418,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 }
 
-void RoR::GfxActor::UpdatePropAnimations(float dt, bool is_player_actor)
+void RoR::GfxActor::UpdatePropAnimations(float dt, bool is_player_connected)
 {
     for (prop_t& prop: m_props)
     {
@@ -2432,7 +2439,7 @@ void RoR::GfxActor::UpdatePropAnimations(float dt, bool is_player_actor)
             this->CalcPropAnimation(flagstate, cstate, div, dt, lower_limit, upper_limit, animOpt3);
 
             // key triggered animations
-            if ((prop.animFlags[animnum] & ANIM_FLAG_EVENT) && prop.animKey[animnum] != -1 && is_player_actor)
+            if ((prop.animFlags[animnum] & ANIM_FLAG_EVENT) && prop.animKey[animnum] != -1 && is_player_connected)
             {
                 // TODO: Keys shouldn't be queried from here, but buffered in sim. loop ~ only_a_ptr, 06/2018
                 if (RoR::App::GetInputEngine()->getEventValue(prop.animKey[animnum]))
