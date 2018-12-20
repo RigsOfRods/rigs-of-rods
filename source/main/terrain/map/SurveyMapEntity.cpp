@@ -73,6 +73,9 @@ void SurveyMapEntity::setVisibility(bool v)
 
 void SurveyMapEntity::setState(int truckstate)
 {
+    if (mFileName == "icon_missing.dds")
+       return;
+
     String fileName = mFileName;
 
     if (truckstate == static_cast<int>(Actor::SimState::LOCAL_SIMULATED))
