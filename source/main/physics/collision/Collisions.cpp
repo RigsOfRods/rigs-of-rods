@@ -785,6 +785,11 @@ float Collisions::getSurfaceHeightBelow(float x, float z, float height)
             const int ctri_index = hashtable[hash][k].element_index - hash_coll_element_t::ELEMENT_TRI_BASE_INDEX;
             collision_tri_t *ctri = &m_collision_tris[ctri_index];
 
+            auto lo = ctri->aab.getMinimum();
+            auto hi = ctri->aab.getMaximum();
+            if (x < lo.x || z < lo.z || x > hi.x || z > hi.x)
+                continue;
+
             auto result = Ogre::Math::intersects(ray, ctri->a, ctri->b, ctri->c);
             if (result.first)
             {
