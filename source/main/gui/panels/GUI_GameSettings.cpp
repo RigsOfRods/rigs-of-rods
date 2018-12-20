@@ -66,7 +66,7 @@ void RoR::GUI::GameSettings::Draw()
 
     if (m_tab == SettingsTab::RENDER_SYSTEM)
     {
-        ImGui::TextDisabled(_LC("GameSettings", "Render system"));
+        ImGui::TextDisabled(_LC("GameSettings", "Render system (changes require a restart)"));
 
         const auto ogre_root = App::GetOgreSubsystem()->GetOgreRoot();
         const auto render_systems = ogre_root->getAvailableRenderers();
