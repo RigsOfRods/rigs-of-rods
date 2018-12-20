@@ -314,17 +314,17 @@ void CLASS::EventComboAcceptConfigComboBox(MyGUI::ComboBoxPtr _sender, size_t _i
 template <typename T1, typename T2>
 struct sort_cats
 {
-    bool operator ()(std::pair<int, Category_Entry> const& a, std::pair<int, Category_Entry> const& b) const
+    bool operator ()(std::pair<int, Ogre::String> const& a, std::pair<int, Ogre::String> const& b) const
     {
-        if (a.second.number == CacheSystem::CID_All)
+        if (a.first == CacheSystem::CID_All)
             return true;
-        if (b.second.number == CacheSystem::CID_All)
+        if (b.first == CacheSystem::CID_All)
             return false;
-        if (a.second.number == CacheSystem::CID_Fresh)
+        if (a.first == CacheSystem::CID_Fresh)
             return true;
-        if (b.second.number == CacheSystem::CID_Fresh)
+        if (b.first == CacheSystem::CID_Fresh)
             return false;
-        return a.second.title < b.second.title;
+        return a.second < b.second;
     }
 };
 
@@ -428,28 +428,28 @@ void CLASS::UpdateGuiData()
         m_entries.push_back(*it);
     }
     int tally_categories = 0, current_category = 0;
-    std::map<int, Category_Entry>* cats = RoR::App::GetCacheSystem()->getCategories();
+    std::map<int, Ogre::String>* cats = RoR::App::GetCacheSystem()->getCategories();
 
-    std::vector<std::pair<int, Category_Entry>> sorted_cats(cats->begin(), cats->end());
-    std::sort(sorted_cats.begin(), sorted_cats.end(), sort_cats<int, Category_Entry>());
+    std::vector<std::pair<int, Ogre::String>> sorted_cats(cats->begin(), cats->end());
+    std::sort(sorted_cats.begin(), sorted_cats.end(), sort_cats<int, Ogre::String>());
 
-    for (std::vector<std::pair<int, Category_Entry>>::iterator itc = sorted_cats.begin(); itc != sorted_cats.end(); itc++)
+    for (std::vector<std::pair<int, Ogre::String>>::iterator itc = sorted_cats.begin(); itc != sorted_cats.end(); itc++)
     {
-        if (mCategoryUsage[itc->second.number] > 0)
+        if (mCategoryUsage[itc->first] > 0)
             tally_categories++;
     }
-    for (std::vector<std::pair<int, Category_Entry>>::iterator itc = sorted_cats.begin(); itc != sorted_cats.end(); itc++)
+    for (std::vector<std::pair<int, Ogre::String>>::iterator itc = sorted_cats.begin(); itc != sorted_cats.end(); itc++)
     {
-        int num_elements = mCategoryUsage[itc->second.number];
+        int num_elements = mCategoryUsage[itc->first];
         if (num_elements > 0)
         {
             Ogre::UTFString title = _L("unknown");
-            if (!itc->second.title.empty())
+            if (!itc->second.empty())
             {
-                title = _L(itc->second.title.c_str());
+                title = _L(itc->second.c_str());
             }
             Ogre::UTFString txt = U("[") + TOUTFSTRING(++current_category) + U("/") + TOUTFSTRING(tally_categories) + U("] (") + TOUTFSTRING(num_elements) + U(") ") + title;
-            m_Type->addItem(convertToMyGUIString(txt), itc->second.number);
+            m_Type->addItem(convertToMyGUIString(txt), itc->first);
         }
     }
     if (tally_categories > 0)
