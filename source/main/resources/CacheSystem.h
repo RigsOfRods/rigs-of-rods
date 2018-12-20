@@ -167,6 +167,8 @@ public:
 
     CacheEntry *getEntry(int modid);
 
+    Ogre::String getCacheConfigFilename(); // returns absolute path of the cache file
+
     int getTimeStamp();
 
     enum CategoryID {CID_Max=9000, CID_Unsorted=9990, CID_All=9991, CID_Fresh=9992, CID_Hidden=9993, CID_SearchResults=9994};
@@ -196,7 +198,6 @@ private:
     void fillTruckDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname);
 
     void GenerateHashFromFilenames();         //!< For quick detection of added/removed content
-    Ogre::String getCacheConfigFilename(bool full); // returns filename of the cache file
     void incrementalCacheUpdate();             // tries to update parts of the Cache only
 
     void generateFileCache(CacheEntry &entry, Ogre::String directory=Ogre::String());	// generates a new cache

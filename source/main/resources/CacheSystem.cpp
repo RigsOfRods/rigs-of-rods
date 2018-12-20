@@ -191,11 +191,9 @@ std::vector<CacheEntry>* CacheSystem::getEntries()
     return &m_entries;
 }
 
-String CacheSystem::getCacheConfigFilename(bool full)
+String CacheSystem::getCacheConfigFilename()
 {
-    if (full)
-        return Ogre::String(App::sys_cache_dir.GetActive())  + PATH_SLASH + String(CACHE_FILE);
-    return String(CACHE_FILE);
+    return PathCombine(App::sys_cache_dir.GetActive(), CACHE_FILE);
 }
 
 // we implement this on our own, since we cannot reply on the ogre version
@@ -217,7 +215,7 @@ CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
     this->GenerateHashFromFilenames();
 
     // First, open cache file and get SHA1 hash for quick update check
-    std::ifstream ifs(this->getCacheConfigFilename(true)); // TODO: Load using OGRE resource system ~ only_a_ptr, 10/2018
+    std::ifstream ifs(this->getCacheConfigFilename()); // TODO: Load using OGRE resource system ~ only_a_ptr, 10/2018
     rapidjson::IStreamWrapper isw(ifs);
     rapidjson::Document j_doc;
     j_doc.ParseStream(isw);
@@ -342,7 +340,7 @@ void CacheSystem::LoadCacheFileJson()
     // Clear existing entries
     m_entries.clear();
 
-    std::ifstream ifs(this->getCacheConfigFilename(true)); // TODO: Load using OGRE resource system ~ only_a_ptr, 10/2018
+    std::ifstream ifs(this->getCacheConfigFilename()); // TODO: Load using OGRE resource system ~ only_a_ptr, 10/2018
     rapidjson::IStreamWrapper isw(ifs);
     rapidjson::Document j_doc;
     j_doc.ParseStream(isw);
@@ -665,7 +663,7 @@ void CacheSystem::WriteCacheFileJson()
     j_doc.AddMember("entries", j_entries, j_doc.GetAllocator());
 
     // Write to file
-    String path = getCacheConfigFilename(true);
+    String path = getCacheConfigFilename();
     LOG("writing cache to file ("+path+")...");
 
     std::ofstream ofs(path);
