@@ -181,7 +181,7 @@ void CacheSystem::UnloadActorDefFromMemory(std::string const & filename)
     }
 }
 
-std::map<int, Category_Entry>* CacheSystem::getCategories()
+std::map<int, String>* CacheSystem::getCategories()
 {
     return &m_categories;
 }
@@ -269,7 +269,7 @@ void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & ou
     int category_id = j_entry["categoryid"].GetInt();
     if (m_categories.find(category_id) != m_categories.end())
     {
-        out_entry.categoryname = m_categories[category_id].title;
+        out_entry.categoryname = m_categories[category_id];
         out_entry.categoryid = category_id;
     }
     else
@@ -1207,50 +1207,6 @@ void CacheSystem::fillTerrainDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr d
     entry.categoryid = def.category_id;
     entry.uniqueid   = def.guid;
     entry.version    = def.version;
-}
-
-void CacheSystem::LoadCategoriesConfig()
-{
-    String filename = Ogre::String(App::sys_config_dir.GetActive()) + PATH_SLASH + String("categories.cfg");
-    LOG("Loading category titles from " + filename);
-    FILE* fd = fopen(filename.c_str(), "r");
-    if (!fd)
-    {
-        LOG("error opening file: " + filename);
-        return;
-    }
-    char line[1024] = {};
-    while (!feof(fd))
-    {
-        int res = fscanf(fd, " %[^\n\r]", line);
-        if (line[0] == ';')
-            continue;
-        char title[256] = {};
-        const char delimiters[] = ",";
-        char str_work[1024] = {};
-
-        strncpy(str_work, line, 1023);
-        str_work[1023] = '\0';
-        char* token = strtok(str_work, delimiters);
-        if (token == NULL)
-            continue;
-        int number = atoi(token);
-        token = strtok(NULL, delimiters);
-        if (token == NULL)
-            continue;
-        //strip spaces at the beginning
-        while (*token == ' ')
-            token++;
-        strncpy(title, token, 255);
-
-        //LOG(String(title));
-        Category_Entry ce;
-        ce.title = Ogre::String(title);
-        ce.number = number;
-        if (!ce.title.empty())
-            m_categories[number] = ce;
-    }
-    fclose(fd);
 }
 
 bool CacheSystem::checkResourceLoaded(Ogre::String & filename)

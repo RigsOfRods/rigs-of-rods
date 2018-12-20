@@ -235,7 +235,6 @@ void ContentManager::InitContentManager()
 
 void ContentManager::InitModCache()
 {
-    m_mod_cache.LoadCategoriesConfig();
 
     ResourceGroupManager::getSingleton().addResourceLocation(App::sys_cache_dir.GetActive(), "FileSystem", "cache", false, false);
 
