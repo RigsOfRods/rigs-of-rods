@@ -158,7 +158,8 @@ void RoR::GfxScene::UpdateScene(float dt_sec)
         for (GfxActor* gfx_actor: m_all_gfx_actors)
         {
             auto& simbuf = gfx_actor->GetSimDataBuffer();
-            m_survey_map->UpdateMapEntity(gfx_actor->GetSurveyMapEntity(), "",
+            String caption = (App::mp_state.GetActive() == MpState::CONNECTED) ? simbuf.simbuf_net_username : "";
+            m_survey_map->UpdateMapEntity(gfx_actor->GetSurveyMapEntity(), caption,
                 simbuf.simbuf_pos, simbuf.simbuf_rotation, gfx_actor->GetActorState(), true);
         }
     }
