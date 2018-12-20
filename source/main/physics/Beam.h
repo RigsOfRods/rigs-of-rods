@@ -356,6 +356,7 @@ public:
     bool ar_rescuer_flag:1;     //!< Gameplay attr; defined in truckfile. TODO: Does anybody use this anymore?
     bool ar_forward_commands:1; //!< Sim state
     bool ar_import_commands:1;  //!< Sim state
+    bool ar_toggle_ties:1;      //!< Sim state
 
 private:
 

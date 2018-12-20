@@ -3170,16 +3170,7 @@ void Actor::DisjoinInterActorBeams()
 
 void Actor::ToggleTies(int group)
 {
-    // export tie commands
     Actor* player_actor = App::GetSimController()->GetPlayerActor();
-    if (ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this == player_actor && ar_forward_commands)
-    {
-        for (auto actor : App::GetSimController()->GetActors())
-        {
-            if (actor->ar_sim_state == Actor::SimState::LOCAL_SIMULATED && this != actor && actor->ar_import_commands)
-                actor->ToggleTies(group);
-        }
-    }
 
     // untie all ties if one is tied
     bool istied = false;
@@ -4322,6 +4313,7 @@ Actor::Actor(
     , m_tractioncontrol(false)
     , ar_forward_commands(false)
     , ar_import_commands(false)
+    , ar_toggle_ties(false)
     , ar_airbrakes{} // Init array to nullptr
     , ar_cabs{} // Init array to 0
     , ar_num_cabs(0)

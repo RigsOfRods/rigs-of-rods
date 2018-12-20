@@ -695,6 +695,10 @@ void ActorManager::ForwardCommands(Actor* source_actor)
                     actor->ar_command_key[j].playerInputValue = std::max(source_actor->ar_command_key[j].playerInputValue,
                                                                          source_actor->ar_command_key[j].commandValue);
                 }
+                if (source_actor->ar_toggle_ties)
+                {
+                    actor->ToggleTies();
+                }
             }
         }
         // just send brake and lights to the connected trucks, and no one else :)
@@ -1024,6 +1028,11 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
     if (player_actor != nullptr)
     {
         this->ForwardCommands(player_actor);
+        if (player_actor->ar_toggle_ties)
+        {
+            player_actor->ToggleTies();
+            player_actor->ar_toggle_ties = false;
+        }
         player_actor->updateDashBoards(dt);
         player_actor->ForceFeedbackStep(m_physics_steps);
         if (player_actor->ReplayStep())

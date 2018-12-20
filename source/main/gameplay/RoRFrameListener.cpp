@@ -1016,7 +1016,7 @@ void SimController::UpdateInputEvents(float dt)
                     //strap
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_SECURE_LOAD))
                     {
-                        m_player_actor->ToggleTies(-1);
+                        m_player_actor->ar_toggle_ties = true;
                     }
 
                     //replay mode
