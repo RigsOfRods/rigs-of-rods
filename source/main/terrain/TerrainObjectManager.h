@@ -92,7 +92,7 @@ private:
         float py;
         float pz;
         Ogre::Quaternion rotation;
-        char name[256];
+        std::string name;
         bool ismachine;
         bool freePosition;
     };

@@ -29,7 +29,9 @@ using namespace RoR;
 
 static int counter = 0;
 
-SurveyMapTextureCreator::SurveyMapTextureCreator(Ogre::Vector2 terrain_size)
+SurveyMapTextureCreator::SurveyMapTextureCreator(Ogre::Vector2 terrain_size) :
+    mCamera(nullptr),
+    mRttTex(nullptr)
 {
     counter++;
     mTextureName = "MapRttTex-" + TOSTRING(counter);

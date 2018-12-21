@@ -111,9 +111,8 @@ void MainMenu::EnterMainMenuLoop()
 #ifdef USE_SOCKETW
         if ((App::mp_state.GetActive() == MpState::CONNECTED) && RoR::Networking::CheckError())
         {
-            const char* title = _L("Network fatal error: ");
             const char* text = RoR::Networking::GetErrorMessage().asUTF8_c_str();
-            App::GetGuiManager()->ShowMessageBox(title, text);
+            App::GetGuiManager()->ShowMessageBox(_L("Network fatal error: "), text);
             App::app_state.SetPending(AppState::MAIN_MENU);
 
             RoR::App::GetGuiManager()->GetMainSelector()->Hide();
