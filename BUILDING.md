@@ -13,7 +13,6 @@ core requirements:
 * ogre: 1.8.x or 1.9.x
 * OIS: 1.3
 * openal-soft (any version should work, crashes with 1.15.x)
-* wxWidgets >= 2.6
 * RapidJSON >= 1.1.0
 
 optional but recommended:

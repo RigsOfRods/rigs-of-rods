@@ -38,13 +38,4 @@ IF (WIN32)
     set(DirectX_LIBRARY_DIRS "$ENV{DXSDK_DIR}/lib/${ARCH_DIR}/" CACHE PATH "The DirectX lib path to use")
     include_directories(${DirectX_INCLUDE_DIRS})
     link_directories(${DirectX_LIBRARY_DIRS})
-
-ELSEIF (UNIX)
-    find_package(PkgConfig)
-    PKG_CHECK_MODULES(GTK gtk+-2.0 REQUIRED)
-    PKG_CHECK_MODULES(GTK_PIXBUF gdk-pixbuf-2.0 REQUIRED)
-    include_directories(${GTK_INCLUDE_DIRS})
-    include_directories(${GTK_PIXBUF_INCLUDE_DIRS})
-
-    find_package(wxWidgets COMPONENTS base core html net adv)
 ENDIF (WIN32)
