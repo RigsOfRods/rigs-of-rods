@@ -55,15 +55,11 @@ enum {
     OPT_POS,
     OPT_ROT,
     OPT_TRUCK,
-    OPT_SETUP,
     OPT_WDIR,
     OPT_VER,
     OPT_TRUCKCONFIG,
     OPT_ENTERTRUCK,
-    OPT_USERPATH,
-    OPT_STATE,
     OPT_INCLUDEPATH,
-    OPT_NOCACHE,
     OPT_JOINMPSERVER
 };
 
@@ -76,15 +72,11 @@ CSimpleOpt::SOption cmdline_options[] = {
     { OPT_TRUCK,          ("-truck"),       SO_REQ_SEP },
     { OPT_ENTERTRUCK,     ("-enter"),       SO_NONE    },
     { OPT_WDIR,           ("-wd"),          SO_REQ_SEP },
-    { OPT_SETUP,          ("-setup"),       SO_NONE    },
     { OPT_TRUCKCONFIG,    ("-actorconfig"), SO_REQ_SEP },
     { OPT_HELP,           ("--help"),       SO_NONE    },
     { OPT_HELP,           ("-help"),        SO_NONE    },
     { OPT_VER,            ("-version"),     SO_NONE    },
-    { OPT_USERPATH,       ("-userpath"),    SO_REQ_SEP },
-    { OPT_STATE,          ("-state"),       SO_REQ_SEP },
     { OPT_INCLUDEPATH,    ("-includepath"), SO_REQ_SEP },
-    { OPT_NOCACHE,        ("-nocache"),     SO_NONE    },
     { OPT_JOINMPSERVER,   ("-joinserver"),  SO_REQ_CMB },
     SO_END_OF_OPTIONS
 };
@@ -103,7 +95,6 @@ void ShowCommandLineUsage()
             "-setup shows the ogre configurator"        "\n"
             "-version shows the version information"    "\n"
             "-enter enters the selected truck"          "\n"
-            "-userpath <path> sets the user directory"  "\n"
             "For example: RoR.exe -map simple2 -pos '518 0 518' -rot 45 -truck semi.truck -enter"));
 }
 
@@ -161,23 +152,11 @@ void Settings::ProcessCommandLine(int argc, char *argv[])
         {
             App::diag_preset_spawn_rot.SetActive(args.OptionArg());
         }
-        else if (args.OptionId() == OPT_USERPATH)
-        {
-            SETTINGS.setSetting("userpath", String(args.OptionArg()));
-        }
         else if (args.OptionId() == OPT_WDIR)
         {
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
             SetCurrentDirectory(args.OptionArg());
 #endif
-        }
-        else if (args.OptionId() == OPT_STATE)
-        {
-            SETTINGS.setSetting("StartState", args.OptionArg());
-        }
-        else if (args.OptionId() == OPT_NOCACHE)
-        {
-            SETTINGS.setSetting("NOCACHE", "Yes");
         }
         else if (args.OptionId() == OPT_INCLUDEPATH)
         {
@@ -186,10 +165,6 @@ void Settings::ProcessCommandLine(int argc, char *argv[])
         else if (args.OptionId() == OPT_ENTERTRUCK)
         {
             App::diag_preset_veh_enter.SetActive(true);
-        }
-        else if (args.OptionId() == OPT_SETUP)
-        {
-            SETTINGS.setSetting("USE_OGRE_CONFIG", "Yes");
         }
         else if (args.OptionId() == OPT_JOINMPSERVER)
         {
@@ -216,75 +191,6 @@ void Settings::ProcessCommandLine(int argc, char *argv[])
             }
         }
     }
-}
-
-String Settings::getSetting(String key, String defaultValue)
-{
-    settings_map_t::iterator it = settings.find(key);
-    if (it == settings.end())
-    {
-        setSetting(key, defaultValue);
-        return defaultValue;
-    }
-    return it->second;
-}
-
-int Settings::getIntegerSetting(String key, int defaultValue )
-{
-    settings_map_t::iterator it = settings.find(key);
-    if (it == settings.end())
-    {
-        setSetting(key, TOSTRING(defaultValue));
-        return defaultValue;
-    }
-    return PARSEINT(it->second);
-}
-
-float Settings::getFloatSetting(String key, float defaultValue )
-{
-    settings_map_t::iterator it = settings.find(key);
-    if (it == settings.end())
-    {
-        setSetting(key, TOSTRING(defaultValue));
-        return defaultValue;
-    }
-    return PARSEREAL(it->second);
-}
-
-bool Settings::getBooleanSetting(String key, bool defaultValue)
-{
-    settings_map_t::iterator it = settings.find(key);
-    if (it == settings.end())
-    {
-        setSetting(key, defaultValue ?"Yes":"No");
-        return defaultValue;
-    }
-    String strValue = it->second;
-    StringUtil::toLowerCase(strValue);
-    return (strValue == "yes");
-}
-
-String Settings::getSettingScriptSafe(const String &key)
-{
-    // hide certain settings for scripts
-    if (key == "User Token" || key == "User Token Hash")
-        return "permission denied";
-
-    return settings[key];
-}
-
-void Settings::setSettingScriptSafe(const String &key, const String &value)
-{
-    // hide certain settings for scripts
-    if (key == "User Token" || key == "User Token Hash")
-        return;
-
-    settings[key] = value;
-}
-
-void Settings::setSetting(String key, String value)
-{
-    settings[key] = value;
 }
 
 const char* CONF_GFX_SHADOW_TEX     = "Texture shadows";
@@ -715,13 +621,8 @@ void Settings::LoadRoRCfg()
             // Purge unwanted entries
             if (s_name == "Program Path") { continue; }
 
-            // Process and clear GVar values
-            if (this->ParseGlobalVarSetting(s_name, s_value))
-            {
-                continue;
-            }
-
-            settings[s_name] = s_value;
+            // Process GVar values
+            this->ParseGlobalVarSetting(s_name, s_value);
         }
     }
     catch (Ogre::FileNotFoundException&) {} // Just continue with defaults...
@@ -980,13 +881,6 @@ void Settings::SaveSettings()
     WriteYN  (f, App::app_skip_main_menu    );
     WriteYN  (f, App::app_async_physics     );
     WritePod (f, App::app_num_workers       );
-
-    // Append misc legacy entries
-    f << std::endl << "; Misc" << std::endl;
-    for (auto itor = settings.begin(); itor != settings.end(); ++itor)
-    {
-        f << itor->first << "=" << itor->second << std::endl;
-    }
 
     f.close();
 }

@@ -54,7 +54,6 @@
 #include "PlatformUtils.h"
 #include "RoRFrameListener.h" // SimController
 #include "ScriptEvents.h"
-#include "Settings.h"
 #include "VehicleAI.h"
 
 const char *ScriptEngine::moduleName = "RoRScript";
@@ -250,13 +249,6 @@ void ScriptEngine::init()
     result = engine->RegisterObjectBehaviour("BeamClass", AngelScript::asBEHAVE_ADDREF, "void f()", AngelScript::asMETHOD(Actor,addRef), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
     result = engine->RegisterObjectBehaviour("BeamClass", AngelScript::asBEHAVE_RELEASE, "void f()", AngelScript::asMETHOD(Actor,release), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
 
-    // class Settings
-    result = engine->RegisterObjectType("SettingsClass", sizeof(Settings), AngelScript::asOBJ_REF); MYASSERT(result>=0);
-    result = engine->RegisterObjectMethod("SettingsClass", "string getSetting(const string &in)", AngelScript::asMETHOD(Settings,getSettingScriptSafe), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
-    result = engine->RegisterObjectMethod("SettingsClass", "void setSetting(const string &in, const string &in)", AngelScript::asMETHOD(Settings,setSettingScriptSafe), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
-    result = engine->RegisterObjectBehaviour("SettingsClass", AngelScript::asBEHAVE_ADDREF, "void f()", AngelScript::asMETHOD(Settings,addRef), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
-    result = engine->RegisterObjectBehaviour("SettingsClass", AngelScript::asBEHAVE_RELEASE, "void f()", AngelScript::asMETHOD(Settings,release), AngelScript::asCALL_THISCALL); MYASSERT(result>=0);
-
     // TODO: add Vector3 classes and other utility classes!
 
     // class GameScript
@@ -398,7 +390,6 @@ void ScriptEngine::init()
     GameScript *gamescript = new GameScript(this);
     result = engine->RegisterGlobalProperty("GameScriptClass game", gamescript); MYASSERT(result>=0);
     //result = engine->RegisterGlobalProperty("CacheSystemClass cache", &CacheSystem::getSingleton()); MYASSERT(result>=0);
-    result = engine->RegisterGlobalProperty("SettingsClass settings", &SETTINGS); MYASSERT(result>=0);
 
     SLOG("Type registrations done. If you see no error above everything should be working");
 }

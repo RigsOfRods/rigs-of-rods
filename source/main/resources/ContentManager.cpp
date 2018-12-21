@@ -222,10 +222,7 @@ void ContentManager::InitContentManager()
     LOG("RoR|ContentManager: Calling initialiseAllResourceGroups()");
     try
     {
-        if (BSETTING("Background Loading", false))
-            ResourceBackgroundQueue::getSingleton().initialiseAllResourceGroups();
-        else
-            ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
+        ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
     }
     catch (Ogre::Exception& e)
     {
@@ -238,12 +235,6 @@ void ContentManager::InitContentManager()
 
 void ContentManager::InitModCache()
 {
-    if (BSETTING("NOCACHE", false)) // TODO: Can you even use RoR with this? ~ only_a_ptr, 10/2018
-    {
-        LOG("Cache disabled via command line switch");
-        return;
-    }
-
     m_mod_cache.LoadCategoriesConfig();
 
     ResourceGroupManager::getSingleton().addResourceLocation(App::sys_cache_dir.GetActive(), "FileSystem", "cache", false, false);
@@ -270,10 +261,7 @@ void ContentManager::InitModCache()
     LOG("RoR|ContentManager: Calling initialiseAllResourceGroups() - Content");
     try
     {
-        if (BSETTING("Background Loading", false))
-            ResourceBackgroundQueue::getSingleton().initialiseResourceGroup("Packs");
-        else
-            ResourceGroupManager::getSingleton().initialiseResourceGroup("Packs");
+        ResourceGroupManager::getSingleton().initialiseResourceGroup("Packs");
     }
     catch (Ogre::Exception& e)
     {
@@ -348,10 +336,7 @@ void ContentManager::exploreFolders(Ogre::String rg)
     LOG("initialiseResourceGroups: "+rg);
     try
     {
-        if (BSETTING("Background Loading", false))
-            ResourceBackgroundQueue::getSingleton().initialiseResourceGroup(rg);
-        else
-            ResourceGroupManager::getSingleton().initialiseResourceGroup(rg);
+        ResourceGroupManager::getSingleton().initialiseResourceGroup(rg);
     }
     catch (Ogre::Exception& e)
     {
