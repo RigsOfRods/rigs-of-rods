@@ -97,6 +97,7 @@ public:
     int            getNumGearsRanges() const{ return getNumGears() / 6 + 1; };
     TorqueCurve*   getTorqueCurve()         { return m_torque_curve; };
     float          GetEngineRpm() const     { return m_cur_engine_rpm; }
+    float          GetEngineTorque() const  { return m_cur_engine_torque; }
     float          GetInputShaftRpm()       { return m_cur_wheel_revolutions * m_gear_ratios[m_cur_gear + 1]; };
     float          GetDriveRatio()          { return m_gear_ratios[m_cur_gear + 1]; };
     float          GetEngineInertia()       { return m_engine_inertia; };
@@ -172,6 +173,7 @@ private:
     float          m_braking_torque;        //!< Engine attribute
     float          m_cur_acc;               //!< Engine
     float          m_cur_engine_rpm;        //!< Engine
+    float          m_cur_engine_torque;     //!< Engine
     float          m_diff_ratio;            //!< Engine
     float          m_tcase_ratio;           //!< Engine
     float          m_engine_torque;         //!< Engine attribute
