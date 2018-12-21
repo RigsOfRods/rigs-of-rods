@@ -43,6 +43,7 @@ EngineSim::EngineSim(float _min_rpm, float _max_rpm, float torque, std::vector<f
     , m_cur_clutch(0.0f)
     , m_cur_clutch_torque(0.0f)
     , m_cur_engine_rpm(0.0f)
+    , m_cur_engine_torque(0.0f) 
     , m_cur_gear(0)
     , m_cur_gear_range(0)
     , m_cur_wheel_revolutions(0.0f)
@@ -438,7 +439,8 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
 
     if (m_engine_is_running && m_starter_has_contact && m_cur_engine_rpm < (m_engine_max_rpm * 1.25f))
     {
-        totaltorque += getEnginePower() * acc;
+        m_cur_engine_torque = getEnginePower() * acc;
+        totaltorque += m_cur_engine_torque;
     }
 
     if (!m_engine_is_electric)
