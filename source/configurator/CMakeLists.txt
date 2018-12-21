@@ -45,16 +45,6 @@ else (WIN32)
 endif (WIN32)
 
 
-if (DEFINED CONAN_WXWIDGETS_ROOT AND WIN32)
-    # wxwidgets from Conan
-    target_include_directories(RoRConfig PRIVATE CONAN_PKG::wxwidgets)
-    target_link_libraries(RoRConfig PRIVATE CONAN_PKG::wxwidgets)
-else ()
-    set(wxWidgets_USE_UNICODE ON)
-    include(${wxWidgets_USE_FILE})
-    target_link_libraries(RoRConfig PRIVATE ${wxWidgets_LIBRARIES})
-endif ()
-
 if (DEFINED CONAN_OGRE_ROOT)
     include_directories(${CONAN_INCLUDE_DIRS_OGRE}/OGRE)
     target_link_libraries(RoRConfig PRIVATE CONAN_PKG::OGRE)

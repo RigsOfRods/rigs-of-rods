@@ -186,7 +186,6 @@ void CLASS::initMisc()
 #ifdef USE_SOCKETW
     AuthorsText = AuthorsText + color1 + "SocketW:" + white + " Used as cross-platform socket abstraction" + newline;
 #endif
-    AuthorsText = AuthorsText + color1 + "wxWidgets:" + white + " Used as cross platform user interface toolkit" + newline;
 
     m_authors->setMaxTextLength(4096);
     m_authors->setCaption(Ogre::String(AuthorsText));
