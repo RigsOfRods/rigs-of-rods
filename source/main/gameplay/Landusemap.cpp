@@ -36,9 +36,8 @@ using namespace RoR;
 Landusemap::Landusemap(String configFilename) :
     data(0)
     , default_ground_model(nullptr)
-    , mapsize(Vector3::ZERO)
+    , mapsize(App::GetSimTerrain()->getMaxTerrainSize())
 {
-    mapsize = App::GetSimTerrain()->getMaxTerrainSize();
     loadConfig(configFilename);
 }
 
@@ -53,7 +52,6 @@ ground_model_t* Landusemap::getGroundModelAt(int x, int z)
     if (!data)
         return nullptr;
 
-    const Vector3 mapsize = App::GetSimTerrain()->getMaxTerrainSize();
     // we return the default ground model if we are not anymore in this map
     if (x < 0 || x >= mapsize.x || z < 0 || z >= mapsize.z)
         return default_ground_model;
@@ -145,7 +143,6 @@ int Landusemap::loadConfig(const Ogre::String& filename)
 
         bool bgr = colourMap->getPixelBox().format == PF_A8B8G8R8;
 
-        const Vector3 mapsize = App::GetSimTerrain()->getMaxTerrainSize();
         Ogre::TRect<Ogre::Real> bounds = Forests::TBounds(0, 0, mapsize.x, mapsize.z);
 
         // now allocate the data buffer to hold pointers to ground models
