@@ -1059,14 +1059,18 @@ void Actor::UpdateBoundingBoxes()
     // Update
     for (int i = 0; i < ar_num_nodes; i++)
     {
-        ar_bounding_box.merge(ar_nodes[i].AbsPosition);                                  // Current box
-        ar_predicted_bounding_box.merge(ar_nodes[i].AbsPosition);                        // Predicted box (current position)
-        ar_predicted_bounding_box.merge(ar_nodes[i].AbsPosition + ar_nodes[i].Velocity); // Predicted box (future position)
-        if (ar_nodes[i].nd_coll_bbox_id != node_t::INVALID_BBOX)
+        Vector3 vel = ar_nodes[i].Velocity;
+        Vector3 pos = ar_nodes[i].AbsPosition;
+        int16_t cid = ar_nodes[i].nd_coll_bbox_id;
+
+        ar_bounding_box.merge(pos);                                  // Current box
+        ar_predicted_bounding_box.merge(pos);                        // Predicted box (current position)
+        ar_predicted_bounding_box.merge(pos + vel);                  // Predicted box (future position)
+        if (cid != node_t::INVALID_BBOX)
         {
-            ar_collision_bounding_boxes[ar_nodes[i].nd_coll_bbox_id].merge(ar_nodes[i].AbsPosition);
-            ar_predicted_coll_bounding_boxes[ar_nodes[i].nd_coll_bbox_id].merge(ar_nodes[i].AbsPosition);
-            ar_predicted_coll_bounding_boxes[ar_nodes[i].nd_coll_bbox_id].merge(ar_nodes[i].AbsPosition + ar_nodes[i].Velocity);
+            ar_collision_bounding_boxes[cid].merge(pos);
+            ar_predicted_coll_bounding_boxes[cid].merge(pos);
+            ar_predicted_coll_bounding_boxes[cid].merge(pos + vel);
         }
     }
 
