@@ -502,12 +502,12 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
                 // no water so do not load boats!
                 continue;
             }
+
             String group = "";
             String actor_filename(type);
-
             if (!RoR::App::GetCacheSystem()->checkResourceLoaded(actor_filename, group))
             {
-                LOG("Error while loading Terrain: truck " + String(type) + " not found. ignoring.");
+                LOG("Error while loading Terrain: truck " + actor_filename + " not found. ignoring.");
                 continue;
             }
 
@@ -519,7 +519,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String odefname)
             predef.freePosition = (!strcmp(oname, "truck2"));
             predef.ismachine = (!strcmp(oname, "machine"));
             predef.rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
-            strcpy(predef.name, actor_filename.c_str());
+            predef.name = actor_filename;
             m_predefined_actors.push_back(predef);
 
             continue;
