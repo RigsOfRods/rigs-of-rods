@@ -19,7 +19,6 @@
 
 /* maximum limits */
 static const int   MAX_ACTORS                 = 5000;            //!< maximum number of actors per game session
-static const int   MAX_CONTACTERS             = 2000;            //!< maximum number of contacters per actor
 static const int   MAX_WHEELS                 = 64;              //!< maximum number of wheels per actor
 static const int   MAX_SUBMESHES              = 500;             //!< maximum number of submeshes per actor
 static const int   MAX_TEXCOORDS              = 3000;            //!< maximum number of texture coordinates per actor

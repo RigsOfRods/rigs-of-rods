@@ -68,5 +68,5 @@ private:
     void queryrec(int kdindex, int axis);
     void build_kdtree_incr(int axis, int index);
     void partintwo(const int start, const int median, const int end, const int axis, float& minex, float& maxex);
-    void update_structures_for_contacters();
+    void update_structures_for_contacters(bool inter);
 };

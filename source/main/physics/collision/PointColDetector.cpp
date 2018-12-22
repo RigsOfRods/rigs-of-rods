@@ -35,7 +35,7 @@ void PointColDetector::UpdateIntraPoint(Actor* actor)
     {
         m_actors = {actor};
         m_object_list_size = actor->ar_num_contacters;
-        update_structures_for_contacters();
+        update_structures_for_contacters(false);
     }
 
     m_kdtree[0].ref = NULL;
@@ -55,7 +55,7 @@ void PointColDetector::UpdateInterPoint(Actor* actor, bool ignorestate)
         if (t != actor && (ignorestate || t->ar_update_physics) && actor->ar_bounding_box.intersects(t->ar_bounding_box))
         {
             actors.push_back(t);
-            contacters_size += t->ar_num_contacters;
+            contacters_size += t->ar_num_contactable_nodes;
             if (actor->ar_nodes[0].Velocity.squaredDistance(t->ar_nodes[0].Velocity) > 16)
             {
                 for (int i = 0; i < actor->ar_num_collcabs; i++)
@@ -78,7 +78,7 @@ void PointColDetector::UpdateInterPoint(Actor* actor, bool ignorestate)
     {
         m_actors = actors;
         m_object_list_size = contacters_size;
-        update_structures_for_contacters();
+        update_structures_for_contacters(true);
     }
 
     m_kdtree[0].ref = NULL;
@@ -86,7 +86,7 @@ void PointColDetector::UpdateInterPoint(Actor* actor, bool ignorestate)
     m_kdtree[0].end = -m_object_list_size;
 }
 
-void PointColDetector::update_structures_for_contacters()
+void PointColDetector::update_structures_for_contacters(bool inter)
 {
     m_ref_list.resize(m_object_list_size);
     m_pointid_list.resize(m_object_list_size);
@@ -95,13 +95,16 @@ void PointColDetector::update_structures_for_contacters()
     int refi = 0;
     for (auto actor : m_actors)
     {
-        for (int i = 0; i < actor->ar_num_contacters; i++)
+        for (int i = 0; i < actor->ar_num_nodes; i++)
         {
-            m_pointid_list[refi].actor = actor;
-            m_pointid_list[refi].node_id = actor->ar_contacters[i];
-            m_ref_list[refi].pidref = &m_pointid_list[refi];
-            m_ref_list[refi].point = actor->ar_nodes[actor->ar_contacters[i]].AbsPosition.ptr();
-            refi++;
+            if (actor->ar_nodes[i].nd_contacter || (inter && !actor->ar_nodes[i].nd_no_ground_contact))
+            {
+                m_pointid_list[refi].actor = actor;
+                m_pointid_list[refi].node_id = i;
+                m_ref_list[refi].pidref = &m_pointid_list[refi];
+                m_ref_list[refi].point = actor->ar_nodes[i].AbsPosition.ptr();
+                refi++;
+            }
         }
     }
 

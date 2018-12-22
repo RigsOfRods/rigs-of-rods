@@ -2262,9 +2262,9 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
 
 void Actor::CalcCabCollisions()
 {
-    for (int i = 0; i < ar_num_contacters; i++)
+    for (int i = 0; i < ar_num_nodes; i++)
     {
-        ar_nodes[ar_contacters[i]].nd_has_mesh_contact = false;
+        ar_nodes[i].nd_has_mesh_contact = false;
     }
     if (m_intra_point_col_detector != nullptr)
     {
@@ -4322,6 +4322,8 @@ Actor::Actor(
     , ar_airbrakes{} // Init array to nullptr
     , ar_cabs{} // Init array to 0
     , ar_num_cabs(0)
+    , ar_num_contactable_nodes(0)
+    , ar_num_contacters(0)
     , ar_screwprops{} // Init array to nullptr
     , ar_num_screwprops(0)
     , ar_num_camera_rails(0)
@@ -4329,8 +4331,6 @@ Actor::Actor(
     , ar_num_aeroengines() // Zero-init
     , ar_pressure_beams() // Zero-init array
     , ar_free_pressure_beam() // Zero-init
-    , ar_contacters() // memset() the array to zero
-    , ar_num_contacters() // zero-init
     , ar_wheels() // array
     , ar_num_wheels() // int
     , m_avg_proped_wheel_radius(0.2f)

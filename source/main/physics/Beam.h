@@ -215,8 +215,8 @@ public:
     std::vector<std::vector<int>>  ar_node_to_beam_connections;
     std::vector<Ogre::AxisAlignedBox>  ar_collision_bounding_boxes; //!< smart bounding boxes, used for determining the state of an actor (every box surrounds only a subset of nodes)
     std::vector<Ogre::AxisAlignedBox>  ar_predicted_coll_bounding_boxes;
-    int               ar_contacters[MAX_CONTACTERS];
-    int               ar_num_contacters;
+    int               ar_num_contactable_nodes; //!< Total number of nodes which can contact ground or cabs
+    int               ar_num_contacters; //!< Total number of nodes which can selfcontact cabs
     wheel_t           ar_wheels[MAX_WHEELS];
     int               ar_num_wheels;
     command_t         ar_command_key[MAX_COMMANDS + 10]; // 0 for safety
