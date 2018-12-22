@@ -57,7 +57,8 @@ struct node_t
     ground_model_t* nd_last_collision_gm;    //!< Physics state; last collision 'ground model' (surface definition)
 
     // Bit flags
-    bool            nd_contacter:1;          //!< Attr; This node is part of collision triangle
+    bool            nd_cab_node:1;           //!< Attr; This node is part of collision triangle
+    bool            nd_contacter:1;          //!< Attr; User-defined
     bool            nd_has_ground_contact:1; //!< Physics state
     bool            nd_has_mesh_contact:1;   //!< Physics state
     bool            nd_immovable:1;          //!< Attr; User-defined

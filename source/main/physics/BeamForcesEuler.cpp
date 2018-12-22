@@ -1324,7 +1324,7 @@ void Actor::CalcBeams(bool trigger_hooks)
                     //Break the beam only when it is not connected to a node
                     //which is a part of a collision triangle and has 2 "live" beams or less
                     //connected to it.
-                    if (!((ar_beams[i].p1->nd_contacter && GetNumActiveConnectedBeams(ar_beams[i].p1->pos) < 3) || (ar_beams[i].p2->nd_contacter && GetNumActiveConnectedBeams(ar_beams[i].p2->pos) < 3)))
+                    if (!((ar_beams[i].p1->nd_contacter && GetNumActiveConnectedBeams(ar_beams[i].p1->pos) < 3) || (ar_beams[i].p2->nd_cab_node && GetNumActiveConnectedBeams(ar_beams[i].p2->pos) < 3)))
                     {
                         slen = 0.0f;
                         ar_beams[i].bm_broken = true;
@@ -1499,7 +1499,7 @@ void Actor::CalcBeamsInterActor()
                     //Break the beam only when it is not connected to a node
                     //which is a part of a collision triangle and has 2 "live" beams or less
                     //connected to it.
-                    if (!((ar_inter_beams[i]->p1->nd_contacter && GetNumActiveConnectedBeams(ar_inter_beams[i]->p1->pos) < 3) || (ar_inter_beams[i]->p2->nd_contacter && GetNumActiveConnectedBeams(ar_inter_beams[i]->p2->pos) < 3)))
+                    if (!((ar_inter_beams[i]->p1->nd_cab_node && GetNumActiveConnectedBeams(ar_inter_beams[i]->p1->pos) < 3) || (ar_inter_beams[i]->p2->nd_contacter && GetNumActiveConnectedBeams(ar_inter_beams[i]->p2->pos) < 3)))
                     {
                         slen = 0.0f;
                         ar_inter_beams[i]->bm_broken = true;
