@@ -706,7 +706,6 @@ extern GVarPod_A<bool>         diag_log_console_echo;
 extern GVarPod_A<bool>         diag_log_beam_break;
 extern GVarPod_A<bool>         diag_log_beam_deform;
 extern GVarPod_A<bool>         diag_log_beam_trigger;
-extern GVarStr_AP<300>         diag_extra_resource_dir;
 extern GVarPod_A<bool>         diag_simple_materials;
 
 // System

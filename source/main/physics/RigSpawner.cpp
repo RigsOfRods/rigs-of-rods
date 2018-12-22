@@ -109,17 +109,6 @@ void ActorSpawner::Setup(
         m_generate_wing_position_lights = false; // Disable aerial pos. lights for land vehicles.
     }
 
-    if (App::diag_extra_resource_dir.GetActive() != App::diag_extra_resource_dir.GetPending())
-    {
-        App::diag_extra_resource_dir.ApplyPending();
-    }
-    if (! App::diag_extra_resource_dir.IsActiveEmpty())
-    {
-        Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
-            App::diag_extra_resource_dir.GetActive(), "FileSystem", "customInclude");
-        Ogre::ResourceBackgroundQueue::getSingleton().initialiseResourceGroup("customInclude");
-    }
-
     m_messages_num_errors = 0;
     m_messages_num_warnings = 0;
     m_messages_num_other = 0;
