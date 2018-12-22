@@ -443,7 +443,6 @@ void Actor::CalcNetwork()
     short* sp2 = (short*)(netb2 + sizeof(float) * 3);
     Vector3 p1ref = Vector3::ZERO;
     Vector3 p2ref = Vector3::ZERO;
-    Vector3 apos = Vector3::ZERO;
     Vector3 p1 = Vector3::ZERO;
     Vector3 p2 = Vector3::ZERO;
 
@@ -480,10 +479,9 @@ void Actor::CalcNetwork()
         // linear interpolation
         ar_nodes[i].AbsPosition = p1 + tratio * (p2 - p1);
         ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - ar_origin;
-
-        apos += ar_nodes[i].AbsPosition;
     }
-    m_avg_node_position = apos / m_net_first_wheel_node;
+    this->UpdateBoundingBoxes();
+    calculateAveragePosition();
 
     for (int i = 0; i < ar_num_wheels; i++)
     {
