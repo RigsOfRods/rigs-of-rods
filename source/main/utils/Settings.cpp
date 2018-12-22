@@ -582,6 +582,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckStr  (App::diag_preset_veh_config,    k, v)) { return true; }
     if (CheckBool (App::diag_preset_veh_enter,     k, v)) { return true; }
     if (CheckBool (App::diag_simple_materials,     k, v)) { return true; }
+    if (CheckFloat(App::diag_physics_dt,           k, v)) { return true; }
     // Sim
     if (CheckSimGearboxMode                       (k, v)) { return true; }
     if (CheckBool (App::sim_replay_enabled,        k, v)) { return true; }
@@ -866,6 +867,7 @@ void Settings::SaveSettings()
     WriteStr (f, App::diag_preset_veh_config  );
     WriteYN  (f, App::diag_videocameras       );
     WriteYN  (f, App::diag_simple_materials   );
+    WritePod (f, App::diag_physics_dt         );
 
     f << std::endl << "; Application"<< std::endl;
     WriteStr (f, App::app_screenshot_format );

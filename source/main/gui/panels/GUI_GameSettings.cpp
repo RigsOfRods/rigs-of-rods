@@ -297,6 +297,11 @@ void RoR::GUI::GameSettings::Draw()
     {
         ImGui::TextDisabled(_LC("GameSettings", "Diagnostic options"));
 
+        int physics_fps = std::round(1.0f / App::diag_physics_dt.GetActive());
+        if (ImGui::SliderInt(_LC("GameSettings", "Physics frames per second"), &physics_fps, 2000, 10000))
+        {
+            App::diag_physics_dt.SetActive(Ogre::Math::Clamp(1.0f / physics_fps, 0.0001f, 0.0005f));
+        }
         DrawGCheckbox(App::diag_auto_spawner_report, _LC("GameSettings", "Auto actor spawner report"));
         DrawGCheckbox(App::diag_rig_log_node_import, _LC("GameSettings", "Log node import (spawn)"));
         DrawGCheckbox(App::diag_rig_log_node_stats,  _LC("GameSettings", "Log node stats (spawn)"));

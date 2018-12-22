@@ -2428,7 +2428,7 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
 {
     if ((ar_beams[i].shock->flags & SHOCK_FLAG_ISTRIGGER) && ar_beams[i].shock->trigger_enabled) // this is a trigger and its enabled
     {
-        const float dt = static_cast<float>(PHYSICS_DT);
+        const float dt = PHYSICS_DT;
 
         if (difftoBeamL > ar_beams[i].longbound * ar_beams[i].L || difftoBeamL < -ar_beams[i].shortbound * ar_beams[i].L) // that has hit boundary
         {
