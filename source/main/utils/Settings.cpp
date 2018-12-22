@@ -59,7 +59,6 @@ enum {
     OPT_VER,
     OPT_TRUCKCONFIG,
     OPT_ENTERTRUCK,
-    OPT_INCLUDEPATH,
     OPT_JOINMPSERVER
 };
 
@@ -76,7 +75,6 @@ CSimpleOpt::SOption cmdline_options[] = {
     { OPT_HELP,           ("--help"),       SO_NONE    },
     { OPT_HELP,           ("-help"),        SO_NONE    },
     { OPT_VER,            ("-version"),     SO_NONE    },
-    { OPT_INCLUDEPATH,    ("-includepath"), SO_REQ_SEP },
     { OPT_JOINMPSERVER,   ("-joinserver"),  SO_REQ_CMB },
     SO_END_OF_OPTIONS
 };
@@ -157,10 +155,6 @@ void Settings::ProcessCommandLine(int argc, char *argv[])
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
             SetCurrentDirectory(args.OptionArg());
 #endif
-        }
-        else if (args.OptionId() == OPT_INCLUDEPATH)
-        {
-            App::diag_extra_resource_dir.SetActive(args.OptionArg());
         }
         else if (args.OptionId() == OPT_ENTERTRUCK)
         {
@@ -587,7 +581,6 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckStrAS(App::diag_preset_vehicle,       k, v)) { return true; }
     if (CheckStr  (App::diag_preset_veh_config,    k, v)) { return true; }
     if (CheckBool (App::diag_preset_veh_enter,     k, v)) { return true; }
-    if (CheckStr  (App::diag_extra_resource_dir,   k, v)) { return true; }
     if (CheckBool (App::diag_simple_materials,     k, v)) { return true; }
     // Sim
     if (CheckSimGearboxMode                       (k, v)) { return true; }

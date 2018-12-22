@@ -314,7 +314,6 @@ void RoR::GUI::GameSettings::Draw()
         DrawGTextEdit(App::diag_preset_terrain,      _LC("GameSettings", "Preselected terrain"),         m_buf_diag_preset_terrain, false);
         DrawGTextEdit(App::diag_preset_vehicle,      _LC("GameSettings", "Preselected vehicle"),         m_buf_diag_preset_vehicle);
         DrawGTextEdit(App::diag_preset_veh_config,   _LC("GameSettings", "Presel. veh. config"),         m_buf_diag_preset_veh_config);
-        DrawGTextEdit(App::diag_extra_resource_dir,  _LC("GameSettings", "Extra resources directory"),   m_buf_diag_extra_resource_dir);
         if (ImGui::Button(_LC("GameSettings", "Clear cache (and quit)")))
         {
             std::remove(App::GetCacheSystem()->getCacheConfigFilename().c_str());

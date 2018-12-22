@@ -134,7 +134,6 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_A<bool>          diag_log_beam_break     ("diag_log_beam_break",     "Beam Break Debug",          false);
  GVarPod_A<bool>          diag_log_beam_deform    ("diag_log_beam_deform",    "Beam Deform Debug",         false);
  GVarPod_A<bool>          diag_log_beam_trigger   ("diag_log_beam_trigger",   "Trigger Debug",             false);
- GVarStr_AP<300>          diag_extra_resource_dir ("diag_extra_resource_dir", "resourceIncludePath",       "",                     "");
  GVarPod_A<bool>          diag_simple_materials   ("diag_simple_materials",    "SimpleMaterials",          false);
 
 // System                                         (all paths are without ending slash!)
