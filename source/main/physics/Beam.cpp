@@ -508,6 +508,7 @@ void Actor::CalcNetwork()
             ar_wheels[i].wh_nodes[j * 2 + 1]->RelPosition = ar_wheels[i].wh_nodes[j * 2 + 1]->AbsPosition - ar_origin;
         }
     }
+    this->UpdateBoundingBoxes();
 
     float engspeed = oob1->engine_speed + tratio * (oob2->engine_speed - oob1->engine_speed);
     float engforce = oob1->engine_force + tratio * (oob2->engine_force - oob1->engine_force);
