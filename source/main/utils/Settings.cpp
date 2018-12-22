@@ -518,6 +518,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckBool (App::app_skip_main_menu,        k, v)) { return true; }
     if (CheckBool (App::app_async_physics,         k, v)) { return true; }
     if (CheckInt  (App::app_num_workers,           k, v)) { return true; }
+    if (CheckStr  (App::app_extra_mod_path,        k, v)) { return true; }
     // Input&Output
     if (CheckBool (App::io_ffb_enabled,            k, v)) { return true; }
     if (CheckFloat(App::io_ffb_camera_gain,        k, v)) { return true; }
@@ -874,6 +875,7 @@ void Settings::SaveSettings()
     WriteYN  (f, App::app_skip_main_menu    );
     WriteYN  (f, App::app_async_physics     );
     WritePod (f, App::app_num_workers       );
+    WriteStr (f, App::app_extra_mod_path    );
 
     f.close();
 }

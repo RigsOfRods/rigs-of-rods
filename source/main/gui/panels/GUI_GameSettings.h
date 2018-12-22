@@ -51,6 +51,7 @@ private:
     Str<100> m_buf_diag_preset_terrain;
     Str<100> m_buf_diag_preset_vehicle;
     Str<100> m_buf_diag_preset_veh_config;
+    Str<300> m_buf_app_extra_mod_dir;
     Str<50>  m_buf_io_outgauge_ip;
 };
 

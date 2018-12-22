@@ -145,6 +145,8 @@ void RoR::GUI::GameSettings::Draw()
             App::app_screenshot_format.SetActive((sshot_select == 1) ? "jpg" : "png");
         }
 
+        DrawGTextEdit(App::app_extra_mod_path, _LC("GameSettings", "Extra mod path"),  m_buf_app_extra_mod_dir);
+
         DrawGCheckbox(App::app_skip_main_menu, _LC("GameSettings", "Skip main menu"));
         DrawGCheckbox(App::app_async_physics, _LC("GameSettings", "Async physics"));
 

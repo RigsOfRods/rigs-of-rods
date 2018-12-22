@@ -242,6 +242,11 @@ void ContentManager::InitModCache()
     std::string user_content_base = std::string(App::sys_user_dir.GetActive())    + PATH_SLASH;
     std::string content_base      = std::string(App::sys_process_dir.GetActive()) + PATH_SLASH;
 
+    if (!App::app_extra_mod_path.IsActiveEmpty())
+    {
+        std::string extra_mod_path = App::app_extra_mod_path.GetActive();
+        ResourceGroupManager::getSingleton().addResourceLocation(extra_mod_path            , "FileSystem", "Packs", true);
+    }
     ResourceGroupManager::getSingleton().addResourceLocation(content_base      + "content" , "FileSystem", "Packs", true);
     ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "packs"   , "FileSystem", "Packs", true);
     ResourceGroupManager::getSingleton().addResourceLocation(user_content_base + "mods"    , "FileSystem", "Packs", true);
@@ -404,6 +409,11 @@ std::string ContentManager::ListAllUserContent()
     const Ogre::String process_dir = Ogre::String(App::sys_process_dir.GetActive()) + PATH_SLASH;
 
     bool recursive = true; // For clarity
+    if (!App::app_extra_mod_path.IsActiveEmpty())
+    {
+        std::string extra_mod_path = App::app_extra_mod_path.GetActive();
+        ogre_rgm.addResourceLocation(extra_mod_path       , "FileSystem", RG_NAME, recursive);
+    }
     ogre_rgm.addResourceLocation(process_dir  + "content" , "FileSystem", RG_NAME, recursive); // TODO: Does anybody use this one? ~ only_a_ptr, 10/2018
     ogre_rgm.addResourceLocation(homedir      + "packs"   , "FileSystem", RG_NAME, recursive);
     ogre_rgm.addResourceLocation(homedir      + "mods"    , "FileSystem", RG_NAME, recursive); // TODO: Does anybody use this one? ~ only_a_ptr, 10/2018

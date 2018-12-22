@@ -84,6 +84,7 @@ static TerrainManager*  g_sim_terrain;
          0,         0);
  GVarStr_AP<50>           app_screenshot_format   ("app_screenshot_format",   "Screenshot Format",         "jpg",                   "jpg");
  GVarStr_A<100>           app_rendersys_override  ("app_rendersys_override",  "Render system",             "");
+ GVarStr_A<300>           app_extra_mod_path      ("app_extra_mod_path",      "Extra mod path",            "");
 
 
 // Simulation
