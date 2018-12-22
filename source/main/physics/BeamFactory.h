@@ -33,7 +33,7 @@
 #include <string>
 #include <vector>
 
-#define PHYSICS_DT 0.0005 // fixed dt of 0.5 ms
+#define PHYSICS_DT App::diag_physics_dt.GetActive()
 
 class ThreadPool;
 

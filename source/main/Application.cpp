@@ -136,6 +136,7 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_A<bool>          diag_log_beam_trigger   ("diag_log_beam_trigger",   "Trigger Debug",             false);
  GVarStr_AP<300>          diag_extra_resource_dir ("diag_extra_resource_dir", "resourceIncludePath",       "",                     "");
  GVarPod_A<bool>          diag_simple_materials   ("diag_simple_materials",    "SimpleMaterials",          false);
+ GVarPod_A<float>         diag_physics_dt         ("diag_physics_dt",          "PhysicsTimeStep",          0.0005f);
 
 // System                                         (all paths are without ending slash!)
  GVarStr_A<300>           sys_process_dir         ("sys_process_dir",         nullptr,                     "");

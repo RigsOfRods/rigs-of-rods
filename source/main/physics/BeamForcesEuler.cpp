@@ -43,7 +43,7 @@
 using namespace Ogre;
 using namespace RoR;
 
-const float dt = static_cast<float>(PHYSICS_DT);
+#define dt PHYSICS_DT
 
 void Actor::CalcForcesEulerCompute(bool doUpdate, int num_steps)
 {
