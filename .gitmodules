@@ -1,0 +1,6 @@
+[submodule "content"]
+	path = content
+	url = https://github.com/RigsOfRods/content.git
+[submodule "source/main/plugins/pagedgeometry"]
+	path = source/main/plugins/pagedgeometry
+	url = https://github.com/RigsOfRods/ogre-pagedgeometry.git
