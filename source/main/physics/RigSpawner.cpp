@@ -2756,10 +2756,7 @@ void ActorSpawner::ProcessRailGroup(RigDef::RailGroup & def)
 {
     RailGroup* rail_group = this->CreateRail(def.node_list);
     rail_group->rg_id = def.id;
-    if (rail_group != nullptr)
-    {
-        m_actor->m_railgroups.push_back(rail_group);
-    }
+    m_actor->m_railgroups.push_back(rail_group);
 }
 
 void ActorSpawner::ProcessSlidenode(RigDef::SlideNode & def)
