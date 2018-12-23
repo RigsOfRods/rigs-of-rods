@@ -869,16 +869,6 @@ private:
 
     void UpdateCollcabContacterNodes();
 
-    /**
-    * Finds node with lowest Y in spawned rig.
-    */
-    int FindLowestNodeInRig();
-
-    /**
-    * Finds node (nd_no_ground_contact == false) with lowest Y in spawned rig.
-    */
-    int FindLowestContactingNodeInRig();
-
     wheel_t::BrakeCombo TranslateBrakingDef(RigDef::Wheels::Braking def);
 
     /**

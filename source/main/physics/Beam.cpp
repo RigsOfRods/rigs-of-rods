@@ -929,7 +929,7 @@ void Actor::resolveCollisions(Vector3 direction)
     // Additional 20 cm safe-guard (horizontally)
     offset += 0.2f * Vector3(offset.x, 0.0f, offset.z).normalisedCopy();
 
-    ResetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, false, ar_nodes[ar_lowest_contacting_node].AbsPosition.y + offset.y);
+    ResetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, false, this->GetMinHeight() + offset.y);
 }
 
 void Actor::resolveCollisions(float max_distance, bool consider_up)
@@ -966,7 +966,7 @@ void Actor::resolveCollisions(float max_distance, bool consider_up)
     // Additional 20 cm safe-guard (horizontally)
     offset += 0.2f * Vector3(offset.x, 0.0f, offset.z).normalisedCopy();
 
-    ResetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, true, ar_nodes[ar_lowest_contacting_node].AbsPosition.y + offset.y);
+    ResetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, true, this->GetMinHeight() + offset.y);
 }
 
 int Actor::savePosition(int indexPosition)
@@ -1133,10 +1133,10 @@ void Actor::ResetPosition(float px, float pz, bool setInitPosition, float miny)
     }
 
     // vertical displacement
-    float vertical_offset = -ar_nodes[ar_lowest_contacting_node].AbsPosition.y + miny;
+    float vertical_offset = miny - this->GetMinHeight();
     if (App::GetSimTerrain()->getWater())
     {
-        vertical_offset += std::max(0.0f, App::GetSimTerrain()->getWater()->GetStaticWaterHeight() - (ar_nodes[ar_lowest_contacting_node].AbsPosition.y + vertical_offset));
+        vertical_offset += std::max(0.0f, App::GetSimTerrain()->getWater()->GetStaticWaterHeight() - miny);
     }
     for (int i = 1; i < ar_num_nodes; i++)
     {
@@ -1426,6 +1426,33 @@ Ogre::Vector3 Actor::GetRotationCenter()
     return rotation_center;
 }
 
+float Actor::GetMinHeight(bool skip_virtual_nodes)
+{
+    float height = std::numeric_limits<float>::max(); 
+    for (int i = 0; i < ar_num_nodes; i++)
+    {
+        if (i == 0 || !skip_virtual_nodes || !ar_nodes[i].nd_no_ground_contact)
+        {
+            height = std::min(ar_nodes[i].AbsPosition.y, height);
+        }
+    }
+    return height;
+}
+
+float Actor::GetHeightAboveGround(bool skip_virtual_nodes)
+{
+    float agl = std::numeric_limits<float>::max(); 
+    for (int i = 0; i < ar_num_nodes; i++)
+    {
+        if (i == 0 || !skip_virtual_nodes || !ar_nodes[i].nd_no_ground_contact)
+        {
+            Vector3 pos = ar_nodes[i].AbsPosition;
+            agl = std::min(pos.y - gEnv->collisions->getSurfaceHeight(pos.x, pos.z), agl);
+        }
+    }
+    return agl;
+}
+
 void Actor::SyncReset(bool reset_position)
 {
     ar_hydro_dir_state = 0.0;
@@ -1440,7 +1467,7 @@ void Actor::SyncReset(bool reset_position)
     cc_mode = false;
 
     ar_origin = Vector3::ZERO;
-    float yPos = ar_nodes[ar_lowest_contacting_node].AbsPosition.y;
+    float yPos = this->GetMinHeight(true);
     float cur_rot = getRotation();
     Vector3 cur_position = ar_nodes[0].AbsPosition;
 
@@ -3936,13 +3963,8 @@ void Actor::updateDashBoards(float dt)
         }
 
         // water depth display, only if we have a screw prop at least
-        int low_node = getLowestNode();
-        if (low_node != -1)
-        {
-            Vector3 pos = ar_nodes[low_node].AbsPosition;
-            float depth = pos.y - App::GetSimTerrain()->GetHeightAt(pos.x, pos.z);
-            ar_dashboard->setFloat(DD_WATER_DEPTH, depth);
-        }
+        float depth = this->GetHeightAboveGround();
+        ar_dashboard->setFloat(DD_WATER_DEPTH, depth);
 
         // water speed
         Vector3 hdir = this->GetCameraDir();
@@ -4429,11 +4451,6 @@ blinktype Actor::getBlinkType()
 bool Actor::getCustomParticleMode()
 {
     return m_custom_particles_enabled;
-}
-
-int Actor::getLowestNode()
-{
-    return ar_lowest_node;
 }
 
 Ogre::Real Actor::getMinimalCameraRadius()

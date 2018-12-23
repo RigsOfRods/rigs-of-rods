@@ -1312,9 +1312,8 @@ void SimController::UpdateInputEvents(float dt)
                 {
                     m_reload_dir = Quaternion(Degree(270) - Radian(m_player_actor->getRotation()), Vector3::UNIT_Y);
                     m_reload_pos = m_player_actor->GetRotationCenter();
-
-                    // TODO: Fix this by projecting m_reload_pos onto the terrain / mesh
-                    m_reload_pos.y = m_player_actor->ar_nodes[m_player_actor->ar_lowest_contacting_node].AbsPosition.y;
+                    float agl = m_player_actor->GetHeightAboveGround(true);
+                    m_reload_pos.y = gEnv->collisions->getSurfaceHeight(m_reload_pos.x, m_reload_pos.z) + agl;
                 }
                 else
                 {
@@ -1608,8 +1607,8 @@ void SimController::UpdateSimulation(float dt)
                     float rotation = m_player_actor->getRotation() - Math::HALF_PI;
                     rq.asr_rotation = Quaternion(Degree(180) - Radian(rotation), Vector3::UNIT_Y);
                     rq.asr_position = m_player_actor->GetRotationCenter();
-                    // TODO: Fix this by projecting m_reload_pos onto the terrain / mesh
-                    rq.asr_position.y = m_player_actor->ar_nodes[m_player_actor->ar_lowest_contacting_node].AbsPosition.y;
+                    float agl = m_player_actor->GetHeightAboveGround(true);
+                    rq.asr_position.y = gEnv->collisions->getSurfaceHeight(rq.asr_position.x, rq.asr_position.z) + agl;
                 }
                 else
                 {
@@ -1626,10 +1625,16 @@ void SimController::UpdateSimulation(float dt)
             Actor* fresh_actor = this->SpawnActorDirectly(rq);
 
             // Calculate translational offset for node[0] to align the actor's rotation center with m_reload_pos
-            Vector3 target = fresh_actor->GetRotationCenter();
+            Vector3 translation = rq.asr_position - fresh_actor->GetRotationCenter();
             // and to avoid ground collisions
-            target.y = std::min(fresh_actor->ar_nodes[fresh_actor->ar_lowest_contacting_node].AbsPosition.y, target.y);
-            Vector3 translation = rq.asr_position - target;
+            float bgl = 0.0f; 
+            for (int i = 0; i < fresh_actor->ar_num_nodes; i++)
+            {
+                Vector3 pos = fresh_actor->ar_nodes[i].AbsPosition + translation;
+                bgl = std::max(bgl, gEnv->collisions->getSurfaceHeight(pos.x, pos.z) - pos.y);
+            }
+            translation.y += bgl;
+
             fresh_actor->ResetPosition(fresh_actor->ar_nodes[0].AbsPosition + translation, true);
 
             if (App::diag_preset_veh_enter.GetActive())

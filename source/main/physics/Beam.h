@@ -80,7 +80,9 @@ public:
     void              RequestRotation(float rotation) { m_rotation_request += rotation; };
     void              RequestAngleSnap(int division) { m_anglesnap_request = division; };
     void              RequestTranslation(Ogre::Vector3 translation) { m_translation_request += translation; };
-    Ogre::Vector3     GetRotationCenter();                 //!< Return the rotation center of the actor
+    Ogre::Vector3     GetRotationCenter();
+    float             GetMinHeight(bool skip_virtual_nodes=true);
+    float             GetHeightAboveGround(bool skip_virtual_nodes=true);
     bool              ReplayStep();
     void              ForceFeedbackStep(int steps);
     void              HandleInputEvents(float dt);
@@ -149,7 +151,6 @@ public:
     void              setBlinkType(blinktype blink);    
     void              setAirbrakeIntensity(float intensity);
     bool              getCustomParticleMode();
-    int               getLowestNode();
     void              receiveStreamData(unsigned int type, int source, unsigned int streamid, char *buffer, unsigned int len);
     void              sendStreamData();
     bool              isTied();
@@ -295,8 +296,6 @@ public:
     int               ar_camera_node_dir[MAX_CAMERAS]; //!< Physics attr; 'camera' = frame of reference; back node
     int               ar_camera_node_roll[MAX_CAMERAS]; //!< Physics attr; 'camera' = frame of reference; left node
     bool              ar_camera_node_roll_inv[MAX_CAMERAS]; //!< Physics attr; 'camera' = frame of reference; indicates roll node is right instead of left
-    int               ar_lowest_node;             //!< Physics attr, filled at spawn, limited use for boats
-    int               ar_lowest_contacting_node;  //!< Physics attr, filled at spawn, used for positioning on (re)spawn
     float             ar_posnode_spawn_height;
     VehicleAI*        ar_vehicle_ai;
     float             ar_scale;               //!< Physics state; scale of the actor (nominal = 1.0)
