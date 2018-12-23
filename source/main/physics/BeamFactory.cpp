@@ -1013,7 +1013,10 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
             actor->updateVisual(dt);
             actor->updateSkidmarks();
             actor->UpdateFlareStates(dt); // Only state, visuals done by GfxActor
-            actor->m_gfx_actor->UpdateParticles(dt); // TODO: move it to GfxActor ~ only_a_ptr, 06/2018
+            if (dt > 0.0f && !actor->ar_replay_mode )
+            {
+                actor->m_gfx_actor->UpdateParticles(dt); // TODO: move it to GfxActor ~ only_a_ptr, 06/2018
+            }
             if (actor->ar_sim_state == Actor::SimState::NETWORKED_OK)
             {
                 actor->CalcNetwork();
