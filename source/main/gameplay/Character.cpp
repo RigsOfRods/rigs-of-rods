@@ -154,6 +154,18 @@ void Character::SetAnimState(std::string mode, float time)
     }
 }
 
+float calculate_collision_depth(Vector3 pos)
+{
+    Vector3 query = pos + 0.3f * Vector3::UNIT_Y;
+    while (query.y > pos.y)
+    {
+        if (gEnv->collisions->collisionCorrect(&query, false))
+            break;
+        query.y -= 0.001f;
+    }
+    return query.y - pos.y;
+}
+
 void Character::update(float dt)
 {
     if (!m_is_remote && (m_actor_coupling == nullptr) && (App::sim_state.GetActive() != SimState::PAUSED))
@@ -176,7 +188,7 @@ void Character::update(float dt)
         gEnv->collisions->collisionCorrect(&query);
 
         // Auto compensate minor height differences
-        float depth = gEnv->collisions->getSurfaceHeightBelow(position.x, position.z, position.y + 0.3f) - position.y;
+        float depth = calculate_collision_depth(position);
         if (depth > 0.0f)
         {
             m_can_jump = true;
