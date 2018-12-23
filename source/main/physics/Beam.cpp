@@ -1467,7 +1467,7 @@ void Actor::SyncReset(bool reset_position)
 
     this->DisjoinInterActorBeams();
 
-    for (auto h : ar_hooks)
+    for (auto& h : ar_hooks)
     {
         h.hk_beam->bm_disabled = true;
         h.hk_locked = UNLOCKED;
@@ -1479,7 +1479,7 @@ void Actor::SyncReset(bool reset_position)
         this->RemoveInterActorBeam(h.hk_beam);
     }
 
-    for (auto r : ar_ropes)
+    for (auto& r : ar_ropes)
     {
         r.rp_locked = UNLOCKED;
         if (r.rp_locked_ropable)
@@ -1488,7 +1488,7 @@ void Actor::SyncReset(bool reset_position)
         r.rp_locked_actor = 0;
     }
 
-    for (auto t : ar_ties)
+    for (auto& t : ar_ties)
     {
         t.ti_tied = false;
         t.ti_tying = false;
