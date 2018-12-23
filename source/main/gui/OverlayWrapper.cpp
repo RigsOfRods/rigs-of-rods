@@ -1156,19 +1156,15 @@ void OverlayWrapper::UpdateMarineHUD(Actor* vehicle)
 
     // depth
     char tmp[50] = "";
-    if (vehicle->getLowestNode() != -1)
+    float height = vehicle->GetHeightAboveGround();
+    if (height > 0.1 && height < 99.9)
     {
-        Vector3 pos = vehicle->ar_nodes[vehicle->getLowestNode()].AbsPosition;
-        float height = pos.y - RoR::App::GetSimTerrain()->GetHeightAt(pos.x, pos.z);
-        if (height > 0.1 && height < 99.9)
-        {
-            sprintf(tmp, "%2.1f", height);
-            boat_depth_value_taoe->setCaption(tmp);
-        }
-        else
-        {
-            boat_depth_value_taoe->setCaption("--.-");
-        }
+        sprintf(tmp, "%2.1f", height);
+        boat_depth_value_taoe->setCaption(tmp);
+    }
+    else
+    {
+        boat_depth_value_taoe->setCaption("--.-");
     }
 
     // water speed

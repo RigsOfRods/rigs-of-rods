@@ -293,7 +293,6 @@ void ActorSpawner::InitializeRig()
     m_actor->ar_camera_node_pos[0]=-1;
     m_actor->ar_camera_node_dir[0]=-1;
     m_actor->ar_camera_node_roll[0]=-1;
-    m_actor->ar_lowest_node=0;
 
 #ifdef USE_ANGELSCRIPT
     m_actor->ar_vehicle_ai = new VehicleAI(m_actor);
@@ -596,9 +595,6 @@ void ActorSpawner::FinalizeRig()
         //wash calculator
         WashCalculator();
     }
-
-    m_actor->ar_lowest_node = FindLowestNodeInRig();
-    m_actor->ar_lowest_contacting_node = FindLowestContactingNodeInRig();
 
     this->UpdateCollcabContacterNodes();
 
@@ -4513,43 +4509,6 @@ void ActorSpawner::AdjustNodeBuoyancy(node_t & node, RigDef::Node & node_def, st
 void ActorSpawner::AdjustNodeBuoyancy(node_t & node, std::shared_ptr<RigDef::NodeDefaults> defaults)
 {
     node.buoyancy = BITMASK_IS_1(defaults->options, RigDef::Node::OPTION_b_EXTRA_BUOYANCY) ? 10000.f : m_actor->m_dry_mass/15.f;
-}
-
-int ActorSpawner::FindLowestNodeInRig()
-{
-    int lowest_node_index = 0;
-    float lowest_y = m_actor->ar_nodes[0].AbsPosition.y;
-
-    for (int i = 0; i < m_actor->ar_num_nodes; i++)
-    {
-        float y = m_actor->ar_nodes[i].AbsPosition.y;
-        if (y < lowest_y)
-        {
-            lowest_y = y;
-            lowest_node_index = i;
-        }
-    }
-
-    return lowest_node_index;
-}
-
-int ActorSpawner::FindLowestContactingNodeInRig()
-{
-    int lowest_node_index = FindLowestNodeInRig();
-    float lowest_y = std::numeric_limits<float>::max();
-
-    for (int i = 0; i < m_actor->ar_num_nodes; i++)
-    {
-        if (m_actor->ar_nodes[i].nd_no_ground_contact) continue;
-        float y = m_actor->ar_nodes[i].AbsPosition.y;
-        if (y < lowest_y)
-        {
-            lowest_y = y;
-            lowest_node_index = i;
-        }
-    }
-
-    return lowest_node_index;
 }
 
 void ActorSpawner::BuildWheelBeams(
