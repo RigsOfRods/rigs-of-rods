@@ -181,8 +181,8 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_A<int>           gfx_particles_mode      ("gfx_particles_mode",      "Particles",                 0);
  GVarPod_A<bool>          gfx_enable_videocams    ("gfx_enable_videocams",    "gfx_enable_videocams",      false);
  GVarPod_A<bool>          gfx_window_videocams    ("gfx_window_videocams",    "UseVideocameraWindows",     false);
- GVarPod_A<bool>          gfx_envmap_enabled      ("gfx_envmap_enabled",      "Envmap",                    true);
- GVarPod_A<int>           gfx_envmap_rate         ("gfx_envmap_rate",         "EnvmapUpdateRate",          0);
+ GVarPod_A<bool>          gfx_envmap_enabled      ("gfx_envmap_enabled",      "Reflections",               true);
+ GVarPod_A<int>           gfx_envmap_rate         ("gfx_envmap_rate",         "ReflectionUpdateRate",      0);
  GVarPod_A<int>           gfx_shadow_quality      ("gfx_shadow_quality",      "Shadows Quality",           2);
  GVarPod_A<int>           gfx_skidmarks_mode      ("gfx_skidmarks_mode",      "Skidmarks",                 0);
  GVarPod_A<int>           gfx_sight_range         ("gfx_sight_range",         "SightRange",                3000); // Previously either 2000 or 4500 (inconsistent)
