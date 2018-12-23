@@ -412,7 +412,7 @@ target_link_libraries(${BINNAME} PRIVATE
 if (DEFINED CONAN_OGRE_ROOT)
     target_link_libraries(${BINNAME} PRIVATE CONAN_PKG::OGRE)
 else ()
-    target_link_libraries(${BINNAME} PRIVATE OgreMain OgreBites OgreRTShaderSystem OgreOverlay OgreTerrain OgreMeshLodGenerator OgreHLMS)
+    target_link_libraries(${BINNAME} PRIVATE OgreMain OgreBites OgreRTShaderSystem OgreOverlay OgreTerrain OgreMeshLodGenerator)
 endif ()
 
 

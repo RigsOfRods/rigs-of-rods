@@ -19,7 +19,7 @@ find_package(Threads REQUIRED)
 if (NOT EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
     # find packages
 
-    find_package(OGRE 1.11 REQUIRED COMPONENTS Bites HLMS Overlay Paging RTShaderSystem MeshLodGenerator Terrain)
+    find_package(OGRE 1.11 REQUIRED COMPONENTS Bites Overlay Paging RTShaderSystem MeshLodGenerator Terrain)
     find_package(OpenAL)
     find_package(OIS REQUIRED)
     find_package(MyGUI REQUIRED)

@@ -1,5 +1,3 @@
-include(FetchContent)
-
 add_subdirectory(version_info)
 add_subdirectory(main)
 
