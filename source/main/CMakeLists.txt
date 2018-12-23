@@ -265,46 +265,41 @@ if (WIN32)
     endif ()
 endif ()
 
+set(pagedgeometry_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/pagedgeometry)
+if(NOT EXISTS ${pagedgeometry_SOURCE_DIR})
+execute_process(COMMAND ${GIT_EXECUTABLE} clone
+        --depth 1 https://github.com/RigsOfRods/ogre-pagedgeometry.git
+        ${pagedgeometry_SOURCE_DIR})
+endif()
 
-FetchContent_Declare(
-        pagedgeometry
-        GIT_REPOSITORY https://github.com/RigsOfRods/ogre-pagedgeometry.git
-        GIT_SHALLOW TRUE
-)
+set(pagedgeometry_SOURCE_FILES
+        ${pagedgeometry_SOURCE_DIR}/include/BatchPage.h
+        ${pagedgeometry_SOURCE_DIR}/source/BatchPage.cpp
+        ${pagedgeometry_SOURCE_DIR}/include/BatchedGeometry.h
+        ${pagedgeometry_SOURCE_DIR}/source/BatchedGeometry.cpp
+        ${pagedgeometry_SOURCE_DIR}/include/GrassLoader.h
+        ${pagedgeometry_SOURCE_DIR}/source/GrassLoader.cpp
+        ${pagedgeometry_SOURCE_DIR}/include/ImpostorPage.h
+        ${pagedgeometry_SOURCE_DIR}/source/ImpostorPage.cpp
+        ${pagedgeometry_SOURCE_DIR}/include/MersenneTwister.h
+        ${pagedgeometry_SOURCE_DIR}/include/PagedGeometry.h
+        ${pagedgeometry_SOURCE_DIR}/source/PagedGeometry.cpp
+        ${pagedgeometry_SOURCE_DIR}/include/PropertyMaps.h
+        ${pagedgeometry_SOURCE_DIR}/source/PropertyMaps.cpp
+        ${pagedgeometry_SOURCE_DIR}/include/RandomTable.h
+        ${pagedgeometry_SOURCE_DIR}/include/StaticBillboardSet.h
+        ${pagedgeometry_SOURCE_DIR}/source/StaticBillboardSet.cpp
+        ${pagedgeometry_SOURCE_DIR}/include/TreeLoader2D.h
+        ${pagedgeometry_SOURCE_DIR}/source/TreeLoader2D.cpp
+        ${pagedgeometry_SOURCE_DIR}/include/TreeLoader3D.h
+        ${pagedgeometry_SOURCE_DIR}/source/TreeLoader3D.cpp
+        ${pagedgeometry_SOURCE_DIR}/include/WindBatchPage.h
+        ${pagedgeometry_SOURCE_DIR}/source/WindBatchPage.cpp
+        ${pagedgeometry_SOURCE_DIR}/include/WindBatchedGeometry.h
+        ${pagedgeometry_SOURCE_DIR}/source/WindBatchedGeometry.cpp
+        )
 
-FetchContent_GetProperties(pagedgeometry)
-if (NOT pagedgeometry_POPULATED)
-    FetchContent_Populate(pagedgeometry)
-    set(pagedgeometry_SOURCE_FILES
-            ${pagedgeometry_SOURCE_DIR}/include/BatchPage.h
-            ${pagedgeometry_SOURCE_DIR}/source/BatchPage.cpp
-            ${pagedgeometry_SOURCE_DIR}/include/BatchedGeometry.h
-            ${pagedgeometry_SOURCE_DIR}/source/BatchedGeometry.cpp
-            ${pagedgeometry_SOURCE_DIR}/include/GrassLoader.h
-            ${pagedgeometry_SOURCE_DIR}/source/GrassLoader.cpp
-            ${pagedgeometry_SOURCE_DIR}/include/ImpostorPage.h
-            ${pagedgeometry_SOURCE_DIR}/source/ImpostorPage.cpp
-            ${pagedgeometry_SOURCE_DIR}/include/MersenneTwister.h
-            ${pagedgeometry_SOURCE_DIR}/include/PagedGeometry.h
-            ${pagedgeometry_SOURCE_DIR}/source/PagedGeometry.cpp
-            ${pagedgeometry_SOURCE_DIR}/include/PropertyMaps.h
-            ${pagedgeometry_SOURCE_DIR}/source/PropertyMaps.cpp
-            ${pagedgeometry_SOURCE_DIR}/include/RandomTable.h
-            ${pagedgeometry_SOURCE_DIR}/include/StaticBillboardSet.h
-            ${pagedgeometry_SOURCE_DIR}/source/StaticBillboardSet.cpp
-            ${pagedgeometry_SOURCE_DIR}/include/TreeLoader2D.h
-            ${pagedgeometry_SOURCE_DIR}/source/TreeLoader2D.cpp
-            ${pagedgeometry_SOURCE_DIR}/include/TreeLoader3D.h
-            ${pagedgeometry_SOURCE_DIR}/source/TreeLoader3D.cpp
-            ${pagedgeometry_SOURCE_DIR}/include/WindBatchPage.h
-            ${pagedgeometry_SOURCE_DIR}/source/WindBatchPage.cpp
-            ${pagedgeometry_SOURCE_DIR}/include/WindBatchedGeometry.h
-            ${pagedgeometry_SOURCE_DIR}/source/WindBatchedGeometry.cpp
-            )
-
-    source_group(pagedgeometry FILES ${pagedgeometry_SOURCE_FILES})
-
-endif ()
+source_group(pagedgeometry FILES ${pagedgeometry_SOURCE_FILES})
 
 
 ####################################################################################################

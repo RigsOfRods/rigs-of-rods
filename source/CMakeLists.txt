@@ -1,5 +1,3 @@
-include(FetchContent)
-
 add_subdirectory(version_info)
 add_subdirectory(main)
 
@@ -11,16 +9,12 @@ endif ()
 #  Setup content and resources for Rigs of Rods
 ####################################################################################################
 
-
-FetchContent_Declare(
-        RoR_Content
-        GIT_REPOSITORY https://github.com/RigsOfRods/content.git
-)
-
-FetchContent_GetProperties(RoR_Content)
-if (NOT ror_content_POPULATED)
-    FetchContent_Populate(RoR_Content)
-endif ()
+set(ror_content_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/content)
+if(NOT EXISTS ${ror_content_SOURCE_DIR})
+execute_process(COMMAND ${GIT_EXECUTABLE} clone
+        --depth 1 https://github.com/RigsOfRods/content.git
+        ${ror_content_SOURCE_DIR})
+endif()
 
 recursive_zip_folder(resources "${CMAKE_SOURCE_DIR}/resources" "${RUNTIME_OUTPUT_DIRECTORY}/resources/" ROR_RESOURCES_ZIPS)
 recursive_zip_folder(content "${ror_content_SOURCE_DIR}" "${RUNTIME_OUTPUT_DIRECTORY}/content" ROR_CONTENT_ZIPS)
