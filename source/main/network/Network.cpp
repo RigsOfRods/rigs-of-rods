@@ -379,7 +379,7 @@ void RecvThread()
 
     RoRnet::Header header;
 
-    char *buffer = (char*)malloc(RORNET_MAX_MESSAGE_LENGTH);
+    char buffer[RORNET_MAX_MESSAGE_LENGTH] = {0};
 
     while (!m_shutdown)
     {
@@ -511,8 +511,6 @@ void RecvThread()
     }
 
     m_recv_stopped = true;
-
-    free (buffer);
 
     LOG_THREAD("[RoR|Networking] RecvThread stopped");
 }
