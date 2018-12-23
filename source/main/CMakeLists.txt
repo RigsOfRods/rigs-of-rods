@@ -196,6 +196,30 @@ set(SOURCE_FILES
         physics/mplatform/MPlatformFD.{h,cpp}
         physics/water/Buoyance.{h,cpp}
         physics/water/ScrewProp.{h,cpp}
+        plugins/pagedgeometry/include/BatchPage.h
+        plugins/pagedgeometry/source/BatchPage.cpp
+        plugins/pagedgeometry/include/BatchedGeometry.h
+        plugins/pagedgeometry/source/BatchedGeometry.cpp
+        plugins/pagedgeometry/include/GrassLoader.h
+        plugins/pagedgeometry/source/GrassLoader.cpp
+        plugins/pagedgeometry/include/ImpostorPage.h
+        plugins/pagedgeometry/source/ImpostorPage.cpp
+        plugins/pagedgeometry/include/MersenneTwister.h
+        plugins/pagedgeometry/include/PagedGeometry.h
+        plugins/pagedgeometry/source/PagedGeometry.cpp
+        plugins/pagedgeometry/include/PropertyMaps.h
+        plugins/pagedgeometry/source/PropertyMaps.cpp
+        plugins/pagedgeometry/include/RandomTable.h
+        plugins/pagedgeometry/include/StaticBillboardSet.h
+        plugins/pagedgeometry/source/StaticBillboardSet.cpp
+        plugins/pagedgeometry/include/TreeLoader2D.h
+        plugins/pagedgeometry/source/TreeLoader2D.cpp
+        plugins/pagedgeometry/include/TreeLoader3D.h
+        plugins/pagedgeometry/source/TreeLoader3D.cpp
+        plugins/pagedgeometry/include/WindBatchPage.h
+        plugins/pagedgeometry/source/WindBatchPage.cpp
+        plugins/pagedgeometry/include/WindBatchedGeometry.h
+        plugins/pagedgeometry/source/WindBatchedGeometry.cpp
         resources/CacheSystem.{h,cpp}
         resources/ContentManager.{h,cpp}
         resources/otc_fileformat/OTCFileformat.{h,cpp}
@@ -266,47 +290,6 @@ if (WIN32)
 endif ()
 
 
-FetchContent_Declare(
-        pagedgeometry
-        GIT_REPOSITORY https://github.com/RigsOfRods/ogre-pagedgeometry.git
-        GIT_SHALLOW TRUE
-)
-
-FetchContent_GetProperties(pagedgeometry)
-if (NOT pagedgeometry_POPULATED)
-    FetchContent_Populate(pagedgeometry)
-    set(pagedgeometry_SOURCE_FILES
-            ${pagedgeometry_SOURCE_DIR}/include/BatchPage.h
-            ${pagedgeometry_SOURCE_DIR}/source/BatchPage.cpp
-            ${pagedgeometry_SOURCE_DIR}/include/BatchedGeometry.h
-            ${pagedgeometry_SOURCE_DIR}/source/BatchedGeometry.cpp
-            ${pagedgeometry_SOURCE_DIR}/include/GrassLoader.h
-            ${pagedgeometry_SOURCE_DIR}/source/GrassLoader.cpp
-            ${pagedgeometry_SOURCE_DIR}/include/ImpostorPage.h
-            ${pagedgeometry_SOURCE_DIR}/source/ImpostorPage.cpp
-            ${pagedgeometry_SOURCE_DIR}/include/MersenneTwister.h
-            ${pagedgeometry_SOURCE_DIR}/include/PagedGeometry.h
-            ${pagedgeometry_SOURCE_DIR}/source/PagedGeometry.cpp
-            ${pagedgeometry_SOURCE_DIR}/include/PropertyMaps.h
-            ${pagedgeometry_SOURCE_DIR}/source/PropertyMaps.cpp
-            ${pagedgeometry_SOURCE_DIR}/include/RandomTable.h
-            ${pagedgeometry_SOURCE_DIR}/include/StaticBillboardSet.h
-            ${pagedgeometry_SOURCE_DIR}/source/StaticBillboardSet.cpp
-            ${pagedgeometry_SOURCE_DIR}/include/TreeLoader2D.h
-            ${pagedgeometry_SOURCE_DIR}/source/TreeLoader2D.cpp
-            ${pagedgeometry_SOURCE_DIR}/include/TreeLoader3D.h
-            ${pagedgeometry_SOURCE_DIR}/source/TreeLoader3D.cpp
-            ${pagedgeometry_SOURCE_DIR}/include/WindBatchPage.h
-            ${pagedgeometry_SOURCE_DIR}/source/WindBatchPage.cpp
-            ${pagedgeometry_SOURCE_DIR}/include/WindBatchedGeometry.h
-            ${pagedgeometry_SOURCE_DIR}/source/WindBatchedGeometry.cpp
-            )
-
-    source_group(pagedgeometry FILES ${pagedgeometry_SOURCE_FILES})
-
-endif ()
-
-
 ####################################################################################################
 #  EXECUTABLE TARGET
 ####################################################################################################
@@ -368,6 +351,7 @@ target_include_directories(${BINNAME} PRIVATE
         physics/threading
         physics/utils
         physics/water
+        plugins/pagedgeometry/include
         resources
         resources/otc_fileformat/
         resources/rig_def_fileformat
@@ -381,7 +365,6 @@ target_include_directories(${BINNAME} PRIVATE
         utils
         )
 
-target_include_directories(${BINNAME} PRIVATE ${pagedgeometry_SOURCE_DIR}/include)
 
 ####################################################################################################
 # EXTERNAL DEPENDENCIES
