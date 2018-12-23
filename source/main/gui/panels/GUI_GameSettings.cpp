@@ -304,6 +304,10 @@ void RoR::GUI::GameSettings::Draw()
         {
             App::diag_physics_dt.SetActive(Ogre::Math::Clamp(1.0f / physics_fps, 0.0001f, 0.0005f));
         }
+        DrawGTextEdit(App::diag_preset_terrain,      _LC("GameSettings", "Preselected terrain"),         m_buf_diag_preset_terrain, false);
+        DrawGTextEdit(App::diag_preset_vehicle,      _LC("GameSettings", "Preselected vehicle"),         m_buf_diag_preset_vehicle);
+        DrawGTextEdit(App::diag_preset_veh_config,   _LC("GameSettings", "Presel. veh. config"),         m_buf_diag_preset_veh_config);
+        DrawGCheckbox(App::diag_preset_veh_enter,    _LC("GameSettings", "Enter preselected vehicle"));
         DrawGCheckbox(App::diag_auto_spawner_report, _LC("GameSettings", "Auto actor spawner report"));
         DrawGCheckbox(App::diag_rig_log_node_import, _LC("GameSettings", "Log node import (spawn)"));
         DrawGCheckbox(App::diag_rig_log_node_stats,  _LC("GameSettings", "Log node stats (spawn)"));
@@ -313,14 +317,10 @@ void RoR::GUI::GameSettings::Draw()
         DrawGCheckbox(App::diag_truck_mass,          _LC("GameSettings", "Debug actor mass"));
         DrawGCheckbox(App::diag_envmap,              _LC("GameSettings", "Debug realtime reflections"));
         DrawGCheckbox(App::diag_videocameras,        _LC("GameSettings", "Debug videocameras"));
-        DrawGCheckbox(App::diag_preset_veh_enter,    _LC("GameSettings", "Enter preselected vehicle"));
         DrawGCheckbox(App::diag_log_console_echo,    _LC("GameSettings", "Echo log to console"));
         DrawGCheckbox(App::diag_log_beam_break,      _LC("GameSettings", "Log beam breaking"));
         DrawGCheckbox(App::diag_log_beam_deform,     _LC("GameSettings", "Log beam deforming"));
         DrawGCheckbox(App::diag_log_beam_trigger,    _LC("GameSettings", "Log beam triggers"));
-        DrawGTextEdit(App::diag_preset_terrain,      _LC("GameSettings", "Preselected terrain"),         m_buf_diag_preset_terrain, false);
-        DrawGTextEdit(App::diag_preset_vehicle,      _LC("GameSettings", "Preselected vehicle"),         m_buf_diag_preset_vehicle);
-        DrawGTextEdit(App::diag_preset_veh_config,   _LC("GameSettings", "Presel. veh. config"),         m_buf_diag_preset_veh_config);
         if (ImGui::Button(_LC("GameSettings", "Clear cache (and quit)")))
         {
             std::remove(App::GetCacheSystem()->getCacheConfigFilename().c_str());
