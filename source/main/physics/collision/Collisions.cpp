@@ -709,11 +709,6 @@ bool Collisions::envokeScriptCallback(collision_box_t *cbox, node_t *node)
     return handled;
 }
 
-void Collisions::clearEventCache()
-{
-    m_last_called_cboxes.clear();
-}
-
 float Collisions::getSurfaceHeight(float x, float z)
 {
     return getSurfaceHeightBelow(x, z, std::numeric_limits<float>::max());
@@ -966,7 +961,7 @@ bool Collisions::permitEvent(int filter)
     }
 }
 
-bool Collisions::nodeCollision(node_t *node, float dt)
+bool Collisions::nodeCollision(node_t *node, float dt, bool envokeScriptCallbacks)
 {
     // find the correct cell
     int refx = (int)(node->AbsPosition.x / CELL_SIZE);
@@ -982,6 +977,7 @@ bool Collisions::nodeCollision(node_t *node, float dt)
     Vector3 minctripoint;
 
     bool contacted = false;
+    bool isScriptCallbackEnvoked = false;
 
     size_t num_elements = hashtable[hash].size();
     for (size_t k=0; k < num_elements; k++)
@@ -1012,16 +1008,17 @@ bool Collisions::nodeCollision(node_t *node, float dt)
                     // now test with the inner box
                     if (Pos > cbox->relo && Pos < cbox->rehi)
                     {
-                        if (cbox->eventsourcenum!=-1 && permitEvent(cbox->event_filter))
+                        if (cbox->eventsourcenum!=-1 && permitEvent(cbox->event_filter) && envokeScriptCallbacks)
                         {
                             envokeScriptCallback(cbox, node);
+                            isScriptCallbackEnvoked = true;
                         }
                         if (cbox->camforced && !forcecam)
                         {
                             forcecam = true;
                             forcecampos = cbox->campos;
                         }
-                        if (!cbox->virt)
+                        if (!cbox->virt && !envokeScriptCallbacks)
                         {
                             // collision, process as usual
                             // we have a collision
@@ -1051,16 +1048,17 @@ bool Collisions::nodeCollision(node_t *node, float dt)
                     }
                 } else
                 {
-                    if (cbox->eventsourcenum!=-1 && permitEvent(cbox->event_filter))
+                    if (cbox->eventsourcenum!=-1 && permitEvent(cbox->event_filter) && envokeScriptCallbacks)
                     {
                         envokeScriptCallback(cbox, node);
+                        isScriptCallbackEnvoked = true;
                     }
                     if (cbox->camforced && !forcecam)
                     {
                         forcecam = true;
                         forcecampos = cbox->campos;
                     }
-                    if (!cbox->virt)
+                    if (!cbox->virt && !envokeScriptCallbacks)
                     {
                         // we have a collision
                         contacted=true;
@@ -1114,8 +1112,11 @@ bool Collisions::nodeCollision(node_t *node, float dt)
         }
     }
 
+    if (envokeScriptCallbacks && !isScriptCallbackEnvoked)
+        clearEventCache();
+
     // process minctri collision
-    if (minctri)
+    if (minctri && !envokeScriptCallbacks)
     {
         // we have a contact
         contacted=true;

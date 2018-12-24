@@ -122,6 +122,7 @@ private:
 
     bool permitEvent(int filter);
     bool envokeScriptCallback(collision_box_t* cbox, node_t* node = 0);
+    inline void clearEventCache() { m_last_called_cboxes.clear(); }
 
     Landusemap* landuse;
     Ogre::ManualObject* debugmo;
@@ -161,9 +162,8 @@ public:
     bool groundCollision(node_t* node, float dt);
     bool isInside(Ogre::Vector3 pos, const Ogre::String& inst, const Ogre::String& box, float border = 0);
     bool isInside(Ogre::Vector3 pos, collision_box_t* cbox, float border = 0);
-    bool nodeCollision(node_t* node, float dt);
+    bool nodeCollision(node_t* node, float dt, bool envokeScriptCallbacks = true);
 
-    void clearEventCache();
     void finishLoadingTerrain();
 
     int addCollisionBox(Ogre::SceneNode* tenode, bool rotating, bool virt, Ogre::Vector3 pos, Ogre::Vector3 rot, Ogre::Vector3 l, Ogre::Vector3 h, Ogre::Vector3 sr, const Ogre::String& eventname, const Ogre::String& instancename, bool forcecam, Ogre::Vector3 campos, Ogre::Vector3 sc = Ogre::Vector3::UNIT_SCALE, Ogre::Vector3 dr = Ogre::Vector3::ZERO, int event_filter = EVENT_ALL, int scripthandler = -1);
