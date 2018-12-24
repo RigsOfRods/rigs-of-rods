@@ -49,8 +49,8 @@ enum scriptEvents
     SE_GENERIC_INPUT_EVENT             = 0x00080000, //!< triggered when an input event bound to the scripting engine is toggled, the argument refers to event id
     SE_GENERIC_MOUSE_BEAM_INTERACTION  = 0x00100000, //!< triggered when the user uses the mouse to interact with the actor, the argument refers to the actor ID
 
-    SE_TRUCK_TRACTIONCONTROL_TOGGLE    = 0x00200000, //!< triggered when the user toggles the tractioncontrol system, the argument refers to the actor ID of the vehicle
-    SE_TRUCK_ANTILOCKBRAKE_TOGGLE      = 0x00400000, //!< triggered when the user toggles the antilockbrake, the argument refers to the actor ID of the vehicle
+    SE_TRUCK_RESET                     = 0x00200000, //!< triggered when the user resets the truck, the argument refers to the actor ID of the vehicle
+    SE_TRUCK_TELEPORT                  = 0x00400000, //!< triggered when the user teleports the truck, the argument refers to the actor ID of the vehicle
 
     SE_ANGELSCRIPT_MANIPULATIONS       = 0x00800000, //!< triggered when the user tries to dynamically use the scripting capabilities (prevent cheating)
 

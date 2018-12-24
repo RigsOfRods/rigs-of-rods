@@ -948,7 +948,7 @@ void SimController::UpdateInputEvents(float dt)
                     }
                     //COMMON KEYS
 
-                    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_ACCELERATE_SIMULATION))
+                    if (m_race_id == -1 && RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_ACCELERATE_SIMULATION))
                     {
                         float simulation_speed = m_actor_manager.GetSimulationSpeed() * pow(2.0f, dt / 2.0f);
                         m_actor_manager.SetSimulationSpeed(simulation_speed);
@@ -956,7 +956,7 @@ void SimController::UpdateInputEvents(float dt)
                         RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
                         RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
                     }
-                    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_DECELERATE_SIMULATION))
+                    if (m_race_id == -1 && RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_DECELERATE_SIMULATION))
                     {
                         float simulation_speed = m_actor_manager.GetSimulationSpeed() * pow(0.5f, dt / 2.0f);
                         m_actor_manager.SetSimulationSpeed(simulation_speed);
@@ -964,7 +964,7 @@ void SimController::UpdateInputEvents(float dt)
                         RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
                         RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
                     }
-                    if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_SIMULATION_PACE))
+                    if (m_race_id == -1 && RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_SIMULATION_PACE))
                     {
                         if (!m_is_pace_reset_pressed)
                         {
@@ -1422,6 +1422,8 @@ void SimController::TeleportPlayerXZ(float x, float z)
         return;
     }
 
+    TRIGGER_EVENT(SE_TRUCK_TELEPORT, m_player_actor->ar_instance_id);
+
     Vector3 translation = Vector3(x, y, z) - m_player_actor->ar_nodes[0].AbsPosition;
 
     std::list<Actor*> actors = m_player_actor->GetAllLinkedActors();
@@ -1731,6 +1733,13 @@ void SimController::UpdateSimulation(float dt)
 
     if (simRUNNING(s) || simEDITOR(s))
     {
+        float simulation_speed = m_actor_manager.GetSimulationSpeed();
+        if (m_race_id != -1 && simulation_speed != 1.0f)
+        {
+            m_last_simulation_speed = simulation_speed;
+            m_actor_manager.SetSimulationSpeed(1.0f);
+        }
+
         this->UpdateForceFeedback();
 
         RoR::App::GetGuiManager()->UpdateSimUtils(dt, m_player_actor);

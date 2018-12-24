@@ -82,7 +82,7 @@ public:
      * returns the time in seconds since the game was started
      * @return time in seconds
      */
-    double getTime();
+    float getTime();
 
     //anglescript test
     void boostCurrentTruck(float factor);

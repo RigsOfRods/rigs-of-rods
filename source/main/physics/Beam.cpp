@@ -1455,6 +1455,8 @@ float Actor::GetHeightAboveGround(bool skip_virtual_nodes)
 
 void Actor::SyncReset(bool reset_position)
 {
+    TRIGGER_EVENT(SE_TRUCK_RESET, ar_instance_id);
+
     ar_hydro_dir_state = 0.0;
     ar_hydro_aileron_state = 0.0;
     ar_hydro_rudder_state = 0.0;

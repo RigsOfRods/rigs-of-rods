@@ -160,10 +160,11 @@ class racesManager {
 		// register the required callbacks
 		game.registerForEvent(SE_TRUCK_ENTER);
 		game.registerForEvent(SE_TRUCK_EXIT);
+		game.registerForEvent(SE_TRUCK_RESET);
+		game.registerForEvent(SE_TRUCK_TELEPORT);
+		game.registerForEvent(SE_GENERIC_DELETED_TRUCK);
 		game.registerForEvent(SE_ANGELSCRIPT_MANIPULATIONS);
-		// game.registerForEvent(SE_GENERIC_DELETED_TRUCK);
 		// game.registerForEvent(SE_GENERIC_MOUSE_BEAM_INTERACTION);
-		// game.registerForEvent(SE_TRUCK_RESET);
 		
 		// add the eventcallback method if it doesn't exist
 		if(game.scriptFunctionExists("void eventCallback(int, int)")<0)
@@ -781,15 +782,25 @@ class racesManager {
 			else if( !this.silentMode )
 				this.message("Get back in the vehicle!", "stop.png");
 		}
-		else if( eventnum == SE_TRUCK_ENTER and this.truckNum != game.getCurrentTruckNumber() and !this.allowVehicleChanging)
+		else if( eventnum == SE_TRUCK_ENTER and this.truckNum != value and !this.allowVehicleChanging)
 		{
 			this.cancelCurrentRace();
 			this.message("You cannot switch vehicles during a race! Race aborted.", "stop.png");
 		}
-		else if( eventnum == SE_GENERIC_DELETED_TRUCK )
+		else if( eventnum == SE_TRUCK_RESET and this.truckNum == value)
 		{
-			// debug: game.log("Truck deleted");
-			// TODO: abort race here
+			this.cancelCurrentRace();
+			this.message("You must not reset the vehicle during a race! Race aborted.", "stop.png");
+		}
+		else if( eventnum == SE_TRUCK_TELEPORT and this.truckNum == value)
+		{
+			this.cancelCurrentRace();
+			this.message("You must not teleport the vehicle during a race! Race aborted.", "stop.png");
+		}
+		else if( eventnum == SE_GENERIC_DELETED_TRUCK and this.truckNum == value and !this.allowVehicleChanging)
+		{
+			this.cancelCurrentRace();
+			this.message("You must finish the race with the vehicle you started it! Race aborted.", "stop.png");
 		}
 		else if( eventnum == SE_GENERIC_MOUSE_BEAM_INTERACTION )
 		{
@@ -859,10 +870,11 @@ class racesManager {
 			args.set("raceID", this.currentRace);
 			handle(args);
 		}
-		
+
 		this.lastCheckpoint = -1;
 		this.currentRace = -1;
 		this.currentLap = -1;
+		this.lastRaceEventInstance = "";
 		this.state = this.STATE_NotInRace;
 		game.stopTimer();
 		this.removeArrow();
