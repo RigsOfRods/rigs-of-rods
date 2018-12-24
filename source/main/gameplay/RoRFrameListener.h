@@ -75,11 +75,11 @@ public:
     void   RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name); ///< Scripting utility. TODO: Does anybody use it? ~ only_a_ptr, 08/2017
 
     // Scripting interface
-    double getTime               () { return m_time; }
+    float  getTime               () { return m_time; }
     void   UpdateDirectionArrow  (char* text, Ogre::Vector3 position);
     void   ShowLoaderGUI         (int type, const Ogre::String& instance, const Ogre::String& box);
-    void   StartRaceTimer        ();
-    float  StopRaceTimer         ();
+    void   StartRaceTimer        (); // Do not call manually!
+    float  StopRaceTimer         (); // Do not call manually!
     float  GetRaceTime           () const { return static_cast<float>(m_time - m_race_start_time); }
     float  GetRaceBestTime       () const { return m_race_bestlap_time; }
     bool   IsRaceInProgress      () const { return m_race_in_progress; }
@@ -142,7 +142,7 @@ private:
     bool                     m_physics_simulation_paused;
     int                      m_stats_on;
     float                    m_netcheck_gui_timer;
-    double                   m_time;
+    float                    m_time;
     RoR::ForceFeedback*      m_force_feedback;
     bool                     m_hide_gui;
     bool                     m_was_app_window_closed;

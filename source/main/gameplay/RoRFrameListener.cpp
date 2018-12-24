@@ -706,7 +706,6 @@ void SimController::UpdateInputEvents(float dt)
                 }
                 if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_TRUCK) && !m_player_actor->ar_replay_mode)
                 {
-                    this->StopRaceTimer();
                     ActorModifyRequest rq;
                     rq.amr_actor = m_player_actor;
                     rq.amr_type  = ActorModifyRequest::Type::RESET_ON_INIT_POS;
@@ -714,12 +713,10 @@ void SimController::UpdateInputEvents(float dt)
                 }
                 else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REMOVE_CURRENT_TRUCK) && !m_player_actor->ar_replay_mode)
                 {
-                    this->StopRaceTimer();
                     this->QueueActorRemove(m_player_actor);
                 }
                 else if ((RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK) || m_advanced_vehicle_repair) && !m_player_actor->ar_replay_mode)
                 {
-                    this->StopRaceTimer();
                     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK))
                     {
                         m_advanced_vehicle_repair = m_advanced_vehicle_repair_timer > 1.0f;
@@ -1024,7 +1021,6 @@ void SimController::UpdateInputEvents(float dt)
                     {
                         if (m_player_actor->getReplay() != nullptr)
                         {
-                            this->StopRaceTimer();
                             m_player_actor->setReplayMode(!m_player_actor->ar_replay_mode);
                         } else
                         {
@@ -1764,7 +1760,6 @@ void SimController::ShowLoaderGUI(int type, const Ogre::String& instance, const 
                 {
                     RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Please clear the place first"), "error.png");
                     RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Please clear the place first"));
-                    gEnv->collisions->clearEventCache();
                     return;
                 }
             }
@@ -1959,8 +1954,6 @@ bool SimController::LoadTerrain()
 void SimController::CleanupAfterSimulation()
 {
     App::GetGuiManager()->GetMainSelector()->Reset();
-
-    this->StopRaceTimer();
 
     App::DestroyOverlayWrapper();
 
