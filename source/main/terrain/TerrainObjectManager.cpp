@@ -967,14 +967,14 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
                     {
                         type = "racestart";
                     }
-                    // TODO: Group checkpoint icons by race id (res[1])
+                    int race_id = StringConverter::parseInt(res[1], -1);
                     auto ent = App::GetSimController()->GetGfxScene().GetSurveyMap()->createMapEntity(type);
-                    m_map_entities.push_back({ent, type, "", pos, rot.y});
+                    m_map_entities.push_back({ent, type, "", pos, rot.y, race_id});
                 }
                 else if (!type.empty())
                 {
                     auto ent = App::GetSimController()->GetGfxScene().GetSurveyMap()->createMapEntity(type);
-                    m_map_entities.push_back({ent, type, "", pos, rot.y});
+                    m_map_entities.push_back({ent, type, "", pos, rot.y, -1});
                 }
             }
             continue;
@@ -1318,8 +1318,8 @@ bool TerrainObjectManager::UpdateTerrainObjects(float dt)
 
     for (auto e : m_map_entities)
     {
-        // TODO: Only show the checkpoints of the current race
-        bool visible = (e.type != "checkpoint") || App::GetSimController()->IsRaceInProgress();
+        int id = App::GetSimController()->GetRaceId();
+        bool visible = !((e.type == "checkpoint" && e.id != id) || (e.type == "racestart" && id != -1 && e.id != id));
         App::GetSimController()->GetGfxScene().GetSurveyMap()->UpdateMapEntity(e.ent, e.name, e.pos, e.rot, -1, visible);
     }
 

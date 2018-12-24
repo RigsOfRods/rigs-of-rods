@@ -190,9 +190,9 @@ float GameScript::stopTimer()
     return App::GetSimController()->StopRaceTimer();
 }
 
-void GameScript::startTimer()
+void GameScript::startTimer(int id)
 {
-    return App::GetSimController()->StartRaceTimer();
+    return App::GetSimController()->StartRaceTimer(id);
 }
 
 void GameScript::setWaterHeight(float value)
