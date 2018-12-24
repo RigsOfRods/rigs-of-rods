@@ -100,17 +100,9 @@ void GameScript::SetTrucksForcedAwake(bool forceActive)
     App::GetSimController()->GetBeamFactory()->SetTrucksForcedAwake(forceActive);
 }
 
-double GameScript::getTime()
+float GameScript::getTime()
 {
-    auto sim_controller = App::GetSimController();
-    if (sim_controller == nullptr)
-    {
-        return 0.0;
-    }
-    else
-    {
-        return sim_controller->getTime();
-    }
+    return App::GetSimController()->getTime();
 }
 
 void GameScript::setPersonPosition(const Vector3& vec)
