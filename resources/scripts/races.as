@@ -464,7 +464,7 @@ class racesManager {
 		this.lastCheckpoint = 0;
 		this.raceStartTime = game.getTime();
 		this.lapStartTime = this.raceStartTime;
-		game.startTimer();
+		game.startTimer(raceID);
 		this.recalcArrow();
 		this.truckNum = game.getCurrentTruckNumber();
 		this.raceList[raceID].lastTimeTillPoint[0] = 0.0;
@@ -593,7 +593,7 @@ class racesManager {
 		bool newBestLap;
 		this.addLapTime(rid, lapTime, newBestLap);
 		game.stopTimer();
-		game.startTimer();
+		game.startTimer(rid);
 		this.lapStartTime = game.getTime();
 		
 		// advance the lap

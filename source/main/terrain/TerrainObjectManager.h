@@ -76,6 +76,7 @@ private:
         Ogre::String name;
         Ogre::Vector3 pos;
         float rot;
+        int id;
     };
 
     struct AnimatedObject

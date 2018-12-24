@@ -78,11 +78,12 @@ public:
     float  getTime               () { return m_time; }
     void   UpdateDirectionArrow  (char* text, Ogre::Vector3 position);
     void   ShowLoaderGUI         (int type, const Ogre::String& instance, const Ogre::String& box);
-    void   StartRaceTimer        (); // Do not call manually!
+    void   StartRaceTimer        (int id); // Do not call manually!
     float  StopRaceTimer         (); // Do not call manually!
+    int    GetRaceId             () const { return m_race_id; }
     float  GetRaceTime           () const { return static_cast<float>(m_time - m_race_start_time); }
     float  GetRaceBestTime       () const { return m_race_bestlap_time; }
-    bool   IsRaceInProgress      () const { return m_race_in_progress; }
+    bool   IsRaceInProgress      () const { return m_race_id != -1; }
     bool   LoadTerrain           (); ///< Reads GVar 'sim_terrain_pending'
 
     // GUI interface
@@ -158,8 +159,8 @@ private:
     int                      m_last_screenshot_id;
     Ogre::String             m_last_screenshot_date;
 
+    int                      m_race_id;
     float                    m_race_start_time;
-    bool                     m_race_in_progress;
     float                    m_race_bestlap_time;
 
     bool                     m_advanced_vehicle_repair;
