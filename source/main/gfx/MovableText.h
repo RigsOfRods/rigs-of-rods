@@ -75,9 +75,7 @@ public:
     virtual ~MovableText();
 
     // Add to build on Shoggoth:
-#if OGRE_VERSION>0x010602
-    virtual void visitRenderables(Ogre::Renderable::Visitor* visitor, bool debugRenderables = false);
-#endif //OGRE_VERSION
+    virtual void visitRenderables(Ogre::Renderable::Visitor* visitor, bool debugRenderables = false) {};
 
     // Set settings
     void    setFontName(const UTFString &fontName);

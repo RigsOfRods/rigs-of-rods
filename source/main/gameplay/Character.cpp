@@ -589,9 +589,6 @@ void Character::SetActorCoupling(bool enabled, Actor* actor /* = nullptr */)
 GfxCharacter* Character::SetupGfx()
 {
     Entity* entity = gEnv->sceneManager->createEntity(m_instance_name + "_mesh", "character.mesh");
-#if OGRE_VERSION<0x010602
-    entity->setNormaliseNormals(true);
-#endif //OGRE_VERSION
     m_driving_anim_length = entity->getAnimationState("Driving")->getLength();
 
     // fix disappearing mesh

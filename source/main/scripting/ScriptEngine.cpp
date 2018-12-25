@@ -100,11 +100,7 @@ ScriptEngine::~ScriptEngine()
 
 
 
-#if OGRE_VERSION < ((1 << 16) | (8 << 8 ) | 0)
-void ScriptEngine::messageLogged( const String& message, LogMessageLevel lml, bool maskDebug, const String &logName)
-#else
 void ScriptEngine::messageLogged( const String& message, LogMessageLevel lml, bool maskDebug, const String &logName, bool& skipThisMessage)
-#endif // OGRE_VERSION
 {
 
     Console *c = RoR::App::GetConsole();

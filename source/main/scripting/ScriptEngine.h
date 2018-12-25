@@ -135,11 +135,7 @@ public:
     AngelScript::asIScriptEngine* getEngine() { return engine; };
 
     // method from Ogre::LogListener
-#if OGRE_VERSION < ((1 << 16) | (8 << 8 ) | 0)
-    void messageLogged( const Ogre::String& message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String &logName);
-#else
     void messageLogged(const Ogre::String& message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String& logName, bool& skipThisMessage);
-#endif // OGRE_VERSION
 
     inline void SLOG(const char* msg) { this->scriptLog->logMessage(msg); } ///< Replacement of macro
     inline void SLOG(std::string msg) { this->scriptLog->logMessage(msg); } ///< Replacement of macro
