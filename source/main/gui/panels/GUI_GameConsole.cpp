@@ -149,11 +149,7 @@ void Console::messageUpdate(float dt)
     }
 }
 
-#if OGRE_VERSION < ((1 << 16) | (8 << 8 ) | 0)
-void Console::messageLogged(const String& message, LogMessageLevel lml, bool maskDebug, const String &logName)
-#else
 void Console::messageLogged(const String& message, LogMessageLevel lml, bool maskDebug, const String& logName, bool& skipThisMessage)
-#endif // OGRE_VERSION
 {
     std::string msg = RoR::Utils::SanitizeUtf8String(message);
     if (message.substr(0, 4) == "SE| ")

@@ -734,9 +734,6 @@ void OverlayWrapper::SetupDirectionArrow()
     {
         // setup direction arrow
         Ogre::Entity* arrow_entity = gEnv->sceneManager->createEntity("dirArrowEntity", "arrow2.mesh");
-#if OGRE_VERSION<0x010602
-		arrow_entity->setNormaliseNormals(true);
-#endif //OGRE_VERSION
 
         // Add entity to the scene node
         m_direction_arrow_node = new SceneNode(gEnv->sceneManager);

@@ -105,11 +105,7 @@ protected:
 
     void frameEntered(float dt);
 
-#if OGRE_VERSION < ((1 << 16) | (8 << 8 ) | 0)
-	void messageLogged(const Ogre::String& message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String &logName);
-#else
     void messageLogged(const Ogre::String& message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String& logName, bool& skipThisMessage);
-#endif // OGRE_VERSION
 
     void eventCommandAccept(MyGUI::Edit* _sender);
     void eventMouseButtonClickSendButton(MyGUI::WidgetPtr _sender);
