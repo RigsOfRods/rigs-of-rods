@@ -2172,8 +2172,12 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
                 material_name = "tracks/flare";
             }
         }
-        flare.bbs->setMaterial(this->FindOrCreateCustomizedMaterial(material_name));
-        flare.snode->attachObject(flare.bbs);
+        Ogre::MaterialPtr material = this->FindOrCreateCustomizedMaterial(material_name);
+        if (!material.isNull())
+        {
+            flare.bbs->setMaterial(material);
+            flare.snode->attachObject(flare.bbs);
+        }
     }
     flare.isVisible = true;
     flare.light = nullptr;
