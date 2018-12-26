@@ -1160,6 +1160,12 @@ eventInfo_t eventInfo[] = {
         _L("select previous element in current category")
     },
     {
+        "SURVEY_MAP_TOGGLE_ICONS",
+        EV_SURVEY_MAP_TOGGLE_ICONS,
+        "Keyboard EXPL+CTRL+SHIFT+ALT+TAB",
+        _L("toggle map icons")
+    },
+    {
         "SURVEY_MAP_TOGGLE",
         EV_SURVEY_MAP_TOGGLE,
         "Keyboard EXPL+CTRL+SHIFT+TAB",

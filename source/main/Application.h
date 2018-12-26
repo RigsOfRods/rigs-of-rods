@@ -753,6 +753,7 @@ extern GVarPod_A<bool>         gfx_water_waves;
 extern GVarPod_A<int>          gfx_particles_mode;
 extern GVarPod_A<bool>         gfx_enable_videocams;
 extern GVarPod_A<bool>         gfx_window_videocams;
+extern GVarPod_APS<bool>       gfx_surveymap_icons;
 extern GVarPod_A<bool>         gfx_envmap_enabled;
 extern GVarPod_A<int>          gfx_envmap_rate;
 extern GVarPod_A<int>          gfx_shadow_quality;

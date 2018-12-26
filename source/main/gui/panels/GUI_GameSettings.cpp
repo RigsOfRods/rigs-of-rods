@@ -285,6 +285,7 @@ void RoR::GUI::GameSettings::Draw()
         }
 
         DrawGCheckbox(App::gfx_enable_videocams, _LC("GameSettings", "Render video cameras"));
+        DrawGCheckbox(App::gfx_surveymap_icons,  _LC("GameSettings", "Map icons"));
         DrawGCheckbox(App::gfx_water_waves,      _LC("GameSettings", "Waves on water"));
 
         DrawGCombo(App::gfx_extcam_mode, "Exterior camera mode",
