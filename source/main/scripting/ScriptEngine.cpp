@@ -43,7 +43,6 @@
 #include "Application.h"
 #include "Beam.h"
 #include "BeamFactory.h"
-#include "CBytecodeStream.h"
 #include "Collisions.h"
 #include "GUI_GameConsole.h"
 #include "GameScript.h"

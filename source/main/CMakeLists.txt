@@ -264,7 +264,6 @@ set(SOURCE_FILES
 
 if (ROR_USE_ANGELSCRIPT)
     list(APPEND SOURCE_FILES
-            scripting/CBytecodeStream.{h,cpp}
             scripting/GameScript.{h,cpp}
             scripting/LocalStorage.{h,cpp}
             scripting/OgreAngelscript.{h,cpp}
