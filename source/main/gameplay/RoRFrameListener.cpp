@@ -1426,7 +1426,7 @@ void SimController::TeleportPlayerXZ(float x, float z)
 
     Vector3 translation = Vector3(x, y, z) - m_player_actor->ar_nodes[0].AbsPosition;
 
-    std::list<Actor*> actors = m_player_actor->GetAllLinkedActors();
+    auto actors = m_player_actor->GetAllLinkedActors();
     actors.push_back(m_player_actor);
 
     float src_agl = std::numeric_limits<float>::max(); 
