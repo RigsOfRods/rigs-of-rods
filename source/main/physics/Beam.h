@@ -164,7 +164,7 @@ public:
     std::vector<authorinfo_t>     getAuthors();
     std::vector<std::string>      getDescription();
     RoR::PerVehicleCameraContext* GetCameraContext()    { return &m_camera_context; }
-    std::list<Actor*> GetAllLinkedActors()              { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
+    std::vector<Actor*> GetAllLinkedActors()            { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
     Ogre::Vector3     GetCameraDir()                    { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_dir].RelPosition).normalisedCopy(); }
     Ogre::Vector3     GetCameraRoll()                   { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_roll].RelPosition).normalisedCopy(); }
     Ogre::Vector3     GetFFbBodyForces() const          { return m_force_sensors.out_body_forces; }
@@ -424,7 +424,7 @@ private:
     float             m_avionic_chatter_timer;      //!< Sound fx state
     PointColDetector* m_inter_point_col_detector;   //!< Physics
     PointColDetector* m_intra_point_col_detector;   //!< Physics
-    std::list<Actor*>  m_linked_actors;              //!< Sim state; other actors linked using 'hooks'
+    std::vector<Actor*>  m_linked_actors;           //!< Sim state; other actors linked using 'hooks'
     Ogre::Vector3     m_avg_node_position;          //!< average node position
     Ogre::Real        m_min_camera_radius;
     Ogre::Vector3     m_avg_node_position_prev;

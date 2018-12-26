@@ -1128,49 +1128,49 @@ void CameraManager::CameraBehaviorVehicleSplineCreateSpline()
         m_splinecam_spline_nodes.push_back(&m_cct_player_actor->ar_nodes[m_cct_player_actor->ar_camera_rail[i]]);
     }
 
-    std::list<Actor*> linkedBeams = m_cct_player_actor->GetAllLinkedActors();
+    auto linkedBeams = m_cct_player_actor->GetAllLinkedActors();
 
     m_splinecam_num_linked_beams = static_cast<int>(linkedBeams.size());
 
     if (m_splinecam_num_linked_beams > 0)
     {
-        for (std::list<Actor*>::iterator it = linkedBeams.begin(); it != linkedBeams.end(); ++it)
+        for (auto actor : linkedBeams)
         {
-            if ((*it)->ar_num_camera_rails <= 0)
+            if (actor->ar_num_camera_rails <= 0)
                 continue;
 
             Vector3 curSplineFront = m_splinecam_spline_nodes.front()->AbsPosition;
             Vector3 curSplineBack = m_splinecam_spline_nodes.back()->AbsPosition;
 
-            Vector3 linkedSplineFront = (*it)->ar_nodes[(*it)->ar_camera_rail[0]].AbsPosition;
-            Vector3 linkedSplineBack = (*it)->ar_nodes[(*it)->ar_camera_rail[(*it)->ar_num_camera_rails - 1]].AbsPosition;
+            Vector3 linkedSplineFront = actor->ar_nodes[actor->ar_camera_rail[0]].AbsPosition;
+            Vector3 linkedSplineBack = actor->ar_nodes[actor->ar_camera_rail[actor->ar_num_camera_rails - 1]].AbsPosition;
 
             if (curSplineBack.distance(linkedSplineFront) < 5.0f)
             {
-                for (int i = 1; i < (*it)->ar_num_camera_rails; i++)
+                for (int i = 1; i < actor->ar_num_camera_rails; i++)
                 {
-                    m_splinecam_spline_nodes.push_back(&(*it)->ar_nodes[(*it)->ar_camera_rail[i]]);
+                    m_splinecam_spline_nodes.push_back(&actor->ar_nodes[actor->ar_camera_rail[i]]);
                 }
             }
             else if (curSplineFront.distance(linkedSplineFront) < 5.0f)
             {
-                for (int i = 1; i < (*it)->ar_num_camera_rails; i++)
+                for (int i = 1; i < actor->ar_num_camera_rails; i++)
                 {
-                    m_splinecam_spline_nodes.push_front(&(*it)->ar_nodes[(*it)->ar_camera_rail[i]]);
+                    m_splinecam_spline_nodes.push_front(&actor->ar_nodes[actor->ar_camera_rail[i]]);
                 }
             }
             else if (curSplineBack.distance(linkedSplineBack) < 5.0f)
             {
-                for (int i = (*it)->ar_num_camera_rails - 2; i >= 0; i--)
+                for (int i = actor->ar_num_camera_rails - 2; i >= 0; i--)
                 {
-                    m_splinecam_spline_nodes.push_back(&(*it)->ar_nodes[(*it)->ar_camera_rail[i]]);
+                    m_splinecam_spline_nodes.push_back(&actor->ar_nodes[actor->ar_camera_rail[i]]);
                 }
             }
             else if (curSplineFront.distance(linkedSplineBack) < 5.0f)
             {
-                for (int i = (*it)->ar_num_camera_rails - 2; i >= 0; i--)
+                for (int i = actor->ar_num_camera_rails - 2; i >= 0; i--)
                 {
-                    m_splinecam_spline_nodes.push_front(&(*it)->ar_nodes[(*it)->ar_camera_rail[i]]);
+                    m_splinecam_spline_nodes.push_front(&actor->ar_nodes[actor->ar_camera_rail[i]]);
                 }
             }
         }

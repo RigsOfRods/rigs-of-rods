@@ -730,9 +730,9 @@ float Actor::getTotalMass(bool withLocked)
 
     float mass = m_total_mass;
 
-    for (std::list<Actor*>::iterator it = m_linked_actors.begin(); it != m_linked_actors.end(); ++it)
+    for (auto actor : m_linked_actors)
     {
-        mass += (*it)->m_total_mass;
+        mass += actor->m_total_mass;
     }
 
     return mass;
