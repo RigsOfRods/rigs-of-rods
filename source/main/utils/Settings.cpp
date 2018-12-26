@@ -548,6 +548,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckB2I  (App::gfx_particles_mode,        k, v)) { return true; }
     if (CheckBool (App::gfx_enable_videocams,      k, v)) { return true; }
     if (CheckBool (App::gfx_window_videocams,      k, v)) { return true; }
+    if (CheckBool (App::gfx_surveymap_icons,       k, v)) { return true; }
     if (CheckB2I  (App::gfx_skidmarks_mode,        k, v)) { return true; }
     if (CheckBool (App::gfx_envmap_enabled,        k, v)) { return true; }
     if (CheckInt  (App::gfx_sight_range,           k, v)) { return true; }
@@ -826,6 +827,7 @@ void Settings::SaveSettings()
     WritePod (f, App::gfx_anisotropy      );
     WriteYN  (f, App::gfx_enable_videocams);
     WriteYN  (f, App::gfx_window_videocams);
+    WriteYN  (f, App::gfx_surveymap_icons );
     WriteYN  (f, App::gfx_water_waves     );
     WriteYN  (f, App::gfx_particles_mode  );
     WriteYN  (f, App::gfx_skidmarks_mode  );

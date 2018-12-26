@@ -237,6 +237,9 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE))
         toggleMode();
 
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE_ICONS))
+        App::gfx_surveymap_icons.SetActive(!App::gfx_surveymap_icons.GetActive());
+
     if (mMapMode == SurveyMapMode::NONE)
         return;
 
@@ -325,7 +328,7 @@ void SurveyMapManager::UpdateMapEntity(SurveyMapEntity* e, String caption, Vecto
         e->setRotation(rot);
         e->setCaption(caption);
         e->setPosition(relPos.x / mMapSize.x, relPos.y / mMapSize.y);
-        e->setVisibility(visible && !culled);
+        e->setVisibility(App::gfx_surveymap_icons.GetActive() && visible && !culled);
     }
 }
 

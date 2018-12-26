@@ -268,6 +268,7 @@ enum events
     EV_MENU_RIGHT, //!< select next category
     EV_MENU_SELECT, //!< select focussed item and close menu
     EV_MENU_UP, //!< select previous element in current category
+    EV_SURVEY_MAP_TOGGLE_ICONS, //!< toggle map icons
     EV_SURVEY_MAP_CYCLE, //!< cycle overview-map mode
     EV_SURVEY_MAP_TOGGLE, //!< toggle overview-map mode
     EV_SURVEY_MAP_ZOOM_IN, //!< increase survey map scale
