@@ -1,3 +1,5 @@
+WARNING: These build instructions are out of date for the developer's build (the git master repository). Updated build instructions will be created at some point.
+
 # Building instructions
 Please refer to https://github.com/RigsOfRods/rigs-of-rods/wiki
 
