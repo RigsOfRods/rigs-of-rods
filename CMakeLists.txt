@@ -3,13 +3,13 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_SOU
 
 
 # Download cotire automatically
-if (NOT EXISTS "${CMAKE_BINARY_DIR}/cotire.cmake")
+if (NOT EXISTS "${CMAKE_SOURCE_DIR}/cotire.cmake")
     message(STATUS "Downloading cotire.cmake from https://github.com/sakra/cotire/")
     file(DOWNLOAD "https://raw.githubusercontent.com/sakra/cotire/master/CMake/cotire.cmake"
-            "${CMAKE_BINARY_DIR}/cotire.cmake")
+            "${CMAKE_SOURCE_DIR}/cotire.cmake")
 endif ()
 
-include(${CMAKE_BINARY_DIR}/cotire.cmake)
+include(${CMAKE_SOURCE_DIR}/cotire.cmake)
 
 
 ################################################################################
