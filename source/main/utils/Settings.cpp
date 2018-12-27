@@ -362,7 +362,7 @@ inline bool CheckEnvmapRate(std::string const & key, std::string const & s)
 
 inline bool CheckShadowQuality(std::string const & key, std::string const & s)
 {
-    if (key != App::gfx_envmap_rate.conf_name)
+    if (key != App::gfx_shadow_quality.conf_name)
         return false;
 
     int quality = Ogre::StringConverter::parseInt(s);
