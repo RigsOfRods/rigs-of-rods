@@ -92,6 +92,10 @@ bool OgreSubsystem::Configure()
     miscParams["vsync"] = ropts["VSync"].currentValue;
     miscParams["gamma"] = ropts["sRGB Gamma Conversion"].currentValue;
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+    const auto rd = ropts["Rendering Device"];
+    const auto it = std::find(rd.possibleValues.begin(), rd.possibleValues.end(), rd.currentValue);
+    const int idx = std::distance(rd.possibleValues.begin(), it);
+    miscParams["monitorIndex"] = Ogre::StringConverter::toString(idx);
     miscParams["windowProc"] = Ogre::StringConverter::toString((size_t)OgreBites::WindowEventUtilities::_WndProc);
 #endif
 
