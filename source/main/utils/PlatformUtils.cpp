@@ -114,8 +114,11 @@ bool FolderExists(const char* path)
 
 void CreateFolder(const char* path)
 {
-    std::wstring wpath = MSW_Utf8ToWchar(path);
-    CreateDirectoryW(wpath.c_str(), nullptr);
+    if (!FolderExists(path))
+    {
+        std::wstring wpath = MSW_Utf8ToWchar(path);
+        CreateDirectoryW(wpath.c_str(), nullptr);
+    }
 }
 
 std::string GetUserHomeDirectory()
