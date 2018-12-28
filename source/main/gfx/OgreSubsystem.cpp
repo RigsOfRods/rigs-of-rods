@@ -28,7 +28,6 @@
 #include "OgreSubsystem.h"
 
 #include "Application.h"
-#include "ErrorUtils.h"
 #include "Language.h"
 #include "PlatformUtils.h"
 #include "RoRVersion.h"
@@ -66,7 +65,7 @@ bool OgreSubsystem::Configure()
         if (!render_systems.empty())
             m_ogre_root->setRenderSystem(render_systems.front());
         else
-            m_ogre_root->showConfigDialog(OgreBites::getNativeConfigDialog());
+            LOG("No render system plugin available. Check your plugins.cfg");
     }
     const auto rs = m_ogre_root->getRenderSystemByName(App::app_rendersys_override.GetActive());
     if (rs != nullptr && rs != m_ogre_root->getRenderSystem())
@@ -148,6 +147,9 @@ bool OgreSubsystem::StartOgre(Ogre::String const & hwnd, Ogre::String const & ma
 {
     m_hwnd = hwnd;
     m_main_hwnd = mainhwnd;
+
+    CreateFolder(RoR::App::sys_logs_dir.GetActive());
+    CreateFolder(RoR::App::sys_config_dir.GetActive());
 
     std::string log_filepath = PathCombine(RoR::App::sys_logs_dir.GetActive(),   "RoR.log");
     std::string cfg_filepath = PathCombine(RoR::App::sys_config_dir.GetActive(), "ogre.cfg");
