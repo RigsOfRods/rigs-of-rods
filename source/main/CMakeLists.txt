@@ -558,11 +558,12 @@ cotire(${BINNAME})
 ####################################################################################################
 
 # configure plugins.cfg
-if (WIN32)
-    set(CFG_OGRE_RENDERSYSTEM "Plugin=RenderSystem_Direct3D9")
-else()
-    set(CFG_OGRE_RENDERSYSTEM "Plugin=RenderSystem_GL")
+if (NOT WIN32)
+    set(CFG_COMMENT_RENDERSYSTEM_D3D9 "# ")
 endif ()
+
+set(CFG_COMMENT_RENDERSYSTEM_D3D11 "# ")
+set(CFG_COMMENT_RENDERSYSTEM_GL3PLUS "# ")
 
 if (BUILD_REDIST_FOLDER AND UNIX)
     set(PLUGINS_FOLDER "lib")
