@@ -421,6 +421,7 @@ void TerrainManager::initWater()
     {
         m_water = std::unique_ptr<IWater>(new Water());
         m_water->SetStaticWaterHeight(m_def.water_height);
+        m_water->SetWaterBottomHeight(m_def.water_bottom_height);
     }
 }
 
