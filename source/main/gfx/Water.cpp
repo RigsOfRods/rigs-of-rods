@@ -504,6 +504,11 @@ void Water::SetStaticWaterHeight(float value)
     m_waterplane_force_update_pos = true;
 }
 
+void Water::SetWaterBottomHeight(float value)
+{
+    m_bottom_height = value;
+}
+
 float Water::CalcWavesHeight(Vector3 pos)
 {
     // no waves?
