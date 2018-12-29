@@ -196,7 +196,7 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
         next_mode = Mode::DIRECT;
     }
     ImGui::SameLine();
-    if (ImGui::Button("Setup"))
+    if (ImGui::Button("Settings"))
     {
         next_mode = Mode::SETUP;
     }
