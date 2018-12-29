@@ -1549,42 +1549,27 @@ void SimController::UpdateSimulation(float dt)
         {
             if (m_player_actor == rq.amr_actor) // Check if the request is up-to-date
             {
-                App::GetCacheSystem()->UnloadActorDefFromMemory(m_player_actor->ar_filename.c_str()); // Force reload from filesystem
+                String filename = m_player_actor->ar_filename;
+                auto reload_pos = m_player_actor->getPosition();
+                auto reload_dir = Quaternion(Degree(270) - Radian(m_player_actor->getRotation()), Vector3::UNIT_Y);
+                auto debug_view = m_player_actor->GetGfxActor()->GetDebugView();
+
+                reload_pos.y = m_player_actor->GetMinHeight();
+
+                m_prev_player_actor = nullptr;
+                this->ChangePlayerActor(nullptr);
+                m_gfx_scene.RemoveGfxActor(rq.amr_actor->GetGfxActor());
+                m_actor_manager.DeleteActorInternal(rq.amr_actor);
+                App::GetCacheSystem()->UnloadActorDefFromMemory(filename); // Force reload from filesystem
+
                 ActorSpawnRequest srq;
-                srq.asr_position = m_reload_pos;
-                srq.asr_rotation = m_reload_dir;
-                srq.asr_filename = m_player_actor->ar_filename;
+                srq.asr_position = reload_pos;
+                srq.asr_rotation = reload_dir;
+                srq.asr_filename = filename;
                 Actor* new_actor = this->SpawnActorDirectly(srq); // try to load the same actor again
+                this->FinalizeActorSpawning(new_actor, m_player_actor, srq);
 
-                // copy over the most basic info
-                if (m_player_actor->ar_num_nodes == new_actor->ar_num_nodes)
-                {
-                    for (int i = 0; i < m_player_actor->ar_num_nodes; i++)
-                    {
-                        // copy over nodes attributes if the amount of them didnt change
-                        new_actor->ar_nodes[i].AbsPosition = m_player_actor->ar_nodes[i].AbsPosition; // TODO: makes sense? the Reset below overwrites it. ~only_a_ptr, 09/2018
-                        new_actor->ar_nodes[i].RelPosition = m_player_actor->ar_nodes[i].RelPosition; // TODO: ditto
-                        new_actor->ar_nodes[i].Velocity    = m_player_actor->ar_nodes[i].Velocity;    // TODO: ditto
-                        new_actor->ar_nodes[i].Forces      = m_player_actor->ar_nodes[i].Forces;      // TODO: ditto
-                        new_actor->ar_origin               = m_player_actor->ar_origin;
-                    }
-                    new_actor->ar_initial_node_positions   = m_player_actor->ar_initial_node_positions;
-                }
-
-                new_actor->GetGfxActor()->SetDebugView(m_player_actor->GetGfxActor()->GetDebugView());
-
-                // TODO:
-                // * copy over the engine infomation
-                // * commands status
-                // * other minor stati
-
-                this->QueueActorRemove(m_player_actor); // TODO: The 'reload' command is hybrid removal/modify, so doesn't fit the 1.2.3. scheme of things ~ only_a_ptr, 09/2018
-
-                // reset the new actor (starts engine, resets gui, ...)
-                new_actor->SyncReset(false); // false = Do not reset position
-
-                // enter the new actor
-                this->SetPendingPlayerActor(new_actor);
+                new_actor->GetGfxActor()->SetDebugView(debug_view);
             }
         }
     }
