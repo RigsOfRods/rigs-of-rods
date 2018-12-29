@@ -973,8 +973,14 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
                 }
                 else if (!type.empty())
                 {
+                    String caption = "";
+                    if (type == "station" || type == "hotel" || type == "village" ||
+                            type == "observatory" || type == "farm" || type == "ship")
+                    {
+                        caption = instancename + " " + type;
+                    }
                     auto ent = App::GetSimController()->GetGfxScene().GetSurveyMap()->createMapEntity(type);
-                    m_map_entities.push_back({ent, type, "", pos, rot.y, -1});
+                    m_map_entities.push_back({ent, type, caption, pos, rot.y, -1});
                 }
             }
             continue;
