@@ -231,7 +231,7 @@ float TerrainGeometryManager::getHeightAt(float x, float z)
     float ty = (z + mBase - mPos.z) / ((mSize - 1) * -mScale);
 
     if (tx <= 0.0f || ty <= 0.0f || tx >= 1.0f || ty >= 1.0f)
-        return 0.0f;
+        return terrainManager->GetDef().water_bottom_height;
 
     return getHeightAtTerrainPosition(tx, ty);
 }
