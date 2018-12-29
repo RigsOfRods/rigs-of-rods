@@ -43,8 +43,6 @@
 using namespace Ogre;
 using namespace RoR;
 
-#define dt PHYSICS_DT
-
 void Actor::CalcForcesEulerCompute(bool doUpdate, int num_steps)
 {
     this->CalcNodes(); // must be done directly after the inter truck collisions are handled
@@ -62,7 +60,7 @@ void Actor::CalcForcesEulerCompute(bool doUpdate, int num_steps)
     this->CalcMouse();
     this->CalcBeams(doUpdate);
     this->CalcCabCollisions();
-    this->UpdateSlideNodeForces(dt); // must be done after the contacters are updated
+    this->UpdateSlideNodeForces(PHYSICS_DT); // must be done after the contacters are updated
     this->CalcForceFeedback(doUpdate);
 }
 
@@ -109,7 +107,7 @@ void Actor::CalcAircraftForces(bool doUpdate)
     //turboprop forces
     for (int i = 0; i < ar_num_aeroengines; i++)
         if (ar_aeroengines[i])
-            ar_aeroengines[i]->updateForces(dt, doUpdate);
+            ar_aeroengines[i]->updateForces(PHYSICS_DT, doUpdate);
 
     //screwprop forces
     for (int i = 0; i < ar_num_screwprops; i++)
@@ -221,7 +219,7 @@ void Actor::CalcDifferentials()
             {axle_torques[0], axle_torques[1]},
             ar_wheels[m_wheel_diffs[a_1]->di_idx_1].wh_torque + ar_wheels[m_wheel_diffs[a_1]->di_idx_2].wh_torque +
             ar_wheels[m_wheel_diffs[a_2]->di_idx_1].wh_torque + ar_wheels[m_wheel_diffs[a_2]->di_idx_2].wh_torque,
-            dt
+            PHYSICS_DT
         };
 
         m_axle_diffs[i]->CalcAxleTorque(diff_data);
@@ -247,7 +245,7 @@ void Actor::CalcDifferentials()
             m_wheel_diffs[i]->di_delta_rotation,
             {axle_torques[0], axle_torques[1]},
             axle_wheels[0]->wh_torque + axle_wheels[1]->wh_torque,
-            dt
+            PHYSICS_DT
         };
 
         m_wheel_diffs[i]->CalcAxleTorque(diff_data);
@@ -262,8 +260,8 @@ void Actor::CalcDifferentials()
 void Actor::CalcWheels(bool doUpdate, int num_steps)
 {
     // driving aids traction control & anti-lock brake pulse
-    tc_timer += dt;
-    alb_timer += dt;
+    tc_timer += PHYSICS_DT;
+    alb_timer += PHYSICS_DT;
 
     if (alb_timer >= alb_pulse_time)
     {
@@ -355,7 +353,7 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
                     m_antilockbrake = true;
                 }
 
-                float force = -ar_wheels[i].wh_avg_speed * ar_wheels[i].wh_radius * ar_wheels[i].wh_mass / dt;
+                float force = -ar_wheels[i].wh_avg_speed * ar_wheels[i].wh_radius * ar_wheels[i].wh_mass / PHYSICS_DT;
                 force -= ar_wheels[i].wh_last_retorque;
 
                 if (ar_wheels[i].wh_speed > 0)
@@ -420,7 +418,7 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
         }
 
         ar_wheels[i].wh_speed /= (Real)ar_wheels[i].wh_num_nodes;
-        ar_wheels[i].wh_net_rp += (ar_wheels[i].wh_speed / ar_wheels[i].wh_radius) * dt;
+        ar_wheels[i].wh_net_rp += (ar_wheels[i].wh_speed / ar_wheels[i].wh_radius) * PHYSICS_DT;
         // We overestimate the average speed on purpose in order to improve the quality of the braking force estimate
         ar_wheels[i].wh_avg_speed = ar_wheels[i].wh_avg_speed * 0.99 + ar_wheels[i].wh_speed * 0.1;
         ar_wheels[i].debug_rpm += RAD_PER_SEC_TO_RPM * ar_wheels[i].wh_speed / ar_wheels[i].wh_radius / (float)num_steps;
@@ -431,8 +429,8 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
             ar_wheel_spin  += speedacc / ar_wheels[i].wh_radius; // Accumulate the average wheel spin  (radians)
         }
 
-        expected_wheel_speed += ((ar_wheels[i].wh_last_torque / ar_wheels[i].wh_radius) / ar_wheels[i].wh_mass) * dt;
-        ar_wheels[i].wh_last_retorque = ar_wheels[i].wh_mass * (ar_wheels[i].wh_speed - expected_wheel_speed) / dt;
+        expected_wheel_speed += ((ar_wheels[i].wh_last_torque / ar_wheels[i].wh_radius) / ar_wheels[i].wh_mass) * PHYSICS_DT;
+        ar_wheels[i].wh_last_retorque = ar_wheels[i].wh_mass * (ar_wheels[i].wh_speed - expected_wheel_speed) / PHYSICS_DT;
 
         // reaction torque
         Vector3 rradius = ar_wheels[i].wh_arm_node->RelPosition - ar_wheels[i].wh_near_attach_node->RelPosition;
@@ -483,7 +481,7 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
     }
 
     // calculate driven distance
-    float distance_driven = fabs(ar_wheel_speed * dt);
+    float distance_driven = fabs(ar_wheel_speed * PHYSICS_DT);
     m_odometer_total += distance_driven;
     m_odometer_user += distance_driven;
 }
@@ -494,7 +492,7 @@ void Actor::CalcShocks(bool doUpdate, int num_steps)
     if (this->ar_has_active_shocks && m_stabilizer_shock_request)
     {
         if ((m_stabilizer_shock_request == 1 && m_stabilizer_shock_ratio < 0.1) || (m_stabilizer_shock_request == -1 && m_stabilizer_shock_ratio > -0.1))
-            m_stabilizer_shock_ratio = m_stabilizer_shock_ratio + (float)m_stabilizer_shock_request * dt * STAB_RATE;
+            m_stabilizer_shock_ratio = m_stabilizer_shock_ratio + (float)m_stabilizer_shock_request * PHYSICS_DT * STAB_RATE;
         for (int i = 0; i < ar_num_shocks; i++)
         {
             // active shocks now
@@ -507,7 +505,7 @@ void Actor::CalcShocks(bool doUpdate, int num_steps)
     //auto shock adjust
     if (this->ar_has_active_shocks && doUpdate)
     {
-        m_stabilizer_shock_sleep -= dt * num_steps;
+        m_stabilizer_shock_sleep -= PHYSICS_DT * num_steps;
 
         float roll = asin(GetCameraRoll().dotProduct(Vector3::UNIT_Y));
         //mWindow->setDebugText("Roll:"+ TOSTRING(roll));
@@ -570,13 +568,13 @@ void Actor::CalcHydros()
         if (ar_hydro_dir_command != 0 && ar_hydro_speed_coupling)
         {
             if (ar_hydro_dir_state > ar_hydro_dir_command)
-                ar_hydro_dir_state -= dt * rate;
+                ar_hydro_dir_state -= PHYSICS_DT * rate;
             else
-                ar_hydro_dir_state += dt * rate;
+                ar_hydro_dir_state += PHYSICS_DT * rate;
         }
         if (ar_hydro_speed_coupling)
         {
-            float dirdelta = dt;
+            float dirdelta = PHYSICS_DT;
             if (ar_hydro_dir_state > dirdelta)
                 ar_hydro_dir_state -= dirdelta;
             else if (ar_hydro_dir_state < -dirdelta)
@@ -591,11 +589,11 @@ void Actor::CalcHydros()
         if (ar_hydro_aileron_command != 0)
         {
             if (ar_hydro_aileron_state > ar_hydro_aileron_command)
-                ar_hydro_aileron_state -= dt * 4.0;
+                ar_hydro_aileron_state -= PHYSICS_DT * 4.0;
             else
-                ar_hydro_aileron_state += dt * 4.0;
+                ar_hydro_aileron_state += PHYSICS_DT * 4.0;
         }
-        float delta = dt;
+        float delta = PHYSICS_DT;
         if (ar_hydro_aileron_state > delta)
             ar_hydro_aileron_state -= delta;
         else if (ar_hydro_aileron_state < -delta)
@@ -609,12 +607,12 @@ void Actor::CalcHydros()
         if (ar_hydro_rudder_command != 0)
         {
             if (ar_hydro_rudder_state > ar_hydro_rudder_command)
-                ar_hydro_rudder_state -= dt * 4.0;
+                ar_hydro_rudder_state -= PHYSICS_DT * 4.0;
             else
-                ar_hydro_rudder_state += dt * 4.0;
+                ar_hydro_rudder_state += PHYSICS_DT * 4.0;
         }
 
-        float delta = dt;
+        float delta = PHYSICS_DT;
         if (ar_hydro_rudder_state > delta)
             ar_hydro_rudder_state -= delta;
         else if (ar_hydro_rudder_state < -delta)
@@ -628,11 +626,11 @@ void Actor::CalcHydros()
         if (ar_hydro_elevator_command != 0)
         {
             if (ar_hydro_elevator_state > ar_hydro_elevator_command)
-                ar_hydro_elevator_state -= dt * 4.0;
+                ar_hydro_elevator_state -= PHYSICS_DT * 4.0;
             else
-                ar_hydro_elevator_state += dt * 4.0;
+                ar_hydro_elevator_state += PHYSICS_DT * 4.0;
         }
-        float delta = dt;
+        float delta = PHYSICS_DT;
         if (ar_hydro_elevator_state > delta)
             ar_hydro_elevator_state -= delta;
         else if (ar_hydro_elevator_state < -delta)
@@ -702,7 +700,7 @@ void Actor::CalcHydros()
         int flagstate = hydrobeam.hb_anim_flags;
         if (flagstate)
         {
-            this->CalcAnimators(flagstate, cstate, div, dt, 0.0f, 0.0f, hydrobeam.hb_anim_param);
+            this->CalcAnimators(flagstate, cstate, div, PHYSICS_DT, 0.0f, 0.0f, hydrobeam.hb_anim_param);
         }
 
         if (div)
@@ -710,7 +708,7 @@ void Actor::CalcHydros()
             cstate /= (float)div;
 
             if (m_hydro_inertia)
-                cstate = m_hydro_inertia->calcCmdKeyDelay(cstate, i, dt);
+                cstate = m_hydro_inertia->calcCmdKeyDelay(cstate, i, PHYSICS_DT);
 
             if (!(hydrobeam.hb_flags & HYDRO_FLAG_SPEED) && !flagstate)
                 ar_hydro_dir_wheel_display = cstate;
@@ -885,7 +883,7 @@ void Actor::CalcCommands(bool doUpdate)
                         }
 
                         if (m_command_inertia)
-                            v = m_command_inertia->calcCmdKeyDelay(v, i, dt);
+                            v = m_command_inertia->calcCmdKeyDelay(v, i, PHYSICS_DT);
 
                         if (bbeam_dir * cmd_beam.cmb_state->auto_moving_mode > 0)
                             v = 1;
@@ -926,9 +924,9 @@ void Actor::CalcCommands(bool doUpdate)
                             cf = crankfactor;
 
                         if (bbeam_dir > 0)
-                            ar_beams[bbeam].L *= (1.0 + cmd_beam.cmb_speed * v * cf * dt / ar_beams[bbeam].L);
+                            ar_beams[bbeam].L *= (1.0 + cmd_beam.cmb_speed * v * cf * PHYSICS_DT / ar_beams[bbeam].L);
                         else
-                            ar_beams[bbeam].L *= (1.0 - cmd_beam.cmb_speed * v * cf * dt / ar_beams[bbeam].L);
+                            ar_beams[bbeam].L *= (1.0 - cmd_beam.cmb_speed * v * cf * PHYSICS_DT / ar_beams[bbeam].L);
 
                         dl = fabs(dl - ar_beams[bbeam].L);
                         if (requestpower)
@@ -955,7 +953,7 @@ void Actor::CalcCommands(bool doUpdate)
 
                 if (m_rotator_inertia)
                 {
-                    v = m_rotator_inertia->calcCmdKeyDelay(ar_command_key[i].commandValue, i, dt);
+                    v = m_rotator_inertia->calcCmdKeyDelay(ar_command_key[i].commandValue, i, PHYSICS_DT);
 
                     if (v > 0.0f && ar_rotators[rota].rotatorEngineCoupling > 0.0f)
                         requestpower = true;
@@ -967,9 +965,9 @@ void Actor::CalcCommands(bool doUpdate)
                     cf = crankfactor;
 
                 if (ar_command_key[i].rotators[j] > 0)
-                    ar_rotators[rota].angle += ar_rotators[rota].rate * v * cf * dt;
+                    ar_rotators[rota].angle += ar_rotators[rota].rate * v * cf * PHYSICS_DT;
                 else
-                    ar_rotators[rota].angle -= ar_rotators[rota].rate * v * cf * dt;
+                    ar_rotators[rota].angle -= ar_rotators[rota].rate * v * cf * PHYSICS_DT;
             }
             if (requestpower)
                 requested=true;
@@ -1052,7 +1050,7 @@ void Actor::CalcTies()
         float clen = it->ti_beam->L / it->ti_beam->refL;
         if (clen > it->ti_min_length)
         {
-            it->ti_beam->L *= (1.0 - it->ti_contract_speed * dt / it->ti_beam->L);
+            it->ti_beam->L *= (1.0 - it->ti_contract_speed * PHYSICS_DT / it->ti_beam->L);
         }
         else
         {
@@ -1071,7 +1069,7 @@ void Actor::CalcTruckEngine(bool doUpdate)
 {
     if (ar_engine)
     {
-        ar_engine->UpdateEngineSim(dt, doUpdate);
+        ar_engine->UpdateEngineSim(PHYSICS_DT, doUpdate);
     }
 }
 
@@ -1079,7 +1077,7 @@ void Actor::CalcReplay()
 {
     if (m_replay_handler && m_replay_handler->isValid())
     {
-        m_replay_timer += dt;
+        m_replay_timer += PHYSICS_DT;
         if (m_replay_timer > ar_replay_precision)
         {
             // store nodes
@@ -1541,8 +1539,8 @@ void Actor::CalcNodes()
         if (!ar_nodes[i].nd_no_ground_contact)
         {
             Vector3 oripos = ar_nodes[i].AbsPosition;
-            bool contacted = gEnv->collisions->groundCollision(&ar_nodes[i], dt);
-            contacted = contacted | gEnv->collisions->nodeCollision(&ar_nodes[i], dt, false);
+            bool contacted = gEnv->collisions->groundCollision(&ar_nodes[i], PHYSICS_DT);
+            contacted = contacted | gEnv->collisions->nodeCollision(&ar_nodes[i], PHYSICS_DT, false);
             ar_nodes[i].nd_has_ground_contact = contacted;
             if (ar_nodes[i].nd_has_ground_contact || ar_nodes[i].nd_has_mesh_contact)
             {
@@ -1559,14 +1557,14 @@ void Actor::CalcNodes()
             // record g forces on cameras
             m_camera_gforces_accu += ar_nodes[i].Forces / ar_nodes[i].mass;
             // trigger script callbacks
-            gEnv->collisions->nodeCollision(&ar_nodes[i], dt, true);
+            gEnv->collisions->nodeCollision(&ar_nodes[i], PHYSICS_DT, true);
         }
 
         // integration
         if (!ar_nodes[i].nd_immovable)
         {
-            ar_nodes[i].Velocity += ar_nodes[i].Forces / ar_nodes[i].mass * dt;
-            ar_nodes[i].RelPosition += ar_nodes[i].Velocity * dt;
+            ar_nodes[i].Velocity += ar_nodes[i].Forces / ar_nodes[i].mass * PHYSICS_DT;
+            ar_nodes[i].RelPosition += ar_nodes[i].Velocity * PHYSICS_DT;
             ar_nodes[i].AbsPosition = ar_origin;
             ar_nodes[i].AbsPosition += ar_nodes[i].RelPosition;
         }
@@ -1636,7 +1634,7 @@ void Actor::CalcHooks()
     for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
     {
         //we need to do this here to avoid countdown speedup by triggers
-        it->hk_timer = std::max(0.0f, it->hk_timer - dt);
+        it->hk_timer = std::max(0.0f, it->hk_timer - PHYSICS_DT);
 
         if (it->hk_lock_node && it->hk_locked == PRELOCK)
         {
