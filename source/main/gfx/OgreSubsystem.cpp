@@ -28,6 +28,7 @@
 #include "OgreSubsystem.h"
 
 #include "Application.h"
+#include "ErrorUtils.h"
 #include "Language.h"
 #include "PlatformUtils.h"
 #include "RoRVersion.h"
@@ -46,7 +47,7 @@
 namespace RoR
 {
 
-OgreSubsystem::OgreSubsystem() : 
+OgreSubsystem::OgreSubsystem() :
     m_ogre_root(nullptr),
     m_render_window(nullptr),
     m_viewport(nullptr)
@@ -59,14 +60,25 @@ OgreSubsystem::~OgreSubsystem()
 
 bool OgreSubsystem::Configure()
 {
-    if (!m_ogre_root->restoreConfig())
+    try
     {
-        const auto render_systems = App::GetOgreSubsystem()->GetOgreRoot()->getAvailableRenderers();
-        if (!render_systems.empty())
-            m_ogre_root->setRenderSystem(render_systems.front());
-        else
-            LOG("No render system plugin available. Check your plugins.cfg");
+        if (!m_ogre_root->restoreConfig())
+        {
+            const auto render_systems = App::GetOgreSubsystem()->GetOgreRoot()->getAvailableRenderers();
+            if (!render_systems.empty())
+                m_ogre_root->setRenderSystem(render_systems.front());
+            else
+                ErrorUtils::ShowError (_L("Startup error"), _L("No render system plugin available. Check your plugins.cfg"));
+        }
     }
+    catch (...)
+    {
+       auto dialog = OgreBites::getNativeConfigDialog();
+       if (dialog->display())
+           m_ogre_root->saveConfig();
+    }
+
+
     const auto rs = m_ogre_root->getRenderSystemByName(App::app_rendersys_override.GetActive());
     if (rs != nullptr && rs != m_ogre_root->getRenderSystem())
     {
@@ -167,7 +179,7 @@ bool OgreSubsystem::StartOgre(Ogre::String const & hwnd, Ogre::String const & ma
     this->Configure();
 
     m_viewport = m_render_window->addViewport(nullptr);
-    
+
     m_viewport->setBackgroundColour(Ogre::ColourValue(0.5f, 0.5f, 0.5f, 1.0f));
 
     m_viewport->setCamera(nullptr);
