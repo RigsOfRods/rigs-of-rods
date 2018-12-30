@@ -134,6 +134,9 @@ Ogre::MaterialPtr Terrn2CustomMaterial::Profile::generate(const Ogre::Terrain* t
 
 TerrainGeometryManager::TerrainGeometryManager(TerrainManager* terrainManager)
     : mHeightData(nullptr)
+    , mIsFlat(false)
+    , mMinHeight(0.0f)
+    , mMaxHeight(std::numeric_limits<float>::min())
     , m_was_new_geometry_generated(false)
     , terrainManager(terrainManager)
 {
@@ -226,12 +229,13 @@ float TerrainGeometryManager::getHeightAt(float x, float z)
     if (m_spec->is_flat)
         return 0.0f;
 
-    //return m_ogre_terrain_group->getHeightAtWorldPosition(x, 1000, z);
     float tx = (x - mBase - mPos.x) / ((mSize - 1) *  mScale);
     float ty = (z + mBase - mPos.z) / ((mSize - 1) * -mScale);
 
     if (tx <= 0.0f || ty <= 0.0f || tx >= 1.0f || ty >= 1.0f)
         return terrainManager->GetDef().water_bottom_height;
+    else if (mIsFlat)
+        return mMinHeight;
 
     return getHeightAtTerrainPosition(tx, ty);
 }
@@ -333,6 +337,18 @@ bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
     mBase = -world_size * 0.5f;
     mScale = world_size / (Real)(mSize - 1);
     mPos = terrain->getPosition();
+
+    // terrain->getMinHeight() / terrain->getMaxHeight() seem to be unreliable ~ ulteq 12/18
+    for (int x = 0; x < mSize; x++)
+    {
+        for (int y = 0; y < mSize; y++)
+        {
+            float h = mHeightData[y * mSize + x];
+            mMinHeight = std::min(h, mMinHeight);
+            mMaxHeight = std::max(mMaxHeight, h);
+        }
+    }
+    mIsFlat = std::abs(mMaxHeight - mMinHeight) < std::numeric_limits<float>::epsilon();
 
     // update the blend maps
     if (m_was_new_geometry_generated)
