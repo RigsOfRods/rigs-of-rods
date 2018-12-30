@@ -3,7 +3,7 @@ overlay tracks/AirDashboardOverlay
 	zorder 20
 
 
-	container Panel (tracks/airdashbar)
+	overlay_element tracks/airdashbar Panel
 		{
 			metrics_mode relative
 			horz_align left
@@ -18,7 +18,7 @@ overlay tracks/AirDashboardOverlay
 			material tracks/dashbar
 		}
 
-	container Panel (tracks/airdashfiller)
+	overlay_element tracks/airdashfiller Panel
 		{
 			metrics_mode relative
 			horz_align left
@@ -36,7 +36,7 @@ overlay tracks/AirDashboardOverlay
 		}
 	
 
-	container Panel (tracks/airspeed)
+	overlay_element tracks/airspeed Panel
 		{
 			metrics_mode relative
 			horz_align left
@@ -50,7 +50,7 @@ overlay tracks/AirDashboardOverlay
 		}
 
 
-	container Panel (tracks/altimeter)
+	overlay_element tracks/altimeter Panel
 		{
 			metrics_mode relative
 			horz_align left
@@ -61,7 +61,7 @@ overlay tracks/AirDashboardOverlay
 			top -0.11
 			height 0.11
 			material tracks/altimeter
-			element TextArea(tracks/altimeter_val)
+			overlay_element tracks/altimeter_val TextArea
 			{
 				metrics_mode relative
 				left 0.020
@@ -72,11 +72,11 @@ overlay tracks/AirDashboardOverlay
 				char_height 0.025
 				colour_top 0.8 0.8 0.8
 				colour_bottom 0.7 0.7 0.7
-				caption 000
+				caption "000"
 			}
 		}
 
-	container Panel (tracks/vvi)
+	overlay_element tracks/vvi Panel
 		{
 			metrics_mode relative
 			horz_align left
@@ -89,7 +89,7 @@ overlay tracks/AirDashboardOverlay
 			material tracks/vvi
 		}
 
-	container Panel (tracks/adi-tape)
+	overlay_element tracks/adi-tape Panel
 		{
 			metrics_mode relative
 			horz_align left
@@ -100,13 +100,13 @@ overlay tracks/AirDashboardOverlay
 			top -0.11
 			height 0.11
 			material tracks/adi-tape
-			container Panel (tracks/adi)
+			overlay_element tracks/adi Panel
 				{
 					metrics_mode relative
 					width 0.11
 					height 0.11
 					material tracks/adi
-					container Panel (tracks/adi-bugs)
+					overlay_element tracks/adi-bugs Panel
 						{
 							metrics_mode relative
 							width 0.11
@@ -116,7 +116,7 @@ overlay tracks/AirDashboardOverlay
 				}
 		}
 
-	container Panel (tracks/aoa)
+	overlay_element tracks/aoa Panel
 		{
 			metrics_mode relative
 			horz_align left
@@ -129,7 +129,7 @@ overlay tracks/AirDashboardOverlay
 			material tracks/aoa
 		}
 
-	container Panel (tracks/hsi)
+	overlay_element tracks/hsi Panel
 		{
 			metrics_mode relative
 			horz_align left
@@ -140,13 +140,13 @@ overlay tracks/AirDashboardOverlay
 			top -0.11
 			height 0.11
 			material tracks/hsi
-			container Panel (tracks/hsi-rose)
+			overlay_element tracks/hsi-rose Panel
 				{
 					metrics_mode relative
 					width 0.11
 					height 0.11
 					material tracks/hsi-rose
-					container Panel (tracks/hsi-bug)
+					overlay_element tracks/hsi-bug Panel
 						{
 							metrics_mode relative
 							width 0.11
@@ -154,14 +154,14 @@ overlay tracks/AirDashboardOverlay
 							material tracks/hsi-bug
 						}
 				}
-			container Panel (tracks/hsi-v)
+			overlay_element tracks/hsi-v Panel
 				{
 					metrics_mode relative
 					width 0.11
 					height 0.11
 					material tracks/hsi-v
 				}
-			container Panel (tracks/hsi-h)
+			overlay_element tracks/hsi-h Panel
 				{
 					metrics_mode relative
 					width 0.11
@@ -171,7 +171,7 @@ overlay tracks/AirDashboardOverlay
 		}
 
 
-	container Panel (tracks/thrusttrack1)
+	overlay_element tracks/thrusttrack1 Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -181,14 +181,14 @@ overlay tracks/AirDashboardOverlay
 			top -0.14
 			height 0.14
 			material tracks/thrusttrack
-			container Panel (tracks/engfire1)
+			overlay_element tracks/engfire1 Panel
 			{
 				metrics_mode relative
 				width 0.03
 				height 0.015
 				material tracks/engfire-off
 			}
-			container Panel (tracks/engstart1)
+			overlay_element tracks/engstart1 Panel
 			{
 				metrics_mode relative
 				vert_align bottom
@@ -198,7 +198,7 @@ overlay tracks/AirDashboardOverlay
 				material tracks/engstart-off
 			}
 		}
-	container Panel (tracks/thrusttrack2)
+	overlay_element tracks/thrusttrack2 Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -208,14 +208,14 @@ overlay tracks/AirDashboardOverlay
 			top -0.14
 			height 0.14
 			material tracks/thrusttrack
-			container Panel (tracks/engfire2)
+			overlay_element tracks/engfire2 Panel
 			{
 				metrics_mode relative
 				width 0.03
 				height 0.015
 				material tracks/engfire-off
 			}
-			container Panel (tracks/engstart2)
+			overlay_element tracks/engstart2 Panel
 			{
 				metrics_mode relative
 				vert_align bottom
@@ -225,7 +225,7 @@ overlay tracks/AirDashboardOverlay
 				material tracks/engstart-off
 			}
 		}
-	container Panel (tracks/thrusttrack3)
+	overlay_element tracks/thrusttrack3 Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -235,14 +235,14 @@ overlay tracks/AirDashboardOverlay
 			top -0.14
 			height 0.14
 			material tracks/thrusttrack
-			container Panel (tracks/engfire3)
+			overlay_element tracks/engfire3 Panel
 			{
 				metrics_mode relative
 				width 0.03
 				height 0.015
 				material tracks/engfire-off
 			}
-			container Panel (tracks/engstart3)
+			overlay_element tracks/engstart3 Panel
 			{
 				metrics_mode relative
 				vert_align bottom
@@ -252,7 +252,7 @@ overlay tracks/AirDashboardOverlay
 				material tracks/engstart-off
 			}
 		}
-	container Panel (tracks/thrusttrack4)
+	overlay_element tracks/thrusttrack4 Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -262,14 +262,14 @@ overlay tracks/AirDashboardOverlay
 			top -0.14
 			height 0.14
 			material tracks/thrusttrack
-			container Panel (tracks/engfire4)
+			overlay_element tracks/engfire4 Panel
 			{
 				metrics_mode relative
 				width 0.03
 				height 0.015
 				material tracks/engfire-off
 			}
-			container Panel (tracks/engstart4)
+			overlay_element tracks/engstart4 Panel
 			{
 				metrics_mode relative
 				vert_align bottom
@@ -280,7 +280,7 @@ overlay tracks/AirDashboardOverlay
 			}
 		}
 
-	container Panel (tracks/airrpm1)
+	overlay_element tracks/airrpm1 Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -291,7 +291,7 @@ overlay tracks/AirDashboardOverlay
 			height 0.047
 			material tracks/airrpm
 		}
-	container Panel (tracks/airrpm2)
+	overlay_element tracks/airrpm2 Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -302,7 +302,7 @@ overlay tracks/AirDashboardOverlay
 			height 0.047
 			material tracks/airrpm
 		}
-	container Panel (tracks/airrpm3)
+	overlay_element tracks/airrpm3 Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -313,7 +313,7 @@ overlay tracks/AirDashboardOverlay
 			height 0.047
 			material tracks/airrpm
 		}
-	container Panel (tracks/airrpm4)
+	overlay_element tracks/airrpm4 Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -325,7 +325,7 @@ overlay tracks/AirDashboardOverlay
 			material tracks/airrpm
 		}
 
-	container Panel (tracks/airpitch1)
+	overlay_element tracks/airpitch1 Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -336,7 +336,7 @@ overlay tracks/AirDashboardOverlay
 			height 0.047
 			material tracks/airpitch
 		}
-	container Panel (tracks/airpitch2)
+	overlay_element tracks/airpitch2 Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -347,7 +347,7 @@ overlay tracks/AirDashboardOverlay
 			height 0.047
 			material tracks/airpitch
 		}
-	container Panel (tracks/airpitch3)
+	overlay_element tracks/airpitch3 Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -358,7 +358,7 @@ overlay tracks/AirDashboardOverlay
 			height 0.047
 			material tracks/airpitch
 		}
-	container Panel (tracks/airpitch4)
+	overlay_element tracks/airpitch4 Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -370,7 +370,7 @@ overlay tracks/AirDashboardOverlay
 			material tracks/airpitch
 		}
 
-	container Panel (tracks/airtorque1)
+	overlay_element tracks/airtorque1 Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -381,7 +381,7 @@ overlay tracks/AirDashboardOverlay
 			height 0.047
 			material tracks/airtorque
 		}
-	container Panel (tracks/airtorque2)
+	overlay_element tracks/airtorque2 Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -392,7 +392,7 @@ overlay tracks/AirDashboardOverlay
 			height 0.047
 			material tracks/airtorque
 		}
-	container Panel (tracks/airtorque3)
+	overlay_element tracks/airtorque3 Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -403,7 +403,7 @@ overlay tracks/AirDashboardOverlay
 			height 0.047
 			material tracks/airtorque
 		}
-	container Panel (tracks/airtorque4)
+	overlay_element tracks/airtorque4 Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -415,7 +415,7 @@ overlay tracks/AirDashboardOverlay
 			material tracks/airtorque
 		}
 
-	container Panel (tracks/ap_hdg_pack)
+	overlay_element tracks/ap_hdg_pack Panel
 		{
 			metrics_mode relative
 			horz_align left
@@ -425,13 +425,13 @@ overlay tracks/AirDashboardOverlay
 			top -0.14
 			height 0.04
 			material tracks/black
-			container Panel (tracks/ap_hdg_title_bg)
+			overlay_element tracks/ap_hdg_title_bg Panel
 			{
 				metrics_mode relative
 				width 0.06
 				height 0.02
 				material tracks/black
-				element TextArea(tracks/ap_hdg_title)
+				overlay_element tracks/ap_hdg_title TextArea
 				{
 					metrics_mode relative
 					left 0.01
@@ -442,10 +442,10 @@ overlay tracks/AirDashboardOverlay
 					char_height 0.018
 					colour_top 1 1 1
 					colour_bottom 0.9 0.9 0.9
-					caption Heading
+					caption "Heading"
 				}
 			}
-			container Panel (tracks/ap_hdg_val_bg)
+			overlay_element tracks/ap_hdg_val_bg Panel
 			{
 				metrics_mode relative
 				vert_align bottom
@@ -454,7 +454,7 @@ overlay tracks/AirDashboardOverlay
 				width 0.045
 				height 0.02
 				material tracks/val-bg
-				element TextArea(tracks/ap_hdg_val)
+				overlay_element tracks/ap_hdg_val TextArea
 				{
 					metrics_mode relative
 					left 0.005
@@ -465,10 +465,10 @@ overlay tracks/AirDashboardOverlay
 					char_height 0.02
 					colour_top 1 1 1
 					colour_bottom 0.7 0.7 0.7
-					caption 000
+					caption "000"
 				}
 			}			
-			container Panel (tracks/ap_hdg_up)
+			overlay_element tracks/ap_hdg_up Panel
 			{
 				metrics_mode relative
 				vert_align bottom
@@ -477,7 +477,7 @@ overlay tracks/AirDashboardOverlay
 				height 0.01
 				material tracks/ap-up
 			}
-			container Panel (tracks/ap_hdg_dn)
+			overlay_element tracks/ap_hdg_dn Panel
 			{
 				metrics_mode relative
 				vert_align bottom
@@ -486,7 +486,7 @@ overlay tracks/AirDashboardOverlay
 				height 0.01
 				material tracks/ap-dn
 			}
-			container Panel (tracks/ap_hdg_but)
+			overlay_element tracks/ap_hdg_but Panel
 			{
 				metrics_mode relative
 				vert_align bottom
@@ -497,7 +497,7 @@ overlay tracks/AirDashboardOverlay
 				material tracks/hdg-off
 			}
 		}
-		container Panel (tracks/ap_wlv_but)
+		overlay_element tracks/ap_wlv_but Panel
 		{
 			metrics_mode relative
 			horz_align left
@@ -508,7 +508,7 @@ overlay tracks/AirDashboardOverlay
 			height 0.04
 			material tracks/wlv-off
 		}
-		container Panel (tracks/ap_nav_but)
+		overlay_element tracks/ap_nav_but Panel
 		{
 			metrics_mode relative
 			horz_align left
@@ -520,7 +520,7 @@ overlay tracks/AirDashboardOverlay
 			material tracks/nav-off
 		}
 
-	container Panel (tracks/ap_alt_pack)
+	overlay_element tracks/ap_alt_pack Panel
 		{
 			metrics_mode relative
 			horz_align left
@@ -530,13 +530,13 @@ overlay tracks/AirDashboardOverlay
 			top -0.14
 			height 0.04
 			material tracks/black
-			container Panel (tracks/ap_alt_title_bg)
+			overlay_element tracks/ap_alt_title_bg Panel
 			{
 				metrics_mode relative
 				width 0.06
 				height 0.02
 				material tracks/black
-				element TextArea(tracks/ap_alt_title)
+				overlay_element tracks/ap_alt_title TextArea
 				{
 					metrics_mode relative
 					left 0.01
@@ -547,10 +547,10 @@ overlay tracks/AirDashboardOverlay
 					char_height 0.018
 					colour_top 1 1 1
 					colour_bottom 0.9 0.9 0.9
-					caption Altitude
+					caption "Altitude"
 				}
 			}
-			container Panel (tracks/ap_alt_val_bg)
+			overlay_element tracks/ap_alt_val_bg Panel
 			{
 				metrics_mode relative
 				vert_align bottom
@@ -559,7 +559,7 @@ overlay tracks/AirDashboardOverlay
 				width 0.045
 				height 0.02
 				material tracks/val-bg
-				element TextArea(tracks/ap_alt_val)
+				overlay_element tracks/ap_alt_val TextArea
 				{
 					metrics_mode relative
 					left 0.005
@@ -570,10 +570,10 @@ overlay tracks/AirDashboardOverlay
 					char_height 0.02
 					colour_top 1 1 1
 					colour_bottom 0.7 0.7 0.7
-					caption 1000
+					caption "1000"
 				}
 			}
-			container Panel (tracks/ap_alt_up)
+			overlay_element tracks/ap_alt_up Panel
 			{
 				metrics_mode relative
 				vert_align bottom
@@ -582,7 +582,7 @@ overlay tracks/AirDashboardOverlay
 				height 0.01
 				material tracks/ap-up
 			}
-			container Panel (tracks/ap_alt_dn)
+			overlay_element tracks/ap_alt_dn Panel
 			{
 				metrics_mode relative
 				vert_align bottom
@@ -591,7 +591,7 @@ overlay tracks/AirDashboardOverlay
 				height 0.01
 				material tracks/ap-dn
 			}
-			container Panel (tracks/ap_alt_but)
+			overlay_element tracks/ap_alt_but Panel
 			{
 				metrics_mode relative
 				vert_align bottom
@@ -602,7 +602,7 @@ overlay tracks/AirDashboardOverlay
 				material tracks/hold-off
 			}
 		}
-	container Panel (tracks/ap_vs_pack)
+	overlay_element tracks/ap_vs_pack Panel
 		{
 			metrics_mode relative
 			horz_align left
@@ -612,13 +612,13 @@ overlay tracks/AirDashboardOverlay
 			top -0.14
 			height 0.04
 			material tracks/black
-			container Panel (tracks/ap_vs_title_bg)
+			overlay_element tracks/ap_vs_title_bg Panel
 			{
 				metrics_mode relative
 				width 0.06
 				height 0.02
 				material tracks/black
-				element TextArea(tracks/ap_vs_title)
+				overlay_element tracks/ap_vs_title TextArea
 				{
 					metrics_mode relative
 					left 0.01
@@ -629,10 +629,10 @@ overlay tracks/AirDashboardOverlay
 					char_height 0.018
 					colour_top 1 1 1
 					colour_bottom 0.9 0.9 0.9
-					caption Vert.Speed
+					caption "Vert.Speed"
 				}
 			}
-			container Panel (tracks/ap_vs_val_bg)
+			overlay_element tracks/ap_vs_val_bg Panel
 			{
 				metrics_mode relative
 				vert_align bottom
@@ -641,7 +641,7 @@ overlay tracks/AirDashboardOverlay
 				width 0.045
 				height 0.02
 				material tracks/val-bg
-				element TextArea(tracks/ap_vs_val)
+				overlay_element tracks/ap_vs_val TextArea
 				{
 					metrics_mode relative
 					left 0.005
@@ -652,10 +652,10 @@ overlay tracks/AirDashboardOverlay
 					char_height 0.02
 					colour_top 1 1 1
 					colour_bottom 0.7 0.7 0.7
-					caption 000
+					caption "000"
 				}
 			}
-			container Panel (tracks/ap_vs_up)
+			overlay_element tracks/ap_vs_up Panel
 			{
 				metrics_mode relative
 				vert_align bottom
@@ -664,7 +664,7 @@ overlay tracks/AirDashboardOverlay
 				height 0.01
 				material tracks/ap-up
 			}
-			container Panel (tracks/ap_vs_dn)
+			overlay_element tracks/ap_vs_dn Panel
 			{
 				metrics_mode relative
 				vert_align bottom
@@ -673,7 +673,7 @@ overlay tracks/AirDashboardOverlay
 				height 0.01
 				material tracks/ap-dn
 			}
-			container Panel (tracks/ap_vs_but)
+			overlay_element tracks/ap_vs_but Panel
 			{
 				metrics_mode relative
 				vert_align bottom
@@ -684,7 +684,7 @@ overlay tracks/AirDashboardOverlay
 				material tracks/vs-off
 			}
 		}
-	container Panel (tracks/ap_ias_pack)
+	overlay_element tracks/ap_ias_pack Panel
 		{
 			metrics_mode relative
 			horz_align left
@@ -694,13 +694,13 @@ overlay tracks/AirDashboardOverlay
 			top -0.14
 			height 0.04
 			material tracks/black
-			container Panel (tracks/ap_ias_title_bg)
+			overlay_element tracks/ap_ias_title_bg Panel
 			{
 				metrics_mode relative
 				width 0.06
 				height 0.02
 				material tracks/black
-				element TextArea(tracks/ap_ias_title)
+				overlay_element tracks/ap_ias_title TextArea
 				{
 					metrics_mode relative
 					left 0.01
@@ -711,10 +711,10 @@ overlay tracks/AirDashboardOverlay
 					char_height 0.018
 					colour_top 1 1 1
 					colour_bottom 0.9 0.9 0.9
-					caption IAS
+					caption "IAS"
 				}
 			}
-			container Panel (tracks/ap_ias_val_bg)
+			overlay_element tracks/ap_ias_val_bg Panel
 			{
 				metrics_mode relative
 				vert_align bottom
@@ -723,7 +723,7 @@ overlay tracks/AirDashboardOverlay
 				width 0.045
 				height 0.02
 				material tracks/val-bg
-				element TextArea(tracks/ap_ias_val)
+				overlay_element tracks/ap_ias_val TextArea
 				{
 					metrics_mode relative
 					left 0.005
@@ -734,10 +734,10 @@ overlay tracks/AirDashboardOverlay
 					char_height 0.02
 					colour_top 1 1 1
 					colour_bottom 0.7 0.7 0.7
-					caption 150
+					caption "150"
 				}
 			}
-			container Panel (tracks/ap_ias_up)
+			overlay_element tracks/ap_ias_up Panel
 			{
 				metrics_mode relative
 				vert_align bottom
@@ -746,7 +746,7 @@ overlay tracks/AirDashboardOverlay
 				height 0.01
 				material tracks/ap-up
 			}
-			container Panel (tracks/ap_ias_dn)
+			overlay_element tracks/ap_ias_dn Panel
 			{
 				metrics_mode relative
 				vert_align bottom
@@ -755,7 +755,7 @@ overlay tracks/AirDashboardOverlay
 				height 0.01
 				material tracks/ap-dn
 			}
-			container Panel (tracks/ap_ias_but)
+			overlay_element tracks/ap_ias_but Panel
 			{
 				metrics_mode relative
 				vert_align bottom
@@ -766,7 +766,7 @@ overlay tracks/AirDashboardOverlay
 				material tracks/athr-off
 			}
 		}
-		container Panel (tracks/ap_gpws_but)
+		overlay_element tracks/ap_gpws_but Panel
 		{
 			metrics_mode relative
 			horz_align left
@@ -777,7 +777,7 @@ overlay tracks/AirDashboardOverlay
 			height 0.04
 			material tracks/gpws-on
 		}
-		container Panel (tracks/ap_brks_but)
+		overlay_element tracks/ap_brks_but Panel
 		{
 			metrics_mode relative
 			horz_align left

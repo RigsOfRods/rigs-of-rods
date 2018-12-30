@@ -1,7 +1,7 @@
 overlay tracks/LoaderOverlay/Loader
 {
 	zorder 10
-	container BorderPanel(tracks/LoaderPanel/loader)
+	overlay_element tracks/LoaderPanel/loader BorderPanel
 	{
 		metrics_mode pixels
 		horz_align center
@@ -22,7 +22,7 @@ overlay tracks/LoaderOverlay/Loader
 			border_bottom_uv      0.0039 0.0039 0.9961 0.0000
 			border_bottomright_uv 0.9961 0.0039 1.0000 0.0000
 
-		container Panel(tracks/BreakPanel.load)
+		overlay_element tracks/BreakPanel.load Panel
 		{
 			metrics_mode pixels
 			left 10
@@ -31,7 +31,7 @@ overlay tracks/LoaderOverlay/Loader
 			height 5
 			material Core/StatsBreak
 		}
-		element TextArea(tracks/Title/load)
+		overlay_element tracks/Title/load TextArea
 		{
 			metrics_mode pixels
 			left 10
@@ -40,12 +40,12 @@ overlay tracks/LoaderOverlay/Loader
 			height 60
 			font_name CyberbitEnglish
 			char_height 40
-			caption Loading...
+			caption "Loading..."
 			colour_top 1 1 0.7
 			colour_bottom 0.8 0.8 0.5
 		}
 
-		element TextArea(tracks/Progress/load)
+		overlay_element tracks/Progress/load TextArea
 		{
 			//horz_align center
 			//vert_align center
@@ -56,12 +56,12 @@ overlay tracks/LoaderOverlay/Loader
 			height 30
 			font_name CyberbitEnglish
 			char_height 30
-			caption 0% loaded
+			caption "0% loaded"
 			colour_top 0.7 1 0.7
 			colour_bottom 0.8 0.8 0.8
 		}
 
-		container BorderPanel(tracks/CategoryPanel/ProgressBarBorder)
+		overlay_element tracks/CategoryPanel/ProgressBarBorder BorderPanel
 		{
 			metrics_mode pixels
 			left 20
@@ -72,7 +72,7 @@ overlay tracks/LoaderOverlay/Loader
 			material tracks/graytrans
 		}
 
-		container BorderPanel(tracks/CategoryPanel/ProgressBarInner)
+		overlay_element tracks/CategoryPanel/ProgressBarInner BorderPanel
 		{
 			metrics_mode pixels
 			left 21
@@ -89,7 +89,7 @@ overlay tracks/LoaderOverlay/Loader
 overlay tracks/LoaderOverlay/GUI
 {
 	zorder 10
-	container BorderPanel(tracks/LoaderPanel)
+	overlay_element tracks/LoaderPanel BorderPanel
 	{
 		metrics_mode pixels
 		horz_align center
@@ -110,7 +110,7 @@ overlay tracks/LoaderOverlay/GUI
 			border_bottom_uv      0.0039 0.0039 0.9961 0.0000
 			border_bottomright_uv 0.9961 0.0039 1.0000 0.0000
 
-		container Panel(tracks/BreakPanel)
+		overlay_element tracks/BreakPanel Panel
 		{
 			metrics_mode pixels
 			left 10
@@ -120,7 +120,7 @@ overlay tracks/LoaderOverlay/GUI
 			material Core/StatsBreak
 		}
 
-		element TextArea(tracks/Title)
+		overlay_element tracks/Title TextArea
 		{
 			metrics_mode pixels
 			left 10
@@ -129,12 +129,12 @@ overlay tracks/LoaderOverlay/GUI
 			height 60
 			font_name CyberbitEnglish
 			char_height 40
-			caption Choose your terrain:
+			caption "Choose your terrain:"
 			colour_top 1 1 0.7
 			colour_bottom 0.8 0.8 0.5
 		}
 
-		element Panel (tracks/picture)
+		overlay_element tracks/picture Panel
 		{
 			metrics_mode pixels
 			left 374
@@ -144,7 +144,7 @@ overlay tracks/LoaderOverlay/GUI
 			material tracks/Viewer
 		}
 
-		element TextArea(tracks/authortitle)
+		overlay_element tracks/authortitle TextArea
 		{
 			metrics_mode pixels
 			left 374
@@ -155,10 +155,10 @@ overlay tracks/LoaderOverlay/GUI
 			char_height 20
 			colour_top 0.5 0.7 0.5
 			colour_bottom 0.3 0.5 0.3
-			caption Authors:
+			caption "Authors:"
 		}
 
-		element TextArea(tracks/authorline1)
+		overlay_element tracks/authorline1 TextArea
 		{
 			metrics_mode pixels
 			left 374
@@ -169,10 +169,10 @@ overlay tracks/LoaderOverlay/GUI
 			char_height 20
 			colour_top 0.5 0.7 0.5
 			colour_bottom 0.3 0.5 0.3
-			caption Author 123
+			caption "Author 123"
 		}
 
-		element TextArea(tracks/authorline2)
+		overlay_element tracks/authorline2 TextArea
 		{
 			metrics_mode pixels
 			left 374
@@ -183,10 +183,10 @@ overlay tracks/LoaderOverlay/GUI
 			char_height 20
 			colour_top 0.5 0.7 0.5
 			colour_bottom 0.3 0.5 0.3
-			caption Author 123
+			caption "Author 123"
 		}
 
-		element TextArea(tracks/authorline3)
+		overlay_element tracks/authorline3 TextArea
 		{
 			metrics_mode pixels
 			left 374
@@ -197,10 +197,10 @@ overlay tracks/LoaderOverlay/GUI
 			char_height 20
 			colour_top 0.5 0.7 0.5
 			colour_bottom 0.3 0.5 0.3
-			caption Author 123
+			caption "Author 123"
 		}
 
-		element TextArea(tracks/authorline4)
+		overlay_element tracks/authorline4 TextArea
 		{
 			metrics_mode pixels
 			left 374
@@ -211,10 +211,10 @@ overlay tracks/LoaderOverlay/GUI
 			char_height 20
 			colour_top 0.5 0.7 0.5
 			colour_bottom 0.3 0.5 0.3
-			caption Author 123
+			caption "Author 123"
 		}
 
-		container BorderPanel(tracks/CategoryPanel)
+		overlay_element tracks/CategoryPanel BorderPanel
 		{
 			metrics_mode pixels
 			left 10
@@ -223,7 +223,7 @@ overlay tracks/LoaderOverlay/GUI
 			height 25
 			border_size 0 0 0 2
 
-			element TextArea(tracks/categoryleftarrow)
+			overlay_element tracks/categoryleftarrow TextArea
 			{
 				metrics_mode pixels
 				left 0
@@ -234,10 +234,10 @@ overlay tracks/LoaderOverlay/GUI
 				char_height 30
 				colour_top 0.5 0.7 0.5
 				colour_bottom 0.3 0.5 0.3
-				caption <
+				caption "<"
 			}
 
-			element TextArea(tracks/categorytitle)
+			overlay_element tracks/categorytitle TextArea
 			{
 				metrics_mode pixels
 				left 20
@@ -249,10 +249,10 @@ overlay tracks/LoaderOverlay/GUI
 				char_height 30
 				colour_top 0.5 0.7 0.5
 				colour_bottom 0.3 0.5 0.3
-				caption All
+				caption "All"
 			}
 
-			element TextArea(tracks/categoryrightarrow)
+			overlay_element tracks/categoryrightarrow TextArea
 			{
 				metrics_mode pixels
 				left 350
@@ -263,11 +263,11 @@ overlay tracks/LoaderOverlay/GUI
 				char_height 30
 				colour_top 0.5 0.7 0.5
 				colour_bottom 0.3 0.5 0.3
-				caption >
+				caption ">"
 			}
 		}
 
-		element TextArea(tracks/line1)
+		overlay_element tracks/line1 TextArea
 		{
 			metrics_mode pixels
 			left 10
@@ -279,7 +279,7 @@ overlay tracks/LoaderOverlay/GUI
 			colour_top 0.5 0.7 0.5
 			colour_bottom 0.3 0.5 0.3
 		}
-		element TextArea(tracks/line2)
+		overlay_element tracks/line2 TextArea
 		{
 			metrics_mode pixels
 			left 10
@@ -291,7 +291,7 @@ overlay tracks/LoaderOverlay/GUI
 			colour_top 0.5 0.7 0.5
 			colour_bottom 0.3 0.5 0.3
 		}
-		element TextArea(tracks/line3)
+		overlay_element tracks/line3 TextArea
 		{
 			metrics_mode pixels
 			left 10
@@ -303,7 +303,7 @@ overlay tracks/LoaderOverlay/GUI
 			colour_top 0.5 0.7 0.5
 			colour_bottom 0.3 0.5 0.3
 		}
-		element TextArea(tracks/line4)
+		overlay_element tracks/line4 TextArea
 		{
 			metrics_mode pixels
 			left 10
@@ -315,7 +315,7 @@ overlay tracks/LoaderOverlay/GUI
 			colour_top 0.5 0.7 0.5
 			colour_bottom 0.3 0.5 0.3
 		}
-		element TextArea(tracks/line5)
+		overlay_element tracks/line5 TextArea
 		{
 			metrics_mode pixels
 			left 10
@@ -327,7 +327,7 @@ overlay tracks/LoaderOverlay/GUI
 			colour_top 0.5 0.7 0.5
 			colour_bottom 0.3 0.5 0.3
 		}
-		element TextArea(tracks/line6)
+		overlay_element tracks/line6 TextArea
 		{
 			metrics_mode pixels
 			left 10
@@ -339,7 +339,7 @@ overlay tracks/LoaderOverlay/GUI
 			colour_top 0.5 0.7 0.5
 			colour_bottom 0.3 0.5 0.3
 		}
-		element TextArea(tracks/line7)
+		overlay_element tracks/line7 TextArea
 		{
 			metrics_mode pixels
 			left 10
@@ -351,7 +351,7 @@ overlay tracks/LoaderOverlay/GUI
 			colour_top 0.5 0.7 0.5
 			colour_bottom 0.3 0.5 0.3
 		}
-		element TextArea(tracks/line8)
+		overlay_element tracks/line8 TextArea
 		{
 			metrics_mode pixels
 			left 10
@@ -363,7 +363,7 @@ overlay tracks/LoaderOverlay/GUI
 			colour_top 0.5 0.7 0.5
 			colour_bottom 0.3 0.5 0.3
 		}
-		element TextArea(tracks/line9)
+		overlay_element tracks/line9 TextArea
 		{
 			metrics_mode pixels
 			left 10
@@ -375,7 +375,7 @@ overlay tracks/LoaderOverlay/GUI
 			colour_top 0.5 0.7 0.5
 			colour_bottom 0.3 0.5 0.3
 		}
-		element TextArea(tracks/line10)
+		overlay_element tracks/line10 TextArea
 		{
 			metrics_mode pixels
 			left 10
@@ -387,7 +387,7 @@ overlay tracks/LoaderOverlay/GUI
 			colour_top 0.5 0.7 0.5
 			colour_bottom 0.3 0.5 0.3
 		}
-		element TextArea(tracks/line11)
+		overlay_element tracks/line11 TextArea
 		{
 			metrics_mode pixels
 			left 10
@@ -399,7 +399,7 @@ overlay tracks/LoaderOverlay/GUI
 			colour_top 0.5 0.7 0.5
 			colour_bottom 0.3 0.5 0.3
 		}
-		element TextArea(tracks/line12)
+		overlay_element tracks/line12 TextArea
 		{
 			metrics_mode pixels
 			left 10

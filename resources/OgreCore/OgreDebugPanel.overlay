@@ -1,10 +1,10 @@
 // Ogre overlay scripts
-Core/DebugOverlay
+overlay Core/DebugOverlay
 {
 	zorder 500
 	// Stats block
-	container BorderPanel(Core/StatPanel)
-	{
+	overlay_element Core/StatPanel BorderPanel
+	{ 
 		metrics_mode pixels
 		vert_align bottom
 		left 5
@@ -23,7 +23,7 @@ Core/DebugOverlay
         	border_bottom_uv      0.0039 0.0039 0.9961 0.0000
 	    	border_bottomright_uv 0.9961 0.0039 1.0000 0.0000
 
-		container Panel(Core/BreakPanel)
+		overlay_element Core/BreakPanel Panel
 		{
 			metrics_mode pixels
 			left 5
@@ -33,7 +33,7 @@ Core/DebugOverlay
 			material Core/StatsBreak
 		}
 
-		element TextArea(Core/CurrFps)
+		overlay_element Core/CurrFps TextArea
 		{
 			metrics_mode pixels
 			left 5
@@ -42,11 +42,11 @@ Core/DebugOverlay
 			height 30
 			font_name cent
 			char_height 19
-			caption Current FPS:
+			caption "Current FPS:"
 			colour_top 1 1 0.7
 			colour_bottom 1 1 0.7
 		}
-		element TextArea(Core/AverageFps)
+		overlay_element Core/AverageFps TextArea
 		{
 			metrics_mode pixels
 			left 5
@@ -55,11 +55,11 @@ Core/DebugOverlay
 			height 30
 			font_name cent
 			char_height 16
-			caption AVERAGE FPS:
+			caption "AVERAGE FPS:"
 			colour_top 0.5 0.7 0.5
 			colour_bottom 0.3 0.5 0.3
 		}
-		element TextArea(Core/WorstFps)
+		overlay_element Core/WorstFps TextArea
 		{
 			metrics_mode pixels
 			left 5
@@ -68,11 +68,11 @@ Core/DebugOverlay
 			height 30
 			font_name cent
 			char_height 16
-			caption WORST FPS:
+			caption "WORST FPS:"
 			colour_top 0.5 0.7 0.5
 			colour_bottom 0.3 0.5 0.3
 		}
-		element TextArea(Core/BestFps)
+		overlay_element Core/BestFps TextArea
 		{
 			metrics_mode pixels
 			left 5
@@ -81,11 +81,11 @@ Core/DebugOverlay
 			height 30
 			font_name cent
 			char_height 16
-			caption BEST FPS:
+			caption "BEST FPS:"
 			colour_top 0.5 0.7 0.5
 			colour_bottom 0.3 0.5 0.3
 		}
-		element TextArea(Core/NumTris)
+		overlay_element Core/NumTris TextArea
 		{
 			metrics_mode pixels
 			left 5
@@ -94,11 +94,11 @@ Core/DebugOverlay
 			height 30
 			font_name cent
 			char_height 16
-			caption Triangle Count:
+			caption "Triangle Count:"
 			colour_top 0.5 0.7 0.5
 			colour_bottom 0.3 0.5 0.3
 		}
-		element TextArea(Core/DebugText)
+		overlay_element Core/DebugText TextArea
 		{
 			metrics_mode pixels
 			left 5
@@ -113,7 +113,7 @@ Core/DebugOverlay
 
 	}
 
-	container BorderPanel(Core/MemoryPanel)
+	overlay_element Core/MemoryPanel BorderPanel
 	{
 		metrics_mode pixels
 		vert_align bottom
@@ -133,7 +133,7 @@ Core/DebugOverlay
         	border_bottom_uv      0.0039 0.0039 0.9961 0.0000
 	    	border_bottomright_uv 0.9961 0.0039 1.0000 0.0000
 			
-		container Panel(Core/BreakPanel2)
+		overlay_element Core/BreakPanel2 Panel
 		{
 			metrics_mode pixels
 			left 5
@@ -143,7 +143,7 @@ Core/DebugOverlay
 			material Core/StatsBreak
 		}
 
-		element TextArea(Core/CurrMemory)
+		overlay_element Core/CurrMemory TextArea
 		{
 			metrics_mode pixels
 			left 5
@@ -152,12 +152,12 @@ Core/DebugOverlay
 			height 30
 			font_name cent
 			char_height 19
-			caption .
+			caption "."
 			colour_top 1 1 0.7
 			colour_bottom 1 1 0.7
 		}
 		
-		element TextArea(Core/MemoryText)
+		overlay_element Core/MemoryText TextArea
 		{
 			metrics_mode pixels
 			left 5
@@ -166,13 +166,13 @@ Core/DebugOverlay
 			height 120
 			font_name cent
 			char_height 16
-			caption .
+			caption "."
 			colour_top 0.5 0.8 0.5
 			colour_bottom 0.3 0.6 0.3
 		}
 	}
 	
-	container Panel(Core/LogoPanel)
+	overlay_element Core/LogoPanel Panel
 	{
 		metrics_mode pixels
 		horz_align right
@@ -184,7 +184,7 @@ Core/DebugOverlay
 		material Core/OgreText
 	}
 	
-	container Panel(Core/VersionStringPanel)
+	overlay_element Core/VersionStringPanel Panel
 	{
 		metrics_mode pixels
 		horz_align right
@@ -194,7 +194,7 @@ Core/DebugOverlay
 		width 175
 		height 20
 		
-		element TextArea(Core/RoRVersionString)
+		overlay_element Core/RoRVersionString TextArea
 		{
 			metrics_mode pixels
 			left 0
@@ -203,7 +203,7 @@ Core/DebugOverlay
 			height 120
 			font_name cent
 			char_height 16
-			caption Rigs of Rods
+			caption "Rigs of Rods"
 			colour_top 1 1 1
 			colour_bottom 0 0 0
 		}		

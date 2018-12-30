@@ -2,7 +2,7 @@ overlay tracks/AirNeedlesOverlay
 {
 	zorder 30
 
-	container Panel (tracks/thrust1)
+	overlay_element tracks/thrust1 Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -13,7 +13,7 @@ overlay tracks/AirNeedlesOverlay
 			height 0.03
 			material tracks/thrusthandle
 		}
-	container Panel (tracks/thrust2)
+	overlay_element tracks/thrust2 Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -24,7 +24,7 @@ overlay tracks/AirNeedlesOverlay
 			height 0.03
 			material tracks/thrusthandle
 		}
-	container Panel (tracks/thrust3)
+	overlay_element tracks/thrust3 Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -35,7 +35,7 @@ overlay tracks/AirNeedlesOverlay
 			height 0.03
 			material tracks/thrusthandle
 		}
-	container Panel (tracks/thrust4)
+	overlay_element tracks/thrust4 Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -47,7 +47,7 @@ overlay tracks/AirNeedlesOverlay
 			material tracks/thrusthandle
 		}
 
-	container Panel (tracks/airspeedneedle)
+	overlay_element tracks/airspeedneedle Panel
 		{
 			metrics_mode relative
 			horz_align left
@@ -60,7 +60,7 @@ overlay tracks/AirNeedlesOverlay
 			material tracks/airspeedneedle_mat
 		}
 
-	container Panel (tracks/airrpm1needle)
+	overlay_element tracks/airrpm1needle Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -71,7 +71,7 @@ overlay tracks/AirNeedlesOverlay
 			height 0.047
 			material tracks/airrpm1needle_mat
 		}
-	container Panel (tracks/airrpm2needle)
+	overlay_element tracks/airrpm2needle Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -82,7 +82,7 @@ overlay tracks/AirNeedlesOverlay
 			height 0.047
 			material tracks/airrpm2needle_mat
 		}
-	container Panel (tracks/airrpm3needle)
+	overlay_element tracks/airrpm3needle Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -93,7 +93,7 @@ overlay tracks/AirNeedlesOverlay
 			height 0.047
 			material tracks/airrpm3needle_mat
 		}
-	container Panel (tracks/airrpm4needle)
+	overlay_element tracks/airrpm4needle Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -105,7 +105,7 @@ overlay tracks/AirNeedlesOverlay
 			material tracks/airrpm4needle_mat
 		}
 
-	container Panel (tracks/airpitch1needle)
+	overlay_element tracks/airpitch1needle Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -116,7 +116,7 @@ overlay tracks/AirNeedlesOverlay
 			height 0.047
 			material tracks/airpitch1needle_mat
 		}
-	container Panel (tracks/airpitch2needle)
+	overlay_element tracks/airpitch2needle Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -127,7 +127,7 @@ overlay tracks/AirNeedlesOverlay
 			height 0.047
 			material tracks/airpitch2needle_mat
 		}
-	container Panel (tracks/airpitch3needle)
+	overlay_element tracks/airpitch3needle Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -138,7 +138,7 @@ overlay tracks/AirNeedlesOverlay
 			height 0.047
 			material tracks/airpitch3needle_mat
 		}
-	container Panel (tracks/airpitch4needle)
+	overlay_element tracks/airpitch4needle Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -150,7 +150,7 @@ overlay tracks/AirNeedlesOverlay
 			material tracks/airpitch4needle_mat
 		}
 		
-	container Panel (tracks/airtorque1needle)
+	overlay_element tracks/airtorque1needle Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -161,7 +161,7 @@ overlay tracks/AirNeedlesOverlay
 			height 0.047
 			material tracks/airtorque1needle_mat
 		}
-	container Panel (tracks/airtorque2needle)
+	overlay_element tracks/airtorque2needle Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -172,7 +172,7 @@ overlay tracks/AirNeedlesOverlay
 			height 0.047
 			material tracks/airtorque2needle_mat
 		}
-	container Panel (tracks/airtorque3needle)
+	overlay_element tracks/airtorque3needle Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -183,7 +183,7 @@ overlay tracks/AirNeedlesOverlay
 			height 0.047
 			material tracks/airtorque3needle_mat
 		}
-	container Panel (tracks/airtorque4needle)
+	overlay_element tracks/airtorque4needle Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -195,7 +195,7 @@ overlay tracks/AirNeedlesOverlay
 			material tracks/airtorque4needle_mat
 		}
 
-	container Panel (tracks/altimeterneedle)
+	overlay_element tracks/altimeterneedle Panel
 		{
 			metrics_mode relative
 			horz_align left
@@ -208,7 +208,7 @@ overlay tracks/AirNeedlesOverlay
 			material tracks/altimeterneedle_mat
 		}
 
-	container Panel (tracks/vvineedle)
+	overlay_element tracks/vvineedle Panel
 		{
 			metrics_mode relative
 			horz_align left
@@ -221,7 +221,7 @@ overlay tracks/AirNeedlesOverlay
 			material tracks/vvineedle_mat
 		}
 
-	container Panel (tracks/aoaneedle)
+	overlay_element tracks/aoaneedle Panel
 		{
 			metrics_mode relative
 			horz_align left

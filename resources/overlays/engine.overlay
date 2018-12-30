@@ -1,7 +1,7 @@
 overlay tracks/EngineOverlay
 {
 	zorder 100
-	container BorderPanel(tracks/EnginePanel)
+	overlay_element tracks/EnginePanel BorderPanel
 	{
 		metrics_mode pixels
 		horz_align right
@@ -21,7 +21,7 @@ overlay tracks/EngineOverlay
         	border_bottom_uv      0.0039 0.0039 0.9961 0.0000
 	    	border_bottomright_uv 0.9961 0.0039 1.0000 0.0000
 
-		element TextArea(tracks/gear)
+		overlay_element tracks/gear TextArea
 		{
 			metrics_mode pixels
 			left 5
@@ -30,11 +30,11 @@ overlay tracks/EngineOverlay
 			height 30
 			font_name CyberbitEnglish
 			char_height 16
-			caption GEAR:
+			caption "GEAR:"
 			colour_top 0.5 0.7 0.5
 			colour_bottom 0.3 0.5 0.3
 		}
-		element TextArea(tracks/rpm)
+		overlay_element tracks/rpm TextArea
 		{			metrics_mode pixels
 			left 5
 			top 40
@@ -42,11 +42,11 @@ overlay tracks/EngineOverlay
 			height 30
 			font_name CyberbitEnglish
 			char_height 16
-			caption RPM:
+			caption "RPM:"
 			colour_top 0.5 0.7 0.5
 			colour_bottom 0.3 0.5 0.3
 		}
-		element TextArea(tracks/speed)
+		overlay_element tracks/speed TextArea
 		{
 			metrics_mode pixels
 			left 5
@@ -55,11 +55,11 @@ overlay tracks/EngineOverlay
 			height 30
 			font_name CyberbitEnglish
 			char_height 16
-			caption SPEED:
+			caption "SPEED:"
 			colour_top 0.5 0.7 0.5
 			colour_bottom 0.3 0.5 0.3
 		}
-		element TextArea(tracks/debug)
+		overlay_element tracks/debug TextArea
 		{
 			metrics_mode pixels
 			left 5
@@ -68,7 +68,7 @@ overlay tracks/EngineOverlay
 			height 30
 			font_name CyberbitEnglish
 			char_height 16
-			caption DEBUG
+			caption "DEBUG"
 			colour_top 0.5 0.7 0.5
 			colour_bottom 0.3 0.5 0.3
 		}

@@ -2,7 +2,7 @@ overlay tracks/BoatNeedlesOverlay
 {
 	zorder 30
 
-	container Panel (tracks/boatthrust1)
+	overlay_element tracks/boatthrust1 Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -13,7 +13,7 @@ overlay tracks/BoatNeedlesOverlay
 			height 0.03
 			material tracks/thrusthandle
 		}
-	container Panel (tracks/boatthrust2)
+	overlay_element tracks/boatthrust2 Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -25,7 +25,7 @@ overlay tracks/BoatNeedlesOverlay
 			material tracks/thrusthandle
 		}
 
-	container Panel (tracks/boatspeedneedle)
+	overlay_element tracks/boatspeedneedle Panel
 		{
 			metrics_mode relative
 			horz_align left
@@ -38,7 +38,7 @@ overlay tracks/BoatNeedlesOverlay
 			material tracks/boatspeedneedle_mat
 		}
 
-	container Panel (tracks/boatsteer/fg)
+	overlay_element tracks/boatsteer/fg Panel
 		{
 			metrics_mode relative
 			horz_align left

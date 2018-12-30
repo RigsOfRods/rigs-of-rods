@@ -1,7 +1,7 @@
 overlay tracks/MachineDashboardOverlay
 {
 	zorder 20
-	container Panel (tracks/machineinstructions)
+	overlay_element tracks/machineinstructions Panel
 		{
 			metrics_mode relative
 			horz_align left
@@ -15,7 +15,7 @@ overlay tracks/MachineDashboardOverlay
 			height 0.14
 			material tracks/instructions
 		}
-	container Panel (tracks/machinehelppanel)
+	overlay_element tracks/machinehelppanel Panel
 		{
 			metrics_mode relative
 			horz_align left
@@ -30,7 +30,7 @@ overlay tracks/MachineDashboardOverlay
 			material tracks/black
 		}
 
-	container Panel (tracks/machinedashbar)
+	overlay_element tracks/machinedashbar Panel
 		{
 			metrics_mode relative
 			horz_align left
@@ -45,7 +45,7 @@ overlay tracks/MachineDashboardOverlay
 			material tracks/dashbar
 		}
 
-	container Panel (tracks/machinedashfiller)
+	overlay_element tracks/machinedashfiller Panel
 		{
 			metrics_mode relative
 			horz_align left
