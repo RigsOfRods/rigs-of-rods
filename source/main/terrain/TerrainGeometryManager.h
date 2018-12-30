@@ -73,5 +73,8 @@ private:
     Ogre::uint16 mSize;
     float* mHeightData;
 
+    bool  mIsFlat;
+    float mMinHeight;
+    float mMaxHeight;
 };
 
