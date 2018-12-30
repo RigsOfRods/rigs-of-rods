@@ -46,6 +46,7 @@ SurveyMapManager::SurveyMapManager() :
     , mMapTextureCreatorDynamic()
     , mMapZoom(0.0f)
     , mMapLastZoom(0.0f)
+    , mHidden(false)
     , mPlayerPosition(Vector2::ZERO)
     , mTerrainSize(Vector2::ZERO)
 {
@@ -121,7 +122,6 @@ void SurveyMapManager::updateWindow()
     case SurveyMapMode::BIG:   setWindowPosition(0,  0, 0.98f); break;
     default:;
     }
-    mMainWidget->setVisible(mMapMode != SurveyMapMode::NONE);
 }
 
 void SurveyMapManager::windowResized()
@@ -228,20 +228,25 @@ Ogre::String SurveyMapManager::getTypeByDriveable(int driveable)
 
 void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
 {
-    if (dt == 0)
-        return;
-
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_CYCLE))
+    {
+        mHidden = false;
         cycleMode();
+    }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE))
+    {
+        mHidden = false;
         toggleMode();
+    }
+
+    mMainWidget->setVisible(!mHidden && mMapMode != SurveyMapMode::NONE);
+
+    if (mHidden || mMapMode == SurveyMapMode::NONE)
+        return;
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_SURVEY_MAP_TOGGLE_ICONS))
         App::gfx_surveymap_icons.SetActive(!App::gfx_surveymap_icons.GetActive());
-
-    if (mMapMode == SurveyMapMode::NONE)
-        return;
 
     switch (mMapMode)
     {

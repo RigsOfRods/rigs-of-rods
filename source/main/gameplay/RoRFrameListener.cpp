@@ -1837,8 +1837,7 @@ void SimController::HideGUI(bool hidden)
     if (RoR::App::GetOverlayWrapper())
         RoR::App::GetOverlayWrapper()->showDashboardOverlays(!hidden, m_player_actor);
 
-    if (m_gfx_scene.GetSurveyMap()->hidden() != hidden)
-        m_gfx_scene.GetSurveyMap()->toggleMode(); // TODO: we shouldn't update GfxScene-owned objects from simulation, but this whole HideGUI() function will likely end up being invoked by GfxActor in the future, so it's OK for now ~ only_a_ptr, 05/2018
+    m_gfx_scene.GetSurveyMap()->hideGUI(hidden); // TODO: we shouldn't update GfxScene-owned objects from simulation, but this whole HideGUI() function will likely end up being invoked by GfxActor in the future, so it's OK for now ~ only_a_ptr, 05/2018
 
     App::GetGuiManager()->hideGUI(hidden);
 }
