@@ -41,7 +41,8 @@ public:
     SurveyMapEntity* createMapEntity(Ogre::String type);
     void deleteMapEntity(SurveyMapEntity* entity);
 
-    bool hidden() { return mMapMode == SurveyMapMode::NONE; };
+    void hideGUI(bool hidden) { mHidden = hidden; };
+
     void toggleMode();
     void windowResized();
 
@@ -58,6 +59,8 @@ protected:
         SMALL,
         BIG
     };
+
+    bool mHidden;
 
     Ogre::Vector2 mTerrainSize;
     Ogre::Vector2 mPlayerPosition;
