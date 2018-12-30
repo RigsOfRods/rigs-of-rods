@@ -223,6 +223,7 @@ float TerrainGeometryManager::getHeightAtTerrainPosition(Real x, Real y)
 
 float TerrainGeometryManager::getHeightAt(float x, float z)
 {
+    return 0.0f;
     if (m_spec->is_flat)
         return 0.0f;
 
