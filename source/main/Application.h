@@ -652,8 +652,8 @@ namespace App {
 
 // App
 extern GVarEnum_AP<AppState>   app_state;
-extern GVarStr_A<100>          app_language;
-extern GVarStr_A<50>           app_locale;
+extern GVarStr_A<50>           app_language;
+extern GVarStr_A<50>           app_country;
 extern GVarPod_A<bool>         app_skip_main_menu;
 extern GVarPod_APS<bool>       app_async_physics;
 extern GVarPod_APS<int>        app_num_workers;

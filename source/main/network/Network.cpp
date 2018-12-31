@@ -684,7 +684,9 @@ bool ConnectThread()
     strncpy(c.usertoken, m_token.ToCStr(), 40);
     strncpy(c.clientversion, ROR_VERSION_STRING, strnlen(ROR_VERSION_STRING, 25));
     strncpy(c.clientname, "RoR", 10);
-    strncpy(c.language, App::app_locale.GetActive(), 10);
+    std::string language = std::string(App::app_language.GetActive()).substr(0, 2);
+    std::string country = std::string(App::app_country.GetActive()).substr(0, 2);
+    strncpy(c.language, (language + std::string("_") + country).c_str(), 5);
     strcpy(c.sessiontype, "normal");
     if (!SendNetMessage(MSG2_USER_INFO, 0, sizeof(RoRnet::UserInfo), (char*)&c))
     {
