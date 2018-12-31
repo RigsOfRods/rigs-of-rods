@@ -3262,6 +3262,9 @@ void ActorSpawner::ProcessRotator(RigDef::Rotator & def)
         rotator.nodes2[i] = GetNodeIndexOrThrow(def.rotating_plate_nodes[i]);
     }
 
+    // Validate the reference structure
+    this->ValidateRotator(m_actor->ar_num_rotators + 1, rotator.axis1, rotator.axis2, rotator.nodes1, rotator.nodes2);
+
     // Rotate left key
     m_actor->ar_command_key[def.spin_left_key].rotators.push_back(- (m_actor->ar_num_rotators + 1));
     m_actor->ar_command_key[def.spin_left_key].description = "Rotate_Left/Right";
@@ -3292,6 +3295,9 @@ void ActorSpawner::ProcessRotator2(RigDef::Rotator2 & def)
         rotator.nodes1[i] = GetNodeIndexOrThrow(def.base_plate_nodes[i]);
         rotator.nodes2[i] = GetNodeIndexOrThrow(def.rotating_plate_nodes[i]);
     }
+
+    // Validate the reference structure
+    this->ValidateRotator(m_actor->ar_num_rotators + 1, rotator.axis1, rotator.axis2, rotator.nodes1, rotator.nodes2);
 
     // Rotate left key
     m_actor->ar_command_key[def.spin_left_key].rotators.push_back(- (m_actor->ar_num_rotators + 1));
@@ -6826,6 +6832,57 @@ void ActorSpawner::FinalizeGfxSetup()
     }
 
     m_actor->GetGfxActor()->RegisterAirbrakes();
+}
+
+void ActorSpawner::ValidateRotator(int id, int axis1, int axis2, int *nodes1, int *nodes2)
+{
+    const auto eps = 0.001f;
+    const auto ax1 = m_actor->ar_nodes[axis1].AbsPosition;
+    const auto ax2 = m_actor->ar_nodes[axis2].AbsPosition;
+    Ogre::Plane pl = Ogre::Plane(ax1 - ax2, 0);
+
+    Ogre::Vector3 a1 = pl.projectVector(ax1 - m_actor->ar_nodes[nodes1[0]].AbsPosition);
+    Ogre::Vector3 a2 = pl.projectVector(ax1 - m_actor->ar_nodes[nodes1[1]].AbsPosition);
+    Ogre::Vector3 a3 = pl.projectVector(ax1 - m_actor->ar_nodes[nodes1[2]].AbsPosition);
+    Ogre::Vector3 a4 = pl.projectVector(ax1 - m_actor->ar_nodes[nodes1[3]].AbsPosition);
+    float a1len = a1.normalise();
+    float a2len = a2.normalise();
+    float a3len = a3.normalise();
+    float a4len = a4.normalise();
+    if ((std::max(a1len, a3len) / std::min(a1len, a3len) > 1.f + eps) ||
+        (std::max(a2len, a4len) / std::min(a2len, a4len) > 1.f + eps))
+    {
+        Ogre::String msg = Ogre::StringUtil::format("Off-centered axis on base plate of rotator %d", id);
+        AddMessage(Message::TYPE_WARNING, msg);	
+    }
+
+    Ogre::Vector3 b1 = pl.projectVector(ax2 - m_actor->ar_nodes[nodes2[0]].AbsPosition);
+    Ogre::Vector3 b2 = pl.projectVector(ax2 - m_actor->ar_nodes[nodes2[1]].AbsPosition);
+    Ogre::Vector3 b3 = pl.projectVector(ax2 - m_actor->ar_nodes[nodes2[2]].AbsPosition);
+    Ogre::Vector3 b4 = pl.projectVector(ax2 - m_actor->ar_nodes[nodes2[3]].AbsPosition);
+    float b1len = b1.normalise();
+    float b2len = b2.normalise();
+    float b3len = b3.normalise();
+    float b4len = b4.normalise();
+    if ((std::max(b1len, b3len) / std::min(b1len, b3len) > 1.f + eps) ||
+        (std::max(b2len, b4len) / std::min(b2len, b4len) > 1.f + eps))
+    {
+        Ogre::String msg = Ogre::StringUtil::format("Off-centered axis on rotating plate of rotator %d", id);
+        AddMessage(Message::TYPE_WARNING, msg);	
+    }
+
+    float rot1 = a1.dotProduct(b1);
+    float rot2 = a2.dotProduct(b2);
+    float rot3 = a3.dotProduct(b3);
+    float rot4 = a4.dotProduct(b4);
+    if ((std::max(rot1, rot2) / std::min(rot1, rot2) > 1.f + eps) ||
+        (std::max(rot2, rot3) / std::min(rot2, rot3) > 1.f + eps) ||
+        (std::max(rot3, rot4) / std::min(rot3, rot4) > 1.f + eps) ||
+        (std::max(rot4, rot1) / std::min(rot4, rot1) > 1.f + eps))
+    {
+        Ogre::String msg = Ogre::StringUtil::format("Misaligned plates on rotator %d", id);
+        AddMessage(Message::TYPE_WARNING, msg);	
+    }
 }
 
 Ogre::ManualObject* CreateVideocameraDebugMesh()
