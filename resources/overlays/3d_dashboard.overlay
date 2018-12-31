@@ -1,7 +1,7 @@
 overlay tracks/3D_DashboardOverlay
 {
 	zorder 520
-	container Panel (tracks/3Duptex)
+	overlay_element tracks/3Duptex Panel
 		{
 			metrics_mode relative
 			horz_align left
@@ -13,7 +13,7 @@ overlay tracks/3D_DashboardOverlay
 			material tracks/3Duptex
 		}
 		
-		container Panel (tracks/3Dtacho)
+		overlay_element tracks/3Dtacho Panel
 		{
 			metrics_mode relative
 			horz_align left
@@ -25,7 +25,7 @@ overlay tracks/3D_DashboardOverlay
 			top 0.51
 			material tracks/Tacho
 		}
-		container Panel (tracks/3Dspeedo)
+		overlay_element tracks/3Dspeedo Panel
 		{
 			metrics_mode relative
 			horz_align left

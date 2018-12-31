@@ -1,7 +1,7 @@
 overlay tracks/3D_BlendOverlay
 {
 	zorder 540
-		container Panel (tracks/3Dblend)
+		overlay_element tracks/3Dblend Panel
 		{
 			metrics_mode relative
 			horz_align left

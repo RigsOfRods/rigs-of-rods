@@ -1,7 +1,7 @@
 overlay tracks/CreditsOverlay
 {
 	zorder 600
-	container Panel (tracks/filler)
+	overlay_element tracks/filler Panel
 		{
 			metrics_mode relative
 			horz_align left
@@ -12,7 +12,7 @@ overlay tracks/CreditsOverlay
 			height 1.0
 			material tracks/black
 		}
-	container Panel (tracks/credits)
+	overlay_element tracks/credits Panel
 		{
 			metrics_mode relative
 			horz_align left

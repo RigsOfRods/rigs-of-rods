@@ -3,7 +3,7 @@ overlay tracks/NeedlesOverlay
 	zorder 30
 
 
-	container Panel (tracks/speedoneedle)
+	overlay_element tracks/speedoneedle Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -18,7 +18,7 @@ overlay tracks/NeedlesOverlay
 			material tracks/speedoneedle_mat
 		}
 
-	container Panel (tracks/tachoneedle)
+	overlay_element tracks/tachoneedle Panel
 		{
 			metrics_mode relative
 			horz_align right
@@ -34,7 +34,7 @@ overlay tracks/NeedlesOverlay
 		}
 
 
-	container TextArea(tracks/Gear)
+	overlay_element tracks/Gear TextArea
 		{
 			metrics_mode relative
 //			horz_align center
@@ -47,12 +47,12 @@ overlay tracks/NeedlesOverlay
 			top -0.04
 			font_name CyberbitEnglish
 			char_height 0.03
-			caption N
+			caption "N"
 			colour_top 0.8 0.8 0.8
 			colour_bottom 0.6 0.6 0.6
 		}
 
-	container TextArea(tracks/AGearR)
+	overlay_element tracks/AGearR TextArea
 		{
 			metrics_mode relative
 			horz_align right
@@ -63,12 +63,12 @@ overlay tracks/NeedlesOverlay
 			top -0.17
 			font_name CyberbitEnglish
 			char_height 0.03
-			caption R
+			caption "R"
 			colour_top 0.8 0.8 0.8
 			colour_bottom 0.6 0.6 0.6
 		}
 
-	container TextArea(tracks/AGearN)
+	overlay_element tracks/AGearN TextArea
 		{
 			metrics_mode relative
 			horz_align right
@@ -79,12 +79,12 @@ overlay tracks/NeedlesOverlay
 			top -0.14
 			font_name CyberbitEnglish
 			char_height 0.03
-			caption N
+			caption "N"
 			colour_top 0.8 0.2 0.2
 			colour_bottom 0.6 0.1 0.1
 		}
 
-	container TextArea(tracks/AGearD)
+	overlay_element tracks/AGearD TextArea
 		{
 			metrics_mode relative
 			horz_align right
@@ -95,12 +95,12 @@ overlay tracks/NeedlesOverlay
 			top -0.11
 			font_name CyberbitEnglish
 			char_height 0.03
-			caption D
+			caption "D"
 			colour_top 0.8 0.8 0.8
 			colour_bottom 0.6 0.6 0.6
 		}
 
-	container TextArea(tracks/AGear2)
+	overlay_element tracks/AGear2 TextArea
 		{
 			metrics_mode relative
 			horz_align right
@@ -111,12 +111,12 @@ overlay tracks/NeedlesOverlay
 			top -0.08
 			font_name CyberbitEnglish
 			char_height 0.03
-			caption 2
+			caption "2"
 			colour_top 0.8 0.8 0.8
 			colour_bottom 0.6 0.6 0.6
 		}
 
-	container TextArea(tracks/AGear1)
+	overlay_element tracks/AGear1 TextArea
 		{
 			metrics_mode relative
 			horz_align right
@@ -127,7 +127,7 @@ overlay tracks/NeedlesOverlay
 			top -0.05
 			font_name CyberbitEnglish
 			char_height 0.03
-			caption 1
+			caption "1"
 			colour_top 0.8 0.8 0.8
 			colour_bottom 0.6 0.6 0.6
 		}
