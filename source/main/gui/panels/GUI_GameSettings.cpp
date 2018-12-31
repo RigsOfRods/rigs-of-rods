@@ -128,14 +128,44 @@ void RoR::GUI::GameSettings::Draw()
             lang_values += value.first + '\0';
         }
         const auto it = std::find_if(languages.begin(), languages.end(),
-                [](const std::pair<std::string, std::string>& l) { return l.second == App::app_locale.GetActive(); });
+                [](const std::pair<std::string, std::string>& l) { return l.second == App::app_language.GetActive(); });
         int lang_selection = it != languages.end() ? std::distance(languages.begin(), it) : 0;
         if (ImGui::Combo(_LC("GameSettings", "Language"), &lang_selection, lang_values.c_str()))
         {
-            App::app_locale.SetActive(languages[lang_selection].second.c_str());
+            App::app_language.SetActive(languages[lang_selection].second.c_str());
             LanguageEngine::getSingleton().setup();
         }
 #endif
+
+        // Country selection
+        static Ogre::FileInfoListPtr fl = Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo("FlagsRG", "*");
+        if (!fl->empty())
+        {
+            static std::vector<std::string> countries;
+            if (countries.empty())
+            {
+                for (auto& file : *fl)
+                {
+                    std::string country = Ogre::StringUtil::replaceAll(file.filename, ".png", "");
+                    if (country.size() == 2) // RoR protocol limitation
+                    {
+                        countries.push_back(country);
+                    }
+                }
+                std::sort(countries.begin(), countries.end());
+            }
+            std::string country_values;
+            for (auto value : countries)
+            {
+                country_values += value + '\0';
+            }
+            const auto it = std::find(countries.begin(), countries.end(), std::string(App::app_country.GetActive()));
+            int country_selection = it != countries.end() ? std::distance(countries.begin(), it) : 0;
+            if (ImGui::Combo(_LC("GameSettings", "Country"), &country_selection, country_values.c_str()))
+            {
+                App::app_country.SetActive(countries[country_selection].c_str());
+            }
+        }
 
         int sshot_select = (std::strcmp(App::app_screenshot_format.GetActive(),"jpg") == 0) ? 1 : 0; // Hardcoded; TODO: list available formats.
 

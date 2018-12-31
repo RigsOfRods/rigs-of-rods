@@ -75,8 +75,8 @@ static TerrainManager*  g_sim_terrain;
 
 // App
  GVarEnum_AP<AppState>    app_state               ("app_state",               nullptr,                     AppState::BOOTSTRAP,     AppState::MAIN_MENU);
- GVarStr_A<100>           app_language            ("app_language",            "Language",                  "English");
- GVarStr_A<50>            app_locale              ("app_locale",              "Language Short",            "en");
+ GVarStr_A<50>            app_language            ("app_language",            "Language",                  "en");
+ GVarStr_A<50>            app_country             ("app_country",             "Country",                   "us");
  GVarPod_A<bool>          app_skip_main_menu      ("app_skip_main_menu",      "SkipMainMenu",              false);
  GVarPod_APS<bool>        app_async_physics       ("app_async_physics",       "AsyncPhysics",              true,
          true,      true);
