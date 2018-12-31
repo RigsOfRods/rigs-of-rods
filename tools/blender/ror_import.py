@@ -52,7 +52,7 @@ class ror_import(bpy.types.Operator, ImportHelper):
                 if not line or line[0] == ';':
                     truckfile.append(line)
                     if mode == 'nodes' and line[:5] == ';grp:':
-                        groups = line[5:].split(', ')
+                        groups = [g.strip() for g in line[5:].split(',')]
                     continue
 
                 args = line.replace(',', ' ').split()
