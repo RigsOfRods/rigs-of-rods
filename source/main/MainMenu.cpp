@@ -29,6 +29,7 @@
 
 #include "CacheSystem.h"
 #include "ChatSystem.h"
+#include "ContentManager.h"
 #include "GUIManager.h"
 #include "GUI_LoadingWindow.h"
 #include "GUI_MainSelector.h"
@@ -169,6 +170,7 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
         }
         else if (con_state == Networking::ConnectState::SUCCESS) // Just succeeded (only returned once)
         {
+            App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FLAGS); // country flags
             App::mp_state.SetActive(RoR::MpState::CONNECTED);
             gui->SetVisible_MpClientList(true);
             ChatSystem::SendStreamSetup();
