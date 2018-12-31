@@ -938,6 +938,11 @@ private:
     void FinalizeGfxSetup();
 
     /**
+    * Validator for the rotator reference structure
+    */
+    void ValidateRotator(int id, int axis1, int axis2, int *nodes1, int *nodes2);
+
+    /**
     * Helper for 'SetupNewEntity()' - see it's doc.
     */
     Ogre::MaterialPtr FindOrCreateCustomizedMaterial(std::string orig_name);
