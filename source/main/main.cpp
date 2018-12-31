@@ -189,6 +189,8 @@ int main(int argc, char *argv[])
             Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET);
 
 
+        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FLAGS);
+        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::ICONS);
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OGRE_CORE);
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::WALLPAPERS);
 
