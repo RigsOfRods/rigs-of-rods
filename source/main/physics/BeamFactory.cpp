@@ -1110,7 +1110,7 @@ void ActorManager::UpdatePhysicsSimulation()
                 {
                     auto func = std::function<void()>([this, actor]()
                         {
-                            actor->m_inter_point_col_detector->UpdateInterPoint(actor);
+                            actor->m_inter_point_col_detector->UpdateInterPoint();
                             if (actor->ar_collision_relevant)
                             {
                                 ResolveInterActorCollisions(PHYSICS_DT,

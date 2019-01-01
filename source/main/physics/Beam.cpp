@@ -812,10 +812,10 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
     direction.normalise();
 
     if (m_intra_point_col_detector)
-        m_intra_point_col_detector->UpdateIntraPoint(this);
+        m_intra_point_col_detector->UpdateIntraPoint();
 
     if (m_inter_point_col_detector)
-        m_inter_point_col_detector->UpdateInterPoint(this, true);
+        m_inter_point_col_detector->UpdateInterPoint(true);
 
     // collision displacement
     Vector3 collision_offset = Vector3::ZERO;
@@ -2297,7 +2297,7 @@ void Actor::CalcCabCollisions()
     }
     if (m_intra_point_col_detector != nullptr)
     {
-        m_intra_point_col_detector->UpdateIntraPoint(this);
+        m_intra_point_col_detector->UpdateIntraPoint();
         ResolveIntraActorCollisions(PHYSICS_DT,
             *m_intra_point_col_detector,
             ar_num_collcabs,
