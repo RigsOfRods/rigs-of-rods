@@ -974,6 +974,18 @@ eventInfo_t eventInfo[] = {
         _L("exit the game")
     },
     {
+        "COMMON_QUICKLOAD",
+        EV_COMMON_QUICKLOAD,
+        "Keyboard MULTIPLY",
+        _L("quickload scene")
+    },
+    {
+        "COMMON_QUICKSAVE",
+        EV_COMMON_QUICKSAVE,
+        "Keyboard DIVIDE",
+        _L("quicksave scene")
+    },
+    {
         "COMMON_REPAIR_TRUCK",
         EV_COMMON_REPAIR_TRUCK,
         "Keyboard BACK",
@@ -1752,27 +1764,27 @@ eventInfo_t eventInfo[] = {
     },
 
     // now position storage
-    {"TRUCK_SAVE_POS1", EV_TRUCK_SAVE_POS01, "Keyboard EXPL+ALT+CTRL+1", _L("save position as slot 1")},
-    {"TRUCK_SAVE_POS2", EV_TRUCK_SAVE_POS02, "Keyboard EXPL+ALT+CTRL+2", _L("save position as slot 2")},
-    {"TRUCK_SAVE_POS3", EV_TRUCK_SAVE_POS03, "Keyboard EXPL+ALT+CTRL+3", _L("save position as slot 3")},
-    {"TRUCK_SAVE_POS4", EV_TRUCK_SAVE_POS04, "Keyboard EXPL+ALT+CTRL+4", _L("save position as slot 4")},
-    {"TRUCK_SAVE_POS5", EV_TRUCK_SAVE_POS05, "Keyboard EXPL+ALT+CTRL+5", _L("save position as slot 5")},
-    {"TRUCK_SAVE_POS6", EV_TRUCK_SAVE_POS06, "Keyboard EXPL+ALT+CTRL+6", _L("save position as slot 6")},
-    {"TRUCK_SAVE_POS7", EV_TRUCK_SAVE_POS07, "Keyboard EXPL+ALT+CTRL+7", _L("save position as slot 7")},
-    {"TRUCK_SAVE_POS8", EV_TRUCK_SAVE_POS08, "Keyboard EXPL+ALT+CTRL+8", _L("save position as slot 8")},
-    {"TRUCK_SAVE_POS9", EV_TRUCK_SAVE_POS09, "Keyboard EXPL+ALT+CTRL+9", _L("save position as slot 9")},
-    {"TRUCK_SAVE_POS10", EV_TRUCK_SAVE_POS10, "Keyboard EXPL+ALT+CTRL+0", _L("save position as slot 10")},
+    {"COMMON_QUICKSAVE_01", EV_COMMON_QUICKSAVE_01, "Keyboard EXPL+ALT+CTRL+1", _L("save scene in slot 01")},
+    {"COMMON_QUICKSAVE_02", EV_COMMON_QUICKSAVE_02, "Keyboard EXPL+ALT+CTRL+2", _L("save scene in slot 02")},
+    {"COMMON_QUICKSAVE_03", EV_COMMON_QUICKSAVE_03, "Keyboard EXPL+ALT+CTRL+3", _L("save scene in slot 03")},
+    {"COMMON_QUICKSAVE_04", EV_COMMON_QUICKSAVE_04, "Keyboard EXPL+ALT+CTRL+4", _L("save scene in slot 04")},
+    {"COMMON_QUICKSAVE_05", EV_COMMON_QUICKSAVE_05, "Keyboard EXPL+ALT+CTRL+5", _L("save scene in slot 05")},
+    {"COMMON_QUICKSAVE_06", EV_COMMON_QUICKSAVE_06, "Keyboard EXPL+ALT+CTRL+6", _L("save scene in slot 06")},
+    {"COMMON_QUICKSAVE_07", EV_COMMON_QUICKSAVE_07, "Keyboard EXPL+ALT+CTRL+7", _L("save scene in slot 07")},
+    {"COMMON_QUICKSAVE_08", EV_COMMON_QUICKSAVE_08, "Keyboard EXPL+ALT+CTRL+8", _L("save scene in slot 08")},
+    {"COMMON_QUICKSAVE_09", EV_COMMON_QUICKSAVE_09, "Keyboard EXPL+ALT+CTRL+9", _L("save scene in slot 09")},
+    {"COMMON_QUICKSAVE_10", EV_COMMON_QUICKSAVE_10, "Keyboard EXPL+ALT+CTRL+0", _L("save scene in slot 10")},
 
-    {"TRUCK_LOAD_POS1", EV_TRUCK_LOAD_POS01, "Keyboard EXPL+ALT+1", _L("load position under slot 1")},
-    {"TRUCK_LOAD_POS2", EV_TRUCK_LOAD_POS02, "Keyboard EXPL+ALT+2", _L("load position under slot 2")},
-    {"TRUCK_LOAD_POS3", EV_TRUCK_LOAD_POS03, "Keyboard EXPL+ALT+3", _L("load position under slot 3")},
-    {"TRUCK_LOAD_POS4", EV_TRUCK_LOAD_POS04, "Keyboard EXPL+ALT+4", _L("load position under slot 4")},
-    {"TRUCK_LOAD_POS5", EV_TRUCK_LOAD_POS05, "Keyboard EXPL+ALT+5", _L("load position under slot 5")},
-    {"TRUCK_LOAD_POS6", EV_TRUCK_LOAD_POS06, "Keyboard EXPL+ALT+6", _L("load position under slot 6")},
-    {"TRUCK_LOAD_POS7", EV_TRUCK_LOAD_POS07, "Keyboard EXPL+ALT+7", _L("load position under slot 7")},
-    {"TRUCK_LOAD_POS8", EV_TRUCK_LOAD_POS08, "Keyboard EXPL+ALT+8", _L("load position under slot 8")},
-    {"TRUCK_LOAD_POS9", EV_TRUCK_LOAD_POS09, "Keyboard EXPL+ALT+9", _L("load position under slot 9")},
-    {"TRUCK_LOAD_POS10", EV_TRUCK_LOAD_POS10, "Keyboard EXPL+ALT+0", _L("load position under slot 10")},
+    {"COMMON_QUICKLOAD_01", EV_COMMON_QUICKLOAD_01, "Keyboard EXPL+ALT+1", _L("load scene from slot 01")},
+    {"COMMON_QUICKLOAD_02", EV_COMMON_QUICKLOAD_02, "Keyboard EXPL+ALT+2", _L("load scene from slot 02")},
+    {"COMMON_QUICKLOAD_03", EV_COMMON_QUICKLOAD_03, "Keyboard EXPL+ALT+3", _L("load scene from slot 03")},
+    {"COMMON_QUICKLOAD_04", EV_COMMON_QUICKLOAD_04, "Keyboard EXPL+ALT+4", _L("load scene from slot 04")},
+    {"COMMON_QUICKLOAD_05", EV_COMMON_QUICKLOAD_05, "Keyboard EXPL+ALT+5", _L("load scene from slot 05")},
+    {"COMMON_QUICKLOAD_06", EV_COMMON_QUICKLOAD_06, "Keyboard EXPL+ALT+6", _L("load scene from slot 06")},
+    {"COMMON_QUICKLOAD_07", EV_COMMON_QUICKLOAD_07, "Keyboard EXPL+ALT+7", _L("load scene from slot 07")},
+    {"COMMON_QUICKLOAD_08", EV_COMMON_QUICKLOAD_08, "Keyboard EXPL+ALT+8", _L("load scene from slot 08")},
+    {"COMMON_QUICKLOAD_09", EV_COMMON_QUICKLOAD_09, "Keyboard EXPL+ALT+9", _L("load scene from slot 09")},
+    {"COMMON_QUICKLOAD_10", EV_COMMON_QUICKLOAD_10, "Keyboard EXPL+ALT+0", _L("load scene from slot 10")},
 
     {"TRUCKEDIT_RELOAD", EV_TRUCKEDIT_RELOAD, "Keyboard EXPL+SHIFT+CTRL+R", _L("reload truck")},
 

@@ -171,7 +171,6 @@ class Network;
 class OutProtocol;
 class OverlayWrapper;
 class PointColDetector;
-class PositionStorage;
 class ProceduralManager;
 class RailGroup;
 class RailSegment;

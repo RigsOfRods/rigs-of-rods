@@ -65,6 +65,8 @@ public:
     void reset();
 
     void toggleReverse();
+    void setReverse(bool val);
+    bool getReverse() { return reverse; };
 
     void flipStart();
 
@@ -76,6 +78,7 @@ public:
     bool isFailed() { return failed; };
     int getType() { return AEROENGINE_TYPE_TURBOPROP; };
     bool getIgnition() { return ignition; };
+    void setIgnition(bool val) { ignition = val; };
     int getNoderef() { return noderef; };
     bool getWarmup() { return warmup; };
     float getRadius() { return radius; };

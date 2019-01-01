@@ -66,12 +66,12 @@ public:
     // Actor management interface
     std::vector<Actor*> GetActors() const                             { return m_actor_manager.GetActors(); }
     Actor* GetActorById          (int actor_id)                       { return m_actor_manager.GetActorByIdInternal(actor_id); }
-    void   SetPendingPlayerActor (Actor* actor)                       { m_pending_player_actor = actor; }                      
-    Actor* GetPlayerActor        ()                                   { return m_player_actor; }    
+    void   ChangePlayerActor     (Actor* actor);
     void   QueueActorSpawn       (RoR::ActorSpawnRequest const & rq)  { m_actor_spawn_queue.push_back(rq); }
     void   QueueActorModify      (RoR::ActorModifyRequest const & rq) { m_actor_modify_queue.push_back(rq); }
     void   QueueActorRemove      (Actor* actor)                       { m_actor_remove_queue.push_back(actor); }
     Actor* SpawnActorDirectly    (RoR::ActorSpawnRequest rq);
+    void   RemoveActorDirectly   (Actor* actor);
     void   RemoveActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name); ///< Scripting utility. TODO: Does anybody use it? ~ only_a_ptr, 08/2017
 
     // Scripting interface
@@ -108,6 +108,15 @@ public:
     void                         ResetCamera();
     RoR::CameraManager::CameraBehaviors GetCameraBehavior();
 
+    Actor* GetPlayerActor()                                 { return m_player_actor; };
+    Actor* GetPrevPlayerActor()                             { return m_prev_player_actor; };
+
+    void SetPendingPlayerActor(Actor* actor)                { m_pending_player_actor = actor; };
+    void SetPrevPlayerActorInternal(Actor* actor)           { m_prev_player_actor = actor; };
+
+    bool   GetPhysicsPaused()                               { return m_physics_simulation_paused; };
+    void   SetPhysicsPausedInternal(bool paused)            { m_physics_simulation_paused = paused; };
+
 private:
 
     // Ogre::WindowEventListener interface
@@ -117,12 +126,12 @@ private:
     void   windowResized           (Ogre::RenderWindow* rw);
 
     void   UpdateForceFeedback     ();
+    void   HandleSavegameShortcuts ();
     void   UpdateInputEvents       (float dt);
     void   FinalizeActorSpawning   (Actor* actor, RoR::ActorSpawnRequest rq);
     void   HideGUI                 (bool hidden);
     void   CleanupAfterSimulation  (); /// Unloads all data
     void   UpdateSimulation        (float dt);
-    void   ChangePlayerActor       (Actor* actor);
 
     Actor*                   m_player_actor;           //!< Actor (vehicle or machine) mounted and controlled by player
     Actor*                   m_prev_player_actor;      //!< Previous actor (vehicle or machine) mounted and controlled by player

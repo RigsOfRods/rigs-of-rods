@@ -88,7 +88,6 @@ struct beam_t
 
     Ogre::Real initial_beam_strength; ///< for reset
     Ogre::Real default_beam_deform; ///< for reset
-    Ogre::Real default_beam_plastic_coef; ///< for reset
 
     Ogre::Real debug_k; //< debug shock spring_rate
     Ogre::Real debug_d; //< debug shock damping

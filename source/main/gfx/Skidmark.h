@@ -61,6 +61,7 @@ public:
     Skidmark(SkidmarkConfig* config,  wheel_t* m_wheel, Ogre::SceneNode* snode, int m_length = 500, int m_bucket_count = 20);
     virtual ~Skidmark();
 
+    void reset();
     void update(Ogre::Vector3 contact_point, float slip, Ogre::String ground_model_name);
 
 private:

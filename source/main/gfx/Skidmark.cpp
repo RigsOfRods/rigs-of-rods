@@ -142,8 +142,7 @@ RoR::Skidmark::Skidmark(RoR::SkidmarkConfig* config, wheel_t* m_wheel,
 
 RoR::Skidmark::~Skidmark()
 {
-    while (m_objects.size() != 0) // Remove all skid segments
-        this->PopSegment();
+    this->reset();
 }
 
 void RoR::Skidmark::AddObject(Ogre::Vector3 start, Ogre::String texture)
@@ -318,6 +317,12 @@ void RoR::Skidmark::AddPoint(const Ogre::Vector3& value, Ogre::Real fsize, Ogre:
     }
     this->SetPointInt(m_objects.back().pos, value, fsize, texture);
     m_objects.back().pos++;
+}
+
+void RoR::Skidmark::reset()
+{
+    while (m_objects.size() != 0) // Remove all skid segments
+        this->PopSegment();
 }
 
 void RoR::Skidmark::update(Ogre::Vector3 contact_point, float slip, Ogre::String ground_model_name)

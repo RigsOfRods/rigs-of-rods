@@ -18,12 +18,16 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "Application.h"
 #include "Differentials.h"
 #include "Language.h"
 
 void Differential::ToggleDifferentialMode()
 {
-    std::rotate(m_available_diffs.begin(), m_available_diffs.begin() + 1, m_available_diffs.end());
+    if (m_available_diffs.size() > 1)
+    {
+        std::rotate(m_available_diffs.begin(), m_available_diffs.begin() + 1, m_available_diffs.end());
+    }
 }
 
 void Differential::CalcAxleTorque(DifferentialData& diff_data)

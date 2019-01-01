@@ -258,6 +258,8 @@ void MainMenu::MainMenuLoopUpdateEvents(float seconds_since_last_frame)
         return;
     }
 
+    this->HandleSavegameShortcuts();
+
     auto gui_man = App::GetGuiManager();
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CONSOLE_TOGGLE, 5.f))
     {
@@ -270,6 +272,58 @@ void MainMenu::MainMenuLoopUpdateEvents(float seconds_since_last_frame)
 
     // FIXME: full screen/windowed screen switching
     //if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FULLSCREEN_TOGGLE, 2.0f)) {}
+}
+
+void MainMenu::HandleSavegameShortcuts()
+{
+    int slot = -1;
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_01, 1.0f))
+    {
+        slot = 0;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_02, 1.0f))
+    {
+        slot = 1;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_03, 1.0f))
+    {
+        slot = 2;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_04, 1.0f))
+    {
+        slot = 3;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_05, 1.0f))
+    {
+        slot = 4;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_06, 1.0f))
+    {
+        slot = 5;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_07, 1.0f))
+    {
+        slot = 6;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_08, 1.0f))
+    {
+        slot = 7;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_09, 1.0f))
+    {
+        slot = 8;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_10, 1.0f))
+    {
+        slot = 9;
+    }
+    if (slot != -1)
+    {
+        Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", slot);
+        App::sim_savegame.SetActive(filename.c_str());
+        App::sim_load_savegame.SetActive(true);
+        App::app_state.SetPending(AppState::SIMULATION);
+    }
 }
 
 void MainMenu::LeaveMultiplayerServer()

@@ -87,6 +87,11 @@ public:
     void           Release() {};
 #endif
 
+    Ogre::String   GetQuicksaveFilename(Ogre::String filename = "");
+    Ogre::String   ExtractSceneName(Ogre::String filename);
+    bool           LoadScene(Ogre::String filename);
+    bool           SaveScene(Ogre::String filename);
+
     std::vector<Actor*> GetActors() const                  { return m_actors; };
 
     // A list of all beams interconnecting two actors

@@ -545,6 +545,16 @@ CacheEntry* CacheSystem::getEntry(int modid)
     return 0;
 }
 
+String CacheSystem::getPrettyName(String fname)
+{
+    for (std::vector<CacheEntry>::iterator it = m_entries.begin(); it != m_entries.end(); it++)
+    {
+        if (fname == it->fname || fname == StringUtil::replaceAll(it->fname, ".terrn2", ""))
+            return it->dname;
+    }
+    return "";
+}
+
 void CacheSystem::ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Document& j_doc, CacheEntry const & entry)
 {
     rapidjson::Value j_entry(rapidjson::kObjectType);

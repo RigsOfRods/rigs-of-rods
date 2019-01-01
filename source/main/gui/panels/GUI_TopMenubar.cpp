@@ -31,8 +31,9 @@
 #include "GUIManager.h"
 #include "GUI_MainSelector.h"
 #include "MainMenu.h"
-#include "RoRFrameListener.h"
 #include "Network.h"
+#include "PlatformUtils.h"
+#include "RoRFrameListener.h"
 
 #include <algorithm>
 
@@ -46,12 +47,14 @@ void RoR::GUI::TopMenubar::Update()
     auto actors = App::GetSimController()->GetActors();
     int num_playable_actors = std::count_if(actors.begin(), actors.end(), [](Actor* a) {return !a->ar_hide_in_actor_list;});
     actors_title << "Vehicles (" << num_playable_actors << ")";
+    const char* savegames_title = "Saves";
     const char* tools_title = "Tools";
 
     float panel_target_width = 
         (ImGui::GetStyle().WindowPadding.x * 2) + (ImGui::GetStyle().FramePadding.x * 2) + // Left+right window padding
-        ImGui::CalcTextSize(sim_title).x + ImGui::CalcTextSize(actors_title.GetBuffer()).x + ImGui::CalcTextSize(tools_title).x +  // Items
-        (ImGui::GetStyle().ItemSpacing.x * 3); // Item spacing
+        ImGui::CalcTextSize(sim_title).x + ImGui::CalcTextSize(actors_title.GetBuffer()).x + // Items
+        ImGui::CalcTextSize(savegames_title).x + ImGui::CalcTextSize(tools_title).x +  // Items
+        (ImGui::GetStyle().ItemSpacing.x * 4); // Item spacing
 
     ImVec2 window_target_pos = ImVec2((ImGui::GetIO().DisplaySize.x/2.f) - (panel_target_width / 2.f), ImGui::GetStyle().WindowPadding.y);
     if (!this->ShouldDisplay(window_target_pos))
@@ -96,6 +99,16 @@ void RoR::GUI::TopMenubar::Update()
 
     ImGui::SameLine();
 
+    // The 'savegames' button
+    ImVec2 savegames_cursor = ImGui::GetCursorPos();
+    ImGui::Button(savegames_title);
+    if ((m_open_menu != TopMenu::TOPMENU_SAVEGAMES) && ImGui::IsItemHovered())
+    {
+        m_open_menu = TopMenu::TOPMENU_SAVEGAMES;
+    }
+
+    ImGui::SameLine();
+
     // The 'tools' button
     ImVec2 tools_cursor = ImGui::GetCursorPos();
     ImGui::Button(tools_title);
@@ -131,12 +144,6 @@ void RoR::GUI::TopMenubar::Update()
                 {
                     App::GetGuiManager()->SetVisible_VehicleDescription(true);
                 }
-            }
-
-            if (ImGui::Button("View spawner log")) // TODO: display num. warnings/errors
-            {
-                App::GetGuiManager()->SetVisible_SpawnerReport(true);
-                m_open_menu = TopMenu::TOPMENU_NONE;
             }
 
             if (ImGui::Button("Reload current vehicle")) // TODO: make button disabled (fake it!) when no active vehicle
@@ -254,6 +261,75 @@ void RoR::GUI::TopMenubar::Update()
         }
         break;
 
+    case TopMenu::TOPMENU_SAVEGAMES:
+        menu_pos.y = window_pos.y + savegames_cursor.y + MENU_Y_OFFSET;
+        menu_pos.x = savegames_cursor.x + window_pos.x - ImGui::GetStyle().WindowPadding.x;
+        ImGui::SetNextWindowPos(menu_pos);
+        if (ImGui::Begin("Savegames", nullptr, static_cast<ImGuiWindowFlags_>(flags)))
+        {
+            Ogre::String quicksave_filename = App::GetSimController()->GetBeamFactory()->GetQuicksaveFilename();
+
+            if (ImGui::Button("Quicksave"))
+            {
+                App::GetSimController()->GetBeamFactory()->SaveScene(quicksave_filename);
+                m_open_menu = TopMenu::TOPMENU_NONE;
+            }
+            ImGui::SameLine();
+            ImGui::TextColored(GRAY_HINT_TEXT, "('NUMPAD: /')");
+
+            if (FileExists(PathCombine(App::sys_savegames_dir.GetActive(), quicksave_filename)))
+            {
+                if (ImGui::Button("Quickload"))
+                {
+                    App::GetSimController()->GetBeamFactory()->LoadScene(quicksave_filename);
+                    m_open_menu = TopMenu::TOPMENU_NONE;
+                }
+                ImGui::SameLine();
+                ImGui::TextColored(GRAY_HINT_TEXT, "('NUMPAD: *')");
+            }
+
+            ImGui::Separator();
+
+            ImGui::TextColored(GRAY_HINT_TEXT, "(Save with 'CTRL+ALT+1..5')");
+            for (int i = 1; i <= 5; i++)
+            {
+                Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", i);
+                Ogre::String scene_name = "Empty Slot";
+                if (FileExists(PathCombine(App::sys_savegames_dir.GetActive(), filename)))
+                {
+                    scene_name = App::GetSimController()->GetBeamFactory()->ExtractSceneName(filename);
+                }
+                Ogre::String caption = Ogre::StringUtil::format("%d. %s##Save", i, scene_name.c_str());
+                if (ImGui::Button(caption.c_str()))
+                {
+                    App::GetSimController()->GetBeamFactory()->SaveScene(filename);
+                    m_open_menu = TopMenu::TOPMENU_NONE;
+                }
+            }
+
+            ImGui::TextColored(GRAY_HINT_TEXT, "(Load with 'ALT+1..5')");
+            for (int i = 1; i <= 5; i++)
+            {
+                Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", i);
+                if (FileExists(PathCombine(App::sys_savegames_dir.GetActive(), filename)))
+                {
+                    Ogre::String scene_name = App::GetSimController()->GetBeamFactory()->ExtractSceneName(filename);
+                    Ogre::String caption = Ogre::StringUtil::format("%d. %s##Load", i, scene_name.c_str());
+                    if (ImGui::Button(caption.c_str()))
+                    {
+                        App::GetSimController()->GetBeamFactory()->LoadScene(filename);
+                        m_open_menu = TopMenu::TOPMENU_NONE;
+                    }
+                }
+            }
+
+            m_open_menu_hoverbox_min = menu_pos;
+            m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth();
+            m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() * 2;
+            ImGui::End();
+        }
+        break;
+
     case TopMenu::TOPMENU_TOOLS:
         menu_pos.y = window_pos.y + tools_cursor.y + MENU_Y_OFFSET;
         menu_pos.x = tools_cursor.x + window_pos.x - ImGui::GetStyle().WindowPadding.x;
@@ -266,13 +342,19 @@ void RoR::GUI::TopMenubar::Update()
                 m_open_menu = TopMenu::TOPMENU_NONE;
             }
 
-            if (ImGui::Button("Show Console"))
+            if (ImGui::Button("Show spawner log")) // TODO: display num. warnings/errors
+            {
+                App::GetGuiManager()->SetVisible_SpawnerReport(true);
+                m_open_menu = TopMenu::TOPMENU_NONE;
+            }
+
+            if (ImGui::Button("Show console"))
             {
                 App::GetGuiManager()->SetVisible_Console(! App::GetGuiManager()->IsVisible_Console());
                 m_open_menu = TopMenu::TOPMENU_NONE;
             }
 
-            if (ImGui::Button("Texture Tool"))
+            if (ImGui::Button("Texture tool"))
             {
                 App::GetGuiManager()->SetVisible_TextureToolWindow(true);
                 m_open_menu = TopMenu::TOPMENU_NONE;

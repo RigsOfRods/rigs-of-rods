@@ -596,7 +596,8 @@ void CameraManager::NotifyVehicleChanged(Actor* old_vehicle, Actor* new_vehicle)
     if (new_vehicle == nullptr)
     {
         m_cct_player_actor = nullptr;
-        if (this->m_current_behavior != CAMERA_BEHAVIOR_FIXED && this->m_current_behavior != CAMERA_BEHAVIOR_STATIC)
+        if (this->m_current_behavior != CAMERA_BEHAVIOR_FIXED && this->m_current_behavior != CAMERA_BEHAVIOR_STATIC &&
+                this->m_current_behavior != CAMERA_BEHAVIOR_FREE)
         {
             this->switchBehavior(CAMERA_BEHAVIOR_CHARACTER);
         }
@@ -604,7 +605,8 @@ void CameraManager::NotifyVehicleChanged(Actor* old_vehicle, Actor* new_vehicle)
     }
 
     // Getting in vehicle
-    if (this->m_current_behavior != CAMERA_BEHAVIOR_FIXED && this->m_current_behavior != CAMERA_BEHAVIOR_STATIC)
+    if (this->m_current_behavior != CAMERA_BEHAVIOR_FIXED && this->m_current_behavior != CAMERA_BEHAVIOR_STATIC &&
+            this->m_current_behavior != CAMERA_BEHAVIOR_FREE)
     {
         // Change camera
         switch (new_vehicle->GetCameraContext()->behavior)

@@ -36,9 +36,9 @@ public:
     EngineSim(float min_rpm, float max_rpm, float torque, std::vector<float> gears, float dratio, Actor* actor);
     ~EngineSim();
 
-    /// Sets current engine state; Needed mainly for smoke.
+    /// Sets current engine state;
     /// @param gear Current gear {-1 = reverse, 0 = neutral, 1...21 = forward}
-    void PushNetworkState(float engine_rpm, float acc_force, float clutch, int gear, bool running, bool contact, char auto_mode);
+    void PushNetworkState(float engine_rpm, float acc, float clutch, int gear, bool running, bool contact, char auto_mode, char auto_select=-1);
 
     /// Sets engine options.
     /// @param einertia Engine inertia
@@ -89,6 +89,7 @@ public:
     bool           HasStarterContact() const{ return m_starter_has_contact; };
     bool           HasTurbo() const         { return m_engine_has_turbo; };
     bool           IsRunning() const        { return m_engine_is_running; };
+    int            GetAutoMode() const      { return static_cast<int>(m_auto_mode); };
     char           GetEngineType() const    { return m_engine_type; };
     float          getIdleRPM() const       { return m_engine_idle_rpm; };
     float          getMaxRPM() const        { return m_engine_max_rpm; };

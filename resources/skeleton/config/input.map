@@ -175,6 +175,8 @@ COMMON_OUTPUT_POSITION         Keyboard             H
 COMMON_GET_NEW_VEHICLE         Keyboard             EXPL+CTRL+G 
 COMMON_PRESSURE_LESS           Keyboard             LBRACKET 
 COMMON_PRESSURE_MORE           Keyboard             RBRACKET 
+COMMON_QUICKLOAD               Keyboard             MULTIPLY 
+COMMON_QUICKSAVE               Keyboard             DIVIDE 
 COMMON_QUIT_GAME               Keyboard             ESCAPE 
 COMMON_REPLAY_BACKWARD         Keyboard             EXPL+LEFT 
 COMMON_REPLAY_FAST_BACKWARD    Keyboard             EXPL+SHIFT+LEFT 

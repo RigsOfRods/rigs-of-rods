@@ -39,6 +39,8 @@ public:
     Ogre::Light*   GetSkyMainLight();
     float          GetSkyTimeFactor();              //!< gets the current time scale
     std::string    GetPrettyTime();                 //!< prints the current time of the simulation in the format of HH:MM:SS
+    double         GetTime()                    { return m_caelum_system->getJulianDay(); };
+    void           SetTime(double time)         {  m_caelum_system->setJulianDay(time); };
     bool           UpdateSky(float dt);
     void           NotifySkyCameraChanged(Ogre::Camera* cam);
     void           DetectSkyUpdate();

@@ -205,8 +205,6 @@ void RoR::GUI::GameSettings::Draw()
             DrawGIntBox(App::sim_replay_stepping, _LC("GameSettings", "Replay stepping"));
         }
 
-        DrawGCheckbox(App::sim_position_storage, _LC("GameSettings", "Use position storage"));
-
         DrawGCheckbox(App::sim_realistic_commands, _LC("GameSettings", "Realistic forward commands"));
 
         DrawGCheckbox(App::sim_races_enabled, _LC("GameSettings", "Enable races"));

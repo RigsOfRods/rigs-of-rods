@@ -250,6 +250,7 @@ struct hook_t
 struct ropable_t
 {
     node_t *node;
+    int pos;            //!< Index into ar_ropables
     int group;
     int attached_ties;  //!< State
     int attached_ropes; //!< State
@@ -261,7 +262,6 @@ struct rope_t
     int        rp_locked;
     int        rp_group;
     beam_t*    rp_beam;
-    node_t*    rp_locked_node;
     ropable_t* rp_locked_ropable;
     Actor*     rp_locked_actor;
 };
@@ -272,7 +272,6 @@ struct tie_t
     beam_t*    ti_beam;
     ropable_t* ti_locked_ropable;
     int        ti_group;
-    float      ti_command_value;
     float      ti_contract_speed;
     float      ti_max_stress;
     float      ti_min_length;       //!< Proportional to orig; length

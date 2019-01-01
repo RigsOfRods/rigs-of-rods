@@ -31,9 +31,9 @@ public:
 
     void computeNodeForce(node_t *a, node_t *b, node_t *c, bool doUpdate, int type);
 
-    void setsink(int v);
-
     enum { BUOY_NORMAL, BUOY_DRAGONLY, BUOY_DRAGLESS };
+
+    bool sink;
 
 private:
 
@@ -47,7 +47,6 @@ private:
     Ogre::Vector3 computePressureForce(Ogre::Vector3 a, Ogre::Vector3 b, Ogre::Vector3 c, Ogre::Vector3 vel, int type);
     
     DustPool *splashp, *ripplep;
-    int sink;
     bool update;
 };
 

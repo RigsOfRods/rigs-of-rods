@@ -868,18 +868,21 @@ float EngineSim::GetAcceleration()
     return m_cur_acc;
 }
 
-// this is mainly for smoke...
-void EngineSim::PushNetworkState(float rpm, float force, float clutch, int gear, bool _running, bool _contact, char _automode)
+void EngineSim::PushNetworkState(float rpm, float acc, float clutch, int gear, bool running, bool contact, char automode, char autoselect)
 {
     m_cur_engine_rpm = rpm;
-    m_cur_acc = force;
+    m_cur_acc = acc;
     m_cur_clutch = clutch;
     m_cur_gear = gear;
-    m_engine_is_running = _running; //(fabs(rpm)>10.0);
-    m_starter_has_contact = _contact;
-    if (_automode != -1)
+    m_engine_is_running = running;
+    m_starter_has_contact = contact;
+    if (automode != -1)
     {
-        m_auto_mode = _automode;
+        m_auto_mode = automode;
+    }
+    if (autoselect != -1)
+    {
+        m_autoselect = (autoswitch)autoselect;
     }
 }
 

@@ -91,11 +91,12 @@ static TerrainManager*  g_sim_terrain;
 // Simulation
  GVarEnum_AP<SimState>    sim_state               ("sim_state",               nullptr,                     SimState::OFF,           SimState::OFF);
  GVarStr_AP<200>          sim_terrain_name        ("sim_terrain_name",        nullptr,                     "",                      "");
+ GVarStr_A<100>           sim_savegame            ("sim_savegame",            nullptr,                     "");
+ GVarPod_A<bool>          sim_load_savegame       ("sim_load_savegame",       nullptr,                     false);
  GVarPod_A<bool>          sim_spawn_running       ("sim_spawn_running",       "Engines spawn running",     true);
  GVarPod_A<bool>          sim_replay_enabled      ("sim_replay_enabled",      "Replay mode",               false);
  GVarPod_A<int>           sim_replay_length       ("sim_replay_length",       "Replay length",             200);
  GVarPod_A<int>           sim_replay_stepping     ("sim_replay_stepping",     "Replay Steps per second",   1000);
- GVarPod_A<bool>          sim_position_storage    ("sim_position_storage",    "Position Storage",          false);
  GVarPod_A<bool>          sim_realistic_commands  ("sim_realistic_commands",  "Realistic forward commands",false);
  GVarPod_A<bool>          sim_races_enabled       ("sim_races_enabled",       "Races",                     false);
  GVarPod_A<bool>          sim_no_collisions       ("sim_no_collisions",       "DisableCollisions",         false);
@@ -149,6 +150,7 @@ static TerrainManager*  g_sim_terrain;
  GVarStr_A<300>           sys_logs_dir            ("sys_logs_dir",            "Log Path",                  "");
  GVarStr_A<300>           sys_resources_dir       ("sys_resources_dir",       "Resources Path",            "");
  GVarStr_A<300>           sys_profiler_dir        ("sys_profiler_dir",        "Profiler output dir",       "");
+ GVarStr_A<300>           sys_savegames_dir       ("sys_savegames_dir",       nullptr,                     "");
  GVarStr_A<300>           sys_screenshot_dir      ("sys_screenshot_dir",      nullptr,                     "");
 
 // Input - Output

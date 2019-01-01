@@ -2670,6 +2670,7 @@ void ActorSpawner::ProcessRopable(RigDef::Ropable & def)
 {
     ropable_t ropable;
     ropable.node = GetNodePointerOrThrow(def.node);
+    ropable.pos = m_actor->ar_ropables.size();
     ropable.group = def.group;
     ropable.attached_ties = 0;
     ropable.attached_ropes = 0;
@@ -2704,8 +2705,8 @@ void ActorSpawner::ProcessTie(RigDef::Tie & def)
     tie.ti_tying = false;
     tie.ti_tied = false;
     tie.ti_beam = & beam;
+    tie.ti_locked_actor   = nullptr;
     tie.ti_locked_ropable = nullptr;
-    tie.ti_command_value = -1.f;
     tie.ti_contract_speed = def.auto_shorten_rate;
     tie.ti_max_stress = def.max_stress;
     tie.ti_min_length = def.min_length;
@@ -2737,7 +2738,6 @@ void ActorSpawner::ProcessRope(RigDef::Rope & def)
     rope_t rope;
     rope.rp_beam = & beam;
     rope.rp_locked = UNLOCKED;
-    rope.rp_locked_node = & m_actor->ar_nodes[0]; // Orig: hardcoded in BTS_ROPES
     rope.rp_locked_ropable = nullptr;
     rope.rp_group = 0; // Orig: hardcoded in BTS_ROPES. TODO: To be used.
     m_actor->ar_ropes.push_back(rope);

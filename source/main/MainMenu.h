@@ -50,6 +50,8 @@ private:
 
     void MainMenuLoopUpdateEvents(float seconds_since_last_frame);
 
+    void HandleSavegameShortcuts();
+
     // From Ogre::FrameListener
     bool frameRenderingQueued(const Ogre::FrameEvent & evt) override;
 
