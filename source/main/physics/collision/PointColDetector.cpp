@@ -26,16 +26,13 @@
 
 using namespace Ogre;
 
-void PointColDetector::UpdateIntraPoint(Actor* actor)
+void PointColDetector::UpdateIntraPoint()
 {
-    if (!actor)
-        return;
-
-    if (actor->ar_num_contacters != m_object_list_size)
+    if (m_actor->ar_num_contacters != m_object_list_size)
     {
-        m_actors = {actor};
-        m_object_list_size = actor->ar_num_contacters;
-        update_structures_for_contacters(false);
+        m_actors = {m_actor};
+        m_object_list_size = m_actor->ar_num_contacters;
+        update_structures_for_contacters();
     }
 
     m_kdtree[0].ref = NULL;
@@ -43,42 +40,43 @@ void PointColDetector::UpdateIntraPoint(Actor* actor)
     m_kdtree[0].end = -m_object_list_size;
 }
 
-void PointColDetector::UpdateInterPoint(Actor* actor, bool ignorestate)
+void PointColDetector::UpdateInterPoint(bool ignorestate)
 {
-    if (!actor)
-        return;
+    auto links = m_actor->GetAllLinkedActors();
 
-    std::vector<Actor*> actors;
     int contacters_size = 0;
-    for (auto t : RoR::App::GetSimController()->GetActors())
+    std::vector<Actor*> actors;
+    for (auto actor : RoR::App::GetSimController()->GetActors())
     {
-        if (t != actor && (ignorestate || t->ar_update_physics) && actor->ar_bounding_box.intersects(t->ar_bounding_box))
+        if (actor != m_actor && (ignorestate || actor->ar_update_physics) &&
+                m_actor->ar_bounding_box.intersects(actor->ar_bounding_box))
         {
-            actors.push_back(t);
-            contacters_size += t->ar_num_contactable_nodes;
-            if (actor->ar_nodes[0].Velocity.squaredDistance(t->ar_nodes[0].Velocity) > 16)
+            actors.push_back(actor);
+            bool intra_vehicle_collision = std::find(links.begin(), links.end(), actor) != links.end();
+            contacters_size += intra_vehicle_collision ? m_actor->ar_num_contacters : actor->ar_num_contactable_nodes;
+            if (m_actor->ar_nodes[0].Velocity.squaredDistance(actor->ar_nodes[0].Velocity) > 16)
             {
+                for (int i = 0; i < m_actor->ar_num_collcabs; i++)
+                {
+                    m_actor->ar_intra_collcabrate[i].rate = 0;
+                    m_actor->ar_inter_collcabrate[i].rate = 0;
+                }
                 for (int i = 0; i < actor->ar_num_collcabs; i++)
                 {
                     actor->ar_intra_collcabrate[i].rate = 0;
                     actor->ar_inter_collcabrate[i].rate = 0;
                 }
-                for (int i = 0; i < t->ar_num_collcabs; i++)
-                {
-                    t->ar_intra_collcabrate[i].rate = 0;
-                    t->ar_inter_collcabrate[i].rate = 0;
-                }
             }
         }
     }
 
-    actor->ar_collision_relevant = (contacters_size > 0);
+    m_actor->ar_collision_relevant = (contacters_size > 0);
 
     if (actors != m_actors || contacters_size != m_object_list_size)
     {
         m_actors = actors;
         m_object_list_size = contacters_size;
-        update_structures_for_contacters(true);
+        update_structures_for_contacters();
     }
 
     m_kdtree[0].ref = NULL;
@@ -86,18 +84,21 @@ void PointColDetector::UpdateInterPoint(Actor* actor, bool ignorestate)
     m_kdtree[0].end = -m_object_list_size;
 }
 
-void PointColDetector::update_structures_for_contacters(bool inter)
+void PointColDetector::update_structures_for_contacters()
 {
     m_ref_list.resize(m_object_list_size);
     m_pointid_list.resize(m_object_list_size);
+
+    auto links = m_actor->GetAllLinkedActors();
 
     // Insert all contacters into the list of points to consider when building the kdtree
     int refi = 0;
     for (auto actor : m_actors)
     {
+        bool intra_vehicle_collision = (actor == m_actor) || std::find(links.begin(), links.end(), actor) != links.end();
         for (int i = 0; i < actor->ar_num_nodes; i++)
         {
-            if (actor->ar_nodes[i].nd_contacter || (inter && !actor->ar_nodes[i].nd_no_ground_contact))
+            if (actor->ar_nodes[i].nd_contacter || (!intra_vehicle_collision && !actor->ar_nodes[i].nd_no_ground_contact))
             {
                 m_pointid_list[refi].actor = actor;
                 m_pointid_list[refi].node_id = i;
