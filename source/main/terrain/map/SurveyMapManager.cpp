@@ -329,9 +329,10 @@ void SurveyMapManager::UpdateMapEntity(SurveyMapEntity* e, String caption, Vecto
         Vector2 origin = mMapCenter - mMapSize / 2;
         Vector2 relPos = Vector2(pos.x, pos.z) - origin;
         bool culled = !(Vector2(0) < relPos && relPos < mMapSize);
+        bool declutter = App::gfx_declutter_map.GetActive() && mMapMode == SurveyMapMode::SMALL && !e->isPlayable(); 
         e->setState(state);
         e->setRotation(rot);
-        e->setCaption(caption);
+        e->setCaption(declutter ? "" : caption);
         e->setPosition(relPos.x / mMapSize.x, relPos.y / mMapSize.y);
         e->setVisibility(App::gfx_surveymap_icons.GetActive() && visible && !culled);
     }
