@@ -11,6 +11,7 @@ bl_info = {
 import bpy
 import json
 import bmesh
+from bpy.props import StringProperty
 from bpy_extras.io_utils import ImportHelper
 
 def register():
@@ -30,7 +31,11 @@ def menu_func(self, context):
 class ror_import(bpy.types.Operator, ImportHelper):
     bl_idname = "import_truck.truck"
     bl_label = "Import RoR Truck"
-    filename_ext = ".truck"
+    filename_ext = ""
+    filter_glob = StringProperty(
+            default="*.truck;*.trailer;*.load;*.car;*.boat;*.airplane;*.train;*.machine;*.fixed",
+            options={'HIDDEN'},
+            )
     filepath = bpy.props.StringProperty(subtype="FILE_PATH")
 
     def execute(self, context):
