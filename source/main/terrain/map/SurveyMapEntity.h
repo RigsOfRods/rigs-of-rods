@@ -39,6 +39,8 @@ public:
     void setState(int state);
     void setVisibility(bool value);
 
+    bool isPlayable() { return mType == "person" || mType == "truck" || mType == "airplane" || mType == "boat"; };
+
 private:
 
     MyGUI::StaticImagePtr mParent;
