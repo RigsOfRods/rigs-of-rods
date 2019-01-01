@@ -1387,7 +1387,7 @@ void Actor::CalcBeams(bool trigger_hooks)
                         if ((ar_beams[i].p1 == &ar_nodes[ar_cabs[tmpv]] || ar_beams[i].p1 == &ar_nodes[ar_cabs[tmpv + 1]] || ar_beams[i].p1 == &ar_nodes[ar_cabs[tmpv + 2]]) &&
                             (ar_beams[i].p2 == &ar_nodes[ar_cabs[tmpv]] || ar_beams[i].p2 == &ar_nodes[ar_cabs[tmpv + 1]] || ar_beams[i].p2 == &ar_nodes[ar_cabs[tmpv + 2]]))
                         {
-                            m_buoyance->setsink(1);
+                            m_buoyance->sink = true;
                         }
                     }
                 }
@@ -1713,12 +1713,13 @@ void Actor::CalcRopes()
 {
     for (auto r : ar_ropes)
     {
-        if (r.rp_locked == LOCKED && r.rp_locked_node)
+        if (r.rp_locked == LOCKED && r.rp_locked_ropable)
         {
-            r.rp_beam->p2->AbsPosition = r.rp_locked_node->AbsPosition;
-            r.rp_beam->p2->RelPosition = r.rp_locked_node->AbsPosition - ar_origin;
-            r.rp_beam->p2->Velocity    = r.rp_locked_node->Velocity;
-            r.rp_locked_node->Forces  += r.rp_beam->p2->Forces;
+            auto locked_node = r.rp_locked_ropable->node;
+            r.rp_beam->p2->AbsPosition = locked_node->AbsPosition;
+            r.rp_beam->p2->RelPosition = locked_node->AbsPosition - ar_origin;
+            r.rp_beam->p2->Velocity    = locked_node->Velocity;
+            locked_node->Forces       += r.rp_beam->p2->Forces;
             r.rp_beam->p2->Forces      = Vector3::ZERO;
         }
     }

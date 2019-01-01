@@ -112,8 +112,6 @@ public:
     void              ToggleCruiseControl();               //!< Event handler
     void              ToggleBeacons();                     //!< Event handler
     void              setReplayMode(bool rm);              //!< Event handler; toggle replay mode.
-    int               savePosition(int position);
-    int               loadPosition(int position);
     /// Virtually moves the actor at most 'direction.length()' meters towards 'direction' trying to resolve any collisions
     /// Returns a minimal offset by which the actor needs to be moved to resolve any collisions
     Ogre::Vector3     calculateCollisionOffset(Ogre::Vector3 direction);
@@ -443,7 +441,6 @@ private:
     blinktype         m_blink_type;                 //!< Sim state; Blinker = turn signal
     float             m_stabilizer_shock_sleep;     //!< Sim state
     Replay*           m_replay_handler;
-    PositionStorage*  m_position_storage;
     int               m_gfx_detail_level;      //!< Gfx state
     float             m_total_mass;            //!< Physics state; total mass in Kg
     int               m_mouse_grab_node;       //!< Sim state; node currently being dragged by user

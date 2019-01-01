@@ -29,10 +29,16 @@
 #include "GUIManager.h"
 #include "GUI_MainSelector.h"
 #include "MainMenu.h"
+#include "PlatformUtils.h"
 
 RoR::GUI::GameMainMenu::GameMainMenu(): 
-    m_is_visible(false), m_kb_focus_index(-1), m_kb_enter_index(-1)
-{}
+    m_is_visible(false), m_num_buttons(5), m_kb_focus_index(-1), m_kb_enter_index(-1)
+{
+    if (FileExists(PathCombine(App::sys_savegames_dir.GetActive(), "autosave.sav")))
+    {
+        m_num_buttons++;
+    }
+}
 
 void RoR::GUI::GameMainMenu::Draw()
 {
@@ -56,13 +62,26 @@ void RoR::GUI::GameMainMenu::Draw()
         ImGui::SetNextWindowPos(ImVec2(margin, top));
     }
     ImGui::SetNextWindowContentWidth(WINDOW_WIDTH);
-    int flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize;
+    int flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
     if (ImGui::Begin("Main menu", nullptr, static_cast<ImGuiWindowFlags_>(flags)))
     {
+        int button_index = 0;
         ImVec2 btn_size(WINDOW_WIDTH - ImGui::GetStyle().WindowPadding.x, 0.f);
 
-        const char* sp_title = (m_kb_focus_index == 0) ? "--> Single player <--" : "Single player"; // TODO: Localize all!
-        if (ImGui::Button(sp_title, btn_size) || (m_kb_enter_index == 0))
+        if (FileExists(PathCombine(App::sys_savegames_dir.GetActive(), "autosave.sav")))
+        {
+            const char* resume_title = (m_kb_focus_index == button_index) ? "--> Resume game <--" : "Resume game";
+            if (ImGui::Button(resume_title, btn_size) || (m_kb_enter_index == button_index++))
+            {
+                App::sim_savegame.SetActive("autosave.sav");
+                App::sim_load_savegame.SetActive(true);
+                App::app_state.SetPending(RoR::AppState::SIMULATION);
+                this->SetVisible(false);
+            }
+        }
+
+        const char* sp_title = (m_kb_focus_index == button_index) ? "--> Single player <--" : "Single player"; // TODO: Localize all!
+        if (ImGui::Button(sp_title, btn_size) || (m_kb_enter_index == button_index++))
         {
             this->SetVisible(false);
             if (App::diag_preset_terrain.IsActiveEmpty())
@@ -75,31 +94,29 @@ void RoR::GUI::GameMainMenu::Draw()
             }
         }
 
-        const char* mp_title = (m_kb_focus_index == 1) ? "--> Multi player <--" : "Multi player";
-        if (ImGui::Button(mp_title , btn_size) || (m_kb_enter_index == 1))
+        const char* mp_title = (m_kb_focus_index == button_index) ? "--> Multi player <--" : "Multi player";
+        if (ImGui::Button(mp_title , btn_size) || (m_kb_enter_index == button_index++))
         {
             App::GetGuiManager()->SetVisible_MultiplayerSelector(true);
             this->SetVisible(false);
         }
 
-        ImGui::Separator();
-
-        const char* settings_title = (m_kb_focus_index == 2) ? "--> Settings <--" : "Settings";
-        if (ImGui::Button(settings_title, btn_size) || (m_kb_enter_index == 2))
+        const char* settings_title = (m_kb_focus_index == button_index) ? "--> Settings <--" : "Settings";
+        if (ImGui::Button(settings_title, btn_size) || (m_kb_enter_index == button_index++))
         {
             App::GetGuiManager()->SetVisible_GameSettings(true);
             this->SetVisible(false);
         }
 
-        const char* about_title = (m_kb_focus_index == 3) ? "--> About <--" : "About";
-        if (ImGui::Button(about_title, btn_size)|| (m_kb_enter_index == 3))
+        const char* about_title = (m_kb_focus_index == button_index) ? "--> About <--" : "About";
+        if (ImGui::Button(about_title, btn_size)|| (m_kb_enter_index == button_index++))
         {
             App::GetGuiManager()->SetVisible_GameAbout(true);
             this->SetVisible(false);
         }
 
-        const char* exit_title = (m_kb_focus_index == 4) ? "--> Exit game <--" : "Exit game";
-        if (ImGui::Button(exit_title, btn_size) || (m_kb_enter_index == 4))
+        const char* exit_title = (m_kb_focus_index == button_index) ? "--> Exit game <--" : "Exit game";
+        if (ImGui::Button(exit_title, btn_size) || (m_kb_enter_index == button_index++))
         {
             App::app_state.SetPending(RoR::AppState::SHUTDOWN);
             this->SetVisible(false);

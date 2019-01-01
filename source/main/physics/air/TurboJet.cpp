@@ -275,6 +275,11 @@ void Turbojet::toggleReverse()
     reverse = !reverse;
 }
 
+void Turbojet::setReverse(bool val)
+{
+    reverse = val;
+}
+
 void Turbojet::flipStart()
 {
     if (timer - lastflip < 0.3)

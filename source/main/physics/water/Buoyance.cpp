@@ -209,8 +209,3 @@ void Buoyance::computeNodeForce(node_t* a, node_t* b, node_t* c, bool doUpdate, 
     b->Forces += computePressureForce(b->AbsPosition, mbc, m, vel, type) + computePressureForce(b->AbsPosition, m, mab, vel, type);
     c->Forces += computePressureForce(c->AbsPosition, mca, m, vel, type) + computePressureForce(c->AbsPosition, m, mbc, vel, type);
 }
-
-void Buoyance::setsink(int v)
-{
-    sink = v;
-}

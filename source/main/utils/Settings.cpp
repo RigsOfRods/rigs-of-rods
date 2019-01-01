@@ -57,6 +57,7 @@ enum {
     OPT_TRUCK,
     OPT_WDIR,
     OPT_VER,
+    OPT_RESUME,
     OPT_CHECKCACHE,
     OPT_TRUCKCONFIG,
     OPT_ENTERTRUCK,
@@ -75,6 +76,7 @@ CSimpleOpt::SOption cmdline_options[] = {
     { OPT_TRUCKCONFIG,    ("-actorconfig"), SO_REQ_SEP },
     { OPT_HELP,           ("--help"),       SO_NONE    },
     { OPT_HELP,           ("-help"),        SO_NONE    },
+    { OPT_RESUME,         ("-resume"),      SO_NONE    },
     { OPT_CHECKCACHE,     ("-checkcache"),  SO_NONE    },
     { OPT_VER,            ("-version"),     SO_NONE    },
     { OPT_JOINMPSERVER,   ("-joinserver"),  SO_REQ_CMB },
@@ -92,6 +94,7 @@ void ShowCommandLineUsage()
             "-pos <Vect> (overrides spawn position)"    "\n"
             "-rot <float> (overrides spawn rotation)"   "\n"
             "-truck <truck> (loads truck on startup)"   "\n"
+            "-resume loads previous autosave"           "\n"
             "-checkcache forces cache update"           "\n"
             "-version shows the version information"    "\n"
             "-enter enters the selected truck"          "\n"
@@ -157,6 +160,14 @@ void Settings::ProcessCommandLine(int argc, char *argv[])
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
             SetCurrentDirectory(args.OptionArg());
 #endif
+        }
+        else if (args.OptionId() == OPT_RESUME)
+        {
+            if (FileExists(PathCombine(App::sys_savegames_dir.GetActive(), "autosave.sav")))
+            {
+                App::sim_savegame.SetActive("autosave.sav");
+                App::sim_load_savegame.SetActive(true);
+            }
         }
         else if (args.OptionId() == OPT_CHECKCACHE)
         {
@@ -604,7 +615,6 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckBool (App::sim_replay_enabled,        k, v)) { return true; }
     if (CheckInt  (App::sim_replay_length,         k, v)) { return true; }
     if (CheckInt  (App::sim_replay_stepping,       k, v)) { return true; }
-    if (CheckBool (App::sim_position_storage,      k, v)) { return true; }
     if (CheckBool (App::sim_realistic_commands,    k, v)) { return true; }
     if (CheckBool (App::sim_races_enabled,         k, v)) { return true; }
     if (CheckBool (App::sim_no_collisions,         k, v)) { return true; }
@@ -802,7 +812,6 @@ void Settings::SaveSettings()
     WriteYN  (f, App::sim_replay_enabled    );
     WritePod (f, App::sim_replay_length     );
     WritePod (f, App::sim_replay_stepping   );
-    WriteYN  (f, App::sim_position_storage  );
     WriteYN  (f, App::sim_realistic_commands);
     WriteYN  (f, App::sim_races_enabled     );
     WriteYN  (f, App::sim_no_collisions     );
@@ -904,6 +913,7 @@ bool Settings::SetupAllPaths()
     // User directories
     App::sys_config_dir    .SetActive(PathCombine(App::sys_user_dir.GetActive(), "config").c_str());
     App::sys_cache_dir     .SetActive(PathCombine(App::sys_user_dir.GetActive(), "cache").c_str());
+    App::sys_savegames_dir .SetActive(PathCombine(App::sys_user_dir.GetActive(), "savegames").c_str());
     App::sys_screenshot_dir.SetActive(PathCombine(App::sys_user_dir.GetActive(), "screenshots").c_str());
 
     // Resources dir

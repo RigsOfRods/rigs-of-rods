@@ -68,6 +68,7 @@ public:
     void             CalcAxleTorque(DifferentialData& diff_data);
     Ogre::UTFString  GetDifferentialTypeName();
     DiffType         GetActiveDiffType() const { return m_available_diffs[0]; }
+    int              GetNumDiffTypes() { return m_available_diffs.size(); }
     
     static void      CalcSeparateDiff(DifferentialData& diff_data);  //!< a differential that always splits the torque evenly, this is the original method
     static void      CalcOpenDiff(DifferentialData& diff_data );     //!< more power goes to the faster spining wheel

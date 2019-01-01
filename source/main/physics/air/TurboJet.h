@@ -39,12 +39,15 @@ public:
     void setRPM(float _rpm);
     void setThrottle(float val);
     void toggleReverse();
+    void setReverse(bool val);
+    bool getReverse() { return reverse; };
     void updateForces(float dt, int doUpdate);
     void updateVisuals(RoR::GfxActor* gfx_actor) override;
 
     Ogre::Vector3 getAxis() { return axis; };
 
     bool getIgnition() { return ignition; };
+    void setIgnition(bool val) { ignition = val; };
     bool getWarmup() { return warmup; };
     bool isFailed() { return failed; };
     float getAfterburner() { return (float)afterburner; };

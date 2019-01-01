@@ -44,7 +44,7 @@ public:
     const ImVec4  GREEN_TEXT            = ImVec4(0.0f, 0.9f, 0.0f, 1.f);
     const ImVec4  ORANGE_TEXT           = ImVec4(0.9f, 0.6f, 0.0f, 1.f);
 
-    enum class TopMenu { TOPMENU_NONE, TOPMENU_SIM, TOPMENU_ACTORS, TOPMENU_TOOLS };
+    enum class TopMenu { TOPMENU_NONE, TOPMENU_SIM, TOPMENU_ACTORS, TOPMENU_SAVEGAMES, TOPMENU_TOOLS };
 
     TopMenubar(): m_open_menu(TopMenu::TOPMENU_NONE), m_is_actorlist_dirty(false), m_confirm_remove_all(false) {}
 

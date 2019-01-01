@@ -232,6 +232,8 @@ enum events
     EV_COMMON_GET_NEW_VEHICLE, //!< get new vehicle
     EV_COMMON_PRESSURE_LESS, //!< decrease tire pressure (note: only very few trucks support this)
     EV_COMMON_PRESSURE_MORE, //!< increase tire pressure (note: only very few trucks support this)
+    EV_COMMON_QUICKLOAD, //!< quickload scene from the disk
+    EV_COMMON_QUICKSAVE, //!< quicksave scene to the disk
     EV_COMMON_QUIT_GAME, //!< exit the game
     EV_COMMON_REPAIR_TRUCK, //!< repair truck to original condition
     EV_COMMON_REPLAY_BACKWARD,
@@ -349,28 +351,28 @@ enum events
     EV_TRUCK_TOGGLE_VIDEOCAMERA, //!< toggle videocamera update
     EV_TRUCK_TRACTION_CONTROL, //!< toggle antilockbrake system
 
-    // position storage now
-    EV_TRUCK_SAVE_POS01,
-    EV_TRUCK_SAVE_POS02,
-    EV_TRUCK_SAVE_POS03,
-    EV_TRUCK_SAVE_POS04,
-    EV_TRUCK_SAVE_POS05,
-    EV_TRUCK_SAVE_POS06,
-    EV_TRUCK_SAVE_POS07,
-    EV_TRUCK_SAVE_POS08,
-    EV_TRUCK_SAVE_POS09,
-    EV_TRUCK_SAVE_POS10,
+    // Savegames
+    EV_COMMON_QUICKSAVE_01,
+    EV_COMMON_QUICKSAVE_02,
+    EV_COMMON_QUICKSAVE_03,
+    EV_COMMON_QUICKSAVE_04,
+    EV_COMMON_QUICKSAVE_05,
+    EV_COMMON_QUICKSAVE_06,
+    EV_COMMON_QUICKSAVE_07,
+    EV_COMMON_QUICKSAVE_08,
+    EV_COMMON_QUICKSAVE_09,
+    EV_COMMON_QUICKSAVE_10,
 
-    EV_TRUCK_LOAD_POS01,
-    EV_TRUCK_LOAD_POS02,
-    EV_TRUCK_LOAD_POS03,
-    EV_TRUCK_LOAD_POS04,
-    EV_TRUCK_LOAD_POS05,
-    EV_TRUCK_LOAD_POS06,
-    EV_TRUCK_LOAD_POS07,
-    EV_TRUCK_LOAD_POS08,
-    EV_TRUCK_LOAD_POS09,
-    EV_TRUCK_LOAD_POS10,
+    EV_COMMON_QUICKLOAD_01,
+    EV_COMMON_QUICKLOAD_02,
+    EV_COMMON_QUICKLOAD_03,
+    EV_COMMON_QUICKLOAD_04,
+    EV_COMMON_QUICKLOAD_05,
+    EV_COMMON_QUICKLOAD_06,
+    EV_COMMON_QUICKLOAD_07,
+    EV_COMMON_QUICKLOAD_08,
+    EV_COMMON_QUICKLOAD_09,
+    EV_COMMON_QUICKLOAD_10,
 
     EV_TRUCKEDIT_RELOAD,
 

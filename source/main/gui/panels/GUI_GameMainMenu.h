@@ -34,7 +34,6 @@ class GameMainMenu
 {
 public:
     // This class implements hand-made keyboard focus - button count must be known for wrapping
-    const int     NUM_BUTTONS           = 5; // Buttons: SinglePlayer, MultiPlayer, Settings, About, Exit
     const float   WINDOW_WIDTH          = 200.f;
     const ImVec4  WINDOW_BG_COLOR       = ImVec4(0.1f, 0.1f, 0.1f, 0.8f);
     const ImVec4  BUTTON_BG_COLOR       = ImVec4(0.25f, 0.25f, 0.24f, 0.6f); // Drawn on top of a transparent panel; make it just a shade
@@ -43,8 +42,8 @@ public:
     GameMainMenu();
 
     // Keyboard updates - move up/down and wrap on top/bottom. Initial index is '-1' which means "no focus"
-    inline void   KeyUpPressed()                   { m_kb_focus_index = (m_kb_focus_index <= 0) ? (NUM_BUTTONS-1) : (m_kb_focus_index - 1); }
-    inline void   KeyDownPressed()                 { m_kb_focus_index = (m_kb_focus_index < (NUM_BUTTONS - 1)) ? (m_kb_focus_index + 1) : 0; }
+    inline void   KeyUpPressed()                   { m_kb_focus_index = (m_kb_focus_index <= 0) ? (m_num_buttons - 1) : (m_kb_focus_index - 1); }
+    inline void   KeyDownPressed()                 { m_kb_focus_index = (m_kb_focus_index < (m_num_buttons - 1)) ? (m_kb_focus_index + 1) : 0; }
     void          EnterKeyPressed()                { m_kb_enter_index = m_kb_focus_index; }
 
     inline bool   IsVisible() const                { return m_is_visible; }
@@ -52,7 +51,9 @@ public:
     void          Draw();
 
 private:
+
     bool   m_is_visible;
+    int    m_num_buttons;
     int    m_kb_focus_index; // -1 = no focus; 0+ = button index
     int    m_kb_enter_index; // Focus positon when enter key was pressed.
 };

@@ -46,6 +46,9 @@ public:
 
     virtual void toggleReverse() =0;
 
+    virtual void setReverse(bool val) =0;
+    virtual bool getReverse() =0;
+
     virtual void flipStart() =0;
 
     virtual float getRPMpc() =0;
@@ -56,6 +59,7 @@ public:
     virtual bool isFailed() =0;
     virtual int getType() =0;
     virtual bool getIgnition() =0;
+    virtual void setIgnition(bool val) =0;
     virtual int getNoderef() =0;
     virtual bool getWarmup() =0;
     virtual float getRadius() =0;

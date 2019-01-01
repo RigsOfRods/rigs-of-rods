@@ -158,6 +158,7 @@ public:
     std::vector<CacheEntry> *getEntries();
 
     CacheEntry *getEntry(int modid);
+    Ogre::String getPrettyName(Ogre::String fname);
 
     Ogre::String getCacheConfigFilename(); // returns absolute path of the cache file
 

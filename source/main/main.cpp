@@ -295,6 +295,10 @@ int main(int argc, char *argv[])
         {
             App::app_state.SetPending(AppState::SIMULATION);
         }
+        else if (App::sim_load_savegame.GetActive())
+        {
+            App::app_state.SetPending(AppState::SIMULATION);
+        }
 
         while (App::app_state.GetPending() != AppState::SHUTDOWN)
         {
@@ -302,6 +306,12 @@ int main(int argc, char *argv[])
            
             {
                 App::app_state.ApplyPending();
+
+                if (App::sim_load_savegame.GetActive())
+                {
+                    App::app_state.SetPending(AppState::SIMULATION);
+                    continue;
+                }
 
 #ifdef USE_OPENAL
                 if (App::audio_menu_music.GetActive())

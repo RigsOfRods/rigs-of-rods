@@ -49,7 +49,6 @@
 #include "MovableText.h"
 #include "Network.h"
 #include "PointColDetector.h"
-#include "PositionStorage.h"
 #include "Replay.h"
 #include "RigSpawner.h"
 #include "RoRFrameListener.h"
@@ -981,48 +980,6 @@ void Actor::resolveCollisions(float max_distance, bool consider_up)
     ResetPosition(ar_nodes[0].AbsPosition.x + offset.x, ar_nodes[0].AbsPosition.z + offset.z, true, this->GetMinHeight() + offset.y);
 }
 
-int Actor::savePosition(int indexPosition)
-{
-    if (!m_position_storage)
-        return -1;
-    Vector3* nbuff = m_position_storage->getStorage(indexPosition);
-    if (!nbuff)
-        return -3;
-    for (int i = 0; i < ar_num_nodes; i++)
-        nbuff[i] = ar_nodes[i].AbsPosition;
-    m_position_storage->setUsage(indexPosition, true);
-    return 0;
-}
-
-int Actor::loadPosition(int indexPosition)
-{
-    if (!m_position_storage)
-        return -1;
-    if (!m_position_storage->getUsage(indexPosition))
-        return -2;
-
-    Vector3* nbuff = m_position_storage->getStorage(indexPosition);
-    if (!nbuff)
-        return -3;
-    Vector3 pos = Vector3(0, 0, 0);
-    for (int i = 0; i < ar_num_nodes; i++)
-    {
-        ar_nodes[i].AbsPosition = nbuff[i];
-        ar_nodes[i].RelPosition = nbuff[i] - ar_origin;
-
-        // reset forces
-        ar_nodes[i].Velocity = Vector3::ZERO;
-        ar_nodes[i].Forces = Vector3::ZERO;
-
-        pos = pos + nbuff[i];
-    }
-    m_avg_node_position = pos / (float)(ar_num_nodes);
-
-    resetSlideNodes();
-
-    return 0;
-}
-
 void Actor::calculateAveragePosition()
 {
     // calculate average position
@@ -1128,8 +1085,6 @@ void Actor::ResetAngle(float rot)
         ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - this->ar_origin;
     }
 
-    resetSlideNodePositions();
-
     this->UpdateBoundingBoxes();
     calculateAveragePosition();
 }
@@ -1215,22 +1170,6 @@ void Actor::ResetPosition(Vector3 translation, bool setInitPosition)
 
     this->UpdateBoundingBoxes();
     calculateAveragePosition();
-
-    // calculate minimum camera radius
-    if (m_min_camera_radius < 0.0f)
-    {
-        for (int i = 0; i < ar_num_nodes; i++)
-        {
-            Real dist = ar_nodes[i].AbsPosition.squaredDistance(m_avg_node_position);
-            if (dist > m_min_camera_radius)
-            {
-                m_min_camera_radius = dist;
-            }
-        }
-        m_min_camera_radius = std::sqrt(m_min_camera_radius) * 1.2f; // twenty percent buffer
-    }
-
-    resetSlideNodePositions();
 }
 
 void Actor::HandleMouseMove(int node, Vector3 pos, float force)
@@ -1272,8 +1211,7 @@ void Actor::ToggleWheelDiffMode()
 {
     for (int i = 0; i < m_num_wheel_diffs; ++i)
     {
-        if (m_wheel_diffs[i])
-            m_wheel_diffs[i]->ToggleDifferentialMode();
+        m_wheel_diffs[i]->ToggleDifferentialMode();
     }
 }
 
@@ -1281,8 +1219,7 @@ void Actor::ToggleAxleDiffMode()
 {
     for (int i = 0; i < m_num_axle_diffs; ++i)
     {
-        if (m_axle_diffs[i])
-            m_axle_diffs[i]->ToggleDifferentialMode();
+        m_axle_diffs[i]->ToggleDifferentialMode();
     }
 }
 
@@ -1551,7 +1488,6 @@ void Actor::SyncReset(bool reset_position)
         ar_beams[i].maxnegstress    = -ar_beams[i].default_beam_deform;
         ar_beams[i].minmaxposnegstress = ar_beams[i].default_beam_deform;
         ar_beams[i].strength        = ar_beams[i].initial_beam_strength;
-        ar_beams[i].plastic_coef    = ar_beams[i].default_beam_plastic_coef;
         ar_beams[i].L               = ar_beams[i].refL;
         ar_beams[i].stress          = 0.0;
         ar_beams[i].bm_broken       = false;
@@ -1562,11 +1498,11 @@ void Actor::SyncReset(bool reset_position)
 
     for (auto& h : ar_hooks)
     {
-        h.hk_beam->bm_disabled = true;
         h.hk_locked = UNLOCKED;
         h.hk_lock_node = nullptr;
         h.hk_locked_actor = nullptr;
         h.hk_beam->p2 = &ar_nodes[0];
+        h.hk_beam->bm_disabled = true;
         h.hk_beam->bm_inter_actor = false;
         h.hk_beam->L = (ar_nodes[0].AbsPosition - h.hk_hook_node->AbsPosition).length();
         this->RemoveInterActorBeam(h.hk_beam);
@@ -1575,7 +1511,7 @@ void Actor::SyncReset(bool reset_position)
     for (auto& r : ar_ropes)
     {
         r.rp_locked = UNLOCKED;
-        r.rp_locked_node = &ar_nodes[0];
+        r.rp_locked_ropable = nullptr;
         r.rp_locked_actor = nullptr;
         this->RemoveInterActorBeam(r.rp_beam);
     }
@@ -1584,9 +1520,11 @@ void Actor::SyncReset(bool reset_position)
     {
         t.ti_tied = false;
         t.ti_tying = false;
+        t.ti_locked_actor = nullptr;
+        t.ti_locked_ropable = nullptr;
         t.ti_beam->p2 = &ar_nodes[0];
-        t.ti_beam->bm_inter_actor = false;
         t.ti_beam->bm_disabled = true;
+        t.ti_beam->bm_inter_actor = false;
         this->RemoveInterActorBeam(t.ti_beam);
     }
 
@@ -1628,7 +1566,7 @@ void Actor::SyncReset(bool reset_position)
     if (ar_autopilot)
         this->resetAutopilot();
     if (m_buoyance)
-        m_buoyance->setsink(0);
+        m_buoyance->sink = false;
     if (m_hydro_inertia)
         m_hydro_inertia->resetCmdKeyDelay();
 
@@ -1650,15 +1588,23 @@ void Actor::SyncReset(bool reset_position)
         }
     }
 
-    // reset commands (self centering && push once/twice forced to terminate moving commands)
     for (int i = 0; i < MAX_COMMANDS; i++)
     {
         ar_command_key[i].commandValue = 0.0;
         ar_command_key[i].triggerInputValue = 0.0f;
         ar_command_key[i].playerInputValue = 0.0f;
+        for (auto& b : ar_command_key[i].beams)
+        {
+            b.cmb_state->auto_moving_mode = 0;
+            b.cmb_state->pressed_center_mode = false;
+        }
     }
 
     this->resetSlideNodes();
+    if (m_slidenodes_locked)
+    {
+        this->ToggleSlideNodeLock();
+    }
 
     m_ongoing_reset = true;
 }
@@ -3451,7 +3397,6 @@ void Actor::ToggleRopes(int group)
             // remove node locking
             if (it->rp_locked_ropable)
                 it->rp_locked_ropable->attached_ropes--;
-            it->rp_locked_node = &ar_nodes[0];
             if (it->rp_locked_actor != this)
             {
                 this->RemoveInterActorBeam(it->rp_beam);
@@ -3478,13 +3423,13 @@ void Actor::ToggleRopes(int group)
                 }
             }
             it->rp_locked_actor = nullptr;
+            it->rp_locked_ropable = nullptr;
         }
         else
         {
             //we lock ropes
             // search new remote ropable to lock to
             float mindist = it->rp_beam->L;
-            node_t* nearest_node = nullptr;
             Actor* nearest_actor = nullptr;
             ropable_t* rop = 0;
             // iterate over all actor_slots
@@ -3504,17 +3449,15 @@ void Actor::ToggleRopes(int group)
                     if (dist < mindist)
                     {
                         mindist = dist;
-                        nearest_node = itr->node;
                         nearest_actor = actor;
                         rop = &(*itr);
                     }
                 }
             }
             // if we found a ropable, then lock it
-            if (nearest_node)
+            if (nearest_actor)
             {
                 //okay, we have found a rope to tie
-                it->rp_locked_node = nearest_node;
                 it->rp_locked_actor = nearest_actor;
                 it->rp_locked = LOCKED;
                 it->rp_locked_ropable = rop;
@@ -3607,10 +3550,9 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
                     continue; // don't lock to self
 
                 // do we lock against all nodes or just against ropables?
-                bool found = false;
                 if (it->hk_lock_nodes)
                 {
-                    int last_node = 0; // node number storage
+                    node_t* nearest_node = nullptr;
                     // all nodes, so walk them
                     for (int i = 0; i < actor->ar_num_nodes; i++)
                     {
@@ -3634,15 +3576,14 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
                             {
                                 // located a node that is closer
                                 distance = n2n_distance;
-                                last_node = i;
-                                found = true;
+                                nearest_node = &actor->ar_nodes[i];
                             }
                         }
                     }
-                    if (found)
+                    if (nearest_node)
                     {
                         // we found a node, lock to it
-                        it->hk_lock_node = &(actor->ar_nodes[last_node]);
+                        it->hk_lock_node = nearest_node;
                         it->hk_locked_actor = actor;
                         it->hk_locked = PRELOCK;
                     }
@@ -3652,7 +3593,6 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
                     // we lock against ropables
 
                     node_t* nearest_node = nullptr;
-                    Actor* nearest_actor = nullptr;
 
                     // and their ropables
                     for (std::vector<ropable_t>::iterator itr = actor->ar_ropables.begin(); itr != actor->ar_ropables.end(); itr++)
@@ -3667,7 +3607,6 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
                         {
                             mindist = dist;
                             nearest_node = itr->node;
-                            nearest_actor = actor;
                         }
                     }
 
@@ -3675,7 +3614,7 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
                     {
                         // we found a ropable, lock to it
                         it->hk_lock_node = nearest_node;
-                        it->hk_locked_actor = nearest_actor;
+                        it->hk_locked_actor = actor;
                         it->hk_locked = PRELOCK;
                     }
                 }
@@ -4426,7 +4365,7 @@ Actor::Actor(
     , m_spawn_rotation(0.0)
     , ar_net_stream_id(0)
     , m_custom_light_toggle_countdown(0)
-    , m_min_camera_radius(-1.0f)
+    , m_min_camera_radius(0.0f)
     , m_mouse_grab_move_force(0.0f)
     , m_mouse_grab_node(-1)
     , m_mouse_grab_pos(Ogre::Vector3::ZERO)
@@ -4436,7 +4375,6 @@ Actor::Actor(
     , m_net_reverse_light(false)
     , m_replay_pos_prev(-1)
     , ar_parking_brake(false)
-    , m_position_storage(0)
     , m_avg_node_position(rq.asr_position)
     , m_previous_gear(0)
     , m_ref_tyre_pressure(50.0)

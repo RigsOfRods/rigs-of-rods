@@ -168,6 +168,121 @@ float SimController::StopRaceTimer()
     return m_race_bestlap_time;
 }
 
+void SimController::HandleSavegameShortcuts()
+{
+    // Global savegames
+
+    int slot = -1;
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_01, 1.0f))
+    {
+        slot = 1;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_02, 1.0f))
+    {
+        slot = 2;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_03, 1.0f))
+    {
+        slot = 3;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_04, 1.0f))
+    {
+        slot = 4;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_05, 1.0f))
+    {
+        slot = 5;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_06, 1.0f))
+    {
+        slot = 6;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_07, 1.0f))
+    {
+        slot = 7;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_08, 1.0f))
+    {
+        slot = 8;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_09, 1.0f))
+    {
+        slot = 9;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD_10, 1.0f))
+    {
+        slot = 0;
+    }
+    if (slot != -1)
+    {
+        Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", slot);
+        m_actor_manager.LoadScene(filename);
+    }
+
+    if (App::sim_terrain_name.IsActiveEmpty() || App::sim_state.GetActive() != SimState::RUNNING)
+        return;
+
+    slot = -1;
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_01, 1.0f))
+    {
+        slot = 1;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_02, 1.0f))
+    {
+        slot = 2;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_03, 1.0f))
+    {
+        slot = 3;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_04, 1.0f))
+    {
+        slot = 4;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_05, 1.0f))
+    {
+        slot = 5;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_06, 1.0f))
+    {
+        slot = 6;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_07, 1.0f))
+    {
+        slot = 7;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_08, 1.0f))
+    {
+        slot = 8;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_09, 1.0f))
+    {
+        slot = 9;
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE_10, 1.0f))
+    {
+        slot = 0;
+    }
+    if (slot != -1)
+    {
+        Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", slot);
+        m_actor_manager.SaveScene(filename);
+    }
+
+    // Terrain local savegames
+
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKLOAD, 1.0f))
+    {
+        App::sim_savegame.SetActive(m_actor_manager.GetQuicksaveFilename().c_str());
+        App::sim_load_savegame.SetActive(true);
+    }
+
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUICKSAVE))
+    {
+        m_actor_manager.SaveScene(m_actor_manager.GetQuicksaveFilename());
+    }
+}
+
 void SimController::UpdateInputEvents(float dt)
 {
     if (dt == 0.0f)
@@ -200,13 +315,13 @@ void SimController::UpdateInputEvents(float dt)
         }
     }
 
+    if (App::sim_state.GetActive() == SimState::PAUSED)
+        return; //Stop everything when pause menu is visible
+
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CONSOLE_TOGGLE))
     {
         gui_man->SetVisible_Console(! gui_man->IsVisible_Console());
     }
-
-    if (App::sim_state.GetActive() == SimState::PAUSED)
-        return; //Stop everything when pause menu is visible
 
     if (gui_man->IsVisible_FrictionSettings() && m_player_actor)
     {
@@ -311,135 +426,69 @@ void SimController::UpdateInputEvents(float dt)
         return;
     }
 
-    // position storage
-    if (m_player_actor && App::sim_position_storage.GetActive())
+    // Simulation pace adjustment (slowmotion)
+    if (m_race_id == -1 && RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_ACCELERATE_SIMULATION))
     {
-        int res = -10, slot = -1;
-        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SAVE_POS01, 0.5f))
+        float simulation_speed = m_actor_manager.GetSimulationSpeed() * pow(2.0f, dt / 2.0f);
+        m_actor_manager.SetSimulationSpeed(simulation_speed);
+        String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(simulation_speed * 100.0f, 1)) + "%";
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+        RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
+    }
+    if (m_race_id == -1 && RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_DECELERATE_SIMULATION))
+    {
+        float simulation_speed = m_actor_manager.GetSimulationSpeed() * pow(0.5f, dt / 2.0f);
+        m_actor_manager.SetSimulationSpeed(simulation_speed);
+        String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(simulation_speed * 100.0f, 1)) + "%";
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+        RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
+    }
+    if (m_race_id == -1 && RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_SIMULATION_PACE))
+    {
+        if (!m_is_pace_reset_pressed)
         {
-            slot = 0;
-            res = m_player_actor->savePosition(slot);
-        };
-        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SAVE_POS02, 0.5f))
-        {
-            slot = 1;
-            res = m_player_actor->savePosition(slot);
-        };
-        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SAVE_POS03, 0.5f))
-        {
-            slot = 2;
-            res = m_player_actor->savePosition(slot);
-        };
-        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SAVE_POS04, 0.5f))
-        {
-            slot = 3;
-            res = m_player_actor->savePosition(slot);
-        };
-        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SAVE_POS05, 0.5f))
-        {
-            slot = 4;
-            res = m_player_actor->savePosition(slot);
-        };
-        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SAVE_POS06, 0.5f))
-        {
-            slot = 5;
-            res = m_player_actor->savePosition(slot);
-        };
-        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SAVE_POS07, 0.5f))
-        {
-            slot = 6;
-            res = m_player_actor->savePosition(slot);
-        };
-        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SAVE_POS08, 0.5f))
-        {
-            slot = 7;
-            res = m_player_actor->savePosition(slot);
-        };
-        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SAVE_POS09, 0.5f))
-        {
-            slot = 8;
-            res = m_player_actor->savePosition(slot);
-        };
-        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SAVE_POS10, 0.5f))
-        {
-            slot = 9;
-            res = m_player_actor->savePosition(slot);
-        };
-        if (slot != -1 && !res)
-        {
-            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Position saved under slot ") + TOSTRING(slot + 1), "infromation.png");
-            RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Position saved under slot ") + TOSTRING(slot + 1));
-        }
-        else if (slot != -1 && res)
-        {
-            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Error while saving position saved under slot ") + TOSTRING(slot + 1), "error.png");
-            RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Error while saving position saved under slot ") + TOSTRING(slot + 1));
-        }
-
-        if (res == -10)
-        {
-            if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_LOAD_POS01, 0.5f))
+            float simulation_speed = m_actor_manager.GetSimulationSpeed();
+            if (simulation_speed != 1.0f)
             {
-                slot = 0;
-                res = m_player_actor->loadPosition(slot);
-            };
-            if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_LOAD_POS02, 0.5f))
-            {
-                slot = 1;
-                res = m_player_actor->loadPosition(slot);
-            };
-            if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_LOAD_POS03, 0.5f))
-            {
-                slot = 2;
-                res = m_player_actor->loadPosition(slot);
-            };
-            if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_LOAD_POS04, 0.5f))
-            {
-                slot = 3;
-                res = m_player_actor->loadPosition(slot);
-            };
-            if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_LOAD_POS05, 0.5f))
-            {
-                slot = 4;
-                res = m_player_actor->loadPosition(slot);
-            };
-            if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_LOAD_POS06, 0.5f))
-            {
-                slot = 5;
-                res = m_player_actor->loadPosition(slot);
-            };
-            if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_LOAD_POS07, 0.5f))
-            {
-                slot = 6;
-                res = m_player_actor->loadPosition(slot);
-            };
-            if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_LOAD_POS08, 0.5f))
-            {
-                slot = 7;
-                res = m_player_actor->loadPosition(slot);
-            };
-            if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_LOAD_POS09, 0.5f))
-            {
-                slot = 8;
-                res = m_player_actor->loadPosition(slot);
-            };
-            if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_LOAD_POS10, 0.5f))
-            {
-                slot = 9;
-                res = m_player_actor->loadPosition(slot);
-            };
-            if (slot != -1 && res == 0)
-            {
-                RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Loaded position from slot ") + TOSTRING(slot + 1));
-                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Loaded position from slot ") + TOSTRING(slot + 1), "infromation.png");
+                m_last_simulation_speed = simulation_speed;
+                m_actor_manager.SetSimulationSpeed(1.0f);
+                UTFString ssmsg = _L("Simulation speed reset.");
+                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+                RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
             }
-            else if (slot != -1 && res != 0)
+            else if (m_last_simulation_speed != 1.0f)
             {
-                RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Could not load position from slot ") + TOSTRING(slot + 1));
-                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Could not load position from slot ") + TOSTRING(slot + 1), "error.png");
+                m_actor_manager.SetSimulationSpeed(m_last_simulation_speed);
+                String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(m_last_simulation_speed * 100.0f, 1)) + "%";
+                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
+                RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
+            }
+        }
+        m_is_pace_reset_pressed = true;
+    }
+    else
+    {
+        m_is_pace_reset_pressed = false;
+    }
+
+    // Frozen physics logic
+    if (!App::sim_replay_enabled.GetActive())
+    {
+        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_REPLAY_MODE))
+        {
+            m_physics_simulation_paused = !m_physics_simulation_paused;
+        }
+        if (m_physics_simulation_paused && m_actor_manager.GetSimulationSpeed() > 0.0f)
+        {
+            if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPLAY_FAST_FORWARD) ||
+                RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FORWARD, 0.25f))
+            {
+                m_physics_simulation_time = PHYSICS_DT / m_actor_manager.GetSimulationSpeed();
             }
         }
     }
+
+    this->HandleSavegameShortcuts();
 
     // camera FOV settings
     if (this->GetCameraBehavior() != CameraManager::CAMERA_BEHAVIOR_STATIC) // the static camera has its own fov logic
@@ -934,9 +983,6 @@ void SimController::UpdateInputEvents(float dt)
                         {
                             m_player_actor->ar_replay_pos -= 10;
                         }
-                        if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU) && RoR::App::GetInputEngine()->isKeyDown(OIS::KC_V))
-                        {
-                        }
 
                         if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU))
                         {
@@ -959,13 +1005,6 @@ void SimController::UpdateInputEvents(float dt)
                                     m_player_actor->ar_replay_pos = -m_player_actor->ar_replay_length;
                                 }
                             }
-                        }
-                    } else if (m_physics_simulation_paused && m_actor_manager.GetSimulationSpeed() > 0.0f)
-                    {
-                        if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPLAY_FAST_FORWARD) ||
-                            RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FORWARD, 0.25f))
-                        {
-                            m_physics_simulation_time = PHYSICS_DT / m_actor_manager.GetSimulationSpeed();
                         }
                     }
 
@@ -1036,49 +1075,6 @@ void SimController::UpdateInputEvents(float dt)
                     }
                     //COMMON KEYS
 
-                    if (m_race_id == -1 && RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_ACCELERATE_SIMULATION))
-                    {
-                        float simulation_speed = m_actor_manager.GetSimulationSpeed() * pow(2.0f, dt / 2.0f);
-                        m_actor_manager.SetSimulationSpeed(simulation_speed);
-                        String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(simulation_speed * 100.0f, 1)) + "%";
-                        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
-                        RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
-                    }
-                    if (m_race_id == -1 && RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_DECELERATE_SIMULATION))
-                    {
-                        float simulation_speed = m_actor_manager.GetSimulationSpeed() * pow(0.5f, dt / 2.0f);
-                        m_actor_manager.SetSimulationSpeed(simulation_speed);
-                        String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(simulation_speed * 100.0f, 1)) + "%";
-                        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
-                        RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
-                    }
-                    if (m_race_id == -1 && RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_SIMULATION_PACE))
-                    {
-                        if (!m_is_pace_reset_pressed)
-                        {
-                            float simulation_speed = m_actor_manager.GetSimulationSpeed();
-                            if (simulation_speed != 1.0f)
-                            {
-                                m_last_simulation_speed = simulation_speed;
-                                m_actor_manager.SetSimulationSpeed(1.0f);
-                                UTFString ssmsg = _L("Simulation speed reset.");
-                                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
-                                RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
-                            }
-                            else if (m_last_simulation_speed != 1.0f)
-                            {
-                                m_actor_manager.SetSimulationSpeed(m_last_simulation_speed);
-                                String ssmsg = _L("New simulation speed: ") + TOSTRING(Round(m_last_simulation_speed * 100.0f, 1)) + "%";
-                                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "infromation.png", 2000, false);
-                                RoR::App::GetGuiManager()->PushNotification("Notice:", ssmsg);
-                            }
-                        }
-                        m_is_pace_reset_pressed = true;
-                    }
-                    else
-                    {
-                        m_is_pace_reset_pressed = false;
-                    }
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_REMOVE))
                     {
                         this->QueueActorRemove(m_player_actor);
@@ -1110,9 +1106,6 @@ void SimController::UpdateInputEvents(float dt)
                         if (m_player_actor->getReplay() != nullptr)
                         {
                             m_player_actor->setReplayMode(!m_player_actor->ar_replay_mode);
-                        } else
-                        {
-                            m_physics_simulation_paused = !m_physics_simulation_paused;
                         }
                     }
 
@@ -1599,8 +1592,6 @@ void SimController::UpdateSimulation(float dt)
             m_pending_player_actor = m_player_actor; // Reset the requested change.
         }
 
-        m_gfx_scene.RemoveGfxActor(actor->GetGfxActor());
-        
         // Remove modify-requests for this actor
         m_actor_modify_queue.erase(
             std::remove_if(
@@ -1608,7 +1599,7 @@ void SimController::UpdateSimulation(float dt)
                 [actor](ActorModifyRequest& rq) -> bool { return rq.amr_actor == actor; }),
             m_actor_modify_queue.end());
 
-        m_actor_manager.DeleteActorInternal(actor);
+        this->RemoveActorDirectly(actor);
     }
     m_actor_remove_queue.clear();
 
@@ -1636,8 +1627,7 @@ void SimController::UpdateSimulation(float dt)
 
                 m_prev_player_actor = nullptr;
                 this->ChangePlayerActor(nullptr);
-                m_gfx_scene.RemoveGfxActor(rq.amr_actor->GetGfxActor());
-                m_actor_manager.DeleteActorInternal(rq.amr_actor);
+                this->RemoveActorDirectly(rq.amr_actor);
                 App::GetCacheSystem()->UnloadActorDefFromMemory(filename); // Force reload from filesystem
 
                 ActorSpawnRequest srq;
@@ -1727,6 +1717,11 @@ void SimController::UpdateSimulation(float dt)
         }
     }
     m_actor_spawn_queue.clear();
+
+    if (App::sim_load_savegame.GetActive())
+    {
+        m_actor_manager.LoadScene(App::sim_savegame.GetActive());
+    }
 
     if (m_pending_player_actor != m_player_actor)
     {
@@ -2079,25 +2074,32 @@ bool SimController::SetupGameplayLoop()
     // Loading map
     // ============================================================================
 
-    if (!App::diag_preset_terrain.IsActiveEmpty())
+    if (App::sim_load_savegame.GetActive())
+    {
+        if (!App::diag_preset_terrain.IsActiveEmpty())
+        {
+            String filename = m_actor_manager.GetQuicksaveFilename(App::diag_preset_terrain.GetActive());
+            App::sim_savegame.SetActive(filename.c_str());
+        }
+        m_actor_manager.LoadScene(App::sim_savegame.GetActive());
+    } else if (!App::diag_preset_terrain.IsActiveEmpty())
     {
         App::sim_terrain_name.SetPending(App::diag_preset_terrain.GetActive());
         App::diag_preset_terrain.SetActive("");
-    }
-
-    if (App::sim_terrain_name.IsPendingEmpty())
+    } else if (App::sim_terrain_name.IsPendingEmpty())
     {
         CacheEntry* selected_map = RoR::App::GetGuiManager()->GetMainSelector()->GetSelectedEntry();
         if (selected_map != nullptr)
         {
             App::sim_terrain_name.SetPending(selected_map->fname.c_str());
         }
-        else
-        {
-            LOG("No map selected. Returning to menu.");
-            App::GetGuiManager()->SetVisible_LoadingWindow(false);
-            return false;
-        }
+
+    }
+    if (App::sim_terrain_name.IsPendingEmpty())
+    {
+        LOG("No map selected. Returning to menu.");
+        App::GetGuiManager()->SetVisible_LoadingWindow(false);
+        return false;
     }
 
     if (! this->LoadTerrain())
@@ -2245,6 +2247,8 @@ void SimController::EnterGameplayLoop()
             rw->update(); // update even when in background !
         }
     }
+
+    m_actor_manager.SaveScene("autosave.sav");
 
     m_actor_manager.SyncWithSimThread(); // Wait for background tasks to finish
     App::sim_state.SetActive(SimState::OFF);
@@ -2462,5 +2466,12 @@ Actor* SimController::SpawnActorDirectly(RoR::ActorSpawnRequest rq)
     }
 
     return actor;
+}
+
+void SimController::RemoveActorDirectly(Actor* actor)
+{
+    m_gfx_scene.RemoveGfxActor(actor->GetGfxActor());
+
+    m_actor_manager.DeleteActorInternal(actor);
 }
 

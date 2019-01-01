@@ -31,7 +31,6 @@ set(SOURCE_FILES
         gameplay/Landusemap.{h,cpp}
         gameplay/LandVehicleSimulation.{h,cpp}
         gameplay/OutProtocol.{h,cpp}
-        gameplay/PositionStorage.{h,cpp}
         gameplay/ProceduralManager.{h,cpp}
         gameplay/Replay.{h,cpp}
         gameplay/Road.{h,cpp}
@@ -173,6 +172,7 @@ set(SOURCE_FILES
         physics/Differentials.{h,cpp}
         physics/RigSpawner.{h,cpp}
         physics/RigSpawner_ProcessControl.cpp
+        physics/Savegame.cpp
         physics/SlideNode.{h,cpp}
         physics/air/AeroEngine.h
         physics/air/AirBrake.{h,cpp}

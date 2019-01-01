@@ -665,11 +665,12 @@ extern GVarPod_A<bool>         app_force_cache_udpate;
 // Simulation
 extern GVarEnum_AP<SimState>   sim_state;
 extern GVarStr_AP<200>         sim_terrain_name;
+extern GVarStr_A<100>          sim_savegame;
+extern GVarPod_A<bool>         sim_load_savegame;
 extern GVarPod_A<bool>         sim_spawn_running;
 extern GVarPod_A<bool>         sim_replay_enabled;
 extern GVarPod_A<int>          sim_replay_length;
 extern GVarPod_A<int>          sim_replay_stepping;
-extern GVarPod_A<bool>         sim_position_storage;
 extern GVarPod_A<bool>         sim_realistic_commands;
 extern GVarPod_A<bool>         sim_races_enabled;
 extern GVarPod_A<bool>         sim_no_collisions;
@@ -723,6 +724,7 @@ extern GVarStr_A<300>          sys_cache_dir;
 extern GVarStr_A<300>          sys_logs_dir;
 extern GVarStr_A<300>          sys_resources_dir;
 extern GVarStr_A<300>          sys_profiler_dir;
+extern GVarStr_A<300>          sys_savegames_dir;
 extern GVarStr_A<300>          sys_screenshot_dir;
 
 // Input - Output

@@ -41,7 +41,6 @@
 #include "MovableText.h"
 #include "Network.h"
 #include "PointColDetector.h"
-#include "PositionStorage.h"
 #include "Replay.h"
 #include "RigDef_Validator.h"
 #include "RigSpawner.h"
@@ -149,8 +148,8 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
 
         // check if over-sized
         actor->UpdateBoundingBoxes();
-        vehicle_position.x -= (actor->ar_bounding_box.getMaximum().x + actor->ar_bounding_box.getMinimum().x) / 2.0 - vehicle_position.x;
-        vehicle_position.z -= (actor->ar_bounding_box.getMaximum().z + actor->ar_bounding_box.getMinimum().z) / 2.0 - vehicle_position.z;
+        vehicle_position.x += vehicle_position.x - actor->ar_bounding_box.getCenter().x;
+        vehicle_position.z += vehicle_position.z - actor->ar_bounding_box.getCenter().z;
 
         float miny = 0.0f;
 
@@ -203,6 +202,18 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     actor->calcNodeConnectivityGraph();
 
     actor->UpdateBoundingBoxes();
+    actor->calculateAveragePosition();
+
+    // calculate minimum camera radius
+    for (int i = 0; i < actor->ar_num_nodes; i++)
+    {
+        Real dist = actor->ar_nodes[i].AbsPosition.squaredDistance(actor->m_avg_node_position);
+        if (dist > actor->m_min_camera_radius)
+        {
+            actor->m_min_camera_radius = dist;
+        }
+    }
+    actor->m_min_camera_radius = std::sqrt(actor->m_min_camera_radius) * 1.2f; // twenty percent buffer
 
     // fix up submesh collision model
     std::string subMeshGroundModelName = spawner.GetSubmeshGroundmodelName();
@@ -220,7 +231,6 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     {
         actor->ar_beams[i].initial_beam_strength       = actor->ar_beams[i].strength;
         actor->ar_beams[i].default_beam_deform         = actor->ar_beams[i].minmaxposnegstress;
-        actor->ar_beams[i].default_beam_plastic_coef   = actor->ar_beams[i].plastic_coef;
     }
 
     actor->m_spawn_rotation = actor->getRotation();
@@ -230,12 +240,6 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     // ~~~~~~~~~~~~~~~~ (continued)  code ported from Actor::Actor()
 
     actor->NotifyActorCameraChanged(); // setup sounds properly
-
-    // add storage
-    if (App::sim_position_storage.GetActive())
-    {
-        actor->m_position_storage = new PositionStorage(actor->ar_num_nodes, 10);
-    }
 
     // calculate the number of wheel nodes
     actor->m_wheel_node_count = 0;

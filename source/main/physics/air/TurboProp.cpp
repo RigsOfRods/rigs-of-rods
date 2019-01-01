@@ -454,6 +454,11 @@ void Turboprop::toggleReverse()
     pitch = 0;
 }
 
+void Turboprop::setReverse(bool val)
+{
+    reverse = val;
+}
+
 void Turboprop::flipStart()
 {
     if (timer - lastflip < 0.3)
