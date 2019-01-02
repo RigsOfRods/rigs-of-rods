@@ -6839,7 +6839,7 @@ void ActorSpawner::ValidateRotator(int id, int axis1, int axis2, int *nodes1, in
     const auto eps = 0.001f;
     const auto ax1 = m_actor->ar_nodes[axis1].AbsPosition;
     const auto ax2 = m_actor->ar_nodes[axis2].AbsPosition;
-    Ogre::Plane pl = Ogre::Plane(ax1 - ax2, 0);
+    Ogre::Plane pl = Ogre::Plane((ax1 - ax2).normalisedCopy(), 0);
 
     Ogre::Vector3 a1 = pl.projectVector(ax1 - m_actor->ar_nodes[nodes1[0]].AbsPosition);
     Ogre::Vector3 a2 = pl.projectVector(ax1 - m_actor->ar_nodes[nodes1[1]].AbsPosition);
