@@ -1431,12 +1431,12 @@ float Actor::GetMinHeight(bool skip_virtual_nodes)
     float height = std::numeric_limits<float>::max(); 
     for (int i = 0; i < ar_num_nodes; i++)
     {
-        if (i == 0 || !skip_virtual_nodes || !ar_nodes[i].nd_no_ground_contact)
+        if (!skip_virtual_nodes || !ar_nodes[i].nd_no_ground_contact)
         {
             height = std::min(ar_nodes[i].AbsPosition.y, height);
         }
     }
-    return height;
+    return (height < std::numeric_limits<float>::max()) ? height : GetMinHeight(false);
 }
 
 float Actor::GetHeightAboveGround(bool skip_virtual_nodes)
@@ -1444,13 +1444,13 @@ float Actor::GetHeightAboveGround(bool skip_virtual_nodes)
     float agl = std::numeric_limits<float>::max(); 
     for (int i = 0; i < ar_num_nodes; i++)
     {
-        if (i == 0 || !skip_virtual_nodes || !ar_nodes[i].nd_no_ground_contact)
+        if (!skip_virtual_nodes || !ar_nodes[i].nd_no_ground_contact)
         {
             Vector3 pos = ar_nodes[i].AbsPosition;
             agl = std::min(pos.y - gEnv->collisions->getSurfaceHeight(pos.x, pos.z), agl);
         }
     }
-    return agl;
+    return (agl < std::numeric_limits<float>::max()) ? agl : GetHeightAboveGround(false);
 }
 
 void Actor::SyncReset(bool reset_position)
