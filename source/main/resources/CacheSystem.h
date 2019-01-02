@@ -221,7 +221,7 @@ private:
     void loadAllDirectoriesInResourceGroup(Ogre::String group);
     void loadAllZipsInResourceGroup(Ogre::String group);
 
-    std::string                          m_filenames_hash;   //!< stores SHA1 hash over the content, for quick update detection
+    std::string                          m_filenames_hash;   //!< stores hash over the content, for quick update detection
     std::map<Ogre::String, bool>         m_loaded_resource_bundles;
     std::vector<CacheEntry>              m_entries;
     std::vector<Ogre::String>            m_known_extensions; //!< the extensions we track in the cache system
