@@ -433,7 +433,7 @@ std::string ContentManager::ListAllUserContent()
     {
         if ((file.archive != nullptr) || std::regex_match(file.filename, file_whitelist))
         {
-            buf << file.filename << std::endl;
+            buf << file.filename << ", " << file.uncompressedSize << std::endl;
         }
     }
 
