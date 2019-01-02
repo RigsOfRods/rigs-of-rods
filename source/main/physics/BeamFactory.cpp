@@ -225,33 +225,6 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
 
     actor->m_spawn_rotation = actor->getRotation();
 
-    // Calculate the approximate median
-    std::vector<Real> mx(actor->ar_num_nodes, 0.0f);
-    std::vector<Real> my(actor->ar_num_nodes, 0.0f);
-    std::vector<Real> mz(actor->ar_num_nodes, 0.0f);
-    for (int i = 0; i < actor->ar_num_nodes; i++)
-    {
-        mx[i] = actor->ar_nodes[i].AbsPosition.x;
-        my[i] = actor->ar_nodes[i].AbsPosition.y;
-        mz[i] = actor->ar_nodes[i].AbsPosition.z;
-    }
-    std::nth_element(mx.begin(), mx.begin() + actor->ar_num_nodes / 2, mx.end());
-    std::nth_element(my.begin(), my.begin() + actor->ar_num_nodes / 2, my.end());
-    std::nth_element(mz.begin(), mz.begin() + actor->ar_num_nodes / 2, mz.end());
-    Vector3 median = Vector3(mx[actor->ar_num_nodes / 2], my[actor->ar_num_nodes / 2], mz[actor->ar_num_nodes / 2]);
-
-    // Calculate the average
-    Vector3 sum = Vector3::ZERO;
-    for (int i = 0; i < actor->ar_num_nodes; i++)
-    {
-        sum += actor->ar_nodes[i].AbsPosition;
-    }
-    Vector3 average = sum / actor->ar_num_nodes;
-
-    // Decide whether or not the cinecam node is an appropriate rotation center
-    Vector3 cinecam = actor->ar_nodes[actor->ar_main_camera_node_pos].AbsPosition;
-    actor->m_cinecam_is_rotation_center = cinecam.squaredDistance(median) < average.squaredDistance(median);
-
     TRIGGER_EVENT(SE_GENERIC_NEW_TRUCK, actor->ar_instance_id);
 
     // ~~~~~~~~~~~~~~~~ (continued)  code ported from Actor::Actor()

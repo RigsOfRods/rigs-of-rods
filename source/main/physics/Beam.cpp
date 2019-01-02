@@ -1407,23 +1407,20 @@ String Actor::GetTransferCaseName()
 
 Ogre::Vector3 Actor::GetRotationCenter()
 {
-    Vector3 rotation_center = Vector3::ZERO;
-
-    if (m_cinecam_is_rotation_center)
+    Vector3 sum = Vector3::ZERO;
+    std::vector<Vector3> positions;
+    for (int i = 0; i < ar_num_nodes; i++)
     {
-        rotation_center = ar_nodes[ar_main_camera_node_pos].AbsPosition;
-    }
-    else
-    {
-        Vector3 sum = Vector3::ZERO;
-        for (int i = 0; i < ar_num_nodes; i++)
+        Vector3 pos = ar_nodes[i].AbsPosition;
+        const auto it = std::find_if(positions.begin(), positions.end(),
+            [pos](const Vector3 ref) { return pos.positionEquals(ref, 0.01f); });
+        if (it == positions.end())
         {
-            sum += ar_nodes[i].AbsPosition;
+            sum += pos;
+            positions.push_back(pos);
         }
-        rotation_center = sum / ar_num_nodes;
     }
-
-    return rotation_center;
+    return sum / positions.size();
 }
 
 float Actor::GetMinHeight(bool skip_virtual_nodes)
@@ -4281,7 +4278,6 @@ Actor::Actor(
     , ar_main_camera_node_pos(0)
     , ar_main_camera_node_dir(0)
     , ar_main_camera_node_roll(0)
-    , m_cinecam_is_rotation_center(false)
     , m_preloaded_with_terrain(rq.asr_origin == RoR::ActorSpawnRequest::Origin::TERRN_DEF)
     , ar_net_source_id(0)
     , m_spawn_rotation(0.0)
