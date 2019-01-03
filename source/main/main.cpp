@@ -188,6 +188,13 @@ int main(int argc, char *argv[])
             Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, 512, 512, 0,
             Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET);
 
+        if (!App::diag_warning_texture.GetActive())
+        {
+            // We overwrite the default warning texture (yellow stripes) with something unobtrusive
+            Ogre::uchar data[3] = {0};
+            Ogre::PixelBox pixels(1, 1, 1, Ogre::PF_BYTE_RGB, &data);
+            Ogre::TextureManager::getSingleton()._getWarningTexture()->getBuffer()->blitFromMemory(pixels);
+        }
 
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FLAGS);
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::ICONS);
