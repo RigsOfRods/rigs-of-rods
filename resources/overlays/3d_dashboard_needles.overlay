@@ -33,7 +33,7 @@ overlay tracks/3D_NeedlesOverlay
 			width 0.04
 			height 0.08
 			left 0.21
-			top 0.8
+			top 0.75
 
 			overlay_element tracks/3DGear TextArea
 				{
