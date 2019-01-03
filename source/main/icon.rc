@@ -72,7 +72,7 @@ BEGIN
             VALUE "FileDescription", "Rigs of Rods Simulator"
             VALUE "FileVersion", ROR_RESOURCE_VERSION_STRING
             VALUE "InternalName", "RoR"
-            VALUE "LegalCopyright", "Copyright (C) 2005-2016 rigsofrods.org"
+            VALUE "LegalCopyright", "Copyright (C) 2005-2019 rigsofrods.org"
             VALUE "OriginalFilename", "RoR.exe"
             VALUE "ProductName", "Rigs of Rods"
             VALUE "ProductVersion", ROR_RESOURCE_VERSION_STRING
