@@ -530,12 +530,13 @@ void ActorSpawner::FinalizeRig()
 
     if (m_actor->ar_main_camera_node_dir == 0)
     {
+        Ogre::Vector3 ref = m_actor->ar_nodes[m_actor->ar_main_camera_node_pos].RelPosition;
         // Step 1: Find a suitable camera node dir
         float max_dist = 0.0f;
         int furthest_node = 0;
         for (int i = 0; i < m_actor->ar_num_nodes; i++)
         {
-            float dist = m_actor->ar_nodes[i].RelPosition.squaredDistance(m_actor->ar_nodes[0].RelPosition);
+            float dist = m_actor->ar_nodes[i].RelPosition.squaredDistance(ref);
             if (dist > max_dist)
             {
                 max_dist = dist;
@@ -544,7 +545,7 @@ void ActorSpawner::FinalizeRig()
         }
         m_actor->ar_main_camera_node_dir = furthest_node;
         // Step 2: Correct the misalignment
-        Ogre::Vector3 dir = m_actor->ar_nodes[furthest_node].RelPosition - m_actor->ar_nodes[0].RelPosition;
+        Ogre::Vector3 dir = m_actor->ar_nodes[furthest_node].RelPosition - ref;
         float offset = atan2(dir.dotProduct(Ogre::Vector3::UNIT_Z), dir.dotProduct(Ogre::Vector3::UNIT_X));
         m_actor->ar_main_camera_dir_corr = Ogre::Quaternion(Ogre::Radian(offset), Ogre::Vector3::UNIT_Y);
     }
