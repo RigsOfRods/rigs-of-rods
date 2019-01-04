@@ -749,26 +749,14 @@ inline void WriteStr(std::ofstream& f, GVarStr_T& gvar)
     f << gvar.conf_name << "=" << gvar.GetStored() << std::endl;
 }
 
-template <typename T>
-inline void WritePod(std::ofstream& f, GVarPod_A<T>& gvar)
-{
-    f << gvar.conf_name << "=" << gvar.GetActive() << std::endl;
-}
-
-template <typename T>
-inline void WritePod(std::ofstream& f, GVarPod_APS<T>& gvar)
+template <typename GVarPod_T>
+inline void WritePod(std::ofstream& f, GVarPod_T& gvar)
 {
     f << gvar.conf_name << "=" << gvar.GetStored() << std::endl;
 }
 
 template <typename GVarPod_T>
 inline void WriteYN(std::ofstream& f, GVarPod_T& gvar) ///< Writes "Yes/No" - handles `bool` and `int(1/0)`
-{
-    f << gvar.conf_name << "=" << (static_cast<int>(gvar.GetActive()) == 0 ? "No" : "Yes") << std::endl;
-}
-
-template <typename T>
-inline void WriteYN(std::ofstream& f, GVarPod_APS<T>& gvar) ///< Writes "Yes/No" - handles `bool` and `int(1/0)`
 {
     f << gvar.conf_name << "=" << (static_cast<int>(gvar.GetStored()) == 0 ? "No" : "Yes") << std::endl;
 }
@@ -893,7 +881,7 @@ void Settings::SaveSettings()
     WriteYN  (f, App::app_async_physics     );
     WritePod (f, App::app_num_workers       );
     WriteStr (f, App::app_extra_mod_path    );
-    WritePod (f, App::app_force_cache_udpate);
+    WriteYN  (f, App::app_force_cache_udpate);
 
     f.close();
 }
