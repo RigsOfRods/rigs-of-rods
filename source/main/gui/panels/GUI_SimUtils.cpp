@@ -321,6 +321,12 @@ void CLASS::UpdateStats(float dt, Actor* actor)
             }
         }
 
+        m_actor_stats_str = m_actor_stats_str + "\n"; //Some space
+
+        float speedKPH = actor->ar_top_speed * 3.6f;
+        float speedMPH = actor->ar_top_speed * 2.23693629f;
+        m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Top speed: ") + WhiteColor + TOUTFSTRING(Round(speedKPH)) + U(" km/h (") + TOUTFSTRING(Round(speedMPH)) + U(" mph)") + "\n";
+
         //Is this really usefull? people really use it?
         m_actor_stats_str = m_actor_stats_str + "\n"; //Some space
 
