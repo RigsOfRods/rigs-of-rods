@@ -125,6 +125,17 @@ int main(int argc, char *argv[])
         Settings::getSingleton().LoadRoRCfg(); // Main config file - path obtained from GVars
         Settings::getSingleton().ProcessCommandLine(argc, argv);
 
+        if (App::app_state.GetPending() == AppState::PRINT_HELP_EXIT)
+        {
+            ShowCommandLineUsage();
+            return 0;
+        }
+        if (App::app_state.GetPending() == AppState::PRINT_VERSION_EXIT)
+        {
+            ShowVersion();
+            return 0;
+        }
+
         App::StartOgreSubsystem();
 
         Ogre::String src_path = PathCombine(App::sys_resources_dir.GetActive(), "skeleton.zip");
@@ -165,17 +176,6 @@ int main(int argc, char *argv[])
         }
         Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup("SrcRG");
         Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup("DstRG");
-
-        if (App::app_state.GetPending() == AppState::PRINT_HELP_EXIT)
-        {
-            ShowCommandLineUsage();
-            return 0;
-        }
-        if (App::app_state.GetPending() == AppState::PRINT_VERSION_EXIT)
-        {
-            ShowVersion();
-            return 0;
-        }
 
         Ogre::OverlaySystem* overlay_system = new Ogre::OverlaySystem(); //Overlay init
         Ogre::TextureManager::getSingleton().createManual ("EnvironmentTexture",
