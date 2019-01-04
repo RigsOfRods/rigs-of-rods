@@ -63,7 +63,7 @@ void DrawGTextEdit(GVarStr_A<Len>& gvar, const char* label, Str<Len>& buf)
 }
 
 template <size_t Len>
-void DrawGTextEdit(GVarStr_APS<Len>& gvar, const char* label, Str<Len>& buf, bool update_active)
+void DrawGTextEdit(GVarStr_APS<Len>& gvar, const char* label, Str<Len>& buf, bool update_active = true)
 {
     if (ImGui::InputText(label, buf.GetBuffer(), buf.GetCapacity(), ImGuiInputTextFlags_EnterReturnsTrue))
     {
