@@ -2091,6 +2091,7 @@ void Parser::ParseTies()
             switch (c)
             {
             case Tie::OPTION_n_FILLER:
+            case Tie::OPTION_v_FILLER:
                 break;
 
             case Tie::OPTION_i_INVISIBLE:
@@ -2264,6 +2265,7 @@ void Parser::ParseShock3()
             switch (c)
             {
                 case 'n': 
+                case 'v': 
                     break; // Placeholder, does nothing.
                 case 'i': BITMASK_SET_1(shock_3.options, Shock3::OPTION_i_INVISIBLE);
                     break;
@@ -2318,6 +2320,7 @@ void Parser::ParseShock2()
             switch (c)
             {
                 case 'n': 
+                case 'v': 
                     break; // Placeholder, does nothing.
                 case 'i': BITMASK_SET_1(shock_2.options, Shock2::OPTION_i_INVISIBLE);
                     break;
@@ -2367,7 +2370,9 @@ void Parser::ParseShock()
             char c = *itor++;
             switch (c)
             {
-                case 'n': break; // Placeholder, does nothing.
+                case 'n':
+                case 'v':
+                    break; // Placeholder, does nothing.
                 case 'i': BITMASK_SET_1(shock.options, Shock::OPTION_i_INVISIBLE);
                     break;
                 case 'm': BITMASK_SET_1(shock.options, Shock::OPTION_m_METRIC);

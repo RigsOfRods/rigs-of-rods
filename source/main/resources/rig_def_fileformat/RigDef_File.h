@@ -1859,6 +1859,7 @@ struct Tie
     Tie();
 
     static const char OPTION_n_FILLER = 'n';
+    static const char OPTION_v_FILLER = 'v';
     static const char OPTION_i_INVISIBLE = 'i';
     static const char OPTION_s_NO_SELF_LOCK = 's';
 
