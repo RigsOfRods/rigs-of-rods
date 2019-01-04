@@ -599,8 +599,8 @@ void Parser::ParseDirectiveSetNodeDefaults()
 
     this->_ParseNodeOptions(m_user_node_defaults->options, opt_str);
 
-    this->LogParsedDirectiveSetNodeDefaultsData(
-        load_weight, friction, volume, surface, m_user_node_defaults->options);
+    // Disabled until someone wants it back
+    //this->LogParsedDirectiveSetNodeDefaultsData(load_weight, friction, volume, surface, m_user_node_defaults->options);
 }
 
 void Parser::_ParseNodeOptions(unsigned int & options, const std::string & options_str)
