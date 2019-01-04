@@ -53,7 +53,7 @@ void PointColDetector::UpdateInterPoint(bool ignorestate)
         {
             actors.push_back(actor);
             bool intra_vehicle_collision = std::find(links.begin(), links.end(), actor) != links.end();
-            contacters_size += intra_vehicle_collision ? m_actor->ar_num_contacters : actor->ar_num_contactable_nodes;
+            contacters_size += intra_vehicle_collision ? actor->ar_num_contacters : actor->ar_num_contactable_nodes;
             if (m_actor->ar_nodes[0].Velocity.squaredDistance(actor->ar_nodes[0].Velocity) > 16)
             {
                 for (int i = 0; i < m_actor->ar_num_collcabs; i++)
