@@ -357,6 +357,11 @@ void RoR::GUI::GameSettings::Draw()
         DrawGCheckbox(App::diag_log_beam_break,      _LC("GameSettings", "Log beam breaking"));
         DrawGCheckbox(App::diag_log_beam_deform,     _LC("GameSettings", "Log beam deforming"));
         DrawGCheckbox(App::diag_log_beam_trigger,    _LC("GameSettings", "Log beam triggers"));
+        if (ImGui::Button(_LC("GameSettings", "Trigger cache update (and quit)")))
+        {
+            App::app_force_cache_udpate.SetActive(true);
+            App::app_state.SetPending(AppState::SHUTDOWN);
+        }
         if (ImGui::Button(_LC("GameSettings", "Clear cache (and quit)")))
         {
             std::remove(App::GetCacheSystem()->getCacheConfigFilename().c_str());

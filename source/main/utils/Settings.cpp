@@ -57,6 +57,7 @@ enum {
     OPT_TRUCK,
     OPT_WDIR,
     OPT_VER,
+    OPT_CHECKCACHE,
     OPT_TRUCKCONFIG,
     OPT_ENTERTRUCK,
     OPT_JOINMPSERVER
@@ -74,6 +75,7 @@ CSimpleOpt::SOption cmdline_options[] = {
     { OPT_TRUCKCONFIG,    ("-actorconfig"), SO_REQ_SEP },
     { OPT_HELP,           ("--help"),       SO_NONE    },
     { OPT_HELP,           ("-help"),        SO_NONE    },
+    { OPT_CHECKCACHE,     ("-checkcache"),  SO_NONE    },
     { OPT_VER,            ("-version"),     SO_NONE    },
     { OPT_JOINMPSERVER,   ("-joinserver"),  SO_REQ_CMB },
     SO_END_OF_OPTIONS
@@ -87,10 +89,10 @@ void ShowCommandLineUsage()
         _L("Command Line Arguments"),
         _L("--help (this)"                              "\n"
             "-map <map> (loads map on startup)"         "\n"
-            "-pos <Vect> (overrides spawn position)" "\n"
+            "-pos <Vect> (overrides spawn position)"    "\n"
             "-rot <float> (overrides spawn rotation)"   "\n"
             "-truck <truck> (loads truck on startup)"   "\n"
-            "-setup shows the ogre configurator"        "\n"
+            "-checkcache forces cache update"           "\n"
             "-version shows the version information"    "\n"
             "-enter enters the selected truck"          "\n"
             "For example: RoR.exe -map simple2 -pos '518 0 518' -rot 45 -truck semi.truck -enter"));
@@ -155,6 +157,10 @@ void Settings::ProcessCommandLine(int argc, char *argv[])
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
             SetCurrentDirectory(args.OptionArg());
 #endif
+        }
+        else if (args.OptionId() == OPT_CHECKCACHE)
+        {
+            App::app_force_cache_udpate.SetActive(true);
         }
         else if (args.OptionId() == OPT_ENTERTRUCK)
         {
@@ -520,6 +526,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckBool (App::app_async_physics,         k, v)) { return true; }
     if (CheckInt  (App::app_num_workers,           k, v)) { return true; }
     if (CheckStr  (App::app_extra_mod_path,        k, v)) { return true; }
+    if (CheckBool (App::app_force_cache_udpate,    k, v)) { return true; }
     // Input&Output
     if (CheckBool (App::io_ffb_enabled,            k, v)) { return true; }
     if (CheckFloat(App::io_ffb_camera_gain,        k, v)) { return true; }
@@ -886,6 +893,7 @@ void Settings::SaveSettings()
     WriteYN  (f, App::app_async_physics     );
     WritePod (f, App::app_num_workers       );
     WriteStr (f, App::app_extra_mod_path    );
+    WritePod (f, App::app_force_cache_udpate);
 
     f.close();
 }
