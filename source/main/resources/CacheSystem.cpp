@@ -231,13 +231,20 @@ CacheSystem::CacheValidityState CacheSystem::EvaluateCacheValidity()
     if (j_doc["format_version"].GetInt() != CACHE_FILE_FORMAT)
     {
         m_entries.clear();
-        RoR::Log("[RoR|ModCache] invalid cachefile format, performing full rebuild.");
+        RoR::Log("[RoR|ModCache] Invalid cache file format, performing full rebuild.");
         return CACHE_NEEDS_UPDATE_FULL;
     }
 
     if (j_doc["global_hash"].GetString() != m_filenames_hash)
     {
-        RoR::Log("[RoR|ModCache] Cachefile out of date, regenerating new one ...");
+        RoR::Log("[RoR|ModCache] Cache file out of date, regenerating new one ...");
+        return CACHE_NEEDS_UPDATE_INCREMENTAL;
+    }
+
+    if (App::app_force_cache_udpate.GetActive())
+    {
+        App::app_force_cache_udpate.SetActive(false);
+        RoR::Log("[RoR|ModCache] Cache file check requested, regenerating new one ...");
         return CACHE_NEEDS_UPDATE_INCREMENTAL;
     }
 
