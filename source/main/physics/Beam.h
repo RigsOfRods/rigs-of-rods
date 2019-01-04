@@ -128,7 +128,8 @@ public:
     void              resetAutopilot();
     void              disconnectAutopilot();
     void              ScaleActor(float value);
-    Ogre::Vector3     getGForces();
+    Ogre::Vector3     GetGForcesCur() { return m_camera_local_gforces_cur; };
+    Ogre::Vector3     GetGForcesMax() { return m_camera_local_gforces_max; };
     float             getSteeringAngle();
     float             getMinCameraRadius() { return m_min_camera_radius; }; 
     std::string       GetActorDesignName();
@@ -403,6 +404,7 @@ private:
     void              resetSlideNodes();                   //!< Reset all the SlideNodes
     void              updateSlideNodePositions();          //!< incrementally update the position of all SlideNodes
     void              ResetAngle(float rot);
+    void              calculateLocalGForces();             //!< Derive the truck local g-forces from the global ones
     /// @param actor which actor to retrieve the closest Rail from
     /// @param node which SlideNode is being checked against
     /// @return a pair containing the rail, and the distant to the SlideNode
@@ -452,12 +454,15 @@ private:
     Ogre::MovableText* m_net_label_mt;
     Ogre::SceneNode*  m_net_label_node;
     Ogre::String      m_net_username;
+    Ogre::Timer       m_reset_timer;
     float             m_custom_light_toggle_countdown; //!< Input system helper status
     float             m_rotation_request;         //!< Accumulator
     int               m_anglesnap_request;        //!< Accumulator
     Ogre::Vector3     m_translation_request;      //!< Accumulator
     Ogre::Vector3     m_camera_gforces_accu;      //!< Accumulator for 'camera' G-forces
-    Ogre::Vector3     m_camera_gforces;           //!< Physics state
+    Ogre::Vector3     m_camera_gforces;           //!< Physics state (global)
+    Ogre::Vector3     m_camera_local_gforces_cur; //!< Physics state (camera local)
+    Ogre::Vector3     m_camera_local_gforces_max; //!< Physics state (camera local)
     float             m_ref_tyre_pressure;        //!< Physics state
     float             m_stabilizer_shock_ratio;   //!< Physics state
     int               m_stabilizer_shock_request; //!< Physics state; values: { -1, 0, 1 }

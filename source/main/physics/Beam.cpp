@@ -1454,6 +1454,11 @@ void Actor::SyncReset(bool reset_position)
 {
     TRIGGER_EVENT(SE_TRUCK_RESET, ar_instance_id);
 
+    m_reset_timer.reset();
+
+    m_camera_local_gforces_cur = Vector3::ZERO;
+    m_camera_local_gforces_max = Vector3::ZERO;
+
     ar_hydro_dir_state = 0.0;
     ar_hydro_aileron_state = 0.0;
     ar_hydro_rudder_state = 0.0;
@@ -4177,7 +4182,7 @@ void Actor::updateDashBoards(float dt)
     ar_dashboard->update(dt);
 }
 
-Vector3 Actor::getGForces()
+void Actor::calculateLocalGForces()
 {
     Vector3 cam_dir  = this->GetCameraDir();
     Vector3 cam_roll = this->GetCameraRoll();
@@ -4189,7 +4194,14 @@ Vector3 Actor::getGForces()
     float longacc = m_camera_gforces.dotProduct(cam_dir);
     float latacc  = m_camera_gforces.dotProduct(cam_roll);
 
-    return Vector3(vertacc, longacc, latacc) / gravity;
+    m_camera_local_gforces_cur = Vector3(vertacc, longacc, latacc) / gravity;
+
+    // Let it settle before we start recording the maximum forces
+    if (m_reset_timer.getMilliseconds() > 500)
+    {
+        m_camera_local_gforces_max.makeCeil(-m_camera_local_gforces_cur);
+        m_camera_local_gforces_max.makeCeil(+m_camera_local_gforces_cur);
+    }
 }
 
 void Actor::EngineTriggerHelper(int engineNumber, int type, float triggerValue)
@@ -4247,6 +4259,8 @@ Actor::Actor(
     , ar_brake(0.0)
     , m_camera_gforces_accu(Ogre::Vector3::ZERO)
     , m_camera_gforces(Ogre::Vector3::ZERO)
+    , m_camera_local_gforces_cur(Ogre::Vector3::ZERO)
+    , m_camera_local_gforces_max(Ogre::Vector3::ZERO)
     , ar_engine_hydraulics_ready(true)
     , m_custom_particles_enabled(false)
     , ar_scale(1)

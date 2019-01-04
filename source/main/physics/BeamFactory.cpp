@@ -1108,9 +1108,11 @@ void ActorManager::UpdatePhysicsSimulation()
         actor->m_ongoing_reset = false;
         if (actor->ar_update_physics && m_physics_steps > 0)
         {
-            actor->calculateAveragePosition();
-            actor->m_camera_gforces = actor->m_camera_gforces_accu / m_physics_steps;
+            Vector3  camera_gforces = actor->m_camera_gforces_accu / m_physics_steps;
             actor->m_camera_gforces_accu = Vector3::ZERO;
+            actor->m_camera_gforces = actor->m_camera_gforces * 0.5f + camera_gforces * 0.5f;
+            actor->calculateLocalGForces();
+            actor->calculateAveragePosition();
             actor->m_avg_node_velocity  = actor->m_avg_node_position - actor->m_avg_node_position_prev;
             actor->m_avg_node_velocity /= (m_physics_steps * PHYSICS_DT);
             actor->m_avg_node_position_prev = actor->m_avg_node_position;

@@ -230,7 +230,7 @@ void CLASS::UpdateStats(float dt, Actor* actor)
 
         //Taken from TruckHUD.cpp ..
         wchar_t beamstressstr[256];
-        swprintf(beamstressstr, 256, L"%+08.0f", 1 - (float)beamstress / (float)actor->ar_num_beams);
+        swprintf(beamstressstr, 256, L"% 08.0f", 1 - (float)beamstress / (float)actor->ar_num_beams);
         m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("Average stress: ") + WhiteColor + Ogre::UTFString(beamstressstr) + "\n";
 
         m_actor_stats_str = m_actor_stats_str + "\n"; //Some space
@@ -331,9 +331,10 @@ void CLASS::UpdateStats(float dt, Actor* actor)
         m_actor_stats_str = m_actor_stats_str + "\n"; //Some space
 
         wchar_t geesstr[256];
-        Ogre::Vector3 gees = actor->getGForces();
-        Ogre::UTFString tmp = _L("Vertical: % 1.2fg\nSagittal: % 1.2fg\nLateral:  % 1.2fg");
-        swprintf(geesstr, 256, tmp.asWStr_c_str(), gees.x, gees.y, gees.z);
+        Ogre::Vector3 gcur = actor->GetGForcesCur();
+        Ogre::Vector3 gmax = actor->GetGForcesMax();
+        Ogre::UTFString tmp = _L("Vertical: % 6.2fg  (%1.2fg)\nSagittal: % 6.2fg  (%1.2fg)\nLateral:  % 6.2fg  (%1.2fg)");
+        swprintf(geesstr, 256, tmp.asWStr_c_str(), gcur.x, gmax.x, gcur.y, gmax.y, gcur.z, gmax.z);
         m_actor_stats_str = m_actor_stats_str + MainThemeColor + _L("G-Forces:\n") + WhiteColor + Ogre::UTFString(geesstr) + "\n";
 
         m_truck_stats->setCaptionWithReplacing(m_actor_stats_str);
