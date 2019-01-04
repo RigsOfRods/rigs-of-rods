@@ -4358,6 +4358,7 @@ Actor::Actor(
     , ar_filename(rq.asr_filename)
     , m_actor_config(rq.asr_config)
     , m_ongoing_reset(false)
+    , ar_top_speed(0.0f)
     , ar_last_fuzzy_ground_model(nullptr)
     , m_transfer_case(nullptr)
 {

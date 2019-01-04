@@ -1114,6 +1114,7 @@ void ActorManager::UpdatePhysicsSimulation()
             actor->m_avg_node_velocity  = actor->m_avg_node_position - actor->m_avg_node_position_prev;
             actor->m_avg_node_velocity /= (m_physics_steps * PHYSICS_DT);
             actor->m_avg_node_position_prev = actor->m_avg_node_position;
+            actor->ar_top_speed = std::max(actor->ar_top_speed, actor->ar_nodes[0].Velocity.length());
         }
     }
 }

@@ -338,6 +338,7 @@ public:
     DashBoardManager* ar_dashboard;
     SimState          ar_sim_state;                   //!< Sim state
     float             ar_collision_range;             //!< Physics attr
+    float             ar_top_speed;                   //!< Sim state
     ground_model_t*   ar_last_fuzzy_ground_model;     //!< GUI state
 
     // Bit flags
