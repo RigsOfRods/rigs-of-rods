@@ -30,7 +30,7 @@ void PointColDetector::UpdateIntraPoint()
 {
     if (m_actor->ar_num_contacters != m_object_list_size)
     {
-        m_actors = {m_actor};
+        m_collision_partners = {m_actor};
         m_object_list_size = m_actor->ar_num_contacters;
         update_structures_for_contacters();
     }
@@ -42,18 +42,18 @@ void PointColDetector::UpdateIntraPoint()
 
 void PointColDetector::UpdateInterPoint(bool ignorestate)
 {
-    auto links = m_actor->GetAllLinkedActors();
+    m_linked_actors = m_actor->GetAllLinkedActors();
 
     int contacters_size = 0;
-    std::vector<Actor*> actors;
+    std::vector<Actor*> collision_partners;
     for (auto actor : RoR::App::GetSimController()->GetActors())
     {
         if (actor != m_actor && (ignorestate || actor->ar_update_physics) &&
                 m_actor->ar_bounding_box.intersects(actor->ar_bounding_box))
         {
-            actors.push_back(actor);
-            bool intra_vehicle_collision = std::find(links.begin(), links.end(), actor) != links.end();
-            contacters_size += intra_vehicle_collision ? actor->ar_num_contacters : actor->ar_num_contactable_nodes;
+            collision_partners.push_back(actor);
+            bool is_linked = std::find(m_linked_actors.begin(), m_linked_actors.end(), actor) != m_linked_actors.end();
+            contacters_size += is_linked ? actor->ar_num_contacters : actor->ar_num_contactable_nodes;
             if (m_actor->ar_nodes[0].Velocity.squaredDistance(actor->ar_nodes[0].Velocity) > 16)
             {
                 for (int i = 0; i < m_actor->ar_num_collcabs; i++)
@@ -72,9 +72,9 @@ void PointColDetector::UpdateInterPoint(bool ignorestate)
 
     m_actor->ar_collision_relevant = (contacters_size > 0);
 
-    if (actors != m_actors || contacters_size != m_object_list_size)
+    if (collision_partners != m_collision_partners || contacters_size != m_object_list_size)
     {
-        m_actors = actors;
+        m_collision_partners = collision_partners;
         m_object_list_size = contacters_size;
         update_structures_for_contacters();
     }
@@ -89,16 +89,15 @@ void PointColDetector::update_structures_for_contacters()
     m_ref_list.resize(m_object_list_size);
     m_pointid_list.resize(m_object_list_size);
 
-    auto links = m_actor->GetAllLinkedActors();
-
     // Insert all contacters into the list of points to consider when building the kdtree
     int refi = 0;
-    for (auto actor : m_actors)
+    for (auto actor : m_collision_partners)
     {
-        bool intra_vehicle_collision = (actor == m_actor) || std::find(links.begin(), links.end(), actor) != links.end();
+        bool is_linked = std::find(m_linked_actors.begin(), m_linked_actors.end(), actor) != m_linked_actors.end();
+        bool internal_collision = (actor == m_actor) || is_linked;
         for (int i = 0; i < actor->ar_num_nodes; i++)
         {
-            if (actor->ar_nodes[i].nd_contacter || (!intra_vehicle_collision && !actor->ar_nodes[i].nd_no_ground_contact))
+            if (actor->ar_nodes[i].nd_contacter || (!internal_collision && !actor->ar_nodes[i].nd_no_ground_contact))
             {
                 m_pointid_list[refi].actor = actor;
                 m_pointid_list[refi].node_id = i;

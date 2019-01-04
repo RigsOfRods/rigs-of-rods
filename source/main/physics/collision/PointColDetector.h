@@ -58,7 +58,8 @@ private:
     };
 
     Actor*                 m_actor;
-    std::vector<Actor*>    m_actors;
+    std::vector<Actor*>    m_linked_actors;
+    std::vector<Actor*>    m_collision_partners;
     std::vector<refelem_t> m_ref_list;
     std::vector<pointid_t> m_pointid_list;
     std::vector<kdnode_t>  m_kdtree;
