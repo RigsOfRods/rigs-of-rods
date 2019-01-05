@@ -948,26 +948,31 @@ void Actor::CalcCommands(bool doUpdate)
                 float v = 0.0f;
                 int rota = std::abs(ar_command_key[i].rotators[j]) - 1;
 
-                if (ar_rotators[rota].rotatorNeedsEngine && ((ar_engine && !ar_engine->IsRunning()) || !ar_engine_hydraulics_ready))
+                if (ar_rotators[rota].needs_engine && ((ar_engine && !ar_engine->IsRunning()) || !ar_engine_hydraulics_ready))
                     continue;
 
                 if (m_rotator_inertia)
                 {
                     v = m_rotator_inertia->calcCmdKeyDelay(ar_command_key[i].commandValue, i, PHYSICS_DT);
 
-                    if (v > 0.0f && ar_rotators[rota].rotatorEngineCoupling > 0.0f)
+                    if (v > 0.0f && ar_rotators[rota].engine_coupling > 0.0f)
                         requestpower = true;
                 }
 
                 float cf = 1.0f;
 
-                if (ar_rotators[rota].rotatorEngineCoupling > 0.0f)
+                if (ar_rotators[rota].engine_coupling > 0.0f)
                     cf = crankfactor;
 
                 if (ar_command_key[i].rotators[j] > 0)
                     ar_rotators[rota].angle += ar_rotators[rota].rate * v * cf * PHYSICS_DT;
                 else
                     ar_rotators[rota].angle -= ar_rotators[rota].rate * v * cf * PHYSICS_DT;
+
+                if (doUpdate || v != 0.0f)
+                {
+                    ar_rotators[rota].debug_rate = ar_rotators[rota].rate * v * cf;
+                }
             }
             if (requestpower)
                 requested=true;
@@ -998,21 +1003,26 @@ void Actor::CalcCommands(bool doUpdate)
         for (int i = 0; i < ar_num_rotators; i++)
         {
             // compute rotation axis
-            Vector3 axis = (ar_nodes[ar_rotators[i].axis1].RelPosition - ar_nodes[ar_rotators[i].axis2].RelPosition).normalisedCopy();
+            Vector3 ax1 = ar_nodes[ar_rotators[i].axis1].RelPosition;
+            Vector3 ax2 = ar_nodes[ar_rotators[i].axis2].RelPosition;
+            Vector3 axis = ax1 - ax2;
+            axis.normalise();
             // find the reference plane
             Plane pl = Plane(axis, 0);
             // for each pairar
+            ar_rotators[i].debug_aerror = 0;
             for (int k = 0; k < 2; k++)
             {
                 // find the reference vectors
-                Vector3 ref1 = pl.projectVector(ar_nodes[ar_rotators[i].axis2].RelPosition - ar_nodes[ar_rotators[i].nodes1[k]].RelPosition);
-                Vector3 ref2 = pl.projectVector(ar_nodes[ar_rotators[i].axis2].RelPosition - ar_nodes[ar_rotators[i].nodes2[k]].RelPosition);
+                Vector3 ref1 = pl.projectVector(ax1 - ar_nodes[ar_rotators[i].nodes1[k]].RelPosition);
+                Vector3 ref2 = pl.projectVector(ax2 - ar_nodes[ar_rotators[i].nodes2[k]].RelPosition);
                 float ref1len = ref1.normalise();
                 float ref2len = ref2.normalise();
                 // theory vector
                 Vector3 th1 = Quaternion(Radian(ar_rotators[i].angle + Math::HALF_PI), axis) * ref1;
                 // find the angle error
                 float aerror = asin(th1.dotProduct(ref2));
+                ar_rotators[i].debug_aerror += 0.5f * aerror;
                 // exert forces
                 float rigidity = ar_rotators[i].force;
                 Vector3 dir1 = ref1.crossProduct(axis);
@@ -1024,8 +1034,8 @@ void Actor::CalcCommands(bool doUpdate)
                 if (ref2len <= ar_rotators[i].tolerance)
                     ref2len = 0.0f;
 
-                ar_nodes[ar_rotators[i].nodes1[k]].Forces += (aerror * ref1len * rigidity) * dir1;
-                ar_nodes[ar_rotators[i].nodes2[k]].Forces -= (aerror * ref2len * rigidity) * dir2;
+                ar_nodes[ar_rotators[i].nodes1[k    ]].Forces += (aerror * ref1len * rigidity) * dir1;
+                ar_nodes[ar_rotators[i].nodes2[k    ]].Forces -= (aerror * ref2len * rigidity) * dir2;
                 // symmetric
                 ar_nodes[ar_rotators[i].nodes1[k + 2]].Forces -= (aerror * ref1len * rigidity) * dir1;
                 ar_nodes[ar_rotators[i].nodes2[k + 2]].Forces += (aerror * ref2len * rigidity) * dir2;

@@ -3255,8 +3255,8 @@ void ActorSpawner::ProcessRotator(RigDef::Rotator & def)
     rotator.axis2     = GetNodeIndexOrThrow(def.axis_nodes[1]);
     rotator.force     = ROTATOR_FORCE_DEFAULT;
     rotator.tolerance = ROTATOR_TOLERANCE_DEFAULT;
-    rotator.rotatorEngineCoupling = def.engine_coupling;
-    rotator.rotatorNeedsEngine = def.needs_engine;
+    rotator.engine_coupling = def.engine_coupling;
+    rotator.needs_engine = def.needs_engine;
     for (unsigned int i = 0; i < 4; i++)
     {
         rotator.nodes1[i] = GetNodeIndexOrThrow(def.base_plate_nodes[i]);
@@ -3289,8 +3289,8 @@ void ActorSpawner::ProcessRotator2(RigDef::Rotator2 & def)
     rotator.axis2     = GetNodeIndexOrThrow(def.axis_nodes[1]);
     rotator.force     = def.rotating_force; // Default value is set in constructor
     rotator.tolerance = def.tolerance; // Default value is set in constructor
-    rotator.rotatorEngineCoupling = def.engine_coupling;
-    rotator.rotatorNeedsEngine = def.needs_engine;
+    rotator.engine_coupling = def.engine_coupling;
+    rotator.needs_engine = def.needs_engine;
     for (unsigned int i = 0; i < 4; i++)
     {
         rotator.nodes1[i] = GetNodeIndexOrThrow(def.base_plate_nodes[i]);

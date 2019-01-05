@@ -1119,6 +1119,197 @@ void RoR::GfxActor::UpdateDebugView()
                 }
             }
         }
+    } else if (m_debug_view == DebugViewType::DEBUGVIEW_ROTATORS)
+    {
+        // Rotators
+        const node_t* nodes = m_actor->ar_nodes;
+        const rotator_t* rotators = m_actor->ar_rotators;
+        const size_t num_rotators = static_cast<size_t>(m_actor->ar_num_rotators);
+        for (int i = 0; i < num_rotators; i++)
+        {
+            Ogre::Vector3 pos1_xyz = world2screen.Convert(nodes[rotators[i].axis1].AbsPosition);
+            Ogre::Vector3 pos2_xyz = world2screen.Convert(nodes[rotators[i].axis2].AbsPosition);
+
+            // Rotator axle
+            {
+                if (pos1_xyz.z < 0.f)
+                {
+                    ImVec2 pos(pos1_xyz.x, pos1_xyz.y);
+                    drawlist->AddCircleFilled(pos, 1.25f * NODE_IMMOVABLE_RADIUS, NODE_COLOR);
+                }
+                if (pos2_xyz.z < 0.f)
+                {
+                    ImVec2 pos(pos2_xyz.x, pos2_xyz.y);
+                    drawlist->AddCircleFilled(pos, 1.25f * NODE_IMMOVABLE_RADIUS, NODE_COLOR);
+                }
+                if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
+                {
+                    ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
+                    ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
+                    drawlist->AddLine(pos1xy, pos2xy, BEAM_COLOR, 1.25f * BEAM_BROKEN_THICKNESS);
+                }
+
+                // Id, RPM, Error
+                Ogre::Vector3 pos_xyz = pos1_xyz.midPoint(pos2_xyz);
+                if (pos_xyz.z < 0.f)
+                {
+                    float v = ImGui::GetTextLineHeightWithSpacing();
+                    ImVec2 pos(pos_xyz.x, pos_xyz.y);
+                    Str<25> rotator_id_buf;
+                    rotator_id_buf << "Id: " << (i + 1);
+                    float h1 = ImGui::CalcTextSize(rotator_id_buf.ToCStr()).x / 2.0f;
+                    drawlist->AddText(ImVec2(pos.x - h1, pos.y), NODE_TEXT_COLOR, rotator_id_buf.ToCStr());
+                    char angle_buf[25];
+                    snprintf(angle_buf, 25, "Rate: %.1f rpm", 60.0f * rotators[i].debug_rate / Ogre::Math::TWO_PI);
+                    float h2 = ImGui::CalcTextSize(angle_buf).x / 2.0f;
+                    drawlist->AddText(ImVec2(pos.x - h2, pos.y + v), NODE_TEXT_COLOR, angle_buf);
+                    char aerror_buf[25];
+                    snprintf(aerror_buf, 25, "Error: %.1f mrad", 1000.0f * std::abs(rotators[i].debug_aerror));
+                    float h3 = ImGui::CalcTextSize(aerror_buf).x / 2.0f;
+                    drawlist->AddText(ImVec2(pos.x - h3, pos.y + v + v), NODE_TEXT_COLOR, aerror_buf);
+                }
+            }
+
+            // Reference arms
+            for (int j = 0; j < 4; j++)
+            {
+                // Base plate
+                {
+                    ImU32 node_color = Ogre::ColourValue(0.33f, 0.33f, 0.33f, j < 2 ? 1.0f : 0.5f).getAsABGR();
+                    ImU32 beam_color = Ogre::ColourValue(0.33f, 0.33f, 0.33f, j < 2 ? 1.0f : 0.5f).getAsABGR();
+
+                    Ogre::Vector3 pos3_xyz = world2screen.Convert(nodes[rotators[i].nodes1[j]].AbsPosition);
+                    if (pos3_xyz.z < 0.f)
+                    {
+                        ImVec2 pos(pos3_xyz.x, pos3_xyz.y);
+                        drawlist->AddCircleFilled(pos, NODE_RADIUS, node_color);
+                    }
+                    if ((pos1_xyz.z < 0.f) && (pos3_xyz.z < 0.f))
+                    {
+                        ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
+                        ImVec2 pos2xy(pos3_xyz.x, pos3_xyz.y);
+                        drawlist->AddLine(pos1xy, pos2xy, beam_color, BEAM_BROKEN_THICKNESS);
+                    }
+                }
+                // Rotating plate
+                {
+                    ImU32 node_color = Ogre::ColourValue(1.00f, 0.87f, 0.27f, j < 2 ? 1.0f : 0.5f).getAsABGR();
+                    ImU32 beam_color = Ogre::ColourValue(0.88f, 0.64f, 0.33f, j < 2 ? 1.0f : 0.5f).getAsABGR();
+
+                    Ogre::Vector3 pos3_xyz = world2screen.Convert(nodes[rotators[i].nodes2[j]].AbsPosition);
+                    if (pos3_xyz.z < 0.f)
+                    {
+                        ImVec2 pos(pos3_xyz.x, pos3_xyz.y);
+                        drawlist->AddCircleFilled(pos, NODE_RADIUS, node_color);
+                    }
+                    if ((pos2_xyz.z < 0.f) && (pos3_xyz.z < 0.f))
+                    {
+                        ImVec2 pos1xy(pos2_xyz.x, pos2_xyz.y);
+                        ImVec2 pos2xy(pos3_xyz.x, pos3_xyz.y);
+                        drawlist->AddLine(pos1xy, pos2xy, beam_color, BEAM_BROKEN_THICKNESS);
+                    }
+                }
+            }
+
+            // Projection plane
+            {
+                Ogre::Vector3 mid = nodes[rotators[i].axis1].AbsPosition.midPoint(nodes[rotators[i].axis2].AbsPosition);
+                Ogre::Vector3 axis = nodes[rotators[i].axis1].RelPosition - nodes[rotators[i].axis2].RelPosition;
+                Ogre::Vector3 perp = axis.perpendicular(); 
+                axis.normalise();
+
+                const int steps = 64;
+                Ogre::Plane plane = Ogre::Plane(axis, mid);
+
+                Ogre::Real radius1 = 0.0f;
+                Ogre::Real offset1 = 0.0f;
+                for (int k = 0; k < 2; k++)
+                {
+                    Ogre::Vector3 r1 = nodes[rotators[i].nodes1[k]].RelPosition - nodes[rotators[i].axis1].RelPosition;
+                    Ogre::Real r = plane.projectVector(r1).length();
+                    if (r > radius1)
+                    {
+                        radius1 = r;
+                        offset1 = plane.getDistance(nodes[rotators[i].nodes1[k]].AbsPosition);
+                    }
+                }
+                std::vector<ImVec2> pos1_xy;
+                for (int k = 0; k < steps; k++)
+                {
+                    Ogre::Quaternion rotation(Ogre::Radian(((float)k / steps) * Ogre::Math::TWO_PI), axis);
+                    Ogre::Vector3 pos_xyz = world2screen.Convert(mid + axis * offset1 + rotation * perp * radius1);
+                    if (pos_xyz.z < 0.f)
+                    {
+                        pos1_xy.push_back(ImVec2(pos_xyz.x, pos_xyz.y));
+                    }
+                }
+                drawlist->AddConvexPolyFilled(pos1_xy.data(), pos1_xy.size(), 0x33666666, false);
+
+                Ogre::Real radius2 = 0.0f;
+                Ogre::Real offset2 = 0.0f;
+                for (int k = 0; k < 2; k++)
+                {
+                    Ogre::Vector3 r2 = nodes[rotators[i].nodes2[k]].RelPosition - nodes[rotators[i].axis2].RelPosition;
+                    Ogre::Real r = plane.projectVector(r2).length();
+                    if (r > radius2)
+                    {
+                        radius2 = r;
+                        offset2 = plane.getDistance(nodes[rotators[i].nodes2[k]].AbsPosition);
+                    }
+                }
+                std::vector<ImVec2> pos2_xy;
+                for (int k = 0; k < steps; k++)
+                {
+                    Ogre::Quaternion rotation(Ogre::Radian(((float)k / steps) * Ogre::Math::TWO_PI), axis);
+                    Ogre::Vector3 pos_xyz = world2screen.Convert(mid + axis * offset2 + rotation * perp * radius2);
+                    if (pos_xyz.z < 0.f)
+                    {
+                        pos2_xy.push_back(ImVec2(pos_xyz.x, pos_xyz.y));
+                    }
+                }
+                drawlist->AddConvexPolyFilled(pos2_xy.data(), pos2_xy.size(), 0x1155a3e0, false);
+
+                for (int k = 0; k < 2; k++)
+                {
+                    // Projected and rotated base plate arms (theory vectors)
+                    Ogre::Vector3 ref1 = plane.projectVector(nodes[rotators[i].nodes1[k]].AbsPosition - mid);
+                    Ogre::Vector3 th1 = Ogre::Quaternion(Ogre::Radian(rotators[i].angle), axis) * ref1;
+                    {
+                        Ogre::Vector3 pos1_xyz = world2screen.Convert(mid + axis * offset1);
+                        Ogre::Vector3 pos2_xyz = world2screen.Convert(mid + axis * offset1 + th1);
+                        if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
+                        {
+                            ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
+                            ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
+                            drawlist->AddLine(pos1xy, pos2xy, 0x44888888, BEAM_BROKEN_THICKNESS);
+                        }
+                    }
+                    // Projected rotation plate arms
+                    Ogre::Vector3 ref2 = plane.projectVector(nodes[rotators[i].nodes2[k]].AbsPosition - mid);
+                    {
+                        Ogre::Vector3 pos1_xyz = world2screen.Convert(mid + axis * offset2);
+                        Ogre::Vector3 pos2_xyz = world2screen.Convert(mid + axis * offset2 + ref2);
+                        if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
+                        {
+                            ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
+                            ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
+                            drawlist->AddLine(pos1xy, pos2xy, 0x4455a3e0, BEAM_BROKEN_THICKNESS);
+                        }
+                    }
+                    // Virtual plate connections
+                    th1.normalise();
+                    Ogre::Real radius = std::min(radius1, radius2);
+                    Ogre::Vector3 pos3_xyz = world2screen.Convert(mid + axis * offset1 + th1 * radius);
+                    Ogre::Vector3 pos4_xyz = world2screen.Convert(mid + axis * offset2 + th1 * radius);
+                    if ((pos3_xyz.z < 0.f) && (pos4_xyz.z < 0.f))
+                    {
+                        ImVec2 pos1xy(pos3_xyz.x, pos3_xyz.y);
+                        ImVec2 pos2xy(pos4_xyz.x, pos4_xyz.y);
+                        drawlist->AddLine(pos1xy, pos2xy, BEAM_COLOR, BEAM_BROKEN_THICKNESS);
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -1148,7 +1339,8 @@ void RoR::GfxActor::CycleDebugViews()
     case DebugViewType::DEBUGVIEW_NODES:    SetDebugView(DebugViewType::DEBUGVIEW_BEAMS);    break;
     case DebugViewType::DEBUGVIEW_BEAMS:    SetDebugView(DebugViewType::DEBUGVIEW_WHEELS);   break;
     case DebugViewType::DEBUGVIEW_WHEELS:   SetDebugView(DebugViewType::DEBUGVIEW_SHOCKS);   break;
-    case DebugViewType::DEBUGVIEW_SHOCKS:   SetDebugView(DebugViewType::DEBUGVIEW_SKELETON); break;
+    case DebugViewType::DEBUGVIEW_SHOCKS:   SetDebugView(DebugViewType::DEBUGVIEW_ROTATORS); break;
+    case DebugViewType::DEBUGVIEW_ROTATORS: SetDebugView(DebugViewType::DEBUGVIEW_SKELETON); break;
     default:;
     }
 }
