@@ -354,12 +354,13 @@ void RoR::GUI::TopMenubar::Update()
                 {
                     debug_view_type = static_cast<int>(current_actor->GetGfxActor()->GetDebugView());
                 }
-                ImGui::RadioButton("Normal view",   &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_NONE));
-                ImGui::RadioButton("Skeleton view", &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_SKELETON));
-                ImGui::RadioButton("Node details",  &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_NODES));
-                ImGui::RadioButton("Beam details",  &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_BEAMS));
-                ImGui::RadioButton("Wheel details",  &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_WHEELS));
-                ImGui::RadioButton("Shock details",  &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_SHOCKS));
+                ImGui::RadioButton("Normal view",     &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_NONE));
+                ImGui::RadioButton("Skeleton view",   &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_SKELETON));
+                ImGui::RadioButton("Node details",    &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_NODES));
+                ImGui::RadioButton("Beam details",    &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_BEAMS));
+                ImGui::RadioButton("Wheel details",   &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_WHEELS));
+                ImGui::RadioButton("Shock details",   &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_SHOCKS));
+                ImGui::RadioButton("Rotator details", &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_ROTATORS));
 
                 if ((current_actor != nullptr) && (debug_view_type != static_cast<int>(current_actor->GetGfxActor()->GetDebugView())))
                 {

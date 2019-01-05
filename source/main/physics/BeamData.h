@@ -342,6 +342,7 @@ struct hydrobeam_t
 
 struct rotator_t
 {
+    bool needs_engine;
     int nodes1[4];
     int nodes2[4];
     int axis1; //!< rot axis
@@ -350,8 +351,9 @@ struct rotator_t
     float rate;
     float force;
     float tolerance;
-    float rotatorEngineCoupling;
-    bool rotatorNeedsEngine;
+    float engine_coupling;
+    float debug_rate;
+    float debug_aerror;
 };
 
 struct flare_t
