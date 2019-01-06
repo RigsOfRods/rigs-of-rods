@@ -109,6 +109,8 @@ private:
     // collision tris pool;
     std::vector<collision_tri_t> m_collision_tris; // Formerly MAX_COLLISION_TRIS = 100000
 
+    Ogre::AxisAlignedBox m_collision_aab; // Tight bounding box around all collision meshes
+
     // collision hashtable
     Ogre::Real hashtable_height[HASH_SIZE];
     std::vector<hash_coll_element_t> hashtable[HASH_SIZE];
@@ -170,6 +172,8 @@ public:
     int addCollisionMesh(Ogre::String meshname, Ogre::Vector3 pos, Ogre::Quaternion q, Ogre::Vector3 scale, ground_model_t* gm = 0, std::vector<int>* collTris = 0);
     int addCollisionTri(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, ground_model_t* gm);
     int createCollisionDebugVisualization();
+
+    Ogre::AxisAlignedBox getCollisionAAB() { return m_collision_aab; };
 
     // ground models things
     int loadDefaultModels();

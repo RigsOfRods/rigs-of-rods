@@ -490,6 +490,11 @@ void TerrainManager::initObjects()
     m_object_manager = new TerrainObjectManager(this);
 }
 
+Ogre::AxisAlignedBox TerrainManager::getTerrainCollisionAAB()
+{
+    return m_collisions->getCollisionAAB();
+}
+
 Ogre::Vector3 TerrainManager::getMaxTerrainSize()
 {
     if (!m_geometry_manager)
@@ -510,6 +515,11 @@ Ogre::Vector3 TerrainManager::GetNormalAt(float x, float y, float z)
 SkyManager* TerrainManager::getSkyManager()
 {
     return m_sky_manager;
+}
+
+bool TerrainManager::isFlat()
+{
+    return m_geometry_manager->isFlat();
 }
 
 void TerrainManager::LoadTelepoints()

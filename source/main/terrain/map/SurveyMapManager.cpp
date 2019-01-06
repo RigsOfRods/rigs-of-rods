@@ -39,6 +39,7 @@ using namespace Ogre;
 
 SurveyMapManager::SurveyMapManager() :
       mMapCenter(Vector2::ZERO)
+    , mMapCenterOffset(Vector2::ZERO)
     , mMapLastMode(SurveyMapMode::SMALL)
     , mMapMode(SurveyMapMode::NONE)
     , mMapSize(Vector2::ZERO)
@@ -67,7 +68,16 @@ SurveyMapManager::~SurveyMapManager()
 
 void SurveyMapManager::init()
 {
+    AxisAlignedBox aab   = App::GetSimTerrain()->getTerrainCollisionAAB();
     Vector3 terrain_size = App::GetSimTerrain()->getMaxTerrainSize();
+    bool use_aab         = App::GetSimTerrain()->isFlat() && std::min(aab.getSize().x, aab.getSize().z) > 50.0f;
+
+    if (terrain_size == Vector3::ZERO || use_aab && (aab.getSize().length() < terrain_size.length()))
+    {
+        terrain_size = aab.getSize();
+        Vector3 offset = aab.getCenter() - terrain_size / 2;
+        mMapCenterOffset = Vector2(offset.x, offset.z);
+    }
 
     mTerrainSize = Vector2(terrain_size.x, terrain_size.z);
     mPlayerPosition = mTerrainSize / 2;
@@ -81,12 +91,12 @@ void SurveyMapManager::init()
 
     mMapTextureCreatorStatic = std::unique_ptr<SurveyMapTextureCreator>(new SurveyMapTextureCreator(mTerrainSize));
     mMapTextureCreatorStatic->init(res, fsaa);
-    mMapTextureCreatorStatic->update(mMapCenter, mMapSize);
+    mMapTextureCreatorStatic->update(mMapCenter + mMapCenterOffset, mMapSize);
 
     // TODO: Find out how to zoom into the static texture instead
     mMapTextureCreatorDynamic = std::unique_ptr<SurveyMapTextureCreator>(new SurveyMapTextureCreator(mTerrainSize));
     mMapTextureCreatorDynamic->init(res / 4, fsaa);
-    mMapTextureCreatorDynamic->update(mMapCenter, mMapSize);
+    mMapTextureCreatorDynamic->update(mMapCenter + mMapCenterOffset, mMapSize);
 
     mMapTexture->eventMouseSetFocus      += MyGUI::newDelegate(this, &SurveyMapManager::setFocus);
     mMapTexture->eventMouseLostFocus     += MyGUI::newDelegate(this, &SurveyMapManager::lostFocus);
@@ -149,12 +159,12 @@ void SurveyMapManager::updateMap()
 {
     mMapSize = mTerrainSize * (1.0f - mMapZoom);
 
-    mMapCenter.x = Math::Clamp(mPlayerPosition.x, mMapSize.x / 2, mTerrainSize.x - mMapSize.x / 2);
-    mMapCenter.y = Math::Clamp(mPlayerPosition.y, mMapSize.y / 2, mTerrainSize.y - mMapSize.y / 2);
+    mMapCenter.x = Math::Clamp(mPlayerPosition.x - mMapCenterOffset.x, mMapSize.x / 2, mTerrainSize.x - mMapSize.x / 2);
+    mMapCenter.y = Math::Clamp(mPlayerPosition.y - mMapCenterOffset.y, mMapSize.y / 2, mTerrainSize.y - mMapSize.y / 2);
 
     if (mMapMode == SurveyMapMode::SMALL)
     {
-        mMapTextureCreatorDynamic->update(mMapCenter, mMapSize);
+        mMapTextureCreatorDynamic->update(mMapCenter + mMapCenterOffset, mMapSize);
     }
 }
 
@@ -175,8 +185,8 @@ void SurveyMapManager::setWindowPosition(int x, int y, float size)
 
     int realx = 0;
     int realy = 0;
-    int realw = size * std::min(rWinWidth, rWinHeight);
-    int realh = size * std::min(rWinWidth, rWinHeight);
+    int realw = size * std::min(rWinWidth, rWinHeight) * mMapSize.x / std::max(mMapSize.x, mMapSize.y);
+    int realh = size * std::min(rWinWidth, rWinHeight) * mMapSize.y / std::max(mMapSize.x, mMapSize.y);
 
     if (x == -1)
     {
@@ -326,7 +336,7 @@ void SurveyMapManager::UpdateMapEntity(SurveyMapEntity* e, String caption, Vecto
 {
     if (e)
     {
-        Vector2 origin = mMapCenter - mMapSize / 2;
+        Vector2 origin = mMapCenter + mMapCenterOffset - mMapSize / 2;
         Vector2 relPos = Vector2(pos.x, pos.z) - origin;
         bool culled = !(Vector2(0) < relPos && relPos < mMapSize);
         bool declutter = App::gfx_declutter_map.GetActive() && mMapMode == SurveyMapMode::SMALL && !e->isPlayable(); 
@@ -366,7 +376,7 @@ void SurveyMapManager::mousePressed(MyGUI::Widget* _sender, int _left, int _top,
     float left = (float)(_left - mMapTexture->getAbsoluteLeft()) / (float)mMapTexture->getWidth();
     float top  = (float)(_top  - mMapTexture->getAbsoluteTop())  / (float)mMapTexture->getHeight();
     
-    Vector2 origin = mMapCenter - mMapSize / 2;
+    Vector2 origin = mMapCenter + mMapCenterOffset - mMapSize / 2;
     Vector2 pos = origin + Vector2(left, top) * mMapSize;
 
     App::GetSimController()->TeleportPlayerXZ(pos.x, pos.y);

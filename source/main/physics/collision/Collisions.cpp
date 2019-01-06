@@ -626,6 +626,7 @@ int Collisions::addCollisionBox(SceneNode *tenode, bool rotating, bool virt, Vec
         }
     }
 
+    m_collision_aab.merge(AxisAlignedBox(coll_box.lo, coll_box.hi));
     m_collision_boxes.push_back(coll_box);
     return coll_box_index;
 }
@@ -683,6 +684,7 @@ int Collisions::addCollisionTri(Vector3 p1, Vector3 p2, Vector3 p3, ground_model
         debugmo->position(p3);
     }
 
+    m_collision_aab.merge(new_tri.aab);
     m_collision_tris.push_back(new_tri);
     return new_tri_index;
 }
