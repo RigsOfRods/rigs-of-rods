@@ -719,9 +719,6 @@ float Collisions::getSurfaceHeightBelow(float x, float z, float height)
     float surface_height = App::GetSimTerrain()->GetHeightAt(x, z);
 
     // find the correct cell
-    if (!(x > 0 && x < m_terrain_size.x && z > 0 && z < m_terrain_size.z))
-        return std::min(surface_height, height);
-
     int refx = (int)(x / (float)CELL_SIZE);
     int refz = (int)(z / (float)CELL_SIZE);
     int hash = hash_find(refx, refz);
@@ -802,9 +799,6 @@ float Collisions::getSurfaceHeightBelow(float x, float z, float height)
 bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
 {
     // find the correct cell
-    if (!(refpos->x > 0 && refpos->x < m_terrain_size.x && refpos->z > 0 && refpos->z < m_terrain_size.z))
-        return false;
-
     int refx = (int)(refpos->x / (float)CELL_SIZE);
     int refz = (int)(refpos->z / (float)CELL_SIZE);
     int hash = hash_find(refx, refz);
