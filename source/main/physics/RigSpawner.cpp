@@ -5464,6 +5464,13 @@ void ActorSpawner::CreateBeamVisuals(beam_t const & beam, int beam_index, bool v
         material_name = "tracks/Chrome";
     }
 
+    // Check for existing substitute
+    Ogre::MaterialPtr material = this->FindOrCreateCustomizedMaterial(material_name);
+    if (!material.isNull())
+    {
+        material_name = material->getName();
+    }
+
     m_beam_visuals_queue.emplace_back(beam_index, beam_defaults->visual_beam_diameter, material_name.c_str(), visible);
 }
 
