@@ -301,6 +301,7 @@ void SurveyMapManager::Update(Ogre::Real dt, Actor* curr_truck)
         if (App::GetSimController()->AreControlsLocked() || App::GetGuiManager()->GetMainSelector()->IsVisible())
         {
             toggleMode();
+            mMainWidget->setVisible(!mHidden && mMapMode != SurveyMapMode::NONE);
         }
         else
         {

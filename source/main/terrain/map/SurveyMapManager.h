@@ -43,7 +43,6 @@ public:
 
     void hideGUI(bool hidden) { mHidden = hidden; };
 
-    void toggleMode();
     void windowResized();
 
     void Update(Ogre::Real dt, Actor* curr_truck);
@@ -89,6 +88,7 @@ protected:
     void mousePressed(MyGUI::Widget* _sender, int _left, int _top, MyGUI::MouseButton _id);
 
     void cycleMode();
+    void toggleMode();
 
     void updateMap();
     void updateWindow();
