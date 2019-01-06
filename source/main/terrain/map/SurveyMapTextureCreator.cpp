@@ -29,9 +29,10 @@ using namespace RoR;
 
 static int counter = 0;
 
-SurveyMapTextureCreator::SurveyMapTextureCreator(Ogre::Vector2 terrain_size) :
+SurveyMapTextureCreator::SurveyMapTextureCreator(Ogre::Real terrain_height) :
     mCamera(nullptr),
-    mRttTex(nullptr)
+    mRttTex(nullptr),
+    mTerrainHeight(Math::Clamp(terrain_height + 100.0f, 150.0f, 420.0f))
 {
     counter++;
     mTextureName = "MapRttTex-" + TOSTRING(counter);
@@ -84,7 +85,7 @@ void SurveyMapTextureCreator::update(Vector2 center, Vector2 size)
         return;
  
     mCamera->setOrthoWindow(size.x, size.y);
-    mCamera->setPosition(Vector3(center.x, 420.0f, center.y));
+    mCamera->setPosition(Vector3(center.x, mTerrainHeight, center.y));
 
     mRttTex->update();
 }

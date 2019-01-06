@@ -26,7 +26,7 @@ class SurveyMapTextureCreator : public Ogre::RenderTargetListener, public Zeroed
 {
 public:
 
-    SurveyMapTextureCreator(Ogre::Vector2 terrain_size);
+    SurveyMapTextureCreator(Ogre::Real terrain_height);
     ~SurveyMapTextureCreator();
 
     bool init(int res, int fsaa);
@@ -39,6 +39,7 @@ protected:
     void preRenderTargetUpdate(const Ogre::RenderTargetEvent &evt);
     void postRenderTargetUpdate(const Ogre::RenderTargetEvent &evt);
 
+    Ogre::Real mTerrainHeight;
     Ogre::String mTextureName;
 
     Ogre::Camera* mCamera;
