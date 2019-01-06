@@ -1136,11 +1136,17 @@ void RoR::GfxActor::UpdateDebugView()
                 {
                     ImVec2 pos(pos1_xyz.x, pos1_xyz.y);
                     drawlist->AddCircleFilled(pos, 1.25f * NODE_IMMOVABLE_RADIUS, NODE_COLOR);
+                    Str<25> id_buf;
+                    id_buf << nodes[rotators[i].axis1].pos;
+                    drawlist->AddText(pos, NODE_TEXT_COLOR, id_buf.ToCStr());
                 }
                 if (pos2_xyz.z < 0.f)
                 {
                     ImVec2 pos(pos2_xyz.x, pos2_xyz.y);
                     drawlist->AddCircleFilled(pos, 1.25f * NODE_IMMOVABLE_RADIUS, NODE_COLOR);
+                    Str<25> id_buf;
+                    id_buf << nodes[rotators[i].axis2].pos;
+                    drawlist->AddText(pos, NODE_TEXT_COLOR, id_buf.ToCStr());
                 }
                 if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
                 {
@@ -1183,6 +1189,9 @@ void RoR::GfxActor::UpdateDebugView()
                     {
                         ImVec2 pos(pos3_xyz.x, pos3_xyz.y);
                         drawlist->AddCircleFilled(pos, NODE_RADIUS, node_color);
+                        Str<25> id_buf;
+                        id_buf << nodes[rotators[i].nodes1[j]].pos;
+                        drawlist->AddText(pos, NODE_TEXT_COLOR, id_buf.ToCStr());
                     }
                     if ((pos1_xyz.z < 0.f) && (pos3_xyz.z < 0.f))
                     {
@@ -1201,6 +1210,9 @@ void RoR::GfxActor::UpdateDebugView()
                     {
                         ImVec2 pos(pos3_xyz.x, pos3_xyz.y);
                         drawlist->AddCircleFilled(pos, NODE_RADIUS, node_color);
+                        Str<25> id_buf;
+                        id_buf << nodes[rotators[i].nodes2[j]].pos;
+                        drawlist->AddText(pos, NODE_TEXT_COLOR, id_buf.ToCStr());
                     }
                     if ((pos2_xyz.z < 0.f) && (pos3_xyz.z < 0.f))
                     {
