@@ -45,6 +45,8 @@ public:
 
     Ogre::Vector3 getMaxTerrainSize();
 
+    bool isFlat() { return mIsFlat; };
+
     void UpdateMainLightPosition();
     void updateLightMap();
 

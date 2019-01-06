@@ -69,6 +69,7 @@ protected:
     Ogre::Real mMapLastZoom;
     Ogre::Vector2 mMapSize;
     Ogre::Vector2 mMapCenter;
+    Ogre::Vector2 mMapCenterOffset;
 
     ATTRIBUTE_FIELD_WIDGET_NAME(SurveyMapManager, mMapTexture, "mMapTexture");
 
