@@ -72,9 +72,10 @@ void SurveyMapManager::init()
     Vector3 terrain_size = App::GetSimTerrain()->getMaxTerrainSize();
     bool use_aab         = App::GetSimTerrain()->isFlat() && std::min(aab.getSize().x, aab.getSize().z) > 50.0f;
 
-    if (terrain_size == Vector3::ZERO || use_aab && (aab.getSize().length() < terrain_size.length()))
+    if (terrain_size.isZeroLength() || use_aab && (aab.getSize().length() < terrain_size.length()))
     {
         terrain_size = aab.getSize();
+        terrain_size.y = aab.getMaximum().y;
         Vector3 offset = aab.getCenter() - terrain_size / 2;
         mMapCenterOffset = Vector2(offset.x, offset.z);
     }
@@ -89,12 +90,12 @@ void SurveyMapManager::init()
     int fsaa = StringConverter::parseInt(ropts["FSAA"].currentValue, 0);
     int res = std::pow(2, std::floor(std::log2(resolution)));
 
-    mMapTextureCreatorStatic = std::unique_ptr<SurveyMapTextureCreator>(new SurveyMapTextureCreator(mTerrainSize));
+    mMapTextureCreatorStatic = std::unique_ptr<SurveyMapTextureCreator>(new SurveyMapTextureCreator(terrain_size.y));
     mMapTextureCreatorStatic->init(res, fsaa);
     mMapTextureCreatorStatic->update(mMapCenter + mMapCenterOffset, mMapSize);
 
     // TODO: Find out how to zoom into the static texture instead
-    mMapTextureCreatorDynamic = std::unique_ptr<SurveyMapTextureCreator>(new SurveyMapTextureCreator(mTerrainSize));
+    mMapTextureCreatorDynamic = std::unique_ptr<SurveyMapTextureCreator>(new SurveyMapTextureCreator(terrain_size.y));
     mMapTextureCreatorDynamic->init(res / 4, fsaa);
     mMapTextureCreatorDynamic->update(mMapCenter + mMapCenterOffset, mMapSize);
 
