@@ -72,13 +72,28 @@ static const float         ROTATE_SPEED = 100.f;
 
 bool intersectsTerrain(Vector3 a, Vector3 b) // internal helper
 {
-    int steps = std::max(10.0f, a.distance(b));
-    for (int i = 0; i < steps; i++)
+    b.y = std::max(b.y, App::GetSimTerrain()->GetHeightAt(b.x, b.z) + 1.0f);
+
+    int steps = std::max(3.0f, a.distance(b) * 2.0f);
+    for (int i = 1; i < steps; i++)
     {
         Vector3 pos = a + (b - a) * (float)i / steps;
-        float y = a.y + (b.y - a.y) * (float)i / steps;
-        float h = App::GetSimTerrain()->GetHeightAt(pos.x, pos.z);
-        if (h > y)
+        float h = gEnv->collisions->getSurfaceHeight(pos.x, pos.z);
+        if (h > pos.y)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool intersectsTerrain(Vector3 a, Vector3 start, Vector3 end) // internal helper
+{
+    int steps = std::max(3.0f, start.distance(end) * 2.0f);
+    for (int i = 0; i <= steps; i++)
+    {
+        Vector3 b = start + (end - start) * (float)i / steps;
+        if (intersectsTerrain(a, b))
         {
             return true;
         }
@@ -101,6 +116,7 @@ CameraManager::CameraManager() :
     , m_splinecam_spline_len(1.0f)
     , m_splinecam_mo(0)
     , m_splinecam_spline_pos(0.5f)
+    , m_staticcam_fov_exponent(1.0f)
     , m_cam_rot_x(0.0f)
     , m_cam_rot_y(0.3f)
     , m_cam_dist(5.f)
@@ -296,6 +312,7 @@ void CameraManager::ResetCurrentBehavior()
     }
 
     case CAMERA_BEHAVIOR_STATIC:
+        m_staticcam_fov_exponent = 1.0f;
         return;
 
     case CAMERA_BEHAVIOR_VEHICLE:
@@ -503,7 +520,7 @@ bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
 
         return CameraManager::CameraBehaviorOrbitMouseMoved(_arg);
     }
-    case CAMERA_BEHAVIOR_STATIC:          return false;
+    case CAMERA_BEHAVIOR_STATIC:          return CameraBehaviorStaticMouseMoved(_arg);
     case CAMERA_BEHAVIOR_VEHICLE:         return CameraBehaviorOrbitMouseMoved(_arg);
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return this->CameraBehaviorVehicleSplineMouseMoved(_arg);
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return CameraBehaviorOrbitMouseMoved(_arg);
@@ -527,6 +544,11 @@ bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
 
 bool CameraManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
 {
+    if (_id == OIS::MB_Middle)
+    {
+        ResetCurrentBehavior();
+    }
+
     switch(m_current_behavior)
     {
     case CAMERA_BEHAVIOR_CHARACTER:       return false;
@@ -570,7 +592,7 @@ void CameraManager::NotifyVehicleChanged(Actor* old_vehicle, Actor* new_vehicle)
     if (new_vehicle == nullptr)
     {
         m_cct_player_actor = nullptr;
-        if (this->m_current_behavior != CAMERA_BEHAVIOR_FIXED)
+        if (this->m_current_behavior != CAMERA_BEHAVIOR_FIXED && this->m_current_behavior != CAMERA_BEHAVIOR_STATIC)
         {
             this->switchBehavior(CAMERA_BEHAVIOR_CHARACTER);
         }
@@ -578,7 +600,7 @@ void CameraManager::NotifyVehicleChanged(Actor* old_vehicle, Actor* new_vehicle)
     }
 
     // Getting in vehicle
-    if (this->m_current_behavior != CAMERA_BEHAVIOR_FIXED)
+    if (this->m_current_behavior != CAMERA_BEHAVIOR_FIXED && this->m_current_behavior != CAMERA_BEHAVIOR_STATIC)
     {
         // Change camera
         switch (new_vehicle->GetCameraContext()->behavior)
@@ -634,73 +656,77 @@ void CameraManager::ToggleCameraBehavior(CameraBehaviors new_behavior) // Only a
 
 void CameraManager::UpdateCameraBehaviorStatic()
 {
-    Vector3 lookAt = Vector3::ZERO;
+    Vector3 lookAt = gEnv->player->getPosition();
     Vector3 velocity = Vector3::ZERO;
     Radian angle = Degree(90);
-    float rotation = 0.0f;
+    float radius = 3.0f;
     float speed = 0.0f;
 
     if (m_cct_player_actor)
     {
         lookAt = m_cct_player_actor->getPosition();
-        rotation = m_cct_player_actor->getRotation();
         velocity = m_cct_player_actor->ar_nodes[0].Velocity * m_cct_sim_speed;
+        radius = m_cct_player_actor->getMinCameraRadius();
         angle = (lookAt - m_staticcam_position).angleBetween(velocity);
-        speed = velocity.length();
+        speed = velocity.normalise();
         if (m_cct_player_actor->ar_replay_mode)
         {
             speed *= m_cct_player_actor->ar_replay_precision;
         }
     }
-    else
-    {
-        lookAt = gEnv->player->getPosition();
-        rotation = gEnv->player->getRotation().valueRadians();
-    }
 
-    bool forceUpdate = RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_RESET, 2.0f);
-    forceUpdate = forceUpdate || (m_staticcam_position.distance(lookAt) > 200.0f && speed < 1.0f);
+    bool forceUpdate = RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_RESET, 1.0f);
+    forceUpdate = forceUpdate || (m_staticcam_position.distance(lookAt) > 200.0f && speed < 100.0f);
 
-    if (forceUpdate || m_staticcam_update_timer.getMilliseconds() > 2000)
+    if (forceUpdate || m_staticcam_update_timer.getMilliseconds() > 1000)
     {
         float distance = m_staticcam_position.distance(lookAt);
-        bool terrainIntersection = intersectsTerrain(m_staticcam_position, lookAt + Vector3::UNIT_Y) || intersectsTerrain(m_staticcam_position, lookAt + velocity + Vector3::UNIT_Y);
+        Vector3 lookAtPrediction = lookAt + velocity * speed;
 
-        if (forceUpdate || terrainIntersection || distance > std::max(75.0f, speed * 3.5f) || (distance > 25.0f && angle < Degree(30)))
+        if (forceUpdate ||
+               (distance > radius * 8.0f && angle < Degree(30)) ||
+               (distance < radius * 2.0f && angle > Degree(150)) ||
+                distance > std::max(75.0f, speed * radius * 1.15f) ||
+                intersectsTerrain(m_staticcam_position, lookAt, lookAtPrediction))
         {
-            if (speed < 0.1f)
-            {
-                velocity = Vector3(cos(rotation), 0.0f, sin(rotation));
-            }
             speed = std::max(5.0f, speed);
-            m_staticcam_position = lookAt + velocity.normalisedCopy() * speed * 3.0f;
-            Vector3 offset = (velocity.crossProduct(Vector3::UNIT_Y)).normalisedCopy() * speed;
-            for (int i = 0; i < 100; i++)
+            Vector3 sagittal_offset = velocity * radius * speed;
+            Vector3 lateral_offset = velocity.crossProduct(Vector3::UNIT_Y) * speed;
+            float min_rand = std::min(0.5f * radius / speed, 0.25f);
+            Vector3 pos = lookAt + sagittal_offset + lateral_offset * (min_rand + frand_11() * (1.0f - min_rand));
+            pos.y = std::max(pos.y, gEnv->collisions->getSurfaceHeight(pos.x, pos.z)) + 5.0f;
+            if (!intersectsTerrain(pos, lookAt, lookAtPrediction))
             {
-                Vector3 pos = m_staticcam_position + offset * frand_11();
-                float h = App::GetSimTerrain()->GetHeightAt(pos.x, pos.z);
-                pos.y = std::max(h, pos.y);
-                if (!intersectsTerrain(pos, lookAt + Vector3::UNIT_Y))
-                {
-                    m_staticcam_position = pos;
-                    break;
-                }
+                m_staticcam_update_timer.reset();
+                m_staticcam_position = pos;
             }
-            m_staticcam_position += offset * frand_11();
-
-            float h = App::GetSimTerrain()->GetHeightAt(m_staticcam_position.x, m_staticcam_position.z);
-            m_staticcam_position.y = std::max(h, m_staticcam_position.y) + 5.0f;
-
-            m_staticcam_update_timer.reset();
         }
     }
 
+    static float fovExp = m_staticcam_fov_exponent;
+    fovExp = (1.0f / (m_cam_ratio + 1.0f)) * m_staticcam_fov_exponent + (m_cam_ratio / (m_cam_ratio + 1.0f)) * fovExp;
+
     float camDist = m_staticcam_position.distance(lookAt);
-    float fov = atan2(20.0f, camDist);
+    float fov = atan2(20.0f, std::pow(camDist, fovExp));
 
     gEnv->mainCamera->setPosition(m_staticcam_position);
     gEnv->mainCamera->lookAt(lookAt);
     gEnv->mainCamera->setFOVy(Radian(fov));
+}
+
+bool CameraManager::CameraBehaviorStaticMouseMoved(const OIS::MouseEvent& _arg)
+{
+    const OIS::MouseState ms = _arg.state;
+
+    if (ms.buttonDown(OIS::MB_Right))
+    {
+        float scale = RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU) ? 0.00002f : 0.0002f;
+        m_staticcam_fov_exponent += ms.Z.rel * scale;
+        m_staticcam_fov_exponent = Math::Clamp(m_staticcam_fov_exponent, 0.8f, 1.50f);
+        return true;
+    }
+
+    return false;
 }
 
 void CameraManager::CameraBehaviorOrbitUpdate()
