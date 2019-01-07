@@ -1467,7 +1467,7 @@ void SimController::FinalizeActorSpawning(Actor* local_actor, Actor* prev_actor,
         if (local_actor->ar_driveable != NOT_DRIVEABLE)
         {
             // We are supposed to be in this vehicle, if it is a vehicle
-            if (local_actor->ar_engine != nullptr)
+            if (local_actor->ar_engine != nullptr && App::sim_spawn_running.GetActive())
             {
                 local_actor->ar_engine->StartEngine();
             }
@@ -1627,7 +1627,7 @@ void SimController::UpdateSimulation(float dt)
                     this->SetPendingPlayerActor(fresh_actor);
                 }
             }
-            if (fresh_actor->ar_engine)
+            if (fresh_actor->ar_engine && App::sim_spawn_running.GetActive())
             {
                 fresh_actor->ar_engine->StartEngine();
             }

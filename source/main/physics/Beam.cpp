@@ -1542,7 +1542,10 @@ void Actor::SyncReset(bool reset_position)
 
     if (ar_engine)
     {
-        ar_engine->StartEngine();
+        if (App::sim_spawn_running.GetActive())
+        {
+            ar_engine->StartEngine();
+        }
         ar_engine->SetWheelSpin(0.0f);
     }
 

@@ -196,6 +196,8 @@ void RoR::GUI::GameSettings::Draw()
         //DrawGCheckbox(App::gfx_flexbody_lods,      "Enable flexbody LODs");
         //DrawGCheckbox(App::gfx_flexbody_cache,     "Enable flexbody cache");
 
+        DrawGCheckbox(App::sim_spawn_running, _LC("GameSettings", "Engines spawn running"));
+
         DrawGCheckbox(App::sim_replay_enabled, _LC("GameSettings", "Replay mode"));
         if (App::sim_replay_enabled.GetActive())
         {
