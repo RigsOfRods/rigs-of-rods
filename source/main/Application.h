@@ -665,6 +665,7 @@ extern GVarPod_A<bool>         app_force_cache_udpate;
 // Simulation
 extern GVarEnum_AP<SimState>   sim_state;
 extern GVarStr_AP<200>         sim_terrain_name;
+extern GVarPod_A<bool>         sim_spawn_running;
 extern GVarPod_A<bool>         sim_replay_enabled;
 extern GVarPod_A<int>          sim_replay_length;
 extern GVarPod_A<int>          sim_replay_stepping;

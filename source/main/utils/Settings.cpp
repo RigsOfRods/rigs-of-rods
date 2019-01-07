@@ -597,6 +597,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckFloat(App::diag_physics_dt,           k, v)) { return true; }
     // Sim
     if (CheckSimGearboxMode                       (k, v)) { return true; }
+    if (CheckBool (App::sim_spawn_running,         k, v)) { return true; }
     if (CheckBool (App::sim_replay_enabled,        k, v)) { return true; }
     if (CheckInt  (App::sim_replay_length,         k, v)) { return true; }
     if (CheckInt  (App::sim_replay_stepping,       k, v)) { return true; }
@@ -792,6 +793,7 @@ void Settings::SaveSettings()
 
     f << std::endl << "; Simulation" << std::endl;
     WriteAny (f, App::sim_gearbox_mode.conf_name, SimGearboxToStr(App::sim_gearbox_mode.GetActive()));
+    WriteYN  (f, App::sim_spawn_running     );
     WriteYN  (f, App::sim_replay_enabled    );
     WritePod (f, App::sim_replay_length     );
     WritePod (f, App::sim_replay_stepping   );

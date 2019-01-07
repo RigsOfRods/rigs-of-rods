@@ -91,6 +91,7 @@ static TerrainManager*  g_sim_terrain;
 // Simulation
  GVarEnum_AP<SimState>    sim_state               ("sim_state",               nullptr,                     SimState::OFF,           SimState::OFF);
  GVarStr_AP<200>          sim_terrain_name        ("sim_terrain_name",        nullptr,                     "",                      "");
+ GVarPod_A<bool>          sim_spawn_running       ("sim_spawn_running",       "Engines spawn running",     true);
  GVarPod_A<bool>          sim_replay_enabled      ("sim_replay_enabled",      "Replay mode",               false);
  GVarPod_A<int>           sim_replay_length       ("sim_replay_length",       "Replay length",             200);
  GVarPod_A<int>           sim_replay_stepping     ("sim_replay_stepping",     "Replay Steps per second",   1000);
