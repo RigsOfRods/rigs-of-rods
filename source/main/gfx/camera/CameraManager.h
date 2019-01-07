@@ -82,6 +82,7 @@ protected:
     void ResetCurrentBehavior();
     void DeactivateCurrentBehavior();
     void UpdateCameraBehaviorStatic();
+    bool CameraBehaviorStaticMouseMoved(const OIS::MouseEvent& _arg);
     void UpdateCameraBehaviorFree();
     void UpdateCameraBehaviorVehicle();
     void CameraBehaviorVehicleReset();
@@ -117,6 +118,7 @@ protected:
     Ogre::Vector3        m_cam_look_at_smooth;
     Ogre::Vector3        m_cam_look_at_smooth_last;
     // Static cam attributes
+    float                m_staticcam_fov_exponent;
     Ogre::Radian         m_staticcam_previous_fov;
     Ogre::Vector3        m_staticcam_position;
     Ogre::Timer          m_staticcam_update_timer;
