@@ -1335,6 +1335,13 @@ void RoR::GfxActor::ToggleDebugView()
 
 void RoR::GfxActor::SetDebugView(DebugViewType dv)
 {
+    if (dv == DebugViewType::DEBUGVIEW_WHEELS   && m_actor->ar_num_wheels   == 0 ||
+        dv == DebugViewType::DEBUGVIEW_SHOCKS   && m_actor->ar_num_shocks   == 0 ||
+        dv == DebugViewType::DEBUGVIEW_ROTATORS && m_actor->ar_num_rotators == 0)
+    {
+        dv = DebugViewType::DEBUGVIEW_NONE;
+    }
+
     m_debug_view = dv;
     if (dv != DebugViewType::DEBUGVIEW_NONE)
     {
@@ -1349,9 +1356,27 @@ void RoR::GfxActor::CycleDebugViews()
     case DebugViewType::DEBUGVIEW_NONE:     SetDebugView(DebugViewType::DEBUGVIEW_SKELETON); break;
     case DebugViewType::DEBUGVIEW_SKELETON: SetDebugView(DebugViewType::DEBUGVIEW_NODES);    break;
     case DebugViewType::DEBUGVIEW_NODES:    SetDebugView(DebugViewType::DEBUGVIEW_BEAMS);    break;
-    case DebugViewType::DEBUGVIEW_BEAMS:    SetDebugView(DebugViewType::DEBUGVIEW_WHEELS);   break;
-    case DebugViewType::DEBUGVIEW_WHEELS:   SetDebugView(DebugViewType::DEBUGVIEW_SHOCKS);   break;
-    case DebugViewType::DEBUGVIEW_SHOCKS:   SetDebugView(DebugViewType::DEBUGVIEW_ROTATORS); break;
+    case DebugViewType::DEBUGVIEW_BEAMS:
+    {
+        if      (m_actor->ar_num_wheels)    SetDebugView(DebugViewType::DEBUGVIEW_WHEELS);
+        else if (m_actor->ar_num_shocks)    SetDebugView(DebugViewType::DEBUGVIEW_SHOCKS);
+        else if (m_actor->ar_num_rotators)  SetDebugView(DebugViewType::DEBUGVIEW_ROTATORS);
+        else                                SetDebugView(DebugViewType::DEBUGVIEW_SKELETON);
+        break;
+    }
+    case DebugViewType::DEBUGVIEW_WHEELS:
+    {
+             if (m_actor->ar_num_shocks)    SetDebugView(DebugViewType::DEBUGVIEW_SHOCKS);
+        else if (m_actor->ar_num_rotators)  SetDebugView(DebugViewType::DEBUGVIEW_ROTATORS);
+        else                                SetDebugView(DebugViewType::DEBUGVIEW_SKELETON);
+        break;
+    }
+    case DebugViewType::DEBUGVIEW_SHOCKS:
+    {
+             if (m_actor->ar_num_rotators)  SetDebugView(DebugViewType::DEBUGVIEW_ROTATORS);
+        else                                SetDebugView(DebugViewType::DEBUGVIEW_SKELETON);
+        break;
+    }
     case DebugViewType::DEBUGVIEW_ROTATORS: SetDebugView(DebugViewType::DEBUGVIEW_SKELETON); break;
     default:;
     }
