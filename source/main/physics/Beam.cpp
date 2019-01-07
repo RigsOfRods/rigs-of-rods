@@ -1464,8 +1464,6 @@ void Actor::SyncReset(bool reset_position)
     ar_hydro_rudder_state = 0.0;
     ar_hydro_elevator_state = 0.0;
     ar_hydro_dir_wheel_display = 0.0;
-
-    ar_top_speed = 0.0f;
 	
     ar_fusedrag = Vector3::ZERO;
     m_blink_type = BLINK_NONE;
