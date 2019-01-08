@@ -1322,6 +1322,74 @@ void RoR::GfxActor::UpdateDebugView()
                 }
             }
         }
+    } else if (m_debug_view == DebugViewType::DEBUGVIEW_SUBMESH)
+    {
+        // Cabs
+        const node_t* nodes = m_actor->ar_nodes;
+        const auto cabs = m_actor->ar_cabs;
+        const auto num_cabs = m_actor->ar_num_cabs;
+        const auto buoycabs = m_actor->ar_buoycabs;
+        const auto num_buoycabs = m_actor->ar_num_buoycabs;
+        const auto collcabs = m_actor->ar_collcabs;
+        const auto num_collcabs = m_actor->ar_num_collcabs;
+
+        std::vector<std::pair<float, int>> render_cabs;
+        for (int i = 0; i < num_cabs; i++)
+        {
+            Ogre::Vector3 pos1_xyz = world2screen.Convert(nodes[cabs[i*3+0]].AbsPosition);
+            Ogre::Vector3 pos2_xyz = world2screen.Convert(nodes[cabs[i*3+1]].AbsPosition);
+            Ogre::Vector3 pos3_xyz = world2screen.Convert(nodes[cabs[i*3+2]].AbsPosition);
+            if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f) && (pos3_xyz.z < 0.f))
+            {
+                float depth = pos1_xyz.z;
+                depth = std::max(depth, pos2_xyz.z);
+                depth = std::max(depth, pos3_xyz.z);
+                render_cabs.push_back({depth, i});
+            }
+        }
+        std::sort(render_cabs.begin(), render_cabs.end());
+
+        // Cabs and contacters (which are part of a cab)
+        std::vector<int> node_ids;
+        for (auto render_cab : render_cabs)
+        {
+            int i = render_cab.second;
+            bool coll = std::find(collcabs, collcabs + num_collcabs, i) != (collcabs + num_collcabs);
+            bool buoy = std::find(buoycabs, buoycabs + num_buoycabs, i) != (buoycabs + num_buoycabs);
+
+            ImU32 fill_color = Ogre::ColourValue(0.5f * coll, 0.5f * !buoy, 0.5f * (coll ^ buoy), 0.27f).getAsABGR();
+            ImU32 beam_color = Ogre::ColourValue(0.5f * coll, 0.5f * !buoy, 0.5f * (coll ^ buoy), 0.53f).getAsABGR();
+
+            Ogre::Vector3 pos1_xyz = world2screen.Convert(nodes[cabs[i*3+0]].AbsPosition);
+            Ogre::Vector3 pos2_xyz = world2screen.Convert(nodes[cabs[i*3+1]].AbsPosition);
+            Ogre::Vector3 pos3_xyz = world2screen.Convert(nodes[cabs[i*3+2]].AbsPosition);
+            if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f) && (pos3_xyz.z < 0.f))
+            {
+                ImVec2 pos1_xy(pos1_xyz.x, pos1_xyz.y);
+                ImVec2 pos2_xy(pos2_xyz.x, pos2_xyz.y);
+                ImVec2 pos3_xy(pos3_xyz.x, pos3_xyz.y);
+                drawlist->AddTriangleFilled(pos1_xy, pos2_xy, pos3_xy, fill_color);
+                drawlist->AddTriangle(pos1_xy, pos2_xy, pos3_xy, beam_color, BEAM_THICKNESS);
+            }
+            for (int k = 0; k < 3; k++)
+            {
+                int id = cabs[i*3+k];
+                if (std::find(node_ids.begin(), node_ids.end(), id) == node_ids.end())
+                {
+                    Ogre::Vector3 pos_xyz = world2screen.Convert(nodes[id].AbsPosition);
+                    if (pos_xyz.z < 0.f)
+                    {
+                        ImVec2 pos_xy(pos_xyz.x, pos_xyz.y);
+                        drawlist->AddCircleFilled(pos_xy, NODE_RADIUS, nodes[id].nd_contacter ? 0xbb0033ff : 0x88888888);
+                        // Node info
+                        Str<25> id_buf;
+                        id_buf << id;
+                        drawlist->AddText(pos_xy, NODE_TEXT_COLOR, id_buf.ToCStr());
+                    }
+                    node_ids.push_back(id);
+                }
+            }
+        }
     }
 }
 
@@ -1337,7 +1405,8 @@ void RoR::GfxActor::SetDebugView(DebugViewType dv)
 {
     if (dv == DebugViewType::DEBUGVIEW_WHEELS   && m_actor->ar_num_wheels   == 0 ||
         dv == DebugViewType::DEBUGVIEW_SHOCKS   && m_actor->ar_num_shocks   == 0 ||
-        dv == DebugViewType::DEBUGVIEW_ROTATORS && m_actor->ar_num_rotators == 0)
+        dv == DebugViewType::DEBUGVIEW_ROTATORS && m_actor->ar_num_rotators == 0 ||
+        dv == DebugViewType::DEBUGVIEW_SUBMESH  && m_actor->ar_num_cabs     == 0)
     {
         dv = DebugViewType::DEBUGVIEW_NONE;
     }
@@ -1361,6 +1430,7 @@ void RoR::GfxActor::CycleDebugViews()
         if      (m_actor->ar_num_wheels)    SetDebugView(DebugViewType::DEBUGVIEW_WHEELS);
         else if (m_actor->ar_num_shocks)    SetDebugView(DebugViewType::DEBUGVIEW_SHOCKS);
         else if (m_actor->ar_num_rotators)  SetDebugView(DebugViewType::DEBUGVIEW_ROTATORS);
+        else if (m_actor->ar_num_cabs)      SetDebugView(DebugViewType::DEBUGVIEW_SUBMESH);
         else                                SetDebugView(DebugViewType::DEBUGVIEW_SKELETON);
         break;
     }
@@ -1368,16 +1438,24 @@ void RoR::GfxActor::CycleDebugViews()
     {
              if (m_actor->ar_num_shocks)    SetDebugView(DebugViewType::DEBUGVIEW_SHOCKS);
         else if (m_actor->ar_num_rotators)  SetDebugView(DebugViewType::DEBUGVIEW_ROTATORS);
+        else if (m_actor->ar_num_cabs)      SetDebugView(DebugViewType::DEBUGVIEW_SUBMESH);
         else                                SetDebugView(DebugViewType::DEBUGVIEW_SKELETON);
         break;
     }
     case DebugViewType::DEBUGVIEW_SHOCKS:
     {
              if (m_actor->ar_num_rotators)  SetDebugView(DebugViewType::DEBUGVIEW_ROTATORS);
+        else if (m_actor->ar_num_cabs)      SetDebugView(DebugViewType::DEBUGVIEW_SUBMESH);
         else                                SetDebugView(DebugViewType::DEBUGVIEW_SKELETON);
         break;
     }
-    case DebugViewType::DEBUGVIEW_ROTATORS: SetDebugView(DebugViewType::DEBUGVIEW_SKELETON); break;
+    case DebugViewType::DEBUGVIEW_ROTATORS:
+    {
+             if (m_actor->ar_num_cabs)      SetDebugView(DebugViewType::DEBUGVIEW_SUBMESH);
+        else                                SetDebugView(DebugViewType::DEBUGVIEW_SKELETON);
+        break;
+    }
+    case DebugViewType::DEBUGVIEW_SUBMESH:  SetDebugView(DebugViewType::DEBUGVIEW_SKELETON); break;
     default:;
     }
 }
