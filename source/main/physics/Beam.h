@@ -176,6 +176,7 @@ public:
     Replay*           getReplay();
     float             GetFFbHydroForces() const         { return m_force_sensors.out_hydros_forces; }
     bool              isPreloadedWithTerrain() const    { return m_preloaded_with_terrain; };
+    bool              isBeingReset() const              { return m_ongoing_reset; };
     VehicleAI*        getVehicleAI()                    { return ar_vehicle_ai; }
     float             getWheelSpeed() const             { return ar_wheel_speed; }
     int               GetNumNodes() const               { return ar_num_nodes; }

@@ -35,6 +35,7 @@
 #include "TerrainManager.h"
 #include "GUIManager.h"
 #include "PerVehicleCameraContext.h"
+#include "Water.h"
 
 // ========== Project 'SimCam' (started June 2018) ==========
 // - Eliminate 'gEnv->mainCamera' (pointer to Ogre::Camera)
@@ -116,6 +117,7 @@ CameraManager::CameraManager() :
     , m_splinecam_spline_len(1.0f)
     , m_splinecam_mo(0)
     , m_splinecam_spline_pos(0.5f)
+    , m_staticcam_force_update(false)
     , m_staticcam_fov_exponent(1.0f)
     , m_cam_rot_x(0.0f)
     , m_cam_rot_y(0.3f)
@@ -656,7 +658,8 @@ void CameraManager::ToggleCameraBehavior(CameraBehaviors new_behavior) // Only a
 
 void CameraManager::UpdateCameraBehaviorStatic()
 {
-    Vector3 lookAt = gEnv->player->getPosition();
+    const auto water = App::GetSimTerrain()->getWater();
+
     Vector3 velocity = Vector3::ZERO;
     Radian angle = Degree(90);
     float radius = 3.0f;
@@ -664,29 +667,37 @@ void CameraManager::UpdateCameraBehaviorStatic()
 
     if (m_cct_player_actor)
     {
-        lookAt = m_cct_player_actor->getPosition();
+        if (m_cct_player_actor->isBeingReset())
+        {
+            m_staticcam_force_update |= m_cct_player_actor->getPosition().distance(m_staticcam_look_at) > 100.0f;
+        }
+        m_staticcam_look_at = m_cct_player_actor->getPosition();
         velocity = m_cct_player_actor->ar_nodes[0].Velocity * m_cct_sim_speed;
         radius = m_cct_player_actor->getMinCameraRadius();
-        angle = (lookAt - m_staticcam_position).angleBetween(velocity);
+        angle = (m_staticcam_look_at - m_staticcam_position).angleBetween(velocity);
         speed = velocity.normalise();
         if (m_cct_player_actor->ar_replay_mode)
         {
             speed *= m_cct_player_actor->ar_replay_precision;
         }
     }
-
-    bool forceUpdate = RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_RESET, 1.0f);
-    forceUpdate = forceUpdate || (m_staticcam_position.distance(lookAt) > 200.0f && speed < 100.0f);
-
-    if (forceUpdate || m_staticcam_update_timer.getMilliseconds() > 1000)
+    else
     {
-        float distance = m_staticcam_position.distance(lookAt);
-        Vector3 lookAtPrediction = lookAt + velocity * speed;
+        m_staticcam_look_at = gEnv->player->getPosition();
+    }
 
-        if (forceUpdate ||
+    m_staticcam_force_update |= RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_RESET, 1.0f);
+
+    if (m_staticcam_force_update || m_staticcam_update_timer.getMilliseconds() > 1000)
+    {
+        Vector3 lookAt = m_staticcam_look_at;
+        Vector3 lookAtPrediction = lookAt + velocity * speed;
+        float distance = m_staticcam_position.distance(lookAt);
+
+        if (m_staticcam_force_update ||
                (distance > radius * 8.0f && angle < Degree(30)) ||
                (distance < radius * 2.0f && angle > Degree(150)) ||
-                distance > std::max(75.0f, speed * radius * 1.15f) ||
+                distance > radius * std::max(25.0f, speed * 1.15f) ||
                 intersectsTerrain(m_staticcam_position, lookAt, lookAtPrediction))
         {
             speed = std::max(5.0f, speed);
@@ -694,11 +705,17 @@ void CameraManager::UpdateCameraBehaviorStatic()
             Vector3 lateral_offset = velocity.crossProduct(Vector3::UNIT_Y) * speed;
             float min_rand = std::min(0.5f * radius / speed, 0.25f);
             Vector3 pos = lookAt + sagittal_offset + lateral_offset * (min_rand + frand_11() * (1.0f - min_rand));
-            pos.y = std::max(pos.y, gEnv->collisions->getSurfaceHeight(pos.x, pos.z)) + 5.0f;
+            float surface_height = gEnv->collisions->getSurfaceHeight(pos.x, pos.z);
+            if (water != nullptr && !water->IsUnderWater(m_staticcam_look_at))
+            {
+                surface_height = std::max(surface_height, water->GetStaticWaterHeight());
+            }
+            pos.y = std::max(pos.y + radius * 1.66f, surface_height + 5.0f);
             if (!intersectsTerrain(pos, lookAt, lookAtPrediction))
             {
                 m_staticcam_update_timer.reset();
                 m_staticcam_position = pos;
+                m_staticcam_force_update = false;
             }
         }
     }
@@ -706,11 +723,11 @@ void CameraManager::UpdateCameraBehaviorStatic()
     static float fovExp = m_staticcam_fov_exponent;
     fovExp = (1.0f / (m_cam_ratio + 1.0f)) * m_staticcam_fov_exponent + (m_cam_ratio / (m_cam_ratio + 1.0f)) * fovExp;
 
-    float camDist = m_staticcam_position.distance(lookAt);
+    float camDist = m_staticcam_position.distance(m_staticcam_look_at);
     float fov = atan2(20.0f, std::pow(camDist, fovExp));
 
     gEnv->mainCamera->setPosition(m_staticcam_position);
-    gEnv->mainCamera->lookAt(lookAt);
+    gEnv->mainCamera->lookAt(m_staticcam_look_at);
     gEnv->mainCamera->setFOVy(Radian(fov));
 }
 
