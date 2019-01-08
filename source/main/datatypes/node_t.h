@@ -58,6 +58,7 @@ struct node_t
 
     // Bit flags
     bool            nd_cab_node:1;           //!< Attr; This node is part of collision triangle
+    bool            nd_rim_node:1;           //!< Attr; This node is part of the rim
     bool            nd_contacter:1;          //!< Attr; User-defined
     bool            nd_has_ground_contact:1; //!< Physics state
     bool            nd_has_mesh_contact:1;   //!< Physics state

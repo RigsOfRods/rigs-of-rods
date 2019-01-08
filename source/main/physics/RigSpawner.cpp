@@ -414,20 +414,6 @@ void ActorSpawner::FinalizeRig()
         }
     }
 
-    // Precalculate number of contacters / contactable nodes
-    for (int i = 0; i < m_actor->ar_num_nodes; i++)
-    {
-        if (m_actor->ar_nodes[i].nd_contacter)
-        {
-            m_actor->ar_num_contactable_nodes++;
-            m_actor->ar_num_contacters++;
-        }
-        else if (!m_actor->ar_nodes[i].nd_no_ground_contact)
-        {
-            m_actor->ar_num_contactable_nodes++;
-        }
-    }
-
     //calculate gwps height offset
     //get a starting value
     m_actor->ar_posnode_spawn_height=m_actor->ar_nodes[0].RelPosition.y;
@@ -4024,6 +4010,7 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 
         outer_node.mass          = node_mass;
         outer_node.friction_coef = def.node_defaults->friction;
+        outer_node.nd_rim_node   = true;
         AdjustNodeBuoyancy(outer_node, def.node_defaults);
 
         m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(outer_node.pos)));
@@ -4037,6 +4024,7 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 
         inner_node.mass          = node_mass;
         inner_node.friction_coef = def.node_defaults->friction;
+        inner_node.nd_rim_node   = true;
         AdjustNodeBuoyancy(inner_node, def.node_defaults);
 
         m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(inner_node.pos)));
@@ -6247,6 +6235,19 @@ void ActorSpawner::UpdateCollcabContacterNodes()
         m_actor->ar_nodes[m_actor->ar_cabs[tmpv]].nd_cab_node = true;
         m_actor->ar_nodes[m_actor->ar_cabs[tmpv+1]].nd_cab_node = true;
         m_actor->ar_nodes[m_actor->ar_cabs[tmpv+2]].nd_cab_node = true;
+    }
+    for (int i = 0; i < m_actor->ar_num_nodes; i++)
+    {
+        if (m_actor->ar_nodes[i].nd_contacter)
+        {
+            m_actor->ar_num_contactable_nodes++;
+            m_actor->ar_num_contacters++;
+        }
+        else if (!m_actor->ar_nodes[i].nd_no_ground_contact &&
+                 (m_actor->ar_nodes[i].nd_cab_node || m_actor->ar_nodes[i].nd_rim_node || m_actor->ar_num_collcabs == 0))
+        {
+            m_actor->ar_num_contactable_nodes++;
+        }
     }
 }
 
