@@ -97,9 +97,7 @@ void PointColDetector::update_structures_for_contacters()
         bool internal_collision = (actor == m_actor) || is_linked;
         for (int i = 0; i < actor->ar_num_nodes; i++)
         {
-            bool upgradeable = !actor->ar_nodes[i].nd_no_ground_contact &&
-                (actor->ar_nodes[i].nd_cab_node || actor->ar_nodes[i].nd_rim_node || actor->ar_num_collcabs == 0);
-            if (actor->ar_nodes[i].nd_contacter || (!internal_collision && upgradeable))
+            if (actor->ar_nodes[i].nd_contacter || (!internal_collision && actor->ar_nodes[i].nd_contactable))
             {
                 m_pointid_list[refi].actor = actor;
                 m_pointid_list[refi].node_id = i;
