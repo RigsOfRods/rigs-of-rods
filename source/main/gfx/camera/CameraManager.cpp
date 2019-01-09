@@ -700,21 +700,42 @@ void CameraManager::UpdateCameraBehaviorStatic()
                 distance > radius * std::max(25.0f, speed * 1.15f) ||
                 intersectsTerrain(m_staticcam_position, lookAt, lookAtPrediction))
         {
-            speed = std::max(5.0f, speed);
-            Vector3 sagittal_offset = velocity * radius * speed;
-            Vector3 lateral_offset = velocity.crossProduct(Vector3::UNIT_Y) * speed;
-            float min_rand = std::min(0.5f * radius / speed, 0.25f);
-            Vector3 pos = lookAt + sagittal_offset + lateral_offset * (min_rand + frand_11() * (1.0f - min_rand));
-            float surface_height = gEnv->collisions->getSurfaceHeight(pos.x, pos.z);
-            if (water != nullptr && !water->IsUnderWater(m_staticcam_look_at))
+            std::vector<std::pair<float, Vector3>> viable_positions;
+            for (int i = 0; i < 3; i++)
             {
-                surface_height = std::max(surface_height, water->GetStaticWaterHeight());
+                Vector3 pos = lookAt;
+                if (speed < 2.5f)
+                {
+                    float angle = Math::TWO_PI * frand();
+                    pos += Vector3(cos(angle), 0, sin(angle)) * radius * 2.5f;
+                }
+                else
+                {
+                    float min_rnd = std::min(0.5f * radius / speed, 0.25f);
+                    float rnd = min_rnd + frand() * (1.0f - min_rnd);
+                    Vector3 sagittal_offset = velocity * radius * speed;
+                    Vector3 lateral_offset = velocity.crossProduct(Vector3::UNIT_Y) * speed;
+                    if (frand() > 0.5f)
+                        pos += sagittal_offset + lateral_offset * rnd;
+                    else
+                        pos += sagittal_offset - lateral_offset * rnd;
+                }
+                float surface_height = gEnv->collisions->getSurfaceHeight(pos.x, pos.z);
+                if (water != nullptr && !water->IsUnderWater(m_staticcam_look_at))
+                {
+                    surface_height = std::max(surface_height, water->GetStaticWaterHeight());
+                }
+                pos.y = std::max(pos.y + radius * 1.66f, surface_height + 5.0f);
+                if (!intersectsTerrain(pos, lookAt, lookAtPrediction))
+                {
+                    viable_positions.push_back({std::abs(pos.y - lookAt.y - 5.0f), pos});
+                }
             }
-            pos.y = std::max(pos.y + radius * 1.66f, surface_height + 5.0f);
-            if (!intersectsTerrain(pos, lookAt, lookAtPrediction))
+            if (!viable_positions.empty())
             {
+                std::sort(viable_positions.begin(), viable_positions.end());
                 m_staticcam_update_timer.reset();
-                m_staticcam_position = pos;
+                m_staticcam_position = viable_positions.front().second;
                 m_staticcam_force_update = false;
             }
         }
