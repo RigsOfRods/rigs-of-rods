@@ -6246,6 +6246,7 @@ void ActorSpawner::UpdateCollcabContacterNodes()
         else if (!m_actor->ar_nodes[i].nd_no_ground_contact &&
                  (m_actor->ar_nodes[i].nd_cab_node || m_actor->ar_nodes[i].nd_rim_node || m_actor->ar_num_collcabs == 0))
         {
+            m_actor->ar_nodes[i].nd_contactable = true;
             m_actor->ar_num_contactable_nodes++;
         }
     }
