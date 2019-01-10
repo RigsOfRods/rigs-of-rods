@@ -170,6 +170,7 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
 
     int window_flags = ImGuiWindowFlags_NoCollapse;
     ImGui::SetNextWindowSize(ImVec2(750.f, 400.f), ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowPosCenter();
     if (!ImGui::Begin(m_window_title, &m_is_visible, window_flags))
     {
         return;
