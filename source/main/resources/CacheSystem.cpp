@@ -475,10 +475,25 @@ void CacheSystem::incrementalCacheUpdate()
     {
         if (it->deleted)
             continue;
-        for (std::vector<CacheEntry>::iterator it2 = m_entries.begin(); it2 != m_entries.end(); it2++)
+
+        String dnameA = it->dname;
+        StringUtil::toLowerCase(dnameA);
+        StringUtil::trim(dnameA);
+
+        for (auto it2 = m_entries.begin(); it2 != m_entries.end(); it2++)
         {
             if (it2->deleted)
                 continue;
+            if (it->number == it2->number)
+                continue; // do not delete self
+
+            String dnameB = it2->dname;
+            StringUtil::toLowerCase(dnameB);
+            StringUtil::trim(dnameB);
+
+            if (dnameA != dnameB)
+                continue;
+
             // clean paths, important since we compare them ...
             String basename, basepath;
 
@@ -494,12 +509,8 @@ void CacheSystem::incrementalCacheUpdate()
             basepath = getVirtualPath(basepath);
             dirb = basepath + basename;
 
-            String dnameA = it->dname;
-            StringUtil::toLowerCase(dnameA);
-            StringUtil::trim(dnameA);
-            String dnameB = it2->dname;
-            StringUtil::toLowerCase(dnameB);
-            StringUtil::trim(dnameB);
+            if (dira != dirb)
+                continue;
 
             String filenameA = it->fname;
             StringUtil::toLowerCase(filenameA);
@@ -512,20 +523,15 @@ void CacheSystem::incrementalCacheUpdate()
             StringUtil::toLowerCase(filenameWUIDB);
 
             // hard duplicate
-            if (dira == dirb && dnameA == dnameB && filenameA == filenameB)
+            if (filenameA == filenameB)
             {
-                if (it->number == it2->number)
-                    continue; // do not delete self
-                LOG("- "+ it2->resource_bundle_path+"/" + it->fname + " hard duplicate");
+                LOG("- hard duplicate: "+ it2->resource_bundle_path+"/" + it->fname);
                 it2->deleted = true;
-                continue;
             }
             // soft duplicates
-            else if (dira == dirb && dnameA == dnameB && filenameWUIDA == filenameWUIDB)
+            else if (filenameWUIDA == filenameWUIDB)
             {
-                if (it->number == it2->number)
-                    continue; // do not delete self
-                LOG("- "+ it2->resource_bundle_path+"/" + it->fname + " soft duplicate, resolving ...");
+                LOG("- soft duplicate: "+ it2->resource_bundle_path+"/" + it->fname + " | resolving ...");
                 String hashstr = HashFile(it2->resource_bundle_path.c_str());
                 if (hashstr == it->hash)
                 {
