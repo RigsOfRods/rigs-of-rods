@@ -471,85 +471,38 @@ void CacheSystem::incrementalCacheUpdate()
 
     LOG("* incremental check (5/5): duplicates ...");
     loading_win->setProgress(90, _L("incremental check: duplicates\n"));
-    for (auto it = m_entries.begin(); it != m_entries.end(); it++)
+    for (int i=0; i<m_entries.size(); i++) 
     {
-        if (it->deleted)
-            continue;
-
-        String dnameA = it->dname;
+        String dnameA = m_entries[i].dname;
         StringUtil::toLowerCase(dnameA);
         StringUtil::trim(dnameA);
+        String dira = m_entries[i].resource_bundle_path;
+        StringUtil::toLowerCase(dira);
+        String filenameWUIDA = m_entries[i].fname_without_uid;
+        StringUtil::toLowerCase(filenameWUIDA);
 
-        for (auto it2 = m_entries.begin(); it2 != m_entries.end(); it2++)
+        for (int j=i+1; j<m_entries.size(); j++) 
         {
-            if (it2->deleted)
+            String filenameWUIDB = m_entries[j].fname_without_uid;
+            StringUtil::toLowerCase(filenameWUIDB);
+            if (filenameWUIDA != filenameWUIDB)
                 continue;
-            if (it->number == it2->number)
-                continue; // do not delete self
 
-            String dnameB = it2->dname;
+            String dnameB = m_entries[j].dname;
             StringUtil::toLowerCase(dnameB);
             StringUtil::trim(dnameB);
-
             if (dnameA != dnameB)
                 continue;
 
-            // clean paths, important since we compare them ...
-            String basename, basepath;
-
-            String dira = it->resource_bundle_path;
-            StringUtil::toLowerCase(dira);
-            StringUtil::splitFilename(dira, basename, basepath);
-            basepath = getVirtualPath(basepath);
-            dira = basepath + basename;
-
-            String dirb = it2->resource_bundle_path;
+            String dirb = m_entries[j].resource_bundle_path;
             StringUtil::toLowerCase(dirb);
-            StringUtil::splitFilename(dira, basename, basepath);
-            basepath = getVirtualPath(basepath);
-            dirb = basepath + basename;
-
             if (dira != dirb)
                 continue;
 
-            String filenameA = it->fname;
-            StringUtil::toLowerCase(filenameA);
-            String filenameB = it2->fname;
-            StringUtil::toLowerCase(filenameB);
-
-            String filenameWUIDA = it->fname_without_uid;
-            StringUtil::toLowerCase(filenameWUIDA);
-            String filenameWUIDB = it2->fname_without_uid;
-            StringUtil::toLowerCase(filenameWUIDB);
-
-            // hard duplicate
-            if (filenameA == filenameB)
-            {
-                LOG("- hard duplicate: "+ it2->resource_bundle_path+"/" + it->fname);
-                it2->deleted = true;
-            }
-            // soft duplicates
-            else if (filenameWUIDA == filenameWUIDB)
-            {
-                LOG("- soft duplicate: "+ it2->resource_bundle_path+"/" + it->fname + " | resolving ...");
-                String hashstr = HashFile(it2->resource_bundle_path.c_str());
-                if (hashstr == it->hash)
-                {
-                    LOG("  - entry 2 removed");
-                    it2->deleted = true;
-                }
-                else if (hashstr == it2->hash)
-                {
-                    LOG("  - entry 1 removed");
-                    it->deleted = true;
-                }
-                else
-                {
-                    LOG("  - entry 1 and 2 removed");
-                    it->deleted = true;
-                    it2->deleted = true;
-                }
-            }
+            // duplicate
+            LOG("- duplicate: " + m_entries[i].fname + " <--> " + m_entries[j].fname);
+            LOG("  - " + m_entries[i].resource_bundle_path);
+            LOG("  - " + m_entries[j].resource_bundle_path);
         }
     }
     loading_win->setAutotrack(_L("loading...\n"));
