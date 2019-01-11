@@ -2720,14 +2720,17 @@ void ActorSpawner::ProcessRope(RigDef::Rope & def)
     node_t & end_node = GetNodeOrThrow(def.end_node);
 
     /* Add beam */
+    int beam_index = m_actor->ar_num_beams;
     beam_t & beam = AddBeam(root_node, end_node, def.beam_defaults, def.detacher_group);
     SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
     beam.k = def.beam_defaults->GetScaledSpringiness();
     beam.d = def.beam_defaults->GetScaledDamping();
     beam.bounded = ROPE;
     beam.bm_type = BEAM_HYDRO;
+    beam.L = root_node.AbsPosition.distance(end_node.AbsPosition);
+    beam.refL = beam.L;
 
-    // TODO: BUG?? Visuals are never created here.
+    this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
 
     /* Register rope */
     rope_t rope;
