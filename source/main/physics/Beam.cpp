@@ -1516,7 +1516,8 @@ void Actor::SyncReset(bool reset_position)
         if (r.rp_locked_ropable)
             r.rp_locked_ropable->in_use = false;
         r.rp_locked_node = &ar_nodes[0];
-        r.rp_locked_actor = 0;
+        r.rp_locked_actor = nullptr;
+        this->RemoveInterActorBeam(r.rp_beam);
     }
 
     for (auto& t : ar_ties)
@@ -3357,6 +3358,8 @@ void Actor::ToggleTies(int group)
 
 void Actor::ToggleRopes(int group)
 {
+    Actor* player_actor = App::GetSimController()->GetPlayerActor();
+
     // iterate over all ropes
     for (std::vector<rope_t>::iterator it = ar_ropes.begin(); it != ar_ropes.end(); it++)
     {
@@ -3372,7 +3375,32 @@ void Actor::ToggleRopes(int group)
             if (it->rp_locked_ropable)
                 it->rp_locked_ropable->in_use = false;
             it->rp_locked_node = &ar_nodes[0];
-            it->rp_locked_actor = 0;
+            if (it->rp_locked_actor != this)
+            {
+                this->RemoveInterActorBeam(it->rp_beam);
+                // update skeletonview on the unroped actors
+                auto linked_actors = it->rp_locked_actor->GetAllLinkedActors();
+                if (!(std::find(linked_actors.begin(), linked_actors.end(), this) != linked_actors.end()))
+                {
+                    if (this == player_actor)
+                    {
+                        it->rp_locked_actor->GetGfxActor()->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
+                        for (auto actor : it->rp_locked_actor->GetAllLinkedActors())
+                        {
+                            actor->GetGfxActor()->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
+                        }
+                    }
+                    else if (it->rp_locked_actor == player_actor)
+                    {
+                        m_gfx_actor->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
+                        for (auto actor : this->GetAllLinkedActors())
+                        {
+                            actor->GetGfxActor()->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
+                        }
+                    }
+                }
+            }
+            it->rp_locked_actor = nullptr;
         }
         else
         {
@@ -3411,9 +3439,30 @@ void Actor::ToggleRopes(int group)
                 //okay, we have found a rope to tie
                 it->rp_locked_node = nearest_node;
                 it->rp_locked_actor = nearest_actor;
-                it->rp_locked = PRELOCK;
+                it->rp_locked = LOCKED;
                 it->rp_locked_ropable = rop;
                 it->rp_locked_ropable->in_use = true;
+                if (nearest_actor != this)
+                {
+                    AddInterActorBeam(it->rp_beam, this, nearest_actor);
+                    // update skeletonview on the roped up actors
+                    if (this == player_actor)
+                    {
+                        nearest_actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
+                        for (auto actor : nearest_actor->GetAllLinkedActors())
+                        {
+                            actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
+                        }
+                    }
+                    else if (nearest_actor == player_actor)
+                    {
+                        m_gfx_actor->SetDebugView(player_actor->GetGfxActor()->GetDebugView());
+                        for (auto actor : this->GetAllLinkedActors())
+                        {
+                            actor->GetGfxActor()->SetDebugView(player_actor->GetGfxActor()->GetDebugView());
+                        }
+                    }
+                }
             }
         }
     }

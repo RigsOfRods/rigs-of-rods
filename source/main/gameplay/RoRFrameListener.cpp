@@ -997,7 +997,7 @@ void SimController::UpdateInputEvents(float dt)
                     }
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ROPELOCK))
                     {
-                        m_player_actor->ToggleRopes(-1);
+                        m_player_actor->ar_toggle_ropes = true;
                     }
                     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_LOCK))
                     {

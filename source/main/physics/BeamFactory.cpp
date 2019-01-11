@@ -672,6 +672,10 @@ void ActorManager::ForwardCommands(Actor* source_actor)
                 {
                     actor->ToggleTies();
                 }
+                if (source_actor->ar_toggle_ropes)
+                {
+                    actor->ToggleRopes(-1);
+                }
             }
         }
         // just send brake and lights to the connected trucks, and no one else :)
@@ -1008,6 +1012,11 @@ void ActorManager::UpdateActors(Actor* player_actor, float dt)
         {
             player_actor->ToggleTies();
             player_actor->ar_toggle_ties = false;
+        }
+        if (player_actor->ar_toggle_ropes)
+        {
+            player_actor->ToggleRopes(-1);
+            player_actor->ar_toggle_ropes = false;
         }
         player_actor->updateDashBoards(dt);
         player_actor->ForceFeedbackStep(m_physics_steps);

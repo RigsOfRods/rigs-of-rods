@@ -1716,7 +1716,7 @@ void Actor::CalcRopes()
 {
     for (auto r : ar_ropes)
     {
-        if (r.rp_locked_node)
+        if (r.rp_locked == LOCKED && r.rp_locked_node)
         {
             r.rp_beam->p2->AbsPosition = r.rp_locked_node->AbsPosition;
             r.rp_beam->p2->RelPosition = r.rp_locked_node->AbsPosition - ar_origin;
