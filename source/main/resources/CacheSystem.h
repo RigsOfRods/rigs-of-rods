@@ -32,7 +32,7 @@
 #include <Ogre.h>
 
 #define CACHE_FILE "mods.cache"
-#define CACHE_FILE_FORMAT 7
+#define CACHE_FILE_FORMAT 8
 
 // 60*60*24 = one day
 #define CACHE_FILE_FRESHNESS 86400
@@ -54,6 +54,7 @@ public:
     CacheEntry();
 
     Ogre::String minitype;              //!< type of preview picture, either png or dds
+    Ogre::String fpath;                 //!< filepath relative to the .zip file
     Ogre::String fname;                 //!< filename
     Ogre::String fname_without_uid;     //!< filename
     Ogre::String dname;                 //!< name parsed from the file
@@ -67,12 +68,10 @@ public:
     Ogre::String guid;                  //!< global unique id
     int version;                        //!< file's version
     Ogre::String fext;                  //!< file's extension
-    Ogre::String hash;                  //!< file's hash
     std::string resource_bundle_type;   //!< Archive type recognized by OGRE resource system: 'FileSystem' or 'Zip'
     std::string resource_bundle_path;   //!< Path of ZIP or directory which contains the media.
     int number;                         //!< Sequential number, assigned internally, used by Selector-GUI
     std::time_t filetime;               //!< filetime
-    bool changedornew;                  //!< is it added or changed during this runtime?
     bool deleted;                       //!< is this mod deleted?
     int usagecounter;                   //!< how much it was used already
     std::vector<AuthorInfo> authors;    //!< authors
@@ -176,6 +175,8 @@ private:
     static Ogre::String stripUIDfromString(Ogre::String uidstr); // helper
     int addUniqueString(std::set<Ogre::String> &list, Ogre::String str);
 
+    static Ogre::String stripSHA1fromString(Ogre::String sha1str); // helper
+
     /** parses all files loaded with a certain extension */
     void parseFilesOneRG(Ogre::String ext, Ogre::String rg);
     void parseKnownFilesOneRG(Ogre::String rg);
@@ -184,7 +185,7 @@ private:
     void checkForNewKnownFiles();
 
     void addFile(Ogre::FileInfo f, Ogre::String ext);	// adds a file to entries
-    void addFile(Ogre::String filename, Ogre::String archiveType, Ogre::String archiveDirectory, Ogre::String ext);
+    void addFile(Ogre::String filename, Ogre::String filepath, Ogre::String archiveType, Ogre::String archiveDirectory, Ogre::String ext);
 
     // reads all advanced information out of the entry's file
     void fillTerrainDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname);
@@ -192,6 +193,7 @@ private:
 
     void GenerateHashFromFilenames();         //!< For quick detection of added/removed content
     void incrementalCacheUpdate();             // tries to update parts of the Cache only
+    void detectDuplicates();                   // tries to detect duplicates
 
     void generateFileCache(CacheEntry &entry, Ogre::String directory=Ogre::String());	// generates a new cache
     void deleteFileCache(const char *full_path); //!< Delete single file from cache
@@ -199,7 +201,6 @@ private:
 
     // adds a zip to the cache
     void loadSingleZip(Ogre::FileInfo f);
-    void loadSingleZip(CacheEntry const& e);
     void loadSingleZipInternal(Ogre::String zippath, int cfactor);
 
     Ogre::String detectFilesMiniType(Ogre::String filename);
@@ -225,7 +226,6 @@ private:
     std::map<Ogre::String, bool>         m_loaded_resource_bundles;
     std::vector<CacheEntry>              m_entries;
     std::vector<Ogre::String>            m_known_extensions; //!< the extensions we track in the cache system
-    std::map<Ogre::String, Ogre::String> m_temp_zip_hashes;  //!< Only used during cache update
     std::map<int, Ogre::String>          m_categories = {
             // these are the category numbers from the repository. do not modify them!
 
