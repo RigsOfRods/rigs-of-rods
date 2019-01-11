@@ -518,13 +518,7 @@ size_t CLASS::SearchCompare(Ogre::String searchString, CacheEntry* ce)
         if (v.size() < 2)
             return Ogre::String::npos; //invalid syntax
 
-        if (v[0] == "hash")
-        {
-            Ogre::String hash = ce->hash;
-            Ogre::StringUtil::toLowerCase(hash);
-            return hash.find(v[1]);
-        }
-        else if (v[0] == "guid")
+        if (v[0] == "guid")
         {
             Ogre::String guid = ce->guid;
             Ogre::StringUtil::toLowerCase(guid);
@@ -912,10 +906,6 @@ void CLASS::UpdateControls(CacheEntry* entry)
         descriptiontxt = descriptiontxt + _L("Source: ") + entry->resource_bundle_path + newline;
     if (!entry->fname.empty())
         descriptiontxt = descriptiontxt + _L("Filename: ") + entry->fname + newline;
-    if (!entry->hash.empty() && entry->hash != "none")
-        descriptiontxt = descriptiontxt + _L("Hash: ") + entry->hash + newline;
-    if (!entry->hash.empty())
-        descriptiontxt = descriptiontxt + _L("Mod Number: ") + TOUTFSTRING(entry->number) + newline;
 
     if (!entry->sectionconfigs.empty())
     {
