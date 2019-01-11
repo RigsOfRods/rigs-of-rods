@@ -195,7 +195,7 @@ private:
     void incrementalCacheUpdate();             // tries to update parts of the Cache only
     void detectDuplicates();                   // tries to detect duplicates
 
-    void generateFileCache(CacheEntry &entry, Ogre::String directory=Ogre::String());	// generates a new cache
+    void generateFileCache(CacheEntry &entry);	// generates a new cache
     void deleteFileCache(const char *full_path); //!< Delete single file from cache
     void deleteFileCache(std::string const& full_path) { this->deleteFileCache(full_path.c_str()); }
 
