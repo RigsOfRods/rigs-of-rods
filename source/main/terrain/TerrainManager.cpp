@@ -62,6 +62,12 @@ TerrainManager::TerrainManager()
 
 TerrainManager::~TerrainManager()
 {
+    if (App::app_state.GetPending() == AppState::SHUTDOWN)
+    {
+        // Rush to exit
+        return;
+    }
+
     //I think that the order is important
 
 #ifdef USE_CAELUM
