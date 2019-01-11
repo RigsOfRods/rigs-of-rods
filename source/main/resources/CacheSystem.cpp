@@ -992,13 +992,10 @@ void CacheSystem::removeFileFromFileCache(std::vector<CacheEntry>::iterator iter
     }
 }
 
-void CacheSystem::generateFileCache(CacheEntry& entry, Ogre::String directory)
+void CacheSystem::generateFileCache(CacheEntry& entry)
 {
     try
     {
-        if (directory.empty())
-            return;
-
         if (entry.fname == "")
             return;
 
@@ -1013,10 +1010,7 @@ void CacheSystem::generateFileCache(CacheEntry& entry, Ogre::String directory)
         String outPath = "";
         StringUtil::splitFilename(entry.resource_bundle_path, outBasename, outPath);
 
-        if (directory.empty())
-        {
-            directory = Ogre::String(App::sys_cache_dir.GetActive())  + PATH_SLASH;
-        }
+        String directory = Ogre::String(App::sys_cache_dir.GetActive()) + PATH_SLASH;
 
         String dst = directory + outBasename + "_" + entry.fname + ".mini." + entry.minitype;
 
