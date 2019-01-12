@@ -2731,7 +2731,7 @@ void ActorSpawner::ProcessRope(RigDef::Rope & def)
     beam.L = root_node.AbsPosition.distance(end_node.AbsPosition);
     beam.refL = beam.L;
 
-    this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+    this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults, "tracks/beam");
 
     /* Register rope */
     rope_t rope;
@@ -5447,20 +5447,29 @@ void ActorSpawner::SetBeamDeformationThreshold(beam_t & beam, std::shared_ptr<Ri
     beam.maxnegstress       = -(deformation_threshold);
 }
 
-void ActorSpawner::CreateBeamVisuals(beam_t const & beam, int beam_index, bool visible, std::shared_ptr<RigDef::BeamDefaults> const& beam_defaults)
+void ActorSpawner::CreateBeamVisuals(beam_t const & beam, int beam_index, bool visible, std::shared_ptr<RigDef::BeamDefaults> const& beam_defaults, std::string material_override)
 {
-    //Set material
-    std::string material_name = beam_defaults->beam_material_name;
-    if (beam.bm_type == BEAM_HYDRO)
+    std::string material_name = material_override;
+    if (material_name.empty())
     {
-        material_name = "tracks/Chrome";
-    }
-
-    // Check for existing substitute
-    Ogre::MaterialPtr material = this->FindOrCreateCustomizedMaterial(material_name);
-    if (!material.isNull())
-    {
-        material_name = material->getName();
+        if (beam.bm_type == BEAM_HYDRO)
+        {
+            material_name = "tracks/Chrome";
+        }
+        else
+        {
+            material_name = beam_defaults->beam_material_name;
+            // Check for existing substitute
+            auto it = m_managed_materials.find(material_name);
+            if (it != m_managed_materials.end())
+            {
+                auto material = it->second;
+                if (!material.isNull())
+                {
+                    material_name = material->getName();
+                }
+            }
+        }
     }
 
     m_beam_visuals_queue.emplace_back(beam_index, beam_defaults->visual_beam_diameter, material_name.c_str(), visible);
