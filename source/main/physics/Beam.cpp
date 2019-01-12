@@ -4293,7 +4293,6 @@ void Actor::EngineTriggerHelper(int engineNumber, int type, float triggerValue)
 }
 
 Actor::Actor(
-    int actor_id,
     unsigned int vector_index,
     std::shared_ptr<RigDef::File> def,
     RoR::ActorSpawnRequest rq
@@ -4399,7 +4398,7 @@ Actor::Actor(
     , ar_driveable(NOT_DRIVEABLE)
     , m_skid_trails{} // Init array to nullptr
     , ar_collision_range(DEFAULT_COLLISION_RANGE)
-    , ar_instance_id(actor_id)
+    , ar_instance_id(rq.asr_uniqueid)
     , ar_vector_index(vector_index)
     , ar_rescuer_flag(false)
     , m_antilockbrake(false)
