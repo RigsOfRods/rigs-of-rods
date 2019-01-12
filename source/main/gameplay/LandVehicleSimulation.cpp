@@ -216,28 +216,16 @@ void LandVehicleSimulation::UpdateInputEvents(Actor* vehicle, float seconds_sinc
         vehicle->ar_right_mirror_angle += 0.001;
 
     // steering
-    float tmp_left_digital = RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_STEER_LEFT, false, InputEngine::ET_DIGITAL);
-    float tmp_right_digital = RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_STEER_RIGHT, false, InputEngine::ET_DIGITAL);
-    float tmp_left_analog = RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_STEER_LEFT, false, InputEngine::ET_ANALOG);
-    float tmp_right_analog = RoR::App::GetInputEngine()->getEventValue(EV_TRUCK_STEER_RIGHT, false, InputEngine::ET_ANALOG);
+    float tmp_left_digital  = App::GetInputEngine()->getEventValue(EV_TRUCK_STEER_LEFT , false, InputEngine::ET_DIGITAL);
+    float tmp_right_digital = App::GetInputEngine()->getEventValue(EV_TRUCK_STEER_RIGHT, false, InputEngine::ET_DIGITAL);
+    float tmp_left_analog   = App::GetInputEngine()->getEventValue(EV_TRUCK_STEER_LEFT , false, InputEngine::ET_ANALOG);
+    float tmp_right_analog  = App::GetInputEngine()->getEventValue(EV_TRUCK_STEER_RIGHT, false, InputEngine::ET_ANALOG);
 
     float sum = -std::max(tmp_left_digital, tmp_left_analog) + std::max(tmp_right_digital, tmp_right_analog);
 
-    if (sum < -1)
-        sum = -1;
-    if (sum > 1)
-        sum = 1;
+    vehicle->ar_hydro_dir_command = Ogre::Math::Clamp(sum, -1.0f, 1.0f);
 
-    vehicle->ar_hydro_dir_command = sum;
-
-    if ((tmp_left_digital < tmp_left_analog) || (tmp_right_digital < tmp_right_analog))
-    {
-        vehicle->ar_hydro_speed_coupling = false;
-    }
-    else
-    {
-        vehicle->ar_hydro_speed_coupling = true;
-    }
+    vehicle->ar_hydro_speed_coupling = (tmp_left_digital >= tmp_left_analog) && (tmp_right_digital >= tmp_right_analog);
 
     EngineSim* engine = vehicle->ar_engine;
 

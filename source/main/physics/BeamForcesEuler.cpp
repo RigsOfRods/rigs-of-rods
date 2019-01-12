@@ -546,34 +546,24 @@ void Actor::CalcHydros()
     //direction
     if (ar_hydro_dir_state != 0 || ar_hydro_dir_command != 0)
     {
-        float rate = 1;
-        if (ar_hydro_speed_coupling)
-        {
-            //new rate value (30 instead of 40) to deal with the changed cmdKeyInertia settings
-            rate = 30.0 / (10.0 + fabs(ar_wheel_speed / 2.0));
-            // minimum rate: 20% --> enables to steer high velocity vehicles
-            if (rate < 1.2)
-                rate = 1.2;
-        }
-        //need a maximum rate for analog devices, otherwise hydro beams break
         if (!ar_hydro_speed_coupling)
         {
-            float hydrodirstateOld = ar_hydro_dir_state;
-            ar_hydro_dir_state = ar_hydro_dir_command;
-            if (abs(ar_hydro_dir_state - hydrodirstateOld) > 0.02)
+            // need a maximum rate for analog devices, otherwise hydro beams break
+            float diff = ar_hydro_dir_command - ar_hydro_dir_state;
+            float rate = std::exp(-std::min(std::abs(diff), 1.0f)) * diff;
+            ar_hydro_dir_state += 20.0f * PHYSICS_DT * rate;
+        }
+        else
+        {
+            if (ar_hydro_dir_command != 0)
             {
-                ar_hydro_dir_state = (ar_hydro_dir_state - hydrodirstateOld) * 0.02 + hydrodirstateOld;
+                // minimum rate: 20% --> enables to steer high velocity vehicles
+                float rate = std::max(1.2f, 30.0f / (10.0f + std::abs(ar_wheel_speed / 2.0f)));
+                if (ar_hydro_dir_state > ar_hydro_dir_command)
+                    ar_hydro_dir_state -= PHYSICS_DT * rate;
+                else
+                    ar_hydro_dir_state += PHYSICS_DT * rate;
             }
-        }
-        if (ar_hydro_dir_command != 0 && ar_hydro_speed_coupling)
-        {
-            if (ar_hydro_dir_state > ar_hydro_dir_command)
-                ar_hydro_dir_state -= PHYSICS_DT * rate;
-            else
-                ar_hydro_dir_state += PHYSICS_DT * rate;
-        }
-        if (ar_hydro_speed_coupling)
-        {
             float dirdelta = PHYSICS_DT;
             if (ar_hydro_dir_state > dirdelta)
                 ar_hydro_dir_state -= dirdelta;
