@@ -1513,8 +1513,6 @@ void Actor::SyncReset(bool reset_position)
     for (auto& r : ar_ropes)
     {
         r.rp_locked = UNLOCKED;
-        if (r.rp_locked_ropable)
-            r.rp_locked_ropable->in_use = false;
         r.rp_locked_node = &ar_nodes[0];
         r.rp_locked_actor = nullptr;
         this->RemoveInterActorBeam(r.rp_beam);
@@ -1524,12 +1522,16 @@ void Actor::SyncReset(bool reset_position)
     {
         t.ti_tied = false;
         t.ti_tying = false;
-        if (t.ti_locked_ropable)
-            t.ti_locked_ropable->in_use = false;
         t.ti_beam->p2 = &ar_nodes[0];
         t.ti_beam->bm_inter_actor = false;
         t.ti_beam->bm_disabled = true;
         this->RemoveInterActorBeam(t.ti_beam);
+    }
+
+    for (auto& r : ar_ropables)
+    {
+        r.attached_ties = 0;
+        r.attached_ropes = 0;
     }
 
     for (int i = 0; i < ar_num_wheels; i++)
@@ -3230,7 +3232,7 @@ void Actor::ToggleTies(int group)
             it->ti_tied = false;
             it->ti_tying = false;
             if (it->ti_locked_ropable)
-                it->ti_locked_ropable->in_use = false;
+                it->ti_locked_ropable->attached_ties--;
             // disable the ties beam
             it->ti_beam->p2 = &ar_nodes[0];
             it->ti_beam->bm_inter_actor = false;
@@ -3293,7 +3295,7 @@ void Actor::ToggleTies(int group)
                     for (std::vector<ropable_t>::iterator itr = actor->ar_ropables.begin(); itr != actor->ar_ropables.end(); itr++)
                     {
                         // if the ropable is not multilock and used, then discard this ropable
-                        if (!itr->multilock && itr->in_use)
+                        if (!itr->multilock && itr->attached_ties > 0)
                             continue;
 
                         // skip if tienode is ropable too (no selflock)
@@ -3325,7 +3327,7 @@ void Actor::ToggleTies(int group)
                     it->ti_tied = true;
                     it->ti_tying = true;
                     it->ti_locked_ropable = locktedto;
-                    it->ti_locked_ropable->in_use = true;
+                    it->ti_locked_ropable->attached_ties++;
                     if (it->ti_beam->bm_inter_actor)
                     {
                         AddInterActorBeam(it->ti_beam, this, nearest_actor);
@@ -3373,7 +3375,7 @@ void Actor::ToggleRopes(int group)
             it->rp_locked = UNLOCKED;
             // remove node locking
             if (it->rp_locked_ropable)
-                it->rp_locked_ropable->in_use = false;
+                it->rp_locked_ropable->attached_ropes--;
             it->rp_locked_node = &ar_nodes[0];
             if (it->rp_locked_actor != this)
             {
@@ -3419,7 +3421,7 @@ void Actor::ToggleRopes(int group)
                 for (std::vector<ropable_t>::iterator itr = actor->ar_ropables.begin(); itr != actor->ar_ropables.end(); itr++)
                 {
                     // if the ropable is not multilock and used, then discard this ropable
-                    if (!itr->multilock && itr->in_use)
+                    if (!itr->multilock && itr->attached_ropes > 0)
                         continue;
 
                     // calculate the distance and record the nearest ropable
@@ -3441,7 +3443,7 @@ void Actor::ToggleRopes(int group)
                 it->rp_locked_actor = nearest_actor;
                 it->rp_locked = LOCKED;
                 it->rp_locked_ropable = rop;
-                it->rp_locked_ropable->in_use = true;
+                it->rp_locked_ropable->attached_ropes++;
                 if (nearest_actor != this)
                 {
                     AddInterActorBeam(it->rp_beam, this, nearest_actor);
@@ -3581,7 +3583,7 @@ void Actor::ToggleHooks(int group, hook_states mode, int node_number)
                     for (std::vector<ropable_t>::iterator itr = actor->ar_ropables.begin(); itr != actor->ar_ropables.end(); itr++)
                     {
                         // if the ropable is not multilock and used, then discard this ropable
-                        if (!itr->multilock && itr->in_use)
+                        if (!itr->multilock && (itr->attached_ties > 0 || itr->attached_ropes > 0))
                             continue;
 
                         // calculate the distance and record the nearest ropable

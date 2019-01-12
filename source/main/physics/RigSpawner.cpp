@@ -2671,7 +2671,8 @@ void ActorSpawner::ProcessRopable(RigDef::Ropable & def)
     ropable_t ropable;
     ropable.node = GetNodePointerOrThrow(def.node);
     ropable.group = def.group;
-    ropable.in_use = false;
+    ropable.attached_ties = 0;
+    ropable.attached_ropes = 0;
     ropable.multilock = def.has_multilock;
     m_actor->ar_ropables.push_back(ropable);
 }
