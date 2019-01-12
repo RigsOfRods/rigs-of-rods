@@ -251,8 +251,9 @@ struct ropable_t
 {
     node_t *node;
     int group;
-    bool multilock;
-    bool in_use;
+    int attached_ties;  //!< State
+    int attached_ropes; //!< State
+    bool multilock;     //!< Attribute
 };
 
 struct rope_t
