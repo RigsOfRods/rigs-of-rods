@@ -610,7 +610,7 @@ private:
     */
     unsigned int AddWheel2(RigDef::Wheel2 & wheel_2_def);
 
-    void CreateBeamVisuals(beam_t const& beam, int beam_index, bool visible, std::shared_ptr<RigDef::BeamDefaults> const& beam_defaults);
+    void CreateBeamVisuals(beam_t const& beam, int beam_index, bool visible, std::shared_ptr<RigDef::BeamDefaults> const& beam_defaults, std::string material_override="");
 
     RailGroup *CreateRail(std::vector<RigDef::Node::Range> & node_ranges);
 
