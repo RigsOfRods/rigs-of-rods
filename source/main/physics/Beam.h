@@ -56,8 +56,7 @@ public:
     /// @param actor_config Networking related.
     /// @param preloaded_with_terrain Is this rig being pre-loaded along with terrain?
     Actor(
-          int actor_id
-        , unsigned int vector_index
+          unsigned int vector_index
         , std::shared_ptr<RigDef::File> def
         , RoR::ActorSpawnRequest rq
         );
