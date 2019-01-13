@@ -823,9 +823,9 @@ void CLASS::UpdateControls(CacheEntry* entry)
     if (entry->wheelcount > 0)
         descriptiontxt = descriptiontxt + _L("Wheels: ") + c + TOUTFSTRING(entry->wheelcount) + U("x") + TOUTFSTRING(entry->propwheelcount) + nc + newline;
     if (entry->truckmass > 0)
-        descriptiontxt = descriptiontxt + _L("Mass: ") + c + TOUTFSTRING((int)(entry->truckmass / 1000.0f)) + U(" ") + _L("tons") + nc + newline;
+        descriptiontxt = descriptiontxt + _L("Mass: ") + c + TOUTFSTRING(Round(entry->truckmass / 1000.0f, 3)) + U(" ") + _L("tons") + nc + newline;
     if (entry->loadmass > 0)
-        descriptiontxt = descriptiontxt + _L("Load Mass: ") + c + TOUTFSTRING((int)(entry->loadmass / 1000.0f)) + U(" ") + _L("tons") + nc + newline;
+        descriptiontxt = descriptiontxt + _L("Load Mass: ") + c + TOUTFSTRING(Round(entry->loadmass / 1000.0f, 3)) + U(" ") + _L("tons") + nc + newline;
     if (entry->nodecount > 0)
         descriptiontxt = descriptiontxt + _L("Nodes: ") + c + TOUTFSTRING(entry->nodecount) + nc + newline;
     if (entry->beamcount > 0)

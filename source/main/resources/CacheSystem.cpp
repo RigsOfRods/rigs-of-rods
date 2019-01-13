@@ -907,6 +907,8 @@ void CacheSystem::fillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
         vehicle_type = AIRPLANE;
     }
 
+    entry.truckmass = def->root_module->globals->dry_mass;
+    entry.loadmass = def->root_module->globals->cargo_mass;
     entry.forwardcommands = def->forward_commands;
     entry.importcommands = def->import_commands;
     entry.rollon = def->rollon;
