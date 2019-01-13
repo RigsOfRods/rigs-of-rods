@@ -921,7 +921,6 @@ void CacheSystem::fillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     entry.shockcount = static_cast<int>(def->root_module->shocks.size() + def->root_module->shocks_2.size());
     entry.fixescount = static_cast<int>(def->root_module->fixes.size());
     entry.hydroscount = static_cast<int>(def->root_module->hydros.size());
-    entry.propwheelcount = -1; /* TODO: Count propelled wheels */
     entry.driveable = vehicle_type;
     entry.commandscount = static_cast<int>(def->root_module->commands_2.size());
     entry.flarescount = static_cast<int>(def->root_module->flares_2.size());
@@ -934,11 +933,38 @@ void CacheSystem::fillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     entry.turbojetcount = static_cast<int>(def->root_module->turbojets.size());
     entry.flexbodiescount = static_cast<int>(def->root_module->flexbodies.size());
     entry.soundsourcescount = static_cast<int>(def->root_module->soundsources.size() + def->root_module->soundsources.size());
-    entry.wheelcount = static_cast<int>(
-        def->root_module->wheels.size()
-        + def->root_module->wheels_2.size()
-        + def->root_module->mesh_wheels.size() // Also meshwheels2
-    );
+
+    entry.wheelcount = 0;
+    entry.propwheelcount = 0;
+    for (const auto& w : def->root_module->wheels)
+    {
+        entry.wheelcount++;
+        if (w.propulsion != RigDef::Wheels::PROPULSION_NONE)
+            entry.propwheelcount++;
+    }
+    for (const auto& w : def->root_module->wheels_2)
+    {
+        entry.wheelcount++;
+        if (w.propulsion != RigDef::Wheels::PROPULSION_NONE)
+            entry.propwheelcount++;
+    }
+    for (const auto& w : def->root_module->mesh_wheels)
+    {
+        entry.wheelcount++;
+        if (w.propulsion != RigDef::Wheels::PROPULSION_NONE)
+            entry.propwheelcount++;
+    }
+    for (const auto& w : def->root_module->flex_body_wheels)
+    {
+        entry.wheelcount++;
+        if (w.propulsion != RigDef::Wheels::PROPULSION_NONE)
+            entry.propwheelcount++;
+    }
+
+    if (!def->root_module->axles.empty())
+    {
+        entry.propwheelcount = static_cast<int>(def->root_module->axles.size() * 2);
+    }
 
     /* NOTE: std::shared_ptr cleans everything up. */
 }
