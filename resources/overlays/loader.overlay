@@ -412,3 +412,4 @@ overlay tracks/LoaderOverlay/GUI
 			colour_bottom 0.3 0.5 0.3
 		}
 	}
+}
