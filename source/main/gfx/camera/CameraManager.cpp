@@ -546,7 +546,9 @@ bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
 
 bool CameraManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
 {
-    if (_id == OIS::MB_Middle)
+    const OIS::MouseState ms = _arg.state;
+
+    if (ms.buttonDown(OIS::MB_Right) && _id == OIS::MB_Middle)
     {
         ResetCurrentBehavior();
     }
