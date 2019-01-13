@@ -37,6 +37,7 @@
 #include "MeshObject.h"
 #include "MovableText.h"
 #include "RoRFrameListener.h" // SimController
+#include "SlideNode.h"
 #include "SkyManager.h"
 #include "SoundScriptManager.h"
 #include "Utils.h"
@@ -1322,6 +1323,63 @@ void RoR::GfxActor::UpdateDebugView()
                 }
             }
         }
+    } else if (m_debug_view == DebugViewType::DEBUGVIEW_SLIDENODES)
+    {
+        // Slide nodes
+        const node_t* nodes = m_actor->ar_nodes;
+        std::set<int> node_ids;
+        for (auto railgroup : m_actor->m_railgroups)
+        {
+            for (auto railsegment : railgroup->rg_segments)
+            {
+                Ogre::Vector3 pos1 = world2screen.Convert(railsegment.rs_beam->p1->AbsPosition);
+                Ogre::Vector3 pos2 = world2screen.Convert(railsegment.rs_beam->p2->AbsPosition);
+
+                if (pos1.z < 0.f)
+                {
+                    node_ids.insert(railsegment.rs_beam->p1->pos);
+                }
+                if (pos2.z < 0.f)
+                {
+                    node_ids.insert(railsegment.rs_beam->p2->pos);
+                }
+                if ((pos1.z < 0.f) && (pos2.z < 0.f))
+                {
+                    ImVec2 pos1xy(pos1.x, pos1.y);
+                    ImVec2 pos2xy(pos2.x, pos2.y);
+
+                    drawlist->AddLine(pos1xy, pos2xy, BEAM_COLOR, BEAM_BROKEN_THICKNESS);
+                }
+            }
+        }
+        for (auto id : node_ids)
+        {
+            Ogre::Vector3 pos_xyz = world2screen.Convert(nodes[id].AbsPosition);
+            if (pos_xyz.z < 0.f)
+            {
+                ImVec2 pos_xy(pos_xyz.x, pos_xyz.y);
+                drawlist->AddCircleFilled(pos_xy, NODE_RADIUS, NODE_COLOR);
+                // Node info
+                Str<25> id_buf;
+                id_buf << id;
+                drawlist->AddText(pos_xy, NODE_TEXT_COLOR, id_buf.ToCStr());
+            }
+        }
+        for (auto slidenode :  m_actor->m_slidenodes)
+        {
+            auto id = slidenode.GetSlideNodeId();
+            Ogre::Vector3 pos_xyz = world2screen.Convert(nodes[id].AbsPosition);
+
+            if (pos_xyz.z < 0.f)
+            {
+                ImVec2 pos(pos_xyz.x, pos_xyz.y);
+                drawlist->AddCircleFilled(pos, NODE_IMMOVABLE_RADIUS, NODE_IMMOVABLE_COLOR);
+                // Node info
+                Str<25> id_buf;
+                id_buf << id;
+                drawlist->AddText(pos, NODE_TEXT_COLOR, id_buf.ToCStr());
+            }
+        }
     } else if (m_debug_view == DebugViewType::DEBUGVIEW_SUBMESH)
     {
         // Cabs
@@ -1403,10 +1461,11 @@ void RoR::GfxActor::ToggleDebugView()
 
 void RoR::GfxActor::SetDebugView(DebugViewType dv)
 {
-    if (dv == DebugViewType::DEBUGVIEW_WHEELS   && m_actor->ar_num_wheels   == 0 ||
-        dv == DebugViewType::DEBUGVIEW_SHOCKS   && m_actor->ar_num_shocks   == 0 ||
-        dv == DebugViewType::DEBUGVIEW_ROTATORS && m_actor->ar_num_rotators == 0 ||
-        dv == DebugViewType::DEBUGVIEW_SUBMESH  && m_actor->ar_num_cabs     == 0)
+    if (dv == DebugViewType::DEBUGVIEW_WHEELS     && m_actor->ar_num_wheels   == 0 ||
+        dv == DebugViewType::DEBUGVIEW_SHOCKS     && m_actor->ar_num_shocks   == 0 ||
+        dv == DebugViewType::DEBUGVIEW_ROTATORS   && m_actor->ar_num_rotators == 0 ||
+        dv == DebugViewType::DEBUGVIEW_SLIDENODES && m_actor->hasSlidenodes() == 0 ||
+        dv == DebugViewType::DEBUGVIEW_SUBMESH    && m_actor->ar_num_cabs     == 0)
     {
         dv = DebugViewType::DEBUGVIEW_NONE;
     }
@@ -1430,6 +1489,7 @@ void RoR::GfxActor::CycleDebugViews()
         if      (m_actor->ar_num_wheels)    SetDebugView(DebugViewType::DEBUGVIEW_WHEELS);
         else if (m_actor->ar_num_shocks)    SetDebugView(DebugViewType::DEBUGVIEW_SHOCKS);
         else if (m_actor->ar_num_rotators)  SetDebugView(DebugViewType::DEBUGVIEW_ROTATORS);
+        else if (m_actor->hasSlidenodes())  SetDebugView(DebugViewType::DEBUGVIEW_SLIDENODES);
         else if (m_actor->ar_num_cabs)      SetDebugView(DebugViewType::DEBUGVIEW_SUBMESH);
         else                                SetDebugView(DebugViewType::DEBUGVIEW_SKELETON);
         break;
@@ -1438,6 +1498,7 @@ void RoR::GfxActor::CycleDebugViews()
     {
              if (m_actor->ar_num_shocks)    SetDebugView(DebugViewType::DEBUGVIEW_SHOCKS);
         else if (m_actor->ar_num_rotators)  SetDebugView(DebugViewType::DEBUGVIEW_ROTATORS);
+        else if (m_actor->hasSlidenodes())  SetDebugView(DebugViewType::DEBUGVIEW_SLIDENODES);
         else if (m_actor->ar_num_cabs)      SetDebugView(DebugViewType::DEBUGVIEW_SUBMESH);
         else                                SetDebugView(DebugViewType::DEBUGVIEW_SKELETON);
         break;
@@ -1445,11 +1506,19 @@ void RoR::GfxActor::CycleDebugViews()
     case DebugViewType::DEBUGVIEW_SHOCKS:
     {
              if (m_actor->ar_num_rotators)  SetDebugView(DebugViewType::DEBUGVIEW_ROTATORS);
+        else if (m_actor->hasSlidenodes())  SetDebugView(DebugViewType::DEBUGVIEW_SLIDENODES);
         else if (m_actor->ar_num_cabs)      SetDebugView(DebugViewType::DEBUGVIEW_SUBMESH);
         else                                SetDebugView(DebugViewType::DEBUGVIEW_SKELETON);
         break;
     }
     case DebugViewType::DEBUGVIEW_ROTATORS:
+    {
+             if (m_actor->hasSlidenodes())  SetDebugView(DebugViewType::DEBUGVIEW_SLIDENODES);
+        else if (m_actor->ar_num_cabs)      SetDebugView(DebugViewType::DEBUGVIEW_SUBMESH);
+        else                                SetDebugView(DebugViewType::DEBUGVIEW_SKELETON);
+        break;
+    }
+    case DebugViewType::DEBUGVIEW_SLIDENODES:
     {
              if (m_actor->ar_num_cabs)      SetDebugView(DebugViewType::DEBUGVIEW_SUBMESH);
         else                                SetDebugView(DebugViewType::DEBUGVIEW_SKELETON);
