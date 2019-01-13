@@ -506,6 +506,10 @@ void CacheSystem::detectDuplicates()
             StringUtil::splitFilename(dirB, basenameB, basepathB);
             if (basepathA != basepathB)
                 continue;
+            basenameA = Ogre::StringUtil::replaceAll(basenameA, " ", "_");
+            basenameA = Ogre::StringUtil::replaceAll(basenameA, "-", "_");
+            basenameB = Ogre::StringUtil::replaceAll(basenameB, " ", "_");
+            basenameB = Ogre::StringUtil::replaceAll(basenameB, "-", "_");
             if (stripSHA1fromString(basenameA) != stripSHA1fromString(basenameB))
                 continue;
 
