@@ -549,9 +549,11 @@ void Actor::CalcHydros()
         if (!ar_hydro_speed_coupling)
         {
             // need a maximum rate for analog devices, otherwise hydro beams break
+            float smoothing   = Math::Clamp(App::io_analog_smoothing.GetActive(),   0.5f, 2.0f);
+            float sensitivity = Math::Clamp(App::io_analog_sensitivity.GetActive(), 0.5f, 2.0f);
             float diff = ar_hydro_dir_command - ar_hydro_dir_state;
-            float rate = std::exp(-std::min(std::abs(diff), 1.0f)) * diff;
-            ar_hydro_dir_state += 20.0f * PHYSICS_DT * rate;
+            float rate = std::exp(-std::min(std::abs(diff), 1.0f) / sensitivity) * diff;
+            ar_hydro_dir_state += (10.0f / smoothing) * PHYSICS_DT * rate;
         }
         else
         {

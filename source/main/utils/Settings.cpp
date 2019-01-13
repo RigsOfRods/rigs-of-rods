@@ -528,6 +528,8 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckStr  (App::app_extra_mod_path,        k, v)) { return true; }
     if (CheckBool (App::app_force_cache_udpate,    k, v)) { return true; }
     // Input&Output
+    if (CheckFloat(App::io_analog_smoothing,       k, v)) { return true; }
+    if (CheckFloat(App::io_analog_sensitivity,     k, v)) { return true; }
     if (CheckBool (App::io_ffb_enabled,            k, v)) { return true; }
     if (CheckFloat(App::io_ffb_camera_gain,        k, v)) { return true; }
     if (CheckFloat(App::io_ffb_center_gain,        k, v)) { return true; }
@@ -804,6 +806,8 @@ void Settings::SaveSettings()
 
     f << std::endl << "; Input/Output" << std::endl;
     WriteAny (f, App::io_input_grab_mode.conf_name, IoInputGrabToStr(App::io_input_grab_mode.GetActive()));
+    WritePod (f, App::io_analog_smoothing);
+    WritePod (f, App::io_analog_sensitivity);
     WriteYN  (f, App::io_ffb_enabled);
     WritePod (f, App::io_ffb_camera_gain);
     WritePod (f, App::io_ffb_center_gain);

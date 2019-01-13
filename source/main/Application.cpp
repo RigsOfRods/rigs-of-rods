@@ -152,6 +152,8 @@ static TerrainManager*  g_sim_terrain;
  GVarStr_A<300>           sys_screenshot_dir      ("sys_screenshot_dir",      nullptr,                     "");
 
 // Input - Output
+ GVarPod_A<float>         io_analog_smoothing     ("io_analog_smoothing",     "Analog Input Smoothing",    1.f);
+ GVarPod_A<float>         io_analog_sensitivity   ("io_analog_sensitivity",   "Analog Input Sensitivity",  1.f);
  GVarPod_A<bool>          io_ffb_enabled          ("io_ffb_enabled",          "Force Feedback",            false);
  GVarPod_A<float>         io_ffb_camera_gain      ("io_ffb_camera_gain",      "Force Feedback Camera",     0.f);
  GVarPod_A<float>         io_ffb_center_gain      ("io_ffb_center_gain",      "Force Feedback Centering",  0.f);
