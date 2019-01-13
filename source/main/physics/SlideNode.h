@@ -61,6 +61,9 @@ public:
     /// @param rail initial RailGroup to slide on, or NULL.
     SlideNode(node_t* sliding_node, RailGroup* rail);
 
+    /// Returns the node index of the slide node
+    int GetSlideNodeId();
+
     /// Updates the corrective forces and applies these forces to the beam
     /// @param dt delta time in seconds
     void UpdateForces(float dt);

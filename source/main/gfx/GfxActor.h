@@ -82,6 +82,7 @@ public:
         DEBUGVIEW_WHEELS,
         DEBUGVIEW_SHOCKS,
         DEBUGVIEW_ROTATORS,
+        DEBUGVIEW_SLIDENODES,
         DEBUGVIEW_SUBMESH,
     };
 

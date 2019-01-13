@@ -156,6 +156,7 @@ public:
     void              sendStreamData();
     bool              isTied();
     bool              isLocked(); 
+    bool              hasSlidenodes() { return !m_slidenodes.empty(); };
     void              updateDashBoards(float dt);
     void              UpdateBoundingBoxes();
     void              calculateAveragePosition();

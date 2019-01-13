@@ -370,6 +370,10 @@ void RoR::GUI::TopMenubar::Update()
                 {
                     ImGui::RadioButton("Rotator details", &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_ROTATORS));
                 }
+                if (current_actor->hasSlidenodes())
+                {
+                    ImGui::RadioButton("Slidenode details", &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_SLIDENODES));
+                }
                 if (current_actor->ar_num_cabs > 0)
                 {
                     ImGui::RadioButton("Submesh details", &debug_view_type,  static_cast<int>(GfxActor::DebugViewType::DEBUGVIEW_SUBMESH));

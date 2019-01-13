@@ -153,6 +153,11 @@ RailSegment* RailSegment::CheckCurSlideSegment(const Ogre::Vector3& point)
     return closest_seg;
 }
 
+int SlideNode::GetSlideNodeId()
+{
+    return m_sliding_node->pos;
+}
+
 void SlideNode::UpdatePosition()
 {
     // only do calcs if we have a beam to slide on
