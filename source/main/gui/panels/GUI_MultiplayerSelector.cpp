@@ -55,6 +55,8 @@ struct RoR::GUI::MpServerlistData
         int         max_users;
         Str<20>     display_users;
         Str<100>    net_host;
+        Str<20>     net_version;
+        Str<20>     display_version;
         int         net_port;
         Str<50>     display_host;
     };
@@ -126,9 +128,8 @@ RoR::GUI::MpServerlistData* FetchServerlist(std::string portal_url)
         res->servers[i].net_host      = j_row["ip"].GetString();
         res->servers[i].net_port      = j_row["port"].GetInt();
 
-        const bool has_pw = j_row["has-password"].GetBool();
-        res->servers[i].has_password  = has_pw;
-        res->servers[i].display_passwd = (has_pw) ? "Yes" : "No";
+        res->servers[i].has_password  = j_row["has-password"].GetBool();
+        res->servers[i].display_passwd = res->servers[i].has_password ? "Yes" : "No";
 
         char display_host[400];
         snprintf(display_host, 400, "%s:%d", j_row["ip"].GetString(), j_row["port"].GetInt());
@@ -137,6 +138,9 @@ RoR::GUI::MpServerlistData* FetchServerlist(std::string portal_url)
         char display_users[200];
         snprintf(display_users, 200, "%d / %d", j_row["current-users"].GetInt(), j_row["max-clients"].GetInt());
         res->servers[i].display_users = display_users;
+
+        res->servers[i].net_version = j_row["version"].GetString();
+        res->servers[i].display_version = Ogre::StringUtil::replaceAll(j_row["version"].GetString(), "RoRnet_", "");
     }
 
     res->success = true;
@@ -223,7 +227,7 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + CONTENT_TOP_PADDING);
         ImGui::PushItemWidth(250.f);
         DrawGTextEdit(App::mp_player_name,        "Player nickname", m_player_name_buf);
-        DrawGTextEdit(App::mp_server_password,    "Default server password", m_password_buf);
+        DrawGTextEdit(App::mp_server_password,    "Default server password", m_password_buf, true);
         ImGui::PopItemWidth();
 
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
@@ -259,7 +263,7 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
         ImGui::PushItemWidth(250.f);
         DrawGTextEdit(App::mp_server_host, "Server host", m_server_host_buf);
         DrawGIntBox(App::mp_server_port, "Server port");
-        DrawGTextEdit(App::mp_server_password, "Server password (default)", m_password_buf);
+        DrawGTextEdit(App::mp_server_password, "Server password", m_password_buf);
         ImGui::PopItemWidth();
 
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
@@ -311,10 +315,10 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
             // ... and the table itself
             const float table_width = ImGui::GetWindowContentRegionWidth();
             ImGui::Columns(6, "mp-selector-columns");         // Col #0: Passwd
-            ImGui::SetColumnOffset(1, 0.08f * table_width);   // Col #1: Server name
-            ImGui::SetColumnOffset(2, 0.35f * table_width);   // Col #2: Terrain name
-            ImGui::SetColumnOffset(3, 0.70f * table_width);   // Col #3: Users/Max
-            ImGui::SetColumnOffset(4, 0.77f * table_width);   // Col #4: Ping
+            ImGui::SetColumnOffset(1, 0.09f * table_width);   // Col #1: Server name
+            ImGui::SetColumnOffset(2, 0.36f * table_width);   // Col #2: Terrain name
+            ImGui::SetColumnOffset(3, 0.67f * table_width);   // Col #3: Users/Max
+            ImGui::SetColumnOffset(4, 0.74f * table_width);   // Col #4: Version
             ImGui::SetColumnOffset(5, 0.82f * table_width);   // Col #5: Host/Port
             // Draw table header
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + TABLE_PADDING_LEFT);
@@ -322,7 +326,7 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
             DrawTableHeader("Name");
             DrawTableHeader("Terrain");
             DrawTableHeader("Users");
-            DrawTableHeader("Ping");
+            DrawTableHeader("Version");
             DrawTableHeader("Host/Port");
             ImGui::Separator();
             // Draw table body
@@ -340,26 +344,40 @@ void RoR::GUI::MultiplayerSelector::MultiplayerSelector::Draw()
                 }
                 ImGui::NextColumn();
 
+                bool compatible = (server.net_version == RORNET_VERSION);
+                ImVec4 version_color = compatible ? ImVec4(0.0f, 0.9f, 0.0f, 1.0f) : ImVec4(0.9f, 0.0f, 0.0f, 1.0f);
+
                 // Other collumns
-                ImGui::Text("%s", server.display_name.ToCStr());   ImGui::NextColumn();
-                ImGui::Text("%s", server.display_terrn.ToCStr());  ImGui::NextColumn();
-                ImGui::Text("%s", server.display_users.ToCStr());  ImGui::NextColumn();
-                ImGui::Text("~");                                  ImGui::NextColumn(); // TODO: ping
-                ImGui::Text("%s", server.display_host.ToCStr());   ImGui::NextColumn();
+                ImGui::Text("%s", server.display_name.ToCStr());    ImGui::NextColumn();
+                ImGui::Text("%s", server.display_terrn.ToCStr());   ImGui::NextColumn();
+                ImGui::Text("%s", server.display_users.ToCStr());   ImGui::NextColumn();
+                ImGui::PushStyleColor(ImGuiCol_Text, version_color);
+                ImGui::Text("%s", server.display_version.ToCStr()); ImGui::NextColumn();
+                ImGui::PopStyleColor();
+                ImGui::Text("%s", server.display_host.ToCStr());    ImGui::NextColumn();
 
                 ImGui::PopID();
             }
             ImGui::Columns(1);
             ImGui::EndChild(); // End of scroll area
 
-            // Simple join button
+            // Simple join button (and password input box)
             if (m_selected_item != -1)
             {
+                MpServerlistData::ServerInfo& server = m_serverlist_data->servers[m_selected_item];
                 if (ImGui::Button("Join", ImVec2(200.f, 0.f)))
                 {
-                    App::mp_server_host.SetActive(m_serverlist_data->servers[m_selected_item].net_host);
-                    App::mp_server_port.SetActive(m_serverlist_data->servers[m_selected_item].net_port);
+                    App::mp_server_host.SetActive(server.net_host);
+                    App::mp_server_port.SetActive(server.net_port);
                     App::mp_state.SetPending(MpState::CONNECTED);
+                }
+                if (server.has_password);
+                {
+                    // TODO: Find out why this is always visible ~ ulteq 01/2019
+                    ImGui::SameLine();
+                    ImGui::PushItemWidth(250.f);
+                    DrawGTextEdit(App::mp_server_password, "Server password", m_password_buf);
+                    ImGui::PopItemWidth();
                 }
             }
         }
