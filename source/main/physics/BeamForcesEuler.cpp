@@ -1577,6 +1577,18 @@ void Actor::CalcNodes()
         // start with gravity
         ar_nodes[i].Forces = Vector3(0, ar_nodes[i].mass * gravity, 0);
 
+        Real approx_speed = approx_sqrt(ar_nodes[i].Velocity.squaredLength());
+
+        // anti-explsion guard (mach 20)
+        if (approx_speed > 6860 && !m_ongoing_reset)
+        {
+            ActorModifyRequest rq; // actor exploded, schedule reset
+            rq.amr_actor = this;
+            rq.amr_type = ActorModifyRequest::Type::RESET_ON_SPOT;
+            App::GetSimController()->QueueActorModify(rq);
+            m_ongoing_reset = true;
+        }
+
         if (m_fusealge_airfoil)
         {
             // aerodynamics on steroids!
@@ -1585,11 +1597,10 @@ void Actor::CalcNodes()
         else if (!ar_disable_aerodyn_turbulent_drag)
         {
             // add viscous drag (turbulent model)
-            Real speed = approx_sqrt(ar_nodes[i].Velocity.squaredLength()); //we will (not) reuse this
-            Real defdragxspeed = DEFAULT_DRAG * speed;
+            Real defdragxspeed = DEFAULT_DRAG * approx_speed;
             Vector3 drag = -defdragxspeed * ar_nodes[i].Velocity;
             // plus: turbulences
-            Real maxtur = defdragxspeed * speed * 0.005f;
+            Real maxtur = defdragxspeed * approx_speed * 0.005f;
             drag += maxtur * Vector3(frand_11(), frand_11(), frand_11());
             ar_nodes[i].Forces += drag;
         }
@@ -1603,8 +1614,7 @@ void Actor::CalcNodes()
                 if (ar_num_buoycabs == 0)
                 {
                     // water drag (turbulent)
-                    Real speed = approx_sqrt(ar_nodes[i].Velocity.squaredLength()); //we will (not) reuse this
-                    ar_nodes[i].Forces -= (DEFAULT_WATERDRAG * speed) * ar_nodes[i].Velocity;
+                    ar_nodes[i].Forces -= (DEFAULT_WATERDRAG * approx_speed) * ar_nodes[i].Velocity;
                     // basic buoyance
                     ar_nodes[i].Forces += ar_nodes[i].buoyancy * Vector3::UNIT_Y;
                 }
@@ -1619,16 +1629,6 @@ void Actor::CalcNodes()
     }
 
     this->UpdateBoundingBoxes();
-
-    // anti-explsion guard
-    if (ar_bounding_box.getSize().length() > 200.0f * m_min_camera_radius)
-    {
-        ActorModifyRequest rq; // actor exploded, schedule reset
-        rq.amr_actor = this;
-        rq.amr_type = ActorModifyRequest::Type::RESET_ON_SPOT;
-        App::GetSimController()->QueueActorModify(rq);
-        m_ongoing_reset = true;
-    }
 }
 
 void Actor::CalcHooks()
