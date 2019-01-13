@@ -353,12 +353,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
 
 Actor* ActorManager::CreateActorInstance(ActorSpawnRequest rq, std::shared_ptr<RigDef::File> def)
 {
-    if (rq.asr_uniqueid == -1)
-    {
-        rq.asr_uniqueid = m_actor_counter++;
-    }
-
-    Actor* actor = new Actor(static_cast<int>(m_actors.size()), def, rq);
+    Actor* actor = new Actor(m_actor_counter++, static_cast<int>(m_actors.size()), def, rq);
 
     this->SetupActor(actor, rq, def);
 
@@ -1285,7 +1280,6 @@ ActorSpawnRequest::ActorSpawnRequest()
     : asr_position(Ogre::Vector3::ZERO)
     , asr_rotation(Ogre::Quaternion::ZERO)
     , asr_cache_entry_num(-1) // flexbody cache disabled
-    , asr_uniqueid(-1) // -1 -> auto assign unique id
     , asr_spawnbox(nullptr)
     , asr_skin(nullptr)
     , asr_origin(Origin::UNKNOWN)
