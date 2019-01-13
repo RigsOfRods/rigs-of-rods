@@ -1553,7 +1553,6 @@ void SimController::UpdateSimulation(float dt)
                 auto reload_pos = m_player_actor->getPosition();
                 auto reload_dir = Quaternion(Degree(270) - Radian(m_player_actor->getRotation()), Vector3::UNIT_Y);
                 auto debug_view = m_player_actor->GetGfxActor()->GetDebugView();
-                int instance_id = m_player_actor->ar_instance_id;
 
                 reload_pos.y = m_player_actor->GetMinHeight();
 
@@ -1567,7 +1566,6 @@ void SimController::UpdateSimulation(float dt)
                 srq.asr_position = reload_pos;
                 srq.asr_rotation = reload_dir;
                 srq.asr_filename = filename;
-                srq.asr_uniqueid = instance_id;
                 Actor* new_actor = this->SpawnActorDirectly(srq); // try to load the same actor again
                 this->FinalizeActorSpawning(new_actor, m_player_actor, srq);
 
