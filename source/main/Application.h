@@ -683,7 +683,7 @@ extern GVarPod_A<bool>         mp_hide_net_labels;
 extern GVarPod_A<bool>         mp_hide_own_net_label;
 extern GVarStr_AP<200>         mp_server_host;
 extern GVarPod_A<int>          mp_server_port;
-extern GVarStr_A<100>          mp_server_password;
+extern GVarStr_APS<100>        mp_server_password;
 extern GVarStr_AP<100>         mp_player_name;
 extern GVarStr_AP<250>         mp_player_token_hash;
 extern GVarStr_AP<400>         mp_portal_url;

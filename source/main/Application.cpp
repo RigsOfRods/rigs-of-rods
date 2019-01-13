@@ -109,7 +109,7 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_A<bool>          mp_hide_own_net_label   ("mp_hide_own_net_label",   "HideOwnNetLabel",           true);
  GVarStr_AP<200>          mp_server_host          ("mp_server_host",          "Server name",               "",                      "");
  GVarPod_A<int>           mp_server_port          ("mp_server_port",          "Server port",               0);
- GVarStr_A<100>           mp_server_password      ("mp_server_password",      "Server password",           "");
+ GVarStr_APS<100>         mp_server_password      ("mp_server_password",      "Server password",           "",                      "",         "");
  GVarStr_AP<100>          mp_player_name          ("mp_player_name",          "Nickname",                  "Player",                "Player");
  GVarStr_AP<250>          mp_player_token_hash    ("mp_player_token_hash",    "User Token Hash",           "",                      "");
  GVarStr_AP<400>          mp_portal_url           ("mp_portal_url",           "Multiplayer portal URL",    "http://multiplayer.rigsofrods.org", "http://multiplayer.rigsofrods.org");
@@ -125,14 +125,12 @@ static TerrainManager*  g_sim_terrain;
  GVarPod_A<bool>          diag_truck_mass         ("diag_truck_mass",         "Debug Truck Mass",          false);
  GVarPod_A<bool>          diag_envmap             ("diag_envmap",             "EnvMapDebug",               false);
  GVarPod_A<bool>          diag_videocameras       ("diag_videocameras",       "VideoCameraDebug",          false);
- GVarStr_APS<100>         diag_preset_terrain     ("diag_preset_terrain",     "Preselected Map",           "",                      "",        "");
+ GVarStr_APS<100>         diag_preset_terrain     ("diag_preset_terrain",     "Preselected Terrain",       "",                      "",        "");
  GVarStr_A<100>           diag_preset_spawn_pos   ("diag_spawn_position",     nullptr,                     "");
  GVarStr_A<100>           diag_preset_spawn_rot   ("diag_spawn_rotation",     nullptr,                     "");
- GVarStr_APS<100>         diag_preset_vehicle     ("diag_preset_vehicle",     "Preselected Truck",         "",
-         "",        "");
+ GVarStr_APS<100>         diag_preset_vehicle     ("diag_preset_vehicle",     "Preselected Truck",         "",                      "",        "");
  GVarStr_A<100>           diag_preset_veh_config  ("diag_preset_veh_config",  "Preselected TruckConfig",   "");
- GVarPod_APS<bool>        diag_preset_veh_enter   ("diag_preset_veh_enter",   "Enter Preselected Truck",   false,
-         false,     false);
+ GVarPod_APS<bool>        diag_preset_veh_enter   ("diag_preset_veh_enter",   "Enter Preselected Truck",   false,                   false,     false);
  GVarPod_A<bool>          diag_log_console_echo   ("diag_log_console_echo",   "Enable Ingame Console",     false);
  GVarPod_A<bool>          diag_log_beam_break     ("diag_log_beam_break",     "Beam Break Debug",          false);
  GVarPod_A<bool>          diag_log_beam_deform    ("diag_log_beam_deform",    "Beam Deform Debug",         false);
