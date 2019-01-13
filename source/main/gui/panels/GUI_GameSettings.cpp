@@ -374,6 +374,16 @@ void RoR::GUI::GameSettings::Draw()
     {
         ImGui::TextDisabled(_LC("GameSettings", "Controller options"));
 
+        DrawGCombo(App::io_input_grab_mode, _LC("GameSettings", "Input grab mode"),
+            "None\0"
+            "All\0"
+            "Dynamic\0\0");
+
+        DrawGFloatSlider(App::io_analog_smoothing,   _LC("GameSettings", "Analog Input Smoothing"),   0.5f, 2.0f);
+        DrawGFloatSlider(App::io_analog_sensitivity, _LC("GameSettings", "Analog Input Sensitivity"), 0.5f, 2.0f);
+
+        DrawGCheckbox(App::io_arcade_controls, _LC("GameSettings", "Use arcade controls"));
+
         DrawGCheckbox(App::io_ffb_enabled, _LC("GameSettings", "Enable ForceFeedback"));
         if (App::io_ffb_enabled.GetActive())
         {
@@ -385,12 +395,6 @@ void RoR::GUI::GameSettings::Draw()
             ImGui::PopItemWidth();
         }
 
-        DrawGCombo(App::io_input_grab_mode, _LC("GameSettings", "Input grab mode"),
-            "None\0"
-            "All\0"
-            "Dynamic\0\0");
-
-        DrawGCheckbox(App::io_arcade_controls, _LC("GameSettings", "Use arcade controls"));
         DrawGIntCheck(App::io_outgauge_mode, _LC("GameSettings", "Enable OutGauge protocol"));
         if (App::io_outgauge_mode.GetActive())
         {

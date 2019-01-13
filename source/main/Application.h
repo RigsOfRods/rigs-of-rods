@@ -724,6 +724,8 @@ extern GVarStr_A<300>          sys_profiler_dir;
 extern GVarStr_A<300>          sys_screenshot_dir;
 
 // Input - Output
+extern GVarPod_A<float>        io_analog_smoothing;
+extern GVarPod_A<float>        io_analog_sensitivity;
 extern GVarPod_A<bool>         io_ffb_enabled;
 extern GVarPod_A<float>        io_ffb_camera_gain;
 extern GVarPod_A<float>        io_ffb_center_gain;
