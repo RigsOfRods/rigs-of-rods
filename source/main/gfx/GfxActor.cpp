@@ -720,7 +720,10 @@ void RoR::GfxActor::UpdateDebugView()
 
                 if (beams[i].bm_broken)
                 {
-                    drawlist->AddLine(pos1xy, pos2xy, BEAM_BROKEN_COLOR, BEAM_BROKEN_THICKNESS);
+                    if (!App::diag_hide_broken_beams.GetActive())
+                    {
+                        drawlist->AddLine(pos1xy, pos2xy, BEAM_BROKEN_COLOR, BEAM_BROKEN_THICKNESS);
+                    }
                 }
                 else if (beams[i].bm_type == BEAM_HYDRO)
                 {
