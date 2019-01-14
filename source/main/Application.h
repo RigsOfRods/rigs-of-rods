@@ -711,6 +711,7 @@ extern GVarPod_A<bool>         diag_log_beam_deform;
 extern GVarPod_A<bool>         diag_log_beam_trigger;
 extern GVarPod_A<bool>         diag_simple_materials;
 extern GVarPod_A<bool>         diag_warning_texture;
+extern GVarPod_A<bool>         diag_hide_broken_beams;
 extern GVarPod_A<float>        diag_physics_dt;
 
 // System

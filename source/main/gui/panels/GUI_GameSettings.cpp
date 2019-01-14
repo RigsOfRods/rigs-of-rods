@@ -355,6 +355,7 @@ void RoR::GUI::GameSettings::Draw()
         DrawGCheckbox(App::diag_envmap,              _LC("GameSettings", "Debug realtime reflections"));
         DrawGCheckbox(App::diag_videocameras,        _LC("GameSettings", "Debug videocameras"));
         DrawGCheckbox(App::diag_warning_texture,     _LC("GameSettings", "Debug textures"));
+        DrawGCheckbox(App::diag_hide_broken_beams,   _LC("GameSettings", "Hide broken beams"));
         DrawGCheckbox(App::diag_log_console_echo,    _LC("GameSettings", "Echo log to console"));
         DrawGCheckbox(App::diag_log_beam_break,      _LC("GameSettings", "Log beam breaking"));
         DrawGCheckbox(App::diag_log_beam_deform,     _LC("GameSettings", "Log beam deforming"));

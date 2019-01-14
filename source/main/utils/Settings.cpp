@@ -596,6 +596,7 @@ bool Settings::ParseGlobalVarSetting(std::string const & k, std::string const & 
     if (CheckBool (App::diag_preset_veh_enter,     k, v)) { return true; }
     if (CheckBool (App::diag_simple_materials,     k, v)) { return true; }
     if (CheckBool (App::diag_warning_texture,      k, v)) { return true; }
+    if (CheckBool (App::diag_hide_broken_beams,    k, v)) { return true; }
     if (CheckFloat(App::diag_physics_dt,           k, v)) { return true; }
     // Sim
     if (CheckSimGearboxMode                       (k, v)) { return true; }
@@ -877,6 +878,7 @@ void Settings::SaveSettings()
     WriteYN  (f, App::diag_videocameras       );
     WriteYN  (f, App::diag_simple_materials   );
     WriteYN  (f, App::diag_warning_texture    );
+    WriteYN  (f, App::diag_hide_broken_beams  );
     WritePod (f, App::diag_physics_dt         );
 
     f << std::endl << "; Application"<< std::endl;
