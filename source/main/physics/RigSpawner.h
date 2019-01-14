@@ -978,7 +978,6 @@ private:
         RigDef::Wheels::Braking braking,
         std::shared_ptr<RigDef::NodeDefaults> node_defaults,
         float wheel_mass,
-        bool set_param_iswheel = true,
         float wheel_width = -1.f
     );
 

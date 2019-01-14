@@ -507,6 +507,18 @@ void Actor::CalcNetwork()
             ar_wheels[i].wh_nodes[j * 2 + 1]->AbsPosition = ar_wheels[i].wh_axis_node_1->AbsPosition + uray;
             ar_wheels[i].wh_nodes[j * 2 + 1]->RelPosition = ar_wheels[i].wh_nodes[j * 2 + 1]->AbsPosition - ar_origin;
         }
+        ray.normalise();
+        ray *= ar_wheels[i].wh_rim_radius;
+        for (int j = 0; j < ar_wheels[i].wh_num_rim_nodes / 2; j++)
+        {
+            Vector3 uray = Quaternion(Radian(rp - drp * j), axis) * ray;
+
+            ar_wheels[i].wh_rim_nodes[j * 2 + 0]->AbsPosition = ar_wheels[i].wh_axis_node_0->AbsPosition + uray;
+            ar_wheels[i].wh_rim_nodes[j * 2 + 0]->RelPosition = ar_wheels[i].wh_rim_nodes[j * 2]->AbsPosition - ar_origin;
+
+            ar_wheels[i].wh_rim_nodes[j * 2 + 1]->AbsPosition = ar_wheels[i].wh_axis_node_1->AbsPosition + uray;
+            ar_wheels[i].wh_rim_nodes[j * 2 + 1]->RelPosition = ar_wheels[i].wh_rim_nodes[j * 2 + 1]->AbsPosition - ar_origin;
+        }
     }
     this->UpdateBoundingBoxes();
 
@@ -627,7 +639,7 @@ void Actor::RecalculateNodeMasses(Real total, bool reCalc)
     //reset
     for (int i = 0; i < ar_num_nodes; i++)
     {
-        if (!ar_nodes[i].iswheel)
+        if (!ar_nodes[i].iswheel || ar_nodes[i].nd_rim_node)
         {
             if (!ar_nodes[i].nd_loaded_mass)
             {
@@ -646,9 +658,9 @@ void Actor::RecalculateNodeMasses(Real total, bool reCalc)
         if (ar_beams[i].bm_type != BEAM_VIRTUAL)
         {
             Real half_newlen = ar_beams[i].L / 2.0;
-            if (!(ar_beams[i].p1->iswheel))
+            if (!(ar_beams[i].p1->iswheel && !ar_nodes[i].nd_rim_node))
                 len += half_newlen;
-            if (!(ar_beams[i].p2->iswheel))
+            if (!(ar_beams[i].p2->iswheel && !ar_nodes[i].nd_rim_node))
                 len += half_newlen;
         }
     }
@@ -660,9 +672,9 @@ void Actor::RecalculateNodeMasses(Real total, bool reCalc)
             if (ar_beams[i].bm_type != BEAM_VIRTUAL)
             {
                 Real half_mass = ar_beams[i].L * total / len / 2.0f;
-                if (!(ar_beams[i].p1->iswheel))
+                if (!(ar_beams[i].p1->iswheel && !ar_nodes[i].nd_rim_node))
                     ar_beams[i].p1->mass += half_mass;
-                if (!(ar_beams[i].p2->iswheel))
+                if (!(ar_beams[i].p2->iswheel && !ar_nodes[i].nd_rim_node))
                     ar_beams[i].p2->mass += half_mass;
             }
         }
@@ -685,7 +697,7 @@ void Actor::RecalculateNodeMasses(Real total, bool reCalc)
     {
         //LOG("Nodemass "+TOSTRING(i)+"-"+TOSTRING(ar_nodes[i].mass));
         //for stability
-        if (!ar_nodes[i].iswheel && ar_nodes[i].mass < m_minimass)
+        if ((!ar_nodes[i].iswheel || ar_nodes[i].nd_rim_node) && ar_nodes[i].mass < m_minimass)
         {
             if (App::diag_truck_mass.GetActive())
             {

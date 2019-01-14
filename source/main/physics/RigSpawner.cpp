@@ -433,7 +433,7 @@ void ActorSpawner::FinalizeRig()
     
     m_actor->m_has_axles_section = m_actor->m_num_wheel_diffs > 0;
 
-    // Calculate mass of each wheels
+    // Calculate mass of each wheel (without rim)
     for (int i = 0; i < m_actor->ar_num_wheels; i++)
     {
         m_actor->ar_wheels[i].wh_mass = 0.0f;
@@ -4000,7 +4000,6 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     Ogre::Quaternion rim_ray_rotator = Ogre::Quaternion(Ogre::Degree(-360.f / (def.num_rays * 2)), axis_vector);
 
     // Rim nodes
-    // NOTE: node.iswheel is not used for rim nodes
     for (unsigned int i = 0; i < def.num_rays; i++)
     {
         float node_mass = def.mass / (4.f * def.num_rays);
@@ -4014,6 +4013,7 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 
         outer_node.mass          = node_mass;
         outer_node.friction_coef = def.node_defaults->friction;
+        outer_node.iswheel       = WHEEL_FLEXBODY;
         outer_node.nd_rim_node   = true;
         AdjustNodeBuoyancy(outer_node, def.node_defaults);
 
@@ -4028,14 +4028,15 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 
         inner_node.mass          = node_mass;
         inner_node.friction_coef = def.node_defaults->friction;
+        inner_node.iswheel       = WHEEL_FLEXBODY;
         inner_node.nd_rim_node   = true;
         AdjustNodeBuoyancy(inner_node, def.node_defaults);
 
         m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(inner_node.pos)));
 
         // Wheel object
-        wheel.wh_nodes[i * 2]       = & outer_node;
-        wheel.wh_nodes[(i * 2) + 1] = & inner_node;
+        wheel.wh_rim_nodes[i * 2]       = & outer_node;
+        wheel.wh_rim_nodes[(i * 2) + 1] = & inner_node;
     }
 
     Ogre::Vector3 tyre_ray_vector = axis_vector.perpendicular() * def.tyre_radius;
@@ -4193,9 +4194,11 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     wheel.wh_braking = this->TranslateBrakingDef(def.braking);
     wheel.wh_propulsed = def.propulsion;
     wheel.wh_num_nodes = 2 * def.num_rays;
+    wheel.wh_num_rim_nodes = wheel.wh_num_nodes;
     wheel.wh_axis_node_0 = axis_node_1;
     wheel.wh_axis_node_1 = axis_node_2;
     wheel.wh_radius = def.tyre_radius;
+    wheel.wh_rim_radius = def.rim_radius;
     wheel.wh_arm_node = this->GetNodePointer(def.reference_arm_node);
 
     if (def.propulsion != RigDef::Wheels::PROPULSION_NONE)
@@ -4403,7 +4406,6 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
     RigDef::Wheels::Braking braking,
     std::shared_ptr<RigDef::NodeDefaults> node_defaults,
     float wheel_mass,
-    bool set_param_iswheel, /* Default: true */
     float wheel_width       /* Default: -1.f */
 )
 {
@@ -4457,7 +4459,7 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
         node_t & outer_node = GetFreeNode();
         InitNode(outer_node, ray_point, node_defaults);
         outer_node.mass          = wheel_mass / (2.f * num_rays);
-        outer_node.iswheel       = (set_param_iswheel) ? WHEEL_DEFAULT : NOWHEEL;
+        outer_node.iswheel       = WHEEL_DEFAULT;
         outer_node.nd_contacter  = true;
         AdjustNodeBuoyancy(outer_node, node_defaults);
 
@@ -4470,7 +4472,7 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
         node_t & inner_node = GetFreeNode();
         InitNode(inner_node, ray_point, node_defaults);
         inner_node.mass          = wheel_mass / (2.f * num_rays);
-        inner_node.iswheel       = (set_param_iswheel) ? WHEEL_DEFAULT : NOWHEEL;
+        inner_node.iswheel       = WHEEL_DEFAULT;
         inner_node.nd_contacter  = true;
         AdjustNodeBuoyancy(inner_node, node_defaults);
 
@@ -4610,7 +4612,6 @@ unsigned int ActorSpawner::AddWheel(RigDef::Wheel & wheel_def)
         wheel_def.braking,
         wheel_def.node_defaults,
         wheel_def.mass,
-        true,
         -1.f // Set width to axis length (width in definition is ignored)
     );
 
@@ -4697,26 +4698,28 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         /* Outer ring */
         Ogre::Vector3 ray_point = axis_node_1->RelPosition + rim_ray_vector;
 
-        node_t & outer_node = GetFreeNode();
+        node_t & outer_node    = GetFreeNode();
         InitNode(outer_node, ray_point, wheel_2_def.node_defaults);
-        outer_node.mass    = node_mass;
-        outer_node.iswheel = WHEEL_2;
+        outer_node.mass        = node_mass;
+        outer_node.iswheel     = WHEEL_2;
+        outer_node.nd_rim_node = true;
 
         m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(outer_node.pos)));
 
         /* Inner ring */
         ray_point = axis_node_2->RelPosition + rim_ray_vector;
 
-        node_t & inner_node = GetFreeNode();
+        node_t & inner_node    = GetFreeNode();
         InitNode(inner_node, ray_point, wheel_2_def.node_defaults);
-        inner_node.mass    = node_mass;
-        inner_node.iswheel = WHEEL_2;
+        inner_node.mass        = node_mass;
+        inner_node.iswheel     = WHEEL_2;
+        inner_node.nd_rim_node = true;
 
         m_gfx_nodes.push_back(GfxActor::NodeGfx(static_cast<uint16_t>(inner_node.pos)));
 
         /* Wheel object */
-        wheel.wh_nodes[i * 2] = & outer_node;
-        wheel.wh_nodes[(i * 2) + 1] = & inner_node;
+        wheel.wh_rim_nodes[i * 2] = & outer_node;
+        wheel.wh_rim_nodes[(i * 2) + 1] = & inner_node;
 
         rim_ray_vector = rim_ray_rotator * rim_ray_vector;
     }
@@ -4836,9 +4839,11 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
     wheel.wh_braking       = this->TranslateBrakingDef(wheel_2_def.braking);
     wheel.wh_propulsed     = wheel_2_def.propulsion;
     wheel.wh_num_nodes     = 2 * wheel_2_def.num_rays;
+    wheel.wh_num_rim_nodes = wheel.wh_num_nodes;
     wheel.wh_axis_node_0   = axis_node_1;
     wheel.wh_axis_node_1   = axis_node_2;
     wheel.wh_radius        = wheel_2_def.tyre_radius;
+    wheel.wh_rim_radius    = wheel_2_def.rim_radius;
     wheel.wh_arm_node      = this->GetNodePointer(wheel_2_def.reference_arm_node);
 
     if (wheel_2_def.propulsion != RigDef::Wheels::PROPULSION_NONE)
