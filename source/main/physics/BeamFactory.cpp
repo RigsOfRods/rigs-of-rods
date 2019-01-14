@@ -241,7 +241,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     actor->m_wheel_node_count = 0;
     for (int i = 0; i < actor->ar_num_nodes; i++)
     {
-        if (actor->ar_nodes[i].iswheel != NOWHEEL)
+        if (actor->ar_nodes[i].iswheel != NOWHEEL && !actor->ar_nodes[i].nd_rim_node)
             actor->m_wheel_node_count++;
     }
 
@@ -249,7 +249,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, std::shared_pt
     actor->m_net_first_wheel_node = actor->ar_num_nodes;
     for (int i = 0; i < actor->ar_num_nodes; i++)
     {
-        if (actor->ar_nodes[i].iswheel == WHEEL_DEFAULT)
+        if (actor->ar_nodes[i].iswheel != NOWHEEL || actor->ar_nodes[i].nd_rim_node)
         {
             actor->m_net_first_wheel_node = i;
             break;

@@ -39,6 +39,8 @@ struct wheel_t
 
     int         wh_num_nodes;
     node_t*     wh_nodes[50];             // TODO: remove limit, make this dyn-allocated ~ only_a_ptr, 08/2017
+    int         wh_num_rim_nodes;
+    node_t*     wh_rim_nodes[50];         // TODO: remove limit, make this dyn-allocated ~ only_a_ptr, 08/2017
     BrakeCombo  wh_braking;
     node_t*     wh_arm_node;
     node_t*     wh_near_attach_node;
@@ -46,6 +48,7 @@ struct wheel_t
     node_t*     wh_axis_node_1;
     int         wh_propulsed;             // TODO: add enum ~ only_a_ptr, 08/2017
     Ogre::Real  wh_radius;
+    Ogre::Real  wh_rim_radius;
     Ogre::Real  wh_speed;             //<! Current wheel speed in m/s
     Ogre::Real  wh_avg_speed;         //<! Internal physics state; Do not read from this
     Ogre::Real  wh_alb_coef;          //<! Sim state; Current anti-lock  brake modulation ratio
