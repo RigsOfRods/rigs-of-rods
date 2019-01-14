@@ -192,8 +192,6 @@ set(SOURCE_FILES
         physics/flex/FlexMeshWheel.{h,cpp}
         physics/flex/FlexObj.{h,cpp}
         physics/flex/Locator_t.h
-        physics/mplatform/MPlatformBase.{h,cpp}
-        physics/mplatform/MPlatformFD.{h,cpp}
         physics/water/Buoyance.{h,cpp}
         physics/water/ScrewProp.{h,cpp}
         plugins/pagedgeometry/include/BatchPage.h

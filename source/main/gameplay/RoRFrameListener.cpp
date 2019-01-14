@@ -78,10 +78,6 @@
 #include <limits>
 #include <sstream>
 
-#ifdef USE_MPLATFORM
-#include "MPlatformFD.h"
-#endif //USE_MPLATFORM
-
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #include <Windows.h>
 #else
