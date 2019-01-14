@@ -776,7 +776,10 @@ void Actor::CalcCommands(bool doUpdate)
                 if (ar_command_key[i].commandValue >= 0.5)
                 {
                     ar_command_key[i].beams[j].cmb_state->auto_move_lock = true;
-                    ar_command_key[i].beams[j].cmb_state->auto_moving_mode = 0;
+                    if (ar_command_key[i].beams[j].cmb_is_autocentering)
+                    {
+                        ar_command_key[i].beams[j].cmb_state->auto_moving_mode = 0;
+                    }
                 }
             }
         }
