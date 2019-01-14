@@ -269,14 +269,6 @@ int main(int argc, char *argv[])
         }
 #endif // _WIN32
 
-#ifdef USE_MPLATFORM
-	    m_frame_listener->m_platform = new MPlatform_FD();
-	    if (m_frame_listener->m_platform)
-	    {
-		    m_platform->connect();
-	    }
-#endif
-
         RoR::App::GetInputEngine()->windowResized(App::GetOgreSubsystem()->GetRenderWindow());
 
         MainMenu main_obj;
@@ -390,17 +382,6 @@ int main(int argc, char *argv[])
 
         //TODO: we should destroy OIS here
         //TODO: we could also try to destroy SoundScriptManager, but we don't care!
-
-#ifdef USE_MPLATFORM
-	    if (frame_listener->mplatform != nullptr)
-	    {
-		    if (frame_listener->mplatform->disconnect())
-		    {
-			    delete(frame_listener->mplatform);
-			    frame_listener->mplatform = nullptr;
-		    }
-	    }
-#endif
 
         scene_manager->destroyCamera(camera);
         App::GetOgreSubsystem()->GetOgreRoot()->destroySceneManager(scene_manager);
