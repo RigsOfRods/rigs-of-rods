@@ -221,6 +221,7 @@ enum events
     EV_COMMON_RESPAWN_LAST_TRUCK, //!< respawn last truck
     EV_COMMON_FOV_LESS, //!<decreases the current FOV value
     EV_COMMON_FOV_MORE, //!<increases the current FOV value
+    EV_COMMON_FOV_RESET, //!<reset the FOV value
     EV_COMMON_FULLSCREEN_TOGGLE,
     EV_COMMON_HIDE_GUI, //!< hide all GUI elements
     EV_COMMON_TOGGLE_DASHBOARD, //!< display or hide the dashboard overlay

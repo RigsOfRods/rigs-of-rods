@@ -467,8 +467,25 @@ void SimController::UpdateInputEvents(float dt)
         else
         {
             RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("FOV: Limit reached"), "camera_edit.png", 2000);
-            RoR::App::GetGuiManager()->PushNotification("Notice:", _L("FOV: Limit reached") + TOSTRING(""));
+            RoR::App::GetGuiManager()->PushNotification("Notice:", _L("FOV: Limit reached"));
         }
+    }
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_RESET))
+    {
+        float fov = gEnv->mainCamera->getFOVy().valueDegrees();
+        if (this->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
+        {
+            fov = App::gfx_fov_internal.GetStored();
+            App::gfx_fov_internal.SetActive(fov);
+        }
+        else
+        {
+            fov = App::gfx_fov_external.GetStored();
+            App::gfx_fov_external.SetActive(fov);
+        }
+        gEnv->mainCamera->setFOVy(Degree(fov));
+        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("FOV: ") + TOSTRING(fov), "camera_edit.png", 2000);
+        RoR::App::GetGuiManager()->PushNotification("Notice:", _L("FOV: ") + TOSTRING(fov));
     }
 
     // full screen/windowed screen switching

@@ -198,6 +198,7 @@ COMMON_TRUCK_INFO              Keyboard             EXPL+T
 COMMON_TRUCK_DESCRIPTION       Keyboard             EXPL+CTRL+T 
 COMMON_FOV_LESS                Keyboard             EXPL+NUMPAD7 
 COMMON_FOV_MORE                Keyboard             EXPL+CTRL+NUMPAD7
+COMMON_FOV_RESET               Keyboard             EXPL+SHIFT+NUMPAD7
 
 ; GRASS
 GRASS_LESS                     Keyboard             6 

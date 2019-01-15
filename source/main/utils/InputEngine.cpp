@@ -1100,6 +1100,12 @@ eventInfo_t eventInfo[] = {
         _L("increase the current FOV value")
     },
     {
+        "COMMON_FOV_RESET",
+        EV_COMMON_FOV_RESET,
+        "Keyboard EXPL+SHIFT+NUMPAD7",
+        _L("reset the FOV value")
+    },
+    {
         "GRASS_LESS",
         EV_GRASS_LESS,
         "",
