@@ -443,3 +443,16 @@ std::string ContentManager::ListAllUserContent()
     return buf.str();
 }
 
+void ContentManager::SynchUpdateModCache()
+{
+    // Res. groups were created on startup, now probably out of date.
+    auto& ogre_rgm = Ogre::ResourceGroupManager::getSingleton();
+    ogre_rgm.destroyResourceGroup("VehicleFolders");
+    ogre_rgm.destroyResourceGroup("TerrainFolders");
+    ogre_rgm.destroyResourceGroup("Packs");
+
+    // NOTE: The function below was originally designed for running at startup,
+    //       it works fully synchronously and makes it's own render calls to display status window.
+    this->InitModCache(); // obeys GVar 'app_force_cache_udpate'
+}
+

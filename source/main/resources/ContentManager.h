@@ -74,6 +74,7 @@ public:
     void               InitContentManager();
     void               InitModCache();
     void               LoadGameplayResources();  //!< Checks GVar settings and loads required resources.
+    void               SynchUpdateModCache(); //!< Only to be called from main menu loop; performs rendering calls (status window)
     std::string        ListAllUserContent(); //!< Used by ModCache for quick detection of added/removed content
     RoR::SkinManager*  GetSkinManager()  { return m_skin_manager; }
 

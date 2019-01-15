@@ -29,6 +29,7 @@
 
 #include "CacheSystem.h"
 #include "ChatSystem.h"
+#include "ContentManager.h"
 #include "GUIManager.h"
 #include "GUI_LoadingWindow.h"
 #include "GUI_MainSelector.h"
@@ -200,6 +201,15 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
         App::GetGuiManager()->GetMpSelector()->CheckAndProcessRefreshResult();
     }
 #endif // USE_SOCKETW
+ 
+    if (App::app_force_cache_udpate.GetActive())
+    {
+        App::GetGuiManager()->SetVisible_GameSettings(false);
+        RoR::App::GetGuiManager()->GetLoadingWindow()->SetMustUpdateRenderwindow(true);
+        App::GetContentManager()->SynchUpdateModCache(); // NOTE: performs it's own render calls (status window)
+        App::GetGuiManager()->SetVisible_GameMainMenu(true); // Because 'Settings' panel doesn't remember last tab
+        App::app_force_cache_udpate.SetActive(false);
+    }
 
     RoR::App::GetInputEngine()->Capture();
 

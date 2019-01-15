@@ -44,6 +44,7 @@ public:
 
     void SetVisible(bool v);
     bool IsVisible();
+    void SetMustUpdateRenderwindow(bool val) { m_must_update_renderwindow = val; }
 
 private:
 
@@ -57,6 +58,8 @@ private:
     MyGUI::TextBox* mInfoStaticText;
 
     Ogre::Timer* t;
+
+    bool m_must_update_renderwindow; //!< Must call RenderWindow::update() after rendering
 };
 
 } // namespace GUI

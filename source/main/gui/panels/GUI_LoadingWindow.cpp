@@ -24,12 +24,14 @@
 #include "Application.h"
 #include "GUIManager.h"
 #include "Language.h"
+#include "OgreSubsystem.h"
 #include "Utils.h"
 
 namespace RoR {
 namespace GUI {
 
 LoadingWindow::LoadingWindow()
+    : m_must_update_renderwindow(false)
 {
     initialiseByAttributes(this);
 
@@ -81,6 +83,11 @@ void LoadingWindow::renderOneFrame(bool force)
         OgreBites::WindowEventUtilities::messagePump();
         Ogre::Root::getSingleton().renderOneFrame();
         t->reset();
+
+        if (m_must_update_renderwindow)
+        {
+            RoR::App::GetOgreSubsystem()->GetRenderWindow()->update(); // This is needed inside menu loop (ingame cache regen) although the renderwindow is set to 'auto update'. TODO: investigate ~ only_a_ptr, 01/2019
+        }
     }
 }
 
