@@ -1501,3 +1501,15 @@ void CacheSystem::checkForNewContent() // Only used when performing "incremental
     checkForNewDirectoriesInResourceGroup(resource_bundles, "TerrainFolders");
 }
 
+void CacheSystem::SynchClearCache()
+{
+    std::remove(this->getCacheConfigFilename().c_str());
+
+    auto itor = m_entries.begin();
+    for (; itor != m_entries.end(); ++itor)
+    {
+        this->removeFileFromFileCache(itor);
+    }
+    m_entries.clear();
+}
+

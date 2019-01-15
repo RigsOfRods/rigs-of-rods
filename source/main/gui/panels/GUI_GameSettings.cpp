@@ -364,10 +364,9 @@ void RoR::GUI::GameSettings::Draw()
         {
             App::app_force_cache_udpate.SetActive(true);
         }
-        if (ImGui::Button(_LC("GameSettings", "Clear cache (and quit)")))
+        if (ImGui::Button(_LC("GameSettings", "Clear cache (in-game)")))
         {
-            std::remove(App::GetCacheSystem()->getCacheConfigFilename().c_str());
-            App::app_state.SetPending(AppState::SHUTDOWN);
+            App::app_force_cache_purge.SetActive(true);
         }
     }
     else if (m_tab == SettingsTab::CONTROL)

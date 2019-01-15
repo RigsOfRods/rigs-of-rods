@@ -147,6 +147,7 @@ public:
     CacheEntry*           FindEntryByFilename(std::string const & filename); //<! Returns NULL if none found
     void                  UnloadActorDefFromMemory(std::string const & filename);
     CacheValidityState    EvaluateCacheValidity();
+    void                  SynchClearCache();
 
     bool checkResourceLoaded(CacheEntry& t); //!< Loads the associated resource bundle if not already done. Updates the bundle (resource group, loaded state)
     bool checkResourceLoaded(Ogre::String &in_out_filename); //!< Finds + loads the associated resource bundle if not already done.

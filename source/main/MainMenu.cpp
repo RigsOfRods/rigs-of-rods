@@ -205,10 +205,21 @@ void MainMenu::MainMenuLoopUpdate(float seconds_since_last_frame)
     if (App::app_force_cache_udpate.GetActive())
     {
         App::GetGuiManager()->SetVisible_GameSettings(false);
-        RoR::App::GetGuiManager()->GetLoadingWindow()->SetMustUpdateRenderwindow(true);
+        App::GetGuiManager()->GetLoadingWindow()->SetMustUpdateRenderwindow(true);
         App::GetContentManager()->SynchUpdateModCache(); // NOTE: performs it's own render calls (status window)
-        App::GetGuiManager()->SetVisible_GameMainMenu(true); // Because 'Settings' panel doesn't remember last tab
+        App::GetGuiManager()->SetVisible_GameMainMenu(true); // Because 'Settings' panel doesn't remember last tab/scroll
         App::app_force_cache_udpate.SetActive(false);
+    }
+
+    if (App::app_force_cache_purge.GetActive())
+    {
+        App::GetGuiManager()->SetVisible_GameSettings(false);
+        App::GetGuiManager()->GetLoadingWindow()->SetMustUpdateRenderwindow(true);
+        App::GetGuiManager()->GetLoadingWindow()->setAutotrack(_LC("App", "Clearing mod cache...")); // Forces render call
+        App::GetCacheSystem()->SynchClearCache();
+        App::GetGuiManager()->SetVisible_LoadingWindow(false);
+        App::GetGuiManager()->SetVisible_GameMainMenu(true); // Because 'Settings' panel doesn't remember last tab/scroll
+        App::app_force_cache_purge.SetActive(false);
     }
 
     RoR::App::GetInputEngine()->Capture();

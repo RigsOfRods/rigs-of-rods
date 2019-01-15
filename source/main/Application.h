@@ -661,6 +661,7 @@ extern GVarStr_AP<50>          app_screenshot_format;
 extern GVarStr_A<100>          app_rendersys_override;
 extern GVarStr_A<300>          app_extra_mod_path;
 extern GVarPod_A<bool>         app_force_cache_udpate;
+extern GVarPod_A<bool>         app_force_cache_purge;
 
 // Simulation
 extern GVarEnum_AP<SimState>   sim_state;
