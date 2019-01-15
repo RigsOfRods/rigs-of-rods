@@ -439,53 +439,56 @@ void SimController::UpdateInputEvents(float dt)
     }
 
     // camera FOV settings
-    const bool fov_less = RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_LESS, 0.1f);
-    const bool fov_more = RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_MORE, 0.1f);
-    if (fov_less || fov_more)
+    if (this->GetCameraBehavior() != CameraManager::CAMERA_BEHAVIOR_STATIC) // the static camera has its own fov logic
     {
-        float fov = gEnv->mainCamera->getFOVy().valueDegrees();
-        fov = (fov_less) ? (fov - 1.f) : (fov + 1.f);
-        fov = Round(fov);
-
-        if (fov >= 10 && fov <= 160)
+        const bool fov_less = RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_LESS, 0.1f);
+        const bool fov_more = RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_MORE, 0.1f);
+        if (fov_less || fov_more)
         {
-            gEnv->mainCamera->setFOVy(Degree(fov));
+            float fov = gEnv->mainCamera->getFOVy().valueDegrees();
+            fov = (fov_less) ? (fov - 1.f) : (fov + 1.f);
+            fov = Round(fov);
 
-            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("FOV: ") + TOSTRING(fov), "camera_edit.png", 2000);
-            RoR::App::GetGuiManager()->PushNotification("Notice:", _L("FOV: ") + TOSTRING(fov));
+            if (fov >= 10 && fov <= 160)
+            {
+                gEnv->mainCamera->setFOVy(Degree(fov));
 
-            // save the settings
+                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("FOV: ") + TOSTRING(fov), "camera_edit.png", 2000);
+                RoR::App::GetGuiManager()->PushNotification("Notice:", _L("FOV: ") + TOSTRING(fov));
+
+                // save the settings
+                if (this->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
+                {
+                    App::gfx_fov_internal.SetActive(fov);
+                }
+                else
+                {
+                    App::gfx_fov_external.SetActive(fov);
+                }
+            }
+            else
+            {
+                RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("FOV: Limit reached"), "camera_edit.png", 2000);
+                RoR::App::GetGuiManager()->PushNotification("Notice:", _L("FOV: Limit reached"));
+            }
+        }
+        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_RESET))
+        {
+            float fov = gEnv->mainCamera->getFOVy().valueDegrees();
             if (this->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
             {
+                fov = App::gfx_fov_internal.GetStored();
                 App::gfx_fov_internal.SetActive(fov);
             }
             else
             {
+                fov = App::gfx_fov_external.GetStored();
                 App::gfx_fov_external.SetActive(fov);
             }
+            gEnv->mainCamera->setFOVy(Degree(fov));
+            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("FOV: ") + TOSTRING(fov), "camera_edit.png", 2000);
+            RoR::App::GetGuiManager()->PushNotification("Notice:", _L("FOV: ") + TOSTRING(fov));
         }
-        else
-        {
-            RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("FOV: Limit reached"), "camera_edit.png", 2000);
-            RoR::App::GetGuiManager()->PushNotification("Notice:", _L("FOV: Limit reached"));
-        }
-    }
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_FOV_RESET))
-    {
-        float fov = gEnv->mainCamera->getFOVy().valueDegrees();
-        if (this->GetCameraBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
-        {
-            fov = App::gfx_fov_internal.GetStored();
-            App::gfx_fov_internal.SetActive(fov);
-        }
-        else
-        {
-            fov = App::gfx_fov_external.GetStored();
-            App::gfx_fov_external.SetActive(fov);
-        }
-        gEnv->mainCamera->setFOVy(Degree(fov));
-        RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("FOV: ") + TOSTRING(fov), "camera_edit.png", 2000);
-        RoR::App::GetGuiManager()->PushNotification("Notice:", _L("FOV: ") + TOSTRING(fov));
     }
 
     // full screen/windowed screen switching
