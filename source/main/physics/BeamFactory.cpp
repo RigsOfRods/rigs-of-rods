@@ -650,6 +650,8 @@ void ActorManager::ForwardCommands(Actor* source_actor)
 {
     if (source_actor->ar_forward_commands)
     {
+        auto linked_actors = source_actor->GetAllLinkedActors();
+
         for (auto actor : RoR::App::GetSimController()->GetActors())
         {
             if (actor != source_actor && actor->ar_import_commands &&
@@ -662,6 +664,13 @@ void ActorManager::ForwardCommands(Actor* source_actor)
                     actor->ar_sleep_counter = 0.0f;
                     actor->ar_sim_state = Actor::SimState::LOCAL_SIMULATED;
                 }
+
+                if (App::sim_realistic_commands.GetActive())
+                {
+                    if (std::find(linked_actors.begin(), linked_actors.end(), actor) == linked_actors.end())
+                        continue;
+                }
+
                 // forward commands
                 for (int j = 1; j <= MAX_COMMANDS; j++)
                 {

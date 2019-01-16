@@ -207,6 +207,8 @@ void RoR::GUI::GameSettings::Draw()
 
         DrawGCheckbox(App::sim_position_storage, _LC("GameSettings", "Use position storage"));
 
+        DrawGCheckbox(App::sim_realistic_commands, _LC("GameSettings", "Realistic forward commands"));
+
         DrawGCheckbox(App::sim_races_enabled, _LC("GameSettings", "Enable races"));
 
         DrawGCheckbox(App::sim_no_self_collisions, _LC("GameSettings", "No intra truck collisions"));
