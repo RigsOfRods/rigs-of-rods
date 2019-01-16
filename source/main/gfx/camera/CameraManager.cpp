@@ -920,24 +920,24 @@ void CameraManager::UpdateCameraBehaviorFree()
 {
     Degree mRotX(0.0f);
     Degree mRotY(0.0f);
-    Degree cct_rot_scale(m_cct_rot_scale * 10.0f * m_cct_dt);
+    Degree cct_rot_scale(m_cct_rot_scale * 5.0f * m_cct_dt);
     Vector3 mTrans(Vector3::ZERO);
-    Real cct_trans_scale(m_cct_trans_scale * 10.0f * m_cct_dt);
+    Real cct_trans_scale(m_cct_trans_scale * 5.0f * m_cct_dt);
 
     if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) || RoR::App::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT))
     {
         cct_rot_scale *= 3.0f;
-        cct_trans_scale *= 3.0f;
+        cct_trans_scale *= 5.0f;
     }
     if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL))
     {
         cct_rot_scale *= 6.0f;
-        cct_trans_scale *= 20.0f;
+        cct_trans_scale *= 10.0f;
     }
     if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU))
     {
-        cct_rot_scale *= 0.1f;
-        cct_trans_scale *= 0.1f;
+        cct_rot_scale *= 0.2f;
+        cct_trans_scale *= 0.2f;
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_SIDESTEP_LEFT))
