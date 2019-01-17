@@ -31,8 +31,6 @@
 // ug... BAD PERFORMNCE, BAD!!
 void Actor::ToggleSlideNodeLock()
 {
-    Actor* player_actor = RoR::App::GetSimController()->GetPlayerActor();
-
     // for every slide node on this truck
     for (std::vector<SlideNode>::iterator itNode = m_slidenodes.begin(); itNode != m_slidenodes.end(); itNode++)
     {
@@ -56,8 +54,7 @@ void Actor::ToggleSlideNodeLock()
         for (auto actor : RoR::App::GetSimController()->GetActors())
         {
             // make sure this truck is allowed
-            if (!((player_actor != actor && itNode->sn_attach_foreign) ||
-                (player_actor == actor && itNode->sn_attach_self)))
+            if ((this != actor && !itNode->sn_attach_foreign) || (this == actor && !itNode->sn_attach_self))
                 continue;
 
             current = GetClosestRailOnActor(actor, (*itNode));
