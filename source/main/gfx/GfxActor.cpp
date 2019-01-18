@@ -700,7 +700,7 @@ void RoR::GfxActor::UpdateDebugView()
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
     ImGui::End();
 
-    if (m_actor->ar_physics_paused)
+    if (m_actor->ar_physics_paused && !RoR::App::GetSimController()->IsGUIHidden())
     {
         // Should we replace this circle with a proper bounding box?
         Ogre::Vector3 pos_xyz = world2screen.Convert(m_actor->getPosition());
