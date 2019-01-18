@@ -1486,7 +1486,7 @@ float Actor::GetHeightAboveGroundBelow(float height, bool skip_virtual_nodes)
             agl = std::min(pos.y - gEnv->collisions->getSurfaceHeightBelow(pos.x, pos.z, height), agl);
         }
     }
-    return (agl < std::numeric_limits<float>::max()) ? agl : GetHeightAboveGround(false);
+    return (agl < std::numeric_limits<float>::max()) ? agl : GetHeightAboveGroundBelow(height, false);
 }
 
 void Actor::SoftReset()
