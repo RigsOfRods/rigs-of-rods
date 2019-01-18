@@ -67,8 +67,6 @@ public:
 
     void write()
     {
-        win->update();
-
         // please do not misinterpret this feature
         // its used in the forums like an EXTIF data to display things beside the screenshots
         int mWidth = win->getWidth();

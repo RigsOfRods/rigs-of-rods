@@ -250,6 +250,9 @@ void SimController::UpdateInputEvents(float dt)
 
         RoR::App::GetGuiManager()->HideNotification();
         RoR::App::GetGuiManager()->SetMouseCursorVisibility(RoR::GUIManager::MouseCursorVisibility::HIDDEN);
+        RoR::App::GetOgreSubsystem()->GetRenderWindow()->update();
+
+        // TODO: Find a way to show ImGUI on the screenshot
 
         if (std::strcmp(App::app_screenshot_format.GetActive(), "png") == 0)
         {
@@ -284,7 +287,6 @@ void SimController::UpdateInputEvents(float dt)
         }
         else
         {
-            RoR::App::GetOgreSubsystem()->GetRenderWindow()->update();
             RoR::App::GetOgreSubsystem()->GetRenderWindow()->writeContentsToFile(tmpfn);
         }
 
