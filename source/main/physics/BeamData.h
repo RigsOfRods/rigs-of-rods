@@ -571,7 +571,8 @@ struct ActorModifyRequest
         INVALID,
         RELOAD,               //!< Full reload from filesystem, requested by user
         RESET_ON_INIT_POS,
-        RESET_ON_SPOT
+        RESET_ON_SPOT,
+        SOFT_RESET
     };
 
     Actor* amr_actor;

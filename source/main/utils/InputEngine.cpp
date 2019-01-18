@@ -992,6 +992,12 @@ eventInfo_t eventInfo[] = {
         _L("reset truck to original starting position")
     },
     {
+        "COMMON_TOGGLE_RESET_MODE",
+        EV_COMMON_TOGGLE_RESET_MODE,
+        "Keyboard EXPL+APOSTROPHE",
+        _L("toggle reset mode")
+    },
+    {
         "COMMON_SCREENSHOT",
         EV_COMMON_SCREENSHOT,
         "Keyboard EXPL+SYSRQ",
@@ -1567,6 +1573,12 @@ eventInfo_t eventInfo[] = {
         EV_TRUCK_TOGGLE_INTER_WHEEL_DIFF,
         "Keyboard EXPL+W",
         _L("cycle between available inter wheel differential modes")
+    },
+    {
+        "TRUCK_TOGGLE_PHYSICS",
+        EV_TRUCK_TOGGLE_PHYSICS,
+        "Keyboard END",
+        _L("toggle physics")
     },
     {
         "TRUCK_TOGGLE_TCASE_4WD_MODE",

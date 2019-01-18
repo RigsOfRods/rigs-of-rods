@@ -182,6 +182,7 @@ COMMON_REPLAY_FAST_FORWARD     Keyboard             EXPL+SHIFT+RIGHT
 COMMON_REPLAY_FORWARD          Keyboard             EXPL+RIGHT 
 COMMON_RESCUE_TRUCK            Keyboard             EXPL+R 
 COMMON_RESET_TRUCK             Keyboard             EXPL+I 
+COMMON_TOGGLE_RESET_MODE       Keyboard             EXPL+APOSTROPHE 
 COMMON_SCREENSHOT              Keyboard             SYSRQ 
 COMMON_SECURE_LOAD             Keyboard             O 
 COMMON_TOGGLE_DEBUG_VIEW       Keyboard             EXPL+K 
@@ -262,6 +263,7 @@ TRUCK_TOGGLE_FORWARDCOMMANDS   Keyboard             EXPL+CTRL+SHIFT+F
 TRUCK_TOGGLE_IMPORTCOMMANDS    Keyboard             EXPL+CTRL+SHIFT+I 
 TRUCK_TOGGLE_INTER_AXLE_DIFF   Keyboard             EXPL+CTRL+W 
 TRUCK_TOGGLE_INTER_WHEEL_DIFF  Keyboard             EXPL+W 
+TRUCK_TOGGLE_PHYSICS           Keyboard             END 
 TRUCK_TOGGLE_TCASE_4WD_MODE    Keyboard             EXPL+SHIFT+W 
 TRUCK_TOGGLE_TCASE_GEAR_RATIO  Keyboard             EXPL+ALT+W 
 TRUCK_TOGGLE_VIDEOCAMERA       Keyboard             EXPL+CTRL+V 

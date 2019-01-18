@@ -735,7 +735,7 @@ float Collisions::getSurfaceHeightBelow(float x, float z, float height)
         {
             collision_box_t* cbox = &m_collision_boxes[hashtable[hash][k].element_index];
 
-            if (!cbox->virt)
+            if (!cbox->virt && surface_height < cbox->hi.y)
             {
                 if (x > cbox->lo.x && z > cbox->lo.z && x < cbox->hi.x && z < cbox->hi.z)
                 {
@@ -781,6 +781,8 @@ float Collisions::getSurfaceHeightBelow(float x, float z, float height)
 
             auto lo = ctri->aab.getMinimum();
             auto hi = ctri->aab.getMaximum();
+            if (surface_height >= hi.y)
+                continue;
             if (x < lo.x || z < lo.z || x > hi.x || z > hi.z)
                 continue;
 
@@ -795,7 +797,7 @@ float Collisions::getSurfaceHeightBelow(float x, float z, float height)
         }
     }
 
-    return std::min(surface_height, height);
+    return surface_height;
 }
 
 bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)

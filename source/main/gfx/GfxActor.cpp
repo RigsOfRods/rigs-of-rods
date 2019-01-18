@@ -655,7 +655,7 @@ const float NODE_IMMOVABLE_RADIUS    (2.8f);
 
 void RoR::GfxActor::UpdateDebugView()
 {
-    if (m_debug_view == DebugViewType::DEBUGVIEW_NONE)
+    if (m_debug_view == DebugViewType::DEBUGVIEW_NONE && !m_actor->ar_physics_paused)
     {
         return; // Nothing to do
     }
@@ -699,6 +699,24 @@ void RoR::GfxActor::UpdateDebugView()
     ImGui::Begin(("RoR-SoftBodyView-" + TOSTRING(m_actor->ar_instance_id)).c_str(), NULL, screen_size, 0, window_flags);
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
     ImGui::End();
+
+    if (m_actor->ar_physics_paused)
+    {
+        // Should we replace this circle with a proper bounding box?
+        Ogre::Vector3 pos_xyz = world2screen.Convert(m_actor->getPosition());
+        if (pos_xyz.z < 0.f)
+        {
+            ImVec2 pos(pos_xyz.x, pos_xyz.y);
+
+            float radius = 0.0f;
+            for (int i = 0; i < m_actor->ar_num_nodes; ++i)
+            {
+                radius = std::max(radius, pos_xyz.distance(world2screen.Convert(m_actor->ar_nodes[i].AbsPosition)));
+            }
+
+            drawlist->AddCircleFilled(pos, radius * 1.05f, 0x22222222, 36);
+        }
+    }
 
     // Skeleton display. NOTE: Order matters, it determines Z-ordering on render
     if ((m_debug_view == DebugViewType::DEBUGVIEW_SKELETON) ||
