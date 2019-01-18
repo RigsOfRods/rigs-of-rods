@@ -163,6 +163,7 @@ private:
     float                    m_race_start_time;
     float                    m_race_bestlap_time;
 
+    bool                     m_soft_reset_mode;
     bool                     m_advanced_vehicle_repair;
     float                    m_advanced_vehicle_repair_timer;
 

@@ -240,6 +240,7 @@ enum events
     EV_COMMON_REPLAY_FORWARD,
     EV_COMMON_RESCUE_TRUCK, //!< teleport to rescue truck
     EV_COMMON_RESET_TRUCK, //!< reset truck to original starting position
+    EV_COMMON_TOGGLE_RESET_MODE, //!< toggle truck reset truck mode (soft vs. hard)
     EV_COMMON_ROPELOCK, //!< connect hook node to a node in close proximity
     EV_COMMON_SAVE_TERRAIN, //!< save terrain mesh to file
     EV_COMMON_SCREENSHOT, //!< take a screenshot
@@ -342,6 +343,7 @@ enum events
     EV_TRUCK_TOGGLE_IMPORTCOMMANDS, //!< toggle importcommands
     EV_TRUCK_TOGGLE_INTER_AXLE_DIFF, //!< toggle the inter axle differential mode
     EV_TRUCK_TOGGLE_INTER_WHEEL_DIFF, //!< toggle the inter wheel differential mode
+    EV_TRUCK_TOGGLE_PHYSICS, //!< toggle physics simulation
     EV_TRUCK_TOGGLE_TCASE_4WD_MODE, //!< toggle the transfer case 4wd mode
     EV_TRUCK_TOGGLE_TCASE_GEAR_RATIO, //!< toggle the transfer case gear ratio
     EV_TRUCK_TOGGLE_VIDEOCAMERA, //!< toggle videocamera update

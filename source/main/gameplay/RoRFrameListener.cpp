@@ -127,6 +127,7 @@ SimController::SimController(RoR::ForceFeedback* ff, RoR::SkidmarkConfig* skid_c
     m_stats_on(0),
     m_time(0),
     m_time_until_next_toggle(0),
+    m_soft_reset_mode(false),
     m_advanced_vehicle_repair(false),
     m_advanced_vehicle_repair_timer(0.f),
     m_actor_info_gui_visible(false)
@@ -720,6 +721,22 @@ void SimController::UpdateInputEvents(float dt)
         {
             if (m_player_actor) // we are in a vehicle
             {
+                if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_PHYSICS))
+                {
+                    for (auto actor : m_player_actor->GetAllLinkedActors())
+                    {
+                        actor->ar_physics_paused = !m_player_actor->ar_physics_paused;
+                    }
+                    m_player_actor->ar_physics_paused = !m_player_actor->ar_physics_paused;
+                }
+                if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_RESET_MODE))
+                {
+                    m_soft_reset_mode = !m_soft_reset_mode;
+                    if (m_soft_reset_mode)
+                        RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Enabled soft reset mode"));
+                    else
+                        RoR::App::GetGuiManager()->PushNotification("Notice:", _L("Enabled hard reset mode"));
+                }
                 if (!RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK))
                 {
                     m_advanced_vehicle_repair_timer = 0.0f;
@@ -792,23 +809,57 @@ void SimController::UpdateInputEvents(float dt)
                         scale *= RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) ? 3.0f : 1.0f;
                         scale *= RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) ? 10.0f : 1.0f;
 
-                        m_player_actor->RequestRotation(rotation * Ogre::Math::Clamp(scale, 0.1f, 10.0f));
-                        m_player_actor->RequestTranslation(translation * scale);
+                        Vector3 rotation_center = m_player_actor->GetRotationCenter();
+
+                        rotation *= Ogre::Math::Clamp(scale, 0.1f, 10.0f);
+                        translation *= scale;
+
+                        m_player_actor->RequestRotation(rotation, rotation_center);
+                        m_player_actor->RequestTranslation(translation);
+
+                        if (m_soft_reset_mode)
+                        {
+                            for (auto actor : m_player_actor->GetAllLinkedActors())
+                            {
+                                actor->RequestRotation(rotation, rotation_center);
+                                actor->RequestTranslation(translation);
+                            }
+                        }
 
                         m_advanced_vehicle_repair_timer = 0.0f;
                     }
                     else if (RoR::App::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE))
                     {
                         m_player_actor->RequestAngleSnap(45);
+                        if (m_soft_reset_mode)
+                        {
+                            for (auto actor : m_player_actor->GetAllLinkedActors())
+                            {
+                                actor->RequestAngleSnap(45);
+                            }
+                        }
                     }
                     else
                     {
                         m_advanced_vehicle_repair_timer += dt;
                     }
 
+                    auto reset_type = ActorModifyRequest::Type::RESET_ON_SPOT;
+                    if (m_soft_reset_mode)
+                    {
+                        reset_type = ActorModifyRequest::Type::SOFT_RESET;
+                        for (auto actor : m_player_actor->GetAllLinkedActors())
+                        {
+                            ActorModifyRequest rq;
+                            rq.amr_actor = actor;
+                            rq.amr_type = reset_type;
+                            this->QueueActorModify(rq);
+                        }
+                    }
+
                     ActorModifyRequest rq;
                     rq.amr_actor = m_player_actor;
-                    rq.amr_type  = ActorModifyRequest::Type::RESET_ON_SPOT;
+                    rq.amr_type = reset_type;
                     this->QueueActorModify(rq);
                 }
                 else
@@ -1560,6 +1611,10 @@ void SimController::UpdateSimulation(float dt)
 
     for (ActorModifyRequest& rq: m_actor_modify_queue)
     {
+        if (rq.amr_type == ActorModifyRequest::Type::SOFT_RESET)
+        {
+            rq.amr_actor->SoftReset();
+        }
         if ((rq.amr_type == ActorModifyRequest::Type::RESET_ON_SPOT) ||
             (rq.amr_type == ActorModifyRequest::Type::RESET_ON_INIT_POS))
         {

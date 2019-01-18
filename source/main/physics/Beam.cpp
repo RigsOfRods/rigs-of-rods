@@ -1448,6 +1448,19 @@ float Actor::GetMinHeight(bool skip_virtual_nodes)
     return (height < std::numeric_limits<float>::max()) ? height : GetMinHeight(false);
 }
 
+float Actor::GetMaxHeight(bool skip_virtual_nodes)
+{
+    float height = std::numeric_limits<float>::min(); 
+    for (int i = 0; i < ar_num_nodes; i++)
+    {
+        if (!skip_virtual_nodes || !ar_nodes[i].nd_no_ground_contact)
+        {
+            height = std::max(height, ar_nodes[i].AbsPosition.y);
+        }
+    }
+    return (height > std::numeric_limits<float>::min()) ? height : GetMaxHeight(false);
+}
+
 float Actor::GetHeightAboveGround(bool skip_virtual_nodes)
 {
     float agl = std::numeric_limits<float>::max(); 
@@ -1460,6 +1473,44 @@ float Actor::GetHeightAboveGround(bool skip_virtual_nodes)
         }
     }
     return (agl < std::numeric_limits<float>::max()) ? agl : GetHeightAboveGround(false);
+}
+
+float Actor::GetHeightAboveGroundBelow(float height, bool skip_virtual_nodes)
+{
+    float agl = std::numeric_limits<float>::max(); 
+    for (int i = 0; i < ar_num_nodes; i++)
+    {
+        if (!skip_virtual_nodes || !ar_nodes[i].nd_no_ground_contact)
+        {
+            Vector3 pos = ar_nodes[i].AbsPosition;
+            agl = std::min(pos.y - gEnv->collisions->getSurfaceHeightBelow(pos.x, pos.z, height), agl);
+        }
+    }
+    return (agl < std::numeric_limits<float>::max()) ? agl : GetHeightAboveGround(false);
+}
+
+void Actor::SoftReset()
+{
+    TRIGGER_EVENT(SE_TRUCK_RESET, ar_instance_id);
+
+    float agl = this->GetHeightAboveGroundBelow(this->GetMaxHeight(true), true);
+
+    if (App::GetSimTerrain()->getWater())
+    {
+        agl = std::min(this->GetMinHeight(true) - App::GetSimTerrain()->getWater()->GetStaticWaterHeight(), agl);
+    }
+
+    if (agl < 0.0f)
+    {
+        Vector3 translation = -agl * Vector3::UNIT_Y;
+        this->ResetPosition(ar_nodes[0].AbsPosition + translation, false);
+        for (auto actor : m_linked_actors)
+        {
+            actor->ResetPosition(actor->ar_nodes[0].AbsPosition + translation, false);
+        }
+    }
+
+    m_ongoing_reset = true;
 }
 
 void Actor::SyncReset(bool reset_position)
@@ -1483,7 +1534,6 @@ void Actor::SyncReset(bool reset_position)
     cc_mode = false;
 
     ar_origin = Vector3::ZERO;
-    float yPos = this->GetMinHeight(true);
     float cur_rot = getRotation();
     Vector3 cur_position = ar_nodes[0].AbsPosition;
 
@@ -1588,7 +1638,16 @@ void Actor::SyncReset(bool reset_position)
     if (!reset_position)
     {
         this->ResetAngle(cur_rot);
-        this->ResetPosition(cur_position.x, cur_position.z, false, yPos);
+        this->ResetPosition(cur_position, false);
+        float agl = this->GetHeightAboveGroundBelow(this->GetMaxHeight(true), true);
+        if (App::GetSimTerrain()->getWater())
+        {
+            agl = std::min(this->GetMinHeight(true) - App::GetSimTerrain()->getWater()->GetStaticWaterHeight(), agl);
+        }
+        if (agl < 0.0f)
+        {
+            this->ResetPosition(ar_nodes[0].AbsPosition - agl * Vector3::UNIT_Y, false);
+        }
     }
 
     // reset commands (self centering && push once/twice forced to terminate moving commands)
@@ -1670,6 +1729,9 @@ void Actor::HandleAngelScriptEvents(float dt)
 
 void Actor::HandleInputEvents(float dt)
 {
+    if (!m_ongoing_reset)
+        return;
+
     if (m_anglesnap_request > 0)
     {
         float rotation = Radian(getRotation()).valueDegrees();
@@ -1680,15 +1742,16 @@ void Actor::HandleInputEvents(float dt)
 
     if (m_rotation_request != 0.0f)
     {
-        Vector3 rotation_center = GetRotationCenter();
         Quaternion rot = Quaternion(Radian(m_rotation_request), Vector3::UNIT_Y);
 
         for (int i = 0; i < ar_num_nodes; i++)
         {
-            ar_nodes[i].AbsPosition -= rotation_center;
+            ar_nodes[i].AbsPosition -= m_rotation_request_center;
             ar_nodes[i].AbsPosition = rot * ar_nodes[i].AbsPosition;
-            ar_nodes[i].AbsPosition += rotation_center;
+            ar_nodes[i].AbsPosition += m_rotation_request_center;
             ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - ar_origin;
+            ar_nodes[i].Velocity = rot * ar_nodes[i].Velocity;
+            ar_nodes[i].Forces = rot * ar_nodes[i].Forces;
         }
 
         m_rotation_request = 0.0f;

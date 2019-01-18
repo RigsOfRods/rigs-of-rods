@@ -77,12 +77,14 @@ public:
     /// @param setInitPosition Set initial positions of nodes to current position?
     void              ResetPosition(Ogre::Vector3 translation, bool setInitPosition);
     void              ResetPosition(float px, float pz, bool setInitPosition, float miny);
-    void              RequestRotation(float rotation) { m_rotation_request += rotation; };
+    void              RequestRotation(float rotation, Ogre::Vector3 center) { m_rotation_request += rotation; m_rotation_request_center = center; };
     void              RequestAngleSnap(int division) { m_anglesnap_request = division; };
     void              RequestTranslation(Ogre::Vector3 translation) { m_translation_request += translation; };
     Ogre::Vector3     GetRotationCenter();
     float             GetMinHeight(bool skip_virtual_nodes=true);
+    float             GetMaxHeight(bool skip_virtual_nodes=true);
     float             GetHeightAboveGround(bool skip_virtual_nodes=true);
+    float             GetHeightAboveGroundBelow(float height, bool skip_virtual_nodes=true);
     bool              ReplayStep();
     void              ForceFeedbackStep(int steps);
     void              HandleInputEvents(float dt);
@@ -161,6 +163,7 @@ public:
     void              UpdateBoundingBoxes();
     void              calculateAveragePosition();
     void              UpdatePhysicsOrigin();
+    void              SoftReset();
     void              SyncReset(bool reset_position);      //!< this one should be called only synchronously (without physics running in background)
     blinktype         getBlinkType();
     std::vector<authorinfo_t>     getAuthors();
@@ -361,6 +364,7 @@ public:
     bool ar_import_commands:1;  //!< Sim state
     bool ar_toggle_ropes:1;     //!< Sim state
     bool ar_toggle_ties:1;      //!< Sim state
+    bool ar_physics_paused:1;   //!< Sim state
 
 private:
 
@@ -459,6 +463,7 @@ private:
     Ogre::String      m_net_username;
     Ogre::Timer       m_reset_timer;
     float             m_custom_light_toggle_countdown; //!< Input system helper status
+    Ogre::Vector3     m_rotation_request_center;
     float             m_rotation_request;         //!< Accumulator
     int               m_anglesnap_request;        //!< Accumulator
     Ogre::Vector3     m_translation_request;      //!< Accumulator
