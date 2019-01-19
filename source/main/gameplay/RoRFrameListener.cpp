@@ -518,10 +518,11 @@ void SimController::UpdateInputEvents(float dt)
         }
     }
 
-    static std::vector<TerrainObjectManager::EditorObject> object_list;
+    static auto& object_list = App::GetSimTerrain()->getObjectManager()->GetEditorObjects();
     static bool terrain_editing_track_object = true;
     static bool terrain_editing_mode = false;
     static int terrain_editing_rotation_axis = 1;
+    static int object_count = object_list.size();
     static int object_index = -1;
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TERRAIN_EDITOR))
@@ -567,6 +568,11 @@ void SimController::UpdateInputEvents(float dt)
     if (simEDITOR(s) && object_list.size() > 0)
     {
         bool update = false;
+        if (object_count != object_list.size())
+        {
+            object_count = object_list.size();
+            object_index = -1;
+        }
         if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_OR_EXIT_TRUCK))
         {
             if (object_index == -1)
@@ -707,8 +713,17 @@ void SimController::UpdateInputEvents(float dt)
 
                 if (terrain_editing_track_object)
                 {
-                    gEnv->player->setPosition(object_list[object_index].node->getPosition());
+                    gEnv->player->setPosition(sn->getPosition());
                 }
+            }
+            else if (terrain_editing_track_object && gEnv->player->getPosition() != sn->getPosition())
+            {
+                object_list[object_index].position = gEnv->player->getPosition();
+                sn->setPosition(gEnv->player->getPosition());
+            }
+            if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REMOVE_CURRENT_TRUCK))
+            {
+                App::GetSimTerrain()->getObjectManager()->unloadObject(object_list[object_index].instance_name);
             }
         }
         else

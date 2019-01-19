@@ -47,6 +47,10 @@ Road2::~Road2()
         MeshManager::getSingleton().remove(msh->getName());
         msh.setNull();
     }
+    for (int number : registeredCollTris)
+    {
+        gEnv->collisions->removeCollisionTri(number);
+    }
 }
 
 void Road2::finish()

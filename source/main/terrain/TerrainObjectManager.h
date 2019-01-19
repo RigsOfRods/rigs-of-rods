@@ -38,6 +38,7 @@ public:
     struct EditorObject
     {
         Ogre::String name;
+        Ogre::String instance_name;
         Ogre::Vector3 position;
         Ogre::Vector3 rotation;
         Ogre::Vector3 initial_position;
@@ -48,7 +49,7 @@ public:
     TerrainObjectManager(TerrainManager* terrainManager);
     ~TerrainObjectManager();
 
-    std::vector<EditorObject> GetEditorObjects() const { return m_editor_objects; }
+    std::vector<EditorObject>& GetEditorObjects() { return m_editor_objects; }
     void           LoadTObjFile(Ogre::String filename);
     void           LoadTerrainObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, Ogre::SceneNode* m_staticgeometry_bake_node, const Ogre::String& instancename, const Ogre::String& type, bool enable_collisions = true, int scripthandler = -1, bool uniquifyMaterial = false);
     void           MoveObjectVisuals(const Ogre::String& instancename, const Ogre::Vector3& pos);

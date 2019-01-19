@@ -172,6 +172,8 @@ public:
     int addCollisionMesh(Ogre::String meshname, Ogre::Vector3 pos, Ogre::Quaternion q, Ogre::Vector3 scale, ground_model_t* gm = 0, std::vector<int>* collTris = 0);
     int addCollisionTri(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, ground_model_t* gm);
     int createCollisionDebugVisualization();
+    void removeCollisionBox(int number);
+    void removeCollisionTri(int number);
 
     Ogre::AxisAlignedBox getCollisionAAB() { return m_collision_aab; };
 
