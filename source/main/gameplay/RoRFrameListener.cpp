@@ -598,8 +598,8 @@ void SimController::UpdateInputEvents(float dt)
                     SceneNode* sn = object.node;
                     if (sn != nullptr)
                     {
-                        String pos = TOSTRING(object.position.x) + ", " + TOSTRING(object.position.y) + ", " + TOSTRING(object.position.z);
-                        String rot = TOSTRING(object.rotation.x) + ", " + TOSTRING(object.rotation.y) + ", " + TOSTRING(object.rotation.z);
+                        String pos = StringUtil::format("%8.3f, %8.3f, %8.3f"   , object.position.x, object.position.y, object.position.z);
+                        String rot = StringUtil::format("% 6.1f, % 6.1f, % 6.1f", object.rotation.x, object.rotation.y, object.rotation.z);
 
                         file << pos + ", " + rot + ", " + object.name + "\n";
                     }
