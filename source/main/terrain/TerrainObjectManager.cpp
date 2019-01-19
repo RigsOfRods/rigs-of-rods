@@ -662,13 +662,24 @@ void TerrainObjectManager::unloadObject(const String& instancename)
 
     StaticObject obj = m_static_objects[instancename];
 
-    // check if it was already deleted
     if (!obj.enabled)
         return;
+
+    for (auto tri : obj.collTris)
+    {
+        gEnv->collisions->removeCollisionTri(tri);
+    }
+    for (auto box : obj.collBoxes)
+    {
+        gEnv->collisions->removeCollisionBox(box);
+    }
 
     obj.sceneNode->detachAllObjects();
     obj.sceneNode->setVisible(false);
     obj.enabled = false;
+
+    m_editor_objects.erase(std::remove_if(m_editor_objects.begin(), m_editor_objects.end(),
+                [instancename](EditorObject& e) { return e.instance_name == instancename; }), m_editor_objects.end());
 }
 
 void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, Ogre::SceneNode* m_staticgeometry_bake_node, const Ogre::String& instancename, const Ogre::String& type, bool enable_collisions /* = true */, int scripthandler /* = -1 */, bool uniquifyMaterial /* = false */)
@@ -767,6 +778,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
 
     EditorObject object;
     object.name = name;
+    object.instance_name = instancename;
     object.position = pos;
     object.rotation = rot;
     object.initial_position = pos;

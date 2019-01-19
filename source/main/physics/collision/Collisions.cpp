@@ -338,6 +338,28 @@ void Collisions::setupLandUse(const char *configfile)
     landuse = new Landusemap(configfile);
 }
 
+void Collisions::removeCollisionBox(int number)
+{
+    if (number > -1 && number < m_collision_boxes.size())
+    {
+        m_collision_boxes[number].enabled = false;
+        if (m_collision_boxes[number].eventsourcenum >= 0 && m_collision_boxes[number].eventsourcenum < free_eventsource)
+        {
+            eventsources[m_collision_boxes[number].eventsourcenum].enabled = false;
+        }
+        // Is it worth to update the hashmap? ~ ulteq 01/19
+    }
+}
+
+void Collisions::removeCollisionTri(int number)
+{
+    if (number > -1 && number < m_collision_tris.size())
+    {
+        m_collision_tris[number].enabled = false;
+        // Is it worth to update the hashmap? ~ ulteq 01/19
+    }
+}
+
 ground_model_t *Collisions::getGroundModelByString(const String name)
 {
     if (!ground_models.size() || ground_models.find(name) == ground_models.end())
@@ -735,6 +757,9 @@ float Collisions::getSurfaceHeightBelow(float x, float z, float height)
         {
             collision_box_t* cbox = &m_collision_boxes[hashtable[hash][k].element_index];
 
+            if (!cbox->enabled)
+                continue;
+
             if (!cbox->virt && surface_height < cbox->hi.y)
             {
                 if (x > cbox->lo.x && z > cbox->lo.z && x < cbox->hi.x && z < cbox->hi.z)
@@ -778,6 +803,9 @@ float Collisions::getSurfaceHeightBelow(float x, float z, float height)
         {
             const int ctri_index = hashtable[hash][k].element_index - hash_coll_element_t::ELEMENT_TRI_BASE_INDEX;
             collision_tri_t *ctri = &m_collision_tris[ctri_index];
+
+            if (!ctri->enabled)
+                continue;
 
             auto lo = ctri->aab.getMinimum();
             auto hi = ctri->aab.getMaximum();
@@ -823,7 +851,11 @@ bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
         if (hashtable[hash][k].IsCollisionBox())
         {
             collision_box_t* cbox = &m_collision_boxes[hashtable[hash][k].element_index];
-            if ( !( (*refpos) > cbox->lo && (*refpos) < cbox->hi ) ) continue;
+
+            if (!cbox->enabled)
+                continue;
+            if (!(*refpos > cbox->lo && *refpos < cbox->hi))
+                continue;
 
             if (cbox->refined || cbox->selfrotated)
             {
@@ -899,7 +931,7 @@ bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
         else // The element is a triangle
         {
             const int ctri_index = hashtable[hash][k].element_index - hash_coll_element_t::ELEMENT_TRI_BASE_INDEX;
-            collision_tri_t *ctri=&m_collision_tris[ctri_index];
+            collision_tri_t *ctri = &m_collision_tris[ctri_index];
             if (!ctri->enabled)
                 continue;
             if (!ctri->aab.contains(*refpos))
@@ -987,6 +1019,10 @@ bool Collisions::nodeCollision(node_t *node, float dt, bool envokeScriptCallback
         else if (hashtable[hash][k].IsCollisionBox())
         {
             collision_box_t *cbox = &m_collision_boxes[hashtable[hash][k].element_index];
+
+            if (!cbox->enabled)
+                continue;
+
             if (node->AbsPosition > cbox->lo && node->AbsPosition < cbox->hi)
             {
                 if (cbox->refined || cbox->selfrotated)
@@ -1089,7 +1125,9 @@ bool Collisions::nodeCollision(node_t *node, float dt, bool envokeScriptCallback
         {
             // tri collision
             const int ctri_index = hashtable[hash][k].element_index - hash_coll_element_t::ELEMENT_TRI_BASE_INDEX;
-            collision_tri_t *ctri=&m_collision_tris[ctri_index];
+            collision_tri_t *ctri = &m_collision_tris[ctri_index];
+            if (!ctri->enabled)
+                continue;
             if (node->AbsPosition.y > ctri->aab.getMaximum().y || node->AbsPosition.y < ctri->aab.getMinimum().y ||
                 node->AbsPosition.x > ctri->aab.getMaximum().x || node->AbsPosition.x < ctri->aab.getMinimum().x ||
                 node->AbsPosition.z > ctri->aab.getMaximum().z || node->AbsPosition.z < ctri->aab.getMinimum().z)
