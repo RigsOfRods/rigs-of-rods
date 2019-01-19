@@ -1390,28 +1390,11 @@ void SimController::UpdateInputEvents(float dt)
         {
             if (m_last_cache_selection != nullptr)
             {
-                /* We load an extra actor */
-
-                if (m_player_actor != nullptr)
-                {
-                    m_reload_dir = Quaternion(Degree(270) - Radian(m_player_actor->getRotation()), Vector3::UNIT_Y);
-                    m_reload_pos = m_player_actor->GetRotationCenter();
-                    float agl = m_player_actor->GetHeightAboveGround(true);
-                    m_reload_pos.y = gEnv->collisions->getSurfaceHeight(m_reload_pos.x, m_reload_pos.z) + agl;
-                }
-                else
-                {
-                    m_reload_dir = Quaternion(Degree(180) - gEnv->player->getRotation(), Vector3::UNIT_Y);
-                    m_reload_pos = gEnv->player->getPosition();
-                }
-
                 ActorSpawnRequest rq;
-                rq.asr_position        = m_reload_pos;
-                rq.asr_rotation        = m_reload_dir;
-                rq.asr_filename        = m_last_cache_selection->fname;
-                rq.asr_cache_entry_num = m_last_cache_selection->number;
+                rq.asr_cache_entry     = m_last_cache_selection;
                 rq.asr_config          = m_last_vehicle_configs;
                 rq.asr_skin            = m_last_skin_selection;
+                rq.asr_origin          = ActorSpawnRequest::Origin::USER;
                 m_actor_spawn_queue.push_back(rq);
             }
         }
@@ -1538,31 +1521,34 @@ void SimController::TeleportPlayerXZ(float x, float z)
     }
 }
 
-void SimController::FinalizeActorSpawning(Actor* local_actor, Actor* prev_actor, ActorSpawnRequest rq)
+void SimController::FinalizeActorSpawning(Actor* actor, ActorSpawnRequest rq)
 {
-    if (local_actor != nullptr)
+    if (rq.asr_spawnbox == nullptr)
     {
-        if (rq.asr_spawnbox == nullptr)
+        // Calculate translational offset for node[0] to align the actor's rotation center with m_reload_pos
+        Vector3 translation = rq.asr_position - actor->GetRotationCenter();
+        translation.y = 0;
+        // and to avoid ground collisions
+        float bgl = 0.0f; 
+        for (int i = 0; i < actor->ar_num_nodes; i++)
         {
-            // Calculate translational offset for node[0] to align the actor's rotation center with m_reload_pos
-            Vector3 translation = rq.asr_position - local_actor->GetRotationCenter();
-            local_actor->ResetPosition(local_actor->ar_nodes[0].AbsPosition + Vector3(translation.x, 0.0f, translation.z), true);
-
-            // Try to resolve collisions with other actors
-            local_actor->resolveCollisions(50.0f, prev_actor == nullptr);
+            float h = actor->GetMaxHeight(true);
+            Vector3 pos = actor->ar_nodes[i].AbsPosition + translation;
+            bgl = std::max(bgl, gEnv->collisions->getSurfaceHeightBelow(pos.x, pos.z, h) - pos.y);
         }
+        translation.y += bgl;
 
-        if (local_actor->ar_driveable != NOT_DRIVEABLE)
-        {
-            // We are supposed to be in this vehicle, if it is a vehicle
-            if (local_actor->ar_engine != nullptr && App::sim_spawn_running.GetActive())
-            {
-                local_actor->ar_engine->StartEngine();
-            }
-            this->SetPendingPlayerActor(local_actor);
-        }
+        actor->ResetPosition(actor->ar_nodes[0].AbsPosition + translation, true);
+    }
 
-        local_actor->updateVisual();
+    if (actor->ar_engine != nullptr && App::sim_spawn_running.GetActive())
+    {
+        actor->ar_engine->StartEngine();
+    }
+
+    if (actor->ar_driveable != NOT_DRIVEABLE)
+    {
+        this->SetPendingPlayerActor(actor);
     }
 }
 
@@ -1659,9 +1645,11 @@ void SimController::UpdateSimulation(float dt)
                 srq.asr_rotation = reload_dir;
                 srq.asr_filename = filename;
                 Actor* new_actor = this->SpawnActorDirectly(srq); // try to load the same actor again
-                this->FinalizeActorSpawning(new_actor, m_player_actor, srq);
-
-                new_actor->GetGfxActor()->SetDebugView(debug_view);
+                if (new_actor)
+                {
+                    this->FinalizeActorSpawning(new_actor, srq);
+                    new_actor->GetGfxActor()->SetDebugView(debug_view);
+                }
             }
         }
     }
@@ -1679,11 +1667,11 @@ void SimController::UpdateSimulation(float dt)
             {
                 if (m_player_actor != nullptr)
                 {
-                    float rotation = m_player_actor->getRotation() - Math::HALF_PI;
-                    rq.asr_rotation = Quaternion(Degree(180) - Radian(rotation), Vector3::UNIT_Y);
+                    float h = m_player_actor->GetMaxHeight(true);
+                    rq.asr_rotation = Quaternion(Degree(270) - Radian(m_player_actor->getRotation()), Vector3::UNIT_Y);
                     rq.asr_position = m_player_actor->GetRotationCenter();
-                    float agl = m_player_actor->GetHeightAboveGround(true);
-                    rq.asr_position.y = gEnv->collisions->getSurfaceHeight(rq.asr_position.x, rq.asr_position.z) + agl;
+                    rq.asr_position.y = gEnv->collisions->getSurfaceHeightBelow(rq.asr_position.x, rq.asr_position.z, h);
+                    rq.asr_position.y += m_player_actor->GetHeightAboveGroundBelow(h, true); // retain height above ground
                 }
                 else
                 {
@@ -1693,41 +1681,32 @@ void SimController::UpdateSimulation(float dt)
             }
 
             Actor* fresh_actor = this->SpawnActorDirectly(rq);
-            this->FinalizeActorSpawning(fresh_actor, m_player_actor, rq);
+            if (fresh_actor != nullptr)
+            {
+                this->FinalizeActorSpawning(fresh_actor, rq);
+                if (rq.asr_spawnbox == nullptr)
+                {
+                    // Try to resolve collisions with other actors
+                    fresh_actor->resolveCollisions(50.0f, m_player_actor == nullptr);
+                }
+            }
         }
         else if (rq.asr_origin == ActorSpawnRequest::Origin::CONFIG_FILE)
         {
             Actor* fresh_actor = this->SpawnActorDirectly(rq);
-
-            // Calculate translational offset for node[0] to align the actor's rotation center with m_reload_pos
-            Vector3 translation = rq.asr_position - fresh_actor->GetRotationCenter();
-            // and to avoid ground collisions
-            float bgl = 0.0f; 
-            for (int i = 0; i < fresh_actor->ar_num_nodes; i++)
+            if (fresh_actor != nullptr)
             {
-                Vector3 pos = fresh_actor->ar_nodes[i].AbsPosition + translation;
-                bgl = std::max(bgl, gEnv->collisions->getSurfaceHeight(pos.x, pos.z) - pos.y);
-            }
-            translation.y += bgl;
-
-            fresh_actor->ResetPosition(fresh_actor->ar_nodes[0].AbsPosition + translation, true);
-
-            if (App::diag_preset_veh_enter.GetActive())
-            {
-                if (fresh_actor->ar_num_nodes > 0)
+                this->FinalizeActorSpawning(fresh_actor, rq);
+                if (App::diag_preset_veh_enter.GetActive() && fresh_actor->ar_num_nodes > 0)
                 {
                     this->SetPendingPlayerActor(fresh_actor);
                 }
-            }
-            if (fresh_actor->ar_engine && App::sim_spawn_running.GetActive())
-            {
-                fresh_actor->ar_engine->StartEngine();
             }
         }
         else if (rq.asr_origin == ActorSpawnRequest::Origin::TERRN_DEF)
         {
             Actor* fresh_actor = this->SpawnActorDirectly(rq);
-            if (fresh_actor != nullptr) // Error already logged
+            if (fresh_actor != nullptr)
             {
                 if (rq.asr_terrn_machine)
                 {
@@ -1741,8 +1720,10 @@ void SimController::UpdateSimulation(float dt)
         else
         {
             Actor* fresh_actor = this->SpawnActorDirectly(rq);
-
-            this->FinalizeActorSpawning(fresh_actor, m_player_actor, rq);
+            if (fresh_actor != nullptr)
+            {
+                this->FinalizeActorSpawning(fresh_actor, rq);
+            }
         }
     }
     m_actor_spawn_queue.clear();
