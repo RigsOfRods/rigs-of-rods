@@ -118,7 +118,7 @@ private:
 
     void   UpdateForceFeedback     ();
     void   UpdateInputEvents       (float dt);
-    void   FinalizeActorSpawning   (Actor* local_actor, Actor* previous_actor, RoR::ActorSpawnRequest rq);
+    void   FinalizeActorSpawning   (Actor* actor, RoR::ActorSpawnRequest rq);
     void   HideGUI                 (bool hidden);
     void   CleanupAfterSimulation  (); /// Unloads all data
     void   UpdateSimulation        (float dt);
