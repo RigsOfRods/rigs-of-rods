@@ -255,7 +255,8 @@ enum events
     EV_COMMON_TOGGLE_CUSTOM_PARTICLES, //!< toggle particle cannon
     EV_COMMON_TOGGLE_MAT_DEBUG, //!< debug purpose - dont use
     EV_COMMON_TOGGLE_RENDER_MODE, //!< toggle render mode (solid, wireframe and points)
-    EV_COMMON_TOGGLE_REPLAY_MODE, //!< deprecated key - without function
+    EV_COMMON_TOGGLE_REPLAY_MODE, //!< toggle replay mode
+    EV_COMMON_TOGGLE_PHYSICS, //!< toggle physics on/off
     EV_COMMON_TOGGLE_STATS, //!< toggle Ogre statistics (FPS etc.)
     EV_COMMON_TOGGLE_TRUCK_BEACONS, //!< toggle truck beacons
     EV_COMMON_TOGGLE_TRUCK_LIGHTS, //!< toggle truck front lights
