@@ -68,18 +68,6 @@ void RoR::GUI::GameMainMenu::Draw()
         int button_index = 0;
         ImVec2 btn_size(WINDOW_WIDTH - ImGui::GetStyle().WindowPadding.x, 0.f);
 
-        if (FileExists(PathCombine(App::sys_savegames_dir.GetActive(), "autosave.sav")))
-        {
-            const char* resume_title = (m_kb_focus_index == button_index) ? "--> Resume game <--" : "Resume game";
-            if (ImGui::Button(resume_title, btn_size) || (m_kb_enter_index == button_index++))
-            {
-                App::sim_savegame.SetActive("autosave.sav");
-                App::sim_load_savegame.SetActive(true);
-                App::app_state.SetPending(RoR::AppState::SIMULATION);
-                this->SetVisible(false);
-            }
-        }
-
         const char* sp_title = (m_kb_focus_index == button_index) ? "--> Single player <--" : "Single player"; // TODO: Localize all!
         if (ImGui::Button(sp_title, btn_size) || (m_kb_enter_index == button_index++))
         {
@@ -91,6 +79,18 @@ void RoR::GUI::GameMainMenu::Draw()
             else
             {
                 App::app_state.SetPending(RoR::AppState::SIMULATION);
+            }
+        }
+
+        if (FileExists(PathCombine(App::sys_savegames_dir.GetActive(), "autosave.sav")))
+        {
+            const char* resume_title = (m_kb_focus_index == button_index) ? "--> Resume game <--" : "Resume game";
+            if (ImGui::Button(resume_title, btn_size) || (m_kb_enter_index == button_index++))
+            {
+                App::sim_savegame.SetActive("autosave.sav");
+                App::sim_load_savegame.SetActive(true);
+                App::app_state.SetPending(RoR::AppState::SIMULATION);
+                this->SetVisible(false);
             }
         }
 
