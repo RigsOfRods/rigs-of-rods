@@ -472,19 +472,16 @@ void SimController::UpdateInputEvents(float dt)
     }
 
     // Frozen physics logic
-    if (!App::sim_replay_enabled.GetActive())
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_PHYSICS))
     {
-        if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_REPLAY_MODE))
+        m_physics_simulation_paused = !m_physics_simulation_paused;
+    }
+    if (m_physics_simulation_paused && m_actor_manager.GetSimulationSpeed() > 0.0f)
+    {
+        if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPLAY_FAST_FORWARD) ||
+            RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FORWARD, 0.25f))
         {
-            m_physics_simulation_paused = !m_physics_simulation_paused;
-        }
-        if (m_physics_simulation_paused && m_actor_manager.GetSimulationSpeed() > 0.0f)
-        {
-            if (RoR::App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPLAY_FAST_FORWARD) ||
-                RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FORWARD, 0.25f))
-            {
-                m_physics_simulation_time = PHYSICS_DT / m_actor_manager.GetSimulationSpeed();
-            }
+            m_physics_simulation_time = PHYSICS_DT / m_actor_manager.GetSimulationSpeed();
         }
     }
 

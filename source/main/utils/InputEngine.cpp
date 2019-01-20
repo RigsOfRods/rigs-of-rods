@@ -1072,8 +1072,14 @@ eventInfo_t eventInfo[] = {
     {
         "COMMON_TOGGLE_REPLAY_MODE",
         EV_COMMON_TOGGLE_REPLAY_MODE,
-        "Keyboard J",
+        "Keyboard EXPL+CTRL+J",
         _L("enable or disable replay mode")
+    },
+    {
+        "COMMON_TOGGLE_PHYSICS",
+        EV_COMMON_TOGGLE_PHYSICS,
+        "Keyboard EXPL+J",
+        _L("enable or disable physics")
     },
     {
         "COMMON_TOGGLE_STATS",
