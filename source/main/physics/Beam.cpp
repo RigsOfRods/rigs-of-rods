@@ -2756,10 +2756,9 @@ void Actor::updateSkidmarks()
             {
                 continue;
             }
-            const float SKID_THRESHOLD = 10.f;
-            if (n->nd_avg_collision_slip > SKID_THRESHOLD)
+            if (n->nd_avg_collision_slip > 6.f && n->nd_last_collision_slip.squaredLength() > 9.f)
             {
-                m_skid_trails[i]->update(n->AbsPosition, n->nd_avg_collision_slip, n->nd_last_collision_gm->name);
+                m_skid_trails[i]->update(n->AbsPosition, j, n->nd_avg_collision_slip, n->nd_last_collision_gm->name);
                 return;
             }
         }

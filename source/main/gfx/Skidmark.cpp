@@ -128,10 +128,8 @@ RoR::Skidmark::Skidmark(RoR::SkidmarkConfig* config, wheel_t* m_wheel,
     , m_length(m_length)
     , m_bucket_count(m_bucket_count)
     , m_wheel(m_wheel)
-    , m_min_distance(0.1f)
+    , m_min_distance(0.25f)
     , m_max_distance(std::max(0.5f, m_wheel->wh_width * 1.1f))
-    , m_min_distance_squared(m_min_distance * m_min_distance)
-    , m_max_distance_squared(m_max_distance * m_max_distance)
     , m_config(config)
 {
     if (m_length % 2)
@@ -216,10 +214,14 @@ void RoR::Skidmark::SetPointInt(unsigned short index, const Ogre::Vector3& value
     m_is_dirty = true;
 }
 
-void RoR::Skidmark::UpdatePoint(Ogre::Vector3 contact_point, float slip, Ogre::String ground_model_name)
+void RoR::Skidmark::UpdatePoint(Ogre::Vector3 contact_point, int index, float slip, Ogre::String ground_model_name)
 {
     Ogre::Vector3 thisPoint = contact_point;
     Ogre::Vector3 axis = m_wheel->wh_axis_node_1->RelPosition - m_wheel->wh_axis_node_0->RelPosition;
+    if (index % 2)
+    {
+        axis = -axis;
+    }
     Ogre::Vector3 thisPointAV = thisPoint + axis * 0.5f;
     Ogre::Real distance = 0;
     Ogre::Real maxDist = m_max_distance;
@@ -325,9 +327,9 @@ void RoR::Skidmark::reset()
         this->PopSegment();
 }
 
-void RoR::Skidmark::update(Ogre::Vector3 contact_point, float slip, Ogre::String ground_model_name)
+void RoR::Skidmark::update(Ogre::Vector3 contact_point, int index, float slip, Ogre::String ground_model_name)
 {
-    this->UpdatePoint(contact_point, slip, ground_model_name);
+    this->UpdatePoint(contact_point, index, slip, ground_model_name);
     if (!m_is_dirty)
         return;
     if (!m_objects.size())
