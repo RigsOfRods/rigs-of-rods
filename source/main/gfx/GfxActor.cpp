@@ -605,7 +605,7 @@ void RoR::GfxActor::UpdateParticles(float dt_sec)
             case Collisions::FX_HARD:
                 if (n.iswheel != NOWHEEL && !n.nd_rim_node) // This is a wheel => skidmarks and tyre smoke
                 {
-                    const float SMOKE_THRESHOLD = 10.f;
+                    const float SMOKE_THRESHOLD = 8.f;
                     const float SCREECH_THRESHOLD = 5.f;
                     const float slipv = n.nd_last_collision_slip.length();
                     const float screech = std::min(slipv, n.nd_avg_collision_slip) - SCREECH_THRESHOLD;
@@ -623,7 +623,10 @@ void RoR::GfxActor::UpdateParticles(float dt_sec)
                 {
                     if (m_particles_sparks != nullptr && n.nd_avg_collision_slip > 5.f)
                     {
-                        m_particles_sparks->allocSparks(n.AbsPosition, n.Velocity);
+                        if (n.nd_last_collision_slip.squaredLength() > 25.f)
+                        {
+                            m_particles_sparks->allocSparks(n.AbsPosition, n.Velocity);
+                        }
                     }
                 }
                 break;

@@ -62,7 +62,7 @@ public:
     virtual ~Skidmark();
 
     void reset();
-    void update(Ogre::Vector3 contact_point, float slip, Ogre::String ground_model_name);
+    void update(Ogre::Vector3 contact_point, int index, float slip, Ogre::String ground_model_name);
 
 private:
 
@@ -83,15 +83,13 @@ private:
     void AddObject(Ogre::Vector3 start, Ogre::String texture);
     void SetPointInt(unsigned short index, const Ogre::Vector3& value, Ogre::Real fsize, Ogre::String texture);
     void AddPoint(const Ogre::Vector3& value, Ogre::Real fsize, Ogre::String texture);
-    void UpdatePoint(Ogre::Vector3 contact_point, float slip, Ogre::String ground_model_name);
+    void UpdatePoint(Ogre::Vector3 contact_point, int index, float slip, Ogre::String ground_model_name);
 
     static int           m_instance_counter;
     bool                 m_is_dirty;
     std::queue<SkidmarkSegment> m_objects;
     float                m_max_distance;
-    float                m_max_distance_squared;
     float                m_min_distance;
-    float                m_min_distance_squared;
     static Ogre::Vector2 m_tex_coords[4];
     int                  m_bucket_count;
     int                  m_length;

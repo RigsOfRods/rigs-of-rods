@@ -183,7 +183,6 @@ public:
     float             getWheelSpeed() const             { return ar_wheel_speed; }
     int               GetNumNodes() const               { return ar_num_nodes; }
     Ogre::Vector3     getVelocity() const               { return m_avg_node_velocity; }; //!< average actor velocity, calculated using the actor positions of the last two frames
-    bool              GetUseSkidmarks() const           { return m_use_skidmarks; }
     int               GetGfxDetailLevel() const         { return m_gfx_detail_level; }
 #ifdef USE_ANGELSCRIPT
     // we have to add this to be able to use the class as reference inside scripts
