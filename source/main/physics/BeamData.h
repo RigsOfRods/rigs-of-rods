@@ -183,13 +183,6 @@ enum {
     DEFAULT_DETACHER_GROUP  = 0, // default for detaching beam group
 };
 
-enum {
-    NOWHEEL,
-    WHEEL_DEFAULT,
-    WHEEL_2,
-    WHEEL_FLEXBODY
-};
-
 enum class FlareType: char
 {
     NONE           = 0,

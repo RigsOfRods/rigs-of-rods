@@ -603,7 +603,7 @@ void RoR::GfxActor::UpdateParticles(float dt_sec)
                 break;
 
             case Collisions::FX_HARD:
-                if (n.iswheel != NOWHEEL && !n.nd_rim_node) // This is a wheel => skidmarks and tyre smoke
+                if (n.nd_tyre_node) // skidmarks and tyre smoke
                 {
                     const float SMOKE_THRESHOLD = 8.f;
                     const float SCREECH_THRESHOLD = 5.f;

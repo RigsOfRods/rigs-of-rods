@@ -232,7 +232,7 @@ void ResolveIntraActorCollisions(const float dt, PointColDetector &intraPointCD,
                 const auto hitnode = &nodes[h->node_id];
 
                 //ignore wheel/chassis self contact
-                if (hitnode->iswheel && !hitnode->nd_rim_node) continue;
+                if (hitnode->nd_tyre_node) continue;
                 if (no == hitnode || na == hitnode || nb == hitnode) continue;
 
                 // transform point to triangle local coordinates
