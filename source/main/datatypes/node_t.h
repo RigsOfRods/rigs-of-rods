@@ -46,19 +46,14 @@ struct node_t
     Ogre::Real surface_coef;
     Ogre::Real volume_coef;
 
-    int16_t iswheel;          //!< 0=NOWHEEL, 1=WHEEL_DEFAULT, 2=WHEEL_2  3=WHEEL_FLEXBODY
     int16_t pos;              //!< This node's index in Actor::ar_nodes array.
     int16_t nd_coll_bbox_id;  //!< Optional attribute (-1 = none) - multiple collision bounding boxes defined in truckfile
     int16_t nd_lockgroup;     //!< Optional attribute (-1 = default, 9999 = deny lock) - used in the hook lock logic
 
-    Ogre::Real      nd_avg_collision_slip;   //!< Physics state; average slip velocity across the last few physics frames
-    Ogre::Vector3   nd_last_collision_slip;  //!< Physics state; last collision slip vector
-    Ogre::Vector3   nd_last_collision_force; //!< Physics state; last collision force
-    ground_model_t* nd_last_collision_gm;    //!< Physics state; last collision 'ground model' (surface definition)
-
     // Bit flags
     bool            nd_cab_node:1;           //!< Attr; This node is part of collision triangle
-    bool            nd_rim_node:1;           //!< Attr; This node is part of the rim
+    bool            nd_rim_node:1;           //!< Attr; This node is part of a rim
+    bool            nd_tyre_node:1;          //!< Attr; This node is part of a tyre
     bool            nd_contacter:1;          //!< Attr; User-defined
     bool            nd_contactable:1;        //!< Attr; This node will be treated as contacter on inter truck collisions
     bool            nd_has_ground_contact:1; //!< Physics state
@@ -69,4 +64,9 @@ struct node_t
     bool            nd_override_mass:1;      //!< User defined attr; mass is user-specified rather than calculated (override the calculation)
     bool            nd_under_water:1;        //!< State; GFX hint
     bool            nd_no_mouse_grab:1;      //!< Attr; User-defined
+
+    Ogre::Real      nd_avg_collision_slip;   //!< Physics state; average slip velocity across the last few physics frames
+    Ogre::Vector3   nd_last_collision_slip;  //!< Physics state; last collision slip vector
+    Ogre::Vector3   nd_last_collision_force; //!< Physics state; last collision force
+    ground_model_t* nd_last_collision_gm;    //!< Physics state; last collision 'ground model' (surface definition)
 };
