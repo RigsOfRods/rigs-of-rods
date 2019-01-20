@@ -35,7 +35,7 @@ using namespace RoR;
 
 void AircraftSimulation::UpdateInputEvents(Actor* vehicle, float seconds_since_last_frame)
 {
-    if (vehicle->ar_replay_mode)
+    if (vehicle->isBeingReset() || vehicle->ar_physics_paused || vehicle->ar_replay_mode)
         return;
     //autopilot
     if (vehicle->ar_autopilot && vehicle->ar_autopilot->wantsdisconnect)

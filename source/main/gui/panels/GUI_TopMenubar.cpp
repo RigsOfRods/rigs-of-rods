@@ -105,6 +105,12 @@ void RoR::GUI::TopMenubar::Update()
     if ((m_open_menu != TopMenu::TOPMENU_SAVEGAMES) && ImGui::IsItemHovered())
     {
         m_open_menu = TopMenu::TOPMENU_SAVEGAMES;
+        m_savegame_names.clear();
+        for (int i = 0; i <= 9; i++)
+        {
+            Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", i);
+            m_savegame_names.push_back(App::GetSimController()->GetBeamFactory()->ExtractSceneName(filename));
+        }
     }
 
     ImGui::SameLine();
@@ -293,15 +299,15 @@ void RoR::GUI::TopMenubar::Update()
             ImGui::TextColored(GRAY_HINT_TEXT, "(Save with 'CTRL+ALT+1..5')");
             for (int i = 1; i <= 5; i++)
             {
-                Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", i);
-                Ogre::String scene_name = "Empty Slot";
-                if (FileExists(PathCombine(App::sys_savegames_dir.GetActive(), filename)))
+                Ogre::String name = "Empty Slot";
+                if (!m_savegame_names[i].empty())
                 {
-                    scene_name = App::GetSimController()->GetBeamFactory()->ExtractSceneName(filename);
+                    name = m_savegame_names[i];
                 }
-                Ogre::String caption = Ogre::StringUtil::format("%d. %s##Save", i, scene_name.c_str());
+                Ogre::String caption = Ogre::StringUtil::format("%d. %s##Save", i, name.c_str());
                 if (ImGui::Button(caption.c_str()))
                 {
+                    Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", i);
                     App::GetSimController()->GetBeamFactory()->SaveScene(filename);
                     m_open_menu = TopMenu::TOPMENU_NONE;
                 }
@@ -310,13 +316,13 @@ void RoR::GUI::TopMenubar::Update()
             ImGui::TextColored(GRAY_HINT_TEXT, "(Load with 'ALT+1..5')");
             for (int i = 1; i <= 5; i++)
             {
-                Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", i);
-                if (FileExists(PathCombine(App::sys_savegames_dir.GetActive(), filename)))
+                if (!m_savegame_names[i].empty())
                 {
-                    Ogre::String scene_name = App::GetSimController()->GetBeamFactory()->ExtractSceneName(filename);
-                    Ogre::String caption = Ogre::StringUtil::format("%d. %s##Load", i, scene_name.c_str());
+                    Ogre::String name = m_savegame_names[i];
+                    Ogre::String caption = Ogre::StringUtil::format("%d. %s##Load", i, name.c_str());
                     if (ImGui::Button(caption.c_str()))
                     {
+                        Ogre::String filename = Ogre::StringUtil::format("quicksave-%d.sav", i);
                         App::GetSimController()->GetBeamFactory()->LoadScene(filename);
                         m_open_menu = TopMenu::TOPMENU_NONE;
                     }

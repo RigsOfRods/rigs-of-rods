@@ -46,11 +46,10 @@ public:
 
     enum class TopMenu { TOPMENU_NONE, TOPMENU_SIM, TOPMENU_ACTORS, TOPMENU_SAVEGAMES, TOPMENU_TOOLS };
 
-    TopMenubar(): m_open_menu(TopMenu::TOPMENU_NONE), m_is_actorlist_dirty(false), m_confirm_remove_all(false) {}
+    TopMenubar(): m_open_menu(TopMenu::TOPMENU_NONE), m_confirm_remove_all(false) {}
 
     void Update();
     bool ShouldDisplay(ImVec2 window_pos);
-    void triggerUpdateVehicleList() { m_is_actorlist_dirty = true; }
 
 private:
     void DrawActorListSinglePlayer();
@@ -59,8 +58,9 @@ private:
     ImVec2  m_open_menu_hoverbox_min;
     ImVec2  m_open_menu_hoverbox_max;
     TopMenu m_open_menu;
-    bool    m_is_actorlist_dirty;
     bool    m_confirm_remove_all;
+    
+    std::vector<std::string> m_savegame_names;
 };
 
 } // namespace GUI

@@ -242,7 +242,6 @@ void CameraManager::UpdateCurrentBehavior()
 
 bool CameraManager::Update(float dt, Actor* player_vehicle, float sim_speed) // Called every frame
 {
-    if (RoR::App::sim_state.GetActive() == RoR::SimState::PAUSED) { return true; } // Do nothing when paused
     const float trans_scale = TRANS_SPEED  * dt;
     const float rot_scale   = ROTATE_SPEED * dt;
 
@@ -251,6 +250,11 @@ bool CameraManager::Update(float dt, Actor* player_vehicle, float sim_speed) // 
     m_cct_dt           = dt;
     m_cct_rot_scale    = Degree(rot_scale);
     m_cct_trans_scale  = trans_scale;
+
+    if (RoR::App::sim_state.GetActive() == RoR::SimState::PAUSED || dt == 0.0f)
+    {
+        return true; // Do nothing when paused
+    }
 
     if ( m_current_behavior < CAMERA_BEHAVIOR_END && RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_CHANGE) )
     {
@@ -488,11 +492,6 @@ void CameraManager::SwitchBehaviorOnVehicleChange(CameraBehaviors new_behavior, 
 bool CameraManager::hasActiveBehavior()
 {
     return m_current_behavior != CAMERA_BEHAVIOR_INVALID;
-}
-
-int CameraManager::getCurrentBehavior()
-{
-    return static_cast<int>(m_current_behavior);
 }
 
 bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
