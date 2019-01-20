@@ -26,13 +26,12 @@ struct node_simple_t
 {
     Ogre::Vector3 position;
     Ogre::Vector3 velocity;
-    Ogre::Vector3 forces;
 };
 
 struct beam_simple_t
 {
-    bool broken;
-    bool disabled;
+    bool broken:1;
+    bool disabled:1;
 };
 
 class Replay : public ZeroedMemoryAllocator

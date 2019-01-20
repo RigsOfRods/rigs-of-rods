@@ -1084,7 +1084,7 @@ void Actor::CalcReplay()
     if (m_replay_handler && m_replay_handler->isValid())
     {
         m_replay_timer += PHYSICS_DT;
-        if (m_replay_timer > ar_replay_precision)
+        if (m_replay_timer >= ar_replay_precision)
         {
             // store nodes
             node_simple_t* nbuff = (node_simple_t *)m_replay_handler->getWriteBuffer(0);
@@ -1094,7 +1094,6 @@ void Actor::CalcReplay()
                 {
                     nbuff[i].position = ar_nodes[i].AbsPosition;
                     nbuff[i].velocity = ar_nodes[i].Velocity;
-                    nbuff[i].forces = ar_nodes[i].Forces;
                 }
             }
 

@@ -1637,7 +1637,7 @@ bool Actor::ReplayStep()
                 ar_nodes[i].RelPosition = nbuff[i].position - ar_origin;
 
                 ar_nodes[i].Velocity = nbuff[i].velocity;
-                ar_nodes[i].Forces = nbuff[i].forces;
+                ar_nodes[i].Forces = Vector3::ZERO;
             }
 
             updateSlideNodePositions();
